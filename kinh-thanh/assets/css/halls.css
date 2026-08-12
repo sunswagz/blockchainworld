@@ -1,51 +1,82 @@
-/* Mục "CÁC CUNG" ở đầu thanh bên — đi kèm assets/js/halls.js */
+/* Thanh bên dạng thư mục — đi kèm assets/js/halls.js */
 
-.halls-nav {
-  padding-bottom: 10px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--line);
-}
-.halls-nav .nav-label { padding-top: 10px; }
+/* ── mục chính gập được ────────────────────────────────── */
+.nav-group { margin-bottom: 2px; }
 
-.hall-link {
-  display: flex; align-items: center; gap: 9px;
-  padding: 7px 8px; margin-bottom: 2px;
-  border-radius: 8px; cursor: pointer;
-  color: var(--ink); text-decoration: none;
+.nav-group-head {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 8px; border-radius: 8px; cursor: pointer; text-align: left;
   transition: background var(--dur);
 }
-.hall-link:hover { background: #E6ECF7; }
+.nav-group-head:hover { background: #E6ECF7; }
 
-.hall-link .mono {
-  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 6px;
+.nav-group-head .chev {
+  flex: 0 0 auto; width: 16px; height: 16px;
+  display: grid; place-items: center; color: var(--ink-3);
+  transition: transform var(--dur), color var(--dur);
+}
+.nav-group-head .chev svg { width: 13px; height: 13px; display: block; }
+.nav-group[data-open="1"] .nav-group-head .chev { transform: rotate(90deg); color: var(--acc); }
+
+.nav-group-head .t {
+  flex: 1; min-width: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nav-group[data-open="1"] .nav-group-head .t { color: var(--acc); }
+
+.nav-group-head .n {
+  flex: 0 0 auto;
+  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  color: var(--ink-3); font-weight: 500;
+}
+
+.nav-group-body { padding-top: 4px; }
+.nav-group[data-open="0"] .nav-group-body { display: none; }
+
+/* ── các cung ngang hàng với mục chính ─────────────────── */
+.nav-hall {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px; margin-bottom: 2px;
+  border-radius: 8px; color: var(--ink); text-decoration: none;
+  transition: background var(--dur);
+}
+.nav-hall:hover { background: #E6ECF7; }
+
+/* chừa đúng chỗ mũi tên của mục gập, để hai loại thẳng hàng nhau */
+.nav-hall .chev-space { flex: 0 0 auto; width: 16px; }
+
+.nav-hall .ic {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
   display: grid; place-items: center;
   background: var(--acc-t); color: var(--acc);
 }
-.hall-link .mono svg { width: 14px; height: 14px; display: block; }
+.nav-hall .ic svg { width: 13px; height: 13px; display: block; }
 
-.hall-link .lbl { flex: 1; min-width: 0; line-height: 1.25; }
-.hall-link .lbl b {
-  display: block; font-size: 13.2px; font-weight: 600;
+.nav-hall .lbl { flex: 1; min-width: 0; line-height: 1.2; }
+.nav-hall .lbl b {
+  display: block; font-size: 13px; font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.hall-link .lbl i {
-  display: block; font-style: normal; font-size: 10.5px; color: var(--ink-3);
+.nav-hall .lbl i {
+  display: block; font-style: normal; font-size: 10px; color: var(--ink-3);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.hall-link .go { flex: 0 0 auto; color: var(--ink-3); display: grid; place-items: center; }
-.hall-link .go svg { width: 14px; height: 14px; display: block; }
-.hall-link:hover .go { color: var(--acc); }
+.nav-hall .go { flex: 0 0 auto; color: var(--ink-3); display: grid; place-items: center; }
+.nav-hall .go svg { width: 13px; height: 13px; display: block; }
+.nav-hall:hover .go { color: var(--acc); }
 
-/* dòng về cổng — nhạt hơn, không có phụ đề */
-.hall-link.to-gate .mono { background: #F1F5FB; color: var(--ink-2); }
-.hall-link.to-gate .lbl b { font-weight: 500; color: var(--ink-2); font-size: 12.8px; }
+.nav-hall.to-gate .ic { background: #F1F5FB; color: var(--ink-2); }
+.nav-hall.to-gate .lbl b { font-weight: 500; color: var(--ink-2); }
 
-/* thanh bên thu gọn: chỉ còn icon */
-body[data-nav="mini"] .hall-link { justify-content: center; padding: 7px 0; }
-body[data-nav="mini"] .hall-link .lbl,
-body[data-nav="mini"] .hall-link .go { display: none; }
-body[data-nav="mini"] .halls-nav .nav-label {
-  height: 1px; padding: 9px 0 0; margin: 0 6px; background: var(--line);
-  overflow: hidden; text-indent: -999px; display: block;
-}
+/* ── thanh bên thu gọn: chỉ còn icon ───────────────────── */
+body[data-nav="mini"] .nav-group-head { justify-content: center; padding: 8px 0; }
+body[data-nav="mini"] .nav-group-head .t,
+body[data-nav="mini"] .nav-group-head .n { display: none; }
+
+body[data-nav="mini"] .nav-hall { justify-content: center; padding: 8px 0; }
+body[data-nav="mini"] .nav-hall .lbl,
+body[data-nav="mini"] .nav-hall .go,
+body[data-nav="mini"] .nav-hall .chev-space { display: none; }

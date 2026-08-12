@@ -1,16 +1,22 @@
 /* ═══════════════════════════════════════════════════════
-   Chuyển cung — mục "CÁC CUNG" ở đầu thanh bên.
+   Thanh bên dạng thư mục.
 
-   Để đi thẳng từ Kinh Thành sang Đài Quan Trắc mà không phải
-   quay ra Cổng Thành. Tự chèn vào DOM, không cần móc nào trong
-   app.js — bỏ file này đi thì thanh bên về như cũ.
+   "Quốc gia · Layer 1" thành một mục chính gập được — mặc định
+   thu gọn, bấm mới mở. Ngang hàng với nó là các cung khác
+   (Đài Quan Trắc) và lối về Cổng Thành.
 
-   Chèn vào ĐẦU .nav-scroll chứ không phải vào #countryList hay
-   #secList: hai chỗ đó bị app.js xoá sạch mỗi lần đổi quốc gia,
-   nên thứ chèn vào sẽ biến mất ngay lần bấm đầu tiên.
+   Thêm cung mới sau này = thêm một dòng vào HALLS.
+
+   KHÔNG tạo phần tử mới cho #cCount, #openRank, #countryList —
+   chỉ DI CHUYỂN đúng những phần tử đang có vào trong mục. app.js
+   giữ tham chiếu tới chúng ngay từ lúc nạp (countryList được lưu
+   vào biến ở dòng 166), nên thay thế bằng phần tử khác là hỏng
+   toàn bộ danh sách quốc gia.
    ═══════════════════════════════════════════════════════ */
 (function () {
   "use strict";
+
+  var KEY = "kt.nav.countries";
 
   var HALLS = [
     {
@@ -25,49 +31,91 @@
   var GATE = {
     href: "../",
     name: "Cổng Thành",
+    note: "cửa ngõ · các cung khác",
     icon: '<path d="M2.5 21h19"/><path d="M4 21V7.5h3.2M19.8 7.5H23V21"/>' +
           '<path d="M8.5 21v-8a3.5 3.5 0 0 1 7 0v8"/><path d="M7 7.5 12 3l5 4.5"/>'
   };
 
-  function svg(paths) {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
-      'stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  function svg(paths, w) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' +
+      (w || 1.7) + '" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  }
+
+  function el(tag, cls) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    return e;
+  }
+
+  function hallRow(h, extra) {
+    var a = el("a", "nav-hall" + (extra ? " " + extra : ""));
+    a.href = h.href;
+    a.title = h.name + " — " + h.note;
+    a.innerHTML =
+      '<span class="chev-space"></span>' +
+      '<span class="ic">' + svg(h.icon) + '</span>' +
+      '<span class="lbl"><b>' + h.name + '</b><i>' + h.note + '</i></span>' +
+      '<span class="go">' + svg('<path d="M9 5l7 7-7 7"/>', 2) + '</span>';
+    return a;
   }
 
   function mount() {
     var scroll = document.querySelector(".nav-scroll");
-    if (!scroll || document.querySelector(".halls-nav")) return;
+    if (!scroll || scroll.querySelector(".nav-group")) return;
 
-    var wrap = document.createElement("div");
-    wrap.className = "halls-nav";
+    var label = scroll.querySelector(".nav-label");
+    var count = document.getElementById("cCount");
+    var rank = document.getElementById("openRank");
+    var list = document.getElementById("countryList");
+    if (!label || !count || !rank || !list) return;
 
-    var label = document.createElement("div");
-    label.className = "nav-label";
-    label.textContent = "Các cung";
-    wrap.appendChild(label);
+    /* ── mục chính gập được ── */
+    var group = el("div", "nav-group");
 
-    HALLS.forEach(function (h) {
-      var a = document.createElement("a");
-      a.className = "hall-link";
-      a.href = h.href;
-      a.title = h.name + " — " + h.note;
-      a.innerHTML =
-        '<span class="mono">' + svg(h.icon) + '</span>' +
-        '<span class="lbl"><b>' + h.name + '</b><i>' + h.note + '</i></span>' +
-        '<span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>';
-      wrap.appendChild(a);
+    var head = el("button", "nav-group-head");
+    head.type = "button";
+    head.setAttribute("aria-expanded", "false");
+
+    var chev = el("span", "chev");
+    chev.innerHTML = svg('<path d="M9 5l7 7-7 7"/>', 2.2);
+    var title = el("span", "t");
+    title.textContent = "Quốc gia · Layer 1";
+
+    head.appendChild(chev);
+    head.appendChild(title);
+    head.appendChild(count);            // di chuyển, không tạo mới
+    group.appendChild(head);
+
+    var body = el("div", "nav-group-body");
+    body.appendChild(rank);             // di chuyển
+    body.appendChild(list);             // di chuyển
+    group.appendChild(body);
+
+    scroll.insertBefore(group, label);
+    label.remove();
+
+    /* mặc định thu gọn; nhớ lựa chọn của người dùng */
+    var open = false;
+    try { open = localStorage.getItem(KEY) === "1"; } catch (e) {}
+    group.dataset.open = open ? "1" : "0";
+    head.setAttribute("aria-expanded", String(open));
+
+    head.addEventListener("click", function () {
+      var next = group.dataset.open !== "1";
+      group.dataset.open = next ? "1" : "0";
+      head.setAttribute("aria-expanded", String(next));
+      try { localStorage.setItem(KEY, next ? "1" : "0"); } catch (e) {}
     });
 
-    var g = document.createElement("a");
-    g.className = "hall-link to-gate";
-    g.href = GATE.href;
-    g.title = GATE.name;
-    g.innerHTML = '<span class="mono">' + svg(GATE.icon) + '</span>' +
-      '<span class="lbl"><b>' + GATE.name + '</b></span>';
-    wrap.appendChild(g);
-
-    scroll.insertBefore(wrap, scroll.firstChild);
+    /* ── các cung ngang hàng ── */
+    var after = group;
+    HALLS.forEach(function (h) {
+      var row = hallRow(h);
+      after.parentNode.insertBefore(row, after.nextSibling);
+      after = row;
+    });
+    var gate = hallRow(GATE, "to-gate");
+    after.parentNode.insertBefore(gate, after.nextSibling);
   }
 
   if (document.readyState === "loading") {
