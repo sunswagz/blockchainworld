@@ -1,0 +1,13 @@
+# Chuẩn hoá xuống dòng: LF trong repo, ai kéo về máy Windows thì Git tự đổi.
+# Không có dòng này thì mỗi lần commit từ Windows lại thấy "cả file thay đổi".
+* text=auto eol=lf
+
+# File nhị phân — đừng đụng vào
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
+
+# File tự sinh: gộp diff cho gọn khi xem lịch sử
+assets/js/data/live.js       linguist-generated
+assets/js/data/provenance.js linguist-generated

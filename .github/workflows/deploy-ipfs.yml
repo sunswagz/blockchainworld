@@ -1,0 +1,57 @@
+name: Đưa lên IPFS
+
+# Đóng gói dist/ rồi pin lên IPFS, in ra CID để đặt vào ENS contenthash.
+#
+# Chạy khi:
+#   · đẩy code động vào file của app
+#   · bấm tay trong tab Actions
+#   · workflow cập nhật số liệu gọi sang (workflow_call) — quan trọng,
+#     xem ghi chú trong refresh-data.yml
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "manifest.webmanifest"
+      - "sw.js"
+      - "assets/**"
+      - "scripts/build-dist.mjs"
+      - "scripts/pin-ipfs.mjs"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-ipfs
+  cancel-in-progress: true
+
+jobs:
+  pin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # build-dist tự chặn nếu có đường dẫn tuyệt đối hoặc sw.js khai thiếu file
+      - name: Đóng gói dist/
+        run: node scripts/build-dist.mjs
+
+      - name: Pin lên IPFS
+        id: pin
+        env:
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
+          PINATA_GATEWAY: ${{ vars.PINATA_GATEWAY }}
+        run: node scripts/pin-ipfs.mjs
+
+      - name: Nhắc đặt ENS
+        run: |
+          echo "CID mới: ${{ steps.pin.outputs.cid }}"
+          echo "Đặt contenthash = ipfs://${{ steps.pin.outputs.cid }}"

@@ -1,0 +1,63 @@
+name: Đưa lên GitHub Pages
+
+# Nơi app thật sự CHẠY được ngay hôm nay: miễn phí, có HTTPS
+# (bắt buộc cho service worker), cài lên điện thoại được.
+#
+# Phân vai:
+#   GitHub Pages → chỗ người dùng mở app hằng ngày
+#   IPFS/Pinata  → bản lưu bất biến + đóng dấu số liệu
+#   ENS/Base     → nối sau, khi nào muốn trả phí
+#
+# Bật lần đầu: Settings → Pages → Source = GitHub Actions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "manifest.webmanifest"
+      - "sw.js"
+      - "assets/**"
+      - "scripts/build-dist.mjs"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Không huỷ giữa chừng: một lần deploy dở dang làm hỏng site đang chạy
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # cùng bước đóng gói với IPFS — cùng byte, cùng kiểm tra
+      - name: Đóng gói dist/
+        run: node scripts/build-dist.mjs
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

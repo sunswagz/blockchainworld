@@ -1,0 +1,75 @@
+name: Cập nhật số liệu
+
+# Chạy mỗi 6 giờ, lấy số mới từ DefiLlama rồi commit đè assets/js/data/live.js.
+# Nhờ vậy app không cần server, và người dùng offline vẫn có số tương đối mới.
+#
+# Nếu thư mục kinh-thanh-app KHÔNG phải gốc repo, sửa `working-directory`
+# bên dưới và đường dẫn trong bước commit thành ví dụ: kinh-thanh-app/...
+
+on:
+  schedule:
+    # 17 phút sau các giờ 0, 6, 12, 18 (UTC).
+    # Lệch 17 phút để tránh giờ tròn — lúc đó GitHub kẹt hàng đợi, chạy trễ cả tiếng.
+    - cron: "17 0,6,12,18 * * *"
+  workflow_dispatch: # cho phép bấm chạy tay trong tab Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Lấy số mới
+        run: node scripts/build-live.mjs
+
+      # Đóng dấu bản số liệu lên IPFS trước khi commit.
+      # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
+      - name: Đóng dấu bản số liệu
+        env:
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
+        run: node scripts/pin-snapshot.mjs
+
+      - name: Commit nếu có thay đổi
+        id: commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/data/live.js assets/data/history.json
+          if git diff --staged --quiet; then
+            echo "Số liệu không đổi — không commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "data: cập nhật số liệu $(date -u +%d/%m/%Y' '%H:%M) UTC"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  # Bẫy của GitHub Actions: commit tạo bởi GITHUB_TOKEN KHÔNG kích hoạt
+  # workflow khác (cơ chế chặn vòng lặp vô hạn). Nếu chỉ dựa vào `on: push`
+  # của deploy-ipfs.yml thì số liệu cập nhật xong mà bản trên IPFS vẫn là bản cũ
+  # mãi mãi. Nên phải gọi thẳng sang đây.
+  deploy-pages:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy-pages.yml
+
+  deploy-ipfs:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy-ipfs.yml
+    secrets: inherit

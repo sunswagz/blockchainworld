@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════
+   Vỏ ứng dụng — chỉ những gì bản web tĩnh không cần:
+   vùng an toàn của máy, hành vi cuộn, nút cài và báo cập nhật.
+   Giao diện bản đồ nằm nguyên trong app.css.
+   ═══════════════════════════════════════════════════════ */
+
+html { overscroll-behavior-y: none; }
+body { overscroll-behavior-y: contain; -webkit-tap-highlight-color: transparent; }
+
+/* ── vùng an toàn (tai thỏ, thanh cử chỉ) ─────────────── */
+.bar    { padding-top: calc(9px + env(safe-area-inset-top)); }
+.nav    { padding-top: env(safe-area-inset-top); }
+.wrap   { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+.drawer { padding-bottom: env(safe-area-inset-bottom); }
+
+@media (max-width: 900px) {
+  .wrap { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+}
+
+/* ── nút "cài ứng dụng" trong chân thanh bên ──────────── */
+.install {
+  display: none; align-items: center; gap: 8px; flex: 0 0 auto;
+  margin: 0 12px 9px; padding: 8px 10px; cursor: pointer;
+  border: 1px solid var(--acc); border-radius: 8px;
+  background: var(--acc-t); color: var(--acc);
+  font-size: 12.6px; font-weight: 600; text-align: left;
+}
+.install[data-show="1"] { display: flex; }
+.install svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.install:hover { background: #DCE5F8; }
+body[data-nav="mini"] .install span { display: none; }
+body[data-nav="mini"] .install { justify-content: center; margin: 0 8px 9px; padding: 8px 0; }
+
+/* ── báo có bản mới ───────────────────────────────────── */
+.toast {
+  position: fixed; z-index: 90; left: 50%; transform: translate(-50%, 20px);
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px 10px 15px; border-radius: 999px;
+  background: #0B1A3A; color: #fff; font-size: 13px;
+  box-shadow: 0 8px 30px -8px rgba(11, 26, 58, .5);
+  opacity: 0; pointer-events: none; transition: opacity var(--dur), transform var(--dur);
+  max-width: calc(100vw - 24px);
+}
+.toast[data-open="1"] { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast button {
+  padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  background: #fff; color: #0B1A3A; font-size: 12.5px; font-weight: 600;
+  flex: 0 0 auto;
+}
+
+/* ── chế độ standalone: không có thanh địa chỉ ────────── */
+@media (display-mode: standalone) {
+  /* liên kết ngoài mở ở trình duyệt, không cần gạch chân trong app */
+  .credit { opacity: .8; }
+}
+
+@media print {
+  .nav, .bar, .chips, .install, .toast, .scrim, .drawer { display: none !important; }
+  .app { grid-template-columns: 1fr; }
+  .main { grid-column: 1; }
+}
