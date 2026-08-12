@@ -55,7 +55,9 @@ for (const f of files) {
 
 form.append("pinataMetadata", JSON.stringify({
   name: FOLDER,
-  keyvalues: { app: "kinh-thanh", pinnedAt: new Date().toISOString() }
+  // kind=site để phân biệt với các bản đóng dấu số liệu (kind=snapshot).
+  // Dọn dẹp bên dưới lọc theo đúng khoá này, không đụng vào snapshot.
+  keyvalues: { app: "kinh-thanh", kind: "site", pinnedAt: new Date().toISOString() }
 }));
 // cidVersion 1 → CID dạng bafy…, dùng được cho gateway theo tên miền con
 form.append("pinataOptions", JSON.stringify({ cidVersion: 1 }));
@@ -91,6 +93,42 @@ if (process.env.PINATA_GATEWAY) {
 }
 console.log("\nĐể tên miền ENS trỏ vào bản này, đặt contenthash thành:");
 console.log(`  ipfs://${cid}`);
+
+/* ── dọn bản site cũ ───────────────────────────────────
+   Mỗi bản site ~440 KB. Giữ lại vô hạn thì gói free 1 GB đầy
+   trong khoảng hai năm, mà app này chỉ mình chủ nhân dùng —
+   không ai cần mở lại bản site của tháng trước.
+
+   Chỉ dọn kind=site. Các bản đóng dấu SỐ LIỆU (kind=snapshot)
+   giữ lại vĩnh viễn: chúng mới là thứ đáng lưu, và mỗi bản chỉ
+   1,8 KB nên cả năm chưa tới 3 MB. */
+const KEEP = 3;
+
+try {
+  const q = encodeURIComponent(JSON.stringify({ kind: { value: "site", op: "eq" } }));
+  const listRes = await fetch(
+    `https://api.pinata.cloud/data/pinList?status=pinned&pageLimit=100&metadata[keyvalues]=${q}`,
+    { headers: { Authorization: "Bearer " + JWT } }
+  );
+  if (listRes.ok) {
+    const rows = (await listRes.json()).rows || [];
+    const olds = rows
+      .filter((r) => r.ipfs_pin_hash !== cid)
+      .sort((a, b) => new Date(b.date_pinned) - new Date(a.date_pinned))
+      .slice(KEEP - 1); // giữ KEEP bản kể cả bản vừa pin
+
+    for (const r of olds) {
+      const del = await fetch("https://api.pinata.cloud/pinning/unpin/" + r.ipfs_pin_hash, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + JWT }
+      });
+      console.log(`  ${del.ok ? "đã bỏ ghim" : "bỏ ghim lỗi"}  ${r.ipfs_pin_hash}  (${(r.size / 1024).toFixed(0)} KB)`);
+    }
+    if (!olds.length) console.log(`  không có bản site cũ cần dọn (giữ ${KEEP} bản gần nhất)`);
+  }
+} catch (e) {
+  console.log("  bỏ qua bước dọn dẹp: " + e.message);
+}
 
 /* nhả CID ra cho các bước sau của GitHub Actions */
 if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `cid=${cid}\n`);

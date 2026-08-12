@@ -27,6 +27,10 @@ jobs:
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
+    # Cấp job, để `if` của step đọc được — khai trong chính step thì không.
+    env:
+      PINATA_JWT: ${{ secrets.PINATA_JWT }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,9 +43,9 @@ jobs:
 
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
+      # Thiếu secret thì bỏ qua chứ không làm hỏng cả lần chạy.
       - name: Đóng dấu bản số liệu
-        env:
-          PINATA_JWT: ${{ secrets.PINATA_JWT }}
+        if: env.PINATA_JWT != ''
         run: node scripts/pin-snapshot.mjs
 
       - name: Commit nếu có thay đổi
@@ -63,13 +67,14 @@ jobs:
   # workflow khác (cơ chế chặn vòng lặp vô hạn). Nếu chỉ dựa vào `on: push`
   # của deploy-ipfs.yml thì số liệu cập nhật xong mà bản trên IPFS vẫn là bản cũ
   # mãi mãi. Nên phải gọi thẳng sang đây.
+  # Chỉ đẩy lại Pages. CỐ Ý không pin lại cả site ở đây:
+  # mỗi bản site ~440 KB, nhân 4 lần/ngày là 624 MB/năm — gói free
+  # Pinata 1 GB sẽ đầy trong khoảng hai năm, đổi lấy 1.460 bản sao
+  # gần như y hệt nhau mà không ai mở lại.
+  #
+  # Thứ đáng lưu vĩnh viễn là bản ĐÓNG DẤU SỐ LIỆU (1,8 KB) —
+  # đã pin ở bước trên rồi. Site chỉ pin lại khi code đổi.
   deploy-pages:
     needs: refresh
     if: needs.refresh.outputs.changed == 'true'
     uses: ./.github/workflows/deploy-pages.yml
-
-  deploy-ipfs:
-    needs: refresh
-    if: needs.refresh.outputs.changed == 'true'
-    uses: ./.github/workflows/deploy-ipfs.yml
-    secrets: inherit

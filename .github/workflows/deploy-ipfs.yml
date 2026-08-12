@@ -33,6 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # Đặt ở cấp job để bước `if` bên dưới đọc được.
+    # (Biến env khai ngay trong một step thì chính step đó không dùng được ở `if`.)
+    env:
+      PINATA_JWT: ${{ secrets.PINATA_JWT }}
+      PINATA_GATEWAY: ${{ vars.PINATA_GATEWAY }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -44,14 +50,21 @@ jobs:
       - name: Đóng gói dist/
         run: node scripts/build-dist.mjs
 
+      # Thiếu secret thì bỏ qua chứ không báo đỏ: IPFS là bản lưu thêm,
+      # còn đường chạy chính của app là GitHub Pages.
+      - name: Bỏ qua (chưa có PINATA_JWT)
+        if: env.PINATA_JWT == ''
+        run: |
+          echo "Chưa cấu hình secret PINATA_JWT — bỏ qua bước pin."
+          echo "Thêm ở Settings → Secrets and variables → Actions nếu muốn lưu bản bất biến."
+
       - name: Pin lên IPFS
         id: pin
-        env:
-          PINATA_JWT: ${{ secrets.PINATA_JWT }}
-          PINATA_GATEWAY: ${{ vars.PINATA_GATEWAY }}
+        if: env.PINATA_JWT != ''
         run: node scripts/pin-ipfs.mjs
 
       - name: Nhắc đặt ENS
+        if: steps.pin.outcome == 'success'
         run: |
           echo "CID mới: ${{ steps.pin.outputs.cid }}"
           echo "Đặt contenthash = ipfs://${{ steps.pin.outputs.cid }}"
