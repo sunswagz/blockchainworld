@@ -1,0 +1,51 @@
+/* Mục "CÁC CUNG" ở đầu thanh bên — đi kèm assets/js/halls.js */
+
+.halls-nav {
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.halls-nav .nav-label { padding-top: 10px; }
+
+.hall-link {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px; margin-bottom: 2px;
+  border-radius: 8px; cursor: pointer;
+  color: var(--ink); text-decoration: none;
+  transition: background var(--dur);
+}
+.hall-link:hover { background: #E6ECF7; }
+
+.hall-link .mono {
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 6px;
+  display: grid; place-items: center;
+  background: var(--acc-t); color: var(--acc);
+}
+.hall-link .mono svg { width: 14px; height: 14px; display: block; }
+
+.hall-link .lbl { flex: 1; min-width: 0; line-height: 1.25; }
+.hall-link .lbl b {
+  display: block; font-size: 13.2px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hall-link .lbl i {
+  display: block; font-style: normal; font-size: 10.5px; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.hall-link .go { flex: 0 0 auto; color: var(--ink-3); display: grid; place-items: center; }
+.hall-link .go svg { width: 14px; height: 14px; display: block; }
+.hall-link:hover .go { color: var(--acc); }
+
+/* dòng về cổng — nhạt hơn, không có phụ đề */
+.hall-link.to-gate .mono { background: #F1F5FB; color: var(--ink-2); }
+.hall-link.to-gate .lbl b { font-weight: 500; color: var(--ink-2); font-size: 12.8px; }
+
+/* thanh bên thu gọn: chỉ còn icon */
+body[data-nav="mini"] .hall-link { justify-content: center; padding: 7px 0; }
+body[data-nav="mini"] .hall-link .lbl,
+body[data-nav="mini"] .hall-link .go { display: none; }
+body[data-nav="mini"] .halls-nav .nav-label {
+  height: 1px; padding: 9px 0 0; margin: 0 6px; background: var(--line);
+  overflow: hidden; text-indent: -999px; display: block;
+}
