@@ -1,0 +1,76 @@
+name: Quét Đài Quan Trắc
+
+# Gọi Claude + web_search để quét 5 chiến trường, ghi kết quả ra
+# dai-quan-trac/assets/js/scan.js rồi commit.
+#
+# Khoá API ở lại đây, trong Secrets. Trang chạy trên GitHub Pages
+# công khai nên khoá KHÔNG BAO GIỜ được đi xuống trình duyệt —
+# xem phần đầu scripts/build-scan.mjs.
+
+on:
+  schedule:
+    # 41 phút sau các giờ 1, 7, 13, 19 (UTC) — lệch khỏi giờ tròn
+    # và khỏi lịch của refresh-data để hai workflow không chen nhau.
+    - cron: "41 1,7,13,19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scan-observatory
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Cấp job, để `if` của step đọc được.
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Thiếu khoá thì bỏ qua chứ không báo đỏ — đài quan trắc vẫn
+      # xem được với bản quét cũ, chỉ là không có tín hiệu mới.
+      - name: Bỏ qua (chưa có ANTHROPIC_API_KEY)
+        if: env.ANTHROPIC_API_KEY == ''
+        run: |
+          echo "Chưa cấu hình secret ANTHROPIC_API_KEY — bỏ qua lần quét."
+          echo "Thêm ở Settings → Secrets and variables → Actions."
+
+      - name: Quét 5 chiến trường
+        if: env.ANTHROPIC_API_KEY != ''
+        run: node scripts/build-scan.mjs
+
+      - name: Commit nếu có tín hiệu mới
+        id: commit
+        if: env.ANTHROPIC_API_KEY != ''
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dai-quan-trac/assets/js/scan.js
+          if git diff --staged --quiet; then
+            echo "Bản quét không đổi — không commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "quan-trac: bản quét $(date -u +%d/%m/%Y' '%H:%M) UTC"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  # Cùng lý do như refresh-data.yml: commit của GITHUB_TOKEN không
+  # kích hoạt workflow khác, nên phải gọi thẳng sang.
+  deploy-pages:
+    needs: scan
+    if: needs.scan.outputs.changed == 'true'
+    uses: ./.github/workflows/deploy-pages.yml

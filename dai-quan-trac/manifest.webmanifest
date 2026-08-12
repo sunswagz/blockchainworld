@@ -1,0 +1,26 @@
+{
+  "id": "sunswagz-dai-quan-trac",
+  "name": "Đài Quan Trắc · Dòng chảy địa chính trị",
+  "short_name": "Quan Trắc",
+  "description": "Năm chiến trường, mười một mắt xích, tám đồng hồ cảnh báo sớm — và đường truyền dẫn từ mỗi sự kiện tới kinh tế Việt Nam.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
+  "categories": ["news", "finance", "productivity"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Dòng chảy", "url": "./index.html#flow", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Bảng cảnh báo sớm", "url": "./index.html#gauges", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mạch truyền dẫn", "url": "./index.html#chain", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

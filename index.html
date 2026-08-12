@@ -3,17 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kinh Thành · Bản đồ các quốc gia blockchain</title>
-<meta name="description" content="Bản đồ 9 quốc gia Layer 1: các tầng bên trong, thành phố L2, hạ tầng, cửa khẩu và bảng xếp hạng nội lực.">
+<title>Cổng Thành · SUNSWaGz</title>
+<meta name="description" content="Cửa ngõ dẫn vào các cung: bản đồ quốc gia blockchain, đài quan trắc dòng chảy địa chính trị, và những gì dựng thêm sau này.">
 
-<!-- ứng dụng -->
-<meta name="theme-color" content="#EDF2FA">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0B0F1A">
+<meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Kinh Thành">
-<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cổng Thành">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
@@ -21,127 +19,120 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/app.css">
-<link rel="stylesheet" href="assets/css/app-shell.css">
-<link rel="stylesheet" href="assets/css/l2beat.css">
-<link rel="stylesheet" href="assets/css/provenance.css">
-<link rel="stylesheet" href="assets/css/passport.css">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/portal.css">
 </head>
-<div class="app">
+<body>
 
-  <nav class="nav" id="nav" aria-label="Điều hướng">
-    <div class="nav-head">
-      <span class="nav-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2"/><path d="M12 3.4c2.4 2.4 3.6 5.3 3.6 8.6s-1.2 6.2-3.6 8.6c-2.4-2.4-3.6-5.3-3.6-8.6S9.6 5.8 12 3.4Z"/></svg>
-      </span>
-      <span class="nav-title"><b>Bản đồ blockchain</b><span>9 quốc gia L1</span></span>
-      <button class="icon-btn" id="toggleNav" title="Thu gọn thanh bên" aria-label="Thu gọn thanh bên">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9.5 4v16"/></svg>
-      </button>
-    </div>
-    <div class="nav-search">
-      <span class="si"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
-      <input id="q" type="search" placeholder="Tìm trong quốc gia này…" autocomplete="off" aria-label="Tìm kiếm">
-    </div>
-    <div class="nav-scroll">
-      <div class="nav-label">Quốc gia · Layer 1 <span class="n" id="cCount"></span></div>
-      <button class="rank-btn" id="openRank" type="button" title="Bảng xếp hạng">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="4.6" y="12.4" width="3.6" height="6.4" rx="1.1"/><rect x="10.2" y="7" width="3.6" height="11.8" rx="1.1"/><rect x="15.8" y="10" width="3.6" height="8.8" rx="1.1"/></svg>
-        <span>Bảng xếp hạng · cách tính</span>
-      </button>
-      <div id="countryList"></div>
-      <div class="nav-label" id="insideLabel">Bên trong</div>
-      <div id="secList"></div>
-    </div>
-    <div class="nav-foot"><span class="dotmark">SW</span><span>SUNSWaGz Hub · bản đồ v3</span></div>
-  </nav>
+<div class="shell">
 
-  <div class="main">
-    <div class="bar">
-      <button class="icon-btn burger" id="openNav" aria-label="Mở thanh bên">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
-      <span class="flag" aria-hidden="true"></span>
-      <h1 id="barTitle"></h1>
-      <span class="hits" id="hits"></span>
-      <button class="icon-btn burger" id="openSearch" aria-label="Tìm kiếm">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      </button>
+  <header class="gate">
+    <div class="gate-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2.5 21h19"/>
+        <path d="M4 21V7.5h3.2M19.8 7.5H23V21"/>
+        <path d="M4 7.5h3.2M16.8 7.5H20"/>
+        <path d="M8.5 21v-8a3.5 3.5 0 0 1 7 0v8"/>
+        <path d="M7 7.5 12 3l5 4.5"/>
+      </svg>
     </div>
-    <div class="chips" id="chips" role="group" aria-label="Lọc theo tầng"></div>
-    <div class="wrap">
-      <section class="hero" id="sec-hero">
-        <div class="hero-top">
-          <span class="crest" id="hCrest" aria-hidden="true"></span>
-          <div><span class="cap" id="hCap"></span><h2 id="hName"></h2></div>
+    <div class="gate-eyebrow">SUNSWaGz · Kinh đô số</div>
+    <h1>Cổng <em>Thành</em></h1>
+    <p>Cửa ngõ dẫn vào các cung. Mỗi cung là một ứng dụng độc lập — cài riêng được, chạy offline được, số liệu tự cập nhật.</p>
+  </header>
+
+  <div class="band">Các cung đã dựng <span class="n" id="hallCount"></span></div>
+
+  <main class="halls">
+
+    <a class="hall" href="kinh-thanh/" style="--accent:#7C9CF5">
+      <div class="hall-top">
+        <span class="hall-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2"/>
+            <path d="M12 3.4c2.4 2.4 3.6 5.3 3.6 8.6s-1.2 6.2-3.6 8.6c-2.4-2.4-3.6-5.3-3.6-8.6S9.6 5.8 12 3.4Z"/>
+          </svg>
+        </span>
+        <div class="hall-head">
+          <div class="hall-tag">Bản đồ · Layer 1</div>
+          <h2>Kinh Thành</h2>
         </div>
-        <p id="hTag"></p>
-        <div class="sov">
-          <div class="sbox"><h3>Chủ quyền &amp; luật nền</h3><ul id="hBullets"></ul></div>
-          <div class="sbox"><h3>Vai trò của L1 này</h3><ul id="hRoles"></ul></div>
-          <div class="gloss" id="hGloss" hidden></div>
-        </div>
-      </section>
-      <div id="layers"></div>
-      <div class="bands" id="bands"></div>
-      <div class="foot">
-        <div class="fbox"><h3>Chú thích</h3><div class="legend" id="legend"></div></div>
-        <div class="fbox"><h3>Đọc bản đồ thế nào</h3><div class="notes">
-          <p><b>Mỗi L1 là một quốc gia</b> — có luật nền, đồng thuận và đồng tiền riêng. Đổi quốc gia ở thanh bên trái.</p>
-          <p><b>Các tầng bên trong khác nhau tuỳ nước.</b> Ethereum chia L2/L3; Cosmos là liên minh các nước ngang hàng; Solana và Sui gần như không có tầng trên.</p>
-          <p><b>Cửa khẩu</b> là cầu nối sang nước khác. Mục có dấu → sẽ đưa bạn thẳng sang bản đồ nước đó.</p>
-          <p><b>Hạ tầng</b> là đường ống, đường xá, điện nước: RPC, oracle, lưu trữ, chỉ mục, ví.</p>
-        </div></div>
+        <span class="hall-go" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+        </span>
       </div>
-      <p class="credit">Bản đồ tham khảo — danh sách rút gọn, mỗi nước còn nhiều dự án khác.</p>
+      <p>Chín quốc gia blockchain như chín kinh thành: luật nền, thành phố L2, hạ tầng, cửa khẩu — và bảng xếp hạng nội lực chấm theo năm chỉ số.</p>
+      <div class="hall-foot">
+        <span class="pill live">số liệu sống</span>
+        <span class="pill">9 quốc gia</span>
+        <span class="pill">14 hồ sơ L2BEAT</span>
+        <span id="ktDate"></span>
+      </div>
+    </a>
+
+    <a class="hall" href="dai-quan-trac/" style="--accent:#58A6FF">
+      <div class="hall-top">
+        <span class="hall-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 12l6-3.6"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>
+          </svg>
+        </span>
+        <div class="hall-head">
+          <div class="hall-tag">Quan trắc · Realtime</div>
+          <h2>Đài Quan Trắc</h2>
+        </div>
+        <span class="hall-go" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+        </span>
+      </div>
+      <p>Năm chiến trường, mười một mắt xích, tám đồng hồ cảnh báo sớm. Mỗi tín hiệu ghi kèm đường truyền dẫn tới kinh tế Việt Nam.</p>
+      <div class="hall-foot">
+        <span class="pill live">quét mỗi 6 giờ</span>
+        <span class="pill">5 chiến trường</span>
+        <span class="pill">8 đồng hồ</span>
+        <span id="dqtDate"></span>
+      </div>
+    </a>
+
+  </main>
+
+  <div class="band">Chưa dựng</div>
+
+  <main class="halls">
+    <div class="hall" data-soon style="--accent:#64708A">
+      <div class="hall-top">
+        <span class="hall-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/>
+          </svg>
+        </span>
+        <div class="hall-head">
+          <div class="hall-tag">Chờ quy hoạch</div>
+          <h2>Hoàng Thành</h2>
+        </div>
+      </div>
+      <p>Chỗ trống cho ứng dụng sau. Dựng thêm một cung là thêm một thư mục và một thẻ ở đây — bộ khung PWA, số liệu tự cập nhật và đóng dấu IPFS dùng lại được nguyên.</p>
+      <div class="hall-foot"><span class="pill soon">chưa có</span></div>
     </div>
-    <div class="wrap city" id="cityWrap" hidden>
-      <button class="back" id="cityBack" type="button">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
-        <span id="cityBackLabel">Quay lại bản đồ</span>
-      </button>
-      <div id="cityBody"></div>
+  </main>
+
+  <footer class="foot">
+    <div>
+      <span>SUNSWaGz</span>
+      <span class="sep"> · </span>
+      <a href="https://github.com/sunswagz/blockchainworld" target="_blank" rel="noopener">mã nguồn</a>
     </div>
-    <div class="wrap city" id="rankWrap" hidden>
-      <button class="back" id="rankBack" type="button">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
-        <span id="rankBackLabel">Quay lại bản đồ</span>
-      </button>
-      <div id="rankBody"></div>
-    </div>
-  </div>
+    <button class="install-gate" id="installGate" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3.5v11"/><path d="m7.5 10 4.5 4.5 4.5-4.5"/><path d="M4.5 16.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2"/>
+      </svg>
+      <span>Cài Cổng Thành</span>
+    </button>
+  </footer>
+
 </div>
 
-<div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dName" tabindex="-1">
-  <button class="d-close" id="dClose" aria-label="Đóng">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
-  <div class="d-top">
-    <div class="d-eyebrow"><span class="tag" id="dTag"></span><span class="grp" id="dGrp"></span></div>
-    <h2 id="dName"></h2>
-  </div>
-  <div class="d-body" id="dBodyHost"></div>
-</aside>
-
-<!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
-<script src="assets/js/data/chains.js"></script>
-<script src="assets/js/data/strength.js"></script>
-<!-- live.js đè số đo mới lên bản chụp của strength.js · tự sinh, xem scripts/build-live.mjs -->
-<script src="assets/js/data/live.js"></script>
-<!-- dấu đóng bản số liệu · tự sinh, xem scripts/pin-snapshot.mjs -->
-<script src="assets/js/data/provenance.js"></script>
-<script src="assets/js/data/entities.js"></script>
-<script src="assets/js/data/cities.js"></script>
-<!-- hồ sơ tự trị L2BEAT: nạp TRƯỚC app.js vì app.js gọi window.KT_L2B -->
-<script src="assets/js/l2beat.js"></script>
-<script src="assets/js/provenance.js"></script>
-<!-- giao diện -->
-<script src="assets/js/app.js"></script>
-<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
-<script src="assets/js/pwa.js"></script>
-<!-- hộ chiếu: đọc ví qua RPC công cộng, tự chèn nút, không móc vào app.js -->
-<script src="assets/js/passport.js"></script>
+<script src="assets/js/portal.js"></script>
 </body>
 </html>

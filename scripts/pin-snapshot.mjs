@@ -26,8 +26,8 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const LIVE = join(ROOT, "assets", "js", "data", "live.js");
-const HIST = join(ROOT, "assets", "data", "history.json");
+const LIVE = join(ROOT, "kinh-thanh", "assets", "js", "data", "live.js");
+const HIST = join(ROOT, "kinh-thanh", "assets", "data", "history.json");
 const BEGIN = "/* KT_LIVE_BEGIN */";
 const END = "/* KT_LIVE_END */";
 
@@ -123,7 +123,7 @@ await writeFile(HIST, JSON.stringify(history, null, 2) + "\n", "utf8");
    toàn bộ lịch sử vẫn nằm ở history.json. */
 const latest = history[0];
 await writeFile(
-  join(ROOT, "assets", "js", "data", "provenance.js"),
+  join(ROOT, "kinh-thanh", "assets", "js", "data", "provenance.js"),
   `/* TỰ SINH bởi scripts/pin-snapshot.mjs — đừng sửa tay. */\n` +
   `(function () {\n` +
   `"use strict";\n` +

@@ -1,8 +1,8 @@
 {
-  "id": "sunswagz-kinh-thanh",
-  "name": "Kinh Thành · Bản đồ các quốc gia blockchain",
-  "short_name": "Kinh Thành",
-  "description": "Bản đồ 9 quốc gia Layer 1: các tầng bên trong, thành phố L2, hạ tầng, cửa khẩu và bảng xếp hạng nội lực.",
+  "id": "sunswagz-cong-thanh",
+  "name": "Cổng Thành · SUNSWaGz",
+  "short_name": "Cổng Thành",
+  "description": "Cửa ngõ dẫn vào các cung: bản đồ quốc gia blockchain, đài quan trắc dòng chảy địa chính trị, và những gì dựng thêm sau này.",
   "lang": "vi",
   "dir": "ltr",
   "start_url": "./index.html",
@@ -10,45 +10,16 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "any",
-  "background_color": "#EDF2FA",
-  "theme_color": "#EDF2FA",
-  "categories": ["education", "finance", "reference"],
+  "background_color": "#0B0F1A",
+  "theme_color": "#0B0F1A",
+  "categories": ["productivity", "reference"],
   "icons": [
-    {
-      "src": "assets/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "assets/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "assets/icons/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    {
-      "name": "Bảng xếp hạng nội lực",
-      "short_name": "Xếp hạng",
-      "url": "./index.html#rank",
-      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Ethereum",
-      "url": "./index.html#eth",
-      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Solana",
-      "url": "./index.html#sol",
-      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
-    }
+    { "name": "Kinh Thành", "url": "./kinh-thanh/", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Đài Quan Trắc", "url": "./dai-quan-trac/", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

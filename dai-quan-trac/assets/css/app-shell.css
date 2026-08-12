@@ -1,0 +1,64 @@
+/* ═══════════════════════════════════════════════════════
+   Vỏ ứng dụng Đài Quan Trắc — nút về Cổng Thành, vùng an
+   toàn của máy, và báo có bản mới. Giao diện quan trắc nằm
+   nguyên trong app.css.
+   ═══════════════════════════════════════════════════════ */
+
+html { overscroll-behavior-y: none; }
+body { overscroll-behavior-y: contain; -webkit-tap-highlight-color: transparent; }
+
+/* vùng an toàn (tai thỏ, thanh cử chỉ) */
+#nav    { padding-top: env(safe-area-inset-top); }
+.topbar { padding-top: calc(env(safe-area-inset-top)); }
+#view   { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+#rail   { padding-bottom: env(safe-area-inset-bottom); }
+
+/* ── nút về Cổng Thành ────────────────────────────────── */
+.back-gate {
+  position: fixed; z-index: 60;
+  left: calc(12px + env(safe-area-inset-left));
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 13px 8px 10px; border-radius: 999px;
+  border: 1px solid var(--line2); background: var(--surface);
+  color: var(--fg2); font-size: 12.5px; font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 6px 24px -10px rgba(0, 0, 0, .8);
+  transition: border-color .15s, color .15s;
+}
+.back-gate:hover { border-color: var(--info); color: var(--fg); text-decoration: none; }
+.back-gate svg { width: 14px; height: 14px; flex: 0 0 auto; }
+
+@media (max-width: 900px) {
+  .back-gate { bottom: calc(10px + env(safe-area-inset-bottom)); font-size: 12px; }
+  .back-gate span { display: none; }
+  .back-gate { padding: 9px; }
+}
+
+/* ── báo có bản mới ───────────────────────────────────── */
+.sw-toast {
+  position: fixed; z-index: 90; left: 50%; transform: translate(-50%, 20px);
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px 10px 15px; border-radius: 999px;
+  background: var(--raise); border: 1px solid var(--line2); color: var(--fg);
+  font-size: 13px; box-shadow: 0 10px 34px -10px rgba(0, 0, 0, .9);
+  opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+  max-width: calc(100vw - 24px);
+}
+.sw-toast[data-open="1"] { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.sw-toast button {
+  padding: 5px 12px; border-radius: 999px; cursor: pointer; flex: 0 0 auto;
+  background: var(--info); color: #04121f; font-size: 12.5px; font-weight: 600;
+}
+
+/* ── nút cài ứng dụng, chèn vào chân thanh bên ────────── */
+.install-dqt {
+  display: none; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; margin-bottom: 8px; padding: 8px 10px; cursor: pointer;
+  border: 1px solid var(--info); border-radius: var(--r);
+  background: var(--info-d); color: var(--info);
+  font-size: 12px; font-weight: 600;
+}
+.install-dqt[data-show="1"] { display: flex; }
+.install-dqt svg { width: 14px; height: 14px; }

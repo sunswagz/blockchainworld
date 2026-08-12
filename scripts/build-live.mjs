@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const OUT = join(ROOT, "assets", "js", "data", "live.js");
+const OUT = join(ROOT, "kinh-thanh", "assets", "js", "data", "live.js");
 const BEGIN = "/* KT_LIVE_BEGIN */";
 const END = "/* KT_LIVE_END */";
 
@@ -170,8 +170,8 @@ try {
   //   · "phala" của Polkadot → khớp nhầm dự án cùng tên bên Ethereum
   // Gán Stage 1 và $11.6b cho basechain của TON là sai trắng trợn, nên
   // thà bỏ sót vài cái còn hơn hiện số bịa.
-  const CHAINS_DATA = await loadAppData("assets/js/data/chains.js", "CHAINS");
-  const CITIES_DATA = await loadAppData("assets/js/data/cities.js", "CITIES");
+  const CHAINS_DATA = await loadAppData("kinh-thanh/assets/js/data/chains.js", "CHAINS");
+  const CITIES_DATA = await loadAppData("kinh-thanh/assets/js/data/cities.js", "CITIES");
   const wanted = new Map(); // khoá norm() của app → tên hiển thị
   for (const C of CHAINS_DATA) {
     if (C.id !== "eth") continue;

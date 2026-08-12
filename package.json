@@ -8,11 +8,12 @@
     "start": "node server.js",
     "dev": "node server.js",
     "refresh": "node scripts/build-live.mjs",
+    "scan": "node scripts/build-scan.mjs",
     "dist": "node scripts/build-dist.mjs",
     "pin": "node scripts/pin-ipfs.mjs",
     "snapshot": "node scripts/pin-snapshot.mjs",
     "deploy": "node scripts/build-dist.mjs && node scripts/pin-ipfs.mjs",
-    "check": "node --check assets/js/app.js && node --check assets/js/pwa.js && node --check assets/js/l2beat.js && node --check sw.js && node --check assets/js/data/chains.js && node --check assets/js/data/strength.js && node --check assets/js/data/live.js && node --check assets/js/data/entities.js && node --check assets/js/data/cities.js"
+    "check": "node scripts/check.mjs"
   },
   "engines": {
     "node": ">=18"
