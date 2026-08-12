@@ -1,0 +1,149 @@
+/* Hộ chiếu — đi kèm assets/js/passport.js */
+
+/* nút trong thanh bên, cùng kiểu với nút cài ứng dụng */
+.passport-btn {
+  display: flex; align-items: center; gap: 8px; flex: 0 0 auto;
+  margin: 0 12px 9px; padding: 8px 10px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--paper); color: var(--ink-2);
+  font-size: 12.6px; font-weight: 600; text-align: left;
+}
+.passport-btn:hover { border-color: var(--acc); color: var(--acc); }
+.passport-btn svg { width: 15px; height: 15px; flex: 0 0 auto; }
+body[data-nav="mini"] .passport-btn span { display: none; }
+body[data-nav="mini"] .passport-btn { justify-content: center; margin: 0 8px 9px; padding: 8px 0; }
+
+/* ── tấm nền ──────────────────────────────────────────── */
+.pp-scrim {
+  position: fixed; inset: 0; background: rgba(11, 26, 58, .42); z-index: 80;
+  opacity: 0; pointer-events: none; transition: opacity var(--dur);
+}
+.pp-scrim[data-open="1"] { opacity: 1; pointer-events: auto; }
+
+/* ── bảng ─────────────────────────────────────────────── */
+.pp {
+  position: fixed; z-index: 81; right: 0; top: 0; bottom: 0;
+  width: min(420px, 92vw); background: var(--paper);
+  border-left: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  transform: translateX(101%); transition: transform var(--dur) ease;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pp[data-open="1"] { transform: none; }
+
+@media (max-width: 900px) {
+  .pp {
+    left: 0; right: 0; top: auto; bottom: 0; width: auto;
+    max-height: 86dvh; border-left: 0; border-top: 1px solid var(--line);
+    border-radius: 16px 16px 0 0; transform: translateY(101%);
+  }
+}
+
+.pp-top {
+  padding: 16px 18px 13px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 10px; background: var(--acc-t);
+}
+.pp-top h2 {
+  flex: 1; font-family: Archivo, sans-serif; font-size: 19px;
+  font-weight: 800; letter-spacing: -.02em; color: var(--acc);
+}
+.pp-x {
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--paper);
+  display: grid; place-items: center; color: var(--ink-2); flex: 0 0 auto;
+}
+.pp-body { padding: 16px 18px 22px; overflow-y: auto; flex: 1; }
+
+.pp-lead { margin: 0 0 14px; font-size: 13.2px; line-height: 1.6; color: var(--ink-2); }
+
+.pp-btn {
+  width: 100%; padding: 10px 14px; border-radius: 9px; cursor: pointer;
+  background: var(--acc); color: #fff; font-size: 13.5px; font-weight: 600;
+}
+.pp-btn:hover { filter: brightness(1.08); }
+.pp-btn[disabled] { opacity: .6; cursor: default; }
+.pp-btn.small { width: auto; padding: 8px 14px; font-size: 13px; }
+
+.pp-or {
+  text-align: center; font-size: 11.5px; color: var(--ink-3);
+  margin: 11px 0; text-transform: uppercase; letter-spacing: .1em;
+}
+
+.pp-input { display: flex; gap: 7px; }
+.pp-input input {
+  flex: 1; min-width: 0; padding: 9px 11px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  font-family: "IBM Plex Mono", monospace; font-size: 12.5px;
+}
+.pp-input input[data-bad="1"] { border-color: var(--br); }
+.pp-input button {
+  padding: 9px 15px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--paper);
+  font-size: 13px; font-weight: 600; color: var(--ink-2);
+}
+.pp-input button:hover { border-color: var(--acc); color: var(--acc); }
+
+/* ── địa chỉ đang xem ─────────────────────────────────── */
+.pp-who {
+  display: flex; align-items: baseline; gap: 9px;
+  padding: 9px 12px; border-radius: 9px; background: var(--acc-t);
+  margin-bottom: 14px;
+}
+.pp-who .k {
+  font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--acc);
+}
+.pp-who .v { flex: 1; font-size: 13px; }
+.pp-who .v.mono { font-family: "IBM Plex Mono", monospace; }
+
+.pp-link {
+  font-size: 12px; color: var(--acc); cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px; flex: 0 0 auto;
+}
+
+/* ── danh sách chuỗi ──────────────────────────────────── */
+.pp-list { display: grid; gap: 6px; }
+.pp-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  width: 100%; text-align: left; padding: 10px 12px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 9px; background: var(--paper);
+  border-left-width: 3px; border-left-color: var(--line);
+}
+.pp-row:hover { border-color: var(--acc); }
+.pp-row[data-has="1"] { border-left-color: var(--l2); background: #FAFDFB; }
+.pp-row[data-err="1"] { opacity: .6; }
+.pp-row[data-kind="city"] .nm::before {
+  content: "└ "; color: var(--ink-3); font-family: "IBM Plex Mono", monospace;
+}
+.pp-row .nm { font-size: 13.4px; font-weight: 600; }
+.pp-row .bal {
+  font-family: "IBM Plex Mono", monospace; font-size: 12.3px;
+  color: var(--ink-2); flex: 0 0 auto; font-variant-numeric: tabular-nums;
+}
+
+.pp-sum {
+  margin: 12px 0 0; font-size: 13px; line-height: 1.55;
+  color: var(--ink); font-weight: 600;
+}
+.pp-note {
+  margin: 12px 0 0; font-size: 12.2px; line-height: 1.55; color: var(--ink-3);
+}
+
+/* ── ký ───────────────────────────────────────────────── */
+.pp-sign { margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--line); }
+.pp-sign h3 {
+  font-size: 12px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-2); margin-bottom: 8px;
+}
+.pp-sign p { margin: 0 0 12px; font-size: 12.6px; line-height: 1.6; color: var(--ink-2); }
+.pp-signed {
+  display: flex; align-items: baseline; gap: 9px;
+  padding: 9px 12px; border-radius: 9px;
+  background: var(--l2-t); border: 1px solid rgba(21, 128, 61, .18);
+}
+.pp-signed .k {
+  font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--l2);
+}
+.pp-signed .v { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+.pp-signed .v.mono { font-family: "IBM Plex Mono", monospace; }
