@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tàng Thư Các · Kho tra cứu Claude Skills</title>
+<meta name="description" content="Kho tra cứu Claude Skills: mỗi skill làm được gì, khi nào tự bật, và giúp được gì cho hệ thống của bạn. Quét từ GitHub, dịch tay 17 skill chính thức.">
+
+<meta name="theme-color" content="#F4F1EA">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tàng Thư Các">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#/tong-quan">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>
+        </svg>
+      </span>
+      <span><b>Tàng Thư Các</b><i>Kho tra cứu Claude Skills</i></span>
+    </a>
+
+    <!-- các công cụ — do app.js dựng -->
+    <div id="benMuc"></div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Quét từ <a href="https://github.com/topics/claude-skills" target="_blank" rel="noopener">GitHub</a>.
+      17 skill chính thức của Anthropic được dịch và diễn giải tay; skill cộng đồng giữ nguyên bản gốc.</p>
+    </div>
+  </nav>
+
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tieu">Tổng quan</h1>
+      <div class="tim">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+        <input id="q" type="search" placeholder="Tìm…" autocomplete="off" aria-label="Tìm">
+      </div>
+      <span class="ngay" id="ngay"></span>
+    </header>
+
+    <p class="canhbao" id="canhBao" hidden></p>
+
+    <div id="than"></div>
+
+    <footer class="chan">
+      <p><b>Nguồn:</b> quét từ <code>api.github.com</code> theo thẻ <code>topic:claude-skills</code>,
+      cộng kho chính thức <code>anthropics/skills</code> nạp thẳng — kho đó gắn thẻ <code>agent-skills</code>
+      nên tìm theo topic không ra. Cập nhật tự động bằng GitHub Actions, và bấm nút làm mới được ngay tại trang.</p>
+      <p><b>17 skill chính thức của Anthropic được dịch và diễn giải tay.</b> Hàng trăm skill cộng đồng
+      thì giữ nguyên mô tả tiếng Anh và có đánh dấu — bịa mô tả tiếng Việt cho skill chưa đọc kỹ
+      còn tệ hơn để nguyên bản.</p>
+      <p>Số sao là của cả kho, không phải của từng skill. Kho nhiều sao không có nghĩa mọi skill trong đó đều tốt.</p>
+    </footer>
+
+  </main>
+</div>
+
+<div class="scrim" id="scrim" data-open="0"></div>
+<aside class="hoso" id="hoso" data-open="0" aria-label="Chi tiết">
+  <div class="hoso-top">
+    <h2 id="hosoTen">—</h2>
+    <div class="hoso-tag" id="hosoTag"></div>
+    <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoso-body" id="hosoBody"></div>
+</aside>
+
+<!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
+<!-- tự sinh, xem scripts/build-tangthu.mjs -->
+<script src="assets/js/data.js"></script>
+<!-- chú giải · sửa tay được -->
+<script src="assets/js/glossary.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

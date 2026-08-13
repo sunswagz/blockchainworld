@@ -4,6 +4,7 @@ name: Cập nhật số liệu
 #   · DefiLlama  → kinh-thanh/assets/js/data/live.js
 #   · L2BEAT     → do-sat-vien/assets/js/data.js
 #   · Công cụ    → cong-bo/assets/js/
+#   · GitHub     → tang-thu-cac/assets/js/data.js
 # Nhờ vậy app không cần server, và người dùng offline vẫn có số tương đối mới.
 #
 # Nếu thư mục kinh-thanh-app KHÔNG phải gốc repo, sửa `working-directory`
@@ -63,6 +64,14 @@ jobs:
         continue-on-error: true
         run: node scripts/build-congbo.mjs
 
+      # Kho skill Tàng Thư Các. GITHUB_TOKEN nâng hạn mức API GitHub
+      # từ 60 lên 5.000 lượt/giờ — không có nó thì chỉ quét được vài kho.
+      - name: Lấy kho skill Tàng Thư Các
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/build-tangthu.mjs
+
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
       # Thiếu secret thì bỏ qua chứ không làm hỏng cả lần chạy.
@@ -79,7 +88,8 @@ jobs:
                   kinh-thanh/assets/js/data/provenance.js \
                   kinh-thanh/assets/data/history.json \
                   do-sat-vien/assets/js/data.js \
-                  cong-bo/assets/js/
+                  cong-bo/assets/js/ \
+                  tang-thu-cac/assets/js/data.js
           if git diff --staged --quiet; then
             echo "Số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"

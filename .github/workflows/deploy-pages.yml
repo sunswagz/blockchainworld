@@ -26,6 +26,7 @@ on:
       - "dai-quan-trac/**"
       - "do-sat-vien/**"
       - "cong-bo/**"
+      - "tang-thu-cac/**"
       - "scripts/build-dist.mjs"
   workflow_dispatch:
   workflow_call:

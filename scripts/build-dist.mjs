@@ -22,7 +22,7 @@ const DIST = join(ROOT, "dist");
 /* Cổng Thành ở gốc; mỗi cung là một thư mục có index.html riêng.
    Thêm cung mới = thêm thư mục + một dòng ở đây. */
 const GATE = ["index.html", "manifest.webmanifest", "sw.js", "assets"];
-const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo"];
+const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac"];
 
 const TEXT = new Set([".html", ".css", ".js", ".mjs", ".json", ".webmanifest", ".svg", ".md"]);
 
@@ -127,6 +127,7 @@ await freshness("số liệu Kinh Thành", join(ROOT, "kinh-thanh/assets/js/data
 await freshness("bản quét Quan Trắc", join(ROOT, "dai-quan-trac/assets/js/scan.js"), "generatedAt");
 await freshness("bảng xét Đô Sát Viện", join(ROOT, "do-sat-vien/assets/js/data.js"), "generatedAt");
 await freshness("đồ nghề Công Bộ", join(ROOT, "cong-bo/assets/js/data.js"), "generatedAt");
+await freshness("kho skill Tàng Thư Các", join(ROOT, "tang-thu-cac/assets/js/data.js"), "generatedAt");
 
 if (process.exitCode) {
   console.error("\nCó lỗi — KHÔNG ghi dist/. Sửa xong hãy chạy lại.");

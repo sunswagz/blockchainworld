@@ -15,7 +15,8 @@
     "snapshot": "node scripts/pin-snapshot.mjs",
     "deploy": "node scripts/build-dist.mjs && node scripts/pin-ipfs.mjs",
     "check": "node scripts/check.mjs",
-    "congbo": "node scripts/build-congbo.mjs"
+    "congbo": "node scripts/build-congbo.mjs",
+    "tangthu": "node scripts/build-tangthu.mjs"
   },
   "engines": {
     "node": ">=18"

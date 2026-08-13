@@ -83,6 +83,17 @@
     })
     .catch(function () {});
 
+  // Tàng Thư Các: data.js ~230 KB, ngày và số skill nằm ở đoạn đầu
+  dauFile("tang-thu-cac/assets/js/data.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("ttDate", "cập nhật " + m[1]);
+      var n = t.match(/(\d+) skill từ/);
+      if (n) stamp("ttSo", n[1] + " skill");
+    })
+    .catch(function () {});
+
   // đếm số cung đã dựng, lấy từ chính DOM
   var built = document.querySelectorAll(".hall:not([data-soon])").length;
   stamp("hallCount", String(built).padStart(2, "0"));

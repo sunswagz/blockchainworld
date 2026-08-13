@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════
    Chuyển cung — mục "CÁC CUNG" trong thanh bên.
 
-   Công Bộ có sidebar riêng nên lối sang cung khác nằm luôn trong
+   Tàng Thư Các có sidebar riêng nên lối sang cung khác nằm luôn trong
    đó, cùng kiểu với mục "Đồ nghề" ở trên. Cùng dữ liệu như ba cung
    kia, khác cách bày.
    ═══════════════════════════════════════════════════════ */
@@ -31,11 +31,11 @@
             '<path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>'
     },
     {
-      href: "../tang-thu-cac/",
-      name: "Tàng Thư Các",
-      note: "kho tra cứu skill",
-      icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/>' +
-            '<path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
+      href: "../cong-bo/",
+      name: "Công Bộ",
+      note: "bộ đồ nghề",
+      icon: '<path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/>' +
+            '<path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
     }
   ];
 
