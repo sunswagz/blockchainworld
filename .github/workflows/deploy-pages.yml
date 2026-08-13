@@ -13,11 +13,17 @@ name: Đưa lên GitHub Pages
 on:
   push:
     branches: [main]
+    # Phải liệt kê CẢ các cung. Sau khi tách thư mục, "assets/**" chỉ còn
+    # khớp assets của Cổng Thành — sửa app trong kinh-thanh/ hay
+    # dai-quan-trac/ sẽ không kích hoạt deploy, và thay đổi lặng lẽ
+    # không bao giờ lên site.
     paths:
       - "index.html"
       - "manifest.webmanifest"
       - "sw.js"
       - "assets/**"
+      - "kinh-thanh/**"
+      - "dai-quan-trac/**"
       - "scripts/build-dist.mjs"
   workflow_dispatch:
   workflow_call:

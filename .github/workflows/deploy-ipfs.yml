@@ -11,11 +11,15 @@ name: Đưa lên IPFS
 on:
   push:
     branches: [main]
+    # Cùng lý do như deploy-pages.yml: phải liệt kê cả các cung, không
+    # thì sửa app xong mà bản trên IPFS vẫn là bản cũ.
     paths:
       - "index.html"
       - "manifest.webmanifest"
       - "sw.js"
       - "assets/**"
+      - "kinh-thanh/**"
+      - "dai-quan-trac/**"
       - "scripts/build-dist.mjs"
       - "scripts/pin-ipfs.mjs"
   workflow_dispatch:
