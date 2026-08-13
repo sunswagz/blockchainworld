@@ -14,8 +14,12 @@ on:
     - cron: "41 1,7,13,19 * * *"
   workflow_dispatch:
 
+# Quyền khai ở đây là trần cho cả deploy-pages.yml được gọi bên dưới.
+# Thiếu pages/id-token thì startup_failure, không có log trong job.
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: scan-observatory

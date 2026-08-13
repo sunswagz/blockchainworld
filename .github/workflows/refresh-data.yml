@@ -13,8 +13,14 @@ on:
     - cron: "17 0,6,12,18 * * *"
   workflow_dispatch: # cho phép bấm chạy tay trong tab Actions
 
+# Workflow con KHÔNG được có quyền cao hơn workflow gọi nó — quyền khai
+# ở đây là trần cho cả deploy-pages.yml bên dưới. Thiếu pages/id-token
+# thì GitHub chặn ngay từ lúc khởi động (startup_failure), không có log
+# nào trong job để mà lần ra.
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: refresh-data
@@ -53,7 +59,9 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/js/data/live.js assets/data/history.json
+          git add kinh-thanh/assets/js/data/live.js \
+                  kinh-thanh/assets/js/data/provenance.js \
+                  kinh-thanh/assets/data/history.json
           if git diff --staged --quiet; then
             echo "Số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
