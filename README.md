@@ -9,6 +9,7 @@ chạy offline, số liệu tự cập nhật, và đóng gói thành app Androi
 | **/kinh-thanh/** | bản đồ 9 quốc gia Layer 1 | DefiLlama + L2BEAT (14 thành phố thuộc Ethereum) |
 | **/dai-quan-trac/** | dòng chảy địa chính trị, 5 chiến trường, 8 đồng hồ | bản quét sinh trong GitHub Actions |
 | **/do-sat-vien/** | bản Việt hoá của L2BEAT — 23 mục trong 7 nhóm, đủ cây điều hướng | L2BEAT: API `scaling/summary` + dữ liệu 21 trang |
+| **/cong-bo/** | bộ đồ nghề — giải mã lời gọi, nhật ký đổi thay on-chain, kính lúp hồ sơ | L2BEAT: `um-prod/discovery/changes` + `fe-stag/api/discolupe` |
 
 Các file gốc trong `SUNSWaGz app/` không bị đụng vào — vẫn nằm nguyên chỗ cũ để đối chiếu.
 
@@ -79,18 +80,29 @@ kinh-thanh-app/
 │           ├── app.js          định tuyến hash, sidebar, bộ máy bảng, 23 màn hình
 │           └── halls.js · pwa.js
 │
+├── cong-bo/                    CUNG 4 — bộ đồ nghề, Việt hoá tools.l2beat.com
+│   ├── index.html · sw.js · manifest.webmanifest   (nền tối như bản gốc)
+│   └── assets/js/
+│       ├── data.js         TỰ SINH — 460 thay đổi + 198 dự án (~129 KB)
+│       ├── v/nhat-ky.js    TỰ SINH — nguyên văn diff (~797 KB), NẠP THEO YÊU CẦU
+│       ├── logos.js        TỰ SINH — bảng tra id → logo, ảnh dùng chung Đô Sát Viện
+│       ├── decoder.js      bộ giải mã calldata, TỰ VIẾT, chạy trong trình duyệt
+│       ├── glossary.js     bản dịch, SỬA TAY được
+│       └── app.js · halls.js · pwa.js
+│
 ├── server.js                   máy chủ tĩnh, không phụ thuộc gói nào
 ├── package.json
 ├── scripts/
 │   ├── build-live.mjs          DefiLlama → kinh-thanh/.../live.js
 │   ├── build-l2beat.mjs        L2BEAT    → do-sat-vien/.../data.js
+│   ├── build-congbo.mjs        công cụ   → cong-bo/.../data.js
 │   ├── build-scan.mjs          model     → dai-quan-trac/.../scan.js
 │   ├── build-dist.mjs          gom cổng + các cung thành dist/, kèm 3 lớp kiểm tra
 │   ├── pin-ipfs.mjs            pin cả site
 │   ├── pin-snapshot.mjs        đóng dấu riêng bản số liệu (~1,8 KB)
 │   └── check.mjs               kiểm cú pháp toàn bộ JS
 └── .github/workflows/
-    ├── refresh-data.yml        mỗi 6 giờ: build-live + build-l2beat rồi commit
+    ├── refresh-data.yml        mỗi 6 giờ: build-live + build-l2beat + build-congbo
     ├── scan-observatory.yml    mỗi 6 giờ: build-scan rồi commit
     ├── deploy-pages.yml        đóng gói dist/ → GitHub Pages
     └── deploy-ipfs.yml         đóng gói dist/ → IPFS
@@ -384,7 +396,81 @@ Kinh Thành và Đài Quan Trắc dùng nền giấy sáng + chàm. Đô Sát Vi
 Roboto, accent hồng sen — vì đây là bản dựng lại có chủ ý theo L2BEAT, không phải sơ
 suất. Đổi về phong cách chung thì sửa `:root` trong `do-sat-vien/assets/css/app.css`
 và font ở `index.html`; markup và JS không phải động vào.
+
 ---
+
+## Công Bộ — bộ đồ nghề (Việt hoá tools.l2beat.com)
+
+`/cong-bo/` khác ba cung kia ở chỗ: **đây không phải trang dữ liệu để dịch mà là bộ
+công cụ cho thợ.** "Việt hoá" ở đây nghĩa là dựng lại, không phải chép chữ. Nền tối
+theo đúng bản gốc (họ dùng `zinc-950`).
+
+Chạy tay: `npm run congbo`
+
+| công cụ | làm gì | nguồn |
+|---|---|---|
+| **Giải mã lời gọi** | dán calldata → tên hàm + từng tham số | **tự viết**, chạy trong trình duyệt |
+| **Nhật ký đổi thay** | 460 thay đổi hợp đồng on-chain, 83 dự án, 30 ngày | `um-prod.l2beat.com/discovery/changes` |
+| **Kính lúp hồ sơ** | 198 dự án × 11 hạng mục, ai còn bỏ trống gì | `fe-stag.l2beat.com/api/discolupe` |
+
+### Vì sao bộ giải mã tự viết
+
+L2BEAT có sẵn `tools-api.l2beat.com/api/decode`, **nhưng nó đang trả 500** — thử cả
+POST đúng dạng vẫn vậy. Mà việc này vốn không cần máy chủ: bóc 4 byte đầu làm
+selector, tra tên hàm, rồi đọc tham số theo quy tắc mã hoá ABI.
+
+Chỉ một chỗ cần mạng là tra tên hàm từ selector. Dùng **api.openchain.xyz** (có CORS)
+và có **29 hàm tra sẵn** trong `decoder.js`, nên phần lớn lời gọi thường đọc được
+ngay cả khi mất mạng.
+
+**Không dùng 4byte.directory** dù nó phổ biến hơn: nó không trả header CORS nên
+trình duyệt chặn thẳng.
+
+Đọc được mọi kiểu tĩnh (`uintN`, `intN`, `address`, `bool`, `bytesN`) và kiểu động
+một tầng (`string`, `bytes`, `T[]`). **Tuple lồng nhau thì báo "chưa đọc được" chứ
+không đoán bừa** — đọc sai một tham số còn tệ hơn nói thẳng là không đọc được.
+
+### Nguồn mong manh, nói thẳng
+
+`fe-stag` là host **staging** của L2BEAT, không phải bản chính thức — có thể đổi hoặc
+tắt bất cứ lúc nào mà không ai nợ mình lời báo trước. Nên cùng cách xử lý như
+`build-l2beat.mjs`: hỏng thì giữ bản cũ, in cảnh báo, và app hiện dải nhắc ở đầu
+trang nói rõ mục nào đang là bản cũ.
+
+### Hai công cụ đã bỏ, và vì sao
+
+| | |
+|---|---|
+| **Simulator** | cần khoá Tenderly (`tdly.co`) — không có thì chỉ là nút chết |
+| **Logo generator** | dùng để làm nhận diện cho chính L2BEAT, không có việc gì ở đây |
+
+Thà bỏ hẳn còn hơn để một nút bấm vào không ra gì — đúng lỗi mà bản gốc
+`dai-quan-trac.html` từng mắc với nút "Quét trực tiếp".
+
+### Tiết kiệm chỗ
+
+```
+data.js          129 KB  nạp đầu: tóm tắt 460 thay đổi + 198 dự án
+v/nhat-ky.js     797 KB  nguyên văn diff, chỉ nạp khi mở một diff
+logos.js           4 KB  bảng tra id → tên file
+```
+
+Diff dài nhất trong một lần chạy là **436 KB** — một hợp đồng bị dựng lại toàn bộ.
+Cắt ở 6 KB và ghi rõ đã cắt, kèm liên kết sang bản đầy đủ.
+
+200 logo **dùng chung với Đô Sát Viện** qua bảng tra `id → tên file`; ảnh vẫn nằm ở
+`do-sat-vien/assets/logos/`. Chép sang đây là nhân đôi 1 MB trong repo mà chẳng được gì.
+
+### Hai lỗi shell đáng nhớ
+
+Cả hai đều do chèn nội dung qua `node -e`, và **cả hai đều hỏng lặng lẽ**:
+
+- **YAML**: `\n` trong chuỗi thành hai ký tự thật, làm hỏng lệnh `git add` nhiều dòng
+  trong workflow — lỗi chỉ lộ khi Actions chạy.
+- **Regex**: shell nuốt một tầng backslash, `\s*` thành `s*` và `\d+` thành `d+`.
+  Thẻ ở Cổng Thành im lặng không hiện số, không báo lỗi gì.
+
+Cách chữa: viết ra file `.mjs` rồi chạy, đừng nhét chuỗi có backslash qua `node -e`.
 
 ## Phát hành bản mới
 
