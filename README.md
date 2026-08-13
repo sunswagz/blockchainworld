@@ -10,6 +10,7 @@ chạy offline, số liệu tự cập nhật, và đóng gói thành app Androi
 | **/dai-quan-trac/** | dòng chảy địa chính trị, 5 chiến trường, 8 đồng hồ | bản quét sinh trong GitHub Actions |
 | **/do-sat-vien/** | bản Việt hoá của L2BEAT — 23 mục trong 7 nhóm, đủ cây điều hướng | L2BEAT: API `scaling/summary` + dữ liệu 21 trang |
 | **/cong-bo/** | bộ đồ nghề — giải mã lời gọi, nhật ký đổi thay on-chain, kính lúp hồ sơ | L2BEAT: `um-prod/discovery/changes` + `fe-stag/api/discolupe` |
+| **/tang-thu-cac/** | kho tra cứu Claude Skills — mỗi skill làm gì, giúp được gì cho bạn | GitHub: `topic:claude-skills` + `anthropics/skills` |
 
 Các file gốc trong `SUNSWaGz app/` không bị đụng vào — vẫn nằm nguyên chỗ cũ để đối chiếu.
 
@@ -90,19 +91,27 @@ kinh-thanh-app/
 │       ├── glossary.js     bản dịch, SỬA TAY được
 │       └── app.js · halls.js · pwa.js
 │
+├── tang-thu-cac/               CUNG 5 — kho tra cứu Claude Skills
+│   ├── index.html · sw.js · manifest.webmanifest   (nền giấy ngà)
+│   └── assets/js/
+│       ├── data.js         TỰ SINH — 321 skill + 61 kho (~230 KB)
+│       ├── glossary.js     dịch tay 17 skill chính thức, SỬA TAY được
+│       └── app.js · halls.js · pwa.js
+│
 ├── server.js                   máy chủ tĩnh, không phụ thuộc gói nào
 ├── package.json
 ├── scripts/
 │   ├── build-live.mjs          DefiLlama → kinh-thanh/.../live.js
 │   ├── build-l2beat.mjs        L2BEAT    → do-sat-vien/.../data.js
 │   ├── build-congbo.mjs        công cụ   → cong-bo/.../data.js
+│   ├── build-tangthu.mjs       GitHub    → tang-thu-cac/.../data.js
 │   ├── build-scan.mjs          model     → dai-quan-trac/.../scan.js
 │   ├── build-dist.mjs          gom cổng + các cung thành dist/, kèm 3 lớp kiểm tra
 │   ├── pin-ipfs.mjs            pin cả site
 │   ├── pin-snapshot.mjs        đóng dấu riêng bản số liệu (~1,8 KB)
 │   └── check.mjs               kiểm cú pháp toàn bộ JS
 └── .github/workflows/
-    ├── refresh-data.yml        mỗi 6 giờ: build-live + build-l2beat + build-congbo
+    ├── refresh-data.yml        mỗi 6 giờ: build-live + l2beat + congbo + tangthu
     ├── scan-observatory.yml    mỗi 6 giờ: build-scan rồi commit
     ├── deploy-pages.yml        đóng gói dist/ → GitHub Pages
     └── deploy-ipfs.yml         đóng gói dist/ → IPFS
@@ -471,6 +480,92 @@ Cả hai đều do chèn nội dung qua `node -e`, và **cả hai đều hỏng 
   Thẻ ở Cổng Thành im lặng không hiện số, không báo lỗi gì.
 
 Cách chữa: viết ra file `.mjs` rồi chạy, đừng nhét chuỗi có backslash qua `node -e`.
+
+---
+
+## Tàng Thư Các — kho tra cứu Claude Skills
+
+`/tang-thu-cac/` giải một vấn đề rất cụ thể: **skill thì hàng trăm, mà tên như
+`pdf` hay `mcp-builder` chẳng nói được gì.** Mô tả gốc lại viết cho MÁY đọc — nó
+trả lời "khi nào agent nên tự bật skill này", không trả lời "cái này giúp gì cho tôi".
+
+Chạy tay: `npm run tangthu` · quét nhiều kho hơn: `TT_SO_KHO=40 npm run tangthu`
+
+### Bốn phần cho mỗi skill
+
+| phần | trả lời |
+|---|---|
+| **Nó là gì** | một câu |
+| **Làm được gì** | danh sách việc cụ thể |
+| **Khi nào Claude tự bật nó** | điều kiện kích hoạt |
+| **Với hệ thống của bạn** | gắn vào đúng việc đang làm ở repo này |
+
+Phần thứ tư là thứ không kho skill nào khác có. Ví dụ `webapp-testing`:
+
+> *Chính là việc tôi vẫn làm tay suốt: mở trình duyệt thật, quét 23 mục của Đô Sát
+> Viện, đọc console, chụp ảnh. Skill này gói việc đó lại thành quy trình sẵn.*
+
+### Trung thực về độ phủ
+
+| | |
+|---|---|
+| **17 skill chính thức của Anthropic** | dịch và diễn giải tay trong `glossary.js` |
+| **304 skill cộng đồng** | giữ nguyên mô tả tiếng Anh, gắn nhãn **"chưa dịch tay"** |
+
+Bịa mô tả tiếng Việt cho skill chưa đọc kỹ còn tệ hơn để nguyên bản.
+
+### Cập nhật từ GitHub — khác bốn cung kia
+
+`api.github.com` có CORS mở, nên trang này **gọi thẳng được từ trình duyệt**:
+
+- **Bản chụp lúc build** luôn có sẵn — mở là thấy ngay, offline vẫn xem được
+- **Nút "Làm mới"** lấy số sao mới nhất tại chỗ, không cần chờ cron
+
+Hạn mức 60 lượt/giờ mỗi IP (không token), quá đủ cho một người. Hết hạn mức thì
+chỉ mất phần làm mới chứ **không mất bản chụp**.
+
+Trong Actions, `GITHUB_TOKEN` nâng hạn mức lên 5.000/giờ — nên workflow quét được
+40 kho thay vì 6.
+
+### Quét thế nào cho rẻ
+
+```
+1 lời gọi   search/repositories?q=topic:claude-skills   → bảng xếp hạng
+N lời gọi   git/trees/<nhánh>?recursive=1               → MỘT lời gọi lấy cả cây repo
+M lần tải   raw.githubusercontent.com/.../SKILL.md      → CDN, KHÔNG tính hạn mức
+```
+
+Phần nặng nhất (đọc hàng trăm file SKILL.md) lại là phần rẻ nhất, vì `raw.*` không
+qua API. Script tự dừng quét khi hạn mức xuống dưới 5 lượt thay vì đâm vào lỗi 403.
+
+### Ba lỗi đã bắt
+
+**Kho chính thức không nằm trong kết quả tìm.** `anthropics/skills` gắn thẻ
+`agent-skills` chứ **không phải** `claude-skills`, nên tìm theo topic không ra nó —
+bảng đầu tiên tôi dựng có **0 skill chính thức**. Giờ có danh sách `LUON_CO` nạp
+thẳng, không trông vào kết quả tìm kiếm.
+
+**Frontmatter dạng block scalar.** `description: |-` rồi nội dung thụt vào dòng
+dưới — không xử lý thì mô tả của `claude-api` bắt đầu bằng đúng hai ký tự `|-`.
+
+**Phân nhóm sai vì xét mô tả trước tên.** `canvas-design` có chữ `.pdf` trong mô tả
+nên bị xếp thành công cụ tài liệu. Sửa: xét **tên trước mô tả**, và nhóm hẹp
+(`kiem-thu`) đứng trước nhóm rộng (`giao-dien`, `tai-lieu`) trong bảng luật.
+
+Nhóm `khac` luôn xuống cuối màn Tổng quan dù đông nhất — nhóm rác dẫn đầu thì trông
+như chưa phân loại được gì.
+
+### Vì sao chỉ làm Claude Skills
+
+Ba hệ khác nhau về cả định dạng lẫn cách cài:
+
+| | định dạng | cài kiểu gì |
+|---|---|---|
+| Claude Skills | thư mục có `SKILL.md` | chép vào `~/.claude/skills/` hoặc marketplace |
+| ChatGPT GPTs | cấu hình trên nền tảng OpenAI | không tải về được |
+| GitHub Copilot | `.github/` + extension | khác hẳn |
+
+Gộp một bảng thì trông gọn mà dùng thì sai. Làm sâu một hệ hơn làm nông ba hệ.
 
 ## Phát hành bản mới
 
