@@ -3,7 +3,7 @@
 
    "Quốc gia · Layer 1" thành một mục chính gập được — mặc định
    thu gọn, bấm mới mở. Ngang hàng với nó là các cung khác
-   (Đài Quan Trắc) và lối về Cổng Thành.
+   (Đài Quan Trắc, Đô Sát Viện) và lối về Cổng Thành.
 
    Thêm cung mới sau này = thêm một dòng vào HALLS.
 
@@ -25,6 +25,13 @@
       note: "dòng chảy địa chính trị",
       icon: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/>' +
             '<path d="M12 12l6-3.6"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>'
+    },
+    {
+      href: "../do-sat-vien/",
+      name: "Đô Sát Viện",
+      note: "bảng xét L2 · thang tự trị",
+      icon: '<path d="M3.5 20.5h17"/><path d="M4.5 16.8h7.2v3.7H4.5z"/>' +
+            '<path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>'
     }
   ];
 

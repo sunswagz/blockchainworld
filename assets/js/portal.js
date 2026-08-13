@@ -44,6 +44,34 @@
     })
     .catch(function () {});
 
+  // Đô Sát Viện: data.js nặng ~180 KB, mà tất cả những gì cần đều nằm
+  // trong đoạn đầu. Đọc một khúc rồi huỷ luôn dòng tải, không kéo hết file.
+  function dauFile(url, byte) {
+    return fetch(url, { cache: "no-store" }).then(function (r) {
+      if (!r.ok) return null;
+      if (!r.body || !r.body.getReader) return r.text();  // trình duyệt cũ
+      var reader = r.body.getReader(), dec = new TextDecoder(), got = "";
+      return (function doc() {
+        return reader.read().then(function (b) {
+          if (b.done) return got;
+          got += dec.decode(b.value, { stream: true });
+          if (got.length >= byte) { reader.cancel(); return got; }
+          return doc();
+        });
+      })();
+    });
+  }
+
+  dauFile("do-sat-vien/assets/js/data.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("dsvDate", "cập nhật " + m[1]);
+      var n = t.match(/(\d+)\s+dự án/);
+      if (n) stamp("dsvSo", n[1] + " thành phố");
+    })
+    .catch(function () {});
+
   // đếm số cung đã dựng, lấy từ chính DOM
   var built = document.querySelectorAll(".hall:not([data-soon])").length;
   stamp("hallCount", String(built).padStart(2, "0"));

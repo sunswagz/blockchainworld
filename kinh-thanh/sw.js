@@ -7,7 +7,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v2";
+var CACHE_VERSION = "v3";
 var SHELL_CACHE = "kinh-thanh-shell-" + CACHE_VERSION;
 var FONT_CACHE = "kinh-thanh-fonts-" + CACHE_VERSION;
 

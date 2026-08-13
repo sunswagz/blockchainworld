@@ -1,10 +1,19 @@
-# Kinh Thành — web app
+# Cổng Thành — SUNSWaGz
 
-Bản đồ 9 quốc gia Layer 1. Chuyển từ file đơn `SUNSWaGz app/Kinh Thành/index.html`
-(4.821 dòng, 350 KB) thành một web app tĩnh: **cài được lên máy, chạy offline,
-và đóng gói thành app Android/iOS được về sau**.
+Cửa ngõ dẫn vào các cung. Mỗi cung là một web app tĩnh độc lập: **cài được lên máy,
+chạy offline, số liệu tự cập nhật, và đóng gói thành app Android/iOS được về sau**.
 
-File gốc không bị đụng vào — nó vẫn nằm nguyên chỗ cũ để đối chiếu.
+| cung | là gì | nguồn số liệu |
+|---|---|---|
+| **/** Cổng Thành | trang cửa ngõ, liệt kê các cung | đọc ngày cập nhật từ chính file của từng cung |
+| **/kinh-thanh/** | bản đồ 9 quốc gia Layer 1 | DefiLlama + L2BEAT (14 thành phố thuộc Ethereum) |
+| **/dai-quan-trac/** | dòng chảy địa chính trị, 5 chiến trường, 8 đồng hồ | bản quét sinh trong GitHub Actions |
+| **/do-sat-vien/** | bảng xét **toàn bộ** thành phố Layer 2, Việt hoá từ L2BEAT | L2BEAT scaling API (107 dự án) |
+
+Các file gốc trong `SUNSWaGz app/` không bị đụng vào — vẫn nằm nguyên chỗ cũ để đối chiếu.
+
+Thêm một cung mới = thêm một thư mục + một dòng trong `HALLS` của `scripts/build-dist.mjs`
++ một thẻ ở `index.html` + một dòng trong `halls.js` của các cung khác.
 
 ---
 
@@ -29,31 +38,64 @@ Kiểm tra cú pháp toàn bộ JS: `npm run check`
 
 ```
 kinh-thanh-app/
-├── index.html                  vỏ trang — chỉ markup, không còn CSS/JS nhúng
-├── manifest.webmanifest        tên app, icon, màu, lối tắt
-├── sw.js                       service worker: offline + cập nhật
+├── index.html                  CỔNG THÀNH — trang cửa ngõ
+├── manifest.webmanifest        · tên app, icon, màu
+├── sw.js                       · service worker riêng, CỐ Ý không cache các cung
+├── assets/{css,js,icons}/      · portal.css, portal.js
+│
+├── kinh-thanh/                 CUNG 1 — bản đồ 9 quốc gia L1
+│   ├── index.html · sw.js · manifest.webmanifest
+│   └── assets/
+│       ├── css/                app.css, app-shell.css, l2beat.css, provenance.css,
+│       │                       passport.css, halls.css, onchain.css
+│       ├── icons/              192 / 512 / maskable / apple-touch / favicon
+│       └── js/
+│           ├── data/chains.js      9 quốc gia L1, các tầng và mục bên trong
+│           ├── data/strength.js    số chụp 10/08/2026 + trọng số xếp hạng
+│           ├── data/live.js        TỰ SINH — số mới đè lên số chụp
+│           ├── data/provenance.js  TỰ SINH — CID + sha256 của bản số liệu
+│           ├── data/entities.js    hồ sơ chi tiết từng thành phần
+│           ├── data/cities.js      sơ đồ dòng chảy của từng "thành phố" L2
+│           ├── app.js              toàn bộ logic giao diện (3 móc có rào)
+│           ├── l2beat.js           hồ sơ tự trị của thành phố (Stage, rủi ro)
+│           ├── provenance.js       khối "bản số liệu này đóng dấu được"
+│           ├── wallets.js          phát hiện ví theo EIP-6963
+│           ├── passport.js         hộ chiếu ví — chỉ đọc và personal_sign
+│           ├── pulse.js            nhịp tim realtime qua WebSocket RPC
+│           ├── halls.js            thanh bên gập được + lối sang cung khác
+│           └── pwa.js              service worker, nút cài, báo bản mới
+│
+├── dai-quan-trac/              CUNG 2 — dòng chảy địa chính trị
+│   └── assets/js/{data.js, app.js, scan.js(TỰ SINH), halls.js, pwa.js}
+│
+├── do-sat-vien/                CUNG 3 — bảng xét Layer 2, Việt hoá L2BEAT
+│   └── assets/js/
+│       ├── data.js             TỰ SINH — 107 dự án từ L2BEAT (~176 KB)
+│       ├── glossary.js         bản dịch + diễn giải, SỬA TAY được
+│       ├── app.js              bảng, bộ lọc, hồ sơ chi tiết, chú giải
+│       ├── halls.js · pwa.js
+│
 ├── server.js                   máy chủ tĩnh, không phụ thuộc gói nào
 ├── package.json
 ├── scripts/
-│   └── build-live.mjs          lấy số mới từ DefiLlama → sinh live.js
-├── .github/workflows/
-│   └── refresh-data.yml        chạy build-live.mjs mỗi 6 giờ rồi commit
-└── assets/
-    ├── css/
-    │   ├── app.css             giao diện bản đồ (chép nguyên từ bản gốc)
-    │   ├── app-shell.css       phần thêm cho app: vùng an toàn, nút cài, toast
-    │   └── l2beat.css          huy hiệu Stage và bảng rủi ro
-    ├── icons/                  192 / 512 / maskable / apple-touch / favicon
-    └── js/
-        ├── data/chains.js      9 quốc gia L1, các tầng và mục bên trong
-        ├── data/strength.js    số chụp 10/08/2026 + trọng số xếp hạng
-        ├── data/live.js        TỰ SINH — số mới đè lên số chụp
-        ├── data/entities.js    hồ sơ chi tiết từng thành phần
-        ├── data/cities.js      sơ đồ dòng chảy của từng "thành phố" L2
-        ├── app.js              toàn bộ logic giao diện
-        ├── l2beat.js           hồ sơ tự trị của thành phố (Stage, rủi ro)
-        └── pwa.js              đăng ký service worker, nút cài, báo bản mới
+│   ├── build-live.mjs          DefiLlama → kinh-thanh/.../live.js
+│   ├── build-l2beat.mjs        L2BEAT    → do-sat-vien/.../data.js
+│   ├── build-scan.mjs          model     → dai-quan-trac/.../scan.js
+│   ├── build-dist.mjs          gom cổng + các cung thành dist/, kèm 3 lớp kiểm tra
+│   ├── pin-ipfs.mjs            pin cả site
+│   ├── pin-snapshot.mjs        đóng dấu riêng bản số liệu (~1,8 KB)
+│   └── check.mjs               kiểm cú pháp toàn bộ JS
+└── .github/workflows/
+    ├── refresh-data.yml        mỗi 6 giờ: build-live + build-l2beat rồi commit
+    ├── scan-observatory.yml    mỗi 6 giờ: build-scan rồi commit
+    ├── deploy-pages.yml        đóng gói dist/ → GitHub Pages
+    └── deploy-ipfs.yml         đóng gói dist/ → IPFS
 ```
+
+> **`paths:` của hai workflow deploy phải liệt kê từng cung.** Sau khi tách thư mục,
+> `assets/**` chỉ còn khớp assets của Cổng Thành — sửa app trong một cung mà quên
+> thêm `<cung>/**` thì thay đổi **không bao giờ lên site, và không có lỗi nào báo**.
+> Đã dính đúng lỗi này một lần với commit realtime pulse.
 
 ### Vì sao tách như vậy
 
@@ -196,6 +238,67 @@ if (window.KT_L2B) window.KT_L2B.section(frame, city.n, P.id); // trong openCity
 Xoá `l2beat.js` đi thì hai dòng này tự vô hiệu. **Đã thử với profile trình duyệt
 sạch: 0 markup `l2b-`, trang thành phố vẫn render đủ 32 ô.** Toàn bộ logic hiển
 thị nằm trong `l2beat.js` + `l2beat.css`, không rải rác vào `app.js`.
+
+---
+
+## Đô Sát Viện — bảng xét Layer 2 (Việt hoá L2BEAT)
+
+`/do-sat-vien/` là bản tiếng Việt của L2BEAT: **toàn bộ 107 dự án**, xếp theo tài
+sản đang giữ, lọc theo thang tự trị và dạng kỹ thuật, bấm vào một hàng ra hồ sơ
+đầy đủ năm chiều rủi ro.
+
+Chạy tay: `npm run l2beat`
+
+### Khác gì với huy hiệu L2BEAT trong Kinh Thành
+
+Hai chỗ dùng **cùng một nguồn nhưng khác phạm vi, và cố ý như vậy**:
+
+| | Kinh Thành | Đô Sát Viện |
+|---|---|---|
+| lấy bao nhiêu | 14 thành phố thuộc `eth` | **cả 107 dự án** |
+| khớp bằng gì | khớp tên với `cities.js` | không khớp tên gì cả |
+| để làm gì | chú thích thêm cho bản đồ | bảng xét đứng riêng |
+
+Kinh Thành phải khớp tên nên có rủi ro khớp nhầm (vụ `basechain` của TON, xem mục
+trên). Đô Sát Viện lấy thẳng cả danh sách nên **không có bước khớp nào để mà nhầm**.
+
+### Ba nguyên tắc của bản dịch
+
+**1. Không bịa nghĩa.** Nhãn nào L2BEAT thêm mới mà `glossary.js` chưa có thì bảng
+hiện **nguyên bản tiếng Anh** kèm dấu `chưa dịch`, chứ không đoán. Mỗi dòng rủi ro
+còn kèm `<details>` mở ra mô tả gốc tiếng Anh để đối chiếu.
+
+**2. Không tự chấm điểm.** Mọi đánh giá rủi ro là của L2BEAT. Chỗ này chỉ dịch, sắp
+xếp và diễn giải — ghi rõ ở chân trang và trong từng hồ sơ.
+
+**3. Mỗi nhãn trả lời "với người gửi tiền thì sao".** `glossary.js` cho mỗi mục ba
+phần: `nhan` (nhãn tiếng Việt), `y` (nghĩa kỹ thuật), `vn` (hệ quả với người gửi tiền).
+
+### Cạm bẫy đã xử lý: cùng một chữ, hai nghĩa
+
+L2BEAT dùng lại chuỗi `"None"` cho **hai chiều rủi ro khác nhau**:
+
+| chiều | `"None"` nghĩa là |
+|---|---|
+| State Validation | không ai kiểm chứng sổ sách, phải tin bên vận hành |
+| Exit Window | nâng cấp có hiệu lực ngay, **không có thời gian để rút trước** |
+
+Bảng tra phẳng theo giá trị sẽ gán nhầm nghĩa thứ nhất cho cả hai — và trông vẫn
+rất hợp lý, nên rất khó phát hiện. Vì vậy có thêm `giaTheoChieu` trong `glossary.js`,
+tra **trước** bảng chung; không có mới rơi về bảng chung. Hiện đây là cặp duy nhất
+đụng nhau (kiểm bằng cách quét 28 giá trị × 5 chiều của cả 107 dự án).
+
+### Vì sao 78/107 hiện là "Dạng khác"
+
+Vì `category` mà chính L2BEAT trả về cho 78 dự án đó **là `"Other"`** — không phải
+số liệu bị rơi. Endpoint `summary` không có trường nào chi tiết hơn. Chú giải ghi
+rõ điều này để không ai tưởng là lỗi.
+
+### Cổng Thành đọc ngày cập nhật mà không tải 176 KB
+
+`data.js` nặng ~176 KB, nhưng tất cả những gì thẻ ở Cổng Thành cần (ngày, số dự án)
+đều nằm trong ~900 byte đầu. `portal.js` đọc một khúc bằng `body.getReader()` rồi
+`cancel()` luôn dòng tải. Trình duyệt không có streams thì rơi về `r.text()`.
 
 ---
 
@@ -446,6 +549,11 @@ Vài lưu ý khi tới bước đó:
 
 ## Còn có thể thêm
 
-- Trang **Đài Quan Trắc** (`SUNSWaGz app/Đài Quan Trắc/dai-quan-trac.html`) chưa
-  được gộp vào đây. Muốn thành app hai màn hình thì thêm nó như một route nữa.
+- **WalletConnect** cho ví trên điện thoại — hiện `wallets.js` chỉ phát hiện ví
+  cắm sẵn trong trình duyệt (EIP-6963).
+- **Neo sha256 lên Base** — cột `anchored` trong `history.json` đã chừa sẵn chỗ.
+- **ENS contenthash** trỏ vào CID mới nhất.
 - Tự tải phông chữ về `assets/fonts/` để lần mở đầu tiên cũng không cần mạng.
+- Chú giải của Đô Sát Viện mới phủ tới đúng những nhãn L2BEAT đang dùng. L2BEAT
+  thêm nhãn mới thì bảng hiện nguyên bản tiếng Anh kèm dấu **"chưa dịch"** — cứ
+  mở `do-sat-vien/assets/js/glossary.js` thêm vào, không phải sửa gì khác.

@@ -15,6 +15,13 @@
       note: "bản đồ 9 quốc gia L1",
       icon: '<circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2"/>' +
             '<path d="M12 3.4c2.4 2.4 3.6 5.3 3.6 8.6s-1.2 6.2-3.6 8.6c-2.4-2.4-3.6-5.3-3.6-8.6S9.6 5.8 12 3.4Z"/>'
+    },
+    {
+      href: "../do-sat-vien/",
+      name: "Đô Sát Viện",
+      note: "bảng xét L2 · thang tự trị",
+      icon: '<path d="M3.5 20.5h17"/><path d="M4.5 16.8h7.2v3.7H4.5z"/>' +
+            '<path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>'
     }
   ];
 

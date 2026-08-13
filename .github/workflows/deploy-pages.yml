@@ -24,6 +24,7 @@ on:
       - "assets/**"
       - "kinh-thanh/**"
       - "dai-quan-trac/**"
+      - "do-sat-vien/**"
       - "scripts/build-dist.mjs"
   workflow_dispatch:
   workflow_call:

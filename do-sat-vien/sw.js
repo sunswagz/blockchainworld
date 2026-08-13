@@ -1,35 +1,38 @@
 /* ═══════════════════════════════════════════════════════
-   Service worker — Đài Quan Trắc
-     · vỏ ứng dụng   : cache trước, chạy offline
-     · scan.js       : mạng trước (đổi mỗi 6 giờ)
-     · phông chữ     : cache khi dùng lần đầu
-   Đổi CACHE_VERSION mỗi lần phát hành.
+   Service worker — Đô Sát Viện
+   Chiến lược:
+     · vỏ ứng dụng (html/css/js/icon) : cache trước, chạy offline
+     · phông chữ Google              : cache khi dùng lần đầu
+     · assets/js/data.js             : mạng trước — 176 KB số liệu
+                                       tự sinh, đổi mỗi 6 giờ
+   Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v3";
-var SHELL_CACHE = "dqt-shell-" + CACHE_VERSION;
-var FONT_CACHE = "dqt-fonts-" + CACHE_VERSION;
+var CACHE_VERSION = "v1";
+var SHELL_CACHE = "do-sat-vien-shell-" + CACHE_VERSION;
+var FONT_CACHE = "do-sat-vien-fonts-" + CACHE_VERSION;
 
 var SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./assets/css/app.css",
-  "./assets/css/app-shell.css",
   "./assets/css/halls.css",
   "./assets/js/data.js",
-  "./assets/js/scan.js",
+  "./assets/js/glossary.js",
   "./assets/js/app.js",
-  "./assets/js/halls.js",
   "./assets/js/pwa.js",
+  "./assets/js/halls.js",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/icon-maskable-512.png",
-  "./assets/icons/apple-touch-icon.png"
+  "./assets/icons/apple-touch-icon.png",
+  "./assets/icons/favicon-32.png"
 ];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(SHELL_CACHE).then(function (c) {
+    // addAll là all-or-nothing; thêm từng cái để một file lỗi không phá cả bản cài
     return Promise.all(SHELL.map(function (u) {
       return c.add(new Request(u, { cache: "reload" })).catch(function () {});
     }));
@@ -55,6 +58,7 @@ function isFont(url) {
 self.addEventListener("fetch", function (e) {
   var req = e.request;
   if (req.method !== "GET") return;
+
   var url = new URL(req.url);
 
   if (isFont(url)) {
@@ -72,8 +76,9 @@ self.addEventListener("fetch", function (e) {
 
   if (url.origin !== self.location.origin) return;
 
-  // bản quét đổi mỗi 6 giờ — luôn hỏi mạng trước
-  if (url.pathname.indexOf("/assets/js/scan.js") !== -1) {
+  // bảng xét tự cập nhật — mạng trước, hỏng mạng mới dùng bản đã lưu
+  if (url.pathname.indexOf("/do-sat-vien/assets/js/data.js") !== -1 ||
+      url.pathname.indexOf("/assets/js/data.js") !== -1) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {
         var copy = res.clone();

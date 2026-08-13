@@ -1,6 +1,8 @@
 name: Cập nhật số liệu
 
-# Chạy mỗi 6 giờ, lấy số mới từ DefiLlama rồi commit đè assets/js/data/live.js.
+# Chạy mỗi 6 giờ, lấy số mới rồi commit đè các file dữ liệu tự sinh:
+#   · DefiLlama  → kinh-thanh/assets/js/data/live.js
+#   · L2BEAT     → do-sat-vien/assets/js/data.js
 # Nhờ vậy app không cần server, và người dùng offline vẫn có số tương đối mới.
 #
 # Nếu thư mục kinh-thanh-app KHÔNG phải gốc repo, sửa `working-directory`
@@ -47,6 +49,12 @@ jobs:
       - name: Lấy số mới
         run: node scripts/build-live.mjs
 
+      # Bảng xét Đô Sát Viện — nguồn khác (L2BEAT), file khác, hỏng độc lập.
+      # Bước này ngã thì số liệu Kinh Thành ở trên vẫn commit được.
+      - name: Lấy bảng xét L2BEAT
+        continue-on-error: true
+        run: node scripts/build-l2beat.mjs
+
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
       # Thiếu secret thì bỏ qua chứ không làm hỏng cả lần chạy.
@@ -61,7 +69,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add kinh-thanh/assets/js/data/live.js \
                   kinh-thanh/assets/js/data/provenance.js \
-                  kinh-thanh/assets/data/history.json
+                  kinh-thanh/assets/data/history.json \
+                  do-sat-vien/assets/js/data.js
           if git diff --staged --quiet; then
             echo "Số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"

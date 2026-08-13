@@ -8,6 +8,7 @@
     "start": "node server.js",
     "dev": "node server.js",
     "refresh": "node scripts/build-live.mjs",
+    "l2beat": "node scripts/build-l2beat.mjs",
     "scan": "node scripts/build-scan.mjs",
     "dist": "node scripts/build-dist.mjs",
     "pin": "node scripts/pin-ipfs.mjs",
