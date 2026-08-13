@@ -48,9 +48,15 @@
 
   /* Logo dùng chung với Đô Sát Viện — 200 file đã tải sẵn ở đó,
      chép sang đây là nhân đôi 1 MB trong repo mà chẳng được gì. */
-  function logoHTML(id, ten) {
+  function duongLogo(id) {
     var p = (window.DSV_LOGO_MAP || {})[id];
-    if (p) return '<img src="' + LOGO + esc(p) + '" alt="" loading="lazy" width="19" height="19">';
+    if (p) return LOGO + p;
+    var b = (window.CB_LOGO_BU || {})[id];
+    return b ? "assets/logos/" + b : null;   // ảnh tải bù cho dự án đã ngừng
+  }
+  function logoHTML(id, ten) {
+    var p = duongLogo(id);
+    if (p) return '<img src="' + esc(p) + '" alt="" loading="lazy" width="19" height="19">';
     return '<span class="khonglogo">' + esc(String(ten || id || "?").trim().charAt(0).toUpperCase()) + "</span>";
   }
 
@@ -58,17 +64,24 @@
      THANH BÊN
      ══════════════════════════════════════════════════ */
   var CAY = [
-    { nhom: "Đồ nghề", muc: ["giai-ma"] },
-    { nhom: "Theo dõi", muc: ["nhat-ky", "kinh-lup"] }
+    { nhom: "Đồ nghề", muc: ["giai-ma", "xuong-huy-hieu"] },
+    { nhom: "Theo dõi", muc: ["nhat-ky", "kinh-lup"] },
+    { nhom: "Ngoài trang", muc: ["di-noi-khac"] }
   ];
   var IC = {
     "giai-ma": '<path d="M8 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2"/><path d="M10 9.5 12 12l-2 2.5M13.5 14.5h1.5"/>',
     "nhat-ky": '<path d="M4.5 5.5h15M4.5 12h15M4.5 18.5h15"/><circle cx="8" cy="5.5" r="1.8" fill="currentColor"/><circle cx="15" cy="12" r="1.8" fill="currentColor"/><circle cx="10" cy="18.5" r="1.8" fill="currentColor"/>',
-    "kinh-lup": '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/><path d="M8 10.5h5M10.5 8v5"/>'
+    "kinh-lup": '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/><path d="M8 10.5h5M10.5 8v5"/>',
+    "xuong-huy-hieu": '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/>' +
+      '<rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>',
+    "di-noi-khac": '<path d="M14 4h6v6"/><path d="M20 4l-9 9"/>' +
+      '<path d="M18 14v5a1.8 1.8 0 0 1-1.8 1.8H5A1.8 1.8 0 0 1 3.2 19V7.8A1.8 1.8 0 0 1 5 6h5"/>'
   };
   function demMuc(ma) {
     if (ma === "nhat-ky") return (D.nhatKy || []).length;
     if (ma === "kinh-lup") return (D.kinhLup || []).length;
+    if (ma === "xuong-huy-hieu") return (D.kinhLup || []).length;
+    if (ma === "di-noi-khac") return NGOAI.length;
     return null;
   }
   function veBen() {
@@ -385,10 +398,162 @@
     $("#hosoDong").focus();
   }
 
+
+  /* ══════════════════════════════════════════════════
+     4. XƯỞNG HUY HIỆU
+     Xếp logo thành một tấm rồi tải về PNG. Vẽ bằng canvas,
+     198 logo đã nằm sẵn trong repo nên không gọi mạng lần nào.
+     ══════════════════════════════════════════════════ */
+  var xh = { tang: { L2: true, L3: false }, ngung: false, co: 64, cot: 10, bo: "" };
+
+  function mhXuong(host) {
+    host.innerHTML =
+      '<p class="giaithich">' + dan("xuong-huy-hieu") + "</p>" +
+      '<section class="khoi"><div class="form">' +
+        '<div class="hang-nut" style="margin-top:0">' +
+          '<button class="chip" id="xL2" type="button">Tầng 2</button>' +
+          '<button class="chip" id="xL3" type="button">Tầng 3</button>' +
+          '<button class="chip" id="xNg" type="button">Kể cả đã ngừng</button>' +
+        "</div>" +
+        '<div class="hang-nut">' +
+          '<label class="nhan" style="margin:0">Cỡ <b id="xCoN"></b>px</label>' +
+          '<input type="range" id="xCo" min="24" max="128" step="8">' +
+          '<label class="nhan" style="margin:0 0 0 10px">Số cột <b id="xCotN"></b></label>' +
+          '<input type="range" id="xCot" min="4" max="20" step="1">' +
+        "</div>" +
+        '<label class="nhan" style="margin-top:12px" for="xBo">Bỏ bớt — gõ slug, cách nhau bằng dấu phẩy</label>' +
+        '<input class="o" id="xBo" spellcheck="false" placeholder="base, arbitrum">' +
+        '<div class="hang-nut">' +
+          '<button class="nut" id="xTai" type="button">Tải về PNG</button>' +
+          '<span class="goiy" id="xDem"></span>' +
+        "</div>" +
+      "</div>" +
+      '<div class="kq"><div id="xLuoi"></div></div></section>';
+
+    function nutTang(id, k) {
+      var b = $(id);
+      b.setAttribute("aria-pressed", String(xh.tang[k]));
+      b.addEventListener("click", function () { xh.tang[k] = !xh.tang[k]; ve(); });
+    }
+    nutTang("#xL2", "L2");
+    nutTang("#xL3", "L3");
+    var bn = $("#xNg");
+    bn.setAttribute("aria-pressed", String(xh.ngung));
+    bn.addEventListener("click", function () { xh.ngung = !xh.ngung; ve(); });
+
+    $("#xCo").value = xh.co; $("#xCoN").textContent = xh.co;
+    $("#xCot").value = xh.cot; $("#xCotN").textContent = xh.cot;
+    $("#xBo").value = xh.bo;
+    $("#xCo").addEventListener("input", function (e) { xh.co = +e.target.value; ve(); });
+    $("#xCot").addEventListener("input", function (e) { xh.cot = +e.target.value; ve(); });
+    $("#xBo").addEventListener("input", function (e) { xh.bo = e.target.value; ve(); });
+    $("#xTai").addEventListener("click", taiPNG);
+
+    var ds = chonLogo();
+    $("#xDem").textContent = ds.length + " huy hiệu";
+    $("#xLuoi").innerHTML = ds.length
+      ? '<div class="luoi-hh" style="grid-template-columns:repeat(' + xh.cot +
+        ",minmax(0,1fr))\">" + ds.map(function (p) {
+          return '<img src="' + esc(p.duong) + '" alt="' + esc(p.ten) + '" title="' + esc(p.ten) +
+            '" width="' + xh.co + '" height="' + xh.co + '" loading="lazy">';
+        }).join("") + "</div>"
+      : '<p class="trong">Không có dự án nào khớp bộ lọc.</p>';
+  }
+
+  function chonLogo() {
+    var bo = xh.bo.split(",").map(function (x) { return x.trim().toLowerCase(); }).filter(Boolean);
+    return (D.kinhLup || []).filter(function (p) {
+      if (!xh.tang[p.loai]) return false;
+      if (!xh.ngung && p.luuTru) return false;
+      if (bo.indexOf(String(p.slug).toLowerCase()) !== -1) return false;
+      return !!duongLogo(p.id);
+    }).map(function (p) {
+      return { ten: p.ten, duong: duongLogo(p.id) };
+    });
+  }
+
+  /* Vẽ ra canvas rồi tải xuống. Ảnh cùng nguồn nên canvas không bị
+     "vấy bẩn" — toBlob chạy được. */
+  function taiPNG() {
+    var ds = chonLogo();
+    if (!ds.length) return;
+    var o = 8, cot = xh.cot, co = xh.co;
+    var hang = Math.ceil(ds.length / cot);
+    var c = document.createElement("canvas");
+    c.width = cot * (co + o) + o;
+    c.height = hang * (co + o) + o;
+    var g = c.getContext("2d");
+    var con = ds.length;
+    var nut = $("#xTai");
+    nut.textContent = "Đang vẽ…";
+    ds.forEach(function (p, i) {
+      var im = new Image();
+      im.onload = im.onerror = function () {
+        if (im.naturalWidth) {
+          g.drawImage(im, o + (i % cot) * (co + o), o + Math.floor(i / cot) * (co + o), co, co);
+        }
+        if (--con === 0) {
+          c.toBlob(function (b) {
+            var u = URL.createObjectURL(b);
+            var a = document.createElement("a");
+            a.href = u;
+            a.download = "huy-hieu-" + ds.length + "-" + co + "px.png";
+            a.click();
+            setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+            nut.textContent = "Tải về PNG";
+          }, "image/png");
+        }
+      };
+      im.src = p.duong;
+    });
+  }
+
+  /* ══════════════════════════════════════════════════
+     5. ĐI NƠI KHÁC
+     Bốn mục trong danh sách của tools.l2beat.com thật ra là
+     liên kết trỏ sang ứng dụng khác. Liệt kê cho đủ, kèm lý do
+     vì sao không dựng lại được ở đây.
+     ══════════════════════════════════════════════════ */
+  var NGOAI = [
+    { ten: "/disco-ui", url: "https://disco.l2beat.com/ui",
+      y: "Giao diện xem kết quả máy quét hợp đồng của L2BEAT.",
+      sao: "Là một ứng dụng riêng ở tên miền khác, không nằm trong bundle của tools.l2beat.com. Máy chủ của nó không trả header CORS nên trang này cũng không gọi sang được." },
+    { ten: "/diffovery", url: "https://disco.l2beat.com/diff",
+      y: "So sánh hai bản quét hợp đồng để thấy đã đổi gì.",
+      sao: "Cùng ứng dụng với /disco-ui. Phần dữ liệu thay đổi thì Nhật ký đổi thay ở đây đã phủ rồi." },
+    { ten: "/uops-analyzer", url: "https://uops.l2beat.com/",
+      y: "Phân tích thao tác người dùng mỗi giây (UOPS) theo từng chuỗi.",
+      sao: "Ứng dụng Next.js riêng, không có API công khai đọc được. Số UOPS theo dự án thì Đô Sát Viện đã có ở mục Hoạt động." },
+    { ten: "/flat-etherscan", url: "https://chromewebstore.google.com/detail/flat-etherscan-source/ndbkhchcbfbonadoibanllelgnmcljme",
+      y: "Tiện ích Chrome làm phẳng mã nguồn hợp đồng trên Etherscan.",
+      sao: "Là tiện ích trình duyệt, không phải trang web — không có gì để dựng lại." }
+  ];
+
+  function mhNgoai(host) {
+    host.innerHTML = '<p class="giaithich">' + dan("di-noi-khac") + "</p>" +
+      '<section class="khoi"><div class="ngoai">' +
+      NGOAI.map(function (x) {
+        return '<a class="ng-muc" href="' + esc(x.url) + '" target="_blank" rel="noopener">' +
+          '<div class="ng-dinh"><b>' + esc(x.ten) + "</b>" +
+          '<span class="ng-di">mở ở tab mới ↗</span></div>' +
+          "<p>" + esc(x.y) + "</p>" +
+          '<p class="ng-sao"><b>Vì sao không dựng lại:</b> ' + esc(x.sao) + "</p>" +
+          '<span class="ng-url">' + esc(x.url) + "</span></a>";
+      }).join("") + "</div>" +
+      '<p class="trong" style="text-align:left;padding:14px 18px;border-top:1px solid var(--line-2)">' +
+      "Còn một công cụ nữa của họ là <b>/simulator</b> — mô phỏng giao dịch trước khi gửi. " +
+      "Nó gọi Tenderly (<code>api.tenderly.co</code>), cần khoá riêng. Có khoá thì nối được; " +
+      "chưa có thì để nút bấm vào không ra gì còn tệ hơn không có nút.</p>" +
+      "</section>";
+  }
+
   /* ══════════════════════════════════════════════════
      ĐIỀU PHỐI
      ══════════════════════════════════════════════════ */
-  var MH = { "giai-ma": mhGiaiMa, "nhat-ky": mhNhatKy, "kinh-lup": mhKinhLup };
+  var MH = {
+    "giai-ma": mhGiaiMa, "nhat-ky": mhNhatKy, "kinh-lup": mhKinhLup,
+    "xuong-huy-hieu": mhXuong, "di-noi-khac": mhNgoai
+  };
 
   function ve() {
     var host = $("#than"), ma = state.muc;

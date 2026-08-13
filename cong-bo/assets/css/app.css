@@ -248,3 +248,27 @@ table.bang tbody tr:hover td{background:var(--card-2)}
   font-size:11.8px;color:var(--ink-3);line-height:1.6}
 .chan b{color:var(--ink-2)}
 .chan p{margin:0 0 6px}
+
+/* ── xưởng huy hiệu ───────────────────────────────────── */
+.luoi-hh{display:grid;gap:8px;justify-items:center;align-items:center}
+.luoi-hh img{border-radius:6px;object-fit:contain;background:var(--card-3);
+  max-width:100%;height:auto}
+input[type=range]{accent-color:var(--acc);flex:0 0 auto;width:120px}
+.hang-nut .nhan{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.hang-nut .nhan b{color:var(--acc);font-variant-numeric:tabular-nums;min-width:26px}
+
+/* ── đi nơi khác ──────────────────────────────────────── */
+.ngoai{display:grid;gap:10px;padding:16px 18px;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.ng-muc{display:block;padding:14px 16px;border:1px solid var(--line);border-radius:8px;
+  background:var(--card-2);color:inherit;transition:border-color var(--dur)}
+.ng-muc:hover{border-color:var(--acc);text-decoration:none}
+.ng-dinh{display:flex;align-items:baseline;gap:10px;margin-bottom:7px}
+.ng-dinh b{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--acc);flex:1}
+.ng-di{font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.ng-muc p{margin:0;font-size:12.6px;line-height:1.6;color:var(--ink-2)}
+.ng-sao{margin-top:8px !important;padding:9px 11px;border-radius:6px;
+  background:var(--bg);color:var(--ink-3) !important;font-size:11.8px !important}
+.ng-sao b{color:var(--ink-2)}
+.ng-url{display:block;margin-top:9px;font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;color:var(--ink-3);word-break:break-all}

@@ -26,6 +26,16 @@ window.CB_VI = {
       ten: "Kính lúp hồ sơ",
       y: "Dự án nào đã dựng đủ hồ sơ, dự án nào còn bỏ trống hạng mục nào.",
       vn: "Một dự án thiếu nhiều hạng mục không có nghĩa là nó tệ — nghĩa là chưa ai soi kỹ nó. Với người gửi tiền, chỗ chưa ai soi mới đáng ngại hơn chỗ đã soi và thấy điểm yếu."
+    },
+    "xuong-huy-hieu": {
+      ten: "Xưởng huy hiệu",
+      y: "Xếp logo của các dự án thành một tấm, lọc theo tầng và trạng thái, rồi tải về dạng PNG.",
+      vn: "Dùng khi cần một tấm ảnh gộp logo cho bài viết hay slide. Chạy hẳn trong máy bạn: 198 logo đã tải sẵn về repo nên không gọi mạng lần nào."
+    },
+    "di-noi-khac": {
+      ten: "Đi nơi khác",
+      y: "Bốn mục trong danh sách của tools.l2beat.com thật ra là liên kết trỏ sang ứng dụng khác, không phải công cụ nằm trong trang đó.",
+      vn: "Liệt kê ra đây cho đủ, kèm ghi chú vì sao không dựng lại được — chứ không giả vờ là chúng không tồn tại."
     }
   },
 

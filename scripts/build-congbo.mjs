@@ -26,7 +26,7 @@
    in cảnh báo, app hiện dải nhắc — chứ không xoá trắng.
    ═══════════════════════════════════════════════════════ */
 
-import { writeFile, mkdir, readFile } from "node:fs/promises";
+import { writeFile, mkdir, readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -221,11 +221,40 @@ try {
   const dsv = JSON.parse(t.match(/window\.DSV_DATA = ([\s\S]*);\s*$/)[1]);
   const map = {};
   for (const p of dsv.duAn || []) if (p.logo) map[p.id] = p.logo;
+  /* Bản đồ trên chỉ phủ 106 dự án đang chạy của Đô Sát Viện. Kính lúp
+     có 198 — phần chênh gần hết là dự án ĐÃ NGỪNG, mà xưởng huy hiệu
+     lại cần chúng. Tải bù từ kho GitHub của L2BEAT: nguồn này ổn định
+     hơn fe-stag nhiều, và tên file chính là slug nên không phải đoán. */
+  const RAW = "https://raw.githubusercontent.com/l2beat/l2beat/refs/heads/main/packages/frontend/static/icons";
+  const BU = join(ROOT, "cong-bo", "assets", "logos");
+  await mkdir(BU, { recursive: true });
+  const daBu = new Set(await readdir(BU).catch(() => []));
+  const buMap = {};
+  let taiBu = 0, khongCo = 0;
+  for (const p of kinhLup || []) {
+    if (map[p.id]) continue;                       // đã có ở Đô Sát Viện
+    const ten = p.slug + ".png";
+    if (daBu.has(ten)) { buMap[p.id] = ten; continue; }
+    try {
+      const r = await fetch(RAW + "/" + encodeURIComponent(p.slug) + ".png", { headers: { "user-agent": UA } });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const b = Buffer.from(await r.arrayBuffer());
+      if (b.length < 100) throw new Error("quá nhỏ");
+      await writeFile(join(BU, ten), b);
+      buMap[p.id] = ten;
+      taiBu++;
+      await nghi(90);
+    } catch { khongCo++; }
+  }
+
   await writeFile(join(DIR, "logos.js"),
     "/* TỰ SINH bởi scripts/build-congbo.mjs — bảng tra id → tên file logo.\n" +
-    "   Ảnh nằm ở do-sat-vien/assets/logos/, cung này chỉ trỏ sang. */\n" +
-    "window.DSV_LOGO_MAP = " + JSON.stringify(map) + ";\n", "utf8");
-  log(`  logo    : bảng tra ${Object.keys(map).length} dự án (ảnh dùng chung với Đô Sát Viện)`);
+    "   DSV_LOGO_MAP: ảnh nằm ở do-sat-vien/assets/logos/ (dùng chung).\n" +
+    "   CB_LOGO_BU  : ảnh tải bù cho dự án đã ngừng, nằm ở cong-bo/assets/logos/. */\n" +
+    "window.DSV_LOGO_MAP = " + JSON.stringify(map) + ";\n" +
+    "window.CB_LOGO_BU = " + JSON.stringify(buMap) + ";\n", "utf8");
+  log(`  logo    : ${Object.keys(map).length} dùng chung + ${Object.keys(buMap).length} tải bù` +
+    ` (${taiBu} mới, ${khongCo} kho không có)`);
 } catch (e) {
   warn("Không dựng được bảng tra logo (" + e.message + ") — bảng sẽ hiện chữ cái đầu.");
   const f2 = join(DIR, "logos.js");
