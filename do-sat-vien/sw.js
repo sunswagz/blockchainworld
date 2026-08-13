@@ -3,12 +3,19 @@
    Chiến lược:
      · vỏ ứng dụng (html/css/js/icon) : cache trước, chạy offline
      · phông chữ Google              : cache khi dùng lần đầu
-     · assets/js/data.js             : mạng trước — 176 KB số liệu
+     · assets/js/data.js             : mạng trước — ~240 KB số liệu
                                        tự sinh, đổi mỗi 6 giờ
+     · assets/logos/*.png            : cache khi dùng lần đầu
+
+   CỐ Ý không nạp sẵn 106 logo (521 KB) vào SHELL: gấp đôi dung
+   lượng cài đặt để lấy về ảnh mà phần lớn người dùng không cuộn
+   tới. Chúng rơi vào nhánh cache-trước-cập-nhật-nền ở cuối file,
+   nên xem tới đâu lưu tới đó và lần sau vẫn chạy offline.
+
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v1";
+var CACHE_VERSION = "v2";
 var SHELL_CACHE = "do-sat-vien-shell-" + CACHE_VERSION;
 var FONT_CACHE = "do-sat-vien-fonts-" + CACHE_VERSION;
 

@@ -1,47 +1,21 @@
-/* Dải chuyển cung + nút cài + báo bản mới — Đô Sát Viện */
+/* Nút cài ứng dụng + báo bản mới — Đô Sát Viện.
+   Lối chuyển cung dùng lại .bmuc của thanh bên (xem app.css),
+   nên ở đây chỉ còn phần vỏ ứng dụng. */
 
-.cung-strip{
-  max-width:1180px;margin:0 auto;padding:12px 20px 0;
-  display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
-.cung-strip::-webkit-scrollbar{display:none}
-
-.cung{
-  display:flex;align-items:center;gap:9px;flex:0 0 auto;
-  padding:8px 13px;border:1px solid var(--line);border-radius:999px;
-  background:var(--paper);text-decoration:none;color:var(--ink);
-  transition:border-color var(--dur),background var(--dur)}
-a.cung:hover{border-color:var(--acc);background:#FBFAFF}
-.cung .ic{width:17px;height:17px;flex:0 0 auto;color:var(--acc)}
-.cung .ic svg{width:100%;height:100%;display:block}
-.cung .lbl{display:flex;flex-direction:column;line-height:1.25;min-width:0}
-.cung .lbl b{font-size:12.8px;font-weight:600;white-space:nowrap}
-.cung .lbl i{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
-  color:var(--ink-3);white-space:nowrap}
-
-.cung.to-gate{border-style:dashed;background:transparent}
-.cung.to-gate .ic{color:var(--gold)}
-
-.cung.dang-o{background:var(--acc);border-color:var(--acc);color:#fff;cursor:default}
-.cung.dang-o .ic{color:#fff}
-.cung.dang-o .lbl i{color:rgba(255,255,255,.7)}
-
-/* nút cài ứng dụng — nối vào cuối dải */
 .install-dsv{
-  display:none;align-items:center;gap:7px;flex:0 0 auto;margin-left:auto;
-  padding:8px 13px;border:1px solid var(--gold);border-radius:999px;
-  background:transparent;color:var(--gold);cursor:pointer;
-  font-size:12.5px;font-weight:600;white-space:nowrap}
-.install-dsv[data-show="1"]{display:inline-flex}
-.install-dsv svg{width:15px;height:15px}
-.install-dsv:hover{background:#FBF6E6}
+  display:none;align-items:center;gap:9px;width:100%;text-align:left;margin-top:8px;
+  padding:7px 9px;border:1px dashed var(--acc);border-radius:6px;
+  background:transparent;color:var(--acc-2);font-size:13px;font-weight:600}
+.install-dsv[data-show="1"]{display:flex}
+.install-dsv svg{width:16px;height:16px;flex:0 0 auto}
+.install-dsv:hover{background:var(--acc-t)}
 
-/* báo có bản mới */
 .sw-toast{
   position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));z-index:80;
   transform:translate(-50%,140%);transition:transform var(--dur) ease;
   display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);
-  padding:11px 14px;border-radius:12px;border:1px solid var(--line);
-  background:var(--paper);box-shadow:0 14px 40px -18px rgba(16,27,51,.5);font-size:13px}
+  padding:11px 14px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);box-shadow:0 14px 40px -18px rgba(0,0,0,.5);font-size:13px}
 .sw-toast[data-open="1"]{transform:translate(-50%,0)}
-.sw-toast button{padding:5px 12px;border-radius:8px;background:var(--acc);color:#fff;
-  font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.sw-toast button{padding:5px 12px;border-radius:7px;background:var(--acc);color:#fff;
+  font-size:12.5px;font-weight:600;white-space:nowrap}

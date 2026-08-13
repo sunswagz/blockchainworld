@@ -8,7 +8,7 @@ chạy offline, số liệu tự cập nhật, và đóng gói thành app Androi
 | **/** Cổng Thành | trang cửa ngõ, liệt kê các cung | đọc ngày cập nhật từ chính file của từng cung |
 | **/kinh-thanh/** | bản đồ 9 quốc gia Layer 1 | DefiLlama + L2BEAT (14 thành phố thuộc Ethereum) |
 | **/dai-quan-trac/** | dòng chảy địa chính trị, 5 chiến trường, 8 đồng hồ | bản quét sinh trong GitHub Actions |
-| **/do-sat-vien/** | bảng xét **toàn bộ** thành phố Layer 2, Việt hoá từ L2BEAT | L2BEAT scaling API (107 dự án) |
+| **/do-sat-vien/** | bảng xét **toàn bộ** thành phố Layer 2 — dựng lại bố cục L2BEAT bằng tiếng Việt | L2BEAT: API `scaling/summary` + dữ liệu trang (106 dự án) |
 
 Các file gốc trong `SUNSWaGz app/` không bị đụng vào — vẫn nằm nguyên chỗ cũ để đối chiếu.
 
@@ -68,12 +68,15 @@ kinh-thanh-app/
 ├── dai-quan-trac/              CUNG 2 — dòng chảy địa chính trị
 │   └── assets/js/{data.js, app.js, scan.js(TỰ SINH), halls.js, pwa.js}
 │
-├── do-sat-vien/                CUNG 3 — bảng xét Layer 2, Việt hoá L2BEAT
-│   └── assets/js/
-│       ├── data.js             TỰ SINH — 107 dự án từ L2BEAT (~176 KB)
-│       ├── glossary.js         bản dịch + diễn giải, SỬA TAY được
-│       ├── app.js              bảng, bộ lọc, hồ sơ chi tiết, chú giải
-│       ├── halls.js · pwa.js
+├── do-sat-vien/                CUNG 3 — bảng xét Layer 2, dựng theo bố cục L2BEAT
+│   ├── index.html · sw.js · manifest.webmanifest
+│   └── assets/
+│       ├── logos/              106 logo dự án tải từ L2BEAT (~520 KB)
+│       └── js/
+│           ├── data.js         TỰ SINH — 106 dự án + biểu đồ (~240 KB)
+│           ├── glossary.js     bản dịch + diễn giải, SỬA TAY được
+│           ├── app.js          sidebar, biểu đồ, 3 tab, bảng, hồ sơ, chú giải
+│           └── halls.js · pwa.js
 │
 ├── server.js                   máy chủ tĩnh, không phụ thuộc gói nào
 ├── package.json
@@ -243,33 +246,48 @@ thị nằm trong `l2beat.js` + `l2beat.css`, không rải rác vào `app.js`.
 
 ## Đô Sát Viện — bảng xét Layer 2 (Việt hoá L2BEAT)
 
-`/do-sat-vien/` là bản tiếng Việt của L2BEAT: **toàn bộ 107 dự án**, xếp theo tài
-sản đang giữ, lọc theo thang tự trị và dạng kỹ thuật, bấm vào một hàng ra hồ sơ
-đầy đủ năm chiều rủi ro.
+`/do-sat-vien/` dựng lại **bố cục của l2beat.com/scaling/summary** bằng tiếng Việt:
+sidebar trái, biểu đồ tài sản, ba tab Rollup / Validium & Optimium / Dạng khác,
+bảng có rosette 5 cánh, logo dự án, hệ chứng minh, thang tự trị, tài sản kèm thanh
+tỉ lệ, và thao tác/giây.
 
 Chạy tay: `npm run l2beat`
 
-### Khác gì với huy hiệu L2BEAT trong Kinh Thành
+### Hai nguồn, và vì sao phải cả hai
 
-Hai chỗ dùng **cùng một nguồn nhưng khác phạm vi, và cố ý như vậy**:
-
-| | Kinh Thành | Đô Sát Viện |
+| | API `/api/scaling/summary` | HTML `/scaling/summary` → `window.__SSR_DATA__` |
 |---|---|---|
-| lấy bao nhiêu | 14 thành phố thuộc `eth` | **cả 107 dự án** |
-| khớp bằng gì | khớp tên với `cities.js` | không khớp tên gì cả |
-| để làm gì | chú thích thêm cho bản đồ | bảng xét đứng riêng |
+| cho gì | `tvs.breakdown`, `tvs.change7d`, `chart` | logo, tab, `proofSystem`, `activity`, `stage.missing`, mô tả |
+| tính chất | giao diện công khai, ổn định | **dữ liệu nội bộ của trang, không cam kết gì** |
+| vai | **bắt buộc** | làm giàu thêm |
 
-Kinh Thành phải khớp tên nên có rủi ro khớp nhầm (vụ `basechain` của TON, xem mục
-trên). Đô Sát Viện lấy thẳng cả danh sách nên **không có bước khớp nào để mà nhầm**.
+L2BEAT đổi cấu trúc trang là nguồn 2 gãy. Nên build **không** coi đó là lỗi chí mạng:
+nguồn 2 hỏng thì giữ nguyên phần làm giàu của bản trước, in cảnh báo, và app hiện một
+dải nhắc ở đầu trang (`#canhBao`). Số liệu vẫn đúng vì số luôn lấy từ nguồn 1.
+
+L2BEAT nấp sau Cloudflare và trả `error code: 1015` khi bị gọi dồn. Build thử lại 3
+lần với khoảng nghỉ tăng dần, và nghỉ 120 ms giữa mỗi lần tải logo. Cron 4 lần/ngày
+thì không bao giờ chạm ngưỡng; chạy tay liên tiếp thì có.
+
+### Logo lưu trong repo, không hotlink
+
+106 logo (~520 KB) tải về `do-sat-vien/assets/logos/`. URL của L2BEAT có hash nội
+dung (`base.4840b6b2.png`) nên tên file đổi nghĩa là ảnh đổi — build bỏ qua file đã
+có, chỉ tải cái mới. Hotlink thẳng sang l2beat.com sẽ hỏng khi họ đổi hash, và cũng
+là ăn băng thông của người ta.
+
+Service worker **cố ý không** nạp sẵn logo vào SHELL: gấp đôi dung lượng cài để lấy
+ảnh mà phần lớn người dùng không cuộn tới. Chúng rơi vào nhánh cache-trước-cập-nhật-nền,
+xem tới đâu lưu tới đó.
 
 ### Ba nguyên tắc của bản dịch
 
-**1. Không bịa nghĩa.** Nhãn nào L2BEAT thêm mới mà `glossary.js` chưa có thì bảng
-hiện **nguyên bản tiếng Anh** kèm dấu `chưa dịch`, chứ không đoán. Mỗi dòng rủi ro
-còn kèm `<details>` mở ra mô tả gốc tiếng Anh để đối chiếu.
+**1. Không bịa nghĩa.** Nhãn nào `glossary.js` chưa có thì bảng hiện **nguyên bản
+tiếng Anh** kèm dấu `chưa dịch`. Mỗi dòng rủi ro kèm `<details>` mở ra mô tả gốc.
+Riêng mục *"còn thiếu gì để lên thang sau"* **cố ý không dịch** — đó là tiêu chí kỹ
+thuật L2BEAT dùng để chấm, dịch ra là làm sai lệch.
 
-**2. Không tự chấm điểm.** Mọi đánh giá rủi ro là của L2BEAT. Chỗ này chỉ dịch, sắp
-xếp và diễn giải — ghi rõ ở chân trang và trong từng hồ sơ.
+**2. Không tự chấm điểm.** Mọi đánh giá rủi ro là của L2BEAT.
 
 **3. Mỗi nhãn trả lời "với người gửi tiền thì sao".** `glossary.js` cho mỗi mục ba
 phần: `nhan` (nhãn tiếng Việt), `y` (nghĩa kỹ thuật), `vn` (hệ quả với người gửi tiền).
@@ -285,20 +303,40 @@ L2BEAT dùng lại chuỗi `"None"` cho **hai chiều rủi ro khác nhau**:
 
 Bảng tra phẳng theo giá trị sẽ gán nhầm nghĩa thứ nhất cho cả hai — và trông vẫn
 rất hợp lý, nên rất khó phát hiện. Vì vậy có thêm `giaTheoChieu` trong `glossary.js`,
-tra **trước** bảng chung; không có mới rơi về bảng chung. Hiện đây là cặp duy nhất
-đụng nhau (kiểm bằng cách quét 28 giá trị × 5 chiều của cả 107 dự án).
+tra **trước** bảng chung. Quét 29 giá trị × 5 chiều của cả 106 dự án: đây là cặp duy
+nhất đụng nhau.
 
-### Vì sao 78/107 hiện là "Dạng khác"
+### Hai con số khác nhau, cả hai đều đúng
 
-Vì `category` mà chính L2BEAT trả về cho 78 dự án đó **là `"Other"`** — không phải
-số liệu bị rơi. Endpoint `summary` không có trường nào chi tiết hơn. Chú giải ghi
-rõ điều này để không ai tưởng là lỗi.
+| | |
+|---|---|
+| **$33.53b** — thẻ "Tài sản đang giữ" | chỉ cộng chuỗi **tầng 2**. Khớp đúng tiêu đề của L2BEAT. |
+| **$39.47b** — thẻ "Tiền vào bằng đường nào" | cộng cả **tầng 3**. Phần chênh gần như toàn bộ là Hyperliquid ($5.86b, tầng 3). |
 
-### Cổng Thành đọc ngày cập nhật mà không tải 176 KB
+Đã truy ra nguyên nhân nên nói thẳng trên trang (`VI.ghiChuTong`) thay vì để người
+đọc tưởng mình đọc nhầm hoặc số liệu sai.
 
-`data.js` nặng ~176 KB, nhưng tất cả những gì thẻ ở Cổng Thành cần (ngày, số dự án)
+Ba tab cũng là lý do thứ hạng nhìn khác: tab mặc định là **Rollup**, không tính
+Hyperliquid hay Polygon PoS — giống hệt L2BEAT.
+
+### Mốc thời gian của biểu đồ
+
+`chart` trả 122 điểm nhưng lấy mẫu **6 giờ một lần**, tức 30 ngày chứ không phải 122
+ngày. Nhãn tính khoảng thời gian từ chính mốc `timestamp`, không suy từ số điểm —
+suy từ số điểm là ra "122 ngày qua", sai gấp bốn lần.
+
+### Cổng Thành đọc ngày cập nhật mà không tải cả file
+
+`data.js` nặng ~240 KB, nhưng tất cả những gì thẻ ở Cổng Thành cần (ngày, số dự án)
 đều nằm trong ~900 byte đầu. `portal.js` đọc một khúc bằng `body.getReader()` rồi
 `cancel()` luôn dòng tải. Trình duyệt không có streams thì rơi về `r.text()`.
+
+### Vì sao cung này trông khác hai cung kia
+
+Kinh Thành và Đài Quan Trắc dùng nền giấy sáng + chàm. Đô Sát Viện dùng nền xám lạnh,
+Roboto, accent hồng sen — vì đây là bản dựng lại có chủ ý theo L2BEAT, không phải
+sơ suất. Đổi về phong cách chung thì sửa `do-sat-vien/assets/css/app.css`, phần
+`:root` và font ở `index.html`; markup và JS không phải động vào.
 
 ---
 

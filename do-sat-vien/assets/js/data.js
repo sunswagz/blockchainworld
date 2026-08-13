@@ -1,14 +1,886 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH bởi scripts/build-l2beat.mjs — ĐỪNG SỬA TAY.
-   Nguồn: l2beat.com/api/scaling/summary
-   Lấy lúc: 2026-08-13T07:56:42.619Z
+   Nguồn: l2beat.com — API scaling/summary + dữ liệu trang scaling/summary
+   Lấy lúc: 2026-08-13T07:48:05.894Z
    106 dự án · tổng tài sản $39.47b
+   Làm giàu từ SSR: có
    ═══════════════════════════════════════════════════════ */
 window.DSV_DATA = {
- "generatedAt": "2026-08-13T07:56:42.619Z",
+ "generatedAt": "2026-08-13T07:48:05.894Z",
  "date": "13/08/2026",
- "nguon": "l2beat.com/api/scaling/summary",
+ "nguon": "l2beat.com — API scaling/summary + dữ liệu trang scaling/summary",
+ "coSSR": true,
  "tongTvs": 39469671315.37677,
+ "demTab": {
+  "rollup": 22,
+  "khac": 78,
+  "validium": 6
+ },
+ "bieuDo": {
+  "cot": [
+   "timestamp",
+   "native",
+   "canonical",
+   "external",
+   "ethPrice"
+  ],
+  "diem": [
+   [
+    1783987200,
+    9326319170.2264,
+    12192970080.91985,
+    12385638626.797663,
+    1773.6823
+   ],
+   [
+    1784008800,
+    9397938961.393665,
+    12259191999.058035,
+    12376054684.890179,
+    1784.7518
+   ],
+   [
+    1784030400,
+    9407219801.126278,
+    12306925322.084219,
+    12434537436.859943,
+    1796.3005
+   ],
+   [
+    1784052000,
+    9632792186.75482,
+    12627851082.00278,
+    12535775359.308453,
+    1869.9777
+   ],
+   [
+    1784073600,
+    9712345006.659945,
+    12702436565.564596,
+    12546984271.874054,
+    1889.4811
+   ],
+   [
+    1784095200,
+    9619723793.505623,
+    12662682218.246536,
+    12539512914.313604,
+    1879.8442
+   ],
+   [
+    1784116800,
+    9598304801.044537,
+    12672810595.746656,
+    12554583845.043594,
+    1883.5305
+   ],
+   [
+    1784138400,
+    9578135930.146236,
+    12776968475.327229,
+    12512205385.218988,
+    1926.1306
+   ],
+   [
+    1784160000,
+    9576509081.797123,
+    12732136487.319054,
+    12479714718.961452,
+    1916.7692
+   ],
+   [
+    1784181600,
+    9580126192.040747,
+    12765684176.607044,
+    12518454094.142706,
+    1923.9309
+   ],
+   [
+    1784203200,
+    9440996659.811888,
+    12631136498.30435,
+    12478784089.857716,
+    1883.6111
+   ],
+   [
+    1784224800,
+    9382611953.15231,
+    12547920182.793436,
+    12476960388.031506,
+    1866.2958
+   ],
+   [
+    1784246400,
+    9460249445.709517,
+    12502931293.56068,
+    12524245240.03838,
+    1863.0826
+   ],
+   [
+    1784268000,
+    9348723581.203005,
+    12325070346.271175,
+    12477003942.456764,
+    1821.65
+   ],
+   [
+    1784289600,
+    9366736883.609413,
+    12418855563.488756,
+    12463218331.681026,
+    1838.1405
+   ],
+   [
+    1784311200,
+    9446242091.531353,
+    12437727391.896006,
+    12396564054.38221,
+    1842.7281
+   ],
+   [
+    1784332800,
+    9443557296.812563,
+    12421137334.54351,
+    12414752567.643875,
+    1840.9039
+   ],
+   [
+    1784354400,
+    9429282063.91407,
+    12401760061.38098,
+    12420932682.45668,
+    1844.3649
+   ],
+   [
+    1784376000,
+    9417299498.017155,
+    12366194987.37211,
+    12387390817.817997,
+    1844.3425
+   ],
+   [
+    1784397600,
+    9422882779.348629,
+    12376834311.563364,
+    12433582836.982607,
+    1851.2328
+   ],
+   [
+    1784419200,
+    9576478079.879152,
+    12438589450.860886,
+    12419478691.777597,
+    1861.1608
+   ],
+   [
+    1784440800,
+    9605644986.8631,
+    12437299334.61664,
+    12408939434.407366,
+    1867.8201
+   ],
+   [
+    1784462400,
+    9586015671.986374,
+    12439019438.235966,
+    12386215348.31156,
+    1870.1221
+   ],
+   [
+    1784484000,
+    9585936690.951687,
+    12404535805.376425,
+    12405923366.688961,
+    1867.2534
+   ],
+   [
+    1784505600,
+    9590137724.971153,
+    12432379398.001015,
+    12367480059.210302,
+    1870.8646
+   ],
+   [
+    1784527200,
+    9474234543.762672,
+    12348699599.556858,
+    12327693580.907312,
+    1853.7987
+   ],
+   [
+    1784548800,
+    9562272477.299313,
+    12499533397.382252,
+    12306690521.921597,
+    1891.6718
+   ],
+   [
+    1784570400,
+    9613807069.27431,
+    12525427971.323547,
+    12427654749.553738,
+    1904.785
+   ],
+   [
+    1784592000,
+    9542976488.411526,
+    12490848269.705816,
+    12378036060.181664,
+    1902.7601
+   ],
+   [
+    1784613600,
+    9630979052.776148,
+    12616337861.598125,
+    12398449829.663277,
+    1927.9015
+   ],
+   [
+    1784635200,
+    9681646992.865635,
+    12642448597.005808,
+    12433302411.74313,
+    1933.7726
+   ],
+   [
+    1784656800,
+    9641536872.111807,
+    12567625931.82492,
+    12450400712.533216,
+    1917.4653
+   ],
+   [
+    1784678400,
+    9887197170.600616,
+    12611522657.411018,
+    12443862268.937708,
+    1928.2681
+   ],
+   [
+    1784700000,
+    9892802586.720158,
+    12541511770.753895,
+    12416493418.809189,
+    1918.7603
+   ],
+   [
+    1784721600,
+    9740712732.791489,
+    12567206526.8386,
+    12389415512.354797,
+    1925.606
+   ],
+   [
+    1784743200,
+    9702529480.24274,
+    12571280991.162556,
+    12398379255.562016,
+    1937.7922
+   ],
+   [
+    1784764800,
+    9669348570.208492,
+    12516763182.533182,
+    12372309862.99237,
+    1933.1609
+   ],
+   [
+    1784786400,
+    9624961221.087616,
+    12465148065.660187,
+    12329303483.128626,
+    1921.7084
+   ],
+   [
+    1784808000,
+    9600842572.074453,
+    12449407225.557766,
+    12332911537.421608,
+    1925.0997
+   ],
+   [
+    1784829600,
+    9503122908.14434,
+    12263854058.693563,
+    12260733240.580753,
+    1878.352
+   ],
+   [
+    1784851200,
+    9486811338.809229,
+    12267876375.117203,
+    12293469417.558035,
+    1877.1398
+   ],
+   [
+    1784872800,
+    9494133993.681156,
+    12268631009.356682,
+    12217035147.34218,
+    1879.1945
+   ],
+   [
+    1784894400,
+    9547976087.553701,
+    12243074171.097235,
+    12185350940.815718,
+    1881.7859
+   ],
+   [
+    1784916000,
+    9462761307.646763,
+    12144838109.139896,
+    12140265871.25597,
+    1864.2577
+   ],
+   [
+    1784937600,
+    9460738984.462265,
+    12077791481.581676,
+    12115242697.535389,
+    1860.0685
+   ],
+   [
+    1784959200,
+    9457921150.656279,
+    12048581527.5163,
+    12109668480.270987,
+    1856.9863
+   ],
+   [
+    1784980800,
+    9462823603.55127,
+    12055789230.967188,
+    12113603244.251331,
+    1856.2002
+   ],
+   [
+    1785002400,
+    9493300669.783272,
+    12121716781.5363,
+    12161065831.91494,
+    1870.8468
+   ],
+   [
+    1785024000,
+    9470212658.956762,
+    12118773577.791704,
+    12143027184.587433,
+    1872.9319
+   ],
+   [
+    1785045600,
+    9528169968.19807,
+    12143044527.312479,
+    12144717299.031652,
+    1882.1317
+   ],
+   [
+    1785067200,
+    9516985555.806406,
+    12145167224.321436,
+    12146858972.067608,
+    1883.9661
+   ],
+   [
+    1785088800,
+    9599864158.205841,
+    12253626612.104864,
+    12166508417.98582,
+    1910.1501
+   ],
+   [
+    1785110400,
+    9675603767.558975,
+    12429245550.873018,
+    12165049704.704304,
+    1952.8555
+   ],
+   [
+    1785132000,
+    9677834623.032055,
+    12478606474.56115,
+    12188106727.635069,
+    1964.1725
+   ],
+   [
+    1785153600,
+    9605206398.092403,
+    12444990271.213734,
+    12235714827.102879,
+    1958.2555
+   ],
+   [
+    1785175200,
+    9514062025.143711,
+    12344363123.441296,
+    12215196269.506023,
+    1941.3634
+   ],
+   [
+    1785196800,
+    9434821772.673437,
+    12115307542.51828,
+    12210644821.850456,
+    1890.4799
+   ],
+   [
+    1785218400,
+    9393583647.762989,
+    12089779190.47498,
+    12197169609.474976,
+    1882.0975
+   ],
+   [
+    1785240000,
+    9388694007.087627,
+    12066019614.813421,
+    12218541057.931446,
+    1875.5663
+   ],
+   [
+    1785261600,
+    9410408248.362402,
+    12127334434.244331,
+    12253746916.477917,
+    1898.0948
+   ],
+   [
+    1785283200,
+    9482436559.778536,
+    12204363939.255966,
+    12251516819.741606,
+    1919.676
+   ],
+   [
+    1785304800,
+    9428957888.948505,
+    12134379706.006287,
+    12203688950.820839,
+    1909.919
+   ],
+   [
+    1785326400,
+    9422243703.27295,
+    12126415029.452274,
+    12292088637.53063,
+    1912.5208
+   ],
+   [
+    1785348000,
+    9392474028.903095,
+    12113976574.249887,
+    12234107582.576233,
+    1910.5996
+   ],
+   [
+    1785369600,
+    9420405290.602901,
+    12100456122.226645,
+    12250771188.530666,
+    1908.4125
+   ],
+   [
+    1785391200,
+    9391907334.68797,
+    12077086406.393166,
+    12303950134.309929,
+    1903.2526
+   ],
+   [
+    1785412800,
+    9349510542.051983,
+    12162299718.234726,
+    12309304494.753597,
+    1920.9829
+   ],
+   [
+    1785434400,
+    9340598713.753036,
+    12145047574.187313,
+    12314943157.337162,
+    1919.1189
+   ],
+   [
+    1785456000,
+    9349710077.005527,
+    12125408998.935583,
+    12304766721.456875,
+    1917.3551
+   ],
+   [
+    1785477600,
+    9268222454.28832,
+    12058464652.147919,
+    12261994029.191862,
+    1903.9373
+   ],
+   [
+    1785499200,
+    9128480347.006845,
+    11968520019.431387,
+    12218959729.278816,
+    1881.9156
+   ],
+   [
+    1785520800,
+    9146274738.145752,
+    11928355617.698736,
+    12239507780.653286,
+    1873.5369
+   ],
+   [
+    1785542400,
+    9091623543.756132,
+    11854470035.46335,
+    12258180682.156376,
+    1860.3893
+   ],
+   [
+    1785564000,
+    9120488540.211758,
+    11883345796.312763,
+    12269136161.09501,
+    1865.4484
+   ],
+   [
+    1785585600,
+    9104220332.508867,
+    11877839534.58882,
+    12292390904.303135,
+    1864.929
+   ],
+   [
+    1785607200,
+    9088351823.793692,
+    11844255905.554953,
+    12305025704.882824,
+    1860.297
+   ],
+   [
+    1785628800,
+    9011358841.590567,
+    11798544646.335745,
+    12295919667.682926,
+    1843.2578
+   ],
+   [
+    1785650400,
+    9154314339.22377,
+    11973903236.763947,
+    12297103151.456657,
+    1874.6318
+   ],
+   [
+    1785672000,
+    9133634438.597775,
+    11875524520.009218,
+    12292083578.397152,
+    1849.4027
+   ],
+   [
+    1785693600,
+    9109131257.70914,
+    11921208092.340626,
+    12309278281.086897,
+    1867.2529
+   ],
+   [
+    1785715200,
+    9171233544.71331,
+    11970428741.505276,
+    12313542915.669409,
+    1882.001
+   ],
+   [
+    1785736800,
+    9073394580.128077,
+    11879232794.8428,
+    12288966211.140713,
+    1857.4027
+   ],
+   [
+    1785758400,
+    9058158946.829844,
+    11755032307.39553,
+    12239590149.78361,
+    1837.3368
+   ],
+   [
+    1785780000,
+    9172794389.28341,
+    11850508504.090862,
+    12276459280.32615,
+    1866.2275
+   ],
+   [
+    1785801600,
+    9179982411.75835,
+    11811520500.152185,
+    12271839046.861095,
+    1858.469
+   ],
+   [
+    1785823200,
+    9274242847.442812,
+    11840777755.256145,
+    12283319181.649117,
+    1862.7197
+   ],
+   [
+    1785844800,
+    9232331170.766827,
+    11838976302.194906,
+    12305324218.271048,
+    1870.981
+   ],
+   [
+    1785866400,
+    9193189880.239971,
+    11824969696.448061,
+    12311538988.606913,
+    1868.2046
+   ],
+   [
+    1785888000,
+    9217941494.044884,
+    11824555045.172565,
+    12328458441.551348,
+    1868.6213
+   ],
+   [
+    1785909600,
+    9232902154.653027,
+    11873007818.121664,
+    12377214394.878544,
+    1871.9548
+   ],
+   [
+    1785931200,
+    9205060082.312021,
+    11811573554.02126,
+    12337436282.033888,
+    1867.2495
+   ],
+   [
+    1785952800,
+    9287623887.955723,
+    11973758224.753073,
+    12305583407.472012,
+    1914.8807
+   ],
+   [
+    1785974400,
+    9331908148.45382,
+    11952719851.921741,
+    12321139981.86274,
+    1907.436
+   ],
+   [
+    1785996000,
+    9343187046.334942,
+    11965258065.12471,
+    12328362420.018007,
+    1911.7865
+   ],
+   [
+    1786017600,
+    9309937779.462772,
+    11954447278.508234,
+    12351760019.794746,
+    1905.3213
+   ],
+   [
+    1786039200,
+    9331882061.26498,
+    11974741229.073526,
+    12386639151.28337,
+    1912.4763
+   ],
+   [
+    1786060800,
+    9282065239.834854,
+    11954387661.447893,
+    12382027187.407288,
+    1902.1622
+   ],
+   [
+    1786082400,
+    9277873838.478907,
+    11925520016.689682,
+    12319026257.397663,
+    1899.8564
+   ],
+   [
+    1786104000,
+    9355264451.620243,
+    11991950419.013443,
+    12335653380.069397,
+    1914.5768
+   ],
+   [
+    1786125600,
+    9351206227.756533,
+    11971643021.20892,
+    12345368018.929121,
+    1910.7711
+   ],
+   [
+    1786147200,
+    9332668213.28168,
+    11966194128.004295,
+    12388731723.107975,
+    1912.9851
+   ],
+   [
+    1786168800,
+    9330080383.863575,
+    11991433392.680908,
+    12385809629.741367,
+    1916.2086
+   ],
+   [
+    1786190400,
+    9292690107.865215,
+    11995214267.634977,
+    12393784547.443903,
+    1919.725
+   ],
+   [
+    1786212000,
+    9345312932.55291,
+    12000993788.606592,
+    12401965371.579853,
+    1922.5343
+   ],
+   [
+    1786233600,
+    9333102996.835918,
+    11978394539.130991,
+    12404734734.015316,
+    1915.4478
+   ],
+   [
+    1786255200,
+    9290398313.433828,
+    11975130846.912886,
+    12405464718.032104,
+    1912.9801
+   ],
+   [
+    1786276800,
+    9293337522.474102,
+    11992995523.645075,
+    12402406391.15057,
+    1917.7433
+   ],
+   [
+    1786298400,
+    9351800359.946934,
+    12035016163.78918,
+    12417662559.960417,
+    1921.76
+   ],
+   [
+    1786320000,
+    9297666812.115284,
+    11964616507.322128,
+    12405002856.16028,
+    1908.9407
+   ],
+   [
+    1786341600,
+    9345714337.238243,
+    12050693429.885284,
+    12439129157.674389,
+    1921.9741
+   ],
+   [
+    1786363200,
+    9366621465.028536,
+    12055665532.195713,
+    12417085362.865099,
+    1918.6217
+   ],
+   [
+    1786384800,
+    9367899685.345732,
+    11896219764.536642,
+    12395946165.104816,
+    1872.1125
+   ],
+   [
+    1786406400,
+    9374910190.679005,
+    11883382946.931955,
+    12349454155.862032,
+    1871.3977
+   ],
+   [
+    1786428000,
+    9364757620.90163,
+    11898057330.507492,
+    12360679046.312145,
+    1872.5217
+   ],
+   [
+    1786449600,
+    9392656193.021221,
+    11960448721.383358,
+    12381900736.691833,
+    1891.793
+   ],
+   [
+    1786471200,
+    9283067282.230087,
+    11828620275.611511,
+    12381623494.204227,
+    1863.2373
+   ],
+   [
+    1786492800,
+    9341958582.111055,
+    11890599468.580145,
+    12370885351.122326,
+    1880.4862
+   ],
+   [
+    1786514400,
+    9370821128.352013,
+    11907019427.648571,
+    12372269829.123978,
+    1889.8184
+   ],
+   [
+    1786536000,
+    9360459204.889814,
+    11947025682.515232,
+    12397306793.717365,
+    1914.0092
+   ],
+   [
+    1786557600,
+    9291208352.673105,
+    11895334190.458118,
+    12421584936.403725,
+    1886.234
+   ],
+   [
+    1786579200,
+    9207464968.47589,
+    11849779313.054077,
+    12443396677.819319,
+    1877.7435
+   ],
+   [
+    1786600800,
+    9201495632.042421,
+    11882815128.004726,
+    12444652092.912905,
+    1894.3009
+   ]
+  ]
+ },
  "projects": [
   {
    "id": "base",
@@ -59,7 +931,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "base.4840b6b2.png",
+   "moTa": "Base is an Optimistic Rollup built with the OP Stack. It offers a low-cost and builder-friendly way for anyone, anywhere, to build onchain.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "SP1",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 83.29096064814814,
+    "doi": -0.012854238113965577,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 2",
+    "dieuKien": [
+     "Upgrades unrelated to onchain provable bugs provide less than 30d to exit.",
+     "The Security Council's actions are not confined to onchain provable bugs."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "arbitrum",
@@ -110,7 +1006,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "arbitrum.038422c5.png",
+   "moTa": "Arbitrum One is a general-purpose Optimistic Rollup built by Offchain Labs and governed by the Arbitrum DAO.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 13.501412037037037,
+    "doi": -0.1304844969763197,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 2",
+    "dieuKien": [
+     "Upgrades unrelated to onchain provable bugs provide less than 30d to exit.",
+     "The Security Council's actions are not confined to onchain provable bugs."
+    ]
+   },
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "hyperliquid",
@@ -161,7 +1081,15 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "hyperliquid.973447df.png",
+   "moTa": "Hyperliquid is a performant exchange with its main bridge on Arbitrum. It uses a custom consensus algorithm called HyperBFT.",
+   "heCM": null,
+   "uops": null,
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "polygon-pos",
@@ -212,7 +1140,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "polygon-pos.1debb7bd.png",
+   "moTa": "Polygon PoS is an EVM-compatible, proof of stake sidechain for Ethereum, planning to become a Validium with a state validating bridge. The bridge is currently validated by Polygon validators and allows for asset as well as data movement between Polygon and Ethereum.",
+   "heCM": null,
+   "uops": {
+    "sl": 68.6578125,
+    "doi": -0.02150143879017896,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "optimism",
@@ -263,7 +1203,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "op-mainnet.49ac19d6.png",
+   "moTa": "OP Mainnet is an EVM-equivalent Optimistic Rollup. It aims to be fast, simple, and secure.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 17.115729166666668,
+    "doi": 0.10114567479098491,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 2",
+    "dieuKien": [
+     "Upgrades unrelated to onchain provable bugs provide less than 30d to exit.",
+     "The Security Council's actions are not confined to onchain provable bugs."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "mantle",
@@ -314,7 +1278,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "mantle.03e6f03b.png",
+   "moTa": "Mantle is a modular general-purpose Ethereum rollup. Transaction data is posted to Ethereum blobs and state transitions are validated onchain via OP Succinct ZK validity proofs (SP1). Its design philosophy aims to offer users a less costly and more user-friendly experience, provide developers with a simpler and more flexible development environment, and deliver a comprehensive set of infrastructure for the next wave of mass-adopted dApps.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "SP1 Hypercube",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.19520833333333334,
+    "doi": 0.020203242196951354,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "robinhood",
@@ -365,7 +1353,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "robinhood.49cfd0e5.png",
+   "moTa": "Robinhood Chain is an Arbitrum Orbit Layer 2 operated by Robinhood, focused on tokenized real-world assets (such as stocks and ETFs) and onchain financial services including 24/7 trading, lending, and borrowing.\n\nRobinhood Chain is part of Robinhood's broader mission to democratize access to global financial markets and to empower users and developers with modern blockchain tools.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 303.410775462963,
+    "doi": 1.0852282566355629,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "lighter",
@@ -416,7 +1422,30 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "lighter.99cbd0a1.png",
+   "moTa": "Lighter is an application-specific zk rollup on a mission to revolutionize trading by building provably fair, secure, and scalable infrastructure for finance.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Lighter",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 722.8339351851852,
+    "doi": -0.1517559737421177,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "starknet",
@@ -467,7 +1496,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "starknet.3b68a63f.png",
+   "moTa": "Starknet is a ZK rollup that uses STARK proofs to securely scale Ethereum and Ethereum blobs for data availability. Starknet is also actively engaged in bringing Bitcoin users the same scale, UX, and liquidity through a variety of products and programs.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Stwo",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 1.9644097222222223,
+    "doi": -0.05048419851299857,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 2",
+    "dieuKien": [
+     "Upgrades unrelated to onchain provable bugs provide less than 30d to exit.",
+     "The Security Council's actions are not confined to onchain provable bugs."
+    ]
+   },
+   "stacks": [
+    "SN Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "linea",
@@ -518,7 +1571,30 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "linea.7a816716.png",
+   "moTa": "Linea is a ZK Rollup powered by a zkEVM developed at Consensys, designed to scale the Ethereum network.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Linea",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.30604166666666666,
+    "doi": 1.021868787276342,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "Security Council members are not publicly known."
+    ]
+   },
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "worldchain",
@@ -569,7 +1645,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "world.ca690cc9.png",
+   "moTa": "World Chain is an OP Stack Rollup built to scale Proof of Personhood, aiming to offer priority blockspace for users with a World ID.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 11.493969907407408,
+    "doi": -0.054196063940021855,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "celo",
@@ -620,7 +1714,32 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "validium",
+   "logo": "celo.95365fa0.png",
+   "moTa": "Celo is an Ethereum Optimium based on the OP stack, scaling real-world solutions & leading a thriving new digital economy for all.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OP Succinct Lite",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 12.725289351851853,
+    "doi": 0.013759725303400083,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The DA verifier is upgradeable with less than 7d independent exit window."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "gnosis",
@@ -671,7 +1790,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "gnosis.49a6317c.png",
+   "moTa": "Gnosis Chain is a community-owned EVM-based sidechain operated by a proof-of-stake validator set aiming to be the first chain in the Ethereum Economic Zone (EEZ). Its canonical Ethereum bridge ('Gnosis Bridge') is validated by dedicated bridge validator multisigs (not the PoS validator set) and supports the yielding bridge for the chain's gas-token xDAI as well as token transfers and messaging. This page looks at both the PoS chain and the canonical bridge to Ethereum from an Ethereum-centric perspective.",
+   "heCM": null,
+   "uops": {
+    "sl": 3.889861111111111,
+    "doi": -0.11589879571318074,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "zksync2",
@@ -722,7 +1853,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "zksync-era.084a308b.png",
+   "moTa": "ZKsync Era is a general-purpose ZK Rollup with full EVM compatibility.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.1683449074074074,
+    "doi": 0.09492622704004816,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring."
+    ]
+   },
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "roninnetwork",
@@ -773,7 +1928,35 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "validium",
+   "logo": "ronin-network.663b3363.png",
+   "moTa": "Ronin is an Ethereum Optimium based on the OP Stack, optimized for gaming and NFT applications. It migrated from an independent sidechain to a Layer 2 in May 2026, using EigenDA for data availability and keeping RON as the custom gas token.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 1.5986921296296297,
+    "doi": -0.34784230406043437,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up.",
+     "No secure onchain DA verifier is integrated on L1, so DA attestations cannot be independently verified by challengers.",
+     "The DA verifier is upgradeable with less than 7d independent exit window.",
+     "The DA layer does not meet minimum decentralization requirements (DAC <5 external members, or no attestation verifier for an external DA chain)."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "fraxtal",
@@ -824,7 +2007,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "fraxtal.ea665f80.png",
+   "moTa": "Fraxtal is an EVM equivalent Optimium utilizing the OP stack as its smart contract platform and execution environment.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.26494212962962965,
+    "doi": -0.013446537085721522,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "ink",
@@ -875,7 +2072,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "ink.8bd61d6f.png",
+   "moTa": "Ink is an Optimistic Rollup built with the OP Stack by Kraken exchange.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 2.9699537037037036,
+    "doi": 1.681197429601379,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 2",
+    "dieuKien": [
+     "Upgrades unrelated to onchain provable bugs provide less than 30d to exit.",
+     "The Security Council's actions are not confined to onchain provable bugs."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "morph",
@@ -926,7 +2147,30 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "morph.fbb34b36.png",
+   "moTa": "Morph is an EVM compatible rollup. It operates as an optimistic rollup with ZK fault proofs and has plans for decentralizing the Sequencer. Their mission is to build the first blockchain for consumers, where user-friendly applications integrate seamlessly into everyday life, becoming indispensable utilities.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "SP1 Hypercube",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 0.09642361111111111,
+    "doi": 0.09388130252100857,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "xlayer",
@@ -977,7 +2221,26 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "xlayer.52244235.png",
+   "moTa": "X Layer is an OP Stack Layer 2 by OKX with seamless integration with OKX products. It is connected to the Agglayer shared bridge.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OP Succinct Lite",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 16.166539351851853,
+    "doi": -0.24715525065917543,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack",
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "mantapacific",
@@ -1028,7 +2291,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "mantapacific.e59fc464.png",
+   "moTa": "Manta Pacific is an Optimium empowering EVM-native zero-knowledge (ZK) applications and general dapps.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.3649074074074074,
+    "doi": 0.45370711914422723,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "lyra",
@@ -1079,7 +2356,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "derive.82261b0c.png",
+   "moTa": "Derive Chain is an L2 scaling solution built using OP Stack specially for the Derive protocol - a settlement protocol for spot, perpetuals, and options trading.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.30261574074074077,
+    "doi": -0.12563956793632747,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "unichain",
@@ -1130,7 +2425,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "unichain.35a01338.png",
+   "moTa": "Unichain, a faster, cheaper L2 designed to be the home for DeFi and the home for multichain liquidity.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 7.397430555555555,
+    "doi": -0.19049627442710537,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 2",
+    "dieuKien": [
+     "Upgrades unrelated to onchain provable bugs provide less than 30d to exit.",
+     "The Security Council's actions are not confined to onchain provable bugs."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "blast",
@@ -1181,7 +2500,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "blast.059d8a31.png",
+   "moTa": "Blast is an EVM-compatible Optimistic Rollup supporting native yield. It invests funds deposited into the L1 bridge into various DeFi protocols transferring yield back to the L2.",
+   "heCM": null,
+   "uops": {
+    "sl": 1.4680208333333333,
+    "doi": 0.08619360805672582,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "katana",
@@ -1232,7 +2565,33 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "katana.b31f2db8.png",
+   "moTa": "Katana is a Layer 2 specializing on DeFi. Its unique architecture combines an OP stack base with Agglayer shared bridge interoperability and OP-Succinct SP1 validity proofs.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "SP1 Turbo",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.7071759259259259,
+    "doi": 0.25779689976737963,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [
+    "Agglayer CDK",
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "bob",
@@ -1283,7 +2642,30 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "bob.c7a2f6d5.png",
+   "moTa": "BOB (Build on Bitcoin) is an OP Stack rollup that aims to natively support the Bitcoin stack. The current implementation supports a variety of canonical and external bridging for BTC-related assets and a tBTC-v2 LightRelay smart contract for verifying Bitcoin transaction proofs through their blocks' headers on the L2.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Kailua",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 0.024259259259259258,
+    "doi": -0.1767478397486254,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring."
+    ]
+   },
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "plumenetwork",
@@ -1334,7 +2716,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "plumenetwork.ecf203a5.png",
+   "moTa": "Plume is a modular L2 blockchain for real-world assets (RWAs) that integrates asset tokenization and compliance providers directly into the chain.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 2.292037037037037,
+    "doi": -0.0027344831927482716,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "abstract",
@@ -1385,7 +2785,31 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "abstract.27bdf3f6.png",
+   "moTa": "Abstract is a ZK Rollup built on top of Ethereum using the ZK stack, designed to securely power consumer-facing blockchain applications at scale with low fees and fast transaction speeds.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 2.302650462962963,
+    "doi": -0.1935360954708889,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring."
+    ]
+   },
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "scroll",
@@ -1436,7 +2860,30 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "scroll.dd0923e7.png",
+   "moTa": "Scroll is ZK Rollup that extends Ethereum’s capabilities through ZK tech and EVM compatibility.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "OpenVM",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.14261574074074074,
+    "doi": 0.21470820189274442,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "On 2026-06-01, Scroll replaced its independent 9-of-12 Security Council with a 3-of-4 multisig of Scroll team members (ScrollAdminMultisig, 0xcca54B...). The new entity does not meet the size or organisational-diversity requirements of a Security Council."
+    ]
+   },
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "cronoszkevm",
@@ -1487,7 +2934,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "cronoszkevm.06f75e02.png",
+   "moTa": "Cronos zkEVM is a general-purpose Validium on Ethereum built on the ZK Stack, scaling the existing portfolio of Cronos apps and chains.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.01902777777777778,
+    "doi": -0.4559894109861018,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "edgex",
@@ -1538,7 +3003,26 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "edgex.8b8bcd55.png",
+   "moTa": "EdgeX is a high-performance on-chain trading platform, build as an L2 on Starknet's StarkEx tech.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Stone",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "SN Stack",
+    "StarkEx"
+   ],
+   "baoDong": false
   },
   {
    "id": "lisk",
@@ -1589,7 +3073,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "lisk.cf5b4988.png",
+   "moTa": "Lisk is an OP stack rollup on Ethereum that migrated from the L1 blockchain of the same name.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.025868055555555554,
+    "doi": -0.6089923023093071,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "megaeth",
@@ -1640,7 +3142,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "megaeth.3991bdbb.png",
+   "moTa": "MegaETH is a real-time blockchain based on the OP Stack architecture and the hybrid Kailua proof system, targeting sub-millisecond latency and over 100,000 transactions per second.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Kailua",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 24.965520833333333,
+    "doi": 0.003756721893689363,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "apex-omni",
@@ -1691,7 +3211,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "apex-omni.12db6f6c.png",
+   "moTa": "ApeX Omni is an application-specific ZK rollup for order book trading. It uses zkLink X to aggregate liquidity deposited across multiple chains.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "ZKsync Lite",
+    "giaoThuc": null
+   },
+   "uops": null,
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "sxnetwork",
@@ -1742,7 +3274,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "sxnetwork.ccb124a2.png",
+   "moTa": "SX Network is an Orbit stack Optimistic Rollup, built to scale the SX team's existing sports betting platform.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.2939583333333333,
+    "doi": 0.5444207965947094,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "metis",
@@ -1793,7 +3343,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "metis.b5926a7d.png",
+   "moTa": "Metis Andromeda is an EVM-equivalent solution originally forked from Optimism OVM. It uses a decentralized Sequencer pool running Tendermint consensus and MPC module to sign transaction batches.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.07288194444444444,
+    "doi": -0.3150222995757641,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OVM"
+   ],
+   "baoDong": false
   },
   {
    "id": "galxegravity",
@@ -1844,7 +3412,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "galxegravity.34f08006.png",
+   "moTa": "Gravity is an Optimium built on the Orbit stack. It features onchain questing and has its own gas token - G. Other Galxe products are aiming to integrate with the L2 and a future migration to an L1 of the same name is planned.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.035694444444444445,
+    "doi": -0.46560388147634724,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "immutablezkevm",
@@ -1895,7 +3481,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "immutablezkevm.b21ad73e.png",
+   "moTa": "Immutable zkEVM is a sidechain focused on gaming and powered by Polygon stack. It plans to eventually transition to a ZK Rollup.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.685625,
+    "doi": -0.013998235656385694,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "rise",
@@ -1946,7 +3544,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "rise.f7392500.png",
+   "moTa": "RISE is a low-latency Optimium built on the OP Stack, using the OP Succinct Lite ZK fault proof system and posting data to EigenDA. It targets real-time trading applications through its RISEx exchange.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OP Succinct Lite",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 240.6404398148148,
+    "doi": -0.10234943126108653,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "soneium",
@@ -1997,7 +3613,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "soneium.825bf4ef.png",
+   "moTa": "Soneium is an Optimistic rollup based on the OP Stack. It is built by Sony Block Solutions Labs and planned to stand as a versatile, general-purpose blockchain.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 5.586215277777778,
+    "doi": 0.08547043146780009,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "fuel",
@@ -2048,7 +3682,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "fuel.efe69cc4.png",
+   "moTa": "Fuel Ignition is a high-performance Ethereum L2 built on FuelVM and the Sway language.",
+   "heCM": null,
+   "uops": {
+    "sl": 97.94417824074074,
+    "doi": -0.0393133996527969,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "paradex",
@@ -2099,7 +3745,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "paradex.8100a330.png",
+   "moTa": "Paradex is a high-performance crypto-derivatives exchange offering zero fee and private perpetuals.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Stwo",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 2.0949189814814817,
+    "doi": 0.004344738039485652,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "SN Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "apechain",
@@ -2150,7 +3814,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "apechain.381d83e1.png",
+   "moTa": "ApeChain is an Optimium built on the Arbitrum Orbit stack utilizing $APE as its native gas token. It fuels culture by being the chain for digital and IRL communities, builders, creators, collectors, gamers and beyond.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 1.1293171296296296,
+    "doi": 0.008173007377404895,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "aevo",
@@ -2201,7 +3883,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "aevo.2d9db7bd.png",
+   "moTa": "Aevo is a high-performance decentralized options exchange, powered by the OP Stack and EigenDA.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.00681712962962963,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "lumia",
@@ -2252,7 +3948,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "lumia.a680fa02.png",
+   "moTa": "Lumia is a sovereign Agglayer chain focusing on real world assets, restaking and account abstraction.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.5955324074074074,
+    "doi": -0.002500823914855732,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "adi",
@@ -2303,7 +4013,32 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "adi.a25e4e32.png",
+   "moTa": "ADI Chain is a zk rollup built for scale and policy alignment.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Airbender",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.3605439814814815,
+    "doi": 1.6531811600374757,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "nova",
@@ -2354,7 +4089,28 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "validium",
+   "logo": "nova.34c530f0.png",
+   "moTa": "Arbitrum Nova is an AnyTrust Optimium, differing from Arbitrum One by not posting transaction data onchain.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.017453703703703704,
+    "doi": -0.36797988264878456,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": []
+   },
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "haust",
@@ -2405,7 +4161,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "haust.55dd32fc.png",
+   "moTa": "Haust Network is a Layer 2 blockchain built on the Polygon CDK, integrating with the Agglayer and Account Abstraction from the outset.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.013831018518518519,
+    "doi": 0.0016764459346185756,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "zklinknova",
@@ -2456,7 +4226,23 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "zklinknova.9b64b743.png",
+   "moTa": "zkLink Nova is a Layer 3 zkEVM Validium network leveraging ZK Stack that allows for scattered assets across Ethereum Layer 2s to be aggregated for interoperable trade and transactions.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.0010300925925925926,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "ethereal",
@@ -2507,7 +4293,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "ethereal.53cbd955.png",
+   "moTa": "Ethereal is a decentralized exchange offering institutional-grade performance (sub-20 ms latency, ~1M orders per second) with DeFi-enabled self-custody and security guarantees.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.023761574074074074,
+    "doi": -0.3228891820580475,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "taiko",
@@ -2558,7 +4362,32 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "taiko.46374ca5.png",
+   "moTa": "Taiko Alethia is an Ethereum-equivalent rollup on the Ethereum network. Taiko combines a preconfirmation-based sequencing mechanism with a multi-proof system using SP1, RISC0 and TEEs.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "SP1 Hypercube / RISC Zero",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.5469675925925926,
+    "doi": -0.019258705848171576,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [
+    "Taiko"
+   ],
+   "baoDong": false
   },
   {
    "id": "sophon",
@@ -2609,7 +4438,32 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "validium",
+   "logo": "sophon.cf306169.png",
+   "moTa": "Sophon is a consumer-centric ecosystem on a ZK Stack Validium L2, designed to bring onchain benefits to everyday lifestyle and entertainment applications.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.017673611111111112,
+    "doi": -0.3369518019973946,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "zircuit",
@@ -2660,7 +4514,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": true,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "zircuit.654c38e6.png",
+   "moTa": "Zircuit is a universal ZK Rollup. It is based on the Optimism Bedrock architecture, employing AI to identify and stop malicious transactions at the sequencer level.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "SP1 Turbo",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.5293171296296296,
+    "doi": -0.04364282726892521,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "silicon",
@@ -2711,7 +4583,34 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "validium",
+   "logo": "silicon.ca2790f6.png",
+   "moTa": "Silicon is a Validium built on the Polygon CDK Stack, aiming to become the social network of the future.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "zkProver",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.012210648148148148,
+    "doi": -0.4682459677419355,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users are able to exit without the help of the permissioned operators, provided DA is accessible.",
+     "In case of an unwanted upgrade by actors more centralized than a Security Council, users have at least 7d to exit.",
+     "The Security Council is not properly set up.",
+     "The DA verifier is non-upgradeable, or upgrades to it provide at least a 7d independent exit window.",
+     "The DA layer does not meet minimum decentralization requirements (DAC <5 external members, or no attestation verifier for an external DA chain)."
+    ]
+   },
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "polygonzkevm",
@@ -2762,7 +4661,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "polygonzkevm.738cc5b3.png",
+   "moTa": "Polygon zkEVM is an EVM-compatible L2 built by Polygon Labs.",
+   "heCM": null,
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "orderly",
@@ -2813,7 +4726,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "orderly.95d3dc22.png",
+   "moTa": "Orderly is an OP stack Optimium on Ethereum using Celestia for data availability. It has a unified ledger for assets from multiple chains and an orderbook that can be used by apps that build on top of it.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.18136574074074074,
+    "doi": 0.077198047707431,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "mode",
@@ -2864,7 +4795,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "mode.b9e63649.png",
+   "moTa": "Mode is an OP stack Optimistic Rollup building the AIFi economy. Their mission is to scale DeFi to billions of users through onchain agents and AI powered financial applications to build a more open, efficient, and inclusive financial future.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.2689930555555556,
+    "doi": 0.2733399079552927,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "hashkey",
@@ -2915,7 +4864,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": true,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "hashkey.14f6a076.png",
+   "moTa": "HashKey Chain is a regulatory-compliant, institutional-grade OP stack Layer 2 solution bridging traditional finance and Web3. It is powered by Hong Kong's premier virtual asset ecosystem.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.01898148148148148,
+    "doi": 1.3066104078762306,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "lighter-robinhood",
@@ -2966,7 +4933,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "lighter-robinhood.bd6c5cad.png",
+   "moTa": "Lighter on Robinhood is an application-specific ZK rollup deployed on Robinhood Chain. It is a fork of Lighter adapted to use Global Dollar (USDG) as its quote and margin asset.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Lighter",
+    "giaoThuc": null
+   },
+   "uops": null,
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "eclipse",
@@ -3017,7 +4996,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "eclipse.b2eea365.png",
+   "moTa": "Eclipse is a sidechain powered by the Solana Virtual Machine (SVM).",
+   "heCM": null,
+   "uops": {
+    "sl": 2.8392824074074072,
+    "doi": 0.00033437724277418646,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "reya",
@@ -3068,7 +5059,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "reya.d5336e4c.png",
+   "moTa": "Reya is an Arbitrum Orbit stack L2 with AnyTrust data availability, optimizing for trading and liquidity provision.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "bobanetwork",
@@ -3119,7 +5128,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "bobanetwork.d076ab84.png",
+   "moTa": "Boba is an OP stack Optimistic Rollup built by the Enya team as core contributors to the Boba Foundation.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.018287037037037036,
+    "doi": 0.6934619506966773,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "zora",
@@ -3170,7 +5197,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "zora.7ad866eb.png",
+   "moTa": "Zora is a fast, cost-efficient, and scalable Layer 2 built to help bring media onchain, powered by the OP Stack.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.026956018518518518,
+    "doi": -0.25088452878739154,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "karak",
@@ -3221,7 +5266,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "k2.7ddd4840.png",
+   "moTa": "K2 is a general-purpose L2, which rebranded to the OpenGDP Network to soon become an asset tokenization-focused L1.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.0005902777777777778,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "cyber",
@@ -3272,7 +5331,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "cyber.d3bb1812.png",
+   "moTa": "Cyber is a chain designed for social applications using an implementation of OP Plasma with DA challenges.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.019618055555555555,
+    "doi": -0.3389235569422777,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "degen",
@@ -3323,7 +5396,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "degen.b762a41a.png",
+   "moTa": "Degen Chain is an ultra-low-cost L3 for the Degen community built with Arbitrum Orbit, Base for settlement, and AnyTrust for data availability. DEGEN is the native gas token.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.024155092592592593,
+    "doi": 3.3388773388773387,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "penchain",
@@ -3374,7 +5465,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "penchain.0ef8abeb.png",
+   "moTa": "Pentagon Chain is a blockchain powered by Agglayer and validated by a multisig. It is dedicated to mainstream adoption of Web3 gaming, DeFi, and SocialFi.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.016516203703703703,
+    "doi": 0.0818802122820319,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "educhain",
@@ -3425,7 +5530,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "edu-chain.4ddb8cac.png",
+   "moTa": "EDU Chain is a Layer 3 on Arbitrum, built on the Orbit stack. It is designed to onboard real-world educational economies to the blockchain and establish an innovative \"Learn Own Earn\" model for education.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.021099537037037038,
+    "doi": -0.982995354737608,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "fluent",
@@ -3476,7 +5599,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "fluent.87742c5a.png",
+   "moTa": "Fluent is an Ethereum L2 that blends Wasm and EVM smart contracts into a unified execution environment (with SVM planned). Batches are preconfirmed by an AWS Nitro Enclave and finalize after a delay; challenges are resolved by SP1 ZK proofs.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.03076388888888889,
+    "doi": -0.18265682656826565,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "dbk",
@@ -3527,7 +5662,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "dbk.eed62f43.png",
+   "moTa": "DeBank Chain is an OP stack Layer 2 on Ethereum that is deeply integrated into the DeBank ecosystem, allowing bridging directly from inside the Rabby Wallet.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.001712962962962963,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "superseed",
@@ -3578,7 +5727,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "superseed.c0367882.png",
+   "moTa": "Superseed is an Optimistic Rollup utilizing the OP Stack, aiming to provide a CDP lending platform enshrined in the protocol and redistribution of Layer 2 fees to its users.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.0017824074074074075,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "nillion",
@@ -3629,7 +5796,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "nillion.91202814.png",
+   "moTa": "Nillion is an OP Stack Optimium on Ethereum. It serves as the token bridge for the Nillion Network, a computation network focused on privacy-preserving data processing.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.047592592592592596,
+    "doi": -0.45644415069398536,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "shape",
@@ -3680,7 +5861,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "shape.edcab33c.png",
+   "moTa": "Shape is a Rollup on Ethereum based on the OP Stack. It is a chain for creators, innovating by giving creators 80% of the Sequencer fee as 'gasback'.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.016527777777777777,
+    "doi": 0.5191489361702126,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "lens",
@@ -3731,7 +5930,32 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "validium",
+   "logo": "lens.274b046d.png",
+   "moTa": "Lens Network is the main social networking hub for the user base of Lens Protocol, built on a Validium using ZKsync's ZK Stack technology.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.05355324074074074,
+    "doi": -0.0973468591494342,
+    "ky": "7D"
+   },
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "lasernet",
@@ -3782,7 +6006,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "lasernet.6eeebb61.png",
+   "moTa": "Lasernet is a new oracle architecture with an ETH layer-2 at its core. Lasernet brings fully on-chain, verifiable, and trustless data through its permissionless and modular design.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 2.6016203703703704,
+    "doi": -0.016172447751395036,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "lightlink",
@@ -3833,7 +6075,19 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "lightlink.b836b66f.png",
+   "moTa": "LightLink is a project that lets dApps and enterprises offer users instant, gasless transactions.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.7582175925925926,
+    "doi": -0.00913573524518263,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "hemi",
@@ -3884,7 +6138,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "hemi.cead121e.png",
+   "moTa": "Hemi is an OP Stack based L2 on Ethereum focusing on interoperability with the Bitcoin blockchain. In addition to the EVM, Hemi uses Hemi Virtual Machine (hVM), an EVM upgraded to have awareness of the Bitcoin state.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.08766203703703704,
+    "doi": 0.6613292388681729,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "shibarium",
@@ -3935,7 +6203,15 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "shibarium.4fcd3a34.png",
+   "moTa": "Shibarium is an EVM-compatible, proof of stake sidechain for Ethereum. It is built by developers behind the Shiba Inu token ecosystem. The main bridge to Ethereum is currently validated by Shibarium validators and allows for asset as well as data movement between Shibarium and Ethereum.",
+   "heCM": null,
+   "uops": null,
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "facet",
@@ -3986,7 +6262,23 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "facet.45d669c9.png",
+   "moTa": "Facet is a based rollup built on OP-Succinct. It uses FCT as its native gas token, which is mintable by burning ETH on L1.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "SP1",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 0.00024305555555555555,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "xai",
@@ -4037,7 +6329,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "xai.82d43ae9.png",
+   "moTa": "Xai is an Ethereum Layer-3 that leverages Arbitrum AnyTrust to enable open trade in the next generation of video games.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.8855787037037037,
+    "doi": -0.10042795334838228,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "soon",
@@ -4088,7 +6398,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "soon.2bcece4b.png",
+   "moTa": "SOON is a Layer 2 chain built on top of the SOON Stack. It innovates with a Decoupled SVM that separates Solana's execution (needed for the SOON SVM) from its consensus (not needed since SOON settles on Ethereum), yielding performance and flexibility improvements.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.0831712962962963,
+    "doi": 0.0015331010452961369,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "superposition",
@@ -4139,7 +6463,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "superposition.a799d06a.png",
+   "moTa": "Superposition is a Layer 3 powered by Arbitrum Orbit AnyTrust. It is a yield centric blockchain that pays users and developers to use it. Superposition offers novel incentive mechanisms such as Utility Mining and Super Assets and a native onchain order book built using Stylus that provides shared liquidity for the ecosystem.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.0050578703703703706,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "metal",
@@ -4190,7 +6532,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "metal.87d98572.png",
+   "moTa": "Metal L2 is a general-purpose OP stack rollup by Metallicus focused on banking and compliance.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.005671296296296297,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "b3",
@@ -4241,7 +6601,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "b3.a913f324.png",
+   "moTa": "B3 is an L3 built on Base to bring gamers and game creators onchain, powered by the OP Stack and Celestia DA.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.00003472222222222222,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "alienx",
@@ -4292,7 +6666,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "alienx.e4b761fe.png",
+   "moTa": "AlienX is an Orbit stack Optimium on Ethereum focused on Gaming, AI and NFTs.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.003414351851851852,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "river",
@@ -4343,7 +6735,17 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "towns.e74c522b.png",
+   "moTa": "Towns is an Optimium based on the OP Stack. It is used by the Towns protocol - a protocol for building decentralized real-time messaging apps - acting as its backbone.",
+   "heCM": null,
+   "uops": null,
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "pepeunchained2",
@@ -4394,7 +6796,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "pepe-unchained.07447e6a.png",
+   "moTa": "Pepe Unchained is an Optimium utilizing the Orbit Stack. It focuses on memes and provides a home for meme creators, traders, and communities to thrive.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "BoLD",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.011597222222222222,
+    "doi": 0.1084070796460177,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "ancient",
@@ -4445,7 +6865,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "ancient8.0b6f9f5a.png",
+   "moTa": "Ancient8 Chain is a gaming-focused community-driven Ethereum Layer 2 built using OP Stack.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.00024305555555555555,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": true
   },
   {
    "id": "phala",
@@ -4496,7 +6930,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "phala.86751ff0.png",
+   "moTa": "Phala is a cloud computing protocol which aims at offering developers a secure and efficient platform for deploying and managing AI-ready applications in a trusted environment (TEE).\n      Phala rollup on Ethereum leverages the Op-Succinct stack, a combination of OP stack contracts and Zero-Knowledge Proofs (ZK) using the SP1 zkVM.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "funki",
@@ -4547,7 +6999,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "funki.2fb42d4d.png",
+   "moTa": "Funki chain is an OP Stack Optimium on Ethereum reimagining the blockchain experience as an interconnected world brimming with wonder, adventure, and fun.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.000011574074074074073,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "intmax",
@@ -4598,7 +7064,26 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "intmax.581a65d2.png",
+   "moTa": "INTMAX is a stateless Plasma-like ZK Rollup that enables private payments and minimal onchain costs.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "INTMAX",
+    "giaoThuc": null
+   },
+   "uops": null,
+   "thieu": {
+    "thangSau": "Stage 1",
+    "dieuKien": [
+     "Users' withdrawals can be censored by the permissioned operators.",
+     "Upgrades executed by actors with more centralized control than a Security Council provide less than 7d for users to exit if the permissioned operator is down or censoring.",
+     "The Security Council is not properly set up."
+    ]
+   },
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "swan",
@@ -4649,7 +7134,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "swan.b9acfb91.png",
+   "moTa": "Swan Chain is an OP Stack L2 providing comprehensive AI infrastructure on the blockchain.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.000046296296296296294,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "zkfair",
@@ -4700,7 +7199,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "zkfair.07f2ca36.png",
+   "moTa": "ZKFair is a Validium based on Polygon CDK and Celestia DA.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.00010416666666666667,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "edgechain",
@@ -4751,7 +7264,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "edgechain.abe311bd.png",
+   "moTa": "Edge Chain is an Arbitrum Orbit L3 built by EdgeX, an on-chain trading platform. It uses a modular architecture that separates trading execution from standard DeFi logic, with native USDC support via CCTP.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.008576388888888889,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "appchain",
@@ -4802,7 +7333,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "appchain.e9bd367a.png",
+   "moTa": "AppChain is an incentivized Layer 2 that allows developers to capture the value their dApps create, enabling sustainable economic models.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.00015046296296296297,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "r0ar",
@@ -4853,7 +7402,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "r0ar.38be6e6d.png",
+   "moTa": "R0ar is an Optimistic Rollup utilizing the OP Stack focusing on DeFi.",
+   "heCM": null,
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "wirex",
@@ -4904,7 +7467,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "wirex.b39dc69d.png",
+   "moTa": "Pay Chain is a Validium built on the Polygon CDK stack. It is used as the infrastructure for the Wirex non-custodial debit cards and financial services.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "zkProver",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "deri",
@@ -4955,7 +7536,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "deri.6141de08.png",
+   "moTa": "Deri is an Ethereum Layer-3 that leverages Arbitrum Nitro to enable efficient cross-chain futures, options, and derivatives.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": null,
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "cartesi-prt-honeypot-v2",
@@ -5006,7 +7601,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "cartesi-prt-honeypot-v2.77df5efa.png",
+   "moTa": "Cartesi PRT Honeypot v2 is an application-specific Stage-2 rollup that stress-tests Cartesi Rollups’ security. Protected solely by Cartesi’s PRT (Permissionless Refereed Tournaments) fraud-proof algorithm, it turns its locked funds into an open bounty for anyone who can break the system. Users should not deposit unless they are willing to donate their funds to the Honeypot.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Dave",
+    "giaoThuc": "Interactive"
+   },
+   "uops": null,
+   "thieu": null,
+   "stacks": [
+    "Cartesi Rollups"
+   ],
+   "baoDong": false
   },
   {
    "id": "forknet",
@@ -5057,7 +7666,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "forknet.fe6e1b60.png",
+   "moTa": "An onchain order book DEX for spot and perpetuals, built on CDK OP Stack and natively integrated with Agglayer for unified liquidity.",
+   "heCM": null,
+   "uops": {
+    "sl": 0.0013657407407407407,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Agglayer CDK"
+   ],
+   "baoDong": false
   },
   {
    "id": "settlus",
@@ -5108,7 +7731,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "settlus.3475dab5.png",
+   "moTa": "Settlus is an OP stack L2 designed to provide transparent settlement system for the creator economy.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "OPFP",
+    "giaoThuc": "Interactive"
+   },
+   "uops": null,
+   "thieu": null,
+   "stacks": [
+    "OP Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "aztecnetwork",
@@ -5159,7 +7796,23 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "aztecnetwork.090daf0f.png",
+   "moTa": "Aztec Network is a privacy-preserving ZK rollup that uses the AztecVM and Noir to support private and public smart contracts on Ethereum.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Barretenberg",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0.011226851851851852,
+    "doi": 0.1960542540073984,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "ethscriptions",
@@ -5210,7 +7863,23 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "rollup",
+   "logo": "ethscriptions.9ab51750.png",
+   "moTa": "Ethscriptions is a based rollup that provides cryptographic state and EVM compatibility for ethscriptions. It uses a derivation pipeline to convert L1 ethscription activity into canonical L2 blocks.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "SP1",
+    "giaoThuc": "Single-step"
+   },
+   "uops": {
+    "sl": 0.13212962962962962,
+    "doi": 0.1019305019305019,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [],
+   "baoDong": false
   },
   {
    "id": "grvt",
@@ -5261,7 +7930,21 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "grvt.d6dc991f.png",
+   "moTa": "Gravity (GRVT) is a hybrid crypto derivatives exchange, providing a centralized exchange-like experience while being based on the ZK stack Validium codebase with confidential data availability and transaction filtering enabled.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": null,
+   "thieu": null,
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "zkcandy",
@@ -5312,7 +7995,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "zkcandy.60b15f7b.png",
+   "moTa": "zkCandy is a Gaming Validium built on ZKsync's ZK stack for the next generation of GameFi - Supercharged by iCandy, the largest game developer in ANZ and SEA.",
+   "heCM": {
+    "loai": "Validity",
+    "ten": "Boojum",
+    "giaoThuc": null
+   },
+   "uops": {
+    "sl": 0,
+    "doi": 0,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "ZK Stack"
+   ],
+   "baoDong": false
   },
   {
    "id": "earnm",
@@ -5363,7 +8064,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "earnm.19b79386.png",
+   "moTa": "Earnm is a mobile-first Orbit stack L3 on Arbitrum that converts everyday mobile activity into cryptocurrency rewards through its EarnOS technology.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 0.07645833333333334,
+    "doi": -0.05331040412725696,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   },
   {
    "id": "playblock",
@@ -5414,7 +8133,25 @@ window.DSV_DATA = {
     }
    ],
    "xemXet": false,
-   "luuTru": false
+   "luuTru": false,
+   "tab": "khac",
+   "logo": "playblock.d0f4738a.png",
+   "moTa": "PlayBlock is an Orbit stack Layer 3 on Arbitrum Nova. It is built by the team behind Playnance, and is focused on gasless gaming and gambling.",
+   "heCM": {
+    "loai": "Optimistic",
+    "ten": "Arbitrum Classic",
+    "giaoThuc": "Interactive"
+   },
+   "uops": {
+    "sl": 2.1035185185185186,
+    "doi": -0.05372716244149045,
+    "ky": "7D"
+   },
+   "thieu": null,
+   "stacks": [
+    "Arbitrum"
+   ],
+   "baoDong": false
   }
  ]
 };

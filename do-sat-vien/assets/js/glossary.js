@@ -166,5 +166,69 @@ window.DSV_VI = {
   },
 
   /* ── cảm quan rủi ro ──────────────────────────────── */
-  camQuan: { good: "tốt", warning: "cần lưu ý", bad: "đáng ngại", neutral: "trung tính", UnderReview: "đang xem xét" }
+  camQuan: { good: "tốt", warning: "cần lưu ý", bad: "đáng ngại", neutral: "trung tính", UnderReview: "đang xem xét" },
+
+  /* ── ba tab của L2BEAT ────────────────────────────── */
+  /* Đây là cách L2BEAT chia bảng chính, và cũng là lý do thứ hạng
+     nhìn khác nhau: tab mặc định của họ là Rollup, không tính
+     Hyperliquid hay Polygon PoS. */
+  tab: {
+    rollup: {
+      nhan: "Rollup",
+      y: "Đăng dữ liệu giao dịch lên thẳng Ethereum, và có cơ chế chứng minh kết quả — bằng chứng hợp lệ hoặc chứng minh gian lận.",
+      vn: "Nhóm an toàn nhất trong ba nhóm: dữ liệu công khai trên Ethereum nên ai cũng dựng lại được số dư của mình mà không cần xin phép ai."
+    },
+    validium: {
+      nhan: "Validium & Optimium",
+      y: "Có cơ chế chứng minh kết quả như rollup, nhưng dữ liệu giao dịch KHÔNG đăng lên Ethereum mà giữ ở nơi khác.",
+      vn: "Rẻ hơn nhiều, đổi lại: nhóm giữ dữ liệu không đưa ra thì bạn không dựng lại được số dư để mà rút."
+    },
+    khac: {
+      nhan: "Dạng khác",
+      y: "Không đạt định nghĩa rollup hay validium của L2BEAT — sidechain, chuỗi tầng 3, chuỗi có mô hình bảo mật riêng.",
+      vn: "An toàn của nhóm này không kế thừa từ Ethereum, phải xét theo cách khác. Nhóm này đông nhất."
+    }
+  },
+
+  /* ── hệ chứng minh ────────────────────────────────── */
+  heCM: {
+    "Optimistic": {
+      nhan: "Lạc quan",
+      y: "Mặc định tin kết quả là đúng. Ai phát hiện sai thì nộp bằng chứng gian lận trong thời hạn khiếu nại.",
+      vn: "Rút về Ethereum thường phải chờ hết hạn khiếu nại — quãng bảy ngày ở phần lớn thiết kế."
+    },
+    "Validity": {
+      nhan: "Bằng chứng hợp lệ",
+      y: "Mỗi lô giao dịch kèm một bằng chứng toán học chứng tỏ kết quả đúng, Ethereum kiểm trước khi chấp nhận.",
+      vn: "Không cần chờ khiếu nại: bằng chứng được chấp nhận là rút được. Đổi lại chi phí tính toán cao hơn."
+    }
+  },
+
+  /* giao thức tranh chấp — chỉ có nghĩa với hệ lạc quan */
+  giaoThuc: {
+    "Single-step": {
+      nhan: "Một bước",
+      y: "Tranh chấp giải quyết trong một giao dịch duy nhất: nộp bằng chứng là xong."
+    },
+    "Interactive": {
+      nhan: "Nhiều vòng",
+      y: "Hai bên đối chất qua lại nhiều vòng để thu hẹp dần điểm bất đồng, rồi mới phân xử trên Ethereum. Rẻ hơn nhưng kéo dài hơn."
+    }
+  },
+
+  /* ── nhãn phụ ─────────────────────────────────────── */
+  nhan: {
+    thangSau: "Còn thiếu gì để lên thang sau",
+    tvsTong: "Tài sản đang giữ",
+    uops: "Thao tác/giây (24h)",
+    khongUops: "chưa đo",
+    baoDong: "đang có bất thường",
+    xemXet: "đang xem xét",
+    layer3: "tầng 3"
+  },
+
+  /* Ghi chú đối chiếu — con số này KHÔNG khớp với tiêu đề của
+     L2BEAT và đã truy ra lý do, nên nói thẳng thay vì để người
+     đọc tự nghi ngờ mình đọc nhầm. */
+  ghiChuTong: "L2BEAT ở tiêu đề trang chỉ cộng các chuỗi tầng 2. Bảng này cộng cả tầng 3 nên tổng cao hơn — phần chênh gần như toàn bộ là Hyperliquid, một chuỗi tầng 3."
 };

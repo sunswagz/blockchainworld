@@ -45,11 +45,11 @@
     });
   }
 
-  /* nút cài — nối vào cuối dải chuyển cung, nên phải đợi halls.js dựng xong */
+  /* nút cài — nối vào cuối mục "Các cung", nên phải đợi halls.js dựng xong */
   var deferred = null, btn = null;
 
   function gan() {
-    var strip = document.querySelector(".cung-strip");
+    var strip = document.getElementById("cungNav");
     if (!strip || btn || !deferred) return;
     btn = document.createElement("button");
     btn.type = "button";

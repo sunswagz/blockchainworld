@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Đô Sát Viện · Bảng xét 107 thành phố Layer 2</title>
-<meta name="description" content="Bản Việt hoá của L2BEAT: thang tự trị, năm chiều rủi ro và tài sản đang giữ của toàn bộ thành phố Layer 2 — kèm diễn giải cho người gửi tiền.">
+<title>Đô Sát Viện · Bảng xét các thành phố Layer 2</title>
+<meta name="description" content="Bản Việt hoá của L2BEAT: thang tự trị, năm chiều rủi ro, hệ chứng minh và tài sản đang giữ của toàn bộ thành phố Layer 2 — kèm diễn giải cho người gửi tiền.">
 
-<meta name="theme-color" content="#EDF2FA">
+<meta name="theme-color" content="#E6E7EC">
 <meta name="color-scheme" content="light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,86 +20,123 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css">
 <link rel="stylesheet" href="assets/css/halls.css">
 </head>
 <body>
 
-<header class="top">
-  <span class="mark" aria-hidden="true"></span>
-  <h1>Đô Sát Viện · bảng xét các thành phố Layer 2</h1>
-  <span class="meta">bản chụp <b id="ngay">—</b></span>
-</header>
+<div class="khung">
 
-<!-- thanh chuyển cung — do assets/js/halls.js dựng -->
-<div id="cungStrip"></div>
-
-<main class="wrap">
-
-  <section class="hero">
-    <div class="cap">Việt hoá từ L2BEAT</div>
-    <h2>Ai đang giữ tiền của bạn, và giữ bằng quyền gì?</h2>
-    <p>
-      Thành phố Layer 2 không tự giữ tài sản trong tay mình. Tiền nằm trong một hợp
-      đồng khoá trên chuỗi mẹ, còn thành phố chỉ ghi sổ ai sở hữu bao nhiêu. Câu hỏi
-      thật sự không phải “thành phố này to bao nhiêu” mà là: <b>nếu ban điều hành thành
-      phố biến mất hoặc trở mặt, bạn có tự rút được tiền ra không, và mất bao lâu?</b>
-    </p>
-    <p>
-      Bảng dưới xếp toàn bộ thành phố theo <b>thang tự trị</b> — mức độ thành phố đã
-      giao quyền lại cho luật lệ thay vì cho người. Bấm vào một hàng để xem hồ sơ:
-      năm chiều rủi ro, cách tài sản được đưa vào, và điều đó nghĩa gì với người gửi tiền.
-    </p>
-    <div class="sos">
-      <div class="so"><b id="tongAll">—</b><span>tổng tài sản</span></div>
-      <div class="so"><b id="soAll">—</b><span>thành phố</span></div>
-      <div class="so"><b id="tong">—</b><span>đang hiện</span></div>
+  <!-- ── thanh bên ─────────────────────────────────── -->
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <div class="hieu">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.5 20.5h17"/><path d="M4.5 16.8h7.2v3.7H4.5z"/>
+          <path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>
+        </svg>
+      </span>
+      <span><b>Đô Sát Viện</b><i>Bảng xét Layer 2</i></span>
     </div>
-  </section>
 
-  <section class="loc" aria-label="Bộ lọc">
-    <div class="loc-hang">
-      <span class="loc-lab">Thang tự trị</span>
-      <div class="chips" id="chipThang"></div>
+    <div class="blab">Bảng xét</div>
+    <a class="bmuc" href="#" aria-current="page">
+      <span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9 9.5v10"/></svg></span>
+      <span>Tổng quan</span>
+      <span class="bn" id="benSo"></span>
+    </a>
+    <div class="bcon">
+      <a class="bmuc" href="#chugiai">
+        <span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 16.5v-4.5M12 8.2v.1"/></svg></span>
+        <span>Chú giải</span>
+      </a>
+      <a class="bmuc" href="https://l2beat.com/scaling/summary" target="_blank" rel="noopener">
+        <span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1.8 1.8 0 0 1-1.8 1.8H5A1.8 1.8 0 0 1 3.2 19V7.8A1.8 1.8 0 0 1 5 6h5"/></svg></span>
+        <span>Bản gốc L2BEAT</span>
+      </a>
     </div>
-    <div class="loc-hang">
-      <span class="loc-lab">Dạng kỹ thuật</span>
-      <div class="chips" id="chipDang"></div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Việt hoá từ <a href="https://l2beat.com" target="_blank" rel="noopener">l2beat.com</a>.
+      Số liệu và mọi đánh giá rủi ro là của L2BEAT.</p>
     </div>
-    <div class="loc-hang">
-      <span class="loc-lab">Tìm</span>
-      <div class="timwrap">
-        <input id="q" type="search" placeholder="Tên thành phố, dạng, bản vẽ xây dựng…" autocomplete="off" aria-label="Tìm thành phố">
+  </nav>
+
+  <!-- ── thân ──────────────────────────────────────── -->
+  <main class="than">
+
+    <header class="dinh">
+      <button class="benmo" id="benMo" type="button" aria-label="Mở thanh bên">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1>Tổng quan</h1>
+      <div class="tim">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+        <input id="q" type="search" placeholder="Tìm thành phố…" autocomplete="off" aria-label="Tìm thành phố">
       </div>
-      <span class="loc-lab" id="dem" style="min-width:auto;letter-spacing:.04em"></span>
-    </div>
-  </section>
+      <span class="ngay" id="ngay"></span>
+    </header>
 
-  <section class="bangwrap" id="bang" aria-label="Bảng thành phố Layer 2"></section>
+    <p class="giaithich" id="canhBao" hidden
+       style="background:#FDE7DC;border:1px solid #F0B79A;border-radius:8px;margin:0 0 12px;color:#A83A12"></p>
 
-  <section class="chugiai" id="chugiai" aria-label="Chú giải"></section>
+    <section class="tren">
+      <div class="the">
+        <div class="the-dinh">
+          <h2>Tài sản đang giữ</h2>
+          <span class="the-so" id="bdSo">—</span>
+        </div>
+        <div class="the-doi" id="bdDoi"></div>
+        <div class="bd" id="bd"></div>
+        <div class="bd-chu" id="bdChu"></div>
+      </div>
 
-  <footer class="chan">
-    <p>
-      <b>Nguồn:</b> l2beat.com/api/scaling/summary — số liệu và mọi đánh giá rủi ro là
-      của L2BEAT. Đô Sát Viện chỉ dịch, sắp xếp và diễn giải; không tự chấm điểm dự án nào.
-      Bản chụp cập nhật tự động bằng GitHub Actions.
-    </p>
-    <p>
-      Đây không phải lời khuyên đầu tư. Một thành phố ở thang cao vẫn có thể sập vì
-      lý do khác — lỗi hợp đồng, lỗi cầu nối, hoặc rủi ro của chính tài sản bạn gửi.
-    </p>
-  </footer>
+      <div class="the">
+        <div class="the-dinh">
+          <h2>Tiền vào bằng đường nào</h2>
+          <span class="the-so" id="tongSo">—</span>
+        </div>
+        <div class="sos" id="tongSos"></div>
+        <p class="the-ghi" id="tongGhi"></p>
+      </div>
+    </section>
 
-</main>
+    <div class="tabs" id="tabs" role="tablist" aria-label="Ba nhóm của L2BEAT"></div>
+
+    <section class="khoi">
+      <p class="giaithich" id="giaithich"></p>
+      <div class="loc">
+        <span class="loc-lab">Thang tự trị</span>
+        <div class="chips" id="chipThang" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <span class="dem" id="dem"></span>
+      </div>
+      <div class="bangwrap" id="bang"></div>
+    </section>
+
+    <section class="chugiai" id="chugiai" aria-label="Chú giải"></section>
+
+    <footer class="chan">
+      <p><b>Nguồn:</b> l2beat.com — API <code>scaling/summary</code> cho số liệu và biểu đồ,
+      dữ liệu trang <code>scaling/summary</code> cho logo, nhóm, hệ chứng minh và thao tác/giây.
+      Bản chụp cập nhật tự động bằng GitHub Actions.</p>
+      <p>Đô Sát Viện chỉ dịch, sắp xếp và diễn giải — <b>không tự chấm điểm dự án nào</b>.
+      Đây không phải lời khuyên đầu tư. Một thành phố ở thang cao vẫn có thể sập vì lý do khác:
+      lỗi hợp đồng, lỗi cầu nối, hoặc rủi ro của chính tài sản bạn gửi.</p>
+    </footer>
+
+  </main>
+</div>
 
 <!-- hồ sơ chi tiết -->
 <div class="scrim" id="scrim" data-open="0"></div>
 <aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ thành phố">
   <div class="hoso-top">
+    <div id="hosoTen"></div>
     <div class="hoso-tag" id="hosoTag"></div>
-    <h2 id="hosoTen">—</h2>
     <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng hồ sơ">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
@@ -108,7 +145,7 @@
 </aside>
 
 <!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
-<!-- 107 dự án · tự sinh, xem scripts/build-l2beat.mjs -->
+<!-- tự sinh, xem scripts/build-l2beat.mjs -->
 <script src="assets/js/data.js"></script>
 <!-- bản dịch và diễn giải · sửa tay được -->
 <script src="assets/js/glossary.js"></script>
