@@ -1,14 +1,14 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH bởi scripts/build-l2beat.mjs — ĐỪNG SỬA TAY.
    Nguồn: l2beat.com/api/scaling/summary
-   Lấy lúc: 2026-08-13T06:55:25.719Z
-   107 dự án · tổng tài sản $39.44b
+   Lấy lúc: 2026-08-13T07:56:42.619Z
+   106 dự án · tổng tài sản $39.47b
    ═══════════════════════════════════════════════════════ */
 window.DSV_DATA = {
- "generatedAt": "2026-08-13T06:55:25.719Z",
+ "generatedAt": "2026-08-13T07:56:42.619Z",
  "date": "13/08/2026",
  "nguon": "l2beat.com/api/scaling/summary",
- "tongTvs": 39438608294.11682,
+ "tongTvs": 39469671315.37677,
  "projects": [
   {
    "id": "base",
@@ -19,12 +19,12 @@ window.DSV_DATA = {
    "thang": "Stage 1",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 11625053184,
-   "d7": -0.005610318690907556,
+   "tvs": 11652349952,
+   "d7": -0.005513385643173829,
    "chiaTvs": {
-    "native": 4638126163.078125,
-    "canonical": 2196386660.1955004,
-    "external": 4790543317.261719
+    "native": 4662407300.5546875,
+    "canonical": 2199458469.5807123,
+    "external": 4790485529.714844
    },
    "ruiRo": [
     {
@@ -70,12 +70,12 @@ window.DSV_DATA = {
    "thang": "Stage 1",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 10079069184,
-   "d7": 0.0007925738222271939,
+   "tvs": 10074299392,
+   "d7": -0.0010299212272217861,
    "chiaTvs": {
-    "native": 3125646631.423828,
-    "canonical": 2945806810.381881,
-    "external": 4007617958.5113983
+    "native": 3117447514.908203,
+    "canonical": 2949673444.803271,
+    "external": 4007185449.077194
    },
    "ruiRo": [
     {
@@ -121,11 +121,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Arbitrum One",
    "stack": null,
-   "tvs": 5855873536,
-   "d7": -0.01240677026509518,
+   "tvs": 5855652352,
+   "d7": -0.012475708698138188,
    "chiaTvs": {
     "native": 0,
-    "canonical": 5855873536,
+    "canonical": 5855652352,
     "external": 0
    },
    "ruiRo": [
@@ -172,12 +172,12 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 3683557888,
-   "d7": -0.017296295155500685,
+   "tvs": 3679412736,
+   "d7": -0.019280106986835688,
    "chiaTvs": {
-    "native": 8494079.96875,
-    "canonical": 2222549192.881812,
-    "external": 1452514622
+    "native": 8513873.21875,
+    "canonical": 2223660711.1177244,
+    "external": 1447238549
    },
    "ruiRo": [
     {
@@ -223,12 +223,12 @@ window.DSV_DATA = {
    "thang": "Stage 1",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 1389428352,
-   "d7": -0.031810746714305616,
+   "tvs": 1394032512,
+   "d7": -0.029184166014828428,
    "chiaTvs": {
-    "native": 229229655.96875,
-    "canonical": 913750402.5807171,
-    "external": 246447662.87249756
+    "native": 230356001.71875,
+    "canonical": 917297732.6851766,
+    "external": 246378595.85836792
    },
    "ruiRo": [
     {
@@ -274,12 +274,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 1238282880,
-   "d7": -0.008906039196530435,
+   "tvs": 1237978880,
+   "d7": -0.009926318579271287,
    "chiaTvs": {
-    "native": 60259184,
-    "canonical": 585154191.9922217,
-    "external": 592869564.75
+    "native": 60060490.875,
+    "canonical": 584926021.0300416,
+    "external": 592992428.5
    },
    "ruiRo": [
     {
@@ -325,12 +325,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 1116588416,
-   "d7": 0.12151792692385777,
+   "tvs": 1117627264,
+   "d7": 0.11221035468852492,
    "chiaTvs": {
-    "native": 546426376.8598633,
-    "canonical": 305951662.9877533,
-    "external": 264210304
+    "native": 546731310.3359375,
+    "canonical": 306675623.73763883,
+    "external": 264220400
    },
    "ruiRo": [
     {
@@ -376,11 +376,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 902382848,
-   "d7": 0.051947497719990965,
+   "tvs": 904233472,
+   "d7": 0.0509596857024861,
    "chiaTvs": {
     "native": 0,
-    "canonical": 902382807.9365234,
+    "canonical": 904233453.5009766,
     "external": 0
    },
    "ruiRo": [
@@ -427,12 +427,12 @@ window.DSV_DATA = {
    "thang": "Stage 1",
    "me": "Ethereum",
    "stack": "SN Stack",
-   "tvs": 352119744,
-   "d7": -0.05302512382219171,
+   "tvs": 352163968,
+   "d7": -0.05312139896575008,
    "chiaTvs": {
-    "native": 147148614.578125,
-    "canonical": 138117583.07366538,
-    "external": 66853515.83251953
+    "native": 147154479.953125,
+    "canonical": 137846939.02165294,
+    "external": 67162489.45751953
    },
    "ruiRo": [
     {
@@ -478,12 +478,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 341197792,
-   "d7": -0.014866215425507145,
+   "tvs": 341856448,
+   "d7": -0.017294870116687178,
    "chiaTvs": {
-    "native": 1049891.4340820312,
-    "canonical": 161025259.59802318,
-    "external": 179122609.11956787
+    "native": 1050729.4575195312,
+    "canonical": 161289447.30025983,
+    "external": 179516275.46679688
    },
    "ruiRo": [
     {
@@ -529,12 +529,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 334269952,
-   "d7": 0.045322921802541716,
+   "tvs": 338979072,
+   "d7": 0.06615742250903334,
    "chiaTvs": {
     "native": 0,
-    "canonical": 317897281.8850002,
-    "external": 16372697
+    "canonical": 322607136.0500002,
+    "external": 16371929
    },
    "ruiRo": [
     {
@@ -580,12 +580,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 252428880,
-   "d7": 0.05222935722177602,
+   "tvs": 251448208,
+   "d7": 0.048222881661734274,
    "chiaTvs": {
-    "native": 233079142.7421875,
-    "canonical": 2805557.014448017,
-    "external": 16544182.5625
+    "native": 232088818.34765625,
+    "canonical": 2812888.7624929845,
+    "external": 16546468.75
    },
    "ruiRo": [
     {
@@ -631,11 +631,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 237971472,
-   "d7": -0.014559173887583876,
+   "tvs": 238263920,
+   "d7": -0.016166026490026852,
    "chiaTvs": {
     "native": 0,
-    "canonical": 237971478.50320044,
+    "canonical": 238263892.47045317,
     "external": 0
    },
    "ruiRo": [
@@ -682,12 +682,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "ZK Stack",
-   "tvs": 193647760,
-   "d7": -0.04126365773220675,
+   "tvs": 193749600,
+   "d7": -0.041943527015913196,
    "chiaTvs": {
-    "native": 74003516.57617188,
-    "canonical": 107689374.43045576,
-    "external": 11954897.81225586
+    "native": 73948252.09570312,
+    "canonical": 107837965.78326021,
+    "external": 11963396.108154297
    },
    "ruiRo": [
     {
@@ -733,12 +733,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 188868672,
-   "d7": -0.016917691795829803,
+   "tvs": 188942640,
+   "d7": -0.01615896999292421,
    "chiaTvs": {
-    "native": 57004687.40625,
+    "native": 56978121.40625,
     "canonical": 0,
-    "external": 131863984.99167968
+    "external": 131964510.80222656
    },
    "ruiRo": [
     {
@@ -784,12 +784,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 154979152,
-   "d7": 0.003138082680260945,
+   "tvs": 154863472,
+   "d7": 0.0023175890198059435,
    "chiaTvs": {
     "native": 0,
-    "canonical": 154450855.7181729,
-    "external": 528312.21875
+    "canonical": 154334968.30916584,
+    "external": 528521.328125
    },
    "ruiRo": [
     {
@@ -835,12 +835,12 @@ window.DSV_DATA = {
    "thang": "Stage 1",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 151004528,
-   "d7": -0.075230249739627,
+   "tvs": 151285840,
+   "d7": -0.07496803602310109,
    "chiaTvs": {
     "native": 0,
-    "canonical": 22170685.360000372,
-    "external": 128833856
+    "canonical": 22213427.39999962,
+    "external": 129072432
    },
    "ruiRo": [
     {
@@ -886,12 +886,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 119014656,
-   "d7": 0.08237515821648578,
+   "tvs": 118705744,
+   "d7": 0.07561682507340661,
    "chiaTvs": {
     "native": 0,
-    "canonical": 12659037.134921193,
-    "external": 106355602.22691345
+    "canonical": 12659844.609999537,
+    "external": 106045909.33188629
    },
    "ruiRo": [
     {
@@ -937,12 +937,12 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 117926744,
-   "d7": 0.0022997860885480836,
+   "tvs": 117912384,
+   "d7": 0.0021756231075829024,
    "chiaTvs": {
     "native": 0,
-    "canonical": 4462241.124334792,
-    "external": 113464488
+    "canonical": 4463725.755343894,
+    "external": 113448648
    },
    "ruiRo": [
     {
@@ -988,12 +988,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 86134120,
-   "d7": -0.01580235249122064,
+   "tvs": 86113880,
+   "d7": -0.014250021726502804,
    "chiaTvs": {
-    "native": 27256866,
-    "canonical": 22342129.211647987,
-    "external": 36535130.98981476
+    "native": 27209526,
+    "canonical": 22376053.76703453,
+    "external": 36528305.08979797
    },
    "ruiRo": [
     {
@@ -1039,12 +1039,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 76020272,
-   "d7": -0.020848106856130477,
+   "tvs": 76112512,
+   "d7": -0.02142885648446624,
    "chiaTvs": {
     "native": 0,
-    "canonical": 86297.037815094,
-    "external": 75933973.37933472
+    "canonical": 86462.63624954224,
+    "external": 76026050.86916092
    },
    "ruiRo": [
     {
@@ -1090,12 +1090,12 @@ window.DSV_DATA = {
    "thang": "Stage 1",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 69922896,
-   "d7": -0.034000769893814065,
+   "tvs": 70002008,
+   "d7": -0.034258024064716786,
    "chiaTvs": {
     "native": 0,
-    "canonical": 28914833.79667498,
-    "external": 41008063.39629841
+    "canonical": 28965414.31941177,
+    "external": 41036604.25542927
    },
    "ruiRo": [
     {
@@ -1141,12 +1141,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 67196824,
-   "d7": -0.004383881256261435,
+   "tvs": 67316280,
+   "d7": -0.004875610264338137,
    "chiaTvs": {
-    "native": 16549606.986328125,
-    "canonical": 37002194.13161421,
-    "external": 13645016.659179688
+    "native": 16577679.986328125,
+    "canonical": 37078327.819619656,
+    "external": 13660271.556152344
    },
    "ruiRo": [
     {
@@ -1192,12 +1192,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 61564108,
-   "d7": -0.10429078356348831,
+   "tvs": 61651280,
+   "d7": -0.10453565858153957,
    "chiaTvs": {
-    "native": 995192.6610937119,
-    "canonical": 59425731.99214791,
-    "external": 1143185.1201171875
+    "native": 995333.4564843178,
+    "canonical": 59509630.139708504,
+    "external": 1146318.1401367188
    },
    "ruiRo": [
     {
@@ -1243,12 +1243,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 61265180,
-   "d7": -0.01269382101726546,
+   "tvs": 61387980,
+   "d7": -0.01341713279781287,
    "chiaTvs": {
-    "native": 12649854,
-    "canonical": 3192256.3967727274,
-    "external": 45423070.48364258
+    "native": 12654480,
+    "canonical": 3199169.1915773004,
+    "external": 45534330.824157715
    },
    "ruiRo": [
     {
@@ -1294,12 +1294,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 60334660,
-   "d7": 0.06364510189507766,
+   "tvs": 60514980,
+   "d7": 0.047630710909295715,
    "chiaTvs": {
     "native": 24709.80078125,
-    "canonical": 55572854.60002899,
-    "external": 4737093.015625
+    "canonical": 55733253.77005005,
+    "external": 4757020.96875
    },
    "ruiRo": [
     {
@@ -1345,12 +1345,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "ZK Stack",
-   "tvs": 45477704,
-   "d7": -0.00660731231597389,
+   "tvs": 45596696,
+   "d7": -0.008665758747419261,
    "chiaTvs": {
-    "native": 1269852.7109375,
-    "canonical": 20615173.6875,
-    "external": 23592672.625
+    "native": 1287385.7734375,
+    "canonical": 20649075,
+    "external": 23660235.75
    },
    "ruiRo": [
     {
@@ -1396,12 +1396,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 41866704,
-   "d7": -0.021185943768865956,
+   "tvs": 41919284,
+   "d7": -0.022357516902402508,
    "chiaTvs": {
-    "native": 3877809.25,
-    "canonical": 35345713.42330313,
-    "external": 2643180.902648926
+    "native": 3883650.5,
+    "canonical": 35392847.141402245,
+    "external": 2642788.048828125
    },
    "ruiRo": [
     {
@@ -1447,12 +1447,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "ZK Stack",
-   "tvs": 33729568,
-   "d7": -0.00005751299348966121,
+   "tvs": 33754944,
+   "d7": -0.001630874386470027,
    "chiaTvs": {
     "native": 0,
-    "canonical": 19528860.249023438,
-    "external": 14200709.25
+    "canonical": 19554048.23046875,
+    "external": 14200894.25
    },
    "ruiRo": [
     {
@@ -1498,11 +1498,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "SN Stack",
-   "tvs": 32509120,
-   "d7": -0.5301071980101792,
+   "tvs": 32497142,
+   "d7": -0.5302520845632175,
    "chiaTvs": {
     "native": 0,
-    "canonical": 32509120,
+    "canonical": 32497142,
     "external": 0
    },
    "ruiRo": [
@@ -1549,12 +1549,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 31444388,
-   "d7": 0.0419995806073028,
+   "tvs": 31375032,
+   "d7": 0.033769006256248346,
    "chiaTvs": {
     "native": 0,
-    "canonical": 31074183.99255371,
-    "external": 370202.97265625
+    "canonical": 31004807.11871338,
+    "external": 370226.21630859375
    },
    "ruiRo": [
     {
@@ -1600,12 +1600,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 28195510,
-   "d7": -0.011931045353489544,
+   "tvs": 28212044,
+   "d7": -0.003310563874084682,
    "chiaTvs": {
     "native": 0,
-    "canonical": 8099469.960000286,
-    "external": 20096041.095703125
+    "canonical": 8115015.529999504,
+    "external": 20097029.220703125
    },
    "ruiRo": [
     {
@@ -1651,12 +1651,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": null,
-   "tvs": 25826506,
-   "d7": -0.001382246110489871,
+   "tvs": 25835372,
+   "d7": -0.0015494214905672488,
    "chiaTvs": {
     "native": 0,
-    "canonical": 5545201.689941406,
-    "external": 20281307.545620203
+    "canonical": 5546439.1748046875,
+    "external": 20288935.997168064
    },
    "ruiRo": [
     {
@@ -1702,11 +1702,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 23375812,
-   "d7": 0.027766177796712865,
+   "tvs": 23376136,
+   "d7": 0.02820835560460022,
    "chiaTvs": {
     "native": 0,
-    "canonical": 23375812.69000244,
+    "canonical": 23376137.44000244,
     "external": 0
    },
    "ruiRo": [
@@ -1753,11 +1753,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OVM",
-   "tvs": 23200834,
-   "d7": -0.010619424646409414,
+   "tvs": 23246302,
+   "d7": -0.015236148353344192,
    "chiaTvs": {
     "native": 0,
-    "canonical": 23200833.00490594,
+    "canonical": 23246303.248272657,
     "external": 0
    },
    "ruiRo": [
@@ -1804,12 +1804,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 22812026,
-   "d7": -0.02019869344512304,
+   "tvs": 22820510,
+   "d7": -0.02313299503041788,
    "chiaTvs": {
     "native": 0,
-    "canonical": 21937306,
-    "external": 874720.203125
+    "canonical": 21945578,
+    "external": 874934.046875
    },
    "ruiRo": [
     {
@@ -1855,11 +1855,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 20292764,
-   "d7": -0.002327029331621655,
+   "tvs": 20326546,
+   "d7": -0.0021069773853646945,
    "chiaTvs": {
     "native": 24276.419921875,
-    "canonical": 20268488.12890625,
+    "canonical": 20302269.162109375,
     "external": 0
    },
    "ruiRo": [
@@ -1906,12 +1906,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 19366780,
-   "d7": 0.023336587559864785,
+   "tvs": 19363712,
+   "d7": 0.02294172706025388,
    "chiaTvs": {
     "native": 0,
-    "canonical": 109436.37156295776,
-    "external": 19257344
+    "canonical": 109646.3112487793,
+    "external": 19254066
    },
    "ruiRo": [
     {
@@ -1957,12 +1957,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 19011472,
-   "d7": -0.021451257119021405,
+   "tvs": 19025286,
+   "d7": -0.02009614811123217,
    "chiaTvs": {
     "native": 820992.7475585938,
-    "canonical": 7682752.363603592,
-    "external": 10507729.279228449
+    "canonical": 7692466.101583481,
+    "external": 10511829.222587824
    },
    "ruiRo": [
     {
@@ -2008,11 +2008,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 17395424,
-   "d7": 0.00846837706928083,
+   "tvs": 17404586,
+   "d7": 0.008490293810544225,
    "chiaTvs": {
     "native": 0,
-    "canonical": 17395427.598342896,
+    "canonical": 17404586.788772583,
     "external": 0
    },
    "ruiRo": [
@@ -2059,11 +2059,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "SN Stack",
-   "tvs": 17295892,
-   "d7": -0.022092391587047233,
+   "tvs": 17296430,
+   "d7": -0.022015082848461764,
    "chiaTvs": {
     "native": 0,
-    "canonical": 17295892,
+    "canonical": 17296430,
     "external": 0
    },
    "ruiRo": [
@@ -2110,12 +2110,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 15635787,
-   "d7": -0.09452692093379655,
+   "tvs": 15674019,
+   "d7": -0.08769411795657234,
    "chiaTvs": {
     "native": 0,
     "canonical": 0,
-    "external": 15635787
+    "external": 15674019
    },
    "ruiRo": [
     {
@@ -2161,12 +2161,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 14745156,
-   "d7": 0.0009227126816075959,
+   "tvs": 14729150,
+   "d7": -0.0004598964150677176,
    "chiaTvs": {
     "native": 0,
-    "canonical": 12319602.5546875,
-    "external": 2425553.625
+    "canonical": 12321337.1171875,
+    "external": 2407813.125
    },
    "ruiRo": [
     {
@@ -2212,11 +2212,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 12305734,
-   "d7": 0.037887683382254345,
+   "tvs": 12401900,
+   "d7": 0.04747519870051886,
    "chiaTvs": {
     "native": 0,
-    "canonical": 12305734.629993938,
+    "canonical": 12401900.450020812,
     "external": 0
    },
    "ruiRo": [
@@ -2263,12 +2263,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "ZK Stack",
-   "tvs": 11947920,
-   "d7": -0.034100178419415816,
+   "tvs": 11947094,
+   "d7": -0.03421301955001976,
    "chiaTvs": {
     "native": 0,
-    "canonical": 4516852,
-    "external": 7431067.5
+    "canonical": 4515795,
+    "external": 7431298.5
    },
    "ruiRo": [
     {
@@ -2314,11 +2314,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 11633534,
-   "d7": -0.007714531047863571,
+   "tvs": 11655034,
+   "d7": -0.00882209543837531,
    "chiaTvs": {
     "native": 0,
-    "canonical": 11633533.32103111,
+    "canonical": 11655036.33518009,
     "external": 0
    },
    "ruiRo": [
@@ -2365,11 +2365,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 11330472,
-   "d7": -0.0010650160563513422,
+   "tvs": 11330473,
+   "d7": -0.0010648398230698186,
    "chiaTvs": {
     "native": 0,
-    "canonical": 11330472.53126049,
+    "canonical": 11330474.050446272,
     "external": 0
    },
    "ruiRo": [
@@ -2416,12 +2416,12 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Linea",
    "stack": null,
-   "tvs": 11114721,
-   "d7": 0.004879233809850003,
+   "tvs": 11166568,
+   "d7": 0.008332724565884186,
    "chiaTvs": {
     "native": 0,
-    "canonical": 10204960.369759649,
-    "external": 909761.2526976839
+    "canonical": 10256013.914218038,
+    "external": 910553.631834723
    },
    "ruiRo": [
     {
@@ -2467,12 +2467,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 11052904,
-   "d7": -0.04112692898647374,
+   "tvs": 11053326,
+   "d7": -0.0401518691477194,
    "chiaTvs": {
     "native": 0,
     "canonical": 96.5,
-    "external": 11052808
+    "external": 11053230
    },
    "ruiRo": [
     {
@@ -2518,12 +2518,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Taiko",
-   "tvs": 10608246,
-   "d7": -0.03276108485437279,
+   "tvs": 10633111,
+   "d7": -0.04912535737910095,
    "chiaTvs": {
     "native": 0,
-    "canonical": 10397653.03758359,
-    "external": 210592.7550354004
+    "canonical": 10422509.766862154,
+    "external": 210601.87063598633
    },
    "ruiRo": [
     {
@@ -2569,11 +2569,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "ZK Stack",
-   "tvs": 10374411,
-   "d7": -0.14352701646651445,
+   "tvs": 10333598,
+   "d7": -0.15378732572389253,
    "chiaTvs": {
     "native": 0,
-    "canonical": 10374411.402685642,
+    "canonical": 10333597.390966892,
     "external": 0
    },
    "ruiRo": [
@@ -2620,12 +2620,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 9409838,
-   "d7": -0.002393131512187119,
+   "tvs": 9414539,
+   "d7": -0.0071278318807406205,
    "chiaTvs": {
     "native": 0,
-    "canonical": 6274864.734807014,
-    "external": 3134973.928007841
+    "canonical": 6275361.995083809,
+    "external": 3139176.8520703316
    },
    "ruiRo": [
     {
@@ -2671,11 +2671,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 8912652,
-   "d7": -0.005420019724988401,
+   "tvs": 8922251,
+   "d7": -0.005534276782275027,
    "chiaTvs": {
     "native": 0,
-    "canonical": 8912653.083269015,
+    "canonical": 8922251.568122521,
     "external": 0
    },
    "ruiRo": [
@@ -2722,12 +2722,12 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 8064881,
-   "d7": -0.005875896350462928,
+   "tvs": 8081601,
+   "d7": -0.005543183023112186,
    "chiaTvs": {
     "native": 0,
-    "canonical": 6619282.298461314,
-    "external": 1445598.9462890625
+    "canonical": 6627342.281955119,
+    "external": 1454259.09765625
    },
    "ruiRo": [
     {
@@ -2765,57 +2765,6 @@ window.DSV_DATA = {
    "luuTru": false
   },
   {
-   "id": "mode",
-   "slug": "mode",
-   "ten": "Mode Network",
-   "loai": "layer2",
-   "dang": "Other",
-   "thang": "Stage 0",
-   "me": "Ethereum",
-   "stack": "OP Stack",
-   "tvs": 6801095,
-   "d7": -0.06340118059930333,
-   "chiaTvs": {
-    "native": 308356.625,
-    "canonical": 5003301.7758206725,
-    "external": 1489436.2063598633
-   },
-   "ruiRo": [
-    {
-     "n": "Sequencer Failure",
-     "v": "Self sequence",
-     "s": "good",
-     "d": "In the event of a sequencer failure, users can force transactions to be included in the project's chain by sending them to L1. There can be up to a 12h delay on this operation."
-    },
-    {
-     "n": "State Validation",
-     "v": "Fraud proofs (INT)",
-     "s": "bad",
-     "d": "Fraud proofs allow actors watching the chain to prove that the state is incorrect. Interactive proofs (INT) require multiple transactions over time to resolve. Only one entity is currently allowed to propose and submit challenges, as only permissioned games are currently allowed."
-    },
-    {
-     "n": "Data Availability",
-     "v": "Onchain",
-     "s": "good",
-     "d": "All of the data needed for proof construction is published on Ethereum L1."
-    },
-    {
-     "n": "Exit Window",
-     "v": "None",
-     "s": "bad",
-     "d": "There is no exit window for users to exit in case of unwanted upgrades as they are initiated by the Security Council with instant upgrade power and without proper notice."
-    },
-    {
-     "n": "Proposer Failure",
-     "v": "Cannot withdraw",
-     "s": "bad",
-     "d": "Only the whitelisted proposers can publish state roots on L1, so in the event of failure the withdrawals are frozen."
-    }
-   ],
-   "xemXet": false,
-   "luuTru": false
-  },
-  {
    "id": "orderly",
    "slug": "orderly",
    "ten": "Orderly Network",
@@ -2824,12 +2773,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 6758768.5,
-   "d7": -0.033365686681764206,
+   "tvs": 6898943,
+   "d7": -0.027015046767551953,
    "chiaTvs": {
     "native": 0,
-    "canonical": 247302.125,
-    "external": 6511466.703125
+    "canonical": 247776.78125,
+    "external": 6651166.4375
    },
    "ruiRo": [
     {
@@ -2867,6 +2816,57 @@ window.DSV_DATA = {
    "luuTru": false
   },
   {
+   "id": "mode",
+   "slug": "mode",
+   "ten": "Mode Network",
+   "loai": "layer2",
+   "dang": "Other",
+   "thang": "Stage 0",
+   "me": "Ethereum",
+   "stack": "OP Stack",
+   "tvs": 6811956.5,
+   "d7": -0.06429413164993114,
+   "chiaTvs": {
+    "native": 308679.84375,
+    "canonical": 5011075.307198465,
+    "external": 1492201.7829589844
+   },
+   "ruiRo": [
+    {
+     "n": "Sequencer Failure",
+     "v": "Self sequence",
+     "s": "good",
+     "d": "In the event of a sequencer failure, users can force transactions to be included in the project's chain by sending them to L1. There can be up to a 12h delay on this operation."
+    },
+    {
+     "n": "State Validation",
+     "v": "Fraud proofs (INT)",
+     "s": "bad",
+     "d": "Fraud proofs allow actors watching the chain to prove that the state is incorrect. Interactive proofs (INT) require multiple transactions over time to resolve. Only one entity is currently allowed to propose and submit challenges, as only permissioned games are currently allowed."
+    },
+    {
+     "n": "Data Availability",
+     "v": "Onchain",
+     "s": "good",
+     "d": "All of the data needed for proof construction is published on Ethereum L1."
+    },
+    {
+     "n": "Exit Window",
+     "v": "None",
+     "s": "bad",
+     "d": "There is no exit window for users to exit in case of unwanted upgrades as they are initiated by the Security Council with instant upgrade power and without proper notice."
+    },
+    {
+     "n": "Proposer Failure",
+     "v": "Cannot withdraw",
+     "s": "bad",
+     "d": "Only the whitelisted proposers can publish state roots on L1, so in the event of failure the withdrawals are frozen."
+    }
+   ],
+   "xemXet": false,
+   "luuTru": false
+  },
+  {
    "id": "hashkey",
    "slug": "hashkey",
    "ten": "HashKey Chain",
@@ -2875,11 +2875,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 6605629.5,
-   "d7": 0.004343581096208471,
+   "tvs": 6612003.5,
+   "d7": 0.009587102455248298,
    "chiaTvs": {
     "native": 0,
-    "canonical": 6605628.98046875,
+    "canonical": 6612003.97265625,
     "external": 0
    },
    "ruiRo": [
@@ -2926,11 +2926,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Robinhood Chain",
    "stack": null,
-   "tvs": 6445662,
-   "d7": 0.03021998571745499,
+   "tvs": 6525401.5,
+   "d7": 0.04232822150052651,
    "chiaTvs": {
     "native": 0,
-    "canonical": 6445662.090087891,
+    "canonical": 6525401.350097656,
     "external": 0
    },
    "ruiRo": [
@@ -2977,11 +2977,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 5612723.5,
-   "d7": -0.012735599398219222,
+   "tvs": 5623496.5,
+   "d7": -0.01387813728680154,
    "chiaTvs": {
     "native": 0,
-    "canonical": 5612723.5,
+    "canonical": 5623496.5,
     "external": 0
    },
    "ruiRo": [
@@ -3028,12 +3028,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 5541789,
-   "d7": 0.0005390153306576995,
+   "tvs": 5542148.5,
+   "d7": 0.0005977788660527228,
    "chiaTvs": {
     "native": 0,
-    "canonical": 99220.8125,
-    "external": 5442567.949999809
+    "canonical": 99411.2421875,
+    "external": 5442737.449999809
    },
    "ruiRo": [
     {
@@ -3079,12 +3079,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 5280262,
-   "d7": -0.008587217699595251,
+   "tvs": 5279627,
+   "d7": -0.011213962944872757,
    "chiaTvs": {
     "native": 0,
-    "canonical": 5209894.777907252,
-    "external": 70367.09375
+    "canonical": 5209259.29354465,
+    "external": 70367.59375
    },
    "ruiRo": [
     {
@@ -3130,11 +3130,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 4385698,
-   "d7": -0.05123859098579986,
+   "tvs": 4393910.5,
+   "d7": -0.05232822721810182,
    "chiaTvs": {
     "native": 0,
-    "canonical": 4385697.8671875,
+    "canonical": 4393910.2578125,
     "external": 0
    },
    "ruiRo": [
@@ -3181,11 +3181,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 4128370,
-   "d7": -0.007894736684003978,
+   "tvs": 4136125.25,
+   "d7": -0.00893441571701914,
    "chiaTvs": {
     "native": 0,
-    "canonical": 4128370.015625,
+    "canonical": 4136125.296875,
     "external": 0
    },
    "ruiRo": [
@@ -3232,12 +3232,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 2640292,
-   "d7": -0.014929535610229805,
+   "tvs": 2641046,
+   "d7": -0.016740071704870796,
    "chiaTvs": {
     "native": 0,
-    "canonical": 432000.4201660156,
-    "external": 2208291.5
+    "canonical": 432802.6052246094,
+    "external": 2208243.25
    },
    "ruiRo": [
     {
@@ -3283,12 +3283,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Base Chain",
    "stack": "Arbitrum",
-   "tvs": 2112727,
-   "d7": -0.03940833001519617,
+   "tvs": 2152569.25,
+   "d7": -0.024263110036915836,
    "chiaTvs": {
     "native": 0,
-    "canonical": 2098057,
-    "external": 14669.869873046875
+    "canonical": 2137862.5,
+    "external": 14706.819580078125
    },
    "ruiRo": [
     {
@@ -3334,11 +3334,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 1985598.75,
-   "d7": 0.008928291847529302,
+   "tvs": 1989931.625,
+   "d7": 0.008926517901931108,
    "chiaTvs": {
     "native": 0,
-    "canonical": 1985598.7749938965,
+    "canonical": 1989931.669998169,
     "external": 0
    },
    "ruiRo": [
@@ -3385,11 +3385,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 1673799.25,
-   "d7": 0.02532964450133579,
+   "tvs": 1671621.375,
+   "d7": 0.023907013452848958,
    "chiaTvs": {
     "native": 26645.869140625,
-    "canonical": 1647153.3418952823,
+    "canonical": 1644975.5018226504,
     "external": 0
    },
    "ruiRo": [
@@ -3436,11 +3436,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 1645157.5,
-   "d7": 0.17663203622964518,
+   "tvs": 1648535,
+   "d7": 0.18190448374821733,
    "chiaTvs": {
     "native": 0,
-    "canonical": 1645157.652179718,
+    "canonical": 1648534.919380188,
     "external": 0
    },
    "ruiRo": [
@@ -3487,11 +3487,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 1316178.75,
-   "d7": -0.10896417867479302,
+   "tvs": 1318704.875,
+   "d7": -0.10976590683360321,
    "chiaTvs": {
     "native": 0,
-    "canonical": 1316178.75,
+    "canonical": 1318704.875,
     "external": 0
    },
    "ruiRo": [
@@ -3538,12 +3538,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 1098933.125,
-   "d7": -0.009583248230643271,
+   "tvs": 1099245.5,
+   "d7": -0.009793780884955638,
    "chiaTvs": {
     "native": 896422.875,
-    "canonical": 161660.8125,
-    "external": 40849.41162109375
+    "canonical": 161971.09375,
+    "external": 40851.47900390625
    },
    "ruiRo": [
     {
@@ -3589,11 +3589,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 872203.9375,
-   "d7": 0.18985478417907498,
+   "tvs": 870364.5,
+   "d7": 0.1902233332398875,
    "chiaTvs": {
     "native": 0,
-    "canonical": 872203.9250488281,
+    "canonical": 870364.5048828125,
     "external": 0
    },
    "ruiRo": [
@@ -3640,11 +3640,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 864646.875,
-   "d7": -0.026000633358148506,
+   "tvs": 866306.4375,
+   "d7": -0.027127819215346127,
    "chiaTvs": {
     "native": 0,
-    "canonical": 864646.875,
+    "canonical": 866306.4375,
     "external": 0
    },
    "ruiRo": [
@@ -3691,11 +3691,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "ZK Stack",
-   "tvs": 792549.6875,
-   "d7": -0.0326245972732252,
+   "tvs": 793334.9375,
+   "d7": -0.033257573172708166,
    "chiaTvs": {
     "native": 0,
-    "canonical": 792549.71875,
+    "canonical": 793334.953125,
     "external": 0
    },
    "ruiRo": [
@@ -3742,11 +3742,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 783023.625,
-   "d7": 0.10992054580078103,
+   "tvs": 776297.125,
+   "d7": 0.08100735762748434,
    "chiaTvs": {
     "native": 0,
-    "canonical": 783023.625,
+    "canonical": 776297.125,
     "external": 0
    },
    "ruiRo": [
@@ -3793,11 +3793,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 703520.125,
-   "d7": -0.0001494048145657123,
+   "tvs": 703839.875,
+   "d7": 0.0010804243185611462,
    "chiaTvs": {
     "native": 0,
-    "canonical": 703520.1614624709,
+    "canonical": 703839.8606757373,
     "external": 0
    },
    "ruiRo": [
@@ -3844,11 +3844,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 624011.125,
-   "d7": 0.013092341253827522,
+   "tvs": 625262.5625,
+   "d7": 0.0120382996803301,
    "chiaTvs": {
     "native": 0,
-    "canonical": 624011.1919080615,
+    "canonical": 625262.7033850551,
     "external": 0
    },
    "ruiRo": [
@@ -3895,11 +3895,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 546674.625,
-   "d7": -0.03561558712128943,
+   "tvs": 547098.5,
+   "d7": -0.034434650319135174,
    "chiaTvs": {
     "native": 0,
-    "canonical": 546674.732408531,
+    "canonical": 547098.5649280623,
     "external": 0
    },
    "ruiRo": [
@@ -3946,12 +3946,12 @@ window.DSV_DATA = {
    "thang": "Stage 2",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 504369.875,
-   "d7": -0.010058375254986207,
+   "tvs": 505559.375,
+   "d7": -0.010651734904884913,
    "chiaTvs": {
     "native": 0,
     "canonical": 0,
-    "external": 504369.8881249428
+    "external": 505559.3612499237
    },
    "ruiRo": [
     {
@@ -3997,11 +3997,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 499015.34375,
-   "d7": 0.020142075714471908,
+   "tvs": 499891.84375,
+   "d7": 0.014557483342911404,
    "chiaTvs": {
     "native": 0,
-    "canonical": 499015.3414059207,
+    "canonical": 499891.8572598025,
     "external": 0
    },
    "ruiRo": [
@@ -4040,57 +4040,6 @@ window.DSV_DATA = {
    "luuTru": false
   },
   {
-   "id": "zeronetwork",
-   "slug": "zeronetwork",
-   "ten": "ZERO Network",
-   "loai": "layer2",
-   "dang": "ZK Rollup",
-   "thang": "Stage 0",
-   "me": "Ethereum",
-   "stack": "ZK Stack",
-   "tvs": 462298.34375,
-   "d7": -0.08346912787378769,
-   "chiaTvs": {
-    "native": 0,
-    "canonical": 462298.33837890625,
-    "external": 0
-   },
-   "ruiRo": [
-    {
-     "n": "Sequencer Failure",
-     "v": "Enqueue via L1",
-     "s": "warning",
-     "d": "Users can submit transactions to an L1 queue, but can't force them. The sequencers cannot selectively skip transactions but can stop processing the queue entirely. In other words, if the sequencers censor or are down, they are so for everyone."
-    },
-    {
-     "n": "State Validation",
-     "v": "Validity proofs (ST, SN)",
-     "s": "good",
-     "d": "STARKs and SNARKs are zero knowledge proofs that ensure state correctness. STARKs proofs are wrapped in SNARKs proofs for efficiency. SNARKs require a trusted setup."
-    },
-    {
-     "n": "Data Availability",
-     "v": "Onchain (SD)",
-     "s": "good",
-     "d": "All of the data (SD = state diffs) needed for proof construction is published onchain."
-    },
-    {
-     "n": "Exit Window",
-     "v": "None",
-     "s": "bad",
-     "d": "There is no window for users to exit in case of an unwanted upgrade since contracts are instantly upgradable."
-    },
-    {
-     "n": "Proposer Failure",
-     "v": "Replace proposer",
-     "s": "warning",
-     "d": "Only the whitelisted proposers can publish state roots on L1, so in the event of failure the withdrawals are frozen. There is a decentralized Governance system that can attempt changing Proposers with an upgrade."
-    }
-   ],
-   "xemXet": false,
-   "luuTru": false
-  },
-  {
    "id": "soon",
    "slug": "soon",
    "ten": "Soon Alpha Mainnet",
@@ -4099,11 +4048,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 383246.21875,
-   "d7": -0.032964761847087076,
+   "tvs": 383910.21875,
+   "d7": -0.03397054446618675,
    "chiaTvs": {
     "native": 0,
-    "canonical": 383246.23694968224,
+    "canonical": 383910.16737627983,
     "external": 0
    },
    "ruiRo": [
@@ -4150,12 +4099,12 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 333142.3125,
-   "d7": -0.08098006916601808,
+   "tvs": 333626.875,
+   "d7": -0.08169449637384907,
    "chiaTvs": {
     "native": 0,
-    "canonical": 243678.01726341248,
-    "external": 89464.28125
+    "canonical": 244159.7904472351,
+    "external": 89467.0703125
    },
    "ruiRo": [
     {
@@ -4201,11 +4150,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 309577,
-   "d7": -0.26369439382239845,
+   "tvs": 310170.125,
+   "d7": -0.26454592688557543,
    "chiaTvs": {
     "native": 0,
-    "canonical": 309577.0162206888,
+    "canonical": 310170.1299804747,
     "external": 0
    },
    "ruiRo": [
@@ -4252,11 +4201,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Base Chain",
    "stack": "OP Stack",
-   "tvs": 277258.28125,
-   "d7": -0.007619136674569704,
+   "tvs": 277765.28125,
+   "d7": -0.00871011261919108,
    "chiaTvs": {
     "native": 0,
-    "canonical": 277258.2734375,
+    "canonical": 277765.27734375,
     "external": 0
    },
    "ruiRo": [
@@ -4303,11 +4252,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 246769.71875,
-   "d7": -0.007396417535450173,
+   "tvs": 247201.765625,
+   "d7": -0.008436577102486686,
    "chiaTvs": {
     "native": 0,
-    "canonical": 246769.71435546875,
+    "canonical": 247201.75939941406,
     "external": 0
    },
    "ruiRo": [
@@ -4354,11 +4303,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 227547.59375,
-   "d7": -0.00799818098380145,
+   "tvs": 227984.328125,
+   "d7": -0.009146198399924588,
    "chiaTvs": {
     "native": 0,
-    "canonical": 227547.59375,
+    "canonical": 227984.328125,
     "external": 0
    },
    "ruiRo": [
@@ -4405,11 +4354,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 202479.453125,
-   "d7": -0.1392734451731621,
+   "tvs": 202080.953125,
+   "d7": -0.14152088667776286,
    "chiaTvs": {
     "native": 0,
-    "canonical": 202479.453125,
+    "canonical": 202080.953125,
     "external": 0
    },
    "ruiRo": [
@@ -4456,11 +4405,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 197121.78125,
-   "d7": -0.006262162971570451,
+   "tvs": 197328.3125,
+   "d7": -0.008400751130417383,
    "chiaTvs": {
     "native": 0,
-    "canonical": 197121.77734375,
+    "canonical": 197328.3154296875,
     "external": 0
    },
    "ruiRo": [
@@ -4507,11 +4456,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 162615.546875,
-   "d7": 0.05437841194775017,
+   "tvs": 164792.59375,
+   "d7": 0.07223702187910375,
    "chiaTvs": {
     "native": 0,
-    "canonical": 162615.54638671875,
+    "canonical": 164792.59375,
     "external": 0
    },
    "ruiRo": [
@@ -4558,11 +4507,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 123189.9609375,
-   "d7": -0.021766015795483207,
+   "tvs": 123289.8359375,
+   "d7": -0.022238861315976077,
    "chiaTvs": {
     "native": 0,
-    "canonical": 123189.95234298706,
+    "canonical": 123289.83343887329,
     "external": 0
    },
    "ruiRo": [
@@ -4609,11 +4558,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Scroll",
    "stack": null,
-   "tvs": 105924.984375,
-   "d7": -0.013976354890022469,
+   "tvs": 106127.3828125,
+   "d7": -0.015111650074357996,
    "chiaTvs": {
     "native": 0,
-    "canonical": 105924.99126249552,
+    "canonical": 106127.38091856241,
     "external": 0
    },
    "ruiRo": [
@@ -4660,11 +4609,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 79736.8671875,
-   "d7": -0.00837000497548357,
+   "tvs": 79889.90625,
+   "d7": -0.009517665826889732,
    "chiaTvs": {
     "native": 0,
-    "canonical": 79736.8671875,
+    "canonical": 79889.90625,
     "external": 0
    },
    "ruiRo": [
@@ -4711,11 +4660,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 61661.28515625,
-   "d7": -0.0009235512596582618,
+   "tvs": 61673.91796875,
+   "d7": -0.0009928996789780875,
    "chiaTvs": {
     "native": 48955.8984375,
-    "canonical": 12705.389864444733,
+    "canonical": 12718.01962518692,
     "external": 0
    },
    "ruiRo": [
@@ -4762,11 +4711,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 59263.26953125,
-   "d7": -0.0013850967981443585,
+   "tvs": 59351.16796875,
+   "d7": -0.002257052179925889,
    "chiaTvs": {
     "native": 0,
-    "canonical": 59263.2705078125,
+    "canonical": 59351.1689453125,
     "external": 0
    },
    "ruiRo": [
@@ -4813,11 +4762,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "Arbitrum",
-   "tvs": 39110.6484375,
-   "d7": -0.007998077092843392,
+   "tvs": 39185.7109375,
+   "d7": -0.009146258348857295,
    "chiaTvs": {
     "native": 0,
-    "canonical": 39110.6484375,
+    "canonical": 39185.7109375,
     "external": 0
    },
    "ruiRo": [
@@ -4864,11 +4813,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 35261.328125,
-   "d7": -0.004363115121693628,
+   "tvs": 35298.4296875,
+   "d7": -0.004957156461062873,
    "chiaTvs": {
     "native": 0,
-    "canonical": 35261.3291015625,
+    "canonical": 35298.4306640625,
     "external": 0
    },
    "ruiRo": [
@@ -4915,11 +4864,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 24359.509765625,
-   "d7": -0.0006461469601325431,
+   "tvs": 24363.80078125,
+   "d7": -0.0006537190767244017,
    "chiaTvs": {
     "native": 0,
-    "canonical": 24359.510009765625,
+    "canonical": 24363.79949951172,
     "external": 0
    },
    "ruiRo": [
@@ -4966,11 +4915,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Arbitrum One",
    "stack": "Arbitrum",
-   "tvs": 10911.599609375,
-   "d7": -0.007997649055893508,
+   "tvs": 10932.5400390625,
+   "d7": -0.009146715738516664,
    "chiaTvs": {
     "native": 0,
-    "canonical": 10911.599609375,
+    "canonical": 10932.5400390625,
     "external": 0
    },
    "ruiRo": [
@@ -5017,11 +4966,11 @@ window.DSV_DATA = {
    "thang": "Stage 2",
    "me": "Ethereum",
    "stack": "Cartesi Rollups",
-   "tvs": 1242.0899658203125,
-   "d7": 0.12108059236838509,
+   "tvs": 1239.0899658203125,
+   "d7": 0.040945932905474436,
    "chiaTvs": {
     "native": 0,
-    "canonical": 1242.0899658203125,
+    "canonical": 1239.0899658203125,
     "external": 0
    },
    "ruiRo": [
@@ -5068,11 +5017,11 @@ window.DSV_DATA = {
    "thang": "Not applicable",
    "me": "Ethereum",
    "stack": "Agglayer CDK",
-   "tvs": 1076.3699951171875,
-   "d7": -0.005313755819693511,
+   "tvs": 1077.9600830078125,
+   "d7": -0.00637851360874464,
    "chiaTvs": {
     "native": 0,
-    "canonical": 1076.370001077652,
+    "canonical": 1077.9599649906158,
     "external": 0
    },
    "ruiRo": [
@@ -5119,11 +5068,11 @@ window.DSV_DATA = {
    "thang": "Stage 0",
    "me": "Ethereum",
    "stack": "OP Stack",
-   "tvs": 755.469970703125,
-   "d7": -0.007996778815841377,
+   "tvs": 756.9199829101562,
+   "d7": -0.009137375678525683,
    "chiaTvs": {
     "native": 0,
-    "canonical": 755.469970703125,
+    "canonical": 756.9199829101562,
     "external": 0
    },
    "ruiRo": [
@@ -5170,11 +5119,11 @@ window.DSV_DATA = {
    "thang": "Stage 2",
    "me": "Ethereum",
    "stack": null,
-   "tvs": 585.3900146484375,
-   "d7": -0.020234930400224282,
+   "tvs": 585.22998046875,
+   "d7": -0.013734915816167481,
    "chiaTvs": {
     "native": 0,
-    "canonical": 585.3900146484375,
+    "canonical": 585.22998046875,
     "external": 0
    },
    "ruiRo": [

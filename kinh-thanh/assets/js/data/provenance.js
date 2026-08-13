@@ -3,12 +3,12 @@
 "use strict";
 var D = window.KT_DATA = window.KT_DATA || {};
 D.PROV = {
-  "cid": "bafkreie4mazfwj5dqwd4rbbptkjhfzc4xmh665gfmrd5bhhl4druz5zzay",
-  "sha256": "9c60325b27a38587c8842f9a9272e45cbb0fef74c56447d09cebe0e34cf73906",
-  "date": "12/08/2026",
-  "ts": "2026-08-12T13:35:38.345Z",
+  "cid": "bafkreicgfapyfjwuxjreybywvdloiaknrmnq36intme5njew26x4zxym34",
+  "sha256": "46281f82a6d4ba624c0716a8d6e4014d8b1b0df90d9b09d6a496d7afccdf0cdf",
+  "date": "13/08/2026",
+  "ts": "2026-08-13T07:56:41.300Z",
   "bytes": 1786,
-  "count": 1,
+  "count": 2,
   "anchored": null
 };
 })();
