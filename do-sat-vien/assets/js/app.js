@@ -150,15 +150,17 @@
       duoi = tren;
     });
 
-    /* lưới ngang + nhãn giá trị, như trục tung của L2BEAT */
+    /* Lưới ngang trong SVG, nhưng NHÃN GIÁ TRỊ dựng bằng HTML đè lên.
+       SVG này có preserveAspectRatio="none" để giãn hết bề ngang, nên
+       mọi thứ bên trong bị kéo méo theo — chữ thành bẹt và nét viền
+       thành vệt. Nhãn HTML nằm ngoài phép giãn đó nên luôn sắc nét. */
+    var nhanY = [];
     [0.5, 1].forEach(function (f) {
       var v = max * f, yy = y(v);
       s += '<line x1="0" x2="' + W + '" y1="' + yy.toFixed(1) + '" y2="' + yy.toFixed(1) +
         '" stroke="#D8D9E0" stroke-width="1" stroke-dasharray="3 3"/>';
-      /* viền trắng quanh chữ: nhãn nằm đè lên vùng màu đặc, không có
-         viền thì chìm hẳn vào lớp tím */
-      s += '<text class="bd-truc" x="3" y="' + (yy - 4).toFixed(1) +
-        '" stroke="#fff" stroke-width="2.5" paint-order="stroke">' + usd(v) + "</text>";
+      nhanY.push('<span class="bd-nhan" style="top:' + (yy / H * 100).toFixed(2) + '%">' +
+        esc(usd(v)) + "</span>");
     });
 
     /* mốc thời gian: đầu, giữa, cuối */
@@ -182,7 +184,7 @@
        chứ không phải 122 ngày. */
     var ngay = Math.round((cuoi[0] - dau[0]) / 86400);
 
-    host.innerHTML = s;
+    host.innerHTML = s + nhanY.join("");
     $("#bdSo").textContent = usd(tongCuoi);
     $("#bdDoi").innerHTML = typeof doi === "number"
       ? '<span data-d="' + (doi >= 0 ? "up" : "down") + '">' + (doi >= 0 ? "+" : "") +

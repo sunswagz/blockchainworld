@@ -117,6 +117,10 @@ img{display:block}
 .bd-chu span{display:flex;align-items:center;gap:5px}
 .bd-chu i{width:9px;height:9px;border-radius:2px;display:block}
 .bd-truc{font-size:9.5px;fill:var(--ink-3)}
+/* nhãn trục tung: HTML đè lên SVG, xem ghi chú trong veBieuDo() */
+.bd-nhan{position:absolute;left:4px;transform:translateY(-100%);
+  padding:0 4px;border-radius:3px;background:rgba(255,255,255,.86);
+  font-size:9.5px;line-height:1.5;color:var(--ink-2);pointer-events:none}
 
 .sos{display:grid;gap:8px;margin-top:12px}
 .so-hang{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
