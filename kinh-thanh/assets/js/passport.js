@@ -64,7 +64,7 @@
   }
 
   /* ── giao diện ────────────────────────────────────────── */
-  var panel = null, scrim = null, addr = null;
+  var panel = null, scrim = null, addr = null, provider = null;
 
   function close() {
     if (panel) panel.dataset.open = "0";
@@ -114,7 +114,7 @@
     var who = el("div", "pp-who");
     who.innerHTML = '<span class="k">Địa chỉ</span><span class="v mono">' + shortAddr(addr) + '</span>';
     var chg = el("button", "pp-link"); chg.type = "button"; chg.textContent = "đổi";
-    chg.addEventListener("click", function () { addr = null; render(); });
+    chg.addEventListener("click", function () { addr = null; provider = null; render(); });
     who.appendChild(chg);
     body.appendChild(who);
 
@@ -167,26 +167,55 @@
       "Chỉ đọc số dư, không ký gì và không tiêu gì.";
     body.appendChild(p);
 
-    if (window.ethereum) {
-      var b = el("button", "pp-btn"); b.type = "button";
-      b.textContent = "Kết nối ví";
-      b.addEventListener("click", function () {
-        b.disabled = true; b.textContent = "đang chờ ví…";
-        window.ethereum.request({ method: "eth_requestAccounts" }).then(function (accs) {
-          if (accs && accs[0]) { addr = accs[0]; render(); }
-          else { b.disabled = false; b.textContent = "Kết nối ví"; }
-        }).catch(function () {
-          b.disabled = false; b.textContent = "Kết nối ví";
+    /* ── danh sách ví phát hiện được (EIP-6963) ── */
+    var W = window.KT_WALLETS;
+    var listBox = el("div", "pp-wallets");
+    body.appendChild(listBox);
+
+    var note = el("p", "pp-note");
+    body.appendChild(note);
+
+    function drawWallets(items) {
+      listBox.innerHTML = "";
+      if (!items.length) {
+        note.textContent = "Không thấy ví nào trong trình duyệt này. " +
+          "Vẫn xem được bằng cách dán địa chỉ bên dưới.";
+        return;
+      }
+      note.textContent = items.length === 1
+        ? "Thấy 1 ví trong trình duyệt."
+        : "Thấy " + items.length + " ví — chọn cái bạn muốn dùng.";
+
+      items.forEach(function (entry) {
+        var b = el("button", "pp-wallet");
+        b.type = "button";
+        var ic = entry.info.icon
+          ? '<img class="wi" src="' + entry.info.icon + '" alt="">'
+          : '<span class="wi ph">' + (entry.info.name || "?").slice(0, 1).toUpperCase() + '</span>';
+        b.innerHTML = ic + '<span class="wn">' + (entry.info.name || "Ví") + '</span>' +
+          '<span class="wg">kết nối</span>';
+        b.addEventListener("click", function () {
+          if (b.dataset.busy) return;
+          b.dataset.busy = "1";
+          b.querySelector(".wg").textContent = "đang chờ ví…";
+          W.connect(entry).then(function (a) {
+            if (a) { addr = a; provider = entry.provider; render(); }
+            else { delete b.dataset.busy; b.querySelector(".wg").textContent = "kết nối"; }
+          }).catch(function () {
+            delete b.dataset.busy;
+            b.querySelector(".wg").textContent = "kết nối";
+          });
         });
+        listBox.appendChild(b);
       });
-      body.appendChild(b);
-      var or = el("div", "pp-or"); or.textContent = "hoặc";
-      body.appendChild(or);
-    } else {
-      var nw = el("p", "pp-note");
-      nw.textContent = "Không thấy ví trong trình duyệt này. Vẫn xem được bằng cách dán địa chỉ.";
-      body.appendChild(nw);
     }
+
+    drawWallets(W ? W.list() : []);
+    // extension nạp chậm hơn trang thì danh sách dài thêm sau
+    if (W) W.onChange(function () { drawWallets(W.list()); });
+
+    var or = el("div", "pp-or"); or.textContent = "hoặc dán địa chỉ";
+    body.appendChild(or);
 
     var row = el("div", "pp-input");
     var i = el("input");
@@ -236,7 +265,7 @@
       });
       ok.appendChild(cp);
       w.appendChild(ok);
-    } else if (window.ethereum && addr) {
+    } else if (provider && addr) {
       var b = el("button", "pp-btn small"); b.type = "button";
       b.textContent = "Ký bằng ví";
       b.addEventListener("click", function () {
@@ -245,7 +274,7 @@
           "cid: " + P.cid + "\n" +
           "Toi xac nhan da xem ban so lieu nay.";
         b.disabled = true; b.textContent = "đang chờ ví…";
-        window.ethereum.request({ method: "personal_sign", params: [msg, addr] })
+        provider.request({ method: "personal_sign", params: [msg, addr] })
           .then(function (sig) {
             var rec = { addr: addr, sha256: P.sha256, cid: P.cid, date: P.date, msg: msg, sig: sig, at: new Date().toISOString() };
             try { localStorage.setItem(LS_KEY, JSON.stringify(rec)); } catch (e) {}
@@ -256,7 +285,7 @@
       w.appendChild(b);
     } else {
       var n = el("p", "pp-note");
-      n.textContent = "Cần ví trong trình duyệt để ký. Dán địa chỉ thì chỉ xem được, không ký được.";
+      n.textContent = "Chỉ ký được khi kết nối bằng ví. Dán địa chỉ thì chỉ xem được — trang này không giữ khoá của bạn.";
       w.appendChild(n);
     }
 

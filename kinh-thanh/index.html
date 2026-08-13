@@ -28,6 +28,7 @@
 <link rel="stylesheet" href="assets/css/provenance.css">
 <link rel="stylesheet" href="assets/css/passport.css">
 <link rel="stylesheet" href="assets/css/halls.css">
+<link rel="stylesheet" href="assets/css/onchain.css">
 </head>
 <div class="app">
 
@@ -143,7 +144,11 @@
 <!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
 <script src="assets/js/pwa.js"></script>
 <!-- hộ chiếu: đọc ví qua RPC công cộng, tự chèn nút, không móc vào app.js -->
+<!-- phát hiện ví theo EIP-6963: phải nạp TRƯỚC passport.js -->
+<script src="assets/js/wallets.js"></script>
 <script src="assets/js/passport.js"></script>
+<!-- nhịp tim realtime qua WebSocket RPC -->
+<script src="assets/js/pulse.js"></script>
 <!-- chuyển cung: mục CÁC CUNG ở đầu thanh bên -->
 <script src="assets/js/halls.js"></script>
 </body>
