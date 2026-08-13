@@ -1,0 +1,44 @@
+{
+  "id": "sunswagz-cong-bo",
+  "name": "Công Bộ · Bộ đồ nghề",
+  "short_name": "Công Bộ",
+  "description": "Giải mã lời gọi hợp đồng, nhật ký thay đổi on-chain, và kính lúp soi độ đầy đủ hồ sơ dự án Layer 2. Việt hoá từ tools.l2beat.com.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#0B0B0E",
+  "theme_color": "#0B0B0E",
+  "categories": [
+    "developer",
+    "utilities",
+    "finance"
+  ],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ on:
       - "kinh-thanh/**"
       - "dai-quan-trac/**"
       - "do-sat-vien/**"
+      - "cong-bo/**"
       - "scripts/build-dist.mjs"
       - "scripts/pin-ipfs.mjs"
   workflow_dispatch:

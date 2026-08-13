@@ -1,10 +1,9 @@
 /* ═══════════════════════════════════════════════════════
    Chuyển cung — mục "CÁC CUNG" trong thanh bên.
 
-   Đô Sát Viện dựng theo bố cục L2BEAT nên có sidebar riêng;
-   lối sang cung khác nằm luôn trong đó, cùng kiểu với mục
-   "Bảng xét" ở trên. Cùng dữ liệu như hai cung kia, khác
-   cách bày.
+   Công Bộ có sidebar riêng nên lối sang cung khác nằm luôn trong
+   đó, cùng kiểu với mục "Đồ nghề" ở trên. Cùng dữ liệu như ba cung
+   kia, khác cách bày.
    ═══════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -25,11 +24,11 @@
             '<path d="M12 12l6-3.6"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>'
     },
     {
-      href: "../cong-bo/",
-      name: "Công Bộ",
-      note: "bộ đồ nghề · giải mã",
-      icon: '<path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/>' +
-            '<path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
+      href: "../do-sat-vien/",
+      name: "Đô Sát Viện",
+      note: "bảng xét Layer 2",
+      icon: '<path d="M3.5 20.5h17"/><path d="M4.5 16.8h7.2v3.7H4.5z"/>' +
+            '<path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>'
     }
   ];
 
@@ -42,7 +41,7 @@
   };
 
   function svg(paths) {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
       'stroke-linecap="round" stroke-linejoin="round">' + paths + "</svg>";
   }
 

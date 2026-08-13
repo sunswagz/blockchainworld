@@ -72,6 +72,17 @@
     })
     .catch(function () {});
 
+  // Công Bộ: data.js ~130 KB, ngày và số thay đổi đều nằm ở đoạn đầu
+  dauFile("cong-bo/assets/js/data.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("cbDate", "cập nhật " + m[1]);
+      var n = t.match(/(\d+) thay đổi/);
+      if (n) stamp("cbSo", n[1] + " thay đổi");
+    })
+    .catch(function () {});
+
   // đếm số cung đã dựng, lấy từ chính DOM
   var built = document.querySelectorAll(".hall:not([data-soon])").length;
   stamp("hallCount", String(built).padStart(2, "0"));

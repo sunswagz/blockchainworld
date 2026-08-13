@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════════════
+   CÔNG BỘ — bộ đồ nghề, Việt hoá từ tools.l2beat.com.
+
+   Nền tối theo đúng bản gốc (họ dùng zinc-950). Ba cung kia
+   nền sáng; cung này tối là CỐ Ý, vì nguồn của nó tối và vì
+   đây là chỗ làm việc chứ không phải chỗ đọc bảng.
+   ═══════════════════════════════════════════════════════ */
+
+:root{
+  --bg:#0B0B0E; --card:#141419; --card-2:#1B1B22; --card-3:#23232B;
+  --ink:#F4F4F6; --ink-2:#A9A9B4; --ink-3:#70707E;
+  --line:#26262F; --line-2:#1E1E26;
+  --acc:#F0B429; --acc-2:#FFCE55; --acc-t:#2A2214;
+  --ok:#3DBB69; --ok-t:#132A1C; --warn:#F2B94A; --bad:#F05252; --bad-t:#2B1618;
+  --add:#2D7D46; --del:#8C2F39;
+  --r:8px; --dur:.16s;
+}
+@media (prefers-reduced-motion: reduce){ :root{--dur:0s} *{animation:none!important;transition:none!important} }
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px;line-height:1.5}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+img{display:block}
+code,kbd,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+:focus-visible{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:4px}
+
+/* ── khung ────────────────────────────────────────────── */
+.khung{display:grid;grid-template-columns:220px 1fr;min-height:100dvh}
+.ben{background:#08080B;border-right:1px solid var(--line);
+  padding:calc(14px + env(safe-area-inset-top)) 12px 20px;
+  position:sticky;top:0;height:100dvh;overflow-y:auto}
+.hieu{display:flex;align-items:center;gap:9px;padding:0 6px 16px;color:inherit}
+.hieu:hover{text-decoration:none}
+.hieu .dau{width:26px;height:26px;border-radius:7px;background:var(--acc);
+  display:grid;place-items:center;flex:0 0 auto}
+.hieu .dau svg{width:15px;height:15px;color:#0B0B0E}
+.hieu b{font-size:15px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.hieu i{display:block;font-style:normal;font-size:9.5px;color:var(--ink-3);
+  letter-spacing:.06em;text-transform:uppercase}
+
+.blab{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);padding:14px 8px 5px}
+.bmuc{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:8px 9px;border-radius:6px;font-size:13.5px;color:var(--ink-2);
+  transition:background var(--dur),color var(--dur)}
+.bmuc:hover{background:var(--card-2);color:var(--ink);text-decoration:none}
+.bmuc[aria-current="page"]{background:var(--acc);color:#0B0B0E;font-weight:650}
+.bmuc .bic{width:16px;height:16px;flex:0 0 auto}
+.bmuc .bic svg{width:100%;height:100%}
+.bmuc .bn{margin-left:auto;font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.bmuc[aria-current="page"] .bn{color:rgba(11,11,14,.65)}
+.bchan{margin-top:18px;padding:12px 9px 0;border-top:1px solid var(--line);
+  font-size:11px;color:var(--ink-3);line-height:1.5}
+.bchan a{color:var(--ink-3);text-decoration:underline}
+
+.benmo{display:none}
+@media (max-width:900px){
+  .khung{grid-template-columns:1fr}
+  .ben{position:fixed;z-index:70;left:0;top:0;bottom:0;width:250px;
+    transform:translateX(-101%);transition:transform var(--dur) ease;
+    box-shadow:0 0 40px rgba(0,0,0,.6)}
+  .ben[data-mo="1"]{transform:none}
+  .benmo{display:grid;place-items:center;width:34px;height:34px;
+    border:1px solid var(--line);border-radius:7px;background:var(--card);flex:0 0 auto}
+  .benmo svg{width:17px;height:17px}
+}
+
+/* ── thân ─────────────────────────────────────────────── */
+.than-ngoai{min-width:0;padding:0 20px calc(40px + env(safe-area-inset-bottom))}
+.dinh{display:flex;align-items:center;gap:12px;
+  padding:calc(14px + env(safe-area-inset-top)) 0 14px;
+  position:sticky;top:0;z-index:20;background:var(--bg)}
+.dinh h1{font-size:21px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dinh .ngay{font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.tim{position:relative;flex:0 0 auto;width:min(280px,40vw)}
+.tim input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);font-size:13.5px;color:var(--ink)}
+.tim .ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--ink-3);pointer-events:none}
+@media (max-width:620px){ .dinh .ngay{display:none} .tim{width:auto;flex:1} .dinh h1{flex:0 0 auto;font-size:16px} }
+
+.canhbao{margin:0 0 12px;padding:10px 14px;border-radius:8px;
+  background:var(--bad-t);border:1px solid #4A2226;color:#F2A0A0;font-size:12.6px;line-height:1.55}
+
+.giaithich{padding:14px 18px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--card);font-size:12.9px;color:var(--ink-2);line-height:1.6;margin:0 0 14px}
+.giaithich b{color:var(--ink)}
+.giaithich .vn{display:block;margin-top:8px;padding:9px 12px;background:var(--acc-t);
+  border-radius:7px;color:#E9D9A8}
+
+.khoi{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.khoi-dinh{display:flex;align-items:baseline;gap:10px;padding:14px 18px;
+  border-bottom:1px solid var(--line-2)}
+.khoi-dinh h2{font-size:15px;flex:1;min-width:0}
+.khoi-n{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+/* ── ô nhập / nút ─────────────────────────────────────── */
+.form{padding:16px 18px}
+.nhan{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+textarea.o{width:100%;min-height:120px;resize:vertical;padding:12px 14px;
+  border:1px solid var(--line);border-radius:8px;background:#08080B;color:var(--ink);
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.65;word-break:break-all}
+textarea.o:focus{border-color:var(--acc)}
+input.o{width:100%;padding:10px 13px;border:1px solid var(--line);border-radius:8px;
+  background:#08080B;color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+.hang-nut{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.nut{padding:9px 18px;border-radius:7px;background:var(--acc);color:#0B0B0E;
+  font-size:13.5px;font-weight:650;transition:background var(--dur)}
+.nut:hover{background:var(--acc-2)}
+.nut-phu{padding:9px 14px;border-radius:7px;border:1px solid var(--line);
+  background:transparent;color:var(--ink-2);font-size:12.8px}
+.nut-phu:hover{border-color:var(--acc);color:var(--ink)}
+.goiy{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+
+/* ── kết quả giải mã ──────────────────────────────────── */
+.kq{border-top:1px solid var(--line-2);padding:16px 18px}
+.kq-loi{padding:11px 14px;border-radius:8px;background:var(--bad-t);
+  border:1px solid #4A2226;color:#F2A0A0;font-size:13px}
+.kq-dinh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.kq-ten{font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;color:var(--acc)}
+.kq-sel{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-3);
+  padding:2px 7px;border-radius:5px;background:var(--card-3)}
+.kq-tu{font-size:11px;color:var(--ink-3)}
+.kq-ky{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2);
+  word-break:break-all;margin:6px 0 14px}
+
+table.ts{width:100%;border-collapse:collapse;font-size:12.8px}
+table.ts th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  border-bottom:1px solid var(--line)}
+table.ts td{padding:10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+table.ts tr:last-child td{border-bottom:0}
+.ts-i{font-family:"IBM Plex Mono",monospace;color:var(--ink-3);width:1%}
+.ts-k{font-family:"IBM Plex Mono",monospace;color:var(--acc);white-space:nowrap;width:1%}
+.ts-v{font-family:"IBM Plex Mono",monospace;color:var(--ink);word-break:break-all}
+.ts-v ol{margin:0;padding-left:20px}
+.ts-v li{padding:1px 0}
+.ts-ghi{display:block;font-family:"IBM Plex Sans",sans-serif;font-size:11px;
+  color:var(--ink-3);margin-top:3px}
+.ts-chua{color:var(--warn)}
+.ts-tho{display:block;font-size:10.5px;color:var(--ink-3);margin-top:4px;word-break:break-all}
+
+/* ── nhật ký đổi thay ─────────────────────────────────── */
+.loc{display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  padding:11px 18px;border-bottom:1px solid var(--line-2)}
+.loc-lab{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.chip{padding:4px 11px;border-radius:999px;border:1px solid var(--line);
+  background:transparent;font-size:12.3px;color:var(--ink-2);
+  transition:background var(--dur),border-color var(--dur),color var(--dur)}
+.chip:hover{border-color:var(--acc)}
+.chip[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#0B0B0E}
+.chip .n{font-size:10.5px;opacity:.72;margin-left:4px;font-variant-numeric:tabular-nums}
+.dem{margin-left:auto;font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+.bangwrap{overflow-x:auto}
+table.bang{width:100%;border-collapse:collapse;min-width:720px;font-size:13px}
+table.bang th{text-align:right;padding:10px;font-size:10px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  border-bottom:1px solid var(--line);white-space:nowrap}
+table.bang th.l{text-align:left}
+table.bang td{padding:10px;border-bottom:1px solid var(--line-2);text-align:right;
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+table.bang td.l{text-align:left}
+table.bang tr:last-child td{border-bottom:0}
+table.bang tbody tr{cursor:pointer}
+table.bang tbody tr:hover td{background:var(--card-2)}
+.duan{display:flex;align-items:center;gap:9px;min-width:0}
+.duan img{width:19px;height:19px;border-radius:5px;flex:0 0 auto;object-fit:contain;background:var(--card-3)}
+.duan .khonglogo{width:19px;height:19px;border-radius:5px;flex:0 0 auto;background:var(--card-3);
+  display:grid;place-items:center;font-size:9px;font-weight:700;color:var(--ink-3)}
+.duan b{font-size:13px;font-weight:600}
+.hd{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2)}
+.hd i{display:block;font-style:normal;font-size:10.5px;color:var(--ink-3)}
+.dd{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3)}
+.tm{color:var(--ok)}
+.bt{color:var(--bad)}
+.luc{font-size:11.5px;color:var(--ink-3)}
+
+/* diff */
+.diff{margin:0;padding:14px 16px;background:#08080B;border-radius:8px;
+  font-family:"IBM Plex Mono",monospace;font-size:11.8px;line-height:1.6;
+  white-space:pre-wrap;word-break:break-word;overflow-x:auto;max-height:60vh}
+.diff .d-them{color:#8BDCA4;background:rgba(45,125,70,.16);display:block}
+.diff .d-bot{color:#F0A6AC;background:rgba(140,47,57,.18);display:block}
+.diff .d-tt{color:var(--ink-3);display:block}
+.diff .d-hd{color:var(--acc);display:block}
+.cat{margin-top:9px;padding:9px 12px;border-radius:7px;background:var(--acc-t);
+  color:#E9D9A8;font-size:11.8px;line-height:1.55}
+
+/* ── kính lúp hồ sơ ───────────────────────────────────── */
+.hm{display:flex;gap:3px;flex-wrap:nowrap}
+.hm span{width:13px;height:13px;border-radius:3px;display:block;flex:0 0 auto}
+.hm span[data-c="1"]{background:var(--ok)}
+.hm span[data-c="0"]{background:var(--card-3);border:1px solid var(--line)}
+.tyle{font-family:"IBM Plex Mono",monospace;font-size:12px}
+.tyle b{color:var(--ink)}
+.tyle i{font-style:normal;color:var(--ink-3)}
+
+.thanh{height:5px;border-radius:3px;background:var(--card-3);overflow:hidden;margin-top:5px}
+.thanh span{display:block;height:100%;background:var(--ok)}
+
+/* ── ngăn kéo hồ sơ ───────────────────────────────────── */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;opacity:0;
+  pointer-events:none;transition:opacity var(--dur)}
+.scrim[data-open="1"]{opacity:1;pointer-events:auto}
+.hoso{position:fixed;z-index:61;right:0;top:0;bottom:0;width:min(760px,96vw);
+  background:var(--card);border-left:1px solid var(--line);display:flex;flex-direction:column;
+  transform:translateX(101%);transition:transform var(--dur) ease;
+  padding-bottom:env(safe-area-inset-bottom)}
+.hoso[data-open="1"]{transform:none}
+@media (max-width:900px){
+  .hoso{left:0;right:0;top:auto;bottom:0;width:auto;max-height:90dvh;border-left:0;
+    border-top:1px solid var(--line);border-radius:14px 14px 0 0;transform:translateY(101%)}
+}
+.hoso-top{padding:16px 52px 14px 18px;border-bottom:1px solid var(--line);position:relative}
+.hoso-top h2{font-size:18px}
+.hoso-tag{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:7px;
+  font-size:11.5px;color:var(--ink-3)}
+.hoso-x{position:absolute;right:14px;top:14px;width:30px;height:30px;border-radius:7px;
+  border:1px solid var(--line);background:var(--card-2);display:grid;place-items:center}
+.hoso-x:hover{border-color:var(--acc)}
+.hoso-body{padding:16px 18px;overflow-y:auto;flex:1}
+.hs{margin-bottom:18px}
+.hs:last-child{margin-bottom:0}
+.hs-h{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:9px}
+.hs-p{margin:0;font-size:13.2px;line-height:1.6;color:var(--ink-2)}
+.hs-p b{color:var(--ink)}
+
+.hmlist{display:grid;gap:6px}
+.hmlist div{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:7px;
+  background:var(--card-2);font-size:12.8px}
+.hmlist em{font-style:normal;width:9px;height:9px;border-radius:2px;flex:0 0 auto}
+.hmlist em[data-c="1"]{background:var(--ok)}
+.hmlist em[data-c="0"]{background:var(--card-3);border:1px solid var(--line)}
+.hmlist span{flex:1;min-width:0}
+.hmlist i{font-style:normal;font-size:11px;color:var(--ink-3)}
+
+.trong{padding:34px;text-align:center;color:var(--ink-3);font-size:13.5px}
+.chan{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);
+  font-size:11.8px;color:var(--ink-3);line-height:1.6}
+.chan b{color:var(--ink-2)}
+.chan p{margin:0 0 6px}

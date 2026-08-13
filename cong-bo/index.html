@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Công Bộ · Bộ đồ nghề</title>
+<meta name="description" content="Việt hoá từ tools.l2beat.com: giải mã lời gọi hợp đồng, nhật ký thay đổi on-chain, và kính lúp soi độ đầy đủ hồ sơ dự án Layer 2.">
+
+<meta name="theme-color" content="#0B0B0E">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Công Bộ">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#/giai-ma">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/>
+          <path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>
+        </svg>
+      </span>
+      <span><b>Công Bộ</b><i>Bộ đồ nghề</i></span>
+    </a>
+
+    <!-- các công cụ — do app.js dựng -->
+    <div id="benMuc"></div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Việt hoá từ <a href="https://tools.l2beat.com" target="_blank" rel="noopener">tools.l2beat.com</a>.
+      Số liệu là của L2BEAT; bộ giải mã do Công Bộ tự viết.</p>
+    </div>
+  </nav>
+
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tieu">Giải mã lời gọi</h1>
+      <div class="tim">
+        <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+        <input id="q" type="search" placeholder="Tìm…" autocomplete="off" aria-label="Tìm">
+      </div>
+      <span class="ngay" id="ngay"></span>
+    </header>
+
+    <p class="canhbao" id="canhBao" hidden></p>
+
+    <div id="than"></div>
+
+    <footer class="chan">
+      <p><b>Nguồn:</b> nhật ký đổi thay từ <code>um-prod.l2beat.com/discovery/changes</code>,
+      kính lúp hồ sơ từ <code>fe-stag.l2beat.com/api/discolupe</code>. Cập nhật tự động bằng GitHub Actions.</p>
+      <p><b>Bộ giải mã là của Công Bộ, không phải của L2BEAT.</b> API giải mã của họ
+      (<code>tools-api.l2beat.com/api/decode</code>) đang trả lỗi 500, nên phần này tôi tự viết,
+      chạy hẳn trong trình duyệt. Tên hàm lạ thì tra qua api.openchain.xyz.</p>
+      <p>Đây không phải lời khuyên đầu tư. Một thay đổi hợp đồng hiện ở đây không có nghĩa
+      là dự án đang gặp chuyện — phần lớn là bảo trì bình thường.</p>
+    </footer>
+
+  </main>
+</div>
+
+<div class="scrim" id="scrim" data-open="0"></div>
+<aside class="hoso" id="hoso" data-open="0" aria-label="Chi tiết">
+  <div class="hoso-top">
+    <h2 id="hosoTen">—</h2>
+    <div class="hoso-tag" id="hosoTag"></div>
+    <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoso-body" id="hosoBody"></div>
+</aside>
+
+<!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
+<!-- tự sinh, xem scripts/build-congbo.mjs -->
+<script src="assets/js/data.js"></script>
+<!-- bảng tra logo dùng chung với Đô Sát Viện · tự sinh -->
+<script src="assets/js/logos.js"></script>
+<!-- chú giải · sửa tay được -->
+<script src="assets/js/glossary.js"></script>
+<!-- bộ giải mã, chạy hẳn trong trình duyệt -->
+<script src="assets/js/decoder.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>
