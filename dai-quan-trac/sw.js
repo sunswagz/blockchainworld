@@ -6,7 +6,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v3";
+var CACHE_VERSION = "v4";
 var SHELL_CACHE = "dqt-shell-" + CACHE_VERSION;
 var FONT_CACHE = "dqt-fonts-" + CACHE_VERSION;
 
@@ -29,6 +29,9 @@ var SHELL = [
 ];
 
 self.addEventListener("install", function (e) {
+  // đẩy bản mới xuống ngay, đừng nằm chờ người dùng bấm gì
+  // (cùng với clients.claim() ở activate và controllerchange ở pwa.js)
+  self.skipWaiting();
   e.waitUntil(caches.open(SHELL_CACHE).then(function (c) {
     return Promise.all(SHELL.map(function (u) {
       return c.add(new Request(u, { cache: "reload" })).catch(function () {});

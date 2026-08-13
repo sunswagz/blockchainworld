@@ -81,6 +81,17 @@
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("sw.js").catch(function () {});
     });
+
+    /* sw.js gọi skipWaiting() ngay lúc cài, nên bản mới chiếm quyền
+       điều khiển liền. Tải lại một lần để trang đang mở dùng bản
+       mới thay vì bản cũ trong cache — cờ `daTai` chặn vòng lặp
+       nếu bản mới lại kích hoạt lần nữa. */
+    var daTai = false;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (daTai) return;
+      daTai = true;
+      window.location.reload();
+    });
   }
 
   /* ── nút cài ────────────────────────────────────────── */

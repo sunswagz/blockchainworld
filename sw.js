@@ -9,7 +9,7 @@
    giữ lại sau khi cung đã cập nhật.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v3";
+var CACHE_VERSION = "v4";
 var SHELL_CACHE = "cong-thanh-" + CACHE_VERSION;
 
 var SHELL = [
@@ -26,6 +26,9 @@ var SHELL = [
 ];
 
 self.addEventListener("install", function (e) {
+  // đẩy bản mới xuống ngay, đừng nằm chờ người dùng bấm gì
+  // (cùng với clients.claim() ở activate và controllerchange ở pwa.js)
+  self.skipWaiting();
   e.waitUntil(caches.open(SHELL_CACHE).then(function (c) {
     return Promise.all(SHELL.map(function (u) {
       return c.add(new Request(u, { cache: "reload" })).catch(function () {});

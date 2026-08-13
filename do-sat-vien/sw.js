@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v6";
+var CACHE_VERSION = "v7";
 var SHELL_CACHE = "do-sat-vien-shell-" + CACHE_VERSION;
 var FONT_CACHE = "do-sat-vien-fonts-" + CACHE_VERSION;
 
@@ -38,6 +38,9 @@ var SHELL = [
 ];
 
 self.addEventListener("install", function (e) {
+  // đẩy bản mới xuống ngay, đừng nằm chờ người dùng bấm gì
+  // (cùng với clients.claim() ở activate và controllerchange ở pwa.js)
+  self.skipWaiting();
   e.waitUntil(caches.open(SHELL_CACHE).then(function (c) {
     // addAll là all-or-nothing; thêm từng cái để một file lỗi không phá cả bản cài
     return Promise.all(SHELL.map(function (u) {
