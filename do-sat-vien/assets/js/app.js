@@ -273,22 +273,98 @@
     return m && m.so != null ? m.so : null;
   }
 
+  /* ── nhóm gập được ───────────────────────────────────
+     23 mục xếp thẳng thì thanh bên dài hơn màn hình. Mỗi nhóm gập
+     lại được như thư mục, nhớ lựa chọn trong localStorage.
+
+     Nhóm chứa mục vừa mở được BUNG RA lúc đổi tuyến (moTheoTuyen),
+     chứ không ép mở ở mỗi lần vẽ: ép mở mỗi lần vẽ thì bấm nút gập
+     của chính nhóm đang xem sẽ không có phản ứng gì, trông như
+     nút hỏng. */
+  var KEY = "dsv.nav";
+  var moNhom = null;
+
+  function docMo() {
+    if (moNhom) return moNhom;
+    try { moNhom = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { moNhom = null; }
+    if (!moNhom || typeof moNhom !== "object") {
+      /* lần đầu: mở nhóm đầu tiên, gập phần còn lại */
+      moNhom = {};
+      CAY.forEach(function (g, i) { moNhom[g.nhom] = i === 0; });
+    }
+    return moNhom;
+  }
+  function ghiMo() {
+    try { localStorage.setItem(KEY, JSON.stringify(moNhom)); } catch (e) {}
+  }
+  /* Bung nhóm (và nhóm con) chứa mục vừa mở, để mục đang sáng
+     không bị giấu sau một nhóm đã gập. */
+  function moTheoTuyen(ma) {
+    var mo = docMo();
+    CAY.forEach(function (g) {
+      g.muc.forEach(function (m) {
+        if (typeof m === "string") {
+          if (m === ma) mo[g.nhom] = true;
+        } else if (m.muc.indexOf(ma) !== -1) {
+          mo[g.nhom] = true;
+          mo[g.nhom + "/" + m.nhom2] = true;
+        }
+      });
+    });
+    ghiMo();
+  }
+
+  function chev() {
+    return '<span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M9 5l7 7-7 7"/></svg></span>';
+  }
+
   function veBen() {
     var host = $("#benMuc");
+    var mo = docMo();
     host.innerHTML = "";
+
     CAY.forEach(function (g) {
-      var lab = el("div", "blab");
-      lab.textContent = g.nhom;
-      host.appendChild(lab);
-      g.muc.forEach(function (m) {
-        if (typeof m === "string") { host.appendChild(dongBen(m)); return; }
-        var lab2 = el("div", "blab2");
-        lab2.textContent = m.nhom2;
-        host.appendChild(lab2);
-        var box = el("div", "bcon");
-        m.muc.forEach(function (x) { box.appendChild(dongBen(x)); });
-        host.appendChild(box);
+      var open = mo[g.nhom] === true;
+
+      var nut = el("button", "bnhom");
+      nut.type = "button";
+      nut.setAttribute("aria-expanded", String(!!open));
+      nut.innerHTML = chev() + '<span class="bt">' + esc(g.nhom) + "</span>";
+      nut.addEventListener("click", function () {
+        mo[g.nhom] = !open;
+        ghiMo();
+        veBen();
       });
+      host.appendChild(nut);
+
+      var than = el("div", "bnhom-than");
+      than.dataset.mo = open ? "1" : "0";
+
+      g.muc.forEach(function (m) {
+        if (typeof m === "string") { than.appendChild(dongBen(m)); return; }
+
+        var open2 = mo[g.nhom + "/" + m.nhom2] === true;
+
+        var nut2 = el("button", "bnhom2");
+        nut2.type = "button";
+        nut2.setAttribute("aria-expanded", String(open2));
+        nut2.innerHTML = chev() + '<span class="bt">' + esc(m.nhom2) + "</span>";
+        nut2.addEventListener("click", function () {
+          mo[g.nhom + "/" + m.nhom2] = !open2;
+          ghiMo();
+          veBen();
+        });
+        than.appendChild(nut2);
+
+        var box = el("div", "bcon");
+        box.dataset.mo = open2 ? "1" : "0";
+        m.muc.forEach(function (x) { box.appendChild(dongBen(x)); });
+        than.appendChild(box);
+      });
+
+      host.appendChild(than);
     });
   }
   function dongBen(ma) {
@@ -1103,6 +1179,7 @@
     var ma = tuHash();
     if (!VI.muc[ma]) ma = "tong-quan";
     if (ma !== state.muc) { state.muc = ma; state.tab = null; state.thang = "all"; state.sort = null; state.desc = true; }
+    moTheoTuyen(ma);
     ve();
     var b = $("#ben");
     if (b) b.dataset.mo = "0";

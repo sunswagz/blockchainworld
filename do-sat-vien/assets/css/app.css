@@ -63,7 +63,6 @@ img{display:block}
   font-variant-numeric:tabular-nums}
 .bmuc[aria-current="page"] .bn{color:rgba(255,255,255,.85)}
 
-.bcon{padding-left:24px}
 .bcon .bmuc{font-size:12.8px;padding:5px 9px}
 
 .bchan{margin-top:18px;padding:12px 9px 0;border-top:1px solid var(--line);
@@ -336,8 +335,6 @@ table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
 .than-ngoai{min-width:0;padding:0 20px calc(40px + env(safe-area-inset-bottom))}
 
 /* thanh bên: nhãn cấp hai + mục con */
-.blab2{font-size:11px;font-weight:600;color:var(--ink-2);padding:9px 9px 3px}
-.bcon{padding-left:10px;border-left:1px solid var(--line);margin-left:9px}
 .bmuc{justify-content:flex-start}
 .hieu{text-decoration:none;color:inherit}
 .hieu:hover{text-decoration:none}
@@ -395,3 +392,28 @@ td .mo,.khong{color:var(--ink-3)}
 .td-muc b{font-size:13.2px;font-weight:600}
 .td-khop{font-size:10.5px;color:var(--ink-3);margin-left:8px}
 .td-muc p{margin:4px 0 0;font-size:12.4px;line-height:1.6;color:var(--ink-2)}
+
+/* ── nhóm gập được trong thanh bên ───────────────────── */
+.bnhom,.bnhom2{display:flex;align-items:center;gap:6px;width:100%;text-align:left;
+  border-radius:6px;color:var(--ink-3);transition:background var(--dur),color var(--dur)}
+.bnhom{padding:8px 8px;margin-top:6px;
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.bnhom2{padding:6px 9px;margin-left:2px;
+  font-size:11.5px;font-weight:600;color:var(--ink-2);letter-spacing:0;text-transform:none}
+.bnhom:hover,.bnhom2:hover{background:#DCDDE4;color:var(--ink)}
+/* Nhắm .bt chứ KHÔNG nhắm span trần: .chev cũng là một span,
+   nên .bnhom span có độ ưu tiên cao hơn .chev và đè mất flex:0 0 auto
+   của nó — hai span chia đôi chiều ngang, mũi tên phình ra 88px. */
+.bnhom .bt,.bnhom2 .bt{flex:1;min-width:0}
+
+.chev{width:13px;height:13px;flex:0 0 auto;display:grid;place-items:center;
+  transition:transform var(--dur) ease}
+.chev svg{width:100%;height:100%;display:block}
+[aria-expanded="true"] > .chev{transform:rotate(90deg)}
+
+/* Gập bằng display chứ không phải max-height: nội dung cao khác
+   nhau nhiều (2 đến 5 mục), đặt một max-height chung thì hoặc cắt
+   mất mục hoặc chừa một khoảng trống thừa khi mở. */
+.bnhom-than[data-mo="0"],.bcon[data-mo="0"]{display:none}
+.bnhom-than{padding-left:2px}
+.bcon{padding-left:14px;border-left:1px solid var(--line);margin-left:13px}
