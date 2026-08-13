@@ -155,7 +155,10 @@
       var v = max * f, yy = y(v);
       s += '<line x1="0" x2="' + W + '" y1="' + yy.toFixed(1) + '" y2="' + yy.toFixed(1) +
         '" stroke="#D8D9E0" stroke-width="1" stroke-dasharray="3 3"/>';
-      s += '<text class="bd-truc" x="3" y="' + (yy - 4).toFixed(1) + '">' + usd(v) + "</text>";
+      /* viền trắng quanh chữ: nhãn nằm đè lên vùng màu đặc, không có
+         viền thì chìm hẳn vào lớp tím */
+      s += '<text class="bd-truc" x="3" y="' + (yy - 4).toFixed(1) +
+        '" stroke="#fff" stroke-width="2.5" paint-order="stroke">' + usd(v) + "</text>";
     });
 
     /* mốc thời gian: đầu, giữa, cuối */
