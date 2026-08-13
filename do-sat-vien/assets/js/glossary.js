@@ -232,3 +232,175 @@ window.DSV_VI = {
      đọc tự nghi ngờ mình đọc nhầm. */
   ghiChuTong: "L2BEAT ở tiêu đề trang chỉ cộng các chuỗi tầng 2. Bảng này cộng cả tầng 3 nên tổng cao hơn — phần chênh gần như toàn bộ là Hyperliquid, một chuỗi tầng 3."
 };
+
+/* ═══════════════════════════════════════════════════════
+   BỔ SUNG CHO CÁC MỤC NGOÀI TỔNG QUAN
+
+   Gộp thêm vào hai bảng lớn ở trên thay vì chèn vào giữa chúng —
+   dễ đọc diff hơn, và thêm mục mới sau này chỉ việc nối xuống dưới.
+
+   L2BEAT gọi cùng một chiều bằng hai cách viết tuỳ trang
+   ("committeeSecurity" ở trang rủi ro DA, "Committee security" ở
+   trang tổng quan DA), nên khai cả hai — rẻ hơn nhiều so với chuẩn
+   hoá khoá lúc build rồi lỡ sót một chỗ.
+   ═══════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+  var VI = window.DSV_VI;
+  if (!VI) return;
+
+  /* ── chiều rủi ro của lớp dữ liệu sẵn có ── */
+  var CHIEU = {
+    committeeSecurity: {
+      nhan: "An toàn của hội đồng",
+      y: "Bao nhiêu thành viên phải thông đồng thì mới giấu được dữ liệu, và họ có công khai danh tính không?"
+    },
+    economicSecurity: {
+      nhan: "Bảo chứng kinh tế",
+      y: "Có tài sản nào bị tịch thu nếu bên giữ dữ liệu giở trò không? Không có nghĩa là họ phá luật mà chẳng mất gì."
+    },
+    fraudDetection: {
+      nhan: "Phát hiện gian lận",
+      y: "Có cơ chế tự phát hiện việc giấu dữ liệu, hay phải có người tự tải toàn bộ về mới biết?"
+    },
+    upgradeability: {
+      nhan: "Khả năng nâng cấp",
+      y: "Hợp đồng có sửa được không, và sửa xong bao lâu mới có hiệu lực?"
+    },
+    relayerFailure: {
+      nhan: "Bên chuyển tiếp ngừng việc",
+      y: "Nếu bên đưa dữ liệu qua cầu ngừng làm việc thì còn đường nào khác không?"
+    }
+  };
+  var HOA = {
+    committeeSecurity: "Committee security",
+    economicSecurity: "Economic security",
+    fraudDetection: "Fraud detection",
+    upgradeability: "Upgradeability",
+    relayerFailure: "Relayer failure"
+  };
+  for (var c in CHIEU) if (Object.prototype.hasOwnProperty.call(CHIEU, c)) {
+    VI.chieu[c] = CHIEU[c];
+    VI.chieu[HOA[c]] = CHIEU[c];
+  }
+  VI.chieu["DA Layer"] = {
+    nhan: "Lớp dữ liệu",
+    y: "Dữ liệu để dựng lại số dư nằm ở đâu, và ai bảo đảm nó luôn lấy được?"
+  };
+  VI.chieu["DA Bridge"] = {
+    nhan: "Cầu dữ liệu",
+    y: "Ethereum tin vào đâu để biết dữ liệu đã thật sự được đăng?"
+  };
+
+  /* ── giá trị mới ── */
+  var G = {
+    "Permissioned":        { nhan: "Phải xin phép", y: "Chỉ những bên được duyệt mới vào hội đồng được." },
+    "Validator set":       { nhan: "Tập người xác thực", y: "Chính tập người xác thực của chuỗi đứng ra giữ dữ liệu." },
+    "TEE-based":           { nhan: "Dựa vào chip bảo mật", y: "Bảo đảm đến từ vùng thực thi tin cậy trong phần cứng — phải tin nhà sản xuất chip." },
+    "Public committee":    { nhan: "Hội đồng công khai", y: "Danh tính thành viên công khai, nên còn có ràng buộc danh tiếng." },
+    "Staked assets":       { nhan: "Có tài sản đặt cọc", y: "Có tiền thế chấp bị tịch thu nếu giấu dữ liệu." },
+    "No slashing":         { nhan: "Không bị tịch thu", y: "Có đặt cọc nhưng không có cơ chế tịch thu — nên thực chất không mất gì khi phá luật." },
+    "DA Challenges":       { nhan: "Có cơ chế khiếu nại", y: "Ai cũng thách thức được việc dữ liệu bị giấu, và bên giấu sẽ mất tiền." },
+    "DAS":                 { nhan: "Lấy mẫu dữ liệu", y: "Các nút lấy mẫu ngẫu nhiên để phát hiện dữ liệu bị giấu mà không phải tải hết." },
+
+    "No delay":            { nhan: "Sửa là có hiệu lực ngay", y: "Không có khoảng chờ nào để bạn kịp rút ra trước." },
+    "Immutable":           { nhan: "Không sửa được", y: "Hợp đồng đã đóng băng, không ai đổi được nữa." },
+    "Governance":          { nhan: "Qua bỏ phiếu quản trị", y: "Phải chờ một cuộc bỏ phiếu mới thay được." },
+
+    "Self-verify":         { nhan: "Tự kiểm chứng", y: "Nút đầy đủ tải hết dữ liệu về và tự kiểm, không tin ai cả." },
+    "Enshrined":           { nhan: "Gắn thẳng vào chuỗi", y: "Cầu dữ liệu là một phần của chính Ethereum, không phải hợp đồng riêng." },
+    "Self-attested":       { nhan: "Tự khai", y: "Chính bên đăng dữ liệu là bên xác nhận đã đăng — không ai kiểm chéo." },
+    "Self Custodied":      { nhan: "Tự giữ", y: "Dữ liệu do chính dự án giữ, không gửi ra lớp nào khác." },
+    "Self custodied":      { nhan: "Tự giữ", y: "Dữ liệu do chính dự án giữ, không gửi ra lớp nào khác." },
+    "DAC":                 { nhan: "Hội đồng dữ liệu", y: "Một nhóm được chỉ định giữ dữ liệu và ký xác nhận." },
+
+    "Transaction data":    { nhan: "Dữ liệu giao dịch", y: "Đăng nguyên giao dịch, dựng lại được toàn bộ trạng thái." },
+    "State diffs":         { nhan: "Chênh lệch trạng thái", y: "Chỉ đăng phần thay đổi, gọn hơn nhưng khó dựng lại lịch sử đầy đủ." },
+    "Balance proofs":      { nhan: "Bằng chứng số dư", y: "Chỉ đủ để chứng minh số dư, không đủ dựng lại toàn bộ chuỗi." },
+
+    "Intent framework":    { nhan: "Khung ý định", y: "Bạn nêu thứ mình muốn, một bên trung gian lo phần thực hiện." },
+    "Intent framework (OIF)": { nhan: "Khung ý định (OIF)", y: "Khung ý định theo chuẩn mở OIF." },
+    "Liquidity network":   { nhan: "Mạng thanh khoản", y: "Bên trung gian ứng tiền sẵn ở đầu bên kia rồi đòi lại sau." },
+    "Gas refuel":          { nhan: "Tiếp phí giao dịch", y: "Chỉ để chuyển một ít tiền trả phí sang chuỗi mới." },
+    "Resolver cancellation": { nhan: "Bên thực hiện phải huỷ", y: "Muốn lấy lại tiền thì phải trông vào chính bên đã nhận đơn đi huỷ giúp." },
+    "Slow-fill fallback":  { nhan: "Đường chậm dự phòng", y: "Không ai nhận đơn thì vẫn có đường chậm hơn để tiền tới nơi." },
+    "Request refund":      { nhan: "Tự xin hoàn tiền", y: "Bạn chủ động yêu cầu hoàn, không phải chờ ai." },
+    "Order cancellation":  { nhan: "Tự huỷ đơn", y: "Bạn tự huỷ được đơn để lấy tiền về." },
+    "Timeout refund":      { nhan: "Hết giờ tự hoàn", y: "Quá hạn mà chưa xong thì tiền tự quay về." },
+    "Self-relay":          { nhan: "Tự chuyển tiếp", y: "Bạn tự đứng ra đưa dữ liệu qua, không cần bên trung gian." },
+    "Whitelist / NFT":     { nhan: "Danh sách trắng / NFT", y: "Chỉ bên trong danh sách hoặc có NFT mới được nhận đơn." },
+    "Permissionless":      { nhan: "Ai cũng tham gia được", y: "Không cần xin phép ai để nhận đơn." },
+    "Internal":            { nhan: "Nội bộ", y: "Do chính dự án đảm nhận, không mở cho bên ngoài." },
+    "Internal (sidechain)": { nhan: "Nội bộ (chuỗi bên)", y: "Thanh toán chạy trên một chuỗi riêng của dự án." },
+    "HTLC-like":           { nhan: "Kiểu khoá thời gian", y: "Hai bên khoá tiền bằng một bí mật chung và mốc hết hạn." },
+    "Optimistic":          { nhan: "Lạc quan", y: "Mặc định coi là đúng, có thời hạn để ai đó phản đối." },
+    "Celer SGN":           { nhan: "Qua mạng Celer SGN", y: "Thông điệp đi qua mạng người bảo lãnh của Celer." },
+    "deBridge messaging":  { nhan: "Nhắn tin qua deBridge", y: "Hai chuỗi nói chuyện với nhau bằng lớp thông điệp của deBridge." },
+    "Wormhole messaging":  { nhan: "Nhắn tin qua Wormhole", y: "Hai chuỗi nói chuyện với nhau bằng lớp thông điệp của Wormhole." },
+    "LayerZero messaging": { nhan: "Nhắn tin qua LayerZero", y: "Hai chuỗi nói chuyện với nhau bằng lớp thông điệp của LayerZero." },
+    "OIF settlement":      { nhan: "Thanh toán theo chuẩn OIF", y: "Dùng cơ chế thanh toán của chuẩn mở OIF." },
+
+    "Open":                { nhan: "Mở", y: "Ai đủ điều kiện cũng tham gia tạo khối được." },
+    "Closed and capped":   { nhan: "Đóng và giới hạn", y: "Chỉ một số bên định sẵn, và có trần số lượng." },
+    "Sampled committees":  { nhan: "Hội đồng bốc ngẫu nhiên", y: "Mỗi kỳ bốc ngẫu nhiên một nhóm từ tập người xếp lịch." },
+    "Single proposer rotation": { nhan: "Một người đề xuất, luân phiên", y: "Mỗi lượt một bên, xoay vòng theo thứ tự." },
+    "Span producers":      { nhan: "Nhóm theo đoạn", y: "Một nhóm phụ trách liên tiếp nhiều khối trong một đoạn." },
+
+    "Reproducible":        { nhan: "Dựng lại được", y: "Ai cũng biên dịch lại mạch từ mã nguồn và đối chiếu được." },
+    "Partially reproducible": { nhan: "Dựng lại được một phần", y: "Chỉ một phần mạch đối chiếu lại được, phần còn lại phải tin." },
+
+    "Infinite":            { nhan: "Vô hạn", y: "Không có nâng cấp nào ép được bạn, muốn rút lúc nào cũng kịp." },
+    "∞":              { nhan: "Vô hạn", y: "Không có nâng cấp nào ép được bạn, muốn rút lúc nào cũng kịp." },
+    "Unknown":             { nhan: "Chưa rõ", y: "L2BEAT chưa xác định được." },
+    "Under Review":        { nhan: "Đang xem xét", y: "L2BEAT đang rà soát lại, chưa chốt đánh giá." },
+    "Exits only":          { nhan: "Chỉ cho việc rút", y: "Chỉ kiểm chứng phần rút tiền, phần còn lại không kiểm." },
+    "Fraud proofs (!)":    { nhan: "Chứng minh gian lận (có cảnh báo)", y: "Có cơ chế tố cáo nhưng L2BEAT đánh dấu là còn khiếm khuyết." }
+  };
+  for (var k in G) if (Object.prototype.hasOwnProperty.call(G, k) && !VI.gia[k]) VI.gia[k] = G[k];
+
+  /* "None" đổi nghĩa theo từng chiều — cùng cơ chế với Exit Window
+     ở trên, xem ghi chú tại giaTheoChieu. */
+  function haiCach(camel, hoa, bang) {
+    VI.giaTheoChieu[camel] = bang;
+    VI.giaTheoChieu[hoa] = bang;
+  }
+  haiCach("economicSecurity", "Economic security", {
+    "None": { nhan: "Không có", y: "Không có tài sản nào bị tịch thu nếu bên giữ dữ liệu giở trò." }
+  });
+  haiCach("fraudDetection", "Fraud detection", {
+    "None": { nhan: "Không có", y: "Không có cơ chế phát hiện; chỉ biết khi có người tự tải toàn bộ dữ liệu về đối chiếu." }
+  });
+  haiCach("committeeSecurity", "Committee security", {
+    "None": { nhan: "Không có", y: "Không có hội đồng nào đứng ra bảo đảm dữ liệu." }
+  });
+  haiCach("relayerFailure", "Relayer failure", {
+    "No mechanism": { nhan: "Không có lối thoát", y: "Bên chuyển tiếp ngừng là dữ liệu không qua cầu được nữa." }
+  });
+
+  /* ── tên các mục trên thanh bên ── */
+  VI.muc = {
+    "tong-quan":      { ten: "Tổng quan", y: "Toàn bộ thành phố Layer 2 xếp theo tài sản đang giữ." },
+    "rui-ro":         { ten: "Tổng hợp", y: "Năm chiều rủi ro của mọi thành phố đặt cạnh nhau." },
+    "kiem-chung":     { ten: "Kiểm chứng trạng thái", y: "Ai bảo đảm sổ sách thành phố công bố là đúng — và bằng cách nào." },
+    "du-lieu":        { ten: "Dữ liệu sẵn có", y: "Dữ liệu để dựng lại số dư của bạn đang nằm ở đâu." },
+    "xep-thu-tu":     { ten: "Xếp thứ tự giao dịch", y: "Ai quyết định giao dịch nào vào trước, và có ai chen vào được không." },
+    "hoat-dong":      { ten: "Hoạt động", y: "Thành phố nào thật sự đông người dùng, đo bằng thao tác mỗi giây." },
+    "do-song":        { ten: "Độ sống", y: "Bao lâu thành phố mới gửi một lô giao dịch và một bản cập nhật lên Ethereum." },
+    "luu-tru":        { ten: "Đã ngừng hoạt động", y: "Những thành phố đã đóng cửa — giữ lại để đối chiếu." },
+    "lt-tong-quan":   { ten: "Tổng quan", y: "Các giao thức nối chuỗi này với chuỗi kia." },
+    "lt-khung-token": { ten: "Khung token", y: "Chuẩn để một token đi lại giữa nhiều chuỗi mà vẫn là một." },
+    "lt-cau-y-dinh":  { ten: "Cầu ý định", y: "Bạn nêu thứ mình muốn, bên khác lo phần chạy qua chuỗi." },
+    "rieng-tu":       { ten: "Quyền riêng tư", y: "Các giao thức che giấu dòng tiền, và mức độ tin cậy chúng đòi hỏi." },
+    "dl-tong-quan":   { ten: "Tổng quan", y: "Các lớp giữ dữ liệu cho thành phố Layer 2." },
+    "dl-rui-ro":      { ten: "Rủi ro", y: "Điều gì xảy ra nếu lớp giữ dữ liệu giấu dữ liệu đi." },
+    "dl-thong-luong": { ten: "Thông lượng", y: "Mỗi lớp đang tải bao nhiêu dữ liệu, và còn dư bao nhiêu chỗ." },
+    "dl-do-song":     { ten: "Độ sống", y: "Lớp dữ liệu có đang chạy đều không." },
+    "dl-luu-tru":     { ten: "Đã ngừng", y: "Những lớp dữ liệu không còn dùng nữa." },
+    "zk":             { ten: "Danh mục ZK", y: "Các cỗ máy sinh bằng chứng toán học, và ai đang dùng chúng." },
+    "st-arbitrum-orbit": { ten: "Arbitrum Orbit", y: "Họ chuỗi dựng trên bản vẽ Arbitrum." },
+    "st-elastic":     { ten: "The Elastic Network", y: "Họ chuỗi dựng trên ZK Stack của Matter Labs." },
+    "st-superchain":  { ten: "Superchain", y: "Họ chuỗi dựng trên OP Stack của Optimism." },
+    "st-agglayer":    { ten: "Agglayer", y: "Họ chuỗi nối vào lớp tổng hợp của Polygon." },
+    "tu-dien":        { ten: "Từ điển", y: "Toàn bộ thuật ngữ L2BEAT dùng, kèm định nghĩa gốc." }
+  };
+})();

@@ -30,99 +30,52 @@
 
   <!-- ── thanh bên ─────────────────────────────────── -->
   <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
-    <div class="hieu">
+    <a class="hieu" href="#/tong-quan">
       <span class="dau" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3.5 20.5h17"/><path d="M4.5 16.8h7.2v3.7H4.5z"/>
           <path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>
         </svg>
       </span>
-      <span><b>Đô Sát Viện</b><i>Bảng xét Layer 2</i></span>
-    </div>
-
-    <div class="blab">Bảng xét</div>
-    <a class="bmuc" href="#" aria-current="page">
-      <span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9 9.5v10"/></svg></span>
-      <span>Tổng quan</span>
-      <span class="bn" id="benSo"></span>
+      <span><b>Đô Sát Viện</b><i>Việt hoá từ L2BEAT</i></span>
     </a>
-    <div class="bcon">
-      <a class="bmuc" href="#chugiai">
-        <span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 16.5v-4.5M12 8.2v.1"/></svg></span>
-        <span>Chú giải</span>
-      </a>
-      <a class="bmuc" href="https://l2beat.com/scaling/summary" target="_blank" rel="noopener">
-        <span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1.8 1.8 0 0 1-1.8 1.8H5A1.8 1.8 0 0 1 3.2 19V7.8A1.8 1.8 0 0 1 5 6h5"/></svg></span>
-        <span>Bản gốc L2BEAT</span>
-      </a>
-    </div>
+
+    <!-- các mục — do app.js dựng từ cây CAY -->
+    <div id="benMuc"></div>
 
     <!-- các cung — do assets/js/halls.js dựng -->
     <div id="cungNav"></div>
 
     <div class="bchan">
-      <p>Việt hoá từ <a href="https://l2beat.com" target="_blank" rel="noopener">l2beat.com</a>.
-      Số liệu và mọi đánh giá rủi ro là của L2BEAT.</p>
+      <p>Số liệu và mọi đánh giá rủi ro là của
+      <a href="https://l2beat.com" target="_blank" rel="noopener">l2beat.com</a>.
+      Đô Sát Viện chỉ dịch và diễn giải.</p>
     </div>
   </nav>
 
   <!-- ── thân ──────────────────────────────────────── -->
-  <main class="than">
+  <main class="than-ngoai">
 
     <header class="dinh">
-      <button class="benmo" id="benMo" type="button" aria-label="Mở thanh bên">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
-      <h1>Tổng quan</h1>
+      <h1 id="tieu">Tổng quan</h1>
       <div class="tim">
         <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
-        <input id="q" type="search" placeholder="Tìm thành phố…" autocomplete="off" aria-label="Tìm thành phố">
+        <input id="q" type="search" placeholder="Tìm…" autocomplete="off" aria-label="Tìm">
       </div>
       <span class="ngay" id="ngay"></span>
     </header>
 
-    <p class="giaithich" id="canhBao" hidden
-       style="background:#FDE7DC;border:1px solid #F0B79A;border-radius:8px;margin:0 0 12px;color:#A83A12"></p>
+    <p class="canhbao" id="canhBao" hidden></p>
 
-    <section class="tren">
-      <div class="the">
-        <div class="the-dinh">
-          <h2>Tài sản đang giữ</h2>
-          <span class="the-so" id="bdSo">—</span>
-        </div>
-        <div class="the-doi" id="bdDoi"></div>
-        <div class="bd" id="bd"></div>
-        <div class="bd-chu" id="bdChu"></div>
-      </div>
-
-      <div class="the">
-        <div class="the-dinh">
-          <h2>Tiền vào bằng đường nào</h2>
-          <span class="the-so" id="tongSo">—</span>
-        </div>
-        <div class="sos" id="tongSos"></div>
-        <p class="the-ghi" id="tongGhi"></p>
-      </div>
-    </section>
-
-    <div class="tabs" id="tabs" role="tablist" aria-label="Ba nhóm của L2BEAT"></div>
-
-    <section class="khoi">
-      <p class="giaithich" id="giaithich"></p>
-      <div class="loc">
-        <span class="loc-lab">Thang tự trị</span>
-        <div class="chips" id="chipThang" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-        <span class="dem" id="dem"></span>
-      </div>
-      <div class="bangwrap" id="bang"></div>
-    </section>
-
-    <section class="chugiai" id="chugiai" aria-label="Chú giải"></section>
+    <!-- app.js vẽ vào đây theo tuyến hash -->
+    <div id="than"></div>
 
     <footer class="chan">
       <p><b>Nguồn:</b> l2beat.com — API <code>scaling/summary</code> cho số liệu và biểu đồ,
-      dữ liệu trang <code>scaling/summary</code> cho logo, nhóm, hệ chứng minh và thao tác/giây.
-      Bản chụp cập nhật tự động bằng GitHub Actions.</p>
+      dữ liệu trang cho 21 mục còn lại. Bản chụp cập nhật tự động bằng GitHub Actions.</p>
       <p>Đô Sát Viện chỉ dịch, sắp xếp và diễn giải — <b>không tự chấm điểm dự án nào</b>.
       Đây không phải lời khuyên đầu tư. Một thành phố ở thang cao vẫn có thể sập vì lý do khác:
       lỗi hợp đồng, lỗi cầu nối, hoặc rủi ro của chính tài sản bạn gửi.</p>

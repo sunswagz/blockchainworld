@@ -95,9 +95,15 @@ async function checkShell(swPath, baseDir, files) {
     if (s === "./") continue;
     if (!present.has(s)) fail(`${relative(ROOT, swPath)} khai "${s}" nhưng không có file đó`);
   }
+  /* Bỏ qua ảnh và các file NẠP THEO YÊU CẦU. Đô Sát Viện có 21 file
+     trong assets/js/v/ (~620 KB) mà mỗi lần xem chỉ dùng một; nạp
+     sẵn hết vào SHELL là gấp ba dung lượng cài để lấy về thứ phần
+     lớn người dùng không mở. Chúng rơi vào nhánh cache-trước-cập-
+     nhật-nền ở cuối sw.js, xem tới đâu lưu tới đó. */
   const shellSet = new Set(shell);
   const missed = [...present].filter(
-    (p) => !shellSet.has(p) && p !== "./sw.js" && !/\.(png|ico)$/.test(p)
+    (p) => !shellSet.has(p) && p !== "./sw.js" &&
+      !/\.(png|ico)$/.test(p) && !/\/assets\/js\/v\//.test(p)
   );
   if (missed.length) {
     log(`  ⚠ ${relative(ROOT, baseDir) || "gốc"}: có trong dist nhưng sw.js không cache — ${missed.join(", ")}`);

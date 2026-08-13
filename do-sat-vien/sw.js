@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v4";
+var CACHE_VERSION = "v5";
 var SHELL_CACHE = "do-sat-vien-shell-" + CACHE_VERSION;
 var FONT_CACHE = "do-sat-vien-fonts-" + CACHE_VERSION;
 
@@ -84,8 +84,8 @@ self.addEventListener("fetch", function (e) {
   if (url.origin !== self.location.origin) return;
 
   // bảng xét tự cập nhật — mạng trước, hỏng mạng mới dùng bản đã lưu
-  if (url.pathname.indexOf("/do-sat-vien/assets/js/data.js") !== -1 ||
-      url.pathname.indexOf("/assets/js/data.js") !== -1) {
+  if (url.pathname.indexOf("/assets/js/data.js") !== -1 ||
+      url.pathname.indexOf("/assets/js/v/") !== -1) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {
         var copy = res.clone();
