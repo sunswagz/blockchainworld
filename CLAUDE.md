@@ -43,7 +43,8 @@ Năm lệnh, chạy từ cây chính, mất vài giây:
     git worktree list                 # ai đang giữ cung nào
     git status --short                # có file lạ chưa theo dõi không
     git branch -r --sort=-committerdate | head
-    npm run kiem                      # tài liệu này có còn khớp repo không
+    npm run kiem                      # tài liệu này có còn khớp repo không,
+                                      # và bản bạn đang giữ có cũ không
 
 `git status --short` mà thấy thư mục lạ (`?? hoang-thanh/`) thì **có phiên
 khác đang dựng dở trong cây chính**. Đừng đụng, đừng add, đừng chạy
@@ -52,6 +53,17 @@ khác đang dựng dở trong cây chính**. Đừng đụng, đừng add, đừ
 `npm run kiem` báo lệch thì xem mục **"Khi phát hiện lỗi trong chính file
 này"** ở cuối — sửa trước khi làm việc khác, vì mọi luật ở đây chỉ đúng
 khi tài liệu còn khớp thực tế.
+
+Phép kiểm đầu tiên của nó là **bản bạn đang giữ có cũ không**. Bảy phép
+còn lại so tài liệu cục bộ với repo cục bộ, nên worktree cũ có cả hai đều
+cũ mà khớp nhau sẽ in ✓ — xanh trong khi bạn làm theo luật đã bị thay.
+Phải chạy `git fetch -q` trước, không thì nó đọc ref cũ trên đĩa.
+
+Chuyện lỗi thời được canh ở **hai lớp**, và chúng bù nhau chứ không thừa:
+hook pre-commit (mục dưới) nhắc phiên đang chạy dở mà không nhớ chạy lệnh
+nào — nó luôn thoát 0, chỉ nhắc; còn `npm run kiem` thoát 1, nên chặn được
+và cắm CI được. Lớp thứ nhất tới được người không tìm nó; lớp thứ hai có
+răng.
 
 Phiên mở từ worktree cũ đang giữ bản `CLAUDE.md` cũ. Xem **đúng phần đã
 đổi** kể từ lúc worktree được tạo:
@@ -104,8 +116,9 @@ dưới, không chép lại — hai bản sao thì sẽ lệch. Gỡ hook: xoá
   `manifest.webmanifest`, `assets/`, `scripts/`, `package.json`,
   `server.js`, `CLAUDE.md`, `.github/workflows/`. Cần sửa thì dừng lại
   hỏi trước.
-- Không merge, không rebase, không push lên `main`. Commit và push lên
-  đúng nhánh worktree hiện tại; việc gộp để người dùng làm.
+- Không merge, không rebase vào nhánh khác. Commit và push lên đúng nhánh
+  worktree hiện tại. Người dùng vẫn là người quyết định **khi nào** gộp;
+  bảo gộp rồi thì làm theo mục "Gộp về `main`", đứng nguyên trong worktree.
 
 ### File do workflow tự sinh — đừng sửa tay
 
@@ -218,28 +231,40 @@ Gộp **không phải hàng đợi**. Hai cung là hai thư mục, hai nhánh ch
 thư mục của mình thì gộp cái nào trước cũng được, không tranh gì. Hàng đợi
 chỉ xuất hiện khi hai nhánh cùng sửa file ở gốc repo.
 
+Gộp **đứng nguyên trong worktree của mình**, đừng vào cây chính. Cây chính
+là thứ dùng chung: hai phiên cùng chạy `git merge` ở đó thì tranh
+`index.lock` và HEAD của cùng một cây, và file trong đó đổi dưới chân
+người đang nhìn nó.
+
 Trước khi gộp, chứng minh bằng lệnh chứ đừng tin cảm giác:
 
-    BASE=$(git merge-base main <nhánh>)
+    git fetch -q
+    BASE=$(git merge-base origin/main HEAD)
 
     # 1. nhánh đó có chạm ra ngoài thư mục cung của nó không?
-    git diff --name-only $BASE..<nhánh> | grep -v '^<cung>/'
+    git diff --name-only $BASE..HEAD | grep -v '^<cung>/'
 
     # 2. hai bên có file nào cùng sửa không?
-    comm -12 <(git diff --name-only $BASE..main    | sort) \
-             <(git diff --name-only $BASE..<nhánh> | sort)
+    comm -12 <(git diff --name-only $BASE..origin/main | sort) \
+             <(git diff --name-only $BASE..HEAD        | sort)
 
     # 3. có phải fast-forward sạch không?
-    git merge-base --is-ancestor main <nhánh> && echo "ff sạch"
+    git merge-base --is-ancestor origin/main HEAD && echo "ff sạch"
 
-Cả ba lệnh không in ra gì (trừ lệnh 3) thì gộp an toàn:
+Cả ba lệnh không in ra gì (trừ lệnh 3) thì đẩy thẳng:
 
-    git merge --ff-only <nhánh>
+    git push origin HEAD:main
 
-Sau khi gộp, đếm lại file chưa theo dõi của phiên khác để chắc mình không
-cuốn theo gì:
+Lệnh này làm đúng một fast-forward trên remote — không checkout, không
+merge, không chạm cây chính, nên **không có thao tác dùng chung nào để
+tranh**. Hai phiên gộp cùng lúc thì phiên sau bị từ chối chứ không hỏng
+gì: `git fetch -q`, chạy lại ba lệnh kiểm, đẩy lại. Không bao giờ
+`--force`.
 
-    git status --short | grep '^??'
+(Vì không đụng cây chính nữa, cũng không còn phải soát
+`git status --short | grep '^??'` sau khi gộp — trước đây bước đó để chắc
+mình không cuốn theo file chưa theo dõi của phiên khác đang nằm trong cây
+chính. Đẩy từ worktree thì không có đường nào cuốn được.)
 
 Push vào `main` là kích hoạt deploy thật. Đừng push khi cây chính đang có
 một cung dựng dở mà cung đó **đã** được thêm vào `HALLS` của
@@ -343,12 +368,26 @@ Ranh giới: **sửa cho tài liệu khớp thực tế thì cứ làm; đổi t
 
 4. Chạy `npm run kiem` trước và sau khi vá.
 
-5. Push thẳng lên `main`. Đây là **ngoại lệ có chủ ý** của luật "không push
-   `main`": tài liệu chỉ có tác dụng khi ở `main`, vì worktree mới luôn
-   nhánh từ `origin/main`.
+5. Push thẳng lên `main`, đứng nguyên trong worktree:
 
-6. Push bị từ chối thì `git pull --rebase` rồi soát lại, **không bao giờ
-   `--force`**.
+       git push origin HEAD:main
+
+   Đây là **ngoại lệ có chủ ý** của luật "không push `main`": tài liệu chỉ
+   có tác dụng khi ở `main`, vì worktree mới luôn nhánh từ `origin/main`.
+
+6. Push bị từ chối là phiên khác vừa vá xong trước bạn. Rebase lên
+   **`origin/main`**, không phải lên nhánh của mình:
+
+       git fetch -q
+       git rebase origin/main
+
+   (`git pull --rebase` ở đây là sai: upstream của nhánh worktree là
+   `origin/<tên cung>`, nên nó rebase lên nhánh của chính bạn rồi báo
+   thành công trong khi bạn vẫn đi sau `main`.)
+
+   Rebase xong đọc lại `git diff HEAD origin/main -- CLAUDE.md` để chắc
+   bản vá của phiên kia và của bạn không nói ngược nhau, rồi đẩy lại.
+   **Không bao giờ `--force`.**
 
 ### Mỗi luật thêm vào phải trả giá
 

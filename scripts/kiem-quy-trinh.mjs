@@ -22,6 +22,7 @@
 
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -47,25 +48,42 @@ const CLAUDE = await doc("CLAUDE.md");
 
 /* ── 0. bản CLAUDE.md tại chỗ có cũ hơn origin/main không ──
    Worktree nhánh từ origin/main LÚC TẠO rồi đứng yên. Phiên mở từ
-   worktree cũ đang đọc luật của tuần trước mà không biết. Đây là
-   cách duy nhất báo cho một phiên đang chạy: nó tự thấy khi chạy
-   lệnh này, vì không có kênh nào nhắn được sang phiên khác. */
-try {
-  const { execSync } = await import("node:child_process");
-  const sh = (c) => execSync(c, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
-  /* Đếm commit chạm CLAUDE.md có ở origin/main mà KHÔNG có ở đây.
-     Không so nội dung hai bản: nhánh tại chỗ có thể đang sửa chính
-     CLAUDE.md, khác nội dung mà là mới hơn chứ không cũ. */
-  const so = Number(sh("git rev-list --count HEAD..origin/main -- CLAUDE.md"));
-  if (so > 0) {
-    bao(
-      `CLAUDE.md ở đây CŨ HƠN origin/main ${so} commit — bạn đang theo luật lỗi thời.\n` +
-      "        Xem bản mới:   git show origin/main:CLAUDE.md\n" +
-      "        Xem đã đổi gì: git diff HEAD origin/main -- CLAUDE.md"
-    );
+   worktree cũ đang đọc luật của tuần trước mà không biết.
+
+   Bảy phép kiểm dưới đây so tài liệu CỤC BỘ với repo CỤC BỘ, nên
+   worktree cũ có cả hai đều cũ mà khớp nhau sẽ in ✓ — xanh trong khi
+   phiên đó làm theo luật đã bị thay. Đúng kiểu "bước xanh vĩnh viễn"
+   mà CLAUDE.md cảnh báo ở mục Hoàng Thành. Đã xảy ra thật: một
+   worktree tạo lúc repo còn năm cung vẫn báo ✓ sau khi main lên sáu.
+
+   Đếm commit chạm CLAUDE.md có ở origin/main mà KHÔNG có ở đây.
+   Không so nội dung hai bản: nhánh tại chỗ có thể đang sửa chính
+   CLAUDE.md, khác nội dung mà là mới hơn chứ không cũ — báo nó lỗi
+   thời thì chính người đang vá lại bị chặn.
+
+   Đọc ref có sẵn trên đĩa, KHÔNG tự ra mạng: `npm run kiem` phải chạy
+   được khi mất mạng. Muốn số liệu tươi thì `git fetch -q` trước, đúng
+   thứ tự trong mục "Trước khi bắt đầu".
+
+   Đây là lớp thứ hai, không phải lớp duy nhất: hook pre-commit nhắc
+   phiên đang chạy dở mà không nhớ chạy lệnh này. Hook chỉ nhắc và luôn
+   thoát 0; chỗ này thoát 1 để chặn được và cắm CI được. */
+if (!process.argv.includes("--offline")) {
+  const git = (...a) =>
+    execFileSync("git", a, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  try {
+    const so = Number(git("rev-list", "--count", "HEAD..origin/main", "--", "CLAUDE.md"));
+    if (so > 0) {
+      bao(
+        `CLAUDE.md ở đây CŨ HƠN origin/main ${so} commit — bạn đang theo luật lỗi thời.\n` +
+        "        Xem đã đổi gì: git diff HEAD origin/main -- CLAUDE.md\n" +
+        "        Bắt kịp      : git merge --ff-only origin/main\n" +
+        "        Bỏ qua       : npm run kiem -- --offline"
+      );
+    }
+  } catch {
+    nhac("Không so được CLAUDE.md với origin/main (chưa `git fetch`, hoặc không có remote).");
   }
-} catch {
-  nhac("Không so được CLAUDE.md với origin/main (chưa `git fetch`, hoặc không có remote).");
 }
 
 /* ── 1. danh sách cung ở đầu CLAUDE.md ────────────── */
