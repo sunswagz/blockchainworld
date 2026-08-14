@@ -92,11 +92,28 @@ jobs:
       # trần bước thì nó ăn hết ngân sách job và kéo cả lượt xuống.
       # Script chỉ ghi file ở cuối, nên bị cắt giữa chừng là file cũ
       # còn nguyên — không có bản dở dang nào bị commit.
+      # Dùng GH_PAT nếu có, không thì lùi về GITHUB_TOKEN. Chưa đặt
+      # secret thì `||` trả về GITHUB_TOKEN và mọi thứ chạy y như cũ.
+      #
+      # Nói cho đúng về lợi ích, vì tôi đã suýt ghi sai chỗ này:
+      # PAT KHÔNG phải thứ mở khoá việc quét đủ 66 kho. Mỗi kho chỉ
+      # tốn ĐÚNG MỘT lượt API (đo thật: 31→30→29→28→27) vì nội dung
+      # skill lấy qua raw.githubusercontent.com, vốn không tính vào
+      # hạn mức. Nên 1.000 lượt/giờ của GITHUB_TOKEN đã thừa sức.
+      # Thứ chặn ở 40 kho là một con số viết cứng trong script, nay
+      # đã bỏ — script tự hỏi /rate_limit rồi đặt ngân sách theo
+      # hạn mức còn lại thật.
+      #
+      # Vậy PAT còn để làm gì: GITHUB_TOKEN có 1.000 lượt/giờ dùng
+      # CHUNG cho mọi workflow của repo — hôm 14/08 repo này chạy 42
+      # lượt trong ngày. PAT tách ngân sách riêng 5.000/giờ, nên là
+      # khoảng đệm phòng khi repo bận, không phải điều kiện cần.
+      # Token chỉ cần quyền ĐỌC KHO CÔNG KHAI, không cần quyền ghi.
       - name: Lấy kho skill Tàng Thư Các
         continue-on-error: true
         timeout-minutes: 14
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: node scripts/build-tangthu.mjs
 
       # Đóng dấu bản số liệu lên IPFS trước khi commit.

@@ -44,9 +44,31 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = join(ROOT, "tang-thu-cac", "assets", "js");
 
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
-/* Không token: 60 lượt/giờ. Trừ 4 truy vấn tìm kiếm và ~8 lượt nạp
-   thẳng, còn dư nhiều cho 14 lượt lấy cây repo. Có token thì thoải mái. */
-const SO_KHO_QUET = Number(process.env.TT_SO_KHO || (TOKEN ? 40 : 14));
+
+/* MỖI KHO TỐN ĐÚNG MỘT LƯỢT API — đo thật, không suy đoán:
+   quét 5 kho liên tiếp thì hạn mức đi 31→30→29→28→27.
+
+   Lý do nằm ở chỗ chia việc: mỗi kho chỉ cần một lời gọi
+   `git/trees?recursive=1` để lấy toàn bộ cây file; còn nội dung
+   từng SKILL.md thì lấy qua raw.githubusercontent.com — CDN, KHÔNG
+   tính vào hạn mức. Nên phần nặng nhất lại là phần miễn phí, và một
+   kho 400 skill tốn y hệt một kho 1 skill: một lượt.
+
+   Trước khi vào vòng quét còn tốn cỡ 15 lượt cố định: 4 truy vấn
+   tìm kiếm cộng khoảng 10 lượt nạp thẳng danh sách kho gieo sẵn.
+   Cộng thêm ít dự phòng cho lần thử lại khi mạng chập. */
+const LUOT_CO_DINH = 20;
+
+/* Số kho quét suy từ hạn mức CÒN LẠI thật, đọc lúc chạy (doTran).
+
+   Bản cũ ghi cứng 40 khi có token, và tôi từng tưởng đó là hệ quả
+   của hạn mức. Không phải: với 1 lượt/kho thì GITHUB_TOKEN
+   (1.000/giờ) thừa sức quét cả 66 kho. Con số 40 chỉ là một mức
+   thủ cựu viết tay, và nó im lặng bỏ sót 26 kho — bảng vẫn ra
+   bình thường, không có gì báo là còn thiếu.
+
+   Đặt TT_SO_KHO để ép một con số cụ thể (dùng khi thử ở máy). */
+let SO_KHO_QUET = Number(process.env.TT_SO_KHO || 0);
 const SO_KHO_HANG = 60;          /* giữ bao nhiêu kho trong bảng xếp hạng */
 const MAX_SKILL_MOI_KHO = 400;   /* kho gom hàng nghìn skill thì cắt bớt */
 
@@ -61,6 +83,27 @@ const HEAD = {
 };
 
 let conLuot = null;
+let tranLuot = null;
+
+/* Hỏi thẳng GitHub trần hạn mức là bao nhiêu, thay vì suy từ "có
+   token hay không". Ba mức rất khác nhau — 60 (không token), 1.000
+   (GITHUB_TOKEN trong Actions), 5.000 (token cá nhân) — và chỉ nhìn
+   biến môi trường thì không phân biệt được hai mức sau, vì cả hai
+   đều chỉ là một chuỗi ký tự.
+
+   /rate_limit KHÔNG tính vào hạn mức, nên phép hỏi này miễn phí.
+   Hỏng thì không sao: rơi về mức đoán cũ và chạy tiếp. */
+async function doTran() {
+  try {
+    const r = await fetch("https://api.github.com/rate_limit", { headers: HEAD });
+    if (!r.ok) return;
+    const j = await r.json();
+    const c = j?.resources?.core;
+    if (!c) return;
+    tranLuot = Number(c.limit);
+    conLuot = Number(c.remaining);
+  } catch { /* mạng hỏng — cứ chạy, gh() sẽ tự đọc header sau */ }
+}
 
 async function gh(url) {
   for (let lan = 1; lan <= 3; lan++) {
@@ -148,8 +191,27 @@ async function docCu() {
 }
 const cu = await docCu();
 
-log(TOKEN ? "· có token — hạn mức 1.000/giờ (GITHUB_TOKEN) hoặc 5.000/giờ (token cá nhân)"
-          : "· KHÔNG có token — hạn mức 60/giờ mỗi IP, quét ít kho thôi");
+await doTran();
+
+/* Đặt ngân sách kho theo trần THẬT. Không hỏi được trần thì rơi về
+   mức đoán cũ — thà quét ít còn hơn đâm vào 403 giữa chừng. */
+if (!SO_KHO_QUET) {
+  SO_KHO_QUET = conLuot != null
+    ? Math.max(6, conLuot - LUOT_CO_DINH)
+    : (TOKEN ? 40 : 14);          /* không hỏi được trần → mức đoán cũ */
+}
+
+if (tranLuot) {
+  const loai = tranLuot >= 15000 ? "Enterprise Cloud"
+             : tranLuot >= 5000 ? "token cá nhân"
+             : tranLuot >= 1000 ? "GITHUB_TOKEN trong Actions"
+             : "không có token";
+  log(`· hạn mức thật: ${tranLuot}/giờ (${loai}) — còn ${conLuot} lượt`);
+  log(`  → đủ chỗ cho tối đa ${SO_KHO_QUET} kho (1 lượt/kho)`);
+} else {
+  log(TOKEN ? "· có token, nhưng không hỏi được trần — tạm quét " + SO_KHO_QUET + " kho"
+            : "· KHÔNG có token — hạn mức 60/giờ mỗi IP, quét ít kho thôi");
+}
 
 /* Kho LUÔN nạp thẳng, không trông vào kết quả tìm kiếm.
    anthropics/skills gắn thẻ `agent-skills` chứ không phải
@@ -313,9 +375,31 @@ const skills = [];
 const daQuet = new Set();   /* kho thật sự quét trong lần chạy này */
 let quetDuoc = 0, quetHong = 0;
 
+/* Ràng buộc thật không phải hạn mức API mà là THỜI GIAN: mỗi kho chỉ
+   tốn 1 lượt API nhưng phải tải hàng trăm file SKILL.md qua CDN, và
+   thời gian dao động rất mạnh theo độ lớn của kho (đo được: 151s,
+   309s, 532s cho 40 kho).
+
+   Từ khi ngân sách kho suy theo hạn mức, số kho quét nhảy từ 40 lên
+   cả 66 — và 66 kho ở nhịp xấu nhất là ~880s, vượt trần 14 phút của
+   bước trong refresh-data.yml. Bị cắt giữa chừng thì KHÔNG ghi được
+   gì cả: script chỉ ghi file ở cuối, nên cả lượt thành công cốc.
+
+   Nên tự dừng TRƯỚC hạn, ghi lại những gì đã quét, rồi để lượt sau
+   quét tiếp. Thà 50 kho có kết quả còn hơn 66 kho bị giết. Đổi trần
+   ở workflow thì đổi luôn con số này — để thấp hơn vài phút. */
+const HAN_GIAY = Number(process.env.TT_HAN_GIAY || 11 * 60);
+const batDau = Date.now();
+
 for (const r of canQuet) {
   if (conLuot != null && conLuot < 5) {
     warn(`Dừng quét sớm: hạn mức còn ${conLuot} lượt. Đã quét ${quetDuoc}/${canQuet.length} kho.`);
+    break;
+  }
+  const troi = Math.round((Date.now() - batDau) / 1000);
+  if (troi > HAN_GIAY) {
+    warn(`Dừng quét sớm: đã chạy ${troi}s, quá hạn ${HAN_GIAY}s. ` +
+      `Đã quét ${quetDuoc}/${canQuet.length} kho — phần còn lại để lượt sau.`);
     break;
   }
   let cay;
