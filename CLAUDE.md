@@ -173,9 +173,21 @@ commit kết quả là cách duy nhất:
 và không làm gì — một bước xanh vĩnh viễn không sinh ra gì, khó phát hiện
 hơn là một bước đỏ.
 
-Hệ quả cho `npm run dist`: dòng "rừng văn hoá Hoàng Thành: sinh cách đây N
-ngày ⚠" là **bình thường**, không phải dấu hiệu bot chết. Bốn cung kia mới
-phải tươi trong 2 ngày.
+Hệ quả cho độ tươi dữ liệu: dòng "rừng văn hoá Hoàng Thành: sinh cách đây N
+ngày" **không bao giờ kèm ⚠**, vì nó sinh tay. **Năm** nguồn kia do bot ghi
+và phải tươi trong **1 ngày** — bot chạy 4 lượt/ngày, quá 1 ngày nghĩa là
+bốn lượt liên tiếp không ghi được gì.
+
+Danh sách nguồn và ngưỡng nằm ở `scripts/tuoi-du-lieu.mjs`, dùng chung cho
+`npm run dist` (in ra) và `npm run kiem` (nhắc ở đầu phiên). Thêm cung mới
+có dữ liệu tự sinh thì thêm một dòng vào `NGUON` ở đó, không chép sang chỗ
+khác.
+
+`npm run kiem` **nhắc** chứ không báo lỗi khi dữ liệu cũ: bot chết không
+phải lỗi của phiên đang mở, không được chặn họ làm cung của mình. Nhưng nó
+in ở đầu mỗi phiên nên không chết âm thầm được nữa — đợt 13–14/08/2026
+đường ống nằm hơn một ngày mà không ai hay, vì phép kiểm khi đó chỉ nằm
+trong `npm run dist` và không ai chạy lệnh đó mỗi phiên.
 
 Vì bot đẩy vào `main` liên tục, worktree phải nhánh từ `origin/main` chứ
 không phải HEAD local. Đó là mặc định (`worktree.baseRef: fresh`); đừng

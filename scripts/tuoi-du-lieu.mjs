@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════
+   Độ tươi của các file dữ liệu tự sinh — một nguồn sự thật.
+
+   Dùng bởi hai chỗ, với hai mục đích khác nhau:
+     · build-dist.mjs — in ra để người dựng bản nhìn
+     · kiem-quy-trinh.mjs — nhắc ở đầu phiên làm việc
+
+   Để chung ở đây vì ngưỡng "mấy ngày là cũ" và cách đọc dấu
+   thời gian phải giống nhau ở cả hai. Chép làm hai bản thì
+   chúng lệch, và lệch thì không ai báo — đúng thứ cả bộ kiểm
+   này sinh ra để chặn.
+
+   Vì sao cần: 13–14/08/2026 đường ống bot chết hơn một ngày
+   (bước đóng dấu Pinata ngã kéo cả job, rồi job hết giờ 10
+   phút). build-dist.mjs có in "⚠" nhưng nó không thoát khác 0
+   và không ai chạy `npm run dist` mỗi phiên, nên không ai
+   thấy. Site đứng im, không có lỗi nào nổi lên.
+   ═══════════════════════════════════════════════════════ */
+
+import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+
+/* Bot chạy 4 lượt/ngày, tức cách nhau 6 giờ. Quá 1 ngày nghĩa là
+   BỐN lượt liên tiếp không ghi được gì — không còn là trục trặc
+   nhất thời nữa.
+
+   Ngưỡng cũ ở build-dist.mjs là 2 ngày. Quá lỏng: nó đợi tám lượt
+   hỏng liên tiếp mới hé răng, mà đợt chết 13–14/08 vừa rồi kéo dài
+   hơn một ngày và vẫn chưa chạm ngưỡng đó. */
+export const NGAY_TOI_DA = 1;
+
+/* botSinh: false = sinh bằng tay, cũ là bình thường, đừng nhắc.
+   Hoàng Thành lấy nguồn từ thư mục NGOÀI repo nên Actions không
+   quét được — xem mục "Hoàng Thành là ngoại lệ" trong CLAUDE.md. */
+export const NGUON = [
+  { nhan: "số liệu Kinh Thành",      duong: "kinh-thanh/assets/js/data/live.js", botSinh: true },
+  { nhan: "bản quét Quan Trắc",      duong: "dai-quan-trac/assets/js/scan.js",   botSinh: true },
+  { nhan: "bảng xét Đô Sát Viện",    duong: "do-sat-vien/assets/js/data.js",     botSinh: true },
+  { nhan: "đồ nghề Công Bộ",         duong: "cong-bo/assets/js/data.js",         botSinh: true },
+  { nhan: "kho skill Tàng Thư Các",  duong: "tang-thu-cac/assets/js/data.js",    botSinh: true },
+  { nhan: "rừng văn hoá Hoàng Thành", duong: "hoang-thanh/assets/js/data.js",    botSinh: false }
+];
+
+/* Dấu thời gian viết cả hai kiểu tuỳ script sinh ra nó:
+   `"generatedAt":"…"` và `"generatedAt": "…"`. Thiếu \s* là
+   sót đúng một nửa số file mà vẫn chạy êm. */
+const RE = /"generatedAt"\s*:\s*"([^"]+)"/;
+
+/* Trả { co, ngay } — co=false khi chưa chạy lần nào hoặc file
+   không có dấu thời gian. Không ném lỗi: gọi ở đầu phiên, hỏng
+   một file không được làm chết cả bộ kiểm. */
+export async function tuoi(goc, duong) {
+  const p = join(goc, duong);
+  if (!existsSync(p)) return { co: false };
+  let m;
+  try { m = RE.exec(await readFile(p, "utf8")); } catch { return { co: false }; }
+  if (!m) return { co: false };
+  const t = new Date(m[1]).getTime();
+  if (!Number.isFinite(t)) return { co: false };
+  return { co: true, ngay: (Date.now() - t) / 864e5, luc: m[1] };
+}

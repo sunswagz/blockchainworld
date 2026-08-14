@@ -25,6 +25,7 @@ import { existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { NGUON, NGAY_TOI_DA, tuoi } from "./tuoi-du-lieu.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const doc = (p) => readFile(join(ROOT, p), "utf8");
@@ -175,6 +176,35 @@ for (const c of cung) {
 const goc = await doc("index.html");
 for (const c of cung) {
   if (!goc.includes(`"${c}/"`)) bao(`index.html (Cổng Thành) chưa có thẻ dẫn vào "${c}"`);
+}
+
+/* ── 9. bot còn sống không ────────────────────────────
+   Bảy phép trên soi repo có tự khớp với tài liệu không. Không
+   phép nào soi được thứ đã xảy ra thật ngày 13–14/08/2026:
+   repo khớp hoàn hảo, tài liệu đúng từng chữ, mà đường ống bot
+   chết hơn một ngày — bước đóng dấu Pinata ngã kéo cả job, rồi
+   job đụng trần 10 phút. Bước commit chưa lần nào chạy tới,
+   site đứng im, và KHÔNG CÓ LỖI NÀO NỔI LÊN.
+
+   build-dist.mjs có in "⚠" nhưng nó không thoát khác 0, và
+   `npm run dist` không nằm trong danh sách lệnh đầu phiên. Nên
+   phép kiểm có mà không tới được mắt ai.
+
+   Nhắc chứ không báo lỗi: bot chết không phải lỗi của phiên
+   đang mở, và không được chặn họ làm cung của mình. Nhưng nó
+   in ở đầu mỗi phiên, nên không thể chết âm thầm cả ngày nữa. */
+for (const n of NGUON) {
+  const t = await tuoi(ROOT, n.duong);
+  if (!t.co) {
+    if (n.botSinh) nhac(`${n.nhan}: chưa sinh lần nào, hoặc thiếu dấu thời gian (${n.duong})`);
+    continue;
+  }
+  if (n.botSinh && t.ngay > NGAY_TOI_DA) {
+    nhac(
+      `${n.nhan}: sinh cách đây ${t.ngay.toFixed(1)} ngày — bot chạy 4 lượt/ngày, quá ${NGAY_TOI_DA} ngày là có gì đó gãy.\n` +
+      "        Xem: https://github.com/sunswagz/blockchainworld/actions"
+    );
+  }
 }
 
 /* ── 9. CACHE_VERSION có theo kịp file trong SHELL không ──

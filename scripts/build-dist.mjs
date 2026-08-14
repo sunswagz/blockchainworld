@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir, rm, readdir, stat } from "node:fs/promises"
 import { existsSync } from "node:fs";
 import { dirname, join, relative, extname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { NGUON, NGAY_TOI_DA, tuoi } from "./tuoi-du-lieu.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = join(ROOT, "dist");
@@ -115,23 +116,19 @@ for (const h of HALLS) {
   await checkShell(join(ROOT, h, "sw.js"), join(ROOT, h), hallFiles[h]);
 }
 
-/* ── kiểm tra 3: độ tươi của dữ liệu tự sinh ───────────── */
-async function freshness(label, path, key) {
-  if (!existsSync(path)) return;
-  const m = (await readFile(path, "utf8")).match(new RegExp(`"${key}":\\s*"([^"]+)"`));
-  if (!m) { log(`  · ${label}: chưa chạy lần nào`); return; }
-  const days = (Date.now() - new Date(m[1]).getTime()) / 864e5;
-  log(`  · ${label}: sinh cách đây ${days.toFixed(1)} ngày` + (days > 2 ? "  ⚠" : ""));
+/* ── kiểm tra 3: độ tươi của dữ liệu tự sinh ─────────────
+   Danh sách nguồn và ngưỡng nằm ở scripts/tuoi-du-lieu.mjs, dùng
+   chung với `npm run kiem`. Trước đây mỗi bên một bản chép: ngưỡng
+   ở đây là 2 ngày, còn cả repo thì không có bên nào khác canh cả.
+   Hoàng Thành sinh bằng TAY (`npm run hoangthanh`, nguồn ngoài repo)
+   nên cũ là bình thường — cờ botSinh đánh dấu chuyện đó. */
+for (const n of NGUON) {
+  const t = await tuoi(ROOT, n.duong);
+  if (!t.co) { log(`  · ${n.nhan}: chưa chạy lần nào`); continue; }
+  log(`  · ${n.nhan}: sinh cách đây ${t.ngay.toFixed(1)} ngày`
+    + (n.botSinh && t.ngay > NGAY_TOI_DA ? "  ⚠" : "")
+    + (n.botSinh ? "" : "  (sinh tay, cũ là bình thường)"));
 }
-await freshness("số liệu Kinh Thành", join(ROOT, "kinh-thanh/assets/js/data/live.js"), "generatedAt");
-await freshness("bản quét Quan Trắc", join(ROOT, "dai-quan-trac/assets/js/scan.js"), "generatedAt");
-await freshness("bảng xét Đô Sát Viện", join(ROOT, "do-sat-vien/assets/js/data.js"), "generatedAt");
-await freshness("đồ nghề Công Bộ", join(ROOT, "cong-bo/assets/js/data.js"), "generatedAt");
-await freshness("kho skill Tàng Thư Các", join(ROOT, "tang-thu-cac/assets/js/data.js"), "generatedAt");
-/* Hoàng Thành sinh bằng TAY (`npm run hoangthanh`) chứ không phải
-   workflow — nguồn nằm ngoài repo. Nên "cách đây 12 ngày" ở đây là
-   bình thường, không phải dấu hiệu bot chết. */
-await freshness("rừng văn hoá Hoàng Thành", join(ROOT, "hoang-thanh/assets/js/data.js"), "generatedAt");
 
 if (process.exitCode) {
   console.error("\nCó lỗi — KHÔNG ghi dist/. Sửa xong hãy chạy lại.");
