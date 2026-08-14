@@ -590,7 +590,7 @@
       qua: ["M10", "M07"],
       y: "Ba tổ chạy song song trên cùng một job, mỗi tổ một quyền riêng. Sổ tổ (M10) quyết định ai được nhận bước nào, còn bộ chọn động cơ (M07) giao mỗi dây một model khác nhau — cố ý, để tổ kiểm không dùng chung động cơ với tổ dựng." },
     { k: "gop", nhan: "Gộp lại" },
-    { k: "kho", ten: "Kho kỹ năng", phu: "S01 · S02 · S03 …", di: "#/to",
+    { k: "kho", ten: "Kho kỹ năng", phu: "S01 · S02 · S03 …", kho: "kn",
       y: "Tổ không tự làm — tổ cầm máy. Mỗi kỹ năng là một máy chuyên dụng." },
     { k: "may", may: "M11" },
     { k: "may", may: "M12" },
@@ -606,8 +606,8 @@
     { k: "toa", nhan: "Đẩy ngược vào ba kho",
       o: [
         { ten: "Trí nhớ", phu: "thêm bài học", may: "M09" },
-        { ten: "Kỹ năng", phu: "lên phiên bản", di: "#/to" },
-        { ten: "Dây chuyền", phu: "sửa thứ tự bước", di: "#/day" }
+        { ten: "Kỹ năng", phu: "lên phiên bản", kho: "kn" },
+        { ten: "Dây chuyền", phu: "sửa thứ tự bước", kho: "day" }
       ],
       y: "Vòng khép kín. Không có mũi tên quay ngược này thì đây chỉ là một đường ống, và xưởng sẽ giỏi y như ngày đầu mãi mãi." }
   ];

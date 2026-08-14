@@ -450,11 +450,15 @@
     var kh = el("section", "khoi");
     var sd = el("div", "sd");
 
+    /* Mọi link ở đây trỏ vào tuyến "#/so-do/<khoá>" chứ KHÔNG sang
+       "#/may/<id>". Trỏ sang trang 18 máy thì mỗi lần xem một ô là bị
+       quăng sang trang khác rồi phải bấm ngược lại — sơ đồ mất tác dụng
+       làm bản đồ. Tuyến riêng giữ nguyên sơ đồ và chỉ mở ngăn kéo. */
     function oMay(id) {
       var m = mayTheoId[id];
       var a = el("a", "sd-o");
       a.dataset.k = "may";
-      a.href = "#/may/" + id;
+      a.href = "#/so-do/" + id;
       a.title = m ? m.tom : "";
       a.innerHTML = '<span class="sd-id">' + id + " · " + esc(m ? m.en : "") + "</span>" +
         '<span class="sd-ten">' + esc(m ? m.ten : id) + "</span>";
@@ -482,7 +486,7 @@
         var nap = el("div", "sd-nap");
         b.nap.forEach(function (x) {
           var a = el("a");
-          a.href = "#/may/" + x.may;
+          a.href = "#/so-do/" + x.may;
           a.title = mayTheoId[x.may] ? mayTheoId[x.may].tom : "";
           a.innerHTML = "<b>" + esc(x.ten) + "</b><i>" + esc(x.phu) + "</i>";
           nap.appendChild(a);
@@ -497,9 +501,9 @@
         var ba = el("div", "sd-ba");
         b.o.forEach(function (x) {
           var e;
-          // ô tổ thợ không có mã máy — nó dẫn sang trang tổ, không sang hồ sơ máy
-          var den = x.di || (x.may ? "#/may/" + x.may : (x.to ? "#/to" : null));
-          if (den) { e = el("a", "sd-o"); e.href = den; }
+          // ô tổ thợ và ô kho cũng mở ngay tại chỗ, không nhảy trang
+          var khoa = x.may || x.to || x.kho;
+          if (khoa) { e = el("a", "sd-o"); e.href = "#/so-do/" + khoa; }
           else e = el("div", "sd-o");
           e.dataset.k = b.k === "chia" ? "to" : "ve";
           e.innerHTML = (x.to ? '<span class="sd-id">' + x.to + "</span>" : "") +
@@ -517,7 +521,7 @@
           b.qua.forEach(function (id) {
             var m = mayTheoId[id];
             var a = el("a");
-            a.href = "#/may/" + id;
+            a.href = "#/so-do/" + id;
             a.title = m ? m.tom : "";
             a.innerHTML = "<b>" + id + "</b> " + esc(m ? m.ten : "");
             chip.appendChild(a);
@@ -537,7 +541,7 @@
       if (b.k === "kho") {
         var k = el("a", "sd-o");
         k.dataset.k = "kho";
-        k.href = b.di;
+        k.href = "#/so-do/" + b.kho;
         k.title = b.y || "";
         k.innerHTML = '<span class="sd-id">' + esc(b.phu) + '</span><span class="sd-ten">' +
           esc(b.ten) + "</span>";
@@ -626,10 +630,14 @@
   var hoso = document.getElementById("hoso");
   var scrim = document.getElementById("scrim");
 
+  /* Đóng ngăn kéo thì trả hash về ĐÚNG TRANG ĐANG ĐỨNG, không trả về
+     một trang cố định. Trước đây nó luôn trả về "#/may", nên bấm một ô
+     trên Sơ đồ là bị quăng sang trang 18 máy rồi phải bấm ngược lại. */
   function dongHoso() {
     hoso.dataset.open = "0";
     scrim.dataset.open = "0";
-    if (/^#\/may\//.test(location.hash)) location.hash = "#/may";
+    var m = /^#\/(so-do|may)\/[^/]+$/.exec(location.hash);
+    if (m) location.hash = "#/" + m[1];
   }
   document.getElementById("hosoDong").addEventListener("click", dongHoso);
   scrim.addEventListener("click", dongHoso);
@@ -690,6 +698,121 @@
     hoso.dataset.open = "1";
     scrim.dataset.open = "1";
     b.scrollTop = 0;
+  }
+
+  /* ── ngăn kéo cho tổ thợ và cho kho ─────────────────────
+     Sơ đồ có ba loại ô bấm được: máy, tổ, và kho (kỹ năng / dây
+     chuyền). Nếu chỉ máy mở được tại chỗ còn hai loại kia phải nhảy
+     trang thì vẫn là bắt người ta đi lại giữa hai nơi. */
+  function dungTop(mau, tren, ten, en) {
+    var top = document.getElementById("hosoTop");
+    top.style.setProperty("--kc", mau);
+    top.querySelector(".hoso-tren").textContent = tren;
+    top.querySelector("h2").textContent = ten;
+    top.querySelector(".en").textContent = en || "";
+    var b = document.getElementById("hosoBody");
+    b.innerHTML = "";
+    b.style.setProperty("--kc", mau);
+    return b;
+  }
+  function moRa(b) {
+    hoso.dataset.open = "1";
+    scrim.dataset.open = "1";
+    b.scrollTop = 0;
+  }
+
+  function moTo(id) {
+    var t = null;
+    X.TO.forEach(function (x) { if (x.id === id) t = x; });
+    if (!t) return;
+    var mau = "#C9A227";
+    var b = dungTop(mau, t.id + " · Tổ thợ", t.ten, t.vai);
+
+    function muc(h, noi) {
+      var s = el("div", "hs");
+      s.appendChild(el("div", "hs-h", h));
+      s.appendChild(noi);
+      b.appendChild(s);
+    }
+
+    var boi = el("p", "hs-boi");
+    boi.textContent = t.y;
+    muc("Vì sao tổ này tách riêng", boi);
+
+    var q = el("div", "quyen");
+    q.innerHTML =
+      '<span class="q" data-co="' + (t.doc ? 1 : 0) + '">đọc</span>' +
+      '<span class="q" data-co="' + (t.ghi ? 1 : 0) + '">ghi</span>' +
+      '<span class="q" data-co="' + (t.xoa ? 1 : 0) + '">xoá</span>';
+    muc("Quyền", q);
+
+    var dc = el("div", "hs-cu");
+    dc.appendChild(el("span", null, t.may));
+    muc("Động cơ dùng", dc);
+
+    if (t.kn.length) {
+      var ul = el("ul", "hs-ds");
+      t.kn.forEach(function (s) {
+        var k = knTheoId[s];
+        ul.appendChild(el("li", null, s + " — " + (k ? k.ten + " · " + k.y : "")));
+      });
+      muc("Máy tổ này cầm", ul);
+    } else {
+      muc("Máy tổ này cầm", el("p", "hs-p", "Không cầm máy nào. " +
+        (t.id === "A00" ? "Quản đốc phân công và chịu trách nhiệm, không tự làm chuyên môn."
+                        : "Chỉ thực thi hành động đã được duyệt.")));
+    }
+    moRa(b);
+  }
+
+  function moKho(loai) {
+    var b, muc = function (h, noi) {
+      var s = el("div", "hs");
+      s.appendChild(el("div", "hs-h", h));
+      s.appendChild(noi);
+      b.appendChild(s);
+    };
+
+    if (loai === "kn") {
+      b = dungTop("#3F9D6D", "Kho dùng chung", "Kho kỹ năng",
+        X.KY_NANG.length + " máy chuyên dụng");
+      muc("Kỹ năng là máy, tổ là người cầm máy", (function () {
+        var p = el("p", "hs-boi");
+        p.textContent = "Tách hai thứ này ra thì đổi người vận hành không phải viết lại máy, " +
+          "và một máy hỏng thì biết ngay hỏng ở đâu chứ không phải mò cả tổ.";
+        return p;
+      })());
+      var ul = el("ul", "hs-ds");
+      X.KY_NANG.forEach(function (s) {
+        ul.appendChild(el("li", null, s.id + " — " + s.ten + " · vào: " + s.vao +
+          " · ra: " + s.ra));
+      });
+      muc("Danh sách", ul);
+    } else {
+      b = dungTop("#5A8DD6", "Kho dùng chung", "Dây chuyền", X.DAY.length + " dây");
+      muc("Dây chuyền không phải một máy", (function () {
+        var p = el("p", "hs-boi");
+        p.textContent = "Nó là thứ tự các máy phải chạy — băng chuyền nối nhiều máy lại. " +
+          "Sửa dây chuyền là đổi quy trình, không phải đổi máy.";
+        return p;
+      })());
+      X.DAY.forEach(function (d) {
+        var ul = el("ul", "hs-ds");
+        d.buoc.forEach(function (x) {
+          ul.appendChild(el("li", null, (x[0] === "—" ? "" : x[0] + " — ") + x[1]));
+        });
+        muc(d.id + " · " + d.ten, ul);
+      });
+    }
+    moRa(b);
+  }
+
+  /* Một cửa vào duy nhất cho mọi loại ô trên sơ đồ. */
+  function moHoSo(khoa) {
+    if (!khoa) return;
+    if (khoa === "kn" || khoa === "day") return moKho(khoa);
+    if (/^A\d+$/.test(khoa)) return moTo(khoa);
+    moMay(khoa);
   }
 
   /* ═══════════════ bốn tầng ═══════════════ */
@@ -1012,7 +1135,8 @@
     var p = h.replace(/^#\/?/, "").split("/");
 
     if (MP && p[0] !== "san") { clearTimeout(MP.dong); elSan = null; }
-    if (hoso.dataset.open === "1" && !(p[0] === "may" && p[1])) {
+    var moSau = (p[0] === "may" || p[0] === "so-do") && p[1];
+    if (hoso.dataset.open === "1" && !moSau) {
       hoso.dataset.open = "0"; scrim.dataset.open = "0";
     }
 
@@ -1024,8 +1148,16 @@
       than.dataset.t = "may";
       return trangMay(p[1]);
     }
+    /* Sơ đồ có tuyến sâu riêng: "#/so-do/<khoá>" giữ nguyên sơ đồ đang
+       hiện và chỉ mở ngăn kéo. Đứng sẵn ở sơ đồ thì không dựng lại
+       trang — nếu dựng lại, mỗi lần bấm một ô là cuộn về đầu trang. */
+    if (p[0] === "so-do") {
+      if (than.dataset.t !== "so-do") { than.dataset.t = "so-do"; trangSoDo(); }
+      if (p[1]) moHoSo(p[1]);
+      return;
+    }
+
     than.dataset.t = p[0];
-    if (p[0] === "so-do") return trangSoDo();
     if (p[0] === "tang") return trangTang();
     if (p[0] === "day") return trangDay();
     if (p[0] === "to") return trangTo();
