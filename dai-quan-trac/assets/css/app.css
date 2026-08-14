@@ -30,13 +30,20 @@ a:hover{text-decoration:underline}
 .scroll::-webkit-scrollbar-thumb:hover{background:var(--line3)}
 .scroll::-webkit-scrollbar-track{background:transparent}
 
-/* ============ APP SHELL ============ */
-#app{display:grid;grid-template-columns:var(--nav) minmax(0,1fr) 0;height:100vh;height:100dvh;transition:grid-template-columns .22s cubic-bezier(.2,.8,.2,1)}
+/* ============ APP SHELL ============
+   grid-template-rows PHẢI có. Thiếu nó thì hàng là hàng ngầm cỡ auto,
+   tức là cao theo nội dung chứ không theo 100dvh: #main phình ra bằng
+   cả bài, #view không bao giờ tràn hộp của mình nên overflow-y:auto
+   chẳng có gì để cuộn, và phần dôi ra bị body{overflow:hidden} cắt —
+   nội dung phía dưới không cách nào đọc được.
+   minmax(0,1fr) khoá hàng đúng bằng chiều cao khung và cho phép các
+   ô con co xuống dưới cỡ nội dung, để việc cuộn rơi về #view.        */
+#app{display:grid;grid-template-columns:var(--nav) minmax(0,1fr) 0;grid-template-rows:minmax(0,1fr);height:100vh;height:100dvh;transition:grid-template-columns .22s cubic-bezier(.2,.8,.2,1)}
 #app.rail-open{grid-template-columns:var(--nav) minmax(0,1fr) var(--rail)}
 #app.nav-collapsed{--nav:62px}
 
 /* ============ NAV ============ */
-#nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;position:relative;z-index:40}
+#nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;z-index:40}
 .brand{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid var(--line);min-height:57px}
 .mark{width:30px;height:30px;flex:0 0 30px;border-radius:8px;background:linear-gradient(150deg,#1f6feb,#0d1117 55%,var(--lac));display:grid;place-items:center;box-shadow:0 0 0 1px var(--line3),0 0 18px -6px #1f6feb}
 .mark svg{width:17px;height:17px}
@@ -69,7 +76,7 @@ a:hover{text-decoration:underline}
 .tinybtn:hover{color:var(--fg);border-color:var(--line3)}
 
 /* ============ MAIN ============ */
-#main{display:flex;flex-direction:column;min-width:0;background:var(--canvas)}
+#main{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--canvas)}
 .topbar{height:57px;flex:0 0 57px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 16px;background:#0a0c10e6;backdrop-filter:blur(8px);position:relative;z-index:30}
 .hamb{display:none}
 .crumb{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
