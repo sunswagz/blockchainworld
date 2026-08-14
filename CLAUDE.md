@@ -132,9 +132,31 @@ conflict lúc merge.
     kinh-thanh/assets/js/data/provenance.js
     kinh-thanh/assets/data/history.json
     do-sat-vien/assets/js/data.js
-    cong-bo/assets/js/
+    do-sat-vien/assets/logos/
+    cong-bo/assets/js/data.js
+    cong-bo/assets/js/logos.js
+    cong-bo/assets/js/v/nhat-ky.js
+    cong-bo/assets/logos/
     tang-thu-cac/assets/js/data.js
     tang-thu-cac/assets/data/
+
+Danh sách này liệt kê **từng file**, không gom cả thư mục. Trước đây nó
+ghi `cong-bo/assets/js/` và điều đó sai theo cả hai hướng:
+
+- **Rộng quá.** Thư mục ấy còn chứa `halls.js`, `app.js`, `decoder.js`,
+  `glossary.js`, `pwa.js` — toàn file viết tay. Hook pre-commit đọc danh
+  sách này để nhắc, nên nó báo nhầm mỗi lần ai đó sửa `halls.js` một
+  cách hợp lệ, tức là mỗi lần thêm cung mới. Cảnh báo báo nhầm mãi thì
+  người ta bỏ qua cảnh báo, và lần nó đúng cũng bị bỏ qua nốt.
+- **Hẹp quá.** Hai thư mục logo bị sót hẳn: `build-l2beat.mjs` và
+  `build-congbo.mjs` tải ảnh về `assets/logos/`, mà `git add` không phủ.
+  `logos.js` thì được commit và trỏ tới những ảnh chưa bao giờ được
+  commit — ảnh vỡ trên site, không lỗi nào báo. Chưa nổ vì lần thêm logo
+  gần nhất làm bằng tay; sẽ nổ đúng lần L2BEAT thêm dự án mới.
+
+Nên khi thêm một script sinh dữ liệu, hỏi đúng một câu: **script này
+`writeFile` vào những đường nào?** Mọi đường đó phải có ở đây và trong
+`git add`, không thừa không thiếu.
 
 `scan-observatory.yml` (41 phút sau 1, 7, 13, 19 giờ UTC):
 

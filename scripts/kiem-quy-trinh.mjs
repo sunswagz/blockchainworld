@@ -178,6 +178,81 @@ for (const c of cung) {
   if (!goc.includes(`"${c}/"`)) bao(`index.html (Cổng Thành) chưa có thẻ dẫn vào "${c}"`);
 }
 
+/* ── 8b. script sinh dữ liệu ghi ra ngoài phạm vi git add ──
+   Phép 3 soi chiều "add gì thì phải khai trong tài liệu". Chiều
+   ngược lại mới là chiều nguy hiểm: **script GHI vào đâu mà add
+   không phủ** thì file sinh ra rồi mất, và không lỗi nào báo.
+
+   Đã dính thật, hai chỗ cùng lúc: build-l2beat.mjs và
+   build-congbo.mjs tải logo về `assets/logos/`, còn `git add` chỉ
+   phủ `assets/js/`. Hệ quả: `logos.js` được commit và trỏ tới ảnh
+   chưa bao giờ được commit. Chưa nổ vì lần thêm logo gần nhất làm
+   bằng tay — sẽ nổ đúng lần L2BEAT thêm một dự án mới.
+
+   Đọc mã bằng regex nên chỉ bắt được khuôn `const X = join(ROOT, …)`
+   rồi `writeFile(join(X, …))`. Khuôn khác thì bỏ qua chứ không đoán:
+   phép kiểm báo nhầm còn tệ hơn phép kiểm thiếu. */
+const NGUON_GHI = [
+  ["build-live.mjs", ".github/workflows/refresh-data.yml"],
+  ["build-l2beat.mjs", ".github/workflows/refresh-data.yml"],
+  ["build-congbo.mjs", ".github/workflows/refresh-data.yml"],
+  ["build-tangthu.mjs", ".github/workflows/refresh-data.yml"],
+  ["pin-snapshot.mjs", ".github/workflows/refresh-data.yml"],
+  ["build-scan.mjs", ".github/workflows/scan-observatory.yml"]
+];
+
+async function phamViAdd(wf) {
+  if (!existsSync(join(ROOT, wf))) return null;
+  const t = await doc(wf);
+  const m = t.match(/git add ([\s\S]*?)\n\s*(?:if |git )/);
+  if (!m) return null;
+  return m[1].split(/\\?\n/).map((x) => x.trim())
+    .filter(Boolean).filter((x) => !x.startsWith("#"));
+}
+
+const camAdd = {};
+for (const [, wf] of NGUON_GHI) if (!(wf in camAdd)) camAdd[wf] = await phamViAdd(wf);
+
+for (const [tep, wf] of NGUON_GHI) {
+  if (!existsSync(join(ROOT, "scripts", tep))) continue;
+  const pv = camAdd[wf];
+  if (!pv) { nhac(`${wf}: không đọc được khối "git add" để soi đường ghi`); continue; }
+
+  const s = await doc(join("scripts", tep));
+  const bien = {};
+  for (const m of s.matchAll(/const (\w+) = join\(ROOT,\s*([^)]*)\)/g)) {
+    bien[m[1]] = m[2].split(",").map((x) => x.trim().replace(/^["']|["']$/g, "")).join("/");
+  }
+
+  const duong = new Set();
+  // writeFile(join(BIEN, "a", "b")) — phần nào là biến thì cắt, giữ tiền tố chắc chắn
+  for (const m of s.matchAll(/writeFile\(\s*join\((\w+)\s*,\s*([^)]*)\)/g)) {
+    const goc = bien[m[1]];
+    if (!goc) continue;
+    const phan = [];
+    for (const p of m[2].split(",").map((x) => x.trim())) {
+      if (!/^["']/.test(p)) break;                 // gặp biến thì dừng
+      phan.push(p.replace(/^["']|["']$/g, ""));
+    }
+    duong.add(phan.length ? goc + "/" + phan.join("/") : goc + "/");
+  }
+  // writeFile(BIEN, …)
+  for (const m of s.matchAll(/writeFile\(\s*(\w+)\s*,/g)) {
+    if (bien[m[1]]) duong.add(bien[m[1]]);
+  }
+
+  for (const d of duong) {
+    const phu = pv.some((p) => {
+      const pp = p.replace(/\/$/, "");
+      return d === p || d === pp || d.startsWith(pp + "/");
+    });
+    if (!phu) {
+      bao(`scripts/${tep} ghi vào "${d}" nhưng ${wf.split("/").pop()} không add đường đó\n` +
+        "        → file sinh ra rồi mất sau mỗi lượt bot, và không lỗi nào báo.");
+    }
+  }
+}
+
 /* ── 9. bot còn sống không ────────────────────────────
    Bảy phép trên soi repo có tự khớp với tài liệu không. Không
    phép nào soi được thứ đã xảy ra thật ngày 13–14/08/2026:

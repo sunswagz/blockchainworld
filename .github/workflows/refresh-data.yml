@@ -109,11 +109,33 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Liệt kê TỪNG đường dẫn, không add cả thư mục. Hai lý do, cả
+          # hai đều đã cắn thật:
+          #
+          # 1. `cong-bo/assets/js/` gom cả file viết tay (halls.js, app.js,
+          #    decoder.js, glossary.js, pwa.js) nằm chung thư mục với file
+          #    bot sinh. Hook pre-commit đọc danh sách này để nhắc, nên nó
+          #    báo nhầm mỗi lần ai đó sửa halls.js một cách hợp lệ — mà
+          #    một cảnh báo báo nhầm mãi thì người ta bỏ qua cảnh báo.
+          #
+          # 2. Ngược lại, hai thư mục logo BỊ SÓT: build-l2beat.mjs và
+          #    build-congbo.mjs tải ảnh về assets/logos/, còn add thì
+          #    không phủ. Hệ quả im lặng: logos.js được commit và trỏ tới
+          #    ảnh chưa bao giờ được commit → ảnh vỡ trên site. Chưa nổ
+          #    vì lần thêm logo gần nhất là commit tay; sẽ nổ ngay lần
+          #    L2BEAT thêm một dự án mới.
+          #
+          # Đổi ở đây thì cập nhật luôn mục "File do workflow tự sinh"
+          # trong CLAUDE.md — `npm run kiem` bắt hai bên phải khớp.
           git add kinh-thanh/assets/js/data/live.js \
                   kinh-thanh/assets/js/data/provenance.js \
                   kinh-thanh/assets/data/history.json \
                   do-sat-vien/assets/js/data.js \
-                  cong-bo/assets/js/ \
+                  do-sat-vien/assets/logos/ \
+                  cong-bo/assets/js/data.js \
+                  cong-bo/assets/js/logos.js \
+                  cong-bo/assets/js/v/nhat-ky.js \
+                  cong-bo/assets/logos/ \
                   tang-thu-cac/assets/js/data.js \
                   tang-thu-cac/assets/data/
           if git diff --staged --quiet; then
