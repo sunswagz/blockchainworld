@@ -51,7 +51,35 @@ async function loadTheaters() {
   return sandbox.window.DQT_DATA.THEATERS;
 }
 
-const MODEL = "claude-opus-5";
+/* ── BA NÚM GIẢM CHI PHÍ — 14/08/2026 ─────────────────────────────
+   Lịch quét bị TẮT ngày 14/08 vì tốn quá: bảng Anthropic ghi 610K
+   token và 4,30 USD cho đúng ba lượt, tức ~1,4 USD/lượt, và ở nhịp
+   4 lượt/ngày là ~170 USD/tháng. Phần lớn là token ĐẦU VÀO —
+   web_search kéo nguyên nội dung trang vào ngữ cảnh, nhân số chiến
+   trường.
+
+   Ba núm, theo thứ tự hiệu quả:
+
+     1. MODEL: opus-5 → haiku-4-5. Giá token vào 5 USD → 1 USD/MTok.
+        Việc ở đây là "tìm tin 7 ngày, viết một câu tiếng Việt, phân
+        loại g/y/r" — không cần Opus.
+     2. Nhịp: 4 lượt/ngày → 1. Không nằm ở file này nữa mà ở `nhip`
+        của node dai-quan-trac trong scripts/nha-may.mjs.
+     3. max_uses: chặn số lượt tìm mỗi chiến trường. Đây là núm duy
+        nhất chạm thẳng vào thứ đắt nhất — mỗi lượt tìm là một trang
+        web đổ vào ngữ cảnh.
+
+   Ba núm nhân nhau: ~170 USD/tháng → cỡ vài USD/tháng.
+
+   ── COUPLING PHẢI NHỚ ──
+   Biến thể web_search phải HỢP với model. `web_search_20260209`
+   (lọc động) chỉ chạy từ Opus 4.6 / Sonnet 4.6 trở lên; Haiku 4.5
+   phải dùng bản cơ bản `web_search_20250305`. Đổi MODEL mà quên đổi
+   dòng tools là API trả 400 cho MỌI chiến trường — quét trắng, và
+   workflow vẫn xanh vì nó bắt lỗi từng chiến trường rồi đi tiếp. */
+const MODEL = "claude-haiku-4-5";
+const CONG_CU_TIM = "web_search_20250305";
+const TOI_DA_TIM = 3;
 const LVLS = ["n", "g", "y", "r"];
 
 function prompt(t) {
@@ -74,9 +102,9 @@ async function scanOne(t) {
     body: JSON.stringify({
       model: MODEL,
       max_tokens: 4000,
-      // web_search_20260209 có lọc động — chạy trên Opus 4.6 trở lên.
-      // Bản gốc dùng web_search_20250305 (biến thể cũ).
-      tools: [{ type: "web_search_20260209", name: "web_search" }],
+      // Biến thể tìm kiếm phải hợp với MODEL — xem khối ghi chú ở
+      // chỗ khai MODEL. max_uses là núm chặn chi phí mạnh nhất.
+      tools: [{ type: CONG_CU_TIM, name: "web_search", max_uses: TOI_DA_TIM }],
       messages: [{ role: "user", content: prompt(t) }]
     })
   });

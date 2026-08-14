@@ -1,0 +1,283 @@
+/* SINH TỰ ĐỘNG bởi scripts/nha-may.mjs — ĐỪNG SỬA TAY.
+   Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
+   Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
+window.VAN_HANH = {
+ "generatedAt": "2026-08-14T16:39:16.653Z",
+ "lan": 0,
+ "node": [
+  {
+   "ma": "kinh-thanh",
+   "ten": "Số liệu Kinh Thành",
+   "y": "TVL và số on-chain 9 quốc gia L1, lấy từ DefiLlama.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-live.mjs",
+   "ra": [
+    "kinh-thanh/assets/js/data/live.js",
+    "kinh-thanh/assets/js/data/provenance.js",
+    "kinh-thanh/assets/data/history.json"
+   ],
+   "cung": "kinh-thanh",
+   "cungTen": "Kinh Thành",
+   "luc": "2026-08-14T13:46:40.331Z",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-14T13:46:40.331Z",
+   "lucDoi": "2026-08-14T13:46:40.331Z"
+  },
+  {
+   "ma": "do-sat-vien",
+   "ten": "Bảng xét Đô Sát Viện",
+   "y": "Xếp hạng Layer 2 theo L2BEAT, kèm logo tải về.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-l2beat.mjs",
+   "ra": [
+    "do-sat-vien/assets/js/data.js",
+    "do-sat-vien/assets/logos/"
+   ],
+   "cung": "do-sat-vien",
+   "cungTen": "Đô Sát Viện",
+   "luc": "2026-08-14T13:47:43.854Z",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-14T13:47:43.854Z",
+   "lucDoi": "2026-08-14T13:47:43.854Z"
+  },
+  {
+   "ma": "cong-bo",
+   "ten": "Đồ nghề Công Bộ",
+   "y": "Bộ công cụ onchain. Nguồn có một phần là host staging của L2BEAT nên hay ngã.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-congbo.mjs",
+   "ra": [
+    "cong-bo/assets/js/data.js",
+    "cong-bo/assets/js/logos.js",
+    "cong-bo/assets/js/v/nhat-ky.js",
+    "cong-bo/assets/logos/"
+   ],
+   "cung": "cong-bo",
+   "cungTen": "Công Bộ",
+   "luc": "2026-08-14T13:47:47.836Z",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-14T13:47:47.836Z",
+   "lucDoi": "2026-08-14T13:47:47.836Z"
+  },
+  {
+   "ma": "tang-thu-cac",
+   "ten": "Kho skill Tàng Thư Các",
+   "y": "Quét kho Claude Skills trên GitHub. Bước chậm nhất — có lượt 532 giây.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-tangthu.mjs",
+   "ra": [
+    "tang-thu-cac/assets/js/data.js",
+    "tang-thu-cac/assets/data/"
+   ],
+   "cung": "tang-thu-cac",
+   "cungTen": "Tàng Thư Các",
+   "luc": "2026-08-14T13:54:17.370Z",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-14T13:54:17.370Z",
+   "lucDoi": "2026-08-14T13:54:17.370Z"
+  },
+  {
+   "ma": "quan-trac-do",
+   "ten": "Bảng cảnh báo Quan Trắc",
+   "y": "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-quantrac.mjs",
+   "ra": [
+    "dai-quan-trac/assets/js/do.js"
+   ],
+   "cung": "dai-quan-trac",
+   "cungTen": "Đài Quan Trắc",
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
+   "ma": "dai-quan-trac",
+   "ten": "Bản quét Đài Quan Trắc",
+   "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ.",
+   "tram": "M07",
+   "che": "claude",
+   "nhip": 24,
+   "lenh": "node scripts/build-scan.mjs",
+   "ra": [
+    "dai-quan-trac/assets/js/scan.js"
+   ],
+   "cung": "dai-quan-trac",
+   "cungTen": "Đài Quan Trắc",
+   "luc": "2026-08-13T08:53:22.949Z",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-13T08:53:22.949Z",
+   "lucDoi": "2026-08-13T08:53:22.949Z"
+  },
+  {
+   "ma": "dong-dau",
+   "ten": "Đóng dấu bản số liệu",
+   "y": "Pin bản số liệu 1,8 KB lên IPFS. Tự bỏ qua nếu sha256 trùng bản trước.",
+   "tram": "M16",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/pin-snapshot.mjs",
+   "ra": [],
+   "cung": null,
+   "cungTen": null,
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
+   "ma": "bao-cao",
+   "ten": "Báo cáo sức khoẻ xưởng",
+   "y": "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước.",
+   "tram": "M18",
+   "che": "claude",
+   "nhip": 24,
+   "lenh": "anthropics/claude-code-action",
+   "ra": [
+    "factory/bao-cao.md"
+   ],
+   "cung": null,
+   "cungTen": null,
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
+   "ma": "hoang-thanh",
+   "ten": "Rừng văn hoá Hoàng Thành",
+   "y": "Nguồn nằm NGOÀI repo (sunswagz-hub/08_world_culture_forest) nên Actions không quét được. Chạy tay rồi commit là cách duy nhất.",
+   "tram": "M12",
+   "che": "tay",
+   "nhip": 0,
+   "lenh": "npm run hoangthanh",
+   "ra": [
+    "hoang-thanh/assets/js/data.js",
+    "hoang-thanh/assets/js/v/"
+   ],
+   "cung": "hoang-thanh",
+   "cungTen": "Hoàng Thành",
+   "luc": "2026-08-14T09:16:24.800Z",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-14T09:16:24.800Z",
+   "lucDoi": "2026-08-14T09:16:24.800Z"
+  },
+  {
+   "ma": "giao-hang",
+   "ten": "Giao hàng lên Pages",
+   "y": "Không có nhịp riêng — chạy khi có commit số liệu. 27/27 lượt thành công.",
+   "tram": "M16",
+   "che": "theo",
+   "nhip": 0,
+   "lenh": ".github/workflows/deploy-pages.yml",
+   "ra": [],
+   "cung": null,
+   "cungTen": null,
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  }
+ ],
+ "nk": [
+  {
+   "luc": "2026-08-14T13:54:17.370Z",
+   "ma": "tang-thu-cac",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+  },
+  {
+   "luc": "2026-08-14T13:47:47.836Z",
+   "ma": "cong-bo",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+  },
+  {
+   "luc": "2026-08-14T13:47:43.854Z",
+   "ma": "do-sat-vien",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+  },
+  {
+   "luc": "2026-08-14T13:46:40.331Z",
+   "ma": "kinh-thanh",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+  },
+  {
+   "luc": "2026-08-14T09:16:24.800Z",
+   "ma": "hoang-thanh",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+  },
+  {
+   "luc": "2026-08-13T08:53:22.949Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+  }
+ ]
+};

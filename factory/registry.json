@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-08-14T16:39:16.548Z",
+  "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
+  "node": [
+    {
+      "ma": "kinh-thanh",
+      "ten": "Số liệu Kinh Thành",
+      "cung": "kinh-thanh",
+      "tram": "M12",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/build-live.mjs",
+      "ra": [
+        "kinh-thanh/assets/js/data/live.js",
+        "kinh-thanh/assets/js/data/provenance.js",
+        "kinh-thanh/assets/data/history.json"
+      ],
+      "y": "TVL và số on-chain 9 quốc gia L1, lấy từ DefiLlama."
+    },
+    {
+      "ma": "do-sat-vien",
+      "ten": "Bảng xét Đô Sát Viện",
+      "cung": "do-sat-vien",
+      "tram": "M12",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/build-l2beat.mjs",
+      "ra": [
+        "do-sat-vien/assets/js/data.js",
+        "do-sat-vien/assets/logos/"
+      ],
+      "y": "Xếp hạng Layer 2 theo L2BEAT, kèm logo tải về."
+    },
+    {
+      "ma": "cong-bo",
+      "ten": "Đồ nghề Công Bộ",
+      "cung": "cong-bo",
+      "tram": "M12",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/build-congbo.mjs",
+      "ra": [
+        "cong-bo/assets/js/data.js",
+        "cong-bo/assets/js/logos.js",
+        "cong-bo/assets/js/v/nhat-ky.js",
+        "cong-bo/assets/logos/"
+      ],
+      "y": "Bộ công cụ onchain. Nguồn có một phần là host staging của L2BEAT nên hay ngã."
+    },
+    {
+      "ma": "tang-thu-cac",
+      "ten": "Kho skill Tàng Thư Các",
+      "cung": "tang-thu-cac",
+      "tram": "M12",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/build-tangthu.mjs",
+      "ra": [
+        "tang-thu-cac/assets/js/data.js",
+        "tang-thu-cac/assets/data/"
+      ],
+      "y": "Quét kho Claude Skills trên GitHub. Bước chậm nhất — có lượt 532 giây."
+    },
+    {
+      "ma": "quan-trac-do",
+      "ten": "Bảng cảnh báo Quan Trắc",
+      "cung": "dai-quan-trac",
+      "tram": "M12",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/build-quantrac.mjs",
+      "ra": [
+        "dai-quan-trac/assets/js/do.js"
+      ],
+      "y": "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI."
+    },
+    {
+      "ma": "dai-quan-trac",
+      "ten": "Bản quét Đài Quan Trắc",
+      "cung": "dai-quan-trac",
+      "tram": "M07",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "node scripts/build-scan.mjs",
+      "ra": [
+        "dai-quan-trac/assets/js/scan.js"
+      ],
+      "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ."
+    },
+    {
+      "ma": "dong-dau",
+      "ten": "Đóng dấu bản số liệu",
+      "tram": "M16",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/pin-snapshot.mjs",
+      "ra": [],
+      "y": "Pin bản số liệu 1,8 KB lên IPFS. Tự bỏ qua nếu sha256 trùng bản trước."
+    },
+    {
+      "ma": "bao-cao",
+      "ten": "Báo cáo sức khoẻ xưởng",
+      "tram": "M18",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "anthropics/claude-code-action",
+      "ra": [
+        "factory/bao-cao.md"
+      ],
+      "y": "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước."
+    },
+    {
+      "ma": "hoang-thanh",
+      "ten": "Rừng văn hoá Hoàng Thành",
+      "cung": "hoang-thanh",
+      "tram": "M12",
+      "che": "tay",
+      "nhip": 0,
+      "lenh": "npm run hoangthanh",
+      "ra": [
+        "hoang-thanh/assets/js/data.js",
+        "hoang-thanh/assets/js/v/"
+      ],
+      "y": "Nguồn nằm NGOÀI repo (sunswagz-hub/08_world_culture_forest) nên Actions không quét được. Chạy tay rồi commit là cách duy nhất."
+    },
+    {
+      "ma": "giao-hang",
+      "ten": "Giao hàng lên Pages",
+      "tram": "M16",
+      "che": "theo",
+      "nhip": 0,
+      "lenh": ".github/workflows/deploy-pages.yml",
+      "ra": [],
+      "y": "Không có nhịp riêng — chạy khi có commit số liệu. 27/27 lượt thành công."
+    }
+  ]
+}

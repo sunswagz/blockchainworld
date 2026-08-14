@@ -30,6 +30,14 @@ import { join } from "node:path";
    hơn một ngày và vẫn chưa chạm ngưỡng đó. */
 export const NGAY_TOI_DA = 1;
 
+/* Ngưỡng riêng cho nguồn có nhịp khác. Từ khi nhịp chạy nằm ở
+   `nhip` của từng node trong scripts/nha-may.mjs, "1 ngày" thôi
+   đúng cho mọi nguồn: node nhịp 24 giờ thì vừa chạy xong đã gần
+   chạm ngưỡng 1 ngày, và mỗi phiên lại thấy một cảnh báo cho thứ
+   đang chạy đúng hẹn. Cảnh báo báo nhầm mãi thì bị bỏ qua, kéo
+   theo cả lần nó đúng — nên nguồn nào nhịp thưa thì khai `nguong`. */
+export const nguongCua = (n) => n.nguong ?? NGAY_TOI_DA;
+
 /* botSinh: false = sinh bằng tay, cũ là bình thường, đừng nhắc.
    Hoàng Thành lấy nguồn từ thư mục NGOÀI repo nên Actions không
    quét được — xem mục "Hoàng Thành là ngoại lệ" trong CLAUDE.md.
@@ -46,9 +54,12 @@ export const NGAY_TOI_DA = 1;
    bình thản, đúng bằng sự thật. */
 export const NGUON = [
   { nhan: "số liệu Kinh Thành",      duong: "kinh-thanh/assets/js/data/live.js", botSinh: true },
+  /* Bật lại 14/08/2026 sau khi vặn ba núm chi phí (haiku thay opus,
+     max_uses 3, nhịp 24 giờ thay 6). Nhịp 24 giờ nên ngưỡng riêng —
+     dùng NGAY_TOI_DA=1 chung thì nó bị báo cũ ngay sau mỗi lượt. */
   { nhan: "bản quét Quan Trắc",      duong: "dai-quan-trac/assets/js/scan.js",   botSinh: true,
-    tamDung: "ANTHROPIC_API_KEY tốn quá nhiều — tắt lịch 14/08/2026, chờ cách rẻ hơn. " +
-             "Bật lại ở .github/workflows/scan-observatory.yml rồi xoá dòng tamDung này." },
+    nguong: 2 },
+  { nhan: "bảng cảnh báo Quan Trắc", duong: "dai-quan-trac/assets/js/do.js",     botSinh: true },
   { nhan: "bảng xét Đô Sát Viện",    duong: "do-sat-vien/assets/js/data.js",     botSinh: true },
   { nhan: "đồ nghề Công Bộ",         duong: "cong-bo/assets/js/data.js",         botSinh: true },
   { nhan: "kho skill Tàng Thư Các",  duong: "tang-thu-cac/assets/js/data.js",    botSinh: true },

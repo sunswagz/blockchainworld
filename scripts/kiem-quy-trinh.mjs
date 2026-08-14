@@ -25,7 +25,7 @@ import { existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NGUON, NGAY_TOI_DA, tuoi } from "./tuoi-du-lieu.mjs";
+import { NGUON, nguongCua, tuoi } from "./tuoi-du-lieu.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const doc = (p) => readFile(join(ROOT, p), "utf8");
@@ -303,6 +303,85 @@ for (const [tep, wf] of NGUON_GHI) {
   }
 }
 
+/* ── 8c. sổ nhà máy khớp với workflow thật không ──────
+   Từ khi nhịp chạy nằm ở NODE trong scripts/nha-may.mjs, sổ đó là
+   nguồn sự thật cho ba thứ vốn rời nhau: node nào chạy, bao lâu một
+   lượt, và nó ghi ra file nào. Sức mạnh ấy đi kèm ba cách hỏng mới,
+   cả ba đều IM LẶNG — không lỗi, không đỏ, chỉ là dữ liệu ngừng mới:
+
+     · node có nhịp nhưng không workflow nào gọi tới  → không bao giờ chạy
+     · node ghi ra file mà `git add` không phủ        → chạy rồi mất
+     · registry.json lệch NODE                        → tài liệu nói dối
+
+   Phép kiểm này soi cả ba. */
+{
+  let NM = null;
+  try { NM = await import("./nha-may.mjs"); }
+  catch (e) { bao(`scripts/nha-may.mjs không nạp được — ${e.message}`); }
+
+  if (NM) {
+    const wfs = [".github/workflows/refresh-data.yml",
+                 ".github/workflows/scan-observatory.yml"];
+    const noiDung = {};
+    for (const w of wfs) if (existsSync(join(ROOT, w))) noiDung[w] = await doc(w);
+
+    for (const n of NM.NODE) {
+      /* Node "tay" và "theo" cố ý không có workflow nào gọi — bỏ qua.
+         Hoàng Thành lấy nguồn ngoài repo nên Actions không quét được;
+         giao hàng thì chạy theo commit chứ không theo nhịp. */
+      if (!n.nhip) continue;
+
+      const chay = Object.keys(noiDung).filter((w) => noiDung[w].includes(`,${n.ma},`));
+      if (!chay.length) {
+        bao(`node "${n.ma}" khai nhịp ${n.nhip} giờ nhưng KHÔNG workflow nào gọi tới nó\n` +
+          "        → Bảng vận hành sẽ mãi báo 'đến hạn' cho một node không bao giờ chạy.");
+        continue;
+      }
+
+      for (const w of chay) {
+        const pv = (w in camAdd ? camAdd[w] : (camAdd[w] = await phamViAdd(w))) || [];
+        for (const d of n.ra || []) {
+          const phu = pv.some((p) => {
+            const pp = p.replace(/\/$/, "");
+            return d === p || d === pp || d.startsWith(pp + "/") || pp.startsWith(d.replace(/\/$/, "") + "/");
+          });
+          if (!phu) {
+            bao(`node "${n.ma}" khai ghi ra "${d}" nhưng ${w.split("/").pop()} không add đường đó\n` +
+              "        → file sinh ra rồi mất sau mỗi lượt bot, không lỗi nào báo.");
+          }
+        }
+      }
+    }
+
+    /* registry.json phải là bản chiếu đúng của NODE. Nó được commit để
+       Claude Code Action đọc được trong runner, nên nó CÓ THỂ lệch —
+       và một sổ đăng ký nói sai thì mọi thứ đọc nó đều sai theo. */
+    const pSo = join(ROOT, NM.DUONG_SO);
+    if (!existsSync(pSo)) {
+      bao(`Thiếu ${NM.DUONG_SO} — chạy: node scripts/nha-may.mjs so-dang-ky`);
+    } else {
+      const tren = JSON.parse(await doc(NM.DUONG_SO));
+      if (JSON.stringify(tren.node) !== JSON.stringify(NM.NODE)) {
+        bao(`${NM.DUONG_SO} lệch với NODE trong scripts/nha-may.mjs\n` +
+          "        → chạy: node scripts/nha-may.mjs so-dang-ky");
+      }
+    }
+
+    /* Hai danh sách cùng nói về một tập nguồn dữ liệu, ở hai file khác
+       nhau. Không có phép kiểm này thì thêm một cung mới vào một bên mà
+       quên bên kia là chuyện sẽ xảy ra, và hậu quả im: hoặc nguồn mới
+       không ai canh độ tươi, hoặc nó không bao giờ được lên lịch. */
+    const maNode = new Set(NM.NODE.filter((n) => n.cung).map((n) => n.cung));
+    for (const g of NGUON) {
+      const c = g.duong.split("/")[0];
+      if (!maNode.has(c)) {
+        nhac(`nguồn "${g.nhan}" (${c}) có trong tuoi-du-lieu.mjs nhưng không có node ` +
+          "nào trong nha-may.mjs — nó không được lên lịch bao giờ.");
+      }
+    }
+  }
+}
+
 /* ── 9. bot còn sống không ────────────────────────────
    Bảy phép trên soi repo có tự khớp với tài liệu không. Không
    phép nào soi được thứ đã xảy ra thật ngày 13–14/08/2026:
@@ -327,9 +406,10 @@ for (const n of NGUON) {
     if (n.botSinh) nhac(`${n.nhan}: chưa sinh lần nào, hoặc thiếu dấu thời gian (${n.duong})`);
     continue;
   }
-  if (n.botSinh && t.ngay > NGAY_TOI_DA) {
+  const nguong = nguongCua(n);
+  if (n.botSinh && t.ngay > nguong) {
     nhac(
-      `${n.nhan}: sinh cách đây ${t.ngay.toFixed(1)} ngày — bot chạy 4 lượt/ngày, quá ${NGAY_TOI_DA} ngày là có gì đó gãy.\n` +
+      `${n.nhan}: sinh cách đây ${t.ngay.toFixed(1)} ngày — quá ${nguong} ngày là có gì đó gãy.\n` +
       "        Xem: https://github.com/sunswagz/blockchainworld/actions"
     );
   }

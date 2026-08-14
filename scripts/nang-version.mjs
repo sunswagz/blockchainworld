@@ -71,9 +71,29 @@ for (const c of noi) {
 
   const tSw = commitCuoi(swP);
   if (!tSw) { console.log("  · " + swP + " — chưa commit lần nào, bỏ qua"); continue; }
-  /* sw.js đang sửa dở nghĩa là đã tự nâng rồi (hoặc đang định nâng) —
-     đừng nâng chồng thêm một bậc nữa. */
-  if (dangSua.has(swP)) { yen++; continue; }
+
+  /* sw.js đang sửa dở thì hỏi thêm MỘT câu nữa: con số đã đổi chưa?
+     Đừng chỉ hỏi "file có đổi không".
+
+     Bản đầu bỏ qua mọi sw.js đang sửa dở, với lý do "đang sửa nghĩa
+     là đã tự nâng rồi". Lý do đó sai ngay lần dùng thật đầu tiên:
+     thêm một nhánh mạng-trước vào tao-bien-xu/sw.js là SỬA sw.js mà
+     KHÔNG đụng CACHE_VERSION — và công cụ im lặng báo "không chỗ nào
+     cần nâng" trong khi app.js với app.css trong SHELL vừa đổi hết.
+
+     Đó đúng là kiểu hỏng công cụ này sinh ra để chặn, và nó tự dính.
+     Nên: so con số với bản đã commit. Khác → đã nâng, để yên.
+     Giống → cứ soi SHELL như mọi sw.js khác. */
+  if (dangSua.has(swP)) {
+    let cuHon = null;
+    try {
+      const t = execFileSync("git", ["show", "HEAD:" + swP],
+        { cwd: ROOT, encoding: "utf8" });
+      const mc = /CACHE_VERSION = "v(\d+)"/.exec(t);
+      cuHon = mc ? mc[1] : null;
+    } catch {}
+    if (cuHon !== null && cuHon !== m[1]) { yen++; continue; }
+  }
 
   const mangTruoc = [...sw.matchAll(/indexOf\(\s*"([^"]+)"\s*\)/g)].map((x) => x[1]);
   const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((x) => x[1]);

@@ -7,24 +7,35 @@ name: Quét Đài Quan Trắc
 # công khai nên khoá KHÔNG BAO GIỜ được đi xuống trình duyệt —
 # xem phần đầu scripts/build-scan.mjs.
 
-# ┌─ TẠM DỪNG LỊCH TỰ ĐỘNG — 14/08/2026 ────────────────────────────┐
-# │ ANTHROPIC_API_KEY tốn quá nhiều: mỗi lượt quét từng chiến trường là
-# │ một loạt lời gọi kèm web_search, nhân 4 lượt/ngày. Tắt lịch cho
-# │ tới khi tìm được cách rẻ hơn.
+# ┌─ BẬT LẠI LỊCH — 14/08/2026 ─────────────────────────────────────┐
+# │ Lịch bị tắt sáng 14/08 vì ~170 USD/tháng. Bật lại được là nhờ ba
+# │ núm đã vặn, không phải vì chấp nhận trả tiền:
 # │
-# │ Tắt LỊCH chứ không xoá workflow, và giữ workflow_dispatch: bấm
-# │ tay trong tab Actions vẫn quét được khi cần một bản mới.
+# │   · MODEL opus-5 → haiku-4-5      (scripts/build-scan.mjs)
+# │   · max_uses 3 cho web_search     (scripts/build-scan.mjs)
+# │   · nhịp 4 lượt/ngày → 1          (`nhip: 24` của node
+# │                                    dai-quan-trac, nha-may.mjs)
 # │
-# │ Bật lại: bỏ dấu # ở khối `schedule` bên dưới. Nhớ bỏ luôn
-# │ `tamDung` của "bản quét Quan Trắc" trong scripts/tuoi-du-lieu.mjs,
-# │ không thì bot chạy lại mà `npm run kiem` vẫn báo là đang tắt.
+# │ Ước còn cỡ vài USD/tháng. Nếu bảng Anthropic báo khác thì sửa
+# │ `nhip` trong nha-may.mjs — KHÔNG sửa cron ở đây.
 # └──────────────────────────────────────────────────────────────────┘
+#
+# cron ở đây là TRẦN, không phải nhịp: nó chỉ nói "mỗi ngày ngó một
+# lần". Chạy hay không thì bước "Có đến hạn không" hỏi sổ đăng ký.
+# Nhờ vậy đổi nhịp quét là sửa một con số trong nha-may.mjs.
 on:
-  # schedule:
-  #   # 41 phút sau các giờ 1, 7, 13, 19 (UTC) — lệch khỏi giờ tròn
-  #   # và khỏi lịch của refresh-data để hai workflow không chen nhau.
-  #   - cron: "41 1,7,13,19 * * *"
+  schedule:
+    # 41 phút sau 3 giờ UTC — cách xa lịch của refresh-data (:17 của
+    # 0, 6, 12, 18) để hai workflow không chen nhau xin cùng một
+    # `git push`. Hai bên còn dùng CHUNG nhóm concurrency bên dưới
+    # nên kể cả trùng giờ thì chúng xếp hàng, không đua.
+    - cron: "41 3 * * *"
   workflow_dispatch:
+    inputs:
+      ep:
+        description: "Ép quét, bỏ qua kiểm đến hạn"
+        type: boolean
+        default: true
 
 # Quyền khai ở đây là trần cho cả deploy-pages.yml được gọi bên dưới.
 # Thiếu pages/id-token thì startup_failure, không có log trong job.
@@ -33,8 +44,13 @@ permissions:
   pages: write
   id-token: write
 
+# CHUNG nhóm với refresh-data.yml, có chủ ý. Hai workflow này giờ ghi
+# vào CÙNG một file — factory/state.json — rồi cùng `git push` lên
+# main. Để hai nhóm riêng thì có ngày chúng chạy chồng nhau: đứa sau
+# push bị từ chối vì non-fast-forward, cả lượt quét mất trắng, và
+# thứ hiện ra chỉ là một workflow đỏ không rõ vì sao.
 concurrency:
-  group: scan-observatory
+  group: nha-may-main
   cancel-in-progress: false
 
 jobs:
@@ -56,6 +72,18 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Có đến hạn không
+        id: kehoach
+        env:
+          NHA_MAY_EP: ${{ inputs.ep && '1' || '' }}
+        run: |
+          han=$(node scripts/nha-may.mjs den-han)
+          echo "han=$han" >> "$GITHUB_OUTPUT"
+          case "$han" in
+            *,dai-quan-trac,*) echo "Đến hạn — quét." ;;
+            *) echo "Chưa đến hạn (nhịp 24 giờ) — bỏ qua lượt này." ;;
+          esac
+
       # Thiếu khoá thì bỏ qua chứ không báo đỏ — đài quan trắc vẫn
       # xem được với bản quét cũ, chỉ là không có tín hiệu mới.
       - name: Bỏ qua (chưa có ANTHROPIC_API_KEY)
@@ -65,16 +93,39 @@ jobs:
           echo "Thêm ở Settings → Secrets and variables → Actions."
 
       - name: Quét các chiến trường
-        if: env.ANTHROPIC_API_KEY != ''
-        run: node scripts/build-scan.mjs
+        id: n-quan-trac
+        if: env.ANTHROPIC_API_KEY != '' && contains(steps.kehoach.outputs.han, ',dai-quan-trac,')
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          t0=$(date +%s)
+          node scripts/build-scan.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+
+      # Tách khỏi bước quét vì cùng lý do như refresh-data.yml: bước
+      # bị CẮT vì hết giờ thì lệnh ghi nằm trong cùng bước cũng chết
+      # theo, và node treo sẽ hiện là "chưa chạy" thay vì "ngã".
+      - name: Ghi sổ · dai-quan-trac
+        if: always() && steps.n-quan-trac.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-quan-trac.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-quan-trac.outputs.giay }}
+        run: |
+          node scripts/nha-may.mjs ghi dai-quan-trac "$KET" ${GIAY:+--giay $GIAY}
+          node scripts/nha-may.mjs chieu
 
       - name: Commit nếu có tín hiệu mới
         id: commit
-        if: env.ANTHROPIC_API_KEY != ''
+        if: always() && steps.n-quan-trac.outcome != 'skipped'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dai-quan-trac/assets/js/scan.js
+          # Sổ nhà máy đi kèm bản quét, không tách: state.json ghi
+          # "lượt quét này ngã hay xong", và nếu chỉ commit scan.js thì
+          # Bảng vận hành không bao giờ thấy node này ngã.
+          git add dai-quan-trac/assets/js/scan.js \
+                  factory/state.json \
+                  tao-bien-xu/assets/js/v/van-hanh.js
           if git diff --staged --quiet; then
             echo "Bản quét không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"

@@ -4,16 +4,22 @@
      · vỏ ứng dụng (html/css/js/icon) : cache trước, chạy offline
      · phông chữ Google              : cache khi dùng lần đầu
 
-   Cung này KHÔNG có dữ liệu tự sinh — `assets/js/data.js` là bản
-   thiết kế viết tay, đổi cùng nhịp với mã. Nên nó nằm thẳng trong
-   SHELL, không cần nhánh mạng-trước như bốn cung lấy số từ API.
+   `assets/js/data.js` là bản thiết kế VIẾT TAY, đổi cùng nhịp với
+   mã, nên nó nằm thẳng trong SHELL.
+
+   Nhưng `assets/js/v/van-hanh.js` thì ngược hẳn: bot ghi đè nó sau
+   mỗi lượt GitHub Actions (4 lượt/ngày). Để nó ở nhánh cache-trước
+   là Bảng vận hành hiện số của hôm qua cho tới lần nâng
+   CACHE_VERSION kế tiếp — tức là một bảng điều khiển nói dối, thứ
+   tệ hơn hẳn không có bảng nào. Đúng cái bẫy đã cắn logos.js của
+   Công Bộ. Nên nó đi nhánh MẠNG-TRƯỚC và KHÔNG nằm trong SHELL.
 
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    Quên nâng thì máy đã cài cứ dùng bản cũ — xem mục "Sửa file
    trong SHELL thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v5";
+var CACHE_VERSION = "v6";
 var SHELL_CACHE = "tao-bien-xu-shell-" + CACHE_VERSION;
 var FONT_CACHE = "tao-bien-xu-fonts-" + CACHE_VERSION;
 
@@ -82,6 +88,22 @@ self.addEventListener("fetch", function (e) {
   }
 
   if (url.origin !== self.location.origin) return;
+
+  /* Mạng trước, cache chỉ là lưới đỡ lúc mất mạng. `npm run kiem`
+     và `npm run nang` đều đọc chính dòng indexOf() này để biết file
+     nào được MIỄN luật nâng CACHE_VERSION — đừng đổi cách viết. */
+  if (url.pathname.indexOf("/assets/js/v/") !== -1) {
+    e.respondWith(fetch(req).then(function (res) {
+      if (res && res.ok) {
+        var copy = res.clone();
+        caches.open(SHELL_CACHE).then(function (c) { c.put(req, copy); });
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(req, { ignoreSearch: true });
+    }));
+    return;
+  }
 
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(function () {

@@ -15,7 +15,7 @@ import { readFile, writeFile, mkdir, rm, readdir, stat } from "node:fs/promises"
 import { existsSync } from "node:fs";
 import { dirname, join, relative, extname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NGUON, NGAY_TOI_DA, tuoi } from "./tuoi-du-lieu.mjs";
+import { NGUON, nguongCua, tuoi } from "./tuoi-du-lieu.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = join(ROOT, "dist");
@@ -142,7 +142,7 @@ for (const n of NGUON) {
   if (n.tamDung) { log(`  · ${n.nhan}: ${tuoiVan}  (TẠM DỪNG có chủ ý)`); continue; }
   if (!t.co) { log(`  · ${n.nhan}: chưa chạy lần nào`); continue; }
   log(`  · ${n.nhan}: ${tuoiVan}`
-    + (n.botSinh && t.ngay > NGAY_TOI_DA ? "  ⚠" : "")
+    + (n.botSinh && t.ngay > nguongCua(n) ? "  ⚠" : "")
     + (n.botSinh ? "" : "  (sinh tay, cũ là bình thường)"));
 }
 

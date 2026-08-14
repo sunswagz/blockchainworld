@@ -1,21 +1,33 @@
 name: Cập nhật số liệu
 
-# Chạy mỗi 6 giờ, lấy số mới rồi commit đè các file dữ liệu tự sinh:
-#   · DefiLlama  → kinh-thanh/assets/js/data/live.js
-#   · L2BEAT     → do-sat-vien/assets/js/data.js
-#   · Công cụ    → cong-bo/assets/js/
-#   · GitHub     → tang-thu-cac/assets/js/data.js
-# Nhờ vậy app không cần server, và người dùng offline vẫn có số tương đối mới.
+# Nhịp của nhà máy. Mỗi lượt: hỏi sổ đăng ký xem node nào đến hạn,
+# chạy đúng những node đó, ghi kết quả vào sổ, rồi commit.
 #
-# Nếu thư mục kinh-thanh-app KHÔNG phải gốc repo, sửa `working-directory`
-# bên dưới và đường dẫn trong bước commit thành ví dụ: kinh-thanh-app/...
+# ── CRON Ở ĐÂY LÀ TRẦN, KHÔNG PHẢI NHỊP ───────────────────────────
+# Trước đây cron QUYẾT node nào chạy lúc nào, nên đổi nhịp một cung
+# là sửa YAML — và nhịp thật thì nằm rải ở ba chỗ (cron ở đây, thứ
+# tự các bước, ngưỡng "bao lâu là cũ" trong scripts/tuoi-du-lieu.mjs)
+# mà không có gì bắt ba chỗ đó khớp nhau.
+#
+# Giờ nhịp nằm ở NODE trong scripts/nha-may.mjs, một chỗ. Cron chỉ
+# nói "cứ 6 giờ ngó một lần xem có gì đến hạn không". Node nhịp 24
+# giờ vẫn chỉ chạy 1 lượt/ngày dù workflow thức dậy 4 lần — bước
+# "Lập kế hoạch" bên dưới lọc.
+#
+# Hệ quả: đổi nhịp một cung = sửa một con số trong nha-may.mjs.
+# Không đụng file này. Muốn nhịp mịn hơn 6 giờ thì mới sửa cron.
 
 on:
   schedule:
     # 17 phút sau các giờ 0, 6, 12, 18 (UTC).
     # Lệch 17 phút để tránh giờ tròn — lúc đó GitHub kẹt hàng đợi, chạy trễ cả tiếng.
     - cron: "17 0,6,12,18 * * *"
-  workflow_dispatch: # cho phép bấm chạy tay trong tab Actions
+  workflow_dispatch:
+    inputs:
+      ep:
+        description: "Ép chạy mọi node, bỏ qua kiểm đến hạn"
+        type: boolean
+        default: false
 
 # Workflow con KHÔNG được có quyền cao hơn workflow gọi nó — quyền khai
 # ở đây là trần cho cả deploy-pages.yml bên dưới. Thiếu pages/id-token
@@ -26,8 +38,12 @@ permissions:
   pages: write
   id-token: write
 
+# CHUNG nhóm với scan-observatory.yml, có chủ ý: từ khi có sổ nhà
+# máy, hai workflow cùng ghi factory/state.json rồi cùng push lên
+# main. Nhóm riêng thì có ngày chúng chồng nhau và đứa sau bị từ chối
+# non-fast-forward — mất trắng một lượt, hiện ra chỉ là workflow đỏ.
 concurrency:
-  group: refresh-data
+  group: nha-may-main
   cancel-in-progress: false
 
 jobs:
@@ -39,13 +55,14 @@ jobs:
     # 10,3 phút — mà job bị cắt thì BƯỚC COMMIT KHÔNG CHẠY, nên cả
     # Kinh Thành lẫn Đô Sát Viện cũng mất luôn lượt cập nhật đó dù
     # chúng đã lấy số xong từ phút đầu.
-    timeout-minutes: 30
+    timeout-minutes: 40
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
     # Cấp job, để `if` của step đọc được — khai trong chính step thì không.
     env:
       PINATA_JWT: ${{ secrets.PINATA_JWT }}
+      CCOT: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -54,53 +71,101 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Lấy số mới
-        run: node scripts/build-live.mjs
+      # ── M05 · Máy lập kế hoạch ──────────────────────────────────
+      # Một lời gọi, trả về danh sách node đến hạn dạng ",a,b,c," —
+      # có phẩy hai đầu để `contains()` không khớp nhầm tiền tố.
+      - name: Lập kế hoạch — node nào đến hạn
+        id: kehoach
+        env:
+          NHA_MAY_EP: ${{ inputs.ep && '1' || '' }}
+        run: |
+          han=$(node scripts/nha-may.mjs den-han)
+          echo "han=$han" >> "$GITHUB_OUTPUT"
+          echo "Đến hạn: $han"
+          node scripts/nha-may.mjs bang
 
-      # ── Luật: mỗi bước continue-on-error PHẢI có timeout-minutes ──
-      # Cờ đó chỉ nuốt được bước NGÃ. Bước TREO thì nó bất lực: hết giờ
-      # ở cấp job là huỷ cả job, và bước commit không chạy — đúng sự cố
-      # 14/08, khi Tàng Thư Các ăn hết ngân sách và kéo theo cả số liệu
-      # ba nguồn kia đã lấy xong nằm chờ.
+      # ── Từng node: một bước CHẠY + một bước GHI SỔ ──────────────
+      # Vì sao tách đôi thay vì `cmd || ghi loi` trong cùng một bước:
+      # bước bị CẮT vì hết giờ thì mọi lệnh sau nó trong cùng bước
+      # cũng chết theo, nên node treo sẽ không để lại dấu vết nào và
+      # trên Bảng vận hành nó hiện là "chưa chạy" thay vì "ngã".
+      # `if: always()` ở bước ghi thì sống sót qua cả trường hợp đó.
+      #
+      # Luật cũ vẫn giữ: mỗi bước continue-on-error PHẢI có
+      # timeout-minutes. Cờ đó chỉ nuốt được bước NGÃ; bước TREO thì
+      # nó bất lực, và hết giờ ở cấp job là huỷ cả job.
       #
       # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
-      # thành trang trí:  14 + 3 + 2 + 3 + 2 = 24  <  30
-      #
-      # Cộng lại mỗi lần thêm bước. Lần thêm "Đo bảng cảnh báo" (3
-      # phút) đẩy tổng từ 21 lên 24, chỉ còn 1 phút đệm dưới trần job
-      # cũ là 25 — nên trần job nâng lên 30 trong cùng lần sửa.
+      # thành trang trí. Cộng lại MỖI LẦN thêm bước:
+      #   5 + 3 + 2 + 14 + 3 + 2 + 6 = 35  <  40
+      # Thực tế không bao giờ cộng dồn hết vì node nhịp 24 giờ chỉ
+      # chạy 1 trong 4 lượt, nhưng trần job vẫn là chốt cuối.
       #
       # Trần đặt theo giờ chạy đo được, không đoán:
-      #   L2BEAT   78s  → 3 phút
-      #   Công Bộ   6s  → 2 phút
+      #   L2BEAT    78s → 3 phút
+      #   Công Bộ    6s → 2 phút
       #   Quan Trắc ~5s bình thường, xấu nhất ~1,6 phút → 3 phút
-      - name: Lấy bảng xét L2BEAT
+
+      - name: Lấy số mới — Kinh Thành
+        id: n-kinh-thanh
+        if: contains(steps.kehoach.outputs.han, ',kinh-thanh,')
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          t0=$(date +%s)
+          node scripts/build-live.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · kinh-thanh
+        if: always() && steps.n-kinh-thanh.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-kinh-thanh.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-kinh-thanh.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi kinh-thanh "$KET" ${GIAY:+--giay $GIAY}
+
+      - name: Lấy bảng xét — Đô Sát Viện
+        id: n-do-sat-vien
+        if: contains(steps.kehoach.outputs.han, ',do-sat-vien,')
         continue-on-error: true
         timeout-minutes: 3
-        run: node scripts/build-l2beat.mjs
+        run: |
+          t0=$(date +%s)
+          node scripts/build-l2beat.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · do-sat-vien
+        if: always() && steps.n-do-sat-vien.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-do-sat-vien.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-do-sat-vien.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi do-sat-vien "$KET" ${GIAY:+--giay $GIAY}
 
-      # Đồ nghề Công Bộ. Cũng continue-on-error, và vì lý do mạnh hơn:
-      # kính lúp hồ sơ lấy từ fe-stag — host STAGING của L2BEAT, tắt
-      # lúc nào không báo. Hỏng thì build tự giữ bản cũ.
-      - name: Lấy đồ nghề Công Bộ
+      # Đồ nghề Công Bộ. Hay ngã, và vì lý do mạnh hơn L2BEAT: kính
+      # lúp hồ sơ lấy từ fe-stag — host STAGING của L2BEAT, tắt lúc
+      # nào không báo. Hỏng thì build tự giữ bản cũ.
+      - name: Lấy đồ nghề — Công Bộ
+        id: n-cong-bo
+        if: contains(steps.kehoach.outputs.han, ',cong-bo,')
         continue-on-error: true
         timeout-minutes: 2
-        run: node scripts/build-congbo.mjs
+        run: |
+          t0=$(date +%s)
+          node scripts/build-congbo.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · cong-bo
+        if: always() && steps.n-cong-bo.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-cong-bo.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-cong-bo.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi cong-bo "$KET" ${GIAY:+--giay $GIAY}
 
-      # Kho skill Tàng Thư Các. GITHUB_TOKEN nâng hạn mức API GitHub
-      # từ 60 lên 1.000 lượt/giờ mỗi repo — không có nó thì chỉ quét vài kho.
-      # (Token cá nhân miễn phí thì được 5.000; ở đây 1.000 là quá đủ:
-      #  quét 40 kho tốn khoảng 54 lượt.)
+      # Kho skill Tàng Thư Các. Trần riêng cho bước này, thấp hơn trần
+      # job: chạm trần thì chỉ mình nó ngã, commit vẫn chạy. Script chỉ
+      # ghi file ở cuối, nên bị cắt giữa chừng là file cũ còn nguyên —
+      # không có bản dở dang nào bị commit.
       #
-      # Trần riêng cho bước này, thấp hơn trần job: chạm trần thì chỉ
-      # mình nó ngã (continue-on-error nuốt), commit vẫn chạy. Không có
-      # trần bước thì nó ăn hết ngân sách job và kéo cả lượt xuống.
-      # Script chỉ ghi file ở cuối, nên bị cắt giữa chừng là file cũ
-      # còn nguyên — không có bản dở dang nào bị commit.
       # Dùng GH_PAT nếu có, không thì lùi về GITHUB_TOKEN. Chưa đặt
       # secret thì `||` trả về GITHUB_TOKEN và mọi thứ chạy y như cũ.
       #
-      # Nói cho đúng về lợi ích, vì tôi đã suýt ghi sai chỗ này:
+      # Nói cho đúng về lợi ích, vì chỗ này dễ ghi sai:
       # PAT KHÔNG phải thứ mở khoá việc quét đủ 66 kho. Mỗi kho chỉ
       # tốn ĐÚNG MỘT lượt API (đo thật: 31→30→29→28→27) vì nội dung
       # skill lấy qua raw.githubusercontent.com, vốn không tính vào
@@ -114,12 +179,23 @@ jobs:
       # lượt trong ngày. PAT tách ngân sách riêng 5.000/giờ, nên là
       # khoảng đệm phòng khi repo bận, không phải điều kiện cần.
       # Token chỉ cần quyền ĐỌC KHO CÔNG KHAI, không cần quyền ghi.
-      - name: Lấy kho skill Tàng Thư Các
+      - name: Lấy kho skill — Tàng Thư Các
+        id: n-tang-thu-cac
+        if: contains(steps.kehoach.outputs.han, ',tang-thu-cac,')
         continue-on-error: true
         timeout-minutes: 14
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        run: node scripts/build-tangthu.mjs
+        run: |
+          t0=$(date +%s)
+          node scripts/build-tangthu.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · tang-thu-cac
+        if: always() && steps.n-tang-thu-cac.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-tang-thu-cac.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-tang-thu-cac.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi tang-thu-cac "$KET" ${GIAY:+--giay $GIAY}
 
       # Bảng cảnh báo sớm Đài Quan Trắc. Ba nguồn miễn phí không cần
       # khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi
@@ -129,10 +205,21 @@ jobs:
       #
       # Trần 3 phút: xấu nhất là 4 nguồn × (3 lần thử × 30s + nghỉ),
       # nhưng mỗi nguồn hỏng độc lập nên thực tế không bao giờ chạm.
-      - name: Đo bảng cảnh báo Quan Trắc
+      - name: Đo bảng cảnh báo — Quan Trắc
+        id: n-quan-trac-do
+        if: contains(steps.kehoach.outputs.han, ',quan-trac-do,')
         continue-on-error: true
         timeout-minutes: 3
-        run: node scripts/build-quantrac.mjs
+        run: |
+          t0=$(date +%s)
+          node scripts/build-quantrac.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · quan-trac-do
+        if: always() && steps.n-quan-trac-do.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-quan-trac-do.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-quan-trac-do.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi quan-trac-do "$KET" ${GIAY:+--giay $GIAY}
 
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
@@ -143,20 +230,92 @@ jobs:
       # chạy, site đứng im. Đã xảy ra ba lượt liền 13–14/08, mỗi lượt
       # ngã trong chưa tới 1 giây, và cái mất không phải con dấu mà là
       # toàn bộ số liệu bốn cung đã lấy xong nằm chờ commit.
-      #
-      # Đóng dấu là thứ có thì tốt; số liệu mới là việc chính. Nó ngã
-      # thì thoát trước khi ghi history.json, nên không để lại file dở.
-      # Trần 2 phút theo cùng luật ở trên: ba lượt vừa rồi ngã trong chưa
-      # tới 1 giây, nhưng Pinata treo thay vì trả 4xx thì continue-on-error
-      # lại bất lực y hệt — và nạn nhân vẫn là bước commit ngay bên dưới.
       - name: Đóng dấu bản số liệu
-        if: env.PINATA_JWT != ''
+        id: n-dong-dau
+        if: env.PINATA_JWT != '' && contains(steps.kehoach.outputs.han, ',dong-dau,')
         continue-on-error: true
         timeout-minutes: 2
-        run: node scripts/pin-snapshot.mjs
+        run: |
+          t0=$(date +%s)
+          node scripts/pin-snapshot.mjs
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · dong-dau
+        if: always() && steps.n-dong-dau.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-dong-dau.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-dong-dau.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi dong-dau "$KET" ${GIAY:+--giay $GIAY}
+
+      # ── M18 · Xưởng học lại — bước DUY NHẤT gọi model ────────────
+      # Claude Code Action đọc sổ ghi rồi viết vài dòng tiếng Việt về
+      # sức khoẻ xưởng. Ba điều đáng nói:
+      #
+      # 1. CLAUDE_CODE_OAUTH_TOKEN chứ không phải ANTHROPIC_API_KEY.
+      #    Token này tạo bằng `claude setup-token` ở máy và trả bằng
+      #    QUOTA GÓI CLAUDE thay vì tính tiền theo token. Đó là cả lý
+      #    do bước này tồn tại được: nhịp quét cũ của Đài Quan Trắc
+      #    tốn 170 USD/tháng và đã phải tắt.
+      #    Đổi lại, nó ăn vào quota bạn ngồi dùng — nên Haiku và
+      #    --max-turns thấp, không phải Opus.
+      #
+      # 2. CHỈ Read và Write. Không Bash, không git. Claude viết đúng
+      #    một file rồi thôi; bước commit bên dưới mới là chỗ đẩy đi.
+      #    Để nó tự commit là hai nguồn cùng ghi vào một repo trong
+      #    một job — đúng loại đua mà cả CLAUDE.md tránh.
+      #
+      # 3. Thiếu secret thì BỎ QUA êm, không ngã. Ngày dựng bước này
+      #    secret chưa tồn tại; một workflow đỏ vì thiếu thứ chưa ai
+      #    tạo thì lần đỏ thật sau đó không ai buồn nhìn.
+      #    Tạo secret: chạy `claude setup-token` ở máy, rồi dán vào
+      #    Settings → Secrets → Actions → CLAUDE_CODE_OAUTH_TOKEN.
+      - name: Báo cáo sức khoẻ xưởng (Claude Code)
+        id: n-bao-cao
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',bao-cao,')
+        continue-on-error: true
+        timeout-minutes: 6
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-haiku-4-5
+            --max-turns 8
+            --allowedTools "Read,Write"
+          prompt: |
+            Đọc factory/state.json và factory/registry.json trong repo này.
+            Đó là sổ vận hành của một hệ sinh thái 7 webapp tĩnh: mỗi "node"
+            là một bước tự động chạy theo nhịp, `ket` là kết quả lượt gần
+            nhất (ok/loi), `chuoiLoi` là số lượt ngã liên tiếp, `nhip` là số
+            giờ giữa hai lượt.
+
+            Viết đè file factory/bao-cao.md, TIẾNG VIỆT, tối đa 15 dòng:
+
+            1. Một câu tổng: xưởng đang khoẻ hay đang có chuyện.
+            2. Node nào đáng lo và VÌ SAO — ưu tiên `chuoiLoi` >= 2, rồi
+               tới node trễ quá gấp đôi `nhip` của nó.
+            3. Node nào chạy đều nhưng `lucDoi` đã lâu không đổi — nghĩa là
+               nó chạy được mà nguồn dữ liệu phía sau có thể đã chết.
+            4. Đúng một việc nên làm trước.
+
+            Không suy đoán ngoài dữ liệu trong hai file đó. Không có gì
+            đáng lo thì nói thẳng là không có, đừng bịa ra việc.
+            Chỉ ghi file, không chạy lệnh nào khác.
+      - name: Ghi sổ · bao-cao
+        if: always() && steps.n-bao-cao.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-bao-cao.outcome == 'success' && 'ok' || 'loi' }}
+        run: node scripts/nha-may.mjs ghi bao-cao "$KET"
+
+      # ── M17 · Phòng điều khiển ──────────────────────────────────
+      # Chiếu sổ sang thứ trình duyệt đọc được. `always()` vì bảng phải
+      # hiện được cả những lượt mọi node đều ngã — đó chính là lượt
+      # người ta cần nhìn bảng nhất.
+      - name: Chiếu sổ sang Bảng vận hành
+        if: always()
+        run: node scripts/nha-may.mjs chieu
 
       - name: Commit nếu có thay đổi
         id: commit
+        if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -172,12 +331,11 @@ jobs:
           # 2. Ngược lại, hai thư mục logo BỊ SÓT: build-l2beat.mjs và
           #    build-congbo.mjs tải ảnh về assets/logos/, còn add thì
           #    không phủ. Hệ quả im lặng: logos.js được commit và trỏ tới
-          #    ảnh chưa bao giờ được commit → ảnh vỡ trên site. Chưa nổ
-          #    vì lần thêm logo gần nhất là commit tay; sẽ nổ ngay lần
-          #    L2BEAT thêm một dự án mới.
+          #    ảnh chưa bao giờ được commit → ảnh vỡ trên site.
           #
           # Đổi ở đây thì cập nhật luôn mục "File do workflow tự sinh"
-          # trong CLAUDE.md — `npm run kiem` bắt hai bên phải khớp.
+          # trong CLAUDE.md và mảng `ra` của node trong scripts/nha-may.mjs
+          # — `npm run kiem` bắt cả ba bên phải khớp.
           git add kinh-thanh/assets/js/data/live.js \
                   kinh-thanh/assets/js/data/provenance.js \
                   kinh-thanh/assets/data/history.json \
@@ -189,9 +347,12 @@ jobs:
                   cong-bo/assets/logos/ \
                   tang-thu-cac/assets/js/data.js \
                   tang-thu-cac/assets/data/ \
-                  dai-quan-trac/assets/js/do.js
+                  dai-quan-trac/assets/js/do.js \
+                  factory/state.json \
+                  factory/bao-cao.md \
+                  tao-bien-xu/assets/js/v/van-hanh.js
           if git diff --staged --quiet; then
-            echo "Số liệu không đổi — không commit."
+            echo "Không node nào đến hạn hoặc số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -203,13 +364,12 @@ jobs:
   # workflow khác (cơ chế chặn vòng lặp vô hạn). Nếu chỉ dựa vào `on: push`
   # của deploy-ipfs.yml thì số liệu cập nhật xong mà bản trên IPFS vẫn là bản cũ
   # mãi mãi. Nên phải gọi thẳng sang đây.
-  # Chỉ đẩy lại Pages. CỐ Ý không pin lại cả site ở đây:
-  # mỗi bản site ~440 KB, nhân 4 lần/ngày là 624 MB/năm — gói free
-  # Pinata 1 GB sẽ đầy trong khoảng hai năm, đổi lấy 1.460 bản sao
-  # gần như y hệt nhau mà không ai mở lại.
+  # Chỉ đẩy lại Pages. CỐ Ý không pin lại cả site ở đây: bản site đo
+  # ngày 14/08 là 21,8 MB / 462 file, nhân 4 lượt/ngày là đầy gói
+  # Pinata free 1 GB trong khoảng hai tuần.
   #
   # Thứ đáng lưu vĩnh viễn là bản ĐÓNG DẤU SỐ LIỆU (1,8 KB) —
-  # đã pin ở bước trên rồi. Site chỉ pin lại khi code đổi.
+  # đã pin ở bước trên rồi. Site chỉ pin lại khi đóng dấu bằng tag.
   deploy-pages:
     needs: refresh
     if: needs.refresh.outputs.changed == 'true'

@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-08-14T16:39:16.653Z",
+  "lan": 0,
+  "node": {
+    "kinh-thanh": {
+      "luc": "2026-08-14T13:46:40.331Z",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuoiLoi": 0,
+      "lucOk": "2026-08-14T13:46:40.331Z",
+      "lucDoi": "2026-08-14T13:46:40.331Z"
+    },
+    "do-sat-vien": {
+      "luc": "2026-08-14T13:47:43.854Z",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuoiLoi": 0,
+      "lucOk": "2026-08-14T13:47:43.854Z",
+      "lucDoi": "2026-08-14T13:47:43.854Z"
+    },
+    "cong-bo": {
+      "luc": "2026-08-14T13:47:47.836Z",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuoiLoi": 0,
+      "lucOk": "2026-08-14T13:47:47.836Z",
+      "lucDoi": "2026-08-14T13:47:47.836Z"
+    },
+    "tang-thu-cac": {
+      "luc": "2026-08-14T13:54:17.370Z",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuoiLoi": 0,
+      "lucOk": "2026-08-14T13:54:17.370Z",
+      "lucDoi": "2026-08-14T13:54:17.370Z"
+    },
+    "dai-quan-trac": {
+      "luc": "2026-08-13T08:53:22.949Z",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuoiLoi": 0,
+      "lucOk": "2026-08-13T08:53:22.949Z",
+      "lucDoi": "2026-08-13T08:53:22.949Z"
+    },
+    "hoang-thanh": {
+      "luc": "2026-08-14T09:16:24.800Z",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuoiLoi": 0,
+      "lucOk": "2026-08-14T09:16:24.800Z",
+      "lucDoi": "2026-08-14T09:16:24.800Z"
+    }
+  },
+  "nk": [
+    {
+      "luc": "2026-08-14T13:54:17.370Z",
+      "ma": "tang-thu-cac",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+    },
+    {
+      "luc": "2026-08-14T13:47:47.836Z",
+      "ma": "cong-bo",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+    },
+    {
+      "luc": "2026-08-14T13:47:43.854Z",
+      "ma": "do-sat-vien",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+    },
+    {
+      "luc": "2026-08-14T13:46:40.331Z",
+      "ma": "kinh-thanh",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+    },
+    {
+      "luc": "2026-08-14T09:16:24.800Z",
+      "ma": "hoang-thanh",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+    },
+    {
+      "luc": "2026-08-13T08:53:22.949Z",
+      "ma": "dai-quan-trac",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
+    }
+  ]
+}

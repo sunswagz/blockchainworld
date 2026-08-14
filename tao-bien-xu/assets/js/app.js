@@ -58,6 +58,7 @@
       'stroke-linejoin="round">' + p + "</svg>";
   }
   var IC = {
+    vh: '<path d="M3 3v18h18"/><path d="m7 15 3.5-4 3 2.5L20 7"/><circle cx="20" cy="7" r="1.6" fill="currentColor"/>',
     sodo: '<rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="10" width="6" height="4" rx="1"/>' +
           '<rect x="16" y="10" width="6" height="4" rx="1"/><rect x="9" y="18" width="6" height="4" rx="1"/>' +
           '<path d="M12 6v4M5 14v2h14v-2M12 16v2"/>',
@@ -76,8 +77,124 @@
     tay: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>'
   };
 
+  /* ═══════════════════════════════════════════════════════
+     NHÀ MÁY THẬT — nối mô hình với thứ đang chạy
+
+     Mọi trang khác trong cung này mô tả một xưởng TƯỞNG TƯỢNG:
+     18 máy là bản thiết kế, Sàn máy là mô phỏng chạy trong trình
+     duyệt. Đúng và có ích, nhưng không có gì buộc bản thiết kế
+     phải giống thứ hệ sinh thái đang thật sự làm.
+
+     Khối này là chỗ nối. `assets/js/v/van-hanh.js` do
+     `scripts/nha-may.mjs` sinh ra sau mỗi lượt GitHub Actions,
+     mang theo lượt chạy thật của từng node và trạm (máy) chịu
+     trách nhiệm. Nhờ vậy M12 trên sơ đồ không còn là một ô vẽ —
+     nó là mặt bằng đã chạy `build-live.mjs` lúc 12:17 hết 4,1 giây.
+
+     Nạp khi cần chứ không nhét vào SHELL: file này bot ghi đè
+     nhiều lượt mỗi ngày, để trong SHELL cache-trước thì máy đã
+     cài app giữ bản cũ — đúng cái bẫy đã cắn logos.js của Công Bộ.
+     ═══════════════════════════════════════════════════════ */
+  var VH = null, vhXong = false, vhCho = null;
+
+  function napVanHanh(xong) {
+    if (vhXong) return xong();
+    if (vhCho) { vhCho.push(xong); return; }
+    vhCho = [xong];
+    function het() {
+      vhXong = true;
+      var ds = vhCho; vhCho = null;
+      ds.forEach(function (f) { f(); });
+    }
+    var s = document.createElement("script");
+    s.src = "assets/js/v/van-hanh.js";
+    s.onload = function () { VH = window.VAN_HANH || null; het(); };
+    s.onerror = het;   // chưa có file (bot chưa chạy lượt nào) — trang tự nói
+    document.head.appendChild(s);
+  }
+
+  function gioTu(iso) {
+    if (!iso) return null;
+    var t = new Date(iso).getTime();
+    return Number.isFinite(t) ? (Date.now() - t) / 36e5 : null;
+  }
+  function truoc(iso) {
+    var g = gioTu(iso);
+    if (g == null) return "chưa bao giờ";
+    if (g < 0.02) return "vừa xong";
+    if (g < 1) return Math.round(g * 60) + " phút trước";
+    if (g < 48) return g.toFixed(1).replace(".", ",") + " giờ trước";
+    return Math.floor(g / 24) + " ngày trước";
+  }
+  function nhipChu(n) {
+    if (!n.nhip) return n.che === "tay" ? "chạy tay" : "theo thay đổi";
+    return n.nhip % 24 === 0 ? n.nhip / 24 + " ngày một lượt" : n.nhip + " giờ một lượt";
+  }
+
+  /* "Đang đến hạn" tính TẠI ĐÂY chứ không đọc sẵn từ van-hanh.js.
+     File đó do bot sinh mỗi 6 giờ; nếu nó chở theo câu trả lời thì
+     câu trả lời đông cứng ở thời điểm bot chạy và sai dần suốt 6
+     tiếng sau. Trình duyệt có `nhip`, `luc` và biết bây giờ mấy giờ,
+     nên nó tính đúng hơn — và file thì không đổi khi không có gì
+     chạy, tức là bot không sinh ra một commit rác mỗi lượt.
+     Trừ hao 10 phút cho cron GitHub trôi giờ, khớp với nha-may.mjs. */
+  function denHan(n) {
+    if (!n.nhip) return false;
+    var g = gioTu(n.luc);
+    return g == null || g >= n.nhip - 10 / 60;
+  }
+
+  /* Bốn mức, không phải hai. "Ngã một lượt" và "chết bốn lượt liền"
+     phải nhìn ra khác nhau ngay, vì cách xử hai thứ đó khác hẳn:
+     cái đầu chờ lượt sau, cái sau phải mở log ra xem. */
+  function sucKhoe(n) {
+    if (n.che === "tay" || n.che === "theo") return "thuong";
+    if (n.ket === "loi") return n.chuoiLoi >= 3 ? "nang" : "om";
+    if (!n.luc) return "chua";
+    var g = gioTu(n.luc);
+    if (n.nhip && g > n.nhip * 2) return "nang";
+    if (n.nhip && g > n.nhip * 1.25) return "om";
+    return "khoe";
+  }
+  var SK_CHU = { khoe: "khoẻ", om: "trễ nhịp", nang: "đang hỏng",
+                 chua: "chưa chạy", thuong: "không có nhịp" };
+  var CHE_CHU = { script: "script", claude: "gọi model", tay: "chạy tay", theo: "theo sau" };
+
+  /* Trạm nào của sơ đồ có node thật đứng sau — dùng để chấm dấu lên
+     ô máy ở Sơ đồ nhà máy và thẻ ở trang 18 máy. */
+  var tramThat = {};
+  function dungTramThat() {
+    tramThat = {};
+    if (!VH || !VH.node) return;
+    VH.node.forEach(function (n) {
+      (tramThat[n.tram] || (tramThat[n.tram] = [])).push(n);
+    });
+  }
+
+  /* Chấm dấu lên những ô máy có node thật đứng sau.
+
+     Làm bằng cách sửa DOM đang hiện chứ không dựng lại trang, vì
+     van-hanh.js nạp không đồng bộ: trang Sơ đồ và trang 18 máy vẽ
+     xong từ SHELL trong vài mili giây, còn file này về sau đó. Dựng
+     lại trang lúc nó về là màn hình giật một cái ngay dưới tay
+     người đang đọc. Thêm một chấm thì không. */
+  function danhDauTram() {
+    var os = document.querySelectorAll("[data-may]");
+    for (var i = 0; i < os.length; i++) {
+      var o = os[i], ds = tramThat[o.dataset.may];
+      if (!ds || !ds.length) { o.removeAttribute("data-that"); continue; }
+      var xau = ds.filter(function (n) {
+        var s = sucKhoe(n); return s === "om" || s === "nang";
+      });
+      o.dataset.that = xau.length ? "om" : "1";
+      o.title = (o.title ? o.title + " — " : "") + "Trạm thật của " + ds.length +
+        " node: " + ds.map(function (n) { return n.ten; }).join(", ");
+    }
+  }
+
   /* ═══════════════ thanh bên ═══════════════ */
   var MUC_BEN = [
+    ["#/van-hanh", "Bảng vận hành", IC.vh],
     ["#/so-do", "Sơ đồ nhà máy", IC.sodo],
     ["#/san", "Sàn máy", IC.san],
     ["#/may", "18 máy", IC.may],
@@ -458,6 +575,7 @@
       var m = mayTheoId[id];
       var a = el("a", "sd-o");
       a.dataset.k = "may";
+      a.dataset.may = id;
       a.href = "#/so-do/" + id;
       a.title = m ? m.tom : "";
       a.innerHTML = '<span class="sd-id">' + id + " · " + esc(m ? m.en : "") + "</span>" +
@@ -573,6 +691,7 @@
 
     kh.appendChild(sd);
     than.appendChild(kh);
+    danhDauTram();
   }
 
   /* ═══════════════ 18 máy ═══════════════ */
@@ -608,6 +727,7 @@
       ds.forEach(function (m) {
         var a = el("a", "tm");
         a.href = "#/may/" + m.id;
+        a.dataset.may = m.id;          // để danhDauTram() tìm ra máy nào có node thật
         a.style.setProperty("--kc", k.mau);
         var the = "";
         if (m.treo) the += '<span class="the the-treo">có thể treo chờ người</span>';
@@ -623,6 +743,7 @@
       than.appendChild(kh);
     });
 
+    danhDauTram();
     if (moId) moMay(moId);
   }
 
@@ -636,7 +757,7 @@
   function dongHoso() {
     hoso.dataset.open = "0";
     scrim.dataset.open = "0";
-    var m = /^#\/(so-do|may)\/[^/]+$/.exec(location.hash);
+    var m = /^#\/(so-do|may|van-hanh)\/[^/]+$/.exec(location.hash);
     if (m) location.hash = "#/" + m[1];
   }
   document.getElementById("hosoDong").addEventListener("click", dongHoso);
@@ -1129,13 +1250,222 @@
     than.appendChild(kh2);
   }
 
+  /* ═══════════════ Bảng vận hành ═══════════════
+
+     Đây là M17 (Phòng điều khiển) thôi làm một ô trên sơ đồ và trở
+     thành một trang thật. Mọi con số ở đây đến từ factory/state.json,
+     do các lượt GitHub Actions ghi vào — không có gì tính trong
+     trình duyệt, không có gì mô phỏng. */
+  function trangVanHanh(moKhoa) {
+    tieu.textContent = "Bảng vận hành";
+    phu.textContent = "M17 · số thật từ GitHub Actions";
+    than.innerHTML = "";
+
+    var gt = el("div", "giaithich");
+    gt.innerHTML =
+      "Mọi trang khác trong cung này là <b>bản thiết kế</b>: 18 máy mô tả một xưởng nên " +
+      "có, Sàn máy cho chạy mô phỏng. Trang này thì ngược lại — nó là <b>xưởng đang " +
+      "chạy thật</b>: mỗi node dưới đây là một bước trong GitHub Actions của chính hệ " +
+      "sinh thái này, và lượt chạy cuối cùng của nó có thật đến từng giây." +
+      '<span class="vn">Nhịp chạy nằm ở <code>scripts/nha-may.mjs</code>, một chỗ duy nhất. ' +
+      "<code>cron</code> trong workflow chỉ là <b>trần</b> — cứ 6 giờ ngó một lần xem có gì " +
+      "đến hạn; còn <b>đến hạn hay chưa</b> thì sổ đăng ký quyết. Đổi nhịp một cung là sửa " +
+      "đúng một con số, không đụng YAML.</span>";
+    than.appendChild(gt);
+
+    if (!VH || !VH.node || !VH.node.length) {
+      var trong = el("section", "khoi");
+      var td = el("div", "khoi-dinh");
+      td.innerHTML = "<h2>Nhà máy chưa gửi báo cáo nào</h2>";
+      trong.appendChild(td);
+      var p0 = el("div", "vh-trong");
+      p0.innerHTML =
+        "<p>Chưa có <code>assets/js/v/van-hanh.js</code>. File đó do " +
+        "<code>scripts/nha-may.mjs</code> sinh sau mỗi lượt GitHub Actions, nên nó chỉ " +
+        "xuất hiện sau lượt bot đầu tiên kể từ khi buồng điều khiển được nối vào.</p>" +
+        "<p>Muốn thấy ngay mà không đợi bot, chạy ở máy:</p>" +
+        "<pre>node scripts/nha-may.mjs mo-so\nnode scripts/nha-may.mjs chieu</pre>" +
+        "<p>Lệnh <code>mo-so</code> không bịa số: nó đọc dấu <code>generatedAt</code> nằm " +
+        "sẵn trong từng file dữ liệu — đó chính là lúc node ấy chạy xong lần cuối.</p>";
+      trong.appendChild(p0);
+      than.appendChild(trong);
+      return;
+    }
+
+    dungTramThat();
+    var ns = VH.node;
+    var dem = { khoe: 0, om: 0, nang: 0, chua: 0, thuong: 0 };
+    ns.forEach(function (n) { dem[sucKhoe(n)]++; });
+    var om = ns.filter(function (n) {
+      var s = sucKhoe(n); return s === "nang" || s === "om";
+    });
+
+    /* Băng báo động đứng TRÊN mọi thứ khác, và chỉ hiện khi có
+       chuyện. Một bảng điều khiển lúc nào cũng hiện một dải cảnh
+       báo màu là một bảng không ai còn đọc. */
+    if (om.length) {
+      var bd = el("div", "vh-bao");
+      bd.dataset.muc = dem.nang ? "nang" : "om";
+      bd.innerHTML = svg(IC.tay, 17) +
+        "<div><b>" + om.length + " node đang không khoẻ</b><span>" +
+        om.map(function (n) {
+          return esc(n.ten) + " — " + (n.chuoiLoi >= 2 ? "ngã " + n.chuoiLoi + " lượt liền"
+                                                       : SK_CHU[sucKhoe(n)] + ", " + truoc(n.luc));
+        }).join(" · ") + "</span></div>";
+      than.appendChild(bd);
+    }
+
+    var kh = el("section", "khoi");
+    var d = el("div", "khoi-dinh");
+    d.innerHTML = "<h2>Node</h2><span class=\"khoi-n\">" + ns.length + " node</span>";
+    kh.appendChild(d);
+
+    var thanh = el("div", "dieukhien");
+    thanh.innerHTML =
+      '<div class="dk-so" style="margin-left:0">' +
+      '<span>khoẻ <b>' + dem.khoe + "</b></span>" +
+      '<span>trễ nhịp <b>' + dem.om + "</b></span>" +
+      '<span>đang hỏng <b>' + dem.nang + "</b></span>" +
+      '<span>lượt đã ghi <b>' + (VH.lan || 0) + "</b></span>" +
+      '<span>báo cáo <b>' + truoc(VH.generatedAt) + "</b></span></div>";
+    kh.appendChild(thanh);
+
+    var luoi = el("div", "vh-luoi");
+    ns.forEach(function (n) {
+      var a = el("a", "vh-o");
+      a.href = "#/van-hanh/" + n.ma;
+      a.dataset.sk = sucKhoe(n);
+      a.dataset.che = n.che;
+
+      var con = n.nhip && n.luc ? n.nhip - gioTu(n.luc) : null;
+      var hanChu = !n.nhip ? "—"
+        : denHan(n) ? "đến hạn"
+        : con < 1 ? "còn " + Math.max(0, Math.round(con * 60)) + " phút"
+        : "còn " + con.toFixed(1).replace(".", ",") + " giờ";
+
+      a.innerHTML =
+        '<span class="vh-den"></span>' +
+        '<div class="vh-dinh"><span class="vh-tram">' + esc(n.tram) + "</span>" +
+        '<span class="vh-che">' + esc(CHE_CHU[n.che] || n.che) + "</span></div>" +
+        "<h3>" + esc(n.ten) + "</h3>" +
+        '<p class="vh-y">' + esc(n.y) + "</p>" +
+        '<div class="vh-so">' +
+        '<span><i>lượt cuối</i><b>' + esc(truoc(n.luc)) + "</b></span>" +
+        '<span><i>kết quả</i><b>' + esc(n.ket === "ok" ? (n.doi ? "ok · có đổi" : "ok · không đổi")
+                                       : n.ket === "loi" ? "NGÃ" : n.ket || "—") + "</b></span>" +
+        '<span><i>nhịp</i><b>' + esc(nhipChu(n)) + "</b></span>" +
+        '<span><i>lượt sau</i><b>' + esc(hanChu) + "</b></span></div>" +
+        (n.chuoiLoi >= 2 ? '<div class="vh-canh">ngã ' + n.chuoiLoi + " lượt liên tiếp</div>" : "");
+      luoi.appendChild(a);
+    });
+    kh.appendChild(luoi);
+    than.appendChild(kh);
+
+    /* ── nhật ký thật ── */
+    if (VH.nk && VH.nk.length) {
+      var kh2 = el("section", "khoi");
+      var d2 = el("div", "khoi-dinh");
+      d2.innerHTML = "<h2>Nhật ký lượt chạy</h2><span class=\"khoi-n\">" +
+        VH.nk.length + " dòng gần nhất</span>";
+      kh2.appendChild(d2);
+      var nk = el("div", "vh-nk");
+      VH.nk.forEach(function (r) {
+        var n = ns.filter(function (x) { return x.ma === r.ma; })[0];
+        var dong = el("div", "vh-nk-d");
+        dong.dataset.ket = r.ket;
+        dong.innerHTML =
+          '<span class="vh-nk-g">' + esc(String(r.luc || "").slice(5, 16).replace("T", " ")) + "</span>" +
+          '<span class="vh-nk-m">' + esc(n ? n.ten : r.ma) + "</span>" +
+          '<span class="vh-nk-k">' + esc(r.ket) + (r.doi ? " · có đổi" : "") + "</span>" +
+          '<span class="vh-nk-t">' + (r.giay != null ? esc(r.giay) + "s" : "") + "</span>";
+        nk.appendChild(dong);
+      });
+      kh2.appendChild(nk);
+      than.appendChild(kh2);
+    }
+
+    if (moKhoa) moHoSoVH(moKhoa);
+  }
+
+  /* Ngăn kéo hồ sơ node. Bấm một node phải mở TẠI CHỖ như ô trên
+     sơ đồ — cùng lý do, cùng cách. */
+  function moNode(ma) {
+    if (!VH) return;
+    var n = VH.node.filter(function (x) { return x.ma === ma; })[0];
+    if (!n) return;
+    var m = mayTheoId[n.tram];
+    var k = m ? khuTheoMa[m.khu] : null;
+
+    dungTop(k ? k.mau : "var(--am)", "Node · " + n.tram +
+      (m ? " " + m.ten : ""), n.ten, n.cungTen || "");
+    var b = document.getElementById("hosoBody");
+
+    function muc(h, noi) {
+      var s = el("div", "hs");
+      s.appendChild(el("div", "hs-h", h));
+      s.appendChild(noi);
+      b.appendChild(s);
+    }
+
+    muc("Việc node này làm", el("p", "hs-p", n.y));
+
+    var vr = el("div", "hs-vr");
+    vr.innerHTML =
+      '<div class="hs-o"><span>Lượt chạy cuối</span><p>' + esc(truoc(n.luc)) +
+      (n.luc ? " (" + esc(n.luc.slice(0, 16).replace("T", " ")) + " UTC)" : "") + "</p></div>" +
+      '<div class="hs-o"><span>Kết quả</span><p>' +
+      esc(n.ket === "ok" ? "chạy xong" : n.ket === "loi" ? "NGÃ" : n.ket || "chưa chạy") +
+      (n.giay != null ? " · " + esc(n.giay) + " giây" : "") + "</p></div>" +
+      '<div class="hs-o"><span>Có ra file mới không</span><p>' +
+      (n.doi ? "có" : "không — nội dung giống hệt lượt trước") + "</p></div>" +
+      '<div class="hs-o"><span>Lần cuối ra file mới</span><p>' + esc(truoc(n.lucDoi)) + "</p></div>";
+    muc("Lượt vừa rồi", vr);
+
+    var vr2 = el("div", "hs-vr");
+    vr2.innerHTML =
+      '<div class="hs-o"><span>Nhịp</span><p>' + esc(nhipChu(n)) + "</p></div>" +
+      '<div class="hs-o"><span>Chế độ</span><p>' + esc(CHE_CHU[n.che] || n.che) +
+      (n.che === "claude" ? " — tốn tiền hoặc tốn quota, nên nhịp thưa" : "") + "</p></div>" +
+      '<div class="hs-o"><span>Trạm</span><p>' + esc(n.tram) +
+      (m ? " · " + esc(m.ten) : "") + "</p></div>" +
+      '<div class="hs-o"><span>Đang đến hạn</span><p>' + (denHan(n) ? "có" : "chưa") + "</p></div>";
+    muc("Nhịp · trạm", vr2);
+
+    var lc = el("div", "hs-cu");
+    lc.appendChild(el("span", null, n.lenh));
+    muc("Lệnh chạy", lc);
+
+    if (n.ra && n.ra.length) {
+      var ra = el("div", "hs-cu");
+      n.ra.forEach(function (x) { ra.appendChild(el("span", null, x)); });
+      muc("File node này ghi ra", ra);
+    }
+
+    if (m) {
+      var lk = el("div", "hs-cu");
+      var a = el("a", null, "Mở hồ sơ máy " + m.id + " · " + m.ten);
+      a.href = "#/van-hanh/" + m.id;
+      lk.appendChild(a);
+      muc("Trạm trên sơ đồ", lk);
+    }
+
+    hoso.dataset.open = "1";
+    scrim.dataset.open = "1";
+    b.scrollTop = 0;
+  }
+
+  function moHoSoVH(khoa) {
+    if (/^M\d\d$/.test(khoa)) return moMay(khoa);
+    moNode(khoa);
+  }
+
   /* ═══════════════ định tuyến ═══════════════ */
   function dinhTuyen() {
     var h = location.hash || "#/san";
     var p = h.replace(/^#\/?/, "").split("/");
 
     if (MP && p[0] !== "san") { clearTimeout(MP.dong); elSan = null; }
-    var moSau = (p[0] === "may" || p[0] === "so-do") && p[1];
+    var moSau = (p[0] === "may" || p[0] === "so-do" || p[0] === "van-hanh") && p[1];
     if (hoso.dataset.open === "1" && !moSau) {
       hoso.dataset.open = "0"; scrim.dataset.open = "0";
     }
@@ -1154,6 +1484,18 @@
     if (p[0] === "so-do") {
       if (than.dataset.t !== "so-do") { than.dataset.t = "so-do"; trangSoDo(); }
       if (p[1]) moHoSo(p[1]);
+      return;
+    }
+
+    /* Bảng vận hành phải chờ nạp van-hanh.js xong mới dựng được, nên
+       nó là trang duy nhất đi qua callback. Tuyến sâu "#/van-hanh/<khoá>"
+       vẫn mở tại chỗ như sơ đồ: đứng sẵn ở trang thì chỉ mở ngăn kéo,
+       không dựng lại — dựng lại là mỗi lần bấm một node lại cuộn về đầu. */
+    if (p[0] === "van-hanh") {
+      if (than.dataset.t !== "van-hanh") {
+        than.dataset.t = "van-hanh";
+        napVanHanh(function () { trangVanHanh(p[1]); });
+      } else if (p[1]) moHoSoVH(p[1]);
       return;
     }
 
@@ -1176,4 +1518,11 @@
 
   dungBen();
   dinhTuyen();
+
+  /* Nạp nền, KHÔNG chặn lần vẽ đầu. Trang dựng xong từ SHELL trong
+     vài mili giây; van-hanh.js về sau đó thì chỉ thêm chấm "trạm
+     thật" lên các ô. Nếu chờ nó rồi mới vẽ thì cả cung phải đợi một
+     lượt mạng cho một thứ chỉ là chú thích — và lúc bot chưa chạy
+     lần nào, file 404, cả cung đợi một cách vô ích. */
+  napVanHanh(function () { dungTramThat(); danhDauTram(); });
 })();
