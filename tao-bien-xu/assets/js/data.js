@@ -549,7 +549,71 @@
       ] }
   ];
 
+  /* ── sơ đồ toàn nhà máy ──────────────────────────────────
+     Đây là bản đồ MỘT TRANG của cả xưởng — thứ bản phác vẽ ở mục
+     "BÂY GIỜ NHÌN TOÀN BỘ NHÀ MÁY TRÊN MỘT SƠ ĐỒ".
+
+     Khác Sàn máy ở chỗ: Sàn máy bày 18 máy theo KHU và cho chạy mô
+     phỏng — nó nói xưởng đang làm gì. Sơ đồ này nói xưởng ĐƯỢC NỐI
+     RA SAO: việc đi đường nào, rẽ ở đâu, và quay lại chỗ nào.
+
+     Ba chi tiết chỉ sơ đồ này mới thấy, Sàn máy không bày được:
+       · M04 được NẠP từ bên hông (trí nhớ + tính cách), không phải
+         nhận từ máy trước
+       · sau M06 việc TÁCH thành ba dây song song rồi mới gộp lại
+       · M14 là chỗ RẼ NHÁNH thật: mức 0–1 đi thẳng, mức 2 dừng chờ
+         người rồi mới nhập lại dòng
+
+     `may` trỏ sang hồ sơ máy để bấm vào đọc được đủ 10 trường. */
+  var SO_DO = [
+    { k: "nguoi", ten: "Bạn", phu: "Human Owner",
+      y: "Người giao việc — và người giữ chìa khoá ở cửa duyệt phía dưới." },
+    { k: "may", may: "M01" },
+    { k: "may", may: "M02" },
+    { k: "may", may: "M03" },
+    { k: "may", may: "M04",
+      nap: [
+        { may: "M09", ten: "Trí nhớ", phu: "5 ngăn" },
+        { may: "M08", ten: "Tính cách", phu: "theo vai" }
+      ] },
+    { k: "may", may: "M05" },
+    { k: "may", may: "M06" },
+    { k: "chia", nhan: "Tách ba dây song song",
+      o: [
+        { to: "A01", ten: "Tổ nghiên cứu", phu: "tìm và thu thập" },
+        { to: "A03", ten: "Tổ dựng", phu: "viết mã, dựng sản phẩm" },
+        { to: "A04", ten: "Tổ kiểm", phu: "tìm chỗ sai" }
+      ],
+      /* Hai máy làm nên bước tách này nhưng KHÔNG có ô riêng trong sơ đồ
+         gốc — chúng là kho được gọi tới, không phải trạm việc đi qua.
+         Ghi ra đây để không ai tưởng sơ đồ bỏ sót chúng. */
+      qua: ["M10", "M07"],
+      y: "Ba tổ chạy song song trên cùng một job, mỗi tổ một quyền riêng. Sổ tổ (M10) quyết định ai được nhận bước nào, còn bộ chọn động cơ (M07) giao mỗi dây một model khác nhau — cố ý, để tổ kiểm không dùng chung động cơ với tổ dựng." },
+    { k: "gop", nhan: "Gộp lại" },
+    { k: "kho", ten: "Kho kỹ năng", phu: "S01 · S02 · S03 …", di: "#/to",
+      y: "Tổ không tự làm — tổ cầm máy. Mỗi kỹ năng là một máy chuyên dụng." },
+    { k: "may", may: "M11" },
+    { k: "may", may: "M12" },
+    { k: "may", may: "M13" },
+    { k: "quyet", may: "M14",
+      khong: "Mức 0–1 · đi thẳng",
+      co: "Mức 2 · dừng chờ người",
+      y: "Chỗ rẽ duy nhất trong cả sơ đồ. Mức 3 thì không tới được đây — M03 đã chặn từ đầu dây." },
+    { k: "may", may: "M15" },
+    { k: "may", may: "M16" },
+    { k: "may", may: "M17" },
+    { k: "may", may: "M18" },
+    { k: "toa", nhan: "Đẩy ngược vào ba kho",
+      o: [
+        { ten: "Trí nhớ", phu: "thêm bài học", may: "M09" },
+        { ten: "Kỹ năng", phu: "lên phiên bản", di: "#/to" },
+        { ten: "Dây chuyền", phu: "sửa thứ tự bước", di: "#/day" }
+      ],
+      y: "Vòng khép kín. Không có mũi tên quay ngược này thì đây chỉ là một đường ống, và xưởng sẽ giỏi y như ngày đầu mãi mãi." }
+  ];
+
   window.XUONG = {
+    SO_DO: SO_DO,
     TANG: TANG, KHU: KHU, MAY: MAY, KY_NANG: KY_NANG, DAY: DAY,
     TO: TO, MUC: MUC, CHANG: CHANG, THU_MUC: THU_MUC,
     DONG_CO: DONG_CO, VIEC_MAU: VIEC_MAU

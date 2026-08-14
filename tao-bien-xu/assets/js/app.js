@@ -58,6 +58,9 @@
       'stroke-linejoin="round">' + p + "</svg>";
   }
   var IC = {
+    sodo: '<rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="10" width="6" height="4" rx="1"/>' +
+          '<rect x="16" y="10" width="6" height="4" rx="1"/><rect x="9" y="18" width="6" height="4" rx="1"/>' +
+          '<path d="M12 6v4M5 14v2h14v-2M12 16v2"/>',
     san: '<path d="M3 21h18M5 21V11l4-3v13M13 21V6l6-3v18"/><path d="M8 14h.01M8 17h.01M16 10h.01M16 14h.01"/>',
     may: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8V5h10v3M7 14h4M15 14h2"/>',
     tang: '<path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5M3 18l9 5 9-5"/>',
@@ -75,6 +78,7 @@
 
   /* ═══════════════ thanh bên ═══════════════ */
   var MUC_BEN = [
+    ["#/so-do", "Sơ đồ nhà máy", IC.sodo],
     ["#/san", "Sàn máy", IC.san],
     ["#/may", "18 máy", IC.may],
     ["#/tang", "Bốn tầng", IC.tang],
@@ -422,6 +426,149 @@
     veNut();
     veSan();
     if (MP.chay) { clearTimeout(MP.dong); nhip(); }
+  }
+
+  /* ═══════════════ sơ đồ toàn nhà máy ═══════════════
+     Bản đồ một trang: việc đi đường nào, rẽ ở đâu, quay lại chỗ nào.
+     Mọi ô có mã máy đều bấm được để mở hồ sơ đủ 10 trường. */
+  function trangSoDo() {
+    tieu.textContent = "Sơ đồ nhà máy";
+    phu.textContent = "một trang · từ bạn giao việc tới bạn duyệt";
+    than.innerHTML = "";
+
+    var gt = el("div", "giaithich");
+    gt.innerHTML =
+      "Đây là <b>toàn bộ xưởng trên một sơ đồ</b>. Sàn máy bày 18 máy theo khu và cho " +
+      "chạy mô phỏng — nó nói xưởng <i>đang làm gì</i>. Trang này nói xưởng " +
+      "<i>được nối ra sao</i>." +
+      '<span class="vn"><b>Ba chi tiết chỉ sơ đồ này mới thấy:</b> M04 được nạp từ ' +
+      "<b>bên hông</b> chứ không nhận từ máy trước; sau M06 việc <b>tách thành ba dây " +
+      "song song</b> rồi mới gộp; và M14 là <b>chỗ rẽ thật</b> — mức 0–1 đi thẳng, mức 2 " +
+      "dừng chờ bạn rồi mới nhập lại dòng. Bấm ô nào cũng mở được hồ sơ máy đó.</span>";
+    than.appendChild(gt);
+
+    var kh = el("section", "khoi");
+    var sd = el("div", "sd");
+
+    function oMay(id) {
+      var m = mayTheoId[id];
+      var a = el("a", "sd-o");
+      a.dataset.k = "may";
+      a.href = "#/may/" + id;
+      a.title = m ? m.tom : "";
+      a.innerHTML = '<span class="sd-id">' + id + " · " + esc(m ? m.en : "") + "</span>" +
+        '<span class="sd-ten">' + esc(m ? m.ten : id) + "</span>";
+      return a;
+    }
+    function noi() { return el("div", "sd-noi"); }
+
+    X.SO_DO.forEach(function (b, i) {
+      if (i) sd.appendChild(noi());
+
+      if (b.k === "nguoi") {
+        var n = el("div", "sd-o");
+        n.dataset.k = "nguoi";
+        n.title = b.y || "";
+        n.innerHTML = '<span class="sd-ten">' + esc(b.ten) + '</span><span class="sd-phu">' +
+          esc(b.phu) + "</span>";
+        sd.appendChild(n);
+        return;
+      }
+
+      if (b.k === "may") {
+        if (!b.nap) { sd.appendChild(oMay(b.may)); return; }
+        var hang = el("div", "sd-hang");
+        hang.appendChild(oMay(b.may));
+        var nap = el("div", "sd-nap");
+        b.nap.forEach(function (x) {
+          var a = el("a");
+          a.href = "#/may/" + x.may;
+          a.title = mayTheoId[x.may] ? mayTheoId[x.may].tom : "";
+          a.innerHTML = "<b>" + esc(x.ten) + "</b><i>" + esc(x.phu) + "</i>";
+          nap.appendChild(a);
+        });
+        hang.appendChild(nap);
+        sd.appendChild(hang);
+        return;
+      }
+
+      if (b.k === "chia" || b.k === "toa") {
+        sd.appendChild(el("div", "sd-nhan", b.nhan));
+        var ba = el("div", "sd-ba");
+        b.o.forEach(function (x) {
+          var e;
+          // ô tổ thợ không có mã máy — nó dẫn sang trang tổ, không sang hồ sơ máy
+          var den = x.di || (x.may ? "#/may/" + x.may : (x.to ? "#/to" : null));
+          if (den) { e = el("a", "sd-o"); e.href = den; }
+          else e = el("div", "sd-o");
+          e.dataset.k = b.k === "chia" ? "to" : "ve";
+          e.innerHTML = (x.to ? '<span class="sd-id">' + x.to + "</span>" : "") +
+            '<span class="sd-ten">' + esc(x.ten) + '</span><span class="sd-phu">' +
+            esc(x.phu) + "</span>";
+          ba.appendChild(e);
+        });
+        sd.appendChild(ba);
+        /* Máy làm nên bước này mà không có ô riêng — chúng là kho được
+           gọi tới, không phải trạm việc đi qua. Hiện thành chip nhỏ để
+           không ai tưởng sơ đồ bỏ sót chúng. */
+        if (b.qua) {
+          var chip = el("div", "sd-qua");
+          chip.appendChild(el("span", "sd-qua-nhan", "Hai máy đứng sau bước này"));
+          b.qua.forEach(function (id) {
+            var m = mayTheoId[id];
+            var a = el("a");
+            a.href = "#/may/" + id;
+            a.title = m ? m.tom : "";
+            a.innerHTML = "<b>" + id + "</b> " + esc(m ? m.ten : "");
+            chip.appendChild(a);
+          });
+          sd.appendChild(chip);
+        }
+        // khối "toả" có lời riêng ở dải vòng lặp cuối trang — đừng in hai lần
+        if (b.y && b.k === "chia") sd.appendChild(el("p", "sd-y", b.y));
+        return;
+      }
+
+      if (b.k === "gop") {
+        sd.appendChild(el("div", "sd-nhan", b.nhan));
+        return;
+      }
+
+      if (b.k === "kho") {
+        var k = el("a", "sd-o");
+        k.dataset.k = "kho";
+        k.href = b.di;
+        k.title = b.y || "";
+        k.innerHTML = '<span class="sd-id">' + esc(b.phu) + '</span><span class="sd-ten">' +
+          esc(b.ten) + "</span>";
+        sd.appendChild(k);
+        return;
+      }
+
+      if (b.k === "quyet") {
+        var m = mayTheoId[b.may];
+        var q = el("div", "sd-quyet");
+        q.innerHTML =
+          '<span class="sd-id">' + b.may + " · " + esc(m ? m.en : "") + "</span>" +
+          '<span class="sd-ten">' + esc(m ? m.ten : "") + "?</span>" +
+          '<div class="sd-re"><div class="khong"><b>KHÔNG</b><span>' + esc(b.khong) +
+          "</span></div>" +
+          '<div class="co"><b>CÓ</b><span>' + esc(b.co) + "</span></div></div>";
+        sd.appendChild(q);
+        if (b.y) sd.appendChild(el("p", "sd-y", b.y));
+        return;
+      }
+    });
+
+    var cuoi = X.SO_DO[X.SO_DO.length - 1];
+    if (cuoi && cuoi.y && cuoi.k === "toa") {
+      var v = el("div", "sd-vong");
+      v.innerHTML = svg(IC.quay, 16) + "<span>" + esc(cuoi.y) + "</span>";
+      sd.appendChild(v);
+    }
+
+    kh.appendChild(sd);
+    than.appendChild(kh);
   }
 
   /* ═══════════════ 18 máy ═══════════════ */
@@ -878,6 +1025,7 @@
       return trangMay(p[1]);
     }
     than.dataset.t = p[0];
+    if (p[0] === "so-do") return trangSoDo();
     if (p[0] === "tang") return trangTang();
     if (p[0] === "day") return trangDay();
     if (p[0] === "to") return trangTo();
