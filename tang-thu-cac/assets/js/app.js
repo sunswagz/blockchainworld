@@ -221,6 +221,90 @@
   }
 
   /* ── hồ sơ skill ──────────────────────────────────── */
+  /* ── BẢNG TUA ─────────────────────────────────────
+     Skill không phải app để quay màn hình — nó là bản hướng dẫn cho
+     agent. Nên "trailer" dựng từ chính cấu trúc bài viết: đề mục là
+     các chặng, khối lệnh là hành động.
+
+     Để trong file riêng theo kho, nạp khi mở skill. data.js đã 1,5 MB
+     và nằm trong SHELL nên ai mở trang cũng tải; nhét thêm bảng tua
+     cho 2.901 skill là bắt cả người không bao giờ mở chi tiết phải
+     trả giá. */
+  var kbCache = {};
+  var hoSoHienTai = null;   /* skill đang mở — chặn kết quả nạp về muộn */
+  function tenFileKb(kho) {
+    return kho.replace(/\//g, "__").replace(/[^A-Za-z0-9_.-]/g, "_") + ".json";
+  }
+  function napKb(kho) {
+    if (kbCache[kho]) return kbCache[kho];
+    kbCache[kho] = fetch("./assets/data/kb/" + tenFileKb(kho))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    return kbCache[kho];
+  }
+
+  var NANG_TEN = { 3: "cần đọc kỹ", 2: "đáng chú ý", 1: "bình thường" };
+
+  function veTua(t) {
+    if (!t) {
+      return '<p class="hs-thin">Chưa có bảng tua cho skill này — bản quét kế tiếp ' +
+        "của bot sẽ dựng. Trong lúc đó xem thẳng SKILL.md ở mục Nguồn bên dưới.</p>";
+    }
+    var h = "";
+
+    /* Các chặng. Đề mục cấp 3 thụt vào một bậc, để nhìn ra ngay đâu
+       là chương chính đâu là mục con — giống mục lục của video. */
+    if (t.buoc && t.buoc.length) {
+      h += '<ol class="tua">' + t.buoc.map(function (b) {
+        return '<li class="tua-b' + (b.c > 1 ? " tua-con" : "") + '">' + esc(b.t) + "</li>";
+      }).join("") + "</ol>";
+    } else {
+      h += '<p class="hs-thin">SKILL.md không chia đề mục — đọc thẳng bản gốc.</p>';
+    }
+
+    /* Khối lệnh: thứ nó thật sự chạy. 0 khối = thuần hướng dẫn, và
+       đó là thông tin quan trọng chứ không phải chỗ trống. */
+    if (t.lenh && t.lenh.length) {
+      h += '<div class="tua-lenh"><b>Lệnh nó chạy</b>' + t.lenh.map(function (x) {
+        return '<code><i>' + esc(x.ng) + "</i>" + esc(x.d) + "</code>";
+      }).join("") + "</div>";
+    }
+
+    /* Hồ sơ an toàn */
+    var nang = 0;
+    (t.co || []).forEach(function (c) { if (c.n > nang) nang = c.n; });
+    h += '<div class="tua-at"><b>Nó đụng vào gì</b>';
+    if (t.co && t.co.length) {
+      h += '<ul class="tua-co">' + t.co.map(function (c) {
+        return '<li class="n' + c.n + '">' + esc(c.t) + "</li>";
+      }).join("") + "</ul>";
+    } else {
+      h += '<p class="tua-sach">Không thấy lệnh nào chạm tới mạng, hệ thống hay bí mật.</p>';
+    }
+    var d = [];
+    if (t.chay && t.chay.length) d.push("<b>kèm " + t.chay.length + " file chạy được</b> (" +
+      t.chay.slice(0, 4).map(esc).join(", ") + (t.chay.length > 4 ? "…" : "") + ")");
+    else d.push("không kèm file chạy được");
+    /* soTep là số ĐẾM THẬT; t.kem là danh sách đã cắt cho nhẹ. Lấy
+       t.kem.length làm số tệp thì mọi skill lớn đều báo đúng "24" —
+       sai giống hệt nhau nên gần như không ai nhận ra. */
+    var n = t.soTep != null ? t.soTep : (t.kem ? t.kem.length : 0);
+    if (n) d.push(n + " tệp trong thư mục skill");
+    if (t.congCu) d.push("xin công cụ: <code>" + esc(t.congCu) + "</code>");
+    if (t.dai) d.push(Math.round(t.dai / 1000) + "k ký tự");
+    h += '<p class="hs-thin">' + d.join(" · ") + "</p>";
+
+    /* Câu này KHÔNG được bỏ. Quét tĩnh chỉ thấy thứ được viết ra;
+       skill là chỉ dẫn cho agent, agent có thể làm việc không nằm
+       nguyên văn trong file. Gắn tick xanh ở đây là nói dối. */
+    h += '<p class="tua-luu">Đây là quét tĩnh trong khối lệnh của SKILL.md, ' +
+      "<b>không phải chứng nhận an toàn</b>. Không có dấu hiệu nào không có nghĩa là " +
+      "vô hại — skill là chỉ dẫn cho agent, và agent có thể làm việc không viết thẳng " +
+      "trong file. Cách chắc chắn duy nhất vẫn là đọc SKILL.md.</p>";
+    h += "</div>";
+    return h;
+  }
+
   function moHoSo(s) {
     var d = dichCua(s), g = nhomCua(s.nhom);
     var h = "";
@@ -247,6 +331,12 @@
         "còn tệ hơn để nguyên bản.</p></div>";
     }
 
+    /* Bảng tua đặt NGAY SAU phần mô tả, trước mọi thứ khác: đây là
+       thứ trả lời "nó làm được gì" nhanh nhất, nên nó phải nằm chỗ
+       mắt chạm tới đầu tiên chứ không nằm dưới đáy. */
+    h += '<div class="hs"><div class="hs-h">Bảng tua — nó sẽ dắt agent đi qua đâu</div>' +
+      '<div id="hsTua"><p class="hs-thin">Đang nạp…</p></div></div>';
+
     if (s.trungTen) {
       h += '<div class="hs"><div class="hs-h">Lưu ý khi tra</div>' +
         '<p class="hs-khi">Có skill khác <b>cùng tên</b> trong danh mục nhưng <b>nội dung khác</b>. ' +
@@ -267,13 +357,23 @@
 
     var repo = "https://github.com/" + s.kho;
     var duongDay = repo + "/tree/main/" + s.duong;
-    h += '<div class="hs"><div class="hs-h">Cách cài</div>' +
-      '<pre class="cai" id="lenhCai">git clone --depth 1 ' + esc(repo) + '.git /tmp/sk\n' +
-      "cp -r /tmp/sk/" + esc(s.duong) + " ~/.claude/skills/</pre>" +
+    /* Lệnh mặc định cài vào .claude/skills/ của DỰ ÁN, không phải
+       ~/.claude/skills/. Bản cũ làm ngược: chép thẳng vào thư mục
+       chung, tức skill lạ chưa đọc lập tức có hiệu lực ở mọi dự án
+       kể cả những repo quan trọng. Thử trong một dự án nháp trước là
+       thói quen đúng, nên mặc định phải là cái đó. */
+    h += '<div class="hs"><div class="hs-h">Cách cài — thử ở dự án nháp trước</div>' +
+      '<pre class="cai" id="lenhCai">git clone --depth 1 ' + esc(repo) + ".git /tmp/sk\n" +
+      "mkdir -p .claude/skills\n" +
+      "cp -r /tmp/sk/" + esc(s.duong) + " .claude/skills/</pre>" +
       '<button class="nut-chep" id="chepCai" type="button">Chép lệnh</button>' +
       '<p class="hs-p" style="margin-top:10px;font-size:12.4px;color:var(--ink-3)">' +
-      "Đặt vào <code>~/.claude/skills/</code> là dùng cho mọi dự án; đặt vào " +
-      "<code>.claude/skills/</code> trong repo thì chỉ dự án đó thấy.</p></div>";
+      "Lệnh trên cài vào <code>.claude/skills/</code> của <b>thư mục hiện tại</b> — chỉ dự án " +
+      "đó thấy. Chạy nó trong một dự án nháp, mở Claude Code mà <b>đừng bật tự động duyệt " +
+      "quyền</b>, rồi ra một yêu cầu chạm đúng skill để xem nó xin làm gì.<br><br>" +
+      "Ưng rồi thì chép sang <code>~/.claude/skills/</code> để dùng cho mọi dự án. " +
+      "Đừng làm bước đó trước — skill chưa đọc mà đặt ở thư mục chung là nó có hiệu lực " +
+      "ngay cả trong những repo bạn không muốn nó đụng vào.</p></div>";
 
     h += '<div class="hs"><div class="hs-h">Nguồn</div><p class="hs-p">' +
       '<a href="' + esc(duongDay) + '" target="_blank" rel="noopener">Xem SKILL.md trên GitHub ↗</a><br>' +
@@ -288,6 +388,24 @@
       (dichCua(s) ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
       '<span style="font-size:11.5px;color:var(--ink-3)">★ ' + so(s.sao) + "</span>";
     $("#hosoBody").innerHTML = h;
+
+    /* Nạp bảng tua sau khi khung đã hiện: hồ sơ mở ra ngay, phần tua
+       điền vào sau. Chờ mạng xong mới mở panel thì mỗi lần bấm skill
+       lại đứng hình một nhịp.
+       Kiểm lại id trước khi ghi: người dùng có thể đã bấm sang skill
+       khác trong lúc chờ, ghi bừa là hiện bảng tua của skill trước. */
+    hoSoHienTai = s.id;
+    napKb(s.kho).then(function (kb) {
+      /* So với biến NGOÀI hàm, không so s.id với chính nó: `s` nằm
+         trong closure nên s.id không bao giờ đổi, phép so kiểu đó
+         luôn đúng và không chặn được gì. */
+      if (hoSoHienTai !== s.id) return;
+      var o = $("#hsTua");
+      if (!o || $("#hoso").dataset.open !== "1") return;
+      var t = kb && kb.skills ? kb.skills.find(function (x) { return x.id === s.id; }) : null;
+      o.innerHTML = veTua(t);
+    });
+
     $("#hoso").dataset.open = "1";
     $("#scrim").dataset.open = "1";
     $("#hosoDong").focus();

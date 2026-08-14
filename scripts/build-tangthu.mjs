@@ -358,6 +358,109 @@ function diemDuong(p) {
   d += p.split("/").length;                                /* nông hơn thì tốt hơn */
   return d;
 }
+/* ── BẢNG TUA + HỒ SƠ AN TOÀN ────────────────────────
+   Skill không phải app để quay màn hình — nó là bản hướng dẫn cho
+   agent. Nên "trailer" phải dựng từ chính cấu trúc bài viết: các đề
+   mục là các chặng, khối lệnh là hành động cụ thể.
+
+   Toàn bộ phần này KHÔNG tốn thêm một lượt tải nào: `md` đã nằm sẵn
+   trong tay ở vòng quét, trước nay chỉ bóc frontmatter rồi vứt thân.
+
+   ── Vì sao chỉ quét cờ trong KHỐI LỆNH ──
+   Quét cả văn xuôi thì một câu như "đừng bao giờ commit API_KEY của
+   bạn" sẽ bị gắn cờ "chạm tới bí mật" — tức là câu CẢNH BÁO người
+   đọc lại làm skill trông nguy hiểm. Cờ báo nhầm thì người ta bỏ qua
+   cờ, kéo theo cả lần nó đúng. Nên chỉ soi nơi có hành vi thật: khối
+   ``` và mã nội dòng.
+
+   ── Giới hạn phải nói thẳng ──
+   Đây là quét TĨNH: nó chỉ thấy thứ được viết ra. Skill là chỉ dẫn
+   cho agent, mà agent có thể làm việc không nằm nguyên văn trong
+   file. Nên nhãn đúng là "chỗ cần đọc kỹ", KHÔNG BAO GIỜ là "đã an
+   toàn". Không skill nào được gắn dấu tick xanh. */
+
+const CO_RUI_RO = [
+  { ma: "macode", nang: 3, noi: "tải mã từ mạng rồi chạy thẳng",
+    re: /\b(curl|wget)\b[^\n|]*\|\s*(sudo\s+)?(ba|z|fi)?sh\b/i },
+  { ma: "quantri", nang: 3, noi: "chạy quyền quản trị (sudo)", re: /\bsudo\s+\S/ },
+  { ma: "xoa", nang: 3, noi: "xoá đệ quy hoặc ép xoá", re: /\brm\s+-[a-z]*[rf]/ },
+  { ma: "bimat", nang: 3, noi: "đọc khoá, mật khẩu hoặc biến bí mật",
+    re: /(~\/\.ssh|\/\.aws\/|\.env\b|\bcredentials\b|[A-Z][A-Z0-9_]*(API_KEY|SECRET|TOKEN|PASSWORD))/ },
+  { ma: "daymang", nang: 2, noi: "ghi ra kho từ xa (không thu hồi được)",
+    re: /\b(git\s+push|gh\s+(pr|release|repo|gist)\s+create)\b/ },
+  { ma: "caidat", nang: 2, noi: "cài phần mềm vào máy bạn",
+    re: /\b(pip3?\s+install|npm\s+(i|install|exec)\b|npx\s|yarn\s+add|brew\s+install|apt(-get)?\s+install|cargo\s+install|go\s+install)/ },
+  { ma: "mang", nang: 1, noi: "gọi ra mạng",
+    re: /\b(curl|wget)\b|\bfetch\(|\brequests\.(get|post)\b|\burllib\b/ },
+  { ma: "quyen", nang: 1, noi: "đổi quyền tệp", re: /\bchmod\b|\bchown\b/ }
+];
+
+/* Đuôi file coi là CHẠY ĐƯỢC. Skill kèm mã chạy được thì không còn
+   thuần hướng dẫn nữa — đó là khác biệt lớn nhất về mức độ tin cậy,
+   nên tách hẳn ra chứ không gộp vào danh sách file chung. */
+const DUOI_CHAY = /\.(sh|bash|zsh|py|js|mjs|cjs|ts|rb|pl|ps1|bat|cmd|exe)$/i;
+
+function batMa(md) {
+  let ma = "";
+  for (const m of md.matchAll(/```[^\n]*\n([\s\S]*?)```/g)) ma += m[1] + "\n";
+  for (const m of md.matchAll(/`([^`\n]{2,200})`/g)) ma += m[1] + "\n";
+  return ma;
+}
+
+function boTrailer(md, thuMuc, fm, duongTrongCay) {
+  /* Chặng = đề mục. Bỏ đề mục cấp 1 vì nó thường chỉ lặp lại tên
+     skill. Cắt 12 chặng: dài hơn thì không còn là "tua nhanh" nữa. */
+  const buoc = [];
+  for (const m of md.matchAll(/^(#{2,3})\s+(.+?)\s*$/gm)) {
+    if (buoc.length >= 12) break;
+    const t = m[2].replace(/[*_`#]/g, "").trim();
+    if (t) buoc.push({ c: m[1].length - 1, t: t.slice(0, 72) });
+  }
+
+  /* Khối lệnh: giữ ngôn ngữ và dòng đầu có nghĩa, để thấy ngay nó
+     định làm gì mà không phải mở cả file. */
+  const lenh = [];
+  for (const m of md.matchAll(/```(\w*)[^\n]*\n([\s\S]*?)```/g)) {
+    if (lenh.length >= 6) break;
+    const dong = m[2].split("\n").map((x) => x.trim())
+      .filter((x) => x && !x.startsWith("#"))[0];
+    if (dong) lenh.push({ ng: (m[1] || "?").slice(0, 12), d: dong.slice(0, 110) });
+  }
+
+  const ma = batMa(md);
+  const co = [];
+  for (const c of CO_RUI_RO) if (c.re.test(ma)) co.push({ ma: c.ma, n: c.nang, t: c.noi });
+
+  /* File kèm theo, lấy từ cây repo đã tải — không thêm lượt gọi nào. */
+  const tien = thuMuc + "/";
+  const kem = [], chay = [];
+  let soTep = 0;                 /* ĐẾM THẬT, trước khi cắt danh sách */
+  for (const p of duongTrongCay) {
+    if (!p.startsWith(tien) || p === thuMuc + "/SKILL.md") continue;
+    soTep++;
+    const ten = p.slice(tien.length);
+    if (DUOI_CHAY.test(ten)) chay.push(ten);
+    /* Danh sách tên thì cắt cho nhẹ, nhưng số đếm phải là số thật:
+       báo "24 tệp" khi thực ra là "cắt ở 24" là nói sai — và sai
+       giống hệt nhau ở mọi skill lớn, nên rất khó nhận ra. */
+    if (ten.length > 90 || kem.length >= 24) continue;
+    kem.push(ten);
+  }
+
+  const congCu = fm["allowed-tools"] || fm.allowed_tools || null;
+
+  return {
+    dai: md.length,
+    buoc,
+    lenh,
+    co,
+    soTep,
+    kem: kem.slice(0, 24),
+    chay: chay.slice(0, 12),
+    congCu: congCu ? String(congCu).slice(0, 200) : null
+  };
+}
+
 /* ── 2. quét SKILL.md ──────────────────────────────── */
 /* anthropics/skills luôn quét đầu tiên dù sao có thể thấp hơn kho
    khác: đây là nguồn chính thức và là nhóm duy nhất được dịch tay. */
@@ -372,6 +475,7 @@ const thuTu = [...kho].sort((a, b) => diem(b) - diem(a));
 const canQuet = thuTu.slice(0, SO_KHO_QUET);
 
 const skills = [];
+const trailer = [];         /* bảng tua, ghi ra file riêng theo kho */
 const daQuet = new Set();   /* kho thật sự quét trong lần chạy này */
 let quetDuoc = 0, quetHong = 0;
 
@@ -412,6 +516,11 @@ for (const r of canQuet) {
   }
   const ds = (cay.tree || []).filter((x) => /(^|\/)SKILL\.md$/i.test(x.path));
   if (cay.truncated) warn(`${r.id}: cây file bị GitHub cắt bớt — có thể sót skill.`);
+  /* Danh sách đường dẫn dùng cho phần "file kèm theo" của bảng tua.
+     Chỉ lấy blob: cây còn có cả node thư mục, kể chúng vào thì skill
+     nào cũng như kèm thêm mấy file ma. */
+  const duongTrongCay = (cay.tree || [])
+    .filter((x) => x.type === "blob").map((x) => x.path);
 
   let lay = 0;
   /* Sắp theo chất lượng đường dẫn TRƯỚC khi cắt: kho lớn có gần 900
@@ -441,6 +550,11 @@ for (const r of canQuet) {
       sao: r.sao,
       giayPhep: fm.license ? String(fm.license).slice(0, 90) : null
     });
+    /* Bảng tua để RIÊNG, không nhét vào data.js: data.js đã 1,5 MB và
+       nằm trong SHELL nên mọi người tải ngay từ lần mở đầu. Nhồi thêm
+       ~1 MB bảng tua là bắt cả những người không bao giờ mở chi tiết
+       skill phải trả giá. Tách theo kho, tải khi cần. */
+    trailer.push({ id: r.id + "/" + thuMuc, ...boTrailer(md, thuMuc, fm, duongTrongCay) });
     lay++;
   }
   quetDuoc++;
@@ -734,6 +848,33 @@ window.TT_DATA = ${JSON.stringify(out)};
 `;
 await mkdir(DIR, { recursive: true });
 await writeFile(join(DIR, "data.js"), js, "utf8");
+
+/* ── bảng tua: một file mỗi kho, tải khi cần ──────────
+   Chỉ ghi lại kho THẬT SỰ quét lần này. Kho không quét thì file cũ
+   của nó nằm nguyên trên đĩa — cùng luật với guard gộp-từ-bản-cũ ở
+   trên, để một lượt chạy ngắn (hết giờ, hết hạn mức) không xoá sạch
+   công của những lượt trước.
+
+   Tên file thay "/" bằng "__": tên kho là `chu/kho`, để nguyên thì
+   thành thư mục lồng, mà thư mục lồng lại không nằm trong `git add`
+   của workflow. */
+const KB = join(ROOT, "tang-thu-cac", "assets", "data", "kb");
+await mkdir(KB, { recursive: true });
+
+const theoKho = new Map();
+for (const t of trailer) {
+  const kho = t.id.split("/").slice(0, 2).join("/");
+  if (!theoKho.has(kho)) theoKho.set(kho, []);
+  theoKho.get(kho).push(t);
+}
+let soFile = 0, soByte = 0;
+for (const [kho, ds] of theoKho) {
+  const ten = kho.replace(/\//g, "__").replace(/[^A-Za-z0-9_.-]/g, "_") + ".json";
+  const noi = JSON.stringify({ kho, luc: now.toISOString(), skills: ds });
+  await writeFile(join(KB, ten), noi, "utf8");
+  soFile++; soByte += noi.length;
+}
+log(`  bảng tua: ${trailer.length} skill · ${soFile} file · ${(soByte / 1024).toFixed(0)} KB (tải khi mở skill)`);
 
 /* ── thống kê ──────────────────────────────────────── */
 const show = (o) => Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}=${v}`).join("  ");

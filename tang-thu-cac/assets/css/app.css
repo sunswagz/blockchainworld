@@ -281,3 +281,44 @@ td.len b,td.xuong b{font-weight:700}
   font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-2);
   word-break:break-all}
 .bansao a:hover{background:var(--acc-t);color:var(--acc);text-decoration:none}
+
+/* ── BẢNG TUA + HỒ SƠ AN TOÀN ──────────────────────────
+   Các chặng của skill, dựng từ đề mục trong SKILL.md. Đánh số bằng
+   CSS counter chứ không phải <ol> mặc định: mục con phải KHÔNG được
+   đánh số, không thì "3.1" đọc như một chặng riêng. */
+.tua{list-style:none;counter-reset:tua;margin:0;padding:0}
+.tua-b{counter-increment:tua;position:relative;padding:7px 0 7px 30px;
+  font-size:13.2px;color:var(--ink);border-bottom:1px solid var(--line)}
+.tua-b::before{content:counter(tua);position:absolute;left:0;top:7px;
+  width:20px;height:20px;border-radius:5px;background:var(--acc-t);color:var(--acc);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:650;
+  display:grid;place-items:center}
+.tua-b:last-child{border-bottom:0}
+/* Mục con: không đánh số, lùi vào, chữ nhạt hơn */
+.tua-con{counter-increment:none;padding-left:44px;font-size:12.4px;color:var(--ink-2)}
+.tua-con::before{content:"";width:5px;height:5px;left:32px;top:14px;border-radius:50%;
+  background:var(--ink-3);opacity:.45}
+
+.tua-lenh{margin-top:12px}
+.tua-lenh b,.tua-at b{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+.tua-lenh code{display:block;margin-bottom:5px;padding:7px 9px;border-radius:6px;
+  background:var(--card-2);font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  color:var(--ink-2);white-space:pre-wrap;word-break:break-word}
+.tua-lenh code i{display:inline-block;margin-right:8px;font-style:normal;
+  color:var(--ink-3);font-size:10px;text-transform:uppercase}
+
+.tua-at{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.tua-co{list-style:none;margin:0;padding:0}
+.tua-co li{position:relative;padding:5px 0 5px 20px;font-size:12.8px;color:var(--ink-2)}
+.tua-co li::before{content:"";position:absolute;left:2px;top:11px;
+  width:8px;height:8px;border-radius:2px}
+/* Ba mức, không có mức "xanh an toàn" — cố ý. Quét tĩnh không chứng
+   nhận được sự an toàn, nên bảng màu chỉ đi từ trung tính tới đỏ. */
+.tua-co li.n1::before{background:var(--ink-3);opacity:.5}
+.tua-co li.n2::before{background:#C98A22}
+.tua-co li.n3::before{background:#B4462F}
+.tua-co li.n3{color:var(--ink);font-weight:560}
+.tua-sach{margin:0;font-size:12.8px;color:var(--ink-2)}
+.tua-luu{margin:10px 0 0;padding:9px 11px;border-radius:7px;background:var(--card-2);
+  font-size:11.8px;line-height:1.6;color:var(--ink-3)}
