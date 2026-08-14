@@ -258,8 +258,17 @@ Cả ba lệnh không in ra gì (trừ lệnh 3) thì đẩy thẳng:
 Lệnh này làm đúng một fast-forward trên remote — không checkout, không
 merge, không chạm cây chính, nên **không có thao tác dùng chung nào để
 tranh**. Hai phiên gộp cùng lúc thì phiên sau bị từ chối chứ không hỏng
-gì: `git fetch -q`, chạy lại ba lệnh kiểm, đẩy lại. Không bao giờ
-`--force`.
+gì: `git fetch -q`, chạy lại ba lệnh kiểm, đẩy lại.
+
+**Không bao giờ `--force` lên `main`.** Lệnh cấm này chỉ nói về `main` —
+nhánh worktree của chính bạn thì khác: rebase xong, lịch sử nhánh đã viết
+lại nên push thường sẽ bị từ chối, và đẩy lại bằng
+
+    git push origin HEAD:<tên cung> --force-with-lease
+
+là bình thường, không phạm gì. Dùng `--force-with-lease` chứ đừng
+`--force` trần: nếu có ai đó đã đẩy lên nhánh đó sau lần fetch cuối của
+bạn, lease sẽ chặn thay vì ghi đè im lặng.
 
 (Vì không đụng cây chính nữa, cũng không còn phải soát
 `git status --short | grep '^??'` sau khi gộp — trước đây bước đó để chắc
@@ -387,7 +396,9 @@ Ranh giới: **sửa cho tài liệu khớp thực tế thì cứ làm; đổi t
 
    Rebase xong đọc lại `git diff HEAD origin/main -- CLAUDE.md` để chắc
    bản vá của phiên kia và của bạn không nói ngược nhau, rồi đẩy lại.
-   **Không bao giờ `--force`.**
+   **Không bao giờ `--force` lên `main`** — nhánh worktree của mình sau
+   rebase thì `--force-with-lease` là bình thường, xem mục "Gộp về
+   `main`".
 
 ### Mỗi luật thêm vào phải trả giá
 
