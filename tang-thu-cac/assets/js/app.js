@@ -62,11 +62,14 @@
   var IC = {
     "tong-quan": '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>',
     "danh-muc": '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
-    "xep-hang": '<path d="M3 21h18"/><rect x="4.6" y="12.4" width="3.6" height="6.4" rx="1.1"/><rect x="10.2" y="7" width="3.6" height="11.8" rx="1.1"/><rect x="15.8" y="10" width="3.6" height="8.8" rx="1.1"/>'
+    "xep-hang": '<path d="M3 21h18"/><rect x="4.6" y="12.4" width="3.6" height="6.4" rx="1.1"/><rect x="10.2" y="7" width="3.6" height="11.8" rx="1.1"/><rect x="15.8" y="10" width="3.6" height="8.8" rx="1.1"/>',
+    "xu-huong": '<path d="M3.5 16.5 9 11l4 4 7.5-7.5"/><path d="M15 7.5h5.5V13"/>',
+    "lich-su": '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/>'
   };
   function demMuc(ma) {
     if (ma === "danh-muc") return SK.length;
     if (ma === "xep-hang") return KHO.length;
+    if (ma === "lich-su") return (D.doiGanNhat || []).length;
     return null;
   }
   function veBen() {
@@ -75,7 +78,7 @@
     var lab = el("div", "blab");
     lab.textContent = "Tra cứu";
     host.appendChild(lab);
-    ["tong-quan", "danh-muc", "xep-hang"].forEach(function (ma) {
+    ["tong-quan", "danh-muc", "xep-hang", "xu-huong", "lich-su"].forEach(function (ma) {
       var t = VI.muc[ma] || { ten: ma };
       var a = el("a", "bmuc");
       a.href = "#/" + ma;
@@ -372,10 +375,166 @@
       });
   }
 
+
+  /* ══════════════════════════════════════════════════
+     4. XU HƯỚNG
+     GitHub KHÔNG có API cho số sao trong quá khứ, nên xu hướng là
+     hiệu giữa hai mốc do chính build tự ghi mỗi lần chạy. Hệ quả:
+     ngày đầu chưa có gì, số 24 giờ có sau một ngày, 7 ngày có sau
+     một tuần. Nói thẳng chuyện đó thay vì hiện bảng trống khó hiểu.
+     ══════════════════════════════════════════════════ */
+  var KY = [
+    { ma: "24h", ten: "24 giờ" },
+    { ma: "7d", ten: "7 ngày" },
+    { ma: "30d", ten: "30 ngày" }
+  ];
+
+  function mhXuHuong(host) {
+    var X = D.xuHuong || {};
+    if (!state.ky) state.ky = "24h";
+
+    host.innerHTML = '<p class="giaithich">' + dan("xu-huong") + "</p>" +
+      '<div class="tabs" id="tabs" role="tablist"></div>' +
+      '<section class="khoi"><div class="loc"><span class="loc-lab">Mốc so sánh</span>' +
+      '<span class="goiy" id="mocTin"></span><span class="dem" id="dem"></span></div>' +
+      '<div class="bangwrap" id="bang"></div></section>';
+
+    veTabs(KY.map(function (k) {
+      var x = X[k.ma];
+      return { ma: k.ma, ten: k.ten, so: x && x.du ? x.muc.length : 0 };
+    }), state.ky, function (k) { state.ky = k; ve(); });
+
+    var x = X[state.ky];
+    if (!x || !x.du) {
+      var moc = X.soMoc || 0;
+      var tu = X.mocDau ? " Mốc đầu tiên ghi lúc " + ngayGio(X.mocDau) + "." : "";
+      $("#bang").innerHTML = '<div class="trong" style="text-align:left;padding:22px 20px">' +
+        "<b>Chưa đủ dữ liệu cho khoảng " + esc(nhanKy(state.ky)) + ".</b><br><br>" +
+        "GitHub không cho biết một kho có bao nhiêu sao <i>trong quá khứ</i> — chỉ có số hiện tại. " +
+        "Nên Tàng Thư Các phải tự ghi lại một mốc mỗi lần cập nhật, rồi lấy hiệu giữa hai mốc.<br><br>" +
+        "Hiện đã ghi <b>" + moc + " mốc</b>." + esc(tu) +
+        " Cập nhật chạy 4 lần mỗi ngày, nên số <b>24 giờ</b> có sau khoảng một ngày, " +
+        "<b>7 ngày</b> sau một tuần, <b>30 ngày</b> sau một tháng.</div>";
+      $("#mocTin").textContent = "";
+      $("#dem").textContent = moc + " mốc đã ghi";
+      return;
+    }
+
+    $("#mocTin").textContent = "so với mốc cách đây " + x.tuoiGio + " giờ";
+    $("#dem").textContent = x.muc.length + " kho đổi số sao";
+
+    var t = el("table", "bang");
+    t.innerHTML = '<thead><tr><th class="l">#</th><th class="l">Kho</th>' +
+      "<th>Sao thêm</th><th>Tăng</th><th>Sao hiện tại</th><th>Skill</th></tr></thead>";
+    var tb = el("tbody");
+    var demSkill = {};
+    SK.forEach(function (y) { demSkill[y.kho] = (demSkill[y.kho] || 0) + 1; });
+
+    x.muc.forEach(function (m, i) {
+      var r = el("tr");
+      var k = KHO.filter(function (y) { return y.id === m.id; })[0] || {};
+      r.innerHTML =
+        '<td class="l hang">' + (i + 1) + "</td>" +
+        '<td class="l"><a class="kho-ten" href="https://github.com/' + esc(m.id) +
+          '" target="_blank" rel="noopener">' + esc(m.id) + "</a>" +
+          (k.moTa ? '<span class="kho-mo">' + esc(k.moTa) + "</span>" : "") + "</td>" +
+        '<td class="' + (m.them >= 0 ? "len" : "xuong") + '"><b>' +
+          (m.them >= 0 ? "+" : "") + so(m.them) + "</b></td>" +
+        '<td class="' + (m.them >= 0 ? "len" : "xuong") + '">' +
+          (typeof m.pt === "number" ? (m.pt >= 0 ? "+" : "") + (m.pt * 100).toFixed(2) + "%" : "—") + "</td>" +
+        "<td>" + so(m.sao) + "</td>" +
+        "<td>" + (demSkill[m.id] != null ? demSkill[m.id] : '<span class="hang">chưa quét</span>') + "</td>";
+      tb.appendChild(r);
+    });
+    t.appendChild(tb);
+    $("#bang").innerHTML = "";
+    $("#bang").appendChild(t);
+  }
+
+  function nhanKy(ma) {
+    for (var i = 0; i < KY.length; i++) if (KY[i].ma === ma) return KY[i].ten;
+    return ma;
+  }
+  function ngayGio(sec) {
+    var d = new Date(sec * 1000), p = function (n) { return String(n).padStart(2, "0"); };
+    return p(d.getUTCDate()) + "/" + p(d.getUTCMonth() + 1) + " " + p(d.getUTCHours()) + ":" + p(d.getUTCMinutes()) + " UTC";
+  }
+
+  function veTabs(ds, chon, doi) {
+    var host = $("#tabs");
+    if (!host) return;
+    host.innerHTML = "";
+    ds.forEach(function (t) {
+      var b = el("button", "tab");
+      b.type = "button";
+      b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(chon === t.ma));
+      b.innerHTML = esc(t.ten) + (t.so ? '<span class="n">' + t.so + "</span>" : "");
+      b.addEventListener("click", function () { doi(t.ma); });
+      host.appendChild(b);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════
+     5. LỊCH SỬ CẬP NHẬT
+     Nhật ký của chính Tàng Thư Các: mỗi lần cập nhật đã thêm/bớt
+     kho nào, skill nào. Chỉ ghi lần nào CÓ đổi thật — lần chạy
+     không đổi gì mà vẫn ghi một dòng thì nhật ký thành rác.
+     ══════════════════════════════════════════════════ */
+  function mhLichSu(host) {
+    var DS = D.doiGanNhat || [];
+    host.innerHTML = '<p class="giaithich">' + dan("lich-su") + "</p>" +
+      '<section class="khoi"><div class="khoi-dinh"><h2>Những lần có thay đổi</h2>' +
+      '<span class="khoi-n">' + DS.length + " lần gần nhất</span></div>" +
+      '<div id="ds"></div></section>';
+
+    if (!DS.length) {
+      $("#ds").innerHTML = '<p class="trong">Chưa ghi được lần đổi nào. ' +
+        "Nhật ký bắt đầu từ lần cập nhật đầu tiên sau khi tính năng này lên.</p>";
+      return;
+    }
+
+    $("#ds").innerHTML = DS.map(function (x) {
+      var d = [];
+      if (x.khoThem && x.khoThem.length) {
+        d.push('<div class="ls-nhom"><span class="ls-dau len">+' + x.khoThem.length + " kho</span>" +
+          '<div class="ls-ds">' + x.khoThem.slice(0, 12).map(function (k) {
+            return '<a href="https://github.com/' + esc(k) + '" target="_blank" rel="noopener">' + esc(k) + "</a>";
+          }).join("") + (x.khoThem.length > 12 ? '<span class="ls-them">…và ' + (x.khoThem.length - 12) + " kho nữa</span>" : "") + "</div></div>");
+      }
+      if (x.khoBot && x.khoBot.length) {
+        d.push('<div class="ls-nhom"><span class="ls-dau xuong">−' + x.khoBot.length + " kho</span>" +
+          '<div class="ls-ds">' + x.khoBot.slice(0, 12).map(function (k) {
+            return "<span>" + esc(k) + "</span>";
+          }).join("") + "</div></div>");
+      }
+      if (x.soSkillThem) {
+        d.push('<div class="ls-nhom"><span class="ls-dau len">+' + x.soSkillThem + " skill</span>" +
+          '<div class="ls-ds">' + (x.skillThem || []).slice(0, 14).map(function (y) {
+            return "<span><b>" + esc(y.ten) + "</b> " + esc(y.kho) + "</span>";
+          }).join("") + (x.soSkillThem > 14 ? '<span class="ls-them">…và ' + (x.soSkillThem - 14) + " skill nữa</span>" : "") + "</div></div>");
+      }
+      if (x.soSkillBot) {
+        d.push('<div class="ls-nhom"><span class="ls-dau xuong">−' + x.soSkillBot + " skill</span>" +
+          '<div class="ls-ds">' + (x.skillBot || []).slice(0, 14).map(function (y) {
+            return "<span><b>" + esc(y.ten) + "</b> " + esc(y.kho) + "</span>";
+          }).join("") + "</div></div>");
+      }
+      return '<div class="ls-muc">' +
+        '<div class="ls-dinh"><b>' + esc(ngayGio(x.luc)) + "</b>" +
+        '<span class="ls-tong">' + so(x.tongSkill) + " skill · " + x.tongKho + " kho</span>" +
+        (x.suyGiam ? '<span class="the-nho the-cd">lần chạy suy giảm</span>' : "") + "</div>" +
+        d.join("") + "</div>";
+    }).join("");
+  }
+
   /* ══════════════════════════════════════════════════
      ĐIỀU PHỐI
      ══════════════════════════════════════════════════ */
-  var MH = { "tong-quan": mhTongQuan, "danh-muc": mhDanhMuc, "xep-hang": mhXepHang };
+  var MH = {
+    "tong-quan": mhTongQuan, "danh-muc": mhDanhMuc, "xep-hang": mhXepHang,
+    "xu-huong": mhXuHuong, "lich-su": mhLichSu
+  };
 
   function ve() {
     var t = VI.muc[state.muc] || { ten: state.muc };
@@ -397,7 +556,7 @@
       var p = kv.split("=");
       if (p[0]) loc[p[0]] = decodeURIComponent(p[1] || "");
     });
-    if (ma !== state.muc) { state.muc = ma; state.nhom = "all"; state.nguon = "all"; }
+    if (ma !== state.muc) { state.muc = ma; state.nhom = "all"; state.nguon = "all"; state.ky = "24h"; }
     if (loc.nhom) state.nhom = loc.nhom;
     ve();
     var b = $("#ben");

@@ -91,7 +91,8 @@ jobs:
                   kinh-thanh/assets/data/history.json \
                   do-sat-vien/assets/js/data.js \
                   cong-bo/assets/js/ \
-                  tang-thu-cac/assets/js/data.js
+                  tang-thu-cac/assets/js/data.js \
+                  tang-thu-cac/assets/data/
           if git diff --staged --quiet; then
             echo "Số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"

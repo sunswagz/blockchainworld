@@ -35,6 +35,16 @@ window.TT_VI = {
       y: "Tra từng skill: nó làm gì, khi nào Claude tự bật, và cách cài.",
       vn: "17 skill trong kho anthropics/skills được dịch và diễn giải tay vì tôi đã đọc từng SKILL.md. Mọi skill còn lại — kể cả skill do Anthropic sở hữu ở kho khác — giữ nguyên bản gốc và có đánh dấu."
     },
+    "xu-huong": {
+      ten: "Xu hướng",
+      y: "Kho nào đang tăng sao nhanh nhất trong 24 giờ, 7 ngày, 30 ngày.",
+      vn: "GitHub KHÔNG cho biết một kho có bao nhiêu sao trong quá khứ — chỉ có số hiện tại. Nên Tàng Thư Các tự ghi một mốc mỗi lần cập nhật rồi lấy hiệu. Nghĩa là bảng này rỗng lúc đầu và đầy dần theo thời gian: 24 giờ có sau một ngày, 30 ngày có sau một tháng."
+    },
+    "lich-su": {
+      ten: "Lịch sử cập nhật",
+      y: "Mỗi lần cập nhật đã thêm hay bớt kho nào, skill nào.",
+      vn: "Chỉ ghi những lần CÓ thay đổi thật. Lần chạy nào cũng ghi một dòng thì nhật ký thành rác, phải lội qua hàng chục dòng trống mới thấy cái đáng xem."
+    },
     "xep-hang": {
       ten: "Xếp hạng kho",
       y: "Các kho skill trên GitHub, sắp theo số sao, kèm số skill quét được.",

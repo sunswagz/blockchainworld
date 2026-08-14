@@ -288,6 +288,7 @@ const thuTu = [...kho].sort((a, b) => diem(b) - diem(a));
 const canQuet = thuTu.slice(0, SO_KHO_QUET);
 
 const skills = [];
+const daQuet = new Set();   /* kho thật sự quét trong lần chạy này */
 let quetDuoc = 0, quetHong = 0;
 
 for (const r of canQuet) {
@@ -332,6 +333,7 @@ for (const r of canQuet) {
     lay++;
   }
   quetDuoc++;
+  daQuet.add(r.id);
   log(`  · ${r.id.padEnd(40)} ${String(lay).padStart(4)} skill  (còn ${conLuot ?? "?"} lượt)`);
   await nghi(150);
 }
@@ -366,8 +368,138 @@ if ((hongNapThang || !quetDuoc) && cu?.kho?.length) {
 /* ── đóng gói ──────────────────────────────────────── */
 const now = new Date();
 const pad = (n) => String(n).padStart(2, "0");
-const dsSkill = skills.length ? skills : (cu?.skills || []);
+/* Gộp thay vì thay thế: skill vừa quét, cộng skill cũ của những kho
+   lần này KHÔNG đụng tới. Thay thế toàn bộ thì quét 6 kho là mất sạch
+   danh mục của 20 kho lần trước. */
+const cuTheoKho = new Map();
+for (const x of cu?.skills || []) {
+  if (daQuet.has(x.kho)) continue;      /* kho này vừa quét lại — dùng bản mới */
+  cuTheoKho.set(x.id, x);
+}
+const dsSkill = skills.length || cuTheoKho.size
+  ? [...skills, ...cuTheoKho.values()].sort(
+      (a, b) => (b.chinhChu ? 1 : 0) - (a.chinhChu ? 1 : 0) || b.sao - a.sao ||
+        String(a.ten).localeCompare(String(b.ten)))
+  : (cu?.skills || []);
+if (cuTheoKho.size) {
+  log(`  gộp     : ${skills.length} skill vừa quét + ${cuTheoKho.size} giữ lại từ ${new Set([...cuTheoKho.values()].map((x) => x.kho)).size} kho chưa quét lượt này`);
+}
 const demNhom = dsSkill.reduce((m, s) => { m[s.nhom] = (m[s.nhom] || 0) + 1; return m; }, {});
+/* ══════════════════════════════════════════════════════
+   LỊCH SỬ MỐC · XU HƯỚNG · NHẬT KÝ ĐỔI
+   ══════════════════════════════════════════════════════ */
+const FLS = join(ROOT, "tang-thu-cac", "assets", "data", "lich-su.json");
+const GIU_MOC = 130;   /* 130 mốc × 6 giờ ≈ 32 ngày */
+const GIU_DOI = 80;
+
+async function docLichSu() {
+  if (!existsSync(FLS)) return { khoIdx: [], moc: [], doi: [] };
+  try {
+    const j = JSON.parse(await readFile(FLS, "utf8"));
+    return { khoIdx: j.khoIdx || [], moc: j.moc || [], doi: j.doi || [] };
+  } catch { return { khoIdx: [], moc: [], doi: [] }; }
+}
+const LS = await docLichSu();
+
+/* Bảng chỉ mục kho dùng chung cho mọi mốc: mỗi mốc chỉ lưu MẢNG SỐ
+   xếp theo khoIdx. Lưu cả tên kho trong từng mốc thì 130 mốc thành
+   ~300 KB; lưu theo chỉ mục còn ~60 KB. */
+for (const k of kho) if (!LS.khoIdx.includes(k.id)) LS.khoIdx.push(k.id);
+const viTri = new Map(LS.khoIdx.map((id, i) => [id, i]));
+
+const nowSec = Math.floor(Date.now() / 1000);
+const saoNay = new Array(LS.khoIdx.length).fill(null);
+for (const k of kho) saoNay[viTri.get(k.id)] = k.sao;
+
+/* ── nhật ký đổi so với lần chạy trước ── */
+const truocKho = new Set((cu?.kho || []).map((k) => k.id));
+const nayKho = new Set(kho.map((k) => k.id));
+const truocSkill = new Map((cu?.skills || []).map((x) => [x.id, x]));
+const naySkill = new Map(dsSkill.map((x) => [x.id, x]));
+
+const doiLan = {
+  luc: nowSec,
+  khoThem: [...nayKho].filter((x) => !truocKho.has(x)),
+  khoBot: [...truocKho].filter((x) => !nayKho.has(x)),
+  skillThem: [...naySkill.keys()].filter((x) => !truocSkill.has(x))
+    .slice(0, 60).map((id) => ({ id, ten: naySkill.get(id).ten, kho: naySkill.get(id).kho })),
+  soSkillThem: [...naySkill.keys()].filter((x) => !truocSkill.has(x)).length,
+  skillBot: [...truocSkill.keys()].filter((x) => !naySkill.has(x))
+    .slice(0, 60).map((id) => ({ id, ten: truocSkill.get(id).ten, kho: truocSkill.get(id).kho })),
+  soSkillBot: [...truocSkill.keys()].filter((x) => !naySkill.has(x)).length,
+  tongSkill: dsSkill.length,
+  tongKho: kho.length,
+  suyGiam: !!(hongNapThang || !quetDuoc)
+};
+
+/* Chỉ ghi vào nhật ký khi CÓ đổi thật. Lần chạy nào cũng ghi một dòng
+   "không có gì đổi" thì nhật ký thành rác, người đọc phải lội qua
+   hàng chục dòng trống mới thấy thay đổi thật. */
+const coDoi = doiLan.khoThem.length || doiLan.khoBot.length ||
+  doiLan.soSkillThem || doiLan.soSkillBot;
+if (coDoi) {
+  LS.doi.unshift(doiLan);
+  LS.doi = LS.doi.slice(0, GIU_DOI);
+}
+
+/* ── mốc ── */
+LS.moc.push({ luc: nowSec, sao: saoNay, soSkill: dsSkill.length, soKho: kho.length });
+LS.moc = LS.moc.slice(-GIU_MOC);
+
+/* ── xu hướng: so với mốc gần nhất ở mỗi khoảng ── */
+/* Chọn mốc CŨ NHẤT còn nằm trong cửa sổ, để "24 giờ" thật sự là
+   quãng dài nhất ≤ 24 giờ chứ không phải mốc vừa ghi 6 giờ trước. */
+function mocGan(giay) {
+  const dich = nowSec - giay;
+  let chon = null;
+  for (const m of LS.moc) {
+    if (m.luc > nowSec - 60) continue;          /* bỏ mốc vừa ghi */
+    if (m.luc >= dich && (!chon || m.luc < chon.luc)) chon = m;
+  }
+  return chon;
+}
+
+function tinhXu(giay) {
+  const m = mocGan(giay);
+  if (!m) return { du: false, tuoiGio: null, muc: [] };
+  const muc = [];
+  for (const k of kho) {
+    const i = viTri.get(k.id);
+    const truoc = m.sao[i];
+    if (truoc == null || typeof k.sao !== "number") continue;
+    const d = k.sao - truoc;
+    if (d === 0) continue;
+    muc.push({ id: k.id, sao: k.sao, them: d, pt: truoc ? d / truoc : null });
+  }
+  muc.sort((a, b) => b.them - a.them);
+  return {
+    du: true,
+    tuoiGio: Math.round((nowSec - m.luc) / 360) / 10,
+    soSkillTruoc: m.soSkill,
+    soKhoTruoc: m.soKho,
+    muc: muc.slice(0, 25)
+  };
+}
+
+const xuHuong = {
+  "24h": tinhXu(24 * 3600),
+  "7d": tinhXu(7 * 86400),
+  "30d": tinhXu(30 * 86400),
+  soMoc: LS.moc.length,
+  mocDau: LS.moc.length ? LS.moc[0].luc : null
+};
+
+await mkdir(dirname(FLS), { recursive: true });
+await writeFile(FLS, JSON.stringify({ khoIdx: LS.khoIdx, moc: LS.moc, doi: LS.doi }), "utf8");
+log(`  lịch sử : ${LS.moc.length} mốc · ${LS.doi.length} lần đổi đã ghi` +
+  (coDoi ? ` (lần này: +${doiLan.khoThem.length} kho, +${doiLan.soSkillThem} skill)` : " (lần này không đổi)"));
+for (const [ten, x] of [["24h", xuHuong["24h"]], ["7d", xuHuong["7d"]], ["30d", xuHuong["30d"]]]) {
+  log(`  xu ${ten.padEnd(4)}: ` + (x.du
+    ? `${x.muc.length} kho đổi sao (mốc cách ${x.tuoiGio} giờ)`
+    : "chưa đủ mốc — cần thêm thời gian tích luỹ"));
+}
+
+
 
 const out = {
   generatedAt: now.toISOString(),
@@ -376,9 +508,15 @@ const out = {
   coToken: !!TOKEN,
   /* Giữ lại số kho của bản trước khi lần này quét được 0 — nếu không,
      tiêu đề ghi "1054 skill từ 0 kho", tự mâu thuẫn ngay trong một dòng. */
-  soKhoQuet: quetDuoc || (dsSkill === cu?.skills ? (cu?.soKhoQuet || 0) : 0),
+  /* Số kho có mặt trong danh mục, không phải số kho quét lượt này —
+     quét theo đợt thì hai con số khác nhau, và người đọc quan tâm
+     danh mục đang phủ bao nhiêu kho. */
+  soKhoQuet: new Set(dsSkill.map((x) => x.kho)).size,
+  soKhoLuotNay: quetDuoc,
   soKhoHong: quetHong,
   demNhom,
+  xuHuong,
+  doiGanNhat: LS.doi.slice(0, 12),
   kho,
   skills: dsSkill
 };
@@ -387,7 +525,7 @@ const js = `/* ═════════════════════�
    TỰ SINH bởi scripts/build-tangthu.mjs — ĐỪNG SỬA TAY.
    Nguồn: ${out.nguon}
    Lấy lúc: ${out.generatedAt}
-   ${dsSkill.length} skill từ ${quetDuoc} kho · bảng xếp hạng ${kho.length} kho
+   ${dsSkill.length} skill từ ${out.soKhoQuet} kho · bảng xếp hạng ${kho.length} kho
    ═══════════════════════════════════════════════════════ */
 window.TT_DATA = ${JSON.stringify(out)};
 `;
