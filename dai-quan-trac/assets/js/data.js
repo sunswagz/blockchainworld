@@ -6,6 +6,60 @@
    7 cụm chủ đề · 6 chiến trường · 11 đồng hồ · 16 mắt xích
    ============================================================ */
 
+/* ────────────────────────────────────────────────────────────
+   QUYẾT ĐỊNH KIẾN TRÚC — đọc trước khi thêm chủ thể thứ hai
+
+   Ghi lại vì đây là loại quyết định mà vài tháng nữa sẽ có người
+   đem ra bàn lại từ đầu, không phải vì nó sai mà vì không ai biết
+   là đã cân nhắc rồi.
+
+   ① MỘT CUNG = MỘT LĂNG KÍNH, KHÔNG PHẢI MỘT CHỦ THỂ.
+   Đó là quy luật sẵn có của repo, không phải luật đặt riêng ở đây:
+   Đô Sát Viện chứa 106 dự án L2, Hoàng Thành 16 nền văn hoá, Kinh
+   Thành 9 quốc gia — mỗi cung một cách hỏi, nhiều đối tượng.
+
+   Đài Quan Trắc là lăng kính "cú sốc nào, qua ổ cắm nào, ai gánh".
+   Hiện chỉ có MỘT chủ thể là Việt Nam. Muốn hỏi đúng câu đó về
+   Trung Quốc thì nó vào ĐÂY, không phải cung mới.
+
+   Cung mới là khi ĐỔI LĂNG KÍNH (nhìn Việt Nam qua trục lịch sử,
+   pháp luật, nhân khẩu…), không phải khi đổi chủ thể.
+
+   ② VÌ SAO KHÔNG TÁCH APP RIÊNG CHO MỖI NƯỚC
+   · Phương pháp dùng chung. TIEUCHI và THANG ở cuối file này cố ý
+     KHÔNG nhắc tên nước nào. Tách app là chép đôi chúng, và repo
+     này đã bị cắn đúng chỗ đó — xem ghi chú đầu scripts/tuoi-du-lieu.mjs.
+   · So sánh mới là chỗ có giá trị. Phát hiện của hồ sơ Vingroup là
+     một KHUÔN MẪU (Nhà nước điều khiển qua ổ cắm chứ không qua cổ
+     phần). Khuôn mẫu chỉ thành phát hiện khi đặt cạnh nước khác.
+     Hai app thì không bao giờ đặt hai bảng chấm cạnh nhau được.
+
+   ③ KHI THÊM CHỦ THỂ, CHIA BA TẦNG — KHÔNG PHẢI HAI
+   Đừng gom tất cả vào "VIỆT NAM" rồi dựng "TRUNG QUỐC" song song:
+
+       PHƯƠNG PHÁP   TIEUCHI · THANG · LEVELS
+       (dùng chung)  ← đứng TRÊN chỗ chia chủ thể, không nằm trong
+
+       CHỦ THỂ       VIỆT NAM  { THEATERS · CHAIN · GAUGES · SCEN · SOI }
+                     TRUNG QUỐC { bộ của riêng nó }
+
+       HỒ SƠ NỀN     LIB — phải rà lại: cụm nào phổ quát, cụm nào riêng VN
+
+   ④ BẪY TÊN GỌI, CHẶN TỪ ĐẦU
+   Lúc đó "Trung Quốc" tồn tại hai chỗ với hai nghĩa NGƯỢC CHIỀU:
+       chiến trường 'tq' trong bộ của Việt Nam = Trung Quốc làm gì TỚI ta
+       chủ thể TRUNG QUỐC                      = cái gì đang xảy ra VỚI họ
+   Không đặt tên tách bạch ngay từ lần thêm đầu tiên thì đây là nguồn
+   rối lớn nhất, lớn hơn cả chuyện gom mục.
+
+   ⑤ CHỖ SẼ CHẠM TRẦN TRƯỚC, VÀ LỐI THOÁT CÓ SẴN
+   File này đã 73 KB và nạp mỗi lần mở trang; thêm một chủ thể đầy
+   đủ là khoảng 150 KB. Chưa phải vấn đề, nhưng sẽ đau trước tiên ở
+   lần tải đầu trên điện thoại. Lối thoát không phải nghĩ ra: Kinh
+   Thành đã tách assets/js/data/ thành nhiều file. Khi tới lúc, tách
+   data/vn.js + data/tq.js và chỉ nạp chủ thể đang xem.
+   ──────────────────────────────────────────────────────────── */
+
 const IC = {
   flow:'<path d="M3 7h4l2 10h4l2-10h6"/><circle cx="19" cy="7" r="1.6"/>',
   chain:'<path d="M9 12h6"/><rect x="2" y="8" width="7" height="8" rx="3"/><rect x="15" y="8" width="7" height="8" rx="3"/>',
