@@ -158,9 +158,23 @@ Nên khi thêm một script sinh dữ liệu, hỏi đúng một câu: **script 
 `writeFile` vào những đường nào?** Mọi đường đó phải có ở đây và trong
 `git add`, không thừa không thiếu.
 
-`scan-observatory.yml` (41 phút sau 1, 7, 13, 19 giờ UTC):
+`scan-observatory.yml` (**lịch đang TẮT** — chỉ chạy khi bấm tay):
 
     dai-quan-trac/assets/js/scan.js
+
+Lịch cũ là 41 phút sau 1, 7, 13, 19 giờ UTC, tắt ngày 14/08/2026 vì
+`ANTHROPIC_API_KEY` tốn quá nhiều: mỗi lượt quét 5 chiến trường là một
+loạt lời gọi kèm `web_search`, nhân 4 lượt/ngày. Đang chờ cách rẻ hơn.
+
+Workflow vẫn còn và `workflow_dispatch` vẫn bật, nên cần bản quét mới thì
+bấm chạy tay trong tab Actions. Bật lại lịch thì phải bỏ **hai** chỗ cùng
+lúc: khối `schedule` trong workflow, và `tamDung` của "bản quét Quan
+Trắc" trong `scripts/tuoi-du-lieu.mjs`. Bỏ sót chỗ thứ hai thì bot chạy
+lại mà `npm run kiem` vẫn báo đang tắt.
+
+Nguồn có `tamDung` được `npm run kiem` nhắc một dòng bình thản thay vì
+báo "có gì đó gãy" — nó không gãy, nó bị tắt. Nhưng vẫn nhắc, để đừng ai
+quên là có một nguồn đang nằm im.
 
 Muốn đổi số liệu thì sửa script sinh ra chúng trong `scripts/`, không sửa
 file kết quả. (Và sửa `scripts/` là file dùng chung — hỏi trước.)
