@@ -1,0 +1,87 @@
+#!/bin/sh
+# ═══════════════════════════════════════════════════════════
+#  Hook nhắc — KHÔNG BAO GIỜ chặn commit (luôn thoát 0).
+#
+#  Vì sao có file này: các phiên chạy song song là tiến trình
+#  riêng, không có kênh nhắn tin nào giữa chúng. Nhưng mọi
+#  worktree DÙNG CHUNG một thư mục .git/hooks — nên hook cài
+#  một lần sẽ chạy trong mọi phiên, kể cả phiên đang mở dở.
+#  Đây là cách duy nhất báo được cho một phiên đang chạy.
+#
+#  Cài:  npm run hook        (chép vào .git/hooks/pre-commit)
+#  Gỡ:   rm .git/hooks/pre-commit
+#
+#  Luôn thoát 0 là cố ý: hook này để BÁO, không để chặn. Một
+#  hook chặn được cài từ phiên khác mà phiên đang chạy không
+#  biết thì đúng là kiểu va chạm mà cả quy trình này muốn tránh.
+# ═══════════════════════════════════════════════════════════
+
+goc=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+claude="$goc/CLAUDE.md"
+co_nhac=0
+
+nhac() {
+  if [ "$co_nhac" = 0 ]; then
+    printf '\n┌─ nhắc trước khi commit ─────────────────────────────\n'
+    co_nhac=1
+  fi
+  printf '│ %s\n' "$1"
+}
+
+# ── 1. CLAUDE.md ở đây có cũ hơn origin/main không ──────────
+# Đếm commit chạm CLAUDE.md có ở origin/main mà không có ở HEAD.
+# Không so nội dung: nhánh này có thể đang sửa CLAUDE.md, khác
+# nội dung mà là mới hơn chứ không cũ. Không fetch — hook phải
+# nhanh và không phụ thuộc mạng; dùng ref đã có sẵn tại chỗ.
+if git rev-parse --verify -q origin/main >/dev/null 2>&1; then
+  sau=$(git rev-list --count HEAD..origin/main -- CLAUDE.md 2>/dev/null || echo 0)
+  if [ "${sau:-0}" -gt 0 ] 2>/dev/null; then
+    nhac "CLAUDE.md ở đây cũ hơn origin/main $sau commit."
+    nhac "  Luật đã đổi mà nhánh này chưa có. Xem:"
+    nhac "    git diff HEAD origin/main -- CLAUDE.md"
+  fi
+fi
+
+# ── 2. có đang commit file do bot tự sinh không ─────────────
+# Danh sách đọc thẳng từ CLAUDE.md, mục "File do workflow tự
+# sinh": một nguồn sự thật duy nhất. Chép danh sách vào đây là
+# đẻ thêm bản sao thứ hai, và nó sẽ lệch — đúng thứ quy trình
+# này sinh ra để tránh.
+if [ -f "$claude" ]; then
+  # Mục này còn có khối lệnh ví dụ cũng thụt 4 dấu cách ("node scripts/…
+  # # xem số có hợp lý không"). Lọc: đường dẫn thật không có khoảng
+  # trắng và không có dấu #. Thiếu bộ lọc này thì hook nhắc bừa.
+  duong=$(awk '
+    /^### File do workflow/       { trong = 1; next }
+    trong && /^#/                 { trong = 0 }
+    trong && /^    [a-z]/ && /\// {
+      d = $0; gsub(/^ +| +$/, "", d)
+      if (d !~ /[ \t#]/) print d
+    }
+  ' "$claude")
+
+  if [ -n "$duong" ]; then
+    # Không dùng pipeline ở đây: `... | while read` chạy trong subshell,
+    # biến đặt bên trong không thoát ra được, cờ co_nhac sẽ mất.
+    dat=$(git diff --cached --name-only)
+    daBao=" "
+    for f in $dat; do
+      for d in $duong; do
+        case "$f" in
+          "$d"*)                       # khớp cả file lẻ lẫn tiền tố thư mục
+            case "$daBao" in *" $f "*) ;; *)
+              nhac "\"$f\" do workflow tự sinh — bot sẽ ghi đè, dễ conflict."
+              daBao="$daBao$f " ;;
+            esac ;;
+        esac
+      done
+    done
+  fi
+fi
+
+if [ "$co_nhac" != 0 ]; then
+  printf '│\n│ Chạy `npm run kiem` để xem đầy đủ.\n'
+  printf '└─ (nhắc thôi, commit vẫn chạy) ──────────────────────\n\n'
+fi
+
+exit 0

@@ -66,6 +66,27 @@ khi làm gì, rồi `git merge --ff-only origin/main` để bắt kịp.
 hơn 350 dòng, `head -60` cắt mất cả chương "Khi phát hiện lỗi trong chính
 file này" ở cuối, tức là giấu đi đúng phần mà phiên đang bắt kịp cần nhất.)
 
+### Hook nhắc — cách duy nhất chạm tới phiên đang chạy
+
+Mọi lệnh ở trên chỉ chạy khi phiên **tự nhớ mà chạy**. Phiên mở từ hôm
+qua, đang làm dở, sẽ không tự nhiên chạy `git fetch`. Không có kênh nhắn
+tin nào giữa các phiên — chúng là tiến trình riêng.
+
+Chỗ hở duy nhất: **worktree dùng chung `.git/hooks`**. Worktree chỉ tách
+`.git/worktrees/<tên>`, còn hooks thì không. Nên hook cài một lần sẽ chạy
+trong **mọi** phiên, kể cả phiên đang mở dở.
+
+    npm run hook        # cài, chạy một lần cho cả kho
+
+Từ đó mỗi lần commit, nếu `CLAUDE.md` của bạn cũ hơn `origin/main`, hoặc
+bạn đang dàn file bot tự sinh, hook in một khối nhắc. Nó **luôn thoát 0** —
+chỉ báo, không chặn. Cố ý: một hook chặn do phiên khác cài mà phiên đang
+chạy không hay biết thì chính là kiểu va chạm cả quy trình này muốn tránh.
+
+Danh sách file bot hook đọc thẳng từ mục "File do workflow tự sinh" bên
+dưới, không chép lại — hai bản sao thì sẽ lệch. Gỡ hook: xoá
+`.git/hooks/pre-commit`.
+
 ### Phạm vi sửa
 
 - Chỉ sửa file bên trong thư mục cung được giao cho phiên này.

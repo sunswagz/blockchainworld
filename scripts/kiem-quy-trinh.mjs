@@ -45,6 +45,29 @@ cung.sort();
 
 const CLAUDE = await doc("CLAUDE.md");
 
+/* ── 0. bản CLAUDE.md tại chỗ có cũ hơn origin/main không ──
+   Worktree nhánh từ origin/main LÚC TẠO rồi đứng yên. Phiên mở từ
+   worktree cũ đang đọc luật của tuần trước mà không biết. Đây là
+   cách duy nhất báo cho một phiên đang chạy: nó tự thấy khi chạy
+   lệnh này, vì không có kênh nào nhắn được sang phiên khác. */
+try {
+  const { execSync } = await import("node:child_process");
+  const sh = (c) => execSync(c, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+  /* Đếm commit chạm CLAUDE.md có ở origin/main mà KHÔNG có ở đây.
+     Không so nội dung hai bản: nhánh tại chỗ có thể đang sửa chính
+     CLAUDE.md, khác nội dung mà là mới hơn chứ không cũ. */
+  const so = Number(sh("git rev-list --count HEAD..origin/main -- CLAUDE.md"));
+  if (so > 0) {
+    bao(
+      `CLAUDE.md ở đây CŨ HƠN origin/main ${so} commit — bạn đang theo luật lỗi thời.\n` +
+      "        Xem bản mới:   git show origin/main:CLAUDE.md\n" +
+      "        Xem đã đổi gì: git diff HEAD origin/main -- CLAUDE.md"
+    );
+  }
+} catch {
+  nhac("Không so được CLAUDE.md với origin/main (chưa `git fetch`, hoặc không có remote).");
+}
+
 /* ── 1. danh sách cung ở đầu CLAUDE.md ────────────── */
 for (const c of cung) {
   if (!new RegExp("(^|\\s)" + c + "/", "m").test(CLAUDE)) {
