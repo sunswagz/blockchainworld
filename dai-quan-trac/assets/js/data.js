@@ -289,6 +289,170 @@ const LIB = [
   ]}
 ];
 
+/* ============================================================
+   SOI QUYỀN LỰC — khung điều tra, dùng lại cho MỌI đối tượng
+
+   Sáu chiến trường ở trên đo cú sốc ĐI TỪ NGOÀI VÀO. Phần này đo
+   thứ khác hẳn: bộ máy BÊN TRONG quyết định vốn chảy về đâu.
+   Không phải nguồn sốc — là bộ khuếch đại và bộ chia.
+
+   Khung này viết để tái sử dụng. Thêm một đối tượng mới =
+   thêm một khối vào SOI, không sửa gì trong app.js.
+   ============================================================ */
+
+/* Thang bằng chứng. Năm mức, vì "có" và "chưa thấy" không đủ:
+   phần lớn tranh cãi nằm ở khoảng giữa, chỗ có dấu hiệu nhưng
+   chưa đủ kết luận. Gộp khoảng giữa lại là chỗ suy đoán trà trộn
+   vào chứng cứ. */
+const THANG = [
+  {k:'ratmanh', n:4, t:'RẤT MẠNH',  acc:'#f0503f', d:'Tài liệu chính thức, nhiều nguồn độc lập trùng khớp.'},
+  {k:'manh',    n:3, t:'MẠNH',      acc:'#d29922', d:'Nguồn uy tín, kiểm chứng được, chưa bị phản bác.'},
+  {k:'vua',     n:2, t:'CÓ DẤU HIỆU',acc:'#58a6ff',d:'Báo uy tín nhưng nguồn ẩn danh, hoặc suy ra từ hành vi.'},
+  {k:'yeu',     n:1, t:'YẾU',       acc:'#6f7b8a', d:'Chỉ có tin đồn, infographic, hoặc suy diễn từ quy mô.'},
+  {k:'khong',   n:0, t:'CHƯA THẤY', acc:'#4b5563', d:'Đã tìm đúng chỗ và không thấy. Khác với "chưa tìm".'}
+];
+
+/* Bảy tiêu chí. Đây là phần KHÔNG đổi khi sang đối tượng khác —
+   dù soi một tập đoàn, một ngân hàng hay một cá nhân. */
+const TIEUCHI = [
+  {id:'sohuu', n:1, t:'Chủ sở hữu hưởng lợi', en:'beneficial ownership',
+   hoi:'Bóc hết công ty trung gian thì ai thực sự cầm cổ phần?',
+   tim:'Chuỗi sở hữu qua các pháp nhân trung gian, người đứng tên hộ, cổ đông lớn thật sự đằng sau.'},
+  {id:'hdqt', n:2, t:'Quyền kiểm soát HĐQT', en:'board control',
+   hoi:'Ai có quyền bổ nhiệm hoặc buộc thay lãnh đạo?',
+   tim:'Cơ chế bầu HĐQT, ai đề cử, có ghế nào do bên ngoài chỉ định không.'},
+  {id:'von', n:3, t:'Kiểm soát nguồn vốn', en:'capital control',
+   hoi:'Vốn đến theo điều kiện thị trường, hay theo một cơ chế riêng?',
+   tim:'Bảo lãnh, tín dụng ưu đãi, ngoại lệ khỏi hạn mức, lãi suất khác thường.'},
+  {id:'duan', n:4, t:'Giao đất & giao dự án', en:'project allocation',
+   hoi:'Nguồn lực có được giao liên tục theo một cơ chế đặc biệt không?',
+   tim:'Chỉ định thầu, giao đất, quy hoạch, quy mô và tần suất các lần được chọn.'},
+  {id:'chidao', n:5, t:'Mệnh lệnh', en:'directive',
+   hoi:'Có ai ra lệnh ngoài quyền của cổ đông và HĐQT không?',
+   tim:'Tài liệu, biên bản, hoặc lời kể có kiểm chứng về chỉ đạo từ bên ngoài.'},
+  {id:'lailo', n:6, t:'Chia lãi và gánh lỗ', en:'profit / loss sharing',
+   hoi:'Lãi thuộc tư nhân, nhưng lỗ thì ai gánh?',
+   tim:'Giải cứu bằng ngân sách, bảo lãnh nợ, khoanh nợ, mua lại tài sản xấu.'},
+  {id:'mang', n:7, t:'Mạng liên quan', en:'related-party network',
+   hoi:'Mạng sở hữu và người đại diện nối về đâu?',
+   tim:'Giao dịch nội bộ, người thân, pháp nhân vệ tinh, ai là tâm của mạng.'}
+];
+
+/* Hồ sơ đối tượng. Thêm người/tập đoàn mới thì thêm một khối. */
+const SOI = [
+  {
+    id:'vingroup', ten:'Vingroup', nguoi:'Phạm Nhật Vượng', ic:'star', acc:'#d29922',
+    vai:'Tập đoàn tư nhân · đối tác chiến lược hạ tầng quốc gia',
+    lede:'Câu hỏi thường gặp là "Vingroup có phải chân sau của Nhà nước không". Đó là câu hỏi sai — nó chỉ có hai đáp án và cả hai đều dẫn tới chỗ cụt. Câu hỏi soi được là: <b>quyền lực thật sự chảy qua những ổ cắm nào</b>, và ở mỗi ổ cắm đó bằng chứng mạnh tới đâu.',
+
+    /* Hai giả thuyết cạnh tranh, chấm trên CÙNG bảy tiêu chí.
+       Đây là chỗ người đọc hiểu ngay: cùng một bộ chứng cứ,
+       giả thuyết này rỗng, giả thuyết kia đầy. */
+    gt:[
+      {k:'A', t:'Vingroup là doanh nghiệp Nhà nước trá hình',
+       kl:'KHÔNG ĐỨNG VỮNG', acc:'#4b5563',
+       d:'Ba tiêu chí xương sống — sở hữu, HĐQT, gánh lỗ — đều trống. Mạng sở hữu chỉ về một tâm rất rõ là ông Vượng và các pháp nhân liên quan, không về phía Nhà nước.'},
+      {k:'B', t:'Doanh nghiệp tư nhân được dựng thành đầu tàu quốc gia',
+       kl:'RẤT PHÙ HỢP', acc:'#f0503f',
+       d:'Bốn tiêu chí còn lại — vốn, dự án, phối hợp, mạng quy mô — đều mạnh hoặc rất mạnh. Nhà nước không cần sở hữu; nó nắm các ổ cắm mà doanh nghiệp buộc phải cắm vào.'}
+    ],
+
+    diem:{
+      sohuu:{m:'khong', d:'Hồ sơ ứng viên HĐQT 2026: ông Vượng nắm trực tiếp <b>9,10%</b> Vingroup và <b>94,8%</b> Công ty CP Tập đoàn Đầu tư Việt Nam — pháp nhân đang là cổ đông lớn nhất với khoảng <b>32,59%</b>. VinSpeed cũng thành cổ đông lớn với <b>10,787%</b>. Mọi nhánh quy về một tâm, và tâm đó là cá nhân chứ không phải cơ quan Nhà nước. Mắt xích Nhà nước → người đứng tên → cổ đông lớn: tìm không thấy.'},
+      hdqt:{m:'khong', d:'ĐHĐCĐ tháng 4/2026 bầu HĐQT nhiệm kỳ 2026–2031, ông Vượng tiếp tục làm Chủ tịch. Đường quyền lực đọc được trong hồ sơ là cổ đông → ĐHĐCĐ → HĐQT. Không thấy cơ quan Nhà nước nào có quyền bổ nhiệm ghế nào.'},
+      von:{m:'manh', d:'Reuters 12/8/2026: một số dự án hạ tầng lớn, <b>trong đó có tuyến đường sắt do Vingroup phát triển, được miễn khỏi giới hạn tăng trưởng tín dụng thông thường</b>. NHNN cũng nới một số quy định thận trọng. Phải đọc chính xác: đây là ưu tiên <b>theo dự án</b> và mở cho nhiều tập đoàn lớn, không phải giấy phép vay vô hạn cấp riêng cho một cái tên. Nhưng nó chứng minh Nhà nước vặn được núm tín dụng.'},
+      duan:{m:'ratmanh', d:'Đường sắt Hà Nội–Quảng Ninh ~<b>5,8 tỷ USD</b> theo PPP, riêng ~10,27 nghìn tỷ giải phóng mặt bằng do Nhà nước chi. Hà Nội giao liên danh Vinhomes–VinSpeed làm tổng thầu EPC <b>cả 5 tuyến metro</b>, sơ bộ hơn <b>49 tỷ USD</b>. Khu đô thị thể thao Olympic hơn <b>9.000 ha</b>. Cần Giờ <b>2.870 ha</b>, gần 9 tỷ USD. Đây không còn là một nhà phát triển bất động sản.'},
+      chidao:{m:'vua', d:'Reuters 11/2025 dẫn ba người được thông báo về các trao đổi nội bộ, nói quan chức đã <b>khuyến khích</b> Vingroup tham gia đề xuất đường sắt Bắc–Nam. Nguồn ẩn danh; Vingroup nói không thảo luận về đối xử đặc quyền. Nên đây là <b>phối hợp</b>, chưa phải <b>chỉ huy</b> — chưa có tài liệu nào cho thấy doanh nghiệp thực hiện mệnh lệnh ngoài quyền cổ đông.'},
+      lailo:{m:'khong', d:'VinFast lỗ nhiều năm, nhưng dòng đỡ công khai đến từ chính ông Vượng và Vingroup — Reuters theo dõi khoảng <b>13,5 tỷ USD</b> vốn và khoản vay, sau đó cam kết thêm gần 3,5 tỷ. Không tìm thấy bằng chứng công khai về ngân sách Nhà nước rót vào hay bảo lãnh nợ. Chính sách xe điện là chính sách ngành, viết theo loại phương tiện chứ không viết riêng cho một hãng.'},
+      mang:{m:'khong', d:'Mạng pháp nhân quanh Vingroup ngày càng dày — Đầu tư Việt Nam, VinSpeed, VinEnergo, GSM, VinSpace — và Reuters 5/2026 đã nêu quan ngại minh bạch quanh kế hoạch chuyển gần <b>7 tỷ USD nợ</b> cùng nhà máy ra ngoài VinFast. Đáng theo dõi về quản trị. Nhưng mạng đó <b>quy về ông Vượng</b>, không quy về Nhà nước.'}
+    },
+
+    /* Phản chứng — phần dễ bị bỏ qua nhất, và là phần làm kết
+       luận đáng tin. Nếu doanh nghiệp chỉ là cánh tay Nhà nước
+       thì không thể có chuyện này. */
+    phanchung:{
+      t:'Ba mảnh phản chứng',
+      ds:[
+        {t:'Chính bộ máy Nhà nước phản biện', d:'VinSpeed đề xuất làm đường sắt Bắc–Nam với 20% vốn tự có và 80% vay Nhà nước lãi 0%. NHNN cảnh báo Vingroup đòn bẩy cao và ít kinh nghiệm đường sắt; Bộ Tài chính nói khoản vay 0% thực chất là một khoản <b>trợ cấp</b> và có thể ảnh hưởng xếp hạng tín nhiệm quốc gia.'},
+        {t:'Đề xuất bị rút', d:'Cuối tháng 12/2025 Vingroup rút đề xuất Bắc–Nam. Nếu là cánh tay Nhà nước thì kịch bản phải là đề xuất → duyệt, chứ không phải đề xuất → bị cảnh báo → rút.'},
+        {t:'Tiền vay không rẻ', d:'Coupon trái phiếu Vingroup theo Reuters: khoảng 9,6% (2022), 10,6% (2023), tới 12,5% ở đợt được theo dõi năm 2024. Nợ Vinhomes từng bị xếp mức đầu cơ. Vay được nhiều không đồng nghĩa vay được rẻ.'}
+      ]
+    },
+
+    /* Bốn tầng — chỗ nhiều người gộp làm một rồi kết luận sai */
+    tang:{
+      t:'Bốn tầng khác nhau, hay bị xếp chung một rổ',
+      ds:[
+        {n:1, t:'DNNN trực tiếp', vd:'EVN · Petrovietnam · Viettel', d:'Nhà nước sở hữu và kiểm soát trực tiếp.', acc:'#f0503f'},
+        {n:2, t:'Niêm yết, Nhà nước chi phối', vd:'Petrolimex', d:'Có cổ đông ngoài, nhưng Nhà nước nắm trên 50%.', acc:'#d29922'},
+        {n:3, t:'Đầu tàu tư nhân', vd:'Vingroup · Thaco', d:'Không phải DNNN theo hồ sơ, nhưng hoạt động trong đất, hạ tầng, năng lượng, đường sắt — toàn ngành cần Nhà nước ở mức rất cao.', acc:'#58a6ff'},
+        {n:4, t:'FDI', vd:'Samsung · LG', d:'Vốn ngoài, chịu chính sách nhưng không thuộc hệ thống sở hữu trong nước.', acc:'#a371f7'}
+      ],
+      a:'Xếp 5 tập đoàn cạnh nhau theo QUY MÔ\nlà so sánh đúng.\n\nXếp cạnh nhau rồi kết luận CÙNG MỘT LOẠI\nvề cấu trúc sở hữu là sai.\n\n  EVN / PVN / Viettel  → tầng 1\n  Petrolimex          → tầng 2\n  Vingroup            → tầng 3'
+    },
+
+    /* Mô hình ổ cắm — kết luận trung tâm */
+    socket:{
+      t:'Quyền lực không nằm ở cổ phần, nằm ở ổ cắm',
+      d:'Đây là điểm dễ bỏ lỡ nhất. Nhà nước không cần nắm 51% một công ty nếu nó nắm những thứ mà công ty đó buộc phải xin. Sở hữu là <b>một</b> ổ cắm, và không phải ổ mạnh nhất.',
+      oc:['Quy hoạch','Đất','Giấy phép','Hạ tầng kết nối','Tiêu chuẩn ngành','Đấu thầu / giao dự án','Hạn mức tín dụng','Đầu tư công'],
+      a:'          NHÀ NƯỚC\n              │\n   ┌──────────┼──────────┐\n QUY HOẠCH   ĐẤT    TÍN DỤNG\n   └──────────┼──────────┘\n              │\n      ĐẦU TÀU TƯ NHÂN\n              │\n        DỰ ÁN KHỔNG LỒ\n              │\n          NGÂN HÀNG\n              │\n   ┌──────────┴──────────┐\nTIỀN GỬI DÂN      VỐN QUỐC TẾ'
+    },
+
+    /* Dòng tiền — bác bỏ chuyện kể phổ biến */
+    dongtien:{
+      t:'Truy dòng tiền: chuyện "mì gói" không khớp mốc thời gian',
+      d:'Cách kể phổ biến là bán Technocom cho Nestlé rồi mang tiền về dựng Vingroup. Mốc thời gian không cho phép đọc như vậy.',
+      moc:[
+        {y:'1993', t:'Technocom / Mivina, Kharkiv', d:'Khởi nghiệp bằng vốn vay nhỏ. Đến 2010 có 2 nhà máy, 1.900 nhân viên, xuất sang 20 nước.'},
+        {y:'2002', t:'Vincom lập, vốn 196 tỷ', d:'Nhóm sáng lập Technocom xuất hiện thẳng trong danh sách cổ đông Vincom, một người có địa chỉ tại Kharkiv.', hot:1},
+        {y:'2007', t:'Vốn 800 tỷ · niêm yết · 1.000 tỷ trái phiếu', d:'Bảy năm trước khi Nestlé mua.'},
+        {y:'2009', t:'100 triệu USD trái phiếu quốc tế', d:'Không có tài sản bảo đảm, niêm yết tại Singapore. Đã huy động được vốn quốc tế mà chưa cần bán Technocom.', hot:1},
+        {y:'2010', t:'Nestlé mua Technocom', d:'Nestlé <b>không công bố giá</b>. Con số 150 triệu USD lặp trên báo chí nhưng chưa thấy Nestlé xác nhận.'},
+        {y:'2013–19', t:'Vốn quốc tế vào', d:'Warburg Pincus 200 triệu USD · GIC ~853 triệu · SK Group 1 tỷ.'},
+        {y:'2026', t:'~1,309 triệu tỷ tài sản · ~356 nghìn tỷ nợ vay', d:'Lãi vay bình quân ~10,9%, kỳ hạn ~3,2 năm. Không phải một khoản vay — hàng trăm khoản, xoay vòng liên tục.'}
+      ],
+      kl:'Vincom đã lớn và đã chạm được thị trường vốn quốc tế <b>trước</b> thương vụ Nestlé. Nên tiền bán Technocom có thể thêm thanh khoản, nhưng không thể là nguồn gốc duy nhất.'
+    },
+
+    /* Khoảng trống — phần trung thực nhất của một hồ sơ */
+    gap:{
+      t:'Sáu khoảng trống chưa giải được',
+      d:'Ghi ra để lần điều tra sau biết bắt đầu từ đâu, và để người đọc biết chỗ nào là chứng cứ, chỗ nào là chưa biết.',
+      ds:[
+        '196 tỷ vốn Vincom năm 2002 cụ thể đến từ tài khoản nào, ai góp bao nhiêu.',
+        'Technocom trước 2010: ai sở hữu bao nhiêu phần trăm.',
+        'Nestlé trả bao nhiêu, và chia cho những chủ sở hữu nào.',
+        'Dòng vốn Ukraine → Việt Nam giai đoạn 2000–2010 đi qua cấu trúc pháp nhân nào.',
+        'Các dự án Vincom/Vinpearl đầu tiên: đất được tiếp cận theo cơ chế nào, ngân hàng nào cấp khoản vay đầu.',
+        'Hiện nay: từng ngân hàng cho hệ Vingroup vay bao nhiêu, tài sản bảo đảm gì, bảo lãnh chéo ra sao.'
+      ]
+    },
+
+    /* Nối sang mắt xích có sẵn trong Mạch truyền dẫn */
+    noi:['tindung','bds','laisuat'],
+
+    /* Ghi chú tránh đọc nhầm */
+    doc:[
+      {sai:'Nhà nước lấy tiền gửi của dân đưa thẳng cho Vingroup.',
+       dung:'Ngân hàng là đường ống gom tiết kiệm trong nước và vốn nước ngoài. Nhà nước điều tiết <b>quy tắc</b> tín dụng để ưu tiên dự án chiến lược. Đó là hai chuyện khác nhau.'},
+      {sai:'Techcombank là ngân hàng Nhà nước.',
+       dung:'Techcombank là ngân hàng thương mại cổ phần <b>tư nhân</b>, tự gọi mình là ngân hàng khu vực tư nhân lớn nhất. Nó không cho vay bằng tiền túi ai cả: 30/6/2026 có ~662 nghìn tỷ tiền gửi khách hàng, ~164 nghìn tỷ vay tổ chức khác, ~212 nghìn tỷ giấy tờ có giá, ~189 nghìn tỷ vốn chủ — cộng lại thành bảng cân đối ~1,27 triệu tỷ.'},
+      {sai:'Gắn rất chặt với Nhà nước nghĩa là Nhà nước sở hữu ngầm.',
+       dung:'Hai chuyện phải giữ riêng. Phụ thuộc chính sách, liên minh lợi ích, hợp tác chiến lược, quyền chi phối và quyền sở hữu là năm thứ khác nhau, rất dễ bị trộn.'}
+    ],
+
+    /* Rủi ro — mặt kia của mô hình */
+    ruiro:{
+      t:'Mặt nguy hiểm của mô hình này',
+      d:'Nếu quan hệ Nhà nước – tập đoàn quá chặt mà thiếu minh bạch, rủi ro không nằm ở chỗ ai sở hữu, mà ở chỗ ai gánh lỗ.',
+      a:'quy hoạch / đất / dự án\n        ↓\n  một số tập đoàn\n        ↓\n quy mô ngày càng lớn\n        ↓\n tín dụng ngày càng lớn\n        ↓\n  "TOO BIG TO FAIL"\n        ↓\nLÃI  → tư nhân hưởng\nLỖ   → hệ thống không dám để sập',
+      d2:'Và ở tầng đất đai, hai kết quả rất khác nhau lại nhìn giống hệt nhau từ bên ngoài: <b>land-value capture</b> — hạ tầng làm đất tăng giá, phần tăng đó tài trợ ngược cho hạ tầng, là mô hình hiệu quả; còn nếu thiếu cạnh tranh và minh bạch thì cùng một chuỗi việc đó trở thành lợi ích nhóm. Phân biệt được hai cái đó cần đúng thứ đang thiếu: hồ sơ đấu thầu, giá đất, và thời điểm ai biết quy hoạch trước.'
+    }
+  }
+];
+
 window.DQT_DATA = { IC: IC, svg: svg, THEATERS: THEATERS, GAUGES: GAUGES,
-  CHAIN: CHAIN, LEVELS: LEVELS, SCEN: SCEN, LIB: LIB };
+  CHAIN: CHAIN, LEVELS: LEVELS, SCEN: SCEN, LIB: LIB,
+  THANG: THANG, TIEUCHI: TIEUCHI, SOI: SOI };
 })();

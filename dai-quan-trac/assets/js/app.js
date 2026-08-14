@@ -4,6 +4,7 @@
 var D = window.DQT_DATA;
 var IC = D.IC, svg = D.svg, THEATERS = D.THEATERS, GAUGES = D.GAUGES;
 var CHAIN = D.CHAIN, LEVELS = D.LEVELS, SCEN = D.SCEN, LIB = D.LIB;
+var THANG = D.THANG, TIEUCHI = D.TIEUCHI, SOI = D.SOI;
 
 /* ============================================================
    TRẠNG THÁI
@@ -106,6 +107,8 @@ const ROUTES = [
     {id:'scen',   t:'Kịch bản A/B/C',ic:'play',   sub:'PHÂN NHÁNH'},
     {id:'compass',t:'Kẹp bốn phía',  ic:'map',    sub:'VỊ TRÍ VIỆT NAM'}
   ]},
+  {g:'Soi quyền lực', items: [{id:'soi', t:'Khung 7 tiêu chí', ic:'gauge', sub:'DÙNG LẠI ĐƯỢC'}]
+    .concat(SOI.map(s=>({id:'soi/'+s.id, t:s.ten, ic:s.ic, sub:'HỒ SƠ'})))},
   {g:'Hồ sơ nền', items: LIB.map(l=>({id:'lib/'+l.id, t:l.t, ic:l.id==='nhanthuc'?'brain':'book', sub:'CỤM '+l.n}))
     .concat([{id:'src', t:'Nguồn & nhật ký', ic:'src', sub:'MINH BẠCH'}])}
 ];
@@ -160,8 +163,10 @@ function render(){
   if(r==='scen')       return v.innerHTML='', v.appendChild(vScen());
   if(r==='compass')    return v.innerHTML='', v.appendChild(vCompass());
   if(r==='src')        return v.innerHTML='', v.appendChild(vSrc());
+  if(r==='soi')        return v.innerHTML='', v.appendChild(vKhung());
   if(r.startsWith('th/'))  return v.innerHTML='', v.appendChild(vTheater(r.slice(3)));
   if(r.startsWith('lib/')) return v.innerHTML='', v.appendChild(vLib(r.slice(4)));
+  if(r.startsWith('soi/')) return v.innerHTML='', v.appendChild(vSoi(r.slice(4)));
   go('flow');
 }
 
@@ -483,6 +488,199 @@ function vLib(id){
   const nav=el('div'); nav.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)';
   LIB.forEach(o=>{ const b=el('button','fchip'+(o.id===id?' on':'')); b.innerHTML='<span class="n">'+o.n+'</span> '+esc(o.t); b.onclick=()=>go('lib/'+o.id); nav.appendChild(b); });
   w.appendChild(nav);
+  return w;
+}
+
+/* ============================================================
+   SOI QUYỀN LỰC
+
+   Hai view, và ranh giới giữa chúng là chỗ quan trọng:
+   vKhung() là PHƯƠNG PHÁP — không nhắc tên ai, dùng lại nguyên
+   vẹn cho đối tượng sau. vSoi() là MỘT LẦN ÁP DỤNG khung đó.
+   Trộn hai thứ vào một trang thì lần soi thứ hai phải viết lại
+   từ đầu, và phương pháp lặng lẽ bị uốn theo kết luận.
+   ============================================================ */
+function mucBC(k){ return THANG.find(x=>x.k===k) || THANG[THANG.length-1]; }
+
+/* Thanh 4 vạch. Đọc được bằng mắt trước khi đọc bằng chữ — đó là
+   toàn bộ mục đích: nhìn phát thấy chỗ nào đầy, chỗ nào rỗng. */
+function thanhBC(k){
+  const m=mucBC(k), b=el('span','bc');
+  let s='';
+  for(let i=1;i<=4;i++) s+='<i'+(i<=m.n?' class="on" style="background:'+m.acc+'"':'')+'></i>';
+  b.innerHTML=s+'<b style="color:'+m.acc+'">'+m.t+'</b>';
+  return b;
+}
+
+function vKhung(){
+  head('Khung 7 tiêu chí','PHƯƠNG PHÁP · DÙNG LẠI ĐƯỢC');
+  const w=el('div','wrap');
+  w.innerHTML='<div class="eyebrow">Soi quyền lực · phương pháp</div>'+
+   '<h2 class="big">Bảy chỗ phải soi, và năm mức được phép kết luận</h2>'+
+   '<p class="lede">Sáu chiến trường đo cú sốc <b>đi từ ngoài vào</b>. Khung này đo thứ khác hẳn: bộ máy <b>bên trong</b> quyết định vốn chảy về đâu. Nó không phải nguồn sốc — nó là bộ khuếch đại và bộ chia.</p>';
+
+  const q=el('blockquote');
+  q.innerHTML='Câu hỏi "X có phải chân sau của Nhà nước không" chỉ có hai đáp án và cả hai đều cụt. Câu hỏi soi được là: <b>quyền lực chảy qua những ổ cắm nào, và ở mỗi ổ cắm bằng chứng mạnh tới đâu.</b>';
+  w.appendChild(q);
+
+  w.appendChild(el('h3','sec','Năm mức bằng chứng'));
+  const p0=el('p'); p0.style.cssText='max-width:74ch;color:var(--fg2)';
+  p0.innerHTML='Phần lớn tranh cãi nằm ở khoảng giữa — chỗ có dấu hiệu nhưng chưa đủ kết luận. Gộp khoảng giữa lại là chỗ suy đoán trà trộn vào chứng cứ. Và <b>"chưa thấy" khác "chưa tìm"</b>: chỉ được ghi mức 0 sau khi đã tìm đúng chỗ.';
+  w.appendChild(p0);
+  const tw=el('div','thang');
+  THANG.forEach(m=>{ const r=el('div','th-r');
+    r.innerHTML='<span class="th-n" style="color:'+m.acc+'">'+m.n+'</span>';
+    r.appendChild(thanhBC(m.k));
+    const d=el('span','th-d',m.d); r.appendChild(d);
+    tw.appendChild(r); });
+  w.appendChild(tw);
+
+  w.appendChild(el('h3','sec','Bảy tiêu chí'));
+  const g=el('div','tc-grid');
+  TIEUCHI.forEach(t=>{ const c=el('div','tc');
+    c.innerHTML='<div class="tc-h"><span class="tc-n">'+t.n+'</span><b>'+esc(t.t)+'</b><i>'+esc(t.en)+'</i></div>'+
+      '<p class="tc-q">'+esc(t.hoi)+'</p>'+
+      '<p class="tc-t"><span>TÌM GÌ</span>'+esc(t.tim)+'</p>';
+    g.appendChild(c); });
+  w.appendChild(g);
+
+  w.appendChild(el('h3','sec','Vì sao phải chấm cả giả thuyết đối lập'));
+  const p1=el('p'); p1.style.cssText='max-width:74ch;color:var(--fg2)';
+  p1.innerHTML='Chấm một giả thuyết duy nhất thì mọi mảnh đều trông như bằng chứng ủng hộ nó. Cách chặn: viết ra <b>hai</b> giả thuyết cạnh tranh rồi chấm cả hai trên <b>cùng</b> bảy tiêu chí. Nếu cùng một bộ chứng cứ làm giả thuyết A rỗng và giả thuyết B đầy, đó mới là kết luận. Và phải chủ động đi tìm <b>phản chứng</b> — mảnh nào mà nếu giả thuyết đúng thì không thể tồn tại.';
+  w.appendChild(p1);
+
+  const ho=el('div'); ho.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:26px;padding-top:20px;border-top:1px solid var(--line)';
+  ho.appendChild(el('div','eyebrow','Đã soi'));
+  w.appendChild(ho);
+  const hs=el('div'); hs.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';
+  SOI.forEach(s=>{ const b=el('button','fchip'); b.textContent=s.ten+' · '+s.nguoi; b.onclick=()=>go('soi/'+s.id); hs.appendChild(b); });
+  const cho=el('span','tc-soon','Các tên khác gắn với bộ máy quản lý — chưa soi');
+  hs.appendChild(cho);
+  w.appendChild(hs);
+  return w;
+}
+
+function vSoi(id){
+  const S=SOI.find(x=>x.id===id); if(!S) return go('soi'),el('div');
+  head(S.ten,'HỒ SƠ · '+S.nguoi.toUpperCase());
+  const w=el('div','wrap');
+  w.innerHTML='<div class="eyebrow">Soi quyền lực · hồ sơ</div>'+
+   '<h2 class="big">'+esc(S.ten)+' — '+esc(S.nguoi)+'</h2>'+
+   '<div class="soi-vai">'+esc(S.vai)+'</div>'+
+   '<p class="lede">'+S.lede+'</p>';
+
+  /* hai giả thuyết — đặt TRƯỚC bảng chấm, để người đọc biết
+     mình đang chấm cái gì trước khi nhìn điểm */
+  const gw=el('div','gt-w');
+  S.gt.forEach(g=>{ const c=el('div','gt'); c.style.borderColor=g.acc+'55';
+    c.innerHTML='<div class="gt-k" style="background:'+g.acc+'22;color:'+g.acc+'">GIẢ THUYẾT '+g.k+'</div>'+
+      '<b>'+esc(g.t)+'</b><div class="gt-kl" style="color:'+g.acc+'">'+esc(g.kl)+'</div><p>'+esc(g.d)+'</p>';
+    gw.appendChild(c); });
+  w.appendChild(gw);
+
+  w.appendChild(el('h3','sec','Chấm trên bảy tiêu chí'));
+  const p0=el('p'); p0.style.cssText='max-width:74ch;color:var(--fg2);margin-bottom:14px';
+  p0.innerHTML='Đọc theo cột màu trước, đọc chữ sau. Ba tiêu chí đầu là <b>xương sống của quyền sở hữu</b> — chúng trống. Bốn tiêu chí sau là <b>quan hệ với Nhà nước</b> — chúng đầy. Chính hình dạng đó là kết luận.';
+  w.appendChild(p0);
+
+  const sc=el('div','sc');
+  TIEUCHI.forEach(t=>{
+    const dm=S.diem[t.id]; if(!dm) return;
+    const m=mucBC(dm.m);
+    const r=el('div','sc-r'); r.style.setProperty('--a',m.acc);
+    const h=el('div','sc-h');
+    h.innerHTML='<span class="sc-n">'+t.n+'</span><b>'+esc(t.t)+'</b>';
+    h.appendChild(thanhBC(dm.m));
+    r.appendChild(h);
+    const q=el('div','sc-q',t.hoi); r.appendChild(q);
+    const d=el('div','sc-d'); d.innerHTML=dm.d; r.appendChild(d);
+    sc.appendChild(r);
+  });
+  w.appendChild(sc);
+
+  if(S.phanchung){
+    w.appendChild(el('h3','sec',S.phanchung.t));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)';
+    p.innerHTML='Phần dễ bị bỏ qua nhất, và là phần làm kết luận đáng tin: nếu giả thuyết A đúng thì <b>không thể có</b> những chuyện dưới đây.';
+    w.appendChild(p);
+    const pw=el('div','pc-w');
+    S.phanchung.ds.forEach(x=>{ const c=el('div','pc');
+      c.innerHTML='<b>'+esc(x.t)+'</b><p>'+x.d+'</p>'; pw.appendChild(c); });
+    w.appendChild(pw);
+  }
+
+  if(S.tang){
+    w.appendChild(el('h3','sec',S.tang.t));
+    const tw=el('div','tang-w');
+    S.tang.ds.forEach(x=>{ const c=el('div','tang'); c.style.setProperty('--a',x.acc);
+      c.innerHTML='<div class="tang-n">TẦNG '+x.n+'</div><b>'+esc(x.t)+'</b>'+
+        '<div class="tang-vd">'+esc(x.vd)+'</div><p>'+esc(x.d)+'</p>';
+      tw.appendChild(c); });
+    w.appendChild(tw);
+    if(S.tang.a) w.appendChild(el('pre','ascii',S.tang.a));
+  }
+
+  if(S.socket){
+    w.appendChild(el('h3','sec',S.socket.t));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.socket.d;
+    w.appendChild(p);
+    const ow=el('div','oc-w');
+    S.socket.oc.forEach(o=>{ ow.appendChild(el('span','oc',o)); });
+    w.appendChild(ow);
+    if(S.socket.a) w.appendChild(el('pre','ascii',S.socket.a));
+  }
+
+  if(S.dongtien){
+    w.appendChild(el('h3','sec',S.dongtien.t));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.dongtien.d;
+    w.appendChild(p);
+    const tl=el('div','tl');
+    S.dongtien.moc.forEach(m=>{ const r=el('div','tl-r'+(m.hot?' hot':''));
+      r.innerHTML='<div class="tl-y">'+esc(m.y)+'</div><div class="tl-b"><b>'+esc(m.t)+'</b><p>'+m.d+'</p></div>';
+      tl.appendChild(r); });
+    w.appendChild(tl);
+    const q=el('blockquote'); q.innerHTML=S.dongtien.kl; w.appendChild(q);
+  }
+
+  if(S.doc){
+    w.appendChild(el('h3','sec','Đọc cho đúng'));
+    S.doc.forEach(x=>{ const c=el('div','sai-dung');
+      c.innerHTML='<div class="sd-s"><span>NÓI SAI</span>'+esc(x.sai)+'</div>'+
+        '<div class="sd-d"><span>NÓI ĐÚNG</span>'+x.dung+'</div>';
+      w.appendChild(c); });
+  }
+
+  if(S.ruiro){
+    w.appendChild(el('h3','sec',S.ruiro.t));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.ruiro.d;
+    w.appendChild(p);
+    if(S.ruiro.a) w.appendChild(el('pre','ascii',S.ruiro.a));
+    if(S.ruiro.d2){ const p2=el('p'); p2.style.cssText='max-width:74ch;color:var(--fg2)'; p2.innerHTML=S.ruiro.d2; w.appendChild(p2); }
+  }
+
+  if(S.gap){
+    w.appendChild(el('h3','sec',S.gap.t));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.gap.d;
+    w.appendChild(p);
+    const gl=el('div','gap-w');
+    S.gap.ds.forEach((x,i)=>{ const c=el('div','gap');
+      c.innerHTML='<span class="gap-n">'+(i+1)+'</span>'+esc(x); gl.appendChild(c); });
+    w.appendChild(gl);
+  }
+
+  if(S.noi&&S.noi.length){
+    const nv=el('div'); nv.style.cssText='margin-top:26px;padding-top:18px;border-top:1px solid var(--line)';
+    nv.appendChild(el('div','eyebrow','Nối vào mạch truyền dẫn'));
+    const row=el('div'); row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';
+    S.noi.forEach(cid=>{ const c=CHAIN.find(x=>x.id===cid); if(!c) return;
+      const b=el('button','fchip'); b.textContent=c.t; b.onclick=()=>go('chain'); row.appendChild(b); });
+    nv.appendChild(row);
+    w.appendChild(nv);
+  }
+
+  const bk=el('div'); bk.style.cssText='margin-top:22px';
+  const b=el('button','fchip'); b.textContent='← Khung 7 tiêu chí'; b.onclick=()=>go('soi');
+  bk.appendChild(b); w.appendChild(bk);
   return w;
 }
 
