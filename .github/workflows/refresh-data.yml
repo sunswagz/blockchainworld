@@ -57,10 +57,21 @@ jobs:
       - name: Lấy số mới
         run: node scripts/build-live.mjs
 
-      # Bảng xét Đô Sát Viện — nguồn khác (L2BEAT), file khác, hỏng độc lập.
-      # Bước này ngã thì số liệu Kinh Thành ở trên vẫn commit được.
+      # ── Luật: mỗi bước continue-on-error PHẢI có timeout-minutes ──
+      # Cờ đó chỉ nuốt được bước NGÃ. Bước TREO thì nó bất lực: hết giờ
+      # ở cấp job là huỷ cả job, và bước commit không chạy — đúng sự cố
+      # 14/08, khi Tàng Thư Các ăn hết ngân sách và kéo theo cả số liệu
+      # ba nguồn kia đã lấy xong nằm chờ.
+      #
+      # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
+      # thành trang trí:  14 + 3 + 2 + 2 = 21  <  25
+      #
+      # Trần đặt theo giờ chạy đo được, không đoán:
+      #   L2BEAT   78s  → 3 phút
+      #   Công Bộ   6s  → 2 phút
       - name: Lấy bảng xét L2BEAT
         continue-on-error: true
+        timeout-minutes: 3
         run: node scripts/build-l2beat.mjs
 
       # Đồ nghề Công Bộ. Cũng continue-on-error, và vì lý do mạnh hơn:
@@ -68,6 +79,7 @@ jobs:
       # lúc nào không báo. Hỏng thì build tự giữ bản cũ.
       - name: Lấy đồ nghề Công Bộ
         continue-on-error: true
+        timeout-minutes: 2
         run: node scripts/build-congbo.mjs
 
       # Kho skill Tàng Thư Các. GITHUB_TOKEN nâng hạn mức API GitHub
@@ -99,9 +111,13 @@ jobs:
       #
       # Đóng dấu là thứ có thì tốt; số liệu mới là việc chính. Nó ngã
       # thì thoát trước khi ghi history.json, nên không để lại file dở.
+      # Trần 2 phút theo cùng luật ở trên: ba lượt vừa rồi ngã trong chưa
+      # tới 1 giây, nhưng Pinata treo thay vì trả 4xx thì continue-on-error
+      # lại bất lực y hệt — và nạn nhân vẫn là bước commit ngay bên dưới.
       - name: Đóng dấu bản số liệu
         if: env.PINATA_JWT != ''
         continue-on-error: true
+        timeout-minutes: 2
         run: node scripts/pin-snapshot.mjs
 
       - name: Commit nếu có thay đổi
