@@ -140,6 +140,13 @@ conflict lúc merge.
     tang-thu-cac/assets/js/data.js
     tang-thu-cac/assets/data/
     dai-quan-trac/assets/js/do.js
+    factory/state.json
+    factory/bao-cao.md
+    tao-bien-xu/assets/js/v/van-hanh.js
+
+Ba đường cuối là **sổ nhà máy** — xem mục "Nhịp chạy nằm ở sổ đăng ký"
+ngay dưới. `van-hanh.js` là bản chiếu của `state.json` cho trình duyệt,
+nên hai file đó luôn đi cùng nhau trong một commit.
 
 Danh sách này liệt kê **từng file**, không gom cả thư mục. Trước đây nó
 ghi `cong-bo/assets/js/` và điều đó sai theo cả hai hướng:
@@ -159,35 +166,69 @@ Nên khi thêm một script sinh dữ liệu, hỏi đúng một câu: **script 
 `writeFile` vào những đường nào?** Mọi đường đó phải có ở đây và trong
 `git add`, không thừa không thiếu.
 
-`scan-observatory.yml` (**lịch đang TẮT** — chỉ chạy khi bấm tay):
+`scan-observatory.yml` (41 phút sau 3 giờ UTC — nhưng nhịp thật là
+**1 lượt/ngày**, xem mục dưới):
 
     dai-quan-trac/assets/js/scan.js
+    factory/state.json
+    tao-bien-xu/assets/js/v/van-hanh.js
 
-Lịch cũ là 41 phút sau 1, 7, 13, 19 giờ UTC, tắt ngày 14/08/2026 vì
-`ANTHROPIC_API_KEY` tốn quá nhiều: mỗi lượt quét từng chiến trường là một
-loạt lời gọi kèm `web_search`, nhân 4 lượt/ngày. Đang chờ cách rẻ hơn.
+Lịch này từng bị **tắt** sáng 14/08/2026 vì `ANTHROPIC_API_KEY` tốn quá
+nhiều. Số đo được, để lần sau khỏi đoán: bảng điều khiển Anthropic ghi
+**610K token và 4,30 USD** cho đúng **ba lượt** quét thật — tức khoảng
+**1,4 USD một lượt**, và ở nhịp 4 lượt/ngày là cỡ **170 USD/tháng**. Phần
+lớn chi phí là token đầu vào: `web_search` kéo nguyên nội dung trang vào
+ngữ cảnh, nhân số chiến trường.
 
-Số đo được, để lần sau khỏi đoán: bảng điều khiển Anthropic ghi **610K
-token và 4,30 USD** cho đúng **ba lượt** quét thật — tức khoảng **1,4 USD
-một lượt**, và ở nhịp 4 lượt/ngày là cỡ **170 USD/tháng**. Phần lớn chi
-phí là token đầu vào: `web_search` kéo nguyên nội dung trang vào ngữ cảnh,
-nhân số chiến trường.
+**Đã bật lại cùng ngày**, sau khi vặn đủ ba núm — không phải vì chấp nhận
+trả tiền:
 
-Nên "cách rẻ hơn" không phải nạp thêm tiền mà là ba núm, theo thứ tự hiệu
-quả: đổi `MODEL` trong `scripts/build-scan.mjs` khỏi `claude-opus-5` —
-việc ở đây là "tìm tin 7 ngày rồi viết một câu tiếng Việt + phân loại
-g/y/r", Haiku làm được; hạ nhịp còn 1 lượt/ngày; và giới hạn số lượt tìm
-mỗi chiến trường. Ba núm đó nhân nhau đưa chi phí xuống mức vài USD/tháng.
+- `MODEL` trong `scripts/build-scan.mjs`: `claude-opus-5` → `claude-haiku-4-5`
+  (token vào 5 → 1 USD/MTok)
+- `max_uses: 3` cho `web_search` — núm duy nhất chạm thẳng vào thứ đắt
+  nhất, vì mỗi lượt tìm là một trang web đổ vào ngữ cảnh
+- nhịp 4 lượt/ngày → 1, khai ở `nhip: 24` của node `dai-quan-trac`
 
-Workflow vẫn còn và `workflow_dispatch` vẫn bật, nên cần bản quét mới thì
-bấm chạy tay trong tab Actions. Bật lại lịch thì phải bỏ **hai** chỗ cùng
-lúc: khối `schedule` trong workflow, và `tamDung` của "bản quét Quan
-Trắc" trong `scripts/tuoi-du-lieu.mjs`. Bỏ sót chỗ thứ hai thì bot chạy
-lại mà `npm run kiem` vẫn báo đang tắt.
+Ước còn cỡ **vài USD/tháng**. Bảng Anthropic báo khác thì sửa `nhip`
+trong `scripts/nha-may.mjs`, **đừng sửa cron**.
 
-Nguồn có `tamDung` được `npm run kiem` nhắc một dòng bình thản thay vì
-báo "có gì đó gãy" — nó không gãy, nó bị tắt. Nhưng vẫn nhắc, để đừng ai
-quên là có một nguồn đang nằm im.
+**Một coupling phải nhớ khi đổi `MODEL`:** biến thể `web_search` phải hợp
+với model. `web_search_20260209` (lọc động) chỉ chạy từ Opus 4.6 / Sonnet
+4.6 trở lên; Haiku 4.5 phải dùng bản cơ bản `web_search_20250305`. Đổi
+model mà quên đổi dòng `tools` thì API trả 400 cho **mọi** chiến trường —
+quét trắng, mà workflow vẫn xanh vì nó bắt lỗi từng chiến trường rồi đi
+tiếp.
+
+### Nhịp chạy nằm ở sổ đăng ký, không nằm ở cron
+
+Trước 14/08/2026, "bao lâu chạy một lượt" nằm rải ở **ba** chỗ không chỗ
+nào biết chỗ nào: `cron` trong workflow, thứ tự các bước trong workflow,
+và ngưỡng "bao lâu là cũ" trong `scripts/tuoi-du-lieu.mjs`. Ba chỗ phải
+khớp nhau mà không có gì bắt chúng khớp — sót một chỗ thì bot vẫn chạy,
+`npm run kiem` vẫn xanh, chỉ có dữ liệu là sai nhịp.
+
+Giờ nhịp nằm ở mảng `NODE` trong **`scripts/nha-may.mjs`**, một chỗ:
+
+    node scripts/nha-may.mjs bang         xem cả nhà máy trong một bảng
+    node scripts/nha-may.mjs den-han      node nào đến hạn (workflow đọc)
+    node scripts/nha-may.mjs so-dang-ky   sinh lại factory/registry.json
+    node scripts/nha-may.mjs chieu        sinh lại van-hanh.js cho webapp
+
+`cron` trong hai workflow chỉ còn là **TRẦN** — "cứ 6 giờ ngó một lần xem
+có gì đến hạn không". Đến hạn hay chưa thì sổ quyết. Hệ quả: **đổi nhịp
+một cung là sửa đúng một con số**, không đụng YAML. Muốn nhịp mịn hơn 6
+giờ thì mới phải sửa cron.
+
+Thêm một node thì `npm run kiem` bắt ba thứ phải khớp, và cả ba đều hỏng
+im lặng nếu sai:
+
+- node có `nhip` mà không workflow nào gọi tới → **không bao giờ chạy**,
+  còn Bảng vận hành thì mãi báo "đến hạn"
+- node khai `ra` mà `git add` không phủ → **chạy rồi mất**
+- `factory/registry.json` lệch `NODE` → sổ đăng ký nói dối
+
+Nhìn thấy nhà máy đang chạy: mở **Tạo Biện Xứ → Bảng vận hành**. Trang đó
+đọc `van-hanh.js` nên nó hiện lượt chạy thật, không phải mô phỏng.
 
 Muốn đổi số liệu thì sửa script sinh ra chúng trong `scripts/`, không sửa
 file kết quả. (Và sửa `scripts/` là file dùng chung — hỏi trước.)
