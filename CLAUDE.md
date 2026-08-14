@@ -48,21 +48,30 @@ không phải HEAD local. Đó là mặc định (`worktree.baseRef: fresh`); đ
 
 ### Cổng dev
 
-`server.js` phục vụ từ **gốc repo**, không phải từ thư mục cung — nên một
-server là đủ để mở cả năm cung (`/cong-bo/`, `/kinh-thanh/`, …). Vì vậy
-cổng cấp theo **luồng đang chạy**, không phải theo cung:
+Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của
+cung đó — tự tra bảng này, không cần ai giao số:
 
-    5173  luồng 1 (mặc định — để cho bản checkout chính)
-    5174  luồng 2
-    5175  luồng 3
-    5176  luồng 4
+    5173  Cổng Thành (gốc repo)   ← cũng là mặc định của server.js
+    5174  cong-bo
+    5175  dai-quan-trac
+    5176  do-sat-vien
+    5177  kinh-thanh
+    5178  tang-thu-cac
 
 Luôn truyền cổng, đừng để mặc định:
 
-    node server.js 5174
+    node server.js 5175
 
-Dải 5173–5176 dành riêng cho repo này. Thêm bao nhiêu cung nữa cũng không
-cần thêm cổng — số cổng đi theo số terminal mở song song, không theo số app.
+Nhờ bảng cố định này mà hai phiên song song không bao giờ tranh cổng, kể
+cả khi người dùng không nói gì về cổng.
+
+Lưu ý `server.js` phục vụ từ **gốc repo**, không phải từ thư mục cung —
+nên server nào cũng mở được cả năm cung (`/cong-bo/`, `/kinh-thanh/`, …).
+Cổng gắn với cung là để chia chỗ giữa các phiên, không phải vì mỗi cung
+cần một server riêng. Đang sửa `cong-bo` mà muốn xem nó nối sang Cổng
+Thành thì mở `localhost:5174/` là thấy, không cần bật thêm server.
+
+Dải 5173–5199 dành riêng cho repo này.
 
 ### Không chạy trong phiên song song
 
@@ -71,16 +80,23 @@ cần thêm cổng — số cổng đi theo số terminal mở song song, không
 Ba lệnh này dựng lại toàn bộ `dist/` và pin lên IPFS cho cả site. Chỉ chạy
 sau khi đã gộp xong về `main`.
 
-## Bẫy: paths filter làm deploy hỏng lặng lẽ
+## Thêm cung mới
 
-`deploy-pages.yml` và `deploy-ipfs.yml` chỉ chạy khi push vào `main` **và**
-file thay đổi khớp danh sách `paths`. Danh sách đó liệt kê thủ công từng
-cung, vì sau khi tách thư mục thì `assets/**` chỉ còn khớp assets của Cổng
-Thành.
+Hai việc bắt buộc, làm ngay trong cùng lần thêm — để sót cái nào cũng
+không có lỗi nào báo:
 
-Thêm cung mới mà quên thêm đường dẫn của nó vào `paths` của **cả hai** file
-thì: push thành công, không có lỗi nào, không có workflow nào chạy, và bản
-trên site vẫn là bản cũ. Không có gì báo cho bạn biết.
+**1. Cấp cổng và ghi vào bảng "Cổng dev" bên trên.** Lấy số kế tiếp trong
+dải 5173–5199. Không ghi thì phiên sau đọc file này sẽ không biết dùng
+cổng nào, đoán bừa, và tranh cổng với phiên đang chạy.
+
+**2. Thêm đường dẫn của cung vào `paths` của CẢ HAI file**
+`deploy-pages.yml` và `deploy-ipfs.yml`. Hai workflow này chỉ chạy khi
+push vào `main` **và** file thay đổi khớp `paths`. Danh sách đó phải liệt
+kê thủ công từng cung, vì sau khi tách thư mục thì `assets/**` chỉ còn
+khớp assets của Cổng Thành.
+
+Quên bước 2 thì: push thành công, không lỗi, không workflow nào chạy, và
+bản trên site vẫn là bản cũ. Không có gì báo cho bạn biết.
 
 Nhánh worktree không kích hoạt deploy — đúng như thiết kế, deploy xảy ra
 lúc gộp vào `main`.
