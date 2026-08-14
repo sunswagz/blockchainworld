@@ -163,7 +163,7 @@ Nên khi thêm một script sinh dữ liệu, hỏi đúng một câu: **script 
     dai-quan-trac/assets/js/scan.js
 
 Lịch cũ là 41 phút sau 1, 7, 13, 19 giờ UTC, tắt ngày 14/08/2026 vì
-`ANTHROPIC_API_KEY` tốn quá nhiều: mỗi lượt quét 5 chiến trường là một
+`ANTHROPIC_API_KEY` tốn quá nhiều: mỗi lượt quét từng chiến trường là một
 loạt lời gọi kèm `web_search`, nhân 4 lượt/ngày. Đang chờ cách rẻ hơn.
 
 Workflow vẫn còn và `workflow_dispatch` vẫn bật, nên cần bản quét mới thì

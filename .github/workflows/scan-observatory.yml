@@ -8,7 +8,7 @@ name: Quét Đài Quan Trắc
 # xem phần đầu scripts/build-scan.mjs.
 
 # ┌─ TẠM DỪNG LỊCH TỰ ĐỘNG — 14/08/2026 ────────────────────────────┐
-# │ ANTHROPIC_API_KEY tốn quá nhiều: mỗi lượt quét 5 chiến trường là
+# │ ANTHROPIC_API_KEY tốn quá nhiều: mỗi lượt quét từng chiến trường là
 # │ một loạt lời gọi kèm web_search, nhân 4 lượt/ngày. Tắt lịch cho
 # │ tới khi tìm được cách rẻ hơn.
 # │
