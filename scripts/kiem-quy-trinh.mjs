@@ -177,6 +177,49 @@ for (const c of cung) {
   if (!goc.includes(`"${c}/"`)) bao(`index.html (Cổng Thành) chưa có thẻ dẫn vào "${c}"`);
 }
 
+/* ── 9. CACHE_VERSION có theo kịp file trong SHELL không ──
+   Mỗi sw.js liệt kê một mảng SHELL và phục vụ chúng theo lối
+   CACHE-TRƯỚC. Sửa một file trong SHELL mà không nâng
+   CACHE_VERSION thì máy đã cài app cứ dùng bản cũ trong cache.
+
+   Hỏng kiểu này khó lần ra nhất trong repo: không có lỗi mạng,
+   không có 404, HTML mới ghép CSS cũ nên chỉ thấy GIAO DIỆN VỠ.
+   Đã dính thật: xếp lại thứ bậc Cổng Thành, đổi portal.css,
+   quên nâng v4 → v5, và icon SVG mất luật cỡ nên phình kín màn hình.
+
+   Cách kiểm: so commit cuối của sw.js với commit cuối của từng
+   file nó khai trong SHELL. */
+function commitCuoi(p) {
+  try {
+    return execFileSync("git", ["log", "-1", "--format=%ct", "--", p],
+      { cwd: ROOT, encoding: "utf8" }).trim();
+  } catch { return ""; }
+}
+
+for (const c of ["."].concat(cung)) {
+  const swP = c === "." ? "sw.js" : `${c}/sw.js`;
+  if (!existsSync(join(ROOT, swP))) continue;
+  const sw = await doc(swP);
+  if (!/CACHE_VERSION\s*=/.test(sw)) continue;
+
+  const tSw = Number(commitCuoi(swP) || 0);
+  if (!tSw) continue;                       // chưa commit lần nào — bỏ qua
+
+  const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((m) => m[1]);
+  const tre = [];
+  for (const f of shell) {
+    const p = c === "." ? f : `${c}/${f}`;
+    if (!existsSync(join(ROOT, p))) continue;
+    const t = Number(commitCuoi(p) || 0);
+    if (t > tSw) tre.push(f);
+  }
+  if (tre.length) {
+    bao(`${swP}: CACHE_VERSION chưa nâng, nhưng ${tre.length} file trong SHELL ` +
+      `mới hơn — ${tre.slice(0, 4).join(", ")}${tre.length > 4 ? "…" : ""}\n` +
+      `        Máy đã cài app sẽ nhận bản CŨ của những file đó (giao diện vỡ, không báo lỗi).`);
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 

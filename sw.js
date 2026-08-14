@@ -10,7 +10,7 @@
    giữ lại sau khi cung đã cập nhật.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v4";
+var CACHE_VERSION = "v5";
 var SHELL_CACHE = "cong-thanh-" + CACHE_VERSION;
 
 var SHELL = [

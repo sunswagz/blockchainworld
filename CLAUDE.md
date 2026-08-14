@@ -185,6 +185,33 @@ Hệ quả cho chính file này: worktree nhánh từ `origin/main`, nên sửa
 `CLAUDE.md` phải commit và **push lên `main`** mới có tác dụng. Worktree
 tạo trước đó vẫn giữ bản cũ.
 
+### Sửa file trong SHELL thì phải nâng CACHE_VERSION
+
+Mỗi `sw.js` khai một mảng `SHELL` và phục vụ những file đó theo lối
+**cache trước** (`return hit || net`). Sửa một file trong SHELL mà không
+nâng `CACHE_VERSION` ở đầu file thì máy đã cài app **cứ dùng bản cũ**.
+
+Đây là kiểu hỏng khó lần ra nhất trong repo, vì nó không giống lỗi:
+
+- không có 404, không có lỗi mạng, Actions xanh, `curl` thấy bản mới
+- nhưng trình duyệt ghép **HTML mới với CSS cũ** — và cái lộ ra là
+  **giao diện vỡ**, nên người ta đi tìm bug ở HTML/CSS mới thay vì ở cache
+
+Đã dính thật: xếp lại thứ bậc Cổng Thành có đổi `assets/css/portal.css`,
+quên nâng `v4 → v5`; luật `.vong-ic svg { width:15px }` không tới máy
+người dùng, mà SVG chỉ có `viewBox` thì không có cỡ nội tại — icon phình
+kín màn hình.
+
+Hai việc, làm cùng lúc với lần sửa:
+
+1. Nâng `CACHE_VERSION` ở **mọi** `sw.js` có file vừa sửa trong SHELL.
+   Sửa `assets/js/halls.js` của năm cung thì nâng cả năm.
+2. Cho SVG cỡ nội tại (`width="15" height="15"`) chứ đừng chỉ dựa vào
+   CSS — để lỡ CSS cũ còn kẹt thì hỏng nhẹ, không phình kín trang.
+
+`npm run kiem` bắt được lỗi này: nó so commit cuối của `sw.js` với commit
+cuối của từng file trong SHELL.
+
 ### Cổng dev
 
 Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của
