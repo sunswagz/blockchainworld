@@ -255,8 +255,22 @@ jobs:
       #    QUOTA GÓI CLAUDE thay vì tính tiền theo token. Đó là cả lý
       #    do bước này tồn tại được: nhịp quét cũ của Đài Quan Trắc
       #    tốn 170 USD/tháng và đã phải tắt.
-      #    Đổi lại, nó ăn vào quota bạn ngồi dùng — nên Haiku và
-      #    --max-turns thấp, không phải Opus.
+      #    Đổi lại, nó ăn vào QUOTA BẠN ĐANG NGỒI DÙNG. Nên phải cân
+      #    theo khối lượng thật của việc, chứ không theo cảm giác
+      #    "model to thì đắt".
+      #
+      #    Việc này nhỏ và cố định: đọc hai file JSON (~25 KB) rồi
+      #    viết 15 dòng, một lượt mỗi ngày, --max-turns 8 chặn trần.
+      #    Ở khối lượng đó Opus 5 không đáng kể so với một buổi ngồi
+      #    làm việc bình thường — nên dùng Opus, vì phần giá trị nhất
+      #    của báo cáo là câu "nên xem chỗ nào trước", và đó đúng là
+      #    chỗ model mạnh hơn thấy rõ hơn.
+      #
+      #    Khác hẳn bản QUÉT Đài Quan Trắc: chỗ đó `web_search` kéo
+      #    nguyên nội dung trang vào ngữ cảnh, nhân số chiến trường,
+      #    nên khối lượng phình không kiểm soát được — và nó trả bằng
+      #    TIỀN THẬT qua ANTHROPIC_API_KEY. Chỗ đó giữ Haiku.
+      #    Cùng là "gọi model" nhưng hai bài toán chi phí khác nhau.
       #
       # 2. CHỈ Read và Write. Không Bash, không git. Claude viết đúng
       #    một file rồi thôi; bước commit bên dưới mới là chỗ đẩy đi.
@@ -277,7 +291,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
-            --model claude-haiku-4-5
+            --model claude-opus-5
             --max-turns 8
             --allowedTools "Read,Write"
           prompt: |

@@ -230,6 +230,29 @@ im lặng nếu sai:
 Nhìn thấy nhà máy đang chạy: mở **Tạo Biện Xứ → Bảng vận hành**. Trang đó
 đọc `van-hanh.js` nên nó hiện lượt chạy thật, không phải mô phỏng.
 
+#### Hai node gọi model, hai bài toán chi phí khác nhau
+
+Đừng chọn model theo cảm giác "to thì đắt" — chọn theo **khối lượng có
+chặn được không**, và **trả bằng gì**:
+
+| node | trả bằng | khối lượng | model |
+|---|---|---|---|
+| `bao-cao` | quota gói (`CLAUDE_CODE_OAUTH_TOKEN`) | cố định: 2 file JSON ~25 KB → 15 dòng, `--max-turns 8` | **Opus 5** |
+| `dai-quan-trac` | tiền thật (`ANTHROPIC_API_KEY`) | phình không chặn được: `web_search` kéo cả trang web vào ngữ cảnh, nhân số chiến trường | **Haiku 4.5** |
+
+Chỗ khối lượng cố định và trả bằng quota thì Opus rẻ hơn ta tưởng, mà
+phần giá trị nhất của báo cáo — câu "nên xem chỗ nào trước" — đúng là chỗ
+model mạnh hơn thấy rõ hơn. Chỗ khối lượng phình và trả bằng tiền thì
+ngược lại: đó chính là chỗ đã tốn 170 USD/tháng.
+
+Muốn Opus cho cả bản quét mà không tốn tiền thì phải **chuyển nó sang
+`anthropics/claude-code-action`** để nó cũng trả bằng quota — chứ không
+phải đổi `MODEL` trong `build-scan.mjs`. Đổi `MODEL` ở đó là quay lại
+đúng hoá đơn cũ.
+
+**Token gắn với một người.** `claude setup-token` cấp token theo gói của
+người chạy lệnh, nên mỗi lượt bot ăn vào quota của chính người đó.
+
 Muốn đổi số liệu thì sửa script sinh ra chúng trong `scripts/`, không sửa
 file kết quả. (Và sửa `scripts/` là file dùng chung — hỏi trước.)
 
