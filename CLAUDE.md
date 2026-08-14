@@ -12,9 +12,12 @@ git worktree riêng, mỗi phiên lo một cung:
 
     claude --worktree cong-bo
 
-Các cung tách thư mục hẳn nên file nguồn không đụng nhau. Chỗ duy nhất
-thật sự dùng chung là `.git` và các file ở gốc repo — nên toàn bộ luật
-dưới đây xoay quanh đúng hai thứ đó.
+Các cung tách thư mục hẳn nên file nguồn không đụng nhau. Ba thứ còn dùng
+chung, và toàn bộ luật dưới đây chỉ để chia ba thứ đó:
+
+- `.git` — chung index, chung branch `main`
+- các file ở gốc repo, và `.github/workflows/`
+- cổng localhost — worktree cô lập file, không cô lập runtime
 
 ### Phạm vi sửa
 
@@ -24,27 +27,44 @@ dưới đây xoay quanh đúng hai thứ đó.
   luôn nửa việc chưa xong của họ vào commit của bạn.
 - Không đụng file dùng chung ở gốc repo: `index.html`, `sw.js`,
   `manifest.webmanifest`, `assets/`, `scripts/`, `package.json`,
-  `server.js`, `.github/workflows/`. Cần sửa thì dừng lại hỏi trước.
+  `server.js`, `CLAUDE.md`, `.github/workflows/`. Cần sửa thì dừng lại
+  hỏi trước.
 - Không merge, không rebase, không push lên `main`. Commit và push lên
   đúng nhánh worktree hiện tại; việc gộp để người dùng làm.
 
 ### File do workflow tự sinh — đừng sửa tay
 
-Bốn đường dẫn này bị ghi đè mỗi 6 giờ bởi `refresh-data.yml` và
-`scan-observatory.yml`, hai workflow commit thẳng vào `main`. Sửa tay là
-chắc chắn conflict lúc merge:
+Hai workflow chạy theo lịch và commit thẳng vào `main`, mỗi cái 4 lần một
+ngày. Chúng ghi đè đúng những đường dẫn dưới đây; sửa tay là chắc chắn
+conflict lúc merge.
+
+`refresh-data.yml` (17 phút sau 0, 6, 12, 18 giờ UTC):
 
     kinh-thanh/assets/js/data/live.js
+    kinh-thanh/assets/js/data/provenance.js
+    kinh-thanh/assets/data/history.json
     do-sat-vien/assets/js/data.js
     cong-bo/assets/js/
     tang-thu-cac/assets/js/data.js
+    tang-thu-cac/assets/data/
+
+`scan-observatory.yml` (41 phút sau 1, 7, 13, 19 giờ UTC):
+
+    dai-quan-trac/assets/js/scan.js
 
 Muốn đổi số liệu thì sửa script sinh ra chúng trong `scripts/`, không sửa
 file kết quả. (Và sửa `scripts/` là file dùng chung — hỏi trước.)
 
+Danh sách này phải khớp với các dòng `git add` trong hai workflow. Đổi
+phạm vi bên đó thì cập nhật lại đây.
+
 Vì bot đẩy vào `main` liên tục, worktree phải nhánh từ `origin/main` chứ
 không phải HEAD local. Đó là mặc định (`worktree.baseRef: fresh`); đừng
 đổi sang `head`.
+
+Hệ quả cho chính file này: worktree nhánh từ `origin/main`, nên sửa
+`CLAUDE.md` phải commit và **push lên `main`** mới có tác dụng. Worktree
+tạo trước đó vẫn giữ bản cũ.
 
 ### Cổng dev
 
@@ -77,8 +97,13 @@ Dải 5173–5199 dành riêng cho repo này.
 
     npm run dist     npm run deploy     npm run pin
 
-Ba lệnh này dựng lại toàn bộ `dist/` và pin lên IPFS cho cả site. Chỉ chạy
-sau khi đã gộp xong về `main`.
+Không phải vì tranh file — `dist/` đã gitignore và mỗi worktree có bản
+riêng. Lý do là cả ba đều làm việc cho **toàn site**: đứng ở nhánh worktree
+mà chạy thì bạn dựng ra một bản site có cung của bạn đã sửa còn các cung
+khác là bản `origin/main` cũ, rồi `pin` đẩy luôn bản dở dang đó lên IPFS —
+mà IPFS thì đã pin là không rút lại được.
+
+Chỉ chạy sau khi đã gộp xong về `main`.
 
 ## Thêm cung mới
 
