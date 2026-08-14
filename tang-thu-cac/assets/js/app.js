@@ -116,8 +116,8 @@
     host.innerHTML =
       '<p class="giaithich">' + dan("tong-quan") + "</p>" +
       '<div class="tomtat">' +
-        '<div class="tt-o"><span>Skill quét được</span><b>' + SK.length + "</b>" +
-          "<i>từ " + (D.soKhoQuet || 0) + " kho trên GitHub</i></div>" +
+        '<div class="tt-o"><span>Skill trong danh mục</span><b>' + SK.length + "</b>" +
+          "<i>từ " + (D.soKhoQuet || 0) + " kho · đã gộp bản trùng</i></div>" +
         '<div class="tt-o"><span>Đã dịch tiếng Việt</span><b style="color:var(--acc)">' + ct + "</b>" +
           "<i>kho anthropics/skills, đọc từng cái</i></div>" +
         '<div class="tt-o"><span>Kho đang theo dõi</span><b>' + KHO.length + "</b>" +
@@ -201,7 +201,10 @@
         '<span class="sk-ten">' + esc(s.ten) + "</span>" +
         (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>" : "") +
         (dichCua(s) ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
-        (s.trung ? '<span class="the-nho the-tr">' + esc(VI.nhan.trung) + "</span>" : "") +
+        (s.trungTen ? '<span class="the-nho the-tr" title="Có skill khác cùng tên nhưng nội dung khác">' +
+          esc(VI.nhan.trungTen) + "</span>" : "") +
+        (s.soBanSao ? '<span class="the-nho the-bs" title="Kho khác cũng có bản y hệt">' +
+          s.soBanSao + " bản sao</span>" : "") +
         '<span class="sk-sao">★ ' + so(s.sao) + "</span></div>" +
         (d ? '<p class="sk-tom">' + esc(d.tom) + "</p>"
            : '<p class="sk-tom goc">' + esc(String(s.moTa).slice(0, 190)) +
@@ -242,6 +245,24 @@
         "vì tôi đã đọc từng SKILL.md của chúng. Những skill còn lại — kể cả skill do Anthropic " +
         "sở hữu ở kho khác — giữ nguyên bản gốc: bịa mô tả tiếng Việt cho skill chưa đọc kỹ " +
         "còn tệ hơn để nguyên bản.</p></div>";
+    }
+
+    if (s.trungTen) {
+      h += '<div class="hs"><div class="hs-h">Lưu ý khi tra</div>' +
+        '<p class="hs-khi">Có skill khác <b>cùng tên</b> trong danh mục nhưng <b>nội dung khác</b>. ' +
+        "Tàng Thư Các cố ý không gộp chúng — gộp theo tên sẽ xoá mất skill thật. " +
+        "Đọc kỹ mô tả và kho nguồn trước khi cài.</p></div>";
+    }
+
+    if (s.banSao && s.banSao.length) {
+      h += '<div class="hs"><div class="hs-h">Kho khác cũng có bản y hệt</div>' +
+        '<div class="bansao">' + s.banSao.map(function (b) {
+          return '<a href="https://github.com/' + esc(b.kho) + "/tree/main/" + esc(b.duong) +
+            '" target="_blank" rel="noopener">' + esc(b.kho) + "/" + esc(b.duong) + "</a>";
+        }).join("") + "</div>" +
+        '<p class="hs-thin">Nội dung giống hệt bản chính, nên danh mục chỉ giữ một. ' +
+        "Bản chính chọn theo: kho chính thức trước, rồi sao cao hơn, rồi đường dẫn gốc " +
+        "(không phải thư mục gương hay bản dịch).</p></div>";
     }
 
     var repo = "https://github.com/" + s.kho;

@@ -274,6 +274,28 @@ for (const ten of LUON_CO) {
   }
 }
 
+/* Thư mục ngôn ngữ trong đường dẫn — bản dịch của cùng một skill.
+   Giữ bản gốc, không giữ bản dịch làm bản chuẩn. */
+/* Mã ngôn ngữ có thể kèm mã vùng: ja-JP, ko-KR, pt-BR, zh-Hans…
+   Bản đầu chỉ liệt kê mã trần nên docs/ja-JP/ lọt lưới và được chọn
+   làm bản chính — lệnh cài trỏ vào bản tiếng Nhật. */
+const RE_NGON_NGU =
+  /(^|\/)(es|vi|zh|ja|ko|fr|de|pt|ru|it|tr|id|th|hi|ar|nl|pl|sv|uk|cs|ro|el|he|fa|bn|ms)(-[a-z]{2,4})?(\/|$)/i;
+
+/* Thư mục "gương" cho từng công cụ agent. Thứ tự = mức ưu tiên;
+   không nằm trong danh sách thì coi như vị trí chính. */
+const THU_TU_GUONG = [".claude/", ".agents/", ".cursor/", ".kiro/", ".codex/", ".windsurf/"];
+
+function diemDuong(p) {
+  let d = 0;
+  if (RE_NGON_NGU.test(p)) d += 100;                       /* bản dịch: xuống hạng mạnh */
+  if (/(^|\/)docs(\/|$)/i.test(p)) d += 40;                /* trong docs/: bản phụ, không phải chỗ chính */
+  for (let i = 0; i < THU_TU_GUONG.length; i++) {
+    if (p.indexOf(THU_TU_GUONG[i]) !== -1) { d += 10 + i; break; }
+  }
+  d += p.split("/").length;                                /* nông hơn thì tốt hơn */
+  return d;
+}
 /* ── 2. quét SKILL.md ──────────────────────────────── */
 /* anthropics/skills luôn quét đầu tiên dù sao có thể thấp hơn kho
    khác: đây là nguồn chính thức và là nhóm duy nhất được dịch tay. */
@@ -308,6 +330,11 @@ for (const r of canQuet) {
   if (cay.truncated) warn(`${r.id}: cây file bị GitHub cắt bớt — có thể sót skill.`);
 
   let lay = 0;
+  /* Sắp theo chất lượng đường dẫn TRƯỚC khi cắt: kho lớn có gần 900
+     file và cây trả theo thứ tự chữ cái, nên `docs/<ngôn ngữ>/` đứng
+     trước `skills/`. Cắt thẳng 400 đầu là mất sạch bản gốc. */
+  ds.sort((a, b) => diemDuong(a.path) - diemDuong(b.path));
+
   for (const f of ds.slice(0, MAX_SKILL_MOI_KHO)) {
     /* template/SKILL.md là mẫu trống, không phải skill thật */
     if (/^template\//i.test(f.path)) continue;
@@ -365,6 +392,90 @@ if ((hongNapThang || !quetDuoc) && cu?.kho?.length) {
   }
 }
 
+
+/* ══════════════════════════════════════════════════════
+   GỘP BẢN TRÙNG
+   ══════════════════════════════════════════════════════ */
+
+
+
+/* Bản nào làm bản chuẩn: kho chính thức trước, rồi sao cao,
+   rồi đường dẫn "gốc" nhất, rồi mô tả đầy đủ hơn. */
+function chonChuan(v) {
+  return v.slice().sort((a, b) => {
+    const ka = a.kho === "anthropics/skills" ? 0 : (a.chinhChu ? 1 : 2);
+    const kb = b.kho === "anthropics/skills" ? 0 : (b.chinhChu ? 1 : 2);
+    if (ka !== kb) return ka - kb;
+    if (b.sao !== a.sao) return b.sao - a.sao;
+    const da = diemDuong(a.duong), db = diemDuong(b.duong);
+    if (da !== db) return da - db;
+    return String(b.moTa).length - String(a.moTa).length;
+  })[0];
+}
+
+function noiDung(x) {
+  return String(x || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(0, 240);
+}
+
+function gopTrung(ds) {
+  const truocKhiGop = ds.length;
+
+  /* bước 1: cùng kho + cùng tên */
+  const b1 = new Map();
+  for (const x of ds) {
+    const k = x.kho + "|" + x.ten.toLowerCase();
+    if (!b1.has(k)) b1.set(k, []);
+    b1.get(k).push(x);
+  }
+  let boB1 = 0;
+  const sau1 = [];
+  for (const v of b1.values()) {
+    const c = chonChuan(v);
+    if (v.length > 1) {
+      boB1 += v.length - 1;
+      c.banSao = v.filter((x) => x !== c).map((x) => ({ kho: x.kho, duong: x.duong }));
+    }
+    sau1.push(c);
+  }
+
+  /* bước 2: khác kho, cùng tên VÀ cùng nội dung */
+  const b2 = new Map();
+  for (const x of sau1) {
+    const k = x.ten.toLowerCase() + "|" + noiDung(x.moTa);
+    if (!b2.has(k)) b2.set(k, []);
+    b2.get(k).push(x);
+  }
+  let boB2 = 0;
+  const sau2 = [];
+  for (const v of b2.values()) {
+    const c = chonChuan(v);
+    if (v.length > 1) {
+      boB2 += v.length - 1;
+      c.banSao = (c.banSao || []).concat(
+        v.filter((x) => x !== c).map((x) => ({ kho: x.kho, duong: x.duong }))
+      );
+    }
+    sau2.push(c);
+  }
+
+  /* Còn trùng TÊN sau khi gộp = skill khác nhau cùng tên. Đánh dấu để
+     giao diện nói đúng chuyện đó, thay vì để người đọc tưởng lỗi. */
+  const demTen = {};
+  for (const x of sau2) demTen[x.ten] = (demTen[x.ten] || 0) + 1;
+  for (const x of sau2) {
+    x.trungTen = demTen[x.ten] > 1;
+    x.soBanSao = (x.banSao || []).length;
+    if (x.banSao && x.banSao.length > 8) x.banSao = x.banSao.slice(0, 8);
+    delete x.trung;
+  }
+
+  log(`  gộp trùng: ${truocKhiGop} → ${sau2.length} skill ` +
+    `(cùng kho ${boB1} bản, chép chéo ${boB2} bản)`);
+  const conTrung = Object.values(demTen).filter((n) => n > 1).length;
+  if (conTrung) log(`             giữ ${conTrung} tên trùng — skill khác nhau, không gộp`);
+  return sau2;
+}
+
 /* ── đóng gói ──────────────────────────────────────── */
 const now = new Date();
 const pad = (n) => String(n).padStart(2, "0");
@@ -384,7 +495,8 @@ const dsSkill = skills.length || cuTheoKho.size
 if (cuTheoKho.size) {
   log(`  gộp     : ${skills.length} skill vừa quét + ${cuTheoKho.size} giữ lại từ ${new Set([...cuTheoKho.values()].map((x) => x.kho)).size} kho chưa quét lượt này`);
 }
-const demNhom = dsSkill.reduce((m, s) => { m[s.nhom] = (m[s.nhom] || 0) + 1; return m; }, {});
+const dsGon = gopTrung(dsSkill);
+const demNhom = dsGon.reduce((m, s) => { m[s.nhom] = (m[s.nhom] || 0) + 1; return m; }, {});
 /* ══════════════════════════════════════════════════════
    LỊCH SỬ MỐC · XU HƯỚNG · NHẬT KÝ ĐỔI
    ══════════════════════════════════════════════════════ */
@@ -415,7 +527,7 @@ for (const k of kho) saoNay[viTri.get(k.id)] = k.sao;
 const truocKho = new Set((cu?.kho || []).map((k) => k.id));
 const nayKho = new Set(kho.map((k) => k.id));
 const truocSkill = new Map((cu?.skills || []).map((x) => [x.id, x]));
-const naySkill = new Map(dsSkill.map((x) => [x.id, x]));
+const naySkill = new Map(dsGon.map((x) => [x.id, x]));
 
 const doiLan = {
   luc: nowSec,
@@ -427,7 +539,7 @@ const doiLan = {
   skillBot: [...truocSkill.keys()].filter((x) => !naySkill.has(x))
     .slice(0, 60).map((id) => ({ id, ten: truocSkill.get(id).ten, kho: truocSkill.get(id).kho })),
   soSkillBot: [...truocSkill.keys()].filter((x) => !naySkill.has(x)).length,
-  tongSkill: dsSkill.length,
+  tongSkill: dsGon.length,
   tongKho: kho.length,
   suyGiam: !!(hongNapThang || !quetDuoc)
 };
@@ -443,17 +555,24 @@ if (coDoi) {
 }
 
 /* ── mốc ── */
-LS.moc.push({ luc: nowSec, sao: saoNay, soSkill: dsSkill.length, soKho: kho.length });
+LS.moc.push({ luc: nowSec, sao: saoNay, soSkill: dsGon.length, soKho: kho.length });
 LS.moc = LS.moc.slice(-GIU_MOC);
 
 /* ── xu hướng: so với mốc gần nhất ở mỗi khoảng ── */
 /* Chọn mốc CŨ NHẤT còn nằm trong cửa sổ, để "24 giờ" thật sự là
    quãng dài nhất ≤ 24 giờ chứ không phải mốc vừa ghi 6 giờ trước. */
+/* Mốc phải NẰM TRONG cửa sổ VÀ đủ già — ít nhất một nửa tuổi cửa sổ.
+   Không có ràng buộc "đủ già" thì một mốc ghi 12 phút trước cũng lọt
+   vào cửa sổ 30 ngày, và chênh lệch 12 phút bị dán nhãn "xu hướng 30
+   ngày". Thà báo chưa đủ dữ liệu còn hơn nói sai. */
+const TUOI_TOI_THIEU = 0.5;
+
 function mocGan(giay) {
   const dich = nowSec - giay;
+  const canGia = nowSec - giay * TUOI_TOI_THIEU;
   let chon = null;
   for (const m of LS.moc) {
-    if (m.luc > nowSec - 60) continue;          /* bỏ mốc vừa ghi */
+    if (m.luc > canGia) continue;               /* quá mới, chưa đại diện cho cửa sổ */
     if (m.luc >= dich && (!chon || m.luc < chon.luc)) chon = m;
   }
   return chon;
@@ -511,21 +630,21 @@ const out = {
   /* Số kho có mặt trong danh mục, không phải số kho quét lượt này —
      quét theo đợt thì hai con số khác nhau, và người đọc quan tâm
      danh mục đang phủ bao nhiêu kho. */
-  soKhoQuet: new Set(dsSkill.map((x) => x.kho)).size,
+  soKhoQuet: new Set(dsGon.map((x) => x.kho)).size,
   soKhoLuotNay: quetDuoc,
   soKhoHong: quetHong,
   demNhom,
   xuHuong,
   doiGanNhat: LS.doi.slice(0, 12),
   kho,
-  skills: dsSkill
+  skills: dsGon
 };
 
 const js = `/* ═══════════════════════════════════════════════════════
    TỰ SINH bởi scripts/build-tangthu.mjs — ĐỪNG SỬA TAY.
    Nguồn: ${out.nguon}
    Lấy lúc: ${out.generatedAt}
-   ${dsSkill.length} skill từ ${out.soKhoQuet} kho · bảng xếp hạng ${kho.length} kho
+   ${dsGon.length} skill từ ${out.soKhoQuet} kho · bảng xếp hạng ${kho.length} kho
    ═══════════════════════════════════════════════════════ */
 window.TT_DATA = ${JSON.stringify(out)};
 `;
@@ -534,7 +653,7 @@ await writeFile(join(DIR, "data.js"), js, "utf8");
 
 /* ── thống kê ──────────────────────────────────────── */
 const show = (o) => Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}=${v}`).join("  ");
-log(`\n  ${dsSkill.length} skill · ${dsSkill.filter((s) => s.chinhChu).length} chính thức của Anthropic`);
+log(`\n  ${dsGon.length} skill · ${dsGon.filter((s) => s.chinhChu).length} chính thức của Anthropic`);
 log("  nhóm  :", show(demNhom));
 log("  kho   :", `quét ${quetDuoc}, hỏng ${quetHong}, xếp hạng ${kho.length}`);
 log(`  còn   : ${conLuot ?? "?"} lượt gọi API`);

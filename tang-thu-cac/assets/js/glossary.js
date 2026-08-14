@@ -32,7 +32,7 @@ window.TT_VI = {
     },
     "danh-muc": {
       ten: "Danh mục skill",
-      y: "Tra từng skill: nó làm gì, khi nào Claude tự bật, và cách cài.",
+      y: "Tra từng skill: nó làm gì, khi nào Claude tự bật, và cách cài. Bản trùng đã gộp, mỗi skill chỉ còn một mục.",
       vn: "17 skill trong kho anthropics/skills được dịch và diễn giải tay vì tôi đã đọc từng SKILL.md. Mọi skill còn lại — kể cả skill do Anthropic sở hữu ở kho khác — giữ nguyên bản gốc và có đánh dấu."
     },
     "xu-huong": {
@@ -183,7 +183,7 @@ window.TT_VI = {
   nhan: {
     chinhChu: "chính thức",
     chuaDich: "nguyên bản gốc",
-    trung: "trùng tên",
+    trungTen: "cùng tên, khác nội dung",
     khongMoTa: "không có mô tả"
   },
 
