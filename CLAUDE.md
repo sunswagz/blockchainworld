@@ -53,9 +53,18 @@ khác đang dựng dở trong cây chính**. Đừng đụng, đừng add, đừ
 này"** ở cuối — sửa trước khi làm việc khác, vì mọi luật ở đây chỉ đúng
 khi tài liệu còn khớp thực tế.
 
-Phiên mở từ worktree cũ đang giữ bản `CLAUDE.md` cũ. Đọc bản mới nhất:
+Phiên mở từ worktree cũ đang giữ bản `CLAUDE.md` cũ. Xem **đúng phần đã
+đổi** kể từ lúc worktree được tạo:
 
-    git show origin/main:CLAUDE.md | head -60
+    git fetch -q
+    git diff HEAD origin/main -- CLAUDE.md
+
+Không in ra gì là bản của bạn còn mới. In ra thì đọc hết phần đó trước
+khi làm gì, rồi `git merge --ff-only origin/main` để bắt kịp.
+
+(Đừng dùng `git show origin/main:CLAUDE.md | head -60` — file này đã dài
+hơn 350 dòng, `head -60` cắt mất cả chương "Khi phát hiện lỗi trong chính
+file này" ở cuối, tức là giấu đi đúng phần mà phiên đang bắt kịp cần nhất.)
 
 ### Phạm vi sửa
 
