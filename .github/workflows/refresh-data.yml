@@ -33,7 +33,13 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # 10 phút là quá chật kể từ khi Tàng Thư Các lên 66 kho. Bước đó
+    # dao động rất mạnh (151s, 309s, rồi 532s) vì nó lùi giờ chờ mỗi
+    # lần chạm hạn mức GitHub. Lần 14/08 07:52 job bị cắt đúng mốc
+    # 10,3 phút — mà job bị cắt thì BƯỚC COMMIT KHÔNG CHẠY, nên cả
+    # Kinh Thành lẫn Đô Sát Viện cũng mất luôn lượt cập nhật đó dù
+    # chúng đã lấy số xong từ phút đầu.
+    timeout-minutes: 25
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
@@ -68,17 +74,34 @@ jobs:
       # từ 60 lên 1.000 lượt/giờ mỗi repo — không có nó thì chỉ quét vài kho.
       # (Token cá nhân miễn phí thì được 5.000; ở đây 1.000 là quá đủ:
       #  quét 40 kho tốn khoảng 54 lượt.)
+      #
+      # Trần riêng cho bước này, thấp hơn trần job: chạm trần thì chỉ
+      # mình nó ngã (continue-on-error nuốt), commit vẫn chạy. Không có
+      # trần bước thì nó ăn hết ngân sách job và kéo cả lượt xuống.
+      # Script chỉ ghi file ở cuối, nên bị cắt giữa chừng là file cũ
+      # còn nguyên — không có bản dở dang nào bị commit.
       - name: Lấy kho skill Tàng Thư Các
         continue-on-error: true
+        timeout-minutes: 14
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/build-tangthu.mjs
 
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
-      # Thiếu secret thì bỏ qua chứ không làm hỏng cả lần chạy.
+      #
+      # `if:` chỉ đỡ được trường hợp THIẾU secret. Secret CÓ mà sai thì
+      # Pinata trả 4xx, pin-snapshot.mjs thoát 1, và trước khi có
+      # continue-on-error thì cả job chết ngay tại đây — commit không
+      # chạy, site đứng im. Đã xảy ra ba lượt liền 13–14/08, mỗi lượt
+      # ngã trong chưa tới 1 giây, và cái mất không phải con dấu mà là
+      # toàn bộ số liệu bốn cung đã lấy xong nằm chờ commit.
+      #
+      # Đóng dấu là thứ có thì tốt; số liệu mới là việc chính. Nó ngã
+      # thì thoát trước khi ghi history.json, nên không để lại file dở.
       - name: Đóng dấu bản số liệu
         if: env.PINATA_JWT != ''
+        continue-on-error: true
         run: node scripts/pin-snapshot.mjs
 
       - name: Commit nếu có thay đổi
