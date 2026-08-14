@@ -1,10 +1,13 @@
 /* ═══════════════════════════════════════════════════════
    Chuyển cung — cây "Cổng Thành" ở đầu thanh bên Đài Quan Trắc.
 
-   Cổng Thành là nút gốc, bốn cung kia là nhánh con, thu gọn
+   Cổng Thành là nút gốc, các cung kia là nhánh con, thu gọn
    mở rộng được. Trạng thái nhớ trong localStorage nên đi
    sang cung khác vẫn giữ nguyên — mỗi cung là một lần tải
    trang riêng, không nhớ thì lần nào cũng bung ra lại.
+
+   Thêm cung mới thì chỉ cần nối vào HALLS bên dưới; số đếm
+   trên nhãn và trần chiều cao đều tự tính theo mảng đó.
 
    Chèn NGAY SAU .brand, tức là NGOÀI #navscroll: renderNav()
    xoá sạch #navscroll mỗi lần đổi trang, nên thứ chèn vào đó
@@ -100,7 +103,7 @@
       svg('<path d="M5 12h13M12 5l7 7-7 7"/>', 2) + '</a>';
     wrap.appendChild(head);
 
-    // ── nhánh con: bốn cung ──────────────────────────────
+    // ── nhánh con: các cung ──────────────────────────────
     var tree = document.createElement("div");
     tree.className = "halls-tree scroll";
     tree.id = "hallsTree";
