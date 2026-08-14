@@ -32,10 +32,23 @@ export const NGAY_TOI_DA = 1;
 
 /* botSinh: false = sinh bằng tay, cũ là bình thường, đừng nhắc.
    Hoàng Thành lấy nguồn từ thư mục NGOÀI repo nên Actions không
-   quét được — xem mục "Hoàng Thành là ngoại lệ" trong CLAUDE.md. */
+   quét được — xem mục "Hoàng Thành là ngoại lệ" trong CLAUDE.md.
+
+   tamDung: nguồn DO BOT sinh nhưng lịch đang tắt có chủ ý. Khác hẳn
+   botSinh:false — chỗ kia cũ là bản chất, chỗ này cũ là hậu quả của
+   một quyết định và sẽ phải bật lại.
+
+   Vì sao không dùng luôn botSinh:false cho tiện: nó sẽ im hẳn, và im
+   hẳn thì sáu tháng nữa không ai nhớ có một nguồn đang tắt. Còn để
+   nguyên botSinh:true thì mỗi phiên lại thấy một cảnh báo "có gì đó
+   gãy" cho một thứ không gãy — mà cảnh báo báo nhầm mãi sẽ bị bỏ qua,
+   kéo theo cả lần nó đúng. Nên có trạng thái thứ ba: nhắc một dòng
+   bình thản, đúng bằng sự thật. */
 export const NGUON = [
   { nhan: "số liệu Kinh Thành",      duong: "kinh-thanh/assets/js/data/live.js", botSinh: true },
-  { nhan: "bản quét Quan Trắc",      duong: "dai-quan-trac/assets/js/scan.js",   botSinh: true },
+  { nhan: "bản quét Quan Trắc",      duong: "dai-quan-trac/assets/js/scan.js",   botSinh: true,
+    tamDung: "ANTHROPIC_API_KEY tốn quá nhiều — tắt lịch 14/08/2026, chờ cách rẻ hơn. " +
+             "Bật lại ở .github/workflows/scan-observatory.yml rồi xoá dòng tamDung này." },
   { nhan: "bảng xét Đô Sát Viện",    duong: "do-sat-vien/assets/js/data.js",     botSinh: true },
   { nhan: "đồ nghề Công Bộ",         duong: "cong-bo/assets/js/data.js",         botSinh: true },
   { nhan: "kho skill Tàng Thư Các",  duong: "tang-thu-cac/assets/js/data.js",    botSinh: true },

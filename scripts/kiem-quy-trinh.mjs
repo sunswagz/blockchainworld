@@ -269,6 +269,9 @@ for (const [tep, wf] of NGUON_GHI) {
    đang mở, và không được chặn họ làm cung của mình. Nhưng nó
    in ở đầu mỗi phiên, nên không thể chết âm thầm cả ngày nữa. */
 for (const n of NGUON) {
+  /* Nguồn đang tắt có chủ ý: nhắc một dòng bình thản để còn nhớ mà
+     bật lại, chứ đừng báo "có gì đó gãy" cho thứ không gãy. */
+  if (n.tamDung) { nhac(`${n.nhan}: TẠM DỪNG — ${n.tamDung}`); continue; }
   const t = await tuoi(ROOT, n.duong);
   if (!t.co) {
     if (n.botSinh) nhac(`${n.nhan}: chưa sinh lần nào, hoặc thiếu dấu thời gian (${n.duong})`);

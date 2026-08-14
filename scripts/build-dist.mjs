@@ -136,8 +136,12 @@ for (const h of HALLS) {
    nên cũ là bình thường — cờ botSinh đánh dấu chuyện đó. */
 for (const n of NGUON) {
   const t = await tuoi(ROOT, n.duong);
+  const tuoiVan = t.co ? `sinh cách đây ${t.ngay.toFixed(1)} ngày` : "chưa chạy lần nào";
+  /* Lịch tắt có chủ ý: nói rõ "tạm dừng", đừng gắn ⚠ — ⚠ ở đây nghĩa
+     là đường ống gãy, mà nó không gãy. */
+  if (n.tamDung) { log(`  · ${n.nhan}: ${tuoiVan}  (TẠM DỪNG có chủ ý)`); continue; }
   if (!t.co) { log(`  · ${n.nhan}: chưa chạy lần nào`); continue; }
-  log(`  · ${n.nhan}: sinh cách đây ${t.ngay.toFixed(1)} ngày`
+  log(`  · ${n.nhan}: ${tuoiVan}`
     + (n.botSinh && t.ngay > NGAY_TOI_DA ? "  ⚠" : "")
     + (n.botSinh ? "" : "  (sinh tay, cũ là bình thường)"));
 }

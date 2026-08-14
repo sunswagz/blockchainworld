@@ -7,11 +7,23 @@ name: Quét Đài Quan Trắc
 # công khai nên khoá KHÔNG BAO GIỜ được đi xuống trình duyệt —
 # xem phần đầu scripts/build-scan.mjs.
 
+# ┌─ TẠM DỪNG LỊCH TỰ ĐỘNG — 14/08/2026 ────────────────────────────┐
+# │ ANTHROPIC_API_KEY tốn quá nhiều: mỗi lượt quét 5 chiến trường là
+# │ một loạt lời gọi kèm web_search, nhân 4 lượt/ngày. Tắt lịch cho
+# │ tới khi tìm được cách rẻ hơn.
+# │
+# │ Tắt LỊCH chứ không xoá workflow, và giữ workflow_dispatch: bấm
+# │ tay trong tab Actions vẫn quét được khi cần một bản mới.
+# │
+# │ Bật lại: bỏ dấu # ở khối `schedule` bên dưới. Nhớ bỏ luôn
+# │ `tamDung` của "bản quét Quan Trắc" trong scripts/tuoi-du-lieu.mjs,
+# │ không thì bot chạy lại mà `npm run kiem` vẫn báo là đang tắt.
+# └──────────────────────────────────────────────────────────────────┘
 on:
-  schedule:
-    # 41 phút sau các giờ 1, 7, 13, 19 (UTC) — lệch khỏi giờ tròn
-    # và khỏi lịch của refresh-data để hai workflow không chen nhau.
-    - cron: "41 1,7,13,19 * * *"
+  # schedule:
+  #   # 41 phút sau các giờ 1, 7, 13, 19 (UTC) — lệch khỏi giờ tròn
+  #   # và khỏi lịch của refresh-data để hai workflow không chen nhau.
+  #   - cron: "41 1,7,13,19 * * *"
   workflow_dispatch:
 
 # Quyền khai ở đây là trần cho cả deploy-pages.yml được gọi bên dưới.
