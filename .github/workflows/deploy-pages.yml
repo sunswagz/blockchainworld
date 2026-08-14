@@ -28,6 +28,7 @@ on:
       - "cong-bo/**"
       - "tang-thu-cac/**"
       - "hoang-thanh/**"
+      - "tao-bien-xu/**"
       - "scripts/build-dist.mjs"
   workflow_dispatch:
   workflow_call:

@@ -1,0 +1,44 @@
+{
+  "id": "sunswagz-tao-bien-xu",
+  "name": "Tạo Biện Xứ · Công xưởng AI",
+  "short_name": "Tạo Biện Xứ",
+  "description": "Mười tám máy, bốn tầng, dây chuyền và cửa duyệt — bản thiết kế một công xưởng AI, xem được cả lúc đang chạy. Model chỉ là động cơ; trí nhớ, kỹ năng và quy trình mới là của xưởng.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#0E1116",
+  "theme_color": "#0E1116",
+  "categories": [
+    "productivity",
+    "developer",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

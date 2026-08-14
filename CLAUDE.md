@@ -1,10 +1,10 @@
 # blockchainworld
 
-Repo chứa Cổng Thành (`index.html` ở gốc) và sáu cung, mỗi cung là một
+Repo chứa Cổng Thành (`index.html` ở gốc) và bảy cung, mỗi cung là một
 webapp tĩnh độc lập có `index.html` riêng:
 
     cong-bo/  dai-quan-trac/  do-sat-vien/  hoang-thanh/
-    kinh-thanh/  tang-thu-cac/
+    kinh-thanh/  tang-thu-cac/  tao-bien-xu/
 
 ## Chạy song song nhiều phiên
 
@@ -236,6 +236,7 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5177  kinh-thanh
     5178  tang-thu-cac
     5179  hoang-thanh
+    5180  tao-bien-xu
 
 Luôn truyền cổng, đừng để mặc định:
 
@@ -245,7 +246,7 @@ Nhờ bảng cố định này mà hai phiên song song không bao giờ tranh c
 cả khi người dùng không nói gì về cổng.
 
 Lưu ý `server.js` phục vụ từ **gốc repo**, không phải từ thư mục cung —
-nên server nào cũng mở được cả sáu cung (`/cong-bo/`, `/kinh-thanh/`, …).
+nên server nào cũng mở được cả bảy cung (`/cong-bo/`, `/kinh-thanh/`, …).
 Cổng gắn với cung là để chia chỗ giữa các phiên, không phải vì mỗi cung
 cần một server riêng. Đang sửa `cong-bo` mà muốn xem nó nối sang Cổng
 Thành thì mở `localhost:5174/` là thấy, không cần bật thêm server.

@@ -52,6 +52,12 @@
       name: "Hoàng Thành",
       note: "15 nền văn hoá",
       icon: '<path d="M3 21h18M5 21V10l7-5.5L19 10v11"/><path d="M9.5 21v-5.5h5V21"/>'
+    },
+    {
+      href: "../tao-bien-xu/",
+      name: "Tạo Biện Xứ",
+      note: "công xưởng AI",
+      icon: '<path d="M3 21h18M5 21V11l4-3v13M13 21V6l6-3v18"/><path d="M8 15h.01M16 12h.01"/>'
     }
   ];
 

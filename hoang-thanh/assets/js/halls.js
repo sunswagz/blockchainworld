@@ -43,6 +43,12 @@
       note: "kho Claude Skills",
       icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/>' +
             '<path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
+    },
+    {
+      href: "../tao-bien-xu/",
+      name: "Tạo Biện Xứ",
+      note: "công xưởng AI",
+      icon: '<path d="M3 21h18M5 21V11l4-3v13M13 21V6l6-3v18"/><path d="M8 15h.01M16 12h.01"/>'
     }
   ];
 

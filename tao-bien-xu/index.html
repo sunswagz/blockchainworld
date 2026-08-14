@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tạo Biện Xứ · Công xưởng AI</title>
+<meta name="description" content="Mười tám máy, bốn tầng, dây chuyền và cửa duyệt — bản thiết kế một công xưởng AI, xem được cả lúc đang chạy. Model chỉ là động cơ; trí nhớ, kỹ năng và quy trình mới là của xưởng.">
+
+<meta name="theme-color" content="#0E1116">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tạo Biện Xứ">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#/san">
+      <span class="dau" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M5 21V11l4-3v13M13 21V6l6-3v18"/><path d="M8 15h.01M16 12h.01"/>
+        </svg>
+      </span>
+      <span><b>Tạo Biện Xứ</b><i>Công xưởng AI</i></span>
+    </a>
+
+    <!-- lối đi trong xưởng — do app.js dựng -->
+    <div id="benMuc"></div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Bản thiết kế vận hành, không phải số liệu quét về. Sửa thẳng
+      <code>assets/js/data.js</code> — không có bước build nào cả.</p>
+    </div>
+  </nav>
+
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tieu">Sàn máy</h1>
+      <span class="phu" id="phu"></span>
+    </header>
+
+    <div id="than"></div>
+
+    <footer class="chan">
+      <p><b>Nguồn:</b> bản phác “Công xưởng AI” do người dùng viết. Việc của app này là
+      <b>phân loại và làm rõ</b>: bản phác cho tên 18 máy và một mẫu spec 10 trường
+      (áp cho S004), phần còn lại là mô tả rời. Ở đây cả 18 máy đều được áp đủ 10 trường,
+      xếp vào 4 khu theo dòng chảy công việc.</p>
+      <p><b>Chỗ nào là suy ra thì có ghi.</b> Dây chuyền R002 và R003 không có sẵn trong
+      bản phác — chúng được suy từ các đoạn mô tả rời và có ghi rõ trong phần “ý” của
+      từng dây.</p>
+      <p><b>Mô phỏng ở Sàn máy là mô phỏng thật của luồng, không phải hoạt hình trang trí.</b>
+      Việc mức 3 bị M03 chặn, M13 đẩy ngược về M12 khi trượt kiểm, M14 dừng chờ người
+      bấm duyệt, M18 ghi bài học ngược vào M09 — đúng như luật viết trong hồ sơ từng máy.</p>
+      <p><b>Không có lời gọi API nào từ trang này.</b> Đây là GitHub Pages công khai;
+      nhúng khoá vào đây là làm lộ khoá. Phần “Bộ chọn động cơ” là bảng định tuyến chạy
+      tại chỗ. Muốn gọi model thật thì chạy trong GitHub Actions với khoá ở repo Secrets,
+      sinh file tĩnh rồi commit — đúng cách bốn cung khác đang làm.</p>
+    </footer>
+
+  </main>
+</div>
+
+<div class="scrim" id="scrim" data-open="0"></div>
+<aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ máy">
+  <div class="hoso-top" id="hosoTop">
+    <div class="hoso-tren">—</div>
+    <h2>—</h2>
+    <div class="en"></div>
+    <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoso-body" id="hosoBody"></div>
+</aside>
+
+<!-- nội dung công xưởng · viết tay, không tự sinh -->
+<script src="assets/js/data.js"></script>
+<!-- giao diện + mô phỏng dây chuyền -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

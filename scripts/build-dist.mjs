@@ -23,7 +23,7 @@ const DIST = join(ROOT, "dist");
 /* Cổng Thành ở gốc; mỗi cung là một thư mục có index.html riêng.
    Thêm cung mới = thêm thư mục + một dòng ở đây. */
 const GATE = ["index.html", "manifest.webmanifest", "sw.js", "assets"];
-const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac", "hoang-thanh"];
+const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu"];
 
 const TEXT = new Set([".html", ".css", ".js", ".mjs", ".json", ".webmanifest", ".svg", ".md"]);
 
