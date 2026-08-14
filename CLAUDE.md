@@ -262,15 +262,29 @@ quên nâng `v4 → v5`; luật `.vong-ic svg { width:15px }` không tới máy
 người dùng, mà SVG chỉ có `viewBox` thì không có cỡ nội tại — icon phình
 kín màn hình.
 
-Hai việc, làm cùng lúc với lần sửa:
+Đừng đếm tay xem cung nào cần nâng — có lệnh làm hộ:
 
-1. Nâng `CACHE_VERSION` ở **mọi** `sw.js` có file vừa sửa trong SHELL.
-   Sửa `assets/js/halls.js` của năm cung thì nâng cả năm.
-2. Cho SVG cỡ nội tại (`width="15" height="15"`) chứ đừng chỉ dựa vào
-   CSS — để lỡ CSS cũ còn kẹt thì hỏng nhẹ, không phình kín trang.
+    npm run nang -- --thu     xem sẽ nâng chỗ nào, chưa ghi gì
+    npm run nang              nâng thật
 
-`npm run kiem` bắt được lỗi này: nó so commit cuối của `sw.js` với commit
-cuối của từng file trong SHELL.
+Nó tính đúng thứ `npm run kiem` báo, nhưng còn nhìn cả file **đang sửa
+dở** trong cây làm việc, nên chạy được TRƯỚC khi commit — đó là lúc cần
+nó. (`kiem` chỉ soi trạng thái đã commit, đúng vai của nó là soát thứ
+sắp đẩy đi.)
+
+Còn một việc lệnh không làm thay được: **cho SVG cỡ nội tại**
+(`width="15" height="15"`) chứ đừng chỉ dựa vào CSS. Lỡ CSS cũ còn kẹt
+thì hỏng nhẹ, không phình kín trang.
+
+**File phục vụ MẠNG-TRƯỚC thì không cần nâng.** Cả `kiem` lẫn `nang` đều
+bỏ qua chúng: service worker lấy bản mới mỗi lần, cache chỉ là lưới đỡ
+lúc mất mạng. Không có luật trừ này thì bot cập nhật số liệu 4 lượt/ngày
+sẽ đòi nâng version 4 lượt/ngày, và cảnh báo hoá thành tiếng ồn.
+
+Ngược lại, file bot sinh mà nằm nhánh **cache-trước** là bẫy: đã dính với
+`cong-bo/assets/js/logos.js` — bot ghi 4 lượt/ngày nhưng máy đã cài app
+giữ bảng tra logo cũ tới lần nâng version kế tiếp, nên logo dự án mới
+không bao giờ hiện dù ảnh đã lên site. Đã chuyển nó sang mạng-trước.
 
 ### Cổng dev
 
@@ -370,24 +384,60 @@ file. (Cung dở mà chưa nối vào đâu thì vô hại, `build-dist` không 
 
 ## Thêm cung mới
 
-Hai việc bắt buộc, làm ngay trong cùng lần thêm — để sót cái nào cũng
-không có lỗi nào báo:
+Một việc bắt buộc phải nhớ, và hai lệnh làm hộ phần còn lại.
 
-**1. Cấp cổng và ghi vào bảng "Cổng dev" bên trên.** Lấy số kế tiếp trong
+**Cấp cổng và ghi vào bảng "Cổng dev" bên trên.** Lấy số kế tiếp trong
 dải 5173–5199. Không ghi thì phiên sau đọc file này sẽ không biết dùng
 cổng nào, đoán bừa, và tranh cổng với phiên đang chạy.
 
-**2. Thêm đường dẫn của cung vào `paths` của CẢ HAI file**
-`deploy-pages.yml` và `deploy-ipfs.yml`. Hai workflow này chỉ chạy khi
-push vào `main` **và** file thay đổi khớp `paths`. Danh sách đó phải liệt
-kê thủ công từng cung, vì sau khi tách thư mục thì `assets/**` chỉ còn
-khớp assets của Cổng Thành.
+Rồi thêm một khối vào `scripts/cung.mjs` và chạy:
 
-Quên bước 2 thì: push thành công, không lỗi, không workflow nào chạy, và
-bản trên site vẫn là bản cũ. Không có gì báo cho bạn biết.
+    npm run halls      sinh lại halls.js cho MỌI cung
+    npm run nang       nâng CACHE_VERSION ở mọi sw.js vừa bị đổi
+
+**`paths` không còn là việc phải nhớ nữa.** `deploy-pages.yml` đã đổi từ
+danh sách CHO PHÉP sang danh sách LOẠI TRỪ (`paths-ignore`), nên cung mới
+tự kích hoạt deploy vì không ai phải nhớ thêm nó vào đâu.
+
+Đó từng là cái bẫy tệ nhất của repo này — quên một dòng thì push thành
+công, không workflow nào chạy, site vẫn bản cũ, im lặng hoàn toàn (đã cắn
+thật ở commit 311e885). Bẫy đó tệ dần theo số cung, nên với nhiều bộ
+nhiều ban thì nó là lỗi chắc chắn xảy ra, chỉ chưa biết lúc nào. Đảo danh
+sách lại là gỡ hẳn, không phải nhớ giỏi hơn.
+
+`deploy-ipfs.yml` thì không còn chạy theo push nữa — xem mục dưới.
 
 Nhánh worktree không kích hoạt deploy — đúng như thiết kế, deploy xảy ra
 lúc gộp vào `main`.
+
+### IPFS pin theo tag, không theo push
+
+Gói Pinata **free là 1 GB**, còn bản site đo ngày 14/08 đã **21,8 MB /
+462 file** và còn tăng theo số cung. Pin mỗi push là chắc chắn hết hạn
+mức: workflow đó đã hỏng **liên tục 20 lượt** từ 13/08, bắt đầu đúng
+commit thêm Đô Sát Viện (+236 file một lúc).
+
+Ghi chú cũ trong workflow viết "mỗi bản site ~440 KB". Đúng hồi repo còn
+hai cung, sai gấp 50 lần sau khi tách thư mục — và phép tính hạn mức dựa
+trên số đó nên sai theo.
+
+IPFS ở đây là **bản lưu bất biến**, không phải đường chạy chính. Đường
+chạy chính là GitHub Pages, và Pages chưa hỏng lượt nào (27/27). Nên giờ
+chỉ pin khi thật sự muốn đóng dấu một bản:
+
+    git tag v2026.08.14
+    git push origin v2026.08.14
+
+hoặc bấm tay trong tab Actions. Đóng dấu **số liệu** thì vẫn chạy 4
+lượt/ngày trong `refresh-data.yml` — bản đó 1,8 KB nên rẻ, và đó mới là
+thứ đáng lưu vĩnh viễn.
+
+Hệ quả cho mở rộng: thêm bao nhiêu cung nữa cũng không làm workflow này
+chạy thêm lượt nào.
+
+**Gói GitHub trả phí không giải quyết gì ở đây.** Repo công khai thì
+Actions đã miễn phí không giới hạn phút; gói trả phí chỉ thêm phút cho
+repo riêng tư. Thứ chạm trần là Pinata và Anthropic, không phải GitHub.
 
 ### Một cung coi là XONG khi
 
@@ -402,16 +452,21 @@ Bảy chỗ phải sửa, không chỗ nào tự báo nếu quên:
     <cung>/assets/icons/  (192, 512, maskable, apple-touch, favicon)
 
     1. index.html ở gốc            thẻ trong lưới .halls
-    2. assets/js/portal.js         đọc ngày cập nhật cho thẻ đó
-    3. halls.js của MỌI cung cũ    thêm vào mảng HALLS
+    2. assets/js/portal.js         đọc ngày cập nhật (chỉ khi cung có dữ liệu tự sinh)
+    3. scripts/cung.mjs            thêm một khối → `npm run halls` lo mọi halls.js
     4. sw.js ở gốc                 thêm dòng bỏ qua phạm vi cung mới
     5. scripts/build-dist.mjs      thêm vào mảng HALLS
-    6. deploy-pages.yml + deploy-ipfs.yml   thêm "<cung>/**" vào paths
-    7. bảng "Cổng dev" trong file này        cấp số cổng kế tiếp
+    6. bảng "Cổng dev" trong file này        cấp số cổng kế tiếp
+    7. `npm run nang`              nâng CACHE_VERSION mọi sw.js vừa đổi
 
-Mục 3 phải sửa file của cung khác — đó là ngoại lệ duy nhất của luật
-"chỉ sửa thư mục cung mình". Làm gọn trong một commit, và nói rõ trong
-lời commit là đang nối cung mới.
+Mục 3 sinh ra file nằm trong thư mục cung KHÁC — ngoại lệ duy nhất của
+luật "chỉ sửa thư mục cung mình". Nhưng giờ là máy sinh chứ không sửa
+tay, nên không còn chuyện sót một cung. Làm gọn trong một commit, và nói
+rõ trong lời commit là đang nối cung mới.
+
+`paths` của hai workflow deploy **không còn trong danh sách này** —
+`deploy-pages.yml` dùng `paths-ignore` nên cung mới tự khớp, còn
+`deploy-ipfs.yml` chỉ pin theo tag.
 
 Kiểm nhanh trước khi bảo là xong:
 

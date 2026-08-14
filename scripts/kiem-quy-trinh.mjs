@@ -142,13 +142,63 @@ else {
   for (const h of halls) if (!cung.includes(h)) bao(`build-dist.mjs HALLS có "${h}" nhưng trên đĩa không có thư mục đó`);
 }
 
-/* ── 5. paths của hai workflow deploy ─────────────── */
-for (const wf of [".github/workflows/deploy-pages.yml", ".github/workflows/deploy-ipfs.yml"]) {
-  if (!existsSync(join(ROOT, wf))) { bao(`Thiếu ${wf}`); continue; }
-  const t = await doc(wf);
-  for (const c of cung) {
-    if (!t.includes(`"${c}/**"`)) {
-      bao(`${wf.split("/").pop()}: paths thiếu "${c}/**" — sửa cung đó xong sẽ KHÔNG deploy, và không có lỗi nào báo`);
+/* ── 5. sửa một cung thì Pages có dựng lại không ────
+   Trước đây phép này bắt mọi cung phải có mặt trong `paths:` của hai
+   workflow deploy. Nhưng danh sách cho phép chính LÀ cái bẫy: thêm
+   cung mà quên thêm dòng thì push xong không workflow nào chạy.
+
+   deploy-pages.yml giờ dùng `paths-ignore` — mặc định mọi thứ đều
+   deploy, chỉ trừ file rõ ràng không phải của trang. Nên phép kiểm
+   cũng đổi: không soi cơ chế nữa, soi TÍNH CHẤT — đẩy một file trong
+   `<cung>/` thì Pages có dựng lại không.
+
+   Cách đó đúng với cả hai lược đồ, nên đổi cách cấu hình sau này
+   không phải viết lại phép kiểm. */
+{
+  const wf = ".github/workflows/deploy-pages.yml";
+  if (!existsSync(join(ROOT, wf))) bao(`Thiếu ${wf}`);
+  else {
+    const t = await doc(wf);
+    const khoi = (ten) => {
+      const m = t.match(new RegExp("^\\s*" + ten + ":\\s*\\n((?:\\s*-\\s*\"[^\"]*\"\\s*\\n)+)", "m"));
+      return m ? [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]) : null;
+    };
+    const chophep = khoi("paths");
+    const loaitru = khoi("paths-ignore") || [];
+
+    for (const c of cung) {
+      const mau = `${c}/index.html`;
+      if (chophep && !chophep.some((p) => p === mau || p === `${c}/**`)) {
+        bao(`deploy-pages.yml: danh sách "paths" bỏ sót "${c}/" — sửa cung đó xong sẽ KHÔNG deploy, và không có lỗi nào báo`);
+      }
+      const bi = loaitru.find((p) => p === `${c}/**` || p === mau || p === `${c}/`);
+      if (bi) {
+        bao(`deploy-pages.yml: "paths-ignore" có "${bi}" — cung "${c}" bị loại khỏi deploy`);
+      }
+    }
+    if (!chophep && !loaitru.length) {
+      nhac("deploy-pages.yml: không có paths lẫn paths-ignore — mọi push đều dựng lại Pages");
+    }
+  }
+}
+
+/* ── 5b. IPFS không được pin theo mỗi push ──────────
+   Gói Pinata free là 1 GB. Bản site đo ngày 14/08 đã 21,8 MB / 462
+   file, và còn tăng theo số cung. Pin mỗi push là hết hạn mức —
+   đã hỏng liên tục 20 lượt liền từ 13/08 vì đúng lý do đó.
+
+   IPFS ở đây là bản lưu bất biến, không phải đường chạy chính, nên
+   pin theo TAG phát hành hoặc bấm tay. Phép kiểm này giữ cho không
+   ai vô tình cắm lại `on: push` với branches. */
+{
+  const wf = ".github/workflows/deploy-ipfs.yml";
+  if (!existsSync(join(ROOT, wf))) bao(`Thiếu ${wf}`);
+  else {
+    const t = await doc(wf);
+    const on = t.split(/\npermissions:/)[0];
+    if (/\n\s*push:\s*\n\s*branches:/.test(on)) {
+      bao(`${wf.split("/").pop()}: đang pin theo mỗi push vào branch — gói Pinata free không chịu nổi.\n` +
+        "        Chỉ nên pin theo tag (`tags: [\"v*\"]`) hoặc bấm tay workflow_dispatch.");
     }
   }
 }

@@ -13,23 +13,34 @@ name: Đưa lên GitHub Pages
 on:
   push:
     branches: [main]
-    # Phải liệt kê CẢ các cung. Sau khi tách thư mục, "assets/**" chỉ còn
-    # khớp assets của Cổng Thành — sửa app trong kinh-thanh/ hay
-    # dai-quan-trac/ sẽ không kích hoạt deploy, và thay đổi lặng lẽ
-    # không bao giờ lên site.
-    paths:
-      - "index.html"
-      - "manifest.webmanifest"
-      - "sw.js"
-      - "assets/**"
-      - "kinh-thanh/**"
-      - "dai-quan-trac/**"
-      - "do-sat-vien/**"
-      - "cong-bo/**"
-      - "tang-thu-cac/**"
-      - "hoang-thanh/**"
-      - "tao-bien-xu/**"
-      - "scripts/build-dist.mjs"
+    # ── DANH SÁCH LOẠI TRỪ, KHÔNG PHẢI DANH SÁCH CHO PHÉP ──────────
+    # Trước đây chỗ này liệt kê tay từng cung. Cách đó có một bẫy đã
+    # cắn thật (commit 311e885): thêm cung mà quên thêm dòng thì push
+    # thành công, KHÔNG workflow nào chạy, site vẫn bản cũ, và không
+    # có gì báo. Im lặng hoàn toàn.
+    #
+    # Bẫy đó tệ dần theo số cung: mỗi cung mới là thêm một cơ hội quên,
+    # ở hai file. Với một hoàng thành nhiều bộ nhiều ban thì đó là lỗi
+    # chắc chắn xảy ra, chỉ là chưa biết lúc nào.
+    #
+    # Đảo lại thì hết bẫy: mặc định MỌI thứ đều deploy, chỉ trừ những
+    # file rõ ràng không phải của trang. Cung mới tự kích hoạt vì
+    # không ai phải nhớ thêm nó vào đâu cả.
+    #
+    # Cái giá: sửa mỗi README cũng dựng lại Pages. Một lượt dựng mất
+    # khoảng một phút và miễn phí với repo công khai — rẻ hơn nhiều so
+    # với một lần thay đổi không bao giờ lên site mà không ai hay.
+    #
+    # Đừng loại trừ `scripts/`: build-dist.mjs nằm trong đó và nó QUYẾT
+    # ĐỊNH nội dung dist. Loại trừ cả thư mục là dựng lại đúng cái bẫy
+    # vừa gỡ, chỉ đổi chỗ.
+    paths-ignore:
+      - "README.md"
+      - "CLAUDE.md"
+      - ".github/**"
+      - ".gitignore"
+      - ".gitattributes"
+      - "server.js"
   workflow_dispatch:
   workflow_call:
 

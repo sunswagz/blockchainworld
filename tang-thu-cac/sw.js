@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v5";
+var CACHE_VERSION = "v6";
 var SHELL_CACHE = "tang-thu-cac-shell-" + CACHE_VERSION;
 var FONT_CACHE = "tang-thu-cac-fonts-" + CACHE_VERSION;
 

@@ -2,31 +2,44 @@ name: Đưa lên IPFS
 
 # Đóng gói dist/ rồi pin lên IPFS, in ra CID để đặt vào ENS contenthash.
 #
-# Chạy khi:
-#   · đẩy code động vào file của app
-#   · bấm tay trong tab Actions
-#   · workflow cập nhật số liệu gọi sang (workflow_call) — quan trọng,
-#     xem ghi chú trong refresh-data.yml
+# ── VÌ SAO KHÔNG CHẠY MỖI LẦN PUSH NỮA ────────────────────────────
+# Trước đây workflow này chạy theo `on: push` với danh sách paths. Ngày
+# 13/08 nó bắt đầu hỏng và hỏng LIÊN TỤC 20 lượt liền — mốc bắt đầu
+# trùng đúng commit thêm Đô Sát Viện, tức là +236 file một lúc.
+#
+# Con số thật, đo bằng `npm run dist` ngày 14/08:
+#
+#     21.839 KB · 462 file
+#
+# Ghi chú cũ trong file này viết "mỗi bản site ~440 KB". Nó đúng hồi
+# repo còn hai cung, và sai gấp 50 lần kể từ khi tách thư mục. Số cũ
+# làm phép tính hạn mức Pinata sai theo, nên mới yên tâm pin mỗi push.
+#
+# Với gói Pinata free (1 GB), pin 21 MB × nhiều lượt/ngày là không có
+# đường sống — nhất là repo này thường có 2–4 phiên đẩy song song.
+#
+# ── ĐỔI THÀNH: PIN CÓ CHỦ ĐÍCH ────────────────────────────────────
+# IPFS ở đây là BẢN LƯU BẤT BIẾN, không phải đường chạy chính. Đường
+# chạy chính là GitHub Pages — và Pages chưa hỏng lượt nào (27/27).
+# Nên không có lý do gì phải pin lại toàn site mỗi lần sửa một chữ.
+#
+# Giờ chỉ pin khi thật sự muốn đóng dấu một bản:
+#
+#     git tag v2026.08.14 && git push origin v2026.08.14
+#
+# hoặc bấm tay trong tab Actions. Hai đường đó đều là hành động có ý
+# thức, nên CID sinh ra là CID đáng lưu.
+#
+# Đóng dấu SỐ LIỆU thì vẫn chạy 4 lượt/ngày trong refresh-data.yml —
+# bản đó chỉ 1,8 KB nên rẻ, và đó mới là thứ đáng lưu vĩnh viễn.
+#
+# Hệ quả cho việc mở rộng: thêm bao nhiêu cung nữa cũng không làm
+# workflow này chạy thêm lượt nào.
 
 on:
   push:
-    branches: [main]
-    # Cùng lý do như deploy-pages.yml: phải liệt kê cả các cung, không
-    # thì sửa app xong mà bản trên IPFS vẫn là bản cũ.
-    paths:
-      - "index.html"
-      - "manifest.webmanifest"
-      - "sw.js"
-      - "assets/**"
-      - "kinh-thanh/**"
-      - "dai-quan-trac/**"
-      - "do-sat-vien/**"
-      - "cong-bo/**"
-      - "tang-thu-cac/**"
-      - "hoang-thanh/**"
-      - "tao-bien-xu/**"
-      - "scripts/build-dist.mjs"
-      - "scripts/pin-ipfs.mjs"
+    tags:
+      - "v*"
   workflow_dispatch:
   workflow_call:
 

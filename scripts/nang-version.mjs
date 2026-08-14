@@ -1,0 +1,107 @@
+/* ═══════════════════════════════════════════════════════
+   Nâng CACHE_VERSION ở mọi sw.js đang tụt lại phía sau.
+
+   Chạy: npm run nang        (xem trước: npm run nang -- --thu)
+
+   `npm run kiem` đã biết CHỖ NÀO cần nâng — nó so commit cuối của
+   sw.js với commit cuối từng file trong SHELL. Nhưng biết rồi vẫn
+   phải mở N file sửa tay, và với một hoàng thành nhiều bộ nhiều ban
+   thì "sửa tay N chỗ" luôn kết thúc bằng sót một chỗ.
+
+   Sót thì hỏng im lặng: máy đã cài app cứ dùng bản cũ, không 404,
+   không lỗi mạng, chỉ có giao diện vỡ ở đúng cung bị sót.
+
+   File được sw.js phục vụ MẠNG-TRƯỚC thì bỏ qua — nó lấy bản mới
+   mỗi lần, cache chỉ là lưới đỡ lúc mất mạng. Cùng luật với `kiem`,
+   nếu không thì bot cập nhật số liệu 4 lượt/ngày sẽ bắt nâng version
+   4 lượt/ngày.
+   ═══════════════════════════════════════════════════════ */
+
+import { readFile, writeFile, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const THU = process.argv.includes("--thu");
+
+function commitCuoi(p) {
+  try {
+    return Number(execFileSync("git", ["log", "-1", "--format=%ct", "--", p],
+      { cwd: ROOT, encoding: "utf8" }).trim()) || 0;
+  } catch { return 0; }
+}
+
+/* Đang sửa dở cũng phải tính.
+
+   `npm run kiem` soi trạng thái ĐÃ COMMIT — đúng vai của nó, vì nó
+   trả lời "thứ đã đẩy đi có nhất quán không". Nhưng công cụ này thì
+   chạy TRƯỚC khi commit, nên nếu chỉ nhìn commit thì nó luôn nói
+   "không có gì cần nâng" ngay sau khi bạn vừa sửa xong — vô dụng
+   đúng lúc cần nhất.
+
+   Nên: file nào đang đổi trong cây làm việc thì coi như mới nhất. */
+const dangSua = new Set();
+try {
+  const t = execFileSync("git", ["status", "--porcelain"],
+    { cwd: ROOT, encoding: "utf8" });
+  for (const d of t.split("\n")) {
+    const p = d.slice(3).trim().replace(/^"|"$/g, "");
+    if (p) dangSua.add(p.replace(/\\/g, "/"));
+  }
+} catch {}
+
+/* Thư mục nào có index.html thì là cung; cộng thêm gốc repo. */
+const BO_QUA = new Set(["assets", "scripts", "dist", "node_modules", ".git", ".github", ".claude"]);
+const noi = ["."];
+for (const ten of await readdir(ROOT)) {
+  if (BO_QUA.has(ten) || ten.startsWith(".")) continue;
+  if (existsSync(join(ROOT, ten, "index.html"))) noi.push(ten);
+}
+
+let nang = 0, yen = 0;
+for (const c of noi) {
+  const swP = c === "." ? "sw.js" : `${c}/sw.js`;
+  if (!existsSync(join(ROOT, swP))) continue;
+
+  const sw = await readFile(join(ROOT, swP), "utf8");
+  const m = /CACHE_VERSION = "v(\d+)"/.exec(sw);
+  if (!m) continue;
+
+  const tSw = commitCuoi(swP);
+  if (!tSw) { console.log("  · " + swP + " — chưa commit lần nào, bỏ qua"); continue; }
+  /* sw.js đang sửa dở nghĩa là đã tự nâng rồi (hoặc đang định nâng) —
+     đừng nâng chồng thêm một bậc nữa. */
+  if (dangSua.has(swP)) { yen++; continue; }
+
+  const mangTruoc = [...sw.matchAll(/indexOf\(\s*"([^"]+)"\s*\)/g)].map((x) => x[1]);
+  const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((x) => x[1]);
+
+  const tre = [];
+  for (const f of shell) {
+    if (mangTruoc.some((p) => ("/" + f).indexOf(p) !== -1)) continue;
+    const p = c === "." ? f : `${c}/${f}`;
+    if (!existsSync(join(ROOT, p))) continue;
+    if (dangSua.has(p) || commitCuoi(p) > tSw) tre.push(f);
+  }
+
+  if (!tre.length) { yen++; continue; }
+
+  const cu = Number(m[1]), moi = cu + 1;
+  const ten = (c === "." ? "gốc" : c).padEnd(15);
+  console.log("  " + (THU ? "sẽ nâng" : "✓ nâng") + " " + ten + "v" + cu + " → v" + moi +
+    "   (" + tre.length + " file mới hơn: " + tre.slice(0, 3).join(", ") +
+    (tre.length > 3 ? "…" : "") + ")");
+  if (!THU) {
+    await writeFile(join(ROOT, swP),
+      sw.replace(/CACHE_VERSION = "v\d+"/, 'CACHE_VERSION = "v' + moi + '"'), "utf8");
+  }
+  nang++;
+}
+
+console.log("\n" + (nang ? nang + " sw.js " + (THU ? "cần nâng" : "đã nâng") : "Không chỗ nào cần nâng") +
+  " · " + yen + " chỗ vốn đã kịp.");
+if (nang && !THU) {
+  console.log("Commit chúng cùng lần sửa, đừng để riêng — người dùng cần cả hai mới thấy bản mới.");
+}
