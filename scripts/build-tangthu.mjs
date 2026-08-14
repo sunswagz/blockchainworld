@@ -371,7 +371,9 @@ const out = {
   date: `${pad(now.getUTCDate())}/${pad(now.getUTCMonth() + 1)}/${now.getUTCFullYear()}`,
   nguon: "api.github.com — topic:claude-skills + git/trees + raw SKILL.md",
   coToken: !!TOKEN,
-  soKhoQuet: quetDuoc,
+  /* Giữ lại số kho của bản trước khi lần này quét được 0 — nếu không,
+     tiêu đề ghi "1054 skill từ 0 kho", tự mâu thuẫn ngay trong một dòng. */
+  soKhoQuet: quetDuoc || (dsSkill === cu?.skills ? (cu?.soKhoQuet || 0) : 0),
   soKhoHong: quetHong,
   demNhom,
   kho,
