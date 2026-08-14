@@ -1,12 +1,25 @@
 /* ═══════════════════════════════════════════════════════
-   Chuyển cung — mục "CÁC CUNG" ở đầu thanh bên Đài Quan Trắc.
+   Chuyển cung — cây "Cổng Thành" ở đầu thanh bên Đài Quan Trắc.
+
+   Cổng Thành là nút gốc, bốn cung kia là nhánh con, thu gọn
+   mở rộng được. Trạng thái nhớ trong localStorage nên đi
+   sang cung khác vẫn giữ nguyên — mỗi cung là một lần tải
+   trang riêng, không nhớ thì lần nào cũng bung ra lại.
 
    Chèn NGAY SAU .brand, tức là NGOÀI #navscroll: renderNav()
    xoá sạch #navscroll mỗi lần đổi trang, nên thứ chèn vào đó
    sẽ biến mất ngay lần bấm đầu tiên.
+
+   Vì nằm ngoài #navscroll, khối này KHÔNG co được — nó chiếm
+   chỗ cố định và ép #navscroll. Đó là lý do phần nhánh con
+   phải có trần chiều cao (xem .halls-tree trong halls.css):
+   bung hết cỡ trên màn thấp thì #navscroll còn 0px và phần
+   điều hướng của app không cách nào với tới.
    ═══════════════════════════════════════════════════════ */
 (function () {
   "use strict";
+
+  var KEY = "blockchainworld.halls.open";
 
   var HALLS = [
     {
@@ -46,9 +59,19 @@
           '<path d="M8.5 21v-8a3.5 3.5 0 0 1 7 0v8"/><path d="M7 7.5 12 3l5 4.5"/>'
   };
 
-  function svg(paths) {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
-      'stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  function svg(paths, w) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' +
+      (w || 1.7) + '" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  }
+
+  /* Đọc/ghi trạng thái. localStorage có thể ném lỗi khi người dùng
+     chặn cookie bên thứ ba hoặc duyệt ẩn danh — hỏng chỗ này không
+     được phép làm mất luôn thanh điều hướng. */
+  function isOpen() {
+    try { return localStorage.getItem(KEY) !== "0"; } catch (e) { return true; }
+  }
+  function remember(open) {
+    try { localStorage.setItem(KEY, open ? "1" : "0"); } catch (e) {}
   }
 
   function mount() {
@@ -58,10 +81,23 @@
     var wrap = document.createElement("div");
     wrap.className = "halls-nav";
 
-    var label = document.createElement("div");
-    label.className = "navlab";
-    label.textContent = "Các cung";
-    wrap.appendChild(label);
+    // ── nút gốc: Cổng Thành ──────────────────────────────
+    var head = document.createElement("div");
+    head.className = "halls-head";
+    head.innerHTML =
+      '<button class="tw" type="button" aria-expanded="true" aria-controls="hallsTree" ' +
+      'aria-label="Thu gọn danh sách cung">' +
+      svg('<path d="M9 5l7 7-7 7"/>', 2.2) + '</button>' +
+      '<span class="ic">' + svg(GATE.icon) + '</span>' +
+      '<span class="lbl"><b>' + GATE.name + '</b><i>' + HALLS.length + ' cung khác</i></span>' +
+      '<a class="go-gate" href="' + GATE.href + '" title="Mở ' + GATE.name + '">' +
+      svg('<path d="M5 12h13M12 5l7 7-7 7"/>', 2) + '</a>';
+    wrap.appendChild(head);
+
+    // ── nhánh con: bốn cung ──────────────────────────────
+    var tree = document.createElement("div");
+    tree.className = "halls-tree scroll";
+    tree.id = "hallsTree";
 
     HALLS.forEach(function (h) {
       var a = document.createElement("a");
@@ -71,20 +107,56 @@
       a.innerHTML =
         '<span class="ic">' + svg(h.icon) + '</span>' +
         '<span class="lbl"><b>' + h.name + '</b><i>' + h.note + '</i></span>' +
-        '<span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>';
-      wrap.appendChild(a);
+        '<span class="go">' + svg('<path d="M9 5l7 7-7 7"/>', 2) + '</span>';
+      tree.appendChild(a);
+    });
+    wrap.appendChild(tree);
+
+    // ── đóng mở ──────────────────────────────────────────
+    var tw = head.querySelector(".tw");
+
+    /* Bung tới chiều cao nội dung thật, nhưng không quá 42% màn hình.
+       Chạm trần thì .halls-tree tự cuộn (nó có class .scroll). Nhờ vậy
+       #navscroll luôn còn chỗ, kể cả màn thấp hay sau này thêm cung. */
+    function cap() {
+      return Math.max(120, Math.round(window.innerHeight * 0.42));
+    }
+
+    function apply(open, animate) {
+      wrap.classList.toggle("closed", !open);
+      tw.setAttribute("aria-expanded", open ? "true" : "false");
+      tw.setAttribute("aria-label", (open ? "Thu gọn" : "Mở rộng") + " danh sách cung");
+      tree.style.transition = animate ? "" : "none";
+      tree.style.maxHeight = open ? Math.min(tree.scrollHeight, cap()) + "px" : "0px";
+    }
+
+    function toggle() {
+      var open = wrap.classList.contains("closed");
+      apply(open, true);
+      remember(open);
+    }
+
+    // Bấm vào thân hàng cũng đóng mở; riêng mũi tên bên phải là
+    // link thật đi sang Cổng Thành nên phải để nó yên.
+    head.addEventListener("click", function (ev) {
+      if (ev.target.closest(".go-gate")) return;
+      toggle();
     });
 
-    var g = document.createElement("a");
-    g.className = "hall-link to-gate";
-    g.href = GATE.href;
-    g.title = GATE.name;
-    g.innerHTML = '<span class="ic">' + svg(GATE.icon) + '</span>' +
-      '<span class="lbl"><b>' + GATE.name + '</b></span>';
-    wrap.appendChild(g);
-
     brand.parentNode.insertBefore(wrap, brand.nextSibling);
+
+    apply(isOpen(), false);
+    // Bật lại transition ở khung hình sau, để lần vẽ đầu không chạy
+    // hoạt cảnh đóng mở trước mắt người dùng.
+    requestAnimationFrame(function () { tree.style.transition = ""; });
+
+    // Đổi cỡ cửa sổ làm trần chiều cao lệch (nhánh con có thể xuống
+    // dòng), nên đo lại khi đang mở.
+    window.addEventListener("resize", function () {
+      if (!wrap.classList.contains("closed")) {
+        tree.style.maxHeight = Math.min(tree.scrollHeight, cap()) + "px";
+      }
+    });
   }
 
   if (document.readyState === "loading") {

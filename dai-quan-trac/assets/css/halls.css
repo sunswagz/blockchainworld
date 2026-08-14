@@ -1,18 +1,75 @@
-/* Mục "CÁC CUNG" ở đầu thanh bên — đi kèm assets/js/halls.js */
+/* Cây "Cổng Thành" ở đầu thanh bên — đi kèm assets/js/halls.js */
 
 .halls-nav {
-  padding: 10px 10px 12px;
+  flex: 0 0 auto;                    /* nằm ngoài #navscroll, không co */
+  padding: 8px 10px 9px;
   border-bottom: 1px solid var(--line);
 }
-.halls-nav .navlab {
-  padding: 0 6px 7px;
-  font-family: var(--mono); font-size: 9.5px; font-weight: 500;
-  letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+
+/* ── nút gốc: Cổng Thành ────────────────────────────────── */
+.halls-head {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 6px 6px 2px; border-radius: var(--r);
+  cursor: pointer; user-select: none;
+  border: 1px solid transparent;
+  transition: background .14s, border-color .14s;
 }
+.halls-head:hover { background: var(--raise); border-color: var(--line2); }
+
+.halls-head .tw {
+  flex: 0 0 auto; width: 18px; height: 18px; padding: 0; cursor: pointer;
+  display: grid; place-items: center; color: var(--dim); background: none; border: 0;
+  transition: transform .2s cubic-bezier(.2, .8, .2, 1), color .14s;
+  transform: rotate(90deg);         /* mở: mũi tên chúc xuống */
+}
+.halls-nav.closed .halls-head .tw { transform: rotate(0deg); }
+.halls-head:hover .tw { color: var(--fg2); }
+.halls-head .tw svg { width: 13px; height: 13px; display: block; }
+
+.halls-head .ic {
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 6px;
+  display: grid; place-items: center;
+  background: var(--inset); color: var(--fg2);
+}
+.halls-head .ic svg { width: 14px; height: 14px; display: block; }
+
+.halls-head .lbl { flex: 1; min-width: 0; line-height: 1.25; }
+.halls-head .lbl b {
+  display: block; font-size: 13px; font-weight: 600; color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.halls-head .lbl i {
+  display: block; font-style: normal; font-size: 10.5px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* mũi tên phải: link thật sang Cổng Thành, không phải nút đóng mở */
+.halls-head .go-gate {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 5px;
+  display: grid; place-items: center; color: var(--dim);
+  transition: color .14s, background .14s;
+}
+.halls-head .go-gate:hover {
+  color: var(--info); background: var(--info-d); text-decoration: none;
+}
+.halls-head .go-gate svg { width: 13px; height: 13px; display: block; }
+
+/* ── nhánh con ──────────────────────────────────────────── */
+.halls-tree {
+  margin: 3px 0 0 11px; padding-left: 8px;
+  border-left: 1px solid var(--line);   /* đường dẫn hướng của cây */
+  /* halls.css nạp SAU app.css nên phải viết đủ cả hai trục, không thì
+     dòng này đè mất overflow-y:auto của .scroll và phần chạm trần
+     chiều cao sẽ bị cắt cụt, không cuộn được. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: max-height .22s cubic-bezier(.2, .8, .2, 1);
+}
+.halls-nav.closed .halls-tree { border-left-color: transparent; }
 
 .hall-link {
   display: flex; align-items: center; gap: 9px;
-  padding: 7px 8px; margin-bottom: 3px;
+  padding: 6px 8px; margin-bottom: 2px;
   border-radius: var(--r); color: var(--fg); text-decoration: none;
   border: 1px solid transparent;
   transition: background .14s, border-color .14s;
@@ -42,12 +99,38 @@
 .hall-link .go svg { width: 14px; height: 14px; display: block; }
 .hall-link:hover .go { color: var(--info); }
 
-.hall-link.to-gate .ic { background: var(--inset); color: var(--fg2); }
-.hall-link.to-gate .lbl b { font-weight: 500; color: var(--fg2); font-size: 12.6px; }
+/* ── thanh bên thu gọn (62px) ───────────────────────────────
+   Lớp thật app.js đặt là .nav-collapsed. Bản trước viết
+   #app.nav-mini nên toàn khối này chưa bao giờ chạy: thu gọn
+   thanh bên thì icon, chữ và mũi tên bị ép hết vào 62px.      */
+#app.nav-collapsed .halls-nav { padding: 8px 6px 9px; }
+#app.nav-collapsed .halls-head { justify-content: center; padding: 6px 0; }
+#app.nav-collapsed .halls-head .tw,
+#app.nav-collapsed .halls-head .lbl,
+#app.nav-collapsed .halls-head .go-gate,
+#app.nav-collapsed .hall-link .lbl,
+#app.nav-collapsed .hall-link .go { display: none; }
+#app.nav-collapsed .halls-tree {
+  margin-left: 0; padding-left: 0; border-left: 0;
+}
+#app.nav-collapsed .hall-link { justify-content: center; padding: 6px 0; }
 
-/* thanh bên thu gọn */
-#app.nav-mini .halls-nav { padding: 10px 6px 12px; }
-#app.nav-mini .hall-link { justify-content: center; padding: 7px 0; }
-#app.nav-mini .hall-link .lbl,
-#app.nav-mini .hall-link .go { display: none; }
-#app.nav-mini .halls-nav .navlab { display: none; }
+/* Dưới 900px thanh bên thành ngăn kéo 272px, .nav-collapsed hết
+   nghĩa thu gọn — app.css cũng revert y như vậy cho .nv/.navlab. */
+@media (max-width: 900px) {
+  #app.nav-collapsed .halls-nav { padding: 8px 10px 9px; }
+  #app.nav-collapsed .halls-head { justify-content: flex-start; padding: 6px 6px 6px 2px; }
+  #app.nav-collapsed .halls-head .tw,
+  #app.nav-collapsed .halls-head .go-gate,
+  #app.nav-collapsed .hall-link .go { display: grid; }
+  #app.nav-collapsed .halls-head .lbl,
+  #app.nav-collapsed .hall-link .lbl { display: block; }
+  #app.nav-collapsed .halls-tree {
+    margin-left: 11px; padding-left: 8px; border-left: 1px solid var(--line);
+  }
+  #app.nav-collapsed .hall-link { justify-content: flex-start; padding: 6px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halls-tree, .halls-head .tw { transition: none; }
+}
