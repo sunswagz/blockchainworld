@@ -65,7 +65,9 @@ jobs:
         run: node scripts/build-congbo.mjs
 
       # Kho skill Tàng Thư Các. GITHUB_TOKEN nâng hạn mức API GitHub
-      # từ 60 lên 5.000 lượt/giờ — không có nó thì chỉ quét được vài kho.
+      # từ 60 lên 1.000 lượt/giờ mỗi repo — không có nó thì chỉ quét vài kho.
+      # (Token cá nhân miễn phí thì được 5.000; ở đây 1.000 là quá đủ:
+      #  quét 40 kho tốn khoảng 54 lượt.)
       - name: Lấy kho skill Tàng Thư Các
         continue-on-error: true
         env:

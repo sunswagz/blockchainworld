@@ -524,7 +524,7 @@ Bịa mô tả tiếng Việt cho skill chưa đọc kỹ còn tệ hơn để n
 Hạn mức 60 lượt/giờ mỗi IP (không token), quá đủ cho một người. Hết hạn mức thì
 chỉ mất phần làm mới chứ **không mất bản chụp**.
 
-Trong Actions, `GITHUB_TOKEN` nâng hạn mức lên 5.000/giờ — nên workflow quét được
+Trong Actions, `GITHUB_TOKEN` nâng hạn mức lên **1.000 lượt/giờ mỗi repo** — nên workflow quét được
 40 kho thay vì 6.
 
 ### Quét thế nào cho rẻ

@@ -19,8 +19,10 @@
         nhất lại là phần rẻ nhất.
 
    ── HẠN MỨC ───────────────────────────────────────────
-   Không có token: 60 lượt/giờ. Trong Actions có GITHUB_TOKEN:
-   5.000 lượt/giờ. Script tự dùng token nếu thấy biến môi trường,
+   Không có token: 60 lượt/giờ mỗi IP. Có GITHUB_TOKEN trong
+   Actions: 1.000 lượt/giờ mỗi repo. Personal access token cá nhân
+   (miễn phí): 5.000 lượt/giờ. Script tự dùng token nếu thấy biến
+   môi trường,
    và dừng quét thêm kho khi hạn mức xuống thấp thay vì đâm đầu
    vào lỗi 403.
 
@@ -146,7 +148,8 @@ async function docCu() {
 }
 const cu = await docCu();
 
-log(TOKEN ? "· có GITHUB_TOKEN — hạn mức 5.000/giờ" : "· KHÔNG có GITHUB_TOKEN — hạn mức 60/giờ, quét ít kho thôi");
+log(TOKEN ? "· có token — hạn mức 1.000/giờ (GITHUB_TOKEN) hoặc 5.000/giờ (token cá nhân)"
+          : "· KHÔNG có token — hạn mức 60/giờ mỗi IP, quét ít kho thôi");
 
 /* Kho LUÔN nạp thẳng, không trông vào kết quả tìm kiếm.
    anthropics/skills gắn thẻ `agent-skills` chứ không phải
