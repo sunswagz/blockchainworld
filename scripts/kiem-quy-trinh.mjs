@@ -310,9 +310,20 @@ for (const c of ["."].concat(cung)) {
   const tSw = Number(commitCuoi(swP) || 0);
   if (!tSw) continue;                       // chưa commit lần nào — bỏ qua
 
+  /* File được phục vụ MẠNG-TRƯỚC thì không cần nâng version: service
+     worker đi lấy bản mới mỗi lần, cache chỉ là lưới đỡ lúc mất mạng.
+     Bốn cung lấy số từ API để data.js ở nhánh đó và bot ghi 4 lượt/ngày
+     — bắt nâng version mỗi lượt là biến phép kiểm thành tiếng ồn.
+
+     Nhận diện bằng các chuỗi trong `url.pathname.indexOf("…")` của chính
+     sw.js đó. (sw.js gốc cũng dùng khuôn này để BỎ QUA đường của từng
+     cung, nhưng SHELL của nó không chứa đường nào như vậy nên không có
+     chuyện miễn trừ nhầm.) */
+  const mangTruoc = [...sw.matchAll(/indexOf\(\s*"([^"]+)"\s*\)/g)].map((m) => m[1]);
   const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((m) => m[1]);
   const tre = [];
   for (const f of shell) {
+    if (mangTruoc.some((p) => ("/" + f).indexOf(p) !== -1)) continue;
     const p = c === "." ? f : `${c}/${f}`;
     if (!existsSync(join(ROOT, p))) continue;
     const t = Number(commitCuoi(p) || 0);

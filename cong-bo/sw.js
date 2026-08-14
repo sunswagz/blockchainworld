@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v4";
+var CACHE_VERSION = "v5";
 var SHELL_CACHE = "cong-bo-shell-" + CACHE_VERSION;
 var FONT_CACHE = "cong-bo-fonts-" + CACHE_VERSION;
 
@@ -88,8 +88,13 @@ self.addEventListener("fetch", function (e) {
 
   if (url.origin !== self.location.origin) return;
 
-  // bảng xét tự cập nhật — mạng trước, hỏng mạng mới dùng bản đã lưu
+  /* Số liệu tự cập nhật — mạng trước, hỏng mạng mới dùng bản đã lưu.
+     logos.js cũng phải nằm đây: nó do build-congbo.mjs sinh 4 lượt/ngày
+     như data.js. Để nó ở nhánh cache-trước thì máy đã cài app giữ bảng
+     tra logo cũ cho tới lần nâng CACHE_VERSION kế tiếp — nghĩa là logo
+     dự án mới không bao giờ hiện, dù ảnh đã lên site. */
   if (url.pathname.indexOf("/assets/js/data.js") !== -1 ||
+      url.pathname.indexOf("/assets/js/logos.js") !== -1 ||
       url.pathname.indexOf("/assets/js/v/") !== -1) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {
