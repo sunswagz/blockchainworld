@@ -10,7 +10,7 @@ chạy offline, số liệu tự cập nhật, và đóng gói thành app Androi
 | **/dai-quan-trac/** | dòng chảy địa chính trị, 5 chiến trường, 8 đồng hồ | bản quét sinh trong GitHub Actions |
 | **/do-sat-vien/** | bản Việt hoá của L2BEAT — 23 mục trong 7 nhóm, đủ cây điều hướng | L2BEAT: API `scaling/summary` + dữ liệu 21 trang |
 | **/cong-bo/** | bộ đồ nghề — giải mã lời gọi, nhật ký đổi thay on-chain, kính lúp hồ sơ | L2BEAT: `um-prod/discovery/changes` + `fe-stag/api/discolupe` |
-| **/tang-thu-cac/** | kho tra cứu Claude Skills — mỗi skill làm gì, giúp được gì cho bạn | GitHub: `topic:claude-skills` + `anthropics/skills` |
+| **/tang-thu-cac/** | kho tra cứu Claude Skills — mỗi skill làm gì, giúp được gì cho bạn | GitHub: 4 truy vấn tìm kiếm + 10 kho gọi thẳng |
 
 Các file gốc trong `SUNSWaGz app/` không bị đụng vào — vẫn nằm nguyên chỗ cũ để đối chiếu.
 
@@ -94,8 +94,8 @@ kinh-thanh-app/
 ├── tang-thu-cac/               CUNG 5 — kho tra cứu Claude Skills
 │   ├── index.html · sw.js · manifest.webmanifest   (nền giấy ngà)
 │   └── assets/js/
-│       ├── data.js         TỰ SINH — 321 skill + 61 kho (~230 KB)
-│       ├── glossary.js     dịch tay 17 skill chính thức, SỬA TAY được
+│       ├── data.js         TỰ SINH — ~1.050 skill + 66 kho (~490 KB)
+│       ├── glossary.js     dịch tay 17 skill của anthropics/skills, SỬA TAY được
 │       └── app.js · halls.js · pwa.js
 │
 ├── server.js                   máy chủ tĩnh, không phụ thuộc gói nào
@@ -538,22 +538,55 @@ M lần tải   raw.githubusercontent.com/.../SKILL.md      → CDN, KHÔNG tín
 Phần nặng nhất (đọc hàng trăm file SKILL.md) lại là phần rẻ nhất, vì `raw.*` không
 qua API. Script tự dừng quét khi hạn mức xuống dưới 5 lượt thay vì đâm vào lỗi 403.
 
-### Ba lỗi đã bắt
+### Dò kho: một thẻ là không đủ
+
+Bản đầu tôi chỉ tìm `topic:claude-skills`. Sai nặng — những kho lớn nhất hệ
+sinh thái không gắn thẻ đó:
+
+| kho | sao | thẻ |
+|---|---|---|
+| `obra/superpowers` | 272k | `skills`, `ai`, `coding` — **không có** `claude-skills` |
+| `mattpocock/skills` | 217k | **không gắn thẻ nào** |
+| `garrytan/gstack` | 128k | **không gắn thẻ nào** |
+| `addyosmani/agent-skills` | 87k | `agent-skills`, `claude-code` |
+
+Kho không gắn thẻ thì **không truy vấn topic nào tìm ra được, mãi mãi.** Nên giờ
+ba chân: bốn truy vấn gộp lại (`claude-skills`, `agent-skills`, `claude-code+skills`,
+tìm theo tên), cộng danh sách `LUON_CO` gọi thẳng, cộng ưu tiên quét mọi kho trong
+danh sách đó. Từ 321 skill / 6 kho lên **1.054 skill / 18 kho**.
+
+Một chi tiết nhỏ mà mất công: `Leonxlnx/taste-skill` viết bằng chữ **L thường**,
+không phải chữ **i hoa** — hai ký tự trông y hệt nhau, và bản danh sách tôi nhận
+được ghi `LeonxInx` nên gọi API ra 404.
+
+### Bốn lỗi khác đã bắt
 
 **Kho chính thức không nằm trong kết quả tìm.** `anthropics/skills` gắn thẻ
-`agent-skills` chứ **không phải** `claude-skills`, nên tìm theo topic không ra nó —
-bảng đầu tiên tôi dựng có **0 skill chính thức**. Giờ có danh sách `LUON_CO` nạp
-thẳng, không trông vào kết quả tìm kiếm.
+`agent-skills` chứ **không phải** `claude-skills` — bảng đầu tiên có **0 skill
+chính thức**.
 
 **Frontmatter dạng block scalar.** `description: |-` rồi nội dung thụt vào dòng
 dưới — không xử lý thì mô tả của `claude-api` bắt đầu bằng đúng hai ký tự `|-`.
 
 **Phân nhóm sai vì xét mô tả trước tên.** `canvas-design` có chữ `.pdf` trong mô tả
-nên bị xếp thành công cụ tài liệu. Sửa: xét **tên trước mô tả**, và nhóm hẹp
-(`kiem-thu`) đứng trước nhóm rộng (`giao-dien`, `tai-lieu`) trong bảng luật.
+nên bị xếp thành công cụ tài liệu. Sửa: xét **tên trước mô tả**, nhóm hẹp trước
+nhóm rộng.
 
-Nhóm `khac` luôn xuống cuối màn Tổng quan dù đông nhất — nhóm rác dẫn đầu thì trông
-như chưa phân loại được gì.
+**Nhãn "chính thức" ≠ "đã dịch".** Khi mở rộng nguồn dò, tìm kiếm bắt thêm
+`anthropics/claude-plugins-official` — 29 skill hiện nhãn CHÍNH THỨC mà không có
+một chữ tiếng Việt nào. Tệ hơn: `dichCua()` tra bản dịch **theo tên skill**, nên 2
+skill của kho đó ăn nhầm bản dịch viết cho `anthropics/skills`. Giờ bản dịch khoá
+theo **đúng kho**, và hai nhãn tách rời: *chính thức* (ai sở hữu) và *nguyên bản
+gốc* (chưa có bản dịch).
+
+### Chạy suy giảm không được thu nhỏ bảng
+
+Chạy tay hết 60 lượt → lần sau nạp thẳng thất bại hết → bảng tụt 66 còn 60 kho →
+**và bản 60 kho đó ghi đè lên file**. Lần sau nữa muốn lấy lại thì không còn nguồn:
+chính bản dự phòng đã bị lần chạy hỏng làm hỏng.
+
+Giờ có chốt chặn: lần chạy nào bị suy giảm (nạp thẳng thất bại, hoặc quét được 0
+kho) thì **gộp lại mọi kho của bản trước** thay vì ghi đè bảng nhỏ hơn.
 
 ### Vì sao chỉ làm Claude Skills
 

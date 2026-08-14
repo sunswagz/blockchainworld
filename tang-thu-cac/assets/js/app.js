@@ -50,7 +50,13 @@
     return p(d.getUTCDate()) + "/" + p(d.getUTCMonth() + 1) + "/" + d.getUTCFullYear();
   }
   function nhomCua(ma) { return VI.nhom[ma] || { ten: ma, mau: "#7A7A88", y: "" }; }
-  function dichCua(s) { return s.chinhChu ? VI.skill[s.ten] : null; }
+  /* Bản dịch tay viết cho ĐÚNG kho anthropics/skills sau khi đọc
+     từng SKILL.md. Tra theo tên không thôi là sai: tên trùng giữa
+     các kho rất thường, và skill cùng tên ở kho khác làm việc khác. */
+  var KHO_DA_DICH = "anthropics/skills";
+  function dichCua(s) {
+    return s.kho === KHO_DA_DICH ? VI.skill[s.ten] : null;
+  }
 
   /* ── thanh bên ────────────────────────────────────── */
   var IC = {
@@ -94,7 +100,7 @@
      1. TỔNG QUAN — lưới nhóm việc
      ══════════════════════════════════════════════════ */
   function mhTongQuan(host) {
-    var ct = SK.filter(function (s) { return s.chinhChu; }).length;
+    var ct = SK.filter(function (s) { return dichCua(s); }).length;
     var thuTu = Object.keys(VI.nhom).filter(function (n) { return (D.demNhom || {})[n]; })
       .sort(function (a, b) {
         /* "khac" luôn xuống cuối dù đông nhất: nhóm rác dẫn đầu thì
@@ -109,20 +115,20 @@
       '<div class="tomtat">' +
         '<div class="tt-o"><span>Skill quét được</span><b>' + SK.length + "</b>" +
           "<i>từ " + (D.soKhoQuet || 0) + " kho trên GitHub</i></div>" +
-        '<div class="tt-o"><span>Chính thức Anthropic</span><b style="color:var(--acc)">' + ct + "</b>" +
-          "<i>đã dịch và diễn giải tay</i></div>" +
+        '<div class="tt-o"><span>Đã dịch tiếng Việt</span><b style="color:var(--acc)">' + ct + "</b>" +
+          "<i>kho anthropics/skills, đọc từng cái</i></div>" +
         '<div class="tt-o"><span>Kho đang theo dõi</span><b>' + KHO.length + "</b>" +
           "<i>xếp theo sao, làm mới được</i></div>" +
       "</div>" +
       '<div class="luoi-nhom">' + thuTu.map(function (n) {
         var g = nhomCua(n);
         var trong = SK.filter(function (s) { return s.nhom === n; });
-        var ctN = trong.filter(function (s) { return s.chinhChu; }).length;
+        var ctN = trong.filter(function (s) { return dichCua(s); }).length;
         return '<a class="o-nhom" href="#/danh-muc?nhom=' + encodeURIComponent(n) +
           '" style="--m:' + g.mau + '">' +
           '<div class="on-dinh"><h3>' + esc(g.ten) + '</h3><span class="on-so">' + trong.length + "</span></div>" +
           "<p>" + esc(g.y || "") + "</p>" +
-          (ctN ? '<span class="on-ct">' + ctN + " cái chính thức, đã dịch</span>" : "") +
+          (ctN ? '<span class="on-ct">' + ctN + " cái đã dịch tiếng Việt</span>" : "") +
           "</a>";
       }).join("") + "</div>";
   }
@@ -157,16 +163,19 @@
     });
 
     var wg = $("#chipNguon");
-    var ct = SK.filter(function (s) { return s.chinhChu; }).length;
+    /* Lọc theo CÓ BẢN DỊCH hay không, chứ không theo chủ kho:
+       người đọc quan tâm "cái nào đọc được tiếng Việt", không quan
+       tâm ai sở hữu repo. */
+    var ct = SK.filter(function (s) { return dichCua(s); }).length;
     chip(wg, "Tất cả", null, "nguon", "all");
-    chip(wg, "Chính thức Anthropic", ct, "nguon", "ct");
-    chip(wg, "Cộng đồng", SK.length - ct, "nguon", "cd");
+    chip(wg, "Đã dịch tiếng Việt", ct, "nguon", "ct");
+    chip(wg, "Còn nguyên bản gốc", SK.length - ct, "nguon", "cd");
 
     var q = norm(state.q.trim());
     var ds = SK.filter(function (s) {
       if (state.nhom !== "all" && s.nhom !== state.nhom) return false;
-      if (state.nguon === "ct" && !s.chinhChu) return false;
-      if (state.nguon === "cd" && s.chinhChu) return false;
+      if (state.nguon === "ct" && !dichCua(s)) return false;
+      if (state.nguon === "cd" && dichCua(s)) return false;
       if (q) {
         var d = dichCua(s);
         var hay = [s.ten, s.moTa, s.kho, d && d.tom, d && d.ban].join(" ");
@@ -187,8 +196,8 @@
       b.innerHTML =
         '<div class="sk-dinh"><span class="sk-cham"></span>' +
         '<span class="sk-ten">' + esc(s.ten) + "</span>" +
-        (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>"
-                    : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
+        (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>" : "") +
+        (dichCua(s) ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
         (s.trung ? '<span class="the-nho the-tr">' + esc(VI.nhan.trung) + "</span>" : "") +
         '<span class="sk-sao">★ ' + so(s.sao) + "</span></div>" +
         (d ? '<p class="sk-tom">' + esc(d.tom) + "</p>"
@@ -226,8 +235,10 @@
       h += '<div class="hs"><div class="hs-h">Mô tả gốc — chưa dịch tay</div>' +
         '<p class="hs-goc">' + esc(s.moTa) + "</p>" +
         '<p class="hs-p" style="margin-top:9px;font-size:12.4px;color:var(--ink-3)">' +
-        "Đây là skill cộng đồng. Chỉ 17 skill chính thức của Anthropic được dịch và diễn giải tay — " +
-        "bịa mô tả tiếng Việt cho skill chưa đọc kỹ còn tệ hơn để nguyên bản.</p></div>";
+        "Chỉ 17 skill trong kho <code>anthropics/skills</code> được dịch và diễn giải tay, " +
+        "vì tôi đã đọc từng SKILL.md của chúng. Những skill còn lại — kể cả skill do Anthropic " +
+        "sở hữu ở kho khác — giữ nguyên bản gốc: bịa mô tả tiếng Việt cho skill chưa đọc kỹ " +
+        "còn tệ hơn để nguyên bản.</p></div>";
     }
 
     var repo = "https://github.com/" + s.kho;
@@ -249,8 +260,8 @@
     $("#hosoTen").textContent = s.ten;
     $("#hosoTag").innerHTML =
       '<span class="the-nho" style="background:' + g.mau + '22;color:' + g.mau + '">' + esc(g.ten) + "</span>" +
-      (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>"
-                  : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
+      (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>" : "") +
+      (dichCua(s) ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
       '<span style="font-size:11.5px;color:var(--ink-3)">★ ' + so(s.sao) + "</span>";
     $("#hosoBody").innerHTML = h;
     $("#hoso").dataset.open = "1";

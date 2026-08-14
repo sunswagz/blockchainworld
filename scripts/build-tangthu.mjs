@@ -6,7 +6,11 @@
 
    ── LẤY GÌ, TỪ ĐÂU ────────────────────────────────────
    1. Xếp hạng kho ← api.github.com/search/repositories
-        q=topic:claude-skills, sắp theo sao.
+        BỐN truy vấn gộp lại, cộng danh sách LUON_CO gọi thẳng.
+        Một thẻ là không đủ: obra/superpowers (271k sao) gắn thẻ
+        `skills` chứ không phải `claude-skills`, còn mattpocock/skills
+        và garrytan/gstack thì KHÔNG gắn thẻ nào — không truy vấn
+        topic nào tìm ra chúng được.
    2. Danh mục skill ← với mỗi kho hàng đầu, gọi git/trees?recursive=1
         (MỘT lời gọi lấy cả cây) rồi lọc mọi file SKILL.md.
    3. Nội dung skill ← raw.githubusercontent.com
@@ -38,7 +42,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = join(ROOT, "tang-thu-cac", "assets", "js");
 
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
-const SO_KHO_QUET = Number(process.env.TT_SO_KHO || (TOKEN ? 40 : 6));
+/* Không token: 60 lượt/giờ. Trừ 4 truy vấn tìm kiếm và ~8 lượt nạp
+   thẳng, còn dư nhiều cho 14 lượt lấy cây repo. Có token thì thoải mái. */
+const SO_KHO_QUET = Number(process.env.TT_SO_KHO || (TOKEN ? 40 : 14));
 const SO_KHO_HANG = 60;          /* giữ bao nhiêu kho trong bảng xếp hạng */
 const MAX_SKILL_MOI_KHO = 400;   /* kho gom hàng nghìn skill thì cắt bớt */
 
@@ -147,7 +153,24 @@ log(TOKEN ? "· có GITHUB_TOKEN — hạn mức 5.000/giờ" : "· KHÔNG có G
    `claude-skills`, nên nó KHÔNG lọt vào tìm theo topic — mà đây
    lại đúng là nguồn chính thức và là nhóm duy nhất được dịch tay.
    Lần đầu tôi quên chỗ này và ra bảng 0 skill chính thức. */
-const LUON_CO = ["anthropics/skills"];
+const LUON_CO = [
+  /* Kho lớn mà KHÔNG tìm theo thẻ nào ra được — phải gọi thẳng.
+     Nhớ: mattpocock/skills và garrytan/gstack không gắn một thẻ nào,
+     nên không có truy vấn topic nào cứu được chúng. */
+  "anthropics/skills",
+  "obra/superpowers",
+  "mattpocock/skills",
+  "garrytan/gstack",
+  "addyosmani/agent-skills",
+  "nextlevelbuilder/ui-ux-pro-max-skill",
+  "Egonex-AI/Understand-Anything",
+  "FullStackFang/career-ops",
+  /* Leonxlnx viết bằng chữ L THƯỜNG, không phải chữ i HOA. Hai ký tự
+     này trông y hệt nhau ở phần lớn phông chữ; bản danh sách tôi nhận
+     được ghi "LeonxInx" và nó 404. */
+  "Leonxlnx/taste-skill",
+  "mvanhorn/last30days-skill"
+];
 
 function gonRepo(r) {
   return {
@@ -166,12 +189,39 @@ function gonRepo(r) {
 }
 
 /* ── 1. xếp hạng kho ───────────────────────────────── */
+/* Nhiều truy vấn thay vì một. Tìm kiếm của GitHub giới hạn 10
+   lượt/phút khi không có token, nên nghỉ giữa các truy vấn. */
+const TRUY_VAN = [
+  "topic:claude-skills",
+  "topic:agent-skills",
+  "topic:claude-code topic:skills",
+  "skills in:name claude in:description"
+];
+
 let kho = null;
 try {
-  const j = await gh("https://api.github.com/search/repositories" +
-    "?q=topic:claude-skills&sort=stars&order=desc&per_page=" + SO_KHO_HANG);
-  if (!j.items || !j.items.length) throw new Error("không có items");
-  kho = j.items.map((r) => ({
+  const gom = new Map();
+  for (const q of TRUY_VAN) {
+    let j;
+    try {
+      j = await gh("https://api.github.com/search/repositories?q=" +
+        encodeURIComponent(q) + "&sort=stars&order=desc&per_page=" + SO_KHO_HANG);
+    } catch (e) {
+      warn(`truy vấn "${q}" lỗi: ${e.message}`);
+      await nghi(7000);
+      continue;
+    }
+    let moi = 0;
+    for (const r of j.items || []) {
+      if (gom.has(r.full_name)) continue;
+      gom.set(r.full_name, r);
+      moi++;
+    }
+    log(`  tìm "${q}" → ${(j.items || []).length} kết quả, ${moi} kho mới`);
+    await nghi(7000);   /* tìm kiếm không token: 10 lượt/phút */
+  }
+  if (!gom.size) throw new Error("không truy vấn nào trả về kho");
+  kho = [...gom.values()].map((r) => ({
     id: r.full_name,
     chu: r.owner?.login || null,
     ten: r.name,
@@ -184,7 +234,9 @@ try {
     topics: r.topics || [],
     chinhChu: r.owner?.login === "anthropics"
   }));
-  log(`✓ xếp hạng  ${kho.length} kho · tổng ${j.total_count} kho gắn thẻ claude-skills`);
+  kho.sort((a, b) => b.sao - a.sao);
+  kho = kho.slice(0, SO_KHO_HANG);
+  log(`✓ xếp hạng  ${kho.length} kho, gộp từ ${TRUY_VAN.length} truy vấn`);
 } catch (e) {
   warn("Không lấy được xếp hạng kho — " + e.message);
   kho = cu?.kho || null;
@@ -196,6 +248,8 @@ if (!kho) {
   process.exit(1);
 }
 
+let hongNapThang = 0;
+
 /* nạp thẳng những kho bắt buộc mà tìm kiếm không trả về */
 for (const ten of LUON_CO) {
   if (kho.some((k) => k.id.toLowerCase() === ten.toLowerCase())) continue;
@@ -203,14 +257,31 @@ for (const ten of LUON_CO) {
     kho.unshift(gonRepo(await gh("https://api.github.com/repos/" + ten)));
     log(`✓ nạp thẳng ${ten} (tìm theo topic không trả về kho này)`);
   } catch (e) {
-    warn(`Không nạp được ${ten} — ${e.message}`);
+    /* Không gọi được thì lấy lại từ bản trước thay vì để kho biến mất
+       khỏi bảng. Hết hạn mức là chuyện thường khi chạy tay, mà bảng
+       xếp hạng tụt mất mấy kho lớn thì rất khó nhận ra. */
+    const truoc = (cu?.kho || []).find((k) => k.id.toLowerCase() === ten.toLowerCase());
+    if (truoc) {
+      kho.unshift(truoc);
+      warn(`${ten}: ${e.message} — dùng lại bản trước`);
+    } else {
+      warn(`Không nạp được ${ten} — ${e.message}`);
+      hongNapThang++;
+    }
   }
 }
 
 /* ── 2. quét SKILL.md ──────────────────────────────── */
 /* anthropics/skills luôn quét đầu tiên dù sao có thể thấp hơn kho
    khác: đây là nguồn chính thức và là nhóm duy nhất được dịch tay. */
-const thuTu = [...kho].sort((a, b) => (b.chinhChu ? 1 : 0) - (a.chinhChu ? 1 : 0));
+/* Ưu tiên quét: kho chính thức trước, rồi tới MỌI kho trong LUON_CO,
+   rồi mới tới phần còn lại theo sao. Nếu chỉ ưu tiên chinhChu thì kho
+   gieo sẵn nào được tìm kiếm trả về (nên không phải "nạp thẳng") sẽ
+   nằm đúng thứ hạng sao của nó và rơi ra ngoài giới hạn quét — đã xảy
+   ra với Leonxlnx/taste-skill: vào được bảng mà không được quét. */
+const uuTien = new Set(LUON_CO.map((x) => x.toLowerCase()));
+const diem = (k) => (k.chinhChu ? 2 : 0) + (uuTien.has(k.id.toLowerCase()) ? 1 : 0);
+const thuTu = [...kho].sort((a, b) => diem(b) - diem(a));
 const canQuet = thuTu.slice(0, SO_KHO_QUET);
 
 const skills = [];
@@ -272,6 +343,21 @@ skills.sort((a, b) => (b.chinhChu ? 1 : 0) - (a.chinhChu ? 1 : 0) || b.sao - a.s
 
 if (!skills.length && cu?.skills?.length) {
   warn("Không quét được skill nào — giữ nguyên danh mục bản trước.");
+}
+
+/* ── không để lần chạy suy giảm thu nhỏ bảng ──────── */
+if ((hongNapThang || !quetDuoc) && cu?.kho?.length) {
+  const dangCo = new Set(kho.map((k) => k.id.toLowerCase()));
+  let buLai = 0;
+  for (const k of cu.kho) {
+    if (dangCo.has(k.id.toLowerCase())) continue;
+    kho.push(k);
+    buLai++;
+  }
+  if (buLai) {
+    kho.sort((a, b) => b.sao - a.sao);
+    warn(`Lần chạy này suy giảm — bù ${buLai} kho từ bản trước để bảng không tụt.`);
+  }
 }
 
 /* ── đóng gói ──────────────────────────────────────── */

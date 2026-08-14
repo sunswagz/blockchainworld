@@ -16,9 +16,10 @@
               GitHub Actions, Việt hoá, dữ liệu blockchain) thì
               dùng vào việc gì. Đây là phần không kho nào khác có.
 
-   Skill cộng đồng thì hàng trăm cái, không dịch tay nổi — app hiện
-   nguyên mô tả tiếng Anh và đánh dấu rõ. Bịa mô tả tiếng Việt cho
-   skill mình chưa đọc còn tệ hơn để nguyên bản.
+   Bản dịch khoá theo ĐÚNG kho anthropics/skills, không tra theo tên:
+   tên trùng giữa các kho rất thường, và skill cùng tên ở kho khác làm
+   việc khác. Mọi skill còn lại giữ nguyên bản gốc — bịa mô tả tiếng
+   Việt cho skill mình chưa đọc còn tệ hơn để nguyên bản.
    ═══════════════════════════════════════════════════════ */
 window.TT_VI = {
 
@@ -32,12 +33,12 @@ window.TT_VI = {
     "danh-muc": {
       ten: "Danh mục skill",
       y: "Tra từng skill: nó làm gì, khi nào Claude tự bật, và cách cài.",
-      vn: "17 skill chính thức của Anthropic được dịch và diễn giải tay. Skill cộng đồng giữ nguyên mô tả gốc và có đánh dấu."
+      vn: "17 skill trong kho anthropics/skills được dịch và diễn giải tay vì tôi đã đọc từng SKILL.md. Mọi skill còn lại — kể cả skill do Anthropic sở hữu ở kho khác — giữ nguyên bản gốc và có đánh dấu."
     },
     "xep-hang": {
       ten: "Xếp hạng kho",
       y: "Các kho skill trên GitHub, sắp theo số sao, kèm số skill quét được.",
-      vn: "Dùng để biết kho nào đáng theo dõi. Số sao là của cả kho, không phải của từng skill — một kho nhiều sao không có nghĩa mọi skill trong đó đều tốt."
+      vn: "Dò bằng bốn truy vấn gộp lại cộng danh sách gọi thẳng — một thẻ là không đủ, vì kho lớn nhất hệ sinh thái (obra/superpowers) không gắn thẻ claude-skills, còn mattpocock/skills và garrytan/gstack thì không gắn thẻ nào. Số sao là của cả kho, không phải của từng skill."
     }
   },
 
@@ -54,7 +55,7 @@ window.TT_VI = {
     "khac":       { ten: "Chưa xếp nhóm",        mau: "#7A7A88", y: "Máy chưa nhận ra thuộc nhóm nào — đọc mô tả gốc." }
   },
 
-  /* ── 17 skill chính thức, dịch và diễn giải tay ───── */
+  /* ── 17 skill của kho anthropics/skills, dịch tay ─── */
   skill: {
     "pdf": {
       tom: "Làm mọi việc với file PDF.",
@@ -171,10 +172,10 @@ window.TT_VI = {
   /* ── nhãn phụ ─────────────────────────────────────── */
   nhan: {
     chinhChu: "chính thức",
-    chuaDich: "chưa dịch tay",
+    chuaDich: "nguyên bản gốc",
     trung: "trùng tên",
     khongMoTa: "không có mô tả"
   },
 
-  ghiChuNguon: "Danh mục quét từ GitHub theo thẻ topic:claude-skills, cộng kho chính thức anthropics/skills nạp thẳng (kho đó gắn thẻ agent-skills nên tìm theo topic không ra). Số sao là của cả kho, không phải của từng skill."
+  ghiChuNguon: "Danh mục dò bằng bốn truy vấn tìm kiếm gộp lại, cộng 10 kho gọi thẳng theo danh sách. Bản dịch tay chỉ áp cho kho anthropics/skills, khoá theo đúng kho chứ không tra theo tên skill — tên trùng giữa các kho rất thường."
 };
