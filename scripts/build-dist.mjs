@@ -30,9 +30,21 @@ const TEXT = new Set([".html", ".css", ".js", ".mjs", ".json", ".webmanifest", "
 const log = (...a) => console.log(...a);
 const fail = (msg) => { console.error("  ✗ " + msg); process.exitCode = 1; };
 
+/* File TRẠNG THÁI của script sinh dữ liệu — không phải tài sản của
+   trang. build-tangthu.mjs đọc lich-su.json để tính xu hướng giữa hai
+   lượt chạy; không dòng nào trong trình duyệt nạp nó. Gửi kèm là bắt
+   mọi người tải thừa 29 KB, và đẻ ra một ⚠ "có trong dist nhưng sw.js
+   không cache" không bao giờ sửa được — mà một ⚠ vĩnh viễn thì dạy
+   người ta bỏ qua ⚠, đúng thói quen vừa làm đường ống chết một ngày
+   trong im lặng. */
+const KHONG_GUI = new Set([
+  "tang-thu-cac/assets/data/lich-su.json"
+]);
+
 async function walk(dir, out = []) {
   for (const name of await readdir(dir)) {
     const p = join(dir, name);
+    if (KHONG_GUI.has(relative(ROOT, p).replace(/\\/g, "/"))) continue;
     const s = await stat(p);
     if (s.isDirectory()) await walk(p, out);
     else out.push(p);
