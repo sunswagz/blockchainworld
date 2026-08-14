@@ -106,6 +106,56 @@ body::after {
 /* ── các cung ─────────────────────────────────────────── */
 .halls { display: grid; gap: 16px; grid-template-columns: 1fr; }
 @media (min-width: 760px) { .halls { grid-template-columns: 1fr 1fr; } }
+/* vòng chỉ có một cung — đừng để thẻ bị kéo còn nửa bề ngang */
+.halls-don { grid-template-columns: 1fr !important; }
+
+/* ── thứ bậc kinh đô ──────────────────────────────────
+   Các cung KHÔNG xếp ngang hàng. Vị trí trên trang phản ánh
+   đúng vị trí trong kinh đô thật:
+
+       Kinh Thành  ─ vòng thành ngoài
+       └ Hoàng Thành  ─ vòng thành trong, lõi là Tử Cấm Thành
+       └ Nha môn trung ương  ─ trong Kinh Thành, NGOÀI Hoàng Thành
+
+   Chỗ hay nhầm là nhóm thứ ba: Lục Bộ, Đô Sát Viện, Đại Lý Tự
+   đóng trong Nội Thành chứ không nằm trong Hoàng Thành. Xếp
+   chúng vào trong Hoàng Thành là vẽ sai bản đồ.
+   (Đối chiếu: 皇城宮殿衙署圖 — bản khảo sát hoàng gia 1669.) */
+.dan {
+  margin: 0 0 18px; font-size: 13.6px; color: var(--fg-2); line-height: 1.72;
+  max-width: 74ch;
+}
+.dan b { color: var(--fg); font-weight: 650; }
+
+.vong {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ring, var(--line));
+  border-radius: var(--r);
+  padding: 15px 15px 17px;
+  background: rgba(255, 255, 255, .012);
+}
+.vong + .vong,
+.vong .halls + .vong,
+.vong .vong { margin-top: 15px; }
+@media (min-width: 760px) { .vong { padding: 17px 18px 19px; } }
+
+.vong-nhan {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 13px;
+}
+.vong-ic {
+  width: 27px; height: 27px; border-radius: 8px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  border: 1px solid var(--ring, var(--line-2));
+  color: var(--ring, var(--fg-2));
+}
+.vong-ic svg { width: 15px; height: 15px; display: block; }
+.vong-nhan b {
+  font-size: 14.5px; font-weight: 700; color: var(--fg); letter-spacing: -.01em;
+}
+.vong-nhan em {
+  font-style: normal; font-size: 12.2px; color: var(--dim); line-height: 1.5;
+}
 
 .hall {
   position: relative; display: block; overflow: hidden;
