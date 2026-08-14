@@ -166,6 +166,18 @@ Lịch cũ là 41 phút sau 1, 7, 13, 19 giờ UTC, tắt ngày 14/08/2026 vì
 `ANTHROPIC_API_KEY` tốn quá nhiều: mỗi lượt quét từng chiến trường là một
 loạt lời gọi kèm `web_search`, nhân 4 lượt/ngày. Đang chờ cách rẻ hơn.
 
+Số đo được, để lần sau khỏi đoán: bảng điều khiển Anthropic ghi **610K
+token và 4,30 USD** cho đúng **ba lượt** quét thật — tức khoảng **1,4 USD
+một lượt**, và ở nhịp 4 lượt/ngày là cỡ **170 USD/tháng**. Phần lớn chi
+phí là token đầu vào: `web_search` kéo nguyên nội dung trang vào ngữ cảnh,
+nhân số chiến trường.
+
+Nên "cách rẻ hơn" không phải nạp thêm tiền mà là ba núm, theo thứ tự hiệu
+quả: đổi `MODEL` trong `scripts/build-scan.mjs` khỏi `claude-opus-5` —
+việc ở đây là "tìm tin 7 ngày rồi viết một câu tiếng Việt + phân loại
+g/y/r", Haiku làm được; hạ nhịp còn 1 lượt/ngày; và giới hạn số lượt tìm
+mỗi chiến trường. Ba núm đó nhân nhau đưa chi phí xuống mức vài USD/tháng.
+
 Workflow vẫn còn và `workflow_dispatch` vẫn bật, nên cần bản quét mới thì
 bấm chạy tay trong tab Actions. Bật lại lịch thì phải bỏ **hai** chỗ cùng
 lúc: khối `schedule` trong workflow, và `tamDung` của "bản quét Quan
