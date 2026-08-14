@@ -7,6 +7,77 @@ var CHAIN = D.CHAIN, LEVELS = D.LEVELS, SCEN = D.SCEN, LIB = D.LIB;
 var THANG = D.THANG, TIEUCHI = D.TIEUCHI, SOI = D.SOI;
 
 /* ============================================================
+   SỐ ĐO TỰ ĐỘNG — do.js, sinh 4 lượt/ngày, không gọi AI
+
+   Luật cứng: SỐ ĐO KHÔNG BAO GIỜ ĐÈ LÊN ĐÈN NGƯỜI DÙNG TỰ ĐẶT.
+   Ghi đè im lặng một lần là mất niềm tin vào cả bảng, và người
+   dùng sẽ không biết cái mình đang nhìn là phán đoán của mình
+   hay của máy.
+
+   Nên state.gg giữ nguyên nghĩa cũ — lựa chọn của NGƯỜI — và
+   'n' đổi nghĩa một chút: "không có ý kiến riêng". Khi đó nếu
+   có số đo thì lấy số đo, không có thì để trống. Nhờ vậy vòng
+   bấm cũ (n → g → y → r → n) tự nhiên có luôn nghĩa "trả về
+   cho máy đo", không cần thêm trạng thái nào. */
+var DO = (window.DQT_DO && window.DQT_DO.do) ? window.DQT_DO.do : {};
+var DO_LUC = (window.DQT_DO && window.DQT_DO.generatedAt) || null;
+
+/* Đèn thực tế của một đồng hồ, sau khi hoà người và máy. */
+function den(id){
+  const tay = state.gg[id];
+  if(tay && tay !== 'n') return tay;
+  const d = DO[id];
+  return (d && d.muc) ? d.muc : 'n';
+}
+/* Đèn đó từ đâu ra — giao diện phải nói thật chỗ này. */
+function nguonDen(id){
+  const tay = state.gg[id];
+  if(tay && tay !== 'n') return 'tay';
+  return DO[id] ? 'tu' : 'chua';
+}
+function demDen(){
+  const r = {g:0,y:0,r:0,n:0};
+  GAUGES.forEach(g=>{ r[den(g.id)]++; });
+  r.dat = r.g + r.y + r.r;
+  return r;
+}
+/* Quy tắc đọc cấp — gom về một chỗ, trước đây chép ở hai view
+   và đã bắt đầu lệch nhau. */
+function capDo(){
+  const d = demDen();
+  if(!d.dat) return 0;
+  return d.r>=4 ? 4 : d.r>=2 ? 3 : (d.y+d.r)>=3 ? 2 : 1;
+}
+
+/* Sparkline: SVG nội tuyến, không thư viện. Chuỗi lịch sử do
+   Yahoo trả sẵn ~64 phiên nên không phải tự tích luỹ nhiều tháng
+   mới có hình. */
+function spark(lich, mau){
+  if(!lich || lich.length < 4) return '';
+  const n = lich.slice(-40), lo = Math.min(...n), hi = Math.max(...n), W = 74, H = 20;
+  const bien = (hi - lo) || 1;
+  const pts = n.map((v,i)=>{
+    const x = (i/(n.length-1))*W;
+    const y = H - ((v-lo)/bien)*(H-3) - 1.5;
+    return x.toFixed(1)+','+y.toFixed(1);
+  }).join(' ');
+  const cuoi = pts.split(' ').pop().split(',');
+  return '<svg class="spk" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true">'+
+    '<polyline points="'+pts+'" fill="none" stroke="'+mau+'" stroke-width="1.4" '+
+    'stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="'+cuoi[0]+'" cy="'+cuoi[1]+'" r="1.8" fill="'+mau+'"/></svg>';
+}
+const MAU = {g:'#2ea043', y:'#d29922', r:'#f0503f', n:'#4b5563'};
+
+function gioDo(iso){
+  if(!iso) return '';
+  const t = new Date(iso);
+  if(isNaN(t)) return '';
+  const p = n=>String(n).padStart(2,'0');
+  return p(t.getUTCDate())+'/'+p(t.getUTCMonth()+1)+' '+p(t.getUTCHours())+':'+p(t.getUTCMinutes())+' UTC';
+}
+
+/* ============================================================
    TRẠNG THÁI
    ============================================================ */
 const LVLS = ['n','g','y','r'];
@@ -48,11 +119,14 @@ const RANK={n:0,g:1,y:2,r:3};
   });
   if(loi.length) console.error('[Đài Quan Trắc] mạch truyền dẫn lệch:\n  · '+loi.join('\n  · '));
 })();
+/* Đọc qua den() chứ không đọc thẳng state.gg — nhờ vậy số đo tự
+   động cũng thắp được mạch truyền dẫn, không chỉ đèn đặt tay. Đây
+   là chỗ vòng tuần hoàn khép lại: đo → ngưỡng → đèn → mạch sáng. */
 function lvOf(chainId){
   const s=CHAIN_SRC[chainId];
   if(s[0]==='th') return state.th[s[1]];
-  if(s[0]==='gg') return state.gg[s[1]];
-  return s.slice(1).reduce((a,g)=>RANK[state.gg[g]]>RANK[a]?state.gg[g]:a,'n');
+  if(s[0]==='gg') return den(s[1]);
+  return s.slice(1).reduce((a,g)=>RANK[den(g)]>RANK[a]?den(g):a,'n');
 }
 function srcLabel(chainId){
   const s=CHAIN_SRC[chainId];
@@ -176,7 +250,24 @@ function vFlow(){
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Quan trắc liên tục</div>'+
    '<h2 class="big">Dòng chảy địa chính trị</h2>'+
-   '<p class="lede">Năm chiến trường, một dòng. Mỗi tín hiệu được ghi kèm <b>đường truyền dẫn tới Việt Nam</b> — vì một sự kiện chỉ đáng theo dõi khi biết nó chạy vào đâu.</p>';
+   '<p class="lede">'+THEATERS.length+' chiến trường, một dòng. Mỗi tín hiệu được ghi kèm <b>đường truyền dẫn tới Việt Nam</b> — vì một sự kiện chỉ đáng theo dõi khi biết nó chạy vào đâu.</p>';
+
+  /* Dải trạng thái — thứ phải đọc được trong hai giây, đặt trên
+     cùng trang đầu. Cấp độ bên trái, 11 đèn bên phải: nhìn phát
+     biết hệ thống đang ở đâu và đèn nào kéo nó lên. */
+  const lvl=capDo(), dm=demDen();
+  const st=el('div','trang-thai'+(lvl?' c'+lvl:''));
+  let bulbs='';
+  GAUGES.forEach(g=>{ const lv=den(g.id), ng=nguonDen(g.id);
+    bulbs+='<i class="'+lv+(ng==='tay'?' tay':'')+'" title="'+esc(g.t)+' — '+LVNAME[lv]+
+      (ng==='tay'?' (bạn đặt)':ng==='tu'?' (tự đo)':'')+'"></i>'; });
+  st.innerHTML=
+    '<div class="tt-cap"><span class="tt-n">'+(lvl||'—')+'</span>'+
+      '<span class="tt-t"><b>'+(lvl?esc(LEVELS[lvl-1].t):'CHƯA ĐỌC RA')+'</b>'+
+      '<i>'+(lvl?dm.r+' đỏ · '+dm.y+' vàng · '+dm.g+' xanh':'chưa đèn nào sáng')+'</i></span></div>'+
+    '<div class="tt-den">'+bulbs+'</div>'+
+    '<a class="tt-go" href="#gauges" onclick="go(\'gauges\');return false">bảng đồng hồ →</a>';
+  w.appendChild(st);
 
   // filter
   const fb=el('div','fbar');
@@ -265,38 +356,77 @@ function vChain(){
 
 /* ---------- BẢNG ĐỒNG HỒ ---------- */
 function vGauges(){
-  const set=Object.values(state.gg).filter(v=>v!=='n').length;
-  head('Bảng cảnh báo sớm',set+'/8 ĐỒNG HỒ ĐÃ ĐẶT');
+  const d=demDen(), N=GAUGES.length, tuDo=GAUGES.filter(g=>DO[g.id]).length;
+  head('Bảng cảnh báo sớm',d.dat+'/'+N+' ĐỒNG HỒ SÁNG');
   const w=el('div','wrap');
-  w.innerHTML='<div class="eyebrow">Đề xuất khép lại hồ sơ nguồn</div>'+
-   '<h2 class="big">Tám đồng hồ, ba màu</h2>'+
-   '<p class="lede">Đây là bảng <b>phán đoán</b>, không phải bảng dữ liệu tự động. Nhấp vào một đồng hồ để xoay vòng <span class="chip">chưa quan trắc</span> → <span class="chip g">xanh</span> → <span class="chip y">vàng</span> → <span class="chip r">đỏ</span>. Màu bạn đặt sẽ chảy thẳng sang mạch truyền dẫn và thanh mạch phía trên.</p>';
+  w.innerHTML='<div class="eyebrow">Đo tự động + phán đoán của bạn</div>'+
+   '<h2 class="big">'+N+' đồng hồ, ba màu</h2>'+
+   '<p class="lede"><b>'+tuDo+' đồng hồ tự đo</b> từ nguồn công khai, cập nhật 4 lượt/ngày, không gọi AI. '+
+   (N-tuDo)+' đồng hồ còn lại chưa có nguồn miễn phí đủ tin nên vẫn <b>đặt tay</b> — nhấp để xoay vòng '+
+   '<span class="chip g">xanh</span> → <span class="chip y">vàng</span> → <span class="chip r">đỏ</span>. '+
+   'Đèn bạn tự đặt <b>luôn thắng</b> số đo; bấm hết vòng là trả lại cho máy đo.</p>';
+
+  if(DO_LUC){
+    const b=el('div','do-luc');
+    b.innerHTML='<span class="dot g"></span> Số đo gần nhất '+esc(gioDo(DO_LUC))+
+      ' · nguồn Yahoo Finance, open.er-api, GDELT · <b>0 đồng chi phí</b>';
+    w.appendChild(b);
+  }
 
   const card=el('div','card');
-  card.appendChild(el('div','card-h','<b>THỨ TỰ TỪ THƯỢNG NGUỒN XUỐNG</b><span class="chip">'+set+'/8</span>'));
+  card.appendChild(el('div','card-h','<b>THỨ TỰ TỪ THƯỢNG NGUỒN XUỐNG</b><span class="chip">'+d.dat+'/'+N+'</span>'));
   const body=el('div');
   GAUGES.forEach((g,i)=>{
-    const lv=state.gg[g.id];
-    const row=el('button','gauge'); row.style.width='100%'; row.style.textAlign='left';
+    const lv=den(g.id), ng=nguonDen(g.id), m=DO[g.id];
+    const row=el('button','gauge g-'+ng); row.style.width='100%'; row.style.textAlign='left';
+
+    let so='';
+    if(m){
+      const dd = m.doi7==null ? '' : '<i class="'+(m.doi7>0?'up':m.doi7<0?'dn':'')+'">'+
+        (m.doi7>0?'▲ +':m.doi7<0?'▼ ':'')+m.doi7+'% / 7 phiên</i>';
+      so='<span class="gauge-s">'+spark(m.lich,MAU[lv])+
+         '<b>'+esc(String(m.so))+'</b><span class="dv">'+esc(m.dv||'')+'</span>'+dd+'</span>';
+    }
+    const nhan = ng==='tay' ? '<span class="pv tay">bạn đặt</span>'
+               : ng==='tu'  ? '<span class="pv tu">tự đo '+esc(gioDo(m.luc))+'</span>'
+                            : '<span class="pv chua">chưa có nguồn</span>';
+
     row.innerHTML='<span class="gauge-i '+lv+'">'+(i+1)+'</span>'+
-      '<span class="gauge-t"><b>'+esc(g.t)+'</b><span>'+esc(g.d)+'</span></span>'+
-      '<span class="meter"><i class="'+lv+'"></i></span>';
-    row.onclick=()=>{ state.gg[g.id]=LVLS[(LVLS.indexOf(lv)+1)%4]; save(); render(); renderNav(); };
+      '<span class="gauge-t"><b>'+esc(g.t)+' '+nhan+'</b><span>'+esc(g.d)+'</span></span>'+
+      so+'<span class="meter"><i class="'+lv+'"></i></span>';
+    row.onclick=()=>{ const cu=state.gg[g.id]; state.gg[g.id]=LVLS[(LVLS.indexOf(cu)+1)%4]; save(); render(); renderNav(); };
     body.appendChild(row);
   });
   card.appendChild(body); w.appendChild(card);
 
-  // cấp độ hiện tại suy ra
-  const reds=Object.values(state.gg).filter(v=>v==='r').length, yels=Object.values(state.gg).filter(v=>v==='y').length;
-  let lvl = 0;
-  if(set){ lvl = reds>=4?4 : reds>=2?3 : (yels+reds)>=3?2 : 1; }
+  /* Ngưỡng phải mở ra xem được. Một cái đèn đỏ mà không nói được
+     "đỏ theo mốc nào" thì chỉ là một cái đèn đỏ. */
+  const ngw=GAUGES.filter(g=>DO[g.id]&&DO[g.id].nguong);
+  if(ngw.length){
+    w.appendChild(el('h3','sec','Ngưỡng đang dùng'));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)';
+    p.innerHTML='Đây là phần duy nhất mang phán đoán con người. Số thì máy đo, còn <b>ranh giới bao nhiêu là đỏ</b> thì do người đặt — viết một lần, kiểm được, và không đổi ý giữa chừng như một model.';
+    w.appendChild(p);
+    const tb=el('div','nguong-w');
+    ngw.forEach(g=>{ const m=DO[g.id], n=m.nguong;
+      const c=el('div','nguong'); c.style.setProperty('--a',MAU[den(g.id)]);
+      const vach = n.nghich
+        ? '<span class="g">≥ '+n.g+'</span><span class="y">'+n.r+'–'+n.g+'</span><span class="r">≤ '+n.r+'</span>'
+        : '<span class="g">≤ '+n.g+'</span><span class="y">'+n.g+'–'+n.r+'</span><span class="r">≥ '+n.r+'</span>';
+      c.innerHTML='<b>'+esc(g.t)+'</b><div class="nguong-v">'+vach+'</div><p>'+esc(n.can)+'</p>'+
+        (m.ghi?'<p class="nguong-g">'+esc(m.ghi)+'</p>':'');
+      tb.appendChild(c); });
+    w.appendChild(tb);
+  }
+
+  const lvl=capDo();
   const s=el('div'); s.style.marginTop='26px';
   s.innerHTML='<h3 class="sec">Suy ra từ bảng đồng hồ</h3>';
-  if(!set){
-    s.innerHTML+='<div class="empty"><b>Chưa đặt đồng hồ nào</b><p>Đặt ít nhất một đồng hồ để đọc ra cấp độ. Không suy ra được gì từ một bảng trống — và không nên giả vờ là suy ra được.</p></div>';
+  if(!lvl){
+    s.innerHTML+='<div class="empty"><b>Chưa đèn nào sáng</b><p>Không suy ra được gì từ một bảng trống — và không nên giả vờ là suy ra được.</p></div>';
   }else{
     const L=LEVELS[lvl-1];
-    s.innerHTML+='<div class="card"><div class="card-h"><b>CẤP '+L.n+' — '+esc(L.t)+'</b><span class="chip '+(lvl>2?'r':lvl>1?'y':'g')+'">'+reds+' đỏ · '+yels+' vàng</span></div>'+
+    s.innerHTML+='<div class="card"><div class="card-h"><b>CẤP '+L.n+' — '+esc(L.t)+'</b><span class="chip '+(lvl>2?'r':lvl>1?'y':'g')+'">'+d.r+' đỏ · '+d.y+' vàng</span></div>'+
       '<div class="card-b"><p style="margin:0 0 8px">'+esc(L.d)+'</p><p style="margin:0" class="muted"><b>'+esc(L.r)+'</b></p></div></div>'+
       '<p class="muted" style="font-size:12px;margin-top:10px">Quy tắc đọc: ≥4 đỏ → cấp 4 · ≥2 đỏ → cấp 3 · ≥3 vàng/đỏ → cấp 2 · còn lại → cấp 1. Đây là quy ước của bảng này, không phải một chuẩn mực chính thức.</p>';
   }
@@ -407,9 +537,7 @@ function vTheater(id){
 /* ---------- 4 CẤP ĐỘ ---------- */
 function vLevels(){
   head('4 cấp độ','ÁP LỰC → KHỦNG HOẢNG HỆ THỐNG');
-  const set=Object.values(state.gg).filter(v=>v!=='n').length;
-  const reds=Object.values(state.gg).filter(v=>v==='r').length, yels=Object.values(state.gg).filter(v=>v==='y').length;
-  const cur = set ? (reds>=4?4:reds>=2?3:(yels+reds)>=3?2:1) : 0;
+  const cur = capDo();
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Chương XVII</div><h2 class="big">Từ "áp lực" đến "khủng hoảng" có bốn cấp</h2>'+
    '<p class="lede">Phần lớn tranh cãi về kinh tế là do hai người đang đứng ở hai cấp khác nhau mà dùng chung một từ. Cấp 1 và cấp 4 không phải cùng một câu chuyện ở mức độ khác nhau — chúng khác nhau về <b>cơ chế</b>.</p>';

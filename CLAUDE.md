@@ -139,6 +139,7 @@ conflict lúc merge.
     cong-bo/assets/logos/
     tang-thu-cac/assets/js/data.js
     tang-thu-cac/assets/data/
+    dai-quan-trac/assets/js/do.js
 
 Danh sách này liệt kê **từng file**, không gom cả thư mục. Trước đây nó
 ghi `cong-bo/assets/js/` và điều đó sai theo cả hai hướng:

@@ -431,3 +431,76 @@ ul.tight li::marker{color:var(--line3)}
   .tl-y{flex:0 0 54px}
   .tl-r::before{left:26px}
 }
+
+/* ============ BẢNG ĐO TỰ ĐỘNG ============
+   Nhãn nguồn là phần bắt buộc, không phải trang trí: người đọc
+   phải phân biệt được đèn nào máy đo, đèn nào chính mình đặt từ
+   tháng trước. Lẫn hai thứ đó là bảng nói dối một cách lịch sự. */
+
+/* --- dải trạng thái ở đầu Dòng chảy --- */
+.trang-thai{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  margin:16px 0 20px;padding:13px 16px;border:1px solid var(--line2);
+  border-left:3px solid var(--dim);border-radius:var(--r2);background:var(--surface)}
+.trang-thai.c1{border-left-color:var(--ok)}
+.trang-thai.c2{border-left-color:var(--warn)}
+.trang-thai.c3{border-left-color:var(--dgr)}
+.trang-thai.c4{border-left-color:var(--lac);background:linear-gradient(90deg,#2d121055,var(--surface) 60%)}
+.tt-cap{display:flex;align-items:center;gap:11px;flex:0 0 auto}
+.tt-n{font-family:var(--mono);font-size:27px;font-weight:600;line-height:1;color:var(--fg)}
+.tt-t{display:flex;flex-direction:column;line-height:1.3}
+.tt-t b{font-size:13.5px;letter-spacing:.02em}
+.tt-t i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.tt-den{display:flex;gap:4px;flex:1;min-width:120px;flex-wrap:wrap}
+.tt-den i{width:9px;height:22px;border-radius:3px;background:var(--line2);display:block}
+.tt-den i.g{background:var(--ok)}
+.tt-den i.y{background:var(--warn)}
+.tt-den i.r{background:var(--dgr)}
+/* Đèn người dùng tự đặt có vạch chân — phân biệt được mà không cần chú giải */
+.tt-den i.tay{box-shadow:inset 0 -4px 0 #ffffff59}
+.tt-go{font-family:var(--mono);font-size:11px;color:var(--muted);flex:0 0 auto;white-space:nowrap}
+.tt-go:hover{color:var(--info)}
+
+/* --- băng giờ đo --- */
+.do-luc{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;
+  color:var(--muted);padding:8px 12px;margin:14px 0 4px;border:1px dashed var(--line2);
+  border-radius:var(--r2);background:var(--inset)}
+.do-luc b{color:var(--ok)}
+
+/* --- hàng đồng hồ: thêm cột số đo --- */
+.gauge-s{display:flex;align-items:center;gap:9px;flex:0 0 auto;margin-left:auto;padding-right:10px}
+.gauge-s b{font-family:var(--mono);font-size:14px;color:var(--fg)}
+.gauge-s .dv{font-size:10px;color:var(--dim);font-family:var(--mono)}
+.gauge-s i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
+.gauge-s i.up{color:#e3b341}
+.gauge-s i.dn{color:#3fb950}
+.spk{width:74px;height:20px;display:block;flex:0 0 auto;opacity:.9}
+
+/* --- nhãn nguồn --- */
+.pv{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:1px 6px;
+  border-radius:20px;margin-left:7px;font-weight:500;white-space:nowrap;vertical-align:1px}
+.pv.tu{background:var(--ok-d);color:#3fb950;border:1px solid #2ea04355}
+.pv.tay{background:var(--info-d);color:var(--info);border:1px solid #58a6ff55}
+.pv.chua{background:var(--inset);color:var(--dim);border:1px solid var(--line2)}
+.gauge.g-chua{opacity:.72}
+
+/* --- bảng ngưỡng --- */
+.nguong-w{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px;margin-top:14px}
+.nguong{border:1px solid var(--line);border-left:3px solid var(--a);border-radius:var(--r2);
+  padding:12px 15px;background:var(--surface)}
+.nguong b{display:block;font-size:13.5px;margin-bottom:8px}
+.nguong-v{display:flex;gap:0;margin-bottom:9px;font-family:var(--mono);font-size:10.5px;
+  border-radius:var(--r);overflow:hidden;border:1px solid var(--line2)}
+.nguong-v span{flex:1;padding:4px 7px;text-align:center;white-space:nowrap}
+.nguong-v .g{background:var(--ok-d);color:#3fb950}
+.nguong-v .y{background:var(--warn-d);color:#e3b341}
+.nguong-v .r{background:var(--dgr-d);color:#ff7b72}
+.nguong p{margin:0;font-size:12.5px;color:var(--muted)}
+.nguong-g{margin-top:8px!important;padding-top:8px;border-top:1px dashed var(--line2);
+  color:var(--fg2)!important;font-style:italic}
+
+@media(max-width:720px){
+  .gauge-s{margin-left:0;width:100%;padding:6px 0 0}
+  .spk{width:56px}
+  .trang-thai{gap:11px}
+  .tt-den i{width:7px;height:18px}
+}

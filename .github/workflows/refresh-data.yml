@@ -39,7 +39,7 @@ jobs:
     # 10,3 phút — mà job bị cắt thì BƯỚC COMMIT KHÔNG CHẠY, nên cả
     # Kinh Thành lẫn Đô Sát Viện cũng mất luôn lượt cập nhật đó dù
     # chúng đã lấy số xong từ phút đầu.
-    timeout-minutes: 25
+    timeout-minutes: 30
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
@@ -64,11 +64,16 @@ jobs:
       # ba nguồn kia đã lấy xong nằm chờ.
       #
       # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
-      # thành trang trí:  14 + 3 + 2 + 2 = 21  <  25
+      # thành trang trí:  14 + 3 + 2 + 3 + 2 = 24  <  30
+      #
+      # Cộng lại mỗi lần thêm bước. Lần thêm "Đo bảng cảnh báo" (3
+      # phút) đẩy tổng từ 21 lên 24, chỉ còn 1 phút đệm dưới trần job
+      # cũ là 25 — nên trần job nâng lên 30 trong cùng lần sửa.
       #
       # Trần đặt theo giờ chạy đo được, không đoán:
       #   L2BEAT   78s  → 3 phút
       #   Công Bộ   6s  → 2 phút
+      #   Quan Trắc ~5s bình thường, xấu nhất ~1,6 phút → 3 phút
       - name: Lấy bảng xét L2BEAT
         continue-on-error: true
         timeout-minutes: 3
@@ -115,6 +120,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: node scripts/build-tangthu.mjs
+
+      # Bảng cảnh báo sớm Đài Quan Trắc. Ba nguồn miễn phí không cần
+      # khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi
+      # tự đặt đèn xanh/vàng/đỏ. KHÔNG gọi AI — xem phần đầu
+      # scripts/build-quantrac.mjs để biết vì sao đó là lựa chọn thiết
+      # kế chứ không chỉ là chuyện tiền.
+      #
+      # Trần 3 phút: xấu nhất là 4 nguồn × (3 lần thử × 30s + nghỉ),
+      # nhưng mỗi nguồn hỏng độc lập nên thực tế không bao giờ chạm.
+      - name: Đo bảng cảnh báo Quan Trắc
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node scripts/build-quantrac.mjs
 
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
@@ -170,7 +188,8 @@ jobs:
                   cong-bo/assets/js/v/nhat-ky.js \
                   cong-bo/assets/logos/ \
                   tang-thu-cac/assets/js/data.js \
-                  tang-thu-cac/assets/data/
+                  tang-thu-cac/assets/data/ \
+                  dai-quan-trac/assets/js/do.js
           if git diff --staged --quiet; then
             echo "Số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"
