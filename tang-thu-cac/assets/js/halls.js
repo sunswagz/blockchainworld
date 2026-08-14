@@ -36,6 +36,12 @@
       note: "bộ đồ nghề",
       icon: '<path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/>' +
             '<path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
+    },
+    {
+      href: "../hoang-thanh/",
+      name: "Hoàng Thành",
+      note: "15 nền văn hoá",
+      icon: '<path d="M3 21h18M5 21V10l7-5.5L19 10v11"/><path d="M9.5 21v-5.5h5V21"/>'
     }
   ];
 

@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════
    Chuyển cung — mục "CÁC CUNG" trong thanh bên.
 
-   Công Bộ có sidebar riêng nên lối sang cung khác nằm luôn trong
-   đó, cùng kiểu với mục "Đồ nghề" ở trên. Cùng dữ liệu như ba cung
-   kia, khác cách bày.
+   Hoàng Thành có sidebar riêng nên lối sang cung khác nằm luôn
+   trong đó, cùng kiểu với mục "Trong cung" ở trên. Cùng dữ liệu
+   như các cung kia, khác cách bày.
    ═══════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -31,17 +31,18 @@
             '<path d="M7 12.4h7.2v4.4H7z"/><path d="M9.5 8h7.2v4.4H9.5z"/>'
     },
     {
-      href: "../tang-thu-cac/",
-      name: "Tàng Thư Các",
-      note: "kho tra cứu skill",
-      icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/>' +
-            '<path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
+      href: "../cong-bo/",
+      name: "Công Bộ",
+      note: "bộ đồ nghề",
+      icon: '<path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/>' +
+            '<path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
     },
     {
-      href: "../hoang-thanh/",
-      name: "Hoàng Thành",
-      note: "15 nền văn hoá",
-      icon: '<path d="M3 21h18M5 21V10l7-5.5L19 10v11"/><path d="M9.5 21v-5.5h5V21"/>'
+      href: "../tang-thu-cac/",
+      name: "Tàng Thư Các",
+      note: "kho Claude Skills",
+      icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/>' +
+            '<path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
     }
   ];
 
@@ -63,7 +64,7 @@
     a.className = "bmuc";
     a.href = h.href;
     a.title = h.name + " — " + h.note;
-    a.innerHTML = '<span class="bic">' + svg(h.icon) + "</span><span>" + h.name + "</span>";
+    a.innerHTML = '<span class="bic">' + svg(h.icon) + '</span><span class="bten">' + h.name + "</span>";
     return a;
   }
 

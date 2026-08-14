@@ -49,6 +49,12 @@
       note: "kho tra cứu Claude Skills",
       icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/>' +
             '<path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
+    },
+    {
+      href: "../hoang-thanh/",
+      name: "Hoàng Thành",
+      note: "15 nền văn hoá",
+      icon: '<path d="M3 21h18M5 21V10l7-5.5L19 10v11"/><path d="M9.5 21v-5.5h5V21"/>'
     }
   ];
 

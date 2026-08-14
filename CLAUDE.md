@@ -1,9 +1,10 @@
 # blockchainworld
 
-Repo chứa Cổng Thành (`index.html` ở gốc) và năm cung, mỗi cung là một
+Repo chứa Cổng Thành (`index.html` ở gốc) và sáu cung, mỗi cung là một
 webapp tĩnh độc lập có `index.html` riêng:
 
-    cong-bo/  dai-quan-trac/  do-sat-vien/  kinh-thanh/  tang-thu-cac/
+    cong-bo/  dai-quan-trac/  do-sat-vien/  hoang-thanh/
+    kinh-thanh/  tang-thu-cac/
 
 ## Chạy song song nhiều phiên
 
@@ -36,16 +37,25 @@ phiên nào phải đoán ai đang làm gì.
 
 ### Trước khi bắt đầu
 
-Bốn lệnh, chạy từ cây chính, mất vài giây:
+Năm lệnh, chạy từ cây chính, mất vài giây:
 
     git fetch -q
     git worktree list                 # ai đang giữ cung nào
     git status --short                # có file lạ chưa theo dõi không
     git branch -r --sort=-committerdate | head
+    npm run kiem                      # tài liệu này có còn khớp repo không
 
 `git status --short` mà thấy thư mục lạ (`?? hoang-thanh/`) thì **có phiên
 khác đang dựng dở trong cây chính**. Đừng đụng, đừng add, đừng chạy
 `npm run dist` — bản dựng sẽ dính nửa cung chưa xong.
+
+`npm run kiem` báo lệch thì xem mục **"Khi phát hiện lỗi trong chính file
+này"** ở cuối — sửa trước khi làm việc khác, vì mọi luật ở đây chỉ đúng
+khi tài liệu còn khớp thực tế.
+
+Phiên mở từ worktree cũ đang giữ bản `CLAUDE.md` cũ. Đọc bản mới nhất:
+
+    git show origin/main:CLAUDE.md | head -60
 
 ### Phạm vi sửa
 
@@ -100,6 +110,30 @@ tiếp; kết quả tự đúng. Commit tay chỉ tạo hai nguồn ghi vào cù
 Danh sách này phải khớp với các dòng `git add` trong hai workflow. Đổi
 phạm vi bên đó thì cập nhật lại đây.
 
+### Hoàng Thành là ngoại lệ — sinh bằng tay, PHẢI commit
+
+    hoang-thanh/assets/js/data.js
+    hoang-thanh/assets/js/v/
+
+Luật "đừng commit file kết quả" ở trên **không áp dụng cho cung này**, và
+lý do nằm ở chỗ nguồn:
+
+    D:\SUNSWaGz 2027\SUNSWaGz\sunswagz-hub\08_world_culture_forest
+
+Thư mục đó nằm **ngoài repo**. Actions checkout repo này ra máy ảo thì
+không có nó, nên không workflow nào quét được. Chạy tay ở máy có nguồn rồi
+commit kết quả là cách duy nhất:
+
+    npm run hoangthanh
+
+**Đừng thêm bước này vào `refresh-data.yml`.** Nó sẽ luôn thấy thiếu nguồn
+và không làm gì — một bước xanh vĩnh viễn không sinh ra gì, khó phát hiện
+hơn là một bước đỏ.
+
+Hệ quả cho `npm run dist`: dòng "rừng văn hoá Hoàng Thành: sinh cách đây N
+ngày ⚠" là **bình thường**, không phải dấu hiệu bot chết. Bốn cung kia mới
+phải tươi trong 2 ngày.
+
 Vì bot đẩy vào `main` liên tục, worktree phải nhánh từ `origin/main` chứ
 không phải HEAD local. Đó là mặc định (`worktree.baseRef: fresh`); đừng
 đổi sang `head`.
@@ -119,6 +153,7 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5176  do-sat-vien
     5177  kinh-thanh
     5178  tang-thu-cac
+    5179  hoang-thanh
 
 Luôn truyền cổng, đừng để mặc định:
 
@@ -128,7 +163,7 @@ Nhờ bảng cố định này mà hai phiên song song không bao giờ tranh c
 cả khi người dùng không nói gì về cổng.
 
 Lưu ý `server.js` phục vụ từ **gốc repo**, không phải từ thư mục cung —
-nên server nào cũng mở được cả năm cung (`/cong-bo/`, `/kinh-thanh/`, …).
+nên server nào cũng mở được cả sáu cung (`/cong-bo/`, `/kinh-thanh/`, …).
 Cổng gắn với cung là để chia chỗ giữa các phiên, không phải vì mỗi cung
 cần một server riêng. Đang sửa `cong-bo` mà muốn xem nó nối sang Cổng
 Thành thì mở `localhost:5174/` là thấy, không cần bật thêm server.
@@ -234,3 +269,88 @@ Kiểm nhanh trước khi bảo là xong:
     done
     grep -L "<cung>" index.html sw.js scripts/build-dist.mjs \
          .github/workflows/deploy-pages.yml .github/workflows/deploy-ipfs.yml
+
+## Khi phát hiện lỗi trong chính file này
+
+Tài liệu này lệch thực tế là chuyện thường: repo đổi mỗi ngày, còn nó thì
+chỉ đổi khi có người nhớ ra. Phiên nào phát hiện thì phiên đó vá — đừng để
+lại cho người sau, vì người sau sẽ tin theo bản sai.
+
+### Vá ngay, không cần hỏi
+
+Khi tài liệu **nói sai sự thật đang có** — sửa liền, đó là chữa lỗi:
+
+- `npm run kiem` báo lệch bất kỳ dòng nào
+- bảng cổng thiếu cung, hoặc hai cung cùng một số
+- danh sách file bot tự sinh không khớp `git add` trong workflow
+- đường dẫn, tên lệnh, tên file trong tài liệu đã đổi hoặc không còn
+- một luật mô tả tình huống đã hết đúng
+
+### Phải hỏi trước
+
+Khi đụng vào **cách làm việc** chứ không phải sự thật:
+
+- bỏ hoặc đổi mô hình worktree, đổi quy ước đặt tên nhánh
+- đổi ai được push lên `main`
+- nới một luật đang chặn (ví dụ cho phép `git add -A` trong trường hợp nào đó)
+- thêm luật buộc mọi phiên khác đổi thói quen
+
+Ranh giới: **sửa cho tài liệu khớp thực tế thì cứ làm; đổi thực tế thì hỏi.**
+
+### Cách vá
+
+1. `git fetch -q` rồi đọc bản mới nhất — phiên khác có thể vừa vá:
+
+       git show origin/main:CLAUDE.md
+
+2. Sửa **đúng mục sai**, đừng viết lại cả file. Viết lại là conflict chắc
+   chắn với phiên đang sửa mục khác.
+
+3. Mỗi lần vá là **một commit riêng chỉ chứa `CLAUDE.md`** (kèm
+   `scripts/kiem-quy-trinh.mjs` nếu có sửa bộ kiểm). Đừng gói chung với
+   việc của cung — người sau cần đọc lịch sử của luật mà không phải lội
+   qua diff của app.
+
+4. Chạy `npm run kiem` trước và sau khi vá.
+
+5. Push thẳng lên `main`. Đây là **ngoại lệ có chủ ý** của luật "không push
+   `main`": tài liệu chỉ có tác dụng khi ở `main`, vì worktree mới luôn
+   nhánh từ `origin/main`.
+
+6. Push bị từ chối thì `git pull --rebase` rồi soát lại, **không bao giờ
+   `--force`**.
+
+### Mỗi luật thêm vào phải trả giá
+
+Chỉ thêm luật khi có **một chuyện đã thật sự xảy ra hoặc suýt xảy ra**, và
+viết kèm:
+
+- tình huống cụ thể đã gặp
+- **hậu quả nếu làm sai** — nhất là khi hậu quả im lặng, không báo lỗi
+- một lệnh kiểm được, nếu có
+
+Không thêm luật phòng xa. Tài liệu dài vì luật giả tưởng là tài liệu không
+ai đọc hết, và không ai đọc hết thì luật thật cũng chìm theo.
+
+### File dùng chung: chỗ `git add <thư mục>` không cứu được
+
+Luật "chỉ add đúng thư mục cung" bảo vệ được file của cung, **không bảo vệ
+được `CLAUDE.md`, `index.html`, `sw.js`, `scripts/`, `package.json`** — vì
+chúng không thuộc cung nào. Hai phiên sửa cùng một file dùng chung trong
+cây chính thì git không thấy gì để ngăn.
+
+Trước khi commit một file dùng chung, đọc diff của nó:
+
+    git diff CLAUDE.md
+
+Thấy phần **không phải mình viết** thì:
+
+- **Đừng `git checkout` để "dọn cho sạch".** Đó là xoá thẳng việc chưa
+  commit của phiên khác, không khôi phục được.
+- Đọc xem phần đó đúng không. Đúng và đã xong thì commit chung, và **nói rõ
+  trong lời commit** là có mang theo sửa của phiên khác.
+- Còn dở hoặc không chắc thì dừng, hỏi người dùng.
+
+Chuyện này đã xảy ra ngay lúc viết mục này: hai phiên cùng sửa `CLAUDE.md`,
+một phiên thêm ngoại lệ Hoàng Thành, một phiên thêm mục này — cả hai đều
+đúng, và commit đầu tiên buộc phải mang cả hai.

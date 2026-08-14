@@ -23,6 +23,7 @@ on:
       - "do-sat-vien/**"
       - "cong-bo/**"
       - "tang-thu-cac/**"
+      - "hoang-thanh/**"
       - "scripts/build-dist.mjs"
       - "scripts/pin-ipfs.mjs"
   workflow_dispatch:

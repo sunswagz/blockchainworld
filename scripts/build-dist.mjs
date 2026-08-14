@@ -22,7 +22,7 @@ const DIST = join(ROOT, "dist");
 /* Cổng Thành ở gốc; mỗi cung là một thư mục có index.html riêng.
    Thêm cung mới = thêm thư mục + một dòng ở đây. */
 const GATE = ["index.html", "manifest.webmanifest", "sw.js", "assets"];
-const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac"];
+const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac", "hoang-thanh"];
 
 const TEXT = new Set([".html", ".css", ".js", ".mjs", ".json", ".webmanifest", ".svg", ".md"]);
 
@@ -128,6 +128,10 @@ await freshness("bản quét Quan Trắc", join(ROOT, "dai-quan-trac/assets/js/s
 await freshness("bảng xét Đô Sát Viện", join(ROOT, "do-sat-vien/assets/js/data.js"), "generatedAt");
 await freshness("đồ nghề Công Bộ", join(ROOT, "cong-bo/assets/js/data.js"), "generatedAt");
 await freshness("kho skill Tàng Thư Các", join(ROOT, "tang-thu-cac/assets/js/data.js"), "generatedAt");
+/* Hoàng Thành sinh bằng TAY (`npm run hoangthanh`) chứ không phải
+   workflow — nguồn nằm ngoài repo. Nên "cách đây 12 ngày" ở đây là
+   bình thường, không phải dấu hiệu bot chết. */
+await freshness("rừng văn hoá Hoàng Thành", join(ROOT, "hoang-thanh/assets/js/data.js"), "generatedAt");
 
 if (process.exitCode) {
   console.error("\nCó lỗi — KHÔNG ghi dist/. Sửa xong hãy chạy lại.");

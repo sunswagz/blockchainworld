@@ -16,7 +16,9 @@
     "deploy": "node scripts/build-dist.mjs && node scripts/pin-ipfs.mjs",
     "check": "node scripts/check.mjs",
     "congbo": "node scripts/build-congbo.mjs",
-    "tangthu": "node scripts/build-tangthu.mjs"
+    "tangthu": "node scripts/build-tangthu.mjs",
+    "hoangthanh": "node scripts/build-hoangthanh.mjs",
+    "kiem": "node scripts/kiem-quy-trinh.mjs"
   },
   "engines": {
     "node": ">=18"

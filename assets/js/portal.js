@@ -94,6 +94,19 @@
     })
     .catch(function () {});
 
+  // Hoàng Thành: data.js ~380 KB, ngày và tổng số chương nằm ở đoạn đầu.
+  // Khác bốn cung trên ở chỗ file này KHÔNG do workflow sinh — nguồn nằm
+  // ngoài repo nên phải chạy `npm run hoangthanh` bằng tay rồi commit.
+  dauFile("hoang-thanh/assets/js/data.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("htDate", "cập nhật " + m[1]);
+      var n = t.match(/"xong":\s*(\d+)/);
+      if (n) stamp("htSo", Number(n[1]).toLocaleString("vi-VN") + " chương");
+    })
+    .catch(function () {});
+
   // đếm số cung đã dựng, lấy từ chính DOM
   var built = document.querySelectorAll(".hall:not([data-soon])").length;
   stamp("hallCount", String(built).padStart(2, "0"));
