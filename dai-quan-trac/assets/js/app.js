@@ -19,10 +19,34 @@ const state = {
   filter:'all',
   scanning:false
 };
+/* Mỗi mắt xích trong CHAIN PHẢI có một dòng ở đây, không thì lvOf()
+   đọc undefined[0] và cả trang trắng. Thêm mắt xích mà quên dòng này
+   là lỗi chết ngay — có kiểm tự động ở cuối file để không quên. */
 const CHAIN_SRC = {hormuz:['th','hormuz'],gia_dau:['gg','nangluong'],tq:['th','tq'],dauvao:['gg','tq'],
-  cpi:['max','nangluong','tq'],tygia:['gg','tygia'],laisuat:['gg','laisuat'],tindung:['gg','nganhang'],
+  cpi:['max','nangluong','tq'],
+  hangrao:['max','xuatkhau','xuatxu'],phisan:['gg','san'],bienloi:['max','san','xuatkhau'],
+  sangloc:['gg','doanhnghiep'],vieclam:['gg','doanhnghiep'],
+  tygia:['gg','tygia'],laisuat:['gg','laisuat'],tindung:['gg','nganhang'],
   bds:['gg','bds'],niemtin:['gg','niemtin'],hanhvi:['gg','niemtin']};
 const RANK={n:0,g:1,y:2,r:3};
+
+/* Tự soi lúc nạp: mắt xích thiếu nguồn, hoặc nguồn trỏ tới đồng hồ /
+   chiến trường không tồn tại. Cả ba lỗi này đều làm trang trắng hoặc
+   sáng sai mức mà không có thông báo nào. Rẻ, chạy một lần, và nói rõ
+   sai ở đâu thay vì để "Cannot read properties of undefined". */
+(function kiemMach(){
+  const co = new Set(GAUGES.map(g=>g.id)), ct = new Set(THEATERS.map(t=>t.id)), loi=[];
+  CHAIN.forEach(c=>{
+    const s=CHAIN_SRC[c.id];
+    if(!s){ loi.push('mắt xích "'+c.id+'" thiếu dòng trong CHAIN_SRC'); return; }
+    if(s[0]==='th'){ if(!ct.has(s[1])) loi.push('"'+c.id+'" trỏ tới chiến trường không có: '+s[1]); }
+    else s.slice(1).forEach(g=>{ if(!co.has(g)) loi.push('"'+c.id+'" trỏ tới đồng hồ không có: '+g); });
+  });
+  Object.keys(CHAIN_SRC).forEach(id=>{
+    if(!CHAIN.some(c=>c.id===id)) loi.push('CHAIN_SRC thừa dòng "'+id+'" — không mắt xích nào dùng');
+  });
+  if(loi.length) console.error('[Đài Quan Trắc] mạch truyền dẫn lệch:\n  · '+loi.join('\n  · '));
+})();
 function lvOf(chainId){
   const s=CHAIN_SRC[chainId];
   if(s[0]==='th') return state.th[s[1]];
@@ -73,8 +97,8 @@ function hideToast(){ $('#toast').classList.remove('on'); }
 const ROUTES = [
   {g:'Quan trắc', items:[
     {id:'flow',   t:'Dòng chảy',        ic:'flow',   sub:'REALTIME'},
-    {id:'chain',  t:'Mạch truyền dẫn',  ic:'chain',  sub:'11 MẮT XÍCH'},
-    {id:'gauges', t:'Bảng cảnh báo sớm',ic:'gauge',  sub:'8 ĐỒNG HỒ'}
+    {id:'chain',  t:'Mạch truyền dẫn',  ic:'chain',  sub:CHAIN.length+' MẮT XÍCH'},
+    {id:'gauges', t:'Bảng cảnh báo sớm',ic:'gauge',  sub:GAUGES.length+' ĐỒNG HỒ'}
   ]},
   {g:'Chiến trường', items: THEATERS.map(t=>({id:'th/'+t.id, t:t.name, ic:t.ic, sub:t.role.toUpperCase(), th:t.id}))},
   {g:'Mô hình', items:[
@@ -198,7 +222,7 @@ function vFlow(){
 
 /* ---------- MẠCH TRUYỀN DẪN (chữ ký) ---------- */
 function vChain(){
-  head('Mạch truyền dẫn','11 MẮT XÍCH · THƯỢNG NGUỒN → HẠ NGUỒN');
+  head('Mạch truyền dẫn',CHAIN.length+' MẮT XÍCH · THƯỢNG NGUỒN → HẠ NGUỒN');
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Chương XX · chuỗi khóa vào nhau</div>'+
    '<h2 class="big">Cú sốc chạy qua đâu để tới cái ví của bạn</h2>'+
@@ -319,7 +343,9 @@ function vTheater(id){
   if(t.ascii){ const p=el('pre','ascii',esc(t.ascii)); p.style.marginTop='14px'; w.appendChild(p); }
 
   if(t.layers){
-    w.appendChild(el('h3','sec','Hai tầng truyền dẫn'));
+    /* Tiêu đề từ dữ liệu: bản đầu viết cứng 'Hai tầng truyền dẫn', nên
+       thêm tầng thứ ba là tiêu đề nói sai mà không có gì báo. */
+    w.appendChild(el('h3','sec',t.layersH||'Các tầng truyền dẫn'));
     const g=el('div','grid g2');
     t.layers.forEach(L=>{ const c=el('div','card');
       c.innerHTML='<div class="card-h"><b>'+esc(L.n.toUpperCase())+'</b></div><div class="card-b"><b style="display:block;margin-bottom:6px">'+esc(L.t)+'</b><p class="muted" style="margin:0;font-size:12.5px">'+esc(L.d)+'</p></div>';
@@ -342,6 +368,24 @@ function vTheater(id){
       g.appendChild(c); });
     w.appendChild(g);
   }
+  /* Khối "nhiều cơ chế song song". Đặt SAU layers/circuits/buffers:
+     khung phân tích trước, số đọc được sau — không thì Việt Nam hiện
+     thẻ số liệu trước cả bốn tầng truyền dẫn giải thích chúng.
+     Tiêu đề lấy từ dữ liệu, không viết cứng như 'Hai tầng truyền dẫn'
+     / 'Ba mạch': thêm một mục là tiêu đề nói sai mà không ai báo.
+     tt = trạng thái, để phân biệt cái ĐANG ÁP với cái mới ĐANG ĐIỀU
+     TRA — gộp hai loại đó làm một là chỗ dễ đọc sai nhất của hồ sơ Mỹ. */
+  if(t.mechs){
+    w.appendChild(el('h3','sec',t.mechs.h));
+    const g=el('div','grid g2');
+    t.mechs.ds.forEach(m=>{ const c=el('div','card');
+      c.innerHTML='<div class="card-h"><b>'+esc(m.t)+'</b><span class="chip '+(m.c||'')+'">'+esc(m.tt)+'</span></div>'+
+        '<div class="card-b"><div class="mono" style="font-size:16px;color:var(--fg);margin-bottom:7px">'+esc(m.ma)+'</div>'+
+        '<p class="muted" style="margin:0;font-size:12.5px">'+m.d+'</p></div>';
+      g.appendChild(c); });
+    w.appendChild(g);
+  }
+
   if(t.keypoint){ const q=el('blockquote'); q.innerHTML=t.keypoint; q.style.marginTop='18px'; w.appendChild(q); }
   if(t.danger){ const q=el('blockquote'); q.innerHTML=t.danger; q.style.borderLeftColor='var(--dgr)'; q.style.background='#f0503f0d'; q.style.marginTop='14px'; w.appendChild(q); }
 
@@ -450,7 +494,7 @@ function vSrc(){
    '<p class="lede">Một bảng quan trắc chỉ dùng được nếu biết rõ dòng nào là dữ liệu, dòng nào là phán đoán. Đây là chỗ tách bạch điều đó.</p>';
 
   const g=el('div','grid g3');
-  [['Khung phân tích','Toàn bộ mạch truyền dẫn, 4 cấp độ, kịch bản A/B/C, thư viện 6 cụm — trích và phân loại từ hồ sơ bạn cung cấp. Cố định, không tự đổi.','b'],
+  [['Khung phân tích','Toàn bộ mạch truyền dẫn, 4 cấp độ, kịch bản A/B/C, thư viện '+LIB.length+' cụm — trích và phân loại từ hồ sơ bạn cung cấp. Cố định, không tự đổi.','b'],
    ['Bảng đồng hồ','Do bạn tự đặt. Không có nguồn tự động nào ghi vào đây. Màu bạn chọn là phán đoán của bạn.','p'],
    ['Dòng chảy','Chỉ được lấp đầy bằng kết quả quét trực tiếp qua tìm kiếm web. Trống nếu chưa quét — không có dữ liệu giả lập.','g']
   ].forEach(([t,d,c])=>{ const k=el('div','card');
@@ -613,7 +657,12 @@ function drawCmd(){
 /* ============================================================
    KHỞI ĐỘNG
    ============================================================ */
-const BOOTLN=['khởi tạo đài quan trắc…','nạp 6 cụm hồ sơ nền · 114 mục','dựng mạch truyền dẫn 11 mắt xích','hiệu chỉnh 8 đồng hồ cảnh báo','mở dòng chảy 5 chiến trường','sẵn sàng'];
+/* Đếm từ chính dữ liệu. Bản đầu viết cứng "11 mắt xích / 8 đồng hồ /
+   5 chiến trường"; thêm mắt xích hay chiến trường là màn khởi động
+   nói sai ngay từ giây đầu mà không có gì báo. */
+const BOOTLN=['khởi tạo đài quan trắc…','nạp '+LIB.length+' cụm hồ sơ nền',
+  'dựng mạch truyền dẫn '+CHAIN.length+' mắt xích','hiệu chỉnh '+GAUGES.length+' đồng hồ cảnh báo',
+  'mở dòng chảy '+THEATERS.length+' chiến trường','sẵn sàng'];
 function boot(){
   const b=$('#boot'); const red=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   if(red){ b.classList.add('off'); setTimeout(()=>b.remove(),300); return; }

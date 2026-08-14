@@ -1,6 +1,6 @@
 name: Quét Đài Quan Trắc
 
-# Gọi Claude + web_search để quét 5 chiến trường, ghi kết quả ra
+# Gọi Claude + web_search để quét từng chiến trường, ghi kết quả ra
 # dai-quan-trac/assets/js/scan.js rồi commit.
 #
 # Khoá API ở lại đây, trong Secrets. Trang chạy trên GitHub Pages
@@ -52,7 +52,7 @@ jobs:
           echo "Chưa cấu hình secret ANTHROPIC_API_KEY — bỏ qua lần quét."
           echo "Thêm ở Settings → Secrets and variables → Actions."
 
-      - name: Quét 5 chiến trường
+      - name: Quét các chiến trường
         if: env.ANTHROPIC_API_KEY != ''
         run: node scripts/build-scan.mjs
 

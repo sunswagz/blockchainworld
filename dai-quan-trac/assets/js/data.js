@@ -3,7 +3,7 @@
 
 /* ============================================================
    ĐÀI QUAN TRẮC — dữ liệu đã phân loại từ hồ sơ nguồn
-   6 cụm chủ đề · 5 chiến trường · 8 đồng hồ · 11 mắt xích
+   7 cụm chủ đề · 6 chiến trường · 11 đồng hồ · 16 mắt xích
    ============================================================ */
 
 const IC = {
@@ -35,7 +35,7 @@ const THEATERS = [
     lede:'Không phải nguồn dầu — là cái cổ chai. Mọi thùng dầu đi bằng đường biển từ Vùng Vịnh đều phải chui qua đây. Nghẽn ở đây không làm mất dầu, nó làm <b>đắt dầu ở mọi nơi cùng lúc</b>.',
     mech:['GIÁ DẦU THẾ GIỚI ↑','phí bảo hiểm chiến tranh + cước tàu ↑','xăng dầu · logistics · xây dựng · vận tải · sản xuất VN ↑','CPI Việt Nam ↑'],
     ascii:'TRUNG ĐÔNG / HORMUZ\n        ↓\nGIÁ DẦU THẾ GIỚI ↑\n        ↓\nxăng dầu / logistics / xây dựng /\nvận tải / sản xuất Việt Nam ↑',
-    keypoint:'Việt Nam có một đường nhạy cảm <b>trực tiếp</b> với địa chính trị năng lượng, không chỉ đi vòng qua Trung Quốc. Nghi Sơn — theo Bộ Công Thương cung cấp khoảng 40% nhu cầu xăng dầu trong nước — phải tìm nguồn dầu thô thay thế khi Hormuz gián đoạn.',
+    keypoint:'Đây không còn là kịch bản lý thuyết. EIA ngày 11/8/2026 ước tính dòng dầu qua Hormuz chỉ khoảng <b>4,9 triệu thùng/ngày trong quý II/2026</b>, so với <b>21,6 triệu</b> trước xung đột, và giả định vận chuyển tiếp tục bị hạn chế nghiêm trọng trong tháng 8; EIA dự báo Brent trung bình khoảng <b>85 USD/thùng</b> trong quý III. IEA ngày 12/8 cũng mô tả nguồn cung vùng Vịnh còn thấp hơn nhiều so với trước chiến tranh.<br><br>Việt Nam có một đường nhạy cảm <b>trực tiếp</b> với địa chính trị năng lượng, không chỉ đi vòng qua Trung Quốc. Nghi Sơn — theo Bộ Công Thương cung cấp khoảng 40% nhu cầu xăng dầu trong nước — phải tìm nguồn dầu thô thay thế khi Hormuz gián đoạn.',
     clocks:['Giá dầu Brent (USD/thùng)','Phí bảo hiểm chiến tranh cho tàu chở dầu','Lưu lượng tàu qua eo biển','Tồn kho & nguồn dầu thô của Nghi Sơn','Giá xăng dầu bán lẻ trong nước'],
     hits:['Trực tiếp vào Việt Nam qua giá nhiên liệu và an ninh xăng dầu nội địa','Gián tiếp qua chi phí nhập khẩu đường biển của Trung Quốc'],
     scen:'Kịch bản A — sốc giá toàn cầu'
@@ -70,8 +70,17 @@ const THEATERS = [
       {t:'Đường ống',d:'Một phần dầu vào bằng ống từ Nga và láng giềng, giảm phụ thuộc tuyệt đối vào đường biển.'},
       {t:'Quy mô nhà nước',d:'Điều phối được DNNN năng lượng, hạn ngạch nhập, kho dự trữ, tín dụng, một phần giá, và logistics.'}
     ],
-    clocks:['Nhập khẩu dầu thô (triệu thùng/ngày)','Giá điện & sản lượng than','PMI sản xuất','Giá xuất xưởng (PPI)','Giá hàng trung gian xuất sang VN'],
-    hits:['Là tầng truyền dẫn số 2 tới Việt Nam — qua giá đầu vào công nghiệp','Đồng thời là đối thủ cạnh tranh và nguồn dịch chuyển đơn hàng/FDI'],
+    mechs:{ h:'Bị Mỹ ép, dòng chảy Trung Quốc đổi hướng — ba loại rất khác nhau', ds:[
+      {ma:'A', t:'Chuyển nhà máy sang Việt Nam', tt:'hợp pháp', c:'g',
+       d:'Nếu quá trình sản xuất tạo ra giá trị thật tại Việt Nam. Riêng Bắc Ninh, Trung Quốc hiện đứng <b>đầu về số lượng dự án FDI</b> và thứ ba về tổng vốn với trên 11 tỷ USD; nhiều doanh nghiệp tiếp tục khảo sát dự án AI, điện tử, trung tâm dữ liệu.'},
+      {ma:'B', t:'Kéo dài chuỗi sang Việt Nam', tt:'hợp pháp', c:'g',
+       d:'Nhập linh kiện Trung Quốc rồi sản xuất tại Việt Nam <b>không tự động là gian lận xuất xứ</b>. Nếu đáp ứng quy tắc xuất xứ / substantial transformation thì hoàn toàn hợp lệ. Đây là chỗ dễ đọc sai nhất của cả hồ sơ.'},
+      {ma:'C', t:'Chuyển tải, giả xuất xứ', tt:'vi phạm', c:'r',
+       d:'Chỉ đổi nhãn hoặc xử lý không đủ rồi khai xuất xứ Việt Nam để né thuế. Tháng 7/2026 quan chức hải quan Mỹ được báo cáo đã kiểm tra đột xuất một số nhà máy tại Việt Nam có liên hệ với Trung Quốc. Nhưng chính báo cáo đó cũng nói <b>không có bằng chứng đáng kể cho thấy chuyển tải bất hợp pháp diễn ra trên diện rộng</b>, và Reuters lưu ý họ chưa tự xác minh được.'}
+    ]},
+    keypoint:'Tháng 7/2026 xuất khẩu Trung Quốc vẫn tăng <b>23,9%</b> so với cùng kỳ nhờ hàng công nghệ cao và AI, dù nhu cầu nội địa còn yếu. Nghĩa là Mỹ ép Trung Quốc <b>không làm Trung Quốc biến mất</b> — nó làm dòng vốn, nhà máy và hàng hoá <b>đổi tuyến</b>. Và Việt Nam nằm ngay phía nam. Việt Nam vì thế nhận <b>hai mặt của cùng một dòng chảy</b>: FDI, việc làm, công nghệ, hạ tầng khu công nghiệp — đồng thời là cạnh tranh nội địa gay gắt hơn, phụ thuộc đầu vào sâu hơn, và bị Mỹ soi xuất xứ kỹ hơn.',
+    clocks:['Nhập khẩu dầu thô (triệu thùng/ngày)','Giá điện & sản lượng than','PMI sản xuất','Giá xuất xưởng (PPI)','Giá hàng trung gian xuất sang VN','FDI Trung Quốc đăng ký vào Việt Nam','Tần suất Mỹ kiểm tra nhà máy có liên hệ Trung Quốc'],
+    hits:['Là tầng truyền dẫn số 2 tới Việt Nam — qua giá đầu vào công nghiệp','Nguồn dịch chuyển nhà máy và FDI — mặt được của dòng chảy','Đối thủ cạnh tranh ngay tại thị trường nội địa Việt Nam, kể cả bán thẳng qua sàn','Kéo theo rủi ro xuất xứ mà phía Mỹ đang soi'],
     scen:'Trung tâm của cả kịch bản A lẫn B'
   },
   {
@@ -80,27 +89,87 @@ const THEATERS = [
     acc:'#d4a72c',
     query:'Vietnam economy exports credit growth real estate bond interest rate exchange rate',
     lede:'Cách nói đúng không phải "tất cả đang cùng đánh Việt Nam", mà là: <b>Việt Nam nằm đúng giao điểm của nhiều hệ thống, nên một số cú sốc khác nguồn có khả năng cùng hội tụ tại đây.</b>',
+    layersH:'Bốn tầng truyền dẫn — hai từ đầu vào, một từ đầu ra, một từ bên trong',
     layers:[
       {n:'Tầng truyền dẫn 1',t:'Trực tiếp qua giá năng lượng toàn cầu',d:'Hormuz/Trung Đông sốc → giá dầu thế giới ↑ → xăng dầu, logistics, xây dựng, vận tải, sản xuất trong nước ↑. Cộng thêm ràng buộc an ninh xăng dầu nội địa.'},
-      {n:'Tầng truyền dẫn 2',t:'Gián tiếp qua Trung Quốc',d:'Nga/Hormuz sốc → chi phí công nghiệp Trung Quốc ↑ → đầu vào sang Việt Nam ↑ → chi phí sản xuất ↑ → bào mòn biên lợi nhuận, hàng Việt bớt cạnh tranh.'}
+      {n:'Tầng truyền dẫn 2',t:'Gián tiếp qua Trung Quốc',d:'Nga/Hormuz sốc → chi phí công nghiệp Trung Quốc ↑ → đầu vào sang Việt Nam ↑ → chi phí sản xuất ↑ → bào mòn biên lợi nhuận, hàng Việt bớt cạnh tranh.'},
+      {n:'Tầng truyền dẫn 3',t:'Đầu ra qua hàng rào Mỹ',d:'Không chỉ thuế 20%: cộng thêm 12,5% Section 301 lao động, rủi ro 40% nếu bị xác định chuyển tải, AD/CVD theo ngành, và một cuộc điều tra Section 301 về sở hữu trí tuệ chưa có kết quả. Chi phí tuân thủ hồ sơ tăng song song với chi phí thuế.'},
+      {n:'Tầng truyền dẫn 4',t:'Bên trong qua kênh phân phối',d:'Hai sàn nắm gần 98% thị trường TMĐT lớn, tổng chi phí bán hàng ước tính lên khoảng 33,8% giá trị đơn năm 2026, trong khi hàng Trung Quốc bán thẳng cho người Việt. Người bán nội địa bị kẹp cả giá vốn lẫn phí kênh.'}
     ],
-    clocks:['Lãi suất vay mua nhà','Số lượng giao dịch bất động sản','Tỷ lệ hấp thụ dự án mới','Giá thứ cấp (không phải giá rao bán)','Nợ xấu & xử lý tài sản bảo đảm'],
-    danger:'Dấu hiệu đáng ngại nhất không phải "giá rao bán giảm 5%", mà là <b>giao dịch giảm + lãi suất tăng + số người buộc phải bán vì nợ tăng — cùng lúc</b>.',
-    hits:['Bị đánh trực tiếp qua nhiên liệu và CPI','Bị đánh gián tiếp qua đầu vào từ Trung Quốc','Bị đánh ở đầu ra qua nhu cầu và thuế của Mỹ/EU','Bị khuếch đại từ bên trong qua ngân hàng – BĐS – niềm tin'],
+    mechs:{ h:'Bên trong: không phải sụp, mà là sàng lọc', ds:[
+      {ma:'≈155.000', t:'Doanh nghiệp rời thị trường', tt:'7 tháng đầu 2026', c:'r',
+       d:'87.518 tạm ngừng có thời hạn, 36.618 chờ giải thể, 31.189 đã giải thể.'},
+      {ma:'187.173', t:'Doanh nghiệp vào thị trường', tt:'cùng kỳ', c:'g',
+       d:'125.923 thành lập mới và 61.250 quay trở lại — <b>nhiều hơn số rời đi</b>. Nên không thể gọi đây là "đóng cửa hàng loạt"; đúng hơn là vừa mở mới rất mạnh vừa đào thải rất mạnh.'},
+      {ma:'38,06 tỷ', t:'FDI đăng ký', tt:'7 tháng đầu 2026', c:'g',
+       d:'Tăng mạnh so với cùng kỳ. Dòng vốn lớn vẫn đang vào, nhưng doanh nghiệp nhỏ, biên mỏng, phụ thuộc sàn hoặc phụ thuộc nợ có thể bị ép ra ngoài nhanh hơn.'},
+      {ma:'+42% · 25,5%', t:'Tín dụng bất động sản', tt:'World Bank, năm 2025', c:'y',
+       d:'Tín dụng BĐS tăng 42% trong năm 2025 và chiếm 25,5% tổng dư nợ; hệ thống ngân hàng gặp áp lực nguồn vốn, từng phải cạnh tranh huy động 6–12 tháng ở khoảng 6–8% vào tháng 3/2026.'},
+      {ma:'−3% / −6%', t:'Giá căn hộ sơ cấp TP.HCM', tt:'CBRE, 12/8/2026', c:'y',
+       d:'Quý II giảm 3% theo quý và 6% theo năm; người mua nhà thận trọng hơn trong môi trường lãi suất cao.'},
+      {ma:'−30%', t:'Đề xuất giảm thuế thu nhập', tt:'Chính phủ, 10/8/2026', c:'b',
+       d:'Đề xuất giảm 30% thuế thu nhập cho một số doanh nghiệp nhỏ và hộ kinh doanh — cho thấy chính nhóm bị ép biên đang trở thành vấn đề chính sách.'}
+    ]},
+    clocks:['Lãi suất vay mua nhà','Số lượng giao dịch bất động sản','Tỷ lệ hấp thụ dự án mới','Giá thứ cấp (không phải giá rao bán)','Nợ xấu & xử lý tài sản bảo đảm','Số doanh nghiệp rời so với số vào thị trường','Tỷ trọng tín dụng bất động sản trên tổng dư nợ'],
+    danger:'Dấu hiệu đáng ngại nhất không phải "giá rao bán giảm 5%", mà là <b>giao dịch giảm + lãi suất tăng + số người buộc phải bán vì nợ tăng — cùng lúc</b>. Và ở tầng doanh nghiệp, con số cần nhìn không phải "155.000 rời đi" đứng một mình, mà là <b>tỷ lệ giữa số rời và số vào</b> — hiện số vào vẫn nhiều hơn.',
+    hits:['Bị đánh trực tiếp qua nhiên liệu và CPI','Bị đánh gián tiếp qua đầu vào từ Trung Quốc','Bị siết ở đầu ra qua thuế, xuất xứ và sở hữu trí tuệ của Mỹ','Bị ép biên ngay trong nước qua phí sàn và hàng Trung Quốc bán trực tiếp','Bị khuếch đại từ bên trong qua ngân hàng – BĐS – niềm tin'],
     scen:'Điểm hạ lưu của cả ba kịch bản'
   },
   {
     id:'my', ic:'eagle', flag:'🦅', name:'Hoa Kỳ', short:'Hoa Kỳ',
-    role:'Phía đầu ra — thuế, nhu cầu, và cái giá của đồng USD',
+    role:'Phía đầu ra — không chỉ thuế, mà nhiều cơ chế pháp lý song song',
     acc:'#58a6ff',
-    query:'US tariffs Vietnam trade Federal Reserve interest rate dollar consumer demand',
-    lede:'Ba chiến trường kia đánh vào <b>đầu vào</b> của Việt Nam. Mỹ đánh vào <b>đầu ra</b> — và đánh thêm một đường thứ hai qua lãi suất USD.',
-    mech:['nhu cầu tiêu dùng Mỹ ↓ → đơn hàng xuất khẩu VN ↓','thuế quan ↑ → biên lợi nhuận nhà máy VN ↓','lãi suất USD ↑ → áp lực tỷ giá VND','tỷ giá căng → lãi suất VN khó giảm'],
-    ascii:'USD / LÃI SUẤT MỸ        THƯƠNG MẠI / THUẾ\n        ↓                        ↓\n   TỶ GIÁ VND              XUẤT KHẨU VN ↓\n        ↓                        ↓\n   LÃI SUẤT VN            DOANH THU DN ↓\n        └───────────┬────────────┘\n                    ↓\n              THU NHẬP / VIỆC LÀM',
-    keypoint:'Đây là đường truyền dẫn có thể đánh vào bất động sản Việt Nam <b>mà không cần liên quan trực tiếp đến nhà đất</b>: nó đi qua đơn hàng, thu nhập, tỷ giá và lãi suất trước.',
-    clocks:['Chính sách thuế quan với hàng Việt Nam','Lãi suất điều hành của Fed','Chỉ số USD và tỷ giá USD/VND','Doanh số bán lẻ & tồn kho Mỹ','Kim ngạch xuất khẩu VN sang Mỹ'],
-    hits:['Đầu ra: đơn hàng và thuế','Tài chính: USD, tỷ giá, mặt bằng lãi suất'],
+    query:'USTR Vietnam Section 301 tariff Special 301 intellectual property transshipment origin',
+    lede:'Ba chiến trường kia đánh vào <b>đầu vào</b> của Việt Nam. Mỹ đánh vào <b>đầu ra</b>. Nhưng cách nói "Mỹ áp thuế 20%" là chưa đủ: Việt Nam đang cùng lúc nằm trong <b>nhiều cơ chế thương mại – sở hữu trí tuệ – lao động – xuất xứ</b> khác nhau, mỗi cơ chế có luật riêng, mốc thời gian riêng và có thể cộng dồn.',
+    mech:['nhu cầu tiêu dùng Mỹ ↓ → đơn hàng xuất khẩu VN ↓','thuế quan cộng dồn ↑ → biên lợi nhuận nhà máy VN ↓','kiểm tra xuất xứ chặt hơn → chi phí tuân thủ và rủi ro hồ sơ ↑','lãi suất USD ↑ → áp lực tỷ giá VND','tỷ giá căng → lãi suất VN khó giảm'],
+    ascii:'MỘT MẶT HÀNG KHÔNG ĐƯỢC MIỄN,\nTHUỘC CẢ HAI CƠ CHẾ:\n\n  Thuế đối ứng            +20%\n  Section 301 lao động  +12,5%\n                        ───────\n  THUẾ BỔ SUNG          +32,5%\n\nCHƯA TÍNH: thuế MFN thông thường ·\nAD/CVD nếu mặt hàng bị áp ·\nSection 232 nếu thuộc ngành liên quan',
+    mechs:{ h:'Các cơ chế Mỹ đang áp hoặc đang mở với Việt Nam', ds:[
+      {ma:'20%', t:'Thuế đối ứng', tt:'đang áp', c:'r',
+       d:'USTR xác nhận Mỹ duy trì thuế đối ứng 20% với hàng có xuất xứ Việt Nam, theo khung thoả thuận thương mại; một số danh mục thuộc diện miễn hoặc được điều chỉnh.'},
+      {ma:'+12,5%', t:'Section 301 — lao động cưỡng bức', tt:'đang áp từ 24/7/2026', c:'r',
+       d:'Federal Register ghi đích danh Việt Nam ở mức 12,5%, trong cuộc điều tra về việc các nền kinh tế không có hoặc không thực thi hiệu quả lệnh cấm nhập hàng sản xuất bằng lao động cưỡng bức. Quy định Mỹ nói khoản này <b>có thể cộng với các khoản bổ sung khác trong Chapter 99</b>. Đây <b>không phải</b> kết luận rằng toàn bộ hàng Việt được làm bằng lao động cưỡng bức.'},
+      {ma:'PFC', t:'Special 301 — sở hữu trí tuệ', tt:'xếp loại', c:'y',
+       d:'Báo cáo Special 301 2026 xếp Việt Nam vào <b>Priority Foreign Country</b> — mức nghiêm trọng nhất, và là nước duy nhất ở nhóm này trong báo cáo 2026; USTR nói đây là lần đầu sau 13 năm họ dùng tới nhóm đó. Năm nhóm quan ngại: vi phạm bản quyền trực tuyến, hàng giả, thực thi tại biên giới, phần mềm không phép, và xâm phạm tín hiệu truyền hình.'},
+      {ma:'?', t:'Section 301 — điều tra IP riêng', tt:'đang điều tra', c:'y',
+       d:'Ngày 29/5/2026 USTR mở điều tra Section 301 về bảo vệ và thực thi sở hữu trí tuệ của Việt Nam. Thời hạn thông thường để ra xác định là sáu tháng kể từ khi mở, có thể gia hạn thêm ba tháng. <b>Chưa có quyết định cuối cùng</b> — đây là quả chưa nổ, không phải khoản thuế đang tồn tại.'},
+      {ma:'40%', t:'Chuyển tải né thuế', tt:'áp khi bị xác định', c:'y',
+       d:'Executive Order 14326: hàng bị CBP xác định là <i>transshipped to evade duties</i> chịu mức bổ sung 40% thay cho thuế đối ứng thông thường, cùng các chế tài khác. Điều kiện là <b>bị xác định lách xuất xứ</b>, không phải cứ dùng nguyên liệu Trung Quốc.'},
+      {ma:'AD/CVD', t:'Biện pháp theo từng ngành', tt:'đang áp với một số ngành', c:'y',
+       d:'Ngoài thuế cấp quốc gia còn có biện pháp theo ngành. Rõ nhất là pin mặt trời: Bộ Thương mại Mỹ và USITC đã có kết luận với solar cells/modules từ Việt Nam, dẫn tới lệnh chống bán phá giá / chống trợ cấp. Vì vậy cấu trúc thuế của hai doanh nghiệp có thể rất khác nhau.'},
+      {ma:'—', t:'Danh sách theo dõi tiền tệ', tt:'giám sát, không phải trừng phạt', c:'b',
+       d:'Ngày 23/7/2026 Bộ Tài chính Mỹ vẫn để Việt Nam trong Monitoring List cùng Trung Quốc, Nhật, Hàn, Đài Loan, Thái Lan, Singapore và vài nền kinh tế châu Âu. Nhưng <b>Mỹ không kết luận Việt Nam thao túng tiền tệ</b>. Đây là giám sát, không phải một lệnh trừng phạt.'},
+      {ma:'NTE', t:'Các "ổ cắm" ngoài hàng hoá', tt:'đang đàm phán', c:'b',
+       d:'Báo cáo NTE 2026 cho thấy Washington còn gây sức ép ở thương mại số, dữ liệu xuyên biên giới, an ninh mạng, dịch vụ tài chính và thanh toán, mua sắm công, sở hữu nước ngoài, doanh nghiệp nhà nước, lao động, môi trường và hải quan. Nói cách khác: Mỹ không chỉ đánh vào <b>giá hàng hoá</b>, mà muốn đổi một phần <b>luật chơi phía sau</b> hàng hoá.'}
+    ]},
+    keypoint:'Vì sao Việt Nam vào tầm ngắm mạnh đến vậy, một con số giải thích phần lớn: năm 2025 Mỹ xuất sang Việt Nam <b>15,7 tỷ USD</b> nhưng nhập từ Việt Nam <b>193,8 tỷ USD</b> — thâm hụt <b>178,2 tỷ USD</b>, và theo chính USTR con số này tăng <b>44,3%</b> so với 2024. Ở góc nhìn chính sách tái cân bằng thương mại, Việt Nam trở thành đối tượng rất tự nhiên.',
+    danger:'Đọc cho đúng: <b>xếp loại PFC là kết luận hành chính của USTR về mức độ thực thi</b>, không phải một phán quyết đạo đức về người Việt. Và mức 12,5% dựa trên cơ chế kiểm soát nhập khẩu hàng có lao động cưỡng bức, <b>không</b> phải kết luận rằng hàng Việt nói chung được sản xuất bằng lao động cưỡng bức. Con số 32,5% cũng là <b>điểm phần trăm thuế bổ sung</b> cho một mặt hàng thuộc cả hai diện, không phải tổng thuế mà mọi hàng Việt đều đóng — mã HS và các diện miễn quyết định mức thực tế.',
+    clocks:['Kết quả điều tra Section 301 về sở hữu trí tuệ','Danh mục được miễn / không miễn của từng cơ chế','Tần suất CBP kiểm tra xuất xứ hàng từ Việt Nam','Các vụ AD/CVD mới theo ngành','Lãi suất điều hành của Fed và tỷ giá USD/VND','Kim ngạch xuất khẩu VN sang Mỹ và thâm hụt song phương'],
+    hits:['Đầu ra: thuế cộng dồn làm giá hàng vào Mỹ đắt lên','Hồ sơ: xuất xứ, sở hữu trí tuệ, lao động — chi phí tuân thủ chứ không chỉ chi phí thuế','Tài chính: USD, tỷ giá, mặt bằng lãi suất','Thể chế: các đòi hỏi về dữ liệu, thanh toán, mua sắm công, DNNN'],
     scen:'Biến số nằm ngoài trục năng lượng — có thể cộng hưởng với A hoặc B'
+  },
+  {
+    id:'san', ic:'flow', flag:'🛒', name:'Sàn thương mại điện tử', short:'Sàn TMĐT',
+    role:'Kênh phân phối nội địa — nơi biên lợi nhuận bị ép từ bên trong',
+    acc:'#a371f7',
+    query:'Shopee TikTok Shop Vietnam seller fees commission market share e-commerce growth',
+    lede:'Bốn chiến trường trên đều ở <b>ngoài biên giới</b>. Đường này nằm hẳn <b>bên trong</b> Việt Nam, và nó ép đúng chỗ mà thuế quan không với tới: người bán nội địa. Hai nền tảng hiện nắm gần như toàn bộ thương mại điện tử lớn, nên mức phí họ đặt ra không còn là chuyện thương lượng của từng shop.',
+    mech:['sàn tăng phí → chi phí bán hàng của người bán ↑','hàng Trung Quốc bán thẳng qua sàn → áp lực giảm giá ↑','giá vốn nhập từ Trung Quốc + phí sàn cùng tăng → biên lợi nhuận ↓','shop nhỏ biên mỏng rời thị trường → sàng lọc doanh nghiệp nội địa'],
+    ascii:'TỔNG CHI PHÍ SÀN / GIÁ TRỊ ĐƠN\n(ước tính SHS, dẫn lại qua VietnamFinance)\n\n  2022   ~ 8%\n  2023   ~13%\n  2024   ~18%\n  2026   ~33,8%  (ước tính)\n\n\nMỘT ĐƠN HÀNG 100 CÓ THỂ THÀNH:\n\n  giá vốn            60\n  phí sàn            25\n  quảng cáo/vận hành 10\n                    ────\n  CÒN                 5\n\nchỉ cần thêm hoàn hàng, giảm giá,\nnhân công, hàng hư:   5 → 0 → ÂM',
+    mechs:{ h:'Chi phí đến từ đâu — và cái nào không phải thuế', ds:[
+      {ma:'6% + hoa hồng', t:'TikTok Shop', tt:'phí nền tảng', c:'y',
+       d:'Thu 6% phí giao dịch, cộng hoa hồng nền tảng tuỳ ngành hàng, cộng 3.000 đồng phí xử lý mỗi đơn thành công. Biểu phí giữa 2026 cho thấy nhiều ngành có hoa hồng Marketplace khoảng 10–15%, Mall có ngành lên tới 17,1%; affiliate và chương trình vận chuyển có thể cộng thêm.'},
+      {ma:'6% + phí ngành', t:'Shopee', tt:'phí nền tảng', c:'y',
+       d:'Phí xử lý giao dịch 6% cộng phí cố định theo ngành; một số nhóm tiêu dùng, sức khoẻ, làm đẹp ở khoảng 10–17%. Ngoài ra còn Voucher Xtra, các chương trình đồng tài trợ mã giảm giá và duy trì hiển thị.'},
+      {ma:'≈33,8%', t:'Tổng chi phí bán hàng', tt:'ước tính 2026', c:'r',
+       d:'Ước tính SHS tách ra khoảng 16% hoa hồng, 9% freeship/voucher/gói dịch vụ, 6% xử lý giao dịch và 1% duy trì hiển thị. Một shop biên lợi nhuận hàng hoá vốn chỉ 15–20% hoàn toàn có thể rơi vào cảnh <b>bán càng nhiều càng khó có lãi</b>.'},
+      {ma:'≠', t:'Thuế nhà nước là lớp khác', tt:'đừng gộp vào 33,8%', c:'b',
+       d:'Từ 2025, sàn có chức năng thanh toán phải khấu trừ / kê khai / nộp thay một số nghĩa vụ thuế của hộ và cá nhân bán hàng; quy định 2026 tiếp tục hoàn thiện cơ chế này. Đây <b>không</b> nằm trong con số phí sàn ở trên — gộp hai thứ lại rồi gọi là "thuế sàn 30%" là sai.'}
+    ]},
+    keypoint:'Nửa đầu 2026 Shopee chiếm khoảng <b>54,5%</b> và TikTok Shop <b>43,4%</b> — hai nền tảng cộng lại gần <b>98%</b> thị trường TMĐT lớn được thống kê. Cùng lúc, tốc độ tăng trưởng TMĐT đã chậm lại và người tiêu dùng nhạy cảm hơn về giá. Khi kênh phân phối tập trung tới mức đó, mức phí không còn là điều kiện thương mại — nó gần với <b>một mức thuế tư nhân</b> lên toàn bộ người bán.',
+    danger:'Đọc cho đúng: đây là <b>phí sàn cộng chi phí bán hàng</b>, <b>không phải "thuế Shopee 30%"</b>. Nó gồm hoa hồng, thanh toán, voucher, affiliate, quảng cáo, logistics và hoàn hàng — phần lớn là <b>tuỳ chọn theo mức độ tham gia</b>, không phải khoản bắt buộc đồng loạt. Con số 33,8% là ước tính của một báo cáo, không phải biểu phí chính thức.',
+    clocks:['Biểu phí công bố của Shopee và TikTok Shop','Thị phần giữa các sàn','Tốc độ tăng trưởng TMĐT và giá trị đơn trung bình','Tỷ lệ hoàn hàng','Số shop nội địa rời sàn','Doanh số của thương hiệu Trung Quốc bán trực tiếp cho người Việt'],
+    hits:['Ép biên lợi nhuận người bán Việt ngay tại thị trường nội địa','Cộng hưởng với giá vốn nhập từ Trung Quốc — bị kẹp cả hai đầu','Là một trong những đường dẫn tới làn sàng lọc doanh nghiệp nhỏ'],
+    scen:'Không thuộc trục năng lượng — là bộ ép biên nội địa, chạy song song mọi kịch bản'
   }
 ];
 
@@ -113,6 +182,9 @@ const GAUGES = [
   {id:'laisuat',   t:'Lãi suất',     d:'Lãi suất điều hành, lãi vay mua nhà, chênh lệch huy động – cho vay.'},
   {id:'nganhang',  t:'Ngân hàng',    d:'Nợ xấu, tăng trưởng tín dụng, xử lý tài sản bảo đảm, trái phiếu doanh nghiệp.'},
   {id:'bds',       t:'Bất động sản', d:'Giao dịch, tỷ lệ hấp thụ, giá thứ cấp, số người buộc phải bán.'},
+  {id:'xuatxu',    t:'Xuất xứ & SHTT', d:'Kiểm tra xuất xứ, kết quả điều tra Section 301 về sở hữu trí tuệ, các diện miễn thuế còn hay mất.'},
+  {id:'san',       t:'Kênh sàn',     d:'Biểu phí Shopee/TikTok Shop, thị phần, tỷ lệ hoàn hàng, tổng chi phí bán hàng trên giá trị đơn.'},
+  {id:'doanhnghiep', t:'Sức khoẻ doanh nghiệp', d:'Số rời thị trường so với số vào, FDI đăng ký, tỷ lệ doanh nghiệp nhỏ thu hẹp.'},
   {id:'niemtin',   t:'Niềm tin',     d:'Biến vô hình điều khiển rất nhiều biến hữu hình. Không có một con số duy nhất.'}
 ];
 
@@ -123,6 +195,11 @@ const CHAIN = [
   {id:'tq',      t:'Trung Quốc',          tag:'CÔNG XƯỞNG',   d:'Bộ chuyển hóa. Hấp thụ cú sốc bằng 4 bộ đệm rồi truyền phần còn lại xuống hạ lưu.', th:'tq'},
   {id:'dauvao',  t:'Giá đầu vào VN',      tag:'CÔNG NGHIỆP',  d:'Việt Nam nhập chủ yếu là tư liệu sản xuất, Trung Quốc là nguồn lớn nhất.'},
   {id:'cpi',     t:'CPI Việt Nam',        tag:'GIÁ CẢ',       d:'Nơi cú sốc bên ngoài chạm vào ví của người dân lần đầu tiên.'},
+  {id:'hangrao', t:'Hàng rào Mỹ',         tag:'ĐẦU RA',       d:'Không phải một mức thuế mà nhiều cơ chế song song: thuế đối ứng, Section 301 lao động, rủi ro chuyển tải, AD/CVD theo ngành, và một cuộc điều tra sở hữu trí tuệ chưa có kết quả.', th:'my'},
+  {id:'phisan',  t:'Phí kênh phân phối',  tag:'KÊNH BÁN',     d:'Hai sàn nắm gần 98% thị trường TMĐT lớn. Khi kênh tập trung tới mức đó, mức phí gần với một khoản thuế tư nhân lên người bán.', th:'san'},
+  {id:'bienloi', t:'Biên lợi nhuận DN',   tag:'DOANH NGHIỆP', d:'Chỗ mọi đường phía trên gặp nhau: giá vốn tăng từ đầu vào, giá bán bị ép từ đầu ra và từ kênh. Đây là mắt xích bị kẹp hai đầu.'},
+  {id:'sangloc', t:'Sàng lọc doanh nghiệp', tag:'ĐÀO THẢI',   d:'Không phải "đóng cửa hàng loạt". Bảy tháng đầu 2026 có khoảng 155.000 doanh nghiệp rời thị trường nhưng 187.173 vào — con số cần nhìn là tỷ lệ giữa hai chiều.'},
+  {id:'vieclam', t:'Việc làm & thu nhập', tag:'LAO ĐỘNG',     d:'Nơi áp lực doanh nghiệp chuyển thành áp lực hộ gia đình — và từ đó chạm tới tiêu dùng, tiền gửi và khả năng trả nợ mua nhà.'},
   {id:'tygia',   t:'Tỷ giá',              tag:'TIỀN TỆ',      d:'Chịu thêm một lực độc lập từ lãi suất USD — không chỉ từ năng lượng.'},
   {id:'laisuat', t:'Lãi suất',            tag:'CHÍNH SÁCH',   d:'Cái kim nguy hiểm nhất với bất động sản. Vừa là chi phí vay, vừa là mức hấp dẫn của tiền gửi.'},
   {id:'tindung', t:'Tín dụng',            tag:'NGÂN HÀNG',    d:'Bộ khuếch đại của toàn hệ thống. Siết ở đây thì mọi mắt xích phía dưới cùng co lại.'},
@@ -187,13 +264,28 @@ const LIB = [
   blocks:[
    {h:'Vì sao niềm tin lạ', p:'Tất cả những thứ trước nó đều đo được: dầu → USD/thùng, lãi suất → %, nợ → tỷ đồng, BĐS → đồng/m², GDP → %. Nhưng niềm tin không có một con số duy nhất — trong khi nó quyết định: mua/không mua, gửi/rút, đầu tư/không đầu tư, giữ VND hay vàng hay USD, tuyển dụng hay dừng tuyển.'},
    {h:'Nguyên nhân ≠ kích hoạt', p:'Một luồng thông tin lớn không tự nó làm hệ thống vỡ. Nó là <b>kích hoạt</b>, không phải <b>nguyên nhân</b>. Nguyên nhân nằm ở đòn bẩy, ở nợ đến hạn, ở giá tài sản thế chấp. Nhưng nếu nội dung đụng đúng vào lúc niềm tin kinh tế đang yếu thì một kích hoạt nhỏ vẫn có thể đẩy hệ thống sang trạng thái khác.'},
-   {h:'Điều kiện nguy hiểm nhất', p:'Không phải một người lo sợ, cũng không phải mười nghìn người. Mà là <b>hàng triệu người cùng đổi hành vi cùng lúc</b> — vì khi đó cầu, tiền gửi, tiêu dùng và giá tài sản có thể đổi trạng thái đồng thời.'}
+   {h:'Điều kiện nguy hiểm nhất', p:'Không phải một người lo sợ, cũng không phải mười nghìn người. Mà là <b>hàng triệu người cùng đổi hành vi cùng lúc</b> — vì khi đó cầu, tiền gửi, tiêu dùng và giá tài sản có thể đổi trạng thái đồng thời.'},
+   {h:'Quy mô đã đo được', p:'Phiên livestream ngày 5/8/2026 có lúc màn hình TikTok hiển thị <b>hơn 2,1 triệu người xem đồng thời</b> — tuy đây chưa phải con số được TikTok chính thức xác nhận như một kỷ lục, và phiên sau đó bị nền tảng khoá. Điều <b>đã xác nhận được</b> không phải tính đúng sai của từng nội dung, mà là <b>khả năng tập trung sự chú ý công chúng ở quy mô cực lớn trong thời gian rất ngắn</b>. Đó mới là biến số hệ thống.',
+    a:'MỘT PHÁT NGÔN\n      ↓\n2,1 TRIỆU+ NGƯỜI CÙNG NGHE\n      ↓\nclip cắt lại\n      ↓\nFacebook / TikTok / YouTube\n      ↓\nhàng triệu người khác\n      ↓\nNHẬN THỨC → NIỀM TIN → HÀNH VI'},
+   {h:'Truyền thông và tài chính đang nhập vào một đường ống', p:'Có báo cáo cho biết khoảng <b>84.000 tài khoản gửi quà tặng</b> trong phiên đó. Tại thảo luận dự luật chống rửa tiền, một đại biểu Quốc hội đã đặt vấn đề chung rằng các luồng quà tặng livestream có thể bị lợi dụng cho rửa tiền hay không. Đây <b>không phải cáo buộc nhằm vào cá nhân nào</b>; nó cho thấy cơ quan lập pháp bắt đầu nhìn livestream như một <b>hạ tầng dòng tiền mới cần giám sát</b>.',
+    a:'TRUYỀN THÔNG NGÀY XƯA\n   chỉ truyền THÔNG TIN\n\nLIVESTREAM HIỆN NAY\n   THÔNG TIN\n   + SỰ CHÚ Ý\n   + QUÀ TẶNG\n   + DÒNG TIỀN\n   + CỘNG ĐỒNG'}
   ]},
  {id:'mainboard', n:'F', t:'Mainboard', d:'Toàn bộ bốn hệ ghép lại trong một sơ đồ duy nhất.',
   blocks:[
    {h:'Bốn hệ, một cỗ máy', p:'Thế giới → kinh tế Việt Nam → hệ tài chính → hệ nhận thức, và hệ nhận thức lại đẩy ngược lên hệ tài chính.',
     a:'╔══════════════════════════════════════════════╗\n║                THẾ GIỚI                      ║\n║ Nga ──┐                                      ║\n║       ├→ NĂNG LƯỢNG                          ║\n║ Hormuz┘        ↓                             ║\n║             TRUNG QUỐC ←── MỸ                ║\n║                           thương mại         ║\n╚════════════════╪═════════════════════════════╝\n                 ↓\n╔══════════════════════════════════════════════╗\n║              KINH TẾ VIỆT NAM                ║\n║ nhập nguyên liệu → NHÀ MÁY → XUẤT KHẨU       ║\n║              ↓                               ║\n║        VIỆC LÀM / THU NHẬP                   ║\n╚════════════════╪═════════════════════════════╝\n                 ↓\n╔══════════════════════════════════════════════╗\n║             HỆ TÀI CHÍNH                     ║\n║  NGƯỜI DÂN → NGÂN HÀNG → TÍN DỤNG            ║\n║                    ↓                         ║\n║                BẤT ĐỘNG SẢN                  ║\n║                    ↓                         ║\n║              TÀI SẢN THẾ CHẤP                ║\n║                    ↓                         ║\n║                 NGÂN HÀNG                    ║\n╚════════════════╪═════════════════════════════╝\n                 ↑\n╔══════════════════════════════════════════════╗\n║             HỆ NHẬN THỨC                     ║\n║ mạng xã hội → livestream → hàng triệu người  ║\n║                     ↓                        ║\n║                  NIỀM TIN                    ║\n║                     ↓                        ║\n║              HÀNH VI TÀI CHÍNH               ║\n╚══════════════════════════════════════════════╝'},
    {h:'Câu kết của toàn bộ hồ sơ', p:'<b>Hiện có áp lực thật ở một số mắt xích — nhưng những dữ kiện đó chưa đủ để kết luận một cuộc khủng hoảng hệ thống đang xảy ra.</b> Đó chính là lý do cần một bảng đồng hồ thay vì một kết luận.'}
+  ]},
+ {id:'docdung', n:'G', t:'Đọc cho đúng', d:'Mười chỗ rất dễ đọc sai — và câu chính xác thay cho mỗi chỗ.',
+  blocks:[
+   {h:'Vì sao cụm này tồn tại', p:'Đài quan trắc chỉ có ích khi nó <b>không phóng đại</b>. Mỗi mục dưới đây là một cách nói phổ biến, kèm câu đúng hơn. Cái sai thường không nằm ở số liệu mà ở <b>một chữ</b>: gộp "đang điều tra" với "đang áp", gộp "xếp loại hành chính" với "phán quyết", gộp "phí dịch vụ" với "thuế".'},
+   {h:'Về bức tranh tổng thể', p:'<b>Nói sai:</b> "Tất cả đang cùng đánh Việt Nam."<br><b>Nói đúng:</b> không có bằng chứng cho thấy Mỹ, Trung Quốc, Hormuz, Nga–Ukraina, các sàn TMĐT hay một hiện tượng truyền thông nào phối hợp với nhau. Điều đáng chú ý chính là <b>chúng độc lập với nhau nhưng cuối cùng lại cùng truyền áp lực vào một hệ thống</b>. Đó là "hội tụ", không phải "chiến dịch".',
+    a:'KHÔNG PHẢI            MÀ LÀ\n\nmột chiến dịch    nhiều dòng áp lực\nphối hợp          độc lập, cùng đổ\n    ↓             về một giao điểm\nVIỆT NAM                ↓\n                  VIỆT NAM'},
+   {h:'Về phía Mỹ', p:'<b>Nói sai:</b> "Mỹ áp thuế 20% với hàng Việt."<br><b>Nói đúng:</b> 20% là thuế đối ứng; ngoài ra còn 12,5% Section 301 lao động từ 24/7/2026, và quy định Mỹ nói các khoản này có thể cộng với khoản bổ sung khác trong Chapter 99. Nhưng <b>32,5% là điểm phần trăm thuế bổ sung cho một mặt hàng thuộc cả hai diện</b> — mã HS và các diện miễn quyết định mức thực tế, không phải mọi hàng Việt đều đóng như nhau.<br><br><b>Nói sai:</b> "Mỹ kết luận hàng Việt làm bằng lao động cưỡng bức."<br><b>Nói đúng:</b> cơ sở của hành động là chính sách kiểm soát nhập khẩu hàng có lao động cưỡng bức. Đây không phải kết luận về toàn bộ hàng Việt.<br><br><b>Nói sai:</b> "Mỹ nói người Việt ăn cắp bản quyền."<br><b>Nói đúng:</b> Special 301 là <b>xếp loại trong cơ chế sở hữu trí tuệ của Mỹ</b>, không phải bảng xếp hạng quốc gia và không phải phán quyết về con người. USTR cáo buộc thiếu thực thi hiệu quả ở năm nhóm cụ thể.<br><br><b>Nói sai:</b> "Mỹ đã áp thêm thuế IP lên Việt Nam."<br><b>Nói đúng:</b> cuộc điều tra Section 301 về sở hữu trí tuệ mở ngày 29/5/2026 và <b>chưa có quyết định cuối cùng</b>. Đây là quả chưa nổ.<br><br><b>Nói sai:</b> "Mỹ kết luận Việt Nam thao túng tiền tệ."<br><b>Nói đúng:</b> Việt Nam nằm trong Monitoring List từ 23/7/2026, nhưng <b>Mỹ không kết luận thao túng</b>. Đây là giám sát, không phải trừng phạt.'},
+   {h:'Về Trung Quốc và xuất xứ', p:'<b>Nói sai:</b> "Nhập linh kiện Trung Quốc rồi lắp ở Việt Nam là gian lận xuất xứ."<br><b>Nói đúng:</b> nếu quá trình sản xuất đáp ứng quy tắc xuất xứ / substantial transformation thì hoàn toàn hợp pháp. Mức 40% của EO 14326 chỉ áp khi <b>bị CBP xác định là chuyển tải để né thuế</b>.<br><br><b>Nói sai:</b> "Hàng Trung Quốc đội lốt Việt Nam tràn lan."<br><b>Nói đúng:</b> tháng 7/2026 hải quan Mỹ có kiểm tra một số nhà máy tại Việt Nam có liên hệ Trung Quốc, nhưng chính báo cáo đó nói <b>không có bằng chứng đáng kể cho thấy chuyển tải bất hợp pháp trên diện rộng</b>, và Reuters lưu ý chưa tự xác minh được. Rủi ro là thật; "tràn lan" thì chưa có căn cứ.<br><br><b>Nói sai:</b> "Mỹ đánh Trung Quốc nên Trung Quốc suy sụp, Việt Nam giảm theo."<br><b>Nói đúng:</b> tháng 7/2026 xuất khẩu Trung Quốc vẫn tăng 23,9%. Họ <b>đổi tuyến</b> chứ không biến mất — và một phần tuyến mới chạy thẳng vào Việt Nam, vừa là FDI vừa là cạnh tranh.'},
+   {h:'Về sàn và về nội địa', p:'<b>Nói sai:</b> "Sàn thu thuế 30%."<br><b>Nói đúng:</b> con số ~33,8% là <b>ước tính tổng chi phí bán hàng</b> của một báo cáo, gồm hoa hồng, thanh toán, voucher, affiliate, quảng cáo, logistics, hoàn hàng — phần lớn tuỳ mức độ tham gia. <b>Thuế nhà nước là một lớp hoàn toàn khác</b>, không nằm trong con số đó.<br><br><b>Nói sai:</b> "155.000 doanh nghiệp chết, kinh tế đang sụp."<br><b>Nói đúng:</b> cùng bảy tháng đó có 125.923 thành lập mới và 61.250 quay lại — <b>vào nhiều hơn ra</b> — và FDI đăng ký đạt 38,06 tỷ USD. Đúng hơn là một giai đoạn <b>sàng lọc</b>: ai yếu bị đào thải nhanh hơn, ai mạnh lớn hơn.',
+    a:'KHÔNG PHẢI        MÀ LÀ\n\n  VIỆT NAM      các dòng chảy cũ\n     ↓            bị ép / đổi hướng\n    SỤP                ↓\n                  VIỆT NAM\n                       ↓\n              ĐANG TÁI CẤU TRÚC\n\n        ai yếu  → bị đào thải\n        ai mạnh → lớn hơn\n        vốn ngoại → vào mạnh\n        cạnh tranh → khốc liệt hơn'},
+   {h:'Về tầng nhận thức', p:'<b>Nói sai:</b> "Một phiên livestream đang làm suy yếu hệ thống tài chính Việt Nam."<br><b>Nói đúng:</b> hiện chưa có căn cứ cho điều đó. Tầng nhận thức là <b>bộ khuếch đại</b>, không phải nguyên nhân — nó chỉ có ý nghĩa kinh tế nếu nội dung chạm vào ngân hàng, BĐS, tiền gửi, tỷ giá và khiến <b>đủ nhiều người đổi hành vi thật</b>. Xem cụm E.'}
   ]}
 ];
 
