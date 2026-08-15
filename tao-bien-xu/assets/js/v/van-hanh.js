@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-14T16:39:16.653Z",
- "lan": 0,
+ "generatedAt": "2026-08-15T13:14:45.657Z",
+ "lan": 9,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -22,15 +22,15 @@ window.VAN_HANH = {
    "cung": "kinh-thanh",
    "cungTen": "Kinh Thành",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-14T13:46:40.331Z",
+   "luc": "2026-08-15T13:01:29.158Z",
    "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-14T13:46:40.331Z",
-   "lucDoi": "2026-08-14T13:46:40.331Z"
+   "lucOk": "2026-08-15T13:01:29.158Z",
+   "lucDoi": "2026-08-15T13:01:29.158Z"
   },
   {
    "ma": "do-sat-vien",
@@ -47,15 +47,15 @@ window.VAN_HANH = {
    "cung": "do-sat-vien",
    "cungTen": "Đô Sát Viện",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-14T13:47:43.854Z",
+   "luc": "2026-08-15T13:02:31.714Z",
    "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "giay": 62,
+   "doi": true,
+   "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-14T13:47:43.854Z",
-   "lucDoi": "2026-08-14T13:47:43.854Z"
+   "lucOk": "2026-08-15T13:02:31.714Z",
+   "lucDoi": "2026-08-15T13:02:31.714Z"
   },
   {
    "ma": "cong-bo",
@@ -74,15 +74,15 @@ window.VAN_HANH = {
    "cung": "cong-bo",
    "cungTen": "Công Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-14T13:47:47.836Z",
+   "luc": "2026-08-15T13:02:50.367Z",
    "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "giay": 19,
+   "doi": true,
+   "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-14T13:47:47.836Z",
-   "lucDoi": "2026-08-14T13:47:47.836Z"
+   "lucOk": "2026-08-15T13:02:50.367Z",
+   "lucDoi": "2026-08-15T13:02:50.367Z"
   },
   {
    "ma": "tang-thu-cac",
@@ -99,15 +99,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-14T13:54:17.370Z",
+   "luc": "2026-08-15T13:11:04.083Z",
    "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "giay": 494,
+   "doi": true,
+   "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-14T13:54:17.370Z",
-   "lucDoi": "2026-08-14T13:54:17.370Z"
+   "lucOk": "2026-08-15T13:11:04.083Z",
+   "lucDoi": "2026-08-15T13:11:04.083Z"
   },
   {
    "ma": "quan-trac-do",
@@ -123,15 +123,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": null,
-   "ket": null,
-   "giay": null,
-   "doi": false,
+   "luc": "2026-08-15T13:11:46.676Z",
+   "ket": "ok",
+   "giay": 42,
+   "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": null,
-   "lucDoi": null
+   "lucOk": "2026-08-15T13:11:46.676Z",
+   "lucDoi": "2026-08-15T13:11:46.676Z"
   },
   {
    "ma": "dai-quan-trac",
@@ -147,15 +147,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-13T08:53:22.949Z",
-   "ket": "ok",
+   "luc": "2026-08-15T13:14:45.657Z",
+   "ket": "loi",
    "giay": null,
    "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuThich": "kiểm không qua: dai-quan-trac/assets/js/scan.js — teo đột ngột: 3886 byte, bản cũ 10188 byte",
    "vi": null,
-   "chuoiLoi": 0,
-   "lucOk": "2026-08-13T08:53:22.949Z",
-   "lucDoi": "2026-08-13T08:53:22.949Z"
+   "chuoiLoi": 1,
+   "lucOk": "2026-08-15T13:14:45.507Z",
+   "lucDoi": "2026-08-15T13:14:45.507Z"
   },
   {
    "ma": "dong-dau",
@@ -169,14 +169,14 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": null,
-   "ket": null,
-   "giay": null,
+   "luc": "2026-08-15T13:11:47.088Z",
+   "ket": "ok",
+   "giay": 1,
    "doi": false,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": null,
+   "lucOk": "2026-08-15T13:11:47.088Z",
    "lucDoi": null
   },
   {
@@ -193,15 +193,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": null,
-   "ket": null,
+   "luc": "2026-08-15T13:12:53.505Z",
+   "ket": "ok",
    "giay": null,
-   "doi": false,
+   "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": null,
-   "lucDoi": null
+   "lucOk": "2026-08-15T13:12:53.505Z",
+   "lucDoi": "2026-08-15T13:12:53.505Z"
   },
   {
    "ma": "hoang-thanh",
@@ -229,6 +229,30 @@ window.VAN_HANH = {
    "lucDoi": "2026-08-14T09:16:24.800Z"
   },
   {
+   "ma": "tu-cam-thanh",
+   "ten": "Phiên Tử Cấm Thành",
+   "y": "Runtime là tiến trình Python chạy dài, cần ANTHROPIC_API_KEY và quyền ghi đĩa — Actions không chạy được. Chạy tay rồi commit lát cắt, cùng kiểu Hoàng Thành.",
+   "tram": "M12",
+   "che": "tay",
+   "nhip": 0,
+   "lenh": "cd tu-cam-thanh-runtime && python -m trader.snapshot",
+   "ra": [
+    "tu-cam-thanh/assets/js/v/phien.js"
+   ],
+   "cung": "tu-cam-thanh",
+   "cungTen": "Tử Cấm Thành",
+   "wf": null,
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
    "ma": "giao-hang",
    "ten": "Giao hàng lên Pages",
    "y": "Không có nhịp riêng — chạy khi có commit số liệu. 27/27 lượt thành công.",
@@ -252,6 +276,87 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-15T13:14:45.657Z",
+   "ma": "dai-quan-trac",
+   "ket": "loi",
+   "giay": null,
+   "doi": false,
+   "chuThich": "kiểm không qua: dai-quan-trac/assets/js/scan.js — teo đột ngột: 3886 byte, bản cũ 10188 byte",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:14:45.507Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 0,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:12:53.505Z",
+   "ma": "bao-cao",
+   "ket": "ok",
+   "giay": null,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:11:47.088Z",
+   "ma": "dong-dau",
+   "ket": "ok",
+   "giay": 1,
+   "doi": false,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:11:46.676Z",
+   "ma": "quan-trac-do",
+   "ket": "ok",
+   "giay": 42,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:11:04.083Z",
+   "ma": "tang-thu-cac",
+   "ket": "ok",
+   "giay": 494,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:02:50.367Z",
+   "ma": "cong-bo",
+   "ket": "ok",
+   "giay": 19,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:02:31.714Z",
+   "ma": "do-sat-vien",
+   "ket": "ok",
+   "giay": 62,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-15T13:01:29.158Z",
+   "ma": "kinh-thanh",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-14T13:54:17.370Z",
    "ma": "tang-thu-cac",
