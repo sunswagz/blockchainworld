@@ -332,12 +332,35 @@ jobs:
       # nguyên nội dung trang vào ngữ cảnh, nhân sáu chiến trường.
       # Chỗ khối lượng phình thì chọn model rẻ; chỗ khối lượng cố
       # định (bao-cao) mới dùng Opus. Xem bảng trong CLAUDE.md.
+      # ── BẤM GIỜ QUANH BƯỚC MODEL ────────────────────────────────
+      # Hai node gọi model là hai chỗ tốn quota nhất trong xưởng, và
+      # cho tới nay là hai chỗ DUY NHẤT sổ không đo được. `giay` của
+      # dai-quan-trac ghi 0 — đó là giây của bước DỰNG, không phải
+      # bước QUÉT; `bao-cao` thì ghi null. Nghĩa là đúng hai bước cần
+      # theo dõi nhất lại không có số liệu nào để mà theo dõi.
+      #
+      # Nguyên nhân kỹ thuật: chỉ bước `run:` mới chạy được
+      # `t0=$(date +%s)`. Bước `uses:` không có chỗ nào nhét shell vào,
+      # nên giờ phải bấm ở hai bước `run:` kẹp hai bên.
+      #
+      # Các bước bấm giờ CỐ Ý không có `timeout-minutes`: luật "mỗi
+      # bước continue-on-error phải có trần" chỉ nói về bước
+      # continue-on-error, mà `date` thì không ngã và không treo được.
+      # Thêm trần cho chúng là ăn mất 4 phút đệm của trần job để đổi
+      # lấy một thứ không bao giờ dùng tới.
       - name: Ra đề cho bản quét
         id: n-de-bai
         if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',dai-quan-trac,')
         continue-on-error: true
         timeout-minutes: 2
-        run: node scripts/build-scan.mjs --de-bai
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/build-scan.mjs --de-bai
+
+      - name: Bấm giờ · trước khi quét
+        id: gio-quet-0
+        if: steps.n-de-bai.outcome == 'success'
+        run: echo "t=$(date +%s)" >> "$GITHUB_OUTPUT"
 
       - name: Quét chiến trường (Claude Code)
         id: n-quet
@@ -392,6 +415,14 @@ jobs:
               lý do không tìm được. Một file nói "không tìm được" có
               ích hơn hẳn không có file nào.
 
+      # `always()` chứ không phải `success()`: bước quét NGÃ cũng tốn
+      # quota, và "ngã sau 14 phút" với "ngã sau 3 giây" là hai bệnh
+      # khác hẳn nhau. Bỏ qua lúc ngã là mù đúng lúc cần thấy nhất.
+      - name: Bấm giờ · sau khi quét
+        id: gio-quet-1
+        if: always() && steps.gio-quet-0.outcome == 'success'
+        run: echo "t=$(date +%s)" >> "$GITHUB_OUTPUT"
+
       # Lượt #15: bước quét trên BÁO THÀNH CÔNG sau 112 giây, nhưng
       # quet.json không hề được ghi, nên bước dựng ngã trong 0 giây và
       # scan.js đứng nguyên bản 13/08. Từ ngoài thì cả ba bước đều
@@ -425,12 +456,31 @@ jobs:
           t0=$(date +%s)
           node scripts/build-scan.mjs 2>&1 | tee "$RUNNER_TEMP/dai-quan-trac.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      # `giay` của node này giờ là giây của CẢ BA BƯỚC (ra đề → quét →
+      # dựng), không phải của riêng bước dựng như trước. Đó mới là
+      # thứ khớp với `lenh` khai trong sổ đăng ký.
+      #
+      # Phần tách nhỏ đi vào `chuThich`, vì `chieu` đã chiếu trường đó
+      # sang Bảng vận hành — nên số hiện lên trang mà không phải thêm
+      # một trường mới vào lược đồ sổ ghi (đụng vào đó là đụng
+      # nha-may.mjs, file dùng chung).
       - name: Ghi sổ · dai-quan-trac
         if: always() && steps.n-de-bai.outcome != 'skipped'
         env:
           KET: ${{ steps.n-dai-quan-trac.outcome == 'success' && 'ok' || 'loi' }}
-          GIAY: ${{ steps.n-dai-quan-trac.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi dai-quan-trac "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/dai-quan-trac.log"
+          T_DAU: ${{ steps.n-de-bai.outputs.t0 }}
+          TQ0: ${{ steps.gio-quet-0.outputs.t }}
+          TQ1: ${{ steps.gio-quet-1.outputs.t }}
+          GIAY_DUNG: ${{ steps.n-dai-quan-trac.outputs.giay }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          QUET="?"
+          [ -n "$TQ0" ] && [ -n "$TQ1" ] && QUET=$(( TQ1 - TQ0 ))
+          node scripts/nha-may.mjs ghi dai-quan-trac "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "quét ${QUET}s · dựng ${GIAY_DUNG:-?}s · haiku-4-5" \
+            --log "$RUNNER_TEMP/dai-quan-trac.log"
 
       # ── M15 · Máy kiểm ─────────────────────────────────────────
       # Sơ đồ xưởng ghi "không có gì ra khỏi xưởng mà chưa qua kiểm",
@@ -492,6 +542,11 @@ jobs:
       #    tạo thì lần đỏ thật sau đó không ai buồn nhìn.
       #    Tạo secret: chạy `claude setup-token` ở máy, rồi dán vào
       #    Settings → Secrets → Actions → CLAUDE_CODE_OAUTH_TOKEN.
+      - name: Bấm giờ · trước khi báo cáo
+        id: gio-bc-0
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',bao-cao,')
+        run: echo "t=$(date +%s)" >> "$GITHUB_OUTPUT"
+
       - name: Báo cáo sức khoẻ xưởng (Claude Code)
         id: n-bao-cao
         if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',bao-cao,')
@@ -523,11 +578,20 @@ jobs:
             Không suy đoán ngoài dữ liệu trong hai file đó. Không có gì
             đáng lo thì nói thẳng là không có, đừng bịa ra việc.
             Chỉ ghi file, không chạy lệnh nào khác.
+      # Bấm giờ SAU nằm luôn trong bước ghi sổ, không tách riêng: đây
+      # là bước `run:` đầu tiên chạy sau action, và nó có `always()`
+      # nên đo được cả lượt ngã. Node dai-quan-trac phải tách riêng vì
+      # giữa quét và ghi sổ của nó còn hai bước khác xen vào.
       - name: Ghi sổ · bao-cao
         if: always() && steps.n-bao-cao.outcome != 'skipped'
         env:
           KET: ${{ steps.n-bao-cao.outcome == 'success' && 'ok' || 'loi' }}
-        run: node scripts/nha-may.mjs ghi bao-cao "$KET"
+          T0: ${{ steps.gio-bc-0.outputs.t }}
+        run: |
+          GIAY=""
+          [ -n "$T0" ] && GIAY=$(( $(date +%s) - T0 ))
+          node scripts/nha-may.mjs ghi bao-cao "$KET" ${GIAY:+--giay $GIAY} \
+            --ghi "opus-5 · max-turns 8"
 
       - name: Chiếu sổ sang Bảng vận hành
         if: always()
