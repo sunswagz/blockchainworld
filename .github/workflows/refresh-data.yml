@@ -492,8 +492,10 @@ jobs:
       - name: Commit nếu có thay đổi
         id: commit
         if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Bước này ngã bốn lượt liền (#10–#13) mà không ai đọc được lý
+          # Bước này ngã năm lượt liền (#10–#14) mà không ai đọc được lý
           # do: tải log Actions qua API thì phải đăng nhập, còn ANNOTATION
           # thì đọc được từ ngoài, không cần khoá. Nên ở đây mọi lỗi tự
           # khai ra annotation — lần sau nhìn thẳng trang Summary là thấy
@@ -502,6 +504,26 @@ jobs:
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # ── ĐẶT LẠI KHOÁ ĐẨY — nguyên nhân thật của #10–#14 ──────
+          # `actions/checkout` có lưu sẵn khoá vào .git/config, nên
+          # đáng lẽ `git push` chạy được mà không cần làm gì thêm.
+          # Nhưng `anthropics/claude-code-action` dựng lại cấu hình
+          # git của riêng nó, và khoá ấy mất. Bước này chạy SAU nó,
+          # nên tới lúc đẩy thì repo không còn ai để xưng tên:
+          #
+          #   remote: Invalid username or token.
+          #   fatal: Authentication failed for '…/blockchainworld.git/'
+          #
+          # Dấu vết khớp đúng: lượt #10 bước Claude bị skip thì chết ở
+          # `git add`; #11–#14 bước Claude có chạy thì chết ở `git push`.
+          # Bốn lượt đầu chỉ để lại mã thoát nên đã đoán nhầm hai lần
+          # (tưởng non-fast-forward, rồi tưởng clone nông).
+          #
+          # Nên ĐỪNG tin vào khoá đã lưu: tự đặt lại, mỗi lượt. Rẻ, và
+          # không phụ thuộc vào việc action nào đó có tử tế hay không.
+          git remote set-url origin \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           # Liệt kê TỪNG đường dẫn, không add cả thư mục. Hai lý do, cả
           # hai đều đã cắn thật:
           #
@@ -573,7 +595,13 @@ jobs:
             echo "$out"
             echo "::error::Vòng $lan · đẩy hỏng: $(printf '%s' "$out" | tr '\n' ' ' | tail -c 300)"
             git fetch origin +refs/heads/main:refs/remotes/origin/main
-            if out=$(git rebase -X theirs origin/main 2>&1); then
+            # `--autostash` vì lượt #14 còn ngã thêm một nhát nữa ở đây:
+            #   error: cannot rebase: You have unstaged changes.
+            # Các script build ghi ra vài file NGOÀI danh sách `git add`
+            # bên trên — cố ý, đó là file ta không muốn commit — nhưng
+            # rebase thì từ chối chạy khi cây làm việc còn bẩn, bất kể
+            # bẩn ở chỗ nào. Autostash cất chúng đi rồi trả lại.
+            if out=$(git rebase --autostash -X theirs origin/main 2>&1); then
               echo "Vòng $lan: đã rebase lên $(git rev-parse --short origin/main), đẩy lại."
               continue
             fi
