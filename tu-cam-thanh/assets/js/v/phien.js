@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-15T15:26:40.272Z",
- "chayTu": "2026-08-15T15:24:53+00:00",
- "vong": 6,
+ "generatedAt": "2026-08-15T17:27:04.327Z",
+ "chayTu": "2026-08-15T17:01:54+00:00",
+ "vong": 73,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "1h",
   "context": "4h"
  },
- "gia": 63091.8,
+ "gia": 63070.49,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "22:26:39",
+  "lastOk": "00:27:04",
   "lastError": null
  },
  "cheDo": {
@@ -33,35 +33,35 @@ window.TU_CAM_THANH = {
   ],
   "quality": "MEDIUM",
   "reasons": [
-   "ADX 17.0 < 18 — không bên nào kiểm soát",
-   "dải Bollinger co còn 0.43%"
+   "ADX 15.8 < 18 — không bên nào kiểm soát",
+   "dải Bollinger co còn 0.36%"
   ],
   "contextTrend": "BEARISH_ALIGNED",
-  "adx": 17.0,
+  "adx": 15.8,
   "volatility": "LOW",
   "key": "RANGE|LOW_VOLATILITY"
  },
  "thiTruong": {
   "1h": {
-   "price": 63091.8,
-   "ema20": 63046.28,
-   "ema50": 63160.46,
-   "ema200": 63721.27,
+   "price": 63070.49,
+   "ema20": 63053.6,
+   "ema50": 63154.84,
+   "ema200": 63707.37,
    "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 52.0,
-   "rsiSlope": 0.81,
-   "macdHist": 13.7,
-   "macdHistSlope": -0.059,
-   "atr": 124.15,
-   "atrPct": 0.197,
-   "atrRatioVsMedian": 0.57,
+   "rsi14": 50.5,
+   "rsiSlope": 0.51,
+   "macdHist": 13.08,
+   "macdHistSlope": 0.384,
+   "atr": 115.12,
+   "atrPct": 0.183,
+   "atrRatioVsMedian": 0.53,
    "volatility": "LOW",
-   "adx": 17.0,
-   "plusDI": 15.7,
-   "minusDI": 21.7,
-   "bbWidthPct": 0.43,
-   "bbPosition": 0.71,
-   "volumeRatio": 0.5,
+   "adx": 15.8,
+   "plusDI": 16.4,
+   "minusDI": 20.2,
+   "bbWidthPct": 0.36,
+   "bbPosition": 0.58,
+   "volumeRatio": 0.24,
    "structure": "UPTREND",
    "swingHighs": [
     63617.45,
@@ -97,30 +97,30 @@ window.TU_CAM_THANH = {
    ],
    "range20High": 63187.98,
    "range20Low": 62800.0,
-   "distToRange20HighPct": 0.15,
-   "distToRange20LowPct": 0.46
+   "distToRange20HighPct": 0.19,
+   "distToRange20LowPct": 0.43
   },
   "4h": {
-   "price": 63091.79,
-   "ema20": 63319.0,
-   "ema50": 63739.38,
-   "ema200": 63924.56,
+   "price": 63070.49,
+   "ema20": 63296.09,
+   "ema50": 63713.48,
+   "ema200": 63916.84,
    "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 39.9,
-   "rsiSlope": 0.64,
-   "macdHist": 20.3,
-   "macdHistSlope": 11.01,
-   "atr": 368.44,
-   "atrPct": 0.584,
-   "atrRatioVsMedian": 0.73,
+   "rsi14": 39.6,
+   "rsiSlope": 0.27,
+   "macdHist": 28.37,
+   "macdHistSlope": 9.22,
+   "atr": 348.2,
+   "atrPct": 0.552,
+   "atrRatioVsMedian": 0.69,
    "volatility": "NORMAL",
    "adx": 30.7,
-   "plusDI": 13.5,
-   "minusDI": 28.1,
-   "bbWidthPct": 2.15,
-   "bbPosition": 0.34,
-   "volumeRatio": 0.33,
-   "structure": "DOWNTREND",
+   "plusDI": 13.9,
+   "minusDI": 27.6,
+   "bbWidthPct": 1.7,
+   "bbPosition": 0.33,
+   "volumeRatio": 0.15,
+   "structure": "TRANSITION",
    "swingHighs": [
     64515.43,
     64500.0,
@@ -128,15 +128,15 @@ window.TU_CAM_THANH = {
     63247.05
    ],
    "swingLows": [
-    63238.0,
     63310.34,
     62802.27,
-    62535.24
+    62535.24,
+    62920.0
    ],
    "support": [
     {
-     "price": 62802.27,
-     "touches": 1
+     "price": 62861.13,
+     "touches": 2
     },
     {
      "price": 62535.24,
@@ -145,8 +145,8 @@ window.TU_CAM_THANH = {
    ],
    "resistance": [
     {
-     "price": 63279.35,
-     "touches": 4
+     "price": 63265.13,
+     "touches": 3
     },
     {
      "price": 64051.15,
@@ -159,13 +159,13 @@ window.TU_CAM_THANH = {
    ],
    "range20High": 64500.0,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 2.23,
-   "distToRange20LowPct": 0.88
+   "distToRange20HighPct": 2.27,
+   "distToRange20LowPct": 0.85
   }
  },
  "luanDiem": {
   "regime_read": "RANGE",
-  "market_summary": "[mock] RANGE, ADX 17.2, RSI 50.9, EMA BEARISH_ALIGNED",
+  "market_summary": "[mock] RANGE, ADX 15.8, RSI 52.2, EMA BEARISH_ALIGNED",
   "scenarios": [
    {
     "name": "tiếp diễn",
@@ -200,7 +200,7 @@ window.TU_CAM_THANH = {
   "symbol": "BTCUSDT",
   "source": "mock",
   "regimeFromClassifier": "RANGE",
-  "at": "2026-08-15T15:24:55+00:00"
+  "at": "2026-08-15T17:01:56+00:00"
  },
  "phanQuyet": {
   "approved": false,
@@ -211,12 +211,12 @@ window.TU_CAM_THANH = {
  },
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 73091.8,
-  "vonThucHien": 73091.8,
-  "dinhVon": 73091.8,
+  "von": 73070.49,
+  "vonThucHien": 73070.49,
+  "dinhVon": 73100.69,
   "laiLoMo": 0.0,
   "laiLoHomNay": -0.0,
-  "drawdownPct": 0.0,
+  "drawdownPct": 0.04,
   "soLenhDaDong": 2,
   "viThe": []
  },
@@ -254,37 +254,37 @@ window.TU_CAM_THANH = {
  },
  "thongKe": {
   "overall": {
-   "count": 9,
-   "wins": 6,
-   "winRate": 66.7,
-   "expectancyR": 0.971,
-   "totalPnl": 405.82,
-   "avgWinR": 1.46,
+   "count": 10,
+   "wins": 7,
+   "winRate": 70.0,
+   "expectancyR": 1.014,
+   "totalPnl": 463.77,
+   "avgWinR": 1.45,
    "avgLossR": 0.0,
    "maxLossR": 0
   },
   "byRegime": {
    "RANGE": {
-    "count": 9,
-    "wins": 6,
-    "winRate": 66.7,
-    "expectancyR": 0.971,
-    "totalPnl": 405.82,
-    "avgWinR": 1.46,
+    "count": 10,
+    "wins": 7,
+    "winRate": 70.0,
+    "expectancyR": 1.014,
+    "totalPnl": 463.77,
+    "avgWinR": 1.45,
     "avgLossR": 0.0,
     "maxLossR": 0
    }
   },
   "byStrategy": {
    "MOCK_RULES_V1": {
-    "count": 6,
-    "wins": 6,
+    "count": 7,
+    "wins": 7,
     "winRate": 100.0,
-    "expectancyR": 1.457,
-    "totalPnl": 405.82,
-    "avgWinR": 1.46,
+    "expectancyR": 1.449,
+    "totalPnl": 463.77,
+    "avgWinR": 1.45,
     "avgLossR": null,
-    "maxLossR": 1.44
+    "maxLossR": 1.4
    },
    "THU_MOT_LENH": {
     "count": 3,
@@ -299,6 +299,45 @@ window.TU_CAM_THANH = {
   }
  },
  "giaoDich": [
+  {
+   "id": "t_9d533893f2",
+   "openedAt": "2026-08-15T16:53:01+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.1574584716894351,
+   "entry": 63191.26,
+   "requestedEntry": 63096.62,
+   "stopLoss": 62927.64,
+   "targets": [
+    63718.52,
+    63997.85
+   ],
+   "riskAmount": 41.51,
+   "plannedRiskAmount": 41.51,
+   "slippageCostOnRisk": -0.0,
+   "riskPct": 0.5,
+   "rr": 2.0,
+   "plannedRr": 2.0,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 19.97,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.8,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "NO_CLEAR_TREND"
+   ],
+   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "status": "CLOSED",
+   "closedAt": "2026-08-15T16:53:01+00:00",
+   "exit": 63622.94,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 67.97,
+   "pnl": 57.95,
+   "rMultiple": 1.4,
+   "holdingMinutes": 0
+  },
   {
    "id": "t_0ab1e922f9",
    "openedAt": "2026-08-15T14:15:08+00:00",
@@ -651,5 +690,216 @@ window.TU_CAM_THANH = {
    "holdingMinutes": 0
   }
  ],
- "baiHoc": []
+ "baiHoc": [],
+ "theGioi": {
+  "luc": 1786814223.3312566,
+  "phaiSinh": {
+   "fundingNamHoa": 4.92,
+   "openInterestUsd": 7052187705.819402,
+   "oiDoi24hPct": -0.5,
+   "topTrader": {
+    "tyLe": 1.4699,
+    "long": 0.5951,
+    "short": 0.4049,
+    "doi12h": -0.012
+   },
+   "toanSan": {
+    "tyLe": 2.076,
+    "long": 0.6749,
+    "short": 0.3251,
+    "doi12h": 0.023
+   },
+   "nguon": "Binance Futures"
+  },
+  "viMo": {
+   "muc": {
+    "DXY": {
+     "ten": "chỉ số đô la",
+     "gia": 99.67,
+     "doiPct": -0.29
+    },
+    "US10Y": {
+     "ten": "lợi suất trái phiếu 10 năm",
+     "gia": 4.696,
+     "doiPct": 1.19
+    },
+    "DAU": {
+     "ten": "dầu WTI",
+     "gia": 82.4,
+     "doiPct": 1.42
+    },
+    "SP500": {
+     "ten": "S&P 500",
+     "gia": 7785.76,
+     "doiPct": -0.17
+    },
+    "VANG": {
+     "ten": "vàng",
+     "gia": 4380.4,
+     "doiPct": 0.38
+    }
+   },
+   "khauVi": {
+    "diem": -0.56,
+    "soChiSo": 3,
+    "nhan": "RISK_OFF",
+    "ghiChu": "suy ra từ chiều đổi của DXY, lợi suất và S&P — không phải một chỉ số có sẵn"
+   },
+   "nguon": "Yahoo Finance"
+  },
+  "tamLy": {
+   "gt": 34,
+   "nhan": "Fear",
+   "chuoi": [
+    30,
+    31,
+    30,
+    29,
+    27,
+    29,
+    29,
+    34
+   ]
+  },
+  "tin": [
+   {
+    "ma": "FED",
+    "soBai": 6,
+    "bai": [
+     {
+      "tieuDe": "Federal Reserve issues FOMC statement",
+      "nguon": "Fed",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm"
+     },
+     {
+      "tieuDe": "Minutes of the Board's discount rate meetings on June 8 and June 17, 2026",
+      "nguon": "Fed",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260714a.htm"
+     }
+    ]
+   },
+   {
+    "ma": "LAM_PHAT",
+    "soBai": 1,
+    "bai": [
+     {
+      "tieuDe": "Bitcoin slips as U.S. inflation fails to spark gains, ETFs see August's first two-day drawdown",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/markets/2026/08/14/bitcoin-slips-as-u-s-inflation-fails-to-spark-gains-etfs-see-august-s-first-two-day-drawdown"
+     }
+    ]
+   },
+   {
+    "ma": "QUY_DINH",
+    "soBai": 5,
+    "bai": [
+     {
+      "tieuDe": "Tokenization stocks slip as SEC delay puts 'speed bump' in crypto’s Wall Street push",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/markets/2026/08/14/tokenization-stocks-slip-as-sec-delay-puts-speed-bump-in-crypto-s-wall-street-push"
+     },
+     {
+      "tieuDe": "SEC cancels long-awaited proposal of Reg Crypto, postponing meeting without new date",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/policy/2026/08/13/sec-cancels-long-awaited-proposal-of-reg-crypto-postponing-meeting-without-new-date"
+     }
+    ]
+   },
+   {
+    "ma": "ETF",
+    "soBai": 6,
+    "bai": [
+     {
+      "tieuDe": "Swiss mega-bank UBS ramps up its Bitcoin exposure with a massive 24-fold surge in ETF call options",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/business/2026/08/15/swiss-mega-bank-ubs-ramps-up-its-bitcoin-exposure-with-a-massive-24-fold-surge-in-etf-call-options"
+     },
+     {
+      "tieuDe": "Paul Tudor Jones’ investment firm increases stake in BlackRock's bitcoin ETF after year of selling",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/business/2026/08/15/paul-tudor-jones-investment-firm-increases-blackrock-s-bitcoin-etf-stake-after-year-of-selling"
+     }
+    ]
+   },
+   {
+    "ma": "VI_MO",
+    "soBai": 2,
+    "bai": [
+     {
+      "tieuDe": "Fear is fading across markets, be it bitcoin, stocks, gold or bonds",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/daybook-us/2026/08/14/volatility-exits-crypto-tradfi-markets-even-as-u-s-iran-risks-linger-sovereign-debt-rises"
+     },
+     {
+      "tieuDe": "Amex Green vs. Amex Gold: Tons of benefits and rewards for foodies and travelers",
+      "nguon": "Yahoo",
+      "url": "https://finance.yahoo.com/personal-finance/credit-cards/comparison/amex-green-vs-gold-174325977.html"
+     }
+    ]
+   }
+  ],
+  "soFeed": 9,
+  "soBai": 186
+ },
+ "huanLuyen": {
+  "viec": "quet",
+  "xong": 1786813332.0640948,
+  "totNhat": {
+   "bo": {
+    "stopAtr": 2.5,
+    "demTp": 1.3,
+    "adxToiThieu": 0,
+    "chanBienDongCao": false
+   },
+   "trongMau": {
+    "so": 50,
+    "soThang": 21,
+    "soThua": 29,
+    "tyLeThang": 42.0,
+    "kyVongR": 0.085,
+    "tongR": 4.26,
+    "trungBinhThangR": 1.475,
+    "trungBinhThuaR": -0.922,
+    "heSoLoiNhuan": 1.16,
+    "sutGiamToiDaPct": 3.92,
+    "chuoiThuaDaiNhat": 8,
+    "vonDau": 10000,
+    "vonCuoi": 10203.07,
+    "loiNhuanPct": 2.03,
+    "trungBinhNenGiu": 30.3,
+    "theoLyDoThoat": {
+     "TP": 10,
+     "SL": 23,
+     "HET_HAN": 17
+    }
+   },
+   "ngoaiMau": {
+    "so": 27,
+    "soThang": 6,
+    "soThua": 21,
+    "tyLeThang": 22.2,
+    "kyVongR": -0.645,
+    "tongR": -17.43,
+    "trungBinhThangR": 0.731,
+    "trungBinhThuaR": -1.039,
+    "heSoLoiNhuan": 0.2,
+    "sutGiamToiDaPct": 8.38,
+    "chuoiThuaDaiNhat": 5,
+    "vonDau": 10000,
+    "vonCuoi": 9162.25,
+    "loiNhuanPct": -8.38,
+    "trungBinhNenGiu": 24.1,
+    "theoLyDoThoat": {
+     "TP": 0,
+     "SL": 18,
+     "HET_HAN": 9
+    }
+   },
+   "khopTroi": 0.73
+  },
+  "ketLuan": "bộ tốt nhất trong mẫu (+0.085R) rơi xuống -0.645R khi ra ngoài mẫu — ĐỪNG áp dụng (bộ đang dùng: -0.666R trên 44 lệnh)",
+  "soToHop": 72,
+  "mocCat": 2800,
+  "tongNen": 4000
+ }
 };

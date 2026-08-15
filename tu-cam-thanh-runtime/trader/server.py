@@ -18,6 +18,7 @@ from .bus import bus
 from .config import CONFIG, WEB_DIR
 from .journal import performance, recent_lessons, recent_theses, recent_trades
 from .loop import runtime
+from . import nguon, phien_hoc
 
 app = FastAPI(title="Claude Trader — M0", docs_url=None, redoc_url=None)
 
@@ -25,6 +26,11 @@ app = FastAPI(title="Claude Trader — M0", docs_url=None, redoc_url=None)
 @app.on_event("startup")
 async def _startup() -> None:
     app.state.loop_task = asyncio.create_task(runtime.run())
+    # Nguồn ngoài chạy ở LUỒNG RIÊNG, không nằm trong vòng giao dịch. Một lượt
+    # gom mất ~5 giây trong khi nhịp tick là 20 giây; để chung thì một hôm
+    # Yahoo chậm là vòng giao dịch trễ theo, và sự cố mạng của người khác hoá
+    # thành sự cố của mình.
+    nguon.bat_dau(CONFIG["symbol"], nhip=CONFIG.get("nhipNguonNgoai", 900))
 
 
 @app.on_event("shutdown")
@@ -222,6 +228,36 @@ async def skills() -> JSONResponse:
                 "soKyTu": len(txt),
             })
     return JSONResponse({"skills": out, "tong": len(out)})
+
+
+@app.get("/api/hoc")
+async def hoc_trang_thai() -> JSONResponse:
+    """Trạng thái phòng huấn luyện + kết quả lượt gần nhất."""
+    return JSONResponse({**phien_hoc.trang_thai(), "sanSang": phien_hoc.san_sang()})
+
+
+@app.post("/api/hoc")
+async def hoc_chay(req: Request) -> JSONResponse:
+    """Khởi động một phiên huấn luyện. Trả về ngay, tiến độ xem ở GET.
+
+    Không chờ ở đây: lượt đọc lịch sử đầu tiên mất khoảng sáu phút, quá lâu cho
+    một request HTTP. Trả ngay rồi để giao diện hỏi tiến độ.
+    """
+    body = await req.json()
+    viec = body.get("viec", "chay-lai")
+    if viec not in ("chay-lai", "quet"):
+        return JSONResponse({"ok": False, "vi_sao": f"việc lạ: {viec}"}, status_code=400)
+    return JSONResponse(phien_hoc.bat_dau(viec, body))
+
+
+@app.get("/api/the-gioi")
+async def the_gioi() -> JSONResponse:
+    """Nguồn dữ liệu ngoài: phái sinh, vĩ mô, tâm lý, tin tức.
+
+    Đọc thẳng kho mà luồng nền đã đặt sẵn — không chạm mạng trong request này,
+    nên mở dashboard không bao giờ phải chờ Yahoo.
+    """
+    return JSONResponse(nguon.kho())
 
 
 @app.get("/api/config")

@@ -128,6 +128,68 @@ if (K.skills?.[0]) {
   thieu.length ? bao(`kỹ năng thiếu ${thieu.join(", ")}`) : ok(`kỹ năng đủ 5 trường (${K.tong} kỹ năng)`);
 } else bao("không đọc được kỹ năng nào — skills/ trống?");
 
+console.log("\n[8] /api/the-gioi — nguồn ngoài");
+const W = await (await fetch(`${goc}/api/the-gioi`)).json();
+if (!W.co) {
+  console.log("  —    nguồn ngoài chưa lấy xong (luồng nền chạy vài giây sau khi khởi động)");
+} else {
+  soat(W, ["phaiSinh.co", "viMo.co", "tamLy.co", "suKien.co", "luc"], "thế giới");
+  soat(W.phaiSinh, ["funding", "fundingNamHoa", "openInterestUsd", "oiDoi24hPct",
+                    "topTrader", "toanSan", "taker", "nguon"], "phái sinh");
+  for (const nh of ["topTrader", "toanSan", "taker"]) {
+    const g = W.phaiSinh[nh];
+    g && g.tyLe != null ? ok(`phái sinh.${nh} có tyLe`) : bao(`phái sinh.${nh} thiếu tyLe`);
+  }
+  soat(W.viMo, ["muc", "khauVi.nhan", "khauVi.diem", "khauVi.soChiSo", "khauVi.ghiChu"], "vĩ mô");
+  const thieuMa = ["DXY", "US10Y", "DAU", "SP500", "VANG"].filter((m) => !W.viMo.muc[m]);
+  thieuMa.length ? bao(`vĩ mô thiếu mã: ${thieuMa.join(", ")}`) : ok("vĩ mô đủ 5 mã");
+  soat(W.tamLy, ["gt", "nhan", "chuoi"], "tâm lý");
+  soat(W.suKien, ["chuDe", "khac", "soFeed", "tongFeed", "soBai", "nguon"], "sự kiện");
+  const b = W.suKien.chuDe?.flatMap((c) => c.bai)[0];
+  if (!b) console.log("  —    chưa có bài nào để kiểm trường");
+  else {
+    const t = ["tieuDe", "nguon", "url", "khop"].filter((k) => b[k] === undefined);
+    t.length ? bao(`bài viết thiếu ${t.join(", ")}`) : ok("bài viết đủ 4 trường (kèm từ khoá đã khớp)");
+  }
+}
+
+console.log("\n[9] /api/hoc — phòng huấn luyện");
+const H = await (await fetch(`${goc}/api/hoc`)).json();
+soat(H, ["trangThai", "phanTram", "sanSang.coNen"], "học");
+if (!H.sanSang.coNen) {
+  console.log(`  —    chưa có nến lịch sử: ${H.sanSang.goiY}`);
+} else {
+  soat(H.sanSang, ["symbol", "soNen", "tu", "den", "coChuoiSan", "vanTay",
+                   "luoiMacDinh", "thamMacDinh"], "sẵn sàng");
+  // Lưới dò phải chỉ chứa tham số CHIẾN LƯỢC. Lỡ có ngưỡng rủi ro lọt vào đây
+  // thì "tối ưu" sẽ có nghĩa là hạ hàng rào — và bảng kết quả trông vẫn đẹp.
+  const RUI_RO = ["minRR", "minConfidence", "minStopAtr", "maxStopAtr",
+                  "maxRiskPerTradePct", "maxDrawdownPct", "maxDailyLossPct"];
+  const lot = Object.keys(H.sanSang.luoiMacDinh).filter((k) => RUI_RO.includes(k));
+  lot.length ? bao(`ngưỡng RỦI RO lọt vào lưới dò: ${lot.join(", ")} — dò tham số sẽ hạ hàng rào`)
+             : ok(`lưới dò chỉ có tham số chiến lược (${Object.keys(H.sanSang.luoiMacDinh).join(", ")})`);
+}
+if (H.ketQua) {
+  const K2 = H.ketQua;
+  if (K2.thongKe) {
+    soat(K2.thongKe, ["so", "tyLeThang?", "kyVongR?", "sutGiamToiDaPct",
+                      "chuoiThuaDaiNhat", "vonCuoi", "theoLyDoThoat"], "thống kê chạy lại");
+    soat(K2, ["lenh", "tuChoi", "theoRegime", "dungSom?", "soNenXet", "soNenTrongDoan"], "kết quả chạy lại");
+    if (K2.baiHoc?.[0]) {
+      const t = ["muc", "nang", "cau", "so", "lam"].filter((k) => K2.baiHoc[0][k] === undefined);
+      t.length ? bao(`bài học thiếu ${t.join(", ")}`) : ok(`bài học đủ 5 trường (${K2.baiHoc.length} bài)`);
+      const xauNang = K2.baiHoc.filter((b) => !["cao", "vua", "thap"].includes(b.nang));
+      xauNang.length ? bao(`mức độ bài học không phải ASCII: ${xauNang.map((b) => b.nang).join(", ")}`)
+                     : ok("mức độ bài học đều là mã ASCII (cao/vua/thap)");
+    }
+  } else if (K2.bang) {
+    soat(K2, ["soToHop", "mocCat", "tongNen", "bang", "ketLuan", "hienHanhNgoaiMau"], "kết quả dò");
+    if (K2.totNhat) soat(K2.totNhat, ["bo", "trongMau", "ngoaiMau", "khopTroi?"], "bộ tốt nhất");
+  }
+} else {
+  console.log("  —    chưa chạy phiên nào, bỏ qua phần kết quả");
+}
+
 console.log("\n" + "=".repeat(58));
 if (sai) { console.log(`  ${sai} chỗ lệch giữa app.js và API.`); process.exit(1); }
 console.log("  GIAO DIỆN ĐỌC ĐƯỢC MỌI TRƯỜNG NÓ CẦN.");

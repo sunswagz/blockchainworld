@@ -29,6 +29,7 @@ let S = null;     // /api/state
 let J = null;     // /api/journal
 let C = null;     // /api/candles
 let K = null;     // /api/skills
+let W = null;     // /api/the-gioi — phái sinh, vĩ mô, tâm lý, tin tức
 let khungBieuDo = null;   // khung đang xem trên biểu đồ
 const NONG = new Map();
 
@@ -108,6 +109,7 @@ const IC = {
   bieuDo:   '<path d="M3 21V3M3 21h18"/><rect x="6" y="11" width="3" height="7"/><rect x="11" y="6" width="3" height="12"/><rect x="16" y="9" width="3" height="9"/>',
   triNho:   '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16M4 9h16M4 15h16"/>',
   kyNang:   '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
+  huanLuyen:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>',
 };
 
 const NAV = [
@@ -120,11 +122,17 @@ const NAV = [
   { tang: 2, ten: "Trí tuệ",     y: "Bot đang nghĩ gì", muc: [
     { id: "nao-thi-truong",  ten: "Bộ não thị trường", ic: "naoTt" },
     { id: "nao-claude",      ten: "Bộ não Claude",     ic: "naoAi" },
-    { id: "quan-sat-trader", ten: "Quan sát trader",   ic: "trader", trong: true },
-    { id: "the-gioi",        ten: "Dòng chảy thế giới",ic: "theGioi", trong: true },
+    // Hai phòng này từng mang nhãn "chưa có" vì không có nguồn. Giờ có rồi —
+    // nhãn phải mất theo, nếu không nó thành lời nói dối đúng chiều ngược lại.
+    { id: "quan-sat-trader", ten: "Quan sát trader",   ic: "trader",
+      dem: () => (W?.phaiSinh?.co ? null : "chưa có") },
+    { id: "the-gioi",        ten: "Dòng chảy thế giới",ic: "theGioi",
+      dem: () => (W?.suKien?.co ? W.suKien.soBai : "chưa có") },
   ]},
   { tang: 3, ten: "Tiến hoá",    y: "Bot đang học gì", muc: [
     { id: "chien-luoc",      ten: "Chiến lược",       ic: "chienLuoc" },
+    { id: "huan-luyen",      ten: "Phòng huấn luyện", ic: "huanLuyen",
+      dem: () => (HL?.trangThai === "đang chạy" ? HL.phanTram + "%" : null), nong: true },
     { id: "hoc",             ten: "Học",              ic: "hoc", dem: () => (J?.lessons || []).length },
     { id: "tri-nho",         ten: "Trí nhớ",          ic: "triNho" },
     { id: "ky-nang",         ten: "Kho kỹ năng",      ic: "kyNang", dem: () => K?.tong ?? null },
@@ -515,6 +523,16 @@ function veNaoThiTruong() {
   /* TỔNG HỢP — nói rõ nó dựa trên MẤY nguồn. Ba trên sáu ô có dữ liệu, nên
      một dòng "BULLISH · TIN CẬY CAO" ở đây sẽ là tự tin quá mức so với thứ
      thực sự đo được. Ghi luôn số nguồn thay vì giấu. */
+  const G = W?.phaiSinh, V = W?.viMo;
+  const coVimo = !!V?.co, coPs = !!G?.co;
+
+  // Thang 0–100 cho hai ô mới. Vĩ mô: khẩu vị rủi ro quanh mốc 50.
+  const viMoDo = !coVimo ? null : clamp(50 + (V.khauVi?.diem ?? 0) * 25);
+  // "Trader giỏi": lệch khỏi cân bằng của nhóm ký quỹ lớn, KHÔNG phải tỉ lệ thô.
+  const tlTop = G?.topTrader?.tyLe;
+  const traderDo = tlTop == null ? null : clamp((tlTop / (1 + tlTop)) * 100);
+
+  const soNguon = 3 + (coVimo ? 1 : 0) + (coPs ? 1 : 0);
   const huong = p.emaStack === "BULLISH_ALIGNED" ? { chu: "THIÊN TĂNG", cls: "len" }
     : p.emaStack === "BEARISH_ALIGNED" ? { chu: "THIÊN GIẢM", cls: "xuong" }
     : { chu: "KHÔNG RÕ HƯỚNG", cls: "nhac" };
@@ -522,18 +540,23 @@ function veNaoThiTruong() {
   const tongHop = {
     chu: `${huong.chu} · lực ${manh}`,
     cls: huong.cls,
-    y: `dựa trên 3/6 nguồn (kỹ thuật). Vĩ mô, on-chain, phái sinh chưa nối — ` +
-       `nên đừng đọc dòng này như một kết luận đầy đủ.`,
+    y: `dựa trên ${soNguon}/6 nguồn (kỹ thuật${coVimo ? " · vĩ mô" : ""}${coPs ? " · phái sinh" : ""}). ` +
+       `On-chain chưa nối${!coVimo || !coPs ? ", và một số nguồn ngoài chưa lấy được" : ""} — ` +
+       `dòng này là tổng hợp của phần đo được, không phải một kết luận đầy đủ.`,
   };
 
+  const fund = G?.fundingNamHoa;
   el("nttNoi").innerHTML = `
     <div class="nao">
-      <div class="kinh nao-o tren im"><h4>Vĩ mô</h4>
-        <div class="d"><span>DXY</span><span class="mo">—</span></div>
-        <div class="d"><span>lợi suất</span><span class="mo">—</span></div>
-        <div class="d"><span>dầu</span><span class="mo">—</span></div></div>
+      <div class="kinh nao-o tren ${coVimo ? "" : "im"}"><h4>Vĩ mô${coVimo ? "" : " · chưa lấy được"}</h4>
+        ${["DXY", "US10Y", "DAU"].map((k) => {
+          const m = V?.muc?.[k];
+          return `<div class="d"><span>${k === "US10Y" ? "lợi suất" : k === "DAU" ? "dầu" : "DXY"}</span>${
+            m ? `<span>${num(m.gia, 2)} <b class="${dau(m.doiPct)}">${m.doiPct > 0 ? "+" : ""}${num(m.doiPct, 1)}%</b></span>`
+              : '<span class="mo">—</span>'}</div>`;
+        }).join("")}</div>
 
-      <div class="kinh nao-o trai im"><h4>On-chain</h4>
+      <div class="kinh nao-o trai im"><h4>On-chain · chưa nối</h4>
         <div class="d"><span>dòng vào sàn</span><span class="mo">—</span></div>
         <div class="d"><span>ví cá voi</span><span class="mo">—</span></div>
         <div class="d"><span>stablecoin</span><span class="mo">—</span></div></div>
@@ -544,10 +567,13 @@ function veNaoThiTruong() {
         <div class="rg">${esc(S?.regime?.primary || "—")}</div>
       </div>
 
-      <div class="kinh nao-o phai im"><h4>Phái sinh</h4>
-        <div class="d"><span>funding</span><span class="mo">—</span></div>
-        <div class="d"><span>open interest</span><span class="mo">—</span></div>
-        <div class="d"><span>vùng thanh lý</span><span class="mo">—</span></div></div>
+      <div class="kinh nao-o phai ${coPs ? "" : "im"}"><h4>Phái sinh${coPs ? "" : " · chưa lấy được"}</h4>
+        <div class="d"><span>funding</span>${fund == null ? '<span class="mo">—</span>'
+          : `<span class="${fund > 15 ? "xuong" : fund < 0 ? "len" : ""}">${num(fund, 1)}%/năm</span>`}</div>
+        <div class="d"><span>open interest</span>${G?.openInterestUsd == null ? '<span class="mo">—</span>'
+          : `<span>$${num(G.openInterestUsd / 1e9, 2)} tỷ <b class="${dau(G.oiDoi24hPct)}">${
+              G.oiDoi24hPct > 0 ? "+" : ""}${num(G.oiDoi24hPct, 1)}%</b></span>`}</div>
+        <div class="d"><span>vùng thanh lý</span><span class="mo">— cần dữ liệu trả phí</span></div></div>
 
       <div class="kinh nao-o duoi"><h4>Kỹ thuật · có dữ liệu thật</h4>
         <div class="d"><span>EMA</span><span>${esc(p.emaStack || "—")}</span></div>
@@ -556,6 +582,9 @@ function veNaoThiTruong() {
         <div class="d"><span>Volume</span><span>×${num(p.volumeRatio)}</span></div></div>
     </div>
 
+    ${fund != null && fund > 20 ? `<div class="canh-bao">Funding ${num(fund, 1)}%/năm —
+      phe long đang trả rất đắt để giữ vị thế. Trạng thái này thường đi trước những cú quét dài.</div>` : ""}
+
     <div class="tieu-muc">Trạng thái thị trường</div>
     <div class="luoi c2">
       <div class="kinh the">
@@ -563,8 +592,10 @@ function veNaoThiTruong() {
         ${thanhDo("Động lượng", p.rsi14 != null ? `${num(momentum, 0)}%` : "chưa có", momentum, "")}
         ${thanhDo("Biến động", p.atrRatioVsMedian != null ? `${num(volat, 0)}%` : "chưa có", volat, "tim")}
         ${thanhDo("Thanh khoản", "chưa có nguồn", null)}
-        ${thanhDo("Vĩ mô", "chưa có nguồn", null)}
-        ${thanhDo("Trader giỏi", "chưa có nguồn", null)}
+        ${thanhDo("Vĩ mô · khẩu vị rủi ro", coVimo ? esc(V.khauVi.nhan) : "chưa có", viMoDo,
+          (V?.khauVi?.diem ?? 0) > 0 ? "len" : "xuong", 50)}
+        ${thanhDo("Trader lớn đang LONG", traderDo != null ? `${num(traderDo, 1)}%` : "chưa có",
+          traderDo, "", 50)}
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
           <div class="phu-nho">TỔNG HỢP</div>
           <div class="so-vua ${tongHop.cls}" style="margin-top:3px">${esc(tongHop.chu)}</div>
@@ -582,12 +613,14 @@ function veNaoThiTruong() {
       </div>
     </div>
 
-    <div style="margin-top:12px">${chuaCo("Vĩ mô · On-chain · Phái sinh",
-      "Ba ô mờ ở trên cần nguồn dữ liệu mà M0 chưa nối. Chúng để trống thật chứ không điền số cho đủ hình — " +
-      "một sơ đồ đẹp với ba ô bịa thì tệ hơn hẳn một sơ đồ thiếu ba ô.",
-      ["<b>Vĩ mô</b> — DXY, lợi suất trái phiếu, dầu: cần nguồn như FRED hoặc Yahoo Finance",
-       "<b>On-chain</b> — dòng vào sàn, ví cá voi, cung stablecoin: cần Glassnode/Nansen hoặc node riêng",
-       "<b>Phái sinh</b> — funding, open interest, bản đồ thanh lý: cần API futures; M0 chạy <code>spot</code> nên chưa có"])}</div>`;
+    <div style="margin-top:12px">${chuaCo("On-chain — ô duy nhất còn trống",
+      "Vĩ mô và phái sinh đã nối xong bằng nguồn công khai miễn phí, không cần khoá. " +
+      "On-chain thì chưa, và nó trống thật chứ không điền số cho đủ hình.",
+      ["<b>Dòng vào/ra sàn, ví cá voi, cung stablecoin</b> — cần Glassnode/Nansen (trả phí) hoặc tự chạy node",
+       "Đây là ô đắt nhất trong bốn ô, và cũng là ô ít cấp bách nhất: ba ô kia đã đủ để bộ não có bối cảnh",
+       "Ghi chú về <b>phái sinh</b>: funding và open interest lấy từ Binance Futures công khai. " +
+       "Runtime vẫn chạy <code>spot</code> — dữ liệu futures dùng để ĐỌC trạng thái đòn bẩy của thị trường, " +
+       "không phải để giao dịch futures"])}</div>`;
 }
 
 /* ── TẦNG 2 · BỘ NÃO CLAUDE ────────────────────────────────────── */
@@ -647,39 +680,157 @@ function veNaoClaude() {
     <div class="kinh the mono" style="margin-top:10px;font-size:11px;color:var(--fg-3)">${esc((t.reason_codes || []).join("  ·  ")) || "—"}</div>`;
 }
 
-/* ── TẦNG 2 · hai phòng chưa có nguồn ──────────────────────────── */
+/* ── TẦNG 2 · ĐÀI QUAN SÁT TRADER ──────────────────────────────── */
+/* Nguồn: tỉ lệ vị thế công khai của Binance Futures. Miễn phí, không khoá.
+   Điều quan trọng nhất ở phòng này là ĐỌC ĐÚNG CHIỀU — xem ghi chú dưới. */
 function veQuanSatTrader() {
-  el("qstNoi").innerHTML = chuaCo("Đài quan sát trader",
-    "Phòng này để bot học từ những trader giỏi trên các sàn khác: ai đang LONG/SHORT, ai có điểm số cao, " +
-    "phong cách nào hợp chế độ thị trường nào — rồi Claude rút ra bài học từ hành vi của họ. " +
-    "M0 chưa nối nguồn nào, nên ở đây trống thật.",
-    ["API vị thế công khai của <b>Hyperliquid</b> (có sẵn, dễ nhất để bắt đầu)",
-     "<b>OKX</b> / <b>dYdX</b> / <b>Aster</b> — copy-trading hoặc leaderboard công khai",
-     "Một bộ chấm điểm trader: ROI 90 ngày, max drawdown, số lệnh, độ ổn định — để tách <i>giỏi</i> khỏi <i>may</i>",
-     "Một tầng gộp: từ N vị thế lẻ thành một con số “64% đang LONG”, kèm khoảng tin cậy"]) +
-    `<div class="kinh the" style="margin-top:12px"><h3>Cảnh báo thiết kế</h3>
-     <p style="margin:0;font-size:12.5px;color:var(--fg-3);line-height:1.7">
-     Đây là phòng dễ tự lừa mình nhất. Một trader có ROI +38% trong 90 ngày có thể chỉ là người vào đúng một
-     sóng, và sao chép họ ở chế độ thị trường khác là mua lại đúng rủi ro đã trả cho họ. Nếu dựng phòng này,
-     phải chấm điểm theo <b>chế độ thị trường</b>, không chấm theo tổng ROI — nếu không nó thành một máy
-     khuếch đại đám đông.</p></div>`;
+  const G = W?.phaiSinh;
+  if (!G?.co) {
+    el("qstNoi").innerHTML = khoiTheGioiChoLay("Đài quan sát trader");
+    return;
+  }
+  const nhomLs = (ten, g, y) => {
+    if (!g || g.tyLe == null) return "";
+    const lg = g.long != null ? g.long * 100 : (g.tyLe / (1 + g.tyLe)) * 100;
+    const doi = g.doi12h;
+    return `<div class="kinh the"><h3>${esc(ten)}
+        <span class="cuoi ${doi > 0 ? "len" : doi < 0 ? "xuong" : "mo"}">${
+          doi == null ? "" : (doi > 0 ? "▲" : doi < 0 ? "▼" : "") + " " + num(Math.abs(doi), 3) + " / 12h"}</span></h3>
+      <div class="so-lon ${lg > 55 ? "len" : lg < 45 ? "xuong" : ""}">${num(lg, 1)}% LONG</div>
+      <div class="do-rai" style="margin:8px 0 6px"><div class="do-day len" style="width:${clamp(lg)}%"></div></div>
+      <div class="hang"><span>tỉ lệ long/short</span><b>${num(g.tyLe, 3)}</b></div>
+      <div class="phu-nho" style="margin-top:6px">${y}</div></div>`;
+  };
+
+  el("qstNoi").innerHTML = `
+    <div class="luoi c3">
+      ${nhomLs("Trader lớn (top)", G.topTrader,
+        "Nhóm tài khoản ký quỹ lớn nhất sàn — gần nhất với ý “trader giỏi”.")}
+      ${nhomLs("Toàn sàn", G.toanSan,
+        "Mọi tài khoản, đếm theo đầu người. Đây là ĐÁM ĐÔNG.")}
+      ${nhomLs("Lệnh chủ động (taker)", G.taker,
+        "Ai đang chịu trả giá để vào ngay — dòng tiền nóng, không phải vị thế đang giữ.")}
+    </div>
+
+    <div class="tieu-muc">Chênh lệch giữa trader lớn và đám đông</div>
+    ${(() => {
+      const a = G.topTrader?.tyLe, b = G.toanSan?.tyLe;
+      if (a == null || b == null) return `<div class="trong">Chưa đủ hai nhóm để so.</div>`;
+      const ch = a - b;
+      const manh = Math.abs(ch) > 0.5;
+      return `<div class="kinh the">
+        <div class="so-vua ${ch > 0 ? "len" : "xuong"}">${ch > 0 ? "+" : "−"}${num(Math.abs(ch), 3)}</div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:var(--fg-2)">
+        Trader lớn đang ${ch > 0 ? "<b>nghiêng LONG hơn</b>" : "<b>nghiêng SHORT hơn</b>"} đám đông
+        ${manh ? "một cách rõ rệt" : "một chút"}. ${manh
+          ? "Chênh lệch rõ thường đáng chú ý hơn con số tuyệt đối của từng nhóm."
+          : "Chênh lệch nhỏ — nhiều khả năng chỉ là nhiễu, đừng đọc thành tín hiệu."}</p></div>`;
+    })()}
+
+    <div class="tieu-muc">Đọc phòng này thế nào</div>
+    <div class="kinh the">
+      <p style="margin:0 0 10px;font-size:12.5px;line-height:1.7;color:var(--fg-2)">
+      <b>Đây là phòng dễ tự lừa mình nhất, và cái bẫy nằm ở chiều đọc.</b>
+      Tỉ lệ toàn sàn là chỉ báo <b>ngược</b> nhiều hơn là chỉ báo thuận: khi 80% tài khoản cùng LONG thì
+      phía còn lại để đẩy giá lên đã cạn. Nó đếm theo <i>đầu người</i>, nên một nghìn tài khoản 100 đô
+      nặng bằng một nghìn tài khoản một triệu đô.</p>
+      <p style="margin:0 0 10px;font-size:12.5px;line-height:1.7;color:var(--fg-2)">
+      Nhóm trader lớn có ích hơn, nhưng vẫn không phải mệnh lệnh: họ có thể đang phòng hộ cho một vị thế
+      giao ngay mà mình không nhìn thấy, và họ chịu đựng được mức sụt giảm mà tài khoản này không chịu nổi.</p>
+      <p style="margin:0;font-size:12.5px;line-height:1.7;color:var(--fg-3)">
+      Vì vậy ở đây <b>không</b> có nút “sao chép”. Những con số này là bối cảnh cho bộ não, không phải tín
+      hiệu vào lệnh. Chấm điểm trader theo tổng ROI rồi bắt chước là mua lại đúng rủi ro đã sinh ra ROI đó —
+      và trên dữ liệu tổng hợp thế này thì còn chẳng tách được <i>giỏi</i> khỏi <i>may</i>.</p>
+    </div>
+    ${nguonNho(G.nguon, W.luc)}`;
 }
 
+/* ── TẦNG 2 · DÒNG CHẢY THẾ GIỚI ───────────────────────────────── */
 function veTheGioi() {
-  el("tgNoi").innerHTML = chuaCo("Dòng chảy thế giới",
-    "Phòng này biến tin tức thành <b>dữ liệu có cấu trúc</b>: một sự kiện FED thành " +
-    "<code>{category, region, affected_assets, surprise, direction, confidence, horizon}</code>, rồi vẽ thành chuỗi nhân quả " +
-    "<i>FED → lãi suất → USD → tài sản rủi ro → BTC</i>. M0 chưa có bước này.",
-    ["Nguồn tin: RSS/API tài chính, hoặc <code>web_search</code> qua Claude Code Action",
-     "Một lượt Claude biến tin thành JSON có schema — <b>không</b> cho model ghi thẳng vào file trang",
-     "Bảng lịch sự kiện (FOMC, CPI, NFP) để đặt cờ <code>event_risk</code> trước giờ công bố",
-     "Ghi rõ đây là <b>chuỗi nhân quả CÓ THỂ</b>, không phải chân lý — và lưu lại để hậu kiểm xem nó có đúng không"]) +
-    `<div class="kinh the" style="margin-top:12px"><h3>Chỗ này tốn tiền nhất</h3>
-     <p style="margin:0;font-size:12.5px;color:var(--fg-3);line-height:1.7">
-     Đo được rồi: bản quét tin của Đài Quan Trắc trong repo này từng tốn <b>1,4 USD một lượt</b> vì
-     <code>web_search</code> kéo nguyên nội dung trang vào ngữ cảnh, nhân số chủ đề — ở nhịp 4 lượt/ngày là
-     ~170 USD/tháng và đã phải tắt lịch. Nếu dựng phòng này thì <b>bắt đầu từ trần chi phí</b>, không phải từ
-     tính năng.</p></div>`;
+  if (!W?.co) { el("tgNoi").innerHTML = khoiTheGioiChoLay("Dòng chảy thế giới"); return; }
+  const V = W.viMo, T = W.tamLy, SK = W.suKien;
+
+  const oViMo = (ma) => {
+    const m = V?.muc?.[ma];
+    if (!m) return `<div class="kinh the"><h3>${esc(ma)}</h3><div class="so-lon mo">—</div>
+      <div class="phu-nho">chưa lấy được</div></div>`;
+    return `<div class="kinh the"><h3>${esc(ma)}<span class="cuoi">${esc(m.ten)}</span></h3>
+      <div class="so-lon">${num(m.gia, 2)}</div>
+      <div class="so-vua ${dau(m.doiPct)}" style="font-size:14px">${m.doiPct > 0 ? "+" : ""}${num(m.doiPct)}%</div></div>`;
+  };
+
+  const fg = T?.co ? T.gt : null;
+  const fgCls = fg == null ? "mo" : fg < 25 ? "xuong" : fg < 45 ? "nhac" : fg > 75 ? "xuong" : "len";
+
+  el("tgNoi").innerHTML = `
+    <div class="tieu-muc">Vĩ mô · Yahoo Finance</div>
+    <div class="luoi c5">${["DXY", "US10Y", "DAU", "SP500", "VANG"].map(oViMo).join("")}</div>
+
+    <div class="luoi c2" style="margin-top:12px">
+      <div class="kinh the"><h3>Khẩu vị rủi ro</h3>
+        <div class="so-vua ${V?.khauVi?.nhan === "RISK_ON" ? "len" : V?.khauVi?.nhan === "RISK_OFF" ? "xuong" : "nhac"}">
+          ${esc(V?.khauVi?.nhan || "—")}</div>
+        <div class="phu-nho" style="margin-top:6px">điểm ${num(V?.khauVi?.diem)} · từ ${V?.khauVi?.soChiSo ?? 0} chỉ số</div>
+        <p style="margin:8px 0 0;font-size:11.5px;color:var(--fg-3);line-height:1.6">
+          ${esc(V?.khauVi?.ghiChu || "")}</p></div>
+
+      <div class="kinh the"><h3>Sợ hãi / Tham lam<span class="cuoi">alternative.me</span></h3>
+        <div class="so-lon ${fgCls}">${fg ?? "—"}</div>
+        <div class="so-vua" style="font-size:14px">${esc(T?.nhan || "")}</div>
+        ${T?.chuoi ? `<div class="do-rai" style="margin-top:10px">
+          <div class="do-day ${fgCls}" style="width:${clamp(fg)}%"></div>
+          <div class="do-nguong" style="left:50%"></div></div>
+          <div class="phu-nho" style="margin-top:6px">8 ngày: ${T.chuoi.join(" → ")}
+          ${T.doi7ngay != null ? ` · <b class="${dau(T.doi7ngay)}">${T.doi7ngay > 0 ? "+" : ""}${T.doi7ngay}</b>` : ""}</div>` : ""}
+      </div>
+    </div>
+
+    <div class="tieu-muc">Tin theo chủ đề${SK?.co ? ` · ${SK.soFeed}/${SK.tongFeed} feed · ${SK.soBai} bài` : ""}</div>
+    ${SK?.co ? SK.chuDe.map((c) => `
+      <div class="kinh the" style="margin-bottom:10px">
+        <h3>${esc(c.ma.replace(/_/g, " "))}
+          <span class="cuoi">${c.soBai} bài · ảnh hưởng: ${c.anhHuong.join(", ")}</span></h3>
+        ${c.soBai ? c.bai.map((b) => `<div class="tin-bai">
+            <a href="${esc(b.url || "#")}" target="_blank" rel="noopener">${esc(b.tieuDe)}</a>
+            <div class="tin-phu"><span>${esc(b.nguon)}</span>
+              <span class="khop" title="từ khoá đã khớp">${esc(b.khop || "")}</span></div>
+          </div>`).join("")
+          : `<div class="mo" style="font-size:12px">Chưa có tin nào khớp chủ đề này trong 3 ngày.
+             Rỗng ở đây nghĩa là <i>không có tin</i>, không phải <i>hỏng</i>.</div>`}
+      </div>`).join("") : `<div class="trong">Chưa lấy được tin.</div>`}
+
+    ${SK?.khac?.length ? `<div class="tieu-muc">Không thuộc chủ đề nào</div>
+      <div class="kinh the">${SK.khac.map((b) => `<div class="tin-bai">
+        <a href="${esc(b.url || "#")}" target="_blank" rel="noopener">${esc(b.tieuDe)}</a>
+        <div class="tin-phu"><span>${esc(b.nguon)}</span></div></div>`).join("")}
+        <div class="phu-nho" style="margin-top:8px">Giữ lại có chủ đích: thị trường vẫn có thể động vì
+        một lý do chưa nằm trong danh sách từ khoá. Bỏ hẳn thì đúng lúc đó phòng này im lặng.</div></div>` : ""}
+
+    <div class="tieu-muc">Giới hạn của phòng này</div>
+    <div class="kinh the"><p style="margin:0;font-size:12.5px;line-height:1.7;color:var(--fg-3)">
+      Đây mới là <b>thu thập và phân loại</b>, chưa phải chuỗi nhân quả. Mỗi bài mang theo từ khoá đã khớp
+      (ô xám bên phải) nên xếp sai là nhìn ra ngay — đó là lý do dùng từ khoá thay vì để một model gán nhãn:
+      model rẻ hơn nhưng lúc nó gán sai thì không ai truy được.
+      Bước <i>FED → lãi suất → USD → BTC</i> cần một lượt gọi model có schema, và
+      <b>phải bắt đầu từ trần chi phí</b>: bản quét tin của Đài Quan Trắc trong repo này từng tốn
+      <b>1,4 USD một lượt</b> vì <code>web_search</code> kéo nguyên trang vào ngữ cảnh — ~170 USD/tháng ở
+      nhịp 4 lượt/ngày, và đã phải tắt lịch. RSS ở đây thì <b>không tốn gì</b>.</p></div>
+    ${nguonNho(SK?.nguon, W.luc)}`;
+}
+
+/* Ô chờ chung cho các phòng ăn dữ liệu ngoài. */
+function khoiTheGioiChoLay(ten) {
+  const dang = W?.dangLay;
+  return `<div class="trong">${esc(ten)} — ${dang ? "đang lấy dữ liệu…" : "chưa có dữ liệu."}<br>
+    <span style="color:var(--fg-3)">Luồng nguồn ngoài chạy riêng, nhịp 15 phút, không nằm trong vòng giao dịch.
+    Lượt đầu mất vài giây sau khi runtime khởi động.</span></div>`;
+}
+
+function nguonNho(ten, luc) {
+  if (!ten) return "";
+  const t = luc ? new Date(luc * 1000) : null;
+  return `<div class="phu-nho" style="margin-top:10px;text-align:right">nguồn: ${esc(ten)}${
+    t ? " · lấy lúc " + String(t.getHours()).padStart(2, "0") + ":" + String(t.getMinutes()).padStart(2, "0") : ""}</div>`;
 }
 
 /* ── TẦNG 3 · CHIẾN LƯỢC ───────────────────────────────────────── */
@@ -716,6 +867,271 @@ function veChienLuoc() {
       thêm chỉ báo, thêm nguồn dữ liệu lúc này đều là đoán. Đổi chiến lược sau mỗi lệnh thua là đường cong
       sát thủ: hệ thống đuổi theo nhiễu, mọi thay đổi đều được biện minh bằng lệnh gần nhất, và không phiên
       bản nào sống đủ lâu để biết nó tốt hay xấu.</p></div>`;
+}
+
+/* ── TẦNG 3 · PHÒNG HUẤN LUYỆN ─────────────────────────────────── */
+/* Phòng duy nhất trong cả app có nút LÀM một việc nặng, nên nó cũng là phòng
+   duy nhất phải tự vẽ lại theo tiến độ. Mọi phòng khác chỉ hiển thị. */
+let HL = null;          // /api/hoc
+let hlNhip = null;      // đồng hồ hỏi tiến độ
+/* Mã mức độ để ASCII ở phía runtime, chữ có dấu chỉ nằm ở đây. Móc CSS hay so
+   sánh chuỗi vào tiếng Việt có dấu là móc vào dạng chuẩn hoá Unicode — NFC và
+   NFD trông giống hệt nhau mà không khớp nhau. */
+const NANG = { cao: "cao", vua: "vừa", thap: "thấp" };
+const hlTham = { stopAtr: 1.5, demTp: 1.05, adxToiThieu: 0, chanBienDongCao: false,
+                 boQuaKill: false, toiDaNenGiu: 48 };
+
+function ngay(ms) {
+  const d = new Date(ms);
+  return isNaN(d) ? "—" : d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+/** Thẻ một con số thống kê, kèm cách đọc. */
+function oTk(nhan, gt, cls, y) {
+  return `<div class="kinh the"><h3>${esc(nhan)}</h3>
+    <div class="so-lon ${cls || ""}">${gt}</div>
+    ${y ? `<div class="phu-nho" style="margin-top:4px">${y}</div>` : ""}</div>`;
+}
+
+function veThongKeChay(tk) {
+  const kv = tk.kyVongR;
+  return `<div class="luoi c4">
+    ${oTk("Kỳ vọng mỗi lệnh", kv == null ? "—" : (kv > 0 ? "+" : "") + num(kv, 3) + "R",
+      kv == null ? "mo" : kv > 0 ? "len" : "xuong",
+      "<b>Con số quan trọng nhất.</b> Dương thì có cửa, âm thì thắng nhiều đến mấy cũng là chết chậm.")}
+    ${oTk("Tỉ lệ thắng", tk.tyLeThang == null ? "—" : num(tk.tyLeThang, 1) + "%", "",
+      `${tk.soThang}/${tk.so} lệnh. Một mình nó <b>không</b> nói lên điều gì — chốt lãi non là đẩy được lên 90%.`)}
+    ${oTk("Sụt giảm sâu nhất", num(tk.sutGiamToiDaPct, 1) + "%", tk.sutGiamToiDaPct > 15 ? "xuong" : "",
+      "Con số quyết định mức risk chịu được, không phải kỳ vọng.")}
+    ${oTk("Thua liền dài nhất", tk.chuoiThuaDaiNhat + " lệnh", tk.chuoiThuaDaiNhat >= 6 ? "nhac" : "",
+      "Hỏi thật: chuỗi này ở mức risk hiện tại có ngồi yên được không?")}
+  </div>
+  <div class="luoi c4" style="margin-top:10px">
+    ${oTk("Số lệnh", tk.so, "", "Dưới 30 lệnh thì mọi con số trên đây đều là nhiễu.")}
+    ${oTk("Hệ số lợi nhuận", tk.heSoLoiNhuan ?? "—", tk.heSoLoiNhuan > 1 ? "len" : "xuong", "tổng lãi ÷ tổng lỗ")}
+    ${oTk("R thắng / R thua", `${tk.trungBinhThangR ?? "—"} / ${tk.trungBinhThuaR ?? "—"}`, "",
+      "Thua trung bình luôn xấu hơn −1R vì còn phí lần thoát.")}
+    ${oTk("Vốn cuối", tien(tk.vonCuoi), dau(tk.loiNhuanPct),
+      `${tk.loiNhuanPct > 0 ? "+" : ""}${num(tk.loiNhuanPct)}% · giữ TB ${tk.trungBinhNenGiu} nến`)}
+  </div>
+  ${tk.theoLyDoThoat ? `<div class="kinh the" style="margin-top:10px"><h3>Thoát lệnh vì</h3>
+    <div class="luoi c3">
+      ${hang("chạm mục tiêu", tk.theoLyDoThoat.TP ?? 0, "len")}
+      ${hang("chạm cắt lỗ", tk.theoLyDoThoat.SL ?? 0, "xuong")}
+      ${hang("hết hạn giữ", tk.theoLyDoThoat.HET_HAN ?? 0, "nhac")}
+    </div></div>` : ""}`;
+}
+
+function veHuanLuyen() {
+  const n = el("hlNoi");
+  const ss = HL?.sanSang;
+
+  if (!HL) { n.innerHTML = `<div class="trong">Đang hỏi trạng thái phòng huấn luyện…</div>`; return; }
+
+  if (ss && !ss.coNen) {
+    n.innerHTML = `<div class="trong">Chưa có nến lịch sử để chạy lại.<br>
+      <span style="color:var(--fg-3)">Chạy lệnh này một lần rồi mở lại phòng:</span>
+      <div class="ma-lenh">${esc(ss.goiY)}</div></div>`;
+    return;
+  }
+
+  const chay = HL.trangThai === "đang chạy";
+  const kq = HL.ketQua;
+
+  const oTham = (khoa, nhan, buoc, y) => `<label class="tham">
+    <span>${esc(nhan)}</span>
+    <input type="number" step="${buoc}" value="${hlTham[khoa]}" data-tham="${khoa}" ${chay ? "disabled" : ""}>
+    <i>${esc(y)}</i></label>`;
+
+  n.innerHTML = `
+    <div class="kinh the">
+      <h3>Dữ liệu<span class="cuoi">${esc(ss?.symbol || "")}</span></h3>
+      <div class="luoi c3">
+        ${hang("nến", Object.entries(ss?.soNen || {}).map(([k, v]) => `${k}: ${v}`).join(" · "))}
+        ${hang("khoảng", `${ngay(ss?.tu)} → ${ngay(ss?.den)}`)}
+        ${hang("chuỗi tín hiệu", ss?.coChuoiSan ? "đã dựng sẵn — chạy tức thì" : "chưa dựng — lượt đầu ~6 phút",
+          ss?.coChuoiSan ? "len" : "nhac")}
+      </div>
+    </div>
+
+    <div class="tieu-muc">Tham số chiến lược</div>
+    <div class="kinh the">
+      <div class="luoi c4">
+        ${oTham("stopAtr", "SL cách giá (×ATR)", "0.1", "hẹp thì chết vì nhiễu, rộng thì một lệnh nuốt cả tuần")}
+        ${oTham("demTp", "Đệm mục tiêu (×)", "0.05", "1.0 = đặt TP sát mức RR tối thiểu")}
+        ${oTham("adxToiThieu", "ADX tối thiểu", "1", "0 = không lọc thêm")}
+        ${oTham("toiDaNenGiu", "Giữ tối đa (nến)", "1", "quá hạn thì thoát ở giá đóng cửa")}
+      </div>
+      <div class="hang" style="margin-top:10px">
+        <span>Bỏ qua lệnh khi biến động cao</span>
+        <input type="checkbox" data-tham="chanBienDongCao" ${hlTham.chanBienDongCao ? "checked" : ""} ${chay ? "disabled" : ""}>
+      </div>
+      <div class="hang">
+        <span>Tắt ngắt mạch để đo hết đoạn <i style="color:var(--fg-4)">(đo lợi thế thô, KHÔNG phải cách chạy thật)</i></span>
+        <input type="checkbox" data-tham="boQuaKill" ${hlTham.boQuaKill ? "checked" : ""} ${chay ? "disabled" : ""}>
+      </div>
+      <div class="nut-hang" style="margin-top:12px">
+        <button class="nut chinh" id="hlChay" ${chay ? "disabled" : ""}>Chạy lại lịch sử</button>
+        <button class="nut" id="hlQuet" ${chay ? "disabled" : ""}>Dò tham số (${
+          Object.values(ss?.luoiMacDinh || {}).reduce((a, b) => a * b.length, 1)} tổ hợp)</button>
+      </div>
+      ${chay ? `<div style="margin-top:12px">
+        <div class="do-nhan"><span>${esc(HL.viec || "")}</span><b>${HL.phanTram}%</b></div>
+        <div class="do-rai"><div class="do-day" style="width:${clamp(HL.phanTram)}%"></div></div>
+      </div>` : ""}
+      ${HL.loi ? `<div class="canh-bao" style="margin-top:10px">${esc(HL.loi)}</div>` : ""}
+    </div>
+
+    ${kq ? (HL.viec === "quet" ? veKetQuaQuet(kq) : veKetQuaChay(kq)) : `
+      <div class="trong" style="margin-top:12px">Chưa chạy lượt nào.<br>
+      <span style="color:var(--fg-3)">“Chạy lại” đo bộ tham số đang đặt ở trên.
+      “Dò tham số” thử tất cả tổ hợp, chọn trên phần dữ liệu đầu rồi chấm điểm trên phần cuối chưa từng đụng tới.</span></div>`}`;
+
+  n.querySelectorAll("[data-tham]").forEach((i) => {
+    i.onchange = () => {
+      hlTham[i.dataset.tham] = i.type === "checkbox" ? i.checked : Number(i.value);
+    };
+  });
+  const bam = (id, viec) => { const b = el(id); if (b) b.onclick = () => hlBatDau(viec); };
+  bam("hlChay", "chay-lai");
+  bam("hlQuet", "quet");
+}
+
+function veKetQuaChay(kq) {
+  const tk = kq.thongKe, d = kq.dungSom;
+  return `
+    ${d ? `<div class="canh-bao" style="margin-top:12px">
+      <b>Dừng sớm ở ${ngay(d.luc)}</b> — ${esc(d.lyDo)}.
+      Chỉ đo được ${d.phanTramDaXet}% đoạn dữ liệu (bỏ dở ${d.soNenBoDo} nến).
+      Ngắt mạch là chốt cứng, đúng như bản chạy thật. Muốn đo hết đoạn thì bật
+      “tắt ngắt mạch” ở trên — nhưng đó là đo lợi thế thô, không phải cách hệ thống hành xử.
+    </div>` : ""}
+
+    <div class="tieu-muc">Kết quả${kq.nguonChuoi ? ` · chuỗi tín hiệu từ ${esc(kq.nguonChuoi)}` : ""}</div>
+    ${tk.so === 0 ? `<div class="trong">Không lệnh nào qua được Risk Engine.</div>` : veThongKeChay(tk)}
+
+    ${kq.baiHoc?.length ? `<div class="tieu-muc">Bài học đúc ra</div>
+      ${kq.baiHoc.map((b) => `<div class="kinh the bai-hoc" data-nang="${esc(b.nang)}" style="margin-bottom:10px">
+        <h3>${esc(b.muc.replace(/_/g, " "))}<span class="cuoi">${esc(NANG[b.nang] || b.nang)}</span></h3>
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.7;color:var(--fg-1)">${esc(b.cau)}</p>
+        <div class="hang"><span>số liệu</span><b class="mono">${esc(b.so)}</b></div>
+        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:var(--fg-2)">
+          <b style="color:var(--amber)">Làm gì:</b> ${esc(b.lam)}</p>
+      </div>`).join("")}` : ""}
+
+    ${Object.keys(kq.theoRegime || {}).length ? `<div class="tieu-muc">Theo chế độ thị trường</div>
+      <div class="kinh the"><table class="bang">
+        <tr><th>chế độ</th><th>lệnh</th><th>thắng</th><th>R trung bình</th></tr>
+        ${Object.entries(kq.theoRegime).sort((a, b) => b[1].so - a[1].so).map(([k, v]) =>
+          `<tr><td>${esc(k)}</td><td>${v.so}</td><td>${num(v.tyLeThang, 1)}%</td>
+           <td class="${v.trungBinhR > 0 ? "len" : "xuong"}">${v.trungBinhR > 0 ? "+" : ""}${num(v.trungBinhR, 3)}R</td></tr>`).join("")}
+      </table>
+      <div class="phu-nho" style="margin-top:8px">Dòng dưới 5 lệnh chỉ là nhiễu — đừng rút kết luận từ chúng.</div></div>` : ""}
+
+    ${Object.keys(kq.tuChoi || {}).length ? `<div class="tieu-muc">Vì sao bị chặn</div>
+      <div class="kinh the">${Object.entries(kq.tuChoi).map(([k, v]) =>
+        hang(k.replace(/_/g, " "), v)).join("")}
+      <div class="phu-nho" style="margin-top:8px">Bị chặn nhiều không hẳn xấu — Risk Engine đứng chắn là
+      việc của nó. Nhưng nếu một lý do chiếm gần hết thì đó là chỗ nới sẽ đổi được nhiều nhất.</div></div>` : ""}
+
+    ${kq.lenh?.length ? `<div class="tieu-muc">${kq.lenh.length} lệnh gần nhất</div>
+      <div class="kinh the" style="overflow-x:auto"><table class="bang">
+        <tr><th>lúc</th><th>phía</th><th>vào</th><th>SL</th><th>TP</th><th>ra</th><th>vì</th><th>nến</th><th>R</th><th>vốn</th></tr>
+        ${kq.lenh.slice().reverse().map((t) => `<tr>
+          <td class="mono">${ngay(t.t)}</td>
+          <td class="${t.side === "LONG" ? "len" : "xuong"}">${t.side}</td>
+          <td class="mono">${num(t.entry)}</td><td class="mono">${num(t.sl)}</td>
+          <td class="mono">${num(t.tp)}</td><td class="mono">${num(t.exit)}</td>
+          <td><span class="the-nho ${t.lyDo === "TP" ? "len" : t.lyDo === "SL" ? "xuong" : "nhac"}">${t.lyDo}</span></td>
+          <td>${t.soNenGiu}</td>
+          <td class="mono ${t.R > 0 ? "len" : "xuong"}">${t.R > 0 ? "+" : ""}${num(t.R, 2)}</td>
+          <td class="mono">${num(t.von, 0)}</td></tr>`).join("")}
+      </table></div>` : ""}`;
+}
+
+function veKetQuaQuet(q) {
+  const tn = q.totNhat;
+  const bang = (q.bang || []).filter((b) => b.duMau)
+    .sort((a, b) => (b.kyVongR ?? -9) - (a.kyVongR ?? -9)).slice(0, 12);
+
+  return `
+    <div class="tieu-muc">Kết luận</div>
+    <div class="kinh the ket-luan">
+      <p style="margin:0;font-size:14px;line-height:1.8;color:var(--fg-1)">${esc(q.ketLuan)}</p>
+      <div class="phu-nho" style="margin-top:10px">
+        ${q.soToHop} tổ hợp · ${q.giay}s · cắt trong/ngoài mẫu tại nến ${q.mocCat}/${q.tongNen}
+        ${q.boQuaKill ? " · ngắt mạch đã tắt để so được các tổ hợp với nhau" : ""}</div>
+    </div>
+
+    ${tn ? `<div class="tieu-muc">Bộ tốt nhất trong mẫu, chấm điểm ngoài mẫu</div>
+      <div class="kinh the">
+        <div class="mono" style="font-size:13px;margin-bottom:12px;color:var(--amber)">${
+          Object.entries(tn.bo).map(([k, v]) => `${k}=${v}`).join("  ·  ")}</div>
+        <div class="luoi c3">
+          ${oTk("Trong mẫu", (tn.trongMau.kyVongR > 0 ? "+" : "") + num(tn.trongMau.kyVongR, 3) + "R",
+            tn.trongMau.kyVongR > 0 ? "len" : "xuong",
+            `${tn.trongMau.so} lệnh · thắng ${num(tn.trongMau.tyLeThang, 1)}% — <b>đây là phần đã dùng để CHỌN</b>, nên nó luôn đẹp`)}
+          ${oTk("Ngoài mẫu", tn.ngoaiMau.kyVongR == null ? "—"
+              : (tn.ngoaiMau.kyVongR > 0 ? "+" : "") + num(tn.ngoaiMau.kyVongR, 3) + "R",
+            tn.ngoaiMau.kyVongR > 0 ? "len" : "xuong",
+            `${tn.ngoaiMau.so} lệnh · thắng ${num(tn.ngoaiMau.tyLeThang, 1)}% — <b>chỉ con số này mới có nghĩa</b>`)}
+          ${oTk("Khớp trội", tn.khopTroi == null ? "—" : num(tn.khopTroi, 3) + "R",
+            tn.khopTroi > 0.2 ? "xuong" : "len",
+            "Phần kỳ vọng bốc hơi khi ra khỏi dữ liệu đã dùng để chọn. Càng lớn càng là ảo giác.")}
+        </div>
+      </div>` : ""}
+
+    <div class="tieu-muc">Bảng dò · sắp theo kỳ vọng TRONG mẫu</div>
+    <div class="kinh the" style="overflow-x:auto">
+      ${bang.length ? `<table class="bang">
+        <tr><th>SL ×ATR</th><th>đệm TP</th><th>ADX ≥</th><th>chặn b.động</th>
+            <th>lệnh</th><th>thắng</th><th>kỳ vọng</th><th>sụt</th></tr>
+        ${bang.map((b, i) => `<tr class="${i === 0 ? "dau" : ""}">
+          <td class="mono">${b.bo.stopAtr}</td><td class="mono">${b.bo.demTp}</td>
+          <td class="mono">${b.bo.adxToiThieu || "—"}</td><td>${b.bo.chanBienDongCao ? "có" : "—"}</td>
+          <td>${b.so}</td><td>${num(b.tyLeThang, 1)}%</td>
+          <td class="mono ${b.kyVongR > 0 ? "len" : "xuong"}">${b.kyVongR > 0 ? "+" : ""}${num(b.kyVongR, 3)}R</td>
+          <td>${num(b.sutGiamToiDaPct, 1)}%</td></tr>`).join("")}
+      </table>` : `<div class="trong">Không tổ hợp nào vào đủ ${q.toiThieuLenh} lệnh.</div>`}
+    </div>
+
+    <div class="tieu-muc">Vì sao bảng này không phải danh sách để chọn</div>
+    <div class="kinh the"><p style="margin:0;font-size:12.5px;line-height:1.8;color:var(--fg-2)">
+      Dòng đầu bảng <b>luôn</b> đẹp. Nó đẹp kể cả khi chiến lược hoàn toàn vô dụng — dò càng nhiều tổ hợp
+      thì con số đứng đầu càng cao, vì đó là cực trị của nhiễu chứ không phải lợi thế.
+      Đó là lý do dữ liệu bị cắt đôi: bảng này chọn trên phần đầu, rồi bộ thắng bị đem ra chấm lại trên phần
+      cuối mà nó <b>chưa từng thấy</b>. Chỉ con số ngoài mẫu mới đáng tin, và
+      <b>“khớp trội” chính là khoảng cách giữa cái mình tưởng và cái có thật.</b></p>
+      <p style="margin:10px 0 0;font-size:12.5px;line-height:1.8;color:var(--fg-3)">
+      Ngay cả khi ngoài mẫu vẫn dương: một đoạn sáu tháng chỉ chứa vài chế độ thị trường.
+      Bước kế tiếp đúng đắn không phải áp dụng luôn, mà là chạy lại trên đoạn khác và trên cặp khác.</p></div>`;
+}
+
+async function hlBatDau(viec) {
+  const than = viec === "quet"
+    ? { viec, tyLeTrongMau: 0.7 }
+    : { viec, tham: { stopAtr: hlTham.stopAtr, demTp: hlTham.demTp,
+                      adxToiThieu: hlTham.adxToiThieu, chanBienDongCao: hlTham.chanBienDongCao },
+        boQuaKill: hlTham.boQuaKill, toiDaNenGiu: hlTham.toiDaNenGiu };
+  try {
+    await fetch("/api/hoc", { method: "POST", headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(than) });
+  } catch (e) { /* hỏi tiến độ ngay sau đây sẽ lộ ra lỗi */ }
+  taiHoc();
+  hlBatNhip();
+}
+
+function hlBatNhip() {
+  if (hlNhip) return;
+  hlNhip = setInterval(async () => {
+    await taiHoc();
+    if (HL?.trangThai !== "đang chạy") { clearInterval(hlNhip); hlNhip = null; }
+    if (phongDangMo === "huan-luyen") veHuanLuyen();
+  }, 1200);
+}
+
+async function taiHoc() {
+  try { HL = await (await fetch("/api/hoc")).json(); } catch (e) { /* giữ bản cũ */ }
 }
 
 /* ── TẦNG 3 · HỌC ──────────────────────────────────────────────── */
@@ -917,7 +1333,8 @@ const VE = {
   "tong-quan": veTongQuan, "thi-truong": veThiTruong, "vi-the": veViThe, "rui-ro": veRuiRo,
   "nao-thi-truong": veNaoThiTruong, "nao-claude": veNaoClaude,
   "quan-sat-trader": veQuanSatTrader, "the-gioi": veTheGioi,
-  "chien-luoc": veChienLuoc, "hoc": veHoc, "tri-nho": veTriNho, "ky-nang": veKyNang,
+  "chien-luoc": veChienLuoc, "huan-luyen": veHuanLuyen, "hoc": veHoc,
+  "tri-nho": veTriNho, "ky-nang": veKyNang,
   "nhat-ky": veNhatKy, "chat": () => {},
 };
 
@@ -974,6 +1391,10 @@ async function taiNhatKy() {
 
 async function taiNen() {
   try { C = await (await fetch("/api/candles")).json(); ve(); } catch {}
+}
+
+async function taiTheGioi() {
+  try { W = await (await fetch("/api/the-gioi")).json(); ve(); } catch {}
 }
 
 /* ── điều khiển ────────────────────────────────────────────────── */
@@ -1044,11 +1465,16 @@ Promise.all([
   fetch("/api/journal").then((r) => r.json()),
   fetch("/api/candles").then((r) => r.json()).catch(() => null),
   fetch("/api/skills").then((r) => r.json()).catch(() => null),
-]).then(([s, j, c, k]) => {
-  S = s; J = j; C = c; K = k;
+  fetch("/api/the-gioi").then((r) => r.json()).catch(() => null),
+  fetch("/api/hoc").then((r) => r.json()).catch(() => null),
+]).then(([s, j, c, k, w, h]) => {
+  S = s; J = j; C = c; K = k; W = w; HL = h;
   dungBen();
   moPhong(phongDangMo);
   document.body.dataset.sanSang = "1";   // dấu để headless biết đã render xong
+  // Một phiên huấn luyện có thể đang chạy từ trước khi mở tab này — nối lại
+  // thanh tiến độ thay vì hiện như chưa chạy gì.
+  if (HL?.trangThai === "đang chạy") hlBatNhip();
 });
 
 // Vẽ lại biểu đồ khi đổi kích thước cửa sổ — canvas không tự co giãn.
@@ -1063,5 +1489,8 @@ if (THAM_SO.get("nosse") !== "1") {
   setInterval(veMach, 700);
   setInterval(taiNhatKy, 20000);
   setInterval(taiNen, 15000);
+  // Nguồn ngoài tự tươi lại mỗi 15 phút ở runtime, nên hỏi mỗi 2 phút là thừa
+  // đủ. Hỏi dày hơn chỉ chép lại đúng một bản trong bộ nhớ máy chủ.
+  setInterval(taiTheGioi, 120000);
 }
 })();

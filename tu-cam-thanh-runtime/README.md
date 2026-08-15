@@ -37,7 +37,84 @@ python scripts/kiem-roi-ve.py    # kiểm đường rơi về sàn giấy
 python scripts/thu-mot-lenh.py   # thử nguyên đường ống vào lệnh (--that để gửi thật)
 python scripts/doi-so.py         # đối soát sổ cục bộ với sàn (--don để dọn)
 python scripts/sinh-icon.py      # vẽ lại 5 icon PNG của cung
+
+python scripts/tai-lich-su.py --so 4000   # tải nến lịch sử để huấn luyện
+python scripts/kiem-huanluyen.py          # kiểm cỗ máy chạy lại (cần nến ở trên)
+python scripts/kiem-nguon.py --offline    # kiểm phân loại tin, không chạm mạng
+node scripts/kiem-giao-dien.mjs           # mọi trường app.js đọc phải có thật (runtime đang chạy)
 ```
+
+## Phòng huấn luyện
+
+Chạy lại chiến lược trên nến lịch sử, dò tham số, đúc bài học. Vào từ buồng lái
+→ tầng 3 → **Phòng huấn luyện**, hoặc gọi thẳng:
+
+```bash
+python scripts/tai-lich-su.py --so 4000   # một lần, ~4000 nến 1h ≈ 6 tháng
+curl -X POST localhost:5182/api/hoc -d '{"viec":"quet"}'   # dò tham số
+curl localhost:5182/api/hoc                                # tiến độ + kết quả
+```
+
+Lượt đầu mất khoảng sáu phút để dựng chuỗi tín hiệu (chỉ báo phải tính lại trên
+cửa sổ 400 nến ở mỗi bước). Chuỗi được cache ra `data/chuoi/`, nên từ lượt hai
+trở đi mọi lượt chạy lại và cả phép dò 72 tổ hợp đều xong trong dưới một giây.
+
+Cache gắn **vân tay** của bộ dữ liệu + khung thời gian + `candleLimit`. Đổi bất
+kỳ thứ nào trong đó là chuỗi tự sinh lại — nếu không thì kết quả trả về trong
+một giây, trông rất hợp lý, mà thuộc về cấu hình cũ.
+
+### Bốn đường backtest tự lừa mình, và chỗ chặn từng đường
+
+| Đường | Chặn ở đâu |
+|---|---|
+| Nhìn trộm tương lai | lát nến cắt tại `i`, khung lớn tìm bằng nhị phân trên mốc thời gian; `kiem-huanluyen.py` mục [3] so kết quả khi thêm 120 nến tương lai |
+| Nến chạm cả SL lẫn TP | luôn tính **SL** — `_thoat()`, mục [1] |
+| Quên chi phí | phí + trượt giá ở **cả hai đầu**; lệnh dính SL luôn lỗ hơn 1R, mục [7] |
+| Dò rồi khoe chính con số đã dò | cắt đôi dữ liệu, chọn trong mẫu, chấm điểm ngoài mẫu, hiện thẳng **khớp trội** |
+
+Một chỗ nữa đáng nhớ vì nó im lặng: bản chạy thật chỉ xin `candleLimit = 400`
+nến, nên bản chạy lại cũng bị chặn đúng cửa sổ đó. Lần viết đầu tôi để lát nến
+lớn dần tới hết lịch sử — không có gì đổ, chỉ là kết quả thuộc về một hệ thống
+khác với hệ thống sắp chạy bằng tiền thật.
+
+**Giới hạn đã biết:** chưa mô phỏng nhảy giá qua stop. Thật thì stop 95 có thể
+khớp ở 90 khi tin ra lúc 2h sáng, nên số ở đây vẫn còn lạc quan hơn thực tế.
+
+### Dò cái gì, và vì sao không dò ngưỡng rủi ro
+
+Lưới dò chỉ chứa **tham số chiến lược** (`stopAtr`, `demTp`, `adxToiThieu`,
+`chanBienDongCao`) — xem `THAM_MAC_DINH` trong `brain.py`. Ngưỡng rủi ro nằm
+ngoài lưới có chủ ý: gộp chung thì rồi sẽ có lúc "tối ưu" bằng cách hạ hàng rào.
+`kiem-giao-dien.mjs` mục [9] canh đúng chuyện này.
+
+Lưới đầu tiên tôi dựng lại toàn ngưỡng rủi ro, và cả 108 tổ hợp cho ra một kết
+quả duy nhất — vì bộ luật tự suy mục tiêu từ `minRR` để luôn vừa đủ qua cửa. Dò
+một tham số mà chiến lược đã tự chiều theo thì chỉ đo được chính nó.
+
+## Nguồn dữ liệu ngoài
+
+`trader/nguon.py` — bốn nhóm, **không nhóm nào cần khoá API hay tốn tiền**:
+
+| Nhóm | Nguồn | Nhịp |
+|---|---|---|
+| phái sinh | Binance Futures — funding, open interest, tỉ lệ long/short của **top trader** | 2 phút |
+| vĩ mô | Yahoo Finance — DXY, lợi suất 10 năm, dầu, S&P 500, vàng | 5 phút |
+| tâm lý | alternative.me — Sợ hãi / Tham lam | 30 phút |
+| tin tức | RSS 9 feed — trong đó **Fed, SEC, BLS là nguồn sơ cấp** | 15 phút |
+
+Chạy ở **luồng riêng**, không nằm trong vòng giao dịch: một lượt gom mất ~5 giây
+trong khi nhịp tick là 20 giây, để chung thì sự cố mạng bên ngoài hoá thành sự
+cố giao dịch.
+
+Từng cân nhắc GDELT làm nguồn tin, nhưng đo tại máy này thì nó chặn theo tải chứ
+không theo đồng hồ: giãn 5,5 giây rớt 4/5 truy vấn, giãn 8 giây vẫn rớt 3/5. RSS
+không giới hạn nhịp và đọc thẳng từ Fed/SEC/BLS thì còn sớm hơn qua toà soạn.
+
+Phân loại tin bằng **từ khoá có ranh giới từ**, và mỗi bài mang theo từ khoá đã
+khớp nên xếp sai là nhìn ra ngay. `kiem-nguon.py --offline` gác chỗ này — nó đã
+bắt được hai lỗi thật: `"SEC Charges **Boiler** Room"` rơi vào nhóm dầu vì "oil"
+nằm trong "b-oil-er", và nhóm "quy định crypto" nuốt trọn mọi án lừa đảo thường
+của SEC.
 
 ## Hai chế độ sàn
 
@@ -193,30 +270,41 @@ trader/
   indicators.py         EMA RSI MACD ATR ADX Bollinger swing S/R — Python thuần
   features.py           đo, KHÔNG kết luận
   regime.py             gán nhãn bằng luật xác định
-  brain.py              Claude + mock + schema + đồng hồ chi phí
+  brain.py              Claude + mock + schema + đồng hồ chi phí + THAM_MAC_DINH
   risk.py               bức tường cứng
   broker.py             sàn giấy, tính phí và trượt giá thật
+  broker_testnet.py     Binance Spot Testnet — lệnh thật, tiền giả
+  exchange.py           REST ký HMAC, bù lệch đồng hồ, bộ lọc sàn
   journal.py            4 loại trí nhớ + truy hồi
+  nguon.py              phái sinh · vĩ mô · tâm lý · tin tức — luồng riêng, không khoá
+  huanluyen.py          chạy lại lịch sử, dò tham số, đúc bài học
+  phien_hoc.py          một phiên huấn luyện chạy nền, có tiến độ
   loop.py               điều phối
   server.py             HTTP + SSE
+  snapshot.py           ghi lát cắt cho cung tĩnh
 skills/*/SKILL.md       kho kỹ năng — sửa được mà không phải deploy lại
-web/                    dashboard + chat
+web/                    buồng lái + chat
 data/                   JSONL, gitignore
+data/lich-su/           nến lịch sử để huấn luyện, gitignore
+data/chuoi/             cache chuỗi tín hiệu, gitignore
 ```
 
 ## Mốc sau
 
-M0 mới đóng được vòng. Thứ tự đề nghị, mỗi mốc chỉ thêm một thứ:
+Đã xong: **backtest / replay** (phòng huấn luyện), **dữ liệu phái sinh**
+(funding, OI, vị thế top trader) và **tin tức có cấu trúc** — cả ba bằng nguồn
+công khai miễn phí. Còn lại, mỗi mốc chỉ thêm một thứ:
 
-1. **Backtest / replay** trên nến lịch sử — bắt buộc trước mọi thứ khác, vì hiện
-   chưa có cách nào biết một thay đổi là tốt hơn hay chỉ là khác đi.
-2. **Champion / Challenger** — chiến lược mới phải thắng bản đang chạy trên dữ
-   liệu ngoài mẫu mới được lên.
-3. Nhiều chiến lược + bộ chọn theo regime.
-4. Order book, funding, OI (dữ liệu phái sinh).
-5. Global Event Engine — tin tức thành dữ liệu có cấu trúc.
-6. Chốt từng phần + trailing.
-7. Binance Spot **Testnet** (cần key testnet, vẫn không phải tiền thật).
+1. **Champion / Challenger** — chiến lược mới phải thắng bản đang chạy trên dữ
+   liệu ngoài mẫu mới được lên. Phòng huấn luyện đã có đủ phép đo cho việc này;
+   thiếu là sổ đăng ký chiến lược có phiên bản và cửa duyệt.
+2. Nhiều chiến lược + bộ chọn theo regime. Số liệu theo chế độ đã có sẵn, và nó
+   đang chỉ ra chỗ nên bỏ bớt chứ không phải chỗ nên thêm.
+3. Chạy lại trên nhiều cặp và nhiều đoạn thời gian — một đoạn sáu tháng chỉ chứa
+   vài chế độ thị trường, nên kết luận hiện tại còn hẹp.
+4. Mô phỏng nhảy giá qua stop, để bớt lạc quan.
+5. Chốt từng phần + trailing.
+6. On-chain (ô duy nhất còn trống trong bộ não thị trường — cần nguồn trả phí).
 
 Bot kiểu này không thể biết trước thị trường. Nó chỉ có thể được thiết kế để
 **ước lượng xác suất tốt hơn, nhận ra khi mình không biết, kiểm soát hậu quả khi

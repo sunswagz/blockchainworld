@@ -30,6 +30,9 @@
     return (v < 0 ? "−$" : "$") + so(Math.abs(v));
   }
   function dau(v) { return v > 0 ? "len" : v < 0 ? "xuong" : ""; }
+  /* Số dương phải mang dấu +. Không có nó thì "1,19%" cạnh "−0,29%" trông như
+     hai thang khác nhau, và mắt đọc lướt sẽ hiểu nhầm chiều. */
+  function kyDau(v, n) { return v == null ? "—" : (v > 0 ? "+" : "") + so(v, n); }
   function ngay(iso) {
     if (!iso) return "—";
     var d = new Date(iso);
@@ -342,6 +345,138 @@
     host.innerHTML = h;
   }
 
+  /* ── bối cảnh thế giới ─────────────────────────────── */
+  function veTheGioi() {
+    var host = el("oTheGioi");
+    if (!host) return;
+    var W = D && D.theGioi;
+    if (!W) {
+      host.innerHTML = trong("Ảnh chụp này chưa có bối cảnh thế giới — nó được ghi từ phiên " +
+        "runtime có bật luồng nguồn ngoài.");
+      return;
+    }
+    var h = "";
+
+    var ps = W.phaiSinh || {};
+    var vm = W.viMo || {};
+    var tl = W.tamLy || {};
+    h += '<div class="luoi">' +
+      o("funding (năm hoá)", ps.fundingNamHoa == null ? "—" : so(ps.fundingNamHoa, 2) + "%",
+        ps.fundingNamHoa > 15 ? "xuong" : "", "phe long trả bao nhiêu để giữ vị thế") +
+      o("open interest", ps.openInterestUsd == null ? "—" : "$" + so(ps.openInterestUsd / 1e9, 2) + " tỷ",
+        dau(ps.oiDoi24hPct), ps.oiDoi24hPct == null ? "" : "24h: " + kyDau(ps.oiDoi24hPct, 2) + "%") +
+      o("trader lớn đang LONG", ps.topTrader && ps.topTrader.long != null
+          ? so(ps.topTrader.long * 100, 1) + "%" : "—", "", "nhóm ký quỹ lớn nhất sàn") +
+      o("toàn sàn đang LONG", ps.toanSan && ps.toanSan.long != null
+          ? so(ps.toanSan.long * 100, 1) + "%" : "—", "",
+        "đếm theo đầu người — đây là đám đông, thường là chỉ báo NGƯỢC") +
+      o("khẩu vị rủi ro", (vm.khauVi && vm.khauVi.nhan) || "—",
+        vm.khauVi && vm.khauVi.diem > 0 ? "len" : "xuong",
+        vm.khauVi ? "suy ra từ " + vm.khauVi.soChiSo + " chỉ số, không phải một chỉ số có sẵn" : "") +
+      o("sợ hãi / tham lam", tl.gt == null ? "—" : tl.gt, "", esc(tl.nhan || "")) +
+      "</div>";
+
+    var muc = vm.muc || {};
+    var ma = Object.keys(muc);
+    if (ma.length) {
+      h += '<h2 class="tieu" style="margin-top:18px">vĩ mô</h2><div class="cuon"><table>' +
+        "<thead><tr><th>mã</th><th>chỉ số</th><th>giá</th><th>đổi</th></tr></thead><tbody>" +
+        ma.map(function (k) {
+          return "<tr><td>" + esc(k) + "</td><td>" + esc(muc[k].ten) + "</td>" +
+            "<td>" + so(muc[k].gia, 2) + "</td>" +
+            '<td class="' + dau(muc[k].doiPct) + '">' + kyDau(muc[k].doiPct, 2) + "%</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    var tin = W.tin || [];
+    if (tin.length) {
+      h += '<h2 class="tieu" style="margin-top:18px">tin theo chủ đề</h2>';
+      h += tin.map(function (c) {
+        return '<div class="the" style="margin-bottom:8px"><h3>' +
+          esc(c.ma.replace(/_/g, " ")) + " · " + c.soBai + " bài</h3>" +
+          (c.bai.length ? c.bai.map(function (b) {
+            return '<div style="padding:5px 0;font-size:12.5px;line-height:1.5">' +
+              '<a href="' + esc(b.url || "#") + '" target="_blank" rel="noopener">' +
+              esc(b.tieuDe) + "</a>" +
+              '<span class="mono" style="color:var(--fg-4);font-size:10.5px"> · ' +
+              esc(b.nguon) + "</span></div>";
+          }).join("")
+            : '<div class="mono" style="font-size:11.5px;color:var(--fg-4)">' +
+              "không có tin nào khớp trong 3 ngày — rỗng nghĩa là <i>không có tin</i>, " +
+              "không phải <i>hỏng</i></div>") + "</div>";
+      }).join("");
+    }
+    host.innerHTML = h;
+  }
+
+  /* ── huấn luyện ────────────────────────────────────── */
+  function veHuanLuyen() {
+    var host = el("oHuanLuyen");
+    if (!host) return;
+    var H = D && D.huanLuyen;
+    if (!H) {
+      host.innerHTML = trong("Chưa có phiên huấn luyện nào trong ảnh chụp này. " +
+        "Phòng huấn luyện nằm ở buồng lái (runtime, cổng 5182) — trang này chỉ đăng kết quả.");
+      return;
+    }
+    var h = "";
+
+    /* Bản dò tham số: điều đáng đăng nhất là KẾT LUẬN, không phải bảng số. */
+    if (H.totNhat) {
+      var tn = H.totNhat;
+      h += '<div class="bai canh"><div class="dinh">kết luận sau khi dò ' +
+        H.soToHop + " tổ hợp</div><p>" + esc(H.ketLuan || "") + "</p></div>";
+      h += '<div class="luoi" style="margin-top:12px">' +
+        o("trong mẫu", tn.trongMau.kyVongR == null ? "—" : kyDau(tn.trongMau.kyVongR, 3) + "R",
+          tn.trongMau.kyVongR > 0 ? "len" : "xuong",
+          tn.trongMau.so + " lệnh — phần đã dùng để CHỌN, nên luôn đẹp") +
+        o("ngoài mẫu", tn.ngoaiMau.kyVongR == null ? "—" : kyDau(tn.ngoaiMau.kyVongR, 3) + "R",
+          tn.ngoaiMau.kyVongR > 0 ? "len" : "xuong",
+          tn.ngoaiMau.so + " lệnh — chỉ con số này mới có nghĩa") +
+        o("khớp trội", tn.khopTroi == null ? "—" : so(tn.khopTroi, 3) + "R",
+          tn.khopTroi > 0.2 ? "xuong" : "len",
+          "phần kỳ vọng bốc hơi khi ra khỏi dữ liệu đã dùng để chọn") +
+        "</div>";
+      h += '<div class="the" style="margin-top:12px"><h3>bộ tham số tốt nhất trong mẫu</h3>' +
+        '<div class="mono" style="font-size:12px;color:var(--fg-2)">' +
+        Object.keys(tn.bo).map(function (k) { return k + "=" + tn.bo[k]; }).join("  ·  ") +
+        "</div></div>";
+    }
+
+    var tk = H.thongKe;
+    if (tk) {
+      if (H.dungSom) {
+        h += '<div class="bai canh"><div class="dinh">dừng sớm — ' + esc(H.dungSom.lyDo) +
+          "</div><p>Chỉ đo được " + H.dungSom.phanTramDaXet + "% đoạn dữ liệu. " +
+          "Ngắt mạch là chốt cứng, đúng như bản chạy thật.</p></div>";
+      }
+      h += '<div class="luoi" style="margin-top:12px">' +
+        o("kỳ vọng mỗi lệnh", tk.kyVongR == null ? "—" : kyDau(tk.kyVongR, 3) + "R",
+          tk.kyVongR > 0 ? "len" : "xuong",
+          "con số quan trọng nhất — không phải tỉ lệ thắng") +
+        o("tỉ lệ thắng", tk.tyLeThang == null ? "—" : so(tk.tyLeThang, 1) + "%", "",
+          tk.soThang + "/" + tk.so + " lệnh") +
+        o("sụt giảm sâu nhất", so(tk.sutGiamToiDaPct, 2) + "%",
+          tk.sutGiamToiDaPct > 15 ? "xuong" : "", "quyết định mức risk chịu được") +
+        o("thua liền dài nhất", tk.chuoiThuaDaiNhat + " lệnh",
+          tk.chuoiThuaDaiNhat >= 6 ? "nhac" : "", "ở mức risk hiện tại có ngồi yên được không?") +
+        "</div>";
+
+      var bh = H.baiHoc || [];
+      if (bh.length) {
+        h += '<h2 class="tieu" style="margin-top:18px">bài học đúc từ lượt chạy lại</h2>';
+        h += bh.map(function (b) {
+          var k = b.nang === "cao" ? "xau" : b.nang === "vua" ? "canh" : "tot";
+          return '<div class="bai ' + k + '"><div class="dinh">' +
+            esc(b.muc.replace(/_/g, " ")) + "</div><p>" + esc(b.cau) + "</p>" +
+            '<p class="mono" style="font-size:11.5px;color:var(--fg-3)">' + esc(b.so) + "</p>" +
+            "<p><b>Làm gì:</b> " + esc(b.lam) + "</p></div>";
+        }).join("");
+      }
+    }
+    host.innerHTML = h;
+  }
+
   /* ── thanh bên trên máy hẹp ────────────────────────── */
   function benMo() {
     var nut = el("benMoNut"), ben = el("ben");
@@ -359,6 +494,8 @@
   veSoDo();
   veLuanDiem();
   veRuiRo();
+  veTheGioi();
+  veHuanLuyen();
   veNhatKy();
   benMo();
 })();

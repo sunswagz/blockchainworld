@@ -349,3 +349,48 @@ textarea:focus{outline:none;border-color:rgba(34,211,238,.45);box-shadow:0 0 0 3
 .chu-thich{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:10.5px;color:var(--fg-4)}
 .chu-thich span{display:inline-flex;align-items:center;gap:5px}
 .chu-thich i{width:9px;height:2px;border-radius:2px;display:inline-block}
+
+/* ── nguồn ngoài: tin tức ────────────────────────────────────────── */
+.luoi.c5{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.tin-bai{padding:8px 0;border-bottom:1px solid var(--line-2)}
+.tin-bai:last-child{border-bottom:0}
+.tin-bai a{color:var(--fg-1);font-size:12.5px;line-height:1.55;text-decoration:none;display:block}
+.tin-bai a:hover{color:var(--cyan)}
+.tin-phu{display:flex;gap:8px;align-items:center;margin-top:4px;font-size:10.5px;color:var(--fg-4)}
+/* Từ khoá đã khớp hiện ngay cạnh nguồn: xếp sai chủ đề thì nhìn ra ngay,
+   thay vì phải tin rằng bộ phân loại đúng. */
+.tin-phu .khop{font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:99px;
+  background:var(--glass-2);border:1px solid var(--line);color:var(--fg-3)}
+
+.canh-bao{padding:10px 14px;border-radius:var(--r-sm);font-size:12.5px;line-height:1.65;
+  border:1px solid rgba(251,191,36,.32);background:rgba(251,191,36,.07);color:var(--fg-2)}
+.canh-bao b{color:var(--amber)}
+
+/* ── phòng huấn luyện ────────────────────────────────────────────── */
+.tham{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--fg-3)}
+.tham input[type=number]{padding:7px 10px;border-radius:var(--r-sm);background:var(--glass-2);
+  border:1px solid var(--line);color:var(--fg);font:inherit;font-family:var(--mono);font-size:13px}
+.tham input:focus{outline:none;border-color:rgba(34,211,238,.45)}
+.tham input:disabled{opacity:.45}
+.tham i{font-style:normal;font-size:10.5px;color:var(--fg-4);line-height:1.45}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--cyan)}
+
+.ma-lenh{font-family:var(--mono);font-size:12px;margin-top:12px;padding:10px 14px;
+  border-radius:var(--r-sm);background:var(--glass-2);border:1px solid var(--line);
+  color:var(--cyan);text-align:left;user-select:all}
+
+/* Bảng trong phòng học hẹp hơn bảng nhật ký — nhiều cột số ngắn. */
+table.bang{min-width:0;font-size:11px}
+table.bang tr.dau td{background:rgba(34,211,238,.06)}
+.the-nho{font-family:var(--mono);font-size:9.5px;padding:1px 6px;border-radius:99px;
+  border:1px solid var(--line);background:var(--glass-2)}
+
+/* Mã mức độ cố ý để ASCII (cao/vua/thap), chữ có dấu chỉ nằm ở phần hiển thị.
+   Móc CSS vào chuỗi tiếng Việt có dấu là móc vào dạng chuẩn hoá Unicode: NFC
+   và NFD trông y hệt nhau trên màn hình nhưng không khớp nhau, nên viền sẽ mất
+   màu mà không ai đoán ra vì sao. */
+.bai-hoc{border-left:2px solid var(--line)}
+.bai-hoc[data-nang="cao"]{border-left-color:var(--red)}
+.bai-hoc[data-nang="vua"]{border-left-color:var(--amber)}
+.bai-hoc[data-nang="thap"]{border-left-color:var(--fg-4)}
+.ket-luan{border-left:2px solid var(--cyan);background:rgba(34,211,238,.05)}

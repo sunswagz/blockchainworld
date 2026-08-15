@@ -188,18 +188,41 @@ def _fmt_state(payload: dict) -> str:
 
 
 # ── Bộ não giả lập, không tốn tiền ────────────────────────────────────────
-def mock_thesis(state: dict, regime: dict, primary_tf: str) -> dict:
+# Tham số của bộ luật. Tách ra thành hằng số CÓ TÊN vì phòng huấn luyện xoay
+# đúng những số này để tìm bộ tốt hơn. Trước đây chúng nằm rải rác trong thân
+# hàm dưới dạng số trần — mà một con số trần trong thân hàm thì không dò được,
+# và cũng không ai biết nó đã từng được chọn theo căn cứ gì.
+THAM_MAC_DINH: dict[str, Any] = {
+    "stopAtr": 1.5,        # SL cách giá bao nhiêu lần ATR
+    "demTp": 1.05,         # đệm trên mức RR tối thiểu — đừng nằm sát mép
+    "boiTp2": 1.6,         # TP2 = TP1 × số này
+    "tinCay": 0.6,         # độ tin cậy gán cho lệnh thuận xu hướng
+    "adxToiThieu": 0.0,    # 0 = không lọc thêm, đã có ADX≥22 trong regime
+    "cheDoVao": ["TREND_UP", "TREND_DOWN"],
+    "chanXungDot": True,   # khung lớn ngược khung nhỏ thì đứng ngoài
+    "chanBienDongCao": False,
+}
+
+
+def mock_thesis(state: dict, regime: dict, primary_tf: str,
+                tham: dict | None = None) -> dict:
     """Suy luận bằng luật để vòng lặp chạy kín khi không có API key.
 
     Cố ý bảo thủ: chỉ vào lệnh thuận xu hướng rõ, còn lại NO_TRADE. Nó không phải
     "phiên bản rẻ của Claude" — nó là mức sàn để so sánh. Brain thật mà không
     thắng nổi cái này thì đó là thông tin đáng giá.
+
+    `tham` để phòng huấn luyện dò tham số. Bỏ trống thì chạy đúng như mặc định,
+    nên bản chạy thật và bản chạy lại dùng CHUNG một hàm này — nếu tách làm hai
+    bản thì sớm muộn chúng lệch nhau, và backtest sẽ đo một chiến lược không
+    phải chiến lược sắp chạy bằng tiền thật.
     """
+    th = {**THAM_MAC_DINH, **(tham or {})}
     p = state["timeframes"][primary_tf]
     price = p["price"]
     atr = p["_raw"]["atr"] or price * 0.01
     prim = regime["primary"]
-    conflict = "MTF_CONFLICT" in regime["flags"]
+    conflict = th["chanXungDot"] and "MTF_CONFLICT" in regime["flags"]
 
     base = {
         "regime_read": prim,
@@ -219,8 +242,14 @@ def mock_thesis(state: dict, regime: dict, primary_tf: str) -> dict:
         "reasoning": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
         "event_risk": "UNKNOWN",
     }
-    if conflict or prim not in ("TREND_UP", "TREND_DOWN"):
+    if conflict or prim not in th["cheDoVao"]:
         base["reason_codes"].append("MTF_CONFLICT" if conflict else "NO_CLEAR_TREND")
+        return base
+    if th["chanBienDongCao"] and "HIGH_VOLATILITY" in regime["flags"]:
+        base["reason_codes"].append("BIEN_DONG_QUA_CAO")
+        return base
+    if th["adxToiThieu"] and (p.get("adx") or 0) < th["adxToiThieu"]:
+        base["reason_codes"].append(f"ADX_DUOI_{th['adxToiThieu']}")
         return base
 
     # SL 1.5×ATR; TP1 SUY RA chứ không ghi cứng.
@@ -233,25 +262,26 @@ def mock_thesis(state: dict, regime: dict, primary_tf: str) -> dict:
     #     (k·ATR − drag) / (1.5·ATR + drag) ≥ minRR
     #   ⇒ k ≥ [ minRR·(1.5·ATR + drag) + drag ] / ATR
     r = CONFIG["risk"]
+    sa = th["stopAtr"]
     drag = price * (r["feeBps"] + r["slippageBps"]) / 10_000
-    stop_that = 1.5 * atr + drag
-    k1 = (r["minRR"] * stop_that + drag) / atr * 1.05   # +5% đệm, đừng nằm sát mép
-    k2 = k1 * 1.6
+    stop_that = sa * atr + drag
+    k1 = (r["minRR"] * stop_that + drag) / atr * th["demTp"]
+    k2 = k1 * th["boiTp2"]
 
     long = prim == "TREND_UP"
-    stop = price - 1.5 * atr if long else price + 1.5 * atr
+    stop = price - sa * atr if long else price + sa * atr
     tp1 = price + k1 * atr if long else price - k1 * atr
     tp2 = price + k2 * atr if long else price - k2 * atr
     base.update({
         "action": "LONG" if long else "SHORT",
-        "confidence": 0.6,
+        "confidence": th["tinCay"],
         "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
         "invalidation": round(stop, 2),
-        "invalidation_logic": "1.5×ATR ngược hướng — mất vùng này là hết xu hướng ngắn hạn",
+        "invalidation_logic": f"{sa}×ATR ngược hướng — mất vùng này là hết xu hướng ngắn hạn",
         "targets": [round(tp1, 2), round(tp2, 2)],
         "suggested_risk_pct": 0.5,
         "reason_codes": ["MOCK_BRAIN", "TREND_ALIGNED", "ADX_CONFIRMS"],
-        "reasoning": f"[mock] Thuận {prim} với ADX {p.get('adx')}. SL 1.5×ATR, TP1 {k1:.1f}×ATR — "
+        "reasoning": f"[mock] Thuận {prim} với ADX {p.get('adx')}. SL {sa}×ATR, TP1 {k1:.1f}×ATR — "
                      f"bội số này suy từ ATR/giá hiện tại ({atr / price * 100:.3f}%) để RR còn "
                      f"≥{r['minRR']} sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
     })

@@ -94,7 +94,64 @@ def build(runtime) -> dict:
         "thongKe": perf,
         "giaoDich": recent_trades(20),
         "baiHoc": recent_lessons(10),
+        "theGioi": _the_gioi(),
+        "huanLuyen": _huan_luyen(),
     }
+
+
+def _the_gioi() -> dict | None:
+    """Lát cắt nguồn ngoài, đủ gọn để nằm trong một file trang tĩnh.
+
+    Cố ý KHÔNG chép cả 186 bài tin vào đây: file này bị commit và tải về ở mỗi
+    lượt mở cung, nên nó phải nhẹ. Giữ các con số cùng vài tiêu đề đầu mỗi chủ
+    đề — đủ để thấy bot đang đọc gì, không biến trang thành một bản sao RSS.
+    """
+    from . import nguon
+
+    k = nguon.kho()
+    if not k.get("co"):
+        return None
+    ps, vm, tl, sk = k["phaiSinh"], k["viMo"], k["tamLy"], k.get("suKien") or {}
+    return {
+        "luc": k.get("luc"),
+        "phaiSinh": {"fundingNamHoa": ps.get("fundingNamHoa"),
+                     "openInterestUsd": ps.get("openInterestUsd"),
+                     "oiDoi24hPct": ps.get("oiDoi24hPct"),
+                     "topTrader": ps.get("topTrader"), "toanSan": ps.get("toanSan"),
+                     "nguon": ps.get("nguon")},
+        "viMo": {"muc": vm.get("muc"), "khauVi": vm.get("khauVi"), "nguon": vm.get("nguon")},
+        "tamLy": {"gt": tl.get("gt"), "nhan": tl.get("nhan"), "chuoi": tl.get("chuoi")},
+        "tin": [{"ma": c["ma"], "soBai": c["soBai"],
+                 "bai": [{"tieuDe": b["tieuDe"], "nguon": b["nguon"], "url": b.get("url")}
+                         for b in c["bai"][:2]]}
+                for c in (sk.get("chuDe") or [])],
+        "soFeed": sk.get("soFeed"), "soBai": sk.get("soBai"),
+    }
+
+
+def _huan_luyen() -> dict | None:
+    """Kết quả phiên huấn luyện gần nhất — KHÔNG kèm danh sách lệnh.
+
+    Đây là phần đáng công bố nhất của cả cung: nó cho thấy chiến lược đã được
+    đem ra đo chứ không chỉ được mô tả. Nhưng chỉ đăng con số tổng và kết luận;
+    hàng trăm dòng lệnh thuộc về buồng lái, không thuộc về một trang chỉ-đọc.
+    """
+    from . import phien_hoc
+
+    p = phien_hoc.trang_thai()
+    kq = p.get("ketQua")
+    if not kq:
+        return None
+    ra: dict = {"viec": p.get("viec"), "xong": p.get("xong")}
+    if kq.get("thongKe"):
+        ra.update({"thongKe": kq["thongKe"], "theoRegime": kq.get("theoRegime"),
+                   "dungSom": kq.get("dungSom"), "baiHoc": kq.get("baiHoc"),
+                   "nguong": kq.get("nguong")})
+    if kq.get("totNhat"):
+        ra.update({"totNhat": kq["totNhat"], "ketLuan": kq.get("ketLuan"),
+                   "soToHop": kq.get("soToHop"), "mocCat": kq.get("mocCat"),
+                   "tongNen": kq.get("tongNen")})
+    return ra
 
 
 def write(runtime) -> Path:
