@@ -1,1 +1,2256 @@
-{"kho":"ruvnet/ruflo","luc":"2026-08-15T08:07:00.398Z","nguon":"viết tay trong phiên, đọc mô tả gốc","skills":{"ruvnet/ruflo/ruflo/src/ruvocal/.claude/skills/add-model-descriptions":{"tom":"Thêm mô tả cho model mới từ router HuggingFace vào cấu hình chat-ui.","lam":["Thêm mô tả model mới","Cập nhật cấu hình giao diện chat"],"khi":"Router có model mới cần mô tả."},"ruvnet/ruflo/plugins/ruflo-adr/skills/adr-create":{"tom":"Tạo một bản ghi quyết định kiến trúc (ADR) mới, đánh số tuần tự và đăng ký vào AgentDB.","lam":["Tạo ADR mới","Đánh số tuần tự","Đăng ký vào cơ sở dữ liệu"],"khi":"Bạn vừa chốt một quyết định kiến trúc.","ban":"Hệ này ghi quyết định kiến trúc thẳng vào CLAUDE.md kèm lý do. Ưu điểm của ADR đánh số là truy được thứ tự và biết quyết định nào thay thế quyết định nào — thứ CLAUDE.md không có."},"ruvnet/ruflo/plugins/ruflo-adr/skills/adr-index":{"tom":"Dựng hoặc dựng lại chỉ mục ADR cùng đồ thị phụ thuộc.","lam":["Quét toàn bộ ADR","Dựng chỉ mục và đồ thị phụ thuộc"],"khi":"Bạn vừa thêm hoặc sửa nhiều ADR."},"ruvnet/ruflo/plugins/ruflo-adr/skills/adr-reindex":{"tom":"Đối chiếu lại chỉ mục ADR sau khi xoá một ADR hoặc một dòng quan hệ, bằng cách dựng lại từ đầu.","lam":["Xoá chỉ mục cũ","Dựng lại từ đầu"],"khi":"Bạn vừa xoá một ADR."},"ruvnet/ruflo/plugins/ruflo-adr/skills/adr-review":{"tom":"Soát thay đổi mã xem có vi phạm các ADR đã chấp thuận không.","lam":["So mã với quyết định đã chốt","Chỉ chỗ vi phạm"],"khi":"Bạn muốn chắc mã không đi ngược quyết định kiến trúc.","ban":"Đúng thứ npm run kiem đang làm ở dạng thô: nó kiểm tài liệu còn khớp repo không. Bản này chặt hơn — kiểm mã có tuân quyết định không."},"ruvnet/ruflo/plugins/ruflo-adr/skills/adr-verify":{"tom":"Đọc lại chỉ mục ADR, chỉ ra tham chiếu treo, vòng lặp thay thế và lệch trạng thái; thoát lỗi nếu có vòng lặp.","lam":["Bắt tham chiếu treo","Bắt vòng lặp thay thế","Bắt lệch trạng thái"],"khi":"Bạn muốn chắc bộ ADR còn nhất quán."},"ruvnet/ruflo/.agents/skills/agent-adaptive-coordinator":{"tom":"Agent điều phối thích ứng — tự đổi cách điều phối theo tình hình.","lam":["Điều phối agent khác","Đổi chiến lược theo tình hình"],"khi":"Bạn cần điều phối linh hoạt."},"ruvnet/ruflo/.agents/skills/agent-agent":{"tom":"Agent tổng quát của bộ ruflo.","lam":["Nhận việc chung"],"khi":"Không có agent chuyên nào hợp hơn."},"ruvnet/ruflo/.agents/skills/agent-agentic-payments":{"tom":"Agent xử lý thanh toán tự động.","lam":["Xử lý luồng thanh toán"],"khi":"Bạn tự động hoá thanh toán.","ban":"Loại agent cần đọc kèm llm-trading-agent-security. Agent chạm được vào tiền thì mọi dữ liệu nó đọc đều là bề mặt tấn công."},"ruvnet/ruflo/.agents/skills/agent-analyze-code-quality":{"tom":"Agent phân tích chất lượng mã.","lam":["Chấm chất lượng mã","Chỉ chỗ cần dọn"],"khi":"Bạn muốn đánh giá sức khoẻ mã."},"ruvnet/ruflo/.agents/skills/agent-app-store":{"tom":"Agent làm việc với kho ứng dụng.","lam":["Xử lý việc liên quan kho ứng dụng"],"khi":"Bạn phát hành lên kho ứng dụng."},"ruvnet/ruflo/.agents/skills/agent-arch-system-design":{"tom":"Agent thiết kế kiến trúc hệ thống.","lam":["Thiết kế kiến trúc hệ thống"],"khi":"Bạn cần bản thiết kế hệ thống."},"ruvnet/ruflo/.agents/skills/agent-architecture":{"tom":"Agent phụ trách kiến trúc.","lam":["Xử lý việc kiến trúc"],"khi":"Việc của bạn là về kiến trúc."},"ruvnet/ruflo/.agents/skills/agent-authentication":{"tom":"Agent phụ trách xác thực.","lam":["Dựng và soát luồng xác thực"],"khi":"Bạn làm phần đăng nhập và phân quyền."},"ruvnet/ruflo/.agents/skills/agent-automation-smart-agent":{"tom":"Agent tự động hoá thông minh.","lam":["Tự động hoá luồng việc"],"khi":"Bạn muốn một luồng chạy tự động."},"ruvnet/ruflo/.agents/skills/agent-base-template-generator":{"tom":"Agent sinh khung mẫu nền.","lam":["Sinh khung mẫu khởi đầu"],"khi":"Bạn bắt đầu một dự án hoặc module mới."},"ruvnet/ruflo/.agents/skills/agent-benchmark-suite":{"tom":"Agent chạy bộ đo hiệu năng.","lam":["Chạy bộ đo chuẩn","So kết quả giữa các lần"],"khi":"Bạn cần số đo hiệu năng."},"ruvnet/ruflo/.agents/skills/agent-byzantine-coordinator":{"tom":"Agent điều phối theo mô hình chịu lỗi Byzantine — vẫn chạy đúng khi một số thành viên trả kết quả sai.","lam":["Điều phối khi có thành viên không đáng tin","Đạt kết quả đúng dù có bên sai"],"khi":"Bạn không tin tưởng hết mọi thành viên trong hệ."},"ruvnet/ruflo/.agents/skills/agent-challenges":{"tom":"Agent phụ trách các bài thử thách.","lam":["Xử lý bài thử thách"],"khi":"Bạn giải bài thử thách."},"ruvnet/ruflo/.agents/skills/agent-code-analyzer":{"tom":"Agent phân tích mã.","lam":["Đọc và phân tích mã"],"khi":"Bạn cần hiểu một phần mã."},"ruvnet/ruflo/.agents/skills/agent-code-goal-planner":{"tom":"Agent lập kế hoạch theo mục tiêu cho việc viết mã.","lam":["Chia mục tiêu thành bước viết mã"],"khi":"Bạn có mục tiêu và cần lộ trình mã."},"ruvnet/ruflo/.agents/skills/agent-code-review-swarm":{"tom":"Bầy agent cùng soát mã.","lam":["Nhiều agent soát song song","Gom kết luận"],"khi":"Bạn muốn soát mã từ nhiều góc cùng lúc."},"ruvnet/ruflo/.agents/skills/agent-coder":{"tom":"Agent viết mã.","lam":["Viết mã theo yêu cầu"],"khi":"Bạn cần phần cài đặt."},"ruvnet/ruflo/.agents/skills/agent-collective-intelligence-coordinator":{"tom":"Agent điều phối trí tuệ tập thể — gom kết quả của nhiều agent thành một kết luận.","lam":["Gom kết quả nhiều agent","Rút kết luận chung"],"khi":"Bạn chạy nhiều agent và cần một kết luận."},"ruvnet/ruflo/.agents/skills/agent-consensus-coordinator":{"tom":"Agent điều phối đồng thuận giữa nhiều agent.","lam":["Dẫn tới đồng thuận","Xử lý bất đồng"],"khi":"Các agent của bạn cho kết quả khác nhau."},"ruvnet/ruflo/.agents/skills/agent-coordination":{"tom":"Tung agent, quản vòng đời và điều phối — quản hơn 60 loại agent chuyên biệt.","lam":["Tung agent theo loại phù hợp","Quản vòng đời agent","Điều phối giữa các agent"],"khi":"Bạn chạy nhiều agent cùng lúc.","ban":"Đây là bản đầy đủ của thứ bạn làm bằng tay: mở 2–4 phiên, mỗi phiên một worktree. Thiếu ở chỗ của bạn là phần quản vòng đời — không ai biết phiên nào còn sống."},"ruvnet/ruflo/.agents/skills/agent-coordinator-swarm-init":{"tom":"Agent khởi tạo một bầy agent.","lam":["Khởi tạo bầy","Đặt cấu hình ban đầu"],"khi":"Bạn bắt đầu một phiên nhiều agent."},"ruvnet/ruflo/.agents/skills/agent-crdt-synchronizer":{"tom":"Agent đồng bộ dữ liệu bằng CRDT — nhiều bên sửa cùng lúc mà không xung đột.","lam":["Đồng bộ dữ liệu nhiều bên","Gộp thay đổi không xung đột"],"khi":"Nhiều bên cùng sửa một dữ liệu."},"ruvnet/ruflo/.agents/skills/agent-data-ml-model":{"tom":"Agent phụ trách model học máy.","lam":["Dựng và huấn luyện model"],"khi":"Việc của bạn là học máy."},"ruvnet/ruflo/.agents/skills/agent-dev-backend-api":{"tom":"Agent phát triển API phía máy chủ.","lam":["Dựng API backend"],"khi":"Bạn làm phần máy chủ."},"ruvnet/ruflo/.agents/skills/agent-docs-api-openapi":{"tom":"Agent viết tài liệu API theo chuẩn OpenAPI.","lam":["Sinh tài liệu OpenAPI"],"khi":"API của bạn cần tài liệu chuẩn."},"ruvnet/ruflo/.agents/skills/agent-github-modes":{"tom":"Agent làm việc với GitHub ở nhiều chế độ.","lam":["Thao tác trên GitHub"],"khi":"Việc của bạn nằm trên GitHub."},"ruvnet/ruflo/.agents/skills/agent-github-pr-manager":{"tom":"Agent quản PR trên GitHub.","lam":["Tạo, cập nhật và theo dõi PR"],"khi":"Bạn quản nhiều PR."},"ruvnet/ruflo/.agents/skills/agent-goal-planner":{"tom":"Agent lập kế hoạch theo mục tiêu.","lam":["Chia mục tiêu thành các bước"],"khi":"Bạn có mục tiêu chưa rõ cách làm."},"ruvnet/ruflo/.agents/skills/agent-gossip-coordinator":{"tom":"Agent điều phối theo giao thức lan truyền kiểu tin đồn.","lam":["Lan thông tin giữa các nút","Không cần điều phối tập trung"],"khi":"Hệ của bạn phân tán, không có trung tâm."},"ruvnet/ruflo/.agents/skills/agent-hierarchical-coordinator":{"tom":"Agent điều phối theo phân cấp — có cấp trên và cấp dưới rõ ràng.","lam":["Điều phối theo cây phân cấp","Giao việc xuống cấp dưới"],"khi":"Việc của bạn chia được theo tầng."},"ruvnet/ruflo/.agents/skills/agent-implementer-sparc-coder":{"tom":"Agent cài đặt theo phương pháp SPARC.","lam":["Cài đặt theo quy trình SPARC"],"khi":"Bạn theo phương pháp SPARC."},"ruvnet/ruflo/.agents/skills/agent-issue-tracker":{"tom":"Agent theo dõi issue.","lam":["Theo dõi và cập nhật issue"],"khi":"Bạn quản danh sách issue."},"ruvnet/ruflo/.agents/skills/agent-load-balancer":{"tom":"Agent cân bằng tải giữa các agent khác.","lam":["Chia việc đều cho các agent"],"khi":"Một số agent quá tải, số khác rảnh."},"ruvnet/ruflo/.agents/skills/agent-matrix-optimizer":{"tom":"Agent tối ưu phép toán ma trận.","lam":["Tối ưu tính toán ma trận"],"khi":"Tính toán ma trận của bạn chậm."},"ruvnet/ruflo/.agents/skills/agent-memory-coordinator":{"tom":"Agent điều phối bộ nhớ dùng chung giữa các agent.","lam":["Quản bộ nhớ dùng chung","Điều phối đọc ghi"],"khi":"Nhiều agent cần chia sẻ trạng thái.","ban":"Đúng chỗ trống của hệ này: các phiên song song không có bộ nhớ chung nào ngoài git. Bản bàn giao dich-tiep.md là cách chữa thủ công."},"ruvnet/ruflo/.agents/skills/agent-mesh-coordinator":{"tom":"Agent điều phối theo mạng lưới ngang hàng.","lam":["Điều phối không phân cấp","Mọi nút nói chuyện được với nhau"],"khi":"Hệ của bạn không có nút trung tâm."},"ruvnet/ruflo/.agents/skills/agent-migration-plan":{"tom":"Agent lập kế hoạch chuyển đổi.","lam":["Lập kế hoạch di trú","Chuẩn bị đường lùi"],"khi":"Bạn chuyển hệ cũ sang hệ mới."},"ruvnet/ruflo/.agents/skills/agent-multi-repo-swarm":{"tom":"Bầy agent làm việc xuyên nhiều kho.","lam":["Làm việc trên nhiều kho cùng lúc","Đồng bộ thay đổi giữa các kho"],"khi":"Thay đổi của bạn chạm nhiều kho."},"ruvnet/ruflo/.agents/skills/agent-neural-network":{"tom":"Agent phụ trách mạng nơ-ron.","lam":["Dựng và huấn luyện mạng nơ-ron"],"khi":"Việc của bạn là học sâu."},"ruvnet/ruflo/.agents/skills/agent-ops-cicd-github":{"tom":"Agent vận hành CI/CD trên GitHub.","lam":["Dựng và sửa workflow","Vận hành đường ống"],"khi":"Bạn làm việc với GitHub Actions.","ban":"Cả hệ này chạy trên GitHub Actions, và sự cố 13–14/08 cho thấy đường ống cần chính nó được theo dõi — không chỉ được dựng."},"ruvnet/ruflo/.agents/skills/agent-orchestrator-task":{"tom":"Agent điều phối tác vụ.","lam":["Chia và giao tác vụ"],"khi":"Bạn có nhiều tác vụ cần sắp xếp."},"ruvnet/ruflo/.agents/skills/agent-pagerank-analyzer":{"tom":"Agent phân tích theo thuật toán PageRank.","lam":["Xếp hạng nút trong đồ thị"],"khi":"Bạn cần biết nút nào quan trọng trong một mạng."},"ruvnet/ruflo/.agents/skills/agent-payments":{"tom":"Agent xử lý thanh toán.","lam":["Xử lý luồng thanh toán"],"khi":"Việc của bạn liên quan tới tiền."},"ruvnet/ruflo/.agents/skills/agent-performance-analyzer":{"tom":"Agent phân tích hiệu năng.","lam":["Tìm chỗ chậm","Phân tích nguyên nhân"],"khi":"Hệ của bạn chạy chậm."},"ruvnet/ruflo/.agents/skills/agent-performance-benchmarker":{"tom":"Agent chạy đo hiệu năng chuẩn.","lam":["Chạy phép đo chuẩn","So giữa các bản"],"khi":"Bạn cần số đo để so sánh."},"ruvnet/ruflo/.agents/skills/agent-performance-monitor":{"tom":"Agent theo dõi hiệu năng liên tục.","lam":["Theo dõi hiệu năng khi chạy","Báo khi suy giảm"],"khi":"Bạn muốn biết ngay khi hệ chậm đi."},"ruvnet/ruflo/.agents/skills/agent-performance-optimizer":{"tom":"Agent tối ưu hiệu năng.","lam":["Sửa chỗ chậm","Đo lại sau khi sửa"],"khi":"Bạn đã biết chỗ chậm và cần sửa."},"ruvnet/ruflo/.agents/skills/agent-planner":{"tom":"Agent lập kế hoạch.","lam":["Lập kế hoạch cho một việc"],"khi":"Bạn cần kế hoạch trước khi làm."},"ruvnet/ruflo/.agents/skills/agent-pr-manager":{"tom":"Agent quản PR.","lam":["Tạo và theo dõi PR"],"khi":"Bạn quản nhiều PR."},"ruvnet/ruflo/.agents/skills/agent-production-validator":{"tom":"Agent kiểm mức sẵn sàng chạy thật.","lam":["Kiểm trước khi lên thật","Chặn nếu chưa đạt"],"khi":"Bạn sắp đưa lên môi trường thật."},"ruvnet/ruflo/.agents/skills/agent-project-board-sync":{"tom":"Agent đồng bộ bảng dự án.","lam":["Đồng bộ trạng thái việc lên bảng"],"khi":"Bảng dự án của bạn hay lệch thực tế."},"ruvnet/ruflo/.agents/skills/agent-pseudocode":{"tom":"Agent viết mã giả.","lam":["Diễn đạt giải thuật bằng mã giả"],"khi":"Bạn cần mô tả giải thuật trước khi cài."},"ruvnet/ruflo/.agents/skills/agent-queen-coordinator":{"tom":"Agent điều phối trung tâm kiểu ong chúa — một nút cầm quyền quyết định.","lam":["Điều phối tập trung","Giao việc cho bầy"],"khi":"Bạn muốn một nơi ra quyết định duy nhất."},"ruvnet/ruflo/.agents/skills/agent-quorum-manager":{"tom":"Agent quản đa số biểu quyết.","lam":["Đếm phiếu và chốt theo đa số"],"khi":"Quyết định của bạn cần đủ số phiếu."},"ruvnet/ruflo/.agents/skills/agent-raft-manager":{"tom":"Agent quản đồng thuận theo giao thức Raft.","lam":["Bầu nút dẫn dắt","Giữ nhật ký nhất quán"],"khi":"Hệ phân tán của bạn cần đồng thuận."},"ruvnet/ruflo/.agents/skills/agent-refinement":{"tom":"Agent tinh chỉnh.","lam":["Mài lại kết quả đã có"],"khi":"Bạn có bản nháp cần mài."},"ruvnet/ruflo/.agents/skills/agent-release-manager":{"tom":"Agent quản phát hành.","lam":["Chuẩn bị và chạy phát hành"],"khi":"Bạn ra bản mới."},"ruvnet/ruflo/.agents/skills/agent-release-swarm":{"tom":"Bầy agent phối hợp phát hành.","lam":["Nhiều agent cùng lo một lượt phát hành"],"khi":"Phát hành của bạn có nhiều phần song song."},"ruvnet/ruflo/.agents/skills/agent-repo-architect":{"tom":"Agent thiết kế cấu trúc kho.","lam":["Thiết kế bố cục kho","Đặt quy ước"],"khi":"Bạn dựng kho mới hoặc sắp lại kho cũ."},"ruvnet/ruflo/.agents/skills/agent-researcher":{"tom":"Agent nghiên cứu.","lam":["Tìm và tổng hợp thông tin"],"khi":"Bạn cần tra cứu trước khi làm."},"ruvnet/ruflo/.agents/skills/agent-resource-allocator":{"tom":"Agent phân bổ tài nguyên.","lam":["Chia tài nguyên cho các agent"],"khi":"Tài nguyên có hạn và nhiều bên cần."},"ruvnet/ruflo/.agents/skills/agent-reviewer":{"tom":"Agent soát.","lam":["Soát kết quả của agent khác"],"khi":"Bạn cần một lượt soát độc lập."},"ruvnet/ruflo/.agents/skills/agent-safla-neural":{"tom":"Agent nơ-ron SAFLA.","lam":["Chạy kiến trúc nơ-ron SAFLA"],"khi":"Bạn dùng kiến trúc SAFLA."},"ruvnet/ruflo/.agents/skills/agent-sandbox":{"tom":"Agent chạy trong hộp cát cách ly.","lam":["Chạy mã trong môi trường cách ly"],"khi":"Bạn chạy mã không tin tưởng."},"ruvnet/ruflo/.agents/skills/agent-scout-explorer":{"tom":"Agent thăm dò — đi trước khảo sát địa hình.","lam":["Khảo sát trước khi làm","Báo về thứ tìm thấy"],"khi":"Bạn chưa biết địa hình việc mình sắp làm."},"ruvnet/ruflo/.agents/skills/agent-security-manager":{"tom":"Agent quản bảo mật.","lam":["Soát và siết bảo mật"],"khi":"Việc của bạn chạm phần nhạy cảm."},"ruvnet/ruflo/.agents/skills/agent-sona-learning-optimizer":{"tom":"Agent tối ưu học theo phương pháp SONA.","lam":["Tối ưu quá trình học"],"khi":"Bạn dùng phương pháp SONA."},"ruvnet/ruflo/.agents/skills/agent-sparc-coordinator":{"tom":"Agent điều phối theo phương pháp SPARC.","lam":["Điều phối các pha SPARC"],"khi":"Bạn theo quy trình SPARC."},"ruvnet/ruflo/.agents/skills/agent-spec-mobile-react-native":{"tom":"Agent viết đặc tả cho ứng dụng React Native.","lam":["Viết đặc tả ứng dụng di động"],"khi":"Bạn làm ứng dụng React Native."},"ruvnet/ruflo/.agents/skills/agent-specification":{"tom":"Agent viết đặc tả.","lam":["Biến yêu cầu thành đặc tả"],"khi":"Bạn cần đặc tả trước khi cài."},"ruvnet/ruflo/.agents/skills/agent-swarm":{"tom":"Agent bầy — chạy nhiều agent phối hợp.","lam":["Tung và điều phối bầy agent"],"khi":"Việc của bạn chia song song được."},"ruvnet/ruflo/.agents/skills/agent-swarm-issue":{"tom":"Bầy agent xử lý issue.","lam":["Nhiều agent cùng xử một issue"],"khi":"Issue lớn và chia được."},"ruvnet/ruflo/.agents/skills/agent-swarm-memory-manager":{"tom":"Agent quản bộ nhớ của cả bầy.","lam":["Giữ bộ nhớ chung cho bầy","Điều phối đọc ghi"],"khi":"Bầy agent của bạn cần trí nhớ chung."},"ruvnet/ruflo/.agents/skills/agent-swarm-pr":{"tom":"Bầy agent xử lý PR.","lam":["Nhiều agent cùng lo một PR"],"khi":"PR lớn và chia được."},"ruvnet/ruflo/.agents/skills/agent-sync-coordinator":{"tom":"Agent điều phối đồng bộ.","lam":["Đồng bộ trạng thái giữa các bên"],"khi":"Nhiều bên cần cùng một trạng thái."},"ruvnet/ruflo/.agents/skills/agent-tdd-london-swarm":{"tom":"Bầy agent làm theo lối TDD trường phái London — dùng nhiều giả lập, test theo tương tác.","lam":["Viết test theo lối London","Dùng giả lập cho phụ thuộc"],"khi":"Bạn theo trường phái TDD London."},"ruvnet/ruflo/.agents/skills/agent-test-long-runner":{"tom":"Agent chạy test dài hơi.","lam":["Chạy bộ test tốn thời gian","Báo kết quả khi xong"],"khi":"Bộ test của bạn chạy hàng giờ."},"ruvnet/ruflo/.agents/skills/agent-tester":{"tom":"Agent viết và chạy test.","lam":["Viết test","Chạy và báo kết quả"],"khi":"Bạn cần test cho phần vừa làm."},"ruvnet/ruflo/.agents/skills/agent-topology-optimizer":{"tom":"Agent tối ưu hình trạng mạng agent.","lam":["Đổi cách các agent nối với nhau","Tối ưu đường truyền tin"],"khi":"Cách các agent nối nhau đang gây tắc."},"ruvnet/ruflo/.agents/skills/agent-trading-predictor":{"tom":"Agent dự đoán giao dịch.","lam":["Dự đoán biến động thị trường"],"khi":"Bạn làm hệ giao dịch tự động."},"ruvnet/ruflo/.agents/skills/agent-user-tools":{"tom":"Agent quản công cụ do người dùng thêm.","lam":["Quản công cụ tuỳ biến"],"khi":"Bạn thêm công cụ riêng cho agent."},"ruvnet/ruflo/.agents/skills/agent-v3-integration-architect":{"tom":"Agent kiến trúc sư tích hợp cho bản v3.","lam":["Thiết kế phần tích hợp v3"],"khi":"Bạn chuyển hệ lên bản v3."},"ruvnet/ruflo/.agents/skills/agent-v3-memory-specialist":{"tom":"Agent chuyên về bộ nhớ trong bản v3.","lam":["Xử lý phần bộ nhớ của v3"],"khi":"Bạn làm phần bộ nhớ trong v3."},"ruvnet/ruflo/.agents/skills/agent-v3-performance-engineer":{"tom":"Agent kỹ sư hiệu năng cho bản v3.","lam":["Tối ưu hiệu năng v3"],"khi":"Bản v3 của bạn chạy chậm."},"ruvnet/ruflo/.agents/skills/agent-v3-queen-coordinator":{"tom":"Agent điều phối trung tâm cho bản v3.","lam":["Điều phối tập trung bầy agent v3"],"khi":"Bạn chạy bầy agent trên v3."},"ruvnet/ruflo/.agents/skills/agent-v3-security-architect":{"tom":"Agent kiến trúc sư bảo mật cho bản v3.","lam":["Thiết kế phần bảo mật v3"],"khi":"Bạn làm bảo mật cho v3."},"ruvnet/ruflo/.agents/skills/agent-worker-specialist":{"tom":"Agent thợ chuyên trách một loại việc.","lam":["Nhận và làm một loại việc cụ thể"],"khi":"Bạn cần thợ chuyên thay vì agent tổng quát."},"ruvnet/ruflo/.agents/skills/agent-workflow":{"tom":"Agent phụ trách luồng việc.","lam":["Dựng và chạy luồng việc"],"khi":"Việc của bạn có nhiều bước nối nhau."},"ruvnet/ruflo/.agents/skills/agent-workflow-automation":{"tom":"Agent tự động hoá luồng việc.","lam":["Tự động hoá các bước lặp lại"],"khi":"Bạn làm đi làm lại cùng một chuỗi thao tác."},"ruvnet/ruflo/.claude/skills/agentdb-advanced":{"tom":"Tính năng nâng cao của AgentDB: đồng bộ QUIC, quản nhiều cơ sở dữ liệu, thước đo khoảng cách tuỳ biến, tìm kiếm lai.","lam":["Đồng bộ qua QUIC","Quản nhiều cơ sở dữ liệu","Tìm kiếm lai và phân tán"],"khi":"Bạn dùng AgentDB ở quy mô lớn."},"ruvnet/ruflo/.claude/skills/agentdb-learning":{"tom":"Tạo và huấn luyện plugin học cho AI với 9 thuật toán học tăng cường của AgentDB.","lam":["Huấn luyện bằng Q-Learning, SARSA, Decision Transformer","Dựng plugin học riêng"],"khi":"Bạn muốn agent tự học từ trải nghiệm."},"ruvnet/ruflo/.claude/skills/agentdb-memory-patterns":{"tom":"Khuôn bộ nhớ bền cho agent bằng AgentDB: nhớ theo phiên, lưu dài hạn, học khuôn, giữ ngữ cảnh.","lam":["Nhớ theo phiên","Lưu dài hạn","Học khuôn lặp lại"],"khi":"Bạn muốn agent nhớ qua nhiều phiên."},"ruvnet/ruflo/.claude/skills/agentdb-optimization":{"tom":"Tối ưu AgentDB: lượng tử hoá (giảm 4–32 lần bộ nhớ), chỉ mục HNSW (tìm nhanh 150 lần), đệm và xử lý theo lô.","lam":["Lượng tử hoá để giảm bộ nhớ","Đánh chỉ mục HNSW","Đệm và xử lý theo lô"],"khi":"AgentDB của bạn chậm hoặc ngốn bộ nhớ."},"ruvnet/ruflo/.claude/skills/agentdb-vector-search":{"tom":"Tìm kiếm ngữ nghĩa bằng vector trong AgentDB để truy hồi tài liệu và ghép theo mức tương đồng.","lam":["Tìm theo ngữ nghĩa","Ghép theo mức tương đồng","Truy vấn có ngữ cảnh"],"khi":"Bạn cần tìm theo ý nghĩa, không theo từ khoá.","ban":"Tàng Thư Các hiện tìm bằng khớp chữ trên 2.901 skill — đủ dùng và tốn 0 đồng. Tìm theo ngữ nghĩa sẽ tốt hơn nhưng cần sinh vector cho toàn kho, tức là phải gọi model."},"ruvnet/ruflo/plugins/ruflo-agentdb/skills/agentdb-query":{"tom":"Truy vấn AgentDB qua cầu điều khiển: định tuyến ngữ nghĩa, hồi tưởng phân tầng, đồ thị nhân quả, tổng hợp ngữ cảnh.","lam":["Định tuyến truy vấn theo ngữ nghĩa","Hồi tưởng theo tầng","Tổng hợp ngữ cảnh"],"khi":"Bạn tra cứu bộ nhớ agent."},"ruvnet/ruflo/.claude/skills/agentic-jujutsu":{"tom":"Quản phiên bản tự học, chống lượng tử, dành cho agent AI, kèm điều phối nhiều agent.","lam":["Quản phiên bản cho agent","Học từ lịch sử thay đổi","Điều phối nhiều agent"],"khi":"Bạn muốn hệ quản phiên bản hiểu được agent."},"ruvnet/ruflo/plugins/ruflo-agntcy/skills/agntcy-status":{"tom":"Hiện trạng thái tích hợp AGNTCY/SLIM/CASA: gói nào đã cài, đang dùng đường truyền nào.","lam":["Kiểm gói đã cài","Kiểm đường truyền đang dùng"],"khi":"Bạn dùng bộ tích hợp AGNTCY."},"ruvnet/ruflo/plugins/ruflo-docs/skills/api-docs":{"tom":"Sinh tài liệu API từ mã nguồn, hỗ trợ JSDoc và OpenAPI.","lam":["Sinh tài liệu từ chú thích mã","Xuất theo chuẩn OpenAPI"],"khi":"API của bạn cần tài liệu."},"ruvnet/ruflo/plugins/ruflo-autopilot/skills/autopilot-loop":{"tom":"Chạy một vòng tự lái: kiểm tiến độ, làm việc kế tiếp, hẹn giờ thức dậy lần sau.","lam":["Kiểm tiến độ","Làm việc kế tiếp","Tự hẹn giờ chạy tiếp"],"khi":"Bạn muốn việc tự chạy tiếp qua nhiều lượt.","ban":"Đúng hình dạng việc dịch này: làm một lô, ghi trạng thái, tiếp lô sau. Của bạn dùng file trên đĩa làm trạng thái, không cần bộ hẹn giờ."},"ruvnet/ruflo/plugins/ruflo-autopilot/skills/autopilot-predict":{"tom":"Dùng khuôn đã học và trạng thái hiện tại để đoán hành động kế tiếp tốt nhất.","lam":["Đọc trạng thái hiện tại","Đoán bước tiếp theo nên làm"],"khi":"Bạn muốn agent tự chọn việc kế tiếp."},"ruvnet/ruflo/v3/@claude-flow/browser/skills/browser":{"tom":"Tự động trình duyệt với ảnh chụp trang tối ưu cho AI đọc.","lam":["Điều khiển trình duyệt","Chụp trạng thái trang cho AI đọc"],"khi":"Agent của bạn cần thao tác web."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-auth-flow":{"tom":"Dò luồng xác thực của một trang tìm rò rỉ khi chuyển hướng, thiếu CSRF, cookie phiên yếu và cấu hình OAuth sai.","lam":["Dò rò rỉ khi chuyển hướng","Kiểm CSRF và cookie phiên","Kiểm cấu hình OAuth"],"khi":"Bạn kiểm bảo mật luồng đăng nhập."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-extract":{"tom":"Rút dữ liệu có cấu trúc từ trang, bắt buộc qua cổng lọc thông tin cá nhân và tiêm lệnh trước khi trả về.","lam":["Rút dữ liệu theo mẫu hoặc theo truy vấn DOM","Lọc thông tin cá nhân","Chặn tiêm lệnh qua nội dung trang"],"khi":"Bạn lấy dữ liệu từ trang web không tin tưởng.","ban":"Cổng chặn tiêm lệnh là phần quan trọng: nội dung web là dữ liệu người lạ viết, và agent đọc nó thì nó thành lệnh. Kinh Thánh và Đài Quan Trắc đều nạp dữ liệu ngoài — nhưng nạp thành file tĩnh, không thành lời nhắc."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-form-fill":{"tom":"Điền biểu mẫu web theo ánh xạ tên trường sang giá trị.","lam":["Điền biểu mẫu tự động","Dùng mẫu sẵn cho biểu mẫu đã biết"],"khi":"Bạn phải điền cùng một biểu mẫu nhiều lần."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-intent":{"tom":"Thực hiện ý định trên trình duyệt bằng lời thường, khi mô tả dễ hơn là chỉ đúng phần tử.","lam":["Nhận lệnh bằng lời thường","Tự tìm phần tử cần thao tác"],"khi":"Bạn không biết bộ chọn CSS nhưng biết mình muốn gì."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-login":{"tom":"Chạy luồng đăng nhập một lần, làm sạch cookie rồi cất vào két để dùng lại.","lam":["Đăng nhập một lần","Làm sạch cookie","Cất để phiên sau dùng lại"],"khi":"Trang cần đăng nhập mà bạn không muốn đăng nhập lại mỗi lượt."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-record":{"tom":"Mở một phiên duyệt có ghi vết, lưu toàn bộ thao tác thành quỹ đạo phát lại được.","lam":["Ghi lại từng thao tác","Lưu thành quỹ đạo phát lại được"],"khi":"Bạn muốn thao tác web của mình lặp lại được."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-replay":{"tom":"Phát lại quỹ đạo đã ghi trên cùng URL hoặc bản biến thể, tự phục hồi khi phần tử đổi bằng cách so tương đồng.","lam":["Phát lại thao tác đã ghi","Tự phục hồi khi giao diện đổi"],"khi":"Bạn muốn chạy lại một kịch bản web."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-scrape":{"tom":"Đã lỗi thời từ bản 0.2.0 — dùng browser-extract thay thế.","lam":["Chỉ còn là vỏ tương thích ngược"],"khi":"Đừng dùng — bản 0.3.0 đã gỡ.","ban":"Lại một ví dụ nữa về skill tự đánh dấu lỗi thời ngay trong mô tả. Đây là lý do trailer của Tàng Thư Các phải hiện mô tả gốc, không chỉ hiện tên."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-screenshot-diff":{"tom":"So khác biệt hình ảnh và DOM giữa hai phiên đã ghi, tại các bước tương ứng.","lam":["So ảnh chụp giữa hai phiên","So cấu trúc DOM","Bắt hồi quy thị giác"],"khi":"Bạn muốn biết bản mới có làm vỡ giao diện không.","ban":"Đây là phép kiểm bảy cung đang thiếu. jsdom xác nhận cấu trúc đúng nhưng không vẽ, nên hồi quy thị giác chỉ có bạn phát hiện bằng mắt."},"ruvnet/ruflo/plugins/ruflo-browser/skills/browser-test":{"tom":"Công thức kiểm thử giao diện: ghép ghi lại và phát lại, để mỗi test đều để lại vật chứng phát lại được.","lam":["Ghi kịch bản test","Phát lại để xác minh","Lưu vật chứng, không phải log tạm"],"khi":"Bạn dựng test giao diện."},"ruvnet/ruflo/plugins/ruflo-ruvllm/skills/chat-format":{"tom":"Định dạng lời nhắc cho từng nhà cung cấp LLM, kèm truy hồi ngữ cảnh bằng HNSW.","lam":["Áp mẫu hội thoại theo nhà cung cấp","Truy hồi ngữ cảnh liên quan"],"khi":"Bạn gọi nhiều model khác nhau."},"ruvnet/ruflo/.agents/skills/claims":{"tom":"Phân quyền theo tuyên bố cho agent và thao tác: cấp, thu hồi và kiểm quyền.","lam":["Cấp và thu hồi quyền","Kiểm quyền trước khi cho làm","Áp cho nhiều agent"],"khi":"Nhiều agent của bạn có mức quyền khác nhau."},"ruvnet/ruflo/plugins/ruflo-daa/skills/cognitive-pattern":{"tom":"Định nghĩa và quản khuôn tư duy cho agent khi suy luận và ra quyết định.","lam":["Định nghĩa khuôn tư duy","Gán khuôn cho từng agent"],"khi":"Bạn muốn agent suy nghĩ theo lối nhất định."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-anomaly":{"tom":"Phát hiện chi tiêu bất thường theo phương pháp MAD — bền vững trước chính các giá trị dị biệt mà nó đang săn.","lam":["Bắt phiên tiêu bất thường","Dùng MAD thay vì trung bình cộng độ lệch chuẩn","Chỉ đích danh phiên bất thường"],"khi":"Bạn muốn biết ngay khi có lượt chạy đốt tiền.","ban":"Đúng thứ đã cứu được ngày 14/08. Một lượt Opus kèm web_search tốn 1,4 USD giữa những lượt vài xu là dị biệt rõ ràng — chỉ là không có ai đo."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-benchmark":{"tom":"Chạy đo chuẩn trên bộ ngữ liệu và lưu bảng đối chiếu giữa con số đo được và con số được tuyên bố.","lam":["Chạy đo chuẩn","So bản chạy tại máy với các model nền","Lưu bảng đo được kiểm chứng"],"khi":"Bạn muốn kiểm lời quảng cáo bằng số đo của mình.","ban":"Cột 'đo được so với tuyên bố' đúng kỷ luật đã sửa nhiều lỗi trong phiên này: con số 'LUOT_MOI_KHO = 25' là tuyên bố, còn 31→30→29 là đo được."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-booster-edit":{"tom":"Áp một phép biến đổi mã đơn giản bằng máy WASM — dưới một mili giây, tất định, 0 đồng, không gọi LLM.","lam":["Biến đổi mã tất định","Không gọi model","Chạy tức thì"],"khi":"Việc sửa mã đủ đơn giản để không cần model.","ban":"Chính là nguyên tắc regex-vs-llm: dùng thứ tất định khi được, chỉ gọi model cho ca biên. Trailer của Tàng Thư Các sinh ra theo đúng cách này — 0 đồng."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-booster-route":{"tom":"Định tuyến tác vụ qua hooks_route, tách phần chạy được bằng máy tăng tốc, báo tỉ lệ đi tắt với chi phí 0 đồng.","lam":["Tách việc chạy được không cần model","Báo tỉ lệ đi tắt","Đo phần tiết kiệm"],"khi":"Bạn muốn giảm số lời gọi model."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-budget-check":{"tom":"Đọc chi tiêu tích luỹ và cấu hình ngân sách, tính mức dùng, phát cảnh báo ở các mốc 50/75/90/100%.","lam":["Tính mức dùng ngân sách","Cảnh báo theo bậc","Chặn khi vượt"],"khi":"Bạn có trần chi tiêu và không muốn vượt.","ban":"Nếu có đúng một thứ nên cài trước khi Đài Quan Trắc chạy lại thì là cái này. Cảnh báo ở 50% có ý nghĩa hơn nhiều so với phát hiện số dư âm 0,61 USD."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-burn":{"tom":"Xu hướng tốc độ đốt tiền theo thời gian, có thể thoát lỗi khi phát hiện trôi.","lam":["Chia chi tiêu theo khung thời gian","So khung này với khung trước","Báo động khi trôi"],"khi":"Bạn muốn biết tốc độ tiêu đang tăng hay giảm."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-compact-context":{"tom":"Lấy ngữ cảnh đã nén từ ReasoningBank phục vụ truy vấn phân tích chi phí.","lam":["Lấy ngữ cảnh đã nén","Báo số token cầu nối ghi nhận"],"khi":"Bạn phân tích chi phí và cần ngữ cảnh gọn."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-conversation":{"tom":"Xem chi phí theo từng cuộc hội thoại: giờ bắt đầu, số tin nhắn, model chính, tổng tiền.","lam":["Liệt kê từng phiên và chi phí","Chỉ model tiêu nhiều nhất"],"khi":"Bạn muốn biết phiên nào tốn nhất."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-counterfactual":{"tom":"Phân tích đối chứng nhiều đường: so chi tiêu thật với giả định luôn dùng haiku, luôn sonnet, luôn opus.","lam":["So với các kịch bản định tuyến khác","Chỉ ra khoản lẽ ra tiết kiệm được"],"khi":"Bạn muốn biết chọn model khác thì rẻ hơn bao nhiêu.","ban":"Áp thẳng vào Đài Quan Trắc: nó chạy Opus cho việc Haiku làm được. Một bản đối chứng sẽ cho con số cụ thể thay vì cảm giác."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-diff":{"tom":"So chênh lệch giữa hai bản tóm chi phí — phát hiện hồi quy chi phí ở mức PR.","lam":["So hai ảnh chụp chi phí","Chỉ ra cái gì đã đổi"],"khi":"Bạn muốn biết một thay đổi làm chi phí tăng bao nhiêu."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-export":{"tom":"Xuất số liệu chi phí ra định dạng Prometheus hoặc webhook JSON, cho hệ quan trắc bên ngoài.","lam":["Xuất cho Grafana, Datadog","Xuất dạng JSON qua webhook"],"khi":"Bạn muốn nhìn chi phí trên bảng theo dõi chung."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-federation":{"tom":"Nối phía tiêu thụ cho sự kiện chi tiêu liên hợp — cửa sổ trượt theo từng nút và kiểm ngưỡng đình chỉ.","lam":["Theo dõi chi tiêu từng nút","Đình chỉ nút vượt ngưỡng"],"khi":"Nhiều nút cùng tiêu chung một ngân sách."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-health":{"tom":"Cổng CI tổng hợp: chạy song song bốn phép kiểm ngân sách, tốc độ đốt, bất thường và dự phóng, rồi trả một trạng thái chung.","lam":["Chạy bốn phép kiểm cùng lúc","Trả một trạng thái sức khoẻ chi phí","Chặn ở CI khi không đạt"],"khi":"Bạn muốn một cổng duy nhất canh chi phí.","ban":"Cùng hình dạng với npm run kiem: một lệnh gom nhiều phép kiểm, trả một kết luận. Của bạn canh tính đúng đắn, của họ canh chi phí — và bạn cần cả hai."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-optimize":{"tom":"Phân tích khuôn dùng token và đề xuất cách giảm chi phí kèm ước lượng tiết kiệm.","lam":["Phân tích khuôn dùng token","Đề xuất cách tiết kiệm","Ước lượng khoản giảm"],"khi":"Bạn muốn biết cắt ở đâu thì hiệu quả nhất."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-projection":{"tom":"Dự phóng chi tiêu tới: tính mức USD mỗi ngày từ cửa sổ gần đây rồi chiếu ra 7, 30, 90 và 365 ngày.","lam":["Tính mức tiêu mỗi ngày","Chiếu ra các mốc dài hơn"],"khi":"Bạn muốn biết cứ đà này thì tháng sau hết bao nhiêu."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-report":{"tom":"Sinh báo cáo chi phí theo từng agent và từng model.","lam":["Báo token đã dùng","Báo tiền theo agent và model"],"khi":"Bạn cần báo cáo chi phí."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-session":{"tom":"Bóc chi phí tới từng tin nhắn trong một phiên — bản đào sâu đi kèm cost-anomaly.","lam":["Bóc chi phí từng tin nhắn","Chỉ tin nhắn tốn nhất"],"khi":"Một phiên bị đánh dấu bất thường và bạn cần biết vì sao."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-summary":{"tom":"Kết xuất một lượt toàn bộ dữ liệu chi phí: tổng tiêu, theo bậc, phiên tốn nhất, trạng thái ngân sách.","lam":["Kết xuất toàn bộ dữ liệu chi phí","Xuất JSON hoặc markdown"],"khi":"Bạn cần bức tranh tổng trong một lệnh."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-track":{"tom":"Tự thu mức dùng token từng phiên từ file nhật ký của Claude Code và lưu lại.","lam":["Đọc nhật ký phiên","Lưu mức dùng token","Không cần dụng cụ đo riêng"],"khi":"Bạn muốn theo dõi chi phí mà không đổi cách làm việc."},"ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-trend":{"tom":"Đọc mọi bản chạy đo chuẩn và chỉ ra xu hướng trôi về tỉ lệ thắng, độ trễ, tỉ lệ leo thang và chi phí model nền.","lam":["Đọc lịch sử các lượt đo","Chỉ xu hướng trôi theo thời gian"],"khi":"Bạn muốn biết hệ đang tốt lên hay xấu đi."},"ruvnet/ruflo/plugins/ruflo-plugin-creator/skills/create-plugin":{"tom":"Dựng khung một plugin Claude Code mới: cấu trúc thư mục, plugin.json, skill, lệnh và agent.","lam":["Dựng khung plugin","Sinh plugin.json","Sinh skill, lệnh và agent"],"khi":"Bạn viết plugin cho Claude Code."},"ruvnet/ruflo/plugins/ruflo-loop-workers/skills/cron-schedule":{"tom":"Lên lịch chạy nền bền bằng CronCreate.","lam":["Đặt lịch chạy nền","Giữ lịch qua các phiên"],"khi":"Bạn cần việc chạy định kỳ."},"ruvnet/ruflo/plugins/ruflo-daa/skills/daa-agent":{"tom":"Tạo và điều chỉnh agent kiến trúc động biết học và tiến hoá.","lam":["Tạo agent tự thích ứng","Cho agent tiến hoá theo dữ liệu"],"khi":"Bạn muốn agent tự đổi theo tình hình."},"ruvnet/ruflo/plugins/ruflo-ddd/skills/ddd-aggregate":{"tom":"Dựng khung một gốc tập hợp theo DDD: thực thể, đối tượng giá trị, giao diện kho, sự kiện miền và khung test.","lam":["Sinh gốc tập hợp","Sinh đối tượng giá trị và sự kiện miền","Sinh khung test"],"khi":"Bạn thêm một tập hợp mới trong kiến trúc DDD."},"ruvnet/ruflo/plugins/ruflo-ddd/skills/ddd-context":{"tom":"Tạo và quản một bối cảnh có ranh giới theo DDD, với cấu trúc thư mục chuẩn.","lam":["Tạo bối cảnh có ranh giới","Dựng cấu trúc thư mục chuẩn"],"khi":"Bạn tách một khối lớn thành các miền riêng."},"ruvnet/ruflo/plugins/ruflo-ddd/skills/ddd-validate":{"tom":"Kiểm ranh giới miền: bắt import xuyên bối cảnh và lỗi bất biến của tập hợp.","lam":["Bắt import xuyên ranh giới","Bắt vi phạm bất biến"],"khi":"Bạn muốn ranh giới miền được máy ép, không dựa vào kỷ luật.","ban":"Cùng ý với setup-ts-deep-modules: ranh giới chỉ có thật khi có thứ ép nó. Bảy cung ép ranh giới theo cách thô mà hiệu quả — mỗi cung là một thư mục độc lập, không import chéo."},"ruvnet/ruflo/plugins/ruflo-goals/skills/deep-research":{"tom":"Điều phối nghiên cứu sâu nhiều pha: tìm web, truy hồi bộ nhớ, ghép khuôn rồi tổng hợp thành phát hiện có cấu trúc.","lam":["Tìm web và truy hồi bộ nhớ","Ghép khuôn đã biết","Tổng hợp thành phát hiện có cấu trúc"],"khi":"Bạn cần nghiên cứu nhiều lớp."},"ruvnet/ruflo/plugins/ruflo-security-audit/skills/dependency-check":{"tom":"Quét phụ thuộc của dự án tìm lỗ hổng và CVE đã biết.","lam":["Quét gói bên thứ ba","Tìm CVE đã biết","Chạy trước khi phát hành"],"khi":"Bạn dùng gói bên ngoài.","ban":"Bảy cung không có node_modules nên bề mặt này gần như bằng không — một trong những phần thưởng lớn nhất của lựa chọn không phụ thuộc."},"ruvnet/ruflo/plugins/ruflo-jujutsu/skills/diff-analyze":{"tom":"Phân tích diff git: chấm rủi ro, gợi ý người soát, phân loại thay đổi.","lam":["Chấm rủi ro của thay đổi","Gợi ý ai nên soát","Phân loại thay đổi"],"khi":"Bạn chuẩn bị một PR lớn."},"ruvnet/ruflo/plugins/ruflo-core/skills/discover-plugins":{"tom":"Tìm và gợi ý plugin ruflo dựa trên luồng việc, công cụ MCP đã cài và việc đang làm.","lam":["Đọc hiện trạng công cụ","Gợi ý plugin phù hợp"],"khi":"Bạn không biết bộ ruflo có gì dùng được."},"ruvnet/ruflo/plugins/ruflo-docs/skills/doc-gen":{"tom":"Sinh và duy trì tài liệu, có phát hiện trôi so với mã.","lam":["Sinh tài liệu","Phát hiện tài liệu đã lệch với mã","Cập nhật tài liệu"],"khi":"Tài liệu của bạn hay tụt lại sau mã.","ban":"Đúng việc npm run kiem làm cho hệ này. Điểm khác: bộ kiểm của bạn chỉ BÁO lệch để người quyết, còn cái này sinh luôn — và với tài liệu chứa lý do thì báo tốt hơn là sinh."},"ruvnet/ruflo/plugins/ruflo-goals/skills/dossier-collect":{"tom":"Dựng hồ sơ dạng đồ thị về một thực thể, bằng cách toả ra song song rồi mở rộng đệ quy qua web, bộ nhớ, đồ thị tri thức và mã nguồn.","lam":["Toả ra nhiều nguồn song song","Mở rộng đệ quy từ đầu mối","Dựng hồ sơ dạng đồ thị"],"khi":"Bạn cần biết mọi thứ về một đối tượng."},"ruvnet/ruflo/.agents/skills/embeddings":{"tom":"Vector nhúng với chỉ mục HNSW, lưu bằng sql.js, hỗ trợ không gian hyperbolic.","lam":["Sinh vector nhúng","Đánh chỉ mục HNSW","Tìm theo ngữ nghĩa"],"khi":"Bạn cần tìm kiếm ngữ nghĩa."},"ruvnet/ruflo/plugins/ruflo-federation/skills/federation-audit":{"tom":"Truy vấn nhật ký kiểm toán liên hợp, có lọc theo yêu cầu tuân thủ.","lam":["Đọc nhật ký kiểm toán","Lọc theo tiêu chí tuân thủ"],"khi":"Bạn cần chứng minh ai đã làm gì."},"ruvnet/ruflo/plugins/ruflo-federation/skills/federation-init":{"tom":"Khởi tạo liên hợp trên nút này: sinh cặp khoá và cấu hình các nút bạn.","lam":["Sinh cặp khoá","Cấu hình danh sách nút bạn"],"khi":"Bạn nối nút của mình vào một liên hợp."},"ruvnet/ruflo/plugins/ruflo-federation/skills/federation-status":{"tom":"Hiện sức khoẻ liên hợp: nút bạn, phiên, mức tin cậy và số liệu tin nhắn.","lam":["Liệt kê nút bạn và mức tin cậy","Xem số liệu tin nhắn"],"khi":"Bạn muốn biết liên hợp có khoẻ không."},"ruvnet/ruflo/.claude/skills/flow-nexus-neural":{"tom":"Huấn luyện và triển khai mạng nơ-ron trong hộp cát E2B phân tán, qua Flow Nexus.","lam":["Huấn luyện phân tán","Triển khai model"],"khi":"Bạn dùng nền tảng Flow Nexus."},"ruvnet/ruflo/.claude/skills/flow-nexus-platform":{"tom":"Quản trị toàn diện nền tảng Flow Nexus: xác thực, hộp cát, triển khai ứng dụng, thanh toán.","lam":["Quản xác thực và hộp cát","Triển khai ứng dụng","Quản thanh toán"],"khi":"Bạn vận hành trên Flow Nexus."},"ruvnet/ruflo/.claude/skills/flow-nexus-swarm":{"tom":"Triển khai bầy AI trên đám mây và tự động hoá luồng việc theo sự kiện, qua Flow Nexus.","lam":["Triển khai bầy trên đám mây","Chạy luồng theo sự kiện"],"khi":"Bạn chạy bầy agent trên đám mây."},"ruvnet/ruflo/plugins/ruflo-workflows/skills/gaia-architecture-comparison":{"tom":"So sánh song song ruflo với HAL và các harness GAIA khác: chỗ hụt năng lực, quyết định thiết kế và lộ trình cải thiện.","lam":["So năng lực từng harness","Chỉ chỗ hụt","Vạch lộ trình"],"khi":"Bạn chọn hoặc cải tiến một harness agent."},"ruvnet/ruflo/plugins/ruflo-workflows/skills/gaia-debugging":{"tom":"Chẩn đoán vì sao một câu hỏi GAIA thất bại: rút vết chạy, phân loại kiểu hỏng, đề xuất cách sửa.","lam":["Rút vết chạy","Phân loại kiểu hỏng","Đề xuất cách sửa"],"khi":"Bản chạy đo chuẩn GAIA báo có câu sai."},"ruvnet/ruflo/plugins/ruflo-workflows/skills/gaia-submission":{"tom":"Đi trọn quy trình chạy và nộp bài đo chuẩn GAIA, từ khoá tới gói nộp tương thích HAL.","lam":["Chạy bộ đo GAIA","Đóng gói bài nộp"],"khi":"Bạn nộp kết quả lên bảng xếp hạng GAIA."},"ruvnet/ruflo/plugins/ruflo-jujutsu/skills/git-workflow":{"tom":"Luồng git nâng cao: quản nhánh, gỡ xung đột, vòng đời PR.","lam":["Quản nhánh","Gỡ xung đột","Đi trọn vòng đời PR"],"khi":"Bạn làm việc với git ở mức phức tạp."},"ruvnet/ruflo/.agents/skills/github-automation":{"tom":"Tự động hoá luồng việc GitHub: quản PR, theo dõi issue, điều phối soát mã, nối với Actions.","lam":["Quản PR và issue","Điều phối soát mã","Nối với GitHub Actions"],"khi":"Việc của bạn nằm trọn trên GitHub."},"ruvnet/ruflo/.claude/skills/github-code-review":{"tom":"Soát mã trên GitHub toàn diện, có điều phối bầy agent.","lam":["Soát PR bằng nhiều agent","Gom nhận xét"],"khi":"Bạn muốn soát mã tự động trên GitHub."},"ruvnet/ruflo/.claude/skills/github-multi-repo":{"tom":"Điều phối, đồng bộ và quản kiến trúc xuyên nhiều kho, có bầy agent.","lam":["Đồng bộ nhiều kho","Quản kiến trúc chung"],"khi":"Hệ của bạn trải trên nhiều kho."},"ruvnet/ruflo/.claude/skills/github-project-management":{"tom":"Quản dự án trên GitHub: theo dõi issue, tự động bảng dự án, lập kế hoạch chặng.","lam":["Theo dõi issue","Tự động cập nhật bảng dự án","Lập kế hoạch chặng"],"khi":"Bạn quản dự án bằng GitHub Projects."},"ruvnet/ruflo/.claude/skills/github-release-management":{"tom":"Điều phối phát hành trên GitHub: tự đánh phiên bản, chạy test, triển khai và quản đường lùi.","lam":["Tự đánh phiên bản","Chạy test và triển khai","Quản đường lùi"],"khi":"Bạn phát hành qua GitHub."},"ruvnet/ruflo/.claude/skills/github-workflow-automation":{"tom":"Tự động hoá GitHub Actions nâng cao: đường ống CI/CD thông minh, có bầy agent điều phối.","lam":["Dựng đường ống CI/CD","Điều phối bằng bầy agent","Quản kho toàn diện"],"khi":"Đường ống GitHub Actions của bạn phức tạp."},"ruvnet/ruflo/plugins/ruflo-goals/skills/goal-plan":{"tom":"Lập và chạy kế hoạch hành động hướng mục tiêu (GOAP): phân tích điều kiện tiên quyết, tối ưu chi phí, tự lập lại kế hoạch.","lam":["Phân tích điều kiện tiên quyết","Tối ưu chi phí đường đi","Lập lại kế hoạch khi tình hình đổi"],"khi":"Bạn có mục tiêu và nhiều đường tới đích."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-bench":{"tom":"Quản bộ đo chuẩn cho harness: dựng bộ đo từ bộ test của một kho rồi kiểm chứng.","lam":["Dựng bộ đo từ kho có sẵn","Kiểm chứng bộ đo"],"khi":"Bạn đánh giá một harness agent."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-drift-from-history":{"tom":"Phát hiện trôi bằng một lệnh: gộp liệt kê kiểm toán, chạy kiểm và xem xu hướng thành một bước.","lam":["Tìm bản kiểm toán gần nhất","So và chỉ ra trôi"],"khi":"Bạn muốn biết harness đã lệch đi bao nhiêu."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-evolve":{"tom":"Tiến hoá harness bằng cách đột biến bảy mặt chính sách: lập kế hoạch, dựng ngữ cảnh, soát, thử lại, chính sách công cụ.","lam":["Đột biến chính sách harness","Giữ bản tốt hơn qua từng vòng"],"khi":"Bạn muốn harness tự khá lên."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-genome":{"tom":"Báo cáo mức sẵn sàng của một kho theo bảy mục: loại kho, hình trạng agent, điểm rủi ro, bề mặt MCP, cấu hình test.","lam":["Chấm loại kho và rủi ro","Đọc bề mặt MCP","Đọc cấu hình test"],"khi":"Bạn đánh giá một kho trước khi cho agent vào."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-gepa":{"tom":"Soi và kiểm bộ gen GEPA: nạp và kiểm tính hợp lệ của một bộ gen harness.","lam":["Nạp và kiểm bộ gen","Soi cấu hình harness"],"khi":"Bạn làm việc với bộ gen GEPA."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-learn":{"tom":"Chạy một chu kỳ học GEPA — tối ưu bộ gen harness trên bộ bài kiểu SWE-bench.","lam":["Chạy chu kỳ học","Tối ưu bộ gen theo kết quả đo"],"khi":"Bạn muốn harness học từ bộ bài chuẩn."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-mcp-scan":{"tom":"Quét bảo mật tĩnh bề mặt MCP mà một harness khai báo.","lam":["Đọc danh sách máy chủ MCP","Đọc bảng quyền","Chỉ rủi ro"],"khi":"Bạn cài harness có nhiều máy chủ MCP.","ban":"Đáng chạy nếu bạn cài thử skill từ Tàng Thư Các. Hồ sơ an toàn trong trailer chỉ đọc mã trong SKILL.md — nó không thấy được máy chủ MCP mà skill kéo theo."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-mint":{"tom":"Dựng khung một harness agent tuỳ biến, mặc định chạy thử không ghi gì trừ khi xác nhận.","lam":["Dựng khung harness mới","Chạy thử trước khi ghi thật"],"khi":"Bạn muốn harness riêng cho luồng việc của mình."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-oia-audit":{"tom":"Trình kiểm toán tổng hợp: gộp bản kê khai, mô hình mối đe doạ và quét MCP thành một bản ghi có mốc thời gian.","lam":["Gộp ba phép kiểm thành một","Lưu bản ghi có mốc thời gian"],"khi":"Bạn cần một bản kiểm toán đầy đủ cho harness."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-score":{"tom":"Bảng điểm sẵn sàng năm chiều cho harness: mức hợp harness, độ tin cậy biên dịch, mức bao phủ tác vụ, an toàn công cụ.","lam":["Chấm năm chiều","Trả điểm tổng hợp"],"khi":"Bạn so nhiều harness với nhau."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-security-bench":{"tom":"Chạy bộ đo bảo mật — tiến hoá một harness phát hiện tấn công vô địch trên bộ 10 lỗ hổng.","lam":["Tiến hoá harness phát hiện tấn công","Đo trên bộ lỗ hổng chuẩn"],"khi":"Bạn muốn harness của mình chống được tấn công."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-similarity":{"tom":"Tính mức tương đồng có trọng số giữa hai dấu vân harness, trả điểm chung và điểm theo từng thành phần.","lam":["So hai harness","Trả điểm tương đồng theo thành phần"],"khi":"Bạn muốn biết hai harness khác nhau chỗ nào."},"ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-threat-model":{"tom":"Mô hình mối đe doạ mức duyệt doanh nghiệp: phân loại rủi ro trên bề mặt MCP và trả mức nặng nhất.","lam":["Phân loại mối đe doạ","Trả mức nghiêm trọng cao nhất"],"khi":"Bạn phải chứng minh harness đủ an toàn để duyệt."},"ruvnet/ruflo/.agents/skills/hive-mind":{"tom":"Đồng thuận chịu lỗi Byzantine và điều phối phân tán, quản bầy theo phân cấp có nút chúa.","lam":["Điều phối bầy theo phân cấp","Đạt đồng thuận dù có nút sai","Chọn chiến lược đồng thuận"],"khi":"Bạn chạy bầy agent lớn cần đồng thuận."},"ruvnet/ruflo/.claude/skills/hive-mind-advanced":{"tom":"Hệ trí tuệ tập thể nâng cao: điều phối nhiều agent do nút chúa dẫn, có cơ chế đồng thuận và bộ nhớ bền.","lam":["Điều phối nhiều agent có nút chúa","Đồng thuận và bộ nhớ bền"],"khi":"Bầy agent của bạn cần trí nhớ chung và đồng thuận."},"ruvnet/ruflo/.claude/skills/hooks-automation":{"tom":"Điều phối, định dạng và học tự động từ thao tác của Claude Code bằng hook thông minh, có nối MCP.","lam":["Chạy hook trước và sau mỗi thao tác","Tự định dạng","Học từ thao tác đã chạy"],"khi":"Bạn muốn tự động hoá quanh mỗi lần agent làm việc.","ban":"Hook của bạn cố tình đơn giản: shell thuần, luôn thoát 0, chỉ nhắc. Bản này mạnh hơn nhiều nhưng cũng nhiều thứ có thể hỏng hơn."},"ruvnet/ruflo/plugins/ruflo-goals/skills/horizon-track":{"tom":"Theo dõi mục tiêu dài hơi qua nhiều phiên, có mốc kiểm, lưu tiến độ và phát hiện trôi.","lam":["Đặt mốc kiểm cho mục tiêu dài","Lưu tiến độ giữa các phiên","Phát hiện đi chệch hướng"],"khi":"Mục tiêu của bạn kéo dài qua nhiều phiên.","ban":"Đúng thứ việc dịch 2.859 skill này cần và hiện làm bằng tay: node scripts/dich-con-lai.mjs là bộ đếm tiến độ, dich-tiep.md là mốc kiểm."},"ruvnet/ruflo/plugins/ruflo-core/skills/init-project":{"tom":"Khởi tạo dự án Ruflo mới với công cụ MCP, hook và cấu hình agent.","lam":["Dựng cấu hình Ruflo","Cài hook và công cụ MCP"],"khi":"Bạn đưa Ruflo vào một kho mới."},"ruvnet/ruflo/plugins/ruflo-intelligence/skills/intelligence-route":{"tom":"Định tuyến tác vụ qua bộ chọn model ba bậc và khuôn đã học, kèm giải thích vì sao chọn.","lam":["Chọn model theo độ khó","Dùng khuôn đã học","Giải thích lý do định tuyến"],"khi":"Bạn muốn việc dễ đi model rẻ, việc khó đi model mạnh.","ban":"Đây là cách chữa gốc cho vấn đề của Đài Quan Trắc: nó chạy Opus cho mọi lượt, kể cả lượt Haiku thừa sức. Định tuyến ba bậc là thứ đứng giữa bạn và hoá đơn."},"ruvnet/ruflo/plugins/ruflo-intelligence/skills/intelligence-transfer":{"tom":"Công bố hoặc lấy khuôn đã học giữa các dự án qua IPFS và Pinata.","lam":["Đẩy khuôn đã học lên IPFS","Lấy khuôn từ dự án khác"],"khi":"Bạn muốn dự án mới thừa hưởng bài học của dự án cũ.","ban":"Cùng dùng Pinata như hệ này — và nhớ là khoá PINATA_JWT của bạn đã chết, nên bước đóng dấu IPFS hỏng 16/16 lượt mỗi ngày."},"ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-anomalies":{"tom":"Phát hiện và phân loại bất thường trong dữ liệu đo từ thiết bị Cognitum Seed.","lam":["Bắt số đo bất thường","Phân loại kiểu bất thường"],"khi":"Một thiết bị báo số liệu lạ."},"ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-firmware":{"tom":"Điều phối cập nhật firmware theo lối thả từ từ, chỉ đi tiếp khi không có bất thường.","lam":["Cập nhật thử trên nhóm nhỏ","Chỉ mở rộng khi sạch bất thường"],"khi":"Bạn cập nhật firmware cho nhiều thiết bị.","ban":"Khuôn 'thả từ từ, có cổng chặn' đúng thứ đường ống của bạn thiếu: mọi thay đổi đi thẳng lên main và lên Pages ngay lượt sau."},"ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-fleet":{"tom":"Tạo và quản đội thiết bị Cognitum Seed kèm chính sách firmware.","lam":["Quản đội thiết bị","Đặt chính sách firmware"],"khi":"Bạn quản nhiều thiết bị IoT."},"ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-register":{"tom":"Đăng ký một thiết bị Cognitum Seed theo endpoint và dựng cầu nối agent.","lam":["Đăng ký thiết bị","Dựng cầu nối tới agent"],"khi":"Bạn thêm thiết bị mới vào hệ."},"ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-witness-verify":{"tom":"Kiểm tính toàn vẹn chuỗi chứng và phát hiện lỗ hổng trong dấu vết nguồn gốc.","lam":["Kiểm chuỗi chứng","Bắt chỗ đứt dấu vết"],"khi":"Bạn cần chứng minh dữ liệu chưa bị sửa."},"ruvnet/ruflo/plugins/ruflo-knowledge-graph/skills/kg-extract":{"tom":"Rút thực thể và quan hệ từ file nguồn để dựng đồ thị tri thức.","lam":["Rút thực thể từ mã và tài liệu","Rút quan hệ giữa chúng"],"khi":"Bạn muốn biến kho thành đồ thị tra được."},"ruvnet/ruflo/plugins/ruflo-knowledge-graph/skills/kg-traverse":{"tom":"Đi xuyên đồ thị tri thức từ một thực thể gốc để tìm đường.","lam":["Xuất phát từ một thực thể","Lần theo quan hệ tìm đường"],"khi":"Bạn muốn biết hai thứ nối với nhau qua đâu."},"ruvnet/ruflo/plugins/ruflo-ruvllm/skills/llm-config":{"tom":"Cấu hình suy luận cục bộ RuVLLM: chọn model, tinh chỉnh MicroLoRA, thích ứng SONA.","lam":["Chọn model chạy tại máy","Tinh chỉnh nhẹ bằng MicroLoRA"],"khi":"Bạn chạy model tại máy."},"ruvnet/ruflo/plugins/ruflo-loop-workers/skills/loop-worker":{"tom":"Chạy tiến trình nền của Ruflo bằng cơ chế /loop sẵn có của Claude Code.","lam":["Chạy việc nền theo lịch","Dùng cơ chế lặp sẵn có"],"khi":"Bạn cần việc chạy nền lặp lại."},"ruvnet/ruflo/plugins/ruflo-agent/skills/managed-agent":{"tom":"Chạy Managed Agent của Anthropic — harness agent trên đám mây có container, hệ tệp và công cụ.","lam":["Chạy agent trên đám mây","Dùng container và hệ tệp do Anthropic lo"],"khi":"Bạn muốn agent chạy dài mà không cần máy của mình."},"ruvnet/ruflo/plugins/ruflo-market-data/skills/market-ingest":{"tom":"Nạp và chuẩn hoá dữ liệu thị trường thành vector OHLCV, đánh chỉ mục HNSW.","lam":["Nạp dữ liệu giá","Chuẩn hoá thành OHLCV","Đánh chỉ mục để tìm nhanh"],"khi":"Bạn xây hệ phân tích thị trường."},"ruvnet/ruflo/plugins/ruflo-market-data/skills/market-pattern":{"tom":"Nhận và phân loại mẫu hình nến từ dữ liệu OHLCV đã nạp.","lam":["Nhận mẫu hình nến","Phân loại mẫu"],"khi":"Bạn phân tích kỹ thuật thị trường."},"ruvnet/ruflo/plugins/ruflo-rag-memory/skills/memory-bridge":{"tom":"Bắc cầu bộ nhớ tự động của Claude Code vào AgentDB, khử trùng lặp và cho tìm chung xuyên dự án.","lam":["Đưa bộ nhớ Claude Code vào AgentDB","Khử trùng lặp","Tìm chung xuyên dự án"],"khi":"Bạn muốn tìm được mọi thứ đã ghi nhớ, ở mọi dự án."},"ruvnet/ruflo/.agents/skills/memory-management":{"tom":"Hệ bộ nhớ AgentDB với tìm kiếm vector HNSW: truy hồi khuôn nhanh hơn nhiều lần, lưu bền, tìm theo ngữ nghĩa.","lam":["Lưu bộ nhớ bền","Tìm theo ngữ nghĩa","Truy hồi khuôn đã học"],"khi":"Agent của bạn cần trí nhớ tra được."},"ruvnet/ruflo/plugins/ruflo-rag-memory/skills/memory-search":{"tom":"Tìm kiếm ngữ nghĩa cao cấp: lai thưa và dày, Graph RAG nhiều bước, xếp lại theo đa dạng, ưu tiên mới.","lam":["Tìm lai thưa và dày","Đi nhiều bước trên đồ thị","Ưu tiên kết quả mới"],"khi":"Tìm kiếm đơn giản không đủ."},"ruvnet/ruflo/plugins/ruflo-migrations/skills/migrate-create":{"tom":"Tạo bản di trú cơ sở dữ liệu đánh số tuần tự, kèm file SQL đi lên và đi xuống.","lam":["Tạo bản di trú mới","Sinh cả SQL lùi lại"],"khi":"Bạn đổi lược đồ cơ sở dữ liệu."},"ruvnet/ruflo/plugins/ruflo-migrations/skills/migrate-validate":{"tom":"Kiểm các bản di trú đang chờ: nhất quán khoá ngoại, an toàn khi lùi, và lối làm chuẩn.","lam":["Kiểm khoá ngoại","Kiểm có lùi được không"],"khi":"Bạn sắp chạy di trú trên dữ liệu thật."},"ruvnet/ruflo/plugins/ruflo-swarm/skills/monitor-stream":{"tom":"Phát luồng sự kiện của bầy agent theo thời gian thực.","lam":["Xem sự kiện bầy ngay khi xảy ra","Quan trắc thời gian thực"],"khi":"Bạn muốn nhìn bầy agent đang làm gì."},"ruvnet/ruflo/plugins/ruflo-agent/skills/nested-subagents":{"tom":"Tung agent con lồng nhau, tối đa năm tầng, để chia việc sâu mà vẫn quản được ngữ cảnh.","lam":["Tung agent con nhiều tầng","Giữ ngữ cảnh mỗi tầng gọn"],"khi":"Việc quá lớn cho một tầng agent."},"ruvnet/ruflo/plugins/ruflo-intelligence/skills/neural-train":{"tom":"Huấn luyện khuôn nơ-ron SONA và MicroLoRA từ những tác vụ đã hoàn thành thành công.","lam":["Học từ tác vụ đã làm đúng","Chạy pha chưng cất và củng cố"],"khi":"Bạn muốn agent học từ thành công của chính nó."},"ruvnet/ruflo/.agents/skills/neural-training":{"tom":"Huấn luyện khuôn nơ-ron với SONA, hỗn hợp chuyên gia (MoE) và EWC++ để củng cố tri thức.","lam":["Huấn luyện khuôn nơ-ron","Củng cố tri thức không quên cái cũ"],"khi":"Bạn dựng hệ agent tự học."},"ruvnet/ruflo/plugins/ruflo-observability/skills/observe-metrics":{"tom":"Gom và hiện số đo hệ thống trong một khoảng thời gian, có phát hiện bất thường.","lam":["Gom số đo theo khoảng thời gian","Bắt bất thường"],"khi":"Bạn muốn nhìn sức khoẻ hệ thống."},"ruvnet/ruflo/plugins/ruflo-observability/skills/observe-trace":{"tom":"Truy vết agent chạy: gom các đoạn vết rồi dựng thành cây vết cho một tác vụ.","lam":["Gom đoạn vết","Dựng cây vết theo tác vụ"],"khi":"Bạn muốn biết agent đã đi qua những bước nào."},"ruvnet/ruflo/.claude/skills/pair-programming":{"tom":"Lập trình đôi có AI, nhiều chế độ (người lái, người dẫn đường, đổi vai), kèm xác minh và theo dõi chất lượng.","lam":["Đổi vai lái và dẫn đường","Xác minh theo thời gian thực","Theo dõi chất lượng"],"khi":"Bạn muốn làm cùng agent thay vì giao việc."},"ruvnet/ruflo/.claude/skills/performance-analysis":{"tom":"Phân tích hiệu năng toàn diện cho bầy agent: tìm nút thắt và đề xuất tối ưu.","lam":["Tìm nút thắt","Đề xuất tối ưu"],"khi":"Bầy agent của bạn chạy chậm."},"ruvnet/ruflo/plugins/ruflo-aidefence/skills/pii-detect":{"tom":"Phát hiện và đánh dấu thông tin định danh cá nhân trong văn bản, mã và cấu hình.","lam":["Quét tìm thông tin cá nhân","Đánh dấu trước khi commit hoặc ghi log"],"khi":"Bạn sắp commit hoặc công bố thứ gì đó.","ban":"Rất đáng chạy trên kho công khai này. Cùng gia đình với bài học đắt nhất của bạn: hai khoá chết vì đi qua chỗ nhìn thấy được."},"ruvnet/ruflo/plugins/ruflo-business-pods/skills/pod-sales":{"tom":"Chạy một nhịp của khoang nghiệp vụ bán hàng: nạp mẫu, kiểm theo lược đồ, phân giải agent.","lam":["Nạp mẫu nghiệp vụ bán hàng","Kiểm theo lược đồ","Chạy một nhịp"],"khi":"Bạn vận hành khoang nghiệp vụ tự động."},"ruvnet/ruflo/.claude/skills/reasoningbank-intelligence":{"tom":"Học thích ứng bằng ReasoningBank: nhận khuôn, tối ưu chiến lược, cải thiện liên tục.","lam":["Nhận khuôn từ trải nghiệm","Tối ưu chiến lược","Cải thiện qua từng lượt"],"khi":"Bạn dựng agent tự khá lên theo thời gian."},"ruvnet/ruflo/.claude/skills/reasoningbank-agentdb":{"tom":"Học thích ứng ReasoningBank chạy trên AgentDB: theo dõi quỹ đạo, phán quyết kết quả, quản bộ nhớ.","lam":["Theo dõi quỹ đạo hành động","Phán quyết đúng sai","Lưu vào bộ nhớ vector"],"khi":"Bạn muốn agent học nhanh từ lịch sử hành động."},"ruvnet/ruflo/plugins/ruflo-goals/skills/research-synthesize":{"tom":"Tổng hợp phát hiện nghiên cứu từ bộ nhớ thành báo cáo có chấm hạng bằng chứng và gỡ mâu thuẫn.","lam":["Gom phát hiện đã lưu","Chấm hạng bằng chứng","Gỡ mâu thuẫn giữa các nguồn"],"khi":"Bạn có nhiều mảnh nghiên cứu cần gộp.","ban":"Bước 'gỡ mâu thuẫn giữa các nguồn' đúng thứ Đài Quan Trắc phải làm và làm bằng tay: cụm 'Đọc cho đúng' chính là kết quả của việc đối chiếu các nguồn nói ngược nhau."},"ruvnet/ruflo/SKILL.md":{"tom":"Ruflo — nền tảng điều phối nhiều agent, chạy được với Claude Code, Cursor, Codex, Copilot, Gemini và hơn chục công cụ khác.","lam":["Điều phối nhiều agent","Chạy được với nhiều công cụ khác nhau"],"khi":"Bạn muốn một tầng điều phối chung cho nhiều agent."},"ruvnet/ruflo/plugins/ruflo-core/skills/ruflo-doctor":{"tom":"Chạy kiểm sức khoẻ bản cài Ruflo và sửa lỗi thường gặp.","lam":["Kiểm bản cài","Sửa lỗi thường gặp"],"khi":"Ruflo của bạn có gì đó không chạy."},"ruvnet/ruflo/plugins/ruflo-core/skills/ruflo-status":{"tom":"Chẩn đoán sức khoẻ Ruflo rồi báo trạng thái hệ thống, máy chủ MCP và agent đang chạy, không thay đổi gì.","lam":["Báo trạng thái hệ và MCP","Liệt kê agent đang chạy","Không đụng vào bản cài"],"khi":"Bạn muốn biết hiện trạng mà không muốn nó tự sửa."},"ruvnet/ruflo/plugins/ruflo-rvf/skills/rvf-manage":{"tom":"Quản file định dạng vector RVF cho bộ nhớ agent mang đi được giữa các nền tảng.","lam":["Đóng gói bộ nhớ agent","Chuyển giữa các nền tảng"],"khi":"Bạn muốn mang trí nhớ agent sang chỗ khác."},"ruvnet/ruflo/plugins/ruflo-aidefence/skills/safety-scan":{"tom":"Quét đầu vào tìm tiêm lệnh, nội dung không an toàn và tấn công đối kháng.","lam":["Bắt tiêm lệnh qua đầu vào","Bắt nội dung không an toàn"],"khi":"Bạn xử lý đầu vào từ người lạ.","ban":"Nguyên tắc nền của hồ sơ an toàn trong Tàng Thư Các, và cũng là lý do bảy cung không bao giờ đưa dữ liệu ngoài vào lời nhắc — chỉ đưa vào file tĩnh."},"ruvnet/ruflo/.agents/skills/security-audit":{"tom":"Quét bảo mật và tìm lỗ hổng toàn diện: kiểm đầu vào, chặn vượt thư mục, dò CVE.","lam":["Kiểm đầu vào","Chặn tấn công vượt thư mục","Dò CVE trong phụ thuộc"],"khi":"Bạn cần một lượt soát bảo mật đầy đủ."},"ruvnet/ruflo/plugins/ruflo-security-audit/skills/security-scan":{"tom":"Chạy quét bảo mật đầy đủ trên kho bằng công cụ Ruflo.","lam":["Quét toàn kho","Soát PR tìm hồi quy bảo mật","Soát phần xác thực và xử lý đầu vào"],"khi":"Bạn soát PR hoặc kiểm định kỳ."},"ruvnet/ruflo/plugins/ruflo-rvf/skills/session-persist":{"tom":"Lưu và khôi phục phiên agent qua các cuộc hội thoại bằng ảnh chụp trạng thái.","lam":["Chụp trạng thái phiên","Khôi phục ở cuộc sau"],"khi":"Bạn muốn tiếp việc ở phiên sau."},"ruvnet/ruflo/.claude/skills/skill-builder":{"tom":"Tạo skill Claude Code mới đúng chuẩn: frontmatter YAML, cấu trúc bộc lộ dần, tổ chức thư mục đầy đủ.","lam":["Sinh khung skill","Viết frontmatter đúng chuẩn","Tổ chức thư mục"],"khi":"Bạn viết skill mới.","ban":"Nếu bạn muốn biến các quy trình trong hệ này thành skill — cách gộp bản dịch, cách gỡ đẩy trượt, cách bump CACHE_VERSION — thì bắt đầu từ đây."},"ruvnet/ruflo/plugins/ruflo-sparc/skills/sparc-implement":{"tom":"Chạy pha Mã giả và Kiến trúc của SPARC: viết mã giả giải thuật, thiết kế ranh giới module và hợp đồng API, rồi cài.","lam":["Viết mã giả giải thuật","Thiết kế ranh giới module","Chốt hợp đồng API rồi cài"],"khi":"Bạn theo quy trình SPARC."},"ruvnet/ruflo/.claude/skills/sparc-methodology":{"tom":"Phương pháp phát triển SPARC đầy đủ (Đặc tả, Mã giả, Kiến trúc, Tinh chỉnh, Hoàn tất) có điều phối nhiều agent.","lam":["Đi qua năm pha SPARC","Điều phối agent theo từng pha"],"khi":"Bạn muốn một quy trình phát triển có khung rõ."},"ruvnet/ruflo/plugins/ruflo-sparc/skills/sparc-refine":{"tom":"Chạy pha Tinh chỉnh và Hoàn tất của SPARC: soát mã, tăng độ phủ test, đối chiếu đặc tả, sinh tài liệu.","lam":["Soát mã và tăng độ phủ","Đối chiếu với đặc tả","Sinh tài liệu"],"khi":"Bạn đã cài xong và cần khép lại."},"ruvnet/ruflo/plugins/ruflo-sparc/skills/sparc-spec":{"tom":"Chạy pha Đặc tả của SPARC: thu yêu cầu, định tiêu chí nghiệm thu, xác định ràng buộc và lưu vào bộ nhớ.","lam":["Thu yêu cầu","Định tiêu chí nghiệm thu","Xác định ràng buộc"],"khi":"Bạn bắt đầu một việc theo SPARC."},"ruvnet/ruflo/.claude/skills/stream-chain":{"tom":"Nối chuỗi bằng luồng JSON cho đường ống nhiều agent, biến đổi dữ liệu và luồng việc nối tiếp.","lam":["Nối nhiều agent thành chuỗi","Truyền dữ liệu dạng luồng"],"khi":"Đầu ra của agent này là đầu vào của agent kia."},"ruvnet/ruflo/.claude/skills/swarm-advanced":{"tom":"Khuôn điều phối bầy nâng cao cho nghiên cứu, phát triển, kiểm thử và luồng phân tán phức tạp.","lam":["Điều phối bầy cho việc phức tạp","Chạy luồng phân tán"],"khi":"Việc của bạn vượt mức điều phối đơn giản."},"ruvnet/ruflo/plugins/ruflo-swarm/skills/swarm-init":{"tom":"Khởi tạo bầy agent với cấu hình chống trôi, dùng cho việc phức tạp chạm nhiều file cần từ ba agent trở lên.","lam":["Khởi tạo bầy","Cấu hình chống trôi hướng"],"khi":"Việc chạm nhiều file và cần nhiều agent phối hợp.","ban":"Mục 'chống trôi' đúng rủi ro lớn nhất khi chạy nhiều phiên song song như bạn đang làm: mỗi phiên hiểu nhiệm vụ hơi khác đi một chút, và sau vài giờ thì lệch hẳn."},"ruvnet/ruflo/plugins/ruflo-testgen/skills/tdd-repair":{"tom":"Sửa theo lối test dẫn đường: cho một test đang hỏng, tung một tiến trình có giới hạn chỉ được Đọc/Sửa/Chạy, làm test xanh mà không sửa chính test.","lam":["Nhận một test hỏng","Sửa mã cho xanh","Không được sửa test"],"khi":"Bạn có test hỏng và muốn sửa mà không bị gian lận.","ban":"Ràng buộc 'không được sửa chính test' là điểm tinh tế: nếu không cấm, cách rẻ nhất để test xanh luôn là sửa test. Đây đúng loại lỗ hổng loop-design-check cảnh báo."},"ruvnet/ruflo/plugins/ruflo-testgen/skills/tdd-workflow":{"tom":"Luồng TDD trường phái London: giả lập trước, phát triển từ ngoài vào.","lam":["Giả lập phụ thuộc trước","Phát triển từ ngoài vào trong"],"khi":"Bạn theo trường phái TDD London."},"ruvnet/ruflo/plugins/ruflo-testgen/skills/test-gaps":{"tom":"Phát hiện chỗ thiếu độ phủ test và đề xuất test cần viết.","lam":["Tìm mã chưa được test","Đề xuất test nên viết"],"khi":"Bạn muốn biết chỗ nào còn hở."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-backtest":{"tom":"Chạy kiểm nghiệm lịch sử bằng neural-trader với máy Rust và kiểm chứng tiến dần, rồi ký kết quả bằng Ed25519.","lam":["Chạy kiểm nghiệm trên dữ liệu lịch sử","Kiểm chứng tiến dần theo thời gian","Ký kết quả để chống sửa"],"khi":"Bạn kiểm chiến lược giao dịch trước khi chạy thật."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-cloud-backtest":{"tom":"Chạy công việc nặng của neural-trader trên máy đám mây Managed Agent: kiểm nghiệm dài, Monte Carlo lớn, quét tham số, huấn luyện model.","lam":["Đẩy việc nặng lên đám mây","Chạy quét tham số lớn"],"khi":"Máy của bạn không chạy nổi phép kiểm nghiệm."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-explain":{"tom":"Giải thích mức đóng góp của từng đặc trưng cho một tín hiệu LSTM hoặc Transformer, ở mức đủ chuẩn cho cơ quan quản lý.","lam":["Xếp hạng đặc trưng đã dẫn tới dự đoán","Giải thích ở mức chịu được kiểm tra"],"khi":"Bạn phải giải trình vì sao model ra tín hiệu đó."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-portfolio":{"tom":"Tối ưu phân bổ danh mục bằng máy trung bình–phương sai, có ràng buộc rủi ro và kế hoạch cân bằng lại.","lam":["Tối ưu phân bổ","Đặt ràng buộc rủi ro","Lập kế hoạch cân bằng lại"],"khi":"Bạn quản một danh mục đầu tư."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-portfolio-cg":{"tom":"Tối ưu danh mục trung bình–phương sai bằng phương pháp gradient liên hợp, nhanh hơn đường cũ 40–60 lần.","lam":["Tối ưu danh mục nhanh hơn nhiều lần"],"khi":"Danh mục của bạn lớn và tính toán chậm."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-regime":{"tom":"Nhận diện chế độ thị trường hiện tại: tăng, giảm, đi ngang hay biến động mạnh, kèm chiến lược khuyến nghị.","lam":["Phân loại chế độ thị trường","Gợi ý chiến lược tương ứng"],"khi":"Bạn muốn biết thị trường đang ở pha nào."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-risk":{"tom":"Đánh giá rủi ro danh mục: VaR, CVaR, Sharpe, cỡ vị thế, trạng thái ngắt mạch.","lam":["Tính VaR và CVaR","Tính cỡ vị thế hợp lý","Kiểm ngắt mạch"],"khi":"Bạn cần biết mình đang chịu rủi ro cỡ nào."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-signal":{"tom":"Sinh tín hiệu giao dịch bằng máy phát hiện bất thường, chấm điểm Z và dự đoán bằng mạng nơ-ron.","lam":["Phát hiện bất thường giá","Chấm điểm Z","Ra tín hiệu"],"khi":"Bạn xây hệ tín hiệu giao dịch."},"ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-train":{"tom":"Huấn luyện model nơ-ron (LSTM, Transformer, N-BEATS) trên dữ liệu thị trường, kèm khoảng tin cậy.","lam":["Huấn luyện model dự báo giá","Trả kèm khoảng tin cậy"],"khi":"Bạn tự huấn luyện model thị trường."},"ruvnet/ruflo/.claude/skills/v3-cli-modernization":{"tom":"Hiện đại hoá CLI và nâng cấp hệ hook cho claude-flow v3.","lam":["Thêm nhắc tương tác","Tách nhỏ lệnh","Nâng cấp hệ hook"],"khi":"Bạn nâng claude-flow lên v3."},"ruvnet/ruflo/.claude/skills/v3-core-implementation":{"tom":"Cài phần lõi cho claude-flow v3: miền DDD, kiến trúc sạch, tiêm phụ thuộc, TypeScript module hoá.","lam":["Cài miền theo DDD","Áp kiến trúc sạch","Tiêm phụ thuộc"],"khi":"Bạn làm phần lõi v3."},"ruvnet/ruflo/.claude/skills/v3-ddd-architecture":{"tom":"Kiến trúc hướng miền cho claude-flow v3: module hoá theo bối cảnh có ranh giới, tách bạch trách nhiệm.","lam":["Chia bối cảnh có ranh giới","Tách bạch trách nhiệm"],"khi":"Bạn thiết kế kiến trúc v3."},"ruvnet/ruflo/.claude/skills/v3-integration-deep":{"tom":"Tích hợp sâu agentic-flow, xoá hơn 10.000 dòng trùng lặp bằng cách dựng claude-flow thành phần mở rộng chuyên biệt.","lam":["Xoá mã trùng lặp","Dựng lại thành phần mở rộng"],"khi":"Bạn gộp hai dự án chồng chéo nhau."},"ruvnet/ruflo/.claude/skills/v3-mcp-optimization":{"tom":"Tối ưu máy chủ MCP và tầng truyền cho v3: gộp kết nối, cân bằng tải, tối ưu sổ đăng ký công cụ.","lam":["Gộp kết nối","Cân bằng tải","Tối ưu sổ đăng ký công cụ"],"khi":"Máy chủ MCP của bạn quá tải."},"ruvnet/ruflo/.claude/skills/v3-memory-unification":{"tom":"Gộp hơn sáu hệ bộ nhớ vào AgentDB với chỉ mục HNSW, cải thiện tốc độ tìm nhiều bậc.","lam":["Gộp nhiều hệ bộ nhớ thành một","Đánh chỉ mục HNSW"],"khi":"Dự án của bạn có quá nhiều nơi lưu trạng thái.","ban":"Câu chuyện quen: hệ lớn lên thì trạng thái nằm rải sáu chỗ. Bảy cung tránh được bằng cách mỗi cung tự giữ dữ liệu của mình trong file tĩnh — không có kho chung nào để phình."},"ruvnet/ruflo/.claude/skills/v3-performance-optimization":{"tom":"Đạt mục tiêu hiệu năng v3: tăng tốc Flash Attention, cải thiện tìm kiếm nhiều bậc, giảm 50–75% bộ nhớ.","lam":["Tăng tốc suy luận","Tăng tốc tìm kiếm","Giảm bộ nhớ"],"khi":"Bạn tối ưu hiệu năng v3."},"ruvnet/ruflo/.claude/skills/v3-security-overhaul":{"tom":"Đại tu kiến trúc bảo mật cho claude-flow v3: xử ba CVE nghiêm trọng và áp lối an toàn theo mặc định.","lam":["Xử các CVE nghiêm trọng","Áp mặc định an toàn"],"khi":"Bạn siết bảo mật v3.","ban":"Cụm từ 'an toàn theo mặc định' là điểm cần nhớ: bảo mật phải là giá trị mặc định, không phải tuỳ chọn. Luật khoá API không ra trình duyệt của bạn cũng vậy — không có công tắc tắt."},"ruvnet/ruflo/.claude/skills/v3-swarm-coordination":{"tom":"Điều phối 15 agent theo mạng phân cấp cho việc cài đặt v3, chạy song song trên các miền bảo mật, lõi và tích hợp.","lam":["Chạy 15 agent song song","Chia theo miền công việc"],"khi":"Bạn cài một hệ lớn cần nhiều agent."},"ruvnet/ruflo/plugins/ruflo-plugin-creator/skills/validate-plugin":{"tom":"Kiểm cấu trúc plugin Claude Code, frontmatter và tham chiếu công cụ MCP.","lam":["Kiểm cấu trúc thư mục","Kiểm frontmatter","Kiểm tham chiếu MCP"],"khi":"Bạn sắp phát hành một plugin."},"ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-cluster":{"tom":"Gom cụm mã bằng phát hiện cộng đồng trên đồ thị, dùng phương pháp phổ hoặc Louvain.","lam":["Gom cụm mã theo cộng đồng đồ thị","Chỉ nhóm mã hay đi cùng nhau"],"khi":"Bạn muốn biết kho tự chia thành mấy nhóm."},"ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-embed":{"tom":"Sinh vector nhúng bằng ONNX all-MiniLM-L6-v2 (384 chiều), chuẩn hoá rồi lưu vào chỉ mục HNSW.","lam":["Sinh vector nhúng tại máy","Chuẩn hoá và lưu chỉ mục"],"khi":"Bạn cần vector nhúng mà không muốn gọi API.","ban":"Đáng chú ý: sinh nhúng NGAY TẠI MÁY bằng ONNX, không gọi model trả tiền. Nếu Tàng Thư Các muốn tìm theo ngữ nghĩa, đây là đường không tốn đồng nào."},"ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-hyperbolic":{"tom":"Nhúng dữ liệu phân cấp rồi chiếu vào quả cầu Poincaré.","lam":["Nhúng dữ liệu có cấu trúc cây","Chiếu vào không gian hyperbolic"],"khi":"Dữ liệu của bạn có cấu trúc phân cấp sâu."},"ruvnet/ruflo/plugins/ruflo-agentdb/skills/vector-search":{"tom":"Tìm kiếm vector quy mô lớn bằng HNSW, kèm bộ định tuyến WASM cho các khuôn nóng và lượng tử hoá 1 bit.","lam":["Tìm vector quy mô lớn","Định tuyến nhanh cho khuôn hay dùng","Lượng tử hoá để tiết kiệm bộ nhớ"],"khi":"Bạn tìm kiếm ngữ nghĩa trên dữ liệu lớn."},"ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-setup":{"tom":"Cài lần đầu cho ruvector: cài phần bổ trợ ONNX, đăng ký máy chủ MCP và kiểm bằng lệnh doctor.","lam":["Cài phần bổ trợ","Đăng ký MCP","Kiểm bản cài"],"khi":"Bạn cài ruvector lần đầu."},"ruvnet/ruflo/.claude/skills/verification-quality":{"tom":"Chấm điểm độ đúng, kiểm chất lượng mã và tự lùi lại khi không đạt ngưỡng 0,95.","lam":["Chấm điểm độ đúng","Kiểm chất lượng mã","Tự lùi khi dưới ngưỡng"],"khi":"Bạn cần chốt chặn tự động cho chất lượng.","ban":"Phần TỰ LÙI là điểm khác biệt so với npm run kiem — bộ kiểm của bạn báo lệch nhưng không tự sửa. Với hệ nhiều phiên như thế này, báo có lẽ vẫn đúng hơn tự lùi."},"ruvnet/ruflo/plugins/ruflo-agent/skills/wasm-agent":{"tom":"Tạo và quản agent WASM chạy trong hộp cát cách ly.","lam":["Chạy mã trong hộp cát WASM","Cách ly khỏi hệ thật"],"khi":"Bạn chạy mã không tin tưởng."},"ruvnet/ruflo/plugins/ruflo-agent/skills/wasm-gallery":{"tom":"Duyệt, công bố và cài agent WASM từ thư viện cộng đồng.","lam":["Duyệt thư viện agent","Cài hoặc công bố agent"],"khi":"Bạn tìm agent WASM có sẵn."},"ruvnet/ruflo/plugins/ruflo-core/skills/witness":{"tom":"Ký, kiểm và theo dõi hồi quy theo thời gian bằng bản kê khai chứng Ed25519 tất định.","lam":["Ký dấu mốc đã sửa","Kiểm xem lỗi cũ có quay lại không"],"khi":"Bạn muốn chứng minh một lỗi đã sửa và chưa tái phát.","ban":"Đúng thứ hệ này thiếu: sự cố 13–14/08 đã được sửa, nhưng không có dấu mốc nào bắt được nếu nó tái phát. Bài học vào tài liệu, chưa vào phép kiểm."},"ruvnet/ruflo/.claude/skills/worker-benchmarks":{"tom":"Chạy đo chuẩn và phân tích hiệu năng cho hệ tiến trình nền.","lam":["Chạy đo chuẩn","Phân tích hiệu năng"],"khi":"Bạn muốn số đo cho hệ chạy nền."},"ruvnet/ruflo/.claude/skills/worker-integration":{"tom":"Tích hợp tiến trình nền với agent để giao việc thông minh và theo dõi hiệu năng.","lam":["Giao việc cho tiến trình phù hợp","Theo dõi hiệu năng"],"khi":"Bạn có nhiều tiến trình nền và nhiều loại việc."},"ruvnet/ruflo/.agents/skills/workflow-automation":{"tom":"Tạo, chạy và quản mẫu luồng việc; tự động hoá quy trình nhiều bước có điều phối agent.","lam":["Tạo và chạy luồng việc","Quản mẫu luồng","Điều phối agent theo bước"],"khi":"Bạn tự động hoá quy trình nhiều bước."},"ruvnet/ruflo/plugins/ruflo-workflows/skills/workflow-create":{"tom":"Soạn một luồng việc: hoặc mẫu MCP có vòng đời, hoặc script điều phối JS đặt trong .claude/workflows/.","lam":["Soạn mẫu luồng MCP","Hoặc viết script điều phối JS"],"khi":"Bạn dựng một luồng việc mới."},"ruvnet/ruflo/plugins/ruflo-workflows/skills/workflow-run":{"tom":"Chạy một luồng việc: điều khiển vòng đời mẫu MCP (chạy, tạm dừng, tiếp, huỷ) hoặc gọi script điều phối JS.","lam":["Chạy, tạm dừng và tiếp luồng","Gọi script điều phối"],"khi":"Bạn chạy một luồng đã soạn."}}}
+{
+  "kho": "ruvnet/ruflo",
+  "luc": "2026-08-15T08:07:00.398Z",
+  "nguon": "viết tay trong phiên, đọc mô tả gốc",
+  "skills": {
+    "ruvnet/ruflo/ruflo/src/ruvocal/.claude/skills/add-model-descriptions": {
+      "tom": "Thêm mô tả cho model mới từ router HuggingFace vào cấu hình chat-ui.",
+      "lam": [
+        "Thêm mô tả model mới",
+        "Cập nhật cấu hình giao diện chat"
+      ],
+      "khi": "Router có model mới cần mô tả."
+    },
+    "ruvnet/ruflo/plugins/ruflo-adr/skills/adr-create": {
+      "tom": "Tạo một bản ghi quyết định kiến trúc (ADR) mới, đánh số tuần tự và đăng ký vào AgentDB.",
+      "lam": [
+        "Tạo ADR mới",
+        "Đánh số tuần tự",
+        "Đăng ký vào cơ sở dữ liệu"
+      ],
+      "khi": "Bạn vừa chốt một quyết định kiến trúc.",
+      "ban": "Hệ này ghi quyết định kiến trúc thẳng vào CLAUDE.md kèm lý do. Ưu điểm của ADR đánh số là truy được thứ tự và biết quyết định nào thay thế quyết định nào — thứ CLAUDE.md không có."
+    },
+    "ruvnet/ruflo/plugins/ruflo-adr/skills/adr-index": {
+      "tom": "Dựng hoặc dựng lại chỉ mục ADR cùng đồ thị phụ thuộc.",
+      "lam": [
+        "Quét toàn bộ ADR",
+        "Dựng chỉ mục và đồ thị phụ thuộc"
+      ],
+      "khi": "Bạn vừa thêm hoặc sửa nhiều ADR."
+    },
+    "ruvnet/ruflo/plugins/ruflo-adr/skills/adr-reindex": {
+      "tom": "Đối chiếu lại chỉ mục ADR sau khi xoá một ADR hoặc một dòng quan hệ, bằng cách dựng lại từ đầu.",
+      "lam": [
+        "Xoá chỉ mục cũ",
+        "Dựng lại từ đầu"
+      ],
+      "khi": "Bạn vừa xoá một ADR."
+    },
+    "ruvnet/ruflo/plugins/ruflo-adr/skills/adr-review": {
+      "tom": "Soát thay đổi mã xem có vi phạm các ADR đã chấp thuận không.",
+      "lam": [
+        "So mã với quyết định đã chốt",
+        "Chỉ chỗ vi phạm"
+      ],
+      "khi": "Bạn muốn chắc mã không đi ngược quyết định kiến trúc.",
+      "ban": "Đúng thứ npm run kiem đang làm ở dạng thô: nó kiểm tài liệu còn khớp repo không. Bản này chặt hơn — kiểm mã có tuân quyết định không."
+    },
+    "ruvnet/ruflo/plugins/ruflo-adr/skills/adr-verify": {
+      "tom": "Đọc lại chỉ mục ADR, chỉ ra tham chiếu treo, vòng lặp thay thế và lệch trạng thái; thoát lỗi nếu có vòng lặp.",
+      "lam": [
+        "Bắt tham chiếu treo",
+        "Bắt vòng lặp thay thế",
+        "Bắt lệch trạng thái"
+      ],
+      "khi": "Bạn muốn chắc bộ ADR còn nhất quán."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-adaptive-coordinator": {
+      "tom": "Agent điều phối thích ứng — tự đổi cách điều phối theo tình hình.",
+      "lam": [
+        "Điều phối agent khác",
+        "Đổi chiến lược theo tình hình"
+      ],
+      "khi": "Bạn cần điều phối linh hoạt."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-agent": {
+      "tom": "Agent tổng quát của bộ ruflo.",
+      "lam": [
+        "Nhận việc chung"
+      ],
+      "khi": "Không có agent chuyên nào hợp hơn."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-agentic-payments": {
+      "tom": "Agent xử lý thanh toán tự động.",
+      "lam": [
+        "Xử lý luồng thanh toán"
+      ],
+      "khi": "Bạn tự động hoá thanh toán.",
+      "ban": "Loại agent cần đọc kèm llm-trading-agent-security. Agent chạm được vào tiền thì mọi dữ liệu nó đọc đều là bề mặt tấn công."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-analyze-code-quality": {
+      "tom": "Agent phân tích chất lượng mã.",
+      "lam": [
+        "Chấm chất lượng mã",
+        "Chỉ chỗ cần dọn"
+      ],
+      "khi": "Bạn muốn đánh giá sức khoẻ mã."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-app-store": {
+      "tom": "Agent làm việc với kho ứng dụng.",
+      "lam": [
+        "Xử lý việc liên quan kho ứng dụng"
+      ],
+      "khi": "Bạn phát hành lên kho ứng dụng."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-arch-system-design": {
+      "tom": "Agent thiết kế kiến trúc hệ thống.",
+      "lam": [
+        "Thiết kế kiến trúc hệ thống"
+      ],
+      "khi": "Bạn cần bản thiết kế hệ thống."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-architecture": {
+      "tom": "Agent phụ trách kiến trúc.",
+      "lam": [
+        "Xử lý việc kiến trúc"
+      ],
+      "khi": "Việc của bạn là về kiến trúc."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-authentication": {
+      "tom": "Agent phụ trách xác thực.",
+      "lam": [
+        "Dựng và soát luồng xác thực"
+      ],
+      "khi": "Bạn làm phần đăng nhập và phân quyền."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-automation-smart-agent": {
+      "tom": "Agent tự động hoá thông minh.",
+      "lam": [
+        "Tự động hoá luồng việc"
+      ],
+      "khi": "Bạn muốn một luồng chạy tự động."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-base-template-generator": {
+      "tom": "Agent sinh khung mẫu nền.",
+      "lam": [
+        "Sinh khung mẫu khởi đầu"
+      ],
+      "khi": "Bạn bắt đầu một dự án hoặc module mới."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-benchmark-suite": {
+      "tom": "Agent chạy bộ đo hiệu năng.",
+      "lam": [
+        "Chạy bộ đo chuẩn",
+        "So kết quả giữa các lần"
+      ],
+      "khi": "Bạn cần số đo hiệu năng."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-byzantine-coordinator": {
+      "tom": "Agent điều phối theo mô hình chịu lỗi Byzantine — vẫn chạy đúng khi một số thành viên trả kết quả sai.",
+      "lam": [
+        "Điều phối khi có thành viên không đáng tin",
+        "Đạt kết quả đúng dù có bên sai"
+      ],
+      "khi": "Bạn không tin tưởng hết mọi thành viên trong hệ."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-challenges": {
+      "tom": "Agent phụ trách các bài thử thách.",
+      "lam": [
+        "Xử lý bài thử thách"
+      ],
+      "khi": "Bạn giải bài thử thách."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-code-analyzer": {
+      "tom": "Agent phân tích mã.",
+      "lam": [
+        "Đọc và phân tích mã"
+      ],
+      "khi": "Bạn cần hiểu một phần mã."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-code-goal-planner": {
+      "tom": "Agent lập kế hoạch theo mục tiêu cho việc viết mã.",
+      "lam": [
+        "Chia mục tiêu thành bước viết mã"
+      ],
+      "khi": "Bạn có mục tiêu và cần lộ trình mã."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-code-review-swarm": {
+      "tom": "Bầy agent cùng soát mã.",
+      "lam": [
+        "Nhiều agent soát song song",
+        "Gom kết luận"
+      ],
+      "khi": "Bạn muốn soát mã từ nhiều góc cùng lúc."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-coder": {
+      "tom": "Agent viết mã.",
+      "lam": [
+        "Viết mã theo yêu cầu"
+      ],
+      "khi": "Bạn cần phần cài đặt."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-collective-intelligence-coordinator": {
+      "tom": "Agent điều phối trí tuệ tập thể — gom kết quả của nhiều agent thành một kết luận.",
+      "lam": [
+        "Gom kết quả nhiều agent",
+        "Rút kết luận chung"
+      ],
+      "khi": "Bạn chạy nhiều agent và cần một kết luận."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-consensus-coordinator": {
+      "tom": "Agent điều phối đồng thuận giữa nhiều agent.",
+      "lam": [
+        "Dẫn tới đồng thuận",
+        "Xử lý bất đồng"
+      ],
+      "khi": "Các agent của bạn cho kết quả khác nhau."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-coordination": {
+      "tom": "Tung agent, quản vòng đời và điều phối — quản hơn 60 loại agent chuyên biệt.",
+      "lam": [
+        "Tung agent theo loại phù hợp",
+        "Quản vòng đời agent",
+        "Điều phối giữa các agent"
+      ],
+      "khi": "Bạn chạy nhiều agent cùng lúc.",
+      "ban": "Đây là bản đầy đủ của thứ bạn làm bằng tay: mở 2–4 phiên, mỗi phiên một worktree. Thiếu ở chỗ của bạn là phần quản vòng đời — không ai biết phiên nào còn sống."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-coordinator-swarm-init": {
+      "tom": "Agent khởi tạo một bầy agent.",
+      "lam": [
+        "Khởi tạo bầy",
+        "Đặt cấu hình ban đầu"
+      ],
+      "khi": "Bạn bắt đầu một phiên nhiều agent."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-crdt-synchronizer": {
+      "tom": "Agent đồng bộ dữ liệu bằng CRDT — nhiều bên sửa cùng lúc mà không xung đột.",
+      "lam": [
+        "Đồng bộ dữ liệu nhiều bên",
+        "Gộp thay đổi không xung đột"
+      ],
+      "khi": "Nhiều bên cùng sửa một dữ liệu."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-data-ml-model": {
+      "tom": "Agent phụ trách model học máy.",
+      "lam": [
+        "Dựng và huấn luyện model"
+      ],
+      "khi": "Việc của bạn là học máy."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-dev-backend-api": {
+      "tom": "Agent phát triển API phía máy chủ.",
+      "lam": [
+        "Dựng API backend"
+      ],
+      "khi": "Bạn làm phần máy chủ."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-docs-api-openapi": {
+      "tom": "Agent viết tài liệu API theo chuẩn OpenAPI.",
+      "lam": [
+        "Sinh tài liệu OpenAPI"
+      ],
+      "khi": "API của bạn cần tài liệu chuẩn."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-github-modes": {
+      "tom": "Agent làm việc với GitHub ở nhiều chế độ.",
+      "lam": [
+        "Thao tác trên GitHub"
+      ],
+      "khi": "Việc của bạn nằm trên GitHub."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-github-pr-manager": {
+      "tom": "Agent quản PR trên GitHub.",
+      "lam": [
+        "Tạo, cập nhật và theo dõi PR"
+      ],
+      "khi": "Bạn quản nhiều PR."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-goal-planner": {
+      "tom": "Agent lập kế hoạch theo mục tiêu.",
+      "lam": [
+        "Chia mục tiêu thành các bước"
+      ],
+      "khi": "Bạn có mục tiêu chưa rõ cách làm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-gossip-coordinator": {
+      "tom": "Agent điều phối theo giao thức lan truyền kiểu tin đồn.",
+      "lam": [
+        "Lan thông tin giữa các nút",
+        "Không cần điều phối tập trung"
+      ],
+      "khi": "Hệ của bạn phân tán, không có trung tâm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-hierarchical-coordinator": {
+      "tom": "Agent điều phối theo phân cấp — có cấp trên và cấp dưới rõ ràng.",
+      "lam": [
+        "Điều phối theo cây phân cấp",
+        "Giao việc xuống cấp dưới"
+      ],
+      "khi": "Việc của bạn chia được theo tầng."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-implementer-sparc-coder": {
+      "tom": "Agent cài đặt theo phương pháp SPARC.",
+      "lam": [
+        "Cài đặt theo quy trình SPARC"
+      ],
+      "khi": "Bạn theo phương pháp SPARC."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-issue-tracker": {
+      "tom": "Agent theo dõi issue.",
+      "lam": [
+        "Theo dõi và cập nhật issue"
+      ],
+      "khi": "Bạn quản danh sách issue."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-load-balancer": {
+      "tom": "Agent cân bằng tải giữa các agent khác.",
+      "lam": [
+        "Chia việc đều cho các agent"
+      ],
+      "khi": "Một số agent quá tải, số khác rảnh."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-matrix-optimizer": {
+      "tom": "Agent tối ưu phép toán ma trận.",
+      "lam": [
+        "Tối ưu tính toán ma trận"
+      ],
+      "khi": "Tính toán ma trận của bạn chậm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-memory-coordinator": {
+      "tom": "Agent điều phối bộ nhớ dùng chung giữa các agent.",
+      "lam": [
+        "Quản bộ nhớ dùng chung",
+        "Điều phối đọc ghi"
+      ],
+      "khi": "Nhiều agent cần chia sẻ trạng thái.",
+      "ban": "Đúng chỗ trống của hệ này: các phiên song song không có bộ nhớ chung nào ngoài git. Bản bàn giao dich-tiep.md là cách chữa thủ công."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-mesh-coordinator": {
+      "tom": "Agent điều phối theo mạng lưới ngang hàng.",
+      "lam": [
+        "Điều phối không phân cấp",
+        "Mọi nút nói chuyện được với nhau"
+      ],
+      "khi": "Hệ của bạn không có nút trung tâm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-migration-plan": {
+      "tom": "Agent lập kế hoạch chuyển đổi.",
+      "lam": [
+        "Lập kế hoạch di trú",
+        "Chuẩn bị đường lùi"
+      ],
+      "khi": "Bạn chuyển hệ cũ sang hệ mới."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-multi-repo-swarm": {
+      "tom": "Bầy agent làm việc xuyên nhiều kho.",
+      "lam": [
+        "Làm việc trên nhiều kho cùng lúc",
+        "Đồng bộ thay đổi giữa các kho"
+      ],
+      "khi": "Thay đổi của bạn chạm nhiều kho."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-neural-network": {
+      "tom": "Agent phụ trách mạng nơ-ron.",
+      "lam": [
+        "Dựng và huấn luyện mạng nơ-ron"
+      ],
+      "khi": "Việc của bạn là học sâu."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-ops-cicd-github": {
+      "tom": "Agent vận hành CI/CD trên GitHub.",
+      "lam": [
+        "Dựng và sửa workflow",
+        "Vận hành đường ống"
+      ],
+      "khi": "Bạn làm việc với GitHub Actions.",
+      "ban": "Cả hệ này chạy trên GitHub Actions, và sự cố 13–14/08 cho thấy đường ống cần chính nó được theo dõi — không chỉ được dựng."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-orchestrator-task": {
+      "tom": "Agent điều phối tác vụ.",
+      "lam": [
+        "Chia và giao tác vụ"
+      ],
+      "khi": "Bạn có nhiều tác vụ cần sắp xếp."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-pagerank-analyzer": {
+      "tom": "Agent phân tích theo thuật toán PageRank.",
+      "lam": [
+        "Xếp hạng nút trong đồ thị"
+      ],
+      "khi": "Bạn cần biết nút nào quan trọng trong một mạng."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-payments": {
+      "tom": "Agent xử lý thanh toán.",
+      "lam": [
+        "Xử lý luồng thanh toán"
+      ],
+      "khi": "Việc của bạn liên quan tới tiền."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-performance-analyzer": {
+      "tom": "Agent phân tích hiệu năng.",
+      "lam": [
+        "Tìm chỗ chậm",
+        "Phân tích nguyên nhân"
+      ],
+      "khi": "Hệ của bạn chạy chậm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-performance-benchmarker": {
+      "tom": "Agent chạy đo hiệu năng chuẩn.",
+      "lam": [
+        "Chạy phép đo chuẩn",
+        "So giữa các bản"
+      ],
+      "khi": "Bạn cần số đo để so sánh."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-performance-monitor": {
+      "tom": "Agent theo dõi hiệu năng liên tục.",
+      "lam": [
+        "Theo dõi hiệu năng khi chạy",
+        "Báo khi suy giảm"
+      ],
+      "khi": "Bạn muốn biết ngay khi hệ chậm đi."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-performance-optimizer": {
+      "tom": "Agent tối ưu hiệu năng.",
+      "lam": [
+        "Sửa chỗ chậm",
+        "Đo lại sau khi sửa"
+      ],
+      "khi": "Bạn đã biết chỗ chậm và cần sửa."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-planner": {
+      "tom": "Agent lập kế hoạch.",
+      "lam": [
+        "Lập kế hoạch cho một việc"
+      ],
+      "khi": "Bạn cần kế hoạch trước khi làm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-pr-manager": {
+      "tom": "Agent quản PR.",
+      "lam": [
+        "Tạo và theo dõi PR"
+      ],
+      "khi": "Bạn quản nhiều PR."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-production-validator": {
+      "tom": "Agent kiểm mức sẵn sàng chạy thật.",
+      "lam": [
+        "Kiểm trước khi lên thật",
+        "Chặn nếu chưa đạt"
+      ],
+      "khi": "Bạn sắp đưa lên môi trường thật."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-project-board-sync": {
+      "tom": "Agent đồng bộ bảng dự án.",
+      "lam": [
+        "Đồng bộ trạng thái việc lên bảng"
+      ],
+      "khi": "Bảng dự án của bạn hay lệch thực tế."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-pseudocode": {
+      "tom": "Agent viết mã giả.",
+      "lam": [
+        "Diễn đạt giải thuật bằng mã giả"
+      ],
+      "khi": "Bạn cần mô tả giải thuật trước khi cài."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-queen-coordinator": {
+      "tom": "Agent điều phối trung tâm kiểu ong chúa — một nút cầm quyền quyết định.",
+      "lam": [
+        "Điều phối tập trung",
+        "Giao việc cho bầy"
+      ],
+      "khi": "Bạn muốn một nơi ra quyết định duy nhất."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-quorum-manager": {
+      "tom": "Agent quản đa số biểu quyết.",
+      "lam": [
+        "Đếm phiếu và chốt theo đa số"
+      ],
+      "khi": "Quyết định của bạn cần đủ số phiếu."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-raft-manager": {
+      "tom": "Agent quản đồng thuận theo giao thức Raft.",
+      "lam": [
+        "Bầu nút dẫn dắt",
+        "Giữ nhật ký nhất quán"
+      ],
+      "khi": "Hệ phân tán của bạn cần đồng thuận."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-refinement": {
+      "tom": "Agent tinh chỉnh.",
+      "lam": [
+        "Mài lại kết quả đã có"
+      ],
+      "khi": "Bạn có bản nháp cần mài."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-release-manager": {
+      "tom": "Agent quản phát hành.",
+      "lam": [
+        "Chuẩn bị và chạy phát hành"
+      ],
+      "khi": "Bạn ra bản mới."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-release-swarm": {
+      "tom": "Bầy agent phối hợp phát hành.",
+      "lam": [
+        "Nhiều agent cùng lo một lượt phát hành"
+      ],
+      "khi": "Phát hành của bạn có nhiều phần song song."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-repo-architect": {
+      "tom": "Agent thiết kế cấu trúc kho.",
+      "lam": [
+        "Thiết kế bố cục kho",
+        "Đặt quy ước"
+      ],
+      "khi": "Bạn dựng kho mới hoặc sắp lại kho cũ."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-researcher": {
+      "tom": "Agent nghiên cứu.",
+      "lam": [
+        "Tìm và tổng hợp thông tin"
+      ],
+      "khi": "Bạn cần tra cứu trước khi làm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-resource-allocator": {
+      "tom": "Agent phân bổ tài nguyên.",
+      "lam": [
+        "Chia tài nguyên cho các agent"
+      ],
+      "khi": "Tài nguyên có hạn và nhiều bên cần."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-reviewer": {
+      "tom": "Agent soát.",
+      "lam": [
+        "Soát kết quả của agent khác"
+      ],
+      "khi": "Bạn cần một lượt soát độc lập."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-safla-neural": {
+      "tom": "Agent nơ-ron SAFLA.",
+      "lam": [
+        "Chạy kiến trúc nơ-ron SAFLA"
+      ],
+      "khi": "Bạn dùng kiến trúc SAFLA."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-sandbox": {
+      "tom": "Agent chạy trong hộp cát cách ly.",
+      "lam": [
+        "Chạy mã trong môi trường cách ly"
+      ],
+      "khi": "Bạn chạy mã không tin tưởng."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-scout-explorer": {
+      "tom": "Agent thăm dò — đi trước khảo sát địa hình.",
+      "lam": [
+        "Khảo sát trước khi làm",
+        "Báo về thứ tìm thấy"
+      ],
+      "khi": "Bạn chưa biết địa hình việc mình sắp làm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-security-manager": {
+      "tom": "Agent quản bảo mật.",
+      "lam": [
+        "Soát và siết bảo mật"
+      ],
+      "khi": "Việc của bạn chạm phần nhạy cảm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-sona-learning-optimizer": {
+      "tom": "Agent tối ưu học theo phương pháp SONA.",
+      "lam": [
+        "Tối ưu quá trình học"
+      ],
+      "khi": "Bạn dùng phương pháp SONA."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-sparc-coordinator": {
+      "tom": "Agent điều phối theo phương pháp SPARC.",
+      "lam": [
+        "Điều phối các pha SPARC"
+      ],
+      "khi": "Bạn theo quy trình SPARC."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-spec-mobile-react-native": {
+      "tom": "Agent viết đặc tả cho ứng dụng React Native.",
+      "lam": [
+        "Viết đặc tả ứng dụng di động"
+      ],
+      "khi": "Bạn làm ứng dụng React Native."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-specification": {
+      "tom": "Agent viết đặc tả.",
+      "lam": [
+        "Biến yêu cầu thành đặc tả"
+      ],
+      "khi": "Bạn cần đặc tả trước khi cài."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-swarm": {
+      "tom": "Agent bầy — chạy nhiều agent phối hợp.",
+      "lam": [
+        "Tung và điều phối bầy agent"
+      ],
+      "khi": "Việc của bạn chia song song được."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-swarm-issue": {
+      "tom": "Bầy agent xử lý issue.",
+      "lam": [
+        "Nhiều agent cùng xử một issue"
+      ],
+      "khi": "Issue lớn và chia được."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-swarm-memory-manager": {
+      "tom": "Agent quản bộ nhớ của cả bầy.",
+      "lam": [
+        "Giữ bộ nhớ chung cho bầy",
+        "Điều phối đọc ghi"
+      ],
+      "khi": "Bầy agent của bạn cần trí nhớ chung."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-swarm-pr": {
+      "tom": "Bầy agent xử lý PR.",
+      "lam": [
+        "Nhiều agent cùng lo một PR"
+      ],
+      "khi": "PR lớn và chia được."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-sync-coordinator": {
+      "tom": "Agent điều phối đồng bộ.",
+      "lam": [
+        "Đồng bộ trạng thái giữa các bên"
+      ],
+      "khi": "Nhiều bên cần cùng một trạng thái."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-tdd-london-swarm": {
+      "tom": "Bầy agent làm theo lối TDD trường phái London — dùng nhiều giả lập, test theo tương tác.",
+      "lam": [
+        "Viết test theo lối London",
+        "Dùng giả lập cho phụ thuộc"
+      ],
+      "khi": "Bạn theo trường phái TDD London."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-test-long-runner": {
+      "tom": "Agent chạy test dài hơi.",
+      "lam": [
+        "Chạy bộ test tốn thời gian",
+        "Báo kết quả khi xong"
+      ],
+      "khi": "Bộ test của bạn chạy hàng giờ."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-tester": {
+      "tom": "Agent viết và chạy test.",
+      "lam": [
+        "Viết test",
+        "Chạy và báo kết quả"
+      ],
+      "khi": "Bạn cần test cho phần vừa làm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-topology-optimizer": {
+      "tom": "Agent tối ưu hình trạng mạng agent.",
+      "lam": [
+        "Đổi cách các agent nối với nhau",
+        "Tối ưu đường truyền tin"
+      ],
+      "khi": "Cách các agent nối nhau đang gây tắc."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-trading-predictor": {
+      "tom": "Agent dự đoán giao dịch.",
+      "lam": [
+        "Dự đoán biến động thị trường"
+      ],
+      "khi": "Bạn làm hệ giao dịch tự động."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-user-tools": {
+      "tom": "Agent quản công cụ do người dùng thêm.",
+      "lam": [
+        "Quản công cụ tuỳ biến"
+      ],
+      "khi": "Bạn thêm công cụ riêng cho agent."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-v3-integration-architect": {
+      "tom": "Agent kiến trúc sư tích hợp cho bản v3.",
+      "lam": [
+        "Thiết kế phần tích hợp v3"
+      ],
+      "khi": "Bạn chuyển hệ lên bản v3."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-v3-memory-specialist": {
+      "tom": "Agent chuyên về bộ nhớ trong bản v3.",
+      "lam": [
+        "Xử lý phần bộ nhớ của v3"
+      ],
+      "khi": "Bạn làm phần bộ nhớ trong v3."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-v3-performance-engineer": {
+      "tom": "Agent kỹ sư hiệu năng cho bản v3.",
+      "lam": [
+        "Tối ưu hiệu năng v3"
+      ],
+      "khi": "Bản v3 của bạn chạy chậm."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-v3-queen-coordinator": {
+      "tom": "Agent điều phối trung tâm cho bản v3.",
+      "lam": [
+        "Điều phối tập trung bầy agent v3"
+      ],
+      "khi": "Bạn chạy bầy agent trên v3."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-v3-security-architect": {
+      "tom": "Agent kiến trúc sư bảo mật cho bản v3.",
+      "lam": [
+        "Thiết kế phần bảo mật v3"
+      ],
+      "khi": "Bạn làm bảo mật cho v3."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-worker-specialist": {
+      "tom": "Agent thợ chuyên trách một loại việc.",
+      "lam": [
+        "Nhận và làm một loại việc cụ thể"
+      ],
+      "khi": "Bạn cần thợ chuyên thay vì agent tổng quát."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-workflow": {
+      "tom": "Agent phụ trách luồng việc.",
+      "lam": [
+        "Dựng và chạy luồng việc"
+      ],
+      "khi": "Việc của bạn có nhiều bước nối nhau."
+    },
+    "ruvnet/ruflo/.agents/skills/agent-workflow-automation": {
+      "tom": "Agent tự động hoá luồng việc.",
+      "lam": [
+        "Tự động hoá các bước lặp lại"
+      ],
+      "khi": "Bạn làm đi làm lại cùng một chuỗi thao tác."
+    },
+    "ruvnet/ruflo/.claude/skills/agentdb-advanced": {
+      "tom": "Tính năng nâng cao của AgentDB: đồng bộ QUIC, quản nhiều cơ sở dữ liệu, thước đo khoảng cách tuỳ biến, tìm kiếm lai.",
+      "lam": [
+        "Đồng bộ qua QUIC",
+        "Quản nhiều cơ sở dữ liệu",
+        "Tìm kiếm lai và phân tán"
+      ],
+      "khi": "Bạn dùng AgentDB ở quy mô lớn."
+    },
+    "ruvnet/ruflo/.claude/skills/agentdb-learning": {
+      "tom": "Tạo và huấn luyện plugin học cho AI với 9 thuật toán học tăng cường của AgentDB.",
+      "lam": [
+        "Huấn luyện bằng Q-Learning, SARSA, Decision Transformer",
+        "Dựng plugin học riêng"
+      ],
+      "khi": "Bạn muốn agent tự học từ trải nghiệm."
+    },
+    "ruvnet/ruflo/.claude/skills/agentdb-memory-patterns": {
+      "tom": "Khuôn bộ nhớ bền cho agent bằng AgentDB: nhớ theo phiên, lưu dài hạn, học khuôn, giữ ngữ cảnh.",
+      "lam": [
+        "Nhớ theo phiên",
+        "Lưu dài hạn",
+        "Học khuôn lặp lại"
+      ],
+      "khi": "Bạn muốn agent nhớ qua nhiều phiên."
+    },
+    "ruvnet/ruflo/.claude/skills/agentdb-optimization": {
+      "tom": "Tối ưu AgentDB: lượng tử hoá (giảm 4–32 lần bộ nhớ), chỉ mục HNSW (tìm nhanh 150 lần), đệm và xử lý theo lô.",
+      "lam": [
+        "Lượng tử hoá để giảm bộ nhớ",
+        "Đánh chỉ mục HNSW",
+        "Đệm và xử lý theo lô"
+      ],
+      "khi": "AgentDB của bạn chậm hoặc ngốn bộ nhớ."
+    },
+    "ruvnet/ruflo/.claude/skills/agentdb-vector-search": {
+      "tom": "Tìm kiếm ngữ nghĩa bằng vector trong AgentDB để truy hồi tài liệu và ghép theo mức tương đồng.",
+      "lam": [
+        "Tìm theo ngữ nghĩa",
+        "Ghép theo mức tương đồng",
+        "Truy vấn có ngữ cảnh"
+      ],
+      "khi": "Bạn cần tìm theo ý nghĩa, không theo từ khoá.",
+      "ban": "Tàng Thư Các hiện tìm bằng khớp chữ trên 2.901 skill — đủ dùng và tốn 0 đồng. Tìm theo ngữ nghĩa sẽ tốt hơn nhưng cần sinh vector cho toàn kho, tức là phải gọi model."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agentdb/skills/agentdb-query": {
+      "tom": "Truy vấn AgentDB qua cầu điều khiển: định tuyến ngữ nghĩa, hồi tưởng phân tầng, đồ thị nhân quả, tổng hợp ngữ cảnh.",
+      "lam": [
+        "Định tuyến truy vấn theo ngữ nghĩa",
+        "Hồi tưởng theo tầng",
+        "Tổng hợp ngữ cảnh"
+      ],
+      "khi": "Bạn tra cứu bộ nhớ agent."
+    },
+    "ruvnet/ruflo/.claude/skills/agentic-jujutsu": {
+      "tom": "Quản phiên bản tự học, chống lượng tử, dành cho agent AI, kèm điều phối nhiều agent.",
+      "lam": [
+        "Quản phiên bản cho agent",
+        "Học từ lịch sử thay đổi",
+        "Điều phối nhiều agent"
+      ],
+      "khi": "Bạn muốn hệ quản phiên bản hiểu được agent."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agntcy/skills/agntcy-status": {
+      "tom": "Hiện trạng thái tích hợp AGNTCY/SLIM/CASA: gói nào đã cài, đang dùng đường truyền nào.",
+      "lam": [
+        "Kiểm gói đã cài",
+        "Kiểm đường truyền đang dùng"
+      ],
+      "khi": "Bạn dùng bộ tích hợp AGNTCY."
+    },
+    "ruvnet/ruflo/plugins/ruflo-docs/skills/api-docs": {
+      "tom": "Sinh tài liệu API từ mã nguồn, hỗ trợ JSDoc và OpenAPI.",
+      "lam": [
+        "Sinh tài liệu từ chú thích mã",
+        "Xuất theo chuẩn OpenAPI"
+      ],
+      "khi": "API của bạn cần tài liệu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-autopilot/skills/autopilot-loop": {
+      "tom": "Chạy một vòng tự lái: kiểm tiến độ, làm việc kế tiếp, hẹn giờ thức dậy lần sau.",
+      "lam": [
+        "Kiểm tiến độ",
+        "Làm việc kế tiếp",
+        "Tự hẹn giờ chạy tiếp"
+      ],
+      "khi": "Bạn muốn việc tự chạy tiếp qua nhiều lượt.",
+      "ban": "Đúng hình dạng việc dịch này: làm một lô, ghi trạng thái, tiếp lô sau. Của bạn dùng file trên đĩa làm trạng thái, không cần bộ hẹn giờ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-autopilot/skills/autopilot-predict": {
+      "tom": "Dùng khuôn đã học và trạng thái hiện tại để đoán hành động kế tiếp tốt nhất.",
+      "lam": [
+        "Đọc trạng thái hiện tại",
+        "Đoán bước tiếp theo nên làm"
+      ],
+      "khi": "Bạn muốn agent tự chọn việc kế tiếp."
+    },
+    "ruvnet/ruflo/v3/@claude-flow/browser/skills/browser": {
+      "tom": "Tự động trình duyệt với ảnh chụp trang tối ưu cho AI đọc.",
+      "lam": [
+        "Điều khiển trình duyệt",
+        "Chụp trạng thái trang cho AI đọc"
+      ],
+      "khi": "Agent của bạn cần thao tác web."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-auth-flow": {
+      "tom": "Dò luồng xác thực của một trang tìm rò rỉ khi chuyển hướng, thiếu CSRF, cookie phiên yếu và cấu hình OAuth sai.",
+      "lam": [
+        "Dò rò rỉ khi chuyển hướng",
+        "Kiểm CSRF và cookie phiên",
+        "Kiểm cấu hình OAuth"
+      ],
+      "khi": "Bạn kiểm bảo mật luồng đăng nhập."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-extract": {
+      "tom": "Rút dữ liệu có cấu trúc từ trang, bắt buộc qua cổng lọc thông tin cá nhân và tiêm lệnh trước khi trả về.",
+      "lam": [
+        "Rút dữ liệu theo mẫu hoặc theo truy vấn DOM",
+        "Lọc thông tin cá nhân",
+        "Chặn tiêm lệnh qua nội dung trang"
+      ],
+      "khi": "Bạn lấy dữ liệu từ trang web không tin tưởng.",
+      "ban": "Cổng chặn tiêm lệnh là phần quan trọng: nội dung web là dữ liệu người lạ viết, và agent đọc nó thì nó thành lệnh. Kinh Thánh và Đài Quan Trắc đều nạp dữ liệu ngoài — nhưng nạp thành file tĩnh, không thành lời nhắc."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-form-fill": {
+      "tom": "Điền biểu mẫu web theo ánh xạ tên trường sang giá trị.",
+      "lam": [
+        "Điền biểu mẫu tự động",
+        "Dùng mẫu sẵn cho biểu mẫu đã biết"
+      ],
+      "khi": "Bạn phải điền cùng một biểu mẫu nhiều lần."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-intent": {
+      "tom": "Thực hiện ý định trên trình duyệt bằng lời thường, khi mô tả dễ hơn là chỉ đúng phần tử.",
+      "lam": [
+        "Nhận lệnh bằng lời thường",
+        "Tự tìm phần tử cần thao tác"
+      ],
+      "khi": "Bạn không biết bộ chọn CSS nhưng biết mình muốn gì."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-login": {
+      "tom": "Chạy luồng đăng nhập một lần, làm sạch cookie rồi cất vào két để dùng lại.",
+      "lam": [
+        "Đăng nhập một lần",
+        "Làm sạch cookie",
+        "Cất để phiên sau dùng lại"
+      ],
+      "khi": "Trang cần đăng nhập mà bạn không muốn đăng nhập lại mỗi lượt."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-record": {
+      "tom": "Mở một phiên duyệt có ghi vết, lưu toàn bộ thao tác thành quỹ đạo phát lại được.",
+      "lam": [
+        "Ghi lại từng thao tác",
+        "Lưu thành quỹ đạo phát lại được"
+      ],
+      "khi": "Bạn muốn thao tác web của mình lặp lại được."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-replay": {
+      "tom": "Phát lại quỹ đạo đã ghi trên cùng URL hoặc bản biến thể, tự phục hồi khi phần tử đổi bằng cách so tương đồng.",
+      "lam": [
+        "Phát lại thao tác đã ghi",
+        "Tự phục hồi khi giao diện đổi"
+      ],
+      "khi": "Bạn muốn chạy lại một kịch bản web."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-scrape": {
+      "tom": "Đã lỗi thời từ bản 0.2.0 — dùng browser-extract thay thế.",
+      "lam": [
+        "Chỉ còn là vỏ tương thích ngược"
+      ],
+      "khi": "Đừng dùng — bản 0.3.0 đã gỡ.",
+      "ban": "Lại một ví dụ nữa về skill tự đánh dấu lỗi thời ngay trong mô tả. Đây là lý do trailer của Tàng Thư Các phải hiện mô tả gốc, không chỉ hiện tên."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-screenshot-diff": {
+      "tom": "So khác biệt hình ảnh và DOM giữa hai phiên đã ghi, tại các bước tương ứng.",
+      "lam": [
+        "So ảnh chụp giữa hai phiên",
+        "So cấu trúc DOM",
+        "Bắt hồi quy thị giác"
+      ],
+      "khi": "Bạn muốn biết bản mới có làm vỡ giao diện không.",
+      "ban": "Đây là phép kiểm bảy cung đang thiếu. jsdom xác nhận cấu trúc đúng nhưng không vẽ, nên hồi quy thị giác chỉ có bạn phát hiện bằng mắt."
+    },
+    "ruvnet/ruflo/plugins/ruflo-browser/skills/browser-test": {
+      "tom": "Công thức kiểm thử giao diện: ghép ghi lại và phát lại, để mỗi test đều để lại vật chứng phát lại được.",
+      "lam": [
+        "Ghi kịch bản test",
+        "Phát lại để xác minh",
+        "Lưu vật chứng, không phải log tạm"
+      ],
+      "khi": "Bạn dựng test giao diện."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ruvllm/skills/chat-format": {
+      "tom": "Định dạng lời nhắc cho từng nhà cung cấp LLM, kèm truy hồi ngữ cảnh bằng HNSW.",
+      "lam": [
+        "Áp mẫu hội thoại theo nhà cung cấp",
+        "Truy hồi ngữ cảnh liên quan"
+      ],
+      "khi": "Bạn gọi nhiều model khác nhau."
+    },
+    "ruvnet/ruflo/.agents/skills/claims": {
+      "tom": "Phân quyền theo tuyên bố cho agent và thao tác: cấp, thu hồi và kiểm quyền.",
+      "lam": [
+        "Cấp và thu hồi quyền",
+        "Kiểm quyền trước khi cho làm",
+        "Áp cho nhiều agent"
+      ],
+      "khi": "Nhiều agent của bạn có mức quyền khác nhau."
+    },
+    "ruvnet/ruflo/plugins/ruflo-daa/skills/cognitive-pattern": {
+      "tom": "Định nghĩa và quản khuôn tư duy cho agent khi suy luận và ra quyết định.",
+      "lam": [
+        "Định nghĩa khuôn tư duy",
+        "Gán khuôn cho từng agent"
+      ],
+      "khi": "Bạn muốn agent suy nghĩ theo lối nhất định."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-anomaly": {
+      "tom": "Phát hiện chi tiêu bất thường theo phương pháp MAD — bền vững trước chính các giá trị dị biệt mà nó đang săn.",
+      "lam": [
+        "Bắt phiên tiêu bất thường",
+        "Dùng MAD thay vì trung bình cộng độ lệch chuẩn",
+        "Chỉ đích danh phiên bất thường"
+      ],
+      "khi": "Bạn muốn biết ngay khi có lượt chạy đốt tiền.",
+      "ban": "Đúng thứ đã cứu được ngày 14/08. Một lượt Opus kèm web_search tốn 1,4 USD giữa những lượt vài xu là dị biệt rõ ràng — chỉ là không có ai đo."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-benchmark": {
+      "tom": "Chạy đo chuẩn trên bộ ngữ liệu và lưu bảng đối chiếu giữa con số đo được và con số được tuyên bố.",
+      "lam": [
+        "Chạy đo chuẩn",
+        "So bản chạy tại máy với các model nền",
+        "Lưu bảng đo được kiểm chứng"
+      ],
+      "khi": "Bạn muốn kiểm lời quảng cáo bằng số đo của mình.",
+      "ban": "Cột 'đo được so với tuyên bố' đúng kỷ luật đã sửa nhiều lỗi trong phiên này: con số 'LUOT_MOI_KHO = 25' là tuyên bố, còn 31→30→29 là đo được."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-booster-edit": {
+      "tom": "Áp một phép biến đổi mã đơn giản bằng máy WASM — dưới một mili giây, tất định, 0 đồng, không gọi LLM.",
+      "lam": [
+        "Biến đổi mã tất định",
+        "Không gọi model",
+        "Chạy tức thì"
+      ],
+      "khi": "Việc sửa mã đủ đơn giản để không cần model.",
+      "ban": "Chính là nguyên tắc regex-vs-llm: dùng thứ tất định khi được, chỉ gọi model cho ca biên. Trailer của Tàng Thư Các sinh ra theo đúng cách này — 0 đồng."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-booster-route": {
+      "tom": "Định tuyến tác vụ qua hooks_route, tách phần chạy được bằng máy tăng tốc, báo tỉ lệ đi tắt với chi phí 0 đồng.",
+      "lam": [
+        "Tách việc chạy được không cần model",
+        "Báo tỉ lệ đi tắt",
+        "Đo phần tiết kiệm"
+      ],
+      "khi": "Bạn muốn giảm số lời gọi model."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-budget-check": {
+      "tom": "Đọc chi tiêu tích luỹ và cấu hình ngân sách, tính mức dùng, phát cảnh báo ở các mốc 50/75/90/100%.",
+      "lam": [
+        "Tính mức dùng ngân sách",
+        "Cảnh báo theo bậc",
+        "Chặn khi vượt"
+      ],
+      "khi": "Bạn có trần chi tiêu và không muốn vượt.",
+      "ban": "Nếu có đúng một thứ nên cài trước khi Đài Quan Trắc chạy lại thì là cái này. Cảnh báo ở 50% có ý nghĩa hơn nhiều so với phát hiện số dư âm 0,61 USD."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-burn": {
+      "tom": "Xu hướng tốc độ đốt tiền theo thời gian, có thể thoát lỗi khi phát hiện trôi.",
+      "lam": [
+        "Chia chi tiêu theo khung thời gian",
+        "So khung này với khung trước",
+        "Báo động khi trôi"
+      ],
+      "khi": "Bạn muốn biết tốc độ tiêu đang tăng hay giảm."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-compact-context": {
+      "tom": "Lấy ngữ cảnh đã nén từ ReasoningBank phục vụ truy vấn phân tích chi phí.",
+      "lam": [
+        "Lấy ngữ cảnh đã nén",
+        "Báo số token cầu nối ghi nhận"
+      ],
+      "khi": "Bạn phân tích chi phí và cần ngữ cảnh gọn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-conversation": {
+      "tom": "Xem chi phí theo từng cuộc hội thoại: giờ bắt đầu, số tin nhắn, model chính, tổng tiền.",
+      "lam": [
+        "Liệt kê từng phiên và chi phí",
+        "Chỉ model tiêu nhiều nhất"
+      ],
+      "khi": "Bạn muốn biết phiên nào tốn nhất."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-counterfactual": {
+      "tom": "Phân tích đối chứng nhiều đường: so chi tiêu thật với giả định luôn dùng haiku, luôn sonnet, luôn opus.",
+      "lam": [
+        "So với các kịch bản định tuyến khác",
+        "Chỉ ra khoản lẽ ra tiết kiệm được"
+      ],
+      "khi": "Bạn muốn biết chọn model khác thì rẻ hơn bao nhiêu.",
+      "ban": "Áp thẳng vào Đài Quan Trắc: nó chạy Opus cho việc Haiku làm được. Một bản đối chứng sẽ cho con số cụ thể thay vì cảm giác."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-diff": {
+      "tom": "So chênh lệch giữa hai bản tóm chi phí — phát hiện hồi quy chi phí ở mức PR.",
+      "lam": [
+        "So hai ảnh chụp chi phí",
+        "Chỉ ra cái gì đã đổi"
+      ],
+      "khi": "Bạn muốn biết một thay đổi làm chi phí tăng bao nhiêu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-export": {
+      "tom": "Xuất số liệu chi phí ra định dạng Prometheus hoặc webhook JSON, cho hệ quan trắc bên ngoài.",
+      "lam": [
+        "Xuất cho Grafana, Datadog",
+        "Xuất dạng JSON qua webhook"
+      ],
+      "khi": "Bạn muốn nhìn chi phí trên bảng theo dõi chung."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-federation": {
+      "tom": "Nối phía tiêu thụ cho sự kiện chi tiêu liên hợp — cửa sổ trượt theo từng nút và kiểm ngưỡng đình chỉ.",
+      "lam": [
+        "Theo dõi chi tiêu từng nút",
+        "Đình chỉ nút vượt ngưỡng"
+      ],
+      "khi": "Nhiều nút cùng tiêu chung một ngân sách."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-health": {
+      "tom": "Cổng CI tổng hợp: chạy song song bốn phép kiểm ngân sách, tốc độ đốt, bất thường và dự phóng, rồi trả một trạng thái chung.",
+      "lam": [
+        "Chạy bốn phép kiểm cùng lúc",
+        "Trả một trạng thái sức khoẻ chi phí",
+        "Chặn ở CI khi không đạt"
+      ],
+      "khi": "Bạn muốn một cổng duy nhất canh chi phí.",
+      "ban": "Cùng hình dạng với npm run kiem: một lệnh gom nhiều phép kiểm, trả một kết luận. Của bạn canh tính đúng đắn, của họ canh chi phí — và bạn cần cả hai."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-optimize": {
+      "tom": "Phân tích khuôn dùng token và đề xuất cách giảm chi phí kèm ước lượng tiết kiệm.",
+      "lam": [
+        "Phân tích khuôn dùng token",
+        "Đề xuất cách tiết kiệm",
+        "Ước lượng khoản giảm"
+      ],
+      "khi": "Bạn muốn biết cắt ở đâu thì hiệu quả nhất."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-projection": {
+      "tom": "Dự phóng chi tiêu tới: tính mức USD mỗi ngày từ cửa sổ gần đây rồi chiếu ra 7, 30, 90 và 365 ngày.",
+      "lam": [
+        "Tính mức tiêu mỗi ngày",
+        "Chiếu ra các mốc dài hơn"
+      ],
+      "khi": "Bạn muốn biết cứ đà này thì tháng sau hết bao nhiêu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-report": {
+      "tom": "Sinh báo cáo chi phí theo từng agent và từng model.",
+      "lam": [
+        "Báo token đã dùng",
+        "Báo tiền theo agent và model"
+      ],
+      "khi": "Bạn cần báo cáo chi phí."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-session": {
+      "tom": "Bóc chi phí tới từng tin nhắn trong một phiên — bản đào sâu đi kèm cost-anomaly.",
+      "lam": [
+        "Bóc chi phí từng tin nhắn",
+        "Chỉ tin nhắn tốn nhất"
+      ],
+      "khi": "Một phiên bị đánh dấu bất thường và bạn cần biết vì sao."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-summary": {
+      "tom": "Kết xuất một lượt toàn bộ dữ liệu chi phí: tổng tiêu, theo bậc, phiên tốn nhất, trạng thái ngân sách.",
+      "lam": [
+        "Kết xuất toàn bộ dữ liệu chi phí",
+        "Xuất JSON hoặc markdown"
+      ],
+      "khi": "Bạn cần bức tranh tổng trong một lệnh."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-track": {
+      "tom": "Tự thu mức dùng token từng phiên từ file nhật ký của Claude Code và lưu lại.",
+      "lam": [
+        "Đọc nhật ký phiên",
+        "Lưu mức dùng token",
+        "Không cần dụng cụ đo riêng"
+      ],
+      "khi": "Bạn muốn theo dõi chi phí mà không đổi cách làm việc."
+    },
+    "ruvnet/ruflo/plugins/ruflo-cost-tracker/skills/cost-trend": {
+      "tom": "Đọc mọi bản chạy đo chuẩn và chỉ ra xu hướng trôi về tỉ lệ thắng, độ trễ, tỉ lệ leo thang và chi phí model nền.",
+      "lam": [
+        "Đọc lịch sử các lượt đo",
+        "Chỉ xu hướng trôi theo thời gian"
+      ],
+      "khi": "Bạn muốn biết hệ đang tốt lên hay xấu đi."
+    },
+    "ruvnet/ruflo/plugins/ruflo-plugin-creator/skills/create-plugin": {
+      "tom": "Dựng khung một plugin Claude Code mới: cấu trúc thư mục, plugin.json, skill, lệnh và agent.",
+      "lam": [
+        "Dựng khung plugin",
+        "Sinh plugin.json",
+        "Sinh skill, lệnh và agent"
+      ],
+      "khi": "Bạn viết plugin cho Claude Code."
+    },
+    "ruvnet/ruflo/plugins/ruflo-loop-workers/skills/cron-schedule": {
+      "tom": "Lên lịch chạy nền bền bằng CronCreate.",
+      "lam": [
+        "Đặt lịch chạy nền",
+        "Giữ lịch qua các phiên"
+      ],
+      "khi": "Bạn cần việc chạy định kỳ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-daa/skills/daa-agent": {
+      "tom": "Tạo và điều chỉnh agent kiến trúc động biết học và tiến hoá.",
+      "lam": [
+        "Tạo agent tự thích ứng",
+        "Cho agent tiến hoá theo dữ liệu"
+      ],
+      "khi": "Bạn muốn agent tự đổi theo tình hình."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ddd/skills/ddd-aggregate": {
+      "tom": "Dựng khung một gốc tập hợp theo DDD: thực thể, đối tượng giá trị, giao diện kho, sự kiện miền và khung test.",
+      "lam": [
+        "Sinh gốc tập hợp",
+        "Sinh đối tượng giá trị và sự kiện miền",
+        "Sinh khung test"
+      ],
+      "khi": "Bạn thêm một tập hợp mới trong kiến trúc DDD."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ddd/skills/ddd-context": {
+      "tom": "Tạo và quản một bối cảnh có ranh giới theo DDD, với cấu trúc thư mục chuẩn.",
+      "lam": [
+        "Tạo bối cảnh có ranh giới",
+        "Dựng cấu trúc thư mục chuẩn"
+      ],
+      "khi": "Bạn tách một khối lớn thành các miền riêng."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ddd/skills/ddd-validate": {
+      "tom": "Kiểm ranh giới miền: bắt import xuyên bối cảnh và lỗi bất biến của tập hợp.",
+      "lam": [
+        "Bắt import xuyên ranh giới",
+        "Bắt vi phạm bất biến"
+      ],
+      "khi": "Bạn muốn ranh giới miền được máy ép, không dựa vào kỷ luật.",
+      "ban": "Cùng ý với setup-ts-deep-modules: ranh giới chỉ có thật khi có thứ ép nó. Bảy cung ép ranh giới theo cách thô mà hiệu quả — mỗi cung là một thư mục độc lập, không import chéo."
+    },
+    "ruvnet/ruflo/plugins/ruflo-goals/skills/deep-research": {
+      "tom": "Điều phối nghiên cứu sâu nhiều pha: tìm web, truy hồi bộ nhớ, ghép khuôn rồi tổng hợp thành phát hiện có cấu trúc.",
+      "lam": [
+        "Tìm web và truy hồi bộ nhớ",
+        "Ghép khuôn đã biết",
+        "Tổng hợp thành phát hiện có cấu trúc"
+      ],
+      "khi": "Bạn cần nghiên cứu nhiều lớp."
+    },
+    "ruvnet/ruflo/plugins/ruflo-security-audit/skills/dependency-check": {
+      "tom": "Quét phụ thuộc của dự án tìm lỗ hổng và CVE đã biết.",
+      "lam": [
+        "Quét gói bên thứ ba",
+        "Tìm CVE đã biết",
+        "Chạy trước khi phát hành"
+      ],
+      "khi": "Bạn dùng gói bên ngoài.",
+      "ban": "Bảy cung không có node_modules nên bề mặt này gần như bằng không — một trong những phần thưởng lớn nhất của lựa chọn không phụ thuộc."
+    },
+    "ruvnet/ruflo/plugins/ruflo-jujutsu/skills/diff-analyze": {
+      "tom": "Phân tích diff git: chấm rủi ro, gợi ý người soát, phân loại thay đổi.",
+      "lam": [
+        "Chấm rủi ro của thay đổi",
+        "Gợi ý ai nên soát",
+        "Phân loại thay đổi"
+      ],
+      "khi": "Bạn chuẩn bị một PR lớn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-core/skills/discover-plugins": {
+      "tom": "Tìm và gợi ý plugin ruflo dựa trên luồng việc, công cụ MCP đã cài và việc đang làm.",
+      "lam": [
+        "Đọc hiện trạng công cụ",
+        "Gợi ý plugin phù hợp"
+      ],
+      "khi": "Bạn không biết bộ ruflo có gì dùng được."
+    },
+    "ruvnet/ruflo/plugins/ruflo-docs/skills/doc-gen": {
+      "tom": "Sinh và duy trì tài liệu, có phát hiện trôi so với mã.",
+      "lam": [
+        "Sinh tài liệu",
+        "Phát hiện tài liệu đã lệch với mã",
+        "Cập nhật tài liệu"
+      ],
+      "khi": "Tài liệu của bạn hay tụt lại sau mã.",
+      "ban": "Đúng việc npm run kiem làm cho hệ này. Điểm khác: bộ kiểm của bạn chỉ BÁO lệch để người quyết, còn cái này sinh luôn — và với tài liệu chứa lý do thì báo tốt hơn là sinh."
+    },
+    "ruvnet/ruflo/plugins/ruflo-goals/skills/dossier-collect": {
+      "tom": "Dựng hồ sơ dạng đồ thị về một thực thể, bằng cách toả ra song song rồi mở rộng đệ quy qua web, bộ nhớ, đồ thị tri thức và mã nguồn.",
+      "lam": [
+        "Toả ra nhiều nguồn song song",
+        "Mở rộng đệ quy từ đầu mối",
+        "Dựng hồ sơ dạng đồ thị"
+      ],
+      "khi": "Bạn cần biết mọi thứ về một đối tượng."
+    },
+    "ruvnet/ruflo/.agents/skills/embeddings": {
+      "tom": "Vector nhúng với chỉ mục HNSW, lưu bằng sql.js, hỗ trợ không gian hyperbolic.",
+      "lam": [
+        "Sinh vector nhúng",
+        "Đánh chỉ mục HNSW",
+        "Tìm theo ngữ nghĩa"
+      ],
+      "khi": "Bạn cần tìm kiếm ngữ nghĩa."
+    },
+    "ruvnet/ruflo/plugins/ruflo-federation/skills/federation-audit": {
+      "tom": "Truy vấn nhật ký kiểm toán liên hợp, có lọc theo yêu cầu tuân thủ.",
+      "lam": [
+        "Đọc nhật ký kiểm toán",
+        "Lọc theo tiêu chí tuân thủ"
+      ],
+      "khi": "Bạn cần chứng minh ai đã làm gì."
+    },
+    "ruvnet/ruflo/plugins/ruflo-federation/skills/federation-init": {
+      "tom": "Khởi tạo liên hợp trên nút này: sinh cặp khoá và cấu hình các nút bạn.",
+      "lam": [
+        "Sinh cặp khoá",
+        "Cấu hình danh sách nút bạn"
+      ],
+      "khi": "Bạn nối nút của mình vào một liên hợp."
+    },
+    "ruvnet/ruflo/plugins/ruflo-federation/skills/federation-status": {
+      "tom": "Hiện sức khoẻ liên hợp: nút bạn, phiên, mức tin cậy và số liệu tin nhắn.",
+      "lam": [
+        "Liệt kê nút bạn và mức tin cậy",
+        "Xem số liệu tin nhắn"
+      ],
+      "khi": "Bạn muốn biết liên hợp có khoẻ không."
+    },
+    "ruvnet/ruflo/.claude/skills/flow-nexus-neural": {
+      "tom": "Huấn luyện và triển khai mạng nơ-ron trong hộp cát E2B phân tán, qua Flow Nexus.",
+      "lam": [
+        "Huấn luyện phân tán",
+        "Triển khai model"
+      ],
+      "khi": "Bạn dùng nền tảng Flow Nexus."
+    },
+    "ruvnet/ruflo/.claude/skills/flow-nexus-platform": {
+      "tom": "Quản trị toàn diện nền tảng Flow Nexus: xác thực, hộp cát, triển khai ứng dụng, thanh toán.",
+      "lam": [
+        "Quản xác thực và hộp cát",
+        "Triển khai ứng dụng",
+        "Quản thanh toán"
+      ],
+      "khi": "Bạn vận hành trên Flow Nexus."
+    },
+    "ruvnet/ruflo/.claude/skills/flow-nexus-swarm": {
+      "tom": "Triển khai bầy AI trên đám mây và tự động hoá luồng việc theo sự kiện, qua Flow Nexus.",
+      "lam": [
+        "Triển khai bầy trên đám mây",
+        "Chạy luồng theo sự kiện"
+      ],
+      "khi": "Bạn chạy bầy agent trên đám mây."
+    },
+    "ruvnet/ruflo/plugins/ruflo-workflows/skills/gaia-architecture-comparison": {
+      "tom": "So sánh song song ruflo với HAL và các harness GAIA khác: chỗ hụt năng lực, quyết định thiết kế và lộ trình cải thiện.",
+      "lam": [
+        "So năng lực từng harness",
+        "Chỉ chỗ hụt",
+        "Vạch lộ trình"
+      ],
+      "khi": "Bạn chọn hoặc cải tiến một harness agent."
+    },
+    "ruvnet/ruflo/plugins/ruflo-workflows/skills/gaia-debugging": {
+      "tom": "Chẩn đoán vì sao một câu hỏi GAIA thất bại: rút vết chạy, phân loại kiểu hỏng, đề xuất cách sửa.",
+      "lam": [
+        "Rút vết chạy",
+        "Phân loại kiểu hỏng",
+        "Đề xuất cách sửa"
+      ],
+      "khi": "Bản chạy đo chuẩn GAIA báo có câu sai."
+    },
+    "ruvnet/ruflo/plugins/ruflo-workflows/skills/gaia-submission": {
+      "tom": "Đi trọn quy trình chạy và nộp bài đo chuẩn GAIA, từ khoá tới gói nộp tương thích HAL.",
+      "lam": [
+        "Chạy bộ đo GAIA",
+        "Đóng gói bài nộp"
+      ],
+      "khi": "Bạn nộp kết quả lên bảng xếp hạng GAIA."
+    },
+    "ruvnet/ruflo/plugins/ruflo-jujutsu/skills/git-workflow": {
+      "tom": "Luồng git nâng cao: quản nhánh, gỡ xung đột, vòng đời PR.",
+      "lam": [
+        "Quản nhánh",
+        "Gỡ xung đột",
+        "Đi trọn vòng đời PR"
+      ],
+      "khi": "Bạn làm việc với git ở mức phức tạp."
+    },
+    "ruvnet/ruflo/.agents/skills/github-automation": {
+      "tom": "Tự động hoá luồng việc GitHub: quản PR, theo dõi issue, điều phối soát mã, nối với Actions.",
+      "lam": [
+        "Quản PR và issue",
+        "Điều phối soát mã",
+        "Nối với GitHub Actions"
+      ],
+      "khi": "Việc của bạn nằm trọn trên GitHub."
+    },
+    "ruvnet/ruflo/.claude/skills/github-code-review": {
+      "tom": "Soát mã trên GitHub toàn diện, có điều phối bầy agent.",
+      "lam": [
+        "Soát PR bằng nhiều agent",
+        "Gom nhận xét"
+      ],
+      "khi": "Bạn muốn soát mã tự động trên GitHub."
+    },
+    "ruvnet/ruflo/.claude/skills/github-multi-repo": {
+      "tom": "Điều phối, đồng bộ và quản kiến trúc xuyên nhiều kho, có bầy agent.",
+      "lam": [
+        "Đồng bộ nhiều kho",
+        "Quản kiến trúc chung"
+      ],
+      "khi": "Hệ của bạn trải trên nhiều kho."
+    },
+    "ruvnet/ruflo/.claude/skills/github-project-management": {
+      "tom": "Quản dự án trên GitHub: theo dõi issue, tự động bảng dự án, lập kế hoạch chặng.",
+      "lam": [
+        "Theo dõi issue",
+        "Tự động cập nhật bảng dự án",
+        "Lập kế hoạch chặng"
+      ],
+      "khi": "Bạn quản dự án bằng GitHub Projects."
+    },
+    "ruvnet/ruflo/.claude/skills/github-release-management": {
+      "tom": "Điều phối phát hành trên GitHub: tự đánh phiên bản, chạy test, triển khai và quản đường lùi.",
+      "lam": [
+        "Tự đánh phiên bản",
+        "Chạy test và triển khai",
+        "Quản đường lùi"
+      ],
+      "khi": "Bạn phát hành qua GitHub."
+    },
+    "ruvnet/ruflo/.claude/skills/github-workflow-automation": {
+      "tom": "Tự động hoá GitHub Actions nâng cao: đường ống CI/CD thông minh, có bầy agent điều phối.",
+      "lam": [
+        "Dựng đường ống CI/CD",
+        "Điều phối bằng bầy agent",
+        "Quản kho toàn diện"
+      ],
+      "khi": "Đường ống GitHub Actions của bạn phức tạp."
+    },
+    "ruvnet/ruflo/plugins/ruflo-goals/skills/goal-plan": {
+      "tom": "Lập và chạy kế hoạch hành động hướng mục tiêu (GOAP): phân tích điều kiện tiên quyết, tối ưu chi phí, tự lập lại kế hoạch.",
+      "lam": [
+        "Phân tích điều kiện tiên quyết",
+        "Tối ưu chi phí đường đi",
+        "Lập lại kế hoạch khi tình hình đổi"
+      ],
+      "khi": "Bạn có mục tiêu và nhiều đường tới đích."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-bench": {
+      "tom": "Quản bộ đo chuẩn cho harness: dựng bộ đo từ bộ test của một kho rồi kiểm chứng.",
+      "lam": [
+        "Dựng bộ đo từ kho có sẵn",
+        "Kiểm chứng bộ đo"
+      ],
+      "khi": "Bạn đánh giá một harness agent."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-drift-from-history": {
+      "tom": "Phát hiện trôi bằng một lệnh: gộp liệt kê kiểm toán, chạy kiểm và xem xu hướng thành một bước.",
+      "lam": [
+        "Tìm bản kiểm toán gần nhất",
+        "So và chỉ ra trôi"
+      ],
+      "khi": "Bạn muốn biết harness đã lệch đi bao nhiêu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-evolve": {
+      "tom": "Tiến hoá harness bằng cách đột biến bảy mặt chính sách: lập kế hoạch, dựng ngữ cảnh, soát, thử lại, chính sách công cụ.",
+      "lam": [
+        "Đột biến chính sách harness",
+        "Giữ bản tốt hơn qua từng vòng"
+      ],
+      "khi": "Bạn muốn harness tự khá lên."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-genome": {
+      "tom": "Báo cáo mức sẵn sàng của một kho theo bảy mục: loại kho, hình trạng agent, điểm rủi ro, bề mặt MCP, cấu hình test.",
+      "lam": [
+        "Chấm loại kho và rủi ro",
+        "Đọc bề mặt MCP",
+        "Đọc cấu hình test"
+      ],
+      "khi": "Bạn đánh giá một kho trước khi cho agent vào."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-gepa": {
+      "tom": "Soi và kiểm bộ gen GEPA: nạp và kiểm tính hợp lệ của một bộ gen harness.",
+      "lam": [
+        "Nạp và kiểm bộ gen",
+        "Soi cấu hình harness"
+      ],
+      "khi": "Bạn làm việc với bộ gen GEPA."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-learn": {
+      "tom": "Chạy một chu kỳ học GEPA — tối ưu bộ gen harness trên bộ bài kiểu SWE-bench.",
+      "lam": [
+        "Chạy chu kỳ học",
+        "Tối ưu bộ gen theo kết quả đo"
+      ],
+      "khi": "Bạn muốn harness học từ bộ bài chuẩn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-mcp-scan": {
+      "tom": "Quét bảo mật tĩnh bề mặt MCP mà một harness khai báo.",
+      "lam": [
+        "Đọc danh sách máy chủ MCP",
+        "Đọc bảng quyền",
+        "Chỉ rủi ro"
+      ],
+      "khi": "Bạn cài harness có nhiều máy chủ MCP.",
+      "ban": "Đáng chạy nếu bạn cài thử skill từ Tàng Thư Các. Hồ sơ an toàn trong trailer chỉ đọc mã trong SKILL.md — nó không thấy được máy chủ MCP mà skill kéo theo."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-mint": {
+      "tom": "Dựng khung một harness agent tuỳ biến, mặc định chạy thử không ghi gì trừ khi xác nhận.",
+      "lam": [
+        "Dựng khung harness mới",
+        "Chạy thử trước khi ghi thật"
+      ],
+      "khi": "Bạn muốn harness riêng cho luồng việc của mình."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-oia-audit": {
+      "tom": "Trình kiểm toán tổng hợp: gộp bản kê khai, mô hình mối đe doạ và quét MCP thành một bản ghi có mốc thời gian.",
+      "lam": [
+        "Gộp ba phép kiểm thành một",
+        "Lưu bản ghi có mốc thời gian"
+      ],
+      "khi": "Bạn cần một bản kiểm toán đầy đủ cho harness."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-score": {
+      "tom": "Bảng điểm sẵn sàng năm chiều cho harness: mức hợp harness, độ tin cậy biên dịch, mức bao phủ tác vụ, an toàn công cụ.",
+      "lam": [
+        "Chấm năm chiều",
+        "Trả điểm tổng hợp"
+      ],
+      "khi": "Bạn so nhiều harness với nhau."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-security-bench": {
+      "tom": "Chạy bộ đo bảo mật — tiến hoá một harness phát hiện tấn công vô địch trên bộ 10 lỗ hổng.",
+      "lam": [
+        "Tiến hoá harness phát hiện tấn công",
+        "Đo trên bộ lỗ hổng chuẩn"
+      ],
+      "khi": "Bạn muốn harness của mình chống được tấn công."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-similarity": {
+      "tom": "Tính mức tương đồng có trọng số giữa hai dấu vân harness, trả điểm chung và điểm theo từng thành phần.",
+      "lam": [
+        "So hai harness",
+        "Trả điểm tương đồng theo thành phần"
+      ],
+      "khi": "Bạn muốn biết hai harness khác nhau chỗ nào."
+    },
+    "ruvnet/ruflo/plugins/ruflo-metaharness/skills/harness-threat-model": {
+      "tom": "Mô hình mối đe doạ mức duyệt doanh nghiệp: phân loại rủi ro trên bề mặt MCP và trả mức nặng nhất.",
+      "lam": [
+        "Phân loại mối đe doạ",
+        "Trả mức nghiêm trọng cao nhất"
+      ],
+      "khi": "Bạn phải chứng minh harness đủ an toàn để duyệt."
+    },
+    "ruvnet/ruflo/.agents/skills/hive-mind": {
+      "tom": "Đồng thuận chịu lỗi Byzantine và điều phối phân tán, quản bầy theo phân cấp có nút chúa.",
+      "lam": [
+        "Điều phối bầy theo phân cấp",
+        "Đạt đồng thuận dù có nút sai",
+        "Chọn chiến lược đồng thuận"
+      ],
+      "khi": "Bạn chạy bầy agent lớn cần đồng thuận."
+    },
+    "ruvnet/ruflo/.claude/skills/hive-mind-advanced": {
+      "tom": "Hệ trí tuệ tập thể nâng cao: điều phối nhiều agent do nút chúa dẫn, có cơ chế đồng thuận và bộ nhớ bền.",
+      "lam": [
+        "Điều phối nhiều agent có nút chúa",
+        "Đồng thuận và bộ nhớ bền"
+      ],
+      "khi": "Bầy agent của bạn cần trí nhớ chung và đồng thuận."
+    },
+    "ruvnet/ruflo/.claude/skills/hooks-automation": {
+      "tom": "Điều phối, định dạng và học tự động từ thao tác của Claude Code bằng hook thông minh, có nối MCP.",
+      "lam": [
+        "Chạy hook trước và sau mỗi thao tác",
+        "Tự định dạng",
+        "Học từ thao tác đã chạy"
+      ],
+      "khi": "Bạn muốn tự động hoá quanh mỗi lần agent làm việc.",
+      "ban": "Hook của bạn cố tình đơn giản: shell thuần, luôn thoát 0, chỉ nhắc. Bản này mạnh hơn nhiều nhưng cũng nhiều thứ có thể hỏng hơn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-goals/skills/horizon-track": {
+      "tom": "Theo dõi mục tiêu dài hơi qua nhiều phiên, có mốc kiểm, lưu tiến độ và phát hiện trôi.",
+      "lam": [
+        "Đặt mốc kiểm cho mục tiêu dài",
+        "Lưu tiến độ giữa các phiên",
+        "Phát hiện đi chệch hướng"
+      ],
+      "khi": "Mục tiêu của bạn kéo dài qua nhiều phiên.",
+      "ban": "Đúng thứ việc dịch 2.859 skill này cần và hiện làm bằng tay: node scripts/dich-con-lai.mjs là bộ đếm tiến độ, dich-tiep.md là mốc kiểm."
+    },
+    "ruvnet/ruflo/plugins/ruflo-core/skills/init-project": {
+      "tom": "Khởi tạo dự án Ruflo mới với công cụ MCP, hook và cấu hình agent.",
+      "lam": [
+        "Dựng cấu hình Ruflo",
+        "Cài hook và công cụ MCP"
+      ],
+      "khi": "Bạn đưa Ruflo vào một kho mới."
+    },
+    "ruvnet/ruflo/plugins/ruflo-intelligence/skills/intelligence-route": {
+      "tom": "Định tuyến tác vụ qua bộ chọn model ba bậc và khuôn đã học, kèm giải thích vì sao chọn.",
+      "lam": [
+        "Chọn model theo độ khó",
+        "Dùng khuôn đã học",
+        "Giải thích lý do định tuyến"
+      ],
+      "khi": "Bạn muốn việc dễ đi model rẻ, việc khó đi model mạnh.",
+      "ban": "Đây là cách chữa gốc cho vấn đề của Đài Quan Trắc: nó chạy Opus cho mọi lượt, kể cả lượt Haiku thừa sức. Định tuyến ba bậc là thứ đứng giữa bạn và hoá đơn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-intelligence/skills/intelligence-transfer": {
+      "tom": "Công bố hoặc lấy khuôn đã học giữa các dự án qua IPFS và Pinata.",
+      "lam": [
+        "Đẩy khuôn đã học lên IPFS",
+        "Lấy khuôn từ dự án khác"
+      ],
+      "khi": "Bạn muốn dự án mới thừa hưởng bài học của dự án cũ.",
+      "ban": "Cùng dùng Pinata như hệ này — và nhớ là khoá PINATA_JWT của bạn đã chết, nên bước đóng dấu IPFS hỏng 16/16 lượt mỗi ngày."
+    },
+    "ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-anomalies": {
+      "tom": "Phát hiện và phân loại bất thường trong dữ liệu đo từ thiết bị Cognitum Seed.",
+      "lam": [
+        "Bắt số đo bất thường",
+        "Phân loại kiểu bất thường"
+      ],
+      "khi": "Một thiết bị báo số liệu lạ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-firmware": {
+      "tom": "Điều phối cập nhật firmware theo lối thả từ từ, chỉ đi tiếp khi không có bất thường.",
+      "lam": [
+        "Cập nhật thử trên nhóm nhỏ",
+        "Chỉ mở rộng khi sạch bất thường"
+      ],
+      "khi": "Bạn cập nhật firmware cho nhiều thiết bị.",
+      "ban": "Khuôn 'thả từ từ, có cổng chặn' đúng thứ đường ống của bạn thiếu: mọi thay đổi đi thẳng lên main và lên Pages ngay lượt sau."
+    },
+    "ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-fleet": {
+      "tom": "Tạo và quản đội thiết bị Cognitum Seed kèm chính sách firmware.",
+      "lam": [
+        "Quản đội thiết bị",
+        "Đặt chính sách firmware"
+      ],
+      "khi": "Bạn quản nhiều thiết bị IoT."
+    },
+    "ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-register": {
+      "tom": "Đăng ký một thiết bị Cognitum Seed theo endpoint và dựng cầu nối agent.",
+      "lam": [
+        "Đăng ký thiết bị",
+        "Dựng cầu nối tới agent"
+      ],
+      "khi": "Bạn thêm thiết bị mới vào hệ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-iot-cognitum/skills/iot-witness-verify": {
+      "tom": "Kiểm tính toàn vẹn chuỗi chứng và phát hiện lỗ hổng trong dấu vết nguồn gốc.",
+      "lam": [
+        "Kiểm chuỗi chứng",
+        "Bắt chỗ đứt dấu vết"
+      ],
+      "khi": "Bạn cần chứng minh dữ liệu chưa bị sửa."
+    },
+    "ruvnet/ruflo/plugins/ruflo-knowledge-graph/skills/kg-extract": {
+      "tom": "Rút thực thể và quan hệ từ file nguồn để dựng đồ thị tri thức.",
+      "lam": [
+        "Rút thực thể từ mã và tài liệu",
+        "Rút quan hệ giữa chúng"
+      ],
+      "khi": "Bạn muốn biến kho thành đồ thị tra được."
+    },
+    "ruvnet/ruflo/plugins/ruflo-knowledge-graph/skills/kg-traverse": {
+      "tom": "Đi xuyên đồ thị tri thức từ một thực thể gốc để tìm đường.",
+      "lam": [
+        "Xuất phát từ một thực thể",
+        "Lần theo quan hệ tìm đường"
+      ],
+      "khi": "Bạn muốn biết hai thứ nối với nhau qua đâu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ruvllm/skills/llm-config": {
+      "tom": "Cấu hình suy luận cục bộ RuVLLM: chọn model, tinh chỉnh MicroLoRA, thích ứng SONA.",
+      "lam": [
+        "Chọn model chạy tại máy",
+        "Tinh chỉnh nhẹ bằng MicroLoRA"
+      ],
+      "khi": "Bạn chạy model tại máy."
+    },
+    "ruvnet/ruflo/plugins/ruflo-loop-workers/skills/loop-worker": {
+      "tom": "Chạy tiến trình nền của Ruflo bằng cơ chế /loop sẵn có của Claude Code.",
+      "lam": [
+        "Chạy việc nền theo lịch",
+        "Dùng cơ chế lặp sẵn có"
+      ],
+      "khi": "Bạn cần việc chạy nền lặp lại."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agent/skills/managed-agent": {
+      "tom": "Chạy Managed Agent của Anthropic — harness agent trên đám mây có container, hệ tệp và công cụ.",
+      "lam": [
+        "Chạy agent trên đám mây",
+        "Dùng container và hệ tệp do Anthropic lo"
+      ],
+      "khi": "Bạn muốn agent chạy dài mà không cần máy của mình."
+    },
+    "ruvnet/ruflo/plugins/ruflo-market-data/skills/market-ingest": {
+      "tom": "Nạp và chuẩn hoá dữ liệu thị trường thành vector OHLCV, đánh chỉ mục HNSW.",
+      "lam": [
+        "Nạp dữ liệu giá",
+        "Chuẩn hoá thành OHLCV",
+        "Đánh chỉ mục để tìm nhanh"
+      ],
+      "khi": "Bạn xây hệ phân tích thị trường."
+    },
+    "ruvnet/ruflo/plugins/ruflo-market-data/skills/market-pattern": {
+      "tom": "Nhận và phân loại mẫu hình nến từ dữ liệu OHLCV đã nạp.",
+      "lam": [
+        "Nhận mẫu hình nến",
+        "Phân loại mẫu"
+      ],
+      "khi": "Bạn phân tích kỹ thuật thị trường."
+    },
+    "ruvnet/ruflo/plugins/ruflo-rag-memory/skills/memory-bridge": {
+      "tom": "Bắc cầu bộ nhớ tự động của Claude Code vào AgentDB, khử trùng lặp và cho tìm chung xuyên dự án.",
+      "lam": [
+        "Đưa bộ nhớ Claude Code vào AgentDB",
+        "Khử trùng lặp",
+        "Tìm chung xuyên dự án"
+      ],
+      "khi": "Bạn muốn tìm được mọi thứ đã ghi nhớ, ở mọi dự án."
+    },
+    "ruvnet/ruflo/.agents/skills/memory-management": {
+      "tom": "Hệ bộ nhớ AgentDB với tìm kiếm vector HNSW: truy hồi khuôn nhanh hơn nhiều lần, lưu bền, tìm theo ngữ nghĩa.",
+      "lam": [
+        "Lưu bộ nhớ bền",
+        "Tìm theo ngữ nghĩa",
+        "Truy hồi khuôn đã học"
+      ],
+      "khi": "Agent của bạn cần trí nhớ tra được."
+    },
+    "ruvnet/ruflo/plugins/ruflo-rag-memory/skills/memory-search": {
+      "tom": "Tìm kiếm ngữ nghĩa cao cấp: lai thưa và dày, Graph RAG nhiều bước, xếp lại theo đa dạng, ưu tiên mới.",
+      "lam": [
+        "Tìm lai thưa và dày",
+        "Đi nhiều bước trên đồ thị",
+        "Ưu tiên kết quả mới"
+      ],
+      "khi": "Tìm kiếm đơn giản không đủ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-migrations/skills/migrate-create": {
+      "tom": "Tạo bản di trú cơ sở dữ liệu đánh số tuần tự, kèm file SQL đi lên và đi xuống.",
+      "lam": [
+        "Tạo bản di trú mới",
+        "Sinh cả SQL lùi lại"
+      ],
+      "khi": "Bạn đổi lược đồ cơ sở dữ liệu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-migrations/skills/migrate-validate": {
+      "tom": "Kiểm các bản di trú đang chờ: nhất quán khoá ngoại, an toàn khi lùi, và lối làm chuẩn.",
+      "lam": [
+        "Kiểm khoá ngoại",
+        "Kiểm có lùi được không"
+      ],
+      "khi": "Bạn sắp chạy di trú trên dữ liệu thật."
+    },
+    "ruvnet/ruflo/plugins/ruflo-swarm/skills/monitor-stream": {
+      "tom": "Phát luồng sự kiện của bầy agent theo thời gian thực.",
+      "lam": [
+        "Xem sự kiện bầy ngay khi xảy ra",
+        "Quan trắc thời gian thực"
+      ],
+      "khi": "Bạn muốn nhìn bầy agent đang làm gì."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agent/skills/nested-subagents": {
+      "tom": "Tung agent con lồng nhau, tối đa năm tầng, để chia việc sâu mà vẫn quản được ngữ cảnh.",
+      "lam": [
+        "Tung agent con nhiều tầng",
+        "Giữ ngữ cảnh mỗi tầng gọn"
+      ],
+      "khi": "Việc quá lớn cho một tầng agent."
+    },
+    "ruvnet/ruflo/plugins/ruflo-intelligence/skills/neural-train": {
+      "tom": "Huấn luyện khuôn nơ-ron SONA và MicroLoRA từ những tác vụ đã hoàn thành thành công.",
+      "lam": [
+        "Học từ tác vụ đã làm đúng",
+        "Chạy pha chưng cất và củng cố"
+      ],
+      "khi": "Bạn muốn agent học từ thành công của chính nó."
+    },
+    "ruvnet/ruflo/.agents/skills/neural-training": {
+      "tom": "Huấn luyện khuôn nơ-ron với SONA, hỗn hợp chuyên gia (MoE) và EWC++ để củng cố tri thức.",
+      "lam": [
+        "Huấn luyện khuôn nơ-ron",
+        "Củng cố tri thức không quên cái cũ"
+      ],
+      "khi": "Bạn dựng hệ agent tự học."
+    },
+    "ruvnet/ruflo/plugins/ruflo-observability/skills/observe-metrics": {
+      "tom": "Gom và hiện số đo hệ thống trong một khoảng thời gian, có phát hiện bất thường.",
+      "lam": [
+        "Gom số đo theo khoảng thời gian",
+        "Bắt bất thường"
+      ],
+      "khi": "Bạn muốn nhìn sức khoẻ hệ thống."
+    },
+    "ruvnet/ruflo/plugins/ruflo-observability/skills/observe-trace": {
+      "tom": "Truy vết agent chạy: gom các đoạn vết rồi dựng thành cây vết cho một tác vụ.",
+      "lam": [
+        "Gom đoạn vết",
+        "Dựng cây vết theo tác vụ"
+      ],
+      "khi": "Bạn muốn biết agent đã đi qua những bước nào."
+    },
+    "ruvnet/ruflo/.claude/skills/pair-programming": {
+      "tom": "Lập trình đôi có AI, nhiều chế độ (người lái, người dẫn đường, đổi vai), kèm xác minh và theo dõi chất lượng.",
+      "lam": [
+        "Đổi vai lái và dẫn đường",
+        "Xác minh theo thời gian thực",
+        "Theo dõi chất lượng"
+      ],
+      "khi": "Bạn muốn làm cùng agent thay vì giao việc."
+    },
+    "ruvnet/ruflo/.claude/skills/performance-analysis": {
+      "tom": "Phân tích hiệu năng toàn diện cho bầy agent: tìm nút thắt và đề xuất tối ưu.",
+      "lam": [
+        "Tìm nút thắt",
+        "Đề xuất tối ưu"
+      ],
+      "khi": "Bầy agent của bạn chạy chậm."
+    },
+    "ruvnet/ruflo/plugins/ruflo-aidefence/skills/pii-detect": {
+      "tom": "Phát hiện và đánh dấu thông tin định danh cá nhân trong văn bản, mã và cấu hình.",
+      "lam": [
+        "Quét tìm thông tin cá nhân",
+        "Đánh dấu trước khi commit hoặc ghi log"
+      ],
+      "khi": "Bạn sắp commit hoặc công bố thứ gì đó.",
+      "ban": "Rất đáng chạy trên kho công khai này. Cùng gia đình với bài học đắt nhất của bạn: hai khoá chết vì đi qua chỗ nhìn thấy được."
+    },
+    "ruvnet/ruflo/plugins/ruflo-business-pods/skills/pod-sales": {
+      "tom": "Chạy một nhịp của khoang nghiệp vụ bán hàng: nạp mẫu, kiểm theo lược đồ, phân giải agent.",
+      "lam": [
+        "Nạp mẫu nghiệp vụ bán hàng",
+        "Kiểm theo lược đồ",
+        "Chạy một nhịp"
+      ],
+      "khi": "Bạn vận hành khoang nghiệp vụ tự động."
+    },
+    "ruvnet/ruflo/.claude/skills/reasoningbank-intelligence": {
+      "tom": "Học thích ứng bằng ReasoningBank: nhận khuôn, tối ưu chiến lược, cải thiện liên tục.",
+      "lam": [
+        "Nhận khuôn từ trải nghiệm",
+        "Tối ưu chiến lược",
+        "Cải thiện qua từng lượt"
+      ],
+      "khi": "Bạn dựng agent tự khá lên theo thời gian."
+    },
+    "ruvnet/ruflo/.claude/skills/reasoningbank-agentdb": {
+      "tom": "Học thích ứng ReasoningBank chạy trên AgentDB: theo dõi quỹ đạo, phán quyết kết quả, quản bộ nhớ.",
+      "lam": [
+        "Theo dõi quỹ đạo hành động",
+        "Phán quyết đúng sai",
+        "Lưu vào bộ nhớ vector"
+      ],
+      "khi": "Bạn muốn agent học nhanh từ lịch sử hành động."
+    },
+    "ruvnet/ruflo/plugins/ruflo-goals/skills/research-synthesize": {
+      "tom": "Tổng hợp phát hiện nghiên cứu từ bộ nhớ thành báo cáo có chấm hạng bằng chứng và gỡ mâu thuẫn.",
+      "lam": [
+        "Gom phát hiện đã lưu",
+        "Chấm hạng bằng chứng",
+        "Gỡ mâu thuẫn giữa các nguồn"
+      ],
+      "khi": "Bạn có nhiều mảnh nghiên cứu cần gộp.",
+      "ban": "Bước 'gỡ mâu thuẫn giữa các nguồn' đúng thứ Đài Quan Trắc phải làm và làm bằng tay: cụm 'Đọc cho đúng' chính là kết quả của việc đối chiếu các nguồn nói ngược nhau."
+    },
+    "ruvnet/ruflo/SKILL.md": {
+      "tom": "Ruflo — nền tảng điều phối nhiều agent, chạy được với Claude Code, Cursor, Codex, Copilot, Gemini và hơn chục công cụ khác.",
+      "lam": [
+        "Điều phối nhiều agent",
+        "Chạy được với nhiều công cụ khác nhau"
+      ],
+      "khi": "Bạn muốn một tầng điều phối chung cho nhiều agent."
+    },
+    "ruvnet/ruflo/plugins/ruflo-core/skills/ruflo-doctor": {
+      "tom": "Chạy kiểm sức khoẻ bản cài Ruflo và sửa lỗi thường gặp.",
+      "lam": [
+        "Kiểm bản cài",
+        "Sửa lỗi thường gặp"
+      ],
+      "khi": "Ruflo của bạn có gì đó không chạy."
+    },
+    "ruvnet/ruflo/plugins/ruflo-core/skills/ruflo-status": {
+      "tom": "Chẩn đoán sức khoẻ Ruflo rồi báo trạng thái hệ thống, máy chủ MCP và agent đang chạy, không thay đổi gì.",
+      "lam": [
+        "Báo trạng thái hệ và MCP",
+        "Liệt kê agent đang chạy",
+        "Không đụng vào bản cài"
+      ],
+      "khi": "Bạn muốn biết hiện trạng mà không muốn nó tự sửa."
+    },
+    "ruvnet/ruflo/plugins/ruflo-rvf/skills/rvf-manage": {
+      "tom": "Quản file định dạng vector RVF cho bộ nhớ agent mang đi được giữa các nền tảng.",
+      "lam": [
+        "Đóng gói bộ nhớ agent",
+        "Chuyển giữa các nền tảng"
+      ],
+      "khi": "Bạn muốn mang trí nhớ agent sang chỗ khác."
+    },
+    "ruvnet/ruflo/plugins/ruflo-aidefence/skills/safety-scan": {
+      "tom": "Quét đầu vào tìm tiêm lệnh, nội dung không an toàn và tấn công đối kháng.",
+      "lam": [
+        "Bắt tiêm lệnh qua đầu vào",
+        "Bắt nội dung không an toàn"
+      ],
+      "khi": "Bạn xử lý đầu vào từ người lạ.",
+      "ban": "Nguyên tắc nền của hồ sơ an toàn trong Tàng Thư Các, và cũng là lý do bảy cung không bao giờ đưa dữ liệu ngoài vào lời nhắc — chỉ đưa vào file tĩnh."
+    },
+    "ruvnet/ruflo/.agents/skills/security-audit": {
+      "tom": "Quét bảo mật và tìm lỗ hổng toàn diện: kiểm đầu vào, chặn vượt thư mục, dò CVE.",
+      "lam": [
+        "Kiểm đầu vào",
+        "Chặn tấn công vượt thư mục",
+        "Dò CVE trong phụ thuộc"
+      ],
+      "khi": "Bạn cần một lượt soát bảo mật đầy đủ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-security-audit/skills/security-scan": {
+      "tom": "Chạy quét bảo mật đầy đủ trên kho bằng công cụ Ruflo.",
+      "lam": [
+        "Quét toàn kho",
+        "Soát PR tìm hồi quy bảo mật",
+        "Soát phần xác thực và xử lý đầu vào"
+      ],
+      "khi": "Bạn soát PR hoặc kiểm định kỳ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-rvf/skills/session-persist": {
+      "tom": "Lưu và khôi phục phiên agent qua các cuộc hội thoại bằng ảnh chụp trạng thái.",
+      "lam": [
+        "Chụp trạng thái phiên",
+        "Khôi phục ở cuộc sau"
+      ],
+      "khi": "Bạn muốn tiếp việc ở phiên sau."
+    },
+    "ruvnet/ruflo/.claude/skills/skill-builder": {
+      "tom": "Tạo skill Claude Code mới đúng chuẩn: frontmatter YAML, cấu trúc bộc lộ dần, tổ chức thư mục đầy đủ.",
+      "lam": [
+        "Sinh khung skill",
+        "Viết frontmatter đúng chuẩn",
+        "Tổ chức thư mục"
+      ],
+      "khi": "Bạn viết skill mới.",
+      "ban": "Nếu bạn muốn biến các quy trình trong hệ này thành skill — cách gộp bản dịch, cách gỡ đẩy trượt, cách bump CACHE_VERSION — thì bắt đầu từ đây."
+    },
+    "ruvnet/ruflo/plugins/ruflo-sparc/skills/sparc-implement": {
+      "tom": "Chạy pha Mã giả và Kiến trúc của SPARC: viết mã giả giải thuật, thiết kế ranh giới module và hợp đồng API, rồi cài.",
+      "lam": [
+        "Viết mã giả giải thuật",
+        "Thiết kế ranh giới module",
+        "Chốt hợp đồng API rồi cài"
+      ],
+      "khi": "Bạn theo quy trình SPARC."
+    },
+    "ruvnet/ruflo/.claude/skills/sparc-methodology": {
+      "tom": "Phương pháp phát triển SPARC đầy đủ (Đặc tả, Mã giả, Kiến trúc, Tinh chỉnh, Hoàn tất) có điều phối nhiều agent.",
+      "lam": [
+        "Đi qua năm pha SPARC",
+        "Điều phối agent theo từng pha"
+      ],
+      "khi": "Bạn muốn một quy trình phát triển có khung rõ."
+    },
+    "ruvnet/ruflo/plugins/ruflo-sparc/skills/sparc-refine": {
+      "tom": "Chạy pha Tinh chỉnh và Hoàn tất của SPARC: soát mã, tăng độ phủ test, đối chiếu đặc tả, sinh tài liệu.",
+      "lam": [
+        "Soát mã và tăng độ phủ",
+        "Đối chiếu với đặc tả",
+        "Sinh tài liệu"
+      ],
+      "khi": "Bạn đã cài xong và cần khép lại."
+    },
+    "ruvnet/ruflo/plugins/ruflo-sparc/skills/sparc-spec": {
+      "tom": "Chạy pha Đặc tả của SPARC: thu yêu cầu, định tiêu chí nghiệm thu, xác định ràng buộc và lưu vào bộ nhớ.",
+      "lam": [
+        "Thu yêu cầu",
+        "Định tiêu chí nghiệm thu",
+        "Xác định ràng buộc"
+      ],
+      "khi": "Bạn bắt đầu một việc theo SPARC."
+    },
+    "ruvnet/ruflo/.claude/skills/stream-chain": {
+      "tom": "Nối chuỗi bằng luồng JSON cho đường ống nhiều agent, biến đổi dữ liệu và luồng việc nối tiếp.",
+      "lam": [
+        "Nối nhiều agent thành chuỗi",
+        "Truyền dữ liệu dạng luồng"
+      ],
+      "khi": "Đầu ra của agent này là đầu vào của agent kia."
+    },
+    "ruvnet/ruflo/.claude/skills/swarm-advanced": {
+      "tom": "Khuôn điều phối bầy nâng cao cho nghiên cứu, phát triển, kiểm thử và luồng phân tán phức tạp.",
+      "lam": [
+        "Điều phối bầy cho việc phức tạp",
+        "Chạy luồng phân tán"
+      ],
+      "khi": "Việc của bạn vượt mức điều phối đơn giản."
+    },
+    "ruvnet/ruflo/plugins/ruflo-swarm/skills/swarm-init": {
+      "tom": "Khởi tạo bầy agent với cấu hình chống trôi, dùng cho việc phức tạp chạm nhiều file cần từ ba agent trở lên.",
+      "lam": [
+        "Khởi tạo bầy",
+        "Cấu hình chống trôi hướng"
+      ],
+      "khi": "Việc chạm nhiều file và cần nhiều agent phối hợp.",
+      "ban": "Mục 'chống trôi' đúng rủi ro lớn nhất khi chạy nhiều phiên song song như bạn đang làm: mỗi phiên hiểu nhiệm vụ hơi khác đi một chút, và sau vài giờ thì lệch hẳn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-testgen/skills/tdd-repair": {
+      "tom": "Sửa theo lối test dẫn đường: cho một test đang hỏng, tung một tiến trình có giới hạn chỉ được Đọc/Sửa/Chạy, làm test xanh mà không sửa chính test.",
+      "lam": [
+        "Nhận một test hỏng",
+        "Sửa mã cho xanh",
+        "Không được sửa test"
+      ],
+      "khi": "Bạn có test hỏng và muốn sửa mà không bị gian lận.",
+      "ban": "Ràng buộc 'không được sửa chính test' là điểm tinh tế: nếu không cấm, cách rẻ nhất để test xanh luôn là sửa test. Đây đúng loại lỗ hổng loop-design-check cảnh báo."
+    },
+    "ruvnet/ruflo/plugins/ruflo-testgen/skills/tdd-workflow": {
+      "tom": "Luồng TDD trường phái London: giả lập trước, phát triển từ ngoài vào.",
+      "lam": [
+        "Giả lập phụ thuộc trước",
+        "Phát triển từ ngoài vào trong"
+      ],
+      "khi": "Bạn theo trường phái TDD London."
+    },
+    "ruvnet/ruflo/plugins/ruflo-testgen/skills/test-gaps": {
+      "tom": "Phát hiện chỗ thiếu độ phủ test và đề xuất test cần viết.",
+      "lam": [
+        "Tìm mã chưa được test",
+        "Đề xuất test nên viết"
+      ],
+      "khi": "Bạn muốn biết chỗ nào còn hở."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-backtest": {
+      "tom": "Chạy kiểm nghiệm lịch sử bằng neural-trader với máy Rust và kiểm chứng tiến dần, rồi ký kết quả bằng Ed25519.",
+      "lam": [
+        "Chạy kiểm nghiệm trên dữ liệu lịch sử",
+        "Kiểm chứng tiến dần theo thời gian",
+        "Ký kết quả để chống sửa"
+      ],
+      "khi": "Bạn kiểm chiến lược giao dịch trước khi chạy thật."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-cloud-backtest": {
+      "tom": "Chạy công việc nặng của neural-trader trên máy đám mây Managed Agent: kiểm nghiệm dài, Monte Carlo lớn, quét tham số, huấn luyện model.",
+      "lam": [
+        "Đẩy việc nặng lên đám mây",
+        "Chạy quét tham số lớn"
+      ],
+      "khi": "Máy của bạn không chạy nổi phép kiểm nghiệm."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-explain": {
+      "tom": "Giải thích mức đóng góp của từng đặc trưng cho một tín hiệu LSTM hoặc Transformer, ở mức đủ chuẩn cho cơ quan quản lý.",
+      "lam": [
+        "Xếp hạng đặc trưng đã dẫn tới dự đoán",
+        "Giải thích ở mức chịu được kiểm tra"
+      ],
+      "khi": "Bạn phải giải trình vì sao model ra tín hiệu đó."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-portfolio": {
+      "tom": "Tối ưu phân bổ danh mục bằng máy trung bình–phương sai, có ràng buộc rủi ro và kế hoạch cân bằng lại.",
+      "lam": [
+        "Tối ưu phân bổ",
+        "Đặt ràng buộc rủi ro",
+        "Lập kế hoạch cân bằng lại"
+      ],
+      "khi": "Bạn quản một danh mục đầu tư."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-portfolio-cg": {
+      "tom": "Tối ưu danh mục trung bình–phương sai bằng phương pháp gradient liên hợp, nhanh hơn đường cũ 40–60 lần.",
+      "lam": [
+        "Tối ưu danh mục nhanh hơn nhiều lần"
+      ],
+      "khi": "Danh mục của bạn lớn và tính toán chậm."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-regime": {
+      "tom": "Nhận diện chế độ thị trường hiện tại: tăng, giảm, đi ngang hay biến động mạnh, kèm chiến lược khuyến nghị.",
+      "lam": [
+        "Phân loại chế độ thị trường",
+        "Gợi ý chiến lược tương ứng"
+      ],
+      "khi": "Bạn muốn biết thị trường đang ở pha nào."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-risk": {
+      "tom": "Đánh giá rủi ro danh mục: VaR, CVaR, Sharpe, cỡ vị thế, trạng thái ngắt mạch.",
+      "lam": [
+        "Tính VaR và CVaR",
+        "Tính cỡ vị thế hợp lý",
+        "Kiểm ngắt mạch"
+      ],
+      "khi": "Bạn cần biết mình đang chịu rủi ro cỡ nào."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-signal": {
+      "tom": "Sinh tín hiệu giao dịch bằng máy phát hiện bất thường, chấm điểm Z và dự đoán bằng mạng nơ-ron.",
+      "lam": [
+        "Phát hiện bất thường giá",
+        "Chấm điểm Z",
+        "Ra tín hiệu"
+      ],
+      "khi": "Bạn xây hệ tín hiệu giao dịch."
+    },
+    "ruvnet/ruflo/plugins/ruflo-neural-trader/skills/trader-train": {
+      "tom": "Huấn luyện model nơ-ron (LSTM, Transformer, N-BEATS) trên dữ liệu thị trường, kèm khoảng tin cậy.",
+      "lam": [
+        "Huấn luyện model dự báo giá",
+        "Trả kèm khoảng tin cậy"
+      ],
+      "khi": "Bạn tự huấn luyện model thị trường."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-cli-modernization": {
+      "tom": "Hiện đại hoá CLI và nâng cấp hệ hook cho claude-flow v3.",
+      "lam": [
+        "Thêm nhắc tương tác",
+        "Tách nhỏ lệnh",
+        "Nâng cấp hệ hook"
+      ],
+      "khi": "Bạn nâng claude-flow lên v3."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-core-implementation": {
+      "tom": "Cài phần lõi cho claude-flow v3: miền DDD, kiến trúc sạch, tiêm phụ thuộc, TypeScript module hoá.",
+      "lam": [
+        "Cài miền theo DDD",
+        "Áp kiến trúc sạch",
+        "Tiêm phụ thuộc"
+      ],
+      "khi": "Bạn làm phần lõi v3."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-ddd-architecture": {
+      "tom": "Kiến trúc hướng miền cho claude-flow v3: module hoá theo bối cảnh có ranh giới, tách bạch trách nhiệm.",
+      "lam": [
+        "Chia bối cảnh có ranh giới",
+        "Tách bạch trách nhiệm"
+      ],
+      "khi": "Bạn thiết kế kiến trúc v3."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-integration-deep": {
+      "tom": "Tích hợp sâu agentic-flow, xoá hơn 10.000 dòng trùng lặp bằng cách dựng claude-flow thành phần mở rộng chuyên biệt.",
+      "lam": [
+        "Xoá mã trùng lặp",
+        "Dựng lại thành phần mở rộng"
+      ],
+      "khi": "Bạn gộp hai dự án chồng chéo nhau."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-mcp-optimization": {
+      "tom": "Tối ưu máy chủ MCP và tầng truyền cho v3: gộp kết nối, cân bằng tải, tối ưu sổ đăng ký công cụ.",
+      "lam": [
+        "Gộp kết nối",
+        "Cân bằng tải",
+        "Tối ưu sổ đăng ký công cụ"
+      ],
+      "khi": "Máy chủ MCP của bạn quá tải."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-memory-unification": {
+      "tom": "Gộp hơn sáu hệ bộ nhớ vào AgentDB với chỉ mục HNSW, cải thiện tốc độ tìm nhiều bậc.",
+      "lam": [
+        "Gộp nhiều hệ bộ nhớ thành một",
+        "Đánh chỉ mục HNSW"
+      ],
+      "khi": "Dự án của bạn có quá nhiều nơi lưu trạng thái.",
+      "ban": "Câu chuyện quen: hệ lớn lên thì trạng thái nằm rải sáu chỗ. Bảy cung tránh được bằng cách mỗi cung tự giữ dữ liệu của mình trong file tĩnh — không có kho chung nào để phình."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-performance-optimization": {
+      "tom": "Đạt mục tiêu hiệu năng v3: tăng tốc Flash Attention, cải thiện tìm kiếm nhiều bậc, giảm 50–75% bộ nhớ.",
+      "lam": [
+        "Tăng tốc suy luận",
+        "Tăng tốc tìm kiếm",
+        "Giảm bộ nhớ"
+      ],
+      "khi": "Bạn tối ưu hiệu năng v3."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-security-overhaul": {
+      "tom": "Đại tu kiến trúc bảo mật cho claude-flow v3: xử ba CVE nghiêm trọng và áp lối an toàn theo mặc định.",
+      "lam": [
+        "Xử các CVE nghiêm trọng",
+        "Áp mặc định an toàn"
+      ],
+      "khi": "Bạn siết bảo mật v3.",
+      "ban": "Cụm từ 'an toàn theo mặc định' là điểm cần nhớ: bảo mật phải là giá trị mặc định, không phải tuỳ chọn. Luật khoá API không ra trình duyệt của bạn cũng vậy — không có công tắc tắt."
+    },
+    "ruvnet/ruflo/.claude/skills/v3-swarm-coordination": {
+      "tom": "Điều phối 15 agent theo mạng phân cấp cho việc cài đặt v3, chạy song song trên các miền bảo mật, lõi và tích hợp.",
+      "lam": [
+        "Chạy 15 agent song song",
+        "Chia theo miền công việc"
+      ],
+      "khi": "Bạn cài một hệ lớn cần nhiều agent."
+    },
+    "ruvnet/ruflo/plugins/ruflo-plugin-creator/skills/validate-plugin": {
+      "tom": "Kiểm cấu trúc plugin Claude Code, frontmatter và tham chiếu công cụ MCP.",
+      "lam": [
+        "Kiểm cấu trúc thư mục",
+        "Kiểm frontmatter",
+        "Kiểm tham chiếu MCP"
+      ],
+      "khi": "Bạn sắp phát hành một plugin."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-cluster": {
+      "tom": "Gom cụm mã bằng phát hiện cộng đồng trên đồ thị, dùng phương pháp phổ hoặc Louvain.",
+      "lam": [
+        "Gom cụm mã theo cộng đồng đồ thị",
+        "Chỉ nhóm mã hay đi cùng nhau"
+      ],
+      "khi": "Bạn muốn biết kho tự chia thành mấy nhóm."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-embed": {
+      "tom": "Sinh vector nhúng bằng ONNX all-MiniLM-L6-v2 (384 chiều), chuẩn hoá rồi lưu vào chỉ mục HNSW.",
+      "lam": [
+        "Sinh vector nhúng tại máy",
+        "Chuẩn hoá và lưu chỉ mục"
+      ],
+      "khi": "Bạn cần vector nhúng mà không muốn gọi API.",
+      "ban": "Đáng chú ý: sinh nhúng NGAY TẠI MÁY bằng ONNX, không gọi model trả tiền. Nếu Tàng Thư Các muốn tìm theo ngữ nghĩa, đây là đường không tốn đồng nào."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-hyperbolic": {
+      "tom": "Nhúng dữ liệu phân cấp rồi chiếu vào quả cầu Poincaré.",
+      "lam": [
+        "Nhúng dữ liệu có cấu trúc cây",
+        "Chiếu vào không gian hyperbolic"
+      ],
+      "khi": "Dữ liệu của bạn có cấu trúc phân cấp sâu."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agentdb/skills/vector-search": {
+      "tom": "Tìm kiếm vector quy mô lớn bằng HNSW, kèm bộ định tuyến WASM cho các khuôn nóng và lượng tử hoá 1 bit.",
+      "lam": [
+        "Tìm vector quy mô lớn",
+        "Định tuyến nhanh cho khuôn hay dùng",
+        "Lượng tử hoá để tiết kiệm bộ nhớ"
+      ],
+      "khi": "Bạn tìm kiếm ngữ nghĩa trên dữ liệu lớn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-ruvector/skills/vector-setup": {
+      "tom": "Cài lần đầu cho ruvector: cài phần bổ trợ ONNX, đăng ký máy chủ MCP và kiểm bằng lệnh doctor.",
+      "lam": [
+        "Cài phần bổ trợ",
+        "Đăng ký MCP",
+        "Kiểm bản cài"
+      ],
+      "khi": "Bạn cài ruvector lần đầu."
+    },
+    "ruvnet/ruflo/.claude/skills/verification-quality": {
+      "tom": "Chấm điểm độ đúng, kiểm chất lượng mã và tự lùi lại khi không đạt ngưỡng 0,95.",
+      "lam": [
+        "Chấm điểm độ đúng",
+        "Kiểm chất lượng mã",
+        "Tự lùi khi dưới ngưỡng"
+      ],
+      "khi": "Bạn cần chốt chặn tự động cho chất lượng.",
+      "ban": "Phần TỰ LÙI là điểm khác biệt so với npm run kiem — bộ kiểm của bạn báo lệch nhưng không tự sửa. Với hệ nhiều phiên như thế này, báo có lẽ vẫn đúng hơn tự lùi."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agent/skills/wasm-agent": {
+      "tom": "Tạo và quản agent WASM chạy trong hộp cát cách ly.",
+      "lam": [
+        "Chạy mã trong hộp cát WASM",
+        "Cách ly khỏi hệ thật"
+      ],
+      "khi": "Bạn chạy mã không tin tưởng."
+    },
+    "ruvnet/ruflo/plugins/ruflo-agent/skills/wasm-gallery": {
+      "tom": "Duyệt, công bố và cài agent WASM từ thư viện cộng đồng.",
+      "lam": [
+        "Duyệt thư viện agent",
+        "Cài hoặc công bố agent"
+      ],
+      "khi": "Bạn tìm agent WASM có sẵn."
+    },
+    "ruvnet/ruflo/plugins/ruflo-core/skills/witness": {
+      "tom": "Ký, kiểm và theo dõi hồi quy theo thời gian bằng bản kê khai chứng Ed25519 tất định.",
+      "lam": [
+        "Ký dấu mốc đã sửa",
+        "Kiểm xem lỗi cũ có quay lại không"
+      ],
+      "khi": "Bạn muốn chứng minh một lỗi đã sửa và chưa tái phát.",
+      "ban": "Đúng thứ hệ này thiếu: sự cố 13–14/08 đã được sửa, nhưng không có dấu mốc nào bắt được nếu nó tái phát. Bài học vào tài liệu, chưa vào phép kiểm."
+    },
+    "ruvnet/ruflo/.claude/skills/worker-benchmarks": {
+      "tom": "Chạy đo chuẩn và phân tích hiệu năng cho hệ tiến trình nền.",
+      "lam": [
+        "Chạy đo chuẩn",
+        "Phân tích hiệu năng"
+      ],
+      "khi": "Bạn muốn số đo cho hệ chạy nền."
+    },
+    "ruvnet/ruflo/.claude/skills/worker-integration": {
+      "tom": "Tích hợp tiến trình nền với agent để giao việc thông minh và theo dõi hiệu năng.",
+      "lam": [
+        "Giao việc cho tiến trình phù hợp",
+        "Theo dõi hiệu năng"
+      ],
+      "khi": "Bạn có nhiều tiến trình nền và nhiều loại việc."
+    },
+    "ruvnet/ruflo/.agents/skills/workflow-automation": {
+      "tom": "Tạo, chạy và quản mẫu luồng việc; tự động hoá quy trình nhiều bước có điều phối agent.",
+      "lam": [
+        "Tạo và chạy luồng việc",
+        "Quản mẫu luồng",
+        "Điều phối agent theo bước"
+      ],
+      "khi": "Bạn tự động hoá quy trình nhiều bước."
+    },
+    "ruvnet/ruflo/plugins/ruflo-workflows/skills/workflow-create": {
+      "tom": "Soạn một luồng việc: hoặc mẫu MCP có vòng đời, hoặc script điều phối JS đặt trong .claude/workflows/.",
+      "lam": [
+        "Soạn mẫu luồng MCP",
+        "Hoặc viết script điều phối JS"
+      ],
+      "khi": "Bạn dựng một luồng việc mới."
+    },
+    "ruvnet/ruflo/plugins/ruflo-workflows/skills/workflow-run": {
+      "tom": "Chạy một luồng việc: điều khiển vòng đời mẫu MCP (chạy, tạm dừng, tiếp, huỷ) hoặc gọi script điều phối JS.",
+      "lam": [
+        "Chạy, tạm dừng và tiếp luồng",
+        "Gọi script điều phối"
+      ],
+      "khi": "Bạn chạy một luồng đã soạn."
+    },
+    "ruvnet/ruflo/.claude/skills/swarm-orchestration": {
+      "tom": "Điều phối bầy agent bằng agentic-flow: chạy tác vụ song song, hình trạng động, phối hợp thông minh.",
+      "lam": [
+        "Chạy tác vụ song song",
+        "Đổi hình trạng bầy theo tình hình",
+        "Mở rộng quy mô công việc"
+      ],
+      "khi": "Bạn cần làm nhiều việc cùng lúc bằng nhiều agent."
+    },
+    "ruvnet/ruflo/.agents/skills/swarm-orchestration": {
+      "tom": "Phối hợp bầy agent cho việc phức tạp, dùng hình trạng phân cấp với các agent chuyên biệt.",
+      "lam": [
+        "Chia việc phức tạp theo phân cấp",
+        "Giao cho agent chuyên biệt",
+        "Gom kết quả"
+      ],
+      "khi": "Việc lớn và chia được theo tầng."
+    }
+  }
+}
