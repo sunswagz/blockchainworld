@@ -70,8 +70,34 @@ const NGUONG = {
   niemtin: {
     g: 1.9, r: 1.4, nghich: true,
     can: "Sắc thái tin GDELT không có mốc 0 tự nhiên cho mục đích này, nên ngưỡng đặt theo PHÂN PHỐI QUAN SÁT 90 ngày: trung vị 1,91 · phần tư dưới 1,61 · thấp nhất 0,83. Trên trung vị là xanh, rơi xuống phần tư dưới là đỏ."
+  },
+  tq: {
+    g: 5.50, r: 6.50,
+    can: "Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70 USD/lb. Đỏ đặt ở 6,50 tức sát đỉnh năm — mức đó nói được một điều có nghĩa, chứ không chỉ nói 'cao hơn trung bình'."
+  },
+  doanhnghiep: {
+    g: 18.50, r: 17.00, nghich: true,
+    can: "Quỹ ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80 USD. Đỏ đặt ở 17,00, tức sát đáy năm."
+  },
+  xuatxu: {
+    g: 35, r: 55,
+    can: "Số văn bản liên bang Mỹ nhắc Việt Nam trong 30 ngày. Nền quan sát được hiện khoảng 37–43 văn bản/30 ngày. NGƯỠNG NÀY YẾU NHẤT BẢNG: mới có ~2,5 tháng dữ liệu để hiệu chỉnh, và số lượng văn bản không phân biệt được một thông báo hành chính với một quyết định thuế. Nên đọc nó như chỉ báo NHỊP ĐỘ chú ý, không phải mức độ nghiêm trọng."
   }
 };
+
+/* ── VÌ SAO KHÔNG ĐẶT NGƯỠNG THEO PHÂN VỊ ──────────────
+   Cám dỗ rất lớn: lấy p25/p75 của một năm làm biên xanh/đỏ, vì
+   nó tự hiệu chỉnh và không cần biết gì về ngành.
+
+   Nhưng theo đúng định nghĩa, một phần tư thời gian sẽ nằm dưới
+   p25. Nghĩa là bảng BÁO ĐỘNG VĨNH VIỄN bất kể có chuyện gì hay
+   không — và một cảnh báo luôn sáng thì người ta ngừng nhìn nó,
+   kéo theo cả lần nó đúng.
+
+   Nên biên phải neo vào một mốc CÓ NGHĨA: dự báo của EIA, đỉnh
+   hoặc đáy của cả năm, mức chưa từng thấy kéo dài. Chỉ dùng phân
+   vị khi chỉ số thật sự không có thang tự nhiên — trong bảng này
+   đúng một trường hợp là sắc thái tin GDELT, và chỗ đó có ghi rõ. */
 
 /* Chỉ số nghịch: giá trị thấp mới là xấu. */
 function dat(id, v) {
@@ -162,6 +188,33 @@ const phep = [
       /* Nguồn này chỉ cho giá hiện tại, không cho lịch sử — nên
          chuỗi phải tự tích luỹ qua các lượt chạy, xem gopLich(). */
       return { so: Math.round(v), lich: null };
+    }
+  },
+  {
+    id: "tq", nhan: "Giá đồng", dv: "USD/lb",
+    nguon: "Yahoo Finance · HG=F",
+    ghi: "Chỉ báo THAY THẾ cho chi phí đầu vào công nghiệp, KHÔNG phải PPI Trung Quốc. Đồng là thước đo nhu cầu công nghiệp toàn cầu; nó nói được chi phí đầu vào đang căng hay chùng, không nói riêng chuyện gì đang xảy ra ở Trung Quốc.",
+    lay: async () => { const l = await yahoo("HG=F"); return { lich: l, so: l[l.length - 1] }; }
+  },
+  {
+    id: "doanhnghiep", nhan: "Quỹ ETF Việt Nam (VNM)", dv: "USD",
+    nguon: "Yahoo Finance · VNM",
+    ghi: "Chỉ báo THAY THẾ. Đây là giá một quỹ ngoại nắm cổ phiếu Việt Nam — nó phản ánh đánh giá của nhà đầu tư nước ngoài, chịu cả tác động dòng vốn toàn cầu, chứ không đo trực tiếp số doanh nghiệp vào/ra thị trường.",
+    lay: async () => { const l = await yahoo("VNM"); return { lich: l, so: l[l.length - 1] }; }
+  },
+  {
+    id: "xuatxu", nhan: "Văn bản liên bang Mỹ nhắc VN", dv: "văn bản / 30 ngày",
+    nguon: "Federal Register API",
+    ghi: "Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ tới Việt Nam, không đếm mức nghiêm trọng: một thông báo hành chính và một quyết định thuế đều tính là một. Tăng đột ngột đáng xem, còn con số tuyệt đối thì đọc nhẹ tay.",
+    lay: async () => {
+      const tu = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+      const j = await nap("https://www.federalregister.gov/api/v1/documents.json" +
+        "?conditions%5Bterm%5D=Vietnam&conditions%5Bpublication_date%5D%5Bgte%5D=" + tu +
+        "&per_page=1&fields%5B%5D=publication_date");
+      if (!Number.isFinite(j?.count)) throw new Error("không đọc được số đếm");
+      /* API không cho chuỗi theo thời gian trong một lượt gọi, nên
+         lịch sử tự tích luỹ qua các lượt chạy — xem gopLich(). */
+      return { so: j.count, lich: null };
     }
   },
   {

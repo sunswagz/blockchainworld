@@ -369,7 +369,7 @@ function vGauges(){
   if(DO_LUC){
     const b=el('div','do-luc');
     b.innerHTML='<span class="dot g"></span> Số đo gần nhất '+esc(gioDo(DO_LUC))+
-      ' · nguồn Yahoo Finance, open.er-api, GDELT · <b>0 đồng chi phí</b>';
+      ' · Yahoo Finance · open.er-api · Federal Register · GDELT · <b>0 đồng chi phí</b>';
     w.appendChild(b);
   }
 

@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════
    Service worker — Đài Quan Trắc
-     · vỏ ứng dụng   : cache trước, chạy offline
-     · scan.js       : mạng trước (đổi mỗi 6 giờ)
-     · phông chữ     : cache khi dùng lần đầu
+     · vỏ ứng dụng      : cache trước, chạy offline
+     · scan.js · do.js  : mạng trước (bot ghi 4 lượt/ngày)
+     · phông chữ        : cache khi dùng lần đầu
    Đổi CACHE_VERSION mỗi lần phát hành.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v13";
+var CACHE_VERSION = "v14";
 var SHELL_CACHE = "dqt-shell-" + CACHE_VERSION;
 var FONT_CACHE = "dqt-fonts-" + CACHE_VERSION;
 
@@ -75,8 +75,17 @@ self.addEventListener("fetch", function (e) {
 
   if (url.origin !== self.location.origin) return;
 
-  // bản quét đổi mỗi 6 giờ — luôn hỏi mạng trước
-  if (url.pathname.indexOf("/assets/js/scan.js") !== -1) {
+  // ── File bot ghi lại 4 lượt/ngày: LUÔN hỏi mạng trước ──
+  // Thiếu một tên ở đây là lỗi im lặng và rất khó lần: file vẫn
+  // lên site đúng giờ, curl vẫn thấy bản mới, Actions vẫn xanh —
+  // nhưng máy đã cài app giữ bản cũ tới lần nâng CACHE_VERSION
+  // kế tiếp. Repo đã dính đúng vậy với cong-bo/assets/js/logos.js.
+  //
+  // Danh sách, không phải một tên, để lần thêm file bot sau chỉ
+  // là thêm một chuỗi. Giữ khớp với mục "File do workflow tự sinh"
+  // trong CLAUDE.md.
+  var MANG_TRUOC = ["/assets/js/scan.js", "/assets/js/do.js"];
+  if (MANG_TRUOC.some(function (p) { return url.pathname.indexOf(p) !== -1; })) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {
         var copy = res.clone();
