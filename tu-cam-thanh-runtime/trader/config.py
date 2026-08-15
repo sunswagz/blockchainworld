@@ -17,11 +17,17 @@ WEB_DIR = ROOT / "web"
 
 
 def _load_dotenv() -> None:
-    """Đọc .env bằng tay — không phụ thuộc thư viện, không ghi đè biến đã có."""
+    """Đọc .env bằng tay — không phụ thuộc thư viện, không ghi đè biến đã có.
+
+    `utf-8-sig` chứ không phải `utf-8`: Notepad trên Windows lưu kèm BOM, và khi
+    đó tên biến ĐẦU TIÊN thành "﻿ANTHROPIC_API_KEY". Không có lỗi nào báo —
+    chỉ là biến đó coi như không tồn tại, và người dùng ngồi nhìn một runtime
+    bảo "thiếu khoá" trong khi khoá nằm sờ sờ trong file.
+    """
     p = ROOT / ".env"
     if not p.exists():
         return
-    for raw in p.read_text(encoding="utf-8").splitlines():
+    for raw in p.read_text(encoding="utf-8-sig").splitlines():
         line = raw.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -52,6 +58,16 @@ for _arg in sys.argv[1:]:
         CONFIG["brain"]["model"] = _v
     elif _k == "loop":
         CONFIG["loopSeconds"] = int(_v)
+    elif _k == "mode":
+        CONFIG["mode"] = _v
+
+# Cho phép đổi sàn bằng biến môi trường, để chạy thử một lượt mà không sửa file
+# đã commit: `MODE=paper python run.py`. Cờ dòng lệnh vẫn thắng biến môi trường.
+if os.environ.get("MODE") and not any(a.startswith("--mode=") for a in sys.argv[1:]):
+    CONFIG["mode"] = os.environ["MODE"]
+
+if CONFIG.get("mode") not in ("paper", "testnet"):
+    raise SystemExit(f"mode không hợp lệ: {CONFIG.get('mode')!r} — chỉ có 'paper' hoặc 'testnet'")
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 

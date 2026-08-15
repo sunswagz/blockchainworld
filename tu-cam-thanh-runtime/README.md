@@ -31,8 +31,11 @@ pip install -r requirements.txt
 python run.py                    # buồng lái: http://localhost:5182
 python -m trader.snapshot        # ghi lát cắt một lần rồi thoát
 python scripts/selftest.py       # kiểm một vòng kín, không gọi API, không mở cổng
+python scripts/kiem-env.py       # soát .env (KHÔNG in khoá ra màn hình)
 python scripts/kiem-testnet.py   # kiểm kết nối sàn testnet
 python scripts/kiem-roi-ve.py    # kiểm đường rơi về sàn giấy
+python scripts/thu-mot-lenh.py   # thử nguyên đường ống vào lệnh (--that để gửi thật)
+python scripts/doi-so.py         # đối soát sổ cục bộ với sàn (--don để dọn)
 python scripts/sinh-icon.py      # vẽ lại 5 icon PNG của cung
 ```
 
@@ -80,6 +83,24 @@ lệch giữa sổ cục bộ và sàn.
 Số dư testnet do Binance cấp và có thể bị đặt lại bất cứ lúc nào — đó là chuyện
 bình thường của testnet, không phải hỏng. `reset` chỉ huỷ lệnh treo và xoá sổ
 cục bộ; nó **không** nạp lại số dư.
+
+### "Vốn" không phải "tiền mua được"
+
+Tài khoản testnet có 10.000 USDT **và** 1 BTC, nên vốn là ~73.000 nhưng chỉ mua
+được bằng 10.000 kia. Tính kích thước vị thế trên vốn tổng thì mọi lệnh đều bị
+sàn từ chối vì thiếu số dư — sau khi đã tốn một lượt gọi model. Nên broker khai
+thêm `availableQuote` và Risk Engine cắt trần notional theo con số đó.
+
+Sàn giấy không bao giờ chỉ ra chuyện này vì nó chỉ giữ đúng một con số.
+
+### Khi thấy `MAX_POSITIONS` mà trên sàn không có gì
+
+Đó là **vị thế ma**: sổ cục bộ còn, sàn đã phẳng. Xảy ra khi runtime chết giữa
+chừng. Chạy:
+
+    python scripts/doi-so.py --don
+
+Sàn luôn đúng; sổ cục bộ chỉ là bản chép.
 
 Xem cung tĩnh ở máy: `node server.js 5181` từ gốc repo, rồi mở
 `http://localhost:5181/tu-cam-thanh/`.

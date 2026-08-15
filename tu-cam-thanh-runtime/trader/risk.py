@@ -157,6 +157,18 @@ class RiskEngine:
         qty = risk_amount / stop_dist
         notional = qty * entry
         max_notional = account["equity"] * c["maxNotionalPctOfEquity"] / 100
+
+        # Trần thứ hai: SỐ DƯ MUA ĐƯỢC THẬT.
+        #
+        # "Vốn" và "tiền mua được" không phải một thứ khi tài khoản đang giữ cả
+        # coin lẫn tiền. Tài khoản testnet có 10.000 USDT + 1 BTC ⇒ vốn 73.000,
+        # nhưng chỉ mua được bằng 10.000 kia. Tính size trên vốn tổng thì mọi
+        # lệnh đều bị SÀN từ chối vì thiếu số dư — sau khi đã tốn một lượt gọi
+        # model. Sàn giấy không bao giờ chỉ ra chuyện này vì nó chỉ giữ một con số.
+        avail = account.get("availableQuote")
+        if avail is not None:
+            max_notional = min(max_notional, avail * 0.995)  # chừa 0.5% cho phí và trượt giá
+
         notional_capped = False
         if notional > max_notional:
             qty = max_notional / entry

@@ -160,6 +160,20 @@ async def main() -> int:
               f"thẩm định trên giá khớp dự kiến {p['expectedFill']:,.2f}, không phải giá yêu cầu "
               f"{p['entry']:,.2f} (chênh ${p['costDragOnEntry']})")
 
+    # Tài khoản giữ cả coin lẫn tiền: vốn lớn, tiền mua được nhỏ. Sizing phải
+    # theo tiền mua được, nếu không sàn từ chối sau khi đã tốn một lượt gọi model.
+    print("\n[5b] TRẦN THEO SỐ DƯ MUA ĐƯỢC")
+    acct = broker.snapshot(price)
+    acct_giu_coin = {**acct, "equity": 73000.0, "availableQuote": 10000.0}
+    dv = risk.evaluate(ok_th, st, acct_giu_coin, atr)
+    check(dv["approved"], "vẫn cho qua khi vốn 73.000 nhưng chỉ 10.000 mua được")
+    if dv["approved"]:
+        n = dv["position"]["notional"]
+        check(n <= 10000.0, f"notional {n:,.0f} ≤ tiền mua được 10.000 (vốn 73.000)")
+        check(dv["position"]["notionalCapped"], "có đánh dấu là đã bị cắt trần")
+        check(dv["position"]["riskAmount"] < 73000.0 * 0.005,
+              f"rủi ro thật ${dv['position']['riskAmount']} < 0,5% vốn — cắt trần thì rủi ro giảm theo")
+
     print("\n[6] EXECUTION + JOURNAL")
     if od["approved"]:
         t = broker.open(od["position"], ok_th, rg)

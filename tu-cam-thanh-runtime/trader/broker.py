@@ -178,6 +178,9 @@ class PaperBroker:
             positions.append(p)
         s["positions"] = positions
         s["openPnl"] = round(open_pnl, 2)
+        # Sàn giấy giữ toàn bộ vốn bằng tiền mặt nên "mua được" = "vốn". Vẫn khai
+        # ra để Risk Engine chỉ có MỘT đường tính, không phải rẽ nhánh theo sàn.
+        s["availableQuote"] = round(self.state["cash"], 2)
         s["equityMarked"] = round(self.state["equity"] + open_pnl, 2)
         peak = self.state.get("peakEquity", self.state["equity"]) or 1
         s["drawdownPct"] = round(max(0.0, (peak - s["equityMarked"]) / peak * 100), 2)

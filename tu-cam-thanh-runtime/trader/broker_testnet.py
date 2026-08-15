@@ -238,11 +238,16 @@ class TestnetBroker:
             self._save()
         return closed
 
-    def _settle(self, trade: dict) -> dict:
-        """OCO không còn treo ⇒ đã khớp. Lấy giá thoát THẬT từ lịch sử khớp."""
+    def _settle(self, trade: dict, ly_do: str | None = None) -> dict:
+        """OCO không còn treo ⇒ đã khớp. Lấy giá thoát THẬT từ lịch sử khớp.
+
+        `ly_do` do người gọi truyền vào thì GIỮ NGUYÊN. Đóng tay mà sổ ghi
+        "OCO_FILLED" là nói dối đúng chỗ hậu kiểm đọc: bài học sẽ kết luận về
+        một lần chạm stop/mục tiêu chưa từng xảy ra.
+        """
         exit_price = None
         fee = 0.0
-        reason = "OCO_FILLED"
+        reason = ly_do or "OCO_FILLED"
         try:
             for tr in reversed(self.client.my_trades(self.symbol, limit=20)):
                 if tr.get("isBuyer"):
@@ -258,9 +263,12 @@ class TestnetBroker:
             exit_price = trade["targets"][0]
             reason = "OCO_FILLED_UOC_LUONG"
 
-        reason = ("STOP_LOSS" if exit_price <= trade["stopLoss"] * 1.001
-                  else "TAKE_PROFIT" if exit_price >= trade["targets"][0] * 0.999
-                  else reason)
+        # Chỉ ĐOÁN lý do khi người gọi không nói. Đoán đè lên lý do đã biết là
+        # biến một sự thật thành một suy luận.
+        if ly_do is None:
+            reason = ("STOP_LOSS" if exit_price <= trade["stopLoss"] * 1.001
+                      else "TAKE_PROFIT" if exit_price >= trade["targets"][0] * 0.999
+                      else reason)
 
         pnl = (exit_price - trade["entry"]) * trade["qty"] - fee
         trade.update({
@@ -276,6 +284,14 @@ class TestnetBroker:
         d = _utc_day()
         self._touch_day()
         self.state["dailyPnl"][d] = round(self.state["dailyPnl"].get(d, 0.0) + pnl, 2)
+        # LƯU NGAY tại đây, đừng để người gọi nhớ hộ.
+        #
+        # Trước đây chỉ `mark()` lưu, còn `close()` thì quên. Đóng tay xong,
+        # trong bộ nhớ sổ đã sạch và nhật ký đã ghi — nhưng file trên đĩa vẫn
+        # còn vị thế. Tiến trình sau đọc file đó, thấy một vị thế MA, và
+        # MAX_POSITIONS chặn mọi lệnh mới. Không lỗi nào báo; nó chỉ im lặng
+        # không bao giờ vào lệnh nữa. Chỉ lộ ra khi khởi động lại.
+        self._save()
         store.append(store.TRADES, trade)
         bus.log("exec", "dong-vi-the",
                 f"{reason} @ {trade['exit']:,.2f} · PnL ${trade['pnl']:+,.2f} ({trade['rMultiple']:+}R)",
@@ -290,7 +306,7 @@ class TestnetBroker:
                 self.client.market_sell(self.symbol, self.client.round_qty(self.symbol, trade["qty"]))
             except BinanceError as e:
                 bus.log("exec", "testnet-loi-dong", str(e))
-        return self._settle(trade)
+        return self._settle(trade, ly_do=reason)
 
     def doi_soat(self) -> list[str]:
         """Soát lệch giữa sổ cục bộ và sàn. Gọi lúc khởi động.
@@ -327,12 +343,21 @@ class TestnetBroker:
         s["lastError"] = self.last_error
 
         equity = 0.0
+        avail = 0.0
         if self.ready and price:
             try:
-                equity = self._equity(price)
+                f = self.client.filters(self.symbol)
+                bal = self.client.balances()
+                quote = bal.get(f["quote"], {})
+                base = bal.get(f["base"], {})
+                equity = quote.get("total", 0.0) + base.get("total", 0.0) * price
+                # Tiền MUA ĐƯỢC, không phải vốn: phần USDT đang rảnh. Risk Engine
+                # cần con số này để không sinh ra lệnh mà sàn chắc chắn từ chối.
+                avail = quote.get("free", 0.0)
             except BinanceError as e:
                 self.last_error = str(e)
         s["equity"] = round(equity, 2)
+        s["availableQuote"] = round(avail, 2)
 
         peak = max(self.state.get("peakEquity", 0.0), equity)
         self.state["peakEquity"] = peak
