@@ -338,3 +338,14 @@ textarea:focus{outline:none;border-color:rgba(34,211,238,.45);box-shadow:0 0 0 3
 .tieu-muc{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--fg-4);
   font-weight:700;margin:20px 0 10px;display:flex;align-items:center;gap:10px}
 .tieu-muc::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* ── nút đổi khung + chú thích biểu đồ ───────────────────────────── */
+.nut-tf{
+  font-family:var(--mono);font-size:10px;padding:2px 8px;margin-left:4px;border-radius:99px;
+  border:1px solid var(--line);color:var(--fg-3);background:var(--glass-2);transition:all var(--dur);
+}
+.nut-tf:hover{color:var(--cyan);border-color:rgba(34,211,238,.35)}
+.nut-tf.on{color:var(--cyan);border-color:rgba(34,211,238,.45);background:rgba(34,211,238,.12)}
+.chu-thich{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:10.5px;color:var(--fg-4)}
+.chu-thich span{display:inline-flex;align-items:center;gap:5px}
+.chu-thich i{width:9px;height:2px;border-radius:2px;display:inline-block}

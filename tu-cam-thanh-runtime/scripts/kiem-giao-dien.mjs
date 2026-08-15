@@ -104,6 +104,30 @@ for (const [ten, mau, truong] of KIEM_PHAN_TU) {
   thieu.length ? bao(`${ten}: thiếu ${thieu.join(", ")}`) : ok(`${ten}: đủ ${truong.length} trường`);
 }
 
+console.log("\n[6] /api/candles — biểu đồ");
+const C = await (await fetch(`${goc}/api/candles`)).json();
+if (!C.ready) bao("candles: chưa sẵn sàng (vòng lặp chưa chạy lượt nào?)");
+else {
+  soat(C, ["symbol", "price", "primary", "timeframes", "overlay"], "candles");
+  const tf = C.timeframes?.[C.primary] || [];
+  Array.isArray(tf) && tf.length ? ok(`nến khung ${C.primary}: ${tf.length}`)
+    : bao(`không có nến cho khung ${C.primary}`);
+  if (tf[0]) {
+    const thieu = ["t", "o", "h", "l", "c", "v", "closed"].filter((k) => tf[0][k] === undefined);
+    thieu.length ? bao(`nến thiếu ${thieu.join(", ")}`) : ok("nến đủ 7 trường OHLCV");
+  }
+  soat(C.overlay, ["ema20?", "ema50?", "ema200?", "support", "resistance",
+                   "entryZone?", "stopLoss?", "targets", "positions"], "overlay");
+}
+
+console.log("\n[7] /api/skills — kho kỹ năng");
+const K = await (await fetch(`${goc}/api/skills`)).json();
+soat(K, ["skills", "tong"], "skills");
+if (K.skills?.[0]) {
+  const thieu = ["ma", "tieuDe", "moTa", "soDong", "soKyTu"].filter((k) => K.skills[0][k] === undefined);
+  thieu.length ? bao(`kỹ năng thiếu ${thieu.join(", ")}`) : ok(`kỹ năng đủ 5 trường (${K.tong} kỹ năng)`);
+} else bao("không đọc được kỹ năng nào — skills/ trống?");
+
 console.log("\n" + "=".repeat(58));
 if (sai) { console.log(`  ${sai} chỗ lệch giữa app.js và API.`); process.exit(1); }
 console.log("  GIAO DIỆN ĐỌC ĐƯỢC MỌI TRƯỜNG NÓ CẦN.");

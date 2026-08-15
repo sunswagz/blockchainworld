@@ -59,6 +59,7 @@ class Runtime:
         self.brain = None
 
         self.state: dict | None = None
+        self.last_market: dict | None = None
         self.regime: dict | None = None
         self.last_thesis: dict | None = None
         self.last_decision: dict | None = None
@@ -126,6 +127,9 @@ class Runtime:
         self.ticks += 1
 
         market = await get_market_data(client)
+        # Giữ lại nến thô cho /api/candles. Feature là số ĐÃ ĐO; biểu đồ cần
+        # chính cái nến để vẽ, không dựng lại được từ feature.
+        self.last_market = market
         self.state = build_market_state(market)
         bus.emit("features", "tinh-xong",
                  f"{len(self.state['timeframes'])} khung · RSI {self.state['timeframes'][self.primary].get('rsi14')} · "

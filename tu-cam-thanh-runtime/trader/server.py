@@ -52,6 +52,11 @@ async def appcss() -> FileResponse:
     return FileResponse(WEB_DIR / "app.css", media_type="text/css")
 
 
+@app.get("/chart.js")
+async def chartjs() -> FileResponse:
+    return FileResponse(WEB_DIR / "chart.js", media_type="application/javascript")
+
+
 # ── API đọc ───────────────────────────────────────────────────────────────
 @app.get("/api/state")
 async def state() -> JSONResponse:
@@ -65,6 +70,51 @@ async def journal() -> JSONResponse:
         "lessons": recent_lessons(30),
         "theses": recent_theses(30),
         "performance": performance(),
+    })
+
+
+@app.get("/api/candles")
+async def candles(limit: int = 160) -> JSONResponse:
+    """Nến thô cho biểu đồ, kèm EMA và các mức mà bộ não đang nhìn.
+
+    Trả cả `overlay` (SL/TP/vùng vào của luận điểm hiện tại, S/R) vì một biểu đồ
+    nến trần không nói được điều đáng nói nhất: bot đang nhìn CHỖ NÀO trên đó.
+    """
+    m = runtime.last_market
+    if not m:
+        return JSONResponse({"ready": False, "timeframes": {}})
+
+    out = {}
+    for tf, c in m["timeframes"].items():
+        out[tf] = [
+            {"t": x["t"], "o": x["o"], "h": x["h"], "l": x["l"], "c": x["c"],
+             "v": x["v"], "closed": x["closed"]}
+            for x in c[-limit:]
+        ]
+
+    st = runtime.state or {}
+    pri = runtime.primary
+    f = (st.get("timeframes") or {}).get(pri, {})
+    th = runtime.last_thesis or {}
+    pos = runtime.broker.snapshot(m["price"]).get("positions") or []
+
+    return JSONResponse({
+        "ready": True,
+        "symbol": m["symbol"],
+        "price": m["price"],
+        "primary": pri,
+        "timeframes": out,
+        "overlay": {
+            "ema20": f.get("ema20"), "ema50": f.get("ema50"), "ema200": f.get("ema200"),
+            "support": [z["price"] for z in (f.get("support") or [])],
+            "resistance": [z["price"] for z in (f.get("resistance") or [])],
+            "entryZone": th.get("entry_zone"),
+            "stopLoss": th.get("invalidation"),
+            "targets": th.get("targets") or [],
+            "action": th.get("action"),
+            "positions": [{"entry": p["entry"], "stopLoss": p["stopLoss"],
+                           "targets": p.get("targets") or [], "side": p["side"]} for p in pos],
+        },
     })
 
 
@@ -142,6 +192,36 @@ async def chat(request: Request) -> StreamingResponse:
     return StreamingResponse(gen(), media_type="text/event-stream", headers={
         "Cache-Control": "no-cache", "X-Accel-Buffering": "no",
     })
+
+
+@app.get("/api/skills")
+async def skills() -> JSONResponse:
+    """Kho kỹ năng — đọc thẳng từ đĩa, không cache.
+
+    Kỹ năng nằm ngoài code để sửa được mà không phải deploy lại. Hiện chúng ra
+    đây để thấy bộ não đang được dạy đúng những gì mình nghĩ mình đã dạy — chứ
+    không phải một con số "11 kỹ năng" không ai kiểm được.
+    """
+    from .config import SKILLS_DIR
+
+    out = []
+    if SKILLS_DIR.exists():
+        for d in sorted(SKILLS_DIR.iterdir()):
+            f = d / "SKILL.md" if d.is_dir() else d
+            if f.suffix != ".md" or not f.exists():
+                continue
+            txt = f.read_text(encoding="utf-8")
+            dong = [l for l in txt.splitlines() if l.strip()]
+            tieu = next((l.lstrip("# ").strip() for l in dong if l.startswith("#")), f.stem)
+            mo = next((l.strip() for l in dong if not l.startswith("#")), "")
+            out.append({
+                "ma": d.name if d.is_dir() else f.stem,
+                "tieuDe": tieu,
+                "moTa": mo[:220],
+                "soDong": len(txt.splitlines()),
+                "soKyTu": len(txt),
+            })
+    return JSONResponse({"skills": out, "tong": len(out)})
 
 
 @app.get("/api/config")

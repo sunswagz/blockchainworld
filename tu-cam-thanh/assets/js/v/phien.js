@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-15T14:59:48.417Z",
- "chayTu": "2026-08-15T14:29:19+00:00",
- "vong": 88,
+ "generatedAt": "2026-08-15T15:26:40.272Z",
+ "chayTu": "2026-08-15T15:24:53+00:00",
+ "vong": 6,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "1h",
   "context": "4h"
  },
- "gia": 63045.7,
+ "gia": 63091.8,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "21:59:48",
+  "lastOk": "22:26:39",
   "lastError": null
  },
  "cheDo": {
@@ -33,41 +33,41 @@ window.TU_CAM_THANH = {
   ],
   "quality": "MEDIUM",
   "reasons": [
-   "ADX 17.5 < 18 — không bên nào kiểm soát",
-   "dải Bollinger co còn 0.42%"
+   "ADX 17.0 < 18 — không bên nào kiểm soát",
+   "dải Bollinger co còn 0.43%"
   ],
   "contextTrend": "BEARISH_ALIGNED",
-  "adx": 17.5,
+  "adx": 17.0,
   "volatility": "LOW",
   "key": "RANGE|LOW_VOLATILITY"
  },
  "thiTruong": {
   "1h": {
-   "price": 63045.7,
-   "ema20": 63041.89,
-   "ema50": 63158.65,
-   "ema200": 63720.82,
+   "price": 63091.8,
+   "ema20": 63046.28,
+   "ema50": 63160.46,
+   "ema200": 63721.27,
    "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 49.3,
-   "rsiSlope": -0.08,
-   "macdHist": 10.76,
-   "macdHistSlope": -1.04,
-   "atr": 120.28,
-   "atrPct": 0.191,
-   "atrRatioVsMedian": 0.55,
+   "rsi14": 52.0,
+   "rsiSlope": 0.81,
+   "macdHist": 13.7,
+   "macdHistSlope": -0.059,
+   "atr": 124.15,
+   "atrPct": 0.197,
+   "atrRatioVsMedian": 0.57,
    "volatility": "LOW",
-   "adx": 17.5,
-   "plusDI": 14.3,
-   "minusDI": 22.4,
-   "bbWidthPct": 0.42,
-   "bbPosition": 0.55,
-   "volumeRatio": 0.13,
-   "structure": "TRANSITION",
+   "adx": 17.0,
+   "plusDI": 15.7,
+   "minusDI": 21.7,
+   "bbWidthPct": 0.43,
+   "bbPosition": 0.71,
+   "volumeRatio": 0.5,
+   "structure": "UPTREND",
    "swingHighs": [
+    63617.45,
     63247.05,
     63066.13,
-    63187.98,
-    63080.88
+    63187.98
    ],
    "swingLows": [
     62830.0,
@@ -83,43 +83,43 @@ window.TU_CAM_THANH = {
    ],
    "resistance": [
     {
-     "price": 63256.49,
-     "touches": 9
+     "price": 63278.44,
+     "touches": 8
     },
     {
      "price": 63631.08,
      "touches": 5
     },
     {
-     "price": 64004.5,
-     "touches": 2
+     "price": 63972.34,
+     "touches": 3
     }
    ],
    "range20High": 63187.98,
    "range20Low": 62800.0,
-   "distToRange20HighPct": 0.23,
-   "distToRange20LowPct": 0.39
+   "distToRange20HighPct": 0.15,
+   "distToRange20LowPct": 0.46
   },
   "4h": {
-   "price": 63045.7,
-   "ema20": 63314.61,
-   "ema50": 63737.57,
-   "ema200": 63924.1,
+   "price": 63091.79,
+   "ema20": 63319.0,
+   "ema50": 63739.38,
+   "ema200": 63924.56,
    "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 38.5,
-   "rsiSlope": 0.15,
-   "macdHist": 17.36,
-   "macdHistSlope": 10.029,
-   "atr": 367.66,
-   "atrPct": 0.583,
+   "rsi14": 39.9,
+   "rsiSlope": 0.64,
+   "macdHist": 20.3,
+   "macdHistSlope": 11.01,
+   "atr": 368.44,
+   "atrPct": 0.584,
    "atrRatioVsMedian": 0.73,
    "volatility": "NORMAL",
    "adx": 30.7,
-   "plusDI": 13.4,
+   "plusDI": 13.5,
    "minusDI": 28.1,
-   "bbWidthPct": 2.16,
-   "bbPosition": 0.31,
-   "volumeRatio": 0.28,
+   "bbWidthPct": 2.15,
+   "bbPosition": 0.34,
+   "volumeRatio": 0.33,
    "structure": "DOWNTREND",
    "swingHighs": [
     64515.43,
@@ -159,13 +159,13 @@ window.TU_CAM_THANH = {
    ],
    "range20High": 64500.0,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 2.31,
-   "distToRange20LowPct": 0.81
+   "distToRange20HighPct": 2.23,
+   "distToRange20LowPct": 0.88
   }
  },
  "luanDiem": {
   "regime_read": "RANGE",
-  "market_summary": "[mock] RANGE, ADX 17.5, RSI 48.9, EMA BEARISH_ALIGNED",
+  "market_summary": "[mock] RANGE, ADX 17.2, RSI 50.9, EMA BEARISH_ALIGNED",
   "scenarios": [
    {
     "name": "tiếp diễn",
@@ -200,7 +200,7 @@ window.TU_CAM_THANH = {
   "symbol": "BTCUSDT",
   "source": "mock",
   "regimeFromClassifier": "RANGE",
-  "at": "2026-08-15T14:53:09+00:00"
+  "at": "2026-08-15T15:24:55+00:00"
  },
  "phanQuyet": {
   "approved": false,
@@ -211,12 +211,12 @@ window.TU_CAM_THANH = {
  },
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 73045.7,
-  "vonThucHien": 73045.7,
-  "dinhVon": 73051.42,
+  "von": 73091.8,
+  "vonThucHien": 73091.8,
+  "dinhVon": 73091.8,
   "laiLoMo": 0.0,
   "laiLoHomNay": -0.0,
-  "drawdownPct": 0.01,
+  "drawdownPct": 0.0,
   "soLenhDaDong": 2,
   "viThe": []
  },
