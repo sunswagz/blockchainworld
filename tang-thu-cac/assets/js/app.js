@@ -65,6 +65,37 @@
     return (m && m[s.ten]) || null;
   }
 
+  /* ── chỉ mục bản dịch cho DANH SÁCH ────────────────
+     Bản dịch đầy đủ nằm trong assets/data/dich/<kho>.json, nạp lười khi
+     mở hồ sơ. Danh sách không đợi được kiểu đó: nó phải biết NGAY skill
+     nào đã dịch để đếm, để lọc, và để hiện câu công dụng tiếng Việt.
+     Nên có thêm assets/data/dich-tom.json — chỉ id → câu "nó là gì",
+     sinh bằng scripts/build-dich-tom.mjs.
+
+     Nạp SAU khi vẽ xong lần đầu, không chặn: trang mở ra ngay với mô tả
+     gốc, chỉ mục về tới đâu thì vẽ lại tới đó. Trước khi có nó, bộ đếm
+     chỉ thấy 42 skill dịch tay trong glossary.js — đúng cái đã làm màn
+     danh mục báo "còn nguyên bản gốc 2859" trong khi 2.859 bản dịch nằm
+     sẵn trên đĩa. */
+  var TOM = null;
+  function napTom() {
+    fetch("./assets/data/dich-tom.json")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.tom) return;
+        TOM = j.tom;
+        ve();                     /* vẽ lại màn đang mở với số liệu đúng */
+      })
+      .catch(function () {});
+  }
+  /* Câu công dụng tiếng Việt, ưu tiên bản dịch tay đủ bốn mục. */
+  function tomVi(s) {
+    var d = dichCua(s);
+    if (d && d.tom) return d.tom;
+    return (TOM && TOM[s.id]) || null;
+  }
+  function daDich(s) { return !!tomVi(s); }
+
   /* ── thanh bên ────────────────────────────────────── */
   var IC = {
     "tong-quan": '<rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/>',
@@ -110,7 +141,7 @@
      1. TỔNG QUAN — lưới nhóm việc
      ══════════════════════════════════════════════════ */
   function mhTongQuan(host) {
-    var ct = SK.filter(function (s) { return dichCua(s); }).length;
+    var ct = SK.filter(daDich).length;
     var thuTu = Object.keys(VI.nhom).filter(function (n) { return (D.demNhom || {})[n]; })
       .sort(function (a, b) {
         /* "khac" luôn xuống cuối dù đông nhất: nhóm rác dẫn đầu thì
@@ -126,14 +157,14 @@
         '<div class="tt-o"><span>Skill trong danh mục</span><b>' + SK.length + "</b>" +
           "<i>từ " + (D.soKhoQuet || 0) + " kho · đã gộp bản trùng</i></div>" +
         '<div class="tt-o"><span>Đã dịch tiếng Việt</span><b style="color:var(--acc)">' + ct + "</b>" +
-          "<i>kho anthropics/skills, đọc từng cái</i></div>" +
+          "<i>viết tay từ mô tả gốc, không dịch máy</i></div>" +
         '<div class="tt-o"><span>Kho đang theo dõi</span><b>' + KHO.length + "</b>" +
           "<i>xếp theo sao, làm mới được</i></div>" +
       "</div>" +
       '<div class="luoi-nhom">' + thuTu.map(function (n) {
         var g = nhomCua(n);
         var trong = SK.filter(function (s) { return s.nhom === n; });
-        var ctN = trong.filter(function (s) { return dichCua(s); }).length;
+        var ctN = trong.filter(daDich).length;
         return '<a class="o-nhom" href="#/danh-muc?nhom=' + encodeURIComponent(n) +
           '" style="--m:' + g.mau + '">' +
           '<div class="on-dinh"><h3>' + esc(g.ten) + '</h3><span class="on-so">' + trong.length + "</span></div>" +
@@ -176,7 +207,7 @@
     /* Lọc theo CÓ BẢN DỊCH hay không, chứ không theo chủ kho:
        người đọc quan tâm "cái nào đọc được tiếng Việt", không quan
        tâm ai sở hữu repo. */
-    var ct = SK.filter(function (s) { return dichCua(s); }).length;
+    var ct = SK.filter(daDich).length;
     chip(wg, "Tất cả", null, "nguon", "all");
     chip(wg, "Đã dịch tiếng Việt", ct, "nguon", "ct");
     chip(wg, "Còn nguyên bản gốc", SK.length - ct, "nguon", "cd");
@@ -184,11 +215,13 @@
     var q = norm(state.q.trim());
     var ds = SK.filter(function (s) {
       if (state.nhom !== "all" && s.nhom !== state.nhom) return false;
-      if (state.nguon === "ct" && !dichCua(s)) return false;
-      if (state.nguon === "cd" && dichCua(s)) return false;
+      if (state.nguon === "ct" && !daDich(s)) return false;
+      if (state.nguon === "cd" && daDich(s)) return false;
       if (q) {
+        /* Tìm cả trong bản dịch: gõ "gỡ lỗi" phải ra skill có mô tả gốc
+           là "debug". Đó là toàn bộ lý do có bản dịch. */
         var d = dichCua(s);
-        var hay = [s.ten, s.moTa, s.kho, d && d.tom, d && d.ban].join(" ");
+        var hay = [s.ten, s.moTa, s.kho, tomVi(s), d && d.ban].join(" ");
         if (norm(hay).indexOf(q) === -1) return false;
       }
       return true;
@@ -199,7 +232,7 @@
     if (!ds.length) { host2.innerHTML = '<p class="trong">Không có skill nào khớp.</p>'; return; }
     host2.innerHTML = "";
     ds.slice(0, 400).forEach(function (s) {
-      var g = nhomCua(s.nhom), d = dichCua(s);
+      var g = nhomCua(s.nhom), tv = tomVi(s);
       var b = el("button", "sk");
       b.type = "button";
       b.style.setProperty("--m", g.mau);
@@ -207,15 +240,15 @@
         '<div class="sk-dinh"><span class="sk-cham"></span>' +
         '<span class="sk-ten">' + esc(s.ten) + "</span>" +
         (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>" : "") +
-        (dichCua(s) ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
+        (tv ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
         (s.trungTen ? '<span class="the-nho the-tr" title="Có skill khác cùng tên nhưng nội dung khác">' +
           esc(VI.nhan.trungTen) + "</span>" : "") +
         (s.soBanSao ? '<span class="the-nho the-bs" title="Kho khác cũng có bản y hệt">' +
           s.soBanSao + " bản sao</span>" : "") +
         '<span class="sk-sao">★ ' + so(s.sao) + "</span></div>" +
-        (d ? '<p class="sk-tom">' + esc(d.tom) + "</p>"
-           : '<p class="sk-tom goc">' + esc(String(s.moTa).slice(0, 190)) +
-             (s.moTa.length > 190 ? "…" : "") + "</p>") +
+        (tv ? '<p class="sk-tom">' + esc(tv) + "</p>"
+            : '<p class="sk-tom goc">' + esc(String(s.moTa).slice(0, 190)) +
+              (s.moTa.length > 190 ? "…" : "") + "</p>") +
         '<div style="margin-top:6px"><span class="sk-kho">' + esc(s.kho) + "/" + esc(s.duong) + "</span></div>";
       b.addEventListener("click", function () { moHoSo(s); });
       host2.appendChild(b);
@@ -442,7 +475,12 @@
     $("#hosoTag").innerHTML =
       '<span class="the-nho" style="background:' + g.mau + '22;color:' + g.mau + '">' + esc(g.ten) + "</span>" +
       (s.chinhChu ? '<span class="the-nho the-ct">' + esc(VI.nhan.chinhChu) + "</span>" : "") +
-      (dichCua(s) ? "" : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
+      /* Chỉ mục đã biết skill này có bản dịch thì gắn nhãn "đã dịch"
+         ngay, đừng hiện "nguyên bản gốc" rồi đổi lại sau khi tệp kho về
+         — nháy một nhịp như vậy làm người đọc tưởng mình nhìn nhầm. */
+      (dichCua(s) ? ""
+        : tomVi(s) ? '<span class="the-nho the-tay">đã dịch</span>'
+        : '<span class="the-nho the-cd">' + esc(VI.nhan.chuaDich) + "</span>") +
       '<span style="font-size:11.5px;color:var(--ink-3)">★ ' + so(s.sao) + "</span>";
     $("#hosoBody").innerHTML = h;
 
@@ -465,7 +503,7 @@
         if (!t) return;                     /* chưa dịch — giữ nguyên bản gốc */
         t.goc = s.moTa;
         o.innerHTML = veDichMay(t);
-        var n = $("#hosoTag .the-cd");
+        var n = $("#hosoTag .the-cd, #hosoTag .the-tay");
         if (n) {
           n.textContent = t.may ? "máy dịch" : "đã dịch";
           n.className = "the-nho " + (t.may ? "the-may" : "the-tay");
@@ -812,6 +850,7 @@
 
     window.addEventListener("hashchange", doiTuyen);
     doiTuyen();
+    napTom();          /* sau doiTuyen: trang hiện ngay, dịch về sau */
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

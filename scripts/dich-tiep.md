@@ -87,6 +87,19 @@ Việt phổ biến: MCP, hook, commit, API, repo, agent, skill, plugin, token,
 webhook, worktree. Đừng dịch tên skill. Mô tả gốc nghèo thì viết ngắn —
 đừng đắp thêm cho dài.
 
+## Chỉ mục cho danh sách — `dich-tom.json`
+
+Bản dịch đầy đủ nằm trong `dich/<kho>.json`, **nạp lười** khi mở hồ sơ một
+skill. Màn danh mục không đợi được kiểu đó: nó phải biết ngay skill nào đã
+dịch để đếm, để lọc, và để hiện câu công dụng tiếng Việt ngoài danh sách.
+Nên có thêm `tang-thu-cac/assets/data/dich-tom.json` — chỉ `id → câu tom`.
+
+`dich-gop.mjs` **tự sinh lại** chỉ mục sau mỗi lần gộp, nên không phải nhớ.
+Sửa tay tệp trong `dich/` thì chạy `npm run dich-tom`.
+
+Quên bước này thì bản dịch nằm trên đĩa mà trang vẫn báo "còn nguyên bản
+gốc 2859" — đúng lỗi đã xảy ra ngày 15/08.
+
 ## Sau mỗi lô
 
     git add tang-thu-cac/assets/data/dich/

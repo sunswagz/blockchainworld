@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v12";
+var CACHE_VERSION = "v13";
 var SHELL_CACHE = "tang-thu-cac-shell-" + CACHE_VERSION;
 var FONT_CACHE = "tang-thu-cac-fonts-" + CACHE_VERSION;
 
@@ -27,6 +27,12 @@ var SHELL = [
   "./assets/css/halls.css",
   "./assets/js/data.js",
   "./assets/js/glossary.js",
+  /* Chỉ mục bản dịch (id → câu công dụng tiếng Việt). Nằm trong SHELL
+     vì màn danh mục nào cũng cần: thiếu nó thì danh sách rơi về mô tả
+     tiếng Anh và bộ đếm báo "còn nguyên bản gốc 2859" — sai. Khác với
+     assets/data/kb/ và dich/ (mỗi kho một file, chỉ nạp khi mở đúng
+     skill của kho đó), nên hai thư mục kia cố ý KHÔNG nạp sẵn. */
+  "./assets/data/dich-tom.json",
   "./assets/js/app.js",
   "./assets/js/pwa.js",
   "./assets/js/halls.js",

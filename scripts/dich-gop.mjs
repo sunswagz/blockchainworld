@@ -54,3 +54,10 @@ writeFileSync(p, JSON.stringify({ kho, luc: new Date().toISOString(),
 console.log(`${kho}: thêm ${them} · tổng ${Object.keys(cu).length}`);
 if (lac.length) console.log("  ✗ không khớp tên: " + lac.join(", "));
 if (mo.length) console.log("  ✗ thiếu trường: " + mo.join(", "));
+
+/* Sinh lại chỉ mục NGAY, đừng để thành một bước phải nhớ.
+   Quên bước này thì bản dịch nằm trên đĩa mà màn danh mục vẫn báo "còn
+   nguyên bản gốc" — đúng lỗi đã xảy ra khi dịch xong 2.859 cái mà danh
+   sách không hay biết. Máy làm hộ thì không quên được. */
+const { execFileSync } = await import("node:child_process");
+execFileSync(process.execPath, [join(R, "scripts", "build-dich-tom.mjs")], { stdio: "inherit" });

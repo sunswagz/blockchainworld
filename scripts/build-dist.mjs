@@ -119,10 +119,17 @@ async function checkShell(swPath, baseDir, files) {
      sẵn hết vào SHELL là gấp ba dung lượng cài để lấy về thứ phần
      lớn người dùng không mở. Chúng rơi vào nhánh cache-trước-cập-
      nhật-nền ở cuối sw.js, xem tới đâu lưu tới đó. */
+  /* Cùng lý do với assets/js/v/: assets/data/ của Tàng Thư Các là dữ
+     liệu THEO TỪNG KHO — bảng tua (kb/) và bản dịch (dich/), 89 file,
+     mỗi lần mở một skill chỉ nạp đúng một cái. Nạp sẵn cả đống vào
+     SHELL là bắt mọi người tải vài MB cho 66 kho họ không mở.
+     Ngoại lệ: dich-tom.json — chỉ mục cho DANH SÁCH, màn danh mục nào
+     cũng cần, nên nó phải nằm trong SHELL và vẫn bị soi ở đây. */
   const shellSet = new Set(shell);
   const missed = [...present].filter(
     (p) => !shellSet.has(p) && p !== "./sw.js" &&
-      !/\.(png|ico)$/.test(p) && !/\/assets\/js\/v\//.test(p)
+      !/\.(png|ico)$/.test(p) && !/\/assets\/js\/v\//.test(p) &&
+      !/\/assets\/data\/(kb|dich)\//.test(p)
   );
   if (missed.length) {
     log(`  ⚠ ${relative(ROOT, baseDir) || "gốc"}: có trong dist nhưng sw.js không cache — ${missed.join(", ")}`);
