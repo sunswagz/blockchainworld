@@ -65,7 +65,14 @@ jobs:
       CCOT: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
     steps:
+      # fetch-depth 0, không phải mặc định 1. Bước commit cuối job có thể
+      # phải rebase lên main khi bị chen giữa chừng, mà clone sâu một
+      # commit thì không có nền chung để rebase — lượt #12 (15/08) chết
+      # đúng chỗ đó, trong 2 giây, sau khi push bị từ chối.
+      # Đắt thêm vài giây mỗi lượt, đổi lấy bước cuối không mất trắng.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -372,23 +379,38 @@ jobs:
             exit 0
           fi
           git commit -m "data: cập nhật số liệu $(date -u +%d/%m/%Y' '%H:%M) UTC"
-          # Lượt này dài — 14 phút 46 giây hôm 15/08, mà Tàng Thư Các một
-          # mình đã có lượt 532 giây. Trong ngần ấy thời gian, người ngồi
-          # máy push xen vào là chuyện bình thường: lượt #11 checkout ở
-          # dd716bf, đến lúc đẩy thì main đã ở be49b70 → non-fast-forward,
-          # mất trắng cả lượt số liệu vừa lấy xong.
+          # Lượt này dài — 8 tới 15 phút, mà Tàng Thư Các một mình đã có
+          # lượt 532 giây. Trong ngần ấy thời gian, người ngồi máy push
+          # xen vào là chuyện thường, và sáng 15/08 thì rất dày: 6 commit
+          # trong 40 phút, hai trong số đó rơi đúng lúc lượt #12 đang
+          # chạy. Đẩy thẳng là mất trắng cả mẻ số liệu vừa lấy xong.
           #
-          # `concurrency` bên trên chỉ chặn hai workflow chồng nhau, không
-          # chặn được người. Nên ở đây rebase lên bản mới rồi đẩy lại.
-          # `--unshallow` vì checkout@v4 lấy depth 1 — không đủ nền chung
-          # để rebase. Repo đủ nhỏ, và chỉ chạy ở nhánh hiếm này.
-          if ! git push; then
-            echo "main đã nhích trong lúc job chạy — rebase rồi đẩy lại."
-            git fetch --unshallow origin main 2>/dev/null || git fetch origin main
-            git rebase origin/main
-            git push
-          fi
-          echo "changed=true" >> "$GITHUB_OUTPUT"
+          # `concurrency` bên trên chỉ chặn hai workflow chồng nhau, nó
+          # không chặn được người. Nên ở đây phải tự nhường: đẩy hỏng thì
+          # rebase lên bản mới rồi đẩy lại.
+          #
+          # Ba vòng chứ không phải một: đẩy lại cũng có thể bị chen tiếp,
+          # và lượt #12 đã chứng minh một vòng là không đủ.
+          #
+          # Đụng nội dung thì DỪNG, không tự gỡ. Bot chỉ ghi file sinh,
+          # nhưng người thì đang sửa tay đúng mấy thư mục đó — máy đoán
+          # bên nào đúng là cách chắc chắn nhất để nuốt mất bản viết tay.
+          for lan in 1 2 3; do
+            if git push; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "Vòng $lan: main đã nhích — rebase lên bản mới rồi đẩy lại."
+            git fetch origin +refs/heads/main:refs/remotes/origin/main
+            if ! git rebase origin/main; then
+              echo "Rebase đụng nội dung — dừng ở đây, để người xử lý:"
+              git status --short
+              git rebase --abort || true
+              exit 1
+            fi
+          done
+          echo "Đẩy hỏng ba vòng liền — main đang bị ghi quá dày."
+          exit 1
 
   # Bẫy của GitHub Actions: commit tạo bởi GITHUB_TOKEN KHÔNG kích hoạt
   # workflow khác (cơ chế chặn vòng lặp vô hạn). Nếu chỉ dựa vào `on: push`
