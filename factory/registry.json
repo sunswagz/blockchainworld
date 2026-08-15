@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-14T16:39:16.548Z",
+  "generatedAt": "2026-08-15T08:11:19.594Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -80,12 +80,12 @@
       "cung": "dai-quan-trac",
       "tram": "M07",
       "che": "claude",
-      "nhip": 24,
-      "lenh": "node scripts/build-scan.mjs",
+      "nhip": 12,
+      "lenh": "claude-code-action + node scripts/build-scan.mjs",
       "ra": [
         "dai-quan-trac/assets/js/scan.js"
       ],
-      "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ."
+      "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. Trả bằng quota gói, không còn khoá API."
     },
     {
       "ma": "dong-dau",

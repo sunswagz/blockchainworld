@@ -1,25 +1,31 @@
 /* ═══════════════════════════════════════════════════════
-   Quét 5 chiến trường bằng Claude + web_search, ghi kết quả
-   ra dai-quan-trac/assets/js/scan.js.
+   Dựng dai-quan-trac/assets/js/scan.js từ bản quét của Tạo Biện Xứ.
 
-   Chạy tay:      npm run scan          (cần ANTHROPIC_API_KEY)
-   Chạy tự động:  .github/workflows/scan-observatory.yml
+   File này KHÔNG CÒN GỌI API NÀO. Trước đây nó tự gọi
+   api.anthropic.com bằng ANTHROPIC_API_KEY — và đó là thứ đã tốn
+   ~170 USD/tháng rồi phải tắt lịch ngày 14/08/2026.
 
-   VÌ SAO CHẠY Ở ĐÂY CHỨ KHÔNG PHẢI TRONG TRÌNH DUYỆT
+   ── VIỆC QUÉT GIỜ NẰM Ở ĐÂU ───────────────────────────────────
+   Ở chính nhà máy. Bước "Quét chiến trường" trong refresh-data.yml
+   chạy `anthropics/claude-code-action`, trả bằng QUOTA GÓI qua
+   CLAUDE_CODE_OAUTH_TOKEN, không phải tiền token. Nó dùng WebSearch
+   rồi ghi ra một file JSON thô.
 
-   Bản gốc dai-quan-trac.html gọi thẳng api.anthropic.com từ
-   trình duyệt — và không gửi kèm khoá nào, nên lời gọi đó chưa
-   bao giờ thành công.
+   Nên script này còn đúng hai việc, và cả hai đều xác định:
 
-   Thêm khoá vào đó cũng không sửa được: trang chạy trên GitHub
-   Pages công khai, nên khoá nhúng trong mã là khoá đã lộ. Ai mở
-   DevTools cũng lấy được và tiêu tiền của chủ tài khoản. (Anthropic
-   có header anthropic-dangerous-direct-browser-access cho phép gọi
-   từ trình duyệt — chữ "dangerous" nằm trong tên header là có lý do,
-   và nó dành cho trang chỉ chạy cục bộ, không phải trang công khai.)
+     --de-bai   đọc THEATERS trong data.js của app, ghi đề bài ra
+                assets/data/de-bai.json cho bước quét đọc.
+     (mặc định) đọc assets/data/quet.json do bước quét ghi, KIỂM,
+                rồi dựng scan.js.
 
-   Nên khoá ở lại phía máy chủ, trong GitHub Secrets. Trình duyệt
-   chỉ đọc file kết quả tĩnh.
+   ── VÌ SAO TÁCH ĐÔI CHỨ KHÔNG ĐỂ MODEL GHI THẲNG scan.js ──────
+   scan.js là file JS mà trình duyệt nạp. Để model viết thẳng JS là
+   một lỗi cú pháp của nó thành một trang trắng cho người xem. Cho
+   nó ghi JSON rồi ta dựng JS: hỏng thì hỏng ở chỗ đọc được, và
+   khối kiểm bên dưới chặn được trước khi ghi đè bản cũ.
+
+   Khoá vẫn không bao giờ đi xuống trình duyệt — nay còn mạnh hơn
+   trước, vì đã không còn khoá API nào để mà lộ.
    ═══════════════════════════════════════════════════════ */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -31,151 +37,116 @@ import vm from "node:vm";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const APP = join(ROOT, "dai-quan-trac");
 const OUT = join(APP, "assets", "js", "scan.js");
+const DE_BAI = join(APP, "assets", "data", "de-bai.json");
+const QUET = join(APP, "assets", "data", "quet.json");
 
-const KEY = process.env.ANTHROPIC_API_KEY;
-if (!KEY) {
-  console.error("Thiếu ANTHROPIC_API_KEY.\n" +
-    "  · Cục bộ: $env:ANTHROPIC_API_KEY=\"sk-ant-...\"; npm run scan\n" +
-    "  · CI:     Settings → Secrets and variables → Actions → New repository secret");
+const LVLS = ["n", "g", "y", "r"];
+
+/* Lấy danh sách chiến trường từ chính dữ liệu của app. Không chép
+   cứng sang đây: thêm một chiến trường vào data.js là lượt quét sau
+   tự có, không phải sửa hai chỗ. */
+async function docChienTruong() {
+  const src = await readFile(join(APP, "assets", "js", "data.js"), "utf8");
+  const hop = { window: {} };
+  vm.createContext(hop);
+  vm.runInContext(src, hop, { timeout: 5000 });
+  const ds = (hop.window.DQT_DATA || {}).THEATERS;
+  if (!Array.isArray(ds) || !ds.length)
+    throw new Error("không đọc được THEATERS trong dai-quan-trac/assets/js/data.js");
+  return ds;
+}
+
+/* ═══════════════ RA ĐỀ BÀI ═══════════════ */
+if (process.argv.includes("--de-bai")) {
+  const ds = await docChienTruong();
+  await mkdir(dirname(DE_BAI), { recursive: true });
+  await writeFile(DE_BAI, JSON.stringify({
+    ghiChu: "SINH TỰ ĐỘNG từ dai-quan-trac/assets/js/data.js. Đừng sửa tay, đừng commit.",
+    chien_truong: ds.map((t) => ({ id: t.id, ten: t.short, tim: t.query }))
+  }, null, 2) + "\n", "utf8");
+  console.log(`Đề bài: ${ds.length} chiến trường → ${DE_BAI.replace(ROOT, "")}`);
+  process.exit(0);
+}
+
+/* ═══════════════ DỰNG KẾT QUẢ ═══════════════ */
+if (!existsSync(QUET)) {
+  console.error("Chưa có assets/data/quet.json — bước quét chưa chạy hoặc đã ngã.\n" +
+    "Giữ nguyên bản quét cũ, không ghi đè.");
   process.exit(1);
 }
 
-/* ── lấy danh sách chiến trường từ chính dữ liệu của app ──
-   Không chép cứng sang đây: thêm một chiến trường vào data.js
-   là lần quét sau tự có, không phải sửa hai chỗ. */
-async function loadTheaters() {
-  const src = await readFile(join(APP, "assets", "js", "data.js"), "utf8");
-  const sandbox = { window: {} };
-  vm.createContext(sandbox);
-  vm.runInContext(src, sandbox, { timeout: 5000 });
-  return sandbox.window.DQT_DATA.THEATERS;
+const ds = await docChienTruong();
+const hopLe = new Set(ds.map((t) => t.id));
+const tenTheoMa = Object.fromEntries(ds.map((t) => [t.id, t.short]));
+
+let tho;
+try {
+  tho = JSON.parse(await readFile(QUET, "utf8"));
+} catch (e) {
+  console.error(`quet.json không phải JSON đọc được: ${e.message}`);
+  process.exit(1);
 }
 
-/* ── BA NÚM GIẢM CHI PHÍ — 14/08/2026 ─────────────────────────────
-   Lịch quét bị TẮT ngày 14/08 vì tốn quá: bảng Anthropic ghi 610K
-   token và 4,30 USD cho đúng ba lượt, tức ~1,4 USD/lượt, và ở nhịp
-   4 lượt/ngày là ~170 USD/tháng. Phần lớn là token ĐẦU VÀO —
-   web_search kéo nguyên nội dung trang vào ngữ cảnh, nhân số chiến
-   trường.
-
-   Ba núm, theo thứ tự hiệu quả:
-
-     1. MODEL: opus-5 → haiku-4-5. Giá token vào 5 USD → 1 USD/MTok.
-        Việc ở đây là "tìm tin 7 ngày, viết một câu tiếng Việt, phân
-        loại g/y/r" — không cần Opus.
-     2. Nhịp: 4 lượt/ngày → 1. Không nằm ở file này nữa mà ở `nhip`
-        của node dai-quan-trac trong scripts/nha-may.mjs.
-     3. max_uses: chặn số lượt tìm mỗi chiến trường. Đây là núm duy
-        nhất chạm thẳng vào thứ đắt nhất — mỗi lượt tìm là một trang
-        web đổ vào ngữ cảnh.
-
-   Ba núm nhân nhau: ~170 USD/tháng → cỡ vài USD/tháng.
-
-   ── COUPLING PHẢI NHỚ ──
-   Biến thể web_search phải HỢP với model. `web_search_20260209`
-   (lọc động) chỉ chạy từ Opus 4.6 / Sonnet 4.6 trở lên; Haiku 4.5
-   phải dùng bản cơ bản `web_search_20250305`. Đổi MODEL mà quên đổi
-   dòng tools là API trả 400 cho MỌI chiến trường — quét trắng, và
-   workflow vẫn xanh vì nó bắt lỗi từng chiến trường rồi đi tiếp. */
-const MODEL = "claude-haiku-4-5";
-const CONG_CU_TIM = "web_search_20250305";
-const TOI_DA_TIM = 3;
-const LVLS = ["n", "g", "y", "r"];
-
-function prompt(t) {
-  return `Dùng web_search để tìm diễn biến MỚI NHẤT trong 7 ngày gần đây về: ${t.query}.
-Bối cảnh: đây là bảng quan trắc đánh giá tác động tới kinh tế Việt Nam.
-Trả về DUY NHẤT một JSON object, không markdown, không lời dẫn, không giải thích:
-{"muc":"g|y|r","tom_tat":"1 câu tiếng Việt","tin_hieu":[{"tieu_de":"câu tiếng Việt mô tả sự kiện có thật","ngay":"YYYY-MM-DD","nguon":"tên hãng tin","tac_dong":"1 câu: sự kiện này truyền tới kinh tế Việt Nam qua đường nào"}]}
-muc: g nếu bình thường, y nếu có căng thẳng đáng chú ý, r nếu gián đoạn nghiêm trọng.
-Tối đa 4 tín hiệu, chỉ dùng sự kiện thật tìm được. Nếu không tìm được gì thì trả "tin_hieu":[].`;
-}
-
-async function scanOne(t) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": KEY,
-      "anthropic-version": "2023-06-01"
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4000,
-      // Biến thể tìm kiếm phải hợp với MODEL — xem khối ghi chú ở
-      // chỗ khai MODEL. max_uses là núm chặn chi phí mạnh nhất.
-      tools: [{ type: CONG_CU_TIM, name: "web_search", max_uses: TOI_DA_TIM }],
-      messages: [{ role: "user", content: prompt(t) }]
-    })
-  });
-
-  const raw = await res.text();
-  if (!res.ok) throw new Error(`HTTP ${res.status} — ${raw.slice(0, 200)}`);
-  const data = JSON.parse(raw);
-
-  // Lời từ chối trả về HTTP 200 — phải xem stop_reason trước khi đọc content
-  if (data.stop_reason === "refusal") {
-    throw new Error("mô hình từ chối" +
-      (data.stop_details?.category ? ` (${data.stop_details.category})` : ""));
-  }
-
-  const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
-  const m = txt.replace(/```json|```/g, "").match(/\{[\s\S]*\}/);
-  if (!m) throw new Error("không đọc được JSON trong phản hồi");
-  return { j: JSON.parse(m[0]), usage: data.usage || {} };
-}
-
-/* ── chạy ─────────────────────────────────────────────── */
-const THEATERS = await loadTheaters();
-console.log(`Quét ${THEATERS.length} chiến trường bằng ${MODEL}\n`);
-
+const now = new Date().toISOString();
 const signals = [];
 const levels = {};
 const log = [];
-const now = new Date().toISOString();
-let failed = 0, inTok = 0, outTok = 0;
+let nhan = 0;
 
-for (const t of THEATERS) {
-  const t0 = Date.now();
-  try {
-    const { j, usage } = await scanOne(t);
-    const list = Array.isArray(j.tin_hieu) ? j.tin_hieu : [];
-    list.forEach(s => {
-      if (!s.tieu_de) return;
-      signals.push({
-        th: t.id, tieu_de: s.tieu_de, ngay: s.ngay, nguon: s.nguon,
-        tac_dong: s.tac_dong, muc: j.muc, at: now
-      });
-    });
-    if (LVLS.includes(j.muc)) levels[t.id] = j.muc;
-    log.push({ ok: true, t: t.short, at: now,
-      d: `${list.length} tín hiệu · mức ${j.muc || 'n'}${j.tom_tat ? ' · ' + j.tom_tat : ''}` });
-    inTok += usage.input_tokens || 0;
-    outTok += usage.output_tokens || 0;
-    console.log(`  ✓ ${t.short.padEnd(18)} ${list.length} tín hiệu · mức ${j.muc || '?'} · ${Date.now() - t0} ms`);
-  } catch (e) {
-    failed++;
-    log.push({ ok: false, t: t.short, at: now, d: `Quét lỗi — ${e.message}` });
-    console.log(`  ✗ ${t.short.padEnd(18)} ${e.message}`);
+/* Kiểm từng chiến trường trước khi nhận. Model có thể bịa một id
+   không có thật, trả mức ngoài bảng, hoặc trả ngày kiểu "tuần
+   trước" — nhận bừa thì bảng hiện một chiến trường không tồn tại
+   và không ai lần ra nó từ đâu ra. */
+for (const c of Array.isArray(tho.chien_truong) ? tho.chien_truong : []) {
+  const ten = tenTheoMa[c && c.id];
+  if (!hopLe.has(c && c.id)) {
+    log.push({ ok: false, t: String((c && c.id) || "?"), at: now,
+      d: "bỏ — id chiến trường không có trong data.js" });
+    continue;
   }
+  const muc = LVLS.includes(c.muc) ? c.muc : null;
+  const tin = (Array.isArray(c.tin_hieu) ? c.tin_hieu : []).filter(
+    (s) => s && typeof s.tieu_de === "string" && s.tieu_de.trim()
+  ).slice(0, 4);
+
+  tin.forEach((s) => signals.push({
+    th: c.id,
+    tieu_de: String(s.tieu_de).trim(),
+    ngay: /^\d{4}-\d{2}-\d{2}$/.test(s.ngay || "") ? s.ngay : null,
+    nguon: s.nguon ? String(s.nguon).slice(0, 60) : null,
+    tac_dong: s.tac_dong ? String(s.tac_dong).trim() : null,
+    muc, at: now
+  }));
+
+  if (muc) levels[c.id] = muc;
+  nhan++;
+  log.push({ ok: true, t: ten, at: now,
+    d: `${tin.length} tín hiệu · mức ${muc || "n"}` +
+       (c.tom_tat ? " · " + String(c.tom_tat).trim() : "") });
 }
 
-if (failed === THEATERS.length) {
-  console.error("\nHỏng cả 5 chiến trường — giữ nguyên bản quét cũ, không ghi đè.");
+/* Không nhận được chiến trường nào thì GIỮ BẢN CŨ. Bản quét hôm
+   qua tuy cũ nhưng đúng; một bảng trống thì người xem đọc thành
+   "thế giới không có tin gì", sai hẳn nghĩa. */
+if (!nhan) {
+  console.error("Không nhận được chiến trường nào từ quet.json — giữ nguyên bản cũ.");
   process.exit(1);
 }
 
 const scan = {
   generatedAt: now,
-  date: `${String(new Date().getUTCDate()).padStart(2, "0")}/${String(new Date().getUTCMonth() + 1).padStart(2, "0")}/${new Date().getUTCFullYear()}`,
-  model: MODEL,
+  date: `${String(new Date().getUTCDate()).padStart(2, "0")}/` +
+        `${String(new Date().getUTCMonth() + 1).padStart(2, "0")}/` +
+        `${new Date().getUTCFullYear()}`,
+  model: typeof tho.model === "string" ? tho.model : "claude-code-action",
   signals, levels, log
 };
 
 const js = `/* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
    Sinh bởi scripts/build-scan.mjs lúc ${now}
-   Nguồn: ${MODEL} + web_search. Khoá API ở lại phía máy chủ.
+   Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
+   + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_SCAN = ${JSON.stringify(scan, null, 2)};
 `;
@@ -183,6 +154,5 @@ window.DQT_SCAN = ${JSON.stringify(scan, null, 2)};
 await mkdir(dirname(OUT), { recursive: true });
 await writeFile(OUT, js, "utf8");
 
-console.log(`\n✓ ${signals.length} tín hiệu · ${Object.keys(levels).length}/${THEATERS.length} chiến trường có mức`);
-console.log(`  token: ${inTok} vào · ${outTok} ra`);
+console.log(`✓ ${signals.length} tín hiệu · ${nhan}/${ds.length} chiến trường nhận được`);
 console.log(`  đã ghi dai-quan-trac/assets/js/scan.js · ${(js.length / 1024).toFixed(1)} KB`);

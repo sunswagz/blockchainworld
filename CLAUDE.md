@@ -141,6 +141,7 @@ conflict lúc merge.
     tang-thu-cac/assets/data/lich-su.json
     tang-thu-cac/assets/data/kb/
     dai-quan-trac/assets/js/do.js
+    dai-quan-trac/assets/js/scan.js
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
@@ -176,38 +177,42 @@ là bot sinh mà xoá đi. Nay liệt kê đúng hai đường bot thật sự g
 
     tang-thu-cac/assets/data/dich/   ← VIẾT TAY, commit như mã nguồn
 
-`scan-observatory.yml` (41 phút sau 3 giờ UTC — nhưng nhịp thật là
-**1 lượt/ngày**, xem mục dưới):
+### Repo này KHÔNG dùng `ANTHROPIC_API_KEY` nữa
 
-    dai-quan-trac/assets/js/scan.js
-    factory/state.json
-    tao-bien-xu/assets/js/v/van-hanh.js
+Từ **15/08/2026**, mọi lời gọi model trong xưởng đều trả bằng **quota gói**
+qua `CLAUDE_CODE_OAUTH_TOKEN`. Không còn secret tính tiền theo token nào.
 
-Lịch này từng bị **tắt** sáng 14/08/2026 vì `ANTHROPIC_API_KEY` tốn quá
-nhiều. Số đo được, để lần sau khỏi đoán: bảng điều khiển Anthropic ghi
-**610K token và 4,30 USD** cho đúng **ba lượt** quét thật — tức khoảng
-**1,4 USD một lượt**, và ở nhịp 4 lượt/ngày là cỡ **170 USD/tháng**. Phần
-lớn chi phí là token đầu vào: `web_search` kéo nguyên nội dung trang vào
-ngữ cảnh, nhân số chiến trường.
+Chuyện đã xảy ra, ghi lại để đừng ai dựng lại đường cũ: bản quét Đài Quan
+Trắc từng có workflow riêng gọi thẳng `api.anthropic.com`. Bảng điều khiển
+Anthropic ghi **610K token và 4,30 USD** cho đúng **ba lượt** — khoảng
+**1,4 USD một lượt**, ở nhịp 4 lượt/ngày là cỡ **170 USD/tháng**. Lịch
+phải tắt sáng 14/08, và cung sống bằng bản quét cũ suốt từ đó.
 
-**Đã bật lại cùng ngày**, sau khi vặn đủ ba núm — không phải vì chấp nhận
-trả tiền:
+Vặn ba núm (Opus→Haiku, `max_uses: 3`, nhịp 4→1 lượt/ngày) chỉ hạ được
+xuống vài USD/tháng. Thứ giải quyết hẳn là **đổi đường trả tiền**, không
+phải vặn núm: `anthropics/claude-code-action` + token OAuth.
 
-- `MODEL` trong `scripts/build-scan.mjs`: `claude-opus-5` → `claude-haiku-4-5`
-  (token vào 5 → 1 USD/MTok)
-- `max_uses: 3` cho `web_search` — núm duy nhất chạm thẳng vào thứ đắt
-  nhất, vì mỗi lượt tìm là một trang web đổ vào ngữ cảnh
-- nhịp 4 lượt/ngày → 1, khai ở `nhip: 24` của node `dai-quan-trac`
+`scan-observatory.yml` đã **xoá**. Bản quét nay là ba bước trong
+`refresh-data.yml`, và tách ba bước là có chủ ý:
 
-Ước còn cỡ **vài USD/tháng**. Bảng Anthropic báo khác thì sửa `nhip`
-trong `scripts/nha-may.mjs`, **đừng sửa cron**.
+| bước | ai làm | ra cái gì |
+|---|---|---|
+| Ra đề | `build-scan.mjs --de-bai` | `assets/data/de-bai.json` từ `THEATERS` trong data.js |
+| Quét | Claude Code Action + WebSearch | `assets/data/quet.json` — JSON **thô** |
+| Dựng | `build-scan.mjs` | `assets/js/scan.js`, sau khi kiểm |
 
-**Một coupling phải nhớ khi đổi `MODEL`:** biến thể `web_search` phải hợp
-với model. `web_search_20260209` (lọc động) chỉ chạy từ Opus 4.6 / Sonnet
-4.6 trở lên; Haiku 4.5 phải dùng bản cơ bản `web_search_20250305`. Đổi
-model mà quên đổi dòng `tools` thì API trả 400 cho **mọi** chiến trường —
-quét trắng, mà workflow vẫn xanh vì nó bắt lỗi từng chiến trường rồi đi
-tiếp.
+**Đừng cho model ghi thẳng `scan.js`.** Đó là file JS trình duyệt nạp —
+một lỗi cú pháp của model thành một trang trắng cho người xem. Bước dựng
+còn chặn id chiến trường bịa, mức ngoài bảng `g/y/r`, và ngày sai khuôn;
+không nhận được chiến trường nào thì **giữ bản cũ** chứ không ghi đè bằng
+bảng trống — bảng trống người ta đọc thành "thế giới không có tin gì".
+
+Hai file `de-bai.json` và `quet.json` nằm trong `.gitignore`: chúng chỉ
+sống trong một lượt chạy, thứ đáng giữ là `scan.js` đã qua kiểm.
+
+(`scripts/dich-skill.mjs` vẫn đọc `ANTHROPIC_API_KEY` — đó là công cụ
+dịch **chạy tay**, không nằm trong vòng tự động, và không có secret nào
+trong repo cho nó.)
 
 ### Nhịp chạy nằm ở sổ đăng ký, không nằm ở cron
 
@@ -245,20 +250,22 @@ Nhìn thấy nhà máy đang chạy: mở **Tạo Biện Xứ → Bảng vận h
 Đừng chọn model theo cảm giác "to thì đắt" — chọn theo **khối lượng có
 chặn được không**, và **trả bằng gì**:
 
-| node | trả bằng | khối lượng | model |
-|---|---|---|---|
-| `bao-cao` | quota gói (`CLAUDE_CODE_OAUTH_TOKEN`) | cố định: 2 file JSON ~25 KB → 15 dòng, `--max-turns 8` | **Opus 5** |
-| `dai-quan-trac` | tiền thật (`ANTHROPIC_API_KEY`) | phình không chặn được: `web_search` kéo cả trang web vào ngữ cảnh, nhân số chiến trường | **Haiku 4.5** |
+Cả hai node giờ **trả bằng cùng một thứ** — quota gói. Nên câu hỏi còn
+lại chỉ là khối lượng, và hai node này ở hai đầu đối nhau:
 
-Chỗ khối lượng cố định và trả bằng quota thì Opus rẻ hơn ta tưởng, mà
-phần giá trị nhất của báo cáo — câu "nên xem chỗ nào trước" — đúng là chỗ
-model mạnh hơn thấy rõ hơn. Chỗ khối lượng phình và trả bằng tiền thì
-ngược lại: đó chính là chỗ đã tốn 170 USD/tháng.
+| node | khối lượng | model |
+|---|---|---|
+| `bao-cao` | **cố định**: 2 file JSON ~25 KB → 15 dòng, `--max-turns 8` | **Opus 5** |
+| `dai-quan-trac` | **phình không chặn được**: WebSearch kéo cả trang web vào ngữ cảnh, nhân sáu chiến trường | **Haiku 4.5** |
 
-Muốn Opus cho cả bản quét mà không tốn tiền thì phải **chuyển nó sang
-`anthropics/claude-code-action`** để nó cũng trả bằng quota — chứ không
-phải đổi `MODEL` trong `build-scan.mjs`. Đổi `MODEL` ở đó là quay lại
-đúng hoá đơn cũ.
+Chỗ khối lượng cố định thì Opus rẻ hơn ta tưởng, mà phần giá trị nhất của
+báo cáo — câu "nên xem chỗ nào trước" — đúng là chỗ model mạnh hơn thấy
+rõ hơn. Chỗ khối lượng phình thì ngược lại: đổi sang Opus ở đó là đổi một
+thứ không đo được thành một thứ không đo được và đắt gấp bội.
+
+Quota không phải miễn phí — nó là gói của **bạn**. Bỏ được hoá đơn API
+không có nghĩa là hết cần cân nhắc; nó chỉ đổi đơn vị đo từ đô la sang
+lượt dùng của chính mình.
 
 **Token gắn với một người.** `claude setup-token` cấp token theo gói của
 người chạy lệnh, nên mỗi lượt bot ăn vào quota của chính người đó.

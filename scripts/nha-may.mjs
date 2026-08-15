@@ -124,11 +124,12 @@ export const NODE = [
   },
   {
     ma: "dai-quan-trac", ten: "Bản quét Đài Quan Trắc", cung: "dai-quan-trac",
-    tram: "M07", che: "claude", nhip: 24,
-    lenh: "node scripts/build-scan.mjs",
+    tram: "M07", che: "claude", nhip: 12,
+    lenh: "claude-code-action + node scripts/build-scan.mjs",
     ra: ["dai-quan-trac/assets/js/scan.js"],
     y: "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày " +
-       "rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ."
+       "rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. " +
+       "Trả bằng quota gói, không còn khoá API."
   },
   {
     ma: "dong-dau", ten: "Đóng dấu bản số liệu",
@@ -340,7 +341,6 @@ export function denHan(trangThai, bayGio = Date.now()) {
 const REPO = "sunswagz/blockchainworld";
 const WF_MAC_DINH = "refresh-data.yml";
 const WF_RIENG = {
-  "dai-quan-trac": "scan-observatory.yml",
   "giao-hang": "deploy-pages.yml"
 };
 

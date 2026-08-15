@@ -136,17 +136,17 @@ window.VAN_HANH = {
   {
    "ma": "dai-quan-trac",
    "ten": "Bản quét Đài Quan Trắc",
-   "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ.",
+   "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. Trả bằng quota gói, không còn khoá API.",
    "tram": "M07",
    "che": "claude",
-   "nhip": 24,
-   "lenh": "node scripts/build-scan.mjs",
+   "nhip": 12,
+   "lenh": "claude-code-action + node scripts/build-scan.mjs",
    "ra": [
     "dai-quan-trac/assets/js/scan.js"
    ],
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
-   "wf": "scan-observatory.yml",
+   "wf": "refresh-data.yml",
    "luc": "2026-08-13T08:53:22.949Z",
    "ket": "ok",
    "giay": null,

@@ -42,10 +42,11 @@ permissions:
   # im lặng và cảnh báo không bao giờ tới ai.
   issues: write
 
-# CHUNG nhóm với scan-observatory.yml, có chủ ý: từ khi có sổ nhà
-# máy, hai workflow cùng ghi factory/state.json rồi cùng push lên
-# main. Nhóm riêng thì có ngày chúng chồng nhau và đứa sau bị từ chối
-# non-fast-forward — mất trắng một lượt, hiện ra chỉ là workflow đỏ.
+# Nhóm giữ nguyên tên dù scan-observatory.yml đã xoá (15/08) và giờ
+# chỉ còn một workflow ghi vào main. Vì sao không bỏ: hai lượt của
+# CHÍNH workflow này vẫn chồng nhau được — cron :17 gặp một lượt bấm
+# tay, hoặc một lượt Tàng Thư Các 532 giây còn chưa xong. Hai lượt
+# cùng ghi factory/state.json rồi cùng push là mất trắng một lượt.
 concurrency:
   group: nha-may-main
   cancel-in-progress: false
@@ -59,7 +60,10 @@ jobs:
     # 10,3 phút — mà job bị cắt thì BƯỚC COMMIT KHÔNG CHẠY, nên cả
     # Kinh Thành lẫn Đô Sát Viện cũng mất luôn lượt cập nhật đó dù
     # chúng đã lấy số xong từ phút đầu.
-    timeout-minutes: 40
+    # 40 → 70 khi bản quét Đài Quan Trắc nhập vào vòng này (15/08).
+    # Nó mang theo 15 phút riêng, và trước đó nó có hẳn một job 20
+    # phút của mình. Cộng lại xem ở khối "trần bước" bên dưới.
+    timeout-minutes: 70
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
@@ -121,7 +125,12 @@ jobs:
       #
       # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
       # thành trang trí. Cộng lại MỖI LẦN thêm bước:
-      #   5 + 3 + 2 + 14 + 3 + 2 + 6 + 2 + 2 = 39  <  40
+      #   5 + 3 + 2 + 14 + 3 + 2      (lấy số liệu + đóng dấu)
+      # + 2 + 15 + 2                  (ra đề · quét · dựng)
+      # + 2 + 6 + 2                   (kiểm · báo cáo · cảnh báo)
+      #   = 58  <  70
+      # Thực tế không bao giờ cộng hết: node nhịp 12 và 24 giờ chỉ
+      # chạy 2 và 1 trong 4 lượt mỗi ngày.
       # Thực tế không bao giờ cộng dồn hết vì node nhịp 24 giờ chỉ
       # chạy 1 trong 4 lượt, nhưng trần job vẫn là chốt cuối.
       #
@@ -290,11 +299,11 @@ jobs:
       #    của báo cáo là câu "nên xem chỗ nào trước", và đó đúng là
       #    chỗ model mạnh hơn thấy rõ hơn.
       #
-      #    Khác hẳn bản QUÉT Đài Quan Trắc: chỗ đó `web_search` kéo
-      #    nguyên nội dung trang vào ngữ cảnh, nhân số chiến trường,
-      #    nên khối lượng phình không kiểm soát được — và nó trả bằng
-      #    TIỀN THẬT qua ANTHROPIC_API_KEY. Chỗ đó giữ Haiku.
-      #    Cùng là "gọi model" nhưng hai bài toán chi phí khác nhau.
+      #    Khác hẳn bản QUÉT Đài Quan Trắc ở bước trên: chỗ đó
+      #    WebSearch kéo nguyên nội dung trang vào ngữ cảnh, nhân sáu
+      #    chiến trường, nên khối lượng phình không chặn được. Chỗ đó
+      #    giữ Haiku. Từ 15/08 cả hai cùng trả bằng quota, nên khác
+      #    biệt còn lại đúng là khối lượng — không phải đường tiền.
       #
       # 2. CHỈ Read và Write. Không Bash, không git. Claude viết đúng
       #    một file rồi thôi; bước commit bên dưới mới là chỗ đẩy đi.
@@ -347,6 +356,96 @@ jobs:
       # Chiếu sổ sang thứ trình duyệt đọc được. `always()` vì bảng phải
       # hiện được cả những lượt mọi node đều ngã — đó chính là lượt
       # người ta cần nhìn bảng nhất.
+      # ── M07 · Quét chiến trường ─────────────────────────────────
+      # Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin bảy
+      # ngày rồi viết một câu tiếng Việt kèm phân loại xanh/vàng/đỏ.
+      #
+      # Trước đây nó nằm ở workflow riêng và trả bằng ANTHROPIC_API_KEY
+      # — 610K token, 4,30 USD cho ba lượt, tức ~170 USD/tháng ở nhịp
+      # 4 lượt/ngày. Lịch bị tắt sáng 14/08 vì vậy, và cung Đài Quan
+      # Trắc sống bằng bản quét cũ suốt từ đó.
+      #
+      # Nay nó về đây, trong cùng một vòng, và trả bằng QUOTA GÓI.
+      # Không còn khoá API nào trong repo này.
+      #
+      # BA BƯỚC, KHÔNG PHẢI MỘT — và đó là chỗ đáng chú ý nhất:
+      #   1. ra đề  — script đọc THEATERS trong data.js của app
+      #   2. quét   — model tìm tin, ghi JSON THÔ
+      #   3. dựng   — script kiểm JSON rồi mới dựng scan.js
+      # Cho model ghi thẳng scan.js thì một lỗi cú pháp của nó là một
+      # trang trắng cho người xem. Ghi JSON rồi ta dựng JS: hỏng thì
+      # hỏng ở chỗ đọc được, và bước 3 chặn trước khi đè bản cũ.
+      #
+      # Vẫn HAIKU chứ không phải Opus, và lý do không đổi dù giờ trả
+      # bằng quota: khối lượng ở đây KHÔNG CHẶN ĐƯỢC — WebSearch kéo
+      # nguyên nội dung trang vào ngữ cảnh, nhân sáu chiến trường.
+      # Chỗ khối lượng phình thì chọn model rẻ; chỗ khối lượng cố
+      # định (bao-cao) mới dùng Opus. Xem bảng trong CLAUDE.md.
+      - name: Ra đề cho bản quét
+        id: n-de-bai
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',dai-quan-trac,')
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/build-scan.mjs --de-bai
+
+      - name: Quét chiến trường (Claude Code)
+        id: n-quet
+        if: steps.n-de-bai.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-haiku-4-5
+            --max-turns 30
+            --allowedTools "Read,Write,WebSearch,WebFetch"
+          prompt: |
+            Đọc dai-quan-trac/assets/data/de-bai.json. Trong đó là danh
+            sách chiến trường, mỗi cái có `id`, `ten` và `tim`.
+
+            Với TỪNG chiến trường, dùng WebSearch tìm diễn biến MỚI
+            NHẤT trong 7 ngày gần đây theo `tim`. Bối cảnh: đây là
+            bảng quan trắc đánh giá tác động tới KINH TẾ VIỆT NAM.
+
+            Rồi ghi đúng MỘT file, dai-quan-trac/assets/data/quet.json,
+            đúng dạng này:
+
+            {"model":"claude-haiku-4-5","chien_truong":[
+              {"id":"<đúng id trong đề bài>",
+               "muc":"g|y|r",
+               "tom_tat":"1 câu tiếng Việt",
+               "tin_hieu":[
+                 {"tieu_de":"câu tiếng Việt mô tả sự kiện CÓ THẬT",
+                  "ngay":"YYYY-MM-DD",
+                  "nguon":"tên hãng tin",
+                  "tac_dong":"1 câu: sự kiện này truyền tới kinh tế Việt Nam qua đường nào"}]}]}
+
+            Luật:
+            · muc: g bình thường · y căng thẳng đáng chú ý · r gián đoạn nghiêm trọng.
+            · Tối đa 4 tín hiệu mỗi chiến trường. CHỈ dùng sự kiện thật
+              tìm được. Không tìm được gì thì để "tin_hieu": [].
+            · `id` phải lấy nguyên từ đề bài. Đừng đặt id mới.
+            · Tìm gọn: mỗi chiến trường vài lượt tìm là đủ, đừng đào sâu.
+            · Chỉ ghi đúng file quet.json. Không sửa file nào khác,
+              không chạy lệnh nào.
+
+      - name: Dựng bản quét
+        id: n-dai-quan-trac
+        if: steps.n-quet.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          t0=$(date +%s)
+          node scripts/build-scan.mjs 2>&1 | tee "$RUNNER_TEMP/dai-quan-trac.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · dai-quan-trac
+        if: always() && steps.n-de-bai.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-dai-quan-trac.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-dai-quan-trac.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi dai-quan-trac "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/dai-quan-trac.log"
+
       # ── M15 · Máy kiểm ─────────────────────────────────────────
       # Sơ đồ xưởng ghi "không có gì ra khỏi xưởng mà chưa qua kiểm",
       # nhưng cho tới nay thì đúng là không có bước kiểm nào: script
@@ -433,6 +532,7 @@ jobs:
                   tang-thu-cac/assets/data/lich-su.json \
                   tang-thu-cac/assets/data/kb/ \
                   dai-quan-trac/assets/js/do.js \
+                  dai-quan-trac/assets/js/scan.js \
                   factory/state.json \
                   factory/bao-cao.md \
                   tao-bien-xu/assets/js/v/van-hanh.js

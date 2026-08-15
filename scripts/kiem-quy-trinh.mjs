@@ -114,9 +114,11 @@ for (const [so] of cong) {
 /* CLAUDE.md liệt kê đường dẫn bot ghi đè. Nếu workflow add thêm
    đường dẫn mà tài liệu không ghi, phiên khác sẽ sửa tay đúng chỗ
    đó và chắc chắn conflict lúc gộp. */
+/* Từ 15/08 chỉ còn MỘT workflow ghi dữ liệu: bản quét Đài Quan Trắc
+   đã nhập vào refresh-data.yml khi nó bỏ ANTHROPIC_API_KEY. Danh
+   sách vẫn để dạng mảng — thêm workflow ghi file thì thêm dòng. */
 for (const [wf, ten] of [
-  [".github/workflows/refresh-data.yml", "refresh-data.yml"],
-  [".github/workflows/scan-observatory.yml", "scan-observatory.yml"]
+  [".github/workflows/refresh-data.yml", "refresh-data.yml"]
 ]) {
   if (!existsSync(join(ROOT, wf))) { bao(`Thiếu workflow ${wf}`); continue; }
   const t = await doc(wf);
@@ -248,7 +250,7 @@ const NGUON_GHI = [
   ["build-congbo.mjs", ".github/workflows/refresh-data.yml"],
   ["build-tangthu.mjs", ".github/workflows/refresh-data.yml"],
   ["pin-snapshot.mjs", ".github/workflows/refresh-data.yml"],
-  ["build-scan.mjs", ".github/workflows/scan-observatory.yml"]
+  ["build-scan.mjs", ".github/workflows/refresh-data.yml"]
 ];
 
 async function phamViAdd(wf) {
@@ -320,8 +322,7 @@ for (const [tep, wf] of NGUON_GHI) {
   catch (e) { bao(`scripts/nha-may.mjs không nạp được — ${e.message}`); }
 
   if (NM) {
-    const wfs = [".github/workflows/refresh-data.yml",
-                 ".github/workflows/scan-observatory.yml"];
+    const wfs = [".github/workflows/refresh-data.yml"];
     const noiDung = {};
     for (const w of wfs) if (existsSync(join(ROOT, w))) noiDung[w] = await doc(w);
 

@@ -4,6 +4,12 @@ dist/
 Thumbs.db
 *.log
 
+# Bản nháp của bước quét: đề bài sinh từ data.js, và JSON thô model
+# ghi ra. Cả hai chỉ sống trong một lượt chạy — thứ đáng giữ là
+# scan.js dựng từ chúng, đã qua kiểm.
+dai-quan-trac/assets/data/de-bai.json
+dai-quan-trac/assets/data/quet.json
+
 # Capacitor (khi đóng gói app native)
 android/
 ios/
