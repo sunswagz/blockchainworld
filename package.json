@@ -21,7 +21,8 @@
     "kiem": "node scripts/kiem-quy-trinh.mjs",
     "hook": "node scripts/cai-hook.mjs",
     "halls": "node scripts/build-halls.mjs",
-    "nang": "node scripts/nang-version.mjs"
+    "nang": "node scripts/nang-version.mjs",
+    "dich": "node scripts/dich-skill.mjs"
   },
   "engines": {
     "node": ">=18"

@@ -238,7 +238,46 @@
      cho 2.901 skill là bắt cả người không bao giờ mở chi tiết phải
      trả giá. */
   var kbCache = {};
+  var dichCache = {};
   var hoSoHienTai = null;   /* skill đang mở — chặn kết quả nạp về muộn */
+
+  /* ── BẢN DỊCH MÁY ─────────────────────────────────
+     Ba mức, và người đọc PHẢI phân biệt được:
+
+       1. dịch tay  — 42 skill chính chủ, đủ bốn mục kể cả "Với hệ
+                      thống của bạn". Tôi đã đọc từng SKILL.md.
+       2. dịch máy  — Haiku 4.5 dịch mô tả gốc. Ba mục, KHÔNG có
+                      "Với hệ thống của bạn": mục đó đòi biết hệ này
+                      có gì, máy sinh ra chỉ là bịa.
+       3. bản gốc   — chưa dịch, để nguyên tiếng Anh.
+
+     Trộn ba mức mà không gắn nhãn là kiểu lừa dối im lặng tệ nhất:
+     người đọc tưởng mọi dòng tiếng Việt đều đã có người đọc qua. */
+  function napDich(kho) {
+    if (dichCache[kho]) return dichCache[kho];
+    dichCache[kho] = fetch("./assets/data/dich/" + tenFileKb(kho))
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    return dichCache[kho];
+  }
+
+  function veDichMay(d) {
+    var h = '<div class="hs-h">Nó là gì <span class="nhan-may">máy dịch</span></div>' +
+      '<p class="hs-p">' + esc(d.tom) + "</p>";
+    if (d.lam && d.lam.length) {
+      h += '<div class="hs-h" style="margin-top:12px">Làm được gì</div><ul class="hs-lam">' +
+        d.lam.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+    }
+    if (d.khi) h += '<div class="hs-h" style="margin-top:12px">Khi nào Claude tự bật nó</div>' +
+      '<p class="hs-khi">' + esc(d.khi) + "</p>";
+    h += '<div class="hs-h" style="margin-top:12px">Mô tả gốc</div>' +
+      '<p class="hs-goc">' + esc(d.goc) + "</p>" +
+      '<p class="tua-luu">Ba mục trên do máy dịch từ chính mô tả gốc bên dưới — ' +
+      "không phải người đọc rồi viết lại. Cố ý <b>thiếu mục “Với hệ thống của bạn”</b>: " +
+      "mục đó đòi biết hệ thống của bạn có gì, máy sinh ra chỉ có thể là bịa. " +
+      "42 skill chính chủ vẫn được dịch tay và có đủ mục đó.</p>";
+    return h;
+  }
   function tenFileKb(kho) {
     return kho.replace(/\//g, "__").replace(/[^A-Za-z0-9_.-]/g, "_") + ".json";
   }
@@ -329,13 +368,14 @@
       h += '<div class="hs"><div class="hs-h">Mô tả gốc (tiếng Anh)</div>' +
         '<p class="hs-goc">' + esc(s.moTa) + "</p></div>";
     } else {
-      h += '<div class="hs"><div class="hs-h">Mô tả gốc — chưa dịch tay</div>' +
+      /* Chỗ này có thể được thay bằng bản dịch máy sau khi nạp xong
+         (xem napDich bên dưới). Bản gốc hiện trước để panel mở ngay,
+         không đợi mạng. */
+      h += '<div class="hs" id="hsDich"><div class="hs-h">Mô tả gốc — chưa dịch</div>' +
         '<p class="hs-goc">' + esc(s.moTa) + "</p>" +
         '<p class="hs-p" style="margin-top:9px;font-size:12.4px;color:var(--ink-3)">' +
-        "Chỉ 17 skill trong kho <code>anthropics/skills</code> được dịch và diễn giải tay, " +
-        "vì tôi đã đọc từng SKILL.md của chúng. Những skill còn lại — kể cả skill do Anthropic " +
-        "sở hữu ở kho khác — giữ nguyên bản gốc: bịa mô tả tiếng Việt cho skill chưa đọc kỹ " +
-        "còn tệ hơn để nguyên bản.</p></div>";
+        "42 skill chính chủ của Anthropic được đọc và diễn giải tay, đủ bốn mục kể cả " +
+        "<b>Với hệ thống của bạn</b>. Skill cộng đồng thì nhiều quá không đọc tay nổi.</p></div>";
     }
 
     /* Bảng tua đặt NGAY SAU phần mô tả, trước mọi thứ khác: đây là
@@ -402,6 +442,24 @@
        Kiểm lại id trước khi ghi: người dùng có thể đã bấm sang skill
        khác trong lúc chờ, ghi bừa là hiện bảng tua của skill trước. */
     hoSoHienTai = s.id;
+
+    /* Bản dịch máy: chỉ nạp khi skill này CHƯA có bản dịch tay.
+       Skill dịch tay không bao giờ bị bản máy đè lên — bản tay có
+       đủ bốn mục và đã qua mắt người. */
+    if (!d) {
+      napDich(s.kho).then(function (kho) {
+        if (hoSoHienTai !== s.id) return;
+        var o = $("#hsDich");
+        if (!o || $("#hoso").dataset.open !== "1") return;
+        var t = kho && kho.skills ? kho.skills[s.id] : null;
+        if (!t) return;                     /* chưa dịch — giữ nguyên bản gốc */
+        t.goc = s.moTa;
+        o.innerHTML = veDichMay(t);
+        var n = $("#hosoTag .the-cd");
+        if (n) { n.textContent = "máy dịch"; n.className = "the-nho the-may"; }
+      });
+    }
+
     napKb(s.kho).then(function (kb) {
       /* So với biến NGOÀI hàm, không so s.id với chính nó: `s` nằm
          trong closure nên s.id không bao giờ đổi, phép so kiểu đó
