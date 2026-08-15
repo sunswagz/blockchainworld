@@ -338,6 +338,13 @@ jobs:
         id: commit
         if: always()
         run: |
+          # Bước này ngã bốn lượt liền (#10–#13) mà không ai đọc được lý
+          # do: tải log Actions qua API thì phải đăng nhập, còn ANNOTATION
+          # thì đọc được từ ngoài, không cần khoá. Nên ở đây mọi lỗi tự
+          # khai ra annotation — lần sau nhìn thẳng trang Summary là thấy
+          # dòng nào ngã, thay vì đoán qua mã thoát.
+          trap 'echo "::error::Bước commit ngã ở dòng $LINENO"' ERR
+
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Liệt kê TỪNG đường dẫn, không add cả thư mục. Hai lý do, cả
@@ -392,24 +399,35 @@ jobs:
           # Ba vòng chứ không phải một: đẩy lại cũng có thể bị chen tiếp,
           # và lượt #12 đã chứng minh một vòng là không đủ.
           #
-          # Đụng nội dung thì DỪNG, không tự gỡ. Bot chỉ ghi file sinh,
-          # nhưng người thì đang sửa tay đúng mấy thư mục đó — máy đoán
-          # bên nào đúng là cách chắc chắn nhất để nuốt mất bản viết tay.
+          # `-X theirs` khi rebase: đụng thì lấy bản của LƯỢT NÀY. Nghe
+          # liều, nhưng an toàn vì một lý do cụ thể — commit của bot chỉ
+          # chứa đúng những đường dẫn trong `git add` bên trên, mà tất cả
+          # đều là file SINH RA. Không có file viết tay nào lọt vào được,
+          # nên không có bản viết tay nào để mà nuốt.
+          #
+          # Xấu nhất: người vừa commit tay một file sinh (CLAUDE.md dặn
+          # đừng làm) thì bản đó bị bot đè. Nhưng lượt sau bot dựng lại
+          # từ nguồn — trong đó có phần người vừa thêm — nên chậm nhất 6
+          # giờ là tự đúng lại. Đổi lại, xưởng không đứng im chờ người gỡ.
           for lan in 1 2 3; do
-            if git push; then
+            if out=$(git push 2>&1); then
               echo "changed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "Vòng $lan: main đã nhích — rebase lên bản mới rồi đẩy lại."
+            echo "$out"
+            echo "::error::Vòng $lan · đẩy hỏng: $(printf '%s' "$out" | tr '\n' ' ' | tail -c 300)"
             git fetch origin +refs/heads/main:refs/remotes/origin/main
-            if ! git rebase origin/main; then
-              echo "Rebase đụng nội dung — dừng ở đây, để người xử lý:"
-              git status --short
-              git rebase --abort || true
-              exit 1
+            if out=$(git rebase -X theirs origin/main 2>&1); then
+              echo "Vòng $lan: đã rebase lên $(git rev-parse --short origin/main), đẩy lại."
+              continue
             fi
+            echo "$out"
+            echo "::error::Vòng $lan · rebase hỏng: $(printf '%s' "$out" | tr '\n' ' ' | tail -c 300)"
+            echo "::error::Đụng ở: $(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+            git rebase --abort || true
+            exit 1
           done
-          echo "Đẩy hỏng ba vòng liền — main đang bị ghi quá dày."
+          echo "::error::Đẩy hỏng ba vòng liền — main đang bị ghi quá dày."
           exit 1
 
   # Bẫy của GitHub Actions: commit tạo bởi GITHUB_TOKEN KHÔNG kích hoạt
