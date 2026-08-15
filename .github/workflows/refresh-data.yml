@@ -371,7 +371,22 @@ jobs:
             exit 0
           fi
           git commit -m "data: cập nhật số liệu $(date -u +%d/%m/%Y' '%H:%M) UTC"
-          git push
+          # Lượt này dài — 14 phút 46 giây hôm 15/08, mà Tàng Thư Các một
+          # mình đã có lượt 532 giây. Trong ngần ấy thời gian, người ngồi
+          # máy push xen vào là chuyện bình thường: lượt #11 checkout ở
+          # dd716bf, đến lúc đẩy thì main đã ở be49b70 → non-fast-forward,
+          # mất trắng cả lượt số liệu vừa lấy xong.
+          #
+          # `concurrency` bên trên chỉ chặn hai workflow chồng nhau, không
+          # chặn được người. Nên ở đây rebase lên bản mới rồi đẩy lại.
+          # `--unshallow` vì checkout@v4 lấy depth 1 — không đủ nền chung
+          # để rebase. Repo đủ nhỏ, và chỉ chạy ở nhánh hiếm này.
+          if ! git push; then
+            echo "main đã nhích trong lúc job chạy — rebase rồi đẩy lại."
+            git fetch --unshallow origin main 2>/dev/null || git fetch origin main
+            git rebase origin/main
+            git push
+          fi
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
   # Bẫy của GitHub Actions: commit tạo bởi GITHUB_TOKEN KHÔNG kích hoạt
