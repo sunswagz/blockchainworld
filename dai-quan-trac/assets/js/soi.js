@@ -253,6 +253,22 @@ const SOI = [
       ]}
     ]},
 
+    {id:'goc', t:'Nguồn gốc — máy tạo tiền đầu tiên là công nghiệp, không phải đất', ic:'src', khoi:[
+      {k:'p', d:'Đây là chỗ khác Vingroup lớn nhất, và nó quyết định mọi thứ phía sau. Ông Trần Bá Dương xuất phát từ ngành cơ khí ô tô — Forbes ghi nhận ông làm tại một nhà máy <b>sửa chữa ô tô</b> từ thập niên 1980, đi từ công việc kỹ thuật lên quản lý, rồi lập THACO năm 1997.'},
+      {k:'a', d:'VINGROUP                THACO\n\nkinh doanh Đông Âu       CƠ KHÍ\n     ↓                      ↓\n    BĐS                   Ô TÔ\n     ↓                      ↓\n  TÀI SẢN                NHÀ MÁY\n     ↓                      ↓\n   VỐN                  CÔNG NGHIỆP\n     ↓                      ↓\nCÔNG NGHIỆP             LOGISTICS\n                            ↓\n                    ĐẤT / BĐS / HẠ TẦNG'},
+      {k:'moc', ds:[
+        {y:'1980s', t:'Kỹ sư sửa chữa ô tô', d:'Đi từ công việc kỹ thuật lên quản lý. Không có vốn gốc từ đất hay tài sản.'},
+        {y:'1997', t:'Lập THACO', d:'Nhập xe, bán xe, phụ tùng. Sau đó chuyển sang lắp ráp cho Kia, Mazda, Peugeot.', hot:1},
+        {y:'2003', t:'Vào Chu Lai', d:'Bước ngoặt lớn nhất giai đoạn đầu. Từ một doanh nghiệp bán xe, THACO bắt đầu tự dựng <b>hệ sinh thái vật chất phía sau chiếc xe</b>: nhà máy → linh kiện → cơ khí → KCN → logistics → cảng.', hot:1},
+        {y:'2008', t:'Jardine vào', d:'Forbes xem đây là bước ngoặt lớn. Vốn tư nhân quốc tế, không phải ngân sách.', hot:1},
+        {y:'2010s', t:'Ô tô + cơ khí + BĐS + logistics', d:'Bốn chân đứng hình thành. Đất bắt đầu vào hệ, nhưng vẫn là chân thứ tư chứ không phải chân đầu.'},
+        {y:'2018', t:'Nông nghiệp quy mô lớn', d:'Ứng hơn 10.500 tỷ vào HAGL Agrico. Tiền công nghiệp chuyển sang nông nghiệp.'},
+        {y:'2020s', t:'Cảng + KCN + hạ tầng', d:'Cảng Chu Lai, chuỗi khu công nghiệp, hạ tầng đô thị Thủ Thiêm.'},
+        {y:'2025–26', t:'Đường sắt và công nghiệp đường sắt', d:'Đề xuất Bắc–Nam, KCN cơ khí chuyên dụng Bình Dương nghiên cứu năng lực phục vụ đường sắt.', hot:1}
+      ]},
+      {k:'q', d:'Kết luận sâu nhất của hồ sơ này không phải "THACO là tay sai Nhà nước", mà là một điều cụ thể hơn nhiều: <b>THACO đang chuyển từ một doanh nghiệp ô tô tư nhân thành một hạ tầng công nghiệp quy mô quốc gia</b>. Và chính sự chuyển đổi đó mới là thứ đáng theo dõi.'}
+    ]},
+
     {id:'khoi', t:'Sáu khối ngành — một nền kinh tế thu nhỏ', ic:'factory', khoi:[
       {k:'p', d:'THACO không còn là hãng ô tô. Sáu khối được thiết kế theo hướng <b>bổ trợ và tích hợp với nhau</b> — đó là chữ chính cổ đông ngoại dùng khi mô tả tập đoàn.'},
       {k:'the', ds:[
@@ -316,6 +332,18 @@ const SOI = [
       {k:'p', d:'Nguyên nhân đòn bẩy tăng, theo tổ chức xếp hạng, chủ yếu là tài trợ cho các khoản đầu tư dài hạn mới trong <b>nông nghiệp và bất động sản</b>; dòng tiền âm phần lớn do vốn lưu động cho mở rộng nông nghiệp và việc bán bất động sản bị trì hoãn vì vấn đề pháp lý.'}
     ]},
 
+    {id:'kichban', t:'Hai kịch bản 2026–2027 — cùng một cấu trúc, hai kết cục', ic:'play', khoi:[
+      {k:'p', d:'Cấu trúc thác vốn ở trên không tự tốt hay tự xấu. Nó <b>khuếch đại</b> theo cả hai chiều, và chiều nào thắng phụ thuộc bốn biến chạy cùng lúc: ô tô bán được không, bất động sản bán được không, nông nghiệp có ngừng cần bơm không, lãi suất có ổn không.'},
+      {k:'the', ds:[
+        {t:'Chạy thuận', vd:'kỳ vọng của tổ chức xếp hạng', acc:'#2ea043',
+         d:'Auto khoẻ → tiền mạnh. BĐS bán tốt → tiền mạnh. Agri bắt đầu sinh lời → không cần bơm thêm. Lãi suất ổn → tái cấp vốn dễ. Khi đó dòng tiền hoạt động chuyển <b>dương trong 2026–2027</b> và Debt/EBITDA hạ từ đỉnh ~10x xuống trung bình khoảng <b>7x</b>.'},
+        {t:'Chạy ngược', vd:'vòng áp lực khép lại', acc:'#f0503f',
+         d:'Ô tô chậm + BĐS chậm bán + Agri vẫn cần tiền + lãi suất tăng. Auto thiếu tiền → mẹ thiếu thanh khoản → Agri thiếu vốn → vay thêm → nợ tăng → lãi tăng → lại phải tái cấp vốn. Và nếu THADICO không bán được thì <b>cửa thu tiền về cũng đóng</b>.'}
+      ]},
+      {k:'a', d:'CHẠY THUẬN                    CHẠY NGƯỢC\n\nAuto khoẻ                     Ô tô ↓\n   ↓                             +\ncash mạnh                   lãi suất ↑\n   ↓                             +\nBĐS bán tốt                 Agri cần tiền\n   ↓                             +\nAgri sinh lời               BĐS chậm bán\n   ↓                             ↓\nDebt/EBITDA ↓            đòn bẩy ↑ · tái cấp vốn ↑\nCFO ↑                    áp lực truyền NGƯỢC lên Auto'},
+      {k:'q', do:1, d:'Chính vì thế <b>khả năng tiếp tục vay với điều kiện thị trường</b> mới là biến quyết định xếp hạng của THACO — không phải khối tài sản nó đang nắm.'}
+    ]},
+
     {id:'vonquocte', t:'Vốn quốc tế — Jardine, HSBC và một cơ quan Ý', ic:'ship', khoi:[
       {k:'p', d:'Đây là điểm khác Vingroup rõ nhất về nguồn vốn: THACO có một cổ đông tổ chức nước ngoài rất lớn từ sớm, và đã mở được cả đường tín dụng xuất khẩu quốc tế.'},
       {k:'moc', ds:[
@@ -333,7 +361,7 @@ const SOI = [
       {k:'p', d:'Gộp chung "THACO có nhiều đất" là bỏ mất điều quan trọng nhất: ba loại đất này <b>sinh dòng tiền rất khác nhau</b>, và chỉ một loại có biên lợi nhuận đủ lớn để cứu bảng cân đối.'},
       {k:'the', ds:[
         {t:'Đất đô thị', vd:'Sala / Thủ Thiêm ~106 ha', acc:'#a371f7',
-         d:'Đất → hạ tầng → quy hoạch → căn hộ/villa → giá bán. Biên EBITDA ước 50–65%. Đây là loại được kỳ vọng tạo tiền mặt.'},
+         d:'Đất → hạ tầng → quy hoạch → căn hộ/villa → giá bán. Biên EBITDA ước 50–65%. Đây là loại được kỳ vọng tạo tiền mặt, cụ thể là các dự án <b>C2, C3, lô 6.8, villa Sarina và Saroma</b>, đóng góp ước 10–15% doanh thu tập đoàn giai đoạn 2025–2027.'},
         {t:'Đất công nghiệp', vd:'Chu Lai ~2,4 triệu m² · cơ khí 320 ha', acc:'#58a6ff',
          d:'Đất → nhà máy → sản xuất. Biên công nghiệp, thấp hơn BĐS nhưng ổn định và tạo tài sản thật.'},
         {t:'Đất nông nghiệp', vd:'~86.000 ha · VN, Lào, Campuchia', acc:'#d29922',
@@ -409,6 +437,15 @@ const SOI = [
       {k:'q', d:'Nhà nước không nhất thiết phải chuyển 50 tỷ USD cho ai. Chỉ cần <b>mở các ổ cắm</b>, thì doanh nghiệp tự mang dự án đi huy động được. Đấy mới là quyền lực thực sự của một đầu tàu quốc gia.'}
     ]},
 
+    {id:'chinhsach', t:'Chính sách — vì sao THACO có tên trong danh sách', ic:'book', khoi:[
+      {k:'p', d:'Phần này giải thích vì sao cả hồ sơ có nghĩa. Không có nó thì mọi con số ở trên chỉ là chuyện riêng của một tập đoàn.'},
+      {k:'p', d:'Nghị quyết 68 (2025) <b>không</b> nói quốc hữu hoá tập đoàn tư nhân. Nó nói kinh tế tư nhân là một động lực quan trọng nhất của nền kinh tế, và đặt mục tiêu đến 2030 có ít nhất <b>20 doanh nghiệp lớn tham gia chuỗi giá trị toàn cầu</b>.'},
+      {k:'a', d:'         NHÀ NƯỚC\n            ↓\n  chọn / tạo điều kiện\n   cho tập đoàn lớn\n            ↓\n   ┌────────┼────────┐\n  ĐẤT   TÀI CHÍNH  DỰ ÁN LỚN\n   └────────┼────────┘\n            ↓\n   NATIONAL CHAMPIONS'},
+      {k:'p', d:'Financial Times ngày 11/8/2026 phân tích chính sách mới theo hướng gần mô hình chaebol Hàn Quốc và <b>nêu đích danh THACO, Hoà Phát và FPT</b> là ứng viên tiềm năng bên cạnh Vingroup. Reuters ghi nhận Nghị quyết 68 có những cơ chế ưu tiên như đấu thầu hạn chế hoặc chỉ định trong một số bối cảnh, và THACO là một trong các tập đoàn tham gia đề xuất đường sắt Bắc–Nam.'},
+      {k:'q', do:1, d:'Nhưng cùng bản tin đó, Reuters <b>cảnh báo</b>: nếu tín dụng và ưu đãi tập trung quá nhiều vào một số tập đoàn, rủi ro với hệ thống ngân hàng và với cạnh tranh sẽ tăng. Đó chính là mặt kia của mô hình — và là lý do phải soi từng cái tên thay vì chỉ khen chiến lược.'},
+      {k:'p', d:'Nói cho đủ: mục tiêu của mô hình này có lẽ không phải <b>20 Vingroup</b>, mà là một <b>bộ công cụ quốc gia</b> trong đó mỗi tập đoàn giữ một ổ cắm khác nhau — Vingroup đô thị và hạ tầng, THACO công nghiệp và cơ khí, Hoà Phát thép, FPT công nghệ, Sun Group sân bay và du lịch, Sovico hàng không và tài chính, Masan tiêu dùng và khoáng sản, GELEX điện. Xem mục "Danh sách soi" ở trang Khung.'}
+    ]},
+
     {id:'khac', t:'Khác Vingroup ở chỗ nào', ic:'stairs', khoi:[
       {k:'a', d:'          VINGROUP\n              ↓\n       BĐS / TÀI SẢN\n              ↓\n          DÒNG VỐN\n              ↓\n   ┌──────────┼──────────┐\n  Ô TÔ    HẠ TẦNG   NĂNG LƯỢNG'},
       {k:'a', d:'            THACO\n              ↓\n            Ô TÔ\n              ↓\n           CƠ KHÍ\n              ↓\n   ┌──────────┼──────────┐\nLOGISTICS   KCN    NÔNG NGHIỆP\n    ↓        ↓         ↓\n  CẢNG     BĐS     XUẤT KHẨU\n   └────────┼─────────┘\n            ↓\n         HẠ TẦNG\n            ↓\n        ĐƯỜNG SẮT'},
@@ -444,7 +481,8 @@ const SOI = [
         '<b>Dòng tiền nội bộ chi tiết:</b> Auto → mẹ → Agri → HAGL, và Jardine rót vào pháp nhân nào.',
         '<b>Ưu đãi Nhà nước:</b> cái nào áp dụng chung cho cả ngành, cái nào dành riêng cho dự án THACO.'
       ]},
-      {k:'q', d:'Vòng sau đáng làm nhất là <b>bản đồ ngân hàng – trái phiếu – tài sản bảo đảm</b>. Chỉ có nó mới trả lời được câu quan trọng nhất: nếu một mắt xích THACO gặp vấn đề thì cú sốc truyền sang ngân hàng nào và pháp nhân nào trước tiên.'}
+      {k:'q', d:'<b>VÒNG 3</b> — khó nhất nhưng giá trị nhất: lập <b>bank-by-bank / bond-by-bond / collateral-by-collateral map</b>. Tức truy từng khoản nợ lớn xem ngân hàng nào cho vay, pháp nhân nào đứng tên, công ty mẹ bảo lãnh bao nhiêu, tài sản nào bị thế chấp, đáo hạn năm nào.<br><br>Chỉ có nó mới trả lời được câu quan trọng nhất: <b>nếu một mắt xích THACO gặp vấn đề thì cú sốc truyền sang ngân hàng nào và pháp nhân nào trước tiên.</b>'},
+      {k:'p', d:'Chỗ tối lớn nhất hiện nay đúng là danh sách ngân hàng. THACO chưa niêm yết nên không có thuyết minh kiểu "BIDV bao nhiêu · VietinBank bao nhiêu · Techcombank bao nhiêu" như VIC. Tổ chức xếp hạng chỉ xác nhận THACO có quan hệ tài trợ mạnh với các định chế lớn trong nước và quốc tế, và đó là một trong những lý do họ đánh giá thanh khoản 12–18 tháng vẫn quản lý được.'}
     ]}
   ],
 
