@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-15T14:18:35.358Z",
- "lan": 17,
+ "generatedAt": "2026-08-15T18:49:23.800Z",
+ "lan": 18,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -83,6 +83,30 @@ window.VAN_HANH = {
    "chuoiLoi": 0,
    "lucOk": "2026-08-15T14:03:49.567Z",
    "lucDoi": "2026-08-15T14:03:49.567Z"
+  },
+  {
+   "ma": "ho-bo",
+   "ten": "Dòng tiền Hộ Bộ",
+   "y": "Mười một đường DefiLlama công khai (TVL, phí, DEX, stablecoin, vụ mất tiền, lợi suất) cộng lịch sử 20 chuỗi, gộp thành một file. KHÔNG gọi AI, không khoá nào.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-hobu.mjs",
+   "ra": [
+    "ho-bo/assets/js/v/dong-tien.js"
+   ],
+   "cung": "ho-bo",
+   "cungTen": "Hộ Bộ",
+   "wf": "refresh-data.yml",
+   "luc": "2026-08-15T18:49:23.800Z",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-15T18:49:23.800Z",
+   "lucDoi": "2026-08-15T18:49:23.800Z"
   },
   {
    "ma": "tang-thu-cac",
@@ -276,6 +300,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-15T18:49:23.800Z",
+   "ma": "ho-bo",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-15T14:18:35.358Z",
    "ma": "bao-cao",
