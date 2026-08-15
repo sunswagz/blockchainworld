@@ -47,6 +47,11 @@ async def appjs() -> FileResponse:
     return FileResponse(WEB_DIR / "app.js", media_type="application/javascript")
 
 
+@app.get("/app.css")
+async def appcss() -> FileResponse:
+    return FileResponse(WEB_DIR / "app.css", media_type="text/css")
+
+
 # ── API đọc ───────────────────────────────────────────────────────────────
 @app.get("/api/state")
 async def state() -> JSONResponse:
