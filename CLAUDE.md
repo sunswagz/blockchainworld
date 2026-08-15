@@ -1,10 +1,14 @@
 # blockchainworld
 
-Repo chứa Cổng Thành (`index.html` ở gốc) và bảy cung, mỗi cung là một
+Repo chứa Cổng Thành (`index.html` ở gốc) và tám cung, mỗi cung là một
 webapp tĩnh độc lập có `index.html` riêng:
 
     cong-bo/  dai-quan-trac/  do-sat-vien/  hoang-thanh/
-    kinh-thanh/  tang-thu-cac/  tao-bien-xu/
+    kinh-thanh/  tang-thu-cac/  tao-bien-xu/  tu-cam-thanh/
+
+Có đúng một thư mục ở gốc **không** phải cung: `tu-cam-thanh-runtime/`.
+Nó là runtime Python của Tử Cấm Thành, không lên site — xem mục
+"Tử Cấm Thành cũng là ngoại lệ" bên dưới.
 
 ## Chạy song song nhiều phiên
 
@@ -308,6 +312,50 @@ ngày" **không bao giờ kèm ⚠**, vì nó sinh tay. **Năm** nguồn kia do 
 và phải tươi trong **1 ngày** — bot chạy 4 lượt/ngày, quá 1 ngày nghĩa là
 bốn lượt liên tiếp không ghi được gì.
 
+### Tử Cấm Thành cũng là ngoại lệ — và có một thư mục KHÔNG phải cung
+
+    tu-cam-thanh/assets/js/v/phien.js     ← sinh tay, PHẢI commit
+    tu-cam-thanh-runtime/                 ← Python, KHÔNG lên site
+
+Cung `tu-cam-thanh/` là trang tĩnh chỉ-đọc như mọi cung khác. Thứ sinh ra số
+liệu cho nó là `tu-cam-thanh-runtime/` — một runtime Python (FastAPI + vòng
+lặp nền + `ANTHROPIC_API_KEY` + ghi đĩa). Cùng lý do Hoàng Thành: Actions
+không chạy được thứ đó, nên chạy tay ở máy rồi commit lát cắt.
+
+    cd tu-cam-thanh-runtime
+    python run.py                 buồng lái ở localhost:5182, ghi mỗi vòng lặp
+    python -m trader.snapshot     ghi một lần rồi thoát
+
+**Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một
+bước xanh vĩnh viễn không sinh ra gì.
+
+**`tu-cam-thanh-runtime/` không được thêm vào `HALLS` của `build-dist.mjs`.**
+Nó nằm ngoài `dist/` vì `GATE` là danh sách tường minh. Thêm vào là đẩy mã
+nguồn và cấu hình lên GitHub Pages lẫn IPFS — mà IPFS đã pin là không rút lại
+được. Nó cũng không bị `npm run kiem` nhầm là cung, vì bộ kiểm chỉ tính thư
+mục có `index.html` **ngay tại gốc** thư mục đó; runtime chỉ có `web/index.html`
+ở tầng hai. Đừng tạo `tu-cam-thanh-runtime/index.html`.
+
+Buồng lái ở `:5182` có chat và nút điều khiển nên **chỉ sống ở máy**, không
+bao giờ lên site — trang công khai mà gọi được model là khoá đã ra tới trình
+duyệt. Cung tĩnh và buồng lái cố ý là hai giao diện: cung quan sát, runtime
+điều khiển.
+
+**Runtime này đọc `ANTHROPIC_API_KEY`, và đó KHÔNG mâu thuẫn với mục "Repo
+này không dùng `ANTHROPIC_API_KEY` nữa" bên trên.** Luật đó nói về *xưởng* —
+các node chạy tự động trong Actions, nay trả bằng quota gói qua
+`CLAUDE_CODE_OAUTH_TOKEN`. Runtime giao dịch nằm cùng nhóm với
+`scripts/dich-skill.mjs`: **công cụ chạy tay, ngoài vòng tự động**. Khoá đọc
+từ `tu-cam-thanh-runtime/.env` ở máy người chạy, file đó đã gitignore, và
+**repo không có secret nào cho nó**.
+
+Hệ quả phải giữ: đừng đưa runtime vào bất kỳ workflow nào. Làm vậy là đòi
+một secret tính tiền theo token quay lại repo — đúng thứ vừa bị bỏ, và ở
+đây còn tệ hơn vì vòng lặp giao dịch chạy liên tục chứ không phải 1 lượt/ngày.
+Runtime tự có trần `dailyBudgetUsd` và `maxCallsPerDay` trong `config.json`,
+nhưng trần ấy chỉ bảo vệ được máy đang chạy — nó không thay được việc **không
+để đường tự động nào chạm tới khoá**.
+
 Danh sách nguồn và ngưỡng nằm ở `scripts/tuoi-du-lieu.mjs`, dùng chung cho
 `npm run dist` (in ra) và `npm run kiem` (nhắc ở đầu phiên). Thêm cung mới
 có dữ liệu tự sinh thì thêm một dòng vào `NGUON` ở đó, không chép sang chỗ
@@ -381,6 +429,8 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5178  tang-thu-cac
     5179  hoang-thanh
     5180  tao-bien-xu
+    5181  tu-cam-thanh
+    5182  tu-cam-thanh-runtime  ← KHÔNG phải cung; là runtime Python (xem mục dưới)
 
 Luôn truyền cổng, đừng để mặc định:
 
