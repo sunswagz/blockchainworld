@@ -1,21 +1,13 @@
-# Báo cáo sức khoẻ xưởng
+# Báo cáo sức khoẻ xưởng — 15/08/2026 14:17 UTC (lượt 16)
 
-Chốt sổ 15/08/2026 13:11 UTC (lượt #6): xưởng về cơ bản khoẻ — mọi node
-có mặt trong sổ đều `ket: ok`, `chuoiLoi` = 0 — nhưng có một node im.
+Xưởng đang khoẻ: cả 9 node có ghi nhận trong `state.json` đều `ket: ok`, không node nào `chuoiLoi` >= 1.
 
-**Đáng lo — `dai-quan-trac` (bản quét, nhịp 12 giờ).** Dấu cuối là
-13/08 08:53, tức ~52 giờ trước lúc chốt sổ, hơn **4 lần** nhịp của nó.
-Nó không đỏ, và đó mới là chỗ khó thấy: `chuThich` ghi "mồi từ dấu
-generatedAt sẵn có trong file", nghĩa là sổ chưa ghi nhận **lượt chạy
-thật nào** của node này — nó im chứ không ngã.
+**Không có node đáng lo.** Không node nào trễ quá gấp đôi `nhip`: bảy node nhịp 6h và 12h đều chạy trong khoảng 14:02–14:17, `bao-cao` (nhịp 24h) chạy 13:12. `hoang-thanh` và `tu-cam-thanh` khai `nhip: 0` (chạy tay) nên không tính trễ.
 
-**Không ghi nhận trong sổ: `bao-cao` (M18, nhịp 24 giờ).** Có trong
-`registry.json` nhưng không có mục nào trong `state.json`.
+Một vết cũ, đã tự khỏi: `dai-quan-trac` ngã lúc 13:14 — "kiểm không qua: `scan.js` teo đột ngột 3886 byte, bản cũ 10188 byte". Lượt 14:17 đã `ok` và `doi: true`, chuỗi lỗi về 0.
 
-**Chạy đều mà dữ liệu đứng im: không có.** Năm node nhịp 6 giờ đều chạy
-trong khoảng 13:01–13:11 hôm nay với `doi: true` và `lucDoi` đúng bằng
-lượt đó. `dong-dau` có `doi: false`, `lucDoi: null` — đúng thiết kế đã
-ghi trong sổ đăng ký (bỏ qua khi sha256 trùng bản trước). `hoang-thanh`
-và `tu-cam-thanh` là `che: tay`, `nhip: 0`, không tính trễ.
+**Chạy đều nhưng đầu ra không đổi:** `dong-dau` — hai lượt gần nhất (13:11 và 14:16) đều `ok` mà `doi: false`, và `lucDoi` vẫn là `null`, tức chưa lượt nào ghi được thay đổi. Sổ đăng ký ghi nó tự bỏ qua khi sha256 trùng bản trước, nên `lucDoi: null` sau 16 lượt nghĩa là chưa từng đóng dấu được bản nào.
 
-**Làm trước:** tìm xem vì sao `dai-quan-trac` chưa có lượt chạy thật nào.
+Ngoài ra `tu-cam-thanh` có trong `registry.json` nhưng không có mục nào trong `state.json` — chưa từng được ghi nhận một lượt chạy.
+
+**Việc nên làm trước:** soi `dong-dau` — xác minh nó thật sự pin được bản số liệu, hay chỉ đang bỏ qua im lặng mỗi lượt.

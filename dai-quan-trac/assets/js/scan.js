@@ -1,157 +1,194 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-13T08:53:22.949Z
-   Nguồn: claude-opus-5 + web_search. Khoá API ở lại phía máy chủ.
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-15T14:17:36.280Z
+   Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
+   + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_SCAN = {
-  "generatedAt": "2026-08-13T08:53:22.949Z",
-  "date": "13/08/2026",
-  "model": "claude-opus-5",
+  "generatedAt": "2026-08-15T14:17:36.280Z",
+  "date": "15/08/2026",
+  "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "hormuz",
-      "tieu_de": "Lưu lượng tàu qua eo Hormuz giảm còn 6 chiếc trong ngày 10/8, so với 130 tàu/ngày thời trước chiến tranh, theo dữ liệu Kpler.",
-      "ngay": "2026-08-11",
-      "nguon": "Reuters",
-      "tac_dong": "Nguồn cung dầu thô, LPG và khí từ Vùng Vịnh bị nghẽn khiến giá nhập khẩu xăng dầu và LPG của Việt Nam tăng, đẩy chi phí vận tải, điện và lạm phát trong nước.",
+      "tieu_de": "Lưu lượng qua Eo Hormuz giảm xuống mức thấp kỷ lục, thế giới tiêu thụ kho dự trữ với tốc độ cao",
+      "ngay": "2026-08-13",
+      "nguon": "CNN",
+      "tac_dong": "Giá dầu tăng → chi phí nhập khẩu năng lượng của Việt Nam tăng, gây áp lực lên lạm phát và chi phí sản xuất",
       "muc": "r",
-      "at": "2026-08-13T08:53:22.949Z"
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
       "th": "hormuz",
-      "tieu_de": "Brent tăng hơn 2% lên sát 90 USD/thùng sau khi các vụ tấn công tàu làm tan hy vọng đạt thỏa thuận mở lại eo Hormuz, cao hơn khoảng 24% so với trước chiến tranh.",
+      "tieu_de": "Tàu chở dầu bị tập kích, lượng tàu chôn cục nước phối hợp tăng lên ít nhất 12 chiếc",
+      "ngay": "2026-08-05",
+      "nguon": "CNN",
+      "tac_dong": "Gián đoạn vận chuyển, tăng chi phí bảo hiểm → làm tăng giá dầu nhập khẩu",
+      "muc": "r",
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "hormuz",
+      "tieu_de": "Tràn dầu 500 dặm vuông ngoài khơi Oman, lan sang đất liền",
       "ngay": "2026-08-12",
-      "nguon": "Al Jazeera",
-      "tac_dong": "Giá dầu neo cao truyền vào giá xăng dầu bán lẻ và chi phí đầu vào sản xuất Việt Nam, gây áp lực lạm phát và làm tăng nhập siêu năng lượng.",
+      "nguon": "Lloyd's List Intelligence",
+      "tac_dong": "Nguy cơ gián đoạn vận chuyển dài hạn, ảnh hưởng giá dầu thô toàn cầu",
       "muc": "r",
-      "at": "2026-08-13T08:53:22.949Z"
-    },
-    {
-      "th": "hormuz",
-      "tieu_de": "Truyền thông nhà nước Iran công bố dự thảo cấm tàu Mỹ và Israel qua eo Hormuz, kèm mức phạt tới 20% giá trị hàng hóa với tàu vi phạm.",
-      "ngay": "2026-08-06",
-      "nguon": "CNBC",
-      "tac_dong": "Rủi ro pháp lý và phí quá cảnh mới làm hãng tàu tăng phụ phí, kéo dài thời gian giao hàng và tăng chi phí logistics cho hàng xuất nhập khẩu của Việt Nam đi Trung Đông.",
-      "muc": "r",
-      "at": "2026-08-13T08:53:22.949Z"
-    },
-    {
-      "th": "hormuz",
-      "tieu_de": "Bốn thuyền viên thiệt mạng trong vụ tấn công tàu hàng ở eo Bab el-Mandeb ngày 11/8, trong khi phí bảo hiểm rủi ro chiến tranh khu vực vẫn ở mức 7,5–10% giá trị thân tàu.",
-      "ngay": "2026-08-11",
-      "nguon": "Reuters",
-      "tac_dong": "Bảo hiểm và cước biển tăng vọt trên tuyến Á - Âu qua Biển Đỏ làm đội chi phí xuất khẩu dệt may, điện tử, nông sản Việt Nam sang châu Âu và Trung Đông.",
-      "muc": "r",
-      "at": "2026-08-13T08:53:22.949Z"
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Xuất khẩu dầu thô đường biển của Nga giảm còn 3,71 triệu thùng/ngày trong 4 tuần tính đến 9/8, mức thấp nhất kể từ tháng 5, khi các cảng Baltic và Biển Đen hoạt động dưới công suất.",
-      "ngay": "2026-08-11",
+      "tieu_de": "Xuất khẩu dầu thô Nga xuống 3,71 triệu thùng/ngày, thấp nhất kể từ tháng 5",
+      "ngay": "2026-08-09",
       "nguon": "Bloomberg",
-      "tac_dong": "Nguồn cung dầu thô toàn cầu bị thắt lại làm tăng rủi ro biến động giá nhập khẩu dầu thô và xăng dầu thành phẩm của Việt Nam, ảnh hưởng chi phí đầu vào vận tải và lạm phát.",
+      "tac_dong": "Giảm cung dầu toàn cầu → tăng giá dầu, ảnh hưởng chi phí nhập khẩu Việt Nam",
       "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Drone Ukraine tấn công nhà máy lọc dầu Taneco tại Nizhnekamsk (Tatarstan) gây cháy và làm 13 người thiệt mạng, nối tiếp chuỗi tập kích hạ tầng lọc dầu Nga.",
-      "ngay": "2026-08-10",
-      "nguon": "NBC News / Reuters",
-      "tac_dong": "Công suất lọc dầu Nga suy giảm khiến thị trường sản phẩm xăng dầu châu Á căng hơn, đẩy crack spread lên và làm tăng giá nhập khẩu xăng dầu của Việt Nam.",
-      "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Sinopec tăng mạnh nhập dầu ESPO của Nga (khoảng 241.000–320.000 thùng/ngày cho các lô giao tháng 7–9), với mức chiết khấu 1–2 USD/thùng so với Brent, rẻ hơn khoảng 10 USD so với dầu Oman và Tupi.",
-      "ngay": "2026-08-06",
-      "nguon": "Reuters",
-      "tac_dong": "Trung Quốc hưởng dầu giá rẻ giúp hạ chi phí sản xuất và tăng sức cạnh tranh hàng hóa Trung Quốc, gây áp lực cạnh tranh cho hàng xuất khẩu và hàng nội địa Việt Nam.",
-      "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Thổ Nhĩ Kỳ trì hoãn cấp phép quá cảnh qua Dardanelles cho một số tàu hướng về cảng Novorossiysk sau các vụ tấn công tàu chở dầu ở Biển Đen.",
-      "ngay": "2026-08-08",
+      "tieu_de": "Xuất khẩu dầu Nga dưới 4 triệu thùng/ngày lần đầu tiên trong 6 tuần",
+      "ngay": "2026-08-04",
       "nguon": "Bloomberg",
-      "tac_dong": "Rủi ro hàng hải và bảo hiểm tăng trên tuyến Biển Đen đẩy chi phí vận tải biển và phí bảo hiểm chiến tranh lên, làm tăng giá cước và chi phí logistics cho hàng xuất nhập khẩu Việt Nam.",
+      "tac_dong": "Suy giảm doanh thu xuất khẩu Nga làm các lò khai thác chuyển sang bán cho Trung Quốc, ảnh hưởng giá khí thế giới",
       "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Xuất khẩu Trung Quốc tháng 7/2026 tăng gần 24% so với cùng kỳ, thặng dư thương mại thu hẹp còn 112,5 tỷ USD; riêng xuất khẩu chip tăng 117%",
-      "ngay": "2026-08-07",
-      "nguon": "AP / Hải quan Trung Quốc (GACC)",
-      "tac_dong": "Hàng Trung Quốc giá rẻ và dòng chip dư thừa gia tăng áp lực cạnh tranh lên hàng xuất khẩu Việt Nam và làm tăng nguy cơ bị điều tra lẩn tránh xuất xứ tại thị trường Mỹ - EU.",
-      "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
+      "tieu_de": "Trung Quốc nhập khẩu 49,49 triệu tấn dầu thô tháng 8, tăng 4,9% so với tháng trước",
+      "ngay": "2026-08-31",
+      "nguon": "China Oil & Gas Industry Magazine",
+      "tac_dong": "Nhu cầu dầu Trung Quốc tăng → tăng giá dầu toàn cầu, chi phí nhập khẩu Việt Nam tăng nhẹ",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Nhập khẩu dầu thô Trung Quốc tháng 7/2026 phục hồi lên 35,73 triệu tấn (khoảng 8,45 triệu thùng/ngày), tăng 22% so với tháng 6 nhưng vẫn thấp hơn nhiều cùng kỳ do eo biển Hormuz bị gián đoạn",
-      "ngay": "2026-08-07",
-      "nguon": "Bloomberg",
-      "tac_dong": "Gián đoạn nguồn cung qua Hormuz đẩy rủi ro giá dầu và phí bảo hiểm vận tải, truyền vào chi phí nhập khẩu xăng dầu, giá điện và lạm phát của Việt Nam.",
-      "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
+      "tieu_de": "Sản lượng lọc dầu Trung Quốc tháng 8 tăng 2,8% năm trước lên 40,37 triệu tấn",
+      "ngay": "2026-08-31",
+      "nguon": "China Oil & Gas Industry Magazine",
+      "tac_dong": "Sản xuất công nghiệp Trung Quốc phục hồi, nhu cầu nhập khẩu năng lượng ổn định",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
-      "th": "tq",
-      "tieu_de": "Nhập khẩu than các loại của Trung Quốc tháng 7/2026 đạt 42,73 triệu tấn, tăng 20% so với cùng kỳ; lũy kế 7 tháng đạt 268,1 triệu tấn, tăng 4,3%",
-      "ngay": "2026-08-10",
-      "nguon": "Hải quan Trung Quốc (GACC) / SteelOrbis",
-      "tac_dong": "Trung Quốc hút than trở lại làm căng cung khu vực (đặc biệt từ Indonesia, Australia), đẩy giá than nhập cho nhiệt điện Việt Nam và chi phí sản xuất điện lên cao.",
-      "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
+      "th": "vn",
+      "tieu_de": "Tăng trưởng GDP Việt Nam quý II 2026 đạt 8,4%, vượt kỳ vọng, thúc đẩy bởi nhu cầu AI-driven manufacturing",
+      "ngay": "2026-08-15",
+      "nguon": "VnEconomy",
+      "tac_dong": "Kinh tế Việt Nam mạnh, thu hút vốn đầu tư trực tiếp, nâng giá trị xuất khẩu và sức mua nội địa",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
     },
     {
-      "th": "tq",
-      "tieu_de": "Khảo sát kinh tế tháng 7/2026 cho thấy đầu tư tài sản cố định Trung Quốc giảm khoảng 5,9%, sản xuất công nghiệp yếu đi, bán lẻ chỉ tăng 1,8% trong khi bất động sản tiếp tục là lực kéo lùi",
-      "ngay": "2026-08-06",
-      "nguon": "Caixin Global",
-      "tac_dong": "Cầu nội địa và xây dựng Trung Quốc yếu làm giảm nhu cầu nhập nguyên liệu, nông sản, cao su, xi măng - sắt thép và du lịch từ Việt Nam, đồng thời tăng nguy cơ thép, vật liệu dư thừa tràn sang thị trường Việt Nam.",
+      "th": "vn",
+      "tieu_de": "Xuất khẩu Việt Nam sang Mỹ đạt $113 tỷ, tăng 23% năm trước, mức cao nhất lịch sử",
+      "ngay": "2026-08-14",
+      "nguon": "Vietnam Trade Statistics",
+      "tac_dong": "Xuất khẩu mạnh tăng doanh thu, lợi nhuận doanh nghiệp, nhưng có nguy cơ sửa đổi thuế từ Mỹ",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "vn",
+      "tieu_de": "Đồng Việt Nam tăng giá 0,47% so với 12 tháng trước, giao dịch ở 26.145,5 VND/USD",
+      "ngay": "2026-08-14",
+      "nguon": "Trading Economics",
+      "tac_dong": "Tỷ giá hối đoái ổn định, hỗ trợ chi phí nhập khẩu và thương mại quốc tế",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "my",
+      "tieu_de": "USTR đề xuất tăng thuế 12,5% trên hàng xuất khẩu Việt Nam do lo ngại sử dụng lao động cưỡng bức",
+      "ngay": "2026-06-02",
+      "nguon": "USTR",
+      "tac_dong": "Nếu thực hiện, thuế khác biệt này sẽ giảm sức cạnh tranh giá xuất khẩu Việt Nam, giảm doanh thu từ Mỹ",
       "muc": "y",
-      "at": "2026-08-13T08:53:22.949Z"
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "my",
+      "tieu_de": "Việt Nam được xếp hạng 'Priority Foreign Country' lần đầu tiên 13 năm qua trong báo cáo Special 301 về sở hữu trí tuệ",
+      "ngay": "2026-03-29",
+      "nguon": "USTR",
+      "tac_dong": "Lệnh trừng phạt tiềm ẩn trên quyền sở hữu trí tuệ, ảnh hưởng đến ngành công nghiệp phần mềm và nội dung kỹ thuật số",
+      "muc": "y",
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "san",
+      "tieu_de": "TikTok Shop vượt Shopee trở thành nền tảng thương mại điện tử lớn nhất Việt Nam lần đầu tiên",
+      "ngay": "2026-08-15",
+      "nguon": "The Investor",
+      "tac_dong": "Chuyển dịch cơ cấu bán lẻ, doanh thu quảng cáo chuyển sang TikTok, thay đổi mô hình kinh tế bán lẻ Việt Nam",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "san",
+      "tieu_de": "GMV của bốn nền tảng thương mại điện tử lớn tăng 37% năm trước lên $13,6 tỷ",
+      "ngay": "2026-05-01",
+      "nguon": "GlobeNewswire",
+      "tac_dong": "Thị trường bán lẻ trực tuyến Việt Nam phát triển mạnh, cải thiện doanh số tiêu dùng toàn xã hội",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
+    },
+    {
+      "th": "san",
+      "tieu_de": "Shopee và TikTok Shop chiếm 97% thị phần thương mại điện tử Việt Nam, tập trung cao độ",
+      "ngay": "2026-04-22",
+      "nguon": "GlobeNewswire",
+      "tac_dong": "Độc quyền song lập của hai nền tảng, ít cơ hội cho đối thủ cạnh tranh, chi phí bán hàng cao với người bán",
+      "muc": "g",
+      "at": "2026-08-15T14:17:36.280Z"
     }
   ],
   "levels": {
     "hormuz": "r",
     "nga": "y",
-    "tq": "y"
+    "tq": "g",
+    "vn": "g",
+    "my": "y",
+    "san": "g"
   },
   "log": [
     {
       "ok": true,
       "t": "Hormuz",
-      "at": "2026-08-13T08:53:22.949Z",
-      "d": "4 tín hiệu · mức r · Eo Hormuz gần như tê liệt trong tuần qua: lưu lượng tàu rơi xuống mức một chữ số, Iran công bố dự thảo hạn chế quá cảnh, tàu tiếp tục bị tấn công và phí bảo hiểm chiến tranh vẫn ở mức 7,5–10% giá trị thân tàu, đẩy Brent lên sát 90 USD/thùng."
+      "at": "2026-08-15T14:17:36.280Z",
+      "d": "3 tín hiệu · mức r · Lưu lượng qua eo biển Hormuz vẫn thấp, kho dự trữ dầu toàn cầu đang cạn kiệt nhanh chóng, dự báo giá dầu khí tăng cao"
     },
     {
       "ok": true,
       "t": "Nga–Ukraina",
-      "at": "2026-08-13T08:53:22.949Z",
-      "d": "4 tín hiệu · mức y · Xuất khẩu dầu thô đường biển của Nga rơi xuống mức thấp nhất kể từ tháng 5 do drone Ukraine liên tục đánh nhà máy lọc dầu và cảng Biển Đen, trong khi Trung Quốc tăng mua dầu ESPO giá chiết khấu — dòng chảy dầu toàn cầu bị dịch chuyển nhưng giá dầu chưa tăng vọt."
+      "at": "2026-08-15T14:17:36.280Z",
+      "d": "2 tín hiệu · mức y · Xuất khẩu dầu Nga giảm xuống mức thấp nhất trong 3 tháng, lưu lượng đình chỉ do đình công ở chế biến và đình chỉ pipeline Druzhba"
     },
     {
       "ok": true,
       "t": "Trung Quốc",
-      "at": "2026-08-13T08:53:22.949Z",
-      "d": "4 tín hiệu · mức y · Trong tuần qua, số liệu tháng 7/2026 cho thấy Trung Quốc vẫn bùng nổ xuất khẩu (+23,9%) và tăng mạnh nhập than, nhưng nhập khẩu dầu thô chỉ hồi phục một phần từ đáy gần 10 năm do gián đoạn Hormuz, trong khi đầu tư và bất động sản tiếp tục co hẹp — rủi ro hai chiều với Việt Nam."
+      "at": "2026-08-15T14:17:36.280Z",
+      "d": "2 tín hiệu · mức g · Nhập khẩu dầu thô Trung Quốc tăng 4,9% tháng trước, sản lượng lọc dầu tăng 2,8% năm trước, nhu cầu dầu khí phục hồi bình thường"
     },
     {
-      "ok": false,
+      "ok": true,
       "t": "Việt Nam",
-      "at": "2026-08-13T08:53:22.949Z",
-      "d": "Quét lỗi — HTTP 400 — {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_i"
+      "at": "2026-08-15T14:17:36.280Z",
+      "d": "3 tín hiệu · mức g · GDP Việt Nam tăng 8,4% quý II, xuất khẩu lên $113 tỷ, đồng Việt Nam tăng giá, tiếp tục tăng trưởng mạnh"
     },
     {
-      "ok": false,
+      "ok": true,
       "t": "Hoa Kỳ",
-      "at": "2026-08-13T08:53:22.949Z",
-      "d": "Quét lỗi — HTTP 400 — {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"request_i"
+      "at": "2026-08-15T14:17:36.280Z",
+      "d": "2 tín hiệu · mức y · Mỹ đề xuất thuế 12,5% trên Việt Nam vì lao động cưỡng bức, Việt Nam được liệt kê là 'Priority Foreign Country' về sở hữu trí tuệ"
+    },
+    {
+      "ok": true,
+      "t": "Sàn TMĐT",
+      "at": "2026-08-15T14:17:36.280Z",
+      "d": "3 tín hiệu · mức g · Thị trường thương mại điện tử Việt Nam tăng 37% năm trước lên $13,6 tỷ, TikTok Shop vượt Shopee, song kiếp lĩnh thị trường"
     }
   ]
 };
