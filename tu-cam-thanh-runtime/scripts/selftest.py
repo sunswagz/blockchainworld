@@ -199,6 +199,30 @@ async def main() -> int:
     dd = risk.evaluate(ok_th, st, broker.snapshot(price), atr)
     check(not dd["approved"], "sau kill switch, lệnh hợp lệ vẫn bị chặn")
 
+    print("\n[8] CHƯA ĐỌC ĐƯỢC SỐ DƯ ≠ MẤT SẠCH VỐN")
+    # Lỗi thật đã xảy ra: lúc khởi động, peakEquity nạp từ đĩa còn số dư sàn
+    # chưa về nên equity = 0 ⇒ ngắt mạch tính drawdown 100% rồi CHỐT CỨNG kill
+    # switch. Số dư về sau vài giây, drawdown thật 0%, nhưng chốt không tự mở —
+    # bot đứng im vĩnh viễn với dòng chữ không khớp con số nào trên màn hình.
+    # Từ khi chạy nền tự khởi động, nó lặp lại mỗi lần bật máy.
+    r2 = RiskEngine(CONFIG["risk"])
+    chua_doc = {"equity": 0.0, "peakEquity": 73029.87, "equityKnown": False,
+                "positions": [], "dailyPnl": {}, "dailyStartEquity": {}}
+    brk2 = r2.circuit_breakers(chua_doc)
+    check(any("CHUA_DOC_DUOC_SO_DU" in b for b in brk2),
+          f"chưa đọc được số dư thì bị chặn: {brk2[0] if brk2 else 'KHÔNG CHẶN!'}")
+    check(not any("KILL_SWITCH" in b for b in brk2),
+          "…nhưng KHÔNG kích kill switch")
+    check(r2.halted_reason is None,
+          "…và không chốt cứng — lượt sau đọc được là chạy tiếp")
+
+    # Đọc được rồi thì hàng rào thật phải hoạt động lại bình thường.
+    da_doc = {**chua_doc, "equity": 73029.87, "equityKnown": True}
+    check(not r2.circuit_breakers(da_doc), "đọc được số dư, vốn nguyên vẹn → không chặn gì")
+    mat_that = {**chua_doc, "equity": 60000.0, "equityKnown": True}
+    check(any("KILL_SWITCH" in b for b in r2.circuit_breakers(mat_that)),
+          "vốn tụt thật 17.8% → kill switch vẫn kích như cũ")
+
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:

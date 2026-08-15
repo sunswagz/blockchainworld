@@ -344,6 +344,14 @@ class TestnetBroker:
 
         equity = 0.0
         avail = 0.0
+        # "Vốn bằng 0" và "chưa đọc được vốn" là HAI chuyện khác nhau, và gộp
+        # chúng lại đã gây ra một lỗi thật: lúc khởi động, `peakEquity` nạp từ
+        # đĩa (73.029) trong khi số dư sàn chưa kịp về nên equity còn 0 ⇒ ngắt
+        # mạch tính ra drawdown 100% và CHỐT CỨNG kill switch. Sau đó số dư về
+        # đủ, drawdown thật là 0%, nhưng chốt không bao giờ tự mở — bot đứng im
+        # vĩnh viễn với một câu thông báo không khớp con số nào trên màn hình.
+        # Từ khi có dịch vụ tự chạy, lỗi này lặp lại mỗi lần bật máy.
+        da_doc = False
         if self.ready and price:
             try:
                 f = self.client.filters(self.symbol)
@@ -354,12 +362,16 @@ class TestnetBroker:
                 # Tiền MUA ĐƯỢC, không phải vốn: phần USDT đang rảnh. Risk Engine
                 # cần con số này để không sinh ra lệnh mà sàn chắc chắn từ chối.
                 avail = quote.get("free", 0.0)
+                da_doc = True
             except BinanceError as e:
                 self.last_error = str(e)
         s["equity"] = round(equity, 2)
         s["availableQuote"] = round(avail, 2)
+        s["equityKnown"] = da_doc
 
-        peak = max(self.state.get("peakEquity", 0.0), equity)
+        # Đỉnh vốn chỉ được cập nhật bằng con số ĐÃ ĐỌC ĐƯỢC.
+        peak = max(self.state.get("peakEquity", 0.0), equity) if da_doc \
+            else self.state.get("peakEquity", 0.0)
         self.state["peakEquity"] = peak
         s["peakEquity"] = round(peak, 2)
 
@@ -377,7 +389,13 @@ class TestnetBroker:
         s["openPnl"] = round(open_pnl, 2)
         # Vốn đã gồm giá trị BTC đang giữ, nên không cộng thêm open_pnl lần nữa.
         s["equityMarked"] = s["equity"]
-        s["drawdownPct"] = round(max(0.0, (peak - equity) / peak * 100), 2) if peak else 0.0
+        s["drawdownPct"] = (round(max(0.0, (peak - equity) / peak * 100), 2)
+                            if (da_doc and peak) else 0.0)
         s["todayPnl"] = round(self.state.get("dailyPnl", {}).get(_utc_day(), 0.0), 2)
-        s.setdefault("dailyStartEquity", {}).setdefault(_utc_day(), equity or 0.0)
+        # Chỉ chốt vốn đầu ngày khi đã đọc được. Ghi 0 vào đây thì trần lỗ ngày
+        # bị TẮT LẶNG LẼ suốt ngày hôm đó — `start_of_day > 0` không bao giờ
+        # đúng nữa, nên không có gì báo là hàng rào đã biến mất.
+        if da_doc:
+            s.setdefault("dailyStartEquity", {}).setdefault(_utc_day(), equity)
+            self.state.setdefault("dailyStartEquity", {}).setdefault(_utc_day(), equity)
         return s

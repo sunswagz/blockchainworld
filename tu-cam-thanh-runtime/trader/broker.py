@@ -181,6 +181,10 @@ class PaperBroker:
         # Sàn giấy giữ toàn bộ vốn bằng tiền mặt nên "mua được" = "vốn". Vẫn khai
         # ra để Risk Engine chỉ có MỘT đường tính, không phải rẽ nhánh theo sàn.
         s["availableQuote"] = round(self.state["cash"], 2)
+        # Sàn giấy tự giữ sổ nên vốn LUÔN biết. Vẫn khai tường minh thay vì dựa
+        # vào giá trị mặc định của Risk Engine: hôm nào mặc định đổi chiều thì
+        # sàn giấy im lặng đi theo, và phép kiểm sẽ vẫn xanh.
+        s["equityKnown"] = True
         s["equityMarked"] = round(self.state["equity"] + open_pnl, 2)
         peak = self.state.get("peakEquity", self.state["equity"]) or 1
         s["drawdownPct"] = round(max(0.0, (peak - s["equityMarked"]) / peak * 100), 2)

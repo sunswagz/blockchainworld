@@ -38,6 +38,19 @@ class RiskEngine:
         if self.halted_reason:
             out.append(f"HALTED: {self.halted_reason}")
 
+        # Chưa đọc được số dư thì CHẶN, nhưng KHÔNG chốt kill switch.
+        #
+        # Hai chuyện khác hẳn nhau: "vốn tụt 10%" là một sự thật về thị trường
+        # và đáng dừng hẳn; "chưa hỏi được sàn" là một trục trặc tạm và sẽ qua
+        # sau vài giây. Gộp lại thì mỗi lần khởi động — lúc peakEquity đã nạp từ
+        # đĩa mà số dư chưa về — ngắt mạch thấy drawdown 100% rồi chốt vĩnh
+        # viễn. Chốt đó không tự mở, nên bot đứng im mãi trong khi màn hình vẫn
+        # hiện drawdown 0%.
+        if not account.get("equityKnown", True):
+            out.append("CHUA_DOC_DUOC_SO_DU: chưa hỏi được số dư sàn — "
+                       "đứng ngoài cho tới khi đọc được, KHÔNG phải kill switch")
+            return out
+
         equity = account["equity"]
         peak = account.get("peakEquity", equity)
         dd_pct = 0.0 if peak <= 0 else (peak - equity) / peak * 100

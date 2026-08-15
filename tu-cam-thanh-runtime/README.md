@@ -26,6 +26,18 @@ Thư mục này **không được thêm vào `HALLS`** của `build-dist.mjs`, v
 
 ## Chạy
 
+**Chạy nền (khuyên dùng)** — cài một lần, bật máy là tự chạy, có lối tắt desktop:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1
+```
+
+Chi tiết ở [`dichvu/README.md`](dichvu/README.md): bộ giám sát tự dựng lại
+runtime khi nó chết, có nghỉ tăng dần và biết bỏ cuộc khi cấu hình sai; nhật ký
+xoay vòng; và bốn cái bẫy Windows đã dẫm phải khi dựng nó.
+
+**Chạy tay:**
+
 ```bash
 pip install -r requirements.txt
 python run.py                    # buồng lái: http://localhost:5182
