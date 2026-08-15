@@ -138,7 +138,8 @@ conflict lúc merge.
     cong-bo/assets/js/v/nhat-ky.js
     cong-bo/assets/logos/
     tang-thu-cac/assets/js/data.js
-    tang-thu-cac/assets/data/
+    tang-thu-cac/assets/data/lich-su.json
+    tang-thu-cac/assets/data/kb/
     dai-quan-trac/assets/js/do.js
     factory/state.json
     factory/bao-cao.md
@@ -165,6 +166,15 @@ ghi `cong-bo/assets/js/` và điều đó sai theo cả hai hướng:
 Nên khi thêm một script sinh dữ liệu, hỏi đúng một câu: **script này
 `writeFile` vào những đường nào?** Mọi đường đó phải có ở đây và trong
 `git add`, không thừa không thiếu.
+
+Đúng lỗi đó vừa lặp lại một lần nữa với `tang-thu-cac/assets/data/`.
+Thư mục ấy còn chứa `dich/` — **bản dịch tiếng Việt VIẾT TAY** cho skill
+cộng đồng, bot không hề ghi. Gom cả thư mục thì hook báo nhầm mỗi lần
+sửa bản dịch, và tệ hơn: một phiên sau đọc mục này sẽ tưởng cả thư mục
+là bot sinh mà xoá đi. Nay liệt kê đúng hai đường bot thật sự ghi —
+`lich-su.json` và `kb/`.
+
+    tang-thu-cac/assets/data/dich/   ← VIẾT TAY, commit như mã nguồn
 
 `scan-observatory.yml` (41 phút sau 3 giờ UTC — nhưng nhịp thật là
 **1 lượt/ngày**, xem mục dưới):

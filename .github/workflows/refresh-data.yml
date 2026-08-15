@@ -360,7 +360,8 @@ jobs:
                   cong-bo/assets/js/v/nhat-ky.js \
                   cong-bo/assets/logos/ \
                   tang-thu-cac/assets/js/data.js \
-                  tang-thu-cac/assets/data/ \
+                  tang-thu-cac/assets/data/lich-su.json \
+                  tang-thu-cac/assets/data/kb/ \
                   dai-quan-trac/assets/js/do.js \
                   factory/state.json \
                   factory/bao-cao.md \
