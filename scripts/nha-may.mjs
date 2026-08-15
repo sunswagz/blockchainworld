@@ -387,6 +387,135 @@ export async function soDangKy() {
   return NODE.length;
 }
 
+/* ═══════════════ CHẨN ĐOÁN ═══════════════
+
+   Phần "học lại" của xưởng cho tới nay dừng ở chỗ VIẾT: M18 sinh
+   factory/bao-cao.md rồi hết. Không có gì đọc nó, không có gì hành
+   động theo nó. Một vòng học mà không ai đọc thì chỉ là một cái log
+   dài thêm mỗi ngày.
+
+   Chỗ này là nửa còn lại: đọc sổ, quyết định node nào đang ốm, và
+   trả về một danh sách máy dùng được. Không gọi model — mọi thứ ở
+   đây là so số với ngưỡng, đúng tinh thần build-quantrac.mjs.
+
+   Ba mức, tách ra vì hai mức đầu đáng gọi người dậy còn mức ba thì
+   không:
+
+     nga      ngã >= 2 lượt liền. Một lượt ngã là chuyện thường của
+              nguồn mạng; hai lượt liền là đã thành nếp.
+     tre      quá 2 lần nhịp mà chưa chạy. Nghĩa là workflow không
+              gọi tới nó, chứ không phải nó chạy rồi hỏng — hai bệnh
+              khác nhau, chữa ở hai chỗ khác nhau.
+     dung-im  chạy được, kết quả ok, nhưng nội dung không đổi suốt
+              8 lần nhịp. Đây là kiểu hỏng khó thấy nhất: node xanh,
+              bảng xanh, mà nguồn phía sau đã chết từ lâu.
+
+   `dung-im` CỐ Ý không tự mở việc. Có dữ liệu đứng im một cách hợp
+   lệ (logo không đổi hàng tháng là chuyện bình thường), nên để nó
+   gọi người dậy thì chỉ vài hôm là không ai thèm nhìn cảnh báo nữa.
+   Nó được liệt kê trong thân việc, để người đọc tự phán. */
+const NGUONG_NGA = 2;
+const NGUONG_TRE = 2;      /* lần nhịp */
+const NGUONG_DUNG_IM = 8;  /* lần nhịp */
+
+export function chanDoan(trangThai, bayGio = Date.now()) {
+  const ra = [];
+  for (const n of NODE) {
+    const s = trangThai.node[n.ma];
+    if (!s) continue;
+    const gioQua = s.luc ? (bayGio - new Date(s.luc).getTime()) / 36e5 : null;
+
+    if ((s.chuoiLoi || 0) >= NGUONG_NGA) {
+      ra.push({ ma: n.ma, ten: n.ten, muc: "nga", nang: true,
+        y: `ngã ${s.chuoiLoi} lượt liền, lượt cuối ${s.luc}` });
+      continue;
+    }
+    if (n.nhip && gioQua != null && gioQua > n.nhip * NGUONG_TRE) {
+      ra.push({ ma: n.ma, ten: n.ten, muc: "tre", nang: true,
+        y: `trễ ${gioQua.toFixed(1)} giờ, trong khi nhịp là ${n.nhip} giờ` });
+      continue;
+    }
+    if (n.nhip && s.ket === "ok" && s.lucDoi) {
+      const gioIm = (bayGio - new Date(s.lucDoi).getTime()) / 36e5;
+      if (gioIm > n.nhip * NGUONG_DUNG_IM)
+        ra.push({ ma: n.ma, ten: n.ten, muc: "dung-im", nang: false,
+          y: `chạy đều nhưng nội dung không đổi ${gioIm.toFixed(0)} giờ` });
+    }
+  }
+  return ra;
+}
+
+/* ═══════════════ CẢNH BÁO RA NGOÀI ═══════════════
+
+   Vì sao là GitHub Issue chứ không phải thêm một file trong repo:
+   file thì phải có người mở repo ra mới thấy, mà lúc xưởng ốm thì
+   thường chẳng ai mở. Issue tự đẩy thông báo về hộp thư.
+
+   MỘT việc duy nhất, sửa đi sửa lại — không mở việc mới mỗi lượt.
+   Nhịp 4 lượt/ngày mà mỗi lượt một issue thì một tuần có 28 việc
+   nói cùng một chuyện, và người ta tắt thông báo. Nên: có bệnh thì
+   mở (hoặc cập nhật thân việc, hoặc mở lại nếu đã đóng); hết bệnh
+   thì tự đóng kèm một dòng nói vì sao đóng.
+
+   Thiếu `gh` hoặc thiếu khoá thì IN RA rồi thôi, không ném. Chạy ở
+   máy để xem xưởng có ốm không là việc hợp lệ, và nó không được
+   phép đòi hỏi thứ chỉ có trên runner. */
+const TIEU_DE_VIEC = "Nhà máy: có node đang ốm";
+
+function gh(args) {
+  return execFileSync("gh", args, { cwd: ROOT, encoding: "utf8" }).trim();
+}
+
+export async function canhBao({ that = true } = {}) {
+  const t = await docTrangThai();
+  const benh = chanDoan(t);
+  const nang = benh.filter((b) => b.nang);
+
+  const than =
+    (nang.length
+      ? nang.map((b) => `- **${b.ten}** (\`${b.ma}\`) — ${b.y}`).join("\n")
+      : "Không có node nào đang ốm.") +
+    (benh.some((b) => !b.nang)
+      ? "\n\nNgờ, chưa chắc là bệnh:\n" +
+        benh.filter((b) => !b.nang).map((b) => `- ${b.ten} (\`${b.ma}\`) — ${b.y}`).join("\n")
+      : "") +
+    `\n\nSổ ghi: \`factory/state.json\` · Báo cáo: \`factory/bao-cao.md\`` +
+    `\nBảng vận hành: https://sunswagz.github.io/blockchainworld/tao-bien-xu/#van-hanh` +
+    `\n\n<sub>Việc này do \`nha-may.mjs canh-bao\` giữ, cập nhật mỗi lượt. Đừng sửa tay thân việc.</sub>`;
+
+  if (!that) return { benh, nang, than };
+
+  let ds = [];
+  try {
+    ds = JSON.parse(gh(["issue", "list", "--state", "all", "--limit", "30",
+      "--json", "number,title,state"]));
+  } catch {
+    console.log("canh-bao: không gọi được `gh` (thiếu lệnh hoặc thiếu khoá) — chỉ in ra.");
+    console.log(than);
+    return { benh, nang, than };
+  }
+
+  const viec = ds.find((v) => v.title === TIEU_DE_VIEC);
+
+  if (nang.length) {
+    if (!viec) {
+      gh(["issue", "create", "--title", TIEU_DE_VIEC, "--body", than]);
+      console.log(`canh-bao: mở việc mới — ${nang.length} node ốm`);
+    } else {
+      gh(["issue", "edit", String(viec.number), "--body", than]);
+      if (viec.state !== "OPEN") gh(["issue", "reopen", String(viec.number)]);
+      console.log(`canh-bao: cập nhật việc #${viec.number} — ${nang.length} node ốm`);
+    }
+  } else if (viec && viec.state === "OPEN") {
+    gh(["issue", "close", String(viec.number),
+      "--comment", "Hết node ốm — xưởng tự đóng việc này."]);
+    console.log(`canh-bao: đóng việc #${viec.number} — không còn node nào ốm`);
+  } else {
+    console.log("canh-bao: không có node nào ốm, không có việc nào cần mở.");
+  }
+  return { benh, nang, than };
+}
+
 /* ═══════════════ DÒNG LỆNH ═══════════════ */
 
 function doiSo(argv, ten, mac) {
@@ -430,6 +559,11 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
   } else if (lenh === "chieu") {
     console.log(`Chiếu: ${await chieu()} node → ${DUONG_CHIEU}`);
 
+  } else if (lenh === "canh-bao") {
+    /* `--thu` để xem thân việc mà không đụng gì trên GitHub. */
+    const kq = await canhBao({ that: !rest.includes("--thu") });
+    if (rest.includes("--thu")) console.log(kq.than);
+
   } else if (lenh === "bang") {
     const han = new Set(denHan(t));
     const gio = (l) => l ? ((Date.now() - new Date(l).getTime()) / 36e5).toFixed(1) + "h" : "—";
@@ -448,7 +582,7 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
     console.log("");
 
   } else {
-    console.log("Lệnh: so-dang-ky | mo-so | den-han | ghi <ma> <ok|loi|bo-qua> | chieu | bang");
+    console.log("Lệnh: so-dang-ky | mo-so | den-han | ghi <ma> <ok|loi|bo-qua> | chieu | canh-bao [--thu] | bang");
     process.exit(1);
   }
 }

@@ -37,6 +37,10 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  # Để bước "Mở việc nếu có node ốm" gọi được `gh issue`. Thiếu quyền
+  # này thì `gh` trả 403 — mà bước đó continue-on-error, nên nó hỏng
+  # im lặng và cảnh báo không bao giờ tới ai.
+  issues: write
 
 # CHUNG nhóm với scan-observatory.yml, có chủ ý: từ khi có sổ nhà
 # máy, hai workflow cùng ghi factory/state.json rồi cùng push lên
@@ -104,7 +108,7 @@ jobs:
       #
       # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
       # thành trang trí. Cộng lại MỖI LẦN thêm bước:
-      #   5 + 3 + 2 + 14 + 3 + 2 + 6 = 35  <  40
+      #   5 + 3 + 2 + 14 + 3 + 2 + 6 + 2 = 37  <  40
       # Thực tế không bao giờ cộng dồn hết vì node nhịp 24 giờ chỉ
       # chạy 1 trong 4 lượt, nhưng trần job vẫn là chốt cuối.
       #
@@ -333,6 +337,27 @@ jobs:
       - name: Chiếu sổ sang Bảng vận hành
         if: always()
         run: node scripts/nha-may.mjs chieu
+
+      # ── M18b · Học xong thì phải làm gì đó ──────────────────────
+      # Nửa còn thiếu của "xưởng học lại". `bao-cao.md` ở bước trên là
+      # thứ để ĐỌC — mà lúc xưởng ốm thì thường chẳng ai mở repo ra
+      # đọc. Bước này để KHÔNG PHẢI đọc mới biết: node ốm thì tự mở
+      # một việc trên GitHub, hết ốm thì tự đóng lại.
+      #
+      # KHÔNG gọi model. Chẩn đoán ở đây là so số với ngưỡng trong
+      # nha-may.mjs — cùng lối với build-quantrac.mjs. Chỗ nào số học
+      # trả lời được thì đừng trả tiền cho model trả lời.
+      #
+      # Một việc duy nhất, sửa đi sửa lại. Mở việc mới mỗi lượt thì
+      # nhịp 4 lượt/ngày thành 28 việc một tuần nói cùng một chuyện,
+      # và người ta tắt thông báo — cảnh báo tự huỷ chính nó.
+      - name: Mở việc nếu có node ốm
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/nha-may.mjs canh-bao
 
       - name: Commit nếu có thay đổi
         id: commit
