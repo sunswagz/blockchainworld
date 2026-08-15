@@ -1,0 +1,72 @@
+{"kho":"obra/superpowers","luc":"2026-08-15T06:00:00.000Z","nguon":"viết tay trong phiên, đọc mô tả gốc","skills":{
+"obra/superpowers/skills/brainstorming":{
+ "tom":"Bắt buộc chạy trước mọi việc sáng tạo: đào cho rõ ý định, yêu cầu và thiết kế trước khi viết dòng nào.",
+ "lam":["Hỏi cho ra thứ bạn thật sự muốn, không phải thứ bạn vừa nói","Chốt yêu cầu trước khi dựng","Bàn thiết kế trước khi cài đặt"],
+ "khi":"Bạn nhờ thêm tính năng, dựng thành phần mới, hoặc đổi hành vi có sẵn.",
+ "ban":"Đúng thứ đã thiếu vài lần trong hệ này. Bảng tua Tàng Thư Các suýt dựng sai vì tôi lao vào làm trước khi hỏi bạn muốn xem gì — phải quay lại hỏi mới ra được lựa chọn 'bảng tua + hồ sơ an toàn'."},
+"obra/superpowers/skills/dispatching-parallel-agents":{
+ "tom":"Giao việc cho nhiều agent chạy song song khi các việc thật sự độc lập.",
+ "lam":["Nhận ra hai việc trở lên không phụ thuộc nhau","Tách việc thành các nhánh không dùng chung trạng thái","Gửi đi cùng lúc thay vì xếp hàng"],
+ "khi":"Có từ hai việc độc lập trở lên, không cần chờ nhau và không tranh cùng dữ liệu.",
+ "ban":"Bạn đã chạy 2–4 phiên song song, mỗi phiên một cung, mỗi phiên một worktree. Skill này là bản đóng gói của đúng mô hình đó — nhưng ở tầng agent con trong một phiên, không phải nhiều phiên rời."},
+"obra/superpowers/skills/executing-plans":{
+ "tom":"Thực thi một bản kế hoạch đã viết sẵn, ở phiên riêng, có chốt kiểm tra giữa chừng.",
+ "lam":["Chạy kế hoạch trong phiên tách bạch","Dừng ở các mốc để soát","Bám kế hoạch thay vì ứng biến giữa đường"],
+ "khi":"Bạn đã có bản kế hoạch viết ra và muốn thực thi.",
+ "ban":"Cặp đôi với writing-plans. Hợp với việc lớn kiểu dựng một cung mới: viết kế hoạch ở phiên này, thực thi ở worktree khác, tránh vừa nghĩ vừa gõ."},
+"obra/superpowers/skills/finishing-a-development-branch":{
+ "tom":"Quyết định gộp nhánh thế nào khi việc đã xong và test đã xanh.",
+ "lam":["Xác nhận đã thật sự xong","Chọn cách đưa việc vào nhánh chính","Dọn nhánh sau khi gộp"],
+ "khi":"Cài đặt xong, test qua hết, và cần quyết định đưa vào đâu.",
+ "ban":"CLAUDE.md của bạn đã có mục 'Gộp về main' kèm ba lệnh chứng minh. Skill này là phần quyết định đứng trước ba lệnh đó — khi nào thì được phép gộp."},
+"obra/superpowers/skills/receiving-code-review":{
+ "tom":"Nhận góp ý review đúng cách: kiểm chứng trước, đừng gật cho xong.",
+ "lam":["Đọc góp ý rồi tự kiểm lại bằng chứng","Hỏi lại khi góp ý mơ hồ","Phản biện khi góp ý sai về kỹ thuật","Chỉ sửa sau khi đã hiểu vì sao"],
+ "khi":"Bạn nhận được góp ý review, nhất là khi góp ý không rõ hoặc nghe đáng ngờ.",
+ "ban":"Đúng bài học hôm nay: một agent khác báo sai thì đừng tin ngay. Con số '25 lượt API mỗi kho' tôi suýt xây cả thiết kế lên trên, hoá ra là đọc nhầm một lượt chạy không token."},
+"obra/superpowers/skills/requesting-code-review":{
+ "tom":"Chủ động nhờ review để xác nhận việc đã đạt yêu cầu, trước khi gộp.",
+ "lam":["Nhờ soát khi xong một tính năng lớn","Đối chiếu kết quả với yêu cầu ban đầu","Chặn trước khi gộp thay vì sau"],
+ "khi":"Xong một việc, xong một tính năng lớn, hoặc sắp gộp.",
+ "ban":"Repo bạn đã có /code-review. Skill này là phần quyết định khi nào gọi nó, chứ không phải công cụ soát."},
+"obra/superpowers/skills/subagent-driven-development":{
+ "tom":"Thực thi kế hoạch bằng agent con ngay trong phiên hiện tại, mỗi agent một việc độc lập.",
+ "lam":["Chia kế hoạch thành các việc rời","Giao mỗi việc cho một agent con","Gom kết quả lại"],
+ "khi":"Kế hoạch có nhiều việc độc lập và bạn muốn làm hết trong một phiên.",
+ "ban":"Khác dispatching-parallel-agents ở chỗ nó bám theo một kế hoạch có sẵn chứ không chỉ chia việc tuỳ hứng."},
+"obra/superpowers/skills/systematic-debugging":{
+ "tom":"Quy trình gỡ lỗi có hệ thống, bắt chạy trước khi được phép đề xuất bản sửa.",
+ "lam":["Tái hiện lỗi trước","Thu hẹp dần nguyên nhân","Chỉ sửa sau khi đã chỉ ra được nguyên nhân","Chặn thói đoán bừa rồi vá"],
+ "khi":"Gặp bất kỳ lỗi nào, test hỏng, hoặc hành vi lạ — trước khi đề xuất cách sửa.",
+ "ban":"Đây là thứ đã cứu vụ đường ống bot chết hôm 13–14/08. Nếu tôi đoán bừa là 'do khoá Pinata' rồi vá luôn thì đã bỏ sót nguyên nhân thứ hai — job hết giờ 10 phút — và nó vẫn chết tiếp."},
+"obra/superpowers/skills/test-driven-development":{
+ "tom":"Viết test trước, viết mã sau, cho mọi tính năng và mọi bản sửa lỗi.",
+ "lam":["Viết test đỏ trước khi cài đặt","Chỉ viết đủ mã cho test xanh","Áp cho cả sửa lỗi, không chỉ tính năng mới"],
+ "khi":"Sắp cài đặt bất kỳ tính năng hay bản sửa lỗi nào, trước khi viết mã.",
+ "ban":"Hệ của bạn hợp một biến thể: thử ngược. Bộ kiểm quy trình và chốt thời gian của Tàng Thư Các đều được kiểm bằng cách cố tình tạo lỗi rồi xem nó có kêu không — chứ không phải chỉ xem nó chạy êm."},
+"obra/superpowers/skills/using-git-worktrees":{
+ "tom":"Dùng git worktree để việc mới có không gian riêng, không giẫm lên chỗ đang làm dở.",
+ "lam":["Tạo worktree tách bạch cho việc mới","Dùng công cụ sẵn có, không có thì lùi về git worktree","Đảm bảo có không gian riêng trước khi thực thi kế hoạch"],
+ "khi":"Bắt đầu một việc cần tách khỏi chỗ đang làm, hoặc trước khi chạy một kế hoạch.",
+ "ban":"Chính xác là luật trong CLAUDE.md của bạn: một cung = một nhánh = một worktree. Và bạn đã tự phát hiện điều skill này không nói — worktree dùng chung .git/hooks, nên hook cài một lần là mọi phiên đều chạm."},
+"obra/superpowers/skills/using-superpowers":{
+ "tom":"Skill gốc của bộ superpowers: dạy Claude cách tìm và gọi các skill khác trước khi trả lời.",
+ "lam":["Bắt tra skill trước mọi phản hồi, kể cả câu hỏi làm rõ","Chỉ đường tới các skill còn lại trong bộ"],
+ "khi":"Mở đầu bất kỳ cuộc hội thoại nào.",
+ "ban":"Cẩn thận: skill này ép tra skill trước cả câu hỏi làm rõ. Đó là kiểu chỉ dẫn rất mạnh, sẽ chi phối mọi phiên — cài thì cài vào một dự án nháp trước, đừng cài thẳng vào ~/.claude/skills/."},
+"obra/superpowers/skills/verification-before-completion":{
+ "tom":"Cấm tuyên bố xong khi chưa chạy lệnh kiểm và chưa nhìn kết quả. Bằng chứng trước, khẳng định sau.",
+ "lam":["Chạy lệnh kiểm trước khi nói đã xong","Đọc kết quả thật thay vì suy ra","Áp trước khi commit và trước khi mở PR"],
+ "khi":"Sắp nói việc đã xong, đã sửa, đã qua — trước khi commit hoặc tạo PR.",
+ "ban":"Nếu chỉ chọn một skill trong cả kho này thì chọn cái này. Nó là bài học xuyên suốt hôm nay: cái ⚠ có mà không ai thấy, con số '24 tệp' hoá ra là mức cắt, đường ống chết hơn một ngày mà mọi phép kiểm đều xanh."},
+"obra/superpowers/skills/writing-plans":{
+ "tom":"Biến một bản đặc tả hoặc mớ yêu cầu thành kế hoạch từng bước, trước khi động vào mã.",
+ "lam":["Chuyển yêu cầu thành các bước rõ ràng","Viết kế hoạch ra trước khi gõ","Để kế hoạch làm mốc kiểm giữa chừng"],
+ "khi":"Bạn có đặc tả hoặc yêu cầu cho một việc nhiều bước, trước khi chạm vào mã.",
+ "ban":"Hợp với việc dựng cung mới — CLAUDE.md liệt kê bảy điểm nối phải xong thì một cung mới coi là hoàn thành. Đó vốn đã là một bản kế hoạch."},
+"obra/superpowers/skills/writing-skills":{
+ "tom":"Hướng dẫn viết skill mới, sửa skill cũ, và kiểm skill chạy được trước khi phát hành.",
+ "lam":["Dựng skill mới đúng khuôn","Sửa skill có sẵn","Kiểm skill hoạt động trước khi đưa vào dùng"],
+ "khi":"Bạn tạo skill mới, sửa skill cũ, hoặc muốn kiểm trước khi phát hành.",
+ "ban":"Bản của cộng đồng, đối chiếu được với skill-development chính chủ trong Tàng Thư Các. Điểm khác đáng chú ý: bản này nhấn vào KIỂM skill trước khi phát hành, thứ bản chính chủ nói nhẹ hơn."}
+}}

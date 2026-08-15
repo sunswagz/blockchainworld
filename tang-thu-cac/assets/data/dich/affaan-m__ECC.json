@@ -1,0 +1,119 @@
+{"kho":"affaan-m/ECC","luc":"2026-08-15T06:00:00.000Z","nguon":"viết tay trong phiên, đọc mô tả gốc","skills":{
+"affaan-m/ECC/.agents/skills/everything-claude-code":{
+ "tom":"Quy ước và khuôn mẫu phát triển của chính bộ everything-claude-code.",
+ "lam":["Đặt quy ước cho dự án JavaScript","Dùng conventional commits"],
+ "khi":"Bạn làm việc trong chính kho ECC."},
+"affaan-m/ECC/skills/accessibility":{
+ "tom":"Thiết kế, cài đặt và rà soát khả năng tiếp cận theo chuẩn WCAG 2.2 mức AA.",
+ "lam":["Sinh ARIA ngữ nghĩa cho web","Rà một thay đổi về bàn phím, tương phản, trình đọc màn hình","Soát giao diện theo WCAG 2.2 AA"],
+ "khi":"Bạn dựng hoặc rà giao diện phải đạt WCAG 2.2 mức AA.",
+ "ban":"Bảy cung của bạn đều là giao diện tự viết, không dùng khung nào. Đáng chạy thử trên Tàng Thư Các — bảng tua mới thêm dùng nhiều màu và biểu tượng, chưa ai soát tương phản."},
+"affaan-m/ECC/skills/agent-architecture-audit":{
+ "tom":"Chẩn đoán toàn tầng cho ứng dụng agent và LLM: soi 12 lớp để tìm lỗi kiến trúc.",
+ "lam":["Tìm rò rỉ bộ nhớ ngữ cảnh","Bắt vòng lặp tự sửa ẩn","Phát hiện kỷ luật công cụ bị vỡ","Xuất danh sách lỗi xếp theo mức nghiêm trọng, kèm bản vá"],
+ "khi":"Bạn dựng ứng dụng agent và muốn soi kiến trúc thay vì chỉ sửa triệu chứng."},
+"affaan-m/ECC/skills/agent-eval":{
+ "tom":"So trực tiếp các agent lập trình với nhau trên chính việc của bạn, bằng số đo thật.",
+ "lam":["Đo tỷ lệ hoàn thành","Đo chi phí và thời gian","Đo độ ổn định giữa các lần chạy","So Claude Code với Aider, Codex…"],
+ "khi":"Bạn chọn giữa các agent, hoặc vừa đổi cấu hình và muốn số thay vì cảm giác.",
+ "ban":"Cùng tinh thần với việc hôm nay: đo thay vì đoán. Con số 1,4 USD mỗi lượt quét chỉ lộ ra khi đếm lượt chạy thật rồi chia."},
+"affaan-m/ECC/skills/agent-harness-construction":{
+ "tom":"Thiết kế không gian hành động, định nghĩa công cụ và cách trình bày quan sát cho agent.",
+ "lam":["Gọt bộ công cụ của agent","Định hình không gian hành động","Sửa cách trả kết quả về cho agent dễ đọc"],
+ "khi":"Bạn định nghĩa hoặc sửa lại bộ công cụ của một agent."},
+"affaan-m/ECC/skills/agent-introspection-debugging":{
+ "tom":"Quy trình tự gỡ lỗi khi một lượt chạy agent thất bại: bắt lỗi, chẩn đoán, phục hồi có kiểm soát, viết báo cáo.",
+ "lam":["Ghi lại hiện trường lúc hỏng","Chẩn đoán tái hiện được","Phục hồi trong phạm vi kiểm soát","Xuất báo cáo tự soi"],
+ "khi":"Một lượt agent hỏng và bạn cần chẩn đoán tái hiện được thay vì chạy lại cầu may.",
+ "ban":"Đúng thứ thiếu khi Đài Quan Trắc hỏng 4/4 lượt. Không có báo cáo tái hiện được, tôi phải lần từ API Actions ngược về mới thấy khoá chết."},
+"affaan-m/ECC/skills/agent-payment-x402":{
+ "tom":"Cho agent tự thanh toán qua x402, có ngân sách từng việc và ví không giữ hộ.",
+ "lam":["Đặt ngân sách cho từng tác vụ","Kiểm soát mức chi","Nối ví Base qua agentwallet-sdk","Nối X Layer qua OKX Payments"],
+ "khi":"Agent phải tự trả tiền cho thứ gì đó và cần trần chi tiêu.",
+ "ban":"Đọc kỹ trước khi cài: skill này cho agent quyền tiêu tiền thật. Tàng Thư Các gắn cờ 'đọc khoá/bí mật' cho nó là đúng."},
+"affaan-m/ECC/skills/agent-self-evaluation":{
+ "tom":"Agent tự chấm việc vừa làm trên năm trục, kèm bằng chứng cho từng trục.",
+ "lam":["Chấm độ chính xác, đầy đủ, rõ ràng, khả dụng, súc tích","Bắt nêu bằng chứng cho mỗi điểm","Xuất bảng điểm 1–5 kèm gợi ý sửa"],
+ "khi":"Vừa xong một việc không tầm thường.",
+ "ban":"Cẩn thận một điều: tự chấm không thay được kiểm chứng bằng lệnh. Bài học hôm nay là bằng chứng phải đến từ tool result, không phải từ agent tự tin."},
+"affaan-m/ECC/skills/agent-sort":{
+ "tom":"Lọc bộ ECC xuống đúng phần một kho thật sự cần, chia thành nhóm dùng hằng ngày và nhóm để tra.",
+ "lam":["Rà kho bằng nhiều lượt đọc song song","Xếp skill, lệnh, luật, hook vào hai rổ","Xuất kế hoạch cài có căn cứ"],
+ "khi":"Bạn muốn cài ECC nhưng chỉ lấy phần dự án cần, không nuốt cả bộ."},
+"affaan-m/ECC/skills/agentic-engineering":{
+ "tom":"Cách làm kỹ thuật khi agent là người thực thi: đo trước, chia việc, chọn model theo chi phí.",
+ "lam":["Đặt tiêu chí đo trước khi làm","Chia việc lớn thành phần agent gánh được","Định tuyến model theo chi phí"],
+ "khi":"Bạn lập kế hoạch cho việc mà agent sẽ làm từ đầu tới cuối.",
+ "ban":"Phần 'định tuyến model theo chi phí' đúng chỗ hệ này vừa vấp: Đài Quan Trắc chạy Opus cho việc Haiku làm được, và đó là toàn bộ lý do hết tiền."},
+"affaan-m/ECC/skills/agentic-os":{
+ "tom":"Dựng hệ điều hành nhiều agent chạy dài trên Claude Code, không cần cơ sở dữ liệu ngoài.",
+ "lam":["Dựng lõi điều phối","Tạo agent chuyên trách","Bộ nhớ dựa trên tệp","Tự động hoá theo lịch"],
+ "khi":"Bạn muốn một hệ nhiều agent có bộ nhớ riêng, sống lâu, trên Claude Code.",
+ "ban":"Gần với thứ bạn đang có: 'nhà máy' trong scripts/nha-may.mjs với sổ lịch riêng cho từng node cũng chính là một lõi điều phối, chỉ khác là chạy trong Actions."},
+"affaan-m/ECC/skills/ai-first-engineering":{
+ "tom":"Mô hình vận hành cho đội mà phần lớn mã do agent viết ra.",
+ "lam":["Đặt quy trình cho đội","Đặt cổng review","Đặt luật ai chịu trách nhiệm phần nào"],
+ "khi":"Bạn định quy trình cho một kho mà agent viết phần lớn mã.",
+ "ban":"Blockchainworld đúng là kho như vậy. CLAUDE.md của bạn chính là tài liệu loại này, viết theo cách riêng."},
+"affaan-m/ECC/skills/ai-regression-testing":{
+ "tom":"Chiến lược test hồi quy cho mã do AI viết, kể cả khi cùng một model vừa viết vừa soát.",
+ "lam":["Test API ở chế độ hộp cát, không cần cơ sở dữ liệu","Quy trình soát lỗi tự động","Bắt điểm mù khi model tự soát mã mình vừa viết"],
+ "khi":"Bạn thêm test cho mã AI viết, hoặc lo chuyện model tự soát mình.",
+ "ban":"Điểm mù đó là thật và đã xảy ra: tôi viết phép kiểm độ tươi rồi tự thấy nó chạy, mà ngưỡng 2 ngày quá lỏng thì phải đo mới lộ."},
+"affaan-m/ECC/skills/android-clean-architecture":{
+ "tom":"Khuôn kiến trúc sạch cho dự án Android và Kotlin Multiplatform.",
+ "lam":["Chia module","Đặt luật phụ thuộc giữa các lớp","Dựng UseCase và Repository","Khuôn cho tầng dữ liệu"],
+ "khi":"Bạn sắp xếp module, tầng, hoặc luồng dữ liệu trong dự án Android hay KMP."},
+"affaan-m/ECC/skills/angular-developer":{
+ "tom":"Sinh mã Angular và tư vấn kiến trúc.",
+ "lam":["Tạo dự án, thành phần, dịch vụ","Tư vấn reactivity: signal, linkedSignal, resource","Form, dependency injection, định tuyến, SSR","Khả năng tiếp cận, hoạt cảnh, tạo kiểu"],
+ "khi":"Bạn làm việc với Angular."},
+"affaan-m/ECC/skills/api-connector-builder":{
+ "tom":"Dựng đầu nối API mới bám đúng khuôn tích hợp đã có trong kho.",
+ "lam":["Đọc khuôn tích hợp hiện có","Dựng đầu nối mới theo đúng khuôn đó","Tránh đẻ ra kiến trúc thứ hai"],
+ "khi":"Bạn thêm một tích hợp nữa và không muốn nó lệch khuôn.",
+ "ban":"Đúng nguyên tắc hệ này giữ suốt: build-halls sinh halls.js cho cả bảy cung từ một khuôn, thay vì mỗi cung một kiểu."},
+"affaan-m/ECC/skills/api-design":{
+ "tom":"Khuôn thiết kế REST API cho môi trường chạy thật.",
+ "lam":["Đặt tên tài nguyên","Chọn mã trạng thái","Phân trang và lọc","Định dạng lỗi, đánh phiên bản, giới hạn tần suất"],
+ "khi":"Bạn thiết kế hoặc rà các endpoint REST."},
+"affaan-m/ECC/skills/architecture-decision-records":{
+ "tom":"Ghi lại các quyết định kiến trúc trong phiên Claude Code thành ADR có cấu trúc.",
+ "lam":["Tự nhận ra lúc nào là một quyết định","Ghi bối cảnh và các phương án đã cân nhắc","Ghi lý do chọn","Giữ sổ ADR cho người sau hiểu vì sao mã có hình dạng này"],
+ "khi":"Trong lúc làm việc có quyết định kiến trúc đáng ghi lại.",
+ "ban":"Hệ này đang làm việc đó bằng thông điệp commit dài — mỗi commit hôm nay đều ghi vì sao, không chỉ ghi cái gì. ADR là bản có cấu trúc hơn của cùng thói quen."},
+"affaan-m/ECC/skills/article-writing":{
+ "tom":"Viết bài dài — hướng dẫn, blog, bản tin — theo một giọng văn rút từ mẫu bạn đưa.",
+ "lam":["Bám giọng văn từ mẫu hoặc hướng dẫn thương hiệu","Dựng bố cục bài dài","Giữ nhất quán giọng và độ tin cậy"],
+ "khi":"Bạn cần nội dung viết dài hơn một đoạn, và cần giữ đúng giọng."},
+"affaan-m/ECC/skills/automation-audit-ops":{
+ "tom":"Kiểm kê và soi chồng chéo giữa các thứ tự động hoá, dựa trên bằng chứng.",
+ "lam":["Liệt kê job, hook, đầu nối, máy chủ MCP đang sống","Chỉ ra cái hỏng, cái thừa, cái thiếu","Soi trước khi sửa"],
+ "khi":"Bạn muốn biết những gì đang chạy, hỏng, hay trùng nhau trước khi động vào.",
+ "ban":"Nếu có nó hôm qua thì đã đỡ nửa ngày: 21 trên 42 lượt Actions đang hỏng, trong đó deploy-ipfs hỏng sạch 16/16, mà không có gì báo."},
+"affaan-m/ECC/skills/autonomous-agent-harness":{
+ "tom":"Biến Claude Code thành hệ agent tự chạy: bộ nhớ bền, chạy theo lịch, hàng đợi việc.",
+ "lam":["Dùng cron và dispatch sẵn có của Claude Code","Bộ nhớ bền giữa các phiên","Xếp hàng tác vụ","Thay cho khung ngoài kiểu AutoGPT"],
+ "khi":"Bạn muốn Claude Code chạy liên tục thay vì từng phiên rời."},
+"affaan-m/ECC/skills/autonomous-loops":{
+ "tom":"Các khuôn vòng lặp tự chạy, từ đường ống tuần tự tới hệ nhiều agent theo DAG.",
+ "lam":["Khuôn vòng lặp tuần tự","Khuôn nhiều agent theo đồ thị"],
+ "khi":"Giữ lại cho tương thích — cần hướng dẫn mới thì dùng continuous-agent-loop.",
+ "ban":"Mô tả gốc tự nói nó đã lỗi thời và trỏ sang skill khác. Đây là ví dụ tốt cho việc đọc kỹ trước khi cài: cài nhầm bản cũ thì mất công."},
+"affaan-m/ECC/skills/backend-patterns":{
+ "tom":"Khuôn kiến trúc phía máy chủ cho Node.js, Express và Next.js API route.",
+ "lam":["Thiết kế API","Tối ưu truy vấn cơ sở dữ liệu","Khuôn truy cập dữ liệu"],
+ "khi":"Bạn dựng hoặc rà API route trong Node, Express hay Next.js."},
+"affaan-m/ECC/skills/benchmark":{
+ "tom":"Đo mốc hiệu năng, bắt tụt hiệu năng trước và sau PR, so các lựa chọn công nghệ.",
+ "lam":["Lập mốc hiệu năng cơ sở","So trước/sau một PR","So các phương án công nghệ với nhau"],
+ "khi":"Bạn cần biết một thay đổi làm nhanh lên hay chậm đi."},
+"affaan-m/ECC/skills/benchmark-methodology":{
+ "tom":"Chấm điểm đối thủ trên chín trục có trọng số, sau khi đã có danh sách phân hạng.",
+ "lam":["Chấm định vị, giọng nói, mỹ thuật, đóng gói chào hàng","Chấm bằng chứng, mức sẵn sàng cho doanh nghiệp, giá","Dùng thang 1–5 có tiêu chí rõ"],
+ "khi":"Sau khi competitive-platform-analysis đã cho ra danh sách đối thủ phân hạng."},
+"affaan-m/ECC/skills/benchmark-optimization-loop":{
+ "tom":"Vòng lặp tối ưu: thử nhiều biến thể, đo lặp lại, chọn bản tốt nhất bằng số.",
+ "lam":["Sinh nhiều biến thể cài đặt","Đo độ trễ, thông lượng, chi phí","Chạy tối ưu đệ quy","Chọn bản thắng theo số đo"],
+ "khi":"Bạn nhờ làm cái gì đó nhanh hơn, hoặc chọn bản cài đặt tốt nhất."}
+}}

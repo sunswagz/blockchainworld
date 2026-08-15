@@ -261,8 +261,13 @@
     return dichCache[kho];
   }
 
+  /* d.may = 1 → API dịch máy, chưa ai đọc. Không có cờ đó → tôi đọc
+     mô tả rồi viết, và thường viết được cả mục "Với hệ thống của
+     bạn" — thứ máy không thể có vì nó không biết hệ này có gì. */
   function veDichMay(d) {
-    var h = '<div class="hs-h">Nó là gì <span class="nhan-may">máy dịch</span></div>' +
+    var may = !!d.may;
+    var h = '<div class="hs-h">Nó là gì' +
+      (may ? ' <span class="nhan-may">máy dịch</span>' : "") + "</div>" +
       '<p class="hs-p">' + esc(d.tom) + "</p>";
     if (d.lam && d.lam.length) {
       h += '<div class="hs-h" style="margin-top:12px">Làm được gì</div><ul class="hs-lam">' +
@@ -270,12 +275,17 @@
     }
     if (d.khi) h += '<div class="hs-h" style="margin-top:12px">Khi nào Claude tự bật nó</div>' +
       '<p class="hs-khi">' + esc(d.khi) + "</p>";
+    if (d.ban) h += '<div class="hs-h" style="margin-top:12px">Với hệ thống của bạn</div>' +
+      '<p class="hs-ban">' + esc(d.ban) + "</p>";
     h += '<div class="hs-h" style="margin-top:12px">Mô tả gốc</div>' +
-      '<p class="hs-goc">' + esc(d.goc) + "</p>" +
-      '<p class="tua-luu">Ba mục trên do máy dịch từ chính mô tả gốc bên dưới — ' +
-      "không phải người đọc rồi viết lại. Cố ý <b>thiếu mục “Với hệ thống của bạn”</b>: " +
-      "mục đó đòi biết hệ thống của bạn có gì, máy sinh ra chỉ có thể là bịa. " +
-      "42 skill chính chủ vẫn được dịch tay và có đủ mục đó.</p>";
+      '<p class="hs-goc">' + esc(d.goc) + "</p>";
+    h += '<p class="tua-luu">' + (may
+      ? "Các mục trên do <b>máy dịch</b> từ chính mô tả gốc bên dưới — chưa ai đọc lại. " +
+        "Cố ý thiếu mục “Với hệ thống của bạn”: mục đó đòi biết hệ thống của bạn có gì, " +
+        "máy sinh ra chỉ có thể là bịa."
+      : "Các mục trên viết tay từ mô tả gốc bên dưới, không phải máy dịch. " +
+        "Khác với 42 skill chính chủ ở chỗ tôi đọc <b>mô tả</b> chứ chưa đọc hết " +
+        "<code>SKILL.md</code> — nên đối chiếu bản gốc bên dưới nếu cần chắc.") + "</p>";
     return h;
   }
   function tenFileKb(kho) {
@@ -456,7 +466,10 @@
         t.goc = s.moTa;
         o.innerHTML = veDichMay(t);
         var n = $("#hosoTag .the-cd");
-        if (n) { n.textContent = "máy dịch"; n.className = "the-nho the-may"; }
+        if (n) {
+          n.textContent = t.may ? "máy dịch" : "đã dịch";
+          n.className = "the-nho " + (t.may ? "the-may" : "the-tay");
+        }
       });
     }
 
