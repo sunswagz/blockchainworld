@@ -55,7 +55,14 @@
      các kho rất thường, và skill cùng tên ở kho khác làm việc khác. */
   var KHO_DA_DICH = "anthropics/skills";
   function dichCua(s) {
-    return s.kho === KHO_DA_DICH ? VI.skill[s.ten] : null;
+    /* Kho gốc giữ nguyên chỗ cũ (VI.skill). Kho chính chủ thứ hai và
+       về sau tra trong VI.dichKho, khoá theo TÊN KHO trước rồi mới
+       tới tên skill — đúng luật ghi ở đầu glossary.js: tên trùng giữa
+       các kho là chuyện thường, tra thẳng theo tên là có ngày một
+       skill mượn bản dịch của skill khác hẳn. */
+    if (s.kho === KHO_DA_DICH) return VI.skill[s.ten] || null;
+    var m = VI.dichKho && VI.dichKho[s.kho];
+    return (m && m[s.ten]) || null;
   }
 
   /* ── thanh bên ────────────────────────────────────── */

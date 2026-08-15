@@ -187,5 +187,209 @@ window.TT_VI = {
     khongMoTa: "không có mô tả"
   },
 
-  ghiChuNguon: "Danh mục dò bằng bốn truy vấn tìm kiếm gộp lại, cộng 10 kho gọi thẳng theo danh sách. Bản dịch tay chỉ áp cho kho anthropics/skills, khoá theo đúng kho chứ không tra theo tên skill — tên trùng giữa các kho rất thường."
+  /* ── Kho chính chủ THỨ HAI ────────────────────────────
+     anthropics/claude-plugins-official: 25 skill, cũng của Anthropic
+     nhưng nằm kho khác nên trước nay không có bản Việt nào.
+
+     Khoá theo KHO rồi mới tới tên, đúng luật đã ghi ở đầu file: tên
+     trùng giữa các kho là chuyện thường, tra theo tên là có ngày một
+     skill mượn bản dịch của skill khác hẳn.
+
+     Vì sao chỉ tới đây mà không dịch tiếp: 2.901 skill thì dịch tay
+     không nổi, còn dịch máy phải gọi model — tức tốn tiền thật. Và
+     bịa mô tả tiếng Việt cho skill chưa đọc kỹ còn tệ hơn để nguyên
+     bản gốc. 42 skill chính chủ là ranh giới đọc hết được. */
+  dichKho: {
+    "anthropics/claude-plugins-official": {
+
+      /* ── Bộ dựng plugin cho Claude Code ── */
+      "skill-development": {
+        tom: "Hướng dẫn viết một skill mới cho Claude Code cho đúng chuẩn.",
+        lam: ["Dựng khung thư mục skill", "Viết mô tả sao cho Claude tự bật đúng lúc",
+              "Chia nội dung theo lớp để không nhồi hết vào một file", "Đóng skill vào plugin"],
+        khi: "Bạn bảo \"tạo một skill\", \"viết skill mới\", hoặc hỏi cách sắp xếp nội dung skill.",
+        ban: "Đây là skill để tự làm ra skill. Hệ của bạn có bảy cung với quy trình riêng — quy trình gộp về main, luật hook, cách thêm cung mới — toàn thứ đang nằm trong CLAUDE.md dạng chữ. Gói chúng thành skill thì phiên nào cũng theo được mà không phải đọc lại 400 dòng."
+      },
+      "plugin-structure": {
+        tom: "Cách bố trí một plugin Claude Code: thư mục nào chứa gì, plugin.json khai ra sao.",
+        lam: ["Dựng khung plugin từ đầu", "Sắp xếp commands / agents / skills / hooks",
+              "Viết plugin.json", "Dùng ${CLAUDE_PLUGIN_ROOT} để đường dẫn không vỡ khi đổi máy"],
+        khi: "Bạn bảo \"tạo plugin\", \"dựng khung plugin\", hoặc hỏi cấu trúc thư mục plugin.",
+        ban: "Nếu sau này bạn muốn đóng gói cả bộ quy trình blockchainworld — kiểm quy trình, nâng version, sinh halls — thành một thứ cài được cho dự án khác, thì đây là khuôn."
+      },
+      "command-development": {
+        tom: "Viết lệnh gạch chéo riêng, kiểu /kiem hay /gop.",
+        lam: ["Khai lệnh bằng file markdown", "Nhận tham số truyền vào",
+              "Nhúng tham chiếu tới file khác", "Xếp lệnh theo nhóm"],
+        khi: "Bạn bảo \"tạo slash command\", \"thêm lệnh\", hoặc hỏi cách truyền tham số cho lệnh.",
+        ban: "Repo của bạn đã có bốn lệnh npm hay dùng: kiem, nang, halls, dist. Biến chúng thành lệnh gạch chéo thì gõ /kiem là xong, không phải nhớ tên script."
+      },
+      "agent-development": {
+        tom: "Viết agent con — một Claude phụ có chỉ dẫn riêng, bộ công cụ riêng.",
+        lam: ["Viết frontmatter cho agent", "Đặt mô tả \"khi nào dùng\" cho đúng",
+              "Chọn bộ công cụ agent được phép dùng", "Thiết kế lời dẫn hệ thống"],
+        khi: "Bạn bảo \"tạo agent\", \"viết subagent\", hoặc hỏi về công cụ và màu của agent.",
+        ban: "Hợp với việc lặp lại mà tách bạch được — ví dụ một agent chỉ chuyên đọc SKILL.md rồi viết bản Việt bốn phần, đúng việc đang làm dở ở đây."
+      },
+      "hook-development": {
+        tom: "Viết hook để Claude Code tự chạy gì đó trước hoặc sau mỗi thao tác.",
+        lam: ["Bắt sự kiện PreToolUse / PostToolUse / Stop", "Chặn thao tác không hợp lệ",
+              "Chạy kiểm tra tự động sau mỗi lần sửa file", "Khai hook trong settings.json"],
+        khi: "Bạn bảo \"tạo hook\", \"chặn thao tác X\", hoặc muốn tự động hoá theo sự kiện.",
+        ban: "Bạn đã có một hook rồi — pre-commit nhắc khi CLAUDE.md cũ hoặc đang dàn file bot sinh. Nhưng đó là hook của git. Hook Claude Code chạm được sớm hơn: chặn ngay lúc phiên định `git add -A`, thay vì nhắc sau khi đã lỡ."
+      },
+      "plugin-settings": {
+        tom: "Cho plugin có cấu hình riêng theo từng người dùng, từng dự án.",
+        lam: ["Đọc file .local.md", "Bóc frontmatter YAML làm cấu hình",
+              "Giữ trạng thái riêng cho từng dự án", "Tách cài đặt chung với cài đặt dự án"],
+        khi: "Bạn hỏi cách lưu cấu hình plugin, hoặc muốn plugin đổi hành vi theo dự án.",
+        ban: "Đúng bài toán cổng localhost của bạn: mỗi cung một cổng, hiện đang chép tay trong bảng ở CLAUDE.md. Cấu hình theo dự án thì bảng đó tự đọc được."
+      },
+      "mcp-integration": {
+        tom: "Nối một máy chủ MCP vào plugin để Claude dùng được dịch vụ ngoài.",
+        lam: ["Khai máy chủ trong .mcp.json", "Chọn kiểu kết nối (stdio, HTTP, SSE)",
+              "Truyền biến môi trường vào máy chủ", "Hiểu quy tắc đặt tên công cụ MCP"],
+        khi: "Bạn bảo \"thêm MCP server\", \"nối dịch vụ ngoài\", hoặc nhắc tới .mcp.json.",
+        ban: "Nếu muốn Claude đọc thẳng số liệu Actions hay Pinata thay vì bạn đưa ảnh chụp màn hình, thì lối đi là ở đây."
+      },
+
+      /* ── Dựng MCP ── */
+      "build-mcp-server": {
+        tom: "Dựng một máy chủ MCP từ đầu, đi qua năm chặng từ hỏi nhu cầu tới bàn giao.",
+        lam: ["Hỏi rõ ca sử dụng trước khi viết dòng nào", "Chọn mô hình triển khai",
+              "Chọn kiểu thiết kế công cụ", "Chọn khung, rồi dựng khung sườn"],
+        khi: "Bạn bảo \"dựng MCP server\", \"bọc một API cho Claude\", \"đưa công cụ cho Claude dùng\".",
+        ban: "Cách chuẩn để đưa dữ liệu ngoài vào Claude. Khác hẳn kiểu Đài Quan Trắc hiện tại — chỗ đó gọi model trong Actions rồi ghi ra file tĩnh, còn MCP là nối trực tiếp lúc đang làm việc."
+      },
+      "build-mcp-app": {
+        tom: "Thêm giao diện thật vào máy chủ MCP — biểu mẫu, bảng chọn, bảng điều khiển hiện ngay trong khung chat.",
+        lam: ["Dựng widget giao diện cho công cụ MCP", "Phân biệt khi nào cần widget, khi nào chữ là đủ",
+              "Gắn widget vào công cụ", "Chọn giữa hai kiểu triển khai"],
+        khi: "Bạn muốn công cụ MCP hiện ra giao diện bấm được chứ không chỉ trả về chữ.",
+        ban: "Cùng một tay nghề với việc dựng các cung: HTML tĩnh, tự chứa, không khung nào. Khác chỗ nó sống trong khung chat thay vì một trang riêng."
+      },
+      "build-mcpb": {
+        tom: "Đóng gói máy chủ MCP thành một file .mcpb cài được.",
+        lam: ["Gói cả bản chạy Node hoặc Python vào trong", "Viết manifest",
+              "Dựng đường ống đóng gói", "Hiểu rõ: MCPB KHÔNG có hộp cát"],
+        khi: "Bạn muốn phát hành một máy chủ MCP chạy tại máy cho người khác cài.",
+        ban: "Chỗ cần đọc kỹ nhất là câu \"không có hộp cát\": người cài file .mcpb tin bạn hoàn toàn. Cùng thứ cảnh giác mà Tàng Thư Các đang gắn cờ cho skill lạ."
+      },
+
+      /* ── Chăm sóc chính Claude Code ── */
+      "claude-md-improver": {
+        tom: "Soi và sửa các file CLAUDE.md trong kho.",
+        lam: ["Quét tìm mọi CLAUDE.md", "Chấm chất lượng theo khuôn mẫu",
+              "Xuất báo cáo", "Sửa thẳng những chỗ dở"],
+        khi: "Bạn bảo \"kiểm tra CLAUDE.md\", \"cải thiện CLAUDE.md\".",
+        ban: "CLAUDE.md của bạn đã hơn 400 dòng và được vá liên tục bởi nhiều phiên song song. Đây là thứ soi giúp — nhưng nhớ: nó chấm theo khuôn chung, còn `npm run kiem` của bạn kiểm thứ khác hẳn là tài liệu có KHỚP với repo thật không. Hai việc bù nhau, không thay nhau."
+      },
+      "claude-automation-recommender": {
+        tom: "Đọc cả kho rồi gợi ý nên tự động hoá chỗ nào bằng hook, agent, skill hay MCP.",
+        lam: ["Phân tích mã nguồn", "Chỉ ra việc lặp đáng tự động hoá",
+              "Gợi ý đúng loại công cụ cho từng việc", "Kèm mẹo cấu hình"],
+        khi: "Bạn hỏi \"nên tự động hoá gì\", hoặc muốn tối ưu cách dùng Claude Code.",
+        ban: "Chạy nó trên blockchainworld xem có thấy việc lặp nào bạn với tôi chưa nhận ra không. Riêng chuyện nâng CACHE_VERSION và sinh halls.js thì đã tự động rồi."
+      },
+      "claude-security": {
+        tom: "Bàn tiếp nhận rà soát an ninh: quét cả kho, quét phần thay đổi, hoặc đề xuất bản vá.",
+        lam: ["Quét toàn bộ mã nguồn", "Quét riêng phần khác biệt của nhánh hoặc một PR",
+              "Biến phát hiện thành bản vá cụ thể", "Nhớ những phát hiện đã xử lý"],
+        khi: "Bạn bảo \"rà soát bảo mật\", \"quét bản thay đổi này\".",
+        ban: "Đáng chạy trước mỗi lần gộp về main. Bạn đã lộ hai khoá trong phiên này — khoá Anthropic dán vào khung chat và khoá Pinata; cả hai đều chết. Rà tự động không đỡ được chuyện dán vào chat, nhưng đỡ được chuyện khoá lọt vào mã."
+      },
+      "receipts": {
+        tom: "Dựng báo cáo bạn đã dùng Claude Code vào những gì, từ nhật ký phiên trên máy.",
+        lam: ["Đào dữ liệu từ transcript ở máy", "Chọn khoảng thời gian",
+              "Viết báo cáo tác động", "Lưu ra markdown"],
+        khi: "Bạn muốn tổng kết đã dùng Claude Code làm được gì, tốn bao nhiêu.",
+        ban: "Trả lời đúng câu bạn hỏi hôm nay — tiền đi đâu. Khác chỗ: nó đọc nhật ký phiên ở máy, còn hoá đơn Đài Quan Trắc thì nằm ở bảng điều khiển Anthropic."
+      },
+      "session-report": {
+        tom: "Dựng trang HTML xem được về mức dùng của các phiên: token, bộ nhớ đệm, agent con, skill.",
+        lam: ["Đọc transcript trong ~/.claude/projects", "Thống kê token và cache",
+              "Chỉ ra lời nhắc tốn kém nhất", "Xuất ra trang xem được"],
+        khi: "Bạn muốn nhìn cụ thể phiên nào tốn gì.",
+        ban: "Phiên này rất dài. Chạy nó để thấy chỗ nào ngốn token nhất — thường là đọc lại file lớn nhiều lần."
+      },
+
+      /* ── Dựng thứ xem được ── */
+      "project-artifact": {
+        tom: "Dựng và phát hành một trang trạng thái dự án, chia tab.",
+        lam: ["Trang tổng quan kèm tiêu chí thành công", "Chuỗi các luồng việc",
+              "Việc kế tiếp, rủi ro, bối cảnh", "Cập nhật theo phần đổi chứ không viết lại"],
+        khi: "Dự án lớn tới mức một bản cập nhật không chứa hết.",
+        ban: "Blockchainworld đã bảy cung, nhiều phiên song song, một nhà máy dữ liệu. Đúng cỡ cần một trang trạng thái. Điểm hay nhất là \"cập nhật theo phần đổi\" — cùng nguyên tắc với nhật ký cập nhật của Tàng Thư Các."
+      },
+      "playground": {
+        tom: "Dựng trang HTML một file cho người ta vặn thử bằng nút bấm rồi chép ra lời nhắc.",
+        lam: ["Tự chứa trong một file", "Có nút vặn và xem trước trực tiếp",
+              "Xuất ra lời nhắc chép được", "Quản lý trạng thái theo khuôn sẵn"],
+        khi: "Bạn muốn ai đó thử một thứ bằng cách vặn nút thay vì đọc tài liệu.",
+        ban: "Đúng phong cách bảy cung của bạn: một file, không khung, chạy offline. Dùng được để làm chỗ vặn thử các tham số của Đài Quan Trắc chẳng hạn."
+      },
+      "math-olympiad": {
+        tom: "Giải toán thi đấu (IMO, Putnam, USAMO, AIME) kèm khâu phản biện để bắt lỗi mà tự kiểm không thấy.",
+        lam: ["Giải bài olympic", "Kiểm chứng bằng cách phản biện chính lời giải",
+              "Chọn cách tiếp cận theo dạng bài", "Xử lý riêng bài đáp số"],
+        khi: "Bạn đưa một bài toán thi đấu hoặc nhờ kiểm một chứng minh.",
+        ban: "Không liên quan blockchainworld, nhưng ý tưởng thì có: \"kiểm bằng phản biện thay vì tự kiểm\" chính là thứ đã bắt được mấy lỗi hôm nay — như con số 25 lượt/kho tôi suýt tin."
+      },
+
+      /* ── Kênh nhắn tin ── */
+      "configure": {
+        tom: "Cấu hình kênh Telegram: lưu token bot và đặt luật ai được nhắn tới.",
+        lam: ["Lưu token bot", "Xem lại chính sách truy cập", "Kiểm tra trạng thái kênh"],
+        khi: "Bạn dán token bot Telegram, hoặc hỏi \"ai nhắn tới tôi được\".",
+        ban: "Cẩn thận: skill này nhận token. Tàng Thư Các gắn cờ đọc-bí-mật cho nó là đúng. Và nhớ bài học hôm nay — dán token vào khung chat là mất token."
+      },
+      "access": {
+        tom: "Quản lý ai được dùng kênh iMessage: duyệt ghép đôi, sửa danh sách trắng, đặt luật nhóm.",
+        lam: ["Duyệt yêu cầu ghép đôi", "Sửa danh sách được phép",
+              "Đặt chính sách nhắn riêng và nhắn nhóm", "Xem ai đang được phép"],
+        khi: "Bạn bảo \"duyệt người này\", \"ai đang được phép\", hoặc muốn đổi luật kênh iMessage.",
+        ban: "Chỉ dùng khi bạn mở kênh iMessage. Đáng chú ý ở chỗ nó là ví dụ về skill quản trị quyền — thứ nên đọc kỹ trước khi cài."
+      },
+
+      /* ── Phần cứng ── */
+      "m5-onboard": {
+        tom: "Đưa một thiết bị M5Stack ESP32 mới cắm vào từ số không tới chạy được.",
+        lam: ["Nhận thiết bị qua cổng USB", "Nạp firmware UIFlow 2.0",
+              "Cài bộ ứng dụng MicroPython", "Tránh sẵn những bẫy đã biết"],
+        khi: "Bạn vừa cắm một thiết bị M5Stack (Cardputer, Core, Stick) vào máy.",
+        ban: "Chỉ dùng nếu bạn nghịch phần cứng. Không dính gì tới bảy cung."
+      },
+      "cardputer-buddy": {
+        tom: "Sửa và đẩy tiếp ứng dụng MicroPython trên Cardputer sau khi đã cài xong.",
+        lam: ["Thêm ứng dụng mới", "Đẩy một file .py đã đổi mà không nạp lại cả bộ",
+              "Dùng bộ công cụ vòng lặp phát triển"],
+        khi: "Thiết bị đã cài rồi và bạn muốn sửa tiếp ứng dụng trên đó.",
+        ban: "Đi kèm m5-onboard. Chỉ dùng khi nghịch phần cứng."
+      },
+
+      /* ── Còn lại ── */
+      "writing-hookify-rules": {
+        tom: "Viết luật cho hookify — cách khai hook bằng file luật thay vì viết mã.",
+        lam: ["Viết file luật đúng khuôn", "Chọn đúng loại sự kiện",
+              "Viết mẫu khớp cho chuẩn", "Soạn nội dung thông báo"],
+        khi: "Bạn bảo \"tạo luật hookify\", hoặc hỏi cú pháp luật hookify.",
+        ban: "Nhẹ hơn hook-development: khai bằng luật thay vì viết mã. Hợp với những luật nhỏ kiểu \"đừng add -A\"."
+      },
+      "example-skill": {
+        tom: "Skill mẫu — bản khuôn để xem một skill đúng chuẩn trông thế nào.",
+        lam: ["Cho xem khung thư mục skill", "Cho xem các tuỳ chọn frontmatter",
+              "Ví dụ cách viết mô tả cho hiệu quả"],
+        khi: "Bạn bảo \"cho xem khuôn skill\", \"minh hoạ định dạng skill\".",
+        ban: "Đọc cùng skill-development. Đây là bản mẫu để chép, kia là bản hướng dẫn."
+      },
+      "example-command": {
+        tom: "Lệnh mẫu — minh hoạ các tuỳ chọn frontmatter và cách bố trí skills/<tên>/SKILL.md.",
+        lam: ["Cho xem cách nhận tham số", "Liệt kê tuỳ chọn frontmatter", "Ví dụ dùng thật"],
+        khi: "Bạn muốn xem một lệnh gạch chéo mẫu.",
+        ban: "Bản mẫu để chép khi làm lệnh riêng cho repo, kiểu /kiem hay /gop."
+      }
+    }
+  },
+
+  ghiChuNguon: "Danh mục dò bằng bốn truy vấn tìm kiếm gộp lại, cộng 10 kho gọi thẳng theo danh sách. Bản dịch tay áp cho HAI kho chính chủ — anthropics/skills (17 skill) và anthropics/claude-plugins-official (25 skill) — khoá theo đúng kho chứ không tra theo tên skill, vì tên trùng giữa các kho rất thường. 2.859 skill cộng đồng còn lại giữ nguyên mô tả gốc tiếng Anh: dịch tay không nổi, mà dịch máy thì phải gọi model, và bịa mô tả cho skill chưa đọc kỹ còn tệ hơn để nguyên bản."
 };
