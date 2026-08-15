@@ -1,8 +1,12 @@
 # Dịch tiếp skill cộng đồng — bản bàn giao
 
-Việc đang dở: dịch mô tả **2.859 skill cộng đồng** của Tàng Thư Các sang
-tiếng Việt, **viết tay, không gọi API**. Tệp này để bất kỳ phiên nào cũng
-tiếp được, kể cả sau khi ngữ cảnh bị nén.
+**XONG 2.859/2.859** (15/08/2026). Việc dịch mô tả skill cộng đồng của
+Tàng Thư Các sang tiếng Việt đã hoàn tất — **viết tay, không gọi API**,
+448 mục có thêm phần "Với hệ thống của bạn".
+
+Tệp này giữ lại làm hướng dẫn cho **skill mới**: mỗi lượt bot quét thêm kho
+hoặc kho gốc thêm skill thì `node scripts/dich-con-lai.mjs` sẽ lại ra số
+dương, và quy trình dưới đây vẫn dùng nguyên.
 
 ## Xem còn bao nhiêu
 
@@ -92,13 +96,30 @@ webhook, worktree. Đừng dịch tên skill. Mô tả gốc nghèo thì viết 
 `dich/` là thư mục **viết tay**, không phải bot sinh — xem mục "File do
 workflow tự sinh" trong CLAUDE.md, nơi đã tách riêng nó ra.
 
-## Thứ tự nên làm
+## Mục khuôn mẫu: `scripts/dich-composio.mjs`
 
-Ưu tiên kho dính vào hệ này (viết được `ban`), rồi mới tới kho tổng hợp:
+Kho `ComposioHQ/awesome-claude-skills` có ~330 skill dùng **đúng một câu**
+mô tả, chỉ đổi tên dịch vụ:
 
-1. `affaan-m/ECC` — quy trình agent, dính thẳng
-2. `mattpocock/skills`, `garrytan/gstack`, `addyosmani/agent-skills` — nhỏ mà chất
-3. `nanocoai/nanoclaw`, `code-yeongyu/oh-my-openagent`, `thedotmack/claude-mem`
-4. Phần còn lại: `github/awesome-copilot`, `sickn33/agentic-awesome-skills`,
-   `ComposioHQ/awesome-claude-skills`, `nexu-io/open-design`, `ruvnet/ruflo`
-   — danh mục tổng hợp, hầu hết không có `ban`.
+    Automate <Tên> tasks via Rube MCP (Composio). Always search tools first…
+
+Dịch tay từng cái là chép lại cùng một câu 330 lần. Bản dịch của câu khuôn
+đó viết **một lần** trong `scripts/dich-composio.mjs`, script chỉ thay tên
+dịch vụ. Mục nào **không** khớp khuôn thì script bỏ qua và in ra để dịch tay.
+
+Đây không phải dịch máy — câu tiếng Việt do người viết, script chỉ nhân bản.
+Gặp kho khác cũng dùng khuôn cứng như vậy thì làm y hệt.
+
+## Bẫy đã gặp
+
+- **Trùng tên skill trong cùng một kho.** `ruvnet/ruflo` có hai
+  `swarm-orchestration` ở hai đường dẫn khác nhau. `dich-gop.mjs` tra theo
+  tên nên báo `✗ không khớp tên` rồi bỏ qua cả hai. Cách chữa: ghi thẳng vào
+  `dich/<kho>.json` theo **id đầy đủ**.
+- **Đẩy trượt.** Nhiều worktree cùng đẩy lên `main`. Trước mỗi lần đẩy:
+  `git fetch -q && git -c rebase.autoStash=true rebase -q origin/main`.
+  Có `autoStash` vì phiên khác có thể đang để dở file chưa commit trong cùng
+  thư mục — **đừng** stash tay rồi quên pop.
+- **Mô tả gốc bỏ trống.** Vài skill còn nguyên dòng mẫu ("Replace with
+  description…"). Đừng bịa: ghi thẳng là mô tả gốc chưa điền, và bảo người
+  đọc mở SKILL.md.
