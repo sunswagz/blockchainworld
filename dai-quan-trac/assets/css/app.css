@@ -504,3 +504,46 @@ ul.tight li::marker{color:var(--line3)}
   .trang-thai{gap:11px}
   .tt-den i{width:7px;height:18px}
 }
+
+/* ============ NHÓM THANH BÊN THU GỌN ĐƯỢC ============
+   .navlab đổi từ div sang button — giữ nguyên dáng cũ, thêm mũi tên
+   và vùng bấm. Mũi tên xoay 90° khi mở, khớp ngôn ngữ thị giác với
+   cây "Cổng Thành" ngay phía trên trong cùng thanh bên. */
+.navlab{width:100%;text-align:left;cursor:pointer;background:none;border:0;
+  border-radius:var(--r);transition:color .14s}
+.navlab:hover{color:var(--muted)}
+.nl-tw{order:0;flex:0 0 auto;display:grid;place-items:center;width:11px;height:11px;
+  color:var(--dim);transform:rotate(90deg);
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),color .14s}
+.grp.dong .nl-tw{transform:rotate(0deg)}
+.navlab:hover .nl-tw{color:var(--fg2)}
+.nl-t{order:1;flex:0 0 auto}
+.navlab::after{order:2}          /* gạch ngang có sẵn, đẩy vào giữa */
+
+/* Số mục và đèn nặng nhất chỉ hiện khi nhóm ĐANG ĐÓNG. Lúc mở thì
+   nhìn thẳng danh sách là thấy, thêm nữa chỉ là nhiễu.
+   Đèn này bắt buộc phải có: thu gọn mà giấu luôn cảnh báo thì nút
+   thu gọn hoá thành nút tắt chuông báo cháy. */
+.nl-n{order:3;flex:0 0 auto;font-size:9px;color:var(--dim);background:var(--inset);
+  border:1px solid var(--line2);border-radius:20px;padding:0 5px;letter-spacing:.04em}
+.navlab .dot{order:4;width:6px;height:6px}
+
+.grp .nv{max-height:34px;opacity:1;overflow:hidden;
+  transition:max-height .18s cubic-bezier(.2,.8,.2,1),opacity .14s,padding .18s}
+.grp.dong .nv{max-height:0;opacity:0;padding-top:0;padding-bottom:0;
+  margin-top:0;margin-bottom:0;pointer-events:none}
+
+/* Thanh bên 62px: app.css ẩn .navlab, nên không còn gì để bấm mở
+   lại. Bỏ qua trạng thái đóng ở chế độ đó — không thì có nhóm biến
+   mất hẳn cho tới khi người dùng bung thanh bên ra, mà họ không có
+   lý do gì để đoán là phải làm vậy. */
+#app.nav-collapsed .grp.dong .nv{max-height:34px;opacity:1;pointer-events:auto;
+  padding-top:6px;padding-bottom:6px}
+
+/* Dưới 900px .nav-collapsed thành ngăn kéo 272px và .navlab hiện
+   lại (app.css revert ở đúng ngưỡng này), nên trạng thái đóng có
+   hiệu lực trở lại. */
+@media(max-width:900px){
+  #app.nav-collapsed .grp.dong .nv{max-height:0;opacity:0;pointer-events:none;
+    padding-top:0;padding-bottom:0}
+}

@@ -89,7 +89,11 @@ const state = {
   sig: [],           // tín hiệu từ quét trực tiếp
   log: [],           // nhật ký kết nối
   filter:'all',
-  scanning:false
+  scanning:false,
+  /* Nhóm nào đang mở trong thanh bên. Khoá là tên nhóm, thiếu khoá
+     nghĩa là MỞ — nhờ vậy thêm nhóm mới sau này tự mở, không phải
+     nhớ khai thêm dòng nào. */
+  mo:{}
 };
 /* Mỗi mắt xích trong CHAIN PHẢI có một dòng ở đây, không thì lvOf()
    đọc undefined[0] và cả trang trắng. Thêm mắt xích mà quên dòng này
@@ -137,12 +141,12 @@ function srcLabel(chainId){
 
 /* ---- lưu / nạp ---- */
 async function save(){
-  try{ if(window.storage) await window.storage.set('daiquantrac:v1', JSON.stringify({th:state.th,gg:state.gg,sig:state.sig.slice(0,120),log:state.log.slice(0,60)})); }catch(e){}
+  try{ if(window.storage) await window.storage.set('daiquantrac:v1', JSON.stringify({th:state.th,gg:state.gg,mo:state.mo,sig:state.sig.slice(0,120),log:state.log.slice(0,60)})); }catch(e){}
 }
 async function load(){
   try{ if(!window.storage) return;
     const r = await window.storage.get('daiquantrac:v1');
-    if(r&&r.value){ const d=JSON.parse(r.value); Object.assign(state.th,d.th||{}); Object.assign(state.gg,d.gg||{}); state.sig=d.sig||[]; state.log=d.log||[]; }
+    if(r&&r.value){ const d=JSON.parse(r.value); Object.assign(state.th,d.th||{}); Object.assign(state.gg,d.gg||{}); Object.assign(state.mo,d.mo||{}); state.sig=d.sig||[]; state.log=d.log||[]; }
   }catch(e){}
 }
 
@@ -190,8 +194,33 @@ const ROUTES = [
 function renderNav(){
   const w=$('#navscroll'); w.innerHTML='';
   ROUTES.forEach(sec=>{
-    const g=el('div','grp');
-    g.appendChild(el('div','navlab',esc(sec.g)));
+    /* Nhóm chứa trang đang xem thì LUÔN mở, kể cả người dùng đã
+       thu gọn nó. Không có luật này thì đi tới một mục bằng ⌘K
+       hoặc bằng đường dẫn sẽ mở ra một thanh bên không đánh dấu
+       chỗ nào cả — người đọc mất phương hướng và tưởng hỏng. */
+    const coHere = sec.items.some(it=>it.id===state.route);
+    const dong = state.mo[sec.g]===false && !coHere;
+
+    /* Đèn nặng nhất bên trong. Thu gọn mà giấu luôn cảnh báo thì
+       chính là biến nút thu gọn thành nút tắt chuông báo cháy. */
+    let nang='n';
+    sec.items.forEach(it=>{ if(it.th && RANK[state.th[it.th]]>RANK[nang]) nang=state.th[it.th]; });
+
+    const g=el('div','grp'+(dong?' dong':''));
+    const h=el('button','navlab');
+    h.setAttribute('aria-expanded', dong?'false':'true');
+    h.innerHTML='<span class="nl-tw">'+
+      '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" '+
+      'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>'+
+      '</span><span class="nl-t">'+esc(sec.g)+'</span>'+
+      (dong?'<span class="nl-n">'+sec.items.length+'</span>'+
+            (nang!=='n'?'<span class="dot '+nang+'"></span>':''):'');
+    h.onclick=()=>{ state.mo[sec.g] = dong; save(); renderNav(); };
+    g.appendChild(h);
+
+    /* Vẫn dựng đủ mục rồi để CSS ẩn, không phải bỏ hẳn. Nhờ vậy
+       chế độ thanh bên 62px — nơi nhãn nhóm bị ẩn và không còn gì
+       để bấm mở lại — vẫn cho CSS hiện lại toàn bộ. */
     sec.items.forEach(it=>{
       const b=el('button','nv'+(state.route===it.id?' on':''));
       let right='';
