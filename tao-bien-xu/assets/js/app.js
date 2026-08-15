@@ -160,6 +160,19 @@
                  chua: "chưa chạy", thuong: "không có nhịp" };
   var CHE_CHU = { script: "script", claude: "gọi model", tay: "chạy tay", theo: "theo sau" };
 
+  /* M02 phân loại vì sao node ngã. Bốn bệnh này chữa ở bốn chỗ khác
+     nhau, nên bảng phải nói ra — "NGÃ" trơ trọi thì ai nhìn cũng
+     phải đi mở log, mà mở log Actions thì phải đăng nhập. */
+  var VI_CHU = { "han-muc": "hạn mức", "khoa-sai": "khoá sai",
+                 "nguon-nga": "nguồn ngã", "loi-ma": "lỗi mã", "chua-ro": "chưa rõ" };
+  var VI_Y = {
+    "han-muc": "chạm hạn mức API. Chờ không hết — cần khoá riêng hoặc giãn nhịp.",
+    "khoa-sai": "khoá bị từ chối (401/403). Secret hết hạn hoặc sai — chờ bao lâu cũng không tự khỏi.",
+    "nguon-nga": "nguồn bên kia ngã hoặc quá chậm. Không phải lỗi của xưởng; lượt sau thường tự khỏi.",
+    "loi-ma": "lỗi trong chính script của xưởng. Phải sửa code.",
+    "chua-ro": "chưa khớp được nhóm nào — mở log lượt chạy ra xem."
+  };
+
   /* Trạm nào của sơ đồ có node thật đứng sau — dùng để chấm dấu lên
      ô máy ở Sơ đồ nhà máy và thẻ ở trang 18 máy. */
   var tramThat = {};
@@ -1309,8 +1322,10 @@
       bd.innerHTML = svg(IC.tay, 17) +
         "<div><b>" + om.length + " node đang không khoẻ</b><span>" +
         om.map(function (n) {
-          return esc(n.ten) + " — " + (n.chuoiLoi >= 2 ? "ngã " + n.chuoiLoi + " lượt liền"
-                                                       : SK_CHU[sucKhoe(n)] + ", " + truoc(n.luc));
+          return esc(n.ten) + " — " +
+            (n.chuoiLoi >= 2 ? "ngã " + n.chuoiLoi + " lượt liền" +
+                               (n.vi ? " (" + esc(VI_CHU[n.vi] || n.vi) + ")" : "")
+                             : SK_CHU[sucKhoe(n)] + ", " + truoc(n.luc));
         }).join(" · ") + "</span></div>";
       than.appendChild(bd);
     }
@@ -1319,6 +1334,26 @@
     var d = el("div", "khoi-dinh");
     d.innerHTML = "<h2>Node</h2><span class=\"khoi-n\">" + ns.length + " node</span>";
     kh.appendChild(d);
+
+    /* ── Nút bấm thật ──────────────────────────────────────────
+       Trang này là tĩnh và PHẢI tĩnh: nó không giữ khoá nào, nên
+       nó không tự gọi GitHub được. Nút ở đây vì vậy không phải nút
+       "chạy" — nó là đường dẫn sang đúng trang bấm chạy trên
+       GitHub, kèm sẵn tên workflow. Ít ảo thuật hơn, nhưng thật,
+       và không đặt một token vào trình duyệt của người xem.
+
+       Tên workflow đến từ `wf` trong van-hanh.js, do nha-may.mjs
+       chiếu ra — không phải một bảng chép tay trong file này. */
+    var wfChung = (VH.node.filter(function (n) { return n.wf; })[0] || {}).wf;
+    if (VH.repo && wfChung) {
+      var dk = el("div", "vh-chay");
+      dk.innerHTML =
+        '<a href="https://github.com/' + esc(VH.repo) + "/actions/workflows/" +
+        esc(wfChung) + '" target="_blank" rel="noopener">Chạy nhà máy ngay ↗</a>' +
+        "<span>Mở trang workflow trên GitHub · bấm <b>Run workflow</b>. " +
+        "Tick <b>Ép chạy mọi node</b> nếu muốn bỏ qua kiểm đến hạn.</span>";
+      than.appendChild(dk);
+    }
 
     var thanh = el("div", "dieukhien");
     thanh.innerHTML =
@@ -1352,10 +1387,12 @@
         '<div class="vh-so">' +
         '<span><i>lượt cuối</i><b>' + esc(truoc(n.luc)) + "</b></span>" +
         '<span><i>kết quả</i><b>' + esc(n.ket === "ok" ? (n.doi ? "ok · có đổi" : "ok · không đổi")
-                                       : n.ket === "loi" ? "NGÃ" : n.ket || "—") + "</b></span>" +
+                                       : n.ket === "loi" ? "NGÃ" + (n.vi ? " · " + (VI_CHU[n.vi] || n.vi) : "")
+                                       : n.ket || "—") + "</b></span>" +
         '<span><i>nhịp</i><b>' + esc(nhipChu(n)) + "</b></span>" +
         '<span><i>lượt sau</i><b>' + esc(hanChu) + "</b></span></div>" +
-        (n.chuoiLoi >= 2 ? '<div class="vh-canh">ngã ' + n.chuoiLoi + " lượt liên tiếp</div>" : "");
+        (n.chuoiLoi >= 2 ? '<div class="vh-canh">ngã ' + n.chuoiLoi + " lượt liên tiếp" +
+          (n.vi ? " — " + esc(VI_Y[n.vi] || "") : "") + "</div>" : "");
       luoi.appendChild(a);
     });
     kh.appendChild(luoi);
