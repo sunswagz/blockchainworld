@@ -4,7 +4,7 @@
 var D = window.DQT_DATA;
 var IC = D.IC, svg = D.svg, THEATERS = D.THEATERS, GAUGES = D.GAUGES;
 var CHAIN = D.CHAIN, LEVELS = D.LEVELS, SCEN = D.SCEN, LIB = D.LIB;
-var THANG = D.THANG, TIEUCHI = D.TIEUCHI, SOI = D.SOI;
+var THANG = D.THANG, TIEUCHI = D.TIEUCHI, SOI = D.SOI, DANHSACH = D.DANHSACH;
 
 /* ============================================================
    SỐ ĐO TỰ ĐỘNG — do.js, sinh 4 lượt/ngày, không gọi AI
@@ -706,14 +706,58 @@ function vKhung(){
   p1.innerHTML='Chấm một giả thuyết duy nhất thì mọi mảnh đều trông như bằng chứng ủng hộ nó. Cách chặn: viết ra <b>hai</b> giả thuyết cạnh tranh rồi chấm cả hai trên <b>cùng</b> bảy tiêu chí. Nếu cùng một bộ chứng cứ làm giả thuyết A rỗng và giả thuyết B đầy, đó mới là kết luận. Và phải chủ động đi tìm <b>phản chứng</b> — mảnh nào mà nếu giả thuyết đúng thì không thể tồn tại.';
   w.appendChild(p1);
 
-  const ho=el('div'); ho.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:26px;padding-top:20px;border-top:1px solid var(--line)';
-  ho.appendChild(el('div','eyebrow','Đã soi'));
-  w.appendChild(ho);
-  const hs=el('div'); hs.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';
-  SOI.forEach(s=>{ const b=el('button','fchip'); b.textContent=s.ten+' · '+s.nguoi; b.onclick=()=>go('soi/'+s.id); hs.appendChild(b); });
-  const cho=el('span','tc-soon','Các tên khác gắn với bộ máy quản lý — chưa soi');
-  hs.appendChild(cho);
-  w.appendChild(hs);
+  /* So hình dạng các bảng chấm. Tính ĐỘNG chứ không viết cứng:
+     nếu hồ sơ sau ra hình khác thì khối này tự nói khác, và đó
+     mới là điều đáng biết. Viết cứng "chúng giống nhau" là biến
+     một phát hiện thành một khẩu hiệu. */
+  if(SOI.length>1){
+    const hinh = s => TIEUCHI.map(t=>(s.diem[t.id]||{}).m||'-').join('|');
+    const g0 = hinh(SOI[0]);
+    const deu = SOI.every(s=>hinh(s)===g0);
+    w.appendChild(el('h3','sec','Hai hồ sơ đầu ra cùng một hình dạng'));
+    const box=el('div','ss-w');
+    SOI.forEach(s=>{
+      const r=el('button','ss-r'); r.onclick=()=>go('soi/'+s.id);
+      let o='';
+      TIEUCHI.forEach(t=>{ const m=mucBC((s.diem[t.id]||{}).m);
+        o+='<i style="background:'+m.acc+';opacity:'+(m.n?1:.28)+'" title="'+esc(t.t)+' — '+m.t+'"></i>'; });
+      r.innerHTML='<span class="ss-t">'+esc(s.ten)+'</span><span class="ss-b">'+o+'</span>';
+      box.appendChild(r);
+    });
+    w.appendChild(box);
+    const q=el('blockquote');
+    q.innerHTML = deu
+      ? 'Vingroup đi từ <b>đất → vốn → công nghiệp</b>. THACO đi ngược lại: <b>cơ khí → ô tô → công nghiệp → rồi mới tới đất</b>. Xuất phát trái ngược, nhưng bảy tiêu chí ra <b>đúng cùng một hình</b>: ba cột xương sống quyền sở hữu trống, ba cột quan hệ Nhà nước đầy.<br><br>Nghĩa là thứ khung này đo được không phải đặc điểm của một doanh nghiệp, mà là <b>đặc điểm của mô hình</b>. Một hồ sơ thì đó là quan sát; hai hồ sơ khác gốc mà trùng hình thì bắt đầu là khuôn mẫu.'
+      : 'Các hồ sơ hiện <b>không</b> ra cùng một hình dạng — chỗ khác nhau đó đáng đọc kỹ hơn chỗ giống nhau, vì nó cho biết tiêu chí nào thật sự phân biệt được đối tượng.';
+    w.appendChild(q);
+  }
+
+  /* Lộ trình. Xếp theo khả năng trở thành công cụ chiến lược,
+     KHÔNG theo quy mô tài sản — hai thứ đó khác nhau, và trộn
+     lẫn là chỗ mọi bảng "top tập đoàn" trở nên vô dụng. */
+  w.appendChild(el('h3','sec','Danh sách soi'));
+  const p2=el('p'); p2.style.cssText='max-width:74ch;color:var(--fg2)';
+  p2.innerHTML='Đây <b>không phải bảng xếp hạng giàu</b>. Xếp theo khả năng trở thành một công cụ doanh nghiệp tư nhân có vai trò chiến lược — một tập đoàn rất lớn mà không đứng ở ổ cắm nào của Nhà nước thì không thuộc mô hình này.';
+  w.appendChild(p2);
+
+  const dsW=el('div','ds-w');
+  DANHSACH.forEach(m=>{
+    const g=el('div','ds-m'); g.style.setProperty('--a',m.acc);
+    g.innerHTML='<div class="ds-h"><span class="ds-n">MỨC '+m.muc+'</span><b>'+esc(m.t)+'</b></div>';
+    const rows=el('div');
+    m.ds.forEach(x=>{
+      const done=!!x.soi;
+      const r=el(done?'button':'div','ds-r'+(done?' co':''));
+      r.innerHTML='<span class="ds-t">'+esc(x.ten)+'</span>'+
+        '<span class="ds-o">'+esc(x.o)+'</span>'+
+        (done?'<span class="ds-b co">đã soi →</span>':'<span class="ds-b">chưa soi</span>')+
+        (x.ghi?'<span class="ds-g">'+esc(x.ghi)+'</span>':'');
+      if(done) r.onclick=()=>go('soi/'+x.soi);
+      rows.appendChild(r);
+    });
+    g.appendChild(rows); dsW.appendChild(g);
+  });
+  w.appendChild(dsW);
   return w;
 }
 
@@ -764,6 +808,28 @@ function vSoi(id){
     S.phanchung.ds.forEach(x=>{ const c=el('div','pc');
       c.innerHTML='<b>'+esc(x.t)+'</b><p>'+x.d+'</p>'; pw.appendChild(c); });
     w.appendChild(pw);
+  }
+
+  /* Thác vốn — riêng của hồ sơ nào có cấu trúc tài trợ nội bộ
+     đáng tách ra. Bốn tầng xếp DỌC có chủ ý: nó là một dòng
+     chảy một chiều, vẽ ngang thì mất mất điều đó. */
+  if(S.thac){
+    w.appendChild(el('h3','sec',S.thac.t));
+    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.thac.d;
+    w.appendChild(p);
+    const tw=el('div','thac-w');
+    S.thac.tang.forEach((x,i)=>{ const c=el('div','thac'+(i<S.thac.tang.length-1?' noi':''));
+      c.style.setProperty('--a',x.acc);
+      c.innerHTML='<div class="thac-k">'+esc(x.n)+'</div>'+
+        '<div class="thac-b"><div class="thac-h"><b>'+esc(x.t)+'</b>'+
+        '<span class="thac-v">'+esc(x.vai)+'</span></div><p>'+x.d+'</p></div>';
+      tw.appendChild(c); });
+    w.appendChild(tw);
+    if(S.thac.a) w.appendChild(el('pre','ascii',S.thac.a));
+    if(S.thac.kl){ const q=el('blockquote'); q.innerHTML=S.thac.kl; w.appendChild(q); }
+    if(S.thac.ruiro){ const q2=el('blockquote');
+      q2.style.borderLeftColor='var(--dgr)'; q2.style.background='#f0503f0d';
+      q2.innerHTML=S.thac.ruiro; w.appendChild(q2); }
   }
 
   if(S.tang){

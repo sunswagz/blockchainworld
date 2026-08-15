@@ -503,10 +503,154 @@ const SOI = [
       a:'quy hoạch / đất / dự án\n        ↓\n  một số tập đoàn\n        ↓\n quy mô ngày càng lớn\n        ↓\n tín dụng ngày càng lớn\n        ↓\n  "TOO BIG TO FAIL"\n        ↓\nLÃI  → tư nhân hưởng\nLỖ   → hệ thống không dám để sập',
       d2:'Và ở tầng đất đai, hai kết quả rất khác nhau lại nhìn giống hệt nhau từ bên ngoài: <b>land-value capture</b> — hạ tầng làm đất tăng giá, phần tăng đó tài trợ ngược cho hạ tầng, là mô hình hiệu quả; còn nếu thiếu cạnh tranh và minh bạch thì cùng một chuỗi việc đó trở thành lợi ích nhóm. Phân biệt được hai cái đó cần đúng thứ đang thiếu: hồ sơ đấu thầu, giá đất, và thời điểm ai biết quy hoạch trước.'
     }
+  },
+
+  /* ─────────────────────────────────────────────────────────
+     Hồ sơ thứ hai. Đây là lần khung được dùng lại thật, và nó
+     trả lời được câu quan trọng nhất: cùng bảy tiêu chí, hai
+     tập đoàn xuất phát ngược nhau, hình dạng bảng chấm có giống
+     nhau không. Giống — và đó mới là phát hiện.
+
+     Không lặp lại mục "bốn tầng" và "ổ cắm" ở đây: chúng là
+     khái niệm chung, đã viết ở hồ sơ Vingroup. Chép sang là tạo
+     hai bản để rồi lệch nhau.
+     ───────────────────────────────────────────────────────── */
+  {
+    id:'thaco', ten:'THACO', nguoi:'Trần Bá Dương', ic:'factory', acc:'#58a6ff',
+    vai:'Tập đoàn tư nhân đa ngành · lõi công nghiệp cơ khí',
+    lede:'Vingroup đi từ <b>đất → vốn → công nghiệp</b>. THACO đi ngược lại: <b>cơ khí → ô tô → công nghiệp → logistics → rồi mới tới đất và hạ tầng</b>. Hai đường xuất phát trái ngược nhau — nên nếu bảng chấm bảy tiêu chí vẫn ra cùng một hình dạng, thì thứ ta đang nhìn không phải đặc điểm của một doanh nghiệp, mà là <b>đặc điểm của mô hình</b>.',
+
+    gt:[
+      {k:'A', t:'THACO là doanh nghiệp Nhà nước trá hình',
+       kl:'KHÔNG ĐỨNG VỮNG', acc:'#4b5563',
+       d:'Sở hữu quy về ông Trần Bá Dương và nhóm liên quan, cộng một cổ đông ngoại lớn. HĐQT không có ghế nào do cơ quan Nhà nước chỉ định. Và tổ chức xếp hạng tín nhiệm nói thẳng là họ <b>không tính</b> bất kỳ hỗ trợ Nhà nước nào vào xếp hạng.'},
+      {k:'B', t:'Doanh nghiệp tư nhân được dựng thành đầu tàu quốc gia',
+       kl:'RẤT PHÙ HỢP', acc:'#f0503f',
+       d:'Giao diện với Nhà nước ở tầng đất và dự án thì rất lớn: khu kinh tế Chu Lai, hợp đồng BT đổi hạ tầng lấy đất ở Thủ Thiêm, chuỗi khu công nghiệp, cảng, và nay là đường sắt. Cùng hình dạng với Vingroup dù xuất phát ngược chiều.'}
+    ],
+
+    diem:{
+      sohuu:{m:'khong', d:'Ông Trần Bá Dương và gia đình là tâm sở hữu. Cổ đông chiến lược <b>Jardine Cycle &amp; Carriage nắm 26,7%</b> tính đến cuối 2025 — một tập đoàn niêm yết ở Singapore, tức vốn tư nhân quốc tế chứ không phải pháp nhân trung gian trong nước. Không tìm thấy mắt xích Nhà nước → người đứng tên → cổ đông lớn.'},
+      hdqt:{m:'khong', d:'Ông Dương làm Chủ tịch; đại diện Jardine, ông Cheah Kim Teck, làm <b>Phó Chủ tịch</b>. Đây còn là điểm khác Vingroup: có một <b>đối trọng cổ đông tổ chức nước ngoài</b> ngồi trong HĐQT. Không thấy cơ chế Nhà nước bổ nhiệm ghế nào.'},
+      von:{m:'manh', d:'Vốn đến từ kinh doanh, ngân hàng, trái phiếu (khoảng 18.380 tỷ huy động từ 2019), Jardine (thêm ~350 triệu USD trái phiếu chuyển đổi năm 2023), và cả tín dụng xuất khẩu quốc tế — HSBC cấp 60 triệu USD cho THACO Agri với <b>bảo lãnh của SACE</b>, cơ quan tín dụng xuất khẩu thuộc Bộ Kinh tế &amp; Tài chính Ý. Nhà nước Việt Nam không cấp tiền, nhưng với dự án hạ tầng chiến lược thì <b>cơ chế PPP, quy hoạch và giải phóng mặt bằng quyết định dự án đó có huy động được vốn hay không</b>.'},
+      duan:{m:'ratmanh', d:'Chu Lai là khu kinh tế mở do Nhà nước quy hoạch, THACO vào từ 2003 và nay có ~2,4 triệu m² khu công nghiệp ô tô cùng tổ hợp cơ khí ~320 ha. Thủ Thiêm: Đại Quang Minh được <b>chỉ định</b> làm 4 tuyến đường chính theo hợp đồng BT, thanh toán bằng <b>giao quỹ đất</b> — năm 2014 giao gần 79 ha, Sala quy mô ~106 ha. Thêm KCN Thái Bình, KCN cơ khí Bình Dương ~786 ha, cảng Chu Lai, và ~86.000 ha đất nông nghiệp ở Việt Nam, Lào, Campuchia.'},
+      chidao:{m:'vua', d:'Chính phủ công khai đề nghị THACO nghiên cứu và tham gia sản xuất toa tàu, đường sắt đô thị và công nghiệp đường sắt. Nhưng <b>"hãy nghiên cứu, hãy tham gia" khác hẳn "phải làm vì Nhà nước ra lệnh"</b> — chưa thấy tài liệu dạng thứ hai.'},
+      lailo:{m:'khong', d:'Không tìm thấy giải cứu bằng ngân sách. Ngược lại, chính THACO bỏ hơn <b>10.500 tỷ</b> ứng ra tái cấu trúc HAGL Agrico — tức tập đoàn tư nhân này đang là bên đi cứu, không phải bên được cứu. Xếp hạng tín nhiệm ghi rõ giả định hỗ trợ Chính phủ ở mức <b>THẤP</b> và không đưa vào kết quả.'},
+      mang:{m:'khong', d:'Mạng nội bộ giữa sáu khối — AUTO, INDUSTRIES, AGRI, THADICO, THISO, THILOGI — <b>rất dày và rất đáng soi</b>, xem mục thác vốn bên dưới. Nhưng nó là mạng <b>tư nhân</b>, quy về founder và Jardine, không quy về Nhà nước.'}
+    },
+
+    phanchung:{
+      t:'Ba mảnh phản chứng',
+      ds:[
+        {t:'Tổ chức xếp hạng nói thẳng: không tính hỗ trợ Nhà nước', d:'VIS Rating đánh giá giả định hỗ trợ Chính phủ ở mức <b>LOW</b> và tuyên bố không đưa bất kỳ hỗ trợ nào của Chính phủ hay bên liên quan vào xếp hạng của THACO. Nếu tồn tại bảo lãnh ngầm cho mọi khoản nợ thì đây là chỗ nó phải hiện ra, vì nó thay đổi hẳn rủi ro tín dụng.'},
+        {t:'Chi phí tài chính lớn hơn lợi nhuận', d:'Năm 2025: doanh thu ~3,115 tỷ USD, lợi nhuận sau thuế ~251 triệu USD, còn <b>chi phí tài chính ~260 triệu USD</b>. Một doanh nghiệp được bơm vốn giá rẻ thì bảng này không trông như vậy.'},
+        {t:'Có đối trọng cổ đông ngoại trong HĐQT', d:'Jardine nắm 26,7% và người của họ giữ ghế Phó Chủ tịch. Chaebol cổ điển là hệ đóng quanh gia đình; ở đây có một cổ đông tổ chức nước ngoài đủ lớn để không thể bỏ qua.'}
+      ]
+    },
+
+    /* Phát hiện riêng của hồ sơ này — Vingroup không có mục
+       tương đương. Đây là chỗ tiền đi VÒNG TRONG tập đoàn. */
+    thac:{
+      t:'Thác vốn nội bộ — phát hiện lớn nhất của hồ sơ này',
+      d:'Trên giấy tờ, sáu khối là sáu pháp nhân riêng. Về tín dụng thì không: chúng cho nhau vay, và công ty mẹ bảo lãnh cho công ty con. Nghĩa là THACO vận hành như <b>một bảng cân đối hợp nhất khổng lồ</b> chứ không phải sáu doanh nghiệp tách biệt.',
+      tang:[
+        {n:'A', t:'THACO AUTO', vai:'CỖ MÁY TIỀN MẶT', acc:'#2ea043',
+         d:'Ô tô tạo doanh thu và khả năng vay. Giữ hơn <b>75% nợ ngắn hạn</b> của cả tập đoàn, và cho công ty mẹ vay nội bộ khoảng <b>30.000 tỷ</b>.'},
+        {n:'B', t:'THACO mẹ', vai:'TRUNG TÂM ĐIỀU PHỐI', acc:'#58a6ff',
+         d:'Phân bổ vốn và <b>đứng ra bảo lãnh</b> cho khoản vay của các công ty con — phần lớn ngân hàng yêu cầu điều này. Chuyển tiếp khoảng <b>43.000 tỷ</b> xuống nông nghiệp.'},
+        {n:'C', t:'THACO AGRI', vai:'NƠI HẤP THỤ VỐN', acc:'#d29922',
+         d:'Nông nghiệp cần vốn dài hạn, và cho HAGL Agrico vay tiếp hơn <b>9.300 tỷ</b>, phần lớn không có tài sản bảo đảm, lãi 6,5–8,5%. Tỷ lệ lợi nhuận hoạt động trên chi phí lãi chỉ khoảng <b>0,2 lần</b>.'},
+        {n:'D', t:'THADICO / SALA', vai:'KỲ VỌNG THU TIỀN VỀ', acc:'#a371f7',
+         d:'Bất động sản Thủ Thiêm được kỳ vọng đóng góp 10–15% doanh thu giai đoạn 2025–2027 với biên EBITDA 50–65%, để cải thiện dòng tiền cho cả hệ.'}
+      ],
+      a:'  KHÁCH MUA Ô TÔ\n        ↓\n   THACO AUTO ──── ~30.000 tỷ ────┐\n        ↓                          │\n   (nợ ngắn hạn                    ↓\n    >75% cả tập đoàn)        THACO mẹ\n                                   │\n                        bảo lãnh + ~43.000 tỷ\n                                   ↓\n                             THACO AGRI\n                                   │\n                            >9.300 tỷ\n                                   ↓\n                            HAGL AGRICO\n\n   THADICO / SALA ──── bán BĐS ──→ tiền về bảng cân đối',
+      kl:'Nghịch lý đáng chú ý: THACO sinh ra từ ô tô và cơ khí, nhưng khi đòn bẩy căng lên thì thứ được kỳ vọng cứu dòng tiền lại là <b>bất động sản</b>. Đúng chỗ đó nó bắt đầu giống Vingroup.',
+      ruiro:'Cấu trúc này chạy tốt khi Auto khoẻ. Nhưng nếu ô tô bán chậm, lãi suất tăng, nông nghiệp vẫn cần bơm và bất động sản chưa bán được — cùng lúc — thì áp lực truyền <b>ngược</b> từ Agri lên công ty mẹ rồi lên chính Auto. Đây là lây lan <b>bên trong một tập đoàn</b>, không cần cú sốc nào từ ngoài.'
+    },
+
+    dongtien:{
+      t:'Truy dòng tiền: lõi công nghiệp, không phải lõi đất',
+      d:'Khác Vingroup ở gốc. Máy tạo dòng tiền đầu tiên của THACO là hoạt động công nghiệp, và đất đến rất muộn.',
+      moc:[
+        {y:'1980s', t:'Kỹ sư sửa chữa ô tô', d:'Trần Bá Dương đi từ công việc kỹ thuật lên quản lý.'},
+        {y:'1997', t:'Lập THACO', d:'Bán xe, phụ tùng, rồi lắp ráp cho Kia, Mazda, Peugeot.'},
+        {y:'2003', t:'Vào Chu Lai', d:'Khu kinh tế mở do Nhà nước quy hoạch. Từ đây THACO tự dựng hệ sinh thái vật chất phía sau chiếc xe: nhà máy, cơ khí, KCN, logistics, cảng.', hot:1},
+        {y:'2008', t:'Jardine vào', d:'Vốn tư nhân quốc tế, không phải ngân sách. Đến cuối 2025 nắm 26,7%.', hot:1},
+        {y:'2013–14', t:'Thủ Thiêm: BT đổi hạ tầng lấy đất', d:'Đại Quang Minh được chỉ định làm 4 tuyến đường chính, thanh toán bằng quỹ đất; năm 2014 giao gần 79 ha. Đây là lần đầu THACO chạm đúng cơ chế đất mà Vingroup dùng.', hot:1},
+        {y:'2018', t:'Ứng hơn 10.500 tỷ cứu HAGL Agrico', d:'Tiền từ ô tô và vốn tập đoàn chuyển sang nông nghiệp — cùng logic Vingroup dùng bất động sản nuôi VinFast.'},
+        {y:'2025', t:'~8,77 tỷ USD tài sản · ~4,87 tỷ USD nợ tài chính', d:'Nợ trên vốn chủ ~2,27 lần. Debt/EBITDA từ ~4x lên ~10x, Debt/Equity từ 97% lên 196%. Dòng tiền hoạt động âm ba kỳ liền.'},
+        {y:'2025–26', t:'Đề xuất đường sắt Bắc–Nam', d:'20% vốn chịu trách nhiệm, 80% huy động và vay. <b>Đề xuất không phải là tiền đã được cấp</b> — chưa có quyết định cuối cùng.'}
+      ],
+      kl:'Đòn bẩy dự án lộ rõ ở một ví dụ nhỏ mà đầy đủ: KCN Thaco–Thái Bình tổng vốn 2.132,6 tỷ, trong đó <b>vốn chủ 319,9 tỷ (15%) và vay ngân hàng 1.812,7 tỷ (85%)</b>. Mười lăm đồng vốn chủ kiểm soát một tài sản dựng bằng một trăm đồng.'
+    },
+
+    doc:[
+      {sai:'Nhà nước đã cho THACO vay 80% dự án đường sắt Bắc–Nam.',
+       dung:'THACO <b>đề xuất</b> cơ cấu 20% vốn chịu trách nhiệm và 80% huy động/vay. Đề xuất, dự thảo và quyết định giải ngân là ba trạng thái khác nhau; hiện chưa có quyết định cuối cùng.'},
+      {sai:'Được chỉ định làm đường ở Thủ Thiêm rồi nhận đất, vậy là ưu ái bất thường.',
+       dung:'BT "đổi hạ tầng lấy quỹ đất" là một cơ chế đầu tư đã từng được dùng. Muốn kết luận bất thường thì phải đi thêm một tầng: <b>giá trị 4 tuyến đường so với giá trị quỹ đất được giao</b>, định giá tại thời điểm nào, ai thẩm định, có đấu giá không, chênh lệch ai hưởng. Chưa có đủ hồ sơ đó.'},
+      {sai:'THACO cũng chỉ là một công ty bất động sản trá hình.',
+       dung:'Nó tạo ra tài sản sản xuất thật: nhà máy, cảng, dây chuyền cơ khí, kho, KCN, nông trại. Đó là <b>năng lực chế tạo</b>, thứ Vingroup yếu hơn — và cũng là lý do nó hấp dẫn với chiến lược công nghiệp hoá.'}
+    ],
+
+    gap:{
+      t:'Năm khoảng trống cho vòng điều tra sau',
+      d:'THACO chưa niêm yết nên không có thuyết minh báo cáo tài chính chi tiết như VIC. Phần lớn số liệu ở trên đến từ báo cáo của cổ đông ngoại và tổ chức xếp hạng — tức nhìn qua tay thứ ba.',
+      ds:[
+        'Bank-by-bank: ngân hàng nào cho pháp nhân nào vay, bao nhiêu, kỳ hạn, thế chấp gì.',
+        'Sổ đất: THACO / Đại Quang Minh / THADICO kiểm soát bao nhiêu đất, lấy theo đấu giá, BT, đấu thầu hay giao/thuê, giá gốc bao nhiêu.',
+        'Bảo lãnh chéo: công ty nào bảo lãnh cho công ty nào, tài sản nào bảo đảm cho trái phiếu nào.',
+        'Dòng tiền nội bộ chi tiết: Auto → Agri → HAGL, và Jardine rót vào pháp nhân nào.',
+        'Ưu đãi Nhà nước: cái nào áp dụng chung cho cả ngành, cái nào dành riêng cho dự án THACO.'
+      ]
+    },
+
+    noi:['tindung','bds','laisuat'],
+
+    ruiro:{
+      t:'Rủi ro khác Vingroup ở chỗ nào',
+      d:'Vingroup có một hố đốt vốn tên VinFast. THACO không có một hố duy nhất — nó có <b>quá nhiều ngành thâm dụng vốn cùng lúc</b>: ô tô, cơ khí, bất động sản, nông nghiệp, logistics, hạ tầng, và nay là đường sắt.',
+      a:'lãi suất ↑\n    +\nô tô cạnh tranh ↑\n    +\nbất động sản chậm bán\n    +\nnông nghiệp chưa có lãi\n    +\nmegaproject bắt đầu\n         ↓\n  dòng tiền bị kéo căng nhiều hướng\n         ↓\n      đòn bẩy ↑\n         ↓\n  nhu cầu tái cấp vốn ↑',
+      d2:'Đồng hồ đáng nhìn không phải "THACO có bao nhiêu đất" mà là <b>khả năng trả lãi</b>: hợp nhất đã rơi từ 6,7 lần xuống 1,9 lần, riêng nông nghiệp chỉ 0,2 lần. Một tập đoàn có thể sở hữu rất nhiều tài sản mà vẫn kẹt, nếu dòng tiền nhỏ hơn lãi cộng gốc — lúc đó chỉ còn ba cửa: bán tài sản, vay mới, hoặc tăng vốn.'
+    }
   }
+];
+
+/* ─────────────────────────────────────────────────────────────
+   DANH SÁCH SOI — lộ trình, không phải bảng xếp hạng giàu
+
+   Xếp theo khả năng trở thành CÔNG CỤ DOANH NGHIỆP TƯ NHÂN CÓ
+   VAI TRÒ CHIẾN LƯỢC, không theo quy mô tài sản. Hai thứ đó
+   khác nhau: một tập đoàn rất giàu mà không đứng ở ổ cắm nào
+   của Nhà nước thì không thuộc mô hình này.
+
+   Ghi ra để lần soi sau không phải nghĩ lại từ đầu, và để người
+   đọc thấy hồ sơ nào đã làm, hồ sơ nào mới là dự định.
+   ───────────────────────────────────────────────────────────── */
+const DANHSACH = [
+  {muc:1, t:'Gần mô hình đầu tàu quốc gia nhất', acc:'#f0503f', ds:[
+    {ten:'Vingroup',  o:'đất · hạ tầng · năng lượng', soi:'vingroup'},
+    {ten:'THACO',     o:'công nghiệp · cơ khí · đường sắt', soi:'thaco'},
+    {ten:'Hoà Phát',  o:'thép — nguyên liệu nền của mọi công trình',
+     ghi:'Không cần hệ sinh thái tiêu dùng. Nó nằm ở tầng vật liệu: đường sắt, cảng, cầu, đô thị đều phải đi qua thép.'},
+    {ten:'FPT',       o:'AI · bán dẫn · dữ liệu · phần mềm',
+     ghi:'Ổ cắm "não số". Đã công bố đầu tư 5 công nghệ chiến lược gồm cả công nghệ đường sắt, và bắt tay Viettel ở chuỗi bán dẫn.'}
+  ]},
+  {muc:2, t:'Giữ một ổ cắm chiến lược rất mạnh', acc:'#d29922', ds:[
+    {ten:'Sun Group', o:'sân bay · du lịch · hạ tầng đô thị',
+     ghi:'Cấu trúc đất → hạ tầng → du lịch → sân bay → đô thị. Chưa có chiều sâu công nghiệp như THACO hay Hoà Phát.'},
+    {ten:'Sovico',    o:'hàng không · ngân hàng · tài chính',
+     ghi:'ĐÁNG SOI SỚM. Sovico – HDBank – Vietjet là một hệ có ngân hàng nằm sát bên trong, tức nút tuần hoàn vốn nằm ngay trong tập đoàn.'},
+    {ten:'Masan',     o:'phân phối tiêu dùng · khoáng sản chiến lược',
+     ghi:'Quyền lực khác hẳn: đứng gần túi tiền hàng ngày của hàng chục triệu người, cộng chuỗi vonfram. Cặp Masan – Techcombank cũng đáng soi.'}
+  ]},
+  {muc:3, t:'Có thể nổi lên nhờ hạ tầng', acc:'#58a6ff', ds:[
+    {ten:'GELEX',     o:'điện · thiết bị · khu công nghiệp',
+     ghi:'Nhỏ hơn nhóm trên nhưng đứng đúng ổ cắm điện, giữa lúc Việt Nam phải đầu tư mạnh cho lưới và truyền tải.'}
+  ]}
 ];
 
 window.DQT_DATA = { IC: IC, svg: svg, THEATERS: THEATERS, GAUGES: GAUGES,
   CHAIN: CHAIN, LEVELS: LEVELS, SCEN: SCEN, LIB: LIB,
-  THANG: THANG, TIEUCHI: TIEUCHI, SOI: SOI };
+  THANG: THANG, TIEUCHI: TIEUCHI, SOI: SOI, DANHSACH: DANHSACH };
 })();

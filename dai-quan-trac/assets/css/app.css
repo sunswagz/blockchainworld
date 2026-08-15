@@ -547,3 +547,62 @@ ul.tight li::marker{color:var(--line3)}
   #app.nav-collapsed .grp.dong .nv{max-height:0;opacity:0;pointer-events:none;
     padding-top:0;padding-bottom:0}
 }
+
+/* ============ THÁC VỐN NỘI BỘ ============
+   Bốn tầng xếp DỌC có chủ ý: đây là một dòng chảy một chiều
+   Auto → mẹ → Agri → HAGL. Vẽ ngang thì mất mất chiều đó, mà
+   chiều mới là nội dung. */
+.thac-w{margin:14px 0 4px}
+.thac{display:flex;gap:14px;position:relative;padding-bottom:14px}
+.thac.noi::before{content:"";position:absolute;left:17px;top:38px;bottom:0;
+  width:2px;background:linear-gradient(180deg,var(--a),var(--line2))}
+.thac-k{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--mono);font-size:15px;font-weight:600;
+  background:var(--surface);border:2px solid var(--a);color:var(--a);z-index:1}
+.thac-b{min-width:0;padding-top:4px}
+.thac-h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:5px}
+.thac-h b{font-size:15px}
+.thac-v{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;padding:2px 7px;
+  border-radius:20px;background:var(--inset);border:1px solid var(--line2);color:var(--a)}
+.thac-b p{margin:0;font-size:13.5px;color:var(--fg2);max-width:74ch}
+
+/* ============ SO HÌNH DẠNG BẢNG CHẤM ============
+   Bảy ô vuông cạnh nhau, không chữ. Mục đích duy nhất là để mắt
+   so hai hàng trong một giây — chữ đọc sau. */
+.ss-w{display:grid;gap:8px;margin:14px 0 4px}
+.ss-r{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  padding:11px 15px;border:1px solid var(--line);border-radius:var(--r2);
+  background:var(--surface);color:inherit;cursor:pointer;transition:border-color .14s,background .14s}
+.ss-r:hover{background:var(--raise);border-color:var(--line3)}
+.ss-t{flex:0 0 110px;font-size:14px;font-weight:600}
+.ss-b{display:flex;gap:5px;flex:1;min-width:0}
+.ss-b i{flex:1;max-width:46px;height:24px;border-radius:4px;display:block}
+
+/* ============ DANH SÁCH SOI ============ */
+.ds-w{margin-top:14px;display:grid;gap:14px}
+.ds-m{border:1px solid var(--line);border-left:3px solid var(--a);
+  border-radius:var(--r2);overflow:hidden;background:var(--surface)}
+.ds-h{display:flex;align-items:center;gap:10px;padding:10px 15px;
+  border-bottom:1px solid var(--line);background:linear-gradient(180deg,#ffffff05,transparent)}
+.ds-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--a);flex:0 0 auto}
+.ds-h b{font-size:13.5px}
+.ds-r{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:baseline;
+  width:100%;text-align:left;padding:10px 15px;border-bottom:1px solid var(--line);
+  color:inherit;background:none;border-left:0;border-right:0;border-top:0}
+.ds-m>div>.ds-r:last-child{border-bottom:0}
+.ds-r.co{cursor:pointer}
+.ds-r.co:hover{background:#ffffff08}
+.ds-t{font-size:14px;font-weight:600}
+.ds-o{font-size:12.5px;color:var(--muted);min-width:0}
+.ds-b{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:1px 7px;
+  border-radius:20px;border:1px solid var(--line2);color:var(--dim);white-space:nowrap}
+.ds-b.co{border-color:#2ea04355;background:var(--ok-d);color:#3fb950}
+.ds-g{grid-column:1/-1;font-size:12.5px;color:var(--fg2);padding-top:5px;
+  border-top:1px dashed var(--line2);margin-top:4px}
+
+@media(max-width:720px){
+  .ds-r{grid-template-columns:1fr auto}
+  .ds-o{grid-column:1/-1}
+  .thac.noi::before{left:15px}
+  .thac-k{flex:0 0 32px;height:32px;font-size:13px}
+}
