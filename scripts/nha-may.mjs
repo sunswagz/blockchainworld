@@ -155,6 +155,15 @@ export const NODE = [
        "Actions không quét được. Chạy tay rồi commit là cách duy nhất."
   },
   {
+    ma: "tu-cam-thanh", ten: "Phiên Tử Cấm Thành", cung: "tu-cam-thanh",
+    tram: "M12", che: "tay", nhip: 0,
+    lenh: "cd tu-cam-thanh-runtime && python -m trader.snapshot",
+    ra: ["tu-cam-thanh/assets/js/v/phien.js"],
+    y: "Runtime là tiến trình Python chạy dài, cần ANTHROPIC_API_KEY và quyền " +
+       "ghi đĩa — Actions không chạy được. Chạy tay rồi commit lát cắt, cùng " +
+       "kiểu Hoàng Thành."
+  },
+  {
     ma: "giao-hang", ten: "Giao hàng lên Pages",
     tram: "M16", che: "theo", nhip: 0,
     lenh: ".github/workflows/deploy-pages.yml",

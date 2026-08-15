@@ -94,6 +94,18 @@
     })
     .catch(function () {});
 
+  // Tử Cấm Thành: phien.js là lát cắt phiên giao dịch, `generatedAt` nằm ngay
+  // đầu file. Cũng sinh tay như Hoàng Thành — runtime cần khoá API và một tiến
+  // trình dài nên Actions không chạy được; chưa chạy lần nào thì generatedAt là
+  // null và thẻ không hiện ngày, đúng như vậy chứ đừng bịa ra một ngày.
+  dauFile("tu-cam-thanh/assets/js/v/phien.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"generatedAt":\s*"([^"]+)"/);
+      if (m) stamp("tctDate", "phiên " + (ddmmyyyy(m[1]) || m[1]));
+    })
+    .catch(function () {});
+
   // Hoàng Thành: data.js ~380 KB, ngày và tổng số chương nằm ở đoạn đầu.
   // Khác bốn cung trên ở chỗ file này KHÔNG do workflow sinh — nguồn nằm
   // ngoài repo nên phải chạy `npm run hoangthanh` bằng tay rồi commit.

@@ -1,0 +1,44 @@
+{
+  "id": "sunswagz-tu-cam-thanh",
+  "name": "Tử Cấm Thành · Lõi giao dịch",
+  "short_name": "Tử Cấm Thành",
+  "description": "Lõi của Hoàng Thành: một AI Trader Runtime có mắt nhìn thị trường, bộ não tổng hợp, kho kỹ năng, trí nhớ và kỷ luật rủi ro. Claude đề xuất; Risk Engine viết bằng Python thuần giữ chìa khoá két.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#0E1116",
+  "theme_color": "#0E1116",
+  "categories": [
+    "finance",
+    "productivity",
+    "developer"
+  ],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

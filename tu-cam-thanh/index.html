@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tử Cấm Thành · Lõi giao dịch</title>
+<meta name="description" content="Lõi của Hoàng Thành: một AI Trader Runtime có mắt nhìn thị trường, bộ não tổng hợp, kho kỹ năng, trí nhớ và kỷ luật rủi ro. Claude đề xuất; Risk Engine viết bằng Python thuần giữ chìa khoá két.">
+
+<meta name="theme-color" content="#0E1116">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tử Cấm Thành">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#tren">
+      <span class="dau" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18M5 21V9l7-4.5L19 9v12"/><path d="M9.5 21v-6h5v6"/><path d="M12 11.5v1.5"/>
+        </svg>
+      </span>
+      <span><b>Tử Cấm Thành</b><i>Lõi giao dịch</i></span>
+    </a>
+
+    <div id="benMuc">
+      <a class="bmuc" href="#phien"><span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bten">Phiên gần nhất</span></a>
+      <a class="bmuc" href="#so-do"><span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 10v4M12 17v4"/><rect x="8" y="7" width="8" height="3" rx="1"/><rect x="8" y="14" width="8" height="3" rx="1"/></svg></span><span class="bten">Sơ đồ dữ liệu</span></a>
+      <a class="bmuc" href="#luan-diem"><span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M4 15l5-6 4 4 7-8"/></svg></span><span class="bten">Luận điểm</span></a>
+      <a class="bmuc" href="#rui-ro"><span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3.5v5c0 4.6-3.2 8.4-8 9.5-4.8-1.1-8-4.9-8-9.5v-5z"/><path d="M12 9v4M12 16h.01"/></svg></span><span class="bten">Rủi ro &amp; vị thế</span></a>
+      <a class="bmuc" href="#nhat-ky"><span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span class="bten">Nhật ký &amp; bài học</span></a>
+      <a class="bmuc" href="#cach-chay"><span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="bten">Cách chạy</span></a>
+    </div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Trang này <b>chỉ đọc</b>. Số liệu là lát cắt do runtime ghi ra
+      <code>assets/js/v/phien.js</code> rồi commit — không có lời gọi API nào từ đây.</p>
+    </div>
+  </nav>
+
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tren">Tử Cấm Thành</h1>
+      <span class="phu" id="dinhPhu"></span>
+    </header>
+
+    <div class="dau-trang">
+      <span class="nhan-cung">Vòng trong · lõi Hoàng Thành</span>
+      <h1>Một <em>AI Trader Runtime</em>, mổ ra xem</h1>
+      <p class="dat">Không phải bot xem biểu đồ rồi đoán mua hay bán. Đây là cỗ máy dựng
+      trạng thái thế giới rồi suy luận theo xác suất: có mắt nhìn thị trường, bộ não tổng
+      hợp, kho kỹ năng, bốn loại trí nhớ, một bức tường rủi ro và một vòng hậu kiểm.
+      <b>Claude đề xuất; Risk Engine viết bằng Python thuần giữ chìa khoá két.</b></p>
+    </div>
+
+    <div class="dai" id="dai"></div>
+
+    <div class="luu">
+      <b>Tiền giả, sàn giấy.</b> Runtime chạy trên tài khoản mô phỏng có tính phí và trượt
+      giá thật. Số liệu dưới đây là bản ghi của một phiên đã chạy — không phải khuyến nghị
+      đầu tư, và không nối vào tài khoản thật nào.
+    </div>
+
+    <section class="muc" id="phien">
+      <h2 class="tieu">Phiên gần nhất</h2>
+      <p class="phu">Lát cắt lúc runtime ghi ra file. Trang tĩnh không tự lấy giá được —
+      nó mới đúng bằng lần ghi gần nhất.</p>
+      <div id="oPhien"></div>
+    </section>
+
+    <section class="muc" id="so-do">
+      <h2 class="tieu">Sơ đồ dữ liệu</h2>
+      <p class="phu">Đường đi của một quyết định, từ nến thô tới bài học. Ô sáng là mắt xích
+      có dữ liệu trong phiên này; ô viền đỏ là chỗ Risk Engine đã chặn.</p>
+      <div class="so-do" id="soDo"></div>
+    </section>
+
+    <section class="muc" id="luan-diem">
+      <h2 class="tieu">Luận điểm gần nhất</h2>
+      <p class="phu">Bộ não không dự đoán một mức giá. Nó phân loại chế độ thị trường, dựng
+      kịch bản kèm xác suất, rồi mới ra quyết định — trong đó <b>NO_TRADE là một quyết định
+      đúng</b>, không phải một lần bỏ lỡ.</p>
+      <div id="oLuanDiem"></div>
+    </section>
+
+    <section class="muc" id="rui-ro">
+      <h2 class="tieu">Rủi ro &amp; vị thế</h2>
+      <p class="phu">Bức tường cứng. Nó không tranh luận với Claude: tự tính lại kích thước
+      vị thế từ đầu, và <code>confidence</code> chỉ dùng để từ chối, không bao giờ dùng để
+      nới thêm rủi ro.</p>
+      <div id="oRuiRo"></div>
+    </section>
+
+    <section class="muc" id="nhat-ky">
+      <h2 class="tieu">Nhật ký &amp; bài học</h2>
+      <p class="phu">Mỗi lệnh đóng lại sinh một lượt hậu kiểm. Điều quan trọng nhất ở đây là
+      <b>phân biệt quyết định với kết quả</b> — học theo tiền lãi/lỗ thay vì theo chất lượng
+      quyết định thì cuối cùng sẽ học ra cờ bạc.</p>
+      <div id="oNhatKy"></div>
+    </section>
+
+    <section class="muc" id="cach-chay">
+      <h2 class="tieu">Cách chạy</h2>
+      <p class="phu">Runtime không chạy trên GitHub Pages được — nó cần một tiến trình dài,
+      một khoá API và quyền ghi đĩa. Nó nằm ở <code>tu-cam-thanh-runtime/</code> trong repo,
+      ngoài phạm vi deploy.</p>
+      <div class="the">
+        <div class="hang"><span>chạy runtime + buồng lái</span><b>python run.py</b></div>
+        <div class="hang"><span>buồng lái</span><b>http://localhost:5182</b></div>
+        <div class="hang"><span>không gọi API, không tốn tiền</span><b>python run.py --brain=mock</b></div>
+        <div class="hang"><span>kiểm một vòng kín</span><b>python scripts/selftest.py</b></div>
+        <div class="hang"><span>ghi lát cắt một lần</span><b>python -m trader.snapshot</b></div>
+        <div class="hang"><span>xem cung này ở máy</span><b>node server.js 5181</b></div>
+      </div>
+      <div class="luu">
+        <b>Vì sao tách làm hai.</b> Cung này là trang tĩnh công khai; nhúng khoá Anthropic
+        vào đây là làm lộ khoá. Nên runtime chạy ở máy bạn, ghi ra một file tĩnh, rồi commit —
+        đúng cách <b>Hoàng Thành</b> đang làm với rừng văn hoá. Buồng lái có chat và nút điều
+        khiển thì chỉ sống ở <code>localhost:5182</code>, không bao giờ lên site.
+      </div>
+    </section>
+
+    <footer class="chan">
+      <p><b>Đây là mốc M0</b> — vòng chạy kín nhỏ nhất mà vẫn học được, không phải bản
+      thiết kế đầy đủ. Chưa có: backtest/replay, Champion/Challenger, nhiều chiến lược,
+      order book, funding, tin tức. Mốc kế tiếp phải là backtest, vì hiện chưa có cách nào
+      biết một thay đổi là tốt hơn hay chỉ là khác đi.</p>
+      <p><b>Ba cái bẫy số học đã tìm ra khi dựng và đã sửa</b>, cả ba đều thuộc loại hỏng im
+      lặng: sổ ghi rủi ro theo giá yêu cầu thay vì giá khớp; ngưỡng RR thẩm định trước phí
+      và trượt giá (RR danh nghĩa 2.0 chỉ còn 1.15 sau 15bps); và luật “stop quá hẹp” chết
+      âm thầm vì đo nhầm mốc. Test vẫn xanh, bảng vẫn đẹp, chỉ có bài học là sai.</p>
+      <p><b>Không có lời gọi API nào từ trang này.</b> Mọi con số ở trên đọc từ
+      <code>assets/js/v/phien.js</code>, một file tĩnh đã commit.</p>
+    </footer>
+
+  </main>
+</div>
+
+<!-- lát cắt phiên · do tu-cam-thanh-runtime ghi, đừng sửa tay -->
+<script src="assets/js/v/phien.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "symbol": "BTCUSDT",
+  "timeframes": { "primary": "1h", "context": "4h" },
+  "port": 5182,
+  "loopSeconds": 20,
+
+  "brain": {
+    "model": "claude-opus-5",
+    "effort": "high",
+    "postmortemEffort": "medium",
+    "maxTokens": 16000,
+    "minSecondsBetweenTheses": 300,
+    "dailyBudgetUsd": 5.0,
+    "maxCallsPerDay": 80,
+    "requireNewCandle": true
+  },
+
+  "risk": {
+    "startingEquity": 10000,
+    "maxRiskPerTradePct": 0.5,
+    "maxOpenPositions": 1,
+    "maxDailyLossPct": 2.0,
+    "maxDrawdownPct": 10.0,
+    "minRR": 2.0,
+    "minConfidence": 0.55,
+    "minStopAtr": 0.3,
+    "maxStopAtr": 3.0,
+    "maxNotionalPctOfEquity": 100,
+    "feeBps": 10,
+    "slippageBps": 5
+  },
+
+  "data": {
+    "candleLimit": 400,
+    "sources": [
+      "https://data-api.binance.vision/api/v3/klines",
+      "https://api.binance.com/api/v3/klines"
+    ]
+  }
+}

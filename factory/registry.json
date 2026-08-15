@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-15T08:11:19.594Z",
+  "generatedAt": "2026-08-15T08:21:39.574Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -122,6 +122,19 @@
         "hoang-thanh/assets/js/v/"
       ],
       "y": "Nguồn nằm NGOÀI repo (sunswagz-hub/08_world_culture_forest) nên Actions không quét được. Chạy tay rồi commit là cách duy nhất."
+    },
+    {
+      "ma": "tu-cam-thanh",
+      "ten": "Phiên Tử Cấm Thành",
+      "cung": "tu-cam-thanh",
+      "tram": "M12",
+      "che": "tay",
+      "nhip": 0,
+      "lenh": "cd tu-cam-thanh-runtime && python -m trader.snapshot",
+      "ra": [
+        "tu-cam-thanh/assets/js/v/phien.js"
+      ],
+      "y": "Runtime là tiến trình Python chạy dài, cần ANTHROPIC_API_KEY và quyền ghi đĩa — Actions không chạy được. Chạy tay rồi commit lát cắt, cùng kiểu Hoàng Thành."
     },
     {
       "ma": "giao-hang",

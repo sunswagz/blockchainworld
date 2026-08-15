@@ -21,6 +21,12 @@
       icon: '<path d="M3 21h18M5 21V10l7-5.5L19 10v11"/><path d="M9.5 21v-5.5h5V21"/>'
     },
     {
+      href: "../tu-cam-thanh/",
+      name: "Tử Cấm Thành",
+      note: "lõi giao dịch",
+      icon: '<path d="M2.5 21h19"/><path d="M4.5 21V9.5h15V21"/><path d="M3 9.5 12 4l9 5.5"/><path d="M10.2 21v-5a1.8 1.8 0 0 1 3.6 0v5"/><path d="M7 21v-3.2a1.2 1.2 0 0 1 2.4 0V21"/><path d="M14.6 21v-3.2a1.2 1.2 0 0 1 2.4 0V21"/>'
+    },
+    {
       href: "../cong-bo/",
       name: "Công Bộ",
       note: "bộ đồ nghề",

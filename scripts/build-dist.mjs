@@ -23,7 +23,13 @@ const DIST = join(ROOT, "dist");
 /* Cổng Thành ở gốc; mỗi cung là một thư mục có index.html riêng.
    Thêm cung mới = thêm thư mục + một dòng ở đây. */
 const GATE = ["index.html", "manifest.webmanifest", "sw.js", "assets"];
-const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu"];
+const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu", "tu-cam-thanh"];
+
+/* `tu-cam-thanh-runtime/` KHÔNG có ở đây và không được thêm vào. Đó là
+   runtime Python (FastAPI + vòng lặp nền + khoá API), không phải tài sản
+   của trang. GATE là danh sách tường minh nên nó tự nằm ngoài dist/ —
+   thêm vào HALLS là đẩy mã nguồn và cấu hình lên GitHub Pages lẫn IPFS,
+   mà IPFS thì đã pin là không rút lại được. */
 
 const TEXT = new Set([".html", ".css", ".js", ".mjs", ".json", ".webmanifest", ".svg", ".md"]);
 

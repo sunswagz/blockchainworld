@@ -63,7 +63,11 @@ export const NGUON = [
   { nhan: "bảng xét Đô Sát Viện",    duong: "do-sat-vien/assets/js/data.js",     botSinh: true },
   { nhan: "đồ nghề Công Bộ",         duong: "cong-bo/assets/js/data.js",         botSinh: true },
   { nhan: "kho skill Tàng Thư Các",  duong: "tang-thu-cac/assets/js/data.js",    botSinh: true },
-  { nhan: "rừng văn hoá Hoàng Thành", duong: "hoang-thanh/assets/js/data.js",    botSinh: false }
+  { nhan: "rừng văn hoá Hoàng Thành", duong: "hoang-thanh/assets/js/data.js",    botSinh: false },
+  /* Cùng lý do Hoàng Thành: runtime giao dịch cần khoá API và một tiến trình
+     chạy dài, Actions không làm được. Sinh tay ở máy rồi commit — nên cũ là
+     bình thường, không được kèm ⚠. */
+  { nhan: "phiên Tử Cấm Thành",      duong: "tu-cam-thanh/assets/js/v/phien.js", botSinh: false }
 ];
 
 /* Dấu thời gian viết cả hai kiểu tuỳ script sinh ra nó:

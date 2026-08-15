@@ -4,14 +4,13 @@
    CỐ Ý chỉ cache trang cổng, KHÔNG cache các cung bên trong.
    Mỗi cung có service worker riêng với phạm vi riêng
    (/kinh-thanh/, /dai-quan-trac/, /do-sat-vien/, /cong-bo/,
-   /tang-thu-cac/, /hoang-thanh/, /tao-bien-xu/) và tự lo phần offline
-   của
-   nó. Cache chồng lấn ở đây sẽ khiến hai worker tranh nhau
+   /tang-thu-cac/, /hoang-thanh/, /tao-bien-xu/, /tu-cam-thanh/) và tự
+   lo phần offline của nó. Cache chồng lấn ở đây sẽ khiến hai worker tranh nhau
    phục vụ cùng một file, và bản cũ của cung có thể bị cổng
    giữ lại sau khi cung đã cập nhật.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v6";
+var CACHE_VERSION = "v7";
 var SHELL_CACHE = "cong-thanh-" + CACHE_VERSION;
 
 var SHELL = [
@@ -64,6 +63,7 @@ self.addEventListener("fetch", function (e) {
   if (url.pathname.indexOf("/tang-thu-cac/") !== -1) return;
   if (url.pathname.indexOf("/hoang-thanh/") !== -1) return;
   if (url.pathname.indexOf("/tao-bien-xu/") !== -1) return;
+  if (url.pathname.indexOf("/tu-cam-thanh/") !== -1) return;
 
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(function () {

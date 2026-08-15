@@ -15,6 +15,12 @@
       icon: '<circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2"/><path d="M12 3.4c2.4 2.4 3.6 5.3 3.6 8.6s-1.2 6.2-3.6 8.6c-2.4-2.4-3.6-5.3-3.6-8.6S9.6 5.8 12 3.4Z"/>'
     },
     {
+      href: "../tu-cam-thanh/",
+      name: "Tử Cấm Thành",
+      note: "lõi giao dịch",
+      icon: '<path d="M2.5 21h19"/><path d="M4.5 21V9.5h15V21"/><path d="M3 9.5 12 4l9 5.5"/><path d="M10.2 21v-5a1.8 1.8 0 0 1 3.6 0v5"/><path d="M7 21v-3.2a1.2 1.2 0 0 1 2.4 0V21"/><path d="M14.6 21v-3.2a1.2 1.2 0 0 1 2.4 0V21"/>'
+    },
+    {
       href: "../tao-bien-xu/",
       name: "Tạo Biện Xứ",
       note: "công xưởng AI",
