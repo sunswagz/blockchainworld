@@ -71,7 +71,13 @@
     var bn = D.boNao || {};
     var cu = cachDay(D.generatedAt);
 
+    var san = D.san === "testnet"
+      ? { cls: "song", chu: "sàn Binance Spot Testnet · khớp thật, tiền giả" }
+      : { cls: "tinh", chu: "sàn giấy nội bộ · không có lệnh nào trên sàn" };
+
     host.innerHTML =
+      '<span class="vien ' + san.cls + '">' + esc(san.chu) + "</span>" +
+      (D.chiLong ? '<span class="vien">chỉ LONG — spot không short được</span>' : "") +
       '<span class="vien ' + (nguonThat ? "song" : "dut") + '">' +
         (nguonThat ? "nguồn thật · " + esc(D.nguon.name) : "⚠ nến tổng hợp — đừng tin số") + "</span>" +
       '<span class="vien">' + esc(D.cap) + " · " + esc((D.khung && D.khung.primary) || "") +

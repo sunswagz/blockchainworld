@@ -54,6 +54,12 @@ def build(runtime) -> dict:
         "chayTu": snap.get("startedAt"),
         "vong": snap.get("ticks"),
         "tamDung": snap.get("paused"),
+        # Sàn nào đang khớp lệnh là thứ người xem PHẢI thấy ngay. Một bảng số
+        # liệu không nói rõ nó là tiền giả nội bộ hay lệnh thật trên testnet thì
+        # con số nào cũng vô nghĩa.
+        "san": snap.get("venue"),
+        "cheDoSan": snap.get("mode"),
+        "chiLong": snap.get("spotOnly"),
         "cap": snap.get("symbol"),
         "khung": snap.get("timeframes"),
         "gia": snap.get("price"),

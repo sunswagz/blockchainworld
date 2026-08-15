@@ -21,6 +21,7 @@ import httpx
 
 from .brain import get_brain
 from .broker import PaperBroker
+from .broker_testnet import TestnetBroker
 from .bus import bus
 from .config import CONFIG
 from .data import get_market_data, data_source
@@ -36,8 +37,25 @@ class Runtime:
         self.cfg = CONFIG
         self.primary = CONFIG["timeframes"]["primary"]
         self.context = CONFIG["timeframes"]["context"]
-        self.broker = PaperBroker(CONFIG["risk"])
-        self.risk = RiskEngine(CONFIG["risk"])
+        # Chọn sàn theo config. Cả hai cùng giao diện nên phần dưới không cần biết.
+        #
+        # Rơi về paper khi testnet không nối được là CÓ CHỦ Ý và phải ồn ào: một
+        # runtime âm thầm chuyển sang tiền giả trong khi người dùng tưởng đang
+        # chạy testnet là kiểu hỏng tệ nhất — mọi con số vẫn đẹp, chỉ là chúng
+        # không tương ứng với lệnh nào có thật.
+        self.mode = CONFIG.get("mode", "paper")
+        if self.mode == "testnet":
+            self.broker = TestnetBroker(CONFIG["risk"], CONFIG["symbol"])
+            if not self.broker.ready:
+                bus.log("system", "roi-ve-paper",
+                        f"KHÔNG nối được testnet ({self.broker.last_error}) — chạy sàn giấy. "
+                        f"Số liệu dưới đây là tiền giả nội bộ, KHÔNG phải lệnh trên sàn.")
+                self.broker = PaperBroker(CONFIG["risk"])
+                self.mode = "paper"
+        else:
+            self.broker = PaperBroker(CONFIG["risk"])
+
+        self.risk = RiskEngine(CONFIG["risk"], spot_only=(self.mode == "testnet"))
         self.brain = None
 
         self.state: dict | None = None
@@ -173,6 +191,10 @@ class Runtime:
 
     async def run(self) -> None:
         self.brain = await get_brain()
+        # Soát lệch sổ TRƯỚC vòng đầu tiên: runtime có thể đã chết giữa lệnh
+        # MARKET và lệnh OCO ở lần chạy trước, để lại một vị thế không ai canh.
+        if hasattr(self.broker, "doi_soat"):
+            self.broker.doi_soat()
         bus.log("system", "khoi-dong",
                 f"{self.cfg['symbol']} · {self.primary}+{self.context} · vòng {self.cfg['loopSeconds']}s · "
                 f"vốn ${self.cfg['risk']['startingEquity']:,} · brain {self.brain.mode}")
@@ -203,6 +225,9 @@ class Runtime:
             "startedAt": self.started_at,
             "ticks": self.ticks,
             "paused": self.paused,
+            "mode": self.mode,
+            "venue": getattr(self.broker, "kind", "paper"),
+            "spotOnly": self.risk.spot_only,
             "symbol": self.cfg["symbol"],
             "timeframes": {"primary": self.primary, "context": self.context},
             "price": price,

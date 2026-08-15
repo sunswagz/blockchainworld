@@ -24,9 +24,13 @@ def _utc_day() -> str:
 
 
 class RiskEngine:
-    def __init__(self, cfg: dict) -> None:
+    def __init__(self, cfg: dict, spot_only: bool = False) -> None:
         self.cfg = cfg
         self.halted_reason: str | None = None  # kill switch thủ công hoặc do drawdown
+        # Sàn spot chỉ bán được thứ đang giữ. Chặn SHORT ở ĐÂY chứ không để rơi
+        # xuống broker rồi mới nổ: xuống tới đó thì đã tốn một lượt gọi model,
+        # và lỗi hiện ra dưới dạng mã lỗi sàn khó đọc thay vì một câu tiếng Việt.
+        self.spot_only = spot_only
 
     # ── Ngắt mạch: kiểm TRƯỚC mọi thứ khác ────────────────────────────────
     def circuit_breakers(self, account: dict) -> list[str]:
@@ -63,6 +67,12 @@ class RiskEngine:
         if action == "NO_TRADE":
             return {"approved": False, "action": "NO_TRADE",
                     "rejections": [], "note": "brain chủ động không vào lệnh", "position": None}
+
+        if self.spot_only and action == "SHORT":
+            return {"approved": False, "action": action,
+                    "rejections": ["SPOT_KHONG_SHORT: sàn spot chỉ bán được thứ đang giữ"],
+                    "rr": None, "position": None,
+                    "note": "sàn spot không short được — cần margin/futures"}
 
         rejections += self.circuit_breakers(account)
 

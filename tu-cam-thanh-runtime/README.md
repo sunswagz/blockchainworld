@@ -28,11 +28,58 @@ Thư mục này **không được thêm vào `HALLS`** của `build-dist.mjs`, v
 
 ```bash
 pip install -r requirements.txt
-python run.py                 # buồng lái: http://localhost:5182
-python -m trader.snapshot     # ghi lát cắt một lần rồi thoát
-python scripts/selftest.py    # kiểm một vòng kín, không gọi API, không mở cổng
-python scripts/sinh-icon.py   # vẽ lại 5 icon PNG của cung
+python run.py                    # buồng lái: http://localhost:5182
+python -m trader.snapshot        # ghi lát cắt một lần rồi thoát
+python scripts/selftest.py       # kiểm một vòng kín, không gọi API, không mở cổng
+python scripts/kiem-testnet.py   # kiểm kết nối sàn testnet
+python scripts/kiem-roi-ve.py    # kiểm đường rơi về sàn giấy
+python scripts/sinh-icon.py      # vẽ lại 5 icon PNG của cung
 ```
+
+## Hai chế độ sàn
+
+`"mode"` trong `config.json`:
+
+| | khớp ở đâu | tiền | cần khoá |
+|---|---|---|---|
+| `paper` (mặc định) | mô phỏng trong tiến trình | giả, nội bộ | không |
+| `testnet` | Binance Spot Testnet, sổ lệnh thật | giả, do Binance cấp | có |
+
+**Không có chế độ mainnet, và cố ý không có.** Base URL cắm cứng trong
+`trader/exchange.py`, không đọc từ config — một biến `base_url` trong file cấu
+hình là một dòng sửa nhầm giữa tiền giả và tiền thật.
+
+### Nối testnet
+
+1. Vào https://testnet.binance.vision, đăng nhập bằng GitHub, bấm
+   **Generate HMAC_SHA256 Key**. Khoá hiện ra **đúng một lần** — chép ngay.
+2. `cp .env.example .env` rồi điền `BINANCE_TESTNET_KEY` / `BINANCE_TESTNET_SECRET`.
+3. Đổi `"mode": "testnet"` trong `config.json`.
+4. `python scripts/kiem-testnet.py` — phải xanh hết trước khi chạy `run.py`.
+
+Khai `testnet` mà không nối được thì runtime **rơi về sàn giấy và báo to**, chứ
+không đứng im: rơi về im lặng là mọi con số vẫn đẹp trong khi không có lệnh nào
+tồn tại trên sàn.
+
+### Ba chỗ testnet khác sàn giấy
+
+**Phân tích chạy trên nến mainnet, khớp lệnh ở testnet.** Testnet chỉ có ~236
+nến 1H và **60 nến 4H** — không đủ cho EMA200, nên regime sẽ luôn là UNKNOWN và
+bộ não không bao giờ được gọi. Giá hai bên lệch ~0.00%, nên lấy nến sâu ở
+mainnet là an toàn; `kiem-testnet.py` canh chừng và báo nếu lệch vượt 0.5%.
+
+**Spot không short được.** Luận điểm SHORT bị Risk Engine chặn bằng cờ
+`spot_only` — chặn ở đó chứ không để rơi xuống sàn rồi mới nổ, vì xuống tới đó
+là đã tốn một lượt gọi model.
+
+**Thoát lệnh do SÀN giữ, không do vòng lặp.** Vào lệnh xong đặt ngay một OCO
+(chốt lãi + cắt lỗ) nằm trên sổ lệnh Binance. Tắt máy, mất điện hay một
+exception thì vị thế vẫn có người canh. `doi_soat()` chạy lúc khởi động để soát
+lệch giữa sổ cục bộ và sàn.
+
+Số dư testnet do Binance cấp và có thể bị đặt lại bất cứ lúc nào — đó là chuyện
+bình thường của testnet, không phải hỏng. `reset` chỉ huỷ lệnh treo và xoá sổ
+cục bộ; nó **không** nạp lại số dư.
 
 Xem cung tĩnh ở máy: `node server.js 5181` từ gốc repo, rồi mở
 `http://localhost:5181/tu-cam-thanh/`.

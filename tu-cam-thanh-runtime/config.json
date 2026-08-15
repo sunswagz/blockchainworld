@@ -4,6 +4,9 @@
   "port": 5182,
   "loopSeconds": 20,
 
+  "//mode": "paper = sàn giấy nội bộ, không mạng. testnet = Binance Spot Testnet (sàn thật, khớp thật, tiền giả). Không có chế độ mainnet, và cố ý không có.",
+  "mode": "paper",
+
   "brain": {
     "model": "claude-opus-5",
     "effort": "high",
