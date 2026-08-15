@@ -566,6 +566,57 @@ ul.tight li::marker{color:var(--line3)}
   border-radius:20px;background:var(--inset);border:1px solid var(--line2);color:var(--a)}
 .thac-b p{margin:0;font-size:13.5px;color:var(--fg2);max-width:74ch}
 
+/* ============ MỤC HỒ SƠ THU GỌN ĐƯỢC ============
+   Hồ sơ đầy đủ dài hơn màn hình nhiều lần. Chia mục thì mỗi mục
+   trả lời đúng một câu hỏi, và người đọc chọn đọc câu nào.
+   Khác nhóm thanh bên ở chỗ: mục đóng KHÔNG cần lộ cảnh báo ra
+   ngoài, vì đây là hồ sơ đọc chủ động chứ không phải bảng canh. */
+.muc-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0 10px;
+  padding-top:16px;border-top:1px solid var(--line)}
+.muc-dem{font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+
+.muc{border:1px solid var(--line);border-radius:var(--r2);margin-bottom:9px;
+  background:var(--surface);overflow:hidden}
+.muc.mo{border-color:var(--line2)}
+.muc-h{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:12px 15px;color:var(--fg);background:none;border:0;cursor:pointer;
+  transition:background .14s}
+.muc-h:hover{background:var(--raise)}
+.muc-h b{font-size:14.5px;flex:1;min-width:0}
+.muc-tw{flex:0 0 12px;display:grid;place-items:center;color:var(--dim);
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),color .14s}
+.muc.mo .muc-tw{transform:rotate(90deg);color:var(--info)}
+.muc-h:hover .muc-tw{color:var(--fg2)}
+.muc-ic{flex:0 0 18px;height:18px;display:grid;place-items:center;color:var(--muted)}
+.muc-ic svg{width:16px;height:16px;display:block}
+.muc.mo .muc-ic{color:var(--info)}
+
+/* Ẩn bằng CSS chứ không bỏ khỏi DOM: giữ được hoạt cảnh, và
+   Ctrl+F của trình duyệt vẫn tìm thấy chữ bên trong mục đóng. */
+.muc-b{max-height:0;overflow:hidden;opacity:0;
+  transition:max-height .26s cubic-bezier(.2,.8,.2,1),opacity .18s,padding .2s}
+.muc.mo .muc-b{max-height:none;opacity:1;padding:2px 16px 16px;
+  border-top:1px solid var(--line)}
+.muc-p{max-width:74ch;color:var(--fg2);margin:12px 0}
+.muc-b>*:first-child{margin-top:4px}
+
+/* ============ Ô SỐ LIỆU ============ */
+.so-w{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:9px;margin:14px 0}
+.so{border:1px solid var(--line);border-left:3px solid var(--a,var(--line3));
+  border-radius:var(--r2);padding:10px 13px;background:var(--inset)}
+.so-t{font-size:11px;color:var(--muted);margin-bottom:4px;line-height:1.3}
+.so-v{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--a,var(--fg));line-height:1.15}
+.so-d{font-size:11px;color:var(--dim);margin-top:5px;line-height:1.35}
+
+/* ============ THẺ CHUNG ============ */
+.the-w{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:14px 0}
+.the{border:1px solid var(--line);border-left:3px solid var(--a,var(--line3));
+  border-radius:var(--r2);padding:12px 15px;background:var(--inset)}
+.the b{display:block;font-size:13.5px;margin-bottom:6px}
+.the-vd{font-family:var(--mono);font-size:11px;color:var(--fg2);background:var(--surface);
+  border-radius:var(--r);padding:4px 8px;margin-bottom:8px}
+.the p{margin:0;font-size:12.5px;color:var(--muted)}
+
 /* ============ SO HÌNH DẠNG BẢNG CHẤM ============
    Bảy ô vuông cạnh nhau, không chữ. Mục đích duy nhất là để mắt
    so hai hàng trong một giây — chữ đọc sau. */

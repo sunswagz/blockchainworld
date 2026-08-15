@@ -4,7 +4,12 @@
 var D = window.DQT_DATA;
 var IC = D.IC, svg = D.svg, THEATERS = D.THEATERS, GAUGES = D.GAUGES;
 var CHAIN = D.CHAIN, LEVELS = D.LEVELS, SCEN = D.SCEN, LIB = D.LIB;
-var THANG = D.THANG, TIEUCHI = D.TIEUCHI, SOI = D.SOI, DANHSACH = D.DANHSACH;
+/* Hồ sơ soi nằm ở soi.js — trục BÊN TRONG, tách khỏi data.js là
+   trục cú sốc từ ngoài vào. Thiếu file đó thì mục Soi quyền lực
+   trống chứ app không gãy. */
+var S_ = window.DQT_SOI || {};
+var THANG = S_.THANG || [], TIEUCHI = S_.TIEUCHI || [],
+    SOI = S_.SOI || [], DANHSACH = S_.DANHSACH || [];
 
 /* ============================================================
    SỐ ĐO TỰ ĐỘNG — do.js, sinh 4 lượt/ngày, không gọi AI
@@ -93,7 +98,11 @@ const state = {
   /* Nhóm nào đang mở trong thanh bên. Khoá là tên nhóm, thiếu khoá
      nghĩa là MỞ — nhờ vậy thêm nhóm mới sau này tự mở, không phải
      nhớ khai thêm dòng nào. */
-  mo:{}
+  mo:{},
+  /* Mục hồ sơ nào đang mở. Khoá 'soi:<hồ sơ>:<mục>' — có tên hồ
+     sơ trong khoá để mở hồ sơ khác không kế thừa thói quen đọc
+     của hồ sơ trước. */
+  muc:{}
 };
 /* Mỗi mắt xích trong CHAIN PHẢI có một dòng ở đây, không thì lvOf()
    đọc undefined[0] và cả trang trắng. Thêm mắt xích mà quên dòng này
@@ -141,12 +150,12 @@ function srcLabel(chainId){
 
 /* ---- lưu / nạp ---- */
 async function save(){
-  try{ if(window.storage) await window.storage.set('daiquantrac:v1', JSON.stringify({th:state.th,gg:state.gg,mo:state.mo,sig:state.sig.slice(0,120),log:state.log.slice(0,60)})); }catch(e){}
+  try{ if(window.storage) await window.storage.set('daiquantrac:v1', JSON.stringify({th:state.th,gg:state.gg,mo:state.mo,muc:state.muc,sig:state.sig.slice(0,120),log:state.log.slice(0,60)})); }catch(e){}
 }
 async function load(){
   try{ if(!window.storage) return;
     const r = await window.storage.get('daiquantrac:v1');
-    if(r&&r.value){ const d=JSON.parse(r.value); Object.assign(state.th,d.th||{}); Object.assign(state.gg,d.gg||{}); Object.assign(state.mo,d.mo||{}); state.sig=d.sig||[]; state.log=d.log||[]; }
+    if(r&&r.value){ const d=JSON.parse(r.value); Object.assign(state.th,d.th||{}); Object.assign(state.gg,d.gg||{}); Object.assign(state.mo,d.mo||{}); Object.assign(state.muc,d.muc||{}); state.sig=d.sig||[]; state.log=d.log||[]; }
   }catch(e){}
 }
 
@@ -761,6 +770,60 @@ function vKhung(){
   return w;
 }
 
+/* Mục nào đang mở. Thiếu khoá = dùng mặc định `mo` của chính mục
+   đó, nên hồ sơ tự quyết mục nào đáng bung sẵn — thường là phản
+   chứng và phát hiện chính. */
+function moMuc(sid,m){
+  const v=state.muc['soi:'+sid+':'+m.id];
+  return v===undefined ? !!m.mo : v;
+}
+
+/* Bộ vẽ khối. Thêm kiểu mới = thêm một nhánh ở đây, dữ liệu
+   trong soi.js không phải biết gì về DOM. */
+function veKhoi(k){
+  if(!k||!k.k) return null;
+  if(k.k==='p'){ const p=el('p','muc-p'); p.innerHTML=k.d; return p; }
+  if(k.k==='a') return el('pre','ascii',k.d);
+  if(k.k==='q'){ const q=el('blockquote'); if(k.do){ q.style.borderLeftColor='var(--dgr)'; q.style.background='#f0503f0d'; } q.innerHTML=k.d; return q; }
+  if(k.k==='the'){ const g=el('div','the-w');
+    (k.ds||[]).forEach(x=>{ const c=el('div','the'); if(x.acc) c.style.setProperty('--a',x.acc);
+      c.innerHTML='<b>'+esc(x.t)+'</b>'+(x.vd?'<div class="the-vd">'+esc(x.vd)+'</div>':'')+'<p>'+x.d+'</p>';
+      g.appendChild(c); });
+    return g; }
+  if(k.k==='moc'){ const tl=el('div','tl');
+    (k.ds||[]).forEach(m=>{ const r=el('div','tl-r'+(m.hot?' hot':''));
+      r.innerHTML='<div class="tl-y">'+esc(m.y)+'</div><div class="tl-b"><b>'+m.t+'</b><p>'+m.d+'</p></div>';
+      tl.appendChild(r); });
+    return tl; }
+  if(k.k==='so'){ const g=el('div','so-w');
+    (k.ds||[]).forEach(x=>{ const c=el('div','so'); if(x.acc) c.style.setProperty('--a',x.acc);
+      c.innerHTML='<div class="so-t">'+esc(x.t)+'</div><div class="so-v">'+esc(x.v)+'</div>'+
+        (x.d?'<div class="so-d">'+esc(x.d)+'</div>':'');
+      g.appendChild(c); });
+    return g; }
+  if(k.k==='sd'){ const g=el('div');
+    (k.ds||[]).forEach(x=>{ const c=el('div','sai-dung');
+      c.innerHTML='<div class="sd-s"><span>NÓI SAI</span>'+esc(x.sai)+'</div>'+
+        '<div class="sd-d"><span>NÓI ĐÚNG</span>'+x.dung+'</div>';
+      g.appendChild(c); });
+    return g; }
+  if(k.k==='ds'){ const g=el('div','gap-w');
+    (k.ds||[]).forEach((x,i)=>{ const c=el('div','gap');
+      c.innerHTML='<span class="gap-n">'+(i+1)+'</span><span>'+x+'</span>'; g.appendChild(c); });
+    return g; }
+  if(k.k==='oc'){ const g=el('div','oc-w');
+    (k.ds||[]).forEach(o=>g.appendChild(el('span','oc',o))); return g; }
+  if(k.k==='thac'){ const g=el('div','thac-w');
+    (k.ds||[]).forEach((x,i)=>{ const c=el('div','thac'+(i<k.ds.length-1?' noi':''));
+      c.style.setProperty('--a',x.acc);
+      c.innerHTML='<div class="thac-k">'+esc(x.n)+'</div><div class="thac-b">'+
+        '<div class="thac-h"><b>'+esc(x.t)+'</b><span class="thac-v">'+esc(x.vai)+'</span></div>'+
+        '<p>'+x.d+'</p></div>';
+      g.appendChild(c); });
+    return g; }
+  return null;
+}
+
 function vSoi(id){
   const S=SOI.find(x=>x.id===id); if(!S) return go('soi'),el('div');
   head(S.ten,'HỒ SƠ · '+S.nguoi.toUpperCase());
@@ -799,96 +862,44 @@ function vSoi(id){
   });
   w.appendChild(sc);
 
-  if(S.phanchung){
-    w.appendChild(el('h3','sec',S.phanchung.t));
-    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)';
-    p.innerHTML='Phần dễ bị bỏ qua nhất, và là phần làm kết luận đáng tin: nếu giả thuyết A đúng thì <b>không thể có</b> những chuyện dưới đây.';
-    w.appendChild(p);
-    const pw=el('div','pc-w');
-    S.phanchung.ds.forEach(x=>{ const c=el('div','pc');
-      c.innerHTML='<b>'+esc(x.t)+'</b><p>'+x.d+'</p>'; pw.appendChild(c); });
-    w.appendChild(pw);
-  }
+  /* ── CÁC MỤC THU GỌN ĐƯỢC ──────────────────────────────
+     Một hồ sơ đầy đủ dài hơn màn hình rất nhiều. Đổ hết ra một
+     mạch thì bảng chấm — phần quan trọng nhất — bị đẩy lên trên
+     rồi trôi mất, và người đọc không biết mình đang ở đâu trong
+     lập luận. Chia mục thì mỗi mục trả lời đúng một câu hỏi.
 
-  /* Thác vốn — riêng của hồ sơ nào có cấu trúc tài trợ nội bộ
-     đáng tách ra. Bốn tầng xếp DỌC có chủ ý: nó là một dòng
-     chảy một chiều, vẽ ngang thì mất mất điều đó. */
-  if(S.thac){
-    w.appendChild(el('h3','sec',S.thac.t));
-    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.thac.d;
-    w.appendChild(p);
-    const tw=el('div','thac-w');
-    S.thac.tang.forEach((x,i)=>{ const c=el('div','thac'+(i<S.thac.tang.length-1?' noi':''));
-      c.style.setProperty('--a',x.acc);
-      c.innerHTML='<div class="thac-k">'+esc(x.n)+'</div>'+
-        '<div class="thac-b"><div class="thac-h"><b>'+esc(x.t)+'</b>'+
-        '<span class="thac-v">'+esc(x.vai)+'</span></div><p>'+x.d+'</p></div>';
-      tw.appendChild(c); });
-    w.appendChild(tw);
-    if(S.thac.a) w.appendChild(el('pre','ascii',S.thac.a));
-    if(S.thac.kl){ const q=el('blockquote'); q.innerHTML=S.thac.kl; w.appendChild(q); }
-    if(S.thac.ruiro){ const q2=el('blockquote');
-      q2.style.borderLeftColor='var(--dgr)'; q2.style.background='#f0503f0d';
-      q2.innerHTML=S.thac.ruiro; w.appendChild(q2); }
-  }
+     Trạng thái mở/đóng lưu theo TỪNG hồ sơ (khoá 'soi:<id>:<mục>')
+     nên mở hồ sơ khác không kế thừa thói quen đọc của hồ sơ này. */
+  if(S.muc && S.muc.length){
+    const thanh=el('div','muc-bar');
+    const btnAll=el('button','fchip');
+    const demMo=()=>S.muc.filter(m=>moMuc(S.id,m)).length;
+    const veAll=()=>{ btnAll.textContent = demMo()===S.muc.length ? 'Thu gọn tất cả' : 'Mở tất cả '+S.muc.length+' mục'; };
+    veAll();
+    btnAll.onclick=()=>{ const mo=demMo()!==S.muc.length;
+      S.muc.forEach(m=>{ state.muc['soi:'+S.id+':'+m.id]=mo; }); save(); render(); };
+    thanh.appendChild(btnAll);
+    thanh.appendChild(el('span','muc-dem',S.muc.length+' mục · '+
+      S.muc.reduce((a,m)=>a+(m.khoi?m.khoi.length:0),0)+' khối'));
+    w.appendChild(thanh);
 
-  if(S.tang){
-    w.appendChild(el('h3','sec',S.tang.t));
-    const tw=el('div','tang-w');
-    S.tang.ds.forEach(x=>{ const c=el('div','tang'); c.style.setProperty('--a',x.acc);
-      c.innerHTML='<div class="tang-n">TẦNG '+x.n+'</div><b>'+esc(x.t)+'</b>'+
-        '<div class="tang-vd">'+esc(x.vd)+'</div><p>'+esc(x.d)+'</p>';
-      tw.appendChild(c); });
-    w.appendChild(tw);
-    if(S.tang.a) w.appendChild(el('pre','ascii',S.tang.a));
-  }
-
-  if(S.socket){
-    w.appendChild(el('h3','sec',S.socket.t));
-    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.socket.d;
-    w.appendChild(p);
-    const ow=el('div','oc-w');
-    S.socket.oc.forEach(o=>{ ow.appendChild(el('span','oc',o)); });
-    w.appendChild(ow);
-    if(S.socket.a) w.appendChild(el('pre','ascii',S.socket.a));
-  }
-
-  if(S.dongtien){
-    w.appendChild(el('h3','sec',S.dongtien.t));
-    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.dongtien.d;
-    w.appendChild(p);
-    const tl=el('div','tl');
-    S.dongtien.moc.forEach(m=>{ const r=el('div','tl-r'+(m.hot?' hot':''));
-      r.innerHTML='<div class="tl-y">'+esc(m.y)+'</div><div class="tl-b"><b>'+esc(m.t)+'</b><p>'+m.d+'</p></div>';
-      tl.appendChild(r); });
-    w.appendChild(tl);
-    const q=el('blockquote'); q.innerHTML=S.dongtien.kl; w.appendChild(q);
-  }
-
-  if(S.doc){
-    w.appendChild(el('h3','sec','Đọc cho đúng'));
-    S.doc.forEach(x=>{ const c=el('div','sai-dung');
-      c.innerHTML='<div class="sd-s"><span>NÓI SAI</span>'+esc(x.sai)+'</div>'+
-        '<div class="sd-d"><span>NÓI ĐÚNG</span>'+x.dung+'</div>';
-      w.appendChild(c); });
-  }
-
-  if(S.ruiro){
-    w.appendChild(el('h3','sec',S.ruiro.t));
-    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.ruiro.d;
-    w.appendChild(p);
-    if(S.ruiro.a) w.appendChild(el('pre','ascii',S.ruiro.a));
-    if(S.ruiro.d2){ const p2=el('p'); p2.style.cssText='max-width:74ch;color:var(--fg2)'; p2.innerHTML=S.ruiro.d2; w.appendChild(p2); }
-  }
-
-  if(S.gap){
-    w.appendChild(el('h3','sec',S.gap.t));
-    const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)'; p.innerHTML=S.gap.d;
-    w.appendChild(p);
-    const gl=el('div','gap-w');
-    S.gap.ds.forEach((x,i)=>{ const c=el('div','gap');
-      c.innerHTML='<span class="gap-n">'+(i+1)+'</span>'+esc(x); gl.appendChild(c); });
-    w.appendChild(gl);
+    S.muc.forEach(m=>{
+      const mo=moMuc(S.id,m);
+      const box=el('div','muc'+(mo?' mo':''));
+      const h=el('button','muc-h');
+      h.setAttribute('aria-expanded',mo?'true':'false');
+      h.innerHTML='<span class="muc-tw"><svg viewBox="0 0 24 24" width="12" height="12" '+
+        'fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '+
+        'stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>'+
+        '<span class="muc-ic">'+svg(m.ic||'book')+'</span>'+
+        '<b>'+esc(m.t)+'</b>';
+      h.onclick=()=>{ state.muc['soi:'+S.id+':'+m.id]=!mo; save(); render(); };
+      box.appendChild(h);
+      const body=el('div','muc-b');
+      (m.khoi||[]).forEach(k=>{ const n=veKhoi(k); if(n) body.appendChild(n); });
+      box.appendChild(body);
+      w.appendChild(box);
+    });
   }
 
   if(S.noi&&S.noi.length){
