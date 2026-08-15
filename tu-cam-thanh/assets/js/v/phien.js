@@ -7,23 +7,23 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-15T13:52:39.605Z",
- "chayTu": "2026-08-15T13:52:38+00:00",
+ "generatedAt": "2026-08-15T14:17:36.762Z",
+ "chayTu": "2026-08-15T14:17:35+00:00",
  "vong": 1,
  "tamDung": false,
- "san": "paper",
- "cheDoSan": "paper",
- "chiLong": false,
+ "san": "testnet",
+ "cheDoSan": "testnet",
+ "chiLong": true,
  "cap": "BTCUSDT",
  "khung": {
   "primary": "1h",
   "context": "4h"
  },
- "gia": 63060.34,
+ "gia": 63011.99,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "20:52:39",
+  "lastOk": "21:17:36",
   "lastError": null
  },
  "cheDo": {
@@ -33,35 +33,35 @@ window.TU_CAM_THANH = {
   ],
   "quality": "MEDIUM",
   "reasons": [
-   "ADX 16.7 < 18 — không bên nào kiểm soát",
-   "dải Bollinger co còn 0.45%"
+   "ADX 17.1 < 18 — không bên nào kiểm soát",
+   "dải Bollinger co còn 0.43%"
   ],
   "contextTrend": "BEARISH_ALIGNED",
-  "adx": 16.7,
+  "adx": 17.1,
   "volatility": "LOW",
   "key": "RANGE|LOW_VOLATILITY"
  },
  "thiTruong": {
   "1h": {
-   "price": 63060.34,
-   "ema20": 63041.64,
-   "ema50": 63168.29,
-   "ema200": 63735.33,
+   "price": 63011.99,
+   "ema20": 63038.82,
+   "ema50": 63162.16,
+   "ema200": 63727.75,
    "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 50.1,
-   "rsiSlope": 0.3,
-   "macdHist": 13.75,
-   "macdHistSlope": -1.248,
-   "atr": 134.14,
-   "atrPct": 0.213,
-   "atrRatioVsMedian": 0.62,
+   "rsi14": 47.4,
+   "rsiSlope": -0.21,
+   "macdHist": 10.14,
+   "macdHistSlope": -1.431,
+   "atr": 129.1,
+   "atrPct": 0.205,
+   "atrRatioVsMedian": 0.59,
    "volatility": "LOW",
-   "adx": 16.7,
-   "plusDI": 14.9,
-   "minusDI": 21.4,
-   "bbWidthPct": 0.45,
-   "bbPosition": 0.63,
-   "volumeRatio": 0.5,
+   "adx": 17.1,
+   "plusDI": 14.4,
+   "minusDI": 22.4,
+   "bbWidthPct": 0.43,
+   "bbPosition": 0.44,
+   "volumeRatio": 0.52,
    "structure": "UPTREND",
    "swingHighs": [
     63617.45,
@@ -70,15 +70,15 @@ window.TU_CAM_THANH = {
     63187.98
    ],
    "swingLows": [
-    62535.24,
     62830.0,
     62800.0,
-    62920.0
+    62920.0,
+    62946.58
    ],
    "support": [
     {
-     "price": 62764.58,
-     "touches": 6
+     "price": 62790.58,
+     "touches": 7
     }
    ],
    "resistance": [
@@ -87,29 +87,29 @@ window.TU_CAM_THANH = {
      "touches": 8
     },
     {
-     "price": 63626.92,
-     "touches": 6
+     "price": 63631.08,
+     "touches": 5
     },
     {
      "price": 63972.34,
      "touches": 3
     }
    ],
-   "range20High": 63247.05,
+   "range20High": 63187.98,
    "range20Low": 62800.0,
-   "distToRange20HighPct": 0.3,
-   "distToRange20LowPct": 0.41
+   "distToRange20HighPct": 0.28,
+   "distToRange20LowPct": 0.34
   },
   "4h": {
-   "price": 63060.34,
-   "ema20": 63316.0,
-   "ema50": 63738.14,
-   "ema200": 63924.24,
+   "price": 63011.99,
+   "ema20": 63311.4,
+   "ema50": 63736.25,
+   "ema200": 63923.76,
    "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 39.0,
-   "rsiSlope": 0.31,
-   "macdHist": 18.3,
-   "macdHistSlope": 10.341,
+   "rsi14": 37.5,
+   "rsiSlope": -0.17,
+   "macdHist": 15.21,
+   "macdHistSlope": 9.312,
    "atr": 367.66,
    "atrPct": 0.583,
    "atrRatioVsMedian": 0.73,
@@ -117,9 +117,9 @@ window.TU_CAM_THANH = {
    "adx": 30.7,
    "plusDI": 13.4,
    "minusDI": 28.1,
-   "bbWidthPct": 2.16,
-   "bbPosition": 0.32,
-   "volumeRatio": 0.13,
+   "bbWidthPct": 2.17,
+   "bbPosition": 0.28,
+   "volumeRatio": 0.21,
    "structure": "DOWNTREND",
    "swingHighs": [
     64515.43,
@@ -159,13 +159,13 @@ window.TU_CAM_THANH = {
    ],
    "range20High": 64500.0,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 2.28,
-   "distToRange20LowPct": 0.83
+   "distToRange20HighPct": 2.36,
+   "distToRange20LowPct": 0.76
   }
  },
  "luanDiem": {
   "regime_read": "RANGE",
-  "market_summary": "[mock] RANGE, ADX 16.7, RSI 50.1, EMA BEARISH_ALIGNED",
+  "market_summary": "[mock] RANGE, ADX 17.1, RSI 47.4, EMA BEARISH_ALIGNED",
   "scenarios": [
    {
     "name": "tiếp diễn",
@@ -200,7 +200,7 @@ window.TU_CAM_THANH = {
   "symbol": "BTCUSDT",
   "source": "mock",
   "regimeFromClassifier": "RANGE",
-  "at": "2026-08-15T13:52:39+00:00"
+  "at": "2026-08-15T14:17:36+00:00"
  },
  "phanQuyet": {
   "approved": false,
@@ -211,13 +211,13 @@ window.TU_CAM_THANH = {
  },
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 10000.0,
-  "vonThucHien": 10000,
-  "dinhVon": 10000,
+  "von": 73011.99,
+  "vonThucHien": 73011.99,
+  "dinhVon": 73029.87,
   "laiLoMo": 0.0,
-  "laiLoHomNay": 0.0,
-  "drawdownPct": 0.0,
-  "soLenhDaDong": 0,
+  "laiLoHomNay": -0.0,
+  "drawdownPct": 0.02,
+  "soLenhDaDong": 2,
   "viThe": []
  },
  "rui_ro": {
@@ -254,41 +254,285 @@ window.TU_CAM_THANH = {
  },
  "thongKe": {
   "overall": {
-   "count": 3,
-   "wins": 3,
-   "winRate": 100.0,
-   "expectancyR": 1.473,
-   "totalPnl": 212.03,
-   "avgWinR": 1.47,
-   "avgLossR": null,
-   "maxLossR": 1.46
+   "count": 9,
+   "wins": 6,
+   "winRate": 66.7,
+   "expectancyR": 0.971,
+   "totalPnl": 405.82,
+   "avgWinR": 1.46,
+   "avgLossR": 0.0,
+   "maxLossR": 0
   },
   "byRegime": {
    "RANGE": {
-    "count": 3,
-    "wins": 3,
-    "winRate": 100.0,
-    "expectancyR": 1.473,
-    "totalPnl": 212.03,
-    "avgWinR": 1.47,
-    "avgLossR": null,
-    "maxLossR": 1.46
+    "count": 9,
+    "wins": 6,
+    "winRate": 66.7,
+    "expectancyR": 0.971,
+    "totalPnl": 405.82,
+    "avgWinR": 1.46,
+    "avgLossR": 0.0,
+    "maxLossR": 0
    }
   },
   "byStrategy": {
    "MOCK_RULES_V1": {
-    "count": 3,
-    "wins": 3,
+    "count": 6,
+    "wins": 6,
     "winRate": 100.0,
-    "expectancyR": 1.473,
-    "totalPnl": 212.03,
-    "avgWinR": 1.47,
+    "expectancyR": 1.457,
+    "totalPnl": 405.82,
+    "avgWinR": 1.46,
     "avgLossR": null,
-    "maxLossR": 1.46
+    "maxLossR": 1.44
+   },
+   "THU_MOT_LENH": {
+    "count": 3,
+    "wins": 0,
+    "winRate": 0.0,
+    "expectancyR": 0.0,
+    "totalPnl": 0.0,
+    "avgWinR": null,
+    "avgLossR": 0.0,
+    "maxLossR": 0
    }
   }
  },
  "giaoDich": [
+  {
+   "id": "t_0ab1e922f9",
+   "openedAt": "2026-08-15T14:15:08+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.00063,
+   "entry": 63010.01,
+   "requestedEntry": 63010.0,
+   "stopLoss": 62817.77,
+   "targets": [
+    63711.41
+   ],
+   "riskAmount": 0.12,
+   "plannedRiskAmount": 0.12,
+   "riskPct": 0.5,
+   "rr": 3.65,
+   "plannedRr": 2.12,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "THU_MOT_LENH",
+   "confidence": 0.75,
+   "reasonCodes": [
+    "THU_TAY"
+   ],
+   "thesisSummary": "Lệnh thử đường ống, không phải tín hiệu.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 3346838,
+   "ocoOrderListId": 104536,
+   "ocoError": null,
+   "closedAt": "2026-08-15T14:15:09+00:00",
+   "exit": 63010.0,
+   "exitReason": "THU_XONG",
+   "grossPnl": -0.0,
+   "pnl": -0.0,
+   "rMultiple": -0.0
+  },
+  {
+   "id": "t_0273081956",
+   "openedAt": "2026-08-15T14:12:08+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.00063,
+   "entry": 63029.87,
+   "requestedEntry": 63029.87,
+   "stopLoss": 62839.77,
+   "targets": [
+    63726.9
+   ],
+   "riskAmount": 0.12,
+   "plannedRiskAmount": 0.12,
+   "riskPct": 0.5,
+   "rr": 3.67,
+   "plannedRr": 2.12,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "THU_MOT_LENH",
+   "confidence": 0.75,
+   "reasonCodes": [
+    "THU_TAY"
+   ],
+   "thesisSummary": "Lệnh thử đường ống, không phải tín hiệu.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 3346295,
+   "ocoOrderListId": 104517,
+   "ocoError": null,
+   "closedAt": "2026-08-15T14:14:50+00:00",
+   "exit": 63029.86,
+   "exitReason": "DOI_SO_DONG_TAY",
+   "grossPnl": -0.0,
+   "pnl": -0.0,
+   "rMultiple": -0.0
+  },
+  {
+   "id": "t_0273081956",
+   "openedAt": "2026-08-15T14:12:08+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.00063,
+   "entry": 63029.87,
+   "requestedEntry": 63029.87,
+   "stopLoss": 62839.77,
+   "targets": [
+    63726.9
+   ],
+   "riskAmount": 0.12,
+   "plannedRiskAmount": 0.12,
+   "riskPct": 0.5,
+   "rr": 3.67,
+   "plannedRr": 2.12,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "THU_MOT_LENH",
+   "confidence": 0.75,
+   "reasonCodes": [
+    "THU_TAY"
+   ],
+   "thesisSummary": "Lệnh thử đường ống, không phải tín hiệu.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 3346295,
+   "ocoOrderListId": 104517,
+   "ocoError": null,
+   "closedAt": "2026-08-15T14:12:09+00:00",
+   "exit": 63029.86,
+   "exitReason": "OCO_FILLED",
+   "grossPnl": -0.0,
+   "pnl": -0.0,
+   "rMultiple": -0.0
+  },
+  {
+   "id": "t_a0c719bdef",
+   "openedAt": "2026-08-15T14:11:00+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.15760029457512972,
+   "entry": 63134.4,
+   "requestedEntry": 63039.84,
+   "stopLoss": 62850.23,
+   "targets": [
+    63702.74,
+    64051.1
+   ],
+   "riskAmount": 44.79,
+   "plannedRiskAmount": 44.79,
+   "slippageCostOnRisk": -0.0,
+   "riskPct": 0.5,
+   "rr": 2.0,
+   "plannedRr": 2.0,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 19.97,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.8,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "NO_CLEAR_TREND"
+   ],
+   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "status": "CLOSED",
+   "closedAt": "2026-08-15T14:11:00+00:00",
+   "exit": 63607.19,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 74.51,
+   "pnl": 64.49,
+   "rMultiple": 1.44,
+   "holdingMinutes": 0
+  },
+  {
+   "id": "t_d5b132ea11",
+   "openedAt": "2026-08-15T14:10:43+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.15760029457512972,
+   "entry": 63134.4,
+   "requestedEntry": 63039.84,
+   "stopLoss": 62850.23,
+   "targets": [
+    63702.74,
+    64051.1
+   ],
+   "riskAmount": 44.79,
+   "plannedRiskAmount": 44.79,
+   "slippageCostOnRisk": -0.0,
+   "riskPct": 0.5,
+   "rr": 2.0,
+   "plannedRr": 2.0,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 19.97,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.8,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "NO_CLEAR_TREND"
+   ],
+   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "status": "CLOSED",
+   "closedAt": "2026-08-15T14:10:43+00:00",
+   "exit": 63607.19,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 74.51,
+   "pnl": 64.49,
+   "rMultiple": 1.44,
+   "holdingMinutes": 0
+  },
+  {
+   "id": "t_9648cf635a",
+   "openedAt": "2026-08-15T14:06:44+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.1583968791252982,
+   "entry": 63132.56,
+   "requestedEntry": 63038.0,
+   "stopLoss": 62848.39,
+   "targets": [
+    63700.89,
+    64049.26
+   ],
+   "riskAmount": 45.01,
+   "plannedRiskAmount": 45.01,
+   "slippageCostOnRisk": 0.0,
+   "riskPct": 0.5,
+   "rr": 2.0,
+   "plannedRr": 2.0,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 20.07,
+   "regimeAtEntry": "RANGE",
+   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.8,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "NO_CLEAR_TREND"
+   ],
+   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "status": "CLOSED",
+   "closedAt": "2026-08-15T14:06:44+00:00",
+   "exit": 63605.34,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 74.89,
+   "pnl": 64.81,
+   "rMultiple": 1.44,
+   "holdingMinutes": 0
+  },
   {
    "id": "t_8a47849991",
    "openedAt": "2026-08-15T13:52:35+00:00",
