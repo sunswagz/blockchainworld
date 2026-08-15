@@ -194,8 +194,12 @@ const ROUTES = [
     {id:'scen',   t:'Kịch bản A/B/C',ic:'play',   sub:'PHÂN NHÁNH'},
     {id:'compass',t:'Kẹp bốn phía',  ic:'map',    sub:'VỊ TRÍ VIỆT NAM'}
   ]},
+  /* Hồ sơ mang theo `con` — danh sách mục của chính nó. Thanh bên
+     nhờ đó có tầng thứ ba, và người đọc nhảy thẳng tới đúng mục
+     thay vì mở hồ sơ rồi cuộn tìm giữa 16 mục. */
   {g:'Soi quyền lực', items: [{id:'soi', t:'Khung 7 tiêu chí', ic:'gauge', sub:'DÙNG LẠI ĐƯỢC'}]
-    .concat(SOI.map(s=>({id:'soi/'+s.id, t:s.ten, ic:s.ic, sub:'HỒ SƠ'})))},
+    .concat(SOI.map(s=>({id:'soi/'+s.id, t:s.ten, ic:s.ic, sub:'HỒ SƠ',
+      con:(s.muc||[]).map(m=>({id:'soi/'+s.id+'/'+m.id, t:m.t, ic:m.ic||'book'}))})))},
   {g:'Hồ sơ nền', items: LIB.map(l=>({id:'lib/'+l.id, t:l.t, ic:l.id==='nhanthuc'?'brain':'book', sub:'CỤM '+l.n}))
     .concat([{id:'src', t:'Nguồn & nhật ký', ic:'src', sub:'MINH BẠCH'}])}
 ];
@@ -207,7 +211,10 @@ function renderNav(){
        thu gọn nó. Không có luật này thì đi tới một mục bằng ⌘K
        hoặc bằng đường dẫn sẽ mở ra một thanh bên không đánh dấu
        chỗ nào cả — người đọc mất phương hướng và tưởng hỏng. */
-    const coHere = sec.items.some(it=>it.id===state.route);
+    const trong = it => it.id===state.route ||
+      (it.con||[]).some(c=>c.id===state.route) ||
+      (it.con&&it.con.length&&state.route.indexOf(it.id+'/')===0);
+    const coHere = sec.items.some(trong);
     const dong = state.mo[sec.g]===false && !coHere;
 
     /* Đèn nặng nhất bên trong. Thu gọn mà giấu luôn cảnh báo thì
@@ -231,13 +238,43 @@ function renderNav(){
        chế độ thanh bên 62px — nơi nhãn nhóm bị ẩn và không còn gì
        để bấm mở lại — vẫn cho CSS hiện lại toàn bộ. */
     sec.items.forEach(it=>{
-      const b=el('button','nv'+(state.route===it.id?' on':''));
+      const coCon = !!(it.con && it.con.length);
+      /* Hồ sơ đang xem thì cây con LUÔN bung, cùng lý do với
+         nhóm: đang đứng trong đó mà thanh bên không chỉ ra chỗ
+         nào thì người đọc mất phương hướng. */
+      const dangXem = coCon && state.route.indexOf(it.id)===0;
+      const conMo = coCon && (state.mo[it.id]===true || dangXem);
+
+      const b=el('button','nv'+(state.route===it.id?' on':'')+(coCon?' cha':'')+(conMo?' bung':''));
       let right='';
       if(it.th) right='<span class="dot '+state.th[it.th]+'"></span>';
       else if(it.id==='flow'&&state.sig.length) right='<span class="nv-x">'+state.sig.length+'</span>';
-      b.innerHTML='<span class="ic">'+svg(it.ic)+'</span><b>'+esc(it.t)+'</b>'+right;
-      b.onclick=()=>go(it.id);
+      else if(coCon) right='<span class="nv-x">'+it.con.length+'</span>';
+      b.innerHTML=(coCon?'<span class="nv-tw"><svg viewBox="0 0 24 24" width="10" height="10" '+
+          'fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" '+
+          'stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>':'')+
+        '<span class="ic">'+svg(it.ic)+'</span><b>'+esc(it.t)+'</b>'+right;
+      /* Bấm vào mũi tên = chỉ đóng/mở cây con. Bấm vào phần còn
+         lại = đi tới hồ sơ. Gộp hai việc vào một nút thì không
+         xem được hồ sơ mà không bung 16 mục ra. */
+      b.onclick=(ev)=>{
+        if(coCon && ev.target.closest('.nv-tw')){
+          state.mo[it.id] = !conMo; save(); renderNav(); return;
+        }
+        go(it.id);
+      };
       g.appendChild(b);
+
+      if(coCon){
+        const cw=el('div','con'+(conMo?'':' dong'));
+        it.con.forEach(c=>{
+          const cb=el('button','nv nv-con'+(state.route===c.id?' on':''));
+          cb.innerHTML='<span class="ic">'+svg(c.ic)+'</span><b>'+esc(c.t)+'</b>';
+          cb.onclick=()=>go(c.id);
+          cw.appendChild(cb);
+        });
+        g.appendChild(cw);
+      }
     });
     w.appendChild(g);
   });
@@ -278,7 +315,8 @@ function render(){
   if(r==='soi')        return v.innerHTML='', v.appendChild(vKhung());
   if(r.startsWith('th/'))  return v.innerHTML='', v.appendChild(vTheater(r.slice(3)));
   if(r.startsWith('lib/')) return v.innerHTML='', v.appendChild(vLib(r.slice(4)));
-  if(r.startsWith('soi/')) return v.innerHTML='', v.appendChild(vSoi(r.slice(4)));
+  if(r.startsWith('soi/')){ const p=r.slice(4).split('/');
+    return v.innerHTML='', v.appendChild(vSoi(p[0], p[1])); }
   go('flow');
 }
 
@@ -824,9 +862,14 @@ function veKhoi(k){
   return null;
 }
 
-function vSoi(id){
+function vSoi(id, mucId){
   const S=SOI.find(x=>x.id===id); if(!S) return go('soi'),el('div');
-  head(S.ten,'HỒ SƠ · '+S.nguoi.toUpperCase());
+  /* Vào thẳng một mục từ thanh bên: mục đó phải mở sẵn, không thì
+     người dùng bấm xong lại thấy một hàng đóng và phải bấm lần nữa. */
+  const nhay = mucId && (S.muc||[]).some(m=>m.id===mucId) ? mucId : null;
+  if(nhay) state.muc['soi:'+S.id+':'+nhay]=true;
+  head(S.ten, nhay ? 'HỒ SƠ · '+((S.muc.find(m=>m.id===nhay)||{}).t||'').toUpperCase()
+                   : 'HỒ SƠ · '+S.nguoi.toUpperCase());
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Soi quyền lực · hồ sơ</div>'+
    '<h2 class="big">'+esc(S.ten)+' — '+esc(S.nguoi)+'</h2>'+
@@ -885,7 +928,14 @@ function vSoi(id){
 
     S.muc.forEach(m=>{
       const mo=moMuc(S.id,m);
-      const box=el('div','muc'+(mo?' mo':''));
+      const box=el('div','muc'+(mo?' mo':'')+(m.id===nhay?' nhay':''));
+      if(m.id===nhay){
+        /* Cuộn sau khi khối đã vào DOM và transition mở đã bắt đầu,
+           không thì trình duyệt tính sai vị trí của một hộp cao 0. */
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+          box.scrollIntoView({behavior:'smooth', block:'start'});
+        }));
+      }
       const h=el('button','muc-h');
       h.setAttribute('aria-expanded',mo?'true':'false');
       h.innerHTML='<span class="muc-tw"><svg viewBox="0 0 24 24" width="12" height="12" '+

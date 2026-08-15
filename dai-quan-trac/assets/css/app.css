@@ -566,6 +566,35 @@ ul.tight li::marker{color:var(--line3)}
   border-radius:20px;background:var(--inset);border:1px solid var(--line2);color:var(--a)}
 .thac-b p{margin:0;font-size:13.5px;color:var(--fg2);max-width:74ch}
 
+/* ============ TẦNG BA CỦA THANH BÊN ============
+   Hồ sơ soi mang theo mục của chính nó. Nhờ vậy nhảy thẳng tới
+   "Thác vốn nội bộ" thay vì mở THACO rồi cuộn tìm giữa 16 mục. */
+.nv.cha{padding-left:4px}
+.nv-tw{flex:0 0 16px;height:16px;display:grid;place-items:center;color:var(--dim);
+  border-radius:3px;transition:transform .18s cubic-bezier(.2,.8,.2,1),color .14s,background .14s}
+.nv.bung .nv-tw{transform:rotate(90deg);color:var(--info)}
+.nv-tw:hover{color:var(--fg);background:#ffffff14}
+
+.con{overflow:hidden;transition:max-height .22s cubic-bezier(.2,.8,.2,1),opacity .16s;
+  max-height:900px;opacity:1;
+  /* Đường dẫn hướng, khớp cây "Cổng Thành" ở đầu thanh bên */
+  margin:1px 0 3px 17px;padding-left:9px;border-left:1px solid var(--line2)}
+.con.dong{max-height:0;opacity:0;margin-top:0;margin-bottom:0;border-left-color:transparent}
+.nv-con{font-size:12px;padding:5px 8px;color:var(--muted)}
+.nv-con .ic{width:14px;height:14px;flex:0 0 14px;opacity:.7}
+.nv-con .ic svg{width:13px;height:13px}
+.nv-con:hover{color:var(--fg2)}
+.nv-con.on{color:var(--fg);background:#ffffff0d}
+.nv-con.on::before{left:-10px;height:14px}
+
+/* Mục vừa nhảy tới — nháy viền một nhịp rồi thôi, đủ để mắt bắt
+   được mình đang đứng ở đâu sau khi trang cuộn. */
+.muc.nhay{animation:nhaymuc 1.6s ease-out 1}
+@keyframes nhaymuc{
+  0%,20%{border-color:var(--info);box-shadow:0 0 0 3px #58a6ff22}
+  100%{border-color:var(--line2);box-shadow:none}
+}
+
 /* ============ MỤC HỒ SƠ THU GỌN ĐƯỢC ============
    Hồ sơ đầy đủ dài hơn màn hình nhiều lần. Chia mục thì mỗi mục
    trả lời đúng một câu hỏi, và người đọc chọn đọc câu nào.
