@@ -125,10 +125,12 @@ jobs:
       #
       # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
       # thành trang trí. Cộng lại MỖI LẦN thêm bước:
-      #   5 + 3 + 2 + 14 + 3 + 2      (lấy số liệu + đóng dấu)
+      #   5 + 3 + 2 + 5 + 14 + 3 + 2  (lấy số liệu + đóng dấu)
       # + 2 + 15 + 2                  (ra đề · quét · dựng)
       # + 2 + 6 + 2                   (kiểm · báo cáo · cảnh báo)
-      #   = 58  <  70
+      #   = 63  <  70
+      # (+5 cho Hộ Bộ, 15/08. Còn 7 phút đệm — bước nặng tiếp theo
+      #  phải nâng trần job trước, đừng nhét thêm vào chỗ này.)
       # Thực tế không bao giờ cộng hết: node nhịp 12 và 24 giờ chỉ
       # chạy 2 và 1 trong 4 lượt mỗi ngày. Trần job vẫn là chốt cuối.
       #
@@ -187,6 +189,30 @@ jobs:
           KET: ${{ steps.n-cong-bo.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-cong-bo.outputs.giay }}
         run: node scripts/nha-may.mjs ghi cong-bo "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/cong-bo.log"
+
+      # Dòng tiền Hộ Bộ. Mười một đường DefiLlama công khai, không khoá
+      # nào, không gọi AI. Đo thật ~6 giây; trần 5 phút vì hai đường
+      # nặng nhất (/protocols 8,5 MB và /yields 10,7 MB) tải chậm hẳn
+      # khi DefiLlama bận, và vì nó còn 20 lời gọi lịch sử nối đuôi.
+      #
+      # Script tự giữ bản cũ khi nguồn ngã: bốn nguồn LÕI thiếu thì nó
+      # thoát 1 mà KHÔNG ghi gì. Bảng dòng tiền trống bị đọc thành
+      # "thị trường không có gì" — tệ hơn hẳn một bảng cũ có ghi ngày.
+      - name: Lấy dòng tiền — Hộ Bộ
+        id: n-ho-bo
+        if: contains(steps.kehoach.outputs.han, ',ho-bo,')
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          t0=$(date +%s)
+          node scripts/build-hobu.mjs 2>&1 | tee "$RUNNER_TEMP/ho-bo.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · ho-bo
+        if: always() && steps.n-ho-bo.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-ho-bo.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-ho-bo.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi ho-bo "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/ho-bo.log"
 
       # Kho skill Tàng Thư Các. Trần riêng cho bước này, thấp hơn trần
       # job: chạm trần thì chỉ mình nó ngã, commit vẫn chạy. Script chỉ
@@ -589,6 +615,7 @@ jobs:
                   cong-bo/assets/js/logos.js \
                   cong-bo/assets/js/v/nhat-ky.js \
                   cong-bo/assets/logos/ \
+                  ho-bo/assets/js/v/dong-tien.js \
                   tang-thu-cac/assets/js/data.js \
                   tang-thu-cac/assets/data/lich-su.json \
                   tang-thu-cac/assets/data/kb/ \

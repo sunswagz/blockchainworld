@@ -98,6 +98,14 @@ export const NODE = [
     y: "Bộ công cụ onchain. Nguồn có một phần là host staging của L2BEAT nên hay ngã."
   },
   {
+    ma: "ho-bo", ten: "Dòng tiền Hộ Bộ", cung: "ho-bo",
+    tram: "M12", che: "script", nhip: 6,
+    lenh: "node scripts/build-hobu.mjs",
+    ra: ["ho-bo/assets/js/v/dong-tien.js"],
+    y: "Mười một đường DefiLlama công khai (TVL, phí, DEX, stablecoin, vụ mất tiền, " +
+       "lợi suất) cộng lịch sử 20 chuỗi, gộp thành một file. KHÔNG gọi AI, không khoá nào."
+  },
+  {
     ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
     tram: "M12", che: "script", nhip: 6,
     lenh: "node scripts/build-tangthu.mjs",

@@ -62,6 +62,7 @@ export const NGUON = [
   { nhan: "bảng cảnh báo Quan Trắc", duong: "dai-quan-trac/assets/js/do.js",     botSinh: true },
   { nhan: "bảng xét Đô Sát Viện",    duong: "do-sat-vien/assets/js/data.js",     botSinh: true },
   { nhan: "đồ nghề Công Bộ",         duong: "cong-bo/assets/js/data.js",         botSinh: true },
+  { nhan: "dòng tiền Hộ Bộ",         duong: "ho-bo/assets/js/v/dong-tien.js",    botSinh: true },
   { nhan: "kho skill Tàng Thư Các",  duong: "tang-thu-cac/assets/js/data.js",    botSinh: true },
   { nhan: "rừng văn hoá Hoàng Thành", duong: "hoang-thanh/assets/js/data.js",    botSinh: false },
   /* Cùng lý do Hoàng Thành: runtime giao dịch cần khoá API và một tiến trình

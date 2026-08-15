@@ -1,23 +1,28 @@
 /* ═══════════════════════════════════════════════════════
-   Service worker — Đô Sát Viện
+   Service worker — Hộ Bộ
    Chiến lược:
      · vỏ ứng dụng (html/css/js/icon) : cache trước, chạy offline
      · phông chữ Google              : cache khi dùng lần đầu
-     · assets/js/data.js             : mạng trước — ~240 KB số liệu
-                                       tự sinh, đổi mỗi 6 giờ
-     · assets/logos/*.png            : cache khi dùng lần đầu
+     · assets/js/v/                  : MẠNG TRƯỚC
 
-   CỐ Ý không nạp sẵn 106 logo (521 KB) vào SHELL: gấp đôi dung
-   lượng cài đặt để lấy về ảnh mà phần lớn người dùng không cuộn
-   tới. Chúng rơi vào nhánh cache-trước-cập-nhật-nền ở cuối file,
-   nên xem tới đâu lưu tới đó và lần sau vẫn chạy offline.
+   `assets/js/nguon.js` là sổ bộ nguồn VIẾT TAY, đổi cùng nhịp với
+   mã, nên nó nằm thẳng trong SHELL.
+
+   Nhưng `assets/js/v/dong-tien.js` thì ngược hẳn: bot ghi đè nó
+   sau mỗi lượt GitHub Actions (4 lượt/ngày). Để nó ở nhánh
+   cache-trước là máy đã cài app hiện số của hôm qua cho tới lần
+   nâng CACHE_VERSION kế tiếp — một bảng dòng tiền nói dối, thứ tệ
+   hơn hẳn không có bảng nào. Đúng cái bẫy đã cắn logos.js của Công
+   Bộ. Nên nó đi nhánh MẠNG-TRƯỚC và KHÔNG nằm trong SHELL.
 
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
+   Quên nâng thì máy đã cài cứ dùng bản cũ — xem mục "Sửa file
+   trong SHELL thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v13";
-var SHELL_CACHE = "do-sat-vien-shell-" + CACHE_VERSION;
-var FONT_CACHE = "do-sat-vien-fonts-" + CACHE_VERSION;
+var CACHE_VERSION = "v1";
+var SHELL_CACHE = "ho-bo-shell-" + CACHE_VERSION;
+var FONT_CACHE = "ho-bo-fonts-" + CACHE_VERSION;
 
 var SHELL = [
   "./",
@@ -25,8 +30,7 @@ var SHELL = [
   "./manifest.webmanifest",
   "./assets/css/app.css",
   "./assets/css/halls.css",
-  "./assets/js/data.js",
-  "./assets/js/glossary.js",
+  "./assets/js/nguon.js",
   "./assets/js/app.js",
   "./assets/js/pwa.js",
   "./assets/js/halls.js",
@@ -86,9 +90,10 @@ self.addEventListener("fetch", function (e) {
 
   if (url.origin !== self.location.origin) return;
 
-  // bảng xét tự cập nhật — mạng trước, hỏng mạng mới dùng bản đã lưu
-  if (url.pathname.indexOf("/assets/js/data.js") !== -1 ||
-      url.pathname.indexOf("/assets/js/v/") !== -1) {
+  /* Mạng trước, cache chỉ là lưới đỡ lúc mất mạng. `npm run kiem`
+     và `npm run nang` đều đọc chính dòng indexOf() này để biết file
+     nào được MIỄN luật nâng CACHE_VERSION — đừng đổi cách viết. */
+  if (url.pathname.indexOf("/assets/js/v/") !== -1) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {
         var copy = res.clone();

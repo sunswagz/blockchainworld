@@ -33,6 +33,12 @@
       icon: '<path d="M3 21h18M5 21V11l4-3v13M13 21V6l6-3v18"/><path d="M8 15h.01M16 12h.01"/>'
     },
     {
+      href: "../ho-bo/",
+      name: "Hộ Bộ",
+      note: "dòng tiền blockchain",
+      icon: '<ellipse cx="12" cy="6" rx="7.5" ry="2.8"/><path d="M4.5 6v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V6"/><path d="M4.5 10.4v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-4.4"/><path d="M4.5 14.8v3.2c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-3.2"/>'
+    },
+    {
       href: "../do-sat-vien/",
       name: "Đô Sát Viện",
       note: "bảng xét Layer 2",

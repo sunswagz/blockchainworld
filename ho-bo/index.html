@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hộ Bộ · Dòng tiền blockchain</title>
+<meta name="description" content="Tiền đang ở đâu, chảy đi đâu, và rủi ro nào đang hình thành. Số liệu dòng vốn on-chain cập nhật tự động, kèm sổ tra 47 nguồn dữ liệu xếp theo mức quyền chúng đòi ở ví bạn.">
+
+<meta name="theme-color" content="#0A0E13">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hộ Bộ">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <!-- ── thanh bên ─────────────────────────────────── -->
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#/tong-quan">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="6" rx="7.5" ry="2.8"/>
+          <path d="M4.5 6v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V6"/>
+          <path d="M4.5 10.4v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-4.4"/>
+          <path d="M4.5 14.8v3.2c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-3.2"/>
+        </svg>
+      </span>
+      <span><b>Hộ Bộ</b><i>Dòng tiền blockchain</i></span>
+    </a>
+
+    <!-- các mục — do app.js dựng từ bảng PHONG -->
+    <div id="benMuc"></div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Số liệu từ <a href="https://defillama.com" target="_blank" rel="noopener">DefiLlama</a>,
+      cập nhật tự động bằng GitHub Actions.</p>
+      <p><b>Cung này không giao dịch</b> — chỉ đọc, đối chiếu và cảnh báo.</p>
+    </div>
+  </nav>
+
+  <!-- ── thân ──────────────────────────────────────── -->
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tieu">Đại Sảnh</h1>
+      <span class="song" id="song" hidden><i aria-hidden="true"></i>số liệu sống</span>
+      <span class="day"></span>
+      <span class="gia" id="giaTop"></span>
+      <span class="ngay" id="ngay"></span>
+    </header>
+
+    <p class="canhbao" id="canhBao" hidden></p>
+
+    <!-- app.js vẽ vào đây theo tuyến hash -->
+    <div id="than"></div>
+
+    <footer class="chan">
+      <p><b>Nguồn:</b> DefiLlama — TVL theo chuỗi và giao thức, phí, doanh thu, khối lượng DEX,
+      stablecoin, lợi suất, bảng vụ mất tiền. Tất cả qua API công khai, không khoá nào.
+      Giá BTC/ETH tham chiếu từ <code>coins.llama.fi</code>.</p>
+      <p>Hộ Bộ <b>chỉ đọc và diễn giải</b> — không tự chấm điểm dự án nào, không giao dịch,
+      không bao giờ đòi ví của bạn. Đây không phải lời khuyên đầu tư. Mọi ngưỡng cảnh báo
+      là phép so số học, xem được ngay trong ô cảnh báo.</p>
+    </footer>
+
+  </main>
+</div>
+
+<!-- hồ sơ chi tiết: chuỗi, nhóm ngành, hoặc nguồn dữ liệu -->
+<div class="scrim" id="scrim" data-open="0"></div>
+<aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ" aria-hidden="true">
+  <div class="hoso-top">
+    <div class="hoso-tren" id="hosoTren"></div>
+    <h2 id="hosoTen"></h2>
+    <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng hồ sơ">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoso-body" id="hosoBody"></div>
+</aside>
+
+<!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
+<!-- tự sinh 4 lượt/ngày, xem scripts/build-hobu.mjs -->
+<script src="assets/js/v/dong-tien.js"></script>
+<!-- sổ bộ nguồn · VIẾT TAY, sửa như mã nguồn -->
+<script src="assets/js/nguon.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

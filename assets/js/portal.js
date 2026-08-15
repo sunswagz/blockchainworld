@@ -83,6 +83,20 @@
     })
     .catch(function () {});
 
+  // Hộ Bộ: dong-tien.js ~54 KB. Ba khoá cần đọc — date, tomTat —
+  // được build-hobu.mjs cố ý xếp ngay đầu object vì chỗ này chỉ đọc
+  // 900 byte rồi huỷ dòng tải. Đổi thứ tự khoá bên đó là thẻ này mất
+  // ngày cập nhật, và mất im lặng.
+  dauFile("ho-bo/assets/js/v/dong-tien.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("hbDate", "cập nhật " + m[1]);
+      var n = t.match(/"tomTat":\s*"(\d+) chuỗi/);
+      if (n) stamp("hbSo", n[1] + " chuỗi");
+    })
+    .catch(function () {});
+
   // Tàng Thư Các: data.js ~230 KB, ngày và số skill nằm ở đoạn đầu
   dauFile("tang-thu-cac/assets/js/data.js", 900)
     .then(function (t) {

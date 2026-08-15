@@ -1,0 +1,44 @@
+{
+  "id": "sunswagz-ho-bo",
+  "name": "Hộ Bộ · Dòng tiền blockchain",
+  "short_name": "Hộ Bộ",
+  "description": "Tiền đang ở đâu, chảy đi đâu, ai đang chuyển, và rủi ro nào đang hình thành. Số liệu dòng vốn on-chain cập nhật tự động, kèm sổ tra 47 nguồn dữ liệu xếp theo mức quyền chúng đòi ở ví bạn.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#0A0E13",
+  "theme_color": "#0A0E13",
+  "categories": [
+    "finance",
+    "business",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -15,6 +15,12 @@
       icon: '<circle cx="12" cy="12" r="8.6"/><path d="M3.4 12h17.2"/><path d="M12 3.4c2.4 2.4 3.6 5.3 3.6 8.6s-1.2 6.2-3.6 8.6c-2.4-2.4-3.6-5.3-3.6-8.6S9.6 5.8 12 3.4Z"/>'
     },
     {
+      href: "../hoang-thanh/",
+      name: "Hoàng Thành",
+      note: "15 nền văn hoá",
+      icon: '<path d="M3 21h18M5 21V10l7-5.5L19 10v11"/><path d="M9.5 21v-5.5h5V21"/>'
+    },
+    {
       href: "../tu-cam-thanh/",
       name: "Tử Cấm Thành",
       note: "lõi giao dịch",
@@ -31,12 +37,6 @@
       name: "Công Bộ",
       note: "bộ đồ nghề",
       icon: '<path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/><path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
-    },
-    {
-      href: "../ho-bo/",
-      name: "Hộ Bộ",
-      note: "dòng tiền blockchain",
-      icon: '<ellipse cx="12" cy="6" rx="7.5" ry="2.8"/><path d="M4.5 6v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V6"/><path d="M4.5 10.4v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-4.4"/><path d="M4.5 14.8v3.2c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-3.2"/>'
     },
     {
       href: "../do-sat-vien/",

@@ -39,6 +39,12 @@
       icon: '<path d="M14.5 5.5a4 4 0 0 0 5 5l-9.5 9.5a2.1 2.1 0 0 1-3-3z"/><path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
     },
     {
+      href: "../ho-bo/",
+      name: "Hộ Bộ",
+      note: "dòng tiền blockchain",
+      icon: '<ellipse cx="12" cy="6" rx="7.5" ry="2.8"/><path d="M4.5 6v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V6"/><path d="M4.5 10.4v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-4.4"/><path d="M4.5 14.8v3.2c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-3.2"/>'
+    },
+    {
       href: "../dai-quan-trac/",
       name: "Đài Quan Trắc",
       note: "địa chính trị",

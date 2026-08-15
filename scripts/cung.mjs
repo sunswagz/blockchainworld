@@ -59,6 +59,15 @@ export const CUNG = [
           '<path d="M14.5 5.5 17 3l4 4-2.5 2.5"/>'
   },
   {
+    ma: "ho-bo",
+    ten: "Hộ Bộ",
+    note: "dòng tiền blockchain",
+    icon: '<ellipse cx="12" cy="6" rx="7.5" ry="2.8"/>' +
+          '<path d="M4.5 6v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V6"/>' +
+          '<path d="M4.5 10.4v4.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-4.4"/>' +
+          '<path d="M4.5 14.8v3.2c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-3.2"/>'
+  },
+  {
     ma: "do-sat-vien",
     ten: "Đô Sát Viện",
     note: "bảng xét Layer 2",
