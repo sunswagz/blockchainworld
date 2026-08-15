@@ -95,6 +95,19 @@ jobs:
           echo "Đến hạn: $han"
           node scripts/nha-may.mjs bang
 
+      # ── M02 · Máy phân loại: vì sao node ngã ────────────────────
+      # Mỗi bước chạy đổ output qua `tee` vào $RUNNER_TEMP, rồi bước
+      # ghi sổ đưa file đó cho `--log`. nha-may.mjs khớp chuỗi để
+      # phân bốn bệnh: hạn mức · khoá sai · nguồn ngã · lỗi mã.
+      #
+      # Vì sao đáng làm: sổ chỉ ghi "loi" thì mọi cái ngã trông giống
+      # nhau, mà bốn bệnh đó chữa ở bốn chỗ khác hẳn — chờ, xin PAT,
+      # thay secret, hay sửa code. "Tàng Thư Các đỏ" không nói được
+      # gì; "Tàng Thư Các chạm hạn mức" nói thẳng phải làm gì.
+      #
+      # `tee` giữ nguyên mã thoát vì shell mặc định của Actions có
+      # `pipefail`. Không có nó thì mọi bước đều thành công vĩnh viễn.
+      #
       # ── Từng node: một bước CHẠY + một bước GHI SỔ ──────────────
       # Vì sao tách đôi thay vì `cmd || ghi loi` trong cùng một bước:
       # bước bị CẮT vì hết giờ thì mọi lệnh sau nó trong cùng bước
@@ -108,7 +121,7 @@ jobs:
       #
       # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
       # thành trang trí. Cộng lại MỖI LẦN thêm bước:
-      #   5 + 3 + 2 + 14 + 3 + 2 + 6 + 2 = 37  <  40
+      #   5 + 3 + 2 + 14 + 3 + 2 + 6 + 2 + 2 = 39  <  40
       # Thực tế không bao giờ cộng dồn hết vì node nhịp 24 giờ chỉ
       # chạy 1 trong 4 lượt, nhưng trần job vẫn là chốt cuối.
       #
@@ -124,14 +137,14 @@ jobs:
         timeout-minutes: 5
         run: |
           t0=$(date +%s)
-          node scripts/build-live.mjs
+          node scripts/build-live.mjs 2>&1 | tee "$RUNNER_TEMP/kinh-thanh.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
       - name: Ghi sổ · kinh-thanh
         if: always() && steps.n-kinh-thanh.outcome != 'skipped'
         env:
           KET: ${{ steps.n-kinh-thanh.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-kinh-thanh.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi kinh-thanh "$KET" ${GIAY:+--giay $GIAY}
+        run: node scripts/nha-may.mjs ghi kinh-thanh "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/kinh-thanh.log"
 
       - name: Lấy bảng xét — Đô Sát Viện
         id: n-do-sat-vien
@@ -140,14 +153,14 @@ jobs:
         timeout-minutes: 3
         run: |
           t0=$(date +%s)
-          node scripts/build-l2beat.mjs
+          node scripts/build-l2beat.mjs 2>&1 | tee "$RUNNER_TEMP/do-sat-vien.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
       - name: Ghi sổ · do-sat-vien
         if: always() && steps.n-do-sat-vien.outcome != 'skipped'
         env:
           KET: ${{ steps.n-do-sat-vien.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-do-sat-vien.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi do-sat-vien "$KET" ${GIAY:+--giay $GIAY}
+        run: node scripts/nha-may.mjs ghi do-sat-vien "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/do-sat-vien.log"
 
       # Đồ nghề Công Bộ. Hay ngã, và vì lý do mạnh hơn L2BEAT: kính
       # lúp hồ sơ lấy từ fe-stag — host STAGING của L2BEAT, tắt lúc
@@ -159,14 +172,14 @@ jobs:
         timeout-minutes: 2
         run: |
           t0=$(date +%s)
-          node scripts/build-congbo.mjs
+          node scripts/build-congbo.mjs 2>&1 | tee "$RUNNER_TEMP/cong-bo.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
       - name: Ghi sổ · cong-bo
         if: always() && steps.n-cong-bo.outcome != 'skipped'
         env:
           KET: ${{ steps.n-cong-bo.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-cong-bo.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi cong-bo "$KET" ${GIAY:+--giay $GIAY}
+        run: node scripts/nha-may.mjs ghi cong-bo "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/cong-bo.log"
 
       # Kho skill Tàng Thư Các. Trần riêng cho bước này, thấp hơn trần
       # job: chạm trần thì chỉ mình nó ngã, commit vẫn chạy. Script chỉ
@@ -199,14 +212,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
           t0=$(date +%s)
-          node scripts/build-tangthu.mjs
+          node scripts/build-tangthu.mjs 2>&1 | tee "$RUNNER_TEMP/tang-thu-cac.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
       - name: Ghi sổ · tang-thu-cac
         if: always() && steps.n-tang-thu-cac.outcome != 'skipped'
         env:
           KET: ${{ steps.n-tang-thu-cac.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-tang-thu-cac.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi tang-thu-cac "$KET" ${GIAY:+--giay $GIAY}
+        run: node scripts/nha-may.mjs ghi tang-thu-cac "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/tang-thu-cac.log"
 
       # Bảng cảnh báo sớm Đài Quan Trắc. Ba nguồn miễn phí không cần
       # khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi
@@ -223,14 +236,14 @@ jobs:
         timeout-minutes: 3
         run: |
           t0=$(date +%s)
-          node scripts/build-quantrac.mjs
+          node scripts/build-quantrac.mjs 2>&1 | tee "$RUNNER_TEMP/quan-trac-do.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
       - name: Ghi sổ · quan-trac-do
         if: always() && steps.n-quan-trac-do.outcome != 'skipped'
         env:
           KET: ${{ steps.n-quan-trac-do.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-quan-trac-do.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi quan-trac-do "$KET" ${GIAY:+--giay $GIAY}
+        run: node scripts/nha-may.mjs ghi quan-trac-do "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/quan-trac-do.log"
 
       # Đóng dấu bản số liệu lên IPFS trước khi commit.
       # Tự bỏ qua nếu sha256 trùng bản trước, nên không tạo rác.
@@ -248,14 +261,14 @@ jobs:
         timeout-minutes: 2
         run: |
           t0=$(date +%s)
-          node scripts/pin-snapshot.mjs
+          node scripts/pin-snapshot.mjs 2>&1 | tee "$RUNNER_TEMP/dong-dau.log"
           echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
       - name: Ghi sổ · dong-dau
         if: always() && steps.n-dong-dau.outcome != 'skipped'
         env:
           KET: ${{ steps.n-dong-dau.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-dong-dau.outputs.giay }}
-        run: node scripts/nha-may.mjs ghi dong-dau "$KET" ${GIAY:+--giay $GIAY}
+        run: node scripts/nha-may.mjs ghi dong-dau "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/dong-dau.log"
 
       # ── M18 · Xưởng học lại — bước DUY NHẤT gọi model ────────────
       # Claude Code Action đọc sổ ghi rồi viết vài dòng tiếng Việt về
@@ -334,6 +347,24 @@ jobs:
       # Chiếu sổ sang thứ trình duyệt đọc được. `always()` vì bảng phải
       # hiện được cả những lượt mọi node đều ngã — đó chính là lượt
       # người ta cần nhìn bảng nhất.
+      # ── M15 · Máy kiểm ─────────────────────────────────────────
+      # Sơ đồ xưởng ghi "không có gì ra khỏi xưởng mà chưa qua kiểm",
+      # nhưng cho tới nay thì đúng là không có bước kiểm nào: script
+      # thoát 0 là `git add` gom hết rồi đẩy thẳng lên Pages.
+      #
+      # Thoát 0 mà ghi ra file cụt là hoàn toàn im lặng. Đó là cách
+      # hỏng tệ nhất trong xưởng này, vì mọi đèn vẫn xanh.
+      #
+      # Phải chạy TRƯỚC bước chiếu: nó có thể hạ một node xuống `loi`,
+      # và Bảng vận hành phải hiện bản sau khi kiểm, không phải bản
+      # trước. Cũng phải trước `git add` — nó trả file hỏng về bản cũ,
+      # gom rồi mới trả thì đã gom nhầm.
+      - name: Kiểm hàng trước khi đóng gói
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 2
+        run: node scripts/nha-may.mjs kiem-hang
+
       - name: Chiếu sổ sang Bảng vận hành
         if: always()
         run: node scripts/nha-may.mjs chieu

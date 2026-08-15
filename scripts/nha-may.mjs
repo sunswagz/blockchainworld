@@ -40,7 +40,7 @@
    ═══════════════════════════════════════════════════════ */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -219,7 +219,45 @@ function coDoi(ra) {
   } catch { return false; }
 }
 
-export async function ghi(ma, ket, { giay = null, chuThich = "" } = {}) {
+/* ═══════════════ M02 · MÁY PHÂN LOẠI ═══════════════
+
+   Sổ tới giờ chỉ ghi được `ok` hay `loi`. Mà "ngã" không phải một
+   bệnh — nó là bốn bệnh khác nhau, chữa ở bốn chỗ khác nhau:
+
+     nguon-nga   API bên kia timeout / 5xx / đứt kết nối.
+                 → không phải lỗi của ta. Chờ, hoặc đổi nguồn.
+     han-muc     429, rate limit, quota.
+                 → cần khoá riêng hoặc giãn nhịp. KHÔNG phải chờ.
+     khoa-sai    401/403.
+                 → secret hết hạn. Chờ bao lâu cũng không tự khỏi.
+     loi-ma      SyntaxError/TypeError… trong chính script của ta.
+                 → phải sửa code, không liên quan gì tới nguồn.
+
+   Phân biệt được bốn thứ đó là khác biệt giữa "Tàng Thư Các đỏ" và
+   "Tàng Thư Các chạm hạn mức GitHub, cần PAT" — cái sau nói thẳng
+   phải làm gì.
+
+   Khớp chuỗi, không gọi model. Thứ tự quan trọng: hạn mức và khoá
+   sai đều là mã 4xx nên phải soi trước `nguon-nga`; lỗi mã soi cuối
+   vì tên lỗi JS có thể xuất hiện trong nội dung trang mà nguồn trả về. */
+const PHAN_LOAI = [
+  ["han-muc",   /\b429\b|rate.?limit|quota|too many requests|hạn mức|secondary rate/i],
+  ["khoa-sai",  /\b40[13]\b|unauthorized|forbidden|bad credentials|invalid token/i],
+  ["nguon-nga", /\b5\d\d\b|etimedout|enotfound|econnreset|econnrefused|socket hang up|fetch failed|network|timeout/i],
+  ["loi-ma",    /\b(syntaxerror|typeerror|referenceerror|rangeerror)\b|cannot read propert/i]
+];
+
+export function phanLoai(noiDung) {
+  if (!noiDung || !noiDung.trim()) return null;
+  /* Chỉ soi phần đuôi: log dài thì phần đầu là những lượt gọi ĐÃ
+     THÀNH CÔNG, và một chữ "429" trong đó (đã lùi giờ chờ rồi chạy
+     tiếp được) sẽ dán nhãn sai cho cả lượt. Thứ giết nó nằm ở cuối. */
+  const duoi = noiDung.slice(-4000);
+  for (const [ten, re] of PHAN_LOAI) if (re.test(duoi)) return ten;
+  return "chua-ro";
+}
+
+export async function ghi(ma, ket, { giay = null, chuThich = "", log = null } = {}) {
   const n = nodeTheoMa[ma];
   if (!n) throw new Error(`nha-may: không có node "${ma}"`);
   if (!["ok", "loi", "bo-qua"].includes(ket))
@@ -235,13 +273,21 @@ export async function ghi(ma, ket, { giay = null, chuThich = "" } = {}) {
      nguồn đã chết và không ai biết. */
   const chuoiLoi = ket === "loi" ? (truoc.chuoiLoi || 0) + 1 : 0;
 
+  /* Chỉ phân loại lượt NGÃ. Lượt ok mà log có chữ "429" là chuyện
+     bình thường — script lùi giờ chờ rồi chạy tiếp được. */
+  let vi = null;
+  if (ket === "loi" && log) {
+    try { vi = phanLoai(readFileSync(join(ROOT, log), "utf8")); }
+    catch { try { vi = phanLoai(readFileSync(log, "utf8")); } catch { vi = null; } }
+  }
+
   t.node[ma] = {
     luc, ket, giay, doi, chuThich,
-    chuoiLoi,
+    chuoiLoi, vi,
     lucOk: ket === "ok" ? luc : truoc.lucOk || null,
     lucDoi: doi ? luc : truoc.lucDoi || null
   };
-  t.nk.unshift({ luc, ma, ket, giay, doi, chuThich });
+  t.nk.unshift({ luc, ma, ket, giay, doi, chuThich, vi });
   if (t.nk.length > TRAN_NHAT_KY) t.nk.length = TRAN_NHAT_KY;
   t.lan = (t.lan || 0) + 1;
   t.generatedAt = luc;
@@ -284,6 +330,20 @@ export function denHan(trangThai, bayGio = Date.now()) {
    CACHE_VERSION. Dùng lại quy ước cũ thì không sinh thêm luật mới;
    fetch một file JSON ở gốc repo thì phải dạy cả ba chỗ đó một
    đường dẫn ngoại lệ. */
+/* Node nào chạy trong workflow nào. Để Ở ĐÂY chứ không để trong
+   app.js: một cái bảng như thế nằm trong trình duyệt thì không có
+   gì bắt nó khớp với .github/workflows/, và nó sẽ lệch âm thầm
+   đúng vào ngày người ta cần bấm nút nhất.
+
+   Mặc định là refresh-data.yml; chỉ khai ngoại lệ. `che: "tay"`
+   không có workflow nào cả — nút bấm cho nó là lời nói dối. */
+const REPO = "sunswagz/blockchainworld";
+const WF_MAC_DINH = "refresh-data.yml";
+const WF_RIENG = {
+  "dai-quan-trac": "scan-observatory.yml",
+  "giao-hang": "deploy-pages.yml"
+};
+
 export async function chieu() {
   const t = await docTrangThai();
   const cungTheoMa = Object.fromEntries(CUNG.map((c) => [c.ma, c]));
@@ -295,8 +355,9 @@ export async function chieu() {
       lenh: n.lenh, ra: n.ra,
       cung: n.cung || null,
       cungTen: n.cung ? cungTheoMa[n.cung].ten : null,
+      wf: n.che === "tay" ? null : (WF_RIENG[n.ma] || WF_MAC_DINH),
       luc: s.luc || null, ket: s.ket || null, giay: s.giay ?? null,
-      doi: !!s.doi, chuThich: s.chuThich || "",
+      doi: !!s.doi, chuThich: s.chuThich || "", vi: s.vi || null,
       chuoiLoi: s.chuoiLoi || 0,
       lucOk: s.lucOk || null, lucDoi: s.lucDoi || null
       /* CỐ Ý không chiếu sẵn "đang đến hạn" vào đây, dù tính được.
@@ -317,7 +378,8 @@ export async function chieu() {
     "   Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.\n" +
     "   Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */\n" +
     "window.VAN_HANH = " + JSON.stringify({
-      generatedAt: t.generatedAt, lan: t.lan, node, nk: t.nk.slice(0, 60)
+      generatedAt: t.generatedAt, lan: t.lan, repo: REPO,
+      node, nk: t.nk.slice(0, 60)
     }, null, 1) + ";\n";
 
   await mkdir(join(ROOT, "tao-bien-xu/assets/js/v"), { recursive: true });
@@ -387,6 +449,112 @@ export async function soDangKy() {
   return NODE.length;
 }
 
+/* ═══════════════ M15 · MÁY KIỂM ═══════════════
+
+   Sơ đồ xưởng ghi "không có gì ra khỏi xưởng mà chưa qua kiểm".
+   Thực tế thì chưa có bước kiểm nào: script chạy xong, `git add`
+   gom hết, commit, đẩy lên Pages. Script thoát 0 mà ghi ra file
+   cụt là chuyện im lặng hoàn toàn — và nó ĐÃ xảy ra ở dạng khác
+   (logos.js trỏ tới ảnh chưa commit).
+
+   Ba phép soi, xếp theo thứ tự bắt được nhiều lỗi nhất:
+
+     1. CÒN ĐỌC ĐƯỢC KHÔNG. JSON thì parse, JS thì cho qua bộ phân
+        tích cú pháp (`new Function` chỉ biên dịch, không chạy). Bắt
+        được file ghi dở vì tiến trình bị cắt giữa chừng.
+     2. CÓ ĐỘT NGỘT TEO KHÔNG. Nhỏ hơn một nửa bản đang nằm trong
+        HEAD là dấu hiệu cụt kinh điển: API trả 200 kèm mảng rỗng,
+        script vẫn ghi, vẫn thoát 0. Không phép nào khác bắt được.
+     3. THƯ MỤC CÓ RỖNG KHÔNG. Thư mục logo rỗng nghĩa là ảnh chưa
+        tải về, mà data.js thì đã trỏ tới chúng.
+
+   CHỈ soi file mà LƯỢT NÀY vừa đổi — hỏi git, không soi tất. Soi
+   tất thì một file cũ hỏng từ đời nào sẽ bị trả lại mỗi lượt, và
+   node "chạy tay" như Hoàng Thành bị phán oan dù nó không hề chạy.
+
+   Hỏng thì TRẢ LẠI BẢN CŨ chứ không bỏ trắng: bản cũ tuy cũ nhưng
+   đọc được, còn bản mới thì làm vỡ trang. Rồi ghi node là `loi` —
+   node ấy đến hạn sớm, lượt sau tự thử lại. */
+const NGUONG_TEO = 0.5;
+
+function batByte(duong) {
+  try {
+    return execFileSync("git", ["show", `HEAD:${duong}`],
+      { cwd: ROOT, maxBuffer: 256 * 1024 * 1024 }).length;
+  } catch { return null; }   /* chưa từng có trong HEAD — lần đầu sinh */
+}
+
+function soiMotFile(duong) {
+  const p = join(ROOT, duong);
+  if (!existsSync(p)) return "không thấy file";
+  const noi = readFileSync(p, "utf8");
+  if (!noi.trim()) return "file rỗng";
+
+  if (duong.endsWith(".json")) {
+    try { JSON.parse(noi); } catch (e) { return `JSON hỏng: ${e.message.slice(0, 80)}`; }
+  } else if (duong.endsWith(".js")) {
+    try { new Function(noi); } catch (e) { return `JS hỏng cú pháp: ${e.message.slice(0, 80)}`; }
+  }
+
+  const cu = batByte(duong);
+  if (cu && noi.length < cu * NGUONG_TEO)
+    return `teo đột ngột: ${noi.length} byte, bản cũ ${cu} byte`;
+
+  return null;
+}
+
+export async function kiemHang() {
+  /* Chỉ những đường dẫn lượt này vừa đụng. */
+  const moiDuong = [];
+  for (const n of NODE) for (const d of n.ra || []) moiDuong.push([n, d]);
+  if (!moiDuong.length) return { hong: [], soi: 0 };
+
+  let doi = "";
+  try {
+    doi = execFileSync("git", ["status", "--porcelain", "--",
+      ...new Set(moiDuong.map(([, d]) => d))], { cwd: ROOT, encoding: "utf8" });
+  } catch { return { hong: [], soi: 0 }; }
+
+  const daDoi = new Set(
+    doi.split("\n").map((d) => d.slice(3).trim().replace(/^"|"$/g, "")).filter(Boolean)
+  );
+  if (!daDoi.size) return { hong: [], soi: 0 };
+
+  const hong = [];
+  let soi = 0;
+  for (const [n, d] of moiDuong) {
+    if (d.endsWith("/")) {
+      /* Thư mục: đủ khi có ít nhất một file lượt này vừa ghi. */
+      if (![...daDoi].some((x) => x.startsWith(d))) continue;
+      soi++;
+      const p = join(ROOT, d);
+      if (!existsSync(p) || !readdirSync(p).length)
+        hong.push({ ma: n.ma, ten: n.ten, duong: d, vi: "thư mục rỗng" });
+      continue;
+    }
+    if (!daDoi.has(d)) continue;
+    soi++;
+    const vi = soiMotFile(d);
+    if (vi) hong.push({ ma: n.ma, ten: n.ten, duong: d, vi });
+  }
+
+  for (const h of hong) {
+    try {
+      execFileSync("git", ["checkout", "HEAD", "--", h.duong], { cwd: ROOT });
+      h.traLai = true;
+    } catch { h.traLai = false; }
+  }
+
+  /* Ghi sau khi trả lại, để `coDoi` nhìn thấy đúng sự thật: file đã
+     về bản cũ nên node này KHÔNG mang lại gì mới cho lượt này. */
+  for (const ma of new Set(hong.map((h) => h.ma))) {
+    const vi = hong.filter((h) => h.ma === ma).map((h) => `${h.duong} — ${h.vi}`).join("; ");
+    await ghi(ma, "loi", { chuThich: `kiểm không qua: ${vi}`.slice(0, 300) });
+  }
+
+  return { hong, soi };
+}
+
 /* ═══════════════ CHẨN ĐOÁN ═══════════════
 
    Phần "học lại" của xưởng cho tới nay dừng ở chỗ VIẾT: M18 sinh
@@ -427,7 +595,8 @@ export function chanDoan(trangThai, bayGio = Date.now()) {
 
     if ((s.chuoiLoi || 0) >= NGUONG_NGA) {
       ra.push({ ma: n.ma, ten: n.ten, muc: "nga", nang: true,
-        y: `ngã ${s.chuoiLoi} lượt liền, lượt cuối ${s.luc}` });
+        y: `ngã ${s.chuoiLoi} lượt liền` + (s.vi ? `, vì \`${s.vi}\`` : "") +
+           `, lượt cuối ${s.luc}` });
       continue;
     }
     if (n.nhip && gioQua != null && gioQua > n.nhip * NGUONG_TRE) {
@@ -547,10 +716,12 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
     const giayRaw = doiSo(rest, "giay", null);
     const kq = await ghi(ma, ket, {
       giay: giayRaw == null ? null : Number(giayRaw),
-      chuThich: doiSo(rest, "ghi", "")
+      chuThich: doiSo(rest, "ghi", ""),
+      log: doiSo(rest, "log", null)
     });
     console.log(`${ma}: ${kq.ket}` + (kq.giay != null ? ` ${kq.giay}s` : "") +
       (kq.doi ? " · có thay đổi" : " · không đổi") +
+      (kq.vi ? ` · vì: ${kq.vi}` : "") +
       (kq.chuoiLoi > 1 ? ` · NGÃ ${kq.chuoiLoi} LƯỢT LIỀN` : ""));
 
   } else if (lenh === "mo-so") {
@@ -558,6 +729,21 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
 
   } else if (lenh === "chieu") {
     console.log(`Chiếu: ${await chieu()} node → ${DUONG_CHIEU}`);
+
+  } else if (lenh === "kiem-hang") {
+    const { hong, soi } = await kiemHang();
+    if (!soi) {
+      console.log("Kiểm hàng: lượt này không đổi file nào — không có gì để soi.");
+    } else if (!hong.length) {
+      console.log(`Kiểm hàng: soi ${soi} đường dẫn, tất cả đạt.`);
+    } else {
+      console.log(`Kiểm hàng: soi ${soi} đường dẫn, ${hong.length} KHÔNG ĐẠT:`);
+      for (const h of hong)
+        console.log(`  · ${h.duong} — ${h.vi}` + (h.traLai ? " (đã trả lại bản cũ)" : " (KHÔNG trả lại được)"));
+      /* Không thoát 1: hàng hỏng đã bị chặn lại và node đã bị ghi
+         `loi`, nên lượt này vẫn nên commit những node lành. Ngã ở
+         đây là ném đi cả mẻ vì một món. */
+    }
 
   } else if (lenh === "canh-bao") {
     /* `--thu` để xem thân việc mà không đụng gì trên GitHub. */
@@ -582,7 +768,7 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
     console.log("");
 
   } else {
-    console.log("Lệnh: so-dang-ky | mo-so | den-han | ghi <ma> <ok|loi|bo-qua> | chieu | canh-bao [--thu] | bang");
+    console.log("Lệnh: so-dang-ky | mo-so | den-han | ghi <ma> <ok|loi|bo-qua> | kiem-hang | chieu | canh-bao [--thu] | bang");
     process.exit(1);
   }
 }
