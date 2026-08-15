@@ -130,9 +130,7 @@ jobs:
       # + 2 + 6 + 2                   (kiểm · báo cáo · cảnh báo)
       #   = 58  <  70
       # Thực tế không bao giờ cộng hết: node nhịp 12 và 24 giờ chỉ
-      # chạy 2 và 1 trong 4 lượt mỗi ngày.
-      # Thực tế không bao giờ cộng dồn hết vì node nhịp 24 giờ chỉ
-      # chạy 1 trong 4 lượt, nhưng trần job vẫn là chốt cuối.
+      # chạy 2 và 1 trong 4 lượt mỗi ngày. Trần job vẫn là chốt cuối.
       #
       # Trần đặt theo giờ chạy đo được, không đoán:
       #   L2BEAT    78s → 3 phút
@@ -279,79 +277,6 @@ jobs:
           GIAY: ${{ steps.n-dong-dau.outputs.giay }}
         run: node scripts/nha-may.mjs ghi dong-dau "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/dong-dau.log"
 
-      # ── M18 · Xưởng học lại — bước DUY NHẤT gọi model ────────────
-      # Claude Code Action đọc sổ ghi rồi viết vài dòng tiếng Việt về
-      # sức khoẻ xưởng. Ba điều đáng nói:
-      #
-      # 1. CLAUDE_CODE_OAUTH_TOKEN chứ không phải ANTHROPIC_API_KEY.
-      #    Token này tạo bằng `claude setup-token` ở máy và trả bằng
-      #    QUOTA GÓI CLAUDE thay vì tính tiền theo token. Đó là cả lý
-      #    do bước này tồn tại được: nhịp quét cũ của Đài Quan Trắc
-      #    tốn 170 USD/tháng và đã phải tắt.
-      #    Đổi lại, nó ăn vào QUOTA BẠN ĐANG NGỒI DÙNG. Nên phải cân
-      #    theo khối lượng thật của việc, chứ không theo cảm giác
-      #    "model to thì đắt".
-      #
-      #    Việc này nhỏ và cố định: đọc hai file JSON (~25 KB) rồi
-      #    viết 15 dòng, một lượt mỗi ngày, --max-turns 8 chặn trần.
-      #    Ở khối lượng đó Opus 5 không đáng kể so với một buổi ngồi
-      #    làm việc bình thường — nên dùng Opus, vì phần giá trị nhất
-      #    của báo cáo là câu "nên xem chỗ nào trước", và đó đúng là
-      #    chỗ model mạnh hơn thấy rõ hơn.
-      #
-      #    Khác hẳn bản QUÉT Đài Quan Trắc ở bước trên: chỗ đó
-      #    WebSearch kéo nguyên nội dung trang vào ngữ cảnh, nhân sáu
-      #    chiến trường, nên khối lượng phình không chặn được. Chỗ đó
-      #    giữ Haiku. Từ 15/08 cả hai cùng trả bằng quota, nên khác
-      #    biệt còn lại đúng là khối lượng — không phải đường tiền.
-      #
-      # 2. CHỈ Read và Write. Không Bash, không git. Claude viết đúng
-      #    một file rồi thôi; bước commit bên dưới mới là chỗ đẩy đi.
-      #    Để nó tự commit là hai nguồn cùng ghi vào một repo trong
-      #    một job — đúng loại đua mà cả CLAUDE.md tránh.
-      #
-      # 3. Thiếu secret thì BỎ QUA êm, không ngã. Ngày dựng bước này
-      #    secret chưa tồn tại; một workflow đỏ vì thiếu thứ chưa ai
-      #    tạo thì lần đỏ thật sau đó không ai buồn nhìn.
-      #    Tạo secret: chạy `claude setup-token` ở máy, rồi dán vào
-      #    Settings → Secrets → Actions → CLAUDE_CODE_OAUTH_TOKEN.
-      - name: Báo cáo sức khoẻ xưởng (Claude Code)
-        id: n-bao-cao
-        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',bao-cao,')
-        continue-on-error: true
-        timeout-minutes: 6
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: |
-            --model claude-opus-5
-            --max-turns 8
-            --allowedTools "Read,Write"
-          prompt: |
-            Đọc factory/state.json và factory/registry.json trong repo này.
-            Đó là sổ vận hành của một hệ sinh thái 7 webapp tĩnh: mỗi "node"
-            là một bước tự động chạy theo nhịp, `ket` là kết quả lượt gần
-            nhất (ok/loi), `chuoiLoi` là số lượt ngã liên tiếp, `nhip` là số
-            giờ giữa hai lượt.
-
-            Viết đè file factory/bao-cao.md, TIẾNG VIỆT, tối đa 15 dòng:
-
-            1. Một câu tổng: xưởng đang khoẻ hay đang có chuyện.
-            2. Node nào đáng lo và VÌ SAO — ưu tiên `chuoiLoi` >= 2, rồi
-               tới node trễ quá gấp đôi `nhip` của nó.
-            3. Node nào chạy đều nhưng `lucDoi` đã lâu không đổi — nghĩa là
-               nó chạy được mà nguồn dữ liệu phía sau có thể đã chết.
-            4. Đúng một việc nên làm trước.
-
-            Không suy đoán ngoài dữ liệu trong hai file đó. Không có gì
-            đáng lo thì nói thẳng là không có, đừng bịa ra việc.
-            Chỉ ghi file, không chạy lệnh nào khác.
-      - name: Ghi sổ · bao-cao
-        if: always() && steps.n-bao-cao.outcome != 'skipped'
-        env:
-          KET: ${{ steps.n-bao-cao.outcome == 'success' && 'ok' || 'loi' }}
-        run: node scripts/nha-may.mjs ghi bao-cao "$KET"
-
       # ── M17 · Phòng điều khiển ──────────────────────────────────
       # Chiếu sổ sang thứ trình duyệt đọc được. `always()` vì bảng phải
       # hiện được cả những lượt mọi node đều ngã — đó chính là lượt
@@ -430,6 +355,41 @@ jobs:
             · Chỉ ghi đúng file quet.json. Không sửa file nào khác,
               không chạy lệnh nào.
 
+            QUAN TRỌNG — việc này chỉ coi là xong khi FILE quet.json ĐÃ
+            TỒN TẠI trên đĩa. Đừng bao giờ kết thúc mà chưa ghi nó.
+
+            · Ghi file NGAY sau chiến trường đầu tiên, rồi ghi đè bổ
+              sung dần. Như vậy hết giờ giữa chừng vẫn còn kết quả một
+              phần, thay vì mất trắng.
+            · WebSearch hỏng hoặc không dùng được thì VẪN ghi file: đủ
+              sáu chiến trường, `"tin_hieu": []`, và `tom_tat` ghi rõ
+              lý do không tìm được. Một file nói "không tìm được" có
+              ích hơn hẳn không có file nào.
+
+      # Lượt #15: bước quét trên BÁO THÀNH CÔNG sau 112 giây, nhưng
+      # quet.json không hề được ghi, nên bước dựng ngã trong 0 giây và
+      # scan.js đứng nguyên bản 13/08. Từ ngoài thì cả ba bước đều
+      # xanh — đúng kiểu hỏng im lặng mà M15 sinh ra để chặn.
+      #
+      # Nên soi thẳng: model có ghi file không, file to bao nhiêu.
+      # In ra annotation để đọc được mà không cần tải log.
+      - name: Soi bản quét thô
+        if: always() && steps.n-quet.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 1
+        run: |
+          Q=dai-quan-trac/assets/data/quet.json
+          if [ ! -f "$Q" ]; then
+            echo "::error::Bước quét xong mà KHÔNG ghi $Q. Thư mục có: $(ls -A dai-quan-trac/assets/data/ 2>/dev/null | tr '\n' ' ')"
+            exit 0
+          fi
+          echo "::notice::quet.json $(wc -c < "$Q") byte · $(node -e "
+            try{const q=require('./$Q');
+              const c=(q.chien_truong||[]);
+              console.log(c.length+' chiến trường, '+c.reduce((n,x)=>n+((x.tin_hieu||[]).length),0)+' tín hiệu');
+            }catch(e){console.log('JSON hỏng: '+e.message.slice(0,80))}")"
+          head -c 400 "$Q"
+
       - name: Dựng bản quét
         id: n-dai-quan-trac
         if: steps.n-quet.outcome == 'success'
@@ -463,6 +423,85 @@ jobs:
         continue-on-error: true
         timeout-minutes: 2
         run: node scripts/nha-may.mjs kiem-hang
+
+      # ── M18 · Xưởng học lại ─────────────────────────────────────
+      # ĐẶT CUỐI CÙNG, sau cả bản quét lẫn máy kiểm — và đó là chỗ đã
+      # sai một lượt. Lượt #15 bước này chạy TRƯỚC bản quét, nên báo
+      # cáo kết luận "dai-quan-trac chưa có lượt chạy thật nào" trong
+      # khi node ấy đang chạy ở bước ngay sau. Báo cáo đọc sổ, nên nó
+      # phải là thứ chạy sau khi sổ đã ghi xong.
+      #
+      # Claude Code Action đọc sổ ghi rồi viết vài dòng tiếng Việt về
+      # sức khoẻ xưởng. Ba điều đáng nói:
+      #
+      # 1. CLAUDE_CODE_OAUTH_TOKEN chứ không phải ANTHROPIC_API_KEY.
+      #    Token này tạo bằng `claude setup-token` ở máy và trả bằng
+      #    QUOTA GÓI CLAUDE thay vì tính tiền theo token. Đó là cả lý
+      #    do bước này tồn tại được: nhịp quét cũ của Đài Quan Trắc
+      #    tốn 170 USD/tháng và đã phải tắt.
+      #    Đổi lại, nó ăn vào QUOTA BẠN ĐANG NGỒI DÙNG. Nên phải cân
+      #    theo khối lượng thật của việc, chứ không theo cảm giác
+      #    "model to thì đắt".
+      #
+      #    Việc này nhỏ và cố định: đọc hai file JSON (~25 KB) rồi
+      #    viết 15 dòng, một lượt mỗi ngày, --max-turns 8 chặn trần.
+      #    Ở khối lượng đó Opus 5 không đáng kể so với một buổi ngồi
+      #    làm việc bình thường — nên dùng Opus, vì phần giá trị nhất
+      #    của báo cáo là câu "nên xem chỗ nào trước", và đó đúng là
+      #    chỗ model mạnh hơn thấy rõ hơn.
+      #
+      #    Khác hẳn bản QUÉT Đài Quan Trắc ở bước trên: chỗ đó
+      #    WebSearch kéo nguyên nội dung trang vào ngữ cảnh, nhân sáu
+      #    chiến trường, nên khối lượng phình không chặn được. Chỗ đó
+      #    giữ Haiku. Từ 15/08 cả hai cùng trả bằng quota, nên khác
+      #    biệt còn lại đúng là khối lượng — không phải đường tiền.
+      #
+      # 2. CHỈ Read và Write. Không Bash, không git. Claude viết đúng
+      #    một file rồi thôi; bước commit bên dưới mới là chỗ đẩy đi.
+      #    Để nó tự commit là hai nguồn cùng ghi vào một repo trong
+      #    một job — đúng loại đua mà cả CLAUDE.md tránh.
+      #
+      # 3. Thiếu secret thì BỎ QUA êm, không ngã. Ngày dựng bước này
+      #    secret chưa tồn tại; một workflow đỏ vì thiếu thứ chưa ai
+      #    tạo thì lần đỏ thật sau đó không ai buồn nhìn.
+      #    Tạo secret: chạy `claude setup-token` ở máy, rồi dán vào
+      #    Settings → Secrets → Actions → CLAUDE_CODE_OAUTH_TOKEN.
+      - name: Báo cáo sức khoẻ xưởng (Claude Code)
+        id: n-bao-cao
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',bao-cao,')
+        continue-on-error: true
+        timeout-minutes: 6
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 8
+            --allowedTools "Read,Write"
+          prompt: |
+            Đọc factory/state.json và factory/registry.json trong repo này.
+            Đó là sổ vận hành của một hệ sinh thái 7 webapp tĩnh: mỗi "node"
+            là một bước tự động chạy theo nhịp, `ket` là kết quả lượt gần
+            nhất (ok/loi), `chuoiLoi` là số lượt ngã liên tiếp, `nhip` là số
+            giờ giữa hai lượt.
+
+            Viết đè file factory/bao-cao.md, TIẾNG VIỆT, tối đa 15 dòng:
+
+            1. Một câu tổng: xưởng đang khoẻ hay đang có chuyện.
+            2. Node nào đáng lo và VÌ SAO — ưu tiên `chuoiLoi` >= 2, rồi
+               tới node trễ quá gấp đôi `nhip` của nó.
+            3. Node nào chạy đều nhưng `lucDoi` đã lâu không đổi — nghĩa là
+               nó chạy được mà nguồn dữ liệu phía sau có thể đã chết.
+            4. Đúng một việc nên làm trước.
+
+            Không suy đoán ngoài dữ liệu trong hai file đó. Không có gì
+            đáng lo thì nói thẳng là không có, đừng bịa ra việc.
+            Chỉ ghi file, không chạy lệnh nào khác.
+      - name: Ghi sổ · bao-cao
+        if: always() && steps.n-bao-cao.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-bao-cao.outcome == 'success' && 'ok' || 'loi' }}
+        run: node scripts/nha-may.mjs ghi bao-cao "$KET"
 
       - name: Chiếu sổ sang Bảng vận hành
         if: always()
