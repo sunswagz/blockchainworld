@@ -321,8 +321,27 @@ export async function ghi(ma, ket, { giay = null, chuThich = "", log = null } = 
    Trừ hao 10 phút: cron của GitHub trôi vài phút mỗi lượt, nên
    một node nhịp 6 giờ chạy lúc 12:19 sẽ bị coi là "mới 5h58" ở
    lượt 18:17 và bị bỏ qua — rồi lượt sau lại lệch tiếp. Không
-   trừ hao thì nhịp 6 giờ trên thực tế thành 12 giờ. */
+   trừ hao thì nhịp 6 giờ trên thực tế thành 12 giờ.
+
+   ── NGÃ THÌ THỬ LẠI NGAY LƯỢT SAU ─────────────────────────
+   `ghi` đóng dấu thời gian cho MỌI lượt, kể cả lượt ngã. Nên
+   trước đây một node ngã bị coi là "vừa chạy xong" và phải đợi
+   hết nhịp mới tới lượt. Hệ quả đo được: bản quét Đài Quan Trắc
+   ngã lúc 13:14 ngày 15/08 với nhịp 12 giờ, và lượt thử lại kế
+   tiếp rơi vào 06:17 hôm sau — mười bảy tiếng cung ấy đứng im vì
+   một lượt hỏng, trong khi nhà máy vẫn thức dậy ba lần ở giữa.
+
+   Xưởng tự chạy thì phải tự lành. Node ngã đến hạn ngay lượt
+   thức dậy kế tiếp.
+
+   NHƯNG chỉ ba lượt đầu. Ngã 3 lượt liên tiếp là hỏng thật, không
+   phải trục trặc thoáng qua — lúc đó thử lại mỗi 6 giờ chỉ đốt
+   quota (`dai-quan-trac` và `bao-cao` đều gọi model) mà không sửa
+   được gì. Từ lượt thứ tư trở đi nó quay về nhịp thường, và việc
+   đánh thức người thì đã có `canh-bao` lo — nó mở issue đúng ở
+   ngưỡng `chuoiLoi >= 2`. */
 const TRU_HAO_PHUT = 10;
+const THU_LAI_TOI_DA = 3;
 
 export function denHan(trangThai, bayGio = Date.now()) {
   const ra = [];
@@ -330,6 +349,7 @@ export function denHan(trangThai, bayGio = Date.now()) {
     if (!n.nhip) continue;
     const t = trangThai.node[n.ma];
     if (!t || !t.luc) { ra.push(n.ma); continue; }
+    if (t.ket === "loi" && (t.chuoiLoi || 0) < THU_LAI_TOI_DA) { ra.push(n.ma); continue; }
     const gioQua = (bayGio - new Date(t.luc).getTime()) / 36e5;
     if (gioQua >= n.nhip - TRU_HAO_PHUT / 60) ra.push(n.ma);
   }
