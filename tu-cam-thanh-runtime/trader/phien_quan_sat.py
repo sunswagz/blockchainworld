@@ -105,13 +105,22 @@ def _chay(moi_nhom: int) -> None:
                     # vòng có chế độ" — lệnh của họ cũ hơn thế. Cửa sổ cố định
                     # nghĩa là ai giao dịch thưa thì vô hình, và bảng xếp hạng
                     # lại nghiêng về người khớp với lựa chọn kỹ thuật của mình.
-                    cu = hs.get("tuLuc")
+                    # Cửa sổ tính từ VÒNG cũ nhất, không phải LỆNH KHỚP cũ nhất.
+                    #
+                    # Đo được: nhiều trader có `doPhu` coin 100% mà `soCoCheDo`
+                    # vẫn 0 — chuỗi có đủ coin, nhưng mốc thời gian của vòng nằm
+                    # ngoài cửa sổ. Lệnh khớp cũ nhất và vòng ĐÓNG TRỌN cũ nhất
+                    # là hai mốc khác nhau, và mốc cần là mốc thứ hai.
+                    vong_thu = GP._ghep(fills)
+                    cu = min((v["moLuc"] for v in vong_thu), default=None) or hs.get("tuLuc")
                     ngay = 30
                     if cu:
-                        # Trần 60 ngày: để 120 thì một hồ sơ mất hơn 5 phút và
-                        # cả phễu thành nửa tiếng. Lệnh cũ hơn thế không tra
-                        # được chế độ, và `soCoCheDo` nói rõ còn lại bao nhiêu.
-                        ngay = min(60, max(30, int((time.time() * 1000 - cu) / 86_400_000) + 3))
+                        # Trần 150 ngày. Nhờ lấy chế độ mỗi 3 nến nên 150 ngày
+                        # ≈ 1.200 lát mỗi coin, vẫn chạy được; để thấp hơn thì
+                        # trader giao dịch thưa bị vô hình, và đó là kiểu mất
+                        # dữ liệu do lựa chọn kỹ thuật của mình chứ không phải
+                        # do dữ liệu thiếu.
+                        ngay = min(150, max(30, int((time.time() * 1000 - cu) / 86_400_000) + 3))
                     # Dựng chuỗi cho coin CÓ VÒNG ĐÓNG TRỌN, không phải coin
                     # nhiều lệnh nhất.
                     #
@@ -121,14 +130,35 @@ def _chay(moi_nhom: int) -> None:
                     # ở những coin khác. Kết quả: dựng chuỗi cho đúng coin
                     # không dùng được, và `soCoCheDo` ra 0 — trông y như dữ
                     # liệu hỏng chứ không như một lựa chọn sai của mình.
-                    vong_thu = GP._ghep(fills)
                     dem_coin: dict[str, int] = {}
                     for v in vong_thu:
                         dem_coin[v["coin"]] = dem_coin.get(v["coin"], 0) + 1
-                    uu_tien = sorted(dem_coin, key=lambda k: -dem_coin[k])[:5]
-                    for coin in uu_tien:
-                        CD.dung_chuoi(c, coin, ngay)
+
+                    # Dựng cho tới khi PHỦ ĐỦ, không phải "5 coin đầu".
+                    #
+                    # Đo được: vòng của một trader rải rất mỏng — 16 vòng trên 6
+                    # coin, coin nhiều nhất chỉ 4 vòng. Lấy cứng 5 coin thì ai
+                    # rải trên 20 coin sẽ mất gần hết. Trần 12 coin để một trader
+                    # rải cực mỏng không nuốt hết thời gian của cả mẻ.
+                    tong_vong = len(vong_thu) or 1
+                    phu_coin = 0
+                    for coin in sorted(dem_coin, key=lambda k: -dem_coin[k])[:12]:
+                        if CD.dung_chuoi(c, coin, ngay):
+                            phu_coin += dem_coin[coin]
+                        if phu_coin / tong_vong >= 0.9:
+                            break
                     gp = GP.giai_phau(fills)
+
+                    # HAI con số phủ, và cái thứ hai mới là cái thật.
+                    #
+                    # Bản trước tôi chỉ báo "phủ coin" rồi gọi nó là phủ chế độ:
+                    # nó hiện 100% trong khi số vòng tra được chế độ là 0. Một
+                    # con số đúng về mặt định nghĩa mà sai về mặt nghĩa — đúng
+                    # loại nói dối mà cả hệ thống này được dựng để chặn.
+                    co_cd = sum(1 for v in (gp.get("_vong") or []) if v.get("cheDoVao"))
+                    gp["doPhuCoin"] = round(phu_coin / tong_vong * 100, 1)
+                    gp["doPhuCheDo"] = round(co_cd / tong_vong * 100, 1)
+                    ct["doPhuCheDo"] = gp["doPhuCheDo"]
                     ct["daDangCheDo"] = (gp.get("daDangCheDo") or {}).get("diem")
                     vi_the = DQ.hl_vi_the(c, t["diaChi"])
                 except Exception as e:  # noqa: BLE001 — một trader hỏng không được kéo cả mẻ
