@@ -111,16 +111,47 @@ class RiskEngine:
         if not targets:
             rejections.append("THIẾU_TP: không có mục tiêu nào")
 
+        # SL/TP nằm SAI PHÍA là câu hỏi về HÌNH HỌC, phải so với giá THAM CHIẾU
+        # chứ không phải giá khớp.
+        #
+        # Đây là cùng một bài học với luật "SL quá hẹp" ngay dưới đây — hai
+        # khoảng cách cho hai câu hỏi khác nhau — nhưng tôi đã quên áp cho luật
+        # này, và nó lọt qua tới lúc thị trường tạo đúng điều kiện để lộ ra:
+        #
+        #     giá 63.110 · ATR 59,34 (0,094% giá — nhỏ bất thường)
+        #     SL đặt ở giá + 1,5×ATR = 63.199   ← rõ ràng SAI PHÍA cho một LONG
+        #     phí + trượt 0,15% = 94,67 > 1,5×ATR = 89,00
+        #     ⇒ giá khớp 63.204 VƯỢT QUA cả SL ⇒ `sl >= entry` thành False
+        #     ⇒ CHO QUA
+        #
+        # Hậu quả không dừng ở việc lọt: khoảng cách stop khi đó chỉ còn 5,66,
+        # nên RR tính ra 14,72 và **kích thước vị thế phình lên** theo đúng tỉ
+        # lệ nghịch ấy. Một luận điểm vô nghĩa biến thành một lệnh rất to.
+        #
+        # Chi phí không bao giờ được phép biến một lệnh sai hình học thành một
+        # lệnh hợp lệ. Nó chỉ được làm lệnh đúng trở nên kém hấp dẫn.
         if sl is not None:
-            if side == 1 and sl >= entry:
-                rejections.append(f"SL_SAI_PHÍA: long mà SL {sl} ≥ entry {entry}")
-            if side == -1 and sl <= entry:
-                rejections.append(f"SL_SAI_PHÍA: short mà SL {sl} ≤ entry {entry}")
+            if side == 1 and sl >= requested:
+                rejections.append(f"SL_SAI_PHÍA: long mà SL {sl} ≥ giá tham chiếu {requested}")
+            if side == -1 and sl <= requested:
+                rejections.append(f"SL_SAI_PHÍA: short mà SL {sl} ≤ giá tham chiếu {requested}")
         for t in targets:
-            if side == 1 and t <= entry:
-                rejections.append(f"TP_SAI_PHÍA: long mà TP {t} ≤ entry {entry}")
-            if side == -1 and t >= entry:
-                rejections.append(f"TP_SAI_PHÍA: short mà TP {t} ≥ entry {entry}")
+            if side == 1 and t <= requested:
+                rejections.append(f"TP_SAI_PHÍA: long mà TP {t} ≤ giá tham chiếu {requested}")
+            if side == -1 and t >= requested:
+                rejections.append(f"TP_SAI_PHÍA: short mà TP {t} ≥ giá tham chiếu {requested}")
+
+        # Đã CÂN NHẮC rồi BỎ một luật nữa ở đây: "chi phí nuốt trọn khoảng stop".
+        # Nghe hợp lý nhưng thừa, và phép kiểm đã bắt được nó chặn oan một lệnh
+        # SL 1,5×ATR hoàn toàn hợp lệ.
+        #
+        # Lý do nó thừa: khi SL đặt ĐÚNG phía, chi phí làm `stop_dist` (đo từ
+        # giá khớp) TO RA chứ không nhỏ đi — nên RR tự giảm và kích thước vị thế
+        # tự giảm theo. Luật `RR_THẤP` sẵn có đã gánh đúng phần kinh tế đó: hôm
+        # ATR nhỏ, nó đòi TP1 phải ở 7,76×ATR mới đủ RR 2.0.
+        #
+        # Cái nguy hiểm thật chỉ nằm ở SL SAI PHÍA — lúc đó `stop_dist` teo lại
+        # và size phình lên. Chốt ngay bên trên đã bịt đúng chỗ đó.
 
         # HAI khoảng cách cho HAI câu hỏi khác nhau — đừng gộp:
         #   structural_dist (từ giá tham chiếu) → "stop có nằm trong vùng nhiễu không?"

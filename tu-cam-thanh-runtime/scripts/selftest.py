@@ -115,6 +115,26 @@ async def main() -> int:
                "SL_QUÁ_RỘNG", "chặn SL 6×ATR (một lệnh nuốt cả tuần)")
     blocked_by(variant(invalidation=price + 1.5 * atr, targets=[price + 3 * atr]),
                "SL_SAI_PHÍA", "chặn long mà SL đặt TRÊN giá vào")
+
+    # Cùng luật, nhưng ở khoảng cách mà CHI PHÍ LỚN HƠN — đây là điều kiện đã
+    # làm luật trên chết một lần. Hôm ATR nhỏ (0,094% giá), phí+trượt 0,15% đẩy
+    # giá khớp vượt qua cả SL, nên phép so với giá khớp ra False và lệnh vô
+    # nghĩa được duyệt — kèm khoảng stop teo lại còn 5,66 nên size phình to.
+    # Dùng bội số ATR rất nhỏ để tái hiện điều kiện đó bất kể ATR hôm nay.
+    blocked_by(variant(invalidation=price + 0.05 * atr, targets=[price + 3 * atr]),
+               "SL_SAI_PHÍA", "chặn SL sai phía KỂ CẢ khi phí lớn hơn khoảng cách đó")
+
+    # Chốt quan trọng nhất của cả nhóm này: SL sai phía KHÔNG ĐƯỢC làm size
+    # phình lên. Đó mới là thứ gây hại — lệnh bị chặn thì thôi, nhưng nếu lọt
+    # thì khoảng stop teo lại, RR trông đẹp, và vị thế to bất thường.
+    for boi in (0.02, 0.05, 0.5, 1.5):
+        d = risk.evaluate(variant(invalidation=price + boi * atr,
+                                  targets=[price + 5 * atr]),
+                          st, broker.snapshot(price), atr)
+        check(not d["approved"],
+              f"SL đặt TRÊN giá vào {boi}×ATR vẫn bị chặn "
+              f"(chi phí {abs(price * (CONFIG['risk']['feeBps'] + CONFIG['risk']['slippageBps']) / 10_000):.0f} "
+              f"so với {boi * atr:.0f})")
     blocked_by(variant(confidence=0.2, invalidation=price - 1.5 * atr, targets=[price + 3 * atr]),
                "CONFIDENCE_THẤP", "chặn tin cậy 0.2 (dưới 0.55)")
 
