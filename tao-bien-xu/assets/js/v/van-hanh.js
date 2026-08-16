@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-16T02:06:33.304Z",
- "lan": 25,
+ "generatedAt": "2026-08-16T07:03:18.060Z",
+ "lan": 26,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -171,15 +171,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-15T14:17:36.335Z",
+   "luc": "2026-08-16T07:03:18.060Z",
    "ket": "ok",
-   "giay": 0,
+   "giay": 1,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-15T14:17:36.335Z",
-   "lucDoi": "2026-08-15T14:17:36.335Z"
+   "lucOk": "2026-08-16T07:03:18.060Z",
+   "lucDoi": "2026-08-16T07:03:18.060Z"
   },
   {
    "ma": "dong-dau",
@@ -300,6 +300,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-16T07:03:18.060Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 1,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-16T02:06:33.304Z",
    "ma": "dong-dau",
