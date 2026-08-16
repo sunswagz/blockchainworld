@@ -170,6 +170,15 @@ def _chay(moi_nhom: int) -> None:
                     # nó hiện 100% trong khi số vòng tra được chế độ là 0. Một
                     # con số đúng về mặt định nghĩa mà sai về mặt nghĩa — đúng
                     # loại nói dối mà cả hệ thống này được dựng để chặn.
+                    # Vòng cũ nhất/mới nhất cách đây bao lâu. Có con số này thì
+                    # một độ phủ thấp luôn GIẢI THÍCH ĐƯỢC ngay tại chỗ, thay vì
+                    # phải đi truy như tôi vừa phải làm với trường hợp 235 vòng
+                    # mà 0% — hoá ra vòng của họ từ 891–984 ngày trước.
+                    if vong_thu:
+                        gp["vongMoiNhat_ngay"] = round(
+                            (time.time() * 1000 - max(v["moLuc"] for v in vong_thu)) / 86_400_000, 1)
+                        gp["vongCuNhat_ngay"] = round(
+                            (time.time() * 1000 - min(v["moLuc"] for v in vong_thu)) / 86_400_000, 1)
                     co_cd = sum(1 for v in (gp.get("_vong") or []) if v.get("cheDoVao"))
                     gp["doPhuCoin"] = round(phu_coin / tong_vong * 100, 1)
                     gp["doPhuCheDo"] = round(co_cd / tong_vong * 100, 1)

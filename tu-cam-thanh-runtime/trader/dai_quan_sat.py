@@ -407,6 +407,18 @@ def lay_mau(lb: list[dict], moi_nhom: int = 12) -> dict[str, list[dict]]:
             return False
         if roi > 20.0:            # >2000% — gần như luôn là hiện vật, không phải thành tích
             return False
+        # CÒN HOẠT ĐỘNG. Đo được: một trader trong mẫu có 235 vòng mà độ phủ chế
+        # độ 0%, và lý do không phải lỗi — vòng của họ từ **891–984 ngày trước**,
+        # có coin (ILV) đã ngừng niêm yết nên không còn nến. `userFills` trả
+        # 2000 lệnh GẦN NHẤT, mà "gần nhất" của người bỏ cuộc từ 2023 vẫn là
+        # 2023.
+        #
+        # Một trader ngừng giao dịch ba năm không dạy được gì về thị trường hôm
+        # nay, và cố phân tích họ chỉ tốn hạn mức API để nhận về những ô trống.
+        # Khối lượng tháng > 0 là tín hiệu có sẵn ngay trên leaderboard, không
+        # tốn thêm lời gọi nào.
+        if _f((t.get("thang") or {}).get("vlm")) <= 0:
+            return False
         return vlm >= t["von"]     # có giao dịch thật, không chỉ nạp tiền
 
     co = [t for t in lb if hop_le(t)]
@@ -421,9 +433,13 @@ def lay_mau(lb: list[dict], moi_nhom: int = 12) -> dict[str, list[dict]]:
     # Không lọc bằng `hop_le` vì ví cháy thường tụt dưới ngưỡng vốn 50k — chính
     # cái ngưỡng ấy sẽ loại đúng nhóm cần tìm. Điều kiện: từng giao dịch thật
     # (có khối lượng lớn) mà mất gần hết.
+    # Nhóm cháy cũng phải CÒN HOẠT ĐỘNG, vì cùng lý do: ví cháy từ ba năm trước
+    # thì không tra được chế độ thị trường lúc họ cháy, và bài học "họ chết vì
+    # cái gì" chính là thứ cần chế độ mới đọc ra được.
     chay = [t for t in lb
             if _f((t.get("toanThoi") or {}).get("roi")) <= -0.85
-            and _f((t.get("toanThoi") or {}).get("vlm")) > 1_000_000]
+            and _f((t.get("toanThoi") or {}).get("vlm")) > 1_000_000
+            and _f((t.get("thang") or {}).get("vlm")) > 0]
     chay.sort(key=lambda t: -_f((t.get("toanThoi") or {}).get("vlm")))
 
     return {

@@ -64,8 +64,11 @@ _nen_cache: dict[str, list] = {}
 # là **mình gõ cửa quá nhanh**. Tôi đã suýt đi sửa hàm ghép vòng vì tin con số
 # đó. Đây là API công khai miễn phí của người ta; chờ 0,25 giây là phép lịch sự
 # tối thiểu, và cũng là thứ giữ cho dữ liệu đúng.
-NHIP_GIAY = 0.25
-THU_LAI = 4
+# 0,25 giây vẫn còn dính 429 với 2/11 trader — nới lên 0,5. Phễu chậm thêm
+# khoảng một phút, đổi lại hết hồ sơ trống. Thà chờ còn hơn nhận về ô rỗng rồi
+# tưởng dữ liệu không có.
+NHIP_GIAY = 0.5
+THU_LAI = 5
 _lan_goi_cuoi = 0.0
 
 
