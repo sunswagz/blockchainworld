@@ -130,23 +130,27 @@ def _chay(moi_nhom: int) -> None:
                     # ở những coin khác. Kết quả: dựng chuỗi cho đúng coin
                     # không dùng được, và `soCoCheDo` ra 0 — trông y như dữ
                     # liệu hỏng chứ không như một lựa chọn sai của mình.
-                    dem_coin: dict[str, int] = {}
-                    for v in vong_thu:
-                        dem_coin[v["coin"]] = dem_coin.get(v["coin"], 0) + 1
-
-                    # Dựng cho tới khi PHỦ ĐỦ, không phải "5 coin đầu".
+                    # Tính chế độ ĐÚNG TẠI những mốc cần, cho MỌI coin có vòng.
                     #
-                    # Đo được: vòng của một trader rải rất mỏng — 16 vòng trên 6
-                    # coin, coin nhiều nhất chỉ 4 vòng. Lấy cứng 5 coin thì ai
-                    # rải trên 20 coin sẽ mất gần hết. Trần 12 coin để một trader
-                    # rải cực mỏng không nuốt hết thời gian của cả mẻ.
+                    # Trước đây dựng cả chuỗi cho từng coin rồi tra bằng nhị
+                    # phân. Hợp lý nếu cần tra 2000 lần — và tôi đã tưởng vậy vì
+                    # `userFills` trả 2000 dòng. Nhưng sau khi ghép thành vòng
+                    # thì một trader chỉ còn vài chục vòng × 2 mốc. Đo được: 48
+                    # vòng cần 96 điểm, mà cách cũ tính ~14.400. Gấp 150 lần.
+                    #
+                    # Nhờ chi phí tỉ lệ với SỐ VÒNG chứ không với ĐỘ DÀI cửa sổ,
+                    # giờ không phải giới hạn 12 coin nữa, và cửa sổ dài gần như
+                    # miễn phí — tức là gỡ luôn cả hai chỗ thắt trước đó.
+                    moc_theo_coin: dict[str, list[int]] = {}
+                    for v in vong_thu:
+                        ds = moc_theo_coin.setdefault(v["coin"], [])
+                        ds.append(v["moLuc"])
+                        if v.get("dongLuc"):
+                            ds.append(v["dongLuc"])
                     tong_vong = len(vong_thu) or 1
-                    phu_coin = 0
-                    for coin in sorted(dem_coin, key=lambda k: -dem_coin[k])[:12]:
-                        if CD.dung_chuoi(c, coin, ngay):
-                            phu_coin += dem_coin[coin]
-                        if phu_coin / tong_vong >= 0.9:
-                            break
+                    for coin, moc in moc_theo_coin.items():
+                        CD.che_do_tai(c, coin, sorted(set(moc)), ngay)
+                    phu_coin = tong_vong   # mọi coin đều được xét
                     gp = GP.giai_phau(fills)
 
                     # HAI con số phủ, và cái thứ hai mới là cái thật.

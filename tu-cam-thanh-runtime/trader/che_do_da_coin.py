@@ -133,14 +133,81 @@ def dung_chuoi(client: httpx.Client, coin: str, ngay: int = 30) -> dict | None:
     return _kho[coin]
 
 
+def che_do_tai(client: httpx.Client, coin: str, moc_can: list[int],
+               ngay: int = 150) -> int:
+    """Tính chế độ CHỈ TẠI những mốc cần, thay vì dựng cả chuỗi.
+
+    Đây là bản sửa một sai lầm thiết kế của chính tôi. `dung_chuoi()` tính chế
+    độ cho MỌI nến trong cửa sổ — hợp lý khi cần tra 2000 lần, và tôi đã cho là
+    vậy vì `userFills` trả 2000 dòng. Nhưng sau khi `_ghep()` dồn dòng khớp
+    thành vòng, một trader chỉ còn vài chục vòng, mỗi vòng cần đúng 2 mốc.
+
+    Đo được: một trader 48 vòng ⇒ cần 96 điểm, mà `dung_chuoi` tính ~14.400
+    điểm cho 12 coin × cửa sổ 150 ngày. Gấp 150 lần công việc, và nó biến một
+    phép đo vài giây thành một phễu chạy hàng chục phút.
+
+    Cách này còn gỡ luôn thế lưỡng nan cửa sổ: chi phí tỉ lệ với SỐ VÒNG chứ
+    không với ĐỘ DÀI cửa sổ, nên kéo cửa sổ ra 150 ngày gần như miễn phí.
+    """
+    if not moc_can:
+        return 0
+    kho = _kho.setdefault(f"{coin}#diem", {})   # type: ignore[assignment]
+    try:
+        nc = _nen(client, coin, TF_CHINH, ngay)
+        nx = _nen(client, coin, TF_NGU_CANH, ngay * 2)
+    except Exception as e:  # noqa: BLE001
+        bus.log("hoc", "nen-coin-loi", f"{coin}: {type(e).__name__}")
+        return 0
+    if len(nc) < KHOI_DONG + 5 or len(nx) < 60:
+        return 0
+
+    moc_c = [x["closeTime"] for x in nc]
+    moc_x = [x["t"] for x in nx]
+    xong = 0
+    for t in moc_can:
+        if t in kho:
+            xong += 1
+            continue
+        # nến ĐÃ ĐÓNG gần nhất trước t — không nhìn trộm nến đang chạy
+        i = bisect.bisect_left(moc_c, t) - 1
+        if i < KHOI_DONG:
+            continue
+        lat = nc[max(0, i + 1 - CUA_SO): i + 1]
+        j = bisect.bisect_right(moc_x, lat[-1]["t"])
+        lat_x = nx[max(0, j - CUA_SO): j]
+        if len(lat_x) < 60:
+            continue
+        st = {"symbol": coin, "price": lat[-1]["c"], "source": {"name": "hl", "live": False},
+              "timeframes": {TF_CHINH: features_for(lat), TF_NGU_CANH: features_for(lat_x)}}
+        rg = classify(st, TF_CHINH, TF_NGU_CANH)
+        p = st["timeframes"][TF_CHINH]
+        kho[t] = {
+            "cheDo": rg["primary"], "co": rg["flags"], "chatLuong": rg["quality"],
+            "adx": p.get("adx"), "rsi": p.get("rsi14"), "atr": p["_raw"]["atr"],
+            "gia": p["price"], "viTriDai": p.get("bbPosition"),
+            "dayBien": p.get("range20Low"), "dinhBien": p.get("range20High"),
+        }
+        xong += 1
+    return xong
+
+
+def che_do_diem(coin: str, t: int) -> dict | None:
+    """Tra chế độ đã tính bằng `che_do_tai`. Khớp CHÍNH XÁC mốc."""
+    return (_kho.get(f"{coin}#diem") or {}).get(t)
+
+
 def che_do_luc(coin: str, t: int) -> dict | None:
     """Chế độ thị trường của `coin` tại thời điểm `t` (ms).
 
     Tra nến ĐÃ ĐÓNG gần nhất TRƯỚC `t`. Lấy nến chứa `t` là nhìn trộm: người
     trade lúc 12:43 không biết nến 12:00–13:00 sẽ đóng ở đâu.
     """
+    # Ưu tiên điểm đã tính đúng mốc (`che_do_tai`), rồi mới tới chuỗi dựng sẵn.
+    diem = che_do_diem(coin, t)
+    if diem is not None:
+        return diem
     k = _kho.get(coin)
-    if not k:
+    if not k or not isinstance(k, dict) or "moc" not in k:
         return None
     i = bisect.bisect_left(k["moc"], t) - 1
     if i < 0:
