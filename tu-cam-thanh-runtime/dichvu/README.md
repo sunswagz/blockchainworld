@@ -105,6 +105,55 @@ khỏi "mất sạch vốn", và `selftest.py` mục [8] gác nó.
 qua bộ giám sát rồi mới xuống đĩa, nên nó xoay vòng liên tục chứ không chỉ xoay
 lúc khởi động lại.
 
+## Chuyển runtime đi chỗ khác
+
+Runtime **chạy được ở bất cứ đâu** — nó không cần nằm trong repo.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File dichvu\chuyen-nha.ps1 -Den "D:\Chỗ\Khác\tct"
+powershell -ExecutionPolicy Bypass -File dichvu\chuyen-nha.ps1 -Den "..." -An   # kèm ẩn thư mục
+```
+
+Kéo thả bằng tay cũng được, nhưng ba sợi dây sẽ đứt **âm thầm**:
+
+1. **Lối tắt** giữ đường dẫn tuyệt đối → bấm không có phản ứng gì.
+2. **Ảnh chụp gửi sang cung tĩnh** tìm theo thư mục anh em → ra khỏi repo là
+   không thấy cung. Đặt `cungTinh` trong `config.json` để trỏ lại.
+3. **Git** coi thư mục cũ là đã xoá → commit sau đó xoá runtime khỏi repo thật.
+
+Script lo cả ba, kèm dừng runtime trước và chạy lại sau.
+
+### Ba cái bẫy khi viết script này
+
+**Không thể chuyển thư mục chứa chính script đang chạy.** PowerShell giữ file
+`.ps1` ở trạng thái mở, và tiến trình cha vẫn sống trong lúc chờ tiến trình con.
+Nên script tự sao sang `%TEMP%`, chạy **rời hẳn** (`Start-Process`, không chờ),
+rồi cha thoát ngay để nhả khoá.
+
+**`Push-Location` vào thư mục sắp chuyển là tự khoá nó.** Đây là chỗ tốn công
+nhất: `Move-Item` báo *"the item is in use"* dù không tiến trình nào của mình
+còn mở file nào, nên nhìn vào cứ tưởng Defender giữ. Thủ phạm là chính script —
+nó `Push-Location $GOC` để chạy `git rev-parse`. Dùng `git -C` thay thế.
+
+**Chuỗi thay thế của `-replace` không coi `\` là ký tự escape.** `'\\\\'` đẻ ra
+bốn gạch chéo chứ không phải hai, làm `cungTinh` thành `C:\\Users\\...`. Windows
+lại chấp nhận dấu phân cách lặp nên nó *chạy đúng một cách tình cờ* — kiểu sai
+tệ nhất. Để `ConvertTo-Json` lo việc escape.
+
+## Muốn giấu nó đi
+
+Cờ `-An` đặt thuộc tính ẩn cho thư mục. Nhưng nói thẳng: **ẩn không phải bảo
+mật.** Bật "hiện file ẩn" trong Explorer là thấy ngay.
+
+Và thứ dễ thấy nhất không phải thư mục mà là **lối tắt ngoài desktop** — đổi tên
+hoặc xoá nó (`dichvu\go-cai.ps1`) rồi mở buồng lái bằng bookmark trình duyệt.
+
+Quan trọng hơn cả hai: **buồng lái không có mật khẩu.** Nó nghe ở `127.0.0.1`,
+mà trên Windows mọi phiên đăng nhập trên cùng máy đều với tới được `127.0.0.1`.
+Ai ngồi vào máy này, mở `localhost:5182` là bấm được nút đặt lệnh. Giấu thư mục
+không giải quyết chuyện đó — nếu bạn thật sự lo người khác dùng máy thì cần một
+lớp khoá ở buồng lái, không phải một thư mục ẩn.
+
 ## Còn thiếu gì so với một dịch vụ thật
 
 Kể cả khi bật tự chạy, nó chạy lúc **đăng nhập** chứ không phải lúc **khởi động

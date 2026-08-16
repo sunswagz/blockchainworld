@@ -4,6 +4,9 @@
   "port": 5182,
   "loopSeconds": 20,
 
+  "//cungTinh": "Thư mục cung tĩnh để ghi ảnh chụp phiên. Để trống thì tự tìm thư mục anh em ../tu-cam-thanh. Chỉ cần đặt khi đã CHUYỂN runtime ra khỏi repo — khi đó trỏ tới thư mục có index.html của cung. Trỏ sai hoặc để trống mà không tìm thấy thì runtime vẫn giao dịch bình thường, chỉ bỏ qua việc ghi ảnh chụp và nhắc một lần trong nhật ký.",
+  "cungTinh": "",
+
   "//mode": "paper = sàn giấy nội bộ, không mạng. testnet = Binance Spot Testnet (sàn thật, khớp thật, tiền giả). Không có chế độ mainnet, và cố ý không có.",
   "mode": "testnet",
 

@@ -21,11 +21,33 @@ import datetime as _dt
 import json
 from pathlib import Path
 
-from .config import ROOT
+from .bus import bus
+from .config import CONFIG, ROOT
 from .journal import performance, recent_lessons, recent_trades
 
-# runtime nằm ở <repo>/tu-cam-thanh-runtime/, cung nằm ở <repo>/tu-cam-thanh/
-OUT = ROOT.parent / "tu-cam-thanh" / "assets" / "js" / "v" / "phien.js"
+# Runtime mặc định nằm cạnh cung: <repo>/tu-cam-thanh-runtime/ và <repo>/tu-cam-thanh/.
+# Nhưng runtime CHUYỂN ĐI ĐÂU CŨNG ĐƯỢC — nó không cần nằm trong repo. Khi đó
+# đặt `cungTinh` trong config.json trỏ tới thư mục cung, hoặc để trống nếu không
+# muốn ghi ảnh chụp nữa.
+_TUONG_DOI = ("assets", "js", "v", "phien.js")
+
+
+def _cung_tinh() -> Path | None:
+    """Thư mục cung tĩnh, hoặc None nếu không có.
+
+    Kiểm bằng `index.html` chứ không chỉ kiểm thư mục tồn tại. Trước đây hàm ghi
+    tự `mkdir` đường dẫn anh em: chuyển runtime sang chỗ khác là nó lặng lẽ đẻ ra
+    một thư mục `tu-cam-thanh/` rác ở cạnh chỗ mới rồi ghi vào đó, còn cung thật
+    thì ngừng cập nhật. Không có lỗi nào, chỉ có một trang web đứng yên.
+    """
+    tay = (CONFIG.get("cungTinh") or "").strip()
+    if tay:
+        p = Path(tay)
+        if not p.is_absolute():
+            p = (ROOT / p).resolve()
+        return p if (p / "index.html").exists() else None
+    anh_em = ROOT.parent / "tu-cam-thanh"
+    return anh_em if (anh_em / "index.html").exists() else None
 
 HEADER = """/* SINH TỰ ĐỘNG bởi tu-cam-thanh-runtime — ĐỪNG SỬA TAY.
    Lát cắt trạng thái của runtime giao dịch, để trang tĩnh đọc được mà không
@@ -154,12 +176,35 @@ def _huan_luyen() -> dict | None:
     return ra
 
 
-def write(runtime) -> Path:
+_da_nhac = False
+
+
+def write(runtime) -> Path | None:
+    """Ghi ảnh chụp sang cung tĩnh. Trả None nếu không tìm thấy cung.
+
+    Không tìm thấy thì BỎ QUA chứ không tạo thư mục mới — và nhắc đúng một lần,
+    vì vòng lặp gọi hàm này mỗi 20 giây.
+    """
+    global _da_nhac
+
+    cung = _cung_tinh()
+    if cung is None:
+        if not _da_nhac:
+            _da_nhac = True
+            tay = CONFIG.get("cungTinh")
+            bus.log("system", "khong-thay-cung",
+                    f"không thấy cung tĩnh ({tay or ROOT.parent / 'tu-cam-thanh'}) — "
+                    f"bỏ qua việc ghi ảnh chụp. Runtime vẫn giao dịch bình thường; "
+                    f"chỉ là trang công khai không được cập nhật. Nếu đã chuyển "
+                    f"runtime đi chỗ khác, đặt \"cungTinh\" trong config.json.")
+        return None
+
+    out = cung.joinpath(*_TUONG_DOI)
+    out.parent.mkdir(parents=True, exist_ok=True)
     data = build(runtime)
-    OUT.parent.mkdir(parents=True, exist_ok=True)
     body = json.dumps(data, ensure_ascii=False, indent=1, default=str)
-    OUT.write_text(f"{HEADER}window.TU_CAM_THANH = {body};\n", encoding="utf-8")
-    return OUT
+    out.write_text(f"{HEADER}window.TU_CAM_THANH = {body};\n", encoding="utf-8")
+    return out
 
 
 if __name__ == "__main__":
@@ -175,6 +220,12 @@ if __name__ == "__main__":
         async with httpx.AsyncClient() as c:
             await rt.tick(c)
         p = write(rt)
-        print(f"đã ghi {p}")
+        if p:
+            print(f"đã ghi {p}")
+        else:
+            print("KHÔNG thấy cung tĩnh — không ghi gì.\n"
+                  f'  đã tìm: {CONFIG.get("cungTinh") or ROOT.parent / "tu-cam-thanh"}\n'
+                  '  nếu runtime đã chuyển đi chỗ khác, đặt "cungTinh" trong config.json\n'
+                  "  trỏ tới thư mục cung (thư mục có index.html).")
 
     asyncio.run(_once())
