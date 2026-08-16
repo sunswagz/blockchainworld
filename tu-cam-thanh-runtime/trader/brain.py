@@ -297,6 +297,133 @@ def mock_thesis(state: dict, regime: dict, primary_tf: str,
     return base
 
 
+# ── Bộ luật thứ hai: đi ngang ─────────────────────────────────────────────
+THAM_BIEN: dict[str, Any] = {
+    "viTriMua": 0.25,      # chỉ mua khi giá nằm dưới 25% chiều cao dải Bollinger
+    "rsiToiDa": 45.0,      # và RSI còn ở nửa dưới
+    "adxToiDa": 20.0,      # ADX phải THẤP — cao nghĩa là đang có xu hướng, không phải biên
+    "stopAtr": 1.2,
+    "demTp": 1.05,
+    "tinCay": 0.55,
+    "chanXungDot": False,  # khung lớn nghiêng chiều nào không quyết định gì trong biên
+}
+
+
+def mock_range_thesis(state: dict, regime: dict, primary_tf: str,
+                      tham: dict | None = None) -> dict:
+    """Mua ở ĐÁY BIÊN khi thị trường đi ngang. Bộ luật thứ hai, chỉ LONG.
+
+    Vì sao cần: bot hiện chỉ vào lệnh được ở TREND_UP. TREND_DOWN sinh luận điểm
+    SHORT rồi bị Risk Engine chặn vì sàn spot không short được, còn RANGE thì bộ
+    luật xu hướng từ chối thẳng. Đo tại đây: 38 luận điểm liên tiếp đều NO_TRADE,
+    100% trong chế độ RANGE. Bot đứng ngoài gần như toàn bộ thời gian — không
+    phải vì thận trọng, mà vì không có công cụ cho trạng thái thị trường phổ
+    biến nhất.
+
+    Đây là bộ luật NGƯỢC HƯỚNG, và nó nguy hiểm theo một kiểu riêng: trong biên
+    thì mua đáy là đúng, nhưng khi biên vỡ thì mua đáy là bắt dao rơi. Ba hàng
+    rào chặn đúng chuyện đó — ADX phải thấp (còn là biên), không mua khi vừa
+    thủng đáy biên (`BREAKOUT_DOWN`), và stop nằm dưới đáy biên chứ không phải
+    dưới giá vào.
+
+    **Chưa được chạy thật.** Nó vào hệ thống với tư cách CHALLENGER và phải
+    thắng bản đang chạy trên dữ liệu ngoài mẫu mới được lên — xem `chien_luoc.py`.
+    """
+    th = {**THAM_BIEN, **(tham or {})}
+    p = state["timeframes"][primary_tf]
+    price = p["price"]
+    atr = p["_raw"]["atr"] or price * 0.01
+
+    base = {
+        "regime_read": regime["primary"],
+        "market_summary": f"[biên] {regime['primary']}, ADX {p.get('adx')}, "
+                          f"RSI {p.get('rsi14')}, vị trí dải {p.get('bbPosition')}",
+        "scenarios": [
+            {"name": "bật lại trong biên", "probability": 0.45, "description": "chạm đáy biên rồi hồi"},
+            {"name": "đi ngang tiếp", "probability": 0.35, "description": "không đi đâu cả"},
+            {"name": "thủng biên", "probability": 0.20, "description": "mất đáy — đây là kịch bản giết chiến lược này"},
+        ],
+        "action": "NO_TRADE", "confidence": 0.4,
+        "entry_zone": None, "invalidation": None,
+        "invalidation_logic": "không vào lệnh nên không có điểm vô hiệu hoá",
+        "targets": [], "suggested_risk_pct": 0.0,
+        "strategy": "MOCK_RANGE_V1",
+        "reason_codes": ["MOCK_BRAIN", "CHIEN_LUOC_BIEN"],
+        "reasoning": "Bộ luật biên: chỉ mua ở đáy biên khi thị trường thật sự đi ngang.",
+        "event_risk": "UNKNOWN",
+    }
+
+    if regime["primary"] != "RANGE":
+        base["reason_codes"].append("KHONG_PHAI_BIEN")
+        return base
+    # Vừa thủng đáy biên thì đây không còn là biên nữa. Không có chốt này thì
+    # chiến lược sẽ mua đúng vào lúc tệ nhất, và mua thêm ở mỗi nến rơi.
+    if "BREAKOUT_DOWN" in regime["flags"]:
+        base["reason_codes"].append("DANG_THUNG_BIEN")
+        return base
+    adx = p.get("adx")
+    if adx is None or adx > th["adxToiDa"]:
+        base["reason_codes"].append(f"ADX_{adx}_QUA_CAO_KHONG_CON_LA_BIEN")
+        return base
+    bb = p.get("bbPosition")
+    rsi = p.get("rsi14")
+    if bb is None or bb > th["viTriMua"]:
+        base["reason_codes"].append("CHUA_VE_DAY_BIEN")
+        return base
+    if rsi is None or rsi > th["rsiToiDa"]:
+        base["reason_codes"].append("RSI_CHUA_DU_THAP")
+        return base
+    day = p.get("range20Low")
+    if day is None or day >= price:
+        base["reason_codes"].append("KHONG_DOC_DUOC_DAY_BIEN")
+        return base
+
+    # SL dưới ĐÁY BIÊN, không phải dưới giá vào: điểm vô hiệu hoá của luận điểm
+    # này là "biên bị mất", và đó là một mức giá cụ thể trên biểu đồ chứ không
+    # phải một bội số ATR tuỳ ý.
+    r = CONFIG["risk"]
+    stop = min(day - 0.25 * atr, price - th["stopAtr"] * atr)
+    drag = price * (r["feeBps"] + r["slippageBps"]) / 10_000
+    stop_that = (price - stop) + drag
+    tp1 = price + (r["minRR"] * stop_that + drag) * th["demTp"]
+    tp2 = price + (tp1 - price) * 1.6
+
+    # Mục tiêu không được vượt đỉnh biên — trong biên thì đỉnh biên là nơi người
+    # bán đứng chờ, đặt TP qua đó là tự hứa một thứ chính chiến lược không tin.
+    dinh = p.get("range20High")
+    if dinh and tp1 > dinh:
+        base["reason_codes"].append("MUC_TIEU_VUOT_DINH_BIEN")
+        return base
+
+    base.update({
+        "action": "LONG", "confidence": th["tinCay"],
+        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
+        "invalidation": round(stop, 2),
+        "invalidation_logic": f"dưới đáy biên 20 nến ({day:.2f}) — mất mức này là hết biên",
+        "targets": [round(tp1, 2), round(tp2, 2)],
+        "suggested_risk_pct": 0.5,
+        "reason_codes": ["MOCK_BRAIN", "CHIEN_LUOC_BIEN", "O_DAY_BIEN", "ADX_THAP"],
+        "reasoning": f"[biên] Giá ở {bb:.2f} chiều cao dải, RSI {rsi}, ADX {adx} — "
+                     f"đi ngang thật. Mua đáy biên, SL dưới {day:.2f}, "
+                     f"TP dưới đỉnh biên {dinh}.",
+    })
+    return base
+
+
+# Sổ đăng ký bộ luật. Phòng huấn luyện và Risk Engine gọi qua đây thay vì gọi
+# thẳng, để thêm một chiến lược không phải sửa chỗ nào khác.
+BO_LUAT = {
+    "MOCK_RULES_V1": (mock_thesis, THAM_MAC_DINH),
+    "MOCK_RANGE_V1": (mock_range_thesis, THAM_BIEN),
+}
+
+
+def suy_luan(ma: str, state: dict, regime: dict, primary_tf: str,
+             tham: dict | None = None) -> dict:
+    ham, _ = BO_LUAT.get(ma, BO_LUAT["MOCK_RULES_V1"])
+    return ham(state, regime, primary_tf, tham)
+
+
 def mock_postmortem(trade: dict) -> dict:
     win = (trade.get("pnl") or 0) > 0
     normal_loss = trade.get("exitReason") == "STOP_LOSS"

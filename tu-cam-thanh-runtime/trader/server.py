@@ -20,7 +20,7 @@ from .bus import bus
 from .config import CONFIG, WEB_DIR
 from .journal import performance, recent_lessons, recent_theses, recent_trades
 from .loop import runtime
-from . import nguon, phien_hoc, tu_chay
+from . import chien_luoc, nguon, phien_hoc, tu_chay
 
 app = FastAPI(title="Claude Trader — M0", docs_url=None, redoc_url=None)
 
@@ -247,7 +247,7 @@ async def hoc_chay(req: Request) -> JSONResponse:
     """
     body = await req.json()
     viec = body.get("viec", "chay-lai")
-    if viec not in ("chay-lai", "quet"):
+    if viec not in ("chay-lai", "quet", "danh-gia"):
         return JSONResponse({"ok": False, "vi_sao": f"việc lạ: {viec}"}, status_code=400)
     return JSONResponse(phien_hoc.bat_dau(viec, body))
 
@@ -260,6 +260,31 @@ async def the_gioi() -> JSONResponse:
     nên mở dashboard không bao giờ phải chờ Yahoo.
     """
     return JSONResponse(nguon.kho())
+
+
+@app.get("/api/chien-luoc")
+async def chien_luoc_xem() -> JSONResponse:
+    """Sổ đăng ký chiến lược: champion, challenger, lịch sử thay ngôi."""
+    from . import bai_hoc_lich_su
+
+    return JSONResponse({**chien_luoc.doc(),
+                         "boLuatCo": list(__import__("trader.brain", fromlist=["BO_LUAT"]).BO_LUAT),
+                         "triNhoChayLai": bai_hoc_lich_su.thong_ke()})
+
+
+@app.post("/api/chien-luoc")
+async def chien_luoc_lam(req: Request) -> JSONResponse:
+    """`viec`: de-xuat | duyet | go."""
+    b = await req.json()
+    v = b.get("viec")
+    if v == "de-xuat":
+        return JSONResponse(chien_luoc.de_xuat(b.get("ma", ""), b.get("ten", ""),
+                                               b.get("tham"), b.get("ghiChu", "")))
+    if v == "duyet":
+        return JSONResponse(chien_luoc.duyet(b.get("khoa", "")))
+    if v == "go":
+        return JSONResponse(chien_luoc.go(b.get("khoa", "")))
+    return JSONResponse({"ok": False, "viSao": f"việc lạ: {v}"}, status_code=400)
 
 
 @app.get("/api/tu-chay")

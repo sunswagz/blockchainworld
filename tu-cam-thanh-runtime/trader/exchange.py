@@ -45,6 +45,8 @@ class TestnetClient:
         self.secret = secret or os.environ.get("BINANCE_TESTNET_SECRET") or ""
         self._offset_ms = 0
         self._filters: dict[str, dict] = {}
+        self._so_du: dict[str, dict] = {}
+        self._so_du_luc = 0.0
         self._client = httpx.Client(base_url=BASE, timeout=15.0)
 
     # ── nền ────────────────────────────────────────────────────────────────
@@ -168,25 +170,47 @@ class TestnetClient:
     def account(self) -> dict:
         return self._signed("GET", "/api/v3/account", {})
 
-    def balances(self) -> dict[str, dict]:
+    # Số dư đổi chậm nhưng bị hỏi rất nhanh: mỗi lần mở `/api/state` là một lượt
+    # gọi sàn, và dashboard hỏi liên tục. Đo được 1.942 ms cho một lần mở trang,
+    # gần như toàn bộ là chờ Binance. Cache vài giây cắt hẳn chuyện đó.
+    #
+    # TTL phải NGẮN, và phải xoá ngay sau mỗi lệnh: một con số dư cũ 3 giây thì
+    # vô hại để hiển thị, nhưng nếu Risk Engine tính size trên nó ngay sau khi
+    # vừa mua xong thì nó sẽ tưởng còn tiền và sinh ra lệnh sàn chắc chắn từ chối.
+    TTL_SO_DU = 3.0
+
+    def balances(self, moi: bool = False) -> dict[str, dict]:
+        """Số dư. `moi=True` để bỏ qua cache khi cần con số chắc chắn tươi."""
+        if not moi and self._so_du and (time.time() - self._so_du_luc) < self.TTL_SO_DU:
+            return self._so_du
         out = {}
         for b in self.account()["balances"]:
             free, locked = float(b["free"]), float(b["locked"])
             if free or locked:
                 out[b["asset"]] = {"free": free, "locked": locked, "total": free + locked}
+        self._so_du, self._so_du_luc = out, time.time()
         return out
 
+    def _quen_so_du(self) -> None:
+        """Số dư vừa đổi — lượt hỏi kế tiếp phải đi hỏi sàn thật."""
+        self._so_du = {}
+        self._so_du_luc = 0.0
+
     def market_buy(self, symbol: str, qty: Decimal) -> dict:
-        return self._signed("POST", "/api/v3/order", {
+        r = self._signed("POST", "/api/v3/order", {
             "symbol": symbol, "side": "BUY", "type": "MARKET",
             "quantity": format(qty, "f"),
         })
+        self._quen_so_du()
+        return r
 
     def market_sell(self, symbol: str, qty: Decimal) -> dict:
-        return self._signed("POST", "/api/v3/order", {
+        r = self._signed("POST", "/api/v3/order", {
             "symbol": symbol, "side": "SELL", "type": "MARKET",
             "quantity": format(qty, "f"),
         })
+        self._quen_so_du()
+        return r
 
     def oco_sell(self, symbol: str, qty: Decimal, take_profit: Decimal, stop: Decimal,
                  stop_limit: Decimal) -> dict:
@@ -203,6 +227,8 @@ class TestnetClient:
             "side": "SELL",
             "quantity": format(qty, "f"),
         }
+        # OCO khoá coin lại (locked) nên phần "free" đổi ngay — phải quên cache.
+        self._quen_so_du()
         try:
             return self._signed("POST", "/api/v3/orderList/oco", {
                 **common,
@@ -229,6 +255,7 @@ class TestnetClient:
         return self._signed("GET", "/api/v3/openOrders", {"symbol": symbol})
 
     def cancel_all(self, symbol: str) -> Any:
+        self._quen_so_du()   # huỷ lệnh nhả coin đang bị khoá ra
         try:
             return self._signed("DELETE", "/api/v3/openOrders", {"symbol": symbol})
         except BinanceError as e:

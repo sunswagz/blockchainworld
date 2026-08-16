@@ -30,7 +30,7 @@ import statistics
 import time
 from typing import Any, Callable
 
-from .brain import mock_thesis
+from .brain import suy_luan
 from .bus import bus
 from .config import CONFIG, ROOT
 from .features import features_for
@@ -41,6 +41,17 @@ from .risk import RiskEngine
 # nến mới có giá trị; quyết định khi nó còn None là quyết định trên một feature
 # rỗng, và regime sẽ luôn ra UNKNOWN theo một kiểu vô nghĩa.
 KHOI_DONG = 210
+
+# Phiên bản HÌNH DẠNG chuỗi tín hiệu. Nằm trong vân tay cache, nên đổi số này là
+# mọi cache cũ tự bị bỏ và sinh lại.
+#
+# Bắt buộc phải có: cache gắn vân tay theo dữ liệu và khung thời gian, KHÔNG
+# theo tập feature. Thêm một trường vào `feat` mà quên bỏ cache thì chiến lược
+# mới đọc trường đó ra None ở mọi điểm — nó không lỗi, chỉ lặng lẽ không bao giờ
+# vào lệnh, và bảng kết quả hiện "0 lệnh" trông y như chiến lược tồi.
+#   v1 — price, adx, rsi14, emaStack, atr
+#   v2 — thêm feature cho chiến lược biên, và GIỮ LẠI cả chế độ RANGE
+PHIEN_BAN_CHUOI = 2
 
 
 def _trang_thai(nen_chinh: list[dict], nen_ngu_canh: list[dict], moc_ctx: list[int],
@@ -131,19 +142,30 @@ def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
         if st is None:
             continue
         rg = classify(st, tf_chinh, tf_ctx)
-        # Chế độ nào cũng không bao giờ vào lệnh thì bỏ luôn — giữ lại chỉ làm
-        # chuỗi phình ra gấp mười mà không tổ hợp nào dùng tới.
-        if rg["primary"] not in ("TREND_UP", "TREND_DOWN", "BREAKOUT"):
+        # Chế độ hoàn toàn không đọc được thì bỏ. RANGE thì GIỮ — trước đây nó
+        # bị loại cùng nhóm, và hậu quả là không thể đo nổi một chiến lược biên
+        # trên chính đoạn dữ liệu mà thị trường đi ngang phần lớn thời gian.
+        if rg["primary"] == "UNKNOWN":
             continue
         p = st["timeframes"][tf_chinh]
         chuoi.append({
             "i": i, "t": nc[i]["t"], "price": st["price"], "atr": p["_raw"]["atr"],
             "regime": rg,
-            # Đúng những trường mà `mock_thesis` đọc, không hơn. Chuỗi này bị
-            # ghi ra đĩa; giữ cả bảng feature làm nó nặng gấp mấy chục lần mà
-            # không thêm thông tin nào dùng được.
-            "feat": {"price": p["price"], "adx": p.get("adx"), "rsi14": p.get("rsi14"),
-                     "emaStack": p.get("emaStack"), "_raw": {"atr": p["_raw"]["atr"]}},
+            # Đúng những trường mà các bộ luật đọc, không hơn. Chuỗi này bị ghi
+            # ra đĩa; giữ cả bảng feature làm nó nặng gấp mấy chục lần mà không
+            # thêm thông tin nào dùng được. Thêm trường ở đây phải nâng
+            # PHIEN_BAN_CHUOI, nếu không cache cũ sẽ trả None lặng lẽ.
+            "feat": {
+                "price": p["price"], "adx": p.get("adx"), "rsi14": p.get("rsi14"),
+                "emaStack": p.get("emaStack"), "_raw": {"atr": p["_raw"]["atr"]},
+                # cho chiến lược biên
+                "bbPosition": p.get("bbPosition"), "bbWidthPct": p.get("bbWidthPct"),
+                "range20High": p.get("range20High"), "range20Low": p.get("range20Low"),
+                "distToRange20LowPct": p.get("distToRange20LowPct"),
+                "distToRange20HighPct": p.get("distToRange20HighPct"),
+                "volumeRatio": p.get("volumeRatio"), "atrPct": p.get("atrPct"),
+                "structure": p.get("structure"),
+            },
         })
     if bao_tien_do:
         bao_tien_do(cuoi - KHOI_DONG, cuoi - KHOI_DONG)
@@ -153,6 +175,7 @@ def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
 def chay_lai(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
              chuoi: list[dict] | None = None,
              rieng: dict | None = None, tham: dict | None = None,
+             bo_luat: str = "MOCK_RULES_V1",
              tu_nen: int = 0, den_nen: int | None = None,
              toi_da_nen_giu: int = 48, bo_qua_kill: bool = False,
              bao_tien_do: Callable[[int, int], None] | None = None) -> dict:
@@ -208,7 +231,7 @@ def chay_lai(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
         # thật dùng, chỉ khác bộ tham số.
         st = {"symbol": symbol, "price": d["price"],
               "timeframes": {tf_chinh: d["feat"]}}
-        ld = mock_thesis(st, d["regime"], tf_chinh, tham)
+        ld = suy_luan(bo_luat, st, d["regime"], tf_chinh, tham)
         if ld["action"] == "NO_TRADE":
             ma = (ld.get("reason_codes") or ["NO_TRADE"])[-1]
             tu_choi[f"CHIẾN_LƯỢC_{ma}"] = tu_choi.get(f"CHIẾN_LƯỢC_{ma}", 0) + 1
@@ -471,7 +494,8 @@ def _van_tay(nen: dict[str, list[dict]], symbol: str) -> str:
     import hashlib
 
     tf = CONFIG["timeframes"]
-    m = [symbol, tf["primary"], tf["context"], str(CONFIG["data"]["candleLimit"]), str(KHOI_DONG)]
+    m = [symbol, tf["primary"], tf["context"], str(CONFIG["data"]["candleLimit"]),
+         str(KHOI_DONG), f"v{PHIEN_BAN_CHUOI}"]
     for k in sorted(nen):
         v = nen[k]
         m += [k, str(len(v)), str(v[0]["t"]), str(v[-1]["t"])]

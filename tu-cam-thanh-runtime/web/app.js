@@ -685,6 +685,7 @@ function veNaoClaude() {
 
 /* ── TẦNG 1 · HỆ THỐNG ─────────────────────────────────────────── */
 let TC = null;          // /api/tu-chay
+let CL = null;          // /api/chien-luoc
 
 function veHeThong() {
   const n = el("htNoi");
@@ -950,21 +951,97 @@ function veChienLuoc() {
         ${hang("R xấu nhất", s.maxLossR ?? "—", "xuong")}</div>`;
     }).join("")}</div>` : `<div class="trong">Chưa có lệnh nào đóng — chưa có gì để thống kê.</div>`}
 
-    <div class="tieu-muc">Challenger · thách đấu</div>
-    ${chuaCo("Champion / Challenger",
-      "Cơ chế tiến hoá: Claude đề xuất một thay đổi (ví dụ <i>ATR stop 1.5 → 1.8</i>), thay đổi đó chạy như " +
-      "<b>Challenger</b> qua backtest → walk-forward → ngoài mẫu → paper → shadow, và chỉ được lên thay " +
-      "Champion khi thắng trên dữ liệu <b>chưa từng thấy</b>. M0 chưa có bước nào trong chuỗi đó.",
-      ["<b>Backtest / replay</b> trên nến lịch sử — <b>đây phải là mốc kế tiếp</b>, trước mọi tính năng khác",
-       "Tách dữ liệu trong mẫu / ngoài mẫu, và walk-forward để không tự chấm điểm mình trên chính dữ liệu đã tinh chỉnh",
-       "Sổ đăng ký chiến lược có phiên bản, để biết lệnh nào chạy bằng bản nào",
-       "Một cửa duyệt: <code>[ BACKTEST ]</code> chứ không phải <code>[ ÁP DỤNG THẲNG ]</code>"])}
-    <div class="kinh the" style="margin-top:12px"><h3>Vì sao backtest phải đi trước</h3>
-      <p style="margin:0;font-size:12.5px;color:var(--fg-3);line-height:1.7">
-      Hiện tại <b>không có cách nào biết một thay đổi là tốt hơn hay chỉ là khác đi</b>. Thêm chiến lược,
-      thêm chỉ báo, thêm nguồn dữ liệu lúc này đều là đoán. Đổi chiến lược sau mỗi lệnh thua là đường cong
-      sát thủ: hệ thống đuổi theo nhiễu, mọi thay đổi đều được biện minh bằng lệnh gần nhất, và không phiên
-      bản nào sống đủ lâu để biết nó tốt hay xấu.</p></div>`;
+    ${CL ? veSoChienLuoc() : `<div class="tieu-muc">Challenger</div>
+      <div class="trong">Đang đọc sổ chiến lược…</div>`}`;
+
+  const nut = el("clDanhGia");
+  if (nut) nut.onclick = () => hlBatDau("danh-gia", { khoa: nut.dataset.khoa });
+  document.querySelectorAll("[data-duyet]").forEach((b) => b.onclick = async () => {
+    const r = await (await fetch("/api/chien-luoc", { method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ viec: "duyet", khoa: b.dataset.duyet }) })).json();
+    if (!r.ok) alert("Chưa lên được:\n\n" + (r.lyDo || [r.vi_sao || r.viSao]).join("\n"));
+    await taiChienLuoc(); veChienLuoc();
+  });
+}
+
+/** Sổ champion/challenger — phần đáng đọc nhất là LÝ DO BỊ CHẶN. */
+function veSoChienLuoc() {
+  const c = CL.champion || {};
+  const ds = CL.challengers || [];
+  const kq = c.ketQua;
+
+  const oKq = (t, nhan) => !t ? `<div class="mo">${nhan}: chưa đo</div>` : `
+    <div class="hang"><span>${nhan}</span><b class="${t.kyVongR > 0 ? "len" : "xuong"}">${
+      t.kyVongR == null ? "—" : (t.kyVongR > 0 ? "+" : "") + num(t.kyVongR, 3) + "R"
+    } · ${t.so} lệnh · sụt ${num(t.sutGiamToiDaPct, 1)}%</b></div>`;
+
+  return `
+    <div class="tieu-muc">Champion đang giữ ngôi</div>
+    <div class="kinh the">
+      <h3>${esc(c.ten || "—")}<span class="cuoi">${esc(c.ma || "")} · bản ${c.phienBan}</span></h3>
+      ${hang("tham số", Object.keys(c.tham || {}).length
+        ? Object.entries(c.tham).map(([k, v]) => `${k}=${v}`).join(" · ") : "mặc định")}
+      ${oKq(kq, "ngoài mẫu")}
+      <div class="phu-nho" style="margin-top:6px">giữ ngôi từ ${esc((c.tuLuc || "").slice(0, 16).replace("T", " "))}</div>
+    </div>
+
+    <div class="tieu-muc">Challenger · ${ds.length} đang chờ</div>
+    ${ds.length ? ds.map((x) => {
+      const p = x.phanQuyet;
+      return `<div class="kinh the bai-hoc" data-nang="${p ? (p.qua ? "thap" : "cao") : "vua"}" style="margin-bottom:10px">
+        <h3>${esc(x.ten)}<span class="cuoi">${esc(x.ma)} · ${esc(x.trangThai)}</span></h3>
+        ${x.ghiChu ? `<p style="margin:0 0 8px;font-size:12.5px;color:var(--fg-2)">${esc(x.ghiChu)}</p>` : ""}
+        ${oKq(x.ketQua, "ngoài mẫu")}
+        ${x.ketQua?.khopTroi != null ? hang("khớp trội", num(x.ketQua.khopTroi, 3) + "R",
+          x.ketQua.khopTroi > 0.35 ? "xuong" : "len") : ""}
+        ${p ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">
+          <div class="so-vua ${p.qua ? "len" : "xuong"}" style="font-size:14px">${
+            p.qua ? "ĐỦ ĐIỀU KIỆN LÊN CHAMPION" : "BỊ CHẶN"}</div>
+          ${p.lyDo.map((l) => `<div style="font-size:12px;color:var(--fg-2);padding:4px 0;display:flex;gap:8px">
+            <span class="xuong">✗</span><span>${esc(l)}</span></div>`).join("")}
+        </div>` : `<div class="phu-nho" style="margin-top:8px">chưa đo — bấm nút dưới</div>`}
+        <div class="nut-hang" style="margin-top:10px">
+          <button class="nut" id="clDanhGia" data-khoa="${esc(x.khoa)}">Đo lại</button>
+          <button class="nut ${p?.qua ? "chinh" : ""}" data-duyet="${esc(x.khoa)}">Cho lên champion</button>
+        </div>
+      </div>`;
+    }).join("") : `<div class="trong">Không có challenger nào đang chờ.</div>`}
+
+    ${CL.lichSu?.length ? `<div class="tieu-muc">Lịch sử thay ngôi</div>
+      <div class="kinh the">${CL.lichSu.slice().reverse().map((h) =>
+        hang(`${esc(h.thay)} → ${esc(h.bang)}`, esc((h.luc || "").slice(0, 16).replace("T", " ")))).join("")}
+      <div class="phu-nho" style="margin-top:8px">Ghi lại để truy được lệnh nào chạy bằng bản nào.</div></div>` : ""}
+
+    <div class="tieu-muc">Cửa duyệt — năm điều kiện, không có đường vòng</div>
+    <div class="kinh the">
+      <p style="margin:0 0 10px;font-size:12.5px;line-height:1.8;color:var(--fg-2)">
+      Không có tầng này thì "cải tiến" là một từ không kiểm chứng được: đổi tham số, thấy số đẹp hơn,
+      áp dụng. Mà số đẹp hơn thì <b>luôn</b> tìm được nếu dò đủ lâu — đó là cực trị của nhiễu.
+      Đường cong sát thủ bắt đầu đúng từ chỗ đó, và nó không bao giờ trông giống một sai lầm
+      khi đang xảy ra.</p>
+      <ol style="margin:0;padding-left:20px;font-size:12.5px;line-height:1.9;color:var(--fg-2)">
+        <li>Đủ mẫu ngoài mẫu — dưới ${CL.champion?.ketQua ? 20 : 20} lệnh thì mọi con số là nhiễu</li>
+        <li>Kỳ vọng ngoài mẫu <b>vượt</b> champion, so trên cùng đoạn dữ liệu</li>
+        <li>Kỳ vọng ngoài mẫu phải <b>dương</b> — thắng một champion đang lỗ thì vẫn là lỗ</li>
+        <li>Khớp trội dưới ngưỡng — đẹp trong mẫu rồi rơi ngoài mẫu là ảo giác</li>
+        <li>Sụt giảm không tệ hơn nhiều — kỳ vọng nhỉnh hơn mà chịu đau gấp đôi thì không phải cải tiến</li>
+      </ol>
+      <p style="margin:10px 0 0;font-size:12.5px;line-height:1.8;color:var(--fg-3)">
+      Không có tham số <code>--force</code>, không có cờ bỏ qua. Muốn cho lên khi chưa qua cửa thì phải
+      sửa ngưỡng trong mã, và việc đó để lại dấu vết trong git.</p>
+    </div>
+
+    ${CL.triNhoChayLai?.so ? `<div class="tieu-muc">Trí nhớ đúc từ lịch sử</div>
+      <div class="kinh the">
+        ${hang("bài học từ chạy lại", CL.triNhoChayLai.so)}
+        ${hang("rút từ mẫu lặp lại", CL.triNhoChayLai.soDoiChienLuoc, "nhac")}
+        ${(CL.triNhoChayLai.ketLuan || []).map((k) =>
+          `<p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:var(--fg-1)">${esc(k)}</p>`).join("")}
+        <div class="phu-nho" style="margin-top:8px">Giữ ở kho <b>riêng</b>, không trộn vào bài học từ lệnh thật:
+        lệnh mô phỏng khớp đúng giá đặt và không có nhảy giá qua stop, nên chúng đúng về <b>cấu trúc</b>
+        và sai về <b>độ lớn</b>.</div>
+      </div>` : ""}`;
 }
 
 /* ── TẦNG 3 · PHÒNG HUẤN LUYỆN ─────────────────────────────────── */
@@ -1205,8 +1282,9 @@ function veKetQuaQuet(q) {
       Bước kế tiếp đúng đắn không phải áp dụng luôn, mà là chạy lại trên đoạn khác và trên cặp khác.</p></div>`;
 }
 
-async function hlBatDau(viec) {
-  const than = viec === "quet"
+async function hlBatDau(viec, phu = {}) {
+  const than = viec === "danh-gia" ? { viec, ...phu }
+    : viec === "quet"
     ? { viec, tyLeTrongMau: 0.7 }
     : { viec, tham: { stopAtr: hlTham.stopAtr, demTp: hlTham.demTp,
                       adxToiThieu: hlTham.adxToiThieu, chanBienDongCao: hlTham.chanBienDongCao },
@@ -1223,7 +1301,7 @@ function hlBatNhip() {
   if (hlNhip) return;
   hlNhip = setInterval(async () => {
     await taiHoc();
-    if (HL?.trangThai !== "đang chạy") { clearInterval(hlNhip); hlNhip = null; }
+    if (HL?.trangThai !== "đang chạy") { clearInterval(hlNhip); hlNhip = null; await taiChienLuoc(); }
     if (phongDangMo === "huan-luyen") veHuanLuyen();
   }, 1200);
 }
@@ -1492,6 +1570,10 @@ async function taiNen() {
   try { C = await (await fetch("/api/candles")).json(); ve(); } catch {}
 }
 
+async function taiChienLuoc() {
+  try { CL = await (await fetch("/api/chien-luoc")).json(); } catch (e) { /* giữ bản cũ */ }
+}
+
 async function taiTheGioi() {
   try { W = await (await fetch("/api/the-gioi")).json(); ve(); } catch {}
 }
@@ -1567,8 +1649,9 @@ Promise.all([
   fetch("/api/the-gioi").then((r) => r.json()).catch(() => null),
   fetch("/api/hoc").then((r) => r.json()).catch(() => null),
   fetch("/api/tu-chay").then((r) => r.json()).catch(() => null),
-]).then(([s, j, c, k, w, h, tc]) => {
-  S = s; J = j; C = c; K = k; W = w; HL = h; TC = tc;
+  fetch("/api/chien-luoc").then((r) => r.json()).catch(() => null),
+]).then(([s, j, c, k, w, h, tc, cl]) => {
+  S = s; J = j; C = c; K = k; W = w; HL = h; TC = tc; CL = cl;
   dungBen();
   moPhong(phongDangMo);
   document.body.dataset.sanSang = "1";   // dấu để headless biết đã render xong

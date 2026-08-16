@@ -13,11 +13,18 @@ from .config import DATA_DIR
 
 _lock = threading.Lock()
 
-TRADES = "trades.jsonl"      # EPISODIC MEMORY — từng giao dịch
-LESSONS = "lessons.jsonl"    # SEMANTIC MEMORY — bài học đã hậu kiểm
+TRADES = "trades.jsonl"      # EPISODIC MEMORY — từng giao dịch THẬT
+LESSONS = "lessons.jsonl"    # SEMANTIC MEMORY — bài học từ lệnh thật
 THESES = "theses.jsonl"      # mọi luận điểm, kể cả cái bị Risk Engine từ chối
 COST = "cost.json"           # đồng hồ chi phí theo ngày UTC
 ACCOUNT = "account.json"     # trạng thái tài khoản paper
+
+# File RIÊNG cho bài học đúc từ chạy lại lịch sử. Cố ý không nhập vào
+# `lessons.jsonl`: lệnh chạy lại khớp đúng giá đặt, không có nhảy giá qua stop,
+# không khớp một phần — nên chúng đáng tin về CẤU TRÚC nhưng không đáng tin về
+# ĐỘ LỚN. Trộn chung là mất khả năng phân biệt, đúng như 14 lệnh giả của
+# selftest từng làm sai lệch sổ giao dịch mà không ai nhận ra.
+LESSONS_CHAY_LAI = "lessons-chay-lai.jsonl"
 
 
 def append(name: str, obj: dict) -> dict:
@@ -25,6 +32,21 @@ def append(name: str, obj: dict) -> dict:
         with (DATA_DIR / name).open("a", encoding="utf-8") as f:
             f.write(json.dumps(obj, ensure_ascii=False) + "\n")
     return obj
+
+
+def write_all(name: str, rows: list[dict]) -> int:
+    """Ghi ĐÈ cả file. Chỉ dùng cho kho sinh lại được từ dữ liệu gốc.
+
+    Không bao giờ dùng cho `TRADES` hay `LESSONS` — đó là sổ append-only, ghi đè
+    là xoá lịch sử không lấy lại được.
+    """
+    if name in (TRADES, LESSONS, THESES):
+        raise ValueError(f"{name} là sổ append-only, không được ghi đè")
+    with _lock:
+        with (DATA_DIR / name).open("w", encoding="utf-8") as f:
+            for o in rows:
+                f.write(json.dumps(o, ensure_ascii=False) + "\n")
+    return len(rows)
 
 
 def read_all(name: str) -> list[dict]:

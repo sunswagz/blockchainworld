@@ -14,7 +14,7 @@ import time
 import traceback
 from typing import Any
 
-from . import huanluyen as HL
+from . import bai_hoc_lich_su, chien_luoc, huanluyen as HL
 from .brain import THAM_MAC_DINH
 from .bus import bus
 from .config import CONFIG
@@ -64,6 +64,11 @@ def _chay(viec: str, tham: dict) -> None:
                              toi_da_nen_giu=int(tham.get("toiDaNenGiu", 48)))
             kq["baiHoc"] = HL.duc_bai_hoc(kq)
             kq["nguonChuoi"] = tu
+            # Đổ vào TRÍ NHỚ NGỮ NGHĨA (kho riêng) để bộ não đọc được ở những
+            # lượt sau. Không có bước này thì mọi thứ phòng huấn luyện tìm ra
+            # chỉ nằm trên màn hình rồi bay mất khi đóng tab.
+            kq["daDucVaoTriNho"] = bai_hoc_lich_su.duc(
+                kq, tham=tham.get("tham") or {})
             # 133 lệnh × mỗi lệnh một dòng thì gửi hết được; nhưng đoạn dữ liệu
             # dài hơn sẽ ra hàng nghìn, và không ai đọc quá vài chục dòng cuối.
             kq["lenh"] = kq["lenh"][-120:]
@@ -80,6 +85,30 @@ def _chay(viec: str, tham: dict) -> None:
                          bao_tien_do=tien_do_quet)
             kq["nguonChuoi"] = tu
             _dat(ketQua=kq)
+        elif viec == "danh-gia":
+            # Đo challenger trên CÙNG đoạn ngoài mẫu với champion. Cắt ở đúng
+            # mốc mà phép dò dùng, để con số so được với nhau.
+            tf = CONFIG["timeframes"]["primary"]
+            moc = int(len(nen[tf]) * float(tham.get("tyLeTrongMau", 0.7)))
+
+            def chay(ma: str, th: dict) -> dict:
+                trong = HL.chay_lai(nen, symbol=symbol, chuoi=chuoi, bo_luat=ma,
+                                    tham=th, tu_nen=0, den_nen=moc, bo_qua_kill=True)
+                ngoai = HL.chay_lai(nen, symbol=symbol, chuoi=chuoi, bo_luat=ma,
+                                    tham=th, tu_nen=moc, bo_qua_kill=True)
+                tk = dict(ngoai["thongKe"])
+                tr = trong["thongKe"]["kyVongR"]
+                # Khớp trội chỉ có nghĩa khi CẢ HAI đầu đều có số.
+                tk["khopTroi"] = (round(tr - tk["kyVongR"], 3)
+                                  if (tr is not None and tk["kyVongR"] is not None) else None)
+                tk["trongMau"] = trong["thongKe"]
+                tk["boLuat"] = ma
+                return tk
+
+            _dat(phanTram=90, viec="đo challenger và champion")
+            kq = chien_luoc.danh_gia(tham.get("khoa", ""), chay)
+            _dat(ketQua=kq)
+
         else:
             _dat(trangThai="lỗi", loi=f"việc lạ: {viec}", xong=time.time())
             return

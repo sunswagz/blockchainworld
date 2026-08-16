@@ -53,30 +53,55 @@ def performance() -> dict:
     }
 
 
-def recall(regime_key: str, regime_primary: str, limit: int = 6) -> dict:
-    """Gói trí nhớ đưa vào prompt: bài học hợp regime trước, bài học chung sau."""
-    lessons = store.read_all(store.LESSONS)
+def _chon(lessons: list[dict], regime_key: str, regime_primary: str, limit: int) -> list[dict]:
     same_key = [l for l in lessons if l.get("regimeKey") == regime_key]
     same_regime = [l for l in lessons if l.get("regime") == regime_primary and l not in same_key]
     # Bài học nói "phải đổi chiến lược" luôn được ưu tiên — đó là loại bài học
     # đắt nhất, mua bằng một chuỗi lệnh sai chứ không phải một lệnh xui.
-    flagged = [l for l in lessons if l.get("change_strategy") and l not in same_key and l not in same_regime]
+    flagged = [l for l in lessons
+               if l.get("change_strategy") and l not in same_key and l not in same_regime]
+    return (same_key[-limit:] + same_regime[-3:] + flagged[-3:])[-limit - 6:]
 
-    picked = (same_key[-limit:] + same_regime[-3:] + flagged[-3:])[-limit - 6:]
+
+def _gon(l: dict) -> dict:
+    return {
+        "at": l.get("at"), "regime": l.get("regime"), "side": l.get("side"),
+        "rMultiple": l.get("rMultiple"), "classification": l.get("classification"),
+        "lesson": l.get("lesson"), "changeStrategy": l.get("change_strategy"),
+    }
+
+
+def recall(regime_key: str, regime_primary: str, limit: int = 6) -> dict:
+    """Gói trí nhớ đưa vào prompt: bài học hợp regime trước, bài học chung sau.
+
+    Trả về HAI kho tách bạch, không gộp:
+
+        lessonsForThisRegime      từ lệnh THẬT
+        lessonsFromReplay         đúc từ chạy lại lịch sử
+
+    Tách vì độ tin cậy khác nhau, và vì bộ não cần biết mình đang đọc loại nào.
+    Lệnh chạy lại khớp đúng giá đặt, không nhảy giá qua stop, không khớp một
+    phần — chúng nói đúng về CẤU TRÚC ("chế độ này lỗ đều") và nói sai về ĐỘ LỚN.
+    Gộp chung thì con số 300 bài học trông như bằng chứng mạnh trong khi phần lớn
+    chỉ là một lần bấm nút.
+    """
+    that = store.read_all(store.LESSONS)
+    chay_lai = store.read_all(store.LESSONS_CHAY_LAI)
     perf = performance()
     return {
         "note": "Bài học là quan sát trong quá khứ, không phải quy tắc. Nói rõ nếu bạn bỏ qua một bài học và vì sao.",
-        "lessonsForThisRegime": [
-            {
-                "at": l.get("at"), "regime": l.get("regime"), "side": l.get("side"),
-                "rMultiple": l.get("rMultiple"), "classification": l.get("classification"),
-                "lesson": l.get("lesson"), "changeStrategy": l.get("change_strategy"),
-            }
-            for l in picked
-        ],
+        "lessonsForThisRegime": [_gon(l) for l in _chon(that, regime_key, regime_primary, limit)],
+        "replayNote": (
+            "Những bài học dưới đây đúc từ CHẠY LẠI LỊCH SỬ, không phải lệnh thật. "
+            "Trong mô phỏng, lệnh khớp đúng giá đặt và không có nhảy giá qua stop, "
+            "nên hãy tin phần CẤU TRÚC (chế độ nào ăn, chế độ nào lỗ, mẫu lặp lại) "
+            "và đừng tin phần ĐỘ LỚN (số R cụ thể sẽ xấu hơn ngoài thực tế)."
+        ),
+        "lessonsFromReplay": [_gon(l) for l in _chon(chay_lai, regime_key, regime_primary, limit)],
         "performanceOverall": perf["overall"],
         "performanceThisRegime": perf["byRegime"].get(regime_primary, {"count": 0}),
-        "totalLessonsStored": len(lessons),
+        "totalLessonsStored": len(that),
+        "totalReplayLessons": len(chay_lai),
     }
 
 
