@@ -5,13 +5,25 @@
 Kiểm những thứ chỉ lộ ra khi các tầng ghép vào nhau: căn chỉnh chỉ báo, hình
 học lệnh, số học của Risk Engine, và kế toán của sàn giấy. Chạy cái này trước
 khi tin bất cứ con số nào trên dashboard.
+
+**Ghi vào sổ RIÊNG, không đụng sổ thật.** Phép kiểm này cố tình dựng những lệnh
+thắng để soát phần kế toán; để chúng rơi vào `data/trades.jsonl` là bơm hàng giả
+vào chính thứ dùng để đánh giá bot. Đã xảy ra thật: 14 trong 17 lệnh của sổ là
+hàng của selftest, toàn TAKE_PROFIT cùng một giá vào, và bảng điều khiển khoe
+"thắng 82,4% · kỳ vọng +1,135R" trong khi bot chưa từng tự vào lệnh nào.
 """
 from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
+
+# PHẢI đặt trước khi import trader.* — `config.py` đọc biến này lúc nạp module,
+# đặt sau thì DATA_DIR đã trỏ vào thư mục thật rồi.
+os.environ.setdefault("TCT_DATA_DIR", tempfile.mkdtemp(prefix="tct-selftest-"))
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -222,6 +234,25 @@ async def main() -> int:
     mat_that = {**chua_doc, "equity": 60000.0, "equityKnown": True}
     check(any("KILL_SWITCH" in b for b in r2.circuit_breakers(mat_that)),
           "vốn tụt thật 17.8% → kill switch vẫn kích như cũ")
+
+    print("\n[9] PHÉP KIỂM KHÔNG ĐƯỢC GHI VÀO SỔ THẬT")
+    from trader.config import DATA_DIR, ROOT
+
+    that = ROOT / "data"
+    if DATA_DIR.resolve() != that.resolve():
+        check(True, f"sổ của phép kiểm nằm riêng: {DATA_DIR}")
+    else:
+        check(False, f"ĐANG GHI VÀO SỔ THẬT {that} — lệnh giả của phép kiểm sẽ "
+                     f"trộn vào thống kê mà không ai phân biệt được")
+
+    print("\n[10] ĐẾM KỸ NĂNG PHẢI ĐÚNG SỐ FILE")
+    from trader.brain import load_skills
+    from trader.config import SKILLS_DIR
+
+    _, dem = load_skills()
+    tren_dia = len([d for d in SKILLS_DIR.iterdir()
+                    if (d / "SKILL.md").exists() or d.suffix == ".md"]) if SKILLS_DIR.exists() else 0
+    check(dem == tren_dia, f"đếm được {dem} kỹ năng, trên đĩa có {tren_dia}")
 
     broker.reset()
     print("\n" + "=" * 62)

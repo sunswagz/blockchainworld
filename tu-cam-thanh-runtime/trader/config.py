@@ -11,7 +11,16 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT / "data"
+
+# `TCT_DATA_DIR` tách sổ sách của phép kiểm khỏi sổ sách thật.
+#
+# Không có nó, `selftest.py` ghi thẳng vào `data/trades.jsonl` — và nó CỐ TÌNH
+# dựng những lệnh thắng để kiểm phần kế toán. Đo tại đây: 14 trong 17 lệnh của
+# sổ là hàng giả của selftest, toàn TAKE_PROFIT, cùng một giá vào. Bảng điều
+# khiển vì thế khoe "thắng 82,4% · kỳ vọng +1,135R" trong khi bot chưa từng tự
+# vào một lệnh nào. Con số đẹp nhất hệ thống lại là con số bịa — đúng thứ mà
+# `chuaCo()` ở giao diện được dựng ra để tránh, nhưng lọt qua đường khác.
+DATA_DIR = Path(os.environ.get("TCT_DATA_DIR") or (ROOT / "data"))
 SKILLS_DIR = ROOT / "skills"
 WEB_DIR = ROOT / "web"
 

@@ -140,16 +140,25 @@ class CostMeter:
 
 
 # ── Kỹ năng (skills) ──────────────────────────────────────────────────────
-def load_skills() -> str:
-    """Nạp mọi SKILL.md. Kho kỹ năng nằm ngoài code để sửa được mà không phải
-    deploy lại — và để đọc git log của nó là thấy bot đã học thêm những gì."""
+def load_skills() -> tuple[str, int]:
+    """Nạp mọi SKILL.md. Trả (nội dung ghép, SỐ KỸ NĂNG).
+
+    Trả về cả con số vì trước đây dashboard tự đếm bằng
+    `len(skills.split("---"))` — mà `---` vừa là dấu ghép giữa các file vừa là
+    đường kẻ ngang trong chính markdown, nên nó báo **11 kỹ năng trong khi trên
+    đĩa có 5**. Không có gì đổ, chỉ là một con số sai nằm ngay cạnh những con số
+    đúng, và không ai có lý do để nghi ngờ nó.
+
+    Kho kỹ năng nằm ngoài code để sửa được mà không phải deploy lại — và để đọc
+    git log của nó là thấy bot đã học thêm những gì.
+    """
     parts: list[str] = []
     if SKILLS_DIR.exists():
         for d in sorted(SKILLS_DIR.iterdir()):
             f = d / "SKILL.md" if d.is_dir() else d
             if f.suffix == ".md" and f.exists():
                 parts.append(f.read_text(encoding="utf-8").strip())
-    return "\n\n---\n\n".join(parts)
+    return "\n\n---\n\n".join(parts), len(parts)
 
 
 SYSTEM_RULES = """Bạn là tầng suy luận của một AI Trading Runtime. Bạn KHÔNG cầm chìa khoá két.
@@ -311,7 +320,7 @@ class Brain:
         self.cfg = CONFIG["brain"]
         self.mode = brain_mode()
         self.cost = CostMeter(self.cfg)
-        self.skills = load_skills()
+        self.skills, self.so_ky_nang = load_skills()
         self.client = None
         self.last_error: str | None = None
         if self.mode == "claude":
@@ -341,7 +350,7 @@ class Brain:
             "maxCalls": self.cfg["maxCallsPerDay"],
             "blocked": self.cost.blocked(),
             "lastError": self.last_error,
-            "skillsLoaded": len(self.skills.split("---")) if self.skills else 0,
+            "skillsLoaded": self.so_ky_nang,
         }
 
     async def _structured(self, *, user: str, schema: dict, effort: str, label: str) -> dict | None:
