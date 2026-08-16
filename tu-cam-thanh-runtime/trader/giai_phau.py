@@ -21,6 +21,35 @@ from typing import Any
 from . import che_do_da_coin as CD
 
 
+def _chuan_dir(f: dict) -> str:
+    """Chuẩn hoá `dir` về từ vựng perp — vì Hyperliquid dùng HAI từ vựng.
+
+    Đo được trên dữ liệu thật, một tài khoản có cả hai:
+
+        perp  Open Long · Close Long · Open Short · Close Short
+        spot  Buy · Sell · Spot Dust Conversion
+
+    Bản đầu chỉ hiểu từ vựng perp, nên mọi lệnh spot bị bỏ qua im lặng. Một
+    trader có 734 `Buy` + 703 `Sell` ra đúng 0 vòng — và nhìn vào thì tưởng
+    người ta không đóng lệnh bao giờ, chứ không nghĩ là mình đọc thiếu một nửa
+    ngôn ngữ của sàn.
+
+    Spot không có khái niệm short: `Buy` là mở/tăng vị thế, `Sell` là đóng/giảm.
+    `startPosition` cho biết đang có hàng hay chưa, nên phân biệt được "mua thêm"
+    với "mua mới" — nhưng cả hai đều là Open nên không cần tách ở đây.
+    """
+    d = str(f.get("dir", ""))
+    if d.startswith(("Open", "Close")) or "Liquidat" in d:
+        return d
+    if d == "Buy":
+        return "Open Long"
+    if d == "Sell":
+        return "Close Long"
+    # "Spot Dust Conversion" và những thứ tương tự: không phải quyết định giao
+    # dịch, bỏ qua thay vì ép vào một nhãn nào đó.
+    return d
+
+
 def _ghep(fills: list[dict]) -> list[dict]:
     """Ghép lệnh mở ↔ lệnh đóng theo coin, thành các "vòng" hoàn chỉnh.
 
@@ -36,7 +65,7 @@ def _ghep(fills: list[dict]) -> list[dict]:
     for coin, ds in theo_coin.items():
         cur: dict | None = None
         for f in ds:
-            d = str(f.get("dir", ""))
+            d = _chuan_dir(f)
             px, sz = float(f.get("px", 0) or 0), float(f.get("sz", 0) or 0)
             if d.startswith("Open"):
                 if cur is None:
@@ -50,7 +79,7 @@ def _ghep(fills: list[dict]) -> list[dict]:
                     cur["vao"] = (cur["vao"] * cur["sz"] + px * sz) / tong if tong else px
                     cur["sz"] = tong
                     cur["soLanMo"] += 1
-            elif d.startswith("Close") or "Liquidat" in d:
+            elif (d.startswith("Close") or "Liquidat" in d) and cur is not None:
                 if cur is None:
                     continue
                 cur["soLanDong"] += 1

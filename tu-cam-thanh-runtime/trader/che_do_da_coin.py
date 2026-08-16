@@ -56,16 +56,44 @@ _kho: dict[str, dict] = {}     # coin → {"moc": [...], "cheDo": [...]}
 _nen_cache: dict[str, list] = {}
 
 
+# Nhịp tối thiểu giữa hai lời gọi nến, và số lần thử lại khi bị chặn nhịp.
+#
+# Hyperliquid trả 429 khi hỏi quá dày, và một trader có thể cần 24 coin. Trước
+# khi có chốt này, lỗi 429 rơi vào khối `except` bao ngoài và biến thành
+# `soVong: 0` — nên hồ sơ ghi "trader không đóng lệnh bao giờ" trong khi sự thật
+# là **mình gõ cửa quá nhanh**. Tôi đã suýt đi sửa hàm ghép vòng vì tin con số
+# đó. Đây là API công khai miễn phí của người ta; chờ 0,25 giây là phép lịch sự
+# tối thiểu, và cũng là thứ giữ cho dữ liệu đúng.
+NHIP_GIAY = 0.25
+THU_LAI = 4
+_lan_goi_cuoi = 0.0
+
+
 def _nen(client: httpx.Client, coin: str, interval: str, ngay: int) -> list[dict]:
+    global _lan_goi_cuoi
+
     khoa = f"{coin}|{interval}|{ngay}"
     if khoa in _nen_cache:
         return _nen_cache[khoa]
     now = int(time.time() * 1000)
-    r = client.post(HL_INFO, headers=UA, timeout=60, json={
-        "type": "candleSnapshot",
-        "req": {"coin": coin, "interval": interval,
-                "startTime": now - ngay * 86_400_000, "endTime": now},
-    })
+
+    r = None
+    for lan in range(THU_LAI):
+        cho = NHIP_GIAY - (time.time() - _lan_goi_cuoi)
+        if cho > 0:
+            time.sleep(cho)
+        _lan_goi_cuoi = time.time()
+        r = client.post(HL_INFO, headers=UA, timeout=60, json={
+            "type": "candleSnapshot",
+            "req": {"coin": coin, "interval": interval,
+                    "startTime": now - ngay * 86_400_000, "endTime": now},
+        })
+        if r.status_code != 429:
+            break
+        # Bị chặn nhịp thì lùi dần: 1s, 2s, 4s. Thử lại ngay lập tức chỉ làm
+        # mình bị chặn lâu hơn.
+        time.sleep(2 ** lan)
+    assert r is not None
     r.raise_for_status()
     ra = [{"t": int(x["t"]), "o": float(x["o"]), "h": float(x["h"]),
            "l": float(x["l"]), "c": float(x["c"]), "v": float(x["v"]),

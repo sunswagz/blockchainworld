@@ -148,10 +148,21 @@ def _chay(moi_nhom: int) -> None:
                         if v.get("dongLuc"):
                             ds.append(v["dongLuc"])
                     tong_vong = len(vong_thu) or 1
+                    # Mỗi coin một try RIÊNG. Trước đây một lỗi ở đây rơi ra
+                    # khối try bao ngoài và xoá sạch phần giải phẫu thành
+                    # `soVong: 0` — nên file hồ sơ ghi "trader này không đóng
+                    # lệnh bao giờ" trong khi chạy tươi ra 7 và 15 vòng. Dữ liệu
+                    # đã ghi nói dối, và tôi suýt đi sửa `_ghep` vì tin nó.
+                    loi_coin: list[str] = []
                     for coin, moc in moc_theo_coin.items():
-                        CD.che_do_tai(c, coin, sorted(set(moc)), ngay)
+                        try:
+                            CD.che_do_tai(c, coin, sorted(set(moc)), ngay)
+                        except Exception as e:  # noqa: BLE001
+                            loi_coin.append(f"{coin}:{type(e).__name__}")
                     phu_coin = tong_vong   # mọi coin đều được xét
                     gp = GP.giai_phau(fills)
+                    if loi_coin:
+                        gp["coinLoi"] = loi_coin[:8]
 
                     # HAI con số phủ, và cái thứ hai mới là cái thật.
                     #
@@ -166,9 +177,14 @@ def _chay(moi_nhom: int) -> None:
                     ct["daDangCheDo"] = (gp.get("daDangCheDo") or {}).get("diem")
                     vi_the = DQ.hl_vi_the(c, t["diaChi"])
                 except Exception as e:  # noqa: BLE001 — một trader hỏng không được kéo cả mẻ
-                    hs = {"soLenh": 0, "loi": f"{type(e).__name__}"}
-                    gp = {"soVong": 0, "loi": f"{type(e).__name__}"}
+                    # Ghi cả THÔNG ĐIỆP, không chỉ tên lớp lỗi. Chỉ ghi
+                    # "KeyError" thì lần sau đọc lại vẫn phải chạy tay để biết
+                    # key nào — mà chạy tay thì dữ liệu đã khác rồi.
+                    hs = {"soLenh": 0, "loi": f"{type(e).__name__}: {e}"[:200]}
+                    gp = {"soVong": 0, "loi": f"{type(e).__name__}: {e}"[:200]}
                     vi_the = []
+                    bus.log("hoc", "ho-so-loi",
+                            f"{t['diaChi'][:12]}…: {type(e).__name__}: {e}")
                 ra.append({
                     **t, "nhom": nhom, "hoSo": hs, "giaiPhau": gp,
                     "viThe": vi_the,
