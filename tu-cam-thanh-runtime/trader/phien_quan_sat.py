@@ -25,7 +25,7 @@ from typing import Any
 
 import httpx
 
-from . import dai_quan_sat as DQ, store
+from . import che_do_da_coin as CD, dai_quan_sat as DQ, giai_phau as GP, store
 from .bus import bus
 
 KHO = "trader-ho-so.json"
@@ -88,10 +88,29 @@ def _chay(moi_nhom: int) -> None:
                     ct["soLenh"] = hs.get("soLenh")
                     ct["soLanThanhLy"] = hs.get("soLanThanhLy")
                     ct["kyLuat"] = DQ.ky_luat(hs)
+
+                    # Dựng chuỗi chế độ cho những coin trader này thật sự đánh.
+                    # Chỉ vài coin đầu: dựng chuỗi tốn ~10 giây/coin, mà đuôi
+                    # dài thường là những coin họ đánh đúng một lần.
+                    #
+                    # Cửa sổ BÁM THEO DỮ LIỆU của chính trader đó, không để cố
+                    # định. Lần đầu tôi để cứng 30 ngày và 10/12 trader ra "0
+                    # vòng có chế độ" — lệnh của họ cũ hơn thế. Cửa sổ cố định
+                    # nghĩa là ai giao dịch thưa thì vô hình, và bảng xếp hạng
+                    # lại nghiêng về người khớp với lựa chọn kỹ thuật của mình.
+                    cu = hs.get("tuLuc")
+                    ngay = 30
+                    if cu:
+                        ngay = min(120, max(30, int((time.time() * 1000 - cu) / 86_400_000) + 3))
+                    for coin, _ in (hs.get("coinHayDanh") or [])[:4]:
+                        CD.dung_chuoi(c, coin, ngay)
+                    gp = GP.giai_phau(fills)
+                    ct["daDangCheDo"] = (gp.get("daDangCheDo") or {}).get("diem")
                 except Exception as e:  # noqa: BLE001 — một trader hỏng không được kéo cả mẻ
                     hs = {"soLenh": 0, "loi": f"{type(e).__name__}"}
+                    gp = {"soVong": 0, "loi": f"{type(e).__name__}"}
                 ra.append({
-                    **t, "nhom": nhom, "hoSo": hs,
+                    **t, "nhom": nhom, "hoSo": hs, "giaiPhau": gp,
                     "diem": DQ.cham_diem(t, ct),
                     "anMay": DQ.an_may(hs),
                 })

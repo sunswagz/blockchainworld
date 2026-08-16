@@ -195,12 +195,15 @@ def cham_diem(t: dict, chi_tiet: dict | None = None) -> dict:
     else:
         phan["thamNien"] = _thang(tn, 30, 365)
 
-    # Đa dạng chế độ thị trường: CHƯA TÍNH ĐƯỢC. Cần ghép từng lệnh với chế độ
-    # thị trường tại đúng thời điểm đó, mà chế độ hiện chỉ tính cho BTCUSDT còn
-    # trader Hyperliquid vào lệnh trên hàng chục coin. Đánh dấu chưa đo thay vì
-    # cho một con số bịa — bịa ở đây sẽ nghiêng bảng xếp hạng theo một chiều
-    # không ai kiểm được.
-    chua_do.append("daDangCheDo")
+    # Đa dạng chế độ thị trường — TÍNH ĐƯỢC RỒI, từ khi có `che_do_da_coin.py`
+    # dựng chế độ cho mọi coin chứ không riêng BTCUSDT. Điểm phản ánh trader ăn
+    # được ở BAO NHIÊU chế độ khác nhau: người chỉ ăn ở một chế độ thì không
+    # phải giỏi, chỉ là đang gặp đúng thời của mình.
+    dd = ct.get("daDangCheDo")
+    if dd is None:
+        chua_do.append("daDangCheDo")
+    else:
+        phan["daDangCheDo"] = dd
 
     kl = ct.get("kyLuat")
     if kl is None:
