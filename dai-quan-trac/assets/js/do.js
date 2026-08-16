@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_DO = {
- "generatedAt": "2026-08-16T02:06:32.747Z",
+ "generatedAt": "2026-08-16T13:16:31.053Z",
  "tuDo": [
   "nangluong",
   "laisuat",
@@ -19,7 +19,6 @@ window.DQT_DO = {
    "ghi": null,
    "muc": "y",
    "lich": [
-    109.26,
     112.1,
     111.28,
     105.02,
@@ -91,7 +90,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột."
    },
-   "luc": "2026-08-16T02:06:20.135Z"
+   "luc": "2026-08-16T13:16:15.997Z"
   },
   "laisuat": {
    "nhan": "Lợi suất TPCP Mỹ 10 năm",
@@ -174,7 +173,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Lợi suất trái phiếu Mỹ 10 năm — lực ép TỪ NGOÀI lên lãi suất và tỷ giá Việt Nam, không phải lãi suất điều hành trong nước. Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi."
    },
-   "luc": "2026-08-16T02:06:20.177Z"
+   "luc": "2026-08-16T13:16:16.061Z"
   },
   "tygia": {
    "nhan": "USD/VND",
@@ -195,17 +194,16 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Đặt quanh vùng tỷ giá đang giao dịch. Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ."
    },
-   "luc": "2026-08-16T02:06:20.318Z"
+   "luc": "2026-08-16T13:16:16.141Z"
   },
   "tq": {
    "nhan": "Giá đồng",
-   "so": 6.6,
+   "so": 6.61,
    "dv": "USD/lb",
    "nguon": "Yahoo Finance · HG=F",
    "ghi": "Chỉ báo THAY THẾ cho chi phí đầu vào công nghiệp, KHÔNG phải PPI Trung Quốc. Đồng là thước đo nhu cầu công nghiệp toàn cầu; nó nói được chi phí đầu vào đang căng hay chùng, không nói riêng chuyện gì đang xảy ra ở Trung Quốc.",
    "muc": "r",
    "lich": [
-    6.25,
     6.27,
     6.16,
     6.29,
@@ -267,17 +265,17 @@ window.DQT_DO = {
     6.61,
     6.6,
     6.59,
-    6.6
+    6.61
    ],
-   "doi7": -1.5,
-   "doi30": 8,
+   "doi7": -1.3,
+   "doi30": 8.2,
    "nguong": {
     "g": 5.5,
     "r": 6.5,
     "nghich": false,
     "can": "Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70 USD/lb. Đỏ đặt ở 6,50 tức sát đỉnh năm — mức đó nói được một điều có nghĩa, chứ không chỉ nói 'cao hơn trung bình'."
    },
-   "luc": "2026-08-16T02:06:20.357Z"
+   "luc": "2026-08-16T13:16:16.206Z"
   },
   "doanhnghiep": {
    "nhan": "Quỹ ETF Việt Nam (VNM)",
@@ -331,12 +329,15 @@ window.DQT_DO = {
     17.46,
     17.34,
     16.84,
+    16.93,
+    16.48,
     16.66,
     16.46,
     16.34,
     16.58,
     16.54,
     17.37,
+    16.98,
     17.5,
     17.66,
     17.52,
@@ -349,14 +350,14 @@ window.DQT_DO = {
     17.16
    ],
    "doi7": -2.1,
-   "doi30": -6.9,
+   "doi30": -7.2,
    "nguong": {
     "g": 18.5,
     "r": 17,
     "nghich": true,
     "can": "Quỹ ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80 USD. Đỏ đặt ở 17,00, tức sát đáy năm."
    },
-   "luc": "2026-08-16T02:06:20.500Z"
+   "luc": "2026-08-16T13:16:16.288Z"
   },
   "xuatxu": {
    "nhan": "Văn bản liên bang Mỹ nhắc VN",
@@ -377,17 +378,16 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Số văn bản liên bang Mỹ nhắc Việt Nam trong 30 ngày. Nền quan sát được hiện khoảng 37–43 văn bản/30 ngày. NGƯỠNG NÀY YẾU NHẤT BẢNG: mới có ~2,5 tháng dữ liệu để hiệu chỉnh, và số lượng văn bản không phân biệt được một thông báo hành chính với một quyết định thuế. Nên đọc nó như chỉ báo NHỊP ĐỘ chú ý, không phải mức độ nghiêm trọng."
    },
-   "luc": "2026-08-16T02:06:20.567Z"
+   "luc": "2026-08-16T13:16:16.558Z"
   },
   "niemtin": {
    "nhan": "Sắc thái tin về kinh tế VN",
-   "so": 1.6,
+   "so": 1.34,
    "dv": "điểm GDELT",
    "nguon": "GDELT · timelinetone",
    "ghi": "Chỉ báo THAY THẾ, không phải đo niềm tin trực tiếp. Nó đo giọng của báo chí quốc tế, và giọng báo không đồng nghĩa với hành vi người gửi tiền.",
-   "muc": "y",
+   "muc": "r",
    "lich": [
-    2.78,
     2.22,
     1.37,
     1.51,
@@ -472,18 +472,18 @@ window.DQT_DO = {
     1.73,
     2.12,
     1.74,
-    1.6
+    1.39,
+    1.34
    ],
-   "doi7": -5.3,
-   "doi30": -19.2,
+   "doi7": -4.3,
+   "doi30": -29.8,
    "nguong": {
     "g": 1.9,
     "r": 1.4,
     "nghich": true,
     "can": "Sắc thái tin GDELT không có mốc 0 tự nhiên cho mục đích này, nên ngưỡng đặt theo PHÂN PHỐI QUAN SÁT 90 ngày: trung vị 1,91 · phần tư dưới 1,61 · thấp nhất 0,83. Trên trung vị là xanh, rơi xuống phần tư dưới là đỏ."
    },
-   "luc": "2026-08-15T13:11:46.623Z",
-   "oi": true
+   "luc": "2026-08-16T13:16:31.053Z"
   }
  }
 };
