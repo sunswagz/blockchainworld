@@ -110,6 +110,7 @@ const IC = {
   triNho:   '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16M4 9h16M4 15h16"/>',
   kyNang:   '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
   huanLuyen:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>',
+  heThong:  '<rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><path d="M7 7.5h.01M7 16.5h.01"/>',
 };
 
 const NAV = [
@@ -118,6 +119,8 @@ const NAV = [
     { id: "thi-truong",      ten: "Thị trường",       ic: "bieuDo" },
     { id: "vi-the",          ten: "Vị thế",           ic: "viThe", dem: () => (S?.account?.positions || []).length },
     { id: "rui-ro",          ten: "Rủi ro",           ic: "ruiRo", dem: () => (S?.risk?.breakers || []).length, nong: true },
+    { id: "he-thong",        ten: "Hệ thống",         ic: "heThong",
+      dem: () => (TC?.bat ? "tự bật" : null) },
   ]},
   { tang: 2, ten: "Trí tuệ",     y: "Bot đang nghĩ gì", muc: [
     { id: "nao-thi-truong",  ten: "Bộ não thị trường", ic: "naoTt" },
@@ -678,6 +681,101 @@ function veNaoClaude() {
     <div class="tieu-muc">Lập luận đầy đủ</div>
     <div class="kinh the" style="white-space:pre-wrap;font-size:13px;line-height:1.75;color:var(--fg-2)">${esc(t.reasoning || "—")}</div>
     <div class="kinh the mono" style="margin-top:10px;font-size:11px;color:var(--fg-3)">${esc((t.reason_codes || []).join("  ·  ")) || "—"}</div>`;
+}
+
+/* ── TẦNG 1 · HỆ THỐNG ─────────────────────────────────────────── */
+let TC = null;          // /api/tu-chay
+
+function veHeThong() {
+  const n = el("htNoi");
+  if (!TC) { n.innerHTML = `<div class="trong">Đang đọc trạng thái hệ thống…</div>`; return; }
+
+  const bat = !!TC.bat;
+  n.innerHTML = `
+    <div class="kinh the cong-tac">
+      <div class="ct-trai">
+        <h3 style="margin:0 0 4px">Tự chạy khi đăng nhập Windows</h3>
+        <p style="margin:0;font-size:12.5px;line-height:1.7;color:var(--fg-2)">
+          ${bat
+            ? "Đang <b class='len'>BẬT</b>. Bật máy và đăng nhập là runtime tự lên, không cần bấm gì."
+            : "Đang <b>TẮT</b>. Runtime chỉ chạy khi bạn bấm lối tắt <b>Tử Cấm Thành</b> ngoài desktop."}
+        </p>
+        ${TC.coThe ? "" : `<p class="phu-nho" style="margin-top:8px;color:var(--amber)">
+          Không bật được ở máy này: ${esc(TC.viSao || "")}</p>`}
+      </div>
+      <button class="ct-nut ${bat ? "on" : ""}" id="htTuChay" ${TC.coThe ? "" : "disabled"}
+        role="switch" aria-checked="${bat}" title="${bat ? "Tắt tự chạy" : "Bật tự chạy"}">
+        <span class="ct-num"></span></button>
+    </div>
+
+    <div class="kinh the" style="margin-top:12px">
+      <p style="margin:0;font-size:12.5px;line-height:1.8;color:var(--fg-2)">
+      <b>Mặc định là TẮT, và đó là mặc định đúng.</b> Trên một máy nhiều người
+      dùng chung, một cỗ máy đặt lệnh tự khởi động là thứ không ai xin phép — người
+      ngồi vào máy sau bạn không biết nó đang chạy, không biết nó đang giữ vị thế nào.</p>
+      <p style="margin:10px 0 0;font-size:12.5px;line-height:1.8;color:var(--fg-3)">
+      Bật nó ở máy riêng của bạn thì hợp lý. Còn trên VPS thì <b>đừng dùng công tắc này</b>:
+      Linux tự chạy bằng <code>systemd</code>, và nó khởi động theo MÁY chứ không theo
+      phiên đăng nhập — đúng thứ một con bot chạy 24/7 cần.</p>
+    </div>
+
+    <div class="tieu-muc">Runtime đang chạy ở đâu</div>
+    <div class="kinh the">
+      ${hang("thư mục", TC.goc || "—")}
+      ${hang("python", TC.python || "—")}
+      ${hang("hệ điều hành", TC.heDieuHanh === "nt" ? "Windows" : (TC.heDieuHanh || "—"))}
+      ${TC.duong ? hang("lối tắt tự chạy", TC.duong) : ""}
+      ${hang("cổng", location.port || "80")}
+      ${hang("sàn", S?.mode === "testnet" ? "Binance Spot Testnet — lệnh thật, tiền giả"
+                  : "sàn giấy nội bộ — không có lệnh nào ra sàn",
+             S?.mode === "testnet" ? "nhac" : "")}
+      ${hang("chỉ LONG", S?.spotOnly ? "có — spot không short được" : "không")}
+      ${hang("số vòng đã chạy", S?.ticks ?? "—")}
+    </div>
+
+    <div class="tieu-muc">Tắt runtime</div>
+    <div class="kinh the">
+      <p style="margin:0 0 12px;font-size:12.5px;line-height:1.8;color:var(--fg-2)">
+      Đóng trình duyệt <b>không</b> tắt bot — nó chạy ngầm, không cửa sổ nào.
+      Nút dưới đây tắt hẳn tiến trình và báo bộ giám sát đừng dựng lại.</p>
+      <div class="hang">
+        <span>Lệnh đang mở trên sàn</span>
+        <b class="${(S?.account?.positions || []).length ? "nhac" : ""}">${(S?.account?.positions || []).length}</b>
+      </div>
+      <p style="margin:8px 0 12px;font-size:11.5px;line-height:1.7;color:var(--fg-3)">
+      ${(S?.account?.positions || []).length
+        ? "Cắt lỗ và chốt lời của các vị thế này đã đặt <b>trên sàn</b> dưới dạng lệnh OCO, nên chúng vẫn hiệu lực khi runtime tắt. Thứ mất đi là việc theo dõi và hậu kiểm."
+        : "Không có vị thế nào đang mở."}</p>
+      <div class="nut-hang">
+        <button class="nut nguy" id="htDungHan">Tắt hẳn runtime</button>
+        <button class="nut" id="htTamDung">${S?.paused ? "Chạy tiếp" : "Tạm dừng vòng lặp"}</button>
+      </div>
+      <p class="phu-nho" style="margin-top:10px">
+      <b>Tạm dừng</b> giữ tiến trình sống, chỉ ngừng ra quyết định — bấm lại là chạy tiếp.
+      <b>Tắt hẳn</b> thì phải bấm lối tắt ngoài desktop để bật lại.</p>
+    </div>`;
+
+  const nut = el("htTuChay");
+  if (nut && TC.coThe) nut.onclick = () => datTuChay(!bat);
+  el("htTamDung").onclick = () => dieuKhien(S?.paused ? "resume" : "pause");
+  el("htDungHan").onclick = async () => {
+    if (!confirm("Tắt hẳn runtime?\n\nVòng lặp dừng, bot ngừng theo dõi thị trường.\n" +
+                 "Lệnh OCO đã đặt trên sàn vẫn còn hiệu lực.\n\n" +
+                 "Bật lại bằng lối tắt Tử Cấm Thành ngoài desktop.")) return;
+    try { await fetch("/api/dung-han", { method: "POST" }); } catch (e) { /* nó tự thoát */ }
+    el("htNoi").innerHTML = `<div class="trong">Đã gửi lệnh tắt.<br>
+      <span style="color:var(--fg-3)">Bật lại bằng lối tắt <b>Tử Cấm Thành</b> ngoài desktop.</span></div>`;
+  };
+}
+
+async function datTuChay(bat) {
+  try {
+    const r = await fetch("/api/tu-chay", { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bat }) });
+    TC = await r.json();
+    if (TC.ok === false && TC.loi) alert("Không đổi được: " + TC.loi);
+  } catch (e) { alert("Không gọi được runtime: " + e.message); }
+  dungBen(); veHeThong();
 }
 
 /* ── TẦNG 2 · ĐÀI QUAN SÁT TRADER ──────────────────────────────── */
@@ -1331,6 +1429,7 @@ function veNhatKy() {
 /* ── vẽ theo phòng đang mở ─────────────────────────────────────── */
 const VE = {
   "tong-quan": veTongQuan, "thi-truong": veThiTruong, "vi-the": veViThe, "rui-ro": veRuiRo,
+  "he-thong": veHeThong,
   "nao-thi-truong": veNaoThiTruong, "nao-claude": veNaoClaude,
   "quan-sat-trader": veQuanSatTrader, "the-gioi": veTheGioi,
   "chien-luoc": veChienLuoc, "huan-luyen": veHuanLuyen, "hoc": veHoc,
@@ -1467,8 +1566,9 @@ Promise.all([
   fetch("/api/skills").then((r) => r.json()).catch(() => null),
   fetch("/api/the-gioi").then((r) => r.json()).catch(() => null),
   fetch("/api/hoc").then((r) => r.json()).catch(() => null),
-]).then(([s, j, c, k, w, h]) => {
-  S = s; J = j; C = c; K = k; W = w; HL = h;
+  fetch("/api/tu-chay").then((r) => r.json()).catch(() => null),
+]).then(([s, j, c, k, w, h, tc]) => {
+  S = s; J = j; C = c; K = k; W = w; HL = h; TC = tc;
   dungBen();
   moPhong(phongDangMo);
   document.body.dataset.sanSang = "1";   // dấu để headless biết đã render xong

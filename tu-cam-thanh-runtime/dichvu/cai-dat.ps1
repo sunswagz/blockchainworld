@@ -9,22 +9,26 @@
 #   nào lưu không BOM là hỏng lại. Kiểm nhanh:
 #       [System.Management.Automation.Language.Parser]::ParseFile($f,[ref]$null,[ref]$e)
 #
-# ── Vì sao dùng thư mục Startup chứ không dùng Task Scheduler ──────────────
-# Bản đầu tôi đăng ký một tác vụ lịch. Trên máy này nó hỏng, và hỏng theo kiểu
-# đánh lạc hướng: `schtasks` trả "ERROR: The network address is invalid.", còn
-# cmdlet trả "The task XML contains an unexpected node." Cả hai đều nghe như lỗi
-# cú pháp. Nguyên nhân thật là **dịch vụ Task Scheduler đang tắt** (Status
-# Stopped dù StartType Automatic), và bật lại cần quyền quản trị.
+# ── Script này KHÔNG bật tự chạy lúc đăng nhập ────────────────────────────
+# Nó chỉ tạo một lối tắt ngoài desktop. Bấm vào thì runtime mới lên.
 #
-# Thư mục Startup làm đúng việc cần: chạy lúc đăng nhập, không cần admin, không
-# phụ thuộc dịch vụ nào. Thứ duy nhất mất đi là "tự khởi động lại khi hỏng" của
-# Task Scheduler — mà `chay-nen.py` vốn đã tự lo, còn kỹ hơn: nó có nghỉ tăng
-# dần và biết bỏ cuộc khi cấu hình sai.
+# Mặc định đó là có chủ ý: trên một máy nhiều người qua lại, một cỗ máy đặt lệnh
+# tự khởi động là thứ không ai xin phép — người ngồi vào máy sau không biết nó
+# đang chạy, cũng không biết nó đang giữ vị thế nào.
+#
+# Muốn tự chạy thì bật trong buồng lái: **Hệ thống → Tự chạy khi đăng nhập**.
+# Công tắc để ở đó chứ không để ở đây vì đây là lựa chọn theo TỪNG MÁY và người
+# ta sẽ đổi ý nhiều lần — bắt mở terminal mỗi lần đổi là bắt sai chỗ.
+#
+# Ghi chú kỹ thuật: công tắc ấy đặt một lối tắt vào thư mục Startup chứ KHÔNG
+# dùng Task Scheduler. Trên máy này dịch vụ Task Scheduler đang tắt (Status
+# Stopped dù StartType Automatic) và bật lại cần quyền quản trị. Nó cũng không
+# nói vậy: `schtasks` kêu "network address is invalid", cmdlet kêu "task XML
+# contains an unexpected node" — cả hai nghe như lỗi cú pháp.
 
 $ErrorActionPreference = "Stop"
 $GOC = Split-Path -Parent $PSScriptRoot
 $TEN_LNK = "Tử Cấm Thành.lnk"
-$KHOI_DONG = Join-Path ([Environment]::GetFolderPath("Startup")) "Tu Cam Thanh - runtime.lnk"
 
 function Ok($m)   { Write-Host "  OK   $m" }
 function Loi($m)  { Write-Host "  LỖI  $m"; exit 1 }
@@ -73,18 +77,8 @@ if (-not (Test-Path "$GOC\.env")) {
   Nhac ".env chưa có — runtime sẽ chạy chế độ mock (không gọi API, không vào lệnh testnet)"
 } else { Ok ".env có" }
 
-# ── 4. Lối tắt tự chạy lúc đăng nhập ─────────────────────────────────────
+# ── 4. Lối tắt desktop ───────────────────────────────────────────────────
 $sh = New-Object -ComObject WScript.Shell
-$k = $sh.CreateShortcut($KHOI_DONG)
-$k.TargetPath = $py
-$k.Arguments = "dichvu\chay-nen.py"
-$k.WorkingDirectory = $GOC
-$k.Description = "Runtime giao dịch Tử Cấm Thành (chạy nền, không cửa sổ)"
-$k.WindowStyle = 7
-$k.Save()
-Ok "tự chạy lúc đăng nhập: $KHOI_DONG"
-
-# ── 5. Lối tắt desktop ───────────────────────────────────────────────────
 # Tạo bằng tên ASCII rồi mới đổi sang tên có dấu.
 #
 # COM WScript.Shell ép đường dẫn về bảng mã ANSI, nên "Tử Cấm Thành.lnk" tới
@@ -108,7 +102,7 @@ if (Test-Path $dich) { Remove-Item $dich -Force }
 Rename-Item -LiteralPath $tam -NewName $TEN_LNK
 Ok "lối tắt: Desktop\$TEN_LNK"
 
-# ── 6. Chạy luôn ─────────────────────────────────────────────────────────
+# ── 5. Chạy luôn ─────────────────────────────────────────────────────────
 $cong = (Get-Content "$GOC\config.json" -Raw | ConvertFrom-Json).port
 $dangChay = Get-NetTCPConnection -LocalPort $cong -State Listen -ErrorAction SilentlyContinue
 if ($dangChay) {
@@ -139,6 +133,7 @@ Write-Host @"
   Bật lại          powershell -File dichvu\bat.ps1
   Gỡ cài đặt       powershell -File dichvu\go-cai.ps1
 
-  Từ giờ bật máy là nó tự chạy. Không cần mở terminal nữa.
+  KHÔNG tự chạy khi bật máy — bấm lối tắt thì runtime mới lên.
+  Muốn nó tự chạy: mở buồng lái → Hệ thống → "Tự chạy khi đăng nhập".
 
 "@

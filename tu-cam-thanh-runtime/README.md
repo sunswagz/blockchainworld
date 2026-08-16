@@ -26,11 +26,16 @@ Thư mục này **không được thêm vào `HALLS`** của `build-dist.mjs`, v
 
 ## Chạy
 
-**Chạy nền (khuyên dùng)** — cài một lần, bật máy là tự chạy, có lối tắt desktop:
+**Chạy nền (khuyên dùng)** — cài một lần để có lối tắt ngoài desktop; bấm vào
+thì runtime mới lên, **không** tự bật khi khởi động máy:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1
 ```
+
+Muốn nó tự chạy lúc đăng nhập thì bật trong buồng lái: **Hệ thống → Tự chạy khi
+đăng nhập**. Mặc định tắt vì trên máy nhiều người qua lại, một cỗ máy đặt lệnh
+tự khởi động là thứ không ai xin phép.
 
 Chi tiết ở [`dichvu/README.md`](dichvu/README.md): bộ giám sát tự dựng lại
 runtime khi nó chết, có nghỉ tăng dần và biết bỏ cuộc khi cấu hình sai; nhật ký

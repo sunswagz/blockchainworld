@@ -9,6 +9,8 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import os
+import time
 
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -18,7 +20,7 @@ from .bus import bus
 from .config import CONFIG, WEB_DIR
 from .journal import performance, recent_lessons, recent_theses, recent_trades
 from .loop import runtime
-from . import nguon, phien_hoc
+from . import nguon, phien_hoc, tu_chay
 
 app = FastAPI(title="Claude Trader — M0", docs_url=None, redoc_url=None)
 
@@ -258,6 +260,48 @@ async def the_gioi() -> JSONResponse:
     nên mở dashboard không bao giờ phải chờ Yahoo.
     """
     return JSONResponse(nguon.kho())
+
+
+@app.get("/api/tu-chay")
+async def tu_chay_xem() -> JSONResponse:
+    """Tự chạy lúc đăng nhập đang bật hay tắt."""
+    return JSONResponse(tu_chay.trang_thai())
+
+
+@app.post("/api/tu-chay")
+async def tu_chay_dat(req: Request) -> JSONResponse:
+    """Bật/tắt tự chạy lúc đăng nhập.
+
+    Để trong app chứ không chỉ để trong script cài đặt, vì đây là quyết định
+    theo TỪNG MÁY: máy nhiều người dùng chung thì tắt, máy riêng hoặc VPS thì
+    bật. Bắt người ta mở terminal để đổi một lựa chọn như vậy là bắt sai chỗ.
+    """
+    body = await req.json()
+    return JSONResponse(tu_chay.dat(bool(body.get("bat"))))
+
+
+@app.post("/api/dung-han")
+async def dung_han() -> JSONResponse:
+    """Dừng hẳn runtime — đặt cờ rồi tự thoát.
+
+    Đặt cờ TRƯỚC khi thoát: bộ giám sát thấy tiến trình con chết thì mặc định
+    dựng lại (đó là việc của nó), nên không có cờ thì nút này chỉ làm runtime
+    nhấp nháy rồi quay lại.
+
+    Thoát bằng một luồng riêng sau một nhịp ngắn, để phản hồi HTTP kịp đi ra.
+    Thoát ngay trong handler thì trình duyệt nhận lỗi kết nối và người dùng
+    không biết là đã dừng thành công hay chưa.
+    """
+    import threading
+
+    tu_chay.xin_dung()
+
+    def _thoat() -> None:
+        time.sleep(0.6)
+        os._exit(0)
+
+    threading.Thread(target=_thoat, daemon=True).start()
+    return JSONResponse({"ok": True, "noi": "đang dừng — bộ giám sát sẽ không dựng lại"})
 
 
 @app.get("/api/config")

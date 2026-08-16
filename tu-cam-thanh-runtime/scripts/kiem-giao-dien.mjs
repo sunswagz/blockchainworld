@@ -190,6 +190,22 @@ if (H.ketQua) {
   console.log("  —    chưa chạy phiên nào, bỏ qua phần kết quả");
 }
 
+console.log("\n[10] /api/tu-chay — công tắc tự chạy");
+const TC = await (await fetch(`${goc}/api/tu-chay`)).json();
+soat(TC, ["coThe", "bat", "heDieuHanh"], "tự chạy");
+if (TC.coThe) {
+  soat(TC, ["duong", "goc", "python"], "tự chạy (bật được)");
+  // Lối tắt phải gọi pythonw.exe. python.exe cũng chạy được, nhưng nó nháy một
+  // cửa sổ đen mỗi lần đăng nhập — và cửa sổ đó ĐÓNG ĐƯỢC, tức là người dùng
+  // có thể vô tình tắt bot mà tưởng chỉ đóng một cửa sổ thừa.
+  TC.python?.toLowerCase().includes("pythonw")
+    ? ok("trỏ tới pythonw.exe (không cửa sổ)")
+    : bao(`trỏ tới ${TC.python} — mong pythonw.exe`);
+} else {
+  TC.viSao ? ok(`không bật được, và có nói lý do: ${TC.viSao.slice(0, 70)}…`)
+           : bao("không bật được mà không nói vì sao — người dùng sẽ tưởng nút hỏng");
+}
+
 console.log("\n" + "=".repeat(58));
 if (sai) { console.log(`  ${sai} chỗ lệch giữa app.js và API.`); process.exit(1); }
 console.log("  GIAO DIỆN ĐỌC ĐƯỢC MỌI TRƯỜNG NÓ CẦN.");

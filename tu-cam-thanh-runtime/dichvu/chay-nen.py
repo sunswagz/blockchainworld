@@ -36,6 +36,7 @@ from pathlib import Path
 GOC = Path(__file__).resolve().parent.parent      # tu-cam-thanh-runtime/
 NHAT_KY = GOC / "data" / "nhat-ky"
 TRANG_THAI = GOC / "dichvu" / "trang-thai.json"
+CO_DUNG = GOC / "dichvu" / "dung-lai"             # buồng lái xin dừng hẳn
 
 CHET_NHANH_GIAY = 30          # sống ngắn hơn ngần này thì coi là chết nhanh
 NGHI = [5, 10, 30, 60, 120, 300]
@@ -92,6 +93,10 @@ def main() -> int:
     moi["PYTHONUTF8"] = "1"
     moi["PYTHONIOENCODING"] = "utf-8"
 
+    # Cờ dừng còn sót từ lượt trước phải xoá trước khi chạy, nếu không lượt này
+    # vừa lên đã tự tắt — và trông y hệt như runtime chết ngay khi khởi động.
+    CO_DUNG.unlink(missing_ok=True)
+
     lg.info("=" * 62)
     lg.info(f"[giám sát] bắt đầu · {GOC} · cổng {cong} · pid {os.getpid()}")
 
@@ -128,6 +133,16 @@ def main() -> int:
         ma = con.wait()
         song = time.time() - t0
         lg.info(f"[giám sát] runtime thoát mã {ma} sau {song:.0f}s")
+
+        # Buồng lái xin dừng hẳn: nghỉ, đừng dựng lại. Không kiểm cờ này thì nút
+        # "dừng hẳn" thành vô dụng — tiến trình chết, bộ giám sát làm đúng việc
+        # của nó và dựng lại sau vài giây, người dùng tưởng nút hỏng.
+        if CO_DUNG.exists():
+            CO_DUNG.unlink(missing_ok=True)
+            lg.info("[giám sát] buồng lái xin dừng hẳn — nghỉ, không dựng lại")
+            _ghi_trang_thai(giamSatPid=None, conPid=None, cong=cong,
+                            dungTheoYeuCau=True, luc=time.time(), goc=str(GOC))
+            return 0
 
         if song >= CHET_NHANH_GIAY:
             chet_nhanh = 0            # sống được một lúc = coi như lành

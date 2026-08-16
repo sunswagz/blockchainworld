@@ -10,14 +10,14 @@ Write-Host "`n=== Tử Cấm Thành ===`n"
 
 # ── tự chạy lúc đăng nhập ────────────────────────────────────────────────
 if (-not (Test-Path $KHOI_DONG)) {
-  Write-Host "  tự chạy    : CHƯA CÀI"
-  Write-Host "               powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1"
+  Write-Host "  tự chạy    : TẮT — bấm lối tắt thì mới chạy"
+  Write-Host "               bật ở buồng lái: Hệ thống → Tự chạy khi đăng nhập"
 } else {
   $k = (New-Object -ComObject WScript.Shell).CreateShortcut($KHOI_DONG)
   # Lối tắt trỏ sai chỗ là kiểu hỏng im lặng nhất: nó vẫn nằm đó, vẫn chạy lúc
   # đăng nhập, chỉ là chạy một thư mục không còn tồn tại.
   $khop = ($k.WorkingDirectory -eq $GOC)
-  Write-Host "  tự chạy    : có$(if (-not $khop) { "  ⚠ TRỎ SANG CHỖ KHÁC: $($k.WorkingDirectory)" })"
+  Write-Host "  tự chạy    : BẬT$(if (-not $khop) { "  ⚠ TRỎ SANG CHỖ KHÁC: $($k.WorkingDirectory)" })"
 }
 
 # ── tiến trình ───────────────────────────────────────────────────────────

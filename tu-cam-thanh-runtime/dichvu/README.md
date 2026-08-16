@@ -1,6 +1,7 @@
 # Chạy nền
 
-Cài một lần, sau đó bật máy là runtime tự chạy. Không cần mở terminal nữa.
+Cài một lần để có lối tắt ngoài desktop. **Bấm vào thì runtime mới chạy** —
+không tự bật khi khởi động máy.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1
@@ -8,24 +9,53 @@ powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1
 
 | Lệnh | Việc |
 |---|---|
-| `dichvu\cai-dat.ps1` | cài: tự chạy lúc đăng nhập + lối tắt desktop |
+| `dichvu\cai-dat.ps1` | cài: tạo lối tắt desktop, chạy thử một lượt |
 | `dichvu\trang-thai.ps1` | đang thế nào, kèm 12 dòng nhật ký cuối |
 | `dichvu\dung.ps1` | dừng |
 | `dichvu\bat.ps1` | bật lại |
 | `dichvu\go-cai.ps1` | gỡ (KHÔNG đụng `.env`, `data/`, nhật ký) |
 | `dichvu\kiem-giam-sat.py` | kiểm bộ giám sát |
+| `dichvu\kiem-tu-chay.py` | kiểm công tắc tự chạy |
 
-Lối tắt **Tử Cấm Thành** ngoài desktop mở buồng lái, và tự bật dịch vụ nếu nó
+Lối tắt **Tử Cấm Thành** ngoài desktop mở buồng lái, và tự bật runtime nếu nó
 chưa chạy — bấm một lần là ra, không cần biết nó đang bật hay tắt.
+
+## Tự chạy lúc đăng nhập: mặc định TẮT
+
+Công tắc nằm **trong buồng lái**: *Hệ thống → Tự chạy khi đăng nhập*.
+
+Mặc định tắt là có chủ ý. Trên một máy nhiều người qua lại, một cỗ máy đặt lệnh
+tự khởi động là thứ không ai xin phép — người ngồi vào máy sau không biết nó
+đang chạy, cũng không biết nó đang giữ vị thế nào.
+
+Công tắc để trong app chứ không để trong script cài đặt vì đây là lựa chọn theo
+**từng máy** và người ta sẽ đổi ý nhiều lần: máy chung thì tắt, máy riêng thì
+bật. Bắt mở terminal mỗi lần đổi là bắt sai chỗ.
+
+Trên VPS thì **đừng dùng công tắc này** — Linux tự chạy bằng `systemd`, và nó
+khởi động theo *máy* chứ không theo *phiên đăng nhập*, đúng thứ một con bot chạy
+24/7 cần. `trang_thai()` trả `coThe=False` kèm lời giải thích thay vì giấu nút
+đi, để người dùng trên VPS biết vì sao nó không bấm được.
 
 ## Cách nó chạy
 
 ```
-Startup\Tu Cam Thanh - runtime.lnk
+Desktop\Tử Cấm Thành.lnk  ─ hoặc ─  Startup\... (nếu bật tự chạy)
     └── pythonw.exe dichvu\chay-nen.py        ← bộ giám sát, không cửa sổ
             └── python.exe run.py             ← runtime thật
                     stdout ──► data\nhat-ky\runtime.log   (xoay vòng, 5 MB × 5)
 ```
+
+## Tắt hẳn
+
+Nút **Tắt hẳn runtime** ở phòng Hệ thống. Đóng trình duyệt *không* tắt bot —
+nó chạy ngầm, không cửa sổ nào.
+
+Nút này đặt một file cờ `dichvu/dung-lai` **trước khi** tiến trình thoát. Không
+có cờ đó thì nó vô dụng: bộ giám sát thấy con chết và dựng lại ngay sau vài
+giây — đúng việc của nó — nên người dùng sẽ thấy như nút không có tác dụng.
+Giám sát xoá cờ khi đọc xong, và cũng xoá lúc khởi động, vì một cờ sót lại từ
+lượt trước sẽ làm lượt sau vừa lên đã tự tắt.
 
 Bộ giám sát trông chừng runtime và dựng lại khi nó chết. Ba luật của nó:
 
@@ -77,9 +107,9 @@ lúc khởi động lại.
 
 ## Còn thiếu gì so với một dịch vụ thật
 
-Chạy lúc **đăng nhập**, không phải lúc **khởi động máy** — máy bật mà chưa đăng
-nhập thì runtime chưa chạy. Muốn sớm hơn thì cần dịch vụ Windows thật (`sc.exe`
-hoặc NSSM) và quyền quản trị.
+Kể cả khi bật tự chạy, nó chạy lúc **đăng nhập** chứ không phải lúc **khởi động
+máy** — máy bật mà chưa ai đăng nhập thì runtime chưa lên. Muốn sớm hơn thì cần
+một dịch vụ Windows thật (`sc.exe` hoặc NSSM) và quyền quản trị.
 
 Và nó vẫn tắt khi máy ngủ hoặc mất điện. Với một con bot đang giữ vị thế, đó là
 lý do thật để chuyển lên VPS chứ không phải chuyện tiện lợi — xem mục "Mốc sau"

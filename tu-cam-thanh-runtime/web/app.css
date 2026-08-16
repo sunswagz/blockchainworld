@@ -394,3 +394,15 @@ table.bang tr.dau td{background:rgba(34,211,238,.06)}
 .bai-hoc[data-nang="vua"]{border-left-color:var(--amber)}
 .bai-hoc[data-nang="thap"]{border-left-color:var(--fg-4)}
 .ket-luan{border-left:2px solid var(--cyan);background:rgba(34,211,238,.05)}
+
+/* ── công tắc tự chạy ────────────────────────────────────────────── */
+.cong-tac{display:flex;align-items:flex-start;gap:18px}
+.cong-tac .ct-trai{flex:1;min-width:0}
+.ct-nut{flex:0 0 auto;width:52px;height:29px;border-radius:99px;position:relative;
+  border:1px solid var(--line);background:var(--glass-2);transition:all var(--dur);cursor:pointer}
+.ct-nut .ct-num{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;
+  background:var(--fg-4);transition:all var(--dur)}
+.ct-nut.on{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.16)}
+.ct-nut.on .ct-num{left:26px;background:var(--green)}
+.ct-nut:disabled{opacity:.4;cursor:not-allowed}
+.ct-nut:not(:disabled):hover{border-color:rgba(34,211,238,.45)}
