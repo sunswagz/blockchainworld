@@ -25,7 +25,8 @@ from typing import Any
 
 import httpx
 
-from . import che_do_da_coin as CD, dai_quan_sat as DQ, giai_phau as GP, store
+from . import (che_do_da_coin as CD, dai_quan_sat as DQ, dong_thuan as DT,
+               giai_phau as GP, nguon, store, trader_thanh_ky_nang as TK)
 from .bus import bus
 
 KHO = "trader-ho-so.json"
@@ -53,7 +54,9 @@ def tom_tat() -> dict:
         "theoHang": theo_hang,
         "soNghiNgoAnMay": sum(1 for t in hs if t["anMay"]["nghiNgo"]),
         "theoNhom": {n: sum(1 for t in hs if t["nhom"] == n)
-                     for n in ("dinh", "giua", "dangLo")},
+                     for n in ("dinh", "giua", "dangLo", "daChay")},
+        "dongThuan": (d.get("dongThuan") or {}).get("phanQuyet"),
+        "soViTheMo": (d.get("dongThuan") or {}).get("soViThe"),
     }
 
 
@@ -70,7 +73,11 @@ def _chay(moi_nhom: int) -> None:
             _trang_thai.update(phanTram=15, viec=f"lọc và lấy mẫu từ {len(lb):,} trader")
             mau = DQ.lay_mau(lb, moi_nhom)
 
-            can = [(n, t) for n in ("dinh", "giua", "dangLo") for t in mau[n]]
+            # BỐN nhóm — thêm "daChay" (ví đã cháy). Tài liệu nêu bốn nhóm;
+            # bản đầu tôi chỉ làm ba, và nhóm thiếu chính là nhóm dạy được
+            # người ta chết vì cái gì.
+            can = [(n, t) for n in ("dinh", "giua", "dangLo", "daChay")
+                   for t in mau.get(n, [])]
             ra: list[dict] = []
             for i, (nhom, t) in enumerate(can):
                 _trang_thai.update(
@@ -101,31 +108,75 @@ def _chay(moi_nhom: int) -> None:
                     cu = hs.get("tuLuc")
                     ngay = 30
                     if cu:
-                        ngay = min(120, max(30, int((time.time() * 1000 - cu) / 86_400_000) + 3))
-                    for coin, _ in (hs.get("coinHayDanh") or [])[:4]:
+                        # Trần 60 ngày: để 120 thì một hồ sơ mất hơn 5 phút và
+                        # cả phễu thành nửa tiếng. Lệnh cũ hơn thế không tra
+                        # được chế độ, và `soCoCheDo` nói rõ còn lại bao nhiêu.
+                        ngay = min(60, max(30, int((time.time() * 1000 - cu) / 86_400_000) + 3))
+                    # Dựng chuỗi cho coin CÓ VÒNG ĐÓNG TRỌN, không phải coin
+                    # nhiều lệnh nhất.
+                    #
+                    # Lỗi bản đầu: chọn theo số lệnh khớp. Một trader có 1.282
+                    # lệnh HYPE nhưng đó là một vị thế lớn mở/đóng từng phần và
+                    # chưa đóng hẳn, còn 14 vòng hoàn chỉnh của anh ta lại nằm
+                    # ở những coin khác. Kết quả: dựng chuỗi cho đúng coin
+                    # không dùng được, và `soCoCheDo` ra 0 — trông y như dữ
+                    # liệu hỏng chứ không như một lựa chọn sai của mình.
+                    vong_thu = GP._ghep(fills)
+                    dem_coin: dict[str, int] = {}
+                    for v in vong_thu:
+                        dem_coin[v["coin"]] = dem_coin.get(v["coin"], 0) + 1
+                    uu_tien = sorted(dem_coin, key=lambda k: -dem_coin[k])[:5]
+                    for coin in uu_tien:
                         CD.dung_chuoi(c, coin, ngay)
                     gp = GP.giai_phau(fills)
                     ct["daDangCheDo"] = (gp.get("daDangCheDo") or {}).get("diem")
+                    vi_the = DQ.hl_vi_the(c, t["diaChi"])
                 except Exception as e:  # noqa: BLE001 — một trader hỏng không được kéo cả mẻ
                     hs = {"soLenh": 0, "loi": f"{type(e).__name__}"}
                     gp = {"soVong": 0, "loi": f"{type(e).__name__}"}
+                    vi_the = []
                 ra.append({
                     **t, "nhom": nhom, "hoSo": hs, "giaiPhau": gp,
+                    "viThe": vi_the,
                     "diem": DQ.cham_diem(t, ct),
                     "anMay": DQ.an_may(hs),
                 })
                 time.sleep(0.25)   # đừng nện API công khai của người ta
 
-            _trang_thai.update(phanTram=97, viec="lấy lead trader OKX")
+            _trang_thai.update(phanTram=92, viec="lấy lead trader OKX (nhiều trang)")
             try:
-                okx = DQ.okx_lead(c)
+                okx = DQ.okx_lead(c, so_trang=8)
+                # Vị thế đang mở của vài lead trader đầu — nguồn THỨ HAI cho
+                # Elite Positioning, để chỉ số không chỉ dựa vào một sàn.
+                for x in okx[:10]:
+                    try:
+                        x["viThe"] = DQ.okx_vi_the(c, x["diaChi"])
+                    except Exception:  # noqa: BLE001
+                        x["viThe"] = []
+                    time.sleep(0.2)
             except Exception:  # noqa: BLE001
                 okx = []
 
+            _trang_thai.update(phanTram=96, viec="đồng thuận + chen chúc")
+            ps = (nguon.kho() or {}).get("phaiSinh")
+            cs = DT.chi_so(ra + okx, "BTC")
+            dong_thuan = {**cs, "phanQuyet": DT.phan_quyet(cs, ps)}
+            chuyen_gia = {cd: DT.chuyen_gia_cho_che_do(ra, cd)
+                          for cd in ("TREND_UP", "TREND_DOWN", "RANGE", "BREAKOUT")}
+            cheo = GP.ma_tran_cheo(ra)
+
         ra.sort(key=lambda x: -x["diem"]["diem"])
+        TK.viet_tat_ca(ra)
+        # `_vong` nặng và chỉ dùng để dựng ma trận chéo — bỏ trước khi ghi
+        # đĩa, nếu không file hồ sơ phình lên hàng chục MB.
+        for t in ra:
+            (t.get("giaiPhau") or {}).pop("_vong", None)
         store.write_json(KHO, {
             "luc": time.time(), "tongLeaderboard": mau["tong"],
+            "tongDaChay": mau.get("tongDaChay"),
             "traders": ra, "okx": okx,
+            "dongThuan": dong_thuan, "chuyenGiaTheoCheDo": chuyen_gia,
+            "maTranCheo": cheo,
         })
         _trang_thai.update(trangThai="xong", phanTram=100, xong=time.time(),
                            viec=f"{len(ra)} hồ sơ · {len(okx)} lead trader OKX")

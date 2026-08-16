@@ -155,6 +155,13 @@ def load_skills() -> tuple[str, int]:
     parts: list[str] = []
     if SKILLS_DIR.exists():
         for d in sorted(SKILLS_DIR.iterdir()):
+            # `skills/traders/` bị BỎ QUA có chủ ý. Đó là kho hồ sơ trader do
+            # Đài quan sát sinh ra — hàng chục file, và nạp hết vào system
+            # prompt thì vừa phình vừa đắt, mà tệ hơn là dìm bộ não trong dữ
+            # liệu CHƯA QUA KIỂM CHỨNG. Chúng phải được truy hồi có chọn lọc,
+            # đúng như bài học trong `recall()`.
+            if d.name == "traders":
+                continue
             f = d / "SKILL.md" if d.is_dir() else d
             if f.suffix == ".md" and f.exists():
                 parts.append(f.read_text(encoding="utf-8").strip())

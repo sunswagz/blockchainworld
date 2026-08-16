@@ -40,6 +40,18 @@ TF_CHINH, TF_NGU_CANH = "1h", "4h"
 CUA_SO = 400          # bằng candleLimit của bản chạy thật
 KHOI_DONG = 210
 
+# Tính chế độ mỗi BUOC nến thay vì từng nến.
+#
+# Đo được: cửa sổ 120 ngày ⇒ ~2.500 lát × 4 coin × 12 phép chỉ báo, và một hồ sơ
+# mất hơn 5 phút. Chế độ thị trường là nhãn CHẬM — nó không đổi theo từng giờ,
+# nên lấy độ phân giải 3 giờ là đủ để trả lời "lúc họ bấm nút thì thị trường
+# đang thế nào". Nhanh gấp ba, và sai số là tra được nhãn của nến gần đó thay
+# vì nến liền trước.
+#
+# Đây là đánh đổi có ý thức, không phải tiện tay: ghi ở đây để ai đọc kết quả
+# biết độ phân giải thật của nó.
+BUOC = 3
+
 _kho: dict[str, dict] = {}     # coin → {"moc": [...], "cheDo": [...]}
 _nen_cache: dict[str, list] = {}
 
@@ -100,7 +112,7 @@ def dung_chuoi(client: httpx.Client, coin: str, ngay: int = 30) -> dict | None:
     moc_x = [x["t"] for x in nx]
     moc: list[int] = []
     che_do: list[dict] = []
-    for i in range(KHOI_DONG, len(nc)):
+    for i in range(KHOI_DONG, len(nc), BUOC):
         lat = nc[max(0, i + 1 - CUA_SO): i + 1]
         j = bisect.bisect_right(moc_x, lat[-1]["t"])
         lat_x = nx[max(0, j - CUA_SO): j]

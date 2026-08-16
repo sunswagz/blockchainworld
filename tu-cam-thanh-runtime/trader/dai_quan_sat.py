@@ -107,19 +107,68 @@ def duong_von(client: httpx.Client, dia_chi: str) -> dict:
     return {k: v for k, v in _hl(client, {"type": "portfolio", "user": dia_chi})}
 
 
-def okx_lead(client: httpx.Client) -> list[dict]:
-    r = client.get(OKX_LEAD, params={"instType": "SWAP"}, headers=UA, timeout=30)
+def okx_lead(client: httpx.Client, so_trang: int = 10) -> list[dict]:
+    """Lead trader OKX, có PHÂN TRANG.
+
+    Đo được: `totalPage = 26`, mỗi trang 10 người ⇒ tới **260 lead trader**.
+    Bản đầu tôi chỉ lấy trang một rồi coi như xong — 10/260, và cái phễu
+    "TOP 500 → 100 → 30" mà tài liệu mô tả thì không thể có với 10 người.
+    """
+    out: list[dict] = []
+    for trang in range(1, so_trang + 1):
+        try:
+            r = client.get(OKX_LEAD, headers=UA, timeout=30,
+                           params={"instType": "SWAP", "page": trang})
+            r.raise_for_status()
+            d = (r.json().get("data") or [{}])[0]
+        except Exception:  # noqa: BLE001 — hết trang hoặc bị chặn nhịp thì dừng
+            break
+        ranks = d.get("ranks") or []
+        if not ranks:
+            break
+        for x in ranks:
+            ty = [_f(p.get("pnlRatio")) for p in x.get("pnlRatios") or []]
+            out.append({
+                "san": "okx", "diaChi": x.get("uniqueCode"), "ten": x.get("nickName"),
+                "von": _f(x.get("aum")), "soNgayDanDat": _f(x.get("leadDays")),
+                "loiNhuan": _f(x.get("pnl")), "tyLe": _f(x.get("pnlRatio")),
+                "chuoiTyLe": ty, "soNguoiCopy": _f(x.get("copyTraderNum")),
+                "tongTrang": d.get("totalPage"),
+            })
+        time.sleep(0.2)
+    return out
+
+
+def okx_vi_the(client: httpx.Client, ma: str) -> list[dict]:
+    """Vị thế ĐANG MỞ của một lead trader OKX. Nguồn thứ hai cho Elite Positioning."""
+    r = client.get("https://www.okx.com/api/v5/copytrading/public-current-subpositions",
+                   headers=UA, timeout=25,
+                   params={"instType": "SWAP", "uniqueCode": ma})
     r.raise_for_status()
-    d = (r.json().get("data") or [{}])[0]
     out = []
-    for x in d.get("ranks") or []:
-        ty = [_f(p.get("pnlRatio")) for p in x.get("pnlRatios") or []]
-        out.append({
-            "san": "okx", "diaChi": x.get("uniqueCode"), "ten": x.get("nickName"),
-            "von": _f(x.get("aum")), "soNgayDanDat": _f(x.get("leadDays")),
-            "loiNhuan": _f(x.get("pnl")), "tyLe": _f(x.get("pnlRatio")),
-            "chuoiTyLe": ty, "soNguoiCopy": _f(x.get("copyTraderNum")),
-        })
+    for p in r.json().get("data") or []:
+        sz = _f(p.get("subPos"))
+        if p.get("posSide") == "short" or _f(p.get("posSide") == "short"):
+            sz = -abs(sz)
+        out.append({"coin": str(p.get("instId", "")).split("-")[0],
+                    "sz": sz, "giaTriUsd": abs(sz) * _f(p.get("openAvgPx")),
+                    "moLuc": p.get("openTime")})
+    return out
+
+
+def hl_vi_the(client: httpx.Client, dia_chi: str) -> list[dict]:
+    """Vị thế đang mở trên Hyperliquid, chuẩn hoá về cùng hình dạng với OKX."""
+    s = _hl(client, {"type": "clearinghouseState", "user": dia_chi})
+    out = []
+    for a in s.get("assetPositions") or []:
+        p = a.get("position") or {}
+        sz = _f(p.get("szi"))
+        if sz == 0:
+            continue
+        out.append({"coin": p.get("coin"), "sz": sz,
+                    "giaTriUsd": abs(_f(p.get("positionValue"))),
+                    "donBay": _f((p.get("leverage") or {}).get("value")),
+                    "giaVao": _f(p.get("entryPx"))})
     return out
 
 
@@ -364,10 +413,24 @@ def lay_mau(lb: list[dict], moi_nhom: int = 12) -> dict[str, list[dict]]:
     theo_roi = sorted(co, key=lambda t: -_f((t.get("toanThoi") or {}).get("roi")))
     n = len(theo_roi)
     giua = n // 2
+
+    # NHÓM THỨ TƯ: ví đã cháy. Tài liệu thiết kế nêu bốn nhóm — TOP, MID,
+    # FAILED và LIQUIDATED — còn bản đầu tôi chỉ làm ba. Nhóm này dạy được thứ
+    # ba nhóm kia không dạy được: người ta chết vì cái gì.
+    #
+    # Không lọc bằng `hop_le` vì ví cháy thường tụt dưới ngưỡng vốn 50k — chính
+    # cái ngưỡng ấy sẽ loại đúng nhóm cần tìm. Điều kiện: từng giao dịch thật
+    # (có khối lượng lớn) mà mất gần hết.
+    chay = [t for t in lb
+            if _f((t.get("toanThoi") or {}).get("roi")) <= -0.85
+            and _f((t.get("toanThoi") or {}).get("vlm")) > 1_000_000]
+    chay.sort(key=lambda t: -_f((t.get("toanThoi") or {}).get("vlm")))
+
     return {
         "dinh": theo_roi[:moi_nhom],
         "giua": theo_roi[max(0, giua - moi_nhom // 2): giua + moi_nhom // 2],
         "dangLo": [t for t in reversed(theo_roi)
                    if _f((t.get("toanThoi") or {}).get("roi")) < 0][:moi_nhom],
-        "tong": n,
+        "daChay": chay[:moi_nhom],
+        "tong": n, "tongDaChay": len(chay),
     }
