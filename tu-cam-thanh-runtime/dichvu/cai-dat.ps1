@@ -26,6 +26,16 @@
 # nói vậy: `schtasks` kêu "network address is invalid", cmdlet kêu "task XML
 # contains an unexpected node" — cả hai nghe như lỗi cú pháp.
 
+param(
+  # Nơi đặt lối tắt. Mặc định Desktop cho dễ tìm, nhưng đổi được: máy nhiều
+  # người qua lại thì một icon "Tử Cấm Thành" trên desktop là thứ đập vào mắt
+  # đầu tiên. Đặt vào một thư mục khác thì chạy vẫn y hệt.
+  #
+  # Chạy lại script này mà không truyền tham số sẽ tạo lại icon ở Desktop — nên
+  # nếu đã dời nó đi, nhớ truyền lại đúng chỗ cũ.
+  [string]$ThuMucLoiTat = [Environment]::GetFolderPath("Desktop")
+)
+
 $ErrorActionPreference = "Stop"
 $GOC = Split-Path -Parent $PSScriptRoot
 $TEN_LNK = "Tử Cấm Thành.lnk"
@@ -77,17 +87,17 @@ if (-not (Test-Path "$GOC\.env")) {
   Nhac ".env chưa có — runtime sẽ chạy chế độ mock (không gọi API, không vào lệnh testnet)"
 } else { Ok ".env có" }
 
-# ── 4. Lối tắt desktop ───────────────────────────────────────────────────
+# ── 4. Lối tắt ───────────────────────────────────────────────────────────
 $sh = New-Object -ComObject WScript.Shell
+if (-not (Test-Path $ThuMucLoiTat)) { New-Item -ItemType Directory -Force $ThuMucLoiTat | Out-Null }
 # Tạo bằng tên ASCII rồi mới đổi sang tên có dấu.
 #
 # COM WScript.Shell ép đường dẫn về bảng mã ANSI, nên "Tử Cấm Thành.lnk" tới
 # tay nó thành "T? C?m Thành.lnk" và Save() ném FileNotFoundException — thông
 # báo nghe như thiếu thư mục, chứ không hề nhắc gì tới bảng mã. Rename-Item thì
 # đi qua .NET nên Unicode nguyên vẹn.
-$desktop = [Environment]::GetFolderPath("Desktop")
-$tam = Join-Path $desktop "Tu Cam Thanh.lnk"
-$dich = Join-Path $desktop $TEN_LNK
+$tam = Join-Path $ThuMucLoiTat "Tu Cam Thanh.lnk"
+$dich = Join-Path $ThuMucLoiTat $TEN_LNK
 
 $lnk = $sh.CreateShortcut($tam)
 $lnk.TargetPath = $py
@@ -100,7 +110,7 @@ $lnk.Save()
 
 if (Test-Path $dich) { Remove-Item $dich -Force }
 Rename-Item -LiteralPath $tam -NewName $TEN_LNK
-Ok "lối tắt: Desktop\$TEN_LNK"
+Ok "lối tắt: $dich"
 
 # ── 5. Chạy luôn ─────────────────────────────────────────────────────────
 $cong = (Get-Content "$GOC\config.json" -Raw | ConvertFrom-Json).port
@@ -125,7 +135,7 @@ Write-Host @"
 === Xong ===
 
   Buồng lái     http://localhost:$cong
-  Lối tắt       Desktop\$TEN_LNK
+  Lối tắt       $dich
   Nhật ký       $GOC\data\nhat-ky\runtime.log
 
   Xem trạng thái   powershell -File dichvu\trang-thai.ps1

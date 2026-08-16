@@ -18,8 +18,14 @@ if (Test-Path $KHOI_DONG) {
   Write-Host "  OK   đã xoá lối tắt tự chạy lúc đăng nhập"
 } else { Write-Host "  —    lối tắt tự chạy chưa có" }
 
-$lnk = Join-Path ([Environment]::GetFolderPath("Desktop")) "Tử Cấm Thành.lnk"
-if (Test-Path $lnk) { Remove-Item $lnk -Force; Write-Host "  OK   đã xoá lối tắt desktop" }
+# Tìm lối tắt ở cả Desktop lẫn thư mục cha của runtime: `cai-dat.ps1` cho phép
+# đặt nó ở đâu tuỳ ý (-ThuMucLoiTat), nên chỉ dọn mỗi Desktop là bỏ sót.
+$GOC_RT = Split-Path -Parent $PSScriptRoot
+foreach ($noi in @([Environment]::GetFolderPath("Desktop"),
+                   (Split-Path -Parent $GOC_RT))) {
+  $lnk = Join-Path $noi "Tử Cấm Thành.lnk"
+  if (Test-Path $lnk) { Remove-Item $lnk -Force; Write-Host "  OK   đã xoá lối tắt: $lnk" }
+}
 
 Write-Host @"
 
