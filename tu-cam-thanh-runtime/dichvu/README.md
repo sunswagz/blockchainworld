@@ -105,14 +105,47 @@ khỏi "mất sạch vốn", và `selftest.py` mục [8] gác nó.
 qua bộ giám sát rồi mới xuống đĩa, nên nó xoay vòng liên tục chứ không chỉ xoay
 lúc khởi động lại.
 
-## Chuyển runtime đi chỗ khác
+## Bản đang chạy nằm ở đâu
 
-Runtime **chạy được ở bất cứ đâu** — nó không cần nằm trong repo.
+Runtime **chạy được ở bất cứ đâu** — nó không cần nằm trong repo. Cách bố trí
+đang dùng:
+
+```
+D:\SUNSWaGz 2027\tu-cam-thanh-runtime\          ← BẢN ĐANG CHẠY
+    .env, data/, config.json  (chỉ có ở đây)        lối tắt desktop trỏ vào đây
+
+<repo>\tu-cam-thanh-runtime\                     ← MÃ NGUỒN
+    không có .env, không có data/                   git quản, `git pull` cập nhật
+```
+
+Tách vậy vì hai thứ có vòng đời khác nhau: mã thì versioned và thay đổi liên
+tục; khoá với lịch sử giao dịch thì **không được** nằm trong git và không được
+mất. Bản chạy vẫn ghi ảnh chụp ngược về cung tĩnh trong repo qua `cungTinh`.
+
+Đổi lại: `git pull` không với tới bản đang chạy. Sửa mã xong phải đẩy sang:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File dichvu\cap-nhat.ps1 -Den "D:\SUNSWaGz 2027\tu-cam-thanh-runtime" -Thu   # xem trước
+powershell -ExecutionPolicy Bypass -File dichvu\cap-nhat.ps1 -Den "D:\SUNSWaGz 2027\tu-cam-thanh-runtime"
+```
+
+`cap-nhat.ps1` chỉ chép **mã** và không bao giờ đụng `.env`, `data/`,
+`config.json`. Danh sách thứ được chép là **tường minh**, không phải "chép tất
+rồi trừ ra": quên thêm một thư mục mới thì nó không được đẩy — dễ nhận ra ngay.
+Còn quên *trừ* thì nó đè mất dữ liệu, và không lấy lại được.
+
+## Chuyển sang chỗ khác
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File dichvu\chuyen-nha.ps1 -Den "D:\Chỗ\Khác\tct"
 powershell -ExecutionPolicy Bypass -File dichvu\chuyen-nha.ps1 -Den "..." -An   # kèm ẩn thư mục
 ```
+
+**Lưu ý khi chuyển từ trong repo ra:** Windows từ chối chuyển một thư mục nếu
+có *bất kỳ* tiến trình nào đang "đứng trong" đó — kể cả một cửa sổ terminal đã
+`cd` vào, hay VS Code đang mở thư mục. Lỗi báo ra là `Access to the path is
+denied` hoặc `the item is in use`, không hề nhắc tới thủ phạm. Nếu vướng, cách
+chắc ăn là **chép rồi xoá nguồn** thay vì chuyển.
 
 Kéo thả bằng tay cũng được, nhưng ba sợi dây sẽ đứt **âm thầm**:
 
