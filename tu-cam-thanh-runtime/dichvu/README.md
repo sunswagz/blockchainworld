@@ -1,11 +1,19 @@
 # Chạy nền
 
-Cài một lần để có lối tắt ngoài desktop. **Bấm vào thì runtime mới chạy** —
-không tự bật khi khởi động máy.
+Cài một lần để có lối tắt. **Bấm vào thì runtime mới chạy** — không tự bật khi
+khởi động máy.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1
+powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1 -ThuMucLoiTat "D:\Chỗ\Khác"
 ```
+
+Mặc định lối tắt nằm ở Desktop. `-ThuMucLoiTat` đặt nó chỗ khác — trên máy nhiều
+người qua lại, một icon "Tử Cấm Thành" giữa desktop là thứ đập vào mắt đầu tiên,
+dễ thấy hơn hẳn thư mục runtime nằm lẫn giữa mấy chục thư mục khác.
+
+**Chạy lại `cai-dat.ps1` mà không truyền tham số sẽ tạo lại icon ở Desktop** —
+đã dời đi thì nhớ truyền lại đúng chỗ.
 
 | Lệnh | Việc |
 |---|---|
@@ -105,34 +113,36 @@ khỏi "mất sạch vốn", và `selftest.py` mục [8] gác nó.
 qua bộ giám sát rồi mới xuống đĩa, nên nó xoay vòng liên tục chứ không chỉ xoay
 lúc khởi động lại.
 
-## Bản đang chạy nằm ở đâu
-
-Runtime **chạy được ở bất cứ đâu** — nó không cần nằm trong repo. Cách bố trí
-đang dùng:
+## Một bản duy nhất, nằm trong repo
 
 ```
-D:\SUNSWaGz 2027\tu-cam-thanh-runtime\          ← BẢN ĐANG CHẠY
-    .env, data/, config.json  (chỉ có ở đây)        lối tắt desktop trỏ vào đây
-
-<repo>\tu-cam-thanh-runtime\                     ← MÃ NGUỒN
-    không có .env, không có data/                   git quản, `git pull` cập nhật
+<repo>\tu-cam-thanh-runtime\        ← mã + .env + data/, tất cả ở đây
+<repo>\tu-cam-thanh\                ← cung tĩnh, nằm ngay cạnh
 ```
 
-Tách vậy vì hai thứ có vòng đời khác nhau: mã thì versioned và thay đổi liên
-tục; khoá với lịch sử giao dịch thì **không được** nằm trong git và không được
-mất. Bản chạy vẫn ghi ảnh chụp ngược về cung tĩnh trong repo qua `cungTinh`.
+`.env` và `data/` đã gitignore nên chúng không bao giờ lên GitHub. Nằm cạnh mã
+trong thư mục repo là chuyện bình thường, và `snapshot.py` tự tìm thấy cung tĩnh
+vì hai thư mục là anh em — không cần đặt `cungTinh`.
 
-Đổi lại: `git pull` không với tới bản đang chạy. Sửa mã xong phải đẩy sang:
+Đã thử tách bản chạy ra ngoài repo một lượt rồi **gộp lại**. Lý do tách nghe hợp
+lý (khoá không nằm cạnh git, dễ giấu hơn) nhưng cả hai đều yếu: gitignore đã lo
+phần lộ khoá, còn giấu thì thứ đáng giấu là **lối tắt**, không phải thư mục.
+
+Cái giá của việc tách thì thật và im lặng: sửa mã trong repo, commit, mà quên
+chạy `cap-nhat.ps1` là bot vẫn chạy mã cũ — không có gì báo cả. Chính xác loại
+lỗi mà cả hệ thống này được dựng lên để chặn.
+
+`dichvu\cap-nhat.ps1` vẫn giữ, vì nó cần thật khi bản chạy nằm nơi khác — trên
+VPS chẳng hạn:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File dichvu\cap-nhat.ps1 -Den "D:\SUNSWaGz 2027\tu-cam-thanh-runtime" -Thu   # xem trước
-powershell -ExecutionPolicy Bypass -File dichvu\cap-nhat.ps1 -Den "D:\SUNSWaGz 2027\tu-cam-thanh-runtime"
+powershell -ExecutionPolicy Bypass -File dichvu\cap-nhat.ps1 -Den "<đường dẫn>" -Thu   # xem trước
 ```
 
-`cap-nhat.ps1` chỉ chép **mã** và không bao giờ đụng `.env`, `data/`,
-`config.json`. Danh sách thứ được chép là **tường minh**, không phải "chép tất
-rồi trừ ra": quên thêm một thư mục mới thì nó không được đẩy — dễ nhận ra ngay.
-Còn quên *trừ* thì nó đè mất dữ liệu, và không lấy lại được.
+Nó chỉ chép **mã** và không bao giờ đụng `.env`, `data/`, `config.json`. Danh
+sách thứ được chép là **tường minh**, không phải "chép tất rồi trừ ra": quên
+thêm một thư mục mới thì nó không được đẩy — dễ nhận ra ngay. Còn quên *trừ*
+thì nó đè mất dữ liệu, và không lấy lại được.
 
 ## Chuyển sang chỗ khác
 
