@@ -20,7 +20,7 @@ from .bus import bus
 from .config import CONFIG, WEB_DIR
 from .journal import performance, recent_lessons, recent_theses, recent_trades
 from .loop import runtime
-from . import chien_luoc, nguon, phien_hoc, tu_chay
+from . import chien_luoc, nguon, phien_hoc, phien_quan_sat, tu_chay
 
 app = FastAPI(title="Claude Trader — M0", docs_url=None, redoc_url=None)
 
@@ -260,6 +260,19 @@ async def the_gioi() -> JSONResponse:
     nên mở dashboard không bao giờ phải chờ Yahoo.
     """
     return JSONResponse(nguon.kho())
+
+
+@app.get("/api/quan-sat")
+async def quan_sat_xem(day_du: int = 0) -> JSONResponse:
+    """Đài quan sát trader. `day_du=1` để lấy cả danh sách hồ sơ."""
+    t = phien_quan_sat.trang_thai()
+    return JSONResponse({**t, **(phien_quan_sat.ho_so_day_du() if day_du else {})})
+
+
+@app.post("/api/quan-sat")
+async def quan_sat_chay(req: Request) -> JSONResponse:
+    b = await req.json()
+    return JSONResponse(phien_quan_sat.bat_dau(int(b.get("moiNhom", 12))))
 
 
 @app.get("/api/chien-luoc")

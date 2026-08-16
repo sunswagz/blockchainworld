@@ -686,6 +686,7 @@ function veNaoClaude() {
 /* ── TẦNG 1 · HỆ THỐNG ─────────────────────────────────────────── */
 let TC = null;          // /api/tu-chay
 let CL = null;          // /api/chien-luoc
+let QS = null;          // /api/quan-sat
 
 function veHeThong() {
   const n = el("htNoi");
@@ -784,8 +785,10 @@ async function datTuChay(bat) {
    Điều quan trọng nhất ở phòng này là ĐỌC ĐÚNG CHIỀU — xem ghi chú dưới. */
 function veQuanSatTrader() {
   const G = W?.phaiSinh;
+  const dai = veDaiQuanSat();
   if (!G?.co) {
-    el("qstNoi").innerHTML = khoiTheGioiChoLay("Đài quan sát trader");
+    el("qstNoi").innerHTML = dai + khoiTheGioiChoLay("Tỉ lệ vị thế toàn sàn");
+    noiNutQuanSat();
     return;
   }
   const nhomLs = (ten, g, y) => {
@@ -801,7 +804,7 @@ function veQuanSatTrader() {
       <div class="phu-nho" style="margin-top:6px">${y}</div></div>`;
   };
 
-  el("qstNoi").innerHTML = `
+  el("qstNoi").innerHTML = dai + `
     <div class="luoi c3">
       ${nhomLs("Trader lớn (top)", G.topTrader,
         "Nhóm tài khoản ký quỹ lớn nhất sàn — gần nhất với ý “trader giỏi”.")}
@@ -842,6 +845,120 @@ function veQuanSatTrader() {
       và trên dữ liệu tổng hợp thế này thì còn chẳng tách được <i>giỏi</i> khỏi <i>may</i>.</p>
     </div>
     ${nguonNho(G.nguon, W.luc)}`;
+  noiNutQuanSat();
+}
+
+/** Nút chạy phễu + nhịp hỏi tiến độ. */
+let qsNhip = null;
+function noiNutQuanSat() {
+  const b = el("qsChay");
+  if (b) b.onclick = async () => {
+    await fetch("/api/quan-sat", { method: "POST",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify({ moiNhom: 8 }) });
+    if (!qsNhip) qsNhip = setInterval(async () => {
+      await taiQuanSat();
+      if (QS?.trangThai !== "đang chạy") { clearInterval(qsNhip); qsNhip = null; }
+      if (phongDangMo === "quan-sat-trader") veQuanSatTrader();
+    }, 2000);
+    await taiQuanSat(); veQuanSatTrader();
+  };
+}
+
+/** ĐÀI QUAN SÁT — nghiên cứu trader thật, KHÔNG sao chép họ. */
+function veDaiQuanSat() {
+  const k = QS?.kho;
+  const T = QS?.traders || [];
+  const chay = QS?.trangThai === "đang chạy";
+
+  const dinh = `<div class="tieu-muc">Đài quan sát trader · Hyperliquid + OKX</div>
+    <div class="kinh the">
+      <p style="margin:0 0 10px;font-size:12.5px;line-height:1.8;color:var(--fg-2)">
+      Đây là <b>trader-research</b>, không phải copy-trading. Không có nút "sao chép" ở đâu cả:
+      đầu ra là những mẫu hành vi lặp lại, và mẫu đó vẫn phải đi qua backtest rồi cửa duyệt
+      champion như mọi ý tưởng khác.</p>
+      <div class="nut-hang">
+        <button class="nut ${k?.co ? "" : "chinh"}" id="qsChay" ${chay ? "disabled" : ""}>
+          ${k?.co ? "Chạy lại phễu" : "Chạy phễu quan sát"}</button>
+      </div>
+      ${chay ? `<div style="margin-top:10px">
+        <div class="do-nhan"><span>${esc(QS.viec || "")}</span><b>${QS.phanTram}%</b></div>
+        <div class="do-rai"><div class="do-day" style="width:${clamp(QS.phanTram)}%"></div></div>
+      </div>` : ""}
+      ${QS?.loi ? `<div class="canh-bao" style="margin-top:10px">${esc(QS.loi)}</div>` : ""}
+    </div>`;
+
+  if (!k?.co) return dinh + `<div class="trong" style="margin-top:12px">
+    Chưa dựng hồ sơ nào. Phễu lọc từ <b>41.794 trader</b> Hyperliquid xuống vài chục hồ sơ sâu —
+    mất khoảng 2 phút.</div>`;
+
+  const nhom = (n, ten) => {
+    const g = T.filter((t) => t.nhom === n);
+    if (!g.length) return "";
+    const tb = (f) => { const v = g.map(f).filter((x) => x != null && !isNaN(x));
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+    return `<tr><td>${ten}</td><td>${g.length}</td>
+      <td class="mono">${num(tb((t) => t.diem.diem), 1)}</td>
+      <td class="mono">${num(tb((t) => Number(t.toanThoi?.roi) * 100), 0)}%</td>
+      <td class="mono">${num(tb((t) => t.hoSo?.giuTrungVi_gio), 1)}h</td>
+      <td class="mono">${num(tb((t) => t.hoSo?.tyLeThang), 1)}%</td>
+      <td class="mono">${num(tb((t) => t.hoSo?.soLanThanhLy), 2)}</td></tr>`;
+  };
+
+  return dinh + `
+    <div class="luoi c4" style="margin-top:12px">
+      ${oTk("Hồ sơ đã dựng", k.soTrader, "", `lọc từ ${(k.tongLeaderboard || 0).toLocaleString("vi-VN")} ứng viên`)}
+      ${oTk("MASTER + ELITE", (k.theoHang?.MASTER || 0) + (k.theoHang?.ELITE || 0), "len",
+        "điểm ≥80 — <b>không</b> xếp theo PnL")}
+      ${oTk("Nghi ăn may", k.soNghiNgoAnMay, k.soNghiNgoAnMay ? "nhac" : "",
+        "thành tích dồn vào một lệnh, mẫu quá nhỏ, hoặc từng bị thanh lý")}
+      ${oTk("Nhóm đang lỗ", k.theoNhom?.dangLo || 0, "",
+        "lấy <b>có chủ ý</b> — chống thiên lệch kẻ sống sót")}
+    </div>
+
+    <div class="tieu-muc">Ba nhóm so với nhau</div>
+    <div class="kinh the" style="overflow-x:auto"><table class="bang">
+      <tr><th>nhóm</th><th>n</th><th>điểm</th><th>ROI</th><th>giữ</th><th>thắng</th><th>thanh lý</th></tr>
+      ${nhom("dinh", "đỉnh")}${nhom("giua", "giữa")}${nhom("dangLo", "đang lỗ")}
+    </table>
+    <p style="margin:10px 0 0;font-size:12.5px;line-height:1.8;color:var(--fg-2)">
+    Nhóm giữa thường <b>thắng nhiều hơn</b> nhóm đỉnh mà kiếm ít hơn hẳn — họ cắt lãi non.
+    Đây đúng là bài học cả hệ thống này đang dạy, nhưng lần này nó đến từ hành vi trader thật
+    chứ không phải từ lý thuyết. Nhóm đang lỗ thì giữ lệnh rất ngắn và bị thanh lý nhiều nhất.</p>
+    </div>
+
+    <div class="tieu-muc">${Math.min(10, T.length)} hồ sơ điểm cao nhất</div>
+    <div class="kinh the" style="overflow-x:auto"><table class="bang">
+      <tr><th>điểm</th><th>hạng</th><th>nhóm</th><th>địa chỉ</th><th>ROI</th><th>lệnh</th>
+          <th>giữ</th><th>thắng</th><th>1 lệnh</th><th>phủ</th></tr>
+      ${T.slice(0, 10).map((t) => {
+        const h = t.hoSo || {};
+        return `<tr>
+          <td class="mono ${t.diem.diem >= 80 ? "len" : ""}">${t.diem.diem}</td>
+          <td>${esc(t.diem.hang)}</td><td>${esc(t.nhom)}</td>
+          <td class="mono">${esc((t.diaChi || "").slice(0, 10))}…</td>
+          <td class="mono">${num(Number(t.toanThoi?.roi) * 100, 0)}%</td>
+          <td>${h.soLenh ?? "—"}</td>
+          <td class="mono">${num(h.giuTrungVi_gio, 1)}h</td>
+          <td class="mono">${num(h.tyLeThang, 1)}%</td>
+          <td class="mono ${h.phanTramLaiTuLenhLonNhat > 50 ? "xuong" : ""}">${num(h.phanTramLaiTuLenhLonNhat, 0)}%</td>
+          <td class="mono">${t.diem.doPhu}%</td></tr>`;
+      }).join("")}
+    </table>
+    <div class="phu-nho" style="margin-top:8px">
+      Cột <b>1 lệnh</b> là phần trăm tổng lãi đến từ một lệnh duy nhất — trên 50% nghĩa là
+      thành tích đến từ một cú, không phải một nghề. Cột <b>phủ</b> là bao nhiêu phần trọng số
+      điểm thật sự đo được; phần chưa đo không bị cho điểm 0, vì cho 0 là phạt người mình
+      chưa buồn đo.</div>
+    </div>
+
+    <div class="tieu-muc">Chưa đo được</div>
+    <div class="kinh the"><p style="margin:0;font-size:12.5px;line-height:1.8;color:var(--fg-3)">
+      <b>Đa dạng chế độ thị trường</b> (5% trọng số) cần ghép từng lệnh với chế độ thị trường tại
+      đúng thời điểm đó — mà chế độ hiện chỉ tính cho BTCUSDT, còn trader Hyperliquid vào lệnh
+      trên hàng chục coin. Để trống thay vì bịa: bịa ở đây sẽ nghiêng bảng xếp hạng theo một
+      chiều không ai kiểm được.<br><br>
+      <b>Binance leaderboard</b> trả 404 ở cả hai endpoint — đo tại máy này, đúng như tài liệu
+      thiết kế đã ngờ. Nguồn đó bị bỏ chứ không cào lén.</p></div>`;
 }
 
 /* ── TẦNG 2 · DÒNG CHẢY THẾ GIỚI ───────────────────────────────── */
@@ -1570,6 +1687,10 @@ async function taiNen() {
   try { C = await (await fetch("/api/candles")).json(); ve(); } catch {}
 }
 
+async function taiQuanSat() {
+  try { QS = await (await fetch("/api/quan-sat?day_du=1")).json(); } catch (e) { /* giữ bản cũ */ }
+}
+
 async function taiChienLuoc() {
   try { CL = await (await fetch("/api/chien-luoc")).json(); } catch (e) { /* giữ bản cũ */ }
 }
@@ -1650,8 +1771,9 @@ Promise.all([
   fetch("/api/hoc").then((r) => r.json()).catch(() => null),
   fetch("/api/tu-chay").then((r) => r.json()).catch(() => null),
   fetch("/api/chien-luoc").then((r) => r.json()).catch(() => null),
-]).then(([s, j, c, k, w, h, tc, cl]) => {
-  S = s; J = j; C = c; K = k; W = w; HL = h; TC = tc; CL = cl;
+  fetch("/api/quan-sat?day_du=1").then((r) => r.json()).catch(() => null),
+]).then(([s, j, c, k, w, h, tc, cl, qs]) => {
+  S = s; J = j; C = c; K = k; W = w; HL = h; TC = tc; CL = cl; QS = qs;
   dungBen();
   moPhong(phongDangMo);
   document.body.dataset.sanSang = "1";   // dấu để headless biết đã render xong
