@@ -45,6 +45,8 @@
   <main id="main">
     <div class="topbar">
       <button class="hamb" id="hamb" aria-label="Mở điều hướng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <!-- chuyển chủ thể: app.js dựng, và ẨN HẲN khi chỉ có một nước -->
+      <div class="chtbar" id="chtbar"></div>
       <div class="crumb">
         <h1 id="ttl">Dòng chảy</h1>
         <span class="sep lbl-hide">/</span>
@@ -82,11 +84,22 @@
 
 <div id="toast"></div>
 
-<!-- dữ liệu nền: 7 cụm hồ sơ, 6 chiến trường, 11 đồng hồ, 16 mắt xích -->
+<!-- ═══ LỚP PHƯƠNG PHÁP — đứng TRÊN chỗ chia chủ thể ═══ -->
+<!-- Thang bằng chứng + 7 tiêu chí. Dùng chung cho MỌI nước; nhờ vậy
+     bảng chấm các nước so thẳng được với nhau. Nạp TRƯỚC mọi thứ. -->
+<script src="assets/js/khung.js"></script>
+
+<!-- ═══ CHỦ THỂ: VIỆT NAM ═══ -->
+<!-- data.js = cú sốc từ NGOÀI vào · soi.js = bộ máy BÊN TRONG -->
 <script src="assets/js/data.js"></script>
-<!-- hồ sơ soi quyền lực: tách riêng vì đây là trục BÊN TRONG,
-     khác hẳn trục cú sốc từ ngoài vào của data.js -->
 <script src="assets/js/soi.js"></script>
+
+<!-- ═══ CHỦ THỂ: TRUNG QUỐC ═══ -->
+<!-- KHÔNG phải bản sao Việt Nam đổi tên: mạch của Việt Nam kết thúc
+     ở CPI và việc làm, mạch Trung Quốc kết thúc ở CHẾ ĐỘ CÓ SỐNG SÓT
+     KHÔNG — nên nửa dưới của mạch khác hẳn. Xem đầu tq/data.js. -->
+<script src="assets/js/tq/data.js"></script>
+<script src="assets/js/tq/soi.js"></script>
 <!-- bản quét: TỰ SINH trên máy chủ mỗi 6 giờ, xem scripts/build-scan.mjs -->
 <script src="assets/js/scan.js"></script>
 <!-- số đo bảng cảnh báo: TỰ SINH mỗi 6 giờ, KHÔNG gọi AI.

@@ -1,0 +1,338 @@
+(function () {
+"use strict";
+
+/* ============================================================
+   TRUNG QUỐC — dữ liệu nền
+
+   ── ĐIỀU QUAN TRỌNG NHẤT PHẢI ĐỌC TRƯỚC ─────────────────────
+   Đây KHÔNG phải bản sao cấu trúc Việt Nam với tên nước khác.
+   Hai chủ thể hỏi hai câu khác nhau, nên mạch kết thúc ở hai
+   chỗ khác nhau:
+
+     VIỆT NAM   cú sốc ngoài → … → CPI · tỷ giá · việc làm
+                (câu hỏi: nền kinh tế chịu được không)
+
+     TRUNG QUỐC cú sốc ngoài → … → CHẾ ĐỘ CÓ SỐNG SÓT KHÔNG
+                (câu hỏi: quyền lực có giữ được không)
+
+   Chép nguyên khuôn Việt Nam sang đây là mất đúng phần cốt lõi
+   của phân tích: cú sốc kinh tế KHÔNG trực tiếp đe doạ chế độ.
+   Nó phải chuyển hoá thành XUNG ĐỘT PHÂN PHỐI TRONG NỘI BỘ
+   trước đã. Đó là lý do mạch dưới đây có ba "ổ cứng" mà mạch
+   Việt Nam không có: tài khoá · cán bộ · an ninh.
+
+   ── HỆ QUẢ CHO BẢNG ĐỒNG HỒ ─────────────────────────────────
+   Tám trong mười hai đồng hồ ở đây KHÔNG phải chỉ số kinh tế.
+   Đó là chủ ý, không phải thiếu sót: một chế độ có thể nghèo đi
+   rất nhiều mà vẫn đứng, và có thể giàu mà vẫn vỡ. GDP là đồng
+   hồ tệ nhất để đo chuyện này.
+   ============================================================ */
+
+/* ── CHIẾN TRƯỜNG: cú sốc từ ngoài đánh vào ────────────────── */
+const THEATERS = [
+  {
+    id:'nangluong', ic:'ship', flag:'🛢', name:'Năng lượng — Hormuz và Malacca',
+    short:'Năng lượng', role:'Phụ thuộc nhập khẩu lớn nhất', acc:'#e5484d',
+    query:'China crude oil imports Hormuz Malacca strait energy security',
+    lede:'Đây là điểm yếu thật, nhưng <b>không</b> đơn giản như "Hormuz đóng → Trung Quốc hết dầu → sụp". Bắc Kinh đã đa dạng hoá nguồn rất rõ, và một cú sốc ở Hormuz đánh cả Nhật, Hàn, Ấn Độ, châu Âu chứ không chọn riêng Trung Quốc.',
+    mech:[
+      'GIÁ DẦU THẾ GIỚI ↑ · phí bảo hiểm chiến tranh ↑',
+      'chi phí sản xuất của công xưởng ↑',
+      'biên lợi nhuận doanh nghiệp ↓',
+      'việc làm ↓ · thu nhập ↓ · thu ngân sách ↓'
+    ],
+    ascii:'VÙNG VỊNH                    NGA\n   ↓                          ↓\nHORMUZ                  đường ống\n   ↓                    cảng Viễn Đông\nẤN ĐỘ DƯƠNG                  ↓\n   ↓                          │\nMALACCA                       │\n   ↓                          │\n   └──────── TRUNG QUỐC ──────┘\n\n     tuyến A (biển)      tuyến B (lục địa)\n     dễ bị chặn         khó chặn hơn',
+    keypoint:'Năm 2024 Trung Quốc tiêu thụ khoảng <b>16,3 triệu thùng/ngày</b>, sản xuất nội địa chỉ ~4,3 triệu và nhập khoảng <b>11,1 triệu</b>. Nguồn nhập chia rất rộng: Nga ~20%, Saudi ~14%, Iran ~11%, Iraq ~10%, Oman ~7%, UAE ~6%, Brazil ~6%, Angola ~5%. Hormuz mang khoảng một phần tư thương mại dầu đường biển toàn cầu — nên nghẽn ở đó là cú sốc giá toàn cầu, không phải công tắc tắt riêng Trung Quốc.',
+    clocks:['Giá dầu Brent','Tỷ trọng nhập khẩu từ Nga','Lưu lượng qua Hormuz và Malacca','Dự trữ dầu chiến lược'],
+    hits:['Chi phí sản xuất toàn bộ công xưởng','Lạm phát nhập khẩu','Biên lợi nhuận doanh nghiệp xuất khẩu'],
+    scen:'Kịch bản A — cú sốc đơn lẻ, hệ thống hấp thụ được'
+  },
+  {
+    id:'congnghe', ic:'factory', flag:'💾', name:'Công nghệ — tầng chip và thiết bị',
+    short:'Công nghệ', role:'Đòn bẩy chọn lọc nhất', acc:'#a371f7',
+    query:'China semiconductor export controls advanced chips lithography EDA',
+    lede:'Khác hẳn dầu. Dầu đánh vào <b>toàn bộ</b> nền kinh tế; chip tiên tiến chỉ đánh vào <b>tiền tuyến công nghệ</b> — AI, siêu máy tính, chế tạo cao cấp, một phần hệ thống quân sự. Nên nó rất mạnh về dài hạn nhưng gần như không gây sụp trong ngắn hạn.',
+    mech:[
+      'chip tiên tiến · EDA · thiết bị quang khắc khó tiếp cận',
+      'tiền tuyến AI và bán dẫn chậm lại',
+      'năng suất và ngành chiến lược ↓',
+      'buộc nội địa hoá — tốn kém nhưng không đứng lại'
+    ],
+    ascii:'    MỸ            HÀ LAN         NHẬT\n  GPU · EDA      quang khắc    thiết bị\n  IP · một phần   cao cấp      vật liệu\n     thiết bị\n     └──────────────┼─────────────┘\n                    ↓\n              ĐÀI LOAN\n           foundry tiên tiến\n                    ↓\n              HÀN QUỐC\n              HBM · memory\n                    ↓\n              TRUNG QUỐC',
+    keypoint:'Chuỗi bán dẫn tiên tiến <b>không nằm trong một quốc gia</b>. Nên một hạn chế đơn lẻ thì Trung Quốc tìm được đường vòng; chỉ khi nhiều tầng bị giới hạn cùng lúc mới tạo nút thắt lâu dài. Đó cũng là lý do Mỹ muốn kiểm soát hiệu quả thì bản thân Mỹ cũng cần Hà Lan, Nhật, Hàn và Đài Loan. Trung Quốc vẫn có chip trưởng thành, SMIC, Huawei, thiết bị nội địa và trợ cấp nhà nước.',
+    clocks:['Tiến độ nội địa hoá thiết bị','Sản lượng chip trưởng thành','Đầu tư quỹ nhà nước cho bán dẫn'],
+    hits:['Năng lực công nghệ dài hạn','Ngành chiến lược và quân sự','Năng suất tổng thể'],
+    scen:'Kịch bản A về ngắn hạn, nhưng là đòn dài hạn mạnh nhất bảng'
+  },
+  {
+    id:'thuongmai', ic:'flow', flag:'📦', name:'Thương mại — thị trường Mỹ và EU',
+    short:'Thương mại', role:'Van đang bù cho nội địa yếu', acc:'#f0503f',
+    query:'China exports United States European Union tariffs trade restrictions',
+    lede:'Đây là chỗ nguy hiểm <b>ngay lúc này</b>, vì nó đánh đúng cái van đang gánh phần yếu của trong nước. Nhu cầu nội địa yếu nên xuất khẩu đang là thứ giữ tăng trưởng — và đó chính là chỗ bị siết.',
+    mech:[
+      'Mỹ 14,7% + EU 14,5% ≈ 29% xuất khẩu hàng hoá',
+      'đơn hàng nhà máy ↓',
+      'việc làm ↓ · thu nhập hộ gia đình ↓',
+      'tiêu dùng ↓ — mà tiêu dùng vốn đã yếu'
+    ],
+    ascii:'Mỹ một mình\n     ↓\nTrung Quốc chuyển hướng\n     ↓\nASEAN · Mexico · Global South · EU\n\n────────────────────────────────\n\nMỹ + EU + các thị trường lớn\n     ↓\nkhó chuyển hướng hơn NHIỀU\n     ↓\n  ĐÒN BẨY THẬT\n  nằm ở LIÊN MINH,\n  không ở một nước đơn lẻ',
+    keypoint:'Đây là chỗ Việt Nam xuất hiện, và ở vị trí rất nhạy cảm: nếu đầu ra trực tiếp bị khó thì dòng đi vòng <b>Trung Quốc → FDI/linh kiện → ASEAN → sản phẩm → Mỹ/EU</b> trở thành lối thoát. Vì vậy quy tắc xuất xứ và chống chuyển tải trở thành mắt xích của chính cuộc chiến thương mại. Chỉ khoá "China → US" mà không nhìn "China → nước thứ ba → US" thì hiệu quả giảm hẳn.',
+    clocks:['Xuất khẩu tính bằng USD','Tỷ trọng Mỹ + EU','Đơn hàng nhà máy mới','Chuyển tải qua nước thứ ba'],
+    hits:['Việc làm công xưởng','Thu ngân sách','Tiêu dùng hộ gia đình'],
+    scen:'Kịch bản B — đánh đúng cái van đang bù cho nội địa yếu'
+  },
+  {
+    id:'hanghai', ic:'ship', flag:'⚓', name:'Hàng hải — Malacca và đường biển',
+    short:'Hàng hải', role:'Động mạch của công xưởng', acc:'#58a6ff',
+    query:'Malacca strait shipping chokepoint China maritime logistics insurance',
+    lede:'Hormuz chỉ là cửa ra của Vùng Vịnh; sau đó phần lớn hàng còn phải đi tiếp sang Đông Á. Và thứ quan trọng hơn dầu là <b>container, nguyên liệu, linh kiện, LNG và hàng xuất khẩu</b> — tất cả đều dùng cùng hệ logistics biển.',
+    mech:[
+      'tàu biển = động mạch · cảng = van · bảo hiểm và tài chính vận tải = máu',
+      'gián đoạn vật lý ở chokepoint = tình huống chiến tranh quy mô lớn',
+      'thiệt hại toàn cầu, không phải công cụ chọn lọc'
+    ],
+    ascii:'VÙNG VỊNH\n    ↓\n HORMUZ\n    ↓\nẤN ĐỘ DƯƠNG\n    ↓\n MALACCA          ← cổ chai thứ hai\n    ↓\nBIỂN ĐÔNG\n    ↓\nTRUNG QUỐC',
+    keypoint:'Đây là điểm dễ bị bỏ sót vì người ta chỉ nghĩ tới dầu. Nhưng một gián đoạn vật lý ở các chokepoint này là <b>tình huống chiến tranh quy mô lớn</b> gây thiệt hại toàn cầu — không phải một công cụ có thể dùng chọn lọc chỉ để tác động Trung Quốc.',
+    clocks:['Cước container','Phí bảo hiểm chiến tranh','Lưu lượng qua Malacca'],
+    hits:['Toàn bộ chuỗi xuất nhập khẩu','Chi phí nguyên liệu và linh kiện'],
+    scen:'Kịch bản A — khuếch đại mọi cú sốc khác, không tự là cú sốc'
+  },
+  {
+    id:'nga', ic:'map', flag:'🐻', name:'Nga — đường vòng chiến lược',
+    short:'Nga', role:'Vùng đệm, không phải đồng minh thường', acc:'#d29922',
+    query:'Russia China crude oil pipeline energy trade strategic partnership',
+    lede:'Đây là chỗ Nga–Ukraina nối vào câu chuyện Trung Quốc, và nó ngược với trực giác: Nga <b>không</b> chủ yếu là đối tác ngoại giao — nó là <b>đường vòng làm giảm phụ thuộc vào tuyến biển phía Nam</b>.',
+    mech:[
+      'Nga là nguồn dầu thô lớn nhất của Trung Quốc năm 2024 (~20%)',
+      'dầu, khí, khoáng sản đi bằng đường ống và cảng Viễn Đông',
+      'nếu Trung Đông bất ổn → Nga là vùng đệm',
+      'nếu phương Tây siết thương mại → Nga là thị trường và hậu phương lục địa'
+    ],
+    ascii:'         NGA\n          │\n  ┌───────┼───────┐\n dầu    khí   khoáng sản\n  └───────┼───────┘\n          ↓\n     TRUNG QUỐC\n          ↓\n  giảm phụ thuộc vào\n  tuyến biển phía Nam',
+    keypoint:'Hệ quả cho mô hình sức ép: <b>Nga yếu đi ĐỒNG THỜI với một khủng hoảng năng lượng Trung Đông</b> nguy hiểm cho Trung Quốc hơn rất nhiều so với từng sự kiện riêng lẻ. Còn Biển Đen thì không phải socket trực tiếp mạnh — nó là <b>bộ khuếch đại</b> qua giá hàng hoá thế giới, không phải tim của Trung Quốc.',
+    clocks:['Tỷ trọng dầu Nga trong nhập khẩu','Công suất đường ống và cảng Viễn Đông'],
+    hits:['Khả năng chịu cú sốc Hormuz','Đòn bẩy đàm phán năng lượng'],
+    scen:'KHÔNG phải mắt xích chịu đòn — là đường vòng làm giảm hiệu lực đòn đánh'
+  },
+  {
+    id:'taichinh', ic:'gauge', flag:'💵', name:'Tài chính quốc tế — đô la và thanh toán',
+    short:'Tài chính', role:'Đòn bẩy mạnh, nhưng có đệm lớn', acc:'#2ea043',
+    query:'China foreign exchange reserves capital controls RMB settlement CIPS',
+    lede:'Đòn bẩy cực mạnh nhưng cực kỳ nguy hiểm cho <b>cả hai phía</b>. Và Trung Quốc không giống một nước nhỏ dễ bị khủng hoảng ngoại hối.',
+    mech:[
+      'xuất khẩu → USD/EUR/JPY → ngân hàng → nhập dầu, chip, nguyên liệu',
+      'nhưng có kiểm soát vốn, ngân hàng nhà nước, thanh toán bằng NDT, CIPS',
+      'cộng dự trữ và thặng dư thương mại → khả năng chống sốc lớn'
+    ],
+    ascii:'sức ép tài chính     ██████████  8/10\nsụp đổ tức thì       ███░░░░░░░  3/10\n\n→ mạnh, nhưng có đệm dày',
+    keypoint:'Cuối tháng 6/2026, dự trữ ngoại hối chính thức khoảng <b>3.416 tỷ USD</b>. Cộng với kiểm soát vốn và hệ ngân hàng quốc doanh, khả năng chống sốc khá lớn. Cú sốc tài chính chỉ thật sự đổi tính chất nếu xảy ra <b>đồng thời</b> với xuất khẩu giảm mạnh, bất động sản, ngân hàng và dòng vốn.',
+    clocks:['Dự trữ ngoại hối','Áp lực tỷ giá NDT','Dòng vốn ra'],
+    hits:['Khả năng nhập khẩu chiến lược','Chi phí vốn quốc tế'],
+    scen:'Kịch bản C — mạnh nhưng có đệm dày, chỉ đổi tính chất khi cộng dồn'
+  }
+];
+
+/* ── MẠCH TRUYỀN DẪN ────────────────────────────────────────
+   Khác Việt Nam ở nửa dưới. Ba mắt xích 'ổ cứng' và một mắt
+   xích 'meta' là phần Việt Nam không có, vì câu hỏi cuối của
+   Việt Nam là kinh tế còn của Trung Quốc là quyền lực. */
+const CHAIN = [
+  {id:'nangluong', t:'Năng lượng', tag:'SOCKET NGOÀI', th:'nangluong',
+   d:'Nhập ~11,1 triệu thùng/ngày. Điểm yếu thật, nhưng nguồn đã đa dạng và cú sốc đánh cả thế giới.'},
+  {id:'congnghe', t:'Công nghệ', tag:'SOCKET NGOÀI', th:'congnghe',
+   d:'Chip tiên tiến, EDA, thiết bị. Đòn bẩy chọn lọc nhất — mạnh dài hạn, yếu ngắn hạn.'},
+  {id:'thuongmai', t:'Thương mại', tag:'SOCKET NGOÀI', th:'thuongmai',
+   d:'Mỹ + EU ≈ 29% xuất khẩu. Đánh đúng cái van đang bù cho nội địa yếu.'},
+  {id:'hanghai', t:'Hàng hải', tag:'SOCKET NGOÀI', th:'hanghai',
+   d:'Malacca và hệ logistics biển. Container quan trọng hơn dầu.'},
+  {id:'nga', t:'Nga', tag:'ĐƯỜNG VÒNG', th:'nga',
+   d:'Không phải mắt xích chịu đòn — là vùng đệm làm giảm hiệu lực của đòn đánh vào tuyến biển.'},
+
+  {id:'loinhuan', t:'Lợi nhuận doanh nghiệp', tag:'KINH TẾ',
+   d:'Chi phí năng lượng ↑ và đơn hàng ↓ gặp nhau ở đây. Đây là chỗ ba cú sốc ngoài cộng dồn.'},
+  {id:'vieclam', t:'Việc làm', tag:'KINH TẾ',
+   d:'Lợi nhuận ↓ → tuyển ít, cắt giảm. Mắt xích chuyển từ bảng cân đối sang đời sống.'},
+  {id:'tieudung', t:'Tiêu dùng', tag:'KINH TẾ',
+   d:'Nhu cầu nội địa vốn đã yếu vì bất động sản và niềm tin. Nên nền kinh tế phải dựa nhiều vào xuất khẩu — và vòng lặp khép lại.'},
+
+  {id:'bds', t:'Bất động sản', tag:'TÀI SẢN',
+   d:'Cửa vào bên trong. Đầu tư phát triển BĐS năm 2025 giảm 17,2%. Đây là chỗ cú sốc ngoài gặp điểm yếu trong.'},
+  {id:'lgfv', t:'LGFV & chính quyền địa phương', tag:'TÀI SẢN',
+   d:'Nhà đất ↓ → bán đất ↓ → thu ngân sách địa phương ↓ → LGFV căng. "Nợ ẩn" ước ~14,3 nghìn tỷ NDT năm 2023.'},
+  {id:'nganhang', t:'Ngân hàng', tag:'TÀI SẢN',
+   d:'Vừa là điểm yếu vừa là BỘ GIẢM XÓC: khoản xấu được gia hạn, đảo nợ, hoán đổi — lỗ không biến mất mà được DI CHUYỂN.'},
+
+  {id:'taikhoa', t:'Tài khoá', tag:'Ổ CỨNG 1',
+   d:'Không chỉ là ngân sách. Là khả năng trả lương công chức, giáo viên, cảnh sát, quân đội, lương hưu — tức khả năng giữ bộ máy dính vào nhau.'},
+  {id:'canbo', t:'Cán bộ', tag:'Ổ CỨNG 2',
+   d:'Bộ truyền động. Trung ương không điều khiển từng người mà kiểm soát ĐƯỜNG THĂNG TIẾN. Nhưng chính cơ chế đó sinh ra báo cáo đẹp và "không dám làm".'},
+  {id:'anninh', t:'An ninh', tag:'Ổ CỨNG 3',
+   d:'Công an, an ninh nhà nước, chính pháp, quân đội. Cohesion ở đây dựa trên chuỗi mệnh lệnh, lương bổng, lòng trung thành và niềm tin rằng trung tâm còn kiểm soát được.'},
+
+  {id:'elite', t:'Thống nhất tầng lãnh đạo', tag:'Ổ META',
+   d:'Chế độ không cần 1,4 tỷ người đồng ý. Nó cần những người CÓ KHẢ NĂNG THAY ĐỔI QUYỀN LỰC tiếp tục tin rằng giữ hệ thống tốt hơn phá nó.'},
+  {id:'chedo', t:'Chế độ tồn tại', tag:'HẠ NGUỒN',
+   d:'Điểm cuối thật sự. Khủng hoảng kinh tế ≠ khủng hoảng chế độ — một chế độ có thể nghèo mà tồn tại rất lâu.'}
+];
+
+/* ── BẢNG ĐỒNG HỒ: mười hai, và tám cái KHÔNG phải kinh tế ──
+   Đây là phát biểu mạnh nhất của cả hồ sơ. Đo GDP để đoán số
+   phận một chế độ là đo sai đại lượng. */
+const GAUGES = [
+  {id:'thudiaphuong', t:'Thu địa phương / chi bắt buộc', d:'Địa phương có tự trả nổi phần phải trả không, hay ngày càng phải xin trung ương.'},
+  {id:'bandat', t:'Doanh thu bán đất', d:'Nguồn thu từng gánh phần lớn ngân sách địa phương. Đây là đồng hồ nối bất động sản với chính trị.'},
+  {id:'lgfv', t:'Chi phí và kỳ hạn LGFV', d:'Nợ ngoài bảng của chính quyền địa phương — lãi bao nhiêu, đáo hạn năm nào, đảo được không.'},
+  {id:'chuyengiao', t:'Trung ương phải tăng transfer bao nhiêu', d:'Tỷ lệ địa phương sống bằng tiền trung ương. Càng cao thì gánh nặng càng dồn về một chỗ.'},
+  {id:'bomvon', t:'Quy mô bơm vốn ngân hàng', d:'Trái phiếu đặc biệt để bổ sung vốn cho ngân hàng quốc doanh — dấu hiệu lỗ đang được chuyển lên tầng trên.'},
+  {id:'tambao', t:'"Tam bảo" ở cơ sở', d:'Dân sinh cơ bản · tiền lương · hoạt động bộ máy. Đây là ĐƯỜNG ĐÁY tài khoá; chạm nó là chạm chỗ khác hẳn GDP.'},
+  {id:'khongdam', t:'Mức "không dám làm" trong bộ máy', d:'Kỷ luật mạnh → cán bộ sợ sai → không quyết → tê liệt hành chính. Nghịch lý cốt lõi thời Tập.'},
+  {id:'thanhloc', t:'Số lượng và cấp bậc cán bộ bị thanh lọc', d:'Đọc hai chiều: vừa là kiểm soát mạnh lên, vừa có thể là mạng quan hệ bị phá và lòng tin nội bộ giảm.'},
+  {id:'nhansu', t:'Thay đổi bất thường ở Bộ Chính trị · Quân uỷ · Chính pháp', d:'Danh sách lãnh đạo ngắn bất thường hoặc thay đổi nhanh là dấu hiệu cần theo dõi.'},
+  {id:'menhlenh', t:'Nhất quán mệnh lệnh trung ương ↔ thực thi địa phương', d:'Mệnh lệnh có bị trì hoãn, vô hiệu hoá hay cạnh tranh không — đây là dấu hiệu sớm của rạn nứt.'},
+  {id:'batdong', t:'Bất đồng công khai ở tầng lãnh đạo cao', d:'Không phải chỉ trích kinh tế, mà là các nhóm cấp cao không còn chấp nhận cùng một quy tắc.'},
+  {id:'chuoilenh', t:'Công an và quân đội có cùng chuỗi mệnh lệnh không', d:'ĐỒNG HỒ QUAN TRỌNG NHẤT. Khi hai lực lượng cưỡng chế không còn nhận cùng một chuỗi lệnh thì mọi đồng hồ khác thành thứ yếu.'}
+];
+
+/* ── NĂM CẤP ĐỘ (Việt Nam có bốn) ───────────────────────────
+   Thêm một bậc vì bậc cuối của Trung Quốc không phải "khủng
+   hoảng kinh tế" mà là "rạn nứt tầng lãnh đạo và an ninh". */
+const LEVELS = [
+  {n:1, t:'CÚ SỐC KINH TẾ',
+   d:'Xuất khẩu ↓, dầu ↑, hạn chế công nghệ. Chi phí tăng, tăng trưởng chậm lại.',
+   r:'Chịu được khá tốt.'},
+  {n:2, t:'CÚ SỐC BẢNG CÂN ĐỐI',
+   d:'Bất động sản ↓, LGFV căng, ngân hàng chịu rủi ro. Hoán đổi nợ, chuyển giao trung ương, đảo nợ ngân hàng.',
+   r:'Vẫn chịu được — và đây là chỗ dữ liệu hiện tại cho thấy Trung Quốc đang đứng.'},
+  {n:3, t:'CĂNG THẲNG TÀI KHOÁ',
+   d:'Địa phương khó duy trì chi tiêu. Trung ương phải gánh ngày càng nhiều.',
+   r:'Khó hơn nhiều, nhưng chưa phải khủng hoảng chế độ.'},
+  {n:4, t:'CĂNG THẲNG CÁN BỘ VÀ AN NINH',
+   d:'Nguồn lực ↓ trong khi mục tiêu xung đột nhau. Bất ổn xã hội ↑, thanh lọc ↑, tê liệt hành chính ↑.',
+   r:'Sức ép lên chính chế độ.'},
+  {n:5, t:'RẠN NỨT TẦNG LÃNH ĐẠO VÀ AN NINH',
+   d:'Tầng lãnh đạo chia rẽ + chuỗi an ninh chia rẽ + trung tâm mất khả năng tài khoá — cùng lúc.',
+   r:'Đây mới là khủng hoảng chế độ.'}
+];
+
+/* ── KỊCH BẢN ───────────────────────────────────────────────── */
+const SCEN = [
+  {k:'A', t:'Chỉ cú sốc kinh tế', w:'Hệ thống hấp thụ', acc:'#2ea043',
+   pts:[
+     'Dầu ↑, chip bị hạn chế, đơn hàng ↓ — nhưng từng cái một',
+     'Chi phí tăng, tăng trưởng chậm, không chạm tầng tài sản',
+     'Trung Quốc đổi thị trường, đổi nhà cung cấp, đổi tuyến logistics',
+     'Nga làm vùng đệm cho phần năng lượng'
+   ],
+   asc:'CÚ SỐC ĐƠN LẺ\n      ↓\nchi phí ↑ · đơn hàng ↓\n      ↓\ntăng trưởng chậm lại\n      ↓\n  HẤP THỤ ĐƯỢC\n\n→ Cấp độ 1'},
+  {k:'B', t:'Cú sốc ngoài gặp bất động sản yếu', w:'Bắt đầu thành hệ thống', acc:'#d29922',
+   pts:[
+     'Năng lượng ↑ và thương mại ↓ đúng lúc bất động sản đang giảm',
+     'Nhà đất ↓ → bán đất ↓ → thu địa phương ↓ → LGFV căng → ngân hàng',
+     'Nhu cầu nội địa yếu nên phải dựa xuất khẩu — mà xuất khẩu đúng là chỗ bị siết',
+     'Đây là chỗ dữ liệu hiện tại cho thấy Trung Quốc đang đứng'
+   ],
+   asc:'HORMUZ / THƯƠNG MẠI\n        ↓\n   chi phí ↑ · đơn hàng ↓\n        ↓            ↘\n   việc làm ↓    BẤT ĐỘNG SẢN ↓\n        ↓            ↓\n   tiêu dùng ↓   bán đất ↓\n        └─────┬──────┘\n              ↓\n         LGFV · NGÂN HÀNG\n\n→ Cấp độ 2'},
+  {k:'C', t:'Ba hệ mất khả năng bù cho nhau', w:'Khủng hoảng chế độ', acc:'#f0503f',
+   pts:[
+     'HỆ 1 kinh tế: xuất khẩu + năng lượng + công nghệ + BĐS + ngân hàng không còn tự bù được',
+     'HỆ 2 tài khoá: trung ương không còn đủ khả năng cứu ngân hàng, địa phương, việc làm, BĐS, SOE',
+     'HỆ 3 chính trị: tầng lãnh đạo + an ninh + quân đội + cán bộ địa phương không còn cùng một hướng',
+     'Hệ 1 hỏng → suy thoái. Hệ 1+2 hỏng → khủng hoảng nhà nước. Cả ba → mới là nguy cơ sụp chế độ.'
+   ],
+   asc:'HỆ 1 KINH TẾ ✗\n      ↓\nHỆ 2 TÀI KHOÁ ✗\n      ↓\n  ── NGƯỠNG 1 ──\n  RẠN NỨT LÃNH ĐẠO\n      ↓\n  ── NGƯỠNG 2 ──\n  RẠN NỨT AN NINH\n      ↓\nHỆ 3 CHÍNH TRỊ ✗\n      ↓\nKHỦNG HOẢNG CHẾ ĐỘ\n\n→ Cấp độ 5'}
+];
+
+/* ── HỒ SƠ NỀN ──────────────────────────────────────────────── */
+const LIB = [
+  {
+    id:'sausanh', n:1, t:'Sáu dấu ≠ — ranh giới giữ điều tra khỏi thành thuyết âm mưu',
+    d:'Cụm quan trọng nhất của toàn bộ chủ thể Trung Quốc. Chính việc giữ sáu ranh giới này mới cho phép phát hiện MỐI LIÊN HỆ THẬT khi nó xuất hiện.',
+    blocks:[
+      {h:'Sáu dấu ≠',
+       p:'Mỗi dòng dưới đây là một bước nhảy mà rất nhiều phân tích thực hiện <b>mà không có bằng chứng cho bước nhảy đó</b>. Bỏ qua một dấu ≠ là biến một quan sát đúng thành một kết luận sai.',
+       a:'CÓ CHI BỘ ĐẢNG\n  ≠  công ty thuộc Nhà nước\n\nĐƯỢC MẶT TRẬN THỐNG NHẤT TIẾP XÚC\n  ≠  điệp viên\n\nCÓ QUAN HỆ VỚI ĐCSTQ\n  ≠  nhận lệnh từ Tập\n\nTAM HOÀNG THÂN BẮC KINH\n  ≠  cơ quan chính thức của ĐCSTQ\n\nCHÍNH PHÁP DO ĐẢNG LÃNH ĐẠO\n  ≠  Tập quyết định từng bản án\n\nTẬP QUYỀN\n  ≠  trung ương biết và điều khiển mọi thứ'},
+      {h:'Năm mức rất dễ bị trộn',
+       p:'Cùng một logic đã dùng cho Vingroup: <b>phụ thuộc chính sách · liên minh lợi ích · hợp tác chiến lược · quyền chi phối · quyền sở hữu</b> là năm thứ khác nhau. Ở Trung Quốc còn thêm một mức nữa mà phương Tây hay bỏ sót — <b>hấp thụ</b>: Đảng không tiêu diệt tầng lớp doanh nhân như thời Mao, nó <b>hấp thụ</b> họ.',
+       a:'QUAN HỆ\n   ≠\nQUYỀN SỞ HỮU\n   ≠\nCHỈ HUY'},
+      {h:'Vì sao ranh giới lại làm điều tra MẠNH hơn, không yếu đi',
+       p:'Nếu mọi quan hệ đều bị đọc thành "nhận lệnh", thì khi tìm được một trường hợp <b>thật sự</b> nhận lệnh, ta không còn cách nào phân biệt nó với phần còn lại. Giữ ranh giới chính là giữ khả năng phát hiện.'}
+    ]
+  },
+  {
+    id:'os', n:2, t:'ĐCSTQ như một hệ điều hành',
+    d:'Không nhìn Trung Quốc như một chính phủ có vài bộ ngành, mà như một mạng tổ chức nằm phía trên, bên trong và xuyên qua nhà nước.',
+    blocks:[
+      {h:'Đảng không phải khách thuê của nhà nước',
+       p:'Điều lệ hiện hành tự xác định Đảng là <b>"lực lượng lãnh đạo chính trị cao nhất"</b> và "Đảng lãnh đạo tất cả", đồng thời nói Đảng phải hoạt động trong khuôn khổ Hiến pháp và pháp luật. Cuối 2025: khoảng <b>101,286 triệu đảng viên</b> và <b>5,431 triệu tổ chức cơ sở</b>, trong đó ~1,692 triệu nằm trong doanh nghiệp.',
+       a:'                ĐCSTQ\n                  │\n     ┌────────────┼────────────┐\n  NHÀ NƯỚC     QUÂN ĐỘI      XÃ HỘI\n     │            │            │\n chính phủ       PLA      tổ chức đảng\n quốc hội                 đoàn thể\n tư pháp                  doanh nghiệp\n                          trường học'},
+      {h:'Bằng chứng trực tiếp nhất về thứ bậc',
+       p:'Ngày <b>8/1/2026</b>, Thường vụ Bộ Chính trị nghe báo cáo công tác từ các đảng đoàn của Quốc hội, Quốc vụ viện, Chính hiệp, Toà án Nhân dân Tối cao và Viện Kiểm sát Nhân dân Tối cao. Nhà nước không đứng song song với Đảng — nó nằm dưới.',
+       a:'NHÀ NƯỚC\nkhông đứng song song với ĐẢNG\n\n     ĐẢNG\n      ↓\n  định hướng\n      ↓\n  NHÀ NƯỚC\n      ↓\n  thi hành'},
+      {h:'Hai mươi ổ cắm, không ổ nào một mình đủ',
+       p:'Nhân sự (Ban Tổ chức) · Kỷ luật (CCDI) · An ninh (Chính pháp, Công an, An ninh Nhà nước) · Thông tin (Tuyên truyền, CAC) · Thống chiến · Tài chính (Uỷ ban Tài chính TW, lập 2023) · Khoa học công nghệ (Uỷ ban KHCN TW, lập 2023) · Doanh nghiệp nhà nước · Doanh nghiệp tư nhân · Dữ liệu · Công tác xã hội (lập 2023) · Lưới cộng đồng · Trường học · Đoàn Thanh niên · Công đoàn · Đoàn thể · Tôn giáo · Địa phương · Kế hoạch 5 năm · Biên chế cơ cấu.',
+       a:'Ổ CẮM MẠNH NHẤT\nkhông phải camera\nmà là NHÂN SỰ\n\n"Nếu anh kiểm soát đường thăng tiến,\nanh không cần gọi điện ra lệnh từng ngày.\nNgười ở dưới TỰ HỌC cách biết\ntrung ương muốn gì."'},
+      {h:'META-SOCKET: quyền sửa chính bo mạch',
+       p:'Uỷ ban Biên chế Cơ cấu Trung ương nắm quyền <b>tạo cơ quan, xoá cơ quan, gộp cơ quan, chuyển chức năng, đổi biên chế</b>. Cải cách 2023 chính là ví dụ — lập một loạt uỷ ban trung ương mới với mục tiêu ghi thẳng trong văn kiện là "tăng cường sự lãnh đạo tập trung thống nhất của Trung ương Đảng".',
+       a:'CPU CÓ THỂ\nTHIẾT KẾ LẠI MAINBOARD'},
+      {h:'Từ "nhà nước chiến dịch" sang "hệ điều hành"',
+       p:'Thời Mao: lãnh tụ phát động phong trào → quần chúng → đấu tố → hỗn loạn → tái lập trật tự. Thời Tập: uỷ ban trung ương → quy định → cơ quan → cơ sở dữ liệu → KPI → kiểm tra → kỷ luật → phản hồi. Không có nghĩa các chiến dịch biến mất — nghĩa là <b>năng lực kiểm soát được thể chế hoá hơn</b>.'}
+    ]
+  },
+  {
+    id:'thongchien', n:3, t:'Mặt trận Thống nhất — ổ cắm dễ bị bỏ qua nhất',
+    d:'Cơ chế xử lý những người KHÔNG phải đảng viên. Đây là chỗ nối trực tiếp sang hồ sơ Hướng Hoa Cường.',
+    blocks:[
+      {h:'Logic: người ngoài Đảng không mặc nhiên là kẻ thù',
+       p:'Quy định hiện hành gọi thống chiến là phương thức nhằm "ngưng tụ lòng người, tập hợp lực lượng" và củng cố địa vị cầm quyền của Đảng. Đối tượng gồm: các đảng nhỏ, người không đảng phái, trí thức, dân tộc, tôn giáo, doanh nhân tư nhân, "giai tầng xã hội mới", Hong Kong, Macau, Đài Loan, Hoa kiều và cộng đồng hải ngoại.',
+       a:'        NGƯỜI NGOÀI ĐẢNG\n               │\n   ┌───────────┼───────────┐\nđối kháng   trung lập   có thể dùng\n   │           │           │\nchống      tranh thủ    đoàn kết\n/trấn áp   /thuyết phục /hợp tác'},
+      {h:'Nhưng thống chiến ≠ điệp viên',
+       p:'Đây là chỗ phải giữ nghiêm nhất. Thống chiến hoạt động ở nhiều cấp: <b>networking → quan hệ → thuyết phục chính trị → hấp thụ tinh hoa → hợp tác tổ chức</b>. Chỉ khi có chứng cứ riêng mới được nâng lên mức <b>bí mật · tài trợ · nhiệm vụ · chỉ huy · tình báo</b>.',
+       a:'Một doanh nhân được UF tiếp xúc\n   ≠  đặc vụ\n\nMột hội người Hoa dự sự kiện\n   ≠  cơ sở tình báo\n\nMột nhân vật Hong Kong thân Bắc Kinh\n   ≠  nhận lệnh từ Tập'},
+      {h:'Ngoại giao song song',
+       p:'Một nước bình thường chủ yếu có Bộ Ngoại giao. Trung Quốc vận hành ba mạng: <b>ngoại giao nhà nước</b> (MFA), <b>ngoại giao đảng</b> (Ban Liên lạc Đối ngoại Trung ương — quan hệ thẳng với đảng cầm quyền, đảng đối lập, phong trào chính trị nước ngoài), và <b>thống chiến</b> với cộng đồng hải ngoại. Ba mạng có thể phối hợp nhưng không phải một cơ quan.'}
+    ]
+  },
+  {
+    id:'kmt', n:4, t:'Quốc Dân Đảng — 130 năm, và vì sao nó giải thích nhà Hướng',
+    d:'Không phải chuyện Đài Loan. Đây là gốc chính trị của gia tộc Hướng, và là ví dụ về một mạng lưới đổi trục qua nhiều thế hệ.',
+    blocks:[
+      {h:'KMT ban đầu không phải "đảng của Tưởng Giới Thạch"',
+       p:'Nó sinh ra từ phong trào cách mạng của <b>Tôn Trung Sơn</b>: Hưng Trung Hội (1894) → Đồng Minh Hội (1905) → Cách mạng Tân Hợi (1911) → Quốc dân đảng (1912) → Trung Quốc Quốc dân đảng (1919). Tư tưởng gốc là Tam Dân Chủ Nghĩa — dân tộc, dân quyền, dân sinh. Không phải phát xít, không phải cộng sản, không phải quân phiệt.'},
+      {h:'Nghịch lý lịch sử: KMT và ĐCSTQ có chung một phần "DNA tổ chức"',
+       p:'Từ 1923, cố vấn Liên Xô — nổi bật là Mikhail Borodin — giúp KMT tái tổ chức theo mô hình đảng tập trung, kỷ luật cao kiểu Bolshevik. Liên Xô cũng giúp lập Học viện quân sự Hoàng Phố. Hai lực lượng sau này thành tử thù từng nằm trong <b>cùng một dự án liên minh chống quân phiệt</b>.',
+       a:'         LIÊN XÔ\n            ↓\n        COMINTERN\n            ↓\n     ┌──────┴──────┐\n    KMT          ĐCSTQ\n     │             │\n tổ chức đảng   tổ chức đảng\n tuyên truyền   tuyên truyền\n cán bộ         cán bộ\n quân đội       quân đội\n chính trị hoá  chính trị hoá\n     └──────┬──────┘\n            ↓\n   LIÊN MINH LẦN 1 · 1924'},
+      {h:'Bốn lần đổi quan hệ trong một thế kỷ',
+       p:'1924 hợp tác → 1927 thanh trừng Thượng Hải và nội chiến → 1937 lại liên minh chống Nhật → 1946–49 nội chiến, KMT thua và rút sang Đài Loan.'},
+      {h:'Tội ác: phải chia ba cấp mới nói chính xác được',
+       p:'<b>Cấp 1 — lịch sử: CÓ.</b> Sự kiện 228 năm 1947 và thời White Terror là đàn áp chính trị nghiêm trọng; báo cáo của Hành chính viện Đài Loan ước tính <b>18.000–28.000 người chết</b> liên quan 228. <b>Cấp 2 — trách nhiệm chế độ: RẤT MẠNH</b>, đó là hệ thống nhà nước độc tài dưới quyền KMT, không phải vài cảnh sát tự ý. <b>Cấp 3 — toà án tuyên toàn KMT là tổ chức tội phạm: KHÔNG.</b> Không có "Nuremberg của KMT"; Tưởng không bị xét xử hình sự trước khi chết năm 1975.',
+       a:'VI PHẠM NHÂN QUYỀN LỊCH SỬ  =  CÓ\nTRÁCH NHIỆM CHẾ ĐỘ          =  CÓ\nTOÀ TUYÊN "TỔ CHỨC TỘI PHẠM" =  KHÔNG'},
+      {h:'Và KMT tự biến đổi — điều rất khác ĐCSTQ',
+       p:'Thiết quân luật được dỡ bỏ năm <b>1987</b>; Lý Đăng Huy tiếp tục dân chủ hoá; năm 2000 KMT lần đầu mất chức tổng thống vào tay DPP và hệ thống không quay lại quân đội để lật kết quả. Một đảng từng cai trị độc tài đã chấp nhận cạnh tranh bầu cử và chuyển giao quyền lực. Chủ tịch KMT hiện nay là <b>Trịnh Lệ Văn</b>, nhậm chức 1/11/2025.'},
+      {h:'Và vòng tròn khép lại',
+       p:'Sau khi Trịnh Lệ Văn thắng chức chủ tịch, Tập Cận Bình gửi thông điệp chúc mừng với tư cách Tổng Bí thư ĐCSTQ, kêu gọi hai đảng củng cố "nền tảng chính trị chung". Trịnh không đáp lại bằng cam kết thống nhất mà nhấn mạnh hoà bình và giao lưu; năm 2026 còn nói cải thiện quan hệ với Bắc Kinh không đồng nghĩa chống Mỹ. <b>ĐCSTQ giao lưu với KMT ≠ KMT nằm dưới ĐCSTQ</b> — đúng nguyên tắc đã dùng với nhà Hướng.'}
+    ]
+  },
+  {
+    id:'cuubinh', n:5, t:'Đọc Cửu Bình cho đúng — nguồn luận chiến, không phải sử liệu',
+    d:'Cụm phương pháp. Dùng một bản cáo trạng làm GIẢ THUYẾT ĐỂ KIỂM, không dùng kết luận của nó làm dữ kiện.',
+    blocks:[
+      {h:'Ba tầng, và chỉ hai tầng kiểm chứng được',
+       p:'<b>Tầng 1 lịch sử</b> và <b>tầng 2 cơ chế</b> (bạo lực, tuyên truyền, đấu tranh, kiểm soát tư tưởng, thống chiến) có rất nhiều nội dung kiểm chứng độc lập được. <b>Tầng 3</b> — "tà giáo", "phản vũ trụ", "ác linh" — là phán xét đạo đức và tôn giáo của tác giả, không phải mệnh đề có thể chứng minh như một sự kiện lịch sử.'},
+      {h:'Bốn chỗ Cửu Bình sai hoặc quá đà',
+       p:'<b>1.</b> "ĐCSTQ chỉ là chi nhánh Liên Xô" — quá đơn giản; Comintern có vai trò lớn thật nhưng phong trào cộng sản Trung Quốc cũng sinh từ khủng hoảng nội tại. <b>2.</b> "60–80 triệu người bị giết" như một con số duy nhất — phương pháp quá thô, gộp xử tử, nạn đói, bạo lực chính trị, tự sát, lao cải; riêng nạn đói Đại Nhảy Vọt đã có phạm vi ước tính 15–43 triệu tử vong vượt mức. <b>3.</b> "Cải cách kinh tế chỉ là trò lừa" — quá tuyệt đối; World Bank ghi nhận gần 800 triệu người vượt chuẩn nghèo cùng cực trong bốn thập niên. <b>4.</b> "Evil cult" — phán xét siêu hình, không phải khoa học chính trị.'},
+      {h:'Nhưng nó đúng ở đâu',
+       p:'Comintern có vai trò lớn trong sự ra đời ĐCSTQ · Đảng dùng bạo lực cách mạng · các chiến dịch chính trị gây thảm hoạ lớn · Cách mạng Văn hoá là thảm hoạ (<b>chính nghị quyết của Đảng sau thời Mao</b> gọi đó là "tai hoạ nghiêm trọng"; nghiên cứu của Andrew Walder dựa trên hơn 2.200 biên niên sử địa phương ước tính ~1,6 triệu người chết) · Thiên An Môn bị quân đội đàn áp · kiểm soát mạnh thông tin · thống chiến được ghi công khai trong quy định Đảng · Đảng xuyên vào nhà nước và xã hội — điều lệ xác nhận.'},
+      {h:'Và điều nó không thể thấy vì viết năm 2004',
+       p:'Tập Cận Bình và việc tập trung quyền lực · các uỷ ban trung ương mới · chống tham nhũng quy mô lớn · chi bộ đảng trong kinh tế tư nhân · CAC và quản trị nền tảng · kiến trúc an ninh Tân Cương · Luật An ninh Hong Kong · Ban Công tác Xã hội Trung ương · AI, dữ liệu và quản trị số.'},
+      {h:'Nói cho đúng về nhân quyền',
+       p:'Đánh giá năm 2022 của OHCHR kết luận tại Tân Cương đã xảy ra <b>vi phạm nhân quyền nghiêm trọng</b>, và việc giam giữ tuỳ tiện, phân biệt đối xử với người Uyghur và các cộng đồng Hồi giáo khác <b>"có thể cấu thành tội ác chống loài người"</b>. Trung Quốc bác bỏ và nói đó là chương trình chống khủng bố và đào tạo nghề. Phải giữ đúng chữ:',
+       a:'OHCHR:\n"may constitute crimes against humanity"\n\n         ≠\n\nmột toà án quốc tế\nĐÃ xét xử và tuyên bản án cuối cùng'}
+    ]
+  }
+];
+
+window.DQT_TQ = {
+  THEATERS: THEATERS, GAUGES: GAUGES, CHAIN: CHAIN,
+  LEVELS: LEVELS, SCEN: SCEN, LIB: LIB
+};
+})();

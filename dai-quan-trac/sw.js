@@ -6,7 +6,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v22";
+var CACHE_VERSION = "v23";
 var SHELL_CACHE = "dqt-shell-" + CACHE_VERSION;
 var FONT_CACHE = "dqt-fonts-" + CACHE_VERSION;
 
@@ -17,8 +17,11 @@ var SHELL = [
   "./assets/css/app.css",
   "./assets/css/app-shell.css",
   "./assets/css/halls.css",
+  "./assets/js/khung.js",
   "./assets/js/data.js",
   "./assets/js/soi.js",
+  "./assets/js/tq/data.js",
+  "./assets/js/tq/soi.js",
   "./assets/js/scan.js",
   "./assets/js/app.js",
   "./assets/js/halls.js",

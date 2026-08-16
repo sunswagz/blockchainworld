@@ -1,15 +1,21 @@
 (function () {
 "use strict";
 
-var D = window.DQT_DATA;
-var IC = D.IC, svg = D.svg, THEATERS = D.THEATERS, GAUGES = D.GAUGES;
-var CHAIN = D.CHAIN, LEVELS = D.LEVELS, SCEN = D.SCEN, LIB = D.LIB;
-/* Hồ sơ soi nằm ở soi.js — trục BÊN TRONG, tách khỏi data.js là
-   trục cú sốc từ ngoài vào. Thiếu file đó thì mục Soi quyền lực
-   trống chứ app không gãy. */
-var S_ = window.DQT_SOI || {};
-var THANG = S_.THANG || [], TIEUCHI = S_.TIEUCHI || [],
-    SOI = S_.SOI || [], DANHSACH = S_.DANHSACH || [];
+/* IC và svg là bộ icon — thuộc GIAO DIỆN, không thuộc chủ thể nào,
+   nên lấy một lần và không đổi khi chuyển nước. */
+var D0 = window.DQT_DATA;
+var IC = D0.IC, svg = D0.svg;
+
+/* Lớp PHƯƠNG PHÁP — khung.js. Đứng TRÊN chỗ chia chủ thể nên KHÔNG
+   nằm trong nhóm biến đổi theo nước bên dưới. Chính nhờ vậy bảng
+   chấm Hướng Hoa Cường so thẳng được với Vingroup và THACO. */
+var K_ = window.DQT_KHUNG || {};
+var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
+
+/* Lớp CHỦ THỂ — đổi hết khi chuyển nước. Phải là `let` chứ không
+   phải `const`: napChuThe() gán lại toàn bộ rồi render lại. */
+let THEATERS = [], GAUGES = [], CHAIN = [], LEVELS = [], SCEN = [], LIB = [],
+    SOI = [], DANHSACH = [];
 
 /* ============================================================
    SỐ ĐO TỰ ĐỘNG — do.js, sinh 4 lượt/ngày, không gọi AI
@@ -103,10 +109,40 @@ const LVNAME = {n:'chưa quan trắc', g:'xanh', y:'vàng', r:'đỏ'};
    Mỗi chủ thể khai `co` — nó có những nhóm nào. Thanh bên chỉ vẽ
    phần có; không thì nước thiếu bảng đồng hồ sẽ hiện một mục rỗng
    và trông như hỏng. */
-const CHUTHE = window.DQT_CHUTHE || [
-  {id:'vn', ten:'Việt Nam', co:'🇻🇳', kho:'DQT_DATA', khoSoi:'DQT_SOI'}
-];
+const CHUTHE = [
+  {id:'vn', ten:'Việt Nam',   co:'🇻🇳', kho:'DQT_DATA', khoSoi:'DQT_SOI',
+   hoi:'Nền kinh tế chịu được không?'},
+  {id:'tq', ten:'Trung Quốc', co:'🇨🇳', kho:'DQT_TQ',   khoSoi:'DQT_TQ_SOI',
+   hoi:'Quyền lực giữ được không?'}
+].filter(c=>window[c.kho]);   /* chủ thể thiếu file dữ liệu thì biến mất
+                                 khỏi thanh chuyển, không hiện mục rỗng */
 const chuThe = id => CHUTHE.find(c=>c.id===id) || CHUTHE[0];
+
+/* Nạp dữ liệu của chủ thể đang chọn. Gọi lúc khởi động và mỗi lần
+   chuyển nước. Mọi mảng đều có mặc định [] — chủ thể chưa có bảng
+   đồng hồ thì mục đó tự biến mất khỏi thanh bên, không hiện rỗng. */
+function napChuThe(){
+  const c = chuThe(state.cht);
+  const d = window[c.kho] || {}, s = window[c.khoSoi] || {};
+  THEATERS = d.THEATERS||[]; GAUGES = d.GAUGES||[]; CHAIN = d.CHAIN||[];
+  LEVELS = d.LEVELS||[];     SCEN = d.SCEN||[];     LIB = d.LIB||[];
+  SOI = s.SOI||[];           DANHSACH = s.DANHSACH||[];
+  dungRoutes();
+}
+
+/* Chuyển nước. Cố GIỮ NGUYÊN LOẠI TRANG đang xem — đang ở bảng đồng
+   hồ Việt Nam thì sang bảng đồng hồ Trung Quốc, không văng về trang
+   chủ. Trang không tồn tại ở chủ thể mới (một hồ sơ soi chẳng hạn)
+   thì lùi về Dòng chảy. */
+function doiChuThe(id){
+  if(id===state.cht) return;
+  const cu = state.route;
+  state.cht = id; napChuThe();
+  const co = ROUTES.some(g=>g.items.some(it=>it.id===cu ||
+    (it.con||[]).some(c=>c.id===cu)));
+  state.route = co ? cu : 'flow';
+  save(); render(); renderNav(); tick();
+}
 
 const state = {
   cht: CHUTHE[0].id,
@@ -235,7 +271,19 @@ function hideToast(){ $('#toast').classList.remove('on'); }
 /* ============================================================
    ĐIỀU HƯỚNG
    ============================================================ */
-const ROUTES = [
+/* ROUTES phải dựng LẠI mỗi lần chuyển chủ thể, vì số mắt xích, số
+   đồng hồ, số cấp độ và danh sách hồ sơ đều khác nhau giữa hai nước
+   (Việt Nam 4 cấp độ, Trung Quốc 5). Viết cứng "4 cấp độ" là một
+   nhãn nói dối ở nước còn lại.
+
+   Nhóm nào rỗng thì tự bị loại ở cuối hàm — chủ thể thiếu phần nào
+   thì thanh bên không hiện phần đó, thay vì hiện một mục trống. */
+let ROUTES = [];
+function dungRoutes(){
+  const c = chuThe(state.cht);
+  ROUTES = [
+  {g:'Chủ thể', items: CHUTHE.map(x=>({id:'cht/'+x.id, t:x.co+'  '+x.ten,
+     ic:'map', sub:x.hoi.toUpperCase(), cht:x.id}))},
   {g:'Quan trắc', items:[
     {id:'flow',   t:'Dòng chảy',        ic:'flow',   sub:'REALTIME'},
     {id:'chain',  t:'Mạch truyền dẫn',  ic:'chain',  sub:CHAIN.length+' MẮT XÍCH'},
@@ -243,9 +291,9 @@ const ROUTES = [
   ]},
   {g:'Chiến trường', items: THEATERS.map(t=>({id:'th/'+t.id, t:t.name, ic:t.ic, sub:t.role.toUpperCase(), th:t.id}))},
   {g:'Mô hình', items:[
-    {id:'levels', t:'4 cấp độ',      ic:'stairs', sub:'ÁP LỰC → KHỦNG HOẢNG'},
+    {id:'levels', t:LEVELS.length+' cấp độ', ic:'stairs', sub:'ÁP LỰC → KHỦNG HOẢNG'},
     {id:'scen',   t:'Kịch bản A/B/C',ic:'play',   sub:'PHÂN NHÁNH'},
-    {id:'compass',t:'Kẹp bốn phía',  ic:'map',    sub:'VỊ TRÍ VIỆT NAM'}
+    {id:'compass',t:'Kẹp bốn phía',  ic:'map',    sub:'VỊ TRÍ '+c.ten.toUpperCase()}
   ]},
   /* Hồ sơ mang theo `con` — danh sách mục của chính nó. Thanh bên
      nhờ đó có tầng thứ ba, và người đọc nhảy thẳng tới đúng mục
@@ -255,7 +303,11 @@ const ROUTES = [
       con:(s.muc||[]).map(m=>({id:'soi/'+s.id+'/'+m.id, t:m.t, ic:m.ic||'book'}))})))},
   {g:'Hồ sơ nền', items: LIB.map(l=>({id:'lib/'+l.id, t:l.t, ic:l.id==='nhanthuc'?'brain':'book', sub:'CỤM '+l.n}))
     .concat([{id:'src', t:'Nguồn & nhật ký', ic:'src', sub:'MINH BẠCH'}])}
-];
+  ];
+  /* Loại nhóm rỗng, và loại luôn nhóm Chủ thể khi mới có một nước —
+     một nút chuyển chỉ dẫn tới chính nó thì chỉ tổ gây bối rối. */
+  ROUTES = ROUTES.filter(g => g.items.length && !(g.g==='Chủ thể' && CHUTHE.length<2));
+}
 
 function renderNav(){
   const w=$('#navscroll'); w.innerHTML='';
@@ -333,7 +385,24 @@ function renderNav(){
   });
 }
 
+/* Nút chuyển chủ thể trên thanh trên cùng. Chỉ dựng khi có từ hai
+   chủ thể — một nút đơn độc thì vô nghĩa và chiếm chỗ. */
+function veChuThe(){
+  const o=$('#chtbar'); if(!o) return;
+  if(CHUTHE.length<2){ o.style.display='none'; return; }
+  o.innerHTML='';
+  CHUTHE.forEach(c=>{
+    const b=el('button','chtb'+(c.id===state.cht?' on':''));
+    b.innerHTML='<span class="chtc">'+c.co+'</span><b>'+esc(c.ten)+'</b>';
+    b.title=c.ten+' — '+c.hoi;
+    b.onclick=()=>{ doiChuThe(c.id); veChuThe(); };
+    o.appendChild(b);
+  });
+}
+
 function go(r){
+  if(r.indexOf('cht/')===0){ const id=r.slice(4);
+    doiChuThe(id); veChuThe(); return; }
   state.route=r; location.hash=r;
   closeRail(); $('#nav').classList.remove('open'); $('#scrim').classList.remove('on');
   renderNav(); render(); $('#view').scrollTop=0;
@@ -1226,6 +1295,11 @@ window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(h&
 (async function init(){
   boot();
   await load();
+  /* SAU load() vì load() có thể khôi phục state.cht đã lưu — nạp
+     trước thì dựng dữ liệu của nước mặc định rồi mới biết người
+     dùng đang đứng ở nước khác. */
+  napChuThe();
+  veChuThe();
   loadScan();
   const h=location.hash.slice(1); if(h) state.route=h;
   renderNav(); render();

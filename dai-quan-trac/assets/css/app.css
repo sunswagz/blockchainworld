@@ -566,6 +566,23 @@ ul.tight li::marker{color:var(--line3)}
   border-radius:20px;background:var(--inset);border:1px solid var(--line2);color:var(--a)}
 .thac-b p{margin:0;font-size:13.5px;color:var(--fg2);max-width:74ch}
 
+/* ============ CHUYỂN CHỦ THỂ ============
+   Đặt ở topbar chứ không chỉ ở sidebar: sidebar đã ba tầng ở Soi
+   quyền lực, thêm chủ thể vào đó thành bốn. Ở đây thì "đang xem
+   nước nào" luôn nhìn thấy mà không tốn thêm tầng nào. */
+.chtbar{display:flex;gap:3px;flex:0 0 auto;padding:2px;
+  background:var(--inset);border:1px solid var(--line);border-radius:9px}
+.chtb{display:flex;align-items:center;gap:6px;padding:5px 10px;border:0;
+  border-radius:7px;background:none;color:var(--muted);cursor:pointer;
+  font-size:12.5px;transition:background .14s,color .14s}
+.chtb b{font-weight:600}
+.chtb:hover{color:var(--fg);background:#ffffff0d}
+.chtb.on{color:var(--fg);background:var(--raise);box-shadow:0 1px 2px #0006}
+.chtc{font-size:14px;line-height:1}
+/* Màn hẹp: giữ lá cờ, bỏ chữ — vẫn phân biệt được nước mà không
+   đẩy tiêu đề trang xuống dòng. */
+@media (max-width:820px){ .chtb b{display:none} .chtb{padding:5px 8px} }
+
 /* ============ TẦNG BA CỦA THANH BÊN ============
    Hồ sơ soi mang theo mục của chính nó. Nhờ vậy nhảy thẳng tới
    "Thác vốn nội bộ" thay vì mở THACO rồi cuộn tìm giữa 16 mục. */
