@@ -29,14 +29,14 @@ var DO_LUC = (window.DQT_DO && window.DQT_DO.generatedAt) || null;
 
 /* Đèn thực tế của một đồng hồ, sau khi hoà người và máy. */
 function den(id){
-  const tay = state.gg[id];
+  const tay = gGG(id);
   if(tay && tay !== 'n') return tay;
   const d = DO[id];
   return (d && d.muc) ? d.muc : 'n';
 }
 /* Đèn đó từ đâu ra — giao diện phải nói thật chỗ này. */
 function nguonDen(id){
-  const tay = state.gg[id];
+  const tay = gGG(id);
   if(tay && tay !== 'n') return 'tay';
   return DO[id] ? 'tu' : 'chua';
 }
@@ -87,10 +87,34 @@ function gioDo(iso){
    ============================================================ */
 const LVLS = ['n','g','y','r'];
 const LVNAME = {n:'chưa quan trắc', g:'xanh', y:'vàng', r:'đỏ'};
+/* ============================================================
+   CHỦ THỂ — lớp cho phép Đài Quan Trắc soi nhiều nước
+
+   Hôm nay chỉ có Việt Nam, và giao diện KHÔNG đổi gì: nút chuyển
+   chủ thể chỉ hiện khi có từ hai chủ thể trở lên.
+
+   Nhưng phần khoá trạng thái phải làm NGAY BÂY GIỜ, không phải
+   lúc thêm nước thứ hai. state.gg trước đây là map phẳng theo id
+   đồng hồ; chủ thể thứ hai có đồng hồ trùng id là đè nhau ngay.
+   Chuyển sang khoá 'vn:nangluong' lúc chỉ có một chủ thể thì an
+   toàn tuyệt đối vì không có gì để va. Làm sau thì phải vừa tách
+   vừa gỡ va chạm trên dữ liệu thật của người dùng.
+
+   Mỗi chủ thể khai `co` — nó có những nhóm nào. Thanh bên chỉ vẽ
+   phần có; không thì nước thiếu bảng đồng hồ sẽ hiện một mục rỗng
+   và trông như hỏng. */
+const CHUTHE = window.DQT_CHUTHE || [
+  {id:'vn', ten:'Việt Nam', co:'🇻🇳', kho:'DQT_DATA', khoSoi:'DQT_SOI'}
+];
+const chuThe = id => CHUTHE.find(c=>c.id===id) || CHUTHE[0];
+
 const state = {
+  cht: CHUTHE[0].id,
   route:'flow',
-  th:  Object.fromEntries(THEATERS.map(t=>[t.id,'n'])),
-  gg:  Object.fromEntries(GAUGES.map(g=>[g.id,'n'])),
+  /* Không điền sẵn nữa — gTH/gGG trả 'n' khi thiếu khoá. Điền sẵn
+     theo id phẳng chính là thứ vừa phải gỡ. */
+  th:  {},
+  gg:  {},
   sig: [],           // tín hiệu từ quét trực tiếp
   log: [],           // nhật ký kết nối
   filter:'all',
@@ -137,7 +161,7 @@ const RANK={n:0,g:1,y:2,r:3};
    là chỗ vòng tuần hoàn khép lại: đo → ngưỡng → đèn → mạch sáng. */
 function lvOf(chainId){
   const s=CHAIN_SRC[chainId];
-  if(s[0]==='th') return state.th[s[1]];
+  if(s[0]==='th') return gTH(s[1]);
   if(s[0]==='gg') return den(s[1]);
   return s.slice(1).reduce((a,g)=>RANK[den(g)]>RANK[a]?den(g):a,'n');
 }
@@ -150,14 +174,43 @@ function srcLabel(chainId){
 
 /* ---- lưu / nạp ---- */
 async function save(){
-  try{ if(window.storage) await window.storage.set('daiquantrac:v1', JSON.stringify({th:state.th,gg:state.gg,mo:state.mo,muc:state.muc,sig:state.sig.slice(0,120),log:state.log.slice(0,60)})); }catch(e){}
+  try{ if(window.storage) await window.storage.set('daiquantrac:v1', JSON.stringify({cht:state.cht,th:state.th,gg:state.gg,mo:state.mo,muc:state.muc,sig:state.sig.slice(0,120),log:state.log.slice(0,60)})); }catch(e){}
 }
 async function load(){
   try{ if(!window.storage) return;
     const r = await window.storage.get('daiquantrac:v1');
-    if(r&&r.value){ const d=JSON.parse(r.value); Object.assign(state.th,d.th||{}); Object.assign(state.gg,d.gg||{}); Object.assign(state.mo,d.mo||{}); Object.assign(state.muc,d.muc||{}); state.sig=d.sig||[]; state.log=d.log||[]; }
+    if(r&&r.value){ const d=JSON.parse(r.value);
+      Object.assign(state.th, doiKhoa(d.th)); Object.assign(state.gg, doiKhoa(d.gg));
+      Object.assign(state.mo,d.mo||{}); Object.assign(state.muc,d.muc||{});
+      state.sig=d.sig||[]; state.log=d.log||[];
+      if(d.cht && CHUTHE.some(c=>c.id===d.cht)) state.cht=d.cht;
+    }
   }catch(e){}
 }
+
+/* Chuyển dữ liệu đã lưu từ dạng phẳng sang dạng có tiền tố chủ thể.
+   Người dùng cũ có localStorage kiểu {nangluong:'y'}; thiếu bước
+   này thì mọi đèn họ tự đặt biến mất không dấu vết ngay lần mở
+   trang đầu tiên sau khi cập nhật.
+
+   Nhận diện bằng dấu ':' — khoá mới luôn có, khoá cũ không bao
+   giờ có. Chạy được nhiều lần mà không hỏng, nên không cần cờ
+   "đã chuyển" lưu riêng. */
+function doiKhoa(o){
+  const r={}; if(!o) return r;
+  for(const k of Object.keys(o)) r[k.indexOf(':')>=0 ? k : 'vn:'+k] = o[k];
+  return r;
+}
+
+/* ---- đọc/ghi trạng thái theo chủ thể ----
+   Mọi chỗ chạm vào đèn phải đi qua bốn hàm này, không đọc thẳng
+   state.gg[id] nữa. Một chỗ đọc thẳng sót lại là một chỗ đèn của
+   nước này hiện sang nước kia — và lỗi đó im lặng. */
+const K   = id => state.cht+':'+id;
+const gGG = id => state.gg[K(id)] || 'n';
+const sGG = (id,v) => { state.gg[K(id)] = v; };
+const gTH = id => state.th[K(id)] || 'n';
+const sTH = (id,v) => { state.th[K(id)] = v; };
 
 /* ---- tiện ích ---- */
 const $  = s=>document.querySelector(s);
@@ -220,7 +273,7 @@ function renderNav(){
     /* Đèn nặng nhất bên trong. Thu gọn mà giấu luôn cảnh báo thì
        chính là biến nút thu gọn thành nút tắt chuông báo cháy. */
     let nang='n';
-    sec.items.forEach(it=>{ if(it.th && RANK[state.th[it.th]]>RANK[nang]) nang=state.th[it.th]; });
+    sec.items.forEach(it=>{ if(it.th && RANK[gTH(it.th)]>RANK[nang]) nang=gTH(it.th); });
 
     const g=el('div','grp'+(dong?' dong':''));
     const h=el('button','navlab');
@@ -247,7 +300,7 @@ function renderNav(){
 
       const b=el('button','nv'+(state.route===it.id?' on':'')+(coCon?' cha':'')+(conMo?' bung':''));
       let right='';
-      if(it.th) right='<span class="dot '+state.th[it.th]+'"></span>';
+      if(it.th) right='<span class="dot '+gTH(it.th)+'"></span>';
       else if(it.id==='flow'&&state.sig.length) right='<span class="nv-x">'+state.sig.length+'</span>';
       else if(coCon) right='<span class="nv-x">'+it.con.length+'</span>';
       b.innerHTML=(coCon?'<span class="nv-tw"><svg viewBox="0 0 24 24" width="10" height="10" '+
@@ -470,7 +523,7 @@ function vGauges(){
     row.innerHTML='<span class="gauge-i '+lv+'">'+(i+1)+'</span>'+
       '<span class="gauge-t"><b>'+esc(g.t)+' '+nhan+'</b><span>'+esc(g.d)+'</span></span>'+
       so+'<span class="meter"><i class="'+lv+'"></i></span>';
-    row.onclick=()=>{ const cu=state.gg[g.id]; state.gg[g.id]=LVLS[(LVLS.indexOf(cu)+1)%4]; save(); render(); renderNav(); };
+    row.onclick=()=>{ const cu=gGG(g.id); sGG(g.id, LVLS[(LVLS.indexOf(cu)+1)%4]); save(); render(); renderNav(); };
     body.appendChild(row);
   });
   card.appendChild(body); w.appendChild(card);
@@ -516,7 +569,7 @@ function vTheater(id){
   head(t.name, t.role.toUpperCase());
   document.documentElement.style.setProperty('--acc',t.acc);
   const w=el('div','wrap');
-  const lv=state.th[id];
+  const lv=gTH(id);
   w.innerHTML='<div class="eyebrow">Chiến trường · '+esc(t.short)+'</div>'+
    '<div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:10px">'+
      '<div style="font-size:34px;line-height:1">'+t.flag+'</div>'+
@@ -527,7 +580,7 @@ function vTheater(id){
   const bar=el('div'); bar.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px';
   const sb=el('button','tbtn pri'); sb.innerHTML='Lấy bản quét mới nhất'; sb.onclick=scanAll;
   const cyc=el('button','tbtn'); cyc.innerHTML='Đặt mức: <b style="margin-left:4px">'+LVNAME[lv]+'</b>';
-  cyc.onclick=()=>{ state.th[id]=LVLS[(LVLS.indexOf(state.th[id])+1)%4]; save(); render(); renderNav(); };
+  cyc.onclick=()=>{ sTH(id, LVLS[(LVLS.indexOf(gTH(id))+1)%4]); save(); render(); renderNav(); };
   bar.appendChild(sb); bar.appendChild(cyc); w.appendChild(bar);
 
   // tín hiệu của chiến trường này
@@ -1077,7 +1130,7 @@ function loadScan(){
   state.sig = state.sig.slice(0,160);
 
   Object.keys(S.levels||{}).forEach(id => {
-    if(LVLS.includes(S.levels[id])) state.th[id] = S.levels[id];
+    if(LVLS.includes(S.levels[id])) sTH(id, S.levels[id]);
   });
 
   (S.log||[]).forEach(entry => {
