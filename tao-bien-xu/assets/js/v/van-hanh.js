@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-17T13:17:44.023Z",
- "lan": 49,
+ "generatedAt": "2026-08-17T19:03:20.708Z",
+ "lan": 52,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -22,15 +22,15 @@ window.VAN_HANH = {
    "cung": "kinh-thanh",
    "cungTen": "Kinh Thành",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:09:09.011Z",
+   "luc": "2026-08-17T19:00:11.688Z",
    "ket": "ok",
    "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:09:09.011Z",
-   "lucDoi": "2026-08-17T13:09:09.011Z"
+   "lucOk": "2026-08-17T19:00:11.688Z",
+   "lucDoi": "2026-08-17T19:00:11.688Z"
   },
   {
    "ma": "do-sat-vien",
@@ -171,15 +171,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T02:10:04.982Z",
+   "luc": "2026-08-17T19:02:05.906Z",
    "ket": "ok",
-   "giay": 161,
+   "giay": 114,
    "doi": true,
-   "chuThich": "quét 160s · dựng 0s · haiku-4-5",
+   "chuThich": "quét 114s · dựng 0s · haiku-4-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T02:10:04.982Z",
-   "lucDoi": "2026-08-17T02:10:04.982Z"
+   "lucOk": "2026-08-17T19:02:05.906Z",
+   "lucDoi": "2026-08-17T19:02:05.906Z"
   },
   {
    "ma": "dong-dau",
@@ -217,15 +217,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-08-16T18:49:46.086Z",
+   "luc": "2026-08-17T19:03:20.708Z",
    "ket": "ok",
-   "giay": 70,
+   "giay": 75,
    "doi": true,
    "chuThich": "opus-5 · max-turns 8",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-16T18:49:46.086Z",
-   "lucDoi": "2026-08-16T18:49:46.086Z"
+   "lucOk": "2026-08-17T19:03:20.708Z",
+   "lucDoi": "2026-08-17T19:03:20.708Z"
   },
   {
    "ma": "hoang-thanh",
@@ -300,6 +300,33 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-17T19:03:20.708Z",
+   "ma": "bao-cao",
+   "ket": "ok",
+   "giay": 75,
+   "doi": true,
+   "chuThich": "opus-5 · max-turns 8",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-17T19:02:05.906Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 114,
+   "doi": true,
+   "chuThich": "quét 114s · dựng 0s · haiku-4-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-17T19:00:11.688Z",
+   "ma": "kinh-thanh",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-17T13:17:44.023Z",
    "ma": "dong-dau",
