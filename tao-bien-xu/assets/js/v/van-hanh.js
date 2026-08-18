@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-17T19:03:20.708Z",
- "lan": 52,
+ "generatedAt": "2026-08-18T02:03:43.761Z",
+ "lan": 59,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -22,15 +22,15 @@ window.VAN_HANH = {
    "cung": "kinh-thanh",
    "cungTen": "Kinh Thành",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T19:00:11.688Z",
+   "luc": "2026-08-18T01:52:45.170Z",
    "ket": "ok",
-   "giay": 2,
+   "giay": 3,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T19:00:11.688Z",
-   "lucDoi": "2026-08-17T19:00:11.688Z"
+   "lucOk": "2026-08-18T01:52:45.170Z",
+   "lucDoi": "2026-08-18T01:52:45.170Z"
   },
   {
    "ma": "do-sat-vien",
@@ -47,15 +47,15 @@ window.VAN_HANH = {
    "cung": "do-sat-vien",
    "cungTen": "Đô Sát Viện",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:10:11.640Z",
+   "luc": "2026-08-18T01:53:50.509Z",
    "ket": "ok",
-   "giay": 62,
+   "giay": 65,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:10:11.640Z",
-   "lucDoi": "2026-08-17T13:10:11.640Z"
+   "lucOk": "2026-08-18T01:53:50.509Z",
+   "lucDoi": "2026-08-18T01:53:50.509Z"
   },
   {
    "ma": "cong-bo",
@@ -74,15 +74,15 @@ window.VAN_HANH = {
    "cung": "cong-bo",
    "cungTen": "Công Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:10:16.552Z",
+   "luc": "2026-08-18T01:53:54.426Z",
    "ket": "ok",
-   "giay": 5,
+   "giay": 4,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:10:16.552Z",
-   "lucDoi": "2026-08-17T13:10:16.552Z"
+   "lucOk": "2026-08-18T01:53:54.426Z",
+   "lucDoi": "2026-08-18T01:53:54.426Z"
   },
   {
    "ma": "ho-bo",
@@ -98,15 +98,15 @@ window.VAN_HANH = {
    "cung": "ho-bo",
    "cungTen": "Hộ Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:10:19.602Z",
+   "luc": "2026-08-18T01:54:00.443Z",
    "ket": "ok",
-   "giay": 3,
+   "giay": 6,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:10:19.602Z",
-   "lucDoi": "2026-08-17T13:10:19.602Z"
+   "lucOk": "2026-08-18T01:54:00.443Z",
+   "lucDoi": "2026-08-18T01:54:00.443Z"
   },
   {
    "ma": "tang-thu-cac",
@@ -123,15 +123,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:17:17.210Z",
+   "luc": "2026-08-18T02:03:17.316Z",
    "ket": "ok",
-   "giay": 418,
+   "giay": 557,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:17:17.210Z",
-   "lucDoi": "2026-08-17T13:17:17.210Z"
+   "lucOk": "2026-08-18T02:03:17.316Z",
+   "lucDoi": "2026-08-18T02:03:17.316Z"
   },
   {
    "ma": "quan-trac-do",
@@ -147,15 +147,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:17:43.623Z",
+   "luc": "2026-08-18T02:03:43.322Z",
    "ket": "ok",
    "giay": 26,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:17:43.623Z",
-   "lucDoi": "2026-08-17T13:17:43.623Z"
+   "lucOk": "2026-08-18T02:03:43.322Z",
+   "lucDoi": "2026-08-18T02:03:43.322Z"
   },
   {
    "ma": "dai-quan-trac",
@@ -193,14 +193,14 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T13:17:44.023Z",
+   "luc": "2026-08-18T02:03:43.761Z",
    "ket": "ok",
    "giay": 0,
    "doi": false,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T13:17:44.023Z",
+   "lucOk": "2026-08-18T02:03:43.761Z",
    "lucDoi": null
   },
   {
@@ -300,6 +300,69 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-18T02:03:43.761Z",
+   "ma": "dong-dau",
+   "ket": "ok",
+   "giay": 0,
+   "doi": false,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T02:03:43.322Z",
+   "ma": "quan-trac-do",
+   "ket": "ok",
+   "giay": 26,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T02:03:17.316Z",
+   "ma": "tang-thu-cac",
+   "ket": "ok",
+   "giay": 557,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T01:54:00.443Z",
+   "ma": "ho-bo",
+   "ket": "ok",
+   "giay": 6,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T01:53:54.426Z",
+   "ma": "cong-bo",
+   "ket": "ok",
+   "giay": 4,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T01:53:50.509Z",
+   "ma": "do-sat-vien",
+   "ket": "ok",
+   "giay": 65,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T01:52:45.170Z",
+   "ma": "kinh-thanh",
+   "ket": "ok",
+   "giay": 3,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-17T19:03:20.708Z",
    "ma": "bao-cao",
@@ -771,46 +834,6 @@ window.VAN_HANH = {
   {
    "luc": "2026-08-14T13:54:17.370Z",
    "ma": "tang-thu-cac",
-   "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
-  },
-  {
-   "luc": "2026-08-14T13:47:47.836Z",
-   "ma": "cong-bo",
-   "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
-  },
-  {
-   "luc": "2026-08-14T13:47:43.854Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
-  },
-  {
-   "luc": "2026-08-14T13:46:40.331Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
-  },
-  {
-   "luc": "2026-08-14T09:16:24.800Z",
-   "ma": "hoang-thanh",
-   "ket": "ok",
-   "giay": null,
-   "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file"
-  },
-  {
-   "luc": "2026-08-13T08:53:22.949Z",
-   "ma": "dai-quan-trac",
    "ket": "ok",
    "giay": null,
    "doi": false,
