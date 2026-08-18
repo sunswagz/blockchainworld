@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_DO = {
- "generatedAt": "2026-08-18T02:03:43.278Z",
+ "generatedAt": "2026-08-18T13:20:27.559Z",
  "tuDo": [
   "nangluong",
   "laisuat",
@@ -81,78 +81,33 @@ window.DQT_DO = {
     88.98,
     87.07,
     88.52,
+    90.87,
     91.11
    ],
-   "doi7": 10.4,
-   "doi30": 26.6,
+   "doi7": 9,
+   "doi30": 22.9,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột."
    },
-   "luc": "2026-08-18T02:03:17.547Z"
+   "luc": "2026-08-18T13:20:14.858Z"
   },
   "laisuat": {
    "nhan": "Lợi suất TPCP Mỹ 10 năm",
-   "so": 4.72,
+   "so": 4.74,
    "dv": "%",
    "nguon": "Yahoo Finance · ^TNX",
    "ghi": "Lực ép từ ngoài lên lãi suất trong nước, không phải lãi suất điều hành của NHNN.",
    "muc": "y",
    "lich": [
-    4.62,
-    4.67,
-    4.57,
-    4.59,
-    4.56,
-    4.49,
-    4.48,
-    4.45,
-    4.45,
-    4.47,
-    4.45,
-    4.49,
-    4.48,
-    4.54,
-    4.55,
-    4.53,
-    4.54,
-    4.46,
-    4.49,
-    4.47,
-    4.43,
-    4.46,
-    4.45,
-    4.51,
-    4.49,
-    4.4,
-    4.39,
-    4.37,
-    4.37,
-    4.42,
-    4.47,
-    4.49,
-    4.48,
-    4.53,
-    4.57,
-    4.54,
-    4.57,
-    4.61,
-    4.59,
-    4.55,
-    4.57,
-    4.54,
-    4.6,
-    4.63,
-    4.66,
     4.7,
     4.68,
     4.64,
     4.6,
     4.62,
     4.66,
-    4.74,
     4.69,
     4.63,
     4.62,
@@ -163,17 +118,17 @@ window.DQT_DO = {
     4.68,
     4.64,
     4.7,
-    4.72
+    4.74
    ],
-   "doi7": 1.1,
-   "doi30": 5.4,
+   "doi7": 1.5,
+   "doi30": null,
    "nguong": {
     "g": 4,
     "r": 4.75,
     "nghich": false,
     "can": "Lợi suất trái phiếu Mỹ 10 năm — lực ép TỪ NGOÀI lên lãi suất và tỷ giá Việt Nam, không phải lãi suất điều hành trong nước. Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi."
    },
-   "luc": "2026-08-18T02:03:17.667Z"
+   "luc": "2026-08-18T13:20:14.916Z"
   },
   "tygia": {
    "nhan": "USD/VND",
@@ -196,11 +151,11 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Đặt quanh vùng tỷ giá đang giao dịch. Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ."
    },
-   "luc": "2026-08-18T02:03:17.780Z"
+   "luc": "2026-08-18T13:20:15.042Z"
   },
   "tq": {
    "nhan": "Giá đồng",
-   "so": 6.57,
+   "so": 6.55,
    "dv": "USD/lb",
    "nguon": "Yahoo Finance · HG=F",
    "ghi": "Chỉ báo THAY THẾ cho chi phí đầu vào công nghiệp, KHÔNG phải PPI Trung Quốc. Đồng là thước đo nhu cầu công nghiệp toàn cầu; nó nói được chi phí đầu vào đang căng hay chùng, không nói riêng chuyện gì đang xảy ra ở Trung Quốc.",
@@ -268,21 +223,22 @@ window.DQT_DO = {
     6.6,
     6.59,
     6.6,
-    6.57
+    6.6,
+    6.55
    ],
-   "doi7": -1.8,
-   "doi30": 6.3,
+   "doi7": -0.3,
+   "doi30": 6.2,
    "nguong": {
     "g": 5.5,
     "r": 6.5,
     "nghich": false,
     "can": "Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70 USD/lb. Đỏ đặt ở 6,50 tức sát đỉnh năm — mức đó nói được một điều có nghĩa, chứ không chỉ nói 'cao hơn trung bình'."
    },
-   "luc": "2026-08-18T02:03:17.826Z"
+   "luc": "2026-08-18T13:20:15.097Z"
   },
   "doanhnghiep": {
    "nhan": "Quỹ ETF Việt Nam (VNM)",
-   "so": 17.15,
+   "so": 17.16,
    "dv": "USD",
    "nguon": "Yahoo Finance · VNM",
    "ghi": "Chỉ báo THAY THẾ. Đây là giá một quỹ ngoại nắm cổ phiếu Việt Nam — nó phản ánh đánh giá của nhà đầu tư nước ngoài, chịu cả tác động dòng vốn toàn cầu, chứ không đo trực tiếp số doanh nghiệp vào/ra thị trường.",
@@ -349,18 +305,17 @@ window.DQT_DO = {
     17.55,
     17.8,
     17.52,
-    17.16,
-    17.15
+    17.16
    ],
-   "doi7": -1.7,
-   "doi30": -5.7,
+   "doi7": -2.1,
+   "doi30": -7.2,
    "nguong": {
     "g": 18.5,
     "r": 17,
     "nghich": true,
     "can": "Quỹ ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80 USD. Đỏ đặt ở 17,00, tức sát đáy năm."
    },
-   "luc": "2026-08-18T02:03:17.883Z"
+   "luc": "2026-08-18T13:20:15.180Z"
   },
   "xuatxu": {
    "nhan": "Văn bản liên bang Mỹ nhắc VN",
@@ -382,7 +337,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Số văn bản liên bang Mỹ nhắc Việt Nam trong 30 ngày. Nền quan sát được hiện khoảng 37–43 văn bản/30 ngày. NGƯỠNG NÀY YẾU NHẤT BẢNG: mới có ~2,5 tháng dữ liệu để hiệu chỉnh, và số lượng văn bản không phân biệt được một thông báo hành chính với một quyết định thuế. Nên đọc nó như chỉ báo NHỊP ĐỘ chú ý, không phải mức độ nghiêm trọng."
    },
-   "luc": "2026-08-18T02:03:18.027Z"
+   "luc": "2026-08-18T13:20:15.264Z"
   },
   "niemtin": {
    "nhan": "Sắc thái tin về kinh tế VN",
