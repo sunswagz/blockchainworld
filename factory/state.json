@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-18T02:03:43.761Z",
-  "lan": 59,
+  "generatedAt": "2026-08-18T07:08:34.588Z",
+  "lan": 60,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-18T01:52:45.170Z",
@@ -47,14 +47,14 @@
       "lucDoi": "2026-08-18T02:03:17.316Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-08-17T19:02:05.906Z",
+      "luc": "2026-08-18T07:08:34.588Z",
       "ket": "ok",
-      "giay": 114,
-      "doi": true,
-      "chuThich": "quét 114s · dựng 0s · haiku-4-5",
+      "giay": 94,
+      "doi": false,
+      "chuThich": "quét 94s · dựng 0s · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-17T19:02:05.906Z",
+      "lucOk": "2026-08-18T07:08:34.588Z",
       "lucDoi": "2026-08-17T19:02:05.906Z"
     },
     "hoang-thanh": {
@@ -113,6 +113,15 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-18T07:08:34.588Z",
+      "ma": "dai-quan-trac",
+      "ket": "ok",
+      "giay": 94,
+      "doi": false,
+      "chuThich": "quét 94s · dựng 0s · haiku-4-5",
+      "vi": null
+    },
     {
       "luc": "2026-08-18T02:03:43.761Z",
       "ma": "dong-dau",
