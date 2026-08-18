@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-18T13:20:28.069Z",
- "lan": 67,
+ "generatedAt": "2026-08-18T19:01:22.496Z",
+ "lan": 69,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -171,15 +171,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-18T07:08:34.588Z",
+   "luc": "2026-08-18T19:00:26.193Z",
    "ket": "ok",
-   "giay": 94,
-   "doi": false,
-   "chuThich": "quét 94s · dựng 0s · haiku-4-5",
+   "giay": 99,
+   "doi": true,
+   "chuThich": "quét 99s · dựng 0s · haiku-4-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-18T07:08:34.588Z",
-   "lucDoi": "2026-08-17T19:02:05.906Z"
+   "lucOk": "2026-08-18T19:00:26.193Z",
+   "lucDoi": "2026-08-18T19:00:26.193Z"
   },
   {
    "ma": "dong-dau",
@@ -217,15 +217,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-08-17T19:03:20.708Z",
+   "luc": "2026-08-18T19:01:22.496Z",
    "ket": "ok",
-   "giay": 75,
+   "giay": 56,
    "doi": true,
    "chuThich": "opus-5 · max-turns 8",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-17T19:03:20.708Z",
-   "lucDoi": "2026-08-17T19:03:20.708Z"
+   "lucOk": "2026-08-18T19:01:22.496Z",
+   "lucDoi": "2026-08-18T19:01:22.496Z"
   },
   {
    "ma": "hoang-thanh",
@@ -300,6 +300,24 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-18T19:01:22.496Z",
+   "ma": "bao-cao",
+   "ket": "ok",
+   "giay": 56,
+   "doi": true,
+   "chuThich": "opus-5 · max-turns 8",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-18T19:00:26.193Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 99,
+   "doi": true,
+   "chuThich": "quét 99s · dựng 0s · haiku-4-5",
+   "vi": null
+  },
   {
    "luc": "2026-08-18T13:20:28.069Z",
    "ma": "dong-dau",
@@ -818,24 +836,6 @@ window.VAN_HANH = {
    "ma": "kinh-thanh",
    "ket": "ok",
    "giay": 2,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-15T13:14:45.657Z",
-   "ma": "dai-quan-trac",
-   "ket": "loi",
-   "giay": null,
-   "doi": false,
-   "chuThich": "kiểm không qua: dai-quan-trac/assets/js/scan.js — teo đột ngột: 3886 byte, bản cũ 10188 byte",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-15T13:14:45.507Z",
-   "ma": "dai-quan-trac",
-   "ket": "ok",
-   "giay": 0,
    "doi": true,
    "chuThich": "",
    "vi": null

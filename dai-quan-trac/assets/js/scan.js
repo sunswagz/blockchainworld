@@ -1,212 +1,221 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-17T19:02:05.851Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-18T19:00:26.145Z
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_SCAN = {
-  "generatedAt": "2026-08-17T19:02:05.851Z",
-  "date": "17/08/2026",
+  "generatedAt": "2026-08-18T19:00:26.145Z",
+  "date": "18/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "hormuz",
-      "tieu_de": "Chỉ 12 tàu qua Hormuz trong 24 giờ ngày 16/8/2026, chỉ tăng từ 45 tàu tuần trước",
-      "ngay": "2026-08-16",
+      "tieu_de": "Vận chuyển dầu bị gián đoạn ở Trung Đông ngày 15/8",
+      "ngay": "2026-08-15",
       "nguon": "CNN",
-      "tac_dong": "Gián đoạn vận chuyển dầu qua eo biển chính khiến chi phí xăng dầu nhập khẩu Việt Nam tăng mạnh",
+      "tac_dong": "Gia dầu tăng ảnh hưởng chi phí sản xuất và khả năng cạnh tranh xuất khẩu của Việt Nam",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "hormuz",
-      "tieu_de": "Dầu tràn ngoài bờ biển Oman bao phủ 500 dặm vuông (1.300 km²)",
+      "tieu_de": "Lưu thông Hormuz ở mức thấp khi thế giới tiêu hao hàng dự trữ 13/8",
       "ngay": "2026-08-13",
       "nguon": "CNN",
-      "tac_dong": "Thảm họa môi trường ảnh hưởng tới an ninh năng lượng khu vực và tăng chi phí bảo hiểm vận tải dầu",
+      "tac_dong": "Thiếu hụt cung dầu toàn cầu đẩy giá lên, làm tăng chi phí năng lượng cho sản xuất Việt Nam",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "hormuz",
-      "tieu_de": "Tàn tích lưu lượng giao thương dầu khí qua Hormuz vì chiến sự Iran-Mỹ kéo dài từ tháng 2",
+      "tieu_de": "ADNOC báo cáo hàng quá dầu bị tấn công lần thứ 3 trong 48 giờ 15/8",
       "ngay": "2026-08-15",
-      "nguon": "CNN",
-      "tac_dong": "Kinh tế toàn cầu phải chịu tăng giá dầu nên chi phí sản xuất Việt Nam tăng theo lạm phát",
+      "nguon": "Lloyd's List Intelligence",
+      "tac_dong": "Rủi ro bảo hiểm tàu chở dầu cao hơn làm tăng chi phí vận tải cho nhập khẩu năng lượng",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Ukraina tấn công bằng máy bay không người lái vào tản thuyền Caspian Pipeline Consortium ngày 19/7, chỉ 1 chuyến tải dầu được bốc trong tuần 22-26/7",
-      "ngay": "2026-07-26",
-      "nguon": "Al Jazeera",
-      "tac_dong": "Chuyên chở dầu Nga giảm tác động tới giá dầu thô chiết khấu cạnh tranh nguồn cung Việt Nam",
+      "tieu_de": "Xuất khẩu dầu thô Nga tiếp tục sụt giảm 18/8",
+      "ngay": "2026-08-18",
+      "nguon": "Bloomberg",
+      "tac_dong": "Cắt nguồn cung toàn cầu làm giá dầu tăng, tác động trực tiếp lên chi phí nhân công và năng lượng sản xuất Việt",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Xuất khẩu dầu khí Nga giảm do lệnh cấm vận EU 20 và chiến lược shadow fleet tăng chi phí luận lý",
-      "ngay": "2026-08-10",
-      "nguon": "Brookings",
-      "tac_dong": "Dầu chiết khấu từ Nga tốn kém hơn nâng chi phí năng lượng nhập khẩu Việt Nam",
+      "tieu_de": "Xuất khẩu dầu thô Nga xuống thấp nhất kể từ tháng 5 (11/8)",
+      "ngay": "2026-08-11",
+      "nguon": "Bloomberg",
+      "tac_dong": "Giảm 3,58 triệu thùng/ngày tác động tiêu dùng dầu toàn cầu, nâng giá năng lượng cho Việt Nam",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Doanh thu xuất khẩu nhiên liệu hóa thạch Nga giảm liên tục từ 2022 tới 2026",
-      "ngay": "2026-07-31",
-      "nguon": "CREA",
-      "tac_dong": "Khả năng cấp dầu dự phòng toàn cầu giảm tác động tới giá năng lượng và chi phí sản xuất",
+      "tieu_de": "Không có carga dầu nào rời cảng Novorossiysk do tấn công drone",
+      "ngay": "2026-08-16",
+      "nguon": "Bloomberg",
+      "tac_dong": "Gián đoạn cung toàn cầu, làm tăng áp lực lên giá dầu và chi phí logistics xuất khẩu",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Sản lượng dầu thô Trung Quốc tháng 8 đạt 18.3 triệu tấn, tăng 4.9% so với cùng kỳ năm ngoái",
-      "ngay": "2026-08-31",
-      "nguon": "CREA",
-      "tac_dong": "Tăng tiêu thụ dầu Trung Quốc cạnh tranh nguồn cung toàn cầu ảnh hưởng tới giá dầu nhập khẩu Việt Nam",
+      "tieu_de": "Sản lượng công nghiệp Trung Quốc tháng 7 năm 2026 tăng chỉ 4,5%, chậm lại đáng kể",
+      "ngay": "2026-08-17",
+      "nguon": "Bloomberg",
+      "tac_dong": "Nhu cầu từ Trung Quốc yếu làm Việt Nam bất an, vì nước này là thị trường xuất khẩu lớn thứ 2 của Việt",
       "muc": "y",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Trung Quốc nâng hạn ngạch xuất khẩu nhiên liệu lên 2.7 triệu tấn tháng 8/2026",
-      "ngay": "2026-08-15",
-      "nguon": "IndexBox",
-      "tac_dong": "Tăng xuất khẩu nhiên liệu TQ tác động tới giá cạnh tranh và cấu trúc cung năng lượng toàn cầu",
+      "tieu_de": "Tiêu thụ nội địa và đầu tư Trung Quốc cùng thất bại kỳ vọng 17/8",
+      "ngay": "2026-08-17",
+      "nguon": "Bloomberg",
+      "tac_dong": "Đó là tín hiệu nhu cầu tiêu dùng yếu toàn cầu, ảnh hưởng đến cầu đối với hàng xuất khẩu Việt Nam",
       "muc": "y",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Sản lượng khí gas Trung Quốc tháng 8 đạt 10.6 tỷ m³, tăng 3.8% năm trên năm",
-      "ngay": "2026-08-31",
-      "nguon": "CREA",
-      "tac_dong": "Nhu cầu năng lượng Trung Quốc cao tác động tới cấu trúc giá năng lượng toàn cầu",
+      "tieu_de": "Kinh tế Trung Quốc tăng trưởng từ những công nghệ cao nhưng tổng thể còn chậm",
+      "ngay": "2026-08-17",
+      "nguon": "CGTN",
+      "tac_dong": "Cấu trúc kinh tế Trung Quốc chuyển sang công nghệ cao có thể làm giảm cầu cho các mặt hàng cơ bản từ Việt",
       "muc": "y",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "vn",
-      "tieu_de": "Các ngân hàng và công ty bất động sản phát hành trái phiếu với lãi suất cao 9-12.5%/năm vào đầu tháng 8/2026",
-      "ngay": "2026-08-05",
-      "nguon": "Vietnam News Agency",
-      "tac_dong": "Lãi suất cao phản ánh khó khăn tiếp cận tín dụng ngân hàng ảnh hưởng tới tăng trưởng đầu tư bất động sản",
-      "muc": "y",
-      "at": "2026-08-17T19:02:05.851Z"
+      "tieu_de": "Sản xuất công nghiệp Việt Nam tháng 7/2026 tăng 14,5% so với cùng kỳ năm trước",
+      "ngay": "2026-08-17",
+      "nguon": "SSI",
+      "tac_dong": "Tăng trưởng mạnh cho thấy nền kinh tế Việt Nam đang bước vào giai đoạn mở rộng sản xuất",
+      "muc": "g",
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "vn",
-      "tieu_de": "GDP Việt Nam quý II/2026 tăng 8.39%, nửa năm tăng 8.18%, kỳ lục 5 năm về đầu tư trực tiếp nước ngoài",
-      "ngay": "2026-08-10",
-      "nguon": "General Statistics Office",
-      "tac_dong": "Tăng trưởng kinh tế Việt Nam tuy tích cực nhưng bị áp lực từ lạm phát giá năng lượng toàn cầu",
-      "muc": "y",
-      "at": "2026-08-17T19:02:05.851Z"
+      "tieu_de": "Đầu tư trực tiếp nước ngoài (FDI) đạt mức cao nhất trong 5 năm qua",
+      "ngay": "2026-08-17",
+      "nguon": "SSI",
+      "tac_dong": "Dòng FDI cao cho thấy nhà đầu tư nước ngoài tin tưởng, hỗ trợ mở rộng cơ sở sản xuất và tạo việc làm",
+      "muc": "g",
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "vn",
-      "tieu_de": "Lãi suất trái phiếu chính phủ 10 năm Việt Nam ổn định ở 4.54% ngày 10/8/2026",
-      "ngay": "2026-08-10",
-      "nguon": "Trading Economics",
-      "tac_dong": "Lãi suất ổn định trong bối cảnh thị trường tín dụng không cân đối giữa nhu cầu và cung cấp",
-      "muc": "y",
-      "at": "2026-08-17T19:02:05.851Z"
+      "tieu_de": "Lạm phát Việt Nam giảm xuống 4,45% tháng 7, từ 4,69% tháng 6",
+      "ngay": "2026-08-17",
+      "nguon": "SSI",
+      "tac_dong": "Giảm lạm phát tạo điều kiện cho Ngân hàng Nhà nước cân nhắc hạ lãi suất để hỗ trợ tăng trưởng",
+      "muc": "g",
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "my",
-      "tieu_de": "USTR tháng 6/2026 công bố kết quả 60 cuộc điều tra Section 301 về hàng hóa lao động cưỡng bức từ các nước",
-      "ngay": "2026-06-02",
+      "tieu_de": "USTR khởi động điều tra Section 301 với Việt Nam về bảo vệ sở hữu trí tuệ tháng 8",
+      "ngay": "2026-08-01",
       "nguon": "USTR",
-      "tac_dong": "Việt Nam bị đề xuất mức thuế cao 12.5% do chưa thực thi đủ lệnh cấm hàng hóa lao động cưỡng bức",
+      "tac_dong": "Điều tra này có thể dẫn tới tăng thuế 15-25% lên hàng Việt, đe dọa $10+ tỷ xuất khẩu hàng năm",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "my",
-      "tieu_de": "Việt Nam bị USTR đề xuất thuế Section 301 cao 12.5% thay vì 10% vì chưa có biện pháp thích hợp",
+      "tieu_de": "Dự báo tăng thuế Section 301 từ 15-25% hiệu lực cuối tháng 7 hoặc đầu tháng 8",
       "ngay": "2026-08-15",
-      "nguon": "BDO/SmarTrade",
-      "tac_dong": "Thuế Section 301 12.5% tác động mạnh tới xuất khẩu dệt may, máy điện tử của Việt Nam tới Mỹ",
+      "nguon": "Tax Foundation",
+      "tac_dong": "Nếu áp dụng tăng thuế thực sự, hàng Việt sẽ kém cạnh tranh hơn, giảm doanh số xuất khẩu đáng kể",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "my",
-      "tieu_de": "USTR khởi động cuộc điều tra Section 301 mới về bảo vệ quyền sở hữu trí tuệ của Việt Nam từ tháng 5/2026",
-      "ngay": "2026-05-15",
-      "nguon": "SmarTrade",
-      "tac_dong": "Điều tra sở hữu trí tuệ có thể dẫn tới thuế hoặc biện pháp thương mại khác ảnh hưởng xuất khẩu công nghệ",
+      "tieu_de": "Thép và nhôm của Việt Nam tiếp tục chịu thuế Section 232 ở mức 50%",
+      "ngay": "2026-08-01",
+      "nguon": "Trade Compliance Resource Hub",
+      "tac_dong": "Mức thuế 50% lên thép/nhôm làm giảm khả năng cạnh tranh của ngành công nghiệp cơ khí Việt Nam",
       "muc": "r",
-      "at": "2026-08-17T19:02:05.851Z"
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "san",
-      "tieu_de": "TikTok Shop tăng 83% GMV lên 5.96 tỷ USD, vượt Shopee 53% thị phần đạt 44% trong kỳ 5/2025-4/2026",
-      "ngay": "2026-04-22",
-      "nguon": "GlobeNewswire",
-      "tac_dong": "Sự hưởng ứng cao với mua bán video ngắn ảnh hưởng tới chiến lược bán hàng của doanh nghiệp Việt",
-      "muc": "g",
-      "at": "2026-08-17T19:02:05.851Z"
+      "tieu_de": "TikTok Shop tăng thị phần từ 33% lên 44%, thu hẹp khoảng cách với Shopee (53% từ 61%)",
+      "ngay": "2026-08-01",
+      "nguon": "The Investor",
+      "tac_dong": "Sự cạnh tranh gay gắt giữa hai nền tảng có thể buộc thương gia chọn lựa, phân tán doanh số",
+      "muc": "y",
+      "at": "2026-08-18T19:00:26.145Z"
     },
     {
       "th": "san",
-      "tieu_de": "Bốn sàn TMĐT lớn (Shopee, TikTok Shop, Lazada, Tiki) đạt tổng GMV 13.6 tỷ USD, tăng 37% năm trên năm",
-      "ngay": "2026-04-22",
-      "nguon": "GlobeNewswire",
-      "tac_dong": "Tăng trưởng mạnh TMĐT Việt Nam phản ánh nhu cầu tiêu dùng cao và khả năng chi trả tăng",
-      "muc": "g",
-      "at": "2026-08-17T19:02:05.851Z"
+      "tieu_de": "TikTok Shop tăng trưởng GMV 83% so với cùng kỳ, đạt $5,96 tỷ trong nửa đầu 2026",
+      "ngay": "2026-08-01",
+      "nguon": "Statista",
+      "tac_dong": "Tăng trưởng nhanh có thể chuyển dòng tiêu dùng từ các nền tảng khác sang TikTok Shop",
+      "muc": "y",
+      "at": "2026-08-18T19:00:26.145Z"
+    },
+    {
+      "th": "san",
+      "tieu_de": "Mô hình 'shoppertainment' trên TikTok Shop phổ biến, thu hút Gen Z và người trẻ",
+      "ngay": "2026-08-01",
+      "nguon": "Statista",
+      "tac_dong": "Mô hình mới này thay đổi cách người Việt mua sắm, ảnh hưởng chiến lược kinh doanh của thương gia",
+      "muc": "y",
+      "at": "2026-08-18T19:00:26.145Z"
     }
   ],
   "levels": {
     "hormuz": "r",
     "nga": "r",
     "tq": "y",
-    "vn": "y",
+    "vn": "g",
     "my": "r",
-    "san": "g"
+    "san": "y"
   },
   "log": [
     {
       "ok": true,
       "t": "Hormuz",
-      "at": "2026-08-17T19:02:05.851Z",
-      "d": "3 tín hiệu · mức r · Lưu lượng tàu qua eo biển Hormuz giảm mạnh do xung đột Iran-Mỹ, kho dự trữ dầu thế giới đang cạn kiệt"
+      "at": "2026-08-18T19:00:26.145Z",
+      "d": "3 tín hiệu · mức r · Tắc nghẽn Hormuz tiếp tục: lưu thông dầu mỏ ở mức thấp nhất kể từ tháng 4, hàng quá dầu bị tấn công liên tiếp."
     },
     {
       "ok": true,
       "t": "Nga–Ukraina",
-      "at": "2026-08-17T19:02:05.851Z",
-      "d": "3 tín hiệu · mức r · Tổn hại cơ sở hạ tầng xuất khẩu dầu Nga từ các cuộc tấn công Ukraina làm giảm khả năng xuất khẩu"
+      "at": "2026-08-18T19:00:26.145Z",
+      "d": "3 tín hiệu · mức r · Xuất khẩu dầu Nga sụt giảm liên tục xuống mức thấp nhất kể từ tháng 5 do tấn công drone, không có tàu nào rời cảng Novorossiysk."
     },
     {
       "ok": true,
       "t": "Trung Quốc",
-      "at": "2026-08-17T19:02:05.851Z",
-      "d": "3 tín hiệu · mức y · Sản lượng dầu thô và khí gas Trung Quốc tăng, xuất khẩu nhiên liệu tăng gây áp lực tới cung cấp toàn cầu"
+      "at": "2026-08-18T19:00:26.145Z",
+      "d": "3 tín hiệu · mức y · Kinh tế Trung Quốc mất đà tăng trưởng: sản lượng công nghiệp 7 tháng năm 2026 tăng 5,3% nhưng tháng 7 chỉ 4,5%, chậm lại lần đầu trong 3 tháng."
     },
     {
       "ok": true,
       "t": "Việt Nam",
-      "at": "2026-08-17T19:02:05.851Z",
-      "d": "3 tín hiệu · mức y · Lãi suất trái phiếu bất động sản tăng cao (9-12.5%/năm), GDP tăng 8.18% kỳ H1/2026 nhưng tín dụng khó khăn"
+      "at": "2026-08-18T19:00:26.145Z",
+      "d": "3 tín hiệu · mức g · Kinh tế Việt Nam tăng trưởng mạnh: sản xuất công nghiệp tháng 7 tăng 14,5% YoY, FDI ở mức cao 5 năm, lạm phát giảm xuống 4,45% tháng 7."
     },
     {
       "ok": true,
       "t": "Hoa Kỳ",
-      "at": "2026-08-17T19:02:05.851Z",
-      "d": "3 tín hiệu · mức r · USTR đe dọa tăng thuế Section 301 lên Việt Nam 12.5% về lực lượng lao động bị cưỡng bức và sở hữu trí tuệ"
+      "at": "2026-08-18T19:00:26.145Z",
+      "d": "3 tín hiệu · mức r · Mỹ khởi động điều tra Section 301 về bảo vệ sở hữu trí tuệ đối với Việt Nam; dự báo tăng 15-25% thuế bổ sung có hiệu lực cuối tháng 7 hoặc tháng 8."
     },
     {
       "ok": true,
       "t": "Sàn TMĐT",
-      "at": "2026-08-17T19:02:05.851Z",
-      "d": "2 tín hiệu · mức g · Shopee bị TikTok Shop vượt mặt lần đầu tiên, sàn TMĐT Việt Nam trở thành nhị nguyên Shopee-TikTok"
+      "at": "2026-08-18T19:00:26.145Z",
+      "d": "3 tín hiệu · mức y · Thị trường thương mại điện tử Việt Nam trở thành cuộc đua hai người: TikTok Shop tăng từ 33% lên 44% thị phần, Shopee giảm từ 61% xuống 53% trong nửa đầu 2026."
     }
   ]
 };
