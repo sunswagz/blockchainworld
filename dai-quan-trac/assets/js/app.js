@@ -12,6 +12,32 @@ var IC = D0.IC, svg = D0.svg;
 var K_ = window.DQT_KHUNG || {};
 var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
 
+/* ═══════════════════════════════════════════════════════
+   ĐỪNG VIẾT CỨNG SỐ ĐẾM VÀO CHUỖI HIỂN THỊ
+
+   Loại lỗi này đã cắn BỐN lần trong cung, và lần nào cũng im lặng —
+   trang vẫn vẽ, không lỗi nào ném ra, chỉ có chữ là nói dối:
+
+     · "4 cấp độ" và "có bốn cấp"  → Việt Nam 4, Trung Quốc 5.
+       Thanh bên nói "5 cấp độ" còn tiêu đề ngay dưới nói "bốn",
+       trên CÙNG một trang.
+     · "MẮT XÍCH n/11"             → cả hai nước đều có 16.
+     · "Mười hai đồng hồ ... cả mười hai đặt tay" → câu này hiện
+       trên trang Việt Nam, nơi có 11 đồng hồ và 7 cái ĐÃ tự đo.
+       Sai sự thật, ngay giữa bảng cảnh báo.
+     · "than nội địa của Trung Quốc" làm ví dụ bộ đệm → hiện luôn
+       trên trang mạch của Việt Nam.
+
+   Luật: mọi con số và mọi ví dụ đặc thù trong chuỗi hiển thị phải
+   lấy từ dữ liệu của CHỦ THỂ ĐANG XEM — CHAIN.length, GAUGES.length,
+   LEVELS.length, DEM, chuThe(state.cht).ten. Thêm chủ thể thứ ba là
+   mọi chỗ viết cứng thành sai, và không phép kiểm nào bắt được.
+
+   Cách soát nhanh khi sửa file này:
+     grep -n "'[^']*(một|hai|ba|bốn|năm|[0-9]+) (cấp|đồng hồ|mắt xích|chiến trường)" app.js
+     grep -n "Việt Nam|Trung Quốc" app.js   ← phải nằm trong chú thích hoặc CHUTHE
+   ═══════════════════════════════════════════════════════ */
+
 /* Lớp CHỦ THỂ — đổi hết khi chuyển nước. Phải là `let` chứ không
    phải `const`: napChuThe() gán lại toàn bộ rồi render lại. */
 let THEATERS = [], GAUGES = [], CHAIN = [], CHAIN_SRC = {},
@@ -138,6 +164,7 @@ function napChuThe(){
   LEVELS = d.LEVELS||[];     SCEN = d.SCEN||[];     LIB = d.LIB||[];
   SOI = s.SOI||[];           DANHSACH = s.DANHSACH||[];
   BOMACH = d.BOMACH||null;  BANCO = d.BANCO||null;
+  DEM = d.DEM||[];
   SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;  DODAC = d.DODAC||[];
   const dd = c.khoDo ? window[c.khoDo] : null;
   DO = (dd && dd.do) ? dd.do : {};
@@ -310,6 +337,7 @@ function hideToast(){ $('#toast').classList.remove('on'); }
    Nhóm nào rỗng thì tự bị loại ở cuối hàm — chủ thể thiếu phần nào
    thì thanh bên không hiện phần đó, thay vì hiện một mục trống. */
 const SO = {3:'ba',4:'bốn',5:'năm',6:'sáu'};
+let DEM = [];
 let ROUTES = [];
 function dungRoutes(){
   const c = chuThe(state.cht);
@@ -588,7 +616,8 @@ function vChain(){
 
   const note=el('div','card'); note.style.marginTop='18px';
   note.innerHTML='<div class="card-h"><b>ĐỌC MẠCH NÀY THẾ NÀO</b></div><div class="card-b">'+
-    '<p style="margin:0 0 10px">Không phải cứ mắt xích số 1 đỏ là số 11 đỏ theo. Giữa chúng có <b>bộ đệm</b> — than nội địa của Trung Quốc, dự trữ, chính sách tiền tệ, tiết kiệm của hộ gia đình. Bộ đệm hấp thụ một phần và làm chậm phần còn lại.</p>'+
+    '<p style="margin:0 0 10px">Không phải cứ mắt xích đầu đỏ là mắt xích cuối đỏ theo. Giữa chúng có <b>bộ đệm</b>'+
+      (DEM.length?' — '+DEM.map(esc).join(', '):'')+'. Bộ đệm hấp thụ một phần và làm chậm phần còn lại, và đó là lý do một cú sốc rất lớn vẫn có thể không đi tới đâu.</p>'+
     '<p style="margin:0" class="muted">Điều đáng lo không phải một mắt xích đỏ, mà là <b>nhiều mắt xích liền kề cùng chuyển vàng trong một khoảng thời gian ngắn</b> — lúc đó chúng bắt đầu khuếch đại lẫn nhau thay vì hấp thụ cho nhau.</p></div>';
   w.appendChild(note);
   return w;
@@ -667,7 +696,10 @@ function vGauges(){
   if(nen.length){
     w.appendChild(el('h3','sec','Số đo nền — không phải đồng hồ chính'));
     const p2=el('p'); p2.style.cssText='max-width:74ch;color:var(--fg2)';
-    p2.innerHTML='Mười hai đồng hồ ở trên đo <b>tài khoá và quyền lực</b>, và không cái nào có nguồn công khai miễn phí đủ tin — nên cả mười hai <b>đặt tay</b>. '+
+    const tuDo2 = GAUGES.filter(g=>DODAC.some(x=>x.gg===g.id)).length;
+    p2.innerHTML = (tuDo2===0
+      ? 'Cả <b>'+GAUGES.length+'</b> đồng hồ ở trên đo <b>tài khoá và quyền lực</b>, và không cái nào có nguồn công khai miễn phí đủ tin — nên cả '+GAUGES.length+' vẫn <b>đặt tay</b>. '
+      : '<b>'+tuDo2+'/'+GAUGES.length+'</b> đồng hồ ở trên đã tự đo được; '+(GAUGES.length-tuDo2)+' cái còn lại chưa có nguồn miễn phí đủ tin nên vẫn <b>đặt tay</b>. ')+
       nen.length+' số dưới đây thì đo được, nhưng chúng chỉ nói <b>lớp cú sốc bên ngoài</b> đang căng hay chùng. Đừng đọc chúng như thước đo sức bền của chế độ.';
     w.appendChild(p2);
     const nw=el('div','nguong-w');
@@ -1319,6 +1351,7 @@ function closeRail(){ $('#app').classList.remove('rail-open'); }
 function railChain(n,lv){
   const t=n.th?TH(n.th):null;
   let h='<div class="rl"><div class="rl-h">Vai trò trong mạch</div><p>'+esc(n.d)+'</p></div>'+
+    (n.vi?'<div class="rl"><div class="rl-h">Truyền hay hấp thụ</div><p>'+n.vi+'</p></div>':'')+
     '<div class="rl"><div class="rl-h">Trạng thái</div><div class="chips"><span class="chip '+lv+'">'+LVNAME[lv]+'</span><span class="chip">'+esc(n.tag)+'</span></div></div>';
   h+='<div class="rl"><div class="rl-h">Nguồn màu</div><p class="muted" style="font-size:12.5px">Lấy từ '+srcLabel(n.id)+'. Đổi ở đó thì mắt xích này đổi theo.</p></div>';
   const idx=CHAIN.findIndex(c=>c.id===n.id);
@@ -1326,7 +1359,7 @@ function railChain(n,lv){
   if(idx<CHAIN.length-1) h+='<div class="rl"><div class="rl-h">Truyền sang</div><p>'+esc(CHAIN[idx+1].t)+'</p></div>';
   if(t) h+='<button class="tbtn" onclick="go(\'th/'+t.id+'\')">Mở hồ sơ '+esc(t.short)+'</button>';
   else h+='<button class="tbtn" onclick="go(\'gauges\')">Mở bảng đồng hồ</button>';
-  openRail(n.t,'MẮT XÍCH '+(idx+1)+'/11',h);
+  openRail(n.t,'MẮT XÍCH '+(idx+1)+'/'+CHAIN.length,h);
 }
 
 function railSignal(s){

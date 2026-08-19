@@ -140,42 +140,42 @@ const THEATERS = [
    xích 'meta' là phần Việt Nam không có, vì câu hỏi cuối của
    Việt Nam là kinh tế còn của Trung Quốc là quyền lực. */
 const CHAIN = [
-  {id:'nangluong', t:'Năng lượng', tag:'SOCKET NGOÀI', th:'nangluong',
+  {id:'nangluong', vi:'TRUYỀN CHẬM. Nhập ~11,1 triệu thùng/ngày trên tổng tiêu thụ ~16,3 nên phụ thuộc là thật, nhưng nguồn đã rải: Nga ~20%, Saudi ~14%, Iran ~11%, Iraq ~10%, cộng Kazakhstan, Myanmar và ~4,3 triệu thùng nội địa. Và cú sốc Hormuz đánh cả Nhật, Hàn, Ấn, châu Âu — nó không chọn riêng Trung Quốc, nên hiệu ứng tương đối nhỏ hơn hiệu ứng tuyệt đối.', t:'Năng lượng', tag:'SOCKET NGOÀI', th:'nangluong',
    d:'Nhập ~11,1 triệu thùng/ngày. Điểm yếu thật, nhưng nguồn đã đa dạng và cú sốc đánh cả thế giới.'},
-  {id:'congnghe', t:'Công nghệ', tag:'SOCKET NGOÀI', th:'congnghe',
+  {id:'congnghe', vi:'TRUYỀN CHẬM NHƯNG SÂU. Khác dầu ở chỗ nó không đánh vào sản lượng hôm nay mà vào BIÊN NGHIÊN CỨU của mười năm tới: AI, siêu máy tính, sản xuất tiên tiến. Trung Quốc còn mature-node, SMIC, Huawei, thiết bị nội địa và trợ cấp, nên cấm vận làm chậm và làm đắt chứ không làm dừng. Một tầng bị chặn thì tìm được đường vòng; phải chip + phần mềm + thiết bị chặn ĐỒNG THỜI mới thành nút thắt.', t:'Công nghệ', tag:'SOCKET NGOÀI', th:'congnghe',
    d:'Chip tiên tiến, EDA, thiết bị. Đòn bẩy chọn lọc nhất — mạnh dài hạn, yếu ngắn hạn.'},
-  {id:'thuongmai', t:'Thương mại', tag:'SOCKET NGOÀI', th:'thuongmai',
+  {id:'thuongmai', vi:'TRUYỀN NHANH NHẤT trong bốn ổ ngoài, vì nó chạm thẳng vào đơn hàng. Mỹ 14,7% + EU 14,5% ≈ 29% xuất khẩu hàng hoá. Một nước siết thì chuyển hướng ASEAN, Mexico, Global South; nhiều thị trường lớn cùng siết thì khó chuyển hẳn — đó là chỗ liên minh có đòn bẩy mà một nước không có.', t:'Thương mại', tag:'SOCKET NGOÀI', th:'thuongmai',
    d:'Mỹ + EU ≈ 29% xuất khẩu. Đánh đúng cái van đang bù cho nội địa yếu.'},
-  {id:'hanghai', t:'Hàng hải', tag:'SOCKET NGOÀI', th:'hanghai',
+  {id:'hanghai', vi:'HAY BỊ BỎ SÓT. Hormuz mới là cửa ra của Vùng Vịnh; phần lớn hàng còn phải qua Malacca. Nhưng thứ đi qua đó không chỉ là dầu — container, nguyên liệu, linh kiện, LNG và hàng xuất khẩu đều dùng cùng hệ logistics biển. Tàu là động mạch, cảng là van, bảo hiểm và tài chính vận tải là máu. Gián đoạn vật lý ở đây là tình huống chiến tranh lớn, gây thiệt hại toàn cầu — không phải công cụ chọn lọc.', t:'Hàng hải', tag:'SOCKET NGOÀI', th:'hanghai',
    d:'Malacca và hệ logistics biển. Container quan trọng hơn dầu.'},
-  {id:'nga', t:'Nga', tag:'ĐƯỜNG VÒNG', th:'nga',
+  {id:'nga', vi:'HẤP THỤ, không truyền. Đây là lý do Nga có giá trị chiến lược với Trung Quốc lớn hơn giá trị thương mại: nó là ĐƯỜNG BYPASS cho tuyến biển phía Nam. Trung Đông bất ổn thì Nga là bộ đệm; phương Tây siết thương mại thì Nga là thị trường, nguyên liệu và hậu phương lục địa. Vì vậy điều nguy hiểm không phải Nga mạnh mà là <b>Nga yếu ĐỒNG THỜI với khủng hoảng Trung Đông</b>.', t:'Nga', tag:'ĐƯỜNG VÒNG', th:'nga',
    d:'Không phải mắt xích chịu đòn — là vùng đệm làm giảm hiệu lực của đòn đánh vào tuyến biển.'},
 
-  {id:'loinhuan', t:'Lợi nhuận doanh nghiệp', tag:'KINH TẾ',
+  {id:'loinhuan', vi:'ĐIỂM GHÉP. Đây là chỗ ba ổ ngoài cộng lại: chi phí năng lượng ↑ và biên nghiên cứu chậm và đơn hàng ↓ đều đổ vào cùng một dòng lợi nhuận. Từng cú một thì doanh nghiệp chịu được; ba cú cùng lúc thì bắt đầu cắt.', t:'Lợi nhuận doanh nghiệp', tag:'KINH TẾ',
    d:'Chi phí năng lượng ↑ và đơn hàng ↓ gặp nhau ở đây. Đây là chỗ ba cú sốc ngoài cộng dồn.'},
-  {id:'vieclam', t:'Việc làm', tag:'KINH TẾ',
+  {id:'vieclam', vi:'TRUYỀN TỪ BẢNG CÂN ĐỐI SANG ĐỜI SỐNG. Lợi nhuận ↓ → tuyển ít, cắt giảm. Mắt xích này quan trọng vì nó là chỗ một con số kế toán biến thành một vấn đề xã hội, và xã hội mới là thứ tạo khối lượng việc cho ổ cứng thứ ba.', t:'Việc làm', tag:'KINH TẾ',
    d:'Lợi nhuận ↓ → tuyển ít, cắt giảm. Mắt xích chuyển từ bảng cân đối sang đời sống.'},
-  {id:'tieudung', t:'Tiêu dùng', tag:'KINH TẾ',
+  {id:'tieudung', vi:'VÒNG NGƯỢC. Việc làm ↓ và tài sản ↓ thì tiêu dùng ↓, mà tiêu dùng yếu lại buộc nền kinh tế dựa nhiều hơn vào xuất khẩu — tức dựa nhiều hơn vào đúng cái van đang bị siết. IMF và World Bank đều nhấn mạnh vòng này: xuất khẩu 1–5/2026 tăng 15,5% chính là đang gánh phần nhu cầu nội địa yếu.', t:'Tiêu dùng', tag:'KINH TẾ',
    d:'Nhu cầu nội địa vốn đã yếu vì bất động sản và niềm tin. Nên nền kinh tế phải dựa nhiều vào xuất khẩu — và vòng lặp khép lại.'},
 
-  {id:'bds', t:'Bất động sản', tag:'TÀI SẢN',
+  {id:'bds', vi:'CỬA VÀO BÊN TRONG. Đây là chỗ cú sốc ngoài gặp điểm yếu trong, và nó nguy hiểm hơn Hormuz về mặt cấu trúc vì nó là vòng phản hồi NỘI SINH: nhà đất ↓ → chủ đầu tư ↓ → đất bán ↓ → thu địa phương ↓ → LGFV căng → rủi ro ngân hàng ↑ → tín dụng ↓ → kinh tế ↓ → nhà đất ↓. Đầu tư phát triển bất động sản 2025 giảm 17,2%.', t:'Bất động sản', tag:'TÀI SẢN',
    d:'Cửa vào bên trong. Đầu tư phát triển BĐS năm 2025 giảm 17,2%. Đây là chỗ cú sốc ngoài gặp điểm yếu trong.'},
-  {id:'lgfv', t:'LGFV & chính quyền địa phương', tag:'TÀI SẢN',
+  {id:'lgfv', vi:'MẮT XÍCH NỐI TÀI SẢN VỚI CHÍNH QUYỀN. Nợ ẩn ~14,3 nghìn tỷ NDT ước tính năm 2023 phần lớn nằm ở đây. Đây cũng là bậc thang nơi lỗ bắt đầu rời khỏi khu vực doanh nghiệp và bước vào khu vực nhà nước — sau bậc này thì mọi tổn thất đều là bài toán chính trị.', t:'LGFV & chính quyền địa phương', tag:'TÀI SẢN',
    d:'Nhà đất ↓ → bán đất ↓ → thu ngân sách địa phương ↓ → LGFV căng. "Nợ ẩn" ước ~14,3 nghìn tỷ NDT năm 2023.',
    vi:'Nợ ẩn ~14,3 nghìn tỷ NDT (ước tính 2023) phần lớn nằm ở đây. Chi phí vay và kỳ hạn là hai thứ cho biết chương trình hoán đổi nợ đang mua được bao nhiêu thời gian.'},
-  {id:'nganhang', t:'Ngân hàng', tag:'TÀI SẢN',
+  {id:'nganhang', vi:'VỪA LÀ ĐIỂM YẾU VỪA LÀ BỘ GIẢM XÓC. Nền kinh tế thông thường: nợ xấu → ngân hàng lỗ → phá sản. Ở đây: nợ xấu → ngân hàng quốc doanh → gia hạn → cứu trợ địa phương → thanh khoản trung ương → tái cấu trúc. Nó MUA THỜI GIAN, và đó là lý do nhiều dự đoán sụp đổ đã sai. Mặt trái: lỗ không biến mất, nó tích lại và leo lên.', t:'Ngân hàng', tag:'TÀI SẢN',
    d:'Vừa là điểm yếu vừa là BỘ GIẢM XÓC: khoản xấu được gia hạn, đảo nợ, hoán đổi — lỗ không biến mất mà được DI CHUYỂN.'},
 
-  {id:'taikhoa', t:'Tài khoá', tag:'Ổ CỨNG 1',
+  {id:'taikhoa', vi:'Ổ CỨNG THỨ NHẤT — và không chỉ là ngân sách. Đây là khả năng trả lương công chức, giáo viên, cảnh sát, quân đội, lương hưu và phúc lợi, tức khả năng giữ bộ máy DÍNH VÀO NHAU. Đường đáy có tên riêng là "tam bảo". Một cú sốc bên ngoài chỉ nguy hiểm cho chế độ khi nó biến thành vấn đề phân phối nguồn lực bên trong Đảng — và đây đúng là chỗ chuyển hoá đó xảy ra.', t:'Tài khoá', tag:'Ổ CỨNG 1',
    d:'Không chỉ là ngân sách. Là khả năng trả lương công chức, giáo viên, cảnh sát, quân đội, lương hưu — tức khả năng giữ bộ máy dính vào nhau. Ngân sách 2026: thâm hụt ~5,89 nghìn tỷ NDT (~4% GDP), trung ương chuyển ~10,415 nghìn tỷ cho địa phương trong khi địa phương tự thu ~12,503 nghìn tỷ. Đường đáy có tên riêng — <b>“tam bảo”</b>: dân sinh cơ bản, tiền lương, hoạt động bộ máy.'},
-  {id:'canbo', t:'Cán bộ', tag:'Ổ CỨNG 2',
+  {id:'canbo', vi:'Ổ CỨNG THỨ HAI — bộ truyền động. Không có cán bộ thì Trung ương chỉ là văn kiện. Hai điểm yếu nội sinh: thông tin méo (cấp dưới muốn thăng chức nên báo cáo đẹp — chính Trung ương 2026 vẫn phải nhắc chống "thành tích bằng số liệu giả"), và xung đột chỉ tiêu khi nguồn lực co lại.', t:'Cán bộ', tag:'Ổ CỨNG 2',
    d:'Bộ truyền động. Trung ương không điều khiển từng người mà kiểm soát ĐƯỜNG THĂNG TIẾN. Nhưng chính cơ chế đó sinh ra báo cáo đẹp và "không dám làm". Quy mô kỷ luật năm 2025: ~1,012 triệu vụ, ~47.000 người bị lưu trí, ~983.000 quyết định — vừa là kiểm soát mạnh lên, vừa có thể là lòng tin nội bộ giảm.'},
-  {id:'anninh', t:'An ninh', tag:'Ổ CỨNG 3',
+  {id:'anninh', vi:'Ổ CỨNG THỨ BA — khoá hệ thống. Nhưng nó dựa trên NĂM thứ chứ không chỉ súng: chuỗi mệnh lệnh, lương và nguồn lực, trung thành chính trị, thông tin, và niềm tin rằng Trung ương vẫn đang kiểm soát. Đó là lý do tài khoá quay lại chạm vào đây — và là lý do nó chịu kéo kép khi kinh tế xuống.', t:'An ninh', tag:'Ổ CỨNG 3',
    d:'Công an, an ninh nhà nước, chính pháp, quân đội. Cohesion ở đây dựa trên chuỗi mệnh lệnh, lương bổng, lòng trung thành và niềm tin rằng trung tâm còn kiểm soát được.'},
 
-  {id:'elite', t:'Thống nhất tầng lãnh đạo', tag:'Ổ META',
+  {id:'elite', vi:'Ổ META. Ba ổ cứng trên đều quy về đây. Một chế độ độc đảng không cần 1,4 tỷ người đồng ý; nó cần những người CÓ KHẢ NĂNG thay đổi quyền lực tiếp tục tin rằng giữ hệ thống tốt hơn phá nó. Đó là một vòng trao đổi: Trung ương cho sự nghiệp, địa vị, quyền hành, nguồn lực và bảo vệ; elite trả lại trung thành, thực thi, thông tin và kiểm soát địa bàn.', t:'Thống nhất tầng lãnh đạo', tag:'Ổ META',
    d:'Chế độ không cần 1,4 tỷ người đồng ý. Nó cần những người CÓ KHẢ NĂNG THAY ĐỔI QUYỀN LỰC tiếp tục tin rằng giữ hệ thống tốt hơn phá nó.'},
-  {id:'chedo', t:'Chế độ tồn tại', tag:'HẠ NGUỒN',
+  {id:'chedo', vi:'HẠ NGUỒN. Và đây là chỗ phải nói cho chính xác nhất cả mạch: hệ 1 hỏng là SUY THOÁI; hệ 1 + 2 hỏng là KHỦNG HOẢNG NHÀ NƯỚC; phải cả ba hệ — kinh tế, tài khoá, chính trị — cùng mất khả năng bù cho nhau thì mới nói tới nguy cơ sụp chế độ. Trộn ba thứ đó là chỗ mọi phân tích "đánh Trung Quốc" trở nên vô dụng.', t:'Chế độ tồn tại', tag:'HẠ NGUỒN',
    d:'Điểm cuối thật sự. Khủng hoảng kinh tế ≠ khủng hoảng chế độ — một chế độ có thể nghèo mà tồn tại rất lâu.'}
 ];
 
@@ -439,6 +439,11 @@ const LIB = [
    điệp của bảng đồng hồ Trung Quốc: nó không đo kinh tế thường, vì một
    chế độ có thể nghèo đi rất nhiều mà vẫn đứng. Muốn biết tăng trưởng
    thì có hàng trăm bảng khác; bảng này đo thứ khác. */
+/* Thứ nằm GIỮA các mắt xích và làm chậm cú sốc. Khai theo chủ thể
+   vì bộ đệm của mỗi nước khác hẳn nhau. */
+const DEM = ['than nội địa và dự trữ chiến lược', 'dự trữ ngoại hối ~3,416 nghìn tỷ USD',
+  'kiểm soát vốn', 'ngân hàng quốc doanh gia hạn được nợ', 'trái phiếu đặc biệt của trung ương',
+  'tiết kiệm rất cao của hộ gia đình'];
 const CHAIN_SRC = {
   nangluong:['th','nangluong'], congnghe:['th','congnghe'],
   thuongmai:['th','thuongmai'], hanghai:['th','hanghai'], nga:['th','nga'],
@@ -721,7 +726,7 @@ const BANCO = {
 };
 
 window.DQT_TQ = {
-  BOMACH: BOMACH, BANCO: BANCO,
+  BOMACH: BOMACH, BANCO: BANCO, DEM: DEM,
   COMPASS: COMPASS, DODAC: DODAC,
   THEATERS: THEATERS, GAUGES: GAUGES, CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC,
   LEVELS: LEVELS, SCEN: SCEN, LIB: LIB, SOLIEU: SOLIEU

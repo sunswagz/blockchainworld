@@ -355,6 +355,10 @@ const LIB = [
 
    Mỗi mắt xích PHẢI có một dòng; napChuThe() tự soi và báo ra console
    nếu thiếu, thừa, hoặc trỏ tới đồng hồ/chiến trường không tồn tại. */
+/* Bộ đệm của Việt Nam — khác hẳn Trung Quốc, nên phải khai riêng. */
+const DEM = ['dự trữ ngoại hối', 'điều hành tỷ giá của Ngân hàng Nhà nước',
+  'chính sách tiền tệ', 'tiết kiệm của hộ gia đình', 'đơn hàng đã ký trước',
+  'tồn kho nguyên liệu của nhà máy'];
 const CHAIN_SRC = {
   hormuz:['th','hormuz'], gia_dau:['gg','nangluong'], tq:['th','tq'], dauvao:['gg','tq'],
   cpi:['max','nangluong','tq'],
@@ -454,7 +458,7 @@ const DODAC = [
    can:'Biên độ 3 tháng quan sát được: 3.986–4.561. Vàng lập đỉnh liên tục nên ngưỡng này sẽ phải chỉnh lại; hiện neo vào biên trên quan sát được.'}
 ];
 
-window.DQT_DATA = { IC: IC, svg: svg, COMPASS: COMPASS, DODAC: DODAC, THEATERS: THEATERS, GAUGES: GAUGES,
+window.DQT_DATA = { DEM: DEM, IC: IC, svg: svg, COMPASS: COMPASS, DODAC: DODAC, THEATERS: THEATERS, GAUGES: GAUGES,
   CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC, LEVELS: LEVELS, SCEN: SCEN,
   LIB: LIB, SOLIEU: SOLIEU };
 })();
