@@ -14,8 +14,9 @@ var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
 
 /* Lớp CHỦ THỂ — đổi hết khi chuyển nước. Phải là `let` chứ không
    phải `const`: napChuThe() gán lại toàn bộ rồi render lại. */
-let THEATERS = [], GAUGES = [], CHAIN = [], LEVELS = [], SCEN = [], LIB = [],
-    SOI = [], DANHSACH = [];
+let THEATERS = [], GAUGES = [], CHAIN = [], CHAIN_SRC = {},
+    LEVELS = [], SCEN = [], LIB = [], SOI = [], DANHSACH = [], SOLIEU = [],
+    COMPASS = null;
 
 /* ============================================================
    SỐ ĐO TỰ ĐỘNG — do.js, sinh 4 lượt/ngày, không gọi AI
@@ -30,8 +31,10 @@ let THEATERS = [], GAUGES = [], CHAIN = [], LEVELS = [], SCEN = [], LIB = [],
    có số đo thì lấy số đo, không có thì để trống. Nhờ vậy vòng
    bấm cũ (n → g → y → r → n) tự nhiên có luôn nghĩa "trả về
    cho máy đo", không cần thêm trạng thái nào. */
-var DO = (window.DQT_DO && window.DQT_DO.do) ? window.DQT_DO.do : {};
-var DO_LUC = (window.DQT_DO && window.DQT_DO.generatedAt) || null;
+/* Số đo tự động cũng thuộc về MỘT chủ thể. Đọc thẳng window ở đây là
+   chỗ Trung Quốc sẽ mượn số đo của Việt Nam nếu hai bên trùng id đồng
+   hồ. napChuThe() gán lại theo nước đang xem. */
+let DO = {}, DO_LUC = null;
 
 /* Đèn thực tế của một đồng hồ, sau khi hoà người và máy. */
 function den(id){
@@ -96,8 +99,7 @@ const LVNAME = {n:'chưa quan trắc', g:'xanh', y:'vàng', r:'đỏ'};
 /* ============================================================
    CHỦ THỂ — lớp cho phép Đài Quan Trắc soi nhiều nước
 
-   Hôm nay chỉ có Việt Nam, và giao diện KHÔNG đổi gì: nút chuyển
-   chủ thể chỉ hiện khi có từ hai chủ thể trở lên.
+   Nút chuyển chủ thể chỉ hiện khi có từ hai chủ thể trở lên.
 
    Nhưng phần khoá trạng thái phải làm NGAY BÂY GIỜ, không phải
    lúc thêm nước thứ hai. state.gg trước đây là map phẳng theo id
@@ -111,8 +113,14 @@ const LVNAME = {n:'chưa quan trắc', g:'xanh', y:'vàng', r:'đỏ'};
    và trông như hỏng. */
 const CHUTHE = [
   {id:'vn', ten:'Việt Nam',   co:'🇻🇳', kho:'DQT_DATA', khoSoi:'DQT_SOI',
+   khoDo:'DQT_DO', khoScan:'DQT_SCAN', tepScan:'assets/js/scan.js',
    hoi:'Nền kinh tế chịu được không?'},
+  /* Trung Quốc CHƯA có đường quét tự động và CHƯA có số đo — khai
+     null chứ không bỏ trống, để giao diện nói thẳng "chưa có" thay vì
+     lặng lẽ hiện dữ liệu của nước bên cạnh. Chính chỗ này từng trộn:
+     Dòng chảy của Trung Quốc hiện tín hiệu Hormuz của Việt Nam. */
   {id:'tq', ten:'Trung Quốc', co:'🇨🇳', kho:'DQT_TQ',   khoSoi:'DQT_TQ_SOI',
+   khoDo:null, khoScan:null, tepScan:null,
    hoi:'Quyền lực giữ được không?'}
 ].filter(c=>window[c.kho]);   /* chủ thể thiếu file dữ liệu thì biến mất
                                  khỏi thanh chuyển, không hiện mục rỗng */
@@ -125,9 +133,15 @@ function napChuThe(){
   const c = chuThe(state.cht);
   const d = window[c.kho] || {}, s = window[c.khoSoi] || {};
   THEATERS = d.THEATERS||[]; GAUGES = d.GAUGES||[]; CHAIN = d.CHAIN||[];
+  CHAIN_SRC = d.CHAIN_SRC||{};
   LEVELS = d.LEVELS||[];     SCEN = d.SCEN||[];     LIB = d.LIB||[];
   SOI = s.SOI||[];           DANHSACH = s.DANHSACH||[];
+  SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;
+  const dd = c.khoDo ? window[c.khoDo] : null;
+  DO = (dd && dd.do) ? dd.do : {};
+  DO_LUC = (dd && dd.generatedAt) || null;
   dungRoutes();
+  kiemMach();
 }
 
 /* Chuyển nước. Cố GIỮ NGUYÊN LOẠI TRANG đang xem — đang ở bảng đồng
@@ -138,10 +152,18 @@ function doiChuThe(id){
   if(id===state.cht) return;
   const cu = state.route;
   state.cht = id; napChuThe();
+  /* Bộ lọc Dòng chảy giữ id chiến trường của nước cũ thì sang nước mới
+     nó lọc ra 0 dòng và trông như mất hết tin. */
+  state.filter = 'all';
   const co = ROUTES.some(g=>g.items.some(it=>it.id===cu ||
     (it.con||[]).some(c=>c.id===cu)));
   state.route = co ? cu : 'flow';
-  save(); render(); renderNav(); tick();
+  save();
+  /* Thanh bên và nút chuyển vẽ TRƯỚC nội dung, có chủ ý. Một lỗi trong
+     một khung nhìn thì chỉ hỏng khung đó; người dùng vẫn còn thanh bên
+     để đi chỗ khác. Thứ tự ngược lại đã làm cả giao diện đứng im và
+     trông y như "nút chuyển nước không hoạt động". */
+  renderNav(); veChuThe(); render();   /* render() tự gọi renderTicker() */
 }
 
 const state = {
@@ -164,22 +186,14 @@ const state = {
      của hồ sơ trước. */
   muc:{}
 };
-/* Mỗi mắt xích trong CHAIN PHẢI có một dòng ở đây, không thì lvOf()
-   đọc undefined[0] và cả trang trắng. Thêm mắt xích mà quên dòng này
-   là lỗi chết ngay — có kiểm tự động ở cuối file để không quên. */
-const CHAIN_SRC = {hormuz:['th','hormuz'],gia_dau:['gg','nangluong'],tq:['th','tq'],dauvao:['gg','tq'],
-  cpi:['max','nangluong','tq'],
-  hangrao:['max','xuatkhau','xuatxu'],phisan:['gg','san'],bienloi:['max','san','xuatkhau'],
-  sangloc:['gg','doanhnghiep'],vieclam:['gg','doanhnghiep'],
-  tygia:['gg','tygia'],laisuat:['gg','laisuat'],tindung:['gg','nganhang'],
-  bds:['gg','bds'],niemtin:['gg','niemtin'],hanhvi:['gg','niemtin']};
 const RANK={n:0,g:1,y:2,r:3};
 
-/* Tự soi lúc nạp: mắt xích thiếu nguồn, hoặc nguồn trỏ tới đồng hồ /
-   chiến trường không tồn tại. Cả ba lỗi này đều làm trang trắng hoặc
-   sáng sai mức mà không có thông báo nào. Rẻ, chạy một lần, và nói rõ
-   sai ở đâu thay vì để "Cannot read properties of undefined". */
-(function kiemMach(){
+/* Soi mạch của CHỦ THỂ ĐANG NẠP — gọi từ napChuThe(), không phải lúc
+   nạp module. Chạy lúc nạp module là chỗ bộ kiểm này từng vô dụng:
+   CHAIN khi đó còn rỗng nên nó không bắt được gì, lại còn báo nhầm 16
+   dòng "thừa". Bộ kiểm chạy sai thời điểm còn tệ hơn không có, vì nó
+   dạy người đọc bỏ qua cảnh báo. */
+function kiemMach(){
   const co = new Set(GAUGES.map(g=>g.id)), ct = new Set(THEATERS.map(t=>t.id)), loi=[];
   CHAIN.forEach(c=>{
     const s=CHAIN_SRC[c.id];
@@ -190,13 +204,21 @@ const RANK={n:0,g:1,y:2,r:3};
   Object.keys(CHAIN_SRC).forEach(id=>{
     if(!CHAIN.some(c=>c.id===id)) loi.push('CHAIN_SRC thừa dòng "'+id+'" — không mắt xích nào dùng');
   });
-  if(loi.length) console.error('[Đài Quan Trắc] mạch truyền dẫn lệch:\n  · '+loi.join('\n  · '));
-})();
+  if(loi.length) console.error('[Đài Quan Trắc · '+chuThe(state.cht).ten+
+    '] mạch truyền dẫn lệch:\n  · '+loi.join('\n  · '));
+}
 /* Đọc qua den() chứ không đọc thẳng state.gg — nhờ vậy số đo tự
    động cũng thắp được mạch truyền dẫn, không chỉ đèn đặt tay. Đây
    là chỗ vòng tuần hoàn khép lại: đo → ngưỡng → đèn → mạch sáng. */
 function lvOf(chainId){
   const s=CHAIN_SRC[chainId];
+  /* Thiếu dòng thì trả 'n', KHÔNG ném lỗi. Đây là bài học vừa trả giá:
+     một dòng thiếu làm lvOf ném ngay trong render(), render() nằm
+     TRƯỚC renderNav() nên thanh bên không kịp vẽ lại — và triệu chứng
+     hiện ra là "bấm chuyển nước mà giao diện không đổi", chẳng liên
+     quan gì tới nguyên nhân thật. Một dòng dữ liệu sai chỉ được phép
+     làm xám MỘT chip; kiemMach() lo phần báo cho người sửa. */
+  if(!s) return 'n';
   if(s[0]==='th') return gTH(s[1]);
   if(s[0]==='gg') return den(s[1]);
   return s.slice(1).reduce((a,g)=>RANK[den(g)]>RANK[a]?den(g):a,'n');
@@ -243,6 +265,13 @@ function doiKhoa(o){
    state.gg[id] nữa. Một chỗ đọc thẳng sót lại là một chỗ đèn của
    nước này hiện sang nước kia — và lỗi đó im lặng. */
 const K   = id => state.cht+':'+id;
+/* Tín hiệu và nhật ký nằm CHUNG một mảng nhưng mỗi dòng mang cờ 'cht'.
+   Mọi khung nhìn phải đọc qua hai hàm này, không đọc thẳng state.sig —
+   một chỗ đọc thẳng sót lại là một chỗ tin của nước này hiện ở nước
+   kia. Đã dính thật: id chiến trường "nga" có ở CẢ HAI nước, nên lọc
+   theo th là không đủ. */
+const sigCT = () => state.sig.filter(x => (x.cht||'vn') === state.cht);
+const logCT = () => state.log.filter(x => (x.cht||'vn') === state.cht);
 const gGG = id => state.gg[K(id)] || 'n';
 const sGG = (id,v) => { state.gg[K(id)] = v; };
 const gTH = id => state.th[K(id)] || 'n';
@@ -353,7 +382,7 @@ function renderNav(){
       const b=el('button','nv'+(state.route===it.id?' on':'')+(coCon?' cha':'')+(conMo?' bung':''));
       let right='';
       if(it.th) right='<span class="dot '+gTH(it.th)+'"></span>';
-      else if(it.id==='flow'&&state.sig.length) right='<span class="nv-x">'+state.sig.length+'</span>';
+      else if(it.id==='flow'&&sigCT().length) right='<span class="nv-x">'+sigCT().length+'</span>';
       else if(coCon) right='<span class="nv-x">'+it.con.length+'</span>';
       b.innerHTML=(coCon?'<span class="nv-tw"><svg viewBox="0 0 24 24" width="10" height="10" '+
           'fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" '+
@@ -444,11 +473,11 @@ function render(){
 
 /* ---------- DÒNG CHẢY ---------- */
 function vFlow(){
-  head('Dòng chảy','REALTIME · '+state.sig.length+' TÍN HIỆU');
+  head('Dòng chảy','REALTIME · '+sigCT().length+' TÍN HIỆU');
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Quan trắc liên tục</div>'+
    '<h2 class="big">Dòng chảy địa chính trị</h2>'+
-   '<p class="lede">'+THEATERS.length+' chiến trường, một dòng. Mỗi tín hiệu được ghi kèm <b>đường truyền dẫn tới Việt Nam</b> — vì một sự kiện chỉ đáng theo dõi khi biết nó chạy vào đâu.</p>';
+   '<p class="lede">'+THEATERS.length+' chiến trường, một dòng. Mỗi tín hiệu được ghi kèm <b>đường truyền dẫn tới '+esc(chuThe(state.cht).ten)+'</b> — vì một sự kiện chỉ đáng theo dõi khi biết nó chạy vào đâu.</p>';
 
   /* Dải trạng thái — thứ phải đọc được trong hai giây, đặt trên
      cùng trang đầu. Cấp độ bên trái, 11 đèn bên phải: nhìn phát
@@ -471,11 +500,11 @@ function vFlow(){
   const fb=el('div','fbar');
   const mk=(id,label,n)=>{const b=el('button','fchip'+(state.filter===id?' on':''));
     b.innerHTML=esc(label)+(n!=null?' <span class="n">'+n+'</span>':''); b.onclick=()=>{state.filter=id;render();}; return b;};
-  fb.appendChild(mk('all','Tất cả',state.sig.length));
-  THEATERS.forEach(t=>fb.appendChild(mk(t.id,t.short,state.sig.filter(s=>s.th===t.id).length)));
+  fb.appendChild(mk('all','Tất cả',sigCT().length));
+  THEATERS.forEach(t=>fb.appendChild(mk(t.id,t.short,sigCT().filter(s=>s.th===t.id).length)));
   w.appendChild(fb);
 
-  const list=state.sig.filter(s=>state.filter==='all'||s.th===state.filter);
+  const list=sigCT().filter(s=>state.filter==='all'||s.th===state.filter);
   if(!list.length){
     const e=el('div','empty');
     e.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+
@@ -653,7 +682,7 @@ function vTheater(id){
   bar.appendChild(sb); bar.appendChild(cyc); w.appendChild(bar);
 
   // tín hiệu của chiến trường này
-  const mine=state.sig.filter(s=>s.th===id);
+  const mine=sigCT().filter(s=>s.th===id);
   if(mine.length){
     const c=el('div','card'); c.style.marginBottom='6px';
     c.appendChild(el('div','card-h','<b>TÍN HIỆU MỚI NHẤT</b><span class="chip">'+mine.length+'</span>'));
@@ -727,7 +756,7 @@ function vTheater(id){
   t.clocks.forEach((c,i)=>{ const r=el('div','gauge'); r.innerHTML='<span class="gauge-i n">'+(i+1)+'</span><span class="gauge-t"><b>'+esc(c)+'</b></span>'; cb.appendChild(r); });
   cl.appendChild(cb); w.appendChild(cl);
 
-  w.appendChild(el('h3','sec','Đánh vào Việt Nam theo đường nào'));
+  w.appendChild(el('h3','sec','Đánh vào '+chuThe(state.cht).ten+' theo đường nào'));
   const hl=el('ul','tight'); hl.innerHTML=t.hits.map(h=>'<li>'+esc(h)+'</li>').join(''); w.appendChild(hl);
   return w;
 }
@@ -776,26 +805,34 @@ function vScen(){
 }
 
 /* ---------- KẸP BỐN PHÍA ---------- */
+/* Chỉ còn là bộ VẼ. Nội dung bốn phía nằm ở COMPASS của từng chủ thể —
+   Việt Nam bị kẹp giữa các nguồn cú sốc, Trung Quốc thì lõi mới là chỗ
+   quyết định, nên hai bản không thể dùng chung một đoạn chữ. */
 function vCompass(){
-  head('Kẹp bốn phía','VỊ TRÍ CỦA VIỆT NAM');
+  const ct = chuThe(state.cht), C = COMPASS;
+  if(!C){ const w=el('div','wrap');
+    w.innerHTML='<p class="lede">Chưa dựng sơ đồ kẹp bốn phía cho '+esc(ct.ten)+'.</p>';
+    return w; }
+  head('Kẹp bốn phía','VỊ TRÍ CỦA '+ct.ten.toUpperCase());
   const w=el('div','wrap');
-  w.innerHTML='<div class="eyebrow">Chương XVI</div><h2 class="big">Việt Nam nằm đúng giao điểm</h2>'+
-   '<p class="lede">Cách nói cẩn thận: không phải "tất cả đang cùng đánh Việt Nam", mà là <b>Việt Nam nằm đúng giao điểm của nhiều hệ thống nên một số cú sốc khác nguồn có khả năng cùng hội tụ tại đây</b>.</p>';
+  w.innerHTML='<div class="eyebrow">'+esc(C.chuong)+'</div><h2 class="big">'+esc(C.tieu)+'</h2>'+
+   '<p class="lede">'+C.lede+'</p>';
   const c=el('div','compass');
-  const cell=(cls,side,t,p,th)=>{const d=el('div','cp '+cls);
-    d.innerHTML='<div class="side">'+side+'</div><b>'+t+'</b><p>'+p+'</p>';
-    if(th){d.style.cursor='pointer';d.onclick=()=>go('th/'+th);} return d;};
-  c.appendChild(cell('n','PHÍA TRÊN','Hormuz / Nga','Năng lượng ↑ — cổ chai biển và chân lục địa cùng nằm ở thượng nguồn.','hormuz'));
-  c.appendChild(cell('w','PHÍA TRÁI','Trung Quốc','Đầu vào ↑ — máy móc, linh kiện, hóa chất, hàng trung gian.','tq'));
+  const cell=h=>{ const d=el('div','cp '+h.v);
+    d.innerHTML='<div class="side">'+esc(h.side)+'</div><b>'+esc(h.t)+'</b><p>'+esc(h.p)+'</p>';
+    if(h.th){ d.style.cursor='pointer'; d.onclick=()=>go('th/'+h.th); } return d; };
+  const H = id => C.huong.find(x=>x.v===id);
+  if(H('n')) c.appendChild(cell(H('n')));
+  if(H('w')) c.appendChild(cell(H('w')));
   const core=el('div','cp core');
-  core.innerHTML='<div class="flag">🇻🇳</div><b>VIỆT NAM</b><p style="color:var(--fg2)">Giao điểm của bốn hướng</p>';
-  core.style.cursor='pointer'; core.onclick=()=>go('th/vn');
+  core.innerHTML='<div class="flag">'+C.loi.co+'</div><b>'+esc(C.loi.ten)+'</b>'+
+    '<p style="color:var(--fg2)">'+esc(C.loi.d)+'</p>';
+  if(C.loi.th){ core.style.cursor='pointer'; core.onclick=()=>go('th/'+C.loi.th); }
   c.appendChild(core);
-  c.appendChild(cell('e','PHÍA PHẢI','Mỹ / EU','Đầu ra ? — thuế, nhu cầu tiêu dùng, điều kiện thương mại.','my'));
-  c.appendChild(cell('s','PHÍA DƯỚI','Hệ thống nội địa','Ngân hàng · bất động sản · tín dụng · niềm tin — bộ khuếch đại nằm bên trong.','vn'));
+  if(H('e')) c.appendChild(cell(H('e')));
+  if(H('s')) c.appendChild(cell(H('s')));
   w.appendChild(c);
-  const q=el('blockquote'); q.style.marginTop='20px';
-  q.innerHTML='Ba hướng trên đánh vào <b>vật chất</b>. Hướng thứ tư — hệ thống nội địa — không tạo ra cú sốc, nhưng quyết định cú sốc bị hấp thụ hay bị khuếch đại.';
+  const q=el('blockquote'); q.style.marginTop='20px'; q.innerHTML=C.ket;
   w.appendChild(q);
   return w;
 }
@@ -1092,40 +1129,40 @@ function vSoi(id, mucId){
 
 /* ---------- NGUỒN & NHẬT KÝ ---------- */
 function vSrc(){
-  head('Nguồn & nhật ký','MINH BẠCH');
+  const ct = chuThe(state.cht);
+  head('Nguồn & nhật ký', ct.ten.toUpperCase()+' · MINH BẠCH');
   const w=el('div','wrap');
-  w.innerHTML='<div class="eyebrow">Cái gì từ đâu ra</div><h2 class="big">Nguồn & nhật ký</h2>'+
-   '<p class="lede">Một bảng quan trắc chỉ dùng được nếu biết rõ dòng nào là dữ liệu, dòng nào là phán đoán. Đây là chỗ tách bạch điều đó.</p>';
+  w.innerHTML='<div class="eyebrow">Cái gì từ đâu ra · '+esc(ct.ten)+'</div>'+
+   '<h2 class="big">Nguồn &amp; nhật ký</h2>'+
+   '<p class="lede">Một bảng quan trắc chỉ dùng được nếu biết rõ dòng nào là dữ liệu, dòng nào là phán đoán. Đây là chỗ tách bạch điều đó — <b>riêng cho '+esc(ct.ten)+'</b>, không trộn với chủ thể khác.</p>';
 
   const g=el('div','grid g3');
-  [['Khung phân tích','Toàn bộ mạch truyền dẫn, 4 cấp độ, kịch bản A/B/C, thư viện '+LIB.length+' cụm — trích và phân loại từ hồ sơ bạn cung cấp. Cố định, không tự đổi.','b'],
-   ['Bảng đồng hồ','Do bạn tự đặt. Không có nguồn tự động nào ghi vào đây. Màu bạn chọn là phán đoán của bạn.','p'],
-   ['Dòng chảy','Chỉ được lấp đầy bằng kết quả quét trực tiếp qua tìm kiếm web. Trống nếu chưa quét — không có dữ liệu giả lập.','g']
+  [['Khung phân tích','Toàn bộ mạch truyền dẫn, '+LEVELS.length+' cấp độ, kịch bản A/B/C, thư viện '+LIB.length+' cụm — trích và phân loại từ hồ sơ bạn cung cấp. Cố định, không tự đổi.','b'],
+   ['Bảng đồng hồ', ct.khoDo
+      ? 'Đèn bạn tự đặt được, và số đo tự động ghi đè khi có. Màu bạn chọn là phán đoán của bạn.'
+      : 'Do bạn tự đặt. '+ct.ten+' CHƯA có số đo tự động — không nguồn nào ghi vào đây, nên mọi màu ở đó đều là phán đoán của bạn.','p'],
+   ['Dòng chảy', ct.tepScan
+      ? 'Chỉ được lấp đầy bằng kết quả quét trực tiếp qua tìm kiếm web. Trống nếu chưa quét — không có dữ liệu giả lập.'
+      : 'CHƯA có đường quét tự động cho '+ct.ten+'. Dòng chảy trống ở đây là ĐÚNG, không phải hỏng — và cố ý không mượn tín hiệu của chủ thể khác.','g']
   ].forEach(([t,d,c])=>{ const k=el('div','card');
     k.innerHTML='<div class="card-h"><b>'+esc(t.toUpperCase())+'</b><span class="chip '+c+'">'+(c==='b'?'cố định':c==='p'?'thủ công':'trực tiếp')+'</span></div><div class="card-b"><p class="muted" style="margin:0;font-size:12.5px">'+esc(d)+'</p></div>';
     g.appendChild(k); });
   w.appendChild(g);
 
-  w.appendChild(el('h3','sec','Số liệu được nhắc trong hồ sơ nền'));
+  w.appendChild(el('h3','sec','Số liệu được nhắc trong hồ sơ nền — '+ct.ten));
   const ul=el('ul','tight');
-  ul.innerHTML=[
-   'Nghi Sơn cung cấp khoảng 40% nhu cầu sản phẩm xăng dầu của Việt Nam — theo Bộ Công Thương.',
-   'Than chiếm khoảng 62% tiêu thụ năng lượng sơ cấp và ~60% sản lượng điện của Trung Quốc — theo EIA.',
-   'Trung Quốc nhập khẩu dầu thô năm 2024 khoảng 11,1 triệu thùng/ngày — theo EIA.',
-   'Bất động sản được FATF xếp vào nhóm có rủi ro rửa tiền đáng kể.',
-   'Tín dụng/GDP và tỷ trọng tín dụng bất động sản của Việt Nam ở mức cao — theo World Bank.'
-  ].map(s=>'<li>'+esc(s)+'</li>').join('');
+  ul.innerHTML=SOLIEU.map(x=>'<li>'+esc(x)+'</li>').join('');
   w.appendChild(ul);
   const warn=el('blockquote'); warn.style.borderLeftColor='var(--warn)';
   warn.innerHTML='Những con số trên được ghi lại đúng như hồ sơ nguồn nêu. Chúng là <b>ảnh chụp tại thời điểm viết</b>, không tự cập nhật — hãy đối chiếu lại trước khi dùng để ra quyết định.';
   w.appendChild(warn);
 
   w.appendChild(el('h3','sec','Nhật ký kết nối'));
-  if(!state.log.length){
+  if(!logCT().length){
     w.appendChild(el('div','empty','<b>Chưa có lần quét nào</b><p>Mỗi lần quét sẽ ghi lại ở đây: chiến trường nào, lúc nào, thành công hay thất bại.</p>'));
   }else{
     const c=el('div','card'); const b=el('div');
-    state.log.slice(0,30).forEach(l=>{ const r=el('div','gauge');
+    logCT().slice(0,30).forEach(l=>{ const r=el('div','gauge');
       r.innerHTML='<span class="gauge-i '+(l.ok?'g':'r')+'">'+(l.ok?'✓':'✕')+'</span><span class="gauge-t"><b>'+esc(l.t)+'</b><span>'+esc(l.d)+'</span></span><span class="mono muted" style="font-size:10.5px">'+ago(l.at)+'</span>';
       b.appendChild(r); });
     c.appendChild(b); w.appendChild(c);
@@ -1158,7 +1195,7 @@ function railChain(n,lv){
 function railSignal(s){
   const t=TH(s.th)||{};
   let h='<div class="rl"><div class="rl-h">Tín hiệu</div><p style="color:var(--fg);font-size:13.5px">'+esc(s.tieu_de)+'</p></div>';
-  if(s.tac_dong) h+='<div class="rl"><div class="rl-h">Đường truyền dẫn tới Việt Nam</div><p>'+esc(s.tac_dong)+'</p></div>';
+  if(s.tac_dong) h+='<div class="rl"><div class="rl-h">Đường truyền dẫn tới '+esc(chuThe(state.cht).ten)+'</div><p>'+esc(s.tac_dong)+'</p></div>';
   h+='<div class="rl"><div class="rl-h">Chi tiết</div><dl class="kv">'+
      '<dt>chiến trường</dt><dd>'+esc(t.name||s.th)+'</dd>'+
      '<dt>ngày</dt><dd>'+esc(s.ngay||'—')+'</dd>'+
@@ -1185,26 +1222,39 @@ function railSignal(s){
    API bằng khoá trong Secrets, ghi kết quả ra scan.js, trang này
    chỉ đọc file đó. Xem scripts/build-scan.mjs.
    ============================================================ */
-function loadScan(){
-  const S = window.DQT_SCAN;
-  if(!S || !Array.isArray(S.signals)) return;
+/* Nạp bản quét của MỌI chủ thể có khai đường quét, và gắn cờ 'cht' lên
+   từng dòng. Trước đây hàm này đọc thẳng window.DQT_SCAN rồi đổ hết vào
+   một rổ — nên tin Hormuz của Việt Nam hiện nguyên trong Dòng chảy của
+   Trung Quốc. Lọc theo id chiến trường KHÔNG cứu được: "nga" là id có ở
+   cả hai nước.
 
-  const seen = new Set(state.sig.map(x => x.tieu_de));
-  S.signals.forEach(s => {
-    if(!s.tieu_de || seen.has(s.tieu_de)) return;
-    seen.add(s.tieu_de);
-    state.sig.push(s);
+   Mức đèn cũng phải ghi vào khoá của ĐÚNG chủ thể sở hữu bản quét, chứ
+   không phải chủ thể đang xem — nạp lúc đang đứng ở Trung Quốc mà dùng
+   sTH() thì bản quét Việt Nam sẽ thắp đèn cho Trung Quốc. */
+function loadScan(){
+  CHUTHE.forEach(c => {
+    if(!c.khoScan) return;
+    const S = window[c.khoScan];
+    if(!S || !Array.isArray(S.signals)) return;
+
+    const seen = new Set(state.sig.filter(x=>(x.cht||'vn')===c.id).map(x => x.tieu_de));
+    S.signals.forEach(sg => {
+      if(!sg.tieu_de || seen.has(sg.tieu_de)) return;
+      seen.add(sg.tieu_de);
+      state.sig.push(Object.assign({}, sg, {cht:c.id}));
+    });
+
+    Object.keys(S.levels||{}).forEach(id => {
+      if(LVLS.includes(S.levels[id])) state.th[c.id+':'+id] = S.levels[id];
+    });
+
+    (S.log||[]).forEach(e => {
+      if(!state.log.some(x => x.at===e.at && x.t===e.t && (x.cht||'vn')===c.id))
+        state.log.push(Object.assign({}, e, {cht:c.id}));
+    });
   });
   state.sig.sort((a,b) => String(b.at||'').localeCompare(String(a.at||'')));
   state.sig = state.sig.slice(0,160);
-
-  Object.keys(S.levels||{}).forEach(id => {
-    if(LVLS.includes(S.levels[id])) sTH(id, S.levels[id]);
-  });
-
-  (S.log||[]).forEach(entry => {
-    if(!state.log.some(x => x.at === entry.at && x.t === entry.t)) state.log.push(entry);
-  });
   state.log.sort((a,b) => String(b.at||'').localeCompare(String(a.at||'')));
   state.log = state.log.slice(0,80);
 }
@@ -1213,22 +1263,29 @@ function loadScan(){
    không gọi mô hình từ trình duyệt. */
 async function scanAll(){
   if(state.scanning) return;
+  const ct = chuThe(state.cht);
+  /* Nói thẳng thay vì lặng lẽ nạp bản quét của nước khác. Đây đúng là
+     chỗ trộn cũ: bấm Quét ở Trung Quốc thì nó tải scan.js của Việt Nam. */
+  if(!ct.tepScan){
+    toast('Chưa có đường quét tự động cho ' + ct.ten + ' — Dòng chảy trống là đúng.');
+    return;
+  }
   state.scanning = true;
   $('#scanAll').disabled = true;
   toast('Đang lấy bản quét mới nhất…', true);
   try{
-    const res = await fetch('assets/js/scan.js?t=' + Date.now(), {cache:'no-store'});
+    const res = await fetch(ct.tepScan + '?t=' + Date.now(), {cache:'no-store'});
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const txt = await res.text();
     // scan.js là script thường gán window.DQT_SCAN — chạy lại trong phạm vi riêng
     new Function(txt)();
-    const before = state.sig.length;
+    const before = sigCT().length;
     loadScan();
-    const added = state.sig.length - before;
+    const added = sigCT().length - before;
     toast(added ? ('✓ thêm ' + added + ' tín hiệu mới') : 'Đã là bản mới nhất');
   }catch(err){
-    state.log.unshift({ok:false, t:'nạp bản quét',
-      d:'Không đọc được scan.js — ' + (err.message||err), at:new Date().toISOString()});
+    state.log.unshift({ok:false, cht:state.cht, t:'nạp bản quét',
+      d:'Không đọc được ' + ct.tepScan + ' — ' + (err.message||err), at:new Date().toISOString()});
     toast('Không lấy được bản quét. Xem Nguồn & nhật ký.');
   }
   state.scanning = false; $('#scanAll').disabled = false;

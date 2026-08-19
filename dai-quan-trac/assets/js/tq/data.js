@@ -331,8 +331,61 @@ const LIB = [
   }
 ];
 
+/* Mắt xích nào sáng theo cái gì — xem chú thích đầy đủ ở data.js.
+
+   Ba mắt xích kinh tế thường (lợi nhuận · việc làm · tiêu dùng) cố ý
+   để ['max'] rỗng, tức XÁM. Đó không phải thiếu sót mà là chính thông
+   điệp của bảng đồng hồ Trung Quốc: nó không đo kinh tế thường, vì một
+   chế độ có thể nghèo đi rất nhiều mà vẫn đứng. Muốn biết tăng trưởng
+   thì có hàng trăm bảng khác; bảng này đo thứ khác. */
+const CHAIN_SRC = {
+  nangluong:['th','nangluong'], congnghe:['th','congnghe'],
+  thuongmai:['th','thuongmai'], hanghai:['th','hanghai'], nga:['th','nga'],
+
+  loinhuan:['max'], vieclam:['max'], tieudung:['max'],
+
+  bds:['gg','bandat'], lgfv:['gg','lgfv'], nganhang:['gg','bomvon'],
+
+  taikhoa:['max','thudiaphuong','chuyengiao','tambao'],
+  canbo:['max','khongdam','thanhloc','menhlenh'],
+  anninh:['max','nhansu','chuoilenh'],
+  elite:['max','batdong','nhansu'],
+  chedo:['max','chuoilenh','batdong','tambao']
+};
+
+const SOLIEU = [
+  'Trung Quốc năm 2024 tiêu thụ ~16,3 triệu thùng dầu/ngày, sản xuất nội địa ~4,3 triệu, nhập ~11,1 triệu — theo EIA.',
+  'Nguồn nhập dầu 2024: Nga ~20%, Saudi ~14%, Iran ~11%, Iraq ~10% — theo EIA.',
+  'Mỹ 14,7% và EU 14,5% trong xuất khẩu hàng hoá Trung Quốc năm 2025 — theo WTO.',
+  'Dự trữ ngoại hối chính thức cuối tháng 6/2026 khoảng 3.416 tỷ USD — theo SAFE.',
+  'Đầu tư phát triển bất động sản năm 2025 giảm 17,2% — theo Cục Thống kê Quốc gia.',
+  '"Nợ ẩn" của chính quyền địa phương ước khoảng 14,3 nghìn tỷ NDT năm 2023 — theo IMF dẫn số nhà chức trách.',
+  'Cuối 2025: ~101,286 triệu đảng viên và 5,431 triệu tổ chức cơ sở đảng — theo nguồn chính thức.',
+  'Năm 2025 hệ thống kỷ luật lập ~1,012 triệu vụ và ra ~983.000 quyết định — theo CCDI.'
+];
+
+/* Bốn phía của Trung Quốc KHÔNG cùng loại với Việt Nam. Việt Nam bị
+   kẹp giữa các nguồn cú sốc vật chất; Trung Quốc thì ba phía ngoài chỉ
+   là LỚP GÂY SỐC, còn thứ quyết định nằm ở LÕI — ba ổ cứng tài khoá,
+   an ninh, cán bộ. Nên lõi ở đây không phải một chiến trường bấm vào
+   được, mà là chính bộ máy. */
+const COMPASS = {
+  chuong:'Lớp ngoài và lõi',
+  tieu:'Ba phía ngoài chỉ gây sốc — thứ quyết định nằm ở lõi',
+  lede:'Khác Việt Nam ở chỗ căn bản: ba hướng ngoài <b>không tự làm chế độ sụp</b>. Chúng chỉ nguy hiểm khi biến thành <b>xung đột phân phối bên trong</b> — và đó là việc của lõi, không phải của cú sốc.',
+  loi:{co:'☭', ten:'ĐCSTQ', d:'tài khoá · an ninh · cán bộ', th:null},
+  huong:[
+    {v:'n', side:'PHÍA TRÊN', t:'Năng lượng', p:'Hormuz · Malacca · Nga — nhập ~11,1 triệu thùng/ngày, nhưng nguồn đã chia rộng.', th:'nangluong'},
+    {v:'w', side:'PHÍA TRÁI', t:'Công nghệ & tài chính', p:'Chip tiên tiến, EDA, thiết bị, đô la — đòn bẩy chọn lọc nhất, mạnh về dài hạn.', th:'congnghe'},
+    {v:'e', side:'PHÍA PHẢI', t:'Thương mại', p:'Mỹ + EU ≈ 29% xuất khẩu — đánh đúng cái van đang bù cho nội địa yếu.', th:'thuongmai'},
+    {v:'s', side:'PHÍA DƯỚI', t:'Nội bộ', p:'Bất động sản → LGFV → ngân hàng → niềm tin → tiêu dùng → việc làm.', th:null}
+  ],
+  ket:'Ba phía ngoài có thể làm Trung Quốc <b>nghèo đi</b> mà chế độ vẫn đứng. Chỉ khi cú sốc vật chất chuyển thành <b>khủng hoảng phân phối trong tầng lãnh đạo</b>, rồi làm chuỗi cán bộ và chuỗi an ninh không còn cùng hướng, bài toán mới đổi từ kinh tế sang quyền lực.'
+};
+
 window.DQT_TQ = {
-  THEATERS: THEATERS, GAUGES: GAUGES, CHAIN: CHAIN,
-  LEVELS: LEVELS, SCEN: SCEN, LIB: LIB
+  COMPASS: COMPASS,
+  THEATERS: THEATERS, GAUGES: GAUGES, CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC,
+  LEVELS: LEVELS, SCEN: SCEN, LIB: LIB, SOLIEU: SOLIEU
 };
 })();

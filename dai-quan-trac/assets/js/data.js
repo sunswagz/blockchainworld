@@ -343,7 +343,55 @@ const LIB = [
   ]}
 ];
 
-window.DQT_DATA = { IC: IC, svg: svg, THEATERS: THEATERS, GAUGES: GAUGES,
-  CHAIN: CHAIN, LEVELS: LEVELS, SCEN: SCEN,
-  LIB: LIB };
+/* Mắt xích nào sáng theo cái gì. Trước đây bảng này nằm trong app.js,
+   và đó là lỗi phân lớp: nó mô tả DỮ LIỆU của một chủ thể, không phải
+   giao diện. Hậu quả đã nổ thật khi thêm Trung Quốc — lvOf() đọc
+   undefined[0] và cả trang trắng ngay lúc chuyển nước.
+
+     ['th', <chiến trường>]        sáng theo đèn chiến trường
+     ['gg', <đồng hồ>]             sáng theo một đồng hồ
+     ['max', <đồng hồ>, …]         lấy mức NẶNG NHẤT trong nhóm
+     ['max']                       cố ý CHƯA QUAN TRẮC — để xám
+
+   Mỗi mắt xích PHẢI có một dòng; napChuThe() tự soi và báo ra console
+   nếu thiếu, thừa, hoặc trỏ tới đồng hồ/chiến trường không tồn tại. */
+const CHAIN_SRC = {
+  hormuz:['th','hormuz'], gia_dau:['gg','nangluong'], tq:['th','tq'], dauvao:['gg','tq'],
+  cpi:['max','nangluong','tq'],
+  hangrao:['max','xuatkhau','xuatxu'], phisan:['gg','san'], bienloi:['max','san','xuatkhau'],
+  sangloc:['gg','doanhnghiep'], vieclam:['gg','doanhnghiep'],
+  tygia:['gg','tygia'], laisuat:['gg','laisuat'], tindung:['gg','nganhang'],
+  bds:['gg','bds'], niemtin:['gg','niemtin'], hanhvi:['gg','niemtin']
+};
+
+/* Số liệu được nhắc trong hồ sơ nền. Trước đây viết cứng trong vSrc()
+   của app.js, nên trang "Nguồn & nhật ký" của Trung Quốc liệt kê Nghi
+   Sơn và tín dụng/GDP Việt Nam. */
+const SOLIEU = [
+  'Nghi Sơn cung cấp khoảng 40% nhu cầu sản phẩm xăng dầu của Việt Nam — theo Bộ Công Thương.',
+  'Than chiếm khoảng 62% tiêu thụ năng lượng sơ cấp và ~60% sản lượng điện của Trung Quốc — theo EIA.',
+  'Trung Quốc nhập khẩu dầu thô năm 2024 khoảng 11,1 triệu thùng/ngày — theo EIA.',
+  'Bất động sản được FATF xếp vào nhóm có rủi ro rửa tiền đáng kể.',
+  'Tín dụng/GDP và tỷ trọng tín dụng bất động sản của Việt Nam ở mức cao — theo World Bank.'
+];
+
+/* Kẹp bốn phía. Trước đây viết cứng trong vCompass() nên Trung Quốc
+   mở trang đó cũng thấy "VIỆT NAM nằm đúng giao điểm" với lá cờ 🇻🇳. */
+const COMPASS = {
+  chuong:'Chương XVI',
+  tieu:'Việt Nam nằm đúng giao điểm',
+  lede:'Cách nói cẩn thận: không phải "tất cả đang cùng đánh Việt Nam", mà là <b>Việt Nam nằm đúng giao điểm của nhiều hệ thống nên một số cú sốc khác nguồn có khả năng cùng hội tụ tại đây</b>.',
+  loi:{co:'🇻🇳', ten:'VIỆT NAM', d:'Giao điểm của bốn hướng', th:'vn'},
+  huong:[
+    {v:'n', side:'PHÍA TRÊN', t:'Hormuz / Nga', p:'Năng lượng ↑ — cổ chai biển và chân lục địa cùng nằm ở thượng nguồn.', th:'hormuz'},
+    {v:'w', side:'PHÍA TRÁI', t:'Trung Quốc', p:'Đầu vào ↑ — máy móc, linh kiện, hóa chất, hàng trung gian.', th:'tq'},
+    {v:'e', side:'PHÍA PHẢI', t:'Mỹ / EU', p:'Đầu ra ? — thuế, nhu cầu tiêu dùng, điều kiện thương mại.', th:'my'},
+    {v:'s', side:'PHÍA DƯỚI', t:'Hệ thống nội địa', p:'Ngân hàng · bất động sản · tín dụng · niềm tin — bộ khuếch đại nằm bên trong.', th:'vn'}
+  ],
+  ket:'Ba hướng trên đánh vào <b>vật chất</b>. Hướng thứ tư — hệ thống nội địa — không tạo ra cú sốc, nhưng quyết định cú sốc bị hấp thụ hay bị khuếch đại.'
+};
+
+window.DQT_DATA = { IC: IC, svg: svg, COMPASS: COMPASS, THEATERS: THEATERS, GAUGES: GAUGES,
+  CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC, LEVELS: LEVELS, SCEN: SCEN,
+  LIB: LIB, SOLIEU: SOLIEU };
 })();
