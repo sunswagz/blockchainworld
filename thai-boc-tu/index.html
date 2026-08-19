@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Thái Bộc Tự · Đoàn tàu blockchain</title>
-<meta name="description" content="Mười tám toa chức năng, các khớp nối giữa chúng, và thứ tự bị bỏ khi nhiên liệu cạn. Đo bao nhiêu vốn đang treo trên đúng một nguồn giá — thứ mà bảng vốn hoá không bao giờ nói ra.">
+<meta name="description" content="Mười tám toa chức năng, các khớp nối giữa chúng, và thứ tự bị bỏ khi nhiên liệu cạn. Đo bao nhiêu vốn treo trên đúng một nguồn giá, và theo dõi thế giới đang xây tới bậc nào — kho mã nào còn động, nút thắt nào chưa ai đụng.">
 
 <meta name="theme-color" content="#0B0A0E">
 <meta name="color-scheme" content="dark">
@@ -48,8 +48,9 @@
     <div id="cungNav"></div>
 
     <div class="bchan">
-      <p>Số liệu từ <a href="https://defillama.com" target="_blank" rel="noopener">DefiLlama</a>,
-      cập nhật tự động bằng GitHub Actions.</p>
+      <p>Tiền từ <a href="https://defillama.com" target="_blank" rel="noopener">DefiLlama</a>,
+      công trường từ <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>.
+      Cả hai cập nhật tự động 4 lượt/ngày bằng GitHub Actions.</p>
       <p><b>Cung này chỉ vẽ quan hệ</b> — không chấm điểm dự án, không giao dịch.</p>
     </div>
   </nav>
@@ -74,10 +75,18 @@
     <div id="than"></div>
 
     <footer class="chan">
-      <p><b>Nguồn:</b> DefiLlama — danh mục giao thức (TVL, nhóm ngành, chuỗi đứng trên,
-      nguồn giá khai báo), TVL theo chuỗi, và lượng stablecoin lưu hành. Tất cả qua API
-      công khai, không khoá nào. Quan hệ phụ thuộc oracle <b>tự tính</b> từ khai báo của
-      từng giao thức, không lấy từ bảng tổng đã gộp sẵn.</p>
+      <p><b>Nguồn tiền:</b> DefiLlama — danh mục giao thức (TVL, nhóm ngành, chuỗi đứng
+      trên, nguồn giá khai báo), TVL theo chuỗi, và lượng stablecoin lưu hành. Tất cả qua
+      API công khai, không khoá nào. Quan hệ phụ thuộc oracle <b>tự tính</b> từ khai báo
+      của từng giao thức, không lấy từ bảng tổng đã gộp sẵn.</p>
+
+      <p><b>Nguồn công trường:</b> GitHub — 14 kho mã được theo dõi (số sao, ngày commit
+      cuối, dòng commit mới nhất) cùng lịch sử đề xuất chuẩn ở <code>ethereum/ERCs</code>
+      và <code>ethereum/EIPs</code>. Dùng token Actions tự cấp cho mỗi lượt chạy, không
+      phải secret thêm vào repo. <b>Không phải realtime:</b> đây là trang tĩnh, bot hỏi 4
+      lượt/ngày rồi ghi xuống file — phòng Công Trường luôn hiện bản này cũ bao nhiêu giờ.
+      Danh sách kho là lựa chọn có chủ ý, không phải toàn bộ hệ sinh thái; nút thắt nào
+      không có kho nào thì để trống thay vì gán bừa cho đủ bộ.</p>
       <p><b>Thứ tự bị đốt</b> và <b>thang tiến hoá</b> là LUẬN, không phải số đo: chúng
       suy từ thứ tự phụ thuộc — cái gì phải có trước để cái kia tồn tại được — và không
       có API nào chấm được. Mọi chỗ như vậy đều mang nhãn “luận”. Đây không phải lời
@@ -106,6 +115,8 @@
 <!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
 <!-- tự sinh 4 lượt/ngày, xem scripts/build-thaiboc.mjs -->
 <script src="assets/js/v/doan-tau.js"></script>
+<!-- tự sinh 4 lượt/ngày, xem scripts/build-congtruong.mjs -->
+<script src="assets/js/v/cong-truong.js"></script>
 <!-- sổ 18 toa · VIẾT TAY, sửa như mã nguồn -->
 <script src="assets/js/toa.js"></script>
 <!-- giao diện -->

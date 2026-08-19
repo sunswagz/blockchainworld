@@ -339,22 +339,47 @@
       { so: "10", ten: "Cơ thể kinh tế hành tinh",     muc: 0,  y: "Viễn cảnh dài hạn." }
     ],
 
-    /* Những khớp nối tài liệu chỉ ra là CÒN THIẾU. Không đo được,
-       nên đứng riêng như một danh sách việc chưa làm chứ không trộn
-       vào bảng số. */
+    /* Những khớp nối tài liệu chỉ ra là CÒN THIẾU.
+
+       `ma` nối sang phòng Công Trường: `scripts/build-congtruong.mjs`
+       giữ bảng "nút thắt nào có kho mã nào đang mở" và đi hỏi GitHub
+       xem kho đó còn ai đụng vào không. Nút nào KHÔNG có kho nào thì
+       để trống có chủ ý — xem chú thích trong builder. Đừng bịa một
+       kho cho đủ bộ: một dòng trống ở đây là một phát hiện, còn một
+       kho gán bừa là một lời nói dối.
+
+       `giaiDoan` là bậc thang mà nút này chặn. Nhờ nó, phòng Công
+       Trường trả lời được "thế giới đang mắc ở đâu" thay vì chỉ liệt
+       kê một danh sách phẳng. */
     THIEU: [
-      { ten: "Tầng trạng thái thế giới", y: "Chuỗi biết rất rõ ví A có bao nhiêu ETH, và biết rất kém nhà máy A đang sản xuất bao nhiêu." },
-      { ten: "Oracle cho thứ khó đo",    y: "Giá BTC/USD thì dễ. 'Nhà máy đã xây xong 87% chưa' thì khó hơn rất nhiều — và hợp đồng càng hoàn hảo thì càng thực thi sai một cách hoàn hảo khi đầu vào sai." },
-      { ten: "Danh tính giữ được riêng tư", y: "Cần phân biệt người, công ty, máy, tác tử — mà không biến chuỗi công khai thành nơi phơi toàn bộ đời tư." },
-      { ten: "Ví đủ dễ cho mọi người",   y: "Cụm 12 từ, gas, nonce, cầu nối, đổi mạng — không thể là điều kiện để tham gia một nền kinh tế." },
-      { ten: "Thanh khoản thống nhất",   y: "Cùng một đồng USDC bị chia thành nhiều đảo trên nhiều chuỗi." },
-      { ten: "Trạng thái pháp lý = trạng thái on-chain", y: "Token nói ví A sở hữu 1% toà nhà; toà án có nói vậy không lại là chuyện khác." },
-      { ten: "Tín dụng không cần thế chấp quá mức", y: "Kinh tế thật chạy bằng dòng tiền tương lai và danh tiếng, không chỉ bằng tài sản đã có." },
-      { ten: "Tư cách kinh tế cho tác tử", y: "Tác tử gây thiệt hại thì ai chịu, tác tử vay tiền thì ai bảo lãnh — ví thì đã có, luật thì chưa." },
-      { ten: "Thực thi ở thế giới vật lý", y: "Hợp đồng chuyển token rất giỏi, xây cầu và sửa máy thì không." },
-      { ten: "Tầng xử lý tranh chấp",    y: "Mã nghĩ theo đúng–sai; đời sống đầy nhầm lẫn, ép buộc, thừa kế, bất khả kháng." },
-      { ten: "Ai đặt hàm mục tiêu",      y: "Tối đa hoá GDP, bình đẳng, tự do hay giảm phát thải sẽ ra bốn phương án khác nhau — và máy không tự chọn được." },
-      { ten: "Cỗ máy giữ thăng bằng",    y: "Hệ thống có phản xạ cục bộ nhưng chưa có chỗ nào nhìn thấy chính nó đang tiến tới mất kiểm soát." }
+      { ma: "n01", giaiDoan: 3, ten: "Tầng trạng thái thế giới",
+        y: "Chuỗi biết rất rõ ví A có bao nhiêu ETH, và biết rất kém nhà máy A đang sản xuất bao nhiêu." },
+      { ma: "n02", giaiDoan: 3, ten: "Oracle cho thứ khó đo",
+        y: "Giá BTC/USD thì dễ. “Nhà máy đã xây xong 87% chưa” thì khó hơn rất nhiều — và hợp đồng càng hoàn hảo thì càng thực thi sai một cách hoàn hảo khi đầu vào sai." },
+      { ma: "n03", giaiDoan: 4, ten: "Danh tính giữ được riêng tư",
+        y: "Cần phân biệt người, công ty, máy, tác tử — mà không biến chuỗi công khai thành nơi phơi toàn bộ đời tư." },
+      { ma: "n04", giaiDoan: 2, ten: "Ví đủ dễ cho mọi người",
+        y: "Cụm 12 từ, gas, nonce, cầu nối, đổi mạng — không thể là điều kiện để tham gia một nền kinh tế." },
+      { ma: "n05", giaiDoan: 2, ten: "Thanh khoản thống nhất",
+        y: "Cùng một đồng USDC bị chia thành nhiều đảo trên nhiều chuỗi." },
+      { ma: "n06", giaiDoan: 3, ten: "Trạng thái pháp lý = trạng thái on-chain",
+        y: "Token nói ví A sở hữu 1% toà nhà; toà án có nói vậy không lại là chuyện khác." },
+      { ma: "n07", giaiDoan: 2, ten: "Tín dụng không cần thế chấp quá mức",
+        y: "Kinh tế thật chạy bằng dòng tiền tương lai và danh tiếng, không chỉ bằng tài sản đã có." },
+      { ma: "n08", giaiDoan: 4, ten: "Tư cách kinh tế cho tác tử",
+        y: "Tác tử gây thiệt hại thì ai chịu, tác tử vay tiền thì ai bảo lãnh — ví thì đã có, luật thì chưa." },
+      { ma: "n09", giaiDoan: 5, ten: "Kinh tế máy móc",
+        y: "Hàng tỷ máy tự mua, bán, thuê, bảo hiểm và sửa chữa với nhau cần một tầng chung; DePIN mới làm được từng mảnh." },
+      { ma: "n10", giaiDoan: 5, ten: "Thực thi ở thế giới vật lý",
+        y: "Hợp đồng chuyển token rất giỏi, xây cầu và sửa máy thì không." },
+      { ma: "n11", giaiDoan: 7, ten: "Tầng xử lý tranh chấp",
+        y: "Mã nghĩ theo đúng–sai; đời sống đầy nhầm lẫn, ép buộc, thừa kế, bất khả kháng." },
+      { ma: "n12", giaiDoan: 1, ten: "An ninh cấp văn minh",
+        y: "Đủ an toàn cho nhiều tài sản lớn hôm nay KHÁC đủ an toàn để cả một nền văn minh dựa vào — còn hậu lượng tử, đa dạng client, chống kiểm duyệt." },
+      { ma: "n13", giaiDoan: 7, ten: "Ai đặt hàm mục tiêu",
+        y: "Tối đa hoá GDP, bình đẳng, tự do hay giảm phát thải sẽ ra bốn phương án khác nhau — và máy không tự chọn được." },
+      { ma: "n14", giaiDoan: 8, ten: "Cỗ máy giữ thăng bằng",
+        y: "Hệ thống có phản xạ cục bộ nhưng chưa có chỗ nào nhìn thấy chính nó đang tiến tới mất kiểm soát." }
     ]
   };
 })();

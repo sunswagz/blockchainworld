@@ -114,6 +114,25 @@ export const NODE = [
        "làm ở đây chứ không ở trình duyệt: xếp hơn 8.000 giao thức vào 18 toa và " +
        "dựng quan hệ phụ thuộc oracle từ khai báo của từng cái."
   },
+  /* Thái Bộc Tự có HAI node, và tách đôi là có chủ ý — cùng lý do
+     cặp node của Đài Quan Trắc, nhưng tách theo NGUỒN chứ không theo
+     "cần model hay không":
+
+       thai-boc-tu            DefiLlama → tiền đang nằm ở đâu
+       thai-boc-tu-cong-truong  GitHub   → ai đang xây cái gì
+
+     GitHub chạm hạn mức thì bảng đoàn tàu vẫn cập nhật, và DefiLlama
+     ngã thì bảng công trường vẫn cập nhật. Gộp một node là để một
+     nguồn ngã kéo cả hai bảng đứng im. */
+  {
+    ma: "thai-boc-tu-cong-truong", ten: "Công trường Thái Bộc Tự", cung: "thai-boc-tu",
+    tram: "M12", che: "script", nhip: 6,
+    lenh: "node scripts/build-congtruong.mjs",
+    ra: ["thai-boc-tu/assets/js/v/cong-truong.js"],
+    y: "Hỏi GitHub 14 kho mã và lịch sử đề xuất ERC/EIP: nút thắt nào còn " +
+       "người xây, chuẩn nào vừa mở. Dùng GITHUB_TOKEN Actions tự cấp — không " +
+       "thêm secret nào, không gọi AI."
+  },
   {
     ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
     tram: "M12", che: "script", nhip: 6,

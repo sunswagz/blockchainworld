@@ -452,3 +452,77 @@ code,.mono{font-family:var(--mono)}
   .dot{grid-template-columns:28px 1fr;gap:9px}
   .dot-s{grid-column:2;font-size:11.5px}
 }
+
+/* ── công trường ──────────────────────────────────────── */
+/* Bậc thang có DẤU HIỆU ĐO ĐƯỢC, khác hẳn thang LUẬN ở phòng bên:
+   ở đó là thanh phần trăm, ở đây là số tiền và ngày commit. Bậc
+   ngoài cùng còn dấu hiệu được viền sáng — đó là "thế giới đang
+   đứng ở đâu", câu trả lời chính của phòng này. */
+.bac-l{display:flex;flex-direction:column;gap:2px}
+.bac{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;
+  padding:12px 12px 12px 0;border-bottom:1px solid var(--line-2)}
+.bac:last-child{border-bottom:0}
+.bac[data-day="1"]{background:linear-gradient(90deg,var(--tau-t),transparent 70%);
+  border-radius:8px;padding-left:12px}
+.bac-s{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--fg-3);
+  text-align:right;padding-top:1px}
+.bac[data-day="1"] .bac-s{color:var(--tau)}
+.bac-t{font-size:13.5px;font-weight:650;display:flex;align-items:center;
+  gap:8px;flex-wrap:wrap}
+.bac-here{font-size:9.5px;font-weight:700;letter-spacing:.07em;padding:1px 6px;
+  border-radius:4px;background:var(--tau);color:#1A0710}
+.bac-luan{font-family:var(--mono);font-size:11px;color:var(--fg-3);margin-left:auto}
+.bac-do{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px}
+.bac-o{display:flex;flex-direction:column;gap:1px;padding:6px 10px;border-radius:7px;
+  background:var(--card);border:1px solid var(--line)}
+.bac-o i{font-style:normal;font-size:10.5px;color:var(--fg-3)}
+.bac-o b{font-family:var(--mono);font-size:12.5px;font-weight:600}
+.bac-nut{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.bac-n{display:flex;flex-direction:column;gap:1px;font-size:11.5px;font-weight:600;
+  padding:5px 9px;border-radius:6px;border:1px solid var(--line);background:var(--card)}
+.bac-n i{font-style:normal;font-size:10px;font-weight:400;color:var(--fg-3)}
+.bac-n[data-st="xay"]{border-color:var(--len);color:var(--len)}
+.bac-n[data-st="dung"]{border-color:var(--canh);color:var(--canh)}
+.bac-n[data-st="trong"]{border-color:var(--xuong);color:var(--xuong)}
+.bac-n[data-st="xay"] i,.bac-n[data-st="dung"] i,.bac-n[data-st="trong"] i{color:var(--fg-2)}
+.bac-khong{margin:7px 0 0;font-size:11.5px;color:var(--fg-3);line-height:1.55;font-style:italic}
+
+/* Một công trường. Ngày commit cuối là thứ đọc trước, nên nó đứng
+   riêng một dòng chữ máy chứ không lẫn vào phần mô tả. */
+.ct{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line-2);
+  border-radius:9px;padding:11px 13px}
+.ct+.ct{margin-top:7px}
+.ct[data-v="muon"]{border-left-color:var(--len)}
+.ct[data-v="giua"]{border-left-color:var(--canh)}
+.ct[data-v="som"]{border-left-color:var(--xuong)}
+.ct-d{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ct-t{font-family:var(--mono);font-size:13px;color:var(--fg-2)}
+.ct-t b{color:var(--fg);font-weight:650}
+.ct-y{margin:5px 0 0;font-size:12px;color:var(--fg-2);line-height:1.55}
+.ct-c{margin:7px 0 0;font-family:var(--mono);font-size:11px;color:var(--fg-3);
+  line-height:1.5;word-break:break-word}
+.ct-c span{display:block;color:var(--fg-2);margin-bottom:2px}
+.ct-m{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.ct-m span{font-size:10.5px;padding:1px 7px;border-radius:4px;
+  background:var(--card-3);color:var(--fg-2)}
+
+/* Đề xuất chuẩn — bảng ba cột hẹp, đọc như một dòng nhật ký. */
+.dx-l{display:flex;flex-direction:column;gap:1px}
+.dx{display:grid;grid-template-columns:82px 42px 1fr;gap:10px;align-items:baseline;
+  padding:7px 0;border-bottom:1px solid var(--line-2);font-size:12.5px}
+.dx:last-child{border-bottom:0}
+.dx-n{font-family:var(--mono);font-size:11.5px;color:var(--fg-3)}
+.dx-k{font-family:var(--mono);font-size:10px;font-weight:700;text-align:center;
+  padding:1px 0;border-radius:4px}
+.dx-k[data-k="ERC"]{background:var(--tim-t);color:var(--tim)}
+.dx-k[data-k="EIP"]{background:var(--lam-t);color:var(--lam)}
+.dx-t{line-height:1.5}
+.thieu[data-trong="1"]{border-left-color:var(--xuong)}
+.thieu-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+@media (max-width:940px){
+  .bac{grid-template-columns:26px 1fr;gap:9px}
+  .bac-luan{margin-left:0}
+  .dx{grid-template-columns:74px 38px 1fr;gap:8px;font-size:12px}
+}
+.bac-here[data-m="xay"]{background:var(--canh);color:#231A08}

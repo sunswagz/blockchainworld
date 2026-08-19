@@ -18,6 +18,7 @@
     "congbo": "node scripts/build-congbo.mjs",
     "hobu": "node scripts/build-hobu.mjs",
     "thaiboc": "node scripts/build-thaiboc.mjs",
+    "congtruong": "node scripts/build-congtruong.mjs",
     "tangthu": "node scripts/build-tangthu.mjs",
     "hoangthanh": "node scripts/build-hoangthanh.mjs",
     "kiem": "node scripts/kiem-quy-trinh.mjs",

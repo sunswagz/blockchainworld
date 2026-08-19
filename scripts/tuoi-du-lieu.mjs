@@ -65,6 +65,7 @@ export const NGUON = [
   { nhan: "dòng tiền Hộ Bộ",         duong: "ho-bo/assets/js/v/dong-tien.js",    botSinh: true },
   { nhan: "kho skill Tàng Thư Các",  duong: "tang-thu-cac/assets/js/data.js",    botSinh: true },
   { nhan: "đoàn tàu Thái Bộc Tự",    duong: "thai-boc-tu/assets/js/v/doan-tau.js", botSinh: true },
+  { nhan: "công trường Thái Bộc Tự", duong: "thai-boc-tu/assets/js/v/cong-truong.js", botSinh: true },
   { nhan: "rừng văn hoá Hoàng Thành", duong: "hoang-thanh/assets/js/data.js",    botSinh: false },
   /* Cùng lý do Hoàng Thành: runtime giao dịch cần khoá API và một tiến trình
      chạy dài, Actions không làm được. Sinh tay ở máy rồi commit — nên cũ là

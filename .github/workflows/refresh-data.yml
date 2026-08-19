@@ -63,7 +63,7 @@ jobs:
     # 40 → 70 khi bản quét Đài Quan Trắc nhập vào vòng này (15/08).
     # Nó mang theo 15 phút riêng, và trước đó nó có hẳn một job 20
     # phút của mình. Cộng lại xem ở khối "trần bước" bên dưới.
-    timeout-minutes: 70
+    timeout-minutes: 80
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
@@ -128,9 +128,15 @@ jobs:
       #   5 + 3 + 2 + 5 + 14 + 3 + 2  (lấy số liệu + đóng dấu)
       # + 2 + 15 + 2                  (ra đề · quét · dựng)
       # + 2 + 6 + 2                   (kiểm · báo cáo · cảnh báo)
-      #   = 63  <  70
-      # (+5 cho Hộ Bộ, 15/08. Còn 7 phút đệm — bước nặng tiếp theo
-      #  phải nâng trần job trước, đừng nhét thêm vào chỗ này.)
+      # + 5 + 4                       (Thái Bộc Tự: đoàn tàu · công trường)
+      #   = 72  <  80
+      # (+5 cho Hộ Bộ, 15/08. +9 cho Thái Bộc Tự, 20/08 — và lần thêm
+      #  cung đó ĐÃ QUÊN cộng lại ở đây, làm tổng vọt lên 72 trong khi
+      #  trần job vẫn là 70. Không nổ lượt nào vì hai node mới chạy
+      #  hết ~35 giây, nhưng lúc đó trần bước đã thành trang trí đúng
+      #  như dòng ngay trên cảnh báo. Nâng trần job 70 → 80 cho khớp.
+      #  Còn 8 phút đệm — bước nặng tiếp theo phải nâng trần job
+      #  trước, đừng nhét thêm vào chỗ này.)
       # Thực tế không bao giờ cộng hết: node nhịp 12 và 24 giờ chỉ
       # chạy 2 và 1 trong 4 lượt mỗi ngày. Trần job vẫn là chốt cuối.
       #
@@ -236,6 +242,34 @@ jobs:
           KET: ${{ steps.n-thai-boc-tu.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-thai-boc-tu.outputs.giay }}
         run: node scripts/nha-may.mjs ghi thai-boc-tu "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/thai-boc-tu.log"
+
+      # Công trường Thái Bộc Tự — hỏi GitHub, không hỏi DefiLlama.
+      #
+      # GITHUB_TOKEN là token Actions TỰ CẤP cho mỗi lượt chạy, hết hạn
+      # khi lượt kết thúc. Không phải secret ai đó phải thêm vào repo, và
+      # không tính tiền theo token như khoá model. Có nó thì 5.000
+      # lượt/giờ thay vì 60 — script tốn ~32 lượt nên không có token vẫn
+      # chạy được, chỉ mong manh hơn.
+      #
+      # Trần 4 phút: 32 lời gọi nối đuôi, mỗi cái timeout 45 giây, nhưng
+      # thực đo dưới 30 giây cho cả lượt.
+      - name: Lấy công trường — Thái Bộc Tự
+        id: n-thai-boc-tu-ct
+        if: contains(steps.kehoach.outputs.han, ',thai-boc-tu-cong-truong,')
+        continue-on-error: true
+        timeout-minutes: 4
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          t0=$(date +%s)
+          node scripts/build-congtruong.mjs 2>&1 | tee "$RUNNER_TEMP/thai-boc-tu-ct.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · thai-boc-tu-cong-truong
+        if: always() && steps.n-thai-boc-tu-ct.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-thai-boc-tu-ct.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-thai-boc-tu-ct.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi thai-boc-tu-cong-truong "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/thai-boc-tu-ct.log"
 
       # Kho skill Tàng Thư Các. Trần riêng cho bước này, thấp hơn trần
       # job: chạm trần thì chỉ mình nó ngã, commit vẫn chạy. Script chỉ
@@ -716,6 +750,7 @@ jobs:
                   cong-bo/assets/logos/ \
                   ho-bo/assets/js/v/dong-tien.js \
                   thai-boc-tu/assets/js/v/doan-tau.js \
+                  thai-boc-tu/assets/js/v/cong-truong.js \
                   tang-thu-cac/assets/js/data.js \
                   tang-thu-cac/assets/data/lich-su.json \
                   tang-thu-cac/assets/data/kb/ \

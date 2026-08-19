@@ -33,6 +33,10 @@
 
   var D = window.THAIBOC || null;
   var S = window.THAIBOC_TOA || { TOA: [], THANG: [], THIEU: [], CUNG: {} };
+  /* Nguồn thứ ba, sinh riêng và có thể vắng: GitHub có thể chạm hạn
+     mức trong khi DefiLlama vẫn chạy. Vắng thì đúng một phòng báo
+     thiếu, các phòng khác không biết gì cả. */
+  var CT = window.THAIBOC_CT || null;
 
   /* ═══════════════ ĐỊNH DẠNG ═══════════════ */
 
@@ -372,9 +376,19 @@
         '<p class="tg-y">' + esc(g.y) + "</p></div></div>";
     }).join("");
 
+    /* Danh sách nút thắt là phần LUẬN, nhưng huy hiệu tình trạng thì
+       ĐO ĐƯỢC — lấy từ phòng Công Trường. Một nút thắt kèm câu "chưa
+       ai xây" đọc khác hẳn cùng nút thắt đó đứng trơ một mình. */
     var th = S.THIEU.map(function (x) {
-      return '<div class="thieu"><div class="thieu-t">' + esc(x.ten) + "</div>" +
-        '<p class="thieu-y">' + esc(x.y) + "</p></div>";
+      var n = null;
+      if (CT) (CT.nut || []).forEach(function (y) { if (y.ma === x.ma) n = y; });
+      var v = !n ? "som" : n.soDangXay > 0 ? "muon" : "giua";
+      var nhan = !CT ? "" : !n ? "CHƯA AI XÂY"
+        : n.soDangXay > 0 ? n.soDangXay + "/" + n.soKho + " ĐANG XÂY"
+        : n.soKho + " KHO, ĐỨNG IM";
+      return '<div class="thieu"><div class="thieu-t">' + esc(x.ten) +
+        (nhan ? '<span class="dot-nhan" data-v="' + v + '">' + esc(nhan) + "</span>" : "") +
+        "</div><p class=\"thieu-y\">" + esc(x.y) + "</p></div>";
     }).join("");
 
     return khoi("Đoàn tàu đã đi được bao xa", null, tg,
@@ -387,7 +401,263 @@
         '<div class="thieu-l">' + th + "</div>",
         "Câu hỏi lớn của blockchain đã không còn là nhanh hơn hay rẻ hơn — đó là " +
         "câu hỏi của khoảng 2017–2022. Những chỗ dưới đây là thứ chặn đoàn tàu " +
-        "tự chạy, và không chỗ nào giải được bằng thêm thông lượng.");
+        "tự chạy, và không chỗ nào giải được bằng thêm thông lượng. " +
+        (CT
+          ? "Huy hiệu bên phải mỗi nút là phần <b>đo được</b>, hỏi thẳng GitHub: " +
+            "nút đó có kho mã nào đang bị đụng vào không. Xem chi tiết ở " +
+            '<a href="#/cong-truong">Công Trường</a>.'
+          : ""));
+  }
+
+  /* ═══════════════ PHÒNG · CÔNG TRƯỜNG ═══════════════
+     Phòng này trả lời câu "thế giới đang làm tới đâu" bằng thứ ĐO
+     ĐƯỢC, đặt cạnh thang tiến hoá vốn chỉ là LUẬN.
+
+     Hai nguồn ghép lại ở đây, và cố ý không gộp ở khâu sinh dữ liệu:
+       THAIBOC     — tiền (DefiLlama)
+       THAIBOC_CT  — người đang làm (GitHub)
+
+     Bậc 1–3 có dấu hiệu bằng TIỀN vì chúng đã thành hạ tầng thật.
+     Bậc 4 trở lên chưa có tiền để đo, chỉ còn đo được bằng CÔNG
+     TRƯỜNG: có kho mã nào đang được đụng vào không. Và mấy bậc cuối
+     thì đến công trường cũng không có — đó là câu trả lời, không
+     phải chỗ dữ liệu bị thiếu. */
+
+  var TRANG_KHO = {
+    "dang-xay": { ten: "ĐANG XÂY", v: "muon" },
+    "cham": { ten: "CHẬM", v: "giua" },
+    "nguoi": { ten: "NGUỘI", v: "som" },
+    "khong-hoi-duoc": { ten: "KHÔNG HỎI ĐƯỢC", v: "som" },
+    "khong-ro": { ten: "KHÔNG RÕ", v: "giua" }
+  };
+
+  function ngayVn(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "—";
+    var p = function (n) { return String(n).padStart(2, "0"); };
+    return p(d.getUTCDate()) + "/" + p(d.getUTCMonth() + 1) + "/" + d.getUTCFullYear();
+  }
+
+  function soNgay(iso) {
+    if (!iso) return null;
+    var t = new Date(iso).getTime();
+    return isFinite(t) ? Math.floor((Date.now() - t) / 86400000) : null;
+  }
+
+  /* Dấu hiệu bằng TIỀN cho ba bậc đầu. Lấy thẳng từ bảng đoàn tàu
+     nên không có con số nào ở đây là mới — đây chỉ là cùng số liệu
+     đó nhìn theo trục "đã đi tới đâu" thay vì trục "toa nào to". */
+  function toaTheoMa(ma) {
+    var r = null;
+    (D.toa || []).forEach(function (t) { if (t.ma === ma) r = t; });
+    return r;
+  }
+  function cong() {
+    var s = 0, co = false;
+    for (var i = 0; i < arguments.length; i++) {
+      var t = toaTheoMa(arguments[i]);
+      if (t && t.thuoc !== "khong-do-duoc" && t.tvl != null) { s += t.tvl; co = true; }
+    }
+    return co ? s : null;
+  }
+  var DO_TIEN = {
+    "1": function () {
+      return [["TVL toàn chuỗi", tien(D.tong.tvlChuoi)],
+              ["Stablecoin lưu hành", tien(D.tong.luuHanhStable)]];
+    },
+    "2": function () {
+      return [["Chợ · tín dụng · phái sinh", tien(cong("t05", "t06", "t07"))],
+              ["Đặt cọc & tái đặt cọc", tien(cong("t08"))]];
+    },
+    "3": function () {
+      var t9 = toaTheoMa("t09"), t11 = toaTheoMa("t11");
+      return [["Tài sản thế giới thật", t9 ? tien(t9.tvl) : "—"],
+              ["Giao thức DePIN", t11 ? so(t11.soGiaoThuc, 0) + " cái · TVL không đo được" : "—"]];
+    }
+  };
+
+  /* Nút thắt của một bậc, kèm tình trạng công trường lấy từ CT. */
+  function nutCuaBac(bac) {
+    return (S.THIEU || []).filter(function (x) { return x.giaiDoan === bac; })
+      .map(function (x) {
+        var n = null;
+        if (CT) (CT.nut || []).forEach(function (y) { if (y.ma === x.ma) n = y; });
+        return { t: x, n: n };
+      });
+  }
+
+  function veCongTruong() {
+    if (!CT) {
+      return khoi("Chưa có số liệu công trường", null,
+        '<p class="giaithich"><b>File <code>assets/js/v/cong-truong.js</code> chưa được sinh lần nào.</b> ' +
+        "Chạy <code>node scripts/build-congtruong.mjs</code> ở gốc repo, hoặc đợi lượt " +
+        "GitHub Actions kế tiếp. Phần đoàn tàu và khớp nối vẫn chạy bình thường — " +
+        "hai nguồn tách nhau đúng để một bên ngã không kéo bên kia.</p>", null);
+    }
+
+    /* HAI con số, không phải một — và gộp chúng lại là nói quá.
+
+       Bản đầu chỉ có một ô "bậc cao nhất còn dấu hiệu" = 7, vì bậc 7
+       có kho toà án phi tập trung còn commit. Nhưng "một kho 81 sao
+       đang chạy" và "78 tỷ đô đang nằm trên đó" là hai loại bằng
+       chứng khác hẳn nhau, và trộn lại thì bảng nói rằng thế giới
+       đã đi tới bậc 7 — sai hẳn.
+
+       Nên tách: bậc cuối còn đo được bằng TIỀN là chỗ đã thành hạ
+       tầng thật; bậc xa nhất có CÔNG TRƯỜNG động là chỗ mới có người
+       đang xây. Khoảng cách giữa hai số đó chính là phần việc còn
+       lại. */
+    var bacTien = 0, bacXay = 0, i;
+    for (i = 1; i <= 10; i++) {
+      if (DO_TIEN[String(i)]) bacTien = i;
+      var coXay = nutCuaBac(i).some(function (x) { return x.n && x.n.soDangXay > 0; });
+      if (coXay) bacXay = i;
+    }
+
+    var trong = (S.THIEU || []).filter(function (x) {
+      var co = false;
+      (CT.nut || []).forEach(function (y) { if (y.ma === x.ma) co = true; });
+      return !co;
+    });
+
+    var gio = Math.floor((Date.now() - new Date(CT.generatedAt).getTime()) / 36e5);
+
+    var dan = '<div class="luoi-so">' +
+      oSo("Hạ tầng thật tới bậc", "<b>" + bacTien + "/10</b>",
+        "bậc cuối còn đo được bằng tiền đang nằm trên đó") +
+      oSo("Có người đang xây tới bậc", "<b>" + bacXay + "/10</b>",
+        "xa nhất còn kho mã có commit trong 30 ngày") +
+      oSo("Nút chưa ai xây", "<b>" + trong.length + "/" + (S.THIEU || []).length + "</b>",
+        "không tìm được kho mã nào đang làm việc đó") +
+      oSo("Hỏi GitHub cách đây", "<b>" + gio + " giờ</b>",
+        "bot chạy 4 lượt/ngày · không phải realtime") +
+      "</div>" +
+      '<p class="giaithich" style="margin-top:12px">Khoảng cách giữa <b>bậc ' + bacTien +
+      "</b> và <b>bậc " + bacXay + "</b> là phần việc đang dở: có người xây, chưa có " +
+      "vốn nào đứng lên trên. Và đọc con số thứ hai cho đúng — <b>“có công trường” " +
+      "không có nghĩa là “đã tới”</b>. Bậc " + bacXay + " còn động vì một kho toà án " +
+      "phi tập trung vẫn có commit, chứ không phải vì nhà nước nào đã thành giao thức.</p>";
+
+    /* ── từng bậc ── */
+    var bac = (S.THANG || []).map(function (g) {
+      var n = Number(g.so);
+      var ds = nutCuaBac(n);
+      var tien2 = DO_TIEN[g.so] ? DO_TIEN[g.so]() : null;
+
+      var dh = "";
+      if (tien2) {
+        dh += '<div class="bac-do">' + tien2.map(function (p) {
+          return '<span class="bac-o"><i>' + esc(p[0]) + "</i><b>" + esc(p[1]) + "</b></span>";
+        }).join("") + "</div>";
+      }
+      if (ds.length) {
+        dh += '<div class="bac-nut">' + ds.map(function (x) {
+          var st = !x.n ? "trong" : x.n.soDangXay > 0 ? "xay" : "dung";
+          var nhan = !x.n ? "chưa ai xây"
+            : x.n.soDangXay > 0 ? x.n.soDangXay + "/" + x.n.soKho + " công trường động"
+            : x.n.soKho + " kho, không cái nào động";
+          return '<span class="bac-n" data-st="' + st + '">' + esc(x.t.ten) +
+            "<i>" + nhan + "</i></span>";
+        }).join("") + "</div>";
+      }
+      if (!dh) {
+        dh = '<p class="bac-khong">Không có dấu hiệu nào đo được ở bậc này — ' +
+          "chưa có tiền để đếm, cũng chưa có kho mã nào để trỏ tới.</p>";
+      }
+
+      var moc = n === bacTien ? "MÉP TIỀN" : n === bacXay ? "MÉP CÔNG TRƯỜNG" : "";
+      return '<div class="bac"' + (moc ? ' data-day="1"' : "") + ">" +
+        '<div class="bac-s">' + esc(g.so) + "</div><div>" +
+        '<div class="bac-t">' + esc(g.ten) +
+          (moc ? '<span class="bac-here" data-m="' + (n === bacTien ? "tien" : "xay") +
+                 '">' + moc + "</span>" : "") +
+          '<span class="bac-luan">' + (g.muc ? g.muc + "%" : "—") + " luận</span></div>" +
+        dh + "</div></div>";
+    }).join("");
+
+    /* ── công trường ── */
+    var ds = (CT.kho || []).slice().sort(function (a, b) {
+      var x = (a.commit && a.commit.ngay) || a.day || "";
+      var y = (b.commit && b.commit.ngay) || b.day || "";
+      return y < x ? -1 : 1;
+    });
+    var ten = {};
+    (S.THIEU || []).forEach(function (x) { ten[x.ma] = x.ten; });
+
+    var ctHang = ds.map(function (k) {
+      var tt = TRANG_KHO[k.trangThai] || { ten: "?", v: "giua" };
+      var ng = (k.commit && k.commit.ngay) || k.day;
+      var d = soNgay(ng);
+      return '<div class="ct" data-v="' + tt.v + '">' +
+        '<div class="ct-d"><a class="ct-t" href="https://github.com/' +
+          esc(k.chu) + "/" + esc(k.ten) + '" target="_blank" rel="noopener">' +
+          esc(k.chu) + "/<b>" + esc(k.ten) + "</b></a>" +
+        '<span class="dot-nhan" data-v="' + tt.v + '">' + tt.ten + "</span></div>" +
+        '<p class="ct-y">' + esc(k.y) + "</p>" +
+        (k.commit && k.commit.thongDiep
+          ? '<p class="ct-c"><span>lần cuối ' + esc(ngayVn(ng)) +
+            (d != null ? " · " + d + " ngày trước" : "") + "</span>" +
+            esc(k.commit.thongDiep) + "</p>"
+          : '<p class="ct-c"><span>lần cuối ' + esc(ngayVn(ng)) + "</span></p>") +
+        '<div class="ct-m"><span>nút: ' + esc(ten[k.nut] || k.nut) + "</span>" +
+          (k.sao != null ? "<span>" + so(k.sao, 0) + " ★</span>" : "") +
+          (k.ngonNgu ? "<span>" + esc(k.ngonNgu) + "</span>" : "") +
+          (k.viecMo != null ? "<span>" + so(k.viecMo, 0) + " việc mở</span>" : "") +
+        "</div></div>";
+    }).join("");
+
+    /* ── đề xuất ── */
+    var dx = (CT.deXuat || []).map(function (x) {
+      return '<div class="dx"><span class="dx-n">' + esc(ngayVn(x.ngay)) + "</span>" +
+        '<span class="dx-k" data-k="' + esc(x.kho) + '">' + esc(x.kho) + "</span>" +
+        '<span class="dx-t">' + esc(x.tieuDe) + "</span></div>";
+    }).join("");
+
+    /* ── nút trống ── */
+    var tr = trong.map(function (x) {
+      return '<div class="thieu" data-trong="1"><div class="thieu-t">' + esc(x.ten) +
+        '<span class="dot-nhan" data-v="som">CHƯA AI XÂY</span></div>' +
+        '<p class="thieu-y">' + esc(x.y) + "</p></div>";
+    }).join("");
+
+    return khoi("Thế giới đang xây tới đâu", null, dan,
+      "Bốn con số này đọc từ <b>hai nguồn khác nhau</b>: tiền lấy từ DefiLlama, " +
+      "còn “ai đang làm” lấy từ GitHub — số sao, ngày commit cuối và dòng commit " +
+      "mới nhất của từng kho mã. <b>Không phải realtime.</b> Trang này là trang " +
+      "tĩnh; gọi API lúc bạn mở thì mỗi người xem đốt hạn mức của chính họ. Bot " +
+      "hỏi 4 lượt/ngày, và ô thứ tư luôn nói bản này cũ bao nhiêu giờ.") +
+
+      khoi("Từng bậc đang có dấu hiệu gì", "10 bậc",
+        '<div class="bac-l">' + bac + "</div>",
+        "Cột phần trăm là <b>LUẬN</b> lấy từ tài liệu nguồn — giữ nguyên, không " +
+        "đo được. Thứ bên dưới mỗi bậc mới là <b>ĐO ĐƯỢC</b>: ba bậc đầu đo bằng " +
+        "tiền vì chúng đã thành hạ tầng thật; từ bậc 4 trở lên chưa có tiền để " +
+        "đếm nên chỉ còn đo bằng công trường. Bậc nào không có cả hai thì nói " +
+        "thẳng là không có, chứ không điền bằng số đoán.") +
+
+      khoi("Công trường đang mở", CT.tong.soDangXay + "/" + CT.tong.soKho + " còn động",
+        ctHang,
+        "Mỗi kho là một chỗ nút thắt đó đang thật sự được xây. <b>Ngày commit " +
+        "cuối là thước ở đây</b>, không phải số sao: một kho 2.000 sao mà tám " +
+        "tháng không ai đụng vào thì nút đó đang nguội, còn một kho 81 sao có " +
+        "commit hôm nay thì đang chạy. Bấm tên kho để sang thẳng GitHub.") +
+
+      khoi("Kỹ sư vừa đề xuất gì", CT.deXuat.length + " dòng",
+        '<div class="dx-l">' + dx + "</div>",
+        "Đọc thẳng từ lịch sử thư mục chuẩn của <code>ethereum/ERCs</code> và " +
+        "<code>ethereum/EIPs</code>. Đây là chỗ một chuẩn mới xuất hiện và một " +
+        "chuẩn cũ đổi trạng thái — “Add ERC…” là vừa có đề xuất mới, “Move to " +
+        "last call” là sắp chốt.") +
+
+      khoi("Nút thắt chưa ai xây", trong.length + " nút",
+        '<div class="thieu-l">' + tr + "</div>",
+        "Đây là phát hiện chính của cả phòng, và nó lộ ra <b>vì bảng để trống chứ " +
+        "không đi tìm cho đủ</b>: mọi nút CÓ công trường đều là nút kỹ thuật. " +
+        "Mấy nút còn lại — pháp lý khớp với on-chain, thực thi ở thế giới vật " +
+        "lý, ai được đặt hàm mục tiêu, cỗ máy tự thấy mình sắp mất kiểm soát — " +
+        "không có kho mã nào để trỏ tới, vì chúng không phải bài toán giải được " +
+        "bằng một kho mã.");
   }
 
   /* ═══════════════ NGĂN HỒ SƠ ═══════════════ */
@@ -535,7 +805,8 @@
     sk: '<path d="M9 12a3 3 0 0 1 3-3h1a3.5 3.5 0 1 0 0-7h-1"/><path d="M15 12a3 3 0 0 1-3 3h-1a3.5 3.5 0 1 0 0 7h1"/>',
     dot: '<path d="M12 3c1.5 3.5 4.5 5 4.5 9a4.5 4.5 0 0 1-9 0c0-4 3-5.5 4.5-9Z"/>',
     cua: '<path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>',
-    tg: '<path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/>'
+    tg: '<path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/>',
+    ct: '<path d="M2 21h20"/><path d="M4 21V10l7-4 7 4v11"/><path d="M9 21v-6h4v6"/><path d="M11 6V3l6 2.2"/>'
   };
 
   var PHONG = [
@@ -547,6 +818,10 @@
       dem: function () { return "luận"; } },
     { ma: "cua-noi", ten: "Cửa Nối", ic: IC.cua, ve: veCuaNoi,
       dem: function () { return demCung() + " cung"; } },
+    { ma: "cong-truong", ten: "Công Trường", ic: IC.ct, ve: veCongTruong,
+      dem: function () {
+        return CT ? CT.tong.soDangXay + "/" + CT.tong.soKho : "—";
+      } },
     { ma: "thang", ten: "Thang Tiến Hoá", ic: IC.tg, ve: veThang,
       dem: function () { return "luận"; } }
   ];
