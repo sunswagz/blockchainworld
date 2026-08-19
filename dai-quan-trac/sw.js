@@ -22,6 +22,7 @@ var SHELL = [
   "./assets/js/soi.js",
   "./assets/js/tq/data.js",
   "./assets/js/tq/soi.js",
+  "./assets/js/tk/data.js",
   "./assets/js/scan.js",
   "./assets/js/app.js",
   "./assets/js/halls.js",

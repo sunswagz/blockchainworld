@@ -245,6 +245,16 @@ const LEVELS = [
 ];
 
 /* ── KỊCH BẢN ───────────────────────────────────────────────── */
+/* Trung Quốc KHÔNG xếp theo nguồn cú sốc mà theo việc BA HỆ CÒN BÙ
+   ĐƯỢC CHO NHAU HAY KHÔNG. Dùng chung câu dẫn của Việt Nam ở đây là
+   nói sai trục phân nhánh — đúng lỗi đã xảy ra trước lượt này. */
+const KB = {
+  tieu:'Ba nhánh, một câu hỏi về sức chịu',
+  lede:'Ba nhánh này không chia theo nguồn cú sốc mà theo <b>việc các hệ còn bù được cho nhau hay không</b>. Cùng một cú sốc, đặt vào ba trạng thái khác nhau của bất động sản, tài khoá địa phương và niềm tin, cho ba kết cục khác hẳn nhau.',
+  ket:'Ranh giới nằm giữa B và C. Ở B từng hệ chịu đau nhưng vẫn còn hệ khác gánh sang — trung ương gánh cho địa phương, ngân hàng quốc doanh gia hạn nợ, tiết kiệm hộ gia đình đỡ phần còn lại. Ở C thì tài khoá, ngân hàng và tài sản hộ gia đình mất khả năng bù cho nhau <b>cùng lúc</b>, và câu hỏi chuyển từ tăng trưởng sang tính chính danh.'
+};
+const RANH = 'Ranh giới thật sự nằm giữa cấp 2 và cấp 3: cấp 3 là lúc <b>vòng lặp bắt đầu tự chạy</b> mà không cần thêm cú sốc mới nào từ bên ngoài. Và cascade chạy được <b>cả hai chiều</b> — kinh tế đẩy chính trị, nhưng chính trị hỏng cũng kéo kinh tế xuống theo.';
+
 const SCEN = [
   {k:'A', t:'Chỉ cú sốc kinh tế', w:'Hệ thống hấp thụ', acc:'#2ea043',
    pts:[
@@ -416,6 +426,9 @@ const LIB = [
       {h:'Thang chuyển lỗ có bao nhiêu bậc — và bậc cuối là ai',
     p:'Đây là điểm MẠNH của hệ thống, và cũng là chỗ nó cạn. Một nền kinh tế thông thường thì chủ đầu tư vỡ kéo ngân hàng vỡ. Trung Quốc có nhiều bậc hơn: lỗ đi từ chủ đầu tư → ngân hàng gia hạn → tái cấp vốn → LGFV và tỉnh → hoán đổi nợ → trung ương phát trái phiếu đặc biệt. <b>Lỗ không biến mất, nhưng nó DI CHUYỂN QUA HỆ THỐNG</b> — và đó là lý do rất nhiều dự đoán "Trung Quốc sắp Lehman" đã sai.<br><br>Nguy hiểm không nằm ở một bậc nào, mà ở lúc <b>không còn nơi để chuyển</b>: hộ gia đình không muốn gánh nữa, doanh nghiệp tư nhân lợi nhuận quá mỏng, chính quyền địa phương nợ quá cao, ngân hàng bảng cân đối yếu, SOE hiệu quả thấp. Khi các bậc trên đều đầy thì <b>trung ương là NGƯỜI GÁNH CUỐI</b> — và chính IMF cũng nói nếu có một đợt giảm tốc mạnh do giảm đòn bẩy trên diện rộng thì hỗ trợ tài khoá bổ sung nên đến từ chính quyền trung ương và nằm TRÊN bảng cân đối ngân sách chính thức, tức thôi giấu ngoài bảng.',
     a:'HỘ GIA ĐÌNH   ✗ không muốn gánh nữa\n     ↓\nDN TƯ NHÂN    ✗ lợi nhuận quá mỏng\n     ↓\nĐỊA PHƯƠNG    ✗ nợ quá cao\n     ↓\nNGÂN HÀNG     ✗ bảng cân đối yếu\n     ↓\nSOE           ✗ hiệu quả thấp\n     ↓\n───────────────────────────\nTRUNG ƯƠNG    ← NGƯỜI GÁNH CUỐI'},
+   {h:'Ngày 19/8/2026 — một ngày cho thấy nền kinh tế HAI TỐC ĐỘ',
+    p:'Hôm đó thị trường Trung Quốc bán tháo: Shanghai Composite đóng cửa giảm ~2,4%, Shenzhen Component giảm tới ~5,01%; trong phiên chỉ số robot giảm hơn 6%, bán dẫn khoảng 7%. Nhưng CÙNG NGÀY, Unitree Robotics tăng gần 500% trong phiên IPO.<br><br>Hai dữ kiện đó không mâu thuẫn — chúng là cùng một hiện tượng. Đây không phải \'mọi người tháo chạy khỏi Trung Quốc\' mà là một cuộc <b>định giá lại cực mạnh BÊN TRONG</b>: bán thứ có lợi nhuận yếu và cầu nội địa yếu, mua thứ nằm trong danh mục chiến lược quốc gia. Đó chính là thang chuyển lỗ ở trên nhìn từ phía thị trường: vốn tự động rời khỏi những bậc không ai đỡ.<br><br>Một con số lan rất rộng hôm đó — \'1,65 nghìn tỷ NDT vốn hoá bị xoá trong một ngày\' — thì <b>chưa xác minh được</b> từ nguồn chính thống; nó có thể là phép tính riêng của một tài khoản mạng xã hội. Xu hướng thật, con số chưa đứng được, nên ghi rõ ra chứ đừng dùng.',
+    a:'BÁN                     MUA\nlợi nhuận yếu       →   danh mục quốc gia\ncầu nội địa yếu     →   AI · chip · robot\nbất động sản        →   EV · quốc phòng\n\n        CÙNG MỘT NGÀY\n     Shenzhen −5,01%\n     Unitree   +500%'},
    {h:'Và đúng lúc đó an ninh chịu một cái kéo KÉP',
     p:'Đây là chỗ tài khoá chạm vào ổ cắm cứng thứ ba. Kinh tế xuống → thất nghiệp tăng → bất mãn xã hội tăng → <b>KHỐI LƯỢNG VIỆC của an ninh tăng</b>. Cùng lúc đó tài khoá yếu → nguồn lực địa phương giảm → <b>KHẢ NĂNG CHI cho an ninh bị ép</b>. Nhu cầu tăng trong khi năng lực nuôi giảm — hai mũi kéo ngược chiều trên cùng một cơ quan. Tài liệu nguồn gọi đúng tình trạng ấy là an ninh <b>QUÁ TẢI</b>, và xếp nó vào cấp 4 — cấp cuối trước khi tới rạn nứt elite. Đó mới là mối nguy chứ không phải bản thân con số tăng trưởng.<br><br>Nhưng Bắc Kinh biết rõ điều đó, nên trong khủng hoảng <b>không phải mọi khoản bị cắt ngang nhau</b>: báo cáo ngân sách 2026 vẫn đặt quốc phòng, ngoại giao và chính pháp trong nhóm phải bảo đảm nguồn lực. Đó cũng là lý do "làm dân nghèo đi" chưa chắc làm chế độ sụp — hệ thống chịu được mức sống giảm nếu vẫn giữ được lương an ninh, lương cán bộ, lương thực, năng lượng và hệ ngân hàng. Phân tích chỉ dựa trên GDP rất dễ sai ở đúng chỗ này.',
     a:'kinh tế ↓                 tài khoá ↓\n    ↓                         ↓\nthất nghiệp ↑           nguồn lực ↓\n    ↓                         ↓\nbất mãn ↑                     ↓\n    ↓                         ↓\nVIỆC của an ninh ↑   TIỀN nuôi an ninh ↓\n        ╲                   ╱\n         ╲                 ╱\n          CÙNG MỘT CƠ QUAN'},
@@ -460,6 +473,13 @@ const CHAIN_SRC = {
 };
 
 const SOLIEU = [
+  'Trung Quốc tháng 7/2026: bán lẻ chỉ +0,6% trong khi sản xuất công nghiệp +4,5% — đầu ra vẫn chạy nhanh hơn khả năng hấp thụ của thị trường nội địa. Đầu tư tài sản cố định 7 tháng −6,7%.',
+  'Tín dụng ngân hàng mới tháng 7/2026 CO LẠI 340 tỷ NDT — mức giảm lớn nhất từng ghi nhận; riêng vay hộ gia đình giảm 460,3 tỷ NDT. Lãi suất đã thấp mà dân vẫn không vay thì vấn đề nằm ở KỲ VỌNG, không phải giá tiền.',
+  'Xuất khẩu tháng 7/2026 +23,9%; bán dẫn 7 tháng gần gấp đôi, hàng công nghệ cao +40,7%. Xuất khẩu đang gánh phần cầu nội địa yếu — nên nó vừa là phao vừa là chỗ dễ tổn thương khi hàng rào dựng lên.',
+  'Thất nghiệp đô thị nhóm trẻ tăng từ 14,9% (tháng 6) lên 17,9% (tháng 7/2026), cao nhất 11 tháng.',
+  'Doanh thu bán quyền sử dụng đất của chính quyền địa phương nửa đầu 2026 giảm 31,5%, còn ~978 tỷ NDT. Giá nhà mới tháng 7 giảm 3,2% so cùng kỳ, mà ~52% tài sản hộ gia đình gắn với bất động sản.',
+  'Kho dầu chiến lược và thương mại ước hơn 1,2 tỷ thùng; tháng 7/2026 còn tích thêm ~210.000 thùng/ngày — nên cú sốc Hormuz với Trung Quốc là chuyện GIÁ, chưa phải chuyện THIẾU.',
+  'Ngày 19/8/2026, ảnh vệ tinh cho thấy hoàn thành giai đoạn đầu đảo nhân tạo tại Antelope Reef thuộc Hoàng Sa — dài gần 6 km, có cảng nước sâu. Cùng ngày thị trường trong nước bán tháo mạnh: suy yếu kinh tế KHÔNG đồng nghĩa lùi bước chiến lược.',
   'Trung Quốc năm 2024 tiêu thụ ~16,3 triệu thùng dầu/ngày, sản xuất nội địa ~4,3 triệu, nhập ~11,1 triệu — theo EIA.',
   'Nguồn nhập dầu 2024: Nga ~20%, Saudi ~14%, Iran ~11%, Iraq ~10% — theo EIA.',
   'Mỹ 14,7% và EU 14,5% trong xuất khẩu hàng hoá Trung Quốc năm 2025 — theo WTO.',
@@ -729,6 +749,6 @@ window.DQT_TQ = {
   BOMACH: BOMACH, BANCO: BANCO, DEM: DEM,
   COMPASS: COMPASS, DODAC: DODAC,
   THEATERS: THEATERS, GAUGES: GAUGES, CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC,
-  LEVELS: LEVELS, SCEN: SCEN, LIB: LIB, SOLIEU: SOLIEU
+  LEVELS: LEVELS, SCEN: SCEN, LIB: LIB, SOLIEU: SOLIEU, KB: KB, RANH: RANH
 };
 })();

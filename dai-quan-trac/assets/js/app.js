@@ -15,7 +15,7 @@ var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
 /* ═══════════════════════════════════════════════════════
    ĐỪNG VIẾT CỨNG SỐ ĐẾM VÀO CHUỖI HIỂN THỊ
 
-   Loại lỗi này đã cắn BỐN lần trong cung, và lần nào cũng im lặng —
+   Loại lỗi này đã cắn NĂM lần trong cung, và lần nào cũng im lặng —
    trang vẫn vẽ, không lỗi nào ném ra, chỉ có chữ là nói dối:
 
      · "4 cấp độ" và "có bốn cấp"  → Việt Nam 4, Trung Quốc 5.
@@ -27,15 +27,26 @@ var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
        Sai sự thật, ngay giữa bảng cảnh báo.
      · "than nội địa của Trung Quốc" làm ví dụ bộ đệm → hiện luôn
        trên trang mạch của Việt Nam.
+     · CẢ MỘT ĐOẠN VĂN cố định trong vScen() và vLevels(): "Nga và
+       Hormuz đánh vào Trung Quốc…" và "Ranh giới nằm giữa cấp 2 và
+       cấp 3…". Không con số nào sai, nên hai lệnh grep bên dưới
+       KHÔNG bắt được — mà ba bảng xếp kịch bản theo ba trục khác
+       hẳn nhau, và nhánh C của Tổng kết là nhánh TỐT. Đã chuyển
+       xuống dữ liệu thành KB và RANH.
 
    Luật: mọi con số và mọi ví dụ đặc thù trong chuỗi hiển thị phải
    lấy từ dữ liệu của CHỦ THỂ ĐANG XEM — CHAIN.length, GAUGES.length,
-   LEVELS.length, DEM, chuThe(state.cht).ten. Thêm chủ thể thứ ba là
-   mọi chỗ viết cứng thành sai, và không phép kiểm nào bắt được.
+   LEVELS.length, DEM, chuThe(state.cht).ten. Chủ thể thứ ba ĐÃ được
+   thêm (Tổng kết), và đúng như dự đoán ở đây: nó làm lộ ra ổ thứ năm,
+   loại ổ mà không phép kiểm nào bắt được.
 
    Cách soát nhanh khi sửa file này:
      grep -n "'[^']*(một|hai|ba|bốn|năm|[0-9]+) (cấp|đồng hồ|mắt xích|chiến trường)" app.js
      grep -n "Việt Nam|Trung Quốc" app.js   ← phải nằm trong chú thích hoặc CHUTHE
+   Và lệnh thứ ba, vì hai lệnh trên chỉ soi CON SỐ và TÊN NƯỚC:
+     đọc mọi chuỗi dài trong view dùng chung và hỏi "câu này còn
+     đúng khi đổi sang chủ thể khác không?". Đúng cho một bảng thì
+     nó thuộc về dữ liệu của bảng đó, không thuộc về view.
    ═══════════════════════════════════════════════════════ */
 
 /* Lớp CHỦ THỂ — đổi hết khi chuyển nước. Phải là `let` chứ không
@@ -148,7 +159,16 @@ const CHUTHE = [
      Dòng chảy của Trung Quốc hiện tín hiệu Hormuz của Việt Nam. */
   {id:'tq', ten:'Trung Quốc', co:'🇨🇳', kho:'DQT_TQ',   khoSoi:'DQT_TQ_SOI',
    khoDo:"DQT_TQ_DO", khoScan:"DQT_TQ_SCAN", tepScan:"assets/js/tq/scan.js",
-   hoi:'Quyền lực giữ được không?'}
+   hoi:'Quyền lực giữ được không?'},
+  /* Chủ thể thứ ba KHÔNG phải một nước mà là CHỖ HAI NƯỚC MÓC VÀO
+     NHAU. Nó không có chiến trường, không có bản quét, không có số
+     đo — khai null cả ba đường tự động là có chủ ý: nó là khung đọc,
+     không phải bảng quan trắc thứ ba. Nhờ các nhóm tự lọc khi rỗng,
+     không cần một dòng `if (là tổng kết)` nào trong toàn bộ app. */
+  {id:'tk', ten:'Tổng kết',   co:'🔗', kho:'DQT_TK',   khoSoi:null,
+   khoDo:null, khoScan:null, tepScan:null,
+   viTri:'BỐN PHÍA CỦA KHỚP NỐI',
+   hoi:'Hai đoàn tàu móc vào nhau ở đâu?'}
 ].filter(c=>window[c.kho]);   /* chủ thể thiếu file dữ liệu thì biến mất
                                  khỏi thanh chuyển, không hiện mục rỗng */
 const chuThe = id => CHUTHE.find(c=>c.id===id) || CHUTHE[0];
@@ -166,10 +186,15 @@ function napChuThe(){
   BOMACH = d.BOMACH||null;  BANCO = d.BANCO||null;
   DEM = d.DEM||[];
   SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;  DODAC = d.DODAC||[];
+  KB = d.KB||null;  RANH = d.RANH||null;
   const dd = c.khoDo ? window[c.khoDo] : null;
   DO = (dd && dd.do) ? dd.do : {};
   DO_LUC = (dd && dd.generatedAt) || null;
   dungRoutes();
+  /* Trang đang mở có thể không tồn tại ở chủ thể vừa nạp — Tổng kết
+     không có Dòng chảy chẳng hạn. Không lùi ở đây thì render() vẫn
+     rơi vào nhánh 'flow' và vẽ một trang rỗng trông như lỗi. */
+  if(!coRoute(state.route)) state.route = dauTien();
   kiemMach();
 }
 
@@ -184,9 +209,7 @@ function doiChuThe(id){
   /* Bộ lọc Dòng chảy giữ id chiến trường của nước cũ thì sang nước mới
      nó lọc ra 0 dòng và trông như mất hết tin. */
   state.filter = 'all';
-  const co = ROUTES.some(g=>g.items.some(it=>it.id===cu ||
-    (it.con||[]).some(c=>c.id===cu)));
-  state.route = co ? cu : 'flow';
+  state.route = coRoute(cu) ? cu : dauTien();
   save();
   /* Thanh bên và nút chuyển vẽ TRƯỚC nội dung, có chủ ý. Một lỗi trong
      một khung nhìn thì chỉ hỏng khung đó; người dùng vẫn còn thanh bên
@@ -337,24 +360,31 @@ function hideToast(){ $('#toast').classList.remove('on'); }
    Nhóm nào rỗng thì tự bị loại ở cuối hàm — chủ thể thiếu phần nào
    thì thanh bên không hiện phần đó, thay vì hiện một mục trống. */
 const SO = {3:'ba',4:'bốn',5:'năm',6:'sáu'};
+let KB = null, RANH = null;
 let DEM = [];
 let ROUTES = [];
+/* Trang này có tồn tại ở chủ thể đang xem không, và nếu không thì
+   lùi về đâu. Bỏ qua mục 'Chủ thể' (chúng mang cờ `cht`) vì lùi về
+   một nút chuyển nước là không lùi về đâu cả. */
+const coRoute = id => ROUTES.some(g=>g.items.some(it=>it.id===id ||
+  (it.con||[]).some(x=>x.id===id)));
+const dauTien = () => { for(const g of ROUTES) for(const it of g.items)
+  if(!it.cht) return it.id; return 'flow'; };
 function dungRoutes(){
   const c = chuThe(state.cht);
   ROUTES = [
   {g:'Chủ thể', items: CHUTHE.map(x=>({id:'cht/'+x.id, t:x.co+'  '+x.ten,
      ic:'map', sub:x.hoi.toUpperCase(), cht:x.id}))},
-  {g:'Quan trắc', items:[
-    {id:'flow',   t:'Dòng chảy',        ic:'flow',   sub:'REALTIME'},
-    {id:'chain',  t:'Mạch truyền dẫn',  ic:'chain',  sub:CHAIN.length+' MẮT XÍCH'},
-    {id:'gauges', t:'Bảng cảnh báo sớm',ic:'gauge',  sub:GAUGES.length+' ĐỒNG HỒ'}
-  ]},
+  {g:'Quan trắc', items:
+    (THEATERS.length ? [{id:'flow', t:'Dòng chảy', ic:'flow', sub:'REALTIME'}] : [])
+    .concat(CHAIN.length ? [{id:'chain', t:'Mạch truyền dẫn', ic:'chain', sub:CHAIN.length+' MẮT XÍCH'}] : [])
+    .concat(GAUGES.length ? [{id:'gauges', t:'Bảng cảnh báo sớm', ic:'gauge', sub:GAUGES.length+' ĐỒNG HỒ'}] : [])},
   {g:'Chiến trường', items: THEATERS.map(t=>({id:'th/'+t.id, t:t.name, ic:t.ic, sub:t.role.toUpperCase(), th:t.id}))},
-  {g:'Mô hình', items:[
-    {id:'levels', t:LEVELS.length+' cấp độ', ic:'stairs', sub:'ÁP LỰC → KHỦNG HOẢNG'},
-    {id:'scen',   t:'Kịch bản A/B/C',ic:'play',   sub:'PHÂN NHÁNH'},
-    {id:'compass',t:'Kẹp bốn phía',  ic:'map',    sub:'VỊ TRÍ '+c.ten.toUpperCase()}
-  ]},
+  {g:'Mô hình', items:
+    (LEVELS.length ? [{id:'levels', t:LEVELS.length+' cấp độ', ic:'stairs', sub:'ÁP LỰC → KHỦNG HOẢNG'}] : [])
+    .concat(SCEN.length ? [{id:'scen', t:'Kịch bản A/B/C', ic:'play', sub:'PHÂN NHÁNH'}] : [])
+    .concat(COMPASS ? [{id:'compass', t:'Kẹp bốn phía', ic:'map',
+       sub:c.viTri || 'VỊ TRÍ '+c.ten.toUpperCase()}] : [])},
   /* Hồ sơ mang theo `con` — danh sách mục của chính nó. Thanh bên
      nhờ đó có tầng thứ ba, và người đọc nhảy thẳng tới đúng mục
      thay vì mở hồ sơ rồi cuộn tìm giữa 16 mục. */
@@ -365,7 +395,7 @@ function dungRoutes(){
       sub:BOMACH.tang.reduce((a,t)=>a+t.ds.length,0)+' Ổ CẮM',
       con:BOMACH.tang.map(t=>({id:'bomach/'+t.id, t:t.tn, ic:'chain'}))}] : [])
     .concat(BANCO ? [{id:'banco', t:'Bàn cờ Mỹ–Trung', ic:'eagle', sub:'HAI BO MẠCH'}] : [])},
-  {g:'Soi quyền lực', items: [{id:'soi', t:'Khung 7 tiêu chí', ic:'gauge', sub:'DÙNG LẠI ĐƯỢC'}]
+  {g:'Soi quyền lực', items: (SOI.length ? [{id:'soi', t:'Khung 7 tiêu chí', ic:'gauge', sub:'DÙNG LẠI ĐƯỢC'}] : [])
     .concat(SOI.map(s=>({id:'soi/'+s.id, t:s.ten, ic:s.ic, sub:'HỒ SƠ',
       con:(s.muc||[]).map(m=>({id:'soi/'+s.id+'/'+m.id, t:m.t, ic:m.ic||'book'}))})))},
   {g:'Hồ sơ nền', items: LIB.map(l=>({id:'lib/'+l.id, t:l.t, ic:l.id==='nhanthuc'?'brain':'book', sub:'CỤM '+l.n}))
@@ -509,7 +539,7 @@ function render(){
   if(r.startsWith('lib/')) return v.innerHTML='', v.appendChild(vLib(r.slice(4)));
   if(r.startsWith('soi/')){ const p=r.slice(4).split('/');
     return v.innerHTML='', v.appendChild(vSoi(p[0], p[1])); }
-  go('flow');
+  go(dauTien());
 }
 
 /* ---------- DÒNG CHẢY ---------- */
@@ -867,9 +897,11 @@ function vLevels(){
   q.innerHTML= cur? 'Bảng đồng hồ hiện đang đọc ra <b>cấp '+cur+'</b>. Đây là kết quả của các mức bạn tự đặt, không phải một chẩn đoán độc lập.' 
                   : 'Chưa đặt đồng hồ nào nên chưa cấp nào được tô sáng. <a href="#gauges" onclick="go(\'gauges\')">Đặt bảng đồng hồ</a> trước.';
   w.appendChild(q);
-  const q2=el('blockquote'); q2.style.borderLeftColor='var(--purple)'; q2.style.background='#a371f70d';
-  q2.innerHTML='Ranh giới thật sự nằm giữa cấp 2 và cấp 3: cấp 3 là lúc <b>vòng lặp bắt đầu tự chạy</b> mà không cần thêm cú sốc mới nào từ bên ngoài. Và cascade chạy được <b>cả hai chiều</b> — kinh tế đẩy chính trị, nhưng chính trị hỏng cũng kéo kinh tế xuống theo.';
-  w.appendChild(q2);
+  /* Ranh giới nằm ở đâu là câu hỏi RIÊNG của từng thang. Bốn cấp của
+     Việt Nam, năm cấp của Trung Quốc và sáu chặng của Tổng kết gãy ở ba
+     chỗ khác nhau. */
+  if(RANH){ const q2=el('blockquote'); q2.style.borderLeftColor='var(--purple)';
+    q2.style.background='#a371f70d'; q2.innerHTML=RANH; w.appendChild(q2); }
   return w;
 }
 
@@ -877,8 +909,13 @@ function vLevels(){
 function vScen(){
   head('Kịch bản A/B/C','PHÂN NHÁNH THEO NGUỒN SỐC');
   const w=el('div','wrap wide');
-  w.innerHTML='<div class="eyebrow">Chương 11</div><h2 class="big">Ba nhánh, một điểm hạ lưu</h2>'+
-   '<p class="lede">Nga và Hormuz đánh vào Trung Quốc theo <b>hai kiểu khác nhau</b> — nên không thể gộp chung thành "sốc dầu". Tách ra mới thấy vì sao kịch bản C không phải là A cộng B, mà nặng hơn cả tổng của hai.</p>';
+  /* Tiêu đề và đoạn dẫn lấy từ KB của CHỦ THỂ ĐANG XEM. Ba bảng xếp
+     kịch bản theo ba trục hoàn toàn khác nhau — nguồn cú sốc, khả năng
+     bù của các hệ, và mức căng của khớp nối — nên một câu dẫn chung là
+     một câu sai ở hai chỗ. */
+  w.innerHTML='<div class="eyebrow">Ba nhánh</div><h2 class="big">'+
+   esc(KB&&KB.tieu ? KB.tieu : 'Kịch bản A/B/C')+'</h2>'+
+   (KB&&KB.lede ? '<p class="lede">'+KB.lede+'</p>' : '');
   const g=el('div','grid g3');
   SCEN.forEach(s=>{ const c=el('div','card'); c.style.borderColor=s.acc+'44';
     c.innerHTML='<div class="card-h" style="background:'+s.acc+'12"><b style="color:'+s.acc+'">KỊCH BẢN '+s.k+'</b></div>'+
@@ -888,9 +925,8 @@ function vScen(){
       '<ul class="tight" style="margin:0;font-size:12.5px">'+s.pts.map(p=>'<li>'+esc(p)+'</li>').join('')+'</ul></div>';
     g.appendChild(c); });
   w.appendChild(g);
-  const q=el('blockquote'); q.style.marginTop='22px';
-  q.innerHTML='Kịch bản C là trường hợp một cú sốc năng lượng trở thành <b>cú sốc hệ thống khu vực</b> — vì Trung Quốc mất đồng thời cả chân lục địa lẫn chân biển, và phần áp lực không hấp thụ được sẽ truyền thẳng xuống toàn chuỗi Á châu.';
-  w.appendChild(q);
+  if(KB&&KB.ket){ const q=el('blockquote'); q.style.marginTop='22px';
+    q.innerHTML=KB.ket; w.appendChild(q); }
   return w;
 }
 
