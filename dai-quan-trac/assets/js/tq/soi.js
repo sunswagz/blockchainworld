@@ -45,7 +45,7 @@ const SOI = [
     duan:{m:'vua', d:'Không phải ngành xin giao đất như Vingroup. Nhưng có dấu hiệu tiếp cận đáng chú ý: đầu thập niên 1990 gia đình Hướng đầu tư vào <b>đặc khu kinh tế Thâm Quyến</b>, và lễ khai trương studio điện ảnh năm 1993 có sự hiện diện của một nhân vật cấp cao — xem mục "Diệp gia".'},
     chidao:{m:'khong', d:'<b>ĐÂY LÀ Ô TRỐNG QUAN TRỌNG NHẤT CỦA CẢ HỒ SƠ.</b> Đã tìm 向華強+習近平 và các biến thể. Không thấy: gặp riêng, bạn cá nhân, liên doanh hai gia đình, nhận chỉ đạo, thuộc phe. Chính chỗ này làm hình dạng bảng chấm khác hẳn Vingroup và THACO.'},
     lailo:{m:'khong', d:'Không tìm thấy bằng chứng về việc ngân sách hay thiết chế nhà nước gánh lỗ cho hệ China Star, cũng như chiều ngược lại.'},
-    mang:{m:'ratmanh', d:'Ô ĐẦY NHẤT, và là toàn bộ giá trị của hồ sơ. <b>Diệp Tuyền Bình</b> hiện diện tại lễ khai trương 1993, con trai <b>Diệp Tân Long</b> sau đó thành đối tác trong một công ty đầu tư Hong Kong. Ông từng giữ vai trò <b>phó chủ tịch danh dự China Film Foundation</b>. Con trai <b>Hướng Tả</b> tham gia uỷ ban <b>All-China Youth Federation</b>. Và 2020 ông nằm trong danh sách hơn 2.600 người giới văn hoá–nghệ thuật Hong Kong ký ủng hộ Luật An ninh Quốc gia.'}
+    mang:{m:'ratmanh', d:'Ô ĐẦY NHẤT, và là toàn bộ giá trị của hồ sơ. <b>Diệp Tuyển Bình</b> hiện diện tại lễ khai trương 1993, con trai <b>Diệp Tân Long</b> sau đó thành đối tác trong một công ty đầu tư Hong Kong. Ông từng giữ vai trò <b>phó chủ tịch danh dự China Film Foundation</b>. Con trai <b>Hướng Tả</b> tham gia uỷ ban <b>All-China Youth Federation</b>. Và 2020 ông nằm trong danh sách hơn 2.600 người giới văn hoá–nghệ thuật Hong Kong ký ủng hộ Luật An ninh Quốc gia.'}
   },
 
   muc:[
@@ -72,8 +72,8 @@ const SOI = [
       {k:'p', d:'Đây mới là phần đáng chú ý hơn rất nhiều so với việc cố tìm một bức ảnh bắt tay. Nghiên cứu học thuật về quan hệ giữa ĐCSTQ, Mặt trận Thống nhất và các hội Tam Hoàng ghi nhận một chuyển dịch cuối thập niên 1980 – đầu 1990: các thành viên gia đình Hướng bắt đầu đầu tư vào <b>đặc khu kinh tế Thâm Quyến</b> và xây quan hệ với quan chức cấp cao ĐCSTQ ở Quảng Đông.'},
       {k:'moc', ds:[
         {y:'1991', t:'Sinh nhật ở Hong Kong', d:'Quan chức cấp cao Quảng Đông đến Hong Kong dự sinh nhật Hướng Hoa Viêm. Nghiên cứu dẫn nguồn đương thời cho sự kiện đó.'},
-        {y:'1993', t:'Studio Thâm Quyến — và Diệp Tuyền Bình', d:'Hướng Hoa Cường và Hướng Hoa Thắng mở một studio điện ảnh tại Thâm Quyến. Lễ khai trương có sự hiện diện của <b>Diệp Tuyền Bình (葉選平)</b> — khi đó là nhân vật cấp cao của Chính hiệp toàn quốc, trước đó là lãnh đạo Quảng Đông, và là con của nguyên soái Diệp Kiếm Anh.', hot:1},
-        {y:'sau đó', t:'Diệp Tân Long thành đối tác', d:'Con trai Diệp Tuyền Bình, <b>Diệp Tân Long</b>, sau đó trở thành đối tác của Hướng Hoa Cường trong một công ty đầu tư Hong Kong.', hot:1}
+        {y:'1993', t:'Studio Thâm Quyến — và Diệp Tuyển Bình', d:'Hướng Hoa Cường và Hướng Hoa Thắng mở một studio điện ảnh tại Thâm Quyến. Lễ khai trương có sự hiện diện của <b>Diệp Tuyển Bình (葉選平)</b> — khi đó là nhân vật cấp cao của Chính hiệp toàn quốc, trước đó là lãnh đạo Quảng Đông, và là con của nguyên soái Diệp Kiếm Anh.', hot:1},
+        {y:'sau đó', t:'Diệp Tân Long thành đối tác', d:'Con trai Diệp Tuyển Bình, <b>Diệp Tân Long</b>, sau đó trở thành đối tác của Hướng Hoa Cường trong một công ty đầu tư Hong Kong.', hot:1}
       ]},
       {k:'a', d:'          BẮC KINH\n             ↓\n           ĐCSTQ\n             ↓\n        QUẢNG ĐÔNG\n             ↓\n     DIỆP TUYỀN BÌNH\n             ↓\n     ┌───────┴────────┐\nDIỆP TÂN LONG    hệ Chính hiệp\n     ↓\nđối tác đầu tư\n     ↓\nHƯỚNG HOA CƯỜNG\n     ↓\nđiện ảnh + vốn\n     ↓\n  THÂM QUYẾN'},
       {k:'q', d:'<b>Đây có vẻ là một ổ cắm chính trị thật sự</b>, vì nó dựa vào quan hệ doanh nghiệp cụ thể và sự hiện diện của một nhân vật cấp cao — chứ không chỉ là tin đồn "quen lãnh đạo".'},
@@ -105,7 +105,7 @@ const SOI = [
         {t:'China Star Entertainment', vd:'niêm yết HKEX', acc:'#2ea043',
          d:'Doanh nghiệp thật, niêm yết thật, hồ sơ công khai. Tới tháng 6/2026 ông vẫn là executive director — tức không chỉ là một nhân vật của lịch sử điện ảnh thập niên 1990.'}
       ]},
-      {k:'a', d:'                    ĐCSTQ\n                      │\n        ┌─────────────┼─────────────┐\n    CHÍNH HIỆP     ĐIỆN ẢNH     THANH NIÊN\n        │             │             │\n Diệp Tuyền Bình      │      All-China Youth\n        │             │        Federation\n        │      China Film          │\n        │      Foundation      HƯỚNG TẢ\n        │             │\n        └──── HƯỚNG HOA CƯỜNG ────┘\n                      │\n                 CHINA STAR\n                      │\n            điện ảnh Hong Kong'},
+      {k:'a', d:'                    ĐCSTQ\n                      │\n        ┌─────────────┼─────────────┐\n    CHÍNH HIỆP     ĐIỆN ẢNH     THANH NIÊN\n        │             │             │\n Diệp Tuyển Bình      │      All-China Youth\n        │             │        Federation\n        │      China Film          │\n        │      Foundation      HƯỚNG TẢ\n        │             │\n        └──── HƯỚNG HOA CƯỜNG ────┘\n                      │\n                 CHINA STAR\n                      │\n            điện ảnh Hong Kong'},
       {k:'q', d:'Đến đây nó bắt đầu giống <b>một hệ sinh thái hơn là một quan hệ cá nhân</b>. Và đó chính là điều khiến nhân vật này đáng nghiên cứu: ông <b>không phải quan chức</b>, nhưng đứng ở giao điểm giữa tiền, điện ảnh, giới tinh hoa Hong Kong, Macau và quan hệ với đại lục.'}
     ]},
 
@@ -163,8 +163,9 @@ const SOI = [
     {id:'gap', t:'Vòng sau — chỗ chuỗi có thể khép lại', ic:'src', khoi:[
       {k:'p', d:'Chuỗi đáng đào nhất đã lộ ra khá rõ, và nó KHÔNG đi qua Tập:'},
       {k:'ds', ds:[
-        '<b>Diệp Tuyền Bình → Diệp Tân Long → pháp nhân đầu tư chung với Hướng Hoa Cường</b> — cổ đông, dòng tiền, thời điểm.',
+        '<b>Diệp Tuyển Bình → Diệp Tân Long → pháp nhân đầu tư chung với Hướng Hoa Cường</b> — cổ đông, dòng tiền, thời điểm.',
         'Macau và junket: đường nối giữa vốn, casino và mạng lưới Hong Kong.',
+        'Nguồn năm <b>1997</b> nói ông có quan hệ kinh doanh giải trí ở Bắc Kinh và mạng lưới liên quan giới chính trị Trung Quốc. Đây là tuyên bố mạnh dựa trên báo chí cũ — coi là <b>mảnh đáng theo</b>, chưa đặt ngang hồ sơ doanh nghiệp hay bản án.',
         'China Film Foundation: vai trò cụ thể, thời gian giữ, và những ai cùng ban.',
         'Các nhân vật chính trị mà Hướng <b>thực sự</b> gặp — có hồ sơ, không phải lời kể.',
         'Chuỗi xa hơn: <b>KMT → hệ tình báo thời Tưởng → Cục Quân Thống → mạng Hong Kong–Macau–Đông Nam Á → hội Tam Hoàng chống cộng → Hướng Tiền</b>.'
@@ -186,33 +187,53 @@ const SOI = [
    một tập đoàn thì không mất tài sản khi đổi chủ tịch.
    ───────────────────────────────────────────────────────────── */
 const DANHSACH = [
-  {muc:1, t:'Ổ cắm giữ hệ thống lại với nhau', acc:'#f0503f', ds:[
+  {muc:1, t:'LÕI — ổ cắm giữ cả hệ thống lại với nhau', acc:'#f0503f', ds:[
     {ten:'Tập Cận Bình', o:'Tổng Bí thư · Chủ tịch nước · Chủ tịch Quân uỷ',
-     ghi:'Chức mạnh nhất không phải Chủ tịch nước mà là Tổng Bí thư và Chủ tịch Quân uỷ Trung ương.'},
+     ghi:'Chức mạnh nhất KHÔNG phải Chủ tịch nước mà là Tổng Bí thư và Chủ tịch Quân uỷ Trung ương. Ông cũng trực tiếp đứng đầu Uỷ ban An ninh Quốc gia Trung ương — nơi "an ninh" được mở rộng sang kinh tế, tài chính, công nghệ, mạng, dữ liệu, văn hoá, sinh học, chuỗi cung ứng. Hệ quả phải nhớ: một vấn đề kinh tế có thể ĐỒNG THỜI là một vấn đề an ninh.'},
+    {ten:'Thường vụ Bộ Chính trị', o:'bảy người',
+     ghi:'Tập Cận Bình · Lý Cường · Triệu Lạc Tế · Vương Hộ Ninh · Thái Kỳ · Đinh Tiết Tường · Lý Hi. Mỗi người thường không phụ trách "một bộ" mà ngồi ở điểm nối nhiều hệ.'},
     {ten:'Thái Kỳ', o:'Văn phòng Trung ương · Ban Bí thư',
-     ghi:'Gatekeeper. Văn phòng Trung ương là bus dữ liệu của cả hệ: lịch lãnh đạo, văn kiện mật, luồng chỉ thị lên và xuống. Quyền lực thông tin rất dễ bị bỏ sót khi chỉ nhìn chức danh bộ trưởng.'},
-    {ten:'Ban Tổ chức Trung ương', o:'nhân sự · đường thăng tiến',
-     ghi:'Ổ cắm mạnh nhất của cả hệ thống. Kiểm soát ai lên ai xuống thì không cần ra lệnh từng ngày — cấp dưới tự học cách biết trung ương muốn gì.'},
-    {ten:'CCDI · Uỷ ban Giám sát', o:'kỷ luật · thanh lọc',
-     ghi:'Mô hình một bộ máy hai danh nghĩa Đảng/Nhà nước. Năm 2025 lập ~1,012 triệu vụ, lưu trí ~47.000 người, ~983.000 quyết định kỷ luật. Không phải văn phòng tượng trưng.'}
+     ghi:'Ổ cắm ít nổi tiếng mà cực mạnh. Nếu Tập là CPU thì Văn phòng Trung ương là bus dữ liệu: lịch lãnh đạo, văn kiện mật, luồng báo cáo đi lên và luồng chỉ thị đi xuống. Quyền lực thông tin rất dễ bị bỏ sót khi chỉ nhìn chức danh bộ trưởng.'},
+    {ten:'Thạch Thái Phong', o:'Ban Tổ chức Trung ương — nhân sự · đường thăng tiến',
+     ghi:'Ổ CẮM MẠNH NHẤT CỦA CẢ HỆ. Kiểm soát ai lên ai xuống thì không cần gọi điện ra lệnh từng ngày — cấp dưới TỰ HỌC cách biết trung ương muốn gì. Tài liệu tổ chức năm 2026 đặt "yêu cầu chính trị" làm tiêu chí đầu tiên khi chọn cán bộ.'},
+    {ten:'Lý Hi · Lưu Kim Quốc', o:'CCDI · Uỷ ban Giám sát Quốc gia',
+     ghi:'Một bộ máy hai danh nghĩa Đảng/Nhà nước — Lưu Kim Quốc đồng thời là Bí thư Ban Bí thư, Phó Bí thư CCDI và Chủ nhiệm Uỷ ban Giám sát Quốc gia. Năm 2025 lập ~1,012 triệu vụ, lưu trí ~47.000 người, ~983.000 quyết định kỷ luật hoặc xử lý công vụ. Không phải văn phòng tượng trưng.'}
   ]},
-  {muc:2, t:'Ổ cắm cưỡng chế và thông tin', acc:'#d29922', ds:[
-    {ten:'Uỷ ban Chính pháp Trung ương', o:'công an · toà án · kiểm sát · an ninh',
-     ghi:'Năm cơ quan không phải năm hòn đảo độc lập — có một trục điều phối chính trị phía trên. Hội nghị 1/2026 tiếp tục yêu cầu "sự lãnh đạo tuyệt đối của Đảng".'},
-    {ten:'Ban Tuyên truyền · CAC', o:'truyền thông · thuật toán · AI',
-     ghi:'Kiểm soát thông tin có HAI nhánh, và chỉ nhìn Great Firewall là mất một nửa: ngăn chặn, VÀ sản xuất "thực tại chính thống". Mục tiêu không chỉ là "bạn không được đọc X" mà còn "đây là cách X nên được hiểu".'},
-    {ten:'Quân uỷ Trung ương · PLA', o:'quân đội thuộc Đảng, không thuộc nhà nước',
-     ghi:'Danh sách lãnh đạo tháng 7/2026 ngắn bất thường sau loạt thanh lọc 2023–2026. Nhưng thanh lọc đọc được hai chiều — vừa là kiểm soát mạnh lên, vừa có thể là lòng tin nội bộ giảm. Chưa chứng minh được chuỗi mệnh lệnh bị chia.'}
+  {muc:2, t:'CƯỠNG CHẾ VÀ THÔNG TIN', acc:'#d29922', ds:[
+    {ten:'Trần Văn Thanh', o:'Uỷ ban Chính pháp Trung ương',
+     ghi:'Công an · toà án · viện kiểm sát · an ninh nhà nước · tư pháp KHÔNG phải năm hòn đảo độc lập — có một trục điều phối chính trị phía trên. Hội nghị chính pháp tháng 1/2026 tiếp tục yêu cầu "sự lãnh đạo tuyệt đối của Đảng".'},
+    {ten:'Vương Tiểu Hồng', o:'Bộ Công an · Bí thư Ban Bí thư',
+     ghi:'Trật tự, tội phạm, hộ khẩu, cảnh sát, an ninh nội địa, quản lý hành chính. Khác hẳn Bộ An ninh Nhà nước — hai cơ quan, hai bài toán, người ngoài hay gộp nhầm.'},
+    {ten:'Trần Nhất Tâm', o:'Bộ An ninh Nhà nước',
+     ghi:'Phản gián, tình báo, an ninh quốc gia, chống các hoạt động bị coi là đe doạ nhà nước.'},
+    {ten:'Lý Thư Lỗi · Trang Vinh Văn', o:'Ban Tuyên truyền · CAC',
+     ghi:'Kiểm soát thông tin có HAI nhánh, và chỉ nhìn Great Firewall là mất một nửa: NGĂN CHẶN, và SẢN XUẤT "thực tại chính thống". Không chỉ "bạn không được đọc X" mà còn "đây là cách X nên được hiểu". Quy định GenAI buộc nội dung phù hợp "giá trị cốt lõi xã hội chủ nghĩa" — tuyên truyền 2.0 cộng quản trị dữ liệu 2.0.'},
+    {ten:'Quân uỷ Trung ương · PLA', o:'Trương Hựu Hiệp · Trương Thăng Dân · Lưu Chấn Lập',
+     ghi:'Quân đội thuộc ĐẢNG, không thuộc nhà nước. Danh sách lãnh đạo tháng 7/2026 NGẮN BẤT THƯỜNG sau loạt thanh lọc 2023–2026 — Hà Vệ Đông, Miêu Hoa và nhiều tướng cấp cao bị khai trừ. Nhưng thanh lọc đọc được hai chiều: vừa là trung tâm kiểm soát mạnh lên, vừa có thể là mạng quan hệ bị phá và lòng tin nội bộ giảm. CHƯA chứng minh được chuỗi mệnh lệnh bị chia.'}
   ]},
-  {muc:3, t:'Ổ cắm nối ra ngoài — chỗ nối với Hong Kong và Việt Nam', acc:'#58a6ff', ds:[
-    {ten:'Ban Công tác Mặt trận Thống nhất', o:'người ngoài Đảng · Hoa kiều · HK/Macau/Đài Loan',
-     ghi:'ĐÁNG SOI NHẤT SAU HỒ SƠ ĐẦU TIÊN. Đây là ổ cắm nối thẳng sang hồ sơ Hướng Hoa Cường, và là cơ chế "hấp thụ" thay vì "tiêu diệt" — thứ dễ bị đọc sai nhất từ bên ngoài.'},
-    {ten:'Văn phòng Hong Kong–Macau Trung ương', o:'một cơ quan hai danh nghĩa',
-     ghi:'Ví dụ rõ nhất của cấu trúc party-state: cùng một người mang cả mặt Đảng lẫn mặt Nhà nước.'},
-    {ten:'Văn phòng Đài Loan Trung ương', o:'quan hệ hai bờ · giao lưu đảng',
-     ghi:'ĐCSTQ giao lưu với KMT ≠ KMT nằm dưới ĐCSTQ — cùng nguyên tắc đã dùng với nhà Hướng.'},
-    {ten:'Uỷ ban Tài chính · Khoa học Công nghệ Trung ương', o:'lập 2023',
-     ghi:'Cải cách 2023 là chìa khoá hiểu "ĐCSTQ 2.0": Đảng đặt bo mạch lên trên ngân hàng và khoa học. Không có nghĩa Tập duyệt từng khoản vay — trung ương nắm hướng tín dụng, rủi ro hệ thống, ưu tiên chiến lược và nhân sự cao cấp.'}
+  {muc:3, t:'TIỀN · CÔNG NGHỆ · VÀ QUYỀN SỬA CHÍNH BO MẠCH', acc:'#a371f7', ds:[
+    {ten:'Lý Cường · Hà Lập Phong', o:'Uỷ ban Tài chính Trung ương (lập 2023)',
+     ghi:'Văn kiện nói thẳng mục tiêu: tăng cường sự lãnh đạo tập trung thống nhất của Trung ương Đảng đối với công tác tài chính. Bên nhà nước vẫn có PBOC, NFRA, CSRC — nhưng tầng chiến lược nằm trên, cộng thêm Uỷ ban Công tác Tài chính Trung ương lo phần công tác đảng. KHÔNG có nghĩa Tập duyệt từng khoản vay: trung ương nắm hướng tín dụng, rủi ro hệ thống, ưu tiên chiến lược và nhân sự cao cấp.'},
+    {ten:'Đinh Tiết Tường', o:'Uỷ ban Khoa học Công nghệ Trung ương (lập 2023)',
+     ghi:'AI, bán dẫn, vũ trụ, lượng tử, sinh học, phòng thí nghiệm quốc gia, phối hợp quân–dân. Khoa học không còn là một bộ chuyên môn mà được đặt vào giao điểm an ninh + công nghiệp + cạnh tranh Mỹ–Trung + quân sự.'},
+    {ten:'Trình Phúc Ba', o:'SASAC — doanh nghiệp nhà nước trung ương',
+     ghi:'Nơi tài sản nhà nước, doanh nghiệp và Đảng giao nhau. Cộng ngân hàng quốc doanh, quỹ chính phủ và chính quyền địa phương, đây là năng lực tập trung vốn mà một nền kinh tế hoàn toàn phi tập trung khó bắt chước.'},
+    {ten:'Doanh nghiệp tư nhân', o:'bốn ổ cắm, không phải một',
+     ghi:'Sở hữu · quản trị · tổ chức đảng · và THỊ TRƯỜNG NHÀ NƯỚC (mua sắm công, tín dụng, đất, giấy phép, trợ cấp). Quy định tổ chức cơ sở: doanh nghiệp tư nhân có từ BA đảng viên chính thức trở lên thì nên lập tổ chức đảng riêng; toàn quốc ~1,692 triệu chi bộ trong doanh nghiệp. Nhưng vai trò chi bộ khác nhau rất lớn giữa các công ty — có chỗ gần như nghi lễ, có chỗ tham gia quyết định quan trọng. Bằng chứng KHÔNG cho phép kết luận "mọi CEO Trung Quốc chỉ là bù nhìn".'},
+    {ten:'Uỷ ban Biên chế Cơ cấu Trung ương', o:'META — quyền sửa chính bo mạch',
+     ghi:'Không chỉ điều khiển cơ quan, mà TẠO · XOÁ · GỘP cơ quan, chuyển chức năng, đổi biên chế. Cải cách 2023 chính là ví dụ. Nói cách khác: CPU có quyền thiết kế lại mainboard — đây là thứ phân biệt hệ thống này với một chính phủ thông thường.'}
+  ]},
+  {muc:4, t:'NỐI RA NGOÀI VÀ XUỐNG DƯỚI — chỗ chạm Hong Kong và Việt Nam', acc:'#58a6ff', ds:[
+    {ten:'Lý Cán Kiệt', o:'Ban Công tác Mặt trận Thống nhất',
+     ghi:'ĐÁNG SOI NHẤT SAU HỒ SƠ ĐẦU TIÊN. Ổ cắm nối thẳng sang hồ sơ Hướng Hoa Cường, và là cơ chế "HẤP THỤ" thay vì "tiêu diệt" — thứ dễ bị đọc sai nhất từ bên ngoài. Đối tượng: các đảng nhỏ, người không đảng phái, trí thức, dân tộc, tôn giáo, doanh nhân tư nhân, "giai tầng xã hội mới", Hong Kong, Macau, Đài Loan, Hoa kiều và cộng đồng hải ngoại.'},
+    {ten:'Hạ Bảo Long', o:'Văn phòng Hong Kong–Macau Trung ương',
+     ghi:'Một cơ quan hai danh nghĩa: mặt Đảng và mặt Quốc vụ viện. Ví dụ rõ nhất của cấu trúc party-state. Hong Kong vẫn có hệ pháp luật và hành chính riêng dưới "một quốc gia, hai chế độ", nhưng tầng chính sách trung ương nằm dưới cấu trúc Đảng.'},
+    {ten:'Tống Đào', o:'Văn phòng Đài Loan Trung ương + Quốc vụ viện',
+     ghi:'Lại là một cơ quan hai danh nghĩa. Nhiệm vụ: quan hệ hai bờ, giao lưu, kinh tế, chính trị, chống Đài Loan độc lập, thúc đẩy thống nhất. Nhưng ĐCSTQ giao lưu với KMT ≠ KMT nằm dưới ĐCSTQ — đúng nguyên tắc đã dùng với nhà Hướng.'},
+    {ten:'Vương Nghị · Lưu Hải Tinh', o:'ngoại giao SONG SONG',
+     ghi:'Một nước bình thường chủ yếu có Bộ Ngoại giao. Trung Quốc chạy ba mạng: ngoại giao nhà nước (MFA — Vương Nghị, đồng thời đứng đầu Văn phòng Uỷ ban Đối ngoại Trung ương), ngoại giao ĐẢNG (Ban Liên lạc Đối ngoại Trung ương — Lưu Hải Tinh, quan hệ thẳng với đảng cầm quyền, đảng đối lập và phong trào chính trị nước ngoài), và thống chiến với cộng đồng hải ngoại. Ba mạng phối hợp được nhưng không phải một cơ quan.'},
+    {ten:'Ngô Hán Thánh', o:'Ban Công tác Xã hội Trung ương (lập 2023) · đoàn thể · lưới',
+     ghi:'Thứ Cửu Bình 2004 hoàn toàn chưa thể thấy. Kinh tế đã đổi: shipper, tài xế, người bán trên nền tảng, freelancer KHÔNG nằm trong đơn vị công tác truyền thống — nên Đảng xây ổ cắm mới để nối tới họ. Cộng Đoàn Thanh niên (điều lệ ghi là trợ thủ và lực lượng dự bị của Đảng), Công đoàn ACFTU, Hội Phụ nữ ACWF, và lưới quản trị cộng đồng. Đừng biến mọi lưới thành "mạng mật vụ": phần lớn chức năng rất đời thường — rác, người già, tranh chấp, an sinh. Nhưng cùng mạng đó làm tăng khả năng nhận biết xã hội ở cấp rất nhỏ.'}
   ]}
 ];
 

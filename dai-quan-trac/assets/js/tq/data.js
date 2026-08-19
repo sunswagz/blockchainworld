@@ -22,7 +22,9 @@
    Việt Nam không có: tài khoá · cán bộ · an ninh.
 
    ── HỆ QUẢ CHO BẢNG ĐỒNG HỒ ─────────────────────────────────
-   Tám trong mười hai đồng hồ ở đây KHÔNG phải chỉ số kinh tế.
+   Sáu trong mười hai đồng hồ ở đây đo QUYỀN LỰC, không đo kinh tế;
+   sáu cái còn lại đo TÀI KHOÁ chứ không đo tăng trưởng. Không cái
+   nào là GDP hay CPI.
    Đó là chủ ý, không phải thiếu sót: một chế độ có thể nghèo đi
    rất nhiều mà vẫn đứng, và có thể giàu mà vẫn vỡ. GDP là đồng
    hồ tệ nhất để đo chuyện này.
@@ -76,7 +78,7 @@ const THEATERS = [
       'tiêu dùng ↓ — mà tiêu dùng vốn đã yếu'
     ],
     ascii:'Mỹ một mình\n     ↓\nTrung Quốc chuyển hướng\n     ↓\nASEAN · Mexico · Global South · EU\n\n────────────────────────────────\n\nMỹ + EU + các thị trường lớn\n     ↓\nkhó chuyển hướng hơn NHIỀU\n     ↓\n  ĐÒN BẨY THẬT\n  nằm ở LIÊN MINH,\n  không ở một nước đơn lẻ',
-    keypoint:'Đây là chỗ Việt Nam xuất hiện, và ở vị trí rất nhạy cảm: nếu đầu ra trực tiếp bị khó thì dòng đi vòng <b>Trung Quốc → FDI/linh kiện → ASEAN → sản phẩm → Mỹ/EU</b> trở thành lối thoát. Vì vậy quy tắc xuất xứ và chống chuyển tải trở thành mắt xích của chính cuộc chiến thương mại. Chỉ khoá "China → US" mà không nhìn "China → nước thứ ba → US" thì hiệu quả giảm hẳn.',
+    keypoint:'Xuất khẩu tính bằng USD tháng <b>1–5/2026 tăng 15,5%</b> so với cùng kỳ — tức nó đang thật sự gánh phần nhu cầu nội địa yếu, và đó là lý do siết thương mại đánh trúng hơn người ta tưởng. Đây cũng là chỗ Việt Nam xuất hiện, ở vị trí rất nhạy cảm: nếu đầu ra trực tiếp bị khó thì dòng đi vòng <b>Trung Quốc → FDI/linh kiện → ASEAN → sản phẩm → Mỹ/EU</b> trở thành lối thoát. Vì vậy quy tắc xuất xứ và chống chuyển tải trở thành mắt xích của chính cuộc chiến thương mại. Chỉ khoá "China → US" mà không nhìn "China → nước thứ ba → US" thì hiệu quả giảm hẳn.',
     clocks:['Xuất khẩu tính bằng USD','Tỷ trọng Mỹ + EU','Đơn hàng nhà máy mới','Chuyển tải qua nước thứ ba'],
     hits:['Việc làm công xưởng','Thu ngân sách','Tiêu dùng hộ gia đình'],
     scen:'Kịch bản B — đánh đúng cái van đang bù cho nội địa yếu'
@@ -163,9 +165,9 @@ const CHAIN = [
    d:'Vừa là điểm yếu vừa là BỘ GIẢM XÓC: khoản xấu được gia hạn, đảo nợ, hoán đổi — lỗ không biến mất mà được DI CHUYỂN.'},
 
   {id:'taikhoa', t:'Tài khoá', tag:'Ổ CỨNG 1',
-   d:'Không chỉ là ngân sách. Là khả năng trả lương công chức, giáo viên, cảnh sát, quân đội, lương hưu — tức khả năng giữ bộ máy dính vào nhau.'},
+   d:'Không chỉ là ngân sách. Là khả năng trả lương công chức, giáo viên, cảnh sát, quân đội, lương hưu — tức khả năng giữ bộ máy dính vào nhau. Ngân sách 2026: thâm hụt ~5,89 nghìn tỷ NDT (~4% GDP), trung ương chuyển ~10,415 nghìn tỷ cho địa phương trong khi địa phương tự thu ~12,503 nghìn tỷ. Đường đáy có tên riêng — <b>“tam bảo”</b>: dân sinh cơ bản, tiền lương, hoạt động bộ máy.'},
   {id:'canbo', t:'Cán bộ', tag:'Ổ CỨNG 2',
-   d:'Bộ truyền động. Trung ương không điều khiển từng người mà kiểm soát ĐƯỜNG THĂNG TIẾN. Nhưng chính cơ chế đó sinh ra báo cáo đẹp và "không dám làm".'},
+   d:'Bộ truyền động. Trung ương không điều khiển từng người mà kiểm soát ĐƯỜNG THĂNG TIẾN. Nhưng chính cơ chế đó sinh ra báo cáo đẹp và "không dám làm". Quy mô kỷ luật năm 2025: ~1,012 triệu vụ, ~47.000 người bị lưu trí, ~983.000 quyết định — vừa là kiểm soát mạnh lên, vừa có thể là lòng tin nội bộ giảm.'},
   {id:'anninh', t:'An ninh', tag:'Ổ CỨNG 3',
    d:'Công an, an ninh nhà nước, chính pháp, quân đội. Cohesion ở đây dựa trên chuỗi mệnh lệnh, lương bổng, lòng trung thành và niềm tin rằng trung tâm còn kiểm soát được.'},
 
@@ -175,7 +177,7 @@ const CHAIN = [
    d:'Điểm cuối thật sự. Khủng hoảng kinh tế ≠ khủng hoảng chế độ — một chế độ có thể nghèo mà tồn tại rất lâu.'}
 ];
 
-/* ── BẢNG ĐỒNG HỒ: mười hai, và tám cái KHÔNG phải kinh tế ──
+/* ── BẢNG ĐỒNG HỒ: sáu cái tài khoá, sáu cái quyền lực ──────
    Đây là phát biểu mạnh nhất của cả hồ sơ. Đo GDP để đoán số
    phận một chế độ là đo sai đại lượng. */
 const GAUGES = [
@@ -308,6 +310,13 @@ const LIB = [
        a:'VI PHẠM NHÂN QUYỀN LỊCH SỬ  =  CÓ\nTRÁCH NHIỆM CHẾ ĐỘ          =  CÓ\nTOÀ TUYÊN "TỔ CHỨC TỘI PHẠM" =  KHÔNG'},
       {h:'Và KMT tự biến đổi — điều rất khác ĐCSTQ',
        p:'Thiết quân luật được dỡ bỏ năm <b>1987</b>; Lý Đăng Huy tiếp tục dân chủ hoá; năm 2000 KMT lần đầu mất chức tổng thống vào tay DPP và hệ thống không quay lại quân đội để lật kết quả. Một đảng từng cai trị độc tài đã chấp nhận cạnh tranh bầu cử và chuyển giao quyền lực. Chủ tịch KMT hiện nay là <b>Trịnh Lệ Văn</b>, nhậm chức 1/11/2025.'},
+      {h:'Mặt tối của chiến tranh tổng lực — và ranh giới pháp lý',
+       p:'Năm <b>1938</b> quân Quốc dân cố tình phá hệ thống đê <b>Hoàng Hà</b> để tạo lũ chặn bước tiến quân Nhật. Cùng năm, ở <b>Trường Sa/Changsha</b>, chính sách tiêu thổ dẫn tới một đám cháy bị kích hoạt quá sớm, thiêu phần lớn thành phố. Ước tính số người chết khác nhau rất lớn và hậu quả kéo dài trên vùng rộng. Đây là những quyết định quân sự gây thảm hoạ dân sự rất lớn — nhưng <b>chưa từng có toà án quốc tế xét xử và tuyên "tội ác chiến tranh"</b> về các vụ này, nên không được tự nâng thành bản án pháp lý.',
+       a:'MỤC TIÊU\nkhông để Nhật dùng thành phố / chặn quân Nhật\n        ↓\nBIỆN PHÁP\ntiêu thổ · phá đê\n        ↓\nHỆ QUẢ\nthảm hoạ cho chính dân Trung Quốc'},
+      {h:'Vì sao KMT thua Mao — không phải vì Mao "giỏi hơn"',
+       p:'Tám năm chống Nhật làm KMT kiệt quệ: kinh tế suy yếu, lạm phát, tham nhũng, mất lòng dân, quân đội mệt mỏi. Trong khi ĐCSTQ đi đường khác — nông thôn, cải cách ruộng đất, tổ chức cơ sở, du kích, mở rộng quân đội. Sau khi Nhật đầu hàng năm 1945 nội chiến bùng lại; đến 1949 chính phủ Quốc dân thất bại trên đại lục và rút sang Đài Loan.'},
+      {h:'Công lý chuyển tiếp — điều làm KMT khác hẳn ĐCSTQ',
+       p:'Bảo tàng Nhân quyền Quốc gia Đài Loan gọi giai đoạn đàn áp kéo dài khoảng bốn thập niên là <b>White Terror</b>, và đối tượng không chỉ có đảng viên cộng sản: còn có người bị nghi là cộng sản, trí thức, nhà báo, nhà hoạt động, người đòi dân chủ, người đòi độc lập Đài Loan, người chỉ trích chính quyền. Điều quan trọng là <b>nhà nước dân chủ Đài Loan sau này đã tiến hành công lý chuyển tiếp</b> — huỷ nhiều bản án sai và bồi thường nạn nhân. Đó là thứ chưa xảy ra ở phía bên kia eo biển.'},
       {h:'Và vòng tròn khép lại',
        p:'Sau khi Trịnh Lệ Văn thắng chức chủ tịch, Tập Cận Bình gửi thông điệp chúc mừng với tư cách Tổng Bí thư ĐCSTQ, kêu gọi hai đảng củng cố "nền tảng chính trị chung". Trịnh không đáp lại bằng cam kết thống nhất mà nhấn mạnh hoà bình và giao lưu; năm 2026 còn nói cải thiện quan hệ với Bắc Kinh không đồng nghĩa chống Mỹ. <b>ĐCSTQ giao lưu với KMT ≠ KMT nằm dưới ĐCSTQ</b> — đúng nguyên tắc đã dùng với nhà Hướng.'}
     ]
@@ -324,9 +333,38 @@ const LIB = [
        p:'Comintern có vai trò lớn trong sự ra đời ĐCSTQ · Đảng dùng bạo lực cách mạng · các chiến dịch chính trị gây thảm hoạ lớn · Cách mạng Văn hoá là thảm hoạ (<b>chính nghị quyết của Đảng sau thời Mao</b> gọi đó là "tai hoạ nghiêm trọng"; nghiên cứu của Andrew Walder dựa trên hơn 2.200 biên niên sử địa phương ước tính ~1,6 triệu người chết) · Thiên An Môn bị quân đội đàn áp · kiểm soát mạnh thông tin · thống chiến được ghi công khai trong quy định Đảng · Đảng xuyên vào nhà nước và xã hội — điều lệ xác nhận.'},
       {h:'Và điều nó không thể thấy vì viết năm 2004',
        p:'Tập Cận Bình và việc tập trung quyền lực · các uỷ ban trung ương mới · chống tham nhũng quy mô lớn · chi bộ đảng trong kinh tế tư nhân · CAC và quản trị nền tảng · kiến trúc an ninh Tân Cương · Luật An ninh Hong Kong · Ban Công tác Xã hội Trung ương · AI, dữ liệu và quản trị số.'},
+      {h:'Chuỗi chiến dịch chính trị — tách từng loại, đừng cộng thành một số',
+       p:'<b>Đầu 1950s</b> cải cách ruộng đất và trấn áp phản cách mạng: xử tử, bắt giữ, đấu tố, cưỡng chế quy mô lớn. <b>1957 Phản Hữu</b>: khoảng <b>552.000 người</b> bị gắn nhãn "hữu phái" — cơ chế đáng nhớ là <i>mở cửa phản biện → thu tiếng nói bất mãn → đổi định nghĩa → thanh lọc</i>. <b>1958–61 Đại Nhảy Vọt</b>: 15–43 triệu tử vong vượt mức; cơ chế gồm chính sách sai, cưỡng bức tập thể hoá, thu mua lương thực, đói, bệnh, bạo lực địa phương và che giấu thông tin — <b>không</b> thể mô tả đơn giản là thiên tai, nhưng cũng <b>không</b> đồng nghĩa "Đảng trực tiếp sát hại 30 triệu người". <b>1966–76 Cách mạng Văn hoá</b>: ~1,6 triệu người chết theo Walder, và cuối cùng chính bộ máy Đảng thành nạn nhân của cuộc cách mạng do lãnh tụ Đảng phát động. <b>1989 Thiên An Môn</b>: quân đội vào trung tâm Bắc Kinh, số người chết tới nay vẫn không được xác định chắc chắn.',
+       a:'TRUNG ƯƠNG\n    ↓\nxác định "kẻ thù"\n    ↓\nTUYÊN TRUYỀN\n    ↓\nPHÂN LOẠI CON NGƯỜI\n    ↓\nđấu tố · tổ chức quần chúng\n    ↓\ncông an · cán bộ · toà án\n    ↓\ncả xã hội học thông điệp'},
+      {h:'Pháp Luân Công và nội tạng — HAI mức bằng chứng khác nhau',
+       p:'Có bằng chứng quốc tế lâu dài về <b>bắt giữ, giam giữ tuỳ tiện, tra tấn và đàn áp</b> người tập Pháp Luân Công từ 1999; các cơ chế nhân quyền LHQ đã nhiều lần nêu. Nhưng cáo buộc <b>cưỡng bức thu hoạch nội tạng phải tách riêng</b>: năm 2021 các chuyên gia độc lập của LHQ tuyên bố họ "báo động" trước những cáo buộc này. Đó là <b>yêu cầu Trung Quốc giải trình và cho giám sát độc lập</b> — không phải một bản án quốc tế đã kết tội.'},
+      {h:'Hong Kong — xem ổ cắm "an ninh quốc gia" chạy thế nào',
+       p:'2020 Luật An ninh Quốc gia → 2024 luật an ninh theo Điều 23 → không gian chính trị thu hẹp. Cao uỷ Nhân quyền LHQ nhiều lần chỉ trích tác động tới tự do ngôn luận, báo chí, hội họp; tháng 2/2026 kêu gọi trả tự do cho Jimmy Lai sau bản án 20 năm và nói tự do báo chí đã suy giảm mạnh kể từ 2020. Phía chính quyền đặt ổn định, an ninh quốc gia và chủ quyền lên trên. <b>Ghi cả hai hệ giá trị</b> — bỏ một bên là mất chính chỗ xung đột.'},
       {h:'Nói cho đúng về nhân quyền',
        p:'Đánh giá năm 2022 của OHCHR kết luận tại Tân Cương đã xảy ra <b>vi phạm nhân quyền nghiêm trọng</b>, và việc giam giữ tuỳ tiện, phân biệt đối xử với người Uyghur và các cộng đồng Hồi giáo khác <b>"có thể cấu thành tội ác chống loài người"</b>. Trung Quốc bác bỏ và nói đó là chương trình chống khủng bố và đào tạo nghề. Phải giữ đúng chữ:',
        a:'OHCHR:\n"may constitute crimes against humanity"\n\n         ≠\n\nmột toà án quốc tế\nĐÃ xét xử và tuyên bản án cuối cùng'}
+    ]
+  },
+  {
+    id:'doiung', n:6, t:'Đòn không đi một chiều — và ba nghịch lý của chính hệ thống',
+    d:'Phần dễ bị bỏ nhất khi phân tích sức ép: Trung Quốc cũng nắm ổ cắm ngược lại, và hệ thống này tự sinh ra điểm yếu từ chính chỗ nó mạnh.',
+    blocks:[
+      {h:'Trung Quốc giữ ổ cắm NGƯỢC lại đối với phương Tây',
+       p:'USGS năm 2026 ghi nhận Trung Quốc sản xuất <b>74 trong 77</b> loại khoáng sản được khảo sát và đứng <b>số một thế giới về sản lượng ở 39 loại</b>. Đây không phải ván cờ một chiều: một cuộc tách rời quá nhanh có thể tự gây lạm phát, thiếu linh kiện và gián đoạn chuỗi cung ứng cho chính bên gây áp lực.',
+       a:'MỸ / EU              TRUNG QUỐC\n   │                     │\nCHIP                KHOÁNG SẢN\nTÀI CHÍNH           NAM CHÂM\nTHỊ TRƯỜNG          CHẾ BIẾN\n   │                CHẾ TẠO · PIN\n   │                     │\n   └──── phụ thuộc lẫn nhau ────┘'},
+      {h:'Vì sao không thể lấy công thức đánh Liên Xô áp nguyên xi',
+       p:'Liên Xô cuối kỳ có một tổ hợp rất khác: kinh tế kế hoạch, công nghệ kém, ít tích hợp thương mại toàn cầu. Trung Quốc hiện có thị trường, chế tạo khổng lồ, ngoại thương, doanh nghiệp tư nhân, SOE, ngân hàng nhà nước, kinh tế số, thị trường nội địa rất lớn và khoảng <b>3.416 tỷ USD dự trữ ngoại hối</b>. Đó là lý do nhiều dự báo kiểu "Trung Quốc sắp có Lehman" liên tục sai.'},
+      {h:'Đòn bẩy lớn nhất không nằm ở MỘT nước — nằm ở LIÊN MINH',
+       p:'Các ổ cắm nằm rải: Mỹ (tài chính, GPU, EDA, thị trường) · Hà Lan (quang khắc) · Nhật (thiết bị, vật liệu) · Hàn Quốc (memory, HBM) · Đài Loan (foundry) · EU (thị trường) · Trung Đông (năng lượng) · Nga (đường vòng) · ASEAN (chuyển tải và chế tạo) · vận tải biển toàn cầu. Nếu các nước không phối hợp, Trung Quốc đổi được thị trường, đổi nhà cung cấp, đổi tuyến logistics, dùng nước thứ ba, hoặc đầu tư nội địa hoá.'},
+      {h:'Dân số — thuốc độc chậm, không phải cú sốc',
+       p:'Năm 2025 Trung Quốc có <b>7,92 triệu ca sinh</b> nhưng <b>11,31 triệu ca tử</b>; tăng dân số tự nhiên <b>-2,41‰</b>. Nó không gây sụp ngay và vì thế hay bị bỏ khỏi bảng — nhưng trong 10–20 năm nó đi thẳng vào ổ cứng tài khoá.',
+       a:'trẻ em ↓\n   ↓\nlao động ↓\n   ↓\nngười mua nhà ↓\n   ↓\ncơ cấu tiêu dùng đổi\n   ↓\nngười già ↑\n   ↓\nlương hưu + y tế ↑\n   ↓\nGÁNH NẶNG TÀI KHOÁ ↑'},
+      {h:'Ba nghịch lý hệ thống tự sinh ra',
+       p:'<b>1. Tập quyền:</b> mệnh lệnh rõ hơn, nhưng hệ phụ thuộc nhiều hơn vào chất lượng và tính liên tục của chính trung tâm — và câu hỏi kế vị càng khó xuất hiện khi lãnh đạo càng mạnh. <b>2. Kỷ luật:</b> siết mạnh thì tuân thủ tăng, nhưng cán bộ sợ sai → không quyết → tê liệt hành chính; chính Trung ương phải vừa đòi "không tham nhũng" vừa chống "không làm gì". <b>3. Thông tin:</b> cấp dưới muốn thăng chức nên báo cáo đẹp, trung ương nhận dữ liệu méo — Đại Nhảy Vọt là ví dụ lịch sử của đúng chuỗi đó. Số hoá tăng khả năng lấy dữ liệu nhưng <b>không tự loại bỏ</b> động cơ chính trị làm méo thông tin.',
+       a:'CONTROL ↑\n   ↓\nFEAR ↑\n   ↓\nINITIATIVE ↓'},
+      {h:'Và cascade chạy HAI chiều',
+       p:'Không chỉ kinh tế → chính trị. Còn chiều ngược: rạn nứt lãnh đạo → cán bộ không biết nghe ai → chính sách thực thi kém → kinh tế xuống → tài khoá xuống → an ninh chịu áp lực. Khi <b>hai chiều cùng quay một lúc</b> thì mới thành xoáy tự khuếch đại — và đó mới là thứ một hệ thống quyền lực thật sự sợ.',
+       a:'KINH TẾ → CHÍNH TRỊ\n       và\nCHÍNH TRỊ → KINH TẾ\n       ↓\nxoáy tự khuếch đại'}
     ]
   }
 ];
@@ -361,7 +399,13 @@ const SOLIEU = [
   'Đầu tư phát triển bất động sản năm 2025 giảm 17,2% — theo Cục Thống kê Quốc gia.',
   '"Nợ ẩn" của chính quyền địa phương ước khoảng 14,3 nghìn tỷ NDT năm 2023 — theo IMF dẫn số nhà chức trách.',
   'Cuối 2025: ~101,286 triệu đảng viên và 5,431 triệu tổ chức cơ sở đảng — theo nguồn chính thức.',
-  'Năm 2025 hệ thống kỷ luật lập ~1,012 triệu vụ và ra ~983.000 quyết định — theo CCDI.'
+  'Năm 2025 hệ thống kỷ luật lập ~1,012 triệu vụ, lưu trí ~47.000 người và ra ~983.000 quyết định — theo CCDI.',
+  'Ngân sách 2026: thâm hụt ~5,89 nghìn tỷ NDT (~4% GDP), riêng trung ương 5,09 nghìn tỷ — theo Bộ Tài chính.',
+  'Trung ương dự kiến chuyển ~10,415 nghìn tỷ NDT cho địa phương, trong khi địa phương tự thu ~12,503 nghìn tỷ — theo Bộ Tài chính.',
+  '4,4 nghìn tỷ NDT trái phiếu đặc biệt địa phương và 300 tỷ NDT bổ sung vốn cho các ngân hàng quốc doanh lớn — theo Bộ Tài chính.',
+  'Năm 2025: 7,92 triệu ca sinh, 11,31 triệu ca tử, tăng dân số tự nhiên -2,41‰ — theo Cục Thống kê Quốc gia.',
+  'Xuất khẩu tính bằng USD tháng 1–5/2026 tăng 15,5% so với cùng kỳ — theo World Bank.',
+  'USGS 2026: Trung Quốc sản xuất 74 trong 77 khoáng sản được khảo sát và đứng số một thế giới về sản lượng ở 39 loại.'
 ];
 
 /* Bốn phía của Trung Quốc KHÔNG cùng loại với Việt Nam. Việt Nam bị

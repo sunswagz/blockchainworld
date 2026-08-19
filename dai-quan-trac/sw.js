@@ -6,7 +6,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v24";
+var CACHE_VERSION = "v25";
 var SHELL_CACHE = "dqt-shell-" + CACHE_VERSION;
 var FONT_CACHE = "dqt-fonts-" + CACHE_VERSION;
 
