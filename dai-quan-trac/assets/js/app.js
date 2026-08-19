@@ -778,6 +778,21 @@ function vTheater(id){
 
   w.appendChild(el('h3','sec','Đồng hồ cần theo dõi'));
   const cl=el('div','card'); const cb=el('div');
+  /* Số đo THẬT của chiến trường này, nếu có. Trước đây trang chiến
+     trường chỉ liệt kê tên các đồng hồ cần theo dõi bằng chữ; nay
+     cái nào đã đo được thì hiện luôn con số, ngay cạnh danh sách. */
+  const soT = DODAC.filter(x => x.th === t.id && DO[x.id]);
+  if(soT.length){
+    const dw=el('div','nguong-w'); dw.style.marginBottom='14px';
+    soT.forEach(x=>{ const m=DO[x.id];
+      const c=el('div','nguong'); c.style.setProperty('--a',MAU[m.muc]);
+      c.innerHTML='<b>'+esc(x.nhan)+'</b><div class="nguong-v" style="margin:6px 0">'+
+        '<b>'+esc(String(m.so))+' '+esc(x.dv||'')+'</b>'+
+        (m.doi7==null?'':' <span style="color:var(--fg2)">('+(m.doi7>0?'+':'')+m.doi7+'% / 7 phiên)</span>')+
+        '</div><p style="color:var(--fg2)">'+esc(m.nguon||'')+(m.oi?' · số đo lượt trước':'')+'</p>';
+      dw.appendChild(c); });
+    cb.appendChild(dw);
+  }
   t.clocks.forEach((c,i)=>{ const r=el('div','gauge'); r.innerHTML='<span class="gauge-i n">'+(i+1)+'</span><span class="gauge-t"><b>'+esc(c)+'</b></span>'; cb.appendChild(r); });
   cl.appendChild(cb); w.appendChild(cl);
 

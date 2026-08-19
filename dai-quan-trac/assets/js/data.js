@@ -402,31 +402,56 @@ const COMPASS = {
    ────────────────────────────────────────────────────────── */
 const DODAC = [
   {id:'nangluong', gg:'nangluong', nhan:'Dầu Brent', dv:'USD/thùng',
-   nguon:'yahoo', ma:'BZ=F', g:75, r:90,
+   nguon:'yahoo', ma:'BZ=F', th:'hormuz', g:75, r:90,
    can:'EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột.'},
   {id:'laisuat', gg:'laisuat', nhan:'Lợi suất TPCP Mỹ 10 năm', dv:'%',
-   nguon:'yahoo', ma:'^TNX', g:4.0, r:4.75,
+   nguon:'yahoo', ma:'^TNX', th:'my', g:4.0, r:4.75,
    ghi:'Lực ép từ ngoài lên lãi suất trong nước, không phải lãi suất điều hành của NHNN.',
    can:'Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi.'},
   {id:'tygia', gg:'tygia', nhan:'USD/VND', dv:'đồng',
-   nguon:'erapi', ma:'VND', g:25500, r:26500,
+   nguon:'erapi', ma:'VND', th:'vn', g:25500, r:26500,
    can:'Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ.'},
   {id:'tq', gg:'tq', nhan:'Giá đồng', dv:'USD/lb',
-   nguon:'yahoo', ma:'HG=F', g:5.50, r:6.50,
+   nguon:'yahoo', ma:'HG=F', th:'tq', g:5.50, r:6.50,
    ghi:'Chỉ báo THAY THẾ cho chi phí đầu vào công nghiệp, KHÔNG phải PPI Trung Quốc.',
    can:'Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70. Đỏ đặt sát đỉnh năm.'},
   {id:'doanhnghiep', gg:'doanhnghiep', nhan:'Quỹ ETF Việt Nam (VNM)', dv:'USD',
-   nguon:'yahoo', ma:'VNM', g:18.50, r:17.00, nghich:true,
+   nguon:'yahoo', ma:'VNM', th:'vn', g:18.50, r:17.00, nghich:true,
    ghi:'Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài, chịu cả tác động dòng vốn toàn cầu.',
    can:'ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80. Đỏ đặt sát đáy năm.'},
   {id:'xuatxu', gg:'xuatxu', nhan:'Văn bản liên bang Mỹ nhắc VN', dv:'văn bản / 30 ngày',
-   nguon:'fedreg', ma:'Vietnam', g:35, r:55,
+   nguon:'fedreg', ma:'Vietnam', th:'my', g:35, r:55,
    ghi:'Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng.',
    can:'Nền quan sát được khoảng 37–43 văn bản/30 ngày. NGƯỠNG YẾU NHẤT BẢNG — đọc như nhịp độ, không phải mức độ.'},
   {id:'niemtin', gg:'niemtin', nhan:'Sắc thái tin về kinh tế VN', dv:'điểm GDELT',
-   nguon:'gdelt', ma:'Vietnam economy', g:1.9, r:1.4, nghich:true,
+   nguon:'gdelt', ma:'Vietnam economy', th:'vn', g:1.9, r:1.4, nghich:true,
    ghi:'Chỉ báo THAY THẾ — đo giọng báo chí quốc tế, không đo hành vi người gửi tiền.',
-   can:'Ngưỡng theo phân phối quan sát 90 ngày: trung vị 1,91 · phần tư dưới 1,61 · thấp nhất 0,83.'}
+   can:'Ngưỡng theo phân phối quan sát 90 ngày: trung vị 1,91 · phần tư dưới 1,61 · thấp nhất 0,83.'},
+
+  /* ── Bốn số đo NỀN (gg:null) ─────────────────────────────────
+     Chúng KHÔNG thắp đồng hồ nào. Bốn đồng hồ còn đặt tay — xuất
+     khẩu, ngân hàng, bất động sản, kênh sàn — vẫn không có nguồn
+     miễn phí đủ tin, và bốn số dưới đây KHÔNG thay được chúng.
+     Gán một proxy yếu vào đồng hồ "Xuất khẩu" rồi gắn nhãn tự đo
+     là đúng thứ ghi chú của build-quantrac.mjs đã cảnh báo: điện
+     tử chiếm phần lớn xuất khẩu Việt Nam, cà phê và gạo thì không.
+     ───────────────────────────────────────────────────────── */
+  {id:'caphe', gg:null, th:'vn', nhan:'Cà phê Arabica', dv:'US cent/lb',
+   nguon:'yahoo', ma:'KC=F', g:280, r:250, nghich:true,
+   ghi:'ĐIỂM YẾU PHẢI GHI RÕ: Việt Nam trồng chủ yếu ROBUSTA, còn đây là ARABICA. Đã thử mã Robusta (RC=F) và Yahoo trả 404, nên tạm dùng Arabica — hai loại có tương quan nhưng KHÔNG cùng một thị trường. Giá cao là TỐT cho Việt Nam vì đây là nước xuất khẩu.',
+   can:'Biên độ 3 tháng quan sát được: 244–364. Xanh khi ≥280, đỏ khi ≤250.'},
+  {id:'gao', gg:null, th:'vn', nhan:'Gạo', dv:'USD/cwt',
+   nguon:'yahoo', ma:'ZR=F', g:13.0, r:12.0, nghich:true,
+   ghi:'Hợp đồng gạo thô Mỹ, KHÔNG phải giá gạo xuất khẩu Việt Nam — hai thị trường khác nhau, chỉ đi cùng chiều ở mức thô. Giá cao là tốt cho nước xuất khẩu.',
+   can:'Biên độ 3 tháng quan sát được: 11,8–14,6. Xanh khi ≥13, đỏ khi ≤12.'},
+  {id:'usd', gg:null, th:'my', nhan:'Chỉ số USD', dv:'điểm',
+   nguon:'yahoo', ma:'DX-Y.NYB', g:100, r:103,
+   ghi:'Đây là thứ nằm THƯỢNG NGUỒN của đồng hồ tỷ giá: USD mạnh lên thì áp lực lên VND tăng trước khi tỷ giá kịp phản ánh.',
+   can:'Biên độ 3 tháng quan sát được: 98,9–101,6. Đỏ đặt ở 103, tức trên hẳn vùng đang giao dịch.'},
+  {id:'vang', gg:null, th:'vn', nhan:'Vàng', dv:'USD/oz',
+   nguon:'yahoo', ma:'GC=F', g:4200, r:4800,
+   ghi:'Đọc như thước đo NGẠI RỦI RO toàn cầu, không phải giá vàng trong nước — chênh lệch vàng nội địa Việt Nam là chuyện khác hẳn và không có nguồn miễn phí.',
+   can:'Biên độ 3 tháng quan sát được: 3.986–4.561. Vàng lập đỉnh liên tục nên ngưỡng này sẽ phải chỉnh lại; hiện neo vào biên trên quan sát được.'}
 ];
 
 window.DQT_DATA = { IC: IC, svg: svg, COMPASS: COMPASS, DODAC: DODAC, THEATERS: THEATERS, GAUGES: GAUGES,

@@ -490,7 +490,11 @@ const DODAC = [
   {id:'sacthai', gg:null, th:'thuongmai', nhan:'Sắc thái tin về kinh tế Trung Quốc', dv:'điểm GDELT',
    nguon:'gdelt', ma:'China economy', g:1.9, r:1.4, nghich:true,
    ghi:'Chỉ báo THAY THẾ — giọng báo chí quốc tế, không phải niềm tin trong nước. Với Trung Quốc còn phải nhớ báo chí quốc tế viết về Trung Quốc theo chu kỳ chính trị của chính phương Tây.',
-   can:'Dùng tạm cùng thang với bản Việt Nam cho tới khi có đủ 90 ngày quan sát riêng.'}
+   can:'Dùng tạm cùng thang với bản Việt Nam cho tới khi có đủ 90 ngày quan sát riêng.'},
+  {id:'hangseng', gg:null, th:'taichinh', nhan:'Hang Seng', dv:'điểm',
+   nguon:'yahoo', ma:'^HSI', g:25000, r:23000, nghich:true,
+   ghi:'Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.',
+   can:'Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000.'}
 ];
 
 window.DQT_TQ = {
