@@ -703,3 +703,9 @@ ul.tight li::marker{color:var(--line3)}
   .thac.noi::before{left:15px}
   .thac-k{flex:0 0 32px;height:32px;font-size:13px}
 }
+
+/* Ba ô sâu của mỗi cấp độ, và ô vì-sao của đồng hồ. */
+.lv-x{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line2)}
+.lv-x>span{display:block;font-size:10px;letter-spacing:.1em;color:var(--fg2);margin-bottom:3px}
+.lv-x>p{margin:0;font-size:13.5px;line-height:1.62}
+.gauge-vi{display:block;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line2);font-size:12.5px;line-height:1.6;color:var(--fg2)}

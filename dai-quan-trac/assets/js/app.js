@@ -309,6 +309,7 @@ function hideToast(){ $('#toast').classList.remove('on'); }
 
    Nhóm nào rỗng thì tự bị loại ở cuối hàm — chủ thể thiếu phần nào
    thì thanh bên không hiện phần đó, thay vì hiện một mục trống. */
+const SO = {3:'ba',4:'bốn',5:'năm',6:'sáu'};
 let ROUTES = [];
 function dungRoutes(){
   const c = chuThe(state.cht);
@@ -631,7 +632,8 @@ function vGauges(){
                             : '<span class="pv chua">chưa có nguồn</span>';
 
     row.innerHTML='<span class="gauge-i '+lv+'">'+(i+1)+'</span>'+
-      '<span class="gauge-t"><b>'+esc(g.t)+' '+nhan+'</b><span>'+esc(g.d)+'</span></span>'+
+      '<span class="gauge-t"><b>'+esc(g.t)+' '+nhan+'</b><span>'+esc(g.d)+'</span>'+
+        (g.vi?'<span class="gauge-vi">'+g.vi+'</span>':'')+'</span>'+
       so+'<span class="meter"><i class="'+lv+'"></i></span>';
     row.onclick=()=>{ const cu=gGG(g.id); sGG(g.id, LVLS[(LVLS.indexOf(cu)+1)%4]); save(); render(); renderNav(); };
     body.appendChild(row);
@@ -815,14 +817,18 @@ function vTheater(id){
 
 /* ---------- 4 CẤP ĐỘ ---------- */
 function vLevels(){
-  head('4 cấp độ','ÁP LỰC → KHỦNG HOẢNG HỆ THỐNG');
+  head(LEVELS.length+' cấp độ','ÁP LỰC → KHỦNG HOẢNG HỆ THỐNG');
   const cur = capDo();
   const w=el('div','wrap');
-  w.innerHTML='<div class="eyebrow">Chương XVII</div><h2 class="big">Từ "áp lực" đến "khủng hoảng" có bốn cấp</h2>'+
-   '<p class="lede">Phần lớn tranh cãi về kinh tế là do hai người đang đứng ở hai cấp khác nhau mà dùng chung một từ. Cấp 1 và cấp 4 không phải cùng một câu chuyện ở mức độ khác nhau — chúng khác nhau về <b>cơ chế</b>.</p>';
+  w.innerHTML='<div class="eyebrow">Chương XVII</div><h2 class="big">Từ "áp lực" đến "khủng hoảng" có '+SO[LEVELS.length]+' cấp</h2>'+
+   '<p class="lede">Phần lớn tranh cãi về kinh tế là do hai người đang đứng ở hai cấp khác nhau mà dùng chung một từ. Cấp 1 và cấp '+LEVELS.length+' không phải cùng một câu chuyện ở mức độ khác nhau — chúng khác nhau về <b>cơ chế</b>.</p>';
   const lad=el('div','ladder');
   LEVELS.forEach(L=>{ const d=el('div','lv l'+L.n+(cur===L.n?' on':''));
-    d.innerHTML='<div class="lv-n">'+L.n+'</div><div class="lv-b"><b>'+esc(L.t)+(cur===L.n?' — ĐANG ĐỌC RA':'')+'</b><p>'+esc(L.d)+'</p><p style="margin-top:6px;color:var(--fg2)"><b>'+esc(L.r)+'</b></p></div>';
+    d.innerHTML='<div class="lv-n">'+L.n+'</div><div class="lv-b"><b>'+esc(L.t)+(cur===L.n?' — ĐANG ĐỌC RA':'')+'</b><p>'+esc(L.d)+'</p><p style="margin-top:6px;color:var(--fg2)"><b>'+esc(L.r)+'</b></p>'+
+      (L.co?'<div class="lv-x"><span>CƠ CHẾ HẤP THỤ</span><p>'+L.co+'</p></div>':'')+
+      (L.dau?'<div class="lv-x"><span>DẤU HIỆU QUAN SÁT ĐƯỢC</span><p>'+L.dau+'</p></div>':'')+
+      (L.day?'<div class="lv-x"><span>ĐIỀU ĐẨY LÊN CẤP SAU</span><p>'+L.day+'</p></div>':'')+
+      '</div>';
     lad.appendChild(d); });
   w.appendChild(lad);
   const q=el('blockquote'); q.style.marginTop='20px';
@@ -830,7 +836,7 @@ function vLevels(){
                   : 'Chưa đặt đồng hồ nào nên chưa cấp nào được tô sáng. <a href="#gauges" onclick="go(\'gauges\')">Đặt bảng đồng hồ</a> trước.';
   w.appendChild(q);
   const q2=el('blockquote'); q2.style.borderLeftColor='var(--purple)'; q2.style.background='#a371f70d';
-  q2.innerHTML='Ranh giới thật sự nằm giữa cấp 2 và cấp 3: cấp 3 là lúc <b>vòng lặp bắt đầu tự chạy</b> mà không cần thêm cú sốc mới nào từ bên ngoài.';
+  q2.innerHTML='Ranh giới thật sự nằm giữa cấp 2 và cấp 3: cấp 3 là lúc <b>vòng lặp bắt đầu tự chạy</b> mà không cần thêm cú sốc mới nào từ bên ngoài. Và cascade chạy được <b>cả hai chiều</b> — kinh tế đẩy chính trị, nhưng chính trị hỏng cũng kéo kinh tế xuống theo.';
   w.appendChild(q2);
   return w;
 }
