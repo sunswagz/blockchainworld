@@ -6,7 +6,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v26";
+var CACHE_VERSION = "v27";
 var SHELL_CACHE = "dqt-shell-" + CACHE_VERSION;
 var FONT_CACHE = "dqt-fonts-" + CACHE_VERSION;
 
@@ -88,7 +88,8 @@ self.addEventListener("fetch", function (e) {
   // Danh sách, không phải một tên, để lần thêm file bot sau chỉ
   // là thêm một chuỗi. Giữ khớp với mục "File do workflow tự sinh"
   // trong CLAUDE.md.
-  var MANG_TRUOC = ["/assets/js/scan.js", "/assets/js/do.js"];
+  var MANG_TRUOC = ["/assets/js/scan.js", "/assets/js/do.js",
+                  "/assets/js/tq/scan.js", "/assets/js/tq/do.js"];
   if (MANG_TRUOC.some(function (p) { return url.pathname.indexOf(p) !== -1; })) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {

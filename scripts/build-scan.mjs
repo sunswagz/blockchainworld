@@ -1,22 +1,11 @@
 /* ═══════════════════════════════════════════════════════
-   Dựng dai-quan-trac/assets/js/scan.js từ bản quét của Tạo Biện Xứ.
+   DỰNG BẢN QUÉT cho Đài Quan Trắc.
 
-   File này KHÔNG CÒN GỌI API NÀO. Trước đây nó tự gọi
-   api.anthropic.com bằng ANTHROPIC_API_KEY — và đó là thứ đã tốn
-   ~170 USD/tháng rồi phải tắt lịch ngày 14/08/2026.
-
-   ── VIỆC QUÉT GIỜ NẰM Ở ĐÂU ───────────────────────────────────
-   Ở chính nhà máy. Bước "Quét chiến trường" trong refresh-data.yml
-   chạy `anthropics/claude-code-action`, trả bằng QUOTA GÓI qua
-   CLAUDE_CODE_OAUTH_TOKEN, không phải tiền token. Nó dùng WebSearch
-   rồi ghi ra một file JSON thô.
-
-   Nên script này còn đúng hai việc, và cả hai đều xác định:
-
-     --de-bai   đọc THEATERS trong data.js của app, ghi đề bài ra
-                assets/data/de-bai.json cho bước quét đọc.
+   Chạy hai chế độ:
+     --de-bai   đọc THEATERS trong data.js của TỪNG chủ thể, ghi đề
+                bài ra assets/data/de-bai.json cho bước quét đọc.
      (mặc định) đọc assets/data/quet.json do bước quét ghi, KIỂM,
-                rồi dựng scan.js.
+                rồi dựng scan.js cho từng chủ thể.
 
    ── VÌ SAO TÁCH ĐÔI CHỨ KHÔNG ĐỂ MODEL GHI THẲNG scan.js ──────
    scan.js là file JS mà trình duyệt nạp. Để model viết thẳng JS là
@@ -26,45 +15,65 @@
 
    Khoá vẫn không bao giờ đi xuống trình duyệt — nay còn mạnh hơn
    trước, vì đã không còn khoá API nào để mà lộ.
+
+   ── VÌ SAO ID PHẢI GHÉP "nuoc:chien_truong" ──────────────────
+   Hai chủ thể CÓ chiến trường trùng id: `nga` vừa là Nga–Ukraina
+   của Việt Nam vừa là Nga-đường-vòng của Trung Quốc. Nếu để id
+   phẳng thì tín hiệu về nước này chảy sang bảng nước kia, và
+   không ai lần ra vì cả hai đều "hợp lệ".
+
+   Ghép tiền tố là cùng một cách app đã khoá state theo chủ thể
+   (`state.gg['vn:nangluong']`). Một quy ước, dùng ở cả hai đầu.
    ═══════════════════════════════════════════════════════ */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import vm from "node:vm";
+import { CHU_THE, docChuThe } from "./dqt-chuthe.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const APP = join(ROOT, "dai-quan-trac");
-const OUT = join(APP, "assets", "js", "scan.js");
-const DE_BAI = join(APP, "assets", "data", "de-bai.json");
 const QUET = join(APP, "assets", "data", "quet.json");
-
+const DE_BAI = join(APP, "assets", "data", "de-bai.json");
 const LVLS = ["n", "g", "y", "r"];
 
 /* Lấy danh sách chiến trường từ chính dữ liệu của app. Không chép
    cứng sang đây: thêm một chiến trường vào data.js là lượt quét sau
    tự có, không phải sửa hai chỗ. */
-async function docChienTruong() {
-  const src = await readFile(join(APP, "assets", "js", "data.js"), "utf8");
-  const hop = { window: {} };
-  vm.createContext(hop);
-  vm.runInContext(src, hop, { timeout: 5000 });
-  const ds = (hop.window.DQT_DATA || {}).THEATERS;
-  if (!Array.isArray(ds) || !ds.length)
-    throw new Error("không đọc được THEATERS trong dai-quan-trac/assets/js/data.js");
-  return ds;
+async function docTatCa() {
+  const ra = [];
+  for (const ct of CHU_THE) {
+    let d;
+    try { d = await docChuThe(APP, ct); }
+    catch (e) { console.error(`  ⚠ ${ct.ten}: ${e.message}`); continue; }
+    const ds = d.THEATERS;
+    if (!Array.isArray(ds) || !ds.length) {
+      console.error(`  ⚠ ${ct.ten}: không có THEATERS`); continue;
+    }
+    ra.push({ ct, ds });
+  }
+  if (!ra.length) throw new Error("không đọc được chiến trường của chủ thể nào");
+  return ra;
 }
 
 /* ═══════════════ RA ĐỀ BÀI ═══════════════ */
 if (process.argv.includes("--de-bai")) {
-  const ds = await docChienTruong();
+  const nhom = await docTatCa();
+  const muc = [];
+  for (const { ct, ds } of nhom)
+    for (const t of ds)
+      muc.push({ id: `${ct.id}:${t.id}`, nuoc: ct.ten, ten: t.short,
+                 tim: t.query, boi_canh: ct.boiCanh });
+
   await mkdir(dirname(DE_BAI), { recursive: true });
   await writeFile(DE_BAI, JSON.stringify({
-    ghiChu: "SINH TỰ ĐỘNG từ dai-quan-trac/assets/js/data.js. Đừng sửa tay, đừng commit.",
-    chien_truong: ds.map((t) => ({ id: t.id, ten: t.short, tim: t.query }))
+    ghiChu: "SINH TỰ ĐỘNG từ data.js của từng chủ thể. Đừng sửa tay, đừng commit.",
+    chien_truong: muc
   }, null, 2) + "\n", "utf8");
-  console.log(`Đề bài: ${ds.length} chiến trường → ${DE_BAI.replace(ROOT, "")}`);
+
+  console.log(`Đề bài: ${muc.length} chiến trường / ${nhom.length} chủ thể → ${DE_BAI.replace(ROOT, "")}`);
+  for (const { ct, ds } of nhom) console.log(`  ${ct.ten}: ${ds.length}`);
   process.exit(0);
 }
 
@@ -75,9 +84,12 @@ if (!existsSync(QUET)) {
   process.exit(1);
 }
 
-const ds = await docChienTruong();
-const hopLe = new Set(ds.map((t) => t.id));
-const tenTheoMa = Object.fromEntries(ds.map((t) => [t.id, t.short]));
+const nhom = await docTatCa();
+const theoNuoc = Object.fromEntries(nhom.map(({ ct, ds }) => [ct.id, {
+  ct, hopLe: new Set(ds.map((t) => t.id)),
+  ten: Object.fromEntries(ds.map((t) => [t.id, t.short])),
+  tong: ds.length, signals: [], levels: {}, log: [], nhan: 0
+}]));
 
 let tho;
 try {
@@ -88,29 +100,39 @@ try {
 }
 
 const now = new Date().toISOString();
-const signals = [];
-const levels = {};
-const log = [];
-let nhan = 0;
 
 /* Kiểm từng chiến trường trước khi nhận. Model có thể bịa một id
-   không có thật, trả mức ngoài bảng, hoặc trả ngày kiểu "tuần
-   trước" — nhận bừa thì bảng hiện một chiến trường không tồn tại
-   và không ai lần ra nó từ đâu ra. */
+   không có thật, quên tiền tố nước, trả mức ngoài bảng, hoặc trả
+   ngày kiểu "tuần trước" — nhận bừa thì bảng hiện một chiến trường
+   không tồn tại và không ai lần ra nó từ đâu ra. */
 for (const c of Array.isArray(tho.chien_truong) ? tho.chien_truong : []) {
-  const ten = tenTheoMa[c && c.id];
-  if (!hopLe.has(c && c.id)) {
-    log.push({ ok: false, t: String((c && c.id) || "?"), at: now,
-      d: "bỏ — id chiến trường không có trong data.js" });
+  const raw = String((c && c.id) || "");
+  const [nuoc, ma] = raw.includes(":") ? raw.split(":") : [null, raw];
+  const b = nuoc && theoNuoc[nuoc];
+
+  if (!b) {
+    /* Không có tiền tố thì KHÔNG đoán hộ. `nga` thuộc cả hai nước;
+       đoán sai là đổ tín hiệu vào bảng sai nước. */
+    const bat = Object.values(theoNuoc).find((x) => x.hopLe.has(raw));
+    (bat || Object.values(theoNuoc)[0]).log.push({
+      ok: false, t: raw || "?", at: now,
+      d: 'bỏ — id thiếu tiền tố nước (phải dạng "vn:hormuz")'
+    });
     continue;
   }
+  if (!b.hopLe.has(ma)) {
+    b.log.push({ ok: false, t: ma || "?", at: now,
+      d: "bỏ — id chiến trường không có trong data.js của " + b.ct.ten });
+    continue;
+  }
+
   const muc = LVLS.includes(c.muc) ? c.muc : null;
   const tin = (Array.isArray(c.tin_hieu) ? c.tin_hieu : []).filter(
     (s) => s && typeof s.tieu_de === "string" && s.tieu_de.trim()
   ).slice(0, 4);
 
-  tin.forEach((s) => signals.push({
-    th: c.id,
+  tin.forEach((s) => b.signals.push({
+    th: ma,
     tieu_de: String(s.tieu_de).trim(),
     ngay: /^\d{4}-\d{2}-\d{2}$/.test(s.ngay || "") ? s.ngay : null,
     nguon: s.nguon ? String(s.nguon).slice(0, 60) : null,
@@ -118,41 +140,52 @@ for (const c of Array.isArray(tho.chien_truong) ? tho.chien_truong : []) {
     muc, at: now
   }));
 
-  if (muc) levels[c.id] = muc;
-  nhan++;
-  log.push({ ok: true, t: ten, at: now,
+  if (muc) b.levels[ma] = muc;
+  b.nhan++;
+  b.log.push({ ok: true, t: b.ten[ma], at: now,
     d: `${tin.length} tín hiệu · mức ${muc || "n"}` +
        (c.tom_tat ? " · " + String(c.tom_tat).trim() : "") });
 }
 
 /* Không nhận được chiến trường nào thì GIỮ BẢN CŨ. Bản quét hôm
    qua tuy cũ nhưng đúng; một bảng trống thì người xem đọc thành
-   "thế giới không có tin gì", sai hẳn nghĩa. */
-if (!nhan) {
-  console.error("Không nhận được chiến trường nào từ quet.json — giữ nguyên bản cũ.");
-  process.exit(1);
-}
+   "thế giới không có tin gì", sai hẳn nghĩa.
 
-const scan = {
-  generatedAt: now,
-  date: `${String(new Date().getUTCDate()).padStart(2, "0")}/` +
-        `${String(new Date().getUTCMonth() + 1).padStart(2, "0")}/` +
-        `${new Date().getUTCFullYear()}`,
-  model: typeof tho.model === "string" ? tho.model : "claude-code-action",
-  signals, levels, log
-};
+   Xét RIÊNG từng nước: model hết giờ giữa chừng thì nước quét
+   trước vẫn phải được ghi, không kéo nhau cùng ngã. */
+const ngay = `${String(new Date().getUTCDate()).padStart(2, "0")}/` +
+             `${String(new Date().getUTCMonth() + 1).padStart(2, "0")}/` +
+             `${new Date().getUTCFullYear()}`;
+let daGhi = 0;
 
-const js = `/* ═══════════════════════════════════════════════════════
+for (const b of Object.values(theoNuoc)) {
+  if (!b.nhan) {
+    console.error(`✗ ${b.ct.ten}: không nhận được chiến trường nào — giữ nguyên bản cũ.`);
+    continue;
+  }
+  const scan = {
+    generatedAt: now, date: ngay,
+    model: typeof tho.model === "string" ? tho.model : "claude-code-action",
+    signals: b.signals, levels: b.levels, log: b.log
+  };
+  const OUT = join(APP, ...b.ct.scanRa);
+  const js = `/* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
    Sinh bởi scripts/build-scan.mjs lúc ${now}
+   Chủ thể: ${b.ct.ten}
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
-window.DQT_SCAN = ${JSON.stringify(scan, null, 2)};
+window.${b.ct.scanBien} = ${JSON.stringify(scan, null, 2)};
 `;
+  await mkdir(dirname(OUT), { recursive: true });
+  await writeFile(OUT, js, "utf8");
+  daGhi++;
+  console.log(`✓ ${b.ct.ten}: ${b.signals.length} tín hiệu · ${b.nhan}/${b.tong} chiến trường` +
+              ` → ${b.ct.scanRa.join("/")} · ${(js.length / 1024).toFixed(1)} KB`);
+}
 
-await mkdir(dirname(OUT), { recursive: true });
-await writeFile(OUT, js, "utf8");
-
-console.log(`✓ ${signals.length} tín hiệu · ${nhan}/${ds.length} chiến trường nhận được`);
-console.log(`  đã ghi dai-quan-trac/assets/js/scan.js · ${(js.length / 1024).toFixed(1)} KB`);
+if (!daGhi) {
+  console.error("Không chủ thể nào nhận được kết quả — giữ nguyên toàn bộ bản cũ.");
+  process.exit(1);
+}

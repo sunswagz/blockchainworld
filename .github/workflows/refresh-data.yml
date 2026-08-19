@@ -372,15 +372,24 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: |
             --model claude-haiku-4-5
-            --max-turns 30
+            --max-turns 55
             --allowedTools "Read,Write,WebSearch,WebFetch"
           prompt: |
             Đọc dai-quan-trac/assets/data/de-bai.json. Trong đó là danh
-            sách chiến trường, mỗi cái có `id`, `ten` và `tim`.
+            sách chiến trường của HAI NƯỚC, mỗi cái có `id`, `nuoc`,
+            `ten`, `tim` và `boi_canh`.
 
             Với TỪNG chiến trường, dùng WebSearch tìm diễn biến MỚI
-            NHẤT trong 7 ngày gần đây theo `tim`. Bối cảnh: đây là
-            bảng quan trắc đánh giá tác động tới KINH TẾ VIỆT NAM.
+            NHẤT trong 7 ngày gần đây theo `tim`.
+
+            QUAN TRỌNG — HAI NƯỚC HỎI HAI CÂU KHÁC NHAU. Trường
+            `boi_canh` của từng chiến trường nói rõ câu nào, và
+            `tac_dong` phải viết theo ĐÚNG bối cảnh đó:
+            · Việt Nam  — cú sốc truyền tới giá cả, tỷ giá, việc làm.
+            · Trung Quốc — cú sốc kinh tế KHÔNG trực tiếp đe doạ chế
+              độ; nó phải đi qua thu ngân sách và khả năng nuôi bộ máy
+              rồi mới chạm tới quyền lực. Viết `tac_dong` của Trung
+              Quốc theo khuôn Việt Nam là hỏng đúng phần cốt lõi.
 
             Rồi ghi đúng MỘT file, dai-quan-trac/assets/data/quet.json,
             đúng dạng này:
@@ -393,13 +402,16 @@ jobs:
                  {"tieu_de":"câu tiếng Việt mô tả sự kiện CÓ THẬT",
                   "ngay":"YYYY-MM-DD",
                   "nguon":"tên hãng tin",
-                  "tac_dong":"1 câu: sự kiện này truyền tới kinh tế Việt Nam qua đường nào"}]}]}
+                  "tac_dong":"1 câu: sự kiện này truyền tới ĐÍCH trong boi_canh qua đường nào"}]}]}
 
             Luật:
             · muc: g bình thường · y căng thẳng đáng chú ý · r gián đoạn nghiêm trọng.
             · Tối đa 4 tín hiệu mỗi chiến trường. CHỈ dùng sự kiện thật
               tìm được. Không tìm được gì thì để "tin_hieu": [].
-            · `id` phải lấy nguyên từ đề bài. Đừng đặt id mới.
+            · `id` phải lấy NGUYÊN VĂN từ đề bài, KỂ CẢ tiền tố nước
+              ("vn:hormuz", "tq:nangluong"). Bỏ tiền tố là tín hiệu bị
+              loại — `nga` là chiến trường của CẢ HAI nước nên không
+              đoán hộ được, và đoán sai là đổ tin vào bảng sai nước.
             · Tìm gọn: mỗi chiến trường vài lượt tìm là đủ, đừng đào sâu.
             · Chỉ ghi đúng file quet.json. Không sửa file nào khác,
               không chạy lệnh nào.
@@ -411,7 +423,7 @@ jobs:
               sung dần. Như vậy hết giờ giữa chừng vẫn còn kết quả một
               phần, thay vì mất trắng.
             · WebSearch hỏng hoặc không dùng được thì VẪN ghi file: đủ
-              sáu chiến trường, `"tin_hieu": []`, và `tom_tat` ghi rõ
+              MỌI chiến trường trong đề bài, `"tin_hieu": []`, và `tom_tat` ghi rõ
               lý do không tìm được. Một file nói "không tìm được" có
               ích hơn hẳn không có file nào.
 
@@ -685,6 +697,8 @@ jobs:
                   tang-thu-cac/assets/data/kb/ \
                   dai-quan-trac/assets/js/do.js \
                   dai-quan-trac/assets/js/scan.js \
+                  dai-quan-trac/assets/js/tq/do.js \
+                  dai-quan-trac/assets/js/tq/scan.js \
                   factory/state.json \
                   factory/bao-cao.md \
                   tao-bien-xu/assets/js/v/van-hanh.js

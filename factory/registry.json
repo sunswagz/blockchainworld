@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-15T16:52:57.181Z",
+  "generatedAt": "2026-08-19T15:38:06.546Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -83,9 +83,10 @@
       "nhip": 6,
       "lenh": "node scripts/build-quantrac.mjs",
       "ra": [
-        "dai-quan-trac/assets/js/do.js"
+        "dai-quan-trac/assets/js/do.js",
+        "dai-quan-trac/assets/js/tq/do.js"
       ],
-      "y": "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI."
+      "y": "Bốn nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, Federal Register, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. Đo cho CẢ HAI chủ thể; bảng đo cái gì nằm ở DODAC trong data.js của cung."
     },
     {
       "ma": "dai-quan-trac",
@@ -96,7 +97,8 @@
       "nhip": 12,
       "lenh": "claude-code-action + node scripts/build-scan.mjs",
       "ra": [
-        "dai-quan-trac/assets/js/scan.js"
+        "dai-quan-trac/assets/js/scan.js",
+        "dai-quan-trac/assets/js/tq/scan.js"
       ],
       "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. Trả bằng quota gói, không còn khoá API."
     },

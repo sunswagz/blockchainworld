@@ -126,15 +126,16 @@ export const NODE = [
     ma: "quan-trac-do", ten: "Bảng cảnh báo Quan Trắc", cung: "dai-quan-trac",
     tram: "M12", che: "script", nhip: 6,
     lenh: "node scripts/build-quantrac.mjs",
-    ra: ["dai-quan-trac/assets/js/do.js"],
-    y: "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, GDELT), " +
-       "so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI."
+    ra: ["dai-quan-trac/assets/js/do.js", "dai-quan-trac/assets/js/tq/do.js"],
+    y: "Bốn nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, " +
+       "Federal Register, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. " +
+       "Đo cho CẢ HAI chủ thể; bảng đo cái gì nằm ở DODAC trong data.js của cung."
   },
   {
     ma: "dai-quan-trac", ten: "Bản quét Đài Quan Trắc", cung: "dai-quan-trac",
     tram: "M07", che: "claude", nhip: 12,
     lenh: "claude-code-action + node scripts/build-scan.mjs",
-    ra: ["dai-quan-trac/assets/js/scan.js"],
+    ra: ["dai-quan-trac/assets/js/scan.js", "dai-quan-trac/assets/js/tq/scan.js"],
     y: "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày " +
        "rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. " +
        "Trả bằng quota gói, không còn khoá API."
