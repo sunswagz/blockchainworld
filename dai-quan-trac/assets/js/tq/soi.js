@@ -69,6 +69,7 @@ const SOI = [
     ]},
 
     {id:'diepgia', t:'Diệp gia và mắt xích 1993 — phát hiện lớn nhất', ic:'flow', mo:true, khoi:[
+      {k:'q', d:'Nguồn của cả mảng này là nghiên cứu học thuật của <b>Emmanuel Jourda</b> về quan hệ ĐCSTQ — Mặt trận Thống nhất — hội Tam Hoàng, cộng nguồn báo chí đương thời mà nghiên cứu đó dẫn lại.'},
       {k:'p', d:'Đây mới là phần đáng chú ý hơn rất nhiều so với việc cố tìm một bức ảnh bắt tay. Nghiên cứu học thuật về quan hệ giữa ĐCSTQ, Mặt trận Thống nhất và các hội Tam Hoàng ghi nhận một chuyển dịch cuối thập niên 1980 – đầu 1990: các thành viên gia đình Hướng bắt đầu đầu tư vào <b>đặc khu kinh tế Thâm Quyến</b> và xây quan hệ với quan chức cấp cao ĐCSTQ ở Quảng Đông.'},
       {k:'moc', ds:[
         {y:'1991', t:'Sinh nhật ở Hong Kong', d:'Quan chức cấp cao Quảng Đông đến Hong Kong dự sinh nhật Hướng Hoa Viêm. Nghiên cứu dẫn nguồn đương thời cho sự kiện đó.'},
@@ -201,7 +202,7 @@ const DANHSACH = [
   ]},
   {muc:2, t:'CƯỠNG CHẾ VÀ THÔNG TIN', acc:'#d29922', ds:[
     {ten:'Trần Văn Thanh', o:'Uỷ ban Chính pháp Trung ương',
-     ghi:'Công an · toà án · viện kiểm sát · an ninh nhà nước · tư pháp KHÔNG phải năm hòn đảo độc lập — có một trục điều phối chính trị phía trên. Hội nghị chính pháp tháng 1/2026 tiếp tục yêu cầu "sự lãnh đạo tuyệt đối của Đảng".'},
+     ghi:'Công an · toà án · viện kiểm sát · an ninh nhà nước · tư pháp KHÔNG phải năm hòn đảo độc lập — có một trục điều phối chính trị phía trên. Hội nghị chính pháp tháng 1/2026 tiếp tục yêu cầu "sự lãnh đạo tuyệt đối của Đảng". Năm 2025 hệ thống kỷ luật xử lý ~1,976 triệu manh mối và mở ~789.000 vụ.'},
     {ten:'Vương Tiểu Hồng', o:'Bộ Công an · Bí thư Ban Bí thư',
      ghi:'Trật tự, tội phạm, hộ khẩu, cảnh sát, an ninh nội địa, quản lý hành chính. Khác hẳn Bộ An ninh Nhà nước — hai cơ quan, hai bài toán, người ngoài hay gộp nhầm.'},
     {ten:'Trần Nhất Tâm', o:'Bộ An ninh Nhà nước',
@@ -209,17 +210,17 @@ const DANHSACH = [
     {ten:'Lý Thư Lỗi · Trang Vinh Văn', o:'Ban Tuyên truyền · CAC',
      ghi:'Kiểm soát thông tin có HAI nhánh, và chỉ nhìn Great Firewall là mất một nửa: NGĂN CHẶN, và SẢN XUẤT "thực tại chính thống". Không chỉ "bạn không được đọc X" mà còn "đây là cách X nên được hiểu". Quy định GenAI buộc nội dung phù hợp "giá trị cốt lõi xã hội chủ nghĩa" — tuyên truyền 2.0 cộng quản trị dữ liệu 2.0.'},
     {ten:'Quân uỷ Trung ương · PLA', o:'Trương Hựu Hiệp · Trương Thăng Dân · Lưu Chấn Lập',
-     ghi:'Quân đội thuộc ĐẢNG, không thuộc nhà nước. Danh sách lãnh đạo tháng 7/2026 NGẮN BẤT THƯỜNG sau loạt thanh lọc 2023–2026 — Hà Vệ Đông, Miêu Hoa và nhiều tướng cấp cao bị khai trừ. Nhưng thanh lọc đọc được hai chiều: vừa là trung tâm kiểm soát mạnh lên, vừa có thể là mạng quan hệ bị phá và lòng tin nội bộ giảm. CHƯA chứng minh được chuỗi mệnh lệnh bị chia.'}
+     ghi:'Quân đội thuộc ĐẢNG, không thuộc nhà nước — cạnh PLA còn PAP (vũ cảnh) và các cấu phần an ninh quân sự liên quan. Danh sách lãnh đạo tháng 7/2026 NGẮN BẤT THƯỜNG sau loạt thanh lọc 2023–2026 — Hà Vệ Đông, Miêu Hoa và nhiều tướng cấp cao bị khai trừ. Nhưng thanh lọc đọc được hai chiều: vừa là trung tâm kiểm soát mạnh lên, vừa có thể là mạng quan hệ bị phá và lòng tin nội bộ giảm. CHƯA chứng minh được chuỗi mệnh lệnh bị chia.'}
   ]},
   {muc:3, t:'TIỀN · CÔNG NGHỆ · VÀ QUYỀN SỬA CHÍNH BO MẠCH', acc:'#a371f7', ds:[
     {ten:'Lý Cường · Hà Lập Phong', o:'Uỷ ban Tài chính Trung ương (lập 2023)',
      ghi:'Văn kiện nói thẳng mục tiêu: tăng cường sự lãnh đạo tập trung thống nhất của Trung ương Đảng đối với công tác tài chính. Bên nhà nước vẫn có PBOC, NFRA, CSRC — nhưng tầng chiến lược nằm trên, cộng thêm Uỷ ban Công tác Tài chính Trung ương lo phần công tác đảng. KHÔNG có nghĩa Tập duyệt từng khoản vay: trung ương nắm hướng tín dụng, rủi ro hệ thống, ưu tiên chiến lược và nhân sự cao cấp.'},
     {ten:'Đinh Tiết Tường', o:'Uỷ ban Khoa học Công nghệ Trung ương (lập 2023)',
-     ghi:'AI, bán dẫn, vũ trụ, lượng tử, sinh học, phòng thí nghiệm quốc gia, phối hợp quân–dân. Khoa học không còn là một bộ chuyên môn mà được đặt vào giao điểm an ninh + công nghiệp + cạnh tranh Mỹ–Trung + quân sự.'},
+     ghi:'AI, bán dẫn, vũ trụ, lượng tử, sinh học, phòng thí nghiệm quốc gia, phối hợp quân–dân. Mô hình gọi là "whole-of-nation": chiến lược → đại học + phòng thí nghiệm + doanh nghiệp (Huawei, SMIC, CATL và các national champions) → quỹ nhà nước → công nghiệp. Nhưng đó KHÁC với nói "Huawei là bộ phận bí mật của ĐCSTQ". Khoa học không còn là một bộ chuyên môn mà được đặt vào giao điểm an ninh + công nghiệp + cạnh tranh Mỹ–Trung + quân sự.'},
     {ten:'Trình Phúc Ba', o:'SASAC — doanh nghiệp nhà nước trung ương',
      ghi:'Nơi tài sản nhà nước, doanh nghiệp và Đảng giao nhau. Cộng ngân hàng quốc doanh, quỹ chính phủ và chính quyền địa phương, đây là năng lực tập trung vốn mà một nền kinh tế hoàn toàn phi tập trung khó bắt chước.'},
     {ten:'Doanh nghiệp tư nhân', o:'bốn ổ cắm, không phải một',
-     ghi:'Sở hữu · quản trị · tổ chức đảng · và THỊ TRƯỜNG NHÀ NƯỚC (mua sắm công, tín dụng, đất, giấy phép, trợ cấp). Quy định tổ chức cơ sở: doanh nghiệp tư nhân có từ BA đảng viên chính thức trở lên thì nên lập tổ chức đảng riêng; toàn quốc ~1,692 triệu chi bộ trong doanh nghiệp. Nhưng vai trò chi bộ khác nhau rất lớn giữa các công ty — có chỗ gần như nghi lễ, có chỗ tham gia quyết định quan trọng. Bằng chứng KHÔNG cho phép kết luận "mọi CEO Trung Quốc chỉ là bù nhìn".'},
+     ghi:'Sở hữu · quản trị · tổ chức đảng · và THỊ TRƯỜNG NHÀ NƯỚC (mua sắm công, tín dụng, đất, giấy phép, trợ cấp). Quy định tổ chức cơ sở: doanh nghiệp tư nhân có từ BA đảng viên chính thức trở lên thì nên lập tổ chức đảng riêng; toàn quốc ~1,692 triệu chi bộ trong doanh nghiệp và ~201.000 trong các tổ chức xã hội. Nghiên cứu 2026: trong 33 văn kiện trung ương về xây dựng đảng ở "tổ chức mới", 21 văn kiện ra đời SAU khi Tập nắm quyền. Nhưng vai trò chi bộ khác nhau rất lớn giữa các công ty — có chỗ gần như nghi lễ, có chỗ tham gia quyết định quan trọng. Bằng chứng KHÔNG cho phép kết luận "mọi CEO Trung Quốc chỉ là bù nhìn".'},
     {ten:'Uỷ ban Biên chế Cơ cấu Trung ương', o:'META — quyền sửa chính bo mạch',
      ghi:'Không chỉ điều khiển cơ quan, mà TẠO · XOÁ · GỘP cơ quan, chuyển chức năng, đổi biên chế. Cải cách 2023 chính là ví dụ. Nói cách khác: CPU có quyền thiết kế lại mainboard — đây là thứ phân biệt hệ thống này với một chính phủ thông thường.'}
   ]},
@@ -233,7 +234,7 @@ const DANHSACH = [
     {ten:'Vương Nghị · Lưu Hải Tinh', o:'ngoại giao SONG SONG',
      ghi:'Một nước bình thường chủ yếu có Bộ Ngoại giao. Trung Quốc chạy ba mạng: ngoại giao nhà nước (MFA — Vương Nghị, đồng thời đứng đầu Văn phòng Uỷ ban Đối ngoại Trung ương), ngoại giao ĐẢNG (Ban Liên lạc Đối ngoại Trung ương — Lưu Hải Tinh, quan hệ thẳng với đảng cầm quyền, đảng đối lập và phong trào chính trị nước ngoài), và thống chiến với cộng đồng hải ngoại. Ba mạng phối hợp được nhưng không phải một cơ quan.'},
     {ten:'Ngô Hán Thánh', o:'Ban Công tác Xã hội Trung ương (lập 2023) · đoàn thể · lưới',
-     ghi:'Thứ Cửu Bình 2004 hoàn toàn chưa thể thấy. Kinh tế đã đổi: shipper, tài xế, người bán trên nền tảng, freelancer KHÔNG nằm trong đơn vị công tác truyền thống — nên Đảng xây ổ cắm mới để nối tới họ. Cộng Đoàn Thanh niên (điều lệ ghi là trợ thủ và lực lượng dự bị của Đảng), Công đoàn ACFTU, Hội Phụ nữ ACWF, và lưới quản trị cộng đồng. Đừng biến mọi lưới thành "mạng mật vụ": phần lớn chức năng rất đời thường — rác, người già, tranh chấp, an sinh. Nhưng cùng mạng đó làm tăng khả năng nhận biết xã hội ở cấp rất nhỏ.'}
+     ghi:'Thứ Cửu Bình 2004 hoàn toàn chưa thể thấy. Kinh tế đã đổi: shipper (Meituan), tài xế (Didi), người bán trên nền tảng, freelancer KHÔNG nằm trong đơn vị công tác truyền thống — nên Đảng xây ổ cắm mới để nối tới họ. Cộng TRƯỜNG HỌC — mô hình chính thức là "hiệu trưởng phụ trách dưới sự lãnh đạo của Đảng uỷ", cho Đảng một ổ cắm cực dài hạn: trẻ em → trường → Đội → Đoàn → Đảng → cán bộ. Cộng Đoàn Thanh niên (điều lệ ghi là trợ thủ và lực lượng dự bị của Đảng), Công đoàn ACFTU, Hội Phụ nữ ACWF, lưới quản trị cộng đồng, và cả công tác tiếp nhận thư từ khiếu nại (xinfang). Đừng biến mọi lưới thành "mạng mật vụ": phần lớn chức năng rất đời thường — rác, người già, tranh chấp, an sinh. Nhưng cùng mạng đó làm tăng khả năng nhận biết xã hội ở cấp rất nhỏ.'}
   ]}
 ];
 

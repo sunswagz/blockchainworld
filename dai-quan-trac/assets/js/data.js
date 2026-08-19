@@ -391,7 +391,45 @@ const COMPASS = {
   ket:'Ba hướng trên đánh vào <b>vật chất</b>. Hướng thứ tư — hệ thống nội địa — không tạo ra cú sốc, nhưng quyết định cú sốc bị hấp thụ hay bị khuếch đại.'
 };
 
-window.DQT_DATA = { IC: IC, svg: svg, COMPASS: COMPASS, THEATERS: THEATERS, GAUGES: GAUGES,
+/* ── SỐ ĐO TỰ ĐỘNG ──────────────────────────────────────────
+   Bản khai để bot đọc. Mỗi dòng nói: lấy ở đâu, đơn vị gì, đèn
+   đổi màu ở mốc nào, và VÌ SAO mốc đó.
+
+   'gg' là id đồng hồ mà số này thắp. Để null nghĩa là số đo NỀN —
+   có thật, đo được, nhưng không phải một trong các đồng hồ chính.
+
+   'nghich:true' cho chỉ số mà THẤP mới là xấu.
+   ────────────────────────────────────────────────────────── */
+const DODAC = [
+  {id:'nangluong', gg:'nangluong', nhan:'Dầu Brent', dv:'USD/thùng',
+   nguon:'yahoo', ma:'BZ=F', g:75, r:90,
+   can:'EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột.'},
+  {id:'laisuat', gg:'laisuat', nhan:'Lợi suất TPCP Mỹ 10 năm', dv:'%',
+   nguon:'yahoo', ma:'^TNX', g:4.0, r:4.75,
+   ghi:'Lực ép từ ngoài lên lãi suất trong nước, không phải lãi suất điều hành của NHNN.',
+   can:'Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi.'},
+  {id:'tygia', gg:'tygia', nhan:'USD/VND', dv:'đồng',
+   nguon:'erapi', ma:'VND', g:25500, r:26500,
+   can:'Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ.'},
+  {id:'tq', gg:'tq', nhan:'Giá đồng', dv:'USD/lb',
+   nguon:'yahoo', ma:'HG=F', g:5.50, r:6.50,
+   ghi:'Chỉ báo THAY THẾ cho chi phí đầu vào công nghiệp, KHÔNG phải PPI Trung Quốc.',
+   can:'Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70. Đỏ đặt sát đỉnh năm.'},
+  {id:'doanhnghiep', gg:'doanhnghiep', nhan:'Quỹ ETF Việt Nam (VNM)', dv:'USD',
+   nguon:'yahoo', ma:'VNM', g:18.50, r:17.00, nghich:true,
+   ghi:'Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài, chịu cả tác động dòng vốn toàn cầu.',
+   can:'ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80. Đỏ đặt sát đáy năm.'},
+  {id:'xuatxu', gg:'xuatxu', nhan:'Văn bản liên bang Mỹ nhắc VN', dv:'văn bản / 30 ngày',
+   nguon:'fedreg', ma:'Vietnam', g:35, r:55,
+   ghi:'Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng.',
+   can:'Nền quan sát được khoảng 37–43 văn bản/30 ngày. NGƯỠNG YẾU NHẤT BẢNG — đọc như nhịp độ, không phải mức độ.'},
+  {id:'niemtin', gg:'niemtin', nhan:'Sắc thái tin về kinh tế VN', dv:'điểm GDELT',
+   nguon:'gdelt', ma:'Vietnam economy', g:1.9, r:1.4, nghich:true,
+   ghi:'Chỉ báo THAY THẾ — đo giọng báo chí quốc tế, không đo hành vi người gửi tiền.',
+   can:'Ngưỡng theo phân phối quan sát 90 ngày: trung vị 1,91 · phần tư dưới 1,61 · thấp nhất 0,83.'}
+];
+
+window.DQT_DATA = { IC: IC, svg: svg, COMPASS: COMPASS, DODAC: DODAC, THEATERS: THEATERS, GAUGES: GAUGES,
   CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC, LEVELS: LEVELS, SCEN: SCEN,
   LIB: LIB, SOLIEU: SOLIEU };
 })();

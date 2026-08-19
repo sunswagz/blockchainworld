@@ -16,7 +16,7 @@ var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
    phải `const`: napChuThe() gán lại toàn bộ rồi render lại. */
 let THEATERS = [], GAUGES = [], CHAIN = [], CHAIN_SRC = {},
     LEVELS = [], SCEN = [], LIB = [], SOI = [], DANHSACH = [], SOLIEU = [],
-    COMPASS = null;
+    COMPASS = null, DODAC = [];
 
 /* ============================================================
    SỐ ĐO TỰ ĐỘNG — do.js, sinh 4 lượt/ngày, không gọi AI
@@ -120,7 +120,7 @@ const CHUTHE = [
      lặng lẽ hiện dữ liệu của nước bên cạnh. Chính chỗ này từng trộn:
      Dòng chảy của Trung Quốc hiện tín hiệu Hormuz của Việt Nam. */
   {id:'tq', ten:'Trung Quốc', co:'🇨🇳', kho:'DQT_TQ',   khoSoi:'DQT_TQ_SOI',
-   khoDo:null, khoScan:null, tepScan:null,
+   khoDo:"DQT_TQ_DO", khoScan:"DQT_TQ_SCAN", tepScan:"assets/js/tq/scan.js",
    hoi:'Quyền lực giữ được không?'}
 ].filter(c=>window[c.kho]);   /* chủ thể thiếu file dữ liệu thì biến mất
                                  khỏi thanh chuyển, không hiện mục rỗng */
@@ -136,7 +136,7 @@ function napChuThe(){
   CHAIN_SRC = d.CHAIN_SRC||{};
   LEVELS = d.LEVELS||[];     SCEN = d.SCEN||[];     LIB = d.LIB||[];
   SOI = s.SOI||[];           DANHSACH = s.DANHSACH||[];
-  SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;
+  SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;  DODAC = d.DODAC||[];
   const dd = c.khoDo ? window[c.khoDo] : null;
   DO = (dd && dd.do) ? dd.do : {};
   DO_LUC = (dd && dd.generatedAt) || null;
@@ -644,6 +644,31 @@ function vGauges(){
         (m.ghi?'<p class="nguong-g">'+esc(m.ghi)+'</p>':'');
       tb.appendChild(c); });
     w.appendChild(tb);
+  }
+
+  /* Số đo nền — có thật, đo được, nhưng KHÔNG phải đồng hồ chính.
+     Tách hẳn ra để không ai tưởng Trung Quốc đã có mười hai đồng hồ
+     tự đo, trong khi cả mười hai vẫn đặt tay. */
+  const nen = DODAC.filter(x => !x.gg);
+  if(nen.length){
+    w.appendChild(el('h3','sec','Số đo nền — không phải đồng hồ chính'));
+    const p2=el('p'); p2.style.cssText='max-width:74ch;color:var(--fg2)';
+    p2.innerHTML='Mười hai đồng hồ ở trên đo <b>tài khoá và quyền lực</b>, và không cái nào có nguồn công khai miễn phí đủ tin — nên cả mười hai <b>đặt tay</b>. '+
+      nen.length+' số dưới đây thì đo được, nhưng chúng chỉ nói <b>lớp cú sốc bên ngoài</b> đang căng hay chùng. Đừng đọc chúng như thước đo sức bền của chế độ.';
+    w.appendChild(p2);
+    const nw=el('div','nguong-w');
+    nen.forEach(x=>{ const m=DO[x.id];
+      const c=el('div','nguong'); c.style.setProperty('--a', m?MAU[m.muc]:'var(--vien)');
+      const vach = x.nghich
+        ? '<span class="g">≥ '+x.g+'</span><span class="y">'+x.r+'–'+x.g+'</span><span class="r">≤ '+x.r+'</span>'
+        : '<span class="g">≤ '+x.g+'</span><span class="y">'+x.g+'–'+x.r+'</span><span class="r">≥ '+x.r+'</span>';
+      c.innerHTML='<b>'+esc(x.nhan)+'</b>'+
+        (m ? '<div class="nguong-v" style="margin-bottom:6px"><b>'+esc(String(m.so))+' '+esc(x.dv||'')+'</b></div>' :
+             '<p style="color:var(--fg2)"><i>chưa có lượt đo nào — nguồn đã khai, chờ bot chạy</i></p>')+
+        '<div class="nguong-v">'+vach+'</div><p>'+esc(x.can)+'</p>'+
+        (x.ghi?'<p class="nguong-g">'+esc(x.ghi)+'</p>':'');
+      nw.appendChild(c); });
+    w.appendChild(nw);
   }
 
   const lvl=capDo();
