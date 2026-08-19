@@ -505,7 +505,190 @@ const DODAC = [
    can:'Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000.'}
 ];
 
+
+/* ═══════════════════════════════════════════════════════
+   BO MẠCH QUYỀN LỰC — hai mươi ổ cắm
+
+   Vì sao đây là MỤC RIÊNG chứ không nằm trong hồ sơ Hướng Hoa
+   Cường như trước: đây là bản đồ bộ máy ĐCSTQ. Nó không phụ thuộc
+   vào việc có soi nhà Hướng hay không, và người muốn hiểu bộ máy
+   không nên phải mở hồ sơ một doanh nhân Hong Kong mới thấy nó.
+   Đặt sai chỗ thì một bản đồ tốt vẫn không ai tìm ra.
+
+   MỖI Ổ CẮM CÓ BỐN Ô, và ô thứ ba mới là ô đáng giá:
+     · ai đang nắm
+     · cơ quan
+     · ĐƯỜNG CHỈ HUY — mệnh lệnh chạy theo lối nào
+     · CHẠM TỚI — nó với tay được đến đâu
+
+   Chỉ hai ô đầu thì đây là một danh bạ. Có ô thứ ba và thứ tư thì
+   nó mới trả lời được câu hỏi thật: đánh vào đây thì cái gì động.
+
+   ── VÀ ĐÂY LÀ CHỖ PHẢI DỪNG LẠI ─────────────────────────
+   Tài liệu nguồn đề xuất một tầng nữa — "phiên bản 3.0": mỗi
+   người thì xuất thân phe nào, ai nâng đỡ, từng giữ chức ở tỉnh
+   nào, doanh nghiệp nào nằm dưới đường quyền lực của họ.
+
+   Tầng đó KHÔNG dựng ở đây, vì tài liệu mới chỉ ĐỀ XUẤT chứ chưa
+   đưa bằng chứng cho nó. Suy phe phái từ chức vụ là đúng thứ mà
+   chính cung này liệt vào "sáu dấu ≠" — quan hệ không phải chỉ
+   huy. Bịa một cây phả hệ chính trị rồi vẽ nó ra thành sơ đồ là
+   cách nhanh nhất biến một bản đồ thành thuyết âm mưu.
+   ═══════════════════════════════════════════════════════ */
+const BOMACH = {
+  lede:'Không nhìn Trung Quốc như một chính phủ có vài bộ ngành, mà như một hệ điều hành nhiều lớp. Điều lệ ĐCSTQ tự viết Đảng là "lực lượng lãnh đạo chính trị cao nhất" và "Đảng lãnh đạo tất cả" — nên nhà nước là một LỚP rất lớn của hệ thống, không phải tầng quyền lực tối cao.',
+  a:'                    Ý THỨC HỆ\n                        │\n                      ĐẢNG\n                        │\n      ┌─────────────────┼─────────────────┐\n   NHÂN SỰ         THÔNG TIN          AN NINH\n      │                │                 │\n  Tổ chức          Tuyên truyền      Chính pháp\n  cán bộ           · CAC             MPS · MSS\n      └─────────────────┼─────────────────┘\n                        │\n                   ĐẢNG–NHÀ NƯỚC\n                        │\n      ┌─────────┬───────┼───────┬─────────┐\n  Quốc vụ    Quốc hội  Toà   Kiểm sát  Quân uỷ\n     viện                                  │\n      │                                   PLA\n   KINH TẾ\n      │\n  SOE · ngân hàng · doanh nghiệp tư nhân\n      │\n                   1,4 TỶ NGƯỜI',
+  ghi:'Cuối 2025: <b>101,286 triệu đảng viên</b> và <b>5,431 triệu tổ chức cơ sở</b> — trong đó ~1,692 triệu nằm trong doanh nghiệp và ~201.000 trong tổ chức xã hội. Nên khi nói "Trung ương quyết", đừng hình dung một trăm người ở Bắc Kinh; hình dung một mạng thần kinh tổ chức bảy tầng từ bảy người Thường vụ xuống tới tổ dân phố.',
+  tang:[
+    {id:'loi', n:1, tn:'Lõi', acc:'#f0503f', t:'LÕI — ổ cắm giữ cả hệ thống lại với nhau',
+     d:'Bốn ổ đầu tiên không điều hành ngành nào cả. Chúng quyết ai được làm, ai bị loại, và ai biết chuyện gì — tức là quyết cả những người điều hành ngành.',
+     ds:[
+      {ten:'Tập Cận Bình', o:'Tổng Bí thư · Chủ tịch nước · Chủ tịch Quân uỷ Trung ương',
+       chi:'Ba chức, nhưng chức mạnh nhất KHÔNG phải Chủ tịch nước — mà là Tổng Bí thư và Chủ tịch Quân uỷ.',
+       cham:'Toàn hệ. Đồng thời trực tiếp đứng đầu Uỷ ban An ninh Quốc gia Trung ương.',
+       ghi:'Tính đến 8/2026 vẫn giữ cả ba.'},
+      {ten:'Thường vụ Bộ Chính trị', o:'7 người: Tập · Lý Cường · Triệu Lạc Tế · Vương Hộ Ninh · Thái Kỳ · Đinh Tiết Tường · Lý Hi',
+       chi:'Bo mạch trung tâm. Nhưng mỗi người KHÔNG chỉ phụ trách một "bộ" — họ ngồi ở điểm nối nhiều hệ thống.',
+       cham:'Đảng · chính phủ · quốc hội · chính hiệp · kỷ luật.',
+       ghi:'Ngày 8/1/2026 chính Thường vụ nghe báo cáo công tác của các đảng đoàn thuộc Quốc hội, Quốc vụ viện, Chính hiệp, Toà án Tối cao và Viện Kiểm sát Tối cao — bằng chứng trực tiếp nhất cho việc nhà nước nằm DƯỚI lớp đảng.'},
+      {ten:'Thái Kỳ', o:'Thường vụ · Bí thư Ban Bí thư · Chủ nhiệm Văn phòng Trung ương',
+       chi:'Nếu Tập là CPU thì Văn phòng Trung ương là bus dữ liệu: lịch lãnh đạo, văn kiện mật, chỉ thị, luồng tin lên và luồng quyết định xuống.',
+       cham:'Mọi bộ · tỉnh · cơ quan trung ương đều đi qua đây cả hai chiều.',
+       ghi:'Quyền lực THÔNG TIN rất dễ bị bỏ sót khi người ta chỉ nhìn chức danh bộ trưởng. Đây là một trong những "gatekeeper" quan trọng nhất quanh Tập.'},
+      {ten:'Thạch Thái Phong', o:'Trưởng Ban Tổ chức Trung ương',
+       chi:'Trung ương → Ban Tổ chức → tỉnh uỷ → ban tổ chức tỉnh → thành phố → huyện → cán bộ.',
+       cham:'Ai làm bí thư tỉnh, ai vào bộ, ai được luân chuyển, ai bị đánh giá kém.',
+       ghi:'Ổ cắm mạnh nhất bảng, và lý do rất phản trực giác: <b>nếu kiểm soát được đường thăng tiến thì không cần gọi điện ra lệnh từng ngày</b>. Người ở dưới tự học cách đoán Trung ương muốn gì. Đó là cơ chế TỰ CĂN CHỈNH.'},
+      {ten:'Lý Hi · Lưu Kim Quốc', o:'Bí thư CCDI · và Phó Bí thư CCDI kiêm Chủ nhiệm Uỷ ban Giám sát Quốc gia',
+       chi:'Một bộ máy hai danh nghĩa: CCDI là kỷ luật ĐẢNG, Uỷ ban Giám sát là giám sát NHÀ NƯỚC. Cán bộ bị xử đi qua kỷ luật đảng trước, có dấu hiệu hình sự mới chuyển kiểm sát.',
+       cham:'Mọi cán bộ, mọi cấp, kể cả tướng lĩnh.',
+       ghi:'Năm 2025: ~1,012 triệu vụ được lập, ~47.000 người bị lưu trí, ~983.000 quyết định kỷ luật. Đây không phải một văn phòng tượng trưng.'}
+     ]},
+    {id:'cuongche', n:2, tn:'Cưỡng chế & thông tin', acc:'#d29922', t:'CƯỠNG CHẾ VÀ THÔNG TIN',
+     d:'Năm hòn đảo — công an, an ninh, toà, kiểm sát, tư pháp — KHÔNG độc lập với nhau; phía trên có một trục điều phối chính trị.',
+     ds:[
+      {ten:'Trần Văn Thanh', o:'Bí thư Uỷ ban Chính pháp Trung ương',
+       chi:'Trung ương Đảng → Uỷ ban Chính pháp → công an · toà án · kiểm sát · an ninh nhà nước.',
+       cham:'Toàn bộ hệ cưỡng chế và tư pháp.',
+       ghi:'Hội nghị Chính pháp Trung ương 1/2026 tiếp tục yêu cầu "sự lãnh đạo TUYỆT ĐỐI của Đảng". Nhưng phải giữ đúng ranh: lãnh đạo chính trị hệ thống ≠ Tập quyết từng bản án.'},
+      {ten:'Vương Tiểu Hồng', o:'Bộ trưởng Công an · đồng thời Bí thư Ban Bí thư',
+       chi:'Trật tự · tội phạm · hộ khẩu · an ninh nội địa · quản lý hành chính.',
+       cham:'Đời sống thường ngày của dân, ở mọi cấp xuống tới tổ dân phố.',
+       ghi:'Việc một bộ trưởng công an đồng thời ngồi Ban Bí thư cho thấy dây thần kinh cưỡng chế nối thẳng lên tầng điều phối của Đảng.'},
+      {ten:'Trần Nhất Tâm', o:'Bộ trưởng An ninh Nhà nước',
+       chi:'Phản gián · tình báo · an ninh quốc gia — KHÁC hẳn công an.',
+       cham:'Hoạt động bị coi là đe doạ nhà nước, trong và ngoài nước.',
+       ghi:'Trộn MPS với MSS là lỗi thường gặp nhất khi đọc tin về Trung Quốc.'},
+      {ten:'Lý Thư Lỗi · Trang Vinh Văn', o:'Trưởng Ban Tuyên truyền · và Phó Ban kiêm người đứng đầu CAC',
+       chi:'Hai nhánh: NGĂN CHẶN (kiểm duyệt, lọc) và TẠO RA (tự sự, tin, lịch sử, ý thức hệ).',
+       cham:'Báo chí · xuất bản · điện ảnh · giáo dục tư tưởng · Internet · nền tảng · thuật toán · AI · dữ liệu.',
+       ghi:'Chỉ nhìn Great Firewall là mất một nửa hệ thống. Mục tiêu không chỉ là "bạn không được đọc X" mà còn là "đây là cách X nên được hiểu". Quy định GenAI đòi nội dung phù hợp "giá trị cốt lõi xã hội chủ nghĩa".'},
+      {ten:'Quân uỷ Trung ương · PLA', o:'Tập (Chủ tịch) · Trương Hựu Hiệp · Trương Thăng Dân (Phó) · Lưu Chấn Lập (Uỷ viên)',
+       chi:'ĐẢNG → QUÂN UỶ → PLA. Không phải NHÀ NƯỚC → quân đội độc lập chính trị.',
+       cham:'PLA · và PAP nằm trong cụm an ninh vũ trang liên quan.',
+       ghi:'Danh sách ngắn bất thường sau các đợt thanh lọc 2023–26 (Hà Vệ Đông, Miêu Hoa và nhiều tướng khác bị khai trừ). Nhưng thanh lọc ≠ elite split: nó chứng minh tướng cấp cao KHÔNG đứng ngoài kỷ luật đảng, chứ chưa chứng minh PLA đang chống Tập.'}
+     ]},
+    {id:'tien', n:3, tn:'Tiền & công nghệ', acc:'#58a6ff', t:'TIỀN · CÔNG NGHỆ · VÀ QUYỀN SỬA CHÍNH BO MẠCH',
+     d:'Cải cách 2023 là chìa khoá hiểu "CCP 2.0": Trung ương lập thêm một tầng uỷ ban chiến lược NẰM TRÊN các bộ quản lý nhà nước.',
+     ds:[
+      {ten:'Lý Cường · Hà Lập Phong', o:'Chủ nhiệm Uỷ ban Tài chính Trung ương · và Chủ nhiệm Văn phòng kiêm Bí thư Uỷ ban Công tác Tài chính Trung ương',
+       chi:'ĐCSTQ → Uỷ ban Tài chính TW → thiết kế tầng đỉnh → bộ quản lý nhà nước (PBOC · NFRA · CSRC) → ngân hàng, bảo hiểm, chứng khoán.',
+       cham:'Hướng tín dụng · rủi ro hệ thống · ưu tiên chiến lược · nhân sự cao cấp · ổn định tài chính.',
+       ghi:'Văn kiện cải cách nói thẳng mục tiêu là "tăng cường sự lãnh đạo tập trung thống nhất của Trung ương Đảng đối với công tác tài chính". KHÔNG suy ra được "Tập phê duyệt từng khoản vay".'},
+      {ten:'Đinh Tiết Tường', o:'Thường vụ · Phó Thủ tướng · đứng đầu Uỷ ban Khoa học Công nghệ Trung ương',
+       chi:'Uỷ ban KHCN TW → MIIT · NDRC · MOST → quỹ nhà nước và ngân hàng → tỉnh → phòng thí nghiệm, đại học, doanh nghiệp.',
+       cham:'AI · bán dẫn · vũ trụ · lượng tử · sinh học · phòng thí nghiệm quốc gia · phối hợp quân–dân.',
+       ghi:'Đây là <b>whole-of-nation / cử quốc thể chế</b> phiên bản công nghệ: Huawei, SMIC, CATL và các "national champions" được kỳ vọng tham gia cùng phòng thí nghiệm, startup và doanh nghiệp khác trong một mô hình đổi mới do Trung ương định hướng. Sau bước này, khoa học không còn là một bộ chuyên môn — nó được đặt vào an ninh + công nghiệp + cạnh tranh Mỹ–Trung + quân sự cùng lúc.'},
+      {ten:'Trình Phúc Ba', o:'Người đứng đầu SASAC',
+       chi:'Đảng → SASAC → doanh nghiệp nhà nước trung ương.',
+       cham:'Điện · dầu khí · viễn thông · hạ tầng · công nghiệp quốc phòng.',
+       ghi:'Ghép SOE + ngân hàng quốc doanh + quỹ chính phủ + chính quyền địa phương thì ra khả năng TẬP TRUNG VỐN rất lớn — thứ một nền kinh tế phi tập trung hoàn toàn khó bắt chước.'},
+      {ten:'Doanh nghiệp tư nhân', o:'Không một người nắm — bốn ổ cắm cùng lúc',
+       chi:'Sở hữu (cổ đông/HĐQT) · nhà nước (luật, regulator) · tổ chức đảng (party cell) · và THỊ TRƯỜNG NHÀ NƯỚC (mua sắm công, tín dụng, đất, giấy phép, trợ cấp).',
+       cham:'Huawei · Alibaba · Tencent · ByteDance · SMIC · CATL và hàng triệu doanh nghiệp khác.',
+       ghi:'Luật Thúc đẩy Kinh tế tư nhân 2025 quy định tổ chức đảng trong doanh nghiệp tư nhân hoạt động theo Điều lệ Đảng; nơi có từ ba đảng viên chính thức trở lên thì nên lập tổ chức đảng riêng. Nhưng nghiên cứu học thuật cho thấy vai trò party cell KHÁC NHAU rất lớn giữa các công ty — từ nghi lễ tới tham gia quyết định. "Mọi CEO Trung Quốc chỉ là bù nhìn" là kết luận bằng chứng KHÔNG cho phép.'},
+      {ten:'Uỷ ban Biên chế Cơ cấu Trung ương', o:'META-SOCKET',
+       chi:'Không chỉ điều khiển cơ quan — mà TẠO, XOÁ, GỘP cơ quan, chuyển chức năng, đổi biên chế.',
+       cham:'Chính cấu trúc của bộ máy.',
+       ghi:'Tức là CPU có quyền thiết kế lại mainboard. Cải cách 2023 chính là ví dụ: lập Uỷ ban Tài chính TW, Uỷ ban KHCN TW, Ban Công tác Xã hội TW, Văn phòng Công tác Hong Kong–Macau TW.'}
+     ]},
+    {id:'noira', n:4, tn:'Nối ra ngoài', acc:'#a371f7', t:'NỐI RA NGOÀI VÀ XUỐNG DƯỚI — chỗ chạm Hong Kong và Việt Nam',
+     d:'Năm ổ cắm cuối là chỗ bộ máy với tay ra khỏi biên giới đảng viên: tới người ngoài đảng, ra hải ngoại, và xuống tận shipper.',
+     ds:[
+      {ten:'Lý Cán Kiệt', o:'Trưởng Ban Công tác Mặt trận Thống nhất',
+       chi:'Người ngoài đảng KHÔNG mặc định là kẻ thù. Phân ba: đối kháng → chống/trấn áp; trung lập → tranh thủ; có thể dùng → đoàn kết.',
+       cham:'Các đảng nhỏ · người không đảng phái · trí thức · dân tộc · tôn giáo · doanh nhân tư nhân · "giai tầng xã hội mới" · Hong Kong · Macau · Đài Loan · Hoa kiều và cộng đồng hải ngoại.',
+       ghi:'Đây là ổ cắm quan trọng nhất để nối lại câu chuyện KMT — Tam Hoàng — Hướng Hoa Cường. Và cũng là chỗ dễ trượt nhất: <b>tiếp xúc thống chiến ≠ điệp viên</b>. Chỉ khi có chứng cứ riêng về bí mật, tài trợ, nhiệm vụ, chỉ huy thì mới được nâng mức.'},
+      {ten:'Hạ Bảo Long', o:'Văn phòng Công tác Hong Kong–Macau TW = Văn phòng Sự vụ HK–Macau Quốc vụ viện',
+       chi:'Bắc Kinh → Văn phòng TW → Liaison Office và cơ quan an ninh NSL → HKSAR → Đặc khu trưởng → chính quyền · toà · công vụ · cảnh sát.',
+       cham:'Hong Kong và Macau.',
+       ghi:'Một cơ quan mang hai mặt đảng/nhà nước — ví dụ rõ nhất của cấu trúc party-state. Hong Kong vẫn có hệ pháp luật riêng dưới "một quốc gia, hai chế độ", nhưng chính sách trung ương về Hong Kong nằm dưới cấu trúc của Đảng.'},
+      {ten:'Tống Đào', o:'Văn phòng Công tác Đài Loan TW = Taiwan Affairs Office của Quốc vụ viện',
+       chi:'Lại là một cơ quan hai danh nghĩa.',
+       cham:'Quan hệ hai bờ · giao lưu · kinh tế · chính trị · chống Đài Loan độc lập · thúc đẩy thống nhất.',
+       ghi:'KMT KHÔNG nằm dưới ĐCSTQ. Tập gửi thư chúc mừng Trịnh Lệ Văn năm 2025 và kêu gọi "nền tảng chính trị chung"; Trịnh đáp lại bằng hoà bình và giao lưu, không bằng cam kết thống nhất — và năm 2026 còn nói cải thiện quan hệ với Bắc Kinh không đồng nghĩa chống Mỹ.'},
+      {ten:'Vương Nghị · Lưu Hải Tinh', o:'Bộ trưởng Ngoại giao kiêm Chủ nhiệm Văn phòng Uỷ ban Đối ngoại TW · và Trưởng Ban Liên lạc Đối ngoại TW (IDCPC)',
+       chi:'NGOẠI GIAO SONG SONG: nhà nước (MFA) · đảng (IDCPC) · và thống chiến (UFWD) — ba mạng phối hợp được nhưng KHÔNG phải một cơ quan.',
+       cham:'Chính phủ nước ngoài · đảng cầm quyền và đảng đối lập nước ngoài · phong trào chính trị · cộng đồng hải ngoại.',
+       ghi:'Một nước bình thường chủ yếu chỉ có kênh thứ nhất. Ba kênh cùng lúc là nguồn ảnh hưởng rất đặc biệt — và là chỗ Việt Nam tiếp xúc nhiều nhất.'},
+      {ten:'Trường học · Đoàn · Đội', o:'Cơ chế "hiệu trưởng phụ trách dưới sự lãnh đạo của Đảng uỷ"',
+       chi:'Đảng uỷ lãnh đạo → <b>hiệu trưởng</b> phụ trách chuyên môn. Ở phổ thông cũng đang triển khai cùng cơ chế đó.',
+       cham:'TRẺ EM → trường học → Đội → Đoàn Thanh niên → Đảng → cán bộ.',
+       ghi:'Ổ cắm DÀI HẠN NHẤT bảng. Điều lệ Đoàn Thanh niên Cộng sản xác định tổ chức này chịu sự lãnh đạo của ĐCSTQ và là "trợ thủ, lực lượng dự bị" của Đảng — tức nó không phải câu lạc bộ sinh viên mà là một đường ống tái tạo nhân sự. Cùng họ với ACFTU (công nhân) và ACWF (phụ nữ): các nhóm xã hội không bị xoá mà được tổ chức lại thành dây truyền động nối xã hội với Đảng.'},
+      {ten:'Ngô Hán Thánh', o:'Trưởng Ban Công tác Xã hội Trung ương (lập 2023)',
+       chi:'Đảng đi xuống tận nhóm KHÔNG nằm trong đơn vị công tác truyền thống.',
+       cham:'Tổ chức xã hội · doanh nghiệp mới · nền tảng · shipper Meituan · tài xế Didi · lao động gig · xinfang/khiếu nại · quản trị cộng đồng · lưới grid xuống tới toà nhà và hộ dân.',
+       ghi:'Thời Mao: công nhân → nhà máy nhà nước → chi bộ. Nay những người này không có "đơn vị" nào, nên Đảng xây ổ cắm mới để nối tới họ. Nhưng đừng biến mọi grid thành "mạng lưới mật vụ" — phần lớn chức năng rất đời thường: rác, người già, tranh chấp, an sinh. Cùng một mạng đó đồng thời làm tăng khả năng nhận biết xã hội ở cấp rất nhỏ.'}
+     ]}
+  ]
+};
+
+/* ═══════════════════════════════════════════════════════
+   BÀN CỜ MỸ–TRUNG — hai bo mạch đối nhau
+
+   Tài liệu nguồn gọi đây là bước logic tiếp theo, và nó đúng là
+   thứ Đài Quan Trắc thiếu hẳn: cung đã có bo mạch Trung Quốc, đã
+   có bảng đo Việt Nam, nhưng chưa có chỗ nào cho thấy AI KHOÁ
+   ĐƯỢC GÌ CỦA AI — mà đó mới là chuyện quyết định dòng chảy.
+
+   Ba điều phải giữ, vì bỏ điều nào cũng ra một bàn cờ sai:
+
+   1. ĐÒN KHÔNG ĐI MỘT CHIỀU. Trung Quốc giữ ổ cắm ngược lại —
+      USGS 2026 ghi nước này sản xuất 74/77 loại khoáng sản khảo
+      sát và đứng số một thế giới ở 39 loại.
+   2. MỸ MỘT MÌNH KHÔNG TẠO ĐƯỢC CHUỖI. Các ổ cắm nằm rải ở Hà
+      Lan, Nhật, Hàn, Đài Loan, EU, Trung Đông. Đòn bẩy lớn nhất
+      là LIÊN MINH, không phải một nước đơn lẻ.
+   3. BA THỨ KHÁC NHAU RẤT XA: làm Trung Quốc suy thoái ≠ làm hệ
+      tài chính khủng hoảng ≠ làm ĐCSTQ mất quyền lực.
+   ═══════════════════════════════════════════════════════ */
+const BANCO = {
+  lede:'Không tồn tại một Hormuz, một Đài Loan hay một con chip duy nhất làm hệ thống sụp. Muốn có tình trạng mang tính hệ thống thì phải NHIỀU VÒNG TUẦN HOÀN BỊ ĐÁNH GÃY CÙNG LÚC, rồi cú sốc bên ngoài phải kích hoạt đúng các điểm yếu đang tồn tại bên trong.',
+  a:'        MỸ + ĐỒNG MINH                    TRUNG QUỐC\n   ┌──────────────────────┐        ┌──────────────────────┐\n   │ Mỹ    GPU·EDA·IP     │        │ khoáng sản  74/77    │\n   │ Hà Lan  lithography  │  ⇄     │ nam châm · chế biến  │\n   │ Nhật  thiết bị·vật liệu│      │ pin · chuỗi cung ứng │\n   │ Hàn   HBM·memory     │        │ sản xuất quy mô lớn  │\n   │ Đài Loan  foundry    │        │ thị trường nội địa   │\n   │ EU    thị trường     │        │ 3,4 nghìn tỷ dự trữ  │\n   └──────────────────────┘        └──────────────────────┘\n              │                              │\n              └──────────┬───────────────────┘\n                         │\n              VIỆT NAM · ASEAN · MEXICO\n              đường vòng của chuỗi cung\n                         │\n              rules of origin · chống chuyển tải',
+  cot:[
+    {t:'MỸ VÀ ĐỒNG MINH KHOÁ ĐƯỢC GÌ', acc:'#58a6ff', ds:[
+      {n:'Bán dẫn tiên tiến', d:'Mỹ duy trì kiểm soát với advanced computing chips và thiết bị sản xuất; BIS còn siết thêm trong 2025. Nhưng đây là đòn bẩy CHỌN LỌC hơn năng lượng: nó đánh vào AI, siêu máy tính, sản xuất tiên tiến và biên nghiên cứu — <b>không</b> làm nhà máy Trung Quốc ngừng chạy ngày mai. Trung Quốc còn mature-node, SMIC, Huawei, thiết bị nội địa và trợ cấp nhà nước.'},
+      {n:'Cả tầng công nghệ, không chỉ chip', d:'Một hạn chế duy nhất thì Trung Quốc tìm được đường vòng. Phải chip + phần mềm (EDA, IP) + thiết bị (lithography, metrology, vật liệu) bị giới hạn ĐỒNG THỜI mới tạo được nút thắt lâu dài. Và đó chính là lý do Mỹ cần Hà Lan, Nhật, Hàn, Đài Loan.'},
+      {n:'Thị trường xuất khẩu', d:'Mỹ 14,7% + EU 14,5% ≈ <b>29%</b> xuất khẩu hàng hoá Trung Quốc. Mỹ một mình thì Trung Quốc chuyển hướng sang ASEAN, Mexico, Global South. Mỹ + EU + các thị trường lớn cùng lúc thì khó chuyển hơn nhiều — đây là chỗ liên minh có đòn bẩy mà một nước không có.'},
+      {n:'Thanh toán và tài chính', d:'Rất mạnh nhưng cũng rất nguy hiểm cho cả hai phía. Trung Quốc có kiểm soát vốn, ngân hàng quốc doanh, thanh toán NDT, CIPS, thặng dư thương mại và ~3,416 nghìn tỷ USD dự trữ (cuối 6/2026). Áp lực tài chính 8/10; sụp đổ tức thì 3/10.'}
+    ]},
+    {t:'TRUNG QUỐC PHẢN ĐÒN BẰNG GÌ', acc:'#f0503f', ds:[
+      {n:'Khoáng sản và chế biến', d:'USGS 2026: sản xuất <b>74 trong 77</b> loại khoáng sản khảo sát, đứng số một thế giới ở <b>39 loại</b>. Đây không phải game một chiều — một cuộc tách rời quá nhanh có thể tự gây lạm phát, thiếu linh kiện và gián đoạn chuỗi cung cho chính bên gây áp lực.'},
+      {n:'Nga là đường bypass chiến lược', d:'Nga là nguồn dầu thô lớn nhất của Trung Quốc năm 2024 (~20%), cộng Kazakhstan, Myanmar và sản xuất nội địa. Nên Hormuz là cú đánh kinh tế rất lớn nhưng KHÔNG phải kill-switch riêng của Trung Quốc — UNCTAD đánh giá Hormuz mang ~1/4 thương mại dầu đường biển toàn cầu, tức nó đánh cả Nhật, Hàn, Ấn, châu Âu.'},
+      {n:'Quy mô sản xuất và thị trường', d:'Khác Liên Xô cuối kỳ ở đúng chỗ này: Trung Quốc có thị trường, sản xuất khổng lồ, ngoại thương, doanh nghiệp tư nhân, SOE, ngân hàng nhà nước, kinh tế số và thị trường nội địa lớn. Không thể lấy "công thức đánh Liên Xô" áp nguyên xi.'},
+      {n:'Đổi đường thay vì chịu đòn', d:'Nếu các nước không phối hợp, Trung Quốc đổi thị trường, đổi nhà cung cấp, đổi tuyến logistics, đầu tư nội địa hoá, dùng nước thứ ba.'}
+    ]},
+    {t:'VIỆT NAM ĐỨNG Ở ĐÂU', acc:'#d29922', ds:[
+      {n:'Là đường vòng — và vì thế là mục tiêu kiểm tra', d:'Nếu đầu ra trực tiếp của Trung Quốc bị khó: Trung Quốc → FDI, linh kiện, nhà máy → ASEAN → sản phẩm → Mỹ/EU. Nên <b>rules of origin</b> và chống chuyển tải trở thành mắt xích của chính cuộc chiến thương mại. Khoá "China → US" mà không nhìn "China → nước thứ ba → US" thì hiệu quả giảm hẳn.'},
+      {n:'Việt Nam chiếm 4,5% xuất khẩu Trung Quốc', d:'Đứng thứ tư sau Mỹ, EU và Hong Kong — trên cả Nhật (4,3%), Hàn (4,1%), Ấn (3,4%) và Nga (3,2%). Vị trí đó vừa là cơ hội đơn hàng vừa là chỗ dễ bị soi.'},
+      {n:'Đây là lý do hai bảng phải đọc cùng nhau', d:'Bảng Việt Nam hỏi "nền kinh tế chịu được không". Bảng Trung Quốc hỏi "quyền lực giữ được không". Bàn cờ này là chỗ hai câu hỏi gặp nhau: một cú siết vào ổ cắm Trung Quốc chảy tới đơn hàng, việc làm và tỷ giá Việt Nam qua đúng những đường mà chiến trường của cả hai bảng đang theo dõi.'}
+    ]}
+  ],
+  ket:'<b>Ba thứ phải phân biệt, và trộn chúng là chỗ mọi phân tích "đánh Trung Quốc" trở nên vô dụng:</b> làm Trung Quốc SUY THOÁI · làm hệ tài chính Trung Quốc KHỦNG HOẢNG · làm ĐCSTQ MẤT QUYỀN LỰC. Khi FISCAL CAPACITY + CADRE COHESION + SECURITY COHESION còn đồng thời tồn tại, một cú sốc rất lớn về dầu, chip hay xuất khẩu có thể làm Trung Quốc nghèo hơn hoặc tăng trưởng chậm lại nhưng CHƯA tự động làm chế độ sụp. Chỉ khi cú sốc vật chất biến thành khủng hoảng PHÂN PHỐI bên trong elite, rồi khiến chuỗi cán bộ và chuỗi an ninh không còn cùng hướng, thì bài toán mới chuyển từ chiến tranh kinh tế sang sinh tồn chế độ.'
+};
+
 window.DQT_TQ = {
+  BOMACH: BOMACH, BANCO: BANCO,
   COMPASS: COMPASS, DODAC: DODAC,
   THEATERS: THEATERS, GAUGES: GAUGES, CHAIN: CHAIN, CHAIN_SRC: CHAIN_SRC,
   LEVELS: LEVELS, SCEN: SCEN, LIB: LIB, SOLIEU: SOLIEU

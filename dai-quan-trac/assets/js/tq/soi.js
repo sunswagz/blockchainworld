@@ -187,54 +187,44 @@ const SOI = [
    gắn với tài sản — một người rời ghế là rời quyền lực, còn
    một tập đoàn thì không mất tài sản khi đổi chủ tịch.
    ───────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   LỘ TRÌNH SOI — vòng sau đào gì
+
+   Mục này KHÔNG còn chứa hai mươi ổ cắm bộ máy nữa. Chúng đã thành
+   mục cấp một "Bo mạch quyền lực", nơi mỗi ổ có cả đường chỉ huy
+   lẫn phạm vi chạm tới. Giữ một bản sao ở đây là tạo hai nguồn cho
+   cùng một sự thật, và bản sao thì sẽ lệch trong im lặng.
+
+   Trả lại đúng vai: đây là danh sách MẮT XÍCH ĐÁNG ĐÀO TIẾP, xếp
+   theo mức độ có thể khép lại bằng hồ sơ doanh nghiệp và giao dịch
+   chứ không chỉ bằng bài báo. Đó là ranh giới giữa "đường dây quyền
+   lực thực" và "tin đồn" — và nó cũng là lý do xếp mức 1 lên đầu.
+   ═══════════════════════════════════════════════════════ */
 const DANHSACH = [
-  {muc:1, t:'LÕI — ổ cắm giữ cả hệ thống lại với nhau', acc:'#f0503f', ds:[
-    {ten:'Tập Cận Bình', o:'Tổng Bí thư · Chủ tịch nước · Chủ tịch Quân uỷ',
-     ghi:'Chức mạnh nhất KHÔNG phải Chủ tịch nước mà là Tổng Bí thư và Chủ tịch Quân uỷ Trung ương. Ông cũng trực tiếp đứng đầu Uỷ ban An ninh Quốc gia Trung ương — nơi "an ninh" được mở rộng sang kinh tế, tài chính, công nghệ, mạng, dữ liệu, văn hoá, sinh học, chuỗi cung ứng. Hệ quả phải nhớ: một vấn đề kinh tế có thể ĐỒNG THỜI là một vấn đề an ninh.'},
-    {ten:'Thường vụ Bộ Chính trị', o:'bảy người',
-     ghi:'Tập Cận Bình · Lý Cường · Triệu Lạc Tế · Vương Hộ Ninh · Thái Kỳ · Đinh Tiết Tường · Lý Hi. Mỗi người thường không phụ trách "một bộ" mà ngồi ở điểm nối nhiều hệ.'},
-    {ten:'Thái Kỳ', o:'Văn phòng Trung ương · Ban Bí thư',
-     ghi:'Ổ cắm ít nổi tiếng mà cực mạnh. Nếu Tập là CPU thì Văn phòng Trung ương là bus dữ liệu: lịch lãnh đạo, văn kiện mật, luồng báo cáo đi lên và luồng chỉ thị đi xuống. Quyền lực thông tin rất dễ bị bỏ sót khi chỉ nhìn chức danh bộ trưởng.'},
-    {ten:'Thạch Thái Phong', o:'Ban Tổ chức Trung ương — nhân sự · đường thăng tiến',
-     ghi:'Ổ CẮM MẠNH NHẤT CỦA CẢ HỆ. Kiểm soát ai lên ai xuống thì không cần gọi điện ra lệnh từng ngày — cấp dưới TỰ HỌC cách biết trung ương muốn gì. Tài liệu tổ chức năm 2026 đặt "yêu cầu chính trị" làm tiêu chí đầu tiên khi chọn cán bộ.'},
-    {ten:'Lý Hi · Lưu Kim Quốc', o:'CCDI · Uỷ ban Giám sát Quốc gia',
-     ghi:'Một bộ máy hai danh nghĩa Đảng/Nhà nước — Lưu Kim Quốc đồng thời là Bí thư Ban Bí thư, Phó Bí thư CCDI và Chủ nhiệm Uỷ ban Giám sát Quốc gia. Năm 2025 lập ~1,012 triệu vụ, lưu trí ~47.000 người, ~983.000 quyết định kỷ luật hoặc xử lý công vụ. Không phải văn phòng tượng trưng.'}
+  {muc:1, t:'DÒNG TIỀN — khép được bằng hồ sơ pháp nhân', acc:'#2ea043', ds:[
+    {ten:'Hướng Hoa Cường', o:'China Star Entertainment · HKEX 6/2026',
+     soi:'huonghoacuong',
+     ghi:'Đã soi. Vẫn là executive director theo hồ sơ sàn, tức không chỉ là nhân vật lịch sử điện ảnh thập niên 1990.'},
+    {ten:'Diệp Tân Long / Ye Xinlong', o:'Con Diệp Tuyển Bình · đối tác đầu tư của Hướng Hoa Cường',
+     ghi:'MẮT XÍCH ĐÁNG ĐÀO NHẤT. Nghiên cứu học thuật ghi ông trở thành đối tác của Hướng trong một công ty đầu tư Hong Kong. Nếu khép được bằng hồ sơ doanh nghiệp và giao dịch chứ không chỉ bài báo, đây là chỗ chuyển từ "quan hệ xã hội" sang đường dây quyền lực thực.'},
+    {ten:'Pháp nhân đầu tư chung', o:'Cổ đông · dòng tiền · Macau và junket',
+     ghi:'Bước kế tiếp của chính mắt xích trên. Cổ đông là ai, tiền đi đâu, có chạm junket Macau không.'},
+    {ten:'China Film Foundation', o:'中国电影基金会 · Hướng từng là phó chủ tịch danh dự',
+     ghi:'Do phía an ninh Đài Loan xác định trong vụ xin cư trú 2021. Đây là mắt xích DỄ KIỂM TRA hơn các cáo buộc về quan hệ chính trị, vì nó là một chức danh trong một tổ chức có thật.'}
   ]},
-  {muc:2, t:'CƯỠNG CHẾ VÀ THÔNG TIN', acc:'#d29922', ds:[
-    {ten:'Trần Văn Thanh', o:'Uỷ ban Chính pháp Trung ương',
-     ghi:'Công an · toà án · viện kiểm sát · an ninh nhà nước · tư pháp KHÔNG phải năm hòn đảo độc lập — có một trục điều phối chính trị phía trên. Hội nghị chính pháp tháng 1/2026 tiếp tục yêu cầu "sự lãnh đạo tuyệt đối của Đảng". Năm 2025 hệ thống kỷ luật xử lý ~1,976 triệu manh mối và mở ~789.000 vụ.'},
-    {ten:'Vương Tiểu Hồng', o:'Bộ Công an · Bí thư Ban Bí thư',
-     ghi:'Trật tự, tội phạm, hộ khẩu, cảnh sát, an ninh nội địa, quản lý hành chính. Khác hẳn Bộ An ninh Nhà nước — hai cơ quan, hai bài toán, người ngoài hay gộp nhầm.'},
-    {ten:'Trần Nhất Tâm', o:'Bộ An ninh Nhà nước',
-     ghi:'Phản gián, tình báo, an ninh quốc gia, chống các hoạt động bị coi là đe doạ nhà nước.'},
-    {ten:'Lý Thư Lỗi · Trang Vinh Văn', o:'Ban Tuyên truyền · CAC',
-     ghi:'Kiểm soát thông tin có HAI nhánh, và chỉ nhìn Great Firewall là mất một nửa: NGĂN CHẶN, và SẢN XUẤT "thực tại chính thống". Không chỉ "bạn không được đọc X" mà còn "đây là cách X nên được hiểu". Quy định GenAI buộc nội dung phù hợp "giá trị cốt lõi xã hội chủ nghĩa" — tuyên truyền 2.0 cộng quản trị dữ liệu 2.0.'},
-    {ten:'Quân uỷ Trung ương · PLA', o:'Trương Hựu Hiệp · Trương Thăng Dân · Lưu Chấn Lập',
-     ghi:'Quân đội thuộc ĐẢNG, không thuộc nhà nước — cạnh PLA còn PAP (vũ cảnh) và các cấu phần an ninh quân sự liên quan. Danh sách lãnh đạo tháng 7/2026 NGẮN BẤT THƯỜNG sau loạt thanh lọc 2023–2026 — Hà Vệ Đông, Miêu Hoa và nhiều tướng cấp cao bị khai trừ. Nhưng thanh lọc đọc được hai chiều: vừa là trung tâm kiểm soát mạnh lên, vừa có thể là mạng quan hệ bị phá và lòng tin nội bộ giảm. CHƯA chứng minh được chuỗi mệnh lệnh bị chia.'}
+  {muc:2, t:'GỐC KMT — nơi nhà Hướng nối vào cỗ máy ngầm thời chiến', acc:'#d29922', ds:[
+    {ten:'Đới Lạp / Dai Li', o:'Trùm tình báo của Tưởng Giới Thạch',
+     ghi:'Tài liệu nguồn nói thẳng mảnh này đáng làm: KMT → hệ tình báo Tưởng → Đới Lạp → Cục Quân Thống → mạng Hong Kong–Macau–Đông Nam Á → hội Tam Hoàng và các tổ chức chống cộng → Hướng Tiền.'},
+    {ten:'Cục Quân Thống', o:'Cơ quan tình báo quân sự ROC',
+     ghi:'Chỗ phải phân biệt cực kỳ nghiêm giữa HỒ SƠ TÌNH BÁO THẬT và TRUYỀN THUYẾT GIANG HỒ — phần lớn tài liệu công khai về giai đoạn này chất lượng không đồng đều.'},
+    {ten:'Hướng Tiền / 向前', o:'Cha Hướng Hoa Cường · thiếu tướng KMT · nền móng Tân Nghĩa An',
+     ghi:'Caixin 2025 xác nhận quân hàm và vai trò sáng lập. Một số hồ sơ khác mô tả ông hoạt động trong hệ tình báo/an ninh ROC, nhưng chi tiết chức vụ thì phải thận trọng. Nghịch lý đáng giữ: gốc chính trị của gia tộc là QUỐC DÂN ĐẢNG, không phải ĐCSTQ.'}
   ]},
-  {muc:3, t:'TIỀN · CÔNG NGHỆ · VÀ QUYỀN SỬA CHÍNH BO MẠCH', acc:'#a371f7', ds:[
-    {ten:'Lý Cường · Hà Lập Phong', o:'Uỷ ban Tài chính Trung ương (lập 2023)',
-     ghi:'Văn kiện nói thẳng mục tiêu: tăng cường sự lãnh đạo tập trung thống nhất của Trung ương Đảng đối với công tác tài chính. Bên nhà nước vẫn có PBOC, NFRA, CSRC — nhưng tầng chiến lược nằm trên, cộng thêm Uỷ ban Công tác Tài chính Trung ương lo phần công tác đảng. KHÔNG có nghĩa Tập duyệt từng khoản vay: trung ương nắm hướng tín dụng, rủi ro hệ thống, ưu tiên chiến lược và nhân sự cao cấp.'},
-    {ten:'Đinh Tiết Tường', o:'Uỷ ban Khoa học Công nghệ Trung ương (lập 2023)',
-     ghi:'AI, bán dẫn, vũ trụ, lượng tử, sinh học, phòng thí nghiệm quốc gia, phối hợp quân–dân. Mô hình gọi là "whole-of-nation": chiến lược → đại học + phòng thí nghiệm + doanh nghiệp (Huawei, SMIC, CATL và các national champions) → quỹ nhà nước → công nghiệp. Nhưng đó KHÁC với nói "Huawei là bộ phận bí mật của ĐCSTQ". Khoa học không còn là một bộ chuyên môn mà được đặt vào giao điểm an ninh + công nghiệp + cạnh tranh Mỹ–Trung + quân sự.'},
-    {ten:'Trình Phúc Ba', o:'SASAC — doanh nghiệp nhà nước trung ương',
-     ghi:'Nơi tài sản nhà nước, doanh nghiệp và Đảng giao nhau. Cộng ngân hàng quốc doanh, quỹ chính phủ và chính quyền địa phương, đây là năng lực tập trung vốn mà một nền kinh tế hoàn toàn phi tập trung khó bắt chước.'},
-    {ten:'Doanh nghiệp tư nhân', o:'bốn ổ cắm, không phải một',
-     ghi:'Đây là chỗ dễ hiểu sai nhất khi nhìn Huawei, Alibaba, Tencent hay ByteDance. Bốn ổ cắm: sở hữu · quản trị · tổ chức đảng · và THỊ TRƯỜNG NHÀ NƯỚC (mua sắm công, tín dụng, đất, giấy phép, trợ cấp). Quy định tổ chức cơ sở: doanh nghiệp tư nhân có từ BA đảng viên chính thức trở lên thì nên lập tổ chức đảng riêng; toàn quốc ~1,692 triệu chi bộ trong doanh nghiệp và ~201.000 trong các tổ chức xã hội. Nghiên cứu 2026: trong 33 văn kiện trung ương về xây dựng đảng ở "tổ chức mới", 21 văn kiện ra đời SAU khi Tập nắm quyền. Nhưng vai trò chi bộ khác nhau rất lớn giữa các công ty — có chỗ gần như nghi lễ, có chỗ tham gia quyết định quan trọng. Bằng chứng KHÔNG cho phép kết luận "mọi CEO Trung Quốc chỉ là bù nhìn".'},
-    {ten:'Uỷ ban Biên chế Cơ cấu Trung ương', o:'META — quyền sửa chính bo mạch',
-     ghi:'Không chỉ điều khiển cơ quan, mà TẠO · XOÁ · GỘP cơ quan, chuyển chức năng, đổi biên chế. Cải cách 2023 chính là ví dụ. Nói cách khác: CPU có quyền thiết kế lại mainboard — đây là thứ phân biệt hệ thống này với một chính phủ thông thường.'}
-  ]},
-  {muc:4, t:'NỐI RA NGOÀI VÀ XUỐNG DƯỚI — chỗ chạm Hong Kong và Việt Nam', acc:'#58a6ff', ds:[
-    {ten:'Lý Cán Kiệt', o:'Ban Công tác Mặt trận Thống nhất',
-     ghi:'ĐÁNG SOI NHẤT SAU HỒ SƠ ĐẦU TIÊN. Ổ cắm nối thẳng sang hồ sơ Hướng Hoa Cường, và là cơ chế "HẤP THỤ" thay vì "tiêu diệt" — thứ dễ bị đọc sai nhất từ bên ngoài. Đối tượng: các đảng nhỏ, người không đảng phái, trí thức, dân tộc, tôn giáo, doanh nhân tư nhân, "giai tầng xã hội mới", Hong Kong, Macau, Đài Loan, Hoa kiều và cộng đồng hải ngoại.'},
-    {ten:'Hạ Bảo Long', o:'Văn phòng Hong Kong–Macau Trung ương',
-     ghi:'Một cơ quan hai danh nghĩa: mặt Đảng và mặt Quốc vụ viện. Ví dụ rõ nhất của cấu trúc party-state. Hong Kong vẫn có hệ pháp luật và hành chính riêng dưới "một quốc gia, hai chế độ", nhưng tầng chính sách trung ương nằm dưới cấu trúc Đảng.'},
-    {ten:'Tống Đào', o:'Văn phòng Đài Loan Trung ương + Quốc vụ viện',
-     ghi:'Lại là một cơ quan hai danh nghĩa. Nhiệm vụ: quan hệ hai bờ, giao lưu, kinh tế, chính trị, chống Đài Loan độc lập, thúc đẩy thống nhất. Nhưng ĐCSTQ giao lưu với KMT ≠ KMT nằm dưới ĐCSTQ — đúng nguyên tắc đã dùng với nhà Hướng.'},
-    {ten:'Vương Nghị · Lưu Hải Tinh', o:'ngoại giao SONG SONG',
-     ghi:'Một nước bình thường chủ yếu có Bộ Ngoại giao. Trung Quốc chạy ba mạng: ngoại giao nhà nước (MFA — Vương Nghị, đồng thời đứng đầu Văn phòng Uỷ ban Đối ngoại Trung ương), ngoại giao ĐẢNG (Ban Liên lạc Đối ngoại Trung ương — Lưu Hải Tinh, quan hệ thẳng với đảng cầm quyền, đảng đối lập và phong trào chính trị nước ngoài), và thống chiến với cộng đồng hải ngoại. Ba mạng phối hợp được nhưng không phải một cơ quan.'},
-    {ten:'Ngô Hán Thánh', o:'Ban Công tác Xã hội Trung ương (lập 2023) · đoàn thể · lưới',
-     ghi:'Thứ Cửu Bình 2004 hoàn toàn chưa thể thấy. Kinh tế đã đổi: shipper (Meituan), tài xế (Didi), người bán trên nền tảng, freelancer KHÔNG nằm trong đơn vị công tác truyền thống — nên Đảng xây ổ cắm mới để nối tới họ. Cộng TRƯỜNG HỌC — mô hình chính thức là "hiệu trưởng phụ trách dưới sự lãnh đạo của Đảng uỷ", cho Đảng một ổ cắm cực dài hạn: trẻ em → trường → Đội → Đoàn → Đảng → cán bộ. Cộng Đoàn Thanh niên (điều lệ ghi là trợ thủ và lực lượng dự bị của Đảng), Công đoàn ACFTU, Hội Phụ nữ ACWF, lưới quản trị cộng đồng, và cả công tác tiếp nhận thư từ khiếu nại (xinfang). Đừng biến mọi lưới thành "mạng mật vụ": phần lớn chức năng rất đời thường — rác, người già, tranh chấp, an sinh. Nhưng cùng mạng đó làm tăng khả năng nhận biết xã hội ở cấp rất nhỏ.'}
+  {muc:3, t:'BO MẠCH 3.0 — người thật chạy bên trong, CHƯA đủ bằng chứng', acc:'#6f7b8a', ds:[
+    {ten:'Hai mươi ổ cắm · lớp tiểu sử', o:'Xuất thân phe phái · ai nâng đỡ · từng giữ chức ở tỉnh nào',
+     ghi:'Tài liệu nguồn ĐỀ XUẤT tầng này nhưng chưa đưa bằng chứng cho nó. Suy phe phái từ chức vụ là đúng thứ "sáu dấu ≠" đã cấm — quan hệ không phải chỉ huy. Nên bo mạch hiện dừng ở cơ quan, đường chỉ huy và phạm vi chạm tới; lớp tiểu sử chỉ được thêm khi có hồ sơ, không phải khi có suy đoán hợp lý.'},
+    {ten:'Các vụ thanh lọc làm đổi cán cân', o:'2023–2026 · quân đội và bộ máy',
+     ghi:'Đáng theo dõi liên tục chứ không kết luận một lần: một đợt khai trừ có thể vừa là dấu hiệu Trung ương kiểm soát mạnh hơn, vừa là dấu hiệu niềm tin nội bộ giảm — hai thứ có thể xảy ra cùng lúc.'}
   ]}
 ];
 

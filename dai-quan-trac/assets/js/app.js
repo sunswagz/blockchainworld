@@ -16,6 +16,7 @@ var THANG = K_.THANG || [], TIEUCHI = K_.TIEUCHI || [];
    phải `const`: napChuThe() gán lại toàn bộ rồi render lại. */
 let THEATERS = [], GAUGES = [], CHAIN = [], CHAIN_SRC = {},
     LEVELS = [], SCEN = [], LIB = [], SOI = [], DANHSACH = [], SOLIEU = [],
+    BOMACH = null, BANCO = null,
     COMPASS = null, DODAC = [];
 
 /* ============================================================
@@ -136,6 +137,7 @@ function napChuThe(){
   CHAIN_SRC = d.CHAIN_SRC||{};
   LEVELS = d.LEVELS||[];     SCEN = d.SCEN||[];     LIB = d.LIB||[];
   SOI = s.SOI||[];           DANHSACH = s.DANHSACH||[];
+  BOMACH = d.BOMACH||null;  BANCO = d.BANCO||null;
   SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;  DODAC = d.DODAC||[];
   const dd = c.khoDo ? window[c.khoDo] : null;
   DO = (dd && dd.do) ? dd.do : {};
@@ -327,6 +329,13 @@ function dungRoutes(){
   /* Hồ sơ mang theo `con` — danh sách mục của chính nó. Thanh bên
      nhờ đó có tầng thứ ba, và người đọc nhảy thẳng tới đúng mục
      thay vì mở hồ sơ rồi cuộn tìm giữa 16 mục. */
+  /* Chỉ chủ thể nào KHAI bo mạch mới có nhóm này — Việt Nam không
+     khai nên nhóm tự rỗng và bị lọc đi ở cuối hàm. Không cần một
+     dòng "nếu là Trung Quốc thì..." nào cả. */
+  {g:'Bo mạch quyền lực', items: (BOMACH ? [{id:'bomach', t:'Bo mạch 2026', ic:'factory',
+      sub:BOMACH.tang.reduce((a,t)=>a+t.ds.length,0)+' Ổ CẮM',
+      con:BOMACH.tang.map(t=>({id:'bomach/'+t.id, t:t.tn, ic:'chain'}))}] : [])
+    .concat(BANCO ? [{id:'banco', t:'Bàn cờ Mỹ–Trung', ic:'eagle', sub:'HAI BO MẠCH'}] : [])},
   {g:'Soi quyền lực', items: [{id:'soi', t:'Khung 7 tiêu chí', ic:'gauge', sub:'DÙNG LẠI ĐƯỢC'}]
     .concat(SOI.map(s=>({id:'soi/'+s.id, t:s.ten, ic:s.ic, sub:'HỒ SƠ',
       con:(s.muc||[]).map(m=>({id:'soi/'+s.id+'/'+m.id, t:m.t, ic:m.ic||'book'}))})))},
@@ -464,6 +473,9 @@ function render(){
   if(r==='compass')    return v.innerHTML='', v.appendChild(vCompass());
   if(r==='src')        return v.innerHTML='', v.appendChild(vSrc());
   if(r==='soi')        return v.innerHTML='', v.appendChild(vKhung());
+  if(r==='banco')      return v.innerHTML='', v.appendChild(vBanCo());
+  if(r==='bomach')     return v.innerHTML='', v.appendChild(vBoMach(null));
+  if(r.startsWith('bomach/')) return v.innerHTML='', v.appendChild(vBoMach(r.slice(7)));
   if(r.startsWith('th/'))  return v.innerHTML='', v.appendChild(vTheater(r.slice(3)));
   if(r.startsWith('lib/')) return v.innerHTML='', v.appendChild(vLib(r.slice(4)));
   if(r.startsWith('soi/')){ const p=r.slice(4).split('/');
@@ -891,6 +903,85 @@ function vLib(id){
   const nav=el('div'); nav.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)';
   LIB.forEach(o=>{ const b=el('button','fchip'+(o.id===id?' on':'')); b.innerHTML='<span class="n">'+o.n+'</span> '+esc(o.t); b.onclick=()=>go('lib/'+o.id); nav.appendChild(b); });
   w.appendChild(nav);
+  return w;
+}
+
+/* ---------- BO MẠCH QUYỀN LỰC ----------
+
+   Một tầng một trang, cộng một trang tổng. Hai mươi ổ cắm dồn vào
+   một trang thì không ai đọc hết; tách bốn trang thì mỗi trang là
+   một câu hỏi trả lời được: ai giữ hệ thống lại, ai cưỡng chế, ai
+   giữ tiền, ai nối ra ngoài. */
+function veOCam(t){
+  const w=el('div');
+  const g=el('div','the-w');
+  t.ds.forEach(x=>{
+    const c=el('div','the'); c.style.setProperty('--a',t.acc);
+    c.innerHTML='<b>'+esc(x.ten)+'</b><div class="the-vd">'+esc(x.o)+'</div>'+
+      '<p><span style="color:var(--fg2);font-size:11px;letter-spacing:.08em">ĐƯỜNG CHỈ HUY</span><br>'+x.chi+
+      '<br><br><span style="color:var(--fg2);font-size:11px;letter-spacing:.08em">CHẠM TỚI</span><br>'+x.cham+
+      (x.ghi?'<br><br>'+x.ghi:'')+'</p>';
+    g.appendChild(c);
+  });
+  w.appendChild(g);
+  return w;
+}
+function vBoMach(id){
+  if(!BOMACH) return go('flow'), el('div');
+  const T = id ? BOMACH.tang.find(x=>x.id===id) : null;
+  const tong = BOMACH.tang.reduce((a,t)=>a+t.ds.length,0);
+  head(T?T.tn:'Bo mạch 2026', T?('TẦNG '+T.n+' · '+T.ds.length+' Ổ CẮM'):(tong+' Ổ CẮM'));
+  const w=el('div','wrap');
+
+  if(!T){
+    w.innerHTML='<div class="eyebrow">Giải phẫu bộ máy</div><h2 class="big">Bo mạch quyền lực 2026</h2>'+
+      '<p class="lede">'+BOMACH.lede+'</p>';
+    w.appendChild(el('pre','ascii',BOMACH.a));
+    const q=el('blockquote'); q.innerHTML=BOMACH.ghi; w.appendChild(q);
+    w.appendChild(el('h3','sec','Bốn tầng'));
+    const g=el('div','the-w');
+    BOMACH.tang.forEach(t=>{
+      const c=el('button','the'); c.style.setProperty('--a',t.acc); c.style.textAlign='left'; c.style.cursor='pointer';
+      c.innerHTML='<b>Tầng '+t.n+' · '+esc(t.t)+'</b><div class="the-vd">'+t.ds.length+' ổ cắm</div><p>'+esc(t.d)+'</p>';
+      c.onclick=()=>go('bomach/'+t.id); g.appendChild(c);
+    });
+    w.appendChild(g);
+  } else {
+    w.innerHTML='<div class="eyebrow">Bo mạch · tầng '+T.n+'</div><h2 class="big">'+esc(T.t)+'</h2>'+
+      '<p class="lede">'+esc(T.d)+'</p>';
+    w.appendChild(veOCam(T));
+  }
+
+  const nav=el('div'); nav.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)';
+  const bt=el('button','fchip'+(id?'':' on')); bt.textContent='Tổng quan'; bt.onclick=()=>go('bomach'); nav.appendChild(bt);
+  BOMACH.tang.forEach(t=>{ const b=el('button','fchip'+(t.id===id?' on':''));
+    b.innerHTML='<span class="n">'+t.n+'</span> '+esc(t.tn); b.onclick=()=>go('bomach/'+t.id); nav.appendChild(b); });
+  w.appendChild(nav);
+  return w;
+}
+
+/* ---------- BÀN CỜ MỸ–TRUNG ----------
+
+   Chỗ duy nhất trong cung mà HAI bảng gặp nhau. Bảng Việt Nam hỏi
+   "nền kinh tế chịu được không", bảng Trung Quốc hỏi "quyền lực
+   giữ được không" — bàn cờ này cho thấy một cú siết vào ổ cắm bên
+   kia chảy tới đơn hàng và tỷ giá bên này qua đường nào. */
+function vBanCo(){
+  if(!BANCO) return go('flow'), el('div');
+  head('Bàn cờ Mỹ–Trung','HAI BO MẠCH ĐỐI NHAU');
+  const w=el('div','wrap');
+  w.innerHTML='<div class="eyebrow">Đòn và phản đòn</div><h2 class="big">Bàn cờ Mỹ–Trung</h2>'+
+    '<p class="lede">'+BANCO.lede+'</p>';
+  w.appendChild(el('pre','ascii',BANCO.a));
+  BANCO.cot.forEach(c=>{
+    w.appendChild(el('h3','sec',c.t));
+    const g=el('div','the-w');
+    c.ds.forEach(x=>{ const d=el('div','the'); d.style.setProperty('--a',c.acc);
+      d.innerHTML='<b>'+esc(x.n)+'</b><p>'+x.d+'</p>'; g.appendChild(d); });
+    w.appendChild(g);
+  });
+  const q=el('blockquote'); q.style.borderLeftColor='var(--dgr)'; q.style.background='#f0503f0d';
+  q.innerHTML=BANCO.ket; w.appendChild(q);
   return w;
 }
 
