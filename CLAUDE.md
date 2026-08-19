@@ -147,6 +147,8 @@ conflict lúc merge.
     tang-thu-cac/assets/data/kb/
     dai-quan-trac/assets/js/do.js
     dai-quan-trac/assets/js/scan.js
+    dai-quan-trac/assets/js/tq/do.js
+    dai-quan-trac/assets/js/tq/scan.js
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
