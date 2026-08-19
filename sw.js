@@ -10,7 +10,7 @@
    giữ lại sau khi cung đã cập nhật.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v8";
+var CACHE_VERSION = "v9";
 var SHELL_CACHE = "cong-thanh-" + CACHE_VERSION;
 
 var SHELL = [
@@ -65,6 +65,7 @@ self.addEventListener("fetch", function (e) {
   if (url.pathname.indexOf("/hoang-thanh/") !== -1) return;
   if (url.pathname.indexOf("/tao-bien-xu/") !== -1) return;
   if (url.pathname.indexOf("/tu-cam-thanh/") !== -1) return;
+  if (url.pathname.indexOf("/thai-boc-tu/") !== -1) return;
 
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(function () {

@@ -27,6 +27,12 @@
       icon: '<path d="M2.5 21h19"/><path d="M4.5 21V9.5h15V21"/><path d="M3 9.5 12 4l9 5.5"/><path d="M10.2 21v-5a1.8 1.8 0 0 1 3.6 0v5"/><path d="M7 21v-3.2a1.2 1.2 0 0 1 2.4 0V21"/><path d="M14.6 21v-3.2a1.2 1.2 0 0 1 2.4 0V21"/>'
     },
     {
+      href: "../tao-bien-xu/",
+      name: "Tạo Biện Xứ",
+      note: "công xưởng AI",
+      icon: '<path d="M3 21h18M5 21V11l4-3v13M13 21V6l6-3v18"/><path d="M8 15h.01M16 12h.01"/>'
+    },
+    {
       href: "../cong-bo/",
       name: "Công Bộ",
       note: "bộ đồ nghề",
@@ -55,12 +61,6 @@
       name: "Tàng Thư Các",
       note: "kho Claude Skills",
       icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
-    },
-    {
-      href: "../thai-boc-tu/",
-      name: "Thái Bộc Tự",
-      note: "đoàn tàu & khớp nối",
-      icon: '<path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 20h20"/><path d="M8 5V3h8v2"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>'
     }
   ];
 

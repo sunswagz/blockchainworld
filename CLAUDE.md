@@ -1,10 +1,11 @@
 # blockchainworld
 
-Repo chứa Cổng Thành (`index.html` ở gốc) và chín cung, mỗi cung là một
+Repo chứa Cổng Thành (`index.html` ở gốc) và mười cung, mỗi cung là một
 webapp tĩnh độc lập có `index.html` riêng:
 
     cong-bo/  dai-quan-trac/  do-sat-vien/  hoang-thanh/  ho-bo/
-    kinh-thanh/  tang-thu-cac/  tao-bien-xu/  tu-cam-thanh/
+    kinh-thanh/  tang-thu-cac/  tao-bien-xu/  thai-boc-tu/
+    tu-cam-thanh/
 
 Có đúng một thư mục ở gốc **không** phải cung: `tu-cam-thanh-runtime/`.
 Nó là runtime Python của Tử Cấm Thành, không lên site — xem mục
@@ -142,6 +143,7 @@ conflict lúc merge.
     cong-bo/assets/js/v/nhat-ky.js
     cong-bo/assets/logos/
     ho-bo/assets/js/v/dong-tien.js
+    thai-boc-tu/assets/js/v/doan-tau.js
     tang-thu-cac/assets/js/data.js
     tang-thu-cac/assets/data/lich-su.json
     tang-thu-cac/assets/data/kb/
@@ -435,6 +437,7 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5181  tu-cam-thanh
     5182  tu-cam-thanh-runtime  ← KHÔNG phải cung; là runtime Python (xem mục dưới)
     5183  ho-bo
+    5184  thai-boc-tu
 
 Luôn truyền cổng, đừng để mặc định:
 

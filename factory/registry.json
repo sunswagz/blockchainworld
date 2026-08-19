@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T15:38:06.546Z",
+  "generatedAt": "2026-08-19T17:14:58.037Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -59,6 +59,19 @@
         "ho-bo/assets/js/v/dong-tien.js"
       ],
       "y": "Mười một đường DefiLlama công khai (TVL, phí, DEX, stablecoin, vụ mất tiền, lợi suất) cộng lịch sử 20 chuỗi, gộp thành một file. KHÔNG gọi AI, không khoá nào."
+    },
+    {
+      "ma": "thai-boc-tu",
+      "ten": "Đoàn tàu Thái Bộc Tự",
+      "cung": "thai-boc-tu",
+      "tram": "M12",
+      "che": "script",
+      "nhip": 6,
+      "lenh": "node scripts/build-thaiboc.mjs",
+      "ra": [
+        "thai-boc-tu/assets/js/v/doan-tau.js"
+      ],
+      "y": "Ba đường DefiLlama công khai. Không gọi AI, không khoá nào. Việc nặng nhất làm ở đây chứ không ở trình duyệt: xếp hơn 8.000 giao thức vào 18 toa và dựng quan hệ phụ thuộc oracle từ khai báo của từng cái."
     },
     {
       "ma": "tang-thu-cac",

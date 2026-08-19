@@ -106,6 +106,15 @@ export const NODE = [
        "lợi suất) cộng lịch sử 20 chuỗi, gộp thành một file. KHÔNG gọi AI, không khoá nào."
   },
   {
+    ma: "thai-boc-tu", ten: "Đoàn tàu Thái Bộc Tự", cung: "thai-boc-tu",
+    tram: "M12", che: "script", nhip: 6,
+    lenh: "node scripts/build-thaiboc.mjs",
+    ra: ["thai-boc-tu/assets/js/v/doan-tau.js"],
+    y: "Ba đường DefiLlama công khai. Không gọi AI, không khoá nào. Việc nặng nhất " +
+       "làm ở đây chứ không ở trình duyệt: xếp hơn 8.000 giao thức vào 18 toa và " +
+       "dựng quan hệ phụ thuộc oracle từ khai báo của từng cái."
+  },
+  {
     ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
     tram: "M12", che: "script", nhip: 6,
     lenh: "node scripts/build-tangthu.mjs",

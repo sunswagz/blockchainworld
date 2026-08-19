@@ -55,6 +55,12 @@
       name: "Tàng Thư Các",
       note: "kho Claude Skills",
       icon: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14v16h4.5a1.5 1.5 0 0 0 1.5-1.5z"/>'
+    },
+    {
+      href: "../thai-boc-tu/",
+      name: "Thái Bộc Tự",
+      note: "đoàn tàu & khớp nối",
+      icon: '<path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 20h20"/><path d="M8 5V3h8v2"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>'
     }
   ];
 

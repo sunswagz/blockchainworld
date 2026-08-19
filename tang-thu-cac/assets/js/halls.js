@@ -55,6 +55,12 @@
       name: "Đài Quan Trắc",
       note: "địa chính trị",
       icon: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/><path d="M12 12l6-3.6"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>'
+    },
+    {
+      href: "../thai-boc-tu/",
+      name: "Thái Bộc Tự",
+      note: "đoàn tàu & khớp nối",
+      icon: '<path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 20h20"/><path d="M8 5V3h8v2"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>'
     }
   ];
 

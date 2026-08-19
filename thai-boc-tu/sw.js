@@ -1,27 +1,28 @@
 /* ═══════════════════════════════════════════════════════
-   Service worker — Tạo Biện Xứ
+   Service worker — Thái Bộc Tự
    Chiến lược:
      · vỏ ứng dụng (html/css/js/icon) : cache trước, chạy offline
      · phông chữ Google              : cache khi dùng lần đầu
+     · assets/js/v/                  : MẠNG TRƯỚC
 
-   `assets/js/data.js` là bản thiết kế VIẾT TAY, đổi cùng nhịp với
+   `assets/js/toa.js` là sổ 18 toa VIẾT TAY, đổi cùng nhịp với
    mã, nên nó nằm thẳng trong SHELL.
 
-   Nhưng `assets/js/v/van-hanh.js` thì ngược hẳn: bot ghi đè nó sau
-   mỗi lượt GitHub Actions (4 lượt/ngày). Để nó ở nhánh cache-trước
-   là Bảng vận hành hiện số của hôm qua cho tới lần nâng
-   CACHE_VERSION kế tiếp — tức là một bảng điều khiển nói dối, thứ
-   tệ hơn hẳn không có bảng nào. Đúng cái bẫy đã cắn logos.js của
-   Công Bộ. Nên nó đi nhánh MẠNG-TRƯỚC và KHÔNG nằm trong SHELL.
+   Nhưng `assets/js/v/doan-tau.js` thì ngược hẳn: bot ghi đè nó
+   sau mỗi lượt GitHub Actions (4 lượt/ngày). Để nó ở nhánh
+   cache-trước là máy đã cài app hiện số của hôm qua cho tới lần
+   nâng CACHE_VERSION kế tiếp — một bảng khớp nối nói dối, thứ tệ
+   hơn hẳn không có bảng nào. Đúng cái bẫy đã cắn logos.js của Công
+   Bộ. Nên nó đi nhánh MẠNG-TRƯỚC và KHÔNG nằm trong SHELL.
 
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    Quên nâng thì máy đã cài cứ dùng bản cũ — xem mục "Sửa file
    trong SHELL thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v10";
-var SHELL_CACHE = "tao-bien-xu-shell-" + CACHE_VERSION;
-var FONT_CACHE = "tao-bien-xu-fonts-" + CACHE_VERSION;
+var CACHE_VERSION = "v1";
+var SHELL_CACHE = "thai-boc-tu-shell-" + CACHE_VERSION;
+var FONT_CACHE = "thai-boc-tu-fonts-" + CACHE_VERSION;
 
 var SHELL = [
   "./",
@@ -29,7 +30,7 @@ var SHELL = [
   "./manifest.webmanifest",
   "./assets/css/app.css",
   "./assets/css/halls.css",
-  "./assets/js/data.js",
+  "./assets/js/toa.js",
   "./assets/js/app.js",
   "./assets/js/pwa.js",
   "./assets/js/halls.js",

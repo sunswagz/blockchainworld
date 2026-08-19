@@ -1,0 +1,688 @@
+/* ═══════════════════════════════════════════════════════
+   THÁI BỘC TỰ — giao diện.
+
+   Sáu phòng, một tuyến hash, không khung nào ngoài trình duyệt.
+
+   ── BA LUẬT CHẠY XUYÊN FILE ───────────────────────────
+
+   1. KHÔNG BỊA SỐ. Thiếu dữ liệu thì vẽ "—", không vẽ 0. Ô trống
+      nói "chưa đo được"; số 0 nói "đo được và bằng không". Ở cung
+      này luật đó nặng hơn mọi cung khác, vì năm toa (DePIN, AI,
+      danh tính, game, meme) KHÔNG đo được bằng TVL — vẽ 0 cho
+      chúng là nói "năm toa này rỗng", một câu sai hẳn.
+
+   2. ĐO ĐƯỢC và LUẬN RA không bao giờ trông giống nhau. Thứ tự bị
+      đốt và thang tiến hoá là LUẬN — chúng luôn mang nhãn "luận"
+      và không bao giờ nằm chung một bảng với con số đo được.
+
+   3. MỌI CON SỐ TRUY NGƯỢC ĐƯỢC. Mỗi toa mở ra là thấy đúng những
+      category DefiLlama đã cộng vào nó. Không đồng ý với cách xếp
+      thì vẫn thấy được thành phần mà tự xếp lại.
+
+   ── HAI NGUỒN, KHỚP BẰNG MÃ TOA ───────────────────────
+   `window.THAIBOC`     — bot sinh 4 lượt/ngày (số)
+   `window.THAIBOC_TOA` — viết tay (chữ)
+
+   Chúng khớp nhau bằng mã `t01`…`t18`. Lệch mã là hỏng thật, nên
+   `dungTau()` báo thẳng ra màn hình chứ không lặng lẽ bỏ qua toa
+   đó — một toa biến mất khỏi bảng mà không ai biết còn tệ hơn một
+   dòng báo lỗi xấu xí.
+   ═══════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var D = window.THAIBOC || null;
+  var S = window.THAIBOC_TOA || { TOA: [], THANG: [], THIEU: [], CUNG: {} };
+
+  /* ═══════════════ ĐỊNH DẠNG ═══════════════ */
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function so(x, d) {
+    if (x == null || !isFinite(x)) return "—";
+    return Number(x).toLocaleString("vi-VN", { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  /* Tiền theo bậc tiếng Việt — cùng thang với Hộ Bộ, để hai cung
+     đọc số giống nhau. */
+  function tien(n) {
+    if (n == null || !isFinite(n)) return "—";
+    var a = Math.abs(n);
+    if (a >= 1e12) return so(n / 1e12, 2) + " ngh.tỷ $";
+    if (a >= 1e9) return so(n / 1e9, a >= 1e11 ? 0 : 1) + " tỷ $";
+    if (a >= 1e6) return so(n / 1e6, a >= 1e8 ? 0 : 1) + " tr $";
+    if (a >= 1e3) return so(n / 1e3, 0) + " ng $";
+    return so(n, 0) + " $";
+  }
+
+  function pt(x, d) {
+    if (x == null || !isFinite(x)) return "—";
+    return so(x * 100, d == null ? 1 : d) + "%";
+  }
+
+  /* Tên thước đo, hiện ngay dưới mỗi con số. Không có dòng này thì
+     78 tỷ của toa nền và 307 tỷ của toa tiền ổn định trông như
+     cùng một phép đo, mà chúng là hai thước khác hẳn nhau. */
+  var TEN_THUOC = {
+    "tvl-giao-thuc": "TVL giao thức",
+    "tvl-chuoi": "TVL toàn chuỗi",
+    "luu-hanh": "lượng lưu hành",
+    "khong-do-duoc": "TVL không đo được toa này"
+  };
+
+  /* `n` là chữ thường và LUÔN được escape — nó nhận số đếm từ dữ
+     liệu. Nhãn HTML (ví dụ huy hiệu "LUẬN") đi qua `nhan`, tham số
+     riêng, chứ không nhét vào `n`: nhét vào đó thì esc() biến thẻ
+     thành chữ và huy hiệu hiện ra dưới dạng `&lt;span…`. Đã dính
+     đúng lỗi đó một lần, và nó dính ở chính hai phòng cần huy hiệu
+     nhất — hai phòng bày phần LUẬN. */
+  function khoi(tieu, n, than, y, nhan) {
+    return '<section class="khoi"><div class="khoi-dinh"><h2>' + esc(tieu) + "</h2>" +
+      (nhan || "") +
+      (n ? '<span class="n">' + esc(n) + "</span>" : "") + "</div>" +
+      (y ? '<div class="khoi-y">' + y + "</div>" : "") + than + "</section>";
+  }
+
+  var HUY_LUAN = '<span class="luan">LUẬN</span>';
+
+  /* Dùng đúng bộ lớp .nhan/.to/.duoi của khối "ô số" dùng chung —
+     đừng đặt lớp mới cho cùng một thứ, hai cung cạnh nhau mà ô số
+     lệch nhau vài pixel là thấy ngay. */
+  function oSo(ten, gt, y) {
+    return '<div class="o-so"><div class="nhan">' + esc(ten) + "</div>" +
+      '<div class="to">' + gt + "</div>" +
+      (y ? '<div class="duoi">' + y + "</div>" : "") +
+      "</div>";
+  }
+
+  function bang(cot, hang) {
+    var th = cot.map(function (c) {
+      return "<th" + (c.rong ? ' style="width:' + c.rong + '"' : "") + ">" + esc(c.t) + "</th>";
+    }).join("");
+    return '<div class="cuon"><table class="bang"><thead><tr>' + th +
+      "</tr></thead><tbody>" + hang + "</tbody></table></div>";
+  }
+
+  /* Ghép số (bot) với chữ (viết tay). Lệch mã thì trả về danh sách
+     lệch để phòng nào cũng báo được, thay vì âm thầm thiếu toa. */
+  function ghep() {
+    var soTheoMa = {};
+    (D ? D.toa : []).forEach(function (t) { soTheoMa[t.ma] = t; });
+    var ra = [], thieuSo = [], thuaSo = {};
+    for (var k in soTheoMa) thuaSo[k] = true;
+    S.TOA.forEach(function (c) {
+      var s = soTheoMa[c.ma];
+      if (!s) { thieuSo.push(c.ma); return; }
+      delete thuaSo[c.ma];
+      ra.push({ c: c, s: s });
+    });
+    return { toa: ra, thieuSo: thieuSo, thuaSo: Object.keys(thuaSo) };
+  }
+
+  var G = null;
+
+  function canhLech() {
+    if (!G || (!G.thieuSo.length && !G.thuaSo.length)) return "";
+    var m = [];
+    if (G.thieuSo.length) m.push("có chữ mà thiếu số: " + G.thieuSo.join(", "));
+    if (G.thuaSo.length) m.push("có số mà thiếu chữ: " + G.thuaSo.join(", "));
+    return '<p class="canhbao" style="display:block"><b>Sổ toa lệch số liệu.</b> ' +
+      esc(m.join(" · ")) + ". Sửa <code>assets/js/toa.js</code> hoặc " +
+      "<code>scripts/build-thaiboc.mjs</code> cho hai bên khớp mã toa.</p>";
+  }
+
+  /* ═══════════════ PHÒNG · ĐOÀN TÀU ═══════════════ */
+
+  function theToa(t) {
+    var s = t.s, c = t.c;
+    var doDuoc = s.thuoc !== "khong-do-duoc" && s.tvl != null;
+    var tt = s.tapTrung;
+    return '<button class="toa" type="button" data-toa="' + esc(c.ma) + '">' +
+      '<div class="toa-so">TOA ' + esc(c.so) + "</div>" +
+      '<div class="toa-ten">' + esc(c.ten) + "</div>" +
+      '<div class="toa-gt" data-do="' + (doDuoc ? "1" : "0") + '">' +
+        (doDuoc ? tien(s.tvl) : "—") + "</div>" +
+      '<div class="toa-th">' + esc(TEN_THUOC[s.thuoc]) + "</div>" +
+      (tt != null
+        ? '<div class="toa-tt"><i data-rong="' + (tt * 100).toFixed(1) + '"></i></div>' +
+          '<div class="toa-tt-n">' + so(s.soGiaoThuc, 0) + " giao thức · " +
+            esc(s.tapTrungTen || "lớn nhất") + " giữ " + pt(tt, 0) + "</div>"
+        : '<div class="toa-tt-n" style="margin-top:9px">' + so(s.soGiaoThuc, 0) + " giao thức</div>") +
+      "</button>";
+  }
+
+  function veDoanTau() {
+    var dl = D.duongLui, tc = D.traiChuoi;
+    var soDo = G.toa.filter(function (t) { return t.s.thuoc !== "khong-do-duoc"; }).length;
+
+    var oS = '<div class="luoi-so">' +
+      oSo("Giao thức đang xếp toa", '<b>' + so(D.tong.soGiaoThuc, 0) + "</b>",
+        D.tong.soCategory + " nhóm nguồn → 18 toa") +
+      oSo("Vốn treo trên một khớp nối", "<b>" + pt(dl.tyLe, 1) + "</b>",
+        dl.motN + " giao thức không khai nguồn giá dự phòng") +
+      oSo("Chỉ đứng trên một chuỗi", "<b>" + so(tc.motN, 0) + "</b>",
+        "giữ " + tien(tc.motTvl) + " — chuỗi đó ngã là ngã theo") +
+      oSo("Toa đo được bằng số", "<b>" + soDo + "/18</b>",
+        "năm toa còn lại TVL không đo nổi") +
+      "</div>";
+
+    var tau = '<div class="tau">' + G.toa.map(theToa).join("") + "</div>";
+
+    var duY = "";
+    if (D.du && D.du.cat.length) {
+      duY = khoi("Phần chưa xếp toa", D.du.cat.length + " nhóm",
+        '<p class="giaithich">Còn <b>' + D.du.soGiaoThuc + " giao thức</b> giữ <b>" +
+        tien(D.du.tvl) + "</b> không thuộc toa nào trong thang 18 toa: " +
+        '<span class="hs-ng" style="display:inline-flex;margin-left:2px">' +
+        D.du.cat.map(function (c) { return "<span>" + esc(c) + "</span>"; }).join("") +
+        "</span></p>",
+        "Bày ra chứ không nhét bừa vào toa gần nhất. Một thang 18 toa không " +
+        "ôm hết hơn trăm nhóm nguồn, và ép cho vừa thì bảng đẹp hơn rồi sai đi " +
+        "mà không ai biết. Phần dư ở đây rất nhỏ so với tổng, nhưng nó phải " +
+        "nhìn thấy được thì mới kiểm được.");
+    }
+
+    return canhLech() +
+      khoi("Đoàn tàu đang chở gì", null, oS,
+        "Bốn con số này là toàn bộ luận điểm của cung: cái đáng lo không phải " +
+        "toa nào to, mà là <b>bao nhiêu thứ đang treo trên một khớp nối duy nhất</b>.") +
+      khoi("Mười tám toa", "bấm một toa để mở hồ sơ", tau,
+        "Mỗi toa một thước đo, và thước nào cũng ghi ngay dưới con số. " +
+        "Toa nền đo bằng TVL toàn chuỗi, tiền ổn định đo bằng lượng lưu hành, " +
+        "còn DePIN, AI, danh tính, game và meme thì <b>TVL không đo được</b> — " +
+        "chẳng ai khoá vốn vào một meme coin để nó chạy. Chúng hiện “—”, " +
+        "không hiện 0.") +
+      duY;
+  }
+
+  /* ═══════════════ PHÒNG · KHỚP NỐI ═══════════════ */
+
+  function theSk(o, max) {
+    var lui = o.tvl - o.tvlRieng;
+    var wR = max > 0 ? (o.tvlRieng / max) * 100 : 0;
+    var wL = max > 0 ? (lui / max) * 100 : 0;
+    return '<div class="sk" data-oracle="' + esc(o.ten) + '">' +
+      '<div class="sk-d"><span class="sk-t">' + esc(o.ten) + "</span>" +
+      '<span class="sk-v">' + tien(o.tvl) + " · " + o.soGiaoThuc + " giao thức</span></div>" +
+      '<div class="sk-b">' +
+        '<i data-p="rieng" data-rong="' + wR.toFixed(2) + '"></i>' +
+        '<i data-p="lui" data-rong="' + wL.toFixed(2) + '"></i>' +
+      "</div>" +
+      '<p class="sk-y"><b>' + tien(o.tvlRieng) + "</b> (" + o.soRieng +
+      " giao thức) khai <b>đúng mình nó</b> và không nguồn nào khác — mất khớp này " +
+      "là mất giá, không có đường lui. Phần còn lại (" + tien(lui) +
+      ") có khai thêm ít nhất một nguồn.</p></div>";
+  }
+
+  function veKhopNoi() {
+    var dl = D.duongLui;
+    var max = D.oracle.length ? D.oracle[0].tvl : 0;
+
+    var dan = '<div class="luoi-so">' +
+      oSo("Không có đường lui", "<b>" + tien(dl.motTvl) + "</b>",
+        dl.motN + " giao thức khai đúng một nguồn giá") +
+      oSo("Còn đường lui", "<b>" + tien(dl.nhieuTvl) + "</b>",
+        dl.nhieuN + " giao thức khai từ hai nguồn trở lên") +
+      oSo("Tỷ lệ vốn treo một khớp", "<b>" + pt(dl.tyLe, 1) + "</b>",
+        "trong tổng số vốn có khai nguồn giá") +
+      "</div>";
+
+    var ct = '<div class="chu-thich">' +
+      '<span><i style="background:var(--xuong)"></i> vốn treo trên đúng khớp này</span>' +
+      '<span><i style="background:var(--len)"></i> vốn còn nguồn dự phòng khác</span>' +
+      "</div>";
+
+    var ds = D.oracle.map(function (o) { return theSk(o, max); }).join("");
+
+    var chuoi = bang(
+      [{ t: "Chuỗi", rong: "34%" }, { t: "Giao thức đứng trên" }, { t: "TVL của chuỗi" }],
+      D.khopChuoi.map(function (c) {
+        return "<tr><td><b>" + esc(c.ten) + "</b></td><td class=\"mono\">" +
+          so(c.soGiaoThuc, 0) + "</td><td class=\"mono\">" +
+          (c.tvl == null ? "—" : tien(c.tvl)) + "</td></tr>";
+      }).join("")
+    );
+
+    var tc = D.traiChuoi;
+    var traiY = '<p class="giaithich">Trong số giao thức có khai chuỗi: <b>' +
+      so(tc.motN, 0) + "</b> chỉ đứng trên <b>một chuỗi duy nhất</b> và giữ " +
+      tien(tc.motTvl) + "; <b>" + so(tc.nhieuN, 0) + "</b> đứng trên nhiều chuỗi và giữ " +
+      tien(tc.nhieuTvl) + ". Số đông là nhóm thứ nhất, nhưng phần lớn tiền nằm ở nhóm " +
+      "thứ hai — nghĩa là vốn lớn đã tự trải ra, còn cái đuôi dài thì chưa.</p>";
+
+    return khoi("Bao nhiêu vốn treo trên một khớp nối", null, dan,
+      "Đây là con số cung này tồn tại để nói. Một giao thức khai đúng một nguồn " +
+      "giá là một giao thức không có đường lui: nguồn đó sai hoặc chết thì tài sản " +
+      "thế chấp bị định giá sai, và cái sai đó chạy thẳng vào thanh lý.") +
+      khoi("Vốn hoá không phải tầm quan trọng hệ thống", D.oracle.length + " khớp",
+        ct + ds,
+        "Một dự án oracle có thể có vốn hoá khiêm tốn mà vẫn là chỗ hàng chục tỷ " +
+        "đô đang dựa vào. Bảng vốn hoá không bao giờ nói ra điều đó, vì nó đo " +
+        "<b>giá của token</b> chứ không đo <b>lượng vốn phụ thuộc</b>. Bảng dưới " +
+        "đo cái thứ hai — tự tính từ khai báo của từng giao thức, không lấy từ " +
+        "bảng tổng nào.") +
+      khoi("Đứng trên chuỗi nào", D.khopChuoi.length + " chuỗi đông nhất", traiY + chuoi,
+        "Chuỗi cũng là một khớp nối: giao thức chỉ đứng trên một chuỗi thì chuỗi " +
+        "đó ngã là nó ngã theo, không cần ai tấn công trực tiếp vào nó.");
+  }
+
+  /* ═══════════════ PHÒNG · THỨ TỰ BỊ ĐỐT ═══════════════ */
+
+  function vungCua(h) { return h >= 13 ? "som" : h >= 7 ? "giua" : "muon"; }
+  var TEN_VUNG = { som: "BỎ SỚM", giua: "GIỮA", muon: "TRỤ LẠI" };
+
+  function veThuTu() {
+    var ds = G.toa.slice().sort(function (a, b) { return b.c.songSot - a.c.songSot; });
+    var hang = ds.map(function (t) {
+      var v = vungCua(t.c.songSot);
+      var doDuoc = t.s.thuoc !== "khong-do-duoc" && t.s.tvl != null;
+      return '<button class="dot" type="button" data-vung="' + v + '" data-toa="' + esc(t.c.ma) + '">' +
+        '<span class="dot-h">' + t.c.songSot + "</span>" +
+        '<span class="dot-t">' + esc(t.c.ten) +
+          '<span class="dot-nhan" data-v="' + v + '">' + TEN_VUNG[v] + "</span>" +
+          "<i>toa " + esc(t.c.so) + " · " + esc(t.c.lat) + "</i></span>" +
+        '<span class="dot-s">' + (doDuoc ? tien(t.s.tvl) : "không đo được") + "</span>" +
+        "</button>";
+    }).join("");
+
+    return khoi("Đoàn tàu tự tháo mình ra theo thứ tự nào", null,
+      '<div class="dot-l">' + hang + "</div>",
+      "Đọc từ trên xuống là đọc đúng thứ tự bị bỏ khi nhiên liệu cạn: trên cùng " +
+      "bỏ trước nhất, dưới cùng trụ lại lâu nhất. <b>Đây là suy luận theo thứ tự " +
+      "phụ thuộc, không phải số đo và không phải dự báo giá.</b> Cách đọc một " +
+      "hạng: “bỏ toa này thì phần còn lại có chạy tiếp được không?” Bỏ meme thì " +
+      "kết sổ vẫn chạy, khối vẫn được tạo, tài sản vẫn chuyển. Bỏ kết sổ thì " +
+      "không còn gì cả.", HUY_LUAN) +
+      khoi("Một điều đáng chú ý trong bảng trên", null,
+        '<p class="giaithich">Năm toa mà TVL <b>không đo nổi</b> — DePIN, AI, danh tính, ' +
+        "game, meme — nằm gần hết ở nửa trên của bảng, tức nửa bị bỏ trước. Đó " +
+        "không phải trùng hợp, và cũng không phải bằng chứng chúng vô giá trị. " +
+        "Nó là cùng một sự thật nhìn từ hai phía: <b>chưa có vốn khoá nào phụ " +
+        "thuộc vào chúng để chạy</b>, nên vừa không có gì để TVL đo, vừa không " +
+        "có gì gãy theo nếu chúng biến mất.</p>", null);
+  }
+
+  /* ═══════════════ PHÒNG · CỬA NỐI ═══════════════ */
+
+  var IC_DI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6l6 6-6 6"/></svg>';
+
+  /* Đếm CUNG phân biệt, không đếm cửa: năm cửa Hộ Bộ chỉ là năm
+     phòng của cùng một cung. */
+  function demCung() {
+    var t = {};
+    G.toa.forEach(function (x) {
+      (x.c.cung || []).forEach(function (k) {
+        if (S.CUNG[k]) t[S.CUNG[k].goc || k] = 1;
+      });
+    });
+    return Object.keys(t).length;
+  }
+
+  function veCuaNoi() {
+    /* Gom theo cung đích: mỗi cung một thẻ, kèm đúng những toa trỏ
+       sang nó. Ngược lại (mỗi toa một thẻ) thì Hộ Bộ hiện năm lần
+       và bảng thành danh sách trùng lặp. */
+    var theo = {};
+    G.toa.forEach(function (t) {
+      (t.c.cung || []).forEach(function (k) {
+        if (!S.CUNG[k]) return;
+        theo[k] = theo[k] || { k: k, toa: [] };
+        theo[k].toa.push(t.c);
+      });
+    });
+    var ds = Object.keys(theo).map(function (k) { return theo[k]; })
+      .sort(function (a, b) { return b.toa.length - a.toa.length; });
+
+    var the = ds.map(function (x) {
+      var c = S.CUNG[x.k];
+      return '<a class="cua" href="' + esc(c.duong) + '">' +
+        '<div class="cua-t">' + esc(c.ten) + IC_DI + "</div>" +
+        '<p class="cua-y">Đọc tiếp từ ' + (x.toa.length > 1 ? x.toa.length + " toa" : "toa " + esc(x.toa[0].so)) +
+        " của đoàn tàu.</p>" +
+        '<div class="cua-toa">' + x.toa.map(function (t) {
+          return "<span>toa " + esc(t.so) + " · " + esc(t.ten) + "</span>";
+        }).join("") + "</div></a>";
+    }).join("");
+
+    return khoi("Toa nào đọc tiếp ở cung nào",
+      demCung() + " cung · " + ds.length + " cửa",
+      '<div class="cua-l">' + the + "</div>",
+      "Cung này chỉ vẽ <b>quan hệ giữa các toa</b>. Chi tiết bên trong từng toa " +
+      "đã nằm ở cung khác rồi, nên thay vì chép lại, mỗi toa có một cửa mở thẳng " +
+      "sang đó: nền tảng sang Kinh Thành, mở rộng sang Đô Sát Viện, tiền ổn định " +
+      "và thanh khoản sang Hộ Bộ.") +
+      khoi("Cổng Thành", null,
+        '<p class="giaithich">Về <a href="../">trang chủ Cổng Thành</a> để thấy toàn bộ ' +
+        "các cung.</p>", null);
+  }
+
+  /* ═══════════════ PHÒNG · THANG TIẾN HOÁ ═══════════════ */
+
+  function veThang() {
+    var tg = S.THANG.map(function (g) {
+      return '<div class="tg"><div class="tg-s">' + esc(g.so) + "</div><div>" +
+        '<div class="tg-t">' + esc(g.ten) +
+        '<span class="tg-p">' + (g.muc ? g.muc + "%" : "—") + "</span></div>" +
+        '<div class="tg-b"><i data-rong="' + g.muc + '"></i></div>' +
+        '<p class="tg-y">' + esc(g.y) + "</p></div></div>";
+    }).join("");
+
+    var th = S.THIEU.map(function (x) {
+      return '<div class="thieu"><div class="thieu-t">' + esc(x.ten) + "</div>" +
+        '<p class="thieu-y">' + esc(x.y) + "</p></div>";
+    }).join("");
+
+    return khoi("Đoàn tàu đã đi được bao xa", null, tg,
+      "<b>Không một con số nào trong khối này là số đo.</b> Đây là đánh giá kiến " +
+      "trúc: phần nào của viễn cảnh đã có bản chạy được, phần nào còn là giả " +
+      "thuyết. Một thanh phần trăm trông y hệt một phép đo, nên phải nói thẳng " +
+      "rằng nó không phải — không có API nào chấm được “kinh tế tác tử đã xong " +
+      "25%”.", HUY_LUAN) +
+      khoi("Những khớp nối còn thiếu", S.THIEU.length + " chỗ",
+        '<div class="thieu-l">' + th + "</div>",
+        "Câu hỏi lớn của blockchain đã không còn là nhanh hơn hay rẻ hơn — đó là " +
+        "câu hỏi của khoảng 2017–2022. Những chỗ dưới đây là thứ chặn đoàn tàu " +
+        "tự chạy, và không chỗ nào giải được bằng thêm thông lượng.");
+  }
+
+  /* ═══════════════ NGĂN HỒ SƠ ═══════════════ */
+
+  var hoso = document.getElementById("hoso"),
+    scrim = document.getElementById("scrim"),
+    hosoTen = document.getElementById("hosoTen"),
+    hosoTren = document.getElementById("hosoTren"),
+    hosoBody = document.getElementById("hosoBody");
+
+  function dongHoso() {
+    hoso.dataset.open = "0";
+    scrim.dataset.open = "0";
+    hoso.setAttribute("aria-hidden", "true");
+  }
+  function moHoso(tren, ten, than) {
+    hosoTren.textContent = tren;
+    hosoTen.textContent = ten;
+    hosoBody.innerHTML = than;
+    hoso.dataset.open = "1";
+    scrim.dataset.open = "1";
+    hoso.setAttribute("aria-hidden", "false");
+    hosoBody.scrollTop = 0;
+  }
+
+  function dong(dt, dd) {
+    return "<dt>" + esc(dt) + "</dt><dd>" + dd + "</dd>";
+  }
+
+  function hosoToa(ma) {
+    var t = null;
+    G.toa.forEach(function (x) { if (x.c.ma === ma) t = x; });
+    if (!t) return;
+    var c = t.c, s = t.s;
+    var doDuoc = s.thuoc !== "khong-do-duoc" && s.tvl != null;
+
+    var h = "";
+    h += '<p style="margin:0 0 14px;color:var(--fg-2);font-size:13px">' + esc(c.lat) + "</p>";
+
+    h += '<dl class="hs-d">' +
+      dong("Thước đo", esc(TEN_THUOC[s.thuoc])) +
+      dong("Giá trị", '<b class="mono">' + (doDuoc ? tien(s.tvl) : "— không đo được bằng thước này") + "</b>") +
+      dong("Giao thức", '<span class="mono">' + so(s.soGiaoThuc, 0) + "</span>") +
+      (s.tapTrung != null
+        ? dong("Tập trung", '<span class="mono">' + pt(s.tapTrung, 0) + "</span> nằm ở " +
+            esc(s.tapTrungTen || "cái lớn nhất") + " — tính trên cùng thước với con số trên")
+        : "") +
+      dong("Hạng trụ lại", '<span class="mono">' + c.songSot + "/18</span> " +
+        '<span class="luan" style="margin-left:2px">LUẬN</span>') +
+      "</dl>";
+
+    h += '<h3 style="font-size:13px;margin:16px 0 6px">Trách nhiệm</h3>' +
+      '<p style="margin:0;font-size:12.5px;line-height:1.65">' + esc(c.lam) + "</p>";
+
+    h += '<dl class="hs-d" style="margin-top:12px">' +
+      dong("Cần gì để sống", esc(c.vao)) +
+      dong("Cung cấp gì", esc(c.ra)) +
+      dong("Dựa vào", esc(c.dua.join(" · "))) +
+      dong("Ai gãy theo", esc(c.nuoi.join(" · "))) +
+      "</dl>";
+
+    h += '<h3 style="font-size:13px;margin:16px 0 6px">Vì sao xếp ở hạng này</h3>' +
+      '<p style="margin:0;font-size:12.5px;line-height:1.65;color:var(--fg-2)">' + esc(c.y) + "</p>";
+
+    h += '<h3 style="font-size:13px;margin:16px 0 6px">Vài cái tên tiêu biểu</h3>' +
+      '<div class="hs-ng">' + c.nguoi.map(function (n) {
+        return "<span>" + esc(n) + "</span>";
+      }).join("") + "</div>" +
+      '<p style="margin:6px 0 0;font-size:11.5px;color:var(--fg-3);line-height:1.55">' +
+      "Danh sách gợi ý, không phải danh sách đầy đủ và không phải khuyến nghị. " +
+      "Một tài sản có thể mang trách nhiệm ở nhiều toa cùng lúc.</p>";
+
+    /* Cột và tiêu đề đi theo THƯỚC của toa: toa nền xếp theo chuỗi,
+       toa tiền ổn định xếp theo từng stablecoin. Cột "đứng trên mấy
+       chuỗi" chỉ có nghĩa với giao thức, nên hai toa kia không có. */
+    if (s.top && s.top.length) {
+      var nhan = s.topNhan || "Giao thức";
+      var coChuoi = nhan === "Giao thức";
+      h += '<h3 style="font-size:13px;margin:16px 0 6px">Lớn nhất trong toa</h3>' +
+        bang(coChuoi ? [{ t: nhan }, { t: "TVL" }, { t: "Chuỗi" }]
+                     : [{ t: nhan }, { t: "Giá trị" }],
+          s.top.map(function (p) {
+            return "<tr><td>" + esc(p.ten) + '</td><td class="mono">' + tien(p.tvl) +
+              (coChuoi ? '</td><td class="mono">' + (p.chuoi == null ? "—" : p.chuoi) : "") +
+              "</td></tr>";
+          }).join(""));
+    }
+
+    if (s.catGoc && s.catGoc.length) {
+      h += '<h3 style="font-size:13px;margin:16px 0 6px">Cộng từ những nhóm nguồn nào</h3>' +
+        '<div class="hs-ng">' + s.catGoc.map(function (x) {
+          return "<span>" + esc(x) + "</span>";
+        }).join("") + "</div>" +
+        '<p style="margin:6px 0 0;font-size:11.5px;color:var(--fg-3);line-height:1.55">' +
+        "Đây là cách truy ngược con số ở trên. Không đồng ý với cách xếp thì vẫn " +
+        "thấy được thành phần mà tự xếp lại.</p>";
+    }
+
+    var cua = (c.cung || []).filter(function (k) { return S.CUNG[k]; });
+    if (cua.length) {
+      h += '<h3 style="font-size:13px;margin:16px 0 6px">Đọc tiếp ở cung khác</h3>' +
+        '<div class="cua-l">' + cua.map(function (k) {
+          return '<a class="cua" href="' + esc(S.CUNG[k].duong) + '">' +
+            '<div class="cua-t">' + esc(S.CUNG[k].ten) + IC_DI + "</div></a>";
+        }).join("") + "</div>";
+    }
+
+    moHoso("Toa " + c.so, c.ten, h);
+  }
+
+  function hosoOracle(ten) {
+    var o = null;
+    D.oracle.forEach(function (x) { if (x.ten === ten) o = x; });
+    if (!o) return;
+    var lui = o.tvl - o.tvlRieng;
+    var h = '<dl class="hs-d">' +
+      dong("Vốn đang dựa vào", '<b class="mono">' + tien(o.tvl) + "</b>") +
+      dong("Số giao thức", '<span class="mono">' + so(o.soGiaoThuc, 0) + "</span>") +
+      dong("Không có đường lui", '<span class="mono">' + tien(o.tvlRieng) + "</span> · " +
+        o.soRieng + " giao thức") +
+      dong("Còn nguồn khác", '<span class="mono">' + tien(lui) + "</span>") +
+      "</dl>" +
+      '<p style="margin:0 0 14px;font-size:12.5px;line-height:1.65;color:var(--fg-2)">' +
+      "“Không có đường lui” nghĩa là giao thức đó khai đúng một nguồn giá và không " +
+      "khai nguồn nào khác. Không phải mọi giao thức đều khai đầy đủ, nên con số " +
+      "này là <b>sàn dưới</b> chứ không phải con số chính xác — thực tế có thể cao hơn.</p>";
+
+    if (o.top && o.top.length) {
+      h += '<h3 style="font-size:13px;margin:0 0 6px">Giao thức lớn nhất đang dựa vào</h3>' +
+        bang([{ t: "Giao thức" }, { t: "TVL" }, { t: "Đường lui" }],
+          o.top.map(function (p) {
+            return "<tr><td>" + esc(p.ten) + '</td><td class="mono">' + tien(p.tvl) +
+              "</td><td>" + (p.rieng
+                ? '<span style="color:var(--xuong)">không có</span>'
+                : '<span style="color:var(--len)">có nguồn khác</span>') + "</td></tr>";
+          }).join(""));
+    }
+    moHoso("Khớp nối", o.ten, h);
+  }
+
+  /* ═══════════════ CÁC PHÒNG ═══════════════ */
+
+  var IC = {
+    tau: '<path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 20h20"/><path d="M8 5V3h8v2"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>',
+    sk: '<path d="M9 12a3 3 0 0 1 3-3h1a3.5 3.5 0 1 0 0-7h-1"/><path d="M15 12a3 3 0 0 1-3 3h-1a3.5 3.5 0 1 0 0 7h1"/>',
+    dot: '<path d="M12 3c1.5 3.5 4.5 5 4.5 9a4.5 4.5 0 0 1-9 0c0-4 3-5.5 4.5-9Z"/>',
+    cua: '<path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>',
+    tg: '<path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/>'
+  };
+
+  var PHONG = [
+    { ma: "doan-tau", ten: "Đoàn Tàu", ic: IC.tau, ve: veDoanTau,
+      dem: function () { return G.toa.length + " toa"; } },
+    { ma: "khop-noi", ten: "Khớp Nối", ic: IC.sk, ve: veKhopNoi,
+      dem: function () { return pt(D.duongLui.tyLe, 0); } },
+    { ma: "thu-tu", ten: "Thứ Tự Bị Đốt", ic: IC.dot, ve: veThuTu,
+      dem: function () { return "luận"; } },
+    { ma: "cua-noi", ten: "Cửa Nối", ic: IC.cua, ve: veCuaNoi,
+      dem: function () { return demCung() + " cung"; } },
+    { ma: "thang", ten: "Thang Tiến Hoá", ic: IC.tg, ve: veThang,
+      dem: function () { return "luận"; } }
+  ];
+
+  function svgIc(paths) {
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + paths + "</svg>";
+  }
+
+  function dungBen() {
+    var host = document.getElementById("benMuc");
+    if (!host) return;
+    var lab = document.createElement("div");
+    lab.className = "blab";
+    lab.textContent = "Các phòng";
+    host.appendChild(lab);
+    PHONG.forEach(function (p) {
+      var a = document.createElement("a");
+      a.className = "bmuc";
+      a.href = "#/" + p.ma;
+      a.id = "muc-" + p.ma;
+      a.innerHTML = '<span class="bic">' + svgIc(p.ic) + '</span><span class="bten">' + p.ten + "</span>" +
+        '<span class="bn">' + p.dem() + "</span>";
+      host.appendChild(a);
+    });
+  }
+
+  var than = document.getElementById("than"),
+    tieu = document.getElementById("tieu"),
+    ben = document.getElementById("ben");
+
+  function ve() {
+    var ma = (location.hash || "").replace(/^#\/?/, "") || "doan-tau";
+    var p = null, i;
+    for (i = 0; i < PHONG.length; i++) if (PHONG[i].ma === ma) p = PHONG[i];
+    if (!p) p = PHONG[0];
+
+    tieu.textContent = p.ten;
+    document.title = "Thái Bộc Tự · " + p.ten;
+    than.innerHTML = p.ve();
+    than.style.animation = "none";
+    void than.offsetWidth;
+    than.style.animation = "";
+
+    PHONG.forEach(function (x) {
+      var el = document.getElementById("muc-" + x.ma);
+      if (el) {
+        if (x.ma === p.ma) el.setAttribute("aria-current", "page");
+        else el.removeAttribute("aria-current");
+      }
+    });
+
+    /* Thanh mọc ra ở khung hình sau, để mắt thấy nó CHẠY tới giá
+       trị chứ không phải đã nằm sẵn ở đó. */
+    var bars = than.querySelectorAll("i[data-rong]");
+    if (bars.length) {
+      requestAnimationFrame(function () {
+        Array.prototype.forEach.call(bars, function (b) {
+          b.style.width = b.getAttribute("data-rong") + "%";
+        });
+      });
+    }
+
+    if (window.innerWidth <= 940) ben.dataset.mo = "0";
+    window.scrollTo(0, 0);
+  }
+
+  /* ═══════════════ GẮN ═══════════════ */
+
+  function chay() {
+    if (!D) {
+      than.innerHTML = '<p class="giaithich"><b>Chưa có số liệu.</b> File ' +
+        "<code>assets/js/v/doan-tau.js</code> chưa được sinh lần nào. " +
+        "Chạy <code>node scripts/build-thaiboc.mjs</code> ở gốc repo, hoặc đợi " +
+        "lượt GitHub Actions kế tiếp.</p>";
+      return;
+    }
+    G = ghep();
+
+    var ngay = document.getElementById("ngay");
+    if (ngay) ngay.textContent = "cập nhật " + D.date;
+    var song = document.getElementById("song");
+    if (song) song.hidden = false;
+    var giaTop = document.getElementById("giaTop");
+    if (giaTop) {
+      giaTop.innerHTML = "<span>giao thức</span> <b>" + so(D.tong.soGiaoThuc, 0) + "</b>" +
+        "<span>chuỗi</span> <b>" + so(D.tong.soChuoi, 0) + "</b>";
+    }
+
+    /* Số liệu cũ thì nói thẳng ở đầu trang. Bot chạy 4 lượt/ngày,
+       nên quá 1 ngày nghĩa là bốn lượt liên tiếp không ghi được gì —
+       lúc đó mọi con số bên dưới vẫn hiện ra rất tự tin. */
+    var gio = (Date.now() - new Date(D.generatedAt).getTime()) / 36e5;
+    var cb = document.getElementById("canhBao");
+    if (cb && isFinite(gio) && gio > 24) {
+      cb.hidden = false;
+      cb.innerHTML = "<b>Số liệu đã " + Math.floor(gio / 24) + " ngày chưa cập nhật.</b> " +
+        "Đường ống chạy 4 lượt/ngày, nên quá một ngày nghĩa là bốn lượt liên tiếp " +
+        "không ghi được gì. Mọi con số bên dưới vẫn đúng với thời điểm " +
+        esc(D.date) + ", không đúng với hôm nay.";
+    }
+
+    var nga = (D.nguon || []).filter(function (n) { return !n.ok; });
+    if (nga.length && cb && cb.hidden) {
+      cb.hidden = false;
+      cb.innerHTML = "<b>" + nga.length + " nguồn không lấy được ở lượt gần nhất:</b> " +
+        esc(nga.map(function (n) { return n.nhan; }).join(", ")) +
+        ". Phần liên quan sẽ trống chứ không được điền bằng số đoán.";
+    }
+
+    dungBen();
+    window.addEventListener("hashchange", ve);
+    ve();
+  }
+
+  var nut = document.getElementById("benMoNut");
+  if (nut) nut.addEventListener("click", function () {
+    ben.dataset.mo = ben.dataset.mo === "1" ? "0" : "1";
+  });
+
+  /* Uỷ quyền sự kiện ở cấp document: thân trang bị vẽ lại mỗi lần
+     đổi phòng, nên gắn thẳng vào từng nút là gắn lại sau mỗi lần vẽ
+     — và quên một chỗ thì nó chết im lặng. */
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var el = e.target.closest("[data-toa]");
+    if (el) { hosoToa(el.getAttribute("data-toa")); return; }
+    el = e.target.closest("[data-oracle]");
+    if (el) { hosoOracle(el.getAttribute("data-oracle")); return; }
+  });
+
+  document.getElementById("hosoDong").addEventListener("click", dongHoso);
+  scrim.addEventListener("click", dongHoso);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") dongHoso();
+  });
+
+  chay();
+})();

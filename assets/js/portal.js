@@ -97,6 +97,19 @@
     })
     .catch(function () {});
 
+  // Thái Bộc Tự: doan-tau.js ~17 KB. `date` và `tomTat` được
+  // build-thaiboc.mjs cố ý xếp ngay đầu object vì chỗ này chỉ đọc
+  // 900 byte rồi huỷ dòng tải — cùng bẫy như Hộ Bộ.
+  dauFile("thai-boc-tu/assets/js/v/doan-tau.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("tbDate", "cập nhật " + m[1]);
+      var n = t.match(/"tomTat":\s*"([^"]+)"/);
+      if (n) stamp("tbSo", n[1]);
+    })
+    .catch(function () {});
+
   // Tàng Thư Các: data.js ~230 KB, ngày và số skill nằm ở đoạn đầu
   dauFile("tang-thu-cac/assets/js/data.js", 900)
     .then(function (t) {

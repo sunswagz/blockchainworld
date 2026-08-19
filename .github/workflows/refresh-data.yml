@@ -214,6 +214,29 @@ jobs:
           GIAY: ${{ steps.n-ho-bo.outputs.giay }}
         run: node scripts/nha-may.mjs ghi ho-bo "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/ho-bo.log"
 
+      # Đoàn tàu Thái Bộc Tự. Ba đường DefiLlama, trong đó /protocols là
+      # đường nặng nhất repo này gọi (hơn 8.000 bản ghi) — nhưng chỉ một
+      # lời gọi, không nối đuôi như Hộ Bộ, nên 5 phút là rộng.
+      #
+      # Cùng luật giữ bản cũ: hai nguồn LÕI thiếu thì thoát 1 mà KHÔNG
+      # ghi gì. Bảng khớp nối trống bị đọc thành "không còn khớp nào phụ
+      # thuộc", đúng ngược với điều cung này tồn tại để nói.
+      - name: Lấy đoàn tàu — Thái Bộc Tự
+        id: n-thai-boc-tu
+        if: contains(steps.kehoach.outputs.han, ',thai-boc-tu,')
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          t0=$(date +%s)
+          node scripts/build-thaiboc.mjs 2>&1 | tee "$RUNNER_TEMP/thai-boc-tu.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · thai-boc-tu
+        if: always() && steps.n-thai-boc-tu.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-thai-boc-tu.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-thai-boc-tu.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi thai-boc-tu "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/thai-boc-tu.log"
+
       # Kho skill Tàng Thư Các. Trần riêng cho bước này, thấp hơn trần
       # job: chạm trần thì chỉ mình nó ngã, commit vẫn chạy. Script chỉ
       # ghi file ở cuối, nên bị cắt giữa chừng là file cũ còn nguyên —
@@ -692,6 +715,7 @@ jobs:
                   cong-bo/assets/js/v/nhat-ky.js \
                   cong-bo/assets/logos/ \
                   ho-bo/assets/js/v/dong-tien.js \
+                  thai-boc-tu/assets/js/v/doan-tau.js \
                   tang-thu-cac/assets/js/data.js \
                   tang-thu-cac/assets/data/lich-su.json \
                   tang-thu-cac/assets/data/kb/ \

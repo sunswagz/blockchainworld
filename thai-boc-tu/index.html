@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thái Bộc Tự · Đoàn tàu blockchain</title>
+<meta name="description" content="Mười tám toa chức năng, các khớp nối giữa chúng, và thứ tự bị bỏ khi nhiên liệu cạn. Đo bao nhiêu vốn đang treo trên đúng một nguồn giá — thứ mà bảng vốn hoá không bao giờ nói ra.">
+
+<meta name="theme-color" content="#0B0A0E">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thái Bộc Tự">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <!-- ── thanh bên ─────────────────────────────────── -->
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#/doan-tau">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/>
+          <path d="M2 20h20"/><path d="M8 5V3h8v2"/>
+          <circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>
+        </svg>
+      </span>
+      <span><b>Thái Bộc Tự</b><i>Đoàn tàu blockchain</i></span>
+    </a>
+
+    <!-- các mục — do app.js dựng từ bảng PHONG -->
+    <div id="benMuc"></div>
+
+    <!-- các cung — do assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Số liệu từ <a href="https://defillama.com" target="_blank" rel="noopener">DefiLlama</a>,
+      cập nhật tự động bằng GitHub Actions.</p>
+      <p><b>Cung này chỉ vẽ quan hệ</b> — không chấm điểm dự án, không giao dịch.</p>
+    </div>
+  </nav>
+
+  <!-- ── thân ──────────────────────────────────────── -->
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tieu">Đoàn Tàu</h1>
+      <span class="song" id="song" hidden><i aria-hidden="true"></i>số liệu sống</span>
+      <span class="day"></span>
+      <span class="gia" id="giaTop"></span>
+      <span class="ngay" id="ngay"></span>
+    </header>
+
+    <p class="canhbao" id="canhBao" hidden></p>
+
+    <!-- app.js vẽ vào đây theo tuyến hash -->
+    <div id="than"></div>
+
+    <footer class="chan">
+      <p><b>Nguồn:</b> DefiLlama — danh mục giao thức (TVL, nhóm ngành, chuỗi đứng trên,
+      nguồn giá khai báo), TVL theo chuỗi, và lượng stablecoin lưu hành. Tất cả qua API
+      công khai, không khoá nào. Quan hệ phụ thuộc oracle <b>tự tính</b> từ khai báo của
+      từng giao thức, không lấy từ bảng tổng đã gộp sẵn.</p>
+      <p><b>Thứ tự bị đốt</b> và <b>thang tiến hoá</b> là LUẬN, không phải số đo: chúng
+      suy từ thứ tự phụ thuộc — cái gì phải có trước để cái kia tồn tại được — và không
+      có API nào chấm được. Mọi chỗ như vậy đều mang nhãn “luận”. Đây không phải lời
+      khuyên đầu tư, và danh sách tên trong mỗi toa là gợi ý chứ không phải danh sách
+      đầy đủ.</p>
+      <p>Con số “không có đường lui” là <b>sàn dưới</b>: nó đếm giao thức khai đúng một
+      nguồn giá. Giao thức không khai gì thì không được tính, nên thực tế có thể cao hơn.</p>
+    </footer>
+
+  </main>
+</div>
+
+<!-- hồ sơ chi tiết: một toa, hoặc một khớp nối -->
+<div class="scrim" id="scrim" data-open="0"></div>
+<aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ" aria-hidden="true">
+  <div class="hoso-top">
+    <div class="hoso-tren" id="hosoTren"></div>
+    <h2 id="hosoTen"></h2>
+    <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng hồ sơ">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoso-body" id="hosoBody"></div>
+</aside>
+
+<!-- dữ liệu: nạp trước, thứ tự có ý nghĩa -->
+<!-- tự sinh 4 lượt/ngày, xem scripts/build-thaiboc.mjs -->
+<script src="assets/js/v/doan-tau.js"></script>
+<!-- sổ 18 toa · VIẾT TAY, sửa như mã nguồn -->
+<script src="assets/js/toa.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

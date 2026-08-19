@@ -23,7 +23,7 @@ const DIST = join(ROOT, "dist");
 /* Cổng Thành ở gốc; mỗi cung là một thư mục có index.html riêng.
    Thêm cung mới = thêm thư mục + một dòng ở đây. */
 const GATE = ["index.html", "manifest.webmanifest", "sw.js", "assets"];
-const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "ho-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu", "tu-cam-thanh"];
+const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "ho-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu", "tu-cam-thanh", "thai-boc-tu"];
 
 /* `tu-cam-thanh-runtime/` KHÔNG có ở đây và không được thêm vào. Đó là
    runtime Python (FastAPI + vòng lặp nền + khoá API), không phải tài sản
