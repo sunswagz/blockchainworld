@@ -160,6 +160,41 @@ conflict lúc merge.
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
 
+### File bot ĐỒNG SỬA — vẫn sửa tay được, nhưng đọc mục này trước
+
+    ho-bo/assets/css/app.css
+    ho-bo/assets/js/app.js
+    ho-bo/index.html
+    ho-bo/sw.js
+
+Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
+
+| loại | ai ghi | sửa tay được không |
+|---|---|---|
+| bot tự sinh (`v/dong-tien.js`…) | chỉ bot | **không** — lượt sau đè |
+| sinh tay (`hoang-thanh/data.js`…) | chỉ người | có, đó là cách duy nhất |
+| **đồng sửa** (bảng trên) | **cả hai** | **có** — nhưng xem dưới |
+
+Node `ho-bo-tien-hoa` (nhịp 24 giờ) để model đề xuất sửa giao diện,
+rồi `scripts/tien-hoa.mjs cong --so` quyết định nhận hay trả lại. Nên
+bốn file đó vừa là mã viết tay, vừa là thứ bot chạm vào mỗi ngày.
+
+Hệ quả khi bạn sửa tay chúng:
+
+- **Cứ sửa.** Đây là mã nguồn thật, không phải file sinh ra. Không có
+  lượt nào "đè" bạn: model chỉ sửa *thêm* trên bản mới nhất trong repo.
+- **Chạy `node scripts/tien-hoa.mjs do ho-bo` trước khi commit.** Bảy
+  thước phải còn 7/7. Sửa tay làm tụt điểm thì lượt tiến hoá kế tiếp
+  sẽ thấy đó là điểm yếu và đi vá — tốn một lượt cho việc bạn vừa làm.
+- **Xung đột lúc gộp là có thật**, khác hẳn hai loại kia. Bot commit
+  thẳng vào `main` nên nhánh worktree đụng bốn file này phải rebase
+  như với bất kỳ file dùng chung nào.
+
+Không gộp bốn đường này vào danh sách "bot tự sinh — đừng sửa tay" ở
+trên, dù `npm run kiem` cũng chấp nhận. Làm vậy là nói sai sự thật, và
+hook pre-commit sẽ nhắc nhầm mỗi lần có người sửa `app.js` một cách
+hoàn toàn hợp lệ — đúng cái bẫy mà mục `cong-bo/assets/js/` đã cắn.
+
 Ba đường cuối là **sổ nhà máy** — xem mục "Nhịp chạy nằm ở sổ đăng ký"
 ngay dưới. `van-hanh.js` là bản chiếu của `state.json` cho trình duyệt,
 nên hai file đó luôn đi cùng nhau trong một commit.

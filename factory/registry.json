@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T08:43:23.247Z",
+  "generatedAt": "2026-08-20T09:04:36.050Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -98,6 +98,22 @@
         "thai-boc-tu/assets/js/v/tin-tuc.js"
       ],
       "y": "Sáu nguồn RSS công khai (CoinDesk, Cointelegraph, Decrypt, Bitcoin Magazine, blog Ethereum Foundation, Vitalik). Gắn nhãn toa bằng từ khoá. Ảnh TRỎ THẲNG sang CDN toà soạn, không tải về repo. Không khoá nào, không gọi AI."
+    },
+    {
+      "ma": "ho-bo-tien-hoa",
+      "ten": "Tiến hoá giao diện Hộ Bộ",
+      "cung": "ho-bo",
+      "tram": "M18",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+      "ra": [
+        "ho-bo/assets/css/app.css",
+        "ho-bo/assets/js/app.js",
+        "ho-bo/index.html",
+        "ho-bo/sw.js"
+      ],
+      "y": "Đo cung bằng 7 thước, lấy kỹ năng khớp từ 3.600 skill Tàng Thư Các, rồi để model đề xuất sửa giao diện. Cổng chặn quyết định, không phải model."
     },
     {
       "ma": "tang-thu-cac",

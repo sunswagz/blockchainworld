@@ -142,6 +142,27 @@ export const NODE = [
        "blog Ethereum Foundation, Vitalik). Gắn nhãn toa bằng từ khoá. Ảnh TRỎ THẲNG " +
        "sang CDN toà soạn, không tải về repo. Không khoá nào, không gọi AI."
   },
+  /* Node DUY NHẤT trong xưởng sửa MÃ chứ không sửa dữ liệu. Mọi node
+     khác ghi vào assets/js/v/ hoặc data.js; node này ghi thẳng vào
+     app.js, app.css, index.html — thứ trình duyệt nạp làm hành vi.
+
+     Vì sao dám: nó bị kẹp giữa hai lớp số học mà model không viết.
+     `tien-hoa.mjs do --ghi` chấm phiếu TRƯỚC, `cong --so` chấm lại
+     SAU và chặn nếu vỡ hoặc nếu điểm tụt. Trượt là workflow trả cả
+     thư mục cung về bản cũ, không có gì lên site.
+
+     Nhịp 24 giờ chứ không 6: một bước tiến giao diện mỗi ngày là
+     nhanh hơn bất kỳ ai ngồi sửa tay, mà vẫn đủ thưa để người kịp
+     nhìn lượt trước trước khi lượt sau đè lên. */
+  {
+    ma: "ho-bo-tien-hoa", ten: "Tiến hoá giao diện Hộ Bộ", cung: "ho-bo",
+    tram: "M18", che: "claude", nhip: 24,
+    lenh: "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+    ra: ["ho-bo/assets/css/app.css", "ho-bo/assets/js/app.js",
+         "ho-bo/index.html", "ho-bo/sw.js"],
+    y: "Đo cung bằng 7 thước, lấy kỹ năng khớp từ 3.600 skill Tàng Thư Các, " +
+       "rồi để model đề xuất sửa giao diện. Cổng chặn quyết định, không phải model."
+  },
   {
     ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
     tram: "M12", che: "script", nhip: 6,

@@ -23,3 +23,7 @@ ios/
 # được kệ, runner thì commit được. Khai ở đây để mọi máy hiểu giống nhau.
 .claude/worktrees/
 .claude/settings.local.json
+# Đề bài của vòng tiến hoá — chỉ sống trong một lượt chạy, thứ đáng
+# giữ là những sửa đổi đã qua cổng chặn. Cùng lý do với de-bai.json
+# và quet.json của Đài Quan Trắc.
+ho-bo/assets/data/de-bai-tien-hoa.json

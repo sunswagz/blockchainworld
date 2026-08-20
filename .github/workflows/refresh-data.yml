@@ -741,6 +741,139 @@ jobs:
       # và Bảng vận hành phải hiện bản sau khi kiểm, không phải bản
       # trước. Cũng phải trước `git add` — nó trả file hỏng về bản cũ,
       # gom rồi mới trả thì đã gom nhầm.
+      # ── M18 · VÒNG TIẾN HOÁ GIAO DIỆN ───────────────────────────
+      # Node DUY NHẤT trong xưởng sửa MÃ chứ không sửa dữ liệu. Mọi
+      # node khác ghi vào assets/js/v/ hoặc data.js; node này ghi thẳng
+      # vào app.css, app.js, index.html — thứ trình duyệt nạp làm hành vi.
+      #
+      # Luật xương sống của repo nói "đừng cho model ghi thẳng scan.js —
+      # một lỗi cú pháp là một trang trắng". Ở đây model được ghi thẳng,
+      # và điều khiến chuyện đó không mâu thuẫn là hai lớp số học kẹp
+      # nó ở giữa, cả hai đều không do model viết:
+      #
+      #   do --ghi   chấm phiếu 7 thước TRƯỚC khi model đụng vào gì
+      #   cong --so  chấm lại SAU, chặn nếu VỠ hoặc nếu ĐIỂM TỤT
+      #
+      # Trượt bất kỳ đầu nào là `git checkout -- ho-bo/` trả cả thư mục
+      # cung về bản cũ. Không có gì nửa vời lên site.
+      - name: Chấm phiếu gốc và ra đề — Hộ Bộ
+        id: n-th-goc
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',ho-bo-tien-hoa,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/tien-hoa.mjs do ho-bo --ghi "$RUNNER_TEMP/hobo-goc.json"
+          node scripts/tien-hoa.mjs de-bai ho-bo
+
+      - name: Bấm giờ · trước khi tiến hoá
+        id: gio-th-0
+        if: steps.n-th-goc.outcome == 'success'
+        run: echo "t=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      # Opus 5 chứ không Haiku, và lý do ngược với node quét Đài Quan
+      # Trắc: ở đó WebSearch kéo nguyên nội dung trang vào ngữ cảnh nên
+      # khối lượng phình không chặn được. Ở đây khối lượng CỐ ĐỊNH —
+      # một phiếu đo, tối đa 8 SKILL.md, và bốn file của đúng một cung.
+      # Chỗ khối lượng chặn được thì dùng model mạnh, vì phần giá trị
+      # nhất là phán đoán "sửa chỗ nào thì đáng", đúng chỗ model mạnh
+      # hơn thấy rõ hơn. Cùng lập luận với node bao-cao.
+      - name: Tiến hoá giao diện (Claude Code)
+        id: n-th-lam
+        if: steps.n-th-goc.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 12
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 24
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Đọc ho-bo/assets/data/de-bai-tien-hoa.json.
+
+            Trong đó có `phieu` — kết quả chấm cung Hộ Bộ theo bảy thước
+            đo được — và `kyNang`, các kỹ năng chọn từ kho Tàng Thư Các
+            khớp với những thước đang trượt.
+
+            VIỆC CỦA BẠN: làm cung Hộ Bộ tốt lên MỘT BƯỚC, đúng một bước.
+
+            Trình tự:
+            1. Với mỗi mục trong `kyNang` có trường `doc`, dùng WebFetch
+               đọc SKILL.md đó. Đấy là kinh nghiệm người khác đã viết ra;
+               đọc trước khi tự nghĩ.
+            2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu đo
+               được. Ưu tiên chúng trước.
+            3. Nếu cả bảy thước đều đạt, hãy tìm MỘT chỗ làm trang dễ
+               đọc hoặc dễ dùng hơn mà không thước nào đo được: nhãn khó
+               hiểu, thứ bậc thị giác lẫn lộn, khoảng cách không đều,
+               trạng thái trống không nói được gì.
+
+            Chỉ sửa trong bốn file này, không file nào khác:
+              ho-bo/assets/css/app.css
+              ho-bo/assets/js/app.js
+              ho-bo/index.html
+
+            LUẬT, đọc kỹ — có cổng chặn tự động sau bạn:
+            · MỘT bước thôi. Một thay đổi mạch lạc, không phải năm thứ
+              rời rạc. Sửa ít mà đúng hơn sửa nhiều mà loãng.
+            · KHÔNG đổi cấu trúc dữ liệu, không đổi tên khoá trong
+              window.HOBU, không bỏ phòng nào, không đổi tuyến hash.
+            · KHÔNG thêm thư viện ngoài, không thêm thẻ <script> mới.
+              Trang này chạy offline và không có bước dựng.
+            · GIỮ mọi aria-label và aria-hidden đang có. Gỡ một nhãn là
+              cổng chặn hạ điểm và trả lại toàn bộ việc bạn vừa làm.
+            · Màu mới phải đạt tương phản WCAG AA (4.5) trên MỌI nền
+              --bg/--bg-2/--card/--card-2/--card-3. Đây là thước đã
+              trượt một lần rồi, đừng làm trượt lại.
+            · Đừng đụng vào assets/js/v/ — bot số liệu ghi thư mục đó.
+
+            Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
+            vào ho-bo/assets/data/de-bai-tien-hoa.json dưới khoá `daLam`.
+
+      - name: Bấm giờ · sau khi tiến hoá
+        id: gio-th-1
+        if: always() && steps.gio-th-0.outcome == 'success'
+        run: echo "t=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      # Cổng chặn quyết định, KHÔNG phải model. Qua thì nâng
+      # CACHE_VERSION (bốn file kia nằm trong SHELL, quên nâng là máy
+      # đã cài app giữ giao diện cũ). Trượt thì trả cả thư mục cung về
+      # bản cũ — cùng lối "hỏng thì giữ bản cũ" của build-scan.mjs.
+      - name: Cổng chặn — nhận hay trả lại
+        id: n-ho-bo-tien-hoa
+        if: always() && steps.n-th-lam.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          if node scripts/tien-hoa.mjs cong ho-bo --so "$RUNNER_TEMP/hobo-goc.json" 2>&1 | tee "$RUNNER_TEMP/ho-bo-tien-hoa.log"; then
+            node scripts/nang-version.mjs
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^ho-bo/' || true)
+            echo "::notice::Vòng tiến hoá Hộ Bộ: NHẬN"
+          else
+            echo "::error::Vòng tiến hoá Hộ Bộ: TRẢ LẠI — cổng chặn không qua"
+            git checkout -- ho-bo/
+            exit 1
+          fi
+
+      - name: Ghi sổ · ho-bo-tien-hoa
+        if: always() && steps.n-th-goc.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-ho-bo-tien-hoa.outcome == 'success' && 'ok' || 'loi' }}
+          T_DAU: ${{ steps.n-th-goc.outputs.t0 }}
+          TQ0: ${{ steps.gio-th-0.outputs.t }}
+          TQ1: ${{ steps.gio-th-1.outputs.t }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          LAM="?"
+          [ -n "$TQ0" ] && [ -n "$TQ1" ] && LAM=$(( TQ1 - TQ0 ))
+          node scripts/nha-may.mjs ghi ho-bo-tien-hoa "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "model ${LAM}s · opus-5 · max-turns 24" \
+            --log "$RUNNER_TEMP/ho-bo-tien-hoa.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true
@@ -927,6 +1060,10 @@ jobs:
                   cong-bo/assets/js/v/nhat-ky.js \
                   cong-bo/assets/logos/ \
                   ho-bo/assets/js/v/dong-tien.js \
+                  ho-bo/assets/css/app.css \
+                  ho-bo/assets/js/app.js \
+                  ho-bo/index.html \
+                  ho-bo/sw.js \
                   thai-boc-tu/assets/js/v/doan-tau.js \
                   thai-boc-tu/assets/js/v/cong-truong.js \
                   thai-boc-tu/assets/js/v/tin-tuc.js \
