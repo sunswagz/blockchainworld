@@ -333,6 +333,36 @@ jobs:
           GIAY: ${{ steps.n-tang-thu-cac.outputs.giay }}
         run: node scripts/nha-may.mjs ghi tang-thu-cac "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/tang-thu-cac.log"
 
+      # ── M11 · Kho dụng cụ ───────────────────────────────────────
+      # Tàng Thư Các là CATALOGUE: nó biết 3.656 skill nằm ở đâu, cái
+      # nào nhiều sao, thuộc nhóm gì — rồi thôi. Repo không có
+      # `.claude/skills/` nên không phiên nào gọi được cái nào. Quét
+      # được mà không tới được tay ai: đúng cái ống đứt vừa nối cho
+      # ba cỗ máy đo ở 4b8e9e4, lặp lại ở một chỗ khác.
+      #
+      # Bước này biến catalogue thành kệ dụng cụ thật. Chạy SAU
+      # tang-thu-cac vì nó đọc chính data.js mà node kia vừa ghi.
+      #
+      # Skill là CHỈ DẪN model làm theo, không phải dữ liệu để đọc.
+      # Nên script chỉ lấy SKILL.md — không lấy script chạy được —
+      # có sàn sao, có trần mỗi kho, và ghi sha256 vào
+      # factory/skills.json để đổi nội dung là thấy ngay ở diff.
+      - name: Nhập skill vào kệ
+        id: n-nhap-skill
+        if: contains(steps.kehoach.outputs.han, ',nhap-skill,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          t0=$(date +%s)
+          node scripts/nhap-skill.mjs 2>&1 | tee "$RUNNER_TEMP/nhap-skill.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · nhap-skill
+        if: always() && steps.n-nhap-skill.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-nhap-skill.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-nhap-skill.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi nhap-skill "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/nhap-skill.log"
+
       # Bảng cảnh báo sớm Đài Quan Trắc. Ba nguồn miễn phí không cần
       # khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi
       # tự đặt đèn xanh/vàng/đỏ. KHÔNG gọi AI — xem phần đầu
@@ -908,6 +938,8 @@ jobs:
                   dai-quan-trac/assets/js/tq/do.js \
                   dai-quan-trac/assets/js/tq/scan.js \
                   dai-quan-trac/assets/js/tin.js \
+                  .claude/skills/ \
+                  factory/skills.json \
                   factory/state.json \
                   factory/bao-cao.md \
                   tao-bien-xu/assets/js/v/van-hanh.js

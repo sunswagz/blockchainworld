@@ -16,3 +16,10 @@ dai-quan-trac/assets/data/tin-phan-tich.json
 android/
 ios/
 .capacitor/
+
+# Kệ dụng cụ ĐƯỢC commit (.claude/skills/) — nó là mã nguồn dùng chung.
+# Chỉ chặn thứ riêng của từng máy. Trước đây cả `.claude/` bị chặn ở
+# .git/info/exclude, mà file đó KHÔNG theo repo: máy này không commit
+# được kệ, runner thì commit được. Khai ở đây để mọi máy hiểu giống nhau.
+.claude/worktrees/
+.claude/settings.local.json

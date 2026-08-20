@@ -203,6 +203,21 @@ export const NODE = [
     y: "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: " +
        "node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước."
   },
+  /* M11 · Kho dụng cụ. Tàng Thư Các quét 3.656 skill rồi để đó — repo
+     không có `.claude/skills/` nên KHÔNG phiên nào, kể cả bot, gọi
+     được cái nào. Node này nối chỗ đứt: chọn skill đầu bảng theo
+     nhóm, tải SKILL.md về kệ, ghi sổ xuất xứ kèm sha256.
+
+     Nhịp 24 chứ không 6: catalogue chỉ đổi khi `tang-thu-cac` chạy,
+     mà kệ dụng cụ thì không cần bám theo từng lượt của nó. */
+  {
+    ma: "nhap-skill", ten: "Nhập skill vào kệ", cung: "tang-thu-cac",
+    tram: "M11", che: "script", nhip: 24,
+    lenh: "node scripts/nhap-skill.mjs",
+    ra: [".claude/skills/", "factory/skills.json"],
+    y: "Chọn skill đầu bảng theo nhóm rồi tải SKILL.md vào .claude/skills/. " +
+       "CHỈ lấy chỉ dẫn, không lấy script chạy được của người lạ."
+  },
   {
     ma: "hoang-thanh", ten: "Rừng văn hoá Hoàng Thành", cung: "hoang-thanh",
     tram: "M12", che: "tay", nhip: 0,

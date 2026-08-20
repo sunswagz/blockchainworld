@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T07:00:15.126Z",
+  "generatedAt": "2026-08-20T08:54:52.189Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -175,6 +175,20 @@
         "factory/bao-cao.md"
       ],
       "y": "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước."
+    },
+    {
+      "ma": "nhap-skill",
+      "ten": "Nhập skill vào kệ",
+      "cung": "tang-thu-cac",
+      "tram": "M11",
+      "che": "script",
+      "nhip": 24,
+      "lenh": "node scripts/nhap-skill.mjs",
+      "ra": [
+        ".claude/skills/",
+        "factory/skills.json"
+      ],
+      "y": "Chọn skill đầu bảng theo nhóm rồi tải SKILL.md vào .claude/skills/. CHỈ lấy chỉ dẫn, không lấy script chạy được của người lạ."
     },
     {
       "ma": "hoang-thanh",

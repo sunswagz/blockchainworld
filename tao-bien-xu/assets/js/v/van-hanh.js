@@ -256,6 +256,30 @@ window.VAN_HANH = {
    "lucDoi": "2026-08-20T02:07:06.841Z"
   },
   {
+   "ma": "dong-tin",
+   "ten": "Dòng tin Đài Quan Trắc",
+   "y": "Lấy bài từ 11 nguồn RSS đã chọn tay, chấm điểm liên quan theo từng chủ thể, rồi để model viết một đoạn suy luận móc bài vào mắt xích nào của mạch truyền dẫn. Khối lượng CHẶN ĐƯỢC: 6 bài × 3 chủ thể, tiêu đề và tóm tắt có sẵn nên không phải kéo cả trang web vào ngữ cảnh như bản quét.",
+   "tram": "M08",
+   "che": "claude",
+   "nhip": 12,
+   "lenh": "claude-code-action + node scripts/build-dong-tin.mjs",
+   "ra": [
+    "dai-quan-trac/assets/js/tin.js"
+   ],
+   "cung": "dai-quan-trac",
+   "cungTen": "Đài Quan Trắc",
+   "wf": "refresh-data.yml",
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
    "ma": "dong-dau",
    "ten": "Đóng dấu bản số liệu",
    "y": "Pin bản số liệu 1,8 KB lên IPFS. Tự bỏ qua nếu sha256 trùng bản trước.",
@@ -300,6 +324,31 @@ window.VAN_HANH = {
    "chuoiLoi": 0,
    "lucOk": "2026-08-20T02:08:37.255Z",
    "lucDoi": "2026-08-20T02:08:37.255Z"
+  },
+  {
+   "ma": "nhap-skill",
+   "ten": "Nhập skill vào kệ",
+   "y": "Chọn skill đầu bảng theo nhóm rồi tải SKILL.md vào .claude/skills/. CHỈ lấy chỉ dẫn, không lấy script chạy được của người lạ.",
+   "tram": "M11",
+   "che": "script",
+   "nhip": 24,
+   "lenh": "node scripts/nhap-skill.mjs",
+   "ra": [
+    ".claude/skills/",
+    "factory/skills.json"
+   ],
+   "cung": "tang-thu-cac",
+   "cungTen": "Tàng Thư Các",
+   "wf": "refresh-data.yml",
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
   },
   {
    "ma": "hoang-thanh",
