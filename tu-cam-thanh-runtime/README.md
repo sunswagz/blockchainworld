@@ -58,6 +58,8 @@ python scripts/chung-cat.py      # đúc lại PHÁT HIỆN từ mọi kho đo (
 python scripts/do-mau-gia.py --ghi        # đo 13 mẫu giá kinh điển trên nến thật
 python scripts/do-khung.py --ghi          # khung nào đỡ nổi mức RR đang đòi
 python scripts/ban-giao.py --ghi          # bản tóm tắt cho lượt làm việc sau
+python scripts/gia-thuyet.py --tra "..."  # cái này đã thử chưa? (tra TRƯỚC khi đo)
+python scripts/bo-pha.py --ghi            # phí ×2 ×3, đoạn lịch sử tệ nhất
 python scripts/soat-lai-bai-hoc.py --ghi   # hậu kiểm LẠI bài học cũ khi sổ đã dài hơn
 
 python scripts/tai-lich-su.py --so 4000   # tải nến lịch sử để huấn luyện
@@ -304,6 +306,7 @@ trader/
   chung_cat.py          LÒ CHƯNG CẤT — gộp mọi kho đo thành PHÁT HIỆN, và cầu dao chế độ
   mau_gia.py            13 mẫu biểu đồ kinh điển, nhận diện bằng hình học
   nghi_thuc.py          phép đo nặng tự chạy mỗi 6 tiếng, ở TIẾN TRÌNH riêng
+  so_gia_thuyet.py      khai TRƯỚC khi đo, chốt SAU — và giữ cả KẾT QUẢ ÂM
   nguon.py              phái sinh · vĩ mô · tâm lý · tin tức — luồng riêng, không khoá
   huanluyen.py          chạy lại lịch sử, dò tham số, đúc bài học
   phien_hoc.py          một phiên huấn luyện chạy nền, có tiến độ

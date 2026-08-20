@@ -54,6 +54,8 @@ MAU_TOI_THIEU = {
     "mau-gia": 15,       # một mẫu biểu đồ dưới 15 lần xuất hiện chưa nói lên gì
     "do-khung": 500,     # hình học đo trên hàng nghìn điểm vào, ngưỡng cao theo
     "nhieu-cho": 20,     # lệnh ngoài mẫu mỗi chợ — cùng ngưỡng với cửa duyệt
+    "gia-thuyet": 1,     # một hướng đã hỏng là một hướng đã hỏng, không cần lặp lại
+    "bo-pha": 20,        # lệnh ở lượt phá gốc
 }
 
 
@@ -555,6 +557,98 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
     return ra
 
 
+# ── Nguồn 8 · sổ giả thuyết (KẾT QUẢ ÂM) ──────────────────────────────────
+def _tu_gia_thuyet(bo: list) -> list[dict]:
+    """Những gì đã thử VÀ THẤT BẠI — thứ không kho nào khác trong hệ này giữ.
+
+    `phat-hien.jsonl` là ảnh chụp, chỉ giữ cái đang đúng. Nên nếu không có nguồn
+    này thì bộ não không có cách nào biết một hướng đã được thử và đã hỏng, và
+    nó sẽ đề xuất lại đúng hướng đó.
+
+    Kết quả âm tốn đúng bằng kết quả dương để mua. Khác nhau ở chỗ gần như không
+    ai cất chúng.
+    """
+    from . import so_gia_thuyet as G
+
+    ds = G.doc()
+    if not ds:
+        bo.append({"ma": "gia-thuyet", "nguon": "gia-thuyet",
+                   "viSao": "sổ giả thuyết còn rỗng — chưa khai cái nào"})
+        return []
+
+    ra = []
+    bac = [g for g in ds if g["phanQuyet"] == "BÁC_BỎ"]
+    xac = [g for g in ds if g["phanQuyet"] == "XÁC_NHẬN"]
+    mo = [g for g in ds if not g["daChot"]]
+
+    if bac:
+        chi = " · ".join(f"«{g['ma']}» {(g.get('moTa') or '')[:60]}" for g in bac[:4])
+        ra.append(_pd("da-thu-va-hong", "gia-thuyet",
+                      f"{len(bac)} hướng ĐÃ THỬ VÀ HỎNG, đừng đề xuất lại: {chi}. "
+                      f"Mỗi cái đã tốn một phép đo đầy đủ; tra sổ giả thuyết trước khi "
+                      f"dựng phép đo mới.",
+                      len(bac), {"maDaBacBo": [g["ma"] for g in bac]}))
+        for g in bac[:3]:
+            ra.append(_pd(f"bac-bo:{g['ma']}", "gia-thuyet",
+                          f"BÁC BỎ — {g['cauHoi']} Dự đoán lúc chưa biết: {g['duDoan']} "
+                          f"Đo được: {g.get('moTa')}. "
+                          f"{(g.get('doDuoc') or {}).get('ghiChu') or ''}",
+                          (g.get("doDuoc") or {}).get("mau") or 1,
+                          {"phanQuyet": "BÁC_BỎ"}))
+    if xac:
+        ra.append(_pd("da-xac-nhan", "gia-thuyet",
+                      f"{len(xac)} hướng đã XÁC NHẬN: "
+                      + " · ".join(f"«{g['ma']}»" for g in xac)
+                      + ". Xác nhận không phải vĩnh viễn — mỗi cái chỉ đúng trong bối "
+                        "cảnh nó được đo, và bối cảnh thì đổi.",
+                      len(xac), {"maDaXacNhan": [g["ma"] for g in xac]}))
+    if mo:
+        ra.append(_pd("dang-mo", "gia-thuyet",
+                      f"{len(mo)} giả thuyết ĐÃ KHAI NHƯNG CHƯA CHỐT: "
+                      + " · ".join(f"«{g['ma']}»" for g in mo)
+                      + ". Khai mà không chốt là cách êm nhất để tránh một câu trả lời "
+                        "mình không muốn nghe.",
+                      len(mo), {"maDangMo": [g["ma"] for g in mo]}, do_tin="THẤP"))
+    return ra
+
+
+# ── Nguồn 9 · bộ phá ──────────────────────────────────────────────────────
+def _tu_bo_pha(bo: list) -> list[dict]:
+    """Cần điều kiện tệ tới đâu thì chiến lược mới hỏng."""
+    f = DATA_DIR / "bo-pha.json"
+    if not f.exists():
+        bo.append({"ma": "bo-pha", "nguon": "bo-pha",
+                   "viSao": "chưa chạy scripts/bo-pha.py --ghi lần nào"})
+        return []
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        bo.append({"ma": "bo-pha", "nguon": "bo-pha", "viSao": f"đọc hỏng: {e}"})
+        return []
+
+    goc, don = d.get("ket", {}).get("goc") or {}, d.get("ket", {}).get("don") or {}
+    n = goc.get("so") or 0
+    if not n or goc.get("kyVongR") is None:
+        bo.append({"ma": "bo-pha", "nguon": "bo-pha", "viSao": "lượt phá gốc không có lệnh nào"})
+        return []
+
+    tat = [k for k, v in don.items() if (v.get("so") or 0) < n * 0.2]
+    thua = [k for k, v in don.items()
+            if (v.get("so") or 0) >= n * 0.2 and (v.get("kyVongR") or -9) <= 0]
+    cau = (f"{d.get('ma')} trên {d.get('cho')}: gốc {goc['kyVongR']:+.3f}R qua {n} lệnh. ")
+    if tat:
+        cau += (f"TẮT TIẾNG khi {', '.join(tat)} — không phải thua, mà là không còn lệnh "
+                f"nào qua nổi cửa RR khi chi phí đội lên. Lợi thế (nếu có) nằm GỌN trong "
+                f"giả định chi phí, nên mọi con số dương chỉ đúng chừng nào phí đúng bằng "
+                f"mức đã giả định. ")
+    if thua:
+        cau += f"THUA khi {', '.join(thua)}. "
+    if not tat and not thua:
+        cau += "Sống qua mọi đòn — hiếm, và đáng đem đi kiểm lại trên chợ khác. "
+    ra = [_pd("bo-pha", "bo-pha", cau, n, {"tat": tat, "thua": thua})]
+    return ra
+
+
 # ── Lò ────────────────────────────────────────────────────────────────────
 def chung_cat() -> dict:
     """Chưng lại toàn bộ phát hiện. Ghi đè sạch kho, không cộng dồn."""
@@ -563,7 +657,8 @@ def chung_cat() -> dict:
     for ten, ham in (("chay-lai", _tu_chay_lai), ("so-that", _tu_so_that),
                      ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
                      ("mau-gia", _tu_mau_gia), ("do-khung", _tu_do_khung),
-                     ("nhieu-cho", _tu_nhieu_cho)):
+                     ("nhieu-cho", _tu_nhieu_cho), ("gia-thuyet", _tu_gia_thuyet),
+                     ("bo-pha", _tu_bo_pha)):
         try:
             ra.extend(ham(bo))
         except Exception as e:  # một nguồn hỏng không được kéo sập cả lò

@@ -59,6 +59,7 @@ VIEC = (
     ("mẫu giá", [sys.executable, "scripts/do-mau-gia.py", "--ghi"], 900),
     ("hình học khung", [sys.executable, "scripts/do-khung.py", "--ghi"], 900),
     ("đấu chiến lược", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca"], 900),
+    ("bộ phá", [sys.executable, "scripts/bo-pha.py", "--ghi"], 600),
 )
 
 # Chạy SAU khi đã chưng cất — xem "THỨ TỰ KHÔNG ĐƯỢC ĐỔI" ở đầu file.

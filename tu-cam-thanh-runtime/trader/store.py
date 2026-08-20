@@ -48,6 +48,17 @@ LESSONS_SOAT_LAI = "lessons-soat-lai.jsonl"
 # cạnh câu mới, và cả hai cùng trông có căn cứ như nhau.
 PHAT_HIEN = "phat-hien.jsonl"
 
+# SỔ GIẢ THUYẾT — append-only, và là kho DUY NHẤT giữ lại KẾT QUẢ ÂM.
+#
+# `phat-hien.jsonl` là ảnh chụp: nó chỉ giữ cái đang đúng, và mỗi lần chưng cất
+# lại thì mọi thứ đã thử-và-thất-bại biến mất. Hệ quả: lượt sau có thể tốn công
+# thử lại đúng cái đã hỏng, vì không còn dấu vết nào.
+#
+# Sổ này ngược lại — không bao giờ ghi đè. Bản KHAI (dự đoán + ngưỡng, viết
+# trước khi đo) và bản CHỐT (số đo được) nằm cạnh nhau, nên đọc lại là thấy ngay
+# mình đã dự đoán gì lúc chưa biết gì. Ghi đè được nó là mất luôn khả năng đó.
+GIA_THUYET = "gia-thuyet.jsonl"
+
 
 def append(name: str, obj: dict) -> dict:
     with _lock:
@@ -62,7 +73,7 @@ def write_all(name: str, rows: list[dict]) -> int:
     Không bao giờ dùng cho `TRADES` hay `LESSONS` — đó là sổ append-only, ghi đè
     là xoá lịch sử không lấy lại được.
     """
-    if name in (TRADES, LESSONS, THESES):
+    if name in (TRADES, LESSONS, THESES, GIA_THUYET):
         raise ValueError(f"{name} là sổ append-only, không được ghi đè")
     with _lock:
         with (DATA_DIR / name).open("w", encoding="utf-8") as f:

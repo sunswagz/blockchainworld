@@ -553,6 +553,51 @@ async def main() -> int:
     check("khung-ngan-chet-vi-phi" in ds2,
           "khung 5m kém quá 15 điểm → có câu riêng về chi phí")
 
+    print("\n[15] SỔ GIẢ THUYẾT — KHÔNG DỜI ĐƯỢC CỘT MỐC")
+    from trader import so_gia_thuyet as G
+
+    NG = {"truong": "kyVongR", "toanTu": ">", "giaTri": 0.0, "mauToiThieu": 20}
+    r1 = G.khai("gt-thu", "câu hỏi", "dự đoán", "cách đo", NG)
+    check(r1["ok"], "khai được một giả thuyết mới")
+
+    # Khai trùng mã là cách êm nhất để ghi đè dự đoán cũ sau khi đã thấy số.
+    check(G.khai("gt-thu", "khác", "khác", "khác", NG)["ok"] is False,
+          "khai TRÙNG MÃ bị chặn — nếu không thì dự đoán cũ bị đè")
+
+    # Chốt cái chưa khai: khi đó mọi kết quả đều 'đúng như dự đoán'.
+    check(G.chot("chua-khai-bao-gio", {"kyVongR": 9.9, "mau": 999})["ok"] is False,
+          "chốt cái CHƯA KHAI bị chặn")
+
+    r2 = G.chot("gt-thu", {"kyVongR": -0.3, "mau": 50})
+    check(r2["ok"] and r2["phanQuyet"] == "BÁC_BỎ",
+          f"đo −0,3R với ngưỡng >0 → {r2.get('phanQuyet')}")
+    check(G.chot("gt-thu", {"kyVongR": 9.9, "mau": 999})["ok"] is False,
+          "chốt LẠI bị chặn — đây chính là dời cột mốc")
+
+    # Mẫu bé phải ra KHÔNG_KẾT_LUẬN, không phải BÁC_BỎ. «Chưa đo đủ» và «đo ra
+    # sai» là hai chuyện, gộp lại là khai tử oan một hướng còn có thể đúng.
+    G.khai("gt-be", "c", "d", "e", NG)
+    r3 = G.chot("gt-be", {"kyVongR": -0.9, "mau": 3})
+    check(r3["phanQuyet"] == "KHÔNG_KẾT_LUẬN",
+          f"mẫu 3 < ngưỡng 20 → {r3['phanQuyet']}, không phải BÁC_BỎ")
+
+    # Sổ append-only: ghi đè phải bị chặn ở tầng store.
+    try:
+        store.write_all(store.GIA_THUYET, [])
+        check(False, "GHI ĐÈ ĐƯỢC sổ giả thuyết — mất khả năng chứng minh đã dự đoán trước")
+    except ValueError:
+        check(True, "store từ chối ghi đè sổ giả thuyết")
+
+    # Phán quyết là hàm THUẦN — kiểm được bằng số bịa, không cần chạy cả cỗ máy.
+    check(G._phan_quyet(NG, {"kyVongR": 0.1, "mau": 20})[0] == "XÁC_NHẬN",
+          "hàm phán quyết thuần: 0,1R với mẫu 20 → XÁC_NHẬN")
+    check(G._phan_quyet(NG, {"kyVongR": 0.1, "mau": 19})[0] == "KHÔNG_KẾT_LUẬN",
+          "…mẫu 19 → KHÔNG_KẾT_LUẬN, ngưỡng không nhân nhượng một đơn vị")
+
+    # Tra ra được cái đã hỏng — công cụ đáng gọi nhất trong module.
+    check(any(g["ma"] == "gt-thu" for g in G.tra("gt-thu")),
+          "tra ra được giả thuyết đã bác bỏ")
+
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:
