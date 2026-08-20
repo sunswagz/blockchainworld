@@ -419,9 +419,312 @@ def mock_range_thesis(state: dict, regime: dict, primary_tf: str,
 
 # Sổ đăng ký bộ luật. Phòng huấn luyện và Risk Engine gọi qua đây thay vì gọi
 # thẳng, để thêm một chiến lược không phải sửa chỗ nào khác.
+# ── Bộ luật thứ ba: chờ kéo lùi ───────────────────────────────────────────
+THAM_KEO_LUI: dict[str, Any] = {
+    "keoLuiToiDa": 0.8,    # giá phải về trong ngần này ATR quanh EMA20
+    "keoLuiSau": 1.2,      # nhưng không được thủng quá sâu qua bên kia EMA20
+    "rsiSan": 40.0,        # RSI đã nguội…
+    "rsiTran": 62.0,       # …nhưng chưa gãy
+    "demStop": 0.35,       # stop lùi thêm ngần này ATR sau mốc cấu trúc
+    "demTp": 1.05,
+    "boiTp2": 1.6,
+    "tinCay": 0.6,
+    "cheDoVao": ["TREND_UP", "TREND_DOWN"],
+    "chanXungDot": True,
+}
+
+
+def _moc_cau_truc(p: dict, price: float, long: bool) -> float | None:
+    """Mốc gần nhất mà thị trường ĐÃ từng tôn trọng, nằm bên kia giá.
+
+    Ưu tiên swing gần nhất; không có thì lấy biên 20 nến. Trả None khi cả hai
+    đều không đọc được — khi đó bộ luật phải đứng ngoài chứ không được bịa ra
+    một con số, vì đúng chỗ này là chỗ chiến lược đang chạy làm sai.
+    """
+    if long:
+        ds = [x for x in (p.get("swingLows") or []) if x is not None and x < price]
+        moc = max(ds) if ds else p.get("range20Low")
+    else:
+        ds = [x for x in (p.get("swingHighs") or []) if x is not None and x > price]
+        moc = min(ds) if ds else p.get("range20High")
+    return moc if isinstance(moc, (int, float)) and moc > 0 else None
+
+
+def _tp_tu_stop(price: float, stop: float, long: bool, r: dict,
+                dem_tp: float, boi_tp2: float) -> tuple[float, float]:
+    """Mục tiêu SUY RA từ khoảng cách stop THẬT, không từ bội số ATR ghi cứng.
+
+    Bộ luật cấu trúc không có "1,5×ATR" để dựa vào — stop nằm ở đâu là do thị
+    trường quyết định. Nên mục tiêu phải tính ngược từ chính khoảng cách đó, sau
+    khi đã trừ phí và trượt giá ở CẢ HAI đầu:
+
+        RR khi khớp = (khoảng TP − drag) / (khoảng SL + drag) ≥ minRR
+    """
+    drag = price * (r["feeBps"] + r["slippageBps"]) / 10_000
+    stop_that = abs(price - stop) + drag
+    xa = (r["minRR"] * stop_that + drag) * dem_tp
+    if long:
+        return price + xa, price + xa * boi_tp2
+    return price - xa, price - xa * boi_tp2
+
+
+def mock_keo_lui_thesis(state: dict, regime: dict, primary_tf: str,
+                        tham: dict | None = None) -> dict:
+    """Chỉ vào lệnh SAU khi giá đã kéo lùi về EMA20, và đặt stop sau CẤU TRÚC.
+
+    Vì sao có bộ luật này — nó không phải một ý hay, nó là câu trả lời cho một
+    số đo. Chiến lược đang cầm quyền thoát bằng stop ở **34/44 lệnh (77%)** và
+    chỉ 5 lệnh chạm mục tiêu; kỳ vọng −0,666R qua 44 lệnh chạy lại.
+
+    Chẩn đoán: nó vào lệnh khi ADX ≥ 22, tức là khi nhịp tăng ĐÃ chạy được một
+    đoạn — giá đang ở đỉnh của một chân sóng. Stop 1,5×ATR đặt từ chỗ đó rơi vào
+    giữa vùng giá mà một cú kéo lùi bình thường cũng quét tới. Không phải stop
+    quá hẹp; là stop đặt ở chỗ chưa từng có ai bảo vệ.
+
+    Hai chỗ khác chiến lược cũ, và chỉ hai chỗ đó — để nếu nó hơn thì biết là
+    hơn nhờ cái gì:
+
+      1. **Chờ kéo lùi.** Chỉ vào khi giá đã về trong 0,8×ATR quanh EMA20 và RSI
+         đã nguội về 40–62. Cùng bối cảnh xu hướng, khác thời điểm bấm nút.
+      2. **Stop sau cấu trúc.** Đặt dưới swing thấp gần nhất (hoặc đáy 20 nến),
+         lùi thêm một khoảng đệm — một mốc thị trường ĐÃ từng tôn trọng, thay vì
+         một khoảng cách máy móc tính từ giá hiện tại.
+
+    Mục tiêu vẫn suy ra từ chi phí như bộ luật cũ, nên phần đó không phải là
+    biến. Khác biệt duy nhất là ĐIỂM VÀO và CHỖ ĐẶT STOP.
+    """
+    th = {**THAM_KEO_LUI, **(tham or {})}
+    p = state["timeframes"][primary_tf]
+    price = p["price"]
+    atr = p["_raw"]["atr"] or price * 0.01
+    ema20 = p["_raw"].get("ema20") or p.get("ema20")
+    rsi = p.get("rsi14")
+    prim = regime["primary"]
+    r = CONFIG["risk"]
+
+    base = {
+        "regime_read": prim,
+        "market_summary": f"[kéo lùi] {prim}, RSI {rsi}, giá cách EMA20 "
+                          f"{((price - ema20) / atr):.2f}×ATR" if ema20 else f"[kéo lùi] {prim}",
+        "scenarios": [
+            {"name": "kéo lùi rồi đi tiếp", "probability": 0.45, "description": "nhịp nghỉ trong xu hướng"},
+            {"name": "kéo lùi thành đảo chiều", "probability": 0.35, "description": "mất mốc cấu trúc"},
+            {"name": "đi tiếp không chờ", "probability": 0.20, "description": "lỡ nhịp, đứng ngoài"},
+        ],
+        "action": "NO_TRADE",
+        "confidence": 0.4,
+        "entry_zone": None, "invalidation": None,
+        "invalidation_logic": "không vào lệnh nên không có điểm vô hiệu hoá",
+        "targets": [], "suggested_risk_pct": 0.0,
+        "strategy": "MOCK_KEO_LUI_V1",
+        "reason_codes": ["KEO_LUI"],
+        "reasoning": "Chờ giá kéo lùi về EMA20 rồi mới vào, stop đặt sau mốc cấu trúc.",
+        "event_risk": "UNKNOWN",
+    }
+
+    if th["chanXungDot"] and "MTF_CONFLICT" in regime["flags"]:
+        base["reason_codes"].append("MTF_CONFLICT")
+        return base
+    if prim not in th["cheDoVao"]:
+        base["reason_codes"].append("NO_CLEAR_TREND")
+        return base
+    if ema20 is None or rsi is None:
+        base["reason_codes"].append("KHONG_DOC_DUOC_EMA20_HOAC_RSI")
+        return base
+
+    long = prim == "TREND_UP"
+    # Khoảng cách tới EMA20, tính theo ATR và có DẤU theo hướng xu hướng:
+    # dương = giá còn ở phía "đã chạy", âm = đã thủng qua bên kia.
+    lech = (price - ema20) / atr if long else (ema20 - price) / atr
+
+    if lech > th["keoLuiToiDa"]:
+        base["reason_codes"].append(f"CHUA_KEO_LUI_{lech:.2f}xATR")
+        base["reasoning"] = (f"Giá còn cách EMA20 {lech:.2f}×ATR — vẫn ở đỉnh chân sóng. "
+                             f"Vào đây là đặt stop vào chỗ chưa ai bảo vệ, đúng lỗi đã làm "
+                             f"77% lệnh của chiến lược cũ chết ở stop.")
+        return base
+    if lech < -th["keoLuiSau"]:
+        base["reason_codes"].append(f"THUNG_QUA_SAU_{lech:.2f}xATR")
+        return base
+
+    if long and not (th["rsiSan"] <= rsi <= th["rsiTran"]):
+        base["reason_codes"].append(f"RSI_{rsi}_NGOAI_KHOANG")
+        return base
+    if not long and not ((100 - th["rsiTran"]) <= rsi <= (100 - th["rsiSan"])):
+        base["reason_codes"].append(f"RSI_{rsi}_NGOAI_KHOANG")
+        return base
+
+    moc = _moc_cau_truc(p, price, long)
+    if moc is None:
+        base["reason_codes"].append("KHONG_DOC_DUOC_MOC_CAU_TRUC")
+        return base
+
+    stop = moc - th["demStop"] * atr if long else moc + th["demStop"] * atr
+    # Kẹp vào dải stop mà Risk Engine chấp nhận. Không kẹp thì mốc cấu trúc quá
+    # gần sẽ bị chặn ở cửa sau, còn quá xa thì kích thước vị thế teo lại — cả
+    # hai đều là "đã tốn một lượt suy luận rồi mới biết".
+    xa = abs(price - stop) / atr
+    if xa < r["minStopAtr"]:
+        stop = price - r["minStopAtr"] * atr if long else price + r["minStopAtr"] * atr
+    elif xa > r["maxStopAtr"]:
+        base["reason_codes"].append(f"MOC_CAU_TRUC_QUA_XA_{xa:.2f}xATR")
+        base["reasoning"] = (f"Mốc cấu trúc gần nhất cách {xa:.2f}×ATR, vượt trần "
+                             f"{r['maxStopAtr']}×ATR. Kéo stop lại gần cho vừa trần là bỏ "
+                             f"mất chính lý do dùng stop cấu trúc — thà đứng ngoài.")
+        return base
+
+    tp1, tp2 = _tp_tu_stop(price, stop, long, r, th["demTp"], th["boiTp2"])
+    base.update({
+        "action": "LONG" if long else "SHORT",
+        "confidence": th["tinCay"],
+        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
+        "invalidation": round(stop, 2),
+        "invalidation_logic": (f"dưới mốc cấu trúc {moc:.2f} một khoảng đệm "
+                               f"{th['demStop']}×ATR — mất mốc này là cú kéo lùi đã thành "
+                               f"đảo chiều" if long else
+                               f"trên mốc cấu trúc {moc:.2f} một khoảng đệm {th['demStop']}×ATR"),
+        "targets": [round(tp1, 2), round(tp2, 2)],
+        "suggested_risk_pct": 0.5,
+        "reason_codes": ["KEO_LUI", "DA_KEO_LUI_VE_EMA20", "STOP_SAU_CAU_TRUC"],
+        "reasoning": (f"Giá đã kéo lùi về {lech:+.2f}×ATR quanh EMA20, RSI {rsi} đã nguội "
+                      f"mà chưa gãy. Stop {abs(price - stop) / atr:.2f}×ATR đặt sau mốc "
+                      f"{moc:.2f} — một mức thị trường đã từng tôn trọng, không phải một "
+                      f"khoảng cách máy móc tính từ giá hiện tại."),
+    })
+    return base
+
+
+# ── Bộ luật thứ tư: bung nén ──────────────────────────────────────────────
+THAM_BUNG_NEN: dict[str, Any] = {
+    "bungToiThieu": 1.3,   # ATR phải đang GIÃN so với trung vị của chính nó
+    "bungToiDa": 3.0,      # nhưng đã nổ quá rồi thì phần dễ ăn nhất đã qua
+    "khoiLuongToiThieu": 1.2,   # khối lượng phải xác nhận
+    "chamBienPct": 0.15,   # coi là chạm biên khi cách biên 20 nến dưới ngần này %
+    "demStop": 0.3,
+    "demTp": 1.05,
+    "boiTp2": 1.6,
+    "tinCay": 0.6,
+    "cheDoVao": ["TREND_UP", "TREND_DOWN", "BREAKOUT"],
+    "chanXungDot": False,  # phá biên là sự kiện của chính khung đó
+}
+
+
+def mock_bung_nen_thesis(state: dict, regime: dict, primary_tf: str,
+                         tham: dict | None = None) -> dict:
+    """Vào khi giá phá biên 20 nến CÙNG LÚC biến động và khối lượng đang giãn.
+
+    Chiến lược cầm quyền không có một điều kiện nào về biến động lẫn khối lượng
+    — nó chỉ đọc ADX, một thước đo xu hướng CHẬM. Bộ luật này thay thước đó bằng
+    hai thước nhanh: `atrRatioVsMedian` (biến động đang giãn hay đang co) và
+    `volumeRatio` (có tiền vào theo không).
+
+    Đối chứng có chủ ý với bộ luật «chờ kéo lùi»: một bên chờ giá nguội rồi mới
+    vào, một bên vào đúng lúc giá bung. Hai giả thuyết ngược nhau về cùng một
+    khuyết tật, đo trên cùng một đoạn dữ liệu — nếu cả hai cùng thua champion
+    thì vấn đề không nằm ở thời điểm vào lệnh, và đó cũng là một câu trả lời.
+
+    Có một cửa mà bộ luật này KHÔNG được phép mở: nếu ATR đã giãn quá `bungToiDa`
+    thì đứng ngoài. Vào sau khi đã nổ là mua ở chỗ stop phải đặt rất xa, và
+    khoảng cách stop chính là thứ quyết định kích thước vị thế.
+    """
+    th = {**THAM_BUNG_NEN, **(tham or {})}
+    p = state["timeframes"][primary_tf]
+    price = p["price"]
+    atr = p["_raw"]["atr"] or price * 0.01
+    prim = regime["primary"]
+    r = CONFIG["risk"]
+    ty_atr = p.get("atrRatioVsMedian")
+    ty_kl = p.get("volumeRatio")
+    tren = p.get("range20High")
+    duoi = p.get("range20Low")
+
+    base = {
+        "regime_read": prim,
+        "market_summary": f"[bung nén] {prim}, ATR/trung vị {ty_atr}, khối lượng ×{ty_kl}",
+        "scenarios": [
+            {"name": "phá biên đi tiếp", "probability": 0.42, "description": "nén rồi bung, có khối lượng"},
+            {"name": "phá giả rồi thu về", "probability": 0.38, "description": "quét thanh khoản ngoài biên"},
+            {"name": "đi ngang tiếp", "probability": 0.20, "description": "chưa đủ lực"},
+        ],
+        "action": "NO_TRADE",
+        "confidence": 0.4,
+        "entry_zone": None, "invalidation": None,
+        "invalidation_logic": "không vào lệnh nên không có điểm vô hiệu hoá",
+        "targets": [], "suggested_risk_pct": 0.0,
+        "strategy": "MOCK_BUNG_NEN_V1",
+        "reason_codes": ["BUNG_NEN"],
+        "reasoning": "Chỉ vào khi giá phá biên 20 nến cùng lúc biến động và khối lượng giãn.",
+        "event_risk": "UNKNOWN",
+    }
+
+    if prim not in th["cheDoVao"]:
+        base["reason_codes"].append("CHE_DO_KHONG_HOP")
+        return base
+    if th["chanXungDot"] and "MTF_CONFLICT" in regime["flags"]:
+        base["reason_codes"].append("MTF_CONFLICT")
+        return base
+    if ty_atr is None or ty_kl is None or tren is None or duoi is None:
+        base["reason_codes"].append("KHONG_DOC_DUOC_BIEN_DONG_HOAC_BIEN_GIA")
+        return base
+
+    if ty_atr < th["bungToiThieu"]:
+        base["reason_codes"].append(f"CHUA_BUNG_{ty_atr}")
+        return base
+    if ty_atr > th["bungToiDa"]:
+        base["reason_codes"].append(f"DA_NO_QUA_{ty_atr}")
+        base["reasoning"] = (f"ATR đã gấp {ty_atr}× trung vị — phần dễ ăn nhất của cú bung "
+                             f"đã qua, và stop bây giờ phải đặt rất xa. Khoảng cách stop là "
+                             f"thứ quyết định kích thước vị thế, nên vào muộn ở đây không "
+                             f"chỉ là ăn ít hơn mà là cược lệch hẳn so với các lệnh khác.")
+        return base
+    if ty_kl < th["khoiLuongToiThieu"]:
+        base["reason_codes"].append(f"KHOI_LUONG_KHONG_XAC_NHAN_{ty_kl}")
+        return base
+
+    gan_tren = (tren - price) / price * 100 <= th["chamBienPct"]
+    gan_duoi = (price - duoi) / price * 100 <= th["chamBienPct"]
+    if gan_tren and prim != "TREND_DOWN":
+        long, moc = True, tren
+    elif gan_duoi and prim != "TREND_UP":
+        long, moc = False, duoi
+    else:
+        base["reason_codes"].append("CHUA_CHAM_BIEN_20_NEN")
+        return base
+
+    # Stop nằm bên KIA mốc vừa phá — mốc đó vừa đổi vai từ kháng cự thành hỗ trợ
+    # (hoặc ngược lại). Đây là chỗ luận điểm sai chứ không phải một khoảng cách.
+    stop = moc - th["demStop"] * atr if long else moc + th["demStop"] * atr
+    xa = abs(price - stop) / atr
+    if xa < r["minStopAtr"]:
+        stop = price - r["minStopAtr"] * atr if long else price + r["minStopAtr"] * atr
+        xa = r["minStopAtr"]
+    elif xa > r["maxStopAtr"]:
+        base["reason_codes"].append(f"MOC_PHA_QUA_XA_{xa:.2f}xATR")
+        return base
+
+    tp1, tp2 = _tp_tu_stop(price, stop, long, r, th["demTp"], th["boiTp2"])
+    base.update({
+        "action": "LONG" if long else "SHORT",
+        "confidence": th["tinCay"],
+        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
+        "invalidation": round(stop, 2),
+        "invalidation_logic": (f"bên kia mốc {moc:.2f} vừa phá — mốc đổi vai, mất lại là "
+                               f"cú phá biên thành phá giả"),
+        "targets": [round(tp1, 2), round(tp2, 2)],
+        "suggested_risk_pct": 0.5,
+        "reason_codes": ["BUNG_NEN", "PHA_BIEN_20_NEN", "BIEN_DONG_GIAN", "KHOI_LUONG_XAC_NHAN"],
+        "reasoning": (f"Giá chạm biên 20 nến {moc:.2f} khi ATR đang gấp {ty_atr}× trung vị "
+                      f"và khối lượng gấp {ty_kl}× trung bình. Stop {xa:.2f}×ATR đặt bên kia "
+                      f"mốc vừa phá, không phải một bội số ATR tính từ giá."),
+    })
+    return base
+
+
 BO_LUAT = {
     "MOCK_RULES_V1": (mock_thesis, THAM_MAC_DINH),
     "MOCK_RANGE_V1": (mock_range_thesis, THAM_BIEN),
+    "MOCK_KEO_LUI_V1": (mock_keo_lui_thesis, THAM_KEO_LUI),
+    "MOCK_BUNG_NEN_V1": (mock_bung_nen_thesis, THAM_BUNG_NEN),
 }
 
 
