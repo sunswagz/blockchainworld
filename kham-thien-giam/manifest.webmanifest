@@ -1,0 +1,44 @@
+{
+  "id": "sunswagz-kham-thien-giam",
+  "name": "Khâm Thiên Giám · Đài chiêm thị trường tiên đoán",
+  "short_name": "Khâm Thiên Giám",
+  "description": "Một cỗ máy quant mổ ra xem: tính fair value của outcome độc lập với giá chợ, trừ hết phí, trượt giá và sức chứa sổ lệnh, rồi mới hỏi còn lại bao nhiêu. Sáu chiến thuật, mười một cửa rủi ro, và lý do net edge mới là alpha.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#07090D",
+  "theme_color": "#07090D",
+  "categories": [
+    "finance",
+    "business",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khâm Thiên Giám — buồng lái</title>
+<meta name="color-scheme" content="dark">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="dinh">
+  <div class="hieu">
+    <span class="sao" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/>
+        <circle cx="12" cy="12" r="3.1"/>
+      </svg>
+    </span>
+    <div>
+      <b>Khâm Thiên Giám</b>
+      <i>buồng lái · localhost</i>
+    </div>
+  </div>
+
+  <div class="cheo" id="cheDo">—</div>
+  <div class="dong" id="dongHo">—</div>
+
+  <div class="nut">
+    <button type="button" id="nutDung">Tạm dừng</button>
+    <button type="button" id="nutDao" class="do">Ngắt cầu dao</button>
+    <button type="button" id="nutLat">Ghi lát cắt</button>
+  </div>
+</header>
+
+<p class="bang-canh" id="bangCanh" hidden></p>
+
+<nav class="tab" id="tab">
+  <button type="button" data-o="dai-chiem" class="chon">Đài Chiêm</button>
+  <button type="button" data-o="so-lenh">Sổ Lệnh</button>
+  <button type="button" data-o="can-loi">Cân Lợi</button>
+  <button type="button" data-o="kho-doi">Kho Đối</button>
+  <button type="button" data-o="chien-thuat">Chiến Thuật</button>
+  <button type="button" data-o="truong-thi">Trường Thi</button>
+  <button type="button" data-o="quan-vi">Đài Quan Ví</button>
+  <button type="button" data-o="nhat-ky">Nhật Ký</button>
+</nav>
+
+<main id="than"></main>
+
+<footer class="chan">
+  <span>Buồng lái này KHÔNG bao giờ lên site — nó có nút điều khiển.</span>
+  <span class="sep">·</span>
+  <span>Cung tĩnh chỉ quan sát, ở <code>localhost:5185</code></span>
+  <span class="sep">·</span>
+  <span id="vongDem">—</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

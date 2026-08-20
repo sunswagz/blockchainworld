@@ -19,7 +19,7 @@
    trong SHELL thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v10";
+var CACHE_VERSION = "v11";
 var SHELL_CACHE = "tao-bien-xu-shell-" + CACHE_VERSION;
 var FONT_CACHE = "tao-bien-xu-fonts-" + CACHE_VERSION;
 

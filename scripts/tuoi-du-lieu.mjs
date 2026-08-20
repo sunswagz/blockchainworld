@@ -78,7 +78,11 @@ export const NGUON = [
   /* Cùng lý do Hoàng Thành: runtime giao dịch cần khoá API và một tiến trình
      chạy dài, Actions không làm được. Sinh tay ở máy rồi commit — nên cũ là
      bình thường, không được kèm ⚠. */
-  { nhan: "phiên Tử Cấm Thành",      duong: "tu-cam-thanh/assets/js/v/phien.js", botSinh: false }
+  { nhan: "phiên Tử Cấm Thành",      duong: "tu-cam-thanh/assets/js/v/phien.js", botSinh: false },
+  /* Cùng lý do Tử Cấm Thành: runtime prediction market cần một tiến trình chạy
+     dài và có thể cần khoá ví, Actions không làm được. Sinh tay ở máy rồi
+     commit — nên cũ là bình thường, không được kèm ⚠. */
+  { nhan: "lát cắt Khâm Thiên Giám", duong: "kham-thien-giam/assets/js/v/dai-chiem.js", botSinh: false }
 ];
 
 /* Dấu thời gian viết cả hai kiểu tuỳ script sinh ra nó:

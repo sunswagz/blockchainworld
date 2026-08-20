@@ -1,0 +1,465 @@
+/* ═══════════════════════════════════════════════════════════════
+   KHÂM THIÊN GIÁM — giao diện cung tĩnh.
+
+   Hai nguồn, cố ý tách nhau:
+
+     window.PHONG      sổ bảy phòng, VIẾT TAY (assets/js/phong.js)
+     window.DAI_CHIEM  lát cắt runtime, SINH TAY (assets/js/v/dai-chiem.js)
+
+   Trang này KHÔNG gọi API nào. Nó không có khoá, không có server, và
+   không đặt được lệnh nào — đúng như cả repo quy định: khoá không bao
+   giờ ra tới trình duyệt.
+
+   LUẬT VẼ: ô nào chưa có số thì nói là chưa có, không vẽ số 0. Cung này
+   giảng về một cỗ máy mà điểm hay của nó là không tự tin quá những gì
+   đo được; một giao diện vẽ số 0 cho chỗ chưa đo là phản lại chính điều
+   nó đang giảng.
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  var PHONG = window.PHONG || [];
+  var LC = window.DAI_CHIEM || null;
+
+  var than = document.getElementById("than");
+  var tieu = document.getElementById("tieu");
+  var benMuc = document.getElementById("benMuc");
+
+  /* ── tiện ─────────────────────────────────────────────────── */
+  function el(t, c, x) {
+    var e = document.createElement(t);
+    if (c) e.className = c;
+    if (x != null) e.textContent = x;
+    return e;
+  }
+  function html(t, c, h) {
+    var e = document.createElement(t);
+    if (c) e.className = c;
+    if (h != null) e.innerHTML = h;
+    return e;
+  }
+  function so(v, n) {
+    return (v == null || !isFinite(v)) ? "—" : Number(v).toFixed(n == null ? 2 : n);
+  }
+  function cent(v, n) {
+    if (v == null || !isFinite(v)) return "—";
+    return (v >= 0 ? "+" : "") + (v * 100).toFixed(n == null ? 2 : n) + "¢";
+  }
+  function pc(v, n) {
+    return (v == null || !isFinite(v)) ? "—" : (v * 100).toFixed(n == null ? 1 : n) + "%";
+  }
+
+  function khoi(ten, phu) {
+    var k = el("section", "khoi");
+    var d = el("div", "khoi-dinh");
+    d.appendChild(el("h2", null, ten));
+    if (phu) d.appendChild(el("span", "n", phu));
+    k.appendChild(d);
+    var t = el("div", "khoi-than");
+    k.appendChild(t);
+    k._than = t;
+    return k;
+  }
+
+  /* ── vẽ một đoạn giảng ────────────────────────────────────── */
+  function veDoan(d) {
+    var o = el("div", "doan");
+    if (d.canh) o.dataset.canh = "1";
+    if (d.h) o.appendChild(el("h3", null, d.h));
+    if (d.p) o.appendChild(html("p", null, d.p));
+
+    if (d.cong) o.appendChild(el("pre", "cong", d.cong.join("\n")));
+
+    if (d.bang) {
+      var t = el("table", "kyhieu"), tb = el("tbody");
+      d.bang.forEach(function (r) {
+        var tr = el("tr");
+        tr.appendChild(el("td", null, r[0]));
+        tr.appendChild(html("td", null, r[1]));
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb);
+      o.appendChild(t);
+    }
+
+    if (d.p2) o.appendChild(html("p", null, d.p2));
+
+    if (d.ds) {
+      var u = el("ul");
+      d.ds.forEach(function (x) { u.appendChild(html("li", null, x)); });
+      o.appendChild(u);
+    }
+    if (d.ds2) {
+      var c = el("div", "chips");
+      d.ds2.forEach(function (x) { c.appendChild(el("span", null, x)); });
+      o.appendChild(c);
+    }
+    if (d.p3) o.appendChild(html("p", null, d.p3));
+
+    if (d.nhan) {
+      d.nhan.forEach(function (n) {
+        var v = el("div", "nhanvi");
+        v.appendChild(el("h4", null, n.t));
+        var dl = el("dl");
+        var dt1 = el("dt", null, "nói được"); dt1.dataset.k = "co";
+        dl.appendChild(dt1); dl.appendChild(html("dd", null, n.co));
+        var dt2 = el("dt", null, "không nói được"); dt2.dataset.k = "khong";
+        dl.appendChild(dt2); dl.appendChild(html("dd", null, n.khong));
+        v.appendChild(dl);
+        o.appendChild(v);
+      });
+    }
+
+    if (d.lotrinh) {
+      var lt = el("table", "lotrinh"), lb = el("tbody");
+      d.lotrinh.forEach(function (r, i) {
+        var tr = el("tr");
+        if (i === d.lotrinh.length - 1) tr.dataset.cuoi = "1";
+        tr.appendChild(el("td", "p", r[0]));
+        tr.appendChild(el("td", "v", r[1]));
+        tr.appendChild(el("td", "c", r[2]));
+        lb.appendChild(tr);
+      });
+      lt.appendChild(lb);
+      o.appendChild(lt);
+      if (d.p) { /* p đã vẽ ở trên */ }
+    }
+    return o;
+  }
+
+  /* ── máy tính VWAP — sổ lệnh thật của phép kiểm ───────────── */
+  var SO_MAU = [
+    { gia: 0.46, luong: 80 },
+    { gia: 0.48, luong: 200 },
+    { gia: 0.50, luong: 400 },
+    { gia: 0.53, luong: 1000 }
+  ];
+  var FAIR = 0.55;
+
+  function tinhVwap(q) {
+    var con = q, tien = 0, khop = 0, muc = 0, cham = SO_MAU[0].gia;
+    for (var i = 0; i < SO_MAU.length && con > 1e-9; i++) {
+      var lay = Math.min(con, SO_MAU[i].luong);
+      tien += lay * SO_MAU[i].gia;
+      khop += lay; con -= lay; cham = SO_MAU[i].gia; muc++;
+    }
+    return { khop: khop, vwap: khop > 0 ? tien / khop : 0, muc: muc, cham: cham,
+             dayDu: con <= 1e-9 };
+  }
+
+  function veMayVwap() {
+    var k = khoi("Thử đi qua sổ", "kéo để đổi khối lượng");
+    var w = el("div", "vwap-o");
+
+    // cột trái: sổ lệnh
+    var trai = el("div");
+    trai.appendChild(html("div", "chips", "<span>ASK &mdash; bên bán</span>"));
+    var maxL = 1000;
+    var hangs = SO_MAU.slice().reverse().map(function (m) {
+      var d = el("div", "so-muc");
+      var t = el("div", "thanh");
+      t.style.width = (m.luong / maxL * 62) + "%";
+      d.appendChild(t);
+      d.appendChild(el("div", "g", (m.gia * 100).toFixed(0) + "¢"));
+      d.appendChild(el("div", "l", m.luong.toLocaleString("vi-VN") + " cổ"));
+      d._gia = m.gia;
+      trai.appendChild(d);
+      return d;
+    });
+    w.appendChild(trai);
+
+    // cột phải: điều khiển + kết quả
+    var phai = el("div");
+    var dieu = el("div", "vwap-dieu");
+    var lab = el("label", null, "Muốn mua: 280 cổ");
+    var rng = document.createElement("input");
+    rng.type = "range"; rng.min = "20"; rng.max = "1680"; rng.step = "20"; rng.value = "280";
+    dieu.appendChild(lab); dieu.appendChild(rng);
+    phai.appendChild(dieu);
+
+    var oso = el("div", "vwap-so");
+    var oBest = el("div"), oVwap = el("div"), oEdge = el("div"), oMuc = el("div");
+    [["Best ask", oBest], ["VWAP thật", oVwap], ["Lợi thế thô", oEdge], ["Đi qua", oMuc]]
+      .forEach(function (p) {
+        p[1].appendChild(el("b", null, p[0]));
+        p[1].appendChild(el("div", "v", "—"));
+        oso.appendChild(p[1]);
+      });
+    phai.appendChild(oso);
+    var ghi = html("p", null, "");
+    ghi.style.cssText = "margin:12px 0 0;font-size:12.6px;color:var(--fg-3);line-height:1.66";
+    phai.appendChild(ghi);
+    w.appendChild(phai);
+
+    function cap() {
+      var q = Number(rng.value);
+      var r = tinhVwap(q);
+      lab.textContent = "Muốn mua: " + q.toLocaleString("vi-VN") + " cổ";
+      oBest.querySelector(".v").textContent = "46,0¢";
+      oVwap.querySelector(".v").textContent = (r.vwap * 100).toFixed(2) + "¢";
+      var e = FAIR - r.vwap;
+      var ev = oEdge.querySelector(".v");
+      ev.textContent = (e * 100).toFixed(2) + "¢";
+      ev.style.color = e > 0.02 ? "var(--len)" : (e > 0 ? "var(--canh)" : "var(--xuong)");
+      oMuc.querySelector(".v").textContent = r.muc + " mức";
+      hangs.forEach(function (h) { h.dataset.an = h._gia <= r.cham + 1e-9 ? "1" : "0"; });
+      ghi.innerHTML = r.dayDu
+        ? ("Mô hình định giá <b>55,0¢</b>. Phép trừ ai cũng làm là " +
+           "<code>55,0 − 46,0 = 9,0¢</code>. Giá thật cho " + q.toLocaleString("vi-VN") +
+           " cổ là <b>" + (r.vwap * 100).toFixed(2) + "¢</b>, nên lợi thế thô còn <b>" +
+           (e * 100).toFixed(2) + "¢</b> — và đó vẫn là <i>trước</i> phí, trượt giá, " +
+           "bất định mô hình và biên an toàn.")
+        : ("Cả sổ chỉ có 1.680 cổ. Muốn " + q.toLocaleString("vi-VN") +
+           " cổ thì <b>không đủ hàng</b> — sổ mỏng là một trạng thái có thật, " +
+           "và Risk Engine cần thấy nó chứ không phải một con số làm tròn.");
+    }
+    rng.addEventListener("input", cap);
+    cap();
+
+    k._than.appendChild(w);
+    return k;
+  }
+
+  /* ── thác trừ năm khoản ───────────────────────────────────── */
+  function veThac() {
+    var k = khoi("Thác trừ", "lô 680 cổ, sổ lệnh ở trên");
+    var r = tinhVwap(680);
+    var phi = 0.02 * Math.min(r.vwap, 1 - r.vwap);
+    var truot = 8 / 10000;
+    var bd = 0.02, at = 0.008;
+    var net = (FAIR - r.vwap) - phi - truot - bd - at;
+
+    var t = el("div", "thac");
+    function hang(ten, gt, k2) {
+      var h = el("div", "hang");
+      if (k2) h.dataset.k = k2;
+      h.appendChild(el("div", "ten", ten));
+      h.appendChild(el("div", "sl", gt));
+      t.appendChild(h);
+    }
+    hang("fair value (mô hình)", (FAIR * 100).toFixed(2) + "¢");
+    hang("− VWAP thật cho 680 cổ", (r.vwap * 100).toFixed(2) + "¢", "tru");
+    hang("= lợi thế thô", cent(FAIR - r.vwap));
+    hang("− phí taker", (phi * 100).toFixed(2) + "¢", "tru");
+    hang("− trượt giá", (truot * 100).toFixed(2) + "¢", "tru");
+    hang("− bất định mô hình", (bd * 100).toFixed(2) + "¢", "tru");
+    hang("− biên an toàn", (at * 100).toFixed(2) + "¢", "tru");
+    hang("NET EXECUTABLE EDGE", cent(net), "tong");
+    k._than.appendChild(t);
+    k._than.appendChild(html("p", null,
+      "<span style='font-size:12.6px;color:var(--fg-3);line-height:1.66;display:block;" +
+      "margin-top:12px'>Từ <b style='color:var(--fg-2)'>9,00¢</b> trên bảng điều khiển " +
+      "xuống <b style='color:var(--fg-2)'>" + (net * 100).toFixed(2) + "¢</b> ăn được. " +
+      "Bỏ bất kỳ khoản trừ nào cũng ra một con số đẹp hơn và sai hơn.</span>"));
+    return k;
+  }
+
+  /* ── đường cong phí ───────────────────────────────────────── */
+  function veDuongPhi() {
+    var k = khoi("Phí taker theo giá", "maker = 0");
+    var W = 560, H = 150, P = 26;
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("width", "100%");
+    svg.style.cssText = "max-width:560px;height:auto;display:block";
+
+    function X(p) { return P + p * (W - 2 * P); }
+    function Y(f) { return H - P - (f / 0.01) * (H - 2 * P); }
+
+    var d = "";
+    for (var i = 0; i <= 100; i++) {
+      var p = i / 100, f = 0.02 * Math.min(p, 1 - p);
+      d += (i ? "L" : "M") + X(p).toFixed(1) + " " + Y(f).toFixed(1);
+    }
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "#7FB2E8");
+    path.setAttribute("stroke-width", "2");
+    svg.appendChild(path);
+
+    var truc = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    truc.setAttribute("d", "M" + P + " " + (H - P) + "H" + (W - P));
+    truc.setAttribute("stroke", "#1E2634");
+    truc.setAttribute("stroke-width", "1.5");
+    svg.appendChild(truc);
+
+    [[0, "0¢"], [0.5, "50¢"], [0.987, "98,7¢"]].forEach(function (m) {
+      var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      var f = 0.02 * Math.min(m[0], 1 - m[0]);
+      c.setAttribute("cx", X(m[0])); c.setAttribute("cy", Y(f));
+      c.setAttribute("r", "3.5"); c.setAttribute("fill", "#E8A33D");
+      g.appendChild(c);
+      var tx = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      tx.setAttribute("x", X(m[0])); tx.setAttribute("y", Y(f) - 9);
+      tx.setAttribute("fill", "#A9B6C7"); tx.setAttribute("font-size", "11");
+      tx.setAttribute("text-anchor", "middle");
+      tx.setAttribute("font-family", "JetBrains Mono,monospace");
+      tx.textContent = m[1] + " → " + (f * 100).toFixed(2) + "¢";
+      g.appendChild(tx);
+      svg.appendChild(g);
+    });
+
+    k._than.appendChild(svg);
+    k._than.appendChild(html("p", null,
+      "<span style='font-size:12.6px;color:var(--fg-3);line-height:1.66;display:block;" +
+      "margin-top:10px'>Phí cao nhất ở giữa bảng giá, về gần 0 ở hai đầu. Điều đó có " +
+      "hệ quả rất thực tế: ngón <b style='color:var(--fg-2)'>cận kết quả</b> mua ở " +
+      "98,7¢ gần như không mất phí — nhưng đó cũng đúng chỗ rủi ro đuôi lớn nhất. " +
+      "Rẻ về phí không có nghĩa là rẻ về rủi ro.</span>"));
+    return k;
+  }
+
+  /* ── lát cắt runtime ──────────────────────────────────────── */
+  function veLatCat() {
+    var k = khoi("Lát cắt runtime", LC ? ("ghi " + (LC.date || "—")) : "chưa có");
+    if (!LC) {
+      k._than.appendChild(html("div", "latcat-trong",
+        "<b>Chưa có lát cắt nào.</b><br>Runtime Python chạy ở máy riêng, ghi trạng " +
+        "thái ra file rồi commit. GitHub Actions không chạy được nó — cần một tiến " +
+        "trình dài và có thể cần khoá ví.<br><br>" +
+        "Sinh bằng tay:<br><code class='ma'>python -m kham.snapshot</code>"));
+      return k;
+    }
+
+    var l = el("div", "luoi-so");
+    function oso(nhan, to, duoi) {
+      var o = el("div", "o-so");
+      o.appendChild(el("div", "nhan", nhan));
+      o.appendChild(el("div", "to", to));
+      if (duoi) o.appendChild(el("div", "duoi", duoi));
+      l.appendChild(o);
+    }
+    var tk = LC.thongKe || {}, r = LC.risk || {}, hc = LC.hieuChinh || {};
+    oso("Chế độ", LC.che === "that" ? "TIỀN THẬT" : (LC.che === "giay" ? "Sổ giấy" : "Quan sát"),
+      "khai: " + (LC.cheKhai || "—"));
+    oso("Vòng đã chạy", (LC.vong || 0).toLocaleString("vi-VN"),
+      LC.chayDuocGiay ? Math.round(LC.chayDuocGiay) + " giây" : null);
+    oso("Băng đã ghi", ((LC.bang || {}).soKhung || 0).toLocaleString("vi-VN") + " khung");
+    oso("Mẫu hiệu chỉnh", (hc.tongMau || 0).toLocaleString("vi-VN"),
+      hc.duDeDungKelly ? "Kelly mở" : "Kelly còn khoá");
+    oso("Market kết toán", tk.n ? tk.n.toLocaleString("vi-VN") : "chưa có",
+      tk.n ? ("kỳ vọng " + so(tk.kyVong, 4) + "$/lệnh") : null);
+    oso("Cầu dao", r.ngatKhanCap ? "ĐANG NGẮT" : "đóng", r.lyDoNgat || null);
+    k._than.appendChild(l);
+
+    var bq = LC.boQua || {};
+    Object.keys(bq).forEach(function (ma) {
+      k._than.appendChild(html("div", "boqua", "<b>" + ma + "</b> — " + bq[ma]));
+    });
+
+    k._than.appendChild(html("p", null,
+      "<span style='font-size:12.6px;color:var(--fg-3);line-height:1.66;display:block'>" +
+      (LC.loiNhac || "") + "</span>"));
+    return k;
+  }
+
+  /* ── vẽ một phòng ─────────────────────────────────────────── */
+  function vePhong(p) {
+    var g = document.createDocumentFragment();
+
+    if (p.tom) {
+      g.appendChild(html("p", "giaithich", p.tom));
+    }
+
+    if (p.ma === "dai-chiem") g.appendChild(veLatCat());
+
+    (p.doan || []).forEach(function (d) {
+      var k = khoi(d.h || "—");
+      var o = veDoan(Object.assign({}, d, { h: null }));
+      if (d.canh) k._than.parentElement.style.borderLeft = "3px solid var(--canh)";
+      k._than.appendChild(o);
+      g.appendChild(k);
+    });
+
+    if (p.demo === "vwap") { g.appendChild(veMayVwap()); g.appendChild(veThac()); }
+    if (p.demo === "phi") g.appendChild(veDuongPhi());
+
+    if (p.ngon) {
+      var k2 = khoi("Sáu ngón", p.ngon.length + " chiến thuật");
+      var w = el("div", "ngon");
+      p.ngon.forEach(function (n, i) {
+        var o = el("div", "ngon-o");
+        o.appendChild(el("div", "stt", "NGÓN " + (i + 1)));
+        o.appendChild(el("h3", null, n.t));
+        o.appendChild(html("div", "d", n.d));
+        o.appendChild(html("div", "r", n.r));
+        w.appendChild(o);
+      });
+      k2._than.appendChild(w);
+      g.appendChild(k2);
+    }
+    return g;
+  }
+
+  /* ── thanh bên ────────────────────────────────────────────── */
+  function veBen() {
+    benMuc.appendChild(el("div", "blab", "Các phòng"));
+    PHONG.forEach(function (p) {
+      var a = document.createElement("a");
+      a.className = "bmuc";
+      a.href = "#/" + p.ma;
+      a.innerHTML =
+        '<span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + p.icon +
+        '</svg></span><span class="bten">' + p.ten + '</span>';
+      a.dataset.ma = p.ma;
+      benMuc.appendChild(a);
+    });
+  }
+
+  /* ── tuyến ────────────────────────────────────────────────── */
+  function tuyen() {
+    var ma = (location.hash || "").replace(/^#\/?/, "") || PHONG[0].ma;
+    var p = PHONG.filter(function (x) { return x.ma === ma; })[0] || PHONG[0];
+
+    tieu.textContent = p.ten;
+    document.title = "Khâm Thiên Giám · " + p.ten;
+    than.textContent = "";
+    than.appendChild(vePhong(p));
+
+    [].forEach.call(benMuc.querySelectorAll(".bmuc"), function (a) {
+      if (a.dataset.ma === p.ma) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+    document.getElementById("ben").dataset.mo = "0";
+    window.scrollTo(0, 0);
+  }
+
+  /* ── khởi ─────────────────────────────────────────────────── */
+  veBen();
+  window.addEventListener("hashchange", tuyen);
+  tuyen();
+
+  var ngay = document.getElementById("ngay");
+  if (LC && LC.date) ngay.textContent = "lát cắt " + LC.date;
+  else ngay.textContent = "chưa có lát cắt";
+
+  var che = document.getElementById("cheDo");
+  if (LC && LC.che) {
+    che.hidden = false;
+    che.dataset.c = LC.che;
+    che.textContent = LC.che === "that" ? "tiền thật" :
+      (LC.che === "giay" ? "sổ giấy" : "quan sát");
+  }
+
+  document.getElementById("benMoNut").addEventListener("click", function () {
+    var b = document.getElementById("ben");
+    b.dataset.mo = b.dataset.mo === "1" ? "0" : "1";
+  });
+
+  // ngăn hồ sơ chưa dùng ở bản này, nhưng khung đã sẵn cho lần sau
+  var scrim = document.getElementById("scrim");
+  var hoso = document.getElementById("hoso");
+  function dongHoSo() {
+    scrim.dataset.open = "0";
+    hoso.dataset.open = "0";
+    hoso.setAttribute("aria-hidden", "true");
+  }
+  scrim.addEventListener("click", dongHoSo);
+  document.getElementById("hosoDong").addEventListener("click", dongHoSo);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") dongHoSo();
+  });
+})();

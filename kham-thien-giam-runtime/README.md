@@ -1,0 +1,187 @@
+# Khâm Thiên Giám — runtime
+
+Đài thiên văn nhà Nguyễn tính ra bầu trời **đáng lẽ** phải thế nào, rồi đem so
+với điều người đời đang tin. Runtime này làm đúng việc ấy trên Polymarket.
+
+> **KHÔNG lên site. KHÔNG vào workflow nào.**
+> Cùng luật với `tu-cam-thanh-runtime/` — xem mục "Hai runtime Python là ngoại
+> lệ" trong `CLAUDE.md` ở gốc repo.
+
+## Chạy
+
+Máy này có Python 3.12 cài portable, **ngoài PATH**:
+
+```powershell
+$py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
+
+& $py -m pip install -r requirements.txt
+& $py scripts\selftest.py      # 88 phép kiểm số học, KHÔNG cần mạng
+& $py run.py                   # buồng lái → http://localhost:5186
+```
+
+Xem cung tĩnh (từ gốc repo): `node server.js 5185`
+
+| lệnh | làm gì |
+|---|---|
+| `python run.py` | buồng lái + vòng lặp, chế độ theo `config.json` |
+| `python run.py --che=quan-sat` | chỉ đo, không mở vị thế nào kể cả trên sổ giấy |
+| `python -m kham.snapshot` | ghi một lát cắt ra cung tĩnh rồi thoát |
+| `python scripts/selftest.py` | phép kiểm số học, không cần mạng |
+| `python scripts/sinh-icon.py` | sinh lại 5 icon PNG cho cung |
+
+## Ba chế độ, và ba cửa
+
+```
+quan-sat   không có vị thế nào. Chỉ đo.
+giay       khớp mô phỏng trên sổ lệnh THẬT, phí THẬT, tiền GIẢ.   ← mặc định
+that       lệnh rời khỏi máy.
+```
+
+Một lệnh thật chỉ đi khi **cả ba cửa cùng mở**:
+
+1. `config.json` → `che: "that"`
+2. `config.json` → `datLenh.toiXacNhanDaDocRuiRo: true`
+3. `.env` → `POLYMARKET_PRIVATE_KEY` có giá trị
+
+Ba cửa nằm ở ba nơi khác nhau về bản chất, nên không thao tác đơn lẻ nào mở
+được cả ba. Một dòng cấu hình duy nhất ngăn giữa mô phỏng và tiền thật là quá
+mỏng: sửa nhầm một ký tự, hoặc `git checkout` một file, là tiền thật bắt đầu
+chạy mà không ai kịp nhận ra.
+
+Thiếu bất kỳ cửa nào thì **rơi về sổ giấy** — và không rơi trong im lặng,
+`ly_do_khong_that()` in ra đúng cửa nào đang đóng.
+
+## Ba làn tốc độ — và Claude nằm ở đâu
+
+```
+LÀN NHANH     0–1000 ms      KHÔNG có Claude
+  giá Binance · sổ lệnh Polymarket · đồng hồ chợ · tồn kho · độ trễ
+  → toán thuần Python, quyết định trong vài mili-giây
+
+LÀN VỪA       1–60 giây      KHÔNG có Claude
+  biến động thực nghiệm · quan hệ chéo market · hiệu chỉnh lại fair value
+
+LÀN CHẬM      phút – giờ     CÓ Claude
+  hậu kiểm · đọc lại băng · đề xuất giả thuyết · sinh chiến thuật mới
+```
+
+Nghiên cứu OpenMarket đo được Polymarket phản ứng sau Binance với trung vị
+khoảng **347 ms**. Một lượt gọi model không bao giờ về kịp trong cửa sổ đó, và
+có kịp cũng không nên: đường quyết định phải **tất định** thì mới chạy lại
+được, mà chạy lại được mới biết một thay đổi là *tốt hơn* hay chỉ là *khác đi*.
+
+Nên Claude ở đây là **nhà khoa học của cỗ máy**, không phải phản xạ của nó.
+Runtime chạy kín vòng và đầy đủ mà không cần một lượt gọi model nào —
+`ANTHROPIC_API_KEY` chỉ mở thêm làn chậm.
+
+## Câu treo trên tường
+
+```
+CORRELATION   không phải ALPHA
+SIGNAL        không phải ALPHA
+LATENCY       không phải ALPHA
+ACCURACY      không phải ALPHA
+
+NET EXECUTABLE EDGE  =  ALPHA
+```
+
+OpenMarket ghép 727 triệu bản ghi Polymarket–Binance ở mức mili-giây, 43 đặc
+trưng vi cấu trúc, walk-forward đàng hoàng. Họ **xác nhận** Polymarket phản
+ứng trễ. Và mô hình của họ **vẫn không tạo được lợi thế ngoài mẫu sau phí và
+trượt giá**.
+
+Tín hiệu có thật, độ trễ có thật, và cả hai cộng lại vẫn ra một chiến lược lỗ.
+
+## Bản đồ mã
+
+```
+kham/
+  config.py      cấu hình + ba cửa của chế độ chạy
+  dongho.py      đồng hồ chợ, giai đoạn vòng đời, lệch đồng hồ sàn
+  nguon.py       Polymarket (đọc) + Binance (đọc). Không đường nào ghi.
+  so_lenh.py     sổ L2, VWAP theo khối lượng, sức chứa      ← đọc file này trước
+  dinh_gia.py    fair value, bất định, rủi ro nhảy, hiệu chỉnh
+  can_loi.py     net executable edge, phí, giá cặp
+  kho_doi.py     tồn kho ba phần, giá cặp, tương quan chéo
+  chien_thuat.py sáu ngón nghề cắm vào một nền máy
+  rui_ro.py      Risk Engine — Python thuần, quyền phủ quyết
+  dat_lenh.py    sổ giấy khớp trên sổ THẬT + cổng lệnh thật
+  sdk_polymarket.py  lớp DUY NHẤT chạm tới khoá ví
+  bang.py        băng ghi + chạy lại
+  vi.py          Đài Quan Ví — chỉ quan sát
+  so.py          nhật ký + thống kê (kỳ vọng, đuôi, thua lớn nhất)
+  vong.py        vòng lặp chính
+  server.py      buồng lái FastAPI, chỉ localhost
+  snapshot.py    cầu nối sang cung tĩnh
+  sach.py        bỏ inf/nan trước khi ra JSON
+```
+
+## Bốn chỗ dễ hỏng IM LẶNG — đều có phép kiểm
+
+Đây là loại lỗi đã cắn `tu-cam-thanh-runtime` bốn lần: số vẫn ra, bảng vẫn
+xanh, chỉ có kết quả là sai.
+
+1. **τ → 0 làm nổ mô hình.** Còn 0,2 giây thì `σ√τ ≈ 0` và P(UP) thành đúng
+   `1.0000000000` — mô hình tuyên bố chắc chắn 100% đúng lúc nó biết ít nhất.
+   Chặn bằng hai lớp: sàn cho τ, và làm phẳng kết quả về `[2%, 98%]`.
+
+2. **Bất định tụt khi tới gần kết quả.** Sai số tham số không đo được thứ nguy
+   hiểm nhất của binary 5 phút. Thêm **rủi ro nhảy giá**: ngay lằn ranh + còn
+   3 giây → bất định `0,23`; cách 3σ + còn 3 giây → `0,003`. Cả hai đều đúng.
+
+3. **Năm dấu hiệu của một cú BTC bị đếm thành năm bằng chứng.** Volume, bid
+   imbalance, ETH, SOL, taker flow — năm cái bóng của một nguyên nhân. Gộp
+   theo **họ tín hiệu**, chỉ cái mạnh nhất mỗi họ giữ trọn trọng số.
+
+4. **Kelly trên xác suất chưa ai kiểm.** Mô hình nói 60% mà thực tế thắng 52%
+   thì Kelly phóng to đúng khoảng lệch đó. Kelly bị **khoá cứng** cho tới khi
+   đủ mẫu hiệu chỉnh.
+
+Và một chỗ nữa mà `so_lenh.py` tồn tại để chặn: **"EDGE = 9¢" trên bảng điều
+khiển**. Đó là `fair − best_ask`, đúng cho đúng 80 cổ đầu tiên. Giá thật cho
+680 cổ là VWAP `0,4894` nên lợi thế còn `6,1¢`; ăn cả sổ thì `3,6¢`; sau năm
+khoản trừ thì **âm**.
+
+## Lộ trình — P10 là mốc duy nhất chạm tới tiền
+
+| | xây gì | được làm gì |
+|---|---|---|
+| P0 | băng ghi Binance + Polymarket + đồng hồ | không giao dịch |
+| P1 | sổ lệnh CLOB, tìm khung, dữ liệu kết toán | không giao dịch |
+| P2 | fair value nền + hiệu chỉnh | không giao dịch |
+| P3 | net executable edge + VWAP + phí + sức chứa | không giao dịch |
+| P4 | chạy lại lịch sử theo sự kiện | không chạy thật |
+| P5 | tồn kho + rủi ro chân + tương quan | sổ giấy |
+| P6 | lệch giá định hướng + cặp theo thời | sổ giấy |
+| P7 | giá trị tương đối + tạo lập + cận kết quả | sổ giấy |
+| P8 | Đài Quan Ví | chỉ nghiên cứu |
+| P9 | Champion/Challenger từng chiến thuật | chạy bóng |
+| P10 | thật, rất nhỏ, nếu MỌI cửa đều đạt | trần cứng |
+
+**P0 phải làm trước mô hình.** Không lưu sổ lệnh và tick ngay từ đầu thì ba
+tháng nữa dù muốn nghiên cứu cũng không có ký ức thế giới nào để chạy lại. Mô
+hình viết sau lúc nào cũng được; dữ liệu thì không quay lại.
+
+## Hai chỗ PHẢI đối chiếu trước khi chạy tiền thật
+
+1. **Hệ số phí taker** trong `config.json` (`phi.takerHeSo`) là **tham số**,
+   không phải sự thật đã kiểm. Con số thật nằm ở
+   `docs.polymarket.com/trading/fees` và Polymarket có đổi. Đặt sai thì mọi
+   phép tính edge lệch theo cùng một chiều, và lệch im lặng.
+
+2. **Đường đặt lệnh trong `sdk_polymarket.py` cố ý dừng ở
+   `NotImplementedError`.** Nối vào đó cần hai quyết định thật: phân giải
+   market sang token id, và chọn loại lệnh (GTC/FOK/GTD) theo luật từng
+   market. Đoán một mặc định rồi gửi tiền thật đi theo phỏng đoán là cách hỏng
+   đắt nhất có thể.
+
+## SDK
+
+`Polymarket/py-clob-client` đời cũ **đã bị archive 25/05/2026**; chính repo đó
+ghi rõ không nên dùng cho tích hợp mới. SDK hợp nhất hiện hành là
+`Polymarket/py-sdk`, gói `polymarket-client`.
+
+Phần **đọc** ở đây dùng thẳng HTTP — ít phụ thuộc hơn, và API đọc thì ổn định.
+Chỗ cần SDK (ký lệnh) nằm sau adapter `sdk_polymarket.py`, để SDK đổi thì chỉ
+sửa một file chứ không sửa cả hệ thống. Polymarket còn đang chuyển CLOB V2, nên
+điều này sẽ có ích.

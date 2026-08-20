@@ -1,0 +1,99 @@
+{
+  "//": "Khâm Thiên Giám — runtime prediction market. Mọi con số ở đây là TRẦN, không phải mục tiêu.",
+
+  "port": 5186,
+  "loopSeconds": 2,
+
+  "//cungTinh": "Thư mục cung tĩnh để ghi lát cắt. Để trống thì tự tìm thư mục anh em ../kham-thien-giam. Chỉ cần đặt khi đã CHUYỂN runtime ra khỏi repo. Trỏ sai thì runtime vẫn chạy, chỉ bỏ qua việc ghi và nhắc một lần.",
+  "cungTinh": "",
+
+  "//che": "quan-sat = chỉ đọc, không có vị thế nào. giay = khớp trên sổ lệnh THẬT nhưng bằng tiền giả. that = tiền thật. Xem trần bảo vệ ở mục datLenh.",
+  "che": "giay",
+
+  "//thiTruong": "Market theo dõi. `tienTo` là TIỀN TỐ slug, không phải slug đầy đủ — Polymarket đặt tên mỗi khung một slug riêng kèm mốc thời gian (btc-updown-5m-1766162100), nên slug cố định KHÔNG BAO GIỜ khớp. `nen` là cặp Binance dùng làm giá tham chiếu.",
+  "thiTruong": [
+    { "ma": "BTC_5M",  "tienTo": "btc-updown-5m-",  "nen": "BTCUSDT", "phutSong": 5,  "theo": true },
+    { "ma": "ETH_5M",  "tienTo": "eth-updown-5m-",  "nen": "ETHUSDT", "phutSong": 5,  "theo": true },
+    { "ma": "SOL_5M",  "tienTo": "sol-updown-5m-",  "nen": "SOLUSDT", "phutSong": 5,  "theo": false },
+    { "ma": "XRP_5M",  "tienTo": "xrp-updown-5m-",  "nen": "XRPUSDT", "phutSong": 5,  "theo": false },
+    { "//BTC_15M": "Đo ngày dựng: 100 market gần hạn nhất mà Gamma trả về CHỈ có khung 5 phút (btc/eth/sol/xrp, mỗi loại 13-14 khung). Không thấy tiền tố nào dạng *-updown-15m-. Để `theo: false` chứ không xoá — nếu Polymarket mở lại khung 15 phút thì chỉ cần bật, và dòng này ghi lại vì sao nó đang tắt.",
+      "ma": "BTC_15M", "tienTo": "btc-updown-15m-", "nen": "BTCUSDT", "phutSong": 15, "theo": false }
+  ],
+
+  "//dinhGia": "Mô hình fair value. bienDongCuaSo = số giây lấy mẫu để ước lượng σ. sanNenGiay = τ không bao giờ nhỏ hơn ngần này giây — chống chia cho 0 lúc sắp hết hạn.",
+  "dinhGia": {
+    "bienDongCuaSoGiay": 300,
+    "sanNenGiay": 3.0,
+    "batDinhToiThieu": 0.015,
+    "matPhangCanKetQua": 0.02,
+    "buocNhayGiay": 1.0,
+    "toiThieuMauHieuChinh": 200
+  },
+
+  "//phi": "Mô hình phí Polymarket. maker = 0. Taker theo công thức phụ thuộc giá, cao nhất quanh 50¢. HAI SỐ NÀY PHẢI ĐỐI CHIẾU LẠI docs.polymarket.com/trading/fees TRƯỚC KHI CHẠY TIỀN THẬT — chúng là tham số, không phải sự thật đã kiểm.",
+  "phi": {
+    "makerBps": 0,
+    "takerHeSo": 0.02,
+    "truotGiaBps": 8,
+    "leChonNhoNhat": 0.001
+  },
+
+  "//canLoi": "Ngưỡng để một cơ hội được coi là đáng làm. bienAnToan trừ thẳng vào net edge — nó là chỗ trả giá cho việc mô hình có thể sai.",
+  "canLoi": {
+    "netEdgeToiThieu": 0.015,
+    "bienAnToan": 0.008,
+    "sucChuaToiThieu": 25,
+    "xacSuatKhopToiThieu": 0.45,
+    "nuaDoiToiThieuMs": 250
+  },
+
+  "//khoDoi": "Tồn kho. capChuaKhopToiDaUsd là số tiền được phép nằm trần một chân trong lúc chờ chân kia khớp — đây là rủi ro thật, không phải arbitrage.",
+  "khoDoi": {
+    "capChuaKhopToiDaUsd": 50,
+    "giayChoChanHai": 20,
+    "giaCapToiDa": 0.995,
+    "lechHuongToiDaUsd": 100
+  },
+
+  "//ruiRo": "Risk Engine — Python thuần, không gọi model, có quyền phủ quyết. Mọi số ở đây là TRẦN CỨNG.",
+  "ruiRo": {
+    "vonBanDau": 1000,
+    "vonToiDaMoiThiTruongUsd": 100,
+    "vonToiDaMoiTaiSanUsd": 200,
+    "tranLoNgayUsd": 50,
+    "tranSutVonPct": 10,
+    "kellyPhan": 0.2,
+    "tuoiSoLenhToiDaMs": 2500,
+    "tuoiGiaNenToiDaMs": 2500,
+    "lechDongHoToiDaMs": 1500
+  },
+
+  "//datLenh": "BA cửa phải cùng mở thì mới có một lệnh thật rời khỏi máy này. Thiếu bất kỳ cửa nào là rơi về sổ giấy — im lặng thì không, nó ghi rõ vào nhật ký.",
+  "datLenh": {
+    "choPhepLenhThat": false,
+    "toiXacNhanDaDocRuiRo": false,
+    "tranMoiLenhUsd": 5
+  },
+
+  "//bang": "Băng ghi. Không có băng thì ba tháng nữa không có gì để chạy lại — tài liệu gọi đây là P0 và bắt làm TRƯỚC mô hình.",
+  "bang": {
+    "ghi": true,
+    "thuMuc": "data/bang",
+    "ngayGiuLai": 30
+  },
+
+  "//vi": "Đài Quan Ví — chỉ QUAN SÁT. Không sao chép lệnh của ai. PHẢI là địa chỉ ví 0x đầy đủ: Data API trả 400 cho tên hiển thị (đã thử `powerwinner` -> 400 required query param). Tên trên polymarket.com/@ten KHÔNG dùng được ở đây.",
+  "vi": {
+    "theoDoi": [],
+    "phutGiuaHaiLuot": 30
+  },
+
+  "nguon": {
+    "polymarketGamma": "https://gamma-api.polymarket.com",
+    "polymarketClob": "https://clob.polymarket.com",
+    "polymarketData": "https://data-api.polymarket.com",
+    "binanceSpot": "https://api.binance.com",
+    "binanceDuPhong": "https://data-api.binance.vision",
+    "hetGioGiay": 8
+  }
+}

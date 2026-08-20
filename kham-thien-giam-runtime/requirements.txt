@@ -1,0 +1,15 @@
+# Cố ý ít phụ thuộc — cùng lối với tu-cam-thanh-runtime.
+# Toán vẫn viết tay bằng Python thuần: với vài trăm mức sổ lệnh thì
+# numpy không mua lại được gì mà thêm một thứ có thể cài hỏng.
+fastapi>=0.141
+uvicorn[standard]>=0.52
+httpx>=0.28
+websockets>=15.0
+
+# Chỉ cần cho vòng não CHẬM (hậu kiểm/nghiên cứu). Thiếu vẫn chạy.
+anthropic>=0.122
+
+# Chỉ cần khi bật đặt lệnh THẬT. Thiếu thì lớp đặt lệnh ở sổ giấy.
+# SDK hợp nhất hiện hành. `py-clob-client` đời cũ đã bị Polymarket
+# archive 25/05/2026 — đừng dùng lại nó.
+# polymarket-client>=0.4

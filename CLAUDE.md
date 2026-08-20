@@ -1,15 +1,20 @@
 # blockchainworld
 
-Repo chứa Cổng Thành (`index.html` ở gốc) và mười cung, mỗi cung là một
+Repo chứa Cổng Thành (`index.html` ở gốc) và mười một cung, mỗi cung là một
 webapp tĩnh độc lập có `index.html` riêng:
 
     cong-bo/  dai-quan-trac/  do-sat-vien/  hoang-thanh/  ho-bo/
-    kinh-thanh/  tang-thu-cac/  tao-bien-xu/  thai-boc-tu/
-    tu-cam-thanh/
+    kham-thien-giam/  kinh-thanh/  tang-thu-cac/  tao-bien-xu/
+    thai-boc-tu/  tu-cam-thanh/
 
-Có đúng một thư mục ở gốc **không** phải cung: `tu-cam-thanh-runtime/`.
-Nó là runtime Python của Tử Cấm Thành, không lên site — xem mục
-"Tử Cấm Thành cũng là ngoại lệ" bên dưới.
+Có đúng **hai** thư mục ở gốc **không** phải cung, và cả hai là runtime
+Python chạy tay, không lên site:
+
+    tu-cam-thanh-runtime/       giao dịch crypto có hướng
+    kham-thien-giam-runtime/    thị trường tiên đoán Polymarket
+
+Xem mục "Hai runtime Python là ngoại lệ" bên dưới. Cả hai theo cùng một
+luật, nên mục đó nói chung cho cả hai chứ không chép làm hai bản.
 
 ## Chạy song song nhiều phiên
 
@@ -402,10 +407,30 @@ ngày" **không bao giờ kèm ⚠**, vì nó sinh tay. **Năm** nguồn kia do 
 và phải tươi trong **1 ngày** — bot chạy 4 lượt/ngày, quá 1 ngày nghĩa là
 bốn lượt liên tiếp không ghi được gì.
 
-### Tử Cấm Thành cũng là ngoại lệ — và có một thư mục KHÔNG phải cung
+### Hai runtime Python là ngoại lệ — và KHÔNG thư mục nào trong hai là cung
 
-    tu-cam-thanh/assets/js/v/phien.js     ← sinh tay, PHẢI commit
-    tu-cam-thanh-runtime/                 ← Python, KHÔNG lên site
+    tu-cam-thanh/assets/js/v/phien.js        ← sinh tay, PHẢI commit
+    tu-cam-thanh-runtime/                    ← Python, KHÔNG lên site
+
+    kham-thien-giam/assets/js/v/dai-chiem.js ← sinh tay, PHẢI commit
+    kham-thien-giam-runtime/                 ← Python, KHÔNG lên site
+
+**Cả hai theo cùng một luật.** Mục này viết theo Tử Cấm Thành vì nó có
+trước; mọi câu dưới đây áp dụng y nguyên cho Khâm Thiên Giám, chỉ đổi tên
+thư mục, cổng, và lệnh sinh lát cắt:
+
+    cd kham-thien-giam-runtime
+    python run.py                 buồng lái ở localhost:5186
+    python -m kham.snapshot       ghi một lần rồi thoát
+    python scripts/selftest.py    88 phép kiểm số học, KHÔNG cần mạng
+
+Một khác biệt đáng ghi: runtime Khâm Thiên Giám **không cần khoá nào để
+chạy đủ**. `ANTHROPIC_API_KEY` chỉ dùng cho vòng não CHẬM (hậu kiểm, đọc
+lại băng); thiếu nó thì runtime vẫn chạy kín vòng vì mọi quyết định trong
+đường nhanh là toán Python tất định. Còn khoá ví Polymarket thì nằm sau
+**ba cửa** phải cùng mở mới đặt được một lệnh thật, và mặc định cả ba đều
+đóng — xem `kham/config.py`. Thiếu bất kỳ cửa nào là rơi về sổ giấy, và
+nó ghi rõ cửa nào đang đóng chứ không rơi trong im lặng.
 
 Cung `tu-cam-thanh/` là trang tĩnh chỉ-đọc như mọi cung khác. Thứ sinh ra số
 liệu cho nó là `tu-cam-thanh-runtime/` — một runtime Python (FastAPI + vòng
@@ -419,17 +444,17 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
 **Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một
 bước xanh vĩnh viễn không sinh ra gì.
 
-**`tu-cam-thanh-runtime/` không được thêm vào `HALLS` của `build-dist.mjs`.**
-Nó nằm ngoài `dist/` vì `GATE` là danh sách tường minh. Thêm vào là đẩy mã
-nguồn và cấu hình lên GitHub Pages lẫn IPFS — mà IPFS đã pin là không rút lại
-được. Nó cũng không bị `npm run kiem` nhầm là cung, vì bộ kiểm chỉ tính thư
-mục có `index.html` **ngay tại gốc** thư mục đó; runtime chỉ có `web/index.html`
-ở tầng hai. Đừng tạo `tu-cam-thanh-runtime/index.html`.
+**KHÔNG runtime nào được thêm vào `HALLS` của `build-dist.mjs`.** Chúng nằm
+ngoài `dist/` vì `GATE` là danh sách tường minh. Thêm vào là đẩy mã nguồn và
+cấu hình lên GitHub Pages lẫn IPFS — mà IPFS đã pin là không rút lại được.
+Chúng cũng không bị `npm run kiem` nhầm là cung, vì bộ kiểm chỉ tính thư mục
+có `index.html` **ngay tại gốc** thư mục đó; cả hai runtime chỉ có
+`web/index.html` ở tầng hai. **Đừng tạo `<runtime>/index.html`.**
 
-Buồng lái ở `:5182` có chat và nút điều khiển nên **chỉ sống ở máy**, không
-bao giờ lên site — trang công khai mà gọi được model là khoá đã ra tới trình
-duyệt. Cung tĩnh và buồng lái cố ý là hai giao diện: cung quan sát, runtime
-điều khiển.
+Buồng lái ở `:5182` và `:5186` có nút điều khiển nên **chỉ sống ở máy**,
+không bao giờ lên site — trang công khai mà gọi được model, hoặc bấm được
+nút đặt lệnh, là khoá đã ra tới trình duyệt. Cung tĩnh và buồng lái cố ý là
+hai giao diện: cung quan sát, runtime điều khiển.
 
 **Runtime này đọc `ANTHROPIC_API_KEY`, và đó KHÔNG mâu thuẫn với mục "Repo
 này không dùng `ANTHROPIC_API_KEY` nữa" bên trên.** Luật đó nói về *xưởng* —
@@ -439,9 +464,11 @@ các node chạy tự động trong Actions, nay trả bằng quota gói qua
 từ `tu-cam-thanh-runtime/.env` ở máy người chạy, file đó đã gitignore, và
 **repo không có secret nào cho nó**.
 
-Hệ quả phải giữ: đừng đưa runtime vào bất kỳ workflow nào. Làm vậy là đòi
-một secret tính tiền theo token quay lại repo — đúng thứ vừa bị bỏ, và ở
+Hệ quả phải giữ: **đừng đưa runtime nào vào bất kỳ workflow nào.** Làm vậy là
+đòi một secret tính tiền theo token quay lại repo — đúng thứ vừa bị bỏ, và ở
 đây còn tệ hơn vì vòng lặp giao dịch chạy liên tục chứ không phải 1 lượt/ngày.
+Với Khâm Thiên Giám còn thêm một mức nữa: đưa nó vào Actions là đặt **khoá ví
+có tiền thật** vào một môi trường tự động mà không ai ngồi nhìn.
 Runtime tự có trần `dailyBudgetUsd` và `maxCallsPerDay` trong `config.json`,
 nhưng trần ấy chỉ bảo vệ được máy đang chạy — nó không thay được việc **không
 để đường tự động nào chạm tới khoá**.
@@ -550,6 +577,8 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5182  tu-cam-thanh-runtime  ← KHÔNG phải cung; là runtime Python (xem mục dưới)
     5183  ho-bo
     5184  thai-boc-tu
+    5185  kham-thien-giam
+    5186  kham-thien-giam-runtime  ← KHÔNG phải cung; runtime Python thứ hai
 
 Luôn truyền cổng, đừng để mặc định:
 

@@ -23,9 +23,10 @@ const DIST = join(ROOT, "dist");
 /* Cổng Thành ở gốc; mỗi cung là một thư mục có index.html riêng.
    Thêm cung mới = thêm thư mục + một dòng ở đây. */
 const GATE = ["index.html", "manifest.webmanifest", "sw.js", "assets"];
-const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "ho-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu", "tu-cam-thanh", "thai-boc-tu"];
+const HALLS = ["kinh-thanh", "dai-quan-trac", "do-sat-vien", "cong-bo", "ho-bo", "tang-thu-cac", "hoang-thanh", "tao-bien-xu", "tu-cam-thanh", "thai-boc-tu", "kham-thien-giam"];
 
-/* `tu-cam-thanh-runtime/` KHÔNG có ở đây và không được thêm vào. Đó là
+/* `tu-cam-thanh-runtime/` và `kham-thien-giam-runtime/` KHÔNG có ở đây và
+   không được thêm vào. Cả hai là
    runtime Python (FastAPI + vòng lặp nền + khoá API), không phải tài sản
    của trang. GATE là danh sách tường minh nên nó tự nằm ngoài dist/ —
    thêm vào HALLS là đẩy mã nguồn và cấu hình lên GitHub Pages lẫn IPFS,

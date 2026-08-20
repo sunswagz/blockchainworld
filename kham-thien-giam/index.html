@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Khâm Thiên Giám · Đài chiêm thị trường tiên đoán</title>
+<meta name="description" content="Một cỗ máy quant mổ ra xem: tính fair value của outcome độc lập với giá chợ, trừ hết phí, trượt giá và sức chứa sổ lệnh, rồi mới hỏi còn lại bao nhiêu. Sáu chiến thuật, mười một cửa rủi ro, và lý do net edge mới là alpha.">
+
+<meta name="theme-color" content="#07090D">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Khâm Thiên Giám">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <!-- ── thanh bên ─────────────────────────────────── -->
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#/dai-chiem">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/>
+          <circle cx="12" cy="12" r="3.1"/>
+        </svg>
+      </span>
+      <span><b>Khâm Thiên Giám</b><i>đài chiêm thị trường tiên đoán</i></span>
+    </a>
+
+    <!-- các phòng — app.js dựng từ bảng PHONG -->
+    <div id="benMuc"></div>
+
+    <!-- các cung — assets/js/halls.js dựng -->
+    <div id="cungNav"></div>
+
+    <div class="bchan">
+      <p>Trang này <b>chỉ quan sát</b>. Nó không gọi API nào, không giữ khoá nào,
+      và không đặt được lệnh nào.</p>
+      <p>Cỗ máy thật là một runtime Python chạy ở máy riêng — xem mục
+      <a href="#/truong-thi">Trường Thi</a>.</p>
+    </div>
+  </nav>
+
+  <!-- ── thân ──────────────────────────────────────── -->
+  <main class="than-ngoai">
+
+    <header class="dinh">
+      <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h1 id="tieu">Đài Chiêm</h1>
+      <span class="day"></span>
+      <span class="che" id="cheDo" hidden></span>
+      <span class="ngay" id="ngay"></span>
+    </header>
+
+    <p class="canhbao" id="canhBao" hidden></p>
+
+    <!-- app.js vẽ vào đây theo tuyến hash -->
+    <div id="than"></div>
+
+    <footer class="chan">
+      <p><b>Đây là trang tĩnh.</b> Số liệu ở mục “lát cắt” do runtime Python chạy
+      trên máy riêng ghi ra rồi commit vào repo — cùng cơ chế Hoàng Thành và Tử Cấm
+      Thành đang dùng. GitHub Actions không chạy được runtime đó, vì nó cần một tiến
+      trình dài và có thể cần khoá ví. Nên lát cắt <b>cũ là bình thường</b>, và
+      trang không bao giờ hiện “số liệu sống”.</p>
+
+      <p><b>Nguồn của cỗ máy:</b> Polymarket — Gamma API (tìm khung, dữ liệu kết
+      toán), CLOB API (sổ lệnh L2, giá), Data API (hoạt động ví). Phần đọc không cần
+      xác thực. Giá tham chiếu và độ biến động lấy từ Binance spot. Không nguồn nào
+      trong số đó được gọi từ trang này.</p>
+
+      <p><b>Phần giảng giải là LUẬN, không phải số đo.</b> Các con số ví dụ trong
+      những phòng dưới đây được tính lại mỗi lượt chạy phép kiểm của runtime, nên
+      chúng đúng về số học — nhưng chúng minh hoạ cơ chế chứ không phải kết quả giao
+      dịch. Đây không phải lời khuyên đầu tư.</p>
+
+      <p><b>Về các con số của người khác:</b> những tài khoản Polymarket được nhắc
+      tới là có thật và hoạt động ở quy mô lớn, nhưng các con số lợi nhuận lan
+      truyền trên mạng xã hội chưa được kiểm chứng độc lập ở đây, và cung này không
+      coi ảnh chụp màn hình là bằng chứng.</p>
+    </footer>
+
+  </main>
+</div>
+
+<!-- hồ sơ chi tiết: một chiến thuật, hoặc một ví -->
+<div class="scrim" id="scrim" data-open="0"></div>
+<aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ" aria-hidden="true">
+  <div class="hoso-top">
+    <div class="hoso-tren" id="hosoTren"></div>
+    <h2 id="hosoTen"></h2>
+    <button class="hoso-x" id="hosoDong" type="button" aria-label="Đóng hồ sơ">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="hoso-body" id="hosoBody"></div>
+</aside>
+
+<!-- lát cắt runtime · SINH TAY, xem kham-thien-giam-runtime/kham/snapshot.py -->
+<script src="assets/js/v/dai-chiem.js"></script>
+<!-- sổ bảy phòng · VIẾT TAY, sửa như mã nguồn -->
+<script src="assets/js/phong.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

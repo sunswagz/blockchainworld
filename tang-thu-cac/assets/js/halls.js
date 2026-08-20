@@ -57,6 +57,12 @@
       icon: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/><path d="M12 12l6-3.6"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/>'
     },
     {
+      href: "../kham-thien-giam/",
+      name: "Khâm Thiên Giám",
+      note: "đài chiêm thị trường",
+      icon: '<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/><circle cx="12" cy="12" r="3.1"/>'
+    },
+    {
       href: "../thai-boc-tu/",
       name: "Thái Bộc Tự",
       note: "đoàn tàu & khớp nối",

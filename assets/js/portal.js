@@ -133,6 +133,22 @@
     })
     .catch(function () {});
 
+  // Khâm Thiên Giám: dai-chiem.js là lát cắt runtime prediction market.
+  // `date` và `tomTat` được snapshot.py cố ý xếp ngay đầu object vì chỗ này
+  // chỉ đọc 900 byte rồi huỷ dòng tải — cùng bẫy như Hộ Bộ và Thái Bộc Tự.
+  // Cũng sinh tay như Tử Cấm Thành: runtime cần một tiến trình dài và có thể
+  // cần khoá ví nên Actions không chạy được. Chưa chạy lần nào thì file không
+  // tồn tại và thẻ không hiện ngày — đúng như vậy, đừng bịa ra một ngày.
+  dauFile("kham-thien-giam/assets/js/v/dai-chiem.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("ktgDate", "lát cắt " + m[1]);
+      var n = t.match(/"tomTat":\s*"([^"]+)"/);
+      if (n) stamp("ktgSo", n[1]);
+    })
+    .catch(function () {});
+
   // Hoàng Thành: data.js ~380 KB, ngày và tổng số chương nằm ở đoạn đầu.
   // Khác bốn cung trên ở chỗ file này KHÔNG do workflow sinh — nguồn nằm
   // ngoài repo nên phải chạy `npm run hoangthanh` bằng tay rồi commit.

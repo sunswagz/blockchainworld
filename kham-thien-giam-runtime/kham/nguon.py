@@ -1,0 +1,271 @@
+"""Nguồn dữ liệu — Polymarket (đọc) và Binance (đọc). Không đường nào ghi.
+
+Polymarket mở gần như toàn bộ "hệ thần kinh" cho phần mềm: Gamma API cho
+metadata/discovery, CLOB API cho giá và sổ lệnh, Data API cho hoạt động tài
+khoản, WebSocket cho realtime. Phần ĐỌC không cần xác thực gì cả — đó là lý
+do một người có thể dựng cả cái terminal này mà chưa từng nối ví.
+
+Module này CỐ Ý chỉ có đường đọc. Đặt lệnh nằm ở `dat_lenh.py` và phải đi qua
+ba cửa của `config.py`. Tách như vậy để một lần đọc nhầm code không bao giờ
+biến thành một lệnh gửi đi.
+
+── Về SDK ────────────────────────────────────────────────────────────────
+`Polymarket/py-clob-client` đời cũ đã bị archive 25/05/2026 và chính repo ghi
+rõ không nên dùng cho tích hợp mới. SDK hợp nhất hiện hành là
+`Polymarket/py-sdk`, gói `polymarket-client`.
+
+Ở đây dùng thẳng HTTP cho phần đọc — ít phụ thuộc hơn, và phần đọc thì API
+ổn định. Chỗ nào cần SDK (ký lệnh) thì `dat_lenh.py` bọc nó sau một adapter,
+để SDK đổi thì chỉ sửa adapter chứ không sửa cả hệ thống.
+"""
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+
+from .bus import bus
+from .config import CONFIG
+from .so_lenh import Muc, SoLenh
+
+_NG = CONFIG["nguon"]
+_HET_GIO = float(_NG["hetGioGiay"])
+
+
+def _httpx():
+    """Nạp httpx muộn, để thiếu gói vẫn import được module mà kiểm được."""
+    try:
+        import httpx
+        return httpx
+    except ImportError:
+        return None
+
+
+@dataclass
+class TrangThaiNguon:
+    """Sức khoẻ từng nguồn — thứ Risk Engine đọc để quyết có cho lệnh đi không."""
+    ten: str
+    lanCuoiMs: float = 0.0
+    soLoi: int = 0
+    loiCuoi: str = ""
+    tongLuot: int = 0
+
+    def tuoi_ms(self) -> float:
+        if self.lanCuoiMs <= 0:
+            return float("inf")
+        return time.time() * 1000.0 - self.lanCuoiMs
+
+    def dat(self) -> None:
+        self.lanCuoiMs = time.time() * 1000.0
+        self.tongLuot += 1
+        self.soLoi = 0
+
+    def loi(self, e: str) -> None:
+        self.soLoi += 1
+        self.loiCuoi = e[:200]
+
+    def lanh(self, tranMs: float) -> bool:
+        return self.tuoi_ms() <= tranMs and self.soLoi < 3
+
+
+class Nguon:
+    """Gom mọi lời gọi ra ngoài vào một chỗ, kèm sổ sức khoẻ."""
+
+    def __init__(self) -> None:
+        self.trangThai: dict[str, TrangThaiNguon] = {}
+        self._client = None
+
+    def _ts(self, ten: str) -> TrangThaiNguon:
+        return self.trangThai.setdefault(ten, TrangThaiNguon(ten))
+
+    def client(self):
+        hx = _httpx()
+        if hx is None:
+            return None
+        if self._client is None:
+            self._client = hx.Client(timeout=_HET_GIO,
+                                     headers={"User-Agent": "kham-thien-giam/0.1"})
+        return self._client
+
+    def dong(self) -> None:
+        if self._client is not None:
+            try:
+                self._client.close()
+            except Exception:
+                pass
+            self._client = None
+
+    def _lay(self, ten: str, url: str, tham: dict | None = None):
+        c = self.client()
+        if c is None:
+            self._ts(ten).loi("thiếu httpx")
+            return None
+        try:
+            r = c.get(url, params=tham)
+            r.raise_for_status()
+            self._ts(ten).dat()
+            return r.json()
+        except Exception as e:                      # noqa: BLE001
+            self._ts(ten).loi(f"{type(e).__name__}: {e}")
+            bus.ghi(f"nguồn {ten} lỗi: {type(e).__name__}", loai="loi")
+            return None
+
+    # ── Binance: giá nền ──────────────────────────────────────────────────
+    def gia_binance(self, cap: str) -> float | None:
+        for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
+            d = self._lay("binance", f"{goc}/api/v3/ticker/price", {"symbol": cap})
+            if d and "price" in d:
+                try:
+                    return float(d["price"])
+                except (TypeError, ValueError):
+                    pass
+        return None
+
+    def gia_mo_khung(self, cap: str, batDauMs: float) -> float | None:
+        """Giá lúc MỞ khung — chính là strike K của market Up/Down.
+
+        Không lấy từ Gamma: market Up/Down không phải lúc nào cũng khai
+        `openPrice`, và khi thiếu thì mô hình mất mẫu số. Nến 1 phút của
+        Binance có `open` đúng tại mốc đó và luôn có.
+
+        Sai một chút ở K là sai TOÀN BỘ mô hình: `ln(S/K)` là tử số của
+        z-score, mà ở khung 5 phút thì `ln(S/K)` chỉ cỡ 1e-3. Lệch K đi
+        0,05% là lệch tử số đi một nửa — và không phép kiểm nào đỏ.
+        """
+        moc = int(batDauMs // 60_000 * 60_000)
+        for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
+            d = self._lay("binance-kline", f"{goc}/api/v3/klines",
+                          {"symbol": cap, "interval": "1m",
+                           "startTime": moc, "limit": 1})
+            if isinstance(d, list) and d and len(d[0]) > 1:
+                try:
+                    return float(d[0][1])       # [openTime, OPEN, high, low, ...]
+                except (TypeError, ValueError, IndexError):
+                    pass
+        return None
+
+    def moc_thoi_gian_binance(self) -> tuple[float, float, float] | None:
+        """(mốc sàn ms, gửi ms, nhận ms) — nguyên liệu hiệu chỉnh đồng hồ."""
+        c = self.client()
+        if c is None:
+            return None
+        gui = time.time() * 1000.0
+        try:
+            r = c.get(f"{_NG['binanceSpot']}/api/v3/time")
+            r.raise_for_status()
+            nhan = time.time() * 1000.0
+            return float(r.json()["serverTime"]), gui, nhan
+        except Exception as e:                      # noqa: BLE001
+            self._ts("binance-time").loi(str(e))
+            return None
+
+    # ── Polymarket: tìm market ────────────────────────────────────────────
+    def tim_theo_tien_to(self, tienTo: str, gioiHan: int = 300) -> list[dict]:
+        """Tìm market đang sống theo TIỀN TỐ slug, xếp theo hạn gần nhất.
+
+        Vì sao tiền tố chứ không phải slug đầy đủ — đây là bug đã cắn thật
+        lúc dựng: Polymarket đặt cho MỖI KHUNG một slug riêng kèm mốc thời
+        gian Unix của khung đó:
+
+            btc-updown-5m-1766162100
+            btc-updown-5m-1766162400
+            btc-updown-5m-1766162700
+
+        Nên `slug=bitcoin-up-or-down` trả về đúng 0 kết quả, mãi mãi. Và nó
+        hỏng IM LẶNG theo đúng kiểu tệ nhất: Gamma API trả HTTP 200 với một
+        mảng rỗng, nên sổ sức khoẻ nguồn ghi "12 lượt, 0 lỗi" trong khi
+        runtime chưa từng nhìn thấy một market nào. Không có lỗi nào để
+        thấy — chỉ có một bảng điều khiển trống mà mọi đèn đều xanh.
+        """
+        d = self._lay("gamma", f"{_NG['polymarketGamma']}/markets",
+                      {"active": "true", "closed": "false", "limit": gioiHan,
+                       "order": "endDate", "ascending": "true"})
+        if not isinstance(d, list):
+            return []
+        return [m for m in d
+                if (m.get("slug") or "").startswith(tienTo) and not m.get("closed")]
+
+    def market_sap_het(self, gioiHan: int = 40) -> list[dict]:
+        """Các market đang sống, sắp xếp theo thời điểm kết thúc gần nhất.
+
+        Đây là nguyên liệu của "RESOLUTION GRID" trong mấy dashboard người ta
+        khoe: chỉ là danh sách market sắp hết hạn cùng giá hai bên.
+        """
+        d = self._lay("gamma", f"{_NG['polymarketGamma']}/markets",
+                      {"active": "true", "closed": "false", "limit": gioiHan,
+                       "order": "endDate", "ascending": "true"})
+        return d if isinstance(d, list) else []
+
+    # ── Polymarket: sổ lệnh ───────────────────────────────────────────────
+    def so_lenh(self, ma: str, ben: str, tokenId: str) -> SoLenh | None:
+        """Sổ L2 của một token outcome."""
+        d = self._lay("clob-book", f"{_NG['polymarketClob']}/book",
+                      {"token_id": tokenId})
+        if not isinstance(d, dict):
+            return None
+        return doc_so(ma, ben, d)
+
+    def gia_giua(self, tokenId: str) -> float | None:
+        d = self._lay("clob-mid", f"{_NG['polymarketClob']}/midpoint",
+                      {"token_id": tokenId})
+        if isinstance(d, dict) and "mid" in d:
+            try:
+                return float(d["mid"])
+            except (TypeError, ValueError):
+                return None
+        return None
+
+    # ── Polymarket: hoạt động ví (chỉ QUAN SÁT) ───────────────────────────
+    def hoat_dong_vi(self, diaChiHoacTen: str, gioiHan: int = 100) -> list[dict]:
+        d = self._lay("data-activity", f"{_NG['polymarketData']}/activity",
+                      {"user": diaChiHoacTen, "limit": gioiHan})
+        return d if isinstance(d, list) else []
+
+    def vi_the_vi(self, diaChiHoacTen: str, gioiHan: int = 100) -> list[dict]:
+        d = self._lay("data-positions", f"{_NG['polymarketData']}/positions",
+                      {"user": diaChiHoacTen, "limit": gioiHan})
+        return d if isinstance(d, list) else []
+
+    def tom_tat(self) -> dict:
+        # `tuoi_ms()` trả inf cho nguồn chưa gọi lần nào — đúng để so sánh
+        # trong rui_ro.py, nhưng inf không gửi qua JSON được. None ở đây có
+        # nghĩa "chưa gọi lần nào", khác hẳn 0 nghĩa "vừa gọi xong".
+        return {t.ten: {"tuoiMs": (t.tuoi_ms() if t.lanCuoiMs > 0 else None),
+                        "soLoi": t.soLoi, "tongLuot": t.tongLuot,
+                        "loiCuoi": t.loiCuoi}
+                for t in self.trangThai.values()}
+
+
+def doc_so(ma: str, ben: str, d: dict) -> SoLenh:
+    """Đổi JSON sổ lệnh CLOB thành `SoLenh`.
+
+    Hai điều phải làm đúng, và cả hai đều hỏng im lặng nếu làm sai:
+
+    1. **Thứ tự.** API không hứa trả về đã sắp. `bid` phải giảm dần, `ask`
+       phải tăng dần, vì mọi phép VWAP đi tuần tự từ đầu danh sách. Sổ chưa
+       sắp thì VWAP tính ra một con số hoàn toàn có nghĩa và hoàn toàn sai.
+
+    2. **Bỏ mức rỗng.** Mức khối lượng 0 vẫn chiếm chỗ trong danh sách và làm
+       `soMuc` đếm sai, kéo theo mọi phép đo độ sâu.
+    """
+    def muc(ds, giam_dan: bool) -> list[Muc]:
+        ra: list[Muc] = []
+        for m in (ds or []):
+            try:
+                g = float(m.get("price"))
+                l = float(m.get("size"))
+            except (TypeError, ValueError, AttributeError):
+                continue
+            if l > 0 and 0.0 <= g <= 1.0:
+                ra.append(Muc(g, l))
+        ra.sort(key=lambda x: x.gia, reverse=giam_dan)
+        return ra
+
+    return SoLenh(
+        ma=ma, ben=ben,
+        bid=muc(d.get("bids"), giam_dan=True),
+        ask=muc(d.get("asks"), giam_dan=False),
+        nhanLucMs=time.time() * 1000.0,
+    )
+
+
+nguon = Nguon()
