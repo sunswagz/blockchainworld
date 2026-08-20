@@ -11,6 +11,7 @@ dai-quan-trac/assets/data/de-bai.json
 dai-quan-trac/assets/data/quet.json
 dai-quan-trac/assets/data/tin-de-bai.json
 dai-quan-trac/assets/data/tin-phan-tich.json
+dai-quan-trac/assets/data/de-bai-tien-hoa.json
 
 # Capacitor (khi đóng gói app native)
 android/

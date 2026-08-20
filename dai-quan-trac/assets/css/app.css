@@ -1,7 +1,7 @@
 :root{
   --canvas:#0a0c10; --surface:#11151c; --inset:#0d1117; --raise:#161b22;
   --line:#1e252f; --line2:#2c3542; --line3:#3d4757;
-  --fg:#dde3ea; --fg2:#aab4c0; --muted:#6f7b8a; --dim:#4b5563;
+  --fg:#dde3ea; --fg2:#aab4c0; --muted:#8b9aac; --dim:#748499;
   --ok:#2ea043; --ok-d:#0f2a17; --warn:#d29922; --warn-d:#2b2109;
   --dgr:#f0503f; --dgr-d:#2d1210; --info:#58a6ff; --info-d:#0d2137;
   --purple:#a371f7; --gold:#d4a72c; --lac:#e5484d;
@@ -82,7 +82,7 @@ a:hover{text-decoration:underline}
 .crumb{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
 .crumb h1{margin:0;font-size:14px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crumb .sub{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap;letter-spacing:.04em}
-.sep{color:var(--line3)}
+.sep{color:var(--dim)}
 .tbtn{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--raise);border-radius:var(--r);padding:5px 10px;font-size:12.5px;color:var(--fg2);white-space:nowrap}
 .tbtn:hover{background:#1f2630;color:var(--fg);border-color:var(--line3)}
 .tbtn.pri{background:#1f6feb;border-color:#1f6feb;color:#fff;font-weight:500}
@@ -136,7 +136,7 @@ pre.ascii::-webkit-scrollbar{height:8px}
 blockquote{margin:0 0 14px;padding:11px 15px;border-left:3px solid var(--gold);background:#d4a72c0d;border-radius:0 var(--r) var(--r) 0;color:var(--fg);font-size:13.5px}
 ul.tight{margin:0 0 14px;padding-left:19px;color:var(--fg2)}
 ul.tight li{margin-bottom:5px}
-ul.tight li::marker{color:var(--line3)}
+ul.tight li::marker{color:var(--dim)}
 .divider{height:1px;background:var(--line);margin:30px 0}
 
 /* ============ SIGNATURE: MẠCH TRUYỀN DẪN ============ */
@@ -243,7 +243,7 @@ ul.tight li::marker{color:var(--line3)}
 
 /* empty state */
 .empty{text-align:center;padding:52px 20px;border:1px dashed var(--line2);border-radius:var(--r2);background:#ffffff03}
-.empty svg{width:34px;height:34px;color:var(--line3);margin-bottom:12px}
+.empty svg{width:34px;height:34px;color:var(--dim);margin-bottom:12px}
 .empty b{display:block;font-size:14px;margin-bottom:5px}
 .empty p{font-size:12.5px;color:var(--muted);max-width:44ch;margin:0 auto 16px}
 

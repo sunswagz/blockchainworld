@@ -738,6 +738,137 @@ jobs:
             --ghi "dựng ${GIAY_DUNG:-?}s · haiku-4-5 · không WebSearch" \
             --log "$RUNNER_TEMP/dong-tin.log"
 
+      # ── M09 · Vòng tiến hoá ─────────────────────────────────────
+      # Node DUY NHẤT sửa MÃ NGUỒN. Ba khác biệt so với mọi node kia:
+      #
+      # 1. NHỊP 24 GIỜ, không phải 6. Một lượt sửa giao diện mỗi ngày
+      #    đủ nhanh để tiến và đủ chậm để người còn đọc kịp diff.
+      # 2. CÓ BƯỚC HOÀN NGUYÊN. Node dữ liệu hỏng thì giữ bản cũ là
+      #    xong; node này hỏng thì file người dùng NẠP đã bị ghi đè.
+      # 3. CỔNG CHẶN QUYẾT ĐỊNH, không phải mã thoát của model. Model
+      #    báo thành công mà làm hỏng trang là chuyện đã xảy ra ở lượt
+      #    #15 với bản quét; ở đây hậu quả nặng hơn nhiều.
+      - name: Ra đề tiến hoá — Đài Quan Trắc
+        id: n-th-de
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',tien-hoa-dqt,')
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          # `--ghi` cất phiếu GỐC để cổng chặn còn có cái mà đối chiếu.
+          # Đo sau khi model đã sửa rồi mới nghĩ tới việc so là mất mốc.
+          node scripts/tien-hoa.mjs do dai-quan-trac --ghi "$RUNNER_TEMP/dqt-goc.json"
+          node scripts/tien-hoa.mjs de-bai dai-quan-trac
+          # Đếm điểm yếu để bước sau biết có đáng gọi model không.
+          YEU=$(node -e "const d=require('./dai-quan-trac/assets/data/de-bai-tien-hoa.json');console.log(d.phieu.diem.filter(x=>!x.dat).length)")
+          echo "yeu=$YEU" >> "$GITHUB_OUTPUT"
+          echo "::notice::Phiếu đo: $(node -e \"const d=require('./dai-quan-trac/assets/data/de-bai-tien-hoa.json');console.log(d.phieu.dat+'/'+d.phieu.tong)\") đạt · $YEU điểm yếu"
+
+      # Chụp mốc TRƯỚC khi model chạm vào. Không có nó thì bước hoàn
+      # nguyên không biết trả về đâu.
+      - name: Đánh dấu mốc trước khi sửa
+        id: n-th-moc
+        if: steps.n-th-de.outcome == 'success'
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Không còn điểm yếu thì KHÔNG gọi model. Bảy thước đã hết chỗ
+      # để đo là chuyện tốt, không phải lý do đi tìm việc cho model.
+      - name: Đề xuất bản vá (Claude Code)
+        id: n-th-va
+        if: steps.n-th-de.outcome == 'success' && steps.n-th-de.outputs.yeu != '0'
+        continue-on-error: true
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-haiku-4-5
+            --max-turns 40
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Đọc dai-quan-trac/assets/data/de-bai-tien-hoa.json.
+
+            Trong đó có:
+            · `phieu.diem` — bảy thước, mỗi cái có `dat` (true/false) và
+              `y` (số đo cụ thể). Thước nào `dat: false` là điểm yếu.
+            · `phieu.tuongPhanXau` — cặp màu chưa đạt WCAG AA, kèm tỉ lệ.
+            · `kyNang` — skill Tàng Thư Các đã chọn sẵn cho ĐÚNG những
+              điểm yếu đó, mỗi cái có `doc` là URL đọc được bằng WebFetch.
+
+            Chọn MỘT điểm yếu — cái có số đo tệ nhất — và sửa DUY NHẤT nó.
+            Đọc 1–2 skill khớp trước khi sửa nếu thấy cần.
+
+            CHỈ được sửa hai file:
+              dai-quan-trac/assets/css/app.css
+              dai-quan-trac/assets/js/app.js
+
+            Luật, vi phạm luật nào cũng làm CẢ bản vá bị trả lại:
+            · KHÔNG sửa file nào khác. Không đụng data.js, tq/data.js,
+              tk/data.js, soi.js — đó là nội dung, không phải giao diện.
+            · KHÔNG sửa file bot ghi: do.js, scan.js, tin.js, tq/*.
+            · KHÔNG đổi chữ nghĩa hiển thị. Đây là vòng sửa GIAO DIỆN.
+            · KHÔNG thêm thư viện, thẻ script, hay lời gọi mạng.
+            · Sửa NHỎ. Một điểm yếu, một bản vá. Sửa lớn thì cổng chặn
+              trượt và cả lượt bị hoàn nguyên, tức công cốc.
+            · Đường dẫn phải TƯƠNG ĐỐI. Đường tuyệt đối là trượt ngay.
+
+            Xong thì viết một dòng: đã sửa thước nào, sửa gì.
+
+      # Cổng chặn quyết định, KHÔNG phải model. `--so` bắt thêm trường
+      # hợp "vẫn chạy nhưng XẤU ĐI" mà năm phép kia không thấy: đổi
+      # màu thành khó nhìn, gỡ một nhãn, phình file.
+      #
+      # Trước đó còn một phép của riêng node này: model chỉ được sửa
+      # app.css và app.js. Chạm ra ngoài là trả lại cả thư mục, kể cả
+      # khi cổng chặn xanh — vì sửa data.js hay tin.js thì không phải
+      # tiến hoá giao diện nữa.
+      - name: Cổng chặn — nhận hay trả lại
+        id: n-th-cong
+        if: always() && steps.n-th-va.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 4
+        env:
+          MOC: ${{ steps.n-th-moc.outputs.sha }}
+        run: |
+          CHO='dai-quan-trac/assets/css/app.css dai-quan-trac/assets/js/app.js'
+          NGOAI=''
+          for f in $(git diff --name-only "$MOC" -- dai-quan-trac); do
+            case " $CHO " in *" $f "*) ;; *) NGOAI="$NGOAI $f" ;; esac
+          done
+          if [ -n "$NGOAI" ]; then
+            echo "::error::Bản vá chạm file ngoài phạm vi:$NGOAI"
+            git checkout -- dai-quan-trac/
+            exit 1
+          fi
+          if node scripts/tien-hoa.mjs cong dai-quan-trac --so "$RUNNER_TEMP/dqt-goc.json" 2>&1 \
+               | tee "$RUNNER_TEMP/tien-hoa-dqt.log"; then
+            node scripts/nang-version.mjs
+            # nang-version chạy TOÀN SITE. Trả lại sw.js của cung khác
+            # để node này không kéo theo bump không phải của mình.
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^dai-quan-trac/' || true)
+            echo "::notice::Vòng tiến hoá Đài Quan Trắc: NHẬN"
+          else
+            echo "::error::Vòng tiến hoá Đài Quan Trắc: TRẢ LẠI — cổng chặn không qua"
+            git checkout -- dai-quan-trac/
+            exit 1
+          fi
+
+      - name: Ghi sổ · tien-hoa-dqt
+        if: always() && steps.n-th-de.outcome != 'skipped'
+        env:
+          # Phiếu đầy đủ (không gọi model) cũng là `ok`: node đã chạy,
+          # đã đo, và kết luận đúng là không có gì phải sửa.
+          KET: ${{ (steps.n-th-de.outputs.yeu == '0' || steps.n-th-cong.outcome == 'success') && 'ok' || 'loi' }}
+          YEU: ${{ steps.n-th-de.outputs.yeu }}
+          T_DAU: ${{ steps.n-th-de.outputs.t0 }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          node scripts/nha-may.mjs ghi tien-hoa-dqt "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${YEU:-?} điểm yếu · haiku-4-5 · cổng chặn quyết định" \
+            --log "$RUNNER_TEMP/tien-hoa-dqt.log"
+
       # ── M15 · Máy kiểm ─────────────────────────────────────────
       # Sơ đồ xưởng ghi "không có gì ra khỏi xưởng mà chưa qua kiểm",
       # nhưng cho tới nay thì đúng là không có bước kiểm nào: script

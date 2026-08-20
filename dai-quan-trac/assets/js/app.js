@@ -438,6 +438,19 @@ function dungRoutes(){
   /* Loại nhóm rỗng, và loại luôn nhóm Chủ thể khi mới có một nước —
      một nút chuyển chỉ dẫn tới chính nó thì chỉ tổ gây bối rối. */
   ROUTES = ROUTES.filter(g => g.items.length && !(g.g==='Chủ thể' && CHUTHE.length<2));
+
+  /* Khai danh sách phòng cho CỔNG CHẶN của vòng tiến hoá
+     (scripts/tien-hoa.mjs). Thanh bên ở đây là nút có onclick chứ
+     không phải thẻ <a>, nên cổng không có `href` nào để nhặt và
+     trước đó nó chỉ soi được 1 trong hơn 100 phòng — "qua cả năm
+     phép" mà thực ra chưa soi gì.
+
+     Khai TRONG dungRoutes() chứ không phải một lần lúc nạp: ROUTES
+     đổi theo chủ thể, khai một lần là bỏ sót hai bảng còn lại. Gộp
+     dồn qua Set để đủ cả ba. */
+  window.__TUYEN = [...new Set([...(window.__TUYEN||[]),
+    ...ROUTES.flatMap(g => g.items.flatMap(it =>
+      ['#'+it.id, ...(it.con||[]).map(c => '#'+c.id)]))])];
 }
 
 function renderNav(){

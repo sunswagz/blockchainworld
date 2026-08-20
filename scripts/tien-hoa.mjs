@@ -80,6 +80,14 @@ function quet(dir, ra = []) {
    đó, không ai phải nhớ cập nhật danh sách ở chỗ thứ hai. */
 function domGia() {
   const tuyen = new Set();
+  /* Nhận cả `#/tuyen` lẫn `#tuyen` — repo đang dùng cả hai quy ước.
+     Và nhặt cả trong chuỗi innerHTML: phần lớn cung dựng nguyên khối
+     HTML rồi gán một lần, nên link không đi qua setter `.href` nào. */
+  const gomHash = (van) => {
+    for (const m of String(van).matchAll(/href="(#[^"\s]*)"/g)) {
+      if (m[1].length > 1 && m[1] !== "#top") tuyen.add(m[1]);
+    }
+  };
   const kho = {};
   const nghe = {};
 
@@ -97,21 +105,24 @@ function domGia() {
       hidden: false, offsetWidth: 100, offsetHeight: 100,
       scrollTop: 0, scrollHeight: 100, value: "", checked: false,
       focus() {}, blur() {}, click() {}, remove() {},
+      /* Hồ sơ dài cuộn tới mục đang mở — 28 phòng của cung Đài Quan
+         Trắc gọi hàm này. Thiếu nó là cả 28 phòng ngã. */
+      scrollIntoView() {}, matches() { return false; }, contains() { return false; },
       insertBefore(c) { this.children.push(c); return c; },
       getBoundingClientRect() { return { top: 0, left: 0, width: 100, height: 100 }; },
-      set innerHTML(v) { this._html = String(v); },
+      set innerHTML(v) { this._html = String(v); gomHash(this._html); },
       get innerHTML() { return this._html; },
       set textContent(v) { this._text = String(v); },
       get textContent() { return this._text; },
       set href(v) {
         this._attr.href = String(v);
-        if (String(v).startsWith("#/")) tuyen.add(String(v));
+        if (String(v).startsWith("#") && String(v).length > 1) tuyen.add(String(v));
       },
       get href() { return this._attr.href || ""; },
       appendChild(c) { this.children.push(c); return c; },
       setAttribute(k, v) {
         this._attr[k] = String(v);
-        if (k === "href" && String(v).startsWith("#/")) tuyen.add(String(v));
+        if (k === "href" && String(v).startsWith("#") && String(v).length > 1) tuyen.add(String(v));
       },
       getAttribute(k) { return k in this._attr ? this._attr[k] : null; },
       removeAttribute(k) { delete this._attr[k]; },
@@ -160,10 +171,11 @@ function domGia() {
      (cờ iOS), mà Node không có `window` nên không ai gán hộ. */
   global.window.navigator = { standalone: false, userAgent: "node", language: "vi" };
 
+  const theoId = (id) => (kho[id] = kho[id] || El("div"));
   global.document = {
     readyState: "complete", title: "", head: El("head"), body: El("body"),
     documentElement: El("html"),
-    getElementById(id) { return (kho[id] = kho[id] || El("div")); },
+    getElementById(id) { return theoId(id); },
     createElement(t) { return El(t); },
     createElementNS(_, t) { return El(t); },
     createTextNode() { return El("text"); },
@@ -179,9 +191,29 @@ function domGia() {
        Đánh đổi, nói rõ: cung nào thật sự trỏ vào một thẻ KHÔNG tồn
        tại thì shim này che mất. Chấp nhận — bộ đo này săn lỗi lúc
        chạy, không săn lỗi chính tả trong bộ chọn. */
-    querySelector() { return El("div"); }
+    /* Tra `#id` vào ĐÚNG bảng của getElementById, không dựng thẻ mới:
+       nhiều cung viết $("#view").innerHTML = … rồi chỗ khác lại
+       getElementById("view") để đọc. Hai vật khác nhau thì phép đếm
+       ký tự đọc phải thẻ rỗng và báo "vẽ hụt" cho một phòng vẽ đủ. */
+    querySelector(sel) {
+      const m = /^#([A-Za-z][\w-]*)$/.exec(String(sel || "").trim());
+      return m ? theoId(m[1]) : El("div");
+    }
   };
-  return { tuyen, kho, nghe };
+  /* Nội dung KHÔNG chỉ nằm trong innerHTML: cung nào render bằng
+     appendChild thì chuỗi innerHTML của thẻ chứa luôn rỗng dù cả
+     trang đã vẽ xong. Đi hết cây con mới đọc đúng thứ người xem thấy. */
+  const sau = (e, mua = new Set()) => {
+    if (!e || typeof e !== "object" || mua.has(e)) return "";
+    mua.add(e);
+    return (e._html || "") + (e.children || []).map((c) => sau(c, mua)).join("");
+  };
+  /* Và KHÔNG đóng cứng id thẻ chứa. Cung này gọi nó `than`, cung kia
+     gọi `view`, kinh-thanh không có `than` — chú thích ngay dưới đã
+     ghi đúng chuyện đó. Đọc mọi thẻ có id là trả lời đúng câu hỏi
+     cần hỏi — "trang có vẽ ra gì không" — mà không phải biết tên. */
+  const catTrang = () => Object.keys(kho).map((k) => sau(kho[k])).join("") + sau(global.document.body);
+  return { tuyen, kho, nghe, gomHash, catTrang };
 }
 
 /* ── CHẠY THỬ TRONG TIẾN TRÌNH CON, CÓ HẠN GIỜ ─────────────
@@ -201,7 +233,13 @@ function domGia() {
    thước động trong đó chưa hề chạy. */
 const HAN_GIAY = 45;
 
-function thuVeConThuc() {
+/* Nhường một nhịp cho microtask và setTimeout(0). Cung nào khởi động
+   có `await` — Đài Quan Trắc dùng `await load()` — thì thiếu chỗ này
+   là cổng chụp ảnh lúc app mới chạy được nửa câu đầu, rồi kết luận
+   "qua cả năm phép · 0 phòng". Qua mà không soi gì thì tệ hơn trượt. */
+const nhip = () => new Promise((r) => setTimeout(r, 0));
+
+async function thuVeConThuc() {
   const html = doc(DUONG("index.html"));
   const src = [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
   const g = domGia();
@@ -220,14 +258,29 @@ function thuVeConThuc() {
       require(p);
     } catch (e) { loi.push(`${s}: ${e.message.slice(0, 140)}`); }
   }
-  const than = g.kho.than;
+  /* Hai nhịp: `await load()` rồi bên trong còn `await` nữa là chuyện
+     thường, một nhịp không đủ cho dòng cuối của init() chạy xong. */
+  await nhip(); await nhip();
+  /* Mồi phòng từ index.html tĩnh, và từ bản khai TÙY CHỌN `__TUYEN`.
+     Cung điều hướng bằng nút onclick không có `href` nào để nhặt —
+     Đài Quan Trắc có hơn trăm phòng mà chỉ lộ ra một. Cung không khai
+     thì chạy y như cũ. */
+  g.gomHash(html);
+  const khai = global.window && global.window.__TUYEN;
+  if (Array.isArray(khai)) {
+    for (const t of khai) {
+      const h = String(t || "").trim();
+      if (h.length > 1 && h.startsWith("#")) g.tuyen.add(h);
+    }
+  }
   const phong = [];
   for (const t of g.tuyen) {
     global.location.hash = t;
     global.window.location.hash = t;
     try {
       (g.nghe.hashchange || []).forEach((f) => f());
-      const h = (than && than.innerHTML) || "";
+      await nhip();
+      const h = g.catTrang();
       phong.push({
         tuyen: t, ky: h.length,
         gach: (h.match(/>—</g) || []).length,
@@ -384,7 +437,14 @@ function do_() {
     .filter((m) => !/width=/.test(m[1])).length;
 
   const congByte = (loc) => file.filter(loc).reduce((n, f) => n + statSync(f).size, 0);
+  /* VỎ là mã hành vi; mọi .js khác là NỘI DUNG. Gộp chung thì đạt hay
+     trượt hoàn toàn do cung có nhiều nội dung hay không: đo được
+     cong-bo vỏ 42 KB / tổng 987 KB, tang-thu-cac vỏ 56 KB / tổng
+     2.109 KB. Thước ấy đẩy người ta về phía viết ít đi. */
+  const LA_VO = /(^|[\\/])(app|halls|pwa|khung|sw)\.js$/;
   const nang = {
+    vo: congByte((f) => LA_VO.test(f)),
+    noi: congByte((f) => extname(f) === ".js" && !LA_VO.test(f)),
     js: congByte((f) => extname(f) === ".js"),
     css: congByte((f) => extname(f) === ".css"),
     anh: congByte((f) => /\.(png|jpg|webp|ico)$/.test(f))
@@ -393,7 +453,11 @@ function do_() {
   /* Ô trống: đếm dấu "—" trong HTML đã vẽ. Nhiều gạch nghĩa là đường
      ống dữ liệu đang hụt, không phải giao diện xấu — nhưng người xem
      thì không phân biệt được hai chuyện đó. */
-  const oTrong = ve.phong.reduce((n, p) => n + p.gach, 0);
+  /* Cộng dồn theo phòng là sai thước: cung 54 phòng bị phạt gấp mười
+     cung 5 phòng dù mỗi phòng sạch như nhau, và một dải trạng thái
+     hiện ở mọi phòng thì bị đếm lại từng lần. */
+  const gachTong = ve.phong.reduce((n, p) => n + p.gach, 0);
+  const oTrong = ve.phong.length ? Math.round((gachTong / ve.phong.length) * 10) / 10 : 0;
   const nhoNhat = ve.phong.length ? Math.min(...ve.phong.map((p) => p.ky)) : 0;
 
   const diem = [];
@@ -428,10 +492,12 @@ function do_() {
     `${nutCam} nút câm · ${svgTran} svg không aria-hidden`);
   cham("svg-co", "SVG có cỡ nội tại", svgKhongCo === 0,
     `${svgKhongCo} svg chỉ có viewBox — CSS cũ kẹt là phình kín trang`);
-  cham("nang", "Vỏ ứng dụng dưới 200 KB", nang.js + nang.css < 200 * 1024,
-    `js ${(nang.js / 1024).toFixed(0)} KB · css ${(nang.css / 1024).toFixed(0)} KB · ảnh ${(nang.anh / 1024).toFixed(0)} KB`);
+  const kb = (x) => (x / 1024).toFixed(0);
+  cham("nang", "Vỏ ứng dụng dưới 200 KB", nang.vo + nang.css < 200 * 1024,
+    `vỏ ${kb(nang.vo)} KB + css ${kb(nang.css)} KB · nội dung ${kb(nang.noi)} KB · ảnh ${kb(nang.anh)} KB`);
   if (ve.khongDo) cham("o-trong", "Ít ô trống trên trang", null, "không đo được");
-  else cham("o-trong", "Ít ô trống trên trang", oTrong <= 12, `${oTrong} dấu — trong HTML đã vẽ`);
+  else cham("o-trong", "Ít ô trống mỗi phòng", oTrong <= 2,
+    `${oTrong} dấu — mỗi phòng (tổng ${gachTong} trên ${ve.phong.length} phòng)`);
 
   /* Mẫu số chỉ đếm thước ĐO ĐƯỢC. Để thước không đo được nằm trong
      mẫu số là hạ điểm một cung vì bộ đo yếu, không vì cung yếu. */
@@ -564,7 +630,7 @@ function cong() {
 /* Chế độ nội bộ: cha gọi lại chính file này để phần vẽ chạy trong
    tiến trình con có hạn giờ. Không dành cho người gõ tay. */
 if (LENH === "ve-json") {
-  process.stdout.write(JSON.stringify(thuVeConThuc()));
+  process.stdout.write(JSON.stringify(await thuVeConThuc()));
   process.exit(0);
 }
 

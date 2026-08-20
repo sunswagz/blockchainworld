@@ -55,4 +55,26 @@ export const NODE = [
        "× 3 chủ thể, tiêu đề và tóm tắt có sẵn nên không phải kéo cả " +
        "trang web vào ngữ cảnh như bản quét."
   },
+  /* Node thứ tư, và là node DUY NHẤT của cung này sửa MÃ NGUỒN chứ
+     không làm mới dữ liệu. Ba khác biệt so với ba node trên:
+
+       nhịp 24h  — đủ nhanh để tiến, đủ chậm để người còn đọc kịp diff
+       có lùi    — node dữ liệu hỏng thì giữ bản cũ là xong; node này
+                   hỏng thì file người dùng NẠP đã bị ghi đè
+       cổng chặn quyết định, không phải mã thoát của model
+
+     `ra` khai ba đường vì `duong-ra` sinh `git add` từ đây: app.css và
+     app.js là thứ model được sửa, sw.js là chỗ bước nâng
+     CACHE_VERSION ghi vào sau khi bản vá được nhận. */
+  {
+    ma: "tien-hoa-dqt", ten: "Tiến hoá Đài Quan Trắc", cung: "dai-quan-trac",
+    tram: "M09", che: "claude", nhip: 24,
+    lenh: "tien-hoa.mjs de-bai → claude-code-action → tien-hoa.mjs cong --so",
+    ra: ["dai-quan-trac/assets/css/app.css", "dai-quan-trac/assets/js/app.js",
+         "dai-quan-trac/sw.js"],
+    y: "Phiếu đo bảy thước tự đo được chỉ ra điểm yếu, cầu nối Tàng Thư " +
+       "Các chọn skill khớp đúng điểm yếu đó, model đề xuất bản vá, rồi " +
+       "cổng chặn quyết định nhận hay trả lại. Model nằm giữa hai lớp số " +
+       "học nó không viết ra. Phiếu đầy đủ thì KHÔNG gọi model."
+  },
 ];

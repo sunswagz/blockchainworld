@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T15:01:46.727Z",
+  "generatedAt": "2026-08-20T15:18:34.295Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -61,6 +61,22 @@
         "dai-quan-trac/assets/js/tin.js"
       ],
       "y": "Lấy bài từ 11 nguồn RSS đã chọn tay, chấm điểm liên quan theo từng chủ thể, rồi để model viết một đoạn suy luận móc bài vào mắt xích nào của mạch truyền dẫn. Khối lượng CHẶN ĐƯỢC: 6 bài × 3 chủ thể, tiêu đề và tóm tắt có sẵn nên không phải kéo cả trang web vào ngữ cảnh như bản quét.",
+      "khai": "scripts/node/dai-quan-trac.mjs"
+    },
+    {
+      "ma": "tien-hoa-dqt",
+      "ten": "Tiến hoá Đài Quan Trắc",
+      "cung": "dai-quan-trac",
+      "tram": "M09",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "tien-hoa.mjs de-bai → claude-code-action → tien-hoa.mjs cong --so",
+      "ra": [
+        "dai-quan-trac/assets/css/app.css",
+        "dai-quan-trac/assets/js/app.js",
+        "dai-quan-trac/sw.js"
+      ],
+      "y": "Phiếu đo bảy thước tự đo được chỉ ra điểm yếu, cầu nối Tàng Thư Các chọn skill khớp đúng điểm yếu đó, model đề xuất bản vá, rồi cổng chặn quyết định nhận hay trả lại. Model nằm giữa hai lớp số học nó không viết ra. Phiếu đầy đủ thì KHÔNG gọi model.",
       "khai": "scripts/node/dai-quan-trac.mjs"
     },
     {
