@@ -417,6 +417,83 @@ async def main() -> int:
     check(dau and dau[0]["ma"] == "lon",
           f"cắt bớt thì giữ câu bằng chứng mạnh: giữ '{dau[0]['ma'] if dau else '—'}'")
 
+    print("\n[13] MẪU GIÁ — CHỈ TÍNH KHI ĐÃ XÁC NHẬN, VÀ KHÔNG ĐƯỢC NHÌN TƯƠNG LAI")
+    from trader import mau_gia
+
+    def _nen(o, h, l, c, t=0):
+        return {"t": t, "o": o, "h": h, "l": l, "c": c, "v": 100.0, "closed": True}
+
+    # Hai đỉnh dựng tay: lên 100→120, về 110, lên lại 120, rồi thủng 110.
+    # Xây bằng số bịa chứ không lấy từ lịch sử — phép kiểm phải kiểm ĐỊNH NGHĨA,
+    # còn dữ liệu thật thì đo ở scripts/do-mau-gia.py.
+    def _dung_hai_dinh(pha_co_ao: bool):
+        # Đường giá zigzag rõ ràng, mỗi bước một nến. Không chèn nến đi ngang ở
+        # đỉnh: `swings()` đòi hai bên THẤP HẲN, nên hai nến bằng nhau ở đỉnh là
+        # đủ để không đỉnh nào được xác nhận — và cả mẫu biến mất mà không báo gì.
+        duong = [100.0]
+        def _toi(muc, buoc=0.5):
+            b = buoc if muc > duong[-1] else -buoc
+            while abs(duong[-1] - muc) > buoc:
+                duong.append(duong[-1] + b)
+            duong.append(muc)
+        _toi(120.0)                       # đỉnh 1
+        _toi(110.0)                       # cổ áo
+        _toi(119.5)                       # đỉnh 2 — lệch 0,4% so với đỉnh 1
+        _toi(108.0 if pha_co_ao else 112.0)
+        # Râu nến ở ĐÚNG điểm quay đầu. Không có nó thì nến trước và nến sau
+        # đỉnh cùng có đúng một giá cao nhất, và `swings()` — vốn đòi hai bên
+        # THẤP HẲN — không xác nhận đỉnh nào cả. Đây chính là bẫy đã làm phép
+        # kiểm này đỏ ở lần dựng đầu.
+        ds = []
+        for k in range(1, len(duong)):
+            a, b = duong[k - 1], duong[k]
+            h, l = max(a, b), min(a, b)
+            truoc = duong[k - 1]
+            sau = duong[k + 1] if k + 1 < len(duong) else b
+            if b > truoc and b > sau:      # đỉnh
+                h = b + 0.3
+            elif b < truoc and b < sau:    # đáy
+                l = b - 0.3
+            ds.append(_nen(a, h, l, b, k))
+        return ds
+
+    chua = mau_gia.nhan_dien(_dung_hai_dinh(False))
+    da = mau_gia.nhan_dien(_dung_hai_dinh(True))
+    ten_chua = {m["ten"] for m in chua}
+    ten_da = {m["ten"] for m in da}
+
+    # Cửa quan trọng nhất của cả module: chưa phá cổ áo thì CHƯA phải mẫu.
+    # Thiếu nó là đang chấm điểm cho chính cái hình mình vừa vẽ, và tỉ lệ thắng
+    # sẽ đẹp một cách vô nghĩa.
+    check("HAI_ĐỈNH" not in ten_chua,
+          f"chưa phá cổ áo → chưa tính là mẫu (thấy: {sorted(ten_chua) or 'không có'})")
+    check("HAI_ĐỈNH" in ten_da,
+          f"đã phá cổ áo → nhận ra HAI_ĐỈNH (thấy: {sorted(ten_da) or 'không có'})")
+
+    if "HAI_ĐỈNH" in ten_da:
+        m = next(x for x in da if x["ten"] == "HAI_ĐỈNH")
+        # Ba con số này là điều kiện để ĐO ĐƯỢC. Thiếu một cái thì "mẫu này đúng
+        # 70%" là câu rỗng: đúng tới đâu, sai thì mất bao nhiêu, không ai biết.
+        check(m["vao"] and m["stop"] and m["mucTieu"],
+              f"mẫu tự khai đủ vào/stop/mục tiêu: {m['vao']}/{m['stop']}/{m['mucTieu']}")
+        check(m["huong"] == "SHORT" and m["stop"] > m["vao"] > m["mucTieu"],
+              f"hình học đúng phía cho SHORT: stop {m['stop']} > vào {m['vao']} > đích {m['mucTieu']}")
+
+    # Không nhìn tương lai: cắt bớt nến ở CUỐI phải đổi kết quả, thêm nến vào
+    # ĐẦU thì không. Nếu thêm nến quá khứ mà mẫu tại nến cuối đổi, nghĩa là cửa
+    # sổ đang rò — và mọi số đo sẽ pha lẫn thông tin không có thật lúc đó.
+    goc = _dung_hai_dinh(True)
+    dem_them = [_nen(100.0, 100.2, 99.8, 100.0, -i) for i in range(5, 0, -1)] + goc
+    a = {m["ten"] for m in mau_gia.nhan_dien(goc)}
+    b = {m["ten"] for m in mau_gia.nhan_dien(dem_them)}
+    check(a == b, f"thêm nến quá khứ không đổi mẫu tại nến cuối ({sorted(a)} vs {sorted(b)})")
+
+    # Hai mẫu ngược hướng cùng xác nhận là MÂU THUẪN, không phải trung tính.
+    tt = mau_gia.tom_tat([{"ten": "A", "loai": "x", "huong": "LONG", "rr": 2, "doTin": .5},
+                          {"ten": "B", "loai": "x", "huong": "SHORT", "rr": 2, "doTin": .5}])
+    check(tt["mauThuan"], "hai mẫu ngược hướng → cờ mâu thuẫn, không lấy trung bình")
+    check(mau_gia.tom_tat([])["co"] is False, "không mẫu nào → co=False, không phải rỗng lặng lẽ")
+
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:

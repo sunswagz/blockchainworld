@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Optional, Sequence
 
 from . import indicators as ind
+from . import mau_gia
 from .indicators import last
 
 
@@ -75,6 +76,12 @@ def features_for(candles: list[dict]) -> dict:
         "swingLows": [_r(s["price"]) for s in struct["swingLows"]],
         "support": [{"price": _r(z["price"]), "touches": z["touches"]} for z in sr["support"]],
         "resistance": [{"price": _r(z["price"]), "touches": z["touches"]} for z in sr["resistance"]],
+        # MẪU GIÁ đã xác nhận tại nến này. Đưa vào feature chứ không để chiến
+        # lược tự gọi, vì (a) nó là thứ ĐO ĐƯỢC từ thị trường, đúng chỗ của
+        # features.py, và (b) mọi bộ luật rồi mọi bản chạy lại đều nhìn cùng
+        # một danh sách — nếu mỗi nơi tự nhận diện thì sớm muộn hai nơi lệch
+        # nhau, và backtest sẽ đo một thứ khác với bản chạy thật.
+        "mauGia": mau_gia.tom_tat(mau_gia.nhan_dien(candles)),
         "range20High": _r(hi20), "range20Low": _r(lo20),
         "distToRange20HighPct": _r((hi20 - price) / price * 100, 2),
         "distToRange20LowPct": _r((price - lo20) / price * 100, 2),

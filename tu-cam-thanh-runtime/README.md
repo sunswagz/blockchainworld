@@ -55,6 +55,7 @@ python scripts/thu-mot-lenh.py   # thử nguyên đường ống vào lệnh (--
 python scripts/doi-so.py         # đối soát sổ cục bộ với sàn (--don để dọn)
 python scripts/sinh-icon.py      # vẽ lại 5 icon PNG của cung
 python scripts/chung-cat.py      # đúc lại PHÁT HIỆN từ mọi kho đo (vòng lặp tự gọi mỗi 20')
+python scripts/do-mau-gia.py --ghi        # đo 13 mẫu giá kinh điển trên nến thật
 python scripts/soat-lai-bai-hoc.py --ghi   # hậu kiểm LẠI bài học cũ khi sổ đã dài hơn
 
 python scripts/tai-lich-su.py --so 4000   # tải nến lịch sử để huấn luyện
@@ -297,6 +298,7 @@ trader/
   exchange.py           REST ký HMAC, bù lệch đồng hồ, bộ lọc sàn
   journal.py            5 loại trí nhớ + truy hồi
   chung_cat.py          LÒ CHƯNG CẤT — gộp mọi kho đo thành PHÁT HIỆN, và cầu dao chế độ
+  mau_gia.py            13 mẫu biểu đồ kinh điển, nhận diện bằng hình học
   nguon.py              phái sinh · vĩ mô · tâm lý · tin tức — luồng riêng, không khoá
   huanluyen.py          chạy lại lịch sử, dò tham số, đúc bài học
   phien_hoc.py          một phiên huấn luyện chạy nền, có tiến độ

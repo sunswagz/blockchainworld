@@ -51,6 +51,7 @@ MAU_TOI_THIEU = {
     "so-that": 5,        # lệnh thật: đắt, hiếm, nhưng có nhảy giá và khớp một phần
     "dai-quan-sat": 5,   # vòng của một trader ngoài — dưới mức này không đọc ra kiểu
     "chien-luoc": 1,     # champion là một bản ghi, không phải mẫu thống kê
+    "mau-gia": 15,       # một mẫu biểu đồ dưới 15 lần xuất hiện chưa nói lên gì
 }
 
 
@@ -373,13 +374,75 @@ def _tu_chien_luoc(bo: list) -> list[dict]:
     return ra
 
 
+# ── Nguồn 5 · mẫu giá kinh điển, đã đem đo ────────────────────────────────
+def _tu_mau_gia(bo: list) -> list[dict]:
+    """Mười ba mẫu biểu đồ kinh điển, đo trên chính cây nến bot sẽ giao dịch.
+
+    Đây là nguồn DUY NHẤT trong lò mà kết quả gần như toàn âm — và chính vì thế
+    nó đáng nhớ nhất. Không có nó, bộ não gặp một cái vai-đầu-vai sẽ mang theo
+    niềm tin mặc định "mẫu này đúng 83%" học từ sách, và không gì trong hệ thống
+    cãi lại được.
+    """
+    f = DATA_DIR / "mau-gia.json"
+    if not f.exists():
+        bo.append({"ma": "mau-gia", "nguon": "mau-gia",
+                   "viSao": "chưa chạy scripts/do-mau-gia.py --ghi lần nào"})
+        return []
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        bo.append({"ma": "mau-gia", "nguon": "mau-gia", "viSao": f"đọc hỏng: {e}"})
+        return []
+
+    ds = [m for m in (d.get("mau") or []) if m.get("duMau")]
+    thieu = [m for m in (d.get("mau") or []) if not m.get("duMau")]
+    for m in thieu:
+        bo.append({"ma": f"mau:{m['ten']}", "nguon": "mau-gia",
+                   "viSao": f"{m['so']} lần xuất hiện < ngưỡng {d.get('toiThieu')}"})
+    if not ds:
+        return []
+
+    ra = []
+    tong = sum(m["so"] for m in ds)
+    am = [m for m in ds if m["kyVongR"] <= 0]
+    ra.append(_pd("mau-gia-tong", "mau-gia",
+                  f"{len(ds)} mẫu giá kinh điển đã đem đo trên {d.get('nen')} nến 1h "
+                  f"({tong} lần xuất hiện, đã gộp trùng): {len(am)}/{len(ds)} có kỳ vọng ÂM "
+                  f"sau phí, dùng đúng điểm vào/stop/mục tiêu mà chính mẫu khai. "
+                  f"Mẫu giá ở đây là BỐI CẢNH để đọc, không phải tín hiệu để bấm.",
+                  tong, {"soMau": len(ds), "soAm": len(am)}))
+
+    # Mẫu tệ nhất — cái đáng nhớ hơn mẫu tốt nhất, vì nó là cái sẽ bị dùng nhầm
+    xau = min(ds, key=lambda m: m["kyVongR"])
+    ra.append(_pd("mau-gia-xau", "mau-gia",
+                  f"{xau['ten']}: kỳ vọng {xau['kyVongR']:+.3f}R qua {xau['so']} lần, "
+                  f"thắng {xau['tyLeThang']}%, MFE trung vị chỉ {xau['mfeTrungVi']}R — "
+                  f"một nửa số lần nó còn không đi nổi {xau['mfeTrungVi']}R về phía mình "
+                  f"trước khi kết thúc. Thấy mẫu này thì đừng coi là lý do vào lệnh.",
+                  xau["so"], {"ten": xau["ten"], "kyVongR": xau["kyVongR"]}))
+
+    # Mẫu hay bị đọc sai nhất: thắng NHIỀU mà vẫn lỗ vì RR dưới 1
+    hay = [m for m in ds if m["tyLeThang"] >= 45 and m["kyVongR"] < 0 and m["rrTrungBinh"] < 1]
+    if hay:
+        m = max(hay, key=lambda x: x["so"])
+        ra.append(_pd("mau-gia-rr-thap", "mau-gia",
+                      f"{m['ten']}: thắng {m['tyLeThang']}% và chạm đích {m['chamDich']}% — "
+                      f"nghe rất tốt — nhưng kỳ vọng vẫn {m['kyVongR']:+.3f}R qua {m['so']} lần, "
+                      f"vì luật đặt mục tiêu kinh điển của nó cho RR chỉ {m['rrTrungBinh']}. "
+                      f"Đích gần hơn cả stop thì thắng bao nhiêu cũng không đủ.",
+                      m["so"], {"ten": m["ten"], "rr": m["rrTrungBinh"],
+                                "tyLeThang": m["tyLeThang"]}))
+    return ra
+
+
 # ── Lò ────────────────────────────────────────────────────────────────────
 def chung_cat() -> dict:
     """Chưng lại toàn bộ phát hiện. Ghi đè sạch kho, không cộng dồn."""
     bo: list[dict] = []
     ra: list[dict] = []
     for ten, ham in (("chay-lai", _tu_chay_lai), ("so-that", _tu_so_that),
-                     ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc)):
+                     ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
+                     ("mau-gia", _tu_mau_gia)):
         try:
             ra.extend(ham(bo))
         except Exception as e:  # một nguồn hỏng không được kéo sập cả lò

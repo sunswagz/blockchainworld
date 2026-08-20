@@ -269,6 +269,17 @@ function vePhai() {
     hang("rủi ro sự kiện", th?.event_risk || "—") +
     hang("vòng đã chạy", S?.ticks ?? "—");
 
+  const mg = S?.marketState?.timeframes?.[S?.timeframes?.primary]?.mauGia;
+  el("aiMauGia") && (el("aiMauGia").innerHTML = !mg?.co
+    ? `<h3>Mẫu giá</h3><div class="mo" style="font-size:12px">không mẫu nào xác nhận ở nến này</div>`
+    : `<h3>Mẫu giá</h3>` +
+      (mg.mauThuan ? `<div class="nhac" style="font-size:11.5px;margin-bottom:6px">
+        Hai mẫu NGƯỢC HƯỚNG cùng xác nhận — hình học đang mâu thuẫn, đây là lúc đứng ngoài
+        chứ không phải lúc lấy trung bình.</div>` : "") +
+      mg.mau.map((m) => hang(`${esc(m.ten)} · ${esc(m.loai)}`,
+        `${esc(m.huong)} · RR ${m.rr ?? "—"}`,
+        m.huong === "LONG" ? "len" : "xuong")).join(""));
+
   let pq = `<h3>Risk Engine</h3>`;
   if (!d) pq += '<div class="mo" style="font-size:12px">chưa thẩm định lượt nào</div>';
   else if (d.approved) pq += hang("phán quyết", "CHO QUA", "len") + hang("RR", num(d.rr)) +

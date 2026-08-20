@@ -100,6 +100,10 @@ const KIEM_PHAN_TU = [
                               "soatLai?"]],
   ["thesis", J.theses?.[0], ["action", "confidence", "regime_read", "strategy", "source", "at"]],
   ["phatHien", J.phatHien?.[0], ["ma", "nguon", "cau", "mau", "doTin", "so", "cheDo?", "luc"]],
+  // mauGia luôn có mặt, kể cả khi rỗng — "không mẫu nào" và "chưa ai tính" là
+  // hai chuyện khác nhau, và ô trống trên bảng không phân biệt được.
+  ["mauGia", S.marketState?.timeframes?.[S.timeframes?.primary]?.mauGia,
+   ["co", "so", "mau", "mauThuan"]],
   ["position", S.account.positions?.[0], ["side", "entry", "stopLoss", "targets", "qty", "riskAmount"]],
 ];
 for (const [ten, mau, truong] of KIEM_PHAN_TU) {
