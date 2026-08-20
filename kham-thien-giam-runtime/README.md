@@ -15,7 +15,7 @@ Máy này có Python 3.12 cài portable, **ngoài PATH**:
 $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py -m pip install -r requirements.txt
-& $py scripts\selftest.py      # 139 phép kiểm số học, KHÔNG cần mạng
+& $py scripts\selftest.py      # 173 phép kiểm số học, KHÔNG cần mạng
 & $py run.py                   # buồng lái → http://localhost:5186
 ```
 
@@ -28,6 +28,60 @@ Xem cung tĩnh (từ gốc repo): `node server.js 5185`
 | `python -m kham.snapshot` | ghi một lát cắt ra cung tĩnh rồi thoát |
 | `python scripts/selftest.py` | phép kiểm số học, không cần mạng |
 | `python scripts/sinh-icon.py` | sinh lại 5 icon PNG cho cung |
+| `python -m kham.tien_hoa --thu` | xem vòng tiến hoá sẽ làm gì, không ghi gì |
+| `python -m kham.tien_hoa` | chạy một lượt tiến hoá THẬT |
+
+## Chạy nền, và vòng tiến hoá mỗi ngày
+
+```powershell
+powershell -ExecutionPolicy Bypass -File dichvuat.ps1          # bật
+powershell -ExecutionPolicy Bypass -File dichvu	rang-thai.ps1   # xem
+powershell -ExecutionPolicy Bypass -File dichvu\dung.ps1         # dừng
+powershell -ExecutionPolicy Bypass -File dichvu\cai-dat.ps1 -TuChay
+```
+
+Vòng tiến hoá chạy **trong chính runtime**, mỗi ngày UTC một lượt sau
+`tienHoa.gioUTC`. Không dùng Task Scheduler: dịch vụ đó trên máy này đang
+tắt và bật lại cần quyền quản trị.
+
+Ba bẫy đã trả giá khi dựng bộ này, ghi lại để đừng lặp:
+
+- **`.ps1` phải UTF-8 CÓ BOM.** PowerShell 5.1 đọc file không BOM theo ANSI
+  → chữ tiếng Việt vỡ → "Unexpected token" ở một dòng chẳng liên quan.
+- **`-ArgumentList` phải bọc dấu nháy.** Đường dẫn máy này có dấu cách
+  (`SUNSWaGz 2027`), không bọc thì bị tách thành nhiều tham số và pythonw
+  chết ngay, không kịp ghi dòng log nào — triệu chứng là "không lên" với
+  nhật ký trống trơn.
+- **`uvicorn.run(log_config=None)`.** Không có nó, uvicorn dựng lại logging
+  và ném `Unable to configure formatter 'default'` — một câu không nhắc gì
+  tới stdout, nên rất khó lần ra rằng nguyên nhân là lớp chuyển hướng
+  nhật ký.
+
+## Vòng tiến hoá — bảy bước, model chỉ chạm bước thứ tư
+
+```
+1  THU HOẠCH   đọc băng + sổ kết toán
+2  ĐO          kỳ vọng · đuôi · hiệu chỉnh · theo chiến thuật
+3  CHẨN        tìm bệnh bằng SỐ            <- chan_doan.py
+4  ĐỀ XUẤT     model đề nghị vặn nút       <- chỗ DUY NHẤT
+5  THỬ         chạy lại băng thật          <- chay_lai.py
+6  CỔNG        tốt hơn VÀ đuôi không tệ hơn
+7  GHI SỔ      hôm nay so hôm qua
+```
+
+Model bị kẹp giữa hai lớp số học nó không viết. Bề mặt nó được chạm là
+**mười nút tham số**, mỗi nút một trần cứng — không sửa code, không thêm
+chiến thuật, không đổi kiến trúc. Lý do: đề xuất sửa code thì cổng KHÔNG
+kiểm được bằng số.
+
+**Vắng khoá model thì vòng vẫn quay** — bước 4 rơi về người đề xuất tất
+định (quét lưới một nút). Chậm hơn, nhưng vẫn tiến hoá mỗi ngày.
+
+Ba kết cục đều hợp lệ: **NHẬN** · **TRẢ LẠI** (cổng làm đúng việc) ·
+**ĐỨNG YÊN** (không bệnh nào vượt ngưỡng).
+
+`data/tien-hoa.jsonl` ghi mỗi lượt: tham số trước/sau, kỳ vọng trước/sau,
+lý do. Không có sổ đó thì "mạnh hơn mỗi ngày" là chuyện kể.
 
 ## Ba chế độ, và ba cửa
 
@@ -115,6 +169,8 @@ kham/
   ket_toan.py    KHÉP VÒNG HỌC — không có nó bot không học được
   bang.py        băng ghi
   chay_lai.py    chạy lại theo sự kiện + đối chiếu hai tham số
+  chan_doan.py   tìm bệnh bằng SỐ + mười nút model được vặn
+  tien_hoa.py    VÒNG TIẾN HOÁ NGÀY — mạnh hơn mỗi ngày, đo được
   vo_dich.py     Champion/Challenger — không có `--force`
   vi.py          Đài Quan Ví — chỉ quan sát
   so.py          nhật ký + thống kê (kỳ vọng, đuôi, thua lớn nhất)
