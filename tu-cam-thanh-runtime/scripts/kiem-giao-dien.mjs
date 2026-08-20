@@ -36,6 +36,8 @@ const CAN_STATE = [
 const CAN_JOURNAL = [
   "trades", "lessons", "theses",
   "performance.overall", "performance.byRegime", "performance.byStrategy",
+  "performance.overall.expectancyUsd?", "performance.overall.riskCv?",
+  "performance.overall.canhBao?",
 ];
 
 /* Feature khung chính mà phòng "bộ não thị trường" và "vị thế" đọc. */

@@ -431,20 +431,88 @@ def suy_luan(ma: str, state: dict, regime: dict, primary_tf: str,
     return ham(state, regime, primary_tf, tham)
 
 
-def mock_postmortem(trade: dict) -> dict:
-    win = (trade.get("pnl") or 0) > 0
-    normal_loss = trade.get("exitReason") == "STOP_LOSS"
+def mock_postmortem(trade: dict, so: list[dict] | None = None) -> dict:
+    """Hậu kiểm bằng luật — có SO VỚI SỔ, không chỉ nhìn một lệnh.
+
+    Bản đầu chỉ có hai câu cho mọi lệnh và luôn kết luận GOOD_TRADE. Đo được sau
+    8 lệnh thật: 8 bài học nhưng chỉ **2 câu khác nhau**, 0 lần đòi đổi chiến
+    lược, và mọi lệnh đều "quyết định tốt". Trí nhớ ngữ nghĩa khi đó không phải
+    trí nhớ — nó là một cái máy dán nhãn.
+
+    Giữ nguyên nguyên tắc trung tâm (quyết định ≠ kết quả), nhưng thêm những thứ
+    MỘT LỆNH ĐƠN LẺ KHÔNG NÓI ĐƯỢC mà cả sổ thì nói được:
+
+      · rủi ro lệnh này lệch bao nhiêu so với các lệnh khác — chính chỗ đã biến
+        kỳ vọng +0,282R thành khoản lỗ −$95,69
+      · dính stop quá nhanh: vào sai thời điểm, không phải luận điểm sai
+      · thoát vì hết hạn giữ: mục tiêu đặt ngoài tầm với của biến động
+    """
+    pnl = trade.get("pnl") or 0
+    win = pnl > 0
+    ly_do = trade.get("exitReason")
+    rui_ro = trade.get("riskAmount") or 0
+    giu = trade.get("barsHeld") or trade.get("soNenGiu")
+
+    hop_che_do = vao_dung = size_dung = stop_dung = True
+    doi_cl = False
+    tin = 0.3
+    y: list[str] = []
+
+    # — Rủi ro có ĐỀU so với các lệnh khác không —
+    # R chỉ so sánh được khi rủi ro mỗi lệnh gần bằng nhau. Lệch nhiều nghĩa là
+    # chính kích thước, chứ không phải tín hiệu, đang quyết định lãi lỗ.
+    khac = [t.get("riskAmount") or 0 for t in (so or [])
+            if t.get("id") != trade.get("id") and (t.get("riskAmount") or 0) > 0]
+    if rui_ro and len(khac) >= 3:
+        tb = sum(khac) / len(khac)
+        if tb > 0:
+            lech = rui_ro / tb
+            if lech >= 1.6 or lech <= 0.625:
+                size_dung = False
+                tin = 0.5
+                y.append(f"rủi ro {rui_ro:.0f} lệch {lech:.1f}× so với trung bình sổ "
+                         f"({tb:.0f}) — R của lệnh này không so được với các lệnh khác")
+                if lech >= 1.6 and not win:
+                    y.append("và đây là một lệnh THUA đặt cược lớn — đúng dạng làm "
+                             "kỳ vọng R dương trong khi tiền âm")
+
+    # — Dính stop quá nhanh = vào sai lúc, không phải luận điểm sai —
+    if ly_do == "STOP_LOSS" and isinstance(giu, (int, float)) and giu <= 2:
+        vao_dung = False
+        tin = max(tin, 0.45)
+        y.append(f"dính stop chỉ sau {giu} nến — vào quá sớm hoặc stop nằm trong "
+                 f"vùng nhiễu, chứ không phải luận điểm sai")
+
+    # — Hết hạn giữ = mục tiêu ngoài tầm với —
+    if ly_do in ("HET_HAN", "TIMEOUT"):
+        tin = max(tin, 0.4)
+        y.append("thoát vì hết hạn giữ, không chạm SL lẫn TP — mục tiêu đặt xa hơn "
+                 "thứ biến động cho phép trong khoảng thời gian đó")
+
+    # — Phân loại: quyết định ≠ kết quả, luôn luôn —
+    quyet_dinh_tot = vao_dung and size_dung and stop_dung and hop_che_do
+    if quyet_dinh_tot:
+        pl = "GOOD_TRADE_GOOD_OUTCOME" if win else "GOOD_TRADE_BAD_OUTCOME"
+    else:
+        pl = "BAD_TRADE_GOOD_OUTCOME" if win else "BAD_TRADE_BAD_OUTCOME"
+
+    if pl == "BAD_TRADE_GOOD_OUTCOME":
+        y.append("THẮNG nhưng quy trình sai — đây là loại lệnh nguy hiểm nhất, vì "
+                 "phần thưởng đến ngay và dạy đúng thứ không được lặp lại")
+
+    if not y:
+        y.append("chạy tới mục tiêu, setup và cách thoát giữ nguyên" if win else
+                 "dính stop trong biên độ bình thường — một lệnh thua không đồng "
+                 "nghĩa một quyết định sai")
+
     return {
-        "regime_appropriate": True, "entry_valid": True, "size_valid": True,
-        "stop_placement_valid": True,
-        "thesis_was_wrong": bool(normal_loss and not win),
-        "classification": "GOOD_TRADE_GOOD_OUTCOME" if win else "GOOD_TRADE_BAD_OUTCOME",
-        "lesson": ("[mock] Lệnh chạy tới mục tiêu; setup và cách thoát giữ nguyên."
-                   if win else
-                   "[mock] Dính stop trong biên độ thống kê bình thường. Một lệnh thua "
-                   "không đồng nghĩa một quyết định sai — chưa đủ cớ để đổi chiến lược."),
-        "change_strategy": False,
-        "confidence_in_lesson": 0.3,
+        "regime_appropriate": hop_che_do, "entry_valid": vao_dung,
+        "size_valid": size_dung, "stop_placement_valid": stop_dung,
+        "thesis_was_wrong": bool(ly_do == "STOP_LOSS" and not win and vao_dung),
+        "classification": pl,
+        "lesson": "[luật] " + ". ".join(x[0].upper() + x[1:] for x in y) + ".",
+        "change_strategy": doi_cl,
+        "confidence_in_lesson": tin,
     }
 
 
@@ -574,7 +642,7 @@ class Brain:
 
     async def postmortem(self, trade: dict, regime_now: dict) -> dict:
         if self.mode != "claude" or not self.client:
-            out = mock_postmortem(trade)
+            out = mock_postmortem(trade, store.read_all(store.TRADES))
         else:
             user = (
                 "Hậu kiểm giao dịch đã đóng dưới đây. Trả lời từng câu hỏi một cách độc lập.\n\n"
@@ -590,7 +658,7 @@ class Brain:
                                          effort=self.cfg.get("postmortemEffort", "medium"),
                                          label="postmortem")
             if out is None:
-                out = mock_postmortem(trade)
+                out = mock_postmortem(trade, store.read_all(store.TRADES))
 
         lesson = {
             "at": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),

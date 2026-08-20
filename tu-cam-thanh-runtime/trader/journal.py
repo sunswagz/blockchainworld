@@ -20,18 +20,54 @@ def _stats(trades: list[dict]) -> dict:
     closed = [t for t in trades if t.get("status") == "CLOSED" and t.get("pnl") is not None]
     if not closed:
         return {"count": 0, "wins": 0, "winRate": None, "expectancyR": None,
-                "totalPnl": 0.0, "avgWinR": None, "avgLossR": None, "maxLossR": None}
+                "totalPnl": 0.0, "expectancyUsd": None, "riskCv": None,
+                "riskDeu": None, "canhBao": None,
+                "avgWinR": None, "avgLossR": None, "maxLossR": None}
     wins = [t for t in closed if t["pnl"] > 0]
     losses = [t for t in closed if t["pnl"] <= 0]
     rs = [t.get("rMultiple") or 0 for t in closed]
     win_rs = [t.get("rMultiple") or 0 for t in wins]
     loss_rs = [t.get("rMultiple") or 0 for t in losses]
+    # Rủi ro mỗi lệnh có ĐỀU không — quyết định R có so sánh được không.
+    #
+    # R chuẩn hoá theo rủi ro, nên khi rủi ro trôi thì nó che mất đúng cái làm
+    # nên lãi lỗ. Đo được trên 8 lệnh thật đầu tiên: kỳ vọng **+0,282R** trong
+    # khi tổng tiền **−$95,69**, vì hai lệnh thua cuối đặt cược gấp 2,5 lần các
+    # lệnh thắng. Bảng khi đó nói "có lợi thế" về một tài khoản đang lỗ.
+    rui_ro = [t.get("riskAmount") or 0 for t in closed if (t.get("riskAmount") or 0) > 0]
+    deu = None
+    if len(rui_ro) >= 3:
+        tb = sum(rui_ro) / len(rui_ro)
+        # hệ số biến thiên: 0 = mọi lệnh cược như nhau
+        do_lech = (sum((x - tb) ** 2 for x in rui_ro) / len(rui_ro)) ** 0.5
+        deu = round(do_lech / tb, 3) if tb else None
+
+    ky_vong_r = round(sum(rs) / len(rs), 3)
+    tong_tien = round(sum(t["pnl"] for t in closed), 2)
+    tien_moi_lenh = round(tong_tien / len(closed), 2)
+
+    canh = None
+    if ky_vong_r > 0 and tong_tien < 0:
+        canh = (f"kỳ vọng {ky_vong_r:+.3f}R DƯƠNG nhưng tổng tiền {tong_tien:+.2f} ÂM — "
+                f"rủi ro mỗi lệnh không đều"
+                + (f" (hệ số biến thiên {deu})" if deu is not None else "")
+                + ". Khi hai con số lệch dấu, con số TIỀN mới đúng.")
+    elif ky_vong_r < 0 and tong_tien > 0:
+        canh = (f"kỳ vọng {ky_vong_r:+.3f}R ÂM nhưng tổng tiền {tong_tien:+.2f} DƯƠNG — "
+                f"lãi đến từ vài lệnh cược lớn, không từ lợi thế lặp lại được.")
+
     return {
         "count": len(closed),
         "wins": len(wins),
         "winRate": round(len(wins) / len(closed) * 100, 1),
-        "expectancyR": round(sum(rs) / len(rs), 3),
-        "totalPnl": round(sum(t["pnl"] for t in closed), 2),
+        "expectancyR": ky_vong_r,
+        "totalPnl": tong_tien,
+        # Kỳ vọng TÍNH BẰNG TIỀN — không chuẩn hoá, nên không giấu được chuyện
+        # rủi ro trôi. Đọc kèm expectancyR, đừng đọc một mình cái nào.
+        "expectancyUsd": tien_moi_lenh,
+        "riskCv": deu,
+        "riskDeu": (deu is not None and deu <= 0.35),
+        "canhBao": canh,
         "avgWinR": round(sum(win_rs) / len(win_rs), 2) if win_rs else None,
         "avgLossR": round(sum(loss_rs) / len(loss_rs), 2) if loss_rs else None,
         "maxLossR": round(min(rs), 2) if rs else None,

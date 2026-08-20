@@ -1586,12 +1586,23 @@ function veNhatKy() {
   const perf = (J?.performance || {}).overall || {};
 
   el("nkNoi").innerHTML = `
+    ${perf.canhBao ? `<div class="canh-bao" style="margin-bottom:12px">
+      <b>Hai con số đang lệch dấu.</b> ${esc(perf.canhBao)}</div>` : ""}
     <div class="luoi c4">
       ${oSo("Tổng lệnh", perf.count ?? 0)}
-      ${oSo("Tỉ lệ thắng", perf.winRate != null ? perf.winRate + "%" : "—")}
-      ${oSo("Kỳ vọng", perf.expectancyR != null ? perf.expectancyR + "R" : "—",
-          (perf.expectancyR ?? 0) > 0 ? "len" : (perf.expectancyR ?? 0) < 0 ? "xuong" : "")}
-      ${oSo("Tổng lãi/lỗ", tien(perf.totalPnl), dau(perf.totalPnl))}
+      ${oSo("Tỉ lệ thắng", perf.winRate != null ? perf.winRate + "%" : "—", "",
+          "một mình nó không nói lên gì — đọc kèm R thắng/thua")}
+      ${oSo("Kỳ vọng mỗi lệnh",
+          perf.expectancyUsd != null ? tien(perf.expectancyUsd) : "—",
+          dau(perf.expectancyUsd),
+          perf.expectancyR != null
+            ? `${perf.expectancyR > 0 ? "+" : ""}${perf.expectancyR}R · ` +
+              (perf.riskDeu === false
+                ? "<b class='nhac'>rủi ro KHÔNG đều</b> nên R không so được"
+                : "rủi ro đều nên R so được")
+            : "")}
+      ${oSo("Tổng lãi/lỗ", tien(perf.totalPnl), dau(perf.totalPnl),
+          perf.riskCv != null ? `độ lệch rủi ro ${num(perf.riskCv, 2)}` : "")}
     </div>
 
     <div class="tieu-muc">Dòng thời gian</div>
