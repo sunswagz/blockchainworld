@@ -292,7 +292,18 @@ class DoTre:
 
     def tom_tat(self) -> dict:
         k = self.ket_qua()
+        with self._khoa:
+            # Số THÔ để phân biệt ba kiểu "không có gì": chưa liên kết
+            # market nào, chưa lấy được giá giữa bên Polymarket, hay có
+            # sự kiện mà chưa chấm xong. Không có ba số này thì cả ba
+            # hiện ra giống hệt nhau — `n = 0` — và không lần được.
+            chuanDoan = {
+                "soLienKet": len(self._lien),
+                "soSuKienTho": len(self._suKien),
+                "sauPoly": {m: len(b) for m, b in self._poly.items()},
+            }
         return {
+            "chuanDoan": chuanDoan,
             "n": k.n, "soPhanUng": k.soPhanUng,
             "trungViMs": k.trungVi, "p25Ms": k.p25, "p75Ms": k.p75,
             "tyLePhanUng": k.tyLePhanUng,
@@ -349,7 +360,18 @@ def _sigma_luoi(mau: list[tuple[float, float]]) -> float | None:
 
 
 def _giua(so) -> float | None:
-    b, a = getattr(so, "bestBid", None), getattr(so, "bestAsk", None)
-    if b is None or a is None:
-        return None
-    return (b + a) / 2.0
+    """Giá giữa của một sổ.
+
+    Bản đầu viết `getattr(so, "bestBid", None)` — nhưng `bestBid` là tên
+    trong JSON trả ra, còn thuộc tính thật là `best_bid`. `getattr` có
+    tham số mặc định nên nó không báo lỗi: nó trả None, đều đặn, mãi mãi.
+
+    Hậu quả: thước đo trễ bắt được 21 cú động thật rồi chấm cả 21 vào một
+    cuốn sổ RỖNG, và báo ra "chưa đủ mẫu". Cả chuỗi WebSocket → phát hiện
+    → chấm điểm đều chạy đúng; chỉ một cái tên gõ sai làm con số cuối
+    cùng bằng 0. Không có ba số chẩn đoán trong `tom_tat` thì không cách
+    nào phân biệt được nó với "chợ đang yên".
+
+    `SoLenh` vốn đã có sẵn `giua`. Dùng thẳng, và để nó ném nếu sai tên.
+    """
+    return so.giua if so is not None else None
