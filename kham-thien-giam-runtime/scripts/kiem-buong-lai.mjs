@@ -64,16 +64,30 @@ function Nut(ten) {
 }
 
 const kho = {};
-globalThis.document = {
-  createElement: Nut,
-  createDocumentFragment: () => Nut("#frag"),
-  getElementById: (id) => kho[id] || (kho[id] = Nut("div")),
-  querySelectorAll: () => [],
-  addEventListener: () => {},
-};
-globalThis.fetch = () => Promise.resolve({ json: () => Promise.resolve({}) });
-globalThis.setInterval = () => 0;
-globalThis.setTimeout = () => 0;
+
+// DOM giả phải dựng SAU khi đã lấy xong dữ liệu, không phải trước.
+//
+// Hai lần vấp cùng một gốc: bản giả của `fetch` và của `setInterval` là
+// để cho mã TRANG chạy được, nhưng đặt ở đầu file thì chúng cũng đè lên
+// đúng những thứ mà chế độ --song cần để đi lấy dữ liệu. Lần đầu `fetch`
+// giả trả về một đối tượng rỗng; sửa xong thì `setInterval` giả làm hỏng
+// luôn `fetch` thật của Node — undici cần một Timer có `.unref()`.
+//
+// Bài học chung hơn: một bản giả dựng cho phần A mà đặt ở phạm vi toàn
+// cục thì nó cũng giả cho phần B. Thu hẹp phạm vi rẻ hơn là đi vá từng
+// chỗ vỡ.
+function dungDomGia() {
+  globalThis.document = {
+    createElement: Nut,
+    createDocumentFragment: () => Nut("#frag"),
+    getElementById: (id) => kho[id] || (kho[id] = Nut("div")),
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+  };
+  globalThis.fetch = () => Promise.resolve({ json: () => Promise.resolve({}) });
+  globalThis.setInterval = () => 0;
+  globalThis.setTimeout = () => 0;
+}
 
 async function layTrangThai() {
   if (!co("--song")) {
@@ -90,6 +104,7 @@ const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
 );
 
 const T = await layTrangThai();
+dungDomGia();
 const nap = new Function(ma);
 nap();
 globalThis._datT(T);
