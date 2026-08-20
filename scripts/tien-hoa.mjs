@@ -46,6 +46,10 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const [, , LENH, CUNG] = process.argv;
+const co_ = (ten) => {
+  const i = process.argv.indexOf("--" + ten);
+  return i === -1 || i === process.argv.length - 1 ? null : process.argv[i + 1];
+};
 
 function thoat(msg) { console.error(msg); process.exit(1); }
 if (!LENH) thoat("Thiếu lệnh. Xem đầu file scripts/tien-hoa.mjs.");
@@ -147,7 +151,16 @@ function thuVe() {
   for (const s of src) {
     const p = DUONG(...s.split("/"));
     if (!co(p)) { loi.push(`thiếu ${s}`); continue; }
-    try { require(p); } catch (e) { loi.push(`${s}: ${e.message.slice(0, 140)}`); }
+    try {
+      /* XOÁ CACHE trước mỗi lần nạp. `cong --so` gọi thuVe() hai lần
+         trong CÙNG một tiến trình, và lần hai `require` trả bản đã nạp
+         nên IIFE của app.js không chạy lại — không phòng nào được phát
+         hiện, phiếu tụt 7/7 → 6/7 vì một lý do không có thật. Chốt
+         "không được xấu đi" mà báo nhầm thì nó chặn cả đề xuất đúng,
+         và vòng tiến hoá đứng im mà không ai hiểu vì sao. */
+      delete require.cache[require.resolve(p)];
+      require(p);
+    } catch (e) { loi.push(`${s}: ${e.message.slice(0, 140)}`); }
   }
   const than = g.kho.than;
   const phong = [];
@@ -400,6 +413,14 @@ function cong() {
 /* ═══════════════ DÒNG LỆNH ═══════════════ */
 if (LENH === "do") {
   const p = do_();
+  /* `--ghi <file>` cất phiếu lại làm MỐC GỐC cho `cong --so` đối chiếu.
+     Workflow gọi nó TRƯỚC khi model đụng vào bất cứ thứ gì — đo sau khi
+     đã sửa rồi mới nghĩ tới việc so là đã mất mốc. */
+  const raGhi = co_("ghi");
+  if (raGhi) {
+    await mkdir(dirname(raGhi), { recursive: true });
+    await writeFile(raGhi, JSON.stringify(p, null, 2) + "\n", "utf8");
+  }
   console.log(`Phiếu đo ${CUNG}: ${p.dat}/${p.tong} đạt\n`);
   for (const d of p.diem) console.log(`  ${d.dat ? "✓" : "✗"} ${d.ten.padEnd(34)} ${d.y}`);
   if (p.tuongPhanXau.length) {
@@ -427,7 +448,38 @@ if (LENH === "do") {
   }, null, 2) + "\n", "utf8");
   console.log(`Đề bài: ${phieu.tong - phieu.dat} điểm yếu · ${k.skill.length} kỹ năng → ${relative(ROOT, ra)}`);
 } else if (LENH === "cong") {
-  process.exit(cong().length ? 1 : 0);
+  const loi = cong();
+
+  /* ── CHỐT THỨ HAI: KHÔNG ĐƯỢC XẤU ĐI ────────────────────────
+     Năm phép trên bắt được "VỠ". Chúng không bắt được "vẫn chạy
+     nhưng XẤU HƠN" — đổi màu thành khó nhìn, gỡ một nhãn, phình
+     file. Với vòng TỰ GỘP thì lỗ đó là lỗ chí mạng: đề xuất tồi
+     lên thẳng site và phải đợi lượt sau mới lộ ra.
+
+     Nên so phiếu đo trước/sau. Điểm tụt là CHẶN, dù cả năm phép
+     kia đều xanh.
+
+     Nói thẳng giới hạn: chốt này chỉ khoá được những chiều ĐO
+     ĐƯỢC. Một đề xuất giữ nguyên 7/7 mà bố cục rối hơn thì nó cho
+     qua. Đừng tưởng nó khoá được cái đẹp. */
+  const truoc = co_("so");
+  if (truoc && existsSync(truoc)) {
+    const cu = JSON.parse(readFileSync(truoc, "utf8"));
+    const moi = do_();
+    if (moi.dat < cu.dat) {
+      const tut = cu.diem.filter((d) => d.dat)
+        .filter((d) => !moi.diem.find((x) => x.ma === d.ma && x.dat))
+        .map((d) => d.ten);
+      const cau = `ĐIỂM TỤT ${cu.dat}/${cu.tong} → ${moi.dat}/${moi.tong}` +
+        (tut.length ? ` · mất: ${tut.join(", ")}` : "");
+      loi.push(cau);
+      console.log("✗ " + cau);
+    } else {
+      console.log(`  phiếu đo ${cu.dat}/${cu.tong} → ${moi.dat}/${moi.tong}` +
+        (moi.dat > cu.dat ? "  ↑ tiến" : "  = giữ nguyên"));
+    }
+  }
+  process.exit(loi.length ? 1 : 0);
 } else {
   thoat(`Lệnh lạ "${LENH}". Có: do · ky-nang · de-bai · cong`);
 }
