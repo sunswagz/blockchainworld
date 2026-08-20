@@ -15,7 +15,7 @@ Máy này có Python 3.12 cài portable, **ngoài PATH**:
 $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py -m pip install -r requirements.txt
-& $py scripts\selftest.py      # 88 phép kiểm số học, KHÔNG cần mạng
+& $py scripts\selftest.py      # 139 phép kiểm số học, KHÔNG cần mạng
 & $py run.py                   # buồng lái → http://localhost:5186
 ```
 
@@ -97,17 +97,25 @@ Tín hiệu có thật, độ trễ có thật, và cả hai cộng lại vẫn 
 ```
 kham/
   config.py      cấu hình + ba cửa của chế độ chạy
-  dongho.py      đồng hồ chợ, giai đoạn vòng đời, lệch đồng hồ sàn
+  khung.py       VÒNG ĐỜI khung — đọc file này trước       ← đắt nhất
+  dong_song.py   WebSocket CLOB, sổ lệnh sống
+  cap_token.py   UP/DOWN là MỘT sổ nhìn hai phía
+  dongho.py      đồng hồ chợ, lệch đồng hồ sàn
   nguon.py       Polymarket (đọc) + Binance (đọc). Không đường nào ghi.
-  so_lenh.py     sổ L2, VWAP theo khối lượng, sức chứa      ← đọc file này trước
+  so_lenh.py     sổ L2, VWAP theo khối lượng, sức chứa, thang chờ
   dinh_gia.py    fair value, bất định, rủi ro nhảy, hiệu chỉnh
   can_loi.py     net executable edge, phí, giá cặp
   kho_doi.py     tồn kho ba phần, giá cặp, tương quan chéo
+  chan_rui_ro.py QUYẾT gì sau cú khớp đầu tiên
+  do_thi.py      đồ thị chợ — so lệch, không so giá thô
   chien_thuat.py sáu ngón nghề cắm vào một nền máy
   rui_ro.py      Risk Engine — Python thuần, quyền phủ quyết
   dat_lenh.py    sổ giấy khớp trên sổ THẬT + cổng lệnh thật
   sdk_polymarket.py  lớp DUY NHẤT chạm tới khoá ví
-  bang.py        băng ghi + chạy lại
+  ket_toan.py    KHÉP VÒNG HỌC — không có nó bot không học được
+  bang.py        băng ghi
+  chay_lai.py    chạy lại theo sự kiện + đối chiếu hai tham số
+  vo_dich.py     Champion/Challenger — không có `--force`
   vi.py          Đài Quan Ví — chỉ quan sát
   so.py          nhật ký + thống kê (kỳ vọng, đuôi, thua lớn nhất)
   vong.py        vòng lặp chính
@@ -115,6 +123,29 @@ kham/
   snapshot.py    cầu nối sang cung tĩnh
   sach.py        bỏ inf/nan trước khi ra JSON
 ```
+
+## Vòng đời khung — phát hiện đắt nhất, đọc trước khi sửa gì
+
+Một khung Up/Down có **hai cửa**, và chúng KHÔNG trùng nhau:
+
+```
+[eventStart − 300s , eventStart]    ĐẶT CƯỢC   <- bot làm việc ở đây
+[eventStart        , endDate   ]    QUAN SÁT   <- sổ đóng băng
+```
+
+Bản đầu nhắm vào cửa quan sát và chỉ thấy **thang chờ** — dải lệnh trải từ
+0,1¢ tới 99,9¢, hơn một triệu cổ, không mức nào là báo giá thật.
+
+Bốn chi tiết phải nhớ, cả bốn đo được:
+
+- `startDate` là **bẫy** — nó cách `endDate` gần một NGÀY (lúc tạo market).
+  Mốc đúng là `eventStartTime`, bằng đúng con số Unix trong slug.
+- Gamma **chặn cứng 100 kết quả** dù xin bao nhiêu. Nên dựng thẳng slug từ
+  mốc thời gian thay vì quét theo tiền tố.
+- Sổ **một chiều mỗi token là bình thường**: mua UP ≡ bán DOWN, nên một
+  lệnh hiện ra ở cả hai token, soi gương qua trục 0,5.
+- Báo giá hai chiều **ngắt quãng**, không liên tục. Không có quote thì
+  runtime đứng ngoài — đó là hành vi đúng, không phải hỏng.
 
 ## Bốn chỗ dễ hỏng IM LẶNG — đều có phép kiểm
 

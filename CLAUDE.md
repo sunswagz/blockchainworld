@@ -422,7 +422,7 @@ thư mục, cổng, và lệnh sinh lát cắt:
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
-    python scripts/selftest.py    88 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    139 phép kiểm số học, KHÔNG cần mạng
 
 Một khác biệt đáng ghi: runtime Khâm Thiên Giám **không cần khoá nào để
 chạy đủ**. `ANTHROPIC_API_KEY` chỉ dùng cho vòng não CHẬM (hậu kiểm, đọc

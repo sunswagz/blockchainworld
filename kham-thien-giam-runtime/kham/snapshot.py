@@ -98,6 +98,11 @@ def dung(runtime) -> dict:
         "chienThuat": a.get("chienThuat") or [],
         "vi": a.get("vi") or {},
         "nguon": a.get("nguon") or {},
+        "dongSong": a.get("dongSong") or {},
+        "ketToan": a.get("ketToan") or {},
+        "doThi": a.get("doThi") or {},
+        "voDich": a.get("voDich") or {},
+        "quyetChan": a.get("quyetChan") or {},
         "bang": a.get("bang") or {},
 
         # Nói thẳng cho người xem trang tĩnh biết họ đang nhìn gì.

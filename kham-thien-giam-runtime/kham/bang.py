@@ -106,54 +106,9 @@ def doc_bang(tuNgay: str | None = None) -> list[dict]:
     return ra
 
 
-@dataclass
-class KetQuaChayLai:
-    soKhung: int
-    soCoHoi: int
-    soQuaSang: int
-    netEdgeTrungBinh: float
-    netEdgeDuong: int
-    netEdgeAm: int
-    ghiChu: str = ""
-
-
-def chay_lai(khung: list[dict], nguongNetEdge: float | None = None) -> KetQuaChayLai:
-    """Chạy lại băng, đếm xem có bao nhiêu cơ hội THẬT SỰ qua được ngưỡng.
-
-    Đây là phép đo mà nghiên cứu OpenMarket làm và ra kết quả âm: tín hiệu có
-    thật, độ trễ có thật, mà sau phí và trượt giá thì mô hình vẫn không tạo
-    được lợi thế ngoài mẫu. Chạy lại ở đây tồn tại để CHÍNH RUNTIME NÀY có
-    thể nói ra cùng một câu về chính nó — trước khi nối tiền thật, chứ không
-    phải sau.
-
-    Bản này đếm trên các cơ hội ĐÃ được `vong.py` cân và ghi vào băng. Bước
-    tiếp theo đúng đắn là dựng lại sổ lệnh từ băng rồi cân lại từ đầu với
-    tham số mới — lúc đó mới so sánh được hai phiên bản mô hình. Chưa làm ở
-    đây, và nói rõ là chưa, thay vì trả một con số trông như đã làm.
-    """
-    nguong = nguongNetEdge if nguongNetEdge is not None else float(
-        CONFIG["canLoi"]["netEdgeToiThieu"])
-    tong = duong = am = 0
-    cong = 0.0
-    qua = 0
-    for k in khung:
-        for c in (k.get("coHoi") or []):
-            ne = float(c.get("netEdge") or 0.0)
-            tong += 1
-            cong += ne
-            if ne > 0:
-                duong += 1
-            else:
-                am += 1
-            if ne >= nguong:
-                qua += 1
-    return KetQuaChayLai(
-        soKhung=len(khung), soCoHoi=tong, soQuaSang=qua,
-        netEdgeTrungBinh=(cong / tong) if tong else 0.0,
-        netEdgeDuong=duong, netEdgeAm=am,
-        ghiChu="đếm trên cơ hội đã cân trong băng; chưa dựng lại sổ lệnh để "
-               "cân lại với tham số khác",
-    )
-
+# `chay_lai` cũ chỉ ĐẾM cơ hội đã ghi trong băng — nó trả về một con số
+# trông như backtest nhưng không dựng lại được gì, nên không so được hai bộ
+# tham số. Đã thay bằng `kham/chay_lai.py`, chạy lại theo sự kiện thật.
+# Module này giờ chỉ còn lo việc GHI và ĐỌC băng.
 
 may_ghi = MayGhi()

@@ -20,6 +20,7 @@ rõ không nên dùng cho tích hợp mới. SDK hợp nhất hiện hành là
 """
 from __future__ import annotations
 
+import datetime as _dt
 import time
 from dataclasses import dataclass, field
 
@@ -143,6 +144,27 @@ class Nguon:
                     pass
         return None
 
+    def gia_dong_khung(self, cap: str, ketThucMs: float) -> float | None:
+        """Giá lúc ĐÓNG khung — vế còn lại của phép so kết toán.
+
+        Lấy nến 1 phút BẮT ĐẦU tại phút cuối của khung rồi đọc `close` của
+        nó. Khung 5 phút kết thúc đúng mốc phút nên nến đó đóng đúng lúc.
+
+        Đây là ĐƯỜNG ĐỘC LẬP với sàn, cố ý vậy: nó tồn tại để phát hiện bất
+        đồng, nên không được dùng chung nguồn với `outcomePrices`.
+        """
+        moc = int((ketThucMs - 60_000) // 60_000 * 60_000)
+        for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
+            d = self._lay("binance-kline", f"{goc}/api/v3/klines",
+                          {"symbol": cap, "interval": "1m",
+                           "startTime": moc, "limit": 1})
+            if isinstance(d, list) and d and len(d[0]) > 4:
+                try:
+                    return float(d[0][4])       # [openTime,o,h,l,CLOSE,...]
+                except (TypeError, ValueError, IndexError):
+                    pass
+        return None
+
     def moc_thoi_gian_binance(self) -> tuple[float, float, float] | None:
         """(mốc sàn ms, gửi ms, nhận ms) — nguyên liệu hiệu chỉnh đồng hồ."""
         c = self.client()
@@ -159,30 +181,76 @@ class Nguon:
             return None
 
     # ── Polymarket: tìm market ────────────────────────────────────────────
-    def tim_theo_tien_to(self, tienTo: str, gioiHan: int = 300) -> list[dict]:
-        """Tìm market đang sống theo TIỀN TỐ slug, xếp theo hạn gần nhất.
+    def tim_theo_tien_to(self, tienTo: str, gioiHan: int = 400) -> list[dict]:
+        """Tìm khung đang sống theo TIỀN TỐ slug, xếp theo hạn gần nhất.
 
-        Vì sao tiền tố chứ không phải slug đầy đủ — đây là bug đã cắn thật
-        lúc dựng: Polymarket đặt cho MỖI KHUNG một slug riêng kèm mốc thời
-        gian Unix của khung đó:
+        Ba chi tiết ở đây, cả ba đều là bug đã cắn thật lúc dựng:
 
-            btc-updown-5m-1766162100
-            btc-updown-5m-1766162400
-            btc-updown-5m-1766162700
+        1. **Tiền tố, không phải slug đầy đủ.** Polymarket đặt cho MỖI KHUNG
+           một slug riêng kèm mốc Unix của khung:
 
-        Nên `slug=bitcoin-up-or-down` trả về đúng 0 kết quả, mãi mãi. Và nó
-        hỏng IM LẶNG theo đúng kiểu tệ nhất: Gamma API trả HTTP 200 với một
-        mảng rỗng, nên sổ sức khoẻ nguồn ghi "12 lượt, 0 lỗi" trong khi
-        runtime chưa từng nhìn thấy một market nào. Không có lỗi nào để
-        thấy — chỉ có một bảng điều khiển trống mà mọi đèn đều xanh.
+               btc-updown-5m-1787215500
+               btc-updown-5m-1787215800
+
+           Nên `slug=bitcoin-up-or-down` trả về đúng 0 kết quả, mãi mãi. Và
+           nó hỏng IM LẶNG theo kiểu tệ nhất: Gamma trả HTTP 200 với mảng
+           rỗng, nên sổ sức khoẻ ghi "12 lượt, 0 lỗi" trong khi runtime chưa
+           từng thấy một market nào. Không lỗi nào để thấy — chỉ một bảng
+           điều khiển trống mà mọi đèn đều xanh.
+
+        2. **`end_date_min` là bắt buộc.** Không có nó, `ascending=true` trả
+           về những market ĐÃ QUÁ HẠN mà vẫn còn cờ `active/closed=false` —
+           đo được lúc dựng: khung cũ nhất kết thúc cách hiện tại hơn 5.000
+           giờ. Runtime khi đó tưởng đồng hồ máy sai, trong khi đồng hồ máy
+           đúng (đã đối chiếu Binance `serverTime` và header `Date` của
+           chính Polymarket) — thứ sai là câu truy vấn.
+
+        3. **Giới hạn phải rộng.** Polymarket mở khung 5 phút cho rất nhiều
+           cặp cùng lúc (btc, eth, sol, xrp, doge, zec, bnb, hype…). Lấy 80
+           kết quả đầu theo hạn tăng dần thì có lúc chưa chạm tới BTC, và
+           runtime báo "không thấy market nào" trong khi market có thật.
         """
+        moc = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         d = self._lay("gamma", f"{_NG['polymarketGamma']}/markets",
                       {"active": "true", "closed": "false", "limit": gioiHan,
-                       "order": "endDate", "ascending": "true"})
+                       "order": "endDate", "ascending": "true",
+                       "end_date_min": moc})
         if not isinstance(d, list):
             return []
         return [m for m in d
                 if (m.get("slug") or "").startswith(tienTo) and not m.get("closed")]
+
+    def tim_khung_dung_slug(self, tienTo: str, songGiay: float = 300.0,
+                            soKhung: int = 4) -> list[dict]:
+        """Dựng thẳng slug từ mốc thời gian rồi hỏi đúng slug đó.
+
+        Vì sao không dùng `tim_theo_tien_to` cho việc này: **Gamma chặn cứng
+        100 kết quả** bất kể `limit` xin bao nhiêu (đã đo: xin 400, trả 100;
+        xin 500, trả 100). Polymarket mở khung 5 phút cho rất nhiều cặp cùng
+        lúc — btc, eth, sol, xrp, doge, zec, bnb, hype… — nên 100 kết quả
+        đầu theo hạn tăng dần CÓ LÚC không chạm tới cặp mình cần.
+
+        Và nó hỏng theo kiểu tệ nhất: lúc được lúc không. Chạy thử tay lúc
+        14:48 thấy 1 khung, runtime chạy lúc 15:0x thấy 0 khung, cùng một
+        đoạn code. Một lỗi phụ thuộc thời điểm thì không tái hiện được, và
+        không tái hiện được thì rất khó tin là mình đã sửa xong.
+
+        May là slug có quy luật chặt: `<coin>-updown-5m-<unix eventStart>`,
+        và eventStart luôn rơi đúng bội số của độ dài khung. Nên tính thẳng
+        vài mốc kế tiếp rồi hỏi từng slug một — vài lời gọi, nhưng chắc
+        chắn, và không phụ thuộc vào việc cặp của mình có lọt top 100 không.
+        """
+        gio = _dt.datetime.now(_dt.timezone.utc).timestamp()
+        b = int(songGiay)
+        moc_gan = int(gio // b * b)
+        ra: list[dict] = []
+        # Lùi một khung: khung đang trong cửa đặt cược có eventStart Ở TƯƠNG
+        # LAI, nhưng lùi một bước cho chắc khi đồng hồ lệch vài giây.
+        for i in range(-1, soKhung):
+            m = self.market_theo_slug(f"{tienTo}{moc_gan + i * b}")
+            if m and not m.get("closed"):
+                ra.append(m)
+        return ra
 
     def market_sap_het(self, gioiHan: int = 40) -> list[dict]:
         """Các market đang sống, sắp xếp theo thời điểm kết thúc gần nhất.
@@ -194,6 +262,18 @@ class Nguon:
                       {"active": "true", "closed": "false", "limit": gioiHan,
                        "order": "endDate", "ascending": "true"})
         return d if isinstance(d, list) else []
+
+    def market_theo_slug(self, slug: str) -> dict | None:
+        """Một market theo slug đầy đủ — dùng để hỏi KẾT QUẢ sau khi đóng.
+
+        KHÔNG lọc `closed=false` ở đây: chỗ này cố ý hỏi những market ĐÃ
+        đóng, vì đó mới là lúc `outcomePrices` có giá trị.
+        """
+        d = self._lay("gamma-slug", f"{_NG['polymarketGamma']}/markets",
+                      {"slug": slug, "limit": 1})
+        if isinstance(d, list) and d:
+            return d[0]
+        return None
 
     # ── Polymarket: sổ lệnh ───────────────────────────────────────────────
     def so_lenh(self, ma: str, ben: str, tokenId: str) -> SoLenh | None:

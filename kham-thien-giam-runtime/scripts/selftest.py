@@ -30,6 +30,14 @@ from kham.kho_doi import Kho                                     # noqa: E402
 from kham.rui_ro import RiskEngine, SucKhoeNguon                 # noqa: E402
 from kham.so import thong_ke                                     # noqa: E402
 from kham.so_lenh import Muc, SoLenh                             # noqa: E402
+from kham.cap_token import CapSo, soi_guong                      # noqa: E402
+from kham.khung import (CHUA_MO, DAT_CUOC, QUAN_SAT, DA_XONG,    # noqa: E402
+                        Khung, chon_dat_cuoc, phan_giai)
+from kham.chan_rui_ro import (CHIU, CHO, DONG_CHAN, VUOT_SPREAD, # noqa: E402
+                              quyet)
+from kham.do_thi import DoThi, Nut                               # noqa: E402
+from kham.chay_lai import ThamSo, doi_chieu, dung_so, mot_luot    # noqa: E402
+from kham.vo_dich import SoVoDich                                # noqa: E402
 
 _loi: list[str] = []
 _dat = 0
@@ -358,6 +366,196 @@ def kiem_cua_lenh_that() -> None:
          not CONFIG["datLenh"]["toiXacNhanDaDocRuiRo"])
 
 
+
+def kiem_cap_token() -> None:
+    print("\n── Cặp token bù trừ ──────────────────────────────────────────")
+    u = SoLenh("X", "UP", ask=[Muc(0.46, 80)], bid=[Muc(0.44, 300)])
+    d = SoLenh("X", "DOWN", ask=[Muc(0.55, 150)], bid=[Muc(0.52, 200)])
+    cs = CapSo("X", u, d)
+    kiem("mua UP lấy lối rẻ hơn trong hai lối",
+         gan(cs.gia_mua("UP"), 0.46), f"{cs.gia_mua('UP')}")
+    kiem("qua bù trừ rẻ hơn thì lấy lối đó",
+         gan(CapSo("X", SoLenh("X", "UP", ask=[Muc(0.60, 9)], bid=[]),
+                   SoLenh("X", "DOWN", ask=[], bid=[Muc(0.52, 9)])).gia_mua("UP"),
+             0.48))
+    kiem("giá cặp = tổng hai lối tốt nhất", gan(cs.tong_gia_mua, 1.01))
+
+    g = soi_guong(u, "X", "DOWN")
+    kiem("soi gương: bid 0.44 thành ask 0.56", gan(g.best_ask, 0.56))
+    kiem("soi gương: ask 0.46 thành bid 0.54", gan(g.best_bid, 0.54))
+    kiem("soi gương hai lần về chính nó",
+         gan(soi_guong(g, "X", "UP").best_ask, 0.46))
+
+    # THANG CHỜ — đo được trên chợ thật, phải bị chặn
+    thang = SoLenh("X", "UP",
+                   bid=[Muc(i / 1000.0, 50) for i in range(1, 1000, 10)], ask=[])
+    kiem("thang chờ trải cả dải bị nhận diện", thang.trai_ca_bang)
+    kiem("thang chờ KHÔNG được coi là dùng được", not thang.dung_duoc)
+    kiem("sổ thường không bị nhầm là thang chờ", not u.trai_ca_bang)
+    kiem("sổ một chiều nhưng hẹp thì không phải thang chờ",
+         not SoLenh("X", "UP", bid=[Muc(0.44, 9), Muc(0.43, 9)], ask=[]).trai_ca_bang)
+    kiem("cặp có thang chờ thì nói rõ lý do",
+         "thang chờ" in (CapSo("X", thang, thang).ly_do_khong_dung() or ""))
+
+
+def kiem_khung() -> None:
+    print("\n── Vòng đời khung ────────────────────────────────────────────")
+    evs = 1_000_000_000_000.0
+    k = Khung(slug="btc-updown-5m-1", ma="BTC_5M", capNen="BTCUSDT",
+              tokenUp="a", tokenDown="b", batDauDatCuocMs=evs - 300_000,
+              eventStartMs=evs, endMs=evs + 300_000)
+    kiem("trước cửa → chưa mở", k.giai_doan(evs - 301_000) == CHUA_MO)
+    kiem("trong cửa → ĐẶT CƯỢC", k.giai_doan(evs - 150_000) == DAT_CUOC)
+    kiem("qua eventStart → quan sát (sổ đóng băng)",
+         k.giai_doan(evs + 10_000) == QUAN_SAT)
+    kiem("qua endDate → đã xong", k.giai_doan(evs + 301_000) == DA_XONG)
+    kiem("tau đo theo CỬA ĐẶT CƯỢC, không theo khung",
+         gan(k.con_lai_giay(evs - 120_000), 120.0))
+    kiem("qua cửa thì tau = 0", gan(k.con_lai_giay(evs + 5_000), 0.0))
+
+    m = {"slug": "btc-updown-5m-1787217300",
+         "eventStartTime": "2026-08-20T09:15:00Z",
+         "endDate": "2026-08-20T09:20:00Z",
+         "clobTokenIds": '["tokA","tokB"]'}
+    p = phan_giai(m, "BTC_5M", "BTCUSDT")
+    kiem("phân giải được bản ghi Gamma thật", p is not None)
+    kiem("cửa đặt cược = eventStart trừ 300s",
+         gan(p.eventStartMs - p.batDauDatCuocMs, 300_000.0))
+    kiem("KHÔNG dùng startDate (bẫy cách gần một ngày)",
+         gan(p.eventStartMs, 1787217300000.0))
+    kiem("clobTokenIds dạng chuỗi JSON vẫn đọc được", p.tokenUp == "tokA")
+
+    p2 = phan_giai({"slug": "btc-updown-5m-1787217300",
+                    "clobTokenIds": ["a", "b"]}, "BTC_5M", "BTCUSDT")
+    kiem("thiếu eventStartTime thì lấy mốc trong slug",
+         p2 is not None and gan(p2.eventStartMs, 1787217300000.0))
+
+    ds = [Khung("s1", "M", "C", "a", "b", evs - 300_000, evs, evs + 300_000),
+          Khung("s2", "M", "C", "a", "b", evs, evs + 300_000, evs + 600_000)]
+    kiem("chọn đúng khung đang trong cửa",
+         chon_dat_cuoc(ds, evs - 100_000).slug == "s1")
+    kiem("không khung nào trong cửa thì trả None",
+         chon_dat_cuoc(ds, evs - 400_000) is None)
+
+
+def kiem_chan_rui_ro() -> None:
+    print("\n── Chân rủi ro: quyết định sau cú khớp đầu ───────────────────")
+    from kham.kho_doi import ViThe
+    cap = CapSo("X", SoLenh("X", "UP", ask=[Muc(0.50, 999)], bid=[Muc(0.48, 999)]),
+                SoLenh("X", "DOWN", ask=[Muc(0.52, 999)], bid=[Muc(0.50, 999)]))
+
+    can_bang = ViThe(ma="X")
+    can_bang.ghi_khop("UP", 100, 0.45)
+    can_bang.ghi_khop("DOWN", 100, 0.50)
+    kiem("vị thế cân bằng thì không cần quyết gì",
+         quyet(can_bang, cap, 200) is None)
+
+    lech = ViThe(ma="X")
+    lech.ghi_khop("UP", 100, 0.45)
+    q = quyet(lech, cap, 200)
+    kiem("còn nhiều giờ + giá tốt → CHỜ", q.loi == CHO, q.nhan)
+    kiem("nói rõ cần bù bên nào", q.ben == "DOWN")
+
+    q2 = quyet(lech, cap, 5)
+    kiem("cửa sắp đóng → KHÔNG được chờ nữa", q2.loi != CHO, q2.nhan)
+    kiem("bù vẫn có lãi thì vượt spread", q2.loi == VUOT_SPREAD)
+
+    dat = ViThe(ma="X")
+    dat.ghi_khop("UP", 100, 0.85)
+    q3 = quyet(dat, cap, 5)
+    kiem("bù bây giờ khoá lỗ thì phải CÓ TÊN, không lặng lẽ",
+         q3.loi in (CHIU, VUOT_SPREAD) and q3.khoaLoUsd > 0,
+         f"{q3.nhan} khoá {q3.khoaLoUsd:.2f}")
+
+    kho_bu = CapSo("X", SoLenh("X", "UP", ask=[], bid=[]),
+                   SoLenh("X", "DOWN", ask=[], bid=[]))
+    q4 = quyet(lech, kho_bu, 5)
+    kiem("không bù được + sắp đóng → đóng chân", q4.loi == DONG_CHAN, q4.nhan)
+
+
+def kiem_do_thi() -> None:
+    print("\n── Đồ thị chợ: so lệch, không so giá thô ─────────────────────")
+    g = DoThi()
+    g.dat(Nut("BTC_5M", "s1", "BTC", 100, 0.66, 0.68, 0.03))
+    g.dat(Nut("BTC_15M", "s2", "BTC", 400, 0.61, 0.54, 0.03))
+    a, b = g.nut["BTC_5M"], g.nut["BTC_15M"]
+    kiem("khung giá CAO hơn lại đang đắt so với mô hình", a.lech < 0)
+    kiem("khung giá THẤP hơn lại đang rẻ so với mô hình", b.lech > 0)
+    kiem("z chuẩn hoá theo bất định của chính khung",
+         gan(b.z, b.lech / 0.03, 1e-9))
+
+    g2 = DoThi()
+    for i, ma in enumerate(("BTC_5M", "ETH_5M", "SOL_5M")):
+        g2.dat(Nut(ma, f"s{i}", ma.split("_")[0], 100, 0.60, 0.50, 0.03))
+    kiem("cả rổ cùng lệch một chiều → cảnh báo MÔ HÌNH lệch",
+         g2.canh_bao_dong_pha() is not None)
+    kiem("cảnh báo nói đúng chữ mô hình",
+         "MÔ HÌNH" in (g2.canh_bao_dong_pha() or ""))
+    kiem("lệch đồng pha thì không nút nào nổi bật", not g2.noi_bat())
+
+
+def kiem_vo_dich() -> None:
+    print("\n── Champion/Challenger: không có đường tắt ───────────────────")
+    import tempfile
+    sv = SoVoDich(duong=Path(tempfile.mkdtemp()) / "vd.json")
+    kiem("chưa có hồ sơ thì không duyệt", not sv.xet("moi").cho)
+
+    it = [{"laiLo": 0.02, "phiUsd": 0, "chienThuat": ["it-mau"]} for _ in range(10)]
+    sv.cap_nhat(it)
+    px = sv.xet("it-mau")
+    kiem("thắng 10/10 nhưng thiếu mẫu → KHÔNG duyệt", not px.cho)
+    kiem("nói rõ vì thiếu mẫu", any("mẫu" in l for l in px.lyDo))
+
+    tot = [{"laiLo": 0.02, "phiUsd": 0, "chienThuat": ["tot"]} for _ in range(200)]
+    sv.cap_nhat(tot)
+    kiem("đủ mẫu + kỳ vọng dương + chưa có đương kim → lên", sv.xet("tot").cho)
+
+    duoi = ([{"laiLo": 0.05, "phiUsd": 0, "chienThuat": ["duoi-xau"]}
+             for _ in range(199)] +
+            [{"laiLo": -5.0, "phiUsd": 0, "chienThuat": ["duoi-xau"]}])
+    sv.cap_nhat(duoi)
+    px2 = sv.xet("duoi-xau")
+    kiem("kỳ vọng cao hơn mà ĐUÔI tệ hơn → KHÔNG lên", not px2.cho,
+         "; ".join(px2.lyDo)[:60])
+    kiem("nói rõ vì đuôi",
+         any(("thua lớn nhất" in l) or ("đuôi" in l) for l in px2.lyDo))
+    kiem("đương kim không bị thay", sv.duongKim.get("chung") == "tot")
+
+
+def kiem_chay_lai() -> None:
+    print("\n── Chạy lại theo sự kiện ─────────────────────────────────────")
+    so = dung_so({"luc": 1, "bid": [{"gia": 0.44, "luong": 300}],
+                  "ask": [{"gia": 0.46, "luong": 80},
+                          {"gia": 0.48, "luong": 200}]}, "X", "UP")
+    kiem("dựng lại được sổ từ băng", so is not None and gan(so.best_ask, 0.46))
+    kiem("dựng lại giữ đúng thứ tự mức", gan(so.ask[1].gia, 0.48))
+
+    sig = 0.55 / math.sqrt(365 * 24 * 3600)
+    khung = []
+    for i in range(60):
+        d = 1 if i % 2 else -1
+        khung.append({"thiTruong": [{
+            "ma": "BTC_5M", "giaNen": 100_000 + d * 60, "giaMo": 100_000,
+            "sigmaGiay": sig, "conLaiGiay": 120.0, "upThang": d > 0,
+            "so": {"UP": {"luc": 1, "bid": [{"gia": 0.40, "luong": 500}],
+                          "ask": [{"gia": 0.42, "luong": 500}]},
+                   "DOWN": {"luc": 1, "bid": [{"gia": 0.55, "luong": 500}],
+                            "ask": [{"gia": 0.57, "luong": 500}]}}}]})
+    at = float(CONFIG["canLoi"]["bienAnToan"])
+    r = mot_luot(khung, ThamSo("chat", 0.02, at))
+    kiem("chạy lại đọc hết khung", r.soKhung == 60)
+    kiem("chạy lại có cân ra cơ hội", r.soCoHoi > 0)
+
+    dc = doi_chieu(khung, ThamSo("long", 0.001, at), ThamSo("chat", 0.20, at))
+    kiem("ngưỡng lỏng cho qua sàng nhiều hơn ngưỡng chặt",
+         dc["A"]["soQuaSang"] >= dc["B"]["soQuaSang"])
+    kiem("thiếu mẫu thì NÓI thiếu mẫu, không kết luận bừa",
+         dc["duMau"] or "CHƯA ĐỦ MẪU" in dc["ketLuan"])
+
+    rong = doi_chieu([], ThamSo("a", 0.01, at), ThamSo("b", 0.02, at))
+    kiem("băng rỗng → không kết luận", not rong["duMau"])
+
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -374,6 +572,12 @@ def main() -> int:
     kiem_rui_ro()
     kiem_thong_ke()
     kiem_cua_lenh_that()
+    kiem_cap_token()
+    kiem_khung()
+    kiem_chan_rui_ro()
+    kiem_do_thi()
+    kiem_vo_dich()
+    kiem_chay_lai()
 
     print("\n" + "=" * 70)
     if _loi:

@@ -83,6 +83,7 @@
     }
 
     if (d.p2) o.appendChild(html("p", null, d.p2));
+    if (d.cong2) o.appendChild(el("pre", "cong", d.cong2.join("\n")));
 
     if (d.ds) {
       var u = el("ul");

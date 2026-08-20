@@ -46,6 +46,13 @@ const CAN = [
   "lenh.tongLenh", "lenh.daKhop", "lenh.duong", "lenh.cuaDangDong",
   "chienThuat", "vi", "nguon", "bang.soKhung", "bang.bat",
   "coHoi", "boQua",
+
+  // các khối thêm sau đợt sửa vòng đời khung
+  "dongSong.dangNoi", "dongSong.soToken", "dongSong.tinNhan",
+  "ketToan.dangCho", "ketToan.daKetToan", "ketToan.soBatDong",
+  "doThi.soNut", "doThi.canhBaoDongPha?",
+  "voDich.duongKim", "voDich.hoSo",
+  "quyetChan",
 ];
 
 /* Cổng Thành (assets/js/portal.js) chỉ đọc 900 BYTE ĐẦU rồi huỷ dòng tải.

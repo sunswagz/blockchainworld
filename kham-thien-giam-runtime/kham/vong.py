@@ -1,47 +1,55 @@
 """Vòng lặp chính — và ba làn tốc độ.
 
-Đây là chỗ quyết định kiến trúc quan trọng nhất của cả runtime, và nó là câu
-trả lời cho "Claude nằm ở đâu":
+Đây là chỗ quyết định kiến trúc quan trọng nhất của runtime, và là câu trả
+lời cho "Claude nằm ở đâu":
 
     LÀN NHANH        0-1000 ms       KHÔNG có Claude
-      giá Binance, sổ lệnh Polymarket, đồng hồ chợ, tồn kho, độ trễ
+      giá Binance, sổ lệnh WebSocket, đồng hồ chợ, tồn kho, độ trễ
       -> toán thuần Python, quyết định trong vài mili-giây
 
     LÀN VỪA          1-60 giây       KHÔNG có Claude
-      biến động thực nghiệm, quan hệ chéo market, hiệu chỉnh lại fair value
+      biến động thực nghiệm, đồ thị chợ, hiệu chỉnh lại fair value
 
     LÀN CHẬM         phút - giờ      CÓ Claude
       hậu kiểm, đọc lại băng, đề xuất giả thuyết, sinh chiến thuật mới
 
-Nghiên cứu OpenMarket đo được Polymarket phản ứng sau Binance với trung vị
-khoảng 347 ms. Một lượt gọi model không bao giờ về kịp trong cửa sổ đó, và có
-kịp cũng không nên: đường quyết định phải TẤT ĐỊNH thì mới chạy lại được, mà
-chạy lại được mới biết một thay đổi là tốt hơn hay chỉ khác đi.
+Nghiên cứu OpenMarket đo Polymarket phản ứng sau Binance với trung vị khoảng
+347 ms. Một lượt gọi model không về kịp trong cửa sổ đó, và có kịp cũng
+không nên: đường quyết định phải TẤT ĐỊNH thì mới chạy lại được, mà chạy lại
+được mới biết một thay đổi là tốt hơn hay chỉ khác đi.
 
-Nên Claude ở đây là NHÀ KHOA HỌC của cỗ máy, không phải phản xạ của nó. Runtime
-này chạy kín vòng và đầy đủ mà không cần một lượt gọi model nào.
+## Vòng đời khung — đọc `khung.py` trước khi sửa chỗ này
+
+Bot làm việc trong CỬA ĐẶT CƯỢC `[eventStart − 300, eventStart]`, không phải
+trong cửa quan sát. Bản đầu nhắm sai cửa và chỉ nhìn thấy thang chờ. Mọi
+lựa chọn khung ở đây đi qua `khung.chon_dat_cuoc()`, không tự tính lại.
 """
 from __future__ import annotations
 
-import datetime as dt
-import json
 import threading
 import time
 
 from .bang import may_ghi
 from .bus import bus
-from .can_loi import CoHoi
+from .can_loi import CoHoi, can
+from .cap_token import CapSo
+from .chan_rui_ro import quyet as quyet_chan
 from .chien_thuat import BoiCanh, SO_DANG_KY, chay_tat_ca
 from .config import CONFIG, che_hieu_luc
 from .dat_lenh import CongLenh
 from .dinh_gia import DoBienDong, HieuChinh, dinh_gia
+from .do_thi import Nut, do_thi, nhom_cua
+from .dong_song import dong_song
 from .dongho import dong_ho
+from .ket_toan import KetToan
 from .kho_doi import Kho
+from .khung import DAT_CUOC, Khung, chon_dat_cuoc, phan_giai
 from .nguon import nguon
 from .rui_ro import RiskEngine, SucKhoeNguon
 from .so import So, thong_ke
 from .so_lenh import SoLenh
 from .vi import dai_quan_vi
+from .vo_dich import so_vo_dich
 
 
 class Runtime:
@@ -51,14 +59,17 @@ class Runtime:
         self.cong = CongLenh(self.kho)
         self.hieuChinh = HieuChinh()
         self.so = So()
+        self.ketToan = KetToan(self.kho, self.hieuChinh, self.so, self.risk)
 
         self.bienDong: dict[str, DoBienDong] = {}
-        self.soLenh: dict[str, dict[str, SoLenh]] = {}
+        self.khungHienTai: dict[str, Khung] = {}
+        self.capSo: dict[str, CapSo] = {}
         self.giaChuan: dict[str, object] = {}
+        self.giaNen: dict[str, float] = {}
         self.coHoi: list[CoHoi] = []
-        self.thiTruong: list[dict] = []
-
+        self.quyetChan: dict[str, dict] = {}
         self.boQua: dict[str, str] = {}
+
         self._thanPhien: dict[str, str] = {}
         self.batTat = {ct.ma: True for ct in SO_DANG_KY}
         self.tamDung = False
@@ -67,19 +78,22 @@ class Runtime:
         self._chay = False
         self._luong: threading.Thread | None = None
         self._lanHieuChinhDongHo = 0.0
-        self._lanQuetChoMs = 0.0
+        self._lanTimKhung = 0.0
+        self._lanVoDich = 0.0
 
     # ── điều khiển ────────────────────────────────────────────────────────
     def bat(self) -> None:
         if self._chay:
             return
         self._chay = True
+        dong_song.bat()
         self._luong = threading.Thread(target=self._vong_lap, daemon=True)
         self._luong.start()
         bus.ghi(f"runtime khởi động — chế độ {che_hieu_luc()}", loai="he")
 
     def dung(self) -> None:
         self._chay = False
+        dong_song.dung()
         may_ghi.dong()
         nguon.dong()
         bus.ghi("runtime dừng", loai="he")
@@ -93,8 +107,6 @@ class Runtime:
                 if not self.tamDung:
                     self._mot_vong()
             except Exception as e:                  # noqa: BLE001
-                # Một vòng hỏng KHÔNG được giết runtime. Nhưng cũng không
-                # được nuốt im lặng — nó phải hiện lên buồng lái.
                 bus.ghi(f"vòng {self.vong} lỗi: {type(e).__name__}: {e}", loai="loi")
             con = nhip - (time.time() - t0)
             if con > 0:
@@ -102,229 +114,220 @@ class Runtime:
 
     def _mot_vong(self) -> None:
         self.vong += 1
-        bay_gio_ms = time.time() * 1000.0
+        now = time.time() * 1000.0
 
         # ── hiệu chỉnh đồng hồ, mỗi 60 giây ──────────────────────────────
-        if bay_gio_ms - self._lanHieuChinhDongHo > 60_000:
+        if now - self._lanHieuChinhDongHo > 60_000:
             moc = nguon.moc_thoi_gian_binance()
             if moc:
                 dong_ho.hieu_chinh(*moc)
-            self._lanHieuChinhDongHo = bay_gio_ms
+            self._lanHieuChinhDongHo = now
+
+        # ── tìm khung mới, mỗi 20 giây (khung 5 phút nên không cần dày) ──
+        if now - self._lanTimKhung > 20_000:
+            self._tim_khung(now)
+            self._lanTimKhung = now
 
         # ── làn nhanh ────────────────────────────────────────────────────
         self.coHoi = []
-        khung_coHoi: list[dict] = []
-
+        khung_ghi: list[dict] = []
         for tt in CONFIG["thiTruong"]:
             if not tt.get("theo"):
                 continue
-            ma = tt["ma"]
             try:
-                self._mot_thi_truong(tt, bay_gio_ms, khung_coHoi)
+                self._mot_thi_truong(tt, now, khung_ghi)
             except Exception as e:                  # noqa: BLE001
-                bus.ghi(f"{ma}: {type(e).__name__}: {e}", loai="loi")
+                bus.ghi(f"{tt['ma']}: {type(e).__name__}: {e}", loai="loi")
 
-        # ── soát lệnh maker đang chờ ─────────────────────────────────────
-        self.cong.soat_cho(self.soLenh)
+        # ── soát lệnh maker chờ + kết toán ───────────────────────────────
+        self.cong.soat_cho({m: {"UP": c.up, "DOWN": c.down}
+                            for m, c in self.capSo.items()})
+        if self.ketToan.soat(now):
+            so_vo_dich.cap_nhat(self.so.doc(2000))
 
-        # ── làn chậm: quét ví, thưa hơn nhiều ────────────────────────────
+        # ── làn chậm ─────────────────────────────────────────────────────
         if dai_quan_vi.den_luot():
             threading.Thread(target=dai_quan_vi.quet, daemon=True).start()
+        if now - self._lanVoDich > 600_000:
+            so_vo_dich.cap_nhat(self.so.doc(2000))
+            self._lanVoDich = now
 
-        # ── ghi băng ─────────────────────────────────────────────────────
         may_ghi.ghi({
-            "luc": bay_gio_ms, "vong": self.vong,
-            "che": che_hieu_luc(),
-            "coHoi": khung_coHoi,
-            "kho": self.kho.tom_tat(),
-            "risk": self.risk.tom_tat(),
+            "luc": now, "vong": self.vong, "che": che_hieu_luc(),
+            "thiTruong": khung_ghi,
+            "kho": self.kho.tom_tat(), "risk": self.risk.tom_tat(),
         })
 
-    def _mot_thi_truong(self, tt: dict, bayGioMs: float,
-                        khungCoHoi: list[dict]) -> None:
-        ma = tt["ma"]
+    # ── tìm và đăng ký khung ──────────────────────────────────────────────
+    def _tim_khung(self, now: float) -> None:
+        for tt in CONFIG["thiTruong"]:
+            if not tt.get("theo"):
+                continue
+            ma, dai = tt["ma"], float(tt["phutSong"]) * 60.0
+            # Dựng thẳng slug — Gamma chặn cứng 100 kết quả nên quét theo
+            # tiền tố có lúc không chạm tới cặp mình cần. Giữ đường quét làm
+            # lưới đỡ phòng khi Polymarket đổi quy luật đặt slug.
+            ds = nguon.tim_khung_dung_slug(tt["tienTo"], dai)
+            if not ds:
+                ds = nguon.tim_theo_tien_to(tt["tienTo"])
+            ks = [k for k in (phan_giai(m, ma, tt["nen"], dai) for m in ds) if k]
+            if not ks:
+                self._than_phien(ma, f"không thấy khung nào có tiền tố `{tt['tienTo']}`")
+                continue
+            k = chon_dat_cuoc(ks, now)
+            if k is None:
+                gan = min(ks, key=lambda x: abs(x.batDauDatCuocMs - now))
+                cho = (gan.batDauDatCuocMs - now) / 1000.0
+                self._than_phien(ma, f"{len(ks)} khung nhưng chưa khung nào trong "
+                                     f"cửa đặt cược; cửa gần nhất mở sau {cho:.0f}s")
+                continue
 
-        # 1. giá nền
+            cu = self.khungHienTai.get(ma)
+            if cu is None or cu.slug != k.slug:
+                if cu is not None:
+                    dong_song.bo_dang_ky(cu.tokenUp)
+                    dong_song.bo_dang_ky(cu.tokenDown)
+                dong_song.dang_ky(k.tokenUp, ma, "UP")
+                dong_song.dang_ky(k.tokenDown, ma, "DOWN")
+                self.khungHienTai[ma] = k
+                bus.ghi(f"{ma}: vào cửa đặt cược {k.slug} "
+                        f"(còn {k.con_lai_giay(now):.0f}s)", loai="tin")
+
+    # ── một thị trường, một vòng ──────────────────────────────────────────
+    def _mot_thi_truong(self, tt: dict, now: float, ghi: list[dict]) -> None:
+        ma = tt["ma"]
+        k = self.khungHienTai.get(ma)
+        if k is None:
+            return
+        if k.giai_doan(now) != DAT_CUOC:
+            return          # ra khỏi cửa rồi; `_tim_khung` sẽ đổi khung
+
+        # 1. giá nền + biến động
         gia = nguon.gia_binance(tt["nen"])
         if gia is None:
             return
+        self.giaNen[ma] = gia
         bd = self.bienDong.setdefault(ma, DoBienDong())
-        bd.them(gia, bayGioMs)
+        bd.them(gia, now)
         sigma = bd.sigma_giay()
         if sigma is None:
-            return                                   # chưa đủ mẫu, đừng đoán
-
-        # 2. market đang sống + sổ lệnh
-        ct = self._market_dang_song(tt)
-        if not ct:
-            return
-        so_up = ct.get("soUp")
-        so_down = ct.get("soDown")
-        if so_up is None or so_down is None:
-            return
-        self.soLenh[ma] = {"UP": so_up, "DOWN": so_down}
-        self.boQua.pop(ma, None)
-        self._thanPhien.pop(ma, None)
-
-        # 3. đồng hồ
-        lc = dong_ho.lat_cat(ct["ketThucMs"], ct["tongGiay"],
-                             tuoiDuLieuMs=bayGioMs - so_up.nhanLucMs)
-        if lc.da_khoa:
+            self._than_phien(ma, f"chưa đủ mẫu ước lượng σ ({bd.so_mau}/12)")
             return
 
-        # 4. fair value
-        tin_hieu = self._tin_hieu(ma, so_up, so_down)
-        gc = dinh_gia(ma, gia, ct["giaMo"], lc.conLaiGiay, sigma, tin_hieu)
+        # 2. sổ lệnh — WebSocket trước, REST là lưới đỡ
+        su = dong_song.lay(k.tokenUp) or nguon.so_lenh(ma, "UP", k.tokenUp)
+        sd = dong_song.lay(k.tokenDown) or nguon.so_lenh(ma, "DOWN", k.tokenDown)
+        if su is None or sd is None:
+            self._than_phien(ma, "chưa nhận được sổ lệnh")
+            return
+        cap = CapSo(ma, su, sd)
+        self.capSo[ma] = cap
+        if not cap.dung_duoc:
+            self._than_phien(ma, cap.ly_do_khong_dung() or "sổ không dùng được")
+            return
+
+        # 3. strike + định giá
+        mo = nguon.gia_mo_khung(tt["nen"], k.batDauDatCuocMs)
+        if not mo:
+            self._than_phien(ma, "không lấy được giá mở cửa đặt cược (strike)")
+            return
+        tau = k.con_lai_giay(now)
+        gc = dinh_gia(ma, gia, mo, tau, sigma, self._tin_hieu(su))
         if gc is None:
             return
         self.giaChuan[ma] = gc
+        self.boQua.pop(ma, None)
+        self._thanPhien.pop(ma, None)
 
-        # 5. chiến thuật đề xuất
-        bc = BoiCanh(ma=ma, gia=gc, soUp=so_up, soDown=so_down, dongHo=lc,
-                     viThe=self.kho.lay(ma))
+        # 4. ghi danh kết toán — CẢ khi không vào lệnh, xem ket_toan.ghi_danh
+        self.ketToan.ghi_danh(ma, k.slug, k.endMs, mo, tt["nen"],
+                              k.tokenUp, k.tokenDown, pUp=gc.pUp)
+
+        # 5. đồ thị chợ
+        do_thi.dat(Nut(ma=ma, slug=k.slug, nhom=nhom_cua(ma), conLaiGiay=tau,
+                       fairUp=gc.pUp, giaChoUp=cap.gia_mua("UP"),
+                       batDinh=gc.batDinh))
+
+        # 6. chân lệch — quyết TRƯỚC khi mở thêm
+        v = self.kho.lay(ma)
+        qc = quyet_chan(v, cap, tau, now)
+        self.quyetChan[ma] = (
+            {"loi": qc.loi, "nhan": qc.nhan, "ben": qc.ben, "soCo": qc.soCo,
+             "khoaLoUsd": qc.khoaLoUsd, "lyDo": qc.lyDo} if qc else {})
+
+        # 7. chiến thuật đề xuất
+        lc = dong_ho.lat_cat(k.eventStartMs, k.daiSongGiay,
+                             tuoiDuLieuMs=now - su.nhanLucMs)
+        bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc, viThe=v)
         de_xuat = chay_tat_ca(bc, self.batTat)
 
-        # 6. Risk Engine quyết
+        # 8. Risk Engine quyết
         suc_khoe = SucKhoeNguon(
-            tuoiSoLenhMs=bayGioMs - so_up.nhanLucMs,
-            tuoiGiaNenMs=0.0,
+            tuoiSoLenhMs=now - su.nhanLucMs, tuoiGiaNenMs=0.0,
             lechDongHoMs=dong_ho.lech_ms,
             thieuNguon=[t.ten for t in nguon.trangThai.values() if t.soLoi >= 3],
         )
         du_kelly = self.hieuChinh.du_de_dung_kelly()
-
         for ch in de_xuat:
-            pq = self.risk.duyet(ch, suc_khoe, lc.conLaiGiay, du_kelly)
-            khungCoHoi.append({
-                "ma": ch.ma, "ben": ch.ben, "ct": ch.chienThuat,
-                "fair": ch.fairValue, "vwap": ch.vwap, "netEdge": ch.netEdge,
-                "sucChua": ch.sucChua, "cho": pq.cho,
-                "lyDo": pq.lyDo, "siet": pq.canhBao,
-            })
+            pq = self.risk.duyet(ch, suc_khoe, tau, du_kelly)
             self.coHoi.append(ch)
             if pq.cho and pq.soCoChoPhep >= 1:
-                so = so_up if ch.ben == "UP" else so_down
-                self.cong.dat(ch, pq.soCoChoPhep, so)
+                self.cong.dat(ch, pq.soCoChoPhep, su if ch.ben == "UP" else sd)
 
-    def _market_dang_song(self, tt: dict) -> dict | None:
-        """Tìm khung ĐANG SỐNG của một market, kèm sổ lệnh hai bên.
-
-        Bản này gọi Gamma mỗi vòng. Với nhịp 2 giây và vài market thì chấp
-        nhận được, nhưng đúng ra phải là WebSocket đăng ký một lần — đó là
-        việc của P1, ghi ở đây để không ai tưởng chỗ này đã xong.
-        """
-        ma = tt["ma"]
-        ds = nguon.tim_theo_tien_to(tt["tienTo"])
-        if not ds:
-            self._than_phien(ma, f"không thấy market nào có tiền tố "
-                                 f"`{tt['tienTo']}` đang mở")
-            return None
-
-        tong_giay = float(tt["phutSong"]) * 60.0
-        bay_gio = dong_ho.bay_gio_ms()
-
-        # Chọn khung ĐANG chạy: đã bắt đầu và chưa kết thúc. Lấy bừa `ds[0]`
-        # là lấy khung sớm nhất, mà khung sớm nhất thường đã đóng.
-        song = None
-        gan_nhat = None
-        for m in ds:
-            ket = _doc_moc(m.get("endDate"))
-            if ket is None:
-                continue
-            gan_nhat = max(gan_nhat or ket, ket)
-            if ket - tong_giay * 1000.0 <= bay_gio < ket:
-                song = (m, ket)
-                break
-
-        if song is None:
-            # Không có khung nào phủ thời điểm hiện tại. Nói RÕ vì sao, kèm
-            # số đo — đây đúng tình huống đã gặp lúc dựng: đồng hồ máy đi
-            # trước dữ liệu sàn tám tháng, nên mọi market thấy được đều đã
-            # đóng và mọi lời gọi /book trả 404. Không nói ra thì bảng điều
-            # khiển chỉ trống trơn với toàn đèn xanh.
-            if gan_nhat is not None:
-                lech_gio = (bay_gio - gan_nhat) / 3_600_000.0
-                self._than_phien(ma, (
-                    f"{len(ds)} khung tìm thấy nhưng không khung nào đang chạy; "
-                    f"khung xa nhất kết thúc cách đây {lech_gio:.1f} giờ theo "
-                    f"đồng hồ máy — kiểm lại giờ hệ thống"))
-            return None
-
-        m, ket = song
-
-        toks = m.get("clobTokenIds") or []
-        if isinstance(toks, str):
-            try:
-                toks = json.loads(toks)
-            except json.JSONDecodeError:
-                return None
-        if len(toks) < 2:
-            self._than_phien(ma, "market thiếu clobTokenIds")
-            return None
-
-        bat_dau = ket - tong_giay * 1000.0
-        gia_mo = m.get("openPrice") or m.get("startPrice")
-        try:
-            gia_mo = float(gia_mo) if gia_mo else None
-        except (TypeError, ValueError):
-            gia_mo = None
-        if not gia_mo:
-            gia_mo = nguon.gia_mo_khung(tt["nen"], bat_dau)
-        if not gia_mo:
-            self._than_phien(ma, "không lấy được giá mở khung (strike)")
-            return None
-
-        return {
-            "ketThucMs": ket,
-            "batDauMs": bat_dau,
-            "tongGiay": tong_giay,
-            "giaMo": gia_mo,
-            "slug": m.get("slug"),
-            "soUp": nguon.so_lenh(ma, "UP", toks[0]),
-            "soDown": nguon.so_lenh(ma, "DOWN", toks[1]),
-        }
+        # 9. băng ghi — đủ để CHẠY LẠI, không chỉ để nhìn
+        ghi.append({
+            "ma": ma, "slug": k.slug, "giaNen": gia, "giaMo": mo,
+            "sigmaGiay": sigma, "conLaiGiay": tau,
+            "pUp": gc.pUp, "batDinh": gc.batDinh,
+            "so": {
+                "UP": {"luc": su.nhanLucMs,
+                       "bid": [{"gia": m.gia, "luong": m.luong} for m in su.bid[:30]],
+                       "ask": [{"gia": m.gia, "luong": m.luong} for m in su.ask[:30]]},
+                "DOWN": {"luc": sd.nhanLucMs,
+                         "bid": [{"gia": m.gia, "luong": m.luong} for m in sd.bid[:30]],
+                         "ask": [{"gia": m.gia, "luong": m.luong} for m in sd.ask[:30]]},
+            },
+        })
 
     def _than_phien(self, ma: str, ly_do: str) -> None:
-        """Ghi lý do một market bị bỏ qua — nhưng chỉ khi lý do ĐỔI.
+        """Ghi lý do bỏ qua — nhưng chỉ khi lý do ĐỔI.
 
-        Nhịp 2 giây mà ghi mỗi vòng thì một lý do duy nhất đẻ ra 1.800 dòng
-        mỗi giờ và đẩy mọi thứ khác ra khỏi sổ. Ghi một lần rồi im cho tới
-        khi tình hình khác đi.
+        Nhịp 2 giây mà ghi mỗi vòng thì một lý do đẻ 1.800 dòng mỗi giờ và
+        đẩy mọi thứ khác ra khỏi sổ.
         """
-        if getattr(self, "_thanPhien", None) is None:
-            self._thanPhien = {}
         if self._thanPhien.get(ma) == ly_do:
             return
         self._thanPhien[ma] = ly_do
-        bus.ghi(f"{ma}: {ly_do}", loai="canh")
         self.boQua[ma] = ly_do
+        bus.ghi(f"{ma}: {ly_do}", loai="canh")
 
     @staticmethod
-    def _tin_hieu(ma: str, soUp: SoLenh, soDown: SoLenh) -> dict[str, float]:
-        """Tín hiệu vi cấu trúc, đã gắn HỌ ở `dinh_gia.HO_TIN_HIEU`."""
+    def _tin_hieu(so: SoLenh) -> dict[str, float]:
         th: dict[str, float] = {}
-        l = soUp.lech()
+        l = so.lech()
         if l is not None:
             th["poly_lech"] = l * 0.4
-        vg, giua = soUp.vi_gia, soUp.giua
-        if vg is not None and giua is not None and giua > 0:
+        vg, giua = so.vi_gia, so.giua
+        if vg is not None and giua is not None:
             th["poly_vi_gia"] = (vg - giua) * 4.0
         return th
 
     # ── báo cáo ───────────────────────────────────────────────────────────
     def anh_chup(self) -> dict:
+        now = time.time() * 1000.0
         ket = self.so.doc(500)
         return {
-            "vong": self.vong,
-            "batDauLuc": self.batDauLuc,
+            "vong": self.vong, "batDauLuc": self.batDauLuc,
             "chayDuocGiay": time.time() - self.batDauLuc,
             "tamDung": self.tamDung,
-            "che": che_hieu_luc(),
-            "cheKhai": CONFIG.get("che"),
-            "risk": self.risk.tom_tat(),
-            "kho": self.kho.tom_tat(),
-            "lenh": self.cong.tom_tat(),
-            "nguon": nguon.tom_tat(),
+            "che": che_hieu_luc(), "cheKhai": CONFIG.get("che"),
+            "risk": self.risk.tom_tat(), "kho": self.kho.tom_tat(),
+            "lenh": self.cong.tom_tat(), "nguon": nguon.tom_tat(),
+            "dongSong": dong_song.tom_tat(),
+            "ketToan": self.ketToan.tom_tat(),
+            "doThi": do_thi.tom_tat(),
+            "voDich": so_vo_dich.tom_tat(),
+            "quyetChan": dict(self.quyetChan),
             "hieuChinh": {
                 "bang": self.hieuChinh.bang(),
                 "tongMau": self.hieuChinh.tong_mau,
@@ -335,68 +338,52 @@ class Runtime:
             "vi": dai_quan_vi.tom_tat(),
             "chienThuat": [
                 {"ma": c.ma, "ten": c.ten, "mota": c.mota,
-                 "bat": self.batTat.get(c.ma, True)}
-                for c in SO_DANG_KY
-            ],
+                 "bat": self.batTat.get(c.ma, True)} for c in SO_DANG_KY],
             "thiTruong": [
                 {
                     "ma": t["ma"], "theo": bool(t.get("theo")),
+                    "khung": (self.khungHienTai[t["ma"]].tom_tat(now)
+                              if t["ma"] in self.khungHienTai else None),
                     "gia": _tom_gia(self.giaChuan.get(t["ma"])),
-                    "so": _tom_so(self.soLenh.get(t["ma"])),
-                }
-                for t in CONFIG["thiTruong"]
-            ],
+                    "giaNen": self.giaNen.get(t["ma"]),
+                    "cap": (self.capSo[t["ma"]].tom_tat()
+                            if t["ma"] in self.capSo else None),
+                    "so": _tom_so(self.capSo.get(t["ma"])),
+                } for t in CONFIG["thiTruong"]],
             "coHoi": [
-                {
-                    "ma": c.ma, "ben": c.ben, "ct": c.chienThuat,
-                    "fair": c.fairValue, "vwap": c.vwap,
-                    "gross": c.grossEdge, "net": c.netEdge,
-                    "phi": c.phi, "batDinh": c.batDinhMoHinh,
-                    "sucChua": c.sucChua, "xacSuatKhop": c.xacSuatKhop,
-                    "nuaDoiMs": c.nuaDoiMs, "maker": c.laMaker,
-                    "dangLam": c.dang_lam, "ghiChu": c.ghiChu,
-                }
-                for c in self.coHoi[:40]
-            ],
+                {"ma": c.ma, "ben": c.ben, "ct": c.chienThuat,
+                 "fair": c.fairValue, "vwap": c.vwap, "gross": c.grossEdge,
+                 "net": c.netEdge, "phi": c.phi, "batDinh": c.batDinhMoHinh,
+                 "sucChua": c.sucChua, "xacSuatKhop": c.xacSuatKhop,
+                 "nuaDoiMs": c.nuaDoiMs, "maker": c.laMaker,
+                 "dangLam": c.dang_lam, "ghiChu": c.ghiChu}
+                for c in self.coHoi[:40]],
             "boQua": dict(self.boQua),
             "bang": {"soKhung": may_ghi.soKhung, "bat": may_ghi.bat},
             "nhatKy": bus.gan_day(80),
         }
 
 
-def _doc_moc(iso) -> float | None:
-    """ISO 8601 -> mili-giây epoch. None nếu không đọc được."""
-    try:
-        return dt.datetime.fromisoformat(
-            str(iso).replace("Z", "+00:00")).timestamp() * 1000.0
-    except (ValueError, TypeError, AttributeError):
-        return None
-
-
 def _tom_gia(g) -> dict | None:
     if g is None:
         return None
-    return {
-        "pUp": g.pUp, "pDown": g.pDown, "batDinh": g.batDinh,
-        "batDinhThamSo": g.batDinhThamSo, "ruiRoNhay": g.ruiRoNhay,
-        "z": g.z, "sigmaGiay": g.sigmaGiay, "tauGiay": g.tauGiay,
-        "tauDungSan": g.tauDungSan, "daMatPhang": g.daMatPhang,
-        "roRang": g.ro_rang, "giaHienTai": g.giaHienTai, "giaMo": g.giaMo,
-        "oHieuChinh": g.oHieuChinh, "giaiTrinh": g.giaiTrinh,
-    }
+    return {"pUp": g.pUp, "pDown": g.pDown, "batDinh": g.batDinh,
+            "batDinhThamSo": g.batDinhThamSo, "ruiRoNhay": g.ruiRoNhay,
+            "z": g.z, "sigmaGiay": g.sigmaGiay, "tauGiay": g.tauGiay,
+            "tauDungSan": g.tauDungSan, "daMatPhang": g.daMatPhang,
+            "roRang": g.ro_rang, "giaHienTai": g.giaHienTai, "giaMo": g.giaMo,
+            "oHieuChinh": g.oHieuChinh, "giaiTrinh": g.giaiTrinh}
 
 
-def _tom_so(d) -> dict | None:
-    if not d:
+def _tom_so(cap: CapSo | None) -> dict | None:
+    if cap is None:
         return None
     ra = {}
-    for ben, s in d.items():
-        if s is None:
-            continue
+    for ben, s in (("UP", cap.up), ("DOWN", cap.down)):
         ra[ben] = {
-            "bestBid": s.best_bid, "bestAsk": s.best_ask,
-            "spread": s.spread, "viGia": s.vi_gia, "lech": s.lech(),
-            "doSau": s.do_sau(),
+            "bestBid": s.best_bid, "bestAsk": s.best_ask, "spread": s.spread,
+            "viGia": s.vi_gia, "lech": s.lech(), "doSau": s.do_sau(),
+            "thangCho": s.trai_ca_bang, "dungDuoc": s.dung_duoc,
             "bid": [{"gia": m.gia, "luong": m.luong} for m in s.bid[:12]],
             "ask": [{"gia": m.gia, "luong": m.luong} for m in s.ask[:12]],
         }

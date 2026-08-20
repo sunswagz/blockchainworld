@@ -24,6 +24,21 @@ window.PHONG = [
         p2: "Cỗ máy hỏi câu khác hẳn: <b>“Thứ đáng giá 54¢ này, tôi có mua được với giá thấp hơn 54¢ đủ nhiều để sống sót sau phí không?”</b> Nó không cần biết Bitcoin đi đâu."
       },
       {
+        h: "Trước công thức, phải biết cửa nào là cửa làm việc",
+        canh: true,
+        p: "Đây là chỗ bản đầu của cỗ máy sai, và sai về <b>cấu trúc</b> chứ không phải sai một con số. Một khung Up/Down có <b>hai cửa</b>, và chúng không trùng nhau:",
+        cong: [
+          "[eventStart − 300s , eventStart]    ĐẶT CƯỢC   ← chỗ bot làm việc",
+          "[eventStart        , endDate   ]    QUAN SÁT   ← sổ đóng băng"
+        ],
+        p2: "Bản đầu nhắm vào cửa quan sát. Đo thật bằng WebSocket, bám bốn khung qua ranh giới, ghi mỗi 11 giây:",
+        cong2: [
+          "09:12:12  khung eventStart 09:10  →  101/0   thang chờ, không yết giá",
+          "09:12:12  khung eventStart 09:15  →   92/7   UP 0.930, giá CHẠY thật"
+        ],
+        p3: "Hệ quả nếu nhắm sai cửa: cỗ máy chỉ nhìn thấy <b>thang chờ</b> — một dải lệnh trải từ 0,1¢ tới 99,9¢ với hơn một triệu cổ. Nhìn số thì đó là thanh khoản khổng lồ; thực chất không mức nào là báo giá thật. Và mọi lệch giá nó thấy đều là ảo."
+      },
+      {
         h: "Công thức",
         cong: [
           "z = [ ln(S/K) − σ²τ/2 ] / ( σ√τ )",

@@ -141,6 +141,49 @@ class SoLenh:
         """Xả `muon` cổ bằng cách ăn dần bên BID."""
         return _di_qua(self.bid, muon, mua=False)
 
+    # ── sổ này có dùng được không ─────────────────────────────────────────
+    @property
+    def hai_chieu(self) -> bool:
+        return bool(self.bid) and bool(self.ask)
+
+    @property
+    def trai_ca_bang(self) -> bool:
+        """Sổ trải gần hết dải 0..1 — dấu hiệu THANG CHỜ, không phải báo giá.
+
+        Đo được trên Polymarket lúc dựng: một khung BTC 5 phút CHƯA MỞ có
+        101 mức bid trải từ 0,001 tới 0,999, tổng hơn một triệu cổ. Nhìn số
+        thì đó là "thanh khoản khổng lồ"; thực chất là nhà tạo lập rải một
+        thang chờ suốt cả dải trước giờ mở, và không mức nào trong đó là
+        một báo giá nghiêm túc về xác suất.
+
+        Nguy hiểm nếu không nhận ra: `best_bid` của thang ấy là 0,999, nên
+        mọi phép đo spread, microprice và imbalance đều ra số vô nghĩa —
+        nhưng ra số, chứ không ra lỗi. Chiến thuật sẽ thấy "chợ tin UP
+        99,9%" và mô hình sẽ thấy một lệch giá khổng lồ để ăn.
+        """
+        muc = self.bid or self.ask
+        if len(muc) < 20:
+            return False
+        gia = [m.gia for m in muc]
+        return (max(gia) - min(gia)) > 0.90
+
+    @property
+    def dung_duoc(self) -> bool:
+        """Chỉ sổ hai chiều, không phải thang chờ, mới đáng để cân."""
+        return self.hai_chieu and not self.trai_ca_bang
+
+    def ly_do_khong_dung(self) -> str | None:
+        if self.trai_ca_bang:
+            return (f"thang chờ trải cả dải ({len(self.bid or self.ask)} mức, "
+                    f"biên độ >0,90) — chưa phải báo giá thật")
+        if not self.bid and not self.ask:
+            return "sổ rỗng"
+        if not self.ask:
+            return "không có bên bán — không mua được"
+        if not self.bid:
+            return "không có bên mua — không bán được"
+        return None
+
     def suc_chua(self, gioiHan: float, mua: bool = True) -> float:
         """Gom được nhiều nhất bao nhiêu cổ mà VWAP chưa vượt `gioiHan`.
 

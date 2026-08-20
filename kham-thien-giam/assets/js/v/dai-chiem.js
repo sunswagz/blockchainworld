@@ -9,44 +9,82 @@
 window.DAI_CHIEM = {
   "date": "20/08/2026",
   "tomTat": "0/0 cơ hội qua sàng · chưa có market nào kết toán",
-  "generatedAt": "2026-08-20T08:29:44.672Z",
+  "generatedAt": "2026-08-20T15:02:57.858Z",
   "che": "giay",
   "cheKhai": "giay",
   "vong": 1,
-  "chayDuocGiay": 1.0204966068267822,
+  "chayDuocGiay": 3.7849833965301514,
   "thiTruong": [
     {
       "ma": "BTC_5M",
       "theo": true,
+      "khung": {
+        "slug": "btc-updown-5m-1787238300",
+        "ma": "BTC_5M",
+        "giaiDoan": "dat-cuoc",
+        "nhan": "đặt cược",
+        "datCuocDuoc": true,
+        "conLaiGiay": 122.14199072265625,
+        "troiQuaPct": 59.28600309244791,
+        "eventStartMs": 1787238300000.0,
+        "endMs": 1787238600000.0
+      },
       "gia": null,
+      "giaNen": 72154.0,
+      "cap": null,
       "so": null
     },
     {
       "ma": "ETH_5M",
       "theo": true,
+      "khung": {
+        "slug": "eth-updown-5m-1787238300",
+        "ma": "ETH_5M",
+        "giaiDoan": "dat-cuoc",
+        "nhan": "đặt cược",
+        "datCuocDuoc": true,
+        "conLaiGiay": 122.14199072265625,
+        "troiQuaPct": 59.28600309244791,
+        "eventStartMs": 1787238300000.0,
+        "endMs": 1787238600000.0
+      },
       "gia": null,
+      "giaNen": 2290.96,
+      "cap": null,
       "so": null
     },
     {
       "ma": "SOL_5M",
       "theo": false,
+      "khung": null,
       "gia": null,
+      "giaNen": null,
+      "cap": null,
       "so": null
     },
     {
       "ma": "XRP_5M",
       "theo": false,
+      "khung": null,
       "gia": null,
+      "giaNen": null,
+      "cap": null,
       "so": null
     },
     {
       "ma": "BTC_15M",
       "theo": false,
+      "khung": null,
       "gia": null,
+      "giaNen": null,
+      "cap": null,
       "so": null
     }
   ],
-  "boQua": {},
+  "boQua": {
+    "BTC_5M": "chưa đủ mẫu ước lượng σ (1/12)",
+    "ETH_5M": "chưa đủ mẫu ước lượng σ (1/12)"
+  },
   "coHoi": [],
   "kho": {
     "soThiTruong": 0,
@@ -200,18 +238,58 @@ window.DAI_CHIEM = {
   ],
   "vi": {
     "soVi": 0,
-    "quetLucMs": 1787214584670.9402,
+    "quetLucMs": 1787238177855.016,
     "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP. Không dựng lại được vòng đời báo giá, và vì vậy không kết luận được ai là market maker.",
     "vi": []
   },
   "nguon": {
+    "gamma-slug": {
+      "tuoiMs": 201.52197265625,
+      "soLoi": 0,
+      "tongLuot": 10,
+      "loiCuoi": ""
+    },
     "binance": {
-      "tuoiMs": 2.993408203125,
+      "tuoiMs": 8.976318359375,
       "soLoi": 0,
       "tongLuot": 2,
       "loiCuoi": ""
     }
   },
+  "dongSong": {
+    "dangNoi": false,
+    "soToken": 4,
+    "soSo": 0,
+    "tinNhan": 0,
+    "soLanNoiLai": 0,
+    "loiCuoi": "",
+    "noiLucMs": 0.0
+  },
+  "ketToan": {
+    "dangCho": 0,
+    "daKetToan": 0,
+    "soBatDong": 0,
+    "ganDay": [],
+    "cho": []
+  },
+  "doThi": {
+    "soNut": 0,
+    "zTrungBinh": null,
+    "canhBaoDongPha": null,
+    "nut": [],
+    "noiBat": [],
+    "canhChuY": []
+  },
+  "voDich": {
+    "duongKim": {},
+    "nguong": {
+      "toiThieuMau": 120,
+      "bienVuot": 1.15,
+      "duoiToiDa": 1.25
+    },
+    "hoSo": []
+  },
+  "quyetChan": {},
   "bang": {
     "soKhung": 1,
     "bat": true
