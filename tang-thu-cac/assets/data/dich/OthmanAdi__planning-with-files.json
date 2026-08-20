@@ -1,0 +1,61 @@
+{
+  "kho": "OthmanAdi/planning-with-files",
+  "luc": "2026-08-20T08:39:11.219Z",
+  "nguon": "viết tay trong phiên, đọc mô tả gốc",
+  "skills": {
+    "OthmanAdi/planning-with-files/skills/planning-with-files-ar": {
+      "tom": "Bản tiếng Ả Rập của planning-with-files: lập kế hoạch dựa trên file bền.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa"
+      ],
+      "khi": "Bạn dùng tiếng Ả Rập."
+    },
+    "OthmanAdi/planning-with-files/skills/planning-with-files-de": {
+      "tom": "Bản tiếng Đức của planning-with-files: lập kế hoạch dựa trên file bền.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa"
+      ],
+      "khi": "Bạn dùng tiếng Đức."
+    },
+    "OthmanAdi/planning-with-files/skills/planning-with-files-es": {
+      "tom": "Bản tiếng Tây Ban Nha của planning-with-files: lập kế hoạch dựa trên file bền.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa"
+      ],
+      "khi": "Bạn dùng tiếng Tây Ban Nha."
+    },
+    "OthmanAdi/planning-with-files/skills/planning-with-files-zh": {
+      "tom": "Bản tiếng Trung giản thể của planning-with-files: giữ kế hoạch, phát hiện và tiến độ trên đĩa, tự khôi phục sau lệnh xoá ngữ cảnh.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa",
+        "Tự khôi phục phiên"
+      ],
+      "khi": "Bạn dùng tiếng Trung giản thể."
+    },
+    "OthmanAdi/planning-with-files/skills/planning-with-files-zht": {
+      "tom": "Bản tiếng Trung phồn thể của planning-with-files: giữ kế hoạch, phát hiện và tiến độ trên đĩa.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa"
+      ],
+      "khi": "Bạn dùng tiếng Trung phồn thể."
+    },
+    "OthmanAdi/planning-with-files/.pi/skills/planning-with-files": {
+      "tom": "Lập kế hoạch dựa trên file bền cho agent lập trình: giữ task_plan.md, findings.md và progress.md trên đĩa để việc sống sót qua ranh giới ngữ cảnh.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa",
+        "Tự khôi phục sau khi ngữ cảnh bị xoá"
+      ],
+      "khi": "Việc dài hơn thứ một phiên chứa nổi.",
+      "ban": "Chính xác là thứ scripts/dich-tiep.md làm cho việc dịch 2.859 skill: kế hoạch, phát hiện và tiến độ nằm trên đĩa, nên phiên sau nén ngữ cảnh vẫn tiếp được. Ở đây nó được đóng thành khuôn có tên."
+    },
+    "OthmanAdi/planning-with-files/skills/planning-with-files": {
+      "tom": "Lập kế hoạch dựa trên file bền cho agent lập trình: giữ task_plan.md, findings.md và progress.md trên đĩa để việc sống sót qua ranh giới ngữ cảnh.",
+      "lam": [
+        "Giữ kế hoạch và tiến độ trên đĩa",
+        "Tự khôi phục sau khi ngữ cảnh bị xoá"
+      ],
+      "khi": "Việc dài hơn thứ một phiên chứa nổi.",
+      "ban": "Chính xác là thứ scripts/dich-tiep.md làm cho việc dịch 2.859 skill: kế hoạch, phát hiện và tiến độ nằm trên đĩa, nên phiên sau nén ngữ cảnh vẫn tiếp được. Ở đây nó được đóng thành khuôn có tên."
+    }
+  }
+}
