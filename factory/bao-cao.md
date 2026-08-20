@@ -1,23 +1,13 @@
-# Sức khoẻ xưởng — 18/08/2026 19:00 UTC (lượt 68)
+# Sức khoẻ xưởng — chốt 20/08/2026 02:07 UTC (lượt 94)
 
-Xưởng đang khoẻ: cả 10 node có ghi trong sổ đều `ket: ok`, `chuoiLoi = 0`,
-không node nào trễ quá nhịp của nó.
+Xưởng đang khoẻ: cả 12 node có ghi lượt đều `ket: ok`, `chuoiLoi` bằng 0 ở mọi node, lỗi gần nhất trong nhật ký là 15/08 (`dai-quan-trac`, kiểm chặn vì `scan.js` teo còn 3886 byte so với 10188 byte bản cũ) và lượt sau đã qua.
 
-**Không có node đáng lo.** Lượt `loi` gần nhất là `dai-quan-trac` ngày
-15/08 (scan.js teo còn 3886 byte, bộ kiểm chặn lại) — đã chạy lại tốt 4
-lượt kể từ đó, gần nhất 19:00 hôm nay.
+**Đáng lo: không có.** Không node nào `chuoiLoi >= 2`, cũng không node nào trễ quá gấp đôi `nhip`. Sát ngưỡng nhất là `bao-cao` — nhịp 24 giờ, lượt cuối 18/08 19:01, tức 31 giờ tính tới dấu chốt trên, khoảng 1,3× nhịp. Chưa tới mức phải xem.
 
-**Chạy đều nhưng chưa lượt nào ghi đổi:**
+**Chạy đều mà dữ liệu có thể đã đứng:**
+- `dong-dau` — 11 lượt trong nhật ký đều `doi: false`, `lucDoi` vẫn là `null`, tức chưa lần nào ghi nhận thay đổi. Nhưng sổ đăng ký khai `ra: []` cho node này, nên có thể `doi` không bao giờ true được về mặt cấu trúc; hai file này không đủ để kết luận nguồn phía sau đã chết.
+- Mười node còn lại đều có `lucDoi` trùng đúng `luc` của lượt gần nhất — dữ liệu đổi thật ở lượt cuối, không phải chạy suông.
 
-- `dong-dau` — chạy đủ nhịp 6 giờ, lượt gần nhất 13:20 hôm nay, nhưng
-  `lucDoi` vẫn là `null` và mọi lượt trong nhật ký đều `doi: false`. Sổ
-  đăng ký ghi nó "tự bỏ qua nếu sha256 trùng bản trước", nên không rõ đây
-  là bỏ qua đúng thiết kế hay là chưa bao giờ pin được lượt nào.
-- `hoang-thanh` — `lucDoi` đứng ở 14/08 09:16, đã 4 ngày. Node này `nhip: 0`,
-  `che: tay` nên không tính là trễ; nó chỉ đổi khi có người chạy
-  `npm run hoangthanh`.
-- `tu-cam-thanh` có trong sổ đăng ký nhưng **không có mục nào trong
-  state.json** — chưa lượt nào được ghi nhận.
+**Hai node `che: tay` đang đứng im:** `hoang-thanh` chỉ có đúng một dấu 14/08 09:16 kèm chú thích "mồi từ dấu generatedAt sẵn có trong file" — chưa từng có lượt chạy thật, đã 6 ngày. `tu-cam-thanh` có trong sổ đăng ký nhưng **không có mục nào** trong `state.json`.
 
-**Việc nên làm trước:** xem `dong-dau` đã pin được lượt nào chưa — đó là
-node duy nhất chạy đều mà chưa từng ghi `doi: true`.
+**Việc nên làm trước:** chạy tay `npm run hoangthanh` rồi commit, để node có dấu cũ nhất trong sổ đổi từ một dấu mồi thành một lượt thật.
