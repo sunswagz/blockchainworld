@@ -891,6 +891,119 @@ jobs:
             --ghi "${DIEM:-chưa chấm được} · model ${LAM}s · opus-5" \
             --log "$RUNNER_TEMP/ho-bo-tien-hoa.log"
 
+
+      # ── VÒNG TIẾN HOÁ · Thái Bộc Tự ────────────────────────────
+      # Cung thứ hai dùng đúng bộ máy của ho-bo-tien-hoa. Không script
+      # mới, chỉ đổi tên cung — đúng lời hứa ở đầu scripts/tien-hoa.mjs.
+      #
+      # Phiếu đo lúc bật: 6/7. Thước trượt là tương phản màu, 5/15 cặp
+      # dưới WCAG AA, thấp nhất 2.83 (--fg-3 trên --card-3). Đó là việc
+      # của lượt đầu tiên.
+      - name: Tiến hoá TBT 1/3 — chấm phiếu gốc và ra đề
+        id: n-tbt-goc
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',thai-boc-tu-tien-hoa,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/tien-hoa.mjs do thai-boc-tu --ghi "$RUNNER_TEMP/tbt-goc.json"
+          node scripts/tien-hoa.mjs de-bai thai-boc-tu
+
+      - name: Tiến hoá giao diện Thái Bộc Tự (Claude Code)
+        id: n-tbt-lam
+        if: steps.n-tbt-goc.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 12
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 24
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Đọc thai-boc-tu/assets/data/de-bai-tien-hoa.json.
+
+            Trong đó có `phieu` — kết quả chấm cung Thái Bộc Tự theo
+            bảy thước đo được — và `kyNang`, các kỹ năng chọn từ kho
+            Tàng Thư Các khớp với những thước đang trượt.
+
+            VIỆC CỦA BẠN: làm cung Thái Bộc Tự tốt lên MỘT BƯỚC, đúng
+            một bước.
+
+            Trình tự:
+            1. Với mỗi mục trong `kyNang` có trường `doc`, dùng
+               WebFetch đọc SKILL.md đó. Đấy là kinh nghiệm người khác
+               đã viết ra; đọc trước khi tự nghĩ.
+            2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu
+               đo được. Ưu tiên chúng trước.
+            3. Nếu cả bảy thước đều đạt, tìm MỘT chỗ làm trang dễ đọc
+               hơn mà không thước nào đo được: nhãn khó hiểu, thứ bậc
+               thị giác lẫn lộn, khoảng cách không đều, trạng thái
+               trống không nói được gì.
+
+            Chỉ sửa trong ba file này, không file nào khác:
+              thai-boc-tu/assets/css/app.css
+              thai-boc-tu/assets/js/app.js
+              thai-boc-tu/index.html
+
+            LUẬT, đọc kỹ — có cổng chặn tự động sau bạn:
+            · MỘT bước thôi. Một thay đổi mạch lạc, không phải năm thứ
+              rời rạc. Sửa ít mà đúng hơn sửa nhiều mà loãng.
+            · KHÔNG đổi cấu trúc dữ liệu, không đổi tên khoá trong
+              window.THAIBOC / THAIBOC_CT / THAIBOC_TIN / THAIBOC_TOA,
+              không bỏ phòng nào, không đổi tuyến hash.
+            · KHÔNG sửa assets/js/toa.js. Đó là sổ 18 toa — luận và
+              hồ sơ, tức nội dung chứ không phải giao diện.
+            · KHÔNG thêm thư viện ngoài, không thêm thẻ <script> mới.
+              Trang này chạy offline và không có bước dựng.
+            · GIỮ mọi aria-label và aria-hidden đang có. Gỡ một nhãn là
+              cổng chặn hạ điểm và trả lại toàn bộ việc bạn vừa làm.
+            · Màu mới phải đạt tương phản WCAG AA (4.5) trên MỌI nền
+              --bg/--bg-2/--card/--card-2/--card-3.
+            · Đừng đụng vào assets/js/v/ — bot số liệu ghi thư mục đó.
+
+            BA LUẬT RIÊNG CỦA CUNG NÀY, đọc mã nguồn sẽ thấy lặp lại:
+            1. Không bịa số. Thiếu dữ liệu thì vẽ dấu gạch, KHÔNG vẽ 0.
+            2. Thứ ĐO ĐƯỢC và thứ LUẬN RA không bao giờ trông giống
+               nhau — phần luận luôn mang huy hiệu riêng.
+            3. Mọi con số truy ngược được về nguồn.
+
+            Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
+            vào thai-boc-tu/assets/data/de-bai-tien-hoa.json dưới khoá
+            `daLam`.
+
+      - name: Cổng chặn TBT — nhận hay trả lại
+        id: n-thai-boc-tu-tien-hoa
+        if: always() && steps.n-tbt-lam.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          if node scripts/tien-hoa.mjs cong thai-boc-tu --so "$RUNNER_TEMP/tbt-goc.json" 2>&1 | tee "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log"; then
+            node scripts/nang-version.mjs
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^thai-boc-tu/' || true)
+            echo "::notice::Vòng tiến hoá Thái Bộc Tự: NHẬN"
+          else
+            echo "::error::Vòng tiến hoá Thái Bộc Tự: TRẢ LẠI — cổng chặn không qua"
+            git checkout -- thai-boc-tu/
+            exit 1
+          fi
+
+      - name: Ghi sổ · thai-boc-tu-tien-hoa
+        if: always() && steps.n-tbt-goc.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-thai-boc-tu-tien-hoa.outcome == 'success' && 'ok' || 'loi' }}
+          T_DAU: ${{ steps.n-tbt-goc.outputs.t0 }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
+            "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi thai-boc-tu-tien-hoa "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${DIEM:-chưa chấm được} · opus-5" \
+            --log "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true

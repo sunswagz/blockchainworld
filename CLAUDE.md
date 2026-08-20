@@ -166,6 +166,10 @@ conflict lúc merge.
     ho-bo/assets/js/app.js
     ho-bo/index.html
     ho-bo/sw.js
+    thai-boc-tu/assets/css/app.css
+    thai-boc-tu/assets/js/app.js
+    thai-boc-tu/index.html
+    thai-boc-tu/sw.js
 
 Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
 

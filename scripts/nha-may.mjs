@@ -436,7 +436,18 @@ export async function soDangKy() {
    lấy thẳng từ hằng số ở đầu file, không chép tay. */
 export function duongRa() {
   const ds = new Set([DUONG_TRANG_THAI, DUONG_CHIEU, DUONG_SO]);
-  for (const n of NODE) for (const d of n.ra || []) if (d) ds.add(d);
+  for (const n of NODE) {
+    /* BỎ node `che: "tay"`. Hoàng Thành và Tử Cấm Thành lấy nguồn
+       ngoài repo nên người chạy ở máy mình rồi commit tay — đó là
+       cách duy nhất, và CLAUDE.md chép chúng ở mục ngoại lệ riêng
+       chứ không ở danh sách bot ghi đè.
+
+       Trên runner chúng không bao giờ đổi nên add cũng chẳng stage
+       gì; nhưng để chúng trong danh sách là nói sai phạm vi của bot,
+       và một ngày nào đó phạm vi sai sẽ thành hành vi sai. */
+    if (n.che === "tay") continue;
+    for (const d of n.ra || []) if (d) ds.add(d);
+  }
   return [...ds].sort().filter((d) => existsSync(join(ROOT, d)));
 }
 

@@ -86,8 +86,19 @@ function domGia() {
   function El(tag) {
     return {
       tagName: (tag || "div").toUpperCase(),
-      _html: "", _text: "", _attr: {}, children: [], dataset: {}, style: {},
-      hidden: false, offsetWidth: 100, scrollTop: 0, value: "",
+      _html: "", _text: "", _attr: {}, children: [], dataset: {},
+      /* `style` phải có setProperty/removeProperty, không chỉ là {}.
+         Cung nào đặt biến CSS bằng `el.style.setProperty("--x", v)` —
+         kinh-thanh làm thế — sẽ ném ngay, và thước "vẽ được" chấm
+         trượt một cung hoàn toàn lành. Mỗi API thiếu ở shim là một
+         cung bị phán oan, nên thà thừa vài dòng ở đây. */
+      style: { setProperty() {}, removeProperty() {}, getPropertyValue() { return ""; } },
+      classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
+      hidden: false, offsetWidth: 100, offsetHeight: 100,
+      scrollTop: 0, scrollHeight: 100, value: "", checked: false,
+      focus() {}, blur() {}, click() {}, remove() {},
+      insertBefore(c) { this.children.push(c); return c; },
+      getBoundingClientRect() { return { top: 0, left: 0, width: 100, height: 100 }; },
       set innerHTML(v) { this._html = String(v); },
       get innerHTML() { return this._html; },
       set textContent(v) { this._text = String(v); },
@@ -117,11 +128,25 @@ function domGia() {
   }
 
   global.window = {
-    innerWidth: 1400,
+    innerWidth: 1400, innerHeight: 900, devicePixelRatio: 1,
     addEventListener(t, f) { (nghe[t] = nghe[t] || []).push(f); },
+    removeEventListener() {},
+    dispatchEvent() { return true; },
+    /* Trả về đối tượng có `matches` và `addEventListener` — mã hay
+       viết `matchMedia("...").addEventListener("change", f)`. Thiếu
+       một trong hai là ném ngay dòng đầu. */
+    matchMedia() {
+      return { matches: false, media: "", addEventListener() {}, removeEventListener() {}, addListener() {} };
+    },
+    getComputedStyle() { return { getPropertyValue() { return ""; } }; },
+    localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
     scrollTo() {},
+    setTimeout(f) { return 0; },
     requestAnimationFrame(f) { f(); }
   };
+  global.matchMedia = global.window.matchMedia;
+  global.getComputedStyle = global.window.getComputedStyle;
+  global.localStorage = global.window.localStorage;
   global.requestAnimationFrame = global.window.requestAnimationFrame;
   global.location = { hash: "", protocol: "http:" };
   global.window.location = global.location;
@@ -130,20 +155,53 @@ function domGia() {
      kiểm `"serviceWorker" in navigator`, mà navigator của Node không có
      nên nhánh service worker tự tắt, đúng thứ ta muốn khi chạy ngoài
      trình duyệt. */
+  /* `window.navigator` phải có, và phải là đối tượng RIÊNG chứ không
+     phải navigator của Node: mã PWA hay đọc `navigator.standalone`
+     (cờ iOS), mà Node không có `window` nên không ai gán hộ. */
+  global.window.navigator = { standalone: false, userAgent: "node", language: "vi" };
+
   global.document = {
     readyState: "complete", title: "", head: El("head"), body: El("body"),
+    documentElement: El("html"),
     getElementById(id) { return (kho[id] = kho[id] || El("div")); },
     createElement(t) { return El(t); },
+    createElementNS(_, t) { return El(t); },
+    createTextNode() { return El("text"); },
     addEventListener(t, f) { (nghe[t] = nghe[t] || []).push(f); },
+    removeEventListener() {},
     querySelectorAll() { return []; },
-    querySelector() { return null; }
+    /* Trả thẻ giả, KHÔNG trả null — cùng lý do đã ghi ở El.querySelector
+       bên trên, và để hai cấp nhất quán. Trước bản này document trả
+       null còn thẻ trả stub, nên `document.querySelector(x).textContent
+       = y` ném ở cung-bo trong khi mã đó hoàn toàn lành trên trình
+       duyệt thật.
+
+       Đánh đổi, nói rõ: cung nào thật sự trỏ vào một thẻ KHÔNG tồn
+       tại thì shim này che mất. Chấp nhận — bộ đo này săn lỗi lúc
+       chạy, không săn lỗi chính tả trong bộ chọn. */
+    querySelector() { return El("div"); }
   };
   return { tuyen, kho, nghe };
 }
 
-/* Nạp mọi file JS của cung theo đúng thứ tự index.html khai. Thứ tự
-   có nghĩa: dữ liệu phải vào trước app, app trước pwa. */
-function thuVe() {
+/* ── CHẠY THỬ TRONG TIẾN TRÌNH CON, CÓ HẠN GIỜ ─────────────
+   Đo thử trên cả mười cung mới lộ ra: bộ đo này KHÔNG hề dùng chung
+   được như nó tự nhận. `kinh-thanh` treo hẳn — 14 file, 375 KB JS,
+   và nó không có `id="than"` mà cả phần vẽ ở đây dựa vào. Nhận
+   `<cung>` làm tham số không có nghĩa là dùng được cho mọi cung; nó
+   chỉ có nghĩa là không đóng cứng TÊN cung.
+
+   Một vòng lặp vô hạn trong JS thì không `try/catch` nào bắt được,
+   nên phần động phải chạy ở TIẾN TRÌNH CON có hạn giờ. Treo thì giết,
+   và ba thước động thành "KHÔNG ĐO ĐƯỢC" — không phải "trượt".
+
+   Phân biệt đó là toàn bộ giá trị của bản sửa này: chấm trượt một
+   thước mình chưa từng đo được cũng là nói dối bằng số, y như chấm
+   đạt. Trước bản này, chín cung ngoài Hộ Bộ đều bị chấm 4/7 mà ba
+   thước động trong đó chưa hề chạy. */
+const HAN_GIAY = 45;
+
+function thuVeConThuc() {
   const html = doc(DUONG("index.html"));
   const src = [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
   const g = domGia();
@@ -183,6 +241,25 @@ function thuVe() {
   return { phong, loi };
 }
 
+/* Vỏ bọc: gọi lại chính file này ở chế độ `--ve-json` trong tiến
+   trình con. Cha đọc JSON qua stdout; con treo thì cha giết. */
+function thuVe() {
+  try {
+    const ra = execFileSync(process.execPath,
+      [fileURLToPath(import.meta.url), "ve-json", CUNG],
+      { encoding: "utf8", timeout: HAN_GIAY * 1000, stdio: ["ignore", "pipe", "pipe"] });
+    return JSON.parse(ra);
+  } catch (e) {
+    const treo = e.killed || e.signal === "SIGTERM" || /ETIMEDOUT/.test(String(e.code));
+    return {
+      phong: [], loi: [],
+      khongDo: treo
+        ? `treo quá ${HAN_GIAY}s — nhiều khả năng cung này có kiến trúc DOM khác`
+        : `không chạy được: ${String(e.stderr || e.message).trim().slice(0, 120)}`
+    };
+  }
+}
+
 /* ═══════════════ TƯƠNG PHẢN MÀU ═══════════════
    Công thức WCAG, không phải cảm giác. Chỉ đọc biến CSS trong
    `:root` — quy ước đặt tên của repo đủ đều để ghép cặp tự động:
@@ -212,14 +289,63 @@ function doMau(css) {
     const v = raiHex(m[2]);
     if (v) bien[m[1]] = v;
   }
-  const chu = Object.keys(bien).filter((k) => /^--fg/.test(k));
-  const nen = Object.keys(bien).filter((k) => /^--(bg|card)/.test(k));
+  /* GHÉP CẶP THEO KHỐI LUẬT, không lấy tích chéo.
+
+     Hai bản trước đều sai, mỗi bản một kiểu, và bản thứ hai sai tệ hơn:
+
+       lọc theo tên `--fg*`/`--bg*`  → mù với sáu cung đặt tên khác
+       tích chéo mọi chữ × mọi nền   → 126 cặp, 37 "trượt", trong đó
+                                       có `--tien trên --tien` tỉ số 1
+
+     Màu nhấn vừa làm chữ ở chỗ này vừa làm nền ở chỗ kia, nên nó rơi
+     vào cả hai tập và tự ghép với chính nó. Một bộ đo tương phản báo
+     37 lỗi giả thì tệ hơn hẳn không có bộ đo nào.
+
+     Nay chỉ ghép cặp CÓ THẬT: `color` và `background` cùng xuất hiện
+     trong MỘT khối luật, cộng với mọi màu chữ đặt trên nền của `body`
+     (trường hợp thừa kế phổ biến nhất, và là nền của phần lớn chữ). */
+  const nenBody = (() => {
+    const m = css.match(/(^|[}\s])body\s*\{([\s\S]*?)\}/);
+    const b = m && m[2].match(/background(?:-color)?\s*:[^;]*var\((--[\w-]+)/);
+    return b ? b[1] : null;
+  })();
+
+  const capThat = new Set();
+  for (const kh of css.matchAll(/\{([^{}]*)\}/g)) {
+    const than = kh[1];
+    const c = [...than.matchAll(/(?:^|[;\s])color\s*:[^;]*var\((--[\w-]+)/g)].map((m) => m[1]);
+    const n = [...than.matchAll(/(?:^|[;\s])background(?:-color)?\s*:[^;]*var\((--[\w-]+)/g)].map((m) => m[1]);
+    for (const x of c) for (const y of n) if (x !== y) capThat.add(x + "|" + y);
+  }
+
+  /* HỌC VAI TRÒ TỪ CÁCH DÙNG, không đoán theo tên.
+     Bản đầu lọc `--fg*` và `--bg*` — đúng cho ba cung mới, mù với sáu
+     cung cũ đặt tên khác (`--ink`, `--paper`, `--muc`…). Đo thử cả
+     mười cung mới lộ ra: sáu cung im lặng "không đo được" chỉ vì bộ
+     đo không đọc nổi tên biến của chúng.
+     Nay quét chính các khai báo: biến nào xuất hiện sau `color:` là
+     CHỮ, sau `background*:` hay `border*:` là NỀN. Quy ước đặt tên
+     thành phương án dự phòng, không còn là điều kiện. */
+  const vai = { chu: new Set(), nen: new Set() };
+  for (const m of css.matchAll(/(^|[;{\s])(background[\w-]*|color)\s*:\s*var\((--[\w-]+)/g)) {
+    (m[2] === "color" ? vai.chu : vai.nen).add(m[3]);
+  }
+  const loc = (t, du) => {
+    const co = [...vai[t]].filter((k) => bien[k]);
+    return co.length ? co : Object.keys(bien).filter((k) => du.test(k));
+  };
+  const chu = loc("chu", /^--(fg|ink|text|muc|chu)/);
+
+  /* Mọi màu chữ đặt trên nền body — nhánh thừa kế, phủ phần lớn chữ
+     trên trang mà không khối luật nào khai tường minh. */
+  if (nenBody) for (const c of chu) if (c !== nenBody) capThat.add(c + "|" + nenBody);
+
   const cap = [];
-  for (const c of chu) {
-    for (const n of nen) {
-      const ti = tuongPhan(bien[c], bien[n]);
-      cap.push({ chu: c, nen: n, ti: Number(ti.toFixed(2)), dat: ti >= 4.5 });
-    }
+  for (const k of capThat) {
+    const [c, n] = k.split("|");
+    if (!bien[c] || !bien[n]) continue;
+    const ti = tuongPhan(bien[c], bien[n]);
+    cap.push({ chu: c, nen: n, ti: Number(ti.toFixed(2)), dat: ti >= 4.5 });
   }
   return { cap: cap.sort((a, b) => a.ti - b.ti), soBien: Object.keys(bien).length };
 }
@@ -273,30 +399,47 @@ function do_() {
   const diem = [];
   const cham = (ma, ten, dat, y) => diem.push({ ma, ten, dat, y });
 
-  cham("ve", "Mọi phòng vẽ được",
-    ve.loi.length === 0 && ve.phong.length > 0 && ve.phong.every((p) => !p.nga && p.ky > 400),
-    ve.loi.length ? ve.loi.slice(0, 3).join(" · ")
-      : `${ve.phong.length} phòng · nhỏ nhất ${nhoNhat} ký tự`);
-  cham("rac", "Không rò undefined/NaN ra HTML",
-    ve.phong.every((p) => !p.rac),
-    ve.phong.filter((p) => p.rac).map((p) => p.tuyen).join(", ") || "sạch");
+  /* `dat: null` = KHÔNG ĐO ĐƯỢC, khác hẳn `false` = trượt. Ba thước
+     dưới cần chạy được app trong DOM giả; cung nào không theo hợp
+     đồng đó thì chúng im lặng chứ không chấm bừa. */
+  if (ve.khongDo) {
+    cham("ve", "Mọi phòng vẽ được", null, ve.khongDo);
+    cham("rac", "Không rò undefined/NaN ra HTML", null, "không đo được");
+  } else {
+    cham("ve", "Mọi phòng vẽ được",
+      ve.loi.length === 0 && ve.phong.length > 0 && ve.phong.every((p) => !p.nga && p.ky > 400),
+      ve.loi.length ? ve.loi.slice(0, 3).join(" · ")
+        : `${ve.phong.length} phòng · nhỏ nhất ${nhoNhat} ký tự`);
+    cham("rac", "Không rò undefined/NaN ra HTML",
+      ve.phong.every((p) => !p.rac),
+      ve.phong.filter((p) => p.rac).map((p) => p.tuyen).join(", ") || "sạch");
+  }
+  /* Không ghép được cặp nào là KHÔNG ĐO ĐƯỢC, không phải trượt. Phép
+     ghép dựa vào quy ước đặt tên `--fg*` / `--bg*` của repo; cung nào
+     đặt tên khác (`--ink`, `--paper`…) thì phép này mù, và chấm trượt
+     một cung vì bộ đo không đọc được tên biến của nó là phán oan.
+     Đã in ra "undefined" đúng một lần ở kinh-thanh trước khi sửa. */
   cham("tuong-phan", "Tương phản chữ/nền đạt WCAG AA",
-    mau.cap.length > 0 && mau.cap.every((c) => c.dat),
+    mau.cap.length ? mau.cap.every((c) => c.dat) : null,
     mau.cap.length
       ? `${mau.cap.filter((c) => !c.dat).length}/${mau.cap.length} cặp dưới 4.5 · thấp nhất ${mau.cap[0].ti} (${mau.cap[0].chu} trên ${mau.cap[0].nen})`
-      : mau.thieu);
+      : (mau.thieu || "không ghép được cặp --fg*/--bg* nào trong :root"));
   cham("nhan", "Nút và SVG có nhãn", nutCam === 0 && svgTran === 0,
     `${nutCam} nút câm · ${svgTran} svg không aria-hidden`);
   cham("svg-co", "SVG có cỡ nội tại", svgKhongCo === 0,
     `${svgKhongCo} svg chỉ có viewBox — CSS cũ kẹt là phình kín trang`);
   cham("nang", "Vỏ ứng dụng dưới 200 KB", nang.js + nang.css < 200 * 1024,
     `js ${(nang.js / 1024).toFixed(0)} KB · css ${(nang.css / 1024).toFixed(0)} KB · ảnh ${(nang.anh / 1024).toFixed(0)} KB`);
-  cham("o-trong", "Ít ô trống trên trang", oTrong <= 12,
-    `${oTrong} dấu — trong HTML đã vẽ`);
+  if (ve.khongDo) cham("o-trong", "Ít ô trống trên trang", null, "không đo được");
+  else cham("o-trong", "Ít ô trống trên trang", oTrong <= 12, `${oTrong} dấu — trong HTML đã vẽ`);
 
+  /* Mẫu số chỉ đếm thước ĐO ĐƯỢC. Để thước không đo được nằm trong
+     mẫu số là hạ điểm một cung vì bộ đo yếu, không vì cung yếu. */
   return {
     cung: CUNG, luc: new Date().toISOString(),
-    dat: diem.filter((d) => d.dat).length, tong: diem.length,
+    dat: diem.filter((d) => d.dat === true).length,
+    tong: diem.filter((d) => d.dat !== null).length,
+    khongDo: diem.filter((d) => d.dat === null).length,
     diem,
     tuongPhanXau: mau.cap.filter((c) => !c.dat).slice(0, 8),
     phong: ve.phong.map((p) => ({ tuyen: p.tuyen, ky: p.ky, gach: p.gach })),
@@ -418,6 +561,13 @@ function cong() {
 }
 
 /* ═══════════════ DÒNG LỆNH ═══════════════ */
+/* Chế độ nội bộ: cha gọi lại chính file này để phần vẽ chạy trong
+   tiến trình con có hạn giờ. Không dành cho người gõ tay. */
+if (LENH === "ve-json") {
+  process.stdout.write(JSON.stringify(thuVeConThuc()));
+  process.exit(0);
+}
+
 if (LENH === "do") {
   const p = do_();
   /* `--ghi <file>` cất phiếu lại làm MỐC GỐC cho `cong --so` đối chiếu.
@@ -428,8 +578,11 @@ if (LENH === "do") {
     await mkdir(dirname(raGhi), { recursive: true });
     await writeFile(raGhi, JSON.stringify(p, null, 2) + "\n", "utf8");
   }
-  console.log(`Phiếu đo ${CUNG}: ${p.dat}/${p.tong} đạt\n`);
-  for (const d of p.diem) console.log(`  ${d.dat ? "✓" : "✗"} ${d.ten.padEnd(34)} ${d.y}`);
+  console.log(`Phiếu đo ${CUNG}: ${p.dat}/${p.tong} đạt` +
+    (p.khongDo ? ` · ${p.khongDo} thước không đo được` : "") + "\n");
+  for (const d of p.diem) {
+    console.log(`  ${d.dat === null ? "·" : d.dat ? "✓" : "✗"} ${d.ten.padEnd(34)} ${d.y}`);
+  }
   if (p.tuongPhanXau.length) {
     console.log("\n  Cặp màu chưa đạt:");
     for (const c of p.tuongPhanXau) {
