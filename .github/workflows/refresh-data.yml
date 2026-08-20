@@ -63,7 +63,16 @@ jobs:
     # 40 → 70 khi bản quét Đài Quan Trắc nhập vào vòng này (15/08).
     # Nó mang theo 15 phút riêng, và trước đó nó có hẳn một job 20
     # phút của mình. Cộng lại xem ở khối "trần bước" bên dưới.
-    timeout-minutes: 80
+    # 80 → 130 (20/08). Tổng trần các BƯỚC đã là 115 phút sau khi Thái
+    # Bộc Tự thêm ba node và Hộ Bộ thêm vòng tiến hoá, trong khi khối
+    # ghi chú bên dưới vẫn cộng ra 75 — hai lần thêm cung liên tiếp đều
+    # quên cộng lại. Lúc đó trần bước đã thành trang trí đúng như chính
+    # dòng cảnh báo ở đó nói.
+    #
+    # Đừng cộng tay nữa, nó sai hai lần rồi. Đếm bằng máy:
+    #   grep -E "^        timeout-minutes:" .github/workflows/refresh-data.yml \
+    #     | awk '{s+=$2} END {print s}'
+    timeout-minutes: 130
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
@@ -869,9 +878,17 @@ jobs:
           [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
           LAM="?"
           [ -n "$TQ0" ] && [ -n "$TQ1" ] && LAM=$(( TQ1 - TQ0 ))
+          # Điểm phiếu vào chuThich, moi ra từ chính log của cổng chặn.
+          # Không có nó thì sổ chỉ ghi ok/loi, và "có tiến hoá thật
+          # không" là câu KHÔNG AI TRẢ LỜI ĐƯỢC sau ba tháng chạy —
+          # một vòng tự tiến hoá mà không đo được là một vòng chạy
+          # không tải. chieu() đã chiếu chuThich sang Bảng vận hành nên
+          # quỹ đạo điểm hiện thẳng trên trang, không phải mở log.
+          DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
+            "$RUNNER_TEMP/ho-bo-tien-hoa.log" 2>/dev/null | tail -1)
           node scripts/nha-may.mjs ghi ho-bo-tien-hoa "$KET" \
             ${TONG:+--giay $TONG} \
-            --ghi "model ${LAM}s · opus-5 · max-turns 24" \
+            --ghi "${DIEM:-chưa chấm được} · model ${LAM}s · opus-5" \
             --log "$RUNNER_TEMP/ho-bo-tien-hoa.log"
 
       - name: Kiểm hàng trước khi đóng gói

@@ -355,7 +355,14 @@ function kyNang(phieu) {
       ten: s.ten, kho: s.kho, duong: s.duong, nhom: s.nhom, sao: s.sao,
       giayPhep: s.giayPhep, khop,
       moTa: (s.moTa || "").slice(0, 220),
-      doc: s.kho && s.duong ? `https://raw.githubusercontent.com/${s.kho}/HEAD/${s.duong}` : null
+      /* `duong` của Tàng Thư Các trỏ vào THƯ MỤC skill, không phải file.
+         Thiếu "/SKILL.md" là mọi URL trả 404 — và hỏng ở đây im lặng
+         hoàn toàn: model WebFetch tám lần, nhận tám lần 404, rồi tự
+         đoán mà không ai biết cầu nối Tàng Thư Các chưa từng chở gì.
+         Đã đo: doc trần → 404, doc + /SKILL.md → 200 trên cả tám. */
+      doc: s.kho && s.duong
+        ? `https://raw.githubusercontent.com/${s.kho}/HEAD/${s.duong}/SKILL.md`
+        : null
     }));
 
   return { tongSkill: tatCa.length, tuKhoa: tu, yeu, skill, quetLuc: kho.generatedAt || null };

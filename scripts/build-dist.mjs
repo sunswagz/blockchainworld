@@ -44,7 +44,13 @@ const fail = (msg) => { console.error("  ✗ " + msg); process.exitCode = 1; };
    người ta bỏ qua ⚠, đúng thói quen vừa làm đường ống chết một ngày
    trong im lặng. */
 const KHONG_GUI = new Set([
-  "tang-thu-cac/assets/data/lich-su.json"
+  "tang-thu-cac/assets/data/lich-su.json",
+  /* Đề bài của vòng tiến hoá: sống đúng một lượt chạy, và nó là ĐẦU
+     VÀO của model chứ không phải tài sản của trang. Gửi kèm là bắt mọi
+     người tải thừa ~8 KB, và đẻ ra một ⚠ "có trong dist nhưng sw.js
+     không cache" không bao giờ sửa được — mà một ⚠ vĩnh viễn thì dạy
+     người ta bỏ qua ⚠. */
+  "ho-bo/assets/data/de-bai-tien-hoa.json"
 ]);
 
 async function walk(dir, out = []) {
