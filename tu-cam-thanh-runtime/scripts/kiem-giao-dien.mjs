@@ -34,7 +34,7 @@ const CAN_STATE = [
 ];
 
 const CAN_JOURNAL = [
-  "trades", "lessons", "theses",
+  "trades", "lessons", "theses", "phatHien",
   "performance.overall", "performance.byRegime", "performance.byStrategy",
   "performance.overall.expectancyUsd?", "performance.overall.riskCv?",
   "performance.overall.canhBao?",
@@ -99,6 +99,7 @@ const KIEM_PHAN_TU = [
                               "entry_valid", "size_valid", "stop_placement_valid", "tradeId",
                               "soatLai?"]],
   ["thesis", J.theses?.[0], ["action", "confidence", "regime_read", "strategy", "source", "at"]],
+  ["phatHien", J.phatHien?.[0], ["ma", "nguon", "cau", "mau", "doTin", "so", "cheDo?", "luc"]],
   ["position", S.account.positions?.[0], ["side", "entry", "stopLoss", "targets", "qty", "riskAmount"]],
 ];
 for (const [ten, mau, truong] of KIEM_PHAN_TU) {

@@ -40,6 +40,14 @@ LESSONS_CHAY_LAI = "lessons-chay-lai.jsonl"
 # và xoá file đi là quay về nguyên trạng.
 LESSONS_SOAT_LAI = "lessons-soat-lai.jsonl"
 
+# PHÁT HIỆN — thứ lò chưng cất đúc ra từ mọi kho đo (chạy lại, sổ thật, đài quan
+# sát, champion). SINH LẠI ĐƯỢC nên ghi đè được.
+#
+# Phải ghi đè chứ không cộng dồn: phát hiện là ẢNH CHỤP số liệu lúc chưng, không
+# phải sự kiện đã xảy ra. Cộng dồn thì câu cũ về một chế độ nay đã khác sẽ nằm
+# cạnh câu mới, và cả hai cùng trông có căn cứ như nhau.
+PHAT_HIEN = "phat-hien.jsonl"
+
 
 def append(name: str, obj: dict) -> dict:
     with _lock:

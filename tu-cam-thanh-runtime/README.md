@@ -54,6 +54,8 @@ python scripts/kiem-roi-ve.py    # kiểm đường rơi về sàn giấy
 python scripts/thu-mot-lenh.py   # thử nguyên đường ống vào lệnh (--that để gửi thật)
 python scripts/doi-so.py         # đối soát sổ cục bộ với sàn (--don để dọn)
 python scripts/sinh-icon.py      # vẽ lại 5 icon PNG của cung
+python scripts/chung-cat.py      # đúc lại PHÁT HIỆN từ mọi kho đo (vòng lặp tự gọi mỗi 20')
+python scripts/soat-lai-bai-hoc.py --ghi   # hậu kiểm LẠI bài học cũ khi sổ đã dài hơn
 
 python scripts/tai-lich-su.py --so 4000   # tải nến lịch sử để huấn luyện
 python scripts/kiem-huanluyen.py          # kiểm cỗ máy chạy lại (cần nến ở trên)
@@ -292,7 +294,8 @@ trader/
   broker.py             sàn giấy, tính phí và trượt giá thật
   broker_testnet.py     Binance Spot Testnet — lệnh thật, tiền giả
   exchange.py           REST ký HMAC, bù lệch đồng hồ, bộ lọc sàn
-  journal.py            4 loại trí nhớ + truy hồi
+  journal.py            5 loại trí nhớ + truy hồi
+  chung_cat.py          LÒ CHƯNG CẤT — gộp mọi kho đo thành PHÁT HIỆN, và cầu dao chế độ
   nguon.py              phái sinh · vĩ mô · tâm lý · tin tức — luồng riêng, không khoá
   huanluyen.py          chạy lại lịch sử, dò tham số, đúc bài học
   phien_hoc.py          một phiên huấn luyện chạy nền, có tiến độ

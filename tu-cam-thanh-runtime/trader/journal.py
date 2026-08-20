@@ -4,6 +4,12 @@
     SEMANTIC   bài học đã hậu kiểm                         (lessons.jsonl)
     PROCEDURAL chiến lược / kỹ năng                        (skills/, config.json)
     PERFORMANCE chiến lược nào hiệu quả trong regime nào    (tính từ trades.jsonl)
+    PHÁT HIỆN  kết luận gộp từ MỌI kho đo                  (phat-hien.jsonl)
+
+Loại thứ năm sinh sau cùng và là loại nối lại chỗ đứt của cả bộ máy. Bốn loại
+trên đều đi ra từ SỔ LỆNH CỦA CHÍNH MÌNH; trong khi phòng huấn luyện, đài quan
+sát và vòng Champion/Challenger đo ra rất nhiều thứ mà không có đường nào tới
+đây. `trader/chung_cat.py` chưng chúng thành phát hiện, hàm này kéo vào prompt.
 
 Trí nhớ chỉ có giá trị nếu được TRUY HỒI ĐÚNG LÚC. `recall()` dưới đây lọc theo
 regime hiện tại trước, rồi mới tới bài học chung — nhét cả nghìn bài học vào mỗi
@@ -151,6 +157,8 @@ def recall(regime_key: str, regime_primary: str, limit: int = 6) -> dict:
     that, so_soat = _phu_soat_lai(store.read_all(store.LESSONS))
     chay_lai = store.read_all(store.LESSONS_CHAY_LAI)
     perf = performance()
+    from . import chung_cat  # nhập tại chỗ: chung_cat nhập ngược journal
+    phat_hien = chung_cat.doc(regime_key, regime_primary)
     return {
         "note": "Bài học là quan sát trong quá khứ, không phải quy tắc. Nói rõ nếu bạn bỏ qua một bài học và vì sao.",
         "soatLaiNote": (
@@ -167,6 +175,18 @@ def recall(regime_key: str, regime_primary: str, limit: int = 6) -> dict:
             "và đừng tin phần ĐỘ LỚN (số R cụ thể sẽ xấu hơn ngoài thực tế)."
         ),
         "lessonsFromReplay": [_gon(l) for l in _chon(chay_lai, regime_key, regime_primary, limit)],
+        # PHÁT HIỆN — thứ ba cỗ máy đo đã đo ra mà trước đây không có đường tới
+        # đây. Đặt TRƯỚC hiệu suất trong gói trả về vì nó là loại có cỡ mẫu lớn
+        # nhất: 44 lệnh chạy lại của champion, 36 lệnh của một chế độ, 111 vị thế
+        # của đài quan sát — so với 8 lệnh thật.
+        "phatHienNote": (
+            "Mỗi phát hiện mang theo CỠ MẪU và NGUỒN của chính nó, hãy cân theo đó. "
+            "nguồn=chay-lai nói đúng về CẤU TRÚC và nói quá đẹp về ĐỘ LỚN; "
+            "nguồn=so-that mẫu nhỏ nhưng có nhảy giá và khớp một phần nên nói đúng về "
+            "ĐỘ LỚN; nguồn=dai-quan-sat là người ngoài, dùng làm BỐI CẢNH chứ không "
+            "phải lệnh; nguồn=chien-luoc nói về chính bản chiến lược đang chạy."
+        ) if phat_hien else None,
+        "phatHien": phat_hien,
         "performanceOverall": perf["overall"],
         "performanceThisRegime": perf["byRegime"].get(regime_primary, {"count": 0}),
         "totalLessonsStored": len(that),

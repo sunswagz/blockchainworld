@@ -1458,6 +1458,39 @@ function veHoc() {
       ${oSo("Quyết định tồi", ls.filter((l) => (l.classification || "").startsWith("BAD_TRADE")).length, "xuong")}
       ${oSo("Đề nghị đổi chiến lược", doi, doi ? "nhac" : "mo", "cửa hẹp — cần mẫu lặp lại")}
     </div>
+    <div class="luoi c4" style="margin-top:12px">
+      ${oSo("Phát hiện đã chưng", (J?.phatHien || []).length, "", "từ chạy lại · lệnh thật · trader ngoài · champion")}
+      ${oSo("Bằng chứng mạnh", (J?.phatHien || []).filter((x) => x.doTin === "CAO").length, "len", "cỡ mẫu ≥ 3× ngưỡng nguồn")}
+      ${oSo("Chế độ bị ngắt", (J?.phatHien || []).filter((x) =>
+          x.nguon === "chay-lai" && x.doTin === "CAO" && (x.so?.kyVongR ?? 0) <= -0.25 && (x.mau || 0) >= 30
+        ).length, "xuong", "cầu dao: đo ra lỗ đều thì không vào lệnh nữa")}
+      ${oSo("Mẫu lớn nhất", Math.max(0, ...(J?.phatHien || []).map((x) => x.mau || 0)), "", "so với 8 lệnh thật")}
+    </div>
+
+    <div class="tieu-muc">Phát hiện — gộp từ MỌI kho đo</div>
+    ${(() => {
+      const pd = J?.phatHien || [];
+      if (!pd.length) return `<div class="trong">Lò chưng cất chưa chạy lần nào. Chạy tay: <b class="mono">python scripts/chung-cat.py</b></div>`;
+      // Xếp theo bằng chứng, giống hệt thứ tự bộ não đọc. Bảng xếp một kiểu còn
+      // bộ não đọc kiểu khác thì người xem không đối chiếu được hai bên.
+      const hang3 = { "CAO": 0, "VỪA": 1, "THẤP": 2 };
+      const NGUON = {
+        "chien-luoc": ["chiến lược đang chạy", "len"],
+        "chay-lai": ["chạy lại lịch sử", "nhac"],
+        "so-that": ["lệnh thật", "len"],
+        "dai-quan-sat": ["trader ngoài", "mo"],
+      };
+      return pd.slice().sort((a, b) =>
+        (hang3[a.doTin] ?? 3) - (hang3[b.doTin] ?? 3) || (b.mau || 0) - (a.mau || 0)
+      ).map((x) => {
+        const [ten, cls] = NGUON[x.nguon] || [x.nguon, "mo"];
+        return `<div class="kinh the" style="margin-bottom:10px">
+          <h3><span class="${cls}">${esc(ten)}</span>
+            <span class="cuoi">${esc(x.doTin)} · mẫu ${x.mau}${x.cheDo ? " · " + esc(x.cheDo) : ""}</span></h3>
+          <p style="margin:0;font-size:13px;line-height:1.7;color:var(--fg-2)">${esc(x.cau)}</p>
+        </div>`;
+      }).join("");
+    })()}
 
     <div class="tieu-muc">Bài học</div>
     ${ls.length ? ls.slice().reverse().map((l) => {

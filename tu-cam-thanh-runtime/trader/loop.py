@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime as _dt
+import time as _time
 import traceback
 
 import httpx
@@ -26,10 +27,16 @@ from .bus import bus
 from .config import CONFIG
 from .data import get_market_data, data_source
 from .features import build_market_state
+from . import chung_cat
 from .journal import recall
 from .regime import classify
 from .risk import RiskEngine
 from . import snapshot
+
+
+# Lò chưng cất chạy lại mỗi 20 phút — nguồn của nó (sổ, kho chạy lại, hồ sơ
+# trader, champion) thay đổi theo giờ chứ không theo vòng.
+CHUNG_CAT_MOI_GIAY = 1200
 
 
 class Runtime:
@@ -71,6 +78,11 @@ class Runtime:
         self.last_regime_key: str | None = None
         self.ticks = 0
         self.started_at = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
+        # Lò chưng cất: chạy ở vòng đầu rồi định kỳ. Không chạy mỗi vòng — nó đọc
+        # cả bốn kho và gộp lại, tốn hơn một lượt tick rất nhiều, mà số liệu nguồn
+        # thì hàng giờ mới đổi một lần.
+        self.chung_cat_luc: float | None = None
+        self.chung_cat_kq: dict | None = None
 
     # ── Điều khiển từ dashboard ───────────────────────────────────────────
     def control(self, action: str) -> dict:
@@ -123,6 +135,32 @@ class Runtime:
         return True, "nến mới đóng" if new_candle else "regime đổi"
 
     # ── Một vòng ──────────────────────────────────────────────────────────
+    def _chung_cat_neu_den_han(self) -> None:
+        """Đúc lại phát hiện ở vòng đầu, rồi mỗi `CHUNG_CAT_MOI_GIAY` một lần.
+
+        Đặt ngay TRƯỚC `recall()` chứ không đặt cuối vòng: nếu chưng sau khi đã
+        truy hồi thì lượt này vẫn đọc phát hiện của lượt trước, và ngay sau một
+        phiên huấn luyện vừa xong thì đó đúng là lượt mình cần số mới nhất.
+
+        Nuốt lỗi có chủ ý: lò hỏng thì bộ máy mất phần trí nhớ gộp, nhưng vòng
+        giao dịch vẫn phải chạy. Nuốt mà KHÔNG ghi lại thì mới là sai — nên lỗi
+        được ghi vào `chung_cat_kq` để nó hiện trên bảng thay vì biến mất.
+        """
+        gio = _time.time()
+        if self.chung_cat_luc is not None and gio - self.chung_cat_luc < CHUNG_CAT_MOI_GIAY:
+            return
+        self.chung_cat_luc = gio
+        try:
+            kq = chung_cat.chung_cat()
+            self.chung_cat_kq = kq
+            bus.emit("hoc", "chung-cat",
+                     f"{kq['soPhatHien']} phát hiện · bỏ {kq['soDaBo']} vì chưa đủ mẫu · "
+                     + " · ".join(f"{k} {v}" for k, v in sorted(kq["theoNguon"].items())),
+                     chungCat=kq)
+        except Exception as e:
+            self.chung_cat_kq = {"loi": f"{type(e).__name__}: {e}", "soPhatHien": 0}
+            bus.log("hoc", "chung-cat-loi", f"{type(e).__name__}: {e}")
+
     async def tick(self, client: httpx.AsyncClient) -> None:
         self.ticks += 1
 
@@ -166,6 +204,7 @@ class Runtime:
         self.last_regime_key = self.regime["key"]
 
         account = self.broker.snapshot(market["price"])
+        self._chung_cat_neu_den_han()
         memory = recall(self.regime["key"], self.regime["primary"])
         bus.emit("memory", "truy-hoi",
                  f"{len(memory['lessonsForThisRegime'])} bài học liên quan · "
@@ -173,6 +212,33 @@ class Runtime:
 
         bus.emit("brain", "dang-nghi", f"gọi brain ({why})…")
         thesis = await self.brain.thesis(self.state, self.regime, memory, account, self.primary)
+
+        # — CẦU DAO CHẾ ĐỘ: chỗ vòng tuần hoàn khép lại —
+        #
+        # Phòng huấn luyện đo ra "chế độ này lỗ đều qua ngần này lệnh"; lò chưng
+        # cất biến nó thành phát hiện; ở đây phát hiện đó ĐỔI HÀNH VI. Thiếu bước
+        # này thì cả dây chuyền dừng ở chỗ "biết" mà không tới được "làm".
+        #
+        # Giữ nguyên luận điểm gốc trong sổ chứ không xoá: cần đọc được về sau
+        # rằng bộ não đã muốn gì và vì sao nó bị chặn. Xoá đi thì cầu dao trở nên
+        # vô hình, và không ai đánh giá được nó chặn đúng hay chặn oan.
+        ngat = chung_cat.cau_dao(self.regime["key"], self.regime["primary"])
+        if ngat and thesis.get("action") not in (None, "NO_TRADE"):
+            bus.log("brain", "cau-dao-che-do",
+                    f"chặn {thesis['action']} — {ngat['cau'][:150]}", phatHien=ngat)
+            thesis = {
+                **thesis,
+                "action": "NO_TRADE",
+                "suggested_risk_pct": 0.0,
+                "reason_codes": list(thesis.get("reason_codes") or []) + ["CHE_DO_DA_DO_LA_LO"],
+                "reasoning": (f"[cầu dao] {thesis.get('reasoning') or ''} "
+                              f"— BỊ CHẶN: {ngat['cau']}").strip(),
+                "biChanBoiPhatHien": ngat["ma"],
+                "luanDiemGoc": {"action": thesis.get("action"),
+                                "confidence": thesis.get("confidence"),
+                                "invalidation": thesis.get("invalidation"),
+                                "targets": thesis.get("targets")},
+            }
         self.last_thesis = thesis
 
         atr = self.state["timeframes"][self.primary]["_raw"]["atr"]

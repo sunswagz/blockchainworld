@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from .brain import get_brain
 from .bus import bus
 from .config import CONFIG, WEB_DIR
+from . import chung_cat, store
 from .journal import performance, recent_lessons, recent_theses, recent_trades
 from .loop import runtime
 from . import chien_luoc, nguon, phien_hoc, phien_quan_sat, tu_chay
@@ -76,6 +77,10 @@ async def journal() -> JSONResponse:
     return JSONResponse({
         "trades": recent_trades(40),
         "lessons": recent_lessons(30),
+        # PHÁT HIỆN — toàn bộ kho, không lọc theo chế độ. Bộ não chỉ đọc phần hợp
+        # chế độ hiện tại; bảng thì cần thấy CẢ những phát hiện đang không áp
+        # dụng, vì "chế độ đó lỗ đều" là thứ cần đọc TRƯỚC khi rơi vào chế độ đó.
+        "phatHien": store.read_all(store.PHAT_HIEN),
         "theses": recent_theses(30),
         "performance": performance(),
     })

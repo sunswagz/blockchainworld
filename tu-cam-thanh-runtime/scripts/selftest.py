@@ -36,6 +36,7 @@ from trader.data import get_market_data  # noqa: E402
 from trader.features import build_market_state  # noqa: E402
 from trader.regime import classify  # noqa: E402
 from trader.risk import RiskEngine  # noqa: E402
+from trader import store  # noqa: E402
 
 FAILS: list[str] = []
 
@@ -360,6 +361,61 @@ async def main() -> int:
                "barsHeld": 20, "regimeKey": f"K{i}"} for i in range(8)]
     doi_deu = sum(1 for t in so_deu if mock_postmortem(t, so_deu)["change_strategy"])
     check(doi_deu == 0, f"sổ cược đều: {doi_deu} bài đòi đổi chiến lược (phải là 0)")
+
+    print("\n[12] LÒ CHƯNG CẤT — ĐO ĐƯỢC PHẢI NHỚ ĐƯỢC, VÀ PHẢI ĐỔI ĐƯỢC HÀNH VI")
+    from trader import chung_cat
+
+    # Kho chạy lại giả: một chế độ lỗ sâu và đủ mẫu, một chế độ lỗ nhẹ thiếu mẫu.
+    store.write_all(store.LESSONS_CHAY_LAI, [
+        {"regimeKey": "XAU|none", "regime": "XAU", "rMultiple": -0.5, "at": "x"}
+        for _ in range(36)
+    ] + [
+        {"regimeKey": "IT|none", "regime": "IT", "rMultiple": -0.4, "at": "x"}
+        for _ in range(4)
+    ])
+    kq = chung_cat.chung_cat()
+    ds = {p["ma"]: p for p in store.read_all(store.PHAT_HIEN)}
+
+    check("che-do:XAU|none" in ds, "chế độ đủ mẫu ra được phát hiện")
+    check("che-do:IT|none" not in ds, "chế độ 4 lệnh KHÔNG ra phát hiện (dưới ngưỡng 10)")
+
+    # Từ chối phải ĐẾM ĐƯỢC. Bỏ im lặng thì "không phát hiện nào" trông y hệt
+    # "chưa đo lần nào", và hai chuyện đó cần phân biệt được từ bên ngoài.
+    check(any(b["ma"] == "che-do:IT|none" for b in kq["daBo"]),
+          f"cái bị bỏ có ghi lý do ({kq['soDaBo']} mục trong daBo)")
+
+    if "che-do:XAU|none" in ds:
+        cau = ds["che-do:XAU|none"]["cau"]
+        check("36" in cau, "cỡ mẫu nằm TRONG câu, không chỉ ở trường bên cạnh")
+        check("CHẠY LẠI" in cau, "câu tự khai nguồn là lệnh mô phỏng")
+
+    # — Cầu dao: chỉ ngắt chế độ đã đo đủ sâu và đủ nhiều —
+    check(chung_cat.cau_dao("XAU|none", "XAU") is not None,
+          "cầu dao NGẮT chế độ lỗ -0,5R qua 36 lệnh")
+    check(chung_cat.cau_dao("IT|none", "IT") is None,
+          "cầu dao KHÔNG ngắt chế độ chỉ 4 lệnh")
+
+    # Cửa ngược lại: lỗ nông thì dù đủ mẫu cũng không được ngắt. Thiếu phép kiểm
+    # này thì ngưỡng sẽ trôi dần cho tới khi mọi chế độ đều bị khai tử — mà chế
+    # độ bị khai tử thì không bao giờ thu thêm dữ liệu để cãi lại.
+    store.write_all(store.LESSONS_CHAY_LAI, [
+        {"regimeKey": "NONG|none", "regime": "NONG", "rMultiple": -0.15, "at": "x"}
+        for _ in range(40)
+    ])
+    chung_cat.chung_cat()
+    check(chung_cat.cau_dao("NONG|none", "NONG") is None,
+          "cầu dao KHÔNG ngắt chế độ lỗ nông -0,15R dù có 40 lệnh")
+
+    # Xếp theo bằng chứng: câu mẫu lớn phải sống sót khi bị cắt bớt.
+    store.write_all(store.PHAT_HIEN, [
+        {"ma": "nho", "nguon": "dai-quan-sat", "cheDo": None, "cau": "x",
+         "mau": 2, "doTin": "THẤP", "so": {}, "luc": "x"},
+        {"ma": "lon", "nguon": "chien-luoc", "cheDo": None, "cau": "y",
+         "mau": 44, "doTin": "CAO", "so": {}, "luc": "x"},
+    ])
+    dau = chung_cat.doc(None, None, gioi_han=1)
+    check(dau and dau[0]["ma"] == "lon",
+          f"cắt bớt thì giữ câu bằng chứng mạnh: giữ '{dau[0]['ma'] if dau else '—'}'")
 
     broker.reset()
     print("\n" + "=" * 62)
