@@ -170,6 +170,9 @@ conflict lúc merge.
     thai-boc-tu/assets/js/app.js
     thai-boc-tu/index.html
     thai-boc-tu/sw.js
+    dai-quan-trac/assets/css/app.css
+    dai-quan-trac/assets/js/app.js
+    dai-quan-trac/sw.js
 
 Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
 
@@ -178,6 +181,12 @@ conflict lúc merge.
 | bot tự sinh (`v/dong-tien.js`…) | chỉ bot | **không** — lượt sau đè |
 | sinh tay (`hoang-thanh/data.js`…) | chỉ người | có, đó là cách duy nhất |
 | **đồng sửa** (bảng trên) | **cả hai** | **có** — nhưng xem dưới |
+
+Đài Quan Trắc hẹp hơn hai cung kia: lời nhắc chỉ cho model sửa
+`app.css` và `app.js`, và cổng chặn trả lại CẢ thư mục nếu bản vá
+chạm ra ngoài hai đường đó — nên `index.html` không nằm trong bảng.
+`sw.js` có mặt vì bước nâng CACHE_VERSION ghi vào nó sau khi bản vá
+được nhận.
 
 Node `ho-bo-tien-hoa` (nhịp 24 giờ) để model đề xuất sửa giao diện,
 rồi `scripts/tien-hoa.mjs cong --so` quyết định nhận hay trả lại. Nên
