@@ -71,6 +71,9 @@ export const NGUON = [
   { nhan: "đoàn tàu Thái Bộc Tự",    duong: "thai-boc-tu/assets/js/v/doan-tau.js", botSinh: true },
   { nhan: "công trường Thái Bộc Tự", duong: "thai-boc-tu/assets/js/v/cong-truong.js", botSinh: true },
   { nhan: "tin tức Thái Bộc Tự",     duong: "thai-boc-tu/assets/js/v/tin-tuc.js",     botSinh: true },
+  /* Nhịp 12 giờ nên ngưỡng riêng, cùng lý do bản quét Quan Trắc. */
+  { nhan: "phân tích tin Thái Bộc Tự", duong: "thai-boc-tu/assets/js/v/tin-phan-tich.js", botSinh: true,
+    nguong: 2 },
   { nhan: "rừng văn hoá Hoàng Thành", duong: "hoang-thanh/assets/js/data.js",    botSinh: false },
   /* Cùng lý do Hoàng Thành: runtime giao dịch cần khoá API và một tiến trình
      chạy dài, Actions không làm được. Sinh tay ở máy rồi commit — nên cũ là

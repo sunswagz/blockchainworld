@@ -13,6 +13,12 @@ dai-quan-trac/assets/data/tin-de-bai.json
 dai-quan-trac/assets/data/tin-phan-tich.json
 dai-quan-trac/assets/data/de-bai-tien-hoa.json
 
+# Phân tích tin Thái Bộc Tự: đề bài máy sinh, và JSON thô model ghi.
+# Chỉ sống trong một lượt chạy — thứ đáng giữ là tin-phan-tich.js
+# đã qua kiểm.
+thai-boc-tu/assets/data/tin-de-bai.json
+thai-boc-tu/assets/data/tin-phan-tich.json
+
 # Capacitor (khi đóng gói app native)
 android/
 ios/

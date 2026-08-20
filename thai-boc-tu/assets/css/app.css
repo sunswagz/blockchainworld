@@ -562,3 +562,24 @@ code,.mono{font-family:var(--mono)}
   .tin-l{grid-template-columns:1fr}
   .tin-anh{aspect-ratio:2/1}
 }
+
+/* ── lớp phán đoán AI trên thẻ tin ────────────────────── */
+/* Luật xương sống của cung: dữ liệu và phán đoán không được trông
+   giống nhau. Khối này khác phần trên ở MỌI mặt nhìn được — nền
+   riêng, viền trái riêng, nhãn đứng đầu — để người lướt nhanh vẫn
+   thấy ngay đâu là câu toà soạn viết, đâu là câu máy đoán. */
+.pt{margin-top:10px;padding:9px 11px;border-radius:8px;
+  background:var(--bg-2);border:1px solid var(--line-2);border-left:3px solid var(--fg-3)}
+.pt[data-v="som"]{border-left-color:var(--xuong)}
+.pt[data-v="giua"]{border-left-color:var(--canh)}
+.pt[data-v="muon"]{border-left-color:var(--len)}
+.pt-d{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+.pt-nhan{font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--tim);
+  border:1px solid var(--tim);background:var(--tim-t);padding:1px 6px;border-radius:4px}
+.pt-mach{display:flex;flex-direction:column;gap:2px;margin-bottom:7px}
+.pt-mach span{font-size:11.5px;color:var(--fg);line-height:1.45}
+.pt-mach i{font-style:normal;font-size:10px;color:var(--fg-3);line-height:1}
+.pt-d1,.pt-d2{margin:0;font-size:11px;color:var(--fg-2);line-height:1.55}
+.pt-d2{margin-top:3px}
+.pt-d1 b{color:var(--len)}
+.pt-d2 b{color:var(--canh)}

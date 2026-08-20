@@ -40,6 +40,10 @@
   /* Nguồn thứ tư: tin từ sáu toà soạn/blog bên ngoài. Cũng có thể
      vắng độc lập với ba nguồn kia. */
   var TIN = window.THAIBOC_TIN || null;
+  /* Lớp phán đoán của model cho từng bài tin. Tách hẳn khỏi TIN —
+     bài báo là dữ liệu, phân tích là phán đoán, và ranh giới đó
+     phải có từ tầng file chứ không chỉ ở giao diện. */
+  var PT = window.THAIBOC_PT || null;
 
   /* ═══════════════ ĐỊNH DẠNG ═══════════════ */
 
@@ -250,7 +254,49 @@
               esc(tenToa.so) + " · " + esc(tenToa.ten) + "</button>"
             : '<span class="tin-toa" data-trong="1">chưa xếp toa</span>') +
         "</div>" +
+        vePhanTich(b) +
       "</div></article>";
+  }
+
+  /* ═══════════════ LỚP PHÁN ĐOÁN AI ═══════════════
+     Đây là chỗ luật xương sống của cung bị thử nặng nhất: bài báo là
+     DỮ LIỆU, phân tích là PHÁN ĐOÁN, và hai thứ đó không được trông
+     giống nhau.
+
+     Nên khối này KHÁC hẳn phần trên về mọi mặt nhìn được: nền riêng,
+     viền trái riêng, nhãn "PHÁN ĐOÁN AI" đứng đầu. Người lướt nhanh
+     vẫn phải thấy ngay đâu là câu toà soạn viết, đâu là câu máy đoán.
+
+     `theoDoi` cố ý KHÔNG phải "mua gì bán gì". Nó là điều sắp tới sẽ
+     cho biết cách đọc này đúng hay sai — kiểm được, và tuần sau nhìn
+     lại biết ngay model đúng hay sai. Một câu "mua ETH" thì không ai
+     kiểm và không ai chịu trách nhiệm. */
+
+  var TEN_MUC = {
+    cao: { ten: "ẢNH HƯỞNG CAO", v: "som" },
+    vua: { ten: "ẢNH HƯỞNG VỪA", v: "giua" },
+    thap: { ten: "ẢNH HƯỞNG THẤP", v: "muon" }
+  };
+
+  function khoaTin(link) {
+    return String(link || "").split("?")[0].replace(/\/$/, "").toLowerCase();
+  }
+
+  function vePhanTich(b) {
+    if (!PT || !PT.pt) return "";
+    var a = PT.pt[khoaTin(b.link)];
+    if (!a) return "";
+    var m = TEN_MUC[a.muc] || { ten: "?", v: "giua" };
+
+    return '<div class="pt" data-v="' + m.v + '">' +
+      '<div class="pt-d"><span class="pt-nhan">PHÁN ĐOÁN AI</span>' +
+        '<span class="dot-nhan" data-v="' + m.v + '">' + m.ten + "</span></div>" +
+      '<div class="pt-mach">' + a.mach.map(function (x, i) {
+        return (i ? '<i aria-hidden="true">↓</i>' : "") + "<span>" + esc(x) + "</span>";
+      }).join("") + "</div>" +
+      '<p class="pt-d1"><b>Theo dõi:</b> ' + esc(a.theoDoi) + "</p>" +
+      '<p class="pt-d2"><b>Sai nếu:</b> ' + esc(a.nguoc) + "</p>" +
+      "</div>";
   }
 
   function veTinTuc() {

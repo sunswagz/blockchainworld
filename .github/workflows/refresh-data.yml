@@ -1135,6 +1135,107 @@ jobs:
             --ghi "${DIEM:-chưa chấm được} · opus-5" \
             --log "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log"
 
+
+      # ── PHÂN TÍCH TIN · Thái Bộc Tự ────────────────────────────
+      # Ba bước, cùng đường với bản quét Đài Quan Trắc và tách ba bước
+      # vì cùng một lý do: ĐỪNG cho model ghi thẳng file .js. Nó viết
+      # JSON thô; script kiểm rồi mới dựng. Bịa mã toa, bịa link, sai
+      # mức — mục đó bị LOẠI chứ không được sửa hộ.
+      #
+      # Haiku chứ không Opus: việc ở đây là đọc một tiêu đề cộng hai
+      # câu tóm tắt rồi xếp mức và vẽ mạch lan truyền — phán đoán có,
+      # nhưng nông và lặp lại. Chỗ đáng dùng model mạnh là báo cáo
+      # xưởng và vòng tiến hoá, nơi mỗi lượt chỉ một lời gọi.
+      - name: Phân tích tin 1/2 — ra đề
+        id: n-tbt-pt-de
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',thai-boc-tu-tin-pt,')
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/build-tin-phantich.mjs --de-bai
+
+      - name: Phân tích tin — model đọc và chấm
+        id: n-tbt-pt-lam
+        if: steps.n-tbt-pt-de.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 8
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-haiku-4-5
+            --max-turns 8
+            --allowedTools "Read,Write"
+          prompt: |
+            Đọc thai-boc-tu/assets/data/tin-de-bai.json.
+
+            Trong đó có `bai` — các bài tin cần chấm — và `toaHopLe`,
+            danh sách 18 toa của cung với mã và tên.
+
+            Với TỪNG bài, viết một phán đoán ngắn về ảnh hưởng thị trường.
+
+            Ghi kết quả vào thai-boc-tu/assets/data/tin-phan-tich.json
+            theo ĐÚNG khuôn này, không thêm khoá nào:
+
+            {"bai": [
+              {"link": "<chép nguyên link từ đề bài>",
+               "muc": "cao" | "vua" | "thap",
+               "toa": "<mã toa trong toaHopLe, hoặc null>",
+               "mach": ["<bước 1>", "<bước 2>", "<bước 3>"],
+               "theoDoi": "<một câu>",
+               "nguoc": "<một câu>"}
+            ]}
+
+            LUẬT, đọc kỹ — có bộ kiểm tự động sau bạn, sai là mục bị LOẠI:
+            · `link` phải chép NGUYÊN VĂN từ đề bài. Sửa một ký tự là loại.
+            · `muc` chỉ được là ba chữ đó, viết thường, không dấu.
+            · `toa` phải là mã CÓ THẬT trong `toaHopLe`. Không chắc thì
+              để null — bịa mã là mục bị loại, và null thì vẫn giữ được
+              phần còn lại.
+            · `mach` có 2 tới 4 bước, mỗi bước dưới 90 ký tự. Đây là
+              đường lan truyền: từ sự việc trong bài tới chỗ nó chạm vào
+              hệ thống. Đừng viết lại tiêu đề.
+            · `muc` chấm theo mức chạm vào HỆ THỐNG, không theo mức giật
+              gân của tiêu đề. Một vụ lừa đảo 885.000 số điện thoại là tin
+              lớn với người đọc nhưng "thap" với hệ thống — settlement vẫn
+              chạy, thanh khoản không đổi.
+
+            `theoDoi` và `nguoc` — quan trọng nhất, đọc kỹ:
+            · KHÔNG viết lời khuyên mua bán. Không giá mục tiêu, không
+              "nên mua", không "nên bán". Trang này không phải nơi khuyên
+              đầu tư.
+            · `theoDoi` là điều SẮP TỚI sẽ cho biết cách đọc này đúng hay
+              sai. Phải cụ thể và kiểm được: một con số, một mốc, một
+              hành động của một bên cụ thể.
+            · `nguoc` là điều gì xảy ra thì cách đọc này SAI. Không viết
+              được câu này nghĩa là phán đoán chưa đủ sắc — hạ `muc`
+              xuống "thap" và viết mạch khiêm tốn hơn.
+
+            Viết tiếng Việt. Ngắn, không hoa mỹ, không kết luận to hơn
+            bằng chứng trong bài.
+
+      - name: Phân tích tin 2/2 — kiểm và dựng
+        id: n-thai-boc-tu-tin-pt
+        if: always() && steps.n-tbt-pt-de.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: node scripts/build-tin-phantich.mjs 2>&1 | tee "$RUNNER_TEMP/tbt-pt.log"
+      - name: Ghi sổ · thai-boc-tu-tin-pt
+        if: always() && steps.n-tbt-pt-de.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-thai-boc-tu-tin-pt.outcome == 'success' && 'ok' || 'loi' }}
+          T_DAU: ${{ steps.n-tbt-pt-de.outputs.t0 }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          PHU=$(grep -oE "nhận [0-9]+ · loại [0-9]+ · phủ [0-9]+/[0-9]+ bài" \
+            "$RUNNER_TEMP/tbt-pt.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi thai-boc-tu-tin-pt "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${PHU:-chưa dựng được} · haiku-4.5" \
+            --log "$RUNNER_TEMP/tbt-pt.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true

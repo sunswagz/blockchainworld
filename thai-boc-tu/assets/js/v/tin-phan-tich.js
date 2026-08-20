@@ -1,0 +1,3 @@
+/* TỰ SINH — đừng sửa tay. Nguồn: scripts/build-tin-phantich.mjs
+   Sinh lúc 2026-08-20T15:19:30.448Z */
+window.THAIBOC_PT = {"generatedAt":"2026-08-20T15:19:30.448Z","date":"20/08/2026","tomTat":"1/30 bài có phân tích","tong":{"daNho":1,"phuBaiHienTai":1,"tongBai":30,"demMuc":{"cao":1,"vua":0,"thap":0}},"pt":{"https://cointelegraph.com/news/cybersecurity-unveils-crypto-phishing-885000-phone-numbers":{"muc":"cao","toa":"t17","mach":["ETF hút vốn ròng","cầu giao ngay tăng","áp lực lên nguồn cung sàn"],"theoDoi":"Dòng vào ETF hai phiên tới còn dương không.","nguoc":"Dòng vào âm hai phiên liên tiếp thì cách đọc này sai.","luc":"2026-08-20T15:14:02.649Z"}}};

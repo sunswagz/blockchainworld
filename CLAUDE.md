@@ -146,6 +146,7 @@ conflict lúc merge.
     thai-boc-tu/assets/js/v/doan-tau.js
     thai-boc-tu/assets/js/v/cong-truong.js
     thai-boc-tu/assets/js/v/tin-tuc.js
+    thai-boc-tu/assets/js/v/tin-phan-tich.js
     tang-thu-cac/assets/js/data.js
     tang-thu-cac/assets/data/lich-su.json
     tang-thu-cac/assets/data/kb/

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T15:18:34.295Z",
+  "generatedAt": "2026-08-20T15:20:51.400Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -213,6 +213,20 @@
         "thai-boc-tu/assets/js/v/cong-truong.js"
       ],
       "y": "Hỏi GitHub 14 kho mã và lịch sử đề xuất ERC/EIP: nút thắt nào còn người xây, chuẩn nào vừa mở. Dùng GITHUB_TOKEN Actions tự cấp — không thêm secret nào, không gọi AI.",
+      "khai": "scripts/node/thai-boc-tu.mjs"
+    },
+    {
+      "ma": "thai-boc-tu-tin-pt",
+      "ten": "Phân tích tin Thái Bộc Tự",
+      "cung": "thai-boc-tu",
+      "tram": "M07",
+      "che": "claude",
+      "nhip": 12,
+      "lenh": "build-tin-phantich.mjs --de-bai + claude-code-action + build-tin-phantich.mjs",
+      "ra": [
+        "thai-boc-tu/assets/js/v/tin-phan-tich.js"
+      ],
+      "y": "Mỗi bài một lớp phán đoán: mức ảnh hưởng, mạch lan truyền tới toa nào, điều cần theo dõi và điều bác bỏ được. Model KHÔNG ghi thẳng file .js — nó viết JSON thô, script kiểm rồi mới dựng. Bịa mã toa là mục bị loại.",
       "khai": "scripts/node/thai-boc-tu.mjs"
     },
     {

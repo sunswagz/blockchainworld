@@ -44,6 +44,27 @@ export const NODE = [
        "người xây, chuẩn nào vừa mở. Dùng GITHUB_TOKEN Actions tự cấp — không " +
        "thêm secret nào, không gọi AI."
   },
+  /* Cặp node về TIN, tách theo đúng lối cặp node Đài Quan Trắc:
+     việc ĐO ĐƯỢC tách khỏi việc CẦN PHÁN ĐOÁN.
+
+       thai-boc-tu-tin     RSS → bài, ảnh, nhãn toa bằng từ khoá.
+                           Rẻ, xác định, 6 giờ một lượt.
+       thai-boc-tu-tin-pt  model đọc bài → mức ảnh hưởng, mạch lan
+                           truyền, điều cần theo dõi. Tốn quota.
+
+     Hai van chi phí, và cái thứ hai mới là chính: mỗi lượt tối đa 12
+     bài, VÀ mỗi bài chỉ phân tích ĐÚNG MỘT LẦN trong đời (nhớ theo
+     link). Không có van thứ hai thì 30 bài × 4 lượt/ngày = 120 lượt
+     gọi model mỗi ngày cho cùng một nhúm bài không đổi. */
+  {
+    ma: "thai-boc-tu-tin-pt", ten: "Phân tích tin Thái Bộc Tự", cung: "thai-boc-tu",
+    tram: "M07", che: "claude", nhip: 12,
+    lenh: "build-tin-phantich.mjs --de-bai + claude-code-action + build-tin-phantich.mjs",
+    ra: ["thai-boc-tu/assets/js/v/tin-phan-tich.js"],
+    y: "Mỗi bài một lớp phán đoán: mức ảnh hưởng, mạch lan truyền tới toa nào, " +
+       "điều cần theo dõi và điều bác bỏ được. Model KHÔNG ghi thẳng file .js — " +
+       "nó viết JSON thô, script kiểm rồi mới dựng. Bịa mã toa là mục bị loại."
+  },
   {
     ma: "thai-boc-tu-tin", ten: "Tin tức Thái Bộc Tự", cung: "thai-boc-tu",
     tram: "M12", che: "script", nhip: 6,
