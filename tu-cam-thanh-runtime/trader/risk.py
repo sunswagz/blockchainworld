@@ -197,7 +197,31 @@ class RiskEngine:
         risk_pct = min(max(suggested, 0.0), c["maxRiskPerTradePct"])
         capped = suggested > c["maxRiskPerTradePct"]
 
-        risk_amount = account["equity"] * risk_pct / 100
+        # — Rủi ro tính trên VỐN ĐỠ ĐƯỢC LỆNH, không trên vốn ghi trên giấy —
+        #
+        # Đây là chỗ đã làm hỏng 8 lệnh đầu tiên, và nó không hỏng ở công thức mà
+        # hỏng ở CHỌN MẪU SỐ. Tài khoản có vốn 79.772 nhưng chỉ 6.346 là tiền mua
+        # được (phần còn lại đang nằm trong BTC). Lấy 0,5% của 79.772 ra mục tiêu
+        # rủi ro 399 — lớn hơn mọi thứ 6.346 tiền mặt có thể đỡ — nên trần tiền
+        # mặt bên dưới BAO GIỜ CŨNG chạm, và khi nó chạm thì:
+        #
+        #     qty         = tiền mặt / giá            ← cố định
+        #     rủi ro thật = qty × khoảng cách stop    ← trôi theo độ rộng stop
+        #
+        # Mục tiêu rủi ro không còn điều khiển gì nữa; ĐỘ RỘNG STOP điều khiển tất
+        # cả. Đo được trên sổ: rủi ro 37·45·45·53·58·63·104·112 — ba lệnh thắng
+        # cược nhỏ nhất, hai lệnh thua cược lớn nhất, và đó là toàn bộ lời giải
+        # cho việc kỳ vọng +0,282R đi cùng khoản lỗ −$95,69.
+        #
+        # Lấy mẫu số là tiền mua được thì mục tiêu rủi ro giành lại quyền điều
+        # khiển, trần tiền mặt lui về đúng vai lưới an toàn hiếm khi chạm, và R
+        # so sánh được trở lại.
+        von_rui_ro = account["equity"]
+        avail = account.get("availableQuote")
+        if avail is not None and avail < von_rui_ro:
+            von_rui_ro = avail
+
+        risk_amount = von_rui_ro * risk_pct / 100
         qty = risk_amount / stop_dist
         notional = qty * entry
         max_notional = account["equity"] * c["maxNotionalPctOfEquity"] / 100
@@ -209,7 +233,6 @@ class RiskEngine:
         # nhưng chỉ mua được bằng 10.000 kia. Tính size trên vốn tổng thì mọi
         # lệnh đều bị SÀN từ chối vì thiếu số dư — sau khi đã tốn một lượt gọi
         # model. Sàn giấy không bao giờ chỉ ra chuyện này vì nó chỉ giữ một con số.
-        avail = account.get("availableQuote")
         if avail is not None:
             max_notional = min(max_notional, avail * 0.995)  # chừa 0.5% cho phí và trượt giá
 
@@ -237,6 +260,10 @@ class RiskEngine:
                 "notional": round(notional, 2),
                 "riskAmount": round(risk_amount, 2),
                 "riskPct": round(risk_pct, 4),
+                "riskBase": round(von_rui_ro, 2),
+                "riskBaseIsCash": bool(avail is not None and avail < account["equity"]),
+                "riskPctOfEquity": round(risk_amount / account["equity"] * 100, 4)
+                if account.get("equity") else None,
                 "stopDistance": round(stop_dist, 2),
                 "structuralStopDistance": round(structural_dist, 2),
                 "stopAtrMultiple": round(structural_dist / atr, 2) if atr else None,

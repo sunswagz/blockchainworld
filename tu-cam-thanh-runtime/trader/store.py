@@ -26,6 +26,20 @@ ACCOUNT = "account.json"     # trạng thái tài khoản paper
 # selftest từng làm sai lệch sổ giao dịch mà không ai nhận ra.
 LESSONS_CHAY_LAI = "lessons-chay-lai.jsonl"
 
+# BẢN SOÁT LẠI của bài học thật — SINH LẠI ĐƯỢC từ `trades.jsonl`, nên được phép
+# ghi đè (khác hẳn `lessons.jsonl`).
+#
+# Vì sao cần: bài học được đúc NGAY LÚC lệnh đóng, khi sổ mới có vài lệnh. Nhiều
+# câu hỏi chỉ trả lời được khi nhìn cả sổ — "lệnh này cược lớn hơn mức thường bao
+# nhiêu" là vô nghĩa khi chưa có "mức thường". Tám bài học đầu tiên vì thế ra
+# đúng HAI câu cho tám lệnh khác nhau, trong đó có hai lệnh cược gấp 1,8–1,9× vẫn
+# bị dán nhãn GOOD_TRADE.
+#
+# `lessons.jsonl` giữ nguyên — đó là bản ghi bộ não ĐÃ nghĩ gì lúc đó, và xoá nó
+# là xoá bằng chứng. File này là lớp phủ: `recall()` ưu tiên bản soát lại khi có,
+# và xoá file đi là quay về nguyên trạng.
+LESSONS_SOAT_LAI = "lessons-soat-lai.jsonl"
+
 
 def append(name: str, obj: dict) -> dict:
     with _lock:

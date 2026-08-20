@@ -32,11 +32,41 @@ trôi theo khoảng cách stop. Stop rộng ⇒ cùng số lượng ⇒ mất nh
 Tài khoản này có vốn $73.000 nhưng chỉ **$10.000 tiền mua được** (phần còn lại
 là BTC đang giữ). Nên trần tiền mặt bám gần như mọi lệnh.
 
+## Lỗi nằm ở MẪU SỐ, không nằm ở công thức
+
+Công thức `rủi ro = vốn × %` không sai. Cái sai là chọn "vốn" nào.
+
+Lấy 0,5% của **79.772** ra mục tiêu rủi ro **399** — lớn hơn mọi thứ **6.346**
+tiền mặt có thể đỡ. Trần tiền mặt vì thế chạm ở *mọi* lệnh, và khi nó chạm thì
+`qty` bị ghim còn `rủi ro = qty × stopDist` trôi theo độ rộng stop. Mục tiêu rủi
+ro không điều khiển gì cả; **độ rộng stop điều khiển tất cả.**
+
+Đo trên cùng một tín hiệu, ba độ rộng stop, tài khoản 79.772 vốn / 6.346 tiền mặt:
+
+```
+                     rủi ro     khối lượng
+mẫu số = vốn giấy    42 · 79 · 158   0,09103 · 0,09103 · 0,09103   ← ngược đời
+mẫu số = tiền mặt    32 · 32 ·  32   0,06868 · 0,03664 · 0,01833   ← đúng
+```
+
+Hàng trên là hình dạng của một cái thước hỏng: **khối lượng đứng im, rủi ro trôi
+3,75 lần.** Hàng dưới là điều đáng lẽ phải xảy ra — rủi ro là thứ mình CHỌN,
+khối lượng là thứ suy ra.
+
+Đổi một mẫu số, `riskCv` từ 0,406 về 0, và R so sánh được trở lại. Trần tiền mặt
+lui về đúng vai lưới an toàn: ở mức 0,5% nó chỉ chạm khi stop hẹp dưới 0,5% giá,
+mà sàn stop tối thiểu 0,3×ATR đã chặn trước rồi.
+
+Bài học chung: khi một con số trôi mà công thức trông đúng, **soát mẫu số trước
+khi soát công thức.**
+
 ## Ba luật rút ra
 
-**1. Khi bị ghim bởi trần tiền mặt, phải tính LẠI rủi ro và kiểm lại.**
-Nếu rủi ro thực tế lệch quá xa mức mục tiêu, lệnh đó không còn là lệnh mình
-định vào nữa.
+**1. Rủi ro là thứ CHỌN, khối lượng là thứ SUY RA — không được đổi vai.**
+Nếu cùng một mức rủi ro mục tiêu mà hai lệnh ra hai con số rủi ro khác nhau, thì
+có một cái trần nào đó đang thay mình quyết định, và mục tiêu rủi ro chỉ còn là
+trang trí. Kiểm bằng một phép thử ba dòng: cùng tín hiệu, ba độ rộng stop khác
+nhau — rủi ro phải bằng nhau, khối lượng phải khác nhau.
 
 **2. Rủi ro không đều thì R mất ý nghĩa so sánh.**
 Đọc R và tiền cùng lúc. Lệch dấu nghĩa là rủi ro trôi, và khi đó **tiền mới đúng**.

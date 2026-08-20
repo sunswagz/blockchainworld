@@ -200,11 +200,59 @@ async def main() -> int:
     dv = risk.evaluate(ok_th, st, acct_giu_coin, atr)
     check(dv["approved"], "vẫn cho qua khi vốn 73.000 nhưng chỉ 10.000 mua được")
     if dv["approved"]:
-        n = dv["position"]["notional"]
-        check(n <= 10000.0, f"notional {n:,.0f} ≤ tiền mua được 10.000 (vốn 73.000)")
-        check(dv["position"]["notionalCapped"], "có đánh dấu là đã bị cắt trần")
-        check(dv["position"]["riskAmount"] < 73000.0 * 0.005,
-              f"rủi ro thật ${dv['position']['riskAmount']} < 0,5% vốn — cắt trần thì rủi ro giảm theo")
+        v = dv["position"]
+        check(v["notional"] <= 10000.0,
+              f"notional {v['notional']:,.0f} ≤ tiền mua được 10.000 (vốn 73.000)")
+        # Mẫu số phải là TIỀN MUA ĐƯỢC, không phải vốn ghi trên giấy.
+        check(abs(v["riskAmount"] - 10000.0 * 0.005) < 0.01,
+              f"rủi ro ${v['riskAmount']} = 0,5% của 10.000 mua được, không phải của 73.000")
+        check(v["riskBaseIsCash"] and abs(v["riskBase"] - 10000.0) < 0.01,
+              f"có khai rõ mẫu số đã dùng: {v['riskBase']:,.0f}")
+
+    # — Bất biến quan trọng nhất của cả tầng này —
+    # Cùng một tín hiệu, stop rộng hẹp khác nhau ⇒ RỦI RO PHẢI BẰNG NHAU, chỉ
+    # khối lượng thay đổi. Công thức cũ làm ngược lại: khối lượng đứng im ở trần
+    # tiền mặt còn rủi ro trôi 42 → 79 → 158 theo độ rộng stop. Chính chỗ trôi đó
+    # đã biến kỳ vọng +0,282R thành khoản lỗ −$95,69 trên 8 lệnh thật.
+    rr_theo_stop, qty_theo_stop = [], []
+    for boi in (0.8, 1.5, 3.0):
+        th_i = {**ok_th, "invalidation": price - atr * boi,
+                "targets": [price + atr * boi * 4.0]}
+        d_i = risk.evaluate(th_i, st, acct_giu_coin, atr * boi)
+        if d_i["approved"]:
+            rr_theo_stop.append(d_i["position"]["riskAmount"])
+            qty_theo_stop.append(d_i["position"]["qty"])
+    if len(rr_theo_stop) >= 2:
+        check(max(rr_theo_stop) - min(rr_theo_stop) < 0.01,
+              f"stop rộng hẹp khác nhau, rủi ro vẫn bằng nhau: "
+              f"{' · '.join(f'{x:.2f}' for x in rr_theo_stop)}")
+        check(max(qty_theo_stop) > min(qty_theo_stop) * 1.5,
+              f"…và khối lượng mới là thứ thay đổi: "
+              f"{' · '.join(f'{x:.5f}' for x in qty_theo_stop)}")
+    else:
+        check(False, f"chỉ có {len(rr_theo_stop)} lệnh qua cửa — không đo được bất biến")
+
+    # Trần tiền mặt vẫn phải CÒN SỐNG, chỉ là từ nay hiếm khi chạm.
+    #
+    # Ở mức rủi ro 0,5% nó gần như không bao giờ chạm nữa — muốn chạm thì stop
+    # phải hẹp dưới 0,5% giá, mà sàn stop tối thiểu 0,3×ATR đã chặn trước rồi.
+    # Nên phải dựng một cỗ máy rủi ro CAO để gọi đúng nhánh đó ra; nếu không,
+    # lưới an toàn nằm trong mã nguồn mà không phép kiểm nào đi qua, và ngày nó
+    # hỏng thì không ai biết.
+    from trader.risk import RiskEngine as _RE
+
+    risk_cao = _RE({**risk.cfg, "maxRiskPerTradePct": 8.0})
+    d_cao = risk_cao.evaluate({**ok_th, "suggested_risk_pct": 8.0}, st, acct_giu_coin, atr)
+    if d_cao["approved"]:
+        check(d_cao["position"]["notionalCapped"],
+              "rủi ro 8%: lưới an toàn tiền mặt vẫn bắt được")
+        check(d_cao["position"]["notional"] <= 10000.0,
+              f"…và giữ notional {d_cao['position']['notional']:,.0f} trong tiền mua được")
+        check(d_cao["position"]["riskAmount"] < 10000.0 * 0.08,
+              f"…rủi ro thật ${d_cao['position']['riskAmount']:,.2f} thấp hơn mục tiêu 800 "
+              f"vì bị cắt trần — cắt trần chỉ được làm rủi ro GIẢM")
+    else:
+        check(False, f"không gọi được nhánh cắt trần: {d_cao['note'][:70]}")
 
     print("\n[6] EXECUTION + JOURNAL")
     if od["approved"]:
@@ -273,6 +321,45 @@ async def main() -> int:
     tren_dia = len([d for d in SKILLS_DIR.iterdir()
                     if (d / "SKILL.md").exists() or d.suffix == ".md"]) if SKILLS_DIR.exists() else 0
     check(dem == tren_dia, f"đếm được {dem} kỹ năng, trên đĩa có {tren_dia}")
+
+    print("\n[11] HẬU KIỂM PHẢI PHÂN BIỆT ĐƯỢC LỆNH, VÀ CHỈ ĐÒI ĐỔI CHIẾN LƯỢC KHI CÓ LẶP LẠI")
+    from trader.brain import mock_postmortem
+
+    # Sổ giả dựng đúng hình dạng đã đo được trên 8 lệnh thật: ba lệnh thắng cược
+    # NHỎ, hai lệnh thua cược LỚN. Đây là hình dạng đã biến kỳ vọng +0,282R thành
+    # khoản lỗ −$95,69, nên nó là thứ phép kiểm phải bắt được.
+    so_gia = [
+        {"id": "a", "status": "CLOSED", "pnl": 60.0, "riskAmount": 37.0, "exitReason": "TAKE_PROFIT", "regimeKey": "K"},
+        {"id": "b", "status": "CLOSED", "pnl": 40.0, "riskAmount": 45.0, "exitReason": "TAKE_PROFIT", "regimeKey": "K"},
+        {"id": "c", "status": "CLOSED", "pnl": -45.0, "riskAmount": 45.0, "exitReason": "STOP_LOSS", "regimeKey": "K"},
+        {"id": "d", "status": "CLOSED", "pnl": -53.0, "riskAmount": 53.0, "exitReason": "STOP_LOSS", "regimeKey": "K"},
+        {"id": "e", "status": "CLOSED", "pnl": 58.0, "riskAmount": 58.0, "exitReason": "TAKE_PROFIT", "regimeKey": "K"},
+        {"id": "f", "status": "CLOSED", "pnl": -63.0, "riskAmount": 63.0, "exitReason": "STOP_LOSS", "regimeKey": "K"},
+        {"id": "g", "status": "CLOSED", "pnl": -104.0, "riskAmount": 104.0, "exitReason": "STOP_LOSS", "regimeKey": "K"},
+        {"id": "h", "status": "CLOSED", "pnl": -112.0, "riskAmount": 112.0, "exitReason": "STOP_LOSS", "regimeKey": "K"},
+    ]
+    ket = [mock_postmortem(t, so_gia) for t in so_gia]
+    cau = {k["lesson"] for k in ket}
+    check(len(cau) >= 4, f"8 lệnh khác nhau ra {len(cau)} câu bài học khác nhau "
+                         f"(bản dán nhãn cũ chỉ ra 2)")
+
+    # Lệnh THẮNG mà cược lệch phải bị gọi là quyết định tồi — loại nguy hiểm nhất,
+    # vì phần thưởng đến ngay và dạy đúng thứ không được lặp lại.
+    thang_lech = next(k for k, t in zip(ket, so_gia) if t["id"] == "a")
+    check(thang_lech["classification"] == "BAD_TRADE_GOOD_OUTCOME",
+          f'lệnh thắng nhưng cược lệch 0,5× → {thang_lech["classification"]}')
+
+    doi = sum(1 for k in ket if k["change_strategy"])
+    check(doi >= 3, f"{doi} bài đòi đổi chiến lược khi tật lặp lại trên 3/8 lệnh")
+
+    # Và cửa ngược lại: sổ mà mọi lệnh cược ĐỀU thì KHÔNG được đòi đổi chiến lược,
+    # dù có thua. Thiếu cửa này thì mỗi lệnh thua lại đòi đổi một lần, và bài học
+    # đắt nhất trong kho biến thành tiếng ồn.
+    so_deu = [{"id": str(i), "status": "CLOSED", "pnl": (50.0 if i % 3 else -50.0),
+               "riskAmount": 50.0, "exitReason": ("TAKE_PROFIT" if i % 3 else "STOP_LOSS"),
+               "barsHeld": 20, "regimeKey": f"K{i}"} for i in range(8)]
+    doi_deu = sum(1 for t in so_deu if mock_postmortem(t, so_deu)["change_strategy"])
+    check(doi_deu == 0, f"sổ cược đều: {doi_deu} bài đòi đổi chiến lược (phải là 0)")
 
     broker.reset()
     print("\n" + "=" * 62)

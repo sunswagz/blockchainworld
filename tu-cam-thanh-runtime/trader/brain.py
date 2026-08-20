@@ -490,6 +490,7 @@ def mock_postmortem(trade: dict, so: list[dict] | None = None) -> dict:
                  "thứ biến động cho phép trong khoảng thời gian đó")
 
     # — Phân loại: quyết định ≠ kết quả, luôn luôn —
+    # Đặt SAU khối "có lặp lại không" vì khối đó có thể hạ `hop_che_do`.
     quyet_dinh_tot = vao_dung and size_dung and stop_dung and hop_che_do
     if quyet_dinh_tot:
         pl = "GOOD_TRADE_GOOD_OUTCOME" if win else "GOOD_TRADE_BAD_OUTCOME"
@@ -499,6 +500,63 @@ def mock_postmortem(trade: dict, so: list[dict] | None = None) -> dict:
     if pl == "BAD_TRADE_GOOD_OUTCOME":
         y.append("THẮNG nhưng quy trình sai — đây là loại lệnh nguy hiểm nhất, vì "
                  "phần thưởng đến ngay và dạy đúng thứ không được lặp lại")
+
+    # — CÓ LẶP LẠI KHÔNG: chỗ duy nhất được phép đòi đổi chiến lược —
+    #
+    # `change_strategy` là bài học đắt nhất trong kho: `journal._chon()` luôn kéo
+    # nó vào prompt kể cả khi lạc chế độ. Vì thế nó phải mua bằng MỘT CHUỖI lệnh
+    # sai, không phải một lệnh xui — nếu không, mỗi lệnh thua lại đòi đổi chiến
+    # lược một lần và kho bài học biến thành tiếng ồn.
+    #
+    # Ba nguyên nhân dưới đây có chung một tính chất: chúng là tật của QUY TRÌNH
+    # chứ không phải của một lệnh, nên chỉ nhìn thấy được khi đếm trên cả sổ.
+    dong = [t for t in (so or []) if t.get("status") == "CLOSED" and t.get("pnl") is not None]
+
+    if not size_dung and len(khac) >= 3:
+        # Đếm bằng trung bình CẢ SỔ, không bằng "trung bình các lệnh khác".
+        # Trung bình-trừ-mình đổi theo từng lệnh, nên cùng một cuốn sổ lại ra số
+        # lệnh lệch khác nhau tuỳ đang xét lệnh nào — ở 8 lệnh đầu nó đếm ra 2
+        # thay vì 3 và luật lặp lại không bao giờ nổ.
+        moi_rr = [t["riskAmount"] for t in dong if (t.get("riskAmount") or 0) > 0]
+        tb_ca_so = sum(moi_rr) / len(moi_rr)
+        lech_nhieu = sum(1 for x in moi_rr if not (0.625 < x / tb_ca_so < 1.6))
+        if lech_nhieu >= 3:
+            doi_cl = True
+            tin = max(tin, 0.7)
+            y.append(f"KHÔNG PHẢI LỆNH NÀY XUI: {lech_nhieu}/{len(dong)} lệnh trong sổ "
+                     f"cược lệch quá 1,6× so với mức thường. Rủi ro đang bị quyết định "
+                     f"bởi khoảng cách stop và trần tiền mua được, không bởi mức rủi ro "
+                     f"đã chọn — đó là tật của cách tính kích thước, sửa ở đó chứ không "
+                     f"sửa ở tín hiệu vào lệnh")
+
+    if not vao_dung:
+        stop_som = sum(1 for t in dong if t.get("exitReason") == "STOP_LOSS"
+                       and isinstance(t.get("barsHeld") or t.get("soNenGiu"), (int, float))
+                       and (t.get("barsHeld") or t.get("soNenGiu")) <= 2)
+        if stop_som >= 3:
+            doi_cl = True
+            tin = max(tin, 0.65)
+            y.append(f"KHÔNG PHẢI LỆNH NÀY XUI: {stop_som} lệnh đã dính stop trong ≤2 nến. "
+                     f"Stop đang nằm trong vùng nhiễu chứ không nằm sau cấu trúc — nới stop "
+                     f"và giảm kích thước tương ứng, đừng đổi tín hiệu")
+
+    # — Chế độ này có lỗ ĐỀU không —
+    # Thua trong một chế độ không nói lên gì; thua ĐỀU qua nhiều lệnh trong CÙNG
+    # chế độ là chiến lược không hợp chế độ đó. Cần đủ mẫu, nếu không 2 lệnh xui
+    # cũng đủ khai tử một chế độ.
+    ma = trade.get("regimeKey") or trade.get("regimeAtEntry")
+    if ma and not win:
+        cung = [t for t in dong if (t.get("regimeKey") or t.get("regimeAtEntry")) == ma]
+        if len(cung) >= 5:
+            tien = sum(t["pnl"] for t in cung)
+            thua = sum(1 for t in cung if t["pnl"] <= 0)
+            if tien < 0 and thua / len(cung) >= 0.6:
+                doi_cl = True
+                tin = max(tin, 0.6)
+                hop_che_do = False
+                y.append(f"KHÔNG PHẢI LỆNH NÀY XUI: chế độ {ma} đã lỗ {tien:+.0f} qua "
+                         f"{len(cung)} lệnh ({thua} thua) — chiến lược này không ăn được "
+                         f"trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số")
 
     if not y:
         y.append("chạy tới mục tiêu, setup và cách thoát giữ nguyên" if win else

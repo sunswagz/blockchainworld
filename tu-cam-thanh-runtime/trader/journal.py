@@ -99,11 +99,38 @@ def _chon(lessons: list[dict], regime_key: str, regime_primary: str, limit: int)
     return (same_key[-limit:] + same_regime[-3:] + flagged[-3:])[-limit - 6:]
 
 
+def _phu_soat_lai(that: list[dict]) -> tuple[list[dict], int]:
+    """Phủ bản soát lại lên bài học gốc, khớp theo `tradeId`.
+
+    Bài học được đúc ngay lúc lệnh đóng, khi sổ còn quá ngắn để trả lời những câu
+    hỏi cần cả sổ mới trả lời được ("lệnh này cược lớn hơn mức thường bao nhiêu"
+    là câu hỏi không có nghĩa khi chưa có mức thường). Bản soát lại chạy hậu kiểm
+    lại trên TOÀN BỘ sổ, nên nói được những chỗ bản gốc không thể.
+
+    Giữ nguyên `at` của bản gốc: đây vẫn là bài học CỦA lệnh đó, không phải một
+    bài học mới. Đổi `at` sang hôm nay là biến 8 bài học thành 16 và làm hỏng cả
+    thứ tự lẫn phép đếm.
+    """
+    ban = {l["tradeId"]: l for l in store.read_all(store.LESSONS_SOAT_LAI) if l.get("tradeId")}
+    if not ban:
+        return that, 0
+    ra, n = [], 0
+    for l in that:
+        m = ban.get(l.get("tradeId"))
+        if m:
+            ra.append({**l, **m, "at": l.get("at"), "soatLai": True})
+            n += 1
+        else:
+            ra.append(l)
+    return ra, n
+
+
 def _gon(l: dict) -> dict:
     return {
         "at": l.get("at"), "regime": l.get("regime"), "side": l.get("side"),
         "rMultiple": l.get("rMultiple"), "classification": l.get("classification"),
         "lesson": l.get("lesson"), "changeStrategy": l.get("change_strategy"),
+        "soatLai": l.get("soatLai") or None,
     }
 
 
@@ -121,11 +148,17 @@ def recall(regime_key: str, regime_primary: str, limit: int = 6) -> dict:
     Gộp chung thì con số 300 bài học trông như bằng chứng mạnh trong khi phần lớn
     chỉ là một lần bấm nút.
     """
-    that = store.read_all(store.LESSONS)
+    that, so_soat = _phu_soat_lai(store.read_all(store.LESSONS))
     chay_lai = store.read_all(store.LESSONS_CHAY_LAI)
     perf = performance()
     return {
         "note": "Bài học là quan sát trong quá khứ, không phải quy tắc. Nói rõ nếu bạn bỏ qua một bài học và vì sao.",
+        "soatLaiNote": (
+            f"{so_soat} bài học dưới đây mang cờ soatLai — chúng đã được hậu kiểm LẠI "
+            f"khi sổ đã dài hơn, nên nhận xét về kích thước vị thế và về nhịp vào lệnh "
+            f"trong đó là so với cả sổ, không phải so với một lệnh đứng lẻ. Bản đúc lần "
+            f"đầu vẫn còn nguyên trong lessons.jsonl."
+        ) if so_soat else None,
         "lessonsForThisRegime": [_gon(l) for l in _chon(that, regime_key, regime_primary, limit)],
         "replayNote": (
             "Những bài học dưới đây đúc từ CHẠY LẠI LỊCH SỬ, không phải lệnh thật. "
@@ -146,7 +179,13 @@ def recent_trades(n: int = 25) -> list[dict]:
 
 
 def recent_lessons(n: int = 25) -> list[dict]:
-    return store.read_all(store.LESSONS)[-n:][::-1]
+    # Phủ bản soát lại Ở ĐÂY NỮA, không chỉ trong recall(). Nếu bảng đọc bản gốc
+    # còn bộ não đọc bản soát lại thì hai bên nói hai chuyện khác nhau về cùng
+    # một lệnh, và người xem không có cách nào biết bên nào đang nói thật.
+    that, _ = _phu_soat_lai(store.read_all(store.LESSONS))
+    # Luôn có khoá `soatLai`, kể cả khi chưa soát bao giờ — giao diện phân biệt
+    # được "chưa soát" (null) với "trường này không ai ghi" (vắng mặt).
+    return [{"soatLai": None, **l} for l in that[-n:][::-1]]
 
 
 def recent_theses(n: int = 25) -> list[dict]:

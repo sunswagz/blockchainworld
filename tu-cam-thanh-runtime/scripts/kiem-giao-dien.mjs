@@ -96,13 +96,17 @@ console.log("\n[5] trường của phần tử (nếu có dữ liệu)");
 const KIEM_PHAN_TU = [
   ["trade", J.trades?.[0], ["id", "side", "entry", "pnl", "rMultiple", "exitReason", "regimeAtEntry"]],
   ["lesson", J.lessons?.[0], ["classification", "lesson", "change_strategy", "regime_appropriate",
-                              "entry_valid", "size_valid", "stop_placement_valid", "tradeId"]],
+                              "entry_valid", "size_valid", "stop_placement_valid", "tradeId",
+                              "soatLai?"]],
   ["thesis", J.theses?.[0], ["action", "confidence", "regime_read", "strategy", "source", "at"]],
   ["position", S.account.positions?.[0], ["side", "entry", "stopLoss", "targets", "qty", "riskAmount"]],
 ];
 for (const [ten, mau, truong] of KIEM_PHAN_TU) {
   if (!mau) { console.log(`  —    ${ten}: chưa có dữ liệu để kiểm`); continue; }
-  const thieu = truong.filter((t) => mau[t] === undefined);
+  // "ten?" = được phép null, KHÔNG được phép vắng mặt. Vắng mặt và null là hai
+  // chuyện khác nhau: null là "đã tính, không có giá trị", vắng mặt là "giao diện
+  // đang đọc một trường không ai ghi" — và cái sau hiện ra thành ô trống im lặng.
+  const thieu = truong.filter((t) => mau[t.replace("?", "")] === undefined);
   thieu.length ? bao(`${ten}: thiếu ${thieu.join(", ")}`) : ok(`${ten}: đủ ${truong.length} trường`);
 }
 

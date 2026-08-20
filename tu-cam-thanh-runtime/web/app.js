@@ -272,7 +272,11 @@ function vePhai() {
   let pq = `<h3>Risk Engine</h3>`;
   if (!d) pq += '<div class="mo" style="font-size:12px">chưa thẩm định lượt nào</div>';
   else if (d.approved) pq += hang("phán quyết", "CHO QUA", "len") + hang("RR", num(d.rr)) +
-    hang("rủi ro", tien(d.position?.riskAmount));
+    hang("rủi ro", tien(d.position?.riskAmount)) +
+    (d.position?.riskBase != null
+      ? hang(d.position.riskBaseIsCash ? "…% của tiền mua được" : "…% của vốn",
+             `${num(d.position.riskPct, 2)}% × ${tien(d.position.riskBase)}`)
+      : "");
   else if (d.action === "NO_TRADE") pq += '<div class="nhac" style="font-size:12px">Bộ não chủ động đứng ngoài — đây là một quyết định.</div>';
   else pq += `<div class="xuong" style="font-size:12px;font-weight:600;margin-bottom:6px">CHẶN</div>` +
     (d.rejections || []).map((r) => `<div style="font-size:11.5px;color:var(--fg-3);padding:2px 0">× ${esc(r)}</div>`).join("");
@@ -420,6 +424,9 @@ function veViThe() {
         ${hang("khối lượng", Number(v.qty).toFixed(6))}
         ${hang("rủi ro", tien(v.riskAmount))}
         ${hang("RR kế hoạch", v.rr ?? "—")}
+        ${v.riskBase != null
+          ? hang(v.riskBaseIsCash ? "mẫu số rủi ro" : "mẫu số rủi ro (vốn)", tien(v.riskBase))
+          : hang("mẫu số rủi ro", "— (lệnh mở trước khi sửa)")}
       </div>
       <div class="tieu-muc" style="margin-top:16px">Vì sao vẫn còn giữ</div>
       ${check.map(([ten, ok, gt]) =>
@@ -1459,7 +1466,7 @@ function veHoc() {
       const buoc = l.change_strategy ? 1 : 0;
       return `<div class="kinh the" style="margin-bottom:10px">
         <h3><span class="${k === "xau" ? "xuong" : k === "canh" ? "nhac" : "len"}">${esc(c)}</span>
-          <span class="cuoi">${esc(l.regime || "—")} · ${l.rMultiple ?? "—"}R · ${esc(l.exitReason || "")}</span></h3>
+          <span class="cuoi">${l.soatLai ? '<span class="nhac">đã soát lại</span> · ' : ""}${esc(l.regime || "—")} · ${l.rMultiple ?? "—"}R · ${esc(l.exitReason || "")}</span></h3>
         <p style="margin:0 0 10px;font-size:13px;line-height:1.7;color:var(--fg-2)">${esc(l.lesson)}</p>
         <div class="luoi c4" style="gap:6px;margin-bottom:10px">
           ${[["chế độ hợp", l.regime_appropriate], ["điểm vào hợp lệ", l.entry_valid],
@@ -1471,6 +1478,8 @@ function veHoc() {
           `<span class="doi-b ${i < buoc ? "qua" : i === buoc ? "hien" : ""}">${b}</span>`).join("")}</div>
         ${l.change_strategy ? "" : `<div style="font-size:11px;color:var(--fg-4);margin-top:6px">
           Dừng ở “phát hiện”: một lệnh không đủ cớ để đổi chiến lược. Cần mẫu lặp lại qua nhiều lệnh.</div>`}
+        ${l.soatLai ? `<div style="font-size:11px;color:var(--fg-4);margin-top:6px">
+          Bài học này được hậu kiểm LẠI khi sổ đã dài hơn. Bản đúc lần đầu — lúc chưa tồn tại “mức cược thường” để so — vẫn còn nguyên trong <b class="mono">lessons.jsonl</b>.</div>` : ""}
       </div>`;
     }).join("") : `<div class="trong">Chưa có bài học nào — bài học chỉ sinh ra sau khi một lệnh đóng lại.</div>`}`;
 }
