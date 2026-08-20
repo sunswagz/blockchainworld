@@ -63,6 +63,10 @@ TRE_TOI_DA_MS = 8000.0        # quá mốc này thì coi như không phản ứn
 NGHI_SAU_SU_KIEN_MS = 3000.0  # tránh đếm một cú động thành nhiều
 SAU_LICH = 8192
 
+# Ô lưới để ước sigma. KHÔNG ước từ tick liền tick — xem `_sigma_luoi`.
+O_LUOI_MS = 250.0
+CUA_SO_SIGMA_MS = 60_000.0    # một phút, đủ 240 ô lưới
+
 
 @dataclass
 class SuKien:
@@ -150,23 +154,11 @@ class DoTre:
     def _soat_cu_dong(self, ma: str, cap: str, now: float) -> None:
         if now < self._nghiToi.get(ma, 0.0):
             return
-        mau = self.nen.lat(cap, now - CUA_SO_MS * 6, now)
-        if len(mau) < 20:
+        mau = self.nen.lat(cap, now - CUA_SO_SIGMA_MS, now)
+        if len(mau) < 40:
             return
-        # sigma của log-return giữa các mẫu liên tiếp, quy về mỗi mili-giây
-        r = []
-        for i in range(1, len(mau)):
-            dt = mau[i][0] - mau[i - 1][0]
-            if dt <= 0 or mau[i - 1][1] <= 0:
-                continue
-            r.append(math.log(mau[i][1] / mau[i - 1][1]) / math.sqrt(dt))
-        if len(r) < 12:
-            return
-        try:
-            sd = statistics.pstdev(r)
-        except statistics.StatisticsError:
-            return
-        if sd <= 0:
+        sd = _sigma_luoi(mau)
+        if sd is None or sd <= 0:
             return
 
         dau = self.nen.gan_nhat_truoc(cap, now - CUA_SO_MS)
@@ -314,6 +306,46 @@ class DoTre:
             "sanPhanGiaiMs": NHIP_LAY_MAU_MS,
             "gan": k.lichSu[-12:],
         }
+
+
+def _sigma_luoi(mau: list[tuple[float, float]]) -> float | None:
+    """Độ lệch chuẩn log-return mỗi √ms, ước từ LƯỚI THÔ chứ không từ tick.
+
+    Bản đầu ước từ tick liền tick và phát hiện được ĐÚNG 0 cú động trong
+    46.000 tin. Không phải chợ yên — là phép ước sai.
+
+    Ở nhịp mili-giây, giá không phải khuếch tán thuần: nó có nhiễu vi cấu
+    trúc (giá tốt nhất nhấp nháy qua lại quanh giá trị thật). Nhiễu đó có
+    tự tương quan ÂM mạnh, nên khi ta nhân với √(1/dt) để quy về mỗi ms,
+    nó thổi sigma lên nhiều lần. Sigma phồng thì ngưỡng k·sigma dâng theo,
+    và không cú động thật nào vượt nổi — thước im lặng trong lúc trông
+    như đang chạy tốt.
+
+    Cách chữa chuẩn: lấy mẫu lại theo lưới đủ thô để nhiễu tan bớt, rồi
+    tính trên lưới đó. 250 ms là chỗ thoả hiệp: đủ thô để tránh nhiễu, đủ
+    mịn để một cửa sổ một giây vẫn còn bốn ô.
+    """
+    o: dict[int, float] = {}
+    for t, g in mau:
+        if g > 0:
+            o[int(t // O_LUOI_MS)] = g          # giá cuối trong mỗi ô
+    if len(o) < 12:
+        return None
+    khoa = sorted(o)
+    r = []
+    for i in range(1, len(khoa)):
+        b = khoa[i] - khoa[i - 1]
+        if b <= 0:
+            continue
+        # Ô trống thì khoảng cách dài hơn; chia cho √(số ô) để quy chuẩn.
+        r.append(math.log(o[khoa[i]] / o[khoa[i - 1]]) /
+                 math.sqrt(b * O_LUOI_MS))
+    if len(r) < 8:
+        return None
+    try:
+        return statistics.pstdev(r)
+    except statistics.StatisticsError:
+        return None
 
 
 def _giua(so) -> float | None:

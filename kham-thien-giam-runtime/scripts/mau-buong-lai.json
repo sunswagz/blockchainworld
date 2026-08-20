@@ -538,5 +538,45 @@
       ],
       "nhipGiay": 2.0
     }
-  ]
+  ],
+  "dongNen": {
+    "dangNoi": true,
+    "soMa": 4,
+    "ma": [
+      "btcusdt",
+      "ethusdt",
+      "solusdt",
+      "xrpusdt"
+    ],
+    "tinNhan": 462117,
+    "soLanNoiLai": 1,
+    "loiCuoi": "",
+    "noiLucMs": 1787240000000.0,
+    "sauVongDem": {
+      "btcusdt": 4096
+    }
+  },
+  "doTre": {
+    "n": 148,
+    "soPhanUng": 91,
+    "trungViMs": 612.0,
+    "p25Ms": 340.0,
+    "p75Ms": 1480.0,
+    "tyLePhanUng": 0.615,
+    "doiChung": {
+      "n": 148,
+      "trungViMs": 2870.0,
+      "tyLe": 0.41
+    },
+    "ketLuan": "trung vị 612 ms so với đối chứng 2870 ms — có độ trễ thật đo được",
+    "thamSo": {
+      "cuaSoMs": 1000.0,
+      "kNguong": 3.0,
+      "nguongPoly": 0.004,
+      "nhipLayMauMs": 50.0,
+      "treToiDaMs": 8000.0
+    },
+    "sanPhanGiaiMs": 50.0,
+    "gan": []
+  }
 }

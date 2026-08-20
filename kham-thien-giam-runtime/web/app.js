@@ -552,8 +552,62 @@
 
   var SAU = {};              // ô nào đang mở phần sâu, nhớ qua các lần vẽ
 
+  /* Dải ĐỘ TRỄ — một con số cho cả hệ, nên nó đứng trên mọi market.
+
+     Đây là con số mà cả một dòng bot được dựng quanh nó, và được kể lại
+     rất khác nhau: một bài lan truyền nói 2.700ms, nghiên cứu OpenMarket
+     đo 347ms. Ta không tin bên nào — ta đo, và đo kèm đối chứng ngẫu
+     nhiên, vì chờ "giá dịch 0,4 xu" từ một mốc bất kỳ thì bao giờ cũng
+     chờ được. Không có đối chứng thì ô này chỉ là một số đẹp. */
+  function veDaiTre() {
+    var t = T.doTre || {}, n = T.dongNen || {};
+    var o = el("div", "tre");
+
+    var trai = el("div", "tre-trai");
+    trai.appendChild(el("div", "tre-nhan", "ĐỘ TRỄ ĐO ĐƯỢC"));
+    if (t.trungViMs == null) {
+      trai.appendChild(el("div", "tre-so mo", "—"));
+    } else {
+      var v = el("div", "tre-so");
+      v.appendChild(el("b", "", so(t.trungViMs, 0)));
+      v.appendChild(el("i", "", "ms"));
+      trai.appendChild(v);
+      if (t.p25Ms != null) {
+        trai.appendChild(el("div", "tre-phu",
+          so(t.p25Ms, 0) + "–" + so(t.p75Ms, 0) + " ms (tứ phân vị)"));
+      }
+    }
+    o.appendChild(trai);
+
+    var phai = el("div", "tre-phai");
+    phai.appendChild(hang("Mẫu", [
+      sotv((t.n || 0) + " cú động"),
+      manh("phản ứng"), sotv((t.soPhanUng || 0) + " · " + pc(t.tyLePhanUng || 0, 0))
+    ]));
+    var dc = t.doiChung || {};
+    phai.appendChild(hang("Đối chứng", [
+      dc.trungViMs == null ? manh("chưa có", "chua")
+        : sotv(so(dc.trungViMs, 0) + " ms"),
+      manh("mốc rút ngẫu nhiên, cùng quãng")
+    ]));
+    phai.appendChild(hang("Dòng nền", [
+      manh(n.dangNoi ? "Binance WebSocket đã nối" : "CHƯA nối", n.dangNoi ? "len" : "xuong"),
+      sotv((n.tinNhan || 0) + " tin"),
+      manh("sàn phân giải " + so(t.sanPhanGiaiMs, 0) + " ms")
+    ]));
+    o.appendChild(phai);
+
+    var kl = el("p", "tre-kl");
+    var xau = (t.ketLuan || "").indexOf("tiếng ồn") >= 0;
+    kl.className = "tre-kl " + (xau ? "xuong" : (t.trungViMs != null ? "len" : "mo"));
+    kl.textContent = t.ketLuan || "chưa đo";
+    o.appendChild(kl);
+    return o;
+  }
+
   function veChiHuy() {
     var g = document.createDocumentFragment();
+    g.appendChild(veDaiTre());
     var tt = (T.thiTruong || []).filter(function (x) { return x.theo; });
     if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
 
