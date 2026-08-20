@@ -622,7 +622,25 @@
       return (t.ten + " " + t.viec + " " + t.hoi + " " + (t.luu || "")).toLowerCase().indexOf(q) !== -1;
     });
     if (!ds.length) {
-      host.innerHTML = '<p class="trong">Không có công cụ nào khớp. Nới bộ lọc lại xem.</p>';
+      /* Trạng thái trống phải trả lời được "vì sao trống". Bộ lọc ở
+         đây có BA trục (nhóm, tầng, chữ tìm) và hai trong ba nằm ở
+         cụm nút phía trên, ngoài tầm mắt khi đã cuộn xuống — nên một
+         dòng "không có gì khớp" trơ trọi bắt người đọc tự nhớ họ đã
+         bấm những gì rồi tự đi gỡ từng cái. Liệt kê đúng các điều
+         kiện đang bật, rồi cho MỘT nút thoát ra. */
+      var dieu = [], l = null, j;
+      if (locLop !== "tat-ca") {
+        for (j = 0; j < NG.LOP.length; j++) if (NG.LOP[j].ma === locLop) l = NG.LOP[j];
+        dieu.push("nhóm <b>" + esc(l ? l.ten : locLop) + "</b>");
+      }
+      if (locTang !== "tat-ca") dieu.push("tầng <b>" + esc(locTang) + "</b>");
+      if (q) dieu.push("chữ <b>“" + esc(locTim.trim()) + "”</b>");
+      host.innerHTML = dieu.length
+        ? '<div class="trong trong-loc"><p><b>Không công cụ nào khớp.</b></p>' +
+          '<p class="trong-dk">Đang lọc theo ' + dieu.join(" · ") + ".</p>" +
+          '<button class="trong-xoa" type="button" id="xoaLoc">Xoá bộ lọc · xem lại cả ' +
+          NG.TOOL.length + " công cụ</button></div>"
+        : '<p class="trong">Sổ bộ nguồn chưa có công cụ nào.</p>';
       return;
     }
     var TIN = { cao: ["len", "bằng chứng mạnh"], vua: ["", "bằng chứng vừa"], "chua-ro": ["canh", "chưa rõ"] };
@@ -996,6 +1014,25 @@
       var loai = el.getAttribute("data-mo"), ten = el.getAttribute("data-ten");
       if (loai === "chuoi") hosoChuoi(ten);
       else if (loai === "nhom") hosoNhom(ten);
+      return;
+    }
+
+    /* Nút thoát của trạng thái trống: gỡ cả ba trục cùng lúc, và kéo
+       aria-pressed lẫn ô tìm về đúng trạng thái đã gỡ — không thì
+       lưới hiện đủ 47 công cụ trong khi cụm nút phía trên vẫn tô
+       sáng một bộ lọc không còn tác dụng. */
+    el = e.target.closest ? e.target.closest("#xoaLoc") : null;
+    if (el) {
+      locLop = "tat-ca"; locTang = "tat-ca"; locTim = "";
+      var oTim = document.getElementById("timNguon");
+      if (oTim) oTim.value = "";
+      Array.prototype.forEach.call(document.querySelectorAll("#locLop button"), function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-lop") === "tat-ca"));
+      });
+      Array.prototype.forEach.call(document.querySelectorAll("#locTang button"), function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-tang") === "tat-ca"));
+      });
+      locVaVe();
       return;
     }
 

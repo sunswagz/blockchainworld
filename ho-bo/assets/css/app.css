@@ -412,6 +412,19 @@ code,.mono{font-family:var(--mono)}
 
 /* ── linh tinh ────────────────────────────────────────── */
 .trong{padding:34px;text-align:center;color:var(--fg-3);font-size:13.4px}
+/* Trạng thái trống có LÝ DO: câu đầu nói chuyện gì xảy ra, dòng thứ
+   hai nói bộ lọc nào đang bật, rồi đúng một nút để thoát ra. Ba thứ
+   đó là ba bậc chữ khác nhau — trộn về cùng một cỡ thì mắt không
+   biết đọc dòng nào trước. */
+.trong-loc{display:grid;justify-items:center;gap:8px;padding:38px 20px}
+.trong-loc p{margin:0}
+.trong-loc b{color:var(--fg)}
+.trong-dk{font-size:12.4px;color:var(--fg-3)}
+.trong-dk b{font-family:var(--mono);font-size:11.8px;color:var(--fg-2)}
+.trong-xoa{margin-top:4px;padding:7px 16px;border-radius:999px;
+  background:var(--tien);color:#06120F;font-size:12.6px;font-weight:650;
+  transition:filter var(--dur)}
+.trong-xoa:hover{filter:brightness(1.1)}
 .chan{margin-top:22px;padding-top:15px;border-top:1px solid var(--line);
   font-size:11.6px;color:var(--fg-3);line-height:1.72}
 .chan b{color:var(--fg-2)}
