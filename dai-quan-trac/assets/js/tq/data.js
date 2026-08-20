@@ -214,7 +214,7 @@ const GAUGES = [
 const LEVELS = [
   {n:1, t:'CÚ SỐC KINH TẾ',
    co:'Đây là lớp NGOÀI CÙNG, và hệ thống chịu khá tốt — đó là điều phần lớn phân tích "đánh Trung Quốc" bỏ qua. Dầu đã đa dạng nguồn: Nga ~20%, Saudi ~14%, Iran ~11%, Iraq ~10%, cộng Kazakhstan, Myanmar và sản xuất nội địa ~4,3 triệu thùng/ngày. Chip bị siết thì còn mature-node, SMIC, Huawei, thiết bị nội địa và trợ cấp nhà nước — cấm vận làm CHẬM biên nghiên cứu và TĂNG chi phí, không làm nhà máy ngừng chạy. Xuất khẩu bị một thị trường siết thì chuyển hướng ASEAN, Mexico, Global South. Ba đòn này làm Trung Quốc NGHÈO HƠN hoặc CHẬM HƠN; chúng không làm nó gãy.',
-   dau:'Chưa đồng hồ nào trong mười hai cái phải đỏ, vì cú sốc chưa chạm tới bảng cân đối. Số đo nền — Brent, SOXX, FXI, GDELT — mới là chỗ thấy trước.',
+   dau:'Chưa đồng hồ nào trong mười hai cái phải đỏ, vì cú sốc chưa chạm tới bảng cân đối. Số đo nền — Brent, SOXX, FXI, Hang Seng — mới là chỗ thấy trước.',
    day:'Nó chỉ nguy hiểm khi rơi ĐÚNG LÚC bất động sản đang yếu: chi phí năng lượng ↑ và đơn hàng ↓ chồng lên tài sản ↓ và thu đất ↓. Một cú sốc đúng thời điểm mạnh hơn ba cú sốc rời rạc.',
    d:'Xuất khẩu ↓, dầu ↑, hạn chế công nghệ. Chi phí tăng, tăng trưởng chậm lại.',
    r:'Chịu được khá tốt.'},
@@ -553,10 +553,9 @@ const DODAC = [
    nguon:'fedreg', ma:'China', g:150, r:250,
    ghi:'Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng. Nền cao hơn Việt Nam nhiều nên ngưỡng cũng khác.',
    can:'Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng.'},
-  {id:'sacthai', gg:null, th:'thuongmai', nhan:'Sắc thái tin về kinh tế Trung Quốc', dv:'điểm GDELT',
-   nguon:'gdelt', ma:'China economy', g:1.9, r:1.4, nghich:true,
-   ghi:'Chỉ báo THAY THẾ — giọng báo chí quốc tế, không phải niềm tin trong nước. Với Trung Quốc còn phải nhớ báo chí quốc tế viết về Trung Quốc theo chu kỳ chính trị của chính phương Tây.',
-   can:'Dùng tạm cùng thang với bản Việt Nam cho tới khi có đủ 90 ngày quan sát riêng.'},
+  /* Sắc thái tin GDELT đã gỡ 20/08/2026 — nguồn hỏng 7 lượt liền, xem
+     đầu scripts/build-quantrac.mjs. KHÔNG thay bằng gì: bảng này đã có
+     FXI, Hang Seng và chỉ số thị trường, thêm nữa là thừa. */
   {id:'hangseng', gg:null, th:'taichinh', nhan:'Hang Seng', dv:'điểm',
    nguon:'yahoo', ma:'^HSI', g:25000, r:23000, nghich:true,
    ghi:'Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.',

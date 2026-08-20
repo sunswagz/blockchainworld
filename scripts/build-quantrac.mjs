@@ -32,10 +32,20 @@
      · erapi   — open.er-api.com. MỘT lượt gọi trả MỌI đồng tiền,
                  nên USD/VND và USD/CNY dùng chung một phản hồi.
      · fedreg  — Federal Register API, đếm văn bản theo từ khoá.
-     · gdelt   — GDELT timelinetone, sắc thái tin theo truy vấn.
 
    Đã loại sau khi thử: stooq (chặn, trả HTML), Frankfurter (không
    có VND), EIA và FRED (miễn phí nhưng đòi đăng ký khoá).
+
+   VÀ ĐÃ GỠ SAU KHI DÙNG THẬT: GDELT (20/08/2026). Nó chạy được lúc
+   dựng rồi hỏng 7 lượt bot liên tiếp từ 16/08 — mà hỏng theo kiểu
+   tệ nhất: bộ lấy giữ số cũ, giao diện vẫn sáng đèn, không lỗi nào
+   báo. Đo tay hôm nay ~15 lượt trong một giờ chỉ được 2. Chờ 20s
+   rồi 45s rồi thử lại — đúng điều máy chủ yêu cầu — vẫn hỏng cả ba.
+   Cung Tử Cấm Thành đã kết luận y hệt và ghi trong README của nó:
+   "chặn theo tải chứ không theo đồng hồ".
+
+   Đừng dựng lại đường này. Nếu cần sắc thái tin thì lấy từ RSS như
+   scripts/build-dong-tin.mjs, không lấy từ GDELT.
 
    ── ĐỒNG HỒ NÀO KHÔNG TỰ ĐO ĐƯỢC ───────────────────────
    Việt Nam: ngân hàng, bất động sản, kênh sàn — không có nguồn
@@ -72,10 +82,12 @@ function dat(k, v) {
 const UA = { "user-agent": "dai-quan-trac-databot", accept: "*/*" };
 const nghi = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/* Thử 3 lần, nghỉ 2s rồi 5s. GDELT chập chờn thật — cùng một URL
-   lần đầu tắc, lần sau trả 8 KB JSON bình thường. Không có vòng
-   này thì đồng hồ sắc thái hỏng ngẫu nhiên vài lượt mỗi ngày và
-   trông như nguồn đã chết. */
+/* Thử 3 lần, nghỉ 2s rồi 5s. Yahoo thỉnh thoảng tắc một lượt rồi
+   lượt sau trả bình thường, nên vòng này vẫn cần.
+
+   Gặp 429 thì THOÁT NGAY chứ không thử lại — với ba nguồn còn lại
+   thì đúng. Nhưng đừng dựng lại nguồn nào hay 429: GDELT đã cho
+   thấy chờ-rồi-thử-lại cũng không cứu được, chỉ kéo dài lượt chạy. */
 async function nap(url, kieu = "json") {
   let cuoi;
   for (let lan = 1; lan <= 3; lan++) {
@@ -99,7 +111,6 @@ async function nap(url, kieu = "json") {
    dùng lại cho mọi chủ thể — thêm nước thứ ba cũng không tốn thêm
    lượt gọi nào. */
 let TIEN = null;
-let daGoiGdelt = false;
 async function bangTien() {
   if (!TIEN) TIEN = nap("https://open.er-api.com/v6/latest/USD");
   return TIEN;
@@ -133,26 +144,12 @@ const LAY = {
     if (!Number.isFinite(j?.count)) throw new Error("không đọc được số đếm");
     return { so: j.count, lich: null };
   },
-  async gdelt(ma) {
-    /* GDELT chặn khi hai lượt gọi sát nhau — lộ ra đúng lúc thêm chủ
-       thể thứ hai, vì trước đó cả xưởng chỉ gọi nó một lần. Nghỉ giữa
-       các lượt rẻ hơn nhiều so với mất một phép đo. */
-    if (daGoiGdelt) await nghi(15000);
-    daGoiGdelt = true;
-    const j = await nap("https://api.gdeltproject.org/api/v2/doc/doc?query=" +
-      encodeURIComponent(ma) + "&mode=timelinetone&format=json&timespan=90d");
-    const d = (j.timeline?.[0]?.data || []).map((x) => x.value).filter(Number.isFinite);
-    if (!d.length) throw new Error("chuỗi rỗng");
-    const l = d.map((x) => Math.round(x * 100) / 100);
-    return { lich: l, so: l[l.length - 1] };
-  }
 };
 
 const TEN_NGUON = {
   yahoo: (ma) => "Yahoo Finance · " + ma,
   erapi: (ma) => "open.er-api.com · USD/" + ma,
-  fedreg: (ma) => "Federal Register API · “" + ma + "”",
-  gdelt: (ma) => "GDELT timelinetone · “" + ma + "”"
+  fedreg: (ma) => "Federal Register API · “" + ma + "”"
 };
 
 /* Đổi phần trăm so với N phiên trước — nói nhiều hơn giá trị tuyệt đối. */

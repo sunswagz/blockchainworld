@@ -435,10 +435,22 @@ const DODAC = [
    nguon:'fedreg', ma:'Vietnam', th:'my', g:35, r:55,
    ghi:'Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng.',
    can:'Nền quan sát được khoảng 37–43 văn bản/30 ngày. NGƯỠNG YẾU NHẤT BẢNG — đọc như nhịp độ, không phải mức độ.'},
-  {id:'niemtin', gg:'niemtin', nhan:'Sắc thái tin về kinh tế VN', dv:'điểm GDELT',
-   nguon:'gdelt', ma:'Vietnam economy', th:'vn', g:1.9, r:1.4, nghich:true,
-   ghi:'Chỉ báo THAY THẾ — đo giọng báo chí quốc tế, không đo hành vi người gửi tiền.',
-   can:'Ngưỡng theo phân phối quan sát 90 ngày: trung vị 1,91 · phần tư dưới 1,61 · thấp nhất 0,83.'},
+  /* Chỗ này TRƯỚC ĐÂY là sắc thái tin GDELT thắp đồng hồ "Niềm tin".
+     Gỡ ngày 20/08/2026 vì nguồn hỏng 7 lượt bot liên tiếp — xem đầu
+     scripts/build-quantrac.mjs.
+
+     KHÔNG thay bằng gì, và đó là câu trả lời đúng chứ không phải bỏ
+     cuộc. Đã dò: không nguồn sắc thái tin nào miễn khoá mà đáng tin;
+     Wikimedia pageviews đo SỰ CHÚ Ý chứ không đo sắc thái. Còn thị
+     trường thì `doanhnghiep` ngay trên kia ĐÃ dùng chính VNM rồi —
+     thêm một dòng VNM nữa chỉ là cùng một con số mang hai cái tên.
+     (Tôi đã suýt làm đúng lỗi đó, và chỉ lộ ra khi chạy thật thấy hai
+     dòng cùng bằng 17,08.)
+
+     Nên đồng hồ "Niềm tin" nay ĐẶT TAY. Điều đó khớp với chính câu
+     mô tả của nó trong bảng: "không có một con số duy nhất" — và chỉ
+     báo GDELT vốn đã tự khai là "chỉ báo THAY THẾ". Bảng Việt Nam đi
+     từ 7 xuống 6 đèn tự đo: ít hơn mà thật. */
 
   /* ── Bốn số đo NỀN (gg:null) ─────────────────────────────────
      Chúng KHÔNG thắp đồng hồ nào. Bốn đồng hồ còn đặt tay — xuất

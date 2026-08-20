@@ -334,7 +334,7 @@ jobs:
         run: node scripts/nha-may.mjs ghi tang-thu-cac "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/tang-thu-cac.log"
 
       # Bảng cảnh báo sớm Đài Quan Trắc. Ba nguồn miễn phí không cần
-      # khoá (Yahoo Finance, open.er-api, GDELT), so ngưỡng số học rồi
+      # khoá (Yahoo Finance, open.er-api, Federal Register), so ngưỡng rồi
       # tự đặt đèn xanh/vàng/đỏ. KHÔNG gọi AI — xem phần đầu
       # scripts/build-quantrac.mjs để biết vì sao đó là lựa chọn thiết
       # kế chứ không chỉ là chuyện tiền.

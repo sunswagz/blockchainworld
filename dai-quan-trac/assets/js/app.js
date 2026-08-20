@@ -780,7 +780,7 @@ function vGauges(){
   if(DO_LUC){
     const b=el('div','do-luc');
     b.innerHTML='<span class="dot '+(chet.length?'y':'g')+'"></span> Số đo gần nhất '+esc(gioDo(DO_LUC))+
-      ' · Yahoo Finance · open.er-api · Federal Register · GDELT · <b>0 đồng chi phí</b>'+
+      ' · Yahoo Finance · open.er-api · Federal Register · <b>0 đồng chi phí</b>'+
       (chet.length?'<br><b style="color:var(--gold)">'+chet.length+' nguồn đã im hơn '+OI_GIO+' giờ</b> — '+
         chet.map(g=>esc(g.t)).join(', ')+'. Số cũ vẫn hiện nhưng KHÔNG còn thắp đèn.':'');
     w.appendChild(b);
