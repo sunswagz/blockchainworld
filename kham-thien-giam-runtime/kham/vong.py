@@ -40,7 +40,9 @@ from .dat_lenh import CongLenh
 from . import dong_co
 from .dinh_gia import DoBienDong, HieuChinh
 from .do_thi import Nut, do_thi, nhom_cua
+from .do_tre import DoTre
 from .dong_song import dong_song
+from .dong_song_nen import dongSongNen
 from .dongho import dong_ho
 from .ket_toan import KetToan
 from .kho_doi import Kho
@@ -64,6 +66,7 @@ class Runtime:
         self.hieuChinh = HieuChinh()
         self.so = So()
         self.ketToan = KetToan(self.kho, self.hieuChinh, self.so, self.risk)
+        self.doTre = DoTre(dongSongNen, dong_song)
 
         self.bienDong: dict[str, DoBienDong] = {}
         self.khungHienTai: dict[str, Khung] = {}
@@ -92,7 +95,15 @@ class Runtime:
         if self._chay:
             return
         self._chay = True
+        # Dòng nền phải bật CÙNG dòng sổ. Đo độ trễ giữa hai sàn mà một
+        # bên lấy bằng WebSocket còn bên kia hỏi vòng 2 giây thì thứ đo
+        # được là nhịp hỏi của chính mình, không phải độ trễ của chợ.
+        for tt in CONFIG["thiTruong"]:
+            if tt.get("theo") and tt.get("nen"):
+                dongSongNen.dang_ky(tt["nen"])
         dong_song.bat()
+        dongSongNen.bat()
+        self.doTre.bat()
         self._luong = threading.Thread(target=self._vong_lap, daemon=True)
         self._luong.start()
         bus.ghi(f"runtime khởi động — chế độ {che_hieu_luc()}", loai="he")
@@ -100,6 +111,8 @@ class Runtime:
     def dung(self) -> None:
         self._chay = False
         dong_song.dung()
+        dongSongNen.dung()
+        self.doTre.dung()
         may_ghi.dong()
         nguon.dong()
         bus.ghi("runtime dừng", loai="he")
@@ -231,6 +244,12 @@ class Runtime:
                     dong_song.bo_dang_ky(cu.tokenDown)
                 dong_song.dang_ky(k.tokenUp, ma, "UP")
                 dong_song.dang_ky(k.tokenDown, ma, "DOWN")
+                # Thước đo trễ bám token UP: nền tăng thì P(UP) phải tăng,
+                # nên hướng hàm ý đọc thẳng được, không cần quy đổi.
+                nenMa = next((t.get("nen") for t in CONFIG["thiTruong"]
+                              if t.get("ma") == ma), None)
+                if nenMa:
+                    self.doTre.lien_ket(ma, nenMa, k.tokenUp)
                 self.khungHienTai[ma] = k
                 bus.ghi(f"{ma}: vào cửa đặt cược {k.slug} "
                         f"(còn {k.con_lai_giay(now):.0f}s)", loai="tin")
@@ -379,6 +398,8 @@ class Runtime:
             "risk": self.risk.tom_tat(), "kho": self.kho.tom_tat(),
             "lenh": self.cong.tom_tat(), "nguon": nguon.tom_tat(),
             "dongSong": dong_song.tom_tat(),
+            "dongNen": dongSongNen.tom_tat(),
+            "doTre": self.doTre.tom_tat(),
             "ketToan": self.ketToan.tom_tat(),
             "doThi": do_thi.tom_tat(),
             "voDich": so_vo_dich.tom_tat(),

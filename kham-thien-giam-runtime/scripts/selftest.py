@@ -699,6 +699,82 @@ def kiem_cong_tien_hoa() -> None:
          TOI_THIEU_MAU >= 40 and BIEN_VUOT > 1.0 and DUOI_TOI_DA < 1.5)
 
 
+def kiem_do_tre() -> None:
+    print("\n── Đo trễ: thước phải bắt được chính tiếng ồn ─────────────────")
+    from collections import deque
+
+    from kham.do_tre import NGUONG_POLY, TRE_TOI_DA_MS, DoTre, SuKien
+
+    class _Rong:
+        def lat(self, *a, **k): return []
+        def gan_nhat_truoc(self, *a, **k): return None
+        def lay(self, *a, **k): return None
+
+    def dung(chuoi, suKien):
+        d = DoTre(_Rong(), _Rong())
+        d._poly["M"] = deque(chuoi)
+        for t, h in suKien:
+            d._suKien.append(SuKien(tMs=t, ma="M", huong=h, doLon=4.0))
+        d._cham_diem(chuoi[-1][0] + TRE_TOI_DA_MS + 1000)
+        return d.ket_qua(toiThieu=5)
+
+    # ── Ca A: Polymarket THẬT SỰ đi sau nền 400 ms ────────────────────
+    # Sổ đứng yên, chỉ nhích đúng 400 ms sau mỗi cú động. Đây là hình dạng
+    # mà giả thuyết "có độ trễ" dự đoán.
+    TRE = 400.0
+    chuoi, suKien, g = [], [], 0.50
+    for i in range(24):
+        t0 = 10_000.0 + i * 20_000.0
+        suKien.append((t0, 1))
+        chuoi.append((t0 - 5_000.0, g))
+        chuoi.append((t0 + TRE, g + NGUONG_POLY * 1.5))
+        g += NGUONG_POLY * 1.5
+    chuoi.sort()
+    a = dung(chuoi, suKien)
+    kiem("có trễ thật → đo lại đúng khoảng đã cấy",
+         a.trungVi is not None and abs(a.trungVi - TRE) < 60,
+         f"cấy {TRE:.0f} ms, đo ra {a.trungVi}")
+    kiem("có trễ thật → kết luận nói CÓ",
+         "có độ trễ thật" in a.ketLuan or "TỐT" in a.ketLuan, a.ketLuan)
+
+    # ── Ca B: sổ nhúc nhích đều đặn, KHÔNG liên quan gì tới nền ────────
+    # Đây là ca mà một thước đo cẩu thả sẽ báo "có độ trễ": chọn bất kỳ mốc
+    # nào rồi chờ giá dịch 0,4 xu thì bao giờ cũng chờ được. Chỉ có phép
+    # đối chứng mới phân biệt được ca này với ca A.
+    chuoi, suKien, g = [], [], 0.50
+    for i in range(400):
+        chuoi.append((i * 500.0, g))
+        g += NGUONG_POLY * 1.2 * (1 if (i // 3) % 2 == 0 else -1)
+    for i in range(24):
+        suKien.append((7_000.0 + i * 7_777.0, 1))
+    b = dung(chuoi, suKien)
+    kiem("tiếng ồn → thước KHÔNG được báo là có độ trễ",
+         "tiếng ồn" in b.ketLuan or b.trungVi is None, b.ketLuan)
+    kiem("tiếng ồn → đối chứng cũng tìm được 'phản ứng' như thật",
+         b.trungViDoiChung is not None or b.trungVi is None,
+         "đối chứng phải chạy được thì kết luận mới có nghĩa")
+
+    # ── Ca C: sổ dịch NGƯỢC hướng nền ─────────────────────────────────
+    # Dịch ngược không phải "phản ứng chậm" — nó là bằng chứng chống lại
+    # giả thuyết, nên không được tính là một lần phản ứng.
+    chuoi, suKien, g = [], [], 0.50
+    for i in range(20):
+        t0 = 10_000.0 + i * 20_000.0
+        suKien.append((t0, 1))                    # nền TĂNG
+        chuoi.append((t0 - 5_000.0, g))
+        chuoi.append((t0 + 300.0, g - NGUONG_POLY * 2))   # sổ GIẢM
+        g -= NGUONG_POLY * 2
+    chuoi.sort()
+    c = dung(chuoi, suKien)
+    kiem("dịch ngược hướng KHÔNG được tính là phản ứng",
+         c.soPhanUng == 0, f"{c.soPhanUng}/{c.n} — phải bằng 0")
+
+    # ── Ca D: chưa đủ mẫu thì phải nói là chưa đủ ──────────────────────
+    d = dung([(0.0, 0.5), (1000.0, 0.52)], [(100.0, 1)])
+    kiem("ít mẫu → nói 'chưa đủ mẫu', không kết luận bừa",
+         "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -856,6 +932,7 @@ def main() -> int:
     kiem_dong_co()
     kiem_cham_moc()
     kiem_nhom_tai_san()
+    kiem_do_tre()
 
     print("\n" + "=" * 70)
     if _loi:
