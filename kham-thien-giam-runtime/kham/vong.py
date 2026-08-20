@@ -48,6 +48,9 @@ from .nguon import nguon
 from .rui_ro import RiskEngine, SucKhoeNguon
 from .so import So, thong_ke
 from .so_lenh import SoLenh
+from .tien_hoa import doc_so as doc_so_tien_hoa
+from .tien_hoa import duong_tien_hoa
+from .tien_hoa import mot_luot as tien_hoa_mot_luot
 from .vi import dai_quan_vi
 from .vo_dich import so_vo_dich
 
@@ -80,6 +83,8 @@ class Runtime:
         self._lanHieuChinhDongHo = 0.0
         self._lanTimKhung = 0.0
         self._lanVoDich = 0.0
+        self._ngayTienHoa = ""      # ngày đã chạy vòng tiến hoá gần nhất
+        self.tienHoaGanNhat: dict | None = None
 
     # ── điều khiển ────────────────────────────────────────────────────────
     def bat(self) -> None:
@@ -152,11 +157,47 @@ class Runtime:
             so_vo_dich.cap_nhat(self.so.doc(2000))
             self._lanVoDich = now
 
+        # ── LÀN CHẬM NHẤT: vòng tiến hoá, mỗi ngày một lượt ──────────────
+        # Chạy TRONG runtime chứ không qua Task Scheduler: dịch vụ đó trên
+        # máy này đang tắt và bật lại cần quyền quản trị — đã ghi trong
+        # `tu-cam-thanh-runtime/dichvu/cai-dat.ps1`. Runtime vốn sống 24/7
+        # nên nó là chỗ đáng tin hơn một bộ lịch có thể không tồn tại.
+        self._soat_tien_hoa()
+
         may_ghi.ghi({
             "luc": now, "vong": self.vong, "che": che_hieu_luc(),
             "thiTruong": khung_ghi,
             "kho": self.kho.tom_tat(), "risk": self.risk.tom_tat(),
         })
+
+    def _soat_tien_hoa(self) -> None:
+        """Chạy vòng tiến hoá đúng MỘT lượt mỗi ngày, sau giờ đã hẹn.
+
+        Mốc theo ngày UTC chứ không theo "đủ 24 giờ kể từ lượt trước": nếu
+        runtime bị tắt bật vài lần trong ngày thì cách sau sẽ chạy nhiều
+        lượt, và mỗi lượt lại vặn một nút. Tiến hoá phải chậm hơn tốc độ
+        một người kịp nhìn — đúng lý do repo đặt nhịp 24 giờ cho vòng tiến
+        hoá giao diện.
+        """
+        th = CONFIG.get("tienHoa") or {}
+        if not th.get("bat", True):
+            return
+        gio = time.gmtime()
+        ngay = time.strftime("%Y-%m-%d", gio)
+        if ngay == self._ngayTienHoa:
+            return
+        if gio.tm_hour < int(th.get("gioUTC", 2)):
+            return
+        self._ngayTienHoa = ngay
+        threading.Thread(target=self._chay_tien_hoa, daemon=True).start()
+
+    def _chay_tien_hoa(self) -> None:
+        try:
+            kq = tien_hoa_mot_luot()
+            self.tienHoaGanNhat = kq.tom_tat()
+            bus.ghi(f"vòng tiến hoá: {kq.ghiChu}", loai="he")
+        except Exception as e:                      # noqa: BLE001
+            bus.ghi(f"vòng tiến hoá lỗi: {type(e).__name__}: {e}", loai="loi")
 
     # ── tìm và đăng ký khung ──────────────────────────────────────────────
     def _tim_khung(self, now: float) -> None:
@@ -327,6 +368,13 @@ class Runtime:
             "ketToan": self.ketToan.tom_tat(),
             "doThi": do_thi.tom_tat(),
             "voDich": so_vo_dich.tom_tat(),
+            "tienHoa": {
+                "ganNhat": self.tienHoaGanNhat,
+                "duong": duong_tien_hoa(),
+                "ngayDaChay": self._ngayTienHoa,
+                "bat": bool((CONFIG.get("tienHoa") or {}).get("bat", True)),
+                "gioUTC": int((CONFIG.get("tienHoa") or {}).get("gioUTC", 2)),
+            },
             "quyetChan": dict(self.quyetChan),
             "hieuChinh": {
                 "bang": self.hieuChinh.bang(),

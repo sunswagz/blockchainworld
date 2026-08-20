@@ -312,6 +312,68 @@
     return k;
   }
 
+  /* ── đường tiến hoá ───────────────────────────────────────── */
+  function veDuongTienHoa() {
+    var th = (LC && LC.tienHoa) || null;
+    var k = khoi("Đường tiến hoá", th && th.bat ? ("mỗi ngày, sau " +
+      String(th.gioUTC).padStart(2, "0") + ":00 UTC") : "đang tắt");
+
+    if (!th || !th.duong || !th.duong.soLuot) {
+      k._than.appendChild(html("div", "latcat-trong",
+        "<b>Chưa chạy lượt tiến hoá nào.</b><br>Vòng chạy mỗi ngày một lượt " +
+        "trong runtime ở máy. Chưa có lượt nào thì ô này để trống — " +
+        "<b>không vẽ số 0</b>, vì 0 là một con số còn “chưa đo” thì không."));
+      return k;
+    }
+
+    var d = th.duong;
+    var l = el("div", "luoi-so");
+    function oso(nhan, to, duoi, lop) {
+      var o = el("div", "o-so");
+      o.appendChild(el("div", "nhan", nhan));
+      o.appendChild(el("div", "to " + (lop || ""), to));
+      if (duoi) o.appendChild(el("div", "duoi", duoi));
+      l.appendChild(o);
+    }
+    oso("Đã chạy", String(d.soLuot) + " lượt");
+    oso("Nhận", String(d.soLanNhan), "tham số đổi thật",
+      d.soLanNhan > 0 ? "len" : "");
+    oso("Trả lại", String(d.soLanTraLai), "cổng làm đúng việc");
+    oso("Đứng yên", String(d.soLanDungYen), "không bệnh nào vượt ngưỡng");
+    oso("Tổng cải thiện",
+      d.tongCaiThien == null ? "chưa đo" : cent(d.tongCaiThien, 4),
+      "kỳ vọng mỗi lệnh",
+      d.tongCaiThien == null ? "mo" : (d.tongCaiThien > 0 ? "len" : "xuong"));
+    k._than.appendChild(l);
+
+    if (d.chuoi && d.chuoi.length) {
+      var t = el("table", "lotrinh"), tb = el("tbody");
+      d.chuoi.slice(-8).forEach(function (x) {
+        var tr = el("tr");
+        tr.appendChild(el("td", "p", (x.luc || "").slice(5, 10)));
+        tr.appendChild(el("td", "v",
+          so(x.truoc, 5) + "  →  " + so(x.sau, 5)));
+        var hieu = (x.sau || 0) - (x.truoc || 0);
+        var td = el("td", "c", (hieu >= 0 ? "+" : "") + so(hieu, 5));
+        td.style.color = hieu > 0 ? "var(--len)" : "var(--xuong)";
+        tr.appendChild(td);
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb);
+      k._than.appendChild(el("div", "ghi", "Kỳ vọng mỗi lệnh, trước → sau:"));
+      k._than.appendChild(t);
+    }
+
+    var gn = th.ganNhat;
+    if (gn) {
+      k._than.appendChild(html("p", null,
+        "<span style='font-size:12.6px;color:var(--fg-3);line-height:1.66;" +
+        "display:block;margin-top:12px'><b>Lượt gần nhất:</b> " +
+        (gn.ghiChu || "") + "</span>"));
+    }
+    return k;
+  }
+
   /* ── lát cắt runtime ──────────────────────────────────────── */
   function veLatCat() {
     var k = khoi("Lát cắt runtime", LC ? ("ghi " + (LC.date || "—")) : "chưa có");
@@ -376,6 +438,7 @@
 
     if (p.demo === "vwap") { g.appendChild(veMayVwap()); g.appendChild(veThac()); }
     if (p.demo === "phi") g.appendChild(veDuongPhi());
+    if (p.demo === "tienhoa") g.appendChild(veDuongTienHoa());
 
     if (p.ngon) {
       var k2 = khoi("Sáu ngón", p.ngon.length + " chiến thuật");

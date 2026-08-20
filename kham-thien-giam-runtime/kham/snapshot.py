@@ -102,6 +102,7 @@ def dung(runtime) -> dict:
         "ketToan": a.get("ketToan") or {},
         "doThi": a.get("doThi") or {},
         "voDich": a.get("voDich") or {},
+        "tienHoa": a.get("tienHoa") or {},
         "quyetChan": a.get("quyetChan") or {},
         "bang": a.get("bang") or {},
 

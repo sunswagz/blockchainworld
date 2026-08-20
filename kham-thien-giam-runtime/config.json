@@ -75,6 +75,9 @@
     "tranMoiLenhUsd": 5
   },
 
+  "//tienHoa": "Vòng tiến hoá ngày. Chạy TRONG runtime, mỗi ngày UTC một lượt sau `gioUTC`. Nhịp 24 giờ chứ không ngắn hơn: cổng chặn bắt được 'tệ hơn' nhưng không bắt được 'khác đi mà rối hơn', nên tốc độ tiến hoá phải chậm hơn tốc độ một người kịp nhìn.",
+  "tienHoa": { "bat": true, "gioUTC": 2 },
+
   "//bang": "Băng ghi. Không có băng thì ba tháng nữa không có gì để chạy lại — tài liệu gọi đây là P0 và bắt làm TRƯỚC mô hình.",
   "bang": {
     "ghi": true,

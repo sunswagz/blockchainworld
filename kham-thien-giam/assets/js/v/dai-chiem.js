@@ -9,28 +9,28 @@
 window.DAI_CHIEM = {
   "date": "20/08/2026",
   "tomTat": "0/0 cơ hội qua sàng · chưa có market nào kết toán",
-  "generatedAt": "2026-08-20T15:02:57.858Z",
+  "generatedAt": "2026-08-20T15:25:16.762Z",
   "che": "giay",
   "cheKhai": "giay",
   "vong": 1,
-  "chayDuocGiay": 3.7849833965301514,
+  "chayDuocGiay": 3.9147415161132812,
   "thiTruong": [
     {
       "ma": "BTC_5M",
       "theo": true,
       "khung": {
-        "slug": "btc-updown-5m-1787238300",
+        "slug": "btc-updown-5m-1787239800",
         "ma": "BTC_5M",
         "giaiDoan": "dat-cuoc",
         "nhan": "đặt cược",
         "datCuocDuoc": true,
-        "conLaiGiay": 122.14199072265625,
-        "troiQuaPct": 59.28600309244791,
-        "eventStartMs": 1787238300000.0,
-        "endMs": 1787238600000.0
+        "conLaiGiay": 283.2381806640625,
+        "troiQuaPct": 5.587273111979166,
+        "eventStartMs": 1787239800000.0,
+        "endMs": 1787240100000.0
       },
       "gia": null,
-      "giaNen": 72154.0,
+      "giaNen": 72720.0,
       "cap": null,
       "so": null
     },
@@ -38,18 +38,18 @@ window.DAI_CHIEM = {
       "ma": "ETH_5M",
       "theo": true,
       "khung": {
-        "slug": "eth-updown-5m-1787238300",
+        "slug": "eth-updown-5m-1787239800",
         "ma": "ETH_5M",
         "giaiDoan": "dat-cuoc",
         "nhan": "đặt cược",
         "datCuocDuoc": true,
-        "conLaiGiay": 122.14199072265625,
-        "troiQuaPct": 59.28600309244791,
-        "eventStartMs": 1787238300000.0,
-        "endMs": 1787238600000.0
+        "conLaiGiay": 283.2381806640625,
+        "troiQuaPct": 5.587273111979166,
+        "eventStartMs": 1787239800000.0,
+        "endMs": 1787240100000.0
       },
       "gia": null,
-      "giaNen": 2290.96,
+      "giaNen": 2319.0,
       "cap": null,
       "so": null
     },
@@ -238,19 +238,19 @@ window.DAI_CHIEM = {
   ],
   "vi": {
     "soVi": 0,
-    "quetLucMs": 1787238177855.016,
+    "quetLucMs": 1787239516756.8308,
     "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP. Không dựng lại được vòng đời báo giá, và vì vậy không kết luận được ai là market maker.",
     "vi": []
   },
   "nguon": {
     "gamma-slug": {
-      "tuoiMs": 201.52197265625,
+      "tuoiMs": 199.501708984375,
       "soLoi": 0,
       "tongLuot": 10,
       "loiCuoi": ""
     },
     "binance": {
-      "tuoiMs": 8.976318359375,
+      "tuoiMs": 4.988525390625,
       "soLoi": 0,
       "tongLuot": 2,
       "loiCuoi": ""
@@ -288,6 +288,21 @@ window.DAI_CHIEM = {
       "duoiToiDa": 1.25
     },
     "hoSo": []
+  },
+  "tienHoa": {
+    "ganNhat": null,
+    "duong": {
+      "soLuot": 0,
+      "soLanNhan": 0,
+      "soLanTraLai": 0,
+      "soLanDungYen": 0,
+      "chuoi": [],
+      "tongCaiThien": null,
+      "ganNhat": null
+    },
+    "ngayDaChay": "2026-08-20",
+    "bat": true,
+    "gioUTC": 2
   },
   "quyetChan": {},
   "bang": {

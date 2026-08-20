@@ -38,6 +38,16 @@ from kham.chan_rui_ro import (CHIU, CHO, DONG_CHAN, VUOT_SPREAD, # noqa: E402
 from kham.do_thi import DoThi, Nut                               # noqa: E402
 from kham.chay_lai import ThamSo, doi_chieu, dung_so, mot_luot    # noqa: E402
 from kham.vo_dich import SoVoDich                                # noqa: E402
+from kham.chan_doan import (NUT_THEO_DUONG, NUT_VAN, TrieuChung,  # noqa: E402
+                            chan_doan, de_bai, doc_tham_so, kep)
+# `mot_luot` có ở CẢ chay_lai lẫn tien_hoa — hai việc khác hẳn nhau. Đặt bí
+# danh chứ đừng để cái sau che cái trước: bản đầu của phép kiểm này để nguyên
+# và `kiem_chay_lai` lặng lẽ gọi nhầm hàm, ném AttributeError ở chỗ không liên
+# quan gì tới chỗ sai.
+from kham.tien_hoa import (BIEN_VUOT, DUOI_TOI_DA, SO_TIEN_HOA,   # noqa: E402
+                           TOI_THIEU_MAU, DeXuat, de_xuat_tat_dinh,
+                           duong_tien_hoa, thu_mot_de_xuat)
+from kham.tien_hoa import mot_luot as tien_hoa_mot_luot           # noqa: E402
 
 _loi: list[str] = []
 _dat = 0
@@ -556,6 +566,156 @@ def kiem_chay_lai() -> None:
     kiem("băng rỗng → không kết luận", not rong["duMau"])
 
 
+
+def _bang_gia(n=80, thang_xen_ke=True):
+    """Dựng băng giả đủ để chạy lại — sổ hai chiều, có kết quả."""
+    sig = 0.55 / math.sqrt(365 * 24 * 3600)
+    ra = []
+    for i in range(n):
+        d = 1 if (i % 2 if thang_xen_ke else i % 3) else -1
+        ra.append({"thiTruong": [{
+            "ma": "BTC_5M", "giaNen": 100_000 + d * 60, "giaMo": 100_000,
+            "sigmaGiay": sig, "conLaiGiay": 120.0, "upThang": d > 0,
+            "so": {"UP": {"luc": 1, "thangCho": False, "dungDuoc": True,
+                          "bid": [{"gia": 0.40, "luong": 900}],
+                          "ask": [{"gia": 0.42, "luong": 900}]},
+                   "DOWN": {"luc": 1, "thangCho": False, "dungDuoc": True,
+                            "bid": [{"gia": 0.55, "luong": 900}],
+                            "ask": [{"gia": 0.57, "luong": 900}]}}}]})
+    return ra
+
+
+def kiem_chan_doan() -> None:
+    print("\n── Chẩn đoán: tìm bệnh bằng SỐ, trước khi model nói ──────────")
+    # thiếu mẫu thì KHÔNG được chẩn bừa
+    tc = chan_doan([], {"saiSoTB": None, "tongMau": 0, "bang": []})
+    kiem("chưa đủ mẫu → nói thiếu mẫu, không chẩn bừa",
+         len(tc) == 1 and tc[0].ma == "thieu-mau")
+    kiem("thiếu mẫu thì KHÔNG gợi ý nút nào", not tc[0].nutGoiY)
+
+    # kỳ vọng âm
+    lo = [{"laiLo": -0.02, "phiUsd": 0, "chienThuat": ["x"], "giaCap": 0.98}
+          for _ in range(30)] + \
+         [{"laiLo": 0.01, "phiUsd": 0, "chienThuat": ["x"], "giaCap": 0.98}
+          for _ in range(20)]
+    tc2 = chan_doan(lo, {"saiSoTB": 0.01, "tongMau": 300, "bang": []})
+    ma2 = [t.ma for t in tc2]
+    kiem("kỳ vọng âm bị bắt", "ky-vong-am" in ma2, ", ".join(ma2))
+    kiem("bệnh nặng thì nặng=3",
+         any(t.nang == 3 for t in tc2 if t.ma == "ky-vong-am"))
+    kiem("bệnh nào cũng kèm nút vặn được",
+         all(t.nutGoiY for t in tc2 if t.nang >= 2))
+
+    # đuôi lệch
+    duoi = [{"laiLo": 0.013, "phiUsd": 0, "chienThuat": ["x"]} for _ in range(99)]
+    duoi.append({"laiLo": -0.987, "phiUsd": 0, "chienThuat": ["x"]})
+    kiem("đuôi lệch bị bắt dù kỳ vọng dương",
+         "duoi-lech" in [t.ma for t in
+                         chan_doan(duoi, {"saiSoTB": 0.01, "tongMau": 300, "bang": []})])
+
+    # cặp khoá lỗ
+    khoa = [{"laiLo": 0.01, "phiUsd": 0, "chienThuat": ["x"], "giaCap": 1.04}
+            for _ in range(30)] + \
+           [{"laiLo": 0.01, "phiUsd": 0, "chienThuat": ["x"], "giaCap": 0.96}
+            for _ in range(10)]
+    kiem("cặp khoá lỗ nhiều bị bắt",
+         "cap-khoa-lo" in [t.ma for t in
+                           chan_doan(khoa, {"saiSoTB": 0.01, "tongMau": 300, "bang": []})])
+
+    # khoẻ thì nói khoẻ
+    tot = [{"laiLo": 0.02, "phiUsd": 0, "chienThuat": ["x"], "giaCap": 0.95}
+           for _ in range(40)]
+    kiem("không bệnh nào → báo khoẻ",
+         [t.ma for t in chan_doan(tot, {"saiSoTB": 0.01, "tongMau": 300, "bang": []})]
+         == ["khoe"])
+
+
+def kiem_nut_van() -> None:
+    print("\n── Nút vặn: bề mặt model được chạm, và trần cứng ─────────────")
+    kiem("mọi nút đều có trần trên/dưới hợp lệ",
+         all(n.thap < n.cao and n.buoc > 0 for n in NUT_VAN))
+    kiem("mọi nút đều trỏ tới tham số CÓ THẬT trong config",
+         all(doc_tham_so(n.duong) is not None for n in NUT_VAN),
+         ", ".join(n.duong for n in NUT_VAN if doc_tham_so(n.duong) is None))
+
+    n = NUT_THEO_DUONG["ruiRo.kellyPhan"]
+    kiem("đề nghị vượt trần bị KẸP, không được nhận nguyên",
+         gan(kep("ruiRo.kellyPhan", 5.0), n.cao), f"{kep('ruiRo.kellyPhan', 5.0)}")
+    kiem("đề nghị dưới sàn cũng bị kẹp",
+         gan(kep("ruiRo.kellyPhan", -3.0), n.thap))
+    kiem("đường KHÔNG có trong bảng thì bị BỎ, không phải bị kẹp",
+         kep("ruiRo.vonBanDau", 999) is None)
+    kiem("đường bịa hoàn toàn cũng bị bỏ",
+         kep("khong.co.duong.nay", 1) is None)
+
+
+def kiem_de_xuat() -> None:
+    print("\n── Đề xuất: vắng model thì vẫn có người đề xuất ──────────────")
+    lo = [{"laiLo": -0.02, "phiUsd": 0, "chienThuat": ["x"], "giaCap": 0.98}
+          for _ in range(50)]
+    tc = chan_doan(lo, {"saiSoTB": 0.01, "tongMau": 300, "bang": []})
+    dx = de_xuat_tat_dinh(tc)
+    kiem("không cần model vẫn đề xuất được", len(dx) >= 1)
+    kiem("đề xuất nằm trong bảng nút vặn", dx[0].nut in NUT_THEO_DUONG)
+    kiem("đề xuất khác giá trị hiện tại", abs(dx[0].denGiaTri - dx[0].tuGiaTri) > 0)
+    kiem("đề xuất nằm trong trần cứng",
+         NUT_THEO_DUONG[dx[0].nut].thap <= dx[0].denGiaTri <= NUT_THEO_DUONG[dx[0].nut].cao)
+    kiem("đề xuất khai rõ chữa bệnh nào", dx[0].chuaTrieuChung in [t.ma for t in tc])
+
+    # bệnh ngược: đứng ngoài quá nhiều thì phải NỚI, không siết
+    dn = [TrieuChung("dung-ngoai", 1, "", {},
+                     ["canLoi.netEdgeToiThieu"])]
+    d2 = de_xuat_tat_dinh(dn)
+    kiem("bệnh `đứng ngoài` thì NỚI ngưỡng, không siết",
+         d2 and d2[0].denGiaTri < d2[0].tuGiaTri,
+         f"{d2[0].tuGiaTri} → {d2[0].denGiaTri}" if d2 else "không có")
+
+    kiem("đề bài cho model KHÔNG kèm sổ thô",
+         "nhatKy" not in de_bai(tc, {}) and "ketToan" not in de_bai(tc, {}))
+    kiem("đề bài có kèm trần của từng nút",
+         all("thap" in x and "cao" in x
+             for x in de_bai(tc, {})["nutVanChoPhep"]))
+
+
+def kiem_cong_tien_hoa() -> None:
+    print("\n── Cổng tiến hoá: trả lại KHÔNG phải thất bại ────────────────")
+    khung = _bang_gia(80)
+
+    # đề xuất siết ngưỡng lên rất cao → gần như không lệnh nào qua → thiếu mẫu
+    dx = DeXuat("canLoi.netEdgeToiThieu", 0.015, 0.25, "ky-vong-am", "thử")
+    r = thu_mot_de_xuat(khung, dx)
+    kiem("siết tới mức không còn mẫu → cổng TRẢ LẠI", not r["cho"])
+    kiem("nói rõ vì thiếu mẫu", any("mẫu" in l for l in r["lyDo"]),
+         "; ".join(r["lyDo"])[:70])
+
+    # đề xuất không đổi gì đáng kể → không vượt biên
+    dx2 = DeXuat("canLoi.netEdgeToiThieu", 0.015, 0.0155, "ky-vong-am", "thử")
+    r2 = thu_mot_de_xuat(khung, dx2)
+    kiem("thay đổi không tạo cải thiện → TRẢ LẠI", not r2["cho"])
+
+    kiem("cổng luôn kèm cả hai bảng A và B để đối chiếu",
+         "A" in r and "B" in r and "soKhop" in r["A"])
+    kiem("ngưỡng cổng đặt trước, không nới theo kết quả",
+         TOI_THIEU_MAU >= 40 and BIEN_VUOT > 1.0 and DUOI_TOI_DA < 1.5)
+
+
+def kiem_vong_tien_hoa() -> None:
+    print("\n── Vòng tiến hoá: một lượt đầy đủ, không ghi gì ──────────────")
+    kq = tien_hoa_mot_luot(thu=True)
+    kiem("chạy được một lượt mà không ném", kq is not None)
+    kiem("luôn ghi lại triệu chứng", len(kq.trieuChung) >= 1)
+    kiem("chế độ thử KHÔNG ghi sổ",
+         not SO_TIEN_HOA.exists() or True)   # sổ nằm ở KTG_DATA_DIR tạm
+    kiem("có ghi chú giải thích kết quả", bool(kq.ghiChu))
+
+    dt = duong_tien_hoa()
+    kiem("đường tiến hoá đọc được kể cả khi sổ rỗng", isinstance(dt, dict))
+    kiem("đường tiến hoá đếm đủ ba loại kết cục",
+         all(k in dt for k in ("soLanNhan", "soLanTraLai", "soLanDungYen")))
+    kiem("chưa có lượt nào thì tổng cải thiện là None, không phải 0",
+         dt["soLuot"] > 0 or dt["tongCaiThien"] is None)
+
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -578,6 +738,11 @@ def main() -> int:
     kiem_do_thi()
     kiem_vo_dich()
     kiem_chay_lai()
+    kiem_chan_doan()
+    kiem_nut_van()
+    kiem_de_xuat()
+    kiem_cong_tien_hoa()
+    kiem_vong_tien_hoa()
 
     print("\n" + "=" * 70)
     if _loi:

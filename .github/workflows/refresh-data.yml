@@ -1236,6 +1236,126 @@ jobs:
             --ghi "${PHU:-chưa dựng được} · haiku-4.5" \
             --log "$RUNNER_TEMP/tbt-pt.log"
 
+      # Cung thứ BA vào vòng tiến hoá. Vẫn không script mới, vẫn đúng
+      # `scripts/tien-hoa.mjs <cung>` — lời hứa ở đầu file đó giữ được
+      # qua ba cung, nên nó là lời hứa thật chứ không phải ý định.
+      #
+      # Khác hai cung trước ở một chỗ, và chỗ đó quan trọng: cung này
+      # có runtime Python ở máy ghi vào `assets/js/v/`. Model KHÔNG
+      # được đụng thư mục ấy, cũng như không được đụng `phong.js` —
+      # sổ tám phòng, tức nội dung.
+      - name: Tiến hoá KTG 1/3 — chấm phiếu gốc và ra đề
+        id: n-ktg-goc
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',kham-thien-giam-tien-hoa,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/tien-hoa.mjs do kham-thien-giam --ghi "$RUNNER_TEMP/ktg-goc.json"
+          node scripts/tien-hoa.mjs de-bai kham-thien-giam
+
+      - name: Tiến hoá giao diện Khâm Thiên Giám (Claude Code)
+        id: n-ktg-lam
+        if: steps.n-ktg-goc.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 12
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 24
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Đọc kham-thien-giam/assets/data/de-bai-tien-hoa.json.
+
+            Trong đó có `phieu` — kết quả chấm cung Khâm Thiên Giám
+            theo bảy thước đo được — và `kyNang`, các kỹ năng chọn từ
+            kho Tàng Thư Các khớp với những thước đang trượt.
+
+            VIỆC CỦA BẠN: làm cung Khâm Thiên Giám tốt lên MỘT BƯỚC,
+            đúng một bước.
+
+            Trình tự:
+            1. Với mỗi mục trong `kyNang` có trường `doc`, dùng
+               WebFetch đọc SKILL.md đó. Đấy là kinh nghiệm người khác
+               đã viết ra; đọc trước khi tự nghĩ.
+            2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu
+               đo được. Ưu tiên chúng trước.
+            3. Nếu cả bảy thước đều đạt, tìm MỘT chỗ làm trang dễ đọc
+               hơn mà không thước nào đo được: nhãn khó hiểu, thứ bậc
+               thị giác lẫn lộn, khoảng cách không đều, trạng thái
+               trống không nói được gì.
+
+            Chỉ sửa trong ba file này, không file nào khác:
+              kham-thien-giam/assets/css/app.css
+              kham-thien-giam/assets/js/app.js
+              kham-thien-giam/index.html
+
+            LUẬT, đọc kỹ — có cổng chặn tự động sau bạn:
+            · MỘT bước thôi. Một thay đổi mạch lạc, không phải năm thứ
+              rời rạc. Sửa ít mà đúng hơn sửa nhiều mà loãng.
+            · KHÔNG sửa assets/js/phong.js. Đó là sổ tám phòng — luận,
+              công thức và bằng chứng đo được, tức NỘI DUNG. Nhiều
+              đoạn trong đó ghi lại một bài học đã trả giá; sửa cho
+              "gọn" là xoá đúng phần đắt nhất.
+            · KHÔNG đụng assets/js/v/. Runtime Python ở máy ghi thư
+              mục đó, và nó không chạy trên Actions.
+            · KHÔNG đổi cấu trúc dữ liệu, không đổi tên khoá trong
+              window.PHONG / window.DAI_CHIEM, không bỏ phòng nào,
+              không đổi tuyến hash.
+            · KHÔNG thêm thư viện ngoài, không thêm thẻ <script> mới.
+              Trang này chạy offline và không có bước dựng.
+            · GIỮ mọi aria-label và aria-hidden đang có. Gỡ một nhãn là
+              cổng chặn hạ điểm và trả lại toàn bộ việc bạn vừa làm.
+            · Màu mới phải đạt tương phản WCAG AA (4.5) trên MỌI nền
+              --bg/--bg-2/--card/--card-2/--card-3.
+
+            BA LUẬT RIÊNG CỦA CUNG NÀY, đọc mã nguồn sẽ thấy lặp lại:
+            1. Ô nào CHƯA CÓ SỐ thì nói là chưa có, KHÔNG vẽ số 0.
+               Cung này giảng về một cỗ máy mà điểm hay của nó là
+               không tự tin quá những gì đo được; một giao diện vẽ 0
+               cho chỗ chưa đo là phản lại chính điều nó đang giảng.
+            2. Thứ ĐO ĐƯỢC và thứ LUẬN RA không bao giờ trông giống
+               nhau — số đo đi với chữ máy, phần luận đi chữ thường.
+            3. Không có thông tin nào chỉ nằm ở MÀU. Mọi chỗ dùng màu
+               đều phải kèm dấu hiệu thứ hai: chữ, dấu, vị trí, bề rộng.
+
+            Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
+            vào kham-thien-giam/assets/data/de-bai-tien-hoa.json dưới
+            khoá `daLam`.
+
+      - name: Cổng chặn KTG — nhận hay trả lại
+        id: n-kham-thien-giam-tien-hoa
+        if: always() && steps.n-ktg-lam.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          if node scripts/tien-hoa.mjs cong kham-thien-giam --so "$RUNNER_TEMP/ktg-goc.json" 2>&1 | tee "$RUNNER_TEMP/kham-thien-giam-tien-hoa.log"; then
+            node scripts/nang-version.mjs
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^kham-thien-giam/' || true)
+            echo "::notice::Vòng tiến hoá Khâm Thiên Giám: NHẬN"
+          else
+            echo "::error::Vòng tiến hoá Khâm Thiên Giám: TRẢ LẠI — cổng chặn không qua"
+            git checkout -- kham-thien-giam/
+            exit 1
+          fi
+
+      - name: Ghi sổ · kham-thien-giam-tien-hoa
+        if: always() && steps.n-ktg-goc.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-kham-thien-giam-tien-hoa.outcome == 'success' && 'ok' || 'loi' }}
+          T_DAU: ${{ steps.n-ktg-goc.outputs.t0 }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
+            "$RUNNER_TEMP/kham-thien-giam-tien-hoa.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi kham-thien-giam-tien-hoa "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${DIEM:-chưa chấm được} · opus-5" \
+            --log "$RUNNER_TEMP/kham-thien-giam-tien-hoa.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true

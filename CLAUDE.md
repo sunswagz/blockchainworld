@@ -179,6 +179,10 @@ conflict lúc merge.
     dai-quan-trac/assets/css/app.css
     dai-quan-trac/assets/js/app.js
     dai-quan-trac/sw.js
+    kham-thien-giam/assets/css/app.css
+    kham-thien-giam/assets/js/app.js
+    kham-thien-giam/index.html
+    kham-thien-giam/sw.js
 
 Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
 

@@ -287,6 +287,62 @@ window.PHONG = [
   },
 
   {
+    ma: "vong-tien-hoa",
+    ten: "Vòng Tiến Hoá",
+    phu: "mạnh hơn mỗi ngày, và đo được là mạnh hơn",
+    icon: '<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/>',
+    tom: "Mỗi ngày một lượt: đo bệnh bằng số, cho model đề nghị vặn một nút, chạy lại băng, rồi cổng chặn quyết nhận hay trả lại.",
+    demo: "tienhoa",
+    doan: [
+      {
+        h: "Model bị kẹp giữa hai lớp số học nó không viết",
+        cong: [
+          "1  THU HOẠCH   đọc băng + sổ kết toán",
+          "2  ĐO          kỳ vọng · đuôi · hiệu chỉnh · theo chiến thuật",
+          "3  CHẨN        tìm bệnh bằng SỐ            ← không có model",
+          "4  ĐỀ XUẤT     model đề nghị vặn nút       ← chỗ DUY NHẤT",
+          "5  THỬ         chạy lại băng thật          ← không có model",
+          "6  CỔNG        tốt hơn VÀ đuôi không tệ hơn",
+          "7  GHI SỔ      hôm nay so hôm qua"
+        ],
+        p: "Bước 3 nói cho model biết <b>bệnh gì</b>. Bước 5–6 quyết định <b>thuốc có tác dụng không</b>. Model chỉ được nói ở bước 4. Bỏ một trong hai lớp kia là còn lại một cái máy tự làm hỏng mình."
+      },
+      {
+        h: "Vì sao chẩn đoán phải đi TRƯỚC model",
+        canh: true,
+        p: "Đưa cả sổ nhật ký cho model rồi hỏi “cải thiện gì” là <b>mời nó bịa</b>. Nó sẽ tìm ra một mẫu hình trong bất cứ đống số nào — đó là việc nó giỏi, và ở đây đó là điều tệ nhất.",
+        p2: "Nên cỗ máy tự tính sẵn các triệu chứng đo được, rồi chỉ đưa cho model một danh sách ngắn kèm bằng chứng. Model không đi tìm bệnh; nó chỉ được hỏi <i>“trong mấy bệnh đã đo này, chữa cái nào trước và bằng cách nào”</i>."
+      },
+      {
+        h: "Bề mặt model được chạm — cố ý rất hẹp",
+        p: "Model <b>không</b> sửa code, <b>không</b> thêm chiến thuật, <b>không</b> đổi kiến trúc. Nó chỉ được đề nghị vặn mười con số, mỗi con số có trần cứng mà nó không vượt được dù đề nghị thế nào:",
+        ds2: ["netEdgeToiThieu", "bienAnToan", "sucChuaToiThieu", "xacSuatKhopToiThieu", "giaCapToiDa", "giayChoChanHai", "capChuaKhopToiDaUsd", "kellyPhan", "bienDongCuaSoGiay", "batDinhToiThieu"],
+        p2: "Lý do hẹp tới vậy: một đề xuất sửa code thì cổng chặn <b>không kiểm được bằng số</b>. Một đề xuất vặn tham số thì chạy lại băng là biết ngay tốt hơn hay chỉ khác đi. <b>Bề mặt nào không kiểm được bằng số thì không mở.</b>",
+        p3: "Đề nghị vượt trần bị <b>kẹp</b>. Đề nghị một đường không có trong bảng bị <b>bỏ hẳn</b> — không kẹp, vì kẹp một thứ vô nghĩa là giả vờ hiểu nó."
+      },
+      {
+        h: "Vắng model thì vòng vẫn quay",
+        p: "Đây là điều kiện thiết kế, không phải tính năng phụ. Thiếu khoá model thì bước 4 rơi về <b>người đề xuất tất định</b>: quét lưới một nút quanh giá trị hiện tại, chọn ứng viên tốt nhất theo băng.",
+        p2: "Chậm hơn model? Đúng. Nhưng nó vẫn tiến hoá mỗi ngày, và nó không bao giờ đề xuất một thứ không kiểm được. Model làm vòng này <b>thông minh hơn</b>; vắng model làm nó <b>chậm hơn</b>, không làm nó chết."
+      },
+      {
+        h: "Trả lại KHÔNG phải thất bại",
+        p: "Cổng chặn có ba kết cục, và cả ba đều hợp lệ:",
+        ds: [
+          "<b>Nhận</b> — ứng viên vượt đương nhiệm đủ biên và đuôi không tệ hơn. Tham số đổi thật.",
+          "<b>Trả lại</b> — cổng làm đúng việc. Một hệ thống nhận mọi đề xuất là một hệ thống không có cổng.",
+          "<b>Đứng yên</b> — không bệnh nào vượt ngưỡng, nên không vặn gì. Đứng yên là một kết quả, không phải một lỗi."
+        ],
+        p2: "Ngưỡng cổng đặt <b>trước</b> khi nhìn dữ liệu và không nới theo kết quả: tối thiểu 40 mẫu mỗi bên, ứng viên phải hơn 10%, thua lớn nhất không quá 1,15 lần."
+      },
+      {
+        h: "“Mạnh hơn mỗi ngày” phải đo được",
+        p: "Mỗi lượt ghi một dòng: tham số trước, tham số sau, kỳ vọng trước, kỳ vọng sau, trên bao nhiêu mẫu, và lý do nhận hay trả lại.",
+        p2: "Không có sổ đó thì “mạnh hơn” là <b>chuyện kể</b>. Có nó thì đó là một dãy số ai cũng đọc được — <b>kể cả khi dãy số ấy nói là KHÔNG mạnh hơn</b>."
+      }
+    ]
+  },
+  {
     ma: "truong-thi",
     ten: "Trường Thi",
     phu: "trước khi tin, phải đối chiếu",

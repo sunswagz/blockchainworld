@@ -26,4 +26,26 @@ export const NODE = [
        "— Actions không chạy được, và cũng KHÔNG ĐƯỢC cho chạy. Chạy tay rồi " +
        "commit lát cắt, cùng kiểu Tử Cấm Thành."
   },
+
+  /* Cung thứ ba vào vòng tiến hoá giao diện. Không script mới — dùng
+     đúng `scripts/tien-hoa.mjs <cung>` như ho-bo và thai-boc-tu.
+
+     `ra` CỐ Ý không có `assets/js/phong.js`. File đó là sổ tám phòng:
+     luận, công thức, bằng chứng đo được — tức NỘI DUNG, không phải
+     giao diện. Mở quyền sửa nội dung là mời model đi lạc khỏi điểm yếu
+     đo được, và tệ hơn: nó có thể sửa cho "gọn" đúng những chỗ ghi lại
+     một bài học đắt. Cùng lý do `thai-boc-tu` loại `toa.js`.
+
+     Cũng không có `assets/js/v/` — runtime ở máy ghi thư mục đó. */
+  {
+    ma: "kham-thien-giam-tien-hoa", ten: "Tiến hoá giao diện Khâm Thiên Giám",
+    cung: "kham-thien-giam",
+    tram: "M18", che: "claude", nhip: 24,
+    lenh: "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+    ra: ["kham-thien-giam/assets/css/app.css", "kham-thien-giam/assets/js/app.js",
+         "kham-thien-giam/index.html", "kham-thien-giam/sw.js"],
+    y: "Đo cung bằng 7 thước, lấy kỹ năng khớp từ kho Tàng Thư Các, rồi để " +
+       "model đề xuất sửa GIAO DIỆN. Cổng chặn quyết định, không phải model. " +
+       "Nội dung (phong.js) và lát cắt runtime (v/) nằm ngoài tầm với."
+  },
 ];

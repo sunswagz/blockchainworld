@@ -53,6 +53,11 @@ const CAN = [
   "doThi.soNut", "doThi.canhBaoDongPha?",
   "voDich.duongKim", "voDich.hoSo",
   "quyetChan",
+
+  // vòng tiến hoá — thứ trả lời "có mạnh hơn thật không"
+  "tienHoa.bat", "tienHoa.gioUTC", "tienHoa.ganNhat?",
+  "tienHoa.duong.soLuot", "tienHoa.duong.soLanNhan",
+  "tienHoa.duong.soLanTraLai", "tienHoa.duong.tongCaiThien?",
 ];
 
 /* Cổng Thành (assets/js/portal.js) chỉ đọc 900 BYTE ĐẦU rồi huỷ dòng tải.

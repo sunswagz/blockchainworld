@@ -144,6 +144,25 @@ def api_vo_dich(ma: str, nhom: str = "chung") -> JSONResponse:
                               "soVoDich": so_vo_dich.tom_tat()}))
 
 
+@app.post("/api/tien-hoa")
+def api_tien_hoa(thu: bool = True) -> JSONResponse:
+    """Chạy một lượt vòng tiến hoá bằng tay.
+
+    Mặc định `thu=true` — xem sẽ làm gì mà không ghi gì. Muốn ghi thật thì
+    phải truyền `?thu=false`, và đó là chủ ý: một nút bấm nhầm không được
+    phép vặn tham số của cỗ máy.
+    """
+    from .tien_hoa import mot_luot
+    return JSONResponse(sach(mot_luot(thu=thu).tom_tat()))
+
+
+@app.get("/api/duong-tien-hoa")
+def api_duong_tien_hoa() -> JSONResponse:
+    """Sổ tiến hoá gộp — có mạnh hơn thật không, bằng số."""
+    from .tien_hoa import duong_tien_hoa
+    return JSONResponse(sach(duong_tien_hoa()))
+
+
 # ── ghi ra cung tĩnh ──────────────────────────────────────────────────────
 @app.post("/api/lat-cat")
 def lat_cat() -> JSONResponse:
