@@ -28,8 +28,40 @@ Xem cung tĩnh (từ gốc repo): `node server.js 5185`
 | `python -m kham.snapshot` | ghi một lát cắt ra cung tĩnh rồi thoát |
 | `python scripts/selftest.py` | phép kiểm số học, không cần mạng |
 | `python scripts/sinh-icon.py` | sinh lại 5 icon PNG cho cung |
+| `node scripts/kiem-buong-lai.mjs` | vẽ thật 11 ô buồng lái, KHÔNG cần mạng |
 | `python -m kham.tien_hoa --thu` | xem vòng tiến hoá sẽ làm gì, không ghi gì |
 | `python -m kham.tien_hoa` | chạy một lượt tiến hoá THẬT |
+
+## Buồng lái — Đài Chỉ Huy trước, động cơ sau
+
+Ô đầu tiên là **Đài Chỉ Huy**: một market một tấm, đọc từ trên xuống là
+ra quyết định.
+
+    còn bao lâu → đáng giá bao nhiêu → chợ hỏi bao nhiêu
+    → ăn được bao nhiêu → đang mang gì → và VÌ VẬY nên làm gì
+
+Mười ô còn lại mỗi ô là một động cơ. Đó là cách người **dựng** máy nghĩ;
+người **vận hành** máy thì cần bảy dòng phía trên, và chỉ mở "Sâu hơn"
+khi bảy dòng ấy nói điều gì lạ.
+
+Dòng QUYẾT ĐỊNH không nghĩ hộ máy — nó đọc lại kết luận máy đã có (cầu
+dao, cửa khung, sàng cơ hội) thành một câu. Nó mà nói khác các ô bên dưới
+thì đó là lỗi của tấm hiển thị, không phải của máy.
+
+### `kiem-buong-lai.mjs` — vì `node --check` không đủ
+
+Loại lỗi đắt nhất của một trang như thế này **đúng cú pháp**: đọc một
+trường không tồn tại rồi ném, và cả buồng lái trắng trang. Máy vẫn giao
+dịch bình thường, chỉ người vận hành là mù.
+
+Phép kiểm này dựng một DOM tối thiểu rồi gọi thật cả 11 hàm vẽ trên một
+mẫu **dựng tay** (`scripts/mau-buong-lai.json`) — không cần mạng, không
+cần runtime đang chạy. Mẫu là dựng tay chứ không phải ảnh chụp máy: ảnh
+chụp chỉ có trạng thái tình cờ lúc chụp, còn mẫu tay giữ được đủ các
+trường hợp khó và không đổi theo chợ.
+
+Nó đã bắt bốn lỗi thật ngay lần chạy đầu, và một trong số đó là lỗi ở
+chính cái mẫu — hợp đồng dữ liệu tôi nhớ sai so với hợp đồng thật.
 
 ## Chạy nền, và vòng tiến hoá mỗi ngày
 

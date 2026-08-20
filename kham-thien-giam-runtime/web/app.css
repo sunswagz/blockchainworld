@@ -153,3 +153,83 @@ tr:last-child td{border-bottom:0}
 @media (max-width:820px){
   .dinh{flex-wrap:wrap} .dong{margin-left:0} .book{grid-template-columns:1fr}
 }
+
+/* ── ĐÀI CHỈ HUY ────────────────────────────────────────
+   Một market = một tấm. Thứ bậc thị giác đi theo đúng thứ bậc của
+   quyết định: đồng hồ to nhất, quyết định đóng khung, phần luận nhỏ
+   và mờ. Không ô nào ở đây chỉ để nhìn cho oai. */
+.ch{
+  background:var(--the);border:1px solid var(--vien);border-radius:10px;
+  margin:0 0 14px;overflow:hidden}
+.ch-dinh{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:11px 14px;background:var(--the2);border-bottom:1px solid var(--vien)}
+.ch-dinh>b{font-size:15px;letter-spacing:.02em}
+
+/* Giai đoạn vòng đời — chữ, không chỉ màu. Một market 5 phút mà không
+   biết đang ở cửa nào thì mọi số còn lại đều đọc sai. */
+.gd{
+  font-size:11px;padding:2px 8px;border-radius:99px;
+  border:1px solid var(--vien);color:var(--mo);text-transform:uppercase;
+  letter-spacing:.04em}
+.gd-dat-cuoc{color:var(--len);border-color:rgba(78,203,142,.4);
+  background:rgba(78,203,142,.09)}
+.gd-quan-sat{color:var(--canh);border-color:rgba(224,163,59,.4);
+  background:rgba(224,163,59,.09)}
+.gd-chua-mo{color:var(--mo2)}
+.gd-da-xong{color:var(--mo2);text-decoration:line-through}
+
+.ch-ho{margin-left:auto;display:flex;align-items:baseline;gap:8px}
+.ch-ho>i{font-style:normal;font-size:11px;color:var(--mo2)}
+.dhho{
+  font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;
+  font-size:26px;line-height:1;font-weight:600;
+  color:var(--sao);font-variant-numeric:tabular-nums}
+/* Sát giờ thì đổi CẢ màu lẫn độ đậm — không để thông tin nằm ở mỗi màu. */
+.dhho.gap{color:var(--xuong);text-shadow:0 0 18px rgba(232,99,90,.4)}
+/* Đếm tới kết toán thì không phải việc gấp — đừng báo động giả. */
+.dhho.cho,.dhho.cho.gap{color:var(--mo);text-shadow:none;font-size:20px}
+
+.vdoi{height:3px;background:var(--nen2)}
+.vdoi-c{height:100%;background:var(--sao);opacity:.55;
+  transition:width var(--dur) linear}
+
+.ch-than{padding:10px 14px 13px}
+.hang{
+  display:flex;gap:12px;align-items:baseline;
+  padding:6px 0;border-bottom:1px solid rgba(30,38,52,.5)}
+.hang:last-of-type{border-bottom:0}
+.hnhan{
+  flex:0 0 96px;font-size:11px;color:var(--mo2);
+  text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+.hgt{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;flex:1}
+/* Số ĐO ĐƯỢC đi chữ máy; phần LUẬN đi chữ thường, mờ hơn. Hai loại
+   không bao giờ được trông giống nhau. */
+.hgt .so{font-size:14px;color:var(--chu);font-variant-numeric:tabular-nums}
+.hgt .so.len{color:var(--len)} .hgt .so.xuong{color:var(--xuong)}
+.hgt .so.saoc{color:var(--sao)} .hgt .so.mo{color:var(--mo)}
+.manh{font-size:12px;color:var(--mo)}
+.manh.canh{color:var(--canh)} .manh.len{color:var(--len)}
+.manh.xuong{color:var(--xuong)} .manh.chua{color:var(--mo2);font-style:italic}
+
+/* Quyết định — có CHỮ trước, màu chỉ là dấu hiệu thứ hai. */
+.qd{
+  display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;
+  margin-top:10px;padding:9px 12px;border-radius:8px;
+  border:1px solid var(--vien);background:var(--nen2)}
+.qd>b{font-size:13px;letter-spacing:.06em}
+.qd>span{font-size:12px;color:var(--mo)}
+.qd-len{border-color:rgba(78,203,142,.45);background:rgba(78,203,142,.07)}
+.qd-len>b{color:var(--len)}
+.qd-xuong{border-color:rgba(232,99,90,.45);background:rgba(232,99,90,.07)}
+.qd-xuong>b{color:var(--xuong)}
+.qd-canh{border-color:rgba(224,163,59,.4)} .qd-canh>b{color:var(--canh)}
+.qd-mo>b{color:var(--mo)}
+
+.sau-nut{
+  margin-top:10px;font-size:11px;color:var(--mo);padding:4px 9px;
+  border:1px solid var(--vien);border-radius:6px;
+  transition:color var(--dur),border-color var(--dur)}
+.sau-nut:hover{color:var(--sao);border-color:var(--sao)}
+.sau{margin-top:9px;padding-top:9px;border-top:1px solid var(--vien)}
+.ghi.canh{color:var(--canh)} .ghi.xuong{color:var(--xuong)}

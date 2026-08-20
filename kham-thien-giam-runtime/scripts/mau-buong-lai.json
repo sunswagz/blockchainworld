@@ -1,0 +1,510 @@
+{
+  "_doc": "Mẫu dựng TAY để thử buồng lái, không phải ảnh chụp máy đang chạy. Ảnh chụp chỉ có trạng thái tình cờ lúc chụp; mẫu này cố ý gom đủ các trường hợp khó: khung đủ số, khung thang chờ, khung thiếu mẫu σ, khung đã qua cửa đặt cược, và mọi tập rỗng. Thêm trường hợp mới thì thêm vào ĐÂY, đừng chụp lại máy.",
+  "vong": 4211,
+  "batDauLuc": 1787240000.0,
+  "chayDuocGiay": 8422.0,
+  "tamDung": false,
+  "che": "giay",
+  "cheKhai": "giay",
+  "risk": {
+    "von": 1043.25,
+    "vonBanDau": 1000.0,
+    "dinhVon": 1061.0,
+    "sutVonPct": 1.67,
+    "loNgayUsd": 12.4,
+    "tranLoNgayUsd": 50.0,
+    "ngatKhanCap": false,
+    "lyDoNgat": ""
+  },
+  "kho": {
+    "soThiTruong": 3,
+    "viThe": [
+      {
+        "ma": "BTC_5M",
+        "coUp": 260.0,
+        "coDown": 235.0,
+        "giaVonUp": 0.55,
+        "giaVonDown": 0.49,
+        "daGhepCap": 235.0,
+        "dinhHuong": 25.0,
+        "giaCap": 1.04,
+        "capKhoaLo": true,
+        "loKhoaUsd": 9.4,
+        "chuaPhongHoUsd": 13.75,
+        "choLauNhatMs": 8400.0,
+        "soChanCho": 1,
+        "laiNeuUp": 18.2,
+        "laiNeuDown": -4.1
+      },
+      {
+        "ma": "ETH_5M",
+        "coUp": 0.0,
+        "coDown": 0.0,
+        "giaVonUp": 0.0,
+        "giaVonDown": 0.0,
+        "daGhepCap": 0.0,
+        "dinhHuong": 0.0,
+        "giaCap": null,
+        "capKhoaLo": false,
+        "loKhoaUsd": 0.0,
+        "chuaPhongHoUsd": 0.0,
+        "choLauNhatMs": 0.0,
+        "soChanCho": 0,
+        "laiNeuUp": 0.0,
+        "laiNeuDown": 0.0
+      }
+    ],
+    "phoiNhiemNhom": {
+      "BTC": 25.0
+    },
+    "phoiNhiemGop": 25.0,
+    "tongChuaPhongHoUsd": 13.75,
+    "tongLoKhoaUsd": 9.4
+  },
+  "lenh": {
+    "tongLenh": 12,
+    "daKhop": 9,
+    "dangCho": 1,
+    "tongPhiUsd": 1.42,
+    "duong": "giay",
+    "cuaDangDong": [
+      "che ≠ 'that' (đang: 'giay')",
+      "datLenh.choPhepLenhThat = false",
+      "datLenh.toiXacNhanDaDocRuiRo = false",
+      "thiếu POLYMARKET_PRIVATE_KEY trong .env"
+    ],
+    "ganDay": []
+  },
+  "nguon": {
+    "gamma-slug": {
+      "tuoiMs": 8300.0,
+      "soLoi": 0,
+      "tongLuot": 524,
+      "loiCuoi": ""
+    },
+    "binance": {
+      "tuoiMs": 150.0,
+      "soLoi": 0,
+      "tongLuot": 989,
+      "loiCuoi": ""
+    },
+    "clob-book": {
+      "tuoiMs": 1100.0,
+      "soLoi": 2,
+      "tongLuot": 690,
+      "loiCuoi": "timeout"
+    },
+    "binance-kline": {
+      "tuoiMs": 52.0,
+      "soLoi": 0,
+      "tongLuot": 354,
+      "loiCuoi": ""
+    }
+  },
+  "dongSong": {
+    "dangNoi": true,
+    "soToken": 4,
+    "soSo": 4,
+    "tinNhan": 118422,
+    "soLanNoiLai": 2,
+    "loiCuoi": "",
+    "noiLucMs": 1787240000000.0
+  },
+  "ketToan": {
+    "dangCho": 2,
+    "daKetToan": 88,
+    "soBatDong": 0,
+    "ganDay": [
+      {
+        "luc": "2026-08-20T16:20:21Z",
+        "slug": "btc-updown-5m-1787242500",
+        "ma": "BTC_5M",
+        "upThang": true,
+        "theoSan": true,
+        "tuTinh": true,
+        "batDong": false,
+        "pDuDoan": 0.612,
+        "coViThe": true
+      },
+      {
+        "luc": "2026-08-20T16:15:20Z",
+        "slug": "eth-updown-5m-1787242200",
+        "ma": "ETH_5M",
+        "upThang": false,
+        "theoSan": false,
+        "tuTinh": false,
+        "batDong": false,
+        "pDuDoan": 0.338,
+        "coViThe": false
+      }
+    ],
+    "cho": [
+      {
+        "slug": "btc-updown-5m-1787243100",
+        "conMs": 141000.0,
+        "pDuDoan": 0.694,
+        "soLanHoi": 1
+      }
+    ]
+  },
+  "doThi": {
+    "soNut": 3,
+    "zTrungBinh": 0.42,
+    "canhBaoDongPha": null,
+    "nut": [
+      {
+        "ma": "BTC_5M",
+        "slug": "btc-updown-5m-1787243400",
+        "nhom": "BTC",
+        "conLaiGiay": 141.0,
+        "fairUp": 0.66,
+        "giaChoUp": 0.68,
+        "lech": -0.02,
+        "z": -0.61
+      },
+      {
+        "ma": "BTC_15M",
+        "slug": "btc-updown-15m-1787243400",
+        "nhom": "BTC",
+        "conLaiGiay": 620.0,
+        "fairUp": 0.61,
+        "giaChoUp": 0.54,
+        "lech": 0.07,
+        "z": 2.14
+      },
+      {
+        "ma": "ETH_5M",
+        "slug": "eth-updown-5m-1787243400",
+        "nhom": "ETH",
+        "conLaiGiay": 141.0,
+        "fairUp": 0.48,
+        "giaChoUp": null,
+        "lech": null,
+        "z": 0.0
+      }
+    ],
+    "noiBat": [],
+    "canhChuY": []
+  },
+  "voDich": {
+    "duongKim": {
+      "lech-gia": "v2"
+    },
+    "nguong": {
+      "toiThieuMau": 120,
+      "bienVuot": 1.15,
+      "duoiToiDa": 1.25
+    },
+    "hoSo": [
+      {
+        "ma": "lech-gia",
+        "mau": 96,
+        "kyVong": 0.0031,
+        "trangThai": "chưa đủ mẫu"
+      }
+    ]
+  },
+  "tienHoa": {
+    "ganNhat": {
+      "luc": "2026-08-20T02:04:11Z",
+      "soKhungBang": 412,
+      "soLenhKetToan": 88,
+      "tomTat": "đứng yên — không bệnh nào vượt ngưỡng"
+    },
+    "duong": {
+      "soLuot": 6,
+      "soLanNhan": 2,
+      "soLanTraLai": 1,
+      "soLanDungYen": 3,
+      "chuoi": []
+    },
+    "ngayDaChay": "2026-08-20",
+    "bat": true,
+    "gioUTC": 2
+  },
+  "quyetChan": {
+    "BTC_5M": {
+      "lam": "NANG_GIA",
+      "lyDo": [
+        "chân UP đã khớp, DOWN còn 82%"
+      ]
+    }
+  },
+  "hieuChinh": {
+    "bang": [
+      {
+        "o": "30-40",
+        "n": 21,
+        "duDoan": 0.352,
+        "thucTe": 0.381,
+        "lech": 0.029
+      },
+      {
+        "o": "50-60",
+        "n": 34,
+        "duDoan": 0.548,
+        "thucTe": 0.529,
+        "lech": -0.019
+      },
+      {
+        "o": "60-70",
+        "n": 33,
+        "duDoan": 0.641,
+        "thucTe": 0.667,
+        "lech": 0.026
+      }
+    ],
+    "tongMau": 88,
+    "duDeDungKelly": false,
+    "saiSoTB": 0.025
+  },
+  "thongKe": {
+    "n": 12,
+    "chuaCo": false
+  },
+  "vi": {
+    "soVi": 0,
+    "quetLucMs": null,
+    "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP.",
+    "vi": []
+  },
+  "chienThuat": [
+    {
+      "ma": "lech-gia",
+      "ten": "Lệch giá định hướng",
+      "mota": "Mô hình định giá cao hơn chợ đang bán.",
+      "bat": true
+    },
+    {
+      "ma": "cap-thoi-gian",
+      "ten": "Cặp theo thời gian",
+      "mota": "Gom hai chân ở hai thời điểm khác nhau.",
+      "bat": true
+    },
+    {
+      "ma": "gan-ket-qua",
+      "ten": "Gần kết quả",
+      "mota": "Ăn phần chênh nhỏ sát giờ kết toán.",
+      "bat": false
+    }
+  ],
+  "thiTruong": [
+    {
+      "ma": "BTC_5M",
+      "theo": true,
+      "khung": {
+        "slug": "btc-updown-5m-1787243400",
+        "ma": "BTC_5M",
+        "giaiDoan": "dat-cuoc",
+        "nhan": "đặt cược",
+        "datCuocDuoc": true,
+        "conLaiGiay": 141.0,
+        "troiQuaPct": 53.0,
+        "eventStartMs": 1787243400000.0,
+        "endMs": 1787243700000.0
+      },
+      "gia": {
+        "pUp": 0.662,
+        "pDown": 0.338,
+        "batDinh": 0.031,
+        "batDinhThamSo": 0.012,
+        "ruiRoNhay": 0.058,
+        "z": 0.418,
+        "sigmaGiay": 1.04e-05,
+        "tauGiay": 141.0,
+        "tauDungSan": false,
+        "daMatPhang": false,
+        "roRang": true,
+        "giaiTrinh": {
+          "soHo": 3,
+          "chiTiet": [
+            {
+              "ten": "BTC 5s",
+              "ho": "GIÁ",
+              "tho": 0.31,
+              "trongSo": 1.0,
+              "gop": 0.31
+            },
+            {
+              "ten": "ETH theo",
+              "ho": "CHÉO",
+              "tho": 0.27,
+              "trongSo": 0.25,
+              "gop": 0.068
+            },
+            {
+              "ten": "lệch sổ",
+              "ho": "SỔ",
+              "tho": 0.34,
+              "trongSo": 0.6,
+              "gop": 0.204
+            }
+          ]
+        }
+      },
+      "giaNen": 72484.01,
+      "cap": {
+        "ma": "BTC_5M",
+        "dungDuoc": true,
+        "lyDo": null,
+        "thangCho": true,
+        "lechSoiGuong": 0.0004,
+        "giaMuaUp": 0.53,
+        "giaMuaDown": 0.45,
+        "tongGiaMua": 0.98
+      },
+      "so": {
+        "UP": {
+          "bestBid": 0.52,
+          "bestAsk": 0.53,
+          "spread": 0.01,
+          "viGia": 0.5262,
+          "lech": 0.18,
+          "doSau": [
+            1420.0,
+            980.0
+          ],
+          "thangCho": false,
+          "dungDuoc": true,
+          "bid": [
+            {
+              "gia": 0.52,
+              "luong": 800.0
+            },
+            {
+              "gia": 0.51,
+              "luong": 620.0
+            }
+          ],
+          "ask": [
+            {
+              "gia": 0.53,
+              "luong": 540.0
+            },
+            {
+              "gia": 0.54,
+              "luong": 440.0
+            }
+          ]
+        },
+        "DOWN": {
+          "bestBid": null,
+          "bestAsk": null,
+          "spread": null,
+          "viGia": null,
+          "lech": null,
+          "doSau": [
+            0.0,
+            0.0
+          ],
+          "thangCho": true,
+          "dungDuoc": false,
+          "bid": [],
+          "ask": []
+        }
+      }
+    },
+    {
+      "ma": "ETH_5M",
+      "theo": true,
+      "khung": {
+        "slug": "eth-updown-5m-1787243400",
+        "ma": "ETH_5M",
+        "giaiDoan": "quan-sat",
+        "nhan": "quan sát",
+        "datCuocDuoc": false,
+        "conLaiGiay": 0.0,
+        "troiQuaPct": 100.0,
+        "eventStartMs": 1787243400000.0,
+        "endMs": 1787243700000.0
+      },
+      "gia": null,
+      "giaNen": 2331.5,
+      "cap": {
+        "ma": "ETH_5M",
+        "dungDuoc": false,
+        "lyDo": "cả hai token: thang chờ trải cả dải (99 mức, biên độ >0,90) — chưa phải báo giá thật",
+        "thangCho": true,
+        "lechSoiGuong": null,
+        "giaMuaUp": null,
+        "giaMuaDown": null,
+        "tongGiaMua": null
+      },
+      "so": {}
+    },
+    {
+      "ma": "SOL_5M",
+      "theo": false,
+      "khung": {},
+      "gia": null,
+      "giaNen": null,
+      "cap": {},
+      "so": {}
+    }
+  ],
+  "coHoi": [
+    {
+      "ma": "BTC_5M",
+      "ben": "UP",
+      "ct": "lech-gia",
+      "fair": 0.662,
+      "vwap": 0.532,
+      "gross": 0.13,
+      "net": 0.028,
+      "phi": 0.0132,
+      "batDinh": 0.031,
+      "sucChua": 620.0,
+      "xacSuatKhop": 0.71,
+      "nuaDoiMs": 480.0,
+      "maker": true,
+      "dangLam": true,
+      "ghiChu": []
+    },
+    {
+      "ma": "BTC_5M",
+      "ben": "DOWN",
+      "ct": "cap-thoi-gian",
+      "fair": 0.338,
+      "vwap": 0.46,
+      "gross": -0.122,
+      "net": -0.14,
+      "phi": 0.011,
+      "batDinh": 0.031,
+      "sucChua": 0.0,
+      "xacSuatKhop": 0.44,
+      "nuaDoiMs": 900.0,
+      "maker": false,
+      "dangLam": false,
+      "ghiChu": [
+        "net âm"
+      ]
+    }
+  ],
+  "boQua": {
+    "ETH_5M": "cả hai token: thang chờ trải cả dải (99 mức, biên độ >0,90) — chưa phải báo giá thật"
+  },
+  "bang": {
+    "soKhung": 412,
+    "bat": true
+  },
+  "nhatKy": [
+    {
+      "stt": 101,
+      "luc": "2026-08-20T16:07:59.213Z",
+      "loai": "tin",
+      "muc": "khung mới btc-updown-5m-1787243400"
+    },
+    {
+      "stt": 102,
+      "luc": "2026-08-20T16:08:41.002Z",
+      "loai": "canh",
+      "muc": "ETH_5M: cả hai token thang chờ — đứng ngoài"
+    },
+    {
+      "stt": 103,
+      "luc": "2026-08-20T16:09:12.884Z",
+      "loai": "tin",
+      "muc": "BTC_5M: mua UP 620 @ 0,53 (sổ giấy)"
+    }
+  ]
+}

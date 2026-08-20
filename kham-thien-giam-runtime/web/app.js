@@ -9,7 +9,7 @@
   "use strict";
 
   var T = null;          // trạng thái mới nhất
-  var O = "dai-chiem";   // ô đang mở
+  var O = "chi-huy";     // ô đang mở
   var than = document.getElementById("than");
 
   /* ── tiện ─────────────────────────────────────────────────────── */
@@ -34,6 +34,10 @@
   function cent(v) {
     if (v == null || !isFinite(v)) return "—";
     return (v >= 0 ? "+" : "") + (v * 100).toFixed(2) + "¢";
+  }
+  function gia(v) {
+    if (v == null || !isFinite(v)) return "—";
+    return (v * 100).toFixed(1) + "¢";
   }
   function huong(v) { return v == null ? "mo" : (v > 0 ? "len" : (v < 0 ? "xuong" : "mo")); }
 
@@ -476,17 +480,479 @@
     return g;
   }
 
+  /* ── ĐÀI CHỈ HUY ──────────────────────────────────────────────────
+     Một market = MỘT tấm, đọc từ trên xuống là ra quyết định.
+
+     Bảy ô kia mỗi ô là một động cơ, và đó là cách người DỰNG máy nghĩ.
+     Người VẬN HÀNH máy thì cần biết "ngay bây giờ, market này, nên làm
+     gì" — mà muốn trả lời câu đó bằng bảy ô thì phải bấm bốn tab rồi tự
+     nhớ số trong đầu. Tấm này gom đúng đường đi của một quyết định:
+
+         còn bao lâu → đáng giá bao nhiêu → chợ hỏi bao nhiêu
+         → ăn được bao nhiêu → đang mang gì → và VÌ VẬY nên làm gì
+
+     Dòng QUYẾT ĐỊNH không nghĩ hộ máy. Nó chỉ đọc lại kết luận máy đã
+     có — cầu dao, cửa khung, sàng cơ hội — thành một câu. Nếu nó nói
+     khác với các ô bên dưới thì đó là lỗi của tấm này, không phải máy.  */
+
+  function nhipConLai(el, denMs) {
+    el.dataset.den = denMs;
+    el._ve = function () {
+      var s = Math.max(0, (Number(el.dataset.den) - Date.now()) / 1000);
+      var p = Math.floor(s / 60), g = Math.floor(s % 60);
+      el.textContent = p + ":" + (g < 10 ? "0" : "") + g;
+      el.classList.toggle("gap", s <= 30);
+    };
+    el._ve();
+  }
+
+  function hang(nhan, noi) {
+    var d = el("div", "hang");
+    d.appendChild(el("div", "hnhan", nhan));
+    var v = el("div", "hgt");
+    (Array.isArray(noi) ? noi : [noi]).forEach(function (x) {
+      if (x == null) return;
+      v.appendChild(typeof x === "string" ? el("span", "", x) : x);
+    });
+    d.appendChild(v);
+    return d;
+  }
+
+  function manh(t, lop) { return el("span", "manh " + (lop || ""), t); }
+  function sotv(t, lop) { return el("span", "so " + (lop || ""), t); }
+
+  /* Câu quyết định — đọc lại kết luận của máy, không tự nghĩ thêm. */
+  function quyetDinh(m, coHoiTot) {
+    var r = T.risk || {}, k = m.khung || {}, c = m.cap || {};
+    if (r.ngatKhanCap)
+      return { t: "ĐỨNG NGOÀI", v: "cầu dao đang ngắt — " + (r.lyDoNgat || ""), l: "xuong" };
+    if (T.tamDung)
+      return { t: "ĐỨNG NGOÀI", v: "máy đang tạm dừng", l: "canh" };
+    if (k.slug && !k.datCuocDuoc)
+      return { t: "ĐỨNG NGOÀI", v: "ngoài cửa đặt cược — đang " + (k.nhan || "?"), l: "mo" };
+    if (c.ma && !c.dungDuoc)
+      return { t: "ĐỨNG NGOÀI", v: c.lyDo || "sổ chưa dùng được", l: "mo" };
+    if (coHoiTot)
+      return {
+        t: "MUA " + coHoiTot.ben,
+        v: (tenChienThuat(coHoiTot.ct) || coHoiTot.ct) + " · ròng " +
+           cent(coHoiTot.net) + " · sức chứa " + so(coHoiTot.sucChua, 0) + " cổ",
+        l: "len"
+      };
+    var coMa = (T.coHoi || []).filter(function (x) { return x.ma === m.ma; });
+    if (coMa.length)
+      return { t: "ĐỨNG NGOÀI", v: "có chênh nhưng không mục nào qua sàng", l: "canh" };
+    return { t: "ĐỨNG NGOÀI", v: "chưa thấy cơ hội nào", l: "mo" };
+  }
+
+  function tenChienThuat(ma) {
+    var c = (T.chienThuat || []).filter(function (x) { return x.ma === ma; })[0];
+    return c ? c.ten : null;
+  }
+
+  var SAU = {};              // ô nào đang mở phần sâu, nhớ qua các lần vẽ
+
+  function veChiHuy() {
+    var g = document.createDocumentFragment();
+    var tt = (T.thiTruong || []).filter(function (x) { return x.theo; });
+    if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
+
+    tt.forEach(function (m) {
+      var k = m.khung || {}, q = m.gia, s = m.so || {}, c = m.cap || {};
+      var o = el("section", "ch");
+
+      /* ── đỉnh: tên · giai đoạn · ĐỒNG HỒ ─────────────────────── */
+      var d = el("div", "ch-dinh");
+      d.appendChild(el("b", "", m.ma));
+      if (k.nhan) d.appendChild(el("span", "gd gd-" + (k.giaiDoan || ""), k.nhan));
+      // Đồng hồ ĐỔI MỐC theo giai đoạn, vì hai giai đoạn hỏi hai câu khác
+      // nhau. Trong cửa đặt cược, câu hỏi là "còn bao lâu để vào lệnh".
+      // Qua cửa rồi thì `conLaiGiay` bằng 0 mãi mãi, và một số 0 đỏ đứng
+      // yên chẳng nói gì; lúc đó câu hỏi đúng là "còn bao lâu tới kết toán".
+      //
+      // Dùng thẳng mốc tuyệt đối của sàn được, vì buồng lái chỉ chạy trên
+      // localhost — trang và runtime dùng CHUNG một đồng hồ máy.
+      var oh = el("div", "ch-ho");
+      if (k.datCuocDuoc && k.conLaiGiay != null) {
+        oh.appendChild(el("i", "", "còn đặt được"));
+        var dh = el("b", "dhho");
+        nhipConLai(dh, Date.now() + k.conLaiGiay * 1000);
+        oh.appendChild(dh);
+      } else if (k.endMs) {
+        oh.appendChild(el("i", "", "còn tới kết toán"));
+        var dh2 = el("b", "dhho cho");
+        nhipConLai(dh2, k.endMs);
+        oh.appendChild(dh2);
+      } else oh.appendChild(el("i", "", "chưa rõ khung"));
+      d.appendChild(oh);
+      o.appendChild(d);
+
+      /* thanh vòng đời — thứ mà market 5 phút cần nhất */
+      if (k.troiQuaPct != null) {
+        var vd = el("div", "vdoi");
+        var ch = el("div", "vdoi-c"); ch.style.width = Math.min(100, k.troiQuaPct) + "%";
+        vd.appendChild(ch);
+        o.appendChild(vd);
+      }
+
+      var b = el("div", "ch-than");
+
+      /* ── tham chiếu ───────────────────────────────────────────── */
+      if (m.giaNen != null || (q && q.z != null)) {
+        b.appendChild(hang("Tham chiếu", [
+          m.giaNen != null ? sotv("$" + so(m.giaNen, 2)) : null,
+          q ? manh("z " + (q.z >= 0 ? "+" : "") + so(q.z, 2)) : null,
+          q ? manh("σ " + (q.sigmaGiay * 1e5).toFixed(2) + "e-5/giây") : null
+        ]));
+      }
+
+      /* ── giá trị thật ─────────────────────────────────────────── */
+      if (!q) {
+        b.appendChild(hang("Giá trị thật", manh("chưa đủ mẫu để ước lượng σ", "chua")));
+      } else {
+        b.appendChild(hang("Giá trị thật", [
+          sotv("UP " + pc(q.pUp), q.roRang ? "saoc" : "mo"),
+          sotv("DOWN " + pc(q.pDown), "mo"),
+          manh("± " + so(q.batDinh * 100, 1) + " điểm"),
+          q.roRang ? null : manh("mô hình tự nhận KHÔNG rõ ràng", "canh")
+        ]));
+      }
+
+      /* ── chợ ──────────────────────────────────────────────────── */
+      // Thang chờ thì KHÔNG hiện giá. Một dải lệnh trải 0,001→0,999 vẫn
+      // có "best ask", và con số đó vẫn ra số — nhưng nó không phải báo
+      // giá của ai cả. Bày nó ở dòng CHỢ là làm đúng cái việc mà cả cỗ
+      // máy bên dưới được dựng để từ chối làm.
+      // Cổng đúng là `dungDuoc`, KHÔNG phải `thangCho`. Hai cờ này ở cấp
+      // cặp đều là phép HOẶC của hai token, nên chúng nói hai chuyện khác
+      // hẳn nhau: `thangCho` = một trong hai bên là thang, `dungDuoc` =
+      // một trong hai bên dùng được. Một cặp có thể vừa có thang ở bên
+      // này vừa có báo giá thật ở bên kia — và đó là trường hợp THƯỜNG,
+      // không phải ngoại lệ. Chặn nhầm sang `thangCho` là giấu mất báo
+      // giá thật của bên còn lại.
+      if (!c.dungDuoc) {
+        b.appendChild(hang("Chợ", manh(c.lyDo || "sổ chưa dùng được", "canh")));
+      } else {
+        var cho = [];
+        ["UP", "DOWN"].forEach(function (ben) {
+          var x = s[ben];
+          if (!x) return;
+          if (x.thangCho) { cho.push(manh(ben + " thang chờ", "canh")); return; }
+          if (x.bestAsk != null) cho.push(sotv(ben + " hỏi " + gia(x.bestAsk)));
+          if (x.spread != null) cho.push(manh("spread " + gia(x.spread)));
+        });
+        b.appendChild(hang("Chợ", cho.length ? cho : manh("chưa có báo giá", "chua")));
+      }
+
+      /* giá cặp — và nói thẳng khi nó ở SAI phía của $1 */
+      if (c.tongGiaMua != null && c.dungDuoc) {
+        var duoi1 = c.tongGiaMua < 1;
+        b.appendChild(hang("Giá cặp", [
+          sotv(gia(c.tongGiaMua), duoi1 ? "len" : "xuong"),
+          manh(duoi1
+            ? "dưới $1 — mua đủ cặp là khoá lãi"
+            : "TRÊN $1 — mua đủ cặp là khoá LỖ, không phải cơ hội",
+            duoi1 ? "len" : "xuong")
+        ]));
+      }
+
+      /* ── lợi thế ăn được ──────────────────────────────────────── */
+      var ch2 = (T.coHoi || []).filter(function (x) { return x.ma === m.ma; });
+      var tot = ch2.filter(function (x) { return x.dangLam; })
+                   .sort(function (a, z) { return z.net - a.net; })[0];
+      var hien = tot || ch2.sort(function (a, z) { return z.net - a.net; })[0];
+      if (!hien) {
+        b.appendChild(hang("Lợi thế", manh("không mục nào", "chua")));
+      } else {
+        b.appendChild(hang("Lợi thế " + hien.ben, [
+          manh("thô"), sotv(cent(hien.gross)),
+          manh("ròng"), sotv(cent(hien.net), hien.net > 0 ? "len" : "xuong"),
+          hien.dangLam ? null : manh("KHÔNG qua sàng", "canh")
+        ]));
+        b.appendChild(hang("", [
+          manh("sức chứa"), sotv(so(hien.sucChua, 0) + " cổ"),
+          manh("khớp"), sotv(pc(hien.xacSuatKhop)),
+          manh("nửa đời"), sotv(so(hien.nuaDoiMs, 0) + "ms")
+        ]));
+      }
+
+      /* ── tồn kho ──────────────────────────────────────────────── */
+      var v = ((T.kho || {}).viThe || []).filter(function (x) { return x.ma === m.ma; })[0];
+      if (!v || (!v.coUp && !v.coDown)) {
+        b.appendChild(hang("Tồn kho", manh("chưa có vị thế", "chua")));
+      } else {
+        b.appendChild(hang("Tồn kho", [
+          sotv("UP " + so(v.coUp, 0)), sotv("DOWN " + so(v.coDown, 0)),
+          manh("cặp"), sotv(so(v.daGhepCap, 0)),
+          manh("lệch"), sotv((v.dinhHuong >= 0 ? "+" : "") + so(v.dinhHuong, 0)),
+          v.giaCap != null ? manh("giá cặp " + gia(v.giaCap),
+            v.capKhoaLo ? "xuong" : "len") : null
+        ]));
+        if (v.chuaPhongHoUsd > 0) {
+          b.appendChild(hang("", manh(
+            "chưa phòng hộ " + usd(v.chuaPhongHoUsd) + " · chờ " +
+            so(v.choLauNhatMs / 1000, 0) + "s — đây LÀ vị thế định hướng, " +
+            "chưa phải cặp khoá", "canh")));
+        }
+      }
+
+      /* ── rủi ro ───────────────────────────────────────────────── */
+      var r = T.risk || {};
+      var tenCu = null, cu = 0;
+      Object.keys(T.nguon || {}).forEach(function (n) {
+        var t = (T.nguon[n] || {}).tuoiMs || 0;
+        if (t > cu) { cu = t; tenCu = n; }
+      });
+      b.appendChild(hang("Rủi ro", [
+        manh("vốn"), sotv(usd(r.von)),
+        manh("lỗ ngày"), sotv(usd(r.loNgayUsd) + "/" + usd(r.tranLoNgayUsd),
+          r.loNgayUsd >= r.tranLoNgayUsd * 0.8 ? "xuong" : ""),
+        manh("cũ nhất " + (tenCu || "—")),
+        sotv(so(cu / 1000, 1) + "s", cu > 60000 ? "canh" : "len")
+      ]));
+
+      /* ── quyết định ───────────────────────────────────────────── */
+      var qd = quyetDinh(m, tot);
+      var oq = el("div", "qd qd-" + qd.l);
+      oq.appendChild(el("b", "", qd.t));
+      oq.appendChild(el("span", "", qd.v));
+      b.appendChild(oq);
+
+      /* ── sâu hơn ──────────────────────────────────────────────── */
+      var nut = el("button", "sau-nut", "Sâu hơn ▾");
+      var sau = el("div", "sau");
+      //  dựng lại cả trang mỗi 2 giây. Không nhớ trạng thái thì
+      // nút này tự đóng ngay khi người ta vừa mở ra đọc — một lỗi chỉ
+      // lộ khi dùng thật, không lộ khi xem ảnh chụp.
+      sau.hidden = !SAU[m.ma];
+      nut.addEventListener("click", function () {
+        sau.hidden = !sau.hidden;
+        SAU[m.ma] = !sau.hidden;
+        nut.textContent = sau.hidden ? "Sâu hơn ▾" : "Thu lại ▴";
+        if (!sau._daVe) { sau.appendChild(veSauHon(m)); sau._daVe = true; }
+      });
+      b.appendChild(nut); b.appendChild(sau);
+
+      o.appendChild(b);
+      g.appendChild(o);
+    });
+    return g;
+  }
+
+  /* Phần sâu — đúng những thứ tệp gọi là ADVANCED. Không hiện mặc định,
+     vì chín trên mười lần người mở buồng lái chỉ cần bảy dòng phía trên. */
+  function veSauHon(m) {
+    var g = document.createDocumentFragment();
+    var q = m.gia, s = m.so || {}, c = m.cap || {};
+
+    if (q) {
+      var l = el("div", "luoi3");
+      l.appendChild(chi("Rủi ro nhảy", so(q.ruiRoNhay * 100, 1) + " điểm",
+        "tham số " + so(q.batDinhThamSo * 100, 1), q.ruiRoNhay > 0.12 ? "xuong" : "mo"));
+      l.appendChild(chi("τ", so(q.tauGiay, 0) + "s", q.tauDungSan ? "đã kẹp về sàn" : null,
+        q.tauDungSan ? "canh" : ""));
+      l.appendChild(chi("Làm phẳng", q.daMatPhang ? "CÓ" : "không",
+        q.daMatPhang ? "công thức trần cho 0/1" : null, q.daMatPhang ? "canh" : "mo"));
+      g.appendChild(l);
+    }
+
+    if (c.lechSoiGuong != null) {
+      g.appendChild(el("div", "ghi",
+        "Lệch soi gương " + so(c.lechSoiGuong, 6) + " — mua UP ≡ bán DOWN, nên hai " +
+        "sổ phải soi gương qua 0,5. Số này lệch nhiều là một trong hai sổ đã cũ."));
+    }
+
+    ["UP", "DOWN"].forEach(function (ben) {
+      var x = s[ben];
+      if (!x) return;
+      var r = el("div", "ghi");
+      r.innerHTML = "<b>" + ben + "</b> · vi giá " + cent(x.viGia) +
+        " · lệch " + so(x.lech, 3) +
+        (x.doSau ? " · sâu " + x.doSau.map(function (y) { return so(y, 0); }).join(" / ") : "") +
+        (x.thangCho ? " · <b>thang chờ</b>, chưa phải báo giá" : "");
+      g.appendChild(r);
+    });
+
+    var gt = q && q.giaiTrinh;
+    if (gt && gt.chiTiet && gt.chiTiet.length) {
+      g.appendChild(el("div", "ghi",
+        "Tín hiệu phụ — gộp " + gt.soHo + " họ, không phải " +
+        gt.chiTiet.length + " bằng chứng độc lập:"));
+      g.appendChild(bang(
+        ["tín hiệu", "họ", { t: "thô", num: 1 }, { t: "trọng số", num: 1 }, { t: "góp", num: 1 }],
+        gt.chiTiet.map(function (x) {
+          return [{ v: x.ten, cls: "t" }, { v: x.ho, cls: "t" },
+                  { v: (x.tho >= 0 ? "+" : "") + so(x.tho, 3), cls: "num" },
+                  { v: "×" + so(x.trongSo, 2), cls: "num" },
+                  { v: (x.gop >= 0 ? "+" : "") + so(x.gop, 3), cls: "num" }];
+        })));
+    }
+    return g;
+  }
+
+  /* ── BẢN ĐỒ ───────────────────────────────────────────────────────
+     Đây là bản có nghĩa của thứ mà các dashboard kia gọi là "Edge
+     Matrix" hay "force graph": so mỗi khung với CHÍNH giá trị thật của
+     nó, không bao giờ so giá thô giữa hai khung. BTC 5m ở 68¢ và BTC
+     15m ở 54¢ không nói lên điều gì — hai khung khác mốc, khác thời
+     gian còn lại, khác chân trời biến động.                            */
+  function veBanDo() {
+    var g = document.createDocumentFragment();
+    var d = T.doThi || {};
+    var o = oKhung("Bản đồ khung", d.soNut ? d.soNut + " nút" : null);
+
+    if (!d.nut || !d.nut.length) {
+      o._than.appendChild(chuaCo("chưa có khung nào để so"));
+      g.appendChild(o); return g;
+    }
+
+    if (d.canhBaoDongPha) {
+      var w = el("p", "ghi canh");
+      w.innerHTML = "<b>Cả rổ đang nghiêng một phía.</b> " + d.canhBaoDongPha +
+        " — khi mọi khung cùng lệch một hướng thì lời giải thích đơn giản " +
+        "nhất là MÔ HÌNH đang lệch, không phải cả chợ cùng sai.";
+      o._than.appendChild(w);
+    }
+
+    o._than.appendChild(bang(
+      ["khung", "nhóm", { t: "còn (s)", num: 1 }, { t: "thật", num: 1 },
+       { t: "chợ", num: 1 }, { t: "lệch", num: 1 }, { t: "z riêng", num: 1 }],
+      d.nut.slice().sort(function (a, b) { return Math.abs(b.z) - Math.abs(a.z); })
+        .map(function (n) {
+          return [{ v: n.ma, cls: "t" }, { v: n.nhom, cls: "t" },
+                  { v: so(n.conLaiGiay, 0), cls: "num" },
+                  { v: pc(n.fairUp), cls: "num" },
+                  { v: n.giaChoUp == null ? "—" : cent(n.giaChoUp), cls: "num" },
+                  { v: cent(n.lech), cls: "num " + huong(n.lech) },
+                  { v: (n.z >= 0 ? "+" : "") + so(n.z, 2), cls: "num" }];
+        })));
+
+    o._than.appendChild(el("div", "ghi",
+      "Cột z riêng = lệch chia cho bất định của CHÍNH khung đó. Đó là lý " +
+      "do cột này so được với nhau còn cột giá chợ thì không: một khung " +
+      "còn 20 giây và một khung còn 800 giây không cùng thước đo."));
+
+    if (d.zTrungBinh != null) {
+      o._than.appendChild(el("div", "ghi",
+        "z trung bình " + so(d.zTrungBinh, 2) + " — con số này ở xa 0 nghĩa " +
+        "là mô hình đang lệch có hệ thống so với chợ, và đó là tin về mô " +
+        "hình trước khi là tin về cơ hội."));
+    }
+    g.appendChild(o);
+    return g;
+  }
+
+  /* ── KẾT TOÁN ─────────────────────────────────────────────────────
+     Vòng học chỉ khép khi biết kết quả THẬT. Ô này là chỗ duy nhất
+     trong buồng lái nói được "mô hình đoán đúng hay sai", nên nó cũng
+     là chỗ duy nhất chứng minh cả cỗ máy có đang học hay không.        */
+  function veKetToan() {
+    var g = document.createDocumentFragment();
+    var kt = T.ketToan || {}, vd = T.voDich || {}, th = T.tienHoa || {};
+
+    var o = oKhung("Kết toán", (kt.daKetToan || 0) + " xong · " +
+      (kt.dangCho || 0) + " chờ");
+    if (kt.soBatDong) {
+      var w = el("p", "ghi xuong");
+      w.innerHTML = "<b>" + kt.soBatDong + " lần hai nguồn BẤT ĐỒNG.</b> " +
+        "Kết quả đọc bằng hai đường độc lập — outcomePrices của sàn và tự " +
+        "tính từ nến Binance. Bất đồng tăng nghĩa là một giả định đang sai, " +
+        "và nhờ đọc hai đường nên nó lộ ra ở đây chứ không lộ thành tiền.";
+      o._than.appendChild(w);
+    } else {
+      o._than.appendChild(el("div", "ghi",
+        "Hai nguồn đọc kết quả chưa lần nào bất đồng. Đọc bằng hai đường " +
+        "độc lập là để một giả định sai lộ ra thành con số này, không lộ " +
+        "thành tiền."));
+    }
+
+    if (kt.cho && kt.cho.length) {
+      o._than.appendChild(bang(
+        ["đang chờ", { t: "còn (s)", num: 1 }, { t: "đã đoán", num: 1 }, { t: "hỏi", num: 1 }],
+        kt.cho.map(function (x) {
+          return [{ v: x.slug.replace(/^.*?-5m-/, ""), cls: "t" },
+                  { v: so(x.conMs / 1000, 0), cls: "num" },
+                  { v: pc(x.pDuDoan), cls: "num" },
+                  { v: x.soLanHoi, cls: "num" }];
+        })));
+    }
+    if (kt.ganDay && kt.ganDay.length) {
+      o._than.appendChild(bang(
+        ["đã xong", "kết quả", { t: "đã đoán", num: 1 }, "có vị thế"],
+        kt.ganDay.slice(0, 12).map(function (x) {
+          return [{ v: x.ma + " " + (x.luc || "").slice(11, 16), cls: "t" },
+                  { v: x.upThang ? "UP" : "DOWN", cls: "t " + (x.upThang ? "len" : "xuong") },
+                  { v: pc(x.pDuDoan), cls: "num" },
+                  { v: x.coViThe ? "có" : "không", cls: "t mo" }];
+        })));
+      o._than.appendChild(el("div", "ghi",
+        "Mọi khung đều được ghi sổ, kể cả khung KHÔNG có vị thế. Chỉ chấm " +
+        "những khung mình có tiền là tự chọn mẫu — hiệu chỉnh sẽ đẹp lên " +
+        "mà không phải vì mô hình khá hơn."));
+    }
+    g.appendChild(o);
+
+    /* Vô địch / thách đấu */
+    var o2 = oKhung("Vô địch · thách đấu",
+      (vd.hoSo && vd.hoSo.length) ? vd.hoSo.length + " hồ sơ" : null);
+    var ng = vd.nguong || {};
+    o2._than.appendChild(el("div", "ghi",
+      "Bốn cửa đặt TRƯỚC khi nhìn số: tối thiểu " + (ng.toiThieuMau || "—") +
+      " mẫu, phải hơn đương kim " + (ng.bienVuot || "—") + " lần, và đuôi " +
+      "không tệ hơn " + (ng.duoiToiDa || "—") + " lần. Không có cờ ép qua."));
+    if (!vd.hoSo || !vd.hoSo.length) {
+      o2._than.appendChild(chuaCo(
+        "Chưa có thách đấu nào. Cần đủ mẫu kết toán trước khi so hai bộ " +
+        "tham số — so trên vài chục lượt là so tiếng ồn."));
+    } else {
+      o2._than.appendChild(bang(
+        ["chiến thuật", { t: "mẫu", num: 1 }, { t: "kỳ vọng", num: 1 }, "trạng thái"],
+        vd.hoSo.map(function (h) {
+          return [{ v: h.ma || "?", cls: "t" },
+                  { v: h.mau == null ? "—" : h.mau, cls: "num" },
+                  { v: h.kyVong == null ? "—" : so(h.kyVong, 4), cls: "num" },
+                  { v: h.trangThai || "—", cls: "t" }];
+        })));
+    }
+    g.appendChild(o2);
+
+    /* Vòng tiến hoá */
+    var dd = th.duong || {}, gn = th.ganNhat || {};
+    var o3 = oKhung("Vòng tiến hoá", th.bat ? "bật · sau " +
+      String(th.gioUTC).padStart(2, "0") + ":00 UTC mỗi ngày" : "tắt");
+    var l = el("div", "luoi3");
+    l.appendChild(chi("Lượt", dd.soLuot != null ? dd.soLuot : "—", "đã chạy"));
+    l.appendChild(chi("Nhận", dd.soLanNhan != null ? dd.soLanNhan : "—",
+      "qua cổng", dd.soLanNhan ? "len" : "mo"));
+    l.appendChild(chi("Trả lại", dd.soLanTraLai != null ? dd.soLanTraLai : "—",
+      "cổng chặn", "mo"));
+    l.appendChild(chi("Đứng yên", dd.soLanDungYen != null ? dd.soLanDungYen : "—",
+      "không bệnh nào vượt ngưỡng", "mo"));
+    o3._than.appendChild(l);
+    if (th.ngayDaChay) {
+      o3._than.appendChild(el("div", "ghi", "Lượt gần nhất " + th.ngayDaChay +
+        (gn.tomTat ? " — " + gn.tomTat : "") + "."));
+    }
+    o3._than.appendChild(el("div", "ghi",
+      "Ba kết cục đều hợp lệ. TRẢ LẠI nghĩa là cổng làm đúng việc của nó; " +
+      "ĐỨNG YÊN nghĩa là chưa bệnh nào đủ nặng để đáng vặn. Một vòng nhận " +
+      "mọi đề xuất là một vòng không có cổng."));
+    g.appendChild(o3);
+    return g;
+  }
+
   /* ── vẽ ───────────────────────────────────────────────────────── */
   var VE = {
-    "dai-chiem": veDaiChiem, "so-lenh": veSoLenh, "can-loi": veCanLoi,
-    "kho-doi": veKhoDoi, "chien-thuat": veChienThuat,
-    "truong-thi": veTruongThi, "quan-vi": veQuanVi, "nhat-ky": veNhatKy
+    "chi-huy": veChiHuy, "dai-chiem": veDaiChiem, "so-lenh": veSoLenh,
+    "can-loi": veCanLoi, "kho-doi": veKhoDoi, "ban-do": veBanDo,
+    "chien-thuat": veChienThuat, "truong-thi": veTruongThi,
+    "ket-toan": veKetToan, "quan-vi": veQuanVi, "nhat-ky": veNhatKy
   };
 
   function ve() {
     if (!T) return;
     than.textContent = "";
-    than.appendChild((VE[O] || veDaiChiem)());
+    than.appendChild((VE[O] || veChiHuy)());
 
     var c = document.getElementById("cheDo");
     c.textContent = T.che === "that" ? "TIỀN THẬT" :
@@ -545,4 +1011,14 @@
 
   tai();
   setInterval(tai, 2000);
+
+  // Đồng hồ đếm ngược phải chạy MƯỢT. Nhịp nạp là 2 giây, nên nếu để đồng
+  // hồ nhảy theo nhịp đó thì với market 5 phút nó giật thấy rõ, và đúng ở
+  // giây cuối — lúc con số ấy quan trọng nhất. Mỗi lần nạp cho một MỐC KẾT
+  // THÚC tuyệt đối; giữa hai lần nạp thì trang tự trừ dần lấy.
+  setInterval(function () {
+    [].forEach.call(document.querySelectorAll(".dhho"), function (e) {
+      if (e._ve) e._ve();
+    });
+  }, 250);
 })();
