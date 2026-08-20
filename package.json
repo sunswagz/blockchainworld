@@ -19,6 +19,7 @@
     "hobu": "node scripts/build-hobu.mjs",
     "thaiboc": "node scripts/build-thaiboc.mjs",
     "congtruong": "node scripts/build-congtruong.mjs",
+    "tintuc": "node scripts/build-tintuc.mjs",
     "tangthu": "node scripts/build-tangthu.mjs",
     "hoangthanh": "node scripts/build-hoangthanh.mjs",
     "kiem": "node scripts/kiem-quy-trinh.mjs",

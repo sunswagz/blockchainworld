@@ -37,6 +37,9 @@
      mức trong khi DefiLlama vẫn chạy. Vắng thì đúng một phòng báo
      thiếu, các phòng khác không biết gì cả. */
   var CT = window.THAIBOC_CT || null;
+  /* Nguồn thứ tư: tin từ sáu toà soạn/blog bên ngoài. Cũng có thể
+     vắng độc lập với ba nguồn kia. */
+  var TIN = window.THAIBOC_TIN || null;
 
   /* ═══════════════ ĐỊNH DẠNG ═══════════════ */
 
@@ -200,7 +203,89 @@
         "còn DePIN, AI, danh tính, game và meme thì <b>TVL không đo được</b> — " +
         "chẳng ai khoá vốn vào một meme coin để nó chạy. Chúng hiện “—”, " +
         "không hiện 0.") +
+      veTinTuc() +
       duY;
+  }
+
+  /* ═══════════════ TIN TỨC ═══════════════
+     Khối này nằm trong phòng Đoàn Tàu chứ không đứng riêng, và đó
+     là chủ ý: mỗi bài mang nhãn TOA, nên nó đọc tiếp ngay bên dưới
+     bảng 18 toa thay vì thành một trang tin rời rạc. Một tin về
+     Tether nằm cạnh con số 308 tỷ lưu hành của toa 04.
+
+     Ảnh TRỎ THẲNG sang CDN của toà soạn — không tải về repo, xem
+     lý do ở đầu scripts/build-tintuc.mjs. Ba thuộc tính bắt buộc,
+     đừng bỏ cái nào:
+       referrerpolicy="no-referrer"  không gửi kèm đường dẫn trang này
+       loading="lazy"                ảnh dưới màn hình chưa tải
+       onerror=...hidden             ảnh 404 thì ẩn hẳn khung
+
+     Thiếu onerror thì một ảnh hỏng để lại cái icon vỡ, xấu hơn hẳn
+     một thẻ không có ảnh — và tin tức thì link chết là chuyện thường. */
+
+  function theTin(b) {
+    var tenToa = null;
+    if (b.toa) S.TOA.forEach(function (t) { if (t.ma === b.toa) tenToa = t; });
+    var ng = b.ngay ? ngayVn(b.ngay) : null;
+    var d = b.ngay ? soNgay(b.ngay) : null;
+    var tuoi = d == null ? (ng || "")
+      : d <= 0 ? "hôm nay" : d === 1 ? "hôm qua" : d + " ngày trước";
+
+    return '<article class="tin">' +
+      (b.anh
+        ? '<a class="tin-anh" href="' + esc(b.link) + '" target="_blank" rel="noopener noreferrer">' +
+          '<img src="' + esc(b.anh) + '" alt="" loading="lazy" decoding="async" ' +
+          'referrerpolicy="no-referrer" ' +
+          'onerror="this.parentNode.hidden=true"></a>'
+        : "") +
+      '<div class="tin-than">' +
+        '<div class="tin-d"><span class="tin-ng">' + esc(b.nguon) + "</span>" +
+          '<span class="tin-t2">' + esc(tuoi) + "</span></div>" +
+        '<a class="tin-t" href="' + esc(b.link) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(b.tieuDe) + "</a>" +
+        (b.tom ? '<p class="tin-tom">' + esc(b.tom.slice(0, 150)) + "…</p>" : "") +
+        '<div class="tin-m">' +
+          (tenToa
+            ? '<button class="tin-toa" type="button" data-toa="' + esc(tenToa.ma) + '">toa ' +
+              esc(tenToa.so) + " · " + esc(tenToa.ten) + "</button>"
+            : '<span class="tin-toa" data-trong="1">chưa xếp toa</span>') +
+        "</div>" +
+      "</div></article>";
+  }
+
+  function veTinTuc() {
+    if (!TIN || !TIN.bai || !TIN.bai.length) {
+      return khoi("Tin tức", null,
+        '<p class="giaithich"><b>Chưa có bản tin nào.</b> File ' +
+        "<code>assets/js/v/tin-tuc.js</code> chưa được sinh, hoặc lượt gần nhất " +
+        "không nguồn nào trả bài. Chạy <code>node scripts/build-tintuc.mjs</code> " +
+        "ở gốc repo, hoặc đợi lượt GitHub Actions kế tiếp.</p>", null);
+    }
+
+    var nga = (TIN.nguon || []).filter(function (n) { return !n.ok; });
+    var ok = (TIN.nguon || []).filter(function (n) { return n.ok; });
+    var gio = Math.floor((Date.now() - new Date(TIN.generatedAt).getTime()) / 36e5);
+
+    var dsNguon = '<p class="tin-nguon">Đọc từ ' + ok.length + "/" +
+      (TIN.nguon || []).length + " nguồn: " +
+      ok.map(function (n) { return "<b>" + esc(n.nhan) + "</b>"; }).join(" · ") +
+      (nga.length
+        ? '. <span style="color:var(--canh)">Không lấy được: ' +
+          esc(nga.map(function (n) { return n.nhan; }).join(", ")) + ".</span>"
+        : ".") +
+      " Lấy cách đây " + gio + " giờ.</p>";
+
+    return khoi("Thế giới bên ngoài đang nói gì",
+      TIN.tong.soBai + " bài · " + TIN.tong.soXepToa + " xếp được toa",
+      dsNguon + '<div class="tin-l">' + TIN.bai.map(theTin).join("") + "</div>",
+      "Tiêu đề và ảnh <b>lấy thẳng từ bài gốc</b>; bấm vào là sang đúng trang của " +
+      "toà soạn đó, cung này không chép lại nội dung của ai. Ảnh nằm trên máy chủ " +
+      "của họ chứ không tải về đây — nên mở trang này là trình duyệt bạn có gọi " +
+      "sang CDN của mấy toà soạn ấy. " +
+      "<b>Nhãn toa là phần cung này thêm vào</b>: khớp từ khoá trên tiêu đề và tóm " +
+      "tắt, bấm vào để mở hồ sơ toa đó. Khớp từ khoá thì sai được, nên bài nào " +
+      "không chắc sẽ để “chưa xếp toa” thay vì đoán bừa — gắn nhãn sai còn tệ hơn " +
+      "không gắn, vì người đọc sẽ tin cái nhãn.");
   }
 
   /* ═══════════════ PHÒNG · KHỚP NỐI ═══════════════ */

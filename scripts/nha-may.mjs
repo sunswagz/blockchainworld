@@ -134,6 +134,15 @@ export const NODE = [
        "thêm secret nào, không gọi AI."
   },
   {
+    ma: "thai-boc-tu-tin", ten: "Tin tức Thái Bộc Tự", cung: "thai-boc-tu",
+    tram: "M12", che: "script", nhip: 6,
+    lenh: "node scripts/build-tintuc.mjs",
+    ra: ["thai-boc-tu/assets/js/v/tin-tuc.js"],
+    y: "Sáu nguồn RSS công khai (CoinDesk, Cointelegraph, Decrypt, Bitcoin Magazine, " +
+       "blog Ethereum Foundation, Vitalik). Gắn nhãn toa bằng từ khoá. Ảnh TRỎ THẲNG " +
+       "sang CDN toà soạn, không tải về repo. Không khoá nào, không gọi AI."
+  },
+  {
     ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
     tram: "M12", che: "script", nhip: 6,
     lenh: "node scripts/build-tangthu.mjs",

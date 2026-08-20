@@ -128,8 +128,8 @@ jobs:
       #   5 + 3 + 2 + 5 + 14 + 3 + 2  (lấy số liệu + đóng dấu)
       # + 2 + 15 + 2                  (ra đề · quét · dựng)
       # + 2 + 6 + 2                   (kiểm · báo cáo · cảnh báo)
-      # + 5 + 4                       (Thái Bộc Tự: đoàn tàu · công trường)
-      #   = 72  <  80
+      # + 5 + 4 + 3                   (Thái Bộc Tự: đoàn tàu · công trường · tin)
+      #   = 75  <  80
       # (+5 cho Hộ Bộ, 15/08. +9 cho Thái Bộc Tự, 20/08 — và lần thêm
       #  cung đó ĐÃ QUÊN cộng lại ở đây, làm tổng vọt lên 72 trong khi
       #  trần job vẫn là 70. Không nổ lượt nào vì hai node mới chạy
@@ -270,6 +270,28 @@ jobs:
           KET: ${{ steps.n-thai-boc-tu-ct.outcome == 'success' && 'ok' || 'loi' }}
           GIAY: ${{ steps.n-thai-boc-tu-ct.outputs.giay }}
         run: node scripts/nha-may.mjs ghi thai-boc-tu-cong-truong "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/thai-boc-tu-ct.log"
+
+      # Tin tức Thái Bộc Tự — sáu nguồn RSS công khai, đọc song song.
+      #
+      # Trần 3 phút: sáu lời gọi CHẠY CÙNG LÚC (Promise.all), mỗi cái
+      # timeout 45 giây, nên xấu nhất vẫn dưới 1 phút. Một toà soạn ngã
+      # thì chỉ mất bài của nguồn đó; TẤT CẢ ngã thì script thoát 1 và
+      # giữ bản cũ — bảng tin trống bị đọc thành "thế giới không có tin".
+      - name: Lấy tin tức — Thái Bộc Tự
+        id: n-thai-boc-tu-tin
+        if: contains(steps.kehoach.outputs.han, ',thai-boc-tu-tin,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          t0=$(date +%s)
+          node scripts/build-tintuc.mjs 2>&1 | tee "$RUNNER_TEMP/thai-boc-tu-tin.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · thai-boc-tu-tin
+        if: always() && steps.n-thai-boc-tu-tin.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-thai-boc-tu-tin.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-thai-boc-tu-tin.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi thai-boc-tu-tin "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/thai-boc-tu-tin.log"
 
       # Kho skill Tàng Thư Các. Trần riêng cho bước này, thấp hơn trần
       # job: chạm trần thì chỉ mình nó ngã, commit vẫn chạy. Script chỉ
@@ -751,6 +773,7 @@ jobs:
                   ho-bo/assets/js/v/dong-tien.js \
                   thai-boc-tu/assets/js/v/doan-tau.js \
                   thai-boc-tu/assets/js/v/cong-truong.js \
+                  thai-boc-tu/assets/js/v/tin-tuc.js \
                   tang-thu-cac/assets/js/data.js \
                   tang-thu-cac/assets/data/lich-su.json \
                   tang-thu-cac/assets/data/kb/ \
