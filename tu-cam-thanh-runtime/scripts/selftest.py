@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import tempfile
+import time as _tg
 from pathlib import Path
 
 # PHẢI đặt trước khi import trader.* — `config.py` đọc biến này lúc nạp module,
@@ -493,6 +494,64 @@ async def main() -> int:
                           {"ten": "B", "loai": "x", "huong": "SHORT", "rr": 2, "doTin": .5}])
     check(tt["mauThuan"], "hai mẫu ngược hướng → cờ mâu thuẫn, không lấy trung bình")
     check(mau_gia.tom_tat([])["co"] is False, "không mẫu nào → co=False, không phải rỗng lặng lẽ")
+
+    print("\n[14] NHIỀU CHỢ · NGHI THỨC · HÌNH HỌC KHUNG")
+    from trader import chung_cat as CC, nghi_thuc as NT
+
+    # — Nguồn «nhiều chợ»: dương ở một chợ KHÔNG được nói như dương ở mọi chợ —
+    (DATA_DIR / "dau-nhieu-cho.json").write_text(json.dumps({
+        "cho": ["A:4h", "B:4h"],
+        "ket": {"MOT_CHO": {"A:4h": {"kyVongR": 0.4, "so": 30},
+                            "B:4h": {"kyVongR": -0.3, "so": 30}},
+                "MOI_CHO": {"A:4h": {"kyVongR": 0.2, "so": 30},
+                            "B:4h": {"kyVongR": 0.1, "so": 30}},
+                "THIEU_MAU": {"A:4h": {"kyVongR": 0.9, "so": 3},
+                              "B:4h": {"kyVongR": 0.8, "so": 3}}},
+    }, ensure_ascii=False), encoding="utf-8")
+    bo = []
+    ds = {p["ma"]: p for p in CC._tu_nhieu_cho(bo)}
+
+    check("cho:MOT_CHO" in ds and "may rủi" in ds["cho:MOT_CHO"]["cau"],
+          "dương 1/2 chợ → nói rõ chưa phân biệt được lợi thế với may rủi")
+    check("cho:MOI_CHO" in ds and "MỌI chợ" in ds["cho:MOI_CHO"]["cau"],
+          "dương 2/2 chợ → nói rõ đây là dấu hiệu lợi thế thật")
+    # Cửa ngược lại: kỳ vọng đẹp mà mẫu bé thì KHÔNG được thành phát hiện.
+    check("cho:THIEU_MAU" not in ds,
+          f"+0,9R mà chỉ 3 lệnh/chợ → bị bỏ (bỏ {len(bo)} mục, có ghi lý do)")
+    check(any(b["ma"] == "cho:THIEU_MAU" for b in bo),
+          "…và cái bị bỏ có ghi lý do, không biến mất im lặng")
+
+    # — Nghi thức: hạn phải chặn được, và ép phải vượt được —
+    (DATA_DIR / "nghi-thuc.json").write_text(json.dumps(
+        {"luc": "x", "mocGiay": _tg.time(), "ketQua": {}}, ensure_ascii=False),
+        encoding="utf-8")
+    check(NT.den_han() is False, "vừa chạy xong → chưa tới hạn, không chạy lại")
+    (DATA_DIR / "nghi-thuc.json").write_text(json.dumps(
+        {"luc": "x", "mocGiay": _tg.time() - NT.MOI_GIAY - 10, "ketQua": {}},
+        ensure_ascii=False), encoding="utf-8")
+    check(NT.den_han() is True, f"quá {NT.MOI_GIAY // 3600} tiếng → tới hạn")
+    # Thứ tự không được đổi: đo → chưng cất → bàn giao. Bàn giao chạy trước thì
+    # bản tóm tắt mô tả trạng thái CHƯA có kết quả đo mới, và nó xanh, và nó sai.
+    check(NT.VIEC_CUOI[0][0] == "bàn giao" and
+          all(v[0] != "bàn giao" for v in NT.VIEC),
+          "bàn giao nằm ở nhóm chạy CUỐI, sau chưng cất")
+
+    # — Hình học khung: khung ngắn phải kém hơn khung dài, và bảng phải nói ra —
+    (DATA_DIR / "do-khung.json").write_text(json.dumps({
+        "ket": {"X": {"5m": {"soDiem": 900, "muc": {"2.0": {"tyLeCham": 10.0,
+                                                            "hoaVonCanTyLe": 33.3}}},
+                      "1d": {"soDiem": 900, "muc": {"2.0": {"tyLeCham": 32.0,
+                                                            "hoaVonCanTyLe": 33.3}}}}},
+    }, ensure_ascii=False), encoding="utf-8")
+    bo2 = []
+    ds2 = {p["ma"]: p for p in CC._tu_do_khung(bo2)}
+    check("khung-nao-do-noi" in ds2, "đo khung ra được phát hiện xếp hạng")
+    if "khung-nao-do-noi" in ds2:
+        so = ds2["khung-nao-do-noi"]["so"]
+        check(so["totNhat"] == "1d" and so["teNhat"] == "5m",
+              f"xếp đúng: tốt nhất {so['totNhat']}, tệ nhất {so['teNhat']}")
+    check("khung-ngan-chet-vi-phi" in ds2,
+          "khung 5m kém quá 15 điểm → có câu riêng về chi phí")
 
     broker.reset()
     print("\n" + "=" * 62)

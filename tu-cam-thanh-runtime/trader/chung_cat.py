@@ -52,6 +52,8 @@ MAU_TOI_THIEU = {
     "dai-quan-sat": 5,   # vòng của một trader ngoài — dưới mức này không đọc ra kiểu
     "chien-luoc": 1,     # champion là một bản ghi, không phải mẫu thống kê
     "mau-gia": 15,       # một mẫu biểu đồ dưới 15 lần xuất hiện chưa nói lên gì
+    "do-khung": 500,     # hình học đo trên hàng nghìn điểm vào, ngưỡng cao theo
+    "nhieu-cho": 20,     # lệnh ngoài mẫu mỗi chợ — cùng ngưỡng với cửa duyệt
 }
 
 
@@ -435,6 +437,124 @@ def _tu_mau_gia(bo: list) -> list[dict]:
     return ra
 
 
+# ── Nguồn 6 · hình học của từng khung thời gian ───────────────────────────
+def _tu_do_khung(bo: list) -> list[dict]:
+    """Khung nào ĐỠ NỔI mức RR đang đòi — đo bằng hình học, không bằng chiến lược.
+
+    Phát hiện quan trọng nhất mà nguồn này sinh ra: nó tách được "thị trường
+    không có lợi thế" khỏi "khung này không đỡ nổi mức RR đó". Trước khi có nó,
+    bốn chiến lược cùng thua trên 1h chỉ nói được câu thứ nhất.
+    """
+    f = DATA_DIR / "do-khung.json"
+    if not f.exists():
+        bo.append({"ma": "do-khung", "nguon": "do-khung",
+                   "viSao": "chưa chạy scripts/do-khung.py --ghi lần nào"})
+        return []
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        bo.append({"ma": "do-khung", "nguon": "do-khung", "viSao": f"đọc hỏng: {e}"})
+        return []
+
+    ket = d.get("ket") or {}
+    if not ket:
+        return []
+    ra = []
+
+    # Xếp hạng khung theo khoảng cách tới hoà vốn ở 2R, gộp mọi coin.
+    khoang: dict[str, list] = defaultdict(list)
+    diem = 0
+    for sym, tfs in ket.items():
+        for tf, k in tfs.items():
+            v = (k.get("muc") or {}).get("2.0")
+            if not v:
+                continue
+            khoang[tf].append(v["tyLeCham"] - v["hoaVonCanTyLe"])
+            diem += k.get("soDiem") or 0
+    if not khoang:
+        return []
+
+    tb = {tf: sum(xs) / len(xs) for tf, xs in khoang.items()}
+    xep = sorted(tb.items(), key=lambda x: -x[1])
+    tot, te = xep[0], xep[-1]
+    bang = " · ".join(f"{tf} {v:+.1f}đ" for tf, v in xep)
+    ra.append(_pd("khung-nao-do-noi", "do-khung",
+                  f"Khoảng cách tới hoà vốn ở mục tiêu 2R, đo bằng CÁCH VÀO NGẪU NHIÊN "
+                  f"trên {len(ket)} coin ({diem:,} điểm vào): {bang}. Khung càng dài càng "
+                  f"gần hoà vốn. Ở {tot[0]} chỉ cần bộ chọn điểm vào thêm {abs(tot[1]):.1f} "
+                  f"điểm phần trăm là dương; ở {te[0]} cần thêm {abs(te[1]):.1f} điểm — "
+                  f"khoảng cách đó không điểm vào nào lấp nổi. Đây là TRẦN TRÊN lạc quan "
+                  f"(khi mục tiêu và stop cùng nằm trong một nến, phần thắng tính cho mục "
+                  f"tiêu), nên thực tế còn thấp hơn.",
+                  diem, {"theoKhung": {k: round(v, 1) for k, v in tb.items()},
+                         "totNhat": tot[0], "teNhat": te[0]}))
+
+    # Khung ngắn: chi phí cố định ăn hết — nói riêng vì đây là cám dỗ thường trực
+    ngan = [tf for tf, v in tb.items() if tf in ("1m", "3m", "5m") and v < -15]
+    if ngan:
+        ra.append(_pd("khung-ngan-chet-vi-phi", "do-khung",
+                      f"Khung {', '.join(ngan)} kém hoà vốn tới "
+                      f"{min(tb[t] for t in ngan):.0f} điểm phần trăm ở 2R. Nguyên nhân là "
+                      f"chi phí: phí và trượt giá tính theo % GIÁ nên không đổi, còn biên độ "
+                      f"mỗi nến thì nhỏ dần theo khung — cùng một khoản phí ăn phần R ngày "
+                      f"càng lớn. Không chiến lược nào bù được chỗ đó.",
+                      diem, {"khung": ngan}))
+    return ra
+
+
+# ── Nguồn 7 · đấu nhiều chợ ───────────────────────────────────────────────
+def _tu_nhieu_cho(bo: list) -> list[dict]:
+    """Cùng một bộ luật, đo trên nhiều coin và nhiều khung.
+
+    Phát hiện đáng giá nhất mà nguồn này sinh ra không phải "bộ luật nào tốt" mà
+    là **cùng một bộ luật thắng hay thua tuỳ chợ** — thứ chỉ nhìn thấy khi đo hơn
+    một chợ, và là thứ phân biệt "có lợi thế" với "khớp với lịch sử của một chợ".
+    """
+    f = DATA_DIR / "dau-nhieu-cho.json"
+    if not f.exists():
+        bo.append({"ma": "nhieu-cho", "nguon": "nhieu-cho",
+                   "viSao": "chưa chạy dau-chien-luoc.py --cho lần nào"})
+        return []
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        bo.append({"ma": "nhieu-cho", "nguon": "nhieu-cho", "viSao": f"đọc hỏng: {e}"})
+        return []
+
+    cho, ket = d.get("cho") or [], d.get("ket") or {}
+    if len(cho) < 2 or not ket:
+        bo.append({"ma": "nhieu-cho", "nguon": "nhieu-cho",
+                   "viSao": f"chỉ {len(cho)} chợ — cần ≥2 mới nói được gì"})
+        return []
+
+    ra = []
+    for ma, v in ket.items():
+        o = [x for x in v.values() if x.get("kyVongR") is not None]
+        if len(o) < 2:
+            continue
+        du = [x for x in o if (x.get("so") or 0) >= MAU_TOI_THIEU["nhieu-cho"]]
+        if not du:
+            bo.append({"ma": f"cho:{ma}", "nguon": "nhieu-cho",
+                       "viSao": f"mọi chợ đều dưới {MAU_TOI_THIEU['nhieu-cho']} lệnh ngoài mẫu"})
+            continue
+        duong = sum(1 for x in du if x["kyVongR"] > 0)
+        tong_lenh = sum(x["so"] for x in du)
+        chi = " · ".join(f"{c} {v[c]['kyVongR']:+.3f}R/{v[c]['so']}"
+                         for c in cho if c in v and (v[c].get("so") or 0) >= MAU_TOI_THIEU["nhieu-cho"])
+        cau = (f"{ma} trên {len(du)} chợ đủ mẫu: {chi} — dương ở {duong}/{len(du)}.")
+        if duong == len(du):
+            cau += (" Dương ở MỌI chợ đo được: đây là dấu hiệu của lợi thế thật, "
+                    "không phải khớp với lịch sử của một chợ.")
+        elif duong == 0:
+            cau += " Âm ở mọi chợ — vấn đề nằm ở chính bộ luật, không ở chợ nào."
+        else:
+            cau += (" Thắng chợ này thua chợ kia ⇒ chưa phân biệt được lợi thế với "
+                    "may rủi; cần thêm chợ hoặc thêm lệnh trước khi tin.")
+        ra.append(_pd(f"cho:{ma}", "nhieu-cho", cau, tong_lenh,
+                      {"duong": duong, "soCho": len(du)}))
+    return ra
+
+
 # ── Lò ────────────────────────────────────────────────────────────────────
 def chung_cat() -> dict:
     """Chưng lại toàn bộ phát hiện. Ghi đè sạch kho, không cộng dồn."""
@@ -442,7 +562,8 @@ def chung_cat() -> dict:
     ra: list[dict] = []
     for ten, ham in (("chay-lai", _tu_chay_lai), ("so-that", _tu_so_that),
                      ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
-                     ("mau-gia", _tu_mau_gia)):
+                     ("mau-gia", _tu_mau_gia), ("do-khung", _tu_do_khung),
+                     ("nhieu-cho", _tu_nhieu_cho)):
         try:
             ra.extend(ham(bo))
         except Exception as e:  # một nguồn hỏng không được kéo sập cả lò

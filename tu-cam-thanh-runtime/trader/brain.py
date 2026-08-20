@@ -720,11 +720,163 @@ def mock_bung_nen_thesis(state: dict, regime: dict, primary_tf: str,
     return base
 
 
+# ── Bộ luật thứ năm: biên kép ─────────────────────────────────────────────
+THAM_BIEN_KEP: dict[str, Any] = {
+    "chamLan": 2,          # mức hỗ trợ phải được thử ít nhất ngần này lần
+    "dungSai": 0.008,      # hai đáy coi là CÙNG một mức khi lệch dưới 0,8%
+    "khoangCach": 0.6,     # giá phải nằm trong ngần này ATR quanh mức
+    "hopToiThieu": 2.0,    # hộp biên phải cao ít nhất ngần này ATR
+    "adxToiDa": 25.0,      # còn là biên, chưa thành xu hướng
+    "demStop": 0.4,        # stop dưới mức hỗ trợ một khoảng đệm
+    "demTp": 1.05,
+    "boiTp2": 1.6,
+    "tinCay": 0.58,
+}
+
+
+def _muc_da_thu(swings: list, gia: float, dung_sai: float, cham_lan: int) -> tuple | None:
+    """Mức giá đã được thử ≥`cham_lan` lần, nằm DƯỚI giá hiện tại.
+
+    Gom các đáy swing gần nhau thành cụm. Một đáy đơn lẻ không phải hỗ trợ — nó
+    là một chỗ giá từng quay đầu đúng một lần, và chuyện đó xảy ra ở mọi nơi.
+    Hỗ trợ là mức thị trường đã **nhiều lần** từ chối đi thấp hơn.
+    """
+    ds = sorted(x for x in (swings or []) if isinstance(x, (int, float)) and 0 < x < gia)
+    if len(ds) < cham_lan:
+        return None
+    tot = None
+    i = 0
+    while i < len(ds):
+        cum = [ds[i]]
+        j = i + 1
+        while j < len(ds) and abs(ds[j] - cum[0]) / cum[0] <= dung_sai:
+            cum.append(ds[j])
+            j += 1
+        if len(cum) >= cham_lan:
+            muc = sum(cum) / len(cum)
+            # gần giá hiện tại nhất thì mới là mức đang có tác dụng
+            if tot is None or muc > tot[0]:
+                tot = (muc, len(cum))
+        i = j
+    return tot
+
+
+def mock_bien_kep_thesis(state: dict, regime: dict, primary_tf: str,
+                         tham: dict | None = None) -> dict:
+    """Mua ở mức hỗ trợ ĐÃ ĐƯỢC THỬ NHIỀU LẦN, không ở chỗ chỉ báo bảo là thấp.
+
+    Bộ luật thứ hai cho chế độ RANGE, và nó khác «mua đáy biên» ở đúng một chỗ —
+    chỗ quan trọng nhất:
+
+        MOCK_RANGE_V1   vào khi CHỈ BÁO nói giá đang thấp
+                        (bbPosition ≤ 0,25 và RSI ≤ 45 và ADX ≤ 20)
+        MOCK_BIEN_KEP_V1 vào khi CẤU TRÚC nói có một mức đang đỡ
+                        (≥2 đáy swing trùng nhau trong 0,8%, giá đang chạm mức)
+
+    Vì sao đáng thử: đo được ở đây, `MOCK_RANGE_V1` chỉ vào **5 lệnh ngoài mẫu**
+    trong 2352 điểm — bốn điều kiện chỉ báo phải đúng cùng lúc thì gần như không
+    bao giờ đúng. Một chiến lược không vào lệnh không phải chiến lược thận trọng;
+    nó là chiến lược không đo được.
+
+    Và vì sao có thể vẫn thua: chế độ RANGE là chỗ **mọi mức đều bị thử lại**.
+    Mức đã đỡ hai lần rồi vẫn có thể vỡ ở lần thứ ba, và khi vỡ thì stop nằm ngay
+    dưới đó — chỗ đông người nhất để quét. Đây là giả thuyết, không phải kết
+    luận, và nó phải qua cửa duyệt như mọi bộ luật khác.
+    """
+    th = {**THAM_BIEN_KEP, **(tham or {})}
+    p = state["timeframes"][primary_tf]
+    price = p["price"]
+    atr = p["_raw"]["atr"] or price * 0.01
+    prim = regime["primary"]
+    adx = p.get("adx")
+    r = CONFIG["risk"]
+
+    base = {
+        "regime_read": prim,
+        "market_summary": f"[biên kép] {prim}, ADX {adx}, giá {price}",
+        "scenarios": [
+            {"name": "mức đỡ được, bật lên", "probability": 0.45, "description": "hỗ trợ đã thử nhiều lần"},
+            {"name": "mức vỡ, quét stop", "probability": 0.4, "description": "chỗ đông người nhất để quét"},
+            {"name": "đi ngang quanh mức", "probability": 0.15, "description": "không đi đâu"},
+        ],
+        "action": "NO_TRADE",
+        "confidence": 0.4,
+        "entry_zone": None, "invalidation": None,
+        "invalidation_logic": "không vào lệnh nên không có điểm vô hiệu hoá",
+        "targets": [], "suggested_risk_pct": 0.0,
+        "strategy": "MOCK_BIEN_KEP_V1",
+        "reason_codes": ["BIEN_KEP"],
+        "reasoning": "Chỉ mua ở mức hỗ trợ đã được thử nhiều lần, stop dưới mức đó.",
+        "event_risk": "UNKNOWN",
+    }
+
+    if prim not in ("RANGE", "TREND_UP"):
+        base["reason_codes"].append("CHE_DO_KHONG_HOP")
+        return base
+    if adx is not None and adx > th["adxToiDa"]:
+        # ADX cao nghĩa là đang có xu hướng — mức hỗ trợ trong xu hướng giảm là
+        # thứ để đi xuyên qua, không phải thứ để mua.
+        base["reason_codes"].append(f"ADX_{adx}_QUA_CAO_KHONG_CON_LA_BIEN")
+        return base
+
+    tren, duoi = p.get("range20High"), p.get("range20Low")
+    if tren is None or duoi is None or (tren - duoi) < th["hopToiThieu"] * atr:
+        base["reason_codes"].append("HOP_BIEN_QUA_HEP")
+        return base
+
+    tim = _muc_da_thu(p.get("swingLows"), price, th["dungSai"], th["chamLan"])
+    if tim is None:
+        base["reason_codes"].append(f"KHONG_CO_MUC_DUOC_THU_{th['chamLan']}_LAN")
+        return base
+    muc, so_lan = tim
+
+    xa = (price - muc) / atr
+    if xa > th["khoangCach"]:
+        base["reason_codes"].append(f"CON_CACH_MUC_{xa:.2f}xATR")
+        return base
+
+    stop = muc - th["demStop"] * atr
+    kc = (price - stop) / atr
+    if kc < r["minStopAtr"]:
+        stop = price - r["minStopAtr"] * atr
+        kc = r["minStopAtr"]
+    elif kc > r["maxStopAtr"]:
+        base["reason_codes"].append(f"MUC_QUA_XA_{kc:.2f}xATR")
+        return base
+
+    tp1, tp2 = _tp_tu_stop(price, stop, True, r, th["demTp"], th["boiTp2"])
+    # Mục tiêu vượt hẳn trần hộp thì đó không còn là lệnh trong biên nữa — nó là
+    # cược phá biên, và cược phá biên thì stop phải đặt kiểu khác.
+    if tp1 > tren + atr:
+        base["reason_codes"].append("MUC_TIEU_VUOT_TRAN_HOP")
+        base["reasoning"] = (f"Mục tiêu {tp1:.2f} vượt trần hộp {tren:.2f} — cần RR "
+                             f"{r['minRR']} nhưng hộp không đủ cao để chứa. Lệnh trong biên "
+                             f"mà mục tiêu nằm ngoài biên là hai chiến lược trộn vào nhau.")
+        return base
+
+    base.update({
+        "action": "LONG",
+        "confidence": th["tinCay"],
+        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
+        "invalidation": round(stop, 2),
+        "invalidation_logic": (f"dưới mức {muc:.2f} — mức đã đỡ {so_lan} lần; mất nó là "
+                               f"luận điểm 'có người mua ở đây' sai"),
+        "targets": [round(tp1, 2), round(tp2, 2)],
+        "suggested_risk_pct": 0.5,
+        "reason_codes": ["BIEN_KEP", f"MUC_DUOC_THU_{so_lan}_LAN", "STOP_DUOI_MUC"],
+        "reasoning": (f"Mức {muc:.2f} đã được thử {so_lan} lần; giá đang cách {xa:.2f}×ATR. "
+                      f"Hộp biên cao {(tren - duoi) / atr:.1f}×ATR nên còn chỗ cho mục tiêu. "
+                      f"Stop {kc:.2f}×ATR dưới mức — không phải một khoảng cách tính từ giá."),
+    })
+    return base
+
+
 BO_LUAT = {
     "MOCK_RULES_V1": (mock_thesis, THAM_MAC_DINH),
     "MOCK_RANGE_V1": (mock_range_thesis, THAM_BIEN),
     "MOCK_KEO_LUI_V1": (mock_keo_lui_thesis, THAM_KEO_LUI),
     "MOCK_BUNG_NEN_V1": (mock_bung_nen_thesis, THAM_BUNG_NEN),
+    "MOCK_BIEN_KEP_V1": (mock_bien_kep_thesis, THAM_BIEN_KEP),
 }
 
 

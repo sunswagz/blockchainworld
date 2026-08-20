@@ -2,6 +2,8 @@
 
     python scripts/dau-chien-luoc.py MOCK_KEO_LUI_V1 "Chờ kéo lùi"
     python scripts/dau-chien-luoc.py --tat-ca      đấu mọi bộ luật chưa phải champion
+    python scripts/dau-chien-luoc.py --tat-ca --cho BTCUSDT:1h,ETHUSDT:1h,SOLUSDT:1h
+    python scripts/dau-chien-luoc.py --tat-ca --cho BTCUSDT:4h,BTCUSDT:1d
 
 Đi đúng đường mà buồng lái đi: `chien_luoc.de_xuat` → `chien_luoc.danh_gia` →
 cửa duyệt `phan_quyet`. Không có đường tắt nào ở đây, và cố ý không có tham số
@@ -16,6 +18,16 @@ chặn không làm cho một chiến lược lỗ thành có lợi thế. Việc
 làm bằng cách đem một chiến lược KHÁC ra đo trên cùng đoạn dữ liệu — không phải
 bằng cách chỉnh tham số của chính nó, vì tham số chỉ xoay quanh cùng một giả
 thuyết đã được chứng minh là sai.
+
+VÌ SAO ĐẤU TRÊN NHIỀU CHỢ (`--cho`)
+
+Mọi con số của hệ này từng đứng trên MỘT tài sản, MỘT khung. Một chiến lược ăn
+được ở BTC 1h mà chết ở ETH và SOL không phải chiến lược có lợi thế — nó là một
+bộ tham số khớp với lịch sử BTC. Đấu trên nhiều chợ biến chuyện đó thành thứ
+nhìn thấy được ngay trong bảng, thay vì phát hiện ra sau khi đã chạy bằng tiền.
+
+Mỗi chợ được đo RIÊNG rồi mới gộp: gộp lệnh của ba coin thành một rổ là để coin
+nhiều lệnh nhất quyết định hộ, và một coin thắng đậm che được hai coin thua.
 """
 from __future__ import annotations
 
@@ -52,6 +64,97 @@ def _chay_factory(nen, chuoi, moc, symbol):
     return chay
 
 
+def _nap_cho(sym: str, chinh: str, ctx: str):
+    """Nạp một CHỢ = (coin, khung chính, khung ngữ cảnh).
+
+    Phải ghi đè `CONFIG["timeframes"]` vì `huanluyen.nap_nen` và `_van_tay` đọc
+    thẳng từ đó. Vân tay có kèm khung, nên mỗi chợ có cache chuỗi riêng và không
+    lẫn sang nhau — chỗ này mà sai thì kết quả của ETH sẽ là chuỗi của BTC, trả
+    về trong một giây và trông rất hợp lý.
+    """
+    import json as _json
+    from trader.config import ROOT as _ROOT
+
+    kho = _ROOT / "data" / "lich-su"
+    nen = {}
+    for tf in (chinh, ctx):
+        f = kho / f"{sym}-{tf}.json"
+        if not f.exists():
+            return None
+        nen[tf] = _json.loads(f.read_text(encoding="utf-8"))
+    CONFIG["timeframes"]["primary"] = chinh
+    CONFIG["timeframes"]["context"] = ctx
+    return nen
+
+
+# Khung ngữ cảnh mặc định cho mỗi khung chính — luôn là khung dài hơn một bậc.
+NGU_CANH = {"5m": "30m", "15m": "1h", "30m": "4h", "1h": "4h", "4h": "1d", "1d": "1d"}
+
+
+def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
+    """Đấu từng bộ luật trên từng chợ, in bảng gộp. KHÔNG ghi vào sổ chiến lược.
+
+    Cố ý không ghi: sổ chiến lược có đúng một champion, mà champion chỉ có nghĩa
+    trên chợ nó đang chạy. Ghi kết quả đa chợ vào đó là trộn hai khái niệm.
+    """
+    bang: dict = {}
+    for ten_cho in cho:
+        sym, _, chinh = ten_cho.partition(":")
+        chinh = chinh or CONFIG["timeframes"]["primary"]
+        ctx = NGU_CANH.get(chinh, "4h")
+        nen = _nap_cho(sym, chinh, ctx)
+        if nen is None:
+            print(f"  bỏ qua {ten_cho} — chưa tải nến {chinh}/{ctx}")
+            continue
+        moc = int(len(nen[chinh]) * 0.7)
+        chuoi, tu_dau = HL.lay_chuoi(nen, sym)
+        print(f"  {ten_cho} (ngữ cảnh {ctx}) · {len(nen[chinh])} nến · "
+              f"chuỗi {len(chuoi)} điểm ({tu_dau})")
+        chay = _chay_factory(nen, chuoi, moc, sym)
+        for ma, _ in ma_ds:
+            if ma not in BO_LUAT:
+                continue
+            tk = chay(ma, {})
+            bang.setdefault(ma, {})[ten_cho] = tk
+
+    if not bang:
+        print("  không chợ nào đo được")
+        return
+    print()
+    cot = [c for c in cho if any(c in v for v in bang.values())]
+    print(f"{'bộ luật':20}" + "".join(f"{c:>20}" for c in cot) + f"{'thắng mấy chợ':>16}")
+    print("─" * (20 + 20 * len(cot) + 16))
+    for ma, v in bang.items():
+        dong, duong = "", 0
+        for c in cot:
+            tk = v.get(c)
+            if not tk or tk.get("kyVongR") is None:
+                dong += f"{'—':>20}"
+                continue
+            duong += 1 if tk["kyVongR"] > 0 else 0
+            dong += f"{tk['kyVongR']:>+13.3f}/{tk['so']:<6}"
+        print(f"{ma:20}{dong}{f'{duong}/{len(cot)}':>16}")
+    print()
+    print("Mỗi ô: kỳ vọng R ngoài mẫu / số lệnh ngoài mẫu.")
+    print("Một bộ luật chỉ đáng tin khi DƯƠNG ở nhiều chợ — dương ở đúng một chợ")
+    print("là dấu hiệu khớp với lịch sử của riêng chợ đó.")
+
+    # Ghi ra đĩa để lò chưng cất đọc được. Không ghi thì bảng này chỉ tồn tại
+    # trong terminal của lượt chạy đó — đúng chỗ đứt mà cả hệ đã sửa một lần.
+    from trader.config import DATA_DIR as _DD
+    import json as _json
+    _f = _DD / "dau-nhieu-cho.json"
+    _f.write_text(_json.dumps({
+        "cho": cot,
+        "ket": {ma: {c: {"kyVongR": v[c].get("kyVongR"), "so": v[c].get("so"),
+                         "tyLeThang": v[c].get("tyLeThang"),
+                         "khopTroi": v[c].get("khopTroi")}
+                     for c in cot if c in v}
+                for ma, v in bang.items()},
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"đã ghi {_f.name}")
+
+
 def _in(nhan: str, tk: dict) -> None:
     lt = tk.get("theoLyDoThoat") or {}
     tong = sum(lt.values()) or 1
@@ -69,6 +172,18 @@ def _in(nhan: str, tk: dict) -> None:
 def main() -> int:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     tat_ca = "--tat-ca" in sys.argv
+
+    if "--cho" in sys.argv:
+        cho = [x.strip() for x in sys.argv[sys.argv.index("--cho") + 1].split(",") if x.strip()]
+        d0 = chien_luoc.doc()
+        ds0 = ([(m, TEN_MAC_DINH.get(m, m)) for m in BO_LUAT] if tat_ca
+               else [(args[0], "")] if args else [])
+        if not ds0:
+            print(__doc__)
+            return 2
+        print(f"ĐẤU NHIỀU CHỢ · champion hiện tại {d0['champion']['ma']}\n")
+        dau_nhieu_cho(cho, ds0)
+        return 0
 
     nen = HL.nap_nen()
     if nen is None:

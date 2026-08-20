@@ -27,7 +27,7 @@ from .bus import bus
 from .config import CONFIG
 from .data import get_market_data, data_source
 from .features import build_market_state
-from . import chung_cat
+from . import chung_cat, nghi_thuc
 from .journal import recall
 from .regime import classify
 from .risk import RiskEngine
@@ -205,6 +205,10 @@ class Runtime:
 
         account = self.broker.snapshot(market["price"])
         self._chung_cat_neu_den_han()
+        # Nghi thức tự lo hạn 6 tiếng và tự chạy ở tiến trình riêng; gọi mỗi
+        # vòng là an toàn và rẻ. Không đặt trong `_chung_cat_neu_den_han` vì hai
+        # nhịp khác nhau — 20 phút để ĐỌC lại kho, 6 tiếng để SINH RA số mới.
+        nghi_thuc.khoi_dong()
         memory = recall(self.regime["key"], self.regime["primary"])
         bus.emit("memory", "truy-hoi",
                  f"{len(memory['lessonsForThisRegime'])} bài học liên quan · "

@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from .brain import get_brain
 from .bus import bus
 from .config import CONFIG, WEB_DIR
-from . import chung_cat, store
+from . import chung_cat, nghi_thuc, store
 from .journal import performance, recent_lessons, recent_theses, recent_trades
 from .loop import runtime
 from . import chien_luoc, nguon, phien_hoc, phien_quan_sat, tu_chay
@@ -70,6 +70,19 @@ async def chartjs() -> FileResponse:
 @app.get("/api/state")
 async def state() -> JSONResponse:
     return JSONResponse(runtime.snapshot())
+
+
+@app.get("/api/nghi-thuc")
+async def nghi_thuc_xem() -> JSONResponse:
+    return JSONResponse(nghi_thuc.trang_thai())
+
+
+@app.post("/api/nghi-thuc")
+async def nghi_thuc_chay(req: Request) -> JSONResponse:
+    b = await req.json() if await req.body() else {}
+    # `ep` bỏ qua hạn 6 tiếng — để bấm tay khi vừa tải thêm nến và muốn thấy
+    # ngay, chứ không phải để chạy liên tục.
+    return JSONResponse(nghi_thuc.khoi_dong(ep=bool(b.get("ep"))))
 
 
 @app.get("/api/journal")

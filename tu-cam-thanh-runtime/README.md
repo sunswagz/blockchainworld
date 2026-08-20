@@ -56,11 +56,15 @@ python scripts/doi-so.py         # đối soát sổ cục bộ với sàn (--do
 python scripts/sinh-icon.py      # vẽ lại 5 icon PNG của cung
 python scripts/chung-cat.py      # đúc lại PHÁT HIỆN từ mọi kho đo (vòng lặp tự gọi mỗi 20')
 python scripts/do-mau-gia.py --ghi        # đo 13 mẫu giá kinh điển trên nến thật
+python scripts/do-khung.py --ghi          # khung nào đỡ nổi mức RR đang đòi
+python scripts/ban-giao.py --ghi          # bản tóm tắt cho lượt làm việc sau
 python scripts/soat-lai-bai-hoc.py --ghi   # hậu kiểm LẠI bài học cũ khi sổ đã dài hơn
 
 python scripts/tai-lich-su.py --so 4000   # tải nến lịch sử để huấn luyện
 python scripts/kiem-huanluyen.py          # kiểm cỗ máy chạy lại (cần nến ở trên)
 python scripts/dau-chien-luoc.py --tat-ca # đấu mọi bộ luật với champion, ngoài mẫu
+python scripts/dau-chien-luoc.py --tat-ca --cho BTCUSDT:4h,ETHUSDT:4h  # nhiều chợ
+python scripts/tai-lich-su.py --so 6000 --coin BTCUSDT,ETHUSDT,SOLUSDT --khung 5m,15m,30m,1h,4h,1d
 python scripts/kiem-nguon.py --offline    # kiểm phân loại tin, không chạm mạng
 node scripts/kiem-giao-dien.mjs           # mọi trường app.js đọc phải có thật (runtime đang chạy)
 ```
@@ -299,6 +303,7 @@ trader/
   journal.py            5 loại trí nhớ + truy hồi
   chung_cat.py          LÒ CHƯNG CẤT — gộp mọi kho đo thành PHÁT HIỆN, và cầu dao chế độ
   mau_gia.py            13 mẫu biểu đồ kinh điển, nhận diện bằng hình học
+  nghi_thuc.py          phép đo nặng tự chạy mỗi 6 tiếng, ở TIẾN TRÌNH riêng
   nguon.py              phái sinh · vĩ mô · tâm lý · tin tức — luồng riêng, không khoá
   huanluyen.py          chạy lại lịch sử, dò tham số, đúc bài học
   phien_hoc.py          một phiên huấn luyện chạy nền, có tiến độ
