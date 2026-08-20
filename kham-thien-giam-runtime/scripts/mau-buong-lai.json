@@ -402,7 +402,8 @@
           "bid": [],
           "ask": []
         }
-      }
+      },
+      "dongCo": "updown-crypto"
     },
     {
       "ma": "ETH_5M",
@@ -430,7 +431,8 @@
         "giaMuaDown": null,
         "tongGiaMua": null
       },
-      "so": {}
+      "so": {},
+      "dongCo": "cham-moc-crypto"
     },
     {
       "ma": "SOL_5M",
@@ -439,7 +441,8 @@
       "gia": null,
       "giaNen": null,
       "cap": {},
-      "so": {}
+      "so": {},
+      "dongCo": "updown-crypto"
     }
   ],
   "coHoi": [
@@ -505,6 +508,35 @@
       "luc": "2026-08-20T16:09:12.884Z",
       "loai": "tin",
       "muc": "BTC_5M: mua UP 620 @ 0,53 (sổ giấy)"
+    }
+  ],
+  "dongCo": [
+    {
+      "ma": "cham-moc-crypto",
+      "ten": "Chạm mốc trước hạn",
+      "nhom": "crypto",
+      "mota": "Xác suất giá CHẠM mốc ít nhất một lần trước hạn.",
+      "nguonGia": "binance",
+      "canGi": [
+        "giaHienTai",
+        "moc",
+        "tauGiay",
+        "dinhDaQua"
+      ],
+      "nhipGiay": 30.0
+    },
+    {
+      "ma": "updown-crypto",
+      "ten": "Lên/Xuống cuối khung",
+      "nhom": "crypto",
+      "mota": "Xác suất giá KẾT THÚC trên mốc.",
+      "nguonGia": "binance",
+      "canGi": [
+        "giaHienTai",
+        "giaMo",
+        "tauGiay"
+      ],
+      "nhipGiay": 2.0
     }
   ]
 }

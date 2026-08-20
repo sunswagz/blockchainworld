@@ -699,6 +699,116 @@ def kiem_cong_tien_hoa() -> None:
          TOI_THIEU_MAU >= 40 and BIEN_VUOT > 1.0 and DUOI_TOI_DA < 1.5)
 
 
+def kiem_dong_co() -> None:
+    print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
+    from kham import dong_co
+
+    ds = dong_co.danh_sach()
+    kiem("có ít nhất hai động cơ", len(ds) >= 2,
+         f"{len(ds)} — một sổ đăng ký chỉ một mục thì chưa chứng minh gì")
+    kiem("mọi động cơ có nhóm phơi nhiễm",
+         all(h.nhom for h in ds),
+         "nhóm là khoá rủi ro trung tâm dùng để gộp, không phải nhãn")
+
+    gc, viSao = dong_co.goi("khong-co-dau", "X", giaHienTai=1.0)
+    kiem("động cơ lạ → nói rõ là lạ",
+         gc is None and viSao is not None and "sổ đăng ký" in viSao, viSao)
+
+    gc, viSao = dong_co.goi("cham-moc-crypto", "X", giaHienTai=100.0,
+                            moc=120.0, tauGiay=86400.0, sigmaGiay=1e-4)
+    kiem("thiếu nguyên liệu → nói THIẾU GÌ",
+         gc is None and viSao is not None and "dinhDaQua" in viSao, viSao)
+
+    gc, viSao = dong_co.goi("updown-crypto", "X", giaHienTai=100_050.0,
+                            giaMo=100_000.0, tauGiay=120.0, sigmaGiay=1e-5)
+    kiem("động cơ Lên/Xuống vẫn chạy qua sổ", gc is not None and viSao is None)
+
+
+def kiem_cham_moc() -> None:
+    print("\n── Chạm mốc: nguyên lý phản xạ và bốn bẫy ─────────────────────")
+    from kham.cham_moc import cham_moc
+    from kham.dinh_gia import phi
+
+    NGAY = 86400.0
+    sig = 1.2e-4
+
+    # Tính chất định nghĩa của họ này: xác suất CHẠM gấp đôi xác suất KẾT
+    # THÚC bên kia mốc. Sai con số 2 này là sai cả họ market.
+    g = cham_moc("X", giaHienTai=72_000, moc=150_000, tauGiay=133 * NGAY,
+                 dinhDaQua=74_000, sigmaGiay=sig)
+    tho = g.giaiTrinh["pChamTho"]
+    ket = g.giaiTrinh["pKetThuc"]
+    kiem("P(chạm) = 2 × P(kết thúc bên kia)", gan(tho / ket, 2.0, 1e-9),
+         f"{tho:.6f} / {ket:.6f} = {tho/ket:.6f}")
+    kiem("P(chạm) > P(kết thúc) luôn luôn", tho > ket)
+
+    # BẪY 1 — đã chạm rồi. Đây là bẫy chết người của họ này: chỉ nhìn giá
+    # hiện tại thì một market đã ngã ngũ vẫn ra một xác suất nhỏ xinh.
+    g2 = cham_moc("X", giaHienTai=72_000, moc=150_000, tauGiay=133 * NGAY,
+                  dinhDaQua=151_000, sigmaGiay=sig)
+    kiem("đỉnh đã vượt mốc → P = 1, không phải 8%",
+         g2 is not None and g2.pUp == 1.0 and g2.oHieuChinh == "da-cham")
+    kiem("thiếu đỉnh đã qua → TỪ CHỐI, không đoán",
+         cham_moc("X", giaHienTai=72_000, moc=150_000,
+                  tauGiay=133 * NGAY, sigmaGiay=sig) is None)
+
+    # BẪY 2 — quan sát rời rạc. Nhìn thưa hơn thì xác suất chạm phải THẤP
+    # hơn, vì cú nhọn giữa hai lần lấy mẫu không được sàn tính.
+    day = cham_moc("X", giaHienTai=72_000, moc=90_000, tauGiay=30 * NGAY,
+                   dinhDaQua=74_000, sigmaGiay=sig, nhipQuanSatGiay=1)
+    thua = cham_moc("X", giaHienTai=72_000, moc=90_000, tauGiay=30 * NGAY,
+                    dinhDaQua=74_000, sigmaGiay=sig, nhipQuanSatGiay=3600)
+    kiem("nhìn thưa hơn → P thấp hơn", thua.pUp < day.pUp,
+         f"1s: {day.pUp:.5f}  ·  1h: {thua.pUp:.5f}")
+    kiem("mốc hiệu dụng bị đẩy RA XA",
+         thua.giaiTrinh["mocHieuDung"] > thua.giaiTrinh["mocKhai"])
+
+    # BẪY 3 — bất định phải là bất định của KẾT QUẢ. Bản đầu lấy thẳng sai
+    # số chân trời nên ra ±0,231 cho cả một xác suất 1%.
+    xa = cham_moc("X", giaHienTai=72_000, moc=200_000, tauGiay=133 * NGAY,
+                  dinhDaQua=74_000, sigmaGiay=sig)
+    kiem("P rất nhỏ thì bất định cũng phải nhỏ theo",
+         xa.batDinh < 0.10,
+         f"P={xa.pUp:.4f} ± {xa.batDinh:.4f} — ±0,23 ở đây là vô nghĩa")
+    kiem("bất định không bao giờ vượt 0,5", 0.0 <= xa.batDinh <= 0.5)
+
+    # BẪY 4 — tau bé không được làm nổ mẫu số.
+    for tau in (1.0, 0.1, 0.0):
+        gg = cham_moc("X", giaHienTai=72_000, moc=73_000, tauGiay=tau,
+                      dinhDaQua=72_500, sigmaGiay=sig)
+        kiem(f"tau={tau}: vẫn ra số hữu hạn trong [0,1]",
+             gg is not None and 0.0 <= gg.pUp <= 1.0 and gg.tauDungSan)
+
+    # Đơn điệu: mốc càng xa thì càng khó chạm; thời gian càng dài càng dễ.
+    xa1 = cham_moc("X", giaHienTai=72_000, moc=80_000, tauGiay=30 * NGAY,
+                   dinhDaQua=74_000, sigmaGiay=sig).pUp
+    xa2 = cham_moc("X", giaHienTai=72_000, moc=100_000, tauGiay=30 * NGAY,
+                   dinhDaQua=74_000, sigmaGiay=sig).pUp
+    kiem("mốc xa hơn → khó chạm hơn", xa2 < xa1, f"{xa2:.4f} < {xa1:.4f}")
+    lau = cham_moc("X", giaHienTai=72_000, moc=80_000, tauGiay=90 * NGAY,
+                   dinhDaQua=74_000, sigmaGiay=sig).pUp
+    kiem("thời gian dài hơn → dễ chạm hơn", lau > xa1, f"{lau:.4f} > {xa1:.4f}")
+
+
+def kiem_nhom_tai_san() -> None:
+    print("\n── Nhóm tài sản: lỗ hổng lộ ra khi bật thêm market ────────────")
+    from kham.kho_doi import he_so_tuong_quan, nhom_tai_san
+
+    kiem("BTC_5M → BTC", nhom_tai_san("BTC_5M") == "BTC")
+    # Đây là ca đã cắn thật: bật XRP lên mà bảng cứng không có nó, nên nó
+    # tự thành nhóm "XRP_5M" không tương quan với ai — một túi phơi nhiễm
+    # mà trần gộp không nhìn thấy.
+    kiem("XRP_5M → XRP (suy từ mã nến, không cần khai tay)",
+         nhom_tai_san("XRP_5M") == "XRP", nhom_tai_san("XRP_5M"))
+    kiem("cặp chưa khai KHÔNG được lấy tương quan 0",
+         he_so_tuong_quan("XRP", "BTC") > 0.5,
+         f"{he_so_tuong_quan('XRP', 'BTC')} — 0 nghĩa là 'bù trừ hoàn toàn', "
+         "một khẳng định rất mạnh chỉ vì ai đó quên gõ một dòng")
+    kiem("cùng nhóm thì tương quan 1", he_so_tuong_quan("BTC", "BTC") == 1.0)
+    kiem("cặp đã khai vẫn dùng số đã khai",
+         he_so_tuong_quan("BTC", "ETH") == 0.85)
+
+
 def kiem_vong_tien_hoa() -> None:
     print("\n── Vòng tiến hoá: một lượt đầy đủ, không ghi gì ──────────────")
     kq = tien_hoa_mot_luot(thu=True)
@@ -743,6 +853,9 @@ def main() -> int:
     kiem_de_xuat()
     kiem_cong_tien_hoa()
     kiem_vong_tien_hoa()
+    kiem_dong_co()
+    kiem_cham_moc()
+    kiem_nhom_tai_san()
 
     print("\n" + "=" * 70)
     if _loi:

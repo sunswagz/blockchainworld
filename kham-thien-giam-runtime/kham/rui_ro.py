@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 
 from .can_loi import CoHoi
 from .config import CONFIG
-from .kho_doi import NHOM_TAI_SAN, Kho
+from .kho_doi import Kho, nhom_tai_san
 
 _RR = CONFIG["ruiRo"]
 _KD = CONFIG["khoDoi"]
@@ -188,10 +188,10 @@ class RiskEngine:
             canh.append(f"trần vốn market cắt còn {max_co:.0f} cổ")
 
         # 7. trần vốn mỗi nhóm tài sản (BTC_5M + BTC_15M cùng một rổ)
-        nhom = NHOM_TAI_SAN.get(ch.ma, ch.ma)
+        nhom = nhom_tai_san(ch.ma)
         dang_nhom = sum(
             (x.tienUp + x.tienDown) for m, x in self.kho.viThe.items()
-            if NHOM_TAI_SAN.get(m, m) == nhom
+            if nhom_tai_san(m) == nhom
         )
         con_nhom = float(_RR["vonToiDaMoiTaiSanUsd"]) - dang_nhom
         if con_nhom <= 0:

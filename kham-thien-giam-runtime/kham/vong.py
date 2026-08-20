@@ -37,7 +37,8 @@ from .chan_rui_ro import quyet as quyet_chan
 from .chien_thuat import BoiCanh, SO_DANG_KY, chay_tat_ca
 from .config import CONFIG, che_hieu_luc
 from .dat_lenh import CongLenh
-from .dinh_gia import DoBienDong, HieuChinh, dinh_gia
+from . import dong_co
+from .dinh_gia import DoBienDong, HieuChinh
 from .do_thi import Nut, do_thi, nhom_cua
 from .dong_song import dong_song
 from .dongho import dong_ho
@@ -273,8 +274,21 @@ class Runtime:
             self._than_phien(ma, "không lấy được giá mở cửa đặt cược (strike)")
             return
         tau = k.con_lai_giay(now)
-        gc = dinh_gia(ma, gia, mo, tau, sigma, self._tin_hieu(su))
+        # Qua SỔ ĐĂNG KÝ chứ không gọi thẳng `dinh_gia`. Đây là mối nối
+        # duy nhất trong cả hệ biết "market này thuộc họ nào" — mọi thứ
+        # phía sau (sổ lệnh, cân lợi, kho, rủi ro, kết toán) không quan
+        # tâm. Thêm một họ market là khai thêm một động cơ, không phải
+        # dựng một bot khác.
+        maDC = tt.get("dongCo") or "updown-crypto"
+        gc, viSao = dong_co.goi(
+            maDC, ma, giaHienTai=gia, giaMo=mo, tauGiay=tau,
+            sigmaGiay=sigma, tinHieu=self._tin_hieu(su))
         if gc is None:
+            # "Không định giá được" có nhiều lý do rất khác nhau. Khai sai
+            # tên động cơ mà lặng lẽ bỏ qua thì market biến mất khỏi bảng
+            # và không ai biết vì sao.
+            if viSao and "từ chối" not in viSao:
+                self._than_phien(ma, f"động cơ '{maDC}': {viSao}")
             return
         self.giaChuan[ma] = gc
         self.boQua.pop(ma, None)
@@ -384,12 +398,14 @@ class Runtime:
             },
             "thongKe": thong_ke(ket),
             "vi": dai_quan_vi.tom_tat(),
+            "dongCo": dong_co.tom_tat(),
             "chienThuat": [
                 {"ma": c.ma, "ten": c.ten, "mota": c.mota,
                  "bat": self.batTat.get(c.ma, True)} for c in SO_DANG_KY],
             "thiTruong": [
                 {
                     "ma": t["ma"], "theo": bool(t.get("theo")),
+                    "dongCo": t.get("dongCo") or "updown-crypto",
                     "khung": (self.khungHienTai[t["ma"]].tom_tat(now)
                               if t["ma"] in self.khungHienTai else None),
                     "gia": _tom_gia(self.giaChuan.get(t["ma"])),

@@ -36,7 +36,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .kho_doi import NHOM_TAI_SAN, he_so_tuong_quan
+from .kho_doi import he_so_tuong_quan, nhom_tai_san
 
 
 @dataclass
@@ -168,4 +168,4 @@ do_thi = DoThi()
 
 
 def nhom_cua(ma: str) -> str:
-    return NHOM_TAI_SAN.get(ma, ma.split("_")[0] if "_" in ma else ma)
+    return nhom_tai_san(ma)

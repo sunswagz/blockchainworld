@@ -166,19 +166,55 @@ class ViThe:
 # Market khác nhau nhưng cùng chịu một cú. BTC_5M và BTC_15M là hai hợp đồng
 # riêng, nhưng cùng long UP thì đó thực chất là MỘT cược vào Bitcoin. Và khi
 # cả crypto cùng lao xuống thì ETH, SOL đi theo BTC.
-NHOM_TAI_SAN = {"BTC_5M": "BTC", "BTC_15M": "BTC", "ETH_5M": "ETH",
-                "ETH_15M": "ETH", "SOL_5M": "SOL", "SOL_15M": "SOL"}
+# Bảng cứng này TỪNG là một lỗ hổng, và nó lộ ra đúng lúc bật thêm market:
+# `XRP_5M` không có trong bảng nên nó rơi về nhánh mặc định và tự thành một
+# nhóm tên "XRP_5M", không tương quan với ai. Tức là bật thêm một đồng coin
+# đã lặng lẽ tạo một túi phơi nhiễm mà trần gộp không nhìn thấy.
+#
+# Nay suy từ mã nến trong config (`BTCUSDT` → `BTC`), nên thêm market là tự
+# có nhóm. Bảng cứng chỉ còn để đè khi cần.
+_NHOM_DE = {"BTC_5M": "BTC", "BTC_15M": "BTC", "ETH_5M": "ETH",
+            "ETH_15M": "ETH", "SOL_5M": "SOL", "SOL_15M": "SOL"}
+
+_HAU_TO = ("USDT", "USDC", "BUSD", "USD")
+
+
+def nhom_tai_san(ma: str) -> str:
+    if ma in _NHOM_DE:
+        return _NHOM_DE[ma]
+    for tt in CONFIG.get("thiTruong") or []:
+        if tt.get("ma") != ma:
+            continue
+        nen = (tt.get("nen") or "").upper()
+        for h in _HAU_TO:
+            if nen.endswith(h):
+                return nen[: -len(h)]
+        if nen:
+            return nen
+    return ma.split("_")[0] or ma
+
 
 # Hệ số tương quan giả định giữa các nhóm khi tính phơi nhiễm gộp. Đây là
 # LUẬN chứ không phải số đo — khi `bang.py` ghi đủ thì thay bằng tương quan
 # thật. Để cao hơn thực tế là an toàn hơn: nó làm trần siết sớm.
 TUONG_QUAN = {("BTC", "ETH"): 0.85, ("BTC", "SOL"): 0.80, ("ETH", "SOL"): 0.85}
 
+# Cặp KHÔNG có trong bảng thì lấy mức này, chứ KHÔNG lấy 0.
+#
+# Mặc định 0 nghĩa là "hai thứ này bù trừ hoàn toàn cho nhau" — một khẳng
+# định rất mạnh, và nó được đưa ra chỉ vì có người quên gõ một dòng vào
+# bảng. Sai theo hướng đó làm trần nới ra đúng lúc cần siết. Mặc định cao
+# thì sai theo hướng siết sớm, và đó là hướng chịu được.
+TUONG_QUAN_MAC_DINH = 0.75
+
 
 def he_so_tuong_quan(a: str, b: str) -> float:
     if a == b:
         return 1.0
-    return TUONG_QUAN.get((a, b)) or TUONG_QUAN.get((b, a)) or 0.0
+    v = TUONG_QUAN.get((a, b))
+    if v is None:
+        v = TUONG_QUAN.get((b, a))
+    return TUONG_QUAN_MAC_DINH if v is None else v
 
 
 class Kho:
@@ -194,7 +230,7 @@ class Kho:
         """Phơi nhiễm định hướng theo đô, gộp theo nhóm tài sản."""
         ra: dict[str, float] = {}
         for ma, v in self.viThe.items():
-            nhom = NHOM_TAI_SAN.get(ma, ma)
+            nhom = nhom_tai_san(ma)
             du = v.dinhHuong
             if du == 0:
                 continue

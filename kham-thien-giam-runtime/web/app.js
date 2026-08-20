@@ -565,6 +565,15 @@
       var d = el("div", "ch-dinh");
       d.appendChild(el("b", "", m.ma));
       if (k.nhan) d.appendChild(el("span", "gd gd-" + (k.giaiDoan || ""), k.nhan));
+      // Động cơ nào định giá market này. Khi có nhiều họ market thì đây là
+      // câu hỏi đầu tiên lúc một con số trông lạ: sai số, hay là mình đang
+      // đọc kết quả của một mô hình khác với mô hình mình tưởng?
+      if (m.dongCo) {
+        var hs = (T.dongCo || []).filter(function (x) { return x.ma === m.dongCo; })[0];
+        var dc = el("span", "dcm", hs ? hs.ten : m.dongCo);
+        dc.title = hs ? hs.mota : m.dongCo;
+        d.appendChild(dc);
+      }
       // Đồng hồ ĐỔI MỐC theo giai đoạn, vì hai giai đoạn hỏi hai câu khác
       // nhau. Trong cửa đặt cược, câu hỏi là "còn bao lâu để vào lệnh".
       // Qua cửa rồi thì `conLaiGiay` bằng 0 mãi mãi, và một số 0 đỏ đứng
