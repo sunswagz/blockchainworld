@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-20T02:08:37.255Z",
- "lan": 95,
+ "generatedAt": "2026-08-20T07:09:14.935Z",
+ "lan": 96,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -155,6 +155,30 @@ window.VAN_HANH = {
    "chuoiLoi": 0,
    "lucOk": "2026-08-20T01:55:17.173Z",
    "lucDoi": "2026-08-20T01:55:17.173Z"
+  },
+  {
+   "ma": "thai-boc-tu-tin",
+   "ten": "Tin tức Thái Bộc Tự",
+   "y": "Sáu nguồn RSS công khai (CoinDesk, Cointelegraph, Decrypt, Bitcoin Magazine, blog Ethereum Foundation, Vitalik). Gắn nhãn toa bằng từ khoá. Ảnh TRỎ THẲNG sang CDN toà soạn, không tải về repo. Không khoá nào, không gọi AI.",
+   "tram": "M12",
+   "che": "script",
+   "nhip": 6,
+   "lenh": "node scripts/build-tintuc.mjs",
+   "ra": [
+    "thai-boc-tu/assets/js/v/tin-tuc.js"
+   ],
+   "cung": "thai-boc-tu",
+   "cungTen": "Thái Bộc Tự",
+   "wf": "refresh-data.yml",
+   "luc": "2026-08-20T07:09:14.935Z",
+   "ket": "ok",
+   "giay": 0,
+   "doi": true,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-20T07:09:14.935Z",
+   "lucDoi": "2026-08-20T07:09:14.935Z"
   },
   {
    "ma": "tang-thu-cac",
@@ -350,6 +374,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-20T07:09:14.935Z",
+   "ma": "thai-boc-tu-tin",
+   "ket": "ok",
+   "giay": 0,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-20T02:08:37.255Z",
    "ma": "bao-cao",
@@ -877,15 +910,6 @@ window.VAN_HANH = {
    "ma": "cong-bo",
    "ket": "ok",
    "giay": 4,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-17T01:58:04.743Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 66,
    "doi": true,
    "chuThich": "",
    "vi": null

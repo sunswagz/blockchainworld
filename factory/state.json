@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-20T02:08:37.255Z",
-  "lan": 95,
+  "generatedAt": "2026-08-20T07:09:14.935Z",
+  "lan": 96,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-20T01:53:59.134Z",
@@ -132,9 +132,29 @@
       "vi": null,
       "lucOk": "2026-08-20T01:55:17.173Z",
       "lucDoi": "2026-08-20T01:55:17.173Z"
+    },
+    "thai-boc-tu-tin": {
+      "luc": "2026-08-20T07:09:14.935Z",
+      "ket": "ok",
+      "giay": 0,
+      "doi": true,
+      "chuThich": "",
+      "chuoiLoi": 0,
+      "vi": null,
+      "lucOk": "2026-08-20T07:09:14.935Z",
+      "lucDoi": "2026-08-20T07:09:14.935Z"
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-20T07:09:14.935Z",
+      "ma": "thai-boc-tu-tin",
+      "ket": "ok",
+      "giay": 0,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-08-20T02:08:37.255Z",
       "ma": "bao-cao",
