@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T08:54:52.189Z",
+  "generatedAt": "2026-08-20T08:43:23.247Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -125,7 +125,7 @@
         "dai-quan-trac/assets/js/do.js",
         "dai-quan-trac/assets/js/tq/do.js"
       ],
-      "y": "Bốn nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, Federal Register, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. Đo cho CẢ HAI chủ thể; bảng đo cái gì nằm ở DODAC trong data.js của cung."
+      "y": "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, Federal Register), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. Đo cho CẢ HAI chủ thể; bảng đo cái gì nằm ở DODAC trong data.js của cung."
     },
     {
       "ma": "dai-quan-trac",

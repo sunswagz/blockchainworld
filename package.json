@@ -27,7 +27,9 @@
     "halls": "node scripts/build-halls.mjs",
     "nang": "node scripts/nang-version.mjs",
     "dich": "node scripts/dich-skill.mjs",
-    "dich-tom": "node scripts/build-dich-tom.mjs"
+    "dich-tom": "node scripts/build-dich-tom.mjs",
+    "do": "node scripts/tien-hoa.mjs do",
+    "cong": "node scripts/tien-hoa.mjs cong"
   },
   "engines": {
     "node": ">=18"

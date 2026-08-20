@@ -164,8 +164,8 @@ export const NODE = [
     tram: "M12", che: "script", nhip: 6,
     lenh: "node scripts/build-quantrac.mjs",
     ra: ["dai-quan-trac/assets/js/do.js", "dai-quan-trac/assets/js/tq/do.js"],
-    y: "Bốn nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, " +
-       "Federal Register, GDELT), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. " +
+    y: "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, " +
+       "Federal Register), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. " +
        "Đo cho CẢ HAI chủ thể; bảng đo cái gì nằm ở DODAC trong data.js của cung."
   },
   {
