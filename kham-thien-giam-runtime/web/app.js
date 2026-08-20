@@ -941,10 +941,165 @@
     return g;
   }
 
+  /* ── ÁP LỰC SỔ ────────────────────────────────────────────────────
+     Nhiệt đồ sổ lệnh theo thời gian. Đây là bản CÓ DỮ LIỆU THẬT của thứ
+     mà các dashboard kia đặt tên "book membrane" hay "pressure field".
+
+     Một thang giá đứng yên chỉ nói được sổ ĐANG thế nào. Cái đắt hơn là
+     sổ ĐANG ĐỔI thế nào: tường dày rồi biến mất, báo giá đứng im trong
+     lúc giá nền chạy, thanh khoản rút sạch trước giờ kết toán. Ba thứ
+     đó chỉ hiện ra khi xếp nhiều lát sổ cạnh nhau theo trục thời gian.
+
+     Trục dọc là CẢ dải 0→1, cố ý. Nhờ vậy thang chờ tự lộ ra bằng mắt:
+     một báo giá thật là một vệt hẹp bám quanh giữa, còn thang chờ là
+     một cột phủ kín từ đáy lên đỉnh. Không cần đọc số cũng thấy.
+
+     Lịch sử gom NGAY TRONG TRANG, từ lúc mở. Không đọc băng của runtime
+     — băng là để chạy lại và kết toán, và nối buồng lái vào đó sẽ biến
+     một trang chỉ-để-xem thành một đường phụ thuộc nữa. Đổi lại: đóng
+     tab là mất, và ô này nói thẳng điều đó chứ không giả vờ có sẵn.     */
+
+  var LICH = {};                    // ma → [{t, bid, ask, giua}], mới ở cuối
+  var LICH_TOI_DA = 180;            // 180 × 2s ≈ 6 phút, hơn một khung 5m
+
+  function ghiLich(d) {
+    (d.thiTruong || []).forEach(function (m) {
+      if (!m.theo) return;
+      var s = (m.so || {}).UP;
+      if (!s) return;
+      var a = LICH[m.ma] || (LICH[m.ma] = []);
+      a.push({
+        t: Date.now(),
+        bid: (s.bid || []).map(function (x) { return [x.gia, x.luong]; }),
+        ask: (s.ask || []).map(function (x) { return [x.gia, x.luong]; }),
+        giua: (s.bestBid != null && s.bestAsk != null)
+          ? (s.bestBid + s.bestAsk) / 2 : null,
+        thang: !!s.thangCho
+      });
+      if (a.length > LICH_TOI_DA) a.splice(0, a.length - LICH_TOI_DA);
+    });
+  }
+
+  var CAO = 200, ROW = 100;         // 100 hàng, mỗi hàng 1 xu
+  var RONG_COT = 4;
+
+  function veNhietDo(lich) {
+    var c = document.createElement("canvas");
+    c.width = LICH_TOI_DA * RONG_COT;
+    c.height = CAO;
+    c.className = "nhiet";
+    // Bộ kiểm chạy trong DOM giả, không có ngữ cảnh vẽ. Bỏ qua phần vẽ
+    // chứ đừng ném — mất một biểu đồ thì vẫn đọc được cả trang.
+    var g = c.getContext && c.getContext("2d");
+    if (!g) return c;
+
+    g.fillStyle = "#07090D";
+    g.fillRect(0, 0, c.width, c.height);
+
+    // Chuẩn hoá theo lượng LỚN NHẤT đang thấy. Thang tuyệt đối thì một
+    // tường 50.000 cổ sẽ dìm mọi thứ còn lại xuống đen thui.
+    var max = 0;
+    lich.forEach(function (l) {
+      l.bid.concat(l.ask).forEach(function (m) { if (m[1] > max) max = m[1]; });
+    });
+    if (max <= 0) return c;
+    var lgMax = Math.log1p(max);
+
+    var x0 = c.width - lich.length * RONG_COT;   // mới nhất luôn ở mép phải
+    lich.forEach(function (l, i) {
+      var x = x0 + i * RONG_COT;
+      function cham(muc, r, gg, b) {
+        muc.forEach(function (m) {
+          var hang = Math.min(ROW - 1, Math.max(0, Math.floor(m[0] * ROW)));
+          var y = CAO - (hang + 1) * (CAO / ROW);
+          var a = Math.log1p(m[1]) / lgMax;
+          g.fillStyle = "rgba(" + r + "," + gg + "," + b + "," + (0.12 + a * 0.88) + ")";
+          g.fillRect(x, y, RONG_COT, CAO / ROW);
+        });
+      }
+      cham(l.bid, 78, 203, 142);     // mua — xanh lá
+      cham(l.ask, 232, 99, 90);      // bán — đỏ
+    });
+
+    // Vạch giữa. Vẽ SAU để không bị thang giá đè mất.
+    g.strokeStyle = "rgba(127,178,232,.85)";
+    g.lineWidth = 1.2;
+    g.beginPath();
+    var daBatDau = false;
+    lich.forEach(function (l, i) {
+      if (l.giua == null) { daBatDau = false; return; }
+      var x = x0 + i * RONG_COT + RONG_COT / 2;
+      var y = CAO - l.giua * CAO;
+      if (daBatDau) g.lineTo(x, y); else { g.moveTo(x, y); daBatDau = true; }
+    });
+    g.stroke();
+
+    // Mốc 50¢ — biên giới của một thị trường nhị phân.
+    g.strokeStyle = "rgba(133,146,166,.35)";
+    g.setLineDash([3, 4]); g.lineWidth = 1;
+    g.beginPath(); g.moveTo(0, CAO / 2); g.lineTo(c.width, CAO / 2); g.stroke();
+    g.setLineDash([]);
+    return c;
+  }
+
+  function veApLuc() {
+    var g = document.createDocumentFragment();
+    var tt = (T.thiTruong || []).filter(function (x) { return x.theo; });
+    if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
+
+    tt.forEach(function (m) {
+      var lich = LICH[m.ma] || [];
+      var o = oKhung("Áp lực sổ · " + m.ma,
+        lich.length ? lich.length + " lát · " +
+          so((lich[lich.length - 1].t - lich[0].t) / 1000, 0) + "s" : null);
+
+      if (lich.length < 3) {
+        o._than.appendChild(chuaCo(
+          "Đang gom lát cắt. Ô này dựng lịch sử NGAY TRONG TRANG từ lúc " +
+          "bạn mở, mỗi 2 giây một lát — nên vài chục giây nữa mới có hình, " +
+          "và đóng tab là mất. Cố ý không đọc băng của runtime: băng để " +
+          "chạy lại và kết toán, nối buồng lái vào đó là thêm một đường " +
+          "phụ thuộc cho một trang chỉ để xem."));
+        g.appendChild(o); return;
+      }
+
+      var boc = el("div", "nhiet-boc");
+      boc.appendChild(veNhietDo(lich));
+      var truc = el("div", "nhiet-truc");
+      ["100¢", "75¢", "50¢", "25¢", "0¢"].forEach(function (t) {
+        truc.appendChild(el("span", "", t));
+      });
+      boc.appendChild(truc);
+      o._than.appendChild(boc);
+
+      var soThang = lich.filter(function (l) { return l.thang; }).length;
+      var pctThang = soThang / lich.length;
+      o._than.appendChild(el("div", "ghi",
+        "Xanh lá = lệnh mua, đỏ = lệnh bán, đậm theo lượng (thang log). " +
+        "Vạch xanh dương = giữa hai giá tốt nhất. Trục dọc là CẢ dải 0→1."));
+
+      if (pctThang > 0.02) {
+        var w = el("p", "ghi canh");
+        w.innerHTML = "<b>" + pc(pctThang, 0) + " số lát là thang chờ.</b> " +
+          "Nhìn hình sẽ thấy chúng ngay: một cột phủ kín từ đáy lên đỉnh. " +
+          "Báo giá thật là một vệt hẹp bám quanh vạch giữa. Đó là lý do " +
+          "trục dọc để cả dải chứ không cắt quanh giá — cắt đi thì thang " +
+          "chờ trông y hệt một sổ dày.";
+        o._than.appendChild(w);
+      } else {
+        o._than.appendChild(el("div", "ghi",
+          "Không lát nào là thang chờ trong quãng này — sổ đang yết giá thật."));
+      }
+      g.appendChild(o);
+    });
+    return g;
+  }
+
   /* ── vẽ ───────────────────────────────────────────────────────── */
   var VE = {
     "chi-huy": veChiHuy, "dai-chiem": veDaiChiem, "so-lenh": veSoLenh,
-    "can-loi": veCanLoi, "kho-doi": veKhoDoi, "ban-do": veBanDo,
+    "can-loi": veCanLoi, "kho-doi": veKhoDoi, "ap-luc": veApLuc,
+    "ban-do": veBanDo,
     "chien-thuat": veChienThuat, "truong-thi": veTruongThi,
     "ket-toan": veKetToan, "quan-vi": veQuanVi, "nhat-ky": veNhatKy
   };
@@ -979,7 +1134,7 @@
   function tai() {
     return fetch("/api/trang-thai", { cache: "no-store" })
       .then(function (r) { return r.json(); })
-      .then(function (d) { T = d; ve(); })
+      .then(function (d) { T = d; ghiLich(d); ve(); })
       .catch(function () {});
   }
 

@@ -40,6 +40,20 @@ function Nut(ten) {
       contains(c) { return this._s.has(c); },
     },
     appendChild(c) { this.children.push(c); return c; },
+    // Canvas giả: mọi lệnh vẽ đều được đếm. Không có nó thì `veNhietDo`
+    // thoát sớm ở nhánh "không có ngữ cảnh" và phần vẽ — chỗ dễ sai
+    // nhất — không bao giờ được chạy trong bộ kiểm.
+    getContext() {
+      const d = { _n: 0 };
+      const noop = () => { d._n++; };
+      for (const k of ["fillRect", "beginPath", "moveTo", "lineTo", "stroke",
+                       "setLineDash", "clearRect", "arc", "fill", "closePath"]) {
+        d[k] = noop;
+      }
+      globalThis._veCount = (globalThis._veCount || 0) + 0;
+      this._ctx = d;
+      return d;
+    },
     addEventListener() {}, closest() { return null; },
     querySelectorAll() { return []; },
     set textContent(v) { this._txt = String(v); this.children = []; },
@@ -72,13 +86,41 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._VE = VE; globalThis._datT = (d) => { T = d; };\n})();"
+  "  globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich;\n})();"
 );
 
 const T = await layTrangThai();
 const nap = new Function(ma);
 nap();
 globalThis._datT(T);
+
+// Dựng một quãng lịch sử để ô Áp Lực Sổ có gì mà vẽ. Lát 0-11 là báo giá
+// thật bám quanh giữa; lát 12-19 chuyển thành THANG CHỜ trải cả dải — đúng
+// hai trạng thái mà nhiệt đồ sinh ra để phân biệt.
+for (let i = 0; i < 20; i++) {
+  const thang = i >= 12;
+  const giua = 0.5 + Math.sin(i / 3) * 0.06;
+  const muc = (nen, huong) =>
+    thang
+      ? Array.from({ length: 60 }, (_, k) => ({ gia: (k + 1) / 100, luong: 900 + k }))
+      : Array.from({ length: 4 }, (_, k) => ({
+          gia: Math.round((nen + huong * k * 0.01) * 100) / 100,
+          luong: 400 + k * 260,
+        }));
+  const ban = JSON.parse(JSON.stringify(T));
+  for (const m of ban.thiTruong) {
+    if (!m.theo) continue;
+    m.so = m.so || {};
+    m.so.UP = {
+      bestBid: thang ? 0.01 : giua - 0.005,
+      bestAsk: thang ? 0.99 : giua + 0.005,
+      thangCho: thang,
+      bid: muc(giua - 0.005, -1),
+      ask: muc(giua + 0.005, +1),
+    };
+  }
+  globalThis._ghiLich(ban);
+}
 
 function dem(x) {
   return 1 + (x.children || []).reduce((a, c) => a + dem(c), 0);

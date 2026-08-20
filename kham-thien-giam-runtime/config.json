@@ -10,12 +10,13 @@
   "//che": "quan-sat = chỉ đọc, không có vị thế nào. giay = khớp trên sổ lệnh THẬT nhưng bằng tiền giả. that = tiền thật. Xem trần bảo vệ ở mục datLenh.",
   "che": "giay",
 
+  "//thiTruongVeSauNay": "Bật SOL và XRP vì chúng CÙNG HỌ MÔ HÌNH với BTC/ETH: có giá tham chiếu liên tục, có mốc, có chân trời khuếch tán — nên `dinh_gia.py` dùng lại nguyên vẹn, không thêm dòng nào. Thêm market cùng họ là đổi một cờ, không phải viết bot mới. Đổi lại: bốn khung crypto cùng nghiêng một phía là MỘT cược vào beta crypto chứ không phải bốn cược độc lập — `do_thi.canh_bao_dong_pha()` và trần phơi nhiễm nhóm ở `ruiRo` là để canh đúng chuyện đó.",
   "//thiTruong": "Market theo dõi. `tienTo` là TIỀN TỐ slug, không phải slug đầy đủ — Polymarket đặt tên mỗi khung một slug riêng kèm mốc thời gian (btc-updown-5m-1766162100), nên slug cố định KHÔNG BAO GIỜ khớp. `nen` là cặp Binance dùng làm giá tham chiếu.",
   "thiTruong": [
     { "ma": "BTC_5M",  "tienTo": "btc-updown-5m-",  "nen": "BTCUSDT", "phutSong": 5,  "theo": true },
     { "ma": "ETH_5M",  "tienTo": "eth-updown-5m-",  "nen": "ETHUSDT", "phutSong": 5,  "theo": true },
-    { "ma": "SOL_5M",  "tienTo": "sol-updown-5m-",  "nen": "SOLUSDT", "phutSong": 5,  "theo": false },
-    { "ma": "XRP_5M",  "tienTo": "xrp-updown-5m-",  "nen": "XRPUSDT", "phutSong": 5,  "theo": false },
+    { "ma": "SOL_5M",  "tienTo": "sol-updown-5m-",  "nen": "SOLUSDT", "phutSong": 5,  "theo": true },
+    { "ma": "XRP_5M",  "tienTo": "xrp-updown-5m-",  "nen": "XRPUSDT", "phutSong": 5,  "theo": true },
     { "//BTC_15M": "Đo ngày dựng: 100 market gần hạn nhất mà Gamma trả về CHỈ có khung 5 phút (btc/eth/sol/xrp, mỗi loại 13-14 khung). Không thấy tiền tố nào dạng *-updown-15m-. Để `theo: false` chứ không xoá — nếu Polymarket mở lại khung 15 phút thì chỉ cần bật, và dòng này ghi lại vì sao nó đang tắt.",
       "ma": "BTC_15M", "tienTo": "btc-updown-15m-", "nen": "BTCUSDT", "phutSong": 15, "theo": false }
   ],
