@@ -230,8 +230,17 @@ function do_() {
      đọc ra một mớ toạ độ. */
   const nutCam = [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)]
     .filter((m) => !/aria-label=/.test(m[1]) && !m[2].replace(/<[^>]*>/g, "").trim()).length;
-  const svgTran = [...html.matchAll(/<svg\b([^>]*)>/g)]
-    .filter((m) => !/aria-hidden|role=|aria-label/.test(m[1])).length;
+  /* Một svg trang trí nằm TRONG thẻ đã có aria-hidden hoặc aria-label
+     thì trình đọc màn hình vốn đã không đọc nó — cờ nó lên là báo
+     nhầm. Mà cảnh báo báo nhầm mãi thì người ta bỏ qua cảnh báo, kéo
+     theo cả lần nó đúng; đó là luật đã ghi trong CLAUDE.md, ở đây chỉ
+     áp vào chỗ mới. Nên soi thêm ~240 ký tự ngay trước thẻ svg. */
+  const svgTran = [...html.matchAll(/<svg([^>]*)>/g)].filter((m) => {
+    if (/aria-hidden|role=|aria-label/.test(m[1])) return false;
+    const truoc = html.slice(Math.max(0, m.index - 240), m.index);
+    const cha = [...truoc.matchAll(/<(?:span|button|a|div)([^>]*)>/g)].pop();
+    return !(cha && /aria-hidden|aria-label/.test(cha[1]));
+  }).length;
   const svgKhongCo = [...html.matchAll(/<svg\b([^>]*)>/g)]
     .filter((m) => !/width=/.test(m[1])).length;
 
