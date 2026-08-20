@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T06:39:52.204Z",
+  "generatedAt": "2026-08-20T07:00:15.126Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -140,6 +140,19 @@
         "dai-quan-trac/assets/js/tq/scan.js"
       ],
       "y": "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. Trả bằng quota gói, không còn khoá API."
+    },
+    {
+      "ma": "dong-tin",
+      "ten": "Dòng tin Đài Quan Trắc",
+      "cung": "dai-quan-trac",
+      "tram": "M08",
+      "che": "claude",
+      "nhip": 12,
+      "lenh": "claude-code-action + node scripts/build-dong-tin.mjs",
+      "ra": [
+        "dai-quan-trac/assets/js/tin.js"
+      ],
+      "y": "Lấy bài từ 11 nguồn RSS đã chọn tay, chấm điểm liên quan theo từng chủ thể, rồi để model viết một đoạn suy luận móc bài vào mắt xích nào của mạch truyền dẫn. Khối lượng CHẶN ĐƯỢC: 6 bài × 3 chủ thể, tiêu đề và tóm tắt có sẵn nên không phải kéo cả trang web vào ngữ cảnh như bản quét."
     },
     {
       "ma": "dong-dau",

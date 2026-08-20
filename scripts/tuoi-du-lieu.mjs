@@ -60,6 +60,10 @@ export const NGUON = [
   { nhan: "bản quét Quan Trắc",      duong: "dai-quan-trac/assets/js/scan.js",   botSinh: true,
     nguong: 2 },
   { nhan: "bảng cảnh báo Quan Trắc", duong: "dai-quan-trac/assets/js/do.js",     botSinh: true },
+  /* Cùng nhịp 12 giờ với bản quét, nên cùng ngưỡng 2 ngày. Chung
+     NGAY_TOI_DA=1 thì nó bị báo cũ ngay sau mỗi lượt chạy đúng. */
+  { nhan: "dòng tin Quan Trắc",      duong: "dai-quan-trac/assets/js/tin.js",    botSinh: true,
+    nguong: 2 },
   { nhan: "bảng xét Đô Sát Viện",    duong: "do-sat-vien/assets/js/data.js",     botSinh: true },
   { nhan: "đồ nghề Công Bộ",         duong: "cong-bo/assets/js/data.js",         botSinh: true },
   { nhan: "dòng tiền Hộ Bộ",         duong: "ho-bo/assets/js/v/dong-tien.js",    botSinh: true },

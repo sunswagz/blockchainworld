@@ -573,6 +573,132 @@ jobs:
             --ghi "quét ${QUET}s · dựng ${GIAY_DUNG:-?}s · haiku-4-5" \
             --log "$RUNNER_TEMP/dai-quan-trac.log"
 
+      # ── M08 · Dòng tin ──────────────────────────────────────────
+      # Ba bước, cùng khuôn với bản quét. Bước 1 và 3 là script thuần
+      # (RSS + kiểm), chỉ bước 2 gọi model.
+      #
+      # Van chi phí nằm ở MOI_CHU_THE trong build-dong-tin.mjs: 6 bài × 3
+      # chủ thể. Model KHÔNG tìm web — tiêu đề, tóm tắt và ảnh đã nằm
+      # sẵn trong đề bài, nên ngữ cảnh có trần cứng chứ không phình
+      # theo số trang tìm được như bước quét.
+      - name: Ra đề cho dòng tin
+        id: n-tin-de
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',dong-tin,')
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/build-dong-tin.mjs --de-bai
+
+      - name: Phân tích dòng tin (Claude Code)
+        id: n-tin-ai
+        if: steps.n-tin-de.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 10
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-haiku-4-5
+            --max-turns 30
+            --allowedTools "Read,Write"
+          prompt: |
+            Đọc dai-quan-trac/assets/data/tin-de-bai.json.
+
+            Trong đó có `chuThe` — ba mục, mỗi mục gồm:
+            · `id`, `ten`  — chủ thể (vn / tq / tk)
+            · `hoi`        — CÂU HỎI riêng của chủ thể đó
+            · `mach`       — danh sách mắt xích, mỗi cái có `id` và `t`
+            · `bai`        — các bài báo: `tieu`, `mo`, `link`, `nguon`, `ngay`
+
+            Với TỪNG bài của TỪNG chủ thể, viết một đoạn trả lời đúng
+            câu `hoi` của chủ thể ấy, và chỉ ra bài đó chạm vào mắt
+            xích nào trong `mach`.
+
+            BA CHỦ THỂ HỎI BA CÂU KHÁC NHAU — đây là chỗ dễ hỏng nhất:
+            · vn — cú sốc truyền tới giá cả, tỷ giá, tín dụng, việc làm.
+            · tq — cú sốc kinh tế KHÔNG trực tiếp đe doạ chế độ; nó phải
+              đi qua thu ngân sách và khả năng nuôi bộ máy rồi mới chạm
+              tới quyền lực.
+            · tk — KHÔNG hỏi về một nước. Hỏi bài này SIẾT hay NỚI khớp
+              nối Việt–Trung, và khớp nối đó với Mỹ.
+
+            Ghi đúng MỘT file, dai-quan-trac/assets/data/tin-phan-tich.json:
+
+            {"chuThe":[
+              {"id":"vn","phanTich":[
+                {"link":"<NGUYÊN VĂN link trong đề bài>",
+                 "mach":"<id mắt xích, lấy từ `mach` CỦA CHÍNH chủ thể này>",
+                 "muc":"cao|vua|thap",
+                 "anh":"2–3 câu tiếng Việt"}]}]}
+
+            Luật, và mỗi luật vi phạm là MỤC ĐÓ BỊ LOẠI lúc dựng:
+            · `link` phải trùng NGUYÊN VĂN một link trong đề bài. Đừng
+              bình luận bài không có trong danh sách.
+            · `mach` phải là id có trong `mach` CỦA ĐÚNG chủ thể đó. Ba
+              chủ thể có ba bộ mắt xích khác nhau và VÀI ID TRÙNG TÊN
+              nhau — lấy nhầm sang bộ của chủ thể khác là mục bị loại.
+            · `muc` chỉ được là cao, vua, hoặc thap. Không dấu, không
+              chữ nào khác.
+            · `anh` tối thiểu 40 ký tự. Viết cụ thể: bài này đi vào
+              mắt xích nào, qua đường nào, và làm nó căng thêm hay dịu
+              đi. Đừng viết câu chung chung dùng cho bài nào cũng được.
+            · Không chắc bài nào đó liên quan thì BỎ QUA nó. Thiếu một
+              mục thì giao diện nói rõ là chưa có phân tích; bịa một
+              mục thì không ai biết là bịa.
+            · Chỉ ghi đúng file tin-phan-tich.json. Không sửa file
+              nào khác, không chạy lệnh nào, không tìm web.
+
+            Việc này chỉ coi là xong khi FILE đã tồn tại trên đĩa. Ghi
+            ngay sau chủ thể đầu tiên rồi bổ sung dần — hết giờ giữa
+            chừng vẫn còn kết quả một phần thay vì mất trắng.
+
+      # Cùng bài học của lượt #15: bước gọi model báo thành công mà
+      # không ghi file là chuyện đã xảy ra thật. Soi thẳng ra
+      # annotation để đọc được mà không phải tải log.
+      - name: Soi phân tích thô
+        if: always() && steps.n-tin-ai.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 1
+        run: |
+          Q=dai-quan-trac/assets/data/tin-phan-tich.json
+          if [ ! -f "$Q" ]; then
+            echo "::error::Bước phân tích xong mà KHÔNG ghi $Q. Thư mục có: $(ls -A dai-quan-trac/assets/data/ 2>/dev/null | tr '\n' ' ')"
+            exit 0
+          fi
+          echo "::notice::tin-phan-tich.json $(wc -c < "$Q") byte · $(node -e "
+            try{const q=require('./$Q');
+              const c=(q.chuThe||[]);
+              console.log(c.map(x=>x.id+':'+((x.phanTich||[]).length)).join(' '));
+            }catch(e){console.log('JSON hỏng: '+e.message.slice(0,80))}")"
+
+      # Chỉ chạy khi bước model THÀNH CÔNG. Model ngã mà vẫn dựng thì
+      # tin.js bị ghi đè bằng bản không có phân tích nào — mất hết lớp
+      # suy luận của lượt trước để đổi lấy vài tiêu đề mới hơn.
+      - name: Dựng dòng tin
+        id: n-dong-tin
+        if: steps.n-tin-ai.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 2
+        run: |
+          t0=$(date +%s)
+          node scripts/build-dong-tin.mjs 2>&1 | tee "$RUNNER_TEMP/dong-tin.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+
+      - name: Ghi sổ · dong-tin
+        if: always() && steps.n-tin-de.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-dong-tin.outcome == 'success' && 'ok' || 'loi' }}
+          T_DAU: ${{ steps.n-tin-de.outputs.t0 }}
+          GIAY_DUNG: ${{ steps.n-dong-tin.outputs.giay }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          node scripts/nha-may.mjs ghi dong-tin "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "dựng ${GIAY_DUNG:-?}s · haiku-4-5 · không WebSearch" \
+            --log "$RUNNER_TEMP/dong-tin.log"
+
       # ── M15 · Máy kiểm ─────────────────────────────────────────
       # Sơ đồ xưởng ghi "không có gì ra khỏi xưởng mà chưa qua kiểm",
       # nhưng cho tới nay thì đúng là không có bước kiểm nào: script
@@ -781,6 +907,7 @@ jobs:
                   dai-quan-trac/assets/js/scan.js \
                   dai-quan-trac/assets/js/tq/do.js \
                   dai-quan-trac/assets/js/tq/scan.js \
+                  dai-quan-trac/assets/js/tin.js \
                   factory/state.json \
                   factory/bao-cao.md \
                   tao-bien-xu/assets/js/v/van-hanh.js

@@ -103,6 +103,9 @@
 <!-- Chủ thể thứ ba: khớp nối Việt–Trung. Không có do.js/scan.js vì
      nó không quan trắc gì cả — nó đọc hai bảng kia. -->
 <script src="assets/js/tk/data.js"></script>
+<!-- Bot ghi 2 lượt/ngày. 404 tới lượt đầu là bình thường; app đọc
+     window.DQT_TIN qua `|| null` nên thiếu file thì mục tin tự rụng. -->
+<script src="assets/js/tin.js"></script>
 <!-- bản quét: TỰ SINH trên máy chủ mỗi 6 giờ, xem scripts/build-scan.mjs -->
 <script src="assets/js/tq/scan.js" defer></script>
   <script src="assets/js/tq/do.js" defer></script>

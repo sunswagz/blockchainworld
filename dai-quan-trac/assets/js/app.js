@@ -187,6 +187,9 @@ function napChuThe(){
   DEM = d.DEM||[];
   SOLIEU = d.SOLIEU||[];  COMPASS = d.COMPASS||null;  DODAC = d.DODAC||[];
   KB = d.KB||null;  RANH = d.RANH||null;
+  const tin = window.DQT_TIN || null;
+  TIN = (tin && tin.bai && tin.bai[c.id]) || [];
+  TIN_LUC = (tin && tin.generatedAt) || null;
   const dd = c.khoDo ? window[c.khoDo] : null;
   DO = (dd && dd.do) ? dd.do : {};
   DO_LUC = (dd && dd.generatedAt) || null;
@@ -361,6 +364,9 @@ function hideToast(){ $('#toast').classList.remove('on'); }
    thì thanh bên không hiện phần đó, thay vì hiện một mục trống. */
 const SO = {3:'ba',4:'bốn',5:'năm',6:'sáu'};
 let KB = null, RANH = null;
+/* TIN nạp từ window.DQT_TIN — file do bot ghi, có thể CHƯA TỒN TẠI.
+   Mọi chỗ đọc nó phải chịu được mảng rỗng. */
+let TIN = [], TIN_LUC = null;
 let DEM = [];
 let ROUTES = [];
 /* Trang này có tồn tại ở chủ thể đang xem không, và nếu không thì
@@ -376,7 +382,11 @@ function dungRoutes(){
   {g:'Chủ thể', items: CHUTHE.map(x=>({id:'cht/'+x.id, t:x.co+'  '+x.ten,
      ic:'map', sub:x.hoi.toUpperCase(), cht:x.id}))},
   {g:'Quan trắc', items:
-    (THEATERS.length ? [{id:'flow', t:'Dòng chảy', ic:'flow', sub:'REALTIME'}] : [])
+    /* Tổng kết không có chiến trường nhưng CÓ tin, nên trang này vẫn
+       phải mở được — nó chỉ rụng đi khi chẳng có gì để hiện cả. */
+    (THEATERS.length || TIN.length
+      ? [{id:'flow', t:'Dòng chảy', ic:'flow',
+          sub:THEATERS.length ? 'REALTIME' : TIN.length+' BÀI BÁO'}] : [])
     .concat(CHAIN.length ? [{id:'chain', t:'Mạch truyền dẫn', ic:'chain', sub:CHAIN.length+' MẮT XÍCH'}] : [])
     .concat(GAUGES.length ? [{id:'gauges', t:'Bảng cảnh báo sớm', ic:'gauge', sub:GAUGES.length+' ĐỒNG HỒ'}] : [])},
   {g:'Chiến trường', items: THEATERS.map(t=>({id:'th/'+t.id, t:t.name, ic:t.ic, sub:t.role.toUpperCase(), th:t.id}))},
@@ -542,17 +552,91 @@ function render(){
   go(dauTien());
 }
 
+/* ---------- DÒNG TIN THẾ GIỚI ---------- */
+/* Ngày ISO → dd/mm. Không dùng toLocaleDateString vì nó đổi theo máy
+   người xem, và hai người đọc cùng một bảng phải thấy cùng một ngày. */
+function ngayGon(s){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m? m[3]+'/'+m[2] : ''; }
+
+const MUC_TEN = {cao:'ẢNH HƯỞNG CAO', vua:'ẢNH HƯỞNG VỪA', thap:'ẢNH HƯỞNG THẤP'};
+const MUC_MAU = {cao:'r', vua:'y', thap:'g'};
+
+function vTin(){
+  const box=el('div','tin-khoi');
+  const ng=(window.DQT_TIN||{}).nguon||{};
+  box.innerHTML='<div class="tin-dau"><b>DÒNG TIN THẾ GIỚI</b>'+
+    '<span>'+TIN.length+' bài liên quan tới '+esc(chuThe(state.cht).ten)+
+    (TIN_LUC?' · lấy về '+esc(gioDo(TIN_LUC)):'')+'</span></div>';
+
+  const luoi=el('div','tin-luoi');
+  TIN.forEach(b=>{
+    const th=el('article','tin-the');
+    const nh=ng[b.n]||{t:b.n,l:''};
+    /* Nguồn nhà nước phải LỘ RA ngay trên thẻ. Đọc được một bản tin
+       thì trước hết phải biết mình đang đọc ai — đó là "sáu dấu ≠"
+       của cung này áp vào chỗ lấy tin. */
+    const nn=/NHÀ NƯỚC/.test(nh.l||'');
+
+    /* Phần bài báo là một thẻ <a> thật: bấm ra đúng trang gốc, mở tab
+       mới, và người dùng vẫn chuột phải / xem trước link được. */
+    const a=el('a','tin-bai');
+    a.href=b.u; a.target='_blank'; a.rel='noopener noreferrer';
+    a.innerHTML=
+      (b.img?'<span class="tin-anh"><img src="'+esc(b.img)+'" alt="" loading="lazy" '+
+        'referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></span>':'')+
+      '<span class="tin-than">'+
+        '<span class="tin-meta"><span class="tin-ng'+(nn?' nn':'')+'">'+esc(nh.t)+'</span>'+
+        (nh.l?'<i>'+esc(nh.l)+'</i>':'')+
+        (b.ng?'<em>'+esc(ngayGon(b.ng))+'</em>':'')+'</span>'+
+        '<b>'+esc(b.t)+'</b>'+
+        (b.mo?'<p>'+esc(b.mo)+'</p>':'')+
+        '<span class="tin-di">đọc ở '+esc(nh.t)+' →</span>'+
+      '</span>';
+    th.appendChild(a);
+
+    const ai=el('div','tin-ai');
+    if(b.ai){
+      const mx=CHAIN.find(c=>c.id===b.ai.mach);
+      ai.innerHTML='<div class="tin-ai-h"><span>AI SUY LUẬN</span>'+
+        '<span class="chip '+(MUC_MAU[b.ai.muc]||'')+'">'+esc(MUC_TEN[b.ai.muc]||'')+'</span>'+
+        (mx?'<button class="tin-mx" onclick="go(\'chain\')">mắt xích: '+esc(mx.t)+' →</button>':'')+
+        '</div><p>'+esc(b.ai.anh)+'</p>';
+    } else {
+      /* Chưa có thì nói chưa có. Lấp bằng một câu chung chung là dạy
+         người đọc rằng khối này lúc nào cũng có chữ, và từ đó họ
+         thôi phân biệt được lúc nào là suy luận thật. */
+      ai.className='tin-ai trong';
+      ai.innerHTML='<p>Chưa có phân tích cho bài này — lượt quét gần nhất chưa xử lý tới nó.</p>';
+    }
+    th.appendChild(ai);
+    luoi.appendChild(th);
+  });
+  box.appendChild(luoi);
+
+  const ch=el('p','tin-chan');
+  ch.innerHTML='Bài viết và ảnh thuộc về nguồn, hiện nguyên văn tiêu đề và tóm tắt trong RSS của họ. '+
+    '<b>Khối AI bên dưới mỗi bài là SUY LUẬN của model</b>, dựa trên tiêu đề, tóm tắt và mạch truyền dẫn '+
+    'của '+esc(chuThe(state.cht).ten)+' — không phải trích dẫn từ bài, và có thể sai. Mỗi suy luận buộc phải '+
+    'trỏ vào một mắt xích có thật; suy luận nào trỏ vào mắt xích không tồn tại đã bị loại từ lúc dựng.';
+  box.appendChild(ch);
+  return box;
+}
+
 /* ---------- DÒNG CHẢY ---------- */
 function vFlow(){
   head('Dòng chảy','REALTIME · '+sigCT().length+' TÍN HIỆU');
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Quan trắc liên tục</div>'+
    '<h2 class="big">Dòng chảy địa chính trị</h2>'+
-   '<p class="lede">'+THEATERS.length+' chiến trường, một dòng. Mỗi tín hiệu được ghi kèm <b>đường truyền dẫn tới '+esc(chuThe(state.cht).ten)+'</b> — vì một sự kiện chỉ đáng theo dõi khi biết nó chạy vào đâu.</p>';
+   '<p class="lede">'+(THEATERS.length
+     ? THEATERS.length+' chiến trường, một dòng. Mỗi tín hiệu được ghi kèm <b>đường truyền dẫn tới '+esc(chuThe(state.cht).ten)+'</b> — vì một sự kiện chỉ đáng theo dõi khi biết nó chạy vào đâu.'
+     : 'Bài viết từ các nguồn tin đã chọn, kèm một lớp suy luận về việc chúng chạm vào <b>khớp nối</b> ở chỗ nào. '+esc(chuThe(state.cht).ten)+' không có chiến trường riêng — nó đọc lại hai bảng kia.')+'</p>';
 
   /* Dải trạng thái — thứ phải đọc được trong hai giây, đặt trên
      cùng trang đầu. Cấp độ bên trái, 11 đèn bên phải: nhìn phát
      biết hệ thống đang ở đâu và đèn nào kéo nó lên. */
+  /* Chủ thể không có chiến trường thì trang này CHỈ là dòng tin —
+     không dải trạng thái, không bộ lọc, không mục tín hiệu. */
+  if(!THEATERS.length){ if(TIN.length) w.appendChild(vTin()); return w; }
   const lvl=capDo(), dm=demDen();
   const st=el('div','trang-thai'+(lvl?' c'+lvl:''));
   let bulbs='';
@@ -566,6 +650,8 @@ function vFlow(){
     '<div class="tt-den">'+bulbs+'</div>'+
     '<a class="tt-go" href="#gauges" onclick="go(\'gauges\');return false">bảng đồng hồ →</a>';
   w.appendChild(st);
+
+  if(TIN.length) w.appendChild(vTin());
 
   // filter
   const fb=el('div','fbar');

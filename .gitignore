@@ -9,6 +9,8 @@ Thumbs.db
 # scan.js dựng từ chúng, đã qua kiểm.
 dai-quan-trac/assets/data/de-bai.json
 dai-quan-trac/assets/data/quet.json
+dai-quan-trac/assets/data/tin-de-bai.json
+dai-quan-trac/assets/data/tin-phan-tich.json
 
 # Capacitor (khi đóng gói app native)
 android/

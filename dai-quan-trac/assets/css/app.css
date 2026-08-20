@@ -709,3 +709,57 @@ ul.tight li::marker{color:var(--line3)}
 .lv-x>span{display:block;font-size:10px;letter-spacing:.1em;color:var(--fg2);margin-bottom:3px}
 .lv-x>p{margin:0;font-size:13.5px;line-height:1.62}
 .gauge-vi{display:block;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line2);font-size:12.5px;line-height:1.6;color:var(--fg2)}
+
+/* ── DÒNG TIN THẾ GIỚI ──────────────────────────────────
+   Khối bài báo và khối suy luận của model CỐ Ý trông khác nhau:
+   bài báo nền nổi và có ảnh, suy luận nền lõm và viền trái tím.
+   Người đọc phải phân biệt được hai thứ mà không cần đọc nhãn. */
+.tin-khoi{margin-top:26px}
+.tin-dau{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  padding-bottom:9px;margin-bottom:14px;border-bottom:1px solid var(--line2)}
+.tin-dau b{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--fg2)}
+.tin-dau span{font-size:11.5px;color:var(--muted)}
+
+.tin-luoi{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.tin-the{display:flex;flex-direction:column;border:1px solid var(--line2);
+  border-radius:var(--r);background:var(--raise);overflow:hidden}
+
+.tin-bai{display:flex;flex-direction:column;color:inherit;text-decoration:none}
+.tin-bai:hover .tin-than>b{color:var(--acc)}
+.tin-bai:hover .tin-di{color:var(--acc);border-color:var(--acc)66}
+/* Tỷ lệ cố định để lưới không nhảy khi ảnh nạp xong — và khi ảnh
+   hỏng thì onerror xoá cả .tin-anh, thẻ tự khít lại. */
+.tin-anh{display:block;aspect-ratio:16/9;overflow:hidden;background:var(--inset);
+  border-bottom:1px solid var(--line)}
+.tin-anh img{width:100%;height:100%;object-fit:cover;display:block}
+
+.tin-than{display:block;padding:11px 12px 12px}
+.tin-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.tin-ng{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;color:var(--fg2);
+  border:1px solid var(--line3);border-radius:20px;padding:1.5px 7px}
+/* Báo nhà nước: viền vàng. Không cấm đọc, chỉ bắt buộc biết. */
+.tin-ng.nn{color:var(--gold);border-color:var(--gold)66;background:#d4a72c14}
+.tin-meta i{font-style:normal;font-size:10px;color:var(--muted)}
+.tin-meta em{margin-left:auto;font-style:normal;font-family:var(--mono);
+  font-size:10px;color:var(--dim)}
+.tin-than>b{display:block;font-size:14px;line-height:1.4;margin-bottom:5px}
+.tin-than>p{margin:0 0 9px;font-size:12.5px;line-height:1.55;color:var(--fg2);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tin-di{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
+  color:var(--muted);border:1px solid var(--line2);border-radius:20px;padding:2px 8px}
+
+.tin-ai{margin-top:auto;padding:10px 12px 11px;background:var(--inset);
+  border-top:1px solid var(--line2);box-shadow:inset 2px 0 0 var(--purple)}
+.tin-ai.trong{box-shadow:inset 2px 0 0 var(--line3)}
+.tin-ai-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.tin-ai-h>span:first-child{font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  color:var(--purple)}
+.tin-ai p{margin:0;font-size:12.5px;line-height:1.6;color:var(--fg2)}
+.tin-ai.trong p{color:var(--muted);font-size:12px}
+.tin-mx{font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:var(--muted);
+  border:1px solid var(--line2);border-radius:20px;padding:2px 7px;background:transparent}
+.tin-mx:hover{color:var(--acc);border-color:var(--acc)66}
+
+.tin-chan{margin:14px 0 0;font-size:11.5px;line-height:1.6;color:var(--muted);
+  padding:10px 12px;border:1px dashed var(--line2);border-radius:var(--r)}
+@media (max-width:560px){ .tin-luoi{grid-template-columns:1fr} }

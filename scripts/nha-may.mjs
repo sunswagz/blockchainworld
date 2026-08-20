@@ -178,6 +178,17 @@ export const NODE = [
        "Trả bằng quota gói, không còn khoá API."
   },
   {
+    ma: "dong-tin", ten: "Dòng tin Đài Quan Trắc", cung: "dai-quan-trac",
+    tram: "M08", che: "claude", nhip: 12,
+    lenh: "claude-code-action + node scripts/build-dong-tin.mjs",
+    ra: ["dai-quan-trac/assets/js/tin.js"],
+    y: "Lấy bài từ 11 nguồn RSS đã chọn tay, chấm điểm liên quan theo " +
+       "từng chủ thể, rồi để model viết một đoạn suy luận móc bài vào " +
+       "mắt xích nào của mạch truyền dẫn. Khối lượng CHẶN ĐƯỢC: 6 bài " +
+       "× 3 chủ thể, tiêu đề và tóm tắt có sẵn nên không phải kéo cả " +
+       "trang web vào ngữ cảnh như bản quét."
+  },
+  {
     ma: "dong-dau", ten: "Đóng dấu bản số liệu",
     tram: "M16", che: "script", nhip: 6,
     lenh: "node scripts/pin-snapshot.mjs",
