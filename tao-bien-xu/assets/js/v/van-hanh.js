@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-20T13:33:52.520Z",
- "lan": 109,
+ "generatedAt": "2026-08-20T19:24:00.107Z",
+ "lan": 114,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -73,15 +73,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-20T02:07:06.841Z",
+   "luc": "2026-08-20T19:10:19.171Z",
    "ket": "ok",
-   "giay": 214,
+   "giay": 456,
    "doi": true,
-   "chuThich": "quét 214s · dựng 0s · haiku-4-5",
+   "chuThich": "quét 456s · dựng 0s · haiku-4-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-20T02:07:06.841Z",
-   "lucDoi": "2026-08-20T02:07:06.841Z"
+   "lucOk": "2026-08-20T19:10:19.171Z",
+   "lucDoi": "2026-08-20T19:10:19.171Z"
   },
   {
    "ma": "dong-tin",
@@ -106,6 +106,32 @@ window.VAN_HANH = {
    "chuoiLoi": 0,
    "lucOk": "2026-08-20T13:30:28.549Z",
    "lucDoi": "2026-08-20T13:30:28.549Z"
+  },
+  {
+   "ma": "tien-hoa-dqt",
+   "ten": "Tiến hoá Đài Quan Trắc",
+   "y": "Phiếu đo bảy thước tự đo được chỉ ra điểm yếu, cầu nối Tàng Thư Các chọn skill khớp đúng điểm yếu đó, model đề xuất bản vá, rồi cổng chặn quyết định nhận hay trả lại. Model nằm giữa hai lớp số học nó không viết ra. Phiếu đầy đủ thì KHÔNG gọi model.",
+   "tram": "M09",
+   "che": "claude",
+   "nhip": 24,
+   "lenh": "tien-hoa.mjs de-bai → claude-code-action → tien-hoa.mjs cong --so",
+   "ra": [
+    "dai-quan-trac/assets/css/app.css",
+    "dai-quan-trac/assets/js/app.js",
+    "dai-quan-trac/sw.js"
+   ],
+   "cung": "dai-quan-trac",
+   "cungTen": "Đài Quan Trắc",
+   "wf": "refresh-data.yml",
+   "luc": "2026-08-20T19:10:20.712Z",
+   "ket": "loi",
+   "giay": 1,
+   "doi": false,
+   "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+   "vi": null,
+   "chuoiLoi": 1,
+   "lucOk": null,
+   "lucDoi": null
   },
   {
    "ma": "do-sat-vien",
@@ -207,6 +233,57 @@ window.VAN_HANH = {
    "chuoiLoi": 0,
    "lucOk": "2026-08-14T09:16:24.800Z",
    "lucDoi": "2026-08-14T09:16:24.800Z"
+  },
+  {
+   "ma": "kham-thien-giam",
+   "ten": "Lát cắt Khâm Thiên Giám",
+   "y": "Runtime thị trường tiên đoán là tiến trình Python chạy dài, giữ một WebSocket tới sổ lệnh Polymarket theo nhịp giây và có thể cầm khoá ví — Actions không chạy được, và cũng KHÔNG ĐƯỢC cho chạy. Chạy tay rồi commit lát cắt, cùng kiểu Tử Cấm Thành.",
+   "tram": "M12",
+   "che": "tay",
+   "nhip": 0,
+   "lenh": "cd kham-thien-giam-runtime && python -m kham.snapshot",
+   "ra": [
+    "kham-thien-giam/assets/js/v/dai-chiem.js"
+   ],
+   "cung": "kham-thien-giam",
+   "cungTen": "Khâm Thiên Giám",
+   "wf": null,
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
+   "ma": "kham-thien-giam-tien-hoa",
+   "ten": "Tiến hoá giao diện Khâm Thiên Giám",
+   "y": "Đo cung bằng 7 thước, lấy kỹ năng khớp từ kho Tàng Thư Các, rồi để model đề xuất sửa GIAO DIỆN. Cổng chặn quyết định, không phải model. Nội dung (phong.js) và lát cắt runtime (v/) nằm ngoài tầm với.",
+   "tram": "M18",
+   "che": "claude",
+   "nhip": 24,
+   "lenh": "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+   "ra": [
+    "kham-thien-giam/assets/css/app.css",
+    "kham-thien-giam/assets/js/app.js",
+    "kham-thien-giam/index.html",
+    "kham-thien-giam/sw.js"
+   ],
+   "cung": "kham-thien-giam",
+   "cungTen": "Khâm Thiên Giám",
+   "wf": "refresh-data.yml",
+   "luc": "2026-08-20T19:24:00.107Z",
+   "ket": "ok",
+   "giay": 381,
+   "doi": true,
+   "chuThich": "phiếu đo 5/7 → 6/7 · opus-5",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-20T19:24:00.107Z",
+   "lucDoi": "2026-08-20T19:24:00.107Z"
   },
   {
    "ma": "kinh-thanh",
@@ -334,6 +411,30 @@ window.VAN_HANH = {
    "lucDoi": "2026-08-20T13:15:43.921Z"
   },
   {
+   "ma": "thai-boc-tu-tin-pt",
+   "ten": "Phân tích tin Thái Bộc Tự",
+   "y": "Mỗi bài một lớp phán đoán: mức ảnh hưởng, mạch lan truyền tới toa nào, điều cần theo dõi và điều bác bỏ được. Model KHÔNG ghi thẳng file .js — nó viết JSON thô, script kiểm rồi mới dựng. Bịa mã toa là mục bị loại.",
+   "tram": "M07",
+   "che": "claude",
+   "nhip": 12,
+   "lenh": "build-tin-phantich.mjs --de-bai + claude-code-action + build-tin-phantich.mjs",
+   "ra": [
+    "thai-boc-tu/assets/js/v/tin-phan-tich.js"
+   ],
+   "cung": "thai-boc-tu",
+   "cungTen": "Thái Bộc Tự",
+   "wf": "refresh-data.yml",
+   "luc": "2026-08-20T19:17:39.966Z",
+   "ket": "ok",
+   "giay": 26,
+   "doi": true,
+   "chuThich": "nhận 0 · loại 0 · phủ 30/30 bài · haiku-4.5",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-20T19:17:39.966Z",
+   "lucDoi": "2026-08-20T19:17:39.966Z"
+  },
+  {
    "ma": "thai-boc-tu-tin",
    "ten": "Tin tức Thái Bộc Tự",
    "y": "Sáu nguồn RSS công khai (CoinDesk, Cointelegraph, Decrypt, Bitcoin Magazine, blog Ethereum Foundation, Vitalik). Gắn nhãn toa bằng từ khoá. Ảnh TRỎ THẲNG sang CDN toà soạn, không tải về repo. Không khoá nào, không gọi AI.",
@@ -374,15 +475,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": null,
-   "ket": null,
-   "giay": null,
-   "doi": false,
-   "chuThich": "",
+   "luc": "2026-08-20T19:17:13.212Z",
+   "ket": "ok",
+   "giay": 413,
+   "doi": true,
+   "chuThich": "phiếu đo 5/7 → 6/7 · opus-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": null,
-   "lucDoi": null
+   "lucOk": "2026-08-20T19:17:13.212Z",
+   "lucDoi": "2026-08-20T19:17:13.212Z"
   },
   {
    "ma": "tu-cam-thanh",
@@ -478,6 +579,51 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-20T19:24:00.107Z",
+   "ma": "kham-thien-giam-tien-hoa",
+   "ket": "ok",
+   "giay": 381,
+   "doi": true,
+   "chuThich": "phiếu đo 5/7 → 6/7 · opus-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-20T19:17:39.966Z",
+   "ma": "thai-boc-tu-tin-pt",
+   "ket": "ok",
+   "giay": 26,
+   "doi": true,
+   "chuThich": "nhận 0 · loại 0 · phủ 30/30 bài · haiku-4.5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-20T19:17:13.212Z",
+   "ma": "thai-boc-tu-tien-hoa",
+   "ket": "ok",
+   "giay": 413,
+   "doi": true,
+   "chuThich": "phiếu đo 5/7 → 6/7 · opus-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-20T19:10:20.712Z",
+   "ma": "tien-hoa-dqt",
+   "ket": "loi",
+   "giay": 1,
+   "doi": false,
+   "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-20T19:10:19.171Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 456,
+   "doi": true,
+   "chuThich": "quét 456s · dựng 0s · haiku-4-5",
+   "vi": null
+  },
   {
    "luc": "2026-08-20T13:33:52.520Z",
    "ma": "ho-bo-tien-hoa",
@@ -969,51 +1115,6 @@ window.VAN_HANH = {
    "ma": "cong-bo",
    "ket": "ok",
    "giay": 4,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-18T01:53:50.509Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 65,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-18T01:52:45.170Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 3,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-17T19:03:20.708Z",
-   "ma": "bao-cao",
-   "ket": "ok",
-   "giay": 75,
-   "doi": true,
-   "chuThich": "opus-5 · max-turns 8",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-17T19:02:05.906Z",
-   "ma": "dai-quan-trac",
-   "ket": "ok",
-   "giay": 114,
-   "doi": true,
-   "chuThich": "quét 114s · dựng 0s · haiku-4-5",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-17T19:00:11.688Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null

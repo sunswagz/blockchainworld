@@ -31,14 +31,38 @@
       phản lại đúng điều nó đang giảng.
    ═══════════════════════════════════════════════════════ */
 
+/* ── SÀN TƯƠNG PHẢN: 4.5 TRÊN MỌI MẶT NỀN ────────────────
+   Đo bằng công thức WCAG, không bằng cảm giác. Ba cặp từng
+   dưới sàn, và cả ba là chỗ đắt nhất của cung này:
+
+     --fg-3 trên --card-2   3.90   nhãn cột bảng, chip "phẳng"
+     --fg-3 trên --bg-2     4.36   ô lát cắt TRỐNG
+     --xuong trên --xuong-t 4.49   chip lỗ, nguồn hỏng
+
+   --fg-3 mang gần hết phần chữ NÓI VỀ SỐ chứ không phải số:
+   nhãn cột, đơn vị, hàng ghi chú, và — nặng nhất — câu báo
+   "chưa có số". Luật 3 ở trên bắt ô chưa đo phải NÓI ra là
+   chưa có thay vì vẽ số 0; câu nói ấy in ở 13px trên nền
+   --bg-2 với tỉ số 4.36 thì đúng là nói mà người không đọc
+   được, tức luật 3 chỉ đúng trên giấy.
+
+   Nên nâng --fg-3 một bậc (L 0.19 → 0.29): 4.69 trên
+   --card-3, 4.86 trên --card-2, 6.47 trên --bg — dư sàn ở
+   cả năm mặt nền. Vẫn tối hơn --fg-2 rõ rệt (0.29 so 0.46)
+   nên ba tầng chữ không nhập lại làm một.
+
+   --xuong thì GIỮ NGUYÊN #E5484D — nó là màu hiệu đã ghi ở
+   đầu file, đổi nó là đổi cả cung. Hạ nền --xuong-t xuống
+   thay: nền tối đi thì mọi chữ đặt trên nó sáng lên, còn
+   màu hiệu không xê dịch một byte. */
 :root{
   --bg:#07090D; --bg-2:#0C1016; --card:#11161F; --card-2:#161C27; --card-3:#212A38;
   --line:#1E2634; --line-2:#161D28;
-  --fg:#E8EEF6; --fg-2:#A9B6C7; --fg-3:#6C7A8C;
+  --fg:#E8EEF6; --fg-2:#A9B6C7; --fg-3:#8794A6;
 
   --tau:#7FB2E8; --tau-t:#101C2A;
   --len:#3FBF7F; --len-t:#0F2419;
-  --xuong:#E5484D; --xuong-t:#2A1215;
+  --xuong:#E5484D; --xuong-t:#240F12;
   --canh:#E8A33D; --canh-t:#2A2011;
   --lam:#5A8DD6; --lam-t:#131E2C;
   --tim:#A78BFA; --tim-t:#1D1830;
@@ -235,9 +259,16 @@ code,.mono,.ma{font-family:var(--mono)}
 .canh[data-muc="y"] .canh-den{animation:tho 2.2s infinite}
 .canh-dinh h3{font-size:13.4px;flex:1;min-width:0}
 /* Chữ mức đứng cạnh đèn: đèn màu một mình thì với người mù màu là
-   ba chấm xám giống hệt nhau. */
+   ba chấm xám giống hệt nhau.
+   Nền --bg-2 chứ không --card-2, và đây là chỗ bộ đo tự động KHÔNG
+   thấy: nó ghép cặp theo tên biến, mà ở đây chữ là var(--mc) — một
+   biến đặt lại theo mức, không có trong :root. Cùng một lỗi với ba
+   cặp đã sửa ở :root, chỉ khác là không ai chấm. Ở mức "r" thì --mc
+   là --xuong, và --xuong trên --card-2 chỉ được 4.36; trên --bg-2 là
+   4.87. Chữ mức là dấu hiệu THỨ HAI cạnh đèn màu — nó mà mờ thì luật
+   1 mất chỗ dựa đúng lúc cần nhất, tức là ở thẻ báo động đỏ. */
 .canh-muc{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;
-  padding:1px 6px;border-radius:4px;background:var(--card-2);color:var(--mc);
+  padding:1px 6px;border-radius:4px;background:var(--bg-2);color:var(--mc);
   border:1px solid var(--line)}
 .canh-so{font-family:var(--mono);font-size:12.5px;color:var(--fg);margin-bottom:6px}
 .canh-y{margin:0;font-size:12.2px;color:var(--fg-2);line-height:1.62}

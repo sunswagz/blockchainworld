@@ -1,141 +1,159 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-20T02:07:06.786Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-20T19:10:19.110Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-08-20T02:07:06.786Z",
+  "generatedAt": "2026-08-20T19:10:19.110Z",
   "date": "20/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "nangluong",
-      "tieu_de": "Nhập khẩu dầu Trung Quốc giảm 32% Q2 2026, xuống 8,1 triệu thùng/ngày",
-      "ngay": "2026-06-30",
-      "nguon": "EIA",
-      "tac_dong": "Cung dầu hạn chế, giá dầu cao, ảnh hưởng thu ngân sách (thuế dầu), hạn chế chi tiêu quốc phòng và xã hội",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Nhập khẩu dầu TQ giảm 32% do gián đoạn Hormuz",
+      "ngay": null,
+      "nguon": "U.S. Energy Information Administration",
+      "tac_dong": "Gián đoạn năng lượng → sản xuất công nghiệp TQ yếu → thu ngân sách quốc phòng giảm → khả năng nuôi bộ máy yếu → áp lực tầng lãnh đạo",
+      "muc": "r",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "nangluong",
-      "tieu_de": "45-50% dầu nhập khẩu Trung Quốc qua Hormuz, giao thông giảm từ 130 xuống 6 tàu/ngày",
-      "ngay": "2026-03-15",
-      "nguon": "Columbia University CGEP",
-      "tac_dong": "Phụ thuộc năng lượng cao vào một điểm yếu địa chính trị, cú sốc tức thời đe doạ nuôi bộ máy",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Trung Quốc phụ thuộc năng lượng từ eo biển Hormuz",
+      "ngay": null,
+      "nguon": "Columbia University Center on Global Energy Policy",
+      "tac_dong": "Phụ thuộc chiến lược → gián đoạn đe doạ kiểm soát → lo ngại an ninh năng lượng lâu dài",
+      "muc": "r",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "Tháng 7/2025 Mỹ gỡ bỏ hạn chế bán EDA tool cho Trung Quốc",
-      "ngay": "2025-07-15",
-      "nguon": "Commerce Department",
-      "tac_dong": "Công nghệ chip có sẵn, giảm áp lực công nghiệp chip, giảm tác động tới thu ngân sách và tự lực quốc phòng",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "SMEE phát triển EUV nội địa để thay ASML bị cấm",
+      "ngay": null,
+      "nguon": "AEI Report",
+      "tac_dong": "Công nghệ bị hạn chế → sản xuất bị chậm → xuất khẩu công nghệ yếu → thu ngân sách từ phần mềm-chip giảm → khả năng đầu tư R&D yếu",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
+    },
+    {
+      "th": "congnghe",
+      "tieu_de": "Trung Quốc đạt khả năng 7nm/5nm nhưng không có EUV",
+      "ngay": null,
+      "nguon": "The Substrate",
+      "tac_dong": "Quá trình phát triển chậm → cạnh tranh toàn cầu chip yếu → thu ngân sách yếu",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "USTR áp thuế 12,5% toàn bộ hàng Trung Quốc từ 23/7/2026 do buộc lao động",
-      "ngay": "2026-07-23",
-      "nguon": "USTR",
-      "tac_dong": "Xuất khẩu bị chế tài giảm sức cạnh tranh, thu ngân sách từ doanh số thương mại giảm, hạn chế tài chính nhà nước",
+      "tieu_de": "Thặng dư TQ-EU lên €360B, gây căng thẳng thương mại",
+      "ngay": null,
+      "nguon": "Crypto Briefing",
+      "tac_dong": "Xuất khẩu cao nhưng EU áp lực → có thể tăng thuế → xuất khẩu TQ giảm → thu ngân sách giảm → khả năng đầu tư nội bộ yếu",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "Thuế bổ sung lên lịch 19/8/2026",
-      "ngay": "2026-08-19",
-      "nguon": "Trump Tariff Tracker",
-      "tac_dong": "Thuế tích lũy làm hàng Trung Quốc kém cạnh tranh, xuất khẩu giảm, tác động thu ngân sách",
+      "tieu_de": "Tariff Trump trên hàng TQ vẫn cao, thương mại TQ bị hạn chế",
+      "ngay": null,
+      "nguon": "Tax Foundation",
+      "tac_dong": "Thương mại Mỹ-TQ bị hạn chế → xuất khẩu yếu → thu ngân sách giảm",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "Malacca Strait mỗi ngày 440 tàu thương mại, $2,4 tỷ hàng hoá",
-      "ngay": "2026-08-15",
-      "nguon": "CSIS",
-      "tac_dong": "Tuyến tuyến chính còn ổn định, dùng được, không có tác động gián đoạn mới",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "80% dầu TQ qua Malacca, gặp rủi ro từ Iran",
+      "ngay": "2026-08-18",
+      "nguon": "United Against Nuclear Iran",
+      "tac_dong": "Gián đoạn vận tải → chi phí vận tải tăng → giá dầu nhập khẩu TQ tăng → sản xuất công nghiệp yếu → thu ngân sách giảm",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
+    },
+    {
+      "th": "hanghai",
+      "tieu_de": "Trung Quốc phát triển bảo hiểm hàng hải nhà nước để tránh phụ thuộc Phương Tây",
+      "ngay": "2026-05-11",
+      "nguon": "Foreign Policy",
+      "tac_dong": "Phụ thuộc chiến lược → lo ngại dài hạn → áp lực tầng lãnh đạo về an ninh năng lượng",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Thương mại dầu Nga-Trung Quốc 30 triệu tấn/năm, Nga cung cấp 2,1 triệu thùng/ngày (tăng 28%)",
-      "ngay": "2026-04-30",
-      "nguon": "Global Times",
-      "tac_dong": "Cung ứng năng lượng ổn định, không bị sốc, tài chính và nuôi bộ máy không bị đe doạ",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Dầu Nga tăng 26% nhưng Power of Siberia 2 bị deadlock",
+      "ngay": null,
+      "nguon": "Deccan Herald",
+      "tac_dong": "Nguồn cung hiện tại ổn định nhưng không thể mở rộng → dầu bị hạn chế lâu dài → sản xuất TQ bị giới hạn → thu ngân sách yếu",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Power of Siberia 2 ký xong hợp đồng 3/2026, sẽ cung cấp 50 tỷ m³ khí/năm từ 2028",
-      "ngay": "2026-03-15",
-      "nguon": "Reuters",
-      "tac_dong": "Chiến lược năng lượng lâu dài được bảo đảm, không có sốc cúp cấp",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Liên minh Nga-TQ 'không giới hạn' gặp rạn nứt về năng lượng",
+      "ngay": null,
+      "nguon": "Asia Times",
+      "tac_dong": "Liên minh chiến lược gặp khó → phụ thuộc năng lượng không ổn định → áp lực tầng lãnh đạo",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "SAFE nêu ưu tiên 5 năm (2026-30): mở tài khoản vốn từng bước, kiểm soát RMB nội tế hoá",
-      "ngay": "2026-04-01",
-      "nguon": "East Asia Forum",
-      "tac_dong": "Mở cửa từng bước, không sốc, ổn định tài chính, không gián đoạn tài chính quốc tế",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "PBOC-SAFE phát hành quy định mới kiểm soát vốn (14/8/2026)",
+      "ngay": "2026-08-14",
+      "nguon": "PBOC/SAFE",
+      "tac_dong": "Kiểm soát vốn keó → cấp tiền nước ngoài khó → công ty nước ngoài e dè đầu tư → thu ngân sách từ khí tài nước ngoài giảm → khả năng đầu tư lâu dài yếu",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     }
   ],
   "levels": {
-    "nangluong": "y",
-    "congnghe": "g",
+    "nangluong": "r",
+    "congnghe": "y",
     "thuongmai": "y",
-    "hanghai": "g",
-    "nga": "g",
-    "taichinh": "g"
+    "hanghai": "y",
+    "nga": "y",
+    "taichinh": "y"
   },
   "log": [
     {
       "ok": true,
       "t": "Năng lượng",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "2 tín hiệu · mức y · Nhập khẩu dầu Trung Quốc sụt giảm 41% do gián đoạn Hormuz, ảnh hưởng thu ngân sách và nuôi bộ máy"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức r · Trung Quốc nhập khẩu dầu giảm 32%, eo biển Hormuz gián đoạn gây sốc năng lượng."
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "1 tín hiệu · mức g · Kiểm soát xuất khẩu chip Mỹ tới Trung Quốc được nới lỏng, EDA tool được phép bán, giảm áp lực công nghệ"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức y · Trung Quốc tự phát triển chip 7nm/5nm nhưng vẫn bị cấm EUV, công nghệ bị hạn chế."
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "2 tín hiệu · mức y · Mỹ áp thuế 12,5% hàng Trung Quốc từ 24/7, thêm thuế 19/8, ảnh hưởng trực tiếp tới xuất khẩu"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức y · Trung Quốc có thặng dư €360B với EU; căng thẳng tariff với Mỹ Trump tiếp tục."
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "1 tín hiệu · mức g · Malacca Strait vẫn là chuyến tuyến chính, 75% dầu Trung Quốc qua đây, lưu lượng 440 tàu/ngày"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức y · 80% dầu Trung Quốc qua Malacca; gặp rủi ro từ căng thẳng Iran-Mỹ."
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "2 tín hiệu · mức g · Dầu Nga-Trung Quốc duy trì cao, 30 triệu tấn/năm, đối tác chiến lược dài hạn không bị cú sốc"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức y · Dầu Nga ổn định nhưng Power of Siberia 2 bị deadlock, nứt rạn liên minh Nga-TQ."
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "1 tín hiệu · mức g · Tài chính Trung Quốc tiếp tục mở cửa tài khoản từng bước, kiểm soát chặt RMB, không sốc hệ thống"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "1 tín hiệu · mức y · PBOC-SAFE tighten kiểm soát vốn xuyên biên; RMB toàn cầu hóa gặp khó."
     }
   ]
 };

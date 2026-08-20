@@ -1,156 +1,156 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-20T02:07:06.786Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-20T19:10:19.110Z
    Chủ thể: Việt Nam
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_SCAN = {
-  "generatedAt": "2026-08-20T02:07:06.786Z",
+  "generatedAt": "2026-08-20T19:10:19.110Z",
   "date": "20/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "hormuz",
-      "tieu_de": "Lưu lượng dầu Hormuz giảm mạnh do chiến tranh Iran",
-      "ngay": "2026-08-13",
-      "nguon": "CNN",
-      "tac_dong": "Giao thông Hormuz bị cắt, giá dầu tăng, chi phí nhập khẩu năng lượng Việt Nam tăng làm áp lực lên giá cả",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
-    },
-    {
-      "th": "hormuz",
-      "tieu_de": "Tàu chở dầu qua Hormuz còn 13 chiếc/ngày, giảm từ 20 triệu thùng/ngày trước chiến tranh",
-      "ngay": "2026-08-13",
-      "nguon": "CNN",
-      "tac_dong": "Thiếu hụt cung cấp năng lượng toàn cầu, giá dầu ở mức cao, tác động lên chi phí sản xuất và giá cả hàng hoá Việt Nam",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
-    },
-    {
-      "th": "hormuz",
-      "tieu_de": "Tràn dầu ở Oman bao phủ 1.300 km²",
-      "ngay": "2026-08-13",
-      "nguon": "Greenpeace",
-      "tac_dong": "Nguy hiểm môi trường ảnh hưởng tới hàng hải, có thể tác động lên giao thương",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Xuất khẩu dầu Nga suy yếu liên tiếp 5 tuần do tấn công Ukraine",
+      "tieu_de": "Phí bảo hiểm chiến tranh tàu dầu tăng từ 3% lên 7,5%-10%",
       "ngay": "2026-08-18",
-      "nguon": "Bloomberg",
-      "tac_dong": "Cung dầu toàn cầu giảm, giá dầu Urals rẻ nhưng cung ứng hạn chế, tác động lên giá cả nguyên liệu thô",
+      "nguon": "Asharq Al-Awsat",
+      "tac_dong": "Chi phí vận tải tăng mạnh → chi phí nhập khẩu dầu, nguyên liệu tăng → giá cả hàng hóa Việt Nam tăng, hàng xuất khẩu mất sức cạnh tranh",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
-      "th": "nga",
-      "tieu_de": "Không có tàu chở dầu nào ở cảng Novorossiysk trong tuần kết thúc 16/8",
+      "th": "hormuz",
+      "tieu_de": "Lưu lượng qua Hormuz giảm từ 91 xuống 73 chuyến/tuần",
+      "ngay": "2026-08-19",
+      "nguon": "Lloyd's List Intelligence",
+      "tac_dong": "Sức cung cấp dầu giảm → giá dầu thế giới tăng → chi phí sản xuất, vận tải Việt Nam tăng, tỷ giá áp lực",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
+    },
+    {
+      "th": "hormuz",
+      "tieu_de": "Thỏa thuận ngừng bắn Hormuz sụp đổ",
       "ngay": "2026-08-16",
-      "nguon": "Bloomberg",
-      "tac_dong": "Tắc nghẽn xuất khẩu Nga làm giảm cung dầu toàn cầu, tác động đến đơn hàng dầu và giá cả toàn cầu",
+      "nguon": "Insurance Business Magazine",
+      "tac_dong": "Tình hình còn căng thẳng → chi phí bảo hiểm duy trì cao → chi phí vận tải dài hạn không giảm, hàng hóa Việt Nam tăng giá",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Dầu Urals giảm giá $25,80/thùng so với Brent, mức giảm lịch sử",
-      "ngay": "2026-12-07",
-      "nguon": "Bloomberg",
-      "tac_dong": "Giá dầu rẻ nhưng cung hạn chế tạo bất ổn, tác động tỷ giá và giá cả hàng hoá",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Dầu Nga bán chiết khấu 11 USD/thùng so với Brent",
+      "ngay": "2026-08-12",
+      "nguon": "Deccan Herald",
+      "tac_dong": "Dầu rẻ → giá dầu thế giới dưới cơn lực → chi phí sản xuất, vận tải Việt Nam giảm → hàng xuất khẩu cạnh tranh tốt",
+      "muc": "g",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
-      "th": "tq",
-      "tieu_de": "Nhập khẩu dầu thô Trung Quốc giảm 41,3% năm trên năm vào tháng 6",
-      "ngay": "2026-06-15",
-      "nguon": "EIA",
-      "tac_dong": "Nhu cầu dầu giảm từ Trung Quốc làm áp lực lên giá dầu toàn cầu, ảnh hưởng tới giá cả ngoại tệ Việt Nam",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
-    },
-    {
-      "th": "tq",
-      "tieu_de": "Sản xuất công nghiệp Trung Quốc yếu, thép và xi măng giảm năm trên năm",
-      "ngay": "2026-06-30",
+      "th": "nga",
+      "tieu_de": "Dầu Nga vẫn là nguồn cung hàng đầu toàn cầu",
+      "ngay": "2026-08-12",
       "nguon": "Centre for Research on Energy and Clean Air",
-      "tac_dong": "Nhu cầu năng lượng và nguyên liệu thô giảm, tác động giá cả hàng hoá xuất khẩu Việt Nam",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tac_dong": "Cung cấp dầu ổn định → giá dầu thế giới không tăng đột ngột → chi phí sản xuất Việt Nam ổn định",
+      "muc": "g",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Xuất khẩu dầu thô Trung Quốc chỉ 8,1 triệu thùng/ngày (Q2), giảm 32% so với Q1",
-      "ngay": "2026-06-30",
-      "nguon": "EIA",
-      "tac_dong": "Trung Quốc giảm nhập khẩu dầu, thế giới dưa dầu rẻ, tác động giá cả",
-      "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Evergrande bị xóa niêm yết khỏi sàn HK",
+      "ngay": "2026-08-20",
+      "nguon": "Bloomberg",
+      "tac_dong": "Khủng hoảng bất động sản Trung Quốc → kinh tế Trung Quốc suy yếu → hạn chế nhập khẩu → đơn hàng từ Việt Nam giảm",
+      "muc": "r",
+      "at": "2026-08-20T19:10:19.110Z"
+    },
+    {
+      "th": "tq",
+      "tieu_de": "Tăng trưởng công nghiệp TQ chỉ 4,5%, chậm lại ba tháng liên tiếp",
+      "ngay": "2026-08-17",
+      "nguon": "Bloomberg/National Bureau of Statistics",
+      "tac_dong": "Kinh tế suy yếu → nhu cầu nhập khẩu TQ giảm → đơn hàng Việt Nam xuống",
+      "muc": "r",
+      "at": "2026-08-20T19:10:19.110Z"
+    },
+    {
+      "th": "tq",
+      "tieu_de": "Doanh số bất động sản mới TQ giảm 13,5% theo giá trị",
+      "ngay": "2026-08-11",
+      "nguon": "Bloomberg",
+      "tac_dong": "Khủng hoảng bất động sản lan rộng → tiêu dùng TQ suy yếu → nhập khẩu hàng Việt Nam giảm",
+      "muc": "r",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "vn",
-      "tieu_de": "GDP Việt Nam tăng 8,18% H1 2026, xuất khẩu tăng 21,7% năm trên năm",
-      "ngay": "2026-08-15",
-      "nguon": "Vietnam Investment Forum",
-      "tac_dong": "Nền kinh tế Việt Nam mạnh, khả năng chịu đựng cú sốc ngoài tốt",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Lãi suất liên ngân hàng gần 20%, áp lực thanh khoản cao",
+      "ngay": null,
+      "nguon": "AMRO Asia",
+      "tac_dong": "Áp lực thanh khoản → chi phí vay tăng → doanh nghiệp mất cạnh tranh, đơn hàng khó tăng",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "vn",
-      "tieu_de": "Xuất khẩu hải sản tăng 11,5% H1 2026, đạt gần 6,78 tỷ USD",
-      "ngay": "2026-08-15",
-      "nguon": "Vietnam Customs",
-      "tac_dong": "Xuất khẩu mạnh giữ giá cả ổn định, tỷ giá khỏe",
-      "muc": "g",
-      "at": "2026-08-20T02:07:06.786Z"
+      "tieu_de": "Nợ bất động sản tập trung cao, ngân hàng có dấu hiệu căng thẳng",
+      "ngay": null,
+      "nguon": "AMRO Asia",
+      "tac_dong": "Dòng tiền chặt chẽ → khả năng mở rộng sản xuất yếu → tỷ giá áp lực",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
+    },
+    {
+      "th": "vn",
+      "tieu_de": "Tăng trưởng GDP VN 8,18% nửa năm, nhưng tăng chẳng mấy",
+      "ngay": null,
+      "nguon": "AMRO Asia",
+      "tac_dong": "Tăng trưởng chậm → dự báo kinh tế còn khó khăn",
+      "muc": "y",
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "my",
-      "tieu_de": "USTR khởi động điều tra Section 301 Việt Nam về bảo vệ sở hữu trí tuệ",
-      "ngay": "2026-05-29",
+      "tieu_de": "Thuế Section 301 lên 12,5% hàng Việt Nam có hiệu lực từ 24/7",
+      "ngay": "2026-07-24",
       "nguon": "USTR",
-      "tac_dong": "Điều tra này có thể dẫn đến áp thuế cao lên hàng Việt xuất tới Mỹ, ảnh hưởng tới đơn hàng và việc làm",
+      "tac_dong": "Thuế nhập khẩu tăng → chi phí xuất khẩu Việt Nam tăng → hàng mất sức cạnh tranh tại Mỹ",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "my",
-      "tieu_de": "USTR đề xuất áp thuế 12,5% lên sản phẩm Việt Nam",
-      "ngay": "2026-08-15",
+      "tieu_de": "Hoa Kỳ điều tra 3 vụ Việt Nam: lao động, sở hữu trí tuệ, vận chuyển",
+      "ngay": "2026-06-03",
       "nguon": "USTR",
-      "tac_dong": "Áp thuế trực tiếp làm tăng chi phí sản xuất, giảm lợi nhuận, tác động tới việc làm và tiền lương",
+      "tac_dong": "Các vụ điều tra có thể dẫn tới thuế thêm → áp lực lên xuất khẩu Việt Nam",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "san",
-      "tieu_de": "TikTok Shop tăng hoa hồng từ 3/8/2026, fashion tăng lên 16-17,1%",
+      "tieu_de": "TikTok Shop tăng phí thời trang từ 15-16,1% lên 16-17,1%",
       "ngay": "2026-08-03",
-      "nguon": "TikTok Shop Vietnam",
-      "tac_dong": "Bán hàng online trở nên kém lợi nhuận, nhiều người bán nhỏ sẽ cắt giảm hoạt động, ảnh hưởng việc làm",
+      "nguon": "Lao Động Online",
+      "tac_dong": "Phí sàn tăng → chi phí kinh doanh online tăng → giá hàng phải tăng → lạm phát áp lực",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     },
     {
       "th": "san",
-      "tieu_de": "Shopee tăng phí hỗ trợ kỹ thuật 5%, tối đa 10% phí nền tảng",
-      "ngay": "2026-02-15",
-      "nguon": "Shopee Vietnam",
-      "tac_dong": "Chi phí bán hàng online tăng 20-25% hiệu suất, giảm doanh thu ròng của bán hàng",
+      "tieu_de": "Shopee và TikTok Shop tăng phí thêm 2-4% tùy hạng mục",
+      "ngay": null,
+      "nguon": "Vietnam.vn",
+      "tac_dong": "Phí bán hàng tăng → chi phí bán lẻ tăng → giá tiêu dùng Việt Nam tăng",
       "muc": "y",
-      "at": "2026-08-20T02:07:06.786Z"
+      "at": "2026-08-20T19:10:19.110Z"
     }
   ],
   "levels": {
     "hormuz": "y",
-    "nga": "y",
-    "tq": "y",
-    "vn": "g",
+    "nga": "g",
+    "tq": "r",
+    "vn": "y",
     "my": "y",
     "san": "y"
   },
@@ -158,38 +158,38 @@ window.DQT_SCAN = {
     {
       "ok": true,
       "t": "Hormuz",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "3 tín hiệu · mức y · Giao thông Hormuz suy yếu do chiến tranh, dầu tăng giá, ảnh hưởng GDP Việt Nam"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "3 tín hiệu · mức y · Lưu lượng tàu qua Hormuz giảm và phí bảo hiểm chiến tranh tăng do xung đột Iran-Mỹ."
     },
     {
       "ok": true,
       "t": "Nga–Ukraina",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "3 tín hiệu · mức y · Xuất khẩu dầu Nga sụt giảm do các cuộc tấn công Ukraine, giá dầu rẻ nhưng cung hạn chế"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức g · Dầu Nga bán với chiết khấu sâu, cung cấp ổn định cho thị trường toàn cầu."
     },
     {
       "ok": true,
       "t": "Trung Quốc",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "3 tín hiệu · mức y · Nhu cầu dầu Trung Quốc sụt giảm do sản xuất công nghiệp yếu, ảnh hưởng tới giá dầu toàn cầu"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "3 tín hiệu · mức r · Evergrande xóa niêm yết, khủng hoảng bất động sản Trung Quốc trầm trọng, kinh tế chậm tăng."
     },
     {
       "ok": true,
       "t": "Việt Nam",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "2 tín hiệu · mức g · Nền kinh tế Việt Nam tăng trưởng khỏe, xuất khẩu và tín dụng ổn định, khả năng chịu tác động ngoài tốt"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "3 tín hiệu · mức y · Áp lực tỷ giá, lãi suất liên ngân hàng gần 20%, nợ bất động sản tập trung cao."
     },
     {
       "ok": true,
       "t": "Hoa Kỳ",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "2 tín hiệu · mức y · Mỹ điều tra bảo vệ IP Việt Nam, đe doạ áp dụng thuế 12,5%, tác động trực tiếp tới thương mại"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức y · Hoa Kỳ điều tra 3 vụ Việt Nam cùng lúc; thuế 12,5% đã được áp dụng."
     },
     {
       "ok": true,
       "t": "Sàn TMĐT",
-      "at": "2026-08-20T02:07:06.786Z",
-      "d": "2 tín hiệu · mức y · TikTok Shop và Shopee tăng phí hoa hồng từ tháng 8, ảnh hưởng trực tiếp tới bán hàng online Việt Nam"
+      "at": "2026-08-20T19:10:19.110Z",
+      "d": "2 tín hiệu · mức y · Shopee, TikTok Shop liên tục tăng phí bán hàng; nông dân Việt chịu áp lực."
     }
   ]
 };

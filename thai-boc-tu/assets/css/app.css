@@ -29,11 +29,22 @@
 :root{
   --bg:#0B0A0E; --bg-2:#121016; --card:#181520; --card-2:#201B2A; --card-3:#2C2537;
   --line:#272031; --line-2:#1E1826;
-  --fg:#F0EBF3; --fg-2:#B0A3BC; --fg-3:#736882;
+  /* Bậc chữ thứ ba là chữ MỜ, không phải chữ TÀNG HÌNH. Bản trước để nó
+     ở #736882 — đọc trên nền thẻ chỉ được 3.22, dưới ngưỡng AA 4.5. Mà
+     đây đúng là bậc gánh nhãn cột, đơn vị, và dòng nguồn dưới mỗi con
+     số: tức là phần TRUY NGƯỢC VỀ NGUỒN. Số thì sáng rõ, còn chỗ nói số
+     ấy ở đâu ra thì mờ hơn mức đọc được — hỏng đúng luật thứ ba của cung.
+     Nay 4.77 trên nền thẻ, vẫn cách bậc hai đủ xa để thứ bậc không phẳng. */
+  --fg:#F0EBF3; --fg-2:#B0A3BC; --fg-3:#8F84A0;
 
-  --tau:#D2568C; --tau-t:#2E1421;
+  /* Mỗi huy hiệu là chữ màu nhấn trên nước rửa thẫm của chính màu đó.
+     Hai màu nhấn thẫm nhất — hồng son và xuống — không đủ tương phản
+     trên nước rửa cũ (4.40 và 4.49). Hạ nước rửa chứ không nâng màu
+     nhấn: màu nhấn còn làm link, viền focus, mục đang mở ở thanh bên,
+     đổi nó là đổi cả cung. Bốn nước rửa kia đã đạt nên giữ nguyên. */
+  --tau:#D2568C; --tau-t:#28101C;
   --len:#3FBF7F; --len-t:#0F2419;
-  --xuong:#E5484D; --xuong-t:#2A1215;
+  --xuong:#E5484D; --xuong-t:#281013;
   --canh:#E8A33D; --canh-t:#2A2011;
   --lam:#5A8DD6; --lam-t:#131E2C;
   --tim:#A78BFA; --tim-t:#1D1830;
