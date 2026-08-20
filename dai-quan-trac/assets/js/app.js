@@ -75,17 +75,41 @@ let THEATERS = [], GAUGES = [], CHAIN = [], CHAIN_SRC = {},
 let DO = {}, DO_LUC = null;
 
 /* Đèn thực tế của một đồng hồ, sau khi hoà người và máy. */
+/* Quá bấy nhiêu giờ kể từ lần lấy THÀNH CÔNG gần nhất thì một con số
+   thôi được coi là số đo. Nhịp bot là 6 giờ, nên 24 giờ nghĩa là đã
+   lỡ bốn lượt liền — quá ngưỡng mạng chập chờn, đã là nguồn chết.
+
+   `luc` là dấu thời gian của lần lấy được số THẬT: lúc hỏng, bộ lấy
+   bê nguyên bản ghi cũ sang và chỉ thêm cờ `oi`, nên `luc` không bị
+   dời theo. Không cần thêm trường nào. */
+const OI_GIO = 24;
+function tuoiDo(d){
+  if(!d || !d.luc) return null;
+  const t = new Date(d.luc).getTime();
+  return Number.isFinite(t) ? (Date.now() - t) / 3.6e6 : null;
+}
+/* Đọc số đo qua ĐÂY, đừng đọc thẳng DO[id]. Trả null khi số đã đông
+   cứng, nhờ vậy đồng hồ tụt về "chưa quan trắc" thay vì sáng bằng
+   một con số bốn ngày tuổi. Con số vẫn còn trong DO để bảng đồng hồ
+   hiện ra kèm lời cảnh báo — giấu đi thì người đọc mất luôn manh
+   mối là nguồn đã chết. */
+function soDo(id){
+  const d = DO[id];
+  if(!d) return null;
+  const t = tuoiDo(d);
+  return (t != null && t > OI_GIO) ? null : d;
+}
 function den(id){
   const tay = gGG(id);
   if(tay && tay !== 'n') return tay;
-  const d = DO[id];
+  const d = soDo(id);
   return (d && d.muc) ? d.muc : 'n';
 }
 /* Đèn đó từ đâu ra — giao diện phải nói thật chỗ này. */
 function nguonDen(id){
   const tay = gGG(id);
   if(tay && tay !== 'n') return 'tay';
-  return DO[id] ? 'tu' : 'chua';
+  return soDo(id) ? 'tu' : 'chua';
 }
 function demDen(){
   const r = {g:0,y:0,r:0,n:0};
@@ -741,7 +765,9 @@ function vChain(){
 
 /* ---------- BẢNG ĐỒNG HỒ ---------- */
 function vGauges(){
-  const d=demDen(), N=GAUGES.length, tuDo=GAUGES.filter(g=>DO[g.id]).length;
+  const d=demDen(), N=GAUGES.length, tuDo=GAUGES.filter(g=>soDo(g.id)).length;
+  /* Nguồn im quá lâu — đếm riêng để nói ra, chứ không lặng lẽ trừ đi. */
+  const chet=GAUGES.filter(g=>DO[g.id]&&!soDo(g.id));
   head('Bảng cảnh báo sớm',d.dat+'/'+N+' ĐỒNG HỒ SÁNG');
   const w=el('div','wrap');
   w.innerHTML='<div class="eyebrow">Đo tự động + phán đoán của bạn</div>'+
@@ -753,8 +779,10 @@ function vGauges(){
 
   if(DO_LUC){
     const b=el('div','do-luc');
-    b.innerHTML='<span class="dot g"></span> Số đo gần nhất '+esc(gioDo(DO_LUC))+
-      ' · Yahoo Finance · open.er-api · Federal Register · GDELT · <b>0 đồng chi phí</b>';
+    b.innerHTML='<span class="dot '+(chet.length?'y':'g')+'"></span> Số đo gần nhất '+esc(gioDo(DO_LUC))+
+      ' · Yahoo Finance · open.er-api · Federal Register · GDELT · <b>0 đồng chi phí</b>'+
+      (chet.length?'<br><b style="color:var(--gold)">'+chet.length+' nguồn đã im hơn '+OI_GIO+' giờ</b> — '+
+        chet.map(g=>esc(g.t)).join(', ')+'. Số cũ vẫn hiện nhưng KHÔNG còn thắp đèn.':'');
     w.appendChild(b);
   }
 
@@ -763,13 +791,22 @@ function vGauges(){
   const body=el('div');
   GAUGES.forEach((g,i)=>{
     const lv=den(g.id), ng=nguonDen(g.id), m=DO[g.id];
+    /* Số vẫn hiện, nhưng kèm tuổi thật của nó. Giấu đi thì người đọc
+       mất manh mối; hiện trơn thì họ tưởng là số sống. */
+    const cu=m&&!soDo(g.id) ? Math.round(tuoiDo(m)) : null;
     const row=el('button','gauge g-'+ng); row.style.width='100%'; row.style.textAlign='left';
 
     let so='';
+    if(cu!=null){
+      /* Đặt TRƯỚC ô số, không phải sau: người đọc thấy con số trước
+         rồi mới thấy chú thích thì họ đã tin con số mất rồi. */
+      so+='<span class="do-chet">nguồn im '+(cu>=48?Math.round(cu/24)+' ngày':cu+' giờ')+
+        ' — số dưới đây là lần lấy được cuối cùng, không phải số hiện tại</span>';
+    }
     if(m){
       const dd = m.doi7==null ? '' : '<i class="'+(m.doi7>0?'up':m.doi7<0?'dn':'')+'">'+
         (m.doi7>0?'▲ +':m.doi7<0?'▼ ':'')+m.doi7+'% / 7 phiên</i>';
-      so='<span class="gauge-s">'+spark(m.lich,MAU[lv])+
+      so+='<span class="gauge-s">'+spark(m.lich,MAU[lv])+
          '<b>'+esc(String(m.so))+'</b><span class="dv">'+esc(m.dv||'')+'</span>'+dd+'</span>';
     }
     const nhan = ng==='tay' ? '<span class="pv tay">bạn đặt</span>'
@@ -787,7 +824,7 @@ function vGauges(){
 
   /* Ngưỡng phải mở ra xem được. Một cái đèn đỏ mà không nói được
      "đỏ theo mốc nào" thì chỉ là một cái đèn đỏ. */
-  const ngw=GAUGES.filter(g=>DO[g.id]&&DO[g.id].nguong);
+  const ngw=GAUGES.filter(g=>soDo(g.id)&&DO[g.id].nguong);
   if(ngw.length){
     w.appendChild(el('h3','sec','Ngưỡng đang dùng'));
     const p=el('p'); p.style.cssText='max-width:74ch;color:var(--fg2)';
@@ -951,7 +988,9 @@ function vTheater(id){
       c.innerHTML='<b>'+esc(x.nhan)+'</b><div class="nguong-v" style="margin:6px 0">'+
         '<b>'+esc(String(m.so))+' '+esc(x.dv||'')+'</b>'+
         (m.doi7==null?'':' <span style="color:var(--fg2)">('+(m.doi7>0?'+':'')+m.doi7+'% / 7 phiên)</span>')+
-        '</div><p style="color:var(--fg2)">'+esc(m.nguon||'')+(m.oi?' · số đo lượt trước':'')+'</p>';
+        '</div><p style="color:var(--fg2)">'+esc(m.nguon||'')+
+          (m.oi?' · <b style="color:var(--gold)">chưa lấy lại được '+
+            (tuoiDo(m)==null?'':Math.round(tuoiDo(m))+' giờ')+'</b>':'')+'</p>';
       dw.appendChild(c); });
     cb.appendChild(dw);
   }

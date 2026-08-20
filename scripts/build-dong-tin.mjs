@@ -357,6 +357,18 @@ async function raDe() {
   mkdirSync(dirname(RA_DE), { recursive: true });
   writeFileSync(RA_DE, JSON.stringify(de, null, 1));
   console.log("→ " + RA_DE);
+
+  /* Bước sau gọi model, tức tốn quota. Ra đề rỗng mà vẫn thoát 0 là
+     mời model chạy trên một danh sách trống rồi ghi một file rỗng —
+     và file rỗng đó lại là đúng thứ phép chặn ở dung() phải xử lý.
+     Chặn sớm ở đây rẻ hơn nhiều. */
+  const tong = de.chuThe.reduce((a, c) => a + c.bai.length, 0);
+  if (!tong) {
+    console.log("! không chọn được bài nào — " +
+      (tho.length ? sach.length + " bài lấy về nhưng không bài nào qua được hai cổng"
+                  : "KHÔNG nguồn nào trả về bài, nhiều khả năng mất mạng"));
+    process.exitCode = 1;
+  }
 }
 
 /* ── BƯỚC 3 · DỰNG ───────────────────────────────────────*/
@@ -368,7 +380,15 @@ function dung() {
   let pt = { chuThe: [] };
   if (existsSync(RA_PT)) {
     try { pt = JSON.parse(readFileSync(RA_PT, "utf8")); }
-    catch (e) { console.log("! phân tích không phải JSON hợp lệ: " + e.message); }
+    catch (e) {
+      /* JSON hỏng KHÔNG được coi như "chưa có phân tích". Hai thứ đó
+         dẫn tới hai hành động ngược nhau: chưa có thì dựng bảng mới,
+         còn hỏng thì phải giữ nguyên bản cũ và kêu lên. */
+      console.log("! phân tích không phải JSON hợp lệ: " + e.message);
+      console.log("! giữ bản cũ, không ghi đè");
+      process.exitCode = 1;
+      return;
+    }
   }
 
   const ra = {}; let tongBai = 0, tongAi = 0, loai = 0;
@@ -404,6 +424,21 @@ function dung() {
      "đường ống hỏng" — đúng bài học đã ghi cho bản quét. */
   if (!tongBai) {
     console.log("! không bài nào qua được — giữ bản cũ, không ghi đè");
+    process.exitCode = 1;
+    return;
+  }
+  /* Đây là phép chặn quan trọng nhất của cả file. Bước 2 có thể báo
+     thành công mà ghi ra file rỗng, hoặc ghi toàn mục sai bị loại
+     hết — cả hai đều cho tongAi = 0. Dựng tiếp là đổi một bảng CÓ
+     suy luận lấy một bảng KHÔNG có, im lặng hoàn toàn.
+
+     Trừ đúng một trường hợp: chưa có file nào. Lúc đó không có gì
+     để mất, và một bảng tin không kèm suy luận vẫn hơn hẳn không có
+     bảng nào — giao diện đã nói rõ bài nào chưa được phân tích. */
+  if (!tongAi && existsSync(RA_JS)) {
+    console.log("! " + tongBai + " bài nhưng KHÔNG phân tích nào qua được" +
+      (loai ? " (" + loai + " mục bị loại)" : "") + " — giữ bản cũ, không ghi đè");
+    process.exitCode = 1;
     return;
   }
 
