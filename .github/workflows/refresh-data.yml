@@ -1050,53 +1050,23 @@ jobs:
           # không phụ thuộc vào việc action nào đó có tử tế hay không.
           git remote set-url origin \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          # Liệt kê TỪNG đường dẫn, không add cả thư mục. Hai lý do, cả
-          # hai đều đã cắn thật:
+          # ── Cái gì đáng commit: HỎI SỔ, đừng chép tay ──────────
+          # Trước đây chỗ này là ~25 đường dẫn viết tay, và phải khớp
+          # với `ra` của node lẫn danh sách trong CLAUDE.md. Ba nơi,
+          # không nơi nào bắt nơi nào — bẫy đó đã cắn hai lần: thư mục
+          # logo bị sót nên ảnh vỡ trên site; rồi `assets/data/` gom
+          # quá rộng nên nuốt cả bản dịch viết tay.
           #
-          # 1. `cong-bo/assets/js/` gom cả file viết tay (halls.js, app.js,
-          #    decoder.js, glossary.js, pwa.js) nằm chung thư mục với file
-          #    bot sinh. Hook pre-commit đọc danh sách này để nhắc, nên nó
-          #    báo nhầm mỗi lần ai đó sửa halls.js một cách hợp lệ — mà
-          #    một cảnh báo báo nhầm mãi thì người ta bỏ qua cảnh báo.
+          # Nay danh sách sinh từ sổ đăng ký. Muốn đổi phạm vi thì sửa
+          # `ra` của node trong scripts/node/<cung>.mjs — một chỗ.
           #
-          # 2. Ngược lại, hai thư mục logo BỊ SÓT: build-l2beat.mjs và
-          #    build-congbo.mjs tải ảnh về assets/logos/, còn add thì
-          #    không phủ. Hệ quả im lặng: logos.js được commit và trỏ tới
-          #    ảnh chưa bao giờ được commit → ảnh vỡ trên site.
-          #
-          # Đổi ở đây thì cập nhật luôn mục "File do workflow tự sinh"
-          # trong CLAUDE.md và mảng `ra` của node trong scripts/nha-may.mjs
-          # — `npm run kiem` bắt cả ba bên phải khớp.
-          git add kinh-thanh/assets/js/data/live.js \
-                  kinh-thanh/assets/js/data/provenance.js \
-                  kinh-thanh/assets/data/history.json \
-                  do-sat-vien/assets/js/data.js \
-                  do-sat-vien/assets/logos/ \
-                  cong-bo/assets/js/data.js \
-                  cong-bo/assets/js/logos.js \
-                  cong-bo/assets/js/v/nhat-ky.js \
-                  cong-bo/assets/logos/ \
-                  ho-bo/assets/js/v/dong-tien.js \
-                  ho-bo/assets/css/app.css \
-                  ho-bo/assets/js/app.js \
-                  ho-bo/index.html \
-                  ho-bo/sw.js \
-                  thai-boc-tu/assets/js/v/doan-tau.js \
-                  thai-boc-tu/assets/js/v/cong-truong.js \
-                  thai-boc-tu/assets/js/v/tin-tuc.js \
-                  tang-thu-cac/assets/js/data.js \
-                  tang-thu-cac/assets/data/lich-su.json \
-                  tang-thu-cac/assets/data/kb/ \
-                  dai-quan-trac/assets/js/do.js \
-                  dai-quan-trac/assets/js/scan.js \
-                  dai-quan-trac/assets/js/tq/do.js \
-                  dai-quan-trac/assets/js/tq/scan.js \
-                  dai-quan-trac/assets/js/tin.js \
-                  .claude/skills/ \
-                  factory/skills.json \
-                  factory/state.json \
-                  factory/bao-cao.md \
-                  tao-bien-xu/assets/js/v/van-hanh.js
+          # `duong-ra` chỉ in đường DẪN CÓ THẬT trên đĩa. Nhờ vậy cả
+          # lớp lỗi "pathspec did not match any files" biến mất — thứ
+          # đã giết các lượt #10–#14 ngày 15/08 vì factory/bao-cao.md
+          # chưa từng tồn tại.
+          node scripts/nha-may.mjs duong-ra > "$RUNNER_TEMP/duong-ra.txt"
+          echo "Sổ khai $(wc -l < "$RUNNER_TEMP/duong-ra.txt") đường dẫn đáng commit."
+          git add --pathspec-from-file="$RUNNER_TEMP/duong-ra.txt"
           if git diff --staged --quiet; then
             echo "Không node nào đến hạn hoặc số liệu không đổi — không commit."
             echo "changed=false" >> "$GITHUB_OUTPUT"

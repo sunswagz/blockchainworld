@@ -271,12 +271,33 @@ và ngưỡng "bao lâu là cũ" trong `scripts/tuoi-du-lieu.mjs`. Ba chỗ ph�
 khớp nhau mà không có gì bắt chúng khớp — sót một chỗ thì bot vẫn chạy,
 `npm run kiem` vẫn xanh, chỉ có dữ liệu là sai nhịp.
 
-Giờ nhịp nằm ở mảng `NODE` trong **`scripts/nha-may.mjs`**, một chỗ:
+Giờ nhịp nằm ở sổ đăng ký, một chỗ:
 
     node scripts/nha-may.mjs bang         xem cả nhà máy trong một bảng
     node scripts/nha-may.mjs den-han      node nào đến hạn (workflow đọc)
+    node scripts/nha-may.mjs duong-ra     đường nào đáng commit (workflow đọc)
     node scripts/nha-may.mjs so-dang-ky   sinh lại factory/registry.json
     node scripts/nha-may.mjs chieu        sinh lại van-hanh.js cho webapp
+
+#### Một cung một file: `scripts/node/<cung>.mjs`
+
+Sổ đăng ký **không** nằm trong `nha-may.mjs` nữa. Mỗi cung khai node của
+mình trong `scripts/node/<cung>.mjs`; `nha-may.mjs` đọc cả thư mục theo
+thứ tự tên file rồi gộp lại. Node của chính nhà máy (đóng dấu, báo cáo,
+giao hàng) nằm ở `scripts/node/xuong.mjs`.
+
+Vì sao tách, và đây là chuyện đã cắn thật ngày 20/08: khi cả 18 node
+khai chung một mảng, **hai phiên thêm hai cung là hai người sửa cùng vài
+dòng của cùng một file**. Worktree tách được file theo cung, nhưng không
+tách được mảng dùng chung ấy — nên xung đột mỗi lần, không trừ lần nào.
+
+Nay **thêm một cung = thêm MỘT file mới**. Hai file khác nhau thì git
+không có gì để mà đụng: hết xung đột do cấu trúc, không phải do ai đó
+nhớ giỏi hơn.
+
+Hệ quả kèm theo: `factory/registry.json` mang thêm trường `khai` — file
+nào khai node đó. Lỗi ném ra từ phép kiểm cũng chỉ thẳng file phải sửa,
+thay vì bắt đi tìm trong một mảng dài.
 
 `cron` trong hai workflow chỉ còn là **TRẦN** — "cứ 6 giờ ngó một lần xem
 có gì đến hạn không". Đến hạn hay chưa thì sổ quyết. Hệ quả: **đổi nhịp
@@ -329,8 +350,18 @@ tiếp; kết quả tự đúng. Commit tay chỉ tạo hai nguồn ghi vào cù
     node scripts/build-tangthu.mjs        # xem số có hợp lý không
     git checkout tang-thu-cac/assets/     # rồi trả lại, đừng mang theo
 
-Danh sách này phải khớp với các dòng `git add` trong hai workflow. Đổi
-phạm vi bên đó thì cập nhật lại đây.
+**Khối `git add` trong workflow KHÔNG còn chép tay nữa** (từ 20/08). Nó
+gọi `node scripts/nha-may.mjs duong-ra`, sinh thẳng từ `ra` của node.
+Muốn đổi phạm vi thì sửa `ra` trong `scripts/node/<cung>.mjs` — một chỗ,
+và workflow tự theo.
+
+Danh sách trên đây vẫn phải khớp, và `npm run kiem` vẫn canh — nhưng giờ
+nó đối chiếu với **sổ đăng ký** chứ không với một bản chép trong YAML.
+Ba nơi phải khớp đã còn hai, và một trong hai là nguồn.
+
+`duong-ra` chỉ in đường **có thật trên đĩa**. Nhờ vậy cả lớp lỗi
+`pathspec did not match any files` biến mất — thứ đã giết năm lượt
+liên tiếp ngày 15/08 vì `factory/bao-cao.md` chưa từng tồn tại.
 
 ### Hoàng Thành là ngoại lệ — sinh bằng tay, PHẢI commit
 

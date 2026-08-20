@@ -43,7 +43,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { CUNG } from "./cung.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -72,198 +72,39 @@ const TRAN_NHAT_KY = 200;
      nhip: số giờ giữa hai lượt. 0 = không tự chạy bao giờ.
            Đây là SỐ THẬT quyết định node có chạy hay không —
            cron trong workflow chỉ là trần. */
-export const NODE = [
-  {
-    ma: "kinh-thanh", ten: "Số liệu Kinh Thành", cung: "kinh-thanh",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-live.mjs",
-    ra: ["kinh-thanh/assets/js/data/live.js",
-         "kinh-thanh/assets/js/data/provenance.js",
-         "kinh-thanh/assets/data/history.json"],
-    y: "TVL và số on-chain 9 quốc gia L1, lấy từ DefiLlama."
-  },
-  {
-    ma: "do-sat-vien", ten: "Bảng xét Đô Sát Viện", cung: "do-sat-vien",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-l2beat.mjs",
-    ra: ["do-sat-vien/assets/js/data.js", "do-sat-vien/assets/logos/"],
-    y: "Xếp hạng Layer 2 theo L2BEAT, kèm logo tải về."
-  },
-  {
-    ma: "cong-bo", ten: "Đồ nghề Công Bộ", cung: "cong-bo",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-congbo.mjs",
-    ra: ["cong-bo/assets/js/data.js", "cong-bo/assets/js/logos.js",
-         "cong-bo/assets/js/v/nhat-ky.js", "cong-bo/assets/logos/"],
-    y: "Bộ công cụ onchain. Nguồn có một phần là host staging của L2BEAT nên hay ngã."
-  },
-  {
-    ma: "ho-bo", ten: "Dòng tiền Hộ Bộ", cung: "ho-bo",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-hobu.mjs",
-    ra: ["ho-bo/assets/js/v/dong-tien.js"],
-    y: "Mười một đường DefiLlama công khai (TVL, phí, DEX, stablecoin, vụ mất tiền, " +
-       "lợi suất) cộng lịch sử 20 chuỗi, gộp thành một file. KHÔNG gọi AI, không khoá nào."
-  },
-  {
-    ma: "thai-boc-tu", ten: "Đoàn tàu Thái Bộc Tự", cung: "thai-boc-tu",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-thaiboc.mjs",
-    ra: ["thai-boc-tu/assets/js/v/doan-tau.js"],
-    y: "Ba đường DefiLlama công khai. Không gọi AI, không khoá nào. Việc nặng nhất " +
-       "làm ở đây chứ không ở trình duyệt: xếp hơn 8.000 giao thức vào 18 toa và " +
-       "dựng quan hệ phụ thuộc oracle từ khai báo của từng cái."
-  },
-  /* Thái Bộc Tự có HAI node, và tách đôi là có chủ ý — cùng lý do
-     cặp node của Đài Quan Trắc, nhưng tách theo NGUỒN chứ không theo
-     "cần model hay không":
+/* ── Nạp sổ đăng ký: MỘT FILE MỖI CUNG ──────────────────────
+   Trước đây cả 18 node khai chung trong một mảng ngay dưới đây. Hệ
+   quả không tránh được: hai phiên thêm hai cung là hai người sửa
+   cùng vài dòng của cùng một file, và git xung đột mỗi lần — đã cắn
+   thật ngày 20/08 khi kệ dụng cụ gặp vòng tiến hoá.
 
-       thai-boc-tu            DefiLlama → tiền đang nằm ở đâu
-       thai-boc-tu-cong-truong  GitHub   → ai đang xây cái gì
+   Nay mỗi cung khai node của mình trong scripts/node/<cung>.mjs.
+   Thêm một cung = thêm MỘT file mới. Hai file khác nhau thì git
+   không có gì để mà đụng — hết xung đột do cấu trúc, không phải do
+   ai đó nhớ giỏi hơn.
 
-     GitHub chạm hạn mức thì bảng đoàn tàu vẫn cập nhật, và DefiLlama
-     ngã thì bảng công trường vẫn cập nhật. Gộp một node là để một
-     nguồn ngã kéo cả hai bảng đứng im. */
-  {
-    ma: "thai-boc-tu-cong-truong", ten: "Công trường Thái Bộc Tự", cung: "thai-boc-tu",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-congtruong.mjs",
-    ra: ["thai-boc-tu/assets/js/v/cong-truong.js"],
-    y: "Hỏi GitHub 14 kho mã và lịch sử đề xuất ERC/EIP: nút thắt nào còn " +
-       "người xây, chuẩn nào vừa mở. Dùng GITHUB_TOKEN Actions tự cấp — không " +
-       "thêm secret nào, không gọi AI."
-  },
-  {
-    ma: "thai-boc-tu-tin", ten: "Tin tức Thái Bộc Tự", cung: "thai-boc-tu",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-tintuc.mjs",
-    ra: ["thai-boc-tu/assets/js/v/tin-tuc.js"],
-    y: "Sáu nguồn RSS công khai (CoinDesk, Cointelegraph, Decrypt, Bitcoin Magazine, " +
-       "blog Ethereum Foundation, Vitalik). Gắn nhãn toa bằng từ khoá. Ảnh TRỎ THẲNG " +
-       "sang CDN toà soạn, không tải về repo. Không khoá nào, không gọi AI."
-  },
-  /* Node DUY NHẤT trong xưởng sửa MÃ chứ không sửa dữ liệu. Mọi node
-     khác ghi vào assets/js/v/ hoặc data.js; node này ghi thẳng vào
-     app.js, app.css, index.html — thứ trình duyệt nạp làm hành vi.
+   Đọc theo thứ tự tên file để sổ đăng ký sinh ra luôn giống nhau
+   giữa các máy; không thì mỗi hệ điều hành xếp một kiểu và
+   registry.json đổi lung tung không vì lý do gì.
 
-     Vì sao dám: nó bị kẹp giữa hai lớp số học mà model không viết.
-     `tien-hoa.mjs do --ghi` chấm phiếu TRƯỚC, `cong --so` chấm lại
-     SAU và chặn nếu vỡ hoặc nếu điểm tụt. Trượt là workflow trả cả
-     thư mục cung về bản cũ, không có gì lên site.
+   `khai` ghi lại file nào khai node đó — để `bang` và các lỗi ném
+   ra chỉ thẳng được chỗ phải sửa. */
+const THU_MUC_NODE = join(ROOT, "scripts", "node");
 
-     Nhịp 24 giờ chứ không 6: một bước tiến giao diện mỗi ngày là
-     nhanh hơn bất kỳ ai ngồi sửa tay, mà vẫn đủ thưa để người kịp
-     nhìn lượt trước trước khi lượt sau đè lên. */
-  {
-    ma: "ho-bo-tien-hoa", ten: "Tiến hoá giao diện Hộ Bộ", cung: "ho-bo",
-    tram: "M18", che: "claude", nhip: 24,
-    lenh: "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
-    ra: ["ho-bo/assets/css/app.css", "ho-bo/assets/js/app.js",
-         "ho-bo/index.html", "ho-bo/sw.js"],
-    y: "Đo cung bằng 7 thước, lấy kỹ năng khớp từ 3.600 skill Tàng Thư Các, " +
-       "rồi để model đề xuất sửa giao diện. Cổng chặn quyết định, không phải model."
-  },
-  {
-    ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-tangthu.mjs",
-    ra: ["tang-thu-cac/assets/js/data.js", "tang-thu-cac/assets/data/"],
-    y: "Quét kho Claude Skills trên GitHub. Bước chậm nhất — có lượt 532 giây."
-  },
-  /* Đài Quan Trắc có HAI node, và cặp này là ví dụ rõ nhất trong repo
-     cho luật "đo được thì đừng để model đoán":
-
-       quan-trac-do    ba nguồn số, so ngưỡng số học → miễn phí, xác định
-       dai-quan-trac   đọc tin rồi viết một câu    → cần phán đoán, tốn tiền
-
-     Cùng một cung, cùng một câu hỏi ("tình hình có căng không"), nhưng
-     phần trả lời được bằng số thì đã tách hẳn ra khỏi phần cần model.
-     Nhờ vậy khi lịch quét AI phải tắt vì tiền — đã xảy ra 14/08 — cung
-     vẫn còn đèn xanh/vàng/đỏ chạy đều 4 lượt/ngày. */
-  {
-    ma: "quan-trac-do", ten: "Bảng cảnh báo Quan Trắc", cung: "dai-quan-trac",
-    tram: "M12", che: "script", nhip: 6,
-    lenh: "node scripts/build-quantrac.mjs",
-    ra: ["dai-quan-trac/assets/js/do.js", "dai-quan-trac/assets/js/tq/do.js"],
-    y: "Ba nguồn miễn phí không cần khoá (Yahoo Finance, open.er-api, " +
-       "Federal Register), so ngưỡng số học rồi tự đặt đèn. KHÔNG gọi AI. " +
-       "Đo cho CẢ HAI chủ thể; bảng đo cái gì nằm ở DODAC trong data.js của cung."
-  },
-  {
-    ma: "dai-quan-trac", ten: "Bản quét Đài Quan Trắc", cung: "dai-quan-trac",
-    tram: "M07", che: "claude", nhip: 12,
-    lenh: "claude-code-action + node scripts/build-scan.mjs",
-    ra: ["dai-quan-trac/assets/js/scan.js", "dai-quan-trac/assets/js/tq/scan.js"],
-    y: "Việc DUY NHẤT trong xưởng thật sự cần phán đoán: đọc tin 7 ngày " +
-       "rồi viết một câu tiếng Việt + phân loại xanh/vàng/đỏ. " +
-       "Trả bằng quota gói, không còn khoá API."
-  },
-  {
-    ma: "dong-tin", ten: "Dòng tin Đài Quan Trắc", cung: "dai-quan-trac",
-    tram: "M08", che: "claude", nhip: 12,
-    lenh: "claude-code-action + node scripts/build-dong-tin.mjs",
-    ra: ["dai-quan-trac/assets/js/tin.js"],
-    y: "Lấy bài từ 11 nguồn RSS đã chọn tay, chấm điểm liên quan theo " +
-       "từng chủ thể, rồi để model viết một đoạn suy luận móc bài vào " +
-       "mắt xích nào của mạch truyền dẫn. Khối lượng CHẶN ĐƯỢC: 6 bài " +
-       "× 3 chủ thể, tiêu đề và tóm tắt có sẵn nên không phải kéo cả " +
-       "trang web vào ngữ cảnh như bản quét."
-  },
-  {
-    ma: "dong-dau", ten: "Đóng dấu bản số liệu",
-    tram: "M16", che: "script", nhip: 6,
-    lenh: "node scripts/pin-snapshot.mjs",
-    ra: [],
-    y: "Pin bản số liệu 1,8 KB lên IPFS. Tự bỏ qua nếu sha256 trùng bản trước."
-  },
-  {
-    ma: "bao-cao", ten: "Báo cáo sức khoẻ xưởng",
-    tram: "M18", che: "claude", nhip: 24,
-    lenh: "anthropics/claude-code-action",
-    ra: ["factory/bao-cao.md"],
-    y: "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: " +
-       "node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước."
-  },
-  /* M11 · Kho dụng cụ. Tàng Thư Các quét 3.656 skill rồi để đó — repo
-     không có `.claude/skills/` nên KHÔNG phiên nào, kể cả bot, gọi
-     được cái nào. Node này nối chỗ đứt: chọn skill đầu bảng theo
-     nhóm, tải SKILL.md về kệ, ghi sổ xuất xứ kèm sha256.
-
-     Nhịp 24 chứ không 6: catalogue chỉ đổi khi `tang-thu-cac` chạy,
-     mà kệ dụng cụ thì không cần bám theo từng lượt của nó. */
-  {
-    ma: "nhap-skill", ten: "Nhập skill vào kệ", cung: "tang-thu-cac",
-    tram: "M11", che: "script", nhip: 24,
-    lenh: "node scripts/nhap-skill.mjs",
-    ra: [".claude/skills/", "factory/skills.json"],
-    y: "Chọn skill đầu bảng theo nhóm rồi tải SKILL.md vào .claude/skills/. " +
-       "CHỈ lấy chỉ dẫn, không lấy script chạy được của người lạ."
-  },
-  {
-    ma: "hoang-thanh", ten: "Rừng văn hoá Hoàng Thành", cung: "hoang-thanh",
-    tram: "M12", che: "tay", nhip: 0,
-    lenh: "npm run hoangthanh",
-    ra: ["hoang-thanh/assets/js/data.js", "hoang-thanh/assets/js/v/"],
-    y: "Nguồn nằm NGOÀI repo (sunswagz-hub/08_world_culture_forest) nên " +
-       "Actions không quét được. Chạy tay rồi commit là cách duy nhất."
-  },
-  {
-    ma: "tu-cam-thanh", ten: "Phiên Tử Cấm Thành", cung: "tu-cam-thanh",
-    tram: "M12", che: "tay", nhip: 0,
-    lenh: "cd tu-cam-thanh-runtime && python -m trader.snapshot",
-    ra: ["tu-cam-thanh/assets/js/v/phien.js"],
-    y: "Runtime là tiến trình Python chạy dài, cần ANTHROPIC_API_KEY và quyền " +
-       "ghi đĩa — Actions không chạy được. Chạy tay rồi commit lát cắt, cùng " +
-       "kiểu Hoàng Thành."
-  },
-  {
-    ma: "giao-hang", ten: "Giao hàng lên Pages",
-    tram: "M16", che: "theo", nhip: 0,
-    lenh: ".github/workflows/deploy-pages.yml",
-    ra: [],
-    y: "Không có nhịp riêng — chạy khi có commit số liệu. 27/27 lượt thành công."
+async function napNode() {
+  const ra = [];
+  const ten = readdirSync(THU_MUC_NODE).filter((f) => f.endsWith(".mjs")).sort();
+  if (!ten.length) throw new Error("scripts/node/ rỗng — không có node nào để chạy");
+  for (const f of ten) {
+    const m = await import(pathToFileURL(join(THU_MUC_NODE, f)).href);
+    if (!Array.isArray(m.NODE))
+      throw new Error(`scripts/node/${f} không export mảng NODE`);
+    for (const n of m.NODE) ra.push({ ...n, khai: `scripts/node/${f}` });
   }
-];
+  return ra;
+}
+
+export const NODE = await napNode();
 
 /* ── Ràng buộc kiểm ngay lúc nạp module ───────────────────
    Đặt ở đây chứ không ở kiem-quy-trinh.mjs là có chủ ý: mọi thứ
@@ -274,14 +115,14 @@ export const NODE = [
   const maCung = new Set(CUNG.map((c) => c.ma));
   const thay = new Set();
   for (const n of NODE) {
-    if (thay.has(n.ma)) throw new Error(`nha-may: node trùng mã "${n.ma}"`);
+    if (thay.has(n.ma)) throw new Error(`nha-may: node trùng mã "${n.ma}" (${n.khai})`);
     thay.add(n.ma);
     if (n.cung && !maCung.has(n.cung))
-      throw new Error(`nha-may: node "${n.ma}" trỏ tới cung không có thật "${n.cung}"`);
+      throw new Error(`nha-may: node "${n.ma}" trỏ tới cung không có thật "${n.cung}" (${n.khai})`);
     if (!/^M\d\d$/.test(n.tram))
-      throw new Error(`nha-may: node "${n.ma}" có trạm sai dạng "${n.tram}"`);
+      throw new Error(`nha-may: node "${n.ma}" có trạm sai dạng "${n.tram}" (${n.khai})`);
     if (!["script", "claude", "tay", "theo"].includes(n.che))
-      throw new Error(`nha-may: node "${n.ma}" có chế độ lạ "${n.che}"`);
+      throw new Error(`nha-may: node "${n.ma}" có chế độ lạ "${n.che}" (${n.khai})`);
   }
 }
 
@@ -563,12 +404,40 @@ export async function moSo() {
 export async function soDangKy() {
   const so = {
     generatedAt: new Date().toISOString(),
-    ghiChu: "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
+    ghiChu: "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
     node: NODE
   };
   await mkdir(join(ROOT, "factory"), { recursive: true });
   await writeFile(join(ROOT, DUONG_SO), JSON.stringify(so, null, 2) + "\n");
   return NODE.length;
+}
+
+/* ═══════════════ ĐƯỜNG RA — CÁI GÌ ĐÁNG COMMIT ═══════════════
+
+   Workflow trước đây chép tay ~25 đường dẫn vào khối `git add`. Ba
+   nơi cùng phải khớp nhau — `ra` của node, khối `git add`, và danh
+   sách trong CLAUDE.md — mà không có gì bắt chúng khớp ngoài
+   `npm run kiem` và trí nhớ người sửa. Cái bẫy đó đã cắn hai lần:
+   thư mục logo bị sót nên ảnh vỡ trên site, rồi `assets/data/` gom
+   quá rộng nên nuốt cả bản dịch viết tay.
+
+   Nay khối ấy sinh ra từ đây. Ba nơi thành hai, và hai nơi còn lại
+   thì một nơi là nguồn.
+
+   LỌC THEO FILE CÓ THẬT, và đó không phải chuyện làm cho đẹp:
+   `git add` gặp một đường không khớp file nào là chết cả bước với
+   mã 128, kéo theo mọi node đã chạy xong trong lượt đó mất trắng.
+   Đúng chuyện đã xảy ra các lượt #10–#14 ngày 15/08 vì
+   `factory/bao-cao.md` chưa từng tồn tại. Lọc ở đây thì cả lớp lỗi
+   đó biến mất, và không cần commit file mồi cho có nữa.
+
+   Ba file sổ đi kèm mọi lượt: sổ ghi, bản chiếu, sổ đăng ký. Chúng
+   không thuộc `ra` của node nào vì chúng là của chính nhà máy —
+   lấy thẳng từ hằng số ở đầu file, không chép tay. */
+export function duongRa() {
+  const ds = new Set([DUONG_TRANG_THAI, DUONG_CHIEU, DUONG_SO]);
+  for (const n of NODE) for (const d of n.ra || []) if (d) ds.add(d);
+  return [...ds].sort().filter((d) => existsSync(join(ROOT, d)));
 }
 
 /* ═══════════════ M15 · MÁY KIỂM ═══════════════
@@ -824,6 +693,11 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
 
   if (lenh === "so-dang-ky") {
     console.log(`Sổ đăng ký: ${await soDangKy()} node → ${DUONG_SO}`);
+
+  } else if (lenh === "duong-ra") {
+    /* Mỗi đường một dòng, để workflow đưa thẳng cho
+       `git add --pathspec-from-file`. Không in gì thêm. */
+    for (const d of duongRa()) console.log(d);
 
   } else if (lenh === "den-han") {
     /* In một dòng, phân cách bằng dấu phẩy có bọc — workflow dùng

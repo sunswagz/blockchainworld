@@ -115,22 +115,32 @@ for (const [so] of cong) {
 /* CLAUDE.md liệt kê đường dẫn bot ghi đè. Nếu workflow add thêm
    đường dẫn mà tài liệu không ghi, phiên khác sẽ sửa tay đúng chỗ
    đó và chắc chắn conflict lúc gộp. */
-/* Từ 15/08 chỉ còn MỘT workflow ghi dữ liệu: bản quét Đài Quan Trắc
-   đã nhập vào refresh-data.yml khi nó bỏ ANTHROPIC_API_KEY. Danh
-   sách vẫn để dạng mảng — thêm workflow ghi file thì thêm dòng. */
-for (const [wf, ten] of [
-  [".github/workflows/refresh-data.yml", "refresh-data.yml"]
-]) {
-  if (!existsSync(join(ROOT, wf))) { bao(`Thiếu workflow ${wf}`); continue; }
-  const t = await doc(wf);
-  const khoi = t.match(/git add ([\s\S]*?)\n\s*(?:if |git )/);
-  if (!khoi) { nhac(`${ten}: không đọc được khối "git add" để đối chiếu`); continue; }
-  const duong = khoi[1]
-    .split(/\\?\n/).map((x) => x.trim()).filter(Boolean)
-    .filter((x) => !x.startsWith("#"));
-  for (const d of duong) {
-    if (!CLAUDE.includes(d)) {
-      bao(`${ten} ghi "${d}" nhưng CLAUDE.md không liệt kê — mục "File do workflow tự sinh" bị thiếu`);
+/* Từ 20/08 workflow KHÔNG còn chép tay khối `git add` nữa — nó gọi
+   `nha-may.mjs duong-ra`, sinh từ `ra` của node. Nên phép này thôi
+   đọc YAML: nó hỏi thẳng sổ đăng ký.
+
+   Ba nơi phải khớp đã còn hai, và nơi còn lại đối chiếu với NGUỒN
+   chứ không với một bản chép. Cái vẫn phải canh là CLAUDE.md: tài
+   liệu mà thiếu một đường thì phiên khác sẽ sửa tay đúng file bot
+   ghi đè, và mất việc lúc gộp. */
+{
+  const wf = ".github/workflows/refresh-data.yml";
+  if (!existsSync(join(ROOT, wf))) bao(`Thiếu workflow ${wf}`);
+  else {
+    const t = await doc(wf);
+    if (!t.includes("nha-may.mjs duong-ra"))
+      bao(`refresh-data.yml không còn gọi "nha-may.mjs duong-ra" — khối git add đã bị chép tay lại?`);
+  }
+  let NM = null;
+  try { NM = await import("./nha-may.mjs"); } catch { /* phép 8c báo rồi */ }
+  if (NM && typeof NM.duongRa === "function") {
+    /* Chỉ soi đường của node, không soi ba file sổ — chúng là của
+       chính nhà máy và CLAUDE.md đã mô tả riêng ở mục sổ đăng ký. */
+    const soSo = new Set([NM.DUONG_TRANG_THAI, NM.DUONG_CHIEU, NM.DUONG_SO]);
+    for (const d of NM.duongRa()) {
+      if (soSo.has(d)) continue;
+      if (!CLAUDE.includes(d))
+        bao(`sổ đăng ký khai bot ghi "${d}" nhưng CLAUDE.md không liệt kê — mục "File do workflow tự sinh" bị thiếu`);
     }
   }
 }
@@ -254,13 +264,20 @@ const NGUON_GHI = [
   ["build-scan.mjs", ".github/workflows/refresh-data.yml"]
 ];
 
+/* Phạm vi add giờ SINH ra từ sổ đăng ký, không còn nằm trong YAML —
+   nên hỏi sổ, đừng đọc lại YAML. Một nguồn, không có bản chép nào
+   để mà lệch. */
 async function phamViAdd(wf) {
   if (!existsSync(join(ROOT, wf))) return null;
-  const t = await doc(wf);
-  const m = t.match(/git add ([\s\S]*?)\n\s*(?:if |git )/);
-  if (!m) return null;
-  return m[1].split(/\\?\n/).map((x) => x.trim())
-    .filter(Boolean).filter((x) => !x.startsWith("#"));
+  try {
+    const NM = await import("./nha-may.mjs");
+    if (typeof NM.duongRa !== "function") return null;
+    /* Lấy CẢ đường chưa có file: phép này soi "script ghi vào đâu",
+       và một node chưa chạy lần nào vẫn phải được phủ. */
+    const ds = new Set([NM.DUONG_TRANG_THAI, NM.DUONG_CHIEU, NM.DUONG_SO]);
+    for (const n of NM.NODE) for (const d of n.ra || []) if (d) ds.add(d);
+    return [...ds];
+  } catch { return null; }
 }
 
 const camAdd = {};
@@ -340,19 +357,15 @@ for (const [tep, wf] of NGUON_GHI) {
         continue;
       }
 
-      for (const w of chay) {
-        const pv = (w in camAdd ? camAdd[w] : (camAdd[w] = await phamViAdd(w))) || [];
-        for (const d of n.ra || []) {
-          const phu = pv.some((p) => {
-            const pp = p.replace(/\/$/, "");
-            return d === p || d === pp || d.startsWith(pp + "/") || pp.startsWith(d.replace(/\/$/, "") + "/");
-          });
-          if (!phu) {
-            bao(`node "${n.ma}" khai ghi ra "${d}" nhưng ${w.split("/").pop()} không add đường đó\n` +
-              "        → file sinh ra rồi mất sau mỗi lượt bot, không lỗi nào báo.");
-          }
-        }
-      }
+      /* CỐ Ý không còn soi "`ra` của node có được `git add` phủ không".
+         Từ 20/08 khối add SINH RA từ chính `ra`, nên phép ấy thành
+         vòng tự so với mình: không bao giờ đỏ được nữa.
+
+         Một phép kiểm không thể đỏ thì tệ hơn không có phép nào — nó
+         vẫn in dấu ✓ và người đọc tưởng có ai đó đang canh.
+
+         Chiều nguy hiểm vẫn được canh, ở phép 8b: script GHI vào đâu
+         mà `ra` không khai. Đó mới là chỗ file sinh ra rồi mất. */
     }
 
     /* registry.json phải là bản chiếu đúng của NODE. Nó được commit để
