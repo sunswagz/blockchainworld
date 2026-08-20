@@ -59,6 +59,7 @@ python scripts/soat-lai-bai-hoc.py --ghi   # hậu kiểm LẠI bài học cũ k
 
 python scripts/tai-lich-su.py --so 4000   # tải nến lịch sử để huấn luyện
 python scripts/kiem-huanluyen.py          # kiểm cỗ máy chạy lại (cần nến ở trên)
+python scripts/dau-chien-luoc.py --tat-ca # đấu mọi bộ luật với champion, ngoài mẫu
 python scripts/kiem-nguon.py --offline    # kiểm phân loại tin, không chạm mạng
 node scripts/kiem-giao-dien.mjs           # mọi trường app.js đọc phải có thật (runtime đang chạy)
 ```

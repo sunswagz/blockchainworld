@@ -332,6 +332,33 @@ def _tu_chien_luoc(bo: list) -> list[dict]:
                       f"thay vì học quy luật — và phần học thuộc sẽ không lặp lại.",
                       so, {"khopTroi": kt}))
 
+    # — Đấu trường: các bộ luật đã đem ra thi và kết quả —
+    #
+    # Một challenger thua là tin về challenger đó. NHIỀU challenger khác hẳn nhau
+    # cùng thua là tin về thứ chúng dùng CHUNG, và đó mới là tin đáng nhớ.
+    thu = [c for c in (d.get("challengers") or []) if (c.get("ketQua") or {}).get("so")]
+    if len(thu) >= 2:
+        thua = [c for c in thu if (c["ketQua"].get("kyVongR") or 0) <= 0]
+        ten = " · ".join(f"{c['ma']} {c['ketQua'].get('kyVongR')}R/{c['ketQua']['so']} lệnh"
+                         for c in thu)
+        if len(thua) == len(thu):
+            ra.append(_pd("dau-truong", "chien-luoc",
+                          f"Đã đem {len(thu)} bộ luật KHÁC HẲN NHAU ra đấu ngoài mẫu và cả "
+                          f"{len(thu)} đều kỳ vọng âm ({ten}), cùng với champion "
+                          f"{ky_vong:+.3f}R. Điểm vào khác nhau hoàn toàn mà kết quả cùng âm "
+                          f"⇒ vấn đề nằm ở thứ chúng dùng CHUNG (cách đặt stop, mục tiêu, "
+                          f"khung thời gian), không nằm ở lúc bấm nút vào lệnh.",
+                          sum(c["ketQua"]["so"] for c in thu) + so,
+                          {"soThu": len(thu), "soThua": len(thua)}))
+        else:
+            tot = max(thu, key=lambda c: c["ketQua"].get("kyVongR") or -99)
+            ra.append(_pd("dau-truong", "chien-luoc",
+                          f"{len(thu)} bộ luật đã đấu ngoài mẫu ({ten}); tốt nhất là "
+                          f"{tot['ma']} với {tot['ketQua'].get('kyVongR')}R qua "
+                          f"{tot['ketQua']['so']} lệnh. Đọc kèm cỡ mẫu — cửa duyệt đòi ≥20 "
+                          f"lệnh ngoài mẫu vì dưới ngần đó mọi con số là nhiễu.",
+                          tot["ketQua"]["so"], {"totNhat": tot["ma"]}))
+
     ly_do = kq.get("theoLyDoThoat") or {}
     if ly_do and sum(ly_do.values()):
         tong = sum(ly_do.values())

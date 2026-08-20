@@ -51,7 +51,10 @@ KHOI_DONG = 210
 # vào lệnh, và bảng kết quả hiện "0 lệnh" trông y như chiến lược tồi.
 #   v1 — price, adx, rsi14, emaStack, atr
 #   v2 — thêm feature cho chiến lược biên, và GIỮ LẠI cả chế độ RANGE
-PHIEN_BAN_CHUOI = 2
+# v3: thêm atrRatioVsMedian, swingHighs/Lows và _raw.ema20 cho hai bộ luật mới.
+# Nâng số này là BẮT BUỘC khi đổi hình dạng `feat` — cache cũ không có trường mới
+# nên nó trả None lặng lẽ, và bộ luật sẽ NO_TRADE 100% mà không ai biết vì sao.
+PHIEN_BAN_CHUOI = 3
 
 
 def _trang_thai(nen_chinh: list[dict], nen_ngu_canh: list[dict], moc_ctx: list[int],
@@ -157,7 +160,8 @@ def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
             # PHIEN_BAN_CHUOI, nếu không cache cũ sẽ trả None lặng lẽ.
             "feat": {
                 "price": p["price"], "adx": p.get("adx"), "rsi14": p.get("rsi14"),
-                "emaStack": p.get("emaStack"), "_raw": {"atr": p["_raw"]["atr"]},
+                "emaStack": p.get("emaStack"), "_raw": {"atr": p["_raw"]["atr"],
+                                         "ema20": p["_raw"].get("ema20")},
                 # cho chiến lược biên
                 "bbPosition": p.get("bbPosition"), "bbWidthPct": p.get("bbWidthPct"),
                 "range20High": p.get("range20High"), "range20Low": p.get("range20Low"),
@@ -165,6 +169,9 @@ def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
                 "distToRange20HighPct": p.get("distToRange20HighPct"),
                 "volumeRatio": p.get("volumeRatio"), "atrPct": p.get("atrPct"),
                 "structure": p.get("structure"),
+                # cho chiến lược kéo lùi và bung nén
+                "atrRatioVsMedian": p.get("atrRatioVsMedian"),
+                "swingHighs": p.get("swingHighs"), "swingLows": p.get("swingLows"),
             },
         })
     if bao_tien_do:
