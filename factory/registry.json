@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T09:04:36.050Z",
+  "generatedAt": "2026-08-20T14:48:05.300Z",
   "ghiChu": "SINH TỰ ĐỘNG từ NODE trong scripts/nha-may.mjs — đừng sửa tay.",
   "node": [
     {
@@ -114,6 +114,22 @@
         "ho-bo/sw.js"
       ],
       "y": "Đo cung bằng 7 thước, lấy kỹ năng khớp từ 3.600 skill Tàng Thư Các, rồi để model đề xuất sửa giao diện. Cổng chặn quyết định, không phải model."
+    },
+    {
+      "ma": "thai-boc-tu-tien-hoa",
+      "ten": "Tiến hoá giao diện Thái Bộc Tự",
+      "cung": "thai-boc-tu",
+      "tram": "M18",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+      "ra": [
+        "thai-boc-tu/assets/css/app.css",
+        "thai-boc-tu/assets/js/app.js",
+        "thai-boc-tu/index.html",
+        "thai-boc-tu/sw.js"
+      ],
+      "y": "Cùng khuôn ho-bo-tien-hoa, đổi tên cung. Phiếu đo lúc bật: 6/7 — trượt thước tương phản màu, 5/15 cặp dưới WCAG AA."
     },
     {
       "ma": "tang-thu-cac",

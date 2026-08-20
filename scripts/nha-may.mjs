@@ -163,6 +163,25 @@ export const NODE = [
     y: "Đo cung bằng 7 thước, lấy kỹ năng khớp từ 3.600 skill Tàng Thư Các, " +
        "rồi để model đề xuất sửa giao diện. Cổng chặn quyết định, không phải model."
   },
+  /* Cung thứ HAI vào vòng tiến hoá, và đó là phép thử cho lời hứa
+     "thêm một cung là thêm một tham số, không phải thêm một script"
+     ở đầu scripts/tien-hoa.mjs. Đúng vậy thật: node này không kèm
+     script mới nào, chỉ đổi tên cung trong cùng bốn bước.
+
+     Khác Hộ Bộ đúng một chỗ: `ra` KHÔNG có toa.js. File đó là sổ
+     18 toa — luận, thứ tự bị đốt, hồ sơ input/output — tức là NỘI
+     DUNG chứ không phải giao diện. Model sửa giao diện thì không có
+     việc gì phải viết lại luận, và mở quyền đó ra là mời nó đi lạc
+     khỏi điểm yếu đo được. */
+  {
+    ma: "thai-boc-tu-tien-hoa", ten: "Tiến hoá giao diện Thái Bộc Tự", cung: "thai-boc-tu",
+    tram: "M18", che: "claude", nhip: 24,
+    lenh: "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+    ra: ["thai-boc-tu/assets/css/app.css", "thai-boc-tu/assets/js/app.js",
+         "thai-boc-tu/index.html", "thai-boc-tu/sw.js"],
+    y: "Cùng khuôn ho-bo-tien-hoa, đổi tên cung. Phiếu đo lúc bật: 6/7 — trượt " +
+       "thước tương phản màu, 5/15 cặp dưới WCAG AA."
+  },
   {
     ma: "tang-thu-cac", ten: "Kho skill Tàng Thư Các", cung: "tang-thu-cac",
     tram: "M12", che: "script", nhip: 6,
