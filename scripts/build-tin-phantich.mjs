@@ -42,6 +42,23 @@
       này KHÔNG dùng ANTHROPIC_API_KEY nữa" trong CLAUDE.md. Nay trả
       bằng quota gói, nhưng quota vẫn là gói của người dùng.
 
+   ── BẪY ĐÃ CẮN MỘT LẦN: DỮ LIỆU THỬ LỌT LÊN SITE ──────
+   Thử bộ kiểm bằng cách tự viết JSON giả, chạy bước 3, rồi xoá
+   `assets/data/`. Tưởng là sạch — KHÔNG. Bước 3 đã nhét mục hợp lệ
+   trong đám giả đó vào BỘ NHỚ của tin-phan-tich.js, và bộ nhớ thì
+   sống qua mọi lượt sau. Kết quả: một bài về lừa đảo qua điện thoại
+   nằm trên site thật với mạch lan truyền "ETF hút vốn ròng".
+
+   Xoá `assets/data/` KHÔNG xoá bộ nhớ. Muốn dọn thì ghi đè thẳng:
+
+       node -e 'require("fs").writeFileSync(
+         "thai-boc-tu/assets/js/v/tin-phan-tich.js",
+         "window.THAIBOC_PT={\\"pt\\":{}};\\n")'
+
+   Và tốt hơn: thử bộ kiểm trên một BẢN CHÉP, đừng thử trên file
+   thật. Bộ kiểm bắt được JSON sai khuôn, nó không bắt được JSON
+   đúng khuôn mà nội dung bịa — vì nó không đọc bài báo.
+
    ── HỎNG THÌ GIỮ BẢN CŨ ───────────────────────────────
    Không có JSON model thì bước 3 vẫn chạy: nó dựng lại file từ
    riêng bộ nhớ cũ. Bài mới chưa kịp phân tích thì hiện không có
