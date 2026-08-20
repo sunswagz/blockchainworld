@@ -424,6 +424,33 @@ Ngược lại, file bot sinh mà nằm nhánh **cache-trước** là bẫy: đ�
 giữ bảng tra logo cũ tới lần nâng version kế tiếp, nên logo dự án mới
 không bao giờ hiện dù ảnh đã lên site. Đã chuyển nó sang mạng-trước.
 
+#### Khai mạng-trước theo dạng nào cũng được, miễn bộ kiểm đọc được
+
+Hai dạng đang dùng thật, cả hai đều hợp lệ:
+
+    url.pathname.indexOf("/assets/js/v/") !== -1          chín cung
+
+    var MANG_TRUOC = ["/assets/js/scan.js", …];           dai-quan-trac
+    MANG_TRUOC.some(function (p) {
+      return url.pathname.indexOf(p) !== -1; })
+
+Nhận diện nằm **một chỗ**: `scripts/mang-truoc.mjs`, dùng chung cho cả
+`kiem` lẫn `nang`. Trước 20/08/2026 cùng một regex bị chép ở hai script,
+và nó chỉ bắt được dạng thứ nhất — nên Đài Quan Trắc bị báo "CACHE_VERSION
+chưa nâng" sau **mỗi** lượt bot ghi `scan.js`, suốt nhiều ngày, trong khi
+file đó vốn đã mạng-trước từ đầu.
+
+Cái giá không phải một dòng báo thừa. Cảnh báo báo nhầm đều đặn thì người
+ta bỏ qua cảnh báo — rồi bỏ qua luôn lần nó đúng. Đúng thứ cả bộ kiểm này
+sinh ra để chặn.
+
+Nên nay bộ kiểm phân biệt **"không có đường mạng-trước nào"** với **"tôi
+không đọc được khai báo"**. Gặp dạng thứ ba nó chưa biết, nó nói thẳng là
+không kết luận được và chỉ sang file trên, thay vì buộc tội oan; còn `nang`
+thì bỏ qua cung đó chứ không nâng bừa. Viết sw.js theo dạng mới thì **thêm
+một nhánh nhận dạng vào `scripts/mang-truoc.mjs`** — đừng bẻ sw.js cho vừa
+bộ kiểm, công cụ phải theo được mã thật chứ không phải ngược lại.
+
 ### Cổng dev
 
 Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của

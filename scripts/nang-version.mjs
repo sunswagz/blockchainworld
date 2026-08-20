@@ -22,6 +22,7 @@ import { existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { docMangTruoc, laMangTruoc } from "./mang-truoc.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const THU = process.argv.includes("--thu");
@@ -95,12 +96,26 @@ for (const c of noi) {
     if (cuHon !== null && cuHon !== m[1]) { yen++; continue; }
   }
 
-  const mangTruoc = [...sw.matchAll(/indexOf\(\s*"([^"]+)"\s*\)/g)].map((x) => x[1]);
+  /* Nhận diện mạng-trước dùng chung với `npm run kiem` — xem
+     scripts/mang-truoc.mjs. Trước đây cùng một regex bị chép ở hai
+     file, và khi một cung khai bằng dạng khác thì cả hai cùng đoán
+     sai theo cùng một kiểu.
+
+     Không đọc được khai báo thì KHÔNG nâng bừa. Nâng version của một
+     cung mà mình không hiểu chỉ đẩy một bản cache mới xuống máy người
+     dùng chứ chẳng sửa gì, lại xoá luôn dấu hiệu để lần sau không ai
+     lần ra. `npm run kiem` mới là chỗ nói ra chuyện đó. */
+  const { duong: mangTruoc, docDuoc } = docMangTruoc(sw);
   const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((x) => x[1]);
+  if (!docDuoc) {
+    console.log("  · " + swP + " — không đọc được khai báo mạng-trước, bỏ qua " +
+      "(chạy `npm run kiem` để xem chi tiết)");
+    continue;
+  }
 
   const tre = [];
   for (const f of shell) {
-    if (mangTruoc.some((p) => ("/" + f).indexOf(p) !== -1)) continue;
+    if (laMangTruoc(mangTruoc, f)) continue;
     const p = c === "." ? f : `${c}/${f}`;
     if (!existsSync(join(ROOT, p))) continue;
     if (dangSua.has(p) || commitCuoi(p) > tSw) tre.push(f);

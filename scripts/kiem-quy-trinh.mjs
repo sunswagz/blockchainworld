@@ -26,6 +26,7 @@ import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NGUON, nguongCua, tuoi } from "./tuoi-du-lieu.mjs";
+import { docMangTruoc, laMangTruoc } from "./mang-truoc.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const doc = (p) => readFile(join(ROOT, p), "utf8");
@@ -435,6 +436,17 @@ function commitCuoi(p) {
   } catch { return ""; }
 }
 
+/* Đường do bot ghi, gom từ `ra` của mọi node. Chỉ dùng để quyết định
+   khi nào "không đọc được khai báo mạng-trước" là chuyện đáng nói —
+   một cung tĩnh hoàn toàn thì không có đường mạng-trước nào là bình
+   thường, còn một cung có file bot trong SHELL thì câu trả lời đó
+   quyết định người dùng thấy bản mới hay bản cũ. */
+let duongBot = [];
+try {
+  const NM2 = await import("./nha-may.mjs");
+  duongBot = NM2.NODE.flatMap((n) => n.ra || []);
+} catch { /* nha-may.mjs hỏng thì mục 8c đã báo rồi, không báo hai lần */ }
+
 for (const c of ["."].concat(cung)) {
   const swP = c === "." ? "sw.js" : `${c}/sw.js`;
   if (!existsSync(join(ROOT, swP))) continue;
@@ -449,15 +461,36 @@ for (const c of ["."].concat(cung)) {
      Bốn cung lấy số từ API để data.js ở nhánh đó và bot ghi 4 lượt/ngày
      — bắt nâng version mỗi lượt là biến phép kiểm thành tiếng ồn.
 
-     Nhận diện bằng các chuỗi trong `url.pathname.indexOf("…")` của chính
-     sw.js đó. (sw.js gốc cũng dùng khuôn này để BỎ QUA đường của từng
-     cung, nhưng SHELL của nó không chứa đường nào như vậy nên không có
-     chuyện miễn trừ nhầm.) */
-  const mangTruoc = [...sw.matchAll(/indexOf\(\s*"([^"]+)"\s*\)/g)].map((m) => m[1]);
+     Nhận diện nằm ở scripts/mang-truoc.mjs, dùng chung với `npm run nang`
+     — trước đây cùng một regex bị chép ở cả hai file. (sw.js gốc cũng
+     dùng khuôn này để BỎ QUA đường của từng cung, nhưng SHELL của nó
+     không chứa đường nào như vậy nên không có chuyện miễn trừ nhầm.) */
+  const { duong: mangTruoc, docDuoc } = docMangTruoc(sw);
   const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((m) => m[1]);
+
+  /* Không đọc được khai báo thì NÓI RA, đừng buộc tội. Rút ra không
+     đường nào có thể vì cung ấy thật sự không có file mạng-trước,
+     cũng có thể vì nó khai bằng một dạng bộ kiểm chưa biết — hai
+     chuyện khác hẳn nhau. Chỉ lên tiếng khi câu trả lời THỰC SỰ quan
+     trọng, tức là khi trong SHELL có file do bot ghi: cung tĩnh hoàn
+     toàn thì không đường mạng-trước nào là bình thường. */
+  if (!docDuoc) {
+    const botTrongShell = shell.filter((f) => {
+      const p = c === "." ? f : `${c}/${f}`;
+      return duongBot.some((d) => p === d || p.startsWith(d));
+    });
+    if (botTrongShell.length) {
+      bao(`${swP}: không đọc được khai báo mạng-trước, mà SHELL có ` +
+        `${botTrongShell.length} file do bot ghi — ${botTrongShell.slice(0, 3).join(", ")}\n` +
+        `        Bộ kiểm KHÔNG kết luận gì về CACHE_VERSION của cung này.\n` +
+        `        Thêm dạng khai báo đó vào scripts/mang-truoc.mjs.`);
+    }
+    continue;
+  }
+
   const tre = [];
   for (const f of shell) {
-    if (mangTruoc.some((p) => ("/" + f).indexOf(p) !== -1)) continue;
+    if (laMangTruoc(mangTruoc, f)) continue;
     const p = c === "." ? f : `${c}/${f}`;
     if (!existsSync(join(ROOT, p))) continue;
     const t = Number(commitCuoi(p) || 0);
