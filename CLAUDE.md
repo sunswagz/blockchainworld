@@ -153,6 +153,7 @@ conflict lúc merge.
     dai-quan-trac/assets/js/scan.js
     dai-quan-trac/assets/js/tq/do.js
     dai-quan-trac/assets/js/tq/scan.js
+    dai-quan-trac/assets/js/tin.js
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
