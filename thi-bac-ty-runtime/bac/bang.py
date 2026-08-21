@@ -50,6 +50,10 @@ from .config import CONFIG, DATA_DIR
 
 _B = CONFIG["bang"]
 
+#: Bao lâu xả băng xuống đĩa một lần. Mất tối đa ngần này giây băng nếu
+#: tiến trình bị giết — và con số này KHÔNG phụ thuộc nhịp quét.
+XA_MOI_GIAY = 60.0
+
 #: Đầu một thành viên gzip: magic + phương pháp nén deflate.
 _DAU = b"\x1f\x8b\x08"
 
@@ -88,6 +92,7 @@ class MayGhi:
         self.soLoiGhi = 0
         self.loiCuoi: str | None = None
         self.duong: Path | None = None
+        self._lanXa = 0.0
 
     def _duong_moi(self, ngay: str) -> Path:
         """Tên file của MỘT phiên ghi: ngày + giờ + pid.
@@ -122,11 +127,22 @@ class MayGhi:
             f = self._mo()
             f.write(json.dumps(khung, ensure_ascii=False, separators=(",", ":")) + "\n")
             self.soKhung += 1
-            # Xả mỗi 50 khung. `flush()` của gzip phát một block đồng bộ, nên
-            # phần trước lần xả cuối vẫn giải nén được kể cả khi tiến trình bị
-            # giết ngay sau đó — mất tối đa 50 khung, không mất cả file.
-            if self.soKhung % 50 == 0:
+            # Xả theo THỜI GIAN, không theo số khung. `flush()` của gzip
+            # phát một block đồng bộ, nên phần trước lần xả cuối vẫn giải nén
+            # được kể cả khi tiến trình bị giết ngay sau đó.
+            #
+            # Đếm khung là sai ở đây, và nó sai theo nhịp: Khâm Thiên Giám
+            # chạy nhịp 2 giây nên "mỗi 50 khung" là 100 giây, còn cung này
+            # nhịp 30 giây nên cùng con số ấy thành **25 phút** mất trắng mỗi
+            # lần tắt máy. Với một cung cần HÀNG GIỜ băng mới có một mẫu hậu
+            # kiểm, 25 phút là nhiều.
+            #
+            # Đã thấy thật lúc dựng: bảng trạng thái hiện "băng phiên này 3
+            # khung · trên đĩa 0 khung" — không sai, nhưng đọc như hỏng.
+            gio = time.time()
+            if gio - self._lanXa >= XA_MOI_GIAY:
                 f.flush()
+                self._lanXa = gio
         except (OSError, TypeError, ValueError) as e:
             # `TypeError`/`ValueError` = khung có thứ không đổi ra JSON được.
             # Bản đầu chỉ bắt `OSError`, nên một khung bẩn ném ngược lên vòng

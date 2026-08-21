@@ -36,7 +36,8 @@ from bac.san.base import moc_tron_gio_ke, nguyen_hoac_none, so_hoac_none  # noqa
 from bac.san.binance import _doi_chung                           # noqa: E402
 from bac.san.okx import _chu_ky                                  # noqa: E402
 from bac.so import So                                            # noqa: E402
-from bac.bang import (MayGhi, _thu_muc, dem_bang, doc_bang,       # noqa: E402
+from bac.bang import (XA_MOI_GIAY, MayGhi, _thu_muc,              # noqa: E402
+                      dem_bang, doc_bang,
                       doc_bang_day_du as doc_bang_day_du_bang)
 from bac.chay_lai import (KetQua, ThamSo, TraCuu, doi_chieu,      # noqa: E402
                           dung_bao_gia,
@@ -550,6 +551,26 @@ def kiem_bang() -> None:
          f"đọc được {len(doc_bang())}")
     kiem("dem_bang đếm đúng bằng doc_bang",
          dem_bang().soKhung == len(doc_bang()))
+
+    # ── xả theo THỜI GIAN, không theo số khung ──────────────────────────
+    #   Đếm khung là sai theo nhịp: "mỗi 50 khung" ở nhịp 2 giây là 100
+    #   giây, ở nhịp 30 giây là 25 PHÚT mất trắng mỗi lần tắt máy. Với cung
+    #   cần hàng giờ băng mới có một mẫu, 25 phút là nhiều.
+    kiem("xả theo giây, không theo số khung", gan(XA_MOI_GIAY, 60.0))
+    truoc = dem_bang().soKhung
+    m3 = MayGhi()
+    m3.ghi({"luc": 9001.0, "baoGia": []})
+    kiem("khung ĐẦU xuống đĩa ngay, không đợi đủ số",
+         dem_bang().soKhung == truoc + 1,
+         "không thì bảng trạng thái hiện 'phiên này 3 khung · trên đĩa 0'")
+    for i in range(5):
+        m3.ghi({"luc": 9002.0 + i, "baoGia": []})
+    kiem("chưa tới hạn xả thì chưa xuống đĩa",
+         dem_bang().soKhung == truoc + 1)
+    m3.dong()
+    kiem("đóng file thì xả nốt phần còn lại",
+         dem_bang().soKhung == truoc + 6,
+         f"{dem_bang().soKhung} vs {truoc + 6}")
 
     # Dựng lại đúng kiểu hỏng đã cắn ở cung kia: thành viên cụt + nối thêm.
     cu = gzip.compress(b'{"luc":1,"baoGia":[]}\n' * 40)
