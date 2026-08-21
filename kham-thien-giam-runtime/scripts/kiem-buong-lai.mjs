@@ -64,6 +64,15 @@ function Nut(ten) {
     removeAttribute(k) { delete this._attr[k]; },
     addEventListener() {}, closest() { return null; },
     querySelectorAll() { return []; },
+    // DOM thật nối `className` với `classList`; DOM giả thì không, nên
+    // mọi lớp do `el(tag, "ten-lop")` đặt đều vô hình với `classList`.
+    // Hệ quả: phép kiểm tìm theo lớp ra 0 kết quả và báo "0/3 ô mở sẵn"
+    // trong khi cả ba đều đang mở — lại một báo động giả.
+    set className(v) {
+      this._cls = String(v);
+      this.classList._s = new Set(String(v).split(/\s+/).filter(Boolean));
+    },
+    get className() { return this._cls || ""; },
     set textContent(v) { this._txt = String(v); this.children = []; },
     get textContent() { return this._txt; },
     set innerHTML(v) { this._txt = String(v); },
@@ -145,6 +154,14 @@ for (let i = 0; i < 20; i++) {
   globalThis._ghiLich(ban);
 }
 
+function timLop(x, lop) {
+  const ra = [];
+  (function di(n) {
+    if (n && n.classList && n.classList._s && n.classList._s.has(lop)) ra.push(n);
+    (n.children || []).forEach(di);
+  })(x);
+  return ra;
+}
 function dem(x) {
   return 1 + (x.children || []).reduce((a, c) => a + dem(c), 0);
 }
@@ -199,18 +216,23 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
 // bấm gì. Đó là ô để đọc liên tục chứ không phải để tra cứu, và một thứ
 // phải bấm mới thấy thì trên thực tế là một thứ không được nhìn.
 //
-// Kiểm bằng cách dựng `tat-ca` với MỌI khối gập ĐÓNG, rồi đòi phần thân
-// của cả ba ô phải xuất hiện. Đếm nút thì không đủ — thân rỗng vẫn cộng
-// thêm nút vì cái đầu khối lúc nào cũng vẽ.
+// Kiểm bằng CẤU TRÚC, không bằng chuỗi tiêu đề. Bản đầu tìm chuỗi "Sổ
+// lệnh ·" và nó đỏ ngay trên máy đang chạy — vì lúc sổ chưa về, ô ấy in
+// đúng đắn một dòng "chưa nhận được sổ lệnh". Đó VẪN là nội dung, và bắt
+// nó đỏ là báo động giả. Báo động giả thì người ta ngừng tin cả bộ kiểm.
 {
   for (const k of globalThis._KHOI) globalThis._MO[k.ma] = false;
-  const html = JSON.stringify(globalThis._VE["tat-ca"]());
-  const dau = { "dai-chiem": "Đài Chiêm ·", "so-lenh": "Sổ lệnh ·", "ap-luc": "Áp lực sổ ·" };
-  const thieu = globalThis._LUON_MO.filter((k) => !html.includes(dau[k.ma]));
-  console.log(`  ${thieu.length ? "LỖI  " : "OK   "} ${"luôn-mở".padEnd(12)} ` +
-              `${thieu.length ? "thân RỖNG: " + thieu.map((k) => k.ma).join(",")
-                              : globalThis._LUON_MO.length + " ô có nội dung, không cần bấm"}`);
-  if (thieu.length) loi++;
+  const r = globalThis._VE["tat-ca"]();
+  // Khối gập đóng thì không có `gop-than`, nên số `gop-than` còn lại đúng
+  // bằng số ô luôn mở.
+  const than = timLop(r, "gop-than");
+  const rong = than.filter((n) => !(n.children || []).length).length;
+  const du = than.length === globalThis._LUON_MO.length;
+  const ok = du && !rong;
+  console.log(`  ${ok ? "OK   " : "LỖI  "} ${"luôn-mở".padEnd(12)} ` +
+              `${than.length}/${globalThis._LUON_MO.length} ô mở sẵn` +
+              `${rong ? ` · ${rong} ô THÂN RỖNG` : " · đều có nội dung"}`);
+  if (!ok) loi++;
 }
 
 // Ô CHI TIẾT phải đi theo khung đang chọn; ô CẢ RỔ phải KHÔNG đi theo.

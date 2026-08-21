@@ -181,7 +181,12 @@
       o._than.appendChild(w);
       g.appendChild(o);
     });
-    if (!co) g.appendChild(chuaCo("chưa nhận được sổ lệnh nào"));
+    if (!co) {
+      var mm = khungHienTai();
+      g.appendChild(chuaCo("chưa nhận được sổ lệnh cho " +
+        (mm ? mm.ma : "khung nào") + " — dòng sống có thể vừa nối lại, " +
+        "hoặc khung này chưa mở cửa đặt cược."));
+    }
     return g;
   }
   function veMuc(x, max, k) {
