@@ -176,4 +176,18 @@ def trang_chu() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")
 
 
+@app.middleware("http")
+async def _khong_giu_ban_cu(yc, tiep):
+    """Buồng lái KHÔNG được phép phục vụ bản cũ từ cache trình duyệt.
+
+    Trang này chỉ chạy ở localhost và được sửa rất liên tay. Một bản
+    `app.js` cũ kẹt trong cache là cả giờ đồng hồ đi tìm một lỗ hổng
+    không tồn tại — mã trên đĩa đã đúng, chỉ trình duyệt là chưa biết.
+    Không có lợi ích nào từ cache ở đây để đánh đổi lấy chuyện đó.
+    """
+    tl = await tiep(yc)
+    tl.headers["Cache-Control"] = "no-store, must-revalidate"
+    return tl
+
+
 app.mount("/", StaticFiles(directory=str(WEB_DIR)), name="web")

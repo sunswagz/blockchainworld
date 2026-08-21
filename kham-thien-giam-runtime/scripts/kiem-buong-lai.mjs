@@ -100,7 +100,7 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich;\n})();"
+  "  globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
 );
 
 const T = await layTrangThai();
@@ -167,5 +167,23 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
     loi++;
   }
 }
+// Phép kiểm cuối: một hàm vẽ NÉM thì trang phải hiện Ô BÁO LỖI, tuyệt
+// đối không được để lại thân trang rỗng. Đây chính là kiểu hỏng đã xảy
+// ra thật — trang trắng, không thông báo, không dấu vết, trong khi máy
+// vẫn giao dịch bình thường, nên người vận hành đọc nó thành 'máy chết'.
+let oLoiOk = false;
+try {
+  globalThis._VE["_thu-nem"] = () => { throw new Error("cố tình ném"); };
+  globalThis._datO("_thu-nem");
+  globalThis._ve();
+  const than = kho["than"];
+  oLoiOk = (than.children || []).length > 0;
+  console.log(`  ${oLoiOk ? "OK   " : "LỖI  "} ${"ô-ném".padEnd(12)} ` +
+              `${oLoiOk ? "ném → hiện ô báo lỗi" : "ném → THÂN TRANG RỖNG"}`);
+} catch (e) {
+  console.log(`  LỖI   ${"ô-ném".padEnd(12)} ${e.message}`);
+}
+if (!oLoiOk) loi++;
+
 console.log(`\n  ${xong}/${xong + loi} ô vẽ được · ${tongNut} nút\n`);
 process.exit(loi ? 1 : 0);

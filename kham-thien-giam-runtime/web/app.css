@@ -269,3 +269,18 @@ tr:last-child td{border-bottom:0}
   grid-column:1/-1;font-size:12px;padding-top:9px;
   border-top:1px solid var(--vien);color:var(--mo)}
 .tre-kl.xuong{color:var(--xuong)} .tre-kl.len{color:var(--len)}
+
+/* ── ô báo lỗi vẽ ────────────────────────────────────────
+   Cố ý KHÔNG kín đáo. Đây là thứ thay chỗ cho nội dung, nên nó phải
+   nói ngay rằng có chuyện — một trang trắng thì im lặng, mà im lặng
+   là kiểu hỏng tệ nhất cho một bảng điều khiển. */
+.loi-ve{
+  border:1px solid var(--xuong);border-left:4px solid var(--xuong);
+  background:rgba(232,99,90,.07);border-radius:8px;padding:14px 16px}
+.loi-ve>b{color:var(--xuong);font-size:14px}
+.loi-ve>p{margin-top:7px;font-size:13px}
+.loi-ve>p.mo{color:var(--mo);font-size:12px}
+.loi-ve>pre{
+  margin-top:9px;padding:9px 11px;border-radius:6px;background:var(--nen2);
+  font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;
+  font-size:11px;color:var(--mo);overflow-x:auto;white-space:pre}

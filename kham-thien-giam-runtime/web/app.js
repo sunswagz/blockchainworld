@@ -1167,16 +1167,25 @@
     "ket-toan": veKetToan, "quan-vi": veQuanVi, "nhat-ky": veNhatKy
   };
 
-  function ve() {
-    if (!T) return;
-    than.textContent = "";
-    than.appendChild((VE[O] || veChiHuy)());
+  /* Một buồng lái trắng trang KHÔNG được phép im lặng.
 
+     `ve()` xoá thân trang rồi mới vẽ. Nếu hàm vẽ ném giữa chừng thì thân
+     trang ở lại RỖNG, và vì lỗi bị `.catch` phía dưới nuốt nên không còn
+     dấu vết nào — trang trắng, không thông báo, không dòng nào trong bảng
+     điều khiển. Người vận hành thấy y hệt "máy chết", trong khi máy vẫn
+     đang giao dịch bình thường.
+
+     Ba đổi thay để chuyện đó không lặp lại:
+       1. Cập nhật phần đỉnh TRƯỚC — đồng hồ và chế độ không bao giờ kẹt
+          ở "—" chỉ vì một ô nào đó vẽ hỏng.
+       2. Bọc phần vẽ trong try/catch, và HIỆN lỗi ra chính chỗ đáng lẽ
+          là nội dung.
+       3. Chỉ xoá thân trang khi đã dựng xong phần thay thế.                */
+  function veDinh() {
     var c = document.getElementById("cheDo");
     c.textContent = T.che === "that" ? "TIỀN THẬT" :
       (T.che === "giay" ? "sổ giấy" : "quan sát");
     c.dataset.c = T.che;
-
     document.getElementById("dongHo").textContent =
       "vòng " + T.vong + " · " + Math.round(T.chayDuocGiay) + "s";
     document.getElementById("vongDem").textContent =
@@ -1184,6 +1193,40 @@
     document.getElementById("nutDung").textContent =
       T.tamDung ? "Chạy tiếp" : "Tạm dừng";
     document.getElementById("nutDung").classList.toggle("dang", !!T.tamDung);
+  }
+
+  // Tách dòng bằng hàm riêng: viết thẳng ký tự xuống dòng trong chuỗi
+  // JS là chỗ rất dễ vỡ khi file được sinh ra bởi script khác.
+  function _dong(s, n) {
+    return s.split(String.fromCharCode(10)).slice(0, n)
+            .join(String.fromCharCode(10));
+  }
+
+  function oLoi(e, o) {
+    var d = el("div", "loi-ve");
+    d.appendChild(el("b", "", "Ô “" + o + "” vẽ hỏng"));
+    d.appendChild(el("p", "", String((e && e.message) || e)));
+    var s = el("pre", "", _dong(String((e && e.stack) || ""), 6));
+    d.appendChild(s);
+    d.appendChild(el("p", "mo",
+      "Máy vẫn chạy — chỉ ô này hỏng. Các ô khác vẫn bấm sang được, và " +
+      "`node scripts/kiem-buong-lai.mjs --song` dựng lại đúng lỗi này ở " +
+      "dòng lệnh."));
+    return d;
+  }
+
+  function ve() {
+    if (!T) return;
+    try { veDinh(); } catch (e) { /* đỉnh hỏng không được chặn thân */ }
+
+    var moi;
+    try {
+      moi = (VE[O] || veChiHuy)();
+    } catch (e) {
+      moi = oLoi(e, O);
+    }
+    than.textContent = "";
+    than.appendChild(moi);
 
     var bc = document.getElementById("bangCanh");
     var r = T.risk || {};
@@ -1198,7 +1241,15 @@
     return fetch("/api/trang-thai", { cache: "no-store" })
       .then(function (r) { return r.json(); })
       .then(function (d) { T = d; ghiLich(d); ve(); })
-      .catch(function () {});
+      .catch(function (e) {
+        // KHÔNG nuốt. Một buồng lái không nói được là nó đang mù thì tệ
+        // hơn một buồng lái báo lỗi.
+        var bc = document.getElementById("bangCanh");
+        bc.textContent = "Không đọc được trạng thái từ runtime — " +
+          ((e && e.message) || e) + ". Máy có thể vẫn đang chạy; đây là " +
+          "trang không lấy được dữ liệu.";
+        bc.hidden = false;
+      });
   }
 
   document.getElementById("tab").addEventListener("click", function (e) {
