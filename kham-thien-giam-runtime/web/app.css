@@ -322,3 +322,51 @@ tr:last-child td{border-bottom:0}
 .gop.mo .gop-ten{color:var(--sao)}
 .gop-phu{font-size:11px;color:var(--mo2)}
 .gop-than{padding:2px 14px 14px;border-top:1px solid var(--vien)}
+
+/* ── lưới hai cột ────────────────────────────────────────
+   Thẻ chỉ huy hẹp, và cố ý hẹp: mỗi dòng của nó chỉ là một nhãn cộng
+   vài con số, nên trải nó ra 1800px thì ba phần tư là khoảng trống —
+   trong khi các khối mở ra lại bị đẩy xuống dưới tầm nhìn. */
+.luoi-chinh{
+  display:grid;grid-template-columns:minmax(360px,440px) 1fr;
+  gap:14px;align-items:start}
+@media (max-width:1080px){
+  .luoi-chinh{grid-template-columns:1fr}
+  .cot-trai{position:static !important}
+}
+/* Dính khi cuộn: đọc Sổ Lệnh ở cột phải mà vẫn thấy đồng hồ và dòng
+   quyết định — hai thứ đổi từng giây. */
+.cot-trai{position:sticky;top:10px}
+.cot-phai{min-width:0}
+.cot-phai .gop-nhac{margin-top:0;padding-top:0;border-top:0}
+
+/* ── hàng chọn khung ─────────────────────────────────────
+   Hiện cả giai đoạn lẫn số giây của TỪNG khung. Chọn mù thì người ta
+   phải bấm từng cái mới biết cái nào đang trong cửa đặt cược. */
+.chon-khung{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.ck{
+  position:relative;display:flex;flex-direction:column;gap:1px;
+  padding:5px 11px 5px 9px;border-radius:7px;line-height:1.2;
+  border:1px solid var(--vien);background:var(--the);
+  transition:border-color var(--dur),background var(--dur)}
+.ck:hover{background:var(--the2)}
+.ck.chon{border-color:var(--sao);background:var(--the2)}
+.ck>b{font-size:12px;color:var(--mo)}
+.ck.chon>b{color:var(--sao)}
+.ck>i{font-style:normal;font-size:10px;color:var(--mo2);
+  font-family:"Cascadia Mono",Consolas,ui-monospace,monospace}
+.ck>i.dat{color:var(--len)}
+.cham{
+  position:absolute;top:5px;right:4px;width:5px;height:5px;border-radius:50%}
+.cham.ok{background:var(--len)}
+.cham.khong{background:var(--mo2)}
+
+/* Thẻ hẹp thì dòng phải sít lại, nếu không nó vẫn dài như cũ. */
+.ch{margin-bottom:0}
+.ch-than .hang{padding:4px 0;gap:9px}
+.ch-than .hnhan{flex:0 0 74px;font-size:10px}
+.ch-than .hgt{gap:6px}
+.ch-than .hgt .so{font-size:13px}
+.ch-dinh{padding:9px 12px;gap:8px}
+.ch-dinh>b{font-size:14px}
+.dhho{font-size:22px}

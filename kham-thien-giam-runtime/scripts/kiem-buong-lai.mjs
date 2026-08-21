@@ -108,7 +108,7 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._MO = MO; globalThis._KHOI = KHOI; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
+  "  globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._MO = MO; globalThis._KHOI = KHOI; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
 );
 
 const T = await layTrangThai();
@@ -175,6 +175,26 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
     loi++;
   }
 }
+// Thẻ chỉ huy nay vẽ MỘT khung, chọn bằng nút. Hai chuyện phải đúng:
+// bấm sang khung khác thì thẻ đổi theo, và chọn một mã KHÔNG tồn tại thì
+// rơi về khung đầu chứ không để trang trống — trống thì trông như hỏng.
+{
+  const ds = T.thiTruong.filter((m) => m.theo).map((m) => m.ma);
+  const chu = (x) => { globalThis._datKhung(x); return JSON.stringify(globalThis._VE["chi-huy"]()); };
+  let ok = ds.length >= 2;
+  if (ok) {
+    const a = chu(ds[0]), b = chu(ds[1]);
+    ok = a.includes(ds[0]) && b.includes(ds[1]) && a !== b;
+  }
+  const lac = chu("KHONG_CO_MA_NAY");
+  const roiVe = lac.includes(ds[0]);
+  globalThis._datKhung(null);
+  console.log(`  ${ok && roiVe ? "OK   " : "LỖI  "} ${"chọn-khung".padEnd(12)} ` +
+              `${ok ? "bấm đổi được" : "KHÔNG đổi"} · ` +
+              `${roiVe ? "mã lạ → rơi về khung đầu" : "mã lạ → TRỐNG"}`);
+  if (!(ok && roiVe)) loi++;
+}
+
 // Khối gập chỉ được VẼ khi mở. Một khối hỏng có thể nằm im rất lâu —
 // không ai mở thì không ai biết. Nên mở TỪNG khối một và đòi nó phải
 // làm trang dày lên. So với một ngưỡng cố định thì vô nghĩa: con số đó

@@ -550,6 +550,61 @@
     return c ? c.ten : null;
   }
 
+  /* ── CHỌN KHUNG ───────────────────────────────────────────────────
+     Bốn khung xếp dọc, mỗi thẻ chiếm trọn bề ngang, là cách bày phí chỗ
+     nhất có thể: mỗi dòng chỉ dùng chừng một phần tư bề rộng, ba phần tư
+     còn lại trống trơn. Và vì thẻ dài nên khung thứ hai đã nằm ngoài màn
+     hình — muốn so BTC với ETH thì phải cuộn, tức là phải NHỚ.
+
+     Nay một thẻ hẹp, chọn khung bằng nút. Chỗ dôi ra bên phải để cho các
+     khối gập mở ra CẠNH thẻ chứ không phải bên dưới.
+
+     Hàng nút chọn cố ý hiện cả giai đoạn và số giây còn lại của TỪNG
+     khung, không chỉ mỗi tên. Chọn mù thì người ta phải bấm từng cái để
+     biết cái nào đang trong cửa đặt cược — đúng thứ mà một hàng nút sinh
+     ra để khỏi phải làm.                                                */
+
+  var KHUNG = null;                 // mã khung đang xem
+
+  function khungDangTheo() {
+    return (T.thiTruong || []).filter(function (x) { return x.theo; });
+  }
+
+  function khungHienTai() {
+    var ds = khungDangTheo();
+    if (!ds.length) return null;
+    var m = ds.filter(function (x) { return x.ma === KHUNG; })[0];
+    // Khung đang chọn biến mất (đổi cấu hình, hết theo dõi) thì rơi về
+    // cái đầu chứ không để trang trống — trống thì trông như hỏng.
+    return m || ds[0];
+  }
+
+  function veHangChon() {
+    var ds = khungDangTheo();
+    var h = el("div", "chon-khung");
+    ds.forEach(function (m) {
+      var k = m.khung || {};
+      var b = el("button", "ck" + (m === khungHienTai() ? " chon" : ""));
+      b.appendChild(el("b", "", m.ma.replace("_5M", "")));
+      var p = el("i", "");
+      if (k.datCuocDuoc && k.conLaiGiay != null) {
+        var s = Math.max(0, Math.round(k.conLaiGiay));
+        p.textContent = Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
+        p.className = "dat";
+      } else {
+        p.textContent = k.nhan || "—";
+      }
+      b.appendChild(p);
+      // Chấm trạng thái: đứng ngoài vì cầu dao/cửa/sổ thì thấy ngay ở đây,
+      // khỏi phải bấm vào từng khung mới biết cái nào đang làm việc được.
+      var c = (m.cap || {}).dungDuoc ? "ok" : "khong";
+      b.appendChild(el("span", "cham " + c));
+      b.addEventListener("click", function () { KHUNG = m.ma; ve(); });
+      h.appendChild(b);
+    });
+    return h;
+  }
+
   var SAU = {};              // ô nào đang mở phần sâu, nhớ qua các lần vẽ
 
   /* Dải ĐỘ TRỄ — một con số cho cả hệ, nên nó đứng trên mọi market.
@@ -607,11 +662,11 @@
 
   function veChiHuy() {
     var g = document.createDocumentFragment();
-    g.appendChild(veDaiTre());
-    var tt = (T.thiTruong || []).filter(function (x) { return x.theo; });
+    var tt = khungDangTheo();
     if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
+    g.appendChild(veHangChon());
 
-    tt.forEach(function (m) {
+    [khungHienTai()].forEach(function (m) {
       var k = m.khung || {}, q = m.gia, s = m.so || {}, c = m.cap || {};
       var o = el("section", "ch");
 
@@ -1229,15 +1284,29 @@
 
   function veTatCa() {
     var g = document.createDocumentFragment();
-    g.appendChild(veChiHuy());      // đã gồm dải độ trễ ở đầu
 
-    var nhac = el("p", "gop-nhac",
-      "Bên dưới là từng động cơ một. Chúng chỉ được vẽ khi mở — trang tự " +
-      "dựng lại mỗi 2 giây, nên vẽ sẵn cả mười khối là trả giá cho thứ " +
-      "không ai nhìn.");
-    g.appendChild(nhac);
+    // Độ trễ là con số của CẢ HỆ, không của riêng khung nào — nên nó nằm
+    // trên cùng, trọn bề ngang, ngoài lưới hai cột.
+    g.appendChild(veDaiTre());
 
-    KHOI.forEach(function (k) { g.appendChild(veKhoiGap(k)); });
+    // Hai cột: thẻ chỉ huy hẹp bên trái, các khối mở ra BÊN CẠNH nó chứ
+    // không phải bên dưới. Trước đây thẻ chiếm trọn bề ngang nên ba phần
+    // tư màn hình bỏ trống, mà khối mở ra thì lại bị đẩy xuống dưới tầm
+    // nhìn — vừa phí chỗ vừa phải cuộn.
+    var luoi = el("div", "luoi-chinh");
+
+    var trai = el("div", "cot-trai");
+    trai.appendChild(veChiHuy());
+    luoi.appendChild(trai);
+
+    var phai = el("div", "cot-phai");
+    phai.appendChild(el("p", "gop-nhac",
+      "Từng động cơ một. Chúng chỉ được vẽ khi mở — trang tự dựng lại mỗi " +
+      "2 giây, nên vẽ sẵn cả mười khối là trả giá cho thứ không ai nhìn."));
+    KHOI.forEach(function (k) { phai.appendChild(veKhoiGap(k)); });
+    luoi.appendChild(phai);
+
+    g.appendChild(luoi);
     return g;
   }
 
