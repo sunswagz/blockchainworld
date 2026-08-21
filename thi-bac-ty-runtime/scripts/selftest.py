@@ -16,6 +16,7 @@ Không phép kiểm nào ở đây gọi mạng, và không phép kiểm nào gh
 """
 from __future__ import annotations
 
+import gzip
 import os
 import sys
 import tempfile
@@ -35,6 +36,14 @@ from bac.san.base import moc_tron_gio_ke, nguyen_hoac_none, so_hoac_none  # noqa
 from bac.san.binance import _doi_chung                           # noqa: E402
 from bac.san.okx import _chu_ky                                  # noqa: E402
 from bac.so import So                                            # noqa: E402
+from bac.bang import (MayGhi, _thu_muc, dem_bang, doc_bang,       # noqa: E402
+                      doc_bang_day_du as doc_bang_day_du_bang)
+from bac.chay_lai import (KetQua, ThamSo, TraCuu, doi_chieu,      # noqa: E402
+                          dung_bao_gia,
+                          mot_luot as chay_lai_mot_luot)
+from bac.chan_doan import TOI_THIEU_MAU, chan_doan                # noqa: E402
+from bac.tien_hoa import (BIEN_VUOT, CUA_AN_TOAN, NUT_VAN,        # noqa: E402
+                          dat_nut, de_xuat_tat_dinh)
 
 _loi: list[str] = []
 _dat = 0
@@ -512,6 +521,225 @@ def kiem_gop_cau_hinh() -> None:
     kiem("nhánh không đụng tới vẫn nguyên", ra["quet"]["giuGio"] == MAC_DINH["quet"]["giuGio"])
 
 
+def _khung(lucMs, quotes):
+    """Một khung băng: thời điểm + danh sách báo giá thô."""
+    return {"luc": lucMs, "baoGia": [
+        {"san": s, "ma": "BTC", "rate": r, "intervalGio": g,
+         "markPx": 100.0, "mocKeMs": moc, "nguonTsMs": int(lucMs),
+         "nhanTsMs": int(lucMs), "nguonTuSan": True}
+        for s, r, g, moc in quotes]}
+
+
+def kiem_bang() -> None:
+    print("\n── Băng ghi: ký ức thô, và ba bài học chép sẵn ────────────────")
+
+    tm = _thu_muc()
+    kiem("thư mục băng nằm trong TBT_DATA_DIR, không phải băng THẬT",
+         str(tm).startswith(os.environ["TBT_DATA_DIR"]), str(tm))
+
+    m1 = MayGhi()
+    for i in range(3):
+        m1.ghi({"luc": 1000.0 + i, "vong": i, "baoGia": []})
+    m1.dong()
+    m2 = MayGhi()
+    m2.ghi({"luc": 2000.0, "vong": 9, "baoGia": []})
+    m2.dong()
+    kiem("hai phiên ghi ra HAI file khác nhau", m1.duong != m2.duong,
+         "nối thêm vào file cũ là cách sinh ra rác nằm giữa file")
+    kiem("đọc lại thấy đủ khung của cả hai phiên", len(doc_bang()) == 4,
+         f"đọc được {len(doc_bang())}")
+    kiem("dem_bang đếm đúng bằng doc_bang",
+         dem_bang().soKhung == len(doc_bang()))
+
+    # Dựng lại đúng kiểu hỏng đã cắn ở cung kia: thành viên cụt + nối thêm.
+    cu = gzip.compress(b'{"luc":1,"baoGia":[]}\n' * 40)
+    moi_ = gzip.compress(b'{"luc":2,"baoGia":[]}\n' * 30)
+    hong = tm / "bang-2999-01-01-000000-0.jsonl.gz"
+    hong.write_bytes(cu[:len(cu) - 24] + moi_)
+
+    nem = False
+    try:
+        with gzip.open(hong, "rt", encoding="utf-8") as f:
+            for _ in f:
+                pass
+    except Exception:                              # noqa: BLE001
+        nem = True
+    kiem("(đối chứng) gzip.open TRẦN vẫn ném trên file kiểu này", nem)
+
+    try:
+        k, bao = doc_bang_day_du_bang("2999-01-01")
+        da_nem = False
+    except Exception:                              # noqa: BLE001
+        k, bao, da_nem = [], None, True
+    kiem("doc_bang KHÔNG ném trên băng hỏng", not da_nem)
+    sau = sum(1 for x in k if x.get("luc") == 2)
+    kiem("cứu được trọn phần sau chỗ đứt", sau == 30, f"chỉ thấy {sau}/30")
+    kiem("khai ra là có file hỏng, không im lặng trả về thiếu",
+         bao is not None and bao.soFileHong >= 1 and not bao.lanh_lan)
+    hong.unlink(missing_ok=True)
+
+
+def kiem_chay_lai() -> None:
+    print("\n── Chạy lại: đo funding THỰC NHẬN, không phải dự đoán ─────────")
+
+    kiem("dựng lại báo giá từ băng",
+         dung_bao_gia({"san": "a", "ma": "BTC", "rate": 0.0001,
+                       "intervalGio": 8.0}) is not None)
+    kiem("thiếu chu kỳ → BỎ báo giá, không đoán bừa",
+         dung_bao_gia({"san": "a", "ma": "BTC", "rate": 0.0001}) is None,
+         "đoán bừa chu kỳ là đúng lỗi mà cả cung này tồn tại để chặn")
+    kiem("chu kỳ 0 → bỏ",
+         dung_bao_gia({"san": "a", "ma": "BTC", "rate": 0.0,
+                       "intervalGio": 0}) is None)
+
+    GIO = 3_600_000.0
+    t0 = 1_000_000_000_000.0
+    khung = []
+    for i in range(30):
+        t = t0 + i * 600_000.0                       # mỗi 10 phút, 5 giờ băng
+        moc = t0 + (int(i * 600_000.0 // GIO) + 1) * GIO
+        # Rate của "b" TỤT ngay sau khung đầu — mô phỏng funding decay.
+        r_b = 0.0002 if i == 0 else 0.00001
+        khung.append(_khung(t, [("a", 0.0, 1.0, moc), ("b", r_b, 1.0, moc)]))
+
+    tra = TraCuu(khung)
+    kiem("tra cứu lấy đúng rate tại một mốc",
+         gan(tra.rate_tai("BTC", "b", t0), 0.0002))
+    kiem("mốc ngoài tầm băng → None, KHÔNG phải 0",
+         tra.rate_tai("BTC", "b", t0 - 10 * GIO) is None,
+         "coi None là 0 là bịa ra một lần kết toán không trả gì")
+
+    mo = {"grossToiThieuBpsNgay": 0.1, "netToiThieuBps": -999.0,
+          "tuoiToiDaGiay": 1e9, "lechDongHoToiDaGiay": 1e9,
+          "lechMarkToiDaBps": 1e9}
+    ts = ThamSo(ten="thử", giuGio=2.0, ruiRo=dict(mo))
+    kq = chay_lai_mot_luot(khung, ts, {"a": {}, "b": {}})
+    kiem("chạy lại đi hết băng", kq.soKhung == 30, f"{kq.soKhung}")
+    kiem("có cơ hội hậu kiểm được", kq.soDoDuoc > 0, f"{kq.soDoDuoc}")
+    kiem("DỰ ĐOÁN cao hơn THỰC NHẬN vì funding tụt trước khi tới mốc",
+         kq.sai_so_du_doan_bps is not None and kq.sai_so_du_doan_bps > 0,
+         f"sai số {kq.sai_so_du_doan_bps} — đây là thứ chỉ băng mới đo được")
+
+    kiem("chưa đo được cái nào thì kỳ vọng là None, không phải 0",
+         KetQua("rỗng").ky_vong_bps is None)
+    kiem("cờ đủ mẫu đúng bằng ngưỡng 30",
+         kq.tom_tat()["duMau"] == (kq.soDoDuoc >= 30))
+
+    so = doi_chieu(khung, ts, ThamSo("B", 4.0, dict(mo)), {"a": {}, "b": {}})
+    kiem("đối chiếu chạy hai bộ trên CÙNG băng", "A" in so and "B" in so)
+    kiem("thiếu mẫu thì nói thẳng, không kết luận",
+         (so["duMau"] is True) or ("CHƯA đủ mẫu" in so["ghiChu"]))
+
+
+def kiem_chan_doan_hoc() -> None:
+    print("\n── Chẩn đoán: bệnh ĐO ĐƯỢC, không phải cảm giác ───────────────")
+
+    it = KetQua("ít")
+    it.soDoDuoc = 5
+    it.soKhung = 100
+    tc = chan_doan(it)
+    kiem("ít mẫu → triệu chứng 'thiếu mẫu' và DỪNG hẳn",
+         len(tc) == 1 and tc[0].ma == "thieu-mau",
+         "chẩn tiếp trên 5 mẫu là học thuộc nhiễu")
+
+    lo = KetQua("lỗ")
+    lo.soDoDuoc = 50
+    lo.soCoHoi = 50
+    lo.soQuaCua = 50
+    lo.tongNetThucBps = -100.0
+    lo.soLai = 40
+    lo.soLo = 10
+    lo.tongThuDuDoanBps = 500.0
+    lo.tongThuThucBps = 100.0
+    ma = [t.ma for t in chan_doan(lo)]
+    kiem("kỳ vọng âm → bắt được", "ky-vong-am" in ma, str(ma))
+    kiem("dự đoán lạc quan có hệ thống → bắt được",
+         "du-doan-lac-quan" in ma, str(ma))
+    kiem("đuôi nặng → bắt được (thắng 80% mà vẫn lỗ)",
+         "duoi-nang" in ma, str(ma))
+
+    khoe = KetQua("khoẻ")
+    khoe.soDoDuoc = 50
+    khoe.soCoHoi = 50
+    khoe.soQuaCua = 50
+    khoe.tongNetThucBps = 100.0
+    khoe.soLai = 45
+    khoe.soLo = 5
+    khoe.tongThuDuDoanBps = 100.0
+    khoe.tongThuThucBps = 100.0
+    kiem("không bệnh nào vượt ngưỡng → nói KHOẺ",
+         [t.ma for t in chan_doan(khoe)] == ["khoe"])
+
+    hut = KetQua("hụt")
+    hut.soDoDuoc = 50
+    hut.soCoHoi = 100
+    hut.soQuaCua = 50
+    hut.tongNetThucBps = 50.0
+    hut.soLai = 30
+    hut.soLo = 20
+    hut.tongThuDuDoanBps = 50.0
+    hut.tongThuThucBps = 50.0
+    ma2 = [t.ma for t in chan_doan(hut, {"khong-moc": 80, "net-am": 20})]
+    kiem("cửa sổ giữ hụt mốc → bắt được", "cua-so-hut-moc" in ma2, str(ma2))
+
+    dh = [t for t in chan_doan(hut, {"lech-dong-ho": 5}) if t.ma == "dong-ho-lech"]
+    kiem("đồng hồ lệch → nói rõ KHÔNG phải bệnh vặn tham số chữa được",
+         len(dh) == 1 and dh[0].nutGoiY == [],
+         "gợi ý núm cho nó là mời vòng tiến hoá đi vặn nhầm chỗ")
+
+
+def kiem_tien_hoa_hoc() -> None:
+    print("\n── Tiến hoá: bốn luật chặn bốn cách tự lừa ────────────────────")
+
+    kiem("KHÔNG cửa an toàn nào nằm trong NUT_VAN",
+         all(c not in NUT_VAN for c in CUA_AN_TOAN),
+         "cho vòng tiến hoá nới cửa an toàn là dạy nó cách tắt đèn báo")
+    kiem("phí KHÔNG phải núm vặn",
+         "phiTakerBps" not in NUT_VAN and "truotGiaBps" not in NUT_VAN,
+         "vặn phí xuống là đường dễ nhất tới điểm cao, nó sẽ tìm ra ngay")
+    kiem("mọi núm đều có min/max",
+         all("min" in v and "max" in v for v in NUT_VAN.values()))
+
+    goc = ThamSo("gốc", 8.0, {"grossToiThieuBpsNgay": 3.0,
+                              "netToiThieuBps": 0.5})
+
+    class T:
+        def __init__(self, ma, nut):
+            self.ma, self.nutGoiY = ma, nut
+
+    dx = de_xuat_tat_dinh([T("ky-vong-am", ["netToiThieuBps"])], goc)
+    kiem("triệu chứng lỗ → đề xuất SIẾT ngưỡng NET",
+         len(dx) == 1 and dx[0].den > dx[0].tu,
+         str([d.tom_tat() for d in dx]))
+    kiem("bước không vượt trần 25%",
+         abs(dx[0].den - dx[0].tu) <= abs(dx[0].tu) * 0.2500001 + 1e-9)
+
+    nhieu = de_xuat_tat_dinh(
+        [T("ky-vong-am", ["netToiThieuBps"]),
+         T("cua-qua-chat", ["grossToiThieuBpsNgay"])], goc)
+    kiem("MỘT lượt chỉ vặn MỘT núm", len(nhieu) == 1,
+         f"{len(nhieu)} — vặn hai núm rồi khá lên thì không biết núm nào có công")
+
+    an = de_xuat_tat_dinh([T("dong-ho-lech", ["doiHoiHaiMark"])], goc)
+    kiem("gợi ý chạm cửa an toàn thì BỎ QUA", an == [])
+
+    bien = ThamSo("biên", 24.0, {"netToiThieuBps": 40.0})
+    kiem("đã chạm biên thì không đề xuất nữa",
+         de_xuat_tat_dinh([T("ky-vong-am", ["netToiThieuBps"])], bien) == [])
+
+    moi = dat_nut(goc, "netToiThieuBps", 2.0, "thử")
+    kiem("dat_nut đổi ĐÚNG một núm",
+         moi.ruiRo["netToiThieuBps"] == 2.0
+         and moi.ruiRo["grossToiThieuBpsNgay"] == 3.0
+         and moi.giuGio == goc.giuGio)
+    kiem("dat_nut KHÔNG sửa bản gốc", goc.ruiRo["netToiThieuBps"] == 0.5)
+    kiem("dat_nut vặn được cả núm ở gốc (giuGio)",
+         dat_nut(goc, "giuGio", 4.0, "t").giuGio == 4.0)
+
+    kiem("biên vượt nhiễu là 0,15 bps", gan(BIEN_VUOT, 0.15))
+    kiem("tối thiểu mẫu để chẩn là 30", TOI_THIEU_MAU == 30)
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -531,6 +759,10 @@ def main() -> int:
     kiem_so()
     kiem_cua_dat_lenh()
     kiem_gop_cau_hinh()
+    kiem_bang()
+    kiem_chay_lai()
+    kiem_chan_doan_hoc()
+    kiem_tien_hoa_hoc()
 
     print("\n" + "=" * 70)
     if _loi:

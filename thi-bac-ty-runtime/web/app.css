@@ -85,3 +85,10 @@ footer button:disabled{opacity:.45;cursor:default}
   border-radius:10px;padding:14px 16px;margin-bottom:14px}
 .loi-o h2{color:#F0A9A4;margin-bottom:8px}
 .loi-o pre{font:11px/1.5 var(--don);color:#E9A9A4;overflow:auto;margin:6px 0 0}
+
+/* nút trong ô Đào tạo */
+button.nut{appearance:none;background:var(--nen2);color:var(--chu);
+  border:1px solid var(--vien);border-radius:7px;padding:8px 14px;
+  font:500 13px/1 inherit;cursor:pointer;margin-bottom:12px}
+button.nut:hover:not(:disabled){border-color:var(--vang);color:var(--vang)}
+button.nut:disabled{opacity:.45;cursor:default}

@@ -31,6 +31,8 @@
     if (v == null || !isFinite(v)) return "—";
     return (v >= 0 ? "+" : "") + Number(v).toFixed(n == null ? 2 : n);
   }
+  var so_ = so;   // bí danh: `so` hay bị che tên bởi biến cục bộ
+
   function lop(v) { return v == null ? "nhat" : (v >= 0 ? "duong" : "am"); }
   function gio(g) {
     if (g == null) return "—";
@@ -319,9 +321,144 @@
     return o("Nhật ký", p);
   }
 
+  /* ── ô ĐÀO TẠO ─────────────────────────────────────────────────────
+   * Ba tầng xếp theo đúng thứ tự phụ thuộc, và ô này nói thẳng tầng nào
+   * chưa sẵn sàng. Không có băng thì chạy lại vô nghĩa; không chạy lại
+   * được thì tiến hoá chỉ là đổi số cho vui.
+   */
+  var HOC = { chayLai: null, tienHoa: null, doiChieu: null, dangChay: "" };
+
+  function ve_hoc() {
+    var f = document.createDocumentFragment();
+    var b = S.bang || {};
+    var so = S.so || {};
+
+    var l = el("div", "luoi");
+    [["khung băng phiên này", b.soKhung == null ? "—" : b.soKhung],
+     ["băng đang ghi", b.bat ? "có" : "TẮT"],
+     ["lượt quét đã ghi sổ", so.soLuot == null ? "—" : so.soLuot],
+     ["cửa sổ giữ", so_(S.giuGio, 0) + " h"],
+     ["nhịp quét", so_(S.nhipGiay, 0) + " s"]
+    ].forEach(function (x) {
+      var d = el("div", "so");
+      d.appendChild(el("div", "n", String(x[1])));
+      d.appendChild(el("div", "t", x[0]));
+      l.appendChild(d);
+    });
+    f.appendChild(o("Nguyên liệu", l,
+      "Băng ghi BÁO GIÁ THÔ mỗi lượt quét. Chạy lại cần băng phủ hết CỬA SỔ "
+      + "GIỮ mới hậu kiểm được một cơ hội: với cửa sổ " + so_(S.giuGio, 0)
+      + " giờ, phải chạy ít nhất ngần ấy giờ mới có mẫu đầu tiên."));
+
+    // ── tầng 2: chạy lại ────────────────────────────────────────────
+    var n2 = el("div");
+    var nut2 = el("button", "nut", "Chạy lại băng ngay");
+    nut2.disabled = HOC.dangChay === "chay-lai";
+    nut2.addEventListener("click", function () {
+      HOC.dangChay = "chay-lai"; ve();
+      fetch("/api/chay-lai", { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { HOC.chayLai = j; })
+        .catch(function (e) { HOC.chayLai = { loi: String(e && e.message || e) }; })
+        .then(function () { HOC.dangChay = ""; ve(); });
+    });
+    n2.appendChild(nut2);
+    if (HOC.dangChay === "chay-lai") n2.appendChild(el("span", "nhac", " đang chạy…"));
+
+    if (HOC.chayLai) {
+      var k = HOC.chayLai;
+      if (k.loi) {
+        n2.appendChild(el("p", "trong", "lỗi: " + k.loi));
+      } else {
+        n2.appendChild(bang(
+          [{ t: "Mục", trai: 1 }, { t: "giá trị" }],
+          [["khung băng đi qua", k.soKhung],
+           ["cặp đã cân", k.soCoHoi],
+           ["qua cửa", k.soQuaCua],
+           ["HẬU KIỂM ĐƯỢC", k.soDoDuoc],
+           ["kỳ vọng NET thực", k.kyVongBps == null ? "chưa đo được"
+              : dau(k.kyVongBps) + " bps"],
+           ["dự đoán lệch thực nhận", k.saiSoDuDoanBps == null ? "—"
+              : dau(k.saiSoDuDoanBps) + " bps"],
+           ["lãi / lỗ", k.soLai + " / " + k.soLo],
+           ["lần tệ nhất", k.netThucTeNhatBps == null ? "—"
+              : dau(k.netThucTeNhatBps) + " bps"],
+           ["đủ mẫu (≥30)", k.duMau ? "rồi" : "CHƯA"]
+          ].map(function (x) {
+            return [{ t: x[0], c: "trai" },
+                    { t: x[1] == null ? "—" : String(x[1]) }];
+          })));
+      }
+    }
+    f.appendChild(o("Chạy lại — funding THỰC NHẬN, không phải dự đoán", n2,
+      "`kỳ vọng NET thực` tính từ funding sàn công bố TẠI TỪNG MỐC kết toán, "
+      + "tra ngược từ băng. `dự đoán lệch thực nhận` dương nghĩa là mô hình "
+      + "lạc quan có hệ thống — funding tụt trước khi tới mốc. Đó là con số "
+      + "chỉ có băng mới đo được."));
+
+    // ── tầng 3: tiến hoá ────────────────────────────────────────────
+    var n3 = el("div");
+    var nut3 = el("button", "nut", "Thử một lượt tiến hoá (không ghi)");
+    nut3.disabled = HOC.dangChay === "tien-hoa";
+    nut3.addEventListener("click", function () {
+      HOC.dangChay = "tien-hoa"; ve();
+      fetch("/api/tien-hoa?thu=true", { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { HOC.tienHoa = j; })
+        .catch(function (e) { HOC.tienHoa = { loi: String(e && e.message || e) }; })
+        .then(function () { HOC.dangChay = ""; ve(); });
+    });
+    n3.appendChild(nut3);
+    if (HOC.dangChay === "tien-hoa") n3.appendChild(el("span", "nhac", " đang chạy…"));
+
+    if (HOC.tienHoa) {
+      var t = HOC.tienHoa;
+      if (t.loi) {
+        n3.appendChild(el("p", "trong", "lỗi: " + t.loi));
+      } else {
+        n3.appendChild(el("p", "giai", t.ghiChu || ""));
+        if ((t.trieuChung || []).length) {
+          n3.appendChild(bang(
+            [{ t: "Triệu chứng", trai: 1 }, { t: "nặng" }, { t: "mô tả", trai: 1 }],
+            t.trieuChung.map(function (x) {
+              return [{ t: x.ma, c: "trai" },
+                      { t: String(x.nang), c: x.nang >= 3 ? "am" : "nhat" },
+                      { t: x.moTa, c: "vi" }];
+            })));
+        }
+        if ((t.deXuat || []).length) {
+          n3.appendChild(bang(
+            [{ t: "Đề xuất", trai: 1 }, { t: "từ" }, { t: "đến" }, { t: "vì", trai: 1 }],
+            t.deXuat.map(function (x) {
+              return [{ t: x.nut, c: "trai" }, { t: so_(x.tu, 2) },
+                      { t: so_(x.den, 2) }, { t: x.vi, c: "trai" }];
+            })));
+        }
+        if ((t.traLai || []).length) {
+          n3.appendChild(el("p", "giai",
+            "TRẢ LẠI: " + t.traLai.map(function (x) {
+              return x.nut + " (" + x.vi + ")"; }).join(" · ")));
+        }
+        if (t.nhan) {
+          n3.appendChild(el("p", "giai",
+            "SẼ NHẬN nếu chạy thật: " + t.nhan.nut + " " + so_(t.nhan.tu, 2)
+            + " → " + so_(t.nhan.den, 2) + ", cải thiện "
+            + dau(t.nhan.caiThienBps, 3) + " bps"));
+        }
+      }
+    }
+    f.appendChild(o("Tiến hoá — đứng yên là kết quả hợp lệ", n3,
+      "Nút này chạy chế độ THỬ: xem sẽ vặn gì mà không ghi gì. Vặn thật cần "
+      + "gọi POST /api/tien-hoa?thu=false. Bốn luật chặn tự lừa: không núm nào "
+      + "chạm cửa an toàn, một lượt một núm, bước ≤25%, và chỉ nhận khi ≥30 "
+      + "mẫu ở CẢ HAI bên cùng cải thiện vượt 0,15 bps."));
+    return f;
+  }
+
   var O_VE = {
     "co-hoi": ve_co_hoi, "bao-gia": ve_bao_gia,
-    "cang": ve_cang, "cua": ve_cua, "nhat-ky": ve_nhat_ky
+    "cang": ve_cang, "cua": ve_cua, "hoc": ve_hoc,
+    "nhat-ky": ve_nhat_ky
   };
 
   /* ── vẽ: dựng xong RỒI mới thay, và lỗi phải HIỆN ra ───────────────── */

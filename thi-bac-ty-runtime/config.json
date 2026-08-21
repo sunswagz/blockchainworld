@@ -54,5 +54,10 @@
   },
   "so": {
     "giuNgay": 30
+  },
+  "bang": {
+    "ghi": true,
+    "thuMuc": "bang",
+    "ngayGiuLai": 30
   }
 }

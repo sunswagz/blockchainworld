@@ -72,6 +72,13 @@ MAC_DINH = {
     "so": {
         "giuNgay": 30,
     },
+    "bang": {
+        # Băng ghi NGUYÊN LIỆU để còn chạy lại được. Tắt nó đi là tắt luôn
+        # khả năng đo xem một thay đổi tốt hơn hay chỉ khác đi.
+        "ghi": True,
+        "thuMuc": "bang",
+        "ngayGiuLai": 30,
+    },
 }
 
 CHE_HOP_LE = ("quan-sat", "giay", "that")

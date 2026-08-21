@@ -24,7 +24,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 99 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 139 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -33,6 +33,8 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 | `python run.py` | vòng lặp nền + buồng lái, ghi sổ mỗi lượt |
 | `python -m bac.snapshot` | một lượt rồi ghi `thi-bac-ty/assets/js/v/cang-phi.js` |
 | `python scripts/selftest.py` | toán, không mạng, không chạm sổ thật |
+| `pythonw dichvu/chay-nen.py` | chạy nền 24/7, log xoay vòng, ghi PID |
+| `.\dichvu\chay.ps1` · `.\dichvu\dung.ps1` | bật / tắt bản chạy nền |
 
 Buồng lái **chỉ sống ở localhost** và không bao giờ lên site. Cung tĩnh
 `thi-bac-ty/` (cổng 5187) là thứ lên GitHub Pages — nó **quan sát**, runtime
@@ -181,13 +183,75 @@ Một lệnh thật cần **cả ba cửa cùng mở**, ở ba nơi khác nhau v
 Và một **cửa thứ tư không mở được bằng cấu hình**: lớp đặt lệnh chưa tồn tại.
 `ly_do_khong_that()` in ra đúng cửa nào đang đóng, không rơi trong im lặng.
 
+## Đào tạo — bốn tầng, và thứ tự phụ thuộc là bắt buộc
+
+```
+1. CHẠY NỀN     tích băng 24/7          dichvu/chay-nen.py
+       ↓
+2. BĂNG GHI     nguyên liệu thô         bac/bang.py
+       ↓
+3. CHẠY LẠI     đo funding THỰC NHẬN    bac/chay_lai.py
+       ↓
+4. CHẨN + TIẾN HOÁ   vặn ngưỡng có bằng chứng   bac/chan_doan.py · bac/tien_hoa.py
+```
+
+Không nhảy cóc được. Sổ ở `so.py` ghi **kết luận**; băng ghi **nguyên liệu**:
+
+    sổ    "hôm qua ta đã quyết thế nào"
+    băng  "nếu ngưỡng khác đi thì ta ĐÃ quyết thế nào"
+
+Thiếu băng thì mọi lần vặn ngưỡng đều là đổi số cho vui.
+
+### Chạy lại đo được thứ mà ảnh chụp không đo được
+
+`thuBps` là DỰ ĐOÁN: giả định rate hiện tại giữ nguyên tới lúc kết toán.
+`thuThucBps` là ĐO ĐƯỢC: tra ngược từ băng, tại TỪNG MỐC kết toán, lấy đúng
+rate sàn công bố lúc ấy.
+
+Khoảng cách giữa hai con số là **funding decay**, và nó là thứ đáng học nhất.
+`chan_doan` gọi nó là `du-doan-lac-quan` khi lệch quá 2 bps trung bình — lúc
+đó mô hình không xui, nó lạc quan có hệ thống.
+
+**Ba chỗ xấp xỉ, và cả ba đều làm kết quả ĐẸP HƠN sự thật:** rate tại mốc lấy
+từ khung gần nhất (không phải rate sàn thật sự áp); không mô phỏng khớp lệnh;
+không mô phỏng vốn bị kẹt. Nên `netThucBps` là **chặn trên**.
+
+### Bốn luật chặn bốn cách tự lừa
+
+| luật | chặn gì |
+|---|---|
+| cửa AN TOÀN không nằm trong `NUT_VAN` | đường nhanh nhất tới điểm cao là **tắt đèn báo** — nó sẽ tìm ra ngay |
+| phí không phải núm vặn | vặn phí xuống là tự vẽ ra lợi nhuận |
+| một lượt vặn ĐÚNG MỘT núm | vặn hai núm rồi khá lên thì không biết núm nào có công |
+| nhận chỉ khi ≥30 mẫu **và** cải thiện > 0,15 bps | không thì "tiến bộ" mỗi ngày mà tổng lại không đi đâu |
+
+`doiHoiHaiMark`, `doiHoiItNhatMotMoc`, `nhanUocLuongMoc`,
+`lechDongHoToiDaGiay` cố ý **không** vặn được. Chúng không phải ngưỡng hiệu
+năng — chúng là câu "ta không biết đủ để vào lệnh".
+
+### Bao lâu mới có mẫu đầu tiên
+
+Với nhịp 30 giây và cửa sổ giữ 8 giờ: băng phải phủ **hết** cửa sổ mới hậu
+kiểm được một cơ hội. Một phiên chạy tay vài chục phút sinh ra **đúng 0 mẫu**
+— bảng vẫn xanh, sổ tiến hoá ghi "chưa đủ mẫu", và không có gì sai cả; chỉ là
+chưa có gì để học. Đó là lý do `dichvu/chay-nen.py` tồn tại.
+
+    POST /api/chay-lai                 chạy lại băng, tham số hiện tại
+    POST /api/doi-chieu?nut=…&gtA=…&gtB=…   so hai giá trị trên CÙNG băng
+    POST /api/tien-hoa?thu=true        xem sẽ vặn gì, không ghi gì
+    GET  /api/duong-tien-hoa           sổ tiến hoá gộp
+    GET  /api/bang                     băng có bao nhiêu khung, có lành không
+
+Hoặc mở buồng lái, tab **Đào tạo**.
+
 ## Lộ trình — V0.6 là mốc duy nhất chạm tới tiền
 
 | | xây gì | được làm gì |
 |---|---|---|
-| **V0.1** | quét công khai, chuẩn hoá, đếm mốc, 7 cửa, sổ SQLite | ← **đang ở đây** |
-| V0.2 | lịch sử funding + độ dai (persistence, half-life, z-score) | biết chênh lệch nào dai |
-| V0.3 | sổ lệnh thật → trượt giá thật, không phải tham số | NET hết là ước lượng |
+| **V0.1** | quét công khai, chuẩn hoá, đếm mốc, 8 cửa, sổ SQLite | xong |
+| **V0.2** | băng ghi · chạy lại · chẩn đoán · tiến hoá · chạy nền | ← **đang ở đây** |
+| V0.3 | độ dai dài hạn (half-life, z-score, regime) | biết chênh lệch nào dai |
+| V0.4 | sổ lệnh thật → trượt giá thật, không phải tham số | NET hết là ước lượng |
 | V0.4 | sổ giấy 24/7 + phân bổ lãi lỗ theo nguồn | biết tiền đến từ đâu |
 | V0.5 | testnet + **máy trạng thái hai chân** + kill switch | tập vào lệnh mà không mất gì |
 | V0.6 | vốn thật rất nhỏ + đối soát vị thế từ SÀN | mốc đầu tiên chạm tiền |
@@ -239,6 +303,7 @@ không bao giờ `KÝ · RÚT · VƯỢT CỬA RỦI RO`.
 ```
 bac/
   dongho.py     đếm mốc kết toán      ← lõi, đọc trước
+  dong_ho.py    lệch đồng hồ máy/sàn  ← đọc ngay sau
   models.py     BaoGia · CoHoi
   can_loi.py    ghép cặp, trừ phí, ra NET
   rui_ro.py     bảy cửa, tất định, phủ quyết
@@ -247,6 +312,11 @@ bac/
   vong.py       vòng lặp nền, hỏi bốn cảng SONG SONG
   server.py     buồng lái :5188
   snapshot.py   cầu nối sang cung tĩnh
+
+  bang.py       băng ghi nguyên liệu  ← tầng đào tạo
+  chay_lai.py   hậu kiểm funding thực
+  chan_doan.py  bệnh đo được
+  tien_hoa.py   vặn ngưỡng có bằng chứng
 ```
 
 Hỏi bốn cảng **song song không phải để nhanh**: hỏi tuần tự cách nhau vài

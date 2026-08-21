@@ -94,6 +94,72 @@ async def quet_ngay() -> JSONResponse:
                          "soCoHoi": len(runtime.coHoi)})
 
 
+# ── băng ghi · chạy lại · tiến hoá ────────────────────────────────────────
+@app.get("/api/bang")
+def api_bang(tuNgay: str | None = None) -> JSONResponse:
+    """Băng có bao nhiêu khung, và có LÀNH không.
+
+    `dem_bang` đếm mà không giữ khung nào lại: cả băng một ngày là hàng trăm
+    MB đối tượng Python, và dựng chúng lên chỉ để đọc ra một số nguyên là
+    cách chắc chắn nhất làm treo buồng lái.
+    """
+    from .bang import dem_bang, may_ghi as mg
+    bao = dem_bang(tuNgay)
+    return JSONResponse(sach({"soKhung": bao.soKhung, "dangGhi": mg.bat,
+                              "khungDaGhi": mg.soKhung, "bao": bao.tom_tat()}))
+
+
+@app.post("/api/chay-lai")
+def api_chay_lai(tuNgay: str | None = None, giuGio: float | None = None
+                 ) -> JSONResponse:
+    """Chạy lại băng với tham số hiện tại (hoặc cửa sổ giữ truyền vào)."""
+    from .bang import doc_bang
+    from .chay_lai import mot_luot
+    from .tien_hoa import tham_so_hien_tai
+    ts = tham_so_hien_tai()
+    if giuGio is not None:
+        ts.giuGio = float(giuGio)
+        ts.ten = f"giữ {giuGio:g}h"
+    return JSONResponse(sach(mot_luot(doc_bang(tuNgay), ts,
+                                      CONFIG["san"]).tom_tat()))
+
+
+@app.post("/api/doi-chieu")
+def api_doi_chieu(nut: str, gtA: float, gtB: float,
+                  tuNgay: str | None = None) -> JSONResponse:
+    """So HAI giá trị của MỘT núm trên CÙNG băng. Đây mới là backtest."""
+    from .bang import doc_bang
+    from .chay_lai import doi_chieu
+    from .tien_hoa import NUT_VAN, dat_nut, tham_so_hien_tai
+    if nut not in NUT_VAN:
+        return JSONResponse({"loi": f"núm {nut!r} không vặn được — cửa an "
+                                    f"toàn không nằm trong NUT_VAN",
+                             "numVanDuoc": sorted(NUT_VAN)}, status_code=200)
+    goc = tham_so_hien_tai()
+    a = dat_nut(goc, nut, gtA, f"A: {nut}={gtA:g}")
+    b = dat_nut(goc, nut, gtB, f"B: {nut}={gtB:g}")
+    return JSONResponse(sach(doi_chieu(doc_bang(tuNgay), a, b, CONFIG["san"])))
+
+
+@app.post("/api/tien-hoa")
+def api_tien_hoa(thu: bool = True) -> JSONResponse:
+    """Chạy một lượt vòng tiến hoá bằng tay.
+
+    Mặc định `thu=true` — xem sẽ làm gì mà không ghi gì. Muốn ghi thật thì
+    phải truyền `?thu=false`, và đó là chủ ý: một nút bấm nhầm không được
+    phép vặn tham số của cỗ máy.
+    """
+    from .tien_hoa import mot_luot
+    return JSONResponse(sach(mot_luot(thu=thu).tom_tat()))
+
+
+@app.get("/api/duong-tien-hoa")
+def api_duong_tien_hoa() -> JSONResponse:
+    """Sổ tiến hoá gộp — có mạnh hơn thật không, bằng số."""
+    from .tien_hoa import duong_tien_hoa
+    return JSONResponse(sach(duong_tien_hoa()))
+
+
 @app.post("/api/lat-cat")
 def lat_cat() -> JSONResponse:
     duong = ghi_lat_cat(runtime)

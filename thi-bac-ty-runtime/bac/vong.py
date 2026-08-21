@@ -22,6 +22,7 @@ import time
 
 import httpx
 
+from .bang import may_ghi
 from .bus import bus
 from .can_loi import tim_co_hoi
 from .config import CONFIG, DATA_DIR, che_hieu_luc
@@ -76,6 +77,7 @@ class Runtime:
 
     def dung(self) -> None:
         self._chay = False
+        may_ghi.dong()
         bus.ghi("runtime dừng", loai="he")
 
     def _vong_lap(self) -> None:
@@ -156,6 +158,17 @@ class Runtime:
                and (c.suc_khoe.tuoi_giay() or 1e9) > float(CONFIG["nhipGiay"]) * 2]
         self.so.ghi_luot(self.coHoi, len(self.baoGia), loi)
 
+        # Băng ghi NGUYÊN LIỆU, sổ ghi KẾT LUẬN. Thiếu băng thì không chạy
+        # lại được, và không chạy lại được thì mọi lần vặn ngưỡng đều là đổi
+        # số cho vui — không cách nào biết tốt hơn hay chỉ khác đi.
+        may_ghi.ghi({
+            "luc": now,
+            "vong": self.vong,
+            "giuGio": float(q["giuGio"]),
+            "lechDongHoMs": dong_ho.lech_ms(),
+            "baoGia": [b.tom_tat(now) for b in self.baoGia],
+        })
+
         duyet = [c for c in self.coHoi if c.duyet]
         for c in duyet:
             bus.ghi(f"{c.ma}: LONG {c.sanLong} / SHORT {c.sanShort} · "
@@ -173,9 +186,10 @@ class Runtime:
             return
         self._ngayDonSo = ngay
         n = self.so.don_cu(int(CONFIG["so"]["giuNgay"]))
-        if n:
-            bus.ghi(f"dọn sổ: xoá {n} bản ghi quá {CONFIG['so']['giuNgay']} ngày",
-                    loai="he")
+        nb = may_ghi.don_cu()
+        if n or nb:
+            bus.ghi(f"dọn: xoá {n} bản ghi sổ và {nb} file băng quá "
+                    f"{CONFIG['so']['giuNgay']} ngày", loai="he")
 
     # ── ảnh chụp cho buồng lái và cho lát cắt ─────────────────────────────
     def anh_chup(self) -> dict:
@@ -217,6 +231,7 @@ class Runtime:
             "soDuyet": len(duyet),
             "viSaoTuChoi": vi_sao,
             "so": self.so.thong_ke(),
+            "bang": may_ghi.tom_tat(),
             "doDai": [
                 {**self.so.do_dai(c.ma, c.sanLong, c.sanShort),
                  "ma": c.ma, "sanLong": c.sanLong, "sanShort": c.sanShort}
