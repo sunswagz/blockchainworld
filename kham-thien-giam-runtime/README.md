@@ -15,7 +15,7 @@ Máy này có Python 3.12 cài portable, **ngoài PATH**:
 $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py -m pip install -r requirements.txt
-& $py scripts\selftest.py      # 225 phép kiểm số học, KHÔNG cần mạng
+& $py scripts\selftest.py      # 230 phép kiểm số học, KHÔNG cần mạng
 & $py run.py                   # buồng lái → http://localhost:5186
 ```
 
@@ -267,6 +267,10 @@ xanh, chỉ có kết quả là sai.
    73%), và vòng tự tiến hoá chết ngay dòng đầu suốt từ đó — trong khi buồng
    lái vẫn hiện "đã chạy hôm nay". Nay mỗi phiên ghi một file riêng, trình đọc
    nhảy qua chỗ đứt rồi đọc tiếp, và `/api/bang` trả kèm số file hỏng.
+
+   Và báo cáo ấy tách **cụt đuôi** khỏi **đứt giữa**: file của mọi phiên bị
+   Ctrl+C đều thiếu block kết thúc, nên gộp hai loại lại là đèn báo đỏ vĩnh
+   viễn — mà cảnh báo lúc nào cũng đỏ thì thôi ai nhìn, kể cả lần nó đúng.
 
 Và một chỗ nữa mà `so_lenh.py` tồn tại để chặn: **"EDGE = 9¢" trên bảng điều
 khiển**. Đó là `fair − best_ask`, đúng cho đúng 80 cổ đầu tiên. Giá thật cho

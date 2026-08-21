@@ -189,11 +189,23 @@ class MayGhi:
 class BaoCaoDoc:
     """Đọc được bao nhiêu, và mất bao nhiêu. Không trường nào là trang trí.
 
+    **`cụt đuôi` và `đứt giữa` là HAI chuyện, đừng gộp.** Gộp thì đèn báo đỏ
+    vĩnh viễn, vì file của mọi phiên bị Ctrl+C đều thiếu block kết thúc — và
+    một cảnh báo lúc nào cũng đỏ thì người ta thôi nhìn nó, rồi thôi nhìn cả
+    lần nó đúng. Đúng cái bẫy `cong-bo/assets/js/` đã cắn ở repo cha.
+
+        cụt đuôi   thành viên cuối thiếu block kết thúc, KHÔNG mất gì phía
+                   sau vì phía sau không có gì. Bình thường sau mỗi lần tắt
+                   máy; mất tối đa 50 khung chưa xả.
+        đứt giữa   phải NHẢY QUA byte mới đọc tiếp được. Đây mới là mất dữ
+                   liệu, và là dấu hiệu file bị nối thêm sau một đuôi cụt.
+
     `soDongHong` đếm cả mẩu dòng ở hai mép mỗi chỗ đứt: nối lại được thì đã
     nối, không nối được thì phải ĐẾM chứ không được lặng lẽ bỏ.
     """
     soFile: int = 0
-    soFileHong: int = 0
+    soFileHong: int = 0          # đứt GIỮA — có mất dữ liệu
+    soFileCutDuoi: int = 0       # chỉ cụt đuôi — bình thường sau khi tắt máy
     soKhung: int = 0
     soDongHong: int = 0
     soByteBoQua: int = 0
@@ -201,11 +213,13 @@ class BaoCaoDoc:
 
     @property
     def lanh_lan(self) -> bool:
-        return self.soFileHong == 0 and self.soDongHong == 0
+        """Cụt đuôi KHÔNG làm băng mất lành — xem giải thích ở trên."""
+        return self.soFileHong == 0 and self.soByteBoQua == 0
 
     def tom_tat(self) -> dict:
         return {
             "soFile": self.soFile, "soFileHong": self.soFileHong,
+            "soFileCutDuoi": self.soFileCutDuoi,
             "soKhung": self.soKhung, "soDongHong": self.soDongHong,
             "soByteBoQua": self.soByteBoQua, "fileHong": self.fileHong[:12],
             "lanhLan": self.lanh_lan,
@@ -235,7 +249,8 @@ def _giai_nen(raw: bytes, bao: BaoCaoDoc, ten: str) -> list[bytes]:
     của hai khung hình khác nhau — một con số sai trông y hệt số đúng.
     """
     doan: list[bytes] = []
-    i, n, hong = 0, len(raw), False
+    i, n = 0, len(raw)
+    hong = cut_duoi = False
     while i < n:
         d = zlib.decompressobj(31)
         ra, j, vap = bytearray(), i, False
@@ -250,19 +265,30 @@ def _giai_nen(raw: bytes, bao: BaoCaoDoc, ten: str) -> list[bytes]:
                 break
         if ra:
             doan.append(bytes(ra))
-        if vap or not d.eof:
-            hong = True
-            k = _dau_thanh_vien_ke(raw, i + 1)
-            if k < 0:
-                bao.soByteBoQua += max(0, n - (j if vap else i))
-                break
-            bao.soByteBoQua += max(0, k - (j if vap else i))
-            i = k
-        else:
+        if not vap and d.eof:
             i = n - len(d.unused_data) if d.unused_data else n
+            continue
+        k = _dau_thanh_vien_ke(raw, i + 1)
+        if k < 0:
+            # Hết file mà không còn thành viên nào phía sau. Không nhảy qua
+            # byte nào cả, nên đây là CỤT ĐUÔI chứ không phải mất dữ liệu —
+            # trừ khi zlib vấp thật, lúc đó phần đuôi mới đúng là rác.
+            if vap:
+                hong = True
+                bao.soByteBoQua += max(0, n - j)
+            else:
+                cut_duoi = True
+            break
+        # Còn thành viên phía sau mà thành viên này không kết thúc đàng hoàng
+        # → có byte phải nhảy qua. Đây mới là đứt GIỮA.
+        hong = True
+        bao.soByteBoQua += max(0, k - (j if vap else i))
+        i = k
     if hong:
         bao.soFileHong += 1
         bao.fileHong.append(ten)
+    elif cut_duoi:
+        bao.soFileCutDuoi += 1
     return doan
 
 

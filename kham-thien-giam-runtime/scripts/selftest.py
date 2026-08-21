@@ -985,6 +985,22 @@ def kiem_bang() -> None:
     kiem("file rác vẫn bị đếm là hỏng", bao2.soFileHong == 1)
     rac.unlink(missing_ok=True)
 
+    # ── CỤT ĐUÔI không phải HỎNG, và đây là chỗ dễ báo động giả nhất ──────
+    #   Mọi phiên bị Ctrl+C đều để lại file thiếu block kết thúc. Tính đó là
+    #   hỏng thì đèn báo đỏ vĩnh viễn, và cảnh báo lúc nào cũng đỏ thì người
+    #   ta thôi nhìn — kể cả lần nó đúng.
+    cut = tm / "bang-2999-01-01-000002-0.jsonl.gz"
+    nguyen = gzip.compress(b'{"khung":"con"}\n' * 60)
+    cut.write_bytes(nguyen[:len(nguyen) - 16])       # chỉ cắt đuôi, không nối
+    k3, bao3 = doc_bang_day_du("2999-01-01")
+    kiem("cụt đuôi KHÔNG bị tính là file hỏng", bao3.soFileHong == 0,
+         f"soFileHong={bao3.soFileHong}")
+    kiem("cụt đuôi được đếm riêng", bao3.soFileCutDuoi == 1)
+    kiem("cụt đuôi thì băng vẫn coi là LÀNH", bao3.lanh_lan)
+    kiem("không nhảy qua byte nào", bao3.soByteBoQua == 0)
+    kiem("vẫn đọc được phần trước chỗ cụt", len(k3) > 0)
+    cut.unlink(missing_ok=True)
+
     kiem("dọn xong thì tương lai lại rỗng như trước",
          dem_bang("2999-01-01").soFile == 0)
 
