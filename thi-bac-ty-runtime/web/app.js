@@ -164,13 +164,14 @@
     var vs = S.viSaoTuChoi || {}, k = Object.keys(vs);
     if (k.length) {
       k.sort(function (a, b) { return vs[b] - vs[a]; });
-      f.appendChild(o("Vì sao bị chặn — đếm trên mọi cặp", bang(
-        [{ t: "Lý do", trai: 1 }, { t: "số cặp" }],
+      f.appendChild(o("Vì sao bị chặn — đếm theo CỬA, trên mọi cặp", bang(
+        [{ t: "Cửa", trai: 1 }, { t: "số cặp" }],
         k.map(function (x) {
           return [{ t: x, c: "trai" }, { t: String(vs[x]) }];
         })),
         "Bảng trống ở trên mà không có bảng này thì người vận hành sẽ đi nới "
-        + "bừa từng ngưỡng một. Đây là chỗ nói thẳng cửa nào đang chặn."));
+        + "bừa từng ngưỡng một. Đây là chỗ nói thẳng CỬA nào đang chặn — gộp "
+        + "theo mã lý do, không theo câu, vì câu có mang con số."));
     }
 
     var dd = (S.doDai || []).filter(function (x) { return x.soMau > 0; });
@@ -227,7 +228,23 @@
   }
 
   function ve_cang() {
-    return o("Cảng", bang(
+    var f = document.createDocumentFragment();
+    var dh = S.dongHo || {};
+    f.appendChild(o("Đồng hồ — thứ mọi phép đếm mốc dựa vào", bang(
+      [{ t: "Mục", trai: 1 }, { t: "giá trị" }],
+      [["đã đo được chưa", dh.daDo ? "rồi" : "CHƯA"],
+       ["máy chậm hơn sàn", dh.lechGiay == null ? "—" : so(dh.lechGiay, 1) + " s"],
+       ["số sàn góp mẫu", dh.soMau],
+       ["ngưỡng kêu", (dh.nguongKeuMs || 0) / 1000 + " s"]
+      ].map(function (x) {
+        return [{ t: x[0], c: "trai" },
+                { t: x[1] == null ? "—" : String(x[1]) }];
+      })),
+      "`mocKeMs` là giờ SÀN, còn `time.time()` là giờ MÁY. So hai đồng hồ "
+      + "khác nhau thì gần biên kết toán là lật hẳn kết quả: đo thật "
+      + "21/08/2026 máy chậm 6,94 phút, đủ để \"thu trọn một chu kỳ\" hoá "
+      + "ra \"không mốc nào\"."));
+    f.appendChild(o("Cảng", bang(
       [{ t: "Cảng", trai: 1 }, { t: "sống?", trai: 1 }, { t: "lượt hỏi" },
        { t: "lỗi" }, { t: "trễ TB" }, { t: "tuổi" }, { t: "phí taker" },
        { t: "trượt giá" }, { t: "lỗi cuối", trai: 1 }],
@@ -247,7 +264,8 @@
         ];
       })),
       "Phí và trượt giá ở đây là THAM SỐ trong config.json, không phải số đo "
-      + "được từ sàn. Đặt quá thấp là tự vẽ ra lợi nhuận không có thật.");
+      + "được từ sàn. Đặt quá thấp là tự vẽ ra lợi nhuận không có thật."));
+    return f;
   }
 
   function ve_cua() {

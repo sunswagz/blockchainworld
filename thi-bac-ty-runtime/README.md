@@ -24,7 +24,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 79 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 99 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -89,7 +89,7 @@ funding thực thu   (đếm theo mốc, hai chân đếm RIÊNG)
 vốn giữa sàn, rủi ro basis khi hai mark rời nhau lúc thoát, và vốn bị khoá.
 Nên NET ở đây là **chặn trên**, không phải lợi nhuận.
 
-## Bảy cửa rủi ro
+## Tám cửa rủi ro
 
 `bac/rui_ro.py` là Python thuần, tất định, có quyền phủ quyết. Mỗi cửa nằm đó
 vì một cách mất tiền cụ thể:
@@ -103,9 +103,17 @@ vì một cách mất tiền cụ thể:
 | `doiHoiHaiMark` | thiếu mark một bên → *không biết* có lệch hay không |
 | `tuoiToiDaGiay` | dữ liệu cũ → đang cược vào một thế giới đã qua |
 | `nhanUocLuongMoc` | mốc phải đoán → sai số nằm ngoài tầm đo |
+| `lechDongHoToiDaGiay` | **đồng hồ máy lệch giờ sàn** → mọi phép đếm mốc sai theo |
 
 Cửa thứ ba và thứ bảy là hai cửa mà một scanner chỉ nhân `spread × giờ`
 **không thể có** — nó không biết mốc nằm ở đâu.
+
+Cửa thứ tám thêm vào sau khi đo được **đồng hồ máy chậm 6,94 phút** so với cả
+ba sàn (21/08/2026). Nó hỏng theo hai đường, cả hai im lặng: phép đếm mốc so
+giờ SÀN với giờ MÁY nên gần biên là lật hẳn kết quả; và `tuoi_giay()` kẹp hiệu
+âm về 0, biến "dấu thời gian ở tương lai" thành "vừa mới tinh" — cửa
+`tuoiToiDaGiay` đứng đó suốt mà không chặn nổi gì, kể cả khi cấy vào một báo
+giá cũ 10 phút. Xem `bac/dong_ho.py`.
 
 Gặp cơ hội bị chặn, buồng lái gom **đủ mọi lý do** chứ không dừng ở cái đầu.
 Dừng sớm thì người vận hành nới một ngưỡng, chạy lại, gặp lý do thứ hai, nới

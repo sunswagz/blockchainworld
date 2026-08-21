@@ -15,7 +15,7 @@ from __future__ import annotations
 import time
 
 from ..models import BaoGia
-from .base import Cang, moc_tron_gio_ke, so_hoac_none
+from .base import Cang, bay_gio_ms, moc_tron_gio_ke, so_hoac_none
 
 
 class Hyperliquid(Cang):
@@ -32,7 +32,7 @@ class Hyperliquid(Cang):
         meta, ctxs = goi
         vu_tru = (meta or {}).get("universe") or []
 
-        now = time.time() * 1000.0
+        now = bay_gio_ms()
         ra: list[BaoGia] = []
         for ts, ctx in zip(vu_tru, ctxs, strict=True):
             ten = (ts or {}).get("name")
@@ -56,6 +56,7 @@ class Hyperliquid(Cang):
                 oiUsd=(oi * mark) if (oi is not None and mark is not None) else None,
                 nguonTsMs=int(now),
                 nhanTsMs=int(now),
+                nguonTuSan=False,   # sàn không đóng dấu trong lượt hỏi này
                 intervalSuyRa=False,
                 ghiChu="mốc kế suy từ quy ước kết toán hàng giờ",
             ))

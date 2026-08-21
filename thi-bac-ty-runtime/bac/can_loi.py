@@ -17,6 +17,7 @@ Chúng đứng trong `README.md` mục "Chưa trừ gì" và trong lộ trình V
 """
 from __future__ import annotations
 
+import dataclasses
 from itertools import combinations
 
 from .dongho import thu_cap
@@ -110,6 +111,10 @@ def _mot_cap(ma: str, l: BaoGia, s: BaoGia, nowMs: float, giuGio: float,
     net_bps = thu_bps - phi_bps
 
     tuoi = [t for t in (l.tuoi_giay(nowMs), s.tuoi_giay(nowMs)) if t is not None]
+    # "xấu nhất" = lệch xa 0 nhất, GIỮ NGUYÊN DẤU. Dùng `max()` trần thì một
+    # chân cũ +0,4s che mất chân kia −416s, và cửa lệch đồng hồ không bao giờ
+    # thấy được thứ nó sinh ra để bắt.
+    xau_nhat = max(tuoi, key=abs) if tuoi else None
 
     tho = CoHoi(
         ma=ma, sanLong=l.san, sanShort=s.san,
@@ -121,9 +126,18 @@ def _mot_cap(ma: str, l: BaoGia, s: BaoGia, nowMs: float, giuGio: float,
         netAprPct=net_apr_pct(net_bps, giuGio),
         lechMarkBps=lech_mark_bps(l.markPx, s.markPx),
         choMocDauGiay=cap["choMocDauGiay"],
-        tuoiXauNhatGiay=max(tuoi) if tuoi else None,
+        tuoiXauNhatGiay=xau_nhat,
         uocLuongMoc=cap["uocLuong"],
         duyet=False, lyDo=(),
     )
     duyet, ly_do = cong(tho)
-    return CoHoi(**{**tho.__dict__, "duyet": duyet, "lyDo": tuple(ly_do)})
+    # `dataclasses.replace` chứ không phải `CoHoi(**tho.__dict__, ...)`:
+    # bản đầu dùng `__dict__`, và nó im lặng biến mất nếu ai đó thêm
+    # `slots=True` vào dataclass — một tối ưu hoàn toàn vô hại ở mọi chỗ
+    # khác, nhưng ở đây thì nổ AttributeError giữa vòng lặp.
+    return dataclasses.replace(
+        tho,
+        duyet=duyet,
+        lyDo=tuple(cau for _, cau in ly_do),
+        lyDoMa=tuple(ma for ma, _ in ly_do),
+    )

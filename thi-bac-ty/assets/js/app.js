@@ -103,6 +103,14 @@
               + " chưa lấy được dữ liệu lần nào — bảng dưới thiếu cảng.");
     if (D.loiVongCuoi) ds.push("vòng quét gần nhất lỗi: " + D.loiVongCuoi);
 
+    var dh = D.dongHo || {};
+    if (!dh.daDo)
+      ds.push("lúc chụp CHƯA đo được lệch đồng hồ — phép đếm mốc trong lát "
+              + "cắt này chạy trên giờ MÁY, không phải giờ sàn.");
+    else if (dh.dangKeu)
+      ds.push("đồng hồ máy lệch " + dh.lechGiay.toFixed(0) + "s so với sàn "
+              + "lúc chụp (đã bù khi đếm mốc).");
+
     // Lát cắt cũ: số liệu funding hết hạn rất nhanh, một lát cắt tuần trước
     // nói về một thế giới đã qua. Nói thẳng tuổi của nó.
     var tuoi = null;
@@ -187,7 +195,7 @@
     k.sort(function (a, b) { return vs[b] - vs[a]; });
     var f = document.createDocumentFragment();
     f.appendChild(bang(
-      [{ t: "Lý do", trai: 1 }, { t: "số cặp" }],
+      [{ t: "Cửa", trai: 1 }, { t: "số cặp" }],
       k.map(function (x) { return [{ t: x, c: "trai" }, { t: String(vs[x]) }]; })));
     f.appendChild(giai(
       "Bảng cơ hội trống mà không có bảng này thì người xem đọc thành \"thị "
@@ -257,7 +265,12 @@
       })));
     f.appendChild(giai(
       "Phí và trượt giá là THAM SỐ trong config.json của runtime, không phải "
-      + "số đo được từ sàn. Đặt quá thấp là tự vẽ ra lợi nhuận không có thật."));
+      + "số đo được từ sàn. Đặt quá thấp là tự vẽ ra lợi nhuận không có thật. "
+      + "— Đồng hồ lúc chụp: "
+      + ((D.dongHo || {}).daDo
+          ? "máy chậm hơn sàn " + so(D.dongHo.lechGiay, 1)
+            + " giây, đo từ " + D.dongHo.soMau + " sàn, đã bù khi đếm mốc."
+          : "CHƯA đo được.")));
     n.replaceChildren(f);
   }
 

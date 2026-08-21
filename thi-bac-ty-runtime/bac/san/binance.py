@@ -18,7 +18,7 @@ import asyncio
 import time
 
 from ..models import BaoGia
-from .base import Cang, nguyen_hoac_none, so_hoac_none
+from .base import Cang, bay_gio_ms, nguyen_hoac_none, so_hoac_none
 
 #: Chu kỳ mặc định của Binance USD-M khi symbol không có trong `fundingInfo`.
 CHU_KY_MAC_DINH_GIO = 8.0
@@ -53,7 +53,7 @@ class Binance(Cang):
             if rate is None:
                 return None
             moc = nguyen_hoac_none(h.get("nextFundingTime"))
-            ts = nguyen_hoac_none(h.get("time")) or int(time.time() * 1000)
+            ts = nguyen_hoac_none(h.get("time")) or int(bay_gio_ms())
 
             gio = khai.get(sym, CHU_KY_MAC_DINH_GIO)
             ghi = "" if sym in khai else f"chu kỳ mặc định {CHU_KY_MAC_DINH_GIO:g}h"
@@ -64,7 +64,8 @@ class Binance(Cang):
             return BaoGia(
                 san=self.ten, ma=goc_ma, rate=rate, intervalGio=gio,
                 markPx=so_hoac_none(h.get("markPrice")),
-                mocKeMs=moc, nguonTsMs=ts, nhanTsMs=int(time.time() * 1000),
+                mocKeMs=moc, nguonTsMs=ts, nhanTsMs=int(bay_gio_ms()),
+                nguonTuSan=True,   # `time` là dấu của sàn
                 intervalSuyRa=False, ghiChu=ghi,
             )
 

@@ -83,6 +83,7 @@ def dung(runtime) -> dict:
         "ma": a.get("ma") or [],
 
         "cang": a.get("cang") or [],
+        "dongHo": a.get("dongHo") or {},
         "baoGia": a.get("baoGia") or [],
         "coHoi": co_hoi,
         "soDuyet": len(duyet),

@@ -61,6 +61,7 @@ MAC_DINH = {
         "tuoiToiDaGiay": 90.0,
         "nhanUocLuongMoc": False,
         "doiHoiItNhatMotMoc": True,
+        "lechDongHoToiDaGiay": 10.0,
         "vonMoiCoHoiUsd": 100.0,
         "vonToiDaUsd": 300.0,
         "donBayToiDa": 1.0,

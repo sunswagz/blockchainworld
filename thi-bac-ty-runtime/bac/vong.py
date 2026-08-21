@@ -25,10 +25,17 @@ import httpx
 from .bus import bus
 from .can_loi import tim_co_hoi
 from .config import CONFIG, DATA_DIR, che_hieu_luc
+from .dong_ho import NGUONG_KEU_MS, do_lech, dong_ho
 from .models import BaoGia
-from .rui_ro import CongRuiRo
+from .rui_ro import NHAN, CongRuiRo
 from .san import TAT_CA
 from .so import So
+
+
+#: Bao lâu hỏi lại giờ máy chủ một lần. Lệch đồng hồ trôi chậm (NTP tắt thì
+#: nó trôi cỡ giây mỗi giờ), nên hỏi mỗi 5 phút là quá đủ — ba lượt hỏi thêm
+#: mỗi 30 giây chỉ tổ tốn hạn mức cho một con số gần như đứng yên.
+NHIP_DO_DONG_HO_GIAY = 300.0
 
 
 class Runtime:
@@ -53,6 +60,9 @@ class Runtime:
         self._chay = False
         self._luong: threading.Thread | None = None
         self._ngayDonSo = ""
+        self._daKeuLech = False
+        self._lanDoDongHo = 0.0
+        self._doDongHoHong = False
 
     # ── điều khiển ────────────────────────────────────────────────────────
     def bat(self) -> None:
@@ -82,6 +92,16 @@ class Runtime:
             if con > 0:
                 time.sleep(con)
 
+    def _hen_do_dong_ho(self) -> float:
+        """Đo hỏng thì thử lại sớm, đừng khoá trọn 5 phút.
+
+        Bản đầu đặt mốc hẹn TRƯỚC khi gọi, nên một lượt đo hỏng vẫn khoá
+        tiếp 5 phút: lỗi báo đúng một lần rồi im, và runtime chạy tiếp trên
+        giờ MÁY chưa bù trong khi bảng không nói gì. Đã cắn thật lúc dựng —
+        `NameError` ở vòng 1, rồi ba vòng sau xanh trơn.
+        """
+        return 30.0 if self._doDongHoHong else NHIP_DO_DONG_HO_GIAY
+
     # ── một vòng ──────────────────────────────────────────────────────────
     async def mot_vong(self) -> None:
         self.vong += 1
@@ -91,11 +111,28 @@ class Runtime:
         async with httpx.AsyncClient(
                 timeout=float(q["hetGioHoiGiay"]),
                 headers={"User-Agent": "thi-bac-ty/0.1 (+public data only)"}) as client:
+            # Đo lệch đồng hồ TRƯỚC khi hỏi báo giá: adapter đóng dấu bằng
+            # `bay_gio_ms()`, nên phần bù phải sẵn sàng trước lúc chúng chạy.
+            if time.time() - self._lanDoDongHo > self._hen_do_dong_ho():
+                soMau = await do_lech(client, dong_ho)
+                self._lanDoDongHo = time.time()
+                self._doDongHoHong = soMau == 0
+                if soMau == 0:
+                    bus.ghi("KHÔNG đo được lệch đồng hồ — mọi phép đếm mốc "
+                            "đang chạy trên giờ MÁY, thử lại sau 30s", loai="canh")
+
             ds = list(self.cang.values())
             goi = await asyncio.gather(*(c.bao_gia(client, list(q["ma"])) for c in ds))
 
-        now = time.time() * 1000.0
         tho: list[BaoGia] = [b for lo in goi for b in lo]
+
+        now = dong_ho.bay_gio_ms()
+
+        lech = dong_ho.lech_ms()
+        if lech is not None and abs(lech) > NGUONG_KEU_MS and not self._daKeuLech:
+            self._daKeuLech = True
+            bus.ghi(f"ĐỒNG HỒ MÁY lệch {lech / 1000:+.0f}s so với sàn — đã bù "
+                    f"khi đếm mốc, nhưng nên chỉnh lại NTP", loai="canh")
 
         # Lọc báo giá quá cũ TRƯỚC khi ghép cặp. Lọc sau thì một báo giá chết
         # vẫn kịp sinh ra ba cặp, và cả ba đều mang lý do từ chối giống hệt
@@ -142,18 +179,21 @@ class Runtime:
 
     # ── ảnh chụp cho buồng lái và cho lát cắt ─────────────────────────────
     def anh_chup(self) -> dict:
-        now = time.time() * 1000.0
+        now = dong_ho.bay_gio_ms()
         q = CONFIG["quet"]
         duyet = [c for c in self.coHoi if c.duyet]
 
         # Đếm lý do từ chối. Đây là số liệu ĐÁNG GIÁ NHẤT của cả bảng: không
         # cơ hội nào qua cửa thì câu hỏi tiếp theo luôn là "vì sao", và không
         # có bảng này thì người vận hành đi nới bừa từng ngưỡng một.
+        #
+        # Gộp theo MÃ, không theo câu. Bản đầu cắt chuỗi câu để lấy khoá, mà
+        # câu có mang con số — nên "NET sau phí" vỡ thành sáu dòng nói cùng
+        # một chuyện, và bảng mất đúng công dụng của nó.
         vi_sao: dict[str, int] = {}
         for c in self.coHoi:
-            for l in c.lyDo:
-                khoa = l.split("—")[0].split("<")[0].split(">")[0].strip()
-                vi_sao[khoa] = vi_sao.get(khoa, 0) + 1
+            for ma in c.lyDoMa:
+                vi_sao[NHAN.get(ma, ma)] = vi_sao.get(NHAN.get(ma, ma), 0) + 1
 
         return {
             "vong": self.vong,
@@ -168,6 +208,7 @@ class Runtime:
             "quetLauNhatMs": self.quetLauNhatMs,
             "loiVongCuoi": self.loiVongCuoi,
             "cang": [c.suc_khoe.tom_tat() for c in self.cang.values()],
+            "dongHo": dong_ho.tom_tat(),
             "phiSan": {k: v for k, v in CONFIG["san"].items()
                        if (v or {}).get("bat")},
             "ruiRo": self.cong.tom_tat(),

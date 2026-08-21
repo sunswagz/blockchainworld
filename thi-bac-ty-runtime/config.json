@@ -46,7 +46,8 @@
     "doiHoiItNhatMotMoc": true,
     "vonMoiCoHoiUsd": 100.0,
     "vonToiDaUsd": 300.0,
-    "donBayToiDa": 1.0
+    "donBayToiDa": 1.0,
+    "lechDongHoToiDaGiay": 10.0
   },
   "datLenh": {
     "toiXacNhanDaDocRuiRo": false

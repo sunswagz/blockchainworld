@@ -19,7 +19,7 @@ from __future__ import annotations
 import time
 
 from ..models import BaoGia
-from .base import Cang, nguyen_hoac_none, so_hoac_none
+from .base import Cang, bay_gio_ms, nguyen_hoac_none, so_hoac_none
 
 CHU_KY_MAC_DINH_PHUT = 480.0          # 8 giờ
 
@@ -43,7 +43,7 @@ class Bybit(Cang):
         t = await client.get(f"{self.goc}/v5/market/tickers",
                              params={"category": "linear"})
         t.raise_for_status()
-        now = int(time.time() * 1000)
+        now = int(bay_gio_ms())
         ra: list[BaoGia] = []
         for h in (((t.json() or {}).get("result") or {}).get("list") or []):
             sym = h.get("symbol")
@@ -62,7 +62,7 @@ class Bybit(Cang):
                 # Tickers không đóng dấu thời gian cho từng dòng. Dấu duy nhất
                 # đo được là lúc mình nhận — khai đúng như vậy, chứ đừng gán
                 # `now` rồi để tầng trên tưởng đó là dấu của sàn.
-                nguonTsMs=now, nhanTsMs=now,
+                nguonTsMs=now, nhanTsMs=now, nguonTuSan=False,
                 intervalSuyRa=p is None,
                 ghiChu=("" if p is not None
                         else f"thiếu fundingInterval, tạm dùng "

@@ -5,10 +5,7 @@
      · phông chữ Google              : cache khi dùng lần đầu
      · assets/js/v/                  : MẠNG TRƯỚC
 
-   `assets/js/phong.js` là sổ các phòng VIẾT TAY, đổi cùng nhịp với
-   mã, nên nó nằm thẳng trong SHELL.
-
-   Nhưng `assets/js/v/cang-phi.js` thì ngược hẳn: runtime Python ghi
+   `assets/js/v/cang-phi.js` KHÔNG nằm trong SHELL: runtime Python ghi
    đè nó mỗi lần chạy ở máy. Để nó ở nhánh cache-trước là máy đã cài
    app hiện lát cắt của hôm qua cho tới lần nâng CACHE_VERSION kế
    tiếp — một bảng điều khiển nói dối, thứ tệ hơn hẳn không có bảng
@@ -20,7 +17,7 @@
    trong SHELL thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v1";
+var CACHE_VERSION = "v2";
 var SHELL_CACHE = "thi-bac-ty-shell-" + CACHE_VERSION;
 var FONT_CACHE = "thi-bac-ty-fonts-" + CACHE_VERSION;
 
@@ -30,7 +27,6 @@ var SHELL = [
   "./manifest.webmanifest",
   "./assets/css/app.css",
   "./assets/css/halls.css",
-  "./assets/js/phong.js",
   "./assets/js/app.js",
   "./assets/js/pwa.js",
   "./assets/js/halls.js",

@@ -30,7 +30,7 @@ from bac.can_loi import (lech_mark_bps, net_apr_pct,            # noqa: E402
 from bac.config import CONFIG, DATA_DIR, che_hieu_luc, ly_do_khong_that  # noqa: E402
 from bac.dongho import dem_moc, moi_gio, moi_ngay, thu_cap, thu_thuc     # noqa: E402
 from bac.models import BaoGia                                    # noqa: E402
-from bac.rui_ro import CongRuiRo                                 # noqa: E402
+from bac.rui_ro import NHAN, CongRuiRo                           # noqa: E402
 from bac.san.base import moc_tron_gio_ke, nguyen_hoac_none, so_hoac_none  # noqa: E402
 from bac.san.binance import _doi_chung                           # noqa: E402
 from bac.san.okx import _chu_ky                                  # noqa: E402
@@ -310,6 +310,115 @@ def kiem_cong_rui_ro() -> None:
     kiem("gom ĐỦ lý do từ chối, không dừng ở cái đầu tiên", len(te.lyDo) >= 3,
          f"{len(te.lyDo)} lý do: {te.lyDo}")
 
+    # ── mã lý do: thứ đem đi GỘP ────────────────────────────────────────
+    #   Bản đầu chỉ có câu, và buồng lái cắt chuỗi để gộp. Câu mang con số
+    #   nên "NET sau phí -29.00" và "-28.00" thành hai khoá khác nhau: bảng
+    #   "vì sao bị chặn" vỡ thành sáu dòng nói cùng một chuyện.
+    kiem("mỗi lý do có một mã đi kèm", len(te.lyDoMa) == len(te.lyDo),
+         f"{len(te.lyDoMa)} mã / {len(te.lyDo)} câu")
+    kiem("mọi mã đều có nhãn trong bảng NHAN",
+         all(m in NHAN for m in te.lyDoMa),
+         f"mã lạ: {[m for m in te.lyDoMa if m not in NHAN]}")
+
+    #   Hai cơ hội cùng hỏng một kiểu, khác con số → PHẢI cùng mã.
+    a1 = tim_co_hoi([_bg("a", 0.0, 1.0), _bg("b", 0.0001, 1.0)],
+                    now, 8.0, {"a": {"phiTakerBps": 100}, "b": {}}, cong)[0]
+    a2 = tim_co_hoi([_bg("a", 0.0, 1.0), _bg("b", 0.0002, 1.0)],
+                    now, 8.0, {"a": {"phiTakerBps": 90}, "b": {}}, cong)[0]
+    kiem("hai cặp NET âm khác nhau vẫn cùng MỘT mã",
+         "net-am" in a1.lyDoMa and "net-am" in a2.lyDoMa,
+         f"{a1.lyDoMa} vs {a2.lyDoMa}")
+    kiem("...trong khi CÂU thì khác nhau (nên câu không gộp được)",
+         a1.lyDo != a2.lyDo,
+         "câu giống nhau thì phép kiểm trên không chứng minh được gì")
+
+    #   Và đây là phép bắt đúng lỗi cũ: gộp theo mã ra 1 dòng, gộp theo câu
+    #   ra 2 dòng.
+    theo_ma, theo_cau = set(), set()
+    for x in (a1, a2):
+        theo_ma.update(m for m in x.lyDoMa if m == "net-am")
+        theo_cau.update(c for c in x.lyDo if c.startswith("NET"))
+    kiem("gộp theo mã → 1 nhóm; gộp theo câu → 2 nhóm",
+         len(theo_ma) == 1 and len(theo_cau) == 2,
+         f"mã={len(theo_ma)} câu={len(theo_cau)}")
+
+
+def kiem_dong_ho() -> None:
+    print("\n── Đồng hồ: máy chậm 6,94 phút và KHÔNG gì báo ────────────────")
+
+    from bac.dong_ho import NGUONG_KEU_MS, DongHo
+
+    d = DongHo()
+    kiem("chưa có mẫu thì lệch là None, KHÔNG phải 0",
+         d.lech_ms() is None,
+         "0 nghĩa là 'đã đo, khớp'; None nghĩa là 'chưa biết' — khác hẳn nhau")
+    kiem("chưa đo thì bay_gio_ms rơi về giờ máy",
+         abs(d.bay_gio_ms() - time.time() * 1000.0) < 50)
+
+    # Ba sàn cùng nói máy chậm 416 giây — đúng số đo thật 21/08/2026.
+    t = time.time() * 1000.0
+    for san in ("binance", "okx", "bybit"):
+        d.ghi_mau(san, t + 416_200, t, t)
+    kiem("ba mẫu khớp → lệch đúng bằng mẫu",
+         gan(d.lech_ms(), 416_200, 1.0), f"{d.lech_ms()}")
+    kiem("bay_gio_ms bù đúng phần lệch",
+         abs(d.bay_gio_ms() - (time.time() * 1000.0 + 416_200)) < 50)
+    kiem("lệch quá ngưỡng thì KÊU", d.tom_tat()["dangKeu"])
+
+    # Bù nửa vòng khứ hồi: dấu sàn đóng ở đâu đó giữa lúc gửi và lúc nhận.
+    d3 = DongHo()
+    d3.ghi_mau("a", t + 1000, t, t + 200)     # khứ hồi 200ms, trung điểm t+100
+    kiem("bù nửa vòng khứ hồi", gan(d3.lech_ms(), 900.0, 1.0), f"{d3.lech_ms()}")
+
+    # Một sàn trả dấu thời gian hỏng KHÔNG được kéo cả ước lượng đi.
+    d.ghi_mau("hong", t + 99_999_999, t, t)
+    kiem("trung vị chịu được MỘT sàn trả dấu hỏng",
+         gan(d.lech_ms(), 416_200, 1.0),
+         f"{d.lech_ms()} — trung bình sẽ bị kéo lệch, trung vị thì không")
+
+    d2 = DongHo()
+    d2.ghi_mau("a", t, t, t)
+    kiem("máy khớp sàn thì không kêu",
+         not d2.tom_tat()["dangKeu"] and gan(d2.lech_ms(), 0.0, 1.0))
+    kiem("ngưỡng kêu là 5 giây", gan(NGUONG_KEU_MS, 5000.0))
+
+
+def kiem_tuoi_am() -> None:
+    print("\n── Tuổi ÂM: cửa 'dữ liệu cũ' từng chết trong im lặng ──────────")
+
+    now = time.time() * 1000.0
+    b_cu = _bg("a", 0.0, 1.0, ts=int(now - 600_000))
+    b_tuong_lai = _bg("a", 0.0, 1.0, ts=int(now + 416_200))
+
+    kiem("báo giá cũ 600s → tuổi +600", gan(b_cu.tuoi_giay(now), 600.0, 1.0))
+    kiem("dấu thời gian ở TƯƠNG LAI → tuổi ÂM, không bị kẹp về 0",
+         b_tuong_lai.tuoi_giay(now) < -400,
+         f"đang là {b_tuong_lai.tuoi_giay(now):.0f} — kẹp về 0 là cách cửa "
+         f"tuoiToiDaGiay bị vô hiệu suốt mà vẫn hiện trong bảng cấu hình")
+
+    phi = {"a": {"phiTakerBps": 0, "truotGiaBps": 0},
+           "b": {"phiTakerBps": 0, "truotGiaBps": 0}}
+    cong = CongRuiRo({"grossToiThieuBpsNgay": 3.0, "netToiThieuBps": 0.5,
+                      "lechDongHoToiDaGiay": 10.0})
+
+    lech = tim_co_hoi([_bg("a", 0.0, 1.0, ts=int(now + 416_200)),
+                       _bg("b", 0.0001, 1.0)], now, 8.0, phi, cong)[0]
+    kiem("lệch đồng hồ → cơ hội bị CHẶN", not lech.duyet)
+    kiem("và mã lý do đúng là lech-dong-ho", "lech-dong-ho" in lech.lyDoMa,
+         str(lech.lyDoMa))
+
+    # Chân này lệch −416s, chân kia mới +0,4s. `max()` trần sẽ lấy +0,4 và
+    # che mất chỗ hỏng; phải lấy giá trị xa 0 nhất, giữ nguyên dấu.
+    kiem("'tuổi xấu nhất' lấy giá trị xa 0 nhất, giữ dấu",
+         lech.tuoiXauNhatGiay is not None and lech.tuoiXauNhatGiay < -400,
+         f"đang là {lech.tuoiXauNhatGiay}")
+
+    # Bù đúng lệch thì mọi thứ về bình thường.
+    ok = tim_co_hoi([_bg("a", 0.0, 1.0, ts=int(now + 416_200)),
+                     _bg("b", 0.0001, 1.0, ts=int(now + 416_200))],
+                    now + 416_200, 8.0, phi, cong)[0]
+    kiem("bù lệch rồi thì cơ hội qua cửa bình thường", ok.duyet, str(ok.lyDo))
+
 
 def kiem_adapter() -> None:
     print("\n── Adapter: đơn vị và suy luận chu kỳ ────────────────────────")
@@ -416,6 +525,8 @@ def main() -> int:
     kiem_can_loi()
     kiem_ghep_cap()
     kiem_cong_rui_ro()
+    kiem_dong_ho()
+    kiem_tuoi_am()
     kiem_adapter()
     kiem_so()
     kiem_cua_dat_lenh()

@@ -33,8 +33,12 @@ class BaoGia:
     markPx: float | None          # GIÁ MARK, không phải giá khớp cuối
     mocKeMs: int | None           # mốc kết toán kế tiếp, epoch ms
     oiUsd: float | None = None
-    nguonTsMs: int | None = None  # sàn đóng dấu lúc nào
+    nguonTsMs: int | None = None  # dấu thời gian đi kèm báo giá
     nhanTsMs: int | None = None   # máy mình nhận lúc nào
+    #: `nguonTsMs` có phải do SÀN đóng dấu không. False = adapter tự điền giờ
+    #: máy vì sàn không gửi. Phân biệt được hai thứ này mới đo được lệch đồng
+    #: hồ: lấy dấu mình tự điền đi đo đồng hồ của chính mình thì luôn ra 0.
+    nguonTuSan: bool = False
     intervalSuyRa: bool = False   # True = phải suy chu kỳ, sàn không nói thẳng
     ghiChu: str = ""
 
@@ -48,16 +52,26 @@ class BaoGia:
         return self.moiGio * 24.0
 
     def tuoi_giay(self, nowMs: float) -> float | None:
-        """Báo giá này già bao nhiêu giây, theo dấu thời gian của SÀN.
+        """Báo giá này già bao nhiêu giây. **Có thể ÂM** — xem dưới.
 
         Lấy `nguonTsMs` chứ không lấy `nhanTsMs`: một request thành công vẫn
         có thể trả về dữ liệu sàn đã cache từ lâu, và lúc đó `nhanTsMs` mới
         tinh nhưng nội dung thì cũ. Đo nhầm cái sau là tự cấp cho mình một
         cảm giác tươi mới không có thật.
+
+        **KHÔNG kẹp về 0 nữa.** Bản đầu viết `max(0.0, …)`, và chính chỗ kẹp
+        ấy giết cửa `tuoiToiDaGiay`: đồng hồ máy chậm 6,94 phút (đo thật
+        21/08/2026) làm dấu thời gian sàn nằm ở tương lai, hiệu ra âm, kẹp về
+        0 — "vừa mới tinh", mãi mãi, cho cả Binance lẫn OKX.
+
+        Tuổi âm là một TÍN HIỆU, không phải một con số cần dọn: nó nói đồng
+        hồ hai bên không khớp. Truyền `nowMs` từ `dong_ho.bay_gio_ms()` thì
+        con số này về đúng; còn âm nghĩa là bù chưa đủ, và cổng rủi ro phải
+        thấy điều đó.
         """
         if self.nguonTsMs is None:
             return None
-        return max(0.0, (nowMs - self.nguonTsMs) / 1000.0)
+        return (nowMs - self.nguonTsMs) / 1000.0
 
     def tom_tat(self, nowMs: float) -> dict:
         return {
@@ -66,6 +80,7 @@ class BaoGia:
             "moiGio": self.moiGio, "moiNgayBps": self.moiNgay * 10_000.0,
             "markPx": self.markPx, "mocKeMs": self.mocKeMs,
             "oiUsd": self.oiUsd, "tuoiGiay": self.tuoi_giay(nowMs),
+            "nguonTuSan": self.nguonTuSan,
             "intervalSuyRa": self.intervalSuyRa, "ghiChu": self.ghiChu,
         }
 
@@ -100,7 +115,10 @@ class CoHoi:
     uocLuongMoc: bool
 
     duyet: bool
+    #: Câu đầy đủ cho người đọc — có mang con số, nên KHÔNG gộp được.
     lyDo: tuple[str, ...] = ()
+    #: Mã lý do để GỘP. Xem `rui_ro.NHAN`. Hai trường này luôn cùng độ dài.
+    lyDoMa: tuple[str, ...] = ()
     luc: str = field(default_factory=bay_gio)
 
     def tom_tat(self) -> dict:
@@ -116,5 +134,6 @@ class CoHoi:
             "choMocDauGiay": self.choMocDauGiay,
             "tuoiXauNhatGiay": self.tuoiXauNhatGiay,
             "uocLuongMoc": self.uocLuongMoc,
-            "duyet": self.duyet, "lyDo": list(self.lyDo), "luc": self.luc,
+            "duyet": self.duyet, "lyDo": list(self.lyDo),
+            "lyDoMa": list(self.lyDoMa), "luc": self.luc,
         }

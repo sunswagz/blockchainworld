@@ -4,6 +4,7 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod
 
+from ..dong_ho import dong_ho
 from ..models import BaoGia
 
 GIO_MS = 3_600_000
@@ -79,9 +80,25 @@ class Cang(ABC):
         return ra
 
 
+def bay_gio_ms() -> float:
+    """Giờ SÀN đã bù lệch. **Mọi adapter phải dùng hàm này, không dùng
+    `time.time()`.**
+
+    Sàn không đóng dấu thời gian thì adapter tự điền — nhưng phải điền vào
+    ĐÚNG MIỀN đồng hồ mà tầng trên đem ra so, nếu không nó tự làm mình thành
+    dữ liệu cũ.
+
+    Đã cắn thật ngay lúc dựng: sau khi bù lệch, `now` của vòng lặp chuyển
+    sang giờ sàn (+397s), còn Hyperliquid và Bybit vẫn đóng dấu bằng giờ máy
+    — nên cả hai bị vứt với lý do "cũ hơn 90s", mỗi lượt quét đúng 10 báo
+    giá. Bảng vẫn xanh, chỉ có hai trong bốn cảng lặng lẽ biến mất.
+    """
+    return dong_ho.bay_gio_ms()
+
+
 def moc_tron_gio_ke(nowMs: float | None = None) -> int:
     """Mốc tròn giờ kế tiếp, epoch ms. Dùng cho cảng kết toán theo giờ."""
-    now = nowMs if nowMs is not None else time.time() * 1000.0
+    now = nowMs if nowMs is not None else bay_gio_ms()
     return int((int(now) // GIO_MS + 1) * GIO_MS)
 
 

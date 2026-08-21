@@ -23,7 +23,7 @@ import asyncio
 import time
 
 from ..models import BaoGia
-from .base import Cang, nguyen_hoac_none, so_hoac_none
+from .base import Cang, bay_gio_ms, nguyen_hoac_none, so_hoac_none
 
 CHU_KY_MAC_DINH_GIO = 8.0
 CHU_KY_CO_THAT = (1.0, 2.0, 4.0, 8.0)
@@ -60,14 +60,14 @@ class OKX(Cang):
                 return None
             moc = nguyen_hoac_none(fr.get("fundingTime"))
             moc_ke = nguyen_hoac_none(fr.get("nextFundingTime"))
-            ts = nguyen_hoac_none(fr.get("ts")) or int(time.time() * 1000)
+            ts = nguyen_hoac_none(fr.get("ts")) or int(bay_gio_ms())
 
             gio, suy_ra = _chu_ky(moc, moc_ke)
             # `fundingRate` gắn với `fundingTime`. Mốc ấy còn ở phía trước thì
             # nó chính là lần kết toán sắp tới; đã trôi qua thì lần sắp tới là
             # `nextFundingTime` — nhưng khi đó mức áp dụng là `nextFundingRate`
             # chứ không phải `fundingRate`, nên ghi chú lại cho rõ.
-            now = int(time.time() * 1000)
+            now = int(bay_gio_ms())
             if moc is not None and moc > now:
                 moc_dung, ghi = moc, ""
             else:
@@ -80,7 +80,8 @@ class OKX(Cang):
             return BaoGia(
                 san=self.ten, ma=goc_ma, rate=rate, intervalGio=gio,
                 markPx=mark, mocKeMs=moc_dung, nguonTsMs=ts,
-                nhanTsMs=now, intervalSuyRa=suy_ra, ghiChu=ghi,
+                nhanTsMs=now, nguonTuSan=True,   # `ts` là dấu của sàn
+                intervalSuyRa=suy_ra, ghiChu=ghi,
             )
 
         ds = await asyncio.gather(*(mot(x) for x in ma), return_exceptions=True)

@@ -9,11 +9,11 @@
 window.CANG_PHI = {
   "date": "21/08/2026",
   "tomTat": "30 cặp đã cân · KHÔNG cặp nào qua cửa rủi ro",
-  "generatedAt": "2026-08-21T15:34:24.224Z",
+  "generatedAt": "2026-08-21T16:14:26.762Z",
   "che": "quan-sat",
   "cheKhai": "quan-sat",
   "vong": 1,
-  "chayDuocGiay": 0.9456629753112793,
+  "chayDuocGiay": 1.0127713680267334,
   "giuGio": 8.0,
   "ma": [
     "BTC",
@@ -28,8 +28,8 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 0.011966796875,
-      "treTrungBinhMs": 415.89149995706975,
+      "tuoiGiay": 0.1183212890625,
+      "treTrungBinhMs": 201.50460000149906,
       "songSot": true
     },
     {
@@ -37,8 +37,8 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 0.0242099609375,
-      "treTrungBinhMs": 394.4926999974996,
+      "tuoiGiay": 0.013960693359375,
+      "treTrungBinhMs": 304.39609999302775,
       "songSot": true
     },
     {
@@ -46,8 +46,8 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 0.058118408203125,
-      "treTrungBinhMs": 360.6784000294283,
+      "tuoiGiay": 0.020943603515625,
+      "treTrungBinhMs": 296.36850010138005,
       "songSot": true
     },
     {
@@ -55,11 +55,24 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 0.102998291015625,
-      "treTrungBinhMs": 315.33700006548315,
+      "tuoiGiay": 0.073316162109375,
+      "treTrungBinhMs": 244.38070005271584,
       "songSot": true
     }
   ],
+  "dongHo": {
+    "lechMs": 416164.6174316406,
+    "lechGiay": 416.16461743164064,
+    "daDo": true,
+    "dangKeu": true,
+    "nguongKeuMs": 5000.0,
+    "theoSan": {
+      "bybit": 416155.0393066406,
+      "binance": 416175.0908203125,
+      "okx": 416164.6174316406
+    },
+    "soMau": 3
+  },
   "baoGia": [
     {
       "san": "hyperliquid",
@@ -68,10 +81,11 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 77674.0,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 2633895479.00744,
-      "tuoiGiay": 0.01382958984375,
+      "markPx": 77201.0,
+      "mocKeMs": 1787331600000,
+      "oiUsd": 2589514866.7442,
+      "tuoiGiay": 0.119309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
     },
@@ -82,38 +96,41 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 2403.6,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 2190417754.2129593,
-      "tuoiGiay": 0.01382958984375,
+      "markPx": 2399.5,
+      "mocKeMs": 1787331600000,
+      "oiUsd": 2188671756.3432007,
+      "tuoiGiay": 0.119309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
     },
     {
       "san": "hyperliquid",
       "ma": "SOL",
-      "rate": 2.90514e-05,
+      "rate": 1.25e-05,
       "intervalGio": 1.0,
-      "moiGio": 2.90514e-05,
-      "moiNgayBps": 6.972336,
-      "markPx": 91.8213,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 474487329.8667897,
-      "tuoiGiay": 0.01382958984375,
+      "moiGio": 1.25e-05,
+      "moiNgayBps": 3.0000000000000004,
+      "markPx": 91.424,
+      "mocKeMs": 1787331600000,
+      "oiUsd": 464983524.5184,
+      "tuoiGiay": 0.119309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
     },
     {
       "san": "hyperliquid",
       "ma": "DOGE",
-      "rate": 4.37089e-05,
+      "rate": 4.03426e-05,
       "intervalGio": 1.0,
-      "moiGio": 4.37089e-05,
-      "moiNgayBps": 10.490136,
-      "markPx": 0.084368,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 40832197.69008,
-      "tuoiGiay": 0.01382958984375,
+      "moiGio": 4.03426e-05,
+      "moiNgayBps": 9.682224,
+      "markPx": 0.084346,
+      "mocKeMs": 1787331600000,
+      "oiUsd": 41169058.914408006,
+      "tuoiGiay": 0.119309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
     },
@@ -124,10 +141,11 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 1.4131,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 178021264.044,
-      "tuoiGiay": 0.01382958984375,
+      "markPx": 1.4007,
+      "mocKeMs": 1787331600000,
+      "oiUsd": 181097060.4786,
+      "tuoiGiay": 0.119309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
     },
@@ -138,12 +156,13 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 77645.2,
-      "mocKeMs": 1787328000000,
+      "markPx": 77178.62953623,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 0.919309326171875,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": "mốc kế gợi ý 1h, lệch bản khai 8h"
+      "ghiChu": ""
     },
     {
       "san": "binance",
@@ -152,12 +171,13 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 2402.56517054,
-      "mocKeMs": 1787328000000,
+      "markPx": 2398.1837724,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 0.919309326171875,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": "mốc kế gợi ý 1h, lệch bản khai 8h"
+      "ghiChu": ""
     },
     {
       "san": "binance",
@@ -166,12 +186,13 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 91.72879279,
-      "mocKeMs": 1787328000000,
+      "markPx": 91.39796112,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 0.919309326171875,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": "mốc kế gợi ý 1h, lệch bản khai 8h"
+      "ghiChu": ""
     },
     {
       "san": "binance",
@@ -180,12 +201,13 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 1.4126187,
-      "mocKeMs": 1787328000000,
+      "markPx": 1.40186998,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 0.919309326171875,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": "mốc kế gợi ý 1h, lệch bản khai 8h"
+      "ghiChu": ""
     },
     {
       "san": "binance",
@@ -194,12 +216,13 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 0.0842799,
-      "mocKeMs": 1787328000000,
+      "markPx": 0.08433034,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 0.919309326171875,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": "mốc kế gợi ý 1h, lệch bản khai 8h"
+      "ghiChu": ""
     },
     {
       "san": "okx",
@@ -208,10 +231,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 77650.0,
-      "mocKeMs": 1787328000000,
+      "markPx": 77152.4,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 70.71130932617187,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -222,10 +246,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 2402.11,
-      "mocKeMs": 1787328000000,
+      "markPx": 2397.31,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 70.57830932617188,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -236,10 +261,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 91.7,
-      "mocKeMs": 1787328000000,
+      "markPx": 91.35,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 69.16530932617188,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -250,10 +276,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 1.4124,
-      "mocKeMs": 1787328000000,
+      "markPx": 1.4007,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 70.27130932617187,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -264,10 +291,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 0.08427,
-      "mocKeMs": 1787328000000,
+      "markPx": 0.08429,
+      "mocKeMs": 1787356800000,
       "oiUsd": null,
-      "tuoiGiay": 0.0,
+      "tuoiGiay": 69.72130932617188,
+      "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -278,10 +306,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 77647.7,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 3859304842.36,
-      "tuoiGiay": 0.10982958984375,
+      "markPx": 77153.59,
+      "mocKeMs": 1787356800000,
+      "oiUsd": 3828476017.5,
+      "tuoiGiay": 0.081309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -292,10 +321,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 0.08423,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 126064533.89,
-      "tuoiGiay": 0.10982958984375,
+      "markPx": 0.08429,
+      "mocKeMs": 1787356800000,
+      "oiUsd": 125324925.9,
+      "tuoiGiay": 0.081309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -306,10 +336,11 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 2402.4,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 1843329375.89,
-      "tuoiGiay": 0.10982958984375,
+      "markPx": 2397.79,
+      "mocKeMs": 1787356800000,
+      "oiUsd": 1835702346.1,
+      "tuoiGiay": 0.081309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
@@ -320,24 +351,26 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 91.72,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 555461942.44,
-      "tuoiGiay": 0.10982958984375,
+      "markPx": 91.361,
+      "mocKeMs": 1787356800000,
+      "oiUsd": 552660202.9,
+      "tuoiGiay": 0.081309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
     },
     {
       "san": "bybit",
       "ma": "XRP",
-      "rate": 0.0001,
+      "rate": 4.848e-05,
       "intervalGio": 8.0,
-      "moiGio": 1.25e-05,
-      "moiNgayBps": 3.0000000000000004,
-      "markPx": 1.4129,
-      "mocKeMs": 1787328000000,
-      "oiUsd": 324540728.07,
-      "tuoiGiay": 0.10982958984375,
+      "moiGio": 6.06e-06,
+      "moiNgayBps": 1.4544,
+      "markPx": 1.4008,
+      "mocKeMs": 1787356800000,
+      "oiUsd": 320931015.92,
+      "tuoiGiay": 0.081309326171875,
+      "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
     }
@@ -348,318 +381,366 @@ window.CANG_PHI = {
       "sanLong": "binance",
       "sanShort": "hyperliquid",
       "rateLong": 0.0001,
-      "rateShort": 4.37089e-05,
+      "rateShort": 4.03426e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 7.490136,
+      "grossBpsNgay": 6.6822240000000015,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 2.496712,
+      "thuBps": 2.227408,
       "phiBps": 27.0,
-      "netBps": -24.503288,
-      "netAprPct": -268.3110036,
-      "lechMarkBps": 10.447802789123816,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
+      "netBps": -24.772592,
+      "netAprPct": -271.2598824,
+      "lechMarkBps": 1.8568105046624408,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.906345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
-        "NET sau phí -24.50 bps < ngưỡng 0.50"
+        "NET sau phí -24.77 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "DOGE",
       "sanLong": "okx",
       "sanShort": "hyperliquid",
       "rateLong": 0.0001,
-      "rateShort": 4.37089e-05,
+      "rateShort": 4.03426e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 7.490136,
+      "grossBpsNgay": 6.6822240000000015,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 2.496712,
+      "thuBps": 2.227408,
       "phiBps": 27.0,
-      "netBps": -24.503288,
-      "netAprPct": -268.3110036,
-      "lechMarkBps": 11.622528730179539,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
+      "netBps": -24.772592,
+      "netAprPct": -271.2598824,
+      "lechMarkBps": 6.641523755307348,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 69.70834545898437,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
-        "NET sau phí -24.50 bps < ngưỡng 0.50"
+        "NET sau phí -24.77 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "DOGE",
       "sanLong": "bybit",
       "sanShort": "hyperliquid",
       "rateLong": 0.0001,
-      "rateShort": 4.37089e-05,
+      "rateShort": 4.03426e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 7.490136,
+      "grossBpsNgay": 6.6822240000000015,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 2.496712,
+      "thuBps": 2.227408,
       "phiBps": 28.0,
-      "netBps": -25.503288,
-      "netAprPct": -279.26100360000004,
-      "lechMarkBps": 16.370300952561625,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "netBps": -25.772592,
+      "netAprPct": -282.20988239999997,
+      "lechMarkBps": 6.641523755307348,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.106345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
-        "NET sau phí -25.50 bps < ngưỡng 0.50"
+        "NET sau phí -25.77 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
-      "ma": "SOL",
-      "sanLong": "binance",
-      "sanShort": "hyperliquid",
-      "rateLong": 0.0001,
-      "rateShort": 2.90514e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 1.0,
-      "grossBpsNgay": 3.972336,
+      "ma": "BTC",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
       "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 8,
-      "thuBps": 1.324112,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
       "phiBps": 27.0,
-      "netBps": -25.675888,
-      "netAprPct": -281.1509736,
-      "lechMarkBps": 10.07977806972088,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 2.8981108242327274,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.906345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
-        "NET sau phí -25.68 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
-      "ma": "SOL",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid",
-      "rateLong": 0.0001,
-      "rateShort": 2.90514e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 1.0,
-      "grossBpsNgay": 3.972336,
+      "ma": "BTC",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
       "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 8,
-      "thuBps": 1.324112,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
       "phiBps": 27.0,
-      "netBps": -25.675888,
-      "netAprPct": -281.1509736,
-      "lechMarkBps": 13.219174014132513,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 6.297237378639644,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 70.69834545898438,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
-        "NET sau phí -25.68 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "ETH",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 27.0,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 5.486929370258968,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.906345458984375,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "ETH",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 27.0,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 9.13106835584505,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 70.56534545898438,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "SOL",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 27.0,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 2.8485505614842666,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.906345458984375,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "SOL",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 27.0,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 8.09743180102337,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 69.15234545898437,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 27.0,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 8.349336561437191,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.906345458984375,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 27.0,
+      "netBps": -27.0,
+      "netAprPct": -295.65,
+      "lechMarkBps": 0.0,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 70.25834545898438,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "XRP",
       "sanLong": "bybit",
       "sanShort": "hyperliquid",
-      "rateLong": 0.0001,
-      "rateShort": 2.90514e-05,
+      "rateLong": 4.848e-05,
+      "rateShort": 1.25e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 3.972336,
+      "grossBpsNgay": 1.5456000000000003,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 1.324112,
+      "thuBps": 0.5152000000000001,
       "phiBps": 28.0,
-      "netBps": -26.675888,
-      "netAprPct": -292.1009736,
-      "lechMarkBps": 11.038387545472855,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "netBps": -27.4848,
+      "netAprPct": -300.95856,
+      "lechMarkBps": 0.7139032661073639,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.106345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
-        "NET sau phí -26.68 bps < ngưỡng 0.50"
+        "chênh lệch thô 1.55 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.48 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "BTC",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 3.708491931455082,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
       ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "BTC",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 3.0903144394942186,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
-      ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "ETH",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 4.306258413019069,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
-      ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "ETH",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 6.200956778498003,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
-      ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "XRP",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 3.4065669735641335,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
-      ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "XRP",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 4.954875243319221,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.003856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
-      ],
-      "luc": "2026-08-21T15:34:24Z"
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "BTC",
@@ -677,16 +758,20 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 3.386519720039493,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 6.142998403870399,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.106345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "BTC",
@@ -704,16 +789,20 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 0.618177509672277,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.0,
+      "lechMarkBps": 3.399126709492853,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 70.69834545898438,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "ETH",
@@ -731,16 +820,20 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 4.99375780274581,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 7.12902492865779,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.106345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "ETH",
@@ -758,16 +851,51 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 1.8946984919638992,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.0,
+      "lechMarkBps": 3.6441394420284596,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 70.56534545898438,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "SOL",
+      "sanLong": "hyperliquid",
+      "sanShort": "bybit",
+      "rateLong": 1.25e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.0,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.0,
+      "phiBps": 28.0,
+      "netBps": -28.0,
+      "netAprPct": -306.59999999999997,
+      "lechMarkBps": 6.893344639877712,
+      "choMocDauGiay": 2317.0936545410154,
+      "tuoiXauNhatGiay": 0.106345458984375,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.00 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "SOL",
@@ -785,16 +913,20 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 3.1393969901945322,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.0,
+      "lechMarkBps": 5.248881542215122,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 69.15234545898437,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "DOGE",
@@ -812,43 +944,20 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 1.1747262976729296,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.0,
+      "lechMarkBps": 4.784713398158232,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 69.70834545898437,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "XRP",
-      "sanLong": "hyperliquid",
-      "sanShort": "bybit",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 28.0,
-      "netBps": -28.0,
-      "netAprPct": -306.59999999999997,
-      "lechMarkBps": 1.4154281670203679,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.00 bps < ngưỡng 0.50"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "XRP",
@@ -866,16 +975,82 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 1.5483083350902709,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.0,
+      "lechMarkBps": 8.349336561437191,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 70.25834545898438,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -28.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "bybit",
+      "sanShort": "binance",
+      "rateLong": 4.848e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 1.5456000000000003,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.5152000000000001,
+      "phiBps": 29.0,
+      "netBps": -28.4848,
+      "netAprPct": -311.90856,
+      "lechMarkBps": 7.635433409109594,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 0.906345458984375,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 1.55 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.48 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "bybit",
+      "sanShort": "okx",
+      "rateLong": 4.848e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 1.5456000000000003,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.5152000000000001,
+      "phiBps": 29.0,
+      "netBps": -28.4848,
+      "netAprPct": -311.90856,
+      "lechMarkBps": 0.7139032661073639,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 70.25834545898438,
+      "uocLuongMoc": false,
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 1.55 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.48 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "BTC",
@@ -893,16 +1068,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 0.3219722215246158,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 3.2448877240602436,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 0.906345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "BTC",
@@ -920,16 +1099,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 0.2962052882950501,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 0.15423898968566654,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 70.69834545898438,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "ETH",
@@ -947,16 +1130,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 0.6874994266874168,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 1.642095718981235,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 0.906345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "ETH",
@@ -974,16 +1161,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 1.2071990692077386,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 2.0020437529979276,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 70.56534545898438,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "SOL",
@@ -1001,16 +1192,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 0.9586097424000503,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 4.044794276952809,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 0.906345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "SOL",
@@ -1028,16 +1223,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 2.180787264201943,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 1.2040873291711929,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 69.15234545898437,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "DOGE",
@@ -1055,16 +1254,20 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 5.922500695805469,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 4.784713398158232,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 0.906345458984375,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-21T16:14:26Z"
     },
     {
       "ma": "DOGE",
@@ -1082,82 +1285,26 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 4.747774480711973,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
+      "lechMarkBps": 0.0,
+      "choMocDauGiay": 27517.093654541015,
+      "tuoiXauNhatGiay": 69.70834545898437,
       "uocLuongMoc": false,
       "duyet": false,
       "lyDo": [
         "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
         "NET sau phí -29.00 bps < ngưỡng 0.50"
       ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "XRP",
-      "sanLong": "binance",
-      "sanShort": "bybit",
-      "rateLong": 0.0001,
-      "rateShort": 0.0001,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 29.0,
-      "netBps": -29.0,
-      "netAprPct": -317.55,
-      "lechMarkBps": 1.9911388305457038,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -29.00 bps < ngưỡng 0.50"
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
       ],
-      "luc": "2026-08-21T15:34:24Z"
-    },
-    {
-      "ma": "XRP",
-      "sanLong": "okx",
-      "sanShort": "bybit",
-      "rateLong": 0.0001,
-      "rateShort": 0.0001,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 29.0,
-      "netBps": -29.0,
-      "netAprPct": -317.55,
-      "lechMarkBps": 3.539447138356598,
-      "choMocDauGiay": 1535.7921433105469,
-      "tuoiXauNhatGiay": 0.099856689453125,
-      "uocLuongMoc": false,
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -29.00 bps < ngưỡng 0.50"
-      ],
-      "luc": "2026-08-21T15:34:24Z"
+      "luc": "2026-08-21T16:14:26Z"
     }
   ],
   "soDuyet": 0,
   "viSaoTuChoi": {
-    "NET sau phí -24.50 bps": 2,
-    "NET sau phí -25.50 bps": 1,
-    "NET sau phí -25.68 bps": 2,
-    "NET sau phí -26.68 bps": 1,
-    "chênh lệch thô 0.00 bps/ngày": 24,
-    "NET sau phí -27.00 bps": 6,
-    "NET sau phí -28.00 bps": 8,
-    "NET sau phí -29.00 bps": 10
+    "NET sau phí dưới ngưỡng": 30,
+    "chênh lệch thô quá mỏng": 27
   },
   "ruiRo": {
     "grossToiThieuBpsNgay": 3.0,
@@ -1167,6 +1314,7 @@ window.CANG_PHI = {
     "tuoiToiDaGiay": 90.0,
     "nhanUocLuongMoc": false,
     "doiHoiItNhatMotMoc": true,
+    "lechDongHoToiDaGiay": 10.0,
     "vonMoiCoHoiUsd": 100.0,
     "vonToiDaUsd": 300.0,
     "donBayToiDa": 1.0
@@ -1195,131 +1343,131 @@ window.CANG_PHI = {
   },
   "doDai": [
     {
-      "soMau": 3,
-      "netTrungBinh": -24.609074666666668,
+      "soMau": 48,
+      "netTrungBinh": -23.1198905,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
-      "duMau": false,
+      "duMau": true,
       "ma": "DOGE",
       "sanLong": "binance",
       "sanShort": "hyperliquid"
     },
     {
-      "soMau": 3,
-      "netTrungBinh": -24.609074666666668,
+      "soMau": 48,
+      "netTrungBinh": -23.1198905,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
-      "duMau": false,
+      "duMau": true,
       "ma": "DOGE",
       "sanLong": "okx",
       "sanShort": "hyperliquid"
     },
     {
-      "soMau": 3,
-      "netTrungBinh": -25.609074666666668,
+      "soMau": 48,
+      "netTrungBinh": -24.1198905,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
-      "duMau": false,
+      "duMau": true,
       "ma": "DOGE",
       "sanLong": "bybit",
       "sanShort": "hyperliquid"
     },
     {
-      "soMau": 3,
-      "netTrungBinh": -25.636058666666667,
+      "soMau": 48,
+      "netTrungBinh": -27.291666666666668,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
-      "duMau": false,
-      "ma": "SOL",
-      "sanLong": "binance",
-      "sanShort": "hyperliquid"
+      "duMau": true,
+      "ma": "BTC",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance"
     },
     {
-      "soMau": 3,
-      "netTrungBinh": -25.636058666666667,
+      "soMau": 48,
+      "netTrungBinh": -27.291666666666668,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
-      "duMau": false,
-      "ma": "SOL",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid"
+      "duMau": true,
+      "ma": "BTC",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx"
     },
     {
-      "soMau": 3,
-      "netTrungBinh": -26.636058666666667,
+      "soMau": 48,
+      "netTrungBinh": -27.291666666666668,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
-      "duMau": false,
+      "duMau": true,
+      "ma": "ETH",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance"
+    },
+    {
+      "soMau": 48,
+      "netTrungBinh": -27.291666666666668,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": true,
+      "ma": "ETH",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx"
+    },
+    {
+      "soMau": 31,
+      "netTrungBinh": -27.451612903225808,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": true,
       "ma": "SOL",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance"
+    },
+    {
+      "soMau": 31,
+      "netTrungBinh": -27.451612903225808,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": true,
+      "ma": "SOL",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx"
+    },
+    {
+      "soMau": 48,
+      "netTrungBinh": -27.291666666666668,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": true,
+      "ma": "XRP",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance"
+    },
+    {
+      "soMau": 48,
+      "netTrungBinh": -27.291666666666668,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": true,
+      "ma": "XRP",
+      "sanLong": "hyperliquid",
+      "sanShort": "okx"
+    },
+    {
+      "soMau": 29,
+      "netTrungBinh": -27.18924827586207,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": true,
+      "ma": "XRP",
       "sanLong": "bybit",
       "sanShort": "hyperliquid"
-    },
-    {
-      "soMau": 3,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "BTC",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance"
-    },
-    {
-      "soMau": 3,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "BTC",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx"
-    },
-    {
-      "soMau": 3,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "ETH",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance"
-    },
-    {
-      "soMau": 3,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "ETH",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx"
-    },
-    {
-      "soMau": 3,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "XRP",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance"
-    },
-    {
-      "soMau": 3,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "XRP",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx"
     }
   ],
   "so": {
-    "soLuot": 3,
+    "soLuot": 57,
     "luotDauMs": 1787326014998,
-    "luotCuoiMs": 1787326464208,
-    "soCoHoi": 90,
+    "luotCuoiMs": 1787328866742,
+    "soCoHoi": 1485,
     "soDuyet": 0,
     "soLoiGhi": 0,
     "loiCuoi": null,
