@@ -407,3 +407,21 @@ tr:last-child td{border-bottom:0}
 .luon-mo .book{gap:10px}
 .luon-mo .muc{font-size:11px;padding:1px 0}
 .luon-mo .muc .g{width:44px}
+
+/* ── thanh nhảy ──────────────────────────────────────────
+   THAY cho cơ chế gập, không phải bổ sung cho nó. Gập giấu nội dung đi
+   để trang ngắn lại; thanh này giữ nguyên nội dung và rút ngắn ĐƯỜNG ĐI
+   tới nó. Trong một buồng lái thì vế sau đúng hơn — thứ phải bấm mới
+   thấy là thứ trên thực tế không được nhìn. */
+.nhay{
+  position:sticky;top:0;z-index:5;display:flex;gap:4px;flex-wrap:wrap;
+  padding:7px 0 8px;margin-bottom:2px;background:var(--nen);
+  border-bottom:1px solid var(--vien)}
+.nhay-nut{
+  font-size:11px;color:var(--mo2);padding:3px 9px;border-radius:6px;
+  border:1px solid transparent;transition:color var(--dur),border-color var(--dur)}
+.nhay-nut:hover{color:var(--sao);border-color:var(--vien)}
+
+/* Ô trọn hàng thì nội dung bên trong cũng được phép trải rộng hơn. */
+.luon-mo>.rong .luoi3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.gop.mo{scroll-margin-top:52px}

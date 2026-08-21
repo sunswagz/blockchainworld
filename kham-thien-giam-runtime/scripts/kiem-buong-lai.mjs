@@ -117,7 +117,7 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._LUON_MO = LUON_MO; globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._MO = MO; globalThis._KHOI = KHOI; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
+  "  globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._O_LIST = O_LIST; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
 );
 
 const T = await layTrangThai();
@@ -212,27 +212,31 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
   if (!(ok && roiVe)) loi++;
 }
 
-// Ba ô Đài Chiêm / Sổ Lệnh / Áp Lực Sổ phải có NỘI DUNG ngay, không cần
-// bấm gì. Đó là ô để đọc liên tục chứ không phải để tra cứu, và một thứ
-// phải bấm mới thấy thì trên thực tế là một thứ không được nhìn.
+// MỌI ô phải có nội dung ngay, không cần bấm gì. Không còn cơ chế gập,
+// nên đây là bất biến chính của cả trang: đúng bằng số ô trong `O_LIST`,
+// và không ô nào được rỗng.
 //
 // Kiểm bằng CẤU TRÚC, không bằng chuỗi tiêu đề. Bản đầu tìm chuỗi "Sổ
 // lệnh ·" và nó đỏ ngay trên máy đang chạy — vì lúc sổ chưa về, ô ấy in
 // đúng đắn một dòng "chưa nhận được sổ lệnh". Đó VẪN là nội dung, và bắt
 // nó đỏ là báo động giả. Báo động giả thì người ta ngừng tin cả bộ kiểm.
 {
-  for (const k of globalThis._KHOI) globalThis._MO[k.ma] = false;
   const r = globalThis._VE["tat-ca"]();
-  // Khối gập đóng thì không có `gop-than`, nên số `gop-than` còn lại đúng
-  // bằng số ô luôn mở.
   const than = timLop(r, "gop-than");
   const rong = than.filter((n) => !(n.children || []).length).length;
-  const du = than.length === globalThis._LUON_MO.length;
-  const ok = du && !rong;
-  console.log(`  ${ok ? "OK   " : "LỖI  "} ${"luôn-mở".padEnd(12)} ` +
-              `${than.length}/${globalThis._LUON_MO.length} ô mở sẵn` +
+  const n = globalThis._O_LIST.length;
+  const ok = than.length === n && !rong;
+  console.log(`  ${ok ? "OK   " : "LỖI  "} ${"mọi-ô-mở".padEnd(12)} ` +
+              `${than.length}/${n} ô mở sẵn` +
               `${rong ? ` · ${rong} ô THÂN RỖNG` : " · đều có nội dung"}`);
   if (!ok) loi++;
+
+  // Thanh nhảy phải có đúng một nút cho mỗi ô — thiếu một nút là một ô
+  // không tới được bằng cách nào khác ngoài cuộn tay.
+  const nut = timLop(r, "nhay-nut").length;
+  console.log(`  ${nut === n ? "OK   " : "LỖI  "} ${"thanh-nhảy".padEnd(12)} ` +
+              `${nut}/${n} nút`);
+  if (nut !== n) loi++;
 }
 
 // Ô CHI TIẾT phải đi theo khung đang chọn; ô CẢ RỔ phải KHÔNG đi theo.
@@ -260,28 +264,6 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
               ` · ${saiRo.length ? "cả rổ mà lại đổi: " + saiRo.join(",") : "3 ô cả rổ giữ nguyên"}`);
   if (!ok) loi++;
 }
-
-// Khối gập chỉ được VẼ khi mở. Một khối hỏng có thể nằm im rất lâu —
-// không ai mở thì không ai biết. Nên mở TỪNG khối một và đòi nó phải
-// làm trang dày lên. So với một ngưỡng cố định thì vô nghĩa: con số đó
-// đổi mỗi lần thêm nội dung, và rồi người ta sẽ chỉnh ngưỡng cho vừa
-// thay vì sửa lỗi.
-const dong = dem(globalThis._VE["tat-ca"]());
-let gapLoi = 0;
-for (const k of globalThis._KHOI) {
-  globalThis._MO[k.ma] = true;
-  let n = 0;
-  try { n = dem(globalThis._VE["tat-ca"]()); } catch (e) { n = -1; }
-  globalThis._MO[k.ma] = false;
-  const ok = n > dong;
-  if (!ok) {
-    gapLoi++;
-    console.log(`  LỖI   ${("gập:" + k.ma).padEnd(12)} mở ra KHÔNG thêm nội dung`);
-  }
-}
-console.log(`  ${gapLoi ? "LỖI  " : "OK   "} ${"khối-gập".padEnd(12)} ` +
-            `${globalThis._KHOI.length - gapLoi}/${globalThis._KHOI.length} khối mở ra có nội dung`);
-loi += gapLoi;
 
 // Phép kiểm cuối: một hàm vẽ NÉM thì trang phải hiện Ô BÁO LỖI, tuyệt
 // đối không được để lại thân trang rỗng. Đây chính là kiểu hỏng đã xảy

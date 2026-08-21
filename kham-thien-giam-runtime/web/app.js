@@ -1257,41 +1257,55 @@
      3. Trạng thái gập nhớ ngoài DOM. Không nhớ thì nó tự đóng ngay khi
         người ta vừa mở ra đọc — lỗi chỉ lộ khi dùng thật.                */
 
-  var MO = {};                      // khối nào đang mở, nhớ qua các lần vẽ
 
-  /* Ba ô LUÔN MỞ. Đây là ô để ĐỌC LIÊN TỤC, không phải để tra cứu:
-     mô hình đang nói gì, sổ đang thế nào, sổ đang đổi ra sao. Bắt gập
-     lại là bắt bấm mở mỗi lần ngồi vào máy, và một thứ phải bấm mới thấy
-     thì trên thực tế là một thứ không được nhìn.
+  /* MỌI Ô ĐỀU MỞ. Không còn cơ chế gập.
 
-     `rong: 1` = chiếm trọn hàng. Chỉ nhiệt đồ cần thế, vì trục ngang của
-     nó LÀ thời gian — bóp hẹp là bóp mất chính thứ nó đo. Hai ô kia thì
-     ngược lại: kéo rộng chỉ làm thang giá dài ra vô ích. */
-  var LUON_MO = [
+     Gập chỉ đáng khi trang dài hơn thứ người ta cần nhìn. Ở một buồng
+     lái thì ngược lại: mỗi ô là một mặt của cùng một câu hỏi, và thứ
+     phải bấm mới thấy là thứ trên thực tế không được nhìn.
+
+     Việc còn lại là xếp cho mỗi ô đúng bề ngang nó CẦN, chứ không phải
+     bề ngang nó được phát. `rong: 1` = trọn hàng, và mỗi lần dùng đều
+     có lý do riêng ghi ngay cạnh.                                      */
+  var O_LIST = [
+    // Hai ô chi tiết của khung đang chọn — đọc cùng lúc, nên cạnh nhau.
     { ma: "dai-chiem", ten: "Đài Chiêm", phu: "mô hình định giá", theoKhung: 1 },
     { ma: "so-lenh", ten: "Sổ Lệnh", phu: "sổ L2 hai bên", theoKhung: 1 },
+
+    // Trục ngang LÀ thời gian — bóp hẹp là bóp mất chính thứ nó đo.
     { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian",
       theoKhung: 1, rong: 1 },
-  ];
 
-  var KHOI = [
-    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ", caRo: 1 },
+    // Bảng cơ hội nhiều cột: thô, ròng, sức chứa, khớp, nửa đời…
+    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ",
+      caRo: 1, rong: 1 },
+
     { ma: "kho-doi", ten: "Kho Đối", phu: "tồn kho, cặp, chân lẻ", caRo: 1 },
     { ma: "ban-do", ten: "Bản Đồ", phu: "so các khung với nhau", caRo: 1 },
+
     { ma: "chien-thuat", ten: "Chiến Thuật", phu: "sáu ngón, bật tắt được" },
     { ma: "truong-thi", ten: "Trường Thi", phu: "hiệu chỉnh, kỳ vọng, đuôi" },
-    { ma: "ket-toan", ten: "Kết Toán", phu: "vòng học, vô địch, tiến hoá" },
+
+    // Ba khối trong một: kết toán + vô địch + tiến hoá.
+    { ma: "ket-toan", ten: "Kết Toán", phu: "vòng học, vô địch, tiến hoá",
+      rong: 1 },
+
     { ma: "quan-vi", ten: "Đài Quan Ví", phu: "ví khác đang làm gì" },
     { ma: "nhat-ky", ten: "Nhật Ký", phu: "dòng sự kiện, sức khoẻ nguồn" },
   ];
 
   function veOMo(k) {
     var o = el("section", "gop mo" + (k.rong ? " rong" : ""));
+    o.id = "o-" + k.ma;
     var d = el("div", "gop-dinh tinh");
     d.appendChild(el("span", "gop-ten", k.ten));
     d.appendChild(el("span", "gop-phu", k.phu));
-    var m = khungHienTai();
-    d.appendChild(el("span", "gop-pham vi-khung", m ? m.ma : "—"));
+    if (k.theoKhung) {
+      var m = khungHienTai();
+      d.appendChild(el("span", "gop-pham vi-khung", m ? m.ma : "—"));
+    } else if (k.caRo) {
+      d.appendChild(el("span", "gop-pham vi-ro", "cả rổ"));
+    }
     o.appendChild(d);
     var b = el("div", "gop-than");
     try { b.appendChild(VE[k.ma]()); } catch (e) { b.appendChild(oLoi(e, k.ma)); }
@@ -1299,42 +1313,21 @@
     return o;
   }
 
-  function veKhoiGap(k) {
-    var mo = !!MO[k.ma];
-    var o = el("section", "gop" + (mo ? " mo" : ""));
-
-    var d = el("button", "gop-dinh");
-    d.setAttribute("aria-expanded", mo ? "true" : "false");
-    d.appendChild(el("span", "gop-dau", mo ? "▾" : "▸"));
-    d.appendChild(el("span", "gop-ten", k.ten));
-    d.appendChild(el("span", "gop-phu", k.phu));
-    // Nói rõ ô này đang xem GÌ. Không có nhãn thì mở Sổ Lệnh ra chỉ thấy
-    // một khung và rất dễ tưởng ba khung kia biến mất.
-    if (k.theoKhung) {
-      var m = khungHienTai();
-      d.appendChild(el("span", "gop-pham vi-khung", m ? m.ma : "—"));
-    } else if (k.caRo) {
-      d.appendChild(el("span", "gop-pham vi-ro", "cả rổ"));
-    }
-    d.addEventListener("click", function () {
-      MO[k.ma] = !MO[k.ma];
-      ve();
+  /* Thanh nhảy nhanh. Mọi ô đều mở nên trang dài — nhưng dài mà đi tới
+     được ngay thì khác hẳn dài mà phải cuộn tìm. Đây là thứ THAY cho cơ
+     chế gập: gập giấu nội dung đi để trang ngắn lại; thanh này giữ nội
+     dung và rút ngắn ĐƯỜNG ĐI. */
+  function veThanhNhay() {
+    var h = el("nav", "nhay");
+    O_LIST.forEach(function (k) {
+      var b = el("button", "nhay-nut", k.ten);
+      b.addEventListener("click", function () {
+        var t = document.getElementById("o-" + k.ma);
+        if (t && t.scrollIntoView) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      h.appendChild(b);
     });
-    o.appendChild(d);
-
-    if (mo) {
-      var b = el("div", "gop-than");
-      // Bọc riêng từng khối: một khối vẽ hỏng thì chỉ khối đó hiện lỗi,
-      // chín khối còn lại vẫn đọc được. Bọc chung cả trang thì một lỗi
-      // nhỏ ở Đài Quan Ví cũng xoá sạch mọi thứ.
-      try {
-        b.appendChild(VE[k.ma]());
-      } catch (e) {
-        b.appendChild(oLoi(e, k.ma));
-      }
-      o.appendChild(b);
-    }
-    return o;
+    return h;
   }
 
   function veTatCa() {
@@ -1355,17 +1348,10 @@
     luoi.appendChild(trai);
 
     var phai = el("div", "cot-phai");
-
-    // Ba ô luôn mở, xếp lưới: hai ô hẹp cạnh nhau, nhiệt đồ trọn hàng.
+    phai.appendChild(veThanhNhay());
     var mo = el("div", "luon-mo");
-    LUON_MO.forEach(function (k) { mo.appendChild(veOMo(k)); });
+    O_LIST.forEach(function (k) { mo.appendChild(veOMo(k)); });
     phai.appendChild(mo);
-
-    phai.appendChild(el("p", "gop-nhac",
-      "Tám ô còn lại là để TRA CỨU, nên gập. Chúng chỉ được vẽ khi mở — " +
-      "trang tự dựng lại mỗi 2 giây, nên vẽ sẵn cả tám là trả giá cho thứ " +
-      "không ai nhìn."));
-    KHOI.forEach(function (k) { phai.appendChild(veKhoiGap(k)); });
     luoi.appendChild(phai);
 
     g.appendChild(luoi);
