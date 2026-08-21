@@ -87,7 +87,7 @@
   /* ── ĐÀI CHIÊM ────────────────────────────────────────────────── */
   function veDaiChiem() {
     var g = document.createDocumentFragment();
-    var tt = (T.thiTruong || []).filter(function (x) { return x.theo; });
+    var tt = khungDeVe();
     if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
 
     tt.forEach(function (m) {
@@ -158,7 +158,7 @@
   function veSoLenh() {
     var g = document.createDocumentFragment();
     var co = false;
-    (T.thiTruong || []).forEach(function (m) {
+    khungDeVe().forEach(function (m) {
       if (!m.so) return;
       co = true;
       var o = oKhung("Sổ lệnh · " + m.ma);
@@ -603,6 +603,22 @@
       h.appendChild(b);
     });
     return h;
+  }
+
+  /* Ô CHI TIẾT theo khung đang chọn; ô TOÀN DANH MỤC thì không.
+
+     Ba ô Đài Chiêm / Sổ Lệnh / Áp Lực Sổ trước đây xếp cả bốn khung
+     chồng lên nhau, nên mỗi ô dài gấp bốn và khung thứ hai đã trôi khỏi
+     màn hình. Nay chúng bám theo đúng cái nút bạn vừa bấm ở thẻ chỉ huy
+     — một lần chọn, mọi ô chi tiết theo.
+
+     Cân Lợi, Kho Đối và Bản Đồ thì KHÔNG bám. Giá trị của ba ô đó chính
+     là nhìn cả rổ cùng lúc: một bảng cơ hội chỉ có một khung thì không
+     xếp hạng được với gì, và một kho hàng chỉ hiện một khung thì giấu
+     mất đúng thứ đáng sợ nhất — bốn khung cùng nghiêng một phía.        */
+  function khungDeVe() {
+    var m = khungHienTai();
+    return m ? [m] : [];
   }
 
   var SAU = {};              // ô nào đang mở phần sâu, nhớ qua các lần vẽ
@@ -1162,7 +1178,7 @@
 
   function veApLuc() {
     var g = document.createDocumentFragment();
-    var tt = (T.thiTruong || []).filter(function (x) { return x.theo; });
+    var tt = khungDeVe();
     if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
 
     tt.forEach(function (m) {
@@ -1239,12 +1255,12 @@
   var MO = {};                      // khối nào đang mở, nhớ qua các lần vẽ
 
   var KHOI = [
-    { ma: "dai-chiem", ten: "Đài Chiêm", phu: "mô hình định giá" },
-    { ma: "so-lenh", ten: "Sổ Lệnh", phu: "sổ L2 hai bên" },
-    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian" },
-    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ" },
-    { ma: "kho-doi", ten: "Kho Đối", phu: "tồn kho, cặp, chân lẻ" },
-    { ma: "ban-do", ten: "Bản Đồ", phu: "so các khung với nhau" },
+    { ma: "dai-chiem", ten: "Đài Chiêm", phu: "mô hình định giá", theoKhung: 1 },
+    { ma: "so-lenh", ten: "Sổ Lệnh", phu: "sổ L2 hai bên", theoKhung: 1 },
+    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian", theoKhung: 1 },
+    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ", caRo: 1 },
+    { ma: "kho-doi", ten: "Kho Đối", phu: "tồn kho, cặp, chân lẻ", caRo: 1 },
+    { ma: "ban-do", ten: "Bản Đồ", phu: "so các khung với nhau", caRo: 1 },
     { ma: "chien-thuat", ten: "Chiến Thuật", phu: "sáu ngón, bật tắt được" },
     { ma: "truong-thi", ten: "Trường Thi", phu: "hiệu chỉnh, kỳ vọng, đuôi" },
     { ma: "ket-toan", ten: "Kết Toán", phu: "vòng học, vô địch, tiến hoá" },
@@ -1261,6 +1277,14 @@
     d.appendChild(el("span", "gop-dau", mo ? "▾" : "▸"));
     d.appendChild(el("span", "gop-ten", k.ten));
     d.appendChild(el("span", "gop-phu", k.phu));
+    // Nói rõ ô này đang xem GÌ. Không có nhãn thì mở Sổ Lệnh ra chỉ thấy
+    // một khung và rất dễ tưởng ba khung kia biến mất.
+    if (k.theoKhung) {
+      var m = khungHienTai();
+      d.appendChild(el("span", "gop-pham vi-khung", m ? m.ma : "—"));
+    } else if (k.caRo) {
+      d.appendChild(el("span", "gop-pham vi-ro", "cả rổ"));
+    }
     d.addEventListener("click", function () {
       MO[k.ma] = !MO[k.ma];
       ve();

@@ -370,3 +370,14 @@ tr:last-child td{border-bottom:0}
 .ch-dinh{padding:9px 12px;gap:8px}
 .ch-dinh>b{font-size:14px}
 .dhho{font-size:22px}
+
+/* Nhãn phạm vi trên đầu khối: ô này đang xem MỘT khung, hay cả rổ.
+   Không có nhãn thì mở Sổ Lệnh ra chỉ thấy một khung và rất dễ tưởng
+   ba khung kia biến mất. */
+.gop-pham{
+  margin-left:auto;font-size:10px;padding:2px 8px;border-radius:99px;
+  font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;
+  border:1px solid var(--vien)}
+.vi-khung{color:var(--sao);border-color:rgba(127,178,232,.35);
+  background:rgba(127,178,232,.08)}
+.vi-ro{color:var(--mo2)}

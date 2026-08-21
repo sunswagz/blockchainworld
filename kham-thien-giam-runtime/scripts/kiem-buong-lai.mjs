@@ -195,6 +195,32 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
   if (!(ok && roiVe)) loi++;
 }
 
+// Ô CHI TIẾT phải đi theo khung đang chọn; ô CẢ RỔ phải KHÔNG đi theo.
+// Lẫn hai loại này là kiểu sai nguy hiểm: một bảng Kho Đối chỉ hiện một
+// khung sẽ giấu mất đúng thứ đáng sợ nhất — bốn khung cùng nghiêng một
+// phía là MỘT cược, không phải bốn.
+{
+  const ds = T.thiTruong.filter((m) => m.theo).map((m) => m.ma);
+  const ve = (o, x) => { globalThis._datKhung(x); return JSON.stringify(globalThis._VE[o]()); };
+  let saiTheo = [], saiRo = [];
+  if (ds.length >= 2) {
+    for (const o of ["dai-chiem", "so-lenh", "ap-luc"]) {
+      const a = ve(o, ds[0]), b = ve(o, ds[1]);
+      if (a === b) saiTheo.push(o);
+    }
+    for (const o of ["can-loi", "kho-doi", "ban-do"]) {
+      const a = ve(o, ds[0]), b = ve(o, ds[1]);
+      if (a !== b) saiRo.push(o);
+    }
+  }
+  globalThis._datKhung(null);
+  const ok = !saiTheo.length && !saiRo.length;
+  console.log(`  ${ok ? "OK   " : "LỖI  "} ${"phạm-vi-ô".padEnd(12)} ` +
+              `${saiTheo.length ? "KHÔNG theo khung: " + saiTheo.join(",") : "3 ô chi tiết theo khung"}` +
+              ` · ${saiRo.length ? "cả rổ mà lại đổi: " + saiRo.join(",") : "3 ô cả rổ giữ nguyên"}`);
+  if (!ok) loi++;
+}
+
 // Khối gập chỉ được VẼ khi mở. Một khối hỏng có thể nằm im rất lâu —
 // không ai mở thì không ai biết. Nên mở TỪNG khối một và đòi nó phải
 // làm trang dày lên. So với một ngưỡng cố định thì vô nghĩa: con số đó
