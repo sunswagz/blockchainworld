@@ -252,9 +252,20 @@
        từ DOM lúc bấm. Nhét sẵn chỉ số vào đây là tạo bản sao thứ
        hai của cùng một sự thật, và nó sẽ lệch ngay lần đầu có ai
        chèn thêm một cột. */
+    /* Cột sắp được thì tiêu đề là một <button> THẬT, không phải <th>
+       gắn onclick. Trước bản này chỉ CHUỘT mới sắp được bảng: <th>
+       không nằm trong luồng Tab và không nhận Enter/Space, nên người
+       dùng bàn phím — và người đọc màn hình — nghe `aria-sort` nói
+       bảng ĐANG sắp thế nào mà không có đường nào đổi nó. Nút gốc
+       mang sẵn cả ba thứ đó (điểm dừng Tab, phím Enter/Space, vai
+       trò "button" đọc được), nên không phải dựng lại bằng tay. */
     var th = cot.map(function (c) {
+      var trong = c.sap
+        ? '<button class="sap" type="button">' + esc(c.t) +
+          '<span class="mui" aria-hidden="true"></span></button>'
+        : esc(c.t);
       return "<th" + (c.sap ? ' data-sap="1"' : "") + (c.rong ? ' style="width:' + c.rong + '"' : "") +
-        ">" + esc(c.t) + (c.sap ? '<span class="mui"></span>' : "") + "</th>";
+        ">" + trong + "</th>";
     }).join("");
     return '<div class="cuon"><table class="bang"' + (id ? ' id="' + id + '"' : "") +
       "><thead><tr>" + th + "</tr></thead><tbody>" + hang + "</tbody></table></div>";
@@ -400,7 +411,8 @@
         bang([{ t: "Chuỗi" }, { t: "TVL", sap: 1 }, { t: "24 giờ", sap: 1 }, { t: "7 ngày", sap: 1 },
           { t: "30 ngày", sap: 1 }, { t: "DEX 24h", sap: 1 }, { t: "Phí 24h", sap: 1 },
           { t: "90 ngày", rong: "96px" }], hang, "bangChuoi"),
-        "Bấm tiêu đề cột để sắp xếp, bấm một dòng để mở hồ sơ chuỗi." +
+        "Tiêu đề cột có mũi tên là <b>nút bấm được</b> — bấm chuột, hoặc Tab tới rồi Enter," +
+        " để sắp xếp. Bấm một dòng để mở hồ sơ chuỗi." +
         " Cột <b>phí</b> là thứ người dùng thật sự trả — nó thường nguội trước khi vốn kịp rút," +
         " nên một chuỗi TVL đứng yên mà phí sụt nhanh là dấu hiệu sớm.");
   }
@@ -828,7 +840,10 @@
     Array.prototype.forEach.call(bangs, function (b) {
       var ths = b.querySelectorAll("th[data-sap]");
       Array.prototype.forEach.call(ths, function (th) {
-        th.addEventListener("click", function () {
+        /* Nghe ở NÚT, nhưng `aria-sort` vẫn ghi lên <th> — ARIA đặt
+           thuộc tính đó ở ô tiêu đề, không ở nút bên trong. */
+        var nut = th.querySelector("button.sap") || th;
+        nut.addEventListener("click", function () {
           var cot = Array.prototype.indexOf.call(th.parentNode.children, th);
           var xuong = th.getAttribute("aria-sort") !== "descending";
           Array.prototype.forEach.call(ths, function (x) { x.removeAttribute("aria-sort"); });

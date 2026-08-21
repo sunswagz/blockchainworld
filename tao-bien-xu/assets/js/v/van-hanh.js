@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-21T13:25:32.393Z",
- "lan": 140,
+ "generatedAt": "2026-08-21T19:06:45.469Z",
+ "lan": 143,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -97,15 +97,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-21T02:16:35.392Z",
+   "luc": "2026-08-21T19:02:24.285Z",
    "ket": "ok",
-   "giay": 176,
+   "giay": 211,
    "doi": true,
    "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-21T02:16:35.392Z",
-   "lucDoi": "2026-08-21T02:16:35.392Z"
+   "lucOk": "2026-08-21T19:02:24.285Z",
+   "lucDoi": "2026-08-21T19:02:24.285Z"
   },
   {
    "ma": "tien-hoa-dqt",
@@ -199,15 +199,15 @@ window.VAN_HANH = {
    "cung": "ho-bo",
    "cungTen": "Hộ Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-20T13:33:52.520Z",
+   "luc": "2026-08-21T19:06:45.469Z",
    "ket": "ok",
-   "giay": 204,
+   "giay": 261,
    "doi": true,
-   "chuThich": "phiếu đo 6/7 → 6/7 · model 203s · opus-5",
+   "chuThich": "phiếu đo 6/7 → 6/7 · model 260s · opus-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-20T13:33:52.520Z",
-   "lucDoi": "2026-08-20T13:33:52.520Z"
+   "lucOk": "2026-08-21T19:06:45.469Z",
+   "lucDoi": "2026-08-21T19:06:45.469Z"
   },
   {
    "ma": "hoang-thanh",
@@ -352,15 +352,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-20T13:27:33.999Z",
+   "luc": "2026-08-21T18:58:53.270Z",
    "ket": "ok",
-   "giay": 1,
+   "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-20T13:27:33.999Z",
-   "lucDoi": "2026-08-20T13:27:33.999Z"
+   "lucOk": "2026-08-21T18:58:53.270Z",
+   "lucDoi": "2026-08-21T18:58:53.270Z"
   },
   {
    "ma": "thai-boc-tu",
@@ -603,6 +603,33 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-21T19:06:45.469Z",
+   "ma": "ho-bo-tien-hoa",
+   "ket": "ok",
+   "giay": 261,
+   "doi": true,
+   "chuThich": "phiếu đo 6/7 → 6/7 · model 260s · opus-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-21T19:02:24.285Z",
+   "ma": "dong-tin",
+   "ket": "ok",
+   "giay": 211,
+   "doi": true,
+   "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-21T18:58:53.270Z",
+   "ma": "nhap-skill",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-21T13:25:32.393Z",
    "ma": "dong-dau",
@@ -1113,33 +1140,6 @@ window.VAN_HANH = {
    "ket": "ok",
    "giay": 0,
    "doi": false,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-19T13:20:34.282Z",
-   "ma": "quan-trac-do",
-   "ket": "ok",
-   "giay": 40,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-19T13:19:54.583Z",
-   "ma": "tang-thu-cac",
-   "ket": "ok",
-   "giay": 408,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-19T13:13:06.247Z",
-   "ma": "ho-bo",
-   "ket": "ok",
-   "giay": 3,
-   "doi": true,
    "chuThich": "",
    "vi": null
   }
