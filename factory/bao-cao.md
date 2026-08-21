@@ -1,13 +1,14 @@
-# Sức khoẻ xưởng — chốt 20/08/2026 02:07 UTC (lượt 94)
+# Báo cáo sức khoẻ xưởng — 21/08/2026 02:16 UTC (lượt 126)
 
-Xưởng đang khoẻ: cả 12 node có ghi lượt đều `ket: ok`, `chuoiLoi` bằng 0 ở mọi node, lỗi gần nhất trong nhật ký là 15/08 (`dai-quan-trac`, kiểm chặn vì `scan.js` teo còn 3886 byte so với 10188 byte bản cũ) và lượt sau đã qua.
+**Tổng:** Xưởng về cơ bản khoẻ — 19/20 node có mặt trong sổ đang `ok` ở lượt gần nhất, và không node nào trễ quá gấp đôi nhịp. Đúng một chỗ đang ngã.
 
-**Đáng lo: không có.** Không node nào `chuoiLoi >= 2`, cũng không node nào trễ quá gấp đôi `nhip`. Sát ngưỡng nhất là `bao-cao` — nhịp 24 giờ, lượt cuối 18/08 19:01, tức 31 giờ tính tới dấu chốt trên, khoảng 1,3× nhịp. Chưa tới mức phải xem.
+**Đáng lo**
+- `tien-hoa-dqt` (Tiến hoá Đài Quan Trắc, nhịp 24h): `chuoiLoi` = 2 — ngã hai lượt liên tiếp (20/08 19:10 và 21/08 02:16), cùng một ghi chú "1 điểm yếu · haiku-4-5 · cổng chặn quyết định". Nặng hơn con số đó: `lucOk` = null, tức **node này chưa có lượt thành công nào** trong sổ, không có mốc "trước đây chạy được" để so.
+- Trễ nhịp: không có. `bao-cao` (nhịp 24h, lượt cuối 20/08 02:08) vừa chớm quá hạn một chút, chưa tới ngưỡng đáng nói.
 
-**Chạy đều mà dữ liệu có thể đã đứng:**
-- `dong-dau` — 11 lượt trong nhật ký đều `doi: false`, `lucDoi` vẫn là `null`, tức chưa lần nào ghi nhận thay đổi. Nhưng sổ đăng ký khai `ra: []` cho node này, nên có thể `doi` không bao giờ true được về mặt cấu trúc; hai file này không đủ để kết luận nguồn phía sau đã chết.
-- Mười node còn lại đều có `lucDoi` trùng đúng `luc` của lượt gần nhất — dữ liệu đổi thật ở lượt cuối, không phải chạy suông.
+**Chạy đều nhưng `lucDoi` không nhúc nhích**
+- `dong-dau` (nhịp 6h): mọi lượt trong nhật ký đều `ket: ok` nhưng `doi: false`, và `lucDoi` = null — chưa lần nào bản pin đổi kể từ khi sổ bắt đầu ghi.
+- `thai-boc-tu-tin-pt` (20/08 19:17): `ok` và `doi: true`, nhưng ghi chú "nhận 0 · loại 0 · phủ 30/30 bài" — phủ hết bài mà không nhận được mục nào.
+- `hoang-thanh`: `lucDoi` đứng ở 14/08 (7 ngày). Node này `nhip: 0`, chế "tay" nên vốn không tự chạy — dữ liệu cũ, không phải bot hỏng. Hai node tay khác trong sổ đăng ký (`tu-cam-thanh`, `kham-thien-giam`) chưa có dòng nào trong state.
 
-**Hai node `che: tay` đang đứng im:** `hoang-thanh` chỉ có đúng một dấu 14/08 09:16 kèm chú thích "mồi từ dấu generatedAt sẵn có trong file" — chưa từng có lượt chạy thật, đã 6 ngày. `tu-cam-thanh` có trong sổ đăng ký nhưng **không có mục nào** trong `state.json`.
-
-**Việc nên làm trước:** chạy tay `npm run hoangthanh` rồi commit, để node có dấu cũ nhất trong sổ đổi từ một dấu mồi thành một lượt thật.
+**Việc nên làm trước:** xem lượt `tien-hoa-dqt` gần nhất — cổng chặn trả lại bản vá vì lý do gì. Đó là node duy nhất đang `loi`, đã ngã liên tiếp, và chưa từng thành công lần nào.
