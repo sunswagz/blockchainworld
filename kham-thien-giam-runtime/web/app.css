@@ -397,10 +397,11 @@ tr:last-child td{border-bottom:0}
    nội dung ở 200px mà vẫn phải chừa chỗ tới 700px vì Chiến Thuật cạnh
    nó dài thế. Xếp cột thì mỗi ô chỉ chiếm đúng chiều cao của nó và ô
    sau kê sát vào ngay. */
-.luon-mo{column-width:430px;column-gap:10px;margin-bottom:14px}
-.luon-mo>.gop{
-  break-inside:avoid;-webkit-column-break-inside:avoid;
-  display:inline-block;width:100%;margin:0 0 10px}
+/* Cột do JS xếp, không phải CSS `columns`. Phép cân của CSS tối ưu tổng
+   chiều cao cả khối và với mười một ô cao thấp rất khác nhau thì nó ra
+   những cách chia rất lệch — có lúc hai cột trống trơn suốt cả đoạn. */
+.luon-mo{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.cot-m{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
 .gop-dinh.tinh{cursor:default;background:var(--the2)}
 .gop-dinh.tinh:hover{background:var(--the2)}
 .luon-mo .gop-than{padding:2px 12px 12px}

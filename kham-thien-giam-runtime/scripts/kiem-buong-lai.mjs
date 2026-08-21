@@ -117,7 +117,7 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._O_LIST = O_LIST; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
+  "  globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._O_LIST = O_LIST; globalThis._xepCot = xepCot; globalThis._CAO_UOC = CAO_UOC; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
 );
 
 const T = await layTrangThai();
@@ -237,6 +237,22 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
   console.log(`  ${nut === n ? "OK   " : "LỖI  "} ${"thanh-nhảy".padEnd(12)} ` +
               `${nut}/${n} nút`);
   if (nut !== n) loi++;
+}
+
+// Xếp cột phải CHIA ĐỀU. Đây là chỗ CSS `columns` làm không đạt: nó cân
+// theo tổng chiều cao cả khối và có lúc để hai cột trống trơn suốt một
+// đoạn dài. Phép tham lam ở đây phải khá hơn hẳn, và 'khá hơn' thì đo
+// được: cột cao nhất không được quá 1,4 lần cột thấp nhất.
+for (const n of [2, 3]) {
+  const cot = globalThis._xepCot(globalThis._O_LIST, n);
+  const cao = cot.map((ds) =>
+    ds.reduce((a, k) => a + (globalThis._CAO_UOC[k.ma] || 300) + 10, 0));
+  const lech = Math.max(...cao) / Math.max(1, Math.min(...cao));
+  const soO = cot.reduce((a, c) => a + c.length, 0);
+  const ok = lech <= 1.25 && soO === globalThis._O_LIST.length && cao.every((h) => h > 0);
+  console.log(`  ${ok ? "OK   " : "LỖI  "} ${("xếp-" + n + "-cột").padEnd(12)} ` +
+              `${cao.map((h) => Math.round(h)).join(" / ")} px · lệch ${lech.toFixed(2)}× · ${soO}/${globalThis._O_LIST.length} ô`);
+  if (!ok) loi++;
 }
 
 // Ô CHI TIẾT phải đi theo khung đang chọn; ô CẢ RỔ phải KHÔNG đi theo.

@@ -404,10 +404,12 @@
     g.appendChild(o2);
 
     var b = T.bang || {};
-    var o3 = oKhung("Băng ghi", b.bat ? "đang ghi" : "TẮT");
-    o3._than.appendChild(el("div", "luoi3")).appendChild(
-      chi("Khung đã ghi", (b.soKhung || 0).toLocaleString("vi-VN"),
-        "P0 — phải làm trước mô hình"));
+    // Một con số thì đưa lên ĐẦU khối, đừng nhét vào lưới ba cột. Một ô
+    // số đơn độc trong lưới sẽ giãn hết bề ngang với đệm dày — chiếm chỗ
+    // như sáu ô mà nói đúng một điều.
+    var o3 = oKhung("Băng ghi",
+      (b.bat ? "đang ghi" : "TẮT") + " · " +
+      (b.soKhung || 0).toLocaleString("vi-VN") + " khung");
     o3._than.appendChild(el("div", "ghi",
       "Không lưu sổ lệnh và tick ngay từ đầu thì ba tháng nữa dù muốn nghiên " +
       "cứu cũng không có ký ức nào để chạy lại. Mô hình viết sau lúc nào cũng " +
@@ -1316,6 +1318,85 @@
      được ngay thì khác hẳn dài mà phải cuộn tìm. Đây là thứ THAY cho cơ
      chế gập: gập giấu nội dung đi để trang ngắn lại; thanh này giữ nội
      dung và rút ngắn ĐƯỜNG ĐI. */
+  /* ── XẾP CỘT ──────────────────────────────────────────────────────
+     CSS `columns` cân theo TỔNG chiều cao của cả khối, và với mười một ô
+     cao thấp rất khác nhau thì nó ra những cách chia rất lệch: có lúc cả
+     Trường Thi lẫn Nhật Ký dồn vào cột một, hai cột còn lại trống trơn
+     suốt cả đoạn. Phép cân ấy không sai — nó tối ưu đúng thứ nó được
+     giao, chỉ là thứ đó không phải thứ mình muốn.
+
+     Nên tự xếp: dồn từng ô vào cột đang THẤP NHẤT. Đây là phép tham lam
+     kinh điển cho bài toán này, và nó đủ tốt vì các ô không chênh nhau
+     quá xa.
+
+     Muốn xếp thì phải biết ô cao bao nhiêu, mà biết được thì phải vẽ
+     xong. Nên: vẽ xong ĐO, cất số đo lại, lần vẽ sau dùng. Trang tự dựng
+     lại mỗi 2 giây nên nó hội tụ sau đúng một nhịp — và số đo luôn là
+     của nội dung thật, không phải của một bảng ước lượng viết cứng rồi
+     lệch dần theo thời gian.
+
+     Lần vẽ đầu tiên chưa có gì để đo, dùng `CAO_UOC` bên dưới. Sai vài
+     trăm pixel ở nhịp đầu thì không ai kịp thấy.                        */
+
+  var CAO_O = {};                   // ma → chiều cao đo được lần vẽ trước
+
+  // Ước lượng thô cho nhịp đầu, theo lượng nội dung mỗi ô thường có.
+  var CAO_UOC = {
+    "dai-chiem": 380, "so-lenh": 420, "can-loi": 200, "ap-luc": 280,
+    "kho-doi": 520, "ban-do": 320, "chien-thuat": 680, "truong-thi": 660,
+    "ket-toan": 540, "quan-vi": 170, "nhat-ky": 660
+  };
+
+  function soCot() {
+    var w = (typeof window !== "undefined" && window.innerWidth) || 1600;
+    // Ngưỡng tính cả cột trái (~440px) cộng khoảng cách. Dưới 1120 thì
+    // lưới đã xếp lại một cột nên chỗ này chỉ còn một cột luôn.
+    if (w < 1120) return 1;
+    if (w < 1620) return 2;
+    return 3;
+  }
+
+  function _cao(k) { return (CAO_O[k.ma] || CAO_UOC[k.ma] || 300) + 10; }
+
+  function xepCot(ds, n) {
+    var cot = [], cao = [];
+    for (var i = 0; i < n; i++) { cot.push([]); cao.push(0); }
+    function thap() {
+      var j = 0;
+      for (var i = 1; i < n; i++) if (cao[i] < cao[j]) j = i;
+      return j;
+    }
+    function dat(j, k) { cot[j].push(k); cao[j] += _cao(k); }
+
+    // GHIM n ô đầu, mỗi cột một ô. Hàng trên cùng phải là những ô đọc
+    // nhiều nhất — mô hình nói gì, chợ đang thế nào, ăn được bao nhiêu —
+    // chứ không phải ô nào tình cờ hợp phép xếp.
+    ds.slice(0, n).forEach(function (k, i) { dat(i, k); });
+
+    // Còn lại: CAO TRƯỚC, thấp sau. Xếp theo thứ tự đọc thì ô cao nhất
+    // hay rơi vào cuối và dồn hết vào một cột — đo được: lệch 1,43 lần.
+    // Đặt ô to trước rồi lấy ô nhỏ lấp khe thì còn 1,08.
+    ds.slice(n).slice().sort(function (a, b) { return _cao(b) - _cao(a); })
+      .forEach(function (k) { dat(thap(), k); });
+
+    // Trong mỗi cột, xếp lại theo thứ tự đọc gốc. Cân bằng là việc của
+    // phép xếp; thứ tự đọc là việc của người đọc, đừng đánh đổi.
+    cot.forEach(function (c) {
+      c.sort(function (a, b) { return ds.indexOf(a) - ds.indexOf(b); });
+    });
+    return cot;
+  }
+
+  /* Đo sau khi vẽ. Không có `offsetHeight` (bộ kiểm chạy DOM giả) thì bỏ
+     qua — xếp theo ước lượng vẫn ra một trang đọc được. */
+  function doCaoCacO() {
+    O_LIST.forEach(function (k) {
+      var e = document.getElementById("o-" + k.ma);
+      var h = e && e.offsetHeight;
+      if (h) CAO_O[k.ma] = h;
+    });
+  }
+
   function veThanhNhay() {
     var h = el("nav", "nhay");
     O_LIST.forEach(function (k) {
@@ -1349,7 +1430,11 @@
     var phai = el("div", "cot-phai");
     phai.appendChild(veThanhNhay());
     var mo = el("div", "luon-mo");
-    O_LIST.forEach(function (k) { mo.appendChild(veOMo(k)); });
+    xepCot(O_LIST, soCot()).forEach(function (ds) {
+      var c = el("div", "cot-m");
+      ds.forEach(function (k) { c.appendChild(veOMo(k)); });
+      mo.appendChild(c);
+    });
     phai.appendChild(mo);
     luoi.appendChild(phai);
 
@@ -1457,6 +1542,8 @@
     }
     than.textContent = "";
     than.appendChild(moi);
+    // Đo NGAY SAU khi gắn vào trang — trước đó phần tử chưa có chiều cao.
+    try { doCaoCacO(); } catch (e) { /* DOM giả không đo được, không sao */ }
 
     var bc = document.getElementById("bangCanh");
     var r = T.risk || {};
