@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-21T02:17:49.323Z",
- "lan": 127,
+ "generatedAt": "2026-08-21T07:13:30.165Z",
+ "lan": 130,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -73,14 +73,14 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-20T19:10:19.171Z",
+   "luc": "2026-08-21T07:12:14.602Z",
    "ket": "ok",
-   "giay": 456,
-   "doi": true,
-   "chuThich": "quét 456s · dựng 0s · haiku-4-5",
+   "giay": 138,
+   "doi": false,
+   "chuThich": "quét 138s · dựng 0s · haiku-4-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-20T19:10:19.171Z",
+   "lucOk": "2026-08-21T07:12:14.602Z",
    "lucDoi": "2026-08-20T19:10:19.171Z"
   },
   {
@@ -123,13 +123,13 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-21T02:16:36.679Z",
+   "luc": "2026-08-21T07:12:15.943Z",
    "ket": "loi",
    "giay": 1,
    "doi": false,
    "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
    "vi": null,
-   "chuoiLoi": 2,
+   "chuoiLoi": 3,
    "lucOk": null,
    "lucDoi": null
   },
@@ -424,15 +424,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-20T19:17:39.966Z",
+   "luc": "2026-08-21T07:13:30.165Z",
    "ket": "ok",
-   "giay": 26,
+   "giay": 75,
    "doi": true,
-   "chuThich": "nhận 0 · loại 0 · phủ 30/30 bài · haiku-4.5",
+   "chuThich": "nhận 11 · loại 1 · phủ 14/30 bài · haiku-4.5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-20T19:17:39.966Z",
-   "lucDoi": "2026-08-20T19:17:39.966Z"
+   "lucOk": "2026-08-21T07:13:30.165Z",
+   "lucDoi": "2026-08-21T07:13:30.165Z"
   },
   {
    "ma": "thai-boc-tu-tin",
@@ -579,6 +579,33 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-21T07:13:30.165Z",
+   "ma": "thai-boc-tu-tin-pt",
+   "ket": "ok",
+   "giay": 75,
+   "doi": true,
+   "chuThich": "nhận 11 · loại 1 · phủ 14/30 bài · haiku-4.5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-21T07:12:15.943Z",
+   "ma": "tien-hoa-dqt",
+   "ket": "loi",
+   "giay": 1,
+   "doi": false,
+   "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-21T07:12:14.602Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 138,
+   "doi": false,
+   "chuThich": "quét 138s · dựng 0s · haiku-4-5",
+   "vi": null
+  },
   {
    "luc": "2026-08-21T02:17:49.323Z",
    "ma": "bao-cao",
@@ -1090,33 +1117,6 @@ window.VAN_HANH = {
    "giay": 65,
    "doi": true,
    "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-19T01:54:50.850Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 2,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-18T19:01:22.496Z",
-   "ma": "bao-cao",
-   "ket": "ok",
-   "giay": 56,
-   "doi": true,
-   "chuThich": "opus-5 · max-turns 8",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-18T19:00:26.193Z",
-   "ma": "dai-quan-trac",
-   "ket": "ok",
-   "giay": 99,
-   "doi": true,
-   "chuThich": "quét 99s · dựng 0s · haiku-4-5",
    "vi": null
   }
  ]
