@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .bang import doc_bang, may_ghi
+from .bang import dem_bang, doc_bang, may_ghi
 from .chay_lai import ThamSo, doi_chieu, mot_luot
 from .bus import bus
 from .config import CONFIG, WEB_DIR, che_hieu_luc, ly_do_khong_that, nao_cham_bat
@@ -109,9 +109,20 @@ def huy(lenhId: str) -> JSONResponse:
 # ── băng ghi ──────────────────────────────────────────────────────────────
 @app.get("/api/bang")
 def bang(tuNgay: str | None = None) -> JSONResponse:
-    k = doc_bang(tuNgay)
-    return JSONResponse({"soKhung": len(k), "dangGhi": may_ghi.bat,
-                         "khungDaGhi": may_ghi.soKhung})
+    """Băng có bao nhiêu khung, và có LÀNH không.
+
+    `dem_bang` đếm mà không giữ khung nào lại: bản trước gọi `doc_bang()` rồi
+    `len()`, tức dựng cả gigabyte đối tượng Python trên một luồng của buồng
+    lái để đọc ra một số nguyên.
+
+    Trả kèm `bao` — số file hỏng, số dòng mất, số byte phải bỏ qua. Băng hỏng
+    mà bảng vẫn hiện một con số tròn trịa thì mọi phép hậu kiểm sau đó đều
+    đúng công thức trên dữ liệu bị cắt, và không ai biết.
+    """
+    bao = dem_bang(tuNgay)
+    return JSONResponse({"soKhung": bao.soKhung, "dangGhi": may_ghi.bat,
+                         "khungDaGhi": may_ghi.soKhung,
+                         "bao": bao.tom_tat()})
 
 
 @app.post("/api/chay-lai")

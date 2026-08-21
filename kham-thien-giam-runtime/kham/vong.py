@@ -57,6 +57,13 @@ from .tien_hoa import mot_luot as tien_hoa_mot_luot
 from .vi import dai_quan_vi
 from .vo_dich import so_vo_dich
 
+#: Một lượt tiến hoá chết thì chờ bấy nhiêu giây rồi thử lại...
+TIEN_HOA_THU_LAI_GIAY = 900.0
+#: ...tối đa bấy nhiêu lượt một ngày. Có trần vì một lỗi CỐ ĐỊNH (băng hỏng,
+#: thiếu quyền ghi) sẽ hỏng lại y như thế ở lượt sau; không trần thì thành
+#: một vòng gọi lại theo nhịp vòng lặp, và nhật ký ngập đúng một dòng lỗi.
+TIEN_HOA_TOI_DA_THU = 4
+
 
 class Runtime:
     def __init__(self) -> None:
@@ -87,8 +94,13 @@ class Runtime:
         self._lanHieuChinhDongHo = 0.0
         self._lanTimKhung = 0.0
         self._lanVoDich = 0.0
-        self._ngayTienHoa = ""      # ngày đã chạy vòng tiến hoá gần nhất
+        self._ngayTienHoa = ""      # ngày đã XÉT vòng tiến hoá gần nhất
         self.tienHoaGanNhat: dict | None = None
+        self._tienHoaXong = False           # lượt hôm nay đã chạy TRỌN chưa
+        self._tienHoaDangChay = False
+        self._tienHoaSoLanThu = 0
+        self._tienHoaThuLai = 0.0           # mốc epoch, sớm nhất được thử lại
+        self.tienHoaLoi: str | None = None
 
     # ── điều khiển ────────────────────────────────────────────────────────
     def bat(self) -> None:
@@ -185,33 +197,69 @@ class Runtime:
         })
 
     def _soat_tien_hoa(self) -> None:
-        """Chạy vòng tiến hoá đúng MỘT lượt mỗi ngày, sau giờ đã hẹn.
+        """Chạy vòng tiến hoá đúng MỘT lượt THÀNH CÔNG mỗi ngày, sau giờ hẹn.
 
         Mốc theo ngày UTC chứ không theo "đủ 24 giờ kể từ lượt trước": nếu
         runtime bị tắt bật vài lần trong ngày thì cách sau sẽ chạy nhiều
         lượt, và mỗi lượt lại vặn một nút. Tiến hoá phải chậm hơn tốc độ
         một người kịp nhìn — đúng lý do repo đặt nhịp 24 giờ cho vòng tiến
         hoá giao diện.
+
+        **Một lượt CHẾT không được tính là đã chạy.** Bản đầu đặt
+        `self._ngayTienHoa = ngay` ngay trước khi phóng luồng, nên một lượt
+        ném ra lỗi vẫn tiêu mất suất của cả ngày. Đã xảy ra thật 21/08/2026:
+        băng hỏng làm `doc_bang()` ném `zlib.error` ở dòng đầu của
+        `tien_hoa.mot_luot()`, và từ đó buồng lái hiện `ngayDaChay` của hôm
+        nay với `ganNhat: null` — đọc y hệt "hôm nay chưa tới lượt", trong khi
+        sự thật là "đã chạy và đã chết". Vòng tự tiến hoá đứng hẳn.
+
+        Nên nay tách hai chuyện: `_ngayTienHoa` là ngày đã XÉT (để đặt lại bộ
+        đếm), `_tienHoaXong` mới là đã chạy trọn. Chết thì lùi lại `THU_LAI_GIAY`
+        rồi thử tiếp, tối đa `TOI_DA_THU` lượt một ngày — có trần để một lỗi
+        cố định không thành vòng lặp gọi lại mỗi 2 giây.
         """
         th = CONFIG.get("tienHoa") or {}
         if not th.get("bat", True):
             return
         gio = time.gmtime()
         ngay = time.strftime("%Y-%m-%d", gio)
-        if ngay == self._ngayTienHoa:
+        if ngay != self._ngayTienHoa:
+            self._ngayTienHoa = ngay
+            self._tienHoaXong = False
+            self._tienHoaSoLanThu = 0
+            self._tienHoaThuLai = 0.0
+            self.tienHoaLoi = None
+        if self._tienHoaXong or self._tienHoaDangChay:
             return
         if gio.tm_hour < int(th.get("gioUTC", 2)):
             return
-        self._ngayTienHoa = ngay
+        if self._tienHoaSoLanThu >= TIEN_HOA_TOI_DA_THU:
+            return
+        if time.time() < self._tienHoaThuLai:
+            return
+        self._tienHoaSoLanThu += 1
+        self._tienHoaDangChay = True
         threading.Thread(target=self._chay_tien_hoa, daemon=True).start()
 
     def _chay_tien_hoa(self) -> None:
         try:
             kq = tien_hoa_mot_luot()
             self.tienHoaGanNhat = kq.tom_tat()
+            self._tienHoaXong = True
+            self.tienHoaLoi = None
             bus.ghi(f"vòng tiến hoá: {kq.ghiChu}", loai="he")
         except Exception as e:                      # noqa: BLE001
-            bus.ghi(f"vòng tiến hoá lỗi: {type(e).__name__}: {e}", loai="loi")
+            self.tienHoaLoi = f"{type(e).__name__}: {e}"
+            self._tienHoaThuLai = time.time() + TIEN_HOA_THU_LAI_GIAY
+            con = TIEN_HOA_TOI_DA_THU - self._tienHoaSoLanThu
+            bus.ghi(
+                f"vòng tiến hoá lỗi (lượt {self._tienHoaSoLanThu}"
+                f"/{TIEN_HOA_TOI_DA_THU}): {self.tienHoaLoi} — "
+                + (f"thử lại sau {TIEN_HOA_THU_LAI_GIAY / 60:.0f} phút"
+                   if con > 0 else "HẾT lượt thử hôm nay"),
+                loai="loi")
+        finally:
+            self._tienHoaDangChay = False
 
     # ── tìm và đăng ký khung ──────────────────────────────────────────────
     def _tim_khung(self, now: float) -> None:
@@ -406,7 +454,21 @@ class Runtime:
             "tienHoa": {
                 "ganNhat": self.tienHoaGanNhat,
                 "duong": duong_tien_hoa(),
-                "ngayDaChay": self._ngayTienHoa,
+                # `ngayDaXet` chứ không phải `ngayDaChay`: có ngày ở đây mà
+                # `xong` vẫn false nghĩa là ĐÃ THỬ và ĐÃ CHẾT, không phải
+                # "chưa tới lượt". Hai chuyện đó trước đây không phân biệt
+                # được từ ngoài, nên một vòng tiến hoá chết trông y hệt một
+                # vòng chưa chạy.
+                "ngayDaXet": self._ngayTienHoa,
+                "ngayDaChay": self._ngayTienHoa if self._tienHoaXong else "",
+                "xong": self._tienHoaXong,
+                "dangChay": self._tienHoaDangChay,
+                "loi": self.tienHoaLoi,
+                "soLanThu": self._tienHoaSoLanThu,
+                "toiDaThu": TIEN_HOA_TOI_DA_THU,
+                "thuLaiSauGiay": (max(0.0, self._tienHoaThuLai - time.time())
+                                  if self.tienHoaLoi and not self._tienHoaXong
+                                  else None),
                 "bat": bool((CONFIG.get("tienHoa") or {}).get("bat", True)),
                 "gioUTC": int((CONFIG.get("tienHoa") or {}).get("gioUTC", 2)),
             },
@@ -444,7 +506,7 @@ class Runtime:
                  "dangLam": c.dang_lam, "ghiChu": c.ghiChu}
                 for c in self.coHoi[:40]],
             "boQua": dict(self.boQua),
-            "bang": {"soKhung": may_ghi.soKhung, "bat": may_ghi.bat},
+            "bang": may_ghi.tom_tat(),
             "nhatKy": bus.gan_day(80),
         }
 

@@ -15,7 +15,7 @@ Máy này có Python 3.12 cài portable, **ngoài PATH**:
 $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py -m pip install -r requirements.txt
-& $py scripts\selftest.py      # 173 phép kiểm số học, KHÔNG cần mạng
+& $py scripts\selftest.py      # 225 phép kiểm số học, KHÔNG cần mạng
 & $py run.py                   # buồng lái → http://localhost:5186
 ```
 
@@ -235,7 +235,7 @@ Bốn chi tiết phải nhớ, cả bốn đo được:
 - Báo giá hai chiều **ngắt quãng**, không liên tục. Không có quote thì
   runtime đứng ngoài — đó là hành vi đúng, không phải hỏng.
 
-## Bốn chỗ dễ hỏng IM LẶNG — đều có phép kiểm
+## Năm chỗ dễ hỏng IM LẶNG — đều có phép kiểm
 
 Đây là loại lỗi đã cắn `tu-cam-thanh-runtime` bốn lần: số vẫn ra, bảng vẫn
 xanh, chỉ có kết quả là sai.
@@ -255,6 +255,18 @@ xanh, chỉ có kết quả là sai.
 4. **Kelly trên xác suất chưa ai kiểm.** Mô hình nói 60% mà thực tế thắng 52%
    thì Kelly phóng to đúng khoảng lệch đó. Kelly bị **khoá cứng** cho tới khi
    đủ mẫu hiệu chỉnh.
+
+5. **Băng ghi rách mà không ai báo.** Bản đầu mở băng bằng `gzip.open(...,
+   "at")` — nối thêm vào file của ngày. Tiến trình bị giết giữa chừng để lại
+   một thành viên gzip CỤT, lần chạy sau nối thành viên mới ngay sau đám byte
+   cụt ấy, và giờ rác nằm GIỮA file. `zlib` chạy tới đó thì ném `invalid block
+   type`, mà `doc_bang()` khi ấy chỉ bắt `OSError` — `zlib.error` không phải
+   `OSError`, nên lời gọi ném ra ngoài và kéo theo cả những ngày NGUYÊN VẸN.
+
+   Đo trên băng thật ngày 21/08/2026: đọc được **8.238 / 30.680 khung** (mất
+   73%), và vòng tự tiến hoá chết ngay dòng đầu suốt từ đó — trong khi buồng
+   lái vẫn hiện "đã chạy hôm nay". Nay mỗi phiên ghi một file riêng, trình đọc
+   nhảy qua chỗ đứt rồi đọc tiếp, và `/api/bang` trả kèm số file hỏng.
 
 Và một chỗ nữa mà `so_lenh.py` tồn tại để chặn: **"EDGE = 9¢" trên bảng điều
 khiển**. Đó là `fair − best_ask`, đúng cho đúng 80 cổ đầu tiên. Giá thật cho

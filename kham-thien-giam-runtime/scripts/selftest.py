@@ -13,15 +13,19 @@ bot chưa tự vào lệnh nào.
 """
 from __future__ import annotations
 
+import gzip
 import math
 import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 os.environ["KTG_DATA_DIR"] = tempfile.mkdtemp(prefix="ktg-selftest-")
 
+from kham.bang import (MayGhi, _thu_muc, dem_bang,               # noqa: E402
+                       doc_bang, doc_bang_day_du)
 from kham.can_loi import can, gia_cap, phi_maker, phi_taker      # noqa: E402
 from kham.config import CONFIG, che_hieu_luc, ly_do_khong_that   # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia, phi, TinMoi       # noqa: E402
@@ -48,6 +52,7 @@ from kham.tien_hoa import (BIEN_VUOT, DUOI_TOI_DA, SO_TIEN_HOA,   # noqa: E402
                            TOI_THIEU_MAU, DeXuat, de_xuat_tat_dinh,
                            duong_tien_hoa, thu_mot_de_xuat)
 from kham.tien_hoa import mot_luot as tien_hoa_mot_luot           # noqa: E402
+from kham.vong import TIEN_HOA_TOI_DA_THU                         # noqa: E402
 
 _loi: list[str] = []
 _dat = 0
@@ -902,6 +907,151 @@ def kiem_vong_tien_hoa() -> None:
          dt["soLuot"] > 0 or dt["tongCaiThien"] is None)
 
 
+def kiem_bang() -> None:
+    print("\n── Băng ghi: ký ức thế giới không được phép rách âm thầm ─────")
+
+    tm = _thu_muc()
+    kiem("thư mục băng nằm trong KTG_DATA_DIR, không phải băng THẬT",
+         str(tm).startswith(os.environ["KTG_DATA_DIR"]),
+         f"đang trỏ tới {tm}")
+
+    # ── mỗi phiên một file, không bao giờ nối thêm ────────────────────────
+    m1 = MayGhi()
+    for i in range(3):
+        m1.ghi({"vong": i, "phien": 1})
+    m1.dong()
+    m2 = MayGhi()
+    for i in range(2):
+        m2.ghi({"vong": i, "phien": 2})
+    m2.dong()
+    kiem("hai phiên ghi ra HAI file khác nhau", m1.duong != m2.duong,
+         "nối thêm vào file cũ là cách sinh ra rác nằm giữa file")
+    kiem("cả hai file đều có thật",
+         bool(m1.duong and m1.duong.exists() and m2.duong and m2.duong.exists()))
+    kiem("đọc lại thấy đủ khung của CẢ HAI phiên",
+         len(doc_bang()) == 5, f"đọc được {len(doc_bang())}")
+
+    # ── đếm mà không dựng cả băng trong bộ nhớ ────────────────────────────
+    kiem("dem_bang đếm đúng bằng doc_bang",
+         dem_bang().soKhung == len(doc_bang()))
+
+    # ── lọc theo ngày ─────────────────────────────────────────────────────
+    #   Ngày 2999 để hai phép kiểm dưới chỉ nhìn thấy file chúng vừa dựng,
+    #   không lẫn hai file của hai phiên ghi ở trên.
+    kiem("tuNgay ở tương lai thì không còn file nào",
+         dem_bang("2999-01-01").soFile == 0)
+
+    # ── dựng lại đúng kiểu hỏng đã cắn thật: thành viên cụt + nối thêm ────
+    #   Bản cũ mở "at"; tiến trình bị giết giữa chừng để lại thành viên CỤT,
+    #   lần chạy sau nối thành viên mới ngay sau đám byte cụt ấy. Trình đọc
+    #   chạy tới đó thì ném zlib.error và mất TẤT CẢ phần sau.
+    cu = gzip.compress(b'{"khung":"truoc"}\n' * 40)
+    moi = gzip.compress(b'{"khung":"sau"}\n' * 30)
+    hong = tm / "bang-2999-01-01-000000-0.jsonl.gz"
+    hong.write_bytes(cu[:len(cu) - 24] + moi)     # cắt đuôi rồi nối tiếp
+
+    nem = False
+    try:
+        with gzip.open(hong, "rt", encoding="utf-8") as f:
+            for _ in f:
+                pass
+    except Exception:                              # noqa: BLE001
+        nem = True
+    kiem("(đối chứng) gzip.open TRẦN vẫn ném trên file kiểu này", nem,
+         "hết ném thì phép kiểm dưới không còn chứng minh được gì")
+
+    try:
+        k, bao = doc_bang_day_du("2999-01-01")
+        da_nem = False
+    except Exception as e:                         # noqa: BLE001
+        k, bao, da_nem = [], None, True
+        print(f"    (ném: {type(e).__name__}: {e})")
+    kiem("doc_bang KHÔNG ném trên băng hỏng", not da_nem)
+    kiem("cứu được trọn phần sau chỗ đứt",
+         sum(1 for x in k if x.get("khung") == "sau") == 30,
+         f"chỉ thấy {sum(1 for x in k if x.get('khung') == 'sau')}/30")
+    kiem("khai ra là có file hỏng, không im lặng trả về thiếu",
+         bao is not None and bao.soFileHong >= 1 and not bao.lanh_lan)
+    kiem("không dán hai mẩu dòng ở hai bên chỗ đứt thành một khung",
+         all(set(x.keys()) == {"khung"} for x in k),
+         "dán vào nhau thì ra một khung hợp lệ mà nội dung là hai nửa khác nhau")
+    hong.unlink(missing_ok=True)
+
+    # ── rác hoàn toàn cũng không được làm sập lời gọi ─────────────────────
+    rac = tm / "bang-2999-01-01-000001-0.jsonl.gz"
+    rac.write_bytes(b"khong phai gzip, chi la rac" * 50)
+    k2, bao2 = doc_bang_day_du("2999-01-01")
+    kiem("file rác hoàn toàn: trả về rỗng chứ không ném", k2 == [])
+    kiem("file rác vẫn bị đếm là hỏng", bao2.soFileHong == 1)
+    rac.unlink(missing_ok=True)
+
+    kiem("dọn xong thì tương lai lại rỗng như trước",
+         dem_bang("2999-01-01").soFile == 0)
+
+
+def kiem_tien_hoa_thu_lai() -> None:
+    print("\n── Vòng tiến hoá: một lượt CHẾT không được tính là đã chạy ────")
+
+    import kham.vong as V
+
+    def cho_xong(rt, giay: float = 5.0) -> None:
+        moc = time.time() + giay
+        while rt._tienHoaDangChay and time.time() < moc:
+            time.sleep(0.01)
+
+    th = CONFIG.setdefault("tienHoa", {})
+    gio_cu, that = th.get("gioUTC"), V.tien_hoa_mot_luot
+    th["gioUTC"] = 0                    # để phép kiểm không phụ thuộc giờ chạy
+    try:
+        # ── lượt ném ra lỗi ───────────────────────────────────────────────
+        V.tien_hoa_mot_luot = lambda: (_ for _ in ()).throw(
+            RuntimeError("băng hỏng giả lập"))
+        rt = V.Runtime()
+        rt._soat_tien_hoa()
+        cho_xong(rt)
+
+        kiem("lượt chết KHÔNG được đánh dấu là xong", not rt._tienHoaXong)
+        kiem("lỗi được giữ lại để buồng lái đọc được",
+             "băng hỏng giả lập" in (rt.tienHoaLoi or ""),
+             f"đang là {rt.tienHoaLoi!r}")
+        kiem("có hẹn giờ thử lại", rt._tienHoaThuLai > time.time())
+        kiem("đã đếm là một lượt thử", rt._tienHoaSoLanThu == 1)
+
+        # ── chưa tới hẹn thì KHÔNG được thử lại ngay ──────────────────────
+        rt._soat_tien_hoa()
+        cho_xong(rt)
+        kiem("chưa tới hẹn thì không gọi lại theo nhịp vòng lặp",
+             rt._tienHoaSoLanThu == 1,
+             "không có phanh này thì lỗi cố định thành 1 lượt mỗi 2 giây")
+
+        # ── tới hẹn thì thử tiếp, nhưng có TRẦN ───────────────────────────
+        for _ in range(TIEN_HOA_TOI_DA_THU + 3):
+            rt._tienHoaThuLai = 0.0
+            rt._soat_tien_hoa()
+            cho_xong(rt)
+        kiem("số lượt thử dừng đúng ở trần",
+             rt._tienHoaSoLanThu == TIEN_HOA_TOI_DA_THU,
+             f"đang là {rt._tienHoaSoLanThu}/{TIEN_HOA_TOI_DA_THU}")
+
+        # ── lượt chạy trọn thì mới khoá lại tới ngày mai ──────────────────
+        V.tien_hoa_mot_luot = that
+        rt2 = V.Runtime()
+        rt2._soat_tien_hoa()
+        cho_xong(rt2, 30.0)
+        kiem("lượt chạy trọn thì đánh dấu xong", rt2._tienHoaXong)
+        kiem("chạy trọn thì xoá lỗi cũ", rt2.tienHoaLoi is None)
+        rt2._soat_tien_hoa()
+        cho_xong(rt2)
+        kiem("đã xong thì KHÔNG chạy thêm lượt nào trong ngày",
+             rt2._tienHoaSoLanThu == 1)
+    finally:
+        V.tien_hoa_mot_luot = that
+        if gio_cu is None:
+            th.pop("gioUTC", None)
+        else:
+            th["gioUTC"] = gio_cu
+
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -929,6 +1079,8 @@ def main() -> int:
     kiem_de_xuat()
     kiem_cong_tien_hoa()
     kiem_vong_tien_hoa()
+    kiem_bang()
+    kiem_tien_hoa_thu_lai()
     kiem_dong_co()
     kiem_cham_moc()
     kiem_nhom_tai_san()
