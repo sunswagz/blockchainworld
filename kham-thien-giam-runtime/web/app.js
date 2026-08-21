@@ -62,6 +62,9 @@
   function chuaCo(msg) { return el("p", "chua", msg || "chưa có dữ liệu"); }
 
   function bang(cot, hang) {
+    // Vỏ cuộn ngang. Không có nó, bảng nào rộng hơn ô sẽ bị CẮT CỤT — mất
+    // hẳn cột cuối mà không một dấu hiệu nào. Đã xảy ra thật với bảng tồn
+    // kho: cột "giá cặp" biến mất trong khi nó là cột đáng đọc nhất.
     var t = el("table"), th = el("thead"), tr = el("tr");
     cot.forEach(function (c) {
       var e = el("th", null, typeof c === "string" ? c : c.t);
@@ -81,7 +84,9 @@
       tb.appendChild(r);
     });
     t.appendChild(tb);
-    return t;
+    var vo = el("div", "bang-vo");
+    vo.appendChild(t);
+    return vo;
   }
 
   /* ── ĐÀI CHIÊM ────────────────────────────────────────────────── */
@@ -1119,12 +1124,16 @@
     });
   }
 
-  var CAO = 200, ROW = 100;         // 100 hàng, mỗi hàng 1 xu
-  var RONG_COT = 4;
+  var CAO = 132, ROW = 100;         // 100 hàng, mỗi hàng 1 xu
+  var RONG_COT = 3;
 
   function veNhietDo(lich) {
     var c = document.createElement("canvas");
-    c.width = LICH_TOI_DA * RONG_COT;
+    // Rộng theo SỐ LÁT ĐANG CÓ, không theo sức chứa tối đa. Bản đầu lấy
+    // `LICH_TOI_DA * RONG_COT` rồi vẽ dồn về mép phải, nên lúc mới mở
+    // trang có 28 lát mà canvas rộng cho 180 — bốn phần năm là khoảng
+    // trống, và nó trông y hệt "không có dữ liệu".
+    c.width = lich.length * RONG_COT;   // vừa khít, không chừa mép trống
     c.height = CAO;
     c.className = "nhiet";
     // Bộ kiểm chạy trong DOM giả, không có ngữ cảnh vẽ. Bỏ qua phần vẽ
@@ -1144,7 +1153,7 @@
     if (max <= 0) return c;
     var lgMax = Math.log1p(max);
 
-    var x0 = c.width - lich.length * RONG_COT;   // mới nhất luôn ở mép phải
+    var x0 = 0;                 // canvas vừa khít nên vẽ từ mép trái
     lich.forEach(function (l, i) {
       var x = x0 + i * RONG_COT;
       function cham(muc, r, gg, b) {
@@ -1268,34 +1277,24 @@
      bề ngang nó được phát. `rong: 1` = trọn hàng, và mỗi lần dùng đều
      có lý do riêng ghi ngay cạnh.                                      */
   var O_LIST = [
-    // Hai ô chi tiết của khung đang chọn — đọc cùng lúc, nên cạnh nhau.
+    // Thứ tự đọc theo CỘT: trên xuống ở cột một, rồi sang cột hai. Nên
+    // xếp theo mức thường xuyên phải liếc, không theo nhóm chủ đề.
     { ma: "dai-chiem", ten: "Đài Chiêm", phu: "mô hình định giá", theoKhung: 1 },
     { ma: "so-lenh", ten: "Sổ Lệnh", phu: "sổ L2 hai bên", theoKhung: 1 },
-
-    // Trục ngang LÀ thời gian — bóp hẹp là bóp mất chính thứ nó đo.
-    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian",
-      theoKhung: 1, rong: 1 },
-
-    // Bảng cơ hội nhiều cột: thô, ròng, sức chứa, khớp, nửa đời…
-    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ",
-      caRo: 1, rong: 1 },
-
+    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ", caRo: 1 },
+    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian", theoKhung: 1 },
     { ma: "kho-doi", ten: "Kho Đối", phu: "tồn kho, cặp, chân lẻ", caRo: 1 },
     { ma: "ban-do", ten: "Bản Đồ", phu: "so các khung với nhau", caRo: 1 },
-
     { ma: "chien-thuat", ten: "Chiến Thuật", phu: "sáu ngón, bật tắt được" },
     { ma: "truong-thi", ten: "Trường Thi", phu: "hiệu chỉnh, kỳ vọng, đuôi" },
-
-    // Ba khối trong một: kết toán + vô địch + tiến hoá.
-    { ma: "ket-toan", ten: "Kết Toán", phu: "vòng học, vô địch, tiến hoá",
-      rong: 1 },
-
+    { ma: "ket-toan", ten: "Kết Toán", phu: "vòng học, vô địch, tiến hoá" },
     { ma: "quan-vi", ten: "Đài Quan Ví", phu: "ví khác đang làm gì" },
     { ma: "nhat-ky", ten: "Nhật Ký", phu: "dòng sự kiện, sức khoẻ nguồn" },
   ];
 
+
   function veOMo(k) {
-    var o = el("section", "gop mo" + (k.rong ? " rong" : ""));
+    var o = el("section", "gop mo");
     o.id = "o-" + k.ma;
     var d = el("div", "gop-dinh tinh");
     d.appendChild(el("span", "gop-ten", k.ten));

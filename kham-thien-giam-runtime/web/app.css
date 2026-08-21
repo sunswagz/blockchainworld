@@ -107,7 +107,11 @@ tr:last-child td{border-bottom:0}
 .nhan.canh{background:rgba(224,163,59,.16);color:var(--canh)}
 .nhan.sao{background:var(--sao-t);color:var(--sao)}
 
-.chua{padding:20px;text-align:center;color:var(--mo2);font-size:13px}
+/* Ô trống phải SÍT. Bản đầu `padding:20px;text-align:center` biến một câu
+   "chưa có dữ liệu" thành một khối cao trăm pixel giữa ô — và trong buồng
+   lái thì phần lớn ô ở phần lớn thời gian đều đang trống. Cộng lại là
+   quá nửa màn hình dành cho việc nói rằng chưa có gì. */
+.chua{padding:5px 0;color:var(--mo2);font-size:12px;font-style:italic}
 .ghi{font-size:11.5px;color:var(--mo2);line-height:1.55;margin-top:8px}
 .ghi b{color:var(--mo)}
 
@@ -237,10 +241,10 @@ tr:last-child td{border-bottom:0}
 /* ── nhiệt đồ sổ ─────────────────────────────────────── */
 .nhiet-boc{position:relative;padding-right:38px;margin:2px 0 4px}
 .nhiet{
-  display:block;width:100%;height:200px;border-radius:6px;
+  display:block;width:100%;height:132px;border-radius:6px;
   border:1px solid var(--vien);image-rendering:pixelated}
 .nhiet-truc{
-  position:absolute;top:0;right:0;height:200px;width:34px;
+  position:absolute;top:0;right:0;height:132px;width:34px;
   display:flex;flex-direction:column;justify-content:space-between;
   font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;
   font-size:9px;color:var(--mo2);padding:1px 0 1px 5px}
@@ -387,10 +391,16 @@ tr:last-child td{border-bottom:0}
    khoảng trống nhất: trước đây mỗi ô chiếm trọn 1400px, nên `.book`
    chia đôi vẫn cho MỖI thang giá 700px — một thang mười lăm mức kéo dài
    700px thì mắt phải đi hết bề ngang màn hình để đọc mười lăm con số. */
-.luon-mo{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));
-  gap:10px;margin-bottom:14px;align-items:start}
-.luon-mo>.rong{grid-column:1/-1}
+/* XẾP CỘT, không phải lưới.
+   Lưới bắt các ô cùng hàng chia chung chiều cao của ô cao nhất, nên với
+   mười một ô cao thấp rất khác nhau thì hàng nào cũng hở — Bản Đồ hết
+   nội dung ở 200px mà vẫn phải chừa chỗ tới 700px vì Chiến Thuật cạnh
+   nó dài thế. Xếp cột thì mỗi ô chỉ chiếm đúng chiều cao của nó và ô
+   sau kê sát vào ngay. */
+.luon-mo{column-width:430px;column-gap:10px;margin-bottom:14px}
+.luon-mo>.gop{
+  break-inside:avoid;-webkit-column-break-inside:avoid;
+  display:inline-block;width:100%;margin:0 0 10px}
 .gop-dinh.tinh{cursor:default;background:var(--the2)}
 .gop-dinh.tinh:hover{background:var(--the2)}
 .luon-mo .gop-than{padding:2px 12px 12px}
@@ -423,5 +433,10 @@ tr:last-child td{border-bottom:0}
 .nhay-nut:hover{color:var(--sao);border-color:var(--vien)}
 
 /* Ô trọn hàng thì nội dung bên trong cũng được phép trải rộng hơn. */
-.luon-mo>.rong .luoi3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
 .gop.mo{scroll-margin-top:52px}
+
+/* Bảng rộng hơn ô thì CUỘN, không cắt. Ảnh chụp cho thấy bảng tồn kho
+   mất hẳn cột "giá cặp" — cột đáng đọc nhất — mà không một dấu hiệu nào. */
+.bang-vo{overflow-x:auto;max-width:100%}
+.bang-vo table{min-width:max-content}
