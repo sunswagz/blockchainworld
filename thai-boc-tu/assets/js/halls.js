@@ -67,6 +67,12 @@
       name: "Khâm Thiên Giám",
       note: "đài chiêm thị trường",
       icon: '<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/><circle cx="12" cy="12" r="3.1"/>'
+    },
+    {
+      href: "../thi-bac-ty/",
+      name: "Thị Bạc Ty",
+      note: "chênh lệch funding",
+      icon: '<path d="M12 4.2v13.4"/><path d="M8.2 20.4h7.6"/><path d="M4.6 7.4 19.4 5.6"/><path d="M4.6 7.4a2.9 2.9 0 0 0 5.4 1"/><path d="M19.4 5.6a2.9 2.9 0 0 1-5.4 1"/>'
     }
   ];
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-20T15:33:51.135Z",
+  "generatedAt": "2026-08-21T15:36:04.402Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -290,6 +290,20 @@
       ],
       "y": "Cùng khuôn ho-bo-tien-hoa, đổi tên cung. Phiếu đo lúc bật: 6/7 — trượt thước tương phản màu, 5/15 cặp dưới WCAG AA.",
       "khai": "scripts/node/thai-boc-tu.mjs"
+    },
+    {
+      "ma": "thi-bac-ty",
+      "ten": "Lát cắt Thị Bạc Ty",
+      "cung": "thi-bac-ty",
+      "tram": "M13",
+      "che": "tay",
+      "nhip": 0,
+      "lenh": "cd thi-bac-ty-runtime && python -m bac.snapshot",
+      "ra": [
+        "thi-bac-ty/assets/js/v/cang-phi.js"
+      ],
+      "y": "Runtime chênh lệch funding là tiến trình Python chạy dài, hỏi bốn sàn perp theo nhịp giây và có chỗ để cắm khoá API đặt lệnh — Actions không chạy được, và cũng KHÔNG ĐƯỢC cho chạy. Chạy tay rồi commit lát cắt, cùng kiểu Tử Cấm Thành và Khâm Thiên Giám.\n\nCòn một lý do riêng cho cung này: funding đổi theo GIỜ. Một lát cắt sinh tự động 4 lượt/ngày vẫn là ảnh của một thế giới đã qua, nên chạy tự động không mua lại được gì mà lại dựng ra vẻ tươi mới giả.",
+      "khai": "scripts/node/thi-bac-ty.mjs"
     },
     {
       "ma": "tu-cam-thanh",

@@ -1,0 +1,57 @@
+{
+  "port": 5188,
+  "nhipGiay": 30,
+  "che": "quan-sat",
+  "cungTinh": "",
+  "quet": {
+    "ma": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "DOGE"
+    ],
+    "giuGio": 8.0,
+    "hetGioHoiGiay": 10.0
+  },
+  "san": {
+    "hyperliquid": {
+      "bat": true,
+      "phiTakerBps": 4.5,
+      "truotGiaBps": 2.0
+    },
+    "binance": {
+      "bat": true,
+      "phiTakerBps": 5.0,
+      "truotGiaBps": 2.0
+    },
+    "okx": {
+      "bat": true,
+      "phiTakerBps": 5.0,
+      "truotGiaBps": 2.0
+    },
+    "bybit": {
+      "bat": true,
+      "phiTakerBps": 5.5,
+      "truotGiaBps": 2.0
+    }
+  },
+  "ruiRo": {
+    "grossToiThieuBpsNgay": 3.0,
+    "netToiThieuBps": 0.5,
+    "lechMarkToiDaBps": 40.0,
+    "doiHoiHaiMark": true,
+    "tuoiToiDaGiay": 90.0,
+    "nhanUocLuongMoc": false,
+    "doiHoiItNhatMotMoc": true,
+    "vonMoiCoHoiUsd": 100.0,
+    "vonToiDaUsd": 300.0,
+    "donBayToiDa": 1.0
+  },
+  "datLenh": {
+    "toiXacNhanDaDocRuiRo": false
+  },
+  "so": {
+    "giuNgay": 30
+  }
+}

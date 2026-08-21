@@ -1,0 +1,11 @@
+# Cố ý ít phụ thuộc — cùng lối với hai runtime kia.
+# Toán viết tay bằng Python thuần: với bốn cảng và vài chục mã thì
+# numpy/pandas không mua lại được gì mà thêm hai thứ có thể cài hỏng.
+fastapi>=0.141
+uvicorn[standard]>=0.52
+httpx>=0.28
+
+# KHÔNG có SDK sàn nào ở đây, và đó là chủ ý: bản này chỉ đọc dữ liệu
+# CÔNG KHAI. Thêm một SDK ký lệnh vào đây là mở sẵn đường cho một lượt
+# sửa vội biến scanner thành trader. Lớp đặt lệnh sẽ có SDK riêng, ở
+# một tiến trình riêng, tại V0.6.

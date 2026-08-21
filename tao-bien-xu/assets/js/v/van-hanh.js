@@ -486,6 +486,30 @@ window.VAN_HANH = {
    "lucDoi": "2026-08-20T19:17:13.212Z"
   },
   {
+   "ma": "thi-bac-ty",
+   "ten": "Lát cắt Thị Bạc Ty",
+   "y": "Runtime chênh lệch funding là tiến trình Python chạy dài, hỏi bốn sàn perp theo nhịp giây và có chỗ để cắm khoá API đặt lệnh — Actions không chạy được, và cũng KHÔNG ĐƯỢC cho chạy. Chạy tay rồi commit lát cắt, cùng kiểu Tử Cấm Thành và Khâm Thiên Giám.\n\nCòn một lý do riêng cho cung này: funding đổi theo GIỜ. Một lát cắt sinh tự động 4 lượt/ngày vẫn là ảnh của một thế giới đã qua, nên chạy tự động không mua lại được gì mà lại dựng ra vẻ tươi mới giả.",
+   "tram": "M13",
+   "che": "tay",
+   "nhip": 0,
+   "lenh": "cd thi-bac-ty-runtime && python -m bac.snapshot",
+   "ra": [
+    "thi-bac-ty/assets/js/v/cang-phi.js"
+   ],
+   "cung": "thi-bac-ty",
+   "cungTen": "Thị Bạc Ty",
+   "wf": null,
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
    "ma": "tu-cam-thanh",
    "ten": "Phiên Tử Cấm Thành",
    "y": "Runtime là tiến trình Python chạy dài, cần ANTHROPIC_API_KEY và quyền ghi đĩa — Actions không chạy được. Chạy tay rồi commit lát cắt, cùng kiểu Hoàng Thành.",

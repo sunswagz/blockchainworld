@@ -82,7 +82,8 @@ export const NGUON = [
   /* Cùng lý do Tử Cấm Thành: runtime prediction market cần một tiến trình chạy
      dài và có thể cần khoá ví, Actions không làm được. Sinh tay ở máy rồi
      commit — nên cũ là bình thường, không được kèm ⚠. */
-  { nhan: "lát cắt Khâm Thiên Giám", duong: "kham-thien-giam/assets/js/v/dai-chiem.js", botSinh: false }
+  { nhan: "lát cắt Khâm Thiên Giám", duong: "kham-thien-giam/assets/js/v/dai-chiem.js", botSinh: false },
+  { nhan: "lát cắt Thị Bạc Ty",      duong: "thi-bac-ty/assets/js/v/cang-phi.js",       botSinh: false }
 ];
 
 /* Dấu thời gian viết cả hai kiểu tuỳ script sinh ra nó:

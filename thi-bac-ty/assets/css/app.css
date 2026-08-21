@@ -1,0 +1,135 @@
+/* Thị Bạc Ty — cung tĩnh.
+   Biến --tau, --line, --card-2, --dur là hợp đồng với halls.css và pwa.js;
+   đổi tên chúng thì hai file kia hỏng im lặng (nút cài app mất viền, toast
+   báo bản mới mất nền). */
+:root{
+  --nen:#07090D; --card:#0D1117; --card-2:#121820; --line:#1E2733;
+  --chu:#E6EDF3; --mo:#8B98A5; --mo2:#5C6773;
+  --tau:#D9A441; --tau-t:rgba(217,164,65,.12);
+  --luc:#3FB27F; --do:#E5534B; --cam:#D9822B; --lam:#5AA9E6;
+  --don:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --dur:.22s;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--nen);color:var(--chu);
+  font:15px/1.65 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
+a{color:inherit;text-decoration:none}
+code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
+  border-radius:4px;color:var(--tau)}
+
+.khung{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100vh}
+
+/* ── thanh bên ────────────────────────────────────────────────────── */
+.ben{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  padding:18px 14px calc(18px + env(safe-area-inset-bottom));
+  border-right:1px solid var(--line);background:#090C11}
+.hieu{display:flex;gap:11px;align-items:center;padding:6px 8px 16px}
+.hieu .dau{display:grid;place-items:center;width:38px;height:38px;flex:0 0 auto;
+  border-radius:10px;background:var(--tau-t);color:var(--tau);
+  border:1px solid rgba(217,164,65,.3)}
+.hieu .dau svg{width:21px;height:21px}
+.hieu b{display:block;font-size:15px}
+.hieu i{display:block;font-style:normal;font-size:11.5px;color:var(--mo);
+  line-height:1.35;margin-top:1px}
+
+.bnhom{margin-bottom:10px}
+.blab{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--mo2);padding:10px 9px 6px}
+.bmuc{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:8px 9px;border-radius:7px;color:var(--mo);font-size:13.5px;
+  font-weight:500;border:0;background:none;cursor:pointer;
+  transition:background var(--dur) ease,color var(--dur) ease}
+.bmuc:hover{background:rgba(255,255,255,.04);color:var(--chu)}
+.bic{display:grid;place-items:center;width:17px;height:17px;flex:0 0 auto}
+.bic svg{width:16px;height:16px}
+.bten{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.ben-nut{display:none;position:fixed;left:14px;
+  bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;
+  width:44px;height:44px;border-radius:11px;border:1px solid var(--line);
+  background:var(--card-2);color:var(--chu);cursor:pointer;
+  place-items:center;box-shadow:0 10px 30px -12px #000}
+.ben-nut svg{width:20px;height:20px}
+
+/* ── nội dung ─────────────────────────────────────────────────────── */
+.chinh{padding:26px 30px 60px;max-width:1400px;min-width:0}
+.dinh{display:flex;gap:22px;justify-content:space-between;align-items:flex-start;
+  flex-wrap:wrap;padding-bottom:20px;margin-bottom:20px;
+  border-bottom:1px solid var(--line)}
+.dinh h1{font-size:27px}
+.phu{margin:8px 0 0;max-width:62ch;color:var(--mo);font-size:14px}
+.phu b{color:var(--chu);font-weight:600}
+.dau-so{display:flex;gap:8px;flex-wrap:wrap}
+.vien{font:12px/1 var(--don);padding:7px 11px;border-radius:999px;
+  background:var(--card);border:1px solid var(--line);color:var(--mo);
+  white-space:nowrap}
+.vien.on{color:var(--luc);border-color:rgba(63,178,127,.4)}
+.vien.canh{color:var(--cam);border-color:rgba(217,130,43,.4)}
+.vien.xau{color:var(--do);border-color:rgba(229,83,75,.4)}
+
+.canh-tinh{padding:11px 15px;border-radius:9px;margin-bottom:18px;font-size:13.5px;
+  background:rgba(217,130,43,.09);border:1px solid rgba(217,130,43,.32);
+  color:#E9BE86}
+.canh-tinh.nang{background:rgba(229,83,75,.09);
+  border-color:rgba(229,83,75,.34);color:#F0A9A4}
+
+.o{background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:18px 20px;margin:0 0 18px}
+.o>h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mo);margin-bottom:14px}
+.o h3{font-size:15.5px;margin:22px 0 8px;color:var(--tau)}
+.o h3:first-of-type{margin-top:4px}
+.o p{margin:0 0 10px;max-width:74ch;font-size:14px;color:#C9D3DC}
+.o p b{color:var(--chu)}
+.nho{font-size:13px !important;color:var(--mo) !important}
+.giai{font-size:12.5px;color:var(--mo2);margin:12px 0 0;max-width:78ch;
+  line-height:1.65}
+
+pre.vd{font:12.5px/1.7 var(--don);background:#080B10;border:1px solid var(--line);
+  border-left:3px solid var(--tau);border-radius:8px;padding:13px 15px;
+  overflow-x:auto;margin:0 0 14px;color:#C9D3DC}
+pre.vd b{color:var(--tau);font-weight:600}
+
+/* ── bảng ─────────────────────────────────────────────────────────── */
+.cuon{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font:12.5px/1.5 var(--don);min-width:680px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);
+  white-space:nowrap}
+th:first-child,td:first-child,th.trai,td.trai{text-align:left}
+th{color:var(--mo);font-weight:600;font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.05em}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+.duong{color:var(--luc)} .am{color:var(--do)} .nhat{color:var(--mo2)}
+.qua{color:var(--luc);font-weight:600} .chan{color:var(--cam)}
+.vi{font-size:11.5px;color:var(--mo);white-space:normal;
+  max-width:400px;text-align:left;line-height:1.5}
+
+.luoi{display:grid;gap:10px;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));margin-bottom:14px}
+.so{background:#080B10;border:1px solid var(--line);border-radius:9px;
+  padding:11px 13px}
+.so .n{font:700 21px/1.2 var(--don)}
+.so .t{font-size:11px;color:var(--mo);margin-top:4px}
+
+.trong{color:var(--mo);font-size:14px;margin:0}
+
+.chan-trang{border-top:1px solid var(--line);margin-top:26px;padding-top:16px}
+.chan-trang p{margin:0;font-size:12.5px;color:var(--mo2);max-width:80ch}
+
+@media (max-width:900px){
+  .khung{grid-template-columns:1fr}
+  .ben{position:fixed;inset:0 auto 0 0;width:270px;z-index:70;
+    transform:translateX(-100%);transition:transform var(--dur) ease;
+    box-shadow:0 0 50px -10px #000}
+  .ben[data-mo="1"]{transform:none}
+  .ben-nut{display:grid}
+  .chinh{padding:22px 16px 74px}
+  .dinh h1{font-size:23px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .ben,.bmuc{transition:none}
+}

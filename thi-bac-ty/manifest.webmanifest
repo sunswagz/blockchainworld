@@ -1,0 +1,44 @@
+{
+  "id": "sunswagz-thi-bac-ty",
+  "name": "Thị Bạc Ty · Chênh lệch funding giữa các cảng",
+  "short_name": "Thị Bạc Ty",
+  "description": "Cùng một tài sản, cùng một lúc, mỗi sàn perp trả một mức funding khác nhau. Bốn cảng — Hyperliquid, Binance, OKX, Bybit — đưa về cùng đơn vị, đếm theo MỐC kết toán chứ không nhân theo giờ, trừ phí và trượt giá, rồi mới hỏi còn lại bao nhiêu.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#07090D",
+  "theme_color": "#07090D",
+  "categories": [
+    "finance",
+    "business",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

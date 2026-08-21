@@ -67,6 +67,12 @@
       name: "Thái Bộc Tự",
       note: "đoàn tàu & khớp nối",
       icon: '<path d="M4 17V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M2 20h20"/><path d="M8 5V3h8v2"/><circle cx="8" cy="17" r="1.4"/><circle cx="16" cy="17" r="1.4"/>'
+    },
+    {
+      href: "../thi-bac-ty/",
+      name: "Thị Bạc Ty",
+      note: "chênh lệch funding",
+      icon: '<path d="M12 4.2v13.4"/><path d="M8.2 20.4h7.6"/><path d="M4.6 7.4 19.4 5.6"/><path d="M4.6 7.4a2.9 2.9 0 0 0 5.4 1"/><path d="M19.4 5.6a2.9 2.9 0 0 1-5.4 1"/>'
     }
   ];
 

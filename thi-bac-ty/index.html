@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thị Bạc Ty · Chênh lệch funding giữa các cảng</title>
+<meta name="description" content="Cùng một tài sản, cùng một lúc, mỗi sàn perp trả một mức funding khác nhau. Bốn cảng — Hyperliquid, Binance, OKX, Bybit — đưa về cùng đơn vị, đếm theo MỐC kết toán chứ không nhân theo giờ, trừ phí và trượt giá, rồi mới hỏi còn lại bao nhiêu.">
+
+<meta name="theme-color" content="#07090D">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thị Bạc Ty">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/halls.css">
+</head>
+<body>
+
+<div class="khung">
+
+  <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
+    <a class="hieu" href="#dau">
+      <span class="dau" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 4.2v13.4"/><path d="M8.2 20.4h7.6"/>
+          <path d="M4.6 7.4 19.4 5.6"/>
+          <path d="M4.6 7.4a2.9 2.9 0 0 0 5.4 1"/><path d="M19.4 5.6a2.9 2.9 0 0 1-5.4 1"/>
+          <circle cx="12" cy="6.5" r="1"/>
+        </svg>
+      </span>
+      <span><b>Thị Bạc Ty</b><i>chênh lệch funding giữa các cảng</i></span>
+    </a>
+
+    <div class="bnhom">
+      <div class="blab">Trong ty</div>
+      <a class="bmuc" href="#dau"><span class="bic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+      </span><span class="bten">Lát cắt</span></a>
+      <a class="bmuc" href="#co-hoi"><span class="bic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16M4 18V8m16 10V6"/><path d="m4 12 5-4 4 3 7-6"/></svg>
+      </span><span class="bten">Cơ hội</span></a>
+      <a class="bmuc" href="#bao-gia"><span class="bic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9 9.5v10"/></svg>
+      </span><span class="bten">Báo giá bốn cảng</span></a>
+      <a class="bmuc" href="#cang"><span class="bic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><circle cx="12" cy="4.2" r="1.6"/><path d="M4 12a8 8 0 0 0 16 0"/><path d="M2.5 12h3M18.5 12h3"/></svg>
+      </span><span class="bten">Sức khoẻ cảng</span></a>
+      <a class="bmuc" href="#hoc"><span class="bic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 3 8l9 4 9-4-9-4Z"/><path d="M6.5 10v5c0 1.4 2.5 2.6 5.5 2.6s5.5-1.2 5.5-2.6v-5"/></svg>
+      </span><span class="bten">Hai phép tính</span></a>
+    </div>
+
+    <!-- chuyển cung — halls.js dựng vào đây -->
+    <div id="cungNav"></div>
+
+    <button class="install-tb" id="installBtn" type="button" data-show="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      Cài ứng dụng
+    </button>
+  </nav>
+
+  <main class="chinh">
+
+    <header class="dinh" id="dau">
+      <div>
+        <h1>Thị Bạc Ty</h1>
+        <p class="phu">Ty coi việc buôn bán giữa các cảng. Cùng một tài sản,
+          cùng một lúc, mỗi sàn hợp đồng vĩnh cửu trả một mức
+          <b>funding</b> khác nhau — và chênh lệch ấy thu được mà
+          <b>không cần đoán giá lên hay xuống</b>.</p>
+      </div>
+      <div class="dau-so" id="dauSo"></div>
+    </header>
+
+    <div id="canh-tinh" class="canh-tinh" hidden></div>
+
+    <section class="o" id="co-hoi">
+      <h2>Cơ hội — xếp theo NET, không theo funding thô</h2>
+      <div id="oCoHoi"></div>
+    </section>
+
+    <section class="o" id="vi-sao">
+      <h2>Vì sao bị chặn</h2>
+      <div id="oViSao"></div>
+    </section>
+
+    <section class="o" id="bao-gia">
+      <h2>Báo giá bốn cảng</h2>
+      <div id="oBaoGia"></div>
+    </section>
+
+    <section class="o" id="cang">
+      <h2>Sức khoẻ cảng</h2>
+      <div id="oCang"></div>
+    </section>
+
+    <section class="o hoc" id="hoc">
+      <h2>Hai phép tính, và vì sao lẫn chúng là mất tiền</h2>
+
+      <h3>1 · Chuẩn hoá — để SO SÁNH hai cảng</h3>
+      <p>Mỗi cảng kết toán funding theo một chu kỳ riêng, và chu kỳ còn đổi
+        được giữa chừng. Nên con số sàn công bố mà không kèm chu kỳ là một
+        con số vô nghĩa:</p>
+      <pre class="vd">Binance      +0,080% / 8 giờ   →  0,010% / giờ
+Hyperliquid  +0,015% / 1 giờ   →  <b>0,015% / giờ</b>  ← cao hơn</pre>
+      <p>Nhìn số thô thì Binance lớn gấp năm. Sau khi chuẩn hoá thì
+        Hyperliquid mới là nơi trả nhiều hơn. Đây là lỗi mà một scanner
+        sơ sài mắc ngay ở dòng đầu tiên — và nó không hề giống lỗi, vì
+        mọi con số vẫn hợp lệ.</p>
+
+      <h3>2 · Đếm mốc — để biết GIỮ NGẦN ẤY THÌ THU BAO NHIÊU</h3>
+      <p>Chuẩn hoá xong vẫn chưa được nhân với số giờ giữ. Funding
+        <b>không chảy liên tục</b>: nó là một khoản trả <b>tại một mốc</b>.
+        Sàn kết toán 8 giờ trả vào 00:00, 08:00, 16:00 UTC — không trả gì
+        vào lúc 03:47.</p>
+      <pre class="vd">Vào 00:05, thoát 04:05 — giữ 4 giờ, funding 0,01%/8h
+
+  nhân theo giờ:  0,01% × (4/8) = 0,005%   ← nghe hợp lý
+  đếm theo mốc:   <b>0,000%</b>                    ← chưa qua mốc nào
+
+Vào 07:55, thoát 08:05 — giữ 10 PHÚT
+
+  đếm theo mốc:   <b>0,010%</b>   thu trọn một chu kỳ</pre>
+      <p>Cùng một cặp sàn, cùng một mức funding, hai câu trả lời lệch nhau
+        vô hạn lần. Cột <b>mốc L+S</b> trong bảng cơ hội là số mốc thật sự
+        rơi vào cửa sổ giữ; thấy <code>0+0</code> nghĩa là giữ hết cửa sổ mà
+        thu đúng bằng không, dù chênh lệch thô trông vẫn to.</p>
+
+      <h3>3 · Rồi mới trừ</h3>
+      <pre class="vd">funding thực thu   (đếm theo mốc)
+  − phí taker vào    × 2 chân
+  − phí taker ra     × 2 chân
+  − trượt giá        × 4 lần khớp
+  ─────────────────────────────
+  = <b>NET EDGE</b>   ← con số duy nhất đáng xếp hạng</pre>
+      <p><b>Bốn khoản chưa trừ</b>, và phải biết là chưa: chi phí vay coin,
+        phí chuyển vốn giữa sàn, rủi ro basis khi hai giá mark rời nhau lúc
+        thoát, và vốn bị khoá không làm được việc khác. Nên NET ở đây là
+        <b>chặn trên</b>, không phải lợi nhuận.</p>
+
+      <h3>4 · Vì sao trang này không có nút nào</h3>
+      <p>Cung tĩnh <b>quan sát</b>; runtime ở máy <b>điều khiển</b>. Một trang
+        công khai mà bấm được nút đặt lệnh là khoá đã ra tới trình duyệt. Số
+        liệu dưới đây là <b>lát cắt</b> do runtime Python ghi ra rồi commit —
+        trang này không gọi sàn nào và không đặt được lệnh nào.</p>
+      <p class="nho">Lớp đặt lệnh <b>chưa được viết</b>. Không cấu hình nào mở
+        được nó: còn thiếu máy trạng thái hai chân, đối soát vị thế từ sàn,
+        và kill switch. Một chân khớp mà chân kia trượt là vị thế
+        delta-neutral biến thành đặt cược một chiều — <i>legging risk</i>, và
+        đó là cách mất tiền nhanh nhất trong nghề này.</p>
+    </section>
+
+    <footer class="chan-trang">
+      <p id="chanNhac"></p>
+    </footer>
+  </main>
+</div>
+
+<button class="ben-nut" id="benNut" type="button" aria-label="Mở điều hướng">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+
+<!-- lát cắt runtime · SINH TAY, xem thi-bac-ty-runtime/bac/snapshot.py -->
+<script src="assets/js/v/cang-phi.js"></script>
+<!-- giao diện -->
+<script src="assets/js/app.js"></script>
+<!-- vỏ ứng dụng: service worker, cài đặt, cập nhật -->
+<script src="assets/js/pwa.js"></script>
+<!-- chuyển cung -->
+<script src="assets/js/halls.js"></script>
+</body>
+</html>

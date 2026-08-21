@@ -149,6 +149,21 @@
     })
     .catch(function () {});
 
+  // Thị Bạc Ty: cang-phi.js là lát cắt chênh lệch funding giữa bốn cảng perp.
+  // Cùng bẫy `date`/`tomTat` ở đầu object như bốn cung trên — chỗ này chỉ
+  // đọc 900 byte đầu rồi huỷ dòng tải. Cũng sinh tay: runtime cần một tiến trình
+  // dài nên Actions không chạy được. Chưa chạy lần nào thì file không tồn tại
+  // và thẻ không hiện ngày — đúng như vậy, đừng bịa ra một ngày.
+  dauFile("thi-bac-ty/assets/js/v/cang-phi.js", 900)
+    .then(function (t) {
+      if (!t) return;
+      var m = t.match(/"date":\s*"([^"]+)"/);
+      if (m) stamp("tbtDate", "lát cắt " + m[1]);
+      var n = t.match(/"tomTat":\s*"([^"]+)"/);
+      if (n) stamp("tbtSo", n[1]);
+    })
+    .catch(function () {});
+
   // Hoàng Thành: data.js ~380 KB, ngày và tổng số chương nằm ở đoạn đầu.
   // Khác bốn cung trên ở chỗ file này KHÔNG do workflow sinh — nguồn nằm
   // ngoài repo nên phải chạy `npm run hoangthanh` bằng tay rồi commit.

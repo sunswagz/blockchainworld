@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thị Bạc Ty — buồng lái</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="dinh">
+  <div class="hieu">
+    <span class="dau" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+        <path d="M3 18h18M5 18V9l7-4 7 4v9"/><path d="M9 18v-5h6v5"/>
+        <path d="M2 21h20"/>
+      </svg>
+    </span>
+    <div>
+      <h1>Thị Bạc Ty</h1>
+      <p class="phu">chênh lệch funding giữa các cảng · buồng lái chỉ sống ở máy</p>
+    </div>
+  </div>
+  <div class="dong-ho">
+    <span id="che" class="the">—</span>
+    <span id="vong" class="the">vòng —</span>
+    <span id="dongho" class="the">—</span>
+  </div>
+</header>
+
+<div id="dai-canh" class="dai-canh" hidden></div>
+
+<nav class="tab" id="tab">
+  <button data-o="co-hoi" class="chon">Cơ hội</button>
+  <button data-o="bao-gia">Báo giá</button>
+  <button data-o="cang">Cảng</button>
+  <button data-o="cua">Cửa rủi ro</button>
+  <button data-o="nhat-ky">Nhật ký</button>
+</nav>
+
+<main id="than"><p class="cho">đang nối tới runtime…</p></main>
+
+<footer class="chan">
+  <button id="nut-quet">Quét ngay</button>
+  <button id="nut-dung">Tạm dừng</button>
+  <button id="nut-lat">Ghi lát cắt ra cung tĩnh</button>
+  <span id="chan-nhac" class="nhac"></span>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
