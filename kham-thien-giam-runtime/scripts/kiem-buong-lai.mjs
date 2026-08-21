@@ -54,6 +54,14 @@ function Nut(ten) {
       this._ctx = d;
       return d;
     },
+    // DOM giả thiếu một hàm nào đó thì trang "vẽ hỏng" ở đây trong khi
+    // trên trình duyệt nó chạy tốt — báo động giả, và báo động giả thì
+    // người ta ngừng tin cả bộ kiểm. Giữ danh sách này bám sát những gì
+    // trang thật sự dùng.
+    _attr: {},
+    setAttribute(k, v) { this._attr[k] = String(v); },
+    getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attr, k) ? this._attr[k] : null; },
+    removeAttribute(k) { delete this._attr[k]; },
     addEventListener() {}, closest() { return null; },
     querySelectorAll() { return []; },
     set textContent(v) { this._txt = String(v); this.children = []; },
@@ -100,7 +108,7 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
+  "  globalThis._MO = MO; globalThis._KHOI = KHOI; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
 );
 
 const T = await layTrangThai();
@@ -167,6 +175,28 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
     loi++;
   }
 }
+// Khối gập chỉ được VẼ khi mở. Một khối hỏng có thể nằm im rất lâu —
+// không ai mở thì không ai biết. Nên mở TỪNG khối một và đòi nó phải
+// làm trang dày lên. So với một ngưỡng cố định thì vô nghĩa: con số đó
+// đổi mỗi lần thêm nội dung, và rồi người ta sẽ chỉnh ngưỡng cho vừa
+// thay vì sửa lỗi.
+const dong = dem(globalThis._VE["tat-ca"]());
+let gapLoi = 0;
+for (const k of globalThis._KHOI) {
+  globalThis._MO[k.ma] = true;
+  let n = 0;
+  try { n = dem(globalThis._VE["tat-ca"]()); } catch (e) { n = -1; }
+  globalThis._MO[k.ma] = false;
+  const ok = n > dong;
+  if (!ok) {
+    gapLoi++;
+    console.log(`  LỖI   ${("gập:" + k.ma).padEnd(12)} mở ra KHÔNG thêm nội dung`);
+  }
+}
+console.log(`  ${gapLoi ? "LỖI  " : "OK   "} ${"khối-gập".padEnd(12)} ` +
+            `${globalThis._KHOI.length - gapLoi}/${globalThis._KHOI.length} khối mở ra có nội dung`);
+loi += gapLoi;
+
 // Phép kiểm cuối: một hàm vẽ NÉM thì trang phải hiện Ô BÁO LỖI, tuyệt
 // đối không được để lại thân trang rỗng. Đây chính là kiểu hỏng đã xảy
 // ra thật — trang trắng, không thông báo, không dấu vết, trong khi máy

@@ -284,3 +284,41 @@ tr:last-child td{border-bottom:0}
   margin-top:9px;padding:9px 11px;border-radius:6px;background:var(--nen2);
   font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;
   font-size:11px;color:var(--mo);overflow-x:auto;white-space:pre}
+
+/* ── thanh chuyên mục ────────────────────────────────────
+   Cấp CHUYÊN MỤC, không phải cấp ô. Hôm nay một mục; thêm động cơ
+   thời tiết là nó tự mọc thêm một nút, không sửa gì ở đây. */
+.cm{
+  display:flex;gap:8px;padding:9px 16px;
+  background:var(--nen2);border-bottom:1px solid var(--vien)}
+.cm-nut{
+  display:flex;flex-direction:column;gap:1px;line-height:1.25;
+  padding:6px 14px;border-radius:8px;border:1px solid transparent;
+  transition:background var(--dur),border-color var(--dur)}
+.cm-nut>b{font-size:13px;color:var(--mo)}
+.cm-nut>i{font-style:normal;font-size:10px;color:var(--mo2)}
+.cm-nut:hover{background:var(--the)}
+.cm-nut.chon{background:var(--the);border-color:var(--sao);}
+.cm-nut.chon>b{color:var(--sao)}
+
+/* ── khối gập ────────────────────────────────────────────
+   Đầu khối luôn thấy được kể cả khi đóng, nên mười đầu khối xếp
+   chồng chính là bảng mục lục — không cần thêm thanh điều hướng. */
+.gop-nhac{
+  font-size:11px;color:var(--mo2);margin:18px 0 9px;
+  padding-top:12px;border-top:1px solid var(--vien)}
+.gop{
+  border:1px solid var(--vien);border-radius:9px;
+  margin-bottom:8px;overflow:hidden;background:var(--the)}
+.gop.mo{background:var(--nen2)}
+.gop-dinh{
+  display:flex;align-items:baseline;gap:10px;width:100%;
+  padding:10px 14px;text-align:left;
+  transition:background var(--dur)}
+.gop-dinh:hover{background:var(--the2)}
+.gop-dau{color:var(--mo2);font-size:11px;width:12px}
+.gop.mo .gop-dau{color:var(--sao)}
+.gop-ten{font-size:13px;font-weight:600}
+.gop.mo .gop-ten{color:var(--sao)}
+.gop-phu{font-size:11px;color:var(--mo2)}
+.gop-than{padding:2px 14px 14px;border-top:1px solid var(--vien)}

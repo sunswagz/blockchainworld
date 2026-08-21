@@ -9,7 +9,7 @@
   "use strict";
 
   var T = null;          // trạng thái mới nhất
-  var O = "chi-huy";     // ô đang mở
+  var O = "tat-ca";      // trang đang mở (nay là cấp CHUYÊN MỤC)
   var than = document.getElementById("than");
 
   /* ── tiện ─────────────────────────────────────────────────────── */
@@ -1158,9 +1158,122 @@
     return g;
   }
 
+  /* ── MỘT TRANG ────────────────────────────────────────────────────
+     Mười hai ô cũ đều phục vụ đúng MỘT họ market. Chúng nằm cạnh nhau
+     trên một thanh tab, nên nhìn thì tưởng là mười hai thứ ngang hàng —
+     trong khi thật ra chúng là mười hai lát cắt của cùng một thứ.
+
+     Chuyện đó không sao khi chỉ có crypto. Nó vỡ ngay khi có họ thứ hai:
+     thời tiết cũng cần sổ lệnh, cũng cần cân lợi, cũng cần kho đối, cũng
+     cần kết toán. Hai mươi bốn tab. Rồi ba mươi sáu.
+
+     Nên thanh trên cùng phải là cấp CHUYÊN MỤC, không phải cấp ô. Mỗi
+     chuyên mục là MỘT trang cuộn, các ô thành khối gập được trong đó.
+
+     Ba luật của trang này:
+
+     1. Thứ luôn mở là thứ trả lời được câu "ngay bây giờ nên làm gì" —
+        độ trễ của cả hệ, rồi một tấm cho mỗi market. Đúng những gì người
+        vận hành cần khi liếc màn hình một cái.
+     2. Mọi khối khác gập lại, và **chỉ VẼ khi đang mở**. Trang tự dựng
+        lại mỗi 2 giây; vẽ cả mười khối mỗi lần là trả giá cho thứ không
+        ai nhìn.
+     3. Trạng thái gập nhớ ngoài DOM. Không nhớ thì nó tự đóng ngay khi
+        người ta vừa mở ra đọc — lỗi chỉ lộ khi dùng thật.                */
+
+  var MO = {};                      // khối nào đang mở, nhớ qua các lần vẽ
+
+  var KHOI = [
+    { ma: "dai-chiem", ten: "Đài Chiêm", phu: "mô hình định giá" },
+    { ma: "so-lenh", ten: "Sổ Lệnh", phu: "sổ L2 hai bên" },
+    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian" },
+    { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ" },
+    { ma: "kho-doi", ten: "Kho Đối", phu: "tồn kho, cặp, chân lẻ" },
+    { ma: "ban-do", ten: "Bản Đồ", phu: "so các khung với nhau" },
+    { ma: "chien-thuat", ten: "Chiến Thuật", phu: "sáu ngón, bật tắt được" },
+    { ma: "truong-thi", ten: "Trường Thi", phu: "hiệu chỉnh, kỳ vọng, đuôi" },
+    { ma: "ket-toan", ten: "Kết Toán", phu: "vòng học, vô địch, tiến hoá" },
+    { ma: "quan-vi", ten: "Đài Quan Ví", phu: "ví khác đang làm gì" },
+    { ma: "nhat-ky", ten: "Nhật Ký", phu: "dòng sự kiện, sức khoẻ nguồn" },
+  ];
+
+  function veKhoiGap(k) {
+    var mo = !!MO[k.ma];
+    var o = el("section", "gop" + (mo ? " mo" : ""));
+
+    var d = el("button", "gop-dinh");
+    d.setAttribute("aria-expanded", mo ? "true" : "false");
+    d.appendChild(el("span", "gop-dau", mo ? "▾" : "▸"));
+    d.appendChild(el("span", "gop-ten", k.ten));
+    d.appendChild(el("span", "gop-phu", k.phu));
+    d.addEventListener("click", function () {
+      MO[k.ma] = !MO[k.ma];
+      ve();
+    });
+    o.appendChild(d);
+
+    if (mo) {
+      var b = el("div", "gop-than");
+      // Bọc riêng từng khối: một khối vẽ hỏng thì chỉ khối đó hiện lỗi,
+      // chín khối còn lại vẫn đọc được. Bọc chung cả trang thì một lỗi
+      // nhỏ ở Đài Quan Ví cũng xoá sạch mọi thứ.
+      try {
+        b.appendChild(VE[k.ma]());
+      } catch (e) {
+        b.appendChild(oLoi(e, k.ma));
+      }
+      o.appendChild(b);
+    }
+    return o;
+  }
+
+  function veTatCa() {
+    var g = document.createDocumentFragment();
+    g.appendChild(veChiHuy());      // đã gồm dải độ trễ ở đầu
+
+    var nhac = el("p", "gop-nhac",
+      "Bên dưới là từng động cơ một. Chúng chỉ được vẽ khi mở — trang tự " +
+      "dựng lại mỗi 2 giây, nên vẽ sẵn cả mười khối là trả giá cho thứ " +
+      "không ai nhìn.");
+    g.appendChild(nhac);
+
+    KHOI.forEach(function (k) { g.appendChild(veKhoiGap(k)); });
+    return g;
+  }
+
+  /* Thanh chuyên mục. Hôm nay đúng một mục vì mọi động cơ đều thuộc nhóm
+     `crypto`. Dựng sẵn theo NHÓM chứ không viết cứng chữ "Crypto": thêm
+     động cơ thời tiết là nó tự mọc thêm một mục, không phải sửa ở đây. */
+  function veThanhChuyenMuc() {
+    var thanh = document.getElementById("cm");
+    if (!thanh) return;
+    var nhom = {};
+    (T.dongCo || []).forEach(function (h) {
+      nhom[h.nhom] = (nhom[h.nhom] || 0) + 1;
+    });
+    var dem = {};
+    (T.thiTruong || []).forEach(function (m) {
+      if (!m.theo) return;
+      var hs = (T.dongCo || []).filter(function (x) { return x.ma === m.dongCo; })[0];
+      var n = hs ? hs.nhom : "?";
+      dem[n] = (dem[n] || 0) + 1;
+    });
+    var ten = Object.keys(nhom).sort();
+    if (thanh._ky === ten.join(",") + "|" + JSON.stringify(dem)) return;
+    thanh._ky = ten.join(",") + "|" + JSON.stringify(dem);
+    thanh.textContent = "";
+    ten.forEach(function (n) {
+      var b = el("button", "cm-nut" + (n === "crypto" ? " chon" : ""));
+      b.appendChild(el("b", "", n === "crypto" ? "Crypto" : n));
+      b.appendChild(el("i", "", (dem[n] || 0) + " khung · " +
+                                nhom[n] + " động cơ"));
+      thanh.appendChild(b);
+    });
+  }
+
   /* ── vẽ ───────────────────────────────────────────────────────── */
   var VE = {
-    "chi-huy": veChiHuy, "dai-chiem": veDaiChiem, "so-lenh": veSoLenh,
+    "tat-ca": veTatCa, "chi-huy": veChiHuy, "dai-chiem": veDaiChiem, "so-lenh": veSoLenh,
     "can-loi": veCanLoi, "kho-doi": veKhoDoi, "ap-luc": veApLuc,
     "ban-do": veBanDo,
     "chien-thuat": veChienThuat, "truong-thi": veTruongThi,
@@ -1217,11 +1330,12 @@
 
   function ve() {
     if (!T) return;
-    try { veDinh(); } catch (e) { /* đỉnh hỏng không được chặn thân */ }
+    try { veDinh(); veThanhChuyenMuc(); }
+    catch (e) { /* đỉnh hỏng không được chặn thân */ }
 
     var moi;
     try {
-      moi = (VE[O] || veChiHuy)();
+      moi = (VE[O] || veTatCa)();
     } catch (e) {
       moi = oLoi(e, O);
     }
@@ -1251,14 +1365,6 @@
         bc.hidden = false;
       });
   }
-
-  document.getElementById("tab").addEventListener("click", function (e) {
-    var b = e.target.closest("button[data-o]");
-    if (!b) return;
-    O = b.dataset.o;
-    [].forEach.call(this.children, function (x) { x.classList.toggle("chon", x === b); });
-    ve();
-  });
 
   document.getElementById("nutDung").addEventListener("click", function () {
     fetch("/api/tam-dung", { method: "POST" }).then(tai);
