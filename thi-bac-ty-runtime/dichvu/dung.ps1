@@ -1,26 +1,32 @@
-# Dừng Thị Bạc Ty đang chạy nền.
-#   .\dichvu\dung.ps1
+﻿# Dừng Thị Bạc Ty đang chạy nền.
 #
-# Giết theo PID đã ghi, KHÔNG quét theo tên tiến trình: trên máy này có ba
-# runtime Python cùng chạy, và `Stop-Process -Name pythonw` sẽ giết cả ba.
+#     powershell -ExecutionPolicy Bypass -File dichvu\dung.ps1
+#
+# ⚠ FILE .ps1 Ở ĐÂY PHẢI LƯU UTF-8 **CÓ BOM** — xem đầu bat.ps1.
 
-$pid_file = Join-Path $PSScriptRoot "pid.txt"
-if (-not (Test-Path $pid_file)) { Write-Host "Không có pid.txt — chưa chạy nền?"; exit 0 }
+$ErrorActionPreference = "Stop"
+$PID_FILE = Join-Path $PSScriptRoot "pid.txt"
 
-$id = Get-Content $pid_file -ErrorAction SilentlyContinue
-if (-not $id) { Write-Host "pid.txt rỗng"; exit 0 }
+function Ok($m)   { Write-Host "  OK   $m" }
+function Nhac($m) { Write-Host "  ~    $m" }
+
+if (-not (Test-Path $PID_FILE)) { Nhac "không có pid.txt — chưa chạy nền?"; exit 0 }
+
+$id = (Get-Content $PID_FILE -Raw).Trim()
+if (-not $id) { Nhac "pid.txt rỗng"; Remove-Item $PID_FILE -Force; exit 0 }
 
 $p = Get-Process -Id $id -ErrorAction SilentlyContinue
 if (-not $p) {
-  Write-Host "PID $id không còn chạy — dọn pid.txt"
-  Remove-Item $pid_file -Force -ErrorAction SilentlyContinue
+  Nhac "PID $id không còn chạy — dọn pid.txt"
+  Remove-Item $PID_FILE -Force -ErrorAction SilentlyContinue
   exit 0
 }
 
-# Đóng băng ghi tử tế: gửi tín hiệu dừng rồi mới ép. Giết thẳng thì thành
-# viên gzip cuối bị cụt — băng vẫn đọc được (trình đọc chịu được đuôi cụt)
-# nhưng mất tối đa 50 khung chưa xả.
+# Giết theo PID đã ghi, KHÔNG quét theo tên tiến trình. Máy này có BA runtime
+# Python cùng chạy (5182, 5186, 5188), và `Stop-Process -Name pythonw` sẽ giết
+# cả ba — hai cung kia chết theo mà không ai hiểu vì sao.
 Stop-Process -Id $id -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 2
-Remove-Item $pid_file -Force -ErrorAction SilentlyContinue
-Write-Host "Đã dừng (PID $id)."
+Remove-Item $PID_FILE -Force -ErrorAction SilentlyContinue
+Ok "đã dừng, PID $id"
+Nhac "thành viên gzip cuối của băng có thể cụt đuôi — bình thường, trình đọc chịu được"

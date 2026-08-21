@@ -34,7 +34,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 | `python -m bac.snapshot` | một lượt rồi ghi `thi-bac-ty/assets/js/v/cang-phi.js` |
 | `python scripts/selftest.py` | toán, không mạng, không chạm sổ thật |
 | `pythonw dichvu/chay-nen.py` | chạy nền 24/7, log xoay vòng, ghi PID |
-| `.\dichvu\chay.ps1` · `.\dichvu\dung.ps1` | bật / tắt bản chạy nền |
+| `dichvu\bat.ps1` · `dung.ps1` · `trang-thai.ps1` | bật / tắt / xem bản chạy nền |
 
 Buồng lái **chỉ sống ở localhost** và không bao giờ lên site. Cung tĩnh
 `thi-bac-ty/` (cổng 5187) là thứ lên GitHub Pages — nó **quan sát**, runtime
@@ -228,6 +228,22 @@ không mô phỏng vốn bị kẹt. Nên `netThucBps` là **chặn trên**.
 `doiHoiHaiMark`, `doiHoiItNhatMotMoc`, `nhanUocLuongMoc`,
 `lechDongHoToiDaGiay` cố ý **không** vặn được. Chúng không phải ngưỡng hiệu
 năng — chúng là câu "ta không biết đủ để vào lệnh".
+
+### File `.ps1` PHẢI lưu UTF-8 CÓ BOM
+
+Windows PowerShell 5.1 đọc `.ps1` không BOM theo bảng mã ANSI. Chữ tiếng Việt
+vỡ, và ký tự nhiều byte nuốt luôn dấu nháy — lỗi báo ra là
+`The string is missing the terminator` ở một dòng chẳng liên quan gì.
+
+Đã cắn ngay lượt chạy đầu của `bat.ps1`. Cùng bẫy đã ghi sẵn ở hai runtime
+kia; kiểm bằng:
+
+```powershell
+Get-ChildItem dichvu\*.ps1 | ForEach-Object {
+  $b = [IO.File]::ReadAllBytes($_.FullName)[0..2]
+  "{0}  {1}" -f $_.Name, (($b -join ',') -eq '239,187,191')
+}
+```
 
 ### Bao lâu mới có mẫu đầu tiên
 
