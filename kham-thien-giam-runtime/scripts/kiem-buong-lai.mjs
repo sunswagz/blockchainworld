@@ -108,7 +108,7 @@ async function layTrangThai() {
 // Mở cái nắp của IIFE để lấy được bảng VE và biến T.
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8").replace(
   "})();",
-  "  globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._MO = MO; globalThis._KHOI = KHOI; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
+  "  globalThis._LUON_MO = LUON_MO; globalThis._datKhung = (x) => { KHUNG = x; }; globalThis._MO = MO; globalThis._KHOI = KHOI; globalThis._VE = VE; globalThis._datT = (d) => { T = d; }; globalThis._ghiLich = ghiLich; globalThis._ve = ve; globalThis._datO = (x) => { O = x; };\n})();"
 );
 
 const T = await layTrangThai();
@@ -193,6 +193,24 @@ for (const [ten, fn] of Object.entries(globalThis._VE)) {
               `${ok ? "bấm đổi được" : "KHÔNG đổi"} · ` +
               `${roiVe ? "mã lạ → rơi về khung đầu" : "mã lạ → TRỐNG"}`);
   if (!(ok && roiVe)) loi++;
+}
+
+// Ba ô Đài Chiêm / Sổ Lệnh / Áp Lực Sổ phải có NỘI DUNG ngay, không cần
+// bấm gì. Đó là ô để đọc liên tục chứ không phải để tra cứu, và một thứ
+// phải bấm mới thấy thì trên thực tế là một thứ không được nhìn.
+//
+// Kiểm bằng cách dựng `tat-ca` với MỌI khối gập ĐÓNG, rồi đòi phần thân
+// của cả ba ô phải xuất hiện. Đếm nút thì không đủ — thân rỗng vẫn cộng
+// thêm nút vì cái đầu khối lúc nào cũng vẽ.
+{
+  for (const k of globalThis._KHOI) globalThis._MO[k.ma] = false;
+  const html = JSON.stringify(globalThis._VE["tat-ca"]());
+  const dau = { "dai-chiem": "Đài Chiêm ·", "so-lenh": "Sổ lệnh ·", "ap-luc": "Áp lực sổ ·" };
+  const thieu = globalThis._LUON_MO.filter((k) => !html.includes(dau[k.ma]));
+  console.log(`  ${thieu.length ? "LỖI  " : "OK   "} ${"luôn-mở".padEnd(12)} ` +
+              `${thieu.length ? "thân RỖNG: " + thieu.map((k) => k.ma).join(",")
+                              : globalThis._LUON_MO.length + " ô có nội dung, không cần bấm"}`);
+  if (thieu.length) loi++;
 }
 
 // Ô CHI TIẾT phải đi theo khung đang chọn; ô CẢ RỔ phải KHÔNG đi theo.

@@ -1254,10 +1254,22 @@
 
   var MO = {};                      // khối nào đang mở, nhớ qua các lần vẽ
 
-  var KHOI = [
+  /* Ba ô LUÔN MỞ. Đây là ô để ĐỌC LIÊN TỤC, không phải để tra cứu:
+     mô hình đang nói gì, sổ đang thế nào, sổ đang đổi ra sao. Bắt gập
+     lại là bắt bấm mở mỗi lần ngồi vào máy, và một thứ phải bấm mới thấy
+     thì trên thực tế là một thứ không được nhìn.
+
+     `rong: 1` = chiếm trọn hàng. Chỉ nhiệt đồ cần thế, vì trục ngang của
+     nó LÀ thời gian — bóp hẹp là bóp mất chính thứ nó đo. Hai ô kia thì
+     ngược lại: kéo rộng chỉ làm thang giá dài ra vô ích. */
+  var LUON_MO = [
     { ma: "dai-chiem", ten: "Đài Chiêm", phu: "mô hình định giá", theoKhung: 1 },
     { ma: "so-lenh", ten: "Sổ Lệnh", phu: "sổ L2 hai bên", theoKhung: 1 },
-    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian", theoKhung: 1 },
+    { ma: "ap-luc", ten: "Áp Lực Sổ", phu: "nhiệt đồ theo thời gian",
+      theoKhung: 1, rong: 1 },
+  ];
+
+  var KHOI = [
     { ma: "can-loi", ten: "Cân Lợi", phu: "lợi thế sau mọi khoản trừ", caRo: 1 },
     { ma: "kho-doi", ten: "Kho Đối", phu: "tồn kho, cặp, chân lẻ", caRo: 1 },
     { ma: "ban-do", ten: "Bản Đồ", phu: "so các khung với nhau", caRo: 1 },
@@ -1267,6 +1279,20 @@
     { ma: "quan-vi", ten: "Đài Quan Ví", phu: "ví khác đang làm gì" },
     { ma: "nhat-ky", ten: "Nhật Ký", phu: "dòng sự kiện, sức khoẻ nguồn" },
   ];
+
+  function veOMo(k) {
+    var o = el("section", "gop mo" + (k.rong ? " rong" : ""));
+    var d = el("div", "gop-dinh tinh");
+    d.appendChild(el("span", "gop-ten", k.ten));
+    d.appendChild(el("span", "gop-phu", k.phu));
+    var m = khungHienTai();
+    d.appendChild(el("span", "gop-pham vi-khung", m ? m.ma : "—"));
+    o.appendChild(d);
+    var b = el("div", "gop-than");
+    try { b.appendChild(VE[k.ma]()); } catch (e) { b.appendChild(oLoi(e, k.ma)); }
+    o.appendChild(b);
+    return o;
+  }
 
   function veKhoiGap(k) {
     var mo = !!MO[k.ma];
@@ -1324,9 +1350,16 @@
     luoi.appendChild(trai);
 
     var phai = el("div", "cot-phai");
+
+    // Ba ô luôn mở, xếp lưới: hai ô hẹp cạnh nhau, nhiệt đồ trọn hàng.
+    var mo = el("div", "luon-mo");
+    LUON_MO.forEach(function (k) { mo.appendChild(veOMo(k)); });
+    phai.appendChild(mo);
+
     phai.appendChild(el("p", "gop-nhac",
-      "Từng động cơ một. Chúng chỉ được vẽ khi mở — trang tự dựng lại mỗi " +
-      "2 giây, nên vẽ sẵn cả mười khối là trả giá cho thứ không ai nhìn."));
+      "Tám ô còn lại là để TRA CỨU, nên gập. Chúng chỉ được vẽ khi mở — " +
+      "trang tự dựng lại mỗi 2 giây, nên vẽ sẵn cả tám là trả giá cho thứ " +
+      "không ai nhìn."));
     KHOI.forEach(function (k) { phai.appendChild(veKhoiGap(k)); });
     luoi.appendChild(phai);
 
