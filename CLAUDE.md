@@ -1,20 +1,21 @@
 # blockchainworld
 
-Repo chứa Cổng Thành (`index.html` ở gốc) và mười một cung, mỗi cung là một
+Repo chứa Cổng Thành (`index.html` ở gốc) và mười hai cung, mỗi cung là một
 webapp tĩnh độc lập có `index.html` riêng:
 
     cong-bo/  dai-quan-trac/  do-sat-vien/  hoang-thanh/  ho-bo/
     kham-thien-giam/  kinh-thanh/  tang-thu-cac/  tao-bien-xu/
-    thai-boc-tu/  tu-cam-thanh/
+    thai-boc-tu/  thi-bac-ty/  tu-cam-thanh/
 
-Có đúng **hai** thư mục ở gốc **không** phải cung, và cả hai là runtime
+Có đúng **ba** thư mục ở gốc **không** phải cung, và cả ba là runtime
 Python chạy tay, không lên site:
 
     tu-cam-thanh-runtime/       giao dịch crypto có hướng
     kham-thien-giam-runtime/    thị trường tiên đoán Polymarket
+    thi-bac-ty-runtime/         chênh lệch funding giữa các sàn perp
 
-Xem mục "Hai runtime Python là ngoại lệ" bên dưới. Cả hai theo cùng một
-luật, nên mục đó nói chung cho cả hai chứ không chép làm hai bản.
+Xem mục "Ba runtime Python là ngoại lệ" bên dưới. Cả ba theo cùng một
+luật, nên mục đó nói chung cho cả ba chứ không chép làm ba bản.
 
 ## Chạy song song nhiều phiên
 
@@ -411,7 +412,7 @@ ngày" **không bao giờ kèm ⚠**, vì nó sinh tay. **Năm** nguồn kia do 
 và phải tươi trong **1 ngày** — bot chạy 4 lượt/ngày, quá 1 ngày nghĩa là
 bốn lượt liên tiếp không ghi được gì.
 
-### Hai runtime Python là ngoại lệ — và KHÔNG thư mục nào trong hai là cung
+### Ba runtime Python là ngoại lệ — và KHÔNG thư mục nào trong ba là cung
 
     tu-cam-thanh/assets/js/v/phien.js        ← sinh tay, PHẢI commit
     tu-cam-thanh-runtime/                    ← Python, KHÔNG lên site
@@ -419,14 +420,27 @@ bốn lượt liên tiếp không ghi được gì.
     kham-thien-giam/assets/js/v/dai-chiem.js ← sinh tay, PHẢI commit
     kham-thien-giam-runtime/                 ← Python, KHÔNG lên site
 
-**Cả hai theo cùng một luật.** Mục này viết theo Tử Cấm Thành vì nó có
-trước; mọi câu dưới đây áp dụng y nguyên cho Khâm Thiên Giám, chỉ đổi tên
+    thi-bac-ty/assets/js/v/cang-phi.js       ← sinh tay, PHẢI commit
+    thi-bac-ty-runtime/                      ← Python, KHÔNG lên site
+
+**Cả ba theo cùng một luật.** Mục này viết theo Tử Cấm Thành vì nó có
+trước; mọi câu dưới đây áp dụng y nguyên cho hai runtime kia, chỉ đổi tên
 thư mục, cổng, và lệnh sinh lát cắt:
 
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/selftest.py    230 phép kiểm số học, KHÔNG cần mạng
+
+    cd thi-bac-ty-runtime
+    python run.py                 buồng lái ở localhost:5188
+    python -m bac.snapshot        quét một lượt, ghi, rồi thoát
+    python scripts/selftest.py    79 phép kiểm số học, KHÔNG cần mạng
+
+Thị Bạc Ty **không cần khoá nào để chạy đủ**: nó chỉ đọc dữ liệu CÔNG KHAI
+của bốn sàn perp. `.env` chỉ để buồng lái nói đúng cửa nào đang đóng —
+`bac/config.py` không đọc giá trị khoá nào ở bản này, và lớp đặt lệnh thì
+chưa được viết, nên không cấu hình nào biến nó thành trader.
 
 Một khác biệt đáng ghi: runtime Khâm Thiên Giám **không cần khoá nào để
 chạy đủ**. `ANTHROPIC_API_KEY` chỉ dùng cho vòng não CHẬM (hậu kiểm, đọc
@@ -448,14 +462,15 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
 **Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một
 bước xanh vĩnh viễn không sinh ra gì.
 
-**KHÔNG runtime nào được thêm vào `HALLS` của `build-dist.mjs`.** Chúng nằm
+**KHÔNG runtime nào được thêm vào `HALLS` của `build-dist.mjs`.** Cả ba nằm
 ngoài `dist/` vì `GATE` là danh sách tường minh. Thêm vào là đẩy mã nguồn và
 cấu hình lên GitHub Pages lẫn IPFS — mà IPFS đã pin là không rút lại được.
 Chúng cũng không bị `npm run kiem` nhầm là cung, vì bộ kiểm chỉ tính thư mục
-có `index.html` **ngay tại gốc** thư mục đó; cả hai runtime chỉ có
+có `index.html` **ngay tại gốc** thư mục đó; cả ba runtime chỉ có
 `web/index.html` ở tầng hai. **Đừng tạo `<runtime>/index.html`.**
 
-Buồng lái ở `:5182` và `:5186` có nút điều khiển nên **chỉ sống ở máy**,
+Buồng lái ở `:5182`, `:5186` và `:5188` có nút điều khiển nên **chỉ sống ở
+máy**,
 không bao giờ lên site — trang công khai mà gọi được model, hoặc bấm được
 nút đặt lệnh, là khoá đã ra tới trình duyệt. Cung tĩnh và buồng lái cố ý là
 hai giao diện: cung quan sát, runtime điều khiển.
@@ -583,6 +598,8 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5184  thai-boc-tu
     5185  kham-thien-giam
     5186  kham-thien-giam-runtime  ← KHÔNG phải cung; runtime Python thứ hai
+    5187  thi-bac-ty
+    5188  thi-bac-ty-runtime  ← KHÔNG phải cung; runtime Python thứ ba
 
 Luôn truyền cổng, đừng để mặc định:
 
