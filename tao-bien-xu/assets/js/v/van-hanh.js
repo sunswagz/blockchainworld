@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-22T02:19:29.124Z",
- "lan": 157,
+ "generatedAt": "2026-08-22T07:05:34.330Z",
+ "lan": 159,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -97,15 +97,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-21T19:02:24.285Z",
+   "luc": "2026-08-22T07:04:24.658Z",
    "ket": "ok",
-   "giay": 211,
+   "giay": 150,
    "doi": true,
    "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-21T19:02:24.285Z",
-   "lucDoi": "2026-08-21T19:02:24.285Z"
+   "lucOk": "2026-08-22T07:04:24.658Z",
+   "lucDoi": "2026-08-22T07:04:24.658Z"
   },
   {
    "ma": "tien-hoa-dqt",
@@ -569,15 +569,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-08-21T02:17:49.323Z",
+   "luc": "2026-08-22T07:05:34.330Z",
    "ket": "ok",
-   "giay": 73,
+   "giay": 70,
    "doi": true,
    "chuThich": "opus-5 · max-turns 8",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-21T02:17:49.323Z",
-   "lucDoi": "2026-08-21T02:17:49.323Z"
+   "lucOk": "2026-08-22T07:05:34.330Z",
+   "lucDoi": "2026-08-22T07:05:34.330Z"
   },
   {
    "ma": "giao-hang",
@@ -603,6 +603,24 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-22T07:05:34.330Z",
+   "ma": "bao-cao",
+   "ket": "ok",
+   "giay": 70,
+   "doi": true,
+   "chuThich": "opus-5 · max-turns 8",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-22T07:04:24.658Z",
+   "ma": "dong-tin",
+   "ket": "ok",
+   "giay": 150,
+   "doi": true,
+   "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
+   "vi": null
+  },
   {
    "luc": "2026-08-22T02:19:29.124Z",
    "ma": "kham-thien-giam-tien-hoa",
@@ -1121,24 +1139,6 @@ window.VAN_HANH = {
    "ma": "ho-bo",
    "ket": "ok",
    "giay": 17,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-20T13:15:16.803Z",
-   "ma": "cong-bo",
-   "ket": "ok",
-   "giay": 5,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-20T13:15:11.826Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 67,
    "doi": true,
    "chuThich": "",
    "vi": null
