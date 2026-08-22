@@ -25,6 +25,7 @@
     "hoangthanh": "node scripts/build-hoangthanh.mjs",
     "kiem": "node scripts/kiem-quy-trinh.mjs",
     "hook": "node scripts/cai-hook.mjs",
+    "sao-luu": "node scripts/sao-luu.mjs",
     "halls": "node scripts/build-halls.mjs",
     "nang": "node scripts/nang-version.mjs",
     "dich": "node scripts/dich-skill.mjs",
