@@ -1,129 +1,129 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-22T02:08:39.080Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-22T18:53:29.344Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-08-22T02:08:39.080Z",
+  "generatedAt": "2026-08-22T18:53:29.344Z",
   "date": "22/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "nangluong",
-      "tieu_de": "Hormuz bị chặn từ 2/2026 do chiến sự Mỹ-Iran, qua 20% dầu toàn cầu bình thường",
-      "ngay": "2026-02-28",
-      "nguon": "Congress.gov",
-      "tac_dong": "Gián đoạn 75% nhập khẩu dầu TQ → sản xuất giảm → thu ngân sách giảm → nuôi bộ máy khó",
+      "tieu_de": "China crude oil imports collapsed 32% quarter-on-quarter to 8.1 mbpd in Q2 2026",
+      "ngay": "2026-06-30",
+      "nguon": "U.S. Energy Information Administration",
+      "tac_dong": "Severe crude shortage forces refinery shutdowns → industrial production declines → state revenue from energy/manufacturing taxes falls → less budget to sustain bloated bureaucracy",
       "muc": "r",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "nangluong",
-      "tieu_de": "Malacca chứa 75% dầu thô TQ, Phillips Channel hẹp 2.7km, tắc ngặt gia tăng",
-      "ngay": "2026-04-06",
-      "nguon": "The Diplomat",
-      "tac_dong": "Tắc ngặt Malacca → chi phí vận chuyển cao, sản xuất TQ bị ảnh hưởng → giảm thu",
-      "muc": "r",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "Trump chính quyền cho phép xuất khẩu H200 chips có tính 25% thuế, tạo đường thoát",
-      "ngay": "2026-01-20",
-      "nguon": "Brookings",
-      "tac_dong": "TQ mua được chip nhưng đắt → sản xuất AI chậm → cạnh tranh công nghệ suy yếu",
-      "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "Năng lực sản xuất chip TQ chỉ 1-2% Mỹ năm 2026, 15th Five-Year Plan đặt tech self-reliance",
-      "ngay": "2026-01-01",
-      "nguon": "CNAS",
-      "tac_dong": "Công nghệ yếu → sản xuất chế độ cao giảm → giảm xuất khẩu sản phẩm → giảm thu ngân sách",
-      "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "thuongmai",
-      "tieu_de": "Thỏa thuận TQ-Mỹ gia hạn giảm thuế tới 11/2026 nhưng Section 301 vẫn cao",
-      "ngay": "2026-11-10",
-      "nguon": "US Tariff Tracker",
-      "tac_dong": "Thuế Section 301 cao → xuất khẩu TQ sang Mỹ giảm → doanh số giảm, thu ngân sách sụp",
-      "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "thuongmai",
-      "tieu_de": "EU-Mỹ deal cho EU tariff 15% từ 1/7/2026, nhưng TQ không được deal tốt",
-      "ngay": "2026-07-01",
-      "nguon": "Trading Economics",
-      "tac_dong": "Bất công thương mại → TQ khó ngang bằng EU → giảm xuất khẩu toàn cầu",
-      "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "Malacca qua 75% dầu thô TQ, 25% thương mại toàn cầu, hẹp chỉ 2.7 km ở Phillips",
-      "ngay": "2026-04-06",
-      "nguon": "ION Analytics",
-      "tac_dong": "Bị ép chặn Malacca → năng lượng bị cắt, hàng hải gián đoạn → sản xuất tê liệt",
-      "muc": "r",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "Container lớn hơn 15-20%, cargo tăng 25% đến 2030, Malacca không mở rộng được",
-      "ngay": "2026-01-01",
-      "nguon": "ION Analytics",
-      "tac_dong": "Tắc ngặt gia tăng → chi phí logistics triệu tỉ → giảm tính cạnh tranh xuất khẩu",
-      "muc": "r",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Nga cung cấp 2.1 triệu barrel/ngày dầu thô cho TQ, 50% xuất khẩu dầu Nga",
-      "ngay": "2026-08-31",
-      "nguon": "Centre for Research on Energy and Clean Air",
-      "tac_dong": "Năng lượng ổn định → sản xuất ổn định → quỹ ngân sách ổn định, phụ thuộc Nga",
-      "muc": "g",
-      "at": "2026-08-22T02:08:39.080Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Power of Siberia 2 ký hợp đồng 3/2026, khởi động 2028, cung 50 tỷ m³ khí/năm",
+      "tieu_de": "Hormuz daily transits fell 95% to estimated 6 vessels; China loses supply diversity",
       "ngay": "2026-03-01",
-      "nguon": "Al Jazeera",
-      "tac_dong": "Năng lượng dài hạn ổn định → sản xuất dài hạn ổn định → quỹ ngân sách dài hạn",
+      "nguon": "MEPEI",
+      "tac_dong": "Energy cutoff threatens electricity supply to manufacturing heartlands; power rationing expected → productivity collapse → unemployment spike in coastal factories → working-class pressure on regime",
+      "muc": "r",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "congnghe",
+      "tieu_de": "US Commerce Department pursues quiet enforcement of chip export controls without new rules",
+      "ngay": "2026-03-15",
+      "nguon": "East Asia Forum",
+      "tac_dong": "Enforcement uncertainty forces Chinese chip makers to reduce R&D spending and shift to older nodes; reduced capacity for advanced computing → state loses tax revenue from chip industry",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "congnghe",
+      "tieu_de": "Bipartisan US lawmakers push for blanket ban on semiconductor manufacturing equipment exports",
+      "ngay": "2026-02-15",
+      "nguon": "CNAS",
+      "tac_dong": "Congress pressure signals future restrictions; Chinese chipmakers increase inventory hoarding and accelerate backward-compatible designs, requiring massive capex → diverts state budget from social spending → wage pressure on regime",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "thuongmai",
+      "tieu_de": "USTR imposes 12.5% tariff on all Chinese goods effective July 24, 2026",
+      "ngay": "2026-07-24",
+      "nguon": "USTR",
+      "tac_dong": "Tariff increase reduces Chinese export competitiveness; manufacturers cut production runs and profit margins → reduced tax revenue from export-oriented sectors → less state investment capacity",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "thuongmai",
+      "tieu_de": "EU firms seek new suppliers outside China amid export restrictions",
+      "ngay": "2026-06-01",
+      "nguon": "CEPR",
+      "tac_dong": "Tariff and trade diversion pressure forces Chinese companies to cut costs (wage freezes/layoffs) and reduce reinvestment → long-term industrial decline → state revenue deterioration",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "hanghai",
+      "tieu_de": "Malacca Strait facing 15-20% increases in vessel sizes and 25% cargo volume growth (2026-2030)",
+      "ngay": "2026-04-15",
+      "nguon": "S&P Global",
+      "tac_dong": "Infrastructure bottleneck at Malacca forces Chinese rerouting costs to spike 20-30%; shipping costs for Chinese exports rise → export margins compressed → manufacturers lay off workers → state loses tax revenue",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "hanghai",
+      "tieu_de": "Indonesia Finance Minister proposes toll system for Strait of Malacca usage",
+      "ngay": "2026-04-01",
+      "nguon": "The Diplomat",
+      "tac_dong": "Proposed toll would add 3-5% surcharge on China shipping; Strait congestion extends supply chain lead times → Chinese manufacturers lose market share to competitors using alternate routes",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "nga",
+      "tieu_de": "Russia supplies over 2.1 million barrels per day to China, up 28% from 2025",
+      "ngay": "2026-05-15",
+      "nguon": "ECNS",
+      "tac_dong": "Increased Russian crude supply partially offsets Hormuz loss; energy cost remains elevated but supply predictability improves, allowing state to stabilize power generation and manufacturing",
       "muc": "g",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "nga",
+      "tieu_de": "Russia-China energy trade exceeds USD 85 billion in first four months of 2026",
+      "ngay": "2026-04-30",
+      "nguon": "ECNS",
+      "tac_dong": "Stable energy trade with Russia reduces strategic vulnerability and hedges against future Hormuz disruptions; provides predictable tax revenue from energy-consuming industries",
+      "muc": "g",
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "Ngoại tệ dự trữ TQ tăng lên 3.399 tỷ USD (1/2026), tăng liên tiếp 6 tháng",
+      "tieu_de": "China's foreign exchange reserves reached USD 3.3991 trillion as of January 2026",
       "ngay": "2026-01-31",
-      "nguon": "Federal Reserve",
-      "tac_dong": "Quỹ dự trữ tốt → khả năng ứng phó sốc kinh tế lớn → ổn định nuôi bộ máy",
+      "nguon": "PBOC",
+      "tac_dong": "Strong forex reserves provide cushion against capital outflows and allow state to defend RMB peg; stable currency supports domestic purchasing power and manufacturing investment",
       "muc": "g",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "RMB dùng 30% thương mại xuyên biên giới, tăng từ 10% năm 2017, CIPS mở rộng",
-      "ngay": "2026-02-22",
-      "nguon": "Forbes",
-      "tac_dong": "Giảm phụ thuộc USD → độc lập tài chính tăng → chống áp lực kinh tế tốt hơn",
+      "tieu_de": "PBOC introduces RMB repo tool for foreign central banks to obtain RMB liquidity",
+      "ngay": "2026-06-01",
+      "nguon": "PBOC",
+      "tac_dong": "RMB internationalization reduces dependence on US dollar for trade settlements; expanded CIPS usage strengthens China's financial sovereignty and reduces vulnerability to US sanctions, stabilizing long-term investment climate",
       "muc": "g",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     }
   ],
   "levels": {
     "nangluong": "r",
     "congnghe": "y",
     "thuongmai": "y",
-    "hanghai": "r",
+    "hanghai": "y",
     "nga": "g",
     "taichinh": "g"
   },
@@ -131,38 +131,38 @@ window.DQT_TQ_SCAN = {
     {
       "ok": true,
       "t": "Năng lượng",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức r · 75% dầu thô TQ phải qua Hormuz (bị chặn) và Malacca (tắc ngặt)"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức r · Nhập dầu TQ giảm 32% QoQ sang Q2 2026 (8.1 mbpd) do Hormuz hỗn loạn; sản xuất công nghiệp bắt đầu chịu ảnh hưởng"
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức y · Trump cho phép bán H200 chip (25% thuế), TQ phát triển chip nội địa 1-2% năng lực Mỹ"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức y · Congress áp lực tăng cấm vận chip; Commerce Department dùng quiet enforcement; loophole vẫn tồn tại nhưng ngành bán dẫn bị ép"
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức y · TQ chịu thuế 301 cao, EU được deal 15%, TQ khó xuất khẩu sang Mỹ-EU"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức y · US áp 12.5% tariff tất cả hàng TQ từ 24/7/2026 vì forced labor concerns; EU xem xét cấm hàng TQ; TQ trade surplus vẫn cao nhưng rủi ro tăng"
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức r · Malacca qua 75% dầu và 25% thương mại TQ, Phillips Channel hẹp 2.7km, tải tăng 15-20%"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức y · Malacca Strait đã chứa 24M bbl/day dầu từ Trung Đông; rerouting từ Hormuz tăng tải; Indonesia đề xuất hệ thống toll"
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức g · Nga cung cấp 2.1 triệu barrel/ngày dầu thô, Power of Siberia 2 ký 3/2026 chạy 2028"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức g · Đình chỉ pipeline mới Power of Siberia 2 sau March 2026, nhưng Siberia 1 chạy đầy, trade TQ-Nga 85B USD trong 4 tháng đầu năm"
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức g · Ngoại tệ dự trữ TQ 3.399 tỷ USD, RMB dùng 30% thương mại, CIPS mở rộng"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức g · PBOC mở rộng RMB internationalization; ngoại hối dự trữ tăng lên 3.3991T USD trong 01/2026; CIPS expand"
     }
   ]
 };

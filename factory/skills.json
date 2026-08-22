@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-21T18:58:53.228Z",
+  "generatedAt": "2026-08-22T18:51:19.302Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/nhap-skill.mjs — sổ xuất xứ của .claude/skills/.",
   "luat": {
     "nhom": [
@@ -19,11 +19,11 @@
       "kho": "anthropics/skills",
       "duong": "skills/academy-guide",
       "nhom": "lap-trinh",
-      "sao": 170789,
+      "sao": 170949,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "sha": "f27992510c051355",
-      "luc": "2026-08-21T18:58:51.772Z"
+      "luc": "2026-08-22T18:51:18.642Z"
     },
     {
       "id": "anthropics/skills/skills/algorithmic-art",
@@ -31,11 +31,11 @@
       "kho": "anthropics/skills",
       "duong": "skills/algorithmic-art",
       "nhom": "giao-dien",
-      "sao": 170789,
+      "sao": 170949,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "sha": "3bc4092c09804853",
-      "luc": "2026-08-21T18:58:51.889Z"
+      "luc": "2026-08-22T18:51:18.655Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/plugin-dev/skills/agent-development",
@@ -43,11 +43,11 @@
       "kho": "anthropics/claude-plugins-official",
       "duong": "plugins/plugin-dev/skills/agent-development",
       "nhom": "lap-trinh",
-      "sao": 33773,
+      "sao": 33814,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "6a2826571320828c",
-      "luc": "2026-08-21T18:58:52.134Z"
+      "luc": "2026-08-22T18:51:18.692Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/mcp-server-dev/skills/build-mcp-app",
@@ -55,11 +55,11 @@
       "kho": "anthropics/claude-plugins-official",
       "duong": "plugins/mcp-server-dev/skills/build-mcp-app",
       "nhom": "lap-trinh",
-      "sao": 33773,
+      "sao": 33814,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "d2fd94f009650646",
-      "luc": "2026-08-21T18:58:52.245Z"
+      "luc": "2026-08-22T18:51:18.738Z"
     },
     {
       "id": "obra/superpowers/skills/brainstorming",
@@ -67,11 +67,11 @@
       "kho": "obra/superpowers",
       "duong": "skills/brainstorming",
       "nhom": "giao-dien",
-      "sao": 275378,
+      "sao": 275911,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "74edf03ea6d24ef5",
-      "luc": "2026-08-21T18:58:52.359Z"
+      "luc": "2026-08-22T18:51:18.782Z"
     },
     {
       "id": "obra/superpowers/skills/receiving-code-review",
@@ -79,11 +79,11 @@
       "kho": "obra/superpowers",
       "duong": "skills/receiving-code-review",
       "nhom": "lap-trinh",
-      "sao": 275378,
+      "sao": 275911,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "091df1629510af1b",
-      "luc": "2026-08-21T18:58:52.480Z"
+      "luc": "2026-08-22T18:51:18.814Z"
     },
     {
       "id": "affaan-m/ECC/skills/accessibility",
@@ -91,11 +91,11 @@
       "kho": "affaan-m/ECC",
       "duong": "skills/accessibility",
       "nhom": "kiem-thu",
-      "sao": 241610,
+      "sao": 241983,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "d8578fe750e73216",
-      "luc": "2026-08-21T18:58:52.608Z"
+      "luc": "2026-08-22T18:51:18.960Z"
     },
     {
       "id": "affaan-m/ECC/skills/agent-architecture-audit",
@@ -103,11 +103,11 @@
       "kho": "affaan-m/ECC",
       "duong": "skills/agent-architecture-audit",
       "nhom": "kiem-thu",
-      "sao": 241610,
+      "sao": 241983,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "64f57e232c353387",
-      "luc": "2026-08-21T18:58:52.727Z"
+      "luc": "2026-08-22T18:51:19.134Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/ask-matt",
@@ -115,11 +115,11 @@
       "kho": "mattpocock/skills",
       "duong": "skills/engineering/ask-matt",
       "nhom": "lap-trinh",
-      "sao": 228307,
+      "sao": 230872,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "b25d86fb36b1d294",
-      "luc": "2026-08-21T18:58:52.842Z"
+      "luc": "2026-08-22T18:51:19.159Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/code-review",
@@ -127,11 +127,11 @@
       "kho": "mattpocock/skills",
       "duong": "skills/engineering/code-review",
       "nhom": "lap-trinh",
-      "sao": 228307,
+      "sao": 230872,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "47f4e52c21694def",
-      "luc": "2026-08-21T18:58:52.970Z"
+      "luc": "2026-08-22T18:51:19.185Z"
     },
     {
       "id": "multica-ai/andrej-karpathy-skills/skills/karpathy-guidelines",
@@ -139,11 +139,11 @@
       "kho": "multica-ai/andrej-karpathy-skills",
       "duong": "skills/karpathy-guidelines",
       "nhom": "lap-trinh",
-      "sao": 204741,
+      "sao": 205034,
       "giayPhep": "MIT",
       "nhanh": "main",
       "sha": "6e22cc54cb02a5e9",
-      "luc": "2026-08-21T18:58:53.042Z"
+      "luc": "2026-08-22T18:51:19.243Z"
     },
     {
       "id": "garrytan/gstack/autoplan",
@@ -151,11 +151,11 @@
       "kho": "garrytan/gstack",
       "duong": "autoplan",
       "nhom": "giao-dien",
-      "sao": 129005,
+      "sao": 129152,
       "giayPhep": null,
       "nhanh": "main",
       "sha": "9d1c06686f59dc06",
-      "luc": "2026-08-21T18:58:53.228Z"
+      "luc": "2026-08-22T18:51:19.302Z"
     }
   ]
 }

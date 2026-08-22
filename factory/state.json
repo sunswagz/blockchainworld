@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-22T13:14:29.232Z",
-  "lan": 170,
+  "generatedAt": "2026-08-22T18:55:17.384Z",
+  "lan": 173,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-22T13:02:48.177Z",
@@ -47,15 +47,15 @@
       "lucDoi": "2026-08-22T13:14:25.403Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-08-22T02:08:39.142Z",
+      "luc": "2026-08-22T18:53:29.407Z",
       "ket": "ok",
-      "giay": 168,
+      "giay": 130,
       "doi": true,
-      "chuThich": "quét 167s · dựng 0s · haiku-4-5",
+      "chuThich": "quét 130s · dựng 0s · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-22T02:08:39.142Z",
-      "lucDoi": "2026-08-22T02:08:39.142Z"
+      "lucOk": "2026-08-22T18:53:29.407Z",
+      "lucDoi": "2026-08-22T18:53:29.407Z"
     },
     "hoang-thanh": {
       "luc": "2026-08-14T09:16:24.800Z",
@@ -145,15 +145,15 @@
       "lucDoi": "2026-08-22T13:04:17.042Z"
     },
     "nhap-skill": {
-      "luc": "2026-08-21T18:58:53.270Z",
+      "luc": "2026-08-22T18:51:19.363Z",
       "ket": "ok",
-      "giay": 2,
+      "giay": 1,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-21T18:58:53.270Z",
-      "lucDoi": "2026-08-21T18:58:53.270Z"
+      "lucOk": "2026-08-22T18:51:19.363Z",
+      "lucDoi": "2026-08-22T18:51:19.363Z"
     },
     "dong-tin": {
       "luc": "2026-08-22T07:04:24.658Z",
@@ -200,15 +200,15 @@
       "lucDoi": "2026-08-22T02:12:35.672Z"
     },
     "thai-boc-tu-tin-pt": {
-      "luc": "2026-08-22T02:13:51.022Z",
+      "luc": "2026-08-22T18:55:17.384Z",
       "ket": "ok",
-      "giay": 75,
+      "giay": 108,
       "doi": true,
-      "chuThich": "nhận 12 · loại 0 · phủ 13/30 bài · haiku-4.5",
+      "chuThich": "nhận 12 · loại 0 · phủ 25/30 bài · haiku-4.5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-22T02:13:51.022Z",
-      "lucDoi": "2026-08-22T02:13:51.022Z"
+      "lucOk": "2026-08-22T18:55:17.384Z",
+      "lucDoi": "2026-08-22T18:55:17.384Z"
     },
     "kham-thien-giam-tien-hoa": {
       "luc": "2026-08-22T02:19:29.124Z",
@@ -223,6 +223,33 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-22T18:55:17.384Z",
+      "ma": "thai-boc-tu-tin-pt",
+      "ket": "ok",
+      "giay": 108,
+      "doi": true,
+      "chuThich": "nhận 12 · loại 0 · phủ 25/30 bài · haiku-4.5",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-22T18:53:29.407Z",
+      "ma": "dai-quan-trac",
+      "ket": "ok",
+      "giay": 130,
+      "doi": true,
+      "chuThich": "quét 130s · dựng 0s · haiku-4-5",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-22T18:51:19.363Z",
+      "ma": "nhap-skill",
+      "ket": "ok",
+      "giay": 1,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-08-22T13:14:29.232Z",
       "ma": "tien-hoa-dqt",

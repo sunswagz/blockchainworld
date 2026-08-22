@@ -1,95 +1,122 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-22T02:08:39.080Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-22T18:53:29.344Z
    Chủ thể: Việt Nam
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_SCAN = {
-  "generatedAt": "2026-08-22T02:08:39.080Z",
+  "generatedAt": "2026-08-22T18:53:29.344Z",
   "date": "22/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "hormuz",
-      "tieu_de": "Bảo hiểm vận chuyển dầu qua Hormuz tăng mạnh do tấn công gia tăng",
+      "tieu_de": "War risk insurance surge at Strait of Hormuz",
       "ngay": "2026-07-17",
       "nguon": "The National",
-      "tac_dong": "Bảo hiểm chi phí cao → giá dầu nhập khẩu VN tăng → lạm phát, tỷ giá, chi phí xuất khẩu tăng",
+      "tac_dong": "Shipping insurance for tankers jumped to 3-10% of hull value (from 0.25%), making crude oil imports drastically more expensive, pushing up domestic oil prices and reducing purchasing power in Vietnam",
       "muc": "r",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "hormuz",
-      "tieu_de": "Chính phủ Mỹ phải bảo trợ bảo hiểm chiến tranh do thị trường tư nhân rút lui",
-      "ngay": "2026-04-28",
-      "nguon": "Al Jazeera",
-      "tac_dong": "Gián đoạn chuỗi cung ứng dầu → giá ổn định ở mức cao → lạm phát kéo dài, tỷ giá áp lực",
+      "tieu_de": "Hormuz strait blockade continues, daily transits collapsed to 6 vessels",
+      "ngay": "2026-03-01",
+      "nguon": "MEPEI Analysis",
+      "tac_dong": "95% reduction in Hormuz transits means Vietnamese importers face severe crude oil shortage, forcing price spikes that cascade to consumers via increased energy bills and reduced manufacturing competitiveness",
       "muc": "r",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Ukraine tấn công 194 lần hạ tầng dầu khí Nga trong 6 tháng 2026",
-      "ngay": "2026-06-30",
-      "nguon": "Steptoe",
-      "tac_dong": "Giảm cung dầu Nga → giá dầu tăng → nhập khẩu VN đắt → lạm phát, đơn hàng xuất khẩu bị ép",
+      "tieu_de": "Russian oil output falls for sixth straight month, pipeline terminal attacked",
+      "ngay": "2026-07-19",
+      "nguon": "Centre for Research on Energy and Clean Air",
+      "tac_dong": "Ukraine drone strike on Caspian Pipeline reduced loadings 23% month-on-month; Russian crude production fell to 9.009M bpd, creating supply deficit that supports global crude prices affecting Vietnam's import costs",
       "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "nga",
-      "tieu_de": "EU áp dụng gói lệnh trừng phạt thứ 21 vào 23/7/2026 cấm dầu tinh chế từ Nga",
-      "ngay": "2026-07-23",
-      "nguon": "European Council",
-      "tac_dong": "Ức chế cung dầu toàn cầu → giá dầu cao → kinh tế VN gặp áp lực giá cả",
+      "tieu_de": "Deep discounts for Russian crude persist despite production drops",
+      "ngay": "2026-06-15",
+      "nguon": "Geopolitical Futures",
+      "tac_dong": "Russian crude discounts (due to G7 price cap and sanctions) temporarily stabilize Vietnam's oil import costs, but supply unpredictability creates forex volatility for Vietnamese importers",
       "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Trung Quốc nhập khẩu 49.49 triệu tấn dầu thô tháng 8/2026, tăng 4.9% so với tháng 7",
-      "ngay": "2026-08-31",
-      "nguon": "FXStreet/Commerzbank",
-      "tac_dong": "Nhu cầu TQ phục hồi → sản xuất TQ ổn định → đơn hàng xuất khẩu VN thoát suy thoái",
+      "tieu_de": "China crude oil imports surge 49.49M tons in August, up 4.9% month-on-month",
+      "ngay": "2026-08-20",
+      "nguon": "U.S. Energy Information Administration",
+      "tac_dong": "Strong Chinese oil purchases sustain global crude prices and cement China's role as buyer-of-last-resort, keeping Vietnam's crude export options open and supporting prices",
       "muc": "g",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "tq",
+      "tieu_de": "China refinery output rises 2.8% year-on-year in August",
+      "ngay": "2026-08-20",
+      "nguon": "EIA",
+      "tac_dong": "Growing Chinese manufacturing demand maintains absorption of Vietnamese exports (electronics, materials, components); industrial momentum reduces risk of import collapse",
+      "muc": "g",
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "vn",
-      "tieu_de": "Xuất khẩu VN tăng 20.1% YoY lên 46.44 tỷ USD quý 1/2026, lạm phát 3.3%",
+      "tieu_de": "Vietnam exports grew 20.1% year-on-year to USD 46.44B in Q1 2026",
       "ngay": "2026-03-31",
-      "nguon": "Trading Economics",
-      "tac_dong": "Kinh tế VN tốt → tỷ giá ổn định, giá cả kiểm soát, việc làm tạo mới tốt",
+      "nguon": "World Bank",
+      "tac_dong": "Export momentum signals stable domestic employment and wage growth; however, growth rate suggests peaking conditions and vulnerability to external shocks",
       "muc": "g",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "vn",
+      "tieu_de": "Vietnam credit growth accelerating with rising non-performing loan concerns",
+      "ngay": "2026-06-01",
+      "nguon": "AMRO Asia",
+      "tac_dong": "Rapid credit expansion fuels consumption and investment but masks deteriorating asset quality; future NPL crisis could trigger credit crunch affecting wages and employment",
+      "muc": "g",
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "my",
-      "tieu_de": "USTR áp thuế Section 301 12.5% với VN từ 24/7/2026 do lao động cưỡng bức",
-      "ngay": "2026-07-24",
+      "tieu_de": "USTR Section 301 investigation launched against Vietnam for IP protection deficiencies",
+      "ngay": "2026-05-29",
       "nguon": "USTR",
-      "tac_dong": "Thuế nhập khẩu tăng → hàng VN sang Mỹ giảm → thất nghiệp tăng, giảm tỷ giá",
+      "tac_dong": "Investigation finding could trigger tariffs on Vietnamese goods; Việt Nam companies face risk of trade restrictions, particularly in software and manufacturing sectors, threatening export orders",
       "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "my",
-      "tieu_de": "VN xếp Priority Foreign Country, bị điều tra Section 301 riêng về bảo vệ IP",
-      "ngay": "2026-03-29",
+      "tieu_de": "Vietnam designated Priority Foreign Country in 2026 Special 301 Report",
+      "ngay": "2026-04-30",
       "nguon": "USTR",
-      "tac_dong": "Rủi ro thuế thêm → doanh nghiệp dịch chuyển sản xuất → giảm việc làm, giảm tỷ giá",
+      "tac_dong": "Designation signals US intent to enforce IP rules; Vietnamese businesses face increased compliance costs and risk of product exclusion from US market, directly hitting export revenues",
       "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
     },
     {
       "th": "san",
-      "tieu_de": "TikTok Shop market share tăng 44% (GMV 5.96 tỷ USD tăng 83%), Shopee giảm còn 53%",
-      "ngay": "2026-04-30",
-      "nguon": "Q&Me Vietnam E-commerce Report",
-      "tac_dong": "Cạnh tranh mạnh → margin bán hàng nhỏ → giảm doanh số bán hàng, áp lực tỷ giá",
+      "tieu_de": "TikTok Shop Malaysia implements 12.5% default commission (15.5% Mall) effective August 3",
+      "ngay": "2026-08-03",
+      "nguon": "TikTok Seller Center",
+      "tac_dong": "Fee increase cuts seller profits 40-50%; Vietnamese SMEs pass costs to consumers via price hikes, reducing competitiveness and potentially triggering sales volume drops",
       "muc": "y",
-      "at": "2026-08-22T02:08:39.080Z"
+      "at": "2026-08-22T18:53:29.344Z"
+    },
+    {
+      "th": "san",
+      "tieu_de": "Shopee raises technical support fee to 5% platform-wide, standard store fees increase 4-10%",
+      "ngay": "2026-02-01",
+      "nguon": "Vietnam.vn",
+      "tac_dong": "Dual fee hikes on Vietnam's two dominant e-commerce platforms (98% market share) force sellers to choose between margin erosion or price increases that kill sales volumes, cascading to consumer prices and employment in logistics/warehousing",
+      "muc": "y",
+      "at": "2026-08-22T18:53:29.344Z"
     }
   ],
   "levels": {
@@ -104,38 +131,38 @@ window.DQT_SCAN = {
     {
       "ok": true,
       "t": "Hormuz",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức r · Hormuz bị chặn từ tháng 2/2026 do chiến sự Mỹ-Iran, bảo hiểm vận chuyển tăng vọt"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức r · Hormuz blockade từ 28/2 kéo dài; phí bảo hiểm dầu tăng gấp 10-40 lần, cắt giảm dòng chảy dầu tới Việt Nam"
     },
     {
       "ok": true,
       "t": "Nga–Ukraina",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức y · Ukraine tấn công 194 lần hạ tầng dầu khí Nga, EU cấm nhập dầu tinh chế từ Nga"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức y · Các cuộc tấn công drone Ukraine vào cơ sở hạ tầng dầu Nga gây giảm xuất khẩu, ảnh hưởng giá dầu toàn cầu"
     },
     {
       "ok": true,
       "t": "Trung Quốc",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "1 tín hiệu · mức g · Nhập khẩu dầu thô TQ tăng 4.9% tháng 8/2026 nhưng còn dưới mức quý 2"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức g · Trung Quốc tăng nhập dầu 4.9% tháng 8; sản xuất công nghiệp ổn định hỗ trợ cầu, giữ giá dầu và nhu cầu xuất khẩu hàng VN sang TQ"
     },
     {
       "ok": true,
       "t": "Việt Nam",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "1 tín hiệu · mức g · Xuất khẩu VN tăng 20.1% quý 1/2026, lãi suất ổn định 4.5%"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức g · Xuất khẩu Việt Nam tăng 20.1% YoY Q1, GDP dự báo 6.8% 2026; tín dụng tăng nhanh nhưng nguy cơ không dự tính"
     },
     {
       "ok": true,
       "t": "Hoa Kỳ",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "2 tín hiệu · mức y · USTR áp thuế Section 301 12.5% với VN do lao động cưỡng bức và IP"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức y · USTR khởi động Section 301 investigation vào 5/2026 về IP protection; Việt Nam được gọi tên Priority Foreign Country"
     },
     {
       "ok": true,
       "t": "Sàn TMĐT",
-      "at": "2026-08-22T02:08:39.080Z",
-      "d": "1 tín hiệu · mức y · TikTok Shop tăng market share 33% lên 44%, Shopee giảm từ 61% lên 53%"
+      "at": "2026-08-22T18:53:29.344Z",
+      "d": "2 tín hiệu · mức y · TikTok Shop tăng phí 12.5-15.5% từ 3/8; Shopee tăng từ 4% lên 7-9%; seller Việt chịu áp lực chi phí ngay"
     }
   ]
 };
