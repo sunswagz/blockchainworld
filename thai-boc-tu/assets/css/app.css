@@ -432,12 +432,18 @@ code,.mono{font-family:var(--mono)}
   padding:10px 0;border-bottom:1px solid var(--line-2)}
 .tg:last-child{border-bottom:0}
 .tg-s{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--fg-3);text-align:right;padding-top:1px}
-.tg-t{font-size:13.5px;font-weight:600}
+/* Cùng lối với .bac-t/.bac-luan ở phòng Công Trường: hai phòng bày
+   CÙNG mười bậc ấy, nên hàng tiêu đề phải xếp giống nhau. Trước đây
+   .tg-p dùng float:right — nhìn thì giống, nhưng float nằm ngoài
+   dòng nên nhãn dài hơn (“0% luận”) là nó đè lên tên bậc. */
+.tg-t{font-size:13.5px;font-weight:600;display:flex;align-items:baseline;
+  gap:8px;flex-wrap:wrap}
 .tg-b{margin-top:6px;height:6px;border-radius:4px;background:var(--card-3);overflow:hidden}
 .tg-b i{display:block;height:100%;background:linear-gradient(90deg,var(--tim),var(--tau));
   width:0;transition:width .6s ease}
 .tg-y{margin:6px 0 0;font-size:11.5px;color:var(--fg-2);line-height:1.55}
-.tg-p{font-family:var(--mono);font-size:11.5px;color:var(--fg-2);float:right}
+.tg-p{font-family:var(--mono);font-size:11.5px;color:var(--fg-2);margin-left:auto;
+  white-space:nowrap}
 
 .thieu-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:9px}
 .thieu{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--canh);

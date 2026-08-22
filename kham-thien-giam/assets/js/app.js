@@ -58,6 +58,7 @@
     var t = el("div", "khoi-than");
     k.appendChild(t);
     k._than = t;
+    k._dinh = d;
     return k;
   }
 
@@ -419,26 +420,48 @@
   }
 
   /* ── vẽ một phòng ─────────────────────────────────────────── */
+  /* Trả về MẢNG nút, không phải DocumentFragment. Người gọi gắn
+     từng nút — cùng kết quả trên trình duyệt, một dòng ở `tuyen`.
+
+     Lý do đổi: cổng chặn tiến hoá chạy cả cung trong một DOM giả
+     dựng bằng tay, và DOM ấy không có `createDocumentFragment`.
+     Dòng đầu của hàm này ném, nên CẢ TÁM phòng bị chấm là vẽ ra 0
+     ký tự trong khi trình duyệt vẽ đủ. Một cung lành bị phán oan
+     thì phiếu đo hết nói được điều gì, và bảy thước còn lại cũng
+     mất nghĩa theo: "không rò undefined" và "ít ô trống" đều xanh
+     chỉ vì chúng đang soi một trang trống. */
   function vePhong(p) {
-    var g = document.createDocumentFragment();
+    var g = [];
 
     if (p.tom) {
-      g.appendChild(html("p", "giaithich", p.tom));
+      g.push(html("p", "giaithich", p.tom));
     }
 
-    if (p.ma === "dai-chiem") g.appendChild(veLatCat());
+    if (p.ma === "dai-chiem") g.push(veLatCat());
 
     (p.doan || []).forEach(function (d) {
       var k = khoi(d.h || "—");
       var o = veDoan(Object.assign({}, d, { h: null }));
-      if (d.canh) k._than.parentElement.style.borderLeft = "3px solid var(--canh)";
+      /* Khối cảnh báo: MÀU KHÔNG BAO GIỜ ĐI MỘT MÌNH.
+         Dấu hiệu thứ hai vốn là "! " trước h3 (xem app.css), nhưng
+         ở đây tiêu đề được nâng lên đầu khối rồi veDoan gọi với
+         h:null — trong .doan không còn h3 nào để gắn, nên dấu ấy
+         chưa từng hiện. Còn lại đúng một lằn màu, tức là thông tin
+         nằm trần trong màu. Nhãn chữ dưới đây nằm ở chỗ chắc chắn
+         có, và đọc được cả khi không phân biệt được màu. */
+      if (d.canh) {
+        k.dataset.canh = "1";
+        var nhanCanh = el("span", "the", "CẢNH BÁO");
+        nhanCanh.dataset.k = "canh";
+        k._dinh.appendChild(nhanCanh);
+      }
       k._than.appendChild(o);
-      g.appendChild(k);
+      g.push(k);
     });
 
-    if (p.demo === "vwap") { g.appendChild(veMayVwap()); g.appendChild(veThac()); }
-    if (p.demo === "phi") g.appendChild(veDuongPhi());
-    if (p.demo === "tienhoa") g.appendChild(veDuongTienHoa());
+    if (p.demo === "vwap") { g.push(veMayVwap()); g.push(veThac()); }
+    if (p.demo === "phi") g.push(veDuongPhi());
+    if (p.demo === "tienhoa") g.push(veDuongTienHoa());
 
     if (p.ngon) {
       var k2 = khoi("Sáu ngón", p.ngon.length + " chiến thuật");

@@ -498,12 +498,30 @@
 
   /* ═══════════════ PHÒNG · THANG TIẾN HOÁ ═══════════════ */
 
+  /* Luật 1 của cung, ở đúng chỗ dễ trượt nhất — và đã trượt thật.
+     `g.muc ? g.muc + "%" : "—"` gộp HAI câu khác hẳn nhau làm một:
+     0 là một đánh giá có thật ("bậc này gần như chưa có gì chạy
+     được"), còn "—" nghĩa là chưa ai luận tới. Sổ toa ghi muc:0 cho
+     bậc 9 và bậc 10, nên trang đang vẽ dấu gạch ở đúng hai bậc mà
+     tài liệu nguồn đã nói rõ nhất — nói "không biết" thay cho một
+     câu người viết sổ đã dám viết ra.
+
+     Hai phòng cùng đọc S.THANG nên chỉ có MỘT hàm; để hai bản chép
+     là bảo đảm ngày nào đó chúng lệch nhau. */
+  function mucLuan(m) {
+    return (m == null || !isFinite(m)) ? "—" : so(m, 0) + "%";
+  }
+  function coMuc(m) { return m != null && isFinite(m); }
+
   function veThang() {
     var tg = S.THANG.map(function (g) {
+      /* Không có `muc` thì KHÔNG vẽ thanh: một máng rỗng đọc y hệt
+         0%, tức là lại bịa ra con số vừa mới cẩn thận không bịa.
+         Và nó chặn luôn `width:undefined%` rò ra HTML. */
       return '<div class="tg"><div class="tg-s">' + esc(g.so) + "</div><div>" +
         '<div class="tg-t">' + esc(g.ten) +
-        '<span class="tg-p">' + (g.muc ? g.muc + "%" : "—") + "</span></div>" +
-        '<div class="tg-b"><i data-rong="' + g.muc + '"></i></div>' +
+        '<span class="tg-p">' + mucLuan(g.muc) + " luận</span></div>" +
+        (coMuc(g.muc) ? '<div class="tg-b"><i data-rong="' + g.muc + '"></i></div>' : "") +
         '<p class="tg-y">' + esc(g.y) + "</p></div></div>";
     }).join("");
 
@@ -703,7 +721,7 @@
         '<div class="bac-t">' + esc(g.ten) +
           (moc ? '<span class="bac-here" data-m="' + (n === bacTien ? "tien" : "xay") +
                  '">' + moc + "</span>" : "") +
-          '<span class="bac-luan">' + (g.muc ? g.muc + "%" : "—") + " luận</span></div>" +
+          '<span class="bac-luan">' + mucLuan(g.muc) + " luận</span></div>" +
         dh + "</div></div>";
     }).join("");
 
