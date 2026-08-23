@@ -229,10 +229,42 @@ code,.mono{font-family:var(--mono)}
 .bang tbody tr[data-mo]{cursor:pointer}
 .bang tbody tr:last-child td{border-bottom:0}
 .bang .mo{color:var(--fg-3)}
+
+/* ── cột tên đứng yên khi bảng trượt ngang ───────────────
+   Mọi bảng ở đây rộng ít nhất 640px và nằm trong `.cuon` cuộn ngang.
+   Trên máy hẹp, cột đầu — thứ DUY NHẤT nói dòng này là chuỗi nào, đồng
+   nào, hồ nào — là cột trôi ra khỏi màn hình trước tiên, để lại một
+   lưới số không còn chủ ngữ. Bảng Kho Bạc có tám cột, Lợi Suất bảy:
+   đọc tới cột "phí 24h" thì tên chuỗi đã khuất từ lâu, và cách duy
+   nhất để biết mình đang xem dòng nào là trượt ngược về rồi đếm dòng.
+
+   Ghim cột đầu lại thì mỗi con số luôn còn tên đi kèm. Không đổi gì
+   trên màn rộng: không có gì để trượt thì `left:0` không dịch ô nào.
+
+   Nền phải khai TƯỜNG MINH. Ô bảng vốn trong suốt, mà một ô trong suốt
+   đã ghim thì các cột trượt qua BÊN DƯỚI nó vẫn hiện xuyên qua — thành
+   ra hai lớp chữ chồng lên nhau, tệ hơn hẳn cột trôi mất. Hai màu dưới
+   đây đúng bằng màu đang thấy sau ô (`--card-2` cho hàng tiêu đề,
+   `--card` cho thân bảng), nên lúc đứng yên trông y như cũ. */
+.bang th:first-child{position:sticky;left:0;z-index:3;
+  box-shadow:inset -1px 0 0 var(--line)}
+.bang td:first-child{position:sticky;left:0;z-index:1;background:var(--card);
+  box-shadow:inset -1px 0 0 var(--line-2)}
+/* Nền của `tr:hover` nằm DƯỚI nền ô, nên ô đã ghim phải tự đổi màu —
+   không thì cả hàng sáng lên trừ đúng ô tên, và vệt tối đó trông như
+   lỗi vẽ chứ không như một cột được ghim. */
+.bang tbody tr:hover td:first-child{background:var(--card-2)}
+/* Cột ghim phải có TRẦN chiều rộng, không thì một tên hồ dài chiếm
+   nửa màn hình và phần được ghim lại lấn mất phần cần đọc. */
+.bang td:first-child > *{max-width:min(48vw,252px);overflow:hidden;text-overflow:ellipsis}
+
 .o-ten{display:flex;align-items:center;gap:9px;min-width:0}
 .o-ten .hang{flex:0 0 auto;width:19px;font-family:var(--mono);font-size:10.5px;color:var(--fg-3);
   text-align:right}
-.o-ten b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* `min-width:0` mới là thứ bật được `text-overflow` ở đây: mục flex
+   mặc định không co dưới bề rộng nội dung, nên thiếu dòng này thì ba
+   thuộc tính cắt chữ bên dưới chưa bao giờ có dịp chạy. */
+.o-ten b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .o-ten .ma{font-family:var(--mono);font-size:10px;color:var(--fg-3);
   padding:1px 5px;border:1px solid var(--line);border-radius:4px}
 
