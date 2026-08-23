@@ -91,11 +91,18 @@
      thành chữ và huy hiệu hiện ra dưới dạng `&lt;span…`. Đã dính
      đúng lỗi đó một lần, và nó dính ở chính hai phòng cần huy hiệu
      nhất — hai phòng bày phần LUẬN. */
+  /* `than` đi qua .khoi-than chứ KHÔNG nhả thẳng vào .khoi. Lớp đó đã
+     có sẵn trong app.css và Hộ Bộ vẫn dùng, nhưng cung này chưa từng
+     gọi tới — nên tiêu đề và phần luận thụt vào 17px còn nội dung thì
+     dán sát viền thẻ, và mọi thẻ con có viền riêng (.dot, .sk, .tin,
+     .cua, .ct) chạm đúng vào viền ngoài. Hai đường kẻ chồng nhau đọc
+     ra như lỗi dựng chứ không như một dải tràn viền cố ý. */
   function khoi(tieu, n, than, y, nhan) {
     return '<section class="khoi"><div class="khoi-dinh"><h2>' + esc(tieu) + "</h2>" +
       (nhan || "") +
       (n ? '<span class="n">' + esc(n) + "</span>" : "") + "</div>" +
-      (y ? '<div class="khoi-y">' + y + "</div>" : "") + than + "</section>";
+      (y ? '<div class="khoi-y">' + y + "</div>" : "") +
+      '<div class="khoi-than">' + than + "</div></section>";
   }
 
   var HUY_LUAN = '<span class="luan">LUẬN</span>';

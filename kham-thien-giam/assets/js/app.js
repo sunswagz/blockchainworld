@@ -429,7 +429,16 @@
      ký tự trong khi trình duyệt vẽ đủ. Một cung lành bị phán oan
      thì phiếu đo hết nói được điều gì, và bảy thước còn lại cũng
      mất nghĩa theo: "không rò undefined" và "ít ô trống" đều xanh
-     chỉ vì chúng đang soi một trang trống. */
+     chỉ vì chúng đang soi một trang trống.
+
+     ĐÃ CẮN THẬT, và đây là bản vá: lượt đổi sang mảng chỉ sửa được
+     một nửa hợp đồng. Hai chỗ còn gọi `appendChild` trên mảng —
+     `g.appendChild(k2)` cuối hàm này, và `than.appendChild(vePhong(p))`
+     ở `tuyen`. DOM giả của cổng chặn nhận bừa mọi thứ vào `children`
+     nên nó chỉ chấm hụt; TRÌNH DUYỆT THẬT ném TypeError, và trang
+     công khai trắng CẢ TÁM phòng suốt từ 22/08. Nên nhớ khi đổi kiểu
+     trả về: `g` là mảng thì mọi lối vào là `push`, và người gọi phải
+     gắn từng nút — cổng chặn KHÔNG bắt hộ lỗi này. */
   function vePhong(p) {
     var g = [];
 
@@ -475,7 +484,7 @@
         w.appendChild(o);
       });
       k2._than.appendChild(w);
-      g.appendChild(k2);
+      g.push(k2);
     }
     return g;
   }
@@ -504,7 +513,10 @@
     tieu.textContent = p.ten;
     document.title = "Khâm Thiên Giám · " + p.ten;
     than.textContent = "";
-    than.appendChild(vePhong(p));
+    /* vePhong trả về MẢNG, nên gắn TỪNG nút. `appendChild(mảng)` ném
+       TypeError trên trình duyệt thật — và ném ở đây thì cả phòng
+       trắng, không riêng một khối. */
+    vePhong(p).forEach(function (nut) { than.appendChild(nut); });
 
     [].forEach.call(benMuc.querySelectorAll(".bmuc"), function (a) {
       if (a.dataset.ma === p.ma) a.setAttribute("aria-current", "page");

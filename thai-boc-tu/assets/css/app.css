@@ -162,7 +162,13 @@ code,.mono{font-family:var(--mono)}
   border-bottom:1px solid var(--line-2);background:rgba(255,255,255,.008)}
 .khoi-y:last-child{border-bottom:0}
 .khoi-y b{color:var(--fg)}
+/* Thân khối thụt vào ĐÚNG 17px như .khoi-dinh và .khoi-y ngay trên nó,
+   nên ba tầng của một khối nằm trên cùng một mép trái. Con cuối cùng bỏ
+   lề dưới: lề riêng của nó (.luoi-so 15px, .giaithich 15px, .tin-nguon
+   12px) cộng thêm 15px đệm ở đây là khoảng trống đúp dưới đáy mỗi thẻ,
+   và mỗi khối lại đúp một kiểu khác nhau tuỳ nội dung. */
 .khoi-than{padding:15px 17px}
+.khoi-than>:last-child{margin-bottom:0}
 
 .giaithich{padding:14px 17px;border:1px solid var(--line);border-radius:var(--r);
   background:var(--card);font-size:13px;color:var(--fg-2);line-height:1.72;margin:0 0 15px;
