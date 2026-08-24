@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-24T13:24:24.857Z",
-  "lan": 232,
+  "generatedAt": "2026-08-24T19:04:32.735Z",
+  "lan": 235,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-24T13:15:46.197Z",
@@ -145,15 +145,15 @@
       "lucDoi": "2026-08-24T13:17:08.987Z"
     },
     "nhap-skill": {
-      "luc": "2026-08-23T18:50:14.052Z",
+      "luc": "2026-08-24T19:02:18.523Z",
       "ket": "ok",
-      "giay": 2,
+      "giay": 1,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-23T18:50:14.052Z",
-      "lucDoi": "2026-08-23T18:50:14.052Z"
+      "lucOk": "2026-08-24T19:02:18.523Z",
+      "lucDoi": "2026-08-24T19:02:18.523Z"
     },
     "dong-tin": {
       "luc": "2026-08-24T07:36:26.231Z",
@@ -178,12 +178,12 @@
       "lucDoi": "2026-08-24T07:40:22.616Z"
     },
     "tien-hoa-dqt": {
-      "luc": "2026-08-23T18:53:38.702Z",
+      "luc": "2026-08-24T19:02:19.847Z",
       "ket": "loi",
       "giay": 1,
       "doi": false,
       "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
-      "chuoiLoi": 5,
+      "chuoiLoi": 6,
       "vi": null,
       "lucOk": null,
       "lucDoi": null
@@ -200,15 +200,15 @@
       "lucDoi": "2026-08-24T07:46:30.252Z"
     },
     "thai-boc-tu-tin-pt": {
-      "luc": "2026-08-24T02:13:29.345Z",
+      "luc": "2026-08-24T19:04:32.735Z",
       "ket": "ok",
-      "giay": 111,
+      "giay": 133,
       "doi": true,
-      "chuThich": "nhận 8 · loại 0 · phủ 30/30 bài · haiku-4.5",
+      "chuThich": "nhận 12 · loại 0 · phủ 23/30 bài · haiku-4.5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-24T02:13:29.345Z",
-      "lucDoi": "2026-08-24T02:13:29.345Z"
+      "lucOk": "2026-08-24T19:04:32.735Z",
+      "lucDoi": "2026-08-24T19:04:32.735Z"
     },
     "kham-thien-giam-tien-hoa": {
       "luc": "2026-08-24T07:52:04.645Z",
@@ -223,6 +223,33 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-24T19:04:32.735Z",
+      "ma": "thai-boc-tu-tin-pt",
+      "ket": "ok",
+      "giay": 133,
+      "doi": true,
+      "chuThich": "nhận 12 · loại 0 · phủ 23/30 bài · haiku-4.5",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-24T19:02:19.847Z",
+      "ma": "tien-hoa-dqt",
+      "ket": "loi",
+      "giay": 1,
+      "doi": false,
+      "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-24T19:02:18.523Z",
+      "ma": "nhap-skill",
+      "ket": "ok",
+      "giay": 1,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-08-24T13:24:24.857Z",
       "ma": "dong-dau",
@@ -1993,33 +2020,6 @@
       "ket": "ok",
       "giay": 66,
       "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-17T01:56:57.765Z",
-      "ma": "kinh-thanh",
-      "ket": "ok",
-      "giay": 2,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-16T18:49:46.086Z",
-      "ma": "bao-cao",
-      "ket": "ok",
-      "giay": 70,
-      "doi": true,
-      "chuThich": "opus-5 · max-turns 8",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-16T13:16:31.575Z",
-      "ma": "dong-dau",
-      "ket": "ok",
-      "giay": 0,
-      "doi": false,
       "chuThich": "",
       "vi": null
     }

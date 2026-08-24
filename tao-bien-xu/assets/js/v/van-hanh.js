@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-24T13:24:24.857Z",
- "lan": 232,
+ "generatedAt": "2026-08-24T19:04:32.735Z",
+ "lan": 235,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -123,13 +123,13 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-23T18:53:38.702Z",
+   "luc": "2026-08-24T19:02:19.847Z",
    "ket": "loi",
    "giay": 1,
    "doi": false,
    "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
    "vi": null,
-   "chuoiLoi": 5,
+   "chuoiLoi": 6,
    "lucOk": null,
    "lucDoi": null
   },
@@ -352,15 +352,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-23T18:50:14.052Z",
+   "luc": "2026-08-24T19:02:18.523Z",
    "ket": "ok",
-   "giay": 2,
+   "giay": 1,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-23T18:50:14.052Z",
-   "lucDoi": "2026-08-23T18:50:14.052Z"
+   "lucOk": "2026-08-24T19:02:18.523Z",
+   "lucDoi": "2026-08-24T19:02:18.523Z"
   },
   {
    "ma": "thai-boc-tu",
@@ -424,15 +424,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-24T02:13:29.345Z",
+   "luc": "2026-08-24T19:04:32.735Z",
    "ket": "ok",
-   "giay": 111,
+   "giay": 133,
    "doi": true,
-   "chuThich": "nhận 8 · loại 0 · phủ 30/30 bài · haiku-4.5",
+   "chuThich": "nhận 12 · loại 0 · phủ 23/30 bài · haiku-4.5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-24T02:13:29.345Z",
-   "lucDoi": "2026-08-24T02:13:29.345Z"
+   "lucOk": "2026-08-24T19:04:32.735Z",
+   "lucDoi": "2026-08-24T19:04:32.735Z"
   },
   {
    "ma": "thai-boc-tu-tin",
@@ -603,6 +603,33 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-24T19:04:32.735Z",
+   "ma": "thai-boc-tu-tin-pt",
+   "ket": "ok",
+   "giay": 133,
+   "doi": true,
+   "chuThich": "nhận 12 · loại 0 · phủ 23/30 bài · haiku-4.5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-24T19:02:19.847Z",
+   "ma": "tien-hoa-dqt",
+   "ket": "loi",
+   "giay": 1,
+   "doi": false,
+   "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-24T19:02:18.523Z",
+   "ma": "nhap-skill",
+   "ket": "ok",
+   "giay": 1,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-24T13:24:24.857Z",
    "ma": "dong-dau",
@@ -1114,33 +1141,6 @@ window.VAN_HANH = {
    "giay": 5,
    "doi": true,
    "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-23T02:03:06.492Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 64,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-23T02:02:02.524Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 2,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-22T18:55:17.384Z",
-   "ma": "thai-boc-tu-tin-pt",
-   "ket": "ok",
-   "giay": 108,
-   "doi": true,
-   "chuThich": "nhận 12 · loại 0 · phủ 25/30 bài · haiku-4.5",
    "vi": null
   }
  ]
