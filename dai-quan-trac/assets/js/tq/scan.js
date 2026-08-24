@@ -1,213 +1,167 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-23T07:08:19.097Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-24T07:33:59.060Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-08-23T07:08:19.097Z",
-  "date": "23/08/2026",
+  "generatedAt": "2026-08-24T07:33:59.060Z",
+  "date": "24/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
-      "th": "nangluong",
-      "tieu_de": "Eo biển Hormuz bị chặn: tàu qua từ 130/ngày rơi xuống 6/ngày (giảm 95%)",
-      "ngay": "2026-03-01",
-      "nguon": "Discovery Alert, Energy Policy Columbia",
-      "tac_dong": "Cung dầu giảm 95% → Trung Quốc mất 1/2 nhập khẩu từ Trung Đông → thu ngân sách từ năng lượng tụt → khả năng nuôi bộ máy giảm → ảnh hưởng quyền lực.",
-      "muc": "r",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "nangluong",
-      "tieu_de": "Trung Quốc nhập khẩu dầu giảm xuống 8.1M bbl/day Q2 (giảm 32% so với Q1)",
-      "ngay": "2026-06-30",
-      "nguon": "U.S. Energy Information Administration",
-      "tac_dong": "Dầu hiếm → Trung Quốc công nghiệp tụt → sản lượng thép, điện giảm → thu thuế giảm, quyền lực bộ máy yếu đi.",
-      "muc": "r",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "nangluong",
-      "tieu_de": "Trung Quốc có dự trữ dầu 1.2-1.47B thùng (110-180 ngày nhập khẩu), song đang dùng",
-      "ngay": "2026-08-20",
-      "nguon": "Center on Global Energy Policy",
-      "tac_dong": "Dự trữ tụt → Trung Quốc sẽ phải cắt công nghiệp nếu Hormuz kéo dài → công suất nhà máy giảm → thu ngân sách tụt, nuôi bộ máy khó.",
-      "muc": "r",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
       "th": "congnghe",
-      "tieu_de": "AI chip Trung Quốc chỉ 1-2% lượng Mỹ sản xuất, EUV photolithography bị cấm hoàn toàn",
-      "ngay": "2026-08-15",
-      "nguon": "The Substrate, CSIS",
-      "tac_dong": "Chip nội địa yếu → Trung Quốc không tự cấp chip → ngành công nghệ tụt → thu từ export công nghệ giảm → khả năng tài chính tụt, nuôi bộ máy yếu.",
-      "muc": "r",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "Trump mở cấm chip (hủy ban), thêm 25% tariff; tháng 7/2025 US-China xoá EDA restrictions",
-      "ngay": "2026-01-20",
-      "nguon": "CSIS",
-      "tac_dong": "EDA mở giúp Trung Quốc đôi chút, nhưng EUV vẫn cấm → chip nội địa rất chậm → công nghiệp hi-tech tụt → thu ngân sách yếu, bộ máy lục đục.",
-      "muc": "r",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "ASML bán 70% DUV lithography cho Trung Quốc (2024), nhưng multipatterning bị kiểm soát",
+      "tieu_de": "Mỹ chặn Trung Quốc mua chip EUV và các công cụ lithography tiên tiến; Trung Quốc chỉ sản xuất 1-2% lượng chip AI so với Mỹ năm 2026",
       "ngay": "2026-08-10",
+      "nguon": "The Substrate, CSIS",
+      "tac_dong": "Khoảng cách công nghệ chip tăng → Trung Quốc không theo kịp Mỹ trong AI/tính toán → xuất khẩu công nghệ cao bị hạn chế → thu thuế lĩnh vực công nghệ giảm",
+      "muc": "y",
+      "at": "2026-08-24T07:33:59.060Z"
+    },
+    {
+      "th": "congnghe",
+      "tieu_de": "Trung Quốc đang sử dụng multipatterning để khai thác lỗ hổng kiểm soát xuất khẩu; nhưng tiến độ chậm hơn so với đường dây chính của công nghệ 5nm",
+      "ngay": "2026-08-12",
       "nguon": "Electronics360, CNAS",
-      "tac_dong": "Workaround multipatterning tạm thời nhưng bị kiểm soát → chip Trung Quốc tụt → không tự chủ công nghệ → phụ thuộc ngoại → yếu lâu dài.",
+      "tac_dong": "Công nghệ chip tự chế của Trung Quốc phát triển chậm → lạc hậu so với Mỹ → năng lực cạnh tranh toàn cầu giảm → doanh thu công ty công nghệ TQ giảm",
+      "muc": "y",
+      "at": "2026-08-24T07:33:59.060Z"
+    },
+    {
+      "th": "thuongmai",
+      "tieu_de": "USTR áp đặt thuế 12.5% trên tất cả hàng hoá Trung Quốc từ ngày 24/7/2026 do Trung Quốc không thực thi cấm lao động cưỡng bức",
+      "ngay": "2026-07-24",
+      "nguon": "Tax Foundation, Zonos",
+      "tac_dong": "Thuế mới tăng chi phí xuất khẩu → hàng hoá Trung Quốc mắt hơn tại Mỹ → khách hàng Mỹ tìm thay thế → đơn hàng xuất khẩu TQ giảm → thu thuế quan giảm",
+      "muc": "y",
+      "at": "2026-08-24T07:33:59.060Z"
+    },
+    {
+      "th": "thuongmai",
+      "tieu_de": "Xuất khẩu Trung Quốc tăng 5.5% năm 2025 đạt $3.8 nghìn tỷ; thặng dư thương mại kỷ lục $1.2 nghìn tỷ mặc dù thuế Mỹ",
+      "ngay": "2026-08-20",
+      "nguon": "Yahoo Finance, Tax Foundation",
+      "tac_dong": "Xuất khẩu Trung Quốc bền vững nhưng tăng thuế đe dọa; nếu thuế EU và các nước khác tăng, tổng xuất khẩu sẽ giảm → thu thuế giảm",
+      "muc": "y",
+      "at": "2026-08-24T07:33:59.060Z"
+    },
+    {
+      "th": "thuongmai",
+      "tieu_de": "EU đang tìm nguồn cung cấp mới bên ngoài Trung Quốc để giảm phụ thuộc; EU có thể áp thuế phòng vệ lên hàng hoá TQ",
+      "ngay": "2026-08-15",
+      "nguon": "CEPR",
+      "tac_dong": "Nếu EU áp thuế cao, Trung Quốc mất thêm thị trường → tổng doanh thu xuất khẩu giảm → thu ngân sách trung ương TQ giảm",
+      "muc": "y",
+      "at": "2026-08-24T07:33:59.060Z"
+    },
+    {
+      "th": "hanghai",
+      "tieu_de": "Eo Malacca: ~440 tàu/ngày, chở 23.2 Mbpd dầu (29% lưu lượng dầu toàn cầu); 75% nhập khẩu dầu biển của Trung Quốc đi qua đây",
+      "ngay": "2026-08-18",
+      "nguon": "CSIS, Kpler, Triton Maritime",
+      "tac_dong": "Nếu Malacca bị tắc (chiến sự, khủng hoảng) → Trung Quốc mất 75% dầu nhập khẩu biển → giá dầu tăng vượt → sản xuất công nghiệp tê liệt → xuất khẩu sụp → thu thuế quân quân giảm → chính phủ Trung Quốc không đủ tiền nuôi bộ máy",
       "muc": "r",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "thuongmai",
-      "tieu_de": "USTR áp dụng 12.5% tariff lên toàn bộ hàng Trung Quốc từ 24/7/2026 vì forced labor",
-      "ngay": "2026-07-23",
-      "nguon": "USTR Press Release, Tax Foundation",
-      "tac_dong": "Export Trung Quốc bị cắt tariff → doanh số bán hàng tụt → thu từ export giảm → ngân sách chính phủ rớt → khả năng nuôi bộ máy khó khăn.",
-      "muc": "y",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "thuongmai",
-      "tieu_de": "US-China tariff agreement: giảm từ 125% xuống 10%, kéo dài tới 10/11/2026",
-      "ngay": "2026-11-10",
-      "nguon": "Trump Tariffs Tracker",
-      "tac_dong": "Tariff thấp giúp nhưng hết hiệu lực 11/2026 → Trung Quốc phải chuẩn bị tariff cao lại → export chịu rủi ro → thu ngân sách bất ổn định.",
-      "muc": "y",
-      "at": "2026-08-23T07:08:19.097Z"
+      "at": "2026-08-24T07:33:59.060Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "Eo Malacca: 1/3 thương mại biển toàn cầu, 40% dầu thế giới qua đây, căng thẳng địa chính trị tăng",
-      "ngay": "2026-08-20",
-      "nguon": "The Diplomat, S&P Global",
-      "tac_dong": "Căng thẳng → bảo hiểm vận chuyển tăng → Trung Quốc nhập khẩu đắt hơn → lạm phát năng lượng → thu từ xuất khẩu giảm vì giá cao, ngân sách chật.",
-      "muc": "y",
-      "at": "2026-08-23T07:08:19.097Z"
+      "tieu_de": "Phillips Channel (nơi hẹp nhất Malacca) chỉ 2.7 km; tàu ngà lớn suýt không qua được; không có lộ trình thay thế khả thi",
+      "ngay": "2026-08-10",
+      "nguon": "CSIS, Diplomat",
+      "tac_dong": "Chèn tàu lớn vào Phillips Channel rất khó; nếu chiến sự hoặc tai nạn làm tàu chìm ở đây, cả eo biển đóng tạm thời → thiệt hại kinh tế dây chuyền",
+      "muc": "r",
+      "at": "2026-08-24T07:33:59.060Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "80% dầu Trung Quốc qua Malacca, căng thẳng địa chính trị, bảo hiểm maritime tăng, thời gian vận chuyển kéo dài",
+      "tieu_de": "Kích thước tàu chứa hàng tăng 15-20%, tàu chở dầu tăng 25% từ 2026-2030; tắc nghẽn Malacca sẽ tệ hơn; không có con đường đi biển thay thế",
       "ngay": "2026-08-15",
-      "nguon": "Center for International Maritime Security",
-      "tac_dong": "Vận chuyển chậm, bảo hiểm cao → dầu Trung Quốc tăng giá → năng lượng tăng giá → công suất công nghiệp giảm → thu ngân sách tụt, bộ máy yếu.",
-      "muc": "y",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "Oxford Economics: đường tuyến vận chuyển bị xáo trộn sẽ kéo dài tới cuối 2026",
-      "ngay": "2026-08-20",
-      "nguon": "Oxford Economics",
-      "tac_dong": "Rủi ro dài hạn về vận chuyển → Trung Quốc phải tăng dự trữ, bảo hiểm → chi phí tăng, thu giảm, nuôi bộ máy khó.",
-      "muc": "y",
-      "at": "2026-08-23T07:08:19.097Z"
+      "nguon": "CSIS",
+      "tac_dong": "Tàu lớn hơn → cần quay vòng dài hơn → chi phí vận chuyển tăng → cộng lên tắc nghẽn lại → Trung Quốc bị cô lập năng lượng",
+      "muc": "r",
+      "at": "2026-08-24T07:33:59.060Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Nga cung cấp dầu Trung Quốc tăng lên 2.1M bbl/day, tăng 28% so với 2025",
+      "tieu_de": "Nga cung cấp cho Trung Quốc 2.1 Mbpd dầu (tăng 28% từ năm 2025); thương mại năng lượng Nga-TQ vượt $85 tỷ trong 4 tháng đầu năm 2026",
       "ngay": "2026-08-20",
-      "nguon": "Global Times, ECNS",
-      "tac_dong": "Dầu từ Nga ổn định → Trung Quốc không phụ thuộc Hormuz hoàn toàn → thu từ năng lượng ổn định → khả năng tài chính, nuôi bộ máy bền vững, quyền lực vững.",
+      "nguon": "TalkyTech News, ECNS",
+      "tac_dong": "Đường cung dầu từ Nga ổn định qua đường ống tránh Malacca → Trung Quốc có nguồn năng lượng dự phòng → giảm phụ thuộc Hormuz/Malacca",
       "muc": "g",
-      "at": "2026-08-23T07:08:19.097Z"
+      "at": "2026-08-24T07:33:59.060Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Power of Siberia 1 pipeline đạt công suất đầy 38 BCM/năm; Power of Siberia 2 ký hợp đồng tháng 3/2026, cung 50 BCM/năm từ 2028",
+      "tieu_de": "Power of Siberia 1 đạt công suất đầy đủ 38 Bcm/năm khí; Power of Siberia 2 ký hợp đồng 3/2026, dự kiến gửi 50 Bcm/năm từ 2028",
       "ngay": "2026-03-15",
-      "nguon": "Global Times, ECNS",
-      "tac_dong": "Năng lượng Nga dài hạn ổn định → Trung Quốc an tâm sản xuất → thu từ công nghiệp, export ổn định → nuôi bộ máy vững chắc, quyền lực bền.",
+      "nguon": "RFE/RL, CSCR",
+      "tac_dong": "Cung cấp khí tự nhiên qua đường ống từ Nga ổn định → Trung Quốc ít phụ thuộc LNG nhập khẩu qua Hormuz/Malacca",
       "muc": "g",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Năng lượng trade Nga-Trung vượt $85B trong 4 tháng đầu 2026, hợp tác Arctic LNG, ESPO pipeline dài hạn",
-      "ngay": "2026-08-15",
-      "nguon": "ECNS, Global Times",
-      "tac_dong": "Liên minh Nga-Trung năng lượng vững → Trung Quốc không sợ embargo phương Tây → quyền lực lâu dài vững, tự chủ năng lượng.",
-      "muc": "g",
-      "at": "2026-08-23T07:08:19.097Z"
+      "at": "2026-08-24T07:33:59.060Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "Ngoại tệ dự trữ Trung Quốc $3.3991T tháng 1/2026, tăng 6 tháng liên tiếp",
+      "tieu_de": "Trữ lượng ngoại tệ Trung Quốc tháng 1/2026: $3.3991 nghìn tỷ (cao nhất toàn cầu); lũy tích từ thặng dư thương mại, FDI, kiếm từ xuất khẩu",
       "ngay": "2026-01-31",
-      "nguon": "Federal Reserve",
-      "tac_dong": "Ngoại tệ mạnh → Trung Quốc tự chủ tiền tệ → không sợ embargo, độc lập tài chính → nuôi bộ máy mạnh, quyền lực tăng.",
+      "nguon": "Federal Reserve, Grokipedia",
+      "tac_dong": "Ngoại tệ dồi dào → chính phủ Trung Quốc có đệm tài chính để dung nạp sốc kinh tế trong vài năm",
       "muc": "g",
-      "at": "2026-08-23T07:08:19.097Z"
+      "at": "2026-08-24T07:33:59.060Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "PBOC mở rộng RMB settlement quốc tế (tháng 8/2026), CIPS phát triển thay SWIFT",
-      "ngay": "2026-08-20",
-      "nguon": "Forbes, Digital Banker",
-      "tac_dong": "RMB mạnh → Trung Quốc giảm phụ thuộc USD → tài chính độc lập → quyền lực tăng, khó bị trừng phạt tiền tệ, bộ máy an toàn.",
+      "tieu_de": "Tỷ lệ thương mại nhân dân tệ (RMB) tăng từ 10% năm 2017 lên ~30% năm 2024; CIPS mở rộng thay thế SWIFT",
+      "ngay": "2026-08-10",
+      "nguon": "Forbes, Federal Reserve",
+      "tac_dong": "RMB quốc tế hoá giảm phụ thuộc đô la Mỹ → Trung Quốc thoát khỏi kiểm soát tài chính Mỹ; CIPS phát triển → khả năng lách thoát lệnh trừng phạt tăng",
       "muc": "g",
-      "at": "2026-08-23T07:08:19.097Z"
-    },
-    {
-      "th": "taichinh",
-      "tieu_de": "PBOC tháng 6/2026 mở repo tool RMB mới cho nước ngoài, tăng thankhoản offshore RMB",
-      "ngay": "2026-06-15",
-      "nguon": "Digital Banker, PBOC",
-      "tac_dong": "Thankhoản RMB tăng → các nước dùng RMB nhiều hơn → Trung Quốc mạnh tài chính → tự chủ kinh tế → quyền lực vững, độc lập toàn diện.",
-      "muc": "g",
-      "at": "2026-08-23T07:08:19.097Z"
+      "at": "2026-08-24T07:33:59.060Z"
     }
   ],
   "levels": {
-    "nangluong": "r",
-    "congnghe": "r",
+    "congnghe": "y",
     "thuongmai": "y",
-    "hanghai": "y",
+    "hanghai": "r",
     "nga": "g",
     "taichinh": "g"
   },
   "log": [
     {
-      "ok": true,
-      "t": "Năng lượng",
-      "at": "2026-08-23T07:08:19.097Z",
-      "d": "3 tín hiệu · mức r · Eo biển Hormuz chặn 95%, Trung Quốc nhập khẩu dầu rớt 32% Q2, năng lượng căng."
+      "ok": false,
+      "t": "nangluang",
+      "at": "2026-08-24T07:33:59.060Z",
+      "d": "bỏ — id chiến trường không có trong data.js của Trung Quốc"
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-08-23T07:08:19.097Z",
-      "d": "3 tín hiệu · mức r · Chip Trung Quốc chỉ 1-2% so với Mỹ, EDA mở nhưng EUV bị cấm, workaround multipatterning."
+      "at": "2026-08-24T07:33:59.060Z",
+      "d": "2 tín hiệu · mức y · Kiểm soát xuất khẩu chip Mỹ làm chậm phát triển chip Trung Quốc; Trung Quốc chỉ sản xuất 1-2% so với Mỹ"
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-08-23T07:08:19.097Z",
-      "d": "2 tín hiệu · mức y · USTR tăng tariff 12.5% lên hàng Trung Quốc (23/7/2026), lý do lao động cưỡng bức."
+      "at": "2026-08-24T07:33:59.060Z",
+      "d": "3 tín hiệu · mức y · Mỹ áp thuế 12.5% trên tất cả hàng hoá Trung Quốc từ 24/7/2026; xuất khẩu Trung Quốc tăng 5.5% năm 2025 mặc dù thuế"
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-08-23T07:08:19.097Z",
-      "d": "3 tín hiệu · mức y · Eo Malacca: 1/3 thương mại toàn cầu, 80% dầu Trung Quốc qua đây, bảo hiểm cao."
+      "at": "2026-08-24T07:33:59.060Z",
+      "d": "3 tín hiệu · mức r · Eo Malacca là cổ nút hàng hải toàn cầu; 75% dầu Trung Quốc đi qua đây; Phillips Channel chỉ 2.7km; nguy cơ tắc nghẽn tăng"
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-08-23T07:08:19.097Z",
-      "d": "3 tín hiệu · mức g · Nga cung cấp dầu Trung Quốc 2.1M bbl/day (+28%), pipeline ổn định, hợp tác chiến lược sâu."
+      "at": "2026-08-24T07:33:59.060Z",
+      "d": "2 tín hiệu · mức g · Nga cung cấp cho Trung Quốc 2.1 Mbpd dầu (tăng 28%); đường ống tránh Malacca; thương mại năng lượng Nga-TQ $85B+/năm"
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-08-23T07:08:19.097Z",
-      "d": "3 tín hiệu · mức g · Ngoại tệ Trung Quốc tăng tới $3.3991T, PBOC mở RMB settlement, CIPS thay SWIFT."
+      "at": "2026-08-24T07:33:59.060Z",
+      "d": "2 tín hiệu · mức g · Trung Quốc giữ $3.4 nghìn tỷ ngoại tệ (cao nhất thế giới); RMB định giá 30% thương mại xuyên biên; CIPS phát triển"
     }
   ]
 };

@@ -271,6 +271,22 @@
       "><thead><tr>" + th + "</tr></thead><tbody>" + hang + "</tbody></table></div>";
   }
 
+  /* Tên ở cột đầu của một dòng MỞ ĐƯỢC hồ sơ phải là <button> thật.
+     Cùng lý do đã ghi ở `bang()` cho tiêu đề cột sắp xếp, và cùng
+     một chỗ hổng: `<tr>` không nằm trong luồng Tab và không nhận
+     Enter/Space, nên trước bản này bốn bảng dẫn vào ngăn hồ sơ —
+     Đại Sảnh, Dòng Tiền, Kho Bạc, Nhóm Ngành — chỉ mở được bằng
+     CHUỘT. Hồ sơ là chỗ duy nhất nói một chuỗi gồm những giao thức
+     nào, nên mất nó là mất hẳn một tầng của cung chứ không phải mất
+     một lối tắt.
+
+     Cú bấm vẫn nổi bọt lên `tr[data-mo]` nên bấm đâu trong dòng cũng
+     mở như cũ; không có nhánh xử lý thứ hai để mà lệch nhau. */
+  function tenMo(ten, loai) {
+    return '<button class="ten-mo" type="button" aria-label="Mở hồ sơ ' +
+      esc(loai) + " " + esc(ten) + '"><b>' + esc(ten) + "</b></button>";
+  }
+
   function theCanh(c) {
     var ten = { g: "BÌNH THƯỜNG", y: "ĐÁNG CHÚ Ý", r: "NGHIÊM TRỌNG" };
     return '<article class="canh" data-muc="' + esc(c.muc) + '">' +

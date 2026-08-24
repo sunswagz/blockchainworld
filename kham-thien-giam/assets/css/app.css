@@ -205,6 +205,28 @@ code,.mono,.ma{font-family:var(--mono)}
 .o-so .duoi{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px;
   font-size:11.5px;color:var(--fg-3)}
 
+/* Ô CHƯA CÓ SỐ — chỗ luật 1 và luật 2 gặp nhau.
+   Luật 1 bắt ô chưa đo phải NÓI ra là chưa có. Nhưng nói bằng đúng
+   22px chữ máy dành riêng cho số đo thì mắt lướt qua lưới sáu ô vẫn
+   đọc "chưa có" như một giá trị đã đo — luật 2 hỏng ngay chỗ luật 1
+   vừa được tuân. Cung này giảng về một cỗ máy mà điểm hay của nó là
+   biết chỗ nào mình chưa biết; lưới số của nó phải TRÔNG RA điều đó
+   chứ không chỉ viết ra.
+
+   Ba dấu hiệu, không dấu nào là màu: chữ thường thay chữ máy, nhỏ
+   hơn hẳn một bậc, và gạch đứt dưới chân — cùng lối với .latcat-trong,
+   để "gạch đứt = chưa có" thành một quy ước đọc được của cả cung.
+   --fg-3 trên --card là 5.88, và nó vốn đã mang .duoi ngay bên dưới,
+   nên không thêm màu nào vào sàn tương phản.
+
+   .to.len / .to.xuong thì CỐ Ý để trơn. Chúng đậu trên một con số đã
+   đo, mà tô màu một con số trần là đặt thông tin vào riêng màu — luật
+   3 cấm. Chỗ nào cần chỉ hướng thì dấu +/− của cent() đã làm rồi. */
+.o-so .to.mo{display:inline-block;max-width:100%;
+  font-family:inherit;font-size:14.5px;font-weight:600;letter-spacing:0;
+  line-height:1.5;color:var(--fg-3);
+  border-bottom:1px dashed var(--card-3);padding-bottom:2px}
+
 /* Chip đổi giá. Dấu +/− đứng TRƯỚC màu, nên đọc được cả khi không
    phân biệt được xanh với đỏ. */
 .d{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:5px;

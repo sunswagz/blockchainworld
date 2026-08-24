@@ -388,23 +388,42 @@
     }
 
     var l = el("div", "luoi-so");
-    function oso(nhan, to, duoi) {
+    /* Tham số `lop` — cùng hợp đồng với oso() ở veDuongTienHoa, cố ý
+       giống hệt: hai lưới số của cung này phải nói "chưa có" theo cùng
+       một lối, không thì người đọc phải học quy ước ấy hai lần. */
+    function oso(nhan, to, duoi, lop) {
       var o = el("div", "o-so");
       o.appendChild(el("div", "nhan", nhan));
-      o.appendChild(el("div", "to", to));
+      o.appendChild(el("div", "to " + (lop || ""), to));
       if (duoi) o.appendChild(el("div", "duoi", duoi));
       l.appendChild(o);
+    }
+    /* Luật 1: chưa có số thì nói là chưa có. `x || 0` vẽ số 0 cho một ô
+       chưa hề đo — đúng thứ luật 1 cấm, và nó hỏng trong im lặng: "chạy
+       được 0 vòng" với "lát cắt không mang theo số vòng nào" là hai
+       chuyện khác hẳn, mà cả hai đều in ra cùng một chữ "0". Trả null
+       cho chỗ chưa có rồi để người gọi chọn chữ; số 0 đo được thật thì
+       vẫn ra "0", vì 0 khác null. */
+    function demSo(v) {
+      return (v == null || !isFinite(v)) ? null : Number(v).toLocaleString("vi-VN");
     }
     var tk = LC.thongKe || {}, r = LC.risk || {}, hc = LC.hieuChinh || {};
     oso("Chế độ", LC.che === "that" ? "TIỀN THẬT" : (LC.che === "giay" ? "Sổ giấy" : "Quan sát"),
       "khai: " + (LC.cheKhai || "—"));
-    oso("Vòng đã chạy", (LC.vong || 0).toLocaleString("vi-VN"),
-      LC.chayDuocGiay ? Math.round(LC.chayDuocGiay) + " giây" : null);
-    oso("Băng đã ghi", ((LC.bang || {}).soKhung || 0).toLocaleString("vi-VN") + " khung");
-    oso("Mẫu hiệu chỉnh", (hc.tongMau || 0).toLocaleString("vi-VN"),
-      hc.duDeDungKelly ? "Kelly mở" : "Kelly còn khoá");
+    var vong = demSo(LC.vong);
+    oso("Vòng đã chạy", vong == null ? "chưa có" : vong,
+      LC.chayDuocGiay ? Math.round(LC.chayDuocGiay) + " giây" : null,
+      vong == null ? "mo" : "");
+    var khung = demSo((LC.bang || {}).soKhung);
+    oso("Băng đã ghi", khung == null ? "chưa có" : khung + " khung", null,
+      khung == null ? "mo" : "");
+    var mau = demSo(hc.tongMau);
+    oso("Mẫu hiệu chỉnh", mau == null ? "chưa có" : mau,
+      hc.duDeDungKelly ? "Kelly mở" : "Kelly còn khoá",
+      mau == null ? "mo" : "");
     oso("Market kết toán", tk.n ? tk.n.toLocaleString("vi-VN") : "chưa có",
-      tk.n ? ("kỳ vọng " + so(tk.kyVong, 4) + "$/lệnh") : null);
+      tk.n ? ("kỳ vọng " + so(tk.kyVong, 4) + "$/lệnh") : null,
+      tk.n ? "" : "mo");
     oso("Cầu dao", r.ngatKhanCap ? "ĐANG NGẮT" : "đóng", r.lyDoNgat || null);
     k._than.appendChild(l);
 

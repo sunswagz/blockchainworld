@@ -689,7 +689,12 @@
       oSo("Hỏi GitHub cách đây", "<b>" + gio + " giờ</b>",
         "bot chạy 4 lượt/ngày · không phải realtime") +
       "</div>" +
-      '<p class="giaithich" style="margin-top:12px">Khoảng cách giữa <b>bậc ' + bacTien +
+      /* Khoảng cách với lưới ô số ngay trên do `.khoi-than>.giaithich`
+         lo, không vá bằng style dòng: chỗ này là chỗ DUY NHẤT một
+         đoạn giải thích đứng sau nội dung khác trong cùng một khối,
+         nên một con số vá tay ở đây là một con số không ai đối chiếu
+         được với chỗ nào. */
+      '<p class="giaithich">Khoảng cách giữa <b>bậc ' + bacTien +
       "</b> và <b>bậc " + bacXay + "</b> là phần việc đang dở: có người xây, chưa có " +
       "vốn nào đứng lên trên. Và đọc con số thứ hai cho đúng — <b>“có công trường” " +
       "không có nghĩa là “đã tới”</b>. Bậc " + bacXay + " còn động vì một kho toà án " +

@@ -177,6 +177,33 @@ code,.mono{font-family:var(--mono)}
 .giaithich .vn{display:block;margin-top:10px;padding:10px 13px;background:var(--tau-t);
   border-radius:8px;color:var(--fg-2);border-left:3px solid var(--tau)}
 
+/* `.giaithich` là một THẺ đứng riêng: viền --line, nền --card, bóng
+   --bong. Nhưng bảy trong tám chỗ gọi nó lại đặt nó BÊN TRONG
+   `.khoi-than` — mà `.khoi` cũng đúng viền ấy, đúng nền ấy, đúng
+   bóng ấy. Một thẻ lồng trong thẻ CÙNG MÀU không đọc ra thành hai
+   tầng; nó đọc ra thành một hình chữ nhật lạc giữa thẻ ngoài, kèm
+   một quầng tối đổ lên chính cái nền nó đang nằm trên.
+
+   Và nó lệch cả mép trái: chữ thụt 17px (khoi-than) + 17px (giaithich)
+   = 34px, trong khi <h2> ngay trên đầu đứng ở 17px. Đúng thứ chú
+   thích của `.khoi-than` vừa dọn xong cho phần thân — dọn cho .dot,
+   .sk, .tin, .cua, .ct rồi bỏ sót đúng cái đoạn văn.
+
+   Trong khối thì nó là VĂN, không phải thẻ: cởi vỏ thẻ, trả về đúng
+   mép trái của tiêu đề. Nền không đổi (vẫn --card) nên tương phản
+   chữ giữ nguyên, không màu nào mới.
+
+   NGOÀI khối nó vẫn là thẻ đứng một mình — `chay()` lúc chưa có số
+   liệu nhả thẳng vào #than, và ở đó vỏ thẻ mới là đúng. Nên luật
+   này phải bó trong `.khoi-than`, đừng sửa thẳng `.giaithich`. */
+.khoi-than .giaithich{padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+/* Đứng SAU nội dung khác thì cần một đường ngăn, không thì đoạn văn
+   dính vào đáy lưới ô số ngay trên nó. Cùng lối với `.khoi-y`: ở cung
+   này, hairline --line-2 là dấu "phần dưới đây nói VỀ phần trên",
+   không phải vạch trang trí. */
+.khoi-than>.giaithich:not(:first-child){
+  margin-top:14px;padding-top:13px;border-top:1px solid var(--line-2)}
+
 /* ── ô số ─────────────────────────────────────────────── */
 .luoi-so{display:grid;gap:11px;margin-bottom:15px;
   grid-template-columns:repeat(auto-fit,minmax(178px,1fr))}
