@@ -7,7 +7,7 @@ webapp tĩnh độc lập có `index.html` riêng:
     kham-thien-giam/  kinh-thanh/  tang-thu-cac/  tao-bien-xu/
     thai-boc-tu/  thi-bac-ty/  tu-cam-thanh/
 
-Có đúng **ba** thư mục ở gốc **không** phải cung, và cả ba là runtime
+Có đúng **bốn** thư mục ở gốc **không** phải cung. Ba đầu là runtime
 Python chạy tay, không lên site:
 
     tu-cam-thanh-runtime/       giao dịch crypto có hướng
@@ -15,8 +15,17 @@ Python chạy tay, không lên site:
     thi-bac-ty-runtime/         Thị Bạc Ty — bộ máy quản lý vốn;
                                 ty đầu tiên là chênh lệch funding perp
 
-Xem mục "Ba runtime Python là ngoại lệ" bên dưới. Cả ba theo cùng một
-luật, nên mục đó nói chung cho cả ba chứ không chép làm ba bản.
+Cái thứ tư là dữ liệu, không phải mã chạy:
+
+    knowledge-os/               lớp tri thức nền dùng chung
+
+Xem mục "Ba runtime Python là ngoại lệ" và mục "knowledge-os" bên dưới.
+Ba runtime theo cùng một luật, nên mục đó nói chung cho cả ba chứ không
+chép làm ba bản.
+
+Cả bốn đều ngoài `dist/` vì `HALLS` trong `build-dist.mjs` là danh sách
+tường minh, và cả bốn đều không bị `npm run kiem` nhầm là cung vì bộ kiểm
+chỉ tính thư mục có `index.html` **ngay tại gốc** thư mục đó.
 
 ## Chạy song song nhiều phiên
 
@@ -494,10 +503,60 @@ Runtime tự có trần `dailyBudgetUsd` và `maxCallsPerDay` trong `config.json
 nhưng trần ấy chỉ bảo vệ được máy đang chạy — nó không thay được việc **không
 để đường tự động nào chạm tới khoá**.
 
+### knowledge-os là ngoại lệ thứ tư — dữ liệu, không phải cung
+
+    knowledge-os/                            ← nguồn, KHÔNG lên site
+    thai-boc-tu/assets/js/v/tri-thuc.js      ← sinh tay, PHẢI commit
+    ho-bo/assets/js/v/tri-thuc.js            ← sinh tay, PHẢI commit
+    thi-bac-ty/assets/js/v/tri-thuc.js       ← sinh tay, PHẢI commit
+
+Lớp tri thức nền: nó trả lời "con số đang hiện đóng vai trò kinh tế gì",
+không đổi công thức nào. **Đây không phải cung đọc sách và đừng dựng một
+cái.** Gói lõi ở nguồn; mỗi cung nhận một lát cắt ~10–14 KB.
+
+    node knowledge-os/kiem.mjs        kiểm dữ liệu, và kiểm nó khớp repo thật
+    node knowledge-os/sinh.mjs        sinh lát cắt cho mọi cung đã ánh xạ
+    node knowledge-os/tra.mjs         tra cứu ở dòng lệnh
+
+Cùng luật với Hoàng Thành và ba runtime: máy sinh, **không workflow nào
+chạy**, nên phải commit kết quả. Và cùng lý do — **đừng thêm bước này vào
+`refresh-data.yml`**, cũng đừng khai node trong `scripts/node/`. Node có
+`nhip` mà không workflow nào gọi thì Bảng vận hành mãi báo "đến hạn" cho
+thứ không bao giờ chạy.
+
+Đường ghi nằm ở `assets/js/v/`, nhánh **mạng-trước**, nên sửa nó không cần
+nâng `CACHE_VERSION`.
+
+**Ranh giới nguồn là luật, không phải khuyến nghị.** Bốn nhãn hiện trên
+từng dòng của trang: `sách` (tác giả mô tả, có chương/trang) · `tác giả`
+(lập trường riêng) · `phân tích` (SUNSWaGz suy ra) · `repo` (đo được từ
+repo/runtime, năm 2026). Gộp "tác giả" vào "sách" là biến một lập trường
+thành sự thật; gộp "phân tích" vào "sách" là mượn uy tín của sách cho suy
+luận của mình. Cả hai đều nói dối mà không câu nào sai ngữ pháp, nên
+`kiem.mjs` chặn từng cái — kể cả chiều ngược: gắn chương/trang sách cho
+một mục `analysis` là lỗi.
+
+Sách viết **2018**. Chuyện sau đó nằm riêng ở `data/2026/`; **đừng sửa dữ
+liệu sách để "cập nhật" nó** — sửa là mất luôn khả năng nói "chỗ này tác
+giả sai", vì không còn bản gốc để so.
+
+Ánh xạ toa/phòng phải trỏ vào **mã có thật**. `kiem.mjs` đọc mã thẳng từ
+mã nguồn cung (`toa.js`, mảng `PHONG`, `<section id>`) chứ không giữ bản
+chép — trỏ vào mã không tồn tại thì trang vẫn mở bình thường và lặng lẽ
+không hiện gì. Cung nào bộ kiểm chưa đọc được thì nó nói thẳng là không
+kết luận được; thêm một nhánh vào `maPhong()` là xong.
+
+Chi tiết ở `knowledge-os/README.md` và `knowledge-os/docs/SOURCE_POLICY.md`.
+
 Danh sách nguồn và ngưỡng nằm ở `scripts/tuoi-du-lieu.mjs`, dùng chung cho
 `npm run dist` (in ra) và `npm run kiem` (nhắc ở đầu phiên). Thêm cung mới
 có dữ liệu tự sinh thì thêm một dòng vào `NGUON` ở đó, không chép sang chỗ
 khác.
+
+(`tri-thuc.js` **không** có trong `NGUON`: nó không phải số liệu có tuổi.
+Một lát cắt tri thức "cũ ba ngày" không nói lên điều gì — dữ liệu nguồn
+đổi khi có người sửa nó, không đổi theo giờ. `kiem.mjs` của gói canh đúng
+thứ đáng canh: lát cắt có sinh sau lần sửa dữ liệu gần nhất không.)
 
 `npm run kiem` **nhắc** chứ không báo lỗi khi dữ liệu cũ: bot chết không
 phải lỗi của phiên đang mở, không được chặn họ làm cung của mình. Nhưng nó
