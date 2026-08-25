@@ -87,6 +87,10 @@ def dung(runtime) -> dict:
         "dongHo": a.get("dongHo") or {},
         "baoGia": a.get("baoGia") or [],
         "coHoi": co_hoi,
+        # TỜ TRÌNH — cùng những cơ hội ấy, viết bằng ngôn ngữ chung của Thị
+        # Bạc Ty. Người xem trang tĩnh thấy được cả hai lớp: ty nghĩ gì
+        # (`coHoi`) và ty TRÌNH gì lên trung ương (`toTrinh`).
+        "toTrinh": a.get("toTrinh") or [],
         "soDuyet": len(duyet),
         # `viSaoTuChoi` là số liệu đáng giá nhất khi bảng trống. Bỏ nó ra khỏi
         # lát cắt là dựng một trang hiện bảng rỗng, mọi đèn xanh, và không ai

@@ -37,6 +37,8 @@ from bac.san.base import moc_tron_gio_ke, nguyen_hoac_none, so_hoac_none  # noqa
 from bac.san.binance import _doi_chung                           # noqa: E402
 from bac.san.okx import _chu_ky                                  # noqa: E402
 from bac.so import So                                            # noqa: E402
+from thi_bac_ty.to_trinh import (HO, MAT_RUI_RO, Chan,           # noqa: E402
+                                 RuiRo, ToTrinh)
 from bac.bang import (XA_MOI_GIAY, MayGhi, _thu_muc,              # noqa: E402
                       dem_bang, doc_bang,
                       doc_bang_day_du as doc_bang_day_du_bang)
@@ -870,9 +872,224 @@ def kiem_khai_phi_thieu() -> None:
     kiem("lát cắt mang cả hai trường ra ngoài",
          t["moHinhPhiDuChua"] is False and len(t["phiConThieu"]) == 4)
 
-    kiem("mã chiến lược có dạng <lớp>.<chiến lược>.<phiên bản>",
-         MA_CHIEN_LUOC.count(".") == 2 and MA_CHIEN_LUOC.startswith("perp."),
-         MA_CHIEN_LUOC)
+    # Soi bằng chính KHUÔN của hợp đồng, không bằng chuỗi chép tay. Bản đầu
+    # neo vào tiền tố "perp." và gãy ngay khi mã đổi thành "perpetual." —
+    # một phép kiểm chép lại hằng số thì nó canh bản chép, không canh luật.
+    from thi_bac_ty.to_trinh import KHUON_CHIEN_LUOC
+    kiem("mã chiến lược khớp KHUÔN của hợp đồng",
+         bool(KHUON_CHIEN_LUOC.match(MA_CHIEN_LUOC)), MA_CHIEN_LUOC)
+
+
+def _tt(**kw):
+    """Một tờ trình hợp lệ tối thiểu; `kw` để bẻ từng chỗ một."""
+    goc = dict(
+        chienLuoc="perpetual.funding_spread.v1", ho="phai-sinh", taiSan="BTC",
+        chan=(Chan("LONG", "hyperliquid", "BTC", 100.0),
+              Chan("SHORT", "binance", "BTC", 100.0)),
+        vonCanUsd=100.0, sucChuaToiDaUsd=5000.0,
+        grossBps=10.0, phiUocBps=27.0, netUocBps=-17.0, giuGio=8.0,
+        moHinhPhiDuChua=False, phiConThieu=("vay-coin",),
+        moHinhSucChuaDuChua=False, sucChuaConThieu=("do-sau-so-lenh",),
+    )
+    goc.update(kw)
+    return ToTrinh(**goc)
+
+
+def kiem_hop_dong() -> None:
+    print("\n── Tờ trình: hợp đồng tự soát mình ───────────────────────────")
+
+    t = _tt()
+    kiem("tờ trình đủ khuôn thì hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("có mã sinh tự động", len(t.ma) == 16)
+    kiem("có dấu thời gian", t.luc.endswith("Z"))
+
+    kiem("mã chiến lược sai khuôn → bắt",
+         not _tt(chienLuoc="funding").hop_le)
+    kiem("mã chiến lược thiếu phiên bản → bắt",
+         not _tt(chienLuoc="perpetual.funding_spread").hop_le)
+    kiem("họ lạ → bắt", not _tt(ho="ho-tu-bia").hop_le)
+    kiem("bảy họ đúng bằng bảng phân loại lại", len(HO) == 7, str(HO))
+
+    kiem("không chân nào → bắt", not _tt(chan=()).hop_le,
+         "một cơ hội phải nói rõ nó vào đâu")
+    kiem("bên lạ ở một chân → bắt",
+         not _tt(chan=(Chan("MUA_MANH", "binance", "BTC"),)).hop_le)
+    kiem("chân thiếu cảng → bắt",
+         not _tt(chan=(Chan("LONG", "", "BTC"),)).hop_le)
+
+    kiem("vốn xin ≤ 0 → bắt", not _tt(vonCanUsd=0.0).hop_le)
+    kiem("xin nhiều hơn sức chứa → bắt",
+         not _tt(vonCanUsd=9999.0, sucChuaToiDaUsd=100.0).hop_le,
+         "rót quá sức chứa là tự giết chính cơ hội ấy")
+    kiem("sức chứa None thì KHÔNG bắt (chưa đo được ≠ sai)",
+         _tt(sucChuaToiDaUsd=None).hop_le)
+
+    # Luật 2: khai nửa vời cũng là sai khuôn.
+    kiem("phí chưa đủ mà không kê thiếu gì → bắt",
+         not _tt(moHinhPhiDuChua=False, phiConThieu=()).hop_le,
+         "người đọc biết nó thiếu mà không biết thiếu gì thì không cân được")
+    kiem("khai đủ phí mà vẫn kê thiếu → bắt",
+         not _tt(moHinhPhiDuChua=True, phiConThieu=("vay-coin",)).hop_le)
+    kiem("sức chứa chưa đủ mà không kê thiếu gì → bắt",
+         not _tt(moHinhSucChuaDuChua=False, sucChuaConThieu=()).hop_le)
+
+    kiem("rủi ro ngoài thang [0,1] → bắt",
+         not _tt(ruiRo=RuiRo(thiTruong=1.7)).hop_le)
+    kiem("tin cậy ngoài thang → bắt", not _tt(tinCay=2.0).hop_le)
+
+    # Gom hết lỗi, không dừng ở cái đầu.
+    xau = _tt(chienLuoc="x", ho="y", vonCanUsd=-1.0)
+    kiem("gom ĐỦ lỗi khuôn, không dừng ở cái đầu", len(xau.kiem()) >= 3,
+         str(xau.kiem()))
+
+
+def kiem_rui_ro_chua_do() -> None:
+    print("\n── Rủi ro: KHÔNG BIẾT phải khác KHÔNG ────────────────────────")
+
+    r = RuiRo(thiTruong=0.2, thanhKhoan=0.5)
+    kiem("bốn mặt chưa đo được liệt kê ra", len(r.chua_do()) == 4, str(r.chua_do()))
+    kiem("mặt nặng nhất lấy MAX của những mặt ĐÃ đo",
+         gan(r.cao_nhat(), 0.5),
+         "trung bình sẽ làm một cơ hội chết ở một mặt trông êm")
+    kiem("chưa đo mặt nào → cao nhất là None, không phải 0",
+         RuiRo().cao_nhat() is None,
+         "0 nghĩa là 'đã xét, không có rủi ro' — Rủi Ro Tổng sẽ cộng những "
+         "số 0 ấy thành một danh mục an toàn giả")
+    kiem("sáu mặt đúng bằng bảng", len(MAT_RUI_RO) == 6)
+
+    t = _tt(ruiRo=r).tom_tat()
+    kiem("tóm tắt mang theo danh sách chưa đo",
+         len(t["ruiRo"]["chuaDo"]) == 4)
+
+
+def kiem_so_sanh_lien_ty() -> None:
+    print("\n── NET mỗi giờ: thước SO SÁNH giữa các ty ────────────────────")
+
+    ngan = _tt(netUocBps=6.0, giuGio=2.0)
+    dai = _tt(netUocBps=20.0, giuGio=24.0)
+    kiem("20 bps giữ 24h THUA 6 bps giữ 2h",
+         ngan.net_moi_gio_bps > dai.net_moi_gio_bps,
+         f"{ngan.net_moi_gio_bps:.3f} vs {dai.net_moi_gio_bps:.3f} — "
+         f"vốn quay được mười hai lượt")
+    kiem("net mỗi giờ tính đúng", gan(ngan.net_moi_gio_bps, 3.0))
+
+
+def kiem_suc_chua() -> None:
+    print("\n── Sức chứa: MIN hai chân, và thà None còn hơn bịa ───────────")
+
+    from bac.suc_chua import PHAN_OI, SAN_USD, TRAN_USD, uoc_luong
+
+    s, thieu = uoc_luong(1_000_000.0, 4_000_000.0)
+    kiem("lấy MIN của hai chân, không lấy trung bình",
+         gan(s, 1_000_000.0 * PHAN_OI),
+         "chân mỏng hơn quyết — vị thế phải vào được CẢ HAI")
+    kiem("luôn khai là mô hình chưa đủ", "do-sau-so-lenh" in thieu)
+
+    s2, t2 = uoc_luong(1e12, 1e12)
+    kiem("có trần tuyệt đối, chặn OI sai đơn vị", gan(s2, TRAN_USD),
+         "đã thấy sàn trả OI bằng số COIN thay vì USD")
+
+    s3, t3 = uoc_luong(1000.0, 1000.0)
+    kiem("dưới sàn thì trả None, không trả số bé vô nghĩa", s3 is None)
+    kiem("và nói rõ vì sao", "suc-chua-duoi-san" in t3)
+
+    s4, t4 = uoc_luong(None, None)
+    kiem("không cảng nào báo OI → None", s4 is None)
+    kiem("và khai không cảng nào báo", "khong-cang-nao-bao-oi" in t4)
+
+    s5, t5 = uoc_luong(2_000_000.0, None)
+    kiem("một cảng báo thì vẫn suy được", s5 is not None)
+    kiem("nhưng khai rõ là suy từ MỘT phía", "chi-mot-cang-bao-oi" in t5)
+
+
+def kiem_adapter_ty() -> None:
+    print("\n── Adapter: dịch, KHÔNG bịa số ───────────────────────────────")
+
+    from bac.xuat_to_trinh import CHIEN_LUOC, xuat_to_trinh
+
+    now = time.time() * 1000.0
+    phi = {"a": {"phiTakerBps": 0, "truotGiaBps": 0},
+           "b": {"phiTakerBps": 0, "truotGiaBps": 0}}
+    co = tim_co_hoi([_bg("a", 0.0, 1.0), _bg("b", 0.0001, 1.0)],
+                    now, 8.0, phi, CongRuiRo({}))[0]
+
+    t = xuat_to_trinh(co, vonXinUsd=100.0,
+                      oiLongUsd=2_000_000.0, oiShortUsd=3_000_000.0)
+    kiem("tờ trình xuất ra hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("mang đúng mã chiến lược", t.chienLuoc == CHIEN_LUOC)
+    kiem("mã chiến lược trong tờ trình KHỚP mã trong lát cắt",
+         CHIEN_LUOC == MA_CHIEN_LUOC,
+         "đã lệch thật một lần: lát cắt ghi perp.… còn tờ trình ghi "
+         "perpetual.… — sổ đăng ký sẽ gộp thành hai dòng cho một chiến lược")
+    kiem("thuộc họ phái sinh", t.ho == "phai-sinh")
+    kiem("hai chân, LONG trước SHORT sau",
+         len(t.chan) == 2 and t.chan[0].ben == "LONG"
+         and t.chan[1].ben == "SHORT")
+    kiem("chân trỏ đúng cảng của cơ hội",
+         t.chan[0].cang == co.sanLong and t.chan[1].cang == co.sanShort)
+
+    kiem("rủi ro giao thức là None, KHÔNG phải 0",
+         t.ruiRo.giaoThuc is None,
+         "ty Phái Sinh không chạm hợp đồng thông minh — ghi 0 là nói 'đã "
+         "xét, không có rủi ro'")
+    kiem("rủi ro cầu nối là None, KHÔNG phải 0", t.ruiRo.cauNoi is None)
+    kiem("rủi ro cảng là None (chưa có mô hình xếp hạng sàn)",
+         t.ruiRo.cang is None)
+    kiem("rủi ro thị trường suy được từ lệch mark",
+         t.ruiRo.thiTruong is not None)
+
+    kiem("chép nguyên lời khai phí của CoHoi, không dựng lại",
+         tuple(t.phiConThieu) == tuple(co.phiConThieu))
+    kiem("sức chứa luôn khai là chưa đủ mô hình", not t.moHinhSucChuaDuChua)
+    kiem("có bằng chứng đi kèm", len(t.bangChung) >= 4)
+
+    # Thiếu mark → không biết lệch → rủi ro thị trường None, và tin cậy tụt.
+    co2 = tim_co_hoi([_bg("a", 0.0, 1.0, px=None), _bg("b", 0.0001, 1.0)],
+                     now, 8.0, phi, CongRuiRo({"doiHoiHaiMark": False}))[0]
+    t2 = xuat_to_trinh(co2, 100.0, 2e6, 3e6)
+    kiem("thiếu mark → rủi ro thị trường None, không phải 0",
+         t2.ruiRo.thiTruong is None)
+    kiem("và độ tin TỤT so với tờ trình đủ dữ liệu",
+         t2.tinCay < t.tinCay, f"{t2.tinCay} vs {t.tinCay}")
+
+    kiem("không OI cảng nào → sức chứa None nhưng tờ trình VẪN hợp lệ",
+         xuat_to_trinh(co, 100.0, None, None).hop_le)
+
+
+def kiem_chieu_phu_thuoc() -> None:
+    print("\n── Kiến trúc: trung ương KHÔNG được biết ty nào tồn tại ───────")
+
+    import pathlib
+    goc = pathlib.Path(__file__).resolve().parent.parent / "thi_bac_ty"
+    xau = []
+    for p in goc.glob("*.py"):
+        s = p.read_text(encoding="utf-8")
+        for d in s.splitlines():
+            d = d.strip()
+            if d.startswith(("import bac", "from bac")):
+                xau.append(f"{p.name}: {d}")
+    kiem("không file nào trong thi_bac_ty/ import bac/", not xau,
+         f"{xau} — ngày trung ương phải import một ty để xử một trường hợp "
+         f"riêng là ngày hợp đồng đã hỏng")
+
+    # Và chiều ngược lại PHẢI có: ty biết trung ương.
+    ad = (pathlib.Path(__file__).resolve().parent.parent
+          / "bac" / "xuat_to_trinh.py").read_text(encoding="utf-8")
+    kiem("ty import trung ương (chiều đúng)", "from thi_bac_ty" in ad)
+
+    # Trung ương không được nhắc tới thuật ngữ của một ty cụ thể.
+    tu_cam = ("funding", "perp", "mocKe", "intervalGio")
+    lo = []
+    for p in goc.glob("*.py"):
+        s = p.read_text(encoding="utf-8").lower()
+        for t in tu_cam:
+            # `to_trinh.py` được phép nêu ví dụ trong docstring, nên chỉ soi
+            # phần MÃ: bỏ mọi dòng bắt đầu bằng # hoặc nằm trong docstring
+            # thì phức tạp; ở đây chỉ cấm trong tên định danh.
+            if f"def {t}" in s or f"{t} =" in s:
+                lo.append(f"{p.name}: {t}")
+    kiem("trung ương không có định danh nào mang thuật ngữ một ty", not lo,
+         str(lo))
 
 
 def main() -> int:
@@ -901,6 +1118,12 @@ def main() -> int:
     kiem_cua_that()
     kiem_von_chua_hieu_luc()
     kiem_khai_phi_thieu()
+    kiem_hop_dong()
+    kiem_rui_ro_chua_do()
+    kiem_so_sanh_lien_ty()
+    kiem_suc_chua()
+    kiem_adapter_ty()
+    kiem_chieu_phu_thuoc()
 
     print("\n" + "=" * 70)
     if _loi:

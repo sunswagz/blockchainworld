@@ -472,9 +472,100 @@
     return f;
   }
 
+  /* ── ô TỜ TRÌNH ─────────────────────────────────────────────────────
+   * Cùng những cơ hội ở ô đầu, nhưng viết bằng ngôn ngữ CHUNG của Thị Bạc
+   * Ty. Đây là thứ trung ương đọc; `Cơ hội` là thứ ty tự nghĩ.
+   */
+  function ve_to_trinh() {
+    var ds = S.toTrinh || [];
+    var f = document.createDocumentFragment();
+
+    var l = el("div", "luoi");
+    var hopLe = ds.filter(function (t) { return t.hopLe; }).length;
+    var chuaDuPhi = ds.filter(function (t) { return !t.moHinhPhiDuChua; }).length;
+    var khongSuc = ds.filter(function (t) { return t.sucChuaToiDaUsd == null; }).length;
+    [["tờ trình xuất ra", ds.length],
+     ["đúng khuôn", hopLe + "/" + ds.length],
+     ["mô hình phí chưa đủ", chuaDuPhi],
+     ["chưa đo được sức chứa", khongSuc]
+    ].forEach(function (x) {
+      var d = el("div", "so");
+      d.appendChild(el("div", "n", String(x[1])));
+      d.appendChild(el("div", "t", x[0]));
+      l.appendChild(d);
+    });
+    f.appendChild(o("Ty Phái Sinh trình lên Thị Bạc Ty", l,
+      "Chỉ cơ hội đã QUA cổng ty mới được trình. Cổng ty là tầng rủi ro thứ "
+      + "NHẤT (chuyên môn funding); Rủi Ro Tổng của trung ương là tầng thứ "
+      + "hai, và nó nhìn phơi nhiễm toàn danh mục — thứ mà không ty nào "
+      + "thấy được."));
+
+    if (!ds.length) {
+      f.appendChild(o("Tờ trình", el("p", "cho",
+        "chưa cơ hội nào qua cổng ty nên chưa trình gì lên"),
+        "Bảng trống ở đây KHÔNG có nghĩa là thị trường không có gì — nó có "
+        + "nghĩa là cổng ty đã chặn hết. Xem ô Cơ hội, cột 'vì sao'."));
+      return f;
+    }
+
+    f.appendChild(o("Tờ trình — ngôn ngữ chung", bang(
+      [{ t: "Tài sản", trai: 1 }, { t: "chiến lược", trai: 1 },
+       { t: "chân", trai: 1 }, { t: "xin" }, { t: "sức chứa" },
+       { t: "NET bps" }, { t: "NET/giờ" }, { t: "rủi ro cao nhất" },
+       { t: "chưa đo", trai: 1 }, { t: "tin cậy" }, { t: "khuôn", trai: 1 }],
+      ds.map(function (t) {
+        var r = t.ruiRo || {};
+        return [
+          { t: t.taiSan, c: "trai" },
+          { t: t.chienLuoc, c: "trai" },
+          { t: (t.chan || []).map(function (c) {
+              return c.ben.charAt(0) + " " + c.cang; }).join(" / "), c: "trai" },
+          { t: "$" + so(t.vonCanUsd, 0) },
+          { t: t.sucChuaToiDaUsd == null ? "—"
+              : "$" + so(t.sucChuaToiDaUsd, 0),
+            c: t.sucChuaToiDaUsd == null ? "am" : null },
+          { t: dau(t.netUocBps), c: lop(t.netUocBps) },
+          { t: dau(t.netMoiGioBps, 3), c: lop(t.netMoiGioBps) },
+          { t: r.caoNhat == null ? "—" : so(r.caoNhat, 3),
+            c: r.caoNhat == null ? "am" : null },
+          { t: (r.chuaDo || []).join(", ") || "—", c: "vi" },
+          { t: t.tinCay == null ? "—" : so(t.tinCay, 2) },
+          { t: t.hopLe ? "đúng" : "SAI", c: t.hopLe ? "qua" : "am",
+            title: (t.loiKhuon || []).join(" · ") }
+        ];
+      })),
+      "Cột NET/giờ là thước SO SÁNH giữa các ty: 20 bps giữ 24 giờ thua 6 "
+      + "bps giữ 2 giờ, vì vốn quay được mười hai lượt. Cột 'chưa đo' liệt "
+      + "kê mặt rủi ro ty này KHÔNG đánh giá nổi — `None` chứ không phải 0, "
+      + "vì 0 nghĩa là 'đã xét, không có rủi ro' và Rủi Ro Tổng sẽ cộng "
+      + "những số 0 ấy thành một danh mục an toàn giả."));
+
+    var t0 = ds[0];
+    var d0 = el("div");
+    d0.appendChild(bang(
+      [{ t: "Mục", trai: 1 }, { t: "giá trị", trai: 1 }],
+      [["mã", t0.ma], ["họ", t0.ho],
+       ["cảng", (t0.cang || []).join(", ")],
+       ["giữ", so(t0.giuGio, 0) + " giờ"],
+       ["gross → phí → NET",
+        dau(t0.grossBps) + " → −" + so(t0.phiUocBps) + " → " + dau(t0.netUocBps)],
+       ["phí CÒN THIẾU", (t0.phiConThieu || []).join(", ") || "—"],
+       ["sức chứa còn thiếu", (t0.sucChuaConThieu || []).join(", ") || "—"],
+       ["bằng chứng", (t0.bangChung || []).join("  ·  ")]
+      ].map(function (x) {
+        return [{ t: x[0], c: "trai" }, { t: String(x[1]), c: "vi" }];
+      })));
+    f.appendChild(o("Tờ trình đầu tiên, mở ra xem", d0,
+      "Mỗi tờ trình mang theo BẰNG CHỨNG — những con số dựng nên nó. Một cỗ "
+      + "máy tự chia vốn thì phải cãi lại được, và không cãi được nếu chỉ "
+      + "nhận một con số trần."));
+    return f;
+  }
+
   var O_VE = {
     "co-hoi": ve_co_hoi, "bao-gia": ve_bao_gia,
-    "cang": ve_cang, "cua": ve_cua, "hoc": ve_hoc,
+    "cang": ve_cang, "cua": ve_cua,
+    "to-trinh": ve_to_trinh, "hoc": ve_hoc,
     "nhat-ky": ve_nhat_ky
   };
 

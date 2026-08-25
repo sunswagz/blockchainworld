@@ -63,8 +63,18 @@ MAC_DINH = {
         "doiHoiItNhatMotMoc": True,
         "lechDongHoToiDaGiay": 10.0,
     },
-    # Trần vốn — **CHƯA CÓ HIỆU LỰC** ở bản này, và đó là sự thật phải khai
-    # chứ không phải thiếu sót cần giấu.
+    # Vốn — và từ TBTC-002 khối này **đổi nghĩa**, không chỉ đổi chỗ.
+    #
+    # Cũ:  "trần ty tự áp cho mình"
+    # Nay: "số ty XIN trung ương"
+    #
+    # Luật của Thị Bạc Ty: không ty nào được tự quyết danh mục. Ty chỉ phát
+    # hiện → đánh giá → XIN. Quyền duyệt và chia nằm ở Rủi Ro Tổng và Người
+    # Phân Bổ Vốn. Nếu mỗi ty tự giữ trần của mình thì mười ba ty là mười ba
+    # đứa đều tưởng tiền trong ví là của mình, và không đứa nào thấy tổng.
+    #
+    # `coHieuLuc` vẫn False vì chưa có lớp đặt lệnh — không có vị thế nào để
+    # mà giới hạn, kể cả trên sổ giấy.
     #
     # Ba con số này từng nằm trong khối `ruiRo`, nên buồng lái bày chúng dưới
     # nhãn "Cửa rủi ro đang có hiệu lực" — trong khi không dòng nào trong
@@ -76,6 +86,7 @@ MAC_DINH = {
     # định đã cân nhắc, không phải số bịa — nhưng giữ ở CHỖ KHÁC, kèm cờ.
     "von": {
         "coHieuLuc": False,
+        # số XIN cho mỗi cơ hội, không phải trần
         "moiCoHoiUsd": 100.0,
         "toiDaUsd": 300.0,
         "donBayToiDa": 1.0,
@@ -102,10 +113,16 @@ MAC_DINH = {
 #: một dòng, còn cái giá của việc thêm nó SAU là đi sửa mọi lát cắt và mọi
 #: băng đã ghi để gắn nhãn ngược.
 #:
+#: **MỘT nguồn duy nhất.** `bac/xuat_to_trinh.py` import hằng số này chứ
+#: không khai lại — hai bản sao thì sẽ lệch, và đã lệch thật một lần:
+#: lát cắt ghi `perp.…` còn tờ trình ghi `perpetual.…`, hai chuỗi cho
+#: cùng một thứ. Sổ đăng ký sau này gộp theo chuỗi ấy, nên lệch một ký
+#: tự là hai dòng thống kê cho một chiến lược.
+#:
 #: Đổi số phiên bản khi công thức `netBps` đổi cách tính — không phải khi vặn
 #: ngưỡng. Ngưỡng vặn được là chuyện thường ngày của vòng tiến hoá; công thức
 #: đổi thì mọi con số cũ hết so được với số mới, và đó mới là đứt gãy.
-MA_CHIEN_LUOC = "perp.funding_spread.v1"
+MA_CHIEN_LUOC = "perpetual.funding_spread.v1"
 
 CHE_HOP_LE = ("quan-sat", "giay", "that")
 

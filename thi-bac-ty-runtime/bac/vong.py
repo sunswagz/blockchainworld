@@ -31,6 +31,7 @@ from .models import BaoGia
 from .rui_ro import NHAN, CongRuiRo
 from .san import TAT_CA
 from .so import So
+from .xuat_to_trinh import xuat_to_trinh
 
 
 #: Bao lâu hỏi lại giờ máy chủ một lần. Lệch đồng hồ trôi chậm (NTP tắt thì
@@ -191,6 +192,26 @@ class Runtime:
             bus.ghi(f"dọn: xoá {n} bản ghi sổ và {nb} file băng quá "
                     f"{CONFIG['so']['giuNgay']} ngày", loai="he")
 
+    # ── xuất tờ trình lên Thị Bạc Ty ──────────────────────────────────────
+    def to_trinh(self) -> list:
+        """Dịch cơ hội đã qua cổng ty thành `ToTrinh`.
+
+        `oiUsd` tra theo (mã, cảng) từ chính lượt quét này — không tra từ
+        lượt trước. Sức chứa suy từ open interest của một khung hình khác là
+        ghép hai thời điểm, đúng lỗi mà cả `dong_ho.py` sinh ra để chặn.
+        """
+        oi = {(b.ma, b.san): b.oiUsd for b in self.baoGia}
+        xin = float((CONFIG.get("von") or {}).get("moiCoHoiUsd", 100.0))
+        ra = []
+        for c in self.coHoi:
+            if not c.duyet:
+                continue
+            ra.append(xuat_to_trinh(
+                c, vonXinUsd=xin,
+                oiLongUsd=oi.get((c.ma, c.sanLong)),
+                oiShortUsd=oi.get((c.ma, c.sanShort))))
+        return ra
+
     # ── ảnh chụp cho buồng lái và cho lát cắt ─────────────────────────────
     def anh_chup(self) -> dict:
         now = dong_ho.bay_gio_ms()
@@ -233,6 +254,16 @@ class Runtime:
             "von": dict(CONFIG.get("von") or {}),
             "baoGia": [b.tom_tat(now) for b in self.baoGia],
             "coHoi": [c.tom_tat() for c in self.coHoi[:60]],
+
+            # TỜ TRÌNH — cùng những cơ hội ấy, viết bằng ngôn ngữ chung của
+            # Thị Bạc Ty. `coHoi` là ngôn ngữ NỘI BỘ của ty (có `soMocLong`,
+            # `intervalShortGio` — ty Tín Dụng không hiểu và không cần hiểu);
+            # `toTrinh` là thứ trung ương đọc được.
+            #
+            # Chỉ trình cơ hội đã QUA cổng ty. Cổng ty là tầng rủi ro thứ
+            # nhất; trình cả thứ chính mình đã chặn là đẩy việc sang trung
+            # ương và làm loãng sổ đăng ký.
+            "toTrinh": [t.tom_tat() for t in self.to_trinh()],
             "soDuyet": len(duyet),
             "viSaoTuChoi": vi_sao,
             "so": self.so.thong_ke(),

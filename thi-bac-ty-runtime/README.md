@@ -1,4 +1,100 @@
-# Thị Bạc Ty — runtime chênh lệch funding
+# THỊ BẠC TY — bộ máy quản lý và vận hành vốn
+
+Thị Bạc Ty **không phải một chiến lược**. Nó là cả cỗ máy: quan sát thị
+trường · phát hiện cơ hội · định giá · kiểm soát rủi ro · phân bổ vốn · thực
+thi · kế toán · học từ kết quả.
+
+```
+                    THỊ BẠC TY
+                         │
+           ┌─────────────┴─────────────┐
+           │                           │
+      TRUNG ƯƠNG                    CÁC TY
+    thi_bac_ty/                   bac/ ← ty đầu tiên
+    Data · Risk · Capital         Phái sinh · Tín dụng ·
+    Ledger · Execution            Chênh lệch · Thanh khoản ·
+                                  Thanh lý · MEV · Cầu nối
+```
+
+Thứ đang chạy trong `bac/` là **`perpetual.funding_spread.v1`** — ty đầu
+tiên đã hoạt động, không phải toàn bộ Thị Bạc Ty và cũng chưa phải toàn bộ
+ty Phái Sinh.
+
+## Luật chung của mọi ty
+
+```
+KHÔNG ty nào được tự quản toàn bộ vốn của hệ thống.
+KHÔNG ty nào được tự dựng Rủi Ro Tổng riêng.
+KHÔNG ty nào được tự quyết danh mục.
+
+MỌI ty chỉ: phát hiện → đánh giá → xuất TỜ TRÌNH.
+```
+
+Không có luật này thì mười ba ty là mười ba đứa đều tưởng tiền trong ví là
+của mình, và không đứa nào nhìn thấy tổng.
+
+## Tờ trình — đồng tiền ngôn ngữ
+
+Mọi ty nói với trung ương bằng đúng một kiểu: `thi_bac_ty.to_trinh.ToTrinh`.
+
+    bac.models.CoHoi   thứ ty TỰ TÌM RA — nội bộ, đầy thuật ngữ funding
+    ToTrinh            thứ ty TRÌNH LÊN — chung, mọi ty đều hiểu
+
+`CoHoi` có `soMocLong`, `intervalShortGio` — những từ ty Tín Dụng không hiểu
+và không cần hiểu. `bac/xuat_to_trinh.py` dịch giữa hai thứ, và **không viết
+lại thuật toán nào**.
+
+### Ba luật của hợp đồng
+
+**1. KHÔNG BIẾT phải khác KHÔNG.** Ty Phái Sinh không chạm hợp đồng thông
+minh nên `ruiRo.giaoThuc = None`, **không phải 0**. Ghi 0 là nói "đã xét,
+không có rủi ro", rồi Rủi Ro Tổng cộng những số 0 ấy lại thành một danh mục
+an toàn giả.
+
+**2. Con số chưa đủ mô hình phải TỰ KHAI.** Khi trung ương xếp hạng:
+
+    perp.funding_spread   18 bps   ← chặn trên, thiếu bốn khoản phí
+    credit.lending_rate   11 bps   ← đã trừ đủ
+
+kết luận "cái đầu tốt hơn" là kết luận SAI rút ra từ hai con số không cùng
+đơn vị. `moHinhPhiDuChua` và `moHinhSucChuaDuChua` tồn tại để chặn đúng
+chuyện đó.
+
+**3. Hợp đồng tự soát mình.** `ToTrinh.kiem()` chạy không cần mạng, không
+cần trung ương. Tờ trình sai khuôn chết ở CỬA TY, không trôi vào sổ đăng ký
+rồi làm hỏng thống kê ba tháng sau.
+
+### `netMoiGioBps` — thước so sánh giữa các ty
+
+Không so `netUocBps` trần được:
+
+    20 bps giữ 24 giờ   →  0,83 bps/giờ
+     6 bps giữ  2 giờ   →  3,00 bps/giờ   ← thắng, vì vốn quay 12 lượt
+
+Vẫn chưa phải thước cuối: nó chưa xét sức chứa (rót được bao nhiêu) và chưa
+xét rủi ro. Người phân bổ vốn phải nhìn cả ba.
+
+### Sức chứa còn THÔ, và nói thẳng là thô
+
+`ToTrinh` đòi `sucChuaToiDaUsd` — rót thêm tới đâu thì chính cơ hội tự giết
+mình. Sức chứa thật đo bằng **độ sâu sổ lệnh**, mà runtime chưa hỏi sổ lệnh
+của cảng nào. `bac/suc_chua.py` tạm suy từ open interest (0,05%, lấy MIN hai
+chân, có trần và sàn), và **luôn** khai `moHinhSucChuaDuChua = False`.
+
+Vì sao không trả `None` cho xong: người phân bổ vốn gặp `None` thì không
+sizing được gì, và mọi tờ trình của ty này thành vô dụng — trong khi ta vẫn
+biết chắc một điều, **không phải vô hạn**.
+
+### Chiều phụ thuộc, một chiều
+
+    bac/  (ty)  ──import──►  thi_bac_ty/  (trung ương)
+
+Trung ương không được import ngược, và có phép kiểm canh việc đó. Ngày trung
+ương phải `import bac` để xử một trường hợp riêng là ngày hợp đồng đã hỏng:
+chỗ phải sửa là hợp đồng, không phải thêm một nhánh `if`.
+
+## Ty đầu tiên — chênh lệch funding
+
 
 Ty coi việc buôn bán giữa các cảng: xét hàng, thu thuế, và **đối chiếu giá
 giữa các cảng** với nhau. Runtime này làm đúng việc ấy trên hợp đồng vĩnh cửu.
@@ -24,7 +120,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 159 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 213 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
