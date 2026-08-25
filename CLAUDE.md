@@ -12,7 +12,8 @@ Python chạy tay, không lên site:
 
     tu-cam-thanh-runtime/       giao dịch crypto có hướng
     kham-thien-giam-runtime/    thị trường tiên đoán Polymarket
-    thi-bac-ty-runtime/         chênh lệch funding giữa các sàn perp
+    thi-bac-ty-runtime/         Thị Bạc Ty — bộ máy quản lý vốn;
+                                ty đầu tiên là chênh lệch funding perp
 
 Xem mục "Ba runtime Python là ngoại lệ" bên dưới. Cả ba theo cùng một
 luật, nên mục đó nói chung cho cả ba chứ không chép làm ba bản.
@@ -435,7 +436,7 @@ thư mục, cổng, và lệnh sinh lát cắt:
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
     python -m bac.snapshot        quét một lượt, ghi, rồi thoát
-    python scripts/selftest.py    159 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    213 phép kiểm số học, KHÔNG cần mạng
     pythonw dichvu/chay-nen.py    chạy nền 24/7 để tích băng đào tạo
 
 Thị Bạc Ty **không cần khoá nào để chạy đủ**: nó chỉ đọc dữ liệu CÔNG KHAI
