@@ -505,18 +505,36 @@ nhưng trần ấy chỉ bảo vệ được máy đang chạy — nó không th
 
 ### knowledge-os là ngoại lệ thứ tư — dữ liệu, không phải cung
 
-    knowledge-os/                            ← nguồn, KHÔNG lên site
-    thai-boc-tu/assets/js/v/tri-thuc.js      ← sinh tay, PHẢI commit
-    ho-bo/assets/js/v/tri-thuc.js            ← sinh tay, PHẢI commit
-    thi-bac-ty/assets/js/v/tri-thuc.js       ← sinh tay, PHẢI commit
+    knowledge-os/                     ← nguồn, KHÔNG lên site
+    <cung>/assets/js/v/tri-thuc.js    ← sinh tay, PHẢI commit · 11 cung
 
 Lớp tri thức nền: nó trả lời "con số đang hiện đóng vai trò kinh tế gì",
 không đổi công thức nào. **Đây không phải cung đọc sách và đừng dựng một
-cái.** Gói lõi ở nguồn; mỗi cung nhận một lát cắt ~10–14 KB.
+cái.** Gói lõi ở nguồn; mỗi cung nhận một lát cắt 9–30 KB.
 
-    node knowledge-os/kiem.mjs        kiểm dữ liệu, và kiểm nó khớp repo thật
-    node knowledge-os/sinh.mjs        sinh lát cắt cho mọi cung đã ánh xạ
-    node knowledge-os/tra.mjs         tra cứu ở dòng lệnh
+    npm run tri-thuc-kiem       kiểm dữ liệu, và kiểm nó khớp repo thật
+    npm run tri-thuc            sinh lát cắt cho mọi cung đã ánh xạ
+    npm run tri-thuc -- --thu   xem sẽ ghi gì, chưa ghi
+    npm run tra -- cung ho-bo   tra cứu ở dòng lệnh
+
+**File sinh ra mang CẢ dữ liệu lẫn phần vẽ.** Mười một cung dùng chung
+một khuôn HTML, nên khuôn ấy viết một lần trong `knowledge-os/sinh.mjs`
+chứ không chép mười một bản — đúng lối `scripts/build-halls.mjs` đã đi
+với `halls.js`. Cung chỉ gọi một dòng: `TT.them(host, maPhong)` (cung vẽ
+lại theo tuyến) hoặc `TT.gan(maPhong, thẻ)` (cung dựng trang tĩnh). Sửa
+cách vẽ thì sửa `sinh.mjs` rồi sinh lại, **đừng sửa `tri-thuc.js`**.
+
+**Mã phòng phải trỏ vào mã CÓ THẬT, và cái không ánh xạ phải nói vì
+sao.** 75 phòng đã ánh xạ, 29 phòng khai `rooms_skipped` kèm lý do —
+phòng công cụ (xưởng huy hiệu, trang tra từ) không mang nội dung kinh tế
+nào. Không có khai báo ấy thì bộ kiểm nhắc "còn N phòng chưa ánh xạ" mãi
+cho những phòng sẽ không bao giờ được ánh xạ, và cảnh báo kêu mãi thì
+người ta bỏ qua cảnh báo. `kinh-thanh` không ánh xạ phòng nào: thanh bên
+của nó dựng theo từng quốc gia từ dữ liệu bot, nên không có mã cố định —
+nó khai `rooms_note_vi` nói đúng câu đó.
+
+Thêm cung mới **không bắt buộc** ánh xạ tri thức; bộ kiểm của gói chỉ
+nhắc, không chặn.
 
 Cùng luật với Hoàng Thành và ba runtime: máy sinh, **không workflow nào
 chạy**, nên phải commit kết quả. Và cùng lý do — **đừng thêm bước này vào
