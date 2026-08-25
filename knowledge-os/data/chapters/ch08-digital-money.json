@@ -1,0 +1,36 @@
+{
+  "id": "ch08-digital-money",
+  "chapter": 8,
+  "title_vi": "Tiền tệ Kỹ thuật số",
+  "pages": [
+    142,
+    169
+  ],
+  "thesis_vi": "Bitcoin kết hợp mạng ngang hàng, mật mã và PoW để tạo tài sản số khan hiếm và thanh toán điện tử không cần bên thứ ba đáng tin cậy; xác minh thay cho niềm tin là nguyên lý trung tâm.",
+  "concepts": [
+    "digital_cash",
+    "trusted_third_party",
+    "proof_of_work",
+    "verification",
+    "consensus",
+    "fixed_supply"
+  ],
+  "points": [
+    {
+      "page": 142,
+      "note": "Bitcoin được đặt như giải pháp cho trao đổi, tính lành mạnh và chủ quyền."
+    },
+    {
+      "page": 144,
+      "note": "Vấn đề trung gian trong thanh toán điện tử."
+    },
+    {
+      "page": 146,
+      "note": "Các thành phần kỹ thuật và xác minh."
+    },
+    {
+      "page": 147,
+      "note": "PoW và phần thưởng khối."
+    }
+  ]
+}

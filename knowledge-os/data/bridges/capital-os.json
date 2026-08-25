@@ -1,0 +1,117 @@
+{
+  "name": "Capital OS bridge",
+  "purpose_vi": "Nối tri thức nền với các công việc mà vốn thực hiện trong nền kinh tế blockchain.",
+  "roles": [
+    {
+      "id": "reserve",
+      "label_vi": "Dự trữ",
+      "concepts": [
+        "store_of_value",
+        "hard_money",
+        "reserve_asset",
+        "counterparty_risk"
+      ],
+      "systems": [
+        "BTC strategic reserve",
+        "stablecoin operating reserve"
+      ]
+    },
+    {
+      "id": "liquidity",
+      "label_vi": "Thanh khoản",
+      "concepts": [
+        "salability",
+        "medium_of_exchange",
+        "price_signal",
+        "economic_calculation"
+      ],
+      "systems": [
+        "DEX arbitrage",
+        "Automated LP",
+        "Stablecoin arbitrage"
+      ]
+    },
+    {
+      "id": "credit",
+      "label_vi": "Tín dụng",
+      "concepts": [
+        "capital_market",
+        "interest_rate",
+        "savings",
+        "counterparty_risk"
+      ],
+      "systems": [
+        "Lending Rate Arbitrage",
+        "Liquidation Hunter"
+      ]
+    },
+    {
+      "id": "time_price",
+      "label_vi": "Giá của thời gian/vốn",
+      "concepts": [
+        "time_preference",
+        "interest_rate",
+        "capital_market",
+        "economic_calculation"
+      ],
+      "systems": [
+        "Basis / Cash-and-Carry",
+        "Funding arbitrage",
+        "Yield Trading"
+      ]
+    },
+    {
+      "id": "price_discovery",
+      "label_vi": "Khám phá giá",
+      "concepts": [
+        "price_signal",
+        "distributed_knowledge",
+        "economic_calculation"
+      ],
+      "systems": [
+        "JIT Market Making",
+        "DEX market making",
+        "Prediction markets"
+      ]
+    },
+    {
+      "id": "settlement",
+      "label_vi": "Quyết toán",
+      "concepts": [
+        "final_settlement",
+        "consensus",
+        "verification",
+        "counterparty_risk"
+      ],
+      "systems": [
+        "L1/L2 settlement",
+        "Cross-chain Capital Router"
+      ]
+    },
+    {
+      "id": "risk",
+      "label_vi": "Rủi ro",
+      "concepts": [
+        "counterparty_risk",
+        "trusted_third_party",
+        "verification",
+        "decentralization"
+      ],
+      "systems": [
+        "Risk Engine",
+        "venue health",
+        "bridge risk",
+        "depeg detection"
+      ]
+    }
+  ],
+  "core_loop_vi": [
+    "Thị trường phát ra giá/tín hiệu",
+    "Knowledge OS xác định tín hiệu đang nói về công việc kinh tế nào",
+    "Opportunity Engine đo edge (lợi thế)",
+    "Risk Engine trừ rủi ro/chi phí",
+    "Capital Allocator phân vốn",
+    "Settlement layer quyết toán",
+    "Kết quả quay về dữ liệu"
+  ]
+}

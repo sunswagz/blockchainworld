@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "id",
+    "label_en",
+    "label_vi",
+    "kind",
+    "definition_vi",
+    "source_chapters",
+    "source_pages",
+    "stance"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "label_en": {
+      "type": "string"
+    },
+    "label_vi": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "definition_vi": {
+      "type": "string"
+    },
+    "source_chapters": {
+      "type": "array"
+    },
+    "source_pages": {
+      "type": "array"
+    },
+    "stance": {
+      "enum": [
+        "source",
+        "author_claim",
+        "analysis",
+        "repo"
+      ]
+    }
+  }
+}

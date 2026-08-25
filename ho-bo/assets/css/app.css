@@ -465,3 +465,48 @@ code,.mono{font-family:var(--mono)}
 .canhbao{margin:0 0 15px;padding:11px 15px;border-radius:9px;background:var(--canh-t);
   border:1px solid rgba(232,163,61,.4);font-size:12.8px;color:#E5C282;line-height:1.65}
 .canhbao[hidden]{display:none}
+
+/* ── lớp tri thức nền (knowledge-os) ─────────────────────────────────
+   Khối cuối mỗi phòng, dựng bằng .khoi cho khớp nhịp trang, nhưng viền
+   trái một vạch để mắt đọc ra ngay đây là LỚP KHÁC: chữ giải nghĩa,
+   không phải số đo. Trộn hai lớp cùng độ nổi là mời người ta đọc một
+   câu diễn giải như một con số.
+
+   Màu chữ chỉ dùng --fg / --fg-2, không dùng --fg-3: cặp (--fg-3, --bg)
+   sát ngưỡng WCAG AA, và phiếu đo của cung này đang 7/7 — đừng vay nợ
+   tương phản cho một khối chữ dài. */
+.khoi.tt{border-left:2px solid var(--tim)}
+.tt .tt-y{margin:0;padding:12px 17px;font-size:12.8px;color:var(--fg);line-height:1.7;
+  border-bottom:1px solid var(--line-2)}
+.tt-luoi{display:grid;gap:10px;padding:14px 17px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.tt-k{padding:10px 12px;background:var(--bg-2);border:1px solid var(--line-2);
+  border-radius:9px}
+.tt-kd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.tt-kd b{font-size:13px;color:var(--fg)}
+.tt-k p{margin:0;font-size:12.3px;color:var(--fg-2);line-height:1.62}
+.tt-vt{font:10.5px/1 var(--mono);color:var(--fg-2)}
+
+/* Nhãn nguồn. Bốn màu cho bốn lớp, và chúng KHÔNG được giống nhau:
+   người đọc phân biệt "tác giả nói" với "mình suy ra" bằng đúng vệt
+   màu này trước khi kịp đọc chữ. */
+.tt-g{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap}
+.tt-g[data-g="sach"]{background:var(--lam-t);color:var(--lam)}
+.tt-g[data-g="tacGia"]{background:var(--canh-t);color:var(--canh)}
+.tt-g[data-g="phanTich"]{background:var(--tim-t);color:var(--tim)}
+.tt-g[data-g="repo"]{background:var(--tien-t);color:var(--tien)}
+.tt-g[data-g="web"]{background:var(--card-2);color:var(--fg-2)}
+
+.tt-26{padding:0 17px 14px}
+.tt-26 h3{margin:0 0 8px;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--fg-2)}
+.tt-26 p{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:0 0 8px;
+  font-size:12.3px;color:var(--fg-2);line-height:1.62}
+.tt-26 p:last-child{margin-bottom:0}
+.tt-26 b{color:var(--fg)}
+.tt-loai{font:11px/1 var(--mono);color:var(--tien)}
+.tt-tin{font-size:10.5px;color:var(--fg-2)}
+.tt-vi{flex:1 1 100%;color:var(--fg-2)}
+.tt-chan{margin:0;padding:11px 17px;border-top:1px solid var(--line-2);
+  font-size:11.5px;color:var(--fg-2);line-height:1.6;background:rgba(255,255,255,.008)}

@@ -1,0 +1,333 @@
+[
+  {
+    "id": "ch01-money",
+    "chapter": 1,
+    "title_vi": "Tiền tệ",
+    "pages": [
+      10,
+      19
+    ],
+    "thesis_vi": "Tiền là công nghệ chuyển giá trị qua quy mô, không gian và thời gian; tính thanh khoản và khả năng giữ giá trị quyết định vật gì có thể trở thành tiền.",
+    "concepts": [
+      "economic_value",
+      "medium_of_exchange",
+      "salability",
+      "store_of_value",
+      "unit_of_account",
+      "hard_money",
+      "stock_to_flow",
+      "network_effect"
+    ],
+    "points": [
+      {
+        "page": 10,
+        "note": "Bitcoin được đặt trong bài toán chuyển giá trị qua thời gian và không gian."
+      },
+      {
+        "page": 12,
+        "note": "Tính thanh khoản theo quy mô, không gian, thời gian."
+      },
+      {
+        "page": 13,
+        "note": "Độ cứng và stock-to-flow."
+      },
+      {
+        "page": 16,
+        "note": "Hiệu ứng mạng và đơn vị tính toán."
+      }
+    ]
+  },
+  {
+    "id": "ch02-primitive-money",
+    "chapter": 2,
+    "title_vi": "Tiền tệ nguyên thủy",
+    "pages": [
+      20,
+      26
+    ],
+    "thesis_vi": "Tiền mất vai trò khi công nghệ làm nguồn cung vốn khó tạo trở nên dễ tạo, phá độ cứng.",
+    "concepts": [
+      "monetary_hardness",
+      "technology_supply_shock",
+      "monetary_competition"
+    ],
+    "points": [
+      {
+        "page": 20,
+        "note": "Đá Rai: quyền sở hữu xã hội ghi nhận mà không cần di chuyển vật."
+      },
+      {
+        "page": 21,
+        "note": "Công nghệ khai thác mới làm giảm chi phí tạo đá."
+      },
+      {
+        "page": 23,
+        "note": "Vỏ sò mất vai trò khi nguồn cung và tiêu chuẩn kim loại thay đổi."
+      }
+    ]
+  },
+  {
+    "id": "ch03-metals",
+    "chapter": 3,
+    "title_vi": "Các Kim Loại Tiền Tệ",
+    "pages": [
+      27,
+      49
+    ],
+    "thesis_vi": "Vàng thắng trong cạnh tranh lịch sử nhờ bền, hiếm, khó tăng cung; ngân hàng làm vàng dễ dùng hơn nhưng tạo điểm tập trung.",
+    "concepts": [
+      "gold",
+      "gold_standard",
+      "custody_centralization",
+      "monetary_hardness"
+    ],
+    "points": [
+      {
+        "page": 27,
+        "note": "Kim loại quý giữ giá trị tốt hơn kim loại dồi dào."
+      },
+      {
+        "page": 28,
+        "note": "Tiền xu/giấy bảo chứng mở rộng giao dịch; kho tập trung tạo rủi ro."
+      },
+      {
+        "page": 30,
+        "note": "Tác giả nhấn mạnh tính bền và khó tổng hợp của vàng."
+      }
+    ]
+  },
+  {
+    "id": "ch04-government-money",
+    "chapter": 4,
+    "title_vi": "Tiền Tệ Chính Phủ",
+    "pages": [
+      50,
+      82
+    ],
+    "thesis_vi": "Khi tiền chuyển sang chế độ pháp định, nguồn cung, khả năng quy đổi, lãi suất và tỷ giá trở thành công cụ chính sách; tác giả coi đây là nguồn pha loãng và méo tín hiệu.",
+    "concepts": [
+      "fiat_money",
+      "central_bank",
+      "monetary_nationalism",
+      "monetary_debasement",
+      "capital_controls"
+    ],
+    "points": [
+      {
+        "page": 50,
+        "note": "Phân biệt tiền bảo chứng vàng và fiat không còn bảo chứng."
+      },
+      {
+        "page": 61,
+        "note": "Tác giả mô tả biến động fiat và cạnh tranh phá giá."
+      },
+      {
+        "page": 75,
+        "note": "Khả năng thanh khoản có thể bị hạn chế bởi chính sách."
+      }
+    ]
+  },
+  {
+    "id": "ch05-time-preference",
+    "chapter": 5,
+    "title_vi": "Tiền tệ và Ưu tiên Thời gian",
+    "pages": [
+      83,
+      113
+    ],
+    "thesis_vi": "Tiền giữ giá trị tốt làm giảm ưu tiên hiện tại, khuyến khích tiết kiệm, tích lũy tư liệu sản xuất và quá trình sản xuất dài hơn.",
+    "concepts": [
+      "sound_money",
+      "time_preference",
+      "savings",
+      "capital_goods",
+      "capital_accumulation",
+      "productivity"
+    ],
+    "points": [
+      {
+        "page": 83,
+        "note": "Ba lợi ích tác giả gán cho tiền lành mạnh."
+      },
+      {
+        "page": 84,
+        "note": "Ưu tiên thời gian thấp cho phép tạo tư liệu sản xuất."
+      },
+      {
+        "page": 85,
+        "note": "Ví dụ cần câu minh họa vốn."
+      },
+      {
+        "page": 89,
+        "note": "Kỳ vọng sức mua tương lai nối với tiết kiệm."
+      }
+    ]
+  },
+  {
+    "id": "ch06-price-information",
+    "chapter": 6,
+    "title_vi": "Hệ Thống Thông Tin Của Chủ Nghĩa Tư Bản",
+    "pages": [
+      114,
+      134
+    ],
+    "thesis_vi": "Giá là hệ thống truyền tải tri thức phân tán; lãi suất là giá của vốn vay. Ép tín hiệu giá/vốn có thể làm méo tính toán và phân bổ vốn.",
+    "concepts": [
+      "price_signal",
+      "distributed_knowledge",
+      "economic_calculation",
+      "interest_rate",
+      "capital_market",
+      "malinvestment"
+    ],
+    "points": [
+      {
+        "page": 115,
+        "note": "Tri thức kinh tế phân tán; giá cô đọng thông tin."
+      },
+      {
+        "page": 117,
+        "note": "Giá là hệ thống thông tin điều phối sản xuất."
+      },
+      {
+        "page": 121,
+        "note": "Lãi suất là giá của vốn vay."
+      },
+      {
+        "page": 123,
+        "note": "Tác giả nối tín dụng bị thao túng với đầu tư sai lệch."
+      }
+    ]
+  },
+  {
+    "id": "ch07-freedom",
+    "chapter": 7,
+    "title_vi": "Tiền lành mạnh và tự do cá nhân",
+    "pages": [
+      135,
+      141
+    ],
+    "boundary_confidence": "medium",
+    "thesis_vi": "Phần trước Bitcoin mở rộng luận điểm sang thương mại xuyên biên giới, chủ quyền cá nhân và cạnh tranh giữa các chế độ tiền tệ.",
+    "concepts": [
+      "individual_sovereignty",
+      "free_trade",
+      "monetary_nationalism",
+      "currency_war",
+      "capital_mobility"
+    ],
+    "points": [
+      {
+        "page": 135,
+        "note": "Tiền lành mạnh được mô tả như nền cho hàng hóa/vốn qua biên giới."
+      },
+      {
+        "page": 136,
+        "note": "Bộ ba bất khả thi và chính sách tiền tệ."
+      },
+      {
+        "page": 140,
+        "note": "Kêu gọi đơn vị tiền tệ toàn cầu vững chắc."
+      }
+    ]
+  },
+  {
+    "id": "ch08-digital-money",
+    "chapter": 8,
+    "title_vi": "Tiền tệ Kỹ thuật số",
+    "pages": [
+      142,
+      169
+    ],
+    "thesis_vi": "Bitcoin kết hợp mạng ngang hàng, mật mã và PoW để tạo tài sản số khan hiếm và thanh toán điện tử không cần bên thứ ba đáng tin cậy; xác minh thay cho niềm tin là nguyên lý trung tâm.",
+    "concepts": [
+      "digital_cash",
+      "trusted_third_party",
+      "proof_of_work",
+      "verification",
+      "consensus",
+      "fixed_supply"
+    ],
+    "points": [
+      {
+        "page": 142,
+        "note": "Bitcoin được đặt như giải pháp cho trao đổi, tính lành mạnh và chủ quyền."
+      },
+      {
+        "page": 144,
+        "note": "Vấn đề trung gian trong thanh toán điện tử."
+      },
+      {
+        "page": 146,
+        "note": "Các thành phần kỹ thuật và xác minh."
+      },
+      {
+        "page": 147,
+        "note": "PoW và phần thưởng khối."
+      }
+    ]
+  },
+  {
+    "id": "ch09-use-cases",
+    "chapter": 9,
+    "title_vi": "Bitcoin Dùng Để Làm Gì?",
+    "pages": [
+      170,
+      192
+    ],
+    "thesis_vi": "Tác giả xem lợi thế Bitcoin ở lưu trữ giá trị, không có rủi ro đối tác và quyết toán xuyên biên giới hơn là thanh toán bán lẻ nhỏ.",
+    "concepts": [
+      "store_of_value",
+      "final_settlement",
+      "counterparty_risk",
+      "international_settlement",
+      "reserve_asset"
+    ],
+    "points": [
+      {
+        "page": 182,
+        "note": "Bitcoin được so với quyết toán khoản lớn hơn thanh toán bán lẻ nhỏ."
+      },
+      {
+        "page": 183,
+        "note": "Nhấn mạnh không có rủi ro đối tác."
+      },
+      {
+        "page": 188,
+        "note": "So sánh với vàng trong quyết toán xuyên biên giới."
+      }
+    ]
+  },
+  {
+    "id": "ch10-questions",
+    "chapter": 10,
+    "title_vi": "Các Câu Hỏi Về Bitcoin",
+    "pages": [
+      193,
+      233
+    ],
+    "thesis_vi": "Chương cuối bảo vệ PoW/bất biến và phê phán mạnh blockchain còn trung gian; đây là phần cần đối chiếu riêng với DeFi/Web3 sau 2018.",
+    "concepts": [
+      "proof_of_work",
+      "scaling_tradeoff",
+      "decentralization",
+      "blockchain_minimalism",
+      "trusted_third_party"
+    ],
+    "review_2026": true,
+    "points": [
+      {
+        "page": 229,
+        "note": "Tác giả nghi ngờ blockchain khi quyền thực thi cuối vẫn ở bên thứ ba."
+      },
+      {
+        "page": 230,
+        "note": "Đánh đổi độ nặng sổ cái và khả năng nhiều nút giữ bản sao."
+      },
+      {
+        "page": 232,
+        "note": "Lập trường hoài nghi blockchain ngoài Bitcoin."
+      }
+    ]
+  }
+]

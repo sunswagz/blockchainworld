@@ -1,0 +1,32 @@
+{
+  "id": "ch10-questions",
+  "chapter": 10,
+  "title_vi": "Các Câu Hỏi Về Bitcoin",
+  "pages": [
+    193,
+    233
+  ],
+  "thesis_vi": "Chương cuối bảo vệ PoW/bất biến và phê phán mạnh blockchain còn trung gian; đây là phần cần đối chiếu riêng với DeFi/Web3 sau 2018.",
+  "concepts": [
+    "proof_of_work",
+    "scaling_tradeoff",
+    "decentralization",
+    "blockchain_minimalism",
+    "trusted_third_party"
+  ],
+  "review_2026": true,
+  "points": [
+    {
+      "page": 229,
+      "note": "Tác giả nghi ngờ blockchain khi quyền thực thi cuối vẫn ở bên thứ ba."
+    },
+    {
+      "page": 230,
+      "note": "Đánh đổi độ nặng sổ cái và khả năng nhiều nút giữ bản sao."
+    },
+    {
+      "page": 232,
+      "note": "Lập trường hoài nghi blockchain ngoài Bitcoin."
+    }
+  ]
+}

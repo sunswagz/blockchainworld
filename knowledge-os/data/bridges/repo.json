@@ -1,0 +1,336 @@
+{
+  "repository": "sunswagz/blockchainworld",
+  "principle": "Knowledge OS là source-of-truth, không phải một cung đọc sách. Nó sinh context nhỏ cho các cung đang tồn tại.",
+  "hall_mappings": [
+    {
+      "hall": "kinh-thanh",
+      "role_vi": "Lớp nền/chủ quyền Layer 1",
+      "concepts": [
+        "consensus",
+        "decentralization",
+        "final_settlement",
+        "individual_sovereignty"
+      ],
+      "example_vi": "Giải thích L1 đang cung cấp đồng thuận, trạng thái và quyết toán cuối; không biến trang thành bài học."
+    },
+    {
+      "hall": "thai-boc-tu",
+      "role_vi": "Bản đồ chức năng nền kinh tế blockchain",
+      "concepts": [
+        "economic_calculation",
+        "price_signal",
+        "capital_market",
+        "medium_of_exchange",
+        "final_settlement",
+        "trusted_third_party"
+      ],
+      "example_vi": "Nối mỗi toa với vấn đề kinh tế gốc mà nó giải quyết.",
+      "rooms": [
+        {
+          "id": "t01",
+          "name_vi": "Nền tảng & thanh toán cuối",
+          "concepts": [
+            "consensus",
+            "final_settlement",
+            "decentralization"
+          ],
+          "note_vi": "Toa nền trả lời câu hỏi cũ nhất của tiền: ai chốt rằng một khoản chuyển đã xong và không lật lại được."
+        },
+        {
+          "id": "t03",
+          "name_vi": "Oracle & liên chuỗi",
+          "concepts": [
+            "trusted_third_party",
+            "verification",
+            "price_signal"
+          ],
+          "note_vi": "Oracle là chỗ bên thứ ba đáng tin quay lại qua cửa sau: chuỗi tự kiểm được mọi thứ trừ giá bên ngoài."
+        },
+        {
+          "id": "t04",
+          "name_vi": "Tiền ổn định",
+          "concepts": [
+            "medium_of_exchange",
+            "unit_of_account",
+            "counterparty_risk"
+          ],
+          "note_vi": "Stablecoin gánh hai chức năng tiền — phương tiện trao đổi và đơn vị tính toán — bằng cách nhận về rủi ro đối tác của người phát hành."
+        },
+        {
+          "id": "t05",
+          "name_vi": "Thanh khoản & chợ",
+          "concepts": [
+            "salability",
+            "price_signal",
+            "economic_calculation"
+          ],
+          "note_vi": "Chợ là nơi tính thanh khoản thành số đo được, và là nơi giá — dữ liệu đầu vào của mọi phép tính kinh tế — được sinh ra."
+        },
+        {
+          "id": "t06",
+          "name_vi": "Tín dụng & cho vay",
+          "concepts": [
+            "capital_market",
+            "interest_rate",
+            "savings",
+            "counterparty_risk"
+          ],
+          "note_vi": "Lãi suất là giá của thời gian. Toa này là thị trường vốn on-chain: tiết kiệm gặp nhu cầu vay, và giá gặp nhau ở lãi suất."
+        }
+      ]
+    },
+    {
+      "hall": "ho-bo",
+      "role_vi": "Dòng tiền, stablecoin, lợi suất và vốn",
+      "concepts": [
+        "medium_of_exchange",
+        "unit_of_account",
+        "capital_market",
+        "interest_rate",
+        "savings",
+        "price_signal",
+        "counterparty_risk"
+      ],
+      "example_vi": "Lợi suất không chỉ là %, mà là giá vốn + rủi ro + nhu cầu thanh khoản.",
+      "rooms": [
+        {
+          "id": "tien-cho",
+          "name_vi": "Tiền Chờ",
+          "concepts": [
+            "medium_of_exchange",
+            "unit_of_account",
+            "counterparty_risk"
+          ],
+          "note_vi": "Stablecoin làm được việc của tiền chỉ chừng nào lời hứa đổi lại còn đứng — nên cột lệch neo đọc chiều giảm là đọc rủi ro đối tác."
+        },
+        {
+          "id": "loi-suat",
+          "name_vi": "Lợi Suất",
+          "concepts": [
+            "interest_rate",
+            "capital_market",
+            "savings",
+            "counterparty_risk"
+          ],
+          "note_vi": "Một con số % là ba thứ cộng lại: giá của thời gian, phần bù rủi ro, và nhu cầu thanh khoản trước mắt. Xếp hạng theo % thô là xếp hạng theo rủi ro."
+        },
+        {
+          "id": "dong-tien",
+          "name_vi": "Dòng Tiền",
+          "concepts": [
+            "price_signal",
+            "capital_market",
+            "salability"
+          ],
+          "note_vi": "Vốn chảy đi đâu là một tín hiệu giá ở mức tổng: nó nói thị trường đang định giá công việc nào cao hơn."
+        },
+        {
+          "id": "kho-bac",
+          "name_vi": "Kho Bạc",
+          "concepts": [
+            "store_of_value",
+            "network_effect",
+            "final_settlement"
+          ],
+          "note_vi": "TVL theo chuỗi đo lượng giá trị chịu nằm lại dưới quyền quyết toán của chuỗi đó."
+        },
+        {
+          "id": "nhom-nganh",
+          "name_vi": "Nhóm Ngành",
+          "concepts": [
+            "economic_calculation",
+            "capital_market"
+          ],
+          "note_vi": "Chia theo ngành là cách đọc vốn đang làm công việc kinh tế nào, thay vì đọc tên dự án."
+        },
+        {
+          "id": "an-ninh",
+          "name_vi": "An Ninh",
+          "concepts": [
+            "counterparty_risk",
+            "trusted_third_party",
+            "verification"
+          ],
+          "note_vi": "Mỗi vụ mất tiền là một lần bên thứ ba đáng tin hoá ra không đáng tin — và số tiền mất là giá của lần tin đó."
+        }
+      ]
+    },
+    {
+      "hall": "thi-bac-ty",
+      "role_vi": "Funding/basis giữa các sàn perpetual",
+      "concepts": [
+        "interest_rate",
+        "capital_market",
+        "price_signal",
+        "time_preference",
+        "counterparty_risk",
+        "economic_calculation"
+      ],
+      "example_vi": "Funding được diễn giải như giá cân bằng vị thế/đòn bẩy và tín hiệu nơi vốn được trả tiền.",
+      "rooms": [
+        {
+          "id": "co-hoi",
+          "name_vi": "Cơ hội",
+          "concepts": [
+            "interest_rate",
+            "capital_market",
+            "price_signal"
+          ],
+          "note_vi": "Funding là lãi suất của một vị thế đòn bẩy, tính theo giờ. Bảng này là thị trường vốn ngắn hạn nhất trong nghề, và NET là giá sau khi trừ phí."
+        },
+        {
+          "id": "vi-sao",
+          "name_vi": "Vì sao bị chặn",
+          "concepts": [
+            "economic_calculation",
+            "counterparty_risk"
+          ],
+          "note_vi": "Một cơ hội bị chặn vì phép tính không ra, chứ không vì thiếu can đảm. Nói rõ chặn ở đâu là giữ cho phép tính còn kiểm được."
+        },
+        {
+          "id": "bao-gia",
+          "name_vi": "Báo giá bốn cảng",
+          "concepts": [
+            "price_signal",
+            "salability"
+          ],
+          "note_vi": "Bốn cảng báo bốn giá cho cùng một rủi ro. Chênh lệch đó chính là tín hiệu, và nó chỉ đọc được sau khi chuẩn hoá chu kỳ."
+        },
+        {
+          "id": "cang",
+          "name_vi": "Sức khoẻ cảng",
+          "concepts": [
+            "counterparty_risk",
+            "trusted_third_party"
+          ],
+          "note_vi": "Giữ vị thế hai chân ở hai sàn là tin hai bên thứ ba cùng lúc. Cảng ốm thì edge tính đúng vẫn mất tiền."
+        },
+        {
+          "id": "hoc",
+          "name_vi": "Hai phép tính",
+          "concepts": [
+            "time_preference",
+            "interest_rate",
+            "economic_calculation"
+          ],
+          "note_vi": "Ưu tiên thời gian nói vì sao có lãi suất; chuẩn hoá và đếm mốc là cách đo nó cho đúng ở đây."
+        }
+      ]
+    },
+    {
+      "hall": "tu-cam-thanh",
+      "role_vi": "AI Trader/Risk Engine",
+      "concepts": [
+        "price_signal",
+        "distributed_knowledge",
+        "economic_calculation",
+        "capital_market",
+        "counterparty_risk"
+      ],
+      "example_vi": "AI tổng hợp tín hiệu phân tán nhưng Risk Engine giữ quyền quyết định rủi ro."
+    },
+    {
+      "hall": "kham-thien-giam",
+      "role_vi": "Thị trường dự đoán",
+      "concepts": [
+        "price_signal",
+        "distributed_knowledge",
+        "economic_calculation",
+        "network_effect"
+      ],
+      "example_vi": "Giá xác suất là cơ chế tổng hợp thông tin phân tán."
+    },
+    {
+      "hall": "cong-bo",
+      "role_vi": "Công cụ kiểm tra on-chain",
+      "concepts": [
+        "verification",
+        "trusted_third_party",
+        "counterparty_risk"
+      ],
+      "example_vi": "Biến “đừng tin, hãy kiểm tra” thành decoder/diff/provenance."
+    },
+    {
+      "hall": "do-sat-vien",
+      "role_vi": "Rủi ro Layer 2",
+      "concepts": [
+        "scaling_tradeoff",
+        "decentralization",
+        "trusted_third_party",
+        "final_settlement"
+      ],
+      "example_vi": "Mỗi risk trả lời: ai có quyền đổi trạng thái cuối, người dùng đang tin ai?"
+    },
+    {
+      "hall": "dai-quan-trac",
+      "role_vi": "Địa chính trị, tiền tệ và dòng vốn",
+      "concepts": [
+        "fiat_money",
+        "central_bank",
+        "monetary_nationalism",
+        "currency_war",
+        "capital_controls",
+        "capital_mobility",
+        "monetary_debasement"
+      ],
+      "example_vi": "Phân loại tin theo chuỗi cung tiền → lãi suất → tỷ giá → dòng vốn → tài sản."
+    },
+    {
+      "hall": "tao-bien-xu",
+      "role_vi": "Công xưởng AI",
+      "concepts": [
+        "verification",
+        "distributed_knowledge",
+        "economic_calculation"
+      ],
+      "example_vi": "Knowledge OS cấp context chuẩn hóa; model suy luận trên dữ liệu có provenance."
+    },
+    {
+      "hall": "tang-thu-cac",
+      "role_vi": "Kho kỹ năng",
+      "concepts": [
+        "distributed_knowledge",
+        "verification"
+      ],
+      "example_vi": "Skill là năng lực thực thi; Knowledge OS là tri thức miền."
+    },
+    {
+      "hall": "hoang-thanh",
+      "role_vi": "Văn hóa và mô hình xã hội",
+      "concepts": [
+        "time_preference",
+        "monetary_competition"
+      ],
+      "example_vi": "Chỉ nối khi có chứng cứ; không dùng sách Bitcoin áp đặt diễn giải lên văn hóa khác."
+    }
+  ],
+  "stance": "analysis",
+  "stance_note_vi": "Mọi ánh xạ trong file này là PHÂN TÍCH ứng dụng của SUNSWaGz, không phải luận điểm của tác giả sách. Sách không nói gì về cung, toa hay phòng nào của repo này. Xem docs/SOURCE_POLICY.md điều 6.",
+  "observed_2026_08_25": {
+    "architecture": "Cổng Thành + 12 cung tĩnh + 3 runtime Python riêng",
+    "halls": [
+      "cong-bo",
+      "dai-quan-trac",
+      "do-sat-vien",
+      "ho-bo",
+      "hoang-thanh",
+      "kham-thien-giam",
+      "kinh-thanh",
+      "tang-thu-cac",
+      "tao-bien-xu",
+      "thai-boc-tu",
+      "thi-bac-ty",
+      "tu-cam-thanh"
+    ],
+    "important_files": [
+      "CLAUDE.md",
+      "scripts/build-dist.mjs",
+      "thai-boc-tu/assets/js/toa.js",
+      "ho-bo/assets/js/app.js",
+      "thi-bac-ty/index.html"
+    ],
+    "build_rule": "build-dist.mjs đóng gói Cổng Thành + HALLS; runtime Python không deploy.",
+    "workflow_rule": "Repo yêu cầu sửa code trong worktree/branch riêng.",
+    "integration": "knowledge-os/sinh.mjs sinh <cung>/assets/js/v/tri-thuc.js. Gói lõi KHÔNG vào dist/ vì HALLS trong build-dist.mjs là danh sách tường minh."
+  }
+}

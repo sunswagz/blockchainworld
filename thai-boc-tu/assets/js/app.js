@@ -862,6 +862,71 @@
     return "<dt>" + esc(dt) + "</dt><dd>" + dd + "</dd>";
   }
 
+  /* ── lớp tri thức nền (knowledge-os) ─────────────────
+     `window.TRI_THUC` do `knowledge-os/sinh.mjs` ghi ra
+     `assets/js/v/tri-thuc.js`. Nó KHÔNG đụng con số nào: TVL, tập
+     trung, thứ tự bị đốt đều tính y như cũ. Việc duy nhất của nó là
+     trả lời "toa này giải bài toán kinh tế gốc nào".
+
+     Nó đứng cùng chỗ với `songSot` về mặt nhận thức — cả hai là LUẬN
+     chứ không phải số đo — nên nó cũng phải đeo nhãn nói mình là gì.
+     Bốn nhãn, và gộp bất kỳ hai nhãn nào cũng là nói dối:
+
+         sách      tác giả mô tả, tra lại được bằng chương/trang
+         tác giả   lập trường riêng của tác giả, không phải số đo
+         phân tích SUNSWaGz suy ra — sách không nói gì về 18 toa này
+         repo      đo được từ chính repo/runtime này, năm 2026
+
+     Sách viết năm 2018 và tác giả hoài nghi mọi blockchain ngoài
+     Bitcoin. Bỏ nhãn đi thì một quan sát 2026 đọc thành lời tác giả,
+     mà câu đó vẫn đúng ngữ pháp nên không ai bắt được. */
+  var TT = window.TRI_THUC || null;
+  var TEN_GOC = { sach: "sách", tacGia: "tác giả", phanTich: "phân tích", repo: "repo", web: "web" };
+
+  function chipGoc(g) {
+    return '<i class="tt-g" data-g="' + esc(g) + '">' + esc(TEN_GOC[g] || g) + "</i>";
+  }
+
+  function viTriSach(k) {
+    if (!k.chuong || !k.chuong.length) return k.nguon || "";
+    return "ch." + k.chuong.join(",") + (k.trang && k.trang.length ? " tr." + k.trang.join(",") : "");
+  }
+
+  function triThuc(ma) {
+    if (!TT || !TT.phong) return "";
+    var p = null, i;
+    for (i = 0; i < TT.phong.length; i++) if (TT.phong[i].ma === ma) p = TT.phong[i];
+    if (!p) return "";                  // toa chưa ánh xạ — không vẽ khung rỗng
+
+    var the = p.khaiNiem.map(function (id) {
+      var k = TT.khaiNiem[id];
+      if (!k) return "";
+      var vt = viTriSach(k);
+      return '<div class="tt-k"><div class="tt-kd"><b>' + esc(k.vi) + "</b>" + chipGoc(k.goc) +
+        (vt ? '<span class="tt-vt">' + esc(vt) + "</span>" : "") + "</div>" +
+        "<p>" + esc(k.nghia) + "</p></div>";
+    }).join("");
+
+    var noi = (TT.lop2026 || []).filter(function (r) {
+      return p.khaiNiem.indexOf(r.den) !== -1;
+    }).map(function (r) {
+      var tu = TT.khaiNiem[r.tu], den = TT.khaiNiem[r.den];
+      return "<p><b>" + esc(tu ? tu.vi : r.tu) + "</b>" + chipGoc(r.goc) +
+        '<span class="tt-loai">' + esc(r.loai) + "</span><b>" + esc(den ? den.vi : r.den) + "</b>" +
+        '<span class="tt-tin">tin ' + esc(r.tin) + "</span>" +
+        '<span class="tt-vi">' + esc(r.vi) + "</span></p>";
+    }).join("");
+
+    return '<h3 style="font-size:13px;margin:18px 0 6px">Vấn đề kinh tế gốc' +
+      '<span class="luan" style="margin-left:6px">LUẬN</span></h3>' +
+      '<div class="tt"><p class="tt-y">' + esc(p.y) + "</p>" +
+      (the ? '<div class="tt-luoi">' + the + "</div>" : "") +
+      (noi ? '<div class="tt-26"><h4>2018 → 2026</h4>' + noi + "</div>" : "") +
+      '<p class="tt-chan">Nền: «' + esc(TT.nguon.sach.ten) + "» (" + esc(TT.nguon.sach.tacGia) +
+      ", " + esc(TT.nguon.sach.nam) + "). Ánh xạ khái niệm sang toa là <b>phân tích</b> của " +
+      "SUNSWaGz — sách không nói gì về mười tám toa này. Sinh từ <code>knowledge-os/</code>.</p></div>";
+  }
+
   function hosoToa(ma) {
     var t = null;
     G.toa.forEach(function (x) { if (x.c.ma === ma) t = x; });
@@ -896,6 +961,8 @@
 
     h += '<h3 style="font-size:13px;margin:16px 0 6px">Vì sao xếp ở hạng này</h3>' +
       '<p style="margin:0;font-size:12.5px;line-height:1.65;color:var(--fg-2)">' + esc(c.y) + "</p>";
+
+    h += triThuc(ma);
 
     h += '<h3 style="font-size:13px;margin:16px 0 6px">Vài cái tên tiêu biểu</h3>' +
       '<div class="hs-ng">' + c.nguoi.map(function (n) {

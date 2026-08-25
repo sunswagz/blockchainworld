@@ -1,0 +1,194 @@
+{
+  "Economic value": {
+    "vi": "Giá trị kinh tế",
+    "id": "economic_value"
+  },
+  "Medium of exchange": {
+    "vi": "Phương tiện trao đổi",
+    "id": "medium_of_exchange"
+  },
+  "Salability": {
+    "vi": "Tính thanh khoản/khả năng bán đổi",
+    "id": "salability"
+  },
+  "Store of value": {
+    "vi": "Kho lưu trữ giá trị",
+    "id": "store_of_value"
+  },
+  "Unit of account": {
+    "vi": "Đơn vị tính toán",
+    "id": "unit_of_account"
+  },
+  "Hard money": {
+    "vi": "Tiền cứng",
+    "id": "hard_money"
+  },
+  "Stock-to-flow ratio": {
+    "vi": "Tỷ lệ tồn kho trên lượng cung mới",
+    "id": "stock_to_flow"
+  },
+  "Network effect": {
+    "vi": "Hiệu ứng mạng",
+    "id": "network_effect"
+  },
+  "Monetary hardness": {
+    "vi": "Độ cứng tiền tệ",
+    "id": "monetary_hardness"
+  },
+  "Technology supply shock": {
+    "vi": "Cú sốc nguồn cung do công nghệ",
+    "id": "technology_supply_shock"
+  },
+  "Monetary competition": {
+    "vi": "Cạnh tranh tiền tệ",
+    "id": "monetary_competition"
+  },
+  "Gold": {
+    "vi": "Vàng",
+    "id": "gold"
+  },
+  "Gold standard": {
+    "vi": "Bản vị vàng",
+    "id": "gold_standard"
+  },
+  "Custody centralization": {
+    "vi": "Tập trung lưu ký",
+    "id": "custody_centralization"
+  },
+  "Fiat money": {
+    "vi": "Tiền pháp định",
+    "id": "fiat_money"
+  },
+  "Central bank": {
+    "vi": "Ngân hàng trung ương",
+    "id": "central_bank"
+  },
+  "Monetary nationalism": {
+    "vi": "Chủ nghĩa tiền tệ quốc gia",
+    "id": "monetary_nationalism"
+  },
+  "Monetary debasement": {
+    "vi": "Pha loãng tiền tệ",
+    "id": "monetary_debasement"
+  },
+  "Capital controls": {
+    "vi": "Kiểm soát dòng vốn",
+    "id": "capital_controls"
+  },
+  "Sound money": {
+    "vi": "Tiền lành mạnh",
+    "id": "sound_money"
+  },
+  "Time preference": {
+    "vi": "Ưu tiên thời gian",
+    "id": "time_preference"
+  },
+  "Savings": {
+    "vi": "Tiết kiệm",
+    "id": "savings"
+  },
+  "Capital goods": {
+    "vi": "Tư liệu sản xuất",
+    "id": "capital_goods"
+  },
+  "Capital accumulation": {
+    "vi": "Tích lũy vốn",
+    "id": "capital_accumulation"
+  },
+  "Productivity": {
+    "vi": "Năng suất",
+    "id": "productivity"
+  },
+  "Price signal": {
+    "vi": "Tín hiệu giá",
+    "id": "price_signal"
+  },
+  "Distributed knowledge": {
+    "vi": "Tri thức phân tán",
+    "id": "distributed_knowledge"
+  },
+  "Economic calculation": {
+    "vi": "Tính toán kinh tế",
+    "id": "economic_calculation"
+  },
+  "Interest rate": {
+    "vi": "Lãi suất",
+    "id": "interest_rate"
+  },
+  "Capital market": {
+    "vi": "Thị trường vốn",
+    "id": "capital_market"
+  },
+  "Malinvestment": {
+    "vi": "Đầu tư sai lệch do tín hiệu vốn méo",
+    "id": "malinvestment"
+  },
+  "Individual sovereignty": {
+    "vi": "Chủ quyền cá nhân",
+    "id": "individual_sovereignty"
+  },
+  "Free trade": {
+    "vi": "Thương mại tự do",
+    "id": "free_trade"
+  },
+  "Currency war": {
+    "vi": "Chiến tranh tiền tệ",
+    "id": "currency_war"
+  },
+  "Capital mobility": {
+    "vi": "Khả năng luân chuyển vốn",
+    "id": "capital_mobility"
+  },
+  "Digital cash": {
+    "vi": "Tiền mặt kỹ thuật số",
+    "id": "digital_cash"
+  },
+  "Trusted third party": {
+    "vi": "Bên thứ ba đáng tin cậy",
+    "id": "trusted_third_party"
+  },
+  "Proof of Work": {
+    "vi": "Bằng chứng công việc",
+    "id": "proof_of_work"
+  },
+  "Verification": {
+    "vi": "Xác minh",
+    "id": "verification"
+  },
+  "Consensus": {
+    "vi": "Đồng thuận",
+    "id": "consensus"
+  },
+  "Fixed/limited supply": {
+    "vi": "Nguồn cung giới hạn",
+    "id": "fixed_supply"
+  },
+  "Final settlement": {
+    "vi": "Quyết toán cuối cùng",
+    "id": "final_settlement"
+  },
+  "Counterparty risk": {
+    "vi": "Rủi ro đối tác",
+    "id": "counterparty_risk"
+  },
+  "International settlement": {
+    "vi": "Quyết toán quốc tế",
+    "id": "international_settlement"
+  },
+  "Reserve asset": {
+    "vi": "Tài sản dự trữ",
+    "id": "reserve_asset"
+  },
+  "Scaling trade-off": {
+    "vi": "Đánh đổi mở rộng quy mô",
+    "id": "scaling_tradeoff"
+  },
+  "Decentralization": {
+    "vi": "Phi tập trung",
+    "id": "decentralization"
+  },
+  "Blockchain minimalism": {
+    "vi": "Chủ nghĩa tối giản blockchain",
+    "id": "blockchain_minimalism"
+  }
+}

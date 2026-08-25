@@ -1,0 +1,36 @@
+{
+  "id": "ch05-time-preference",
+  "chapter": 5,
+  "title_vi": "Tiền tệ và Ưu tiên Thời gian",
+  "pages": [
+    83,
+    113
+  ],
+  "thesis_vi": "Tiền giữ giá trị tốt làm giảm ưu tiên hiện tại, khuyến khích tiết kiệm, tích lũy tư liệu sản xuất và quá trình sản xuất dài hơn.",
+  "concepts": [
+    "sound_money",
+    "time_preference",
+    "savings",
+    "capital_goods",
+    "capital_accumulation",
+    "productivity"
+  ],
+  "points": [
+    {
+      "page": 83,
+      "note": "Ba lợi ích tác giả gán cho tiền lành mạnh."
+    },
+    {
+      "page": 84,
+      "note": "Ưu tiên thời gian thấp cho phép tạo tư liệu sản xuất."
+    },
+    {
+      "page": 85,
+      "note": "Ví dụ cần câu minh họa vốn."
+    },
+    {
+      "page": 89,
+      "note": "Kỳ vọng sức mua tương lai nối với tiết kiệm."
+    }
+  ]
+}

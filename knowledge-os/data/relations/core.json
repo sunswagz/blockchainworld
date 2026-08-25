@@ -1,0 +1,516 @@
+[
+  {
+    "from": "medium_of_exchange",
+    "relation": "requires",
+    "to": "salability",
+    "reason_vi": "Phương tiện trao đổi phải dễ bán/đổi với tổn thất thấp.",
+    "source_type": "book",
+    "chapters": [
+      1
+    ],
+    "pages": [
+      11,
+      12
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "salability",
+    "relation": "includes",
+    "to": "store_of_value",
+    "reason_vi": "Thanh khoản theo thời gian trở thành khả năng lưu trữ giá trị.",
+    "source_type": "book",
+    "chapters": [
+      1
+    ],
+    "pages": [
+      12,
+      13
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "salability",
+    "relation": "supports",
+    "to": "unit_of_account",
+    "reason_vi": "Mức chấp nhận rộng giúp giá cùng biểu thị trong một đơn vị.",
+    "source_type": "book",
+    "chapters": [
+      1
+    ],
+    "pages": [
+      16
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "hard_money",
+    "relation": "measured_by",
+    "to": "stock_to_flow",
+    "reason_vi": "Sách dùng stock-to-flow làm thước độ cứng.",
+    "source_type": "book",
+    "chapters": [
+      1
+    ],
+    "pages": [
+      13
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "technology_supply_shock",
+    "relation": "weakens",
+    "to": "monetary_hardness",
+    "reason_vi": "Công nghệ làm dễ khai thác/sản xuất tài sản tiền tệ thì độ cứng giảm.",
+    "source_type": "book",
+    "chapters": [
+      2
+    ],
+    "pages": [
+      21,
+      23
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "monetary_hardness",
+    "relation": "supports",
+    "to": "store_of_value",
+    "reason_vi": "Nguồn cung khó tăng giúp giảm rủi ro pha loãng.",
+    "source_type": "book",
+    "chapters": [
+      1,
+      2,
+      3
+    ],
+    "pages": [
+      13,
+      21,
+      27
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "network_effect",
+    "relation": "drives",
+    "to": "monetary_competition",
+    "reason_vi": "Hiệu ứng mạng khiến một vài chuẩn tiền tệ có xu hướng thắng nhiều chuẩn nhỏ.",
+    "source_type": "book",
+    "chapters": [
+      1
+    ],
+    "pages": [
+      16
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "gold",
+    "relation": "exemplifies",
+    "to": "hard_money",
+    "reason_vi": "Trong khung sách, vàng là ví dụ lịch sử của tiền cứng.",
+    "source_type": "book",
+    "chapters": [
+      3,
+      5
+    ],
+    "pages": [
+      30,
+      91
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "custody_centralization",
+    "relation": "creates",
+    "to": "counterparty_risk",
+    "reason_vi": "Giữ giấy đòi tài sản lưu ký tạo phụ thuộc trung gian.",
+    "source_type": "book",
+    "chapters": [
+      3
+    ],
+    "pages": [
+      28
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "fiat_money",
+    "relation": "managed_by",
+    "to": "central_bank",
+    "reason_vi": "Ngân hàng trung ương là cơ quan chính sách tiền tệ chủ chốt.",
+    "source_type": "book",
+    "chapters": [
+      4,
+      6
+    ],
+    "pages": [
+      50,
+      121
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "central_bank",
+    "relation": "influences",
+    "to": "interest_rate",
+    "reason_vi": "Tác giả tập trung vào khả năng ngân hàng trung ương tác động giá vốn.",
+    "source_type": "book",
+    "chapters": [
+      5,
+      6
+    ],
+    "pages": [
+      90,
+      121
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "monetary_debasement",
+    "relation": "raises",
+    "to": "time_preference",
+    "reason_vi": "Theo tác giả, tiền mất sức mua làm giảm động lực trì hoãn tiêu dùng.",
+    "source_type": "book",
+    "chapters": [
+      5
+    ],
+    "pages": [
+      89,
+      90
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "sound_money",
+    "relation": "lowers",
+    "to": "time_preference",
+    "reason_vi": "Theo tác giả, tiền giữ giá trị tốt khuyến khích định hướng dài hạn.",
+    "source_type": "book",
+    "chapters": [
+      5
+    ],
+    "pages": [
+      83,
+      89
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "time_preference",
+    "relation": "influences",
+    "to": "savings",
+    "reason_vi": "Ưu tiên tương lai cao hơn tạo khả năng trì hoãn tiêu dùng.",
+    "source_type": "book",
+    "chapters": [
+      5,
+      6
+    ],
+    "pages": [
+      84,
+      87,
+      121
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "savings",
+    "relation": "funds",
+    "to": "capital_goods",
+    "reason_vi": "Nguồn lực không tiêu dùng ngay có thể chuyển thành công cụ sản xuất.",
+    "source_type": "book",
+    "chapters": [
+      5
+    ],
+    "pages": [
+      84,
+      85
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "capital_goods",
+    "relation": "increase",
+    "to": "productivity",
+    "reason_vi": "Ví dụ cần câu/thuyền minh họa công cụ làm tăng năng suất.",
+    "source_type": "book",
+    "chapters": [
+      5
+    ],
+    "pages": [
+      85,
+      86
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "capital_accumulation",
+    "relation": "increases",
+    "to": "productivity",
+    "reason_vi": "Tích lũy tư liệu sản xuất tăng năng lực sản xuất.",
+    "source_type": "book",
+    "chapters": [
+      1,
+      5
+    ],
+    "pages": [
+      17,
+      88
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "unit_of_account",
+    "relation": "enables",
+    "to": "economic_calculation",
+    "reason_vi": "Đơn vị chung cho phép so sánh chi phí và lợi nhuận.",
+    "source_type": "book",
+    "chapters": [
+      1,
+      6
+    ],
+    "pages": [
+      16,
+      114
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "price_signal",
+    "relation": "carries",
+    "to": "distributed_knowledge",
+    "reason_vi": "Giá cô đọng điều kiện và lựa chọn của nhiều người.",
+    "source_type": "book",
+    "chapters": [
+      6
+    ],
+    "pages": [
+      115,
+      117
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "price_signal",
+    "relation": "enables",
+    "to": "economic_calculation",
+    "reason_vi": "Giá cho phép phân bổ nguồn lực theo chi phí cơ hội.",
+    "source_type": "book",
+    "chapters": [
+      6
+    ],
+    "pages": [
+      117,
+      120
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "interest_rate",
+    "relation": "prices",
+    "to": "capital_market",
+    "reason_vi": "Lãi suất được mô tả là giá của vốn vay.",
+    "source_type": "book",
+    "chapters": [
+      6
+    ],
+    "pages": [
+      121
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "central_bank",
+    "relation": "can_contribute_to",
+    "to": "malinvestment",
+    "reason_vi": "Đây là luận điểm trường phái Áo của tác giả, không phải đồng thuận duy nhất.",
+    "source_type": "book",
+    "chapters": [
+      6
+    ],
+    "pages": [
+      123,
+      125
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "monetary_nationalism",
+    "relation": "creates",
+    "to": "currency_war",
+    "reason_vi": "Tác giả liên hệ tiền tệ quốc gia và cạnh tranh phá giá.",
+    "source_type": "book",
+    "chapters": [
+      7
+    ],
+    "pages": [
+      139,
+      140
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "capital_controls",
+    "relation": "reduces",
+    "to": "capital_mobility",
+    "reason_vi": "Kiểm soát dòng vốn hạn chế dịch chuyển vốn xuyên biên giới.",
+    "source_type": "book",
+    "chapters": [
+      7
+    ],
+    "pages": [
+      136,
+      137
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "sound_money",
+    "relation": "supports",
+    "to": "free_trade",
+    "reason_vi": "Tác giả xem chuẩn tiền ổn định là nền cho thương mại xuyên biên giới.",
+    "source_type": "book",
+    "chapters": [
+      7
+    ],
+    "pages": [
+      135,
+      140
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "trusted_third_party",
+    "relation": "creates",
+    "to": "counterparty_risk",
+    "reason_vi": "Trung gian thêm điểm lỗi và nghĩa vụ phải tin.",
+    "source_type": "book",
+    "chapters": [
+      8,
+      9
+    ],
+    "pages": [
+      144,
+      183
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "digital_cash",
+    "relation": "reduces_need_for",
+    "to": "trusted_third_party",
+    "reason_vi": "Bitcoin được mô tả là thanh toán điện tử không cần bên thứ ba cho sổ tiền của nó.",
+    "source_type": "book",
+    "chapters": [
+      8
+    ],
+    "pages": [
+      144,
+      146
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "proof_of_work",
+    "relation": "supports",
+    "to": "verification",
+    "reason_vi": "PoW tạo bằng chứng tốn tài nguyên nhưng dễ kiểm tra.",
+    "source_type": "book",
+    "chapters": [
+      8
+    ],
+    "pages": [
+      146,
+      147
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "verification",
+    "relation": "supports",
+    "to": "consensus",
+    "reason_vi": "Các nút tự kiểm tra quy tắc trước khi chấp nhận trạng thái.",
+    "source_type": "book",
+    "chapters": [
+      8
+    ],
+    "pages": [
+      146,
+      147
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "fixed_supply",
+    "relation": "supports",
+    "to": "hard_money",
+    "reason_vi": "Phát hành khó thay đổi là nền cho luận điểm Bitcoin như tiền cứng.",
+    "source_type": "book",
+    "chapters": [
+      8
+    ],
+    "pages": [
+      146
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "final_settlement",
+    "relation": "reduces",
+    "to": "counterparty_risk",
+    "reason_vi": "Quyết toán cuối giảm chuỗi nghĩa vụ chờ trung gian.",
+    "source_type": "book",
+    "chapters": [
+      9
+    ],
+    "pages": [
+      183
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "reserve_asset",
+    "relation": "can_use",
+    "to": "final_settlement",
+    "reason_vi": "Tài sản dự trữ có thể đồng thời làm tài sản quyết toán nền.",
+    "source_type": "book",
+    "chapters": [
+      9
+    ],
+    "pages": [
+      182,
+      188
+    ],
+    "confidence": "medium"
+  },
+  {
+    "from": "scaling_tradeoff",
+    "relation": "affects",
+    "to": "decentralization",
+    "reason_vi": "Lớp đồng thuận nặng hơn có thể làm chi phí giữ/xác minh bản sao tăng.",
+    "source_type": "book",
+    "chapters": [
+      10
+    ],
+    "pages": [
+      230
+    ],
+    "confidence": "high"
+  },
+  {
+    "from": "blockchain_minimalism",
+    "relation": "questions",
+    "to": "trusted_third_party",
+    "reason_vi": "Lập trường tác giả: nếu bên thứ ba vẫn quyết định cuối, blockchain có thể không đáng chi phí.",
+    "source_type": "book",
+    "chapters": [
+      10
+    ],
+    "pages": [
+      229,
+      231,
+      232
+    ],
+    "confidence": "high"
+  }
+]

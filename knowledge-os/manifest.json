@@ -1,0 +1,37 @@
+{
+  "name": "SUNSWaGz Blockchain Knowledge OS",
+  "version": "0.2.0",
+  "language": "vi",
+  "purpose": "Lớp tri thức nền có cấu trúc cho blockchainworld; nguồn chung, sinh lát cắt nhỏ cho từng cung. KHÔNG phải ứng dụng đọc sách.",
+  "sourcePolicy": {
+    "primary": "The Bitcoin Standard - Vietnamese - Full - By Nguyen Vu Son.pdf",
+    "rule": "Luận điểm từ sách phải có locator chương/trang; nối sang repo/2026 phải tách nguồn.",
+    "copyright": "Chỉ lưu diễn giải ngắn + locator, không sao chép đoạn dài."
+  },
+  "repoTarget": {
+    "repository": "sunswagz/blockchainworld",
+    "integrationMode": "source-of-truth + generated hall contexts",
+    "doNotCreateReadingHall": true,
+    "notInDist": "knowledge-os/ không nằm trong HALLS của scripts/build-dist.mjs nên tự ở ngoài dist/.",
+    "v1Halls": [
+      "thai-boc-tu",
+      "ho-bo",
+      "thi-bac-ty"
+    ]
+  },
+  "layers": {
+    "book": "data/concepts/, data/relations/, data/chapters/ — tác giả nói gì, có chương/trang.",
+    "analysis": "data/bridges/ — SUNSWaGz suy ra; sách không nói gì về repo này.",
+    "reality_2026": "data/2026/ — đo được từ repo/runtime năm 2026; không bao giờ mang source_type=book."
+  },
+  "commands": {
+    "validate": "node knowledge-os/kiem.mjs",
+    "generate": "node knowledge-os/sinh.mjs [<cung>] [--thu]",
+    "query": "node knowledge-os/tra.mjs khai-niem|tim|cung|vai-von|2026"
+  },
+  "generates": {
+    "path": "<cung>/assets/js/v/tri-thuc.js",
+    "global": "window.TRI_THUC",
+    "rule": "SINH TAY, PHẢI commit — không workflow nào chạy. Nhánh MẠNG-TRƯỚC nên không cần nâng CACHE_VERSION."
+  }
+}

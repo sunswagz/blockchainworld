@@ -1,0 +1,38 @@
+{
+  "id": "ch01-money",
+  "chapter": 1,
+  "title_vi": "Tiền tệ",
+  "pages": [
+    10,
+    19
+  ],
+  "thesis_vi": "Tiền là công nghệ chuyển giá trị qua quy mô, không gian và thời gian; tính thanh khoản và khả năng giữ giá trị quyết định vật gì có thể trở thành tiền.",
+  "concepts": [
+    "economic_value",
+    "medium_of_exchange",
+    "salability",
+    "store_of_value",
+    "unit_of_account",
+    "hard_money",
+    "stock_to_flow",
+    "network_effect"
+  ],
+  "points": [
+    {
+      "page": 10,
+      "note": "Bitcoin được đặt trong bài toán chuyển giá trị qua thời gian và không gian."
+    },
+    {
+      "page": 12,
+      "note": "Tính thanh khoản theo quy mô, không gian, thời gian."
+    },
+    {
+      "page": 13,
+      "note": "Độ cứng và stock-to-flow."
+    },
+    {
+      "page": 16,
+      "note": "Hiệu ứng mạng và đơn vị tính toán."
+    }
+  ]
+}

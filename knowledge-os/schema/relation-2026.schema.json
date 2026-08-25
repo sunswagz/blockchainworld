@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Quan hệ lớp 2018→2026",
+  "description": "Nối một quan sát năm 2026 vào một khái niệm của sách. Loại quan hệ phải nói RÕ nó đứng thế nào với sách, và source_type không bao giờ được là book — sách 2018 không phải bằng chứng cho dữ kiện 2026 (SOURCE_POLICY điều 4).",
+  "type": "object",
+  "required": ["from", "relation", "to", "reason_vi", "source_type", "source_ref", "confidence"],
+  "properties": {
+    "from": { "type": "string", "description": "Phải là concept của data/2026/concepts.json." },
+    "relation": {
+      "enum": ["extends", "supports", "challenges", "carries"],
+      "description": "extends = nối dài · supports = củng cố · challenges = chống lại · carries = mang theo rủi ro."
+    },
+    "to": { "type": "string" },
+    "reason_vi": { "type": "string" },
+    "source_type": { "enum": ["repo", "web", "analysis"] },
+    "source_ref": { "type": "string" },
+    "confidence": { "enum": ["high", "medium", "low"] }
+  }
+}

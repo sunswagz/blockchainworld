@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cầu nối một cung",
+  "description": "Ánh xạ khái niệm sang cung và sang từng phòng/toa. Cả file bridge mang stance=analysis: đây là suy luận của SUNSWaGz, sách không nói gì về repo này.",
+  "type": "object",
+  "required": ["hall", "role_vi", "concepts", "example_vi"],
+  "properties": {
+    "hall": { "type": "string", "description": "Phải là thư mục CÓ index.html ở gốc — cùng định nghĩa 'cung' với scripts/kiem-quy-trinh.mjs." },
+    "role_vi": { "type": "string" },
+    "concepts": { "type": "array", "items": { "type": "string" } },
+    "example_vi": { "type": "string" },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name_vi", "concepts", "note_vi"],
+        "properties": {
+          "id": { "type": "string", "description": "Mã phòng CÓ THẬT trong mã nguồn cung. kiem.mjs đọc mã đó thẳng từ nguồn, không giữ bản chép." },
+          "name_vi": { "type": "string" },
+          "concepts": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "note_vi": { "type": "string", "description": "Ánh xạ không giải nghĩa thì vô dụng." }
+        }
+      }
+    }
+  }
+}

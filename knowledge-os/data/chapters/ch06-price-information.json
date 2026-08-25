@@ -1,0 +1,36 @@
+{
+  "id": "ch06-price-information",
+  "chapter": 6,
+  "title_vi": "Hệ Thống Thông Tin Của Chủ Nghĩa Tư Bản",
+  "pages": [
+    114,
+    134
+  ],
+  "thesis_vi": "Giá là hệ thống truyền tải tri thức phân tán; lãi suất là giá của vốn vay. Ép tín hiệu giá/vốn có thể làm méo tính toán và phân bổ vốn.",
+  "concepts": [
+    "price_signal",
+    "distributed_knowledge",
+    "economic_calculation",
+    "interest_rate",
+    "capital_market",
+    "malinvestment"
+  ],
+  "points": [
+    {
+      "page": 115,
+      "note": "Tri thức kinh tế phân tán; giá cô đọng thông tin."
+    },
+    {
+      "page": 117,
+      "note": "Giá là hệ thống thông tin điều phối sản xuất."
+    },
+    {
+      "page": 121,
+      "note": "Lãi suất là giá của vốn vay."
+    },
+    {
+      "page": 123,
+      "note": "Tác giả nối tín dụng bị thao túng với đầu tư sai lệch."
+    }
+  ]
+}

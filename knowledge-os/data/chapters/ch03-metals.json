@@ -1,0 +1,30 @@
+{
+  "id": "ch03-metals",
+  "chapter": 3,
+  "title_vi": "Các Kim Loại Tiền Tệ",
+  "pages": [
+    27,
+    49
+  ],
+  "thesis_vi": "Vàng thắng trong cạnh tranh lịch sử nhờ bền, hiếm, khó tăng cung; ngân hàng làm vàng dễ dùng hơn nhưng tạo điểm tập trung.",
+  "concepts": [
+    "gold",
+    "gold_standard",
+    "custody_centralization",
+    "monetary_hardness"
+  ],
+  "points": [
+    {
+      "page": 27,
+      "note": "Kim loại quý giữ giá trị tốt hơn kim loại dồi dào."
+    },
+    {
+      "page": 28,
+      "note": "Tiền xu/giấy bảo chứng mở rộng giao dịch; kho tập trung tạo rủi ro."
+    },
+    {
+      "page": 30,
+      "note": "Tác giả nhấn mạnh tính bền và khó tổng hợp của vàng."
+    }
+  ]
+}

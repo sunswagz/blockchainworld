@@ -1,0 +1,31 @@
+{
+  "id": "ch09-use-cases",
+  "chapter": 9,
+  "title_vi": "Bitcoin Dùng Để Làm Gì?",
+  "pages": [
+    170,
+    192
+  ],
+  "thesis_vi": "Tác giả xem lợi thế Bitcoin ở lưu trữ giá trị, không có rủi ro đối tác và quyết toán xuyên biên giới hơn là thanh toán bán lẻ nhỏ.",
+  "concepts": [
+    "store_of_value",
+    "final_settlement",
+    "counterparty_risk",
+    "international_settlement",
+    "reserve_asset"
+  ],
+  "points": [
+    {
+      "page": 182,
+      "note": "Bitcoin được so với quyết toán khoản lớn hơn thanh toán bán lẻ nhỏ."
+    },
+    {
+      "page": 183,
+      "note": "Nhấn mạnh không có rủi ro đối tác."
+    },
+    {
+      "page": 188,
+      "note": "So sánh với vàng trong quyết toán xuyên biên giới."
+    }
+  ]
+}

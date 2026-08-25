@@ -1,0 +1,946 @@
+[
+  {
+    "id": "economic_value",
+    "label_en": "Economic value",
+    "label_vi": "Giá trị kinh tế",
+    "kind": "foundation",
+    "definition_vi": "Giá trị con người muốn bảo toàn, trao đổi hoặc chuyển qua thời gian/không gian.",
+    "source_chapters": [
+      1
+    ],
+    "source_pages": [
+      10
+    ],
+    "tags": [
+      "money"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "medium_of_exchange",
+    "label_en": "Medium of exchange",
+    "label_vi": "Phương tiện trao đổi",
+    "kind": "money_function",
+    "definition_vi": "Tài sản được nhận chủ yếu để đổi lấy hàng hóa khác; chức năng cốt lõi của tiền.",
+    "source_chapters": [
+      1
+    ],
+    "source_pages": [
+      11
+    ],
+    "tags": [
+      "money"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "salability",
+    "label_en": "Salability",
+    "label_vi": "Tính thanh khoản/khả năng bán đổi",
+    "kind": "money_property",
+    "definition_vi": "Mức dễ trao đổi với tổn thất thấp, xét theo quy mô, không gian và thời gian.",
+    "source_chapters": [
+      1
+    ],
+    "source_pages": [
+      12,
+      13
+    ],
+    "tags": [
+      "money",
+      "liquidity"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "store_of_value",
+    "label_en": "Store of value",
+    "label_vi": "Kho lưu trữ giá trị",
+    "kind": "money_function",
+    "definition_vi": "Khả năng giữ sức mua qua thời gian.",
+    "source_chapters": [
+      1,
+      9
+    ],
+    "source_pages": [
+      12,
+      13,
+      182
+    ],
+    "tags": [
+      "money",
+      "reserve"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "unit_of_account",
+    "label_en": "Unit of account",
+    "label_vi": "Đơn vị tính toán",
+    "kind": "money_function",
+    "definition_vi": "Thước đo chung để biểu thị giá, lời/lỗ và thực hiện tính toán kinh tế.",
+    "source_chapters": [
+      1,
+      6
+    ],
+    "source_pages": [
+      16,
+      114
+    ],
+    "tags": [
+      "money",
+      "prices"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "hard_money",
+    "label_en": "Hard money",
+    "label_vi": "Tiền cứng",
+    "kind": "money_property",
+    "definition_vi": "Tiền có nguồn cung khó tăng đáng kể; trong khung sách, độ cứng cao giúp bảo toàn giá trị.",
+    "source_chapters": [
+      1,
+      2,
+      3
+    ],
+    "source_pages": [
+      13,
+      20,
+      27
+    ],
+    "tags": [
+      "money",
+      "scarcity"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "stock_to_flow",
+    "label_en": "Stock-to-flow ratio",
+    "label_vi": "Tỷ lệ tồn kho trên lượng cung mới",
+    "kind": "metric",
+    "definition_vi": "Tỷ lệ giữa lượng đã tồn tại và lượng mới có thể tạo trong một kỳ; sách dùng làm thước độ cứng.",
+    "source_chapters": [
+      1,
+      2
+    ],
+    "source_pages": [
+      13,
+      21,
+      23
+    ],
+    "tags": [
+      "scarcity",
+      "supply"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "network_effect",
+    "label_en": "Network effect",
+    "label_vi": "Hiệu ứng mạng",
+    "kind": "network_property",
+    "definition_vi": "Lợi ích dùng một tiêu chuẩn trao đổi tăng khi số người cùng dùng tăng.",
+    "source_chapters": [
+      1
+    ],
+    "source_pages": [
+      16
+    ],
+    "tags": [
+      "network"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "monetary_hardness",
+    "label_en": "Monetary hardness",
+    "label_vi": "Độ cứng tiền tệ",
+    "kind": "money_property",
+    "definition_vi": "Mức khó làm tăng nguồn cung tiền so với lượng đang tồn tại.",
+    "source_chapters": [
+      1,
+      2,
+      3
+    ],
+    "source_pages": [
+      13,
+      20,
+      27
+    ],
+    "tags": [
+      "scarcity"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "technology_supply_shock",
+    "label_en": "Technology supply shock",
+    "label_vi": "Cú sốc nguồn cung do công nghệ",
+    "kind": "mechanism",
+    "definition_vi": "Công nghệ mới có thể làm vật từng khan hiếm trở nên dễ sản xuất/khai thác, phá vai trò tiền tệ.",
+    "source_chapters": [
+      2
+    ],
+    "source_pages": [
+      21,
+      23
+    ],
+    "tags": [
+      "technology",
+      "supply"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "monetary_competition",
+    "label_en": "Monetary competition",
+    "label_vi": "Cạnh tranh tiền tệ",
+    "kind": "mechanism",
+    "definition_vi": "Các phương tiện tiền tệ cạnh tranh về độ cứng, tính thanh khoản, mức chấp nhận và công nghệ.",
+    "source_chapters": [
+      1,
+      2,
+      3
+    ],
+    "source_pages": [
+      14,
+      15,
+      24
+    ],
+    "tags": [
+      "money",
+      "competition"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "gold",
+    "label_en": "Gold",
+    "label_vi": "Vàng",
+    "kind": "asset",
+    "definition_vi": "Trong sách, vàng là chuẩn lịch sử nổi bật nhờ bền, hiếm, khó tăng cung và có giá trị cao trên trọng lượng.",
+    "source_chapters": [
+      3,
+      5
+    ],
+    "source_pages": [
+      27,
+      30,
+      91
+    ],
+    "tags": [
+      "reserve"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "gold_standard",
+    "label_en": "Gold standard",
+    "label_vi": "Bản vị vàng",
+    "kind": "monetary_regime",
+    "definition_vi": "Hệ thống trong đó tiền giấy/đơn vị quốc gia có quan hệ quy đổi với vàng.",
+    "source_chapters": [
+      3,
+      4
+    ],
+    "source_pages": [
+      28,
+      50,
+      61
+    ],
+    "tags": [
+      "history"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "custody_centralization",
+    "label_en": "Custody centralization",
+    "label_vi": "Tập trung lưu ký",
+    "kind": "risk",
+    "definition_vi": "Tài sản nền tập trung trong kho/ngân hàng làm người giữ biên nhận phụ thuộc trung gian.",
+    "source_chapters": [
+      3
+    ],
+    "source_pages": [
+      28
+    ],
+    "tags": [
+      "custody",
+      "risk"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "fiat_money",
+    "label_en": "Fiat money",
+    "label_vi": "Tiền pháp định",
+    "kind": "monetary_regime",
+    "definition_vi": "Tiền do nhà nước phát hành và điều hành bằng luật/chính sách, có thể không còn quy đổi sang hàng hóa nền.",
+    "source_chapters": [
+      4
+    ],
+    "source_pages": [
+      50,
+      51
+    ],
+    "tags": [
+      "money",
+      "state"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "central_bank",
+    "label_en": "Central bank",
+    "label_vi": "Ngân hàng trung ương",
+    "kind": "institution",
+    "definition_vi": "Cơ quan điều hành tiền tệ/lãi suất; tác giả phê phán khả năng can thiệp cung tiền và giá vốn.",
+    "source_chapters": [
+      4,
+      5,
+      6
+    ],
+    "source_pages": [
+      50,
+      90,
+      121
+    ],
+    "tags": [
+      "policy"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "monetary_nationalism",
+    "label_en": "Monetary nationalism",
+    "label_vi": "Chủ nghĩa tiền tệ quốc gia",
+    "kind": "monetary_regime",
+    "definition_vi": "Mỗi quốc gia điều hành đồng tiền riêng và tỷ giá trở thành biến chính sách.",
+    "source_chapters": [
+      4,
+      7
+    ],
+    "source_pages": [
+      56,
+      61,
+      135
+    ],
+    "tags": [
+      "fx",
+      "geopolitics"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "monetary_debasement",
+    "label_en": "Monetary debasement",
+    "label_vi": "Pha loãng tiền tệ",
+    "kind": "mechanism",
+    "definition_vi": "Giảm sức mua đơn vị tiền do tăng nguồn cung hoặc giảm chất lượng tài sản bảo chứng.",
+    "source_chapters": [
+      3,
+      4,
+      5
+    ],
+    "source_pages": [
+      28,
+      68,
+      89
+    ],
+    "tags": [
+      "inflation"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "capital_controls",
+    "label_en": "Capital controls",
+    "label_vi": "Kiểm soát dòng vốn",
+    "kind": "policy",
+    "definition_vi": "Hạn chế khả năng chuyển/giữ giá trị giữa tài sản, ngân hàng hoặc biên giới.",
+    "source_chapters": [
+      4,
+      7
+    ],
+    "source_pages": [
+      75,
+      136
+    ],
+    "tags": [
+      "policy",
+      "sovereignty"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "sound_money",
+    "label_en": "Sound money",
+    "label_vi": "Tiền lành mạnh",
+    "kind": "money_property",
+    "definition_vi": "Trong sách: tiền được thị trường chọn, có tính thanh khoản cao và nguồn cung khó bị thao túng.",
+    "source_chapters": [
+      1,
+      5,
+      7
+    ],
+    "source_pages": [
+      15,
+      83,
+      135
+    ],
+    "tags": [
+      "money"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "time_preference",
+    "label_en": "Time preference",
+    "label_vi": "Ưu tiên thời gian",
+    "kind": "behavior",
+    "definition_vi": "Mức một người coi trọng lợi ích hiện tại so với tương lai; ưu tiên thấp hơn cho phép trì hoãn tiêu dùng và tích lũy vốn.",
+    "source_chapters": [
+      1,
+      5,
+      6
+    ],
+    "source_pages": [
+      15,
+      83,
+      84,
+      121
+    ],
+    "tags": [
+      "capital",
+      "behavior"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "savings",
+    "label_en": "Savings",
+    "label_vi": "Tiết kiệm",
+    "kind": "capital_process",
+    "definition_vi": "Phần tiêu dùng hiện tại được trì hoãn để dành nguồn lực cho tương lai.",
+    "source_chapters": [
+      5,
+      6
+    ],
+    "source_pages": [
+      85,
+      89,
+      121,
+      123
+    ],
+    "tags": [
+      "capital"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "capital_goods",
+    "label_en": "Capital goods",
+    "label_vi": "Tư liệu sản xuất",
+    "kind": "capital_asset",
+    "definition_vi": "Công cụ/hàng hóa dùng để tạo hàng hóa tương lai thay vì tiêu dùng ngay.",
+    "source_chapters": [
+      1,
+      5,
+      6
+    ],
+    "source_pages": [
+      17,
+      84,
+      85,
+      118
+    ],
+    "tags": [
+      "capital"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "capital_accumulation",
+    "label_en": "Capital accumulation",
+    "label_vi": "Tích lũy vốn",
+    "kind": "capital_process",
+    "definition_vi": "Quá trình tăng tư liệu sản xuất và nguồn lực đầu tư để mở rộng năng lực sản xuất.",
+    "source_chapters": [
+      1,
+      5
+    ],
+    "source_pages": [
+      17,
+      85,
+      88
+    ],
+    "tags": [
+      "capital"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "productivity",
+    "label_en": "Productivity",
+    "label_vi": "Năng suất",
+    "kind": "economic_outcome",
+    "definition_vi": "Giá trị/sản lượng tạo ra trên một đơn vị lao động; sách nối tăng năng suất với tích lũy vốn.",
+    "source_chapters": [
+      5
+    ],
+    "source_pages": [
+      85,
+      88
+    ],
+    "tags": [
+      "capital"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "price_signal",
+    "label_en": "Price signal",
+    "label_vi": "Tín hiệu giá",
+    "kind": "information",
+    "definition_vi": "Giá cô đọng thông tin phân tán về khan hiếm, nhu cầu và chi phí cơ hội.",
+    "source_chapters": [
+      6
+    ],
+    "source_pages": [
+      115,
+      117,
+      120
+    ],
+    "tags": [
+      "market",
+      "information"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "distributed_knowledge",
+    "label_en": "Distributed knowledge",
+    "label_vi": "Tri thức phân tán",
+    "kind": "information",
+    "definition_vi": "Tri thức kinh tế nằm rải trong nhiều người/ngành và không thể tập trung hoàn toàn vào một nhà hoạch định.",
+    "source_chapters": [
+      6
+    ],
+    "source_pages": [
+      115,
+      117
+    ],
+    "tags": [
+      "information"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "economic_calculation",
+    "label_en": "Economic calculation",
+    "label_vi": "Tính toán kinh tế",
+    "kind": "mechanism",
+    "definition_vi": "Dùng giá và đơn vị tính toán để so sánh chi phí, doanh thu, lợi nhuận và lựa chọn phương án.",
+    "source_chapters": [
+      1,
+      6,
+      7
+    ],
+    "source_pages": [
+      16,
+      114,
+      118,
+      140
+    ],
+    "tags": [
+      "prices",
+      "capital"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "interest_rate",
+    "label_en": "Interest rate",
+    "label_vi": "Lãi suất",
+    "kind": "price",
+    "definition_vi": "Giá của vốn vay; trong sách nó nối tiết kiệm, nhu cầu vay và ưu tiên thời gian.",
+    "source_chapters": [
+      5,
+      6
+    ],
+    "source_pages": [
+      90,
+      121
+    ],
+    "tags": [
+      "capital",
+      "credit"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "capital_market",
+    "label_en": "Capital market",
+    "label_vi": "Thị trường vốn",
+    "kind": "market",
+    "definition_vi": "Nơi vốn tiết kiệm được cho vay/phân bổ cho các quá trình sản xuất và đầu tư.",
+    "source_chapters": [
+      6
+    ],
+    "source_pages": [
+      121,
+      123
+    ],
+    "tags": [
+      "capital",
+      "credit"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "malinvestment",
+    "label_en": "Malinvestment",
+    "label_vi": "Đầu tư sai lệch do tín hiệu vốn méo",
+    "kind": "risk",
+    "definition_vi": "Luận điểm trường phái Áo: lãi suất/tín dụng bị méo có thể hướng vốn vào dự án không bền vững.",
+    "source_chapters": [
+      6
+    ],
+    "source_pages": [
+      123,
+      125
+    ],
+    "tags": [
+      "capital",
+      "risk"
+    ],
+    "stance": "author_claim"
+  },
+  {
+    "id": "individual_sovereignty",
+    "label_en": "Individual sovereignty",
+    "label_vi": "Chủ quyền cá nhân",
+    "kind": "political_economy",
+    "definition_vi": "Khả năng cá nhân nắm/di chuyển giá trị mà không hoàn toàn phụ thuộc quyền cho phép của trung gian.",
+    "source_chapters": [
+      5,
+      7,
+      8,
+      9
+    ],
+    "source_pages": [
+      83,
+      135,
+      142,
+      187
+    ],
+    "tags": [
+      "sovereignty"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "free_trade",
+    "label_en": "Free trade",
+    "label_vi": "Thương mại tự do",
+    "kind": "market",
+    "definition_vi": "Trao đổi xuyên biên giới dựa trên thỏa thuận của các bên với ma sát tiền tệ/pháp lý thấp.",
+    "source_chapters": [
+      7
+    ],
+    "source_pages": [
+      135,
+      139,
+      140
+    ],
+    "tags": [
+      "trade"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "currency_war",
+    "label_en": "Currency war",
+    "label_vi": "Chiến tranh tiền tệ",
+    "kind": "macro",
+    "definition_vi": "Cạnh tranh phá giá/tỷ giá giữa quốc gia để đạt mục tiêu thương mại; đây là cách diễn giải của tác giả.",
+    "source_chapters": [
+      7
+    ],
+    "source_pages": [
+      139,
+      140
+    ],
+    "tags": [
+      "fx"
+    ],
+    "stance": "author_claim"
+  },
+  {
+    "id": "capital_mobility",
+    "label_en": "Capital mobility",
+    "label_vi": "Khả năng luân chuyển vốn",
+    "kind": "market_property",
+    "definition_vi": "Mức vốn có thể di chuyển qua biên giới/tài sản; liên quan bộ ba bất khả thi.",
+    "source_chapters": [
+      7
+    ],
+    "source_pages": [
+      136,
+      137
+    ],
+    "tags": [
+      "capital",
+      "fx"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "digital_cash",
+    "label_en": "Digital cash",
+    "label_vi": "Tiền mặt kỹ thuật số",
+    "kind": "bitcoin_property",
+    "definition_vi": "Giá trị số có thể chuyển trực tiếp mà không cần bên thứ ba đáng tin cậy làm trung gian quyết toán.",
+    "source_chapters": [
+      8
+    ],
+    "source_pages": [
+      144,
+      146
+    ],
+    "tags": [
+      "bitcoin"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "trusted_third_party",
+    "label_en": "Trusted third party",
+    "label_vi": "Bên thứ ba đáng tin cậy",
+    "kind": "architecture",
+    "definition_vi": "Trung gian mà hai bên phải tin để ghi sổ, xử lý hoặc quyết toán giao dịch.",
+    "source_chapters": [
+      8,
+      10
+    ],
+    "source_pages": [
+      144,
+      229,
+      231
+    ],
+    "tags": [
+      "trust"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "proof_of_work",
+    "label_en": "Proof of Work",
+    "label_vi": "Bằng chứng công việc",
+    "kind": "consensus",
+    "definition_vi": "Cơ chế buộc người đề xuất khối tiêu tốn tài nguyên tính toán và cho phép mạng kiểm tra lời giải.",
+    "source_chapters": [
+      8,
+      10
+    ],
+    "source_pages": [
+      146,
+      147,
+      193
+    ],
+    "tags": [
+      "bitcoin",
+      "consensus"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "verification",
+    "label_en": "Verification",
+    "label_vi": "Xác minh",
+    "kind": "trust_model",
+    "definition_vi": "Thay việc tin một bên bằng quy tắc/bằng chứng mà nhiều nút có thể tự kiểm tra.",
+    "source_chapters": [
+      8
+    ],
+    "source_pages": [
+      146,
+      147
+    ],
+    "tags": [
+      "trust"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "consensus",
+    "label_en": "Consensus",
+    "label_vi": "Đồng thuận",
+    "kind": "network_mechanism",
+    "definition_vi": "Quy tắc để mạng thống nhất trạng thái hợp lệ mà không cần một sổ cái trung tâm.",
+    "source_chapters": [
+      8
+    ],
+    "source_pages": [
+      147
+    ],
+    "tags": [
+      "blockchain"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "fixed_supply",
+    "label_en": "Fixed/limited supply",
+    "label_vi": "Nguồn cung giới hạn",
+    "kind": "monetary_policy",
+    "definition_vi": "Chính sách phát hành có thể dự đoán và bị giới hạn bởi giao thức.",
+    "source_chapters": [
+      5,
+      8
+    ],
+    "source_pages": [
+      91,
+      146
+    ],
+    "tags": [
+      "bitcoin",
+      "supply"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "final_settlement",
+    "label_en": "Final settlement",
+    "label_vi": "Quyết toán cuối cùng",
+    "kind": "payment_function",
+    "definition_vi": "Trạng thái chuyển giá trị được xem là hoàn tất, không phụ thuộc chuỗi nghĩa vụ trung gian tiếp theo.",
+    "source_chapters": [
+      9
+    ],
+    "source_pages": [
+      182,
+      183,
+      187
+    ],
+    "tags": [
+      "settlement"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "counterparty_risk",
+    "label_en": "Counterparty risk",
+    "label_vi": "Rủi ro đối tác",
+    "kind": "risk",
+    "definition_vi": "Rủi ro bên còn lại hoặc trung gian không thực hiện nghĩa vụ.",
+    "source_chapters": [
+      9
+    ],
+    "source_pages": [
+      183,
+      188
+    ],
+    "tags": [
+      "risk"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "international_settlement",
+    "label_en": "International settlement",
+    "label_vi": "Quyết toán quốc tế",
+    "kind": "payment_function",
+    "definition_vi": "Chuyển giá trị cuối cùng giữa các bên ở khu vực pháp lý khác nhau.",
+    "source_chapters": [
+      9
+    ],
+    "source_pages": [
+      182,
+      183,
+      188
+    ],
+    "tags": [
+      "global"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "reserve_asset",
+    "label_en": "Reserve asset",
+    "label_vi": "Tài sản dự trữ",
+    "kind": "asset_role",
+    "definition_vi": "Tài sản được giữ để bảo toàn sức mua, dự trữ hoặc làm lớp quyết toán nền.",
+    "source_chapters": [
+      3,
+      9
+    ],
+    "source_pages": [
+      27,
+      182,
+      188
+    ],
+    "tags": [
+      "reserve"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "scaling_tradeoff",
+    "label_en": "Scaling trade-off",
+    "label_vi": "Đánh đổi mở rộng quy mô",
+    "kind": "architecture_tradeoff",
+    "definition_vi": "Tăng dữ liệu/thực thi trên lớp đồng thuận có thể tăng chi phí chạy nút và giảm mức phân tán.",
+    "source_chapters": [
+      10
+    ],
+    "source_pages": [
+      230
+    ],
+    "tags": [
+      "scaling"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "decentralization",
+    "label_en": "Decentralization",
+    "label_vi": "Phi tập trung",
+    "kind": "network_property",
+    "definition_vi": "Quyền xác minh/vận hành không tập trung vào một bên duy nhất.",
+    "source_chapters": [
+      8,
+      10
+    ],
+    "source_pages": [
+      146,
+      230
+    ],
+    "tags": [
+      "blockchain"
+    ],
+    "stance": "source"
+  },
+  {
+    "id": "blockchain_minimalism",
+    "label_en": "Blockchain minimalism",
+    "label_vi": "Chủ nghĩa tối giản blockchain",
+    "kind": "author_position",
+    "definition_vi": "Lập trường tác giả: blockchain chỉ đáng trả chi phí khi thật sự loại bỏ nhu cầu tin cậy; nếu vẫn có trung gian quyết định cuối thì database thường hiệu quả hơn.",
+    "source_chapters": [
+      10
+    ],
+    "source_pages": [
+      229,
+      231,
+      232
+    ],
+    "tags": [
+      "author_position"
+    ],
+    "stance": "author_claim"
+  }
+]

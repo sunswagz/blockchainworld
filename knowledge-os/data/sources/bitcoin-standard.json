@@ -1,0 +1,82 @@
+{
+  "id": "book.bitcoin-standard.vi-nguyen-vu-son",
+  "type": "book",
+  "title": "The Bitcoin Standard",
+  "title_vi": "Tiêu chuẩn Bitcoin",
+  "author": "Saifedean Ammous",
+  "file_name": "The Bitcoin Standard - Vietnamese - Full - By Nguyen Vu Son.pdf",
+  "pages": 251,
+  "bias_note": "Tác giả đứng rõ trong truyền thống Kinh tế học Áo và có lập trường Bitcoin-maximalist; phải tách author_claim khỏi dữ kiện.",
+  "chapter_boundaries": [
+    [
+      1,
+      "Tiền tệ",
+      10,
+      19,
+      "high"
+    ],
+    [
+      2,
+      "Tiền tệ nguyên thủy",
+      20,
+      26,
+      "high"
+    ],
+    [
+      3,
+      "Các Kim Loại Tiền Tệ",
+      27,
+      49,
+      "high"
+    ],
+    [
+      4,
+      "Tiền Tệ Chính Phủ",
+      50,
+      82,
+      "high"
+    ],
+    [
+      5,
+      "Tiền tệ và Ưu tiên Thời gian",
+      83,
+      113,
+      "high"
+    ],
+    [
+      6,
+      "Hệ Thống Thông Tin Của Chủ Nghĩa Tư Bản",
+      114,
+      134,
+      "medium"
+    ],
+    [
+      7,
+      "Tiền lành mạnh và tự do cá nhân",
+      135,
+      141,
+      "medium"
+    ],
+    [
+      8,
+      "Tiền tệ Kỹ thuật số",
+      142,
+      169,
+      "high"
+    ],
+    [
+      9,
+      "Bitcoin Dùng Để Làm Gì?",
+      170,
+      192,
+      "high"
+    ],
+    [
+      10,
+      "Các Câu Hỏi Về Bitcoin",
+      193,
+      233,
+      "high"
+    ]
+  ]
+}

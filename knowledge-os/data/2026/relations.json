@@ -1,0 +1,146 @@
+[
+  {
+    "from": "stablecoin_settlement",
+    "relation": "extends",
+    "to": "medium_of_exchange",
+    "reason_vi": "Chức năng phương tiện trao đổi chạy trên chuỗi công khai nhưng đơn vị vẫn là đô la, không phải đồng tiền gốc của chuỗi.",
+    "source_type": "repo",
+    "source_ref": "ho-bo phòng tien-cho",
+    "confidence": "high"
+  },
+  {
+    "from": "stablecoin_settlement",
+    "relation": "challenges",
+    "to": "blockchain_minimalism",
+    "reason_vi": "Sách 2018 cho rằng blockchain ngoài Bitcoin gần như vô dụng. Khối lượng quyết toán stablecoin trên chuỗi hợp đồng là một quan sát ngược lại, và nó không có trong sách.",
+    "source_type": "repo",
+    "source_ref": "ho-bo/assets/js/v/dong-tien.js (tổng cung stablecoin) · data/chapters/ch10-questions.json",
+    "confidence": "medium"
+  },
+  {
+    "from": "stablecoin_settlement",
+    "relation": "carries",
+    "to": "counterparty_risk",
+    "reason_vi": "Token neo đô la là một lời hứa đổi lại; lời hứa đó có người phát hành, và người phát hành có thể vỡ.",
+    "source_type": "repo",
+    "source_ref": "ho-bo phòng tien-cho (cột lệch neo)",
+    "confidence": "high"
+  },
+  {
+    "from": "onchain_credit_market",
+    "relation": "extends",
+    "to": "capital_market",
+    "reason_vi": "Tiết kiệm gặp nhu cầu vay qua hợp đồng thay vì qua trung gian, nhưng vẫn là cùng một việc kinh tế.",
+    "source_type": "repo",
+    "source_ref": "ho-bo phòng loi-suat",
+    "confidence": "high"
+  },
+  {
+    "from": "onchain_credit_market",
+    "relation": "supports",
+    "to": "interest_rate",
+    "reason_vi": "Lãi suất pool là giá của thời gian được niêm yết công khai và cập nhật liên tục.",
+    "source_type": "repo",
+    "source_ref": "ho-bo phòng loi-suat",
+    "confidence": "high"
+  },
+  {
+    "from": "rwa_tokenization",
+    "relation": "extends",
+    "to": "capital_market",
+    "reason_vi": "Lợi suất sinh ngoài chuỗi được đưa vào trong chuỗi, nối hai thị trường vốn vốn tách rời.",
+    "source_type": "repo",
+    "source_ref": "thai-boc-tu toa t09",
+    "confidence": "medium"
+  },
+  {
+    "from": "rwa_tokenization",
+    "relation": "carries",
+    "to": "counterparty_risk",
+    "reason_vi": "Token chỉ đáng giá bằng người giữ tài sản gốc ngoài chuỗi — đúng loại rủi ro mà quyết toán trên chuỗi không xoá được.",
+    "source_type": "repo",
+    "source_ref": "thai-boc-tu toa t09",
+    "confidence": "high"
+  },
+  {
+    "from": "rollup_settlement",
+    "relation": "extends",
+    "to": "scaling_tradeoff",
+    "reason_vi": "Đánh đổi mở rộng được dời sang một lớp riêng thay vì nới thông số lớp một.",
+    "source_type": "repo",
+    "source_ref": "do-sat-vien",
+    "confidence": "high"
+  },
+  {
+    "from": "rollup_settlement",
+    "relation": "challenges",
+    "to": "final_settlement",
+    "reason_vi": "Quyết toán cuối trở thành câu hỏi 'ai có quyền đổi trạng thái cuối, và trong bao lâu' chứ không còn là một mốc dứt khoát.",
+    "source_type": "repo",
+    "source_ref": "do-sat-vien (bảng rủi ro L2)",
+    "confidence": "medium"
+  },
+  {
+    "from": "mev_extraction",
+    "relation": "challenges",
+    "to": "decentralization",
+    "reason_vi": "Quyền xếp thứ tự có giá thì nó dồn về tay người trả giá cao nhất, và số người dựng khối co lại.",
+    "source_type": "repo",
+    "source_ref": "thai-boc-tu toa t02",
+    "confidence": "medium"
+  },
+  {
+    "from": "mev_extraction",
+    "relation": "extends",
+    "to": "price_signal",
+    "reason_vi": "Phí ưu tiên là một giá thật cho một thứ khan hiếm thật — vị trí trong khối.",
+    "source_type": "repo",
+    "source_ref": "thai-boc-tu toa t02",
+    "confidence": "low"
+  },
+  {
+    "from": "perpetual_funding",
+    "relation": "extends",
+    "to": "interest_rate",
+    "reason_vi": "Funding là lãi suất của một vị thế đòn bẩy, kết toán theo mốc chứ không chảy liên tục.",
+    "source_type": "repo",
+    "source_ref": "thi-bac-ty phòng co-hoi · thi-bac-ty-runtime/bac/",
+    "confidence": "high"
+  },
+  {
+    "from": "perpetual_funding",
+    "relation": "supports",
+    "to": "time_preference",
+    "reason_vi": "Sẵn lòng trả để giữ vị thế thêm một chu kỳ là ưu tiên thời gian hiện ra thành một con số đo được.",
+    "source_type": "repo",
+    "source_ref": "thi-bac-ty phòng hoc",
+    "confidence": "medium"
+  },
+  {
+    "from": "perpetual_funding",
+    "relation": "carries",
+    "to": "counterparty_risk",
+    "reason_vi": "Vị thế hai chân ở hai sàn là tin hai bên thứ ba cùng lúc; một cảng ốm thì phép tính đúng vẫn mất tiền.",
+    "source_type": "repo",
+    "source_ref": "thi-bac-ty phòng cang",
+    "confidence": "high"
+  },
+  {
+    "from": "ai_agent_execution",
+    "relation": "extends",
+    "to": "distributed_knowledge",
+    "reason_vi": "Model gom tín hiệu rải rác mà không ai đọc hết được, đúng bài toán tri thức phân tán.",
+    "source_type": "repo",
+    "source_ref": "tu-cam-thanh-runtime",
+    "confidence": "medium"
+  },
+  {
+    "from": "ai_agent_execution",
+    "relation": "challenges",
+    "to": "verification",
+    "reason_vi": "Một đề xuất của model không kiểm lại được từng bước, nên quyền phủ quyết phải nằm ở lớp luật tất định tách riêng.",
+    "source_type": "repo",
+    "source_ref": "tu-cam-thanh-runtime (Risk Engine phủ quyết)",
+    "confidence": "medium"
+  }
+]

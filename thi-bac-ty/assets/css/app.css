@@ -133,3 +133,45 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   html{scroll-behavior:auto}
   .ben,.bmuc{transition:none}
 }
+
+/* ── lớp tri thức nền (knowledge-os) ────────────────────────────────
+   Dải giải nghĩa nằm ngay dưới tiêu đề mỗi ô. Nó phải đọc ra là LỚP
+   KHÁC với số liệu: nền chìm hơn, viền trái một vạch, chữ nhỏ hơn.
+   Trộn nó vào cùng độ nổi với bảng là mời người ta đọc một câu diễn
+   giải như một con số đo được.
+
+   Không dùng --mo2 làm màu chữ ở đây: cặp (--mo2, --nen) đo được 3,46
+   — dưới ngưỡng WCAG AA 4,5. Đó là nợ có sẵn của cung này, đừng vay
+   thêm. */
+.tt{margin:0 0 16px;padding:12px 14px;border-left:2px solid var(--tau);
+  background:var(--card-2);border-radius:0 9px 9px 0}
+.tt-y{margin:0 0 10px !important;font-size:13.5px !important;color:var(--chu) !important}
+.tt-luoi{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.tt-k{padding:9px 11px;background:var(--nen);border:1px solid var(--line);border-radius:8px}
+.tt-kd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px}
+.tt-kd b{font-size:13px;color:var(--chu)}
+.tt-k p{margin:0 !important;font-size:12.5px !important;color:var(--mo) !important;line-height:1.6 !important}
+.tt-vt{font:10.5px/1 var(--don);color:var(--mo)}
+
+/* Nhãn nguồn. Bốn màu cho bốn lớp, và chúng KHÔNG được giống nhau:
+   người đọc phân biệt "tác giả nói" với "mình suy ra" bằng đúng vệt
+   màu này trước khi kịp đọc chữ. */
+.tt-g{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap}
+.tt-g[data-g="sach"]{background:rgba(217,164,65,.16);color:var(--tau)}
+.tt-g[data-g="tacGia"]{background:rgba(217,130,43,.16);color:var(--cam)}
+.tt-g[data-g="phanTich"]{background:rgba(90,169,230,.16);color:var(--lam)}
+.tt-g[data-g="repo"]{background:rgba(63,178,127,.16);color:var(--luc)}
+.tt-g[data-g="web"]{background:rgba(139,152,165,.16);color:var(--mo)}
+
+.tt-26{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.tt-26 h3{font-size:10.5px !important;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--mo) !important;margin:0 0 7px !important}
+.tt-26 p{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;
+  margin:0 0 7px !important;font-size:12.5px !important;color:var(--mo) !important}
+.tt-26 p:last-child{margin-bottom:0 !important}
+.tt-26 b{color:var(--chu)}
+.tt-loai{font:11px/1 var(--don);color:var(--luc)}
+.tt-tin{font-size:10.5px;color:var(--mo)}
+.tt-vi{flex:1 1 100%;color:var(--mo)}
+.tt-chan{color:var(--mo)}

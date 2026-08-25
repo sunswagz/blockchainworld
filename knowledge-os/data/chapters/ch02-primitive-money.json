@@ -1,0 +1,29 @@
+{
+  "id": "ch02-primitive-money",
+  "chapter": 2,
+  "title_vi": "Tiền tệ nguyên thủy",
+  "pages": [
+    20,
+    26
+  ],
+  "thesis_vi": "Tiền mất vai trò khi công nghệ làm nguồn cung vốn khó tạo trở nên dễ tạo, phá độ cứng.",
+  "concepts": [
+    "monetary_hardness",
+    "technology_supply_shock",
+    "monetary_competition"
+  ],
+  "points": [
+    {
+      "page": 20,
+      "note": "Đá Rai: quyền sở hữu xã hội ghi nhận mà không cần di chuyển vật."
+    },
+    {
+      "page": 21,
+      "note": "Công nghệ khai thác mới làm giảm chi phí tạo đá."
+    },
+    {
+      "page": 23,
+      "note": "Vỏ sò mất vai trò khi nguồn cung và tiêu chuẩn kim loại thay đổi."
+    }
+  ]
+}

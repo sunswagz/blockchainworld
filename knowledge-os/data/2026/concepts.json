@@ -1,0 +1,86 @@
+[
+  {
+    "id": "stablecoin_settlement",
+    "label_en": "Stablecoin settlement",
+    "label_vi": "Quyết toán bằng stablecoin",
+    "kind": "payment_function",
+    "definition_vi": "Khối lượng chuyển giá trị chạy bằng token neo đô la trên chuỗi công khai, thay vì bằng đồng tiền gốc của chuỗi.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "ho-bo/assets/js/v/dong-tien.js · thai-boc-tu toa t04",
+    "observed": "2026-08",
+    "tags": ["2026", "stablecoin"]
+  },
+  {
+    "id": "onchain_credit_market",
+    "label_en": "On-chain credit market",
+    "label_vi": "Thị trường tín dụng trên chuỗi",
+    "kind": "market",
+    "definition_vi": "Cho vay có thế chấp vượt mức chạy bằng hợp đồng, lãi suất do cung cầu trong pool quyết định chứ không do một ngân hàng đặt.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "ho-bo phòng loi-suat · thai-boc-tu toa t06",
+    "observed": "2026-08",
+    "tags": ["2026", "defi"]
+  },
+  {
+    "id": "rwa_tokenization",
+    "label_en": "RWA tokenization",
+    "label_vi": "Token hoá tài sản thế giới thật",
+    "kind": "asset_role",
+    "definition_vi": "Trái phiếu kho bạc, tín dụng tư nhân và hàng hoá được phát hành dạng token, mang lợi suất ngoài chuỗi vào trong chuỗi.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "thai-boc-tu toa t09",
+    "observed": "2026-08",
+    "tags": ["2026", "rwa"]
+  },
+  {
+    "id": "rollup_settlement",
+    "label_en": "Rollup settlement",
+    "label_vi": "Quyết toán qua rollup",
+    "kind": "architecture",
+    "definition_vi": "Thực thi tách khỏi quyết toán: giao dịch chạy ở lớp hai rồi nén về lớp một, và quyền đổi trạng thái cuối nằm ở đâu là câu hỏi mở.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "do-sat-vien (bảng rủi ro L2) · thai-boc-tu toa t02",
+    "observed": "2026-08",
+    "tags": ["2026", "rollup"]
+  },
+  {
+    "id": "mev_extraction",
+    "label_en": "MEV extraction",
+    "label_vi": "Rút giá trị theo thứ tự khối",
+    "kind": "network_mechanism",
+    "definition_vi": "Khoản thu được nhờ quyền xếp thứ tự giao dịch trong một khối; nó biến quyền dựng khối thành một tài sản có giá.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "thai-boc-tu toa t02 (nhóm nguồn Block Builders · MEV)",
+    "observed": "2026-08",
+    "tags": ["2026", "mev"]
+  },
+  {
+    "id": "perpetual_funding",
+    "label_en": "Perpetual funding rate",
+    "label_vi": "Phí funding hợp đồng vĩnh cửu",
+    "kind": "price",
+    "definition_vi": "Khoản trả định kỳ giữa hai phía long và short để kéo giá hợp đồng vĩnh cửu về giá giao ngay — lãi suất của một vị thế đòn bẩy, tính theo giờ.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "thi-bac-ty-runtime/bac/ · thi-bac-ty/assets/js/v/cang-phi.js",
+    "observed": "2026-08",
+    "tags": ["2026", "perp"]
+  },
+  {
+    "id": "ai_agent_execution",
+    "label_en": "AI agent execution",
+    "label_vi": "Tác tử AI ra quyết định",
+    "kind": "mechanism",
+    "definition_vi": "Model đọc dữ liệu thị trường rồi đề xuất hành động, còn quyền phủ quyết nằm ở một lớp luật tất định tách riêng.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "tu-cam-thanh-runtime (Risk Engine phủ quyết) · thai-boc-tu toa t12",
+    "observed": "2026-08",
+    "tags": ["2026", "ai"]
+  }
+]

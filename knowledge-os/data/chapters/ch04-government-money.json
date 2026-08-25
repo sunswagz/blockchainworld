@@ -1,0 +1,31 @@
+{
+  "id": "ch04-government-money",
+  "chapter": 4,
+  "title_vi": "Tiền Tệ Chính Phủ",
+  "pages": [
+    50,
+    82
+  ],
+  "thesis_vi": "Khi tiền chuyển sang chế độ pháp định, nguồn cung, khả năng quy đổi, lãi suất và tỷ giá trở thành công cụ chính sách; tác giả coi đây là nguồn pha loãng và méo tín hiệu.",
+  "concepts": [
+    "fiat_money",
+    "central_bank",
+    "monetary_nationalism",
+    "monetary_debasement",
+    "capital_controls"
+  ],
+  "points": [
+    {
+      "page": 50,
+      "note": "Phân biệt tiền bảo chứng vàng và fiat không còn bảo chứng."
+    },
+    {
+      "page": 61,
+      "note": "Tác giả mô tả biến động fiat và cạnh tranh phá giá."
+    },
+    {
+      "page": 75,
+      "note": "Khả năng thanh khoản có thể bị hạn chế bởi chính sách."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Quan hệ giữa hai khái niệm",
+  "description": "Trường bắt buộc do knowledge-os/kiem.mjs canh, không phải bởi một trình đọc schema — chỗ này để người đọc, kiem.mjs mới là thứ chặn.",
+  "type": "object",
+  "required": ["from", "relation", "to", "reason_vi", "source_type", "confidence"],
+  "properties": {
+    "from": { "type": "string" },
+    "relation": { "type": "string" },
+    "to": { "type": "string" },
+    "reason_vi": {
+      "type": "string",
+      "description": "Vì sao đây là một quan hệ. Quan hệ không nói vì sao là quan hệ không kiểm lại được."
+    },
+    "source_type": {
+      "enum": ["book", "repo", "web", "analysis"],
+      "description": "book thì phải có chapters+pages; ba loại kia phải có source_ref và KHÔNG được mang chương/trang sách."
+    },
+    "chapters": { "type": "array", "items": { "type": "integer" } },
+    "pages": { "type": "array", "items": { "type": "integer" } },
+    "source_ref": { "type": "string" },
+    "confidence": { "enum": ["high", "medium", "low"] }
+  }
+}
