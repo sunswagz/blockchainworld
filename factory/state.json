@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-25T13:41:08.302Z",
-  "lan": 262,
+  "generatedAt": "2026-08-25T19:03:30.235Z",
+  "lan": 266,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-25T13:13:49.554Z",
@@ -47,14 +47,14 @@
       "lucDoi": "2026-08-25T13:27:15.309Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-08-25T02:09:25.951Z",
+      "luc": "2026-08-25T19:00:37.390Z",
       "ket": "ok",
-      "giay": 156,
-      "doi": true,
-      "chuThich": "quét 156s · dựng 0s · haiku-4-5",
+      "giay": 58,
+      "doi": false,
+      "chuThich": "quét 58s · dựng 0s · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-25T02:09:25.951Z",
+      "lucOk": "2026-08-25T19:00:37.390Z",
       "lucDoi": "2026-08-25T02:09:25.951Z"
     },
     "hoang-thanh": {
@@ -145,26 +145,26 @@
       "lucDoi": "2026-08-25T13:15:27.427Z"
     },
     "nhap-skill": {
-      "luc": "2026-08-24T19:02:18.523Z",
+      "luc": "2026-08-25T18:59:39.281Z",
       "ket": "ok",
-      "giay": 1,
+      "giay": 2,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-24T19:02:18.523Z",
-      "lucDoi": "2026-08-24T19:02:18.523Z"
+      "lucOk": "2026-08-25T18:59:39.281Z",
+      "lucDoi": "2026-08-25T18:59:39.281Z"
     },
     "dong-tin": {
-      "luc": "2026-08-25T02:11:30.071Z",
+      "luc": "2026-08-25T19:03:28.960Z",
       "ket": "ok",
-      "giay": 125,
+      "giay": 171,
       "doi": true,
       "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-25T02:11:30.071Z",
-      "lucDoi": "2026-08-25T02:11:30.071Z"
+      "lucOk": "2026-08-25T19:03:28.960Z",
+      "lucDoi": "2026-08-25T19:03:28.960Z"
     },
     "ho-bo-tien-hoa": {
       "luc": "2026-08-25T13:30:56.378Z",
@@ -178,12 +178,12 @@
       "lucDoi": "2026-08-25T13:30:56.378Z"
     },
     "tien-hoa-dqt": {
-      "luc": "2026-08-24T19:02:19.847Z",
+      "luc": "2026-08-25T19:03:30.235Z",
       "ket": "loi",
-      "giay": 1,
+      "giay": 2,
       "doi": false,
       "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
-      "chuoiLoi": 6,
+      "chuoiLoi": 7,
       "vi": null,
       "lucOk": null,
       "lucDoi": null
@@ -223,6 +223,42 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-25T19:03:30.235Z",
+      "ma": "tien-hoa-dqt",
+      "ket": "loi",
+      "giay": 2,
+      "doi": false,
+      "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-25T19:03:28.960Z",
+      "ma": "dong-tin",
+      "ket": "ok",
+      "giay": 171,
+      "doi": true,
+      "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-25T19:00:37.390Z",
+      "ma": "dai-quan-trac",
+      "ket": "ok",
+      "giay": 58,
+      "doi": false,
+      "chuThich": "quét 58s · dựng 0s · haiku-4-5",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-25T18:59:39.281Z",
+      "ma": "nhap-skill",
+      "ket": "ok",
+      "giay": 2,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-08-25T13:41:08.302Z",
       "ma": "bao-cao",
@@ -1984,42 +2020,6 @@
       "ket": "ok",
       "giay": 1,
       "doi": false,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-18T13:20:27.614Z",
-      "ma": "quan-trac-do",
-      "ket": "ok",
-      "giay": 13,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-18T13:20:14.573Z",
-      "ma": "tang-thu-cac",
-      "ket": "ok",
-      "giay": 459,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-18T13:12:35.150Z",
-      "ma": "ho-bo",
-      "ket": "ok",
-      "giay": 7,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-18T13:12:28.185Z",
-      "ma": "cong-bo",
-      "ket": "ok",
-      "giay": 4,
-      "doi": true,
       "chuThich": "",
       "vi": null
     }

@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : obra/superpowers (276.912 sao)
+     Kho    : obra/superpowers (277.369 sao)
      Đường  : skills/receiving-code-review
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/obra/superpowers/main/skills/receiving-code-review/SKILL.md
-     sha256 : 091df1629510af1b · nhập 2026-08-24T19:02:17.901Z
+     sha256 : 091df1629510af1b · nhập 2026-08-25T18:59:38.348Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

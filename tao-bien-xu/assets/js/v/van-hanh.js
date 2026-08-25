@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-25T13:41:08.302Z",
- "lan": 262,
+ "generatedAt": "2026-08-25T19:03:30.235Z",
+ "lan": 266,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -73,14 +73,14 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-25T02:09:25.951Z",
+   "luc": "2026-08-25T19:00:37.390Z",
    "ket": "ok",
-   "giay": 156,
-   "doi": true,
-   "chuThich": "quét 156s · dựng 0s · haiku-4-5",
+   "giay": 58,
+   "doi": false,
+   "chuThich": "quét 58s · dựng 0s · haiku-4-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-25T02:09:25.951Z",
+   "lucOk": "2026-08-25T19:00:37.390Z",
    "lucDoi": "2026-08-25T02:09:25.951Z"
   },
   {
@@ -97,15 +97,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-25T02:11:30.071Z",
+   "luc": "2026-08-25T19:03:28.960Z",
    "ket": "ok",
-   "giay": 125,
+   "giay": 171,
    "doi": true,
    "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-25T02:11:30.071Z",
-   "lucDoi": "2026-08-25T02:11:30.071Z"
+   "lucOk": "2026-08-25T19:03:28.960Z",
+   "lucDoi": "2026-08-25T19:03:28.960Z"
   },
   {
    "ma": "tien-hoa-dqt",
@@ -123,13 +123,13 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-24T19:02:19.847Z",
+   "luc": "2026-08-25T19:03:30.235Z",
    "ket": "loi",
-   "giay": 1,
+   "giay": 2,
    "doi": false,
    "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
    "vi": null,
-   "chuoiLoi": 6,
+   "chuoiLoi": 7,
    "lucOk": null,
    "lucDoi": null
   },
@@ -352,15 +352,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-24T19:02:18.523Z",
+   "luc": "2026-08-25T18:59:39.281Z",
    "ket": "ok",
-   "giay": 1,
+   "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-24T19:02:18.523Z",
-   "lucDoi": "2026-08-24T19:02:18.523Z"
+   "lucOk": "2026-08-25T18:59:39.281Z",
+   "lucDoi": "2026-08-25T18:59:39.281Z"
   },
   {
    "ma": "thai-boc-tu",
@@ -603,6 +603,42 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-25T19:03:30.235Z",
+   "ma": "tien-hoa-dqt",
+   "ket": "loi",
+   "giay": 2,
+   "doi": false,
+   "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-25T19:03:28.960Z",
+   "ma": "dong-tin",
+   "ket": "ok",
+   "giay": 171,
+   "doi": true,
+   "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-25T19:00:37.390Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 58,
+   "doi": false,
+   "chuThich": "quét 58s · dựng 0s · haiku-4-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-08-25T18:59:39.281Z",
+   "ma": "nhap-skill",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-08-25T13:41:08.302Z",
    "ma": "bao-cao",
@@ -1105,42 +1141,6 @@ window.VAN_HANH = {
    "giay": 1,
    "doi": true,
    "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-24T02:01:00.222Z",
-   "ma": "cong-bo",
-   "ket": "ok",
-   "giay": 6,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-24T02:00:54.764Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 66,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-24T01:59:48.510Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 3,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-23T18:53:38.702Z",
-   "ma": "tien-hoa-dqt",
-   "ket": "loi",
-   "giay": 1,
-   "doi": false,
-   "chuThich": "1 điểm yếu · haiku-4-5 · cổng chặn quyết định",
    "vi": null
   }
  ]
