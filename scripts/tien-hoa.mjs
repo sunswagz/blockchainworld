@@ -95,6 +95,15 @@ function domGia() {
     return {
       tagName: (tag || "div").toUpperCase(),
       _html: "", _text: "", _attr: {}, children: [], dataset: {},
+      /* `parentNode` phải CÓ, và phải theo được lối `x.parentNode.insertBefore(y, x)`
+         — khuôn "chèn một thẻ ngay TRƯỚC thẻ này", dùng thật ở ba chỗ trong
+         kinh-thanh và ở pwa.js của mọi cung. Thiếu nó thì `.parentNode` là
+         undefined và cả file ném ngay lúc nạp, rồi thước "Mọi phòng vẽ được"
+         chấm trượt một cung hoàn toàn lành: kinh-thanh bị 5/7 vì đúng chuyện
+         này, trong khi mã của nó chạy bình thường trên trình duyệt.
+         Cùng luật với mục mang-truoc.mjs trong CLAUDE.md — công cụ phải theo
+         được mã thật, không phải bẻ mã cho vừa công cụ. */
+      parentNode: null,
       /* `style` phải có setProperty/removeProperty, không chỉ là {}.
          Cung nào đặt biến CSS bằng `el.style.setProperty("--x", v)` —
          kinh-thanh làm thế — sẽ ném ngay, và thước "vẽ được" chấm
@@ -108,7 +117,7 @@ function domGia() {
       /* Hồ sơ dài cuộn tới mục đang mở — 28 phòng của cung Đài Quan
          Trắc gọi hàm này. Thiếu nó là cả 28 phòng ngã. */
       scrollIntoView() {}, matches() { return false; }, contains() { return false; },
-      insertBefore(c) { this.children.push(c); return c; },
+      insertBefore(c) { this.children.push(c); if (c) c.parentNode = this; return c; },
       getBoundingClientRect() { return { top: 0, left: 0, width: 100, height: 100 }; },
       set innerHTML(v) { this._html = String(v); gomHash(this._html); },
       get innerHTML() { return this._html; },
@@ -119,7 +128,7 @@ function domGia() {
         if (String(v).startsWith("#") && String(v).length > 1) tuyen.add(String(v));
       },
       get href() { return this._attr.href || ""; },
-      appendChild(c) { this.children.push(c); return c; },
+      appendChild(c) { this.children.push(c); if (c) c.parentNode = this; return c; },
       setAttribute(k, v) {
         this._attr[k] = String(v);
         if (k === "href" && String(v).startsWith("#") && String(v).length > 1) tuyen.add(String(v));
@@ -133,7 +142,7 @@ function domGia() {
          null — trả null là shim tự tạo ra một lỗi không có thật,
          rồi cổng chặn báo oan. Trả thẻ giả thì nhánh đó chạy tiếp,
          tức là soi được NHIỀU hơn chứ không phải ít hơn. */
-      querySelector() { return El("div"); },
+      querySelector() { return trongCay(); },
       closest() { return null; }
     };
   }
@@ -171,7 +180,12 @@ function domGia() {
      (cờ iOS), mà Node không có `window` nên không ai gán hộ. */
   global.window.navigator = { standalone: false, userAgent: "node", language: "vi" };
 
-  const theoId = (id) => (kho[id] = kho[id] || El("div"));
+  /* Thẻ shim phát ra phải trông như thẻ ĐANG NẰM TRONG trang: có cha, và
+     cha ấy là `body` — thứ `catTrang()` có đi qua. Trả một thẻ mồ côi thì
+     `x.parentNode` là undefined, và thứ được chèn "cạnh" nó rơi ra ngoài
+     phép đếm ký tự. */
+  const trongCay = () => { const e = El("div"); e.parentNode = global.document.body; return e; };
+  const theoId = (id) => (kho[id] = kho[id] || trongCay());
   global.document = {
     readyState: "complete", title: "", head: El("head"), body: El("body"),
     documentElement: El("html"),
@@ -197,7 +211,7 @@ function domGia() {
        ký tự đọc phải thẻ rỗng và báo "vẽ hụt" cho một phòng vẽ đủ. */
     querySelector(sel) {
       const m = /^#([A-Za-z][\w-]*)$/.exec(String(sel || "").trim());
-      return m ? theoId(m[1]) : El("div");
+      return m ? theoId(m[1]) : trongCay();
     }
   };
   /* Nội dung KHÔNG chỉ nằm trong innerHTML: cung nào render bằng
