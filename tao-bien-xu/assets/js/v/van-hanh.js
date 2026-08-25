@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-25T02:11:30.071Z",
- "lan": 247,
+ "generatedAt": "2026-08-25T07:12:47.963Z",
+ "lan": 248,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -424,15 +424,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-24T19:04:32.735Z",
+   "luc": "2026-08-25T07:12:47.963Z",
    "ket": "ok",
-   "giay": 133,
+   "giay": 109,
    "doi": true,
-   "chuThich": "nhận 12 · loại 0 · phủ 23/30 bài · haiku-4.5",
+   "chuThich": "nhận 12 · loại 0 · phủ 20/30 bài · haiku-4.5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-24T19:04:32.735Z",
-   "lucDoi": "2026-08-24T19:04:32.735Z"
+   "lucOk": "2026-08-25T07:12:47.963Z",
+   "lucDoi": "2026-08-25T07:12:47.963Z"
   },
   {
    "ma": "thai-boc-tu-tin",
@@ -603,6 +603,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-25T07:12:47.963Z",
+   "ma": "thai-boc-tu-tin-pt",
+   "ket": "ok",
+   "giay": 109,
+   "doi": true,
+   "chuThich": "nhận 12 · loại 0 · phủ 20/30 bài · haiku-4.5",
+   "vi": null
+  },
   {
    "luc": "2026-08-25T02:11:30.071Z",
    "ma": "dong-tin",
@@ -1132,15 +1141,6 @@ window.VAN_HANH = {
    "giay": 209,
    "doi": true,
    "chuThich": "phiếu đo 6/7 → 6/7 · opus-5",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-23T07:15:30.376Z",
-   "ma": "thai-boc-tu-tin-pt",
-   "ket": "ok",
-   "giay": 80,
-   "doi": true,
-   "chuThich": "nhận 10 · loại 0 · phủ 30/30 bài · haiku-4.5",
    "vi": null
   }
  ]
