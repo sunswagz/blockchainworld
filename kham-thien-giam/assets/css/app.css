@@ -447,6 +447,19 @@ code,.mono,.ma{font-family:var(--mono)}
   color:var(--fg-3);margin-bottom:4px;font-weight:700}
 .vwap-so .v{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--fg)}
 
+/* Ba mức lợi thế. Màu ở đây là dấu hiệu THỨ BA, không phải dấu hiệu
+   duy nhất: dấu +/− đứng ngay trong con số, và .tt nói mức ra bằng
+   chữ. Bỏ cả hai đi thì ô này lại thành thứ chỉ đọc được bằng mắt
+   phân biệt được xanh với đỏ — xem chú thích ở veMayVwap trong app.js.
+   Chữ .tt cố ý KHÔNG nhuộm theo mức: nó là chỗ dựa khi màu mất nghĩa,
+   nên nó phải đọc được y như nhau ở cả ba mức. --fg-3 trên --card-2
+   là 4.86, trên sàn 4.5. */
+.vwap-so div[data-muc="day"] .v{color:var(--len)}
+.vwap-so div[data-muc="mong"] .v{color:var(--canh)}
+.vwap-so div[data-muc="am"] .v{color:var(--xuong)}
+.vwap-so .tt{display:block;margin-top:6px;font-size:11.4px;line-height:1.45;
+  color:var(--fg-3)}
+
 /* thác trừ năm khoản */
 .thac{margin:0}
 .thac .hang{display:flex;align-items:center;gap:11px;padding:6px 0;

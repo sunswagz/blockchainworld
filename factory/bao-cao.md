@@ -1,11 +1,17 @@
-# Sức khoẻ xưởng — 24/08/2026 07:52 UTC · lượt 221
+# Báo cáo sức khoẻ xưởng — 25/08/2026 13:40 UTC (lượt 261)
 
-Xưởng khoẻ, trừ đúng một chỗ: 19/20 node có mặt trong sổ ghi `ok` ở lượt gần nhất, và không node nào trễ quá gấp đôi `nhip` của nó.
+Xưởng cơ bản khoẻ: 21/22 node trong sổ có lượt gần nhất `ok`, đường số liệu 6 giờ (kinh-thanh, do-sat-vien, cong-bo, ho-bo, thai-boc-tu, tang-thu-cac, quan-trac-do) đều vừa chạy trong vòng 30 phút và đều ghi được dữ liệu mới — chỉ có đúng một node đang ngã dai dẳng.
 
-**Đáng lo — `tien-hoa-dqt`.** `chuoiLoi` là 5, `ket` là `loi`, và `lucOk` là `null`: node này **chưa `ok` lượt nào**. Bốn lượt còn trong nhật ký (20/08 19:10, 21/08 07:12, 22/08 13:14, 23/08 18:53) đều cùng một dòng `1 điểm yếu · haiku-4-5 · cổng chặn quyết định`, và `doi` luôn là `false` — không lượt nào ghi được gì. Ba node cùng khuôn `tien-hoa` (`ho-bo`, `thai-boc-tu`, `kham-thien-giam`) thì đều `ok`, phiếu đo 6/7.
+**Đáng lo — `tien-hoa-dqt` (Tiến hoá Đài Quan Trắc), `chuoiLoi` = 6.** Lượt gần nhất 24/08 19:02, `ket: "loi"`, chú thích lặp y nguyên qua cả sáu lượt: "1 điểm yếu · haiku-4-5 · cổng chặn quyết định". Nặng hơn con số 6: `lucOk` và `lucDoi` đều `null` — node này **chưa từng có một lượt thành công nào**, chưa từng ghi được byte nào vào `dai-quan-trac/assets/{css/app.css,js/app.js}`. Trong nhật ký nó ngã đều từ 20/08 19:10 trở đi, không lượt nào khác kiểu.
 
-**Không node nào trễ hạn.** Xa hạn nhất là `bao-cao`: 24,5 giờ trên `nhip` 24 — chưa tới ngưỡng gấp đôi. `dai-quan-trac` có ngã một lượt lúc 02:13 (`tq/scan.js` teo từ 10.571 xuống 3.843 byte, phép kiểm chặn lại) nhưng lượt 07:33 đã `ok` và `chuoiLoi` về 0, nên đó là một cú vấp đã tự đứng dậy chứ không phải bệnh.
+**Không có node nào trễ quá gấp đôi `nhip`.** Gần nhất là `bao-cao` (nhịp 24 giờ, chạy lần cuối 24/08 07:53 — trễ khoảng 30 giờ) và `tien-hoa-dqt` (nhịp 24, trễ ~18,6 giờ, chưa tới hạn). Ba node `che: "tay"` — `hoang-thanh`, `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh` — khai `nhip: 0` nên không tính là trễ.
 
-**Chạy đều mà chưa từng đổi — `dong-dau`.** Nhịp 6 giờ, lượt nào cũng `ok`, nhưng `lucDoi` là `null` và mọi mục nhật ký của nó đều `doi: false`: chưa lượt nào sinh ra thay đổi. Sổ đăng ký ghi nó "tự bỏ qua nếu sha256 trùng bản trước", nên đây có thể đúng thiết kế — cũng có thể bản số liệu đằng sau đã đứng yên. (`hoang-thanh` có `lucDoi` từ 14/08, tức 10 ngày, nhưng `nhip` là 0 và `che` là `tay` nên không tính vào nhóm chạy đều.)
+**Chạy được mà nguồn có thể đã chết:** không có. Mọi node có `nhip > 0` và `ket: "ok"` đều có `lucDoi` trùng đúng `luc` của lượt gần nhất, nghĩa là lượt nào cũng ghi ra dữ liệu khác bản trước.
 
-**Việc nên làm trước:** mở `tien-hoa-dqt`. Một node nhịp 24 giờ ngã 5 lượt liên tiếp và chưa `ok` lần nào thì không phải sự cố nhất thời — hoặc cổng đang trả lại mọi bản vá, hoặc phiếu đo Đài Quan Trắc mắc ở một điểm yếu model không vá nổi.
+Hai chỗ `doi: false` không phải dấu hiệu nguồn chết:
+- `dong-dau` — `ra` rỗng, bản chất là pin IPFS bỏ qua khi sha256 trùng, nên `lucDoi: null` là đúng thiết kế.
+- `hoang-thanh` — `lucDoi` 14/08 09:16, đứng yên 11 ngày, nhưng đó là node chạy tay (`nhip: 0`, `npm run hoangthanh`), sổ ghi rõ chú thích "mồi từ dấu generatedAt sẵn có trong file".
+
+## Việc nên làm trước
+
+Mở phiếu đo bảy thước của `tien-hoa-dqt` và xem "1 điểm yếu" đó là thước nào: node đã sáu lượt liên tiếp gọi model rồi bị chính cổng chặn của mình trả lại, chưa lần nào qua — nên vấn đề nằm ở cổng hoặc ở đề bài, không phải ở một lượt xui.

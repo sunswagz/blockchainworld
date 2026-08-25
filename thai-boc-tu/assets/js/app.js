@@ -347,17 +347,27 @@
     var lui = o.tvl - o.tvlRieng;
     var wR = max > 0 ? (o.tvlRieng / max) * 100 : 0;
     var wL = max > 0 ? (lui / max) * 100 : 0;
-    return '<div class="sk" data-oracle="' + esc(o.ten) + '">' +
-      '<div class="sk-d"><span class="sk-t">' + esc(o.ten) + "</span>" +
-      '<span class="sk-v">' + tien(o.tvl) + " · " + o.soGiaoThuc + " giao thức</span></div>" +
-      '<div class="sk-b">' +
+    /* <button>, không phải <div>. Mở hồ sơ là việc của một NÚT, và
+       hai danh sách kia (.toa, .dot) đã là nút từ đầu — chỉ danh sách
+       này bị bỏ lại. Hậu quả im lặng: cả phòng Khớp Nối chuột mới
+       bấm được, bàn phím không tab tới được ô nào, và vì không thẻ
+       nào nhận được focus nên viền :focus-visible cũng chưa bao giờ
+       hiện ở đây.
+
+       Ruột phải là nội dung DÒNG cho hợp lệ trong <button>: <div>
+       và <p> đổi sang <span>, còn hình thức giữ nguyên bằng
+       display:flex/block đã khai trong app.css. */
+    return '<button class="sk" type="button" data-oracle="' + esc(o.ten) + '">' +
+      '<span class="sk-d"><span class="sk-t">' + esc(o.ten) + "</span>" +
+      '<span class="sk-v">' + tien(o.tvl) + " · " + o.soGiaoThuc + " giao thức</span></span>" +
+      '<span class="sk-b">' +
         '<i data-p="rieng" data-rong="' + wR.toFixed(2) + '"></i>' +
         '<i data-p="lui" data-rong="' + wL.toFixed(2) + '"></i>' +
-      "</div>" +
-      '<p class="sk-y"><b>' + tien(o.tvlRieng) + "</b> (" + o.soRieng +
+      "</span>" +
+      '<span class="sk-y"><b>' + tien(o.tvlRieng) + "</b> (" + o.soRieng +
       " giao thức) khai <b>đúng mình nó</b> và không nguồn nào khác — mất khớp này " +
       "là mất giá, không có đường lui. Phần còn lại (" + tien(lui) +
-      ") có khai thêm ít nhất một nguồn.</p></div>";
+      ") có khai thêm ít nhất một nguồn.</span></button>";
   }
 
   function veKhopNoi() {
@@ -400,7 +410,11 @@
       "Đây là con số cung này tồn tại để nói. Một giao thức khai đúng một nguồn " +
       "giá là một giao thức không có đường lui: nguồn đó sai hoặc chết thì tài sản " +
       "thế chấp bị định giá sai, và cái sai đó chạy thẳng vào thanh lý.") +
-      khoi("Vốn hoá không phải tầm quan trọng hệ thống", D.oracle.length + " khớp",
+      /* Cùng lối nhắc với khối "Mười tám toa": danh sách nào bấm được
+         thì nói ngay ở hàng tiêu đề. Ba danh sách cùng mở hồ sơ mà
+         chỉ một cái nói ra điều đó thì hai cái kia đọc như bảng chết. */
+      khoi("Vốn hoá không phải tầm quan trọng hệ thống",
+        D.oracle.length + " khớp · bấm để mở hồ sơ",
         ct + ds,
         "Một dự án oracle có thể có vốn hoá khiêm tốn mà vẫn là chỗ hàng chục tỷ " +
         "đô đang dựa vào. Bảng vốn hoá không bao giờ nói ra điều đó, vì nó đo " +

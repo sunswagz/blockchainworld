@@ -425,7 +425,14 @@ code,.mono{font-family:var(--mono)}
    không có nguồn dự phòng, phần SÁNG là phần còn đường lui. Đọc
    được bằng mắt mà không cần đọc số — nhưng số vẫn nằm ngay cạnh
    vì màu không bao giờ được đứng một mình. */
-.sk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+/* `.sk` là <button> chứ không phải <div> — cùng lối với .toa và .dot,
+   hai danh sách kia cũng mở hồ sơ. Nên phải cởi ba mặc định của nút:
+   nó co lại vừa nội dung (width), canh giữa (text-align), và nằm
+   trên dòng (display). Thiếu một trong ba là dải hai màu bên dưới
+   không còn chạy hết bề ngang khối, mà bề ngang ấy chính là thứ
+   mang thông tin ở đây. */
+.sk{display:block;width:100%;text-align:left;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   padding:12px 14px;cursor:pointer;transition:border-color var(--dur)}
 .sk:hover{border-color:var(--tau)}
 .sk+.sk{margin-top:8px}
@@ -437,7 +444,9 @@ code,.mono{font-family:var(--mono)}
 .sk-b i{display:block;height:100%;width:0;transition:width .55s ease}
 .sk-b i[data-p="rieng"]{background:var(--xuong)}
 .sk-b i[data-p="lui"]{background:var(--len)}
-.sk-y{margin:7px 0 0;font-size:11.5px;color:var(--fg-2);line-height:1.55}
+/* Ruột của nút là <span> cho hợp lệ, nên dòng cuối phải tự dựng lại
+   khối — trước đây nó là <p> và ăn sẵn display:block. */
+.sk-y{display:block;margin:7px 0 0;font-size:11.5px;color:var(--fg-2);line-height:1.55}
 .sk-y b{color:var(--fg);font-weight:600}
 .chu-thich{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 12px;font-size:11.5px;color:var(--fg-2)}
 .chu-thich span{display:inline-flex;align-items:center;gap:6px}

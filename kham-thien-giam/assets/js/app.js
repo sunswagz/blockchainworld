@@ -184,9 +184,30 @@
     [["Best ask", oBest], ["VWAP thật", oVwap], ["Lợi thế thô", oEdge], ["Đi qua", oMuc]]
       .forEach(function (p) {
         p[1].appendChild(el("b", null, p[0]));
-        p[1].appendChild(el("div", "v", "—"));
+        /* Giữ thẳng thẻ giá trị thay vì querySelector(".v") mỗi lượt kéo
+           thanh trượt — cùng kết quả, và cap() không còn phải biết tên lớp. */
+        p[1]._v = el("div", "v", "—");
+        p[1].appendChild(p[1]._v);
         oso.appendChild(p[1]);
       });
+
+    /* Trạng thái lợi thế viết BẰNG CHỮ, ngay dưới con số.
+
+       Trước bản này ba mức — dày / mỏng / âm — khác nhau ĐÚNG một sắc
+       độ chữ (--len / --canh / --xuong), và con số in bằng toFixed nên
+       số dương còn không mang dấu +. Ai không phân biệt được xanh với
+       đỏ đọc "8.46¢" y hệt "0.42¢": cùng một chuỗi ký tự, khác nhau
+       chỉ ở màu. Đó là luật 3 hỏng ngay tại ô mà cả phòng dẫn tới —
+       và hỏng trong im lặng, vì trên màn hình của người viết nó vẫn
+       xanh đỏ rất rõ.
+
+       Hai dấu hiệu thêm vào, không dấu nào là màu:
+         · dấu +/− của cent(), cùng lối với thác trừ ngay bên dưới;
+         · một dòng chữ nói ra NGƯỠNG. 2¢ vốn chỉ nằm trong mã, nên
+           người kéo thanh trượt thấy màu nhảy mà không biết nó nhảy
+           ở đâu và vì sao. */
+    var oTt = el("span", "tt");
+    oEdge.appendChild(oTt);
     phai.appendChild(oso);
     var ghi = html("p", null, "");
     ghi.style.cssText = "margin:12px 0 0;font-size:12.6px;color:var(--fg-3);line-height:1.66";
@@ -197,13 +218,18 @@
       var q = Number(rng.value);
       var r = tinhVwap(q);
       lab.textContent = "Muốn mua: " + q.toLocaleString("vi-VN") + " cổ";
-      oBest.querySelector(".v").textContent = "46,0¢";
-      oVwap.querySelector(".v").textContent = (r.vwap * 100).toFixed(2) + "¢";
+      oBest._v.textContent = "46,0¢";
+      oVwap._v.textContent = (r.vwap * 100).toFixed(2) + "¢";
       var e = FAIR - r.vwap;
-      var ev = oEdge.querySelector(".v");
-      ev.textContent = (e * 100).toFixed(2) + "¢";
-      ev.style.color = e > 0.02 ? "var(--len)" : (e > 0 ? "var(--canh)" : "var(--xuong)");
-      oMuc.querySelector(".v").textContent = r.muc + " mức";
+      oEdge._v.textContent = cent(e);
+      /* Màu nằm ở CSS theo data-muc, không rắc inline nữa: một chỗ đặt
+         màu thì một chỗ đó cũng là chỗ ghi được vì sao có ba mức. */
+      var muc = e > 0.02 ? "day" : (e > 0 ? "mong" : "am");
+      oEdge.dataset.muc = muc;
+      oTt.textContent = muc === "day" ? "dày hơn ngưỡng 2¢"
+        : muc === "mong" ? "mỏng, dưới ngưỡng 2¢"
+        : "âm, không đáng vào";
+      oMuc._v.textContent = r.muc + " mức";
       hangs.forEach(function (h) { h.dataset.an = h._gia <= r.cham + 1e-9 ? "1" : "0"; });
       ghi.innerHTML = r.dayDu
         ? ("Mô hình định giá <b>55,0¢</b>. Phép trừ ai cũng làm là " +
