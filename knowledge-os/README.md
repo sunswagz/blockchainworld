@@ -22,16 +22,22 @@ Ví dụ đang chạy thật:
 
 ## Ba lệnh
 
-    node knowledge-os/kiem.mjs              kiểm dữ liệu, và kiểm nó khớp repo thật
-    node knowledge-os/sinh.mjs              sinh lát cắt cho mọi cung đã ánh xạ phòng
-    node knowledge-os/sinh.mjs ho-bo        chỉ một cung
-    node knowledge-os/sinh.mjs --thu        xem sẽ ghi gì, chưa ghi
+    npm run tri-thuc-kiem              kiểm dữ liệu, và kiểm nó khớp repo thật
+    npm run tri-thuc                   sinh lát cắt cho mọi cung đã ánh xạ phòng
+    npm run tri-thuc -- ho-bo          chỉ một cung
+    npm run tri-thuc -- --thu          xem sẽ ghi gì, chưa ghi
 
-    node knowledge-os/tra.mjs khai-niem interest_rate
-    node knowledge-os/tra.mjs tim "lãi suất"
+    npm run tra -- khai-niem interest_rate
+    npm run tra -- tim "lãi suất"
+    npm run tra -- cung thi-bac-ty
+    npm run tra -- vai-von time_price
+    npm run tra -- 2026
+
+Gọi thẳng cũng được, và ngắn hơn khi truyền tham số:
+
+    node knowledge-os/kiem.mjs
+    node knowledge-os/sinh.mjs ho-bo
     node knowledge-os/tra.mjs cung thi-bac-ty
-    node knowledge-os/tra.mjs vai-von time_price
-    node knowledge-os/tra.mjs 2026
 
 `sinh.mjs` **chạy `kiem.mjs` trước, và không ghi gì nếu dữ liệu sai**.
 Cùng lý do `scripts/build-scan.mjs` không cho model ghi thẳng `scan.js`:
@@ -40,9 +46,9 @@ người ta đọc — mà một câu giải nghĩa sai trông y hệt một câ
 
 ## Lát cắt sinh ra là SINH TAY, PHẢI commit
 
-    thai-boc-tu/assets/js/v/tri-thuc.js
-    ho-bo/assets/js/v/tri-thuc.js
-    thi-bac-ty/assets/js/v/tri-thuc.js
+Mười một cung, mỗi cung một file:
+
+    <cung>/assets/js/v/tri-thuc.js
 
 Cùng loại với `hoang-thanh/assets/js/data.js` và ba lát cắt của ba runtime
 Python: máy sinh, nhưng **không workflow nào chạy lệnh này**, nên người
@@ -112,8 +118,8 @@ luận được**, không buộc tội. Thêm cung mới thì thêm một nhánh
 
 Rồi:
 
-    node knowledge-os/kiem.mjs
-    node knowledge-os/sinh.mjs <cung>
+    npm run tri-thuc-kiem
+    npm run tri-thuc -- <cung>
 
 và thêm một dòng vào `index.html` của cung, ngay trước `app.js`:
 
@@ -121,6 +127,25 @@ và thêm một dòng vào `index.html` của cung, ngay trước `app.js`:
 <!-- lớp tri thức nền · SINH TAY, xem knowledge-os/sinh.mjs -->
 <script src="assets/js/v/tri-thuc.js"></script>
 ```
+
+## Phủ sóng
+
+Mười một trong mười hai cung đã ánh xạ phòng, **75 phòng**. Cung thứ mười
+hai — `kinh-thanh` — không có mã phòng cố định: thanh bên dựng theo TỪNG
+quốc gia, từ dữ liệu bot ghi 4 lượt/ngày. Ánh xạ vào mã đổi theo dữ liệu là
+ánh xạ sẽ lặng lẽ trỏ trượt, nên nó khai `rooms_note_vi` nói rõ vì sao.
+
+**29 phòng cố ý KHÔNG ánh xạ**, mỗi phòng kèm một dòng lý do trong
+`rooms_skipped`. Đó là chủ ý: một phòng công cụ — xưởng huy hiệu, trang tra
+từ, danh mục dự án theo hệ sinh thái — không mang nội dung kinh tế nào, và
+gán khái niệm vào là nhồi cho đủ.
+
+Không có khai báo ấy thì bộ kiểm nhắc "còn N phòng chưa ánh xạ" mãi cho
+những phòng sẽ không bao giờ được ánh xạ — mà cảnh báo kêu mãi thì người ta
+bỏ qua cảnh báo, rồi bỏ qua luôn lần nó đúng.
+
+Bộ kiểm bắt cả hai chiều: khai bỏ qua một mã KHÔNG có thật cũng là lỗi, vì
+một dòng bỏ qua cho phòng không tồn tại là một dòng nói dối.
 
 ## Hợp đồng V1
 

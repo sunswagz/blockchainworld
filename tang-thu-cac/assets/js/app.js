@@ -24,6 +24,12 @@
   if (!D || !VI) return;
 
   var state = { muc: "tong-quan", q: "", nhom: "all", nguon: "all" };
+  /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra assets/js/v/tri-thuc.js,
+     mang cả dữ liệu lẫn hàm vẽ nên khuôn giống hệt mọi cung khác. Nó KHÔNG
+     đụng con số nào; việc duy nhất là nói phòng này đang đo VIỆC KINH TẾ
+     gì, và mỗi câu giải nghĩa đến từ đâu. Thiếu file thì phòng vẫn vẽ đủ. */
+  var TT = window.TRI_THUC || null;
+
   var SK = D.skills || [], KHO = D.kho || [];
 
   function $(s) { return document.querySelector(s); }
@@ -797,6 +803,7 @@
     document.title = "Tàng Thư Các · " + t.ten;
     veBen();
     (MH[state.muc] || MH["tong-quan"])($("#than"));
+    if (TT && TT.them) TT.them($("#than"), state.muc);
   }
 
   function doiTuyen() {

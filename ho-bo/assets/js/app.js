@@ -247,65 +247,6 @@
       (duoi ? '<div class="duoi">' + duoi + "</div>" : "") + "</div>";
   }
 
-  /* ── dải tri thức nền cho một phòng ───────────────────
-     Bốn nhãn nguồn, và gộp bất kỳ hai nhãn nào cũng là nói dối:
-
-         sách      tác giả mô tả, tra lại được bằng chương/trang
-         tác giả   lập trường riêng của tác giả, không phải số đo
-         phân tích SUNSWaGz suy ra — sách không nói gì về repo này
-         repo      đo được từ chính repo/runtime này, năm 2026
-
-     Sách viết năm 2018. Bỏ nhãn đi thì một quan sát 2026 đọc thành
-     lời tác giả, và câu đó vẫn đúng ngữ pháp nên không ai bắt được.
-     Cùng luật 2 ở đầu file: mọi thứ hiện ra phải truy ngược được. */
-  var TEN_GOC = { sach: "sách", tacGia: "tác giả", phanTich: "phân tích", repo: "repo", web: "web" };
-
-  function chipGoc(g) {
-    return '<i class="tt-g" data-g="' + esc(g) + '">' + esc(TEN_GOC[g] || g) + "</i>";
-  }
-
-  function viTriSach(k) {
-    if (!k.chuong || !k.chuong.length) return k.nguon || "";
-    return "ch." + k.chuong.join(",") + (k.trang && k.trang.length ? " tr." + k.trang.join(",") : "");
-  }
-
-  function triThuc(ma) {
-    if (!TT || !TT.phong) return "";
-    var p = null, i;
-    for (i = 0; i < TT.phong.length; i++) if (TT.phong[i].ma === ma) p = TT.phong[i];
-    if (!p) return "";                       // phòng chưa ánh xạ — không vẽ gì, đừng vẽ khung rỗng
-
-    var the = p.khaiNiem.map(function (id) {
-      var k = TT.khaiNiem[id];
-      if (!k) return "";
-      var vt = viTriSach(k);
-      return '<div class="tt-k"><div class="tt-kd"><b>' + esc(k.vi) + "</b>" + chipGoc(k.goc) +
-        (vt ? '<span class="tt-vt">' + esc(vt) + "</span>" : "") + "</div>" +
-        "<p>" + esc(k.nghia) + "</p></div>";
-    }).join("");
-
-    /* Lớp 2018→2026 vẽ RIÊNG dưới một tiêu đề riêng. Trộn nó vào lưới
-       trên là đúng cái nhầm mà cả lớp này dựng ra để chặn. */
-    var noi = (TT.lop2026 || []).filter(function (r) {
-      return p.khaiNiem.indexOf(r.den) !== -1;
-    }).map(function (r) {
-      var tu = TT.khaiNiem[r.tu], den = TT.khaiNiem[r.den];
-      return "<p><b>" + esc(tu ? tu.vi : r.tu) + "</b>" + chipGoc(r.goc) +
-        '<span class="tt-loai">' + esc(r.loai) + "</span><b>" + esc(den ? den.vi : r.den) + "</b>" +
-        '<span class="tt-tin">tin ' + esc(r.tin) + "</span>" +
-        '<span class="tt-vi">' + esc(r.vi) + "</span></p>";
-    }).join("");
-
-    return '<section class="khoi tt"><div class="khoi-dinh"><h2>Vấn đề kinh tế gốc</h2>' +
-      '<span class="n">' + p.khaiNiem.length + " khái niệm</span></div>" +
-      '<p class="tt-y">' + esc(p.y) + "</p>" +
-      (the ? '<div class="tt-luoi">' + the + "</div>" : "") +
-      (noi ? '<div class="tt-26"><h3>2018 → 2026</h3>' + noi + "</div>" : "") +
-      '<p class="tt-chan">Nền: «' + esc(TT.nguon.sach.ten) + "» (" + esc(TT.nguon.sach.tacGia) +
-      ", " + esc(TT.nguon.sach.nam) + "). Ánh xạ khái niệm sang phòng là <b>phân tích</b> của " +
-      "SUNSWaGz — sách không nói gì về repo này. Sinh từ <code>knowledge-os/</code>.</p></section>";
-  }
-
   function khoi(tieu, n, than, y) {
     return '<section class="khoi"><div class="khoi-dinh"><h2>' + esc(tieu) + "</h2>" +
       (n ? '<span class="n">' + esc(n) + "</span>" : "") + "</div>" +
@@ -1013,7 +954,7 @@
     /* Dải giải nghĩa nối SAU nội dung phòng, một chỗ duy nhất cho cả tám
        phòng. Nhét vào từng hàm `ve*()` là tám chỗ phải nhớ, và phòng thứ
        chín thêm sau sẽ thiếu mà không có gì báo. */
-    than.innerHTML = p.ve() + triThuc(p.ma);
+    than.innerHTML = p.ve() + (TT && TT.ve ? TT.ve(p.ma) : "");
     than.style.animation = "none";
     /* Ép trình duyệt tính lại bố cục rồi mới bật animation, không thì
        gán lại cùng một animation không kích hoạt lần nữa. */

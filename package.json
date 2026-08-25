@@ -30,7 +30,10 @@
     "dich": "node scripts/dich-skill.mjs",
     "dich-tom": "node scripts/build-dich-tom.mjs",
     "do": "node scripts/tien-hoa.mjs do",
-    "cong": "node scripts/tien-hoa.mjs cong"
+    "cong": "node scripts/tien-hoa.mjs cong",
+    "tri-thuc": "node knowledge-os/sinh.mjs",
+    "tri-thuc-kiem": "node knowledge-os/kiem.mjs",
+    "tra": "node knowledge-os/tra.mjs"
   },
   "engines": {
     "node": ">=18"

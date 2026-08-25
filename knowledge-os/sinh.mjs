@@ -17,6 +17,17 @@
    của nó. Gói lõi không nằm trong `HALLS` của scripts/build-dist.mjs
    nên nó tự ở ngoài dist/ — không lên Pages, không lên IPFS.
 
+   ── PHẦN VẼ CŨNG SINH RA TỪ ĐÂY ───────────────────────
+   File sinh ra mang CẢ dữ liệu lẫn hàm vẽ. Chín cung dùng chung một
+   khuôn HTML, nên viết chín bản là chín chỗ để lệch nhau — và bản
+   thứ chín bao giờ cũng là bản quên sửa.
+
+   Đây đúng lối `scripts/build-halls.mjs` đã đi: một khai báo ở
+   `scripts/cung.mjs`, sinh ra `halls.js` cho MỌI cung. Cung chỉ cần
+   một dòng:
+
+       than.innerHTML = veGiHetPhong() + (TT ? TT.ve(maPhong) : "");
+
    ── FILE SINH RA LÀ SINH TAY, PHẢI COMMIT ─────────────
    Cùng loại với `hoang-thanh/assets/js/data.js` và ba lát cắt của
    ba runtime Python: máy sinh, nhưng KHÔNG có workflow nào chạy nó,
@@ -174,11 +185,151 @@ function latCat(h) {
   };
 }
 
-/* ── 4. ghi ───────────────────────────────────────────── */
+/* ── 4. phần vẽ, chung cho mọi cung ───────────────────
+   ES5 thuần, không phụ thuộc gì ngoài `document`. Chín cung dùng
+   đúng khuôn này nên lớp CSS trùng tên ở cả chín — mỗi cung chỉ
+   khai màu bằng biến bảng màu của chính nó.
+
+   `gan()` dùng insertBefore chứ không insertAdjacentElement/HTML:
+   cả hai chạy trên trình duyệt, nhưng DOM giả của
+   scripts/tien-hoa.mjs chỉ có insertBefore — và cổng chặn của vòng
+   tiến hoá chấm bằng DOM giả đó, nên dùng API nó không có là tự
+   chấm trượt một cung hoàn toàn lành. Đã cắn một lần. */
+const VE = `
+(function () {
+  "use strict";
+  var T = window.TRI_THUC;
+  if (!T) return;
+
+  var TEN = { sach: "sách", tacGia: "tác giả", phanTich: "phân tích", repo: "repo", web: "web" };
+  var GIAI = {
+    sach: "Tác giả mô tả — tra lại được bằng chương/trang",
+    tacGia: "Lập trường riêng của tác giả, không phải sự thật đo được",
+    phanTich: "SUNSWaGz suy ra — sách không nói gì về chuyện này",
+    repo: "Đo được từ repo/runtime này, năm 2026",
+    web: "Nguồn ngoài"
+  };
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function chip(g) {
+    return '<i class="tt-g" data-g="' + esc(g) + '" title="' + esc(GIAI[g] || "") + '">' +
+      esc(TEN[g] || g) + "</i>";
+  }
+  function viTri(k) {
+    if (!k.chuong || !k.chuong.length) return k.nguon || "";
+    return "ch." + k.chuong.join(",") + (k.trang && k.trang.length ? " tr." + k.trang.join(",") : "");
+  }
+  function timPhong(ma) {
+    var ds = T.phong || [], i;
+    for (i = 0; i < ds.length; i++) if (ds[i].ma === ma) return ds[i];
+    return null;
+  }
+
+  /* Trả về chuỗi HTML cho một phòng, hoặc "" nếu phòng chưa ánh xạ.
+     Chưa ánh xạ thì KHÔNG vẽ khung rỗng: một khung có tiêu đề mà
+     không có nội dung đọc ra là "chỗ này hỏng", chứ không phải
+     "chỗ này chưa làm". */
+  function ve(ma) {
+    var p = timPhong(ma);
+    if (!p) return "";
+
+    var the = "", i, k, vt;
+    for (i = 0; i < p.khaiNiem.length; i++) {
+      k = T.khaiNiem[p.khaiNiem[i]];
+      if (!k) continue;
+      vt = viTri(k);
+      the += '<div class="tt-k"><div class="tt-kd"><b>' + esc(k.vi) + "</b>" + chip(k.goc) +
+        (vt ? '<span class="tt-vt">' + esc(vt) + "</span>" : "") + "</div><p>" + esc(k.nghia) + "</p></div>";
+    }
+
+    /* Lớp 2018→2026 vẽ RIÊNG dưới một tiêu đề riêng. Trộn nó vào
+       lưới trên là đúng cái nhầm mà cả lớp này dựng ra để chặn. */
+    var noi = "", ds = T.lop2026 || [], r, tu, den;
+    for (i = 0; i < ds.length; i++) {
+      r = ds[i];
+      if (p.khaiNiem.indexOf(r.den) === -1) continue;
+      tu = T.khaiNiem[r.tu]; den = T.khaiNiem[r.den];
+      noi += "<p><b>" + esc(tu ? tu.vi : r.tu) + "</b>" + chip(r.goc) +
+        '<span class="tt-loai">' + esc(r.loai) + "</span><b>" + esc(den ? den.vi : r.den) + "</b>" +
+        '<span class="tt-tin">tin ' + esc(r.tin) + "</span>" +
+        '<span class="tt-vi">' + esc(r.vi) + "</span></p>";
+    }
+
+    return '<section class="tt"><h3 class="tt-d">Vấn đề kinh tế gốc' +
+      '<span class="tt-n">' + p.khaiNiem.length + " khái niệm</span></h3>" +
+      '<p class="tt-y">' + esc(p.y) + "</p>" +
+      (the ? '<div class="tt-luoi">' + the + "</div>" : "") +
+      (noi ? '<div class="tt-26"><h4>2018 → 2026</h4>' + noi + "</div>" : "") +
+      '<p class="tt-chan">Nền: «' + esc(T.nguon.sach.ten) + "» (" + esc(T.nguon.sach.tacGia) + ", " +
+      esc(T.nguon.sach.nam) + "). Ánh xạ khái niệm sang phòng là <b>phân tích</b> của SUNSWaGz — " +
+      "sách không nói gì về repo này. Sinh từ <code>knowledge-os/</code>.</p></section>";
+  }
+
+  /* Nối vào CUỐI thẻ chứa nội dung phòng. Dùng cho cung vẽ lại cả
+     thân theo tuyến (\`than.innerHTML = ...\`).
+
+     appendChild chứ KHÔNG \`host.innerHTML += ...\`: cộng chuỗi là
+     phân tích lại toàn bộ cây con, và mọi listener đã gắn vào thẻ
+     con bên trong đều rụng — hỏng im lặng, không lỗi nào báo, chỉ
+     là bấm vào không ăn nữa. */
+  function them(host, ma) {
+    var s = ve(ma);
+    if (!s || !host) return false;
+    /* Gỡ khối cũ trước khi nối khối mới. Cung nào vẽ lại CÙNG một
+       tuyến hai lần — điều hướng sâu, mở ngăn kéo, bấm lại đúng mục
+       đang đứng — sẽ gọi lại chỗ này, và hai khối chồng nhau trông
+       hệt như một trang dài chứ không giống lỗi. */
+    var cu = host.querySelector ? host.querySelector(".tt-hop") : null;
+    if (cu && cu.remove) cu.remove();
+    var w = document.createElement("div");
+    w.className = "tt-hop";
+    w.innerHTML = s;
+    host.appendChild(w);
+    return true;
+  }
+
+  /* Chèn vào ngay sau <h2> của một thẻ đã có sẵn trong index.html.
+     Dùng cho cung dựng trang tĩnh chứ không vẽ lại theo tuyến. */
+  function gan(ma, muc) {
+    var s = ve(ma);
+    if (!s || !muc) return false;
+    var w = document.createElement("div");
+    w.className = "tt-hop";
+    w.innerHTML = s;
+    var h = muc.querySelector ? muc.querySelector("h2") : null;
+    muc.insertBefore(w, h && h.nextSibling ? h.nextSibling : null);
+    return true;
+  }
+
+  /* Một dòng nói lát cắt tri thức đến từ đâu, để nối vào chân trang.
+     Gọi SAU khi cung đã vẽ xong chân trang của nó: phần lớn cung GÁN
+     textContent cho thẻ đó, nên nối trước là bị xoá sạch mà không có
+     lỗi nào báo. */
+  function chan() {
+    return " Lớp giải nghĩa: knowledge-os, nền là «" + T.nguon.sach.ten + "» (" +
+      T.nguon.sach.tacGia + ", " + T.nguon.sach.nam +
+      "). Nhãn nguồn trên từng dòng: sách · tác giả · phân tích · repo.";
+  }
+
+  T.ve = ve;
+  T.them = them;
+  T.gan = gan;
+  T.chan = chan;
+  T.co = function (ma) { return !!timPhong(ma); };
+})();
+`;
+
+/* ── 5. ghi ───────────────────────────────────────────── */
 const DAU =
   "/* TỰ SINH bởi knowledge-os/sinh.mjs — đừng sửa tay.\n" +
   "   Nguồn: knowledge-os/data/. Sửa dữ liệu ở đó rồi sinh lại:\n" +
   "       node knowledge-os/sinh.mjs %CUNG%\n" +
+  "\n" +
+  "   Mang CẢ dữ liệu lẫn phần vẽ — khuôn HTML chung cho mọi cung,\n" +
+  "   viết một lần trong sinh.mjs. Cung gọi TRI_THUC.ve(maPhong).\n" +
   "\n" +
   "   SINH TAY, PHẢI COMMIT — không workflow nào chạy lệnh này.\n" +
   "   Nằm ở assets/js/v/ nên đi nhánh MẠNG-TRƯỚC: KHÔNG cần nâng\n" +
@@ -207,7 +358,7 @@ for (const h of lam) {
   }
   const duong = join(thu, "tri-thuc.js");
   const d = latCat(h);
-  const noi = DAU.replace("%CUNG%", h.hall) + "window.TRI_THUC = " + JSON.stringify(d) + ";\n";
+  const noi = DAU.replace("%CUNG%", h.hall) + "window.TRI_THUC = " + JSON.stringify(d) + ";\n" + VE;
 
   if (THU) {
     console.log(
@@ -222,8 +373,9 @@ for (const h of lam) {
   await writeFile(duong, noi);
   n++;
   console.log(
-    `✓ ${h.hall}/assets/js/v/tri-thuc.js — ${(statSync(duong).size / 1024).toFixed(1)} KB · ` +
-    `${Object.keys(d.khaiNiem).length} khái niệm · ${d.quanHe.length} quan hệ · ${d.lop2026.length} nối 2026`
+    `✓ ${h.hall.padEnd(16)} ${(statSync(duong).size / 1024).toFixed(1).padStart(5)} KB · ` +
+    `${String(d.phong.length).padStart(2)} phòng · ${String(Object.keys(d.khaiNiem).length).padStart(2)} khái niệm · ` +
+    `${String(d.quanHe.length).padStart(2)} quan hệ · ${String(d.lop2026.length).padStart(2)} nối 2026`
   );
 }
 

@@ -568,7 +568,26 @@ function renderTicker(){
    ============================================================ */
 function head(ttl,sub){ $('#ttl').textContent=ttl; $('#sub').textContent=sub; }
 
+/* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra assets/js/v/tri-thuc.js,
+   mang cả dữ liệu lẫn hàm vẽ nên khuôn giống hệt mọi cung khác. Nó KHÔNG
+   đụng số liệu nào; việc duy nhất là nói trang này đang đo VIỆC KINH TẾ gì,
+   và mỗi câu giải nghĩa đến từ đâu.
+
+   Chỉ NĂM tuyến cố định được ánh xạ (flow, chain, gauges, levels, banco).
+   Tuyến sinh từ dữ liệu — `th/…`, `soi/…`, `cht/…`, `lib/…` — đổi theo lượt
+   bot, nên ánh xạ vào đó là ánh xạ sẽ lặng lẽ trỏ trượt. Tuyến chưa ánh xạ
+   thì `them()` trả false và không vẽ gì.
+
+   Bọc `render` chứ không sửa mười ba nhánh `return v.innerHTML='', …`: nối
+   ở một chỗ sau khi nội dung đã dựng xong là một chỗ phải nhớ thay vì mười
+   ba. `them()` tự gỡ khối cũ nên vẽ lại cùng tuyến không chồng khối. */
 function render(){
+  veTuyen();
+  const TT=window.TRI_THUC;
+  if(TT&&TT.them) TT.them($('#view'), state.route);
+}
+
+function veTuyen(){
   const v=$('#view'); const r=state.route;
   renderTicker();
   if(r==='flow')       return v.innerHTML='', v.appendChild(vFlow());

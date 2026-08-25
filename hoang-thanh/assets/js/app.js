@@ -743,7 +743,28 @@
 
   /* ═══════════════ định tuyến ═══════════════ */
 
+  /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra
+     assets/js/v/tri-thuc.js, mang cả dữ liệu lẫn hàm vẽ nên khuôn giống
+     hệt mọi cung khác. Nó KHÔNG đụng dữ liệu văn hoá nào.
+
+     Cung này cần nhãn nguồn hơn mọi cung khác: sách viết về Bitcoin và
+     kinh tế học Áo, còn đây là mười lăm nền văn hoá. Nối hai thứ mà
+     không nói rõ đâu là suy luận thì thành áp một cuốn sách lên thần
+     thoại — nên mọi dòng ở đây đều đeo nhãn, và ánh xạ mang nhãn
+     "phân tích" chứ không bao giờ nhãn "sách".
+
+     Bọc `dinhTuyen` chứ không sửa từng nhánh: hàm gốc có sáu đường ra,
+     và nối ở một chỗ sau khi nó chạy xong là một chỗ phải nhớ thay vì
+     sáu. `them()` tự gỡ khối cũ nên vẽ lại cùng tuyến không chồng khối. */
   function dinhTuyen() {
+    dinhTuyenNoiDung();
+    var TT = window.TRI_THUC;
+    if (TT && TT.them) {
+      TT.them(than, (location.hash || "#/rung").replace(/^#\/?/, "").split("/")[0]);
+    }
+  }
+
+  function dinhTuyenNoiDung() {
     var h = location.hash || "#/rung";
     var p = h.replace(/^#\/?/, "").split("/");
 

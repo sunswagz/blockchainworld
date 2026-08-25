@@ -11,7 +11,8 @@
         "final_settlement",
         "individual_sovereignty"
       ],
-      "example_vi": "Giải thích L1 đang cung cấp đồng thuận, trạng thái và quyết toán cuối; không biến trang thành bài học."
+      "example_vi": "Giải thích L1 đang cung cấp đồng thuận, trạng thái và quyết toán cuối; không biến trang thành bài học.",
+      "rooms_note_vi": "Chưa ánh xạ phòng: thanh bên của cung này dựng theo TỪNG quốc gia, từ `tiers` trong dữ liệu bot ghi 4 lượt/ngày, nên không có mã phòng cố định để trỏ vào. Ánh xạ vào mã đổi theo dữ liệu là ánh xạ sẽ lặng lẽ trỏ trượt. Khái niệm mức cung vẫn dùng được cho công cụ tra cứu."
     },
     {
       "hall": "thai-boc-tu",
@@ -76,6 +77,140 @@
             "counterparty_risk"
           ],
           "note_vi": "Lãi suất là giá của thời gian. Toa này là thị trường vốn on-chain: tiết kiệm gặp nhu cầu vay, và giá gặp nhau ở lãi suất."
+        },
+        {
+          "id": "t02",
+          "name_vi": "Mở rộng & thực thi",
+          "concepts": [
+            "scaling_tradeoff",
+            "final_settlement",
+            "verification"
+          ],
+          "note_vi": "Thêm làn đường thì phải trả bằng thứ khác. Toa này là chỗ đánh đổi mở rộng hiện thành một câu hỏi đo được: ai còn kiểm được trạng thái, và quyết toán cuối vẫn nằm ở đâu."
+        },
+        {
+          "id": "t07",
+          "name_vi": "Phái sinh & thị trường rủi ro",
+          "concepts": [
+            "capital_market",
+            "price_signal",
+            "counterparty_risk"
+          ],
+          "note_vi": "Chợ bán rủi ro và kỳ vọng. Giá phái sinh là tín hiệu về tương lai, còn đòn bẩy là vốn đi vay — nên nó vừa sinh tín hiệu vừa mang rủi ro đối tác."
+        },
+        {
+          "id": "t08",
+          "name_vi": "Đặt cọc & tái đặt cọc",
+          "concepts": [
+            "consensus",
+            "savings",
+            "interest_rate",
+            "counterparty_risk"
+          ],
+          "note_vi": "Vốn bị khoá để mua an ninh cho mạng, và lợi suất đặt cọc là giá của việc khoá đó. Tái đặt cọc dùng lại cùng một khoản thế chấp cho nhiều lời hứa — chỗ rủi ro đối tác chồng lên nhau."
+        },
+        {
+          "id": "t09",
+          "name_vi": "Tài sản thế giới thật",
+          "concepts": [
+            "capital_market",
+            "trusted_third_party",
+            "counterparty_risk"
+          ],
+          "note_vi": "Token chỉ đáng giá bằng người giữ tài sản gốc ngoài chuỗi. Đây là chỗ quyết toán trên chuỗi KHÔNG xoá được rủi ro đối tác — nó chỉ dời chỗ."
+        },
+        {
+          "id": "t10",
+          "name_vi": "Thanh toán & chuyển giá trị",
+          "concepts": [
+            "medium_of_exchange",
+            "international_settlement",
+            "final_settlement",
+            "salability"
+          ],
+          "note_vi": "Chuyển giá trị qua không gian — một trong ba chiều của tiền mà sách mở đầu bằng. Thanh khoản hai đầu là điều kiện, không phải chi tiết kỹ thuật."
+        },
+        {
+          "id": "t11",
+          "name_vi": "DePIN · máy móc & tài nguyên",
+          "concepts": [
+            "capital_goods",
+            "productivity",
+            "price_signal"
+          ],
+          "note_vi": "Phần thưởng token là một giá, và giá đó điều phối phần cứng thật. Đây là tư liệu sản xuất được dựng bằng tín hiệu giá thay vì bằng một kế hoạch tập trung."
+        },
+        {
+          "id": "t12",
+          "name_vi": "AI · dữ liệu & tác tử",
+          "concepts": [
+            "distributed_knowledge",
+            "economic_calculation",
+            "verification"
+          ],
+          "note_vi": "Tác tử tự mua bán dịch vụ là phép tính kinh tế chạy bằng máy. Câu hỏi còn lại là kiểm chứng: một quyết định của model không lần lại được từng bước."
+        },
+        {
+          "id": "t13",
+          "name_vi": "Danh tính & xã hội",
+          "concepts": [
+            "verification",
+            "trusted_third_party",
+            "individual_sovereignty"
+          ],
+          "note_vi": "Chuỗi biết tài sản nào, chưa biết ai. Mỗi cách trả lời câu hỏi ai đều là chọn tin một bên nào đó — và chọn phơi ra bao nhiêu về mình."
+        },
+        {
+          "id": "t14",
+          "name_vi": "Riêng tư",
+          "concepts": [
+            "individual_sovereignty",
+            "verification",
+            "capital_controls"
+          ],
+          "note_vi": "Sổ cái công khai hoàn toàn là ai cũng đọc được dòng tiền của bạn. Riêng tư là chỗ chủ quyền cá nhân gặp khả năng kiểm soát vốn — và hai bên kéo ngược nhau."
+        },
+        {
+          "id": "t15",
+          "name_vi": "Game · NFT · metaverse",
+          "concepts": [
+            "salability",
+            "network_effect",
+            "economic_value"
+          ],
+          "note_vi": "Vật phẩm trong game bán được ra ngoài thì nó thành tài sản. Thứ quyết định là tính thanh khoản và số người cùng công nhận, không phải công nghệ."
+        },
+        {
+          "id": "t16",
+          "name_vi": "Meme · văn hoá & chú ý",
+          "concepts": [
+            "network_effect",
+            "salability",
+            "malinvestment"
+          ],
+          "note_vi": "Chú ý được định lượng thành tài sản giao dịch được. Sách gọi dòng vốn chảy theo tín hiệu méo là đầu tư sai lệch — đó là LẬP TRƯỜNG của tác giả, không phải một phép đo, nên nó đeo nhãn riêng."
+        },
+        {
+          "id": "t17",
+          "name_vi": "Cửa vốn & sàn",
+          "concepts": [
+            "trusted_third_party",
+            "custody_centralization",
+            "counterparty_risk",
+            "capital_mobility"
+          ],
+          "note_vi": "Cổng giữa tiền pháp định và crypto, và là nơi giữ hộ phần lớn số vốn đã vào. Sách kể chuyện này ở vàng: thứ dễ giữ hộ thì cuối cùng bị giữ tập trung."
+        },
+        {
+          "id": "t18",
+          "name_vi": "Kinh tế Bitcoin · BTCFi",
+          "concepts": [
+            "hard_money",
+            "store_of_value",
+            "interest_rate",
+            "counterparty_risk"
+          ],
+          "note_vi": "Sinh lợi suất trên một tài sản dự trữ nghĩa là cho vay nó đi. Sách coi độ cứng là điểm mạnh của BTC; lợi suất là chỗ điểm mạnh ấy được đem đổi lấy rủi ro đối tác."
         }
       ]
     },
@@ -152,6 +287,25 @@
             "verification"
           ],
           "note_vi": "Mỗi vụ mất tiền là một lần bên thứ ba đáng tin hoá ra không đáng tin — và số tiền mất là giá của lần tin đó."
+        },
+        {
+          "id": "tong-quan",
+          "name_vi": "Đại Sảnh",
+          "concepts": [
+            "economic_calculation",
+            "price_signal",
+            "capital_market"
+          ],
+          "note_vi": "Chế độ rủi ro là một phép tính gộp trên nhiều tín hiệu giá. Nó tóm tắt, nên nó cũng che — mỗi thành phần đều mở ra xem lại được ở phòng riêng."
+        },
+        {
+          "id": "kho-nguon",
+          "name_vi": "Kho Nguồn",
+          "concepts": [
+            "distributed_knowledge",
+            "verification"
+          ],
+          "note_vi": "Không ai đọc hết thị trường một mình. Kho công cụ này là cách gom tri thức nằm rải, và mỗi công cụ là một đường tự kiểm lại thay vì tin lời người khác."
         }
       ]
     },
@@ -227,7 +381,68 @@
         "capital_market",
         "counterparty_risk"
       ],
-      "example_vi": "AI tổng hợp tín hiệu phân tán nhưng Risk Engine giữ quyền quyết định rủi ro."
+      "example_vi": "AI tổng hợp tín hiệu phân tán nhưng Risk Engine giữ quyền quyết định rủi ro.",
+      "rooms": [
+        {
+          "id": "phien",
+          "name_vi": "Phiên gần nhất",
+          "concepts": [
+            "price_signal",
+            "economic_calculation"
+          ],
+          "note_vi": "Một phiên là một lần phép tính chạy trên tín hiệu giá vừa có. Đọc lại phiên là đọc lại phép tính, không phải đọc kết quả."
+        },
+        {
+          "id": "luan-diem",
+          "name_vi": "Luận điểm",
+          "concepts": [
+            "distributed_knowledge",
+            "economic_calculation"
+          ],
+          "note_vi": "Model gom tín hiệu rải rác mà không ai đọc hết được. Luận điểm là bản tóm của việc gom đó — và nó vẫn phải qua cửa rủi ro."
+        },
+        {
+          "id": "rui-ro",
+          "name_vi": "Rủi ro & vị thế",
+          "concepts": [
+            "counterparty_risk",
+            "capital_market"
+          ],
+          "note_vi": "Risk Engine giữ quyền phủ quyết. Một đề xuất hay mà vượt trần rủi ro thì vẫn bị chặn — và đó là thiết kế, không phải lỗi."
+        },
+        {
+          "id": "the-gioi",
+          "name_vi": "Bối cảnh thế giới",
+          "concepts": [
+            "price_signal",
+            "distributed_knowledge"
+          ],
+          "note_vi": "Giá không sinh ra trong chân không. Bối cảnh là phần thông tin phân tán chưa kịp vào giá."
+        },
+        {
+          "id": "so-do",
+          "name_vi": "Sơ đồ dữ liệu",
+          "concepts": [
+            "verification",
+            "distributed_knowledge"
+          ],
+          "note_vi": "Biết số từ đâu tới là điều kiện để kiểm lại được. Sơ đồ này là đường truy ngược của mọi con số trong cung."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "huan-luyen",
+          "why_vi": "Quy trình đào tạo model, thuộc về công cụ chứ không thuộc thị trường."
+        },
+        {
+          "id": "nhat-ky",
+          "why_vi": "Sổ ghi việc theo thời gian, không gắn với một khái niệm cố định."
+        },
+        {
+          "id": "cach-chay",
+          "why_vi": "Hướng dẫn vận hành runtime."
+        }
+      ]
     },
     {
       "hall": "kham-thien-giam",
@@ -238,7 +453,74 @@
         "economic_calculation",
         "network_effect"
       ],
-      "example_vi": "Giá xác suất là cơ chế tổng hợp thông tin phân tán."
+      "example_vi": "Giá xác suất là cơ chế tổng hợp thông tin phân tán.",
+      "rooms": [
+        {
+          "id": "dai-chiem",
+          "name_vi": "Đài Chiêm",
+          "concepts": [
+            "price_signal",
+            "distributed_knowledge",
+            "economic_calculation"
+          ],
+          "note_vi": "Tự tính ra giá trị đáng có rồi mới nhìn sang chợ — đó là dùng phép tính kinh tế để KIỂM tín hiệu giá, thay vì đọc giá như sự thật."
+        },
+        {
+          "id": "so-lenh",
+          "name_vi": "Sổ Lệnh",
+          "concepts": [
+            "salability",
+            "price_signal"
+          ],
+          "note_vi": "Giá không kèm khối lượng là một con số vô nghĩa. Sổ lệnh là chỗ tính thanh khoản hiện ra thành số đo được."
+        },
+        {
+          "id": "can-loi",
+          "name_vi": "Cân Lợi",
+          "concepts": [
+            "economic_calculation",
+            "price_signal"
+          ],
+          "note_vi": "Lợi thế chỉ có thật sau khi trừ phí và trượt giá. Trước đó nó là một tương quan, và tương quan không phải lợi thế."
+        },
+        {
+          "id": "kho-doi",
+          "name_vi": "Kho Đối",
+          "concepts": [
+            "counterparty_risk",
+            "trusted_third_party"
+          ],
+          "note_vi": "Hai chân phải khớp; một chân khớp mà chân kia trượt là biến phòng hộ thành đặt cược. Vấn đề bắt đầu SAU cú khớp thứ nhất."
+        },
+        {
+          "id": "quan-vi",
+          "name_vi": "Đài Quan Ví",
+          "concepts": [
+            "distributed_knowledge",
+            "verification"
+          ],
+          "note_vi": "Ví công khai là tri thức nằm rải sẵn trên sổ cái. Đọc được không có nghĩa là suy ra được động cơ — nên chỗ này chỉ ghi, không đoán."
+        },
+        {
+          "id": "truong-thi",
+          "name_vi": "Trường Thi",
+          "concepts": [
+            "verification",
+            "economic_calculation"
+          ],
+          "note_vi": "Nói 60% mà thực tế thắng 40% thì mô hình sai, dù mỗi lệnh trông vẫn hợp lý. Hiệu chuẩn là phép kiểm duy nhất trả lời được câu đó."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "sau-ngon",
+          "why_vi": "Mô tả kiến trúc phần mềm (một nền máy, sáu chiến thuật), không phải một khái niệm kinh tế."
+        },
+        {
+          "id": "vong-tien-hoa",
+          "why_vi": "Quy trình tự sửa của xưởng, thuộc về nhà máy chứ không thuộc thị trường."
+        }
+      ]
     },
     {
       "hall": "cong-bo",
@@ -248,7 +530,47 @@
         "trusted_third_party",
         "counterparty_risk"
       ],
-      "example_vi": "Biến “đừng tin, hãy kiểm tra” thành decoder/diff/provenance."
+      "example_vi": "Biến “đừng tin, hãy kiểm tra” thành decoder/diff/provenance.",
+      "rooms": [
+        {
+          "id": "giai-ma",
+          "name_vi": "Giải mã lời gọi",
+          "concepts": [
+            "verification",
+            "trusted_third_party"
+          ],
+          "note_vi": "Dãy hex đọc được thành lời gọi hàm là chỗ câu đừng tin hãy kiểm tra thành một thao tác thật. Chạy trong máy bạn nên không phải tin thêm bên nào."
+        },
+        {
+          "id": "nhat-ky",
+          "name_vi": "Nhật ký đổi thay",
+          "concepts": [
+            "verification",
+            "trusted_third_party",
+            "counterparty_risk"
+          ],
+          "note_vi": "Mỗi dòng diff là một lần ai đó có quyền đổi luật đã dùng quyền ấy. Đọc được nhật ký là biết mình đang tin ai, và tin tới đâu."
+        },
+        {
+          "id": "kinh-lup",
+          "name_vi": "Kính lúp hồ sơ",
+          "concepts": [
+            "verification",
+            "distributed_knowledge"
+          ],
+          "note_vi": "Chỗ chưa ai soi đáng ngại hơn chỗ đã soi và thấy điểm yếu. Bảng này đo độ phủ của việc kiểm, không đo chất lượng dự án."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "xuong-huy-hieu",
+          "why_vi": "Công cụ xếp ảnh, không mang nội dung kinh tế nào. Gán khái niệm vào là nhồi cho đủ."
+        },
+        {
+          "id": "di-noi-khac",
+          "why_vi": "Danh sách liên kết ra ngoài, không phải một chủ đề."
+        }
+      ]
     },
     {
       "hall": "do-sat-vien",
@@ -259,7 +581,173 @@
         "trusted_third_party",
         "final_settlement"
       ],
-      "example_vi": "Mỗi risk trả lời: ai có quyền đổi trạng thái cuối, người dùng đang tin ai?"
+      "example_vi": "Mỗi risk trả lời: ai có quyền đổi trạng thái cuối, người dùng đang tin ai?",
+      "rooms": [
+        {
+          "id": "tong-quan",
+          "name_vi": "Tổng quan Lớp 2",
+          "concepts": [
+            "scaling_tradeoff",
+            "final_settlement",
+            "decentralization"
+          ],
+          "note_vi": "Mỗi lớp hai là một cách trả lời câu mở rộng bằng cách hi sinh gì. Bảng này xếp các câu trả lời cạnh nhau để so được."
+        },
+        {
+          "id": "rui-ro",
+          "name_vi": "Phân tích rủi ro",
+          "concepts": [
+            "trusted_third_party",
+            "counterparty_risk",
+            "decentralization"
+          ],
+          "note_vi": "Mỗi ô rủi ro trả lời đúng một câu: ai có quyền đổi trạng thái cuối, và người gửi tiền đang tin ai."
+        },
+        {
+          "id": "kiem-chung",
+          "name_vi": "Hệ chứng minh",
+          "concepts": [
+            "verification",
+            "consensus"
+          ],
+          "note_vi": "Chứng minh là cách thay lòng tin bằng phép kiểm. Không có nó thì lớp hai chỉ là một cơ sở dữ liệu có người quản."
+        },
+        {
+          "id": "du-lieu",
+          "name_vi": "Dữ liệu sẵn có",
+          "concepts": [
+            "verification",
+            "final_settlement"
+          ],
+          "note_vi": "Không đọc được dữ liệu thì không dựng lại được trạng thái, và không dựng lại được thì không tự rút tiền ra được."
+        },
+        {
+          "id": "xep-thu-tu",
+          "name_vi": "Xếp thứ tự giao dịch",
+          "concepts": [
+            "trusted_third_party",
+            "decentralization",
+            "final_settlement"
+          ],
+          "note_vi": "Quyền xếp thứ tự là một quyền lực thật: nó quyết định giao dịch nào vào trước, và ai bị bỏ lại."
+        },
+        {
+          "id": "hoat-dong",
+          "name_vi": "Hoạt động",
+          "concepts": [
+            "network_effect",
+            "price_signal"
+          ],
+          "note_vi": "Số giao dịch và phí là tín hiệu về nhu cầu thật, tách khỏi câu chuyện tiếp thị."
+        },
+        {
+          "id": "do-song",
+          "name_vi": "Độ sống",
+          "concepts": [
+            "final_settlement",
+            "counterparty_risk"
+          ],
+          "note_vi": "Mạng đứng im thì tiền vẫn ở đó nhưng không rút ra được. Độ sống là khoảng cách giữa sở hữu và dùng được."
+        },
+        {
+          "id": "luu-tru",
+          "name_vi": "Cửa thoát",
+          "concepts": [
+            "individual_sovereignty",
+            "final_settlement"
+          ],
+          "note_vi": "Cửa thoát là quyền rút về lớp nền khi người vận hành ngừng hợp tác. Không có nó thì chủ quyền chỉ là lời hứa."
+        },
+        {
+          "id": "lt-tong-quan",
+          "name_vi": "Liên thông",
+          "concepts": [
+            "international_settlement",
+            "trusted_third_party",
+            "counterparty_risk"
+          ],
+          "note_vi": "Chuyển giá trị giữa hai chuỗi là bài toán quyết toán liên miền — và mọi lời giải đều thêm một bên phải tin."
+        },
+        {
+          "id": "lt-khung-token",
+          "name_vi": "Khung token liên chuỗi",
+          "concepts": [
+            "medium_of_exchange",
+            "counterparty_risk"
+          ],
+          "note_vi": "Cùng một cái tên token trên hai chuỗi có thể là hai lời hứa khác nhau. Khung nào phát hành nó quyết định lời hứa đó ai giữ."
+        },
+        {
+          "id": "lt-cau-y-dinh",
+          "name_vi": "Cầu ý định",
+          "concepts": [
+            "salability",
+            "trusted_third_party",
+            "counterparty_risk"
+          ],
+          "note_vi": "Người giải ứng vốn trước rồi đòi lại sau — đó là thanh khoản đổi lấy rủi ro, đúng phép đánh đổi của mọi trung gian."
+        },
+        {
+          "id": "rieng-tu",
+          "name_vi": "Quyền riêng tư",
+          "concepts": [
+            "individual_sovereignty",
+            "verification"
+          ],
+          "note_vi": "Kiểm được mà không phơi ra là bài toán khó nhất của sổ cái công khai."
+        },
+        {
+          "id": "zk",
+          "name_vi": "Bằng chứng không tiết lộ",
+          "concepts": [
+            "verification",
+            "decentralization"
+          ],
+          "note_vi": "Kiểm rẻ hơn chạy lại là điều kiện để một người thường còn tự kiểm được — tức là để phi tập trung còn nghĩa."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "tu-dien",
+          "why_vi": "Trang tra từ, không phải một chủ đề kinh tế."
+        },
+        {
+          "id": "dl-tong-quan",
+          "why_vi": "Bảng con của Dữ liệu sẵn có; khái niệm đã nói ở phòng du-lieu, lặp lại là nhiễu."
+        },
+        {
+          "id": "dl-rui-ro",
+          "why_vi": "Bảng con của Dữ liệu sẵn có, như trên."
+        },
+        {
+          "id": "dl-thong-luong",
+          "why_vi": "Bảng con của Dữ liệu sẵn có, như trên."
+        },
+        {
+          "id": "dl-do-song",
+          "why_vi": "Bảng con của Dữ liệu sẵn có, như trên."
+        },
+        {
+          "id": "dl-luu-tru",
+          "why_vi": "Bảng con của Dữ liệu sẵn có, như trên."
+        },
+        {
+          "id": "st-arbitrum-orbit",
+          "why_vi": "Danh mục dự án theo hệ sinh thái, không phải một khái niệm."
+        },
+        {
+          "id": "st-elastic",
+          "why_vi": "Danh mục dự án theo hệ sinh thái, như trên."
+        },
+        {
+          "id": "st-superchain",
+          "why_vi": "Danh mục dự án theo hệ sinh thái, như trên."
+        },
+        {
+          "id": "st-agglayer",
+          "why_vi": "Danh mục dự án theo hệ sinh thái, như trên."
+        }
+      ]
     },
     {
       "hall": "dai-quan-trac",
@@ -273,7 +761,81 @@
         "capital_mobility",
         "monetary_debasement"
       ],
-      "example_vi": "Phân loại tin theo chuỗi cung tiền → lãi suất → tỷ giá → dòng vốn → tài sản."
+      "example_vi": "Phân loại tin theo chuỗi cung tiền → lãi suất → tỷ giá → dòng vốn → tài sản.",
+      "rooms": [
+        {
+          "id": "flow",
+          "name_vi": "Dòng chảy",
+          "concepts": [
+            "capital_mobility",
+            "capital_controls",
+            "price_signal"
+          ],
+          "note_vi": "Vốn chảy đi đâu là câu trả lời gộp cho mọi chính sách tiền tệ. Chặn dòng chảy là chính sách; đo dòng chảy là đọc kết quả của chính sách."
+        },
+        {
+          "id": "chain",
+          "name_vi": "Mạch truyền dẫn",
+          "concepts": [
+            "central_bank",
+            "interest_rate",
+            "fiat_money",
+            "capital_mobility"
+          ],
+          "note_vi": "Cung tiền → lãi suất → tỷ giá → dòng vốn → tài sản. Mỗi mắt xích là một chỗ tín hiệu có thể bị bẻ, và bẻ ở đâu thì méo lan từ đó về sau."
+        },
+        {
+          "id": "gauges",
+          "name_vi": "Bảng cảnh báo sớm",
+          "concepts": [
+            "price_signal",
+            "monetary_debasement"
+          ],
+          "note_vi": "Đồng hồ đo áp lực lên đồng tiền. Chúng đọc được vì giá vẫn còn nói thật ở đâu đó — mất chỗ ấy là mất luôn cảnh báo."
+        },
+        {
+          "id": "levels",
+          "name_vi": "Cấp độ áp lực",
+          "concepts": [
+            "currency_war",
+            "monetary_nationalism",
+            "capital_controls"
+          ],
+          "note_vi": "Từ áp lực tới khủng hoảng là một thang, không phải một công tắc. Sách kể thang này ở thế kỷ 20; các nấc vẫn nhận ra được."
+        },
+        {
+          "id": "banco",
+          "name_vi": "Bàn cờ Mỹ–Trung",
+          "concepts": [
+            "monetary_competition",
+            "currency_war",
+            "international_settlement"
+          ],
+          "note_vi": "Hai hệ thanh toán cạnh tranh nhau là cạnh tranh tiền tệ ở quy mô nhà nước — chuyện sách kể bằng vàng và bảng Anh."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "scen",
+          "why_vi": "Kịch bản phân nhánh — dự báo, không phải khái niệm."
+        },
+        {
+          "id": "compass",
+          "why_vi": "Khung định vị bốn phía, thuộc phương pháp trình bày."
+        },
+        {
+          "id": "bomach",
+          "why_vi": "Bản đồ chuỗi cung ứng công nghệ, ngoài phạm vi tiền tệ của gói này."
+        },
+        {
+          "id": "soi",
+          "why_vi": "Khung bảy tiêu chí soi quyền lực — phương pháp, không phải khái niệm."
+        },
+        {
+          "id": "src",
+          "why_vi": "Trang nguồn và nhật ký."
+        }
+      ]
     },
     {
       "hall": "tao-bien-xu",
@@ -283,7 +845,71 @@
         "distributed_knowledge",
         "economic_calculation"
       ],
-      "example_vi": "Knowledge OS cấp context chuẩn hóa; model suy luận trên dữ liệu có provenance."
+      "example_vi": "Knowledge OS cấp context chuẩn hóa; model suy luận trên dữ liệu có provenance.",
+      "rooms": [
+        {
+          "id": "van-hanh",
+          "name_vi": "Bảng vận hành",
+          "concepts": [
+            "verification",
+            "economic_calculation"
+          ],
+          "note_vi": "Nhà máy tự nói mình chạy được bao nhiêu lượt là cách duy nhất để kiểm nó — một dây chuyền chết trong im lặng thì không lỗi nào báo."
+        },
+        {
+          "id": "so-do",
+          "name_vi": "Sơ đồ nhà máy",
+          "concepts": [
+            "distributed_knowledge",
+            "capital_goods"
+          ],
+          "note_vi": "Mười tám máy là tư liệu sản xuất của xưởng: chúng không tự tạo giá trị, chúng biến công sức thành thứ dùng lại được."
+        },
+        {
+          "id": "to",
+          "name_vi": "Tổ thợ & kỹ năng",
+          "concepts": [
+            "distributed_knowledge",
+            "productivity"
+          ],
+          "note_vi": "Kỹ năng là tri thức đã đóng gói để dùng lại. Đó là chỗ năng suất tăng mà không cần thêm người."
+        },
+        {
+          "id": "duyet",
+          "name_vi": "Bốn mức duyệt",
+          "concepts": [
+            "verification",
+            "trusted_third_party"
+          ],
+          "note_vi": "Mức duyệt là câu trả lời cho câu tin máy tới đâu. Bốn mức, vì tin hết và không tin gì đều là hai cách hỏng."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "san",
+          "why_vi": "Màn hình sàn máy đang chạy — trạng thái, không phải chủ đề."
+        },
+        {
+          "id": "may",
+          "why_vi": "Danh mục 18 máy; khái niệm đã nói ở phòng so-do."
+        },
+        {
+          "id": "tang",
+          "why_vi": "Cách xếp tầng của xưởng, thuộc kiến trúc phần mềm."
+        },
+        {
+          "id": "day",
+          "why_vi": "Dây chuyền cụ thể; khái niệm đã nói ở phòng so-do."
+        },
+        {
+          "id": "dong-co",
+          "why_vi": "Bộ chọn model — quyết định kỹ thuật, không phải khái niệm kinh tế."
+        },
+        {
+          "id": "lo-trinh",
+          "why_vi": "Kế hoạch dựng, không phải một chủ đề."
+        }
+      ]
     },
     {
       "hall": "tang-thu-cac",
@@ -292,7 +918,52 @@
         "distributed_knowledge",
         "verification"
       ],
-      "example_vi": "Skill là năng lực thực thi; Knowledge OS là tri thức miền."
+      "example_vi": "Skill là năng lực thực thi; Knowledge OS là tri thức miền.",
+      "rooms": [
+        {
+          "id": "tong-quan",
+          "name_vi": "Lưới nhóm việc",
+          "concepts": [
+            "distributed_knowledge"
+          ],
+          "note_vi": "Kỹ năng xếp theo VIỆC chứ không theo tên tác giả. Đó là cách gom tri thức nằm rải thành thứ tra được."
+        },
+        {
+          "id": "danh-muc",
+          "name_vi": "Danh mục skill",
+          "concepts": [
+            "distributed_knowledge",
+            "verification"
+          ],
+          "note_vi": "Mỗi hồ sơ skill nói rõ nó đến từ đâu và làm gì. Không có dòng nguồn thì một skill là một hộp đen mình phải tin."
+        },
+        {
+          "id": "xep-hang",
+          "name_vi": "Xếp hạng kho",
+          "concepts": [
+            "network_effect",
+            "verification"
+          ],
+          "note_vi": "Số sao đo mức được dùng lại, không đo chất lượng. Hai thứ đó tương quan nhưng không bằng nhau, và trộn chúng là đọc sai bảng."
+        },
+        {
+          "id": "xu-huong",
+          "name_vi": "Xu hướng",
+          "concepts": [
+            "network_effect",
+            "verification"
+          ],
+          "note_vi": "Sao tăng nhanh là hiệu ứng mạng đang chạy. GitHub không cho biết số sao quá khứ, nên cung tự ghi mốc rồi lấy hiệu — tự dựng lấy đường kiểm khi nguồn không cấp."
+        },
+        {
+          "id": "lich-su",
+          "name_vi": "Lịch sử cập nhật",
+          "concepts": [
+            "verification"
+          ],
+          "note_vi": "Chỉ ghi lần CÓ thay đổi thật. Nhật ký ghi cả lần không đổi thì thành rác, và rác che mất đúng dòng đáng xem."
+        }
+      ]
     },
     {
       "hall": "hoang-thanh",
@@ -301,7 +972,40 @@
         "time_preference",
         "monetary_competition"
       ],
-      "example_vi": "Chỉ nối khi có chứng cứ; không dùng sách Bitcoin áp đặt diễn giải lên văn hóa khác."
+      "example_vi": "Chỉ nối khi có chứng cứ; không dùng sách Bitcoin áp đặt diễn giải lên văn hóa khác.",
+      "rooms": [
+        {
+          "id": "rung",
+          "name_vi": "Rừng văn hoá",
+          "concepts": [
+            "time_preference"
+          ],
+          "note_vi": "Mười lăm nền văn hoá đặt cạnh nhau. Sách dùng ưu tiên thời gian để đọc văn minh; ở đây nó chỉ là MỘT lăng kính trong nhiều lăng kính, không phải thước đo xếp hạng."
+        },
+        {
+          "id": "dong-chay",
+          "name_vi": "Dòng chảy",
+          "concepts": [
+            "time_preference",
+            "monetary_competition"
+          ],
+          "note_vi": "Mô-típ lặp lại xuyên nhiều nền. Nối nó với khái niệm của sách chỉ khi có chứng cứ — đừng áp một cuốn sách về Bitcoin lên thần thoại."
+        },
+        {
+          "id": "bai-hoc",
+          "name_vi": "Bài học đúc kết",
+          "concepts": [
+            "time_preference"
+          ],
+          "note_vi": "Bài học là diễn giải, không phải dữ kiện. Nhãn nguồn ở đây quan trọng hơn ở bất kỳ cung nào khác."
+        }
+      ],
+      "rooms_skipped": [
+        {
+          "id": "xu-huong",
+          "why_vi": "Chuyển từ thần thoại sang lịch sử là quan sát về cách kể chuyện, không phải một khái niệm kinh tế."
+        }
+      ]
     }
   ],
   "stance": "analysis",

@@ -21,6 +21,12 @@
 
   var LOGO = "../do-sat-vien/assets/logos/";
   var state = { muc: "giai-ma", q: "", duAn: "all" };
+  /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra assets/js/v/tri-thuc.js,
+     mang cả dữ liệu lẫn hàm vẽ nên khuôn giống hệt mọi cung khác. Nó KHÔNG
+     đụng con số nào; việc duy nhất là nói phòng này đang đo VIỆC KINH TẾ
+     gì, và mỗi câu giải nghĩa đến từ đâu. Thiếu file thì phòng vẫn vẽ đủ. */
+  var TT = window.TRI_THUC || null;
+
 
   function $(s) { return document.querySelector(s); }
   function el(t, c) { var e = document.createElement(t); if (c) e.className = c; return e; }
@@ -562,6 +568,7 @@
     document.title = "Công Bộ · " + t.ten;
     veBen();
     (MH[ma] || MH["giai-ma"])(host);
+    if (TT && TT.them) TT.them(host, ma);
   }
 
   function doiTuyen() {

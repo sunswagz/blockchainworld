@@ -561,6 +561,20 @@
   /* ═══════════════ sơ đồ toàn nhà máy ═══════════════
      Bản đồ một trang: việc đi đường nào, rẽ ở đâu, quay lại chỗ nào.
      Mọi ô có mã máy đều bấm được để mở hồ sơ đủ 10 trường. */
+  /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra assets/js/v/tri-thuc.js,
+     mang cả dữ liệu lẫn hàm vẽ nên khuôn giống hệt mọi cung khác. Nó KHÔNG
+     đụng số liệu nhà máy nào; việc duy nhất là nói trang này đang đo VIỆC
+     KINH TẾ gì, và mỗi câu giải nghĩa đến từ đâu.
+
+     Nối ở CUỐI từng hàm dựng trang, không nối một chỗ trong `dinhTuyen()`:
+     Bảng vận hành phải chờ `napVanHanh()` xong mới dựng được, nên nối sớm
+     là bị `than.innerHTML = ""` của nó xoá sạch — im lặng, không lỗi nào
+     báo. `them()` tự gỡ khối cũ nên vào lại cùng trang không chồng khối. */
+  function noiTriThuc(ma) {
+    var TT = window.TRI_THUC;
+    if (TT && TT.them) TT.them(than, ma);
+  }
+
   function trangSoDo() {
     tieu.textContent = "Sơ đồ nhà máy";
     phu.textContent = "một trang · từ bạn giao việc tới bạn duyệt";
@@ -705,6 +719,7 @@
     kh.appendChild(sd);
     than.appendChild(kh);
     danhDauTram();
+    noiTriThuc("so-do");
   }
 
   /* ═══════════════ 18 máy ═══════════════ */
@@ -1075,6 +1090,7 @@
     });
     kh2.appendChild(luoi2);
     than.appendChild(kh2);
+    noiTriThuc("to");
   }
 
   /* ═══════════════ bốn mức duyệt ═══════════════ */
@@ -1106,6 +1122,7 @@
       kh.appendChild(o);
     });
     than.appendChild(kh);
+    noiTriThuc("duyet");
   }
 
   /* ═══════════════ bộ chọn động cơ ═══════════════ */
@@ -1422,6 +1439,7 @@
     }
 
     if (moKhoa) moHoSoVH(moKhoa);
+    noiTriThuc("van-hanh");
   }
 
   /* Ngăn kéo hồ sơ node. Bấm một node phải mở TẠI CHỖ như ô trên

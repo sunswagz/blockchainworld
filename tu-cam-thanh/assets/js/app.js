@@ -294,6 +294,23 @@
   }
 
   /* ── nhật ký & bài học ─────────────────────────────── */
+  /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra
+     assets/js/v/tri-thuc.js, mang cả dữ liệu lẫn hàm vẽ nên khuôn giống
+     hệt mọi cung khác. Nó KHÔNG đụng con số nào: phiên, rủi ro, vị thế
+     đều tính y như cũ; việc duy nhất là nói mỗi mục đang đo VIỆC KINH TẾ
+     gì, và mỗi câu giải nghĩa đến từ đâu.
+
+     Cung này dựng trang tĩnh chứ không vẽ lại theo tuyến, nên dùng
+     `gan()` — chèn ngay dưới <h2> của mục — thay vì `them()`. Mục chưa
+     ánh xạ hoặc mã đã đổi thì im lặng bỏ qua, không vẽ khung rỗng. */
+  function veTriThuc() {
+    var TT = window.TRI_THUC;
+    if (!TT || !TT.gan || !TT.phong) return;
+    TT.phong.forEach(function (p) {
+      TT.gan(p.ma, document.getElementById(p.ma));
+    });
+  }
+
   function veNhatKy() {
     var host = el("oNhatKy");
     var tk = (D && D.thongKe) || {};
@@ -497,5 +514,6 @@
   veTheGioi();
   veHuanLuyen();
   veNhatKy();
+  veTriThuc();
   benMo();
 })();

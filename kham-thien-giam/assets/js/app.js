@@ -19,6 +19,7 @@
   "use strict";
 
   var PHONG = window.PHONG || [];
+  var TT = window.TRI_THUC || null;
   var LC = window.DAI_CHIEM || null;
 
   var than = document.getElementById("than");
@@ -516,6 +517,16 @@
     if (p.demo === "vwap") { g.push(veMayVwap()); g.push(veThac()); }
     if (p.demo === "phi") g.push(veDuongPhi());
     if (p.demo === "tienhoa") g.push(veDuongTienHoa());
+
+    /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra
+       assets/js/v/tri-thuc.js, mang cả dữ liệu lẫn hàm vẽ nên khuôn
+       giống hệt mọi cung khác. Nó KHÔNG đụng con số nào; việc duy nhất
+       là nói phòng này đang đo VIỆC KINH TẾ gì, và mỗi câu đến từ đâu.
+       Phòng chưa ánh xạ thì `them` trả false và không đẩy gì vào `g`. */
+    if (TT && TT.them) {
+      var oTT = el("div");
+      if (TT.them(oTT, p.ma)) g.push(oTT);
+    }
 
     if (p.ngon) {
       var k2 = khoi("Sáu ngón", p.ngon.length + " chiến thuật");

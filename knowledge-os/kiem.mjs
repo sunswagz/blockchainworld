@@ -213,25 +213,53 @@ cung.sort();
    là bản lệch — luật đã ghi trong CLAUDE.md, ở đây chỉ áp vào chỗ
    mới. Cung nào chưa đọc được thì NÓI RA là không kết luận được,
    đừng buộc tội. */
+/* Ba cung khai mục bằng cùng một khuôn: một khối `muc: {` hoặc
+   `VI.muc = {` trong glossary.js, khoá là mã phòng. Một khuôn thì
+   khai một lần. */
+const KHOI_MUC = /(?:VI\.)?muc\s*[:=]\s*\{([\s\S]*?)\n {2}\}/;
+const KHOA_MUC = /^\s{4}"([a-z0-9-]+)":\s*\{/gm;
+
+const DOC_PHONG = {
+  /* Sổ 18 toa viết tay. */
+  "thai-boc-tu": ["thai-boc-tu/assets/js/toa.js", /ma:\s*"(t\d\d)"/g],
+  /* Mảng PHONG dựng thanh bên. */
+  "ho-bo": ["ho-bo/assets/js/app.js", /ma:\s*"([a-z-]+)"/g, /var PHONG = \[([\s\S]*?)\n {2}\];/],
+  /* Cung một trang: mỗi ô là một <section class="o">. */
+  "thi-bac-ty": ["thi-bac-ty/index.html", /<section class="o[^"]*" id="([a-z-]+)"/g],
+  /* Cung một trang: mỗi mục là một <section class="muc">. */
+  "tu-cam-thanh": ["tu-cam-thanh/index.html", /<section class="muc" id="([a-z-]+)"/g],
+  /* Sổ phòng viết tay, tách khỏi app.js. */
+  "kham-thien-giam": ["kham-thien-giam/assets/js/phong.js", /ma:\s*"([a-z-]+)"/g],
+  /* Khoá của VI.muc trong glossary — cùng bảng mà app.js dùng để định tuyến. */
+  "cong-bo": ["cong-bo/assets/js/glossary.js", KHOA_MUC, KHOI_MUC],
+  "do-sat-vien": ["do-sat-vien/assets/js/glossary.js", KHOA_MUC, KHOI_MUC],
+  /* Mảng MUC_BEN: mỗi dòng một tuyến "#/xxx". */
+  "tao-bien-xu": ["tao-bien-xu/assets/js/app.js", /\["#\/([a-z-]+)"/g, /var MUC_BEN = \[([\s\S]*?)\n {2}\];/],
+  /* Thanh bên dựng theo dữ liệu, nhưng mã CỐ ĐỊNH thì viết thẳng
+     trong ROUTES dạng `id:'xxx'`. Chỉ đọc mã cố định — mã sinh từ
+     dữ liệu (`th/…`, `soi/…`, `cht/…`) đổi theo lượt bot, ánh xạ
+     vào đó là ánh xạ sẽ lặng lẽ trỏ trượt. */
+  "dai-quan-trac": ["dai-quan-trac/assets/js/app.js", /\{id:'([a-z]+)'/g, /ROUTES = \[([\s\S]*?)\n {2}\];/],
+  "tang-thu-cac": ["tang-thu-cac/assets/js/glossary.js", KHOA_MUC, KHOI_MUC],
+  "hoang-thanh": ["hoang-thanh/assets/js/app.js", /\{ hash: "#\/([a-z-]+)"/g]
+};
+
+/* Mã phòng đọc THẲNG từ mã nguồn cung, không bao giờ chép sang đây.
+   Trả `null` nghĩa là "không đọc được", KHÁC hẳn "không có phòng
+   nào" — và phép kiểm dưới phân biệt hai chuyện đó. */
 async function maPhong(ten) {
-  if (ten === "thai-boc-tu") {
-    const t = await readFile(join(REPO, "thai-boc-tu/assets/js/toa.js"), "utf8");
-    const ds = [...t.matchAll(/ma:\s*"(t\d\d)"/g)].map((m) => m[1]);
-    return ds.length ? new Set(ds) : null;
+  const khai = DOC_PHONG[ten];
+  if (!khai) return null;
+  const [duong, mau, cat] = khai;
+  if (!existsSync(join(REPO, duong))) return null;
+  let t = await readFile(join(REPO, duong), "utf8");
+  if (cat) {
+    const m = t.match(cat);
+    if (!m) return null;
+    t = m[1];
   }
-  if (ten === "ho-bo") {
-    const t = await readFile(join(REPO, "ho-bo/assets/js/app.js"), "utf8");
-    const khoi = t.match(/var PHONG = \[([\s\S]*?)\n {2}\];/);
-    if (!khoi) return null;
-    const ds = [...khoi[1].matchAll(/ma:\s*"([a-z-]+)"/g)].map((m) => m[1]);
-    return ds.length ? new Set(ds) : null;
-  }
-  if (ten === "thi-bac-ty") {
-    const t = await readFile(join(REPO, "thi-bac-ty/index.html"), "utf8");
-    const ds = [...t.matchAll(/<section class="o[^"]*" id="([a-z-]+)"/g)].map((m) => m[1]);
-    return ds.length ? new Set(ds) : null;
-  }
-  return null;
+  const ds = [...t.matchAll(mau)].map((m) => m[1]);
+  return ds.length ? new Set(ds) : null;
 }
 
 {
@@ -245,11 +273,20 @@ async function maPhong(ten) {
     for (const i of h.concepts || [])
       if (!idAll.has(i)) bao(`cầu nối repo "${h.hall}": concept "${i}" không có`);
 
-    if (!h.rooms) continue;
+    /* Cung không ánh xạ phòng phải NÓI VÌ SAO. Im lặng thì không
+       phân biệt được "cung này không có mã phòng cố định" với
+       "chưa ai làm" — và hai chuyện đó dẫn tới hai việc khác hẳn. */
+    if (!h.rooms?.length) {
+      if (!h.rooms_note_vi)
+        luu(`${h.hall}: chưa ánh xạ phòng nào, và không có rooms_note_vi nói vì sao.`);
+      continue;
+    }
+
     const that = await maPhong(h.hall);
     if (!that) {
       luu(`cầu nối repo "${h.hall}": không đọc được mã phòng từ mã nguồn cung — ` +
-        "bộ kiểm KHÔNG kết luận gì về ánh xạ phòng của cung này.");
+        "bộ kiểm KHÔNG kết luận gì về ánh xạ phòng của cung này.\n" +
+        "        Thêm một dòng vào bảng DOC_PHONG trong knowledge-os/kiem.mjs.");
     }
     const maThay = new Set();
     for (const p of h.rooms) {
@@ -263,9 +300,26 @@ async function maPhong(ten) {
       for (const i of p.concepts || [])
         if (!idAll.has(i)) bao(`cầu nối repo "${h.hall}/${p.id}": concept "${i}" không có`);
     }
+
+    /* Phòng CỐ Ý bỏ qua phải khai kèm lý do — và mã bỏ qua cũng
+       phải có thật. Không có khai báo này thì nhắc "còn N phòng
+       chưa ánh xạ" kêu mãi cho những phòng sẽ không bao giờ được
+       ánh xạ, và cảnh báo kêu mãi thì người ta bỏ qua cảnh báo. */
+    const boQua = new Set();
+    for (const b of h.rooms_skipped || []) {
+      if (!b.why_vi) bao(`cầu nối repo "${h.hall}": bỏ qua phòng "${b.id}" mà không nói vì sao`);
+      if (maThay.has(b.id))
+        bao(`cầu nối repo "${h.hall}": phòng "${b.id}" vừa ánh xạ vừa khai bỏ qua`);
+      if (that && !that.has(b.id))
+        bao(`cầu nối repo "${h.hall}": khai bỏ qua phòng "${b.id}" nhưng mã nguồn cung không có mã đó\n` +
+          "        → một dòng bỏ qua cho phòng không tồn tại là một dòng nói dối.");
+      boQua.add(b.id);
+    }
+
     if (that) {
-      const sot = [...that].filter((m) => !maThay.has(m));
-      if (sot.length) luu(`${h.hall}: còn ${sot.length}/${that.size} phòng chưa ánh xạ — ${sot.join(", ")}`);
+      const sot = [...that].filter((m) => !maThay.has(m) && !boQua.has(m));
+      if (sot.length)
+        luu(`${h.hall}: còn ${sot.length}/${that.size} phòng chưa ánh xạ và chưa khai bỏ qua — ${sot.join(", ")}`);
     }
   }
   if (B.stance !== "analysis")

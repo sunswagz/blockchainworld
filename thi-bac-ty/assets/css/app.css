@@ -4,7 +4,15 @@
    báo bản mới mất nền). */
 :root{
   --nen:#07090D; --card:#0D1117; --card-2:#121820; --line:#1E2733;
-  --chu:#E6EDF3; --mo:#8B98A5; --mo2:#5C6773;
+  /* Bậc chữ thứ ba là chữ MỜ, không phải chữ TÀNG HÌNH. Bản trước để
+     nó ở #5C6773 — trên nền trang chỉ được 3,46, dưới ngưỡng WCAG AA
+     4,5. Mà đây đúng là bậc gánh nhãn nhóm ở thanh bên, dòng giải
+     thích dưới mỗi bảng, cột "nhạt", và cả chân trang: tức là phần
+     nói CON SỐ KIA Ở ĐÂU RA. Số thì sáng rõ, còn chỗ truy ngược lại
+     mờ hơn mức đọc được — hỏng đúng luật của cung.
+     Nay 5,16 trên nền trang và 4,62 trên nền thẻ chìm nhất, vẫn cách
+     bậc --mo đủ xa để thứ bậc không phẳng. */
+  --chu:#E6EDF3; --mo:#8B98A5; --mo2:#78838F;
   --tau:#D9A441; --tau-t:rgba(217,164,65,.12);
   --luc:#3FB27F; --do:#E5534B; --cam:#D9822B; --lam:#5AA9E6;
   --don:"JetBrains Mono",ui-monospace,Consolas,monospace;
@@ -174,4 +182,6 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .tt-loai{font:11px/1 var(--don);color:var(--luc)}
 .tt-tin{font-size:10.5px;color:var(--mo)}
 .tt-vi{flex:1 1 100%;color:var(--mo)}
-.tt-chan{color:var(--mo)}
+.tt-chan{margin:0;padding:10px 14px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--mo);line-height:1.6}
+.tt-chan-dong{color:var(--mo)}

@@ -1144,6 +1144,19 @@
   /* ══════════════════════════════════════════════════
      ĐIỀU PHỐI
      ══════════════════════════════════════════════════ */
+  /* Lớp tri thức nền — knowledge-os/sinh.mjs ghi ra assets/js/v/tri-thuc.js,
+     mang cả dữ liệu lẫn hàm vẽ nên khuôn giống hệt mọi cung khác. Nó KHÔNG
+     đụng con số nào; việc duy nhất là nói mục này đang đo VIỆC KINH TẾ gì,
+     và mỗi câu giải nghĩa đến từ đâu. Thiếu file thì mục vẫn vẽ đủ.
+
+     Gọi SAU mỗi lần vẽ xong, không gọi một lần ở cuối `ve()`: mục nào chưa
+     có dữ liệu thì đi qua `nap()` bất đồng bộ và `f(host)` chạy ở lượt sau
+     — nối trước lúc đó là bị `host.innerHTML = …` xoá sạch, im lặng. */
+  var TT = window.TRI_THUC || null;
+  function noiTriThuc(host, ma) {
+    if (TT && TT.them) TT.them(host, ma);
+  }
+
   function ve() {
     var host = $("#than");
     var ma = state.muc;
@@ -1152,13 +1165,13 @@
     document.title = "Đô Sát Viện · " + t.ten;
     veBen();
 
-    if (ma === "tong-quan") { mhTongQuan(host); return; }
-    if (ma === "tu-dien") { MH["tu-dien"](host); return; }
+    if (ma === "tong-quan") { mhTongQuan(host); noiTriThuc(host, ma); return; }
+    if (ma === "tu-dien") { MH["tu-dien"](host); noiTriThuc(host, ma); return; }
 
     var f = MH[ma];
     if (!f) { host.innerHTML = '<p class="trong">Chưa có mục này.</p>'; return; }
 
-    if (window.DSV_V && window.DSV_V[ma]) { f(host); return; }
+    if (window.DSV_V && window.DSV_V[ma]) { f(host); noiTriThuc(host, ma); return; }
     host.innerHTML = '<p class="trong">Đang nạp…</p>';
     nap(ma, function (loi) {
       if (state.muc !== ma) return;          // người dùng đã bấm sang mục khác
@@ -1168,6 +1181,7 @@
         return;
       }
       f(host);
+      noiTriThuc(host, ma);
     });
   }
 
