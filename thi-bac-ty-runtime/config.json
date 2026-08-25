@@ -44,9 +44,6 @@
     "tuoiToiDaGiay": 90.0,
     "nhanUocLuongMoc": false,
     "doiHoiItNhatMotMoc": true,
-    "vonMoiCoHoiUsd": 100.0,
-    "vonToiDaUsd": 300.0,
-    "donBayToiDa": 1.0,
     "lechDongHoToiDaGiay": 10.0
   },
   "datLenh": {
@@ -59,5 +56,11 @@
     "ghi": true,
     "thuMuc": "bang",
     "ngayGiuLai": 30
+  },
+  "von": {
+    "coHieuLuc": false,
+    "moiCoHoiUsd": 100.0,
+    "toiDaUsd": 300.0,
+    "donBayToiDa": 1.0
   }
 }

@@ -21,7 +21,7 @@ import dataclasses
 from itertools import combinations
 
 from .dongho import thu_cap
-from .models import BaoGia, CoHoi
+from .models import PHI_CON_THIEU, BaoGia, CoHoi
 
 BPS = 10_000.0
 
@@ -128,6 +128,11 @@ def _mot_cap(ma: str, l: BaoGia, s: BaoGia, nowMs: float, giuGio: float,
         choMocDauGiay=cap["choMocDauGiay"],
         tuoiXauNhatGiay=xau_nhat,
         uocLuongMoc=cap["uocLuong"],
+        # Mọi cơ hội mang theo lời khai về mô hình phí. Đặt ở ĐÂY, chỗ duy
+        # nhất dựng `CoHoi`, để không có đường nào sinh ra một cơ hội thiếu
+        # cờ — nếu để tầng trên tự gắn thì sớm muộn sẽ có tầng quên.
+        moHinhPhiDuChua=False,
+        phiConThieu=PHI_CON_THIEU,
         duyet=False, lyDo=(),
     )
     duyet, ly_do = cong(tho)

@@ -24,7 +24,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 143 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 159 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -90,6 +90,21 @@ funding thực thu   (đếm theo mốc, hai chân đếm RIÊNG)
 **Bốn khoản chưa trừ**, và phải biết là chưa: chi phí vay coin, phí chuyển
 vốn giữa sàn, rủi ro basis khi hai mark rời nhau lúc thoát, và vốn bị khoá.
 Nên NET ở đây là **chặn trên**, không phải lợi nhuận.
+
+## Trần vốn CHƯA có hiệu lực — và vì sao nó không nằm chung với cửa
+
+`config.json` có khối `von` với `moiCoHoiUsd`, `toiDaUsd`, `donBayToiDa`, và
+một cờ `coHieuLuc: false` nói thẳng: **ba con số này chưa chặn gì cả**. Không
+có lớp đặt lệnh thì không có vị thế nào để mà giới hạn, kể cả trên sổ giấy.
+
+Chúng từng nằm trong khối `ruiRo`, nên buồng lái bày chúng dưới nhãn *"Cửa
+rủi ro đang có hiệu lực"* — ba cái cửa không chặn gì, hiện ra như đang chặn.
+Không lỗi nào báo, vì mọi con số đều hợp lệ.
+
+Nay `rui_ro.py` khai một tuple `CUA` là **hợp đồng**: mọi khoá trong đó phải
+được `xet()` thật sự đọc, và `xet()` không được đọc khoá nào ngoài đó. Phép
+kiểm canh cả hai chiều bằng một dict do thám — cấy thử một cửa giả vào thì
+hai phép nổ ngay.
 
 ## Tám cửa rủi ro
 
@@ -215,6 +230,29 @@ Khoảng cách giữa hai con số là **funding decay**, và nó là thứ đá
 **Ba chỗ xấp xỉ, và cả ba đều làm kết quả ĐẸP HƠN sự thật:** rate tại mốc lấy
 từ khung gần nhất (không phải rate sàn thật sự áp); không mô phỏng khớp lệnh;
 không mô phỏng vốn bị kẹt. Nên `netThucBps` là **chặn trên**.
+
+### `netBps` là CHẶN TRÊN, và mỗi cơ hội tự khai điều đó
+
+Mỗi `CoHoi` mang theo:
+
+```
+moHinhPhiDuChua = false
+phiConThieu     = [vay-coin, chuyen-von, basis-luc-thoat, von-bi-khoa]
+```
+
+Không phải để trang trí. Khi Thị Bạc Ty có chiến lược thứ hai, bảng xếp hạng
+sẽ đặt cạnh nhau:
+
+    funding spread   18 bps   ← chặn trên, còn thiếu bốn khoản
+    chiến lược khác  11 bps   ← đã trừ đủ
+
+và kết luận *"funding tốt hơn"* là kết luận **sai**, rút ra từ hai con số
+không cùng đơn vị. Không có cờ này thì không cách nào biết mà tránh — chính
+cỗ máy sẽ bị đánh lừa bởi số liệu của chính nó.
+
+Mỗi cơ hội cũng mang `maChienLuoc = "perp.funding_spread.v1"`. Hiện chưa phân
+biệt được gì vì mới có một chiến lược; giữ vì cái giá là một dòng, còn cái
+giá của việc thêm SAU là đi gắn nhãn ngược cho mọi băng đã ghi.
 
 ### Bốn luật chặn bốn cách tự lừa
 

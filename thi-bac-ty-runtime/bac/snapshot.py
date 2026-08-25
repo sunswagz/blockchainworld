@@ -75,6 +75,7 @@ def dung(runtime) -> dict:
         "tomTat": _tom_tat(a, co_hoi, duyet),
         "generatedAt": gio.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
 
+        "maChienLuoc": a.get("maChienLuoc"),
         "che": a.get("che"),
         "cheKhai": a.get("cheKhai"),
         "vong": a.get("vong"),
@@ -93,6 +94,10 @@ def dung(runtime) -> dict:
         # này tồn tại để chặn.
         "viSaoTuChoi": a.get("viSaoTuChoi") or {},
         "ruiRo": a.get("ruiRo") or {},
+        # Trần vốn CHƯA có hiệu lực. Có trong lát cắt vì đó là sự thật về
+        # cỗ máy, và người xem trang tĩnh có quyền biết ba con số ấy không
+        # chặn gì — chứ không phải suy ra từ việc chúng vắng mặt.
+        "von": a.get("von") or {},
         "phiSan": a.get("phiSan") or {},
         "doDai": a.get("doDai") or [],
         "so": a.get("so") or {},

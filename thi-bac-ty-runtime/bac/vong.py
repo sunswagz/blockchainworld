@@ -25,7 +25,7 @@ import httpx
 from .bang import may_ghi
 from .bus import bus
 from .can_loi import tim_co_hoi
-from .config import CONFIG, DATA_DIR, che_hieu_luc
+from .config import CONFIG, DATA_DIR, MA_CHIEN_LUOC, che_hieu_luc
 from .dong_ho import NGUONG_KEU_MS, do_lech, dong_ho
 from .models import BaoGia
 from .rui_ro import NHAN, CongRuiRo
@@ -210,6 +210,7 @@ class Runtime:
                 vi_sao[NHAN.get(ma, ma)] = vi_sao.get(NHAN.get(ma, ma), 0) + 1
 
         return {
+            "maChienLuoc": MA_CHIEN_LUOC,
             "vong": self.vong,
             "batDauLuc": self.batDauLuc,
             "chayDuocGiay": time.time() - self.batDauLuc,
@@ -226,6 +227,10 @@ class Runtime:
             "phiSan": {k: v for k, v in CONFIG["san"].items()
                        if (v or {}).get("bat")},
             "ruiRo": self.cong.tom_tat(),
+            # Tách hẳn khỏi `ruiRo`: đây là trần vốn CHƯA có hiệu lực, không
+            # phải cửa rủi ro. Gộp chung là bày ba con số không chặn gì dưới
+            # nhãn "đang có hiệu lực" — đúng lỗi vừa gỡ.
+            "von": dict(CONFIG.get("von") or {}),
             "baoGia": [b.tom_tat(now) for b in self.baoGia],
             "coHoi": [c.tom_tat() for c in self.coHoi[:60]],
             "soDuyet": len(duyet),

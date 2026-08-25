@@ -44,6 +44,29 @@ from .models import CoHoi
 
 # Không đủ mẫu để nói gì về `netAprPct`, nhưng `netBps` thì luôn có nghĩa.
 # Nên mọi ngưỡng ở đây tính bằng bps, không bằng phần trăm năm.
+#: **Danh sách CỬA, và nó là hợp đồng.** Mọi khoá ở đây phải được `xet()`
+#: thật sự đọc, và `xet()` không được đọc khoá nào ngoài đây. Phép kiểm
+#: `kiem_cua_that()` canh cả hai chiều bằng một dict do thám.
+#:
+#: Vì sao phải canh: buồng lái render `ruiRo.tom_tat()` dưới nhãn "Cửa rủi ro
+#: đang có hiệu lực". Nhét một khoá vào đây mà quên nối vào `xet()` là bày ra
+#: một cái cửa KHÔNG chặn gì cả, dưới đúng chữ "đang có hiệu lực".
+#:
+#: Đã xảy ra thật: `vonMoiCoHoiUsd`, `vonToiDaUsd`, `donBayToiDa` nằm trong
+#: khối `ruiRo` suốt từ lúc dựng cung, hiện trong bảng như ba cái cửa, và
+#: không dòng nào trong `xet()` đọc tới chúng. Nay chúng ở khối `von` riêng,
+#: khai rõ là CHƯA có hiệu lực.
+CUA = (
+    "grossToiThieuBpsNgay",
+    "netToiThieuBps",
+    "lechMarkToiDaBps",
+    "doiHoiHaiMark",
+    "tuoiToiDaGiay",
+    "nhanUocLuongMoc",
+    "doiHoiItNhatMotMoc",
+    "lechDongHoToiDaGiay",
+)
+
 MAC_DINH = {
     "grossToiThieuBpsNgay": 3.0,
     "netToiThieuBps": 0.5,
@@ -137,4 +160,10 @@ class CongRuiRo:
         return (not ly), ly
 
     def tom_tat(self) -> dict:
-        return dict(self.c)
+        """CHỈ trả về cửa thật.
+
+        `dict(self.c)` trần thì mọi khoá lạ người dùng nhét vào `config.json`
+        cũng hiện lên bảng "Cửa rủi ro đang có hiệu lực" — kể cả khoá không
+        dòng nào đọc tới. Lọc theo `CUA` để bảng chỉ nói được sự thật.
+        """
+        return {k: self.c[k] for k in CUA if k in self.c}

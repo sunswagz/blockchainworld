@@ -85,12 +85,40 @@ class BaoGia:
         }
 
 
+#: Bốn khoản chi phí CHƯA có trong `netBps`, theo đúng thứ tự trong
+#: `can_loi.py`. Một chỗ khai duy nhất — chép làm hai bản thì hai bản sẽ lệch,
+#: và bản lệch sẽ là bản người ta đọc.
+PHI_CON_THIEU = (
+    "vay-coin",          # chi phí vay để short spot
+    "chuyen-von",        # phí chuyển vốn giữa sàn
+    "basis-luc-thoat",   # hai mark rời nhau lúc đóng vị thế
+    "von-bi-khoa",       # vốn kẹt không làm được việc khác
+)
+
+
 @dataclass(frozen=True)
 class CoHoi:
-    """Một cặp LONG/SHORT đã tính đủ chi phí, đã qua cổng rủi ro.
+    """Một cặp LONG/SHORT đã trừ những chi phí ĐANG ĐO ĐƯỢC, đã qua cổng.
 
-    `netBps` là con số DUY NHẤT đáng dùng để xếp hạng. `grossBpsNgay` để lên
-    bảng cho người đọc thấy chênh lệch thô, nhưng nó chưa trừ gì cả.
+    **`netBps` là CHẶN TRÊN, không phải lợi nhuận.** Bản đầu của docstring
+    này viết "đã tính đủ chi phí" trong khi `can_loi.py` ngay bên cạnh liệt kê
+    bốn khoản chưa trừ — hai file trong cùng một gói nói ngược nhau, và người
+    đọc `models.py` trước sẽ tin nhầm.
+
+    Nên nay mỗi cơ hội mang theo `moHinhPhiDuChua` và `phiConThieu`: con số
+    không tự nói được nó thiếu gì, nên nó phải mang theo lời khai.
+
+    Chuyện này quan trọng hơn vẻ ngoài. Khi Thị Bạc Ty có chiến lược thứ hai,
+    bảng xếp hạng sẽ đặt cạnh nhau:
+
+        funding spread   18 bps   ← chặn trên, còn thiếu bốn khoản
+        chiến lược khác  11 bps   ← đã trừ đủ
+
+    và kết luận "funding tốt hơn" là kết luận SAI, rút ra từ hai con số không
+    cùng đơn vị. Không có cờ này thì không cách nào biết mà tránh.
+
+    `netBps` vẫn là con số đáng xếp hạng NHẤT trong các con số đang có.
+    `grossBpsNgay` để lên bảng cho người đọc thấy chênh lệch thô, chưa trừ gì.
     """
     ma: str
     sanLong: str
@@ -114,7 +142,14 @@ class CoHoi:
     tuoiXauNhatGiay: float | None
     uocLuongMoc: bool
 
-    duyet: bool
+    #: Mô hình phí đã đủ chưa. **Luôn False ở bản này** — xem `PHI_CON_THIEU`.
+    #: Không để mặc định True: một trường mặc định "đã đủ" mà quên đặt lại là
+    #: đúng cách con số này bắt đầu nói dối.
+    moHinhPhiDuChua: bool = False
+    #: Những khoản chi phí CHƯA trừ. Rỗng chỉ khi `moHinhPhiDuChua` là True.
+    phiConThieu: tuple[str, ...] = ()
+
+    duyet: bool = False
     #: Câu đầy đủ cho người đọc — có mang con số, nên KHÔNG gộp được.
     lyDo: tuple[str, ...] = ()
     #: Mã lý do để GỘP. Xem `rui_ro.NHAN`. Hai trường này luôn cùng độ dài.
@@ -134,6 +169,8 @@ class CoHoi:
             "choMocDauGiay": self.choMocDauGiay,
             "tuoiXauNhatGiay": self.tuoiXauNhatGiay,
             "uocLuongMoc": self.uocLuongMoc,
+            "moHinhPhiDuChua": self.moHinhPhiDuChua,
+            "phiConThieu": list(self.phiConThieu),
             "duyet": self.duyet, "lyDo": list(self.lyDo),
             "lyDoMa": list(self.lyDoMa), "luc": self.luc,
         }

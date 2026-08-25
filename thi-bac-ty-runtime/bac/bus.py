@@ -1,5 +1,13 @@
 """Sổ sự kiện trong bộ nhớ — buồng lái đọc, không ai ghi ra đĩa từ đây.
 
+**Đây KHÔNG phải "opportunity bus".** Tên `bus` dễ gây hiểu nhầm: nó chỉ là
+một `deque` có trần, giữ dòng nhật ký cho buồng lái đọc. Không ai đăng ký
+nhận, không có chiến lược nào nối vào, và không cơ hội nào đi qua đây.
+
+Chỗ nối các chiến lược lại với nhau — khi Thị Bạc Ty có chiến lược thứ hai —
+là một thứ khác hẳn và chưa tồn tại. Đừng nối nó vào file này chỉ vì trùng
+tên; lúc ấy hãy đổi tên file này thành `nhat_ky_su_kien.py` cho khỏi lẫn.
+
 Cố ý có trần: một vòng lặp 2 giây chạy qua đêm sinh ra hàng chục nghìn dòng,
 và một danh sách không trần sẽ ăn hết RAM rồi giết runtime vì lý do không liên
 quan gì tới giao dịch.

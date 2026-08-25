@@ -28,7 +28,8 @@ os.environ["TBT_DATA_DIR"] = tempfile.mkdtemp(prefix="tbt-selftest-")
 
 from bac.can_loi import (lech_mark_bps, net_apr_pct,            # noqa: E402
                          phi_khu_hoi_bps, tim_co_hoi)
-from bac.config import CONFIG, DATA_DIR, che_hieu_luc, ly_do_khong_that  # noqa: E402
+from bac.config import (CONFIG, DATA_DIR, MA_CHIEN_LUOC,          # noqa: E402
+                        che_hieu_luc, ly_do_khong_that)
 from bac.dongho import dem_moc, moi_gio, moi_ngay, thu_cap, thu_thuc     # noqa: E402
 from bac.models import BaoGia                                    # noqa: E402
 from bac.rui_ro import NHAN, CongRuiRo                           # noqa: E402
@@ -761,6 +762,119 @@ def kiem_tien_hoa_hoc() -> None:
     kiem("tối thiểu mẫu để chẩn là 30", TOI_THIEU_MAU == 30)
 
 
+def kiem_cua_that() -> None:
+    print("\n── Cửa phải THẬT: khai một cửa mà quên nối là bày cửa giả ─────")
+
+    from bac.rui_ro import CUA, MAC_DINH
+
+    kiem("CUA và MAC_DINH khai cùng một bộ khoá",
+         set(CUA) == set(MAC_DINH),
+         f"lệch: {set(CUA) ^ set(MAC_DINH)}")
+
+    # Dict do thám: ghi lại MỌI khoá mà `xet()` thật sự đọc. Chạy qua nhiều
+    # tình huống để chạm đủ các nhánh — một lời gọi chỉ đi qua vài nhánh.
+    class _Thap(dict):
+        def __init__(self, *a, **k):
+            super().__init__(*a, **k)
+            self.daDoc = set()
+
+        def __getitem__(self, k):
+            self.daDoc.add(k)
+            return super().__getitem__(k)
+
+    now = time.time() * 1000.0
+    phi = {"a": {"phiTakerBps": 0, "truotGiaBps": 0},
+           "b": {"phiTakerBps": 0, "truotGiaBps": 0}}
+    thap = _Thap(MAC_DINH)
+    cong = CongRuiRo({})
+    cong.c = thap
+
+    GIO = 3_600_000.0
+    canh = [
+        # (báo giá A, báo giá B, giữ giờ) — mỗi dòng chạm một nhánh khác
+        (_bg("a", 0.0, 1.0), _bg("b", 0.0001, 1.0), 8.0),          # lành
+        (_bg("a", 0.0, 1.0), _bg("b", 0.0, 1.0), 8.0),             # gross mỏng
+        (_bg("a", 0.0, 1.0, px=None), _bg("b", 0.0001, 1.0), 8.0),  # thiếu mark
+        (_bg("a", 0.0, 1.0, px=100.0), _bg("b", 0.0001, 1.0, px=140.0), 8.0),
+        (_bg("a", 0.0, 1.0, ts=int(now - 900_000)),
+         _bg("b", 0.0001, 1.0), 8.0),                              # dữ liệu cũ
+        (_bg("a", 0.0, 1.0, ts=int(now + 900_000)),
+         _bg("b", 0.0001, 1.0), 8.0),                              # lệch đồng hồ
+        (_bg("a", 0.0, 1.0, moc=None), _bg("b", 0.0001, 1.0), 8.0),  # mốc đoán
+        (_bg("a", 0.0, 8.0, moc=int(now + 20 * GIO)),
+         _bg("b", 0.001, 8.0, moc=int(now + 20 * GIO)), 4.0),      # không mốc
+    ]
+    for a, b, giu in canh:
+        tim_co_hoi([a, b], now, giu, phi, cong)
+
+    kiem("mọi cửa KHAI ra đều được xet() đọc thật",
+         set(CUA) <= thap.daDoc,
+         f"khai mà không ai đọc: {sorted(set(CUA) - thap.daDoc)} — "
+         f"đây chính là 'cửa giả' mà buồng lái sẽ bày như đang có hiệu lực")
+    kiem("xet() KHÔNG đọc khoá nào ngoài CUA",
+         thap.daDoc <= set(CUA),
+         f"đọc lén: {sorted(thap.daDoc - set(CUA))}")
+
+    # tom_tat chỉ nói về cửa thật
+    cong2 = CongRuiRo({"grossToiThieuBpsNgay": 3.0, "khoaLa": 999})
+    kiem("tom_tat() lọc bỏ khoá lạ, không bày nó như cửa",
+         "khoaLa" not in cong2.tom_tat(),
+         "dict(self.c) trần sẽ bày mọi thứ người dùng nhét vào config.json")
+    kiem("tom_tat() vẫn trả đủ cửa thật",
+         set(cong2.tom_tat()) == set(CUA))
+
+
+def kiem_von_chua_hieu_luc() -> None:
+    print("\n── Trần vốn: khai rõ CHƯA có hiệu lực, và ở khối RIÊNG ────────")
+
+    from bac.rui_ro import CUA
+
+    kiem("ba núm vốn KHÔNG còn nằm trong khối ruiRo",
+         all(k not in CONFIG["ruiRo"]
+             for k in ("vonMoiCoHoiUsd", "vonToiDaUsd", "donBayToiDa")),
+         "nằm trong ruiRo là hiện lên bảng 'Cửa rủi ro đang có hiệu lực'")
+    kiem("chúng nằm ở khối `von` riêng", "von" in CONFIG)
+    kiem("và khai thẳng là CHƯA có hiệu lực",
+         CONFIG["von"]["coHieuLuc"] is False,
+         "không có lớp đặt lệnh thì không có vị thế nào để giới hạn")
+    kiem("không núm vốn nào lọt vào danh sách CỬA",
+         not any("von" in c.lower() or "donBay" in c for c in CUA),
+         str(CUA))
+    kiem("giá trị vẫn giữ, không bịa lại",
+         gan(CONFIG["von"]["moiCoHoiUsd"], 100.0)
+         and gan(CONFIG["von"]["toiDaUsd"], 300.0))
+
+
+def kiem_khai_phi_thieu() -> None:
+    print("\n── Cơ hội phải KHAI mô hình phí còn thiếu gì ──────────────────")
+
+    from bac.models import PHI_CON_THIEU
+
+    kiem("có đúng bốn khoản chưa trừ", len(PHI_CON_THIEU) == 4, str(PHI_CON_THIEU))
+    kiem("bốn khoản khớp docstring can_loi.py",
+         set(PHI_CON_THIEU) == {"vay-coin", "chuyen-von",
+                                "basis-luc-thoat", "von-bi-khoa"})
+
+    now = time.time() * 1000.0
+    phi = {"a": {"phiTakerBps": 0, "truotGiaBps": 0},
+           "b": {"phiTakerBps": 0, "truotGiaBps": 0}}
+    ds = tim_co_hoi([_bg("a", 0.0, 1.0), _bg("b", 0.0001, 1.0)],
+                    now, 8.0, phi, CongRuiRo({}))
+    kiem("mọi cơ hội đều mang cờ mô hình phí",
+         all(not c.moHinhPhiDuChua for c in ds),
+         "một trường mặc định 'đã đủ' mà quên đặt lại là cách con số bắt "
+         "đầu nói dối")
+    kiem("và mang theo danh sách khoản thiếu",
+         all(set(c.phiConThieu) == set(PHI_CON_THIEU) for c in ds))
+    t = ds[0].tom_tat()
+    kiem("lát cắt mang cả hai trường ra ngoài",
+         t["moHinhPhiDuChua"] is False and len(t["phiConThieu"]) == 4)
+
+    kiem("mã chiến lược có dạng <lớp>.<chiến lược>.<phiên bản>",
+         MA_CHIEN_LUOC.count(".") == 2 and MA_CHIEN_LUOC.startswith("perp."),
+         MA_CHIEN_LUOC)
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -784,6 +898,9 @@ def main() -> int:
     kiem_chay_lai()
     kiem_chan_doan_hoc()
     kiem_tien_hoa_hoc()
+    kiem_cua_that()
+    kiem_von_chua_hieu_luc()
+    kiem_khai_phi_thieu()
 
     print("\n" + "=" * 70)
     if _loi:

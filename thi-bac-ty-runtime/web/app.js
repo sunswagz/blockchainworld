@@ -280,9 +280,7 @@
       tuoiToiDaGiay: "tuổi dữ liệu tối đa (giây)",
       nhanUocLuongMoc: "chấp nhận mốc phải đoán",
       doiHoiItNhatMotMoc: "bắt buộc có ít nhất một mốc kết toán",
-      vonMoiCoHoiUsd: "vốn mỗi cơ hội (USD)",
-      vonToiDaUsd: "vốn tối đa (USD)",
-      donBayToiDa: "đòn bẩy tối đa"
+      lechDongHoToiDaGiay: "lệch đồng hồ tối đa (giây)"
     };
     var f = document.createDocumentFragment();
     f.appendChild(o("Cửa rủi ro đang có hiệu lực", bang(
@@ -293,7 +291,26 @@
                                                : String(r[k]) }];
       })),
       "Cổng rủi ro là Python thuần, tất định, và có quyền phủ quyết. Không "
-      + "dòng nào trong nó gọi mạng hay gọi model."));
+      + "dòng nào trong nó gọi mạng hay gọi model. Bảng này lọc theo danh "
+      + "sách `CUA` trong rui_ro.py, nên một khoá khai mà không nối vào cổng "
+      + "KHÔNG hiện lên đây được."));
+
+    var v = S.von || {};
+    f.appendChild(o("Trần vốn — CHƯA CÓ HIỆU LỰC", bang(
+      [{ t: "Mục", trai: 1 }, { t: "giá trị" }],
+      [["đang có hiệu lực", v.coHieuLuc ? "CÓ" : "KHÔNG"],
+       ["vốn mỗi cơ hội", v.moiCoHoiUsd == null ? "—" : "$" + so(v.moiCoHoiUsd, 0)],
+       ["vốn tối đa", v.toiDaUsd == null ? "—" : "$" + so(v.toiDaUsd, 0)],
+       ["đòn bẩy tối đa", v.donBayToiDa == null ? "—" : so(v.donBayToiDa, 1)]
+      ].map(function (x) {
+        return [{ t: x[0], c: "trai" },
+                { t: String(x[1]), c: x[0] === "đang có hiệu lực"
+                    ? (v.coHieuLuc ? "qua" : "am") : null }];
+      })),
+      "Ba con số này KHÔNG chặn gì ở bản hiện tại — không có lớp đặt lệnh thì "
+      + "không có vị thế nào để mà giới hạn, kể cả trên sổ giấy. Chúng từng "
+      + "nằm trong khối `ruiRo` và hiện ngay trong bảng trên như ba cái cửa "
+      + "thật; nay tách ra và khai thẳng. Sẽ có hiệu lực ở V0.6."));
 
     var s = S.so || {};
     f.appendChild(o("Sổ quét", bang(

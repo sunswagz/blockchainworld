@@ -62,8 +62,22 @@ MAC_DINH = {
         "nhanUocLuongMoc": False,
         "doiHoiItNhatMotMoc": True,
         "lechDongHoToiDaGiay": 10.0,
-        "vonMoiCoHoiUsd": 100.0,
-        "vonToiDaUsd": 300.0,
+    },
+    # Trần vốn — **CHƯA CÓ HIỆU LỰC** ở bản này, và đó là sự thật phải khai
+    # chứ không phải thiếu sót cần giấu.
+    #
+    # Ba con số này từng nằm trong khối `ruiRo`, nên buồng lái bày chúng dưới
+    # nhãn "Cửa rủi ro đang có hiệu lực" — trong khi không dòng nào trong
+    # `rui_ro.xet()` đọc tới. Ba cái cửa không chặn gì cả, hiện ra như đang
+    # chặn. Đúng lớp hỏng im lặng mà cả cung này tồn tại để bắt.
+    #
+    # Chúng chỉ có nghĩa khi lớp đặt lệnh tồn tại (V0.6): trước đó không có
+    # vị thế nào để mà giới hạn, kể cả trên sổ giấy. Giữ lại vì đó là quyết
+    # định đã cân nhắc, không phải số bịa — nhưng giữ ở CHỖ KHÁC, kèm cờ.
+    "von": {
+        "coHieuLuc": False,
+        "moiCoHoiUsd": 100.0,
+        "toiDaUsd": 300.0,
         "donBayToiDa": 1.0,
     },
     "datLenh": {
@@ -80,6 +94,18 @@ MAC_DINH = {
         "ngayGiuLai": 30,
     },
 }
+
+#: Tên định danh của chiến lược này, dạng `<lớp>.<chiến lược>.<phiên bản>`.
+#:
+#: Thị Bạc Ty hiện có ĐÚNG MỘT chiến lược, nên trường này chưa phân biệt được
+#: gì — nó tốn một dòng và trả lời một câu hỏi chưa ai hỏi. Giữ vì cái giá là
+#: một dòng, còn cái giá của việc thêm nó SAU là đi sửa mọi lát cắt và mọi
+#: băng đã ghi để gắn nhãn ngược.
+#:
+#: Đổi số phiên bản khi công thức `netBps` đổi cách tính — không phải khi vặn
+#: ngưỡng. Ngưỡng vặn được là chuyện thường ngày của vòng tiến hoá; công thức
+#: đổi thì mọi con số cũ hết so được với số mới, và đó mới là đứt gãy.
+MA_CHIEN_LUOC = "perp.funding_spread.v1"
 
 CHE_HOP_LE = ("quan-sat", "giay", "that")
 

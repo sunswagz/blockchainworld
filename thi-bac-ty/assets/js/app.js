@@ -179,7 +179,10 @@
       })));
 
     f.appendChild(giai(
-      "Cột NET là funding thực thu trừ phí và trượt giá — thứ duy nhất đáng "
+      "Cột NET là CHẶN TRÊN: funding thực thu trừ phí và trượt giá, nhưng "
+      + "CHƯA trừ bốn khoản — vay coin, chuyển vốn giữa sàn, rủi ro basis lúc "
+      + "thoát, và vốn bị khoá. Lát cắt mang theo `phiConThieu` để nói rõ. "
+      + "Trong các con số đang có thì đây vẫn là thứ duy nhất đáng "
       + "xếp hạng. Cột gross chỉ là chênh lệch thô đã chuẩn hoá, chưa trừ gì. "
       + "Cột 'mốc L+S' bằng 0+0 nghĩa là giữ hết cửa sổ mà thu đúng bằng "
       + "không, dù gross trông vẫn to — xem mục Hai phép tính."));
