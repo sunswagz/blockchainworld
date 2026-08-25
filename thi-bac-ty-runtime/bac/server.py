@@ -160,6 +160,96 @@ def api_duong_tien_hoa() -> JSONResponse:
     return JSONResponse(sach(duong_tien_hoa()))
 
 
+# ══════════════════════════════════════════════════════════════════════════
+#  THỊ BẠC TY — bộ máy đứng trên ty này
+# ══════════════════════════════════════════════════════════════════════════
+
+def _tu():
+    """Trung Ương, hoặc None nếu đang tắt. Mọi đường dưới đây gọi qua đây."""
+    return getattr(runtime, "trungUong", None)
+
+
+def _tat() -> JSONResponse:
+    return JSONResponse({"tat": True,
+                         "loiNhac": "Trung Ương đang TẮT "
+                                    "(CONFIG['trungUong']['bat'])."},
+                        status_code=409)
+
+
+@app.get("/api/trung-uong")
+def api_trung_uong() -> JSONResponse:
+    """Cả chín tầng trong một lần gọi."""
+    tu = _tu()
+    return _tat() if tu is None else JSONResponse(sach(tu.anh_chup()))
+
+
+@app.get("/api/pheu")
+def api_pheu(chienLuoc: str | None = None) -> JSONResponse:
+    """Phễu từ cơ hội thô tới vị thế — thước duy nhất nói cỗ máy có học không."""
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    return JSONResponse(sach({
+        "dayDu": tu.pheu_day_du(),
+        "soDangKy": tu.so_dang_ky.pheu(chienLuoc),
+        "chienLuoc": chienLuoc,
+    }))
+
+
+@app.get("/api/so-cai")
+def api_so_cai(n: int = 100, loai: str | None = None) -> JSONResponse:
+    """Sổ cái gần đây. Chỉ đọc — sửa sổ cái chỉ có một đường là `dao()`."""
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    return JSONResponse(sach({"dong": tu.so_cai.gan_day(min(int(n), 500), loai),
+                              "tomTat": tu.so_cai.tom_tat()}))
+
+
+@app.get("/api/to-trinh/{ma}")
+def api_to_trinh(ma: str) -> JSONResponse:
+    """Cả đời một tờ trình: nó đã đi qua những cửa nào, và tiền đã đi đâu."""
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    p = tu.so_dang_ky.phieu(ma)
+    if p is None:
+        return JSONResponse({"coKhong": False, "ma": ma}, status_code=404)
+    return JSONResponse(sach({**p, "butToan": tu.so_cai.theo_to_trinh(ma)}))
+
+
+@app.post("/api/hoc")
+def api_hoc(ghiSo: bool = False) -> JSONResponse:
+    """Chẩn cả bộ máy và ĐỀ XUẤT vặn tham số phân bổ.
+
+    Mặc định `ghiSo=false` — xem mà không để lại dấu. Và dù `ghiSo=true` thì
+    nó vẫn chỉ GHI ĐỀ XUẤT: đổi tham số phân bổ là đổi cách chia tiền giữa
+    các ty, mà chuyện đó không chạy lại được nên không tự nhận được.
+    """
+    tu = _tu()
+    return _tat() if tu is None else JSONResponse(sach(tu.hoc(ghiSo=ghiSo)))
+
+
+@app.post("/api/cau-dao/dong-lai")
+def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
+    """Đóng lại một lý do ngắt. **Bắt buộc có tên người.**
+
+    `nguoi` không có mặc định ở đây cũng như ở `CauDao.dong_lai()`: máy phát
+    hiện sự cố nhanh hơn người, nhưng máy không phân biệt được "sự cố đã qua"
+    với "sự cố vẫn còn nhưng tín hiệu tạm im".
+    """
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    if not (nguoi or "").strip():
+        return JSONResponse({"xong": False,
+                             "vi": "phải khai tên người đóng cầu dao"},
+                            status_code=400)
+    xong = tu.cau_dao.dong_lai(ma, nguoi.strip(), tu.so_cai)
+    return JSONResponse(sach({"xong": xong, "ma": ma, "nguoi": nguoi,
+                              "cauDao": tu.cau_dao.tom_tat()}))
+
+
 @app.post("/api/lat-cat")
 def lat_cat() -> JSONResponse:
     duong = ghi_lat_cat(runtime)

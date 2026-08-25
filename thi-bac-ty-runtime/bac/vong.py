@@ -31,6 +31,7 @@ from .models import BaoGia
 from .rui_ro import NHAN, CongRuiRo
 from .san import TAT_CA
 from .so import So
+from .ty_perp import TyPerp
 from .xuat_to_trinh import xuat_to_trinh
 
 
@@ -49,6 +50,20 @@ class Runtime:
 
         self.cong = CongRuiRo(CONFIG["ruiRo"])
         self.so = So()
+
+        # ── Thị Bạc Ty đứng TRÊN ty này ──────────────────────────────────
+        # Chiều phụ thuộc chỉ đi một hướng: `bac` biết `thi_bac_ty`, không
+        # bao giờ ngược lại. Ngày trung ương phải import một ty để xử một
+        # trường hợp riêng là ngày hợp đồng đã hỏng — `scripts/selftest.py`
+        # canh đúng chuyện đó.
+        tu = CONFIG.get("trungUong") or {}
+        self.trungUong = None
+        if tu.get("bat", True):
+            from thi_bac_ty.trung_uong import TrungUong
+            self.trungUong = TrungUong(
+                DATA_DIR, {k: v for k, v in tu.items() if k != "bat"})
+            self.trungUong.dang_ky(TyPerp(self))
+        self.latCatTrungUong = None
 
         self.vong = 0
         self.batDauLuc = time.time()
@@ -176,6 +191,31 @@ class Runtime:
                     f"NET {c.netBps:+.2f} bps trong {c.giuGio:g}h "
                     f"({c.soMocLong}+{c.soMocShort} mốc)", loai="tin")
 
+        # ── giao lại cho Trung Ương ──────────────────────────────────────
+        # Đặt SAU khi đã ghi băng: băng là nguyên liệu, phải còn nguyên kể cả
+        # khi trung ương nổ. Và bọc try vì một lỗi ở tầng phân bổ không được
+        # phép làm chết vòng quét — mất một vòng phân bổ là mất một cơ hội,
+        # mất vòng quét là mất cả khả năng nhìn.
+        if self.trungUong is not None:
+            try:
+                self.latCatTrungUong = self.trungUong.mot_vong(
+                    lechDongHoGiay=(None if lech is None else lech / 1000.0),
+                    cangChet=loi,
+                    tuoiXauNhatGiay=max(
+                        (t for t in (b.tuoi_giay(now) for b in self.baoGia)
+                         if t is not None), default=None))
+                l = self.latCatTrungUong
+                if l.cauDaoNgat:
+                    bus.ghi("CẦU DAO NGẮT — không cam kết vốn: "
+                            + "; ".join(l.lyDoNgat), loai="canh")
+                elif l.phanBo and l.phanBo["soCap"]:
+                    bus.ghi(f"Thị Bạc Ty cấp {l.phanBo['tongCapUsd']:.0f} USD "
+                            f"cho {l.phanBo['soCap']} tờ trình "
+                            f"[SỔ GIẤY]", loai="tin")
+            except Exception as e:                       # noqa: BLE001
+                self.loiVongCuoi = f"trung ương: {type(e).__name__}: {e}"
+                bus.ghi(f"Trung Ương lỗi: {e}", loai="canh")
+
         self._don_so_moi_ngay()
         d = (time.perf_counter() - t0) * 1000.0
         self.quetCuoiMs = d
@@ -194,23 +234,24 @@ class Runtime:
 
     # ── xuất tờ trình lên Thị Bạc Ty ──────────────────────────────────────
     def to_trinh(self) -> list:
-        """Dịch cơ hội đã qua cổng ty thành `ToTrinh`.
+        """Tờ trình ĐÃ NỘP lên Thông Chính Ty trong vòng gần nhất.
 
-        `oiUsd` tra theo (mã, cảng) từ chính lượt quét này — không tra từ
-        lượt trước. Sức chứa suy từ open interest của một khung hình khác là
-        ghép hai thời điểm, đúng lỗi mà cả `dong_ho.py` sinh ra để chặn.
+        Đọc lại từ Trung Ương chứ **không dựng lại**. Dựng lại thì mỗi lần
+        sinh một `ma` mới (uuid), nên tờ trên màn hình và tờ trong sổ đăng ký
+        mang hai mã khác nhau cho cùng một cơ hội — người đọc không nối được
+        hai bảng, và cả sổ đăng ký mất tác dụng truy nguyên.
+
+        Trung Ương tắt thì dựng tại chỗ, để buồng lái vẫn xem được ty đang
+        định trình gì.
         """
+        if self.trungUong is not None:
+            return list(self.trungUong.toTrinhVongNay)
         oi = {(b.ma, b.san): b.oiUsd for b in self.baoGia}
         xin = float((CONFIG.get("von") or {}).get("moiCoHoiUsd", 100.0))
-        ra = []
-        for c in self.coHoi:
-            if not c.duyet:
-                continue
-            ra.append(xuat_to_trinh(
-                c, vonXinUsd=xin,
-                oiLongUsd=oi.get((c.ma, c.sanLong)),
-                oiShortUsd=oi.get((c.ma, c.sanShort))))
-        return ra
+        return [xuat_to_trinh(c, vonXinUsd=xin,
+                              oiLongUsd=oi.get((c.ma, c.sanLong)),
+                              oiShortUsd=oi.get((c.ma, c.sanShort)))
+                for c in self.coHoi if c.duyet]
 
     # ── ảnh chụp cho buồng lái và cho lát cắt ─────────────────────────────
     def anh_chup(self) -> dict:
@@ -273,6 +314,14 @@ class Runtime:
                  "ma": c.ma, "sanLong": c.sanLong, "sanShort": c.sanShort}
                 for c in self.coHoi[:12]
             ],
+            # THỊ BẠC TY — bộ máy đứng trên ty này. Cả chín tầng trong một
+            # khối, để buồng lái không phải ghép từ nhiều đường API.
+            "trungUong": (self.trungUong.anh_chup()
+                          if self.trungUong is not None else
+                          {"tat": True,
+                           "loiNhac": "Trung Ương đang TẮT — ty vẫn quét và "
+                                      "vẫn trình, nhưng không tầng nào cấp "
+                                      "vốn. Bật ở CONFIG['trungUong']['bat']."}),
             "duongSo": str(DATA_DIR),
             "nhatKy": bus.gan_day(80),
         }

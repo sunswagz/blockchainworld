@@ -93,6 +93,124 @@ Trung ương không được import ngược, và có phép kiểm canh việc �
 ương phải `import bac` để xử một trường hợp riêng là ngày hợp đồng đã hỏng:
 chỗ phải sửa là hợp đồng, không phải thêm một nhánh `if`.
 
+## Trung Ương — chín tầng, và vòng khép kín
+
+`bac/` là MỘT ty. `thi_bac_ty/` là cỗ máy chia vốn đứng trên mọi ty. Thứ tự
+này không đảo được: một ty không bao giờ nhìn thấy tổng danh mục, nên nó
+không bao giờ được quyết chuyện của tổng.
+
+```
+THỊ TRƯỜNG
+   │  các ty quét
+   ▼
+TỜ TRÌNH ──► THÔNG CHÍNH TY ──► SỔ ĐĂNG KÝ (PHAT_HIEN)
+                                     │
+                                     ▼
+                               RỦI RO TỔNG  ◄── DANH MỤC
+                              cho tối đa $X
+                                     │
+                                     ▼
+                               PHÂN BỔ VỐN   (cấp TUẦN TỰ)
+                                     │
+                                     ▼
+                          ĐIỀU PHỐI THỰC THI (máy trạng thái hai chân)
+                                     │
+                                     ▼
+                                 SỔ CÁI ──► CHẨN ĐOÁN ──► XÉT THAM SỐ
+                                                              │
+                                     ┌────────────────────────┘
+                                     ▼
+                                THỊ TRƯỜNG
+```
+
+| tệp | việc |
+|---|---|
+| `to_trinh.py` | hợp đồng — đồng tiền ngôn ngữ giữa các ty |
+| `khuon_ty.py` | khuôn một ty mới phải điền, và **chỉ** được điền |
+| `thong_chinh.py` | sàn nhận tờ trình, chặn sai khuôn ngay ở cửa |
+| `so_dang_ky.py` | vòng đời mọi tờ trình, và **cái phễu** |
+| `danh_muc.py` | ba thước phơi nhiễm: ròng · thô · theo cảng |
+| `rui_ro_tong.py` | trả về một **TRẦN**, không phải một chữ có/không |
+| `phan_bo.py` | xếp hạng rồi cấp **tuần tự**, xét lại sau mỗi lần |
+| `so_cai.py` | sổ chỉ-thêm; sửa sai chỉ có một đường là **đảo** |
+| `thuc_thi.py` | máy trạng thái hai chân, có đường lùi |
+| `cau_dao.py` | ngắt **tự động**, đóng lại **phải có người** |
+| `chan_doan_he.py` | bệnh của cả bộ máy, và đề xuất vặn tham số phân bổ |
+| `trung_uong.py` | khép vòng, và ép mọi tầng đi đúng thứ tự |
+
+### Bảy việc một ty KHÔNG được làm
+
+    ✗ giữ tiền, biết NAV, biết ty khác đang giữ gì
+    ✗ tự đặt trần vốn cho mình          ✗ dựng Rủi Ro Tổng riêng
+    ✗ gọi thẳng một ty khác             ✗ đặt lệnh
+    ✗ ghi thẳng vào Sổ Cái              ✗ đóng/mở cầu dao
+
+Bảy điều ấy thuộc Trung Ương, và không phải vì tập trung cho đẹp: mỗi điều
+trong đó **cần nhìn thấy toàn bộ danh mục** — thứ mà theo định nghĩa không ty
+nào nhìn thấy.
+
+### Vì sao cấp vốn TUẦN TỰ, không song song
+
+Hai tờ trình cùng chạm Binance. Xét riêng từng tờ trên danh mục hiện tại thì
+cả hai đều lọt; cấp cả hai rồi cộng lại mới vượt trần cảng. Nên `phan_bo.py`
+xếp hạng trước, rồi cấp từng tờ một và **gọi lại `rui_ro_tong.xet()` sau mỗi
+lần cấp** trên danh mục đã cập nhật.
+
+Cái giá là chậm hơn. Cái được là trần thật sự là trần.
+
+### Vì sao Rủi Ro Tổng trả về một TRẦN
+
+Trả nhị phân thì một cơ hội tốt xin $500 trong lúc chỉ còn chỗ cho $120 sẽ bị
+vứt cả. Trả một trần thì nó được cấp $120, và `lyDoCat` nói rõ trần nào đã
+chặn — người đọc cãi lại được.
+
+### Cầu dao: ngắt tự động, đóng lại phải có NGƯỜI
+
+Bất đối xứng có chủ ý. Máy phát hiện sự cố nhanh hơn người, nhưng máy không
+phân biệt được *"sự cố đã qua"* với *"sự cố vẫn còn nhưng tín hiệu tạm im"* —
+và cái thứ hai chính là lúc đóng lại thì mất tiền. Nên `dong_lai(ma, nguoi)`
+không có mặc định cho `nguoi`.
+
+Ngoại lệ duy nhất là những lý do đo được trực tiếp và không mơ hồ (đồng hồ đã
+khớp lại): chúng khai `tuMo=True` và tự đóng. `sut-von` thì **không** — sụt
+vốn là hậu quả, không phải tín hiệu; nó "hết" không có nghĩa là nguyên nhân
+đã hết.
+
+### Ngắt rồi thì vẫn quan sát
+
+`mot_vong()` hỏi cầu dao **trước** khi phân bổ. Ngắt thì vẫn quét, vẫn ghi
+nhận vào sổ đăng ký, vẫn chẩn đoán — chỉ không cam kết vốn. Dừng cả việc quan
+sát là tự làm mình mù đúng lúc cần nhìn nhất.
+
+### Cùng một cơ hội chỉ vào sổ MỘT lần mỗi giờ
+
+Ty quét mỗi 30 giây; một chênh lệch funding sống hàng giờ. Không có cửa chống
+trùng thì một cơ hội duy nhất vào sổ 120 lần mỗi giờ, và **cái phễu nói dối**:
+mẫu số thành 86.400 "phát hiện" cho 30 cơ hội có thật, nên mọi tỉ lệ sống sót
+đều chia cho một con số bịa. Xem `nhipGhiNhanGiay` và `_dau_van()`.
+
+### Trung Ương chỉ ĐỀ XUẤT vặn tham số, không tự vặn
+
+Khác hẳn vòng tiến hoá của ty. Ty tự vặn được vì nó **chạy lại băng** rồi đo
+A/B trên cùng dữ liệu. Đổi tham số phân bổ thì không chạy lại được: muốn biết
+một trần rộng hơn có tốt hơn không thì phải biết những cơ hội đã KHÔNG được
+cấp diễn biến ra sao — mà chúng không được mở nên không có kết cục.
+
+Không A/B được thì không tự nhận được. Người duyệt.
+
+### Câu hỏi thành/bại của cả lớp trừu tượng này
+
+> *Hai chiến lược hoàn toàn khác nhau có sống dưới cùng một Thị Bạc Ty không?*
+
+`scripts/selftest.py` trả lời bằng một ty **cho vay** giả — không funding,
+không mốc kết toán, không hai chân perp — chạy song song với ty phái sinh
+thật, dưới cùng một Trung Ương, **không sửa một dòng nào trong `thi_bac_ty/`**.
+Cả hai cùng vào sổ đăng ký, cùng bị `rui_ro_tong` xét, cùng được xếp hạng bằng
+`netMoiGioBps`, và danh mục cộng phơi nhiễm chéo hai ngành.
+
+Ngày phép kiểm ấy phải sửa `thi_bac_ty/` mới chạy được là ngày lớp trừu tượng
+này hoá ra là giả.
+
 ## Ty đầu tiên — chênh lệch funding
 
 
@@ -120,7 +238,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 213 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 359 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -467,6 +585,23 @@ bac/
   chay_lai.py   hậu kiểm funding thực
   chan_doan.py  bệnh đo được
   tien_hoa.py   vặn ngưỡng có bằng chứng
+
+  xuat_to_trinh.py  CoHoi → ToTrinh    ← chỗ nối lên trung ương
+  ty_perp.py        cắm vào khuôn Ty   ← mỏng có chủ ý
+
+thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
+  to_trinh.py     hợp đồng            ← đọc trước
+  khuon_ty.py     khuôn một ty mới    ← đọc ngay sau
+  thong_chinh.py  sàn nhận tờ trình
+  so_dang_ky.py   vòng đời + cái phễu
+  danh_muc.py     ba thước phơi nhiễm
+  rui_ro_tong.py  trả về một TRẦN
+  phan_bo.py      xếp hạng, cấp tuần tự
+  so_cai.py       sổ chỉ-thêm, sửa bằng ĐẢO
+  thuc_thi.py     máy trạng thái hai chân
+  cau_dao.py      ngắt tự động, đóng lại phải có người
+  chan_doan_he.py bệnh của cả bộ máy
+  trung_uong.py   khép vòng            ← đọc sau cùng
 ```
 
 Hỏi bốn cảng **song song không phải để nhanh**: hỏi tuần tự cách nhau vài

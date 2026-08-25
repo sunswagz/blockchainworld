@@ -94,6 +94,27 @@ MAC_DINH = {
     "datLenh": {
         "toiXacNhanDaDocRuiRo": False,
     },
+    # Trung Ương — bộ máy Thị Bạc Ty đứng TRÊN ty này. Khối này chỉ ghi đè;
+    # giá trị đầy đủ nằm ở `thi_bac_ty/trung_uong.py:MAC_DINH` và ở MAC_DINH
+    # của từng tầng. Chép lại đủ bộ ở đây là tạo bản sao thứ hai sẽ lệch.
+    #
+    # `vonBanDauUsd` là vốn TRÊN SỔ GIẤY. Không lớp đặt lệnh nào tồn tại nên
+    # không con số nào ở đây chạm tới tiền thật; `DanhMuc.nguonThat` là False
+    # và buồng lái bày cờ đó lên đầu bảng.
+    "trungUong": {
+        "bat": True,
+        "vonBanDauUsd": 1000.0,
+        "nguongCauDao": {
+            # Rộng hơn cửa `lechDongHoToiDaGiay` của ty (10s) có chủ ý: cửa
+            # ty nói "cơ hội này không đáng tin", cầu dao nói "cả cỗ máy
+            # đang nhìn sai thế giới". Hai câu khác nhau, hai ngưỡng khác
+            # nhau — bằng nhau thì cầu dao ngắt mỗi lần một cơ hội bị loại.
+            "lechDongHoToiDaGiay": 60.0,
+            "soCangChetToiDa": 1,
+            "tuoiToiDaGiay": 300.0,
+            "sutVonToiDaPct": 10.0,
+        },
+    },
     "so": {
         "giuNgay": 30,
     },

@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  var S = null, O = "co-hoi", DANG_TAI = false;
+  var S = null, O = "co-hoi", DANG_TAI = false, TU_DANG_CHAN = false;
 
   function $(s) { return document.querySelector(s); }
   function el(t, c, x) {
@@ -562,10 +562,220 @@
     return f;
   }
 
+  /* ── THỊ BẠC TY: chín tầng, và cái phễu ────────────────────────────────
+   *
+   * Ô này bày TRUNG ƯƠNG, không bày ty. Ô "Cơ hội" và "Tờ trình" là góc nhìn
+   * của một ty; ô này là góc nhìn của cỗ máy chia vốn — thứ mà theo định
+   * nghĩa không ty nào thấy được.
+   */
+  function ve_trung_uong() {
+    var f = document.createDocumentFragment();
+    var T = S.trungUong || {};
+
+    if (T.tat) {
+      f.appendChild(o("Thị Bạc Ty đang TẮT",
+        el("p", "cho", T.loiNhac || "Trung Ương không chạy."),
+        "Ty vẫn quét và vẫn trình, nhưng không tầng nào cấp vốn. "
+        + "Bật ở CONFIG['trungUong']['bat']."));
+      return f;
+    }
+
+    var dm = T.danhMuc || {}, cd = T.cauDao || {}, lat = T.latCatVong || {};
+    var pb = lat.phanBo || null;
+
+    /* ── cờ trung thực đứng ĐẦU, trước mọi con số ────────────────────── */
+    if (dm.nguonThat === false) {
+      var canh = el("div", "loi-o");
+      canh.appendChild(el("h2", null, "MÔ PHỎNG — không đồng nào là thật"));
+      canh.appendChild(el("p", null, dm.loiNhac
+        || "Không đọc số dư từ sàn nào."));
+      canh.appendChild(el("p", "giai",
+        "Mọi con số dưới đây là SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên "
+        + "không cấu hình nào biến bảng này thành lệnh thật. Cờ này đứng "
+        + "trên đầu chứ không nhét cuối bảng: người đọc phải gặp nó TRƯỚC "
+        + "khi gặp con số."));
+      f.appendChild(canh);
+    }
+
+    /* ── cầu dao ──────────────────────────────────────────────────────── */
+    if (cd.dangNgat) {
+      var c2 = el("div", "loi-o");
+      c2.appendChild(el("h2", null, "CẦU DAO ĐANG NGẮT"));
+      (cd.lyDo || []).forEach(function (l) {
+        c2.appendChild(el("p", null, "· " + l.ma + " — " + l.moTa
+          + (l.tuMo ? "  (tự đóng lại khi hết)" : "  (PHẢI có người đóng)")));
+      });
+      c2.appendChild(el("p", "giai",
+        "Ngắt thì vẫn quét, vẫn ghi nhận, vẫn chẩn đoán — chỉ KHÔNG cam kết "
+        + "vốn. Dừng cả việc quan sát là tự làm mình mù đúng lúc cần nhìn "
+        + "nhất. Lý do không tự mở phải đóng bằng: "
+        + "curl -X POST 'localhost:" + (location.port || "5188")
+        + "/api/cau-dao/dong-lai?ma=<mã>&nguoi=<tên>'"));
+      f.appendChild(c2);
+    }
+
+    /* ── số tổng ──────────────────────────────────────────────────────── */
+    var l = el("div", "luoi");
+    [["NAV (sổ giấy)", "$" + so(dm.navUsd, 2)],
+     ["tiền mặt", "$" + so(dm.tienMatUsd, 2)],
+     ["dùng vốn", dm.tiLeDungVon == null ? "—"
+        : (dm.tiLeDungVon * 100).toFixed(1) + "%"],
+     ["vị thế đang mở", (dm.soViThe == null ? (T.thucThi || {}).soPhien : dm.soViThe)],
+     ["cầu dao", cd.dangNgat ? "NGẮT" : "đóng"],
+     ["bút toán", (T.soCai || {}).soButToan],
+     ["tầng đi tắt", (T.soDangKy || {}).soChuyenSai]
+    ].forEach(function (x) {
+      var d = el("div", "so");
+      d.appendChild(el("div", "n", String(x[1] == null ? "—" : x[1])));
+      d.appendChild(el("div", "t", x[0]));
+      l.appendChild(d);
+    });
+    f.appendChild(o("Thị Bạc Ty — bộ máy chia vốn", l,
+      "«Tầng đi tắt» phải luôn là 0. Khác 0 nghĩa là có tầng gọi vượt cấp — "
+      + "vốn tới được vị thế mà Rủi Ro Tổng chưa từng thấy tờ trình. Đó là "
+      + "lỗi kiến trúc, không phải lỗi tham số."));
+
+    /* ── cái phễu ─────────────────────────────────────────────────────── */
+    var p = T.pheuDayDu || {};
+    var nac = p.nac || [];
+    var NHAN_NAC = {
+      coHoiTho: "cơ hội thô", quaCongTy: "qua cổng ty",
+      DUYET_RUI_RO: "qua rủi ro tổng", DA_CAP_VON: "được cấp vốn",
+      DA_MO: "đã mở vị thế", DA_DONG: "đã đóng"
+    };
+    f.appendChild(o("Cái phễu — cỗ máy này có học không", bang(
+      [{ t: "Nấc", trai: 1 }, { t: "số" }, { t: "còn lại" }],
+      nac.map(function (n) {
+        return [
+          { t: NHAN_NAC[n.ten] || n.ten, c: "trai" },
+          { t: String(n.so) },
+          /* `None` chứ không phải 0%: "chưa thấy cơ hội nào" khác hẳn
+           * "thấy rồi mà không cái nào qua". */
+          { t: n.tiLe == null ? "—" : (n.tiLe * 100).toFixed(1) + "%",
+            c: n.tiLe == null ? "nhat" : null }
+        ];
+      }).concat([
+        [{ t: "— bị từ chối", c: "trai" }, { t: String(p.tuChoi == null ? "—" : p.tuChoi) }, { t: "" }],
+        [{ t: "— hỏng khi mở", c: "trai" }, { t: String(p.hong == null ? "—" : p.hong) }, { t: "" }]
+      ])),
+      "Từng con số một mình vô nghĩa; cả phễu thì nói rất nhiều. Cột «còn "
+      + "lại» chia cho số cơ hội THẬT, không phải số lượt quét — cùng một "
+      + "cơ hội quét lại 120 lần mỗi giờ chỉ vào sổ một lần "
+      + ((lat.soBoTrung || 0) ? "(vòng vừa rồi bỏ " + lat.soBoTrung
+          + " lượt trùng)" : "") + "."));
+
+    /* ── phân bổ vòng gần nhất ────────────────────────────────────────── */
+    if (pb && (pb.daCap || []).length) {
+      f.appendChild(o("Vốn đã cấp — vòng gần nhất", bang(
+        [{ t: "Tài sản", trai: 1 }, { t: "ty", trai: 1 }, { t: "xin" },
+         { t: "trần" }, { t: "cấp" }, { t: "NET/giờ" }, { t: "rủi ro" },
+         { t: "vì sao bị cắt", trai: 1 }],
+        pb.daCap.map(function (x) {
+          return [
+            { t: x.taiSan, c: "trai" },
+            { t: x.chienLuoc, c: "trai" },
+            { t: "$" + so(x.xinUsd, 0) },
+            { t: "$" + so(x.choToiDaUsd, 0) },
+            { t: "$" + so(x.capUsd, 2), c: "qua" },
+            { t: dau(x.netMoiGioBps, 3), c: lop(x.netMoiGioBps) },
+            { t: x.diemRuiRo == null ? "—" : so(x.diemRuiRo, 2) },
+            { t: x.biCat ? (x.lyDoCat || []).join(" · ") : "—", c: "vi" }
+          ];
+        })),
+        "Cấp TUẦN TỰ, không song song: sau mỗi lần cấp, Rủi Ro Tổng xét lại "
+        + "trên danh mục ĐÃ cập nhật. Cấp song song thì hai tờ trình cùng "
+        + "chạm một cảng đều 'lọt', và chỉ vượt trần sau khi cộng lại."));
+    }
+
+    if (pb && (pb.tuChoi || []).length) {
+      f.appendChild(o("Bị từ chối — và vì sao", bang(
+        [{ t: "Tờ trình", trai: 1 }, { t: "ty", trai: 1 },
+         { t: "xin" }, { t: "lý do", trai: 1 }],
+        pb.tuChoi.slice(0, 20).map(function (x) {
+          var ly = x.lyDo;
+          if (Object.prototype.toString.call(ly) === "[object Array]")
+            ly = ly.join("; ");
+          return [
+            { t: String(x.maToTrinh || "—").slice(0, 10), c: "trai" },
+            { t: x.chienLuoc || "—", c: "trai" },
+            { t: x.xinUsd == null ? "—" : "$" + so(x.xinUsd, 0) },
+            { t: String(ly || "—"), c: "vi" }
+          ];
+        })),
+        "Từ chối luôn kèm lý do. Một hệ thống chỉ ghi lại lúc nó đồng ý thì "
+        + "lịch sử của nó toàn thắng lợi."));
+    }
+
+    /* ── phơi nhiễm: ba thước, ba câu hỏi ─────────────────────────────── */
+    var pnR = dm.phoiNhiemRong || {}, pnT = dm.phoiNhiemTho || {};
+    var ts = Object.keys(pnT);
+    if (ts.length) {
+      f.appendChild(o("Phơi nhiễm — ba thước, ba câu hỏi khác nhau", bang(
+        [{ t: "Tài sản", trai: 1 }, { t: "ròng (hướng giá)" },
+         { t: "thô (thanh khoản)" }],
+        ts.map(function (k) {
+          return [{ t: k, c: "trai" },
+                  { t: dau(pnR[k] || 0, 2), c: lop(pnR[k] || 0) },
+                  { t: so(pnT[k], 2) }];
+        })),
+        "RÒNG trả lời «giá chạy thì ta thiệt bao nhiêu» — cặp delta-neutral "
+        + "ra 0. THÔ trả lời «muốn thoát thì phải bán bao nhiêu» — cặp ấy ra "
+        + "gấp đôi. Một cỗ máy chỉ đo ròng sẽ tưởng mình không có rủi ro "
+        + "thanh khoản nào."));
+    }
+
+    /* ── chẩn đoán hệ ─────────────────────────────────────────────────── */
+    var h = T.hoc;
+    var d = el("div");
+    if (!h) {
+      d.appendChild(el("p", "cho", "chưa chạy lượt chẩn nào"));
+    } else {
+      d.appendChild(bang(
+        [{ t: "Triệu chứng", trai: 1 }, { t: "nặng" }, { t: "mô tả", trai: 1 }],
+        (h.trieuChung || []).map(function (t) {
+          return [{ t: t.ma, c: "trai" },
+                  { t: "●".repeat(t.nang), c: t.nang >= 3 ? "am" : "chan" },
+                  { t: t.moTa, c: "vi" }];
+        })));
+      (h.deXuat || []).forEach(function (x) {
+        d.appendChild(el("p", null, "đề xuất: " + x.nut + "  "
+          + so(x.tu, 3) + " → " + so(x.den, 3) + "   (vì «" + x.vi + "»)"));
+      });
+      if (!(h.deXuat || []).length)
+        d.appendChild(el("p", "cho",
+          "không đề xuất vặn gì — đứng yên là một kết quả hợp lệ"));
+    }
+    var nut = el("button", "nut", "Chẩn lại cả bộ máy");
+    nut.disabled = !!TU_DANG_CHAN;
+    nut.addEventListener("click", function () {
+      TU_DANG_CHAN = true; ve();
+      // `ghiSo=false`: xem mà không để lại dấu. Bấm nhầm một nút không được
+      // phép thêm một dòng vào nhật ký xét tham số.
+      fetch("/api/hoc?ghiSo=false", { method: "POST" })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (S && S.trungUong) S.trungUong.hoc = j;
+          nhac("đã chẩn: " + (j.trieuChung || []).length + " triệu chứng, "
+               + (j.deXuat || []).length + " đề xuất");
+        })
+        .catch(function (e) { nhac("chẩn lỗi: " + (e && e.message || e)); })
+        .finally(function () { TU_DANG_CHAN = false; ve(); });
+    });
+    d.appendChild(nut);
+    f.appendChild(o("Chẩn đoán hệ — và xét lại tham số", d,
+      "Khác hẳn ô «Đào tạo»: ô kia chẩn xem TY này phát hiện có chuẩn không; "
+      + "ô này chẩn xem CẢ BỘ MÁY có chuyển tiền tới chỗ đáng không. Và ở "
+      + "đây máy chỉ ĐỀ XUẤT, không tự vặn — đổi tham số phân bổ là đổi cách "
+      + "chia tiền giữa các ty, mà chuyện đó không chạy lại được nên không "
+      + "A/B được, nên không tự nhận được. Người duyệt."));
+
+    return f;
+  }
+
   var O_VE = {
     "co-hoi": ve_co_hoi, "bao-gia": ve_bao_gia,
     "cang": ve_cang, "cua": ve_cua,
-    "to-trinh": ve_to_trinh, "hoc": ve_hoc,
+    "to-trinh": ve_to_trinh, "trung-uong": ve_trung_uong, "hoc": ve_hoc,
     "nhat-ky": ve_nhat_ky
   };
 
