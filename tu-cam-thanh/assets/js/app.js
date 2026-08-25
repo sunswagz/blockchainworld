@@ -200,10 +200,19 @@
         hang("rủi ro sự kiện", t.event_risk) +
       "</div>" +
       '<div class="the"><h3>mức giá</h3>' +
-        hang("vùng vào", (t.entry_zone || []).map(function (x) { return so(x); }).join(" – ") || "—") +
-        hang("vô hiệu hoá (SL)", so(t.invalidation)) +
-        hang("mục tiêu", (t.targets || []).map(function (x) { return so(x); }).join(" · ") || "—") +
-        hang("rủi ro đề xuất", (t.suggested_risk_pct || 0) + "%") +
+        /* Phiên NO_TRADE thì KHÔNG CÓ vùng vào, mức vô hiệu hoá hay mục
+           tiêu — và đó là một kết luận, không phải dữ liệu hụt. Bốn dấu
+           gạch xếp thành cột đọc y hệt "đường ống ngã", nên nói thẳng ra
+           một câu còn đúng hơn bốn ô trống. */
+        (t.action === "NO_TRADE"
+          ? '<p style="margin:0;font-size:12.5px;color:var(--fg-2);line-height:1.65">' +
+            "Bộ não <b>chủ động đứng ngoài</b> phiên này, nên không có vùng vào, " +
+            "mức vô hiệu hoá hay mục tiêu nào. Trống vì <b>không có lệnh</b>, " +
+            "không phải vì thiếu dữ liệu.</p>"
+          : hang("vùng vào", (t.entry_zone || []).map(function (x) { return so(x); }).join(" – ") || "chưa đặt") +
+            hang("vô hiệu hoá (SL)", t.invalidation == null ? "chưa đặt" : so(t.invalidation)) +
+            hang("mục tiêu", (t.targets || []).map(function (x) { return so(x); }).join(" · ") || "chưa đặt") +
+            hang("rủi ro đề xuất", (t.suggested_risk_pct || 0) + "%")) +
         (t.invalidation_logic ? '<p style="margin:9px 0 0;font-size:12.5px;color:var(--fg-3);line-height:1.6">' +
           esc(t.invalidation_logic) + "</p>" : "") +
       "</div></div>";
@@ -267,8 +276,10 @@
       (pq ? '<div class="the"><h3>phán quyết gần nhất</h3>' +
         hang("kết quả", pq.approved ? "CHO QUA" : pq.action === "NO_TRADE" ? "NO_TRADE" : "CHẶN",
              pq.approved ? "len" : pq.action === "NO_TRADE" ? "nhac" : "xuong") +
-        hang("RR", so(pq.rr)) +
-        hang("ghi chú", pq.note || "—") +
+        /* Không vào lệnh thì không có tỉ lệ lời/lỗ để mà tính. */
+        hang("RR", pq.action === "NO_TRADE" ? "không có lệnh"
+                 : pq.rr == null ? "chưa tính" : so(pq.rr)) +
+        hang("ghi chú", pq.note || "không có") +
         (pq.rejections || []).map(function (x) {
           return '<div class="mono xuong" style="font-size:11px;margin-top:3px">• ' + esc(x) + "</div>";
         }).join("") +

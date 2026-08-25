@@ -8,7 +8,13 @@
 
 :root{
   --bg:#0B0B0E; --card:#141419; --card-2:#1B1B22; --card-3:#23232B;
-  --ink:#F4F4F6; --ink-2:#A9A9B4; --ink-3:#70707E;
+  /* Bậc chữ MỜ, không phải chữ TÀNG HÌNH. Đây là bậc gánh nhãn cột,
+     đơn vị, dòng nguồn và chú thích — tức là phần TRUY NGƯỢC VỀ NGUỒN.
+     Số thì sáng rõ mà chỗ nói số ấy ở đâu ra lại mờ dưới mức đọc được
+     là hỏng đúng chỗ đáng giá nhất. Giá trị cũ dưới ngưỡng WCAG AA 4,5;
+     nay đạt trên mọi nền nó thật sự nằm lên, và vẫn cách bậc chữ thứ hai
+     đủ xa để thứ bậc không phẳng. */
+  --ink:#F4F4F6; --ink-2:#A9A9B4; --ink-3:#8A8A97;
   --line:#26262F; --line-2:#1E1E26;
   --acc:#F0B429; --acc-2:#FFCE55; --acc-t:#2A2214;
   --ok:#3DBB69; --ok-t:#132A1C; --warn:#F2B94A; --bad:#F05252; --bad-t:#2B1618;
@@ -328,3 +334,10 @@ input[type=range]{accent-color:var(--acc);flex:0 0 auto;width:120px}
 .tt-vi{flex:1 1 100%;color:var(--ink-2)}
 .tt-chan{margin:0;padding:10px 15px;border-top:1px solid var(--line-2);background:var(--card);
   font-size:11.3px;line-height:1.6;color:var(--ink-2)}
+
+/* Ô mà NGUỒN không cấp dữ liệu. Không dùng dấu gạch: gạch là ký hiệu
+   "chưa đo được" ở khắp repo, mà đây là chuyện khác hẳn — L2BEAT có
+   quét, chỉ là bản quét không kèm trường đó. Hai chữ nói ra được điều
+   một dấu gạch không nói được, và `title` chỉ luôn hụt từ đâu. */
+.khuyet{font-style:normal;font-size:11.5px;color:var(--ink-3);
+  border-bottom:1px dotted var(--line);cursor:help}

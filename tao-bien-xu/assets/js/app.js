@@ -1002,7 +1002,8 @@
       "Dây chuyền <b>không phải một máy</b>. Nó là thứ tự các máy phải chạy — " +
       "băng chuyền nối nhiều máy lại." +
       '<span class="vn">Ô <b>viền lục</b> là bước dùng một kỹ năng cụ thể. ' +
-      "Ô gạch ngang là bước do tổ hoặc người làm, không có máy nào chạy thay được.</span>";
+      "Ô ghi <b>người</b> là bước do tổ hoặc người làm, không có máy nào chạy " +
+      "thay được.</span>";
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
@@ -1015,9 +1016,15 @@
       var bs = el("div", "dc-buoc");
       d.buoc.forEach(function (b) {
         var r = el("div", "dc-b");
-        if (b[0] !== "—") r.dataset.kn = "1";
+        var laMay = b[0] !== "—";
+        if (laMay) r.dataset.kn = "1";
         var kn = knTheoId[b[0]];
-        r.innerHTML = '<span class="dc-n">' + esc(b[0]) + '</span><span class="dc-t">' +
+        /* Bước không có máy: ghi thẳng chữ "người" thay vì một dấu gạch.
+           Gạch ngang là ký hiệu của DỮ LIỆU HỤT ở khắp repo này, nên dùng
+           lại nó cho một chuyện hoàn toàn khác — "chỗ này cố ý là người
+           làm" — là bắt người đọc phải tìm chú giải mới hiểu được một ô.
+           Chữ thì tự nó nói, và không cần dòng chú giải nào cả. */
+        r.innerHTML = '<span class="dc-n">' + esc(laMay ? b[0] : "người") + '</span><span class="dc-t">' +
           esc(b[1]) + (kn ? " <span style=\"color:var(--fg-3)\">— " + esc(kn.ten) + "</span>" : "") +
           "</span>";
         bs.appendChild(r);
@@ -1390,8 +1397,16 @@
       a.dataset.che = n.che;
 
       var con = n.nhip && n.luc ? n.nhip - gioTu(n.luc) : null;
-      var hanChu = !n.nhip ? "—"
+      /* Node không khai nhịp thì KHÔNG có lượt sau — và đó là đúng thiết
+         kế, không phải dữ liệu hụt. Một dấu gạch ở đây đọc thành "chỗ này
+         hỏng"; nói thẳng "chạy tay" thì người xem biết là không phải chờ.
+
+         Cùng lý do cho ô kết quả bên dưới: node chưa chạy lượt nào thì
+         chưa có kết quả để mà hiện, và "chưa có" nói đúng chuyện đó, còn
+         gạch thì không phân biệt được với "đường ống ngã". */
+      var hanChu = !n.nhip ? (n.che === "tay" ? "khi gọi tay" : "theo thay đổi")
         : denHan(n) ? "đến hạn"
+        : con == null ? "ngay lượt tới"
         : con < 1 ? "còn " + Math.max(0, Math.round(con * 60)) + " phút"
         : "còn " + con.toFixed(1).replace(".", ",") + " giờ";
 
@@ -1405,7 +1420,7 @@
         '<span><i>lượt cuối</i><b>' + esc(truoc(n.luc)) + "</b></span>" +
         '<span><i>kết quả</i><b>' + esc(n.ket === "ok" ? (n.doi ? "ok · có đổi" : "ok · không đổi")
                                        : n.ket === "loi" ? "NGÃ" + (n.vi ? " · " + (VI_CHU[n.vi] || n.vi) : "")
-                                       : n.ket || "—") + "</b></span>" +
+                                       : n.ket || (n.luc ? "không rõ" : "chưa có")) + "</b></span>" +
         '<span><i>nhịp</i><b>' + esc(nhipChu(n)) + "</b></span>" +
         '<span><i>lượt sau</i><b>' + esc(hanChu) + "</b></span></div>" +
         (n.chuoiLoi >= 2 ? '<div class="vh-canh">ngã ' + n.chuoiLoi + " lượt liên tiếp" +

@@ -50,7 +50,15 @@
     var d = new Date(ts * 1000), p = function (n) { return String(n).padStart(2, "0"); };
     return p(d.getUTCDate()) + "/" + p(d.getUTCMonth() + 1) + " " + p(d.getUTCHours()) + ":" + p(d.getUTCMinutes());
   }
-  function rutGon(a) { return a ? a.slice(0, 8) + "…" + a.slice(-6) : "—"; }
+  /* Bản quét của L2BEAT không phải lúc nào cũng kèm tên hợp đồng và địa
+     chỉ: 15/450 dòng nhật ký thiếu tên, 14/450 thiếu địa chỉ. Đó là hụt
+     Ở NGUỒN, không phải hụt ở đường ống của repo này — và hai chuyện đó
+     phải đọc ra khác nhau. Một dấu gạch thì không phân biệt được; hai
+     chữ thì có, và `title` nói luôn hụt từ đâu. */
+  function thieu(chu, viSao) {
+    return '<i class="khuyet" title="' + esc(viSao) + '">' + esc(chu) + "</i>";
+  }
+  function rutGon(a) { return a ? esc(a.slice(0, 8) + "…" + a.slice(-6)) : thieu("không kèm", "Bản quét L2BEAT cho dòng đổi này không kèm địa chỉ hợp đồng."); }
 
   /* Logo dùng chung với Đô Sát Viện — 200 file đã tải sẵn ở đó,
      chép sang đây là nhân đôi 1 MB trong repo mà chẳng được gì. */
@@ -253,8 +261,10 @@
       r.tabIndex = 0;
       r.innerHTML =
         '<td class="l"><span class="duan">' + logoHTML(x.duAn, x.duAn) + "<b>" + esc(x.duAn) + "</b></span></td>" +
-        '<td class="l hd">' + esc(x.hopDong || "—") + (x.chuoi ? "<i>" + esc(x.chuoi) + "</i>" : "") + "</td>" +
-        '<td class="l dd">' + esc(rutGon(x.diaChi)) + "</td>" +
+        '<td class="l hd">' + (x.hopDong ? esc(x.hopDong)
+             : thieu("không tên", "Bản quét L2BEAT không đặt tên cho hợp đồng bị đổi ở dòng này.")) +
+          (x.chuoi ? "<i>" + esc(x.chuoi) + "</i>" : "") + "</td>" +
+        '<td class="l dd">' + rutGon(x.diaChi) + "</td>" +
         '<td><span class="tm">+' + x.them + '</span> <span class="bt">−' + x.bot + "</span></td>" +
         '<td class="l luc">' + esc(ngay(x.luc)) + "</td>";
       r.addEventListener("click", function () { moDiff(i); });
@@ -369,7 +379,8 @@
       r.innerHTML =
         '<td class="l" style="color:var(--ink-3)">' + (i + 1) + "</td>" +
         '<td class="l"><span class="duan">' + logoHTML(p.id, p.ten) + "<b>" + esc(p.ten) + "</b></span></td>" +
-        '<td class="l" style="color:var(--ink-3);font-size:12px">' + esc(p.dang || "—") + "</td>" +
+        '<td class="l" style="color:var(--ink-3);font-size:12px">' +
+          (p.dang ? esc(p.dang) : thieu("chưa phân loại", "L2BEAT chưa xếp dự án này vào dạng nào.")) + "</td>" +
         '<td class="l"><span class="hm">' + o + "</span></td>" +
         '<td class="tyle"><b>' + p.co.length + "</b><i>/" + tong + "</i>" +
         '<div class="thanh"><span style="width:' + pt + '%"></span></div></td>' +

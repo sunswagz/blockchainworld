@@ -16,13 +16,22 @@
 :root{
   --bg:#0E1116; --bg-2:#141922; --card:#1A202B; --card-2:#222A37; --card-3:#2C3543;
   --line:#2A323F; --line-2:#212836;
-  --fg:#E8EDF5; --fg-2:#9FADC0; --fg-3:#66748A;
+  /* Bậc chữ MỜ, không phải chữ TÀNG HÌNH. Đây là bậc gánh nhãn cột,
+     đơn vị, dòng nguồn và chú thích — tức là phần TRUY NGƯỢC VỀ NGUỒN.
+     Số thì sáng rõ mà chỗ nói số ấy ở đâu ra lại mờ dưới mức đọc được
+     là hỏng đúng chỗ đáng giá nhất. Giá trị cũ dưới ngưỡng WCAG AA 4,5;
+     nay đạt trên mọi nền nó thật sự nằm lên, và vẫn cách bậc chữ thứ hai
+     đủ xa để thứ bậc không phẳng. */
+  --fg:#E8EDF5; --fg-2:#9FADC0; --fg-3:#939EAF;
 
   --am:#E0793B; --am-t:#2A1B12;
   --vang:#C9A227; --vang-t:#26200F;
   --luc:#3F9D6D; --luc-t:#12241B;
   --lam:#5A8DD6; --lam-t:#141F2E;
-  --do:#C0392B; --do-t:#291413;
+  /* Màu báo hỏng. #C0392B chỉ đạt 3,21 trên nước rửa của chính nó —
+     đúng chỗ nó hay được dùng nhất (nhãn lỗi trên nền đỏ nhạt), nên
+     dòng nói "cái này hỏng" lại là dòng khó đọc nhất trang. */
+  --do:#D75B4E; --do-t:#291413;
 
   --r:10px; --dur:.18s;
   --bong:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,1);
@@ -474,7 +483,9 @@ a.sd-o:hover{border-color:var(--am);background:var(--card-2);transform:translate
 .dc-b::before{content:"";position:absolute;left:16px;top:0;bottom:0;width:1px;background:var(--line)}
 .dc-b:first-child::before{top:50%}
 .dc-b:last-child::before{bottom:50%}
-.dc-n{position:relative;z-index:1;flex:0 0 auto;width:33px;height:23px;border-radius:5px;
+/* Ô mã máy. Rộng 44px chứ không 33px: bước do người làm nay ghi thẳng
+   chữ "người" thay cho một dấu gạch, và chữ ấy phải vừa ô. */
+.dc-n{position:relative;z-index:1;flex:0 0 auto;width:44px;height:23px;border-radius:5px;
   display:grid;place-items:center;background:var(--card-2);border:1px solid var(--line);
   font-family:var(--mono);font-size:10px;color:var(--fg-2)}
 .dc-b[data-kn="1"] .dc-n{border-color:var(--luc);color:var(--luc)}

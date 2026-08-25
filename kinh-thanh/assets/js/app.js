@@ -654,6 +654,20 @@ function computeRanking(){
     return {id:i, chain:byId(i), score:Math.round(total), parts:parts, raw:S};
   }).sort(function(a,b){ return b.score-a.score; });
   RANKED.forEach(function(r,ix){ r.rank=ix+1; });
+
+  /* Khai danh sách phòng cho CỔNG CHẶN của vòng tiến hoá
+     (scripts/tien-hoa.mjs). Cung này điều hướng bằng <button> có
+     addEventListener chứ không bằng <a href="#…">, nên bộ đo không có
+     một cái href nào để nhặt — nó thấy KHÔNG phòng nào và chấm thước
+     "Mọi phòng vẽ được" là trượt, trong khi cả 24 quốc gia vẽ bình
+     thường trên trình duyệt. Đài Quan Trắc đã dính đúng chuyện này và
+     giải bằng đúng cách này.
+
+     Khai TRONG computeRanking() chứ không phải một lần lúc nạp: RANKED
+     mới là nơi biết có những quốc gia nào, và nó dựng từ dữ liệu bot
+     ghi 4 lượt/ngày. */
+  window.__TUYEN = RANKED.map(function(r){ return "#" + r.id; });
+
   return RANKED;
 }
 function rankOf(id){

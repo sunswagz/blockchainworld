@@ -11,11 +11,21 @@
 
 :root{
   --bg:#E6E7EC; --card:#FFFFFF; --card-2:#F4F5F8;
-  --ink:#1B1B1F; --ink-2:#54545C; --ink-3:#87878F;
+  /* Bậc chữ MỜ, không phải chữ TÀNG HÌNH. Đây là bậc gánh nhãn cột,
+     đơn vị, dòng nguồn và chú thích — tức là phần TRUY NGƯỢC VỀ NGUỒN.
+     Số thì sáng rõ mà chỗ nói số ấy ở đâu ra lại mờ dưới mức đọc được
+     là hỏng đúng chỗ đáng giá nhất. Giá trị cũ dưới ngưỡng WCAG AA 4,5;
+     nay đạt trên mọi nền nó thật sự nằm lên, và vẫn cách bậc chữ thứ hai
+     đủ xa để thứ bậc không phẳng. */
+  --ink:#1B1B1F; --ink-2:#54545C; --ink-3:#5E5E64;
   --line:#D8D9E0; --line-2:#EDEEF2;
   --acc:#FF46A2; --acc-2:#C4187A; --acc-t:#FFE9F4;
-  --ok:#3DBB69; --warn:#F2B94A; --bad:#F05252; --neu:#B4B5BC;
-  --s2:#2C7DD8; --s2-t:#DCEAF9;
+  /* Cung này nền SÁNG, nên màu trạng thái phải TỐI đi mới đọc được —
+     ngược hẳn với mười cung nền tối. Bản trước lấy nguyên bảng màu của
+     một cung nền tối: --ok đo được 2,00 trên nền trang, tức là chữ
+     "an toàn" gần như vô hình đúng chỗ người ta cần đọc nhất. */
+  --ok:#267441; --warn:#F2B94A; --bad:#CD1212; --neu:#B4B5BC;
+  --s2:#2268B7; --s2-t:#DCEAF9;
   --s1:#F5C23E; --s1-t:#FCF2D8;
   --s0:#F0703C; --s0-t:#FDE7DC;
   --na:#B4B5BC; --na-t:#EDEEF2;

@@ -1,6 +1,12 @@
 :root{
   --sky:#EDF2FA; --nav:#F7F9FD; --paper:#FFFFFF;
-  --ink:#101B33; --ink-2:#4A5876; --ink-3:#7B879F;
+  /* Bậc chữ MỜ, không phải chữ TÀNG HÌNH. Đây là bậc gánh nhãn cột,
+     đơn vị, dòng nguồn và chú thích — tức là phần TRUY NGƯỢC VỀ NGUỒN.
+     Số thì sáng rõ mà chỗ nói số ấy ở đâu ra lại mờ dưới mức đọc được
+     là hỏng đúng chỗ đáng giá nhất. Giá trị cũ dưới ngưỡng WCAG AA 4,5;
+     nay đạt trên mọi nền nó thật sự nằm lên, và vẫn cách bậc chữ thứ hai
+     đủ xa để thứ bậc không phẳng. */
+  --ink:#101B33; --ink-2:#4A5876; --ink-3:#616D86;
   --line:#DCE4F1; --gold:#C9A227;
   --l2:#15803D; --l2-t:#E5F4EA;
   --l3:#6D28D9; --l3-t:#EFE9FD;

@@ -19,7 +19,13 @@
   --vang:#C9A227; --vang-s:#E3C25B; --vang-t:#2C2416;
   --ngoc:#2E8B62; --ngoc-t:#16281F;
   --sen:#C0392B; --sen-t:#2A1714;
-  --khoa:#4A3F32;
+  /* Chương chưa tinh luyện. Bản trước #4A3F32 đo được 1,85 trên nền —
+     tức là TÊN CHƯƠNG không đọc được, chứ không phải "mờ đi cho biết
+     là khoá". Trạng thái khoá đã có hai dấu hiệu khác: biểu tượng 🔒 ở
+     góc và `title` giải thích, nên màu không phải gánh một mình — và
+     một cái tên không đọc được thì người ta không biết mình đang bỏ lỡ
+     chương nào. Nay 4,56: vẫn chìm hơn hẳn chương đã xong (13,3). */
+  --khoa:#8E7960;
   --r:10px; --dur:.16s;
   --bong:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -20px rgba(0,0,0,.9);
   --serif:"Playfair Display",Georgia,"Times New Roman",serif;

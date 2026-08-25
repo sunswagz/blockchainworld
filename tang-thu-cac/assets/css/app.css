@@ -8,7 +8,13 @@
 
 :root{
   --bg:#F4F1EA; --card:#FFFDF8; --card-2:#EDE9DF; --card-3:#E2DCCE;
-  --ink:#1F1B14; --ink-2:#5A5346; --ink-3:#8A8272;
+  /* Bậc chữ MỜ, không phải chữ TÀNG HÌNH. Đây là bậc gánh nhãn cột,
+     đơn vị, dòng nguồn và chú thích — tức là phần TRUY NGƯỢC VỀ NGUỒN.
+     Số thì sáng rõ mà chỗ nói số ấy ở đâu ra lại mờ dưới mức đọc được
+     là hỏng đúng chỗ đáng giá nhất. Giá trị cũ dưới ngưỡng WCAG AA 4,5;
+     nay đạt trên mọi nền nó thật sự nằm lên, và vẫn cách bậc chữ thứ hai
+     đủ xa để thứ bậc không phẳng. */
+  --ink:#1F1B14; --ink-2:#5A5346; --ink-3:#666054;
   --line:#DDD6C6; --line-2:#EBE6DA;
   --acc:#1F6B4A; --acc-2:#2E8B62; --acc-t:#E4EFE8;
   --vang:#B8860B; --vang-t:#F7EFD9;
