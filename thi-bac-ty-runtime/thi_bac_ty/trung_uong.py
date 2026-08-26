@@ -609,6 +609,7 @@ class TrungUong:
             "latCatVong": self.latCatCuoi.tom_tat() if self.latCatCuoi else None,
             "hoc": self.hocCuoi,
             "thamSo": self.tham_so(),
+            "hienPhap": _hien_phap(),
             "cheTy": self.che_ty(),
             "hieuNang": self.hieu_nang(),
             "banThamSo": self.kho_tham_so.tom_tat(),
@@ -638,6 +639,16 @@ def _ly_do(x: dict) -> str:
     if isinstance(l, (list, tuple)):
         return "; ".join(str(i) for i in l) or "Rủi Ro Tổng từ chối"
     return str(l or "không được cấp vốn")
+
+
+def _hien_phap() -> dict:
+    """Tóm tắt hiến pháp. Bọc try vì một phép canh nổ KHÔNG được làm chết
+    ảnh chụp — buồng lái mất một ô còn hơn mất cả trang."""
+    try:
+        from .hien_phap import tom_tat
+        return tom_tat()
+    except Exception as e:                                # noqa: BLE001
+        return {"loi": f"{type(e).__name__}: {e}"}
 
 
 def _monotonic() -> float:

@@ -295,6 +295,17 @@ def api_quay_lui(veSo: int, nguoi: str, vi: str = "") -> JSONResponse:
     return JSONResponse(sach(tu.quay_lui(int(veSo), nguoi, vi)))
 
 
+@app.get("/api/hien-phap")
+def api_hien_phap(day_du: bool = False) -> JSONResponse:
+    """Luật vận hành, và điều nào đang THẬT SỰ được canh.
+
+    `day_du=true` trả cả `cau` và `vi` của từng điều — `vi` là chuyện đã xảy
+    ra dạy ra luật ấy, và nó là phần đáng đọc nhất.
+    """
+    from thi_bac_ty.hien_phap import soat, tom_tat
+    return JSONResponse(sach(soat() if day_du else tom_tat()))
+
+
 @app.post("/api/cau-dao/dong-lai")
 def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
     """Đóng lại một lý do ngắt. **Bắt buộc có tên người.**

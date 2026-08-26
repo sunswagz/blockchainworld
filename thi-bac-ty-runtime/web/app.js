@@ -682,6 +682,33 @@
       + ((lat.soBoTrung || 0) ? "(vòng vừa rồi bỏ " + lat.soBoTrung
           + " lượt trùng)" : "") + "."));
 
+    /* ── hiến pháp: điều nào đang THẬT SỰ được canh ─────────────────── */
+    var hp = T.hienPhap;
+    if (hp) {
+      var hpd = el("div", hp.soViPham ? "loi-o" : null);
+      if (hp.soViPham) {
+        hpd.appendChild(el("h2", null, "VI PHẠM HIẾN PHÁP"));
+        (hp.viPham || []).forEach(function (v) {
+          hpd.appendChild(el("p", "am", "· " + v.ma + " — " + v.chiTiet));
+        });
+      } else {
+        hpd.appendChild(el("p", "qua",
+          hp.soDieu + " điều · " + hp.soCanhDuoc + " canh được · KHÔNG vi phạm"));
+      }
+      hpd.appendChild(el("p", "vi", "KHÔNG canh được (" + hp.soKhongCanhDuoc
+        + "): " + (hp.khongCanhDuoc || []).join(", ")));
+      hpd.appendChild(el("p", "giai", hp.loiNhac));
+      hpd.appendChild(el("p", "giai", "đọc đủ kèm lý do từng điều: curl -s "
+        + "localhost:" + (location.port || "5188")
+        + "/api/hien-phap?day_du=true"));
+      f.appendChild(o("Hiến pháp — luật viết dưới dạng CHẠY ĐƯỢC", hpd,
+        "Kho này đã tự chứng minh rằng nguyên tắc nằm trong văn xuôi thì "
+        + "không giữ được gì: `bac/rui_ro.py` từng khai ba cửa mà `xet()` "
+        + "không đọc tới, và buồng lái bày chúng dưới nhãn «đang có hiệu "
+        + "lực» suốt nhiều tuần. Nên mỗi điều mang theo phép canh của nó, "
+        + "và điều nào KHÔNG canh được thì phải khai ra là không canh được."));
+    }
+
     /* ── chế độ vận hành từng ty ─────────────────────────────────────
        Toàn bộ hệ thống chạy được; toàn bộ vốn KHÔNG cần chạy ở toàn bộ
        chiến lược. Bảng này là chỗ nhìn thấy sự tách ấy. */

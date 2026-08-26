@@ -3337,6 +3337,43 @@ def kiem_lop_boc_khai_bao() -> None:
     kiem("và kiem_khai() soi ty thật", b.kiem_khai() == g.kiem_khai())
 
 
+
+def kiem_hien_phap() -> None:
+    print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
+    from thi_bac_ty.hien_phap import DIEU, soat
+
+    r = soat()
+    kiem(f"hiến pháp có {r['soDieu']} điều", r["soDieu"] >= 20)
+    kiem("mọi điều đều có mã, câu, VÌ SAO, và nguồn",
+         all(d.ma and d.cau and d.vi and d.nguon for d in DIEU),
+         "`vi` là phần đáng giá nhất — chuyện ĐÃ XẢY RA dạy ra luật ấy; một "
+         "luật không kèm sự cố là luật phòng xa, và luật phòng xa làm tài "
+         "liệu dài ra tới mức không ai đọc hết")
+    kiem("mã không trùng nhau", len({d.ma for d in DIEU}) == len(DIEU))
+
+    for x in r["viPham"]:
+        kiem(f"HIẾN PHÁP · {x['ma']}", False, x["chiTiet"])
+    if not r["viPham"]:
+        kiem(f"KHÔNG điều nào bị vi phạm ({r['soCanhDuoc']} điều canh được)",
+             True)
+
+    # Điều KHÔNG canh được phải khai ra — đây là bài học ba cửa giả nâng lên
+    # tầm hệ thống.
+    kiem("số điều KHÔNG canh được được KHAI RA, không giấu",
+         isinstance(r["soKhongCanhDuoc"], int)
+         and len(r["khongCanhDuoc"]) == r["soKhongCanhDuoc"],
+         "một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì tệ "
+         "hơn không có: người đọc tưởng mình được che nhiều hơn thực tế")
+    kiem("và phần lớn điều PHẢI canh được",
+         r["soCanhDuoc"] >= r["soDieu"] * 0.8,
+         f"{r['soCanhDuoc']}/{r['soDieu']} — dưới 80% thì hiến pháp đang "
+         f"nghiêng về văn xuôi, đúng thứ nó sinh ra để thay")
+    kiem("tóm tắt gọn dùng được cho buồng lái",
+         set(["soDieu", "soViPham", "soKhongCanhDuoc"])
+         <= set(__import__("thi_bac_ty.hien_phap", fromlist=["tom_tat"])
+                .tom_tat()))
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -3400,6 +3437,7 @@ def main() -> int:
     kiem_che_van_hanh()
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
+    kiem_hien_phap()
 
     print("\n" + "=" * 70)
     if _loi:

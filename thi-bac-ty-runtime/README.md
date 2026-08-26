@@ -548,6 +548,63 @@ sang (hai bản sao sẽ lệch nhau đúng vào ngày ai đó hiệu chỉnh m�
 để ty mới import ty cũ (điều luật chung cấm). Chỗ thứ ba mới đúng, và bản
 đồ đã vẽ sẵn nó: **SHARED INFRASTRUCTURE**.
 
+## HIẾN PHÁP — luật vận hành, viết dưới dạng CHẠY ĐƯỢC
+
+`thi_bac_ty/hien_phap.py` giữ **25 điều** luật vận hành của cả bộ máy. Mỗi
+điều mang bốn thứ: câu luật, **chuyện đã xảy ra dạy ra nó**, nguồn, và một
+phép canh.
+
+### Vì sao không phải một tệp nguyên tắc
+
+Kho này đã tự chứng minh rằng nguyên tắc nằm trong văn xuôi thì không giữ
+được gì. `bac/rui_ro.py` từng khai ba cửa mà `xet()` không hề đọc tới, và
+buồng lái bày chúng dưới nhãn *"đang có hiệu lực"* suốt nhiều tuần. Không ai
+nói dối — luật ở một chỗ, mã ở chỗ khác, và hai chỗ ấy trôi xa nhau mà không
+gì báo.
+
+Đúng dạng ấy lặp lại **bốn lần** chỉ trong một phiên: docstring cầu dao khai
+"ba trong mười" trong khi mã nối bốn; `trung_uong` khai "không nhảy cóc"
+trong khi `_hop_le` cho nhảy cóc; lớp bọc che `kiem_khai` rồi che tiếp
+`vonToiThieuKinhTeUsd` của ty thật.
+
+Nguyên tắc chỉ nằm trong văn xuôi **chính là** kiểu hỏng mà cả runtime này
+sinh ra để bắt: hệ thống nói về chính mình một điều không đúng.
+
+### Điều KHÔNG canh được phải KHAI RA là không canh được
+
+Đây là phần quan trọng nhất, và là thứ một tệp nguyên tắc không làm được.
+
+Một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì **tệ hơn không
+có**: người đọc tưởng mình được che hai mươi lăm điều trong khi thật ra được
+che hai mươi ba. `soat()` tách rõ hai nhóm và in cả `soKhongCanhDuoc`.
+
+    25 điều · canh được 23 · KHÔNG canh được 2 · vi phạm 0
+
+Hai điều không canh được là **quan điểm đánh giá**, không phải bất biến cơ
+học: *"đừng đo bộ máy bằng số đô ở giai đoạn vốn nhỏ"* và *"từ chối giỏi
+quan trọng hơn phát hiện nhiều"*. Không hàm nào canh được chúng, và giả vờ
+canh được sẽ tệ hơn.
+
+### Viết hiến pháp lộ ra tám luật chưa ai canh
+
+Lần đầu chạy: 14 canh được, **11 không**. Soi lại thì tám trong mười một là
+canh được — chỉ là chưa ai canh **trên toàn hệ**. Ví dụ hợp đồng `CUA`: từng
+ty có phép kiểm riêng, nhưng không gì bảo đảm ty THỨ NĂM cũng giữ nó, cho
+tới khi nó bày ra một cửa giả.
+
+Và hai phép canh đầu của tôi **yếu**: một cái đọc chuỗi trong mã nguồn nên
+vẫn xanh khi câu `if` đã bị vô hiệu; một cái chỉ chạy một vòng nên không
+chạm tới kiểu thoái hoá thật *"cầu dao đang ngắt thì thôi quét cho đỡ tốn"*.
+Cấy chín lỗi ngược vào bắt được cả chín — sau khi sửa hai phép canh ấy.
+
+### Xem nó
+
+    curl -s localhost:5188/api/hien-phap              tóm tắt
+    curl -s 'localhost:5188/api/hien-phap?day_du=true' đủ, kèm VÌ SAO từng điều
+
+Buồng lái hiện ô hiến pháp ở đầu tab Thị Bạc Ty, và một vi phạm làm nó đỏ.
+`scripts/selftest.py` cũng chạy `soat()`, nên vi phạm làm build đỏ.
+
 ## $100 chạy được CẢ HỆ, nhưng không engine nào bị ép vào lệnh
 
 Tách hai thứ mà người ta hay gộp:
@@ -737,7 +794,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 641 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 648 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -1118,6 +1175,7 @@ thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   so_cai.py       sổ chỉ-thêm, sửa bằng ĐẢO
   thuc_thi.py     máy trạng thái hai chân
   cau_dao.py      ngắt tự động, đóng lại phải có người
+  hien_phap.py    25 ĐIỀU luật vận hành, mỗi điều kèm phép canh
   che_van_hanh.py QUAN_SAT · GIAY · THAT theo từng ty, và chi phí hạ tầng
   hieu_nang.py    CAGR · sụt vốn tối đa · đối chiếu giấy↔thật
   nguon.py        Data World v0.1 — kỷ luật chung khi đọc một nguồn
