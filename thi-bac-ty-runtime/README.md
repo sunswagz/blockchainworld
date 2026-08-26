@@ -406,6 +406,92 @@ cả gia sản.
 4. `dat_lenh.py` là lớp cuối cùng chuyển, và chỉ khi Điều Phối Thực Thi có
    lớp ký lệnh thật.
 
+## Ty thứ hai: TÍN DỤNG — và nó đã chứng minh kiến trúc
+
+`tin_dung/` là engine #2, và mục đích của nó không phải kiếm tiền: nó là
+**phép thử**. Perpetual là phái sinh, hai chân trên hai sàn, thu tại mốc
+kết toán. Lending là tín dụng, một chân, lãi chảy liên tục, không mốc nào.
+
+Chạy thật ngày 26/08/2026, hai ty dưới một Thị Bạc Ty:
+
+    họ            thô  cổng ty  RR tổng  cấp vốn   đang giữ
+    phai-sinh      30        0        0        0    $0.00
+    tin-dung       90        3        3        3  $600.00
+
+    cảng : {aave-v3: 600}                     ← gộp theo GIAO THỨC
+    chuỗi: {Polygon: 200, Base: 200, Arbitrum: 200}   ← tách theo CHUỖI
+
+Danh Mục cộng phơi nhiễm chéo hai ngành mà không ai phải dạy nó, vì cả hai
+ty chỉ nói bằng `ToTrinh`.
+
+### Ba lỗi ty thứ hai làm lộ ra, và hai trong ba nằm ở TRUNG ƯƠNG
+
+**1. Vân tay cơ hội bỏ sót CHUỖI.** `_dau_van()` lấy `bên@cảng`. Với bốn
+sàn perp thì không sao — mỗi sàn một cảng. Nhưng `aave-v3 USDC trên
+Ethereum` và `aave-v3 USDC trên Polygon` cùng một vân tay, nên cái thứ hai
+bị bỏ **trong im lặng** như một bản trùng. Ba tờ trình nộp lên, một tờ vào
+sổ, và không gì báo.
+
+**2. `dang_ky()` soi LỚP thay vì THỰC THỂ.** `type(ty).kiem_khai()` khiến
+một ty được bọc — chẳng hạn để cho nó nhịp quét riêng — bị từ chối vì một
+lý do chẳng liên quan gì tới nó. Nay hỏi `ty.kiem_khai()`: Trung Ương quan
+tâm ty **trả lời được gì**, không quan tâm nó thuộc lớp nào.
+
+**3. `asyncio.run()` từ trong vòng lặp.** `Ty.quet()` đồng bộ theo hợp
+đồng, nhưng `Runtime.mot_vong()` là `async`. Đáng nói là hệ thống chịu
+được: cổng chặn ngoại lệ trong `mot_luot()` giữ ty này không kéo theo ty
+kia, và `loiCuoi` nói ra chính xác chuyện gì hỏng.
+
+Không lỗi nào tìm ra được bằng cách đọc lại mã. Cả ba cần một ty thứ hai
+**thật**, khác ngành, cắm vào và chạy.
+
+### Ba lỗi hiệu chỉnh của chính ty tín dụng
+
+- **Rủi ro giao thức suy từ TVL của POOL.** Một lỗi trong Aave v3 ảnh
+  hưởng MỌI thị trường Aave v3 — nên rủi ro hợp đồng là của giao thức, và
+  phải cộng TVL toàn giao thức.
+- **Thang TVL bão hoà.** `sqrt(50M/TVL)` chặn trên 1,0 cho ra đúng 1,00 với
+  mọi thứ dưới $50M; vì `rui_ro_tong` lấy MAX, cửa TVL vô tình thành "chỉ
+  nhận giao thức trên $50M" — một luật không ai khai.
+- **Rủi ro thanh khoản = dùng vốn, tuyến tính.** Dùng vốn 80% ở một thị
+  trường cho vay là LÀNH MẠNH; nó chính là thứ sinh ra lãi. Chấm 0,80 là
+  loại sạch mọi thị trường đang hoạt động và chỉ nhận thị trường không ai
+  vay — tức là thị trường không trả lãi.
+
+### Chỗ dễ tự lừa nhất của ty này: gas là chi phí CỐ ĐỊNH
+
+    $200 gửi Ethereum, gas vào+ra $12 → 600 bps → ở 4%/năm phải giữ 5 THÁNG
+    $50.000 cùng thị trường ấy      → 2,4 bps  → hoà sau nửa ngày
+
+Cùng một APY, hai cỡ vốn, hai kết luận ngược nhau. Nên mỗi cơ hội mang
+theo `hoaVonSauGio`, và token thưởng **không** vào NET — tính nó vào là
+cách nhanh nhất để bảng xếp hạng bị chiếm bởi những thị trường đang mua
+thanh khoản bằng token của chính mình.
+
+## Vốn NGOÀI: thấy được, không quản được
+
+Bước đầu tiên và rẻ nhất để gỡ món nợ hai-cỗ-máy: **thấy trước, quản sau.**
+
+`thi_bac_ty/von_ngoai.py` đọc một runtime khác qua HTTP — chỉ đọc, không
+đặt lệnh, không import. Vốn ngoài vào **NAV** nhưng không vào `viThe`: Thị
+Bạc Ty không mở nó và không đóng được nó, nên không được giả vờ ngược lại.
+
+Vì sao phải vào NAV: mọi trần của Rủi Ro Tổng tính theo NAV, và một NAV
+thiếu phần vốn đang phơi ra ở nơi khác là NAV nói dối **theo hướng nguy
+hiểm** — trần rộng hơn sự thật.
+
+Không đọc được thì `von-ngoai-mu` **ngắt cầu dao**, vì đó là "ta không còn
+chắc mình đang nhìn đúng thế giới" ở dạng thuần khiết nhất. Lý do này tự
+mở lại — đọc lại là biết ngay.
+
+Mặc định `vonNgoai: {}` (tắt), vì bật lên mà cỗ máy kia không chạy thì cầu
+dao ngắt vĩnh viễn. **Luật phải giữ: trước khi mở bất kỳ cửa đặt lệnh nào
+của Khâm Thiên Giám, BẬT khoá này lên.** Xem `bac/config.py`.
+
+Đây là bước 1 trong bốn bước gỡ nợ. Ba bước còn lại — adapter `Ty` cho
+`kham/`, chuyển `ket_toan.py` sang Sổ Cái, chuyển `dat_lenh.py` — vẫn chưa
+làm, và vẫn theo đúng thứ tự ấy.
+
 ## Thứ tự triển khai — §19 THAY THẾ thứ tự cũ
 
 Bản khảo sát đầu xếp `Polymarket → Perp → Hyperliquid/Drift → Liquidation →
@@ -414,7 +500,7 @@ quay lại Polymarket:
 
     1. Perpetual Funding Spread    XONG
     2. THỊ BẠC TY CORE             XONG
-    3. Lending                     ← kế tiếp
+    3. Lending                     XONG  (tin_dung/)
     4. Stablecoin Arb
     5. Basis
     6. Yield
@@ -462,7 +548,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 452 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 545 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -813,6 +899,14 @@ bac/
   xuat_to_trinh.py  CoHoi → ToTrinh    ← chỗ nối lên trung ương
   ty_perp.py        cắm vào khuôn Ty   ← mỏng có chủ ý
 
+tin_dung/         TY THỨ HAI — tín dụng, cắm vào cùng khuôn Ty
+  config.py       mã chiến lược, cửa rủi ro, bảng gas
+  models.py       ThiTruongVay · CoHoiVay
+  nguon.py        DefiLlama, ghép hai đường
+  rui_ro.py       cổng ty, hợp đồng CUA
+  can_loi.py      trừ gas, tính hoà vốn
+  ty_vay.py       chỗ nối lên Trung Ương
+
 thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   to_trinh.py     hợp đồng            ← đọc trước
   khuon_ty.py     khuôn một ty mới    ← đọc ngay sau
@@ -824,6 +918,8 @@ thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   so_cai.py       sổ chỉ-thêm, sửa bằng ĐẢO
   thuc_thi.py     máy trạng thái hai chân
   cau_dao.py      ngắt tự động, đóng lại phải có người
+  nguon.py        Data World v0.1 — kỷ luật chung khi đọc một nguồn
+  von_ngoai.py    vốn ở cỗ máy KHÁC: thấy được, không quản được
   chan_doan_he.py bệnh của cả bộ máy
   chay_lai_he.py  chạy lại quyết định phân bổ, đo đề xuất
   cong_duyet.py   bảy luật một đề xuất phải qua

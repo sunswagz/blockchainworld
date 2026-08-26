@@ -2388,6 +2388,499 @@ def kiem_pheu_theo_ho() -> None:
          "theoHo" in (tu.anh_chup()["pheuDayDu"] or {}))
 
 
+
+class ThongChinhGia:
+    """Thông Chính tối thiểu — chỉ đủ để `mot_luot()` chạy."""
+    def __init__(self): self.nhan = []
+    def nop(self, tt): self.nhan.append(tt); return True
+
+
+def _tt_vay(**kw):
+    from tin_dung.models import ThiTruongVay
+    d = dict(ma="p1", giaoThuc="aave-v3", chuoi="Base", taiSan="USDC",
+             apyGocPhanTram=5.0, apyThuongPhanTram=0.0,
+             tvlUsd=100e6, tvlGiaoThucUsd=2e9,
+             tongCungUsd=100e6, tongVayUsd=70e6)
+    d.update(kw)
+    return ThiTruongVay(**d)
+
+
+class _TraLoi:
+    def __init__(self, d): self._d = d
+    def raise_for_status(self): pass
+    def json(self): return self._d
+
+
+class _KhachGia:
+    """httpx giả — ty tín dụng phải chạy được KHÔNG CẦN MẠNG."""
+    def __init__(self, pools, lendborrow):
+        self._p, self._l = pools, lendborrow
+    async def __aenter__(self): return self
+    async def __aexit__(self, *a): return False
+    async def get(self, url):
+        from tin_dung.nguon import DUONG_POOLS
+        return _TraLoi(self._p if url == DUONG_POOLS else self._l)
+
+
+def kiem_tin_dung_phi() -> None:
+    print("\n-- Ty tin dung: APY khong phai loi nhuan --")
+    from tin_dung.can_loi import (gas_khu_hoi_usd, hoa_von_sau_gio, mot_co_hoi,
+                                  phi_bps, suc_chua_usd)
+
+    GAS = {"Ethereum": 6.0, "Base": 0.05, "_khac": 1.0}
+    kiem("gas tính KHỨ HỒI, nhân hai",
+         gan(gas_khu_hoi_usd("Ethereum", GAS), 12.0),
+         "quên nhân hai là báo cáo một nửa chi phí, và với vốn nhỏ thì một "
+         "nửa ấy chính là phần quyết định lỗ hay lãi")
+    kiem("chuỗi lạ rơi về mức _khac", gan(gas_khu_hoi_usd("Sui", GAS), 2.0))
+
+    kiem("$200 trên Ethereum: gas là 600 bps",
+         gan(phi_bps(200.0, "Ethereum", GAS), 600.0))
+    kiem("$50.000 cùng thị trường ấy: gas chỉ 2,4 bps",
+         gan(phi_bps(50_000.0, "Ethereum", GAS), 2.4),
+         "cùng một APY, hai cỡ vốn, hai kết luận ngược nhau")
+    kiem("vốn ≤ 0 thì phí là VÔ HẠN, không phải 0",
+         phi_bps(0.0, "Base", GAS) == float("inf"))
+
+    t = _tt_vay(apyGocPhanTram=4.0, chuoi="Ethereum")
+    h = hoa_von_sau_gio(t, 200.0, "Ethereum", GAS)
+    kiem("hoà vốn tính ra được, và ở $200/Ethereum là hơn 3 tháng",
+         h is not None and h > 2000.0, f"{h}")
+    kiem("APY ≤ 0 thì KHÔNG BAO GIỜ hoà, trả None",
+         hoa_von_sau_gio(_tt_vay(apyGocPhanTram=0.0), 200.0, "Base", GAS) is None)
+
+    # ── token thưởng KHÔNG vào NET ──────────────────────────────────────
+    a = mot_co_hoi(_tt_vay(apyGocPhanTram=4.0, apyThuongPhanTram=0.0),
+                   1000.0, 720.0, GAS, {"phanThanhKhoanRanh": 0.02,
+                                        "tranUsd": 50_000.0})
+    b = mot_co_hoi(_tt_vay(apyGocPhanTram=4.0, apyThuongPhanTram=20.0),
+                   1000.0, 720.0, GAS, {"phanThanhKhoanRanh": 0.02,
+                                        "tranUsd": 50_000.0})
+    kiem("token thưởng KHÔNG cộng vào NET", gan(a.netBps, b.netBps),
+         "tính thưởng vào NET là cách nhanh nhất để bảng xếp hạng bị chiếm "
+         "bởi những thị trường đang mua thanh khoản bằng token của mình")
+    kiem("nhưng tỉ lệ thưởng vẫn đo được", gan(b.thiTruong.tyLeThuong, 20/24))
+
+    # ── sức chứa và thanh khoản thoát ───────────────────────────────────
+    kiem("thanh khoản thoát = tổng cung − tổng vay",
+         gan(_tt_vay().thanhKhoanRanhUsd, 30e6))
+    kiem("thiếu một vế thì thanh khoản thoát là None, KHÔNG phải 0",
+         _tt_vay(tongVayUsd=None).thanhKhoanRanhUsd is None,
+         "không biết rút được bao nhiêu là một trạng thái, không phải một số")
+    kiem("và None chảy tới tận sức chứa",
+         suc_chua_usd(_tt_vay(tongVayUsd=None),
+                      {"phanThanhKhoanRanh": 0.02, "tranUsd": 5e4}) is None)
+    kiem("sức chứa = phần thanh khoản rảnh, có trần",
+         gan(suc_chua_usd(_tt_vay(), {"phanThanhKhoanRanh": 0.02,
+                                      "tranUsd": 5e4}), 5e4),
+         "30M × 2% = 600K, bị trần 50K cắt")
+    kiem("dùng vốn tính đúng", gan(_tt_vay().suDung, 0.70))
+    kiem("tổng cung 0 thì dùng vốn là None",
+         _tt_vay(tongCungUsd=0.0).suDung is None)
+
+
+def kiem_tin_dung_cua() -> None:
+    print("\n-- Ty tin dung: cua phai THAT, y nhu ty dau da hoc --")
+    from tin_dung.can_loi import mot_co_hoi
+    from tin_dung.config import MAC_DINH
+    from tin_dung.rui_ro import CUA, NHAN, CongRuiRo
+
+    kiem("CUA và MAC_DINH['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(MAC_DINH["ruiRo"]),
+         str(set(CUA) ^ set(MAC_DINH["ruiRo"])))
+
+    class _GianDiep(dict):
+        def __init__(self, g):
+            super().__init__(g); self.daDoc = set()
+        def __getitem__(self, k):
+            self.daDoc.add(k); return super().__getitem__(k)
+
+    gd = _GianDiep(MAC_DINH["ruiRo"])
+    cong = CongRuiRo(gd)
+    cong.c = gd
+    SC = {"phanThanhKhoanRanh": 0.02, "tranUsd": 5e4}
+    GAS = {"Base": 0.05, "_khac": 1.0}
+    for t in (_tt_vay(), _tt_vay(tongVayUsd=None), _tt_vay(tvlUsd=1e6),
+              _tt_vay(tongVayUsd=99e6), _tt_vay(apyGocPhanTram=99.0),
+              _tt_vay(apyThuongPhanTram=90.0)):
+        cong.xet(mot_co_hoi(t, 1000.0, 720.0, GAS, SC))
+    kiem("mọi cửa KHAI ra đều được xet() đọc thật",
+         set(CUA) <= gd.daDoc, f"chưa đọc: {set(CUA) - gd.daDoc}")
+    kiem("xet() KHÔNG đọc khoá nào ngoài CUA",
+         gd.daDoc <= set(CUA), f"đọc lạ: {gd.daDoc - set(CUA)}")
+
+    cong2 = CongRuiRo({**MAC_DINH["ruiRo"], "khoaLa": 1})
+    kiem("tom_tat() lọc bỏ khoá lạ, không bày nó như một cửa",
+         "khoaLa" not in cong2.tom_tat() and set(cong2.tom_tat()) == set(CUA))
+
+    def ma_cua(t, von=1000.0):
+        return {m for m, _ in cong2.xet(mot_co_hoi(t, von, 720.0, GAS, SC))[1]}
+
+    kiem("TVL nhỏ → chặn", "tvl-qua-nho" in ma_cua(_tt_vay(tvlUsd=1e6)))
+    kiem("dùng vốn quá cao → chặn",
+         "dung-von-qua-cao" in ma_cua(_tt_vay(tongVayUsd=99e6)))
+    kiem("thanh khoản thoát mỏng → chặn",
+         "thanh-khoan-thoat-mong" in ma_cua(_tt_vay(tongVayUsd=99.9e6)))
+    kiem("lãi chủ yếu từ thưởng → chặn",
+         "lai-chu-yeu-tu-thuong" in ma_cua(_tt_vay(apyThuongPhanTram=90.0)))
+    kiem("APY cao bất thường trên stablecoin → chặn, KHÔNG phải cơ hội",
+         "apy-cao-bat-thuong" in ma_cua(_tt_vay(apyGocPhanTram=99.0)),
+         "APY 99% trên một stablecoin là dấu hiệu thị trường sắp cạn thanh "
+         "khoản, không phải một món hời")
+    kiem("thiếu số đo → chặn, không bỏ qua",
+         "thieu-so-do" in ma_cua(_tt_vay(tongVayUsd=None)))
+    # Cùng một thị trường, cùng một APY — chỉ đổi cỡ vốn. Ở $1.000 thì gas
+    # là 1 bps và qua; ở $10 thì gas là 100 bps và ăn sạch phần lãi.
+    kiem("cùng thị trường ấy, $1.000 thì qua", ma_cua(_tt_vay(), von=1000.0) == set())
+    kiem("nhưng $10 thì NET dưới ngưỡng → chặn",
+         "net-duoi-nguong" in ma_cua(_tt_vay(), von=10.0),
+         "cùng một APY, hai cỡ vốn, hai kết luận ngược nhau — một scanner "
+         "chỉ xếp APY sẽ không bao giờ thấy điều đó")
+    kiem("thị trường lành thì qua sạch", ma_cua(_tt_vay()) == set())
+    kiem("mọi mã lý do đều có nhãn cho người đọc",
+         all(m in NHAN for m in
+             ("tvl-qua-nho", "dung-von-qua-cao", "thanh-khoan-thoat-mong",
+              "lai-chu-yeu-tu-thuong", "net-duoi-nguong", "apy-cao-bat-thuong",
+              "du-lieu-cu", "thieu-so-do")))
+
+
+def kiem_tin_dung_thang_rui_ro() -> None:
+    print("\n-- Ty tin dung: hai thang rui ro, ca hai deu tung sai --")
+    from tin_dung.ty_vay import _rui_ro, _rui_ro_su_dung, _rui_ro_tvl
+    from tin_dung.can_loi import mot_co_hoi
+
+    # ── TVL → rủi ro giao thức: KHÔNG được bão hoà ──────────────────────
+    kiem("thang TVL phân biệt được $5M với $50M",
+         _rui_ro_tvl(5e6) > _rui_ro_tvl(50e6) + 0.2,
+         f"{_rui_ro_tvl(5e6):.2f} vs {_rui_ro_tvl(50e6):.2f} — bản đầu dùng "
+         f"sqrt và cả hai đều ra 1,00, nên cửa TVL của Rủi Ro Tổng vô tình "
+         f"thành 'chỉ nhận giao thức trên $50M'")
+    kiem("và không mặt nào chạm 1,00",
+         all(_rui_ro_tvl(v) <= 0.85 for v in (1e3, 1e6, 5e6)),
+         "'chưa được kiểm chứng bằng thời gian' không phải 'chắc chắn hỏng'")
+    kiem("mỗi bậc mười lần TVL hạ 0,25",
+         gan(_rui_ro_tvl(5e6) - _rui_ro_tvl(50e6), 0.25, 1e-9))
+    kiem("TVL None thì None, không đoán", _rui_ro_tvl(None) is None)
+
+    # ── rủi ro giao thức đọc TVL của GIAO THỨC, không của POOL ──────────
+    GAS = {"Base": 0.05, "_khac": 1.0}
+    SC = {"phanThanhKhoanRanh": 0.02, "tranUsd": 5e4}
+    nho = _tt_vay(tvlUsd=11e6, tvlGiaoThucUsd=2e9)
+    r = _rui_ro(mot_co_hoi(nho, 1000.0, 720.0, GAS, SC))
+    kiem("pool $11M của một giao thức $2B KHÔNG bị chấm như giao thức nhỏ",
+         r.giaoThuc < 0.25,
+         f"đang {r.giaoThuc:.2f} — một lỗi trong Aave v3 ảnh hưởng MỌI thị "
+         f"trường Aave v3, nên rủi ro hợp đồng là của giao thức chứ không "
+         f"của cái pool ta đang nhìn")
+    thieu = _tt_vay(tvlUsd=11e6, tvlGiaoThucUsd=None)
+    kiem("thiếu TVL giao thức thì rơi về TVL pool, chịu chấm nặng hơn",
+         _rui_ro(mot_co_hoi(thieu, 1000.0, 720.0, GAS, SC)).giaoThuc
+         > r.giaoThuc,
+         "đoán rộng lượng khi thiếu số là thưởng cho sự mù")
+
+    # ── dùng vốn → rủi ro thanh khoản: LỒI, không tuyến tính ────────────
+    kiem("dùng vốn 80% là LÀNH MẠNH, không phải rủi ro 0,80",
+         _rui_ro_su_dung(0.80) < 0.45,
+         f"đang {_rui_ro_su_dung(0.80):.2f} — bản đầu lấy thẳng rủi ro = "
+         f"dùng vốn, và vì rui_ro_tong lấy MAX nên nó loại sạch mọi thị "
+         f"trường đang hoạt động tốt, chỉ nhận thị trường không ai vay — "
+         f"tức là thị trường không trả lãi")
+    kiem("nhưng đuôi vẫn dựng lên", _rui_ro_su_dung(0.95) > 0.75)
+    kiem("dùng vốn thấp thì gần như không rủi ro tỉ lệ",
+         gan(_rui_ro_su_dung(0.3), 0.02))
+    kiem("thang lồi, không tuyến tính",
+         (_rui_ro_su_dung(0.95) - _rui_ro_su_dung(0.85))
+         > (_rui_ro_su_dung(0.65) - _rui_ro_su_dung(0.55)) * 2)
+    kiem("None thì None", _rui_ro_su_dung(None) is None)
+    kiem("cầu nối = 0,0 vì cùng chuỗi — ĐÃ ĐO, không phải chưa biết",
+         r.cauNoi == 0.0)
+
+
+def kiem_van_tay_co_chuoi() -> None:
+    print("\n-- Van tay co hoi phai co CHUOI (loi ty thu hai lam lo ra) --")
+    from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
+    from thi_bac_ty.trung_uong import _dau_van
+
+    def t(chuoi, cang="aave-v3"):
+        return ToTrinh(
+            chienLuoc="lending.rate_rotation.v1", ho="tin-dung", taiSan="USDC",
+            chan=(Chan("CHO_VAY", cang, "USDC", 100.0, "lending", chuoi),),
+            vonCanUsd=100.0, sucChuaToiDaUsd=9000.0, grossBps=30.0,
+            phiUocBps=5.0, netUocBps=25.0, giuGio=720.0,
+            khoaVonDenGiay=0.0, thanhKhoanThoatUsd=1e6,
+            ruiRo=RuiRo(.1, .1, .2, .2, .1, 0.), tinCay=.8,
+            moHinhPhiDuChua=True, sucChuaConThieu=("x",))
+
+    kiem("aave-v3 USDC trên Ethereum KHÁC aave-v3 USDC trên Polygon",
+         _dau_van(t("Ethereum")) != _dau_van(t("Polygon")),
+         "thiếu chuỗi thì hai thị trường khác hẳn nhau cùng một vân tay, và "
+         "cái thứ hai bị bỏ trong IM LẶNG như thể nó là bản trùng")
+    kiem("cùng chuỗi cùng cảng thì vẫn là một cơ hội",
+         _dau_van(t("Base")) == _dau_van(t("Base")))
+    kiem("khác cảng vẫn khác vân",
+         _dau_van(t("Base")) != _dau_van(t("Base", "morpho-blue")))
+    kiem("chân không có chuỗi (sàn tập trung) vẫn ổn định",
+         _dau_van(t(None)) == _dau_van(t(None)))
+
+
+def kiem_hai_ty_that() -> None:
+    print("\n-- Cau hoi thanh/bai: HAI TY THAT, mot Thi Bac Ty --")
+    from thi_bac_ty.trung_uong import TrungUong
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.to_trinh import Chan
+    from tin_dung.ty_vay import TyTinDung
+
+    pools = [
+        {"pool": "a", "project": "aave-v3", "chain": "Base", "symbol": "USDC",
+         "apyBase": 5.0, "apyReward": 0.2, "tvlUsd": 120e6},
+        {"pool": "b", "project": "aave-v3", "chain": "Polygon", "symbol": "USDC",
+         "apyBase": 4.0, "apyReward": 0.0, "tvlUsd": 60e6},
+        {"pool": "c", "project": "bia-moi", "chain": "Base", "symbol": "USDC",
+         "apyBase": 30.0, "apyReward": 0.0, "tvlUsd": 6e6},
+        {"pool": "d", "project": "aave-v3", "chain": "Sui", "symbol": "USDC",
+         "apyBase": 9.0, "apyReward": 0.0, "tvlUsd": 90e6},
+        {"pool": "e", "project": "aave-v3", "chain": "Base", "symbol": "WETH",
+         "apyBase": 9.0, "apyReward": 0.0, "tvlUsd": 90e6},
+        {"pool": "f", "project": "khong-ghep", "chain": "Base", "symbol": "USDC",
+         "apyBase": 7.0, "apyReward": 0.0, "tvlUsd": 90e6},
+    ]
+    lb = [{"pool": "a", "totalSupplyUsd": 120e6, "totalBorrowUsd": 70e6},
+          {"pool": "b", "totalSupplyUsd": 60e6, "totalBorrowUsd": 30e6},
+          {"pool": "c", "totalSupplyUsd": 6e6, "totalBorrowUsd": 5.9e6},
+          {"pool": "d", "totalSupplyUsd": 90e6, "totalBorrowUsd": 40e6},
+          {"pool": "e", "totalSupplyUsd": 90e6, "totalBorrowUsd": 40e6}]
+
+    tv = TyTinDung(client_factory=lambda: _KhachGia(pools, lb))
+    co = tv.quet()
+    kiem("lọc đúng tài sản và chuỗi đã khai",
+         {c.thiTruong.ma for c in co} == {"a", "b", "c"},
+         f"{sorted(c.thiTruong.ma for c in co)} — d bị loại vì chuỗi Sui, "
+         f"e vì WETH, f vì không ghép được bảng vay")
+    kiem("pool không ghép được thì BỎ, và số bị bỏ đếm ra",
+         tv.nguon.soBoVìThieuGhep == 1,
+         "bỏ trong im lặng thì một ngày nguồn đổi khoá, ta sẽ thấy 'thị "
+         "trường không có gì' thay vì thấy 'ta đang mù'")
+    kiem("TVL giao thức cộng qua MỌI pool, kể cả pool đã lọc bỏ",
+         gan([c for c in co if c.thiTruong.ma == "b"][0]
+             .thiTruong.tvlGiaoThucUsd, 120e6 + 60e6 + 90e6 + 90e6))
+
+    class TyGiaPerp(Ty):
+        ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "perp giả"
+        def quet(self): return ["BTC"]
+        def xet(self, co): return True, []
+        def trinh(self, co):
+            return _mau(taiSan=co, von=300.0, chua=9000.0, khoa=0.0,
+                        chan=(Chan("LONG", "hyperliquid", co),
+                              Chan("SHORT", "binance", co)))
+
+    tu = TrungUong(_tam("haity"), {"vonBanDauUsd": 5000.0})
+    kiem("cả hai ty đăng ký được", tu.dang_ky(TyGiaPerp()) and tu.dang_ky(tv))
+    lat = tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+
+    kiem("cả hai cùng quét trong một vòng", lat.soTyChay == 2)
+    theo = {x["ho"]: x for x in tu.pheu_day_du()["theoHo"]}
+    kiem("phễu tách được hai họ THẬT",
+         set(theo) == {"phai-sinh", "tin-dung"}, str(list(theo)))
+    kiem("họ tín dụng: cổng ty chặn thị trường mỏng",
+         theo["tin-dung"]["coHoiTho"] == 3
+         and theo["tin-dung"]["quaCongTy"] == 2,
+         str(theo["tin-dung"]) + " — pool c dùng vốn 98% và TVL $6M")
+
+    cap = {x["chienLuoc"] for x in (lat.phanBo or {}).get("daCap", [])}
+    kiem("cả hai họ cùng được cấp vốn dưới MỘT Thị Bạc Ty",
+         cap == {"perpetual.funding_spread.v1", "lending.rate_rotation.v1"},
+         str(sorted(cap)) + " — đây là câu hỏi thành/bại của cả kiến trúc")
+
+    dm = tu.danh_muc
+    kiem("danh mục gộp phơi nhiễm theo GIAO THỨC, cộng qua các chuỗi",
+         gan(dm.phoi_nhiem_cang().get("aave-v3", 0.0), 400.0),
+         str(dm.phoi_nhiem_cang()) + " — một lỗi trong aave-v3 kẹt cả hai")
+    kiem("và tách phơi nhiễm theo CHUỖI",
+         set(dm.phoi_nhiem_chuoi()) == {"Base", "Polygon"},
+         str(dm.phoi_nhiem_chuoi()))
+    kiem("chân sàn tập trung KHÔNG có chuỗi, không cộng nhầm vào",
+         gan(sum(dm.phoi_nhiem_chuoi().values()), 400.0))
+    kiem("hai vân tay khác nhau nên KHÔNG cái nào bị bỏ trùng",
+         lat.soBoTrung == 0 and lat.soGhiNhan == 3)
+    kiem("không tầng nào đi tắt", tu.so_dang_ky.soChuyenSai == 0)
+
+    # ── ty được BỌC vẫn phải đăng ký được ───────────────────────────────
+    class _Boc:
+        """Lớp bọc để cho một ty nhịp quét riêng — xem `bac/vong._NhipRieng`."""
+        def __init__(self, ty): self._t = ty; self.soBoQua = 0
+        def __getattr__(self, k): return getattr(self._t, k)
+        @property
+        def ma(self): return self._t.ma
+
+    tu2 = TrungUong(_tam("boc"), {"vonBanDauUsd": 1000.0})
+    kiem("ty được BỌC vẫn đăng ký được", tu2.dang_ky(_Boc(TyGiaPerp())),
+         "soi `type(ty)` thay vì `ty` là từ chối một ty hợp lệ vì một lý do "
+         "chẳng liên quan gì tới nó")
+    kiem("và nó vào sổ với ĐÚNG mã của ty thật",
+         set(tu2.ty) == {"perpetual.funding_spread.v1"}, str(set(tu2.ty)))
+
+    class _BocSai:
+        def __init__(self): self.ma = "khong-dung-khuon"
+        def kiem_khai(self): return ["mã sai khuôn"]
+    kiem("nhưng ty bọc mà KHAI SAI thì vẫn chết ở cửa",
+         not tu2.dang_ky(_BocSai()),
+         "bọc không phải là đường vòng qua cổng khai báo")
+
+    # ── quét được từ TRONG một vòng lặp sự kiện ─────────────────────────
+    import asyncio as _aio
+    tv2 = TyTinDung(client_factory=lambda: _KhachGia(pools, lb))
+
+    async def _trong_vong_lap():
+        return tv2.quet()
+
+    ra = _aio.run(_trong_vong_lap())
+    kiem("quet() chạy được từ TRONG một vòng lặp sự kiện", len(ra) == 3,
+         f"{len(ra)} · lỗi: {tv2.loiCuoi} — `Ty.quet()` là đồng bộ theo hợp "
+         f"đồng, nhưng `Runtime.mot_vong()` là async, nên lúc Trung Ương gọi "
+         f"thì ta đang Ở TRONG một vòng lặp và asyncio.run() ném thẳng")
+    kiem("và vẫn chạy được khi KHÔNG có vòng lặp nào",
+         len(TyTinDung(client_factory=lambda: _KhachGia(pools, lb)).quet()) == 3)
+
+    # ── lớp bọc nhịp: bỏ qua thì TRẢ LẠI kết quả cũ, không trả rỗng ─────
+    from bac.vong import _NhipRieng
+    goc = TyTinDung(client_factory=lambda: _KhachGia(pools, lb))
+    boc = _NhipRieng(goc, 9999.0)
+    a1 = boc.quet()
+    boQuaSauLuotDau = boc.soLuotBoQua        # chụp NGAY, trước lượt thứ hai
+    a2 = boc.quet()
+    kiem("lượt đầu quét thật", len(a1) == 3 and boQuaSauLuotDau == 0,
+         f"len={len(a1)} boQua={boQuaSauLuotDau} loi={goc.loiCuoi!r}")
+    kiem("lượt sau BỎ QUA nhưng trả lại kết quả cũ, KHÔNG trả rỗng",
+         len(a2) == 3 and boc.soLuotBoQua == 1,
+         "trả rỗng thì cơ hội biến mất rồi hiện lại, và cửa chống trùng ghi "
+         "nhận chúng như cơ hội MỚI — vòng nào cũng đẻ một loạt tờ trình "
+         "trùng, và cái phễu lại nói dối")
+    kiem("nguồn chỉ bị hỏi ĐÚNG MỘT lần",
+         goc.nguon.suc_khoe.tom_tat()["tongLuot"] == 1)
+    kiem("lớp bọc mang khai báo của ty THẬT",
+         boc.ma == goc.ma and boc.ho == goc.ho and boc.kiem_khai() == [])
+    kiem("và mot_luot() không tự đệ quy",
+         len(boc.mot_luot(ThongChinhGia())) >= 0 and boc.soLuotBoQua == 2,
+         "bản đầu gán đè `ty.quet` rồi gọi lại chính nó, nên ty quét được "
+         "KHÔNG lần nào trong khi mọi thứ vẫn xanh")
+
+    kiem("và thi_bac_ty KHÔNG biết tin_dung tồn tại",
+         not _co_nhac("tin_dung"),
+         "ngày trung ương phải import một ty để xử một trường hợp riêng là "
+         "ngày hợp đồng đã hỏng")
+
+
+def _co_nhac(ten: str) -> bool:
+    import pathlib
+    goc = pathlib.Path(__file__).resolve().parent.parent / "thi_bac_ty"
+    for p in goc.glob("*.py"):
+        for d in p.read_text(encoding="utf-8").splitlines():
+            d = d.strip()
+            if d.startswith((f"import {ten}", f"from {ten}")):
+                return True
+    return False
+
+
+
+def kiem_von_ngoai() -> None:
+    print("\n-- Von ngoai: thay duoc, KHONG quan duoc --")
+    from thi_bac_ty.danh_muc import DanhMuc, ViThe
+    from thi_bac_ty.von_ngoai import DocVonNgoai, LatCatNgoai, _doc_kham
+
+    # ── dịch ảnh chụp của cỗ máy kia ────────────────────────────────────
+    anh = {"che": "giay",
+           "kho": {"soThiTruong": 2,
+                   "viThe": [{"loKhoaUsd": 120.0, "chuaPhongHoUsd": 30.0},
+                             {"loKhoaUsd": 80.0, "chuaPhongHoUsd": 0.0}]},
+           "risk": {"vonUsd": 500.0}}
+    l = _doc_kham("kham", anh)
+    kiem("đọc được thì khai đọc được", l.docDuoc)
+    kiem("vốn đang phơi ra = lỗ khoá + chân chưa phòng hộ",
+         gan(l.daCamKetUsd, 230.0),
+         "một chân chưa phòng hộ VẪN là vốn đang phơi ra")
+    kiem("tiền mặt đọc được", gan(l.tienMatUsd, 500.0))
+    kiem("tổng = cam kết + tiền mặt", gan(l.tongUsd, 730.0))
+    kiem("số vị thế đọc được", l.soViThe == 2)
+
+    thieu = _doc_kham("kham", {"che": "giay"})
+    kiem("thiếu khoá thì vẫn đọc được, và NÓI RA thiếu gì",
+         thieu.docDuoc and "kho" in thieu.vi and "risk" in thieu.vi,
+         "đây là schema của một cỗ máy KHÁC; ta không có quyền bắt nó giữ "
+         "nguyên, nên phải đọc phòng thủ và khai chỗ vắng")
+    kiem("và không ném khi số rác",
+         gan(_doc_kham("k", {"kho": {"viThe": [{"loKhoaUsd": "xxx"}]}})
+             .daCamKetUsd, 0.0))
+
+    # ── Danh Mục: vốn ngoài vào NAV nhưng KHÔNG vào viThe ────────────────
+    dm = DanhMuc(1000.0)
+    kiem("chưa khai vốn ngoài thì coi như đọc đủ", dm.ngoaiDayDu)
+    dm.ghi_von_ngoai(l)
+    kiem("vốn ngoài vào NAV", gan(dm.navUsd, 1730.0),
+         "một NAV thiếu phần vốn đang phơi ra ở nơi khác là NAV nói dối "
+         "theo hướng NGUY HIỂM: trần rộng hơn sự thật")
+    kiem("nhưng KHÔNG vào danh sách vị thế", len(dm.viThe) == 0,
+         "Thị Bạc Ty không mở nó, không đóng được nó, và không được giả vờ "
+         "ngược lại")
+    kiem("tự quản tách riêng khỏi NAV", gan(dm.tuQuanUsd, 1000.0))
+    kiem("vốn ngoài không làm lệch phơi nhiễm cảng của mình",
+         dm.phoi_nhiem_cang() == {})
+
+    # Lát cắt hỏng MANG THEO SỐ CŨ — đây mới là ca đáng kiểm. Lát cắt hỏng
+    # toàn số 0 thì cộng hay không cộng đều ra một kết quả, và phép kiểm
+    # dựng trên nó không chứng minh được gì.
+    hong = LatCatNgoai(ten="kham", docDuoc=False, vi="tắt",
+                       daCamKetUsd=230.0, tienMatUsd=500.0)
+    kiem("lát cắt hỏng vẫn có thể mang số", gan(hong.tongUsd, 730.0))
+    dm.ghi_von_ngoai(hong)
+    kiem("nhưng đọc hỏng thì KHÔNG cộng vào NAV", gan(dm.navUsd, 1000.0),
+         "số cũ của một lần đọc hỏng là số của QUÁ KHỨ; cộng nó vào NAV "
+         "hôm nay là dựng trần trên một con số không ai biết còn đúng không")
+    kiem("và cờ đọc-đủ tắt", dm.ngoaiDayDu is False,
+         "coi 'không đọc được' thành 'không có gì' là đúng cách một trần "
+         "biến thành trần giả")
+    kiem("bảng tóm tắt bày lời nhắc lên",
+         dm.tom_tat()["loiNhacNgoai"] is not None
+         and "RỘNG HƠN" in dm.tom_tat()["loiNhacNgoai"])
+
+    # ── đọc hỏng là một lý do NGẮT cầu dao ──────────────────────────────
+    from thi_bac_ty.cau_dao import CauDao
+    NG = {"lechDongHoToiDaGiay": 60.0, "soCangChetToiDa": 0,
+          "tuoiToiDaGiay": 300.0, "sutVonToiDaPct": 10.0}
+    cd = CauDao()
+    cd.tu_soat(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0,
+               sutVonPct=0.0, nguong=NG, vonNgoaiDayDu=False)
+    duoc, ly = cd.cho_phep()
+    kiem("không đọc được vốn ngoài → cầu dao NGẮT", not duoc)
+    kiem("và gọi đúng tên", any("von-ngoai-mu" in l for l in ly), str(ly))
+    cd.tu_soat(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0,
+               sutVonPct=0.0, nguong=NG, vonNgoaiDayDu=True)
+    kiem("đọc lại được thì TỰ đóng lại", cd.cho_phep()[0],
+         "đọc lại là biết ngay, nên đây là lý do tự mở")
+
+    # ── đọc qua HTTP: cỗ máy kia tắt thì KHÔNG ném ──────────────────────
+    d = DocVonNgoai("khong-ton-tai", "http://127.0.0.1:59998/api/trang-thai")
+    lat = d.doc()
+    kiem("cỗ máy kia tắt thì trả lát cắt KHÔNG-đọc-được, không ném",
+         lat.docDuoc is False and d.soLoi == 1)
+    kiem("và lý do nói ra được", bool(lat.vi), lat.vi)
+    d.doc()
+    kiem("chưa tới nhịp thì không hỏi lại", d.soLoi == 1)
+    d.doc(ep=True)
+    kiem("nhưng ép thì hỏi lại", d.soLoi == 2)
+
+    # ── cả vòng: trần tính trên NAV ĐÃ có vốn ngoài ─────────────────────
+    from thi_bac_ty.rui_ro_tong import RuiRoTong
+    dm2 = DanhMuc(1000.0)
+    tt = _mau(von=500.0, chua=90000.0, khoa=0.0)
+    tran_khong = RuiRoTong().xet(tt, dm2).choToiDaUsd
+    dm2.ghi_von_ngoai(LatCatNgoai(ten="k", docDuoc=True, tienMatUsd=1000.0))
+    tran_co = RuiRoTong().xet(tt, dm2).choToiDaUsd
+    kiem("NAV lớn hơn thì trần một cơ hội rộng hơn — và đó là ĐÚNG",
+         tran_co > tran_khong,
+         f"{tran_khong} → {tran_co}: rủi ro là của CẢ gia sản, nên trần "
+         f"phải tính trên cả gia sản")
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -2437,6 +2930,12 @@ def main() -> int:
     kiem_ban_tham_so()
     kiem_vong_duyet_tron()
     kiem_pheu_theo_ho()
+    kiem_tin_dung_phi()
+    kiem_tin_dung_cua()
+    kiem_tin_dung_thang_rui_ro()
+    kiem_van_tay_co_chuoi()
+    kiem_hai_ty_that()
+    kiem_von_ngoai()
 
     print("\n" + "=" * 70)
     if _loi:

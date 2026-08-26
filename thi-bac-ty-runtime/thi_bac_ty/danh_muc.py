@@ -95,6 +95,11 @@ class DanhMuc:
         self.tienMatUsd = float(vonBanDauUsd)
         self.viThe: dict[str, list[ViThe]] = {}       # maToTrinh → các chân
         self.laiLoDaThucHienUsd = 0.0
+        #: Vốn nằm ở cỗ máy KHÁC — thấy được, KHÔNG quản được. Xem
+        #: `thi_bac_ty/von_ngoai.py`. Rỗng là bình thường; rỗng vì KHÔNG
+        #: ĐỌC ĐƯỢC thì `ngoaiDocDuoc` nói ra.
+        self.ngoai: dict[str, dict] = {}
+        self.ngoaiDocDuoc: dict[str, bool] = {}
 
     # ── thay đổi ──────────────────────────────────────────────────────────
     def cam_ket(self, maToTrinh: str, chan: list[ViThe]) -> bool:
@@ -130,6 +135,35 @@ class DanhMuc:
             self.tienMatUsd += soTienUsd
             self.laiLoDaThucHienUsd += soTienUsd
 
+    def ghi_von_ngoai(self, lat) -> None:
+        """Ghi nhận một lát cắt vốn ngoài. CHỈ ĐỌC — không cam kết, không đóng.
+
+        Vốn ngoài vào NAV nhưng KHÔNG vào `viThe`: Thị Bạc Ty không mở nó,
+        không đóng được nó, và không được phép giả vờ ngược lại. Nó vào đây
+        vì mọi trần của Rủi Ro Tổng tính theo NAV, và một NAV thiếu mất phần
+        vốn đang phơi ra ở nơi khác là một NAV nói dối theo hướng nguy hiểm:
+        trần rộng hơn sự thật.
+        """
+        self.ngoai[lat.ten] = lat.tom_tat()
+        self.ngoaiDocDuoc[lat.ten] = bool(lat.docDuoc)
+
+    @property
+    def ngoaiUsd(self) -> float:
+        """Tổng vốn ngoài ĐỌC ĐƯỢC. Không đọc được thì không cộng — và
+        `ngoaiDayDu` là chỗ nói ra rằng con số này đang thiếu."""
+        return sum(x.get("tongUsd") or 0.0 for t, x in self.ngoai.items()
+                   if self.ngoaiDocDuoc.get(t))
+
+    @property
+    def ngoaiDayDu(self) -> bool:
+        """Mọi nguồn vốn ngoài đã khai đều đọc được chưa.
+
+        `False` nghĩa là NAV đang THIẾU một phần chưa biết bao nhiêu, nên
+        mọi trần tính theo NAV đang rộng hơn sự thật. Buồng lái phải hiện
+        cờ này cạnh NAV, không nhét cuối bảng.
+        """
+        return all(self.ngoaiDocDuoc.values()) if self.ngoai else True
+
     # ── đọc ───────────────────────────────────────────────────────────────
     @property
     def daCamKetUsd(self) -> float:
@@ -141,6 +175,16 @@ class DanhMuc:
 
         Chưa có giá thị trường của vị thế đang mở nên NAV này là **vốn gốc +
         tiền mặt**, không phải NAV thật. Khai ở `tom_tat()` để không ai nhầm.
+        """
+        return self.tienMatUsd + self.daCamKetUsd + self.ngoaiUsd
+
+    @property
+    def tuQuanUsd(self) -> float:
+        """Phần NAV Thị Bạc Ty THẬT SỰ điều khiển được.
+
+        Tách khỏi `navUsd` vì hai câu hỏi khác nhau: "trần rủi ro tính trên
+        bao nhiêu" dùng NAV (gồm cả vốn ngoài, vì rủi ro là của cả gia sản),
+        còn "còn bao nhiêu để rót" dùng con số này.
         """
         return self.tienMatUsd + self.daCamKetUsd
 
@@ -194,6 +238,14 @@ class DanhMuc:
                         "đặt lệnh nên chưa có vị thế thật để mà đọc."),
             "navUsd": nav,
             "navLaVonGoc": True,
+            "tuQuanUsd": self.tuQuanUsd,
+            "ngoaiUsd": self.ngoaiUsd,
+            "ngoaiDayDu": self.ngoaiDayDu,
+            "ngoai": list(self.ngoai.values()),
+            "loiNhacNgoai": (None if self.ngoaiDayDu else
+                             "KHÔNG đọc được một nguồn vốn ngoài — NAV đang "
+                             "thiếu một phần chưa biết bao nhiêu, nên mọi "
+                             "trần tính theo NAV đang RỘNG HƠN sự thật"),
             "tienMatUsd": self.tienMatUsd,
             "daCamKetUsd": self.daCamKetUsd,
             "tiLeDungVon": (self.daCamKetUsd / nav) if nav else 0.0,

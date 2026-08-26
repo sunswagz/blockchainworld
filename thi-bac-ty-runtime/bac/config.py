@@ -103,6 +103,36 @@ MAC_DINH = {
     # và buồng lái bày cờ đó lên đầu bảng.
     "trungUong": {
         "bat": True,
+        # Ty tín dụng — engine THỨ HAI. Cấu hình riêng của nó ở
+        # `tin_dung/config.py`; ở đây chỉ có cái công tắc, vì Trung Ương là
+        # chỗ duy nhất biết ty nào đang đăng ký.
+        #
+        # Nhịp riêng: lãi cho vay đổi theo giờ chứ không theo giây, mà quét
+        # nó là kéo về hai bảng ~17.000 dòng. Quét mỗi 30 giây là đốt băng
+        # thông cho một con số gần như đứng yên.
+        "tyTinDung": {"bat": True, "nhipGiay": 900.0},
+
+        # ── VỐN NGOÀI ────────────────────────────────────────────────────
+        # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có
+        # ví riêng, sổ cái riêng và LỚP ĐẶT LỆNH riêng; Thị Bạc Ty không
+        # quản nó. Khai ở đây thì Danh Mục THẤY được phần vốn ấy, và mọi
+        # trần tính theo NAV mới tính trên tổng thật.
+        #
+        # Mặc định RỖNG, và đó là một lựa chọn chứ không phải lười: bật lên
+        # mà cỗ máy kia không chạy thì cầu dao ngắt vĩnh viễn (`von-ngoai-mu`)
+        # và Thị Bạc Ty không cấp đồng nào — đúng về nguyên tắc, nhưng vô
+        # dụng khi cỗ máy kia vốn dĩ chỉ chạy lúc cần.
+        #
+        # LUẬT PHẢI GIỮ: **trước khi mở bất kỳ cửa đặt lệnh nào của Khâm
+        # Thiên Giám, BẬT khoá này lên.** Từ giây phút cỗ máy kia chạm tiền
+        # thật, `tranMotCang` và `sutVonToiDaPct` của Trung Ương chỉ còn là
+        # trần của một nửa gia sản trong khi mọi bảng đọc chúng như trần của
+        # cả gia sản.
+        #
+        #   "vonNgoai": {
+        #       "kham-thien-giam": "http://127.0.0.1:5186/api/trang-thai"
+        #   },
+        "vonNgoai": {},
         "vonBanDauUsd": 1000.0,
         "nguongCauDao": {
             # Rộng hơn cửa `lechDongHoToiDaGiay` của ty (10s) có chủ ý: cửa

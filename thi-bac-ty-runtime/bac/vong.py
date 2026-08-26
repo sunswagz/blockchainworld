@@ -30,6 +30,8 @@ from .dong_ho import NGUONG_KEU_MS, do_lech, dong_ho
 from .models import BaoGia
 from .rui_ro import NHAN, CongRuiRo
 from .san import TAT_CA
+from thi_bac_ty.khuon_ty import Ty
+
 from .so import So
 from .ty_perp import TyPerp
 from .xuat_to_trinh import xuat_to_trinh
@@ -39,6 +41,79 @@ from .xuat_to_trinh import xuat_to_trinh
 #: nó trôi cỡ giây mỗi giờ), nên hỏi mỗi 5 phút là quá đủ — ba lượt hỏi thêm
 #: mỗi 30 giây chỉ tổ tốn hạn mức cho một con số gần như đứng yên.
 NHIP_DO_DONG_HO_GIAY = 300.0
+
+
+class _NhipRieng(Ty):
+    """Bọc một ty để nó quét THƯA hơn nhịp chung.
+
+    Vòng quét chạy mỗi 30 giây vì funding đổi theo giây. Lãi cho vay thì đổi
+    theo giờ, mà một lượt quét nó là kéo về hai bảng ~17.000 dòng — nên bám
+    nhịp chung là đốt băng thông cho một con số gần như đứng yên, và làm
+    phiền một nguồn công cộng miễn phí.
+
+    Giữa hai lượt, `quet()` trả lại **kết quả lượt trước** chứ không trả
+    rỗng. Trả rỗng thì cơ hội biến mất rồi hiện lại, và cửa chống trùng ở
+    Trung Ương ghi nhận chúng như cơ hội MỚI — vòng nào cũng đẻ một loạt tờ
+    trình trùng, và cái phễu lại nói dối.
+
+    ## Kế thừa `Ty`, KHÔNG vá nóng
+
+    Bản đầu bọc bằng cách gán đè `ty.quet` rồi gọi `ty.mot_luot()`. Nó tự
+    đệ quy: `mot_luot` gọi `self.quet` — nay chính là hàm của lớp bọc — và
+    hàm ấy gọi lại `self._ty.quet`, cũng chính nó. Không có `RecursionError`
+    vì lần gọi thứ hai rơi đúng vào nhánh "chưa tới nhịp" và trả rỗng, nên
+    ty quét được **không lần nào** trong khi mọi thứ vẫn xanh.
+
+    Đúng loại hỏng im lặng mà cả runtime này sinh ra để bắt, và nó lọt vì
+    lớp bọc thông minh hơn mức cần thiết. Nay nó là một `Ty` bình thường:
+    ba hàm, `quet()` có nhịp, hai hàm kia uỷ quyền thẳng.
+    """
+
+    def __init__(self, ty, nhipGiay: float) -> None:
+        super().__init__()
+        self._ty = ty
+        self._nhip = float(nhipGiay)
+        self._lanCuoi = 0.0
+        self._cu: list = []
+        self.soLuotBoQua = 0
+
+    # Khai báo là của ty THẬT, không của lớp bọc.
+    @property
+    def ma(self): return self._ty.ma
+
+    @property
+    def ho(self): return self._ty.ho
+
+    @property
+    def moTa(self): return self._ty.moTa
+
+    def kiem_khai(self):
+        """Soi khai báo của ty THẬT. Bọc không phải đường vòng qua cổng."""
+        return type(self._ty).kiem_khai()
+
+    # ── ba việc ───────────────────────────────────────────────────────────
+    def quet(self):
+        now = time.monotonic()
+        if self._lanCuoi and (now - self._lanCuoi) < self._nhip:
+            self.soLuotBoQua += 1
+            return list(self._cu)
+        self._lanCuoi = now
+        self._cu = list(self._ty.quet())
+        return list(self._cu)
+
+    def xet(self, co):
+        return self._ty.xet(co)
+
+    def trinh(self, co):
+        return self._ty.trinh(co)
+
+    # Tiện đọc `._nguon`, `.coHoi`… của ty thật từ buồng lái.
+    def __getattr__(self, ten):
+        return getattr(self.__dict__["_ty"], ten)
+
+    def tom_tat(self) -> dict:
+        return {**super().tom_tat(), "nhipGiay": self._nhip,
+                "soLuotBoQua": self.soLuotBoQua}
 
 
 class Runtime:
@@ -58,11 +133,29 @@ class Runtime:
         # canh đúng chuyện đó.
         tu = CONFIG.get("trungUong") or {}
         self.trungUong = None
+        self.tyTinDung = None
         if tu.get("bat", True):
             from thi_bac_ty.trung_uong import TrungUong
             self.trungUong = TrungUong(
-                DATA_DIR, {k: v for k, v in tu.items() if k != "bat"})
+                DATA_DIR, {k: v for k, v in tu.items()
+                           if k not in ("bat", "tyTinDung")})
             self.trungUong.dang_ky(TyPerp(self))
+
+            # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
+            # dựng runtime riêng, và đó là toàn bộ điểm của nó: hai chiến
+            # lược khác hẳn nhau sống dưới một Thị Bạc Ty.
+            #
+            # Bọc try vì một ty mới không được phép làm chết vòng quét của
+            # ty đang chạy. Hỏng thì `loiVongCuoi` nói ra, không im.
+            tv = (tu.get("tyTinDung") or {})
+            if tv.get("bat", True):
+                try:
+                    from tin_dung.ty_vay import TyTinDung
+                    self.tyTinDung = _NhipRieng(
+                        TyTinDung(), float(tv.get("nhipGiay", 900.0)))
+                    self.trungUong.dang_ky(self.tyTinDung)
+                except Exception as e:                   # noqa: BLE001
+                    self.loiVongCuoi = f"ty tín dụng: {type(e).__name__}: {e}"
         self.latCatTrungUong = None
 
         self.vong = 0

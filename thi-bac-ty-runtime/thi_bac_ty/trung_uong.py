@@ -82,6 +82,7 @@ from .so_cai import ButToan, SoCai
 from .so_dang_ky import SoDangKy
 from .thong_chinh import ThongChinh
 from .thuc_thi import DieuPhoiThucThi, YChiThucThi
+from .von_ngoai import DocVonNgoai
 
 MAC_DINH = {
     "vonBanDauUsd": 1000.0,
@@ -95,6 +96,10 @@ MAC_DINH = {
     "ruiRoTong": {},
     "phanBo": {},
     "giuNgaySoDangKy": 90,
+    #: Cỗ máy KHÁC đang giữ vốn mà Thị Bạc Ty không quản. Xem
+    #: `thi_bac_ty/von_ngoai.py` và mục "NỢ KIẾN TRÚC" trong README.
+    #: `{tên: url}`. Rỗng = không có vốn ngoài nào được khai.
+    "vonNgoai": {},
     #: Cùng MỘT cơ hội chỉ vào sổ đăng ký một lần trong ngần này giây.
     #:
     #: Ty quét mỗi 30 giây, và một chênh lệch funding sống hàng giờ. Không có
@@ -114,13 +119,24 @@ MAC_DINH = {
 def _dau_van(tt) -> str:
     """Dấu vân tay của một CƠ HỘI, khác với `tt.ma` là dấu của một LẦN TRÌNH.
 
-    Cùng ty, cùng tài sản, cùng bộ chân (bên + cảng) thì là cùng một cơ hội,
-    dù quét lại một trăm lần. Cố ý KHÔNG gộp giá hay NET vào đây: chúng nhúc
-    nhích mỗi lượt quét, nên gộp vào là mỗi lượt lại ra một vân tay mới và
-    cửa chống trùng thành vô dụng.
+    Cùng ty, cùng tài sản, cùng bộ chân (bên + cảng + CHUỖI) thì là cùng một
+    cơ hội, dù quét lại một trăm lần. Cố ý KHÔNG gộp giá hay NET vào đây:
+    chúng nhúc nhích mỗi lượt quét, nên gộp vào là mỗi lượt lại ra một vân
+    tay mới và cửa chống trùng thành vô dụng.
+
+    **Chuỗi phải có mặt.** Bản đầu chỉ lấy `bên@cảng`, và với ty phái sinh
+    thì không sao — bốn sàn perp đều là sàn tập trung, mỗi sàn một cảng.
+    Nhưng `aave-v3 USDC trên Ethereum` và `aave-v3 USDC trên Polygon` là
+    HAI thị trường khác hẳn: khác lãi suất, khác thanh khoản, khác gas.
+    Thiếu chuỗi thì chúng cùng một vân tay, và cái thứ hai bị bỏ trong im
+    lặng như thể nó là bản trùng của cái thứ nhất.
+
+    Lỗi này chỉ lộ ra khi ty thứ HAI cắm vào — và đó đúng là công dụng của
+    phép thử "hai chiến lược khác hẳn nhau có sống chung được không".
     """
     return (f"{tt.chienLuoc}|{tt.taiSan}|"
-            + ",".join(sorted(f"{c.ben}@{c.cang}" for c in tt.chan)))
+            + ",".join(sorted(f"{c.ben}@{c.cang}@{c.chuoi or '-'}"
+                              for c in tt.chan)))
 
 
 @dataclass
@@ -177,6 +193,8 @@ class TrungUong:
         self.cau_dao = CauDao()
         self.thuc_thi = DieuPhoiThucThi()
 
+        self.docVonNgoai = [DocVonNgoai(t, u)
+                            for t, u in (c["vonNgoai"] or {}).items()]
         self.ty: dict[str, object] = {}
         self.vong = 0
         self.latCatCuoi: LatCatVong | None = None
@@ -194,8 +212,19 @@ class TrungUong:
 
     # ── đăng ký ty ────────────────────────────────────────────────────────
     def dang_ky(self, ty) -> bool:
-        """Nhận một ty vào hệ thống. Khai sai thì **chết ở cửa**."""
-        loi = type(ty).kiem_khai()
+        """Nhận một ty vào hệ thống. Khai sai thì **chết ở cửa**.
+
+        Hỏi `ty.kiem_khai()` chứ KHÔNG hỏi `type(ty).kiem_khai()`. Khác biệt
+        nhỏ, hậu quả thật: một ty được bọc — chẳng hạn để cho nó nhịp quét
+        riêng — thì `type(ty)` là lớp bọc, và lớp bọc không có `kiem_khai`.
+        Trung Ương sẽ từ chối một ty hoàn toàn hợp lệ, và từ chối vì một lý
+        do chẳng liên quan gì tới ty ấy.
+
+        Đây cũng là chiều đúng: Trung Ương quan tâm ty **trả lời được gì**,
+        không quan tâm nó thuộc lớp nào. Soi lớp cụ thể là buộc mọi ty phải
+        kế thừa trực tiếp, và điều đó chặn cả một lớp cách dùng hợp lệ.
+        """
+        loi = ty.kiem_khai()
         if loi:
             self.so_cai.ghi(ButToan(
                 "TU_CHOI", "từ chối đăng ký ty: " + "; ".join(loi),
@@ -245,6 +274,13 @@ class TrungUong:
                 self.so_dang_ky.chuyen(tt.ma, "DUYET_TY", "qua cổng ty")
                 song.append(tt)
 
+        # ── 2b. vốn NGOÀI — đọc trước khi tính bất kỳ trần nào ───────────
+        # Trần của Rủi Ro Tổng tính theo NAV. Đọc vốn ngoài sau khi đã phân
+        # bổ thì cả vòng ấy chạy trên một NAV thiếu, và trần rộng hơn sự
+        # thật đúng vào lúc nó cần chặt nhất.
+        for d in self.docVonNgoai:
+            self.danh_muc.ghi_von_ngoai(d.doc())
+
         # ── 3. cầu dao — TRƯỚC khi cam kết bất cứ đồng nào ───────────────
         sut = None
         if self.danh_muc.vonBanDauUsd > 0:
@@ -253,7 +289,8 @@ class TrungUong:
         self.cau_dao.tu_soat(
             lechDongHoGiay=lechDongHoGiay, cangChet=list(cangChet or []),
             tuoiXauNhatGiay=tuoiXauNhatGiay, sutVonPct=sut,
-            nguong=self.c["nguongCauDao"], so_cai=self.so_cai)
+            nguong=self.c["nguongCauDao"], so_cai=self.so_cai,
+            vonNgoaiDayDu=self.danh_muc.ngoaiDayDu)
 
         duoc, ly = self.cau_dao.cho_phep()
         lat.cauDaoNgat = not duoc
@@ -524,6 +561,7 @@ class TrungUong:
             "thongChinh": self.thong_chinh.tom_tat(),
             "soDangKy": self.so_dang_ky.tom_tat(),
             "danhMuc": self.danh_muc.tom_tat(),
+            "vonNgoai": [d.tom_tat() for d in self.docVonNgoai],
             "ruiRoTong": self.rui_ro_tong.tom_tat(),
             "phanBo": self.phan_bo.tom_tat(),
             "cauDao": self.cau_dao.tom_tat(),

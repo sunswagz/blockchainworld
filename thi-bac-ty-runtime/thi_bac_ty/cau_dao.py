@@ -138,7 +138,7 @@ class CauDao:
     def tu_soat(self, *, lechDongHoGiay: float | None,
                 cangChet: list[str], tuoiXauNhatGiay: float | None,
                 sutVonPct: float | None, nguong: dict,
-                so_cai=None) -> list[str]:
+                so_cai=None, vonNgoaiDayDu: bool = True) -> list[str]:
         """Soi trạng thái hiện tại, ngắt hoặc gỡ. Trả về lý do vừa ngắt.
 
         Gọi mỗi lượt. Đây là chỗ ba thứ runtime đã đo được nối vào cầu dao.
@@ -181,6 +181,19 @@ class CauDao:
                 moi.append("du-lieu-dung")
         else:
             self.het_ly_do("du-lieu-dung")
+
+        # 3b. không đọc được vốn ngoài. Đây là "ta không còn chắc mình đang
+        #     nhìn đúng thế giới" ở dạng thuần khiết nhất: một phần gia sản
+        #     đang ở đâu đó mà ta không biết bao nhiêu, trong khi mọi trần
+        #     đều tính theo NAV. Tự mở lại được vì đọc lại là biết ngay.
+        if not vonNgoaiDayDu:
+            if self.ngat("von-ngoai-mu",
+                         "KHÔNG đọc được một nguồn vốn ngoài — NAV đang "
+                         "thiếu một phần chưa biết bao nhiêu, nên mọi trần "
+                         "tính theo NAV đang RỘNG HƠN sự thật", True, so_cai):
+                moi.append("von-ngoai-mu")
+        else:
+            self.het_ly_do("von-ngoai-mu")
 
         # 4. sụt vốn — KHÔNG tự mở lại. Sụt vốn là hậu quả, không phải tín
         #    hiệu; nó "hết" không có nghĩa là nguyên nhân đã hết.

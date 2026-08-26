@@ -597,6 +597,20 @@
       f.appendChild(canh);
     }
 
+    /* Vốn ngoài: phần gia sản Thị Bạc Ty THẤY mà không QUẢN. Cờ này đứng
+       ngay dưới cờ mô phỏng, vì nó nói NAV có đủ hay không — và mọi trần
+       đều tính theo NAV. */
+    if (dm.loiNhacNgoai) {
+      var cn = el("div", "loi-o");
+      cn.appendChild(el("h2", null, "NAV ĐANG THIẾU MỘT PHẦN"));
+      cn.appendChild(el("p", null, dm.loiNhacNgoai));
+      (dm.ngoai || []).filter(function (x) { return !x.docDuoc; })
+        .forEach(function (x) {
+          cn.appendChild(el("p", "vi", "· " + x.ten + " — " + (x.vi || "?")));
+        });
+      f.appendChild(cn);
+    }
+
     /* ── cầu dao ──────────────────────────────────────────────────────── */
     if (cd.dangNgat) {
       var c2 = el("div", "loi-o");
@@ -617,6 +631,9 @@
     /* ── số tổng ──────────────────────────────────────────────────────── */
     var l = el("div", "luoi");
     [["NAV (sổ giấy)", "$" + so(dm.navUsd, 2)],
+     ["Thị Bạc Ty tự quản", "$" + so(dm.tuQuanUsd, 2)],
+     ["vốn ngoài (thấy, không quản)",
+      dm.ngoaiDayDu === false ? "KHÔNG ĐỌC ĐƯỢC" : "$" + so(dm.ngoaiUsd, 2)],
      ["tiền mặt", "$" + so(dm.tienMatUsd, 2)],
      ["dùng vốn", dm.tiLeDungVon == null ? "—"
         : (dm.tiLeDungVon * 100).toFixed(1) + "%"],
