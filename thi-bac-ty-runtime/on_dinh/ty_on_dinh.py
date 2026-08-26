@@ -1,0 +1,290 @@
+"""TY CHÊNH LỆCH — nhánh stablecoin. Họ THỨ BA của Thị Bạc Ty.
+
+Ba họ, ba nguồn alpha khác hẳn nhau:
+
+    phai-sinh   chênh funding perp     hai chân, thu tại MỐC kết toán
+    tin-dung    xoay vốn cho vay        một chân, lãi chảy liên tục
+    chenh-lech  stablecoin chéo sàn     hai chân, ăn ngay rồi kẹt tồn kho
+
+Bản đồ nói đúng lúc có ba loại việc khác hẳn nhau thì Người Phân Bổ Vốn mới
+thật sự có việc để làm — trước đó nó chỉ đang xếp hạng những thứ giống nhau.
+
+## Hai chỗ ty này rất dễ nói dối, và cả hai đều được chặn
+
+**1. `$0,97` KHÔNG phải arbitrage.** Nó có thể là DEPEG. Bên đứng ra "ăn
+chênh lệch" sẽ là bên ôm đồng đang chết. Cửa `lechNeoToiDaBps` chặn đúng
+chỗ ấy, và nó là cửa quan trọng nhất của ty này.
+
+**2. Thời gian giao dịch ≠ chu kỳ vốn.** Lệnh xong trong vài giây. Nhưng
+sau một lượt, tồn kho lệch: sàn rẻ hết USDT, sàn đắt đầy USDC. Muốn làm
+lượt nữa phải chờ chênh lệch đảo chiều, hoặc chuyển vốn giữa hai sàn — mà
+chuyển vốn thì tốn phí, tốn thời gian, và runtime này chưa làm được.
+
+Khai `giuGio` bằng vài giây là cho NET mỗi giờ nhảy lên hàng nghìn bps và
+chiếm sạch bảng xếp hạng của mọi ty khác — bằng một con số mình không đạt
+được. Nên `giuGio` ở đây là **chu kỳ vốn**, và `chuyen-von-giua-san` nằm
+tường minh trong `phiConThieu`.
+"""
+from __future__ import annotations
+
+import asyncio
+from dataclasses import dataclass, replace
+
+from thi_bac_ty.khuon_ty import Ty
+from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
+
+from .config import CONFIG, HO, MA_CHIEN_LUOC
+from .nguon import DinhSo, SanGiaoNgay
+
+PHI_CON_THIEU = (
+    "chuyen-von-giua-san",      # chưa có đường chuyển, nên tồn kho kẹt
+    "rut-tien-va-thoi-gian-cho",
+    "truot-gia-duoi-dinh-so",
+    "thue",
+)
+SUC_CHUA_CON_THIEU = ("do-sau-so-lenh-duoi-dinh",)
+
+NHAN = {
+    "lech-neo-qua-lon": "lệch neo quá lớn — có thể là DEPEG, không phải cơ hội",
+    "chenh-tho-qua-mong": "chênh lệch thô quá mỏng",
+    "net-duoi-nguong": "NET sau phí dưới ngưỡng",
+    "so-lenh-mong": "sổ lệnh trên đỉnh quá mỏng",
+    "du-lieu-cu": "dữ liệu quá cũ",
+    "thieu-san": "không đủ hai sàn cùng sống",
+}
+
+CUA = ("lechNeoToiDaBps", "chenhThoToiThieuBps", "netToiThieuBps",
+       "sauSoLenhToiThieuUsd", "tuoiToiDaGiay", "doiHoiHaiSanSong")
+
+
+@dataclass(frozen=True)
+class CoHoiChenh:
+    cap: str
+    mua: DinhSo          # sàn ta MUA (ask thấp nhất)
+    ban: DinhSo          # sàn ta BÁN (bid cao nhất)
+    vonXinUsd: float
+    giuGio: float
+    grossBps: float
+    phiBps: float
+    netBps: float
+    sucChuaToiDaUsd: float | None
+    sauSoLenhUsd: float | None
+    duyet: bool = False
+    lyDo: tuple = ()
+    lyDoMa: tuple = ()
+
+    @property
+    def netMoiGioBps(self) -> float:
+        return self.netBps / self.giuGio if self.giuGio else 0.0
+
+    @property
+    def lechNeoBps(self) -> float:
+        return max(self.mua.lechNeoBps, self.ban.lechNeoBps)
+
+    def tom_tat(self) -> dict:
+        return {"cap": self.cap, "sanMua": self.mua.san, "sanBan": self.ban.san,
+                "giaMua": self.mua.ban, "giaBan": self.ban.mua,
+                "vonXinUsd": self.vonXinUsd, "giuGio": self.giuGio,
+                "grossBps": self.grossBps, "phiBps": self.phiBps,
+                "netBps": self.netBps, "netMoiGioBps": self.netMoiGioBps,
+                "lechNeoBps": self.lechNeoBps,
+                "sucChuaToiDaUsd": self.sucChuaToiDaUsd,
+                "sauSoLenhUsd": self.sauSoLenhUsd,
+                "duyet": self.duyet, "lyDo": list(self.lyDo),
+                "lyDoMa": [list(x) for x in self.lyDoMa]}
+
+
+def phi_khu_hoi_bps(sanMua: str, sanBan: str, bang: dict) -> float:
+    """Taker ở CẢ HAI sàn. Một chiều thôi là báo cáo nửa chi phí."""
+    m = float(bang.get(sanMua, bang.get("_khac", 10.0)))
+    b = float(bang.get(sanBan, bang.get("_khac", 10.0)))
+    return m + b
+
+
+def sau_so_lenh_usd(mua: DinhSo, ban: DinhSo) -> float | None:
+    """Chỗ CHẬT NHẤT của hai chân, quy ra USD. `None` nếu sàn giấu khối lượng."""
+    if mua.banLuong is None or ban.muaLuong is None:
+        return None
+    return min(mua.banLuong * mua.ban, ban.muaLuong * ban.mua)
+
+
+class CongRuiRo:
+    def __init__(self, c: dict) -> None:
+        self.c = dict(c)
+
+    def xet(self, co: CoHoiChenh) -> tuple[bool, list[tuple[str, str]]]:
+        ly: list[tuple[str, str]] = []
+        tran_neo = float(self.c["lechNeoToiDaBps"])
+        if co.lechNeoBps > tran_neo:
+            ly.append(("lech-neo-qua-lon",
+                       f"lệch neo {co.lechNeoBps:.0f} bps > trần "
+                       f"{tran_neo:.0f} — chênh lệch càng lớn thì càng có "
+                       f"khả năng đây không phải sai giá tạm thời mà là thị "
+                       f"trường đang định giá lại rủi ro của chính đồng ấy"))
+
+        tho_min = float(self.c["chenhThoToiThieuBps"])
+        if co.grossBps < tho_min:
+            ly.append(("chenh-tho-qua-mong",
+                       f"chênh thô {co.grossBps:.2f} bps < {tho_min:.2f}"))
+
+        net_min = float(self.c["netToiThieuBps"])
+        if co.netBps < net_min:
+            ly.append(("net-duoi-nguong",
+                       f"NET {co.netBps:.2f} bps < {net_min:.2f}"))
+
+        sau_min = float(self.c["sauSoLenhToiThieuUsd"])
+        if co.sauSoLenhUsd is None:
+            ly.append(("so-lenh-mong", "sàn không công bố khối lượng đỉnh sổ "
+                                       "— không biết chênh lệch này có thật "
+                                       "được bao nhiêu"))
+        elif co.sauSoLenhUsd < sau_min:
+            ly.append(("so-lenh-mong",
+                       f"đỉnh sổ chỉ ${co.sauSoLenhUsd:,.0f} < "
+                       f"${sau_min:,.0f} — chênh lệch trên một sổ mỏng là ảo"))
+
+        tuoi_max = float(self.c["tuoiToiDaGiay"])
+        tuoi = max(co.mua.tuoi_giay(), co.ban.tuoi_giay())
+        if tuoi > tuoi_max:
+            ly.append(("du-lieu-cu", f"dữ liệu {tuoi:.0f}s > {tuoi_max:.0f}s"))
+
+        if self.c["doiHoiHaiSanSong"] and co.mua.san == co.ban.san:
+            ly.append(("thieu-san", "mua và bán rơi vào cùng một sàn — đây là "
+                                    "spread nội sàn, không phải chênh lệch "
+                                    "chéo sàn"))
+        return (not ly), ly
+
+    def tom_tat(self) -> dict:
+        return {k: self.c[k] for k in CUA if k in self.c}
+
+
+def tim_co_hoi(dinh: list[DinhSo], vonXinUsd: float, giuGio: float,
+               phiBang: dict, sucChuaC: dict, cong) -> list[CoHoiChenh]:
+    """Với mỗi cặp: mua ở ask thấp nhất, bán ở bid cao nhất."""
+    theo_cap: dict[str, list[DinhSo]] = {}
+    for d in dinh:
+        theo_cap.setdefault(d.cap, []).append(d)
+
+    ra = []
+    for cap, ds in theo_cap.items():
+        if not ds:
+            continue
+        mua = min(ds, key=lambda x: x.ban)      # ask thấp nhất
+        ban = max(ds, key=lambda x: x.mua)      # bid cao nhất
+        giua = (mua.ban + ban.mua) / 2.0
+        gross = ((ban.mua - mua.ban) / giua) * 10_000.0 if giua > 0 else 0.0
+        phi = phi_khu_hoi_bps(mua.san, ban.san, phiBang)
+        sau = sau_so_lenh_usd(mua, ban)
+        chua = (None if sau is None
+                else min(sau * float(sucChuaC["phanDinhSo"]),
+                         float(sucChuaC["tranUsd"])))
+        co = CoHoiChenh(cap=cap, mua=mua, ban=ban, vonXinUsd=vonXinUsd,
+                        giuGio=giuGio, grossBps=gross, phiBps=phi,
+                        netBps=gross - phi, sucChuaToiDaUsd=chua,
+                        sauSoLenhUsd=sau)
+        qua, ly = cong.xet(co)
+        ra.append(replace(co, duyet=qua, lyDoMa=tuple(ly),
+                          lyDo=tuple(c for _, c in ly)))
+    ra.sort(key=lambda c: -c.netMoiGioBps)
+    return ra
+
+
+class TyOnDinh(Ty):
+    ma = MA_CHIEN_LUOC
+    ho = HO
+    moTa = ("chênh lệch stablecoin chéo sàn — hai chân, ăn ngay rồi kẹt "
+            "tồn kho cho tới khi chênh lệch đảo chiều")
+
+    def __init__(self, client_factory=None) -> None:
+        super().__init__()
+        self.nguon = SanGiaoNgay()
+        self.cong = CongRuiRo(CONFIG["ruiRo"])
+        self.dinh: list = []
+        self.coHoi: list = []
+        self._cf = client_factory
+
+    def quet(self) -> list:
+        q = CONFIG["quet"]
+        self.dinh = _chay(self._doc())
+        self.coHoi = tim_co_hoi(
+            self.dinh, float(CONFIG["von"]["moiCoHoiUsd"]),
+            float(q["chuKyVonGio"]), CONFIG["phiTakerBps"],
+            CONFIG["sucChua"], self.cong)
+        return list(self.coHoi)
+
+    async def _doc(self):
+        import httpx
+        q = CONFIG["quet"]
+        lam = self._cf or (lambda: httpx.AsyncClient(
+            timeout=float(q["hetGioHoiGiay"]),
+            headers={"User-Agent": "thi-bac-ty/0.1 (+public data only)"}))
+        async with lam() as c:
+            return await self.nguon.doc(c, q["cap"], q["san"])
+
+    def xet(self, co):
+        return bool(co.duyet), list(co.lyDoMa or ())
+
+    def trinh(self, co) -> ToTrinh:
+        return xuat_to_trinh(co)
+
+
+def _chay(coro):
+    """Xem `tin_dung/ty_vay._chay` — cùng lý do, cùng cái giá."""
+    import concurrent.futures
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+        return ex.submit(asyncio.run, coro).result()
+
+
+def _rui_ro(co: CoHoiChenh) -> RuiRo:
+    """Sáu mặt. `thiTruong` ở đây CHÍNH LÀ rủi ro depeg, nên nó bám vào
+    độ lệch neo chứ không phải một hằng số."""
+    return RuiRo(
+        # Lệch neo 60 bps → 1,0. Đây là mặt rủi ro chính của cả ty.
+        thiTruong=max(0.05, min(1.0, co.lechNeoBps / 60.0)),
+        thanhKhoan=(None if co.sauSoLenhUsd is None
+                    else max(0.05, min(1.0, 50_000.0 / max(co.sauSoLenhUsd, 1.0)))),
+        # Sàn tập trung, không hợp đồng thông minh nào trong đường đi.
+        giaoThuc=0.05,
+        cang=0.20,          # hai sàn tập trung giữ tiền hộ ta
+        # Hai chân trên hai sàn = legging risk thật, cao hơn một chân.
+        thucThi=0.30,
+        cauNoi=0.0,         # không bắc cầu — đã ĐO, nên 0
+    )
+
+
+def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
+    a, b = co.cap.split("/")
+    return ToTrinh(
+        chienLuoc=MA_CHIEN_LUOC, ho=HO, taiSan=a,
+        chan=(Chan("LONG", co.mua.san, a, co.vonXinUsd / 2.0, "spot"),
+              Chan("SHORT", co.ban.san, a, co.vonXinUsd / 2.0, "spot")),
+        vonCanUsd=co.vonXinUsd,
+        sucChuaToiDaUsd=co.sucChuaToiDaUsd,
+        grossBps=co.grossBps, phiUocBps=co.phiBps, netUocBps=co.netBps,
+        giuGio=co.giuGio,
+        # Không khoá theo hợp đồng — nhưng vốn KẸT cho tới khi chênh lệch
+        # đảo chiều, và chuyện ấy đã nằm trong `giuGio` (chu kỳ vốn).
+        khoaVonDenGiay=0.0,
+        thanhKhoanThoatUsd=co.sauSoLenhUsd,
+        ruiRo=_rui_ro(co),
+        tuoiDuLieuGiay=max(co.mua.tuoi_giay(), co.ban.tuoi_giay()),
+        tinCay=(0.85 if co.sauSoLenhUsd is not None else 0.45),
+        moHinhPhiDuChua=False, phiConThieu=PHI_CON_THIEU,
+        moHinhSucChuaDuChua=False, sucChuaConThieu=SUC_CHUA_CON_THIEU,
+        dinhGiaBang=b,
+        cang=(co.mua.san, co.ban.san),
+        bangChung=(
+            f"mua {co.mua.san} @ {co.mua.ban:.5f} · bán {co.ban.san} @ "
+            f"{co.ban.mua:.5f}",
+            f"chênh thô {co.grossBps:.2f} bps − phí {co.phiBps:.2f} = "
+            f"NET {co.netBps:.2f} bps",
+            f"lệch neo {co.lechNeoBps:.1f} bps (trần depeg "
+            f"{CONFIG['ruiRo']['lechNeoToiDaBps']:.0f})",
+            ("đỉnh sổ $" + f"{co.sauSoLenhUsd:,.0f}") if co.sauSoLenhUsd
+            else "sàn KHÔNG công bố khối lượng đỉnh sổ",
+            f"chu kỳ vốn {co.giuGio:g} giờ — lệnh xong trong vài giây, nhưng "
+            f"tồn kho kẹt cho tới khi chênh lệch đảo chiều",
+        ))

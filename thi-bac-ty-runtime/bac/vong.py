@@ -134,11 +134,13 @@ class Runtime:
         tu = CONFIG.get("trungUong") or {}
         self.trungUong = None
         self.tyTinDung = None
+        self.tyPhu = {}
         if tu.get("bat", True):
             from thi_bac_ty.trung_uong import TrungUong
             self.trungUong = TrungUong(
                 DATA_DIR, {k: v for k, v in tu.items()
-                           if k not in ("bat", "tyTinDung")})
+                           if k not in ("bat", "tyTinDung", "tyOnDinh",
+                                        "tyLaiSuat")})
             self.trungUong.dang_ky(TyPerp(self))
 
             # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
@@ -147,15 +149,34 @@ class Runtime:
             #
             # Bọc try vì một ty mới không được phép làm chết vòng quét của
             # ty đang chạy. Hỏng thì `loiVongCuoi` nói ra, không im.
-            tv = (tu.get("tyTinDung") or {})
-            if tv.get("bat", True):
+            # Ba ty còn lại, cùng một lối: bọc nhịp riêng, bọc try riêng.
+            # Một ty mới hỏng KHÔNG được làm chết vòng quét của ty đang
+            # chạy, và cũng không được kéo theo hai ty mới còn lại — nên
+            # mỗi cái một `try`, không gộp.
+            self.tyPhu = {}
+            for khoa, nap, nhip in (
+                    ("tyTinDung",
+                     lambda: __import__("tin_dung.ty_vay",
+                                        fromlist=["TyTinDung"]).TyTinDung(),
+                     900.0),
+                    ("tyOnDinh",
+                     lambda: __import__("on_dinh.ty_on_dinh",
+                                        fromlist=["TyOnDinh"]).TyOnDinh(),
+                     120.0),
+                    ("tyLaiSuat",
+                     lambda: __import__("lai_suat.ty_lai_suat",
+                                        fromlist=["TyLaiSuat"]).TyLaiSuat(),
+                     3600.0)):
+                cf = (tu.get(khoa) or {})
+                if not cf.get("bat", True):
+                    continue
                 try:
-                    from tin_dung.ty_vay import TyTinDung
-                    self.tyTinDung = _NhipRieng(
-                        TyTinDung(), float(tv.get("nhipGiay", 900.0)))
-                    self.trungUong.dang_ky(self.tyTinDung)
+                    t = _NhipRieng(nap(), float(cf.get("nhipGiay", nhip)))
+                    if self.trungUong.dang_ky(t):
+                        self.tyPhu[khoa] = t
                 except Exception as e:                   # noqa: BLE001
-                    self.loiVongCuoi = f"ty tín dụng: {type(e).__name__}: {e}"
+                    self.loiVongCuoi = f"{khoa}: {type(e).__name__}: {e}"
+            self.tyTinDung = self.tyPhu.get("tyTinDung")
         self.latCatTrungUong = None
 
         self.vong = 0

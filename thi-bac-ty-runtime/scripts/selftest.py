@@ -2881,6 +2881,259 @@ def kiem_von_ngoai() -> None:
          f"phải tính trên cả gia sản")
 
 
+
+def kiem_on_dinh() -> None:
+    print("\n-- Ty chenh lech stablecoin: $0,97 KHONG phai arbitrage --")
+    from on_dinh.nguon import DinhSo
+    from on_dinh.ty_on_dinh import (CUA, CongRuiRo, TyOnDinh, phi_khu_hoi_bps,
+                                    sau_so_lenh_usd, tim_co_hoi)
+    from on_dinh.config import MAC_DINH
+
+    def d(san, mua, ban, ml=1e6, bl=1e6, cap="USDC/USDT"):
+        return DinhSo(san, cap, mua, ban, ml, bl)
+
+    kiem("CUA và MAC_DINH['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(MAC_DINH["ruiRo"]),
+         str(set(CUA) ^ set(MAC_DINH["ruiRo"])))
+
+    PHI = {"binance": 1.0, "okx": 8.0, "_khac": 10.0}
+    kiem("phí tính taker ở CẢ HAI sàn",
+         gan(phi_khu_hoi_bps("binance", "okx", PHI), 9.0),
+         "một chiều thôi là báo cáo nửa chi phí")
+    kiem("sàn lạ rơi về mức _khac",
+         gan(phi_khu_hoi_bps("binance", "la", PHI), 11.0))
+
+    kiem("đỉnh sổ lấy chỗ CHẬT NHẤT của hai chân",
+         gan(sau_so_lenh_usd(d("a", 1.0, 1.0, bl=100), d("b", 1.0, 1.0, ml=500)),
+             100.0))
+    kiem("sàn giấu khối lượng thì None, không đoán",
+         sau_so_lenh_usd(d("a", 1.0, 1.0, bl=None), d("b", 1.0, 1.0)) is None)
+
+    cong = CongRuiRo(MAC_DINH["ruiRo"])
+    SC = {"phanDinhSo": 0.30, "tranUsd": 25_000.0}
+
+    def ma_cua(ds, von=200.0):
+        co = tim_co_hoi(ds, von, 24.0, PHI, SC, cong)
+        return {m for c in co for m, _ in c.lyDoMa}, co
+
+    # ── cửa quan trọng nhất: DEPEG ──────────────────────────────────────
+    lech, _ = ma_cua([d("binance", 0.9700, 0.9702), d("okx", 0.9750, 0.9752)])
+    kiem("lệch neo lớn → CHẶN, đây có thể là DEPEG",
+         "lech-neo-qua-lon" in lech,
+         "bên đứng ra 'ăn chênh lệch' sẽ là bên ôm đồng đang chết")
+
+    lanh, co = ma_cua([d("binance", 0.9998, 0.9999), d("okx", 1.0020, 1.0021)])
+    kiem("chênh lệch thật, neo còn sát 1,00 → QUA", lanh == set(),
+         str(lanh) + " · " + str(co[0].tom_tat() if co else ""))
+    kiem("mua ở ask thấp nhất, bán ở bid cao nhất",
+         co[0].mua.san == "binance" and co[0].ban.san == "okx")
+    kiem("chênh thô tính đúng", co[0].grossBps > 20.0, f"{co[0].grossBps}")
+
+    cung, _ = ma_cua([d("binance", 0.9998, 1.0010)])
+    kiem("mua và bán rơi vào CÙNG một sàn → chặn", "thieu-san" in cung,
+         "đó là spread nội sàn, không phải chênh lệch chéo sàn")
+
+    mong, _ = ma_cua([d("binance", 0.9998, 0.9999, bl=100.0),
+                      d("okx", 1.0020, 1.0021, ml=100.0)])
+    kiem("sổ lệnh mỏng → chặn", "so-lenh-mong" in mong,
+         "chênh lệch trên một sổ mỏng là ảo")
+
+    giau, _ = ma_cua([d("binance", 0.9998, 0.9999, bl=None),
+                      d("okx", 1.0020, 1.0021)])
+    kiem("sàn giấu khối lượng cũng bị chặn", "so-lenh-mong" in giau)
+
+    # ── chu kỳ vốn, không phải thời gian giao dịch ──────────────────────
+    kiem("chu kỳ vốn mặc định KHÔNG phải vài giây",
+         MAC_DINH["quet"]["chuKyVonGio"] >= 1.0,
+         "khai vài giây là cho NET mỗi giờ nhảy lên hàng nghìn bps và chiếm "
+         "sạch bảng xếp hạng bằng một con số mình không đạt được")
+    from on_dinh.ty_on_dinh import PHI_CON_THIEU
+    kiem("và khai rõ chưa chuyển vốn được giữa hai sàn",
+         "chuyen-von-giua-san" in PHI_CON_THIEU)
+
+    # ── sổ lệnh hỏng thì bỏ, không dựng cơ hội ngược đời ────────────────
+    from on_dinh.nguon import _dung
+    kiem("bid > ask là sổ hỏng, bỏ", _dung("a", "c", 1.01, 1.00, 1, 1) is None)
+    kiem("giá ≤ 0 là sổ hỏng, bỏ", _dung("a", "c", 0.0, 1.0, 1, 1) is None)
+    kiem("số rác thì bỏ", _dung("a", "c", "x", 1.0, 1, 1) is None)
+
+    # ── tờ trình ────────────────────────────────────────────────────────
+    t = TyOnDinh().trinh(co[0])
+    kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("họ là chenh-lech — HỌ THỨ BA", t.ho == "chenh-lech")
+    kiem("hai chân trên HAI sàn khác nhau",
+         len(t.chan) == 2 and t.chan[0].cang != t.chan[1].cang)
+    kiem("rủi ro thị trường bám vào ĐỘ LỆCH NEO, không phải hằng số",
+         t.ruiRo.thiTruong is not None
+         and t.ruiRo.thiTruong < TyOnDinh().trinh(
+             tim_co_hoi([d("binance", 0.9950, 0.9951),
+                         d("okx", 0.9975, 0.9976)], 200.0, 24.0, PHI, SC,
+                        cong)[0]).ruiRo.thiTruong,
+         "lệch neo là rủi ro CHÍNH của ty này")
+
+
+def kiem_lai_suat() -> None:
+    print("\n-- Ty lai suat Pendle PT: khoa von THAT khac 0 --")
+    import datetime as _dt
+    from lai_suat.ty_lai_suat import (CONFIG, CUA, CongRuiRo, ThiTruongPT,
+                                      TyLaiSuat, doc_dao_han, la_pt,
+                                      mot_co_hoi, xuat_to_trinh)
+
+    kiem("CUA và CONFIG['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(CONFIG["ruiRo"]),
+         str(set(CUA) ^ set(CONFIG["ruiRo"])))
+
+    # ── đọc ngày đáo hạn ────────────────────────────────────────────────
+    h = doc_dao_han("For buying PT-sUSDe-22OCT2026")
+    kiem("đọc được ngày đáo hạn từ poolMeta",
+         h is not None and (h.year, h.month, h.day) == (2026, 10, 22), str(h))
+    kiem("đọc được cả dạng LP | Maturity",
+         doc_dao_han("For LP | Maturity 15OCT2026") is not None)
+    kiem("không đọc được thì None, KHÔNG đoán",
+         doc_dao_han("For buying PT-something") is None
+         and doc_dao_han(None) is None,
+         "đoán một ngày đáo hạn là đoán đúng con số quyết định vốn bị khoá "
+         "bao lâu")
+    kiem("tháng bịa thì None", doc_dao_han("22XXX2026") is None)
+    kiem("ngày không tồn tại thì None", doc_dao_han("31FEB2026") is None)
+
+    kiem("phân biệt PT với LP",
+         la_pt("For buying PT-sUSDe-22OCT2026")
+         and not la_pt("For LP | Maturity 22OCT2026"),
+         "LP có tổn thất tạm thời, hệ toán khác hẳn — lẫn hai thứ là bịa ra "
+         "một con số không mô tả cái nào")
+
+    def tt(**kw):
+        d = dict(ma="p", chuoi="Ethereum", taiSan="SUSDE",
+                 meta="For buying PT-sUSDe-22OCT2026", apyPhanTram=8.0,
+                 tvlUsd=20e6, tvlGiaoThucUsd=5e9,
+                 daoHan=_dt.datetime.now(_dt.timezone.utc)
+                 + _dt.timedelta(days=57))
+        d.update(kw)
+        return ThiTruongPT(**d)
+
+    SC = {"phanTvl": 0.01, "tranUsd": 50_000.0}
+    cong = CongRuiRo(CONFIG["ruiRo"])
+
+    def ma_cua(t):
+        return {m for m, _ in cong.xet(mot_co_hoi(t, 200.0, SC))[1]}
+
+    kiem("thị trường lành thì qua sạch", ma_cua(tt()) == set(), str(ma_cua(tt())))
+    kiem("TVL nhỏ → chặn", "tvl-qua-nho" in ma_cua(tt(tvlUsd=1e6)))
+    kiem("lãi dưới ngưỡng → chặn", "apy-duoi-nguong" in ma_cua(tt(apyPhanTram=1.0)))
+    kiem("lãi CỐ ĐỊNH cao bất thường → chặn, không phải món hời",
+         "apy-cao-bat-thuong" in ma_cua(tt(apyPhanTram=115.0)),
+         "lãi cố định cao bất thường là thị trường đang trả để ai đó gánh "
+         "một rủi ro")
+    kiem("sắp đáo hạn → chặn",
+         "sap-dao-han" in ma_cua(tt(daoHan=_dt.datetime.now(_dt.timezone.utc)
+                                    + _dt.timedelta(hours=10))))
+    kiem("đã quá hạn → chặn",
+         "da-dao-han" in ma_cua(tt(daoHan=_dt.datetime.now(_dt.timezone.utc)
+                                   - _dt.timedelta(days=1))))
+    kiem("không đọc được đáo hạn → chặn",
+         "khong-doc-duoc-dao-han" in ma_cua(tt(daoHan=None)))
+
+    # ── ĐÂY là điểm chính của ty này ────────────────────────────────────
+    co = mot_co_hoi(tt(), 200.0, SC)
+    t = xuat_to_trinh(co)
+    kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("khai KHOÁ VỐN thật, khác 0",
+         t.khoaVonDenGiay is not None and t.khoaVonDenGiay > 1000.0,
+         f"{t.khoaVonDenGiay} — đây là ty đầu tiên dùng trường này với một "
+         f"con số thật; trước nó, trường ấy chưa ai chứng minh có tác dụng")
+    kiem("giữ tới đáo hạn: giuGio = khoá vốn",
+         gan(t.giuGio, t.khoaVonDenGiay, 1e-6),
+         "PT trả lãi cố định tới đáo hạn; giữ ngắn hơn thì phải bán trên "
+         "AMM ở một giá ta không biết")
+    kiem("giờ vốn bị giữ = chính con số ấy",
+         gan(t.gio_von_bi_giu, t.khoaVonDenGiay, 1e-6))
+    kiem("thanh khoản thoát là None — bán được nhưng ta KHÔNG BIẾT giá",
+         t.thanhKhoanThoatUsd is None and t.raDuocKhong is None)
+    kiem("không đọc được hạn thì độ tin TỤT",
+         xuat_to_trinh(mot_co_hoi(tt(daoHan=None), 200.0, SC)).tinCay < t.tinCay)
+
+    # ── và Rủi Ro Tổng TỪ CHỐI vì khoá quá lâu ──────────────────────────
+    from thi_bac_ty.danh_muc import DanhMuc
+    from thi_bac_ty.rui_ro_tong import RuiRoTong
+    pq = RuiRoTong().xet(t, DanhMuc(100000.0))
+    kiem("khoá 57 ngày bị Rủi Ro Tổng TỪ CHỐI",
+         not pq.duyet and any("khoá vốn" in l for l in pq.lyDo),
+         "không phải vì 8% là xấu, mà vì khoá 57 ngày là từ chối mọi cơ hội "
+         "tốt hơn xuất hiện trong 57 ngày ấy — chi phí đó không nằm trong "
+         "con số 8%")
+    kiem("nới trần khoá thì nó qua",
+         RuiRoTong({"khoaVonToiDaGiay": 24 * 365.0}).xet(t, DanhMuc(100000.0)).duyet,
+         "người vận hành thấy đúng đánh đổi ấy và tự quyết — việc của người")
+
+
+def kiem_bon_ty() -> None:
+    print("\n-- BA HO duoi mot Thi Bac Ty --")
+    from thi_bac_ty.trung_uong import TrungUong
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.to_trinh import Chan
+
+    class _TyGia(Ty):
+        def __init__(self, ma, ho, ts, cang):
+            super().__init__()
+            type(self).ma = ma
+            self._ma, self._ho, self._ts, self._cang = ma, ho, ts, cang
+        @property
+        def ma(self): return self._ma
+        @property
+        def ho(self): return self._ho
+        @property
+        def moTa(self): return "ty giả " + self._ho
+        def kiem_khai(self): return []
+        def quet(self): return [self._ts]
+        def xet(self, co): return True, []
+        def trinh(self, co):
+            return _mau(ma=self._ma, ho=self._ho, taiSan=co, von=200.0,
+                        chua=9000.0, khoa=0.0,
+                        chan=(Chan("LONG", self._cang, co, None, "spot", "Base"),))
+
+    tu = TrungUong(_tam("bahо"), {"vonBanDauUsd": 9000.0})
+    for ma, ho, ts, cang in (
+            ("perpetual.funding_spread.v1", "phai-sinh", "BTC", "binance"),
+            ("lending.rate_rotation.v1", "tin-dung", "USDC", "aave-v3"),
+            ("stablecoin.cross_venue.v1", "chenh-lech", "USDT", "okx")):
+        kiem(f"đăng ký {ho}", tu.dang_ky(_TyGia(ma, ho, ts, cang)))
+
+    lat = tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    theo = {x["ho"]: x for x in tu.pheu_day_du()["theoHo"]}
+    kiem("phễu tách được BA họ",
+         set(theo) == {"phai-sinh", "tin-dung", "chenh-lech"}, str(list(theo)))
+    cap = {x["chienLuoc"] for x in (lat.phanBo or {}).get("daCap", [])}
+    kiem("cả ba họ cùng được cấp vốn dưới MỘT Thị Bạc Ty", len(cap) == 3,
+         str(sorted(cap)))
+    kiem("và không tầng nào đi tắt", tu.so_dang_ky.soChuyenSai == 0)
+
+
+def kiem_thang_chung() -> None:
+    print("\n-- Thang rui ro dung chung, khong phai ban sao --")
+    import pathlib
+    from chuoi_chung.thang import rui_ro_su_dung, rui_ro_tvl
+    from tin_dung.ty_vay import _rui_ro_su_dung, _rui_ro_tvl
+
+    kiem("ty tín dụng DÙNG bản chung, không giữ bản sao",
+         _rui_ro_tvl is rui_ro_tvl and _rui_ro_su_dung is rui_ro_su_dung,
+         "hai bản sao sẽ lệch nhau đúng vào ngày ai đó hiệu chỉnh một bản")
+
+    goc = pathlib.Path(__file__).resolve().parent.parent
+    xau = []
+    for goi in ("tin_dung", "lai_suat", "on_dinh"):
+        for p in (goc / goi).glob("*.py"):
+            for d in p.read_text(encoding="utf-8").splitlines():
+                d = d.strip()
+                for kia in ("tin_dung", "lai_suat", "on_dinh", "bac"):
+                    if kia != goi and d.startswith((f"import {kia}", f"from {kia}")):
+                        xau.append(f"{goi}/{p.name}: {d}")
+    kiem("không ty nào import một ty khác", not xau, str(xau),)
+    kiem("thang chung KHÔNG nằm trong trung ương",
+         not (goc / "thi_bac_ty" / "thang.py").exists(),
+         "Trung Ương không biết TVL hay dùng vốn là gì")
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -2936,6 +3189,10 @@ def main() -> int:
     kiem_van_tay_co_chuoi()
     kiem_hai_ty_that()
     kiem_von_ngoai()
+    kiem_on_dinh()
+    kiem_lai_suat()
+    kiem_bon_ty()
+    kiem_thang_chung()
 
     print("\n" + "=" * 70)
     if _loi:

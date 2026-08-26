@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import asyncio
 
+from chuoi_chung.thang import rui_ro_su_dung, rui_ro_tvl, thang
 from thi_bac_ty.khuon_ty import Ty
 from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
 
@@ -131,60 +132,11 @@ def _chay(coro):
         return ex.submit(asyncio.run, coro).result()
 
 
-def _thang(gt: float | None, tran: float) -> float | None:
-    """Đưa một số về thang [0,1] theo trần. `None` vào thì `None` ra."""
-    if gt is None:
-        return None
-    return max(0.0, min(1.0, gt / tran)) if tran > 0 else None
-
-
-def _rui_ro_tvl(tvlUsd: float | None) -> float | None:
-    """TVL → rủi ro giao thức, thang [0,15 · 0,85], MỖI BẬC MƯỜI LẦN.
-
-    Bản đầu dùng `sqrt(50M / TVL)` chặn trên bằng 1, và nó **bão hoà**: mọi
-    giao thức dưới $50M đều ra đúng 1,00. Vì `rui_ro_tong.diem()` lấy MAX
-    trong sáu mặt, một mặt bằng 1,00 làm cả cơ hội bị loại — nên cửa TVL của
-    Rủi Ro Tổng vô tình biến thành "chỉ nhận giao thức trên $50M", một luật
-    không ai khai và không ai đọc được ở đâu.
-
-    Thang log thì mỗi bậc mười lần TVL hạ rủi ro 0,25, và không mặt nào chạm
-    1,00 — vì "chưa được kiểm chứng bằng thời gian" không phải là "chắc chắn
-    hỏng".
-
-        $5M → 0,70   $50M → 0,45   $500M → 0,20   ≥$5B → 0,15
-
-    Vẫn là PROXY THÔ: TVL lớn nghĩa là đã sống lâu và bị soi nhiều, KHÔNG
-    có nghĩa là đã được kiểm toán. Đừng đọc con số này như một kết luận.
-    """
-    import math
-    if not tvlUsd or tvlUsd <= 0:
-        return None
-    d = 0.70 - 0.25 * math.log10(tvlUsd / 5_000_000.0)
-    return max(0.15, min(0.85, d))
-
-
-def _rui_ro_su_dung(u: float | None) -> float | None:
-    """Dùng vốn → rủi ro thanh khoản. LỒI, không tuyến tính.
-
-    Bản đầu lấy thẳng `rủi ro = dùng vốn`, và nó gọi sức khoẻ là bệnh: dùng
-    vốn 80% ở một thị trường cho vay là BÌNH THƯỜNG và LÀNH MẠNH — nó chính
-    là thứ sinh ra lãi. Chấm 0,80 khiến `rui_ro_tong` (lấy MAX) loại thẳng
-    mọi thị trường đang hoạt động tốt, và chỉ nhận những thị trường không ai
-    vay — tức là những thị trường không trả lãi.
-
-    Rủi ro thật chỉ dựng lên ở đuôi, khi thanh khoản rảnh mỏng dần:
-
-        ≤50% → 0,02   70% → 0,16   80% → 0,36   90% → 0,64   100% → 0,95
-
-    Đây là rủi ro TỈ LỆ. Rủi ro CỠ — "rút $200 ra có được không" — nằm ở
-    `thanhKhoanThoatUsd`, và nó cắt trần chứ không chấm điểm. Hai câu khác
-    nhau, hai chỗ khác nhau.
-    """
-    if u is None:
-        return None
-    if u <= 0.5:
-        return 0.02
-    return max(0.02, min(0.95, ((u - 0.5) / 0.5) ** 2))
+#: Bí danh giữ cho phép kiểm cũ. Thân hàm ở `chuoi_chung/thang.py` —
+#: một thang cho MỌI ty đọc chuỗi, không phải một bản cho mỗi ty.
+_rui_ro_tvl = rui_ro_tvl
+_rui_ro_su_dung = rui_ro_su_dung
+_thang = thang
 
 
 def _rui_ro(co) -> RuiRo:
@@ -197,11 +149,11 @@ def _rui_ro(co) -> RuiRo:
     t = co.thiTruong
     # TVL CỦA GIAO THỨC, không của pool. Thiếu thì rơi về TVL pool và chịu
     # bị chấm nặng hơn — đoán rộng lượng khi thiếu số là thưởng cho sự mù.
-    gt = _rui_ro_tvl(t.tvlGiaoThucUsd or t.tvlUsd)
+    gt = rui_ro_tvl(t.tvlGiaoThucUsd or t.tvlUsd)
     return RuiRo(
         # Stablecoin: rủi ro hướng giá gần như chỉ còn DEPEG. Không phải 0.
         thiTruong=0.10,
-        thanhKhoan=_rui_ro_su_dung(t.suDung),
+        thanhKhoan=rui_ro_su_dung(t.suDung),
         giaoThuc=gt,
         cang=gt,                    # giao thức CHÍNH LÀ đối tác ở đây
         thucThi=0.10,               # gas tăng vọt, giao dịch trượt

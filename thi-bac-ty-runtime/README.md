@@ -492,6 +492,102 @@ của Khâm Thiên Giám, BẬT khoá này lên.** Xem `bac/config.py`.
 `kham/`, chuyển `ket_toan.py` sang Sổ Cái, chuyển `dat_lenh.py` — vẫn chưa
 làm, và vẫn theo đúng thứ tự ấy.
 
+## Bốn ty, ba họ — và sáu engine CHƯA dựng được
+
+    ho            ty                            ma
+    phai-sinh     bac/                          perpetual.funding_spread.v1
+    tin-dung      tin_dung/                     lending.rate_rotation.v1
+    tin-dung      lai_suat/                     yield.pendle_pt.v1
+    chenh-lech    on_dinh/                      stablecoin.cross_venue.v1
+
+Ba nguồn alpha khác hẳn nhau, và bản đồ nói đúng lúc có ba loại việc khác
+hẳn nhau thì Người Phân Bổ Vốn mới thật sự có việc — trước đó nó chỉ đang
+xếp hạng những thứ giống nhau.
+
+### Ty lãi suất là ty đầu tiên dùng `khoaVonDenGiay` với số THẬT
+
+PT Pendle trả lãi cố định tới ngày đáo hạn. Ngày ấy đọc được từ `poolMeta`
+(`"For buying PT-sUSDe-22OCT2026"`), nên `khoaVonDenGiay` là một con số đo
+được chứ không phải một trường để trống.
+
+Hệ quả thấy ngay khi chạy thật, và nó ĐÚNG: mọi PT đáo hạn sau 30 ngày đều
+bị `rui_ro_tong.khoaVonToiDaGiay` **TỪ CHỐI** — 12 tờ trình, mỗi tờ một
+dòng "khoá vốn 2193 giờ > trần 720 giờ". Không phải vì 8%/năm là xấu, mà vì
+khoá vốn 91 ngày là từ chối mọi cơ hội tốt hơn xuất hiện trong 91 ngày ấy,
+và chi phí đó **không nằm trong con số 8%**.
+
+Người vận hành thấy đúng đánh đổi ấy và tự quyết có nới trần không. Đó là
+việc của người, không phải của máy.
+
+**PT chứ không phải LP.** DefiLlama trả cả hai dạng cho mỗi thị trường
+Pendle; LP có tổn thất tạm thời và hệ toán khác hẳn (đó là thread #8). Lẫn
+hai thứ là bịa ra một con số không mô tả cái nào.
+
+### Ty chênh lệch: `$0,97` KHÔNG phải arbitrage
+
+Cửa quan trọng nhất của ty ấy là `lechNeoToiDaBps`. Chênh lệch càng lớn thì
+càng có khả năng đây không phải sai giá tạm thời mà là thị trường đang định
+giá lại rủi ro của chính đồng tiền ấy — và bên đứng ra "ăn chênh lệch" sẽ
+là bên ôm đồng đang chết.
+
+Cửa thứ hai đáng nói: **thời gian giao dịch ≠ chu kỳ vốn**. Lệnh xong trong
+vài giây, nhưng sau một lượt tồn kho lệch — sàn rẻ hết USDT, sàn đắt đầy
+USDC — và muốn làm lượt nữa phải chờ chênh lệch đảo chiều hoặc chuyển vốn
+giữa hai sàn, mà runtime này chưa chuyển được. Khai `giuGio` bằng vài giây
+là cho NET mỗi giờ nhảy lên hàng nghìn bps và chiếm sạch bảng xếp hạng
+bằng một con số mình không đạt được.
+
+### `chuoi_chung/` — hạ tầng của một HỌ, không phải của Trung Ương
+
+    thi_bac_ty/     TRUNG ƯƠNG — không biết "TVL" hay "dùng vốn" là gì
+    chuoi_chung/    hạ tầng cho ty ĐỌC CHUỖI — biết TVL, không biết chiến lược
+    tin_dung/ · lai_suat/ · on_dinh/ · bac/    các ty
+
+Khi ty đọc-chuỗi thứ hai xuất hiện, hai lựa chọn đều sai: chép thang rủi ro
+sang (hai bản sao sẽ lệch nhau đúng vào ngày ai đó hiệu chỉnh một bản), hay
+để ty mới import ty cũ (điều luật chung cấm). Chỗ thứ ba mới đúng, và bản
+đồ đã vẽ sẵn nó: **SHARED INFRASTRUCTURE**.
+
+## SÁU ENGINE CÒN LẠI — chưa dựng được, và vì sao
+
+Đây là mục quan trọng nhất của cả chương, vì thứ dễ làm nhất lúc này là
+dựng sáu scanner nữa cho có đủ mười ba, rồi gọi đó là xong.
+
+Sáu engine dưới đây **không thiếu công sức, chúng thiếu hạ tầng**. Dựng
+scanner cho một thứ không thực thi được là sinh ra những con số không ai
+hành động được — đúng định nghĩa hệ thống rác.
+
+| engine | thứ kho này KHÔNG có |
+|---|---|
+| DEX Arbitrage | RPC, pool state, gas oracle, transaction simulator |
+| Automated LP / Uniswap v4 | pool state, mô hình tổn thất tạm thời, deploy hook |
+| Liquidation | RPC hoặc subgraph theo TỪNG vị thế, flash liquidity |
+| Options / Volatility | Deribit, mặt IV, máy delta-hedging |
+| JIT Market Making | kết nối orderbook độ trễ thấp, quyền vào JIT auction |
+| MEV | mempool, quan hệ builder/relay, đóng bundle |
+
+Bốn ty đang chạy đều đọc **HTTP công khai, không khoá, không ví**. Sáu cái
+trên đòi một lớp hạ tầng khác hẳn: nút chuỗi, khoá ký, và với ba cái cuối
+là cả độ trễ tính bằng mili giây.
+
+Bản đồ cũng xếp chúng ở cuối vì lý do ấy, và §14 nói thẳng: *"nhưng KHÔNG
+làm thêm lúc này"*. Còn §21 nói cái đích đúng không phải "mười ba chiến
+lược đều kiếm tiền" mà là:
+
+    quét 13 họ → phát hiện 100 cơ hội → TỪ CHỐI 95 → rót vốn vào 5
+
+Một hệ thống **từ chối giỏi** quan trọng hơn một hệ thống phát hiện nhiều.
+Bốn ty hiện tại từ chối rất giỏi, và mỗi lần từ chối đều nói được vì sao.
+
+### Thứ nên làm trước khi thêm engine
+
+1. **Cross-chain Router** — bản đồ §18 nói nó là *hạ tầng*, không phải bot.
+   Ba trong bốn ty đang khai `chuyen-von-giua-chuoi` hoặc
+   `chuyen-von-giua-san` trong `phiConThieu`. Đó là **cùng một khoản thiếu,
+   ba lần**, và nó chặn cả ba khỏi việc mô hình phí cho đủ.
+2. **Gỡ nợ hai-cỗ-máy** — bước 2/4 trở đi (adapter `Ty` cho `kham/`).
+3. **Lớp ký lệnh** — sáu điều kiện cầu dao còn lại đều chờ nó.
+
 ## Thứ tự triển khai — §19 THAY THẾ thứ tự cũ
 
 Bản khảo sát đầu xếp `Polymarket → Perp → Hyperliquid/Drift → Liquidation →
@@ -501,15 +597,16 @@ quay lại Polymarket:
     1. Perpetual Funding Spread    XONG
     2. THỊ BẠC TY CORE             XONG
     3. Lending                     XONG  (tin_dung/)
-    4. Stablecoin Arb
-    5. Basis
-    6. Yield
-    7. DEX Arb
-    8. LP
-    9. Liquidation
-    10. Options
-    11. JIT
-    12. MEV
+    4. Stablecoin Arb              XONG  (on_dinh/)
+    5. Basis                       chưa — cần tách phần đếm mốc kết toán
+                                   ra khỏi bac/ thành hạ tầng họ phái sinh
+    6. Yield                       XONG  (lai_suat/)
+    7. DEX Arb                     CHẶN — xem "sáu engine còn lại"
+    8. LP                          CHẶN
+    9. Liquidation                 CHẶN
+    10. Options                    CHẶN
+    11. JIT                        CHẶN
+    12. MEV                        CHẶN
 
 **Cross-chain và Uniswap v4 KHÔNG nằm trong dãy này.** Chúng là hạ tầng, và
 được thêm khi một engine khác cần — không phải theo lượt.
@@ -548,7 +645,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 545 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 597 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -899,6 +996,9 @@ bac/
   xuat_to_trinh.py  CoHoi → ToTrinh    ← chỗ nối lên trung ương
   ty_perp.py        cắm vào khuôn Ty   ← mỏng có chủ ý
 
+chuoi_chung/      hạ tầng của HỌ đọc chuỗi — không phải ty, không phải trung ương
+  thang.py        TVL → rủi ro giao thức · dùng vốn → rủi ro thanh khoản
+
 tin_dung/         TY THỨ HAI — tín dụng, cắm vào cùng khuôn Ty
   config.py       mã chiến lược, cửa rủi ro, bảng gas
   models.py       ThiTruongVay · CoHoiVay
@@ -906,6 +1006,14 @@ tin_dung/         TY THỨ HAI — tín dụng, cắm vào cùng khuôn Ty
   rui_ro.py       cổng ty, hợp đồng CUA
   can_loi.py      trừ gas, tính hoà vốn
   ty_vay.py       chỗ nối lên Trung Ương
+
+lai_suat/         TY THỨ BA — Pendle PT, lãi cố định khoá tới đáo hạn
+  ty_lai_suat.py  ty đầu tiên dùng `khoaVonDenGiay` với số THẬT
+
+on_dinh/          TY THỨ TƯ — chênh lệch stablecoin, HỌ THỨ BA
+  config.py       chu kỳ vốn ≠ thời gian giao dịch
+  nguon.py        đỉnh sổ lệnh ba sàn, ba hình dạng JSON
+  ty_on_dinh.py   cửa DEPEG là cửa quan trọng nhất
 
 thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   to_trinh.py     hợp đồng            ← đọc trước

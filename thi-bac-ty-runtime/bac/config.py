@@ -111,6 +111,14 @@ MAC_DINH = {
         # nó là kéo về hai bảng ~17.000 dòng. Quét mỗi 30 giây là đốt băng
         # thông cho một con số gần như đứng yên.
         "tyTinDung": {"bat": True, "nhipGiay": 900.0},
+        # Ty chênh lệch stablecoin — HỌ THỨ BA. Nhịp nhanh hơn hai ty kia
+        # vì sổ lệnh giao ngay đổi theo giây, nhưng vẫn thưa hơn nhịp perp:
+        # chênh lệch stablecoin tồn tại hàng phút chứ không hàng giây, và
+        # cơ hội bắt được sẽ kẹt tồn kho hàng giờ.
+        "tyOnDinh": {"bat": True, "nhipGiay": 120.0},
+        # Ty lãi suất Pendle PT. Lãi CỐ ĐỊNH và ngày đáo hạn cố định, nên
+        # con số gần như đứng yên — hỏi mỗi giờ là quá đủ.
+        "tyLaiSuat": {"bat": True, "nhipGiay": 3600.0},
 
         # ── VỐN NGOÀI ────────────────────────────────────────────────────
         # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có
