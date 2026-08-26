@@ -1192,6 +1192,93 @@ trăm mili giây là bốn ảnh chụp ở bốn thời điểm, rồi đem so 
 Trong một cú biến động, mark của cảng hỏi trước và cảng hỏi sau lệch nhau chỉ
 vì thứ tự hỏi.
 
+## Ty thứ năm: CƠ SỞ — và một khoản lãi KHÔNG được phép cộng vào
+
+`co_so/` mua giao ngay và bán khống perp **cùng một sàn, cùng một mã**. Nó
+là ty thứ hai của họ `phai-sinh`, nên nó là ty đầu tiên chứng minh được
+điều mà bốn ty trước chỉ nói: **hai ty cùng họ dùng chung hạ tầng mà không
+ty nào gọi ty nào.**
+
+### Basis đo được, nhưng KHÔNG phải thu nhập
+
+Perp đắt hơn giao ngay 30 bps thì đó là 30 bps *ai đó sẽ trả cho ta* — nếu
+hai giá hội tụ. Với hợp đồng có đáo hạn thì chúng buộc phải hội tụ, và
+basis đúng là thu nhập. **Perp không đáo hạn.** Không có ngày nào bắt hai
+giá gặp nhau, nên cộng basis vào NET là ghi vào sổ một khoản chưa ai hứa
+trả.
+
+Nên `netBps = gross − phí`, và `gross` chỉ gồm **funding thu tại các mốc
+kết toán trong cửa sổ giữ**. `basisBps` vẫn được đo, vẫn hiện ra, nhưng nó
+vào phần **rủi ro** chứ không vào phần lãi:
+
+- basis âm quá sâu → mua giao ngay đắt hơn giá thanh lý của chân short:
+  một khoản lỗ trả trước, không phải cơ hội
+- basis dương quá rộng → hoặc một trong hai giá sai, hoặc thị trường đang
+  định giá một rủi ro ta chưa nhìn ra
+
+### Phí là BỐN lần taker, và đó là con số quyết định
+
+Hai chân, mỗi chân vào rồi ra: `2 × 2 = 4`. Ở Binance 5 bps taker thì phí
+khứ hồi là **20 bps** — một khoản **cố định**, trả một lần, không chia
+theo thời gian giữ.
+
+Đó là lý do `giuGio` của ty này là **168 giờ** chứ không phải 8 như ty
+chênh funding. Ở mức funding đo được lúc viết chương này (+0,0011%/giờ):
+
+| giữ | số mốc | gross | phí | NET |
+|---|---|---|---|---|
+| 8 giờ | 1 | +0,86 bps | 20 bps | **−19,1 bps** |
+| 7 ngày | 21 | +18,2 bps | 20 bps | **−1,8 bps** |
+| 30 ngày | 90 | +78,1 bps | 20 bps | **+58,1 bps** |
+
+Cash-and-carry là chiến lược **giữ**. Đặt cửa sổ 8 giờ cho nó rồi kết
+luận "không có cơ hội" là đo sai thước, không phải đọc đúng thị trường.
+
+### Nhưng cửa sổ dài mua bằng một GIẢ ĐỊNH mạnh hơn
+
+`gross` = mức funding **hiện tại** × số mốc trong cửa sổ. Với một mốc, đó
+gần như một sự thật. Với chín mươi mốc, đó là một **dự báo ba tháng đội
+lốt một phép nhân** — funding đảo dấu thường xuyên, và khi nó đảo thì
+chính ta là bên trả.
+
+Không có cách nào làm giả định ấy đúng hơn bằng số học. Cái làm được là
+**không giấu nó**:
+
+- `_tin_cay()` trừ dần theo `log2(số mốc)`, tối đa −0,30
+- `bangChung` in thẳng câu *"GIẢ ĐỊNH: mức funding hiện tại giữ nguyên
+  suốt 21 mốc. Nó không giữ nguyên."*
+
+Trung Ương nhân `tinCay` vào `netMoiGioBps` khi xếp hạng, nên một cơ hội
+7 ngày phải **thật sự** tốt hơn mới thắng được một cơ hội 8 giờ.
+
+### Một ảnh chụp, một thời điểm
+
+`TyCoSo.quet()` tự đọc giao ngay, nhưng **không tự hỏi perp** — nó nhận
+`runtime` và đọc lại `runtime.baoGia` của chính lượt quét ấy.
+
+Hỏi lần nữa là hai ảnh chụp ở hai thời điểm rồi ghép như thể cùng lúc:
+đúng lỗi mà `dong_ho.py` sinh ra để chặn giữa bốn cảng, chỉ khác là lần
+này giữa hai **ty**. Cửa `tuoiToiDaGiay` lấy `max()` tuổi của hai vế, nên
+nếu nhịp ty bị đặt thưa hơn nhịp chung thì nó tự chặn chứ không lặng lẽ
+dùng giá cũ.
+
+### Hai gói hạ tầng ra đời ở đây, và cả hai đều KHÔNG phải ty
+
+    phai_sinh_chung/   đồng hồ, lịch mốc, BaoGia, bốn cảng perp
+    san_chung/         connector giao ngay (bid/ask ba sàn)
+
+Chúng ra đời **khi có người dùng thứ hai**, không dựng sẵn từ đầu: một lớp
+trừu tượng rút từ một người dùng duy nhất sẽ phải viết lại ở người dùng
+thứ hai. `bac/` và `on_dinh/` giữ bí danh trỏ tới thân hàm mới — bí danh,
+không phải bản sao, và có phép kiểm canh đúng chữ `is`.
+
+Lần tách này lộ ra một lỗi trong chính hiến pháp: `_goi_ty()` khi ấy nhận
+diện ty bằng **danh sách loại trừ**, nên `phai_sinh_chung/` vừa sinh ra đã
+bị coi là một ty, và điều `ty-khong-goi-ty` báo `bac` đang gọi ty khác
+trong khi `bac` chỉ đang dùng hạ tầng của họ mình. Nay nhận diện theo
+**cấu trúc** — có lớp nào kế thừa `khuon_ty.Ty` không — nên gói mới tự
+phân loại đúng, không đòi ai nhớ cập nhật danh sách.
+
 ## Câu treo trên tường
 
 > **NET EDGE mới là alpha.** Funding thô thì không.

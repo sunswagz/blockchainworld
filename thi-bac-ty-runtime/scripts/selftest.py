@@ -30,12 +30,12 @@ from bac.can_loi import (lech_mark_bps, net_apr_pct,            # noqa: E402
                          phi_khu_hoi_bps, tim_co_hoi)
 from bac.config import (CONFIG, DATA_DIR, MA_CHIEN_LUOC,          # noqa: E402
                         che_hieu_luc, ly_do_khong_that)
-from bac.dongho import dem_moc, moi_gio, moi_ngay, thu_cap, thu_thuc     # noqa: E402
-from bac.models import BaoGia                                    # noqa: E402
+from phai_sinh_chung.dongho import dem_moc, moi_gio, moi_ngay, thu_cap, thu_thuc     # noqa: E402
+from phai_sinh_chung.models import BaoGia                                    # noqa: E402
 from bac.rui_ro import NHAN, CongRuiRo                           # noqa: E402
-from bac.san.base import moc_tron_gio_ke, nguyen_hoac_none, so_hoac_none  # noqa: E402
-from bac.san.binance import _doi_chung                           # noqa: E402
-from bac.san.okx import _chu_ky                                  # noqa: E402
+from phai_sinh_chung.san.base import moc_tron_gio_ke, nguyen_hoac_none, so_hoac_none  # noqa: E402
+from phai_sinh_chung.san.binance import _doi_chung                           # noqa: E402
+from phai_sinh_chung.san.okx import _chu_ky                                  # noqa: E402
 from bac.so import So                                            # noqa: E402
 from thi_bac_ty.to_trinh import (HO, MAT_RUI_RO, Chan,           # noqa: E402
                                  RuiRo, ToTrinh)
@@ -359,7 +359,7 @@ def kiem_cong_rui_ro() -> None:
 def kiem_dong_ho() -> None:
     print("\n── Đồng hồ: máy chậm 6,94 phút và KHÔNG gì báo ────────────────")
 
-    from bac.dong_ho import NGUONG_KEU_MS, DongHo
+    from phai_sinh_chung.dong_ho import NGUONG_KEU_MS, DongHo
 
     d = DongHo()
     kiem("chưa có mẫu thì lệch là None, KHÔNG phải 0",
@@ -3338,6 +3338,211 @@ def kiem_lop_boc_khai_bao() -> None:
 
 
 
+def _bg_cs(san="binance", ma="BTC", rate=0.0001, iv=8.0, mark=78000.0,
+        moc=None, oi=5e8):
+    from phai_sinh_chung.models import BaoGia
+    from phai_sinh_chung.dong_ho import dong_ho
+    now = dong_ho.bay_gio_ms()
+    return BaoGia(san=san, ma=ma, rate=rate, intervalGio=iv, markPx=mark,
+                  mocKeMs=int(moc if moc is not None else now + 3_600_000),
+                  oiUsd=oi, nhanTsMs=int(now), nguonTsMs=int(now))
+
+
+def _dn_cs(san="binance", ma="BTC", gia=78000.0):
+    from san_chung.giao_ngay import DinhSo
+    return DinhSo(san, ma + "/USDT", gia * 0.9999, gia, 100.0, 100.0)
+
+
+def kiem_co_so() -> None:
+    print("\n-- Ty co so (cash-and-carry): BASIS KHONG phai thu nhap --")
+    from co_so.ty_co_so import (CONFIG, CUA, CoHoiCoSo, CongRuiRo, TyCoSo,
+                                _tin_cay, basis_bps, mot_co_hoi,
+                                phi_khu_hoi_bps, tim_co_hoi, xuat_to_trinh)
+
+    kiem("CUA và CONFIG['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(CONFIG["ruiRo"]),
+         str(set(CUA) ^ set(CONFIG["ruiRo"])))
+
+    # ── phí: HAI chân, HAI chiều ────────────────────────────────────────
+    kiem("phí = 4 lần taker (2 chân × 2 chiều)",
+         gan(phi_khu_hoi_bps("binance", {"binance": 5.0}), 20.0),
+         "tính một chân hay một chiều thôi là báo cáo một phần tư tới một "
+         "nửa chi phí, và với edge tính bằng bps thì đó là phần quyết định")
+    kiem("sàn lạ rơi về _khac",
+         gan(phi_khu_hoi_bps("la", {"_khac": 7.5}), 30.0))
+
+    # ── basis ───────────────────────────────────────────────────────────
+    kiem("basis dương = perp đắt hơn giao ngay",
+         gan(basis_bps(100.5, 100.0), 50.0))
+    kiem("basis âm = perp rẻ hơn", gan(basis_bps(99.5, 100.0), -50.0))
+    kiem("giao ngay ≤ 0 thì trả 0, không chia cho 0",
+         gan(basis_bps(100.0, 0.0), 0.0))
+
+    SC = CONFIG["sucChua"]
+    PHI = CONFIG["phiTakerBps"]
+
+    # ── BASIS KHÔNG vào NET ─────────────────────────────────────────────
+    a = mot_co_hoi("binance", "BTC", _dn_cs(gia=78000.0), _bg_cs(mark=78000.0),
+                   200.0, 168.0, PHI, SC)
+    b = mot_co_hoi("binance", "BTC", _dn_cs(gia=78000.0), _bg_cs(mark=78400.0),
+                   200.0, 168.0, PHI, SC)
+    kiem("basis rộng ra KHÔNG làm NET đổi", gan(a.netBps, b.netBps),
+         "perp không đáo hạn nên không có gì bảo đảm nó hội tụ về giao ngay "
+         "— cộng basis vào NET là báo cáo một khoản lãi chưa ai trả")
+    kiem("nhưng basis vẫn đo được và khác nhau",
+         b.basisBps > a.basisBps + 40.0)
+
+    # ── funding đếm theo MỐC, không nhân theo giờ ───────────────────────
+    it = mot_co_hoi("binance", "BTC", _dn_cs(), _bg_cs(rate=0.0001, iv=8.0),
+                    200.0, 168.0, PHI, SC)
+    kiem("giữ 168 giờ trên chu kỳ 8 giờ chứa ~21 mốc",
+         20 <= it.soMoc <= 22, str(it.soMoc))
+    kiem("gross = số MỐC × rate, không phải giờ × rate",
+         gan(it.grossBps, it.soMoc * 0.0001 * 10_000.0, 1e-6),
+         "giữ 4 giờ trên sàn kết toán 8 giờ có thể thu ĐÚNG BẰNG KHÔNG")
+
+    cong = CongRuiRo(CONFIG["ruiRo"])
+
+    def ma_cua(co):
+        return {m for m, _ in cong.xet(co)[1]}
+
+    lanh = mot_co_hoi("binance", "BTC", _dn_cs(), _bg_cs(rate=0.0003),
+                      200.0, 168.0, PHI, SC)
+    kiem("cơ hội lành qua sạch", ma_cua(lanh) == set(), str(ma_cua(lanh)))
+
+    am = mot_co_hoi("binance", "BTC", _dn_cs(gia=78000.0),
+                    _bg_cs(rate=0.0003, mark=77700.0), 200.0, 168.0, PHI, SC)
+    kiem("basis âm quá sâu → CHẶN", "basis-am-qua-sau" in ma_cua(am),
+         "mua giao ngay ĐẮT hơn giá thanh lý của chân short là một khoản lỗ "
+         "trả trước, không phải cơ hội")
+    rong = mot_co_hoi("binance", "BTC", _dn_cs(gia=78000.0),
+                      _bg_cs(rate=0.0003, mark=80000.0), 200.0, 168.0, PHI, SC)
+    kiem("basis dương quá rộng cũng CHẶN",
+         "basis-duong-qua-rong" in ma_cua(rong),
+         "hoặc một trong hai giá sai, hoặc thị trường đang định giá một rủi "
+         "ro ta chưa thấy")
+    kiem("NET dưới ngưỡng → chặn",
+         "net-duoi-nguong" in ma_cua(
+             mot_co_hoi("binance", "BTC", _dn_cs(), _bg_cs(rate=0.00001),
+                        200.0, 168.0, PHI, SC)))
+
+    from phai_sinh_chung.dong_ho import dong_ho as _dh
+    ngan = mot_co_hoi("binance", "BTC", _dn_cs(),
+                      _bg_cs(rate=0.0003, iv=8.0,
+                          moc=_dh.bay_gio_ms() + 20 * 3_600_000),
+                      200.0, 4.0, PHI, SC)
+    kiem("cửa sổ không chứa mốc nào → CHẶN",
+         "khong-moc-nao" in ma_cua(ngan),
+         "funding trả theo MỐC, nên giữ mà không qua mốc nào thì thu đúng "
+         "bằng KHÔNG")
+
+    # ── ghép theo (sàn, mã); thiếu một vế thì BỎ ────────────────────────
+    ra = tim_co_hoi([_dn_cs("binance", "BTC"), _dn_cs("okx", "ETH")],
+                    [_bg_cs("binance", "BTC", rate=0.0003),
+                     _bg_cs("bybit", "BTC", rate=0.0003),
+                     _bg_cs("okx", "SOL", rate=0.0003)],
+                    200.0, 168.0, PHI, SC, cong)
+    kiem("chỉ ghép được cặp có CẢ giao ngay lẫn perp cùng sàn cùng mã",
+         [(c.san, c.ma) for c in ra] == [("binance", "BTC")],
+         str([(c.san, c.ma) for c in ra])
+         + " — bybit thiếu giao ngay, okx/SOL thiếu giao ngay, okx/ETH "
+           "thiếu perp")
+
+    # ── độ tin hạ theo độ dài cửa sổ ────────────────────────────────────
+    it_moc = mot_co_hoi("binance", "BTC", _dn_cs(), _bg_cs(rate=0.0003),
+                        200.0, 16.0, PHI, SC)
+    nhieu_moc = mot_co_hoi("binance", "BTC", _dn_cs(), _bg_cs(rate=0.0003),
+                           200.0, 720.0, PHI, SC)
+    kiem("cửa sổ càng dài, độ tin càng THẤP",
+         _tin_cay(nhieu_moc) < _tin_cay(it_moc),
+         "gross = mức funding HIỆN TẠI × số mốc; với một mốc đó gần như một "
+         "sự thật, với chín mươi mốc đó là một dự báo ba tháng đội lốt một "
+         "phép nhân")
+    kiem("chưa đo được sức chứa thì độ tin cũng tụt",
+         _tin_cay(mot_co_hoi("binance", "BTC", _dn_cs(),
+                             _bg_cs(rate=0.0003, oi=None), 200.0, 168.0,
+                             PHI, SC)) < _tin_cay(it_moc))
+
+    # ── tờ trình ────────────────────────────────────────────────────────
+    t = xuat_to_trinh(lanh)
+    kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("họ là phai-sinh, cùng họ với ty chênh funding", t.ho == "phai-sinh")
+    kiem("hai chân CÙNG một sàn — không phải chuyển vốn",
+         t.chan[0].cang == t.chan[1].cang,
+         "mua giao ngay sàn A rồi bán khống perp sàn B là thêm hai thứ ta "
+         "chưa làm được: chuyển vốn, và rủi ro một sàn sập khi chân kia mở")
+    kiem("một chân giao ngay, một chân perp",
+         {c.loai for c in t.chan} == {"spot", "perp"})
+    kiem("và hai chân ngược chiều nhau",
+         {c.ben for c in t.chan} == {"LONG", "SHORT"})
+    kiem("bằng chứng nói rõ basis KHÔNG vào NET",
+         any("KHÔNG tính vào NET" in b for b in t.bangChung))
+    kiem("và nói rõ GIẢ ĐỊNH funding giữ nguyên",
+         any("GIẢ ĐỊNH" in b for b in t.bangChung),
+         "nó không giữ nguyên, và người đọc phải thấy điều đó")
+
+
+def kiem_ha_tang_ho() -> None:
+    print("\n-- Ha tang dung chung: mot ban the, khong phai ban sao --")
+    import pathlib
+    from thi_bac_ty.hien_phap import _goi_ty
+
+    ten = {d.name for d in _goi_ty()}
+    kiem("hiến pháp nhận đúng năm ty",
+         ten == {"bac", "co_so", "lai_suat", "on_dinh", "tin_dung"}, str(ten))
+    kiem("và KHÔNG coi hạ tầng là ty",
+         not ({"phai_sinh_chung", "san_chung", "chuoi_chung"} & ten),
+         "danh sách loại trừ đòi người ta nhớ cập nhật, và lần quên đầu tiên "
+         "đã xảy ra ngay khi `phai_sinh_chung/` ra đời")
+
+    goc = pathlib.Path(__file__).resolve().parent.parent
+
+    # ── bí danh phải TRỎ TỚI cùng một thứ, không phải bản sao ───────────
+    from bac.dongho import dem_moc as a1
+    from phai_sinh_chung.dongho import dem_moc as a2
+    kiem("bac.dongho là BÍ DANH, không phải bản sao", a1 is a2,
+         "hai bản sao sẽ lệch nhau đúng vào ngày ai đó sửa một bản")
+    from bac.models import BaoGia as b1
+    from phai_sinh_chung.models import BaoGia as b2
+    kiem("bac.models.BaoGia cũng là bí danh", b1 is b2)
+    from bac.dong_ho import dong_ho as c1
+    from phai_sinh_chung.dong_ho import dong_ho as c2
+    kiem("MỘT đồng hồ cho cả họ, không phải mỗi ty một cái", c1 is c2,
+         "hai ty đo lệch riêng là hai phần bù khác nhau cho cùng một cái "
+         "đồng hồ, và chúng sẽ đếm mốc ra hai kết quả khác nhau")
+    from on_dinh.nguon import SanGiaoNgay as d1
+    from san_chung.giao_ngay import SanGiaoNgay as d2
+    kiem("connector giao ngay dùng chung giữa hai HỌ", d1 is d2,
+         "on_dinh cần bid/ask USDC/USDT, co_so cần giá BTC/ETH — cùng ba "
+         "sàn, cùng ba hình dạng JSON")
+
+    # ── thân hàm chỉ nằm MỘT chỗ ────────────────────────────────────────
+    for ten_f, nha in (("def dem_moc", "phai_sinh_chung/dongho.py"),
+                       ("class BaoGia", "phai_sinh_chung/models.py"),
+                       ("class DinhSo", "san_chung/giao_ngay.py")):
+        # Đếm dòng ĐỊNH NGHĨA ở cột 0, không đếm mọi lần tên ấy xuất hiện.
+        # Chính file này nhắc cả ba tên trong danh sách trên — đếm cả nhắc
+        # thì phép kiểm tự tố cáo mình, và một phép kiểm đỏ vì lý do sai
+        # còn tệ hơn không có nó.
+        cho = [str(p.relative_to(goc)).replace(chr(92), "/")
+               for p in goc.rglob("*.py")
+               if "__pycache__" not in str(p)
+               and any(l.startswith(ten_f)
+                       for l in p.read_text(encoding="utf-8").splitlines())]
+        kiem(f"`{ten_f}` chỉ định nghĩa ở MỘT chỗ",
+             cho == [nha], f"{cho} — phải là ['{nha}']")
+
+    # ── ty vẫn không gọi ty ─────────────────────────────────────────────
+    xau = []
+    for d in _goi_ty():
+        for p in d.glob("*.py"):
+            for l in p.read_text(encoding="utf-8").splitlines():
+                l = l.strip()
+                for k in ten - {d.name}:
+                    if l.startswith((f"import {k}", f"from {k}")):
+                        xau.append(f"{d.name}/{p.name}: {l}")
+    kiem("không ty nào gọi ty khác, kể cả sau hai lần tách", not xau, str(xau))
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -3373,6 +3578,27 @@ def kiem_hien_phap() -> None:
          <= set(__import__("thi_bac_ty.hien_phap", fromlist=["tom_tat"])
                 .tom_tat()))
 
+
+def kiem_khong_trung_ten() -> None:
+    print("\n-- File nay: dinh nghia sau DE dinh nghia truoc, khong bao --")
+    import collections
+    import pathlib
+    import re as _re
+
+    src = pathlib.Path(__file__).read_text(encoding="utf-8")
+    ten = _re.findall(r"^def (\w+)", src, _re.M)
+    trung = [t for t, n in collections.Counter(ten).items() if n > 1]
+    kiem("không hàm nào trong file này bị định nghĩa hai lần", not trung,
+         f"{trung} — Python lấy bản CUỐI, nên bản đầu biến mất mà không lời "
+         f"cảnh báo nào. Vừa cắn thật: `_bg` của ty cơ sở đè `_bg` của ty "
+         f"chênh funding, và cái vỡ lại là `kiem_ghep_cap` ở cách đó 3000 "
+         f"dòng — người đọc đi tìm lỗi ở đúng chỗ không có lỗi")
+
+    goi = set(_re.findall(r"^    (kiem_\w+)\(\)", src, _re.M))
+    dinh = {t for t in ten if t.startswith("kiem_")}
+    kiem("mọi hàm kiểm đã viết đều được GỌI trong main()", not (dinh - goi),
+         f"{sorted(dinh - goi)} — một phép kiểm không ai gọi thì xanh vĩnh "
+         f"viễn, và nó xanh vì không chạy chứ không vì đúng")
 
 def main() -> int:
     print("=" * 70)
@@ -3431,6 +3657,8 @@ def main() -> int:
     kiem_von_ngoai()
     kiem_on_dinh()
     kiem_lai_suat()
+    kiem_co_so()
+    kiem_ha_tang_ho()
     kiem_bon_ty()
     kiem_thang_chung()
     kiem_von_toi_thieu()
@@ -3438,6 +3666,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_khong_trung_ten()
 
     print("\n" + "=" * 70)
     if _loi:

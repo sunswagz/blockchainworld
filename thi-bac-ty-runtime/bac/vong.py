@@ -153,7 +153,7 @@ class Runtime:
             self.trungUong = TrungUong(
                 DATA_DIR, {k: v for k, v in tu.items()
                            if k not in ("bat", "tyTinDung", "tyOnDinh",
-                                        "tyLaiSuat")})
+                                        "tyLaiSuat", "tyCoSo")})
             self.trungUong.dang_ky(TyPerp(self))
 
             # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
@@ -179,7 +179,14 @@ class Runtime:
                     ("tyLaiSuat",
                      lambda: __import__("lai_suat.ty_lai_suat",
                                         fromlist=["TyLaiSuat"]).TyLaiSuat(),
-                     3600.0)):
+                     3600.0),
+                    # Ty cơ sở nhận `self`: nó đọc lại `baoGia` của lượt quét
+                    # này thay vì hỏi perp lần nữa. Hai lượt hỏi là hai ảnh
+                    # chụp ở hai thời điểm rồi ghép như thể cùng lúc.
+                    ("tyCoSo",
+                     lambda: __import__("co_so.ty_co_so",
+                                        fromlist=["TyCoSo"]).TyCoSo(self),
+                     60.0)):
                 cf = (tu.get(khoa) or {})
                 if not cf.get("bat", True):
                     continue

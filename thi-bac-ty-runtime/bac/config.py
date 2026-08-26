@@ -119,6 +119,11 @@ MAC_DINH = {
         # Ty lãi suất Pendle PT. Lãi CỐ ĐỊNH và ngày đáo hạn cố định, nên
         # con số gần như đứng yên — hỏi mỗi giờ là quá đủ.
         "tyLaiSuat": {"bat": True, "nhipGiay": 3600.0},
+        # Ty cơ sở (cash-and-carry). Nó ĐỌC LẠI báo giá perp của lượt
+        # quét này chứ không tự hỏi, nên nhịp phải bằng hoặc thưa hơn
+        # nhịp chung — thưa hơn thì nó dùng báo giá cũ, và cửa
+        # `tuoiToiDaGiay` của chính nó sẽ chặn.
+        "tyCoSo": {"bat": True, "nhipGiay": 60.0},
 
         # ── VỐN NGOÀI ────────────────────────────────────────────────────
         # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có

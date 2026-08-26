@@ -80,11 +80,30 @@ def _doc(p: Path) -> str:
 
 
 def _goi_ty() -> list[Path]:
-    """Thư mục ty: có `__init__.py` và KHÔNG phải trung ương/hạ tầng."""
-    bo = {"thi_bac_ty", "chuoi_chung", "scripts", "web", "dichvu", "data"}
-    return [d for d in GOC.iterdir()
-            if d.is_dir() and (d / "__init__.py").exists()
-            and d.name not in bo and not d.name.startswith((".", "_"))]
+    """Thư mục TY: gói nào có một lớp kế thừa `khuon_ty.Ty`.
+
+    Nhận diện theo CẤU TRÚC, không theo một danh sách loại trừ. Danh sách
+    loại trừ đòi người ta nhớ cập nhật nó, và lần quên đầu tiên đã xảy ra
+    ngay: `phai_sinh_chung/` ra đời thì phép canh coi nó là một ty, rồi báo
+    `bac` đang "gọi thẳng một ty khác" — trong khi `bac` chỉ đang dùng hạ
+    tầng của chính họ mình.
+
+    Một ty thì `import ... khuon_ty ... Ty` và kế thừa nó; hạ tầng thì
+    không. Đó là khác biệt thật, và nó tự đúng khi thêm gói mới.
+    """
+    ra = []
+    for d in sorted(GOC.iterdir()):
+        if (not d.is_dir() or not (d / "__init__.py").exists()
+                or d.name.startswith((".", "_"))
+                or d.name in ("thi_bac_ty", "scripts", "web", "dichvu")):
+            continue
+        for p in d.glob("*.py"):
+            s = _doc(p)
+            if "khuon_ty import" in s and re.search(
+                    r"\nclass \w+\(Ty\):", s):
+                ra.append(d)
+                break
+    return ra
 
 
 def _trung_uong_khong_biet_ty():
@@ -509,6 +528,22 @@ def _do_bang_duong_nav():
 #  Các điều
 # ══════════════════════════════════════════════════════════════════════
 
+def _ha_tang_khong_phai_ty() -> tuple[bool, str]:
+    """Gói hạ tầng dùng chung KHÔNG được nhận nhầm là ty.
+
+    Nhận diện theo cấu trúc thì điều này tự đúng; phép canh ở đây để nếu
+    ai đó quay về danh sách loại trừ thì nó đỏ ngay, chứ không đợi tới lúc
+    `ty-khong-goi-ty` buộc tội oan một ty vô can.
+    """
+    ten = {d.name for d in _goi_ty()}
+    ha_tang = {d.name for d in GOC.iterdir()
+               if d.is_dir() and d.name.endswith("_chung")}
+    lan = ten & ha_tang
+    return (not lan,
+            f"gói hạ tầng bị nhận nhầm là ty: {sorted(lan)}" if lan
+            else f"{len(ten)} ty · {len(ha_tang)} gói hạ tầng · không lẫn")
+
+
 DIEU: tuple[Dieu, ...] = (
     # ── I · phân quyền ───────────────────────────────────────────────────
     Dieu("trung-uong-khong-biet-ty",
@@ -689,6 +724,48 @@ DIEU: tuple[Dieu, ...] = (
          "vẫn âm. Cái đáng đo là chất lượng quyết định; `+$10` có thể là kết "
          "quả rất đáng giá nếu nó chứng minh một engine có kỳ vọng dương.",
          "tệp vốn", None),
+
+    Dieu("ha-tang-khong-phai-ty",
+         "Gói dùng chung của một HỌ không phải ty, và nhận diện ty phải "
+         "theo CẤU TRÚC chứ không theo danh sách loại trừ.",
+         "`phai_sinh_chung/` vừa ra đời đã bị phép canh coi là ty, rồi điều "
+         "`ty-khong-goi-ty` báo `bac` gọi ty khác — trong khi `bac` chỉ đang "
+         "dùng hạ tầng của chính họ mình. Danh sách loại trừ đòi người ta "
+         "nhớ cập nhật, và lần quên đầu tiên xảy ra ngay ở gói đầu tiên.",
+         "tách hạ tầng cho ty Cơ Sở", _ha_tang_khong_phai_ty),
+
+    Dieu("bi-danh-khong-phai-ban-sao",
+         "Tách thân hàm ra hạ tầng thì đường cũ phải TRỎ TỚI bản mới, không "
+         "được chép sang.",
+         "Hai bản sao lệch nhau đúng vào ngày ai đó sửa một bản, và không "
+         "lỗi nào báo — chỉ có hai ty đếm mốc ra hai kết quả khác nhau trên "
+         "cùng một khung thời gian.",
+         # KHÔNG canh được TỪ ĐÂY, và lý do là một điều khác của chính
+         # hiến pháp này: canh nó đòi `is` trên bốn bí danh, tức đòi
+         # `thi_bac_ty/` import `bac/` và `on_dinh/` — đúng thứ
+         # `trung-uong-khong-biet-ty` cấm. Điều ấy đã bắt được bản nháp
+         # đầu của chính dòng này.
+         #
+         # Lách bằng `importlib` với tên dạng chuỗi thì phép canh chạy
+         # được, nhưng đó là bẻ phanh cho vừa ý mình — cùng hạng với
+         # "tốt hơn nhưng tập trung hơn" mà Cổng Duyệt từ chối.
+         #
+         # Nên nó được canh ở TẦNG ĐÚNG: `kiem_ha_tang_ho()` trong
+         # `scripts/selftest.py`, nơi được phép nhìn cả hai bên.
+         "tách hạ tầng cho ty Cơ Sở", None),
+
+    Dieu("basis-khong-phai-thu-nhap",
+         "Chỉ ghi vào NET khoản đã có người TRẢ. Chênh lệch giá của một hợp "
+         "đồng KHÔNG đáo hạn không phải thu nhập.",
+         "Perp không có ngày đáo hạn nên không gì bắt mark hội tụ về giao "
+         "ngay. Cộng basis vào NET làm một cặp cash-and-carry lỗ 19 bps "
+         "trông như lãi 11 bps — và nó sai theo hướng nguy hiểm nhất: hào "
+         "phóng với chính mình.",
+         # Cùng lý do với `bi-danh-khong-phai-ban-sao`: canh nó đòi
+         # `thi_bac_ty/` import `co_so/`. Được canh ở tầng đúng —
+         # `kiem_co_so()` nới rộng basis rồi đòi NET không đổi, và phép
+         # cấy lỗi ngược (cộng basis vào NET) làm nó đỏ.
+         "co_so/ty_co_so.py", None),
 
     Dieu("tu-choi-gioi-hon-phat-hien-nhieu",
          "Đích đúng: quét 13 họ → phát hiện 100 → TỪ CHỐI 95 → rót vào 5.",
