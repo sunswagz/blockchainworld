@@ -48,12 +48,26 @@ PHI_CON_THIEU = (
 
 SUC_CHUA_CON_THIEU = ("duong-cong-lai-suat", "do-sau-thi-truong-that")
 
+#: Một nguồn duy nhất cho cả khai báo của ty lẫn
+#: từng tờ trình nó xuất ra.
+_VON_TOI_THIEU = 500.0
+
 
 class TyTinDung(Ty):
     ma = MA_CHIEN_LUOC
     ho = HO
     moTa = ("xoay vốn giữa các thị trường cho vay stablecoin — một chân, "
             "lãi chảy liên tục, không mốc kết toán")
+
+    #: Gas là chi phí CỐ ĐỊNH, nên ngưỡng kinh tế của engine này do gas
+    #: quyết chứ không do lãi suất:
+    #:
+    #:     L2 (Base/Arbitrum)  gas khứ hồi ~$0,10 → ở $500 là 2 bps
+    #:     Ethereum            gas khứ hồi ~$12   → ở $500 là 240 bps
+    #:
+    #: Ty khai MỘT ngưỡng cho cả engine, nên nó khai theo chuỗi RẺ; chuỗi
+    #: đắt bị `netToiThieuBps` loại ở cổng ty, đúng chỗ nó thuộc về.
+    vonToiThieuKinhTeUsd = _VON_TOI_THIEU
 
     def __init__(self, client_factory=None) -> None:
         super().__init__()
@@ -187,6 +201,7 @@ def xuat_to_trinh(co) -> ToTrinh:
         chan=(Chan("CHO_VAY", t.giaoThuc, t.taiSan, co.vonXinUsd,
                    "lending", t.chuoi),),
         vonCanUsd=co.vonXinUsd,
+        vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         sucChuaToiDaUsd=co.sucChuaToiDaUsd,
         grossBps=co.grossBps, phiUocBps=co.phiBps, netUocBps=co.netBps,
         giuGio=co.giuGio,

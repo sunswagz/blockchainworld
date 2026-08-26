@@ -72,10 +72,12 @@ from pathlib import Path
 
 from .ban_tham_so import KhoThamSo
 from .cau_dao import CauDao
+from .che_van_hanh import che_cua_ty, von_can_de_chay, von_hoa_ha_tang
 from .chan_doan_he import chan_doan_he, de_xuat
 from .chay_lai_he import doi_chieu, thu_hoach
 from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
+from .hieu_nang import DuongNav, doi_chieu_giay_that
 from .phan_bo import PhanBo
 from .rui_ro_tong import RuiRoTong
 from .so_cai import ButToan, SoCai
@@ -100,6 +102,9 @@ MAC_DINH = {
     #: `thi_bac_ty/von_ngoai.py` và mục "NỢ KIẾN TRÚC" trong README.
     #: `{tên: url}`. Rỗng = không có vốn ngoài nào được khai.
     "vonNgoai": {},
+    #: VPS + RPC + API. Đối thủ THẬT của vốn nhỏ: $10/tháng là
+    #: $120/năm, trong khi $100 vốn kiếm 20% chỉ ra $20.
+    "chiPhiHaTangUsdThang": 10.0,
     #: Cùng MỘT cơ hội chỉ vào sổ đăng ký một lần trong ngần này giây.
     #:
     #: Ty quét mỗi 30 giây, và một chênh lệch funding sống hàng giờ. Không có
@@ -207,6 +212,7 @@ class TrungUong:
         self.soBoTrung = 0
         self.hocCuoi: dict | None = None
         self._deXuatChoDuyet = None
+        self.duongNav = DuongNav()
         self._soXet = d / f"{ten}-xet-tham-so.jsonl"
         self._ngayDon = ""
 
@@ -280,6 +286,11 @@ class TrungUong:
         # thật đúng vào lúc nó cần chặt nhất.
         for d in self.docVonNgoai:
             self.danh_muc.ghi_von_ngoai(d.doc())
+
+        # Đường NAV ghi ở ĐÂY, sau khi đã cộng vốn ngoài và trước khi phân
+        # bổ: đó là ảnh chụp gia sản lúc bắt đầu vòng, và mọi phép đo sụt
+        # vốn phải dựa trên cùng một thời điểm trong vòng.
+        self.duongNav.ghi(self.danh_muc.navUsd)
 
         # ── 3. cầu dao — TRƯỚC khi cam kết bất cứ đồng nào ───────────────
         sut = None
@@ -449,6 +460,32 @@ class TrungUong:
             "soChuyenSai": self.so_dang_ky.soChuyenSai,
         }
 
+    # ── chế độ vận hành từng ty ───────────────────────────────────────────
+    def che_ty(self) -> list[dict]:
+        """Chế độ của từng ty: QUAN_SAT · GIAY · THAT.
+
+        Suy tất định từ NAV và ngưỡng kinh tế của ty. Không ai gõ tay, và
+        máy KHÔNG được tự ép một ty lên chế độ cao hơn — luật của bản đồ:
+        engine nào không đủ vốn tối thiểu thì chỉ được QUAN SÁT.
+        """
+        tran = float(self.rui_ro_tong.c.get("tranMotCoHoi") or 0.0)
+        nav = self.danh_muc.navUsd
+        # `moPhong` là True CỨNG ở bản này, nên THAT chưa với tới được —
+        # đọc từ chính tầng thực thi chứ không từ một cờ cấu hình.
+        co_ky = not getattr(self.thuc_thi, "moPhong", True)
+        return [che_cua_ty(t, nav, tran, co_ky).tom_tat()
+                for t in self.ty.values()]
+
+    def hieu_nang(self) -> dict:
+        """CAGR, sụt vốn tối đa, và chi phí hạ tầng — xem `hieu_nang.py`."""
+        d = self.duongNav.do(self.danh_muc.vonBanDauUsd)
+        d["haTang"] = von_hoa_ha_tang(float(self.c["chiPhiHaTangUsdThang"]))
+        d["vonCanDeCoMotEngineChay"] = von_can_de_chay(
+            list(self.ty.values()),
+            float(self.rui_ro_tong.c.get("tranMotCoHoi") or 0.0))
+        d["giayVaThat"] = doi_chieu_giay_that(self.so_cai)
+        return d
+
     # ── §17 · áp dụng và quay lui, cả hai đều đòi TÊN NGƯỜI ──────────────
     def ap_dung(self, nguoi: str) -> dict:
         """Áp dụng đề xuất đã QUA CỔNG DUYỆT ở lượt `hoc()` gần nhất.
@@ -572,6 +609,8 @@ class TrungUong:
             "latCatVong": self.latCatCuoi.tom_tat() if self.latCatCuoi else None,
             "hoc": self.hocCuoi,
             "thamSo": self.tham_so(),
+            "cheTy": self.che_ty(),
+            "hieuNang": self.hieu_nang(),
             "banThamSo": self.kho_tham_so.tom_tat(),
         }
 

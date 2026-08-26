@@ -56,7 +56,7 @@ MAC_DINH = {
     # giấy.
     "phiTakerBps": {"binance": 1.0, "okx": 8.0, "bybit": 10.0, "_khac": 10.0},
 
-    "von": {"moiCoHoiUsd": 200.0},
+    "von": {"moiCoHoiUsd": 200.0},   # = ngưỡng kinh tế của engine
     # Rót được bao nhiêu: lấy phần đỉnh sổ lệnh, vì sâu hơn đỉnh thì ta
     # không nhìn thấy. Đây là chặn dưới, và tờ trình khai rõ điều đó.
     "sucChua": {"phanDinhSo": 0.30, "tranUsd": 25_000.0},

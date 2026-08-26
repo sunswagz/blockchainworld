@@ -682,6 +682,70 @@
       + ((lat.soBoTrung || 0) ? "(vòng vừa rồi bỏ " + lat.soBoTrung
           + " lượt trùng)" : "") + "."));
 
+    /* ── chế độ vận hành từng ty ─────────────────────────────────────
+       Toàn bộ hệ thống chạy được; toàn bộ vốn KHÔNG cần chạy ở toàn bộ
+       chiến lược. Bảng này là chỗ nhìn thấy sự tách ấy. */
+    var ct = T.cheTy || [];
+    if (ct.length) {
+      f.appendChild(o("Engine nào được cấp vốn, engine nào chỉ QUAN SÁT", bang(
+        [{ t: "Engine", trai: 1 }, { t: "họ", trai: 1 }, { t: "chế độ" },
+         { t: "cần tối thiểu" }, { t: "rót được nhiều nhất" },
+         { t: "vì sao", trai: 1 }],
+        ct.map(function (x) {
+          return [
+            { t: x.ma, c: "trai" },
+            { t: x.ho, c: "trai" },
+            { t: x.che, c: x.duocCapVon ? "qua" : "chan" },
+            { t: x.vonToiThieuUsd == null ? "—" : "$" + so(x.vonToiThieuUsd, 0) },
+            { t: "$" + so(x.tranMotCoHoiUsd, 0) },
+            { t: x.vi, c: "vi" }
+          ];
+        })),
+        "QUAN_SAT = quét, trình, ghi sổ — nhưng KHÔNG BAO GIỜ được cấp vốn. "
+        + "GIAY = được cấp trên sổ giấy. THAT = tiền thật, và nó chưa với "
+        + "tới được vì lớp ký lệnh chưa tồn tại. Chế độ suy TẤT ĐỊNH từ NAV "
+        + "và ngưỡng kinh tế của từng engine — không ai gõ tay, và máy không "
+        + "được tự ép một engine lên chế độ cao hơn."));
+    }
+
+    /* ── hiệu năng và chi phí hạ tầng ───────────────────────────────── */
+    var hn = T.hieuNang;
+    if (hn) {
+      var ht = hn.haTang || {};
+      var hd = el("div");
+      hd.appendChild(bang(
+        [{ t: "Thước", trai: 1 }, { t: "giá trị" }],
+        [["lãi lỗ so vốn ban đầu",
+          hn.laiLoPhanTram == null ? "—" : so(hn.laiLoPhanTram, 2) + "%"],
+         ["CAGR", hn.cagrPhanTram == null ? "chưa đủ mẫu"
+            : so(hn.cagrPhanTram, 2) + "%"],
+         ["sụt vốn tối đa (từ đỉnh)", so(hn.sutVonToiDaPhanTram, 2) + "%"],
+         ["lâu nhất chưa về đỉnh cũ", gio((hn.gioDuoiDayLauNhat || 0) * 3600)],
+         ["đang dưới đáy", hn.dangDuoiDay ? "CÓ" : "không"],
+         ["hạ tầng mỗi năm", "$" + so(ht.chiPhiNamUsd, 0)],
+         ["vốn cần để hoà hạ tầng (20%/năm)",
+          "$" + so((ht.vonHoaVon || {})["20%"], 0)],
+         ["vốn cần để có ÍT NHẤT một engine chạy bằng tiền",
+          hn.vonCanDeCoMotEngineChay == null ? "—"
+            : "$" + so(hn.vonCanDeCoMotEngineChay, 0)]
+        ].map(function (r) {
+          return [{ t: r[0], c: "trai" }, { t: String(r[1]) }];
+        })));
+      if (hn.duDeKetLuan === false && hn.vi) {
+        hd.appendChild(el("p", "cho", hn.vi));
+      }
+      if ((hn.giayVaThat || {}).doiChieuDuoc === false) {
+        hd.appendChild(el("p", "giai", "đối chiếu giấy ↔ thật: "
+          + hn.giayVaThat.vi));
+      }
+      f.appendChild(o("Hiệu năng — đo bằng đường NAV, không bằng một APR", hd,
+        "Vốn thật đi qua 100 × 1,12 × 1,31 × 0,92 × 1,22, chứ không phải "
+        + "100 × 1,5^n. Một năm âm ở giữa ăn vào cái nền mà mọi năm sau nhân "
+        + "lên từ đó. Và $100 kiếm 20%/năm là $20 — vẫn âm sau hạ tầng "
+        + "$120/năm, nên ở giai đoạn này đánh giá bộ máy bằng số đô kiếm "
+        + "được là đánh giá sai thứ."));
+    }
+
     /* ── §22 · phễu tách theo HỌ ─────────────────────────────────────── */
     var theoHo = (p.theoHo || []);
     if (theoHo.length) {

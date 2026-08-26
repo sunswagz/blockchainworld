@@ -77,7 +77,17 @@ class _NhipRieng(Ty):
         self._cu: list = []
         self.soLuotBoQua = 0
 
-    # Khai báo là của ty THẬT, không của lớp bọc.
+    # ── khai báo là của ty THẬT, không của lớp bọc ───────────────────────
+    #
+    # Phải viết TAY từng thuộc tính, không dựa được vào `__getattr__`:
+    # `Ty` đã khai sẵn `ma`/`ho`/`moTa`/`vonToiThieuKinhTeUsd` ở tầng lớp,
+    # nên tra thuộc tính THÀNH CÔNG (ra giá trị rỗng của lớp bọc) và
+    # `__getattr__` không bao giờ được gọi.
+    #
+    # Lỗi này đã xảy ra hai lần: một lần với `kiem_khai`, một lần với
+    # `vonToiThieuKinhTeUsd` — lần thứ hai làm ba ty tụt xuống QUAN_SAT vì
+    # trung ương đọc ra "chưa khai ngưỡng". Có phép kiểm canh: mọi thuộc
+    # tính KHAI BÁO của lớp bọc phải khớp ty thật.
     @property
     def ma(self): return self._ty.ma
 
@@ -86,6 +96,9 @@ class _NhipRieng(Ty):
 
     @property
     def moTa(self): return self._ty.moTa
+
+    @property
+    def vonToiThieuKinhTeUsd(self): return self._ty.vonToiThieuKinhTeUsd
 
     def kiem_khai(self):
         """Soi khai báo của ty THẬT. Bọc không phải đường vòng qua cổng."""

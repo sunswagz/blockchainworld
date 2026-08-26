@@ -25,7 +25,7 @@ from __future__ import annotations
 from thi_bac_ty.khuon_ty import Ty
 
 from .config import CONFIG, MA_CHIEN_LUOC
-from .xuat_to_trinh import HO, xuat_to_trinh
+from .xuat_to_trinh import HO, _VON_TOI_THIEU, xuat_to_trinh
 
 
 class TyPerp(Ty):
@@ -33,6 +33,18 @@ class TyPerp(Ty):
     ho = HO
     moTa = ("chênh lệch funding perp giữa Hyperliquid · Binance · OKX · "
             "Bybit; delta-neutral hai chân, thu tại MỐC KẾT TOÁN")
+
+    #: **Dưới ngần này thì kinh tế của engine không còn nghĩa.**
+    #:
+    #: Hai chân trên hai sàn, mỗi chân phải qua cỡ lệnh tối thiểu của sàn
+    #: ấy. Dưới $100 thì một chân có thể bị sàn từ chối — và một chân bị từ
+    #: chối là vị thế MỘT CHIỀU, loại rủi ro hoàn toàn khác với thứ vừa
+    #: trình lên.
+    #:
+    #: Phí không phải ràng buộc chính ở đây: taker perp ~5 bps mỗi chiều,
+    #: khứ hồi hai chân ~20 bps, và `netToiThieuBps` đã canh. Ràng buộc
+    #: chính là CỠ LỆNH TỐI THIỂU.
+    vonToiThieuKinhTeUsd = _VON_TOI_THIEU
 
     def __init__(self, runtime) -> None:
         super().__init__()

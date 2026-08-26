@@ -1107,6 +1107,7 @@ def _mau(ma="perpetual.funding_spread.v1", ho="phai-sinh", taiSan="BTC",
     return ToTrinh(
         chienLuoc=ma, ho=ho, taiSan=taiSan, chan=tuple(chan),
         vonCanUsd=von, sucChuaToiDaUsd=chua,
+        vonToiThieuKinhTeUsd=1.0,
         grossBps=net + 2.0, phiUocBps=2.0, netUocBps=net, giuGio=giu,
         ruiRo=rr if rr is not None else _R(0.2, 0.2, 0.1, 0.2, 0.2, 0.0),
         tinCay=tin, moHinhPhiDuChua=True,
@@ -1611,6 +1612,7 @@ def kiem_khuon_ty() -> None:
 
     class TyTot(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "chênh funding"
+        vonToiThieuKinhTeUsd = 50.0
         def quet(self): return [1, 2]
         def xet(self, co): return (co == 1), [("thu", "chỉ nhận số 1")]
         def trinh(self, co): return _mau()
@@ -1666,6 +1668,7 @@ def kiem_trung_uong_vong() -> None:
 
     class TyThu(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "thử"
+        vonToiThieuKinhTeUsd = 50.0
         def __init__(self, ts): super().__init__(); self.ts = ts
         def quet(self): return list(self.ts)
         def xet(self, co): return True, []
@@ -1729,6 +1732,7 @@ def kiem_hai_ty_khac_nganh() -> None:
         ma = "lending.rate_spread.v1"
         ho = "tin-dung"
         moTa = "vay chỗ rẻ, cho vay chỗ đắt — không mốc, không funding"
+        vonToiThieuKinhTeUsd = 50.0
 
         def quet(self):
             return [{"taiSan": "USDC", "vay": "aave", "choVay": "compound",
@@ -1760,6 +1764,7 @@ def kiem_hai_ty_khac_nganh() -> None:
     class TyPerp(Ty):
         ma, ho = "perpetual.funding_spread.v1", "phai-sinh"
         moTa = "chênh funding giữa hai sàn perp"
+        vonToiThieuKinhTeUsd = 50.0
         def quet(self): return ["BTC"]
         def xet(self, co): return True, []
         def trinh(self, co): return _mau(taiSan=co, von=150.0, chua=8000.0)
@@ -1882,6 +1887,7 @@ def kiem_chan_doan_he() -> None:
     # Và vòng học của Trung Ương chỉ ĐỀ XUẤT.
     class TyIm(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "im"
+        vonToiThieuKinhTeUsd = 50.0
         def quet(self): return []
         def xet(self, co): return False, []
         def trinh(self, co): return None
@@ -1923,6 +1929,7 @@ def kiem_chong_trung() -> None:
 
     class TyLap(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "trình lặp"
+        vonToiThieuKinhTeUsd = 50.0
         def quet(self): return ["BTC"]
         def xet(self, co): return True, []
         def trinh(self, co): return _mau(taiSan="BTC", von=100.0, chua=5000.0)
@@ -2082,6 +2089,7 @@ def kiem_chay_lai_he() -> None:
     # ── thu hoạch từ sổ thật, và vòng học có ĐO ─────────────────────────
     class TyNhieu(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "nhiều"
+        vonToiThieuKinhTeUsd = 50.0
         def __init__(self): super().__init__(); self.i = 0
         def quet(self): self.i += 1; return [f"T{self.i}"]
         def xet(self, co): return True, []
@@ -2225,6 +2233,7 @@ def kiem_vong_duyet_tron() -> None:
 
     class TyNhieu(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "nhiều"
+        vonToiThieuKinhTeUsd = 50.0
         def __init__(self): super().__init__(); self.i = 0
         def quet(self): self.i += 1; return [f"T{self.i}"]
         def xet(self, co): return True, []
@@ -2334,6 +2343,7 @@ def kiem_pheu_theo_ho() -> None:
 
     class TyPerp(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "perp"
+        vonToiThieuKinhTeUsd = 50.0
         def __init__(self): super().__init__(); self.i = 0
         def quet(self): self.i += 1; return [f"P{self.i}", f"X{self.i}"]
         def xet(self, co): return co.startswith("P"), [("bo", "chỉ nhận P")]
@@ -2344,6 +2354,7 @@ def kiem_pheu_theo_ho() -> None:
 
     class TyVay(Ty):
         ma, ho, moTa = "lending.rate_spread.v1", "tin-dung", "cho vay"
+        vonToiThieuKinhTeUsd = 50.0
         def __init__(self): super().__init__(); self.i = 0
         def quet(self): self.i += 1; return [f"U{self.i}"]
         def xet(self, co): return True, []
@@ -2353,6 +2364,7 @@ def kiem_pheu_theo_ho() -> None:
                 chan=(Chan("DI_VAY", "aave", co, loai="lending", chuoi="ethereum"),
                       Chan("CHO_VAY", "compound", co, loai="lending", chuoi="ethereum")),
                 vonCanUsd=200.0, sucChuaToiDaUsd=9000.0, grossBps=14.0,
+                vonToiThieuKinhTeUsd=1.0,
                 phiUocBps=3.0, netUocBps=11.0, giuGio=24.0,
                 khoaVonDenGiay=0.0, thanhKhoanThoatUsd=5000.0,
                 ruiRo=RuiRo(.05, .15, .30, .20, .10, 0.), tinCay=.75,
@@ -2666,6 +2678,7 @@ def kiem_hai_ty_that() -> None:
 
     class TyGiaPerp(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "perp giả"
+        vonToiThieuKinhTeUsd = 50.0
         def quet(self): return ["BTC"]
         def xet(self, co): return True, []
         def trinh(self, co):
@@ -2673,7 +2686,7 @@ def kiem_hai_ty_that() -> None:
                         chan=(Chan("LONG", "hyperliquid", co),
                               Chan("SHORT", "binance", co)))
 
-    tu = TrungUong(_tam("haity"), {"vonBanDauUsd": 5000.0})
+    tu = TrungUong(_tam("haity"), {"vonBanDauUsd": 30000.0})
     kiem("cả hai ty đăng ký được", tu.dang_ky(TyGiaPerp()) and tu.dang_ky(tv))
     lat = tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
 
@@ -2692,14 +2705,18 @@ def kiem_hai_ty_that() -> None:
          str(sorted(cap)) + " — đây là câu hỏi thành/bại của cả kiến trúc")
 
     dm = tu.danh_muc
+    aave = dm.phoi_nhiem_cang().get("aave-v3", 0.0)
     kiem("danh mục gộp phơi nhiễm theo GIAO THỨC, cộng qua các chuỗi",
-         gan(dm.phoi_nhiem_cang().get("aave-v3", 0.0), 400.0),
+         aave > 0 and gan(aave, sum(
+             x["capUsd"] for x in (lat.phanBo or {}).get("daCap", [])
+             if x["chienLuoc"] == "lending.rate_rotation.v1")),
          str(dm.phoi_nhiem_cang()) + " — một lỗi trong aave-v3 kẹt cả hai")
     kiem("và tách phơi nhiễm theo CHUỖI",
          set(dm.phoi_nhiem_chuoi()) == {"Base", "Polygon"},
          str(dm.phoi_nhiem_chuoi()))
     kiem("chân sàn tập trung KHÔNG có chuỗi, không cộng nhầm vào",
-         gan(sum(dm.phoi_nhiem_chuoi().values()), 400.0))
+         gan(sum(dm.phoi_nhiem_chuoi().values()), aave),
+         "chân perp nằm trên sàn tập trung, không thuộc chuỗi nào")
     kiem("hai vân tay khác nhau nên KHÔNG cái nào bị bỏ trùng",
          lat.soBoTrung == 0 and lat.soGhiNhan == 3)
     kiem("không tầng nào đi tắt", tu.so_dang_ky.soChuyenSai == 0)
@@ -3035,7 +3052,7 @@ def kiem_lai_suat() -> None:
          "khong-doc-duoc-dao-han" in ma_cua(tt(daoHan=None)))
 
     # ── ĐÂY là điểm chính của ty này ────────────────────────────────────
-    co = mot_co_hoi(tt(), 200.0, SC)
+    co = mot_co_hoi(tt(), 1000.0, SC)      # = ngưỡng kinh tế của engine
     t = xuat_to_trinh(co)
     kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
     kiem("khai KHOÁ VỐN thật, khác 0",
@@ -3051,7 +3068,7 @@ def kiem_lai_suat() -> None:
     kiem("thanh khoản thoát là None — bán được nhưng ta KHÔNG BIẾT giá",
          t.thanhKhoanThoatUsd is None and t.raDuocKhong is None)
     kiem("không đọc được hạn thì độ tin TỤT",
-         xuat_to_trinh(mot_co_hoi(tt(daoHan=None), 200.0, SC)).tinCay < t.tinCay)
+         xuat_to_trinh(mot_co_hoi(tt(daoHan=None), 1000.0, SC)).tinCay < t.tinCay)
 
     # ── và Rủi Ro Tổng TỪ CHỐI vì khoá quá lâu ──────────────────────────
     from thi_bac_ty.danh_muc import DanhMuc
@@ -3084,6 +3101,7 @@ def kiem_bon_ty() -> None:
         def ho(self): return self._ho
         @property
         def moTa(self): return "ty giả " + self._ho
+        vonToiThieuKinhTeUsd = 50.0
         def kiem_khai(self): return []
         def quet(self): return [self._ts]
         def xet(self, co): return True, []
@@ -3132,6 +3150,191 @@ def kiem_thang_chung() -> None:
     kiem("thang chung KHÔNG nằm trong trung ương",
          not (goc / "thi_bac_ty" / "thang.py").exists(),
          "Trung Ương không biết TVL hay dùng vốn là gì")
+
+
+
+def kiem_von_toi_thieu() -> None:
+    print("\n-- $100 chay duoc ca he, nhung KHONG ep engine nao vao lenh --")
+    from thi_bac_ty.danh_muc import DanhMuc
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.rui_ro_tong import RuiRoTong
+    from thi_bac_ty.to_trinh import Chan
+
+    # ── hợp đồng ────────────────────────────────────────────────────────
+    from dataclasses import replace
+    t = _mau(von=500.0, chua=9000.0)
+    kiem("tờ trình mang theo vốn tối thiểu kinh tế",
+         "vonToiThieuKinhTeUsd" in t.tom_tat())
+    kiem("xin ÍT HƠN ngưỡng mình khai là tờ trình TỰ MÂU THUẪN",
+         not replace(t, vonToiThieuKinhTeUsd=5000.0).hop_le,
+         "ty phải hoặc xin đủ, hoặc hạ ngưỡng nó khai — để trung ương gỡ hộ "
+         "là bắt trung ương biết chi phí của ngành")
+    kiem("khai ngưỡng ≤ 0 bị bắt",
+         not replace(t, vonCanUsd=500.0, vonToiThieuKinhTeUsd=0.0).hop_le,
+         "khai 0 nghĩa là 'engine này kinh tế ở mọi cỡ vốn', và chưa engine "
+         "nào như thế")
+    kiem("xin đủ thì hợp lệ",
+         replace(t, vonToiThieuKinhTeUsd=500.0).hop_le)
+
+    # ── khuôn ty: chưa khai thì CHẾT Ở CỬA ──────────────────────────────
+    class TyQuen(Ty):
+        ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "quên khai"
+        def quet(self): return []
+        def xet(self, co): return False, []
+        def trinh(self, co): return None
+
+    kiem("ty chưa khai ngưỡng kinh tế thì kiem_khai() bắt",
+         any("vonToiThieuKinhTeUsd" in l for l in TyQuen.kiem_khai()),
+         "một ty không biết ngưỡng của chính nó sẽ đều đặn trình lên những "
+         "cơ hội mà phí ăn sạch, để trung ương loại hộ")
+
+    class TyAm(TyQuen):
+        vonToiThieuKinhTeUsd = -1.0
+    kiem("khai số âm cũng bị bắt", TyAm.kiem_khai() != [])
+
+    # ── Rủi Ro Tổng: cấp ĐỦ hoặc KHÔNG CẤP ──────────────────────────────
+    rrt = RuiRoTong()
+    dm = DanhMuc(1000.0)               # trần một cơ hội = $150
+    it = replace(_mau(von=100.0, chua=9000.0), vonToiThieuKinhTeUsd=100.0)
+    kiem("engine rẻ được cấp ở NAV $1.000", rrt.xet(it, dm).duyet)
+
+    dat = replace(_mau(von=1000.0, chua=90000.0), vonToiThieuKinhTeUsd=1000.0)
+    pq = rrt.xet(dat, dm)
+    kiem("engine đắt bị TỪ CHỐI, không phải bị cắt xuống $150",
+         not pq.duyet and gan(pq.choToiDaUsd, 0.0),
+         "cắt trần xuống dưới ngưỡng kinh tế rồi vẫn cấp là tệ hơn không "
+         "cấp: vốn bị giữ chỗ, một slot bị tiêu, và lãi không bù nổi phí")
+    kiem("và nói rõ QUAN SÁT chứ không ép vào lệnh",
+         any("QUAN SÁT" in l for l in pq.lyDo), str(pq.lyDo))
+    kiem("NAV lớn hơn thì chính engine ấy qua",
+         rrt.xet(dat, DanhMuc(20000.0)).duyet)
+
+
+def kiem_che_van_hanh() -> None:
+    print("\n-- Ba che do, va may KHONG duoc tu ep len cao hon --")
+    from thi_bac_ty.che_van_hanh import (BAC, GIAY, QUAN_SAT, THAT, che_cua_ty,
+                                         von_can_de_chay, von_hoa_ha_tang)
+
+    class _T:
+        def __init__(self, ma, v): self.ma, self.ho, self.vonToiThieuKinhTeUsd = ma, "phai-sinh", v
+
+    kiem("ba bậc, thứ tự từ thấp lên cao", BAC == (QUAN_SAT, GIAY, THAT))
+
+    re_ = _T("re.v1", 100.0)
+    dat = _T("dat.v1", 1000.0)
+    kiem("NAV $100: engine $100 vẫn QUAN SÁT (rót được chỉ $15)",
+         che_cua_ty(re_, 100.0, 0.15).che == QUAN_SAT)
+    kiem("NAV $1.000: engine $100 lên GIẤY",
+         che_cua_ty(re_, 1000.0, 0.15).che == GIAY)
+    kiem("nhưng engine $1.000 vẫn QUAN SÁT ở NAV $1.000",
+         che_cua_ty(dat, 1000.0, 0.15).che == QUAN_SAT)
+    kiem("NAV $20.000 thì engine đắt cũng lên GIẤY",
+         che_cua_ty(dat, 20000.0, 0.15).che == GIAY)
+
+    kiem("KHÔNG có lớp ký lệnh thì KHÔNG bao giờ lên THẬT",
+         che_cua_ty(re_, 1_000_000.0, 0.15).che == GIAY,
+         "THẬT chưa với tới được là một SỰ THẬT, không phải một cấu hình")
+    kiem("có lớp ký lệnh thì mới lên THẬT",
+         che_cua_ty(re_, 1_000_000.0, 0.15, True).che == THAT)
+
+    kiem("QUAN SÁT thì KHÔNG được cấp vốn",
+         not che_cua_ty(dat, 1000.0, 0.15).duocCapVon)
+    kiem("GIẤY thì được cấp — trên sổ giấy",
+         che_cua_ty(re_, 1000.0, 0.15).duocCapVon)
+    kiem("chưa khai ngưỡng → QUAN SÁT",
+         che_cua_ty(_T("x.v1", None), 1e9, 0.15).che == QUAN_SAT)
+    kiem("và mọi chế độ đều nói được VÌ SAO",
+         all(che_cua_ty(x, 1000.0, 0.15).vi
+             for x in (re_, dat, _T("y.v1", None))))
+
+    kiem("vốn cần để có ít nhất một engine chạy = ngưỡng RẺ NHẤT / trần",
+         gan(von_can_de_chay([re_, dat], 0.15), 100.0 / 0.15))
+    kiem("không ty nào khai thì None", von_can_de_chay([], 0.15) is None)
+
+    h = von_hoa_ha_tang(10.0)
+    kiem("chi phí hạ tầng quy ra năm", gan(h["chiPhiNamUsd"], 120.0))
+    kiem("và vốn cần để hoà nó ở 20%/năm là $600",
+         gan(h["vonHoaVon"]["20%"], 600.0),
+         "$100 vốn kiếm 20%/năm là $20 — vẫn ÂM sau hạ tầng $120")
+    kiem("kèm lời nhắc đừng đo bằng số đô",
+         "chất lượng quyết định" in h["loiNhac"])
+
+
+def kiem_hieu_nang() -> None:
+    print("\n-- Hieu nang: duong NAV, khong phai mot APR nhan thang --")
+    from thi_bac_ty.hieu_nang import (TOI_THIEU_GIO, DuongNav,
+                                      doi_chieu_giay_that, do_hieu_nang)
+
+    GIO = 3_600_000.0
+    kiem("chưa có điểm nào thì nói chưa có",
+         do_hieu_nang([], 100.0)["duDeKetLuan"] is False)
+
+    ngan = [(0.0, 100.0), (12 * GIO, 100.3)]
+    d = do_hieu_nang(ngan, 100.0)
+    kiem("nửa ngày dữ liệu thì KHÔNG quy ra năm",
+         d["duDeKetLuan"] is False and d["cagrPhanTram"] is None,
+         "quy 0,3% của nửa ngày ra năm cho một tỉ suất vô nghĩa mà trông rất "
+         "thuyết phục")
+    kiem("và nói rõ cần bao nhiêu", str(int(TOI_THIEU_GIO)) in d["vi"])
+
+    # 100 → 112 → 103 → 122 qua một năm
+    nam = 365 * 24 * GIO
+    ds = [(0.0, 100.0), (nam * 0.3, 112.0), (nam * 0.6, 103.0), (nam, 122.0)]
+    d = do_hieu_nang(ds, 100.0)
+    kiem("đủ mẫu thì tính được CAGR", d["duDeKetLuan"] and d["cagrPhanTram"])
+    kiem("CAGR ≈ 22% cho một năm 100 → 122",
+         gan(d["cagrPhanTram"], 22.0, 0.5), f"{d['cagrPhanTram']}")
+    kiem("sụt vốn tối đa tính từ ĐỈNH TRƯỚC ĐÓ, không từ vốn ban đầu",
+         gan(d["sutVonToiDaPhanTram"], (112 - 103) / 112 * 100.0, 1e-6),
+         f"{d['sutVonToiDaPhanTram']} — đáy 103 so với đỉnh 112, không so 100")
+    kiem("đo được bao lâu chưa về lại đỉnh cũ", d["gioDuoiDayLauNhat"] > 0)
+    kiem("và biết lúc này còn dưới đáy không", d["dangDuoiDay"] is False)
+
+    xuong = do_hieu_nang([(0.0, 100.0), (nam, 90.0)], 100.0)
+    kiem("một năm âm thì sụt vốn tối đa = 10%",
+         gan(xuong["sutVonToiDaPhanTram"], 10.0, 1e-6))
+    kiem("và vẫn còn dưới đáy", xuong["dangDuoiDay"] is True)
+
+    dn = DuongNav(tran=3)
+    for v in (100.0, 101.0, 102.0, 103.0, 104.0):
+        dn.ghi(v)
+    kiem("đường NAV có trần, và bỏ điểm CŨ NHẤT",
+         len(dn.diem) == 3 and gan(dn.diem[-1][1], 104.0),
+         "đỉnh và đáy gần đây là thứ quyết định sụt vốn, và chúng nằm ở cuối")
+
+    # ── đối chiếu giấy ↔ thật: chưa có vế thật ──────────────────────────
+    from thi_bac_ty.so_cai import ButToan, SoCai
+    sc = SoCai(_tam("gt") / "so.sqlite3")
+    sc.ghi(ButToan("FUNDING", "mô phỏng", 1.0, "a.b.v1", "TT1"))
+    dc = doi_chieu_giay_that(sc)
+    kiem("chưa có lệnh thật thì KHÔNG đối chiếu được",
+         dc["doiChieuDuoc"] is False and dc["soButToanThat"] == 0,
+         "trả về một con số 'sai lệch' lúc này là bịa")
+    kiem("và nói rõ khi nào mới đo được", "lớp ký lệnh" in dc["khiNaoDoDuoc"])
+
+
+def kiem_lop_boc_khai_bao() -> None:
+    print("\n-- Lop boc nhip KHONG duoc che khai bao cua ty that --")
+    from bac.vong import _NhipRieng
+    from thi_bac_ty.khuon_ty import Ty
+
+    class TyThat(Ty):
+        ma, ho = "lending.rate_rotation.v1", "tin-dung"
+        moTa = "ty thật"
+        vonToiThieuKinhTeUsd = 777.0
+        def quet(self): return []
+        def xet(self, co): return False, []
+        def trinh(self, co): return None
+
+    g = TyThat()
+    b = _NhipRieng(g, 60.0)
+    for ten in ("ma", "ho", "moTa", "vonToiThieuKinhTeUsd"):
+        kiem(f"lớp bọc trả đúng `{ten}` của ty thật",
+             getattr(b, ten) == getattr(g, ten),
+             f"bọc={getattr(b, ten)!r} thật={getattr(g, ten)!r} — `Ty` khai "
+             f"sẵn thuộc tính này ở tầng LỚP, nên tra thành công (ra giá trị "
+             f"rỗng của lớp bọc) và `__getattr__` không bao giờ được gọi")
+    kiem("và kiem_khai() soi ty thật", b.kiem_khai() == g.kiem_khai())
 
 
 def main() -> int:
@@ -3193,6 +3396,10 @@ def main() -> int:
     kiem_lai_suat()
     kiem_bon_ty()
     kiem_thang_chung()
+    kiem_von_toi_thieu()
+    kiem_che_van_hanh()
+    kiem_hieu_nang()
+    kiem_lop_boc_khai_bao()
 
     print("\n" + "=" * 70)
     if _loi:

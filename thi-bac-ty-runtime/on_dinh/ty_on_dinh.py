@@ -44,6 +44,10 @@ PHI_CON_THIEU = (
 )
 SUC_CHUA_CON_THIEU = ("do-sau-so-lenh-duoi-dinh",)
 
+#: Một nguồn duy nhất cho cả khai báo của ty lẫn
+#: từng tờ trình nó xuất ra.
+_VON_TOI_THIEU = 200.0
+
 NHAN = {
     "lech-neo-qua-lon": "lệch neo quá lớn — có thể là DEPEG, không phải cơ hội",
     "chenh-tho-qua-mong": "chênh lệch thô quá mỏng",
@@ -194,6 +198,14 @@ class TyOnDinh(Ty):
     moTa = ("chênh lệch stablecoin chéo sàn — hai chân, ăn ngay rồi kẹt "
             "tồn kho cho tới khi chênh lệch đảo chiều")
 
+    #: Edge ở đây tính bằng VÀI BPS, nên đây là engine nhạy phí nhất trong
+    #: cả bốn. Phí taker khứ hồi hai sàn ~9–20 bps là khoản cố định theo TỈ
+    #: LỆ, nên cỡ vốn không cứu được phí.
+    #:
+    #: Thứ cỡ vốn cứu được là cỡ lệnh tối thiểu của sàn giao ngay và phần
+    #: vụn không khớp hết. $200 là chỗ hai thứ ấy còn nhỏ so với vài bps.
+    vonToiThieuKinhTeUsd = _VON_TOI_THIEU
+
     def __init__(self, client_factory=None) -> None:
         super().__init__()
         self.nguon = SanGiaoNgay()
@@ -262,6 +274,7 @@ def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
         chan=(Chan("LONG", co.mua.san, a, co.vonXinUsd / 2.0, "spot"),
               Chan("SHORT", co.ban.san, a, co.vonXinUsd / 2.0, "spot")),
         vonCanUsd=co.vonXinUsd,
+        vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         sucChuaToiDaUsd=co.sucChuaToiDaUsd,
         grossBps=co.grossBps, phiUocBps=co.phiBps, netUocBps=co.netBps,
         giuGio=co.giuGio,

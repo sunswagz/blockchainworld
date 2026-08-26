@@ -41,6 +41,10 @@ from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
 CHIEN_LUOC = MA_CHIEN_LUOC
 HO = "phai-sinh"
 
+#: Một nguồn duy nhất cho cả khai báo của ty lẫn
+#: từng tờ trình nó xuất ra.
+_VON_TOI_THIEU = 100.0
+
 #: Trần lệch mark dùng để quy `lechMarkBps` về thang [0,1]. Vượt trần là rủi
 #: ro thị trường bằng 1 — chứ không phải "chưa tới hạn nên bằng 0".
 TRAN_LECH_MARK_BPS = 100.0
@@ -112,6 +116,7 @@ def xuat_to_trinh(co: CoHoi, vonXinUsd: float,
             Chan("SHORT", co.sanShort, co.ma, vonXinUsd, "perp"),
         ),
         vonCanUsd=vonXinUsd,
+        vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         sucChuaToiDaUsd=suc,
         grossBps=co.grossBpsNgay,
         phiUocBps=co.phiBps,

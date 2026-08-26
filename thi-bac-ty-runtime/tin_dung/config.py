@@ -61,7 +61,9 @@ MAC_DINH = {
     },
 
     "von": {
-        "moiCoHoiUsd": 200.0,
+        # Xin ĐÚNG bằng ngưỡng kinh tế của engine. Xin ít hơn ngưỡng
+        # mình vừa khai là tờ trình tự mâu thuẫn, và hợp đồng chặn.
+        "moiCoHoiUsd": 500.0,
     },
     # Rót được bao nhiêu mà không dìm chính lãi suất mình vừa thấy. Chưa có
     # đường cong lãi suất nên đây là proxy thô trên thanh khoản rảnh, và

@@ -77,6 +77,10 @@ MAC_DINH = {
     #: buộc ngay sẽ chặn mọi ty v0.1 — nhưng `phan_bo.diem()` phạt nó, nên
     #: cơ hội mù thanh khoản luôn xếp sau cơ hội đã đo.
     "batBuocDoDuocThanhKhoanThoat": False,
+    #: Ty chưa khai ngưỡng kinh tế thì có rót không. Mặc định CÓ, nhưng
+    #: `khuon_ty.kiem_khai()` đã chặn ở cửa đăng ký, nên trong thực tế mọi
+    #: ty đang chạy đều đã khai.
+    "batBuocKhaiVonToiThieu": False,
 }
 
 
@@ -249,6 +253,32 @@ class RuiRoTong:
 
         hep(nav * float(c["tranMotTy"]) - pn_ty.get(tt.chienLuoc, 0.0),
             f"trần một ty {tt.chienLuoc}")
+
+        # ── QUAN SÁT chứ đừng ÉP LIVE ────────────────────────────────────
+        #
+        # Đây là chỗ luật "$100 chạy được cả hệ, nhưng engine nào không đủ
+        # vốn tối thiểu thì chỉ được QUAN SÁT" thành mã.
+        #
+        # Cắt trần xuống dưới ngưỡng kinh tế của engine rồi vẫn cấp là tệ
+        # hơn không cấp: vốn bị giữ chỗ, một slot vị thế bị tiêu, và phần
+        # lãi không bù nổi phí cố định — ta trả tiền để học một điều đã biết
+        # trước.
+        #
+        # Nên: cấp ĐỦ, hoặc KHÔNG CẤP. Không có cấp nửa vời.
+        v_min = tt.vonToiThieuKinhTeUsd
+        if v_min is None:
+            if c["batBuocKhaiVonToiThieu"]:
+                return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
+                                 ("ty chưa khai vốn tối thiểu kinh tế",),
+                                 tuple(cat))
+        elif tran < float(v_min) - 1e-9:
+            return PhanQuyet(
+                tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
+                (f"chỉ cấp được {tran:.2f} USD nhưng engine này cần tối thiểu "
+                 f"{float(v_min):.2f} USD mới kinh tế có nghĩa — QUAN SÁT, "
+                 f"không ép vào lệnh"
+                 + (" (" + "; ".join(cat[-1:]) + ")" if cat else ""),),
+                tuple(cat))
 
         tran = round(max(0.0, tran), 2)
         if tran <= 0.0:

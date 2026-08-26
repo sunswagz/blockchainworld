@@ -548,6 +548,98 @@ sang (hai bản sao sẽ lệch nhau đúng vào ngày ai đó hiệu chỉnh m�
 để ty mới import ty cũ (điều luật chung cấm). Chỗ thứ ba mới đúng, và bản
 đồ đã vẽ sẵn nó: **SHARED INFRASTRUCTURE**.
 
+## $100 chạy được CẢ HỆ, nhưng không engine nào bị ép vào lệnh
+
+Tách hai thứ mà người ta hay gộp:
+
+    PHẦN MỀM ĐANG CHẠY   ≠   VỐN ĐANG LÀM VIỆC
+
+Bốn engine quét 24/7 bất kể vốn bao nhiêu. Vốn chỉ quyết ở đúng một chỗ —
+chỗ cấp. Chia $100 cho bốn engine là mỗi cái $25, và ở $25 thì phí, gas, cỡ
+lệnh tối thiểu ăn sạch: bốn engine cùng lỗ thay vì một engine có lãi.
+
+### Mỗi engine tự khai ngưỡng kinh tế của CHÍNH NÓ
+
+`Ty.vonToiThieuKinhTeUsd` là **bắt buộc** — ty nào không khai thì chết ở cửa
+đăng ký. Một ty không biết ngưỡng của chính nó sẽ đều đặn trình lên những cơ
+hội mà phí ăn sạch, để trung ương loại hộ; chuyển việc ấy sang trung ương là
+bắt trung ương biết chi phí của từng ngành, thứ nó không biết và không nên
+biết.
+
+| engine | ngưỡng | vì sao chính con số ấy |
+|---|---|---|
+| `perpetual.funding_spread` | $100 | hai chân, mỗi chân phải qua cỡ lệnh tối thiểu của sàn — một chân bị từ chối là vị thế MỘT CHIỀU |
+| `stablecoin.cross_venue` | $200 | edge vài bps, nhạy phí nhất; cỡ vốn cứu được phần vụn, không cứu được phí tỉ lệ |
+| `lending.rate_rotation` | $500 | gas là chi phí CỐ ĐỊNH: $0,10 khứ hồi trên L2 là 2 bps ở $500 |
+| `yield.pendle_pt` | $1.000 | mua PT là một lượt swap có TRƯỢT GIÁ, và vốn khoá tới đáo hạn |
+
+Đây **không phải** `phanBo.toiThieuMotLanUsd`. Sàn ấy là của HỆ, chung cho
+mọi ty; $25 đủ cho chênh lệch stablecoin mà không đủ cho cho vay.
+
+### Ba chế độ, và máy KHÔNG được tự ép lên cao hơn
+
+    QUAN_SAT   quét, trình, ghi sổ — nhưng KHÔNG BAO GIỜ được cấp vốn
+    GIAY       được cấp trên SỔ GIẤY, đo như thật
+    THAT       tiền thật — chưa với tới được, vì lớp ký lệnh chưa tồn tại
+
+Chế độ suy tất định từ hai con số: `NAV × tranMotCoHoi` và ngưỡng của ty.
+Chạy thật:
+
+    NAV    $100  →  perp:QUAN_SAT  stable:QUAN_SAT  lending:QUAN_SAT  yield:QUAN_SAT
+    NAV  $1.000  →  perp:GIAY      stable:QUAN_SAT  lending:QUAN_SAT  yield:QUAN_SAT
+    NAV  $5.000  →  perp:GIAY      stable:GIAY      lending:GIAY      yield:QUAN_SAT
+    NAV $20.000  →  perp:GIAY      stable:GIAY      lending:GIAY      yield:GIAY
+
+    → cần NAV $667 để có ÍT NHẤT một engine chạy được bằng tiền
+
+Ở $100, cả bốn engine QUAN SÁT: hệ chạy đủ, quét đủ, ghi sổ đủ — và không
+đồng nào bị ép vào một cơ hội mà phí ăn hết.
+
+### Cấp ĐỦ, hoặc KHÔNG CẤP
+
+`rui_ro_tong` cắt trần xuống dưới ngưỡng kinh tế thì **từ chối**, không cấp
+nửa vời. Cấp $150 cho một engine cần $1.000 là tệ hơn không cấp: vốn bị giữ
+chỗ, một slot vị thế bị tiêu, và lãi không bù nổi phí cố định — ta trả tiền
+để học một điều đã biết trước.
+
+Và hợp đồng chặn một mâu thuẫn nữa: **ty xin ít hơn ngưỡng nó tự khai** là
+tờ trình tự mâu thuẫn. Ty phải hoặc xin đủ, hoặc hạ ngưỡng nó khai.
+
+## Hiệu năng đo bằng đường NAV, không bằng một APR nhân thẳng
+
+Vốn thật đi qua `100 × 1,12 × 1,31 × 0,92 × 1,22 × 1,05`, chứ không phải
+`100 × 1,5^5`. Một năm âm ở giữa không chỉ làm chậm — nó ăn vào cái nền mà
+mọi năm sau nhân lên từ đó.
+
+    CAGR                 lợi suất gộp thật, không phải trung bình cộng
+    SỤT VỐN TỐI ĐA       đáy sâu nhất tính từ ĐỈNH TRƯỚC ĐÓ, không từ vốn gốc
+    THỜI GIAN DƯỚI ĐÁY   bao lâu chưa về lại đỉnh cũ
+
+Hai con số sau quyết định người ta có giữ nổi hệ thống qua một đợt xấu hay
+không, và không APR nào nói được chúng.
+
+Dưới bảy ngày dữ liệu, mọi trường tỉ suất trả `None` — quy 0,3% của nửa
+ngày ra năm cho một con số vô nghĩa mà trông rất thuyết phục.
+
+### Chi phí hạ tầng là đối thủ THẬT của vốn nhỏ
+
+    VPS + RPC + API  ~$10/tháng  =  $120/năm
+    $100 vốn kiếm 20%/năm        =  $20        → vẫn ÂM
+
+    vốn cần để hoà hạ tầng:  10% → $1.200 · 20% → $600 · 50% → $240
+
+Nên ở giai đoạn này, đánh giá bộ máy bằng số đô kiếm được là đánh giá sai
+thứ. Cái đáng đo là **chất lượng quyết định**, và `+$10` có thể là kết quả
+rất đáng giá nếu nó chứng minh được một engine có kỳ vọng dương.
+
+### Đối chiếu giấy ↔ thật: chỗ đã có sẵn, số thì chưa
+
+Nếu sổ giấy ra +18% mà tiền thật ra +2% thì mô phỏng đang nói dối, và biết
+được điều ấy đáng giá hơn cả hai con số. Nhưng bản này **chưa có lệnh thật
+nào** — `thuc_thi.moPhong` là True cứng. Nên `doi_chieu_giay_that()` trả về
+*"chưa đối chiếu được"* kèm lý do, chứ không trả một con số 0 giả vờ là kết
+quả. Chỗ ấy có sẵn cho ngày lớp ký lệnh tới.
+
 ## SÁU ENGINE CÒN LẠI — chưa dựng được, và vì sao
 
 Đây là mục quan trọng nhất của cả chương, vì thứ dễ làm nhất lúc này là
@@ -645,7 +737,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 597 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 641 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -1026,6 +1118,8 @@ thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   so_cai.py       sổ chỉ-thêm, sửa bằng ĐẢO
   thuc_thi.py     máy trạng thái hai chân
   cau_dao.py      ngắt tự động, đóng lại phải có người
+  che_van_hanh.py QUAN_SAT · GIAY · THAT theo từng ty, và chi phí hạ tầng
+  hieu_nang.py    CAGR · sụt vốn tối đa · đối chiếu giấy↔thật
   nguon.py        Data World v0.1 — kỷ luật chung khi đọc một nguồn
   von_ngoai.py    vốn ở cỗ máy KHÁC: thấy được, không quản được
   chan_doan_he.py bệnh của cả bộ máy

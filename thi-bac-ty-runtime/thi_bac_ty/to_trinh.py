@@ -167,6 +167,23 @@ class ToTrinh:
     khoaVonDenGiay: float | None = None
     thanhKhoanThoatUsd: float | None = None
 
+    # ── dưới ngần này thì kinh tế của cơ hội không còn nghĩa ─────────────
+    #
+    # KHÔNG phải sàn chung `phanBo.toiThieuMotLanUsd`. Sàn chung nói "rót ít
+    # hơn ngần này thì phí cố định của HỆ ăn hết". Trường này nói một chuyện
+    # riêng của từng engine:
+    #
+    #   cho vay Ethereum  gas khứ hồi $12 → dưới ~$5.000 thì gas > 24 bps
+    #   chênh stablecoin  edge vài bps    → dưới ~$500 thì phí taker ăn hết
+    #   funding perp      cỡ lệnh tối thiểu của sàn
+    #
+    # $25 đủ cho cái thứ hai mà không đủ cho cái thứ nhất. Một sàn chung
+    # không phân biệt được, nên nó hoặc quá lỏng cho engine đắt, hoặc quá
+    # chặt cho engine rẻ.
+    #
+    # `None` = ty chưa khai. Rủi Ro Tổng coi đó là CHƯA ĐO, không phải là 0.
+    vonToiThieuKinhTeUsd: float | None = None
+
     ruiRo: RuiRo = field(default_factory=RuiRo)
     tuoiDuLieuGiay: float | None = None
     tinCay: float | None = None         # [0,1] — không tự chấm được thì None
@@ -219,6 +236,17 @@ class ToTrinh:
             loi.append(f"khoá vốn {self.khoaVonDenGiay} giờ — không âm được")
         if self.thanhKhoanThoatUsd is not None and self.thanhKhoanThoatUsd < 0:
             loi.append(f"thanh khoản thoát {self.thanhKhoanThoatUsd} — không âm được")
+        if (self.vonToiThieuKinhTeUsd is not None
+                and self.vonCanUsd < self.vonToiThieuKinhTeUsd - 1e-9):
+            loi.append(
+                f"xin {self.vonCanUsd} nhưng tự khai cần tối thiểu "
+                f"{self.vonToiThieuKinhTeUsd} mới kinh tế — tờ trình tự mâu "
+                f"thuẫn. Ty phải hoặc xin đủ, hoặc hạ ngưỡng nó khai; để "
+                f"trung ương gỡ hộ là bắt trung ương biết chi phí của ngành")
+        if self.vonToiThieuKinhTeUsd is not None and self.vonToiThieuKinhTeUsd <= 0:
+            loi.append(f"vốn tối thiểu kinh tế {self.vonToiThieuKinhTeUsd} "
+                       f"phải > 0 — khai 0 nghĩa là 'engine này kinh tế ở "
+                       f"mọi cỡ vốn', và chưa engine nào như thế")
 
         # Luật 2: chưa đủ mô hình thì phải nói THIẾU GÌ. Một cờ `False` mà
         # danh sách rỗng là khai nửa vời — người đọc biết nó thiếu mà không
@@ -288,6 +316,7 @@ class ToTrinh:
             "vonCanUsd": self.vonCanUsd,
             "sucChuaToiDaUsd": self.sucChuaToiDaUsd,
             "khoaVonDenGiay": self.khoaVonDenGiay,
+            "vonToiThieuKinhTeUsd": self.vonToiThieuKinhTeUsd,
             "thanhKhoanThoatUsd": self.thanhKhoanThoatUsd,
             "gioVonBiGiu": self.gio_von_bi_giu,
             "raDuocKhong": self.raDuocKhong,

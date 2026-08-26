@@ -48,6 +48,18 @@ class Ty(ABC):
     ho: str = ""
     moTa: str = ""
 
+    #: **Dưới ngần này thì kinh tế của engine không còn nghĩa.** Bắt buộc.
+    #:
+    #: Một ty không biết ngưỡng kinh tế của chính nó là một ty chưa nghĩ về
+    #: chi phí cố định của mình — và nó sẽ đều đặn trình lên những cơ hội mà
+    #: phí ăn sạch, để Rủi Ro Tổng loại hộ. Chuyển việc ấy sang trung ương
+    #: là bắt trung ương biết chi phí của từng ngành, thứ nó không biết và
+    #: không nên biết.
+    #:
+    #: Đây KHÔNG phải `phanBo.toiThieuMotLanUsd`: sàn ấy là của HỆ, chung
+    #: cho mọi ty. Xem `to_trinh.ToTrinh.vonToiThieuKinhTeUsd`.
+    vonToiThieuKinhTeUsd: float | None = None
+
     def __init__(self) -> None:
         self.soLuotQuet = 0
         self.soCoHoi = 0
@@ -82,6 +94,13 @@ class Ty(ABC):
             loi.append(f"mã {cls.ma!r} sai khuôn <họ>.<tên>.v<số>")
         if cls.ho not in HO:
             loi.append(f"họ {cls.ho!r} không có trong {HO}")
+        v = cls.vonToiThieuKinhTeUsd
+        if v is None:
+            loi.append("chưa khai `vonToiThieuKinhTeUsd` — một ty không biết "
+                       "ngưỡng kinh tế của chính nó sẽ đều đặn trình lên "
+                       "những cơ hội mà phí ăn sạch, để trung ương loại hộ")
+        elif not (v > 0):
+            loi.append(f"vốn tối thiểu kinh tế {v} phải > 0")
         if not (cls.moTa or "").strip():
             loi.append("thiếu mô tả — một ty không tự giới thiệu được thì "
                        "người sau đọc sổ đăng ký không biết nó làm gì")
@@ -131,6 +150,7 @@ class Ty(ABC):
 
     def tom_tat(self) -> dict:
         return {"ma": self.ma, "ho": self.ho, "moTa": self.moTa,
+                "vonToiThieuKinhTeUsd": self.vonToiThieuKinhTeUsd,
                 "soLuotQuet": self.soLuotQuet, "soCoHoi": self.soCoHoi,
                 "soQuaCongTy": self.soQuaCongTy, "soTrinh": self.soTrinh,
                 "soTrinhSaiKhuon": self.soTrinhSaiKhuon,

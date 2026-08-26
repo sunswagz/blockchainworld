@@ -67,13 +67,19 @@ CONFIG = {
         "conLaiToiThieuGio": 72.0,
         "tuoiToiDaGiay": 900.0,
     },
-    "von": {"moiCoHoiUsd": 200.0},
+    # Xin ĐÚNG bằng ngưỡng kinh tế: mua PT là một lượt swap có trượt
+    # giá, và vốn khoá tới đáo hạn — xin ít hơn là tự mâu thuẫn.
+    "von": {"moiCoHoiUsd": 1000.0},
     "sucChua": {"phanTvl": 0.01, "tranUsd": 50_000.0},
 }
 
 PHI_CON_THIEU = ("gas-vao-ra", "truot-gia-tren-amm-pendle",
                  "chuyen-von-giua-chuoi", "thue")
 SUC_CHUA_CON_THIEU = ("do-sau-amm-pendle",)
+
+#: Một nguồn duy nhất cho cả khai báo của ty lẫn
+#: từng tờ trình nó xuất ra.
+_VON_TOI_THIEU = 1000.0
 
 NHAN = {
     "tvl-qua-nho": "TVL quá nhỏ",
@@ -300,6 +306,14 @@ class TyLaiSuat(Ty):
     moTa = ("lãi cố định Pendle PT — khoá vốn tới ngày đáo hạn, "
             "không rút sớm mà không bán lỗ trên AMM")
 
+    #: Cao hơn ty cho vay, và có lý do: mua PT là một lượt swap trên AMM
+    #: Pendle, nên ngoài gas còn có TRƯỢT GIÁ — mà trượt giá thì cỡ vốn nhỏ
+    #: không cứu được, chỉ làm phần vụn thành lớn hơn.
+    #:
+    #: Thêm nữa vốn KHOÁ tới đáo hạn: bỏ $200 vào một chỗ khoá ba tháng là
+    #: tiêu một slot vị thế trong ba tháng cho một khoản lãi vài đô.
+    vonToiThieuKinhTeUsd = _VON_TOI_THIEU
+
     def __init__(self, client_factory=None) -> None:
         super().__init__()
         self.nguon = NguonPendle()
@@ -355,6 +369,7 @@ def xuat_to_trinh(co: CoHoiPT) -> ToTrinh:
         chan=(Chan("CHO_VAY", "pendle", t.taiSan, co.vonXinUsd, "yield",
                    t.chuoi),),
         vonCanUsd=co.vonXinUsd, sucChuaToiDaUsd=co.sucChuaToiDaUsd,
+        vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         grossBps=co.grossBps, phiUocBps=0.0, netUocBps=co.netBps,
         giuGio=co.giuGio,
         # ĐÂY là ty đầu tiên khai một con số khoá vốn THẬT khác 0.
