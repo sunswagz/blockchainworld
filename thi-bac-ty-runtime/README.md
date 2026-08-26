@@ -238,6 +238,61 @@ Cả hai cùng vào sổ đăng ký, cùng bị `rui_ro_tong` xét, cùng đư�
 Ngày phép kiểm ấy phải sửa `thi_bac_ty/` mới chạy được là ngày lớp trừu tượng
 này hoá ra là giả.
 
+## NỢ KIẾN TRÚC ĐÃ BIẾT: hiện có HAI cỗ máy, không phải một
+
+Đây là chỗ lệch lớn nhất so với bản đồ, và ghi ra đây để nó không tự biến
+mất khỏi trí nhớ ai.
+
+Bản đồ nói: Polymarket là **một engine** trong nhà máy, nộp cơ hội vào cùng
+một Opportunity Bus, chịu cùng một Risk Engine và cùng một Capital
+Allocator. Câu nguyên văn: *"tôi sẽ không xây 14 bot riêng biệt"*.
+
+Thực tế trong kho lúc này:
+
+    kham-thien-giam-runtime/kham/     ← cỗ máy ĐẦY ĐỦ, độc lập
+        rui_ro.py · chan_rui_ro.py        rủi ro riêng
+        ket_toan.py · so.py               sổ cái riêng
+        vi.py · dat_lenh.py               ví riêng, LỚP ĐẶT LỆNH riêng
+        bus.py · chan_doan.py             bus riêng, chẩn đoán riêng
+        chay_lai.py · tien_hoa.py         chạy lại riêng, tiến hoá riêng
+
+    thi-bac-ty-runtime/thi_bac_ty/    ← Trung Ương, KHÔNG biết cỗ máy kia
+    thi-bac-ty-runtime/bac/           ← ty đầu tiên
+
+`kham/` **không** import `thi_bac_ty`, và Trung Ương **không** biết
+Polymarket tồn tại. Hai bộ máy chạy song song, mỗi bộ tự quản vốn của mình.
+
+### Vì sao thế, và vì sao chưa sửa
+
+Khâm Thiên Giám xây **trước** khi Thị Bạc Ty tồn tại. Bản đồ có luật riêng
+cho đúng tình huống này: *"không bảo Claude chuyển toàn bộ repo sang kiến
+trúc mới — làm vậy rất dễ phá thứ đang chạy"*. Nên viết lại nó bây giờ là
+vi phạm chính luật đã cứu `bac/` khỏi bị viết lại.
+
+### Nhưng phải nói rõ cái giá, vì nó KHÔNG bằng 0
+
+Khâm Thiên Giám có `dat_lenh.py` và `vi.py`. Bốn cửa của nó mặc định đều
+đóng, nên hôm nay không đồng nào chuyển. Nhưng ngày ai đó mở bốn cửa ấy,
+sẽ có **tiền thật đi qua một cỗ máy mà Rủi Ro Tổng không nhìn thấy** — và
+Rủi Ro Tổng tồn tại đúng để trả lời câu "cho tiền vào đây thì DANH MỤC ra
+sao". Nó không trả lời được cho phần nó không thấy.
+
+Hệ quả cụ thể: `tranMotCang`, `tranMotChuoi`, `sutVonToiDaPct` của Trung
+Ương chỉ đúng trên phần vốn Thị Bạc Ty quản. Đừng đọc chúng như trần của
+cả gia sản.
+
+### Việc phải làm, theo thứ tự, khi quay lại chỗ này
+
+1. **Đừng dựng cỗ máy thứ ba.** Ty tiếp theo cắm vào `khuon_ty.Ty`, không
+   dựng runtime riêng. Đây là điều quan trọng nhất trong cả mục này.
+2. Cho `kham/` một adapter `Ty` — quét và trình lên Thông Chính, giữ nguyên
+   phần định giá của nó. Đúng lối `bac/ty_perp.py` đã đi: chỗ nối mỏng,
+   không viết lại thuật toán.
+3. Chuyển `ket_toan.py` sang `thi_bac_ty/so_cai.py`, và `vi.py` vào Danh
+   Mục. Làm bước này TRƯỚC khi mở bất kỳ cửa đặt lệnh nào.
+4. `dat_lenh.py` là lớp cuối cùng chuyển, và chỉ khi Điều Phối Thực Thi có
+   lớp ký lệnh thật.
+
 ## Ty đầu tiên — chênh lệch funding
 
 
