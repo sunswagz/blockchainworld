@@ -72,6 +72,7 @@ from pathlib import Path
 
 from .cau_dao import CauDao
 from .chan_doan_he import chan_doan_he, de_xuat
+from .chay_lai_he import doi_chieu, thu_hoach
 from .danh_muc import DanhMuc
 from .phan_bo import PhanBo
 from .rui_ro_tong import RuiRoTong
@@ -324,10 +325,22 @@ class TrungUong:
         """
         anh = self.anh_chup()
         trieu = chan_doan_he(anh)
-        dx = de_xuat(trieu, self.tham_so())
+        goc = self.tham_so()
+        dx = de_xuat(trieu, goc)
+
+        # ĐO đề xuất, đừng để nó trần. Chạy lại không nói được lãi lỗ, nhưng
+        # nó nói được HÌNH DẠNG phân bổ đổi ra sao — và quan trọng hơn: nó
+        # bắt được lúc một đề xuất chỉ "tốt hơn" nhờ ôm rủi ro đậm hơn.
+        do = None
+        if dx:
+            tt, hong = thu_hoach(self.so_dang_ky)
+            moi = _dat_nut(goc, dx[0].nut, dx[0].den)
+            do = doi_chieu(tt, goc, moi, self.danh_muc.vonBanDauUsd, hong)
+
         ra = {"luc": _bay_gio(), "vong": self.vong,
               "trieuChung": [t.tom_tat() for t in trieu],
               "deXuat": [d.tom_tat() for d in dx],
+              "doDuoc": do,
               "tuVan": False,
               "loiNhac": "Đề xuất, KHÔNG tự áp dụng. Xem `hoc()` trong "
                          "trung_uong.py để biết vì sao."}
@@ -391,6 +404,22 @@ class TrungUong:
             "hoc": self.hocCuoi,
             "thamSo": self.tham_so(),
         }
+
+
+def _dat_nut(thamSo: dict, duong: str, gt) -> dict:
+    """Bản SAO của tham số với một núm đã đổi. Không sửa bản gốc.
+
+    Sửa tại chỗ thì lượt chạy lại A và B dùng chung một dict, và B thắng
+    tuyệt đối vì A cũng đã bị vặn — một phép so sánh luôn nói "có tiến bộ".
+    """
+    import copy
+    ra = copy.deepcopy(thamSo)
+    o = ra
+    phan = duong.split(".")
+    for k in phan[:-1]:
+        o = o.setdefault(k, {})
+    o[phan[-1]] = gt
+    return ra
 
 
 def _ly_do(x: dict) -> str:

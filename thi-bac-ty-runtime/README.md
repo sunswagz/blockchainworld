@@ -136,6 +136,7 @@ TỜ TRÌNH ──► THÔNG CHÍNH TY ──► SỔ ĐĂNG KÝ (PHAT_HIEN)
 | `thuc_thi.py` | máy trạng thái hai chân, có đường lùi |
 | `cau_dao.py` | ngắt **tự động**, đóng lại **phải có người** |
 | `chan_doan_he.py` | bệnh của cả bộ máy, và đề xuất vặn tham số phân bổ |
+| `chay_lai_he.py` | chạy lại phân bổ để **đo** đề xuất, không đoán |
 | `trung_uong.py` | khép vòng, và ép mọi tầng đi đúng thứ tự |
 
 ### Bảy việc một ty KHÔNG được làm
@@ -198,6 +199,32 @@ cấp diễn biến ra sao — mà chúng không được mở nên không có k
 
 Không A/B được thì không tự nhận được. Người duyệt.
 
+### Chạy lại quyết định PHÂN BỔ — và cái bẫy phải chặn trong thiết kế
+
+`bac/chay_lai.py` chạy lại băng để đo funding THỰC NHẬN. `chay_lai_he.py`
+chạy lại một thứ khác: **quyết định phân bổ**, trên chính những tờ trình Sổ
+Đăng Ký đã lưu.
+
+Nó **không** đo được lãi lỗ, và không giả vờ đo được — cơ hội bị từ chối thì
+không được mở, nên nó không có kết cục. Cái nó đo là hình dạng phân bổ: rót
+bao nhiêu, vào cơ hội tốt đến đâu (NET/giờ bình quân **theo vốn**, không
+theo đầu cơ hội), dồn vào một cảng bao nhiêu, trần nào chặn nhiều nhất.
+
+Nhờ đó `hoc()` không còn đưa ra đề xuất trần. Mỗi đề xuất kèm một phép đo
+A/B trên dữ liệu thật.
+
+Cái bẫy nằm ở chỗ chấm điểm: **nới hết mọi trần thì luôn rót được nhiều vốn
+hơn và NET/giờ bình quân gần như luôn đẹp hơn.** Chấm điểm chỉ bằng hai con
+số ấy là dạy vòng tiến hoá đúng một bài — tự tháo phanh. Nên `doi_chieu()`
+từ chối tuyên bố người thắng khi B hơn mà độ tập trung cũng cao hơn; nó nói
+thẳng *"đây là đổi rủi ro lấy lợi suất"* và để người quyết.
+
+Và tập trung phải so bằng **tỉ trọng vốn đã rót**, không bằng USD tuyệt đối.
+Bản đầu so USD, nên trong một hệ chỉ có MỘT ty thì rót thêm đồng nào cũng
+làm `dayNhatTyUsd` tăng, và mọi bộ tham số rót nhiều hơn đều bị chấm là
+"đậm hơn" — cái thước ấy không phân biệt được *rót nhiều* với *dồn một chỗ*.
+Phép kiểm bắt được chuyện đó, không phải người đọc lại bắt được.
+
 ### Câu hỏi thành/bại của cả lớp trừu tượng này
 
 > *Hai chiến lược hoàn toàn khác nhau có sống dưới cùng một Thị Bạc Ty không?*
@@ -238,7 +265,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 359 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 376 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -601,6 +628,7 @@ thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   thuc_thi.py     máy trạng thái hai chân
   cau_dao.py      ngắt tự động, đóng lại phải có người
   chan_doan_he.py bệnh của cả bộ máy
+  chay_lai_he.py  chạy lại quyết định phân bổ, đo đề xuất
   trung_uong.py   khép vòng            ← đọc sau cùng
 ```
 

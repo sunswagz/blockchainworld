@@ -741,6 +741,33 @@
         d.appendChild(el("p", null, "đề xuất: " + x.nut + "  "
           + so(x.tu, 3) + " → " + so(x.den, 3) + "   (vì «" + x.vi + "»)"));
       });
+
+      /* Đề xuất phải kèm SỐ ĐO, không được để trần. `doDuoc` là kết quả
+         chạy lại quyết định phân bổ trên tờ trình đã ghi — nó không nói
+         được lãi lỗ, nhưng nó bắt được lúc một đề xuất chỉ "tốt hơn" nhờ
+         ôm rủi ro đậm hơn. */
+      var dd = h.doDuoc;
+      if (dd && dd.duDeKetLuan === false) {
+        d.appendChild(el("p", "cho", "chưa đo được: " + dd.vi));
+      } else if (dd) {
+        var pt = function (v) { return v == null ? "—" : (v * 100).toFixed(0) + "%"; };
+        d.appendChild(bang(
+          [{ t: "Đo trên tờ trình đã ghi", trai: 1 }, { t: "A (nay)" },
+           { t: "B (đề xuất)" }],
+          [["vốn rót ra", "$" + so(dd.A.tongCapUsd, 0), "$" + so(dd.B.tongCapUsd, 0)],
+           ["số cơ hội được cấp", dd.A.soCap, dd.B.soCap],
+           ["NET/giờ bình quân (theo vốn)",
+            so(dd.A.netMoiGioBinhQuanBps, 3), so(dd.B.netMoiGioBinhQuanBps, 3)],
+           ["cảng dày nhất / vốn rót", pt(dd.A.tiTrongCang), pt(dd.B.tiTrongCang)],
+           ["ty dày nhất / vốn rót", pt(dd.A.tiTrongTy), pt(dd.B.tiTrongTy)]
+          ].map(function (r) {
+            return [{ t: r[0], c: "trai" }, { t: String(r[1]) }, { t: String(r[2]) }];
+          })));
+        var k = el("p", dd.ketLuan === "b-tot-hon" ? "qua" : "chan",
+                   dd.ketLuan + " — " + dd.vi);
+        d.appendChild(k);
+        d.appendChild(el("p", "giai", dd.loiNhac));
+      }
       if (!(h.deXuat || []).length)
         d.appendChild(el("p", "cho",
           "không đề xuất vặn gì — đứng yên là một kết quả hợp lệ"));

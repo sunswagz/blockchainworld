@@ -230,6 +230,26 @@ def api_hoc(ghiSo: bool = False) -> JSONResponse:
     return _tat() if tu is None else JSONResponse(sach(tu.hoc(ghiSo=ghiSo)))
 
 
+@app.post("/api/chay-lai-he")
+def api_chay_lai_he(nut: str, gtA: float, gtB: float) -> JSONResponse:
+    """Chạy lại quyết định PHÂN BỔ trên tờ trình đã ghi, với hai giá trị núm.
+
+    Không đo lãi lỗ và không giả vờ đo được: cơ hội không được cấp vốn thì
+    không được mở, nên nó không có kết cục. Cái đo được là HÌNH DẠNG phân bổ
+    — rót bao nhiêu, vào cơ hội tốt đến đâu, dồn vào một cảng bao nhiêu.
+    """
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    from thi_bac_ty.chay_lai_he import doi_chieu, thu_hoach
+    from thi_bac_ty.trung_uong import _dat_nut
+    goc = tu.tham_so()
+    tt, hong = thu_hoach(tu.so_dang_ky)
+    return JSONResponse(sach(doi_chieu(
+        tt, _dat_nut(goc, nut, gtA), _dat_nut(goc, nut, gtB),
+        tu.danh_muc.vonBanDauUsd, hong)))
+
+
 @app.post("/api/cau-dao/dong-lai")
 def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
     """Đóng lại một lý do ngắt. **Bắt buộc có tên người.**

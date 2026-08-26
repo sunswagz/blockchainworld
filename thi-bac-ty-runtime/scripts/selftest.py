@@ -1867,6 +1867,153 @@ def kiem_chong_trung() -> None:
          "chặn vĩnh viễn thì một cơ hội quay lại sau ba ngày sẽ vô hình")
 
 
+def kiem_chay_lai_he() -> None:
+    print("\n── Chạy lại hệ: đo đề xuất, và chặn lối TỰ THÁO PHANH ────────")
+    from thi_bac_ty.chay_lai_he import (BIEN_VUOT_BPS, TOI_THIEU_MAU,
+                                        doi_chieu, dung_lai, mot_luot,
+                                        thu_hoach)
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.to_trinh import Chan
+    from thi_bac_ty.trung_uong import TrungUong, _dat_nut
+
+    # ── dựng lại phải KHÔNG mất trường nào ──────────────────────────────
+    goc = _mau(taiSan="BTC", von=120.0, chua=4000.0, net=7.5, giu=6.0)
+    lai = dung_lai(goc.tom_tat())
+    kiem("dựng lại từ payload không mất trường nào",
+         lai is not None and lai.ma == goc.ma
+         and gan(lai.netUocBps, goc.netUocBps)
+         and gan(lai.vonCanUsd, goc.vonCanUsd)
+         and lai.chan[0].cang == goc.chan[0].cang
+         and lai.ruiRo.tom_tat() == goc.ruiRo.tom_tat()
+         and lai.phiConThieu == goc.phiConThieu,
+         "sổ đăng ký lưu payload; mất một trường là chạy lại trên dữ liệu khác")
+    kiem("payload hỏng trả None chứ không ném",
+         dung_lai({"chienLuoc": "a.b.v1"}) is None,
+         "một dòng hỏng không được giết cả lượt chạy lại")
+
+    # ── NET/giờ bình quân phải theo VỐN, không theo đầu cơ hội ──────────
+    # Hai cơ hội cùng được cấp ĐỦ số xin, nhưng cỡ vốn lệch hẳn nhau. Hai
+    # cách tính cho hai con số khác xa — nên phép kiểm này phân biệt được.
+    lo = [_mau(taiSan="AAA", von=500.0, chua=9000.0, net=12.0, giu=6.0,
+               chan=(Chan("LONG", "hyperliquid", "AAA"),
+                     Chan("SHORT", "binance", "AAA"))),
+          _mau(taiSan="BBB", von=300.0, chua=9000.0, net=100.0, giu=1.0,
+               chan=(Chan("LONG", "okx", "BBB"),
+                     Chan("SHORT", "bybit", "BBB")))]
+    kq = mot_luot(lo, {}, 10000.0, "thu")
+    theo_von = (500.0 * 2.0 + 300.0 * 100.0) / 800.0      # 38,75
+    theo_dau = (2.0 + 100.0) / 2                          # 51,00
+    kiem("cả hai cơ hội đều được cấp đủ", kq.soCap == 2
+         and gan(kq.tongCapUsd, 800.0), f"{kq.soCap} · {kq.tongCapUsd}")
+    kiem("NET/giờ bình quân tính THEO VỐN, không theo đầu cơ hội",
+         kq.netMoiGioBinhQuanBps is not None
+         and gan(kq.netMoiGioBinhQuanBps, theo_von, 0.01),
+         f"đang {kq.netMoiGioBinhQuanBps} · theo vốn {theo_von} · "
+         f"theo đầu cơ hội {theo_dau} — rót $300 vào cơ hội 100 bps không "
+         f"kéo cả danh mục lên ngang nó")
+
+    kiem("kết quả khai thẳng là KHÔNG mô phỏng vòng đời",
+         kq.tom_tat()["moPhongVongDoi"] is False)
+    kiem("và khai thẳng hai thứ không đo được",
+         "lãi lỗ" in kq.tom_tat()["khongDoDuoc"])
+
+    # ── chưa đủ mẫu thì KHÔNG kết luận ──────────────────────────────────
+    it = doi_chieu(lo, {}, {}, 10000.0)
+    kiem("dưới ngưỡng mẫu thì từ chối kết luận",
+         it["duDeKetLuan"] is False and str(TOI_THIEU_MAU) in it["vi"])
+
+    # ── cùng tham số thì phải HOÀ ───────────────────────────────────────
+    nhieu = [_mau(taiSan=f"T{i}", von=100.0, chua=9000.0, net=6.0 + i * 0.1,
+                  giu=8.0,
+                  chan=(Chan("LONG", "hyperliquid", f"T{i}"),
+                        Chan("SHORT", "binance", f"T{i}")))
+             for i in range(30)]
+    hoa = doi_chieu(nhieu, {}, {}, 5000.0)
+    kiem("cùng một bộ tham số thì kết luận HOÀ",
+         hoa["duDeKetLuan"] and hoa["ketLuan"] == "hoa",
+         str(hoa.get("ketLuan")) + " · " + str(hoa.get("vi"))[:70])
+
+    # ── ĐÂY là phép kiểm quan trọng nhất của cả file ────────────────────
+    # Nới hết mọi trần thì luôn rót được nhiều hơn. Nếu máy chấm đó là
+    # "tốt hơn" thì vòng tiến hoá sẽ học đúng một bài: tự tháo phanh.
+    # Năm cơ hội RẤT tốt dồn trên một cặp cảng, hai lăm cơ hội tầm thường
+    # rải khắp nơi. Nới trần một cơ hội thì vốn dồn vào năm cái tốt: NET/giờ
+    # bình quân TĂNG THẬT, và độ tập trung cũng tăng theo. Đây đúng là hình
+    # dạng mà một vòng tiến hoá tham lam sẽ tưởng là "tiến bộ".
+    dam = ([_mau(taiSan=f"TOT{i}", von=1500.0, chua=90000.0, net=160.0,
+                 giu=8.0,
+                 chan=(Chan("LONG", "hyperliquid", f"TOT{i}"),
+                       Chan("SHORT", "binance", f"TOT{i}")))
+            for i in range(5)]
+           + [_mau(taiSan=f"THG{i}", von=1500.0, chua=90000.0, net=8.0,
+                   giu=8.0,
+                   chan=(Chan("LONG", f"okx{i}", f"THG{i}"),
+                         Chan("SHORT", f"bybit{i}", f"THG{i}")))
+              for i in range(25)])
+    tp = doi_chieu(dam, {"ruiRoTong": {"tranMotCoHoi": 0.02}},
+                   {"ruiRoTong": {"tranMotCoHoi": 0.30}}, 5000.0)
+    kiem("nới trần khiến NET/giờ bình quân TĂNG THẬT",
+         tp["lechNetMoiGioBps"] is not None and tp["lechNetMoiGioBps"] > 1.0,
+         f"lệch {tp.get('lechNetMoiGioBps')}")
+    kiem("và độ tập trung cũng tăng theo",
+         tp["damHon"] is True,
+         f"cảng {tp['A']['dayNhatCangUsd']} → {tp['B']['dayNhatCangUsd']}")
+    kiem("nên KHÔNG được chấm là cải thiện",
+         tp["ketLuan"] == "b-tot-hon-NHUNG-dam-hon",
+         f"kết luận đang là {tp['ketLuan']} — chấm 'b-tot-hon' ở đây là dạy "
+         f"vòng tiến hoá rằng đường lên điểm là tự tháo phanh")
+    kiem("và nói rõ đây là ĐỔI rủi ro lấy lợi suất",
+         "rủi ro lấy lợi suất" in tp["vi"], tp["vi"][:70])
+
+    # Ngược lại: hơn mà KHÔNG tập trung hơn thì mới là cải thiện thật.
+    deu = [_mau(taiSan=f"D{i}", von=200.0, chua=90000.0, net=8.0 + i, giu=8.0,
+                chan=(Chan("LONG", f"okx{i}", f"D{i}"),
+                      Chan("SHORT", f"bybit{i}", f"D{i}")))
+           for i in range(30)]
+    sach = doi_chieu(deu, {"phanBo": {"toiDaSoViThe": 4}},
+                     {"phanBo": {"toiDaSoViThe": 30}}, 20000.0)
+    kiem("hơn mà không tập trung hơn thì mới gọi là cải thiện",
+         sach["ketLuan"] in ("b-tot-hon", "a-tot-hon", "hoa")
+         and sach["damHon"] is False,
+         f"{sach['ketLuan']} · đậm hơn={sach['damHon']}")
+
+    # ── trần nào chặn nhiều nhất — câu trả lời cho 'nới cái nào' ────────
+    chat = doi_chieu(nhieu, {"ruiRoTong": {"tranMotCang": 0.05}}, {}, 5000.0)
+    kiem("đếm được trần nào chặn nhiều nhất",
+         bool(chat["A"]["tranChanNhieuNhat"]),
+         str(chat["A"]["tranChanNhieuNhat"])[:80])
+
+    # ── _dat_nut phải trả BẢN SAO ──────────────────────────────────────
+    g = {"ruiRoTong": {"tranMotCang": 0.35}}
+    m = _dat_nut(g, "ruiRoTong.tranMotCang", 0.50)
+    kiem("_dat_nut không sửa bản gốc",
+         gan(g["ruiRoTong"]["tranMotCang"], 0.35)
+         and gan(m["ruiRoTong"]["tranMotCang"], 0.50),
+         "sửa tại chỗ thì A và B dùng chung một dict, và phép so luôn nói "
+         "'có tiến bộ'")
+
+    # ── thu hoạch từ sổ thật, và vòng học có ĐO ─────────────────────────
+    class TyNhieu(Ty):
+        ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "nhiều"
+        def __init__(self): super().__init__(); self.i = 0
+        def quet(self): self.i += 1; return [f"T{self.i}"]
+        def xet(self, co): return True, []
+        def trinh(self, co):
+            return _mau(taiSan=co, von=100.0, chua=9000.0, net=6.0,
+                        chan=(Chan("LONG", "hyperliquid", co),
+                              Chan("SHORT", "binance", co)))
+
+    tu = TrungUong(_tam("clh"), {"vonBanDauUsd": 5000.0})
+    tu.dang_ky(TyNhieu())
+    for _ in range(25):
+        tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    tt, hong = thu_hoach(tu.so_dang_ky)
+    kiem("thu hoạch đọc lại được tờ trình từ sổ", len(tt) == 25 and hong == 0,
+         f"{len(tt)} tờ, {hong} hỏng")
+    kiem("và chúng dựng lại đủ để chạy lại",
+         mot_luot(tt, {}, 5000.0, "x").soCap > 0)
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -1911,6 +2058,7 @@ def main() -> int:
     kiem_hai_ty_khac_nganh()
     kiem_chan_doan_he()
     kiem_chong_trung()
+    kiem_chay_lai_he()
 
     print("\n" + "=" * 70)
     if _loi:

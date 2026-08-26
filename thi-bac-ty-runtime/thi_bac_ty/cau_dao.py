@@ -12,13 +12,29 @@ cũng không ty nào được phép chạy tiếp khi cầu dao đã ngắt.
 Câu chung: **"ta không còn chắc mình đang nhìn đúng thế giới"**. Và khi không
 chắc mình nhìn đúng, thứ tệ nhất có thể làm là tiếp tục hành động tự tin.
 
-Ba trong mười điều kiện ấy runtime **đã đo được rồi**:
+**Bốn** trong mười điều kiện ấy runtime đã đo được, nên chúng nối vào đây
+ngay, không phải chờ:
 
-    lệch đồng hồ    `bac/dong_ho.py` — đã đo 416 giây thật
+    lệch đồng hồ    `bac/dong_ho.py` — đã đo 447 giây thật
     dữ liệu đứng    tuổi báo giá theo từng cảng
     API chập chờn   `SucKhoe` của từng cảng
+    sụt vốn         NAV so với vốn ban đầu trong `DanhMuc`
 
-nên chúng nối vào đây ngay, không phải chờ.
+**Sáu điều kiện còn lại CHƯA nối, và liệt kê ra đây là có chủ ý.** Một cầu
+dao kể tên mười điều kiện rồi chỉ canh bốn thì người đọc tưởng mình được
+che mười — đúng lớp "bày cửa mà không nối" mà `bac/rui_ro.py` đã dính một
+lần. Nên: sáu cái dưới đây KHÔNG được canh, và cạnh mỗi cái là thứ còn
+thiếu để canh được.
+
+    RPC hỏng            chưa có kết nối chuỗi nào
+    lệch tài khoản      chưa đọc số dư sàn (`DanhMuc.nguonThat` = False)
+    lệch số dư          như trên
+    oracle lệch giá     chưa lấy giá oracle, mới có mark của sàn
+    khoá riêng hỏng     KHÔNG có khoá nào trong runtime này
+    đòn bẩy ngoài dự tính  chưa có vị thế thật để mà đo đòn bẩy
+
+Cả sáu đều chờ cùng một thứ: **lớp đặt lệnh**. Ngày nó tồn tại là ngày phải
+quay lại đây trước khi quay lại bất cứ đâu khác.
 
 ## Ngắt thì TỰ ĐỘNG, đóng lại thì PHẢI CÓ NGƯỜI
 
