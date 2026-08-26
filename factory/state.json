@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-26T02:13:30.518Z",
-  "lan": 277,
+  "generatedAt": "2026-08-26T07:15:47.945Z",
+  "lan": 279,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-26T02:01:01.950Z",
@@ -47,15 +47,15 @@
       "lucDoi": "2026-08-26T02:11:24.967Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-08-25T19:00:37.390Z",
+      "luc": "2026-08-26T07:13:12.250Z",
       "ket": "ok",
-      "giay": 58,
-      "doi": false,
-      "chuThich": "quét 58s · dựng 0s · haiku-4-5",
+      "giay": 130,
+      "doi": true,
+      "chuThich": "quét 130s · dựng 0s · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-25T19:00:37.390Z",
-      "lucDoi": "2026-08-25T02:09:25.951Z"
+      "lucOk": "2026-08-26T07:13:12.250Z",
+      "lucDoi": "2026-08-26T07:13:12.250Z"
     },
     "hoang-thanh": {
       "luc": "2026-08-14T09:16:24.800Z",
@@ -156,15 +156,15 @@
       "lucDoi": "2026-08-25T18:59:39.281Z"
     },
     "dong-tin": {
-      "luc": "2026-08-25T19:03:28.960Z",
+      "luc": "2026-08-26T07:15:47.945Z",
       "ket": "ok",
-      "giay": 171,
+      "giay": 155,
       "doi": true,
       "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-25T19:03:28.960Z",
-      "lucDoi": "2026-08-25T19:03:28.960Z"
+      "lucOk": "2026-08-26T07:15:47.945Z",
+      "lucDoi": "2026-08-26T07:15:47.945Z"
     },
     "ho-bo-tien-hoa": {
       "luc": "2026-08-25T13:30:56.378Z",
@@ -223,6 +223,24 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-26T07:15:47.945Z",
+      "ma": "dong-tin",
+      "ket": "ok",
+      "giay": 155,
+      "doi": true,
+      "chuThich": "dựng 0s · haiku-4-5 · không WebSearch",
+      "vi": null
+    },
+    {
+      "luc": "2026-08-26T07:13:12.250Z",
+      "ma": "dai-quan-trac",
+      "ket": "ok",
+      "giay": 130,
+      "doi": true,
+      "chuThich": "quét 130s · dựng 0s · haiku-4-5",
+      "vi": null
+    },
     {
       "luc": "2026-08-26T02:13:30.518Z",
       "ma": "thai-boc-tu-tin-pt",
@@ -2001,24 +2019,6 @@
       "ma": "cong-bo",
       "ket": "ok",
       "giay": 4,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-19T13:12:59.566Z",
-      "ma": "do-sat-vien",
-      "ket": "ok",
-      "giay": 60,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-19T13:11:59.542Z",
-      "ma": "kinh-thanh",
-      "ket": "ok",
-      "giay": 2,
       "doi": true,
       "chuThich": "",
       "vi": null

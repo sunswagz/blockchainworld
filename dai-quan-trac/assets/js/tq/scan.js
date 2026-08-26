@@ -1,140 +1,113 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-25T02:09:25.905Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-26T07:13:12.186Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-08-25T02:09:25.905Z",
-  "date": "25/08/2026",
+  "generatedAt": "2026-08-26T07:13:12.186Z",
+  "date": "26/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "nangluong",
-      "tieu_de": "Nhập khẩu dầu Trung Quốc tháng 7 phục hồi lên 35,73 triệu tấn, tăng 22% từ tháng 6",
-      "ngay": "2026-08-07",
-      "nguon": "Bloomberg",
-      "tac_dong": "Gián đoạn Hormuz kéo dài → chi phí nhập khẩu dầu tăng → áp lực lên quỹ ngân sách của Trung Quốc",
+      "tieu_de": "Nhập khẩu dầu TQ giảm 41,3% năm trên năm tháng 6, mức thấp nhất 10 năm",
+      "ngay": "2026-08-10",
+      "nguon": "EIA",
+      "tac_dong": "Cú sốc cung ứng năng lượng → có thể giảm thu ngân sách từ lệ phí năng lượng → áp lực cho ngân sách Bắc Kinh nuôi bộ máy hành chính, quân đội",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "nangluong",
-      "tieu_de": "Tháng 2-6 2026, giao thông Hormuz giảm 95% (từ 130 xuống 6 tàu/ngày) do xung đột Mỹ-Iran",
-      "ngay": "2026-06-30",
+      "tieu_de": "Nhập khẩu dầu phục hồi tháng 7 (+22% từ tháng 6) khi lưu lượng eo biển Hormuz tăng trở lại",
+      "ngay": "2026-08-07",
       "nguon": "Bloomberg",
-      "tac_dong": "Gián đoạn năng lượng → giảm sản xuất → giảm thu ngân sách → khó nuôi bộ máy nhà nước",
+      "tac_dong": "Bình thường hoá dòng chảy năng lượng → ổn định được thu ngân sách → giảm áp lực tài chính cho chính quyền",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "Chính quyền Trump áp thuế 25% lên chip H200 thay vì cấm hoàn toàn, từ tháng 8",
-      "ngay": "2026-08-15",
-      "nguon": "Semiconductors Insight",
-      "tac_dong": "Kiểm soát chip ảnh hưởng tới khả năng phát triển AI → suy yếu lợi thế công nghệ → giảm thu từ ngành công nghệ",
+      "tieu_de": "BIS thay đổi chính sách cấp phép chip AI cho TQ từ 'từ chối giả định' thành 'từng trường hợp' (tháng 1/2026)",
+      "ngay": "2026-01-15",
+      "nguon": "US Department of Commerce",
+      "tac_dong": "Chip bị hạn chế → TQ phải phát triển trong nước → chi phí cao, tốc độ chậm → ảnh hưởng doanh thu công ty chip TQ, giảm thu thuế",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "Kế hoạch 5 năm thứ 15 (2026-2030) của Trung Quốc đặt tự cung cấp công nghệ lên mức ưu tiên cao",
-      "ngay": "2026-03-15",
+      "tieu_de": "TQ có thể sản xuất advanced chips ở mức 1-2% công suất Mỹ trong 2026",
+      "ngay": "2026-08-20",
       "nguon": "Semiconductors Insight",
-      "tac_dong": "Tự cung cấp công nghệ là đường dài → hiện tại Trung Quốc chỉ sản xuất 1-2% so với Mỹ",
+      "tac_dong": "Năng lực công nghệ hạn chế → các công ty tech TQ tăng trưởng chậm → giảm doanh thu, giảm góp ngân sách, ảnh hưởng khả năng đầu tư R&D quân sự",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "Thuế hiệu dụng Mỹ lên hàng Trung Quốc đạt 37,7% vào cuối 10/2025, EU 8,6%",
+      "tieu_de": "Xuất khẩu TQ sang Mỹ giảm 20% năm 2025; thuế trung bình lên tới 37,7%",
       "ngay": "2026-08-15",
-      "nguon": "Trade Foundation",
-      "tac_dong": "Thuế cao → xuất khẩu Trung Quốc bị cản → giảm ngoại tệ → suy yếu tài chính nhà nước",
+      "nguon": "Tax Foundation",
+      "tac_dong": "Xuất khẩu sang thị trường lớn nhất giảm mạnh → doanh thu công ty xuất khẩu TQ giảm → thu thuế giảm, áp lực lên ngân sách trung ương",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "Thỏa thuận giảm thuế Mỹ-Trung hạn cuối 11/2026, căng thẳng có thể tăng trở lại",
-      "ngay": "2026-11-10",
-      "nguon": "Trade Foundation",
-      "tac_dong": "Bất định thương mại → các doanh nghiệp Trung Quốc không thể lên kế hoạch dài hạn",
+      "tieu_de": "Xuất khẩu TQ sang EU tăng 8%, nhưng chưa bù được mất mát từ Mỹ",
+      "ngay": "2026-08-20",
+      "nguon": "CEPR",
+      "tac_dong": "Phân tán thị trường giúp giảm tác động, nhưng tổng doanh thu xuất khẩu vẫn mất, khó bù lại thu ngân sách",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "Eo biển Malacca xử lý 94.301 tàu năm 2024, kỷ lục mới, 23,2 triệu thùng dầu/ngày (29% toàn cầu)",
-      "ngay": "2026-05-15",
-      "nguon": "The Diplomat",
-      "tac_dong": "Phụ thuộc Malacca cao → nếu bị đóng cửa → logistics Trung Quốc tê liệt",
-      "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "Bộ Giao thông Trung Quốc nâng cảnh báo an ninh cho tàu Trung Quốc ở Malacca lên mức cao nhất 2/7/2026",
+      "tieu_de": "Bộ Giao thông TQ nâng cảnh báo an toàn cho tàu ở eo biển Malacca lên mức cao nhất",
       "ngay": "2026-07-02",
-      "nguon": "The Diplomat",
-      "tac_dong": "Rủi ro hàng hải tăng → chi phí bảo hiểm lên → chi phí nhập khẩu tăng",
+      "nguon": "China Ministry of Transport",
+      "tac_dong": "Rủi ro hàng hải tăng → chi phí bảo hiểm tăng, gián đoạn giao thương → chậm lưu thông hàng, ảnh hưởng doanh thu doanh nghiệp vận tải, giảm thuế",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "Pinglu Canal sẽ khai trương 9/2026 nhưng những người ủng hộ nó cũng thừa nhận không thể thay Malacca",
-      "ngay": "2026-09-15",
-      "nguon": "The Diplomat",
-      "tac_dong": "Giải pháp thay thế Malacca không khả thi → phụ thuộc vào eo biển kéo dài",
+      "tieu_de": "Kênh Pinglu dự kiến mở thử nghiệm tháng 9/2026 nhưng không phải thay thế Malacca",
+      "ngay": "2026-08-20",
+      "nguon": "CGEP",
+      "tac_dong": "Kênh bất kỳ vẫn phụ thuộc Malacca → không giảm rủi ro chokepoint → TQ vẫn phải chịu rủi ro gián đoạn giao thương",
       "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Power of Siberia 2 bị chết đứng do khoảng cách giá gas quá lớn, Bắc Kinh bảo Matxcơva dừng đặt vấn đề",
-      "ngay": "2026-07-31",
-      "nguon": "Asia Times",
-      "tac_dong": "Đường ống dầu khí Nga bị trì hoãn → Trung Quốc phải tìm nguồn khác, có thể từ Hormuz (rủi ro cao)",
-      "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "tieu_de": "Nga cung cấp dầu thô nhiều nhất cho TQ, xếp thứ 2 về than đá, thứ 3 LNG",
+      "ngay": "2026-08-01",
+      "nguon": "Center on Global Energy Policy",
+      "tac_dong": "Quan hệ năng lượng ổn định → TQ đảm bảo nguồn cung dầu từ Nga → thay thế được dầu Trung Đông bị ngặt → ổn định thu nhập, khả năng nuôi bộ máy",
+      "muc": "g",
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Ukraine tấn công Caspian Pipeline Consortium port 19/7, tổng lượng tải tháng 8 giảm 23%",
-      "ngay": "2026-08-15",
-      "nguon": "CREA",
-      "tac_dong": "Cung dầu Nga suy yếu → Trung Quốc phải mua từ các nguồn khác, chi phí tăng",
-      "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Trung Quốc mua 50% xuất khẩu dầu Nga, theo sau là Ấn Độ (37%), Thổ Nhĩ Kỳ (5%), EU (5%)",
-      "ngay": "2026-08-15",
-      "nguon": "CREA",
-      "tac_dong": "Phụ thuộc Nga cao về dầu → nếu Nga mất nguồn lạc → Trung Quốc phải tìm thay thế đắt hơn",
-      "muc": "y",
-      "at": "2026-08-25T02:09:25.905Z"
+      "tieu_de": "Putin, Xi thảo luận pipeline Power of Siberia 2 vào tháng 5/2026, đạt được hiểu biết về tuyến đường",
+      "ngay": "2026-05-20",
+      "nguon": "Al Jazeera",
+      "tac_dong": "Pipeline mới → tăng cấp độ năng lượng chiến lược TQ-Nga → giảm phụ thuộc eo biển → tăng cơ bế độc lập lâu dài",
+      "muc": "g",
+      "at": "2026-08-26T07:13:12.186Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "Dự trữ ngoại hối Trung Quốc tăng 28,7 tỷ USD trong 2/2026, đạt 3,428 tỷ USD, cao nhất kể từ 11/2015",
-      "ngay": "2026-02-28",
-      "nguon": "Trading Economics",
-      "tac_dong": "Dự trữ ngoại hối mạnh → tỷ giá ổn định → khả năng thanh toán quốc tế ổn định",
+      "tieu_de": "Dự trữ ngoại hối TQ 3.418 tỷ USD tháng 7/2026, cao nhất kể từ 2015",
+      "ngay": "2026-08-20",
+      "nguon": "SAFE",
+      "tac_dong": "Dự trữ ngoại hối cao → TQ có khả năng ổn định tỷ giá RMB → ổn định xuất khẩu, kiểm soát vốn, ổn định tài chính → tăng cơ bế cho chế độ",
       "muc": "g",
-      "at": "2026-08-25T02:09:25.905Z"
-    },
-    {
-      "th": "taichinh",
-      "tieu_de": "CIPS (hệ thống thanh toán Trung Quốc) mở rộng tới 1.629 người dùng ở 119 quốc gia, tăng thay cho SWIFT",
-      "ngay": "2026-08-15",
-      "nguon": "Fair Observer",
-      "tac_dong": "CIPS chưa thay thế USD hoàn toàn nhưng tăng lên → giảm phụ thuộc vào hệ thống Mỹ",
-      "muc": "g",
-      "at": "2026-08-25T02:09:25.905Z"
+      "at": "2026-08-26T07:13:12.186Z"
     }
   ],
   "levels": {
@@ -142,45 +115,45 @@ window.DQT_TQ_SCAN = {
     "congnghe": "y",
     "thuongmai": "y",
     "hanghai": "y",
-    "nga": "y",
+    "nga": "g",
     "taichinh": "g"
   },
   "log": [
     {
       "ok": true,
       "t": "Năng lượng",
-      "at": "2026-08-25T02:09:25.905Z",
-      "d": "2 tín hiệu · mức y · Nhập khẩu dầu Trung Quốc phục hồi từ mức thấp nhất 10 năm do Hormuz bị gián đoạn"
+      "at": "2026-08-26T07:13:12.186Z",
+      "d": "2 tín hiệu · mức y · Nhập khẩu dầu TQ giảm 41% tháng 6 vì eo biển bị ngặt, nhưng phục hồi tháng 7 (+22%) — cú sốc năng lượng → áp lực thu ngân sách, khả năng nuôi bộ máy."
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-08-25T02:09:25.905Z",
-      "d": "2 tín hiệu · mức y · Kiểm soát xuất khẩu chip Mỹ tác động, Trung Quốc lên kế hoạch tự cung cấp công nghệ"
+      "at": "2026-08-26T07:13:12.186Z",
+      "d": "2 tín hiệu · mức y · Mỹ tiếp tục siết kiểm soát xuất khẩu chip (tháng 1/2026), TQ chỉ sản xuất được 1-2% công suất Mỹ — hạn chế công nghệ → thất thu từ sản xuất chip."
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-08-25T02:09:25.905Z",
-      "d": "2 tín hiệu · mức y · Thuế Mỹ lên 37,7% lên hàng Trung Quốc, thỏa thuận giảm thuế kéo tới 11/2026"
+      "at": "2026-08-26T07:13:12.186Z",
+      "d": "2 tín hiệu · mức y · Xuất khẩu TQ sang Mỹ giảm 20% năm 2025, thuế trung bình 37,7% — mất doanh thu xuất khẩu → thu ngân sách giảm."
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-08-25T02:09:25.905Z",
-      "d": "3 tín hiệu · mức y · Eo biển Malacca vẫn là cổng chìa khóa của Trung Quốc, Pinglu Canal không đủ khắc phục"
+      "at": "2026-08-26T07:13:12.186Z",
+      "d": "2 tín hiệu · mức y · TQ nâng cảnh báo an toàn tàu ở eo biển Malacca lên mức cao nhất (2/7/2026); kênh Pinglu mở 9/2026 nhưng không thay thế được Malacca — vẫn phụ thuộc chokepoint."
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-08-25T02:09:25.905Z",
-      "d": "3 tín hiệu · mức y · Hợp tác năng lượng Trung Quốc-Nga bị gián đoạn do Power of Siberia 2 và tấn công Ukraine"
+      "at": "2026-08-26T07:13:12.186Z",
+      "d": "2 tín hiệu · mức g · Nga là nhà cung cấp dầu thô lớn nhất TQ; thảo luận pipeline Power of Siberia 2 (5/2026) — quan hệ năng lượng chiến lược ổn định."
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-08-25T02:09:25.905Z",
-      "d": "2 tín hiệu · mức g · Dự trữ ngoại hối Trung Quốc tăng lên 3,428 tỷ USD, hệ thống CIPS mở rộng nhanh"
+      "at": "2026-08-26T07:13:12.186Z",
+      "d": "1 tín hiệu · mức g · Dự trữ ngoại hối TQ 3.418 tỷ USD (tháng 7), ổn định trong 2 tháng qua — kinh tế tài chính ổn định, khả năng thanh khoản tốt."
     }
   ]
 };
