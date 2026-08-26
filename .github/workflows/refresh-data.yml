@@ -842,10 +842,20 @@ jobs:
           fi
           if node scripts/tien-hoa.mjs cong dai-quan-trac --so "$RUNNER_TEMP/dqt-goc.json" 2>&1 \
                | tee "$RUNNER_TEMP/tien-hoa-dqt.log"; then
+            # nang-version chạy TOÀN SITE, nên phải khoanh lại — nhưng
+            # khoanh theo "không phải cung tôi" thì SAI, và đã sai thật:
+            # bốn bước tiến hoá chạy nối nhau trong CÙNG một lượt, và bản
+            # nâng của bước trước vẫn đang là thay đổi CHƯA COMMIT. Bước
+            # sau thấy chúng trong `git diff` rồi trả lại luôn, nên chỉ
+            # cung của bước CUỐI giữ được bản nâng. Bốn lượt bot liền
+            # (b1a2ef9 · 5aa521e · 16970d5 · 8ba1864) đều chỉ nâng đúng
+            # kham-thien-giam — bước cuối cùng.
+            #
+            # Nên chụp danh sách sw.js đã bẩn TRƯỚC, rồi chỉ trả lại thứ
+            # chính bước này vừa làm bẩn.
+            SW_BAN_TRUOC=$(git diff --name-only -- '*/sw.js')
             node scripts/nang-version.mjs
-            # nang-version chạy TOÀN SITE. Trả lại sw.js của cung khác
-            # để node này không kéo theo bump không phải của mình.
-            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^dai-quan-trac/' || true)
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^dai-quan-trac/' | grep -vxF "$SW_BAN_TRUOC" || true)
             echo "::notice::Vòng tiến hoá Đài Quan Trắc: NHẬN"
           else
             echo "::error::Vòng tiến hoá Đài Quan Trắc: TRẢ LẠI — cổng chặn không qua"
@@ -988,8 +998,9 @@ jobs:
         timeout-minutes: 4
         run: |
           if node scripts/tien-hoa.mjs cong ho-bo --so "$RUNNER_TEMP/hobo-goc.json" 2>&1 | tee "$RUNNER_TEMP/ho-bo-tien-hoa.log"; then
+            SW_BAN_TRUOC=$(git diff --name-only -- '*/sw.js')
             node scripts/nang-version.mjs
-            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^ho-bo/' || true)
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^ho-bo/' | grep -vxF "$SW_BAN_TRUOC" || true)
             echo "::notice::Vòng tiến hoá Hộ Bộ: NHẬN"
           else
             echo "::error::Vòng tiến hoá Hộ Bộ: TRẢ LẠI — cổng chặn không qua"
@@ -1111,8 +1122,9 @@ jobs:
         timeout-minutes: 4
         run: |
           if node scripts/tien-hoa.mjs cong thai-boc-tu --so "$RUNNER_TEMP/tbt-goc.json" 2>&1 | tee "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log"; then
+            SW_BAN_TRUOC=$(git diff --name-only -- '*/sw.js')
             node scripts/nang-version.mjs
-            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^thai-boc-tu/' || true)
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^thai-boc-tu/' | grep -vxF "$SW_BAN_TRUOC" || true)
             echo "::notice::Vòng tiến hoá Thái Bộc Tự: NHẬN"
           else
             echo "::error::Vòng tiến hoá Thái Bộc Tự: TRẢ LẠI — cổng chặn không qua"
@@ -1332,8 +1344,9 @@ jobs:
         timeout-minutes: 4
         run: |
           if node scripts/tien-hoa.mjs cong kham-thien-giam --so "$RUNNER_TEMP/ktg-goc.json" 2>&1 | tee "$RUNNER_TEMP/kham-thien-giam-tien-hoa.log"; then
+            SW_BAN_TRUOC=$(git diff --name-only -- '*/sw.js')
             node scripts/nang-version.mjs
-            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^kham-thien-giam/' || true)
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^kham-thien-giam/' | grep -vxF "$SW_BAN_TRUOC" || true)
             echo "::notice::Vòng tiến hoá Khâm Thiên Giám: NHẬN"
           else
             echo "::error::Vòng tiến hoá Khâm Thiên Giám: TRẢ LẠI — cổng chặn không qua"
