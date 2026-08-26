@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (129.572 sao)
+     Kho    : garrytan/gstack (129.836 sao)
      Đường  : autoplan
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/autoplan/SKILL.md
-     sha256 : 9d1c06686f59dc06 · nhập 2026-08-25T18:59:39.218Z
+     sha256 : 9d1c06686f59dc06 · nhập 2026-08-26T20:19:42.071Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

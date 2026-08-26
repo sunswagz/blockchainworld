@@ -362,7 +362,36 @@ code,.mono{font-family:var(--mono)}
 .ng-k[data-ok="0"]{background:var(--xuong-t);color:var(--xuong)}
 
 /* ── linh tinh ────────────────────────────────────────── */
-.trong{padding:34px;text-align:center;color:var(--fg-3);font-size:13.4px}
+/* TRẠNG THÁI RỖNG. Luật 1 của cung cấm vẽ 0 thay cho "chưa đo được",
+   nhưng một danh sách rỗng còn tệ hơn số 0: nó không nói gì cả, và
+   người đọc tự lấp chỗ trống — thường bằng câu tệ nhất trong ba câu
+   có thể ("trang hỏng", "bằng không", "chưa đo được"). Nên mỗi chỗ
+   rỗng phải tự nói NÓ RỖNG VÌ SAO.
+
+   Nền chìm hơn thẻ (--bg-2 trong --card) và viền ĐỨT: đây là "chỗ
+   này có chỗ, chưa có nội dung", khác hẳn một thẻ đặc viền liền —
+   thứ mà mắt đọc thành nội dung thật. Không màu nào mới; --fg-3 và
+   --fg-2 trên --bg-2 đo được 5.42 và 7.99, đều qua AA. */
+.trong{margin:0;padding:22px 18px;border:1px dashed var(--line);border-radius:var(--r);
+  background:var(--bg-2);color:var(--fg-3);font-size:12.6px;line-height:1.65;text-align:center}
+.trong b{display:block;margin-bottom:3px;font-size:13px;color:var(--fg-2)}
+/* Đúng MỘT chỗ rỗng trong cung mang tin tốt — "mọi nút thắt đều đã
+   có người xây". Cùng khuôn xám thì nó đọc y hệt tám chỗ rỗng do
+   thiếu dữ liệu, tức là báo hỏng cho một kết quả lành. Viền xanh chỉ
+   là dấu hiệu THỨ HAI; câu chữ bên trong đã nói rõ, nên người không
+   phân biệt được màu không mất gì. */
+/* Chữ ở đây là --fg-2 chứ không phải --fg-3 như khuôn xám: --fg-3
+   trên nước rửa --len-t chỉ được 4.65 — qua AA, nhưng thành cặp thấp
+   nhất cả cung, và đổi lấy một bậc mờ mà chỗ này không cần. --fg-2
+   được 6.85 và hợp hơn: đây là câu trả lời, không phải chú thích. */
+.trong[data-tot="1"]{border-color:var(--len);border-style:solid;
+  background:var(--len-t);color:var(--fg-2)}
+.trong[data-tot="1"] b{color:var(--len)}
+/* Bảng rỗng giữ nguyên hàng tiêu đề — cột nào lẽ ra có mặt vẫn đọc
+   được — rồi nói lý do ở một ô trải hết bề ngang. Phải cởi canh phải
+   và chữ máy của `.bang td`: đây là một CÂU, không phải một con số. */
+.bang td.trong{text-align:center;font-family:inherit;white-space:normal;
+  border:0;border-radius:0;background:none;padding:26px 13px}
 .chan{margin-top:22px;padding-top:15px;border-top:1px solid var(--line);
   font-size:11.6px;color:var(--fg-3);line-height:1.72}
 .chan b{color:var(--fg-2)}

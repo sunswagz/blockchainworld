@@ -307,6 +307,14 @@ code,.mono,.ma{font-family:var(--mono)}
 .the[data-k="tim"]{background:var(--tim-t);color:var(--tim);border-color:rgba(167,139,250,.3)}
 .hang-the{display:flex;gap:6px;flex-wrap:wrap}
 
+/* Nhãn NGUỒN ở đỉnh khối — luận đầy đủ ở khoi() trong app.js.
+   Chữ máy và viết hoa để nó đọc ra là NHÃN HỆ THỐNG chứ không phải
+   một chữ trong nội dung; nhỏ hơn h2 một bậc rõ để nó không tranh
+   chỗ với tên khối. Chữ là dấu hiệu chính, màu chỉ đi kèm — nên
+   nhãn không màu (chưa có số đo) vẫn đọc được y như ba nhãn kia. */
+.khoi-dinh .the[data-nguon]{font-family:var(--mono);font-size:9.5px;font-weight:700;
+  letter-spacing:.07em;padding:2px 7px;flex:0 0 auto}
+
 .loc{display:flex;gap:7px;flex-wrap:wrap;padding:12px 17px;border-bottom:1px solid var(--line-2);
   background:var(--card-2)}
 .loc button{padding:5px 12px;border-radius:999px;border:1px solid var(--line);

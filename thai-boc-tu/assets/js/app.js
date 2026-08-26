@@ -126,12 +126,36 @@
       "</div>";
   }
 
-  function bang(cot, hang) {
+  /* ═══════════════ CHỖ RỖNG PHẢI TỰ NÓI VÌ SAO ═══════════════
+     Luật 1 của cung — "thiếu dữ liệu thì vẽ gạch, không vẽ 0" — mới
+     canh được từng Ô. Nó không canh được cả một DANH SÁCH rỗng, mà
+     chín danh sách ở đây đều dựng bằng `.map().join("")`: nguồn hụt
+     một lượt là ra đúng một cái <div> không có con nào.
+
+     Chỗ rỗng ấy tệ hơn số 0 chứ không nhẹ hơn. Số 0 nói sai một câu;
+     chỗ trống không nói câu nào, nên người đọc tự điền — và ba câu
+     họ có thể điền ("trang hỏng", "bằng không", "chưa đo được") thì
+     chỉ một câu đúng. Không lỗi nào báo, và thước "ô trống" cũng
+     không đếm được: nó đếm dấu "—", mà ở đây không có lấy một dấu.
+
+     Nên mỗi chỗ rỗng mang một câu RIÊNG, nói đúng nguồn nào hụt và
+     trống ấy nghĩa là gì. Một câu chung ("Không có dữ liệu") thì lại
+     về đúng chỗ trống câm, chỉ tốn thêm một dòng chữ. */
+  function hoacTrong(html, vi, tot) {
+    if (html) return html;
+    return '<p class="trong"' + (tot ? ' data-tot="1"' : "") + ">" + vi + "</p>";
+  }
+
+  function bang(cot, hang, vi) {
     var th = cot.map(function (c) {
       return "<th" + (c.rong ? ' style="width:' + c.rong + '"' : "") + ">" + esc(c.t) + "</th>";
     }).join("");
+    /* Bảng rỗng giữ nguyên <thead>: cột nào lẽ ra có mặt vẫn đọc
+       được, nên người xem biết mình đang thiếu CÁI GÌ. */
+    var than = hang || '<tr><td class="trong" colspan="' + cot.length + '">' +
+      (vi || "Không dòng nào ở lượt dữ liệu này.") + "</td></tr>";
     return '<div class="cuon"><table class="bang"><thead><tr>' + th +
-      "</tr></thead><tbody>" + hang + "</tbody></table></div>";
+      "</tr></thead><tbody>" + than + "</tbody></table></div>";
   }
 
   /* Ghép số (bot) với chữ (viết tay). Lệch mã thì trả về danh sách
@@ -197,7 +221,10 @@
         "năm toa còn lại TVL không đo nổi") +
       "</div>";
 
-    var tau = '<div class="tau">' + G.toa.map(theToa).join("") + "</div>";
+    var tau = '<div class="tau">' + hoacTrong(G.toa.map(theToa).join(""),
+      "<b>Không toa nào ghép được.</b> Sổ toa <code>assets/js/toa.js</code> và " +
+      "số liệu <code>assets/js/v/doan-tau.js</code> không khớp nhau ở mã toa nào. " +
+      "Dòng báo lệch ở đầu phòng nói rõ mã nào thừa, mã nào thiếu.") + "</div>";
 
     var duY = "";
     if (D.du && D.du.cat.length) {
@@ -398,6 +425,15 @@
       "</div>";
 
     var ds = D.oracle.map(function (o) { return theSk(o, max); }).join("");
+    /* Chú thích màu đi CÙNG danh sách, không đứng riêng: một bảng chú
+       thích cho hai dải màu không tồn tại thì đọc như hai dải đã bị
+       mất, chứ không như "chưa có gì để tô màu". */
+    var dsKhoi = hoacTrong(ds && ct + ds,
+      "<b>Không khớp nối nào để bày.</b> Lượt này không giao thức nào khai " +
+      "nguồn giá, nên không có gì để xếp hạng. Trống ở đây nghĩa là <i>thiếu " +
+      "khai báo</i>, không phải không ai dùng oracle — và con số “không có " +
+      "đường lui” ở khối trên vốn đã là sàn dưới, nên nó cũng đang đọc trên " +
+      "cùng chỗ hụt này.");
 
     var chuoi = bang(
       [{ t: "Chuỗi", rong: "34%" }, { t: "Giao thức đứng trên" }, { t: "TVL của chuỗi" }],
@@ -405,7 +441,9 @@
         return "<tr><td><b>" + esc(c.ten) + "</b></td><td class=\"mono\">" +
           so(c.soGiaoThuc, 0) + "</td><td class=\"mono\">" +
           (c.tvl == null ? "—" : tien(c.tvl)) + "</td></tr>";
-      }).join("")
+      }).join(""),
+      "Lượt này không giao thức nào khai mình đứng trên chuỗi nào, " +
+      "nên chưa đếm được chuỗi nào."
     );
 
     var tc = D.traiChuoi;
@@ -424,7 +462,7 @@
          chỉ một cái nói ra điều đó thì hai cái kia đọc như bảng chết. */
       khoi("Vốn hoá không phải tầm quan trọng hệ thống",
         D.oracle.length + " khớp · bấm để mở hồ sơ",
-        ct + ds,
+        dsKhoi,
         "Một dự án oracle có thể có vốn hoá khiêm tốn mà vẫn là chỗ hàng chục tỷ " +
         "đô đang dựa vào. Bảng vốn hoá không bao giờ nói ra điều đó, vì nó đo " +
         "<b>giá của token</b> chứ không đo <b>lượng vốn phụ thuộc</b>. Bảng dưới " +
@@ -455,7 +493,11 @@
     }).join("");
 
     return khoi("Đoàn tàu tự tháo mình ra theo thứ tự nào", null,
-      '<div class="dot-l">' + hang + "</div>",
+      '<div class="dot-l">' + hoacTrong(hang,
+        "<b>Chưa xếp được thứ tự nào.</b> Thứ tự này đọc từ hạng trụ lại của " +
+        "từng toa trong <code>assets/js/toa.js</code>, và lượt này không toa nào " +
+        "ghép được với số liệu. Trống ở đây là <i>chưa ghép được</i>, không phải " +
+        "đoàn tàu không có thứ tự.") + "</div>",
       "Đọc từ trên xuống là đọc đúng thứ tự bị bỏ khi nhiên liệu cạn: trên cùng " +
       "bỏ trước nhất, dưới cùng trụ lại lâu nhất. <b>Đây là suy luận theo thứ tự " +
       "phụ thuộc, không phải số đo và không phải dự báo giá.</b> Cách đọc một " +
@@ -516,7 +558,11 @@
 
     return khoi("Toa nào đọc tiếp ở cung nào",
       demCung() + " cung · " + ds.length + " cửa",
-      '<div class="cua-l">' + the + "</div>",
+      '<div class="cua-l">' + hoacTrong(the,
+        "<b>Chưa toa nào mở cửa sang cung khác.</b> Cửa nối khai tay trong " +
+        "<code>assets/js/toa.js</code>, ở trường <code>cung</code> của từng toa. " +
+        "Trống ở đây là <i>sổ toa chưa khai</i>, không phải các cung kia biến mất — " +
+        "vẫn sang được bằng Cổng Thành ở khối dưới.") + "</div>",
       "Cung này chỉ vẽ <b>quan hệ giữa các toa</b>. Chi tiết bên trong từng toa " +
       "đã nằm ở cung khác rồi, nên thay vì chép lại, mỗi toa có một cửa mở thẳng " +
       "sang đó: nền tảng sang Kinh Thành, mở rộng sang Đô Sát Viện, tiền ổn định " +
@@ -577,7 +623,11 @@
       "rằng nó không phải — không có API nào chấm được “kinh tế tác tử đã xong " +
       "25%”.", HUY_LUAN) +
       khoi("Những khớp nối còn thiếu", S.THIEU.length + " chỗ",
-        '<div class="thieu-l">' + th + "</div>",
+        '<div class="thieu-l">' + hoacTrong(th,
+          "<b>Sổ toa chưa khai nút thắt nào.</b> Danh sách này viết tay ở " +
+          "<code>THIEU</code> trong <code>assets/js/toa.js</code>. Trống nghĩa là " +
+          "<i>chưa ai viết ra</i>, không phải đã hết chỗ thiếu — chưa có API nào " +
+          "chấm được câu đó, nên không có nguồn nào điền hộ.") + "</div>",
         "Câu hỏi lớn của blockchain đã không còn là nhanh hơn hay rẻ hơn — đó là " +
         "câu hỏi của khoảng 2017–2022. Những chỗ dưới đây là thứ chặn đoàn tàu " +
         "tự chạy, và không chỗ nào giải được bằng thêm thông lượng. " +
@@ -821,21 +871,42 @@
         "thẳng là không có, chứ không điền bằng số đoán.") +
 
       khoi("Công trường đang mở", CT.tong.soDangXay + "/" + CT.tong.soKho + " còn động",
-        ctHang,
+        hoacTrong(ctHang,
+          "<b>Lượt gần nhất không kho mã nào lấy được.</b> GitHub có thể chạm hạn " +
+          "mức trong khi DefiLlama vẫn trả lời, nên phần tiền ở trên vẫn đúng. " +
+          "Nhưng hai ô “có người đang xây tới bậc” và “nút chưa ai xây” thì " +
+          "<i>đang đọc trên chính bảng rỗng này</i> — đừng đọc chúng như một kết luận."),
         "Mỗi kho là một chỗ nút thắt đó đang thật sự được xây. <b>Ngày commit " +
         "cuối là thước ở đây</b>, không phải số sao: một kho 2.000 sao mà tám " +
         "tháng không ai đụng vào thì nút đó đang nguội, còn một kho 81 sao có " +
         "commit hôm nay thì đang chạy. Bấm tên kho để sang thẳng GitHub.") +
 
       khoi("Kỹ sư vừa đề xuất gì", CT.deXuat.length + " dòng",
-        '<div class="dx-l">' + dx + "</div>",
+        '<div class="dx-l">' + hoacTrong(dx,
+          "<b>Lượt gần nhất không đọc được dòng nào.</b> Hai kho " +
+          "<code>ethereum/ERCs</code> và <code>ethereum/EIPs</code> không trả về " +
+          "lịch sử thư mục chuẩn. Trống là <i>không hỏi được</i>, không phải " +
+          "khoảng này không ai đề xuất gì.") + "</div>",
         "Đọc thẳng từ lịch sử thư mục chuẩn của <code>ethereum/ERCs</code> và " +
         "<code>ethereum/EIPs</code>. Đây là chỗ một chuẩn mới xuất hiện và một " +
         "chuẩn cũ đổi trạng thái — “Add ERC…” là vừa có đề xuất mới, “Move to " +
         "last call” là sắp chốt.") +
 
+      /* Chỗ rỗng DUY NHẤT trong cung mang tin tốt: rỗng ở đây nghĩa là
+         mọi nút thắt đều đã có kho mã trỏ tới. Nếu tô cùng khuôn xám
+         với tám chỗ rỗng do thiếu dữ liệu thì một kết quả lành bị đọc
+         thành một đường ống hỏng. Nhưng chỉ tốt khi sổ toa CÓ khai nút
+         thắt — sổ trống thì rỗng ở đây chẳng nói lên điều gì cả. */
       khoi("Nút thắt chưa ai xây", trong.length + " nút",
-        '<div class="thieu-l">' + tr + "</div>",
+        '<div class="thieu-l">' + hoacTrong(tr,
+          (S.THIEU || []).length
+            ? "<b>Không nút thắt nào bị bỏ trắng.</b> Cả " + (S.THIEU || []).length +
+              " nút đều có ít nhất một kho mã trỏ tới. Đây là ô trống duy nhất " +
+              "trong cung <i>mang tin tốt</i> — không phải chỗ dữ liệu bị hụt."
+            : "<b>Sổ toa chưa khai nút thắt nào.</b> Không có danh sách nào để " +
+              "đối chiếu với công trường, nên rỗng ở đây <i>chưa nói được điều " +
+              "gì</i> — sửa <code>THIEU</code> trong <code>assets/js/toa.js</code>.",
+          (S.THIEU || []).length > 0) + "</div>",
         "Đây là phát hiện chính của cả phòng, và nó lộ ra <b>vì bảng để trống chứ " +
         "không đi tìm cho đủ</b>: mọi nút CÓ công trường đều là nút kỹ thuật. " +
         "Mấy nút còn lại — pháp lý khớp với on-chain, thực thi ở thế giới vật " +

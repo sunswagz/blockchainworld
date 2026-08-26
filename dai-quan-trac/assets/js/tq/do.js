@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-08-26T13:32:12.436Z",
+ "generatedAt": "2026-08-26T20:19:44.117Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,7 +12,7 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 85.69,
+   "so": 86.58,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
@@ -82,17 +82,17 @@ window.DQT_TQ_DO = {
     94.39,
     92.17,
     88.58,
-    85.69
+    86.58
    ],
-   "doi7": -5.7,
-   "doi30": 0.9,
+   "doi7": -4.7,
+   "doi30": 1.9,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-08-26T13:32:11.810Z"
+   "luc": "2026-08-26T20:19:43.682Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -118,17 +118,16 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-08-26T13:32:11.810Z"
+   "luc": "2026-08-26T20:19:43.682Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
-   "so": 514.97,
+   "so": 515.4,
    "dv": "USD",
    "nguon": "Yahoo Finance · SOXX",
    "ghi": "Chỉ báo THAY THẾ và phải đọc rất cẩn thận: nó đo sức khoẻ NGÀNH bán dẫn toàn cầu, KHÔNG đo năng lực chip của Trung Quốc. Ngành nóng lên không có nghĩa Trung Quốc tiếp cận được tầng tiên tiến.",
    "muc": "g",
    "lich": [
-    570.09,
     563.98,
     569.47,
     569.08,
@@ -192,27 +191,26 @@ window.DQT_TQ_DO = {
     520.05,
     506.18,
     514.06,
-    514.97
+    515.4
    ],
-   "doi7": -7.9,
-   "doi30": -7.3,
+   "doi7": -7.8,
+   "doi30": -7.2,
    "nguong": {
     "g": 480,
     "r": 400,
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-08-26T13:32:11.952Z"
+   "luc": "2026-08-26T20:19:43.806Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
-   "so": 35.7,
+   "so": 35.55,
    "dv": "USD",
    "nguon": "Yahoo Finance · FXI",
    "ghi": "Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài về cổ phiếu Trung Quốc, đối xứng với VNM bên Việt Nam.",
    "muc": "y",
    "lich": [
-    35.75,
     35.32,
     34.99,
     35.05,
@@ -276,17 +274,17 @@ window.DQT_TQ_DO = {
     35.86,
     35.55,
     35.56,
-    35.7
+    35.55
    ],
-   "doi7": 1.7,
-   "doi30": 4.1,
+   "doi7": 1.3,
+   "doi30": 3.7,
    "nguong": {
     "g": 38,
     "r": 30,
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-08-26T13:32:12.167Z"
+   "luc": "2026-08-26T20:19:43.930Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -315,11 +313,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-08-26T13:32:12.242Z"
+   "luc": "2026-08-26T20:19:44.010Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 25652.97,
+   "so": 25511.1,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
@@ -388,18 +386,17 @@ window.DQT_TQ_DO = {
     25698.49,
     26009.46,
     25517.33,
-    25511.1,
-    25652.97
+    25511.1
    ],
-   "doi7": 0.8,
-   "doi30": 3.9,
+   "doi7": 1.6,
+   "doi30": 4.8,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-08-26T13:32:12.436Z"
+   "luc": "2026-08-26T20:19:44.117Z"
   }
  }
 };

@@ -50,10 +50,48 @@
     return (v == null || !isFinite(v)) ? "—" : (v * 100).toFixed(n == null ? 1 : n) + "%";
   }
 
-  function khoi(ten, phu) {
+  /* ── nhãn NGUỒN của một khối số ───────────────────────────────
+     Luật 2 bắt thứ ĐO ĐƯỢC và thứ LUẬN RA đừng bao giờ trông giống
+     nhau. Trong cung này chúng đang trông giống hệt: "+9,00¢ lợi thế
+     thô" của máy VWAP và "1 vòng đã chạy" của lát cắt runtime cùng là
+     chữ máy, cùng cỡ, cùng đậu trên một thẻ .khoi không khác một
+     pixel. Cái thứ nhất là một sổ lệnh DỰNG SẴN để giảng cơ chế; cái
+     thứ hai là con số một tiến trình thật đã ghi ra rồi commit. Đọc
+     nhầm chiều nào cũng hỏng, và hỏng nặng ở đúng cung này: tưởng ví
+     dụ là thành tích giao dịch, hoặc ngược lại tưởng số đo thật cũng
+     chỉ là minh hoạ.
+
+     Chỗ duy nhất phân biệt hai thứ ấy tới giờ là một đoạn văn dưới
+     CHÂN TRANG — đúng thứ "một câu chú thích ai cũng lướt qua" mà
+     chú thích luật 2 trong app.css đã nói thẳng là không đủ. Nhãn
+     dưới đây đưa nó lên đỉnh từng khối, nơi con số đang nằm.
+
+     CHỮ đứng trước, màu chỉ đi kèm — luật 3. Và cả ba màu đều là màu
+     đã khai ở :root và đã dùng chỗ khác, nên sàn tương phản không
+     thêm cặp nào phải đo lại. Cố ý KHÔNG dùng --len/--xuong: xanh và
+     đỏ trong cung này nghĩa là lợi thế dương/âm, mượn chúng cho
+     "đo được / ví dụ" là gán một lời khen vào một câu nói về nguồn.
+
+     Ba nhãn chứ không hai, và cái thứ ba là chỗ suýt nói sai: đường
+     cong phí KHÔNG phải ví dụ. Nó vẽ đúng biểu phí Polymarket đang
+     áp — maker 0, taker theo giá — nên dán "SỐ VÍ DỤ" lên nó là hạ
+     một luật của sàn xuống thành một con số bịa ra để giảng bài. Thà
+     thêm một nhãn còn hơn xếp sai một khối. */
+  var VI_DU = { chu: "SỐ VÍ DỤ", k: "tim" };
+  var DO_DUOC = { chu: "SỐ ĐO", k: "tien" };
+  var CONG_THUC = { chu: "CÔNG THỨC SÀN", k: "lam" };
+  var CHUA_DO = { chu: "CHƯA CÓ SỐ ĐO", k: "" };
+
+  function khoi(ten, phu, nguon) {
     var k = el("section", "khoi");
     var d = el("div", "khoi-dinh");
     d.appendChild(el("h2", null, ten));
+    if (nguon) {
+      var n = el("span", "the", nguon.chu);
+      n.dataset.k = nguon.k;
+      n.dataset.nguon = "1";
+      d.appendChild(n);
+    }
     if (phu) d.appendChild(el("span", "n", phu));
     k.appendChild(d);
     var t = el("div", "khoi-than");
@@ -151,7 +189,7 @@
   }
 
   function veMayVwap() {
-    var k = khoi("Thử đi qua sổ", "kéo để đổi khối lượng");
+    var k = khoi("Thử đi qua sổ", "kéo để đổi khối lượng", VI_DU);
     var w = el("div", "vwap-o");
 
     // cột trái: sổ lệnh
@@ -251,7 +289,7 @@
 
   /* ── thác trừ năm khoản ───────────────────────────────────── */
   function veThac() {
-    var k = khoi("Thác trừ", "lô 680 cổ, sổ lệnh ở trên");
+    var k = khoi("Thác trừ", "lô 680 cổ, sổ lệnh ở trên", VI_DU);
     var r = tinhVwap(680);
     var phi = 0.02 * Math.min(r.vwap, 1 - r.vwap);
     var truot = 8 / 10000;
@@ -285,7 +323,7 @@
 
   /* ── đường cong phí ───────────────────────────────────────── */
   function veDuongPhi() {
-    var k = khoi("Phí taker theo giá", "maker = 0");
+    var k = khoi("Phí taker theo giá", "maker = 0", CONG_THUC);
     var W = 560, H = 150, P = 26;
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
@@ -343,10 +381,15 @@
   /* ── đường tiến hoá ───────────────────────────────────────── */
   function veDuongTienHoa() {
     var th = (LC && LC.tienHoa) || null;
+    /* Nhãn phải hỏi ĐÚNG câu mà nhánh trống ở dưới hỏi, không thì có
+       ngày khối in "SỐ ĐO" ở đỉnh rồi ngay dưới nói "chưa chạy lượt
+       nào" — hai câu ngược nhau trên cùng một thẻ. */
+    var coLuot = !!(th && th.duong && th.duong.soLuot);
     var k = khoi("Đường tiến hoá", th && th.bat ? ("mỗi ngày, sau " +
-      String(th.gioUTC).padStart(2, "0") + ":00 UTC") : "đang tắt");
+      String(th.gioUTC).padStart(2, "0") + ":00 UTC") : "đang tắt",
+      coLuot ? DO_DUOC : CHUA_DO);
 
-    if (!th || !th.duong || !th.duong.soLuot) {
+    if (!coLuot) {
       k._than.appendChild(html("div", "latcat-trong",
         "<b>Chưa chạy lượt tiến hoá nào.</b><br>Vòng chạy mỗi ngày một lượt " +
         "trong runtime ở máy. Chưa có lượt nào thì ô này để trống — " +
@@ -404,7 +447,11 @@
 
   /* ── lát cắt runtime ──────────────────────────────────────── */
   function veLatCat() {
-    var k = khoi("Lát cắt runtime", LC ? ("ghi " + (LC.date || "—")) : "chưa có");
+    /* Không có lát cắt thì bỏ luôn phụ đề "chưa có": nhãn CHƯA CÓ SỐ ĐO
+       đã nói đúng câu đó ở chỗ dễ thấy hơn, và nói hai lần cạnh nhau
+       làm người đọc đi tìm khác biệt giữa hai câu vốn không khác gì. */
+    var k = khoi("Lát cắt runtime", LC ? ("ghi " + (LC.date || "—")) : null,
+      LC ? DO_DUOC : CHUA_DO);
     if (!LC) {
       k._than.appendChild(html("div", "latcat-trong",
         "<b>Chưa có lát cắt nào.</b><br>Runtime Python chạy ở máy riêng, ghi trạng " +
