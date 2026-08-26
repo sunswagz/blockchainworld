@@ -250,6 +250,51 @@ def api_chay_lai_he(nut: str, gtA: float, gtB: float) -> JSONResponse:
         tu.danh_muc.vonBanDauUsd, hong)))
 
 
+@app.get("/api/ban-tham-so")
+def api_ban_tham_so(n: int = 30) -> JSONResponse:
+    """Lịch sử các bản tham số. Bản nào đang chạy, ai đổi, vì sao, đo được gì."""
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    return JSONResponse(sach({"tomTat": tu.kho_tham_so.tom_tat(),
+                              "lichSu": tu.kho_tham_so.lich_su(int(n))}))
+
+
+@app.get("/api/ban-tham-so/khac-biet")
+def api_khac_biet(a: int, b: int) -> JSONResponse:
+    """Bản `b` đổi những núm nào so với bản `a`."""
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    return JSONResponse(sach({"a": a, "b": b,
+                              "khacBiet": tu.kho_tham_so.khac_biet(a, b)}))
+
+
+@app.post("/api/ap-dung-tham-so")
+def api_ap_dung(nguoi: str) -> JSONResponse:
+    """Áp dụng đề xuất đã QUA CỔNG DUYỆT ở lượt `hoc()` gần nhất.
+
+    Bắt buộc khai tên người, và không có mặc định. Máy đo, máy đề xuất, máy
+    chặn — máy không tự ký. Chạy `POST /api/hoc` trước, và nhớ rằng phần lớn
+    lượt học kết thúc bằng "không đề xuất gì": đó là kết quả hợp lệ.
+    """
+    tu = _tu()
+    return _tat() if tu is None else JSONResponse(sach(tu.ap_dung(nguoi)))
+
+
+@app.post("/api/quay-lui-tham-so")
+def api_quay_lui(veSo: int, nguoi: str, vi: str = "") -> JSONResponse:
+    """Quay về nội dung một bản cũ, bằng cách ghi một bản MỚI.
+
+    Không xoá bản sai. Cùng luật với `so_cai.dao()`: một lịch sử sửa được
+    thì không còn là lịch sử.
+    """
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    return JSONResponse(sach(tu.quay_lui(int(veSo), nguoi, vi)))
+
+
 @app.post("/api/cau-dao/dong-lai")
 def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
     """Đóng lại một lý do ngắt. **Bắt buộc có tên người.**

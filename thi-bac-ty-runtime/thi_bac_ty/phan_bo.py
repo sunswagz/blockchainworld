@@ -63,6 +63,17 @@ MAC_DINH = {
     "tiLeDuTru": 0.20,        # giữ lại phần NAV này bằng tiền mặt
     "toiThieuMotLanUsd": 25.0,  # rót ít hơn thì phí cố định ăn hết
     "toiDaSoViThe": 12,       # quá nhiều vị thế thì không theo dõi nổi
+
+    #: Chưa đo được sức chứa thì coi như chỉ rót được ngần này phần số xin.
+    #: Không phải 1 (thưởng cho sự mù) và không phải 0 (chặn hẳn — việc ấy
+    #: là của `rui_ro_tong`, không phải của bảng xếp hạng).
+    "phatChuaDoSucChua": 0.35,
+
+    # Vốn khoá 90 ngày ở 10%/năm THUA vốn rút được ngay ở 7%/năm, vì trong 90
+    # ngày ấy có thể xuất hiện thứ tốt hơn mà ta không vào được. Chi phí đó
+    # KHÔNG nằm trong APR của chính nó, nên phải trừ ở đây.
+    "thamChieuKhoaGio": 168.0,     # 7 ngày
+    "phatChuaDoKhoaVon": 0.70,
 }
 
 
@@ -86,15 +97,84 @@ class PhanBo:
     def __init__(self, cau_hinh: dict | None = None) -> None:
         self.c = {**MAC_DINH, **(cau_hinh or {})}
 
-    @staticmethod
-    def diem(tt, diemRuiRo: float | None) -> float:
-        """Điểm xếp hạng. Xem docstring đầu file cho ba thừa số."""
+    def diem_chi_tiet(self, tt, diemRuiRo: float | None,
+                      tranUsd: float | None = None) -> dict:
+        """Điểm xếp hạng, MỔ RA từng thừa số.
+
+        Trả cả các thừa số chứ không chỉ con số cuối, vì một quyết định phân
+        bổ phải cãi lại được. Nhìn một con số trần thì không ai biết cơ hội
+        ấy thua vì rủi ro cao hay vì sức chứa mỏng.
+
+        ## Điểm là ĐÔ-LA MỖI GIỜ, không phải phần trăm
+
+        Đây là chỗ bản đầu làm sai, và nó sai đúng theo cách §13 cảnh báo:
+
+            DEX arb    lãi 0,40%    nhưng chỉ rót nổi $80
+            Lending    lãi 7%/năm   nhưng rót được $100.000
+
+        Xếp theo phần trăm thì DEX thắng tuyệt đối. Xếp theo tiền thì không.
+        Nhân thêm một *hệ số* sức chứa cũng không cứu: hệ số chỉ làm DEX
+        thắng ít hơn, chứ vẫn thắng.
+
+        Nên điểm phải là lợi suất nhân với số vốn RÓT ĐƯỢC THẬT:
+
+            netMoiGioBps × rotDuocUsd     xấp xỉ đô-la mỗi giờ
+            × tinCay                       ty tự chấm mình tin bao nhiêu
+            × (1 − rủi ro)                 rủi ro không bù trừ, lấy mặt cao nhất
+            × heSoKhoaVon                  §14: khoá lâu là từ chối cơ hội khác
+
+        `rotDuocUsd` là chỗ CHẬT NHẤT trong ba con số: ty xin bao nhiêu, thị
+        trường chứa bao nhiêu, và lúc này còn cho rót bao nhiêu.
+
+        Hệ quả đúng như phải thế: cùng một trần khả dụng, cơ hội chứa được
+        nhiều hơn xếp trên; nhưng khi trần khả dụng nhỏ hơn cả hai thì hai
+        cơ hội quay về so bằng lợi suất — vì lúc ấy phần sức chứa thừa không
+        dùng tới được, và một thước tính công cho phần thừa ấy là thước nói
+        dối.
+        """
         net = tt.net_moi_gio_bps
         if net <= 0:
-            return float("-inf")            # lỗ ít vẫn là lỗ, loại thẳng
+            # Lỗ ít vẫn là lỗ. Loại thẳng, không để các thừa số kia cứu.
+            return {"diem": float("-inf"), "netMoiGioBps": net,
+                    "vi": "NET mỗi giờ <= 0"}
+
         tin = 1.0 if tt.tinCay is None else max(0.0, min(1.0, tt.tinCay))
         rr = 0.5 if diemRuiRo is None else max(0.0, min(1.0, diemRuiRo))
-        return net * tin * (1.0 - rr)
+
+        # ── §13 · rót được bao nhiêu THẬT ───────────────────────────────
+        rot = float(tt.vonCanUsd)
+        if tt.sucChuaToiDaUsd is None:
+            # Mù sức chứa thì coi như rót được ít hơn — không phải cấm, và
+            # cũng không phải cho qua như thể đã đo.
+            rot *= float(self.c["phatChuaDoSucChua"])
+        else:
+            rot = min(rot, float(tt.sucChuaToiDaUsd))
+        if tranUsd is not None:
+            rot = min(rot, max(0.0, float(tranUsd)))
+
+        # ── §14 · khoá vốn ──────────────────────────────────────────────
+        tc = float(self.c["thamChieuKhoaGio"])
+        if tt.khoaVonDenGiay is None:
+            hs_khoa = float(self.c["phatChuaDoKhoaVon"])
+        elif tc <= 0:
+            hs_khoa = 1.0
+        else:
+            # 1/(1+x): khoá 0 giờ ra 1,00 · khoá đúng tham chiếu ra 0,50 ·
+            # khoá gấp mười ra 0,09. Giảm dần, không bao giờ chạm 0 — khoá
+            # lâu là bất lợi chứ không phải phạm luật; phạm luật thì
+            # `rui_ro_tong.khoaVonToiDaGiay` đã chặn từ trước.
+            hs_khoa = 1.0 / (1.0 + tt.khoaVonDenGiay / tc)
+
+        d = net * rot * tin * (1.0 - rr) * hs_khoa
+        return {"diem": d, "netMoiGioBps": net, "rotDuocUsd": rot,
+                "tinCay": tin, "motTruRuiRo": 1.0 - rr,
+                "heSoKhoaVon": hs_khoa, "tranXepHangUsd": tranUsd,
+                "gioVonBiGiu": tt.gio_von_bi_giu}
+
+    def diem(self, tt, diemRuiRo: float | None,
+             tranUsd: float | None = None) -> float:
+        """Chỉ con số. Muốn biết vì sao thì gọi `diem_chi_tiet()`."""
+        return self.diem_chi_tiet(tt, diemRuiRo, tranUsd)["diem"]
 
     def chia(self, toTrinh: list, rui_ro_tong, danh_muc, so_cai=None,
              luc: str = "") -> LatCatPhanBo:
@@ -116,13 +196,24 @@ class PhanBo:
         # Xếp hạng TRƯỚC, cấp SAU. Xếp hạng dùng điểm rủi ro sơ bộ (chưa xét
         # danh mục) chỉ để định thứ tự; trần thật vẫn do `xet()` quyết ở
         # từng bước cấp.
+        # Trần dùng để XẾP HẠNG: chỗ chật nhất giữa "còn bao nhiêu tiền để
+        # rót" và "một cơ hội đơn lẻ được ôm bao nhiêu". Dùng chung một trần
+        # cho mọi tờ trình nên nó không thiên vị ai — nó chỉ cắt phần sức
+        # chứa THỪA mà lúc này không dùng tới được.
+        tran_xep = lat.vonKhaDungUsd
+        try:
+            tran_xep = min(tran_xep, nav * float(rui_ro_tong.c["tranMotCoHoi"]))
+        except (AttributeError, KeyError, TypeError):
+            pass
+
         xep = []
         for tt in toTrinh:
             d, _ = rui_ro_tong.diem(tt)
-            xep.append((self.diem(tt, d), tt))
+            ct = self.diem_chi_tiet(tt, d, tran_xep)
+            xep.append((ct["diem"], ct, tt))
         xep.sort(key=lambda x: x[0], reverse=True)
 
-        for diem, tt in xep:
+        for diem, chiTiet, tt in xep:
             if diem == float("-inf"):
                 lat.tuChoi.append({"maToTrinh": tt.ma, "chienLuoc": tt.chienLuoc,
                                    "lyDo": "NET mỗi giờ ≤ 0 — lỗ ít vẫn là lỗ"})
@@ -168,7 +259,10 @@ class PhanBo:
                 "maToTrinh": tt.ma, "chienLuoc": tt.chienLuoc,
                 "taiSan": tt.taiSan, "xinUsd": tt.vonCanUsd,
                 "choToiDaUsd": pq.choToiDaUsd, "capUsd": cap,
-                "diemXep": diem, "diemRuiRo": pq.diemRuiRo,
+                "diemXep": diem, "diemXepChiTiet": chiTiet,
+                "diemRuiRo": pq.diemRuiRo,
+                "khoaVonDenGiay": tt.khoaVonDenGiay,
+                "thanhKhoanThoatUsd": tt.thanhKhoanThoatUsd,
                 "biCat": pq.biCat, "lyDoCat": list(pq.lyDoCat),
                 "netMoiGioBps": tt.net_moi_gio_bps})
             lat.tongCapUsd += cap

@@ -66,6 +66,17 @@ MAC_DINH = {
     "netMoiGioToiThieuBps": 0.0,
     "batBuocDuMoHinhPhi": False,   # v0.1 chưa ty nào đủ; xem README
     "batBuocDoDuocSucChua": True,  # không biết chứa bao nhiêu thì không rót
+
+    # ── vốn bị giữ bao lâu ───────────────────────────────────────────────
+    #: Không khoá vốn lâu hơn ngần này. 720 giờ = 30 ngày. Một PT Pendle 90
+    #: ngày sẽ bị chặn ở đây, và đó là chủ ý: khoá vốn ba tháng là từ chối
+    #: mọi cơ hội tốt hơn xuất hiện trong ba tháng ấy, và chi phí đó không
+    #: nằm trong APR của chính nó.
+    "khoaVonToiDaGiay": 720.0,
+    #: Chưa đo được thanh khoản thoát thì có rót không. Mặc định CÓ, vì bắt
+    #: buộc ngay sẽ chặn mọi ty v0.1 — nhưng `phan_bo.diem()` phạt nó, nên
+    #: cơ hội mù thanh khoản luôn xếp sau cơ hội đã đo.
+    "batBuocDoDuocThanhKhoanThoat": False,
 }
 
 
@@ -157,6 +168,18 @@ class RuiRoTong:
             ly.append("chưa đo được sức chứa — không biết rót bao nhiêu thì "
                       "chính cơ hội tự giết mình")
 
+        # Khoá vốn quá lâu là TỪ CHỐI, không phải cắt bớt: cắt trần không rút
+        # ngắn thời gian khoá, nên rót ít hơn vẫn kẹt đúng ngần ấy tháng.
+        tran_khoa = float(c["khoaVonToiDaGiay"])
+        if tt.khoaVonDenGiay is not None and tt.khoaVonDenGiay > tran_khoa:
+            ly.append(f"khoá vốn {tt.khoaVonDenGiay:.0f} giờ > trần "
+                      f"{tran_khoa:.0f} giờ — khoá lâu là từ chối mọi cơ hội "
+                      f"tốt hơn xuất hiện trong ngần ấy thời gian")
+
+        if c["batBuocDoDuocThanhKhoanThoat"] and tt.thanhKhoanThoatUsd is None:
+            ly.append("chưa đo được thanh khoản thoát — vào được không có "
+                      "nghĩa là ra được")
+
         if ly:
             return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
                              tuple(ly))
@@ -183,6 +206,10 @@ class RuiRoTong:
 
         if tt.sucChuaToiDaUsd is not None:
             hep(tt.sucChuaToiDaUsd, "sức chứa thị trường")
+        # Vào được bao nhiêu KHÔNG bằng ra được bao nhiêu. Rót quá chỗ thoát
+        # được là tự dựng một vị thế mà chính mình không đóng nổi.
+        if tt.thanhKhoanThoatUsd is not None:
+            hep(tt.thanhKhoanThoatUsd, "thanh khoản thoát")
         hep(nav * float(c["tranMotCoHoi"]), "trần một cơ hội")
         hep(danh_muc.tienMatUsd, "tiền mặt còn lại")
         hep(nav * float(c["tranTongDungVon"]) - danh_muc.daCamKetUsd,

@@ -137,6 +137,8 @@ TỜ TRÌNH ──► THÔNG CHÍNH TY ──► SỔ ĐĂNG KÝ (PHAT_HIEN)
 | `cau_dao.py` | ngắt **tự động**, đóng lại **phải có người** |
 | `chan_doan_he.py` | bệnh của cả bộ máy, và đề xuất vặn tham số phân bổ |
 | `chay_lai_he.py` | chạy lại phân bổ để **đo** đề xuất, không đoán |
+| `cong_duyet.py` | bảy luật một đề xuất phải qua trước khi thành bản |
+| `ban_tham_so.py` | tham số có số hiệu, có lịch sử, quay lui được |
 | `trung_uong.py` | khép vòng, và ép mọi tầng đi đúng thứ tự |
 
 ### Bảy việc một ty KHÔNG được làm
@@ -238,6 +240,117 @@ Cả hai cùng vào sổ đăng ký, cùng bị `rui_ro_tong` xét, cùng đư�
 Ngày phép kiểm ấy phải sửa `thi_bac_ty/` mới chạy được là ngày lớp trừu tượng
 này hoá ra là giả.
 
+## Xếp hạng bằng ĐÔ-LA MỖI GIỜ, không bằng phần trăm
+
+Đây là chỗ bản đầu làm sai, và nó sai đúng theo cách bản đồ cảnh báo:
+
+    DEX arb    lãi 0,40%    nhưng chỉ rót nổi $80
+    Lending    lãi 7%/năm   nhưng rót được $100.000
+
+Xếp theo phần trăm thì DEX thắng tuyệt đối. Nhân thêm một *hệ số* sức chứa
+cũng không cứu — hệ số chỉ làm DEX thắng ít hơn, chứ vẫn thắng.
+
+Nên `phan_bo.diem_chi_tiet()` tính:
+
+    netMoiGioBps × rotDuocUsd     xấp xỉ đô-la mỗi giờ
+    × tinCay                       ty tự chấm mình tin bao nhiêu
+    × (1 − rủi ro)                 rủi ro không bù trừ, lấy mặt cao nhất
+    × heSoKhoaVon                  khoá lâu là từ chối cơ hội khác
+
+`rotDuocUsd` là chỗ chật nhất trong ba con số: ty xin bao nhiêu, thị trường
+chứa bao nhiêu, và lúc này còn cho rót bao nhiêu. Hệ quả đúng như phải thế:
+khi trần khả dụng nhỏ hơn cả hai, hai cơ hội quay về so bằng lợi suất — vì
+lúc ấy sức chứa thừa không dùng tới được, và một thước tính công cho phần
+thừa ấy là thước nói dối.
+
+Hàm trả về CẢ NĂM thừa số chứ không chỉ con số cuối. Nhìn một con số trần
+thì không ai biết cơ hội ấy thua vì rủi ro cao hay vì sức chứa mỏng.
+
+## Khoá vốn và thanh khoản thoát — hai thứ `giuGio` không nói được
+
+    giuGio               DỰ ĐỊNH giữ bao lâu
+    khoaVonDenGiay       BUỘC phải giữ bao lâu
+    thanhKhoanThoatUsd   RA được bao nhiêu
+
+Một vị thế funding giữ 8 giờ nhưng thoát được bất cứ lúc nào. Một PT Pendle
+90 ngày thì không có cách nào ra sớm, dù thị trường đã đổi. Vốn khoá 90 ngày
+ở 10%/năm THUA vốn rút được ngay ở 7%/năm, vì trong 90 ngày ấy có thể xuất
+hiện thứ tốt hơn mà ta không vào được — và chi phí đó **không nằm trong APR
+của chính nó**.
+
+Rủi Ro Tổng vì thế có hai cửa mới:
+
+- `khoaVonToiDaGiay` — quá trần thì **TỪ CHỐI**, không cắt bớt. Cắt trần
+  không rút ngắn thời gian khoá; rót ít hơn vẫn kẹt đúng ngần ấy tháng.
+- thanh khoản thoát **cắt trần** xuống đúng chỗ ra được. Vào được $100.000
+  không có nghĩa là ra được $100.000, và rót quá chỗ thoát được là tự dựng
+  một vị thế mà chính mình không đóng nổi.
+
+`0.0` khác `None`. 0 là "rút được ngay, đã kiểm"; None là "chưa biết". Coi
+None thành 0 là thưởng cho sự mù.
+
+## Đổi tham số phải đi qua CỔNG DUYỆT, và tham số có SỐ HIỆU
+
+Vòng nguy hiểm mà cả chương này tồn tại để chặn:
+
+    kết quả thị trường → AI phân tích → AI sửa tham số → chạy tiền thật
+
+Vòng ấy hỏng không phải vì AI dở, mà vì nó không có chỗ nào để sai một cách
+**nhìn thấy được**. Mỗi lượt tự vặn đều có vẻ hợp lý, và sau ba mươi lượt
+thì tham số đã trôi rất xa mà không lượt nào là lượt sai rõ ràng.
+
+Đường đúng, và nay đã đủ tám mắt:
+
+    RESULT → DIAGNOSIS → PROPOSAL → OFFLINE TEST/REPLAY
+           → ACCEPTANCE GATE → VERSIONED PARAMETER → LIVE
+
+| mắt | ở đâu |
+|---|---|
+| RESULT | `so_cai.py` |
+| DIAGNOSIS | `chan_doan_he.chan_doan_he()` |
+| PROPOSAL | `chan_doan_he.de_xuat()` — nhiều nhất MỘT núm mỗi lượt |
+| OFFLINE TEST | `chay_lai_he.doi_chieu()` trên tờ trình đã ghi |
+| ACCEPTANCE GATE | `cong_duyet.xet_duyet()` — bảy luật |
+| VERSIONED PARAMETER | `ban_tham_so.KhoThamSo` — chỉ thêm, quay lui được |
+| LIVE | `trung_uong.ap_dung(nguoi)` — **đòi tên người** |
+
+### Bảy luật của Cổng Duyệt
+
+1. Không đo thì không duyệt — đề xuất không kèm phép chạy lại là một ý kiến.
+2. Chưa đủ mẫu thì không duyệt.
+3. Không núm nào chạm cửa AN TOÀN — kiểm lại từ danh sách gốc, **không tin**
+   lớp lọc ở `chan_doan_he`.
+4. Bước không vượt trần 25%.
+5. Không ra ngoài khuôn `[min, max]`.
+6. **Hoà thì không duyệt.** Đứng yên là kết quả hợp lệ.
+7. **Tốt hơn nhờ ôm rủi ro đậm hơn thì không duyệt.** Luật quan trọng nhất:
+   nới hết mọi trần thì luôn rót được nhiều vốn hơn, nên nhận nhánh này là
+   dạy vòng tiến hoá rằng đường lên điểm là tự tháo phanh.
+
+Qua cổng **KHÔNG** phải là đã áp dụng. Máy đo, máy đề xuất, máy chặn — máy
+không tự ký. `ap_dung()` và `quay_lui()` đều đòi tên người, cùng luật với
+`cau_dao.dong_lai()`.
+
+Bản mới ghi kèm CHÍNH phép đo đã biện minh cho nó. Ba tháng sau, câu *"vì
+sao trần cảng là 0,45"* trả lời được bằng một lệnh đọc sổ, không phải bằng
+trí nhớ. Và quay lui không xoá bản sai — nó ghi một bản MỚI mang nội dung
+bản cũ, cùng luật với `so_cai.dao()`.
+
+## Ba tầng là ĐỘ NẶNG THỰC THI, không phải thang rủi ro
+
+Bản đồ chia:
+
+    LEVEL 1  Capital Yield    lending · PT · LP · staking
+    LEVEL 2  Market Alpha     funding · basis · prediction
+    LEVEL 3  Machine Alpha    MM · JIT · liquidation · MEV
+
+Cách chia này hữu ích, nhưng **đừng đọc thành** `Level 1 = an toàn`. Lending
+có thể dính exploit hợp đồng, oracle hỏng, depeg, nợ xấu. LP có tổn thất tạm
+thời và dòng lệnh độc. Pendle có rủi ro kỳ hạn và rủi ro giao thức.
+
+Thứ thang này thật sự đo là **độ nặng thực thi** — cần bao nhiêu hạ tầng, độ
+trễ và cạnh tranh máy-với-máy. Thị Bạc Ty hiện ở tầng 2.
+
 ## NỢ KIẾN TRÚC ĐÃ BIẾT: hiện có HAI cỗ máy, không phải một
 
 Đây là chỗ lệch lớn nhất so với bản đồ, và ghi ra đây để nó không tự biến
@@ -293,6 +406,35 @@ cả gia sản.
 4. `dat_lenh.py` là lớp cuối cùng chuyển, và chỉ khi Điều Phối Thực Thi có
    lớp ký lệnh thật.
 
+## Thứ tự triển khai — §19 THAY THẾ thứ tự cũ
+
+Bản khảo sát đầu xếp `Polymarket → Perp → Hyperliquid/Drift → Liquidation →
+…`. Bản phản biện §19 **đổi nó**, vì Perpetual đã code trước nên không cần
+quay lại Polymarket:
+
+    1. Perpetual Funding Spread    XONG
+    2. THỊ BẠC TY CORE             XONG
+    3. Lending                     ← kế tiếp
+    4. Stablecoin Arb
+    5. Basis
+    6. Yield
+    7. DEX Arb
+    8. LP
+    9. Liquidation
+    10. Options
+    11. JIT
+    12. MEV
+
+**Cross-chain và Uniswap v4 KHÔNG nằm trong dãy này.** Chúng là hạ tầng, và
+được thêm khi một engine khác cần — không phải theo lượt.
+
+Vì sao Lending là engine thứ hai chứ không phải Basis: đây là một **phép thử
+kiến trúc**. Perpetual là phái sinh, Lending là tín dụng, hai thứ gần như
+không giống nhau. Nếu cả hai cùng đi lọt qua Tờ Trình → Rủi Ro Tổng → Danh
+Mục → Phân Bổ → Sổ Cái thì lớp trừu tượng là thật. Làm Basis ngay sau
+Funding thì hai chiến lược quá giống nhau, và ta sẽ *tưởng* abstraction tốt
+trong khi chưa kiểm được gì.
+
 ## Ty đầu tiên — chênh lệch funding
 
 
@@ -320,7 +462,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 376 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 452 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -684,6 +826,8 @@ thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   cau_dao.py      ngắt tự động, đóng lại phải có người
   chan_doan_he.py bệnh của cả bộ máy
   chay_lai_he.py  chạy lại quyết định phân bổ, đo đề xuất
+  cong_duyet.py   bảy luật một đề xuất phải qua
+  ban_tham_so.py  tham số có SỐ HIỆU, quay lui được
   trung_uong.py   khép vòng            ← đọc sau cùng
 ```
 

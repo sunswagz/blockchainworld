@@ -623,7 +623,8 @@
      ["vị thế đang mở", (dm.soViThe == null ? (T.thucThi || {}).soPhien : dm.soViThe)],
      ["cầu dao", cd.dangNgat ? "NGẮT" : "đóng"],
      ["bút toán", (T.soCai || {}).soButToan],
-     ["tầng đi tắt", (T.soDangKy || {}).soChuyenSai]
+     ["tầng đi tắt", (T.soDangKy || {}).soChuyenSai],
+     ["bản tham số", "#" + (((T.banThamSo || {}).hienHanh || {}).so || "—")]
     ].forEach(function (x) {
       var d = el("div", "so");
       d.appendChild(el("div", "n", String(x[1] == null ? "—" : x[1])));
@@ -663,6 +664,28 @@
       + "cơ hội quét lại 120 lần mỗi giờ chỉ vào sổ một lần "
       + ((lat.soBoTrung || 0) ? "(vòng vừa rồi bỏ " + lat.soBoTrung
           + " lượt trùng)" : "") + "."));
+
+    /* ── §22 · phễu tách theo HỌ ─────────────────────────────────────── */
+    var theoHo = (p.theoHo || []);
+    if (theoHo.length) {
+      f.appendChild(o("Từng họ đang nuôi được vốn không", bang(
+        [{ t: "Họ", trai: 1 }, { t: "cơ hội thô" }, { t: "qua cổng ty" },
+         { t: "qua rủi ro tổng" }, { t: "được cấp vốn" }, { t: "đang giữ" }],
+        theoHo.map(function (h) {
+          return [
+            { t: h.ho, c: "trai" },
+            { t: String(h.coHoiTho) },
+            { t: String(h.quaCongTy) },
+            { t: String(h.quaRuiRoTong) },
+            { t: String(h.daCapVon), c: h.daCapVon ? "qua" : null },
+            { t: "$" + so(h.vonDangGiuUsd, 0) }
+          ];
+        })),
+        "Tổng gộp nói được «cỗ máy có học không». Bảng này nói thứ khác, và "
+        + "là thứ người chia vốn cần: HỌ NÀO đang nuôi được vốn. Một họ phát "
+        + "hiện nhiều mà chưa bao giờ qua nổi Rủi Ro Tổng là một họ đang "
+        + "tiêu thời gian máy mà không sinh ra gì."));
+    }
 
     /* ── phân bổ vòng gần nhất ────────────────────────────────────────── */
     if (pb && (pb.daCap || []).length) {
@@ -772,6 +795,37 @@
         d.appendChild(el("p", "cho",
           "không đề xuất vặn gì — đứng yên là một kết quả hợp lệ"));
     }
+    /* §17 · Cổng Duyệt đứng SAU phép đo và TRƯỚC mọi đường áp dụng. */
+    var cd2 = h && h.congDuyet;
+    if (cd2) {
+      var kh = el("div", cd2.duDieuKien ? "" : "loi-o");
+      kh.appendChild(el("p", cd2.duDieuKien ? "qua" : "chan",
+        cd2.duDieuKien
+          ? "CỔNG DUYỆT: đủ điều kiện — " + cd2.nut + "  "
+            + so(cd2.tu, 3) + " → " + so(cd2.den, 3)
+          : "CỔNG DUYỆT: KHÔNG đủ điều kiện"));
+      (cd2.lyDo || []).forEach(function (l) {
+        kh.appendChild(el("p", "vi", "· " + l));
+      });
+      (cd2.ghiChu || []).forEach(function (g) {
+        kh.appendChild(el("p", "giai", "~ " + g));
+      });
+      kh.appendChild(el("p", "giai", cd2.loiNhac));
+      if (cd2.duDieuKien) {
+        kh.appendChild(el("p", "giai",
+          "Áp dụng phải khai tên người: curl -X POST 'localhost:"
+          + (location.port || "5188")
+          + "/api/ap-dung-tham-so?nguoi=<tên>'"));
+      }
+      d.appendChild(kh);
+    }
+    if (h && h.banHienHanh != null) {
+      d.appendChild(el("p", "giai",
+        "Bản tham số đang chạy: #" + h.banHienHanh
+        + " · lịch sử ở /api/ban-tham-so · quay lui bằng "
+        + "/api/quay-lui-tham-so?veSo=N&nguoi=<tên>"));
+    }
+
     var nut = el("button", "nut", "Chẩn lại cả bộ máy");
     nut.disabled = !!TU_DANG_CHAN;
     nut.addEventListener("click", function () {

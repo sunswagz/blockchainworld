@@ -1098,7 +1098,7 @@ def kiem_chieu_phu_thuoc() -> None:
 
 def _mau(ma="perpetual.funding_spread.v1", ho="phai-sinh", taiSan="BTC",
         von=100.0, chua=1000.0, net=8.0, giu=8.0, chan=None, tin=0.9,
-        rr=None, **kw):
+        rr=None, khoa=0.0, thoat=None, **kw):
     """Một tờ trình hợp lệ, đủ để đi hết đường ống. Sửa gì thì truyền vào."""
     from thi_bac_ty.to_trinh import Chan as _C, RuiRo as _R
     if chan is None:
@@ -1110,6 +1110,7 @@ def _mau(ma="perpetual.funding_spread.v1", ho="phai-sinh", taiSan="BTC",
         grossBps=net + 2.0, phiUocBps=2.0, netUocBps=net, giuGio=giu,
         ruiRo=rr if rr is not None else _R(0.2, 0.2, 0.1, 0.2, 0.2, 0.0),
         tinCay=tin, moHinhPhiDuChua=True,
+        khoaVonDenGiay=khoa, thanhKhoanThoatUsd=thoat,
         moHinhSucChuaDuChua=False, sucChuaConThieu=("do-sau-so-lenh",),
         cang=tuple(c.cang for c in chan), **kw)
 
@@ -1292,17 +1293,103 @@ def kiem_phan_bo() -> None:
     pb, rrt = PhanBo(), RuiRoTong()
 
     # NET ≤ 0 bị loại thẳng, dù mọi thứ khác đều đẹp.
-    kiem("NET ≤ 0 xếp hạng −∞", PhanBo.diem(_mau(net=0.0), 0.1) == float("-inf"),
+    kiem("NET ≤ 0 xếp hạng −∞", pb.diem(_mau(net=0.0), 0.1) == float("-inf"),
          "lỗ ít vẫn là lỗ")
 
-    # Điểm = net/giờ × tin cậy × (1 − rủi ro)
-    d = PhanBo.diem(_mau(net=8.0, giu=8.0, tin=0.5), 0.5)
-    kiem("điểm nhân đủ ba thừa số", gan(d, 1.0 * 0.5 * 0.5), f"đang là {d}")
+    # Điểm = net/giờ × RÓT ĐƯỢC × tin × (1−rủi ro) × khoá vốn.
+    # Đặt xin = chứa = 100 và khoá = 0 để chỉ còn ba thừa số gốc nhân với 100.
+    lanh = dict(net=8.0, giu=8.0, von=100.0, chua=100.0, khoa=0.0)
+    d = pb.diem(_mau(tin=0.5, **lanh), 0.5)
+    kiem("điểm nhân đủ ba thừa số gốc", gan(d, 1.0 * 100.0 * 0.5 * 0.5),
+         f"đang là {d}")
     kiem("không tự chấm được độ tin thì coi như 1.0",
-         gan(PhanBo.diem(_mau(net=8.0, giu=8.0, tin=None), 0.0), 1.0))
+         gan(pb.diem(_mau(tin=None, **lanh), 0.0), 100.0))
     kiem("chưa đo được rủi ro thì coi như 0.5",
-         gan(PhanBo.diem(_mau(net=8.0, giu=8.0, tin=1.0), None), 0.5),
+         gan(pb.diem(_mau(tin=1.0, **lanh), None), 50.0),
          "không phải 0 — chưa biết không phải là an toàn")
+
+    # ── §13 · đúng ví dụ trong tệp: 0,40% trên $80 vs 7% trên $100.000 ──
+    # DEX arb: lợi suất cao ngất, sức chứa $80.
+    # Lending: lợi suất thấp, nhưng rót được $5.000.
+    dex = _mau(taiSan="DEX", net=400.0, giu=8.0, tin=1.0, von=80.0,
+               chua=80.0, khoa=0.0)          # 50 bps/giờ, rót được $80
+    lend = _mau(taiSan="LEND", net=8.0, giu=8.0, tin=1.0, von=5000.0,
+                chua=5000.0, khoa=0.0)       # 1 bps/giờ, rót được $5.000
+    kiem("xếp theo PHẦN TRĂM thì cơ hội $80 thắng",
+         dex.net_moi_gio_bps > lend.net_moi_gio_bps,
+         "đây đúng là cái bẫy §13 mô tả")
+    kiem("xếp theo ĐÔ-LA MỖI GIỜ thì cơ hội $5.000 thắng",
+         pb.diem(lend, 0.0) > pb.diem(dex, 0.0),
+         f"dex={pb.diem(dex, 0.0):.0f} lend={pb.diem(lend, 0.0):.0f}")
+
+    # Nhưng khi trần khả dụng nhỏ hơn CẢ HAI, phần sức chứa thừa vô dụng,
+    # nên hai cơ hội quay về so bằng lợi suất — và lúc ấy DEX thắng THẬT.
+    kiem("trần khả dụng $50 thì sức chứa thừa hết tác dụng, DEX thắng lại",
+         pb.diem(dex, 0.0, 50.0) > pb.diem(lend, 0.0, 50.0),
+         "một thước tính công cho phần sức chứa không dùng tới là thước "
+         "nói dối")
+
+    ct = pb.diem_chi_tiet(_mau(von=1000.0, chua=80.0, khoa=0.0), 0.0)
+    kiem("rót được = chỗ CHẬT NHẤT giữa xin và sức chứa",
+         gan(ct["rotDuocUsd"], 80.0), str(ct["rotDuocUsd"]))
+    ct2 = pb.diem_chi_tiet(_mau(von=1000.0, chua=800.0, khoa=0.0), 0.0, 200.0)
+    kiem("và trần khả dụng cũng cắt vào đó",
+         gan(ct2["rotDuocUsd"], 200.0), str(ct2["rotDuocUsd"]))
+    kiem("chưa đo sức chứa thì rót được bị PHẠT, không cho nguyên số xin",
+         gan(pb.diem_chi_tiet(_mau(von=1000.0, chua=None, khoa=0.0),
+                              0.0)["rotDuocUsd"], 350.0),
+         "mù sức chứa mà tính như đã đo là thưởng cho sự mù")
+
+    # ── §14 · khoá vốn phải vào điểm ────────────────────────────────────
+    ngay = pb.diem(_mau(net=8.0, giu=8.0, tin=1.0, von=100.0, chua=5000.0,
+                        khoa=0.0), 0.0)
+    khoa = pb.diem(_mau(net=8.0, giu=8.0, tin=1.0, von=100.0, chua=5000.0,
+                        khoa=168.0), 0.0)
+    kiem("cùng lợi suất, khoá 7 ngày THUA rút được ngay", khoa < ngay,
+         f"khoá={khoa:.3f} ngay={ngay:.3f}")
+    kiem("khoá đúng tham chiếu thì hệ số = 0,50",
+         gan(pb.diem_chi_tiet(_mau(chua=5000.0, khoa=168.0), 0.0)["heSoKhoaVon"], 0.5))
+    kiem("khoá 0 giờ thì hệ số = 1,00",
+         gan(pb.diem_chi_tiet(_mau(chua=5000.0, khoa=0.0), 0.0)["heSoKhoaVon"], 1.0))
+    kiem("chưa đo khoá vốn thì bị PHẠT, không coi như 0 giờ",
+         gan(pb.diem_chi_tiet(_mau(chua=5000.0, khoa=None), 0.0)["heSoKhoaVon"], 0.70),
+         "None ≠ 0; chưa biết khoá bao lâu không có nghĩa là rút được ngay")
+    kiem("hệ số khoá không bao giờ chạm 0",
+         pb.diem_chi_tiet(_mau(chua=5000.0, khoa=99999.0), 0.0)["heSoKhoaVon"] > 0.0,
+         "khoá lâu là bất lợi, không phải phạm luật — phạm luật thì "
+         "rui_ro_tong.khoaVonToiDaGiay đã chặn")
+
+    # ── điểm phải MỔ RA ĐƯỢC, không phải một con số câm ─────────────────
+    kiem("điểm chi tiết khai đủ năm thừa số",
+         set(pb.diem_chi_tiet(_mau(chua=5000.0, khoa=0.0), 0.2))
+         >= {"netMoiGioBps", "rotDuocUsd", "tinCay", "motTruRuiRo",
+             "heSoKhoaVon"},
+         "nhìn một con số trần thì không ai biết thua vì rủi ro hay vì "
+         "sức chứa mỏng")
+
+    # ── §14 · hai cửa mới của Rủi Ro Tổng ───────────────────────────────
+    from thi_bac_ty.danh_muc import DanhMuc as _DM
+    dm_k = _DM(10000.0)
+    lau = _mau(von=100.0, chua=9000.0, khoa=24 * 90.0)      # khoá 90 ngày
+    pq_k = rrt.xet(lau, dm_k)
+    kiem("khoá vốn quá trần thì TỪ CHỐI, không phải cắt bớt",
+         not pq_k.duyet and any("khoá vốn" in l for l in pq_k.lyDo),
+         "cắt trần không rút ngắn thời gian khoá — rót ít hơn vẫn kẹt "
+         "đúng ngần ấy tháng")
+
+    hep_thoat = _mau(von=500.0, chua=9000.0, khoa=0.0, thoat=120.0)
+    pq_t = rrt.xet(hep_thoat, dm_k)
+    kiem("thanh khoản thoát cắt trần xuống đúng chỗ ra được",
+         gan(pq_t.choToiDaUsd, 120.0)
+         and any("thanh khoản thoát" in l for l in pq_t.lyDoCat),
+         f"cho {pq_t.choToiDaUsd} · {pq_t.lyDoCat}")
+    kiem("tờ trình tự biết mình có ra được không",
+         hep_thoat.raDuocKhong is False and _mau(thoat=None).raDuocKhong is None,
+         "vào được $100.000 không có nghĩa là ra được $100.000")
+    kiem("giờ vốn bị giữ lấy chỗ LỚN hơn giữa định giữ và buộc giữ",
+         gan(_mau(giu=8.0, khoa=2160.0).gio_von_bi_giu, 2160.0)
+         and gan(_mau(giu=8.0, khoa=0.0).gio_von_bi_giu, 8.0),
+         "định giữ 8 giờ mà khoá 90 ngày thì vốn bị giữ 90 ngày")
 
     # ── chỗ quan trọng nhất: cấp tuần tự ──────────────────────────────────
     dm = DanhMuc(1000.0)
@@ -2014,6 +2101,293 @@ def kiem_chay_lai_he() -> None:
          mot_luot(tt, {}, 5000.0, "x").soCap > 0)
 
 
+
+def kiem_cong_duyet() -> None:
+    print("\n-- Cong Duyet: bay luat chan bay cach tham so troi --")
+    from thi_bac_ty.chan_doan_he import (BUOC_TOI_DA, CUA_AN_TOAN_HE,
+                                         DeXuatHe, NUT_TRUNG_UONG)
+    from thi_bac_ty.cong_duyet import KET_LUAN_QUA, xet_duyet
+
+    def do(ket, du=True, **kw):
+        return {"duDeKetLuan": du, "ketLuan": ket, "vi": "thử",
+                "A": {}, "B": {"moPhongVongDoi": False}, **kw}
+
+    dx = DeXuatHe("ruiRoTong.tranMotCang", 0.40, 0.45, "tran-dat-sai-cho")
+
+    # luật 6+7: chỉ MỘT kết luận được qua
+    kiem("chỉ đúng một kết luận được phép qua", KET_LUAN_QUA == ("b-tot-hon",))
+    kiem("đo nói B tốt hơn và KHÔNG đậm hơn → đủ điều kiện",
+         xet_duyet(dx, do("b-tot-hon")).duDieuKien)
+    kiem("HOÀ → không duyệt",
+         not xet_duyet(dx, do("hoa")).duDieuKien,
+         "đứng yên là kết quả hợp lệ; duyệt thay đổi không đo được cải "
+         "thiện là thêm nhiễu rồi gọi nó là tiến hoá")
+    kiem("A tốt hơn → không duyệt",
+         not xet_duyet(dx, do("a-tot-hon")).duDieuKien)
+    pq = xet_duyet(dx, do("b-tot-hon-NHUNG-dam-hon"))
+    kiem("tốt hơn nhờ ÔM RỦI RO ĐẬM HƠN → không duyệt", not pq.duDieuKien)
+    kiem("và nói thẳng đó là tự tháo phanh",
+         any("tháo phanh" in l for l in pq.lyDo), str(pq.lyDo))
+
+    # luật 1: không đo thì không duyệt
+    p1 = xet_duyet(dx, None)
+    kiem("không có phép đo → không duyệt", not p1.duDieuKien)
+    kiem("và gọi đúng tên: một ý kiến",
+         any("ý kiến" in l for l in p1.lyDo), str(p1.lyDo))
+
+    # luật 2: chưa đủ mẫu
+    kiem("phép đo tự khai chưa đủ mẫu → không duyệt",
+         not xet_duyet(dx, do(None, du=False)).duDieuKien)
+
+    # luật 3: cửa an toàn, kiểm LẠI từ danh sách gốc
+    for cua in CUA_AN_TOAN_HE[:3]:
+        p = xet_duyet(DeXuatHe(cua, 1.0, 1.2, "x"), do("b-tot-hon"))
+        kiem(f"cửa an toàn {cua.split('.')[-1]} → chặn", not p.duDieuKien)
+    kiem("và nói rõ vì sao là cửa an toàn",
+         any("CỬA AN TOÀN" in l for l in
+             xet_duyet(DeXuatHe(CUA_AN_TOAN_HE[0], 1.0, 1.1, "x"),
+                       do("b-tot-hon")).lyDo))
+
+    # luật 4: bước có trần
+    xa = DeXuatHe("ruiRoTong.tranMotCang", 0.40, 0.58, "tran-dat-sai-cho")
+    p4 = xet_duyet(xa, do("b-tot-hon"))
+    kiem("bước vượt trần 25% → chặn", not p4.duDieuKien,
+         "một lượt gặp nhiễu thuận không được đẩy ngưỡng ra chỗ mọi cơ hội "
+         "đều lọt")
+
+    # luật 5: ngoài khuôn
+    ngoai = DeXuatHe("ruiRoTong.tranMotCang", 0.58,
+                     NUT_TRUNG_UONG["ruiRoTong.tranMotCang"]["max"] + 0.01,
+                     "x")
+    kiem("ra ngoài khuôn min/max → chặn",
+         not xet_duyet(ngoai, do("b-tot-hon")).duDieuKien)
+    kiem("núm không có trong bảng → chặn",
+         not xet_duyet(DeXuatHe("bia.dat.ra", 1.0, 1.1, "x"),
+                       do("b-tot-hon")).duDieuKien)
+
+    # qua cổng KHÔNG phải là đã áp dụng
+    kiem("qua cổng vẫn nhắc rằng chưa áp dụng",
+         "người ký tên" in xet_duyet(dx, do("b-tot-hon")).tom_tat()["loiNhac"])
+    kiem("ghi chú nói rõ phép đo KHÔNG đo lãi lỗ",
+         any("KHÔNG đo lãi" in g for g in
+             xet_duyet(dx, do("b-tot-hon")).ghiChu))
+
+
+def kiem_ban_tham_so() -> None:
+    print("\n-- Ban tham so: co SO HIEU, co lich su, quay lui duoc --")
+    from thi_bac_ty.ban_tham_so import KhoThamSo
+
+    kho = KhoThamSo(_tam("bts") / "bts.sqlite3")
+    kiem("kho rỗng thì không có bản hiện hành", kho.hien_hanh() is None)
+
+    b1 = kho.dat({"ruiRoTong": {"tranMotCang": 0.35}}, "khoi-tao", "bản đầu")
+    kiem("ghi được bản đầu", b1 is not None and b1.so == 1)
+    kiem("bản đầu không có cha", b1.chaSo is None)
+
+    kiem("thiếu TÊN NGƯỜI thì không ghi được",
+         kho.dat({"a": 1}, "  ", "vì gì đó") is None,
+         "đổi cách chia tiền là hành động có trách nhiệm")
+    kiem("thiếu LÝ DO thì không ghi được",
+         kho.dat({"a": 1}, "ai đó", "   ") is None,
+         "một bản không giải thích được thì không kiểm toán được")
+    kiem("hai lần ghi hỏng đều đếm ra", kho.soLoiGhi == 2)
+
+    b2 = kho.dat({"ruiRoTong": {"tranMotCang": 0.45}}, "admin",
+                 "nới vì trần đặt sai chỗ", {"ketLuan": "b-tot-hon"})
+    kiem("bản sau nối vào bản trước", b2.chaSo == b1.so)
+    kiem("bản hiện hành là bản mới nhất", kho.hien_hanh().so == b2.so)
+    kiem("bản mang theo CHÍNH phép đo đã biện minh cho nó",
+         kho.hien_hanh().doDuoc.get("ketLuan") == "b-tot-hon",
+         "ba tháng sau, câu 'vì sao trần cảng là 0,45' phải trả lời được "
+         "bằng một lệnh đọc sổ")
+
+    kb = kho.khac_biet(b1.so, b2.so)
+    kiem("so được hai bản khác nhau núm nào",
+         kb.get("ruiRoTong.tranMotCang") == {"tu": 0.35, "den": 0.45},
+         str(kb))
+
+    b3 = kho.quay_lui(b1.so, "admin", "nới xong thấy tệ")
+    kiem("quay lui ghi một bản MỚI, không xoá bản sai",
+         b3 is not None and b3.so == 3 and kho.ban(b2.so) is not None,
+         "một lịch sử sửa được thì không còn là lịch sử")
+    kiem("bản quay lui mang đúng nội dung bản cũ",
+         b3.thamSo == b1.thamSo and b3.quayLuiVe == b1.so)
+    kiem("quay lui về bản không có thì từ chối",
+         kho.quay_lui(999, "admin") is None)
+    kiem("lịch sử đọc lại đủ ba bản", len(kho.lich_su()) == 3)
+
+
+def kiem_vong_duyet_tron() -> None:
+    print("\n-- Vong §17 tron: de xuat -> do -> cong -> ban -> live --")
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.to_trinh import Chan
+    from thi_bac_ty.trung_uong import TrungUong
+
+    class TyNhieu(Ty):
+        ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "nhiều"
+        def __init__(self): super().__init__(); self.i = 0
+        def quet(self): self.i += 1; return [f"T{self.i}"]
+        def xet(self, co): return True, []
+        def trinh(self, co):
+            return _mau(taiSan=co, von=300.0, chua=9000.0, khoa=0.0,
+                        chan=(Chan("LONG", "hyperliquid", co),
+                              Chan("SHORT", "binance", co)))
+
+    d = _tam("vong17")
+    tu = TrungUong(d, {"vonBanDauUsd": 3000.0})
+    kiem("dựng xong là đã có bản số 1",
+         tu.kho_tham_so.hien_hanh() is not None
+         and tu.kho_tham_so.hien_hanh().so == 1,
+         "không có bản đầu thì không có gì để quay lui về")
+    kiem("bản đầu ghi rõ là do khởi tạo",
+         tu.kho_tham_so.hien_hanh().nguoi == "khoi-tao")
+
+    tu.dang_ky(TyNhieu())
+    for _ in range(30):
+        tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+
+    kiem("chưa học thì không áp dụng được gì",
+         tu.ap_dung("admin")["xong"] is False)
+    h = tu.hoc(ghiSo=False)
+    kiem("vòng học có mục Cổng Duyệt", "congDuyet" in h)
+    kiem("và khai bản đang chạy", h.get("banHienHanh") == 1)
+
+    # Bơm một đề xuất đã qua cổng để kiểm đường áp dụng cho tới cùng.
+    # Phải bơm TRƯỚC khi thử tên rỗng — nếu không, `ap_dung()` thoát sớm ở
+    # câu "chưa có đề xuất nào" và phép kiểm tên người qua vì lý do khác.
+    from thi_bac_ty.chan_doan_he import DeXuatHe
+    _dx = lambda: (DeXuatHe("ruiRoTong.tranMotCang", 0.35, 0.42, "thu"),
+                   {"duDeKetLuan": True, "ketLuan": "b-tot-hon"})
+    tu._deXuatChoDuyet = _dx()
+
+    truoc_ten = tu.rui_ro_tong.c["tranMotCang"]
+    kiem("áp dụng mà KHÔNG khai tên người thì từ chối",
+         tu.ap_dung("   ")["xong"] is False,
+         "máy đo, máy đề xuất, máy chặn — máy không tự ký")
+    kiem("và lần từ chối ấy KHÔNG kịp đổi tầng thật",
+         gan(tu.rui_ro_tong.c["tranMotCang"], truoc_ten)
+         and tu.kho_tham_so.hien_hanh().so == 1,
+         "đổi tầng TRƯỚC rồi mới ghi sổ là để lại một máy đang chạy bộ "
+         "tham số không có trong bất kỳ bản nào")
+    kiem("và đề xuất vẫn còn đó để áp dụng đúng cách",
+         tu._deXuatChoDuyet is not None)
+
+    # Ghi sổ HỎNG là chỗ duy nhất thứ tự "đổi tầng trước hay ghi sổ trước"
+    # lộ ra. Cấy một kho ghi hỏng để dựng đúng tình huống ấy: nếu tầng đổi
+    # trước, máy sẽ chạy một bộ tham số không nằm trong bất kỳ bản nào —
+    # và không có gì báo, vì mọi thứ khác vẫn xanh.
+    _that = tu.kho_tham_so.dat
+    tu.kho_tham_so.dat = lambda *a, **k: None
+    truoc_hong = tu.rui_ro_tong.c["tranMotCang"]
+    ra_hong = tu.ap_dung("admin")
+    tu.kho_tham_so.dat = _that
+    kiem("ghi sổ hỏng thì áp dụng thất bại", ra_hong["xong"] is False)
+    kiem("và tầng thật KHÔNG bị đổi",
+         gan(tu.rui_ro_tong.c["tranMotCang"], truoc_hong),
+         "ghi sổ hỏng mà tầng đã đổi là để lại một máy chạy tham số không "
+         "có trong sổ nào — không lỗi nào báo, không bản nào quay lui được")
+    kiem("và đề xuất vẫn giữ lại để thử lần nữa",
+         tu._deXuatChoDuyet is not None)
+
+    truoc = tu.rui_ro_tong.c["tranMotCang"]
+    ra = tu.ap_dung("admin")
+    kiem("áp dụng thành công thì sinh bản mới", ra["xong"] and ra["ban"]["so"] == 2)
+    kiem("và TẦNG THẬT đổi theo, không chỉ sổ đổi",
+         gan(tu.rui_ro_tong.c["tranMotCang"], 0.42),
+         f"trước {truoc} — sổ nói một đằng mà máy chạy một nẻo là tệ hơn "
+         f"không có sổ")
+    kiem("bản mới ghi kèm phép đo đã biện minh",
+         (ra["ban"]["doDuoc"] or {}).get("ketLuan") == "b-tot-hon")
+    kiem("và vào sổ cái", any(x["chiTiet"].get("banThamSo") == 2
+                              for x in tu.so_cai.gan_day(50)))
+    kiem("dùng một lần rồi thôi, không áp dụng lại được",
+         tu.ap_dung("admin")["xong"] is False,
+         "không thì một đề xuất bấm hai lần vặn núm đi hai bước")
+
+    # Bản hiện hành (số 2, tranMotCang = 0,42 — KHÁC mặc định 0,35) phải
+    # sống qua khởi động lại, và phải sống ở TẦNG THẬT chứ không chỉ ở sổ.
+    tu2 = TrungUong(d, {"vonBanDauUsd": 3000.0})
+    kiem("khởi động lại vẫn giữ bản đang chạy",
+         tu2.kho_tham_so.hien_hanh().so == 2)
+    kiem("và TẦNG THẬT dựng lại TỪ BẢN ẤY, không từ mặc định",
+         gan(tu2.rui_ro_tong.c["tranMotCang"], 0.42),
+         f"đang là {tu2.rui_ro_tong.c['tranMotCang']} — mặc định là 0,35, "
+         f"nên đọc ra 0,35 nghĩa là bật lại đã âm thầm xoá mọi bản đã duyệt "
+         f"trong khi sổ vẫn khai bản 2 đang chạy")
+
+    ql = tu2.quay_lui(1, "admin", "thử lại")
+    kiem("quay lui sinh bản mới", ql["xong"] and ql["ban"]["so"] == 3)
+    kiem("và tầng thật quay về theo",
+         gan(tu2.rui_ro_tong.c["tranMotCang"], 0.35))
+    kiem("quay lui cũng đòi tên người",
+         tu2.quay_lui(1, "")["xong"] is False)
+    kiem("quay lui rồi khởi động lại vẫn đúng bản quay lui",
+         gan(TrungUong(d, {"vonBanDauUsd": 3000.0})
+             .rui_ro_tong.c["tranMotCang"], 0.35))
+
+
+def kiem_pheu_theo_ho() -> None:
+    print("\n-- §22 · pheu tach theo HO, khong chi mot tong gop --")
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
+    from thi_bac_ty.trung_uong import TrungUong
+
+    class TyPerp(Ty):
+        ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "perp"
+        def __init__(self): super().__init__(); self.i = 0
+        def quet(self): self.i += 1; return [f"P{self.i}", f"X{self.i}"]
+        def xet(self, co): return co.startswith("P"), [("bo", "chỉ nhận P")]
+        def trinh(self, co):
+            return _mau(taiSan=co, von=200.0, chua=9000.0, khoa=0.0,
+                        chan=(Chan("LONG", "hyperliquid", co),
+                              Chan("SHORT", "binance", co)))
+
+    class TyVay(Ty):
+        ma, ho, moTa = "lending.rate_spread.v1", "tin-dung", "cho vay"
+        def __init__(self): super().__init__(); self.i = 0
+        def quet(self): self.i += 1; return [f"U{self.i}"]
+        def xet(self, co): return True, []
+        def trinh(self, co):
+            return ToTrinh(
+                chienLuoc=self.ma, ho=self.ho, taiSan=co,
+                chan=(Chan("DI_VAY", "aave", co, loai="lending", chuoi="ethereum"),
+                      Chan("CHO_VAY", "compound", co, loai="lending", chuoi="ethereum")),
+                vonCanUsd=200.0, sucChuaToiDaUsd=9000.0, grossBps=14.0,
+                phiUocBps=3.0, netUocBps=11.0, giuGio=24.0,
+                khoaVonDenGiay=0.0, thanhKhoanThoatUsd=5000.0,
+                ruiRo=RuiRo(.05, .15, .30, .20, .10, 0.), tinCay=.75,
+                moHinhPhiDuChua=True, moHinhSucChuaDuChua=False,
+                sucChuaConThieu=("do-sau-pool",), cang=("aave", "compound"),
+                chuoi=("ethereum",))
+
+    tu = TrungUong(_tam("pheuho"), {"vonBanDauUsd": 6000.0})
+    tu.dang_ky(TyPerp()); tu.dang_ky(TyVay())
+    for _ in range(4):
+        tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+
+    p = tu.pheu_day_du()
+    theo = {x["ho"]: x for x in p["theoHo"]}
+    kiem("phễu tách được hai họ", set(theo) == {"phai-sinh", "tin-dung"},
+         str(list(theo)))
+    kiem("họ phái sinh: cổng ty chặn một nửa số cơ hội thô",
+         theo["phai-sinh"]["coHoiTho"] == 8
+         and theo["phai-sinh"]["quaCongTy"] == 4,
+         str(theo["phai-sinh"]))
+    kiem("họ tín dụng qua hết", theo["tin-dung"]["coHoiTho"] == 4
+         and theo["tin-dung"]["quaCongTy"] == 4)
+    kiem("mỗi họ biết mình đang giữ bao nhiêu vốn",
+         all("vonDangGiuUsd" in x for x in p["theoHo"]),
+         "một họ phát hiện nhiều mà chưa bao giờ nuôi được vốn là một họ "
+         "đang tiêu thời gian máy mà không sinh ra gì")
+    kiem("tổng vốn theo họ khớp vốn đã cam kết",
+         gan(sum(x["vonDangGiuUsd"] for x in p["theoHo"]),
+             round(tu.danh_muc.daCamKetUsd, 2), 0.05),
+         f"{[x['vonDangGiuUsd'] for x in p['theoHo']]} vs "
+         f"{tu.danh_muc.daCamKetUsd}")
+    kiem("và ảnh chụp mang nó ra ngoài",
+         "theoHo" in (tu.anh_chup()["pheuDayDu"] or {}))
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -2059,6 +2433,10 @@ def main() -> int:
     kiem_chan_doan_he()
     kiem_chong_trung()
     kiem_chay_lai_he()
+    kiem_cong_duyet()
+    kiem_ban_tham_so()
+    kiem_vong_duyet_tron()
+    kiem_pheu_theo_ho()
 
     print("\n" + "=" * 70)
     if _loi:

@@ -149,9 +149,27 @@ class ToTrinh:
     giuGio: float
 
     # ── rủi ro và độ tin ─────────────────────────────────────────────────
+    # ── vốn bị giữ bao lâu, và có rút ra được không ──────────────────────
+    #
+    # Hai trường này KHÔNG suy ra được từ `giuGio`, và lẫn chúng với nhau là
+    # một cách để người phân bổ quyết định sai:
+    #
+    #   `giuGio`            DỰ ĐỊNH giữ bao lâu. Một vị thế funding giữ 8 giờ
+    #                       nhưng thoát được bất cứ lúc nào.
+    #   `khoaVonDenGiay`    BUỘC phải giữ bao lâu. Một PT Pendle 90 ngày thì
+    #                       không có cách nào ra sớm, dù thị trường đổi.
+    #   `thanhKhoanThoatUsd` RA được bao nhiêu. Vào được $100.000 không có
+    #                       nghĩa là ra được $100.000.
+    #
+    # `0.0` khác `None`: 0 là "rút được ngay, đã kiểm"; None là "chưa biết".
+    # Coi None thành 0 là thưởng cho sự mù — đúng lỗi mà cả hợp đồng này
+    # sinh ra để chặn.
+    khoaVonDenGiay: float | None = None
+    thanhKhoanThoatUsd: float | None = None
+
     ruiRo: RuiRo = field(default_factory=RuiRo)
     tuoiDuLieuGiay: float | None = None
-    tinCay: float | None = None         # [0,1] — None = không tự chấm được
+    tinCay: float | None = None         # [0,1] — không tự chấm được thì None
 
     # ── lời khai về mô hình. Mặc định là CHƯA ĐỦ, có chủ ý ───────────────
     moHinhPhiDuChua: bool = False
@@ -197,6 +215,10 @@ class ToTrinh:
                        f"{self.sucChuaToiDaUsd} — xin nhiều hơn chỗ chứa")
         if not (self.giuGio > 0):
             loi.append(f"cửa sổ giữ phải > 0, đang là {self.giuGio}")
+        if self.khoaVonDenGiay is not None and self.khoaVonDenGiay < 0:
+            loi.append(f"khoá vốn {self.khoaVonDenGiay} giờ — không âm được")
+        if self.thanhKhoanThoatUsd is not None and self.thanhKhoanThoatUsd < 0:
+            loi.append(f"thanh khoản thoát {self.thanhKhoanThoatUsd} — không âm được")
 
         # Luật 2: chưa đủ mô hình thì phải nói THIẾU GÌ. Một cờ `False` mà
         # danh sách rỗng là khai nửa vời — người đọc biết nó thiếu mà không
@@ -233,6 +255,29 @@ class ToTrinh:
         """
         return self.netUocBps / self.giuGio if self.giuGio else 0.0
 
+    @property
+    def gio_von_bi_giu(self) -> float:
+        """Vốn thực sự nằm ngoài tầm tay bao nhiêu giờ.
+
+        Là chỗ lớn hơn giữa *định giữ* và *buộc phải giữ*. Một cơ hội định
+        giữ 8 giờ mà khoá 90 ngày thì vốn bị giữ 90 ngày, không phải 8 giờ —
+        và người phân bổ phải thấy con số 90 ngày ấy chứ không thấy con số 8.
+
+        `khoaVonDenGiay = None` (chưa biết) thì trả về `giuGio`, và chỗ phạt
+        cho sự chưa-biết nằm ở `phan_bo.diem()` chứ không ở đây: hàm này chỉ
+        báo cáo, không phán xét.
+        """
+        if self.khoaVonDenGiay is None:
+            return self.giuGio
+        return max(self.giuGio, self.khoaVonDenGiay)
+
+    @property
+    def raDuocKhong(self) -> bool | None:
+        """Ra được hết phần vốn XIN không. `None` = chưa đo thanh khoản thoát."""
+        if self.thanhKhoanThoatUsd is None:
+            return None
+        return self.thanhKhoanThoatUsd + 1e-9 >= self.vonCanUsd
+
     def tom_tat(self) -> dict:
         return {
             "ma": self.ma, "luc": self.luc,
@@ -242,6 +287,10 @@ class ToTrinh:
             "chan": [c.tom_tat() for c in self.chan],
             "vonCanUsd": self.vonCanUsd,
             "sucChuaToiDaUsd": self.sucChuaToiDaUsd,
+            "khoaVonDenGiay": self.khoaVonDenGiay,
+            "thanhKhoanThoatUsd": self.thanhKhoanThoatUsd,
+            "gioVonBiGiu": self.gio_von_bi_giu,
+            "raDuocKhong": self.raDuocKhong,
             "grossBps": self.grossBps, "phiUocBps": self.phiUocBps,
             "netUocBps": self.netUocBps, "netMoiGioBps": self.net_moi_gio_bps,
             "giuGio": self.giuGio,

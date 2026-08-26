@@ -70,9 +70,11 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .ban_tham_so import KhoThamSo
 from .cau_dao import CauDao
 from .chan_doan_he import chan_doan_he, de_xuat
 from .chay_lai_he import doi_chieu, thu_hoach
+from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
 from .phan_bo import PhanBo
 from .rui_ro_tong import RuiRoTong
@@ -156,8 +158,22 @@ class TrungUong:
         self.so_dang_ky = SoDangKy(d / f"{ten}-so-dang-ky.sqlite3")
         self.thong_chinh = ThongChinh()
         self.danh_muc = DanhMuc(float(c["vonBanDauUsd"]), nguonThat=False)
-        self.rui_ro_tong = RuiRoTong(c["ruiRoTong"])
-        self.phan_bo = PhanBo(c["phanBo"])
+        # Bản tham số ĐANG CHẠY quyết định cấu hình hai tầng dưới, không
+        # phải `cau_hinh` truyền vào. Nếu kho đã có bản, nó thắng — nếu
+        # không thì `cau_hinh` là bản số 1. Ngược lại thì mỗi lần khởi động
+        # lại sẽ âm thầm quay về mặc định, xoá sạch mọi bản đã duyệt.
+        self.kho_tham_so = KhoThamSo(d / f"{ten}-ban-tham-so.sqlite3")
+        ban = self.kho_tham_so.hien_hanh()
+        if ban is None:
+            self.rui_ro_tong = RuiRoTong(c["ruiRoTong"])
+            self.phan_bo = PhanBo(c["phanBo"])
+            self.kho_tham_so.dat(
+                {"ruiRoTong": dict(self.rui_ro_tong.c),
+                 "phanBo": dict(self.phan_bo.c)},
+                "khoi-tao", "bản đầu tiên, dựng từ mặc định và config")
+        else:
+            self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
+            self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
         self.cau_dao = CauDao()
         self.thuc_thi = DieuPhoiThucThi()
 
@@ -172,6 +188,7 @@ class TrungUong:
         self._dauVet: dict[str, float] = {}
         self.soBoTrung = 0
         self.hocCuoi: dict | None = None
+        self._deXuatChoDuyet = None
         self._soXet = d / f"{ten}-xet-tham-so.jsonl"
         self._ngayDon = ""
 
@@ -332,15 +349,24 @@ class TrungUong:
         # nó nói được HÌNH DẠNG phân bổ đổi ra sao — và quan trọng hơn: nó
         # bắt được lúc một đề xuất chỉ "tốt hơn" nhờ ôm rủi ro đậm hơn.
         do = None
+        duyet = None
         if dx:
             tt, hong = thu_hoach(self.so_dang_ky)
             moi = _dat_nut(goc, dx[0].nut, dx[0].den)
             do = doi_chieu(tt, goc, moi, self.danh_muc.vonBanDauUsd, hong)
+            # Cổng Duyệt đứng SAU phép đo và TRƯỚC mọi đường áp dụng.
+            duyet = xet_duyet(dx[0], do).tom_tat()
+            self._deXuatChoDuyet = (dx[0], do) if duyet["duDieuKien"] else None
+        else:
+            self._deXuatChoDuyet = None
 
         ra = {"luc": _bay_gio(), "vong": self.vong,
               "trieuChung": [t.tom_tat() for t in trieu],
               "deXuat": [d.tom_tat() for d in dx],
               "doDuoc": do,
+              "congDuyet": duyet,
+              "banHienHanh": (self.kho_tham_so.hien_hanh().so
+                              if self.kho_tham_so.hien_hanh() else None),
               "tuVan": False,
               "loiNhac": "Đề xuất, KHÔNG tự áp dụng. Xem `hoc()` trong "
                          "trung_uong.py để biết vì sao."}
@@ -375,6 +401,7 @@ class TrungUong:
             (t, int(p.get(t) or 0)) for t in
             ("DUYET_RUI_RO", "DA_CAP_VON", "DA_MO", "DA_DONG")]
         return {
+            "theoHo": self._pheu_theo_ho(),
             "nac": [{"ten": k, "so": v,
                      # `None` chứ không phải 0: "chưa thấy cơ hội nào" khác
                      # hẳn "thấy rồi mà không cái nào qua".
@@ -384,6 +411,110 @@ class TrungUong:
             "hong": int(p.get("HONG") or 0),
             "soChuyenSai": self.so_dang_ky.soChuyenSai,
         }
+
+    # ── §17 · áp dụng và quay lui, cả hai đều đòi TÊN NGƯỜI ──────────────
+    def ap_dung(self, nguoi: str) -> dict:
+        """Áp dụng đề xuất đã QUA CỔNG DUYỆT ở lượt `hoc()` gần nhất.
+
+        Ba điều kiện, và không điều nào bỏ được:
+
+          1. phải có một đề xuất đã qua cổng (`hoc()` chạy trước)
+          2. phải có tên người — máy không tự ký
+          3. bản mới ghi kèm CHÍNH phép đo đã biện minh cho nó
+
+        Điều 3 là chỗ đáng giá nhất: ba tháng sau, câu hỏi "vì sao trần cảng
+        là 0,45" trả lời được bằng một lệnh đọc sổ, không phải bằng trí nhớ.
+        """
+        if not (nguoi or "").strip():
+            return {"xong": False,
+                    "vi": "thiếu tên người — đổi cách chia tiền là hành động "
+                          "có trách nhiệm, và sổ phải ghi được ai làm"}
+        cho = getattr(self, "_deXuatChoDuyet", None)
+        if cho is None:
+            return {"xong": False,
+                    "vi": "không có đề xuất nào đã qua Cổng Duyệt. Chạy "
+                          "`hoc()` trước, và nhớ rằng phần lớn lượt học kết "
+                          "thúc bằng 'không đề xuất gì' — đó là kết quả hợp lệ"}
+        dx, do = cho
+        moi = _dat_nut(self.tham_so(), dx.nut, dx.den)
+        ban = self.kho_tham_so.dat(
+            {"ruiRoTong": moi.get("ruiRoTong") or {},
+             "phanBo": moi.get("phanBo") or {}},
+            nguoi,
+            f"{dx.nut}: {dx.tu:g} -> {dx.den:g} (vì triệu chứng «{dx.vi}»)",
+            do)
+        if ban is None:
+            return {"xong": False, "vi": self.kho_tham_so.loiCuoi or "ghi hỏng"}
+
+        # Dựng lại hai tầng từ bản mới. Không dựng lại thì bản đã ghi vào sổ
+        # mà máy vẫn chạy tham số cũ — sổ nói một đằng, máy làm một nẻo.
+        self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
+        self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
+        self._deXuatChoDuyet = None
+        self.so_cai.ghi(ButToan(
+            "DIEU_CHINH", f"tham số: bản #{ban.so} — {ban.vi}", 0.0, None,
+            None, {"banThamSo": ban.so, "nguoi": nguoi}))
+        return {"xong": True, "ban": ban.tom_tat()}
+
+    def quay_lui(self, veSo: int, nguoi: str, vi: str = "") -> dict:
+        """Quay về nội dung bản `veSo`, bằng cách ghi một bản MỚI.
+
+        Không xoá bản sai. Cùng luật với `so_cai.dao()`: một lịch sử sửa
+        được thì không còn là lịch sử.
+        """
+        if not (nguoi or "").strip():
+            return {"xong": False, "vi": "thiếu tên người"}
+        ban = self.kho_tham_so.quay_lui(int(veSo), nguoi, vi)
+        if ban is None:
+            return {"xong": False, "vi": self.kho_tham_so.loiCuoi or "hỏng"}
+        self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
+        self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
+        self._deXuatChoDuyet = None
+        self.so_cai.ghi(ButToan(
+            "DIEU_CHINH", f"tham số: bản #{ban.so} quay lui về #{veSo}", 0.0,
+            None, None, {"banThamSo": ban.so, "quayLuiVe": int(veSo),
+                         "nguoi": nguoi}))
+        return {"xong": True, "ban": ban.tom_tat()}
+
+    def _pheu_theo_ho(self) -> list[dict]:
+        """Phễu tách theo HỌ, đúng bảng §22 của bản đồ.
+
+        Tổng gộp nói được "cỗ máy có học không". Tách theo họ nói được thứ
+        khác, và là thứ Người Phân Bổ Vốn cần: **họ nào đang nuôi được vốn**.
+        Một họ phát hiện nhiều mà chưa bao giờ qua nổi Rủi Ro Tổng là một họ
+        đang tiêu thời gian máy mà không sinh ra gì.
+
+        Số cơ hội THÔ lấy từ bộ đếm của từng ty, không từ sổ đăng ký — sổ chỉ
+        có tờ trình, mà tờ trình chỉ ra đời sau khi đã qua cổng ty.
+        """
+        tho: dict[str, int] = {}
+        qua: dict[str, int] = {}
+        for t in self.ty.values():
+            h = getattr(t, "ho", "?") or "?"
+            tho[h] = tho.get(h, 0) + t.soCoHoi
+            qua[h] = qua.get(h, 0) + t.soQuaCongTy
+        try:
+            with self.so_dang_ky._mo() as con:
+                rr = {r[0]: r[1] for r in con.execute(
+                    "SELECT ho, COUNT(DISTINCT ma) FROM to_trinh WHERE ma IN "
+                    "(SELECT ma FROM chuyen_trang_thai WHERE den='DUYET_RUI_RO') "
+                    "GROUP BY ho").fetchall()}
+                cv = {r[0]: r[1] for r in con.execute(
+                    "SELECT ho, COUNT(DISTINCT ma) FROM to_trinh WHERE ma IN "
+                    "(SELECT ma FROM chuyen_trang_thai WHERE den='DA_CAP_VON') "
+                    "GROUP BY ho").fetchall()}
+        except Exception:                                # noqa: BLE001
+            rr, cv = {}, {}
+        von = self.danh_muc.phoi_nhiem_ty()
+        von_ho: dict[str, float] = {}
+        for t in self.ty.values():
+            h = getattr(t, "ho", "?") or "?"
+            von_ho[h] = von_ho.get(h, 0.0) + von.get(getattr(t, "ma", ""), 0.0)
+        return [{"ho": h, "coHoiTho": tho.get(h, 0), "quaCongTy": qua.get(h, 0),
+                 "quaRuiRoTong": int(rr.get(h, 0)),
+                 "daCapVon": int(cv.get(h, 0)),
+                 "vonDangGiuUsd": round(von_ho.get(h, 0.0), 2)}
+                for h in sorted(tho)]
 
     # ── ảnh chụp ──────────────────────────────────────────────────────────
     def anh_chup(self) -> dict:
@@ -403,6 +534,7 @@ class TrungUong:
             "latCatVong": self.latCatCuoi.tom_tat() if self.latCatCuoi else None,
             "hoc": self.hocCuoi,
             "thamSo": self.tham_so(),
+            "banThamSo": self.kho_tham_so.tom_tat(),
         }
 
 
