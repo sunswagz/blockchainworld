@@ -644,46 +644,57 @@ code,.mono{font-family:var(--mono)}
 .pt-d2 b{color:var(--canh)}
 
 /* ── lớp tri thức nền (knowledge-os) ─────────────────────────────────
-   Khối cuối hồ sơ mỗi toa. Nó đứng cùng bậc nhận thức với `songSot` —
-   LUẬN, không phải số đo — nên nó cũng mang huy hiệu LUẬN ở tiêu đề và
-   nền chìm hơn phần số. Cho nó nổi ngang bảng TVL là mời người ta đọc
-   một câu diễn giải như một con số đo được.
+   Khối giải nghĩa cuối mỗi phòng. Khuôn HTML sinh ra từ
+   knowledge-os/sinh.mjs nên nó giống hệt ở mọi cung; chỗ khác nhau
+   duy nhất là bảng màu, và đó là chủ ý — người đọc phải nhận ra ngay
+   đây là LỚP KHÁC với số liệu: viền trái một vạch, nền chìm, chữ nhỏ.
+   Trộn nó vào cùng độ nổi với bảng số là mời người ta đọc một câu
+   diễn giải như một con số đo được.
 
-   Màu chữ chỉ dùng --fg / --fg-2. Bậc --fg-3 vừa được nâng lên 4.77
-   trên nền thẻ ở ngay đầu file này — đủ đọc, nhưng một khối chữ dài
-   thì không nên nằm sát ngưỡng. */
-.tt{margin-top:8px;border:1px solid var(--line);border-left:2px solid var(--tim);
+   Năm màu nhãn nguồn khai thành biến hex trong :root chứ KHÔNG viết
+   hex thẳng vào luật: scripts/tien-hoa.mjs chỉ đo được cặp dùng
+   var(--x) với x là hex khai ở :root. Viết hex thẳng là tự đưa khối
+   chữ này ra ngoài tầm bộ đo tương phản. Cả năm cặp đã đo đạt AA. */
+:root{
+  --tt-sach:#7FB2E8; --tt-sach-n:#101C2A;
+  --tt-tacgia:#E8A33D; --tt-tacgia-n:#2A2011;
+  --tt-phantich:#A78BFA; --tt-phantich-n:#1D1830;
+  --tt-repo:#4FC98D; --tt-repo-n:#0F2419;
+  --tt-web:#A9B6C7; --tt-web-n:#1A1F27;
+}
+.tt{margin:16px 0 0;border:1px solid var(--line);border-left:2px solid var(--tim);
   border-radius:0 var(--r) var(--r) 0;background:var(--card);overflow:hidden}
-.tt .tt-y{margin:0;padding:11px 14px;font-size:12.5px;color:var(--fg);line-height:1.68;
-  border-bottom:1px solid var(--line-2)}
-.tt-luoi{display:grid;gap:8px;padding:12px 14px;
-  grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.tt-d{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0;padding:11px 15px;
+  font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);
+  background:var(--card);border-bottom:1px solid var(--line-2)}
+.tt-n{margin-left:auto;font:10.5px/1 var(--mono);letter-spacing:0;text-transform:none;color:var(--fg-2)}
+.tt-y{margin:0;padding:12px 15px;font-size:13px;line-height:1.7;color:var(--fg);
+  background:var(--card);border-bottom:1px solid var(--line-2)}
+.tt-luoi{display:grid;gap:9px;padding:13px 15px;background:var(--card);
+  grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
 .tt-k{padding:9px 11px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px}
-.tt-kd{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.tt-kd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px}
 .tt-kd b{font-size:12.5px;color:var(--fg)}
-.tt-k p{margin:0;font-size:12px;color:var(--fg-2);line-height:1.6}
-.tt-vt{font:10px/1 var(--mono);color:var(--fg-2)}
+.tt-k p{margin:0;font-size:12.2px;line-height:1.62;color:var(--fg-2)}
+.tt-vt{font:10.5px/1 var(--mono);color:var(--fg-2)}
 
-/* Nhãn nguồn. Bốn màu cho bốn lớp, và chúng KHÔNG được giống nhau:
-   người đọc phân biệt "tác giả nói" với "mình suy ra" bằng đúng vệt
-   màu này trước khi kịp đọc chữ. */
 .tt-g{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.05em;
   text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap}
-.tt-g[data-g="sach"]{background:var(--lam-t);color:var(--lam)}
-.tt-g[data-g="tacGia"]{background:var(--canh-t);color:var(--canh)}
-.tt-g[data-g="phanTich"]{background:var(--tim-t);color:var(--tim)}
-.tt-g[data-g="repo"]{background:var(--len-t);color:var(--len)}
-.tt-g[data-g="web"]{background:var(--card-2);color:var(--fg-2)}
+.tt-g[data-g="sach"]{color:var(--tt-sach);background:var(--tt-sach-n)}
+.tt-g[data-g="tacGia"]{color:var(--tt-tacgia);background:var(--tt-tacgia-n)}
+.tt-g[data-g="phanTich"]{color:var(--tt-phantich);background:var(--tt-phantich-n)}
+.tt-g[data-g="repo"]{color:var(--tt-repo);background:var(--tt-repo-n)}
+.tt-g[data-g="web"]{color:var(--tt-web);background:var(--tt-web-n)}
 
-.tt-26{padding:0 14px 12px}
-.tt-26 h4{margin:0 0 7px;font-size:9.8px;font-weight:700;letter-spacing:.13em;
+.tt-26{padding:0 15px 13px;background:var(--card)}
+.tt-26 h4{margin:0 0 8px;font-size:10px;font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--fg-2)}
-.tt-26 p{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin:0 0 8px;
-  font-size:12px;color:var(--fg-2);line-height:1.6}
+.tt-26 p{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:0 0 8px;
+  font-size:12.2px;line-height:1.62;color:var(--fg-2)}
 .tt-26 p:last-child{margin-bottom:0}
 .tt-26 b{color:var(--fg)}
-.tt-loai{font:10.5px/1 var(--mono);color:var(--len)}
+.tt-loai{font:10.5px/1 var(--mono);color:var(--tt-repo)}
 .tt-tin{font-size:10px;color:var(--fg-2)}
 .tt-vi{flex:1 1 100%;color:var(--fg-2)}
-.tt-chan{margin:0;padding:10px 14px;border-top:1px solid var(--line-2);
-  font-size:11px;color:var(--fg-2);line-height:1.58}
+.tt-chan{margin:0;padding:10px 15px;border-top:1px solid var(--line-2);background:var(--card);
+  font-size:11.3px;line-height:1.6;color:var(--fg-2)}
