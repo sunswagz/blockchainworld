@@ -153,7 +153,8 @@ class Runtime:
             self.trungUong = TrungUong(
                 DATA_DIR, {k: v for k, v in tu.items()
                            if k not in ("bat", "tyTinDung", "tyOnDinh",
-                                        "tyLaiSuat", "tyCoSo")})
+                                        "tyLaiSuat", "tyCoSo",
+                                        "tyTienDoan")})
             self.trungUong.dang_ky(TyPerp(self))
 
             # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
@@ -203,7 +204,14 @@ class Runtime:
                     ("tyCoSo",
                      lambda: __import__("co_so.ty_co_so",
                                         fromlist=["TyCoSo"]).TyCoSo(self),
-                     60.0)):
+                     60.0),
+                    # Cỗ máy thứ hai vào dưới Rủi Ro Tổng — nhưng chỉ phần
+                    # nó CHƯA lấy. Phần đang giữ đã là vốn ngoài trong Danh
+                    # Mục, và đếm cả hai là đếm một vị thế hai lần.
+                    ("tyTienDoan",
+                     lambda: __import__("kham_ngoai.ty_tien_doan",
+                                        fromlist=["TyTienDoan"]).TyTienDoan(),
+                     90.0)):
                 cf = (tu.get(khoa) or {})
                 if not cf.get("bat", True):
                     continue

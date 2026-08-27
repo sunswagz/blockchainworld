@@ -725,6 +725,34 @@ DIEU: tuple[Dieu, ...] = (
          "quả rất đáng giá nếu nó chứng minh một engine có kỳ vọng dương.",
          "tệp vốn", None),
 
+    Dieu("von-ngoai-bat-san",
+         "Khoá đọc vốn ngoài BẬT SẴN, không đợi ngày mở cửa đặt lệnh.",
+         "Cơ chế `von_ngoai.py` dựng xong từ lâu mà `vonNgoai` để rỗng — "
+         "một lớp an toàn không ai cấu hình. Cỗ máy kia tắt thì "
+         "`docDuoc=False` hiện ra trong ảnh chụp; để rỗng thì không thấy gì "
+         "cả, và hai chuyện ấy trông giống hệt nhau trên buồng lái.",
+         # Lần thứ HAI điều `trung-uong-khong-biet-ty` bắt được chính bản
+         # nháp của một phép canh ở đây: đọc `vonNgoai` đòi
+         # `thi_bac_ty/` import `bac/config.py`. Trung Ương không được biết
+         # ty nào tồn tại, huống hồ đọc cấu hình của một ty.
+         #
+         # Canh ở tầng đúng: `kiem_von_ngoai_bat_san()` trong selftest.
+         "bac/config.py · von_ngoai.py", None),
+
+    Dieu("khong-dem-hai-lan",
+         "Cơ hội cỗ máy thứ hai ĐANG LÀM thì không được nộp tờ trình xin "
+         "vốn — chúng đã là vốn ngoài trong Danh Mục.",
+         "Khâm Thiên Giám có `dat_lenh.py` riêng. Nếu adapter nộp tờ trình "
+         "cho một cơ hội nó đang tự làm, cùng một vị thế được tính hai lần: "
+         "một lần là vốn ngoài, một lần là vốn vừa cấp. `tranMotCang` khi "
+         "ấy tưởng mình chặn ở 30% trong khi thực tế là 60%.",
+         # KHÔNG canh được TỪ ĐÂY, cùng lý do `bi-danh-khong-phai-ban-sao`:
+         # canh nó đòi `thi_bac_ty/` import `kham_ngoai/`, tức đòi Trung
+         # Ương biết một ty tồn tại. Canh ở tầng đúng —
+         # `kiem_kham_adapter()` dựng ba cơ hội, hai cái `dangLam`, rồi đòi
+         # chỉ một cái đi qua; cấy lỗi ngược làm nó đỏ.
+         "kham_ngoai/ty_tien_doan.py", None),
+
     Dieu("ha-tang-khong-phai-ty",
          "Gói dùng chung của một HỌ không phải ty, và nhận diện ty phải "
          "theo CẤU TRÚC chứ không theo danh sách loại trừ.",

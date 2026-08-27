@@ -124,6 +124,10 @@ MAC_DINH = {
         # nhịp chung — thưa hơn thì nó dùng báo giá cũ, và cửa
         # `tuoiToiDaGiay` của chính nó sẽ chặn.
         "tyCoSo": {"bat": True, "nhipGiay": 60.0},
+        # Adapter Khâm Thiên Giám — bước 2 của món nợ hai cỗ máy.
+        # Nhịp thưa vì nó chỉ đọc lát cắt của một tiến trình khác;
+        # hỏi dồn dập không làm lát cắt ấy mới hơn.
+        "tyTienDoan": {"bat": True, "nhipGiay": 90.0},
 
         # ── VỐN NGOÀI ────────────────────────────────────────────────────
         # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có
@@ -142,10 +146,18 @@ MAC_DINH = {
         # trần của một nửa gia sản trong khi mọi bảng đọc chúng như trần của
         # cả gia sản.
         #
-        #   "vonNgoai": {
-        #       "kham-thien-giam": "http://127.0.0.1:5186/api/trang-thai"
-        #   },
-        "vonNgoai": {},
+        # BẬT SẴN, không đợi tới ngày mở cửa đặt lệnh. Một lớp an toàn chỉ
+        # được cấu hình vào đúng ngày người ta cần nó là một lớp an toàn
+        # không tồn tại: cái ngày ấy là ngày bận nhất, và luật này nằm
+        # trong một chú thích mà lúc đó chưa chắc ai đọc.
+        #
+        # Cỗ máy kia tắt thì `docDuoc=False`, và đó là một TRẠNG THÁI hiện
+        # ra trong ảnh chụp — không phải lỗi, không phải 0. Bật sẵn còn có
+        # nghĩa là ta thấy nó tắt; để rỗng thì ta không thấy gì cả, và hai
+        # chuyện ấy trông giống hệt nhau trên buồng lái.
+        "vonNgoai": {
+            "kham-thien-giam": "http://127.0.0.1:5186/api/trang-thai",
+        },
         "vonBanDauUsd": 1000.0,
         "nguongCauDao": {
             # Rộng hơn cửa `lechDongHoToiDaGiay` của ty (10s) có chủ ý: cửa

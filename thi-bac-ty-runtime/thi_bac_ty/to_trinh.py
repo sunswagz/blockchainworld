@@ -56,8 +56,15 @@ from dataclasses import dataclass, field
 #: sẽ nằm trong mọi bản ghi lịch sử — sai khuôn một lần là lệch vĩnh viễn.
 KHUON_CHIEN_LUOC = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+\.v\d+$")
 
-#: Bảy họ, theo đúng bảng phân loại lại mười ba thread. Một ty mới phải thuộc
-#: một trong bảy họ này, hoặc phải thêm họ ở ĐÂY trước — không tự khai họ lạ.
+#: TÁM họ, theo đúng bảng phân loại lại mười ba thread. Một ty mới phải thuộc
+#: một trong tám họ này, hoặc phải thêm họ ở ĐÂY trước — không tự khai họ lạ.
+#:
+#: `tien-doan` là họ thứ tám, thêm ngày 27/08/2026 cho adapter Khâm Thiên
+#: Giám. Nó KHÔNG nhét vừa bảy họ cũ: thị trường tiên đoán không phải phái
+#: sinh (không có tài sản cơ sở để phái sinh từ đó), không phải chênh lệch
+#: (không có hai nơi để so), không phải tín dụng. Nhét bừa vào `chenh-lech`
+#: cho khỏi phải sửa hợp đồng thì `_pheu_theo_ho()` gộp nó với chênh lệch
+#: stablecoin, và cái phễu ấy nói dối về cả hai.
 HO = (
     "phai-sinh",     # Perpetual · Basis · Options
     "tin-dung",      # Lending · Yield
@@ -66,6 +73,7 @@ HO = (
     "thanh-ly",      # Liquidation
     "mev",           # Search · Execution
     "cau-noi",       # Cross-chain router
+    "tien-doan",     # Polymarket — kết toán NHỊ PHÂN, không có giá cơ sở
 )
 
 #: Sáu mặt rủi ro mà Rủi Ro Tổng biết cộng lại. Ty nào không đo được mặt nào

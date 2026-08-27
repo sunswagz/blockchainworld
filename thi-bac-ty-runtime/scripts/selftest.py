@@ -935,7 +935,13 @@ def kiem_hop_dong() -> None:
     kiem("mã chiến lược thiếu phiên bản → bắt",
          not _tt(chienLuoc="perpetual.funding_spread").hop_le)
     kiem("họ lạ → bắt", not _tt(ho="ho-tu-bia").hop_le)
-    kiem("bảy họ đúng bằng bảng phân loại lại", len(HO) == 7, str(HO))
+    kiem("tám họ đúng bằng bảng phân loại lại", len(HO) == 8, str(HO))
+    kiem("`tien-doan` là họ RIÊNG, không nhét vào `chenh-lech`",
+         "tien-doan" in HO,
+         "thị trường tiên đoán không phải phái sinh (không có tài sản cơ sở "
+         "để phái sinh từ đó) và không phải chênh lệch (không có hai nơi để "
+         "so). Nhét bừa cho khỏi sửa hợp đồng thì `_pheu_theo_ho()` gộp nó "
+         "với chênh lệch stablecoin, và cái phễu ấy nói dối về CẢ HAI")
 
     kiem("không chân nào → bắt", not _tt(chan=()).hop_le,
          "một cơ hội phải nói rõ nó vào đâu")
@@ -3515,8 +3521,14 @@ def kiem_ha_tang_ho() -> None:
     from thi_bac_ty.hien_phap import _goi_ty
 
     ten = {d.name for d in _goi_ty()}
-    kiem("hiến pháp nhận đúng năm ty",
-         ten == {"bac", "co_so", "lai_suat", "on_dinh", "tin_dung"}, str(ten))
+    kiem("hiến pháp nhận đúng sáu ty",
+         ten == {"bac", "co_so", "kham_ngoai", "lai_suat", "on_dinh",
+                 "tin_dung"}, str(ten))
+    kiem("`kham_ngoai` LÀ một ty, không phải hạ tầng",
+         "kham_ngoai" in ten,
+         "nó có một lớp kế thừa `khuon_ty.Ty` và nó nộp tờ trình — đó chính "
+         "là định nghĩa của ty. Adapter mỏng vẫn là ty; chỗ nó lấy số ở đâu "
+         "không đổi việc ấy")
     kiem("và KHÔNG coi hạ tầng là ty",
          not ({"phai_sinh_chung", "san_chung", "chuoi_chung"} & ten),
          "danh sách loại trừ đòi người ta nhớ cập nhật, và lần quên đầu tiên "
@@ -3826,6 +3838,209 @@ def kiem_router_khong_phai_ty() -> None:
          "một hạ tầng tự ý bỏ tuyến vì thấy đắt quá là một cửa rủi ro giấu "
          "trong thư viện tiện ích, và không ai soát được nó ở `CUA`")
 
+def _ck(ma="BTC-100K", ben="UP", net=0.05, vwap=0.42, batDinh=0.02,
+        sucChua=180.0, xs=0.62, dangLam=False, maker=True):
+    return {"ma": ma, "ben": ben, "ct": "lech-gia", "fair": 0.47,
+            "vwap": vwap, "gross": net + 0.01, "net": net, "phi": 0.01,
+            "batDinh": batDinh, "sucChua": sucChua, "xacSuatKhop": xs,
+            "nuaDoiMs": 7_200_000, "maker": maker, "dangLam": dangLam,
+            "ghiChu": ""}
+
+
+class _DocGia:
+    """Giả cỗ máy kia. Không mạng — selftest không được chạm mạng."""
+
+    def __init__(self, d, docDuoc=True):
+        self.d, self.docDuoc, self.vi, self.soLoi, self.lucMs = (
+            d, docDuoc, "" if docDuoc else "tắt", 0, 1.0)
+
+    def doc(self):
+        return self.d if self.docDuoc else {}
+
+    def tuoi_giay(self):
+        return 1.0
+
+    def tom_tat(self):
+        return {"docDuoc": self.docDuoc, "vi": self.vi}
+
+
+def kiem_kham_adapter() -> None:
+    print("\n-- Kham adapter: RANH GIOI dem hai lan --")
+    from kham_ngoai.ty_tien_doan import (CONFIG, CUA, CongRuiRo, TyTienDoan,
+                                         _ten_tai_san, net_bps, xuat_to_trinh)
+
+    kiem("CUA và CONFIG['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(CONFIG["ruiRo"]),
+         str(set(CUA) ^ set(CONFIG["ruiRo"])))
+
+    # ── đổi đơn vị: chia cho GIÁ, không cho mệnh giá ────────────────────
+    kiem("netEdge 0,05 ở giá 0,42 = 1.190 bps",
+         gan(net_bps(0.05, 0.42), 0.05 / 0.42 * 10_000.0, 1e-6))
+    kiem("chia cho GIÁ, không phải cho 1,0",
+         net_bps(0.05, 0.42) > net_bps(0.05, 1.0),
+         "vốn bỏ ra là GIÁ mỗi cổ. Chia cho 1,0 thì cơ hội ở giá 0,10 bị "
+         "báo thấp đi mười lần, và những cơ hội rẻ nhất — đúng chỗ edge hay "
+         "nằm — biến mất khỏi bảng xếp hạng")
+    kiem("giá ngoài thang xác suất là dữ liệu hỏng, trả None",
+         net_bps(0.05, 1.4) is None and net_bps(0.05, 0.0) is None)
+    kiem("thiếu edge hoặc thiếu giá → None, không phải 0",
+         net_bps(None, 0.42) is None and net_bps(0.05, None) is None)
+
+    # ── RANH GIỚI ĐẾM HAI LẦN ───────────────────────────────────────────
+    t = TyTienDoan()
+    t.doc = _DocGia({"chayDuocGiay": 5.0, "coHoi": [
+        _ck("A", dangLam=False), _ck("B", dangLam=True),
+        _ck("C", dangLam=True)]})
+    ra = t.quet()
+    kiem("cơ hội cỗ máy kia ĐANG LÀM bị BỎ QUA",
+         [c["ma"] for c in ra] == ["A"], str([c["ma"] for c in ra]))
+    kiem("và số bị bỏ được ĐẾM chứ không biến mất",
+         t.boQua["dangLam"] == 2,
+         f"{t.boQua} — chúng đã là vốn ngoài trong Danh Mục. Nộp tờ trình "
+         f"cho chúng nữa là đếm CÙNG MỘT vị thế hai lần, và `tranMotCang` "
+         f"tưởng mình chặn ở 30% trong khi thực tế là 60%")
+    kiem("lời nhắc nói rõ vì sao bỏ", "hai lần" in t.tom_tat()["loiNhac"])
+
+    # ── cỗ máy kia TẮT ──────────────────────────────────────────────────
+    t2 = TyTienDoan()
+    t2.doc = _DocGia({}, docDuoc=False)
+    kiem("cỗ máy kia tắt → quét rỗng", t2.quet() == [])
+    kiem("và ty KHAI là mù, không im lặng",
+         t2.tom_tat()["doc"]["docDuoc"] is False,
+         "«không đọc được» và «không có cơ hội» trông giống hệt nhau nếu "
+         "không ai nói ra")
+
+    # ── cổng ──────────────────────────────────────────────────────────────
+    cong = CongRuiRo(CONFIG["ruiRo"])
+
+    def ma_cua(c):
+        c = dict(c)
+        c["_netBps"] = net_bps(c["net"], c["vwap"])
+        c.setdefault("_tuoiGiay", 5.0)
+        return {m for m, _ in cong.xet(c)[1]}
+
+    kiem("cơ hội lành qua sạch", ma_cua(_ck()) == set(), str(ma_cua(_ck())))
+    kiem("bất định mô hình quá lớn → CHẶN",
+         "bat-dinh-qua-lon" in ma_cua(_ck(batDinh=0.40)),
+         "đó là CHÍNH cỗ máy định giá nói «tôi không chắc» — edge nằm trong "
+         "sai số của mô hình sinh ra nó thì không phải edge")
+    kiem("NET dưới ngưỡng → chặn",
+         "net-duoi-nguong" in ma_cua(_ck(net=0.005)))
+    kiem("khó khớp → chặn", "kho-khop" in ma_cua(_ck(xs=0.10)))
+    kiem("sức chứa quá nhỏ → chặn",
+         "suc-chua-qua-nho" in ma_cua(_ck(sucChua=5.0)))
+    kiem("thiếu sức chứa là THIẾU SỐ, không phải sức chứa 0",
+         "thieu-so" in ma_cua(_ck(sucChua=None)),
+         "None phải chảy tới tận cổng chứ không bị coi là 0 dọc đường")
+
+    # ── tờ trình ────────────────────────────────────────────────────────
+    c = dict(_ck())
+    c["_netBps"] = net_bps(c["net"], c["vwap"])
+    c["_grossBps"] = net_bps(c["gross"], c["vwap"])
+    c["_phiBps"] = net_bps(c["phi"], c["vwap"])
+    c["_tuoiGiay"] = 5.0
+    tt = xuat_to_trinh(c)
+    kiem("tờ trình hợp lệ", tt.hop_le, str(tt.kiem()))
+    kiem("họ là `tien-doan`, họ thứ TÁM", tt.ho == "tien-doan")
+
+    kiem("chân LUÔN là LONG", tt.chan[0].ben == "LONG",
+         "trên Polymarket ta MUA cổ phần một kết quả; mua DOWN không phải "
+         "bán khống UP, nó là mua dài một TOKEN KHÁC. Nhét UP/DOWN vào "
+         "`ben` là nói dối `_dau_van()` của Trung Ương — nó sẽ gộp hai vị "
+         "thế CÙNG chiều thành hai vị thế đối nhau")
+    kiem("UP/DOWN nằm ở TÊN TÀI SẢN", tt.taiSan == "BTC-100K:UP",
+         str(tt.taiSan))
+    kiem("nên UP và DOWN là hai tài sản khác nhau",
+         _ten_tai_san(_ck(ben="UP")) != _ten_tai_san(_ck(ben="DOWN")))
+
+    kiem("đủ SÁU mặt rủi ro, không bịa mặt thứ bảy",
+         tt.ruiRo.chua_do() == (), str(tt.ruiRo.chua_do()))
+    kiem("bất định mô hình đẩy rủi ro THỊ TRƯỜNG lên",
+         xuat_to_trinh({**c, "batDinh": 0.30}).ruiRo.thiTruong
+         > tt.ruiRo.thiTruong,
+         "sáu mặt hiện có đo rủi ro của THẾ GIỚI, không đo rủi ro của việc "
+         "chính ta nhìn sai thế giới. Mô hình sai bao nhiêu thì giá đi "
+         "ngược ta bấy nhiêu, và hệ quả không phân biệt được với biến động")
+
+    kiem("bằng chứng nói rõ ĐỊNH GIÁ KHÔNG PHẢI của ty này",
+         any("KHÔNG PHẢI CỦA TY NÀY" in b for b in tt.bangChung),
+         "viết lại thuật toán định giá ở đây là dựng cỗ máy thứ ba dưới một "
+         "cái tên khác")
+    kiem("và nói rõ ranh giới đếm hai lần",
+         any("hai lần" in b for b in tt.bangChung))
+    kiem("khai `giuGio` là NỬA ĐỜI, không phải kỳ hạn",
+         "giu-gio-la-nua-doi-khong-phai-ky-han" in tt.phiConThieu,
+         "để không ai đọc `netMoiGioBps` của ty này như đọc của ty funding")
+
+    kiem("không đo được tuổi lát cắt thì KHAI ra",
+         "tuoi-lat-cat-khong-doc-duoc"
+         in xuat_to_trinh({**c, "_tuoiGiay": None}).phiConThieu,
+         "cửa `tuoiToiDaGiay` không chặn được khi tuổi là None, nên chỗ "
+         "hổng ấy phải hiện ở khai báo")
+    kiem("và độ tin cũng tụt theo",
+         xuat_to_trinh({**c, "_tuoiGiay": None}).tinCay < tt.tinCay)
+
+
+def kiem_kham_khong_dat_lenh() -> None:
+    print("\n-- Kham adapter CHI DOC: buoc 4 bi CHAN co chu y --")
+    import pathlib
+
+    goc = pathlib.Path(__file__).resolve().parent.parent
+    xau = []
+    for p in (goc / "kham_ngoai").glob("*.py"):
+        s = p.read_text(encoding="utf-8")
+        for l in s.splitlines():
+            l = l.strip()
+            if l.startswith(("import kham", "from kham.", "from kham ")):
+                xau.append(f"{p.name}: {l}")
+    kiem("adapter KHÔNG import `kham`", not xau,
+         f"{xau} — hai runtime là hai tiến trình, hai vòng đời, hai lịch "
+         f"khởi động lại. Import là buộc chúng thành một")
+
+    dat = []
+    for p in (goc / "kham_ngoai").glob("*.py"):
+        s = p.read_text(encoding="utf-8").lower()
+        for tu in ("urlopen(rq", "requests.post", "client.post", ".put("):
+            if tu in s and "read-only" not in s:
+                dat.append(f"{p.name}: {tu}")
+    kiem("adapter chỉ ĐỌC — không có đường ghi nào ra cỗ máy kia",
+         not dat,
+         f"{dat} — bước 4 (`dat_lenh.py`) bị CHẶN có chủ ý: nó chỉ chuyển "
+         f"được khi Điều Phối Thực Thi có lớp ký lệnh thật, mà `moPhong` là "
+         f"True cứng")
+
+    from thi_bac_ty.thuc_thi import DieuPhoiThucThi
+    kiem("và lớp ký lệnh thật vẫn KHÔNG tồn tại",
+         DieuPhoiThucThi().moPhong is True,
+         "đây là điều biến bước 4 từ «chưa làm» thành «không làm được từ "
+         "phía này» — và hai câu ấy phải nói khác nhau")
+
+def kiem_von_ngoai_bat_san() -> None:
+    print("\n-- Von ngoai BAT SAN: thay co may thu hai, ke ca khi no tat --")
+    from bac.config import CONFIG
+
+    vn = (CONFIG.get("trungUong") or {}).get("vonNgoai") or {}
+    kiem("khoá đọc vốn ngoài đã BẬT, không để rỗng", bool(vn),
+         "một lớp an toàn chỉ được cấu hình vào đúng ngày người ta cần nó "
+         "là một lớp an toàn không tồn tại: cái ngày ấy là ngày bận nhất, "
+         "và luật này nằm trong một chú thích mà lúc đó chưa chắc ai đọc")
+    kiem("và nó trỏ tới Khâm Thiên Giám",
+         any("5186" in str(u) for u in vn.values()), str(vn))
+
+    from thi_bac_ty.danh_muc import DanhMuc
+    from thi_bac_ty.von_ngoai import LatCatNgoai
+    d = DanhMuc(1000.0)
+    d.ghi_von_ngoai(LatCatNgoai("kham-thien-giam", docDuoc=False,
+                                vi="tắt"))
+    kiem("đọc HỎNG thì Danh Mục khai là KHÔNG đầy đủ", not d.ngoaiDayDu,
+         "coi «không đọc được» thành «không có gì» là đúng cách một trần "
+         "biến thành trần giả")
+    d2 = DanhMuc(1000.0)
+    d2.ghi_von_ngoai(LatCatNgoai("kham-thien-giam", docDuoc=True,
+                                 daCamKetUsd=250.0, tienMatUsd=50.0))
+    kiem("đọc được thì vốn ngoài vào NAV", d2.ngoaiUsd > 0 and d2.ngoaiDayDu,
+         f"ngoaiUsd={d2.ngoaiUsd} dayDu={d2.ngoaiDayDu}")
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -3946,6 +4161,9 @@ def main() -> int:
     kiem_router_bang_do()
     kiem_router_dinh_tuyen()
     kiem_router_khong_phai_ty()
+    kiem_kham_adapter()
+    kiem_kham_khong_dat_lenh()
+    kiem_von_ngoai_bat_san()
     kiem_bon_ty()
     kiem_thang_chung()
     kiem_von_toi_thieu()

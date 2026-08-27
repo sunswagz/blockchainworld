@@ -394,6 +394,45 @@ Hệ quả cụ thể: `tranMotCang`, `tranMotChuoi`, `sutVonToiDaPct` của Tru
 Ương chỉ đúng trên phần vốn Thị Bạc Ty quản. Đừng đọc chúng như trần của
 cả gia sản.
 
+### TÌNH TRẠNG ngày 27/08/2026 — hai bước đã gỡ, một bước bị CHẶN
+
+    1. Đừng dựng cỗ máy thứ ba                        ĐANG GIỮ
+    2. Adapter `Ty` cho `kham/`                       XONG — `kham_ngoai/`
+    3. `vi.py` vào Danh Mục                           XONG — `von_ngoai.py`
+       `ket_toan.py` sang Sổ Cái                      CHƯA — cần sửa `kham/`
+    4. `dat_lenh.py` chuyển sau cùng                  CHẶN — xem dưới
+
+**Bước 2 xong**, và ranh giới đếm là phần khó nhất của nó:
+
+    dangLam = True   cỗ máy kia đã lấy → `von_ngoai` đếm → adapter BỎ QUA
+    dangLam = False  nó chỉ mới thấy   → adapter nộp tờ trình
+
+Nộp cả hai là đếm CÙNG MỘT vị thế hai lần — một lần là vốn ngoài, một lần
+là vốn Thị Bạc Ty vừa cấp — và `tranMotCang` khi ấy tưởng mình chặn ở 30%
+trong khi thực tế là 60%. Điều `khong-dem-hai-lan` trong hiến pháp giữ ranh
+giới ấy, và phép cấy lỗi ngược làm nó đỏ.
+
+Adapter đọc qua HTTP, **không import `kham`** — hai runtime là hai tiến
+trình, hai vòng đời. Cỗ máy kia tắt thì ty khai là mù chứ không báo "không
+có cơ hội"; hai câu ấy trông giống hệt nhau nếu không ai nói ra.
+
+Kèm theo bước 2, họ thứ TÁM ra đời: `tien-doan`. Thị trường tiên đoán
+không nhét vừa bảy họ cũ — không có tài sản cơ sở để phái sinh từ đó, cũng
+không có hai nơi để so giá. Nhét bừa vào `chenh-lech` cho khỏi sửa hợp đồng
+thì `_pheu_theo_ho()` gộp nó với chênh lệch stablecoin, và cái phễu ấy nói
+dối về cả hai.
+
+**Nửa sau bước 3 chưa làm được từ phía này.** Chuyển `ket_toan.py` sang Sổ
+Cái đòi sửa file trong `kham-thien-giam-runtime/` — thư mục của cung khác,
+mà luật kho bắt hỏi trước khi đụng. Phần làm được từ phía Thị Bạc Ty đã
+làm: Sổ Cái nhận được bút toán từ ngoài, và `von_ngoai` đã bật sẵn.
+
+**Bước 4 bị CHẶN, và chặn có chủ ý.** `dat_lenh.py` chỉ chuyển được khi
+Điều Phối Thực Thi có lớp ký lệnh thật. Lớp ấy không tồn tại và không được
+phép tồn tại: `DieuPhoiThucThi.moPhong` là `True` cứng, không cấu hình nào
+mở được. Nên bước 4 không phải "chưa làm" — nó là **"không làm được từ phía
+này"**, và hai câu ấy phải nói khác nhau.
+
 ### Việc phải làm, theo thứ tự, khi quay lại chỗ này
 
 1. **Đừng dựng cỗ máy thứ ba.** Ty tiếp theo cắm vào `khuon_ty.Ty`, không
