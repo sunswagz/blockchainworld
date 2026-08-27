@@ -501,10 +501,44 @@
     oso("Cầu dao", r.ngatKhanCap ? "ĐANG NGẮT" : "đóng", r.lyDoNgat || null);
     k._than.appendChild(l);
 
-    var bq = LC.boQua || {};
-    Object.keys(bq).forEach(function (ma) {
-      k._than.appendChild(html("div", "boqua", "<b>" + ma + "</b> — " + bq[ma]));
-    });
+    /* ── danh sách BỎ QUA ────────────────────────────────────
+       Trước bản này nó là hai vạch hổ phách KHÔNG TÊN, đậu ngay dưới
+       lưới sáu ô. Người đọc lần đầu hiểu thành "máy đang hỏng" — và
+       hiểu ngược đúng điều cung này giảng: đó là cỗ máy TỪ CHỐI vào
+       lệnh vì chưa đủ mẫu ước lượng σ, tức nó đang làm đúng việc. Một
+       trạng thái lành mạnh mà trông như một lỗi thì tệ hơn không hiện
+       gì, vì nó dạy sai chứ không chỉ dạy thiếu.
+
+       Vạch GIỮ NGUYÊN màu hổ phách: theo bảng màu khai ở đầu app.css,
+       hổ phách nghĩa là "đáng chú ý, chưa nguy" — đúng nghĩa cần ở đây.
+       Thứ thiếu chưa bao giờ là màu, mà là cái tên. Thêm tên vào cũng
+       là thêm dấu hiệu thứ hai cho cả cụm (luật 3): trước đó nghĩa của
+       cụm nằm trần trong sắc hổ phách.
+
+       Rỗng thì NÓI là rỗng — nhưng chỉ khi lát cắt CÓ mang khoá
+       `boQua`. Không mang là CHƯA ĐO, và luật 1 cấm biến chưa-đo thành
+       0; nên nhánh đó không vẽ gì cả, thay vì vẽ một con số 0 không ai
+       đo được. Số 0 đo được thật thì vẫn in ra "0 market", vì 0 khác
+       null — cùng lối demSo() đã đi ở lưới trên. */
+    var bq = LC.boQua;
+    if (bq && typeof bq === "object") {
+      var mas = Object.keys(bq);
+      var cap = el("div", "boqua-d");
+      /* h3 thật, không phải một dòng chữ in đậm: khối này đã là h2
+         ("Lát cắt runtime") nên đây đúng là cấp ba, và trình đọc màn
+         hình nhảy được tới nó thay vì phải nghe hết lưới sáu ô. */
+      cap.appendChild(el("h3", null, "Bỏ qua lượt này"));
+      /* Số đếm đi CHỮ MÁY, câu giải thích đi chữ thường — luật 2, ngay
+         cạnh nhau trên một dòng nên khác biệt ấy đọc ra được. */
+      cap.appendChild(el("span", "dem", mas.length + " market"));
+      cap.appendChild(el("span", "y", mas.length
+        ? "máy từ chối vào lệnh, lý do ghi ngay dưới"
+        : "đo được là không có — khác với chưa đo"));
+      k._than.appendChild(cap);
+      mas.forEach(function (ma) {
+        k._than.appendChild(html("div", "boqua", "<b>" + ma + "</b> — " + bq[ma]));
+      });
+    }
 
     k._than.appendChild(html("p", null,
       "<span style='font-size:12.6px;color:var(--fg-3);line-height:1.66;display:block'>" +

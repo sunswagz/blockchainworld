@@ -395,9 +395,16 @@ code,.mono{font-family:var(--mono)}
 .scrim[data-open="1"]{opacity:1;pointer-events:auto}
 .hoso{position:fixed;z-index:61;right:0;top:0;bottom:0;width:min(560px,96vw);
   background:var(--bg-2);border-left:1px solid var(--line);display:flex;flex-direction:column;
-  transform:translateX(101%);transition:transform var(--dur) ease;
-  padding-bottom:env(safe-area-inset-bottom)}
-.hoso[data-open="1"]{transform:none}
+  transform:translateX(101%);padding-bottom:env(safe-area-inset-bottom);
+  /* `visibility` chứ không chỉ `transform`: một ngăn bị đẩy ra ngoài
+     màn hình vẫn nằm nguyên trong luồng Tab. Nên nút "Đóng hồ sơ" và
+     link "Mở <công cụ>" của ngăn ĐANG ĐÓNG chen vào giữa chân trang và
+     phần tiếp theo — người dùng bàn phím Tab vào một thứ không nhìn
+     thấy, không bấm bằng chuột được, và không hiểu mình đang ở đâu.
+     Hoãn đúng một nhịp `--dur` để ngăn còn kịp trượt ra rồi mới tắt;
+     lúc mở thì bật ngay, không hoãn, không thì cú trượt vào bị nuốt. */
+  visibility:hidden;transition:transform var(--dur) ease,visibility 0s linear var(--dur)}
+.hoso[data-open="1"]{transform:none;visibility:visible;transition:transform var(--dur) ease}
 @media (max-width:900px){
   .hoso{left:0;right:0;top:auto;bottom:0;width:auto;height:90dvh;border-left:0;
     border-top:1px solid var(--line);border-radius:15px 15px 0 0;transform:translateY(101%)}

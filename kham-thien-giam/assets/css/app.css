@@ -537,6 +537,28 @@ code,.mono,.ma{font-family:var(--mono)}
   border-left:3px solid var(--canh);font-size:12.6px;color:var(--fg-2);line-height:1.66}
 .boqua b{color:var(--canh);font-family:var(--mono);font-size:11.6px}
 
+/* Cái tên của danh sách bỏ qua — luận đầy đủ ở veLatCat trong app.js.
+   Chữ hoa nhỏ cùng lối .o-so .nhan và .hs-h, để nó đọc ra là NHÃN CỦA
+   MỘT MỤC chứ không phải một dòng nội dung, và để mắt xuống tới đây
+   không phải học một quy ước thứ hai.
+
+   Nhãn CỐ Ý không nhuộm hổ phách như vạch dưới nó: hổ phách trong cung
+   này nghĩa là "đáng chú ý, chưa nguy", đúng cho từng market bị bỏ
+   qua, nhưng dán lên cả cái tên thì cụm hoá thành một khối cảnh báo —
+   và một lượt KHÔNG bỏ qua market nào sẽ hiện ra một tiêu đề màu báo
+   động cho chuyện không có gì. Nhãn xám thì hai trạng thái đọc như
+   nhau, và chỉ số vạch bên dưới đổi.
+
+   Không màu nào mới: --fg-3 trên --card là 5.88, --fg-2 trên --card-2
+   còn sáng hơn --fg-3 trên cùng nền (4.86) nên cả hai dư sàn 4.5. */
+.boqua-d{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin:0 0 9px}
+.boqua-d h3{font-size:9.8px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--fg-3);flex:0 0 auto}
+.boqua-d .dem{font-family:var(--mono);font-size:11px;color:var(--fg-2);
+  padding:1px 7px;border-radius:4px;background:var(--card-2);border:1px solid var(--line);
+  flex:0 0 auto;white-space:nowrap}
+.boqua-d .y{font-size:12.2px;color:var(--fg-3);line-height:1.6;min-width:0}
+
 /* ── lớp tri thức nền (knowledge-os) ─────────────────────────────────
    Khối giải nghĩa cuối mỗi phòng. Khuôn HTML sinh ra từ
    knowledge-os/sinh.mjs nên nó giống hệt ở mọi cung; chỗ khác nhau

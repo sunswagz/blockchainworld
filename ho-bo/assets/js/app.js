@@ -702,7 +702,44 @@
     hosoTren = document.getElementById("hosoTren"),
     hosoBody = document.getElementById("hosoBody");
 
+  /* ── Ngăn hồ sơ phải cư xử như một HỘP THOẠI ──────────────────
+     Bốn bảng đã mở được hồ sơ bằng bàn phím — xem chú thích ở `tenMo`,
+     nơi cột tên được đổi thành <button> thật vì trước đó chỉ CHUỘT mới
+     mở được. Nhưng mở xong thì tiêu điểm vẫn đứng nguyên ở nút vừa bấm,
+     tức là SAU tấm scrim: người dùng bàn phím bấm Enter, không nghe thấy
+     gì đổi, rồi phải Tab qua hết phần còn lại của trang mới tới được
+     đúng thứ mình vừa mở ra. Mở được cửa mà không bước vào được thì
+     nửa việc trước cũng hụt theo.
+
+     Ba việc, đúng hợp đồng của một hộp thoại:
+       mở   → đưa tiêu điểm vào ngăn (`tabindex="-1"` khai ở index.html)
+       Tab  → quẩn trong ngăn, không rơi ra nền phía sau
+       đóng → trả tiêu điểm về đúng nút đã bấm, không về đầu trang
+
+     Thẻ để trả về nhặt từ CÚ BẤM chứ không từ `document.activeElement`:
+     Safari trên macOS không cho <button> nhận tiêu điểm khi bấm chuột,
+     nên ở đó activeElement vẫn là <body> và cú trả về sẽ trượt. */
+  var HOSO_NEO = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])';
+  var hosoTuDau = null;
+
+  function hosoDangMo() { return hoso.dataset.open === "1"; }
+
+  function hosoNeo() {
+    return hoso.querySelectorAll
+      ? Array.prototype.slice.call(hoso.querySelectorAll(HOSO_NEO)) : [];
+  }
+
   function dongHoso() {
+    /* Cửa đã đóng thì đừng làm gì. Escape bấm giữa trang và cú bấm ra
+       nền đều tới đây, mà giật tiêu điểm về một nút cũ trong lúc người
+       dùng đang gõ ở chỗ khác thì tệ hơn hẳn không làm gì. */
+    if (!hosoDangMo()) return;
+    var ve = hosoTuDau;
+    hosoTuDau = null;
+    /* Trả tiêu điểm TRƯỚC khi đánh dấu aria-hidden: một vùng đã
+       aria-hidden mà còn giữ thẻ đang có tiêu điểm là trạng thái trình
+       đọc màn hình không mô tả nổi. */
+    if (ve && ve.focus) ve.focus();
     hoso.dataset.open = "0";
     scrim.dataset.open = "0";
     hoso.setAttribute("aria-hidden", "true");
@@ -715,6 +752,9 @@
     scrim.dataset.open = "1";
     hoso.setAttribute("aria-hidden", "false");
     hosoBody.scrollTop = 0;
+    /* Vào chính tấm ngăn, không vào nút Đóng: trình đọc màn hình đọc
+       tên hồ sơ trước rồi mới tới các nút, thay vì mở màn bằng "Đóng". */
+    if (hoso.focus) hoso.focus();
   }
 
   function hosoChuoi(ten) {
@@ -1046,12 +1086,19 @@
   document.addEventListener("click", function (e) {
     var el;
 
+    /* Thẻ sẽ nhận lại tiêu điểm khi hồ sơ đóng. Nhặt ở đây, MỘT chỗ, vì
+       cả ba lối mở hồ sơ đều đi qua listener này. Null là hợp lệ: nút
+       trên bản đồ dòng tiền là một <g> trong SVG, vốn không nhận tiêu
+       điểm, nên ở lối đó không có gì để mà trả về. */
+    var neo = e.target.closest ? e.target.closest("button,a[href]") : null;
+
     el = e.target.closest ? e.target.closest("[data-nguon]") : null;
-    if (el) { hosoNguon(el.getAttribute("data-nguon")); return; }
+    if (el) { hosoTuDau = neo; hosoNguon(el.getAttribute("data-nguon")); return; }
 
     el = e.target.closest ? e.target.closest("tr[data-mo]") : null;
     if (el) {
       var loai = el.getAttribute("data-mo"), ten = el.getAttribute("data-ten");
+      hosoTuDau = neo;
       if (loai === "chuoi") hosoChuoi(ten);
       else if (loai === "nhom") hosoNhom(ten);
       return;
@@ -1101,6 +1148,7 @@
     var bd = document.getElementById("bando");
     if (el && bd) {
       var c = el.getAttribute("data-c"), n = el.getAttribute("data-n");
+      hosoTuDau = neo;
       if (c) hosoChuoi(c); else if (n) hosoNhom(n);
       return;
     }
@@ -1145,7 +1193,16 @@
   document.getElementById("hosoDong").addEventListener("click", dongHoso);
   scrim.addEventListener("click", dongHoso);
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") dongHoso();
+    if (e.key === "Escape") { dongHoso(); return; }
+    if (e.key !== "Tab" || !hosoDangMo()) return;
+    /* Vòng Tab quẩn trong ngăn. Thiếu nó thì phím Tab cuối cùng đưa
+       người dùng ra SAU tấm scrim — vào đúng những nút họ vừa bị che
+       mất, bấm chuột không tới, mà bàn phím thì vẫn tới. */
+    var neo = hosoNeo();
+    if (!neo.length) { e.preventDefault(); return; }
+    var dau = neo[0], cuoi = neo[neo.length - 1], nay = document.activeElement;
+    if (e.shiftKey && (nay === dau || nay === hoso)) { e.preventDefault(); cuoi.focus(); }
+    else if (!e.shiftKey && nay === cuoi) { e.preventDefault(); dau.focus(); }
   });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", chay);

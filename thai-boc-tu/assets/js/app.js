@@ -106,9 +106,18 @@
      dán sát viền thẻ, và mọi thẻ con có viền riêng (.dot, .sk, .tin,
      .cua, .ct) chạm đúng vào viền ngoài. Hai đường kẻ chồng nhau đọc
      ra như lỗi dựng chứ không như một dải tràn viền cố ý. */
-  function khoi(tieu, n, than, y, nhan) {
+  /* Hàng tiêu đề mang BA thứ khác hẳn nhau, và `n` trước đây gánh hai
+     trong ba: vừa là SỐ ĐẾM ("10 bậc", "9/14 còn động"), vừa là LỜI
+     MỜI BẤM ("bấm một toa để mở hồ sơ"). Cả hai in ra cùng một ô chữ
+     máy xám nhạt canh phải, nên một câu sai khiến đọc ra như một con
+     số — và nó lại là chữ mờ nhất khối, nằm xa danh sách nhất. Thứ
+     duy nhất nói rằng ba danh sách kia bấm được thì không ai thấy.
+     Nay `bam` là tham số riêng: chữ thường, chip, đứng ngay sau tên
+     khối. `n` giữ nguyên vai DỮ LIỆU. */
+  function khoi(tieu, n, than, y, nhan, bam) {
     return '<section class="khoi"><div class="khoi-dinh"><h2>' + esc(tieu) + "</h2>" +
       (nhan || "") +
+      (bam ? '<span class="bam">' + esc(bam) + "</span>" : "") +
       (n ? '<span class="n">' + esc(n) + "</span>" : "") + "</div>" +
       (y ? '<div class="khoi-y">' + y + "</div>" : "") +
       '<div class="khoi-than">' + than + "</div></section>";
@@ -244,12 +253,12 @@
       khoi("Đoàn tàu đang chở gì", null, oS,
         "Bốn con số này là toàn bộ luận điểm của cung: cái đáng lo không phải " +
         "toa nào to, mà là <b>bao nhiêu thứ đang treo trên một khớp nối duy nhất</b>.") +
-      khoi("Mười tám toa", "bấm một toa để mở hồ sơ", tau,
+      khoi("Mười tám toa", G.toa.length + " toa", tau,
         "Mỗi toa một thước đo, và thước nào cũng ghi ngay dưới con số. " +
         "Toa nền đo bằng TVL toàn chuỗi, tiền ổn định đo bằng lượng lưu hành, " +
         "còn DePIN, AI, danh tính, game và meme thì <b>TVL không đo được</b> — " +
         "chẳng ai khoá vốn vào một meme coin để nó chạy. Chúng hiện “—”, " +
-        "không hiện 0.") +
+        "không hiện 0.", null, "bấm một toa để mở hồ sơ") +
       veTinTuc() +
       duY;
   }
@@ -461,13 +470,13 @@
          thì nói ngay ở hàng tiêu đề. Ba danh sách cùng mở hồ sơ mà
          chỉ một cái nói ra điều đó thì hai cái kia đọc như bảng chết. */
       khoi("Vốn hoá không phải tầm quan trọng hệ thống",
-        D.oracle.length + " khớp · bấm để mở hồ sơ",
+        D.oracle.length + " khớp",
         dsKhoi,
         "Một dự án oracle có thể có vốn hoá khiêm tốn mà vẫn là chỗ hàng chục tỷ " +
         "đô đang dựa vào. Bảng vốn hoá không bao giờ nói ra điều đó, vì nó đo " +
         "<b>giá của token</b> chứ không đo <b>lượng vốn phụ thuộc</b>. Bảng dưới " +
         "đo cái thứ hai — tự tính từ khai báo của từng giao thức, không lấy từ " +
-        "bảng tổng nào.") +
+        "bảng tổng nào.", null, "bấm một khớp để mở hồ sơ") +
       khoi("Đứng trên chuỗi nào", D.khopChuoi.length + " chuỗi đông nhất", traiY + chuoi,
         "Chuỗi cũng là một khớp nối: giao thức chỉ đứng trên một chuỗi thì chuỗi " +
         "đó ngã là nó ngã theo, không cần ai tấn công trực tiếp vào nó.");
@@ -503,7 +512,10 @@
       "phụ thuộc, không phải số đo và không phải dự báo giá.</b> Cách đọc một " +
       "hạng: “bỏ toa này thì phần còn lại có chạy tiếp được không?” Bỏ meme thì " +
       "kết sổ vẫn chạy, khối vẫn được tạo, tài sản vẫn chuyển. Bỏ kết sổ thì " +
-      "không còn gì cả.", HUY_LUAN) +
+      /* Danh sách THỨ BA mở hồ sơ, và là cái duy nhất chưa từng nói ra
+         điều đó — chú thích ở phòng Khớp Nối đã ghi đúng bệnh này rồi
+         sửa cho hai danh sách kia mà bỏ sót chính nó. */
+      "không còn gì cả.", HUY_LUAN, "bấm một toa để mở hồ sơ") +
       khoi("Một điều đáng chú ý trong bảng trên", null,
         '<p class="giaithich">Năm toa mà TVL <b>không đo nổi</b> — DePIN, AI, danh tính, ' +
         "game, meme — nằm gần hết ở nửa trên của bảng, tức nửa bị bỏ trước. Đó " +

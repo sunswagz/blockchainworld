@@ -158,6 +158,29 @@ code,.mono{font-family:var(--mono)}
   border-bottom:1px solid var(--line-2)}
 .khoi-dinh h2{font-size:15px;flex:0 1 auto}
 .khoi-dinh .n{margin-left:auto;font-size:11px;color:var(--fg-3);font-family:var(--mono)}
+
+/* LỜI MỜI BẤM, tách hẳn khỏi SỐ ĐẾM. Ba danh sách của cung mở hồ sơ
+   khi bấm (.toa, .sk, .dot), và câu nói ra điều đó vốn đi chung ô với
+   `.n` — chữ máy, --fg-3, canh phải sát mép. Chữ máy là quy ước của
+   cung cho SỐ ĐO, nên một câu sai khiến in bằng chữ máy đọc ra như
+   một con số; đặt nó ở bậc chữ mờ nhất và xa danh sách nhất thì thứ
+   duy nhất báo "bấm được" lại là thứ dễ lướt qua nhất.
+
+   Nên: chữ thường (không phải --mono), --fg-2 chứ không --fg-3, và
+   đứng NGAY SAU tên khối thay vì trôi sang phải — chỗ mắt đang đọc
+   tiêu đề, trước khi xuống danh sách. Chip viền mềm để nó không bị
+   đọc nhầm thành một phần của tiêu đề.
+
+   Không màu nào mới: --fg-2 trên --card-2 đã nằm trong bộ cặp mà
+   `npm run kiem`/tien-hoa đo, và cả 24 cặp đang qua AA. */
+.khoi-dinh .bam{font-size:11.5px;color:var(--fg-2);line-height:1.5;
+  padding:2px 9px;border-radius:999px;background:var(--card-2);border:1px solid var(--line)}
+/* `.luan` mang sẵn margin-left:8px cho lối dùng inline trong hồ sơ.
+   Ở đây nó là con của một flex có gap:10px, nên hai thứ cộng lại
+   thành 18px — huy hiệu LUẬN rời tiêu đề gần gấp đôi mọi khoảng
+   cách khác trong cùng hàng. Cởi ở đúng chỗ này, đừng sửa `.luan`:
+   lối dùng inline vẫn cần 8px đó. */
+.khoi-dinh .luan{margin-left:0}
 .khoi-y{padding:12px 17px;font-size:12.6px;color:var(--fg-2);line-height:1.7;
   border-bottom:1px solid var(--line-2);background:rgba(255,255,255,.008)}
 .khoi-y:last-child{border-bottom:0}
