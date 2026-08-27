@@ -736,7 +736,7 @@ nào** — `thuc_thi.moPhong` là True cứng. Nên `doi_chieu_giay_that()` tr�
 *"chưa đối chiếu được"* kèm lý do, chứ không trả một con số 0 giả vờ là kết
 quả. Chỗ ấy có sẵn cho ngày lớp ký lệnh tới.
 
-## SÁU ENGINE CÒN LẠI — chưa dựng được, và vì sao
+## SÁU ENGINE CÒN LẠI — bốn còn chặn, hai đã quét được
 
 Đây là mục quan trọng nhất của cả chương, vì thứ dễ làm nhất lúc này là
 dựng sáu scanner nữa cho có đủ mười ba, rồi gọi đó là xong.
@@ -757,6 +757,43 @@ hành động được — đúng định nghĩa hệ thống rác.
 Bốn ty đang chạy đều đọc **HTTP công khai, không khoá, không ví**. Sáu cái
 trên đòi một lớp hạ tầng khác hẳn: nút chuỗi, khoá ký, và với ba cái cuối
 là cả độ trễ tính bằng mili giây.
+
+### CẬP NHẬT 27/08/2026 — bảng trên đã SAI, và cách nó sai mới là bài học
+
+Bảng ấy đúng lúc viết. Rồi Router ra đời cùng ngày, mang theo báo giá swap
+LI.FI và gas RPC bốn chuỗi — và **hai trong sáu dòng thôi bị chặn**. Không
+ai sửa bảng, vì bảng là văn xuôi, và văn xuôi hỏng theo đúng một cách: thế
+giới đổi mà câu văn không đổi.
+
+Nên sổ đăng ký nay **chạy được**: `dong_co_chua_co/so_dang_ky.py`. Mỗi
+engine mang điều kiện chặn của chính nó dưới dạng hàm canh, và một lượt
+chạy nói ra trạng thái thật:
+
+    node                     trạng thái   chặn vì
+    dex-arb                  QUET_DUOC    (chỉ chặn THỰC THI)
+    lp-v3                    QUET_DUOC    (chỉ chặn THỰC THI)
+    thanh-ly                 CHAN         health factor từng khoản vay
+    quyen-chon               CHAN         chưa viết connector Deribit
+    jit                      CHAN         mempool · quan hệ builder
+    mev                      CHAN         mempool · builder · độ trễ
+
+Đọc lượt chạy mới nhất: `curl -s localhost:5188/api/dong-co-chua-co?day_du=true`
+
+**Ba trạng thái, và phân biệt chúng mới là điểm.** `QUET_DUOC` nghĩa là
+quét được NGAY, chỉ chưa thực thi được — mà cả runtime đang `moPhong=True`,
+nên **không ty nào trong sáu ty hiện có thực thi gì cả**. "Chưa thực thi
+được" vì thế không phải lý do để không dựng; nếu nó là lý do thì sáu ty
+đang chạy cũng lẽ ra không được tồn tại.
+
+Cái thật sự phân biệt `QUET_DUOC` với `CHAN` là **dữ liệu công khai không
+cần khoá**. Không có dữ liệu thì scanner chỉ là một cái vỏ luôn trả rỗng —
+và cái vỏ ấy tệ hơn không có, vì nó làm phễu có thêm một dòng vĩnh viễn
+bằng không và người đọc tưởng đã phủ engine ấy.
+
+**Và một dòng bị gộp oan.** Quyền chọn nằm chung rổ "thiếu hạ tầng" với JIT
+và MEV, nhưng Deribit công bố mặt IV **công khai, không cần khoá**. Nó là
+việc CHƯA LÀM, không phải việc KHÔNG LÀM ĐƯỢC — và gộp hai câu ấy vào một
+rổ là giấu mất việc dễ nhất trong sáu.
 
 Bản đồ cũng xếp chúng ở cuối vì lý do ấy, và §14 nói thẳng: *"nhưng KHÔNG
 làm thêm lúc này"*. Còn §21 nói cái đích đúng không phải "mười ba chiến

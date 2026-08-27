@@ -306,6 +306,18 @@ def api_hien_phap(day_du: bool = False) -> JSONResponse:
     return JSONResponse(sach(soat() if day_du else tom_tat()))
 
 
+@app.get("/api/dong-co-chua-co")
+def api_dong_co_chua_co(day_du: bool = False) -> JSONResponse:
+    """Engine chưa dựng, và điều kiện chặn của từng cái — CHẠY ĐƯỢC.
+
+    `day_du=true` trả cả từng điều kiện kèm chi tiết. Ba trạng thái:
+    `CHAN` (không quét được), `QUET_DUOC` (quét được, chưa thực thi được),
+    `SAN_SANG`.
+    """
+    from dong_co_chua_co.so_dang_ky import soat, tom_tat
+    return JSONResponse(sach(soat() if day_du else tom_tat()))
+
+
 @app.post("/api/cau-dao/dong-lai")
 def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
     """Đóng lại một lý do ngắt. **Bắt buộc có tên người.**

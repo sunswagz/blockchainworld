@@ -4041,6 +4041,79 @@ def kiem_von_ngoai_bat_san() -> None:
     kiem("đọc được thì vốn ngoài vào NAV", d2.ngoaiUsd > 0 and d2.ngoaiDayDu,
          f"ngoaiUsd={d2.ngoaiUsd} dayDu={d2.ngoaiDayDu}")
 
+def kiem_dong_co_chua_co() -> None:
+    print("\n-- Engine CHUA CO: bi chan hay chua lam, hai cau khac nhau --")
+    from dong_co_chua_co.so_dang_ky import (CHAN, DONG_CO, QUET_DUOC,
+                                            SAN_SANG, soat, tom_tat)
+    from thi_bac_ty.to_trinh import HO
+
+    r = soat()
+    kiem(f"sổ đăng ký có {r['soDongCo']} engine", r["soDongCo"] >= 6)
+    kiem("mọi engine đều có mã, tên, họ, mô tả, và VÌ SAO ĐÁNG dựng",
+         all(d.ma and d.ten and d.ho and d.moTa and d.viSaoDang
+             for d in DONG_CO),
+         "engine không kèm lý do đáng dựng là một dòng trong danh sách ước "
+         "mơ, và danh sách ước mơ thì dài ra mãi mà không ai xoá dòng nào")
+    kiem("mã không trùng", len({d.ma for d in DONG_CO}) == len(DONG_CO))
+    kiem("mọi họ khai ra đều CÓ THẬT trong hợp đồng",
+         all(d.ho in HO for d in DONG_CO),
+         str([d.ho for d in DONG_CO if d.ho not in HO]))
+    kiem("mọi engine đều có ít nhất một điều kiện",
+         all(d.dieuKien for d in DONG_CO))
+    kiem("mọi điều kiện đều canh được bằng máy",
+         all(k["canhDuoc"] for d in r["dongCo"] for k in d["dieuKien"]),
+         "một điều kiện không canh được thì trạng thái tính từ nó là phỏng "
+         "đoán, và cả sổ này sinh ra để thay phỏng đoán")
+
+    kiem("ba trạng thái phủ hết, không engine nào rơi ngoài",
+         sum(len(v) for v in r["theoTrangThai"].values()) == r["soDongCo"])
+
+    # ── phân biệt CHAN với QUET_DUOC ────────────────────────────────────
+    theo = {d["ma"]: d for d in r["dongCo"]}
+    kiem("`ky-lenh-onchain` KHÔNG chặn quét, chỉ chặn thực thi",
+         all(k["chanQuet"] is False
+             for d in r["dongCo"] for k in d["dieuKien"]
+             if k["ma"] == "ky-lenh-onchain"),
+         "cả runtime đang moPhong=True — KHÔNG ty nào trong sáu ty hiện có "
+         "thực thi gì cả. Nếu thiếu lớp ký lệnh mà chặn cả quét thì sáu ty "
+         "đang chạy cũng lẽ ra không được tồn tại")
+    kiem("`mempool` thì CHẶN QUÉT thật",
+         all(k["chanQuet"] is True
+             for d in r["dongCo"] for k in d["dieuKien"]
+             if k["ma"] == "mempool"),
+         "không đọc được giao dịch chưa lên block thì scanner JIT chỉ là "
+         "một cái vỏ luôn trả rỗng, và cái vỏ ấy làm phễu có thêm một dòng "
+         "vĩnh viễn bằng không")
+
+    kiem("JIT và MEV vẫn CHẶN", theo["jit"]["trangThai"] == CHAN
+         and theo["mev"]["trangThai"] == CHAN)
+    kiem("và chúng chặn vì MEMPOOL, không vì thiếu ví",
+         "mempool" in theo["jit"]["thieuDeQuet"], str(theo["jit"]))
+
+    kiem("DEX arb và LP nay QUÉT ĐƯỢC nhờ Router",
+         theo["dex-arb"]["trangThai"] == QUET_DUOC
+         and theo["lp-v3"]["trangThai"] == QUET_DUOC,
+         "Router ra đời 27/08 và gỡ điều kiện `bao-gia-dex` lẫn `gia-gas`. "
+         "Đoạn văn xuôi cũ vẫn nói «sáu engine bị chặn» — đó chính là cách "
+         "văn xuôi hỏng: thế giới đổi mà câu văn không đổi")
+
+    kiem("quyền chọn khai là CHƯA LÀM, không phải KHÔNG LÀM ĐƯỢC",
+         any("CHƯA LÀM" in k["chiTiet"]
+             for k in theo["quyen-chon"]["dieuKien"]),
+         "Deribit công bố mặt IV công khai không cần khoá. Gộp «chưa viết "
+         "connector» vào cùng rổ với «cần mempool» là giấu mất việc dễ "
+         "nhất trong sáu")
+
+    kiem("tóm tắt gọn dùng được cho buồng lái",
+         {"soChan", "soQuetDuoc", "soSanSang"} <= set(tom_tat()))
+    kiem("sổ này KHÔNG bị nhận là ty",
+         "dong_co_chua_co"
+         not in {d.name for d in
+                 __import__("thi_bac_ty.hien_phap",
+                            fromlist=["_goi_ty"])._goi_ty()},
+         "nó không quét cơ hội, không xin vốn, không có quet() — và nó nói "
+         "về những ty CHƯA tồn tại")
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -4164,6 +4237,7 @@ def main() -> int:
     kiem_kham_adapter()
     kiem_kham_khong_dat_lenh()
     kiem_von_ngoai_bat_san()
+    kiem_dong_co_chua_co()
     kiem_bon_ty()
     kiem_thang_chung()
     kiem_von_toi_thieu()
