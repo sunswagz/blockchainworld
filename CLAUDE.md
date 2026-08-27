@@ -13,10 +13,13 @@ Python chạy tay, không lên site:
     tu-cam-thanh-runtime/       giao dịch crypto có hướng
     kham-thien-giam-runtime/    thị trường tiên đoán Polymarket
     thi-bac-ty-runtime/         Thị Bạc Ty — bộ máy quản lý vốn;
-                                sáu ty: chênh funding perp, xoay lãi
-                                cho vay, chênh stablecoin, Pendle PT,
-                                cash-and-carry, và Polymarket (đọc từ
-                                Khâm Thiên Giám, không đặt lệnh)
+                                CHÍN ty, năm họ: chênh funding perp,
+                                cash-and-carry, ngang giá quyền chọn
+                                (phái sinh) · xoay lãi cho vay, Pendle PT
+                                (tín dụng) · chênh stablecoin, vòng đổi
+                                DEX (chênh lệch) · cấp thanh khoản AMM
+                                (thanh khoản) · Polymarket (tiên đoán —
+                                đọc từ Khâm Thiên Giám, không đặt lệnh)
 
 Cái thứ tư là dữ liệu, không phải mã chạy:
 
@@ -448,12 +451,13 @@ thư mục, cổng, và lệnh sinh lát cắt:
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
     python -m bac.snapshot        quét một lượt, ghi, rồi thoát
-    python scripts/selftest.py    819 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    911 phép kiểm số học, KHÔNG cần mạng
     pythonw dichvu/chay-nen.py    chạy nền 24/7 để tích băng đào tạo
 
 Thị Bạc Ty **không cần khoá nào để chạy đủ**: nó chỉ đọc dữ liệu CÔNG KHAI
-— bốn sàn perp, ba sàn giao ngay, và vài API DeFi không đòi khoá. `.env`
-chỉ để buồng lái nói đúng cửa nào đang đóng —
+— bốn sàn perp, ba sàn giao ngay, Deribit, LI.FI, DefiLlama, và RPC công
+khai bốn chuỗi. Không nguồn nào đòi khoá. `.env` chỉ để buồng lái nói đúng
+cửa nào đang đóng —
 `bac/config.py` không đọc giá trị khoá nào ở bản này, và lớp đặt lệnh thì
 chưa được viết, nên không cấu hình nào biến nó thành trader.
 
