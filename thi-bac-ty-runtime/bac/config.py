@@ -131,6 +131,10 @@ MAC_DINH = {
         # Ty ngang giá quyền chọn. Nhịp thưa vì nó kéo về ~2.000 dòng
         # mỗi lượt cho hai tiền tệ, và ngang giá không đảo theo giây.
         "tyNgangGia": {"bat": True, "nhipGiay": 300.0},
+        # Ty vòng đổi DEX. Mỗi lượt là 12 lời gọi LI.FI nối tiếp,
+        # nên nhịp thưa — và chênh lệch stablecoin không xuất hiện
+        # rồi biến mất trong vài giây.
+        "tyVongDoi": {"bat": True, "nhipGiay": 600.0},
 
         # ── VỐN NGOÀI ────────────────────────────────────────────────────
         # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có

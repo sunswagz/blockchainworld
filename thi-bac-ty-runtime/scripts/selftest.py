@@ -3582,9 +3582,9 @@ def kiem_ha_tang_ho() -> None:
     from thi_bac_ty.hien_phap import _goi_ty
 
     ten = {d.name for d in _goi_ty()}
-    kiem("hiến pháp nhận đúng BẢY ty",
-         ten == {"bac", "co_so", "kham_ngoai", "lai_suat", "on_dinh",
-                 "quyen_chon", "tin_dung"}, str(ten))
+    kiem("hiến pháp nhận đúng TÁM ty",
+         ten == {"bac", "co_so", "dex_arb", "kham_ngoai", "lai_suat",
+                 "on_dinh", "quyen_chon", "tin_dung"}, str(ten))
     kiem("`kham_ngoai` LÀ một ty, không phải hạ tầng",
          "kham_ngoai" in ten,
          "nó có một lớp kế thừa `khuon_ty.Ty` và nó nộp tờ trình — đó chính "
@@ -4481,6 +4481,101 @@ def kiem_ngang_gia() -> None:
     kiem("bằng chứng nói rõ KHÔNG dùng mô hình nào",
          any("KHONG mo hinh nao" in b for b in t0.bangChung))
 
+def kiem_vong_doi() -> None:
+    print("\n-- Vong doi DEX: cong dung muc BAO DAM, khong ky vong --")
+    from dex_arb.ty_vong_doi import (CONFIG, CUA, CoHoiVongDoi, CongRuiRo,
+                                     mot_co_hoi, xuat_to_trinh)
+
+    kiem("CUA và CONFIG['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(CONFIG["ruiRo"]),
+         str(set(CUA) ^ set(CONFIG["ruiRo"])))
+
+    def bg(ky, bd, cc="x"):
+        return {"kyVong": ky, "baoDam": bd, "congCu": cc, "tuoiGiay": 0.0}
+
+    # Vòng LỖ: 1.000 vào, 993 ra
+    lo = mot_co_hoi("arbitrum", "USDC", "USDT", 1000.0,
+                    bg(997.7, 996.7), bg(994.4, 993.3), 0.02)
+    kiem("vòng lỗ cho NET âm", lo.netBps < 0, f"{lo.netBps:.1f}")
+    kiem("gas nhân HAI vì hai lượt đổi", gan(lo.gasUsd, 0.04),
+         "một lượt đổi là một giao dịch; tính một lần là báo nửa chi phí")
+
+    # Vòng LÃI: 1.000 vào, 1.010 ra
+    lai = mot_co_hoi("arbitrum", "USDC", "USDT", 1000.0,
+                     bg(1005.0, 1004.0), bg(1011.0, 1010.0), 0.02)
+    kiem("vòng lãi cho NET dương", lai.netBps > 0, f"{lai.netBps:.1f}")
+    kiem("NET đã TRỪ gas",
+         gan(lai.netBps, (1010.0 - 1000.0 - 0.04) / 1000.0 * 10_000.0, 1e-6))
+
+    # Cổng dùng mức BẢO ĐẢM, không dùng kỳ vọng
+    kiem("`netBps` tính từ mức BẢO ĐẢM, không phải kỳ vọng",
+         gan(lai.netBps, (lai.raBaoDamUsd - 1000.0 - 0.04) * 10.0, 1e-6),
+         "một cơ hội chênh lệch chỉ đáng vào khi nó còn lãi ở mức TỆ NHẤT "
+         "được bảo đảm; chỉ lãi ở mức kỳ vọng là cược vào việc trượt giá "
+         "không xảy ra")
+    kiem("và `kyVongBps` CAO HƠN — khoảng cách chính là dung sai trượt giá",
+         lai.kyVongBps > lai.netBps and lai.khoangCachBps > 0,
+         f"{lai.kyVongBps:.1f} vs {lai.netBps:.1f}")
+
+    # None chảy tới tận cùng
+    thieu = mot_co_hoi("arbitrum", "USDC", "USDT", 1000.0,
+                       bg(997.0, 996.0), None, 0.02)
+    kiem("một lượt đổi hỏng → CẢ VÒNG không đo được",
+         thieu.netBps is None and thieu.kyVongBps is None,
+         "cùng luật `TuyenDuong.phiUsd`: một chặng mù thì cả tuyến mù")
+    khong_gas = mot_co_hoi("arbitrum", "USDC", "USDT", 1000.0,
+                           bg(997.0, 996.0), bg(994.0, 993.0), None)
+    kiem("thiếu gas → NET là None, KHÔNG phải bỏ qua gas",
+         khong_gas.netBps is None,
+         "coi gas như 0 là báo một vòng đổi rẻ hơn sự thật, và với edge "
+         "tính bằng bps thì vài xu gas vẫn đổi được dấu")
+
+    # Cổng
+    cong = CongRuiRo(CONFIG["ruiRo"])
+
+    def ma(co):
+        return {m for m, _ in cong.xet(co)[1]}
+
+    kiem("vòng lỗ → chặn", "net-duoi-nguong" in ma(lo))
+    kiem("thiếu số → chặn, và nói rõ là THIẾU", "thieu-so" in ma(thieu))
+    kiem("vòng lãi đủ ngưỡng → QUA", ma(lai) == set(), str(ma(lai)))
+
+    xa = mot_co_hoi("arbitrum", "USDC", "USDT", 1000.0,
+                    bg(1010.0, 1004.0), bg(1020.0, 1010.0), 0.02)
+    kiem("kỳ vọng cách mức bảo đảm quá xa → chặn",
+         "khoang-cach-qua-lon" in ma(xa),
+         "«lãi» chỉ tồn tại nếu trượt giá không xảy ra — đó là dự báo, "
+         "không phải chênh lệch")
+
+    cu = CoHoiVongDoi("arbitrum", "USDC", "USDT", 1000.0, 1010.0, 1011.0,
+                      0.04, ("a", "b"), 999.0)
+    kiem("báo giá quá cũ → chặn", "du-lieu-cu" in ma(cu))
+
+    # Tờ trình
+    t = xuat_to_trinh(lai)
+    kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("họ là `chenh-lech`, cùng họ với ty stablecoin", t.ho == "chenh-lech")
+    kiem("rủi ro THỰC THI là mặt CAO NHẤT",
+         t.ruiRo.thucThi == max(x for x in (t.ruiRo.thiTruong,
+                                            t.ruiRo.thanhKhoan,
+                                            t.ruiRo.giaoThuc, t.ruiRo.cang,
+                                            t.ruiRo.thucThi) if x is not None),
+         "hai lượt đổi là HAI giao dịch; ai đọc được giao dịch đầu đều biết "
+         "giao dịch sau sắp tới")
+    kiem("đủ sáu mặt rủi ro", t.ruiRo.chua_do() == ())
+    kiem("khai `chen-giua-hai-giao-dich` là khoản CHƯA trừ",
+         "chen-giua-hai-giao-dich" in t.phiConThieu,
+         "một vòng đổi có lãi trên giấy là một vòng đổi mời người khác chen "
+         "vào giữa — và ty này tồn tại KHÔNG gỡ điều kiện `do-tre-thap`")
+    kiem("bằng chứng in CẢ hai con số, không giấu khoảng cách",
+         any("ky vong" in b and "BAO DAM" in b for b in t.bangChung),
+         str(t.bangChung))
+
+    kiem("giuGio KHÔNG đặt nhỏ xíu để leo bảng xếp hạng",
+         lai.giuGio >= 0.25,
+         "`giuGio` là mẫu số của `netMoiGioBps`; đặt nó bằng vài giây thì "
+         "ty này áp đảo mọi ty khác chỉ vì nó nhanh")
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -4604,6 +4699,7 @@ def main() -> int:
     kiem_kham_adapter()
     kiem_kham_khong_dat_lenh()
     kiem_ngang_gia()
+    kiem_vong_doi()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_nhap_so_ngoai()

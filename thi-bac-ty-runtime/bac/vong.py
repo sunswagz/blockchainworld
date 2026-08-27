@@ -154,7 +154,8 @@ class Runtime:
                 DATA_DIR, {k: v for k, v in tu.items()
                            if k not in ("bat", "tyTinDung", "tyOnDinh",
                                         "tyLaiSuat", "tyCoSo",
-                                        "tyTienDoan", "tyNgangGia")})
+                                        "tyTienDoan", "tyNgangGia",
+                                        "tyVongDoi")})
             self.trungUong.dang_ky(TyPerp(self))
 
             # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
@@ -218,7 +219,14 @@ class Runtime:
                     ("tyNgangGia",
                      lambda: __import__("quyen_chon.ty_ngang_gia",
                                         fromlist=["TyNgangGia"]).TyNgangGia(),
-                     300.0)):
+                     300.0),
+                    # Engine thứ tám. Nhận Router để lấy gas SỐNG — thiếu
+                    # nó thì `netBps` là None và ty tự khai là mù.
+                    ("tyVongDoi",
+                     lambda: __import__("dex_arb.ty_vong_doi",
+                                        fromlist=["TyVongDoi"])
+                     .TyVongDoi(dinhTuyen=self.dinhTuyen),
+                     600.0)):
                 cf = (tu.get(khoa) or {})
                 if not cf.get("bat", True):
                     continue

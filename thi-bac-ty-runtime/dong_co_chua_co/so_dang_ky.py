@@ -203,7 +203,8 @@ DONG_CO: tuple[DongCo, ...] = (
          DieuKien("ky-lenh-onchain", "ví ký được giao dịch",
                   _co_rpc_ky_lenh, chanQuet=False),
          DieuKien("do-tre-thap", "đường mạng đủ nhanh để không bị cướp",
-                  _co_do_tre_thap, chanQuet=False))),
+                  _co_do_tre_thap, chanQuet=False)),
+        goiDaDung="dex_arb.ty_vong_doi"),
 
     DongCo(
         "lp-v3", "Cấp thanh khoản AMM", "thanh-khoan",
