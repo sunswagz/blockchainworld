@@ -323,12 +323,94 @@
     n.appendChild(el("span", "tt-chan-dong", TT.chan()));
   }
 
+  /* ── Trung Ương: CHÍN ty, không phải một ────────────────────────── */
+  function ve_trung_uong() {
+    var T = D.trungUong;
+    var host = $("#trungUong");
+    if (!host) return;
+    if (!T || !T.co) {
+      host.appendChild(giai(
+        "Lát cắt này chưa mang tóm tắt Trung Ương"
+        + (T && T.vi ? " (" + T.vi + ")" : "") + "."));
+      return;
+    }
+
+    host.appendChild(giai(
+      "Trang này là cửa sổ nhìn vào ty chênh funding. Bảng dưới nói phần "
+      + "còn lại của cỗ máy đang làm gì — " + (T.soTy || 0) + " ty, "
+      + "và tám trong số đó không xuất hiện ở bất kỳ ô nào khác trên trang."));
+
+    /* chế độ từng ty */
+    host.appendChild(bang(
+      [{ t: "ty", trai: true }, { t: "họ", trai: true },
+       { t: "chế độ", trai: true }, { t: "vì sao", trai: true }],
+      (T.ty || []).map(function (x) {
+        return [{ t: x.ma || "?", c: "trai" },
+                { t: x.ho || "?", c: "trai" },
+                { t: x.che || "?", c: "trai " + (x.che === "THAT" ? "duong"
+                    : x.che === "GIAY" ? "nhat" : "am") },
+                { t: (x.vi || "").slice(0, 64), c: "trai giai" }];
+      })));
+    host.appendChild(giai(
+      "QUAN_SAT nghĩa là ty ấy quét được nhưng vốn hiện có chưa tới ngưỡng "
+      + "kinh tế của nó — nó TỪ CHỐI xin vốn thay vì xin một nửa. GIAY là "
+      + "đủ vốn nhưng chỉ ghi sổ giấy: lớp đặt lệnh thật KHÔNG tồn tại "
+      + "trong runtime này."));
+
+    /* phễu theo họ */
+    var ph = T.pheuTheoHo || [];
+    if (ph.length) {
+      host.appendChild(el("h3", null, "Phễu theo họ"));
+      host.appendChild(bang(
+        [{ t: "họ", trai: true }, { t: "cơ hội thô" }, { t: "qua cổng ty" },
+         { t: "qua Rủi Ro Tổng" }, { t: "được cấp vốn" }],
+        ph.map(function (x) {
+          return [{ t: x.ho, c: "trai" },
+                  { t: so(x.coHoiTho, 0) },
+                  { t: so(x.quaCongTy, 0) },
+                  { t: so(x.quaRuiRoTong, 0) },
+                  { t: so(x.daCapVon, 0) }];
+        })));
+      host.appendChild(giai(
+        "Cột đầu trừ cột cuối chính là số cơ hội bị TỪ CHỐI. Một cỗ máy "
+        + "từ chối giỏi quan trọng hơn một cỗ máy phát hiện nhiều — bảng "
+        + "này đáng đọc từ phải sang trái."));
+    }
+
+    /* hiến pháp + sổ engine */
+    var hp = T.hienPhap || {}, dc = T.dongCoChuaCo || {};
+    var d = el("div", hp.soViPham ? "loi-o" : null);
+    d.appendChild(el("p", hp.soViPham ? "am" : "qua",
+      "Hiến pháp: " + (hp.soDieu || 0) + " điều · "
+      + (hp.soCanhDuoc || 0) + " canh được bằng máy · "
+      + (hp.soViPham || 0) + " vi phạm"));
+    if ((hp.khongCanhDuoc || []).length) {
+      d.appendChild(el("p", "vi", "KHÔNG canh được ("
+        + (hp.soKhongCanhDuoc || 0) + "): "
+        + (hp.khongCanhDuoc || []).join(", ")));
+    }
+    if (dc.soDongCo) {
+      d.appendChild(el("p", "giai",
+        "Engine chưa dựng: " + dc.soDongCo + " · CHẶN " + dc.soChan
+        + " · quét được nhưng chưa dựng " + dc.soQuetDuoc
+        + " · ĐÃ DỰNG " + dc.soDaDung
+        + ((dc.theoTrangThai && dc.theoTrangThai.CHAN || []).length
+            ? " — còn chặn: " + dc.theoTrangThai.CHAN.join(", ") : "")));
+    }
+    host.appendChild(d);
+    host.appendChild(giai(
+      "Một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì tệ "
+      + "hơn không có, nên số điều KHÔNG canh được cũng hiện ở đây. "
+      + (T.loiNhac || "")));
+  }
+
   function ve() {
     ve_tri_thuc();
     if (!D) { chua_co(); ve_tri_thuc_chan(); return; }
     // Dựng từng ô trong try riêng: một ô hỏng không được kéo theo cả trang,
     // và chỗ hỏng phải HIỆN ra chứ không để lại một khoảng trắng.
-    [["đỉnh", ve_dinh], ["cảnh báo", ve_canh], ["cơ hội", ve_co_hoi],
+    [["đỉnh", ve_dinh], ["cảnh báo", ve_canh],
+     ["trung ương", ve_trung_uong], ["cơ hội", ve_co_hoi],
      ["vì sao", ve_vi_sao], ["báo giá", ve_bao_gia], ["cảng", ve_cang],
      ["chân trang", ve_chan]
     ].forEach(function (x) {

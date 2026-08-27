@@ -181,9 +181,26 @@ def _co_suc_khoe_khoan_vay() -> tuple[bool, str]:
     thứ ấy khác hẳn nhau, và nhầm chúng là dựng một scanner thanh lý không
     bao giờ thấy khoản nào sắp bị thanh lý.
     """
-    return False, ("DefiLlama chỉ cho số mức POOL, không cho health factor "
-                   "từng khoản vay — cần subgraph The Graph hoặc đọc thẳng "
-                   "hợp đồng qua RPC (đọc được, chưa viết)")
+    # Thử lại 27/08/2026, và câu trả lời rõ hơn hẳn lần trước:
+    #
+    #   api.thegraph.com          KHÔNG phân giải DNS — dịch vụ hosted đã
+    #                             gỡ hẳn, không phải chỉ đòi khoá
+    #   eth_call Aave v3 Pool     ĐỌC ĐƯỢC qua RPC công khai — nhưng chỉ ra
+    #                             số mức DỰ TRỮ (ngưỡng thanh lý, LTV, lãi)
+    #   api.aave.com/data         404
+    #
+    # Khoảng trống nằm ở chỗ khác chỗ ta tưởng: đọc THAM SỐ giao thức thì
+    # được, còn LIỆT KÊ người đang vay thì không. Không có danh sách người
+    # vay thì không tính được health factor của ai cả, và một scanner thanh
+    # lý không biết ai sắp bị thanh lý là một cái vỏ luôn trả rỗng.
+    #
+    # Đường duy nhất còn lại là quét lịch sử sự kiện `Borrow`/`Supply` qua
+    # RPC — hàng triệu log, và RPC công khai chặn ở vài nghìn. Đó là "cần
+    # hạ tầng", không phải "chưa viết".
+    return False, ("liệt kê NGƯỜI VAY là thứ không đọc được: hosted "
+                   "subgraph đã gỡ (DNS không phân giải), api.aave.com 404, "
+                   "và RPC công khai chỉ cho tham số mức dự trữ chứ không "
+                   "cho danh sách vị thế")
 
 
 # ══════════════════════════════════════════════════════════════════════

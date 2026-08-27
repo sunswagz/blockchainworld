@@ -107,11 +107,61 @@ def dung(runtime) -> dict:
         "so": a.get("so") or {},
         "loiVongCuoi": a.get("loiVongCuoi"),
 
+        # TRUNG ƯƠNG — CHÍN ty, không phải một.
+        #
+        # Trước 27/08 lát cắt này chỉ mang ảnh chụp của `bac/`, nên trang
+        # công khai hiện một phần chín hệ thống và không gì nói ra điều đó.
+        # Người xem đọc "0 cặp qua cửa" thành "cỗ máy không tìm được gì",
+        # trong khi tám ty khác đang quét mười nghìn cơ hội mỗi lượt.
+        #
+        # Chỉ mang phần TỔNG HỢP: tên ty, chế độ, phễu theo họ, và ba con
+        # số của hiến pháp. KHÔNG mang tờ trình của ty khác — trang này là
+        # cửa sổ nhìn vào ty chênh funding, và biến nó thành buồng lái thứ
+        # hai là dựng lại đúng thứ `web/` đã có ở localhost.
+        "trungUong": _trung_uong(runtime),
+
         "loiNhac": (
             "Đây là LÁT CẮT tĩnh do runtime ở máy ghi ra, không phải số liệu "
             "sống. Trang này không gọi sàn nào và không đặt được lệnh nào."
         ),
     }
+
+
+def _trung_uong(runtime) -> dict:
+    """Tóm tắt Trung Ương cho trang tĩnh. Bọc try vì một khối hỏng KHÔNG
+    được làm mất cả lát cắt — mất một ô còn hơn mất cả trang."""
+    try:
+        tu = getattr(runtime, "trungUong", None)
+        if tu is None:
+            return {"co": False, "vi": "runtime không có Trung Ương"}
+        a = tu.anh_chup()
+        hp = a.get("hienPhap") or {}
+        try:
+            from dong_co_chua_co.so_dang_ky import tom_tat as _dc
+            dc = _dc()
+        except Exception as e:                                # noqa: BLE001
+            dc = {"loi": f"{type(e).__name__}: {e}"}
+        return {
+            "co": True,
+            "soTy": len(a.get("cheTy") or []),
+            "ty": [{"ma": c.get("ma"), "ho": c.get("ho"), "che": c.get("che"),
+                    "vi": c.get("vi")} for c in (a.get("cheTy") or [])],
+            "pheuTheoHo": (a.get("pheuDayDu") or {}).get("theoHo") or [],
+            "navUsd": (a.get("danhMuc") or {}).get("navUsd"),
+            "vonNgoaiDayDu": (a.get("danhMuc") or {}).get("ngoaiDayDu"),
+            "hienPhap": {k: hp.get(k) for k in
+                         ("soDieu", "soCanhDuoc", "soKhongCanhDuoc",
+                          "soViPham", "khongCanhDuoc")},
+            "dongCoChuaCo": dc,
+            "loiNhac": (
+                "CHÍN ty, năm họ. Trang này là cửa sổ nhìn vào ty chênh "
+                "funding; tám ty còn lại chỉ hiện ở đây dưới dạng tổng hợp. "
+                "Buồng lái đầy đủ chỉ sống ở localhost:5188 và không bao "
+                "giờ lên site — trang công khai bấm được nút đặt lệnh là "
+                "khoá đã ra tới trình duyệt."),
+        }
+    except Exception as e:                                    # noqa: BLE001
+        return {"co": False, "vi": f"{type(e).__name__}: {e}"}
 
 
 def _tom_tat(a: dict, coHoi: list, duyet: list) -> str:
