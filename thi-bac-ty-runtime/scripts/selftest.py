@@ -67,6 +67,33 @@ def kiem(nhan: str, dieu_kien: bool, chi_tiet: str = "") -> None:
 
 def gan(a: float, b: float, sai: float = 1e-9) -> bool:
     return abs(a - b) <= sai
+def _nem(f, loai) -> bool:
+    """Gọi `f` và trả True nếu nó ném đúng loại lỗi ấy.
+
+    Có những luật chỉ giữ được bằng cách TỪ CHỐI DỰNG — kiểm chúng bằng
+    cách gọi rồi xem giá trị trả về thì không kiểm được gì, vì không có
+    giá trị nào để mà xem.
+    """
+    try:
+        f()
+    except loai:
+        return True
+    except BaseException:
+        return False
+    return False
+def _dinh_nghia(dong: str, ten_f: str) -> bool:
+    """Dòng này có ĐỊNH NGHĨA đúng `ten_f` không — khớp cả ranh giới từ.
+
+    Khớp tiền tố trần thì `class BaoGiaCau` bị nhận là `class BaoGia`, và
+    phép kiểm "chỉ định nghĩa ở một chỗ" báo trùng cho hai lớp khác hẳn
+    nhau. Đã cắn thật lúc `chuyen_von/cau_noi.py` ra đời.
+    """
+    if not dong.startswith(ten_f):
+        return False
+    con = dong[len(ten_f):]
+    return con[:1] in ("", ":", "(", " ", "[")
+
+
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -3527,7 +3554,7 @@ def kiem_ha_tang_ho() -> None:
         cho = [str(p.relative_to(goc)).replace(chr(92), "/")
                for p in goc.rglob("*.py")
                if "__pycache__" not in str(p)
-               and any(l.startswith(ten_f)
+               and any(_dinh_nghia(l, ten_f)
                        for l in p.read_text(encoding="utf-8").splitlines())]
         kiem(f"`{ten_f}` chỉ định nghĩa ở MỘT chỗ",
              cho == [nha], f"{cho} — phải là ['{nha}']")
@@ -3542,6 +3569,244 @@ def kiem_ha_tang_ho() -> None:
                     if l.startswith((f"import {k}", f"from {k}")):
                         xau.append(f"{d.name}/{p.name}: {l}")
     kiem("không ty nào gọi ty khác, kể cả sau hai lần tách", not xau, str(xau))
+
+def _gg(chuoi="arbitrum", wei=20_000_000):
+    from chuyen_von.gas import GiaGas
+    import time as _t
+    return GiaGas(chuoi, wei, _t.time() * 1000.0)
+
+
+def _bgc(phi=2.5, gas=0.09, giay=7.0, loi=""):
+    from chuyen_von.cau_noi import BaoGiaCau
+    import time as _t
+    return BaoGiaCau("USDC", "ethereum", "arbitrum", 1000.0, phi, gas, giay,
+                     "eco", _t.time() * 1000.0, loi)
+
+
+def kiem_router_tuyen() -> None:
+    print("\n-- Router · TUYEN: mot chang mu thi CA TUYEN mu --")
+    from chuyen_von.diem import ChangDuong, Diem, TuyenDuong, khong_co_tuyen
+
+    e = Diem("chuoi", "ethereum")
+    a = Diem("chuoi", "arbitrum")
+    b = Diem("san", "binance")
+
+    kiem("loại điểm lạ bị từ chối ngay lúc dựng",
+         _nem(lambda: Diem("vi-tien", "metamask"), ValueError),
+         "một điểm không thuộc loại nào thì mọi luật ghép tuyến bên dưới "
+         "đều không áp dụng được, và nó sẽ lộ ra ở chỗ khác")
+
+    # ── luật cộng trung thực ────────────────────────────────────────────
+    lanh = TuyenDuong((ChangDuong(b, a, "rut-cex", 0.30, 300.0, "bảng"),
+                       ChangDuong(a, e, "cau-noi", 2.60, 7.0, "lifi")))
+    kiem("tuyến lành: phí CỘNG", gan(lanh.phiUsd, 2.90))
+    kiem("và thời gian cũng CỘNG, không lấy max", gan(lanh.giayCho, 307.0),
+         "vốn đang trên cầu nối thì chưa nạp vào sàn được — hai chặng không "
+         "chồng lên nhau được")
+
+    mu = TuyenDuong((ChangDuong(b, a, "rut-cex", None, None, "bảng quá hạn"),
+                     ChangDuong(a, e, "cau-noi", 2.60, 7.0, "lifi")))
+    kiem("MỘT chặng mù thì CẢ TUYẾN mù", mu.phiUsd is None,
+         "cộng hai chặng biết giá rồi bỏ qua chặng thứ ba cho ra một con số "
+         "trông như đã đủ, và không gì trong nó nói rằng nó thiếu — sai "
+         "theo đúng hướng nguy hiểm nhất, hào phóng với chính mình")
+    kiem("thời gian cũng mù theo", mu.giayCho is None)
+    kiem("và bps cũng mù theo", mu.phi_bps(1000.0) is None)
+    kiem("chặng mù được KHAI RA đích danh",
+         any(x.startswith("chang-mu:") for x in mu.khongDoDuoc),
+         str(mu.khongDoDuoc))
+
+    # ── phí cố định thì bps phụ thuộc VỐN ───────────────────────────────
+    kiem("$2,90 trên $200 = 145 bps", gan(lanh.phi_bps(200.0), 145.0))
+    kiem("cùng khoản ấy trên $50.000 = 0,58 bps",
+         gan(lanh.phi_bps(50_000.0), 0.58),
+         "phí chuyển vốn là khoản CỐ ĐỊNH — đó là lý do ty nhỏ bị chặn bởi "
+         "đúng khoản mà ty lớn không thấy")
+    kiem("vốn 0 thì không chia, trả None", lanh.phi_bps(0.0) is None)
+
+    # ── gộp khai báo ────────────────────────────────────────────────────
+    hai = TuyenDuong((ChangDuong(b, a, "rut-cex", 0.3, 300.0, "x", ("p",)),
+                      ChangDuong(a, e, "cau-noi", 2.6, 7.0, "y", ("p", "q"))))
+    kiem("khai báo thiếu của các chặng được GỘP và bỏ trùng",
+         hai.khongDoDuoc == ("p", "q"), str(hai.khongDoDuoc))
+
+    trong = khong_co_tuyen("không có chuỗi chung")
+    kiem("tuyến rỗng KHÔNG đo được", not trong.doDuoc)
+    kiem("và nó nói VÌ SAO không có tuyến", "chuỗi chung" in trong.viSaoKhong)
+    kiem("tuyến rỗng khác tuyến phí 0",
+         trong.phiUsd is None
+         and gan(TuyenDuong((ChangDuong(a, a, "gas-thuan", 0.0, 0.0, "z"),))
+                 .phiUsd, 0.0),
+         "không có đường đi KHÁC HẲN đi mà không tốn gì")
+
+
+def kiem_router_bang_do() -> None:
+    print("\n-- Router · BANG DO TAY: co xuat xu, va co HAN --")
+    import datetime as _dt
+
+    from chuyen_von.bang_do import (BANG, HAN_NGAY, chan_doan, chuoi_cua_san,
+                                    kiem as kiem_bang, tra_cuu)
+
+    kiem("bảng đo tay không tự mâu thuẫn", not kiem_bang(), str(kiem_bang()))
+    kiem("mọi dòng đều có xuất xứ và ngày đo",
+         all(d.nguon and d.ngayDo for d in BANG),
+         "số gõ tay không có nguồn thì không kiểm lại được, và không kiểm "
+         "lại được thì không sửa được khi sàn đổi phí")
+
+    d = BANG[0]
+    moi = _dt.date.fromisoformat(d.ngayDo) + _dt.timedelta(days=1)
+    cu = _dt.date.fromisoformat(d.ngayDo) + _dt.timedelta(days=int(HAN_NGAY) + 1)
+
+    kiem("dòng còn hạn thì tra được",
+         tra_cuu(d.san, d.taiSan, d.chuoi, moi) is not None)
+    kiem("dòng QUÁ HẠN trả None, KHÔNG trả số cũ",
+         tra_cuu(d.san, d.taiSan, d.chuoi, cu) is None,
+         "một con số 90 ngày tuổi trông giống hệt một con số đúng, và không "
+         "gì trong nó nói rằng nó cũ")
+    kiem("và chẩn đoán nói rõ phải đọc lại trang nào",
+         d.nguon in chan_doan(d.san, d.taiSan, d.chuoi, cu),
+         chan_doan(d.san, d.taiSan, d.chuoi, cu))
+    kiem("cặp chưa ai đo cũng trả None",
+         tra_cuu("sàn-không-có", "USDC", "ethereum") is None)
+
+    kiem("tra cứu không phân biệt hoa thường",
+         tra_cuu("BINANCE", "usdc", "ARBITRUM", moi) is not None,
+         "ty gọi bằng tên sàn viết thường, bảng ghi thường — nhưng một ty "
+         "sau sẽ gọi bằng tên khác, và im lặng trả None là mù giả")
+
+    kiem("bybit KHÔNG rút USDC về ethereum, và bảng nói vậy",
+         "ethereum" not in chuoi_cua_san("bybit", "USDC"),
+         str(chuoi_cua_san("bybit", "USDC")))
+    kiem("chuỗi quá hạn rơi khỏi danh sách sàn dùng được",
+         chuoi_cua_san(d.san, d.taiSan, cu) == (),
+         "danh sách chuỗi dựng từ dòng CÒN HẠN, nếu không thì tuyến sẽ ghép "
+         "qua một chuỗi mà con số của nó đã hết tin được")
+
+
+def kiem_router_dinh_tuyen() -> None:
+    print("\n-- Router · DINH TUYEN: bon dang tuyen, ba nguon --")
+    from chuyen_von.diem import Diem
+    from chuyen_von.dinh_tuyen import UU_TIEN_TRUNG_GIAN, DinhTuyen
+    from chuyen_von.gas import GAS_LIMIT, TOKEN_GOC
+
+    GIA = {"ETH": 2461.0, "POL": 0.31}
+    gas = {"arbitrum": _gg("arbitrum", 20_000_000),
+           "ethereum": _gg("ethereum", 46_000_000),
+           "polygon": _gg("polygon", 277_000_000_000)}
+
+    r = DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA,
+                  baoGiaCau=lambda *a: _bgc())
+
+    # ── gas: ba thứ, thiếu một là None ──────────────────────────────────
+    g = gas["arbitrum"]
+    kiem("gas ra đô = wei × limit × giá token",
+         gan(g.usd("chuyen-erc20", 2461.0),
+             20_000_000 * GAS_LIMIT["chuyen-erc20"] / 1e18 * 2461.0, 1e-9))
+    kiem("thiếu GIÁ TOKEN GỐC thì gas là None, không phải 0",
+         g.usd("chuyen-erc20", None) is None,
+         "thiếu giá token mà vẫn trả một con số là ngầm giả định giá bằng "
+         "1 — đúng loại lỗi mà `None` khác `0` sinh ra để chặn")
+    kiem("giá token ≤ 0 cũng là không biết",
+         g.usd("chuyen-erc20", 0.0) is None)
+    kiem("việc lạ không có gasLimit thì cũng None",
+         g.usd("dao-bitcoin", 2461.0) is None)
+    kiem("chuỗi mất gas thì cả chặng nạp mù",
+         not DinhTuyen(giaGas={}, giaTokenGocUsd=GIA)
+         .chang_nap("arbitrum", "okx", "USDC").doDuoc)
+    kiem("mọi chuỗi có RPC đều khai token gốc",
+         set(TOKEN_GOC) >= set(__import__("chuyen_von.gas",
+                                          fromlist=["RPC"]).RPC),
+         "chuỗi có RPC mà không biết trả gas bằng token gì thì đọc được "
+         "gasPrice rồi vẫn không quy ra đô được")
+
+    # ── bốn dạng tuyến ──────────────────────────────────────────────────
+    ch, sa = Diem("chuoi", "arbitrum"), Diem("san", "binance")
+    kiem("chuỗi -> chuỗi đi bằng CẦU NỐI",
+         r.tuyen(Diem("chuoi", "ethereum"), ch, "USDC", 1000.0)
+         .chang[0].cach == "cau-noi")
+    kiem("sàn -> chuỗi là RÚT",
+         r.tuyen(sa, ch, "USDC", 1000.0).chang[0].cach == "rut-cex")
+    kiem("chuỗi -> sàn là NẠP",
+         r.tuyen(ch, sa, "USDC", 1000.0).chang[0].cach == "nap-cex")
+
+    ss = r.tuyen(sa, Diem("san", "okx"), "USDC", 1000.0)
+    kiem("sàn -> sàn là RÚT rồi NẠP, hai chặng",
+         [c.cach for c in ss.chang] == ["rut-cex", "nap-cex"],
+         str([c.cach for c in ss.chang]))
+    kiem("và nó đi qua một chuỗi CẢ HAI sàn cùng dùng được",
+         ss.chang[0].den == ss.chang[1].tu
+         and ss.chang[0].den.ten in UU_TIEN_TRUNG_GIAN)
+
+    kiem("hai điểm trùng nhau KHÔNG phải một tuyến",
+         r.tuyen(sa, sa, "USDC", 1000.0).chang == ())
+    kiem("vốn ≤ 0 cũng không phải một tuyến",
+         r.tuyen(sa, ch, "USDC", 0.0).chang == ())
+
+    # ── không có chuỗi chung thì KHÔNG có tuyến, không phải tuyến đắt ──
+    kiem("bybit không rút USDT về đâu chung với một sàn chỉ dùng base",
+         r.chuoi_chung("bybit", "bybit", "DOGE") is None,
+         "tài sản bảng chưa có dòng nào thì không có chuỗi chung nào")
+    t = r.tuyen(Diem("san", "binance"), Diem("san", "okx"), "DOGE", 1000.0)
+    kiem("và tuyến ấy trả về KHÔNG CÓ TUYẾN kèm lý do",
+         t.chang == () and "DOGE" in t.viSaoKhong, t.viSaoKhong)
+    kiem("khác hẳn một tuyến có thật mà đắt",
+         t.phiUsd is None and ss.phiUsd is not None,
+         "không có đường đi và đường đi đắt là hai câu trả lời khác nhau, "
+         "và ty phải xử chúng khác nhau")
+
+    # ── cầu nối ─────────────────────────────────────────────────────────
+    kiem("cầu nối gộp CẢ phí cầu lẫn gas",
+         gan(r.chang_cau("USDC", "ethereum", "arbitrum", 1000.0).phiUsd,
+             2.5 + 0.09),
+         "gas trả bằng token gốc nên không trừ vào số tài sản chuyển — cộng "
+         "riêng, không phải đã nằm trong hiệu hai đầu")
+    kiem("cùng một chuỗi thì không phải dời, phí 0",
+         gan(r.chang_cau("USDC", "arbitrum", "arbitrum", 1000.0).phiUsd, 0.0))
+    kiem("nguồn cầu nối hỏng thì chặng mù, KHÔNG phải phí 0",
+         not DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA,
+                       baoGiaCau=lambda *a: _bgc(phi=None, loi="LI.FI 429"))
+         .chang_cau("USDC", "ethereum", "arbitrum", 1000.0).doDuoc)
+    kiem("chưa nối nguồn cầu nối cũng là mù",
+         not DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA)
+         .chang_cau("USDC", "ethereum", "arbitrum", 1000.0).doDuoc)
+
+    # ── câu trả lời cho ty ──────────────────────────────────────────────
+    bps, tu = r.phi_bps(sa, Diem("san", "okx"), "USDC", 1000.0)
+    kiem("phi_bps trả CẢ con số lẫn tuyến", bps is not None and tu.doDuoc)
+    kiem("và tuyến mang theo thứ nó chưa tính", len(tu.khongDoDuoc) > 0,
+         "một hạ tầng trả về con số mà im lặng về phần nó không đo được thì "
+         "ty sẽ bỏ khai báo `phiConThieu` đi vì tưởng đã có Router lo")
+    kiem("phí rút gõ tay LUÔN được khai là gõ tay",
+         any("do-tay" in x for x in tu.khongDoDuoc), str(tu.khongDoDuoc))
+
+
+def kiem_router_khong_phai_ty() -> None:
+    print("\n-- Router KHONG phai ty, va khong quyet dinh gi --")
+    import pathlib
+
+    import chuyen_von.dinh_tuyen as dt
+    from thi_bac_ty.hien_phap import _goi_ty
+
+    kiem("chuyen_von KHÔNG bị nhận là ty",
+         "chuyen_von" not in {d.name for d in _goi_ty()},
+         "nó không quét cơ hội, không xin vốn, không có quet() — bản đồ §18 "
+         "gọi nó là hạ tầng chứ không phải một bot")
+    kiem("và nó KHÔNG có quet()", not hasattr(dt.DinhTuyen, "quet"))
+
+    goc = pathlib.Path(__file__).resolve().parent.parent
+    xau = []
+    for p in (goc / "chuyen_von").glob("*.py"):
+        for l in p.read_text(encoding="utf-8").splitlines():
+            l = l.strip()
+            for k in ("bac", "co_so", "lai_suat", "on_dinh", "tin_dung"):
+                if l.startswith((f"import {k}", f"from {k}")):
+                    xau.append(f"{p.name}: {l}")
+    kiem("hạ tầng KHÔNG gọi ngược lên ty nào", not xau, str(xau))
+
+    kiem("Router KHÔNG tự quyết định bỏ tuyến nào",
+         "nen-doi" not in dt.__doc__ and not hasattr(dt.DinhTuyen, "xet"),
+         "một hạ tầng tự ý bỏ tuyến vì thấy đắt quá là một cửa rủi ro giấu "
+         "trong thư viện tiện ích, và không ai soát được nó ở `CUA`")
 
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
@@ -3659,6 +3924,10 @@ def main() -> int:
     kiem_lai_suat()
     kiem_co_so()
     kiem_ha_tang_ho()
+    kiem_router_tuyen()
+    kiem_router_bang_do()
+    kiem_router_dinh_tuyen()
+    kiem_router_khong_phai_ty()
     kiem_bon_ty()
     kiem_thang_chung()
     kiem_von_toi_thieu()

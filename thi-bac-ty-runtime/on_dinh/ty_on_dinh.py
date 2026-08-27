@@ -36,12 +36,37 @@ from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
 from .config import CONFIG, HO, MA_CHIEN_LUOC
 from .nguon import DinhSo, SanGiaoNgay
 
+#: Khai báo NỀN — thứ ty này không đo được, dù có Router hay không.
 PHI_CON_THIEU = (
-    "chuyen-von-giua-san",      # chưa có đường chuyển, nên tồn kho kẹt
-    "rut-tien-va-thoi-gian-cho",
+    "chuyen-von-giua-san",      # Router gỡ được — xem `_phi_con_thieu()`
+    "rut-tien-va-thoi-gian-cho",  # Router gỡ được — cùng một tuyến
     "truot-gia-duoi-dinh-so",
     "thue",
 )
+
+#: Hai khoản Router TRẢ LỜI ĐƯỢC, nếu nó có số. Tách ra thành hằng số riêng
+#: vì cả hai đều mô tả cùng một chuyện — dời tồn kho từ sàn này sang sàn kia
+#: — và chúng phải cùng biến mất hoặc cùng ở lại, không được rời nhau.
+ROUTER_GO_DUOC = ("chuyen-von-giua-san", "rut-tien-va-thoi-gian-cho")
+
+
+def _phi_con_thieu(daDoChuyenVon: bool, routerConThieu: tuple = ()) -> tuple:
+    """Khai báo thiếu của MỘT cơ hội, không phải của cả ty.
+
+    Trước khi có Router thì mọi cơ hội khai giống hệt nhau, và hằng số
+    module là đủ. Nay hai cơ hội cùng một lượt quét có thể khác nhau: cặp
+    binance/okx có tuyến đo được, cặp có một sàn lạ thì không.
+
+    Router đo được thì hai khoản kia biến mất — NHƯNG thay bằng những khoản
+    chính Router khai là nó chưa tính (`rui-ro-cau-noi`,
+    `gas-limit-uoc-luong`, `phi-rut-do-tay-...`). Đổi một lỗ hổng lấy một
+    lỗ hổng nhỏ hơn ĐÃ ĐƯỢC ĐẶT TÊN, chứ không phải xoá lỗ hổng.
+    """
+    if not daDoChuyenVon:
+        return PHI_CON_THIEU
+    con = tuple(x for x in PHI_CON_THIEU if x not in ROUTER_GO_DUOC)
+    them = tuple(f"router:{x}" for x in routerConThieu)
+    return con + them
 SUC_CHUA_CON_THIEU = ("do-sau-so-lenh-duoi-dinh",)
 
 #: Một nguồn duy nhất cho cả khai báo của ty lẫn
@@ -73,6 +98,13 @@ class CoHoiChenh:
     netBps: float
     sucChuaToiDaUsd: float | None
     sauSoLenhUsd: float | None
+    #: Phí dời tồn kho từ sàn BÁN về sàn MUA, do Router đo. `None` = Router
+    #: không đo được, và khi ấy `phiBps` KHÔNG gồm nó — cơ hội giữ nguyên
+    #: khai báo `chuyen-von-giua-san`.
+    phiChuyenBps: float | None = None
+    giayChuyen: float | None = None
+    #: Thứ chính Router khai là nó chưa tính.
+    routerConThieu: tuple = ()
     duyet: bool = False
     lyDo: tuple = ()
     lyDoMa: tuple = ()
@@ -94,6 +126,9 @@ class CoHoiChenh:
                 "lechNeoBps": self.lechNeoBps,
                 "sucChuaToiDaUsd": self.sucChuaToiDaUsd,
                 "sauSoLenhUsd": self.sauSoLenhUsd,
+                "phiChuyenBps": self.phiChuyenBps,
+                "giayChuyen": self.giayChuyen,
+                "routerConThieu": list(self.routerConThieu),
                 "duyet": self.duyet, "lyDo": list(self.lyDo),
                 "lyDoMa": [list(x) for x in self.lyDoMa]}
 
@@ -162,8 +197,15 @@ class CongRuiRo:
 
 
 def tim_co_hoi(dinh: list[DinhSo], vonXinUsd: float, giuGio: float,
-               phiBang: dict, sucChuaC: dict, cong) -> list[CoHoiChenh]:
-    """Với mỗi cặp: mua ở ask thấp nhất, bán ở bid cao nhất."""
+               phiBang: dict, sucChuaC: dict, cong,
+               dinhTuyen=None) -> list[CoHoiChenh]:
+    """Với mỗi cặp: mua ở ask thấp nhất, bán ở bid cao nhất.
+
+    `dinhTuyen` là tuỳ chọn, và mặc định KHÔNG có. Ty này chạy đúng như
+    trước khi thiếu nó — chỉ là `phiBps` thiếu khoản dời tồn kho, và cơ hội
+    tự khai điều đó ra. Bắt buộc phải có Router mới quét được là biến một
+    hạ tầng thành điểm chết chung.
+    """
     theo_cap: dict[str, list[DinhSo]] = {}
     for d in dinh:
         theo_cap.setdefault(d.cap, []).append(d)
@@ -181,15 +223,44 @@ def tim_co_hoi(dinh: list[DinhSo], vonXinUsd: float, giuGio: float,
         chua = (None if sau is None
                 else min(sau * float(sucChuaC["phanDinhSo"]),
                          float(sucChuaC["tranUsd"])))
+        # Dời tồn kho: sau khi mua ở A và bán ở B, tồn kho lệch đi — phải
+        # dời từ B về A mới quay lại được vị thế ban đầu. Đó chính là khoản
+        # `chuyen-von-giua-san` mà ty này khai thiếu từ đầu.
+        chuyenBps, giayChuyen, rct = _hoi_router(
+            dinhTuyen, ban.san, mua.san, cap.split("/")[0], vonXinUsd)
+        phiDu = phi + (chuyenBps or 0.0)
+
         co = CoHoiChenh(cap=cap, mua=mua, ban=ban, vonXinUsd=vonXinUsd,
-                        giuGio=giuGio, grossBps=gross, phiBps=phi,
-                        netBps=gross - phi, sucChuaToiDaUsd=chua,
-                        sauSoLenhUsd=sau)
+                        giuGio=giuGio, grossBps=gross, phiBps=phiDu,
+                        netBps=gross - phiDu, sucChuaToiDaUsd=chua,
+                        sauSoLenhUsd=sau, phiChuyenBps=chuyenBps,
+                        giayChuyen=giayChuyen, routerConThieu=rct)
         qua, ly = cong.xet(co)
         ra.append(replace(co, duyet=qua, lyDoMa=tuple(ly),
                           lyDo=tuple(c for _, c in ly)))
     ra.sort(key=lambda c: -c.netMoiGioBps)
     return ra
+
+
+def _hoi_router(dinhTuyen, tuSan: str, denSan: str, taiSan: str,
+                vonUsd: float) -> tuple:
+    """(bps, giây, thứ-router-chưa-tính). Ba `None`/rỗng khi không đo được.
+
+    Nuốt mọi ngoại lệ và trả về "không đo được": một hạ tầng phụ trợ nổ
+    KHÔNG được giết lượt quét của ty. Nhưng nó cũng không được nổ trong im
+    lặng — lỗi đi vào `routerConThieu` nên nó hiện lên tận tờ trình.
+    """
+    if dinhTuyen is None or tuSan == denSan:
+        return None, None, ()
+    try:
+        from chuyen_von.diem import Diem
+        bps, t = dinhTuyen.phi_bps(Diem("san", tuSan), Diem("san", denSan),
+                                   taiSan, vonUsd)
+    except Exception as e:                                    # noqa: BLE001
+        return None, None, (f"router-no:{type(e).__name__}",)
+    if bps is None:
+        return None, None, ()
+    return bps, t.giayCho, tuple(t.khongDoDuoc)
 
 
 class TyOnDinh(Ty):
@@ -206,8 +277,9 @@ class TyOnDinh(Ty):
     #: vụn không khớp hết. $200 là chỗ hai thứ ấy còn nhỏ so với vài bps.
     vonToiThieuKinhTeUsd = _VON_TOI_THIEU
 
-    def __init__(self, client_factory=None) -> None:
+    def __init__(self, client_factory=None, dinhTuyen=None) -> None:
         super().__init__()
+        self.dinhTuyen = dinhTuyen
         self.nguon = SanGiaoNgay()
         self.cong = CongRuiRo(CONFIG["ruiRo"])
         self.dinh: list = []
@@ -220,7 +292,7 @@ class TyOnDinh(Ty):
         self.coHoi = tim_co_hoi(
             self.dinh, float(CONFIG["von"]["moiCoHoiUsd"]),
             float(q["chuKyVonGio"]), CONFIG["phiTakerBps"],
-            CONFIG["sucChua"], self.cong)
+            CONFIG["sucChua"], self.cong, self.dinhTuyen)
         return list(self.coHoi)
 
     async def _doc(self):
@@ -280,12 +352,16 @@ def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
         giuGio=co.giuGio,
         # Không khoá theo hợp đồng — nhưng vốn KẸT cho tới khi chênh lệch
         # đảo chiều, và chuyện ấy đã nằm trong `giuGio` (chu kỳ vốn).
-        khoaVonDenGiay=0.0,
+        # Không khoá theo hợp đồng — nhưng nếu phải dời tồn kho thì vốn
+        # KẸT suốt chặng ấy, và đó là khoá thật dù không ai ký gì.
+        khoaVonDenGiay=(co.giayChuyen or 0.0),
         thanhKhoanThoatUsd=co.sauSoLenhUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=max(co.mua.tuoi_giay(), co.ban.tuoi_giay()),
         tinCay=(0.85 if co.sauSoLenhUsd is not None else 0.45),
-        moHinhPhiDuChua=False, phiConThieu=PHI_CON_THIEU,
+        moHinhPhiDuChua=False,
+        phiConThieu=_phi_con_thieu(co.phiChuyenBps is not None,
+                                   co.routerConThieu),
         moHinhSucChuaDuChua=False, sucChuaConThieu=SUC_CHUA_CON_THIEU,
         dinhGiaBang=b,
         cang=(co.mua.san, co.ban.san),
@@ -294,6 +370,11 @@ def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
             f"{co.ban.mua:.5f}",
             f"chênh thô {co.grossBps:.2f} bps − phí {co.phiBps:.2f} = "
             f"NET {co.netBps:.2f} bps",
+            (f"trong đó dời tồn kho {co.ban.san}→{co.mua.san} tốn "
+             f"{co.phiChuyenBps:.2f} bps, chờ {(co.giayChuyen or 0)/60:.0f} "
+             f"phút (Router đo)"
+             if co.phiChuyenBps is not None else
+             "dời tồn kho giữa hai sàn: CHƯA đo được — xem phiConThieu"),
             f"lệch neo {co.lechNeoBps:.1f} bps (trần depeg "
             f"{CONFIG['ruiRo']['lechNeoToiDaBps']:.0f})",
             ("đỉnh sổ $" + f"{co.sauSoLenhUsd:,.0f}") if co.sauSoLenhUsd
