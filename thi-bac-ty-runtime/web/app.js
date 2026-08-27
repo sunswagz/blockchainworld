@@ -725,6 +725,13 @@
             + "chảy lên tận tổng — đó là thiết kế, không phải lỗi."));
         }
       }
+      var NGS = S.nguonGas || {};
+      if (NGS.soGiuLai) {
+        rd.appendChild(el("p", "vi",
+          "gas: đã GIỮ LẠI số đọc được lần trước " + NGS.soGiuLai
+          + " lần vì RPC lỗi — số cũ dùng được hơn không có số nào, nhưng "
+          + "nó TỰ già đi và `tuoiGiay` nói ra tuổi thật."));
+      }
       var NC = S.nguonCau || {};
       if (NC.dangNghi) {
         rd.appendChild(el("p", "am",

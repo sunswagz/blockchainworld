@@ -97,23 +97,35 @@ class NguonGas(Nguon):
     def __init__(self) -> None:
         super().__init__()
         self.gia: dict[str, GiaGas] = {}
+        #: Bao nhiêu lần một lượt đọc hỏng mà ta GIỮ LẠI số cũ. Không đếm
+        #: thì "vẫn có gas" và "gas đã cũ" trông giống hệt nhau.
+        self.soGiuLai = 0
 
     async def doc(self, client, chuoi=None) -> dict[str, GiaGas]:
         t0 = time.perf_counter()
         ten = list(chuoi or RPC)
         ra = await asyncio.gather(*(_mot(client, c) for c in ten),
                                   return_exceptions=True)
-        self.gia = {}
         tot = 0
         for c, r in zip(ten, ra):
             if isinstance(r, GiaGas) and r.weiMoiGas is not None:
                 self.gia[c] = r
                 tot += 1
-            else:
-                self.gia[c] = GiaGas(
-                    c, None, time.time() * 1000.0,
-                    f"{type(r).__name__}: {r}" if isinstance(r, BaseException)
-                    else (r.loi if isinstance(r, GiaGas) else "trống"))
+                continue
+            # Một lượt RPC hỏng KHÔNG được xoá số đọc được lần trước. Gas
+            # đổi theo block, nhưng bậc của nó thì không — và số cũ vẫn
+            # dùng được hơn hẳn không có số nào.
+            #
+            # Đổi lại: số cũ TỰ già đi qua `docLucMs`, nên `tuoi_giay()`
+            # nói ra tuổi thật thay vì trẻ lại mỗi lượt hỏi.
+            cu = self.gia.get(c)
+            if cu is not None and cu.weiMoiGas is not None:
+                self.soGiuLai += 1
+                continue
+            self.gia[c] = GiaGas(
+                c, None, time.time() * 1000.0,
+                f"{type(r).__name__}: {r}" if isinstance(r, BaseException)
+                else (r.loi if isinstance(r, GiaGas) else "trống"))
         if tot:
             self.suc_khoe.ghi_ok((time.perf_counter() - t0) * 1000.0)
         else:
@@ -121,7 +133,7 @@ class NguonGas(Nguon):
         return self.gia
 
     def tom_tat(self) -> dict:
-        return {**self.suc_khoe.tom_tat(),
+        return {**self.suc_khoe.tom_tat(), "soGiuLai": self.soGiuLai,
                 "theoChuoi": {c: g.tom_tat() for c, g in self.gia.items()}}
 
 

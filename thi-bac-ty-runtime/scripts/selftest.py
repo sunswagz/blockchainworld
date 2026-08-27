@@ -3846,6 +3846,83 @@ def kiem_router_dinh_tuyen() -> None:
          "chuỗi có RPC mà không biết trả gas bằng token gì thì đọc được "
          "gasPrice rồi vẫn không quy ra đô được")
 
+    # ── một lượt RPC hỏng KHÔNG được xoá gas đọc được ───────────────────
+    import asyncio as _aio
+    import time as _tt
+
+    from chuyen_von.gas import NguonGas as _NG
+
+    class _CHong:
+        async def post(self, u, json=None):
+            raise RuntimeError("RPC chết")
+
+    ng = _NG()
+    ng.gia["ethereum"] = _gg("ethereum", 46_000_000)
+    _aio.run(ng.doc(_CHong(), ["ethereum"]))
+    kiem("RPC hỏng thì GIỮ số gas đọc được lần trước",
+         ng.gia["ethereum"].weiMoiGas == 46_000_000 and ng.soGiuLai == 1,
+         "gas đổi theo block nhưng BẬC của nó thì không — số cũ dùng được "
+         "hơn hẳn không có số nào, và một lượt RPC hỏng từng xoá sạch")
+    kiem("và số lần giữ lại được ĐẾM RA",
+         ng.tom_tat()["soGiuLai"] == 1,
+         "không đếm thì «vẫn có gas» và «gas đã cũ» trông giống hệt nhau")
+    ng2 = _NG()
+    _aio.run(ng2.doc(_CHong(), ["ethereum"]))
+    kiem("chưa từng đọc được thì vẫn là None, không bịa",
+         ng2.gia["ethereum"].weiMoiGas is None and ng2.soGiuLai == 0)
+    # ── bảng giá token: GỘP, không THAY ─────────────────────────────────
+    from bac.vong import Runtime as _RT
+
+    class _RTGia(_RT):
+        def __init__(self, bg):
+            self._bg = bg
+            self.dinhTuyen = DinhTuyen()
+            self.baoGia = bg
+
+    rt = _RTGia([])
+    rt.dinhTuyen.giaTokenGocUsd = {"ETH": 2461.0}
+    kiem("lượt quét TRỐNG không xoá bảng giá đã có",
+         rt._cap_nhat_gia_token() == {"ETH": 2461.0},
+         "một lượt thiếu ETH — cả bốn cảng cùng lỗi — từng xoá sạch bảng "
+         "giá, và mọi chặng gas hoá mù dù lượt trước vừa đọc được")
+    khong = _RTGia([])
+    khong.dinhTuyen = None
+    kiem("thiếu Router thì trả rỗng, không nổ",
+         khong._cap_nhat_gia_token() == {},
+         "Router hỏng KHÔNG được kéo theo vòng quét — nhưng cũng không "
+         "được im lặng, và `chuoiDungDuoc` rỗng nói ra điều đó")
+
+    class _BGx:
+        def __init__(self, ma, px):
+            self.ma, self.markPx = ma, px
+
+    rt3 = _RTGia([_BGx("ETH", 2600.0), _BGx("POL", 0.12),
+                  _BGx("DOGE", 0.4)])
+    rt3.dinhTuyen.giaTokenGocUsd = {}
+    ra3 = rt3._cap_nhat_gia_token()
+    kiem("lấy giá MỌI token trả gas, không chỉ ETH",
+         gan(ra3.get("ETH", 0), 2600.0) and gan(ra3.get("POL", 0), 0.12),
+         f"{ra3} — danh sách suy từ `TOKEN_GOC`; chép tay một cái tên thì "
+         f"thêm chuỗi mới là chuỗi ấy mù trong im lặng, và chính chuyện đó "
+         f"đã xảy ra với Polygon")
+    kiem("và KHÔNG lấy token không trả gas cho chuỗi nào",
+         "DOGE" not in ra3,
+         "bảng giá phình ra vì mọi mã perp thì nó hết nói lên điều gì")
+
+    rt2 = _RTGia([_BGx("ETH", 2600.0)])
+    rt2.dinhTuyen.giaTokenGocUsd = {"ETH": 2461.0, "POL": 0.11}
+    ra2 = rt2._cap_nhat_gia_token()
+    kiem("giá MỚI thay giá cũ của cùng token", gan(ra2["ETH"], 2600.0))
+    kiem("và token KHÔNG có trong lượt này vẫn được GIỮ",
+         gan(ra2["POL"], 0.11),
+         "gộp chứ không thay — nếu không thì mỗi lượt thiếu POL là Polygon "
+         "mù lại một lần")
+
+    kiem("số giữ lại TỰ GIÀ, không trẻ lại mỗi lượt hỏi",
+         ng.gia["ethereum"].docLucMs < _tt.time() * 1000.0 + 1.0,
+         "`docLucMs` giữ nguyên dấu thời gian gốc nên `tuoi_giay()` nói ra "
+         "tuổi thật")
+
     # ── bốn dạng tuyến ──────────────────────────────────────────────────
     ch, sa = Diem("chuoi", "arbitrum"), Diem("san", "binance")
     kiem("chuỗi -> chuỗi đi bằng CẦU NỐI",
@@ -3891,7 +3968,6 @@ def kiem_router_dinh_tuyen() -> None:
          gan(r.chang_cau("USDC", "arbitrum", "arbitrum", 1000.0).phiUsd, 0.0))
     # ── 429: NGHỈ theo đúng con số bên kia nói ──────────────────────────
     from chuyen_von.cau_noi import NguonCauNoi
-    import time as _tt
     nc = NguonCauNoi()
     kiem("mới dựng thì KHÔNG nghỉ", not nc.dang_nghi())
     nc.nghiToiMs = _tt.time() * 1000.0 + 60_000.0
@@ -3924,7 +4000,6 @@ def kiem_router_dinh_tuyen() -> None:
             goi.append(u)
             return _R(self.ma, '{"message":"Rate limit exceeded"}', self.hdr)
 
-    import asyncio as _aio
     nc2 = NguonCauNoi()
     bg = _aio.run(nc2.doc(_C(), "USDC", "arbitrum", "ethereum", 500.0))
     kiem("gặp 429 thì ĐẶT mốc nghỉ", nc2.dang_nghi() and nc2.soLan429 == 1,
@@ -3951,6 +4026,77 @@ def kiem_router_dinh_tuyen() -> None:
     _aio.run(nc4.doc(_C(500), "USDC", "arbitrum", "ethereum", 500.0))
     kiem("lỗi 500 thì KHÔNG nghỉ — chỉ 429 mới là hạn mức",
          not nc4.dang_nghi())
+
+    # ── KHÔNG đè báo giá TỐT bằng báo giá MÙ ────────────────────────────
+    from chuyen_von.cau_noi import BaoGiaCau as _BG
+    from chuyen_von.dinh_tuyen import (TUOI_BAO_GIA_TOI_DA_GIAY, _khoa,
+                                       _tuoi_giay)
+
+    def _kho(r, tuoiGiay=0.0):
+        k = _khoa("USDC", "arbitrum", "ethereum", 500)
+        r.kho[k] = _BG("USDC", "arbitrum", "ethereum", 500.0, 2.5, 0.09,
+                       7.0, "eco", _tt.time() * 1000.0 - tuoiGiay * 1000.0)
+        return k
+
+    r2 = DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA)
+    k2 = _kho(r2)
+    nghi = NguonCauNoi()
+    nghi.nghiToiMs = _tt.time() * 1000.0 + 60_000.0
+    _aio.run(r2.nap(None, nghi, [("USDC", "arbitrum", "ethereum", 500.0)]))
+    kiem("đang NGHỈ thì KHÔNG đè báo giá tốt bằng báo giá mù",
+         r2.kho[k2].doDuoc and gan(r2.kho[k2].phiTaiSan, 2.5),
+         "một lần 429 từng xoá sạch chín báo giá còn dùng được, biến cỗ máy "
+         "đang chạy thành mù hoàn toàn suốt hai giờ — trong khi phí cầu đổi "
+         "chậm tới mức số cũ vẫn còn nghĩa")
+
+    class _NguonTot:
+        """Nguồn giả trả một báo giá TỐT. Không chạm mạng."""
+
+        async def doc(self, client, ts, a, b, v):
+            return _BG(ts, a, b, v, 9.99, 0.01, 3.0, "gia",
+                       _tt.time() * 1000.0)
+
+    r3 = DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA)
+    k3 = _kho(r3)
+    _aio.run(r3.nap(None, _NguonTot(),
+                    [("USDC", "arbitrum", "ethereum", 500.0)]))
+    kiem("nhưng báo giá MỚI vẫn THAY được báo giá cũ",
+         gan(r3.kho[k3].phiTaiSan, 9.99),
+         f"{r3.kho[k3].phiTaiSan} — luật «không đè» chỉ được chặn báo giá "
+         f"MÙ; chặn cả báo giá mới là đóng băng kho vĩnh viễn")
+
+    # ── báo giá GIỮ LẠI phải KHAI TUỔI ──────────────────────────────────
+    r4 = DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA)
+    _kho(r4, tuoiGiay=0.0)
+    moi_ = r4.chang_cau("USDC", "arbitrum", "ethereum", 500.0)
+    kiem("báo giá mới thì KHÔNG khai tuổi",
+         not any(x.startswith("bao-gia-cau-cu") for x in moi_.khongDoDuoc),
+         str(moi_.khongDoDuoc))
+    _kho(r4, tuoiGiay=TUOI_BAO_GIA_TOI_DA_GIAY + 600.0)
+    cu_ = r4.chang_cau("USDC", "arbitrum", "ethereum", 500.0)
+    kiem("báo giá QUÁ TUỔI vẫn dùng được", cu_.doDuoc)
+    kiem("nhưng nó KHAI tuổi ra",
+         any(x.startswith("bao-gia-cau-cu") for x in cu_.khongDoDuoc),
+         f"{cu_.khongDoDuoc} — giữ số cũ tốt hơn mù, nhưng dùng số cũ mà "
+         f"im lặng thì tệ hơn cả hai")
+    kiem("và nguồn nói rõ nó bao nhiêu phút tuổi", "phút tuổi" in cu_.nguon,
+         cu_.nguon)
+    kiem("thiếu dấu thời gian thì không đoán tuổi",
+         _tuoi_giay(object()) is None)
+
+    # Ngưỡng tuổi là một PHÁN ĐOÁN, nhưng phán đoán vô lý thì bắt được.
+    # Phép kiểm ở trên dựng tuổi mẫu TỪ CHÍNH hằng số ấy, nên nới hằng số
+    # lên 1e12 thì nó vẫn xanh — một phép kiểm tự tham chiếu không canh
+    # được giá trị của thứ nó tham chiếu.
+    kiem("ngưỡng tuổi báo giá nằm trong khoảng bảo vệ được",
+         1800.0 <= TUOI_BAO_GIA_TOI_DA_GIAY <= 86_400.0,
+         f"{TUOI_BAO_GIA_TOI_DA_GIAY}s — dưới 30 phút thì mọi báo giá đều "
+         f"bị gắn cờ cũ và cảnh báo hoá tiếng ồn; trên 24 giờ thì cờ ấy "
+         f"không bao giờ bật và nó thành trang trí")
+    kiem("và nó là bội số của nhịp nạp (30 phút)",
+         gan(TUOI_BAO_GIA_TOI_DA_GIAY % 1800.0, 0.0),
+         "ngưỡng không khớp nhịp thì cờ bật ở một chỗ không ai giải thích "
+         "được")
 
     kiem("nguồn cầu nối hỏng thì chặng mù, KHÔNG phải phí 0",
          not DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA,

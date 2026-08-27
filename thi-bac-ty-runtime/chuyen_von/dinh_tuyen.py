@@ -52,6 +52,20 @@ UU_TIEN_TRUNG_GIAN = ("arbitrum", "base", "polygon", "ethereum")
 NHA = "arbitrum"
 
 
+#: Báo giá cầu quá tuổi này thì vẫn DÙNG, nhưng phải KHAI ra. Hai giờ là
+#: bốn lượt nạp (nhịp 30 phút) — quá đó nghĩa là bốn lượt liên tiếp không
+#: lấy được số mới, và đó là một trạng thái đáng nói.
+TUOI_BAO_GIA_TOI_DA_GIAY = 7200.0
+
+
+def _tuoi_giay(bg) -> float | None:
+    import time
+    t = getattr(bg, "docLucMs", None)
+    if not t:
+        return None
+    return max(0.0, (time.time() * 1000.0 - float(t)) / 1000.0)
+
+
 def _khoa(taiSan, tuChuoi, denChuoi, vonUsd) -> tuple:
     # Làm tròn vốn về bậc $100: báo giá $997 và $1.003 khác nhau không đáng
     # kể, mà tra kho theo số lẻ thì không bao giờ trúng.
@@ -101,8 +115,22 @@ class DinhTuyen:
             *(nguonCau.doc(client, ts, a, b, v) for ts, a, b, v in can),
             return_exceptions=True)
         for (ts, a, b, v), bg in zip(can, ra):
-            if not isinstance(bg, BaseException):
-                self.kho[_khoa(ts, a, b, v)] = bg
+            if isinstance(bg, BaseException):
+                continue
+            k = _khoa(ts, a, b, v)
+            cu = self.kho.get(k)
+            # KHÔNG đè một báo giá TỐT bằng một báo giá MÙ.
+            #
+            # Đã cắn: một lần 429 làm cả chín tuyến thành "đang nghỉ", và
+            # `nap()` ghi đè lên chín báo giá còn dùng được — cỗ máy đang
+            # chạy hoá mù hoàn toàn suốt hai giờ, trong khi phí cầu đổi
+            # chậm tới mức số cũ vẫn còn nghĩa.
+            #
+            # Đổi lại: số cũ phải KHAI TUỔI. Xem `chang_cau()`.
+            if (not getattr(bg, "doDuoc", False)
+                    and cu is not None and getattr(cu, "doDuoc", False)):
+                continue
+            self.kho[k] = bg
         return self.kho
 
     # ── ba chặng nguyên tố ──────────────────────────────────────────────
@@ -151,9 +179,18 @@ class DinhTuyen:
             return ChangDuong(tu, den, "cau-noi", None, None,
                               "LI.FI (không đo được)",
                               (f"cau-noi:{vi}"[:120],))
+        thieu = ["rui-ro-cau-noi", "gas-limit-uoc-luong"]
+        # Báo giá GIỮ LẠI thì phải khai tuổi. Giữ số cũ tốt hơn mù, nhưng
+        # dùng số cũ mà im lặng thì tệ hơn cả hai.
+        tuoi = _tuoi_giay(bg)
+        if tuoi is not None and tuoi > TUOI_BAO_GIA_TOI_DA_GIAY:
+            thieu.append(f"bao-gia-cau-cu:{tuoi / 60:.0f}phut")
         return ChangDuong(tu, den, "cau-noi", bg.tongUsd, bg.giayCho,
-                          f"LI.FI qua {bg.congCu}",
-                          ("rui-ro-cau-noi", "gas-limit-uoc-luong"))
+                          f"LI.FI qua {bg.congCu}"
+                          + (f" · báo giá {tuoi / 60:.0f} phút tuổi"
+                             if tuoi is not None
+                             and tuoi > TUOI_BAO_GIA_TOI_DA_GIAY else ""),
+                          tuple(thieu))
 
     # ── ghép tuyến ──────────────────────────────────────────────────────
 

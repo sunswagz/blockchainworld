@@ -367,12 +367,15 @@ class Runtime:
                     headers={"User-Agent": "thi-bac-ty/0.1 "
                                            "(+public data only)"}) as c:
                 if canGas:
+                    # `NguonGas` tự giữ số cũ khi một chuỗi lỗi, nên
+                    # gán thẳng ở đây là an toàn — nó trả về CHÍNH `self.gia`
+                    # đã được vá, không phải một bảng mới rỗng.
                     self.dinhTuyen.giaGas = await self.nguonGas.doc(c)
                     self._lanNapGas = gio
                     # Giá token gốc lấy từ báo giá perp của CHÍNH lượt quét
                     # này — không đi hỏi thêm một nguồn giá thứ hai, vì hai
                     # nguồn giá là hai câu trả lời cho cùng một câu hỏi.
-                    self.dinhTuyen.giaTokenGocUsd = self._gia_token_goc()
+                    self._cap_nhat_gia_token()
                 if canCau:
                     # Cỡ vốn phải là cỡ CÁC TY THẬT SỰ HỎI, không phải một
                     # con số tròn ai đó chọn. Kho khoá theo (tài sản, từ,
@@ -418,6 +421,23 @@ class Runtime:
             except Exception:                                 # noqa: BLE001
                 continue
         return tuple(sorted(ra)) or (500.0,)
+
+    def _cap_nhat_gia_token(self) -> dict:
+        """GỘP giá mới vào bảng, KHÔNG thay cả bảng.
+
+        Một lượt quét thiếu ETH — cả bốn cảng cùng lỗi — từng xoá sạch bảng
+        giá, và mọi chặng gas hoá mù dù lượt trước vừa đọc được. Cùng lỗi
+        với `NguonGas` và với kho báo giá cầu: thay tri thức bằng vô tri
+        trong im lặng.
+
+        Tách thành hàm riêng để KIỂM ĐƯỢC mà không cần mạng — bản trước nằm
+        trong `_nap_router()`, và phép cấy lỗi ngược đi lọt vì không phép
+        kiểm nào chạm tới.
+        """
+        if self.dinhTuyen is None:
+            return {}
+        self.dinhTuyen.giaTokenGocUsd.update(self._gia_token_goc())
+        return self.dinhTuyen.giaTokenGocUsd
 
     def _gia_token_goc(self) -> dict:
         """Giá token TRẢ GAS, lấy từ mark perp của chính lượt quét này.
@@ -648,6 +668,9 @@ class Runtime:
                              "vi": "Router chưa dựng — các ty giữ nguyên "
                                    "khai báo phiConThieu"}),
             "dongCoChuaCo": _tom_dong_co(),
+            "nguonGas": (self.nguonGas.tom_tat()
+                         if getattr(self, "nguonGas", None) is not None
+                         else {}),
             "nguonCau": (self.nguonCau.tom_tat()
                          if getattr(self, "nguonCau", None) is not None
                          else {}),
