@@ -47,6 +47,11 @@ GAS_LIMIT = {
     "duyet-erc20": 46_000,
     "gui-vao-cau": 150_000,
     "gui-native": 21_000,
+    # Swap trên một AMM có đường đi phức tạp (Pendle PT, Curve nhiều chặng)
+    # tốn hơn `transfer` một bậc. Con số này là ƯỚC LƯỢNG THÔ và mọi chặng
+    # dùng nó đều khai `gas-limit-uoc-luong` — nhưng ước 350k rồi khai ra
+    # vẫn đúng hơn hẳn coi một lượt swap tốn bằng một lượt chuyển.
+    "doi-tren-amm": 350_000,
 }
 
 

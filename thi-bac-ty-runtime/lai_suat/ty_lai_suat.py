@@ -75,6 +75,70 @@ CONFIG = {
 
 PHI_CON_THIEU = ("gas-vao-ra", "truot-gia-tren-amm-pendle",
                  "chuyen-von-giua-chuoi", "thue")
+
+#: Hai khoản Router trả lời được. `truot-gia-tren-amm-pendle` thì KHÔNG —
+#: nó đòi đường cong AMM của chính Pendle, thứ không nguồn công khai nào
+#: cho, và nó ở lại khai báo dù Router có đo được mọi thứ khác.
+ROUTER_GO_DUOC = ("gas-vao-ra", "chuyen-von-giua-chuoi")
+
+
+def _phi_con_thieu(daDo: bool, routerConThieu: tuple = ()) -> tuple:
+    """Khai báo thiếu của MỘT cơ hội — cùng lối `on_dinh` và `tin_dung`."""
+    if not daDo:
+        return PHI_CON_THIEU
+    return (tuple(x for x in PHI_CON_THIEU if x not in ROUTER_GO_DUOC)
+            + tuple(f"router:{x}" for x in routerConThieu))
+
+
+#: Tài sản DÙNG ĐỂ BẮC CẦU. Không phải token PT.
+#:
+#: Bản nháp đầu bắc cầu chính `t.taiSan` — `SKAITO`, `STRCX`, `SUSD3` — và
+#: Router trả `None` cho tất cả, đúng như nó phải làm: không cầu nào chuyển
+#: một token PT của Pendle. Nhưng cái sai nằm ở MÔ HÌNH, không ở Router:
+#: vào một vị thế PT là mang **stablecoin** sang chuỗi ấy rồi mới swap trên
+#: AMM Pendle. Token PT sinh ra TẠI CHỖ và chết tại chỗ.
+#:
+#: Nó lộ ra vì Router im lặng đúng chỗ đáng im — nếu nó chịu bịa một con số
+#: cho `SKAITO` thì lỗi mô hình này đã trôi qua mà không ai thấy.
+TAI_SAN_BAC_CAU = "USDC"
+
+
+def phi_vao_ra(chuoi: str, taiSan: str, vonUsd: float,
+               dinhTuyen=None) -> tuple:
+    """(usd, giây, thứ-chưa-tính) để vào vị thế trên chuỗi này rồi ra.
+
+    Hai khoản, và cả hai nhân đôi vì vốn phải quay về:
+
+        gas swap trên AMM Pendle   ×2  (vào rồi ra)
+        bắc cầu USDC TỪ NHÀ        ×2  (sang rồi về)
+
+    `taiSan` nhận vào chỉ để ghi nhật ký — thứ thật sự đi qua cầu là
+    `TAI_SAN_BAC_CAU`, xem ghi chú ở trên.
+
+    Chuỗi không có trong bản đồ Router — `Mantle` chẳng hạn — thì trả `None`
+    và cơ hội giữ nguyên khai báo. Đó không phải thất bại: Pendle có mặt
+    trên nhiều chuỗi hơn số chuỗi ta bắc cầu tới được, và giả vờ ngược lại
+    là bịa một tuyến không tồn tại.
+    """
+    if dinhTuyen is None:
+        return None, None, ()
+    try:
+        from chuyen_von.diem import Diem
+        from chuyen_von.dinh_tuyen import NHA
+        c = str(chuoi).strip().lower()
+        gas = dinhTuyen._gas_usd(c, "doi-tren-amm")
+        if gas is None:
+            return None, None, ()
+        if c == NHA:
+            return 2.0 * gas, 0.0, ("gas-limit-uoc-luong",)
+        _, t = dinhTuyen.phi_bps(Diem("chuoi", NHA), Diem("chuoi", c),
+                                 TAI_SAN_BAC_CAU, vonUsd)
+        if t.phiUsd is None:
+            return None, None, ()
+        return (2.0 * gas + 2.0 * t.phiUsd, 2.0 * (t.giayCho or 0.0),
+                tuple(t.khongDoDuoc))
+    except Exception as e:                                    # noqa: BLE001
+        return None, None, (f"router-no:{type(e).__name__}",)
 SUC_CHUA_CON_THIEU = ("do-sau-amm-pendle",)
 
 #: Một nguồn duy nhất cho cả khai báo của ty lẫn
@@ -161,6 +225,11 @@ class CoHoiPT:
     grossBps: float
     netBps: float
     sucChuaToiDaUsd: float | None
+    #: Phí vào+ra do Router đo. `None` = chưa đo được, và `netBps` KHÔNG
+    #: gồm nó — cơ hội giữ nguyên khai báo `gas-vao-ra`.
+    phiVaoRaUsd: float | None = None
+    giayCauNoi: float | None = None
+    routerConThieu: tuple = ()
     duyet: bool = False
     lyDo: tuple = ()
     lyDoMa: tuple = ()
@@ -281,7 +350,8 @@ class CongRuiRo:
         return {k: self.c[k] for k in CUA if k in self.c}
 
 
-def mot_co_hoi(t: ThiTruongPT, von: float, sucChuaC: dict) -> CoHoiPT:
+def mot_co_hoi(t: ThiTruongPT, von: float, sucChuaC: dict,
+               dinhTuyen=None) -> CoHoiPT:
     """Giữ tới ĐÁO HẠN, không phải một cửa sổ ta tự chọn.
 
     PT trả lãi cố định tới ngày đáo hạn; giữ ngắn hơn thì phải bán trên AMM
@@ -291,13 +361,16 @@ def mot_co_hoi(t: ThiTruongPT, von: float, sucChuaC: dict) -> CoHoiPT:
     """
     con = t.conLaiGio if (t.conLaiGio or 0) > 0 else 1.0
     gross = t.apyPhanTram * 100.0 * (con / (365.0 * 24.0))
+    phiUsd, giay, rct = phi_vao_ra(t.chuoi, t.taiSan, von, dinhTuyen)
+    # Trượt giá AMM vẫn CHƯA trừ được dù có Router — nó đòi đường cong AMM
+    # của chính Pendle. Khai ở `phiConThieu`, không giả vờ bằng 0.
+    phiBps = (phiUsd / von * 10_000.0) if (phiUsd is not None and von > 0) else 0.0
     return CoHoiPT(
         tt=t, vonXinUsd=von, giuGio=con, grossBps=gross,
-        # Gas và trượt giá AMM chưa trừ được — khai ở `phiConThieu`, KHÔNG
-        # giả vờ bằng 0 trong con số NET.
-        netBps=gross,
+        netBps=gross - phiBps,
         sucChuaToiDaUsd=min(t.tvlUsd * float(sucChuaC["phanTvl"]),
-                            float(sucChuaC["tranUsd"])) if t.tvlUsd else None)
+                            float(sucChuaC["tranUsd"])) if t.tvlUsd else None,
+        phiVaoRaUsd=phiUsd, giayCauNoi=giay, routerConThieu=rct)
 
 
 class TyLaiSuat(Ty):
@@ -314,8 +387,9 @@ class TyLaiSuat(Ty):
     #: tiêu một slot vị thế trong ba tháng cho một khoản lãi vài đô.
     vonToiThieuKinhTeUsd = _VON_TOI_THIEU
 
-    def __init__(self, client_factory=None) -> None:
+    def __init__(self, client_factory=None, dinhTuyen=None) -> None:
         super().__init__()
+        self.dinhTuyen = dinhTuyen
         self.nguon = NguonPendle()
         self.cong = CongRuiRo(CONFIG["ruiRo"])
         self.thiTruong: list = []
@@ -327,7 +401,8 @@ class TyLaiSuat(Ty):
         von = float(CONFIG["von"]["moiCoHoiUsd"])
         ra = []
         for t in self.thiTruong:
-            co = mot_co_hoi(t, von, CONFIG["sucChua"])
+            co = mot_co_hoi(t, von, CONFIG["sucChua"],
+                            self.dinhTuyen)
             qua, ly = self.cong.xet(co)
             ra.append(replace(co, duyet=qua, lyDoMa=tuple(ly),
                               lyDo=tuple(c for _, c in ly)))
@@ -361,6 +436,23 @@ def _chay(coro):
         return ex.submit(asyncio.run, coro).result()
 
 
+def _tin_cay(co: CoHoiPT) -> float:
+    """Bắt đầu 1,0 rồi TRỪ — cùng lối bốn ty kia.
+
+    Trừ 0,25 khi chưa đo được phí vào+ra: `netBps` đang thiếu một khoản chỉ
+    có thể làm nó tệ đi, và không trừ ở đây là để một cơ hội CHƯA ĐO xếp
+    trên một cơ hội ĐÃ ĐO — thưởng cho sự thiếu hiểu biết.
+    """
+    d = 1.0
+    if co.tt.daoHan is None:
+        d -= 0.25
+    if co.tt.tvlUsd is None or not co.tt.tvlUsd:
+        d -= 0.20
+    if co.phiVaoRaUsd is None:
+        d -= 0.25
+    return max(0.0, min(1.0, d))
+
+
 def xuat_to_trinh(co: CoHoiPT) -> ToTrinh:
     t = co.tt
     gt = rui_ro_tvl(t.tvlGiaoThucUsd or t.tvlUsd)
@@ -383,8 +475,10 @@ def xuat_to_trinh(co: CoHoiPT) -> ToTrinh:
             giaoThuc=gt, cang=gt,
             thucThi=0.15, cauNoi=0.0),
         tuoiDuLieuGiay=t.tuoi_giay(),
-        tinCay=(0.75 if t.daoHan is not None else 0.30),
-        moHinhPhiDuChua=False, phiConThieu=PHI_CON_THIEU,
+        tinCay=_tin_cay(co),
+        moHinhPhiDuChua=False,
+        phiConThieu=_phi_con_thieu(co.phiVaoRaUsd is not None,
+                                   co.routerConThieu),
         moHinhSucChuaDuChua=False, sucChuaConThieu=SUC_CHUA_CON_THIEU,
         dinhGiaBang=t.taiSan, cang=("pendle",), chuoi=(t.chuoi,),
         bangChung=(
@@ -394,5 +488,8 @@ def xuat_to_trinh(co: CoHoiPT) -> ToTrinh:
              f"{(t.conLaiGio or 0) / 24:.0f} ngày — vốn KHOÁ hết ngần ấy"
              if t.daoHan else "KHÔNG đọc được ngày đáo hạn"),
             f"TVL ${t.tvlUsd / 1e6:.1f}M",
-            "gas và trượt giá AMM CHƯA trừ — xem phiConThieu",
+            (f"phí vào+ra ${co.phiVaoRaUsd:,.2f} đã TRỪ (Router đo) — "
+             f"trượt giá AMM Pendle thì chưa, xem phiConThieu"
+             if co.phiVaoRaUsd is not None else
+             "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"),
         ))

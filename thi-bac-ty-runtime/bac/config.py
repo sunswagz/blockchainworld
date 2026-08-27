@@ -158,6 +158,19 @@ MAC_DINH = {
         "vonNgoai": {
             "kham-thien-giam": "http://127.0.0.1:5186/api/trang-thai",
         },
+        # Kết toán Khâm Thiên Giám vào CÙNG một sổ cái — bước 3 của món
+        # nợ hai cỗ máy. `von_ngoai` giữ phần TIỀN (phơi nhiễm chỉ-đọc
+        # trong Danh Mục), sổ này giữ phần SỰ KIỆN.
+        #
+        # Bên kia chỉ công bố 12 bản ghi gần nhất, nên `soBoSot` đếm phần
+        # rơi giữa hai lượt hỏi. Một sổ nói "tôi thiếu N" tốt hơn hẳn một
+        # sổ nói "tôi đủ" trong khi thiếu.
+        "soNgoai": {
+            "kham-thien-giam": {
+                "url": "http://127.0.0.1:5186/api/trang-thai",
+                "chienLuoc": "prediction.polymarket.v1",
+            },
+        },
         "vonBanDauUsd": 1000.0,
         "nguongCauDao": {
             # Rộng hơn cửa `lechDongHoToiDaGiay` của ty (10s) có chủ ý: cửa

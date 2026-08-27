@@ -84,6 +84,7 @@ from .so_cai import ButToan, SoCai
 from .so_dang_ky import SoDangKy
 from .thong_chinh import ThongChinh
 from .thuc_thi import DieuPhoiThucThi, YChiThucThi
+from .nhap_so_ngoai import NhapSoNgoai
 from .von_ngoai import DocVonNgoai
 
 MAC_DINH = {
@@ -102,6 +103,9 @@ MAC_DINH = {
     #: `thi_bac_ty/von_ngoai.py` và mục "NỢ KIẾN TRÚC" trong README.
     #: `{tên: url}`. Rỗng = không có vốn ngoài nào được khai.
     "vonNgoai": {},
+    #: Sổ cái của cỗ máy ngoài, nhập vào sổ này. Rỗng ở đây và khai ngoài
+    #: Trung Ương — nó không được biết cỗ máy nào tồn tại.
+    "soNgoai": {},
     #: VPS + RPC + API. Đối thủ THẬT của vốn nhỏ: $10/tháng là
     #: $120/năm, trong khi $100 vốn kiếm 20% chỉ ra $20.
     "chiPhiHaTangUsdThang": 10.0,
@@ -200,6 +204,12 @@ class TrungUong:
 
         self.docVonNgoai = [DocVonNgoai(t, u)
                             for t, u in (c["vonNgoai"] or {}).items()]
+        #: Sổ nhập kết toán từ cỗ máy ngoài — MỘT sổ của sự thật.
+        #: `{"ten": {"url": ..., "chienLuoc": ...}}`, khai ngoài Trung Ương.
+        self.nhapSoNgoai = [
+            NhapSoNgoai(t, x["url"], x["chienLuoc"],
+                        x.get("duongDan", "ketToan"))
+            for t, x in (c.get("soNgoai") or {}).items()]
         self.ty: dict[str, object] = {}
         self.vong = 0
         self.latCatCuoi: LatCatVong | None = None
@@ -286,6 +296,20 @@ class TrungUong:
         # thật đúng vào lúc nó cần chặt nhất.
         for d in self.docVonNgoai:
             self.danh_muc.ghi_von_ngoai(d.doc())
+
+        # Nhập kết toán cỗ máy ngoài vào CÙNG một sổ cái. Nhịp riêng (2
+        # phút) vì kết toán không xảy ra theo giây, và hỏi dồn dập không
+        # làm bản ghi tới sớm hơn.
+        #
+        # Bọc try vì một sổ ngoài hỏng KHÔNG được giết vòng đang chạy —
+        # nhưng `soLoi` đếm ra được và buồng lái hiện nó.
+        for n in self.nhapSoNgoai:
+            if not n.den_han():
+                continue
+            try:
+                n.nhap(self.so_cai)
+            except Exception:                                 # noqa: BLE001
+                n.soLoi += 1
 
         # Đường NAV ghi ở ĐÂY, sau khi đã cộng vốn ngoài và trước khi phân
         # bổ: đó là ảnh chụp gia sản lúc bắt đầu vòng, và mọi phép đo sụt
@@ -599,6 +623,7 @@ class TrungUong:
             "soDangKy": self.so_dang_ky.tom_tat(),
             "danhMuc": self.danh_muc.tom_tat(),
             "vonNgoai": [d.tom_tat() for d in self.docVonNgoai],
+            "soNgoai": [n.tom_tat() for n in self.nhapSoNgoai],
             "ruiRoTong": self.rui_ro_tong.tom_tat(),
             "phanBo": self.phan_bo.tom_tat(),
             "cauDao": self.cau_dao.tom_tat(),

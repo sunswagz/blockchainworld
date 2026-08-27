@@ -3103,6 +3103,67 @@ def kiem_lai_suat() -> None:
     kiem("không đọc được hạn thì độ tin TỤT",
          xuat_to_trinh(mot_co_hoi(tt(daoHan=None), 1000.0, SC)).tinCay < t.tinCay)
 
+    # ── Router: bắc cầu STABLECOIN, không phải token PT ─────────────────
+    from lai_suat.ty_lai_suat import (TAI_SAN_BAC_CAU, _tin_cay, mot_co_hoi
+                                      as _mch, phi_vao_ra)
+
+    hoi = []
+
+    class _RGia:
+        """Ghi lại ta HỎI cái gì, rồi trả lời như thể mọi thứ đo được."""
+
+        def _gas_usd(self, chuoi, viec):
+            return 0.50
+
+        def phi_bps(self, tu, den, taiSan, von):
+            hoi.append(taiSan)
+
+            class _T:
+                phiUsd, giayCho, khongDoDuoc = 2.5, 7.0, ("rui-ro-cau-noi",)
+            return 25.0, _T()
+
+    hoi.clear()
+    phi_vao_ra("Ethereum", "SKAITO", 1000.0, _RGia())
+    kiem("bắc cầu bằng STABLECOIN, không phải token PT",
+         hoi == [TAI_SAN_BAC_CAU], str(hoi))
+    kiem("và token PT KHÔNG bao giờ được đem đi hỏi cầu",
+         "SKAITO" not in hoi,
+         "không cầu nào chuyển một token PT của Pendle. Vào một vị thế PT "
+         "là mang stablecoin sang chuỗi ấy rồi mới swap trên AMM — token PT "
+         "sinh ra TẠI CHỖ và chết tại chỗ. Bản nháp đầu hỏi cầu bằng chính "
+         "`t.taiSan`; Router trả None cho tất cả, đúng như nó phải làm, và "
+         "cái sai nằm ở MÔ HÌNH chứ không ở Router")
+    kiem("chuỗi NHÀ thì không bắc cầu, chỉ tốn gas",
+         gan(phi_vao_ra("arbitrum", "X", 1000.0, _RGia())[1], 0.0))
+    kiem("không có Router thì trả None, KHÔNG trả 0",
+         phi_vao_ra("Ethereum", "X", 1000.0, None)[0] is None,
+         "phí chưa đo được mà ghi 0 là nói NET đã trừ hết trong khi chưa")
+
+    kiem("có Router thì phí vào+ra được TRỪ khỏi NET",
+         _mch(tt(), 1000.0, SC, _RGia()).netBps
+         < _mch(tt(), 1000.0, SC).netBps,
+         "ty này trước đây để `netBps = gross`, không trừ phí nào")
+    kiem("chưa đo được phí vào+ra thì độ tin TỤT",
+         _tin_cay(_mch(tt(), 1000.0, SC))
+         < _tin_cay(_mch(tt(), 1000.0, SC, _RGia())),
+         "netBps đang thiếu một khoản chỉ có thể làm nó tệ đi. Không trừ ở "
+         "đây là để một cơ hội CHƯA ĐO xếp trên một cơ hội ĐÃ ĐO — thưởng "
+         "cho sự thiếu hiểu biết")
+    coR = set(xuat_to_trinh(_mch(tt(), 1000.0, SC, _RGia())).phiConThieu)
+    khongR = set(xuat_to_trinh(_mch(tt(), 1000.0, SC)).phiConThieu)
+    kiem("Router đo được thì hai khoản ấy BIẾN MẤT khỏi khai báo",
+         not ({"gas-vao-ra", "chuyen-von-giua-chuoi"} & coR),
+         str(sorted(coR)))
+    kiem("nhưng chúng có mặt khi KHÔNG có Router",
+         {"gas-vao-ra", "chuyen-von-giua-chuoi"} <= khongR,
+         str(sorted(khongR)))
+    kiem("và được THAY bằng thứ chính Router khai là chưa tính",
+         any(x.startswith("router:") for x in coR), str(sorted(coR)),)
+    kiem("trượt giá AMM Pendle Ở LẠI dù Router đo được mọi thứ khác",
+         "truot-gia-tren-amm-pendle" in coR,
+         "nó đòi đường cong AMM của chính Pendle — không nguồn công khai "
+         "nào cho, và Router không giả vờ ngược lại")
+
     # ── và Rủi Ro Tổng TỪ CHỐI vì khoá quá lâu ──────────────────────────
     from thi_bac_ty.danh_muc import DanhMuc
     from thi_bac_ty.rui_ro_tong import RuiRoTong
@@ -4114,6 +4175,141 @@ def kiem_dong_co_chua_co() -> None:
          "nó không quét cơ hội, không xin vốn, không có quet() — và nó nói "
          "về những ty CHƯA tồn tại")
 
+def kiem_nhap_so_ngoai() -> None:
+    print("\n-- Nhap so ngoai: MOT so cai, khong dem hai lan --")
+    import tempfile
+    from pathlib import Path
+
+    from thi_bac_ty.nhap_so_ngoai import NhapSoNgoai
+    from thi_bac_ty.so_cai import SoCai
+
+    def _ban_ghi(i):
+        return {"luc": f"2026-08-27T0{i}:00:00.000Z", "slug": f"m-{i}",
+                "ma": "BTC", "upThang": True, "pDuDoan": 0.6,
+                "coViThe": True, "batDong": False}
+
+    class _Nguon(NhapSoNgoai):
+        """Cỗ máy giả. Selftest KHÔNG được chạm mạng."""
+
+        def __init__(self, tra):
+            super().__init__("gia", "http://khong-dung-toi", "x.y.v1")
+            self.tra = tra
+
+        def _doc(self):
+            self.docDuoc = self.tra is not None
+            return self.tra
+
+    d = Path(tempfile.mkdtemp(prefix="tbt-nso-"))
+
+    # ── KHÔNG đếm hai lần ───────────────────────────────────────────────
+    sc = SoCai(d / "a.db")
+    lo = {"ketToan": {"daKetToan": 3,
+                      "ganDay": [_ban_ghi(1), _ban_ghi(2), _ban_ghi(3)]}}
+    n = _Nguon(lo)
+    r1 = n.nhap(sc)
+    kiem("lượt đầu nhận đủ ba bản ghi", r1["moi"] == 3, str(r1))
+    r2 = n.nhap(sc)
+    kiem("hỏi lại CÙNG dữ liệu thì KHÔNG ghi thêm gì", r2["moi"] == 0,
+         f"{r2} — cỗ máy kia đưa cùng một bản ghi ở mọi lượt hỏi. Ghi lại "
+         f"mỗi lượt là nhân lãi lỗ lên gấp số lượt hỏi")
+    kiem("và sổ cái chỉ có đúng ba bút toán",
+         len(sc.gan_day(50, "DONG_VI_THE")) == 3,
+         str(len(sc.gan_day(50, "DONG_VI_THE"))))
+
+    lo["ketToan"]["ganDay"].append(_ban_ghi(4))
+    lo["ketToan"]["daKetToan"] = 4
+    kiem("bản ghi MỚI thì vào", n.nhap(sc)["moi"] == 1)
+    kiem("tổng đã vào là bốn", n.soDaVao == 4, str(n.soDaVao))
+
+    # ── BỎ SÓT phải tự lộ ra ────────────────────────────────────────────
+    sc2 = SoCai(d / "b.db")
+    day = {"ketToan": {"daKetToan": 12,
+                       "ganDay": [_ban_ghi(i) for i in range(12)]}}
+    n2 = _Nguon(day)
+    n2.nhap(sc2)
+    kiem("chưa có mốc trước thì chưa kết luận được gì về bỏ sót",
+         n2.soBoSot == 0 and n2.boSotDoDuoc)
+
+    # bên kia kết toán 40 lần nữa, ta chỉ thấy 12 bản mới nhất
+    n2.tra = {"ketToan": {"daKetToan": 52,
+                          "ganDay": [_ban_ghi(i) for i in range(40, 52)]}}
+    r = n2.nhap(sc2)
+    kiem("nhận được 12 bản mới", r["moi"] == 12, str(r))
+    kiem("và 28 bản RƠI GIỮA hai lượt hỏi được ĐẾM RA",
+         r["boSot"] == 28 and n2.soBoSot == 28,
+         f"{r} — cửa sổ `ganDay` chỉ 12 bản. Kết toán hơn 12 lần giữa hai "
+         f"lượt hỏi thì phần giữa mất hẳn, và mất trong im lặng: sổ vẫn "
+         f"cân, vẫn không lỗi, chỉ thiếu tiền")
+    kiem("lời nhắc nói rõ giới hạn 12 bản",
+         "12" in n2.tom_tat()["loiNhac"])
+
+    # ── không suy bừa khi thiếu căn cứ ──────────────────────────────────
+    sc3 = SoCai(d / "c.db")
+    n3 = _Nguon({"ketToan": {"ganDay": [_ban_ghi(1)]}})   # KHÔNG có daKetToan
+    n3.nhap(sc3)
+    n3.nhap(sc3)
+    kiem("bên kia không công bố tổng số → KHÔNG đo được bỏ sót",
+         not n3.boSotDoDuoc,
+         "`soBoSot = 0` khi không đo được là giả vờ không thiếu gì. Hai câu "
+         "«không thiếu» và «không biết có thiếu không» phải nói khác nhau")
+
+    sc4 = SoCai(d / "e.db")
+    n4 = _Nguon({"ketToan": {"daKetToan": 200,
+                             "ganDay": [_ban_ghi(i) for i in range(12)]}})
+    n4.nhap(sc4)
+    n4.tra = {"ketToan": {"daKetToan": 150,
+                          "ganDay": [_ban_ghi(i) for i in range(12)]}}
+    kiem("tổng bên kia GIẢM thì không suy ra bỏ sót",
+         n4.nhap(sc4)["boSot"] == 0,
+         "bên kia cắt `xong` xuống 200 bản nên `daKetToan` giảm được. "
+         "Đoán bừa từ một con số giảm còn tệ hơn không đoán")
+
+    # ── cột tiền để 0, và NÓI RÕ vì sao ─────────────────────────────────
+    bt = sc.gan_day(1, "DONG_VI_THE")[0]
+    ct = bt.get("chiTiet") or {}
+    kiem("cột tiền để 0 chứ không bịa", gan(float(bt["soTienUsd"]), 0.0))
+    kiem("và chi tiết NÓI RÕ vì sao tiền chưa có",
+         "tienChuaCo" in ct,
+         "cỗ máy kia công bố KẾT QUẢ chứ không công bố lãi lỗ từng lần. "
+         "Ghi một con số bịa vào cột tiền là làm hỏng đúng thứ sổ cái sinh "
+         "ra để giữ")
+    kiem("bút toán mang KHOÁ ổn định để truy nguyên",
+         str(ct.get("khoa", "")).startswith("gia:"), str(ct.get("khoa")))
+    kiem("và gắn đúng mã chiến lược để gộp lãi lỗ",
+         bt["chienLuoc"] == "x.y.v1", str(bt["chienLuoc"]))
+
+    # ── Trung Ương không biết cỗ máy nào tồn tại ────────────────────────
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parent.parent / "thi_bac_ty"
+           / "nhap_so_ngoai.py").read_text(encoding="utf-8")
+    # Chỉ soi dòng MÃ, không soi văn giải thích. `von_ngoai.py` kể thẳng
+    # chuyện Khâm Thiên Giám trong docstring và đó là tài liệu tốt — ràng
+    # buộc nằm ở chỗ mã không phụ thuộc, không ở chỗ văn xuôi phải câm.
+    #
+    # Bản nháp đầu soi cả file và tự vấp: câu "không chỗ nào viết chữ
+    # polymarket" chính là chỗ viết chữ ấy.
+    ma = []
+    trongVan = False
+    for l in src.splitlines():
+        if l.count('"' * 3) % 2:
+            trongVan = not trongVan
+            continue
+        if trongVan or l.lstrip().startswith(("#", "#:")):
+            continue
+        if "polymarket" in l.lower() or "kham" in l.lower():
+            ma.append(l.strip()[:70])
+    kiem("không dòng MÃ nào nhắc tên một cỗ máy hay một ty",
+         not ma,
+         f"{ma} — Trung Ương không được biết ty nào tồn tại, huống hồ cỗ "
+         f"máy nào. Cấu hình nằm ở `bac/config.py`, ngoài Trung Ương")
+
+    from bac.config import CONFIG
+    sn = (CONFIG.get("trungUong") or {}).get("soNgoai") or {}
+    kiem("và cấu hình NGOÀI Trung Ương đã bật sẵn", bool(sn), str(sn))
+    kiem("mỗi nguồn khai đủ url và mã chiến lược",
+         all(x.get("url") and x.get("chienLuoc") for x in sn.values()),
+         str(sn))
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -4238,6 +4434,7 @@ def main() -> int:
     kiem_kham_khong_dat_lenh()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
+    kiem_nhap_so_ngoai()
     kiem_bon_ty()
     kiem_thang_chung()
     kiem_von_toi_thieu()

@@ -196,7 +196,8 @@ class Runtime:
                      120.0),
                     ("tyLaiSuat",
                      lambda: __import__("lai_suat.ty_lai_suat",
-                                        fromlist=["TyLaiSuat"]).TyLaiSuat(),
+                                        fromlist=["TyLaiSuat"])
+                     .TyLaiSuat(dinhTuyen=self.dinhTuyen),
                      3600.0),
                     # Ty cơ sở nhận `self`: nó đọc lại `baoGia` của lượt quét
                     # này thay vì hỏi perp lần nữa. Hai lượt hỏi là hai ảnh
