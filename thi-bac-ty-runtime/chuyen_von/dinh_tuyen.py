@@ -206,10 +206,30 @@ class DinhTuyen:
         t = self.tuyen(tu, den, taiSan, vonUsd)
         return t.phi_bps(vonUsd), t
 
+    def chuoi_dung_duoc(self) -> tuple:
+        """Chuỗi thật sự tính được phí — có CẢ gas LẪN giá token gốc.
+
+        Khác `chuoiCoGas`, và khác biệt ấy đã nói dối một lần: Polygon đọc
+        được gas nhưng `POL` không có giá, nên `_gas_usd()` trả `None` và
+        mọi tuyến Polygon mù — trong khi buồng lái báo "gas SỐNG trên 4
+        chuỗi". Một đèn xanh cho thứ không chạy.
+
+        Con số đáng báo là con số DÙNG ĐƯỢC, không phải con số ĐỌC ĐƯỢC.
+        """
+        return tuple(sorted(
+            k for k in self.giaGas
+            if self._gas_usd(k, "chuyen-erc20") is not None))
+
     def tom_tat(self) -> dict:
+        dung = self.chuoi_dung_duoc()
+        coGas = sorted(k for k, g in self.giaGas.items()
+                       if getattr(g, "weiMoiGas", None) is not None)
         return {
-            "chuoiCoGas": sorted(k for k, g in self.giaGas.items()
-                                 if getattr(g, "weiMoiGas", None) is not None),
+            "chuoiDungDuoc": list(dung),
+            # Đọc được gas nhưng THIẾU giá token gốc → vẫn mù. Tách riêng
+            # vì hai trạng thái này đòi hai cách sửa khác nhau.
+            "chuoiCoGasNhungThieuGia": sorted(set(coGas) - set(dung)),
+            "chuoiCoGas": coGas,
             "chuoiThieuGas": sorted(k for k, g in self.giaGas.items()
                                     if getattr(g, "weiMoiGas", None) is None),
             "tokenCoGia": sorted(self.giaTokenGocUsd),

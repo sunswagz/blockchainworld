@@ -3801,6 +3801,42 @@ def kiem_router_dinh_tuyen() -> None:
          g.usd("chuyen-erc20", 0.0) is None)
     kiem("việc lạ không có gasLimit thì cũng None",
          g.usd("dao-bitcoin", 2461.0) is None)
+    # ── chuỗi ĐỌC được gas ≠ chuỗi DÙNG được ────────────────────────────
+    thieuGia = DinhTuyen(giaGas=gas, giaTokenGocUsd={"ETH": 2461.0})
+    kiem("Polygon đọc được gas nhưng KHÔNG có giá POL → không dùng được",
+         "polygon" not in thieuGia.chuoi_dung_duoc()
+         and "polygon" in thieuGia.tom_tat()["chuoiCoGas"],
+         "buồng lái từng báo «gas SỐNG trên 4 chuỗi» trong khi mọi tuyến "
+         "Polygon đều mù — một đèn xanh cho thứ không chạy. Con số đáng "
+         "báo là con số DÙNG ĐƯỢC, không phải con số ĐỌC ĐƯỢC")
+    kiem("và nó được tách riêng, không lẫn với chuỗi mất gas",
+         thieuGia.tom_tat()["chuoiCoGasNhungThieuGia"] == ["polygon"],
+         "hai trạng thái này đòi hai cách sửa khác nhau")
+    kiem("có đủ giá thì bốn chuỗi đều dùng được",
+         set(DinhTuyen(giaGas=gas,
+                       giaTokenGocUsd={"ETH": 2461.0, "POL": 0.11})
+             .chuoi_dung_duoc()) == set(gas))
+
+    # ── mọi token TRẢ GAS phải nằm trong danh sách quét ──────────────────
+    from bac.config import CONFIG as _CFG
+    from chuyen_von.gas import TOKEN_GOC as _TG
+    import json as _js
+    import pathlib as _pl
+    _cj = _pl.Path(__file__).resolve().parent.parent / "config.json"
+    _ma_json = ((_js.loads(_cj.read_text(encoding="utf-8-sig")).get("quet")
+                 or {}).get("ma") if _cj.exists() else None)
+    kiem("`config.json` ĐÈ lên `bac/config.py`, và nó là file quyết định",
+         _ma_json is None or _ma_json == _CFG["quet"]["ma"],
+         f"json={_ma_json} · hiệu lực={_CFG['quet']['ma']} — sửa mặc định "
+         f"trong mã mà quên file này thì KHÔNG có tác dụng gì, và nó im "
+         f"lặng. Đã cắn: thêm POL vào `config.py` xong Polygon vẫn mù")
+
+    thieu = sorted(set(_TG.values()) - set(_CFG["quet"]["ma"]))
+    kiem("mọi token trả gas đều được QUÉT giá", not thieu,
+         f"{thieu} — không có giá thì chuỗi ấy mù trong im lặng. Và nhớ "
+         f"`config.json` ĐÈ lên `bac/config.py`: sửa mỗi mặc định trong mã "
+         f"thì không có tác dụng gì trên máy đã có config.json")
+
     kiem("chuỗi mất gas thì cả chặng nạp mù",
          not DinhTuyen(giaGas={}, giaTokenGocUsd=GIA)
          .chang_nap("arbitrum", "okx", "USDC").doDuoc)
@@ -3853,6 +3889,69 @@ def kiem_router_dinh_tuyen() -> None:
          "riêng, không phải đã nằm trong hiệu hai đầu")
     kiem("cùng một chuỗi thì không phải dời, phí 0",
          gan(r.chang_cau("USDC", "arbitrum", "arbitrum", 1000.0).phiUsd, 0.0))
+    # ── 429: NGHỈ theo đúng con số bên kia nói ──────────────────────────
+    from chuyen_von.cau_noi import NguonCauNoi
+    import time as _tt
+    nc = NguonCauNoi()
+    kiem("mới dựng thì KHÔNG nghỉ", not nc.dang_nghi())
+    nc.nghiToiMs = _tt.time() * 1000.0 + 60_000.0
+    kiem("bị 429 thì khai là ĐANG NGHỈ", nc.dang_nghi()
+         and 50.0 < nc.con_nghi_giay() <= 60.0,
+         "hỏi tiếp trong lúc bị chặn không làm câu trả lời tới sớm hơn — "
+         "nó chỉ tốn lượt của cả hai bên và kéo dài lệnh chặn")
+    kiem("và buồng lái thấy được", nc.tom_tat()["dangNghi"] is True)
+    nc.nghiToiMs = _tt.time() * 1000.0 - 1000.0
+    kiem("hết hạn nghỉ thì hỏi lại được", not nc.dang_nghi())
+
+    # Không đủ: phải kiểm `doc()` THẬT SỰ không gọi mạng lúc đang nghỉ, và
+    # THẬT SỰ đặt mốc nghỉ khi gặp 429. Bản kiểm đầu chỉ chạm hai hàm phụ,
+    # và phép cấy lỗi ngược đi lọt cả hai lần.
+    goi = []
+
+    class _R:
+        def __init__(self, ma, txt="", hdr=None):
+            self.status_code, self.text = ma, txt
+            self.headers = hdr or {}
+
+        def json(self):
+            return {}
+
+    class _C:
+        def __init__(self, ma=429, hdr=None):
+            self.ma, self.hdr = ma, hdr
+
+        async def get(self, u, params=None):
+            goi.append(u)
+            return _R(self.ma, '{"message":"Rate limit exceeded"}', self.hdr)
+
+    import asyncio as _aio
+    nc2 = NguonCauNoi()
+    bg = _aio.run(nc2.doc(_C(), "USDC", "arbitrum", "ethereum", 500.0))
+    kiem("gặp 429 thì ĐẶT mốc nghỉ", nc2.dang_nghi() and nc2.soLan429 == 1,
+         f"nghỉ={nc2.dang_nghi()} lần429={nc2.soLan429}")
+    kiem("và nghỉ mặc định hai giờ",
+         7100.0 < nc2.con_nghi_giay() <= 7200.0,
+         f"{nc2.con_nghi_giay():.0f}s")
+    kiem("báo giá ấy KHÔNG đo được", not bg.doDuoc and "429" in bg.loi)
+
+    truoc = len(goi)
+    bg2 = _aio.run(nc2.doc(_C(), "USDC", "arbitrum", "base", 500.0))
+    kiem("đang nghỉ thì KHÔNG gọi mạng lần nữa", len(goi) == truoc,
+         f"{len(goi) - truoc} lời gọi thừa — hỏi tiếp trong lúc bị chặn "
+         f"không làm câu trả lời tới sớm hơn, nó chỉ kéo dài lệnh chặn")
+    kiem("và nói rõ còn nghỉ bao lâu", "NGHỈ" in bg2.loi, bg2.loi)
+
+    nc3 = NguonCauNoi()
+    _aio.run(nc3.doc(_C(429, {"retry-after": "60"}), "USDC", "arbitrum",
+                     "ethereum", 500.0))
+    kiem("tôn trọng `retry-after` của bên kia thay vì mặc định",
+         50.0 < nc3.con_nghi_giay() <= 60.0, f"{nc3.con_nghi_giay():.0f}s")
+
+    nc4 = NguonCauNoi()
+    _aio.run(nc4.doc(_C(500), "USDC", "arbitrum", "ethereum", 500.0))
+    kiem("lỗi 500 thì KHÔNG nghỉ — chỉ 429 mới là hạn mức",
+         not nc4.dang_nghi())
+
     kiem("nguồn cầu nối hỏng thì chặng mù, KHÔNG phải phí 0",
          not DinhTuyen(giaGas=gas, giaTokenGocUsd=GIA,
                        baoGiaCau=lambda *a: _bgc(phi=None, loi="LI.FI 429"))

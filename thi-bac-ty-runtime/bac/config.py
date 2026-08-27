@@ -43,7 +43,14 @@ MAC_DINH = {
     "che": "quan-sat",
     "cungTinh": "",
     "quet": {
-        "ma": ["BTC", "ETH", "SOL", "XRP", "DOGE"],
+        # POL có mặt vì Router cần GIÁ của nó: Polygon trả gas bằng POL,
+        # và không có giá thì mọi tuyến Polygon mù trong khi buồng lái vẫn
+        # báo "gas SỐNG trên 4 chuỗi". Nó cũng là một perp thật, nên ty
+        # chênh funding quét luôn — hai việc, một lượt hỏi.
+        #
+        # LƯU Ý: `config.json` ĐÈ lên đây. Sửa mỗi chỗ này thì KHÔNG có tác
+        # dụng gì trên máy đã có `config.json` — đúng chuyện vừa xảy ra.
+        "ma": ["BTC", "ETH", "SOL", "XRP", "DOGE", "POL"],
         "giuGio": 8.0,
         "hetGioHoiGiay": 10.0,
     },

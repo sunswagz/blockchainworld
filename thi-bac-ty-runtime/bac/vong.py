@@ -343,7 +343,8 @@ class Runtime:
 
             báo giá perp   30 giây   — giá đổi từng giây
             gas            5 phút    — đổi theo block, nhưng ta chỉ cần bậc
-            cầu nối        15 phút   — phí cầu đổi theo thanh khoản, chậm
+            cầu nối        30 phút   — phí cầu đổi chậm, và LI.FI có
+                                     hạn mức: 429 kèm nghỉ 2 GIỜ
 
         Client RIÊNG vì hết-giờ khác: LI.FI phải đi hỏi hàng chục cầu rồi
         mới trả lời, chậm hơn hẳn một `bookTicker`. Dùng chung client với
@@ -353,7 +354,9 @@ class Runtime:
             return
         gio = time.time()
         canGas = gio - self._lanNapGas > 300.0
-        canCau = gio - self._lanNapCau > 900.0
+        # 30 phút, không phải 15: chín lời gọi mỗi lượt ở nhịp 15 phút là
+        # 36 lời gọi mỗi giờ, và phí cầu không đổi nhanh tới mức ấy.
+        canCau = gio - self._lanNapCau > 1800.0
         if not (canGas or canCau):
             return
         try:
@@ -371,26 +374,67 @@ class Runtime:
                     # nguồn giá là hai câu trả lời cho cùng một câu hỏi.
                     self.dinhTuyen.giaTokenGocUsd = self._gia_token_goc()
                 if canCau:
-                    von = 500.0
-                    can = [(ts, NHA, ch, von)
-                           for (ts, ch) in TOKEN if ch != NHA
-                           and (ts, NHA) in TOKEN]
+                    # Cỡ vốn phải là cỡ CÁC TY THẬT SỰ HỎI, không phải một
+                    # con số tròn ai đó chọn. Kho khoá theo (tài sản, từ,
+                    # tới, vốn); hỏi cỡ khác cỡ đã nạp là trượt kho, và
+                    # tuyến thành MÙ trong im lặng.
+                    #
+                    # Đã cắn: `lai_suat` hỏi $1.000 trong khi kho chỉ có
+                    # $500, nên tích hợp Router của nó KHÔNG chạy trong sản
+                    # xuất — dù chạy đúng trong mọi thử nghiệm rời.
+                    # CHỈ USDC. Nạp cả ba tài sản × ba cỡ vốn là 27 lời
+                    # gọi mỗi lượt, và LI.FI chặn ở 429 kèm "retry in 2
+                    # hours" — bản trước đã ăn đúng lệnh ấy.
+                    #
+                    # USDC là tài sản `lai_suat` thật sự bắc cầu, và là
+                    # đồng phổ biến nhất. Tài sản khác thì tuyến MÙ, ty giữ
+                    # nguyên khai báo `phiConThieu`, và đó là hệ thống chạy
+                    # đúng chứ không phải hỏng.
+                    can = [("USDC", NHA, ch, von)
+                           for von in self._co_von_cac_ty()
+                           for (ts, ch) in TOKEN
+                           if ts == "USDC" and ch != NHA
+                           and ("USDC", NHA) in TOKEN]
                     await self.dinhTuyen.nap(c, self.nguonCau, can)
                     self._lanNapCau = gio
         except Exception as e:                                # noqa: BLE001
             bus.ghi(f"Router không nạp được: {type(e).__name__}: {e} — các ty "
                     f"sẽ giữ nguyên khai báo phiConThieu", loai="canh")
 
+    @staticmethod
+    def _co_von_cac_ty() -> tuple:
+        """Những cỡ vốn các ty thật sự xin, đọc THẲNG từ config của chúng.
+
+        Chép tay một danh sách ở đây thì nó lệch đúng vào ngày ai đó đổi
+        `moiCoHoiUsd` của một ty — và lệch im lặng, vì trượt kho chỉ hiện
+        ra dưới dạng "tuyến không đo được".
+        """
+        ra = set()
+        for m in ("tin_dung.config", "lai_suat.ty_lai_suat",
+                  "on_dinh.ty_on_dinh", "lp_amm.ty_cap_thanh_khoan"):
+            try:
+                c = getattr(__import__(m, fromlist=["CONFIG"]), "CONFIG")
+                ra.add(float(c["von"]["moiCoHoiUsd"]))
+            except Exception:                                 # noqa: BLE001
+                continue
+        return tuple(sorted(ra)) or (500.0,)
+
     def _gia_token_goc(self) -> dict:
-        """Giá ETH/POL từ mark perp đã đọc. Thiếu thì để TRỐNG, không đoán.
+        """Giá token TRẢ GAS, lấy từ mark perp của chính lượt quét này.
 
         Thiếu một giá thì chặng gas của chuỗi ấy mù, và cái mù chảy lên tận
         tổng — đúng thứ ta muốn, chứ không phải một con số bịa.
+
+        Danh sách suy ra từ `TOKEN_GOC` chứ không chép tay: thêm một chuỗi
+        vào Router mà quên thêm giá ở đây thì chuỗi ấy mù trong im lặng, và
+        chính chuyện đó đã xảy ra với Polygon.
         """
+        from chuyen_von.gas import TOKEN_GOC
+        can = set(TOKEN_GOC.values())
         ra: dict = {}
         for b in self.baoGia:
-            if b.ma == "ETH" and b.markPx and "ETH" not in ra:
-                ra["ETH"] = float(b.markPx)
+            if b.ma in can and b.markPx and b.ma not in ra:
+                ra[b.ma] = float(b.markPx)
         return ra
 
     async def mot_vong(self) -> None:
@@ -604,6 +648,9 @@ class Runtime:
                              "vi": "Router chưa dựng — các ty giữ nguyên "
                                    "khai báo phiConThieu"}),
             "dongCoChuaCo": _tom_dong_co(),
+            "nguonCau": (self.nguonCau.tom_tat()
+                         if getattr(self, "nguonCau", None) is not None
+                         else {}),
             "trungUong": (self.trungUong.anh_chup()
                           if self.trungUong is not None else
                           {"tat": True,

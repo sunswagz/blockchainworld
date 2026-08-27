@@ -173,13 +173,35 @@ class NguonCauNoi(Nguon):
 
     ten = "cau-noi-lifi"
 
+    #: Bị 429 thì NGHỈ tới mốc này. LI.FI nói thẳng "retry in 2 hours" và
+    #: hỏi tiếp trong lúc ấy chỉ tốn lượt của cả hai bên.
+    NGHI_MAC_DINH_GIAY = 7200.0
+
     def __init__(self) -> None:
         super().__init__()
         self.ganDay: list[BaoGiaCau] = []
+        #: Mốc thời gian được phép hỏi lại. 0 = đang không bị chặn.
+        self.nghiToiMs = 0.0
+        self.soLan429 = 0
+
+    def dang_nghi(self, nowMs: float | None = None) -> bool:
+        now = nowMs if nowMs is not None else time.time() * 1000.0
+        return now < self.nghiToiMs
+
+    def con_nghi_giay(self, nowMs: float | None = None) -> float:
+        now = nowMs if nowMs is not None else time.time() * 1000.0
+        return max(0.0, (self.nghiToiMs - now) / 1000.0)
 
     async def doc(self, client, taiSan: str, tuChuoi: str, denChuoi: str,
                   vonUsd: float) -> BaoGiaCau:
         t0 = time.perf_counter()
+        if self.dang_nghi():
+            # Hỏi tiếp trong lúc bị chặn không làm câu trả lời tới sớm hơn;
+            # nó chỉ tốn lượt của cả hai bên và kéo dài lệnh chặn.
+            return BaoGiaCau(
+                taiSan, tuChuoi, denChuoi, vonUsd, None, None, None, "?",
+                time.time() * 1000.0,
+                f"đang NGHỈ vì 429 · còn {self.con_nghi_giay():.0f}s")
         bg = await self._mot(client, taiSan, tuChuoi, denChuoi, vonUsd)
         self.ganDay = ([bg] + self.ganDay)[:20]
         if bg.doDuoc:
@@ -213,6 +235,18 @@ class NguonCauNoi(Nguon):
             "fromChain": ci, "toChain": cj, "fromToken": ts, "toToken": td,
             "fromAmount": str(int(round(vonUsd * 10 ** dec))),
             "fromAddress": DIA_CHI_HINH_NON})
+        if r.status_code == 429:
+            # LI.FI nói rõ nghỉ bao lâu. Tôn trọng con số của họ nếu đọc
+            # được; không đọc được thì lấy mặc định.
+            giay = self.NGHI_MAC_DINH_GIAY
+            ra = r.headers.get("retry-after")
+            v = so_hoac_none(ra)
+            if v is not None and v > 0:
+                giay = float(v)
+            self.nghiToiMs = time.time() * 1000.0 + giay * 1000.0
+            self.soLan429 += 1
+            return hong(f"LI.FI 429 — nghỉ {giay / 60:.0f} phút: "
+                        f"{r.text[:80]}")
         if r.status_code >= 400:
             return hong(f"LI.FI {r.status_code}: {r.text[:120]}")
         d = r.json() or {}
@@ -243,4 +277,7 @@ class NguonCauNoi(Nguon):
 
     def tom_tat(self) -> dict:
         return {**self.suc_khoe.tom_tat(),
+                "dangNghi": self.dang_nghi(),
+                "conNghiGiay": self.con_nghi_giay(),
+                "soLan429": self.soLan429,
                 "ganDay": [b.tom_tat() for b in self.ganDay[:5]]}

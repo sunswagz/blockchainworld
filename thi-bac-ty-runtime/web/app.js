@@ -725,6 +725,18 @@
             + "chảy lên tận tổng — đó là thiết kế, không phải lỗi."));
         }
       }
+      var NC = S.nguonCau || {};
+      if (NC.dangNghi) {
+        rd.appendChild(el("p", "am",
+          "NGUỒN CẦU NỐI đang NGHỈ vì hạn mức (429) — còn "
+          + Math.round((NC.conNghiGiay || 0) / 60) + " phút, đã dính "
+          + (NC.soLan429 || 0) + " lần. Mọi tuyến liên chuỗi MÙ tới lúc "
+          + "ấy, và các ty giữ nguyên khai báo phiConThieu."));
+      } else if (NC.soLan429) {
+        rd.appendChild(el("p", "vi", "nguồn cầu nối đã dính 429 "
+          + NC.soLan429 + " lần trong phiên này — hạn mức miễn phí có "
+          + "thật, và nạp trước quá tay là tự chặn mình."));
+      }
       f.appendChild(o("Router chuyển vốn — hạ tầng, KHÔNG phải ty", rd,
         "Nó trả lời «dời $X từ đâu tới đâu tốn gì, mất bao lâu, và có gì "
         + "tôi KHÔNG đo được không». Câu cuối mới là phần đáng giá: một "
