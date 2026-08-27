@@ -39,6 +39,14 @@ class Diem:
     def __post_init__(self) -> None:
         if self.loai not in LOAI_DIEM:
             raise ValueError(f"loại điểm lạ: {self.loai!r}")
+        if not self.ten:
+            raise ValueError("điểm phải có tên")
+        # Chuẩn hoá NGAY TẠI CỬA, không ở chỗ so sánh. `tin_dung` viết
+        # "Ethereum", `chuyen_von` viết "ethereum", `on_dinh` viết
+        # "binance" — ba lối viết của ba tác giả khác nhau, và để chúng
+        # gặp nhau ở một phép `==` nào đó thì `Diem` này khác `Diem` kia
+        # mà cả hai đều đúng chính tả.
+        object.__setattr__(self, "ten", self.ten.strip().lower())
 
     def __str__(self) -> str:
         return f"{self.ten}({self.loai})"

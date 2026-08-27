@@ -3648,6 +3648,24 @@ def kiem_router_bang_do() -> None:
                                     kiem as kiem_bang, tra_cuu)
 
     kiem("bảng đo tay không tự mâu thuẫn", not kiem_bang(), str(kiem_bang()))
+
+    from chuyen_von.cau_noi import TOKEN_BANG, kiem_token
+    kiem("bảng địa chỉ token không tự mâu thuẫn",
+         not kiem_token(), str(kiem_token()))
+    kiem("thập phân theo TỪNG (tài sản, chuỗi), không theo tài sản",
+         TOKEN_BANG[("DAI", "ethereum")].thapPhan == 18
+         and TOKEN_BANG[("USDC", "ethereum")].thapPhan == 6,
+         "Ethereum có HAI token cùng ký hiệu USDC — một cái 6 thập phân và "
+         "một cái 18 ở địa chỉ khác. Chia sai mười hai bậc thì phí 2,5 "
+         "thành phí 2.500.000")
+    kiem("ký hiệu LI.FI trả về được ghi lại, kể cả khi nó LỆCH",
+         TOKEN_BANG[("USDT", "arbitrum")].kyHieuThat == "USDT0",
+         "địa chỉ tôi gõ cho USDT/Arbitrum thật ra là USDT0 — bản LayerZero "
+         "OFT, một token KHÁC. Ghi đúng tên nó thì lần sau còn ai đó soát "
+         "lại được; ghi là USDT thì nó thành sự thật sau một lần đọc")
+    kiem("không hai tài sản nào cùng một địa chỉ trên cùng một chuỗi",
+         len({(c, d.diaChi.lower()) for (t, c), d in TOKEN_BANG.items()})
+         == len(TOKEN_BANG))
     kiem("mọi dòng đều có xuất xứ và ngày đo",
          all(d.nguon and d.ngayDo for d in BANG),
          "số gõ tay không có nguồn thì không kiểm lại được, và không kiểm "

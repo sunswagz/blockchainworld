@@ -52,9 +52,17 @@ MAC_DINH = {
     },
 
     # ── mô hình phí ──────────────────────────────────────────────────────
-    # Gas vào + gas ra, ước theo chuỗi. Đây là ƯỚC LƯỢNG THÔ và mọi tờ
-    # trình khai điều đó — gas thật đổi theo tắc nghẽn, và không có oracle
-    # gas nào trong runtime này.
+    # Gas MỘT chiều, ước theo chuỗi. `gas_khu_hoi_usd()` nhân hai.
+    #
+    # Đây là ĐƯỜNG LÙI, không còn là nguồn duy nhất: từ khi
+    # `chuyen_von/gas.py` ra đời, ty này đọc gas SỐNG từ RPC công khai khi
+    # có Router. Bảng dưới đây dùng khi chạy không Router — và nó vẫn phải
+    # còn, vì bắt buộc có Router mới quét được là biến một hạ tầng thành
+    # điểm chết chung.
+    #
+    # Chú thích cũ ở đây viết "không có oracle gas nào trong runtime này".
+    # Câu ấy đúng cho tới 27/08/2026 và nay đã sai — sửa chứ không để lại,
+    # vì người đọc sau sẽ tin theo bản cũ.
     "gasUsd": {
         "Ethereum": 6.0, "Arbitrum": 0.15, "Base": 0.05,
         "Optimism": 0.05, "Polygon": 0.02, "_khac": 1.0,

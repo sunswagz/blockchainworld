@@ -166,15 +166,32 @@ class Runtime:
             # Một ty mới hỏng KHÔNG được làm chết vòng quét của ty đang
             # chạy, và cũng không được kéo theo hai ty mới còn lại — nên
             # mỗi cái một `try`, không gộp.
+            # Router dựng TRƯỚC các ty, vì ba ty nhận nó vào hàm dựng.
+            # Hỏng thì `dinhTuyen` là None và mọi ty vẫn quét được — chỉ là
+            # `phiConThieu` của chúng dài hơn, và chúng tự khai điều đó.
+            self.dinhTuyen = None
+            self.nguonGas = None
+            self.nguonCau = None
+            try:
+                from chuyen_von.cau_noi import NguonCauNoi
+                from chuyen_von.dinh_tuyen import DinhTuyen
+                from chuyen_von.gas import NguonGas
+                self.nguonGas, self.nguonCau = NguonGas(), NguonCauNoi()
+                self.dinhTuyen = DinhTuyen()
+            except Exception as e:                       # noqa: BLE001
+                self.loiVongCuoi = f"router: {type(e).__name__}: {e}"
+
             self.tyPhu = {}
             for khoa, nap, nhip in (
                     ("tyTinDung",
                      lambda: __import__("tin_dung.ty_vay",
-                                        fromlist=["TyTinDung"]).TyTinDung(),
+                                        fromlist=["TyTinDung"])
+                     .TyTinDung(dinhTuyen=self.dinhTuyen),
                      900.0),
                     ("tyOnDinh",
                      lambda: __import__("on_dinh.ty_on_dinh",
-                                        fromlist=["TyOnDinh"]).TyOnDinh(),
+                                        fromlist=["TyOnDinh"])
+                     .TyOnDinh(dinhTuyen=self.dinhTuyen),
                      120.0),
                     ("tyLaiSuat",
                      lambda: __import__("lai_suat.ty_lai_suat",
@@ -205,6 +222,8 @@ class Runtime:
         self.baoGia: list[BaoGia] = []
         self.coHoi = []
         self.loiVongCuoi: str | None = None
+        self._lanNapGas = 0.0
+        self._lanNapCau = 0.0
         self.quetCuoiMs: float = 0.0
         self.quetLauNhatMs: float = 0.0
 
@@ -255,6 +274,64 @@ class Runtime:
         return 30.0 if self._doDongHoHong else NHIP_DO_DONG_HO_GIAY
 
     # ── một vòng ──────────────────────────────────────────────────────────
+    async def _nap_router(self, bus) -> None:
+        """Đọc gas và báo giá cầu cho Router, theo nhịp RIÊNG.
+
+        Nhịp riêng vì ba nguồn đổi ở ba tốc độ khác nhau, và hỏi cả ba theo
+        nhịp của cái nhanh nhất là lãng phí lẫn bất lịch sự:
+
+            báo giá perp   30 giây   — giá đổi từng giây
+            gas            5 phút    — đổi theo block, nhưng ta chỉ cần bậc
+            cầu nối        15 phút   — phí cầu đổi theo thanh khoản, chậm
+
+        Client RIÊNG vì hết-giờ khác: LI.FI phải đi hỏi hàng chục cầu rồi
+        mới trả lời, chậm hơn hẳn một `bookTicker`. Dùng chung client với
+        vòng quét perp là bắt vòng quét chờ theo nhịp của thứ chậm nhất.
+        """
+        if self.dinhTuyen is None:
+            return
+        gio = time.time()
+        canGas = gio - self._lanNapGas > 300.0
+        canCau = gio - self._lanNapCau > 900.0
+        if not (canGas or canCau):
+            return
+        try:
+            from chuyen_von.cau_noi import TOKEN
+            from chuyen_von.dinh_tuyen import NHA
+            async with httpx.AsyncClient(
+                    timeout=30.0,
+                    headers={"User-Agent": "thi-bac-ty/0.1 "
+                                           "(+public data only)"}) as c:
+                if canGas:
+                    self.dinhTuyen.giaGas = await self.nguonGas.doc(c)
+                    self._lanNapGas = gio
+                    # Giá token gốc lấy từ báo giá perp của CHÍNH lượt quét
+                    # này — không đi hỏi thêm một nguồn giá thứ hai, vì hai
+                    # nguồn giá là hai câu trả lời cho cùng một câu hỏi.
+                    self.dinhTuyen.giaTokenGocUsd = self._gia_token_goc()
+                if canCau:
+                    von = 500.0
+                    can = [(ts, NHA, ch, von)
+                           for (ts, ch) in TOKEN if ch != NHA
+                           and (ts, NHA) in TOKEN]
+                    await self.dinhTuyen.nap(c, self.nguonCau, can)
+                    self._lanNapCau = gio
+        except Exception as e:                                # noqa: BLE001
+            bus.ghi(f"Router không nạp được: {type(e).__name__}: {e} — các ty "
+                    f"sẽ giữ nguyên khai báo phiConThieu", loai="canh")
+
+    def _gia_token_goc(self) -> dict:
+        """Giá ETH/POL từ mark perp đã đọc. Thiếu thì để TRỐNG, không đoán.
+
+        Thiếu một giá thì chặng gas của chuỗi ấy mù, và cái mù chảy lên tận
+        tổng — đúng thứ ta muốn, chứ không phải một con số bịa.
+        """
+        ra: dict = {}
+        for b in self.baoGia:
+            if b.ma == "ETH" and b.markPx and "ETH" not in ra:
+                ra["ETH"] = float(b.markPx)
+        return ra
+
     async def mot_vong(self) -> None:
         self.vong += 1
         t0 = time.perf_counter()
@@ -303,6 +380,8 @@ class Runtime:
 
         self.coHoi = tim_co_hoi(self.baoGia, now, float(q["giuGio"]),
                                 CONFIG["san"], self.cong)
+
+        await self._nap_router(bus)
 
         loi = [c.ten for c in self.cang.values() if c.suc_khoe.loiCuoi
                and (c.suc_khoe.tuoi_giay() or 1e9) > float(CONFIG["nhipGiay"]) * 2]

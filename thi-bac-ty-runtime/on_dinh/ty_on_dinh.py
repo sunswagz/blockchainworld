@@ -339,6 +339,21 @@ def _rui_ro(co: CoHoiChenh) -> RuiRo:
     )
 
 
+def _tin_cay(co: CoHoiChenh) -> float:
+    """Bắt đầu 1,0 rồi TRỪ. Cùng một luật với `tin_dung`.
+
+    Hai sàn khác nhau mà chưa đo được phí dời tồn kho thì `netBps` đang
+    thiếu một khoản chỉ có thể làm nó tệ đi — không trừ ở đây là thưởng cho
+    sự thiếu hiểu biết.
+    """
+    d = 1.0
+    if co.sauSoLenhUsd is None:
+        d -= 0.40
+    if co.mua.san != co.ban.san and co.phiChuyenBps is None:
+        d -= 0.25
+    return max(0.0, min(1.0, d))
+
+
 def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
     a, b = co.cap.split("/")
     return ToTrinh(
@@ -358,7 +373,7 @@ def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
         thanhKhoanThoatUsd=co.sauSoLenhUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=max(co.mua.tuoi_giay(), co.ban.tuoi_giay()),
-        tinCay=(0.85 if co.sauSoLenhUsd is not None else 0.45),
+        tinCay=_tin_cay(co),
         moHinhPhiDuChua=False,
         phiConThieu=_phi_con_thieu(co.phiChuyenBps is not None,
                                    co.routerConThieu),

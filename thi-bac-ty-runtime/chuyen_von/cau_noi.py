@@ -45,18 +45,86 @@ from .gas import CHAIN_ID
 
 API = "https://li.quest/v1/quote"
 
-#: Địa chỉ token trên từng chuỗi. Chỉ khai những cặp các ty thật sự dùng.
-TOKEN = {
-    ("USDC", "ethereum"): "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    ("USDC", "arbitrum"): "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-    ("USDC", "base"): "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ("USDC", "polygon"): "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-    ("USDT", "ethereum"): "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    ("USDT", "arbitrum"): "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-    ("USDT", "polygon"): "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+#: Địa chỉ token trên từng chuỗi, ĐÃ ĐỐI CHIẾU với `li.quest/v1/tokens`
+#: ngày 27/08/2026. Cùng kỷ luật với `bang_do.py`: số gõ tay phải mang xuất
+#: xứ, vì không có xuất xứ thì không kiểm lại được.
+#:
+#: Hai chuyện lộ ra ở lần đối chiếu đầu tiên, và cả hai đều sắp lọt:
+#:
+#: 1. Ethereum có HAI token cùng ký hiệu USDC — một cái 6 thập phân
+#:    (`0xA0b8…`, thật) và một cái 18 thập phân ở địa chỉ khác. Nên
+#:    `decimals` phải theo TỪNG (tài sản, chuỗi), không theo tài sản: chia
+#:    sai một luỹ thừa mười hai bậc thì "phí 2,5" thành "phí 2.500.000".
+#:
+#: 2. Địa chỉ tôi gõ cho "USDT trên Arbitrum" thật ra là **USDT0** — bản
+#:    LayerZero OFT, một token KHÁC. LI.FI không phân giải nổi ký hiệu
+#:    "USDT" trên Arbitrum (404). Nên nó được ghi đúng tên nó, và
+#:    `kyHieuTy` nói rõ ty hỏi "USDT" thì nhận cái này.
+#:
+#: Thêm dòng thì đối chiếu lại bằng:
+#:     curl -s "https://li.quest/v1/token?chain=<id>&token=<địa chỉ>"
+@dataclass(frozen=True)
+class DongToken:
+    diaChi: str
+    thapPhan: int
+    kyHieuThat: str      # ký hiệu LI.FI trả về cho địa chỉ ấy
+    ngayDoi: str = "2026-08-27"
+
+
+TOKEN_BANG: dict = {
+    ("USDC", "ethereum"): DongToken(
+        "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6, "USDC"),
+    ("USDC", "arbitrum"): DongToken(
+        "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", 6, "USDC"),
+    ("USDC", "base"): DongToken(
+        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", 6, "USDC"),
+    ("USDC", "polygon"): DongToken(
+        "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", 6, "USDC"),
+    ("USDT", "ethereum"): DongToken(
+        "0xdAC17F958D2ee523a2206206994597C13D831ec7", 6, "USDT"),
+    # KHÔNG phải USDT gốc — xem ghi chú 2 ở trên.
+    ("USDT", "arbitrum"): DongToken(
+        "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", 6, "USDT0"),
+    ("USDT", "base"): DongToken(
+        "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2", 6, "USDT"),
+    ("USDT", "polygon"): DongToken(
+        "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", 6, "USDT"),
+    ("DAI", "ethereum"): DongToken(
+        "0x6B175474E89094C44Da98b954EedeAC495271d0F", 18, "DAI"),
+    ("DAI", "arbitrum"): DongToken(
+        "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", 18, "DAI"),
+    ("DAI", "base"): DongToken(
+        "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", 18, "DAI"),
+    ("DAI", "polygon"): DongToken(
+        "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", 18, "DAI"),
 }
 
-DECIMALS = {"USDC": 6, "USDT": 6}
+#: Bí danh cho mã cũ và cho phép kiểm — chỉ địa chỉ, không kèm thập phân.
+TOKEN = {k: v.diaChi for k, v in TOKEN_BANG.items()}
+
+
+def kiem_token() -> list[str]:
+    """Bảng token có tự mâu thuẫn không. Không cần mạng."""
+    loi = []
+    for (ts, ch), d in TOKEN_BANG.items():
+        if not (d.diaChi.startswith("0x") and len(d.diaChi) == 42):
+            loi.append(f"{ts}/{ch}: địa chỉ sai khuôn {d.diaChi!r}")
+        if d.thapPhan not in (6, 8, 18):
+            loi.append(f"{ts}/{ch}: thập phân lạ {d.thapPhan}")
+        if d.kyHieuThat != ts:
+            # Không phải lỗi — nhưng phải CỐ Ý, nên nó chỉ được im lặng khi
+            # có ghi chú. Ở đây kiểm rằng ta biết mình đang lệch.
+            if (ts, ch) != ("USDT", "arbitrum"):
+                loi.append(f"{ts}/{ch}: ký hiệu thật là {d.kyHieuThat}, "
+                           f"chưa ai ghi chú vì sao chấp nhận")
+    thay = {}
+    for (ts, ch), d in TOKEN_BANG.items():
+        k = (ch, d.diaChi.lower())
+        if k in thay:
+            loi.append(f"{ch}: hai tài sản cùng địa chỉ {thay[k]} và {ts}")
+        thay[k] = ts
+    return loi
+
 
 #: Địa chỉ hình nộm. LI.FI đòi `fromAddress` để dựng calldata, nhưng ta chỉ
 #: đọc `estimate` và không bao giờ ký gì — không có lớp đặt lệnh nào tồn
@@ -128,9 +196,13 @@ class NguonCauNoi(Nguon):
             return BaoGiaCau(taiSan, tuChuoi, denChuoi, vonUsd,
                              None, None, None, "?", now, vi)
 
-        ts, td = TOKEN.get((taiSan, tuChuoi)), TOKEN.get((taiSan, denChuoi))
+        a = TOKEN_BANG.get((taiSan, tuChuoi))
+        b = TOKEN_BANG.get((taiSan, denChuoi))
         ci, cj = CHAIN_ID.get(tuChuoi), CHAIN_ID.get(denChuoi)
-        dec = DECIMALS.get(taiSan)
+        # Thập phân của ĐẦU GỬI, vì `fromAmount` và `toAmountMin` LI.FI trả
+        # về đều tính theo token nguồn.
+        ts, td = (a.diaChi if a else None), (b.diaChi if b else None)
+        dec = a.thapPhan if a else None
         if None in (ts, td, ci, cj, dec):
             return hong(f"chưa khai địa chỉ/chainId cho "
                         f"{taiSan} {tuChuoi}->{denChuoi}")

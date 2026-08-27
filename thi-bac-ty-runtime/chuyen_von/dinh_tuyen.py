@@ -44,6 +44,20 @@ from .gas import GAS_LIMIT, TOKEN_GOC
 #: thứ tư chỉ rút về Ethereum.
 UU_TIEN_TRUNG_GIAN = ("arbitrum", "base", "polygon", "ethereum")
 
+#: Chuỗi vốn NẰM khi không làm gì. Mọi phí vào một cơ hội liên chuỗi đo từ
+#: đây. Arbitrum vì gas rẻ và cả ba sàn đều rút về được — nên nó vừa là nhà
+#: vừa là chỗ trung chuyển, và hai vai ấy trùng nhau là điều may chứ không
+#: phải một ràng buộc: đổi `NHA` mà `UU_TIEN_TRUNG_GIAN` giữ nguyên thì mọi
+#: thứ vẫn đúng, chỉ đắt hơn.
+NHA = "arbitrum"
+
+
+def _khoa(taiSan, tuChuoi, denChuoi, vonUsd) -> tuple:
+    # Làm tròn vốn về bậc $100: báo giá $997 và $1.003 khác nhau không đáng
+    # kể, mà tra kho theo số lẻ thì không bao giờ trúng.
+    return (str(taiSan).upper(), str(tuChuoi).strip().lower(),
+            str(denChuoi).strip().lower(), round(float(vonUsd) / 100.0) * 100)
+
 
 class DinhTuyen:
     """Trả lời "dời vốn từ đâu tới đâu thì tốn gì".
@@ -63,7 +77,33 @@ class DinhTuyen:
         #: chặng gas mù, và cái mù ấy chảy lên tận tổng.
         self.giaTokenGocUsd = dict(giaTokenGocUsd or {})
         #: callable(taiSan, tuChuoi, denChuoi, vonUsd) -> BaoGiaCau | None
-        self.baoGiaCau = baoGiaCau
+        #: Mặc định đọc `self.kho` — kho do `nap()` đổ đầy TRƯỚC lượt quét.
+        self.kho: dict = {}
+        self.baoGiaCau = baoGiaCau or self._tu_kho
+
+    def _tu_kho(self, taiSan, tuChuoi, denChuoi, vonUsd):
+        return self.kho.get(_khoa(taiSan, tuChuoi, denChuoi, vonUsd))
+
+    async def nap(self, client, nguonCau, can) -> dict:
+        """Đổ đầy kho báo giá cầu nối cho những tuyến sắp dùng.
+
+        Ty gọi `phi_bps()` một cách ĐỒNG BỘ, giữa vòng quét, và không được
+        đợi mạng ở đó — một lượt quét 91 cơ hội mà mỗi cơ hội một lời gọi
+        HTTP là 91 lần chờ nối tiếp nhau. Nên mạng xảy ra ở đây, một lần,
+        song song, trước khi quét.
+
+        Cùng lối ty Cơ Sở nhận `runtime.baoGia` thay vì tự hỏi perp: một ảnh
+        chụp, một thời điểm.
+        """
+        import asyncio
+        can = list(dict.fromkeys(can))          # bỏ trùng, giữ thứ tự
+        ra = await asyncio.gather(
+            *(nguonCau.doc(client, ts, a, b, v) for ts, a, b, v in can),
+            return_exceptions=True)
+        for (ts, a, b, v), bg in zip(can, ra):
+            if not isinstance(bg, BaseException):
+                self.kho[_khoa(ts, a, b, v)] = bg
+        return self.kho
 
     # ── ba chặng nguyên tố ──────────────────────────────────────────────
 
@@ -174,6 +214,8 @@ class DinhTuyen:
                                     if getattr(g, "weiMoiGas", None) is None),
             "tokenCoGia": sorted(self.giaTokenGocUsd),
             "coNguonCauNoi": self.baoGiaCau is not None,
+            "nha": NHA,
+            "soBaoGiaTrongKho": len(self.kho),
             "uuTienTrungGian": list(UU_TIEN_TRUNG_GIAN),
             "gasLimitUocLuong": dict(GAS_LIMIT),
         }

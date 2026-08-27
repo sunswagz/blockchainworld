@@ -101,7 +101,14 @@ class CoHoiVay:
     netBps: float
     sucChuaToiDaUsd: float | None
     thanhKhoanThoatUsd: float | None
-    hoaVonSauGio: float | None      # giữ bao lâu thì gas hoà
+    hoaVonSauGio: float | None      # giữ bao lâu thì chi phí vào hoà
+    #: Phí bắc cầu TỪ NHÀ tới chuỗi này rồi về, do Router đo. `None` =
+    #: không đo được, và khi ấy `phiBps` KHÔNG gồm nó.
+    phiCauUsd: float | None = None
+    giayCauNoi: float | None = None
+    routerConThieu: tuple = ()
+    #: Gas lấy từ RPC sống hay từ bảng ước trong config.
+    gasSong: bool = False
     duyet: bool = False
     lyDo: tuple = ()                # câu cho người đọc
     lyDoMa: tuple = ()              # (mã, câu) — mã để gộp thống kê
@@ -119,6 +126,10 @@ class CoHoiVay:
             "sucChuaToiDaUsd": self.sucChuaToiDaUsd,
             "thanhKhoanThoatUsd": self.thanhKhoanThoatUsd,
             "hoaVonSauGio": self.hoaVonSauGio,
+                "phiCauUsd": self.phiCauUsd,
+                "giayCauNoi": self.giayCauNoi,
+                "gasSong": self.gasSong,
+                "routerConThieu": list(self.routerConThieu),
             "duyet": self.duyet, "lyDo": list(self.lyDo),
             "lyDoMa": [list(x) for x in self.lyDoMa],
         }

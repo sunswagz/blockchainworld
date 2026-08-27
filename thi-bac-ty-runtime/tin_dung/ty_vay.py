@@ -40,11 +40,27 @@ from .rui_ro import CongRuiRo
 #: mà rỗng danh sách là khai nửa vời: người đọc biết nó thiếu mà không biết
 #: thiếu gì, nên không cân được với tờ trình của ty khác.
 PHI_CON_THIEU = (
-    "chuyen-von-giua-chuoi",   # chưa có Cross-chain Router
+    "chuyen-von-giua-chuoi",   # Router gỡ được — xem `_phi_con_thieu()`
     "gia-token-thuong",        # không tính thưởng vào NET, cũng không bán được
     "thue",
     "truot-gia-khi-doi-stable",
 )
+
+#: Khoản DUY NHẤT Router trả lời được ở ty này.
+ROUTER_GO_DUOC = ("chuyen-von-giua-chuoi",)
+
+
+def _phi_con_thieu(daDoCau: bool, routerConThieu: tuple = ()) -> tuple:
+    """Khai báo thiếu của MỘT cơ hội. Xem `on_dinh` cho cùng một lối.
+
+    Router đo được thì `chuyen-von-giua-chuoi` biến mất, thay bằng những
+    khoản chính Router khai là chưa tính. Đổi một lỗ hổng lấy lỗ hổng nhỏ
+    hơn đã được đặt tên, chứ không phải xoá lỗ hổng.
+    """
+    if not daDoCau:
+        return PHI_CON_THIEU
+    return (tuple(x for x in PHI_CON_THIEU if x not in ROUTER_GO_DUOC)
+            + tuple(f"router:{x}" for x in routerConThieu))
 
 SUC_CHUA_CON_THIEU = ("duong-cong-lai-suat", "do-sau-thi-truong-that")
 
@@ -69,8 +85,9 @@ class TyTinDung(Ty):
     #: đắt bị `netToiThieuBps` loại ở cổng ty, đúng chỗ nó thuộc về.
     vonToiThieuKinhTeUsd = _VON_TOI_THIEU
 
-    def __init__(self, client_factory=None) -> None:
+    def __init__(self, client_factory=None, dinhTuyen=None) -> None:
         super().__init__()
+        self.dinhTuyen = dinhTuyen
         self.nguon = DefiLlama()
         self.cong = CongRuiRo(CONFIG["ruiRo"])
         self.thiTruong: list = []
@@ -86,7 +103,8 @@ class TyTinDung(Ty):
             self.thiTruong,
             float(CONFIG["von"]["moiCoHoiUsd"]),
             float(q["giuGio"]),
-            CONFIG["gasUsd"], CONFIG["sucChua"], self.cong)
+            CONFIG["gasUsd"], CONFIG["sucChua"], self.cong,
+            self.dinhTuyen)
         return list(self.coHoi)
 
     async def _doc(self):
@@ -188,7 +206,28 @@ def _tin_cay(co) -> float:
         d -= 0.10
     if t.tvlUsd < 20_000_000.0:
         d -= 0.10
+
+    # Chưa đo được phí bắc cầu thì `netBps` đang THIẾU một khoản, và khoản
+    # ấy chỉ có thể làm NET tệ đi. Không trừ ở đây thì một cơ hội chưa đo
+    # xếp hạng CAO HƠN một cơ hội đã đo — thưởng cho sự thiếu hiểu biết,
+    # đúng chiều ngược với mọi thứ còn lại trong runtime này.
+    #
+    # Đã thấy thật: euler-v2/Ethereum/USDT hiện NET +123,9 bps chỉ vì lượt
+    # ấy không hỏi báo giá cầu cho USDT, trong khi cùng giao thức ấy với
+    # USDC — có hỏi — chỉ còn +96,5 bps.
+    if co.phiCauUsd is None and str(t.chuoi).strip().lower() != _NHA():
+        d -= 0.25
     return max(0.0, min(1.0, d))
+
+
+def _NHA() -> str:
+    """Chuỗi vốn nằm khi không làm gì. Đọc muộn để ty không phụ thuộc cứng
+    vào Router — thiếu gói thì rơi về `arbitrum`, và ty vẫn quét được."""
+    try:
+        from chuyen_von.dinh_tuyen import NHA
+        return NHA
+    except Exception:                                         # noqa: BLE001
+        return "arbitrum"
 
 
 def xuat_to_trinh(co) -> ToTrinh:
@@ -208,12 +247,16 @@ def xuat_to_trinh(co) -> ToTrinh:
         # Rút được bất cứ lúc nào — CHỪNG NÀO còn thanh khoản rảnh. Nên khoá
         # là 0 (đã đo, không phải chưa biết), và ràng buộc thật nằm ở
         # `thanhKhoanThoatUsd` chứ không ở thời gian.
-        khoaVonDenGiay=0.0,
+        # Cho vay rút được bất cứ lúc nào — nhưng nếu phải bắc cầu
+        # thì vốn KẸT trên cầu, và chuyện ấy là khoá thật.
+        khoaVonDenGiay=(co.giayCauNoi or 0.0),
         thanhKhoanThoatUsd=co.thanhKhoanThoatUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=t.tuoi_giay(),
         tinCay=_tin_cay(co),
-        moHinhPhiDuChua=False, phiConThieu=PHI_CON_THIEU,
+        moHinhPhiDuChua=False,
+        phiConThieu=_phi_con_thieu(co.phiCauUsd is not None,
+                                   co.routerConThieu),
         moHinhSucChuaDuChua=False, sucChuaConThieu=SUC_CHUA_CON_THIEU,
         dinhGiaBang=t.taiSan,
         cang=(t.giaoThuc,), chuoi=(t.chuoi,),
