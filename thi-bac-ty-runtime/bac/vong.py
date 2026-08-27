@@ -154,7 +154,7 @@ class Runtime:
                 DATA_DIR, {k: v for k, v in tu.items()
                            if k not in ("bat", "tyTinDung", "tyOnDinh",
                                         "tyLaiSuat", "tyCoSo",
-                                        "tyTienDoan")})
+                                        "tyTienDoan", "tyNgangGia")})
             self.trungUong.dang_ky(TyPerp(self))
 
             # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
@@ -212,7 +212,13 @@ class Runtime:
                     ("tyTienDoan",
                      lambda: __import__("kham_ngoai.ty_tien_doan",
                                         fromlist=["TyTienDoan"]).TyTienDoan(),
-                     90.0)):
+                     90.0),
+                    # Engine thứ bảy — và engine đầu tiên KHÔNG cần mô hình:
+                    # ngang giá là một đẳng thức, không phải một dự báo.
+                    ("tyNgangGia",
+                     lambda: __import__("quyen_chon.ty_ngang_gia",
+                                        fromlist=["TyNgangGia"]).TyNgangGia(),
+                     300.0)):
                 cf = (tu.get(khoa) or {})
                 if not cf.get("bat", True):
                     continue

@@ -128,6 +128,9 @@ MAC_DINH = {
         # Nhịp thưa vì nó chỉ đọc lát cắt của một tiến trình khác;
         # hỏi dồn dập không làm lát cắt ấy mới hơn.
         "tyTienDoan": {"bat": True, "nhipGiay": 90.0},
+        # Ty ngang giá quyền chọn. Nhịp thưa vì nó kéo về ~2.000 dòng
+        # mỗi lượt cho hai tiền tệ, và ngang giá không đảo theo giây.
+        "tyNgangGia": {"bat": True, "nhipGiay": 300.0},
 
         # ── VỐN NGOÀI ────────────────────────────────────────────────────
         # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có

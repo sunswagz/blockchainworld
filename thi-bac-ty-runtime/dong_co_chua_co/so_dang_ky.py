@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 CHAN = "CHAN"
 QUET_DUOC = "QUET_DUOC"
 SAN_SANG = "SAN_SANG"
+DA_DUNG = "DA_DUNG"
 
 
 @dataclass(frozen=True)
@@ -46,8 +47,28 @@ class DongCo:
     #: Vì sao nó đáng dựng — bằng số, không bằng cảm giác.
     viSaoDang: str
     dieuKien: tuple[DieuKien, ...] = field(default_factory=tuple)
+    #: Gói ty đã dựng, nếu có. Nạp được nghĩa là engine này KHÔNG còn nằm
+    #: trong sổ "chưa có" nữa — và sổ tự biết điều đó, không đợi ai xoá
+    #: dòng. Xoá tay thì lịch sử biến mất; để lại kèm trạng thái ĐÃ DỰNG
+    #: thì lần sau còn đọc được vì sao nó từng bị chặn và cái gì gỡ nó ra.
+    goiDaDung: str = ""
+
+    def da_dung(self) -> bool:
+        if not self.goiDaDung:
+            return False
+        try:
+            importlib.import_module(self.goiDaDung)
+            return True
+        except Exception:                                     # noqa: BLE001
+            return False
 
     def soat(self) -> dict:
+        if self.da_dung():
+            return {"ma": self.ma, "ten": self.ten, "ho": self.ho,
+                    "moTa": self.moTa, "viSaoDang": self.viSaoDang,
+                    "trangThai": DA_DUNG, "goiDaDung": self.goiDaDung,
+                    "thieuDeQuet": [], "thieuDeThucThi": [],
+                    "dieuKien": [d.soat() for d in self.dieuKien]}
         ds = [d.soat() for d in self.dieuKien]
         thieuQuet = [x for x in ds if x["chanQuet"] and not x["dat"]]
         thieuThucThi = [x for x in ds if not x["chanQuet"] and not x["dat"]]
@@ -56,7 +77,7 @@ class DongCo:
         return {
             "ma": self.ma, "ten": self.ten, "ho": self.ho,
             "moTa": self.moTa, "viSaoDang": self.viSaoDang,
-            "trangThai": trangThai,
+            "trangThai": trangThai, "goiDaDung": self.goiDaDung,
             "thieuDeQuet": [x["ma"] for x in thieuQuet],
             "thieuDeThucThi": [x["ma"] for x in thieuThucThi],
             "dieuKien": ds,
@@ -150,11 +171,7 @@ def _co_nguon_quyen_chon() -> tuple[bool, str]:
     Chưa viết connector — nhưng "chưa viết" khác "không viết được", và
     phân biệt hai câu ấy chính là việc của file này.
     """
-    ok, _ = _co_goi("san_chung.giao_ngay", ("SanGiaoNgay",))
-    return (False,
-            "chưa có connector Deribit. Dữ liệu CÔNG KHAI và không cần khoá "
-            "— đây là việc CHƯA LÀM, không phải việc không làm được"
-            + (" · khuôn connector đã có ở `san_chung/`" if ok else ""))
+    return _co_goi("quyen_chon.ty_ngang_gia", ("NguonDeribit",))
 
 
 def _co_suc_khoe_khoan_vay() -> tuple[bool, str]:
@@ -218,7 +235,8 @@ DONG_CO: tuple[DongCo, ...] = (
         "ăn một thứ khác hẳn — chênh giữa biến động ngụ ý và biến động "
         "thật — nên nó không tương quan với hai ty kia.",
         (DieuKien("nguon-quyen-chon", "mặt IV công khai (Deribit)",
-                  _co_nguon_quyen_chon),)),
+                  _co_nguon_quyen_chon),),
+        goiDaDung="quyen_chon.ty_ngang_gia"),
 
     DongCo(
         "jit", "Thanh khoản JIT", "thanh-khoan",
@@ -250,13 +268,14 @@ DONG_CO: tuple[DongCo, ...] = (
 def soat() -> dict:
     ds = [d.soat() for d in DONG_CO]
     theo = {t: [x["ma"] for x in ds if x["trangThai"] == t]
-            for t in (CHAN, QUET_DUOC, SAN_SANG)}
+            for t in (CHAN, QUET_DUOC, SAN_SANG, DA_DUNG)}
     return {
         "soDongCo": len(ds),
         "theoTrangThai": theo,
         "soChan": len(theo[CHAN]),
         "soQuetDuoc": len(theo[QUET_DUOC]),
         "soSanSang": len(theo[SAN_SANG]),
+        "soDaDung": len(theo[DA_DUNG]),
         "dongCo": ds,
         "loiNhac": (
             "QUET_DUOC nghĩa là quét được NGAY, chỉ chưa thực thi được — mà "
@@ -270,4 +289,5 @@ def soat() -> dict:
 def tom_tat() -> dict:
     r = soat()
     return {k: r[k] for k in ("soDongCo", "soChan", "soQuetDuoc",
-                              "soSanSang", "theoTrangThai", "loiNhac")}
+                              "soSanSang", "soDaDung", "theoTrangThai",
+                              "loiNhac")}

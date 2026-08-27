@@ -3582,9 +3582,9 @@ def kiem_ha_tang_ho() -> None:
     from thi_bac_ty.hien_phap import _goi_ty
 
     ten = {d.name for d in _goi_ty()}
-    kiem("hiến pháp nhận đúng sáu ty",
+    kiem("hiến pháp nhận đúng BẢY ty",
          ten == {"bac", "co_so", "kham_ngoai", "lai_suat", "on_dinh",
-                 "tin_dung"}, str(ten))
+                 "quyen_chon", "tin_dung"}, str(ten))
     kiem("`kham_ngoai` LÀ một ty, không phải hạ tầng",
          "kham_ngoai" in ten,
          "nó có một lớp kế thừa `khuon_ty.Ty` và nó nộp tờ trình — đó chính "
@@ -4158,12 +4158,17 @@ def kiem_dong_co_chua_co() -> None:
          "Đoạn văn xuôi cũ vẫn nói «sáu engine bị chặn» — đó chính là cách "
          "văn xuôi hỏng: thế giới đổi mà câu văn không đổi")
 
-    kiem("quyền chọn khai là CHƯA LÀM, không phải KHÔNG LÀM ĐƯỢC",
-         any("CHƯA LÀM" in k["chiTiet"]
-             for k in theo["quyen-chon"]["dieuKien"]),
-         "Deribit công bố mặt IV công khai không cần khoá. Gộp «chưa viết "
-         "connector» vào cùng rổ với «cần mempool» là giấu mất việc dễ "
-         "nhất trong sáu")
+    from dong_co_chua_co.so_dang_ky import DA_DUNG
+    kiem("quyền chọn nay ĐÃ DỰNG, và sổ TỰ BIẾT",
+         theo["quyen-chon"]["trangThai"] == DA_DUNG,
+         "sổ nạp thử gói ty; nạp được nghĩa là engine ấy không còn nằm "
+         "trong danh sách «chưa có». Không ai phải nhớ xoá dòng")
+    kiem("và dòng ấy Ở LẠI kèm lịch sử, không bị xoá",
+         theo["quyen-chon"]["viSaoDang"]
+         and theo["quyen-chon"]["dieuKien"],
+         "xoá tay thì mất luôn câu «nó từng bị chặn vì gì, và cái gì gỡ ra»")
+    kiem("engine ĐÃ DỰNG không đếm vào số bị CHẶN",
+         "quyen-chon" not in r["theoTrangThai"][CHAN])
 
     kiem("tóm tắt gọn dùng được cho buồng lái",
          {"soChan", "soQuetDuoc", "soSanSang"} <= set(tom_tat()))
@@ -4310,6 +4315,172 @@ def kiem_nhap_so_ngoai() -> None:
          all(x.get("url") and x.get("chienLuoc") for x in sn.values()),
          str(sn))
 
+def _qc(bid, ask, oi=100.0, F=80_000.0, r=0.0):
+    return {"bid_price": bid, "ask_price": ask, "open_interest": oi,
+            "underlying_price": F, "interest_rate": r}
+
+
+def kiem_ngang_gia() -> None:
+    print("\n-- Ngang gia quyen chon: KHONG mo hinh, va mot thua so TRO --")
+    import datetime as _dt
+
+    from quyen_chon.ty_ngang_gia import (CONFIG, CUA, CongRuiRo, doc_ky_han,
+                                         ghep_cap, he_so_chiet_khau,
+                                         mot_co_hoi, phi_mot_chan_quyen_chon,
+                                         tim_co_hoi, xuat_to_trinh)
+
+    kiem("CUA và CONFIG['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(CONFIG["ruiRo"]),
+         str(set(CUA) ^ set(CONFIG["ruiRo"])))
+
+    # ── đọc kỳ hạn ──────────────────────────────────────────────────────
+    d = doc_ky_han("BTC-28AUG26-96000-C")
+    kiem("đọc đúng ngày kỳ hạn",
+         d is not None and (d.year, d.month, d.day) == (2026, 8, 28), str(d))
+    kiem("và kết toán lúc 08:00 UTC, không phải nửa đêm",
+         d.hour == 8,
+         "lấy nửa đêm là lệch tám giờ, và tám giờ ấy đi thẳng vào hệ số "
+         "chiết khấu của những kỳ hạn ngắn")
+    kiem("mã sai khuôn → None", doc_ky_han("BTC-XX-1-C") is None
+         and doc_ky_han("rác") is None)
+    kiem("tháng lạ → None, không đoán bừa",
+         doc_ky_han("BTC-28XXX26-96000-C") is None)
+
+    # ── hệ số chiết khấu ────────────────────────────────────────────────
+    kiem("lãi suất 0 → hệ số đúng bằng 1",
+         gan(he_so_chiet_khau(0.0, 1.0), 1.0))
+    kiem("lãi suất dương → hệ số nhỏ hơn 1",
+         he_so_chiet_khau(0.05, 1.0) < 1.0)
+    kiem("thiếu lãi suất → None, KHÔNG mặc định 1,0",
+         he_so_chiet_khau(None, 1.0) is None,
+         "mặc định 1,0 là ngầm nói lãi suất bằng 0, và với kỳ hạn một năm ở "
+         "5% thì đó là bỏ sót 5% giá trị — lớn gấp trăm lần cái edge ta đi "
+         "tìm")
+
+    # ── phí có TRẦN ─────────────────────────────────────────────────────
+    PH = CONFIG["phi"]
+    kiem("quyền chọn ĐẮT: trần theo underlying chặn",
+         gan(phi_mot_chan_quyen_chon(10_000.0, 80_000.0, PH), 24.0),
+         "0,03% × 80.000 = 24, nhỏ hơn 12,5% × 10.000 = 1.250")
+    kiem("quyền chọn RẺ: trần theo phí quyền chặn",
+         gan(phi_mot_chan_quyen_chon(8.0, 80_000.0, PH), 1.0),
+         "12,5% × 8 = 1, nhỏ hơn 24. Quên vế này là báo phí cao gấp 24 lần "
+         "cho quyền chọn rẻ rồi từ chối những cơ hội có thật — sai theo "
+         "hướng an toàn vẫn là sai")
+    kiem("phí quyền âm không làm phí âm",
+         phi_mot_chan_quyen_chon(-5.0, 80_000.0, PH) >= 0.0)
+
+    # ── giá THỰC THI, không phải giá giữa ───────────────────────────────
+    F, K = 80_000.0, 78_000.0
+    sau = _dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(days=30)
+    kh = f"{sau.day}{['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][sau.month-1]}{sau.year%100:02d}"
+
+    # F=80.000 · K=78.000 → (F−K)/F = 0,025. Call ~0,055 · Put ~0,030, nên
+    # giá GIỮA thoả ngang giá đúng bằng 0,025. Giá phải HỢP LÝ: một put yết
+    # giá âm là dữ liệu không tồn tại, và phép kiểm dựng trên nó không kiểm
+    # được gì — bản nháp đầu dùng bid = −0,005 và ba cửa im lặng.
+    rong = mot_co_hoi("BTC", kh, K, _qc(0.045, 0.065), _qc(0.020, 0.040),
+                      300.0, PH, CONFIG["sucChua"])
+    hep = mot_co_hoi("BTC", kh, K, _qc(0.0549, 0.0551), _qc(0.0299, 0.0301),
+                     300.0, PH, CONFIG["sucChua"])
+    kiem("cùng một giá GIỮA, chênh bid/ask RỘNG cho edge tệ hơn",
+         rong.grossBps < hep.grossBps,
+         f"rộng {rong.grossBps:.1f} vs hẹp {hep.grossBps:.1f} — giá giữa "
+         f"không mua được cũng không bán được; vào vị thế là MUA ở ask và "
+         f"BÁN ở bid")
+    kiem("và chênh hẹp thì gần như không lệch",
+         abs(hep.grossBps) < 15.0, f"{hep.grossBps:.1f} bps")
+
+    # ── THỪA SỐ TRƠ phải được KHAI RA ───────────────────────────────────
+    kiem("lãi suất 0 → khai chiết khấu KHÔNG có hiệu lực",
+         hep.chietKhauCoHieuLuc is False,
+         "Deribit trả interest_rate = 0 cho cả 1058 hợp đồng đo được, nên "
+         "`e^(−rT)` đang bằng đúng 1,0. Đây là bẫy ba cửa giả dưới hình "
+         "dạng mới — một THỪA SỐ trong công thức luôn bằng 1, và người đọc "
+         "tưởng mình được che khỏi rủi ro lãi suất")
+    cor = mot_co_hoi("BTC", kh, K, _qc(0.0549, 0.0551, r=0.05),
+                     _qc(0.0299, 0.0301, r=0.05), 300.0, PH,
+                     CONFIG["sucChua"])
+    kiem("lãi suất khác 0 → khai là CÓ hiệu lực",
+         cor.chietKhauCoHieuLuc is True)
+    kiem("và nó đổi con số thật", not gan(cor.grossBps, hep.grossBps))
+
+    t0 = xuat_to_trinh(hep)
+    kiem("thừa số trơ đi vào BẰNG CHỨNG, không im lặng",
+         any("KHONG doi con so" in b for b in t0.bangChung),
+         str(t0.bangChung))
+    kiem("và rủi ro lãi suất được khai là CHƯA trừ",
+         "rui-ro-lai-suat-vi-san-tra-lai-suat-0" in t0.phiConThieu,
+         "công thức trông như đã trừ, nhưng nó chưa")
+    kiem("có lãi suất thật thì bằng chứng đổi giọng",
+         any("KHONG doi con so" not in b and "he so chiet khau" in b
+             for b in xuat_to_trinh(cor).bangChung))
+
+    # ── cổng ────────────────────────────────────────────────────────────
+    cong = CongRuiRo(CONFIG["ruiRo"])
+
+    def ma(co):
+        return {m for m, _ in cong.xet(co)[1]}
+
+    kiem("edge âm → chặn", "net-duoi-nguong" in ma(rong))
+    kiem("OI quá mỏng → chặn",
+         "oi-qua-mong" in ma(mot_co_hoi("BTC", kh, K,
+                                        _qc(0.0549, 0.0551, oi=1),
+                                        _qc(0.0299, 0.0301, oi=1), 300.0, PH,
+                                        CONFIG["sucChua"])),
+         "giá yết là giá của MỘT người tạo lập, không phải giá thị trường")
+    kiem("chênh bid/ask quá rộng → chặn",
+         "chenh-gia-qua-rong" in ma(rong),
+         "edge tính trên một khoảng là edge tưởng tượng")
+
+    gan_han = _dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(hours=10)
+    khg = f"{gan_han.day}{['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][gan_han.month-1]}{gan_han.year%100:02d}"
+    sh = mot_co_hoi("BTC", khg, K, _qc(0.0549, 0.0551),
+                    _qc(0.0299, 0.0301), 300.0, PH, CONFIG["sucChua"])
+    if sh is not None:
+        kiem("sát đáo hạn → chặn", "sap-dao-han" in ma(sh),
+             "thanh khoản bốc hơi và ba chân không đóng kịp")
+
+    # ── ghép cặp ────────────────────────────────────────────────────────
+    ds = [{"instrument_name": "BTC-30OCT26-70000-C", "_tienTe": "BTC",
+           **_qc(0.02, 0.03)},
+          {"instrument_name": "BTC-30OCT26-70000-P", "_tienTe": "BTC",
+           **_qc(0.0, 0.01)},
+          {"instrument_name": "BTC-30OCT26-71000-C", "_tienTe": "BTC",
+           **_qc(0.02, 0.03)}]
+    kiem("chỉ ghép cặp có ĐỦ cả call lẫn put", len(ghep_cap(ds)) == 1,
+         "ngang giá là đẳng thức ba chân; hai chân không nói được gì")
+    kiem("và cặp lẻ bị BỎ, không đoán vế kia",
+         ("BTC", "30OCT26", 71000.0) not in ghep_cap(ds))
+    kiem("mã sai khuôn không làm nổ", ghep_cap([{"instrument_name": "rác"}])
+         == {})
+
+    ra = tim_co_hoi(ds, 300.0, PH, CONFIG["sucChua"], cong)
+    kiem("tìm cơ hội chạy trên dữ liệu ghép được", len(ra) == 1, str(len(ra)))
+
+    # ── tờ trình ────────────────────────────────────────────────────────
+    kiem("tờ trình hợp lệ", t0.hop_le, str(t0.kiem()))
+    kiem("BA chân", len(t0.chan) == 3, str(len(t0.chan)))
+    kiem("hai chân quyền chọn ngược nhau, một chân tương lai",
+         sorted(c.loai for c in t0.chan) == ["option", "option", "perp"],
+         str([c.loai for c in t0.chan]))
+    kiem("cả ba chân CÙNG một sàn",
+         len({c.cang for c in t0.chan}) == 1,
+         "ngang giá bù trừ trong một tài khoản; ba chân ba sàn là ba khoản "
+         "ký quỹ riêng và không có bù trừ nào")
+    kiem("khoá vốn = thời gian tới đáo hạn",
+         gan(t0.khoaVonDenGiay, hep.conLaiGio * 3600.0, 1e-6),
+         "đóng sớm là bán lại ba chân trên ba sổ mỏng — ngang giá chỉ đóng "
+         "CHẮC CHẮN tại kết toán")
+    kiem("rủi ro THỊ TRƯỜNG thấp vì kết quả đã khoá",
+         t0.ruiRo.thiTruong < 0.20,
+         "mọi đường giá đều cho cùng một kết quả tại kết toán")
+    kiem("nhưng rủi ro THỰC THI cao vì ba chân phải khớp gần cùng lúc",
+         t0.ruiRo.thucThi > 0.40)
+    kiem("đủ sáu mặt rủi ro", t0.ruiRo.chua_do() == ())
+    kiem("bằng chứng nói rõ KHÔNG dùng mô hình nào",
+         any("KHONG mo hinh nao" in b for b in t0.bangChung))
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -4432,6 +4603,7 @@ def main() -> int:
     kiem_router_khong_phai_ty()
     kiem_kham_adapter()
     kiem_kham_khong_dat_lenh()
+    kiem_ngang_gia()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_nhap_so_ngoai()
