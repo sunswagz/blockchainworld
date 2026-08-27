@@ -399,7 +399,7 @@ cả gia sản.
     1. Đừng dựng cỗ máy thứ ba                        ĐANG GIỮ
     2. Adapter `Ty` cho `kham/`                       XONG — `kham_ngoai/`
     3. `vi.py` vào Danh Mục                           XONG — `von_ngoai.py`
-       `ket_toan.py` sang Sổ Cái                      CHƯA — cần sửa `kham/`
+       `ket_toan.py` sang Sổ Cái                      XONG — `nhap_so_ngoai.py`
     4. `dat_lenh.py` chuyển sau cùng                  CHẶN — xem dưới
 
 **Bước 2 xong**, và ranh giới đếm là phần khó nhất của nó:
@@ -422,10 +422,32 @@ không có hai nơi để so giá. Nhét bừa vào `chenh-lech` cho khỏi sử
 thì `_pheu_theo_ho()` gộp nó với chênh lệch stablecoin, và cái phễu ấy nói
 dối về cả hai.
 
-**Nửa sau bước 3 chưa làm được từ phía này.** Chuyển `ket_toan.py` sang Sổ
-Cái đòi sửa file trong `kham-thien-giam-runtime/` — thư mục của cung khác,
-mà luật kho bắt hỏi trước khi đụng. Phần làm được từ phía Thị Bạc Ty đã
-làm: Sổ Cái nhận được bút toán từ ngoài, và `von_ngoai` đã bật sẵn.
+**Bước 3 xong, và hoá ra không phải sửa file cung khác chút nào** —
+`ketToan` đã có sẵn trong `/api/trang-thai`.
+
+Chuyển `ket_toan.py` theo nghĩa đen thì không làm được: hai runtime là hai
+tiến trình, và bắt cỗ máy kia ghi thẳng vào SQLite của Thị Bạc Ty là buộc
+chúng thành một. Nhưng **mục đích** đạt được — một sổ của sự thật — bằng
+cách ĐỌC rồi ghi, y hệt lối `von_ngoai.py` đọc ví.
+
+Chia việc: `von_ngoai` giữ phần **TIỀN** (phơi nhiễm chỉ-đọc trong Danh
+Mục), `nhap_so_ngoai` giữ phần **SỰ KIỆN** (bút toán kết toán).
+
+Hai chuyện phải đúng, và cái thứ hai mới khó:
+
+1. **Không đếm hai lần.** Bên kia đưa cùng một bản ghi ở mọi lượt hỏi. Ghi
+   lại mỗi lượt là nhân lãi lỗ lên gấp số lượt hỏi. Khoá ổn định
+   `<nguồn>:<slug>:<luc>`.
+2. **Bỏ sót phải TỰ LỘ RA.** `/api/trang-thai` chỉ đưa **12 bản ghi gần
+   nhất**. Kết toán hơn 12 lần giữa hai lượt hỏi thì phần giữa mất hẳn, và
+   mất trong im lặng — sổ vẫn cân, vẫn không lỗi, chỉ thiếu tiền. Nên sổ
+   nhập theo dõi `daKetToan` của bên kia và đếm phần rơi vào `soBoSot`.
+   Bên kia không công bố tổng số thì `boSotDoDuoc=False`: *"không thiếu"*
+   và *"không biết có thiếu không"* phải nói khác nhau.
+
+Cột tiền để **0** có chủ ý — bên kia công bố KẾT QUẢ chứ không công bố lãi
+lỗ từng lần, và ghi một con số bịa vào cột tiền là làm hỏng đúng thứ sổ cái
+sinh ra để giữ.
 
 **Bước 4 bị CHẶN, và chặn có chủ ý.** `dat_lenh.py` chỉ chuyển được khi
 Điều Phối Thực Thi có lớp ký lệnh thật. Lớp ấy không tồn tại và không được
