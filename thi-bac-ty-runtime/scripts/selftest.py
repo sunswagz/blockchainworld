@@ -3582,9 +3582,9 @@ def kiem_ha_tang_ho() -> None:
     from thi_bac_ty.hien_phap import _goi_ty
 
     ten = {d.name for d in _goi_ty()}
-    kiem("hiến pháp nhận đúng TÁM ty",
+    kiem("hiến pháp nhận đúng CHÍN ty",
          ten == {"bac", "co_so", "dex_arb", "kham_ngoai", "lai_suat",
-                 "on_dinh", "quyen_chon", "tin_dung"}, str(ten))
+                 "lp_amm", "on_dinh", "quyen_chon", "tin_dung"}, str(ten))
     kiem("`kham_ngoai` LÀ một ty, không phải hạ tầng",
          "kham_ngoai" in ten,
          "nó có một lớp kế thừa `khuon_ty.Ty` và nó nộp tờ trình — đó chính "
@@ -4104,8 +4104,9 @@ def kiem_von_ngoai_bat_san() -> None:
 
 def kiem_dong_co_chua_co() -> None:
     print("\n-- Engine CHUA CO: bi chan hay chua lam, hai cau khac nhau --")
-    from dong_co_chua_co.so_dang_ky import (CHAN, DONG_CO, QUET_DUOC,
-                                            SAN_SANG, soat, tom_tat)
+    from dong_co_chua_co.so_dang_ky import (CHAN, DA_DUNG, DONG_CO,
+                                            QUET_DUOC, SAN_SANG,
+                                            soat, tom_tat)
     from thi_bac_ty.to_trinh import HO
 
     r = soat()
@@ -4151,14 +4152,16 @@ def kiem_dong_co_chua_co() -> None:
     kiem("và chúng chặn vì MEMPOOL, không vì thiếu ví",
          "mempool" in theo["jit"]["thieuDeQuet"], str(theo["jit"]))
 
-    kiem("DEX arb và LP nay QUÉT ĐƯỢC nhờ Router",
-         theo["dex-arb"]["trangThai"] == QUET_DUOC
-         and theo["lp-v3"]["trangThai"] == QUET_DUOC,
+    kiem("LP nay cũng ĐÃ DỰNG — không còn engine nào chỉ QUÉT ĐƯỢC",
+         theo["lp-v3"]["trangThai"] == DA_DUNG
+         and not r["theoTrangThai"][QUET_DUOC],
          "Router ra đời 27/08 và gỡ điều kiện `bao-gia-dex` lẫn `gia-gas`. "
          "Đoạn văn xuôi cũ vẫn nói «sáu engine bị chặn» — đó chính là cách "
          "văn xuôi hỏng: thế giới đổi mà câu văn không đổi")
+    kiem("DEX arb đã đi hết đường CHAN → QUET_DUOC → DA_DUNG",
+         theo["dex-arb"]["trangThai"] == DA_DUNG,
+         "và sổ TỰ biết, vì nó nạp thử `dex_arb.ty_vong_doi`")
 
-    from dong_co_chua_co.so_dang_ky import DA_DUNG
     kiem("quyền chọn nay ĐÃ DỰNG, và sổ TỰ BIẾT",
          theo["quyen-chon"]["trangThai"] == DA_DUNG,
          "sổ nạp thử gói ty; nạp được nghĩa là engine ấy không còn nằm "
@@ -4576,6 +4579,121 @@ def kiem_vong_doi() -> None:
          "`giuGio` là mẫu số của `netMoiGioBps`; đặt nó bằng vài giây thì "
          "ty này áp đảo mọi ty khác chỉ vì nó nhanh")
 
+def kiem_lp_amm() -> None:
+    print("\n-- LP AMM: co ben thu ba la LOI KHAI, khong phai phep do --")
+    import time as _t
+
+    from lp_amm.ty_cap_thanh_khoan import (CONFIG, CUA, CongRuiRo, Pool,
+                                           cap_neo_that, mot_co_hoi,
+                                           xuat_to_trinh)
+
+    kiem("CUA và CONFIG['ruiRo'] khai cùng một bộ khoá",
+         set(CUA) == set(CONFIG["ruiRo"]),
+         str(set(CUA) ^ set(CONFIG["ruiRo"])))
+
+    # ── TỰ đọc cặp neo, không tin cờ bên thứ ba ─────────────────────────
+    kiem("USDC-USDT là cặp neo", cap_neo_that("USDC-USDT") is True)
+    kiem("WETH-WSTETH cũng neo (cùng nhóm ETH)",
+         cap_neo_that("WETH-WSTETH") is True)
+    kiem("WBTC-TBTC cũng neo", cap_neo_that("WBTC-TBTC") is True)
+    kiem("USDC-WETH KHÔNG neo — hai nhóm khác nhau",
+         cap_neo_that("USDC-WETH") is False)
+    kiem("RAIN-USDT KHÔNG neo, dù DefiLlama gắn ilRisk='no'",
+         cap_neo_that("RAIN-USDT") is False,
+         "pool ấy là pool DUY NHẤT qua được mọi cửa khác — tin cờ của bên "
+         "thứ ba thì kết quả cuối cùng của cả engine là một dương tính giả. "
+         "Cờ là một LỜI KHAI, không phải một phép đo")
+    kiem("một vế thì KHÔNG đọc được, trả None chứ không False",
+         cap_neo_that("USDC") is None,
+         "«không biết» và «không neo» đều dẫn tới từ chối, nhưng phải nói "
+         "khác nhau")
+    kiem("và không phân biệt hoa thường", cap_neo_that("usdc-usdt") is True)
+
+    def _p(ky="USDC-USDT", tvl=10e6, vol=2e6, apy=5.0, il="no", thuong=0.0):
+        return Pool(ma="p", duAn="uniswap-v3", chuoi="Arbitrum", kyHieu=ky,
+                    tvlUsd=tvl, khoiLuongNgayUsd=vol, apyGocPhanTram=apy,
+                    apyThuongPhanTram=thuong, ilRisk=il, phoi="multi",
+                    docLucMs=_t.time() * 1000.0)
+
+    # ── vòng quay và phí ngầm ───────────────────────────────────────────
+    p = _p()
+    kiem("vòng quay = khối lượng ngày / TVL", gan(p.vongQuay, 0.2))
+    kiem("phí ngầm suy ra từ apyBase và vòng quay",
+         gan(p.phiNgamBps, (5.0 / 100.0) / (0.2 * 365.0) * 10_000.0, 1e-6),
+         "apyBase ≈ vòng quay × mức phí × 365, nên đảo lại là suy được mức "
+         "phí — phép kiểm CHÉO hai con số của cùng một nguồn")
+    kiem("thiếu khối lượng → vòng quay None, phí ngầm None",
+         _p(vol=None).vongQuay is None and _p(vol=None).phiNgamBps is None)
+    kiem("TVL 0 không chia cho 0", _p(tvl=0.0).vongQuay is None)
+
+    SC = CONFIG["sucChua"]
+    cong = CongRuiRo(CONFIG["ruiRo"])
+
+    def ma(pool, gas=0.04):
+        co = mot_co_hoi(pool, 500.0, 168.0, SC, gas)
+        return {m for m, _ in cong.xet(co)[1]}
+
+    kiem("cặp neo, TVL đủ, phí đủ → QUA", ma(_p(apy=20.0)) == set(),
+         str(ma(_p(apy=20.0))))
+    kiem("cặp KHÔNG neo → chặn", "co-rui-ro-il" in ma(_p("USDC-WETH", apy=20.0)))
+    kiem("cặp không đọc được → chặn, và nói rõ là không ĐỌC được",
+         "khong-doc-duoc-cap" in ma(_p("USDC", apy=20.0)))
+    kiem("TVL phi lý → chặn",
+         "tvl-phi-ly" in ma(_p(tvl=31.4e9, vol=1e9, apy=20.0)),
+         "cả DeFi cộng lại mới cỡ 100–200 tỷ; một pool 31 tỷ là dữ liệu "
+         "hỏng, và nó sẽ đứng đầu mọi bảng xếp hạng dựa trên sức chứa")
+    kiem("TVL quá nhỏ → chặn", "tvl-qua-nho" in ma(_p(tvl=100.0, apy=20.0)))
+    kiem("vòng quay quá thấp → chặn",
+         "vong-quay-qua-thap" in ma(_p(vol=100.0, apy=20.0)))
+    kiem("phí ngầm vô lý → chặn",
+         "phi-ngam-vo-ly" in ma(_p(vol=1e9, apy=20.0)),
+         "apyBase và khối lượng KHÔNG khớp, và ta không biết cái nào sai "
+         "nên từ chối cả cặp số")
+    kiem("thiếu TVL hoặc apy → THIẾU SỐ, không phải 0",
+         "thieu-so" in ma(_p(tvl=None)) and "thieu-so" in ma(_p(apy=None)))
+
+    # ── phí vào/ra ──────────────────────────────────────────────────────
+    co = mot_co_hoi(_p(apy=20.0), 500.0, 168.0, SC, 0.04)
+    kiem("NET = gross trừ phí vào/ra",
+         gan(co.netBps, co.grossBps - 0.04 / 500.0 * 10_000.0, 1e-9))
+    khong = mot_co_hoi(_p(apy=20.0), 500.0, 168.0, SC, None)
+    kiem("chưa đo được phí vào/ra → NET là None, KHÔNG phải gross",
+         khong.netBps is None,
+         "bỏ qua gas là báo một vị thế rẻ hơn sự thật")
+    kiem("và cổng chặn nó là THIẾU SỐ", "thieu-so" in ma(_p(apy=20.0), None))
+
+    # ── thưởng KHÔNG vào NET ────────────────────────────────────────────
+    kiem("token thưởng KHÔNG cộng vào NET",
+         gan(mot_co_hoi(_p(apy=20.0, thuong=500.0), 500.0, 168.0, SC, 0.04).netBps,
+             co.netBps),
+         "thưởng bốc hơi khi chương trình hết, và ta không có đường bán nó "
+         "— tính vào NET là để bảng xếp hạng bị chiếm bởi những pool đang "
+         "mua thanh khoản bằng token của chính mình")
+    kiem("nhưng thưởng lớn hơn phí gốc thì ĐỘ TIN tụt",
+         xuat_to_trinh(mot_co_hoi(_p(apy=20.0, thuong=500.0), 500.0, 168.0,
+                                  SC, 0.04)).tinCay
+         < xuat_to_trinh(co).tinCay)
+
+    # ── tờ trình ────────────────────────────────────────────────────────
+    t = xuat_to_trinh(co)
+    kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
+    kiem("họ là `thanh-khoan` — họ này trước đó TRỐNG",
+         t.ho == "thanh-khoan",
+         "nên đây là lần đầu Rủi Ro Tổng phải cân một cơ hội có tổn thất "
+         "vô thường")
+    kiem("một chân, và nó là CAP_THANH_KHOAN",
+         len(t.chan) == 1 and t.chan[0].ben == "CAP_THANH_KHOAN")
+    kiem("KHÔNG khoá vốn — vị thế LP rút được bất cứ lúc nào",
+         gan(t.khoaVonDenGiay, 0.0))
+    kiem("đủ sáu mặt rủi ro", t.ruiRo.chua_do() == ())
+    kiem("khai IL là khoản CHƯA trừ, kể cả với cặp NEO",
+         "ton-that-vo-thuong-du-neo" in t.phiConThieu,
+         "stablecoin mất neo là tổn thất vô thường thật và có thể rất lớn")
+    kiem("bằng chứng nói rõ IL KHÔNG được ước",
+         any("KHONG DUOC UOC" in b for b in t.bangChung))
+    kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
+         any("SUY RA" in b for b in t.bangChung))
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -4700,6 +4818,7 @@ def main() -> int:
     kiem_kham_khong_dat_lenh()
     kiem_ngang_gia()
     kiem_vong_doi()
+    kiem_lp_amm()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_nhap_so_ngoai()

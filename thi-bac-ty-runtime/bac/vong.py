@@ -155,7 +155,7 @@ class Runtime:
                            if k not in ("bat", "tyTinDung", "tyOnDinh",
                                         "tyLaiSuat", "tyCoSo",
                                         "tyTienDoan", "tyNgangGia",
-                                        "tyVongDoi")})
+                                        "tyVongDoi", "tyCapThanhKhoan")})
             self.trungUong.dang_ky(TyPerp(self))
 
             # Ty thứ hai — TÍN DỤNG. Nó cắm vào cùng `khuon_ty.Ty`, không
@@ -226,7 +226,15 @@ class Runtime:
                      lambda: __import__("dex_arb.ty_vong_doi",
                                         fromlist=["TyVongDoi"])
                      .TyVongDoi(dinhTuyen=self.dinhTuyen),
-                     600.0)):
+                     600.0),
+                    # Engine thứ chín — và ty ĐẦU TIÊN của họ `thanh-khoan`,
+                    # nên đây là lần đầu Rủi Ro Tổng phải cân một cơ hội có
+                    # tổn thất vô thường.
+                    ("tyCapThanhKhoan",
+                     lambda: __import__("lp_amm.ty_cap_thanh_khoan",
+                                        fromlist=["TyCapThanhKhoan"])
+                     .TyCapThanhKhoan(dinhTuyen=self.dinhTuyen),
+                     1800.0)):
                 cf = (tu.get(khoa) or {})
                 if not cf.get("bat", True):
                     continue

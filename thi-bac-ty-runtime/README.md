@@ -758,7 +758,7 @@ nào** — `thuc_thi.moPhong` là True cứng. Nên `doi_chieu_giay_that()` tr�
 *"chưa đối chiếu được"* kèm lý do, chứ không trả một con số 0 giả vờ là kết
 quả. Chỗ ấy có sẵn cho ngày lớp ký lệnh tới.
 
-## SÁU ENGINE CÒN LẠI — bốn còn chặn, hai đã quét được
+## SÁU ENGINE CÒN LẠI — ba đã dựng, ba còn chặn
 
 Đây là mục quan trọng nhất của cả chương, vì thứ dễ làm nhất lúc này là
 dựng sáu scanner nữa cho có đủ mười ba, rồi gọi đó là xong.
@@ -791,13 +791,22 @@ Nên sổ đăng ký nay **chạy được**: `dong_co_chua_co/so_dang_ky.py`. M
 engine mang điều kiện chặn của chính nó dưới dạng hàm canh, và một lượt
 chạy nói ra trạng thái thật:
 
-    node                     trạng thái   chặn vì
-    dex-arb                  QUET_DUOC    (chỉ chặn THỰC THI)
-    lp-v3                    QUET_DUOC    (chỉ chặn THỰC THI)
+    node                     trạng thái   ghi chú
+    quyen-chon               DA_DUNG      `quyen_chon/ty_ngang_gia.py`
+    dex-arb                  DA_DUNG      `dex_arb/ty_vong_doi.py`
+    lp-v3                    DA_DUNG      `lp_amm/ty_cap_thanh_khoan.py`
     thanh-ly                 CHAN         health factor từng khoản vay
-    quyen-chon               CHAN         chưa viết connector Deribit
     jit                      CHAN         mempool · quan hệ builder
     mev                      CHAN         mempool · builder · độ trễ
+
+**Không còn engine nào ở `QUET_DUOC`** — mọi engine quét được đã được dựng.
+Ba engine còn chặn đều chặn vì cùng một loại lý do: chúng cần dữ liệu KHÔNG
+công khai (mempool) hoặc dữ liệu mức từng-khoản-vay mà không nguồn miễn phí
+nào cho. Đó không phải việc chưa làm; đó là việc không làm được từ đây.
+
+Sổ TỰ biết trạng thái ĐÃ DỰNG bằng cách nạp thử gói ty. Dòng ở lại kèm
+lịch sử chứ không bị xoá — xoá tay thì mất luôn câu "nó từng bị chặn vì gì,
+và cái gì gỡ ra".
 
 Đọc lượt chạy mới nhất: `curl -s localhost:5188/api/dong-co-chua-co?day_du=true`
 

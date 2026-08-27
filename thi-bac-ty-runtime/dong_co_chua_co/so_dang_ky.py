@@ -215,7 +215,8 @@ DONG_CO: tuple[DongCo, ...] = (
         (DieuKien("nguon-pool", "APY và TVL mức pool", _co_nguon_pool),
          DieuKien("gia-gas", "gas vào/ra vị thế", _co_gia_gas),
          DieuKien("ky-lenh-onchain", "ví ký được giao dịch",
-                  _co_rpc_ky_lenh, chanQuet=False))),
+                  _co_rpc_ky_lenh, chanQuet=False)),
+        goiDaDung="lp_amm.ty_cap_thanh_khoan"),
 
     DongCo(
         "thanh-ly", "Thanh lý", "thanh-ly",

@@ -135,6 +135,9 @@ MAC_DINH = {
         # nên nhịp thưa — và chênh lệch stablecoin không xuất hiện
         # rồi biến mất trong vài giây.
         "tyVongDoi": {"bat": True, "nhipGiay": 600.0},
+        # Ty cấp thanh khoản. Một lượt kéo ~17.000 pool, nên nhịp
+        # thưa — và phí AMM đổi theo ngày chứ không theo phút.
+        "tyCapThanhKhoan": {"bat": True, "nhipGiay": 1800.0},
 
         # ── VỐN NGOÀI ────────────────────────────────────────────────────
         # Kho này có HAI cỗ máy. Khâm Thiên Giám (Polymarket, cổng 5186) có
