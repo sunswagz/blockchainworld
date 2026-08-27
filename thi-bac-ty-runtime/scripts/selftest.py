@@ -4609,10 +4609,11 @@ def kiem_lp_amm() -> None:
          "khác nhau")
     kiem("và không phân biệt hoa thường", cap_neo_that("usdc-usdt") is True)
 
-    def _p(ky="USDC-USDT", tvl=10e6, vol=2e6, apy=5.0, il="no", thuong=0.0):
+    def _p(ky="USDC-USDT", tvl=10e6, vol=2e6, apy=5.0, il="no", thuong=0.0,
+           phoi="multi"):
         return Pool(ma="p", duAn="uniswap-v3", chuoi="Arbitrum", kyHieu=ky,
                     tvlUsd=tvl, khoiLuongNgayUsd=vol, apyGocPhanTram=apy,
-                    apyThuongPhanTram=thuong, ilRisk=il, phoi="multi",
+                    apyThuongPhanTram=thuong, ilRisk=il, phoi=phoi,
                     docLucMs=_t.time() * 1000.0)
 
     # ── vòng quay và phí ngầm ───────────────────────────────────────────
@@ -4652,6 +4653,16 @@ def kiem_lp_amm() -> None:
     kiem("thiếu TVL hoặc apy → THIẾU SỐ, không phải 0",
          "thieu-so" in ma(_p(tvl=None)) and "thieu-so" in ma(_p(apy=None)))
 
+    # ── `exposure` phải CÓ TẢI, không được là trường chết ───────────────
+    kiem("pool một vế → chặn",
+         "phoi-nhiem-khong-phai-cap" in ma(_p(apy=20.0, phoi="single")),
+         "trường `phoi` từng được đọc từ nguồn rồi KHÔNG ai dùng — một "
+         "trường chết là trường sẽ sai mà không ai biết")
+    kiem("nguồn nói `multi` mà ký hiệu một vế → TỰ MÂU THUẪN",
+         "nguon-tu-mau-thuan" in ma(_p("USDC", apy=20.0)),
+         "hai con số của CÙNG một nguồn đang cãi nhau — bắt được 195 pool "
+         "thật ở lượt chạy đầu tiên")
+
     # ── phí vào/ra ──────────────────────────────────────────────────────
     co = mot_co_hoi(_p(apy=20.0), 500.0, 168.0, SC, 0.04)
     kiem("NET = gross trừ phí vào/ra",
@@ -4661,6 +4672,27 @@ def kiem_lp_amm() -> None:
          khong.netBps is None,
          "bỏ qua gas là báo một vị thế rẻ hơn sự thật")
     kiem("và cổng chặn nó là THIẾU SỐ", "thieu-so" in ma(_p(apy=20.0), None))
+
+    # ── `routerConThieu` phải ĐƯỢC ĐIỀN, rỗng là rỗng GIẢ ───────────────
+    from lp_amm.ty_cap_thanh_khoan import TyCapThanhKhoan as _Tlp
+
+    class _RG:
+        def _gas_usd(self, chuoi, viec):
+            return 0.02
+
+    usd, thieu = _Tlp(dinhTuyen=_RG())._phi_vao_ra("arbitrum")
+    kiem("phí vào/ra trả CẢ con số lẫn thứ Router chưa tính",
+         gan(usd, 0.04) and "gas-limit-uoc-luong" in thieu,
+         f"{usd} / {thieu} — gasLimit là ƯỚC LƯỢNG, và một con số gas không "
+         f"kèm câu ấy đọc như một con số ĐO ĐƯỢC")
+    kiem("thiếu Router thì trả (None, rỗng)",
+         _Tlp()._phi_vao_ra("arbitrum") == (None, ()))
+    co_r = mot_co_hoi(_p(apy=20.0), 500.0, 168.0, SC, 0.04, thieu)
+    kiem("và nó đi vào `phiConThieu` của tờ trình",
+         "router:gas-limit-uoc-luong" in xuat_to_trinh(co_r).phiConThieu,
+         "trường khai mà không ai điền thì người đọc thấy `[]` và hiểu là "
+         "«Router không thiếu gì» — cùng họ với ba cửa giả trong "
+         "`bac/rui_ro.py`, chỉ nhỏ hơn")
 
     # ── thưởng KHÔNG vào NET ────────────────────────────────────────────
     kiem("token thưởng KHÔNG cộng vào NET",

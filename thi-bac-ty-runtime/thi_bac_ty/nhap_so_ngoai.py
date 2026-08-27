@@ -136,8 +136,8 @@ class NhapSoNgoai:
         if truoc is None:
             return 0
         # Bên kia cắt `xong` xuống 200 nên `daKetToan` có thể GIẢM — và
-        # `max(0, ...)` dưới đây đã lo chuyện ấy: `tang` âm thì hiệu càng
-        # âm, và kẹp về 0.
+        # `max(0, ...)` dưới đây đã lo chuyện ấy: `dem - truoc` âm thì hiệu
+        # càng âm, và kẹp về 0.
         #
         # Bản đầu còn một nhánh `if tang <= 0: return 0` đứng trước. Phép
         # cấy lỗi ngược cho thấy gỡ nó đi thì KHÔNG phép kiểm nào đỏ — nó

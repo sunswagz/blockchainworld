@@ -129,6 +129,36 @@ class _NhipRieng(Ty):
                 "soLuotBoQua": self.soLuotBoQua}
 
 
+def _giu_toi_thieu(baoGia, nowMs: float) -> list:
+    """Mỗi cảng: phải giữ ít nhất bao nhiêu giờ mới CHẠM một mốc kết toán.
+
+    Funding trả theo MỐC. Giữ bốn giờ trên sàn kết toán tám giờ có thể thu
+    đúng bằng KHÔNG — và người vận hành không nên phải tự suy ra điều đó từ
+    một bảng mốc kế tiếp.
+    """
+    from phai_sinh_chung.dongho import gio_giu_toi_thieu
+    ra = []
+    for b in baoGia:
+        try:
+            g = gio_giu_toi_thieu(nowMs, b.mocKeMs, b.intervalGio)
+        except Exception:                                     # noqa: BLE001
+            continue
+        ra.append({"san": b.san, "ma": b.ma, "gio": g,
+                   "chuKyGio": b.intervalGio})
+    ra.sort(key=lambda x: -x["gio"])
+    return ra[:8]
+
+
+def _tom_dong_co() -> dict:
+    """Sổ engine chưa dựng. Bọc try vì một phép canh nổ KHÔNG được làm chết
+    ảnh chụp — buồng lái mất một ô còn hơn mất cả trang."""
+    try:
+        from dong_co_chua_co.so_dang_ky import tom_tat
+        return tom_tat()
+    except Exception as e:                                    # noqa: BLE001
+        return {"loi": f"{type(e).__name__}: {e}"}
+
+
 class Runtime:
     def __init__(self) -> None:
         self.cang = {}
@@ -530,6 +560,11 @@ class Runtime:
             "loiVongCuoi": self.loiVongCuoi,
             "cang": [c.suc_khoe.tom_tat() for c in self.cang.values()],
             "dongHo": dong_ho.tom_tat(),
+            # "giữ dưới N giờ thì thu ĐÚNG BẰNG KHÔNG" — con số này từng
+            # có hàm tính (`gio_giu_toi_thieu`) mà không ai gọi, trong khi
+            # docstring của nó viết "buồng lái cần con số này". Một lời
+            # khai sai, và nó sai suốt vì không gì đối chiếu.
+            "giuToiThieuGio": _giu_toi_thieu(self.baoGia, now),
             "phiSan": {k: v for k, v in CONFIG["san"].items()
                        if (v or {}).get("bat")},
             "ruiRo": self.cong.tom_tat(),
@@ -560,6 +595,15 @@ class Runtime:
             ],
             # THỊ BẠC TY — bộ máy đứng trên ty này. Cả chín tầng trong một
             # khối, để buồng lái không phải ghép từ nhiều đường API.
+            # Router và sổ engine — HAI cơ chế chạy mà buồng lái không
+            # thấy. Một cơ chế không ai nhìn được là một cơ chế không ai
+            # tin, và nó im lặng hỏng đúng như ba cửa giả đã im lặng.
+            "router": (self.dinhTuyen.tom_tat()
+                       if getattr(self, "dinhTuyen", None) is not None
+                       else {"co": False,
+                             "vi": "Router chưa dựng — các ty giữ nguyên "
+                                   "khai báo phiConThieu"}),
+            "dongCoChuaCo": _tom_dong_co(),
             "trungUong": (self.trungUong.anh_chup()
                           if self.trungUong is not None else
                           {"tat": True,

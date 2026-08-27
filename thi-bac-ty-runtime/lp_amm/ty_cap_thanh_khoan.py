@@ -79,7 +79,8 @@ SUC_CHUA_CON_THIEU = ("do-sau-that-cua-pool", "phan-tram-pool-ta-chiem")
 
 CUA = ("apyToiThieuPhanTram", "tvlToiThieuUsd", "tvlToiDaUsd",
        "vongQuayToiThieu", "phiNgamToiThieuBps", "phiNgamToiDaBps",
-       "netToiThieuBps", "doiHoiIlRiskNo", "doiHoiCapNeoThat")
+       "netToiThieuBps", "doiHoiIlRiskNo", "doiHoiCapNeoThat",
+       "doiHoiPhoiNhiemMulti")
 
 CONFIG = {
     "quet": {
@@ -91,6 +92,8 @@ CONFIG = {
         "doiHoiIlRiskNo": True,
         # Cửa CHÍNH — tự đọc ký hiệu. Xem `NEO_DO_LA`.
         "doiHoiCapNeoThat": True,
+        # `exposure` của nguồn phải khớp ký hiệu — xem `xet()`.
+        "doiHoiPhoiNhiemMulti": True,
         "apyToiThieuPhanTram": 2.0,
         "tvlToiThieuUsd": 1_000_000.0,
         # Trần dữ liệu hỏng, không phải trần ưa thích. Xem docstring.
@@ -154,6 +157,8 @@ NHAN = {
     "phi-ngam-vo-ly": "apyBase và khối lượng KHÔNG khớp nhau",
     "net-duoi-nguong": "NET dưới ngưỡng",
     "thieu-so": "nguồn không đủ số để cân",
+    "phoi-nhiem-khong-phai-cap": "nguồn nói pool này không phải hai vế",
+    "nguon-tu-mau-thuan": "`exposure` và ký hiệu nói ngược nhau",
 }
 
 
@@ -207,6 +212,10 @@ class CoHoiLp:
     netBps: float | None
     sucChuaToiDaUsd: float | None
     hoaVonSauGio: float | None
+    #: Thứ chính Router khai là nó CHƯA tính. Rỗng ở đây từng là rỗng
+    #: GIẢ — trường được khai rồi không ai điền, và người đọc thấy `[]` sẽ
+    #: hiểu là «Router không thiếu gì». Cùng họ với ba cửa giả trong
+    #: `bac/rui_ro.py`, chỉ nhỏ hơn.
     routerConThieu: tuple = ()
     duyet: bool = False
     lyDo: tuple = ()
@@ -257,6 +266,18 @@ class CongRuiRo:
             ly.append(("co-rui-ro-il",
                        f"{p.kyHieu} không phải cặp neo — tổn thất vô thường "
                        f"không đo được từ một ảnh chụp"))
+        # `exposure` phải nói CÙNG một chuyện với ký hiệu. Trường này từng
+        # được đọc từ nguồn rồi không ai dùng — một trường chết, và trường
+        # chết là trường sẽ sai mà không ai biết.
+        if p.phoi != "multi":
+            ly.append(("phoi-nhiem-khong-phai-cap",
+                       f"exposure = {p.phoi!r} — pool một vế không phải một "
+                       f"cặp LP, và tổn thất vô thường của nó là chuyện khác"))
+        elif neo is None:
+            ly.append(("nguon-tu-mau-thuan",
+                       f"nguồn nói `exposure=multi` nhưng ký hiệu "
+                       f"{p.kyHieu!r} không tách được thành hai vế — hai con "
+                       f"số của CÙNG một nguồn đang cãi nhau"))
         # Cửa PHỤ: cờ của nguồn. Giữ vì nó bắt được thứ danh sách chưa biết,
         # nhưng KHÔNG được đứng một mình — xem `NEO_DO_LA`.
         if self.c["doiHoiIlRiskNo"] and p.ilRisk != "no":
@@ -344,7 +365,8 @@ class NguonPool(Nguon):
 
 
 def mot_co_hoi(p: Pool, vonUsd: float, giuGio: float, sucChuaC: dict,
-               phiVaoRaUsd: float | None) -> CoHoiLp:
+               phiVaoRaUsd: float | None,
+               routerConThieu: tuple = ()) -> CoHoiLp:
     """Phí thu trong cửa sổ giữ, trừ chi phí vào+ra.
 
     `apyBase` là phí GỐC — thưởng KHÔNG cộng vào, cùng luật `tin_dung/`.
@@ -363,15 +385,16 @@ def mot_co_hoi(p: Pool, vonUsd: float, giuGio: float, sucChuaC: dict,
         hoa = phiVaoRaUsd / moiGio if moiGio > 0 else None
     return CoHoiLp(pool=p, vonXinUsd=vonUsd, giuGio=giuGio, grossBps=gross,
                    phiVaoRaUsd=phiVaoRaUsd, netBps=net,
-                   sucChuaToiDaUsd=chua, hoaVonSauGio=hoa)
+                   sucChuaToiDaUsd=chua, hoaVonSauGio=hoa,
+                   routerConThieu=tuple(routerConThieu))
 
 
 def tim_co_hoi(ds, vonUsd: float, giuGio: float, sucChuaC: dict, cong,
                phiVaoRa=None) -> list:
     ra = []
     for p in ds:
-        co = mot_co_hoi(p, vonUsd, giuGio, sucChuaC,
-                        phiVaoRa(p.chuoi) if phiVaoRa else None)
+        phi, thieu = (phiVaoRa(p.chuoi) if phiVaoRa else (None, ()))
+        co = mot_co_hoi(p, vonUsd, giuGio, sucChuaC, phi, thieu)
         qua, ly = cong.xet(co)
         ra.append(replace(co, duyet=qua, lyDoMa=tuple(ly),
                           lyDo=tuple(c for _, c in ly)))
@@ -424,17 +447,24 @@ class TyCapThanhKhoan(Ty):
         async with lam() as c:
             return await self.nguon.doc(c, q["chuoi"])
 
-    def _phi_vao_ra(self, chuoi: str) -> float | None:
-        """Gas VÀO + RA vị thế. `None` khi thiếu Router — và `None` chảy lên
-        thành «chưa đo được», không thành 0."""
+    def _phi_vao_ra(self, chuoi: str) -> tuple:
+        """`(usd, thứ-Router-chưa-tính)`. `None` khi thiếu Router — và
+        `None` chảy lên thành «chưa đo được», không thành 0.
+
+        Trả về CẢ danh sách chưa-tính chứ không chỉ con số: `gasLimit` là
+        ƯỚC LƯỢNG, và một con số gas không kèm câu ấy đọc như một con số đo
+        được.
+        """
         if self.dinhTuyen is None:
-            return None
+            return None, ()
         try:
             g = self.dinhTuyen._gas_usd(str(chuoi).strip().lower(),
                                         "doi-tren-amm")
-            return None if g is None else 2.0 * g
-        except Exception:                                     # noqa: BLE001
-            return None
+            if g is None:
+                return None, ()
+            return 2.0 * g, ("gas-limit-uoc-luong",)
+        except Exception as e:                                # noqa: BLE001
+            return None, (f"router-no:{type(e).__name__}",)
 
     def xet(self, co):
         return bool(co.duyet), list(co.lyDoMa or ())
@@ -498,7 +528,9 @@ def xuat_to_trinh(co: CoHoiLp) -> ToTrinh:
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=p.tuoi_giay(),
         tinCay=_tin_cay(co),
-        moHinhPhiDuChua=False, phiConThieu=PHI_CON_THIEU,
+        moHinhPhiDuChua=False,
+        phiConThieu=(PHI_CON_THIEU
+                     + tuple(f"router:{x}" for x in co.routerConThieu)),
         moHinhSucChuaDuChua=False, sucChuaConThieu=SUC_CHUA_CON_THIEU,
         dinhGiaBang="USD",
         cang=(p.duAn,), chuoi=(p.chuoi,),

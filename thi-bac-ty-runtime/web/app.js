@@ -682,6 +682,99 @@
       + ((lat.soBoTrung || 0) ? "(vòng vừa rồi bỏ " + lat.soBoTrung
           + " lượt trùng)" : "") + "."));
 
+    /* ── giữ tối thiểu bao lâu mới CHẠM một mốc ──────────────────── */
+    var gtt = S.giuToiThieuGio || [];
+    if (gtt.length) {
+      f.appendChild(o("Giữ dưới bao lâu thì thu ĐÚNG BẰNG KHÔNG", bang(
+        [{ t: "cảng", trai: 1 }, { t: "mã", trai: 1 },
+         { t: "phải giữ ít nhất" }, { t: "chu kỳ" }],
+        gtt.map(function (x) {
+          return [{ t: x.san, c: "trai" }, { t: x.ma, c: "trai" },
+                  { t: (x.gio || 0).toFixed(2) + "h",
+                    c: (x.gio || 0) > 4 ? "am" : null },
+                  { t: (x.chuKyGio || 0) + "h" }];
+        })),
+        "Funding trả theo MỐC, không chảy liên tục. Giữ bốn giờ trên một "
+        + "sàn kết toán tám giờ có thể thu đúng bằng KHÔNG — và người vận "
+        + "hành không nên phải tự suy ra điều đó từ bảng mốc kế tiếp."));
+    }
+
+    /* ── Router · sổ ngoài · engine chưa dựng ────────────────────────
+       Ba cơ chế chạy mà trước 27/08 buồng lái KHÔNG thấy. Một cơ chế
+       không ai nhìn được là một cơ chế không ai tin, và nó im lặng hỏng
+       đúng như ba cửa giả trong `bac/rui_ro.py` đã im lặng. */
+    var R = S.router || null;
+    if (R) {
+      var rd = el("div");
+      if (R.co === false) {
+        rd.appendChild(el("p", "am", "Router CHƯA dựng — "
+          + (R.vi || "các ty giữ nguyên khai báo phiConThieu")));
+      } else {
+        var thieuGas = (R.chuoiThieuGas || []);
+        rd.appendChild(el("p", thieuGas.length ? "vi" : "qua",
+          "gas SỐNG trên " + (R.chuoiCoGas || []).length + " chuỗi: "
+          + (R.chuoiCoGas || []).join(", ")
+          + (thieuGas.length ? " · THIẾU: " + thieuGas.join(", ") : "")));
+        rd.appendChild(el("p", "giai",
+          "nhà = " + (R.nha || "?") + " · giá token gốc đọc được: "
+          + ((R.tokenCoGia || []).join(", ") || "KHÔNG có")
+          + " · báo giá cầu trong kho: " + (R.soBaoGiaTrongKho || 0)));
+        if (!(R.tokenCoGia || []).length) {
+          rd.appendChild(el("p", "am",
+            "Không có giá token gốc thì MỌI chặng gas đều mù, và cái mù ấy "
+            + "chảy lên tận tổng — đó là thiết kế, không phải lỗi."));
+        }
+      }
+      f.appendChild(o("Router chuyển vốn — hạ tầng, KHÔNG phải ty", rd,
+        "Nó trả lời «dời $X từ đâu tới đâu tốn gì, mất bao lâu, và có gì "
+        + "tôi KHÔNG đo được không». Câu cuối mới là phần đáng giá: một "
+        + "chặng không đo được thì CẢ TUYẾN không đo được, chứ không cộng "
+        + "vòng qua lỗ hổng."));
+    }
+
+    var SN = (T.soNgoai || []);
+    if (SN.length) {
+      var snd = el("div");
+      SN.forEach(function (x) {
+        snd.appendChild(el("p", x.docDuoc ? "qua" : "vi",
+          x.ten + ": " + (x.docDuoc ? "đọc được" : "KHÔNG đọc được — "
+            + (x.vi || "").slice(0, 70))
+          + " · đã nhập " + (x.soDaVao || 0) + " bút toán"
+          + (x.soBoSot ? " · BỎ SÓT " + x.soBoSot : "")
+          + (x.boSotDoDuoc ? "" : " · chưa đo được bỏ sót")));
+      });
+      f.appendChild(o("Sổ ngoài — kết toán cỗ máy khác vào MỘT sổ cái", snd,
+        "Bên kia chỉ đưa 12 bản ghi gần nhất. Kết toán hơn 12 lần giữa hai "
+        + "lượt hỏi thì phần giữa mất hẳn, và mất trong im lặng — sổ vẫn "
+        + "cân, vẫn không lỗi, chỉ thiếu tiền. Nên `soBoSot` đếm ra được, "
+        + "và «không thiếu» khác «không biết có thiếu không»."));
+    }
+
+    var DC = S.dongCoChuaCo || null;
+    if (DC && DC.soDongCo) {
+      var dcd = el("div");
+      dcd.appendChild(el("p", DC.soQuetDuoc ? "vi" : "qua",
+        DC.soDongCo + " engine trong sổ · ĐÃ DỰNG " + DC.soDaDung
+        + " · quét được nhưng chưa dựng " + DC.soQuetDuoc
+        + " · CHẶN " + DC.soChan));
+      var tt = DC.theoTrangThai || {};
+      ["DA_DUNG", "SAN_SANG", "QUET_DUOC", "CHAN"].forEach(function (k) {
+        if ((tt[k] || []).length) {
+          dcd.appendChild(el("p", k === "CHAN" ? "giai" : "vi",
+            k + ": " + tt[k].join(", ")));
+        }
+      });
+      dcd.appendChild(el("p", "giai", "đọc đủ kèm từng điều kiện: curl -s "
+        + "localhost:" + (location.port || "5188")
+        + "/api/dong-co-chua-co?day_du=true"));
+      f.appendChild(o("Engine CHƯA dựng — điều kiện chặn viết dạng CHẠY ĐƯỢC",
+        dcd,
+        "Bảng văn xuôi cũ nói «sáu engine bị chặn» và nó HỎNG trong cùng "
+        + "một ngày: Router ra đời buổi chiều và gỡ điều kiện của hai dòng. "
+        + "Nên mỗi engine nay mang điều kiện chặn của chính nó dưới dạng "
+        + "hàm canh, và sổ TỰ biết cái nào đã dựng bằng cách nạp thử gói."));
+    }
+
     /* ── hiến pháp: điều nào đang THẬT SỰ được canh ─────────────────── */
     var hp = T.hienPhap;
     if (hp) {

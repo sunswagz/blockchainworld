@@ -9,12 +9,12 @@
 window.CANG_PHI = {
   "date": "27/08/2026",
   "tomTat": "30 cặp đã cân · KHÔNG cặp nào qua cửa rủi ro",
-  "generatedAt": "2026-08-27T09:37:30.488Z",
+  "generatedAt": "2026-08-27T14:07:16.183Z",
   "maChienLuoc": "perpetual.funding_spread.v1",
   "che": "quan-sat",
   "cheKhai": "quan-sat",
   "vong": 1,
-  "chayDuocGiay": 11.915255308151245,
+  "chayDuocGiay": 13.82284951210022,
   "giuGio": 8.0,
   "ma": [
     "BTC",
@@ -29,8 +29,8 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 11.219966552734375,
-      "treTrungBinhMs": 150.03560000332072,
+      "tuoiGiay": 12.910337646484376,
+      "treTrungBinhMs": 303.16539999330416,
       "songSot": true
     },
     {
@@ -38,8 +38,8 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 11.084229736328124,
-      "treTrungBinhMs": 285.12859999318607,
+      "tuoiGiay": 12.9013623046875,
+      "treTrungBinhMs": 311.1536999931559,
       "songSot": true
     },
     {
@@ -47,8 +47,8 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 11.15603662109375,
-      "treTrungBinhMs": 212.81990001443774,
+      "tuoiGiay": 12.594272216796876,
+      "treTrungBinhMs": 618.699300015578,
       "songSot": true
     },
     {
@@ -56,21 +56,21 @@ window.CANG_PHI = {
       "tongLuot": 1,
       "soLoi": 0,
       "loiCuoi": null,
-      "tuoiGiay": 11.13908349609375,
-      "treTrungBinhMs": 230.0573000102304,
+      "tuoiGiay": 12.923815673828125,
+      "treTrungBinhMs": 289.0840999898501,
       "songSot": true
     }
   ],
   "dongHo": {
-    "lechMs": -19.474609375,
-    "lechGiay": -0.019474609375,
+    "lechMs": -10.914794921875,
+    "lechGiay": -0.010914794921875,
     "daDo": true,
     "dangKeu": false,
     "nguongKeuMs": 5000.0,
     "theoSan": {
-      "bybit": -25.22802734375,
-      "binance": -19.474609375,
-      "okx": -7.472900390625
+      "bybit": -10.914794921875,
+      "binance": -16.98388671875,
+      "okx": 9.669677734375
     },
     "soMau": 3
   },
@@ -82,10 +82,10 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 80277.5,
-      "mocKeMs": 1787824800000,
-      "oiUsd": 3046787624.4569,
-      "tuoiGiay": 11.221667236328125,
+      "markPx": 79565.0,
+      "mocKeMs": 1787842800000,
+      "oiUsd": 3049428170.3628,
+      "tuoiGiay": 12.9107060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -93,14 +93,14 @@ window.CANG_PHI = {
     {
       "san": "hyperliquid",
       "ma": "ETH",
-      "rate": 1.25e-05,
+      "rate": 2.1826e-06,
       "intervalGio": 1.0,
-      "moiGio": 1.25e-05,
-      "moiNgayBps": 3.0000000000000004,
-      "markPx": 2543.7,
-      "mocKeMs": 1787824800000,
-      "oiUsd": 1837955063.5165215,
-      "tuoiGiay": 11.221667236328125,
+      "moiGio": 2.1826e-06,
+      "moiNgayBps": 0.5238240000000001,
+      "markPx": 2495.1,
+      "mocKeMs": 1787842800000,
+      "oiUsd": 1732909683.301261,
+      "tuoiGiay": 12.9107060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -112,10 +112,10 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 104.8908,
-      "mocKeMs": 1787824800000,
-      "oiUsd": 646291853.4154322,
-      "tuoiGiay": 11.221667236328125,
+      "markPx": 105.67,
+      "mocKeMs": 1787842800000,
+      "oiUsd": 724524628.3521997,
+      "tuoiGiay": 12.9107060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -127,10 +127,10 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 0.089228,
-      "mocKeMs": 1787824800000,
-      "oiUsd": 57643215.3248,
-      "tuoiGiay": 11.221667236328125,
+      "markPx": 0.08821,
+      "mocKeMs": 1787842800000,
+      "oiUsd": 56670723.91054,
+      "tuoiGiay": 12.9107060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -142,10 +142,10 @@ window.CANG_PHI = {
       "intervalGio": 1.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 1.443,
-      "mocKeMs": 1787824800000,
-      "oiUsd": 239048153.448,
-      "tuoiGiay": 11.221667236328125,
+      "markPx": 1.440921,
+      "mocKeMs": 1787842800000,
+      "oiUsd": 240509201.915604,
+      "tuoiGiay": 12.9107060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -153,32 +153,32 @@ window.CANG_PHI = {
     {
       "san": "binance",
       "ma": "BTC",
-      "rate": 0.0001,
+      "rate": 7.711e-05,
       "intervalGio": 8.0,
-      "moiGio": 1.25e-05,
-      "moiNgayBps": 3.0000000000000004,
-      "markPx": 80241.30115217,
+      "moiGio": 9.63875e-06,
+      "moiNgayBps": 2.3133,
+      "markPx": 79545.3,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 11.970667236328126,
+      "tuoiGiay": 13.6537060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": ""
+      "ghiChu": "mốc kế gợi ý 2h, lệch bản khai 8h"
     },
     {
       "san": "binance",
       "ma": "ETH",
-      "rate": 9.219e-05,
+      "rate": 2.474e-05,
       "intervalGio": 8.0,
-      "moiGio": 1.152375e-05,
-      "moiNgayBps": 2.7657,
-      "markPx": 2543.10331008,
+      "moiGio": 3.0925e-06,
+      "moiNgayBps": 0.7422000000000001,
+      "markPx": 2494.83,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 11.970667236328126,
+      "tuoiGiay": 13.6537060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": ""
+      "ghiChu": "mốc kế gợi ý 2h, lệch bản khai 8h"
     },
     {
       "san": "binance",
@@ -187,28 +187,28 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 104.81,
+      "markPx": 105.61,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 11.970667236328126,
+      "tuoiGiay": 13.6537060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": ""
+      "ghiChu": "mốc kế gợi ý 2h, lệch bản khai 8h"
     },
     {
       "san": "binance",
       "ma": "XRP",
-      "rate": 3.412e-05,
+      "rate": -1.478e-05,
       "intervalGio": 8.0,
-      "moiGio": 4.265e-06,
-      "moiNgayBps": 1.0235999999999998,
-      "markPx": 1.4417,
+      "moiGio": -1.8475e-06,
+      "moiNgayBps": -0.4434,
+      "markPx": 1.4399,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 11.970667236328126,
+      "tuoiGiay": 13.6537060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": ""
+      "ghiChu": "mốc kế gợi ý 2h, lệch bản khai 8h"
     },
     {
       "san": "binance",
@@ -217,25 +217,25 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 0.08922066,
+      "markPx": 0.08819,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 11.970667236328126,
+      "tuoiGiay": 13.6537060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
-      "ghiChu": ""
+      "ghiChu": "mốc kế gợi ý 2h, lệch bản khai 8h"
     },
     {
       "san": "okx",
       "ma": "BTC",
-      "rate": 3.01385255192e-05,
+      "rate": 4.96560232232e-05,
       "intervalGio": 8.0,
-      "moiGio": 3.7673156899e-06,
-      "moiNgayBps": 0.904155765576,
-      "markPx": 80239.9,
+      "moiGio": 6.2070029029e-06,
+      "moiNgayBps": 1.4896806966960001,
+      "markPx": 79547.4,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 76.45766723632812,
+      "tuoiGiay": 56.9577060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -243,14 +243,14 @@ window.CANG_PHI = {
     {
       "san": "okx",
       "ma": "ETH",
-      "rate": 7.95342268374e-05,
+      "rate": 3.95650412784e-05,
       "intervalGio": 8.0,
-      "moiGio": 9.941778354675e-06,
-      "moiNgayBps": 2.386026805122,
-      "markPx": 2542.98,
+      "moiGio": 4.9456301598e-06,
+      "moiNgayBps": 1.186951238352,
+      "markPx": 2495.05,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 76.36266723632812,
+      "tuoiGiay": 13.8387060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -258,14 +258,14 @@ window.CANG_PHI = {
     {
       "san": "okx",
       "ma": "SOL",
-      "rate": 0.0001,
+      "rate": 4.15815112933e-05,
       "intervalGio": 8.0,
-      "moiGio": 1.25e-05,
-      "moiNgayBps": 3.0000000000000004,
-      "markPx": 104.76,
+      "moiGio": 5.1976889116625e-06,
+      "moiNgayBps": 1.247445338799,
+      "markPx": 105.58,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 75.02966723632812,
+      "tuoiGiay": 55.5957060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -273,14 +273,14 @@ window.CANG_PHI = {
     {
       "san": "okx",
       "ma": "XRP",
-      "rate": 7.4863859447e-05,
+      "rate": -1.65405943882e-05,
       "intervalGio": 8.0,
-      "moiGio": 9.357982430875e-06,
-      "moiNgayBps": 2.24591578341,
-      "markPx": 1.4415,
+      "moiGio": -2.067574298525e-06,
+      "moiNgayBps": -0.49621783164600003,
+      "markPx": 1.4401,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 76.06866723632812,
+      "tuoiGiay": 13.5687060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -288,14 +288,14 @@ window.CANG_PHI = {
     {
       "san": "okx",
       "ma": "DOGE",
-      "rate": 1.48106548656e-05,
+      "rate": -5.82751658234e-05,
       "intervalGio": 8.0,
-      "moiGio": 1.8513318582e-06,
-      "moiNgayBps": 0.444319645968,
-      "markPx": 0.08918,
+      "moiGio": -7.284395727925e-06,
+      "moiNgayBps": -1.748254974702,
+      "markPx": 0.08818,
       "mocKeMs": 1787846400000,
       "oiUsd": null,
-      "tuoiGiay": 75.53466723632812,
+      "tuoiGiay": 56.0857060546875,
       "nguonTuSan": true,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -303,14 +303,14 @@ window.CANG_PHI = {
     {
       "san": "bybit",
       "ma": "BTC",
-      "rate": 0.0001,
+      "rate": 7.77e-05,
       "intervalGio": 8.0,
-      "moiGio": 1.25e-05,
-      "moiNgayBps": 3.0000000000000004,
-      "markPx": 80242.88,
+      "moiGio": 9.7125e-06,
+      "moiNgayBps": 2.3310000000000004,
+      "markPx": 79548.8,
       "mocKeMs": 1787846400000,
-      "oiUsd": 3968698980.15,
-      "tuoiGiay": 11.145667236328125,
+      "oiUsd": 3872654581.85,
+      "tuoiGiay": 12.9347060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -318,14 +318,14 @@ window.CANG_PHI = {
     {
       "san": "bybit",
       "ma": "DOGE",
-      "rate": 2.152e-05,
+      "rate": 7.518e-05,
       "intervalGio": 8.0,
-      "moiGio": 2.69e-06,
-      "moiNgayBps": 0.6456000000000001,
-      "markPx": 0.0892,
+      "moiGio": 9.3975e-06,
+      "moiNgayBps": 2.2554,
+      "markPx": 0.0882,
       "mocKeMs": 1787846400000,
-      "oiUsd": 138623062.38,
-      "tuoiGiay": 11.145667236328125,
+      "oiUsd": 134780800.96,
+      "tuoiGiay": 12.9347060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -333,14 +333,14 @@ window.CANG_PHI = {
     {
       "san": "bybit",
       "ma": "ETH",
-      "rate": 0.0001,
+      "rate": 1.08e-06,
       "intervalGio": 8.0,
-      "moiGio": 1.25e-05,
-      "moiNgayBps": 3.0000000000000004,
-      "markPx": 2542.89,
+      "moiGio": 1.35e-07,
+      "moiNgayBps": 0.032400000000000005,
+      "markPx": 2495.14,
       "mocKeMs": 1787846400000,
-      "oiUsd": 2021433304.73,
-      "tuoiGiay": 11.145667236328125,
+      "oiUsd": 1908351638.45,
+      "tuoiGiay": 12.9347060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -352,10 +352,10 @@ window.CANG_PHI = {
       "intervalGio": 8.0,
       "moiGio": 1.25e-05,
       "moiNgayBps": 3.0000000000000004,
-      "markPx": 104.802,
+      "markPx": 105.615,
       "mocKeMs": 1787846400000,
-      "oiUsd": 764583441.65,
-      "tuoiGiay": 11.145667236328125,
+      "oiUsd": 782378609.7,
+      "tuoiGiay": 12.9347060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -363,14 +363,14 @@ window.CANG_PHI = {
     {
       "san": "bybit",
       "ma": "XRP",
-      "rate": -7.215e-05,
+      "rate": -3.761e-05,
       "intervalGio": 8.0,
-      "moiGio": -9.01875e-06,
-      "moiNgayBps": -2.1645000000000003,
-      "markPx": 1.4419,
+      "moiGio": -4.70125e-06,
+      "moiNgayBps": -1.1283,
+      "markPx": 1.4399,
       "mocKeMs": 1787846400000,
-      "oiUsd": 322570481.03,
-      "tuoiGiay": 11.145667236328125,
+      "oiUsd": 316468523.16,
+      "tuoiGiay": 12.9347060546875,
       "nguonTuSan": false,
       "intervalSuyRa": false,
       "ghiChu": ""
@@ -381,21 +381,21 @@ window.CANG_PHI = {
       "ma": "DOGE",
       "sanLong": "okx",
       "sanShort": "hyperliquid",
-      "rateLong": 1.48106548656e-05,
+      "rateLong": -5.82751658234e-05,
       "rateShort": 1.25e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 2.5556803540320003,
+      "grossBpsNgay": 4.748254974702,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 0.8518934513440001,
+      "thuBps": 1.582751658234,
       "phiBps": 27.0,
-      "netBps": -26.148106548656,
-      "netAprPct": -286.32176670778324,
-      "lechMarkBps": 5.380924622214964,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 64.45143481445312,
+      "netBps": -25.417248341766,
+      "netAprPct": -278.31886934233773,
+      "lechMarkBps": 3.4015533760419805,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 43.49342651367188,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -406,34 +406,216 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 2.56 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -26.15 bps < ngưỡng 0.50"
+        "NET sau phí -25.42 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "okx",
+      "sanShort": "hyperliquid",
+      "rateLong": -1.65405943882e-05,
+      "rateShort": 1.25e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 1.0,
+      "grossBpsNgay": 3.496217831646,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 8,
+      "thuBps": 1.165405943882,
+      "phiBps": 27.0,
+      "netBps": -25.834594056118,
+      "netAprPct": -282.8888049144921,
+      "lechMarkBps": 5.699368383638722,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 0.976426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "NET sau phí -25.83 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "binance",
+      "sanShort": "hyperliquid",
+      "rateLong": -1.478e-05,
+      "rateShort": 1.25e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 1.0,
+      "grossBpsNgay": 3.4434000000000005,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 8,
+      "thuBps": 1.1478000000000002,
+      "phiBps": 27.0,
+      "netBps": -25.8522,
+      "netAprPct": -283.08159,
+      "lechMarkBps": 7.08825713225458,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "NET sau phí -25.85 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "SOL",
+      "sanLong": "okx",
+      "sanShort": "hyperliquid",
+      "rateLong": 4.15815112933e-05,
+      "rateShort": 1.25e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 1.0,
+      "grossBpsNgay": 1.7525546612010001,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 8,
+      "thuBps": 0.584184887067,
+      "phiBps": 27.0,
+      "netBps": -26.415815112933,
+      "netAprPct": -289.2531754866163,
+      "lechMarkBps": 8.52071005917192,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 43.003426513671876,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 1.75 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -26.42 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "DOGE",
+      "sanLong": "okx",
+      "sanShort": "binance",
+      "rateLong": -5.82751658234e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 4.748254974702,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 1.582751658234,
+      "phiBps": 28.0,
+      "netBps": -26.417248341766,
+      "netAprPct": -289.26886934233767,
+      "lechMarkBps": 1.1339797017644724,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 43.49342651367188,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "NET sau phí -26.42 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "BTC",
+      "sanLong": "okx",
+      "sanShort": "hyperliquid",
+      "rateLong": 4.96560232232e-05,
+      "rateShort": 1.25e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 1.0,
+      "grossBpsNgay": 1.5103193033039999,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 8,
+      "thuBps": 0.503439767768,
+      "phiBps": 27.0,
+      "netBps": -26.496560232232,
+      "netAprPct": -290.13733454294044,
+      "lechMarkBps": 2.212272582150206,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 44.36542651367188,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 1.51 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -26.50 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "XRP",
       "sanLong": "bybit",
       "sanShort": "hyperliquid",
-      "rateLong": -7.215e-05,
+      "rateLong": -3.761e-05,
       "rateShort": 1.25e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 5.1645,
+      "grossBpsNgay": 4.1283,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 1.7215,
+      "thuBps": 1.3761,
       "phiBps": 28.0,
-      "netBps": -26.2785,
-      "netAprPct": -287.749575,
-      "lechMarkBps": 7.625914243128711,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.138434814453125,
+      "netBps": -26.6239,
+      "netAprPct": -291.53170499999993,
+      "lechMarkBps": 7.08825713225458,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 0.342426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -444,70 +626,32 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "NET sau phí -26.28 bps < ngưỡng 0.50"
+        "NET sau phí -26.62 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "BTC",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid",
-      "rateLong": 3.01385255192e-05,
-      "rateShort": 1.25e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 1.0,
-      "grossBpsNgay": 2.0958442344240003,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 8,
-      "thuBps": 0.698614744808,
-      "phiBps": 27.0,
-      "netBps": -26.301385255192,
-      "netAprPct": -288.0001685443524,
-      "lechMarkBps": 4.684850365132481,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 65.37443481445312,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 2.10 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -26.30 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "XRP",
       "sanLong": "binance",
       "sanShort": "hyperliquid",
-      "rateLong": 3.412e-05,
+      "rateLong": 7.711e-05,
       "rateShort": 1.25e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 1.9764000000000004,
+      "grossBpsNgay": 0.6867000000000002,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 0.6588000000000002,
+      "thuBps": 0.22890000000000005,
       "phiBps": 27.0,
-      "netBps": -26.3412,
-      "netAprPct": -288.43614,
-      "lechMarkBps": 9.013068949978013,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "netBps": -26.7711,
+      "netAprPct": -293.143545,
+      "lechMarkBps": 2.4762696066812886,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -518,148 +662,34 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 1.98 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -26.34 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.69 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -26.77 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "XRP",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid",
-      "rateLong": 7.4863859447e-05,
-      "rateShort": 1.25e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 1.0,
-      "grossBpsNgay": 0.7540842165900002,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 8,
-      "thuBps": 0.2513614055300001,
-      "phiBps": 27.0,
-      "netBps": -26.74863859447,
-      "netAprPct": -292.8975926094465,
-      "lechMarkBps": 10.40041601664106,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 64.98543481445313,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.75 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -26.75 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "ETH",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid",
-      "rateLong": 7.95342268374e-05,
-      "rateShort": 1.25e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 1.0,
-      "grossBpsNgay": 0.6139731948780004,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 8,
-      "thuBps": 0.20465773162600012,
-      "phiBps": 27.0,
-      "netBps": -26.795342268374,
-      "netAprPct": -293.40899783869526,
-      "lechMarkBps": 2.8309231168455646,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 65.27943481445313,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.61 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -26.80 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "ETH",
-      "sanLong": "binance",
-      "sanShort": "hyperliquid",
-      "rateLong": 9.219e-05,
-      "rateShort": 1.25e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 1.0,
-      "grossBpsNgay": 0.23430000000000026,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 8,
-      "thuBps": 0.07810000000000009,
-      "phiBps": 27.0,
-      "netBps": -26.9219,
-      "netAprPct": -294.794805,
-      "lechMarkBps": 2.3460310282388552,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.887434814453125,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.23 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -26.92 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "BTC",
       "sanLong": "hyperliquid",
-      "sanShort": "binance",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
+      "sanShort": "okx",
+      "rateLong": 2.1826e-06,
+      "rateShort": 3.95650412784e-05,
       "intervalLongGio": 1.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
+      "grossBpsNgay": 0.663127238352,
       "giuGio": 8.0,
       "soMocLong": 8,
       "soMocShort": 1,
-      "thuBps": 0.0,
+      "thuBps": 0.221042412784,
       "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 4.510231520566669,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "netBps": -26.778957587216,
+      "netAprPct": -293.2295855800152,
+      "lechMarkBps": 0.2003947777109993,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 1.246426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -670,14 +700,52 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.66 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -26.78 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "ETH",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance",
+      "rateLong": 2.1826e-06,
+      "rateShort": 2.474e-05,
+      "intervalLongGio": 1.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.218376,
+      "giuGio": 8.0,
+      "soMocLong": 8,
+      "soMocShort": 1,
+      "thuBps": 0.072792,
+      "phiBps": 27.0,
+      "netBps": -26.927208,
+      "netAprPct": -294.8529276,
+      "lechMarkBps": 1.082179509532125,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.22 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -26.93 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "SOL",
@@ -695,9 +763,9 @@ window.CANG_PHI = {
       "phiBps": 27.0,
       "netBps": -27.0,
       "netAprPct": -295.65,
-      "lechMarkBps": 7.706217620533296,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "lechMarkBps": 5.679666792881699,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -715,45 +783,7 @@ window.CANG_PHI = {
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "SOL",
-      "sanLong": "hyperliquid",
-      "sanShort": "okx",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 27.0,
-      "netBps": -27.0,
-      "netAprPct": -295.65,
-      "lechMarkBps": 12.477891808664083,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 63.94643481445313,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.00 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "DOGE",
@@ -771,9 +801,9 @@ window.CANG_PHI = {
       "phiBps": 27.0,
       "netBps": -27.0,
       "netAprPct": -295.65,
-      "lechMarkBps": 0.822645572122363,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "lechMarkBps": 2.2675736961442454,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -791,27 +821,65 @@ window.CANG_PHI = {
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "SOL",
+      "sanLong": "okx",
+      "sanShort": "binance",
+      "rateLong": 4.15815112933e-05,
+      "rateShort": 0.0001,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 1.7525546612010001,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.584184887067,
+      "phiBps": 28.0,
+      "netBps": -27.415815112933,
+      "netAprPct": -300.2031754866164,
+      "lechMarkBps": 2.8410436100195215,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 43.003426513671876,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 1.75 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.42 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "DOGE",
       "sanLong": "okx",
-      "sanShort": "binance",
-      "rateLong": 1.48106548656e-05,
-      "rateShort": 0.0001,
+      "sanShort": "bybit",
+      "rateLong": -5.82751658234e-05,
+      "rateShort": 7.518e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 2.5556803540320003,
+      "grossBpsNgay": 4.003654974702,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 1,
-      "thuBps": 0.8518934513440001,
-      "phiBps": 28.0,
-      "netBps": -27.148106548656,
-      "netAprPct": -297.2717667077832,
-      "lechMarkBps": 4.558279100536727,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 64.45143481445312,
+      "thuBps": 1.334551658234,
+      "phiBps": 29.0,
+      "netBps": -27.665448341766,
+      "netAprPct": -302.93665934233775,
+      "lechMarkBps": 2.267830819821536,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 43.49342651367188,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -822,34 +890,70 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 2.56 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.15 bps < ngưỡng 0.50"
+        "NET sau phí -27.67 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "BTC",
+      "sanLong": "okx",
+      "sanShort": "binance",
+      "rateLong": 4.96560232232e-05,
+      "rateShort": 7.711e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.8236193033039999,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.274539767768,
+      "phiBps": 28.0,
+      "netBps": -27.725460232232,
+      "netAprPct": -303.5937895429404,
+      "lechMarkBps": 0.2639970281466426,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 44.36542651367188,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.82 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.73 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "DOGE",
       "sanLong": "bybit",
       "sanShort": "hyperliquid",
-      "rateLong": 2.152e-05,
+      "rateLong": 7.518e-05,
       "rateShort": 1.25e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 1.0,
-      "grossBpsNgay": 2.3544,
+      "grossBpsNgay": 0.7446000000000003,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 8,
-      "thuBps": 0.7848,
+      "thuBps": 0.2482000000000001,
       "phiBps": 28.0,
-      "netBps": -27.2152,
-      "netAprPct": -298.00644,
-      "lechMarkBps": 3.1385208599547436,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.138434814453125,
+      "netBps": -27.7518,
+      "netAprPct": -303.88221,
+      "lechMarkBps": 1.133722578084703,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 0.342426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -860,34 +964,34 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 2.35 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.22 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.74 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.75 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "BTC",
-      "sanLong": "okx",
-      "sanShort": "binance",
-      "rateLong": 3.01385255192e-05,
-      "rateShort": 0.0001,
+      "sanLong": "bybit",
+      "sanShort": "hyperliquid",
+      "rateLong": 7.77e-05,
+      "rateShort": 1.25e-05,
       "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 2.0958442344240003,
+      "intervalShortGio": 1.0,
+      "grossBpsNgay": 0.669,
       "giuGio": 8.0,
       "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.698614744808,
+      "soMocShort": 8,
+      "thuBps": 0.223,
       "phiBps": 28.0,
-      "netBps": -27.301385255192,
-      "netAprPct": -298.9501685443524,
-      "lechMarkBps": 0.17461885378994751,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 65.37443481445312,
+      "netBps": -27.777,
+      "netAprPct": -304.15815,
+      "lechMarkBps": 2.0362784371936424,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 0.342426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -898,34 +1002,34 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 2.10 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.30 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.67 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.78 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
-      "ma": "XRP",
+      "ma": "ETH",
       "sanLong": "bybit",
-      "sanShort": "okx",
-      "rateLong": -7.215e-05,
-      "rateShort": 7.4863859447e-05,
+      "sanShort": "hyperliquid",
+      "rateLong": 1.08e-06,
+      "rateShort": 2.1826e-06,
       "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 4.4104157834099995,
+      "intervalShortGio": 1.0,
+      "grossBpsNgay": 0.49142399999999997,
       "giuGio": 8.0,
       "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 1.4701385944699998,
-      "phiBps": 29.0,
-      "netBps": -27.52986140553,
-      "netAprPct": -301.4519823905535,
-      "lechMarkBps": 2.7745023236453905,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 64.98543481445313,
+      "soMocShort": 8,
+      "thuBps": 0.163808,
+      "phiBps": 28.0,
+      "netBps": -27.836192,
+      "netAprPct": -304.8063024,
+      "lechMarkBps": 0.16031293084085585,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 0.342426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -936,32 +1040,34 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "NET sau phí -27.53 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.49 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.84 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
+        "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
-      "ma": "XRP",
+      "ma": "ETH",
       "sanLong": "binance",
       "sanShort": "okx",
-      "rateLong": 3.412e-05,
-      "rateShort": 7.4863859447e-05,
+      "rateLong": 2.474e-05,
+      "rateShort": 3.95650412784e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 1.22231578341,
+      "grossBpsNgay": 0.444751238352,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 1,
-      "thuBps": 0.40743859446999997,
+      "thuBps": 0.148250412784,
       "phiBps": 28.0,
-      "netBps": -27.59256140553,
-      "netAprPct": -302.1385473905535,
-      "lechMarkBps": 1.3873473917867507,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 64.98543481445313,
+      "netBps": -27.851749587216,
+      "netAprPct": -304.9766579800152,
+      "lechMarkBps": 0.8817847322991922,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.246426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -972,108 +1078,34 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 1.22 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.59 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.44 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.85 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "ETH",
-      "sanLong": "okx",
-      "sanShort": "binance",
-      "rateLong": 7.95342268374e-05,
-      "rateShort": 9.219e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.3796731948780001,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.12655773162600004,
-      "phiBps": 28.0,
-      "netBps": -27.873442268374,
-      "netAprPct": -305.2141928386952,
-      "lechMarkBps": 0.48489209665765637,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 65.27943481445313,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.38 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -27.87 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "XRP",
-      "sanLong": "bybit",
+      "sanLong": "okx",
       "sanShort": "binance",
-      "rateLong": -7.215e-05,
-      "rateShort": 3.412e-05,
+      "rateLong": -1.65405943882e-05,
+      "rateShort": -1.478e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 3.1881,
+      "grossBpsNgay": 0.05281783164599997,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 1,
-      "thuBps": 1.0627,
-      "phiBps": 29.0,
-      "netBps": -27.9373,
-      "netAprPct": -305.913435,
-      "lechMarkBps": 1.387154945207227,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 0.887434814453125,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "NET sau phí -27.94 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "BTC",
-      "sanLong": "hyperliquid",
-      "sanShort": "bybit",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
+      "thuBps": 0.01760594388199999,
       "phiBps": 28.0,
-      "netBps": -28.0,
-      "netAprPct": -306.59999999999997,
-      "lechMarkBps": 4.313470974837631,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.138434814453125,
+      "netBps": -27.982394056118,
+      "netAprPct": -306.4072149144921,
+      "lechMarkBps": 1.388888888888736,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1084,52 +1116,14 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.00 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.05 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -27.98 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "ETH",
-      "sanLong": "hyperliquid",
-      "sanShort": "bybit",
-      "rateLong": 1.25e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 1.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 8,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 28.0,
-      "netBps": -28.0,
-      "netAprPct": -306.59999999999997,
-      "lechMarkBps": 3.1848448567702348,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.138434814453125,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.00 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "SOL",
@@ -1147,9 +1141,9 @@ window.CANG_PHI = {
       "phiBps": 28.0,
       "netBps": -28.0,
       "netAprPct": -306.59999999999997,
-      "lechMarkBps": 8.4695325733637,
-      "choMocDauGiay": 1361.1115651855469,
-      "tuoiXauNhatGiay": 0.138434814453125,
+      "lechMarkBps": 5.206238019737021,
+      "choMocDauGiay": 3176.938573486328,
+      "tuoiXauNhatGiay": 0.342426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1167,27 +1161,27 @@ window.CANG_PHI = {
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "SOL",
-      "sanLong": "binance",
-      "sanShort": "okx",
-      "rateLong": 0.0001,
+      "sanLong": "okx",
+      "sanShort": "bybit",
+      "rateLong": 4.15815112933e-05,
       "rateShort": 0.0001,
       "intervalLongGio": 8.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
+      "grossBpsNgay": 1.7525546612010001,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 28.0,
-      "netBps": -28.0,
-      "netAprPct": -306.59999999999997,
-      "lechMarkBps": 4.771675335209921,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 63.94643481445313,
+      "thuBps": 0.584184887067,
+      "phiBps": 29.0,
+      "netBps": -28.415815112933,
+      "netAprPct": -311.1531754866163,
+      "lechMarkBps": 3.3144724070168885,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 43.003426513671876,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1198,34 +1192,110 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.00 bps < ngưỡng 0.50"
+        "chênh lệch thô 1.75 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.42 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "ETH",
+      "sanLong": "bybit",
+      "sanShort": "okx",
+      "rateLong": 1.08e-06,
+      "rateShort": 3.95650412784e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 1.154551238352,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.38485041278399995,
+      "phiBps": 29.0,
+      "netBps": -28.615149587216,
+      "netAprPct": -313.33588798001523,
+      "lechMarkBps": 0.3607077085228849,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.246426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 1.15 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.62 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "BTC",
+      "sanLong": "okx",
+      "sanShort": "bybit",
+      "rateLong": 4.96560232232e-05,
+      "rateShort": 7.77e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.8413193033040001,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.280439767768,
+      "phiBps": 29.0,
+      "netBps": -28.719560232232,
+      "netAprPct": -314.47918454294046,
+      "lechMarkBps": 0.17599414693861087,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 44.36542651367188,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.84 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.72 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "DOGE",
       "sanLong": "bybit",
       "sanShort": "binance",
-      "rateLong": 2.152e-05,
+      "rateLong": 7.518e-05,
       "rateShort": 0.0001,
       "intervalLongGio": 8.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 2.3544,
+      "grossBpsNgay": 0.7446000000000003,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 1,
-      "thuBps": 0.7848,
+      "thuBps": 0.2482000000000001,
       "phiBps": 29.0,
-      "netBps": -28.2152,
-      "netAprPct": -308.95644,
-      "lechMarkBps": 2.31587530278072,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "netBps": -28.7518,
+      "netAprPct": -314.83221,
+      "lechMarkBps": 1.1338511253468024,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1236,110 +1306,148 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 2.35 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.22 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.74 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.75 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "ETH",
+      "sanLong": "bybit",
+      "sanShort": "binance",
+      "rateLong": 1.08e-06,
+      "rateShort": 2.474e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.7098,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.2366,
+      "phiBps": 29.0,
+      "netBps": -28.7634,
+      "netAprPct": -314.95923000000005,
+      "lechMarkBps": 1.242492439834089,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.71 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.76 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "bybit",
+      "sanShort": "binance",
+      "rateLong": -3.761e-05,
+      "rateShort": -1.478e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.6849000000000001,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.2283,
+      "phiBps": 29.0,
+      "netBps": -28.7717,
+      "netAprPct": -315.050115,
+      "lechMarkBps": 0.0,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.68 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.77 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
+    },
+    {
+      "ma": "XRP",
+      "sanLong": "bybit",
+      "sanShort": "okx",
+      "rateLong": -3.761e-05,
+      "rateShort": -1.65405943882e-05,
+      "intervalLongGio": 8.0,
+      "intervalShortGio": 8.0,
+      "grossBpsNgay": 0.632082168354,
+      "giuGio": 8.0,
+      "soMocLong": 1,
+      "soMocShort": 1,
+      "thuBps": 0.21069405611800002,
+      "phiBps": 29.0,
+      "netBps": -28.789305943882,
+      "netAprPct": -315.2429000855078,
+      "lechMarkBps": 1.388888888888736,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 0.976426513671875,
+      "uocLuongMoc": false,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "vay-coin",
+        "chuyen-von",
+        "basis-luc-thoat",
+        "von-bi-khoa"
+      ],
+      "duyet": false,
+      "lyDo": [
+        "chênh lệch thô 0.63 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.79 bps < ngưỡng 0.50"
+      ],
+      "lyDoMa": [
+        "gross-mong",
+        "net-am"
+      ],
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
       "ma": "BTC",
-      "sanLong": "okx",
-      "sanShort": "bybit",
-      "rateLong": 3.01385255192e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 2.0958442344240003,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.698614744808,
-      "phiBps": 29.0,
-      "netBps": -28.301385255192,
-      "netAprPct": -309.9001685443524,
-      "lechMarkBps": 0.37137940905690664,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 65.37443481445312,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 2.10 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.30 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "ETH",
-      "sanLong": "okx",
-      "sanShort": "bybit",
-      "rateLong": 7.95342268374e-05,
-      "rateShort": 0.0001,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.6139731948780004,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.20465773162600012,
-      "phiBps": 29.0,
-      "netBps": -28.795342268374,
-      "netAprPct": -315.30899783869535,
-      "lechMarkBps": 0.35392174790211123,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 65.27943481445313,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.61 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.80 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "ETH",
       "sanLong": "binance",
       "sanShort": "bybit",
-      "rateLong": 9.219e-05,
-      "rateShort": 0.0001,
+      "rateLong": 7.711e-05,
+      "rateShort": 7.77e-05,
       "intervalLongGio": 8.0,
       "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.23430000000000026,
+      "grossBpsNgay": 0.017700000000000188,
       "giuGio": 8.0,
       "soMocLong": 1,
       "soMocShort": 1,
-      "thuBps": 0.07810000000000009,
+      "thuBps": 0.005900000000000062,
       "phiBps": 29.0,
-      "netBps": -28.9219,
-      "netAprPct": -316.6948050000001,
-      "lechMarkBps": 0.8388138441998874,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "netBps": -28.9941,
+      "netAprPct": -317.485395,
+      "lechMarkBps": 0.4399911750341464,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1350,55 +1458,17 @@ window.CANG_PHI = {
       ],
       "duyet": false,
       "lyDo": [
-        "chênh lệch thô 0.23 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.92 bps < ngưỡng 0.50"
+        "chênh lệch thô 0.02 bps/ngày < ngưỡng 3.00",
+        "NET sau phí -28.99 bps < ngưỡng 0.50"
       ],
       "lyDoMa": [
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     },
     {
-      "ma": "DOGE",
-      "sanLong": "okx",
-      "sanShort": "bybit",
-      "rateLong": 1.48106548656e-05,
-      "rateShort": 2.152e-05,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.20128035403199998,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.06709345134400001,
-      "phiBps": 29.0,
-      "netBps": -28.932906548656,
-      "netAprPct": -316.8153267077832,
-      "lechMarkBps": 2.242403856935321,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 64.45143481445312,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.20 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -28.93 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "BTC",
+      "ma": "SOL",
       "sanLong": "binance",
       "sanShort": "bybit",
       "rateLong": 0.0001,
@@ -1413,9 +1483,9 @@ window.CANG_PHI = {
       "phiBps": 29.0,
       "netBps": -29.0,
       "netAprPct": -317.55,
-      "lechMarkBps": 0.1967605552988588,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 0.887434814453125,
+      "lechMarkBps": 0.47342880814254495,
+      "choMocDauGiay": 6776.938573486328,
+      "tuoiXauNhatGiay": 1.061426513671875,
       "uocLuongMoc": false,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1433,89 +1503,13 @@ window.CANG_PHI = {
         "gross-mong",
         "net-am"
       ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "SOL",
-      "sanLong": "binance",
-      "sanShort": "bybit",
-      "rateLong": 0.0001,
-      "rateShort": 0.0001,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 29.0,
-      "netBps": -29.0,
-      "netAprPct": -317.55,
-      "lechMarkBps": 0.7633150773806427,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 0.887434814453125,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -29.00 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
-    },
-    {
-      "ma": "SOL",
-      "sanLong": "okx",
-      "sanShort": "bybit",
-      "rateLong": 0.0001,
-      "rateShort": 0.0001,
-      "intervalLongGio": 8.0,
-      "intervalShortGio": 8.0,
-      "grossBpsNgay": 0.0,
-      "giuGio": 8.0,
-      "soMocLong": 1,
-      "soMocShort": 1,
-      "thuBps": 0.0,
-      "phiBps": 29.0,
-      "netBps": -29.0,
-      "netAprPct": -317.55,
-      "lechMarkBps": 4.008360294328322,
-      "choMocDauGiay": 22961.111565185547,
-      "tuoiXauNhatGiay": 63.94643481445313,
-      "uocLuongMoc": false,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin",
-        "chuyen-von",
-        "basis-luc-thoat",
-        "von-bi-khoa"
-      ],
-      "duyet": false,
-      "lyDo": [
-        "chênh lệch thô 0.00 bps/ngày < ngưỡng 3.00",
-        "NET sau phí -29.00 bps < ngưỡng 0.50"
-      ],
-      "lyDoMa": [
-        "gross-mong",
-        "net-am"
-      ],
-      "luc": "2026-08-27T09:37:18Z"
+      "luc": "2026-08-27T14:07:03Z"
     }
   ],
   "toTrinh": [
     {
-      "ma": "c6266cd2404f4fe7",
-      "luc": "2026-08-27T09:37:20.925Z",
+      "ma": "fa9585a92c9948ff",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -1540,25 +1534,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 35011025.0,
+      "thanhKhoanThoatUsd": 35965334.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 36.86687671232877,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 35.91269781114417,
-      "netMoiGioBps": 0.049878746959922456,
+      "grossBps": 30.7338904109589,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 28.41931353976686,
+      "netMoiGioBps": 0.03947126880523175,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.6525321465196153,
+        "thanhKhoan": 0.6450098070191264,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.6525321465196153
+        "caoNhat": 0.6450098070191264
       },
-      "tuoiDuLieuGiay": 0.020944580078125,
+      "tuoiDuLieuGiay": 0.025962158203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1574,17 +1568,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "compound-v3 trên Ethereum",
-        "APY gốc 4.49% (thưởng 0.11% KHÔNG tính vào NET)",
-        "TVL $35.0M · dùng vốn 90%",
-        "rút ra được $35.0M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 18.6 giờ"
+        "APY gốc 3.74% (thưởng 0.11% KHÔNG tính vào NET)",
+        "TVL $36.0M · dùng vốn 90%",
+        "rút ra được $36.0M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 54.2 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "bcce55bec0e04bf0",
-      "luc": "2026-08-27T09:37:20.925Z",
+      "ma": "2b5bff5a78ef41f5",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -1609,25 +1603,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 24229862.0,
+      "thanhKhoanThoatUsd": 25410507.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 27.639698630136987,
-      "phiUocBps": 0.2596646428701,
-      "netUocBps": 27.380033987266888,
-      "netMoiGioBps": 0.03802782498231512,
+      "grossBps": 27.252246575342465,
+      "phiUocBps": 0.038923559999999996,
+      "netUocBps": 27.213323015342464,
+      "netMoiGioBps": 0.03779628196575342,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.5313569612703138,
+        "thanhKhoan": 0.5137807958613987,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.5313569612703138
+        "caoNhat": 0.5137807958613987
       },
-      "tuoiDuLieuGiay": 0.020944580078125,
+      "tuoiDuLieuGiay": 0.025962158203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1643,17 +1637,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "aave-v3 trên Base",
-        "APY gốc 3.36% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $24.2M · dùng vốn 86%",
-        "rút ra được $24.2M",
-        "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 6.8 giờ"
+        "APY gốc 3.32% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $25.4M · dùng vốn 86%",
+        "rút ra được $25.4M",
+        "gas khứ hồi 0.0 bps trên $500 · hoà gas sau 1.0 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "339b12759a9e4ae0",
-      "luc": "2026-08-27T09:37:20.925Z",
+      "ma": "284bb59329724c0c",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDT",
@@ -1678,25 +1672,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 235479776.0,
+      "thanhKhoanThoatUsd": 241093052.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 27.185342465753422,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 26.23116356456882,
-      "netMoiGioBps": 0.036432171617456696,
+      "grossBps": 27.077095890410956,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 24.762519019218914,
+      "netMoiGioBps": 0.034392387526692936,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.7036601469047433,
+        "thanhKhoan": 0.697532194411224,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.7036601469047433
+        "caoNhat": 0.697532194411224
       },
-      "tuoiDuLieuGiay": 0.020944580078125,
+      "tuoiDuLieuGiay": 0.025962158203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1712,17 +1706,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "aave-v3 trên Ethereum",
-        "APY gốc 3.31% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $235.6M · dùng vốn 92%",
-        "rút ra được $235.5M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 25.3 giờ"
+        "APY gốc 3.29% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $241.2M · dùng vốn 92%",
+        "rút ra được $241.1M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 61.5 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "5ff7ea8dc5264521",
-      "luc": "2026-08-27T09:37:20.925Z",
+      "ma": "025adce1bc714406",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -1747,25 +1741,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 29653166.0,
+      "thanhKhoanThoatUsd": 29452627.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 26.934328767123286,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 25.980149865938685,
-      "netMoiGioBps": 0.036083541480470396,
+      "grossBps": 27.014958904109587,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 24.700382032917545,
+      "netMoiGioBps": 0.034306086156829924,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.31914202200494607,
-        "giaoThuc": 0.17326348491723054,
-        "cang": 0.17326348491723054,
+        "thanhKhoan": 0.32176135631903946,
+        "giaoThuc": 0.17177956335401612,
+        "cang": 0.17177956335401612,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.31914202200494607
+        "caoNhat": 0.32176135631903946
       },
-      "tuoiDuLieuGiay": 0.020944580078125,
+      "tuoiDuLieuGiay": 0.025962158203125,
       "tinCay": 0.6,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1781,17 +1775,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "dolomite trên Ethereum",
-        "APY gốc 3.28% (thưởng 4.11% KHÔNG tính vào NET)",
-        "TVL $29.7M · dùng vốn 78%",
-        "rút ra được $29.7M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 25.5 giờ"
+        "APY gốc 3.29% (thưởng 4.11% KHÔNG tính vào NET)",
+        "TVL $29.5M · dùng vốn 78%",
+        "rút ra được $29.5M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 61.7 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "603d135900384410",
-      "luc": "2026-08-27T09:37:20.925Z",
+      "ma": "e249d96ab70a43dc",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -1816,25 +1810,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 6224952.0,
+      "thanhKhoanThoatUsd": 6223523.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 26.09194520547945,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 25.13776630429485,
-      "netMoiGioBps": 0.03491356431152062,
+      "grossBps": 26.093753424657532,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 23.77917655346549,
+      "netMoiGioBps": 0.0330266341020354,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.6113630194753604,
-        "giaoThuc": 0.31180804380332294,
-        "cang": 0.31180804380332294,
+        "thanhKhoan": 0.6114575542211518,
+        "giaoThuc": 0.3134692978131648,
+        "cang": 0.3134692978131648,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.6113630194753604
+        "caoNhat": 0.6114575542211518
       },
-      "tuoiDuLieuGiay": 0.020944580078125,
+      "tuoiDuLieuGiay": 0.024965087890625,
       "tinCay": 0.65,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1853,14 +1847,14 @@ window.CANG_PHI = {
         "APY gốc 3.17% (thưởng 0.00% KHÔNG tính vào NET)",
         "TVL $6.2M · dùng vốn 89%",
         "rút ra được $6.2M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 26.3 giờ"
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 63.9 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "4e302dc4a8a54ffb",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "610b4cc986d644dc",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -1885,25 +1879,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 226780953.0,
+      "thanhKhoanThoatUsd": 246946174.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 26.071397260273972,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 25.11721835908937,
-      "netMoiGioBps": 0.03488502549873524,
+      "grossBps": 25.561315068493148,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 23.246738197301106,
+      "netMoiGioBps": 0.03228713638514043,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.6412454682367005,
+        "thanhKhoan": 0.6132091479174705,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.6412454682367005
+        "caoNhat": 0.6132091479174705
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.025962158203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -1919,155 +1913,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "aave-v3 trên Ethereum",
-        "APY gốc 3.17% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $226.9M · dùng vốn 90%",
-        "rút ra được $226.8M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 26.4 giờ"
+        "APY gốc 3.11% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $247.1M · dùng vốn 89%",
+        "rút ra được $246.9M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 65.2 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "81cee793f3614e75",
-      "luc": "2026-08-27T09:37:20.926Z",
-      "chienLuoc": "lending.rate_rotation.v1",
-      "ho": "tin-dung",
-      "taiSan": "USDT",
-      "dinhGiaBang": "USDT",
-      "cang": [
-        "compound-v3"
-      ],
-      "chuoi": [
-        "Ethereum"
-      ],
-      "chan": [
-        {
-          "ben": "CHO_VAY",
-          "cang": "compound-v3",
-          "taiSan": "USDT",
-          "vonUsd": 500.0,
-          "loai": "lending",
-          "chuoi": "Ethereum"
-        }
-      ],
-      "vonCanUsd": 500.0,
-      "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 0.0,
-      "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 29954827.0,
-      "gioVonBiGiu": 720.0,
-      "raDuocKhong": true,
-      "grossBps": 24.730356164383558,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 23.776177263198957,
-      "netMoiGioBps": 0.03302246842110966,
-      "giuGio": 720.0,
-      "ruiRo": {
-        "thiTruong": 0.1,
-        "thanhKhoan": 0.45102964132644097,
-        "giaoThuc": 0.15,
-        "cang": 0.15,
-        "thucThi": 0.1,
-        "cauNoi": 0.0,
-        "chuaDo": [],
-        "caoNhat": 0.45102964132644097
-      },
-      "tuoiDuLieuGiay": 0.021942138671875,
-      "tinCay": 0.75,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "chuyen-von-giua-chuoi",
-        "gia-token-thuong",
-        "thue",
-        "truot-gia-khi-doi-stable"
-      ],
-      "moHinhSucChuaDuChua": false,
-      "sucChuaConThieu": [
-        "duong-cong-lai-suat",
-        "do-sau-thi-truong-that"
-      ],
-      "bangChung": [
-        "compound-v3 trên Ethereum",
-        "APY gốc 3.01% (thưởng 0.12% KHÔNG tính vào NET)",
-        "TVL $30.0M · dùng vốn 84%",
-        "rút ra được $30.0M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 27.8 giờ"
-      ],
-      "hopLe": true,
-      "loiKhuon": []
-    },
-    {
-      "ma": "9333ff6ff1454e2d",
-      "luc": "2026-08-27T09:37:20.926Z",
-      "chienLuoc": "lending.rate_rotation.v1",
-      "ho": "tin-dung",
-      "taiSan": "DAI",
-      "dinhGiaBang": "DAI",
-      "cang": [
-        "aave-v3"
-      ],
-      "chuoi": [
-        "Ethereum"
-      ],
-      "chan": [
-        {
-          "ben": "CHO_VAY",
-          "cang": "aave-v3",
-          "taiSan": "DAI",
-          "vonUsd": 500.0,
-          "loai": "lending",
-          "chuoi": "Ethereum"
-        }
-      ],
-      "vonCanUsd": 500.0,
-      "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 0.0,
-      "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 19022457.0,
-      "gioVonBiGiu": 720.0,
-      "raDuocKhong": true,
-      "grossBps": 24.541561643835614,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 23.587382742651013,
-      "netMoiGioBps": 0.03276025380923752,
-      "giuGio": 720.0,
-      "ruiRo": {
-        "thiTruong": 0.1,
-        "thanhKhoan": 0.5068490707546138,
-        "giaoThuc": 0.15,
-        "cang": 0.15,
-        "thucThi": 0.1,
-        "cauNoi": 0.0,
-        "chuaDo": [],
-        "caoNhat": 0.5068490707546138
-      },
-      "tuoiDuLieuGiay": 0.021942138671875,
-      "tinCay": 0.65,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "chuyen-von-giua-chuoi",
-        "gia-token-thuong",
-        "thue",
-        "truot-gia-khi-doi-stable"
-      ],
-      "moHinhSucChuaDuChua": false,
-      "sucChuaConThieu": [
-        "duong-cong-lai-suat",
-        "do-sau-thi-truong-that"
-      ],
-      "bangChung": [
-        "aave-v3 trên Ethereum",
-        "APY gốc 2.99% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $19.0M · dùng vốn 86%",
-        "rút ra được $19.0M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 28.0 giờ"
-      ],
-      "hopLe": true,
-      "loiKhuon": []
-    },
-    {
-      "ma": "7c2475ae8cb54c57",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "4043479121964b97",
+      "luc": "2026-08-27T14:07:05.493Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -2092,17 +1948,17 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 11661839.0,
+      "thanhKhoanThoatUsd": 11663165.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 23.931945205479447,
+      "grossBps": 23.93827397260274,
       "phiUocBps": 0.8,
-      "netUocBps": 23.131945205479447,
-      "netMoiGioBps": 0.03212770167427701,
+      "netUocBps": 23.13827397260274,
+      "netMoiGioBps": 0.03213649162861491,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.04268971849078777,
+        "thanhKhoan": 0.04275731030260311,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
@@ -2110,7 +1966,7 @@ window.CANG_PHI = {
         "chuaDo": [],
         "caoNhat": 0.15
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.025962158203125,
       "tinCay": 0.65,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2135,8 +1991,146 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "172b1debee664527",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "9b587351fbc140b0",
+      "luc": "2026-08-27T14:07:05.493Z",
+      "chienLuoc": "lending.rate_rotation.v1",
+      "ho": "tin-dung",
+      "taiSan": "USDT",
+      "dinhGiaBang": "USDT",
+      "cang": [
+        "compound-v3"
+      ],
+      "chuoi": [
+        "Ethereum"
+      ],
+      "chan": [
+        {
+          "ben": "CHO_VAY",
+          "cang": "compound-v3",
+          "taiSan": "USDT",
+          "vonUsd": 500.0,
+          "loai": "lending",
+          "chuoi": "Ethereum"
+        }
+      ],
+      "vonCanUsd": 500.0,
+      "sucChuaToiDaUsd": 50000.0,
+      "khoaVonDenGiay": 0.0,
+      "vonToiThieuKinhTeUsd": 500.0,
+      "thanhKhoanThoatUsd": 27834227.0,
+      "gioVonBiGiu": 720.0,
+      "raDuocKhong": true,
+      "grossBps": 25.022219178082185,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 22.707642306890143,
+      "netMoiGioBps": 0.031538392092902975,
+      "giuGio": 720.0,
+      "ruiRo": {
+        "thiTruong": 0.1,
+        "thanhKhoan": 0.47791859591722274,
+        "giaoThuc": 0.15,
+        "cang": 0.15,
+        "thucThi": 0.1,
+        "cauNoi": 0.0,
+        "chuaDo": [],
+        "caoNhat": 0.47791859591722274
+      },
+      "tuoiDuLieuGiay": 0.025962158203125,
+      "tinCay": 0.75,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "chuyen-von-giua-chuoi",
+        "gia-token-thuong",
+        "thue",
+        "truot-gia-khi-doi-stable"
+      ],
+      "moHinhSucChuaDuChua": false,
+      "sucChuaConThieu": [
+        "duong-cong-lai-suat",
+        "do-sau-thi-truong-that"
+      ],
+      "bangChung": [
+        "compound-v3 trên Ethereum",
+        "APY gốc 3.04% (thưởng 0.12% KHÔNG tính vào NET)",
+        "TVL $27.8M · dùng vốn 85%",
+        "rút ra được $27.8M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 66.6 giờ"
+      ],
+      "hopLe": true,
+      "loiKhuon": []
+    },
+    {
+      "ma": "b4f3990b0c814853",
+      "luc": "2026-08-27T14:07:05.493Z",
+      "chienLuoc": "lending.rate_rotation.v1",
+      "ho": "tin-dung",
+      "taiSan": "DAI",
+      "dinhGiaBang": "DAI",
+      "cang": [
+        "aave-v3"
+      ],
+      "chuoi": [
+        "Ethereum"
+      ],
+      "chan": [
+        {
+          "ben": "CHO_VAY",
+          "cang": "aave-v3",
+          "taiSan": "DAI",
+          "vonUsd": 500.0,
+          "loai": "lending",
+          "chuoi": "Ethereum"
+        }
+      ],
+      "vonCanUsd": 500.0,
+      "sucChuaToiDaUsd": 50000.0,
+      "khoaVonDenGiay": 0.0,
+      "vonToiThieuKinhTeUsd": 500.0,
+      "thanhKhoanThoatUsd": 18994136.0,
+      "gioVonBiGiu": 720.0,
+      "raDuocKhong": true,
+      "grossBps": 24.559479452054795,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 22.244902580862757,
+      "netMoiGioBps": 0.03089569802897605,
+      "giuGio": 720.0,
+      "ruiRo": {
+        "thiTruong": 0.1,
+        "thanhKhoan": 0.5077505611949202,
+        "giaoThuc": 0.15,
+        "cang": 0.15,
+        "thucThi": 0.1,
+        "cauNoi": 0.0,
+        "chuaDo": [],
+        "caoNhat": 0.5077505611949202
+      },
+      "tuoiDuLieuGiay": 0.025962158203125,
+      "tinCay": 0.65,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "chuyen-von-giua-chuoi",
+        "gia-token-thuong",
+        "thue",
+        "truot-gia-khi-doi-stable"
+      ],
+      "moHinhSucChuaDuChua": false,
+      "sucChuaConThieu": [
+        "duong-cong-lai-suat",
+        "do-sau-thi-truong-that"
+      ],
+      "bangChung": [
+        "aave-v3 trên Ethereum",
+        "APY gốc 2.99% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $19.0M · dùng vốn 86%",
+        "rút ra được $19.0M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 67.9 giờ"
+      ],
+      "hopLe": true,
+      "loiKhuon": []
+    },
+    {
+      "ma": "1dd3b65f3b804abe",
+      "luc": "2026-08-27T14:07:05.494Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -2161,25 +2155,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 7582814.0,
+      "thanhKhoanThoatUsd": 7582330.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 23.317643835616437,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 22.363464934431835,
-      "netMoiGioBps": 0.03106036796448866,
+      "grossBps": 23.318465753424654,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 21.003888882232616,
+      "netMoiGioBps": 0.029172067891989745,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.6016478608820106,
-        "giaoThuc": 0.31180804380332294,
-        "cang": 0.31180804380332294,
+        "thanhKhoan": 0.6016922151347037,
+        "giaoThuc": 0.3134692978131648,
+        "cang": 0.3134692978131648,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.6016478608820106
+        "caoNhat": 0.6016922151347037
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.02695947265625,
       "tinCay": 0.65,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2198,18 +2192,18 @@ window.CANG_PHI = {
         "APY gốc 2.84% (thưởng 0.00% KHÔNG tính vào NET)",
         "TVL $7.6M · dùng vốn 89%",
         "rút ra được $7.6M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 29.5 giờ"
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 71.5 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "5b429a888cb146aa",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "c235be8021bf437e",
+      "luc": "2026-08-27T14:07:05.494Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
-      "taiSan": "DAI",
-      "dinhGiaBang": "DAI",
+      "taiSan": "USDT",
+      "dinhGiaBang": "USDT",
       "cang": [
         "sparklend"
       ],
@@ -2220,7 +2214,7 @@ window.CANG_PHI = {
         {
           "ben": "CHO_VAY",
           "cang": "sparklend",
-          "taiSan": "DAI",
+          "taiSan": "USDT",
           "vonUsd": 500.0,
           "loai": "lending",
           "chuoi": "Ethereum"
@@ -2230,25 +2224,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 116943860.0,
+      "thanhKhoanThoatUsd": 60783106.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 17.82271232876712,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 16.86853342758252,
-      "netMoiGioBps": 0.023428518649420166,
+      "grossBps": 21.52290410958904,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 19.208327238396997,
+      "netMoiGioBps": 0.026678232275551383,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.07893433155729186,
+        "thanhKhoan": 0.45052836696573334,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.15
+        "caoNhat": 0.45052836696573334
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.02695947265625,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2264,17 +2258,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "sparklend trên Ethereum",
-        "APY gốc 2.17% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $117.3M · dùng vốn 64%",
-        "rút ra được $116.9M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 38.5 giờ"
+        "APY gốc 2.62% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $60.8M · dùng vốn 84%",
+        "rút ra được $60.8M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 77.4 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "3f4272c6d9c9427c",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "5c88b8438cc34612",
+      "luc": "2026-08-27T14:07:05.494Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDC",
@@ -2299,25 +2293,25 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 53775839.0,
+      "thanhKhoanThoatUsd": 53431541.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 16.901260273972603,
-      "phiUocBps": 0.13248403584,
-      "netUocBps": 16.768776238132602,
-      "netMoiGioBps": 0.023289966997406392,
+      "grossBps": 16.99117808219178,
+      "phiUocBps": 0.1297452,
+      "netUocBps": 16.86143288219178,
+      "netMoiGioBps": 0.02341865678082192,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.1887042187706515,
+        "thanhKhoan": 0.1920303000625638,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
         "cauNoi": 0.0,
         "chuaDo": [],
-        "caoNhat": 0.1887042187706515
+        "caoNhat": 0.1920303000625638
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.02695947265625,
       "tinCay": 1.0,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2332,17 +2326,86 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "aave-v3 trên Arbitrum",
-        "APY gốc 2.06% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $53.8M · dùng vốn 72%",
-        "rút ra được $53.8M",
-        "gas khứ hồi 0.1 bps trên $500 · hoà gas sau 5.6 giờ"
+        "APY gốc 2.07% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $53.5M · dùng vốn 72%",
+        "rút ra được $53.4M",
+        "gas khứ hồi 0.1 bps trên $500 · hoà gas sau 5.5 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "78315dd26f5943b9",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "76386b9306dc4a0e",
+      "luc": "2026-08-27T14:07:05.494Z",
+      "chienLuoc": "lending.rate_rotation.v1",
+      "ho": "tin-dung",
+      "taiSan": "DAI",
+      "dinhGiaBang": "DAI",
+      "cang": [
+        "sparklend"
+      ],
+      "chuoi": [
+        "Ethereum"
+      ],
+      "chan": [
+        {
+          "ben": "CHO_VAY",
+          "cang": "sparklend",
+          "taiSan": "DAI",
+          "vonUsd": 500.0,
+          "loai": "lending",
+          "chuoi": "Ethereum"
+        }
+      ],
+      "vonCanUsd": 500.0,
+      "sucChuaToiDaUsd": 50000.0,
+      "khoaVonDenGiay": 0.0,
+      "vonToiThieuKinhTeUsd": 500.0,
+      "thanhKhoanThoatUsd": 116957036.0,
+      "gioVonBiGiu": 720.0,
+      "raDuocKhong": true,
+      "grossBps": 17.822465753424655,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 15.507888882232615,
+      "netMoiGioBps": 0.02153873455865641,
+      "giuGio": 720.0,
+      "ruiRo": {
+        "thiTruong": 0.1,
+        "thanhKhoan": 0.07892808123601547,
+        "giaoThuc": 0.15,
+        "cang": 0.15,
+        "thucThi": 0.1,
+        "cauNoi": 0.0,
+        "chuaDo": [],
+        "caoNhat": 0.15
+      },
+      "tuoiDuLieuGiay": 0.02695947265625,
+      "tinCay": 0.75,
+      "moHinhPhiDuChua": false,
+      "phiConThieu": [
+        "chuyen-von-giua-chuoi",
+        "gia-token-thuong",
+        "thue",
+        "truot-gia-khi-doi-stable"
+      ],
+      "moHinhSucChuaDuChua": false,
+      "sucChuaConThieu": [
+        "duong-cong-lai-suat",
+        "do-sau-thi-truong-that"
+      ],
+      "bangChung": [
+        "sparklend trên Ethereum",
+        "APY gốc 2.17% (thưởng 0.00% KHÔNG tính vào NET)",
+        "TVL $117.3M · dùng vốn 64%",
+        "rút ra được $117.0M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 93.5 giờ"
+      ],
+      "hopLe": true,
+      "loiKhuon": []
+    },
+    {
+      "ma": "b319a8fc47584c7a",
+      "luc": "2026-08-27T14:07:05.494Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDS",
@@ -2367,17 +2430,17 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 309439084.0,
+      "thanhKhoanThoatUsd": 310495646.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 16.72594520547945,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 15.771766304294852,
-      "netMoiGioBps": 0.021905230978187293,
+      "grossBps": 16.725780821917805,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 14.411203950725765,
+      "netMoiGioBps": 0.020015561042674674,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.05740200163906945,
+        "thanhKhoan": 0.05739844351785109,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
@@ -2385,7 +2448,7 @@ window.CANG_PHI = {
         "chuaDo": [],
         "caoNhat": 0.15
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.02695947265625,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2402,16 +2465,16 @@ window.CANG_PHI = {
       "bangChung": [
         "sparklend trên Ethereum",
         "APY gốc 2.03% (thưởng 0.00% KHÔNG tính vào NET)",
-        "TVL $309.5M · dùng vốn 62%",
-        "rút ra được $309.4M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 41.1 giờ"
+        "TVL $310.5M · dùng vốn 62%",
+        "rút ra được $310.5M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 99.6 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "b6bda824790a4631",
-      "luc": "2026-08-27T09:37:20.926Z",
+      "ma": "5f6b8eef3fcb469f",
+      "luc": "2026-08-27T14:07:05.494Z",
       "chienLuoc": "lending.rate_rotation.v1",
       "ho": "tin-dung",
       "taiSan": "USDE",
@@ -2436,17 +2499,17 @@ window.CANG_PHI = {
       "sucChuaToiDaUsd": 50000.0,
       "khoaVonDenGiay": 0.0,
       "vonToiThieuKinhTeUsd": 500.0,
-      "thanhKhoanThoatUsd": 278323985.0,
+      "thanhKhoanThoatUsd": 282426640.0,
       "gioVonBiGiu": 720.0,
       "raDuocKhong": true,
-      "grossBps": 10.471315068493151,
-      "phiUocBps": 0.9541789011845999,
-      "netUocBps": 9.517136167308552,
-      "netMoiGioBps": 0.013218244676817432,
+      "grossBps": 10.283424657534246,
+      "phiUocBps": 2.31457687119204,
+      "netUocBps": 7.968847786342206,
+      "netMoiGioBps": 0.011067844147697507,
       "giuGio": 720.0,
       "ruiRo": {
         "thiTruong": 0.1,
-        "thanhKhoan": 0.05593584515148199,
+        "thanhKhoan": 0.050789118344380296,
         "giaoThuc": 0.15,
         "cang": 0.15,
         "thucThi": 0.1,
@@ -2454,7 +2517,7 @@ window.CANG_PHI = {
         "chuaDo": [],
         "caoNhat": 0.15
       },
-      "tuoiDuLieuGiay": 0.021942138671875,
+      "tuoiDuLieuGiay": 0.02695947265625,
       "tinCay": 0.6,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2470,17 +2533,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "aave-v3 trên Ethereum",
-        "APY gốc 1.27% (thưởng 1.34% KHÔNG tính vào NET)",
-        "TVL $278.4M · dùng vốn 62%",
-        "rút ra được $278.3M",
-        "gas khứ hồi 1.0 bps trên $500 · hoà gas sau 65.6 giờ"
+        "APY gốc 1.25% (thưởng 1.36% KHÔNG tính vào NET)",
+        "TVL $282.5M · dùng vốn 61%",
+        "rút ra được $282.4M",
+        "gas khứ hồi 2.3 bps trên $500 · hoà gas sau 162.1 giờ"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "3ab22f6726104fee",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "7c23dac556ba4eee",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "REUSDE",
@@ -2502,28 +2565,28 @@ window.CANG_PHI = {
         }
       ],
       "vonCanUsd": 1000.0,
-      "sucChuaToiDaUsd": 45829.04,
-      "khoaVonDenGiay": 2510.3770761686114,
+      "sucChuaToiDaUsd": 45833.67,
+      "khoaVonDenGiay": 2505.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 2510.377076730278,
+      "gioVonBiGiu": 2505.8812321319447,
       "raDuocKhong": null,
-      "grossBps": 511.5864775377909,
+      "grossBps": 510.67027521785326,
       "phiUocBps": 0.0,
-      "netUocBps": 511.5864775377909,
-      "netMoiGioBps": 0.203788698630137,
-      "giuGio": 2510.377076730278,
+      "netUocBps": 510.67027521785326,
+      "netMoiGioBps": 0.20378869863013702,
+      "giuGio": 2505.8812321319447,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2539,7 +2602,7 @@ window.CANG_PHI = {
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-reUSDe-10DEC2026",
         "lãi CỐ ĐỊNH 17.85%/năm tới đáo hạn",
-        "đáo hạn 2026-12-10, còn 105 ngày — vốn KHOÁ hết ngần ấy",
+        "đáo hạn 2026-12-10, còn 104 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $4.6M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -2547,8 +2610,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "cd76e4098af04ade",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "42c04bd8499a4814",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "USD3",
@@ -2571,27 +2634,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 2678.3770761686114,
+      "khoaVonDenGiay": 2673.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 2678.377076730278,
+      "gioVonBiGiu": 2673.8812321319447,
       "raDuocKhong": null,
-      "grossBps": 426.11419961658714,
+      "grossBps": 426.15836802336884,
       "phiUocBps": 0.0,
-      "netUocBps": 426.11419961658714,
-      "netMoiGioBps": 0.15909417808219178,
-      "giuGio": 2678.377076730278,
+      "netUocBps": 426.15836802336884,
+      "netMoiGioBps": 0.15937819634703196,
+      "giuGio": 2673.8812321319447,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2606,8 +2669,8 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-USD3-17DEC2026",
-        "lãi CỐ ĐỊNH 13.94%/năm tới đáo hạn",
-        "đáo hạn 2026-12-17, còn 112 ngày — vốn KHOÁ hết ngần ấy",
+        "lãi CỐ ĐỊNH 13.96%/năm tới đáo hạn",
+        "đáo hạn 2026-12-17, còn 111 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $6.5M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -2615,8 +2678,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "511922d5c26d4c73",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "f2a9329a9f9c4439",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "APYUSD",
@@ -2639,27 +2702,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 1670.377076168611,
+      "khoaVonDenGiay": 1665.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 1670.3770767302778,
+      "gioVonBiGiu": 1665.8812321319444,
       "raDuocKhong": null,
-      "grossBps": 263.74243425303206,
+      "grossBps": 263.7253535882635,
       "phiUocBps": 0.0,
-      "netUocBps": 263.74243425303206,
-      "netMoiGioBps": 0.15789394977168952,
-      "giuGio": 1670.3770767302778,
+      "netUocBps": 263.7253535882635,
+      "netMoiGioBps": 0.1583098173515982,
+      "giuGio": 1665.8812321319444,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2674,17 +2737,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-apyUSD-05NOV2026",
-        "lãi CỐ ĐỊNH 13.83%/năm tới đáo hạn",
-        "đáo hạn 2026-11-05, còn 70 ngày — vốn KHOÁ hết ngần ấy",
-        "TVL $17.3M",
+        "lãi CỐ ĐỊNH 13.87%/năm tới đáo hạn",
+        "đáo hạn 2026-11-05, còn 69 ngày — vốn KHOÁ hết ngần ấy",
+        "TVL $17.7M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "5cd59e720bf84719",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "178dd8fecaa64dd1",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "STRUSD",
@@ -2707,27 +2770,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 2174.377076168611,
+      "khoaVonDenGiay": 2169.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 2174.3770767302776,
+      "gioVonBiGiu": 2169.881232131944,
       "raDuocKhong": null,
-      "grossBps": 287.99177591482237,
+      "grossBps": 287.09956193808233,
       "phiUocBps": 0.0,
-      "netUocBps": 287.99177591482237,
-      "netMoiGioBps": 0.13244794520547945,
-      "giuGio": 2174.3770767302776,
+      "netUocBps": 287.09956193808233,
+      "netMoiGioBps": 0.13231118721461185,
+      "giuGio": 2169.881232131944,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2742,8 +2805,8 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-strUSD-26NOV2026",
-        "lãi CỐ ĐỊNH 11.60%/năm tới đáo hạn",
-        "đáo hạn 2026-11-26, còn 91 ngày — vốn KHOÁ hết ngần ấy",
+        "lãi CỐ ĐỊNH 11.59%/năm tới đáo hạn",
+        "đáo hạn 2026-11-26, còn 90 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $7.1M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -2751,8 +2814,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "cf670d1490244ad8",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "cd166ce24c0d4e7d",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "REUSD",
@@ -2775,27 +2838,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 2510.3770761686114,
+      "khoaVonDenGiay": 2505.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 2510.377076730278,
+      "gioVonBiGiu": 2505.8812321319447,
       "raDuocKhong": null,
-      "grossBps": 324.74736501125517,
+      "grossBps": 318.0918722310064,
       "phiUocBps": 0.0,
-      "netUocBps": 324.74736501125517,
-      "netMoiGioBps": 0.12936198630136986,
-      "giuGio": 2510.377076730278,
+      "netUocBps": 318.0918722310064,
+      "netMoiGioBps": 0.1269381278538813,
+      "giuGio": 2505.8812321319447,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2810,8 +2873,8 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-reUSD-10DEC2026",
-        "lãi CỐ ĐỊNH 11.33%/năm tới đáo hạn",
-        "đáo hạn 2026-12-10, còn 105 ngày — vốn KHOÁ hết ngần ấy",
+        "lãi CỐ ĐỊNH 11.12%/năm tới đáo hạn",
+        "đáo hạn 2026-12-10, còn 104 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $10.2M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -2819,8 +2882,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "fba7c66756234810",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "a234462b8b7d43ee",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "SUSDAI",
@@ -2843,27 +2906,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 1166.377076168611,
+      "khoaVonDenGiay": 1161.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 1166.3770767302778,
+      "gioVonBiGiu": 1161.8812321319444,
       "raDuocKhong": null,
-      "grossBps": 137.87162898451615,
+      "grossBps": 137.14124530534926,
       "phiUocBps": 0.0,
-      "netUocBps": 137.51494119571615,
-      "netMoiGioBps": 0.11789921453293117,
-      "giuGio": 1166.3770767302778,
+      "netUocBps": 136.79193130534927,
+      "netMoiGioBps": 0.11773314476760137,
+      "giuGio": 1161.8812321319444,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 1.0,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2877,17 +2940,17 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Arbitrum · For buying PT-sUSDai-15OCT2026",
-        "lãi CỐ ĐỊNH 10.35%/năm tới đáo hạn",
-        "đáo hạn 2026-10-15, còn 49 ngày — vốn KHOÁ hết ngần ấy",
+        "lãi CỐ ĐỊNH 10.34%/năm tới đáo hạn",
+        "đáo hạn 2026-10-15, còn 48 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $11.4M",
-        "phí vào+ra $0.04 đã TRỪ (Router đo) — trượt giá AMM Pendle thì chưa, xem phiConThieu"
+        "phí vào+ra $0.03 đã TRỪ (Router đo) — trượt giá AMM Pendle thì chưa, xem phiConThieu"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "0b36e5a628ed4ceb",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "bec96a718eb14862",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "SIERRA",
@@ -2910,27 +2973,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 1334.377076168611,
+      "khoaVonDenGiay": 1329.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 1334.3770767302778,
+      "gioVonBiGiu": 1329.8812321319444,
       "raDuocKhong": null,
-      "grossBps": 124.71596928463218,
+      "grossBps": 124.35649567719834,
       "phiUocBps": 0.0,
-      "netUocBps": 124.71596928463218,
-      "netMoiGioBps": 0.09346381278538812,
-      "giuGio": 1334.3770767302778,
+      "netUocBps": 124.35649567719834,
+      "netMoiGioBps": 0.09350947488584475,
+      "giuGio": 1329.8812321319444,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -2946,7 +3009,7 @@ window.CANG_PHI = {
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-SIERRA-22OCT2026",
         "lãi CỐ ĐỊNH 8.19%/năm tới đáo hạn",
-        "đáo hạn 2026-10-22, còn 56 ngày — vốn KHOÁ hết ngần ấy",
+        "đáo hạn 2026-10-22, còn 55 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $10.4M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -2954,8 +3017,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "c0c8fdfd4b4b4233",
-      "luc": "2026-08-27T09:37:22.525Z",
+      "ma": "f18bc9c487f5435d",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "USDAI",
@@ -2978,27 +3041,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 1166.377076168611,
+      "khoaVonDenGiay": 1161.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 1166.3770770072224,
+      "gioVonBiGiu": 1161.8812321319444,
       "raDuocKhong": null,
-      "grossBps": 97.85317824590729,
+      "grossBps": 97.46618446429575,
       "phiUocBps": 0.0,
-      "netUocBps": 97.49649045710729,
-      "netMoiGioBps": 0.08358916887090329,
-      "giuGio": 1166.3770770072224,
+      "netUocBps": 97.11687046429574,
+      "netMoiGioBps": 0.08358588449362873,
+      "giuGio": 1161.8812321319444,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 1.0,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -3013,16 +3076,16 @@ window.CANG_PHI = {
       "bangChung": [
         "Pendle PT trên Arbitrum · For buying PT-USDai-15OCT2026",
         "lãi CỐ ĐỊNH 7.35%/năm tới đáo hạn",
-        "đáo hạn 2026-10-15, còn 49 ngày — vốn KHOÁ hết ngần ấy",
+        "đáo hạn 2026-10-15, còn 48 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $50.3M",
-        "phí vào+ra $0.04 đã TRỪ (Router đo) — trượt giá AMM Pendle thì chưa, xem phiConThieu"
+        "phí vào+ra $0.03 đã TRỪ (Router đo) — trượt giá AMM Pendle thì chưa, xem phiConThieu"
       ],
       "hopLe": true,
       "loiKhuon": []
     },
     {
-      "ma": "b966de094df441ae",
-      "luc": "2026-08-27T09:37:22.526Z",
+      "ma": "eaafea98afcf49a3",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "USDAT",
@@ -3045,27 +3108,27 @@ window.CANG_PHI = {
       ],
       "vonCanUsd": 1000.0,
       "sucChuaToiDaUsd": 50000.0,
-      "khoaVonDenGiay": 3350.3770761686114,
+      "khoaVonDenGiay": 3345.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 3350.377076730278,
+      "gioVonBiGiu": 3345.8812321319447,
       "raDuocKhong": null,
-      "grossBps": 237.73640847671277,
+      "grossBps": 241.3904348517384,
       "phiUocBps": 0.0,
-      "netUocBps": 237.73640847671277,
-      "netMoiGioBps": 0.07095810502283105,
-      "giuGio": 3350.377076730278,
+      "netUocBps": 241.3904348517384,
+      "netMoiGioBps": 0.07214554794520549,
+      "giuGio": 3345.8812321319447,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.01897705078125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -3080,8 +3143,8 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-USDat-14JAN2027",
-        "lãi CỐ ĐỊNH 6.22%/năm tới đáo hạn",
-        "đáo hạn 2027-01-14, còn 140 ngày — vốn KHOÁ hết ngần ấy",
+        "lãi CỐ ĐỊNH 6.32%/năm tới đáo hạn",
+        "đáo hạn 2027-01-14, còn 139 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $5.6M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -3089,8 +3152,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "de1dd2cdc15e4f22",
-      "luc": "2026-08-27T09:37:22.526Z",
+      "ma": "1985d40b5e9c456e",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "SUSDS",
@@ -3112,28 +3175,28 @@ window.CANG_PHI = {
         }
       ],
       "vonCanUsd": 1000.0,
-      "sucChuaToiDaUsd": 34490.19,
-      "khoaVonDenGiay": 2174.377075890278,
+      "sucChuaToiDaUsd": 34488.94,
+      "khoaVonDenGiay": 2169.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 2174.3770767302776,
+      "gioVonBiGiu": 2169.881231855,
       "raDuocKhong": null,
-      "grossBps": 119.506097372772,
+      "grossBps": 119.25924861745528,
       "phiUocBps": 0.0,
-      "netUocBps": 119.506097372772,
-      "netMoiGioBps": 0.05496107305936073,
-      "giuGio": 2174.3770767302776,
+      "netUocBps": 119.25924861745528,
+      "netMoiGioBps": 0.05496118721461187,
+      "giuGio": 2169.881231855,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.019979736328125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -3149,7 +3212,7 @@ window.CANG_PHI = {
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-sUSDS-26NOV2026",
         "lãi CỐ ĐỊNH 4.81%/năm tới đáo hạn",
-        "đáo hạn 2026-11-26, còn 91 ngày — vốn KHOÁ hết ngần ấy",
+        "đáo hạn 2026-11-26, còn 90 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $3.4M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -3157,8 +3220,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "629e1da7cd494b29",
-      "luc": "2026-08-27T09:37:22.526Z",
+      "ma": "380ffb3cc6554f59",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "SUSDE",
@@ -3180,28 +3243,28 @@ window.CANG_PHI = {
         }
       ],
       "vonCanUsd": 1000.0,
-      "sucChuaToiDaUsd": 34717.19,
-      "khoaVonDenGiay": 2174.377075890278,
+      "sucChuaToiDaUsd": 34715.43,
+      "khoaVonDenGiay": 2169.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 2174.3770767302776,
+      "gioVonBiGiu": 2169.881231855,
       "raDuocKhong": null,
-      "grossBps": 117.4930610608676,
+      "grossBps": 117.25012685129364,
       "phiUocBps": 0.0,
-      "netUocBps": 117.4930610608676,
-      "netMoiGioBps": 0.05403527397260274,
-      "giuGio": 2174.3770767302776,
+      "netUocBps": 117.25012685129364,
+      "netMoiGioBps": 0.054035273972602736,
+      "giuGio": 2169.881231855,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.019979736328125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -3217,7 +3280,7 @@ window.CANG_PHI = {
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-sUSDe-26NOV2026",
         "lãi CỐ ĐỊNH 4.73%/năm tới đáo hạn",
-        "đáo hạn 2026-11-26, còn 91 ngày — vốn KHOÁ hết ngần ấy",
+        "đáo hạn 2026-11-26, còn 90 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $3.5M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
       ],
@@ -3225,8 +3288,8 @@ window.CANG_PHI = {
       "loiKhuon": []
     },
     {
-      "ma": "cca5a6e836c04353",
-      "luc": "2026-08-27T09:37:22.526Z",
+      "ma": "db2c24c6bb9840d3",
+      "luc": "2026-08-27T14:07:07.567Z",
       "chienLuoc": "yield.pendle_pt.v1",
       "ho": "tin-dung",
       "taiSan": "SRUSDE",
@@ -3248,28 +3311,28 @@ window.CANG_PHI = {
         }
       ],
       "vonCanUsd": 1000.0,
-      "sucChuaToiDaUsd": 45389.88,
-      "khoaVonDenGiay": 1334.3770758902779,
+      "sucChuaToiDaUsd": 45392.13,
+      "khoaVonDenGiay": 1329.8812313005556,
       "vonToiThieuKinhTeUsd": 1000.0,
       "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 1334.3770767302778,
+      "gioVonBiGiu": 1329.8812321319444,
       "raDuocKhong": null,
-      "grossBps": 68.62095047545579,
+      "grossBps": 68.79448287491861,
       "phiUocBps": 0.0,
-      "netUocBps": 68.62095047545579,
-      "netMoiGioBps": 0.05142545662100457,
-      "giuGio": 1334.3770767302778,
+      "netUocBps": 68.79448287491861,
+      "netMoiGioBps": 0.05172979452054795,
+      "giuGio": 1329.8812321319444,
       "ruiRo": {
         "thiTruong": 0.15,
         "thanhKhoan": 0.45,
-        "giaoThuc": 0.21422058206553785,
-        "cang": 0.21422058206553785,
+        "giaoThuc": 0.21389236454016164,
+        "cang": 0.21389236454016164,
         "thucThi": 0.15,
         "cauNoi": 0.0,
         "chuaDo": [],
         "caoNhat": 0.45
       },
-      "tuoiDuLieuGiay": 0.019979736328125,
+      "tuoiDuLieuGiay": 0.034908203125,
       "tinCay": 0.75,
       "moHinhPhiDuChua": false,
       "phiConThieu": [
@@ -3284,86 +3347,10 @@ window.CANG_PHI = {
       ],
       "bangChung": [
         "Pendle PT trên Ethereum · For buying PT-srUSDe-22OCT2026",
-        "lãi CỐ ĐỊNH 4.50%/năm tới đáo hạn",
-        "đáo hạn 2026-10-22, còn 56 ngày — vốn KHOÁ hết ngần ấy",
+        "lãi CỐ ĐỊNH 4.53%/năm tới đáo hạn",
+        "đáo hạn 2026-10-22, còn 55 ngày — vốn KHOÁ hết ngần ấy",
         "TVL $4.5M",
         "gas và trượt giá AMM CHƯA trừ — xem phiConThieu"
-      ],
-      "hopLe": true,
-      "loiKhuon": []
-    },
-    {
-      "ma": "c1233a8f828b44c5",
-      "luc": "2026-08-27T09:37:22.999Z",
-      "chienLuoc": "basis.cash_carry.v1",
-      "ho": "phai-sinh",
-      "taiSan": "BTC",
-      "dinhGiaBang": "USDT",
-      "cang": [
-        "binance"
-      ],
-      "chuoi": [],
-      "chan": [
-        {
-          "ben": "LONG",
-          "cang": "binance",
-          "taiSan": "BTC",
-          "vonUsd": 100.0,
-          "loai": "spot",
-          "chuoi": null
-        },
-        {
-          "ben": "SHORT",
-          "cang": "binance",
-          "taiSan": "BTC",
-          "vonUsd": 100.0,
-          "loai": "perp",
-          "chuoi": null
-        }
-      ],
-      "vonCanUsd": 200.0,
-      "sucChuaToiDaUsd": null,
-      "khoaVonDenGiay": 0.0,
-      "vonToiThieuKinhTeUsd": 200.0,
-      "thanhKhoanThoatUsd": null,
-      "gioVonBiGiu": 168.0,
-      "raDuocKhong": null,
-      "grossBps": 21.000000000000004,
-      "phiUocBps": 20.0,
-      "netUocBps": 1.0000000000000036,
-      "netMoiGioBps": 0.005952380952380974,
-      "giuGio": 168.0,
-      "ruiRo": {
-        "thiTruong": 0.05,
-        "thanhKhoan": null,
-        "giaoThuc": 0.05,
-        "cang": 0.25,
-        "thucThi": 0.25,
-        "cauNoi": 0.0,
-        "chuaDo": [
-          "thanhKhoan"
-        ],
-        "caoNhat": 0.25
-      },
-      "tuoiDuLieuGiay": 4.978333740234375,
-      "tinCay": 0.5096322538971199,
-      "moHinhPhiDuChua": false,
-      "phiConThieu": [
-        "vay-coin-neu-ban-khong-giao-ngay",
-        "basis-luc-thoat",
-        "von-bi-khoa",
-        "thue"
-      ],
-      "moHinhSucChuaDuChua": false,
-      "sucChuaConThieu": [
-        "do-sau-so-lenh-perp"
-      ],
-      "bangChung": [
-        "binance: mua giao ngay 80,237.89 · bán khống perp mark 80,241.30",
-        "basis +0.4 bps — KHÔNG tính vào NET, perp không đáo hạn nên không có gì bảo đảm nó hội tụ",
-        "funding +0.0013%/giờ · chu kỳ 8h · giữ 168h chứa 21 MỐC",
-        "gross +21.00 − phí 20.00 (4 lần taker) = NET +1.00 bps",
-        "GIẢ ĐỊNH: mức funding hiện tại giữ nguyên suốt 21 mốc (168 giờ). Nó không giữ nguyên — độ tin đã hạ theo độ dài cửa sổ."
       ],
       "hopLe": true,
       "loiKhuon": []
@@ -3371,8 +3358,8 @@ window.CANG_PHI = {
   ],
   "soDuyet": 0,
   "viSaoTuChoi": {
-    "chênh lệch thô quá mỏng": 27,
-    "NET sau phí dưới ngưỡng": 30
+    "NET sau phí dưới ngưỡng": 30,
+    "chênh lệch thô quá mỏng": 24
   },
   "ruiRo": {
     "grossToiThieuBpsNgay": 3.0,
@@ -3414,8 +3401,8 @@ window.CANG_PHI = {
   },
   "doDai": [
     {
-      "soMau": 2,
-      "netTrungBinh": -26.148507931764,
+      "soMau": 3,
+      "netTrungBinh": -25.904754735098,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
       "duMau": false,
@@ -3424,8 +3411,58 @@ window.CANG_PHI = {
       "sanShort": "hyperliquid"
     },
     {
-      "soMau": 2,
-      "netTrungBinh": -26.295749999999998,
+      "soMau": 3,
+      "netTrungBinh": -26.445667097124332,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "XRP",
+      "sanLong": "okx",
+      "sanShort": "hyperliquid"
+    },
+    {
+      "soMau": 3,
+      "netTrungBinh": -26.181600000000003,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "XRP",
+      "sanLong": "binance",
+      "sanShort": "hyperliquid"
+    },
+    {
+      "soMau": 1,
+      "netTrungBinh": -26.415815112933,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "SOL",
+      "sanLong": "okx",
+      "sanShort": "hyperliquid"
+    },
+    {
+      "soMau": 3,
+      "netTrungBinh": -26.904754735098,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "DOGE",
+      "sanLong": "okx",
+      "sanShort": "binance"
+    },
+    {
+      "soMau": 3,
+      "netTrungBinh": -26.36601702895433,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "BTC",
+      "sanLong": "okx",
+      "sanShort": "hyperliquid"
+    },
+    {
+      "soMau": 3,
+      "netTrungBinh": -26.405133333333335,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
       "duMau": false,
@@ -3434,87 +3471,47 @@ window.CANG_PHI = {
       "sanShort": "hyperliquid"
     },
     {
-      "soMau": 2,
-      "netTrungBinh": -26.300745427315498,
+      "soMau": 1,
+      "netTrungBinh": -26.7711,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
       "duMau": false,
       "ma": "BTC",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -26.3463,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "XRP",
       "sanLong": "binance",
       "sanShort": "hyperliquid"
     },
     {
-      "soMau": 2,
-      "netTrungBinh": -26.7512036176275,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "XRP",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -26.792983923129,
+      "soMau": 1,
+      "netTrungBinh": -26.778957587216,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
       "duMau": false,
       "ma": "ETH",
-      "sanLong": "okx",
-      "sanShort": "hyperliquid"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -26.914900000000003,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "ETH",
-      "sanLong": "binance",
-      "sanShort": "hyperliquid"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "BTC",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "SOL",
-      "sanLong": "hyperliquid",
-      "sanShort": "binance"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -27.0,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "SOL",
       "sanLong": "hyperliquid",
       "sanShort": "okx"
     },
     {
-      "soMau": 2,
+      "soMau": 1,
+      "netTrungBinh": -26.927208,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "ETH",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance"
+    },
+    {
+      "soMau": 3,
+      "netTrungBinh": -27.0,
+      "tiLeDuong": 0.0,
+      "soGio": 24.0,
+      "duMau": false,
+      "ma": "SOL",
+      "sanLong": "hyperliquid",
+      "sanShort": "binance"
+    },
+    {
+      "soMau": 3,
       "netTrungBinh": -27.0,
       "tiLeDuong": 0.0,
       "soGio": 24.0,
@@ -3522,23 +3519,13 @@ window.CANG_PHI = {
       "ma": "DOGE",
       "sanLong": "hyperliquid",
       "sanShort": "binance"
-    },
-    {
-      "soMau": 2,
-      "netTrungBinh": -27.148507931764,
-      "tiLeDuong": 0.0,
-      "soGio": 24.0,
-      "duMau": false,
-      "ma": "DOGE",
-      "sanLong": "okx",
-      "sanShort": "binance"
     }
   ],
   "so": {
-    "soLuot": 2,
+    "soLuot": 3,
     "luotDauMs": 1787823346249,
-    "luotCuoiMs": 1787823439615,
-    "soCoHoi": 60,
+    "luotCuoiMs": 1787839624014,
+    "soCoHoi": 90,
     "soDuyet": 0,
     "soLoiGhi": 0,
     "loiCuoi": null,
@@ -3616,15 +3603,15 @@ window.CANG_PHI = {
       },
       {
         "ho": "phai-sinh",
-        "coHoiTho": 850,
-        "quaCongTy": 1,
+        "coHoiTho": 854,
+        "quaCongTy": 0,
         "quaRuiRoTong": 0,
         "daCapVon": 0,
         "vonDangGiuUsd": 0.0
       },
       {
         "ho": "thanh-khoan",
-        "coHoiTho": 9861,
+        "coHoiTho": 9854,
         "quaCongTy": 0,
         "quaRuiRoTong": 0,
         "daCapVon": 0,
@@ -3641,7 +3628,7 @@ window.CANG_PHI = {
       {
         "ho": "tin-dung",
         "coHoiTho": 143,
-        "quaCongTy": 26,
+        "quaCongTy": 27,
         "quaRuiRoTong": 0,
         "daCapVon": 0,
         "vonDangGiuUsd": 0.0

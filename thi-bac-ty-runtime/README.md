@@ -921,7 +921,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 648 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 917 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
