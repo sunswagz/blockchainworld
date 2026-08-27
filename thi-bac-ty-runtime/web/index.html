@@ -7,49 +7,56 @@
 <link rel="stylesheet" href="/app.css">
 </head>
 <body>
+
+<!-- Dải trạng thái: câu trả lời cho "máy có đang chạy không" và "có vấn đề
+     gì không" phải nằm TRƯỚC mọi thứ khác, và phải đọc được trong hai giây. -->
 <header class="dinh">
-  <div class="hieu">
+  <a class="hieu" href="/" data-lien>
     <span class="dau" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-           stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-        <path d="M3 18h18M5 18V9l7-4 7 4v9"/><path d="M9 18v-5h6v5"/>
-        <path d="M2 21h20"/>
+           stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <path d="M3 18h18M5 18V9l7-4 7 4v9"/><path d="M9 18v-5h6v5"/><path d="M2 21h20"/>
       </svg>
     </span>
-    <div>
-      <h1>Thị Bạc Ty</h1>
-      <p class="phu">chênh lệch funding giữa các cảng · buồng lái chỉ sống ở máy</p>
-    </div>
-  </div>
-  <div class="dong-ho">
-    <span id="che" class="the">—</span>
-    <span id="vong" class="the">vòng —</span>
-    <span id="dongho" class="the">—</span>
+    <span class="hieu-chu">
+      <b>Thị Bạc Ty</b>
+      <i>bộ máy quản lý vốn</i>
+    </span>
+  </a>
+
+  <div class="song" id="song">
+    <span class="den" id="den-chay"><i></i><b>—</b></span>
+    <span class="so-nho">vòng <b id="d-vong">—</b></span>
+    <span class="so-nho">quét <b id="d-quet">—</b></span>
+    <span class="so-nho">chạy <b id="d-len">—</b></span>
   </div>
 </header>
 
-<div id="dai-canh" class="dai-canh" hidden></div>
+<!-- Băng cảnh báo: chỉ hiện khi CÓ chuyện. Một băng luôn hiện là một băng
+     không ai đọc. -->
+<div id="bang-canh" class="bang-canh" hidden></div>
 
-<nav class="tab" id="tab">
-  <button data-o="co-hoi" class="chon">Cơ hội</button>
-  <button data-o="bao-gia">Báo giá</button>
-  <button data-o="cang">Cảng</button>
-  <button data-o="cua">Cửa rủi ro</button>
-  <button data-o="to-trinh">Tờ trình</button>
-  <button data-o="trung-uong">Thị Bạc Ty</button>
-  <button data-o="hoc">Đào tạo</button>
-  <button data-o="nhat-ky">Nhật ký</button>
+<nav class="dieu-huong" id="dieu-huong">
+  <a href="/"          data-lien data-o="trung-tam">Trung tâm</a>
+  <a href="/dong-co"   data-lien data-o="dong-co">Động cơ</a>
+  <a href="/von"       data-lien data-o="von">Vốn</a>
+  <a href="/loi-lo"    data-lien data-o="loi-lo">Lời / lỗ</a>
+  <a href="/rui-ro"    data-lien data-o="rui-ro">Rủi ro</a>
+  <a href="/du-lieu"   data-lien data-o="du-lieu">Dữ liệu</a>
+  <a href="/so-cai"    data-lien data-o="so-cai">Sổ cái</a>
+  <a href="/he-thong"  data-lien data-o="he-thong">Hệ thống</a>
 </nav>
 
 <main id="than"><p class="cho">đang nối tới runtime…</p></main>
 
 <footer class="chan">
-  <button id="nut-quet">Quét ngay</button>
-  <button id="nut-dung">Tạm dừng</button>
-  <button id="nut-lat">Ghi lát cắt ra cung tĩnh</button>
+  <button id="nut-quet" type="button">Quét ngay</button>
+  <button id="nut-dung" type="button">Tạm dừng</button>
+  <button id="nut-lat"  type="button">Ghi lát cắt ra cung tĩnh</button>
   <span id="chan-nhac" class="nhac"></span>
 </footer>
 
+<script src="/ty-perp.js"></script>
 <script src="/app.js"></script>
 </body>
 </html>

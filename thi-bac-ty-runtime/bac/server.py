@@ -9,7 +9,7 @@ site**. Cùng lý do `tu-cam-thanh-runtime` giữ buồng lái ở `:5182` và
 """
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -360,6 +360,34 @@ async def _khong_giu_ban_cu(yc, tiep):
     tl = await tiep(yc)
     tl.headers["Cache-Control"] = "no-store, must-revalidate"
     return tl
+
+
+#: Đường dẫn tầng một của buồng lái. Trình duyệt gõ thẳng `/von` hay bấm
+#: F5 ở `/dong-co/...` thì phải ra TRANG, không ra 404 — buồng lái là một
+#: trang duy nhất, còn đường dẫn chỉ để nói nó đang mở mục nào.
+#:
+#: Danh sách tường minh chứ không bắt-tất-cả: bắt tất cả thì một đường gõ
+#: sai cũng trả về trang chủ, và người gõ sai tưởng mình gõ đúng.
+DUONG_BUONG_LAI = ("trung-tam", "dong-co", "von", "loi-lo", "rui-ro",
+                   "du-lieu", "so-cai", "he-thong")
+
+
+@app.get("/{muc}")
+def trang_muc(muc: str) -> FileResponse:
+    """Một mục của buồng lái. Không phải mục thì để `StaticFiles` lo."""
+    if muc in DUONG_BUONG_LAI:
+        return FileResponse(WEB_DIR / "index.html")
+    p = WEB_DIR / muc
+    if p.is_file():
+        return FileResponse(p)
+    raise HTTPException(status_code=404, detail=f"không có đường /{muc}")
+
+
+@app.get("/dong-co/{ma}")
+def trang_dong_co(ma: str) -> FileResponse:
+    """Trang chi tiết một động cơ. `ma` do trang tự tra, server không cần
+    biết có động cơ ấy hay không — nếu không có, trang nói ra."""
+    return FileResponse(WEB_DIR / "index.html")
 
 
 app.mount("/", StaticFiles(directory=str(WEB_DIR)), name="web")

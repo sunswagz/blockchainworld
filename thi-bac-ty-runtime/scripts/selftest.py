@@ -4971,6 +4971,98 @@ def kiem_lp_amm() -> None:
     kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
          any("SUY RA" in b for b in t.bangChung))
 
+def kiem_buong_lai() -> None:
+    print("\n-- Buong lai: trang goc thuoc TRUNG UONG, khong thuoc mot ty --")
+    import pathlib
+    import re as _re
+
+    web = pathlib.Path(__file__).resolve().parent.parent / "web"
+    app = (web / "app.js").read_text(encoding="utf-8")
+    perp = (web / "ty-perp.js").read_text(encoding="utf-8")
+    htm = (web / "index.html").read_text(encoding="utf-8")
+
+    kiem("buồng lái tách làm HAI tầng: Trung Ương và động cơ",
+         (web / "app.js").exists() and (web / "ty-perp.js").exists(),
+         "trang gốc từng là bảng chẩn đoán của riêng ty chênh funding — một "
+         "động cơ trong mười ba chiếm cửa vào của cả bộ máy")
+
+    # ── điều hướng phải là của HỆ, không phải của một ty ────────────────
+    muc = set(_re.findall(r'data-o="([a-z-]+)"', htm))
+    can = {"trung-tam", "dong-co", "von", "loi-lo", "rui-ro", "du-lieu",
+           "so-cai", "he-thong"}
+    kiem("điều hướng có đủ tám mục của Trung Ương", can <= muc,
+         f"thiếu {sorted(can - muc)}")
+    kiem("và KHÔNG còn mục nào là tab nội bộ của ty perp",
+         not ({"bao-gia", "cang", "cua"} & muc),
+         "«Báo giá», «Cảng», «Cửa rủi ro» là tầng BA — chúng thuộc trang của "
+         "động cơ, không thuộc điều hướng của hệ")
+
+    # ── server phải phục vụ đúng những đường ấy ─────────────────────────
+    sv = (pathlib.Path(__file__).resolve().parent.parent / "bac" / "server.py"
+          ).read_text(encoding="utf-8")
+    m = _re.search(r"DUONG_BUONG_LAI = \(([^)]*)\)", sv, _re.S)
+    duong = set(_re.findall(r'"([a-z-]+)"', m.group(1))) if m else set()
+    kiem("mọi mục điều hướng đều có đường thật ở server", can <= duong,
+         f"thiếu {sorted(can - duong)} — gõ thẳng đường hoặc bấm F5 sẽ ra 404, "
+         f"và 404 ở buồng lái đọc thành «máy chết»")
+    kiem("đường bịa vẫn phải 404, không rơi về trang chủ",
+         "HTTPException" in sv and "không có đường" in sv,
+         "bắt-tất-cả thì một đường gõ sai cũng trả về trang chủ, và người gõ "
+         "sai tưởng mình gõ đúng")
+
+    # ── SÁU trạng thái, và màu KHÔNG dùng lại ───────────────────────────
+    tt = set(_re.findall(r"^\s{4}(LIVE|PAPER|OBSERVE|BLOCKED|FAULT|OFF):",
+                         app, _re.M))
+    kiem("sáu trạng thái quy về MỘT hệ",
+         tt == {"LIVE", "PAPER", "OBSERVE", "BLOCKED", "FAULT", "OFF"}, str(tt))
+    css = (web / "app.css").read_text(encoding="utf-8")
+    kiem("mỗi trạng thái có đúng một biến màu riêng",
+         all(f"--{x}:" in css for x in
+             ("live", "paper", "observe", "blocked", "fault", "off")))
+    kiem("và màu NHẤN của giao diện không trùng sáu màu ấy",
+         "--nhan:" in css,
+         "dùng lại một màu trạng thái làm màu nhấn thì mắt học sai — một cái "
+         "thẻ xanh vì nó đẹp sẽ đọc như một cái thẻ xanh vì nó khoẻ")
+
+    # ── trang trắng không được im lặng ──────────────────────────────────
+    # Đếm, không chỉ "có". Có HAI đường vẽ hỏng — trang và ô của động cơ
+    # — và một trong hai mất đi thì phép kiểm khớp-chuỗi vẫn xanh nhờ cái
+    # còn lại. Phép cấy lỗi ngược đi lọt đúng ở đó.
+    kiem("CẢ HAI đường vẽ hỏng đều nói «máy vẫn đang chạy»",
+         app.count("vẽ hỏng") >= 2 and app.count("VẪN ĐANG CHẠY") >= 2,
+         f"{app.count('vẽ hỏng')} chỗ báo hỏng / "
+         f"{app.count('VẪN ĐANG CHẠY')} chỗ trấn an — một hàm vẽ ném giữa "
+         f"chừng để lại thân trang rỗng nhìn y hệt máy chết, trong khi máy "
+         f"vẫn chạy")
+    kiem("mất kết nối runtime cũng nói ra",
+         "KHÔNG ĐỌC ĐƯỢC RUNTIME" in app)
+    kiem("và không có `.catch` nào nuốt lỗi trống",
+         "catch(function(){})" not in app.replace(" ", ""),
+         "nuốt lỗi là cách nhanh nhất biến một trang hỏng thành một trang "
+         "trắng không ai giải thích được")
+
+    # ── tầng BA không được leo lên tầng MỘT ─────────────────────────────
+    tang3 = ("markPx", "lechMarkBps", "aprPhanTram", "mocL")
+    kiem("số thô của tầng ba KHÔNG xuất hiện ở trang Trung Ương",
+         not any(x in app for x in tang3),
+         f"{[x for x in tang3 if x in app]} — bps, mốc L+S và lệch mark là "
+         f"tầng mổ máy; đưa chúng ra trang gốc là bắt người mở lên phải giải "
+         f"mã mới biết máy có ổn không")
+    kiem("nhưng chúng VẪN còn ở trang động cơ",
+         any(x in perp for x in tang3),
+         "chuyển chỗ, không phải vứt đi")
+
+    # ── phễu vẽ thang LOG và nói ra ─────────────────────────────────────
+    # Khớp cả TỈ SỐ, không chỉ tên hàm: đổi tử số sang tuyến tính mà giữ
+    # mẫu số thì `"Math.log10" in app` vẫn xanh, và thanh vẽ sai tỉ lệ.
+    kiem("phễu vẽ thang logarit — cả tử lẫn mẫu",
+         "Math.log10(n.so + 1) / Math.log10(" in app,
+         "đổi một vế sang tuyến tính thì thanh sai tỉ lệ mà phép kiểm "
+         "khớp-tên-hàm vẫn xanh")
+    kiem("và NÓI RA là log", "LOGARIT" in app,
+         "vẽ tuyến tính thì mọi nấc sau nấc đầu thành một vạch không nhìn "
+         "thấy; vẽ log mà không nói thì người đọc so sai tỉ lệ")
+
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
     from thi_bac_ty.hien_phap import DIEU, soat
@@ -5098,6 +5190,7 @@ def main() -> int:
     kiem_lp_amm()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
+    kiem_buong_lai()
     kiem_nhap_so_ngoai()
     kiem_bon_ty()
     kiem_thang_chung()
