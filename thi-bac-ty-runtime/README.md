@@ -553,17 +553,30 @@ của Khâm Thiên Giám, BẬT khoá này lên.** Xem `bac/config.py`.
 `kham/`, chuyển `ket_toan.py` sang Sổ Cái, chuyển `dat_lenh.py` — vẫn chưa
 làm, và vẫn theo đúng thứ tự ấy.
 
-## Bốn ty, ba họ — và sáu engine CHƯA dựng được
+## CHÍN ty, NĂM họ — và ba engine còn chặn
 
-    ho            ty                            ma
-    phai-sinh     bac/                          perpetual.funding_spread.v1
-    tin-dung      tin_dung/                     lending.rate_rotation.v1
-    tin-dung      lai_suat/                     yield.pendle_pt.v1
-    chenh-lech    on_dinh/                      stablecoin.cross_venue.v1
+    ho            ty                ma
+    phai-sinh     bac/              perpetual.funding_spread.v1
+    phai-sinh     co_so/            basis.cash_carry.v1
+    phai-sinh     quyen_chon/       options.put_call_parity.v1
+    tin-dung      tin_dung/         lending.rate_rotation.v1
+    tin-dung      lai_suat/         yield.pendle_pt.v1
+    chenh-lech    on_dinh/          stablecoin.cross_venue.v1
+    chenh-lech    dex_arb/          dex.round_trip.v1
+    thanh-khoan   lp_amm/           amm.fee_farming.v1
+    tien-doan     kham_ngoai/       prediction.polymarket.v1
 
-Ba nguồn alpha khác hẳn nhau, và bản đồ nói đúng lúc có ba loại việc khác
-hẳn nhau thì Người Phân Bổ Vốn mới thật sự có việc — trước đó nó chỉ đang
-xếp hạng những thứ giống nhau.
+Năm nguồn alpha khác hẳn nhau, và bản đồ nói đúng lúc có nhiều loại việc
+khác hẳn nhau thì Người Phân Bổ Vốn mới thật sự có việc — trước đó nó chỉ
+đang xếp hạng những thứ giống nhau.
+
+Ba họ còn trống: `thanh-ly`, `mev`, `cau-noi`. Hai họ đầu chặn vì dữ liệu
+không công khai; `cau-noi` thì cố ý — Router là **hạ tầng**, không phải ty,
+và nó không xin vốn.
+
+Chú ý `quyen_chon/` và `dex_arb/`: chúng là hai engine đầu tiên **không dự
+báo gì cả**. Ngang giá là một đẳng thức; vòng đổi là một phép đo khứ hồi.
+Bảy ty còn lại đều phải giả định một thứ sẽ giữ nguyên.
 
 ### Ty lãi suất là ty đầu tiên dùng `khoaVonDenGiay` với số THẬT
 
@@ -812,8 +825,8 @@ và cái gì gỡ ra".
 
 **Ba trạng thái, và phân biệt chúng mới là điểm.** `QUET_DUOC` nghĩa là
 quét được NGAY, chỉ chưa thực thi được — mà cả runtime đang `moPhong=True`,
-nên **không ty nào trong sáu ty hiện có thực thi gì cả**. "Chưa thực thi
-được" vì thế không phải lý do để không dựng; nếu nó là lý do thì sáu ty
+nên **không ty nào trong CHÍN ty hiện có thực thi gì cả**. "Chưa thực thi
+được" vì thế không phải lý do để không dựng; nếu nó là lý do thì chín ty
 đang chạy cũng lẽ ra không được tồn tại.
 
 Cái thật sự phân biệt `QUET_DUOC` với `CHAN` là **dữ liệu công khai không
@@ -837,12 +850,15 @@ Bốn ty hiện tại từ chối rất giỏi, và mỗi lần từ chối đ�
 
 ### Thứ nên làm trước khi thêm engine
 
-1. **Cross-chain Router** — bản đồ §18 nói nó là *hạ tầng*, không phải bot.
-   Ba trong bốn ty đang khai `chuyen-von-giua-chuoi` hoặc
-   `chuyen-von-giua-san` trong `phiConThieu`. Đó là **cùng một khoản thiếu,
-   ba lần**, và nó chặn cả ba khỏi việc mô hình phí cho đủ.
-2. **Gỡ nợ hai-cỗ-máy** — bước 2/4 trở đi (adapter `Ty` cho `kham/`).
-3. **Lớp ký lệnh** — sáu điều kiện cầu dao còn lại đều chờ nó.
+1. ~~**Cross-chain Router**~~ — XONG 27/08, `chuyen_von/`. Nó gỡ được
+   `chuyen-von-giua-chuoi`, `chuyen-von-giua-san` và `gas-vao-ra` cho ba
+   ty; phí rút CEX thì KHÔNG đọc được nên nằm ở bảng đo tay có hạn.
+2. ~~**Gỡ nợ hai-cỗ-máy** bước 2–3~~ — XONG 27/08, `kham_ngoai/` và
+   `thi_bac_ty/nhap_so_ngoai.py`.
+3. **Lớp ký lệnh** — thứ DUY NHẤT còn chặn, và nó chặn có chủ ý:
+   `DieuPhoiThucThi.moPhong` là `True` cứng, không cấu hình nào mở được.
+   Mọi điều kiện `ky-lenh-onchain` trong sổ engine đều chờ nó, và chúng sẽ
+   còn chờ.
 
 ## Thứ tự triển khai — §19 THAY THẾ thứ tự cũ
 
@@ -854,15 +870,19 @@ quay lại Polymarket:
     2. THỊ BẠC TY CORE             XONG
     3. Lending                     XONG  (tin_dung/)
     4. Stablecoin Arb              XONG  (on_dinh/)
-    5. Basis                       chưa — cần tách phần đếm mốc kết toán
-                                   ra khỏi bac/ thành hạ tầng họ phái sinh
+    5. Basis                       XONG  (co_so/)
     6. Yield                       XONG  (lai_suat/)
-    7. DEX Arb                     CHẶN — xem "sáu engine còn lại"
-    8. LP                          CHẶN
-    9. Liquidation                 CHẶN
-    10. Options                    CHẶN
-    11. JIT                        CHẶN
-    12. MEV                        CHẶN
+    7. DEX Arb                     XONG  (dex_arb/ — vòng đổi khứ hồi)
+    8. LP                          XONG  (lp_amm/ — CHỈ cặp neo)
+    9. Liquidation                 CHẶN  — không liệt kê được người vay
+    10. Options                    XONG  (quyen_chon/ — ngang giá)
+    11. JIT                        CHẶN  — mempool
+    12. MEV                        CHẶN  — mempool · builder · độ trễ
+
+Mười hai mục, **chín xong**. Ba mục còn lại chặn vì cùng một loại lý do:
+chúng cần dữ liệu KHÔNG công khai. Đó là *không làm được từ đây*, khác hẳn
+*chưa làm* — và `dong_co_chua_co/so_dang_ky.py` giữ ranh giới ấy bằng phép
+canh chứ không bằng văn xuôi.
 
 **Cross-chain và Uniswap v4 KHÔNG nằm trong dãy này.** Chúng là hạ tầng, và
 được thêm khi một engine khác cần — không phải theo lượt.
@@ -1268,8 +1288,42 @@ lai_suat/         TY THỨ BA — Pendle PT, lãi cố định khoá tới đáo
 
 on_dinh/          TY THỨ TƯ — chênh lệch stablecoin, HỌ THỨ BA
   config.py       chu kỳ vốn ≠ thời gian giao dịch
-  nguon.py        đỉnh sổ lệnh ba sàn, ba hình dạng JSON
+  nguon.py        bí danh → san_chung/giao_ngay.py
   ty_on_dinh.py   cửa DEPEG là cửa quan trọng nhất
+
+phai_sinh_chung/  hạ tầng HỌ PHÁI SINH — ra đời khi có người dùng THỨ HAI
+  dongho.py       đếm mốc kết toán (bac/ giữ bí danh)
+  dong_ho.py      MỘT đồng hồ cho cả họ
+  models.py       BaoGia — dùng chung bac/ và co_so/
+  san/            bốn cảng perp
+
+san_chung/        connector giao ngay — dùng chung giữa HAI họ
+  giao_ngay.py    bid/ask ba sàn, ba hình dạng JSON
+
+co_so/            TY THỨ NĂM — cash-and-carry
+  ty_co_so.py     BASIS KHÔNG phải thu nhập; giữ 168h, không phải 8h
+
+kham_ngoai/       TY THỨ SÁU — adapter Khâm Thiên Giám, HỌ THỨ TƯ
+  ty_tien_doan.py chỉ DỊCH, không định giá lại · ranh giới đếm hai lần
+
+quyen_chon/       TY THỨ BẢY — ngang giá call/put Deribit
+  ty_ngang_gia.py KHÔNG mô hình nào; và một thừa số đang TRƠ, có khai ra
+
+dex_arb/          TY THỨ TÁM — vòng đổi khứ hồi trên một chuỗi
+  ty_vong_doi.py  cổng dùng mức BẢO ĐẢM, không dùng kỳ vọng
+
+lp_amm/           TY THỨ CHÍN — cấp thanh khoản, HỌ THỨ NĂM
+  ty_cap_thanh_khoan.py  cờ bên thứ ba là LỜI KHAI — tự đọc ký hiệu
+
+chuyen_von/       ROUTER — hạ tầng, KHÔNG phải ty, không xin vốn
+  diem.py         một chặng mù thì CẢ TUYẾN mù
+  bang_do.py      phí rút CEX gõ tay, có xuất xứ và có HẠN 45 ngày
+  gas.py          gas bốn chuỗi từ RPC công khai
+  cau_noi.py      LI.FI · bảng token đã đối chiếu, thập phân theo từng cặp
+  dinh_tuyen.py   cửa DUY NHẤT ty nên gọi
+
+dong_co_chua_co/  sổ engine CHƯA dựng — điều kiện chặn viết dạng CHẠY ĐƯỢC
+  so_dang_ky.py   CHAN · QUET_DUOC · SAN_SANG · DA_DUNG, tự nạp thử gói ty
 
 thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   to_trinh.py     hợp đồng            ← đọc trước
@@ -1282,11 +1336,12 @@ thi_bac_ty/       TRUNG ƯƠNG — không bao giờ import bac/
   so_cai.py       sổ chỉ-thêm, sửa bằng ĐẢO
   thuc_thi.py     máy trạng thái hai chân
   cau_dao.py      ngắt tự động, đóng lại phải có người
-  hien_phap.py    25 ĐIỀU luật vận hành, mỗi điều kèm phép canh
+  hien_phap.py    30 ĐIỀU luật vận hành, mỗi điều kèm phép canh
   che_van_hanh.py QUAN_SAT · GIAY · THAT theo từng ty, và chi phí hạ tầng
   hieu_nang.py    CAGR · sụt vốn tối đa · đối chiếu giấy↔thật
   nguon.py        Data World v0.1 — kỷ luật chung khi đọc một nguồn
   von_ngoai.py    vốn ở cỗ máy KHÁC: thấy được, không quản được
+  nhap_so_ngoai.py kết toán cỗ máy khác vào MỘT sổ; bỏ sót tự lộ
   chan_doan_he.py bệnh của cả bộ máy
   chay_lai_he.py  chạy lại quyết định phân bổ, đo đề xuất
   cong_duyet.py   bảy luật một đề xuất phải qua
