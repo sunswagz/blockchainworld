@@ -520,9 +520,21 @@ function do_() {
      widths, and spacing". Đếm số cỡ px RỜI RẠC còn viết thẳng vào
      rule. Đo được Hộ Bộ 32 cỡ, trong đó mười một cỡ chen giữa 11 và
      13px — đó không phải thang, đó là số bốc từng lúc. Cung nào đã
-     đưa cỡ chữ vào biến thì đếm này về 0 và thước tự đạt. */
+     đưa cỡ chữ vào biến thì đếm này về 0 và thước tự đạt.
+
+     ĐẾM CẢ NẤC TRONG BIẾN, không chỉ px viết thẳng. Không đếm thì
+     thước này lách được bằng một phép đổi tên: `12.3px` thành
+     `var(--t-7)` là px biến sạch, thước báo 0, mà cung vẫn có đúng
+     32 giá trị rời rạc — chỉ là chúng đã dọn vào một chỗ. Dọn vào
+     một chỗ là tốt, nhưng nó không phải cái thước này hỏi.
+
+     Câu hỏi thật: cung dùng BAO NHIÊU giá trị khác nhau. Nấc hay px
+     đều là một giá trị. `scripts/thang.mjs` sinh ra chính những nấc
+     ấy, nên nếu không đếm chúng thì tôi vừa dựng một cái máy để lách
+     cái thước của chính mình. */
+  const nacChu = new Set([...cssMa.matchAll(/--t-\d+\s*:\s*[\d.]+px/g)].map((m) => m[0])).size;
   const coPx = [...cssMa.matchAll(/font-size:\s*([\d.]+)px/g)].map((m) => m[1]);
-  const soCo = new Set(coPx).size;
+  const soCo = new Set(coPx).size + nacChu;
 
   /* baseline-ui: "MUST animate only compositor props (transform,
      opacity) · NEVER animate layout properties (width, height, top,
@@ -641,7 +653,7 @@ function do_() {
      cung dùng đúng thang của Hộ Bộ. */
   cham("thang-chu", "Cỡ chữ đi theo thang", soCo <= 12,
     soCo === 0 ? "mọi cỡ chữ đã nằm trong biến"
-      : `${soCo} cỡ px rời rạc${soCo > 12 ? " — nhiều hơn một thang thật có" : ""}`);
+      : `${soCo} giá trị khác nhau (${new Set(coPx).size} px thẳng + ${nacChu} nấc)` + (soCo > 12 ? " — nhiều hơn một thang thật có" : ""));
 
   cham("hieu-ung", "Hiệu ứng chỉ chạy transform/opacity", chuyenXau.length === 0,
     chuyenXau.length
@@ -665,12 +677,17 @@ function do_() {
      cũng dính cái bẫy chú thích mà `cssMa` ở trên sinh ra để gỡ. Sót
      lại ở đây khi ba thước kia đã được vá; một câu văn giải thích
      "padding: 12px cho vừa vạch" là một giá trị rời rạc trong mắt nó. */
+  /* Cùng lý do với `nacChu` ở trên: đếm cả nấc `--k-*`, không thì
+     thước lách được bằng một phép đổi tên, và scripts/thang.mjs là
+     cái máy làm đúng phép đổi tên đó. */
+  const nacCach = new Set([...cssMa.matchAll(/--k-\d+\s*:\s*[\d.]+px/g)].map((m) => m[0])).size;
   const kcPx = new Set([...cssMa.matchAll(/(?:padding|margin|gap)[^;}]*:\s*([^;}]+)/g)]
     .flatMap((m) => m[1].match(/\b\d+px\b/g) || []));
-  cham("thang-cach", "Khoảng cách đi theo thang", kcPx.size <= 24,
-    kcPx.size === 0 ? "mọi khoảng cách đã nằm trong biến"
-      : `${kcPx.size} giá trị px rời rạc trong padding/margin/gap` +
-        (kcPx.size > 24 ? " — nhiều hơn một thang thật có" : ""));
+  const kcSo = kcPx.size + nacCach;
+  cham("thang-cach", "Khoảng cách đi theo thang", kcSo <= 24,
+    kcSo === 0 ? "mọi khoảng cách đã nằm trong biến"
+      : `${kcSo} giá trị khác nhau (${kcPx.size} px thẳng + ${nacCach} nấc)` +
+        (kcSo > 24 ? " — nhiều hơn một thang thật có" : ""));
 
   /* frontend-a11y (affaan-m/ECC): tiêu điểm bàn phím phải THẤY ĐƯỢC.
      Đây là lỗi không ai phát hiện cho tới lúc thử rời chuột ra — và
