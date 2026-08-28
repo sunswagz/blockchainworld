@@ -1,137 +1,73 @@
-/* Cây "Cổng Thành" ở đầu thanh bên — đi kèm assets/js/halls.js */
+/* ═══════════════════════════════════════════════════════
+   VỎ PWA — thông báo có bản mới, và nút cài ứng dụng.
 
-.halls-nav {
-  flex: 0 0 auto;                    /* nằm ngoài #navscroll, không co */
-  padding: 8px 10px 9px;
-  border-bottom: 1px solid var(--line);
-}
+   ── TỆP NÀY TRƯỚC ĐÂY LÀ 6 KB CHẾT ────────────────────
+   Nó từng style một cây "Cổng Thành" gồm `.halls-nav`, `.halls-head`,
+   `.halls-tree`, `.hall-link`. Bốn lớp đó KHÔNG còn tồn tại: từ khi
+   `scripts/build-halls.mjs` sinh `halls.js`, cây cung dựng bằng
+   `.cung-cay` · `.cung-hang` · `.cung-goc` … và CSS của chúng nằm
+   NGAY TRONG halls.js, cố ý — mười hai cung đặt tên biến màu khác
+   nhau nên một khối dùng chung không gọi tên biến nào được.
 
-/* ── nút gốc: Cổng Thành ────────────────────────────────── */
-.halls-head {
-  display: flex; align-items: center; gap: 7px;
-  padding: 6px 6px 6px 2px; border-radius: var(--r);
-  cursor: pointer; user-select: none;
-  border: 1px solid transparent;
-  transition: background .14s, border-color .14s;
-}
-.halls-head:hover { background: var(--raise); border-color: var(--line2); }
+   Nên tệp này thành 6 KB nằm trong SHELL, tải về mỗi lượt, không
+   style một phần tử nào. Không lỗi nào báo, vì CSS thừa thì im lặng.
 
-.halls-head .tw {
-  flex: 0 0 auto; width: 18px; height: 18px; padding: 0; cursor: pointer;
-  display: grid; place-items: center; color: var(--dim); background: none; border: 0;
-  transition: transform .2s cubic-bezier(.2, .8, .2, 1), color .14s;
-  transform: rotate(90deg);         /* mở: mũi tên chúc xuống */
-}
-.halls-nav.closed .halls-head .tw { transform: rotate(0deg); }
-.halls-head:hover .tw { color: var(--fg2); }
-.halls-head .tw svg { width: 13px; height: 13px; display: block; }
+   ── VÀ CHỖ NGƯỢC LẠI: HAI LỚP CÓ THẬT MÀ KHÔNG AI STYLE ──
+   `pwa.js` dựng `.sw-toast` (báo có bản mới) và `.install-dqt` (nút
+   cài). Cả hai KHÔNG có một luật nào trong app.css lẫn halls.css.
 
-.halls-head .ic {
-  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 6px;
-  display: grid; place-items: center;
-  background: var(--inset); color: var(--fg2);
-}
-.halls-head .ic svg { width: 14px; height: 14px; display: block; }
+   Hậu quả người dùng thấy được: mỗi lần deploy một bản mới, thanh
+   thông báo hiện ra dưới dạng chữ trần trôi ở cuối trang — không nền,
+   không viền, không vị trí. Nút cài cũng vậy. Chín cung kia đều có
+   hai khối này trong chính halls.css của chúng; cung này thiếu vì
+   halls.css ở đây bị kẹt lại ở thiết kế cũ.
 
-.halls-head .lbl { flex: 1; min-width: 0; line-height: 1.25; }
-.halls-head .lbl b {
-  display: block; font-size: 13.5px; font-weight: 600; color: var(--fg);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.halls-head .lbl i {
-  display: block; font-style: normal; font-size: 10.5px; color: var(--muted);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+   Nay tệp làm đúng việc mà nó làm ở mọi cung khác.
+   ═══════════════════════════════════════════════════════ */
 
-/* mũi tên phải: link thật sang Cổng Thành, không phải nút đóng mở */
-.halls-head .go-gate {
-  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 5px;
-  display: grid; place-items: center; color: var(--dim);
-  transition: color .14s, background .14s;
-}
-.halls-head .go-gate:hover {
-  color: var(--info); background: var(--info-d); text-decoration: none;
-}
-.halls-head .go-gate svg { width: 13px; height: 13px; display: block; }
+/* ── THÔNG BÁO CÓ BẢN MỚI ────────────────────────────────
+   pwa.js gắn `data-open="1"` ở khung hình kế tiếp, nên phải có trạng
+   thái ĐÓNG trước rồi mới trượt lên — gán thẳng vị trí cuối thì nó
+   hiện ra đột ngột, không ai kịp thấy nó từ đâu tới.
 
-/* ── nhánh con ──────────────────────────────────────────── */
-.halls-tree {
-  margin: 3px 0 0 12px; padding-left: 8px;
-  border-left: 1px solid var(--line);   /* đường dẫn hướng của cây */
-  /* halls.css nạp SAU app.css nên phải viết đủ cả hai trục, không thì
-     dòng này đè mất overflow-y:auto của .scroll và phần chạm trần
-     chiều cao sẽ bị cắt cụt, không cuộn được. */
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* KHÔNG chuyển tiếp max-height: mỗi khung hình bắt dàn lại bố cục.
-     Mở/đóng tức thì, và nội dung vẫn mờ dần nhờ opacity ở luật khác. */
-}
-.halls-nav.closed .halls-tree { border-left-color: transparent; }
+   Chỉ chuyển tiếp `transform`: đúng luật đã áp cho cả cung — không
+   hiệu ứng nào được chạm bố cục. */
+.sw-toast{
+  position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));
+  z-index:var(--z-banh);
+  transform:translate(-50%,140%);
+  transition:transform .18s cubic-bezier(.2,.8,.2,1);
+  display:flex;align-items:center;gap:12px;
+  max-width:calc(100vw - 34px);
+  padding:10px 14px;
+  border:1px solid var(--line2);border-radius:var(--r2);
+  background:var(--raise);
+  box-shadow:0 14px 40px -16px #000000e6;
+  font-size:12.5px;line-height:1.5;color:var(--fg)}
+.sw-toast[data-open="1"]{transform:translate(-50%,0)}
+.sw-toast button{
+  flex:0 0 auto;padding:5px 12px;
+  border:1px solid var(--acc-mo);border-radius:var(--r);
+  background:#58a6ff1f;color:var(--acc);
+  font-size:12.5px;font-weight:600;white-space:nowrap}
+.sw-toast button:hover{background:#58a6ff2e}
 
-.hall-link {
-  display: flex; align-items: center; gap: 9px;
-  padding: 6px 8px; margin-bottom: 2px;
-  border-radius: var(--r); color: var(--fg); text-decoration: none;
-  border: 1px solid transparent;
-  transition: background .14s, border-color .14s;
-}
-.hall-link:hover {
-  background: var(--raise); border-color: var(--line2); text-decoration: none;
-}
+/* ── NÚT CÀI ỨNG DỤNG ────────────────────────────────────
+   pwa.js chèn nó NGAY TRƯỚC `.nav-foot` trong thanh bên, và tắt bằng
+   `data-show="0"` sau khi người dùng đã chọn. Không có luật ẩn ấy thì
+   nút vẫn nằm đó sau khi cài xong. */
+.install-dqt{
+  display:flex;align-items:center;gap:8px;width:100%;
+  margin:0 0 8px;padding:7px 9px;
+  border:1px dashed var(--line3);border-radius:var(--r);
+  background:transparent;color:var(--fg2);
+  font-size:12.5px;text-align:left;
+  transition:color .14s,border-color .14s,background .14s}
+.install-dqt:hover{color:var(--fg);border-color:var(--acc-mo);background:#58a6ff14}
+.install-dqt svg{flex:0 0 auto;width:15px;height:15px}
+.install-dqt[data-show="0"]{display:none}
 
-.hall-link .ic {
-  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 6px;
-  display: grid; place-items: center;
-  background: var(--info-d); color: var(--info);
-}
-.hall-link .ic svg { width: 14px; height: 14px; display: block; }
-
-.hall-link .lbl { flex: 1; min-width: 0; line-height: 1.25; }
-.hall-link .lbl b {
-  display: block; font-size: 13.5px; font-weight: 600;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.hall-link .lbl i {
-  display: block; font-style: normal; font-size: 10.5px; color: var(--muted);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.hall-link .go { flex: 0 0 auto; color: var(--dim); display: grid; place-items: center; }
-.hall-link .go svg { width: 14px; height: 14px; display: block; }
-.hall-link:hover .go { color: var(--info); }
-
-/* ── thanh bên thu gọn (62px) ───────────────────────────────
-   Lớp thật app.js đặt là .nav-collapsed. Bản trước viết
-   #app.nav-mini nên toàn khối này chưa bao giờ chạy: thu gọn
-   thanh bên thì icon, chữ và mũi tên bị ép hết vào 62px.      */
-#app.nav-collapsed .halls-nav { padding: 8px 6px 9px; }
-#app.nav-collapsed .halls-head { justify-content: center; padding: 6px 0; }
-#app.nav-collapsed .halls-head .tw,
-#app.nav-collapsed .halls-head .lbl,
-#app.nav-collapsed .halls-head .go-gate,
-#app.nav-collapsed .hall-link .lbl,
-#app.nav-collapsed .hall-link .go { display: none; }
-#app.nav-collapsed .halls-tree {
-  margin-left: 0; padding-left: 0; border-left: 0;
-}
-#app.nav-collapsed .hall-link { justify-content: center; padding: 6px 0; }
-
-/* Dưới 900px thanh bên thành ngăn kéo 272px, .nav-collapsed hết
-   nghĩa thu gọn — app.css cũng revert y như vậy cho .nv/.navlab. */
-@media (max-width: 900px) {
-  #app.nav-collapsed .halls-nav { padding: 8px 10px 9px; }
-  #app.nav-collapsed .halls-head { justify-content: flex-start; padding: 6px 6px 6px 2px; }
-  #app.nav-collapsed .halls-head .tw,
-  #app.nav-collapsed .halls-head .go-gate,
-  #app.nav-collapsed .hall-link .go { display: grid; }
-  #app.nav-collapsed .halls-head .lbl,
-  #app.nav-collapsed .hall-link .lbl { display: block; }
-  #app.nav-collapsed .halls-tree {
-    margin-left: 12px; padding-left: 8px; border-left: 1px solid var(--line);
-  }
-  #app.nav-collapsed .hall-link { justify-content: flex-start; padding: 6px 8px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .halls-tree, .halls-head .tw { transition: none; }
-}
+/* Thanh bên thu gọn còn 62px: giữ nút nhưng bỏ chữ, cùng lối mà
+   `.nav-collapsed` đã dùng cho mọi mục khác. */
+#app.nav-collapsed .install-dqt{justify-content:center;padding:7px 0}
+#app.nav-collapsed .install-dqt span{display:none}

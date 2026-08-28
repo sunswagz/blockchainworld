@@ -6,6 +6,11 @@
   --dgr:#f0503f; --dgr-d:#2d1210; --info:#58a6ff; --info-d:#0d2137;
   --purple:#a371f7; --gold:#d4a72c; --lac:#e5484d;
   --acc:#58a6ff;
+  /* Bản MỜ của hai màu nhấn, viết thành token thay vì nối alpha vào
+     var(). Lối `var(--acc-mo)` trông có vẻ chạy nhưng không: đặc tả
+     chèn dấu ngăn giữa hai token nên màu thành không hợp lệ và cả
+     dòng bị bỏ. Bốn viền hover vì thế chưa bao giờ hiện. */
+  --acc-mo:#58a6ff66; --gold-mo:#d4a72c66;
   --mono:ui-monospace,SFMono-Regular,"JetBrains Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --r:6px; --r2:10px;
@@ -744,7 +749,7 @@ ul.tight li::marker{color:var(--dim)}
 
 .tin-bai{display:flex;flex-direction:column;color:inherit;text-decoration:none}
 .tin-bai:hover .tin-than>b{color:var(--acc)}
-.tin-bai:hover .tin-di{color:var(--acc);border-color:var(--acc)66}
+.tin-bai:hover .tin-di{color:var(--acc);border-color:var(--acc-mo)}
 /* Tỷ lệ cố định để lưới không nhảy khi ảnh nạp xong — và khi ảnh
    hỏng thì onerror xoá cả .tin-anh, thẻ tự khít lại. */
 .tin-anh{display:block;aspect-ratio:16/9;overflow:hidden;background:var(--inset);
@@ -756,7 +761,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-ng{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;color:var(--fg2);
   border:1px solid var(--line3);border-radius:20px;padding:2px 7px;font-variant-numeric:tabular-nums}
 /* Báo nhà nước: viền vàng. Không cấm đọc, chỉ bắt buộc biết. */
-.tin-ng.nn{color:var(--gold);border-color:var(--gold)66;background:#d4a72c14}
+.tin-ng.nn{color:var(--gold);border-color:var(--gold-mo);background:#d4a72c14}
 .tin-meta i{font-style:normal;font-size:10.5px;color:var(--muted)}
 .tin-meta em{margin-left:auto;font-style:normal;font-family:var(--mono);
   font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -776,7 +781,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-ai.trong p{color:var(--muted);font-size:12.5px}
 .tin-mx{font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:var(--muted);
   border:1px solid var(--line2);border-radius:20px;padding:2px 7px;background:transparent;font-variant-numeric:tabular-nums}
-.tin-mx:hover{color:var(--acc);border-color:var(--acc)66}
+.tin-mx:hover{color:var(--acc);border-color:var(--acc-mo)}
 
 .tin-chan{margin:14px 0 0;font-size:11.5px;line-height:1.6;color:var(--muted);
   padding:10px 12px;border:1px dashed var(--line2);border-radius:var(--r)}

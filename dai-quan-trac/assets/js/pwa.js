@@ -58,7 +58,8 @@
     btn.className = "install-dqt";
     btn.dataset.show = "1";
     btn.innerHTML =
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+      '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.9" ' +
       'stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11"/>' +
       '<path d="m7.5 10 4.5 4.5 4.5-4.5"/><path d="M4.5 16.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2"/></svg>' +
       '<span>Cài ứng dụng</span>';
