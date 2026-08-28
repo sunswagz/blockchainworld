@@ -181,6 +181,7 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     factory/skills.json
     factory/tien-hoa.jsonl
     factory/kho-de-xuat.json
+    factory/phieu.json
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
