@@ -767,10 +767,16 @@ if ((process.argv[1] || "").replace(/\\/g, "/").endsWith("scripts/nha-may.mjs"))
     const gio = (l) => l ? ((Date.now() - new Date(l).getTime()) / 36e5).toFixed(1) + "h" : "—";
     console.log(`\nNhà máy — ${t.lan || 0} lượt đã ghi` +
       (t.generatedAt ? `, mới nhất ${t.generatedAt}` : ", chưa chạy lần nào") + "\n");
-    console.log("  node            trạm chế độ nhịp  lượt cuối  kết quả   đến hạn");
+    /* Bề rộng cột tên tính TỪ DỮ LIỆU, không ghi cứng 15. Tên node dài
+       nhất hiện là `kham-thien-giam-tien-hoa` (24 ký tự), nên cột cứng
+       15 làm ba dòng dính liền cột sau — `tri-thuc-tien-hoaM18` — và
+       bảng vận hành là thứ người ta liếc để biết nhà máy còn sống. Cột
+       tự giãn thì thêm node tên dài không làm hỏng bảng nữa. */
+    const RONG = Math.max(15, ...NODE.map((n) => n.ma.length + 1));
+    console.log("  " + "node".padEnd(RONG) + "trạm chế độ nhịp  lượt cuối  kết quả   đến hạn");
     for (const n of NODE) {
       const s = t.node[n.ma] || {};
-      console.log("  " + n.ma.padEnd(15) + n.tram.padEnd(5) +
+      console.log("  " + n.ma.padEnd(RONG) + n.tram.padEnd(5) +
         n.che.padEnd(7) + String(n.nhip || "—").padEnd(6) +
         gio(s.luc).padEnd(11) +
         (s.ket || "—").padEnd(10) +
