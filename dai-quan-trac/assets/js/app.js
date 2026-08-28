@@ -544,6 +544,18 @@ function veChuThe(){
   });
 }
 
+/* Đường nhảy qua thanh bên (WCAG 2.4.1). Trả false để CHẶN trình
+   duyệt đổi location.hash: bộ định tuyến ở đây đọc thẳng hash làm
+   tên phòng, nên nhảy tới "#main" theo lối thường sẽ đá người dùng
+   vào một phòng không tồn tại. Tự chuyển tiêu điểm là đủ — #main
+   có tabindex="-1" chính vì việc này. */
+function boQua(){
+  const m=$('#main'); if(!m) return true;
+  m.focus();
+  const v=$('#view'); if(v) v.scrollTop=0;
+  return false;
+}
+
 function go(r){
   if(r.indexOf('cht/')===0){ const id=r.slice(4);
     doiChuThe(id); veChuThe(); return; }
