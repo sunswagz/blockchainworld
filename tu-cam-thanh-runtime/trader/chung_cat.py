@@ -153,6 +153,8 @@ def _tu_so_that(bo: list) -> list[dict]:
     ra = []
     perf = journal.performance()
     chung = perf["overall"]
+    trades = store.read_all(store.TRADES)
+    bai_hoc, _ = journal._phu_soat_lai(store.read_all(store.LESSONS))
 
     # Rủi ro có đều không — phát hiện quan trọng nhất của sổ này, và là thứ
     # không bài học lệnh-đơn-lẻ nào nói được.
@@ -186,9 +188,20 @@ def _tu_so_that(bo: list) -> list[dict]:
                f"tiền {p['totalPnl']:+.2f} ({p['expectancyUsd']:+.2f}/lệnh). Lệnh thật ít "
                f"hơn lệnh chạy lại rất nhiều, nhưng nó có nhảy giá và khớp một phần — "
                f"khi hai nguồn nói khác nhau, nguồn này nói về ĐỘ LỚN.")
+        # Khung lấy TỪ CHÍNH các lệnh, không từ cấu hình hiện tại: sổ có thể
+        # chứa lệnh của khung cũ, và gán nhãn khung mới lên chúng là đúng loại
+        # lỗi đã sập một lần với bài học chạy lại.
+        khung_ds = {t.get("khung") for t in trades
+                    if (t.get("regimeAtEntry") or "UNKNOWN") == che_do and t.get("khung")}
+        khung = next(iter(khung_ds)) if len(khung_ds) == 1 else None
+        doi_cl = sum(1 for l in bai_hoc
+                     if l.get("change_strategy") and l.get("regime") == che_do)
+        if doi_cl:
+            cau += (f" Và {doi_cl} bài học từ chính các lệnh này ĐÒI ĐỔI CHIẾN LƯỢC.")
         ra.append(_pd(f"that:{che_do}", "so-that", cau, p["count"],
-                      {"tyLeThang": p["winRate"], "tienMoiLenh": p["expectancyUsd"]},
-                      che_do=che_do))
+                      {"tyLeThang": p["winRate"], "tienMoiLenh": p["expectancyUsd"],
+                       "tongTien": p["totalPnl"], "soDoiChienLuoc": doi_cl},
+                      che_do=che_do, khung=khung))
     return ra
 
 
@@ -731,6 +744,14 @@ CAU_DAO_KY_VONG = -0.25   # R
 CAU_DAO_MAU = 30          # lệnh chạy lại
 
 
+# Ngưỡng cho bằng chứng từ LỆNH THẬT. Thấp hơn hẳn nguồn chạy lại về số lượng
+# (10 thay vì 30) vì lệnh thật đắt và hiếm — nhưng đòi thêm hai điều kiện mà
+# lệnh mô phỏng không có: tiền thật phải ÂM, và chính hậu kiểm phải đòi đổi
+# chiến lược ở đa số lệnh. Lệnh thật có nhảy giá, khớp một phần, phí thật; khi
+# nó nói lỗ thì đó là lỗ, không phải một giả định về khớp lệnh.
+THAT_TOI_THIEU_LENH = 10
+THAT_TY_LE_DOI = 0.5
+
 def cau_dao(che_do_key: str | None, che_do: str | None) -> dict | None:
     """Chế độ này đã được ĐO là lỗ đều chưa? Nếu rồi, trả phát hiện đó về.
 
@@ -753,6 +774,18 @@ def cau_dao(che_do_key: str | None, che_do: str | None) -> dict | None:
     """
     khung = _khung_hien_tai()
     for pd in store.read_all(store.PHAT_HIEN):
+        # BẰNG CHỨNG TỪ LỆNH THẬT cũng được ngắt. Trước đây cầu dao chỉ đọc
+        # nguồn `chay-lai`, nên 18 bài học từ lệnh thật đòi đổi chiến lược ở
+        # một chế độ mà không có đường nào tới đây — chính bộ não phát hiện ra
+        # chỗ đứt đó khi được hỏi "điểm yếu lớn nhất là gì".
+        if pd.get("nguon") == "so-that" and pd.get("khung") == khung:
+            so = pd.get("so") or {}
+            n = pd.get("mau") or 0
+            doi = so.get("soDoiChienLuoc") or 0
+            if (n >= THAT_TOI_THIEU_LENH and (so.get("tongTien") or 0) < 0
+                    and doi >= n * THAT_TY_LE_DOI):
+                return pd
+            continue
         if pd.get("nguon") != "chay-lai" or pd.get("doTin") != "CAO":
             continue
         if pd.get("cheDo") not in (che_do_key, che_do):

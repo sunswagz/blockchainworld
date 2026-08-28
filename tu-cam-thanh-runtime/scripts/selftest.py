@@ -788,6 +788,40 @@ async def main() -> int:
               f"tiêu tối đa ~{rieng['maxCallsPerDay'] * 40}k token/ngày "
               f"({rieng['maxCallsPerDay']} lượt × 40k đo được)")
 
+    print("\n[19] BẰNG CHỨNG TỪ LỆNH THẬT PHẢI TỚI ĐƯỢC CẦU DAO")
+    from trader import chung_cat as CC4
+    from trader.config import CONFIG as CFG4
+
+    # 18 bài học từ lệnh thật đòi đổi chiến lược ở một chế độ, mà cầu dao chỉ
+    # đọc nguồn `chay-lai` nên không có đường nào tới. Bằng chứng ĐẮT NHẤT trong
+    # hệ không nối được vào cơ chế DUY NHẤT đổi được hành vi.
+    _tf19 = CFG4["timeframes"]["primary"]
+
+    def _dat(n, tien, doi, khung=_tf19):
+        store.write_all(store.PHAT_HIEN, [{
+            "ma": "that:R", "nguon": "so-that", "cheDo": "R", "khung": khung,
+            "cau": "x", "mau": n, "doTin": "VỪA", "luc": "x",
+            "so": {"tongTien": tien, "soDoiChienLuoc": doi}}])
+
+    _dat(12, -300.0, 9)
+    check(CC4.cau_dao("R|none", "R") is not None,
+          "12 lệnh thật · tiền âm · 9/12 đòi đổi → NGẮT")
+
+    # Ba cửa ngược lại. Thiếu bất kỳ cửa nào thì cầu dao sẽ ngắt vì lý do sai.
+    _dat(6, -300.0, 6)
+    check(CC4.cau_dao("R|none", "R") is None,
+          "6 lệnh < ngưỡng 10 → không ngắt (chưa đủ mẫu)")
+    _dat(12, +300.0, 12)
+    check(CC4.cau_dao("R|none", "R") is None,
+          "tiền DƯƠNG → không ngắt, dù hậu kiểm có càu nhàu")
+    _dat(12, -300.0, 3)
+    check(CC4.cau_dao("R|none", "R") is None,
+          "chỉ 3/12 đòi đổi → không ngắt (một chuỗi xui không phải tật)")
+
+    # Và khung vẫn phải khớp — lệnh của khung cũ không được chặn khung mới.
+    _dat(12, -300.0, 9, khung="khung-khac")
+    check(CC4.cau_dao("R|none", "R") is None,
+          "bằng chứng của khung KHÁC → không ngắt")
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:

@@ -890,6 +890,14 @@ def suy_luan(ma: str, state: dict, regime: dict, primary_tf: str,
     return ham(state, regime, primary_tf, tham)
 
 
+NGU_CANH_CHAT = (
+    "\n\n# NGỮ CẢNH VẬN HÀNH\n\n"
+    "Bạn đang trả lời người vận hành runtime này qua ô chat trên dashboard. "
+    "Trả lời ngắn, thẳng, bằng tiếng Việt. Được phép nói thẳng khi số liệu "
+    "chưa đủ để kết luận."
+)
+
+
 def _ma_hop_le(x: str) -> bool:
     """Mã chiến lược: HOA, số, gạch dưới, tối đa 40 ký tự."""
     return (bool(x) and len(x) <= 40
@@ -1291,6 +1299,30 @@ class Brain:
         blocked = self.cost.blocked()
         if blocked:
             yield f"Hết hạn mức chi phí hôm nay ({blocked}). Sửa `brain.dailyBudgetUsd` trong `config.json` nếu muốn nới."
+            return
+
+        if self.mode == "cli":
+            # CLI trả cả câu trong MỘT lượt, không phát từng chữ. Người dùng sẽ
+            # thấy khoảng lặng 30-90 giây rồi cả đoạn hiện ra — phải nói trước,
+            # nếu không nó trông y hệt như treo máy và người ta bấm lại.
+            from . import cli_claude
+            yield ("_Đang hỏi bộ não qua Claude CLI (quota gói). Nó trả nguyên đoạn "
+                   "chứ không phát từng chữ, thường mất 30-90 giây…_\n\n")
+            hoi = (_fmt_state(context) + '\n\n'
+                   + (messages[-1].get("content", "") if messages else ""))
+            try:
+                tra, usage = await asyncio.to_thread(
+                    cli_claude.goi,
+                    he_thong=self._system_text() + NGU_CANH_CHAT,
+                    nguoi_dung=hoi, schema=None,
+                    model=self.cfg.get("model", "claude-sonnet-4-6"))
+            except Exception as e:  # noqa: BLE001
+                self.last_error = f"{type(e).__name__}: {e}"
+                bus.log("brain", "loi-cli", f"chat: {self.last_error}")
+                yield f"Lỗi khi gọi Claude CLI: {self.last_error}"
+                return
+            self.cost.record(self.cfg.get("model", "claude-sonnet-4-6"), usage)
+            yield str(tra or "(không có nội dung trả về)")
             return
 
         sys_blocks = self._system()

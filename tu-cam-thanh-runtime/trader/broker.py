@@ -12,6 +12,7 @@ from __future__ import annotations
 import datetime as _dt
 import uuid
 
+from .config import CONFIG
 from .bus import bus
 from . import store
 
@@ -89,6 +90,11 @@ class PaperBroker:
             "feesPaid": round(fee, 2),
             "regimeAtEntry": regime.get("primary"),
             "regimeKey": regime.get("key"),
+            # KHUNG lúc mở lệnh. Cùng lý do với bài học chạy lại: một chế độ
+            # trên 1h và trên 4h là hai thị trường khác nhau mang chung tên, và
+            # sổ giao dịch trộn hai khung lại thì mọi thống kê theo chế độ đều
+            # là trung bình của hai thứ không so được với nhau.
+            "khung": CONFIG["timeframes"]["primary"],
             "strategy": thesis.get("strategy"),
             "confidence": thesis.get("confidence"),
             "reasonCodes": thesis.get("reason_codes", []),
