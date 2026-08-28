@@ -45,16 +45,8 @@
      hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #than thì
      onclick trả undefined và trình duyệt nhảy theo lối thường — hụt
      nhẹ chứ không chết. -->
-<a class="bo-qua" href="#than" onclick="var m=document.getElementById('than');if(m){m.focus();return false}">Tới nội dung chính</a>
+<a class="bo-qua" href="#than" onclick="var m=document.getElementById('than');if(m){m.focus();return false}">Bỏ qua thanh bên, vào thẳng nội dung</a>
 
-<!-- Đường nhảy qua thanh bên — WCAG 2.4.1 "Bypass Blocks".
-     Cung này có 298 phòng, và thanh bên đứng TRƯỚC nội dung ở mọi
-     phòng. Không có dòng này thì người dùng bàn phím phải Tab qua
-     trọn khối điều hướng mỗi lần đổi phòng — 298 lần.
-     Phải nằm TRƯỚC thanh điều hướng: đường nhảy đặt sau khối cần
-     nhảy qua thì không nhảy qua được gì.
-     Ẩn khỏi mắt, hiện ra khi nhận tiêu điểm. -->
-<a class="bo-qua" href="#than">Bỏ qua thanh bên, vào thẳng nội dung</a>
 
 <div class="khung">
 
