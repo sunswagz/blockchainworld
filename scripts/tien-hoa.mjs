@@ -349,13 +349,26 @@ function tuongPhan(a, b) {
   return (x + 0.05) / (y + 0.05);
 }
 function doMau(css) {
-  const goc = css.match(/:root\s*\{([\s\S]*?)\}/);
-  if (!goc) return { cap: [], thieu: "không tìm thấy khối :root" };
+  /* MỌI khối :root, không phải khối đầu tiên.
+
+     Trước đây là `css.match(...)` — chỉ khối đầu. Một cung khai token
+     làm hai khối (Hộ Bộ vẫn vậy: màu ở khối một, nhãn nguồn tri thức
+     ở khối hai) thì nửa sau chưa từng được soi lần nào.
+
+     Và nó hỏng theo lối tệ nhất: chèn một khối :root MỚI lên trước —
+     đúng việc scripts/thang-chu.mjs làm — là phép đo tương phản
+     chuyển sang "không đo được", mẫu số tụt một, còn ĐIỂM THÌ VẪN
+     ĐẸP. Đo được do-sat-vien 10/11 → 10/10, nhìn ngoài như không mất
+     gì, thật ra vừa mất một phép kiểm. Bắt được lúc thử chính
+     thang-chu.mjs; không thử thì nó đã trôi. */
+  const goc = [...css.matchAll(/:root\s*\{([\s\S]*?)\}/g)];
+  if (!goc.length) return { cap: [], thieu: "không tìm thấy khối :root" };
   const bien = {};
-  for (const m of goc[1].matchAll(/(--[\w-]+)\s*:\s*(#[0-9a-fA-F]{3,6})/g)) {
-    const v = raiHex(m[2]);
-    if (v) bien[m[1]] = v;
-  }
+  for (const g of goc)
+    for (const m of g[1].matchAll(/(--[\w-]+)\s*:\s*(#[0-9a-fA-F]{3,6})/g)) {
+      const v = raiHex(m[2]);
+      if (v) bien[m[1]] = v;
+    }
   /* GHÉP CẶP THEO KHỐI LUẬT, không lấy tích chéo.
 
      Hai bản trước đều sai, mỗi bản một kiểu, và bản thứ hai sai tệ hơn:
@@ -521,13 +534,66 @@ function do_() {
 
   /* baseline-ui: "MUST use tabular-nums for data". `font-variant-numeric`
      DI TRUYỀN, nên một dòng ở body/html/:root là phủ cả trang — bắt
-     từng rule khai lại thì thành báo nhầm. Không có dòng gốc ấy thì
-     mới soi từng khối rule dùng font mono. */
+     từng rule khai lại thì thành báo nhầm.
+
+     Soi HAI loại mặt số, không phải một:
+
+       · khối dùng font mono
+       · khối dựng BẢNG (table/td/th/.bang/.cot/.o-so)
+
+     Bản đầu chỉ soi mono, và đó là soi nhầm chỗ. Font mono vốn đã đều
+     chữ nên tabular-nums ở đó gần như vô hại lẫn vô ích; chỗ số THẬT
+     SỰ nhảy ngang là bảng dùng font thường — Hộ Bộ chính là vậy, bảng
+     của nó chạy "Be Vietnam Pro", chữ số rộng hẹp khác nhau. Một
+     thước bỏ sót đúng chỗ đau thì đo cho có.
+
+     Đọc `cssMa` chứ không đọc `css` — cùng cái bẫy chú thích mà biến
+     ấy sinh ra để gỡ, chỉ khác đường vào: bộ chọn bắt bằng chuỗi thô
+     nuốt nguyên khối chú thích đứng trên rule, nên `:root` và `#than`
+     của Hộ Bộ đều từng bị cờ chỉ vì đoạn văn phía trên chúng. */
+  const khoi2 = [...cssMa.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .map((m) => ({ sel: m[1].trim().replace(/\s+/g, " "), than: m[2] }));
+
+  /* Thẻ `table|td|th` chỉ tính khi đứng làm THẺ, không tính khi là đầu
+     một tên lớp. `th\b` bắt luôn `.th-d`, `.th-n`, `.th-vd` — mười ba
+     khối bố cục của Hộ Bộ chẳng liên quan gì tới bảng số. */
+  const LA_SO = (k) => /font-family:\s*var\(--mono\)/.test(k.than) ||
+    /(^|[\s,>+~])(table|td|th)(?![-\w])/.test(k.sel) ||
+    /[.#](bang|cot|o-so)(?![-\w])/.test(k.sel);
+  const matSo = khoi2.filter(LA_SO);
+
+  /* Khai ở gốc là phủ cả trang, khỏi soi tiếp. Đọc trên bản đã bỏ chú
+     thích: phép này đòi `body`/`html`/`:root` đứng ngay sau `}` hoặc
+     đầu file, mà một đoạn chú thích chen vào giữa là nó trượt — trượt
+     kiểu im lặng, vì kết quả chỉ là "soi kỹ hơn cần thiết". */
   const nvGoc = /(?:^|\})\s*(?:body|html|:root)[^{}]*\{[^{}]*tabular-nums/.test(cssMa);
-  const khoiCss = [...cssMa.matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
-  const monoCo = khoiCss.filter((k) => /font-family:\s*var\(--mono\)/.test(k)).length;
-  const monoThieu = nvGoc ? 0
-    : khoiCss.filter((k) => /font-family:\s*var\(--mono\)/.test(k) && !/tabular-nums/.test(k)).length;
+
+  /* Tính CẢ DI TRUYỀN, không thì thước này thành máy kêu oan. Khai
+     `.bang{…tabular-nums}` một lần là phủ hết `.bang th`, `.bang td`,
+     `.bang tr td:first-child` — bắt từng rule khai lại là đòi một
+     việc thừa, và báo nhầm đều đặn thì người ta bỏ qua cảnh báo, kéo
+     theo cả lần nó đúng.
+
+     Phép xấp xỉ, và nói thẳng là xấp xỉ: lấy TỔ HỢP ĐẦU của mỗi bộ
+     chọn có khai (`.bang th` → `.bang`), rồi coi mọi bộ chọn cùng tổ
+     hợp đầu là đã được phủ. Không phải phân tích tầng thác thật —
+     làm thật thì phải dựng cả cây DOM — nhưng nó đúng với lối viết
+     CSS của repo này, nơi bảng nào cũng có một lớp gốc mang tên. */
+  /* Cắt cả lớp giả: `.o-so:hover` phải quy về `.o-so`. Không cắt thì
+     mọi trạng thái hover/focus của một khối ĐÃ khai bị tính là thiếu —
+     Hộ Bộ dính đúng một cờ như vậy, và cờ oan thì làm hỏng cả thước. */
+  const gocSel = (s) => s.trim().split(/[\s>+~]+/)[0]
+    .replace(/:{1,2}[\w-]+(\([^)]*\))?/g, "");
+  const daPhu = new Set();
+  for (const k of khoi2)
+    if (/tabular-nums/.test(k.than))
+      for (const s of k.sel.split(",")) daPhu.add(gocSel(s));
+
+  const thieuSo = nvGoc ? [] : matSo.filter((k) =>
+    !/tabular-nums/.test(k.than) &&
+    !k.sel.split(",").every((s) => daPhu.has(gocSel(s))));
+  const monoCo = matSo.length;
+  const monoThieu = thieuSo.length;
   const coBangSo = monoCo > 0 || /<table|class="bang"/.test(html);
 
   const diem = [];
@@ -585,8 +651,8 @@ function do_() {
   cham("so-cot", "Số liệu đứng cột", coBangSo ? monoThieu === 0 : null,
     !coBangSo ? "cung không có bảng số — không đo"
       : nvGoc ? "khai ở gốc, di truyền cả trang"
-      : monoThieu === 0 ? `${monoCo} khối dùng font mono, khối nào cũng khai tabular-nums`
-      : `${monoThieu}/${monoCo} khối font mono thiếu tabular-nums — số nhảy ngang mỗi lượt đổi`);
+      : monoThieu === 0 ? `${monoCo} mặt số (bảng + font mono), chỗ nào cũng khai`
+      : `${monoThieu}/${monoCo} mặt số thiếu tabular-nums — số nhảy ngang mỗi lượt đổi`);
 
   /* design-system (affaan-m/ECC), tải từ Tàng Thư Các: khoảng cách
      phải rút về một thang, cùng lý do với thang cỡ chữ ngay trên.
@@ -595,7 +661,11 @@ function do_() {
 
      Ngưỡng 24 rộng hơn hẳn mọi thang thật, vì thước này bắt chỗ
      KHÔNG có thang chứ không ép ai theo thang của cung khác. */
-  const kcPx = new Set([...css.matchAll(/(?:padding|margin|gap)[^;}]*:\s*([^;}]+)/g)]
+  /* `cssMa`, không phải `css` — thước này cũng dò bằng chuỗi thô nên
+     cũng dính cái bẫy chú thích mà `cssMa` ở trên sinh ra để gỡ. Sót
+     lại ở đây khi ba thước kia đã được vá; một câu văn giải thích
+     "padding: 12px cho vừa vạch" là một giá trị rời rạc trong mắt nó. */
+  const kcPx = new Set([...cssMa.matchAll(/(?:padding|margin|gap)[^;}]*:\s*([^;}]+)/g)]
     .flatMap((m) => m[1].match(/\b\d+px\b/g) || []));
   cham("thang-cach", "Khoảng cách đi theo thang", kcPx.size <= 24,
     kcPx.size === 0 ? "mọi khoảng cách đã nằm trong biến"

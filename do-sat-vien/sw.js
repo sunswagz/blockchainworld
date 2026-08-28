@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v18";
+var CACHE_VERSION = "v19";
 var SHELL_CACHE = "do-sat-vien-shell-" + CACHE_VERSION;
 var FONT_CACHE = "do-sat-vien-fonts-" + CACHE_VERSION;
 

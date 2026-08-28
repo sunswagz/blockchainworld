@@ -7,7 +7,7 @@
 /* ── huy hiệu Stage ───────────────────────────────────── */
 .l2b-tag {
   flex: 0 0 auto; margin-left: auto;
-  font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600;
+  font-family: "IBM Plex Mono", monospace; font-size:var(--t-0); font-weight: 600;
   letter-spacing: .04em; padding: 2px 5px; border-radius: 5px;
   border: 1px solid transparent; cursor: help;
 }
@@ -17,7 +17,7 @@
 .l2b-tag[data-stage="n"] { background: #F1F5FB; color: var(--ink-3); border-color: var(--line); }
 
 .l2b-tag.big {
-  margin-left: 0; font-size: 12px; padding: 5px 11px; border-radius: 999px;
+  margin-left: 0; font-size:var(--t-2); padding: 5px 11px; border-radius: 999px;
   letter-spacing: .06em;
 }
 
@@ -30,22 +30,22 @@
 }
 .l2b-stage { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .l2b-kind {
-  font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+  font-family: "IBM Plex Mono", monospace; font-size:var(--t-1); font-weight: 600;
   letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
 }
 .l2b-num { text-align: right; }
 .l2b-num b {
-  display: block; font-family: Archivo, sans-serif; font-size: 19px;
+  display: block; font-family: Archivo, sans-serif; font-size:var(--t-8);
   font-weight: 800; letter-spacing: -.02em; line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
-.l2b-num span { font-size: 11.5px; color: var(--ink-3); }
+.l2b-num span { font-size:var(--t-2); color: var(--ink-3); }
 .l2b-num i { font-style: normal; font-family: "IBM Plex Mono", monospace; }
 .l2b-num i[data-dir="up"]   { color: var(--l2); }
 .l2b-num i[data-dir="down"] { color: var(--br); }
 
 .l2b-exp {
-  margin: 0 0 13px; font-size: 13px; line-height: 1.55; color: var(--ink-2);
+  margin: 0 0 13px; font-size:var(--t-4); line-height: 1.55; color: var(--ink-2);
   max-width: 72ch;
 }
 
@@ -63,14 +63,14 @@
 .l2b-risk[data-sent="bad"]     { border-left-color: var(--br); }
 .l2b-risk[data-sent="warning"] { border-left-color: var(--gold); }
 .l2b-risk[data-sent="neutral"] { border-left-color: var(--line); }
-.l2b-risk .rn { font-size: 12.6px; color: var(--ink-2); }
+.l2b-risk .rn { font-size:var(--t-3); color: var(--ink-2); }
 .l2b-risk .rv {
-  font-size: 12.4px; font-weight: 600; text-align: right;
+  font-size:var(--t-3); font-weight: 600; text-align: right;
   color: var(--ink); flex: 0 0 auto; max-width: 55%;
 }
 
 .l2b-src {
-  margin-top: 12px; font-size: 11.8px; color: var(--ink-3); line-height: 1.5;
+  margin-top: 12px; font-size:var(--t-2); color: var(--ink-3); line-height: 1.5;
 }
 .l2b-src a { color: var(--acc); }
 
@@ -78,7 +78,7 @@
 .l2b-none-in {
   background: #FBF6E4; border-left: 3px solid var(--gold);
   padding: 11px 14px; border-radius: 0 8px 8px 0;
-  font-size: 12.8px; line-height: 1.6; color: var(--ink-2); max-width: 78ch;
+  font-size:var(--t-3); line-height: 1.6; color: var(--ink-2); max-width: 78ch;
 }
 .l2b-none-in b { color: var(--ink); }
 

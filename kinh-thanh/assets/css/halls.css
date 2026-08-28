@@ -20,7 +20,7 @@
 
 .nav-group-head .t {
   flex: 1; min-width: 0;
-  font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600;
+  font-family: "IBM Plex Mono", monospace; font-size:var(--t-1); font-weight: 600;
   letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -28,7 +28,7 @@
 
 .nav-group-head .n {
   flex: 0 0 auto;
-  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  font-family: "IBM Plex Mono", monospace; font-size:var(--t-1);
   color: var(--ink-3); font-weight: 500;
 }
 
@@ -56,11 +56,11 @@
 
 .nav-hall .lbl { flex: 1; min-width: 0; line-height: 1.2; }
 .nav-hall .lbl b {
-  display: block; font-size: 13px; font-weight: 600;
+  display: block; font-size:var(--t-4); font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .nav-hall .lbl i {
-  display: block; font-style: normal; font-size: 10px; color: var(--ink-3);
+  display: block; font-style: normal; font-size:var(--t-0); color: var(--ink-3);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
