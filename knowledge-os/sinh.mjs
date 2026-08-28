@@ -46,7 +46,7 @@
    ═══════════════════════════════════════════════════════ */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { existsSync, statSync } from "node:fs";
+import { existsSync, statSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,6 +57,12 @@ const json = async (p) => JSON.parse(await readFile(join(GOI, p), "utf8"));
 
 const cho = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const THU = process.argv.includes("--thu");
+/* `--kiem`: không ghi gì, chỉ in tên cung mà lát cắt trên đĩa ĐÃ LỆCH
+   với dữ liệu hiện tại. `do.mjs` gọi nó để chấm thước "lát cắt còn
+   tươi" — đo bằng NỘI DUNG chứ không bằng dấu thời gian, vì từ khi
+   sinh.mjs bỏ qua file không đổi thì mtime đứng yên mãi và một thước
+   đo theo mtime sẽ đỏ vĩnh viễn. */
+const KIEM = process.argv.includes("--kiem");
 
 /* ── 1. kiểm trước, ghi sau ───────────────────────────── */
 try {
@@ -349,7 +355,21 @@ if (cho.length) {
   }
 }
 
+/* So NỘI DUNG, bỏ qua dấu giờ. `sinhLuc` đổi mỗi lượt nên so cả file
+   là lượt nào cũng "đổi" — mỗi ngày một commit rỗng, và người đọc
+   lịch sử phải lội qua nó để tìm lượt có đổi thật. */
+const KHUON = /window\.TRI_THUC = (\{[\s\S]*?\});\n/;
+function doiKhac(duong, d) {
+  if (!existsSync(duong)) return true;
+  const m = readFileSync(duong, "utf8").match(KHUON);
+  if (!m) return true;
+  try {
+    return JSON.stringify({ ...JSON.parse(m[1]), sinhLuc: "" }) !== JSON.stringify({ ...d, sinhLuc: "" });
+  } catch { return true; }
+}
+
 let n = 0;
+const lech = [];
 for (const h of lam) {
   const thu = join(REPO, h.hall, "assets", "js", "v");
   if (!existsSync(join(REPO, h.hall, "index.html"))) {
@@ -369,6 +389,13 @@ for (const h of lam) {
     continue;
   }
 
+  if (!doiKhac(duong, d)) {
+    if (KIEM) continue;
+    console.log(`· ${h.hall.padEnd(16)} không đổi — giữ nguyên`);
+    continue;
+  }
+  if (KIEM) { lech.push(h.hall); continue; }
+
   await mkdir(thu, { recursive: true });
   await writeFile(duong, noi);
   n++;
@@ -377,6 +404,14 @@ for (const h of lam) {
     `${String(d.phong.length).padStart(2)} phòng · ${String(Object.keys(d.khaiNiem).length).padStart(2)} khái niệm · ` +
     `${String(d.quanHe.length).padStart(2)} quan hệ · ${String(d.lop2026.length).padStart(2)} nối 2026`
   );
+}
+
+/* `--kiem` chỉ in tên cung lệch, mỗi dòng một cung, rồi thoát. `do.mjs`
+   đọc đúng chuỗi đó để chấm thước "lát cắt còn tươi" — nên đừng thêm
+   dòng trang trí nào vào đây. */
+if (KIEM) {
+  for (const c of lech) console.log(c);
+  process.exit(0);
 }
 
 if (THU) console.log("\n(--thu: chưa ghi gì.)");
