@@ -43,7 +43,32 @@ const SO = join(ROOT, "factory", "skills.json");
 const NHOM_CAN = ["giao-dien", "kiem-thu", "tai-lieu", "lap-trinh"];
 const SAN_SAO = 500;
 const TRAN_MOI_KHO = 2;
-const TRAN_TONG = 12;
+const TRAN_TONG = 20;
+
+/* ── DANH SÁCH ƯU TIÊN, CHỌN TAY ─────────────────────────
+   Phép xếp hạng ở dưới sắp theo chính-chủ rồi sao, nên 12 suất đầu
+   đi hết vào skill tổng quát. Kệ từng có đúng 3 mục nhóm giao-diện
+   — algorithmic-art, brainstorming, autoplan — mà không cái nào nói
+   về màu, chữ, khoảng cách hay bố cục.
+
+   Danh sách này vẫn đi qua đủ bốn chốt: phải có TRONG catalogue,
+   phải có giấy phép, chỉ tải SKILL.md, vẫn ghi sổ kèm sha256. Nó chỉ
+   đổi THỨ TỰ, không mở thêm cửa nào.
+
+   Miễn trần mỗi-kho cho riêng danh sách này: ba skill thiết kế mạnh
+   nhất cùng ở anthropics/skills. Trần ấy sinh ra để một kho nhiều
+   sao không chiếm kệ bằng skill lạc đề, chứ không phải để chặn ba
+   skill đúng việc. */
+const UU_TIEN = [
+  ["nextlevelbuilder/ui-ux-pro-max-skill", "design-system"],
+  ["nextlevelbuilder/ui-ux-pro-max-skill", "ui-styling"],
+  ["sickn33/agentic-awesome-skills", "anti-ui-slop"],
+  ["sickn33/agentic-awesome-skills", "baseline-ui"],
+  ["anthropics/skills", "frontend-design"],
+  ["anthropics/skills", "theme-factory"],
+  ["anthropics/skills", "brand-guidelines"],
+  ["nexu-io/open-design", "frontend-design"]
+];
 
 function docCatalogue() {
   const hop = { window: {} };
@@ -64,7 +89,22 @@ function chon(d) {
 
   const dem = {};
   const lay = [];
+
+  /* Ưu tiên trước. Tìm trong `ung` chứ không tìm thẳng trong
+     catalogue: như vậy chúng vẫn phải qua sàn sao và bộ lọc nhóm,
+     và một skill bị gỡ giấy phép sẽ tự rụng khỏi đây mà không cần ai
+     nhớ sửa danh sách. */
+  for (const [kho, ten] of UU_TIEN) {
+    const k = ung.find((x) => x.kho === kho &&
+      String(x.ten).toLowerCase() === String(ten).toLowerCase());
+    if (!k) { console.log(`  ⚠ ưu tiên "${ten}" (${kho}) không còn trong catalogue — bỏ qua`); continue; }
+    if (lay.includes(k)) continue;
+    dem[k.kho] = (dem[k.kho] || 0) + 1;
+    lay.push({ ...k, nhanh: nhanhTheoKho[k.kho] || "main", uuTien: true });
+  }
+
   for (const k of ung) {
+    if (lay.some((x) => x.kho === k.kho && x.ten === k.ten)) continue;
     if (lay.length >= TRAN_TONG) break;
     if ((dem[k.kho] || 0) >= TRAN_MOI_KHO) continue;
     dem[k.kho] = (dem[k.kho] || 0) + 1;
