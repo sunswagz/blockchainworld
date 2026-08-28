@@ -5287,6 +5287,76 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("AMM: số liệu quá hạn thì thôi kế toán",
          k is not None and k.doDuoc is False)
 
+    # ── 12. KẾ TOÁN THẬT của ty chênh funding: ĐẾM MỐC, không nhân giờ ──
+    from bac.ty_perp import TUOI_KE_TOAN_TOI_DA_GIAY as _TUOI_PERP
+    from bac.ty_perp import TyPerp
+    from phai_sinh_chung.models import BaoGia
+
+    class _RtGia:
+        def __init__(self, baoGia): self.baoGia = list(baoGia)
+
+    def _bg(san, rate, mocSauGio, interval=8.0, nhanTsMs=None):
+        return BaoGia(san=san, ma="BTC", rate=rate, intervalGio=interval,
+                      markPx=60_000.0,
+                      mocKeMs=int(now9 * 1000.0 + mocSauGio * 3_600_000.0),
+                      nhanTsMs=int(nhanTsMs if nhanTsMs is not None
+                                   else now9 * 1000.0))
+
+    chan12 = [ViThe("m12", TyPerp.ma, "LONG", "binance", "BTC", 500.0),
+              ViThe("m12", TyPerp.ma, "SHORT", "okx", "BTC", 500.0)]
+    tt12 = {"taiSan": "BTC"}
+
+    def _perp(baoGia, tuGio=1.0):
+        return TyPerp(_RtGia(baoGia)).ke_toan(
+            chan12, tt12, now9 - tuGio * 3600.0, now9)
+
+    k = _perp([_bg("binance", 0.0001, 5.0), _bg("okx", 0.0003, 6.0)])
+    kiem("perp: không mốc nào đi qua thì thu ĐÚNG 0, và doDuoc vẫn True",
+         k is not None and k.thuUsd == 0.0 and k.doDuoc,
+         f"{k and k.tom_tat()} — giữ bốn giờ trên sàn kết toán tám giờ có "
+         f"thể thu đúng bằng không; cộng dồn rate nhân giờ là làm mất đúng "
+         f"sự thật ấy")
+    kiem("và NÓI RA đó là 0 đo được",
+         k is not None and "ĐO ĐƯỢC" in k.vi, k and k.vi)
+
+    k = _perp([_bg("binance", 0.0001, 5.0), _bg("okx", 0.0003, -0.5)])
+    kiem("perp: mốc SHORT đi qua thì THU vào",
+         k is not None and k.thuUsd > 0.0, f"{k and k.tom_tat()}")
+    kiem("và số tiền là rate trên notional MỘT chân, không phải cả hai",
+         k is not None and abs(k.thuUsd - 500.0 * 0.0003) < 1e-9,
+         f"{k and k.thuUsd} — vốn 1.000 USD chia hai chân, mỗi chân 500")
+
+    k = _perp([_bg("binance", 0.0002, -0.5), _bg("okx", 0.0003, 5.0)])
+    kiem("perp: mốc LONG đi qua thì TRẢ ra, dấu âm",
+         k is not None and abs(k.thuUsd + 500.0 * 0.0002) < 1e-9,
+         f"{k and k.thuUsd} — funding dương nghĩa là LONG trả cho SHORT; "
+         f"một cỗ máy chỉ biết cộng là cỗ máy nói dối một nửa")
+
+    _bgS = _bg("okx", 0.0003, 6.0)
+    object.__setattr__(_bgS, "mocKeMs", None)
+    k = _perp([_bg("binance", 0.0001, 5.0), _bgS])
+    kiem("perp: sàn không công bố mốc kế thì doDuoc=False",
+         k is not None and k.doDuoc is False,
+         "dem_moc khi ấy giả định mốc nằm giữa chu kỳ — đó là kỳ vọng, "
+         "không phải phép đo, và tiền đoán ra không được vào sổ cái")
+
+    k = _perp([_bg("binance", 0.0001, 5.0)])
+    kiem("perp: thiếu báo giá một chân thì doDuoc=False",
+         k is not None and k.doDuoc is False and "rớt" in k.vi)
+
+    k = _perp([_bg("binance", 0.0001, 5.0,
+                   nhanTsMs=(now9 - _TUOI_PERP - 60.0) * 1000.0),
+               _bg("okx", 0.0003, 6.0)])
+    kiem("perp: báo giá quá hạn thì doDuoc=False",
+         k is not None and k.doDuoc is False and "cũ hơn" in k.vi)
+
+    k = TyPerp(_RtGia([])).ke_toan(
+        [ViThe("m12", TyPerp.ma, "LONG", "binance", "BTC", 500.0)],
+        tt12, now9 - 3600.0, now9)
+    kiem("perp: vị thế một chân thì doDuoc=False, không đoán chân kia",
+         k is not None and k.doDuoc is False)
+
+
     # ── 11. mọi ty ĐANG CHẠY: có kế toán hay chưa, phải KHAI ────────────
     _cacTy = [
         ("bac.ty_perp", "TyPerp"),
