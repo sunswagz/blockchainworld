@@ -431,11 +431,12 @@ def _tu_mau_gia(bo: list) -> list[dict]:
     tong = sum(m["so"] for m in ds)
     am = [m for m in ds if m["kyVongR"] <= 0]
     ra.append(_pd("mau-gia-tong", "mau-gia",
-                  f"{len(ds)} mẫu giá kinh điển đã đem đo trên {d.get('nen')} nến 1h "
+                  f"{len(ds)} mẫu giá kinh điển đã đem đo trên {d.get('nen')} nến "
+                  f"khung {d.get('khung') or 'không rõ'} "
                   f"({tong} lần xuất hiện, đã gộp trùng): {len(am)}/{len(ds)} có kỳ vọng ÂM "
                   f"sau phí, dùng đúng điểm vào/stop/mục tiêu mà chính mẫu khai. "
                   f"Mẫu giá ở đây là BỐI CẢNH để đọc, không phải tín hiệu để bấm.",
-                  tong, {"soMau": len(ds), "soAm": len(am)}))
+                  tong, {"soMau": len(ds), "soAm": len(am)}, khung=d.get("khung")))
 
     # Mẫu tệ nhất — cái đáng nhớ hơn mẫu tốt nhất, vì nó là cái sẽ bị dùng nhầm
     xau = min(ds, key=lambda m: m["kyVongR"])
@@ -444,7 +445,8 @@ def _tu_mau_gia(bo: list) -> list[dict]:
                   f"thắng {xau['tyLeThang']}%, MFE trung vị chỉ {xau['mfeTrungVi']}R — "
                   f"một nửa số lần nó còn không đi nổi {xau['mfeTrungVi']}R về phía mình "
                   f"trước khi kết thúc. Thấy mẫu này thì đừng coi là lý do vào lệnh.",
-                  xau["so"], {"ten": xau["ten"], "kyVongR": xau["kyVongR"]}))
+                  xau["so"], {"ten": xau["ten"], "kyVongR": xau["kyVongR"]},
+                  khung=d.get("khung")))
 
     # Mẫu hay bị đọc sai nhất: thắng NHIỀU mà vẫn lỗ vì RR dưới 1
     hay = [m for m in ds if m["tyLeThang"] >= 45 and m["kyVongR"] < 0 and m["rrTrungBinh"] < 1]
@@ -456,7 +458,7 @@ def _tu_mau_gia(bo: list) -> list[dict]:
                       f"vì luật đặt mục tiêu kinh điển của nó cho RR chỉ {m['rrTrungBinh']}. "
                       f"Đích gần hơn cả stop thì thắng bao nhiêu cũng không đủ.",
                       m["so"], {"ten": m["ten"], "rr": m["rrTrungBinh"],
-                                "tyLeThang": m["tyLeThang"]}))
+                                "tyLeThang": m["tyLeThang"]}, khung=d.get("khung")))
     return ra
 
 

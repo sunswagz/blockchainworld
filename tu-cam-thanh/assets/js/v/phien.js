@@ -7,165 +7,204 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-15T17:27:04.327Z",
- "chayTu": "2026-08-15T17:01:54+00:00",
- "vong": 73,
+ "generatedAt": "2026-08-28T15:36:13.733Z",
+ "chayTu": "2026-08-28T15:11:10+00:00",
+ "vong": 72,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
  "chiLong": true,
  "cap": "BTCUSDT",
  "khung": {
-  "primary": "1h",
-  "context": "4h"
+  "primary": "4h",
+  "context": "1d"
  },
- "gia": 63070.49,
+ "gia": 79207.98,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "00:27:04",
+  "lastOk": "22:36:13",
   "lastError": null
  },
  "cheDo": {
-  "primary": "RANGE",
-  "flags": [
-   "LOW_VOLATILITY"
-  ],
-  "quality": "MEDIUM",
+  "primary": "TREND_UP",
+  "flags": [],
+  "quality": "HIGH",
   "reasons": [
-   "ADX 15.8 < 18 — không bên nào kiểm soát",
-   "dải Bollinger co còn 0.36%"
+   "ADX 37.9 ≥ 22, EMA xếp tăng, cấu trúc TRANSITION"
   ],
-  "contextTrend": "BEARISH_ALIGNED",
-  "adx": 15.8,
-  "volatility": "LOW",
-  "key": "RANGE|LOW_VOLATILITY"
+  "contextTrend": "MIXED",
+  "adx": 37.9,
+  "volatility": "NORMAL",
+  "key": "TREND_UP|none"
  },
  "thiTruong": {
-  "1h": {
-   "price": 63070.49,
-   "ema20": 63053.6,
-   "ema50": 63154.84,
-   "ema200": 63707.37,
-   "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 50.5,
-   "rsiSlope": 0.51,
-   "macdHist": 13.08,
-   "macdHistSlope": 0.384,
-   "atr": 115.12,
-   "atrPct": 0.183,
-   "atrRatioVsMedian": 0.53,
-   "volatility": "LOW",
-   "adx": 15.8,
-   "plusDI": 16.4,
-   "minusDI": 20.2,
-   "bbWidthPct": 0.36,
-   "bbPosition": 0.58,
-   "volumeRatio": 0.24,
-   "structure": "UPTREND",
-   "swingHighs": [
-    63617.45,
-    63247.05,
-    63066.13,
-    63187.98
-   ],
-   "swingLows": [
-    62830.0,
-    62800.0,
-    62920.0,
-    62946.58
-   ],
-   "support": [
-    {
-     "price": 62790.58,
-     "touches": 7
-    }
-   ],
-   "resistance": [
-    {
-     "price": 63278.44,
-     "touches": 8
-    },
-    {
-     "price": 63631.08,
-     "touches": 5
-    },
-    {
-     "price": 63972.34,
-     "touches": 3
-    }
-   ],
-   "range20High": 63187.98,
-   "range20Low": 62800.0,
-   "distToRange20HighPct": 0.19,
-   "distToRange20LowPct": 0.43
-  },
   "4h": {
-   "price": 63070.49,
-   "ema20": 63296.09,
-   "ema50": 63713.48,
-   "ema200": 63916.84,
-   "emaStack": "BEARISH_ALIGNED",
-   "rsi14": 39.6,
-   "rsiSlope": 0.27,
-   "macdHist": 28.37,
-   "macdHistSlope": 9.22,
-   "atr": 348.2,
-   "atrPct": 0.552,
-   "atrRatioVsMedian": 0.69,
+   "price": 79207.98,
+   "ema20": 79136.62,
+   "ema50": 76748.49,
+   "ema200": 69510.2,
+   "emaStack": "BULLISH_ALIGNED",
+   "rsi14": 54.5,
+   "rsiSlope": -1.91,
+   "macdHist": -159.95,
+   "macdHistSlope": -26.27,
+   "atr": 1092.79,
+   "atrPct": 1.38,
+   "atrRatioVsMedian": 1.1,
    "volatility": "NORMAL",
-   "adx": 30.7,
-   "plusDI": 13.9,
-   "minusDI": 27.6,
-   "bbWidthPct": 1.7,
-   "bbPosition": 0.33,
-   "volumeRatio": 0.15,
+   "adx": 37.9,
+   "plusDI": 24.8,
+   "minusDI": 16.5,
+   "bbWidthPct": 2.98,
+   "bbPosition": 0.5,
+   "volumeRatio": 1.64,
    "structure": "TRANSITION",
    "swingHighs": [
-    64515.43,
-    64500.0,
-    64010.0,
-    63247.05
+    80000.0,
+    81272.62,
+    79174.12,
+    81478.87
    ],
    "swingLows": [
-    63310.34,
-    62802.27,
-    62535.24,
-    62920.0
+    75545.67,
+    76670.01,
+    77851.0,
+    77632.58
    ],
    "support": [
     {
-     "price": 62861.13,
-     "touches": 2
+     "price": 79174.12,
+     "touches": 1
     },
     {
-     "price": 62535.24,
+     "price": 78828.15,
+     "touches": 1
+    },
+    {
+     "price": 78052.85,
      "touches": 1
     }
    ],
    "resistance": [
     {
-     "price": 63265.13,
-     "touches": 3
+     "price": 79500.0,
+     "touches": 1
     },
     {
-     "price": 64051.15,
-     "touches": 7
+     "price": 80000.0,
+     "touches": 1
     },
     {
-     "price": 64573.67,
-     "touches": 4
+     "price": 81375.74,
+     "touches": 2
     }
    ],
-   "range20High": 64500.0,
+   "mauGia": {
+    "co": false,
+    "so": 0,
+    "mau": [],
+    "mauThuan": false
+   },
+   "range20High": 81478.87,
+   "range20Low": 77632.58,
+   "distToRange20HighPct": 2.87,
+   "distToRange20LowPct": 1.99
+  },
+  "1d": {
+   "price": 79225.51,
+   "ema20": 72730.64,
+   "ema50": 68683.89,
+   "ema200": 72958.9,
+   "emaStack": "MIXED",
+   "rsi14": 76.8,
+   "rsiSlope": -1.04,
+   "macdHist": 1079.27,
+   "macdHistSlope": -158.976,
+   "atr": 2337.96,
+   "atrPct": 2.951,
+   "atrRatioVsMedian": 1.03,
+   "volatility": "NORMAL",
+   "adx": 42.4,
+   "plusDI": 43.6,
+   "minusDI": 7.7,
+   "bbWidthPct": 40.19,
+   "bbPosition": 0.81,
+   "volumeRatio": 0.73,
+   "structure": "UPTREND",
+   "swingHighs": [
+    65409.56,
+    65474.46,
+    79500.0,
+    81272.62
+   ],
+   "swingLows": [
+    63739.75,
+    62742.47,
+    62275.0,
+    62535.24
+   ],
+   "support": [
+    {
+     "price": 67292.15,
+     "touches": 1
+    },
+    {
+     "price": 66956.15,
+     "touches": 1
+    },
+    {
+     "price": 65570.29,
+     "touches": 5
+    }
+   ],
+   "resistance": [
+    {
+     "price": 79500.0,
+     "touches": 1
+    },
+    {
+     "price": 81272.62,
+     "touches": 1
+    }
+   ],
+   "mauGia": {
+    "co": true,
+    "so": 3,
+    "mau": [
+     {
+      "ten": "HAI_ĐÁY",
+      "loai": "ĐẢO_CHIỀU",
+      "huong": "LONG",
+      "rr": 0.63,
+      "doTin": 0.86
+     },
+     {
+      "ten": "VAI_ĐẦU_VAI_NGƯỢC",
+      "loai": "ĐẢO_CHIỀU",
+      "huong": "LONG",
+      "rr": 0.64,
+      "doTin": 0.91
+     },
+     {
+      "ten": "NẾN_TRÙM_GIẢM",
+      "loai": "ĐẢO_CHIỀU",
+      "huong": "SHORT",
+      "rr": 1.36,
+      "doTin": 0.5
+     }
+    ],
+    "mauThuan": true
+   },
+   "range20High": 81272.62,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 2.27,
-   "distToRange20LowPct": 0.85
+   "distToRange20HighPct": 2.58,
+   "distToRange20LowPct": 21.07
   }
  },
  "luanDiem": {
-  "regime_read": "RANGE",
-  "market_summary": "[mock] RANGE, ADX 15.8, RSI 52.2, EMA BEARISH_ALIGNED",
+  "regime_read": "TREND_UP",
+  "market_summary": "[mock] TREND_UP, ADX 37.9, RSI 56.1, EMA BULLISH_ALIGNED",
   "scenarios": [
    {
     "name": "tiếp diễn",
@@ -183,46 +222,118 @@ window.TU_CAM_THANH = {
     "description": "mất cấu trúc"
    }
   ],
-  "action": "NO_TRADE",
-  "confidence": 0.4,
-  "entry_zone": null,
-  "invalidation": null,
-  "invalidation_logic": "không vào lệnh nên không có điểm vô hiệu hoá",
-  "targets": [],
-  "suggested_risk_pct": 0.0,
+  "action": "LONG",
+  "confidence": 0.6,
+  "entry_zone": [
+   79302.61,
+   79461.37
+  ],
+  "invalidation": 77742.81,
+  "invalidation_logic": "1.5×ATR ngược hướng — mất vùng này là hết xu hướng ngắn hạn",
+  "targets": [
+   83199.36,
+   85489.78
+  ],
+  "suggested_risk_pct": 0.5,
   "strategy": "MOCK_RULES_V1",
   "reason_codes": [
    "MOCK_BRAIN",
-   "NO_CLEAR_TREND"
+   "TREND_ALIGNED",
+   "ADX_CONFIRMS"
   ],
-  "reasoning": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+  "reasoning": "[mock] Thuận TREND_UP với ADX 37.9. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.377%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
   "event_risk": "UNKNOWN",
   "symbol": "BTCUSDT",
   "source": "mock",
-  "regimeFromClassifier": "RANGE",
-  "at": "2026-08-15T17:01:56+00:00"
+  "regimeFromClassifier": "TREND_UP",
+  "at": "2026-08-28T15:11:12+00:00"
  },
  "phanQuyet": {
-  "approved": false,
-  "action": "NO_TRADE",
+  "approved": true,
+  "action": "LONG",
   "rejections": [],
-  "note": "brain chủ động không vào lệnh",
-  "position": null
+  "rr": 2.1033929966568268,
+  "note": "trong hạn mức",
+  "position": {
+   "side": "LONG",
+   "entry": 79381.99,
+   "expectedFill": 79501.06,
+   "costDragOnEntry": 119.07,
+   "stopLoss": 77742.81,
+   "targets": [
+    83199.36,
+    85489.78
+   ],
+   "qty": 0.02744994628858806,
+   "notional": 2182.3,
+   "riskAmount": 48.26,
+   "riskPct": 0.5,
+   "riskBase": 9652.79,
+   "riskBaseIsCash": true,
+   "riskPctOfEquity": 0.0542,
+   "stopDistance": 1758.25,
+   "structuralStopDistance": 1639.18,
+   "stopAtrMultiple": 1.5,
+   "rr": 2.1,
+   "suggestedRiskPct": 0.5,
+   "riskPctCapped": false,
+   "notionalCapped": false
+  }
  },
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 73070.49,
-  "vonThucHien": 73070.49,
-  "dinhVon": 73100.69,
-  "laiLoMo": 0.0,
-  "laiLoHomNay": -0.0,
-  "drawdownPct": 0.04,
-  "soLenhDaDong": 2,
-  "viThe": []
+  "von": 88855.94,
+  "vonThucHien": 88855.94,
+  "dinhVon": 89587.53,
+  "laiLoMo": -4.83,
+  "laiLoHomNay": 0.0,
+  "drawdownPct": 0.82,
+  "soLenhDaDong": 40,
+  "viThe": [
+   {
+    "id": "t_922b195af0",
+    "openedAt": "2026-08-28T15:11:12+00:00",
+    "symbol": "BTCUSDT",
+    "side": "LONG",
+    "qty": 0.02744,
+    "entry": 79384.0,
+    "requestedEntry": 79381.99,
+    "stopLoss": 77742.81,
+    "targets": [
+     83199.36
+    ],
+    "riskAmount": 45.03,
+    "plannedRiskAmount": 48.26,
+    "riskPct": 0.5,
+    "rr": 2.32,
+    "plannedRr": 2.1,
+    "stopAtrMultiple": 1.5,
+    "feesPaid": 0,
+    "regimeAtEntry": "TREND_UP",
+    "regimeKey": "TREND_UP|none",
+    "strategy": "MOCK_RULES_V1",
+    "confidence": 0.6,
+    "reasonCodes": [
+     "MOCK_BRAIN",
+     "TREND_ALIGNED",
+     "ADX_CONFIRMS"
+    ],
+    "thesisSummary": "[mock] Thuận TREND_UP với ADX 37.9. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.377%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+    "status": "OPEN",
+    "venue": "binance-spot-testnet",
+    "entryOrderId": 9393304,
+    "ocoOrderListId": 284358,
+    "ocoError": null,
+    "unrealizedPnl": -4.83,
+    "unrealizedR": -0.11
+   }
+  ]
  },
  "rui_ro": {
   "dungHan": null,
-  "ngatMach": [],
+  "ngatMach": [
+   "MAX_POSITIONS: đang giữ 1/1 vị thế"
+  ],
   "gioiHan": {
    "startingEquity": 10000,
    "maxRiskPerTradePct": 0.5,
@@ -250,464 +361,1117 @@ window.TU_CAM_THANH = {
    "cacheWriteTokens": 0
   },
   "hanMucUsd": 5.0,
-  "soKyNang": 11
+  "soKyNang": 13
  },
  "thongKe": {
   "overall": {
-   "count": 10,
-   "wins": 7,
-   "winRate": 70.0,
-   "expectancyR": 1.014,
-   "totalPnl": 463.77,
-   "avgWinR": 1.45,
-   "avgLossR": 0.0,
-   "maxLossR": 0
+   "count": 38,
+   "wins": 10,
+   "winRate": 26.3,
+   "expectancyR": -0.202,
+   "totalPnl": -358.19,
+   "expectancyUsd": -9.43,
+   "riskCv": 0.362,
+   "riskDeu": false,
+   "canhBao": null,
+   "avgWinR": 2.61,
+   "avgLossR": -1.21,
+   "maxLossR": -1.56
   },
   "byRegime": {
-   "RANGE": {
-    "count": 10,
-    "wins": 7,
-    "winRate": 70.0,
-    "expectancyR": 1.014,
-    "totalPnl": 463.77,
-    "avgWinR": 1.45,
-    "avgLossR": 0.0,
-    "maxLossR": 0
+   "TREND_UP": {
+    "count": 38,
+    "wins": 10,
+    "winRate": 26.3,
+    "expectancyR": -0.202,
+    "totalPnl": -358.19,
+    "expectancyUsd": -9.43,
+    "riskCv": 0.362,
+    "riskDeu": false,
+    "canhBao": null,
+    "avgWinR": 2.61,
+    "avgLossR": -1.21,
+    "maxLossR": -1.56
    }
   },
   "byStrategy": {
    "MOCK_RULES_V1": {
-    "count": 7,
-    "wins": 7,
-    "winRate": 100.0,
-    "expectancyR": 1.449,
-    "totalPnl": 463.77,
-    "avgWinR": 1.45,
-    "avgLossR": null,
-    "maxLossR": 1.4
-   },
-   "THU_MOT_LENH": {
-    "count": 3,
-    "wins": 0,
-    "winRate": 0.0,
-    "expectancyR": 0.0,
-    "totalPnl": 0.0,
-    "avgWinR": null,
-    "avgLossR": 0.0,
-    "maxLossR": 0
+    "count": 38,
+    "wins": 10,
+    "winRate": 26.3,
+    "expectancyR": -0.202,
+    "totalPnl": -358.19,
+    "expectancyUsd": -9.43,
+    "riskCv": 0.362,
+    "riskDeu": false,
+    "canhBao": null,
+    "avgWinR": 2.61,
+    "avgLossR": -1.21,
+    "maxLossR": -1.56
    }
   }
  },
  "giaoDich": [
   {
-   "id": "t_9d533893f2",
-   "openedAt": "2026-08-15T16:53:01+00:00",
+   "id": "t_26bec9c59e",
+   "openedAt": "2026-08-21T22:24:15+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.1574584716894351,
-   "entry": 63191.26,
-   "requestedEntry": 63096.62,
-   "stopLoss": 62927.64,
+   "qty": 0.03205,
+   "entry": 78087.06,
+   "requestedEntry": 78139.35,
+   "stopLoss": 76767.38,
    "targets": [
-    63718.52,
-    63997.85
+    81389.69
    ],
-   "riskAmount": 41.51,
-   "plannedRiskAmount": 41.51,
-   "slippageCostOnRisk": -0.0,
+   "riskAmount": 42.3,
+   "plannedRiskAmount": 47.73,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
-   "stopAtrMultiple": 1.5,
-   "feesPaid": 19.97,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
-   "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
-   "reasonCodes": [
-    "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
-   ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
-   "status": "CLOSED",
-   "closedAt": "2026-08-15T16:53:01+00:00",
-   "exit": 63622.94,
-   "exitReason": "TAKE_PROFIT",
-   "grossPnl": 67.97,
-   "pnl": 57.95,
-   "rMultiple": 1.4,
-   "holdingMinutes": 0
-  },
-  {
-   "id": "t_0ab1e922f9",
-   "openedAt": "2026-08-15T14:15:08+00:00",
-   "symbol": "BTCUSDT",
-   "side": "LONG",
-   "qty": 0.00063,
-   "entry": 63010.01,
-   "requestedEntry": 63010.0,
-   "stopLoss": 62817.77,
-   "targets": [
-    63711.41
-   ],
-   "riskAmount": 0.12,
-   "plannedRiskAmount": 0.12,
-   "riskPct": 0.5,
-   "rr": 3.65,
-   "plannedRr": 2.12,
+   "rr": 2.5,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
    "feesPaid": 0.0,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
-   "strategy": "THU_MOT_LENH",
-   "confidence": 0.75,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
    "reasonCodes": [
-    "THU_TAY"
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Lệnh thử đường ống, không phải tín hiệu.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 56.5. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.171%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
    "venue": "binance-spot-testnet",
-   "entryOrderId": 3346838,
-   "ocoOrderListId": 104536,
+   "entryOrderId": 5922448,
+   "ocoOrderListId": 182483,
    "ocoError": null,
-   "closedAt": "2026-08-15T14:15:09+00:00",
-   "exit": 63010.0,
-   "exitReason": "THU_XONG",
-   "grossPnl": -0.0,
-   "pnl": -0.0,
-   "rMultiple": -0.0
+   "closedAt": "2026-08-21T22:48:49+00:00",
+   "exit": 81389.69,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 105.85,
+   "pnl": 105.85,
+   "rMultiple": 2.5
   },
   {
-   "id": "t_0273081956",
-   "openedAt": "2026-08-15T14:12:08+00:00",
+   "id": "t_392a855d4e",
+   "openedAt": "2026-08-21T21:22:31+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.00063,
-   "entry": 63029.87,
-   "requestedEntry": 63029.87,
-   "stopLoss": 62839.77,
+   "qty": 0.03274,
+   "entry": 78100.01,
+   "requestedEntry": 78100.01,
+   "stopLoss": 76751.38,
    "targets": [
-    63726.9
+    81301.15
    ],
-   "riskAmount": 0.12,
-   "plannedRiskAmount": 0.12,
+   "riskAmount": 44.15,
+   "plannedRiskAmount": 47.99,
    "riskPct": 0.5,
-   "rr": 3.67,
-   "plannedRr": 2.12,
+   "rr": 2.37,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
    "feesPaid": 0.0,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
-   "strategy": "THU_MOT_LENH",
-   "confidence": 0.75,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
    "reasonCodes": [
-    "THU_TAY"
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Lệnh thử đường ống, không phải tín hiệu.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 56.8. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.151%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
    "venue": "binance-spot-testnet",
-   "entryOrderId": 3346295,
-   "ocoOrderListId": 104517,
+   "entryOrderId": 5885340,
+   "ocoOrderListId": 181581,
    "ocoError": null,
-   "closedAt": "2026-08-15T14:14:50+00:00",
-   "exit": 63029.86,
-   "exitReason": "DOI_SO_DONG_TAY",
-   "grossPnl": -0.0,
-   "pnl": -0.0,
-   "rMultiple": -0.0
+   "closedAt": "2026-08-21T21:28:50+00:00",
+   "exit": 76521.12,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -51.69,
+   "pnl": -51.69,
+   "rMultiple": -1.17
   },
   {
-   "id": "t_0273081956",
-   "openedAt": "2026-08-15T14:12:08+00:00",
+   "id": "t_8413f9bc3a",
+   "openedAt": "2026-08-21T19:59:51+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.00063,
-   "entry": 63029.87,
-   "requestedEntry": 63029.87,
-   "stopLoss": 62839.77,
+   "qty": 0.03364,
+   "entry": 76994.01,
+   "requestedEntry": 76976.76,
+   "stopLoss": 75658.71,
    "targets": [
-    63726.9
+    80108.37
    ],
-   "riskAmount": 0.12,
-   "plannedRiskAmount": 0.12,
+   "riskAmount": 44.92,
+   "plannedRiskAmount": 48.23,
    "riskPct": 0.5,
-   "rr": 3.67,
-   "plannedRr": 2.12,
+   "rr": 2.33,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
    "feesPaid": 0.0,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
-   "strategy": "THU_MOT_LENH",
-   "confidence": 0.75,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
    "reasonCodes": [
-    "THU_TAY"
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Lệnh thử đường ống, không phải tín hiệu.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 57.8. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.142%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
    "venue": "binance-spot-testnet",
-   "entryOrderId": 3346295,
-   "ocoOrderListId": 104517,
+   "entryOrderId": 5838308,
+   "ocoOrderListId": 180596,
    "ocoError": null,
-   "closedAt": "2026-08-15T14:12:09+00:00",
-   "exit": 63029.86,
-   "exitReason": "OCO_FILLED",
-   "grossPnl": -0.0,
-   "pnl": -0.0,
-   "rMultiple": -0.0
+   "closedAt": "2026-08-21T20:03:43+00:00",
+   "exit": 75581.51,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -47.52,
+   "pnl": -47.52,
+   "rMultiple": -1.06
   },
   {
-   "id": "t_a0c719bdef",
-   "openedAt": "2026-08-15T14:11:00+00:00",
+   "id": "t_8141408e9b",
+   "openedAt": "2026-08-21T18:53:25+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.15760029457512972,
-   "entry": 63134.4,
-   "requestedEntry": 63039.84,
-   "stopLoss": 62850.23,
+   "qty": 0.03343,
+   "entry": 77190.0,
+   "requestedEntry": 77174.0,
+   "stopLoss": 75839.58,
    "targets": [
-    63702.74,
-    64051.1
+    80340.93
    ],
-   "riskAmount": 44.79,
-   "plannedRiskAmount": 44.79,
-   "slippageCostOnRisk": -0.0,
+   "riskAmount": 45.14,
+   "plannedRiskAmount": 48.49,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
+   "rr": 2.33,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
-   "feesPaid": 19.97,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
    "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
+   "confidence": 0.6,
    "reasonCodes": [
     "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 59.7. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.153%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
-   "closedAt": "2026-08-15T14:11:00+00:00",
-   "exit": 63607.19,
-   "exitReason": "TAKE_PROFIT",
-   "grossPnl": 74.51,
-   "pnl": 64.49,
-   "rMultiple": 1.44,
-   "holdingMinutes": 0
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5806527,
+   "ocoOrderListId": 179958,
+   "ocoError": null,
+   "closedAt": "2026-08-21T19:54:37+00:00",
+   "exit": 75612.06,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -52.75,
+   "pnl": -52.75,
+   "rMultiple": -1.17
   },
   {
-   "id": "t_d5b132ea11",
-   "openedAt": "2026-08-15T14:10:43+00:00",
+   "id": "t_9244d92a68",
+   "openedAt": "2026-08-21T17:53:21+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.15760029457512972,
-   "entry": 63134.4,
-   "requestedEntry": 63039.84,
-   "stopLoss": 62850.23,
+   "qty": 0.03357,
+   "entry": 77392.01,
+   "requestedEntry": 77392.01,
+   "stopLoss": 76056.05,
    "targets": [
-    63702.74,
-    64051.1
+    80563.2
    ],
-   "riskAmount": 44.79,
-   "plannedRiskAmount": 44.79,
-   "slippageCostOnRisk": -0.0,
+   "riskAmount": 44.85,
+   "plannedRiskAmount": 48.75,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
+   "rr": 2.37,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
-   "feesPaid": 19.97,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
    "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
+   "confidence": 0.6,
    "reasonCodes": [
     "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 62.7. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.151%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
-   "closedAt": "2026-08-15T14:10:43+00:00",
-   "exit": 63607.19,
-   "exitReason": "TAKE_PROFIT",
-   "grossPnl": 74.51,
-   "pnl": 64.49,
-   "rMultiple": 1.44,
-   "holdingMinutes": 0
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5776982,
+   "ocoOrderListId": 179404,
+   "ocoError": null,
+   "closedAt": "2026-08-21T18:03:33+00:00",
+   "exit": 75828.46,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -52.49,
+   "pnl": -52.49,
+   "rMultiple": -1.17
   },
   {
-   "id": "t_9648cf635a",
-   "openedAt": "2026-08-15T14:06:44+00:00",
+   "id": "t_8c0f417944",
+   "openedAt": "2026-08-21T16:53:12+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.1583968791252982,
-   "entry": 63132.56,
-   "requestedEntry": 63038.0,
-   "stopLoss": 62848.39,
+   "qty": 0.03266,
+   "entry": 77486.01,
+   "requestedEntry": 77505.93,
+   "stopLoss": 76121.75,
    "targets": [
-    63700.89,
-    64049.26
+    80778.93
    ],
-   "riskAmount": 45.01,
-   "plannedRiskAmount": 45.01,
-   "slippageCostOnRisk": 0.0,
+   "riskAmount": 44.56,
+   "plannedRiskAmount": 49.01,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
+   "rr": 2.41,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
-   "feesPaid": 20.07,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
    "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
+   "confidence": 0.6,
    "reasonCodes": [
     "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 63.9. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.191%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
-   "closedAt": "2026-08-15T14:06:44+00:00",
-   "exit": 63605.34,
-   "exitReason": "TAKE_PROFIT",
-   "grossPnl": 74.89,
-   "pnl": 64.81,
-   "rMultiple": 1.44,
-   "holdingMinutes": 0
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5750235,
+   "ocoOrderListId": 178765,
+   "ocoError": null,
+   "closedAt": "2026-08-21T17:10:44+00:00",
+   "exit": 75893.38,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -52.02,
+   "pnl": -52.02,
+   "rMultiple": -1.17
   },
   {
-   "id": "t_8a47849991",
-   "openedAt": "2026-08-15T13:52:35+00:00",
+   "id": "t_ed56df2bc7",
+   "openedAt": "2026-08-21T15:53:15+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.15834076483413426,
-   "entry": 63154.93,
-   "requestedEntry": 63060.34,
-   "stopLoss": 62859.13,
+   "qty": 0.03237,
+   "entry": 77221.99,
+   "requestedEntry": 77241.99,
+   "stopLoss": 75836.0,
    "targets": [
-    63746.53,
-    64133.45
+    80559.55
    ],
-   "riskAmount": 46.84,
-   "plannedRiskAmount": 46.84,
-   "slippageCostOnRisk": -0.0,
+   "riskAmount": 44.86,
+   "plannedRiskAmount": 49.27,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
+   "rr": 2.41,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
-   "feesPaid": 20.08,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
    "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
+   "confidence": 0.6,
    "reasonCodes": [
     "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 66.0. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.213%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
-   "closedAt": "2026-08-15T13:52:35+00:00",
-   "exit": 63650.91,
-   "exitReason": "TAKE_PROFIT",
-   "grossPnl": 78.53,
-   "pnl": 68.46,
-   "rMultiple": 1.46,
-   "holdingMinutes": 0
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5723026,
+   "ocoOrderListId": 178062,
+   "ocoError": null,
+   "closedAt": "2026-08-21T15:58:09+00:00",
+   "exit": 75608.49,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -52.23,
+   "pnl": -52.23,
+   "rMultiple": -1.16
   },
   {
-   "id": "t_864c2bd8b0",
-   "openedAt": "2026-08-15T13:50:14+00:00",
+   "id": "t_1cfa383fd2",
+   "openedAt": "2026-08-21T14:53:14+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.15834076483413426,
-   "entry": 63154.93,
-   "requestedEntry": 63060.34,
-   "stopLoss": 62859.13,
+   "qty": 0.03182,
+   "entry": 77384.69,
+   "requestedEntry": 77373.12,
+   "stopLoss": 75932.89,
    "targets": [
-    63746.53,
-    64133.45
+    80763.19
    ],
-   "riskAmount": 46.84,
-   "plannedRiskAmount": 46.84,
-   "slippageCostOnRisk": -0.0,
+   "riskAmount": 46.2,
+   "plannedRiskAmount": 49.53,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
+   "rr": 2.33,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
-   "feesPaid": 20.08,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|LOW_VOLATILITY",
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
    "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
+   "confidence": 0.6,
    "reasonCodes": [
     "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 66.7. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.241%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
-   "closedAt": "2026-08-15T13:50:14+00:00",
-   "exit": 63650.91,
-   "exitReason": "TAKE_PROFIT",
-   "grossPnl": 78.53,
-   "pnl": 68.46,
-   "rMultiple": 1.46,
-   "holdingMinutes": 0
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5691422,
+   "ocoOrderListId": 177257,
+   "ocoError": null,
+   "closedAt": "2026-08-21T15:00:34+00:00",
+   "exit": 75705.09,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -53.44,
+   "pnl": -53.44,
+   "rMultiple": -1.16
   },
   {
-   "id": "t_f88096d887",
-   "openedAt": "2026-08-15T08:16:48+00:00",
+   "id": "t_6633640f2f",
+   "openedAt": "2026-08-21T13:53:12+00:00",
    "symbol": "BTCUSDT",
    "side": "LONG",
-   "qty": 0.15613395310404296,
-   "entry": 63154.43,
-   "requestedEntry": 63059.84,
-   "stopLoss": 62834.19,
+   "qty": 0.03173,
+   "entry": 77266.88,
+   "requestedEntry": 77253.99,
+   "stopLoss": 75800.65,
    "targets": [
-    63794.91,
-    64263.3
+    80671.02
    ],
-   "riskAmount": 50.0,
-   "plannedRiskAmount": 50.0,
-   "slippageCostOnRisk": 0.0,
+   "riskAmount": 46.52,
+   "plannedRiskAmount": 49.8,
    "riskPct": 0.5,
-   "rr": 2.0,
-   "plannedRr": 2.0,
+   "rr": 2.32,
+   "plannedRr": 2.1,
    "stopAtrMultiple": 1.5,
-   "feesPaid": 19.81,
-   "regimeAtEntry": "RANGE",
-   "regimeKey": "RANGE|none",
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
    "strategy": "MOCK_RULES_V1",
-   "confidence": 0.8,
+   "confidence": 0.6,
    "reasonCodes": [
     "MOCK_BRAIN",
-    "NO_CLEAR_TREND"
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
    ],
-   "thesisSummary": "Bộ não giả lập: chỉ vào lệnh khi xu hướng rõ và các khung không mâu thuẫn.",
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 67.9. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.254%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
    "status": "CLOSED",
-   "closedAt": "2026-08-15T08:16:48+00:00",
-   "exit": 63699.22,
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5667757,
+   "ocoOrderListId": 176486,
+   "ocoError": null,
+   "closedAt": "2026-08-21T13:55:19+00:00",
+   "exit": 75573.24,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -53.74,
+   "pnl": -53.74,
+   "rMultiple": -1.16
+  },
+  {
+   "id": "t_1a36618aa0",
+   "openedAt": "2026-08-21T12:53:18+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.03277,
+   "entry": 77223.66,
+   "requestedEntry": 77191.82,
+   "stopLoss": 75779.67,
+   "targets": [
+    80522.06
+   ],
+   "riskAmount": 47.32,
+   "plannedRiskAmount": 50.07,
+   "riskPct": 0.5,
+   "rr": 2.28,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 69.8. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.220%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5645823,
+   "ocoOrderListId": 175750,
+   "ocoError": null,
+   "closedAt": "2026-08-21T13:24:37+00:00",
+   "exit": 75552.33,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -54.77,
+   "pnl": -54.77,
+   "rMultiple": -1.16
+  },
+  {
+   "id": "t_fd3220171e",
+   "openedAt": "2026-08-21T11:53:26+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.03283,
+   "entry": 76726.18,
+   "requestedEntry": 76748.01,
+   "stopLoss": 75329.96,
+   "targets": [
+    80088.56
+   ],
+   "riskAmount": 45.84,
+   "plannedRiskAmount": 50.33,
+   "riskPct": 0.5,
+   "rr": 2.41,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 70.7. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.232%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5625451,
+   "ocoOrderListId": 175049,
+   "ocoError": null,
+   "closedAt": "2026-08-21T12:07:52+00:00",
+   "exit": 75103.97,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -53.26,
+   "pnl": -53.26,
+   "rMultiple": -1.16
+  },
+  {
+   "id": "t_5611d918f9",
+   "openedAt": "2026-08-21T10:53:19+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.03402,
+   "entry": 77810.02,
+   "requestedEntry": 77796.0,
+   "stopLoss": 76425.14,
+   "targets": [
+    81042.39
+   ],
+   "riskAmount": 47.11,
+   "plannedRiskAmount": 50.61,
+   "riskPct": 0.5,
+   "rr": 2.33,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 73.8. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.175%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5603727,
+   "ocoOrderListId": 174293,
+   "ocoError": null,
+   "closedAt": "2026-08-21T11:37:38+00:00",
+   "exit": 76195.86,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -54.91,
+   "pnl": -54.91,
+   "rMultiple": -1.17
+  },
+  {
+   "id": "t_3e61d286cb",
+   "openedAt": "2026-08-21T09:53:13+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.03324,
+   "entry": 77910.72,
+   "requestedEntry": 77938.07,
+   "stopLoss": 76525.6,
+   "targets": [
+    81272.52
+   ],
+   "riskAmount": 46.04,
+   "plannedRiskAmount": 50.85,
+   "riskPct": 0.5,
+   "rr": 2.43,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 72.8. SL 1.5×ATR, TP1 3.5×ATR — bội số này suy từ ATR/giá hiện tại (1.208%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5585617,
+   "ocoOrderListId": 173498,
+   "ocoError": null,
+   "closedAt": "2026-08-21T10:05:11+00:00",
+   "exit": 76481.15,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -47.52,
+   "pnl": -47.52,
+   "rMultiple": -1.03
+  },
+  {
+   "id": "t_0db4afbbc5",
+   "openedAt": "2026-08-21T08:53:10+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.03583,
+   "entry": 79258.03,
+   "requestedEntry": 79362.96,
+   "stopLoss": 78055.81,
+   "targets": [
+    82482.97
+   ],
+   "riskAmount": 43.08,
+   "plannedRiskAmount": 51.1,
+   "riskPct": 0.5,
+   "rr": 2.68,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 71.6. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (1.098%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5563744,
+   "ocoOrderListId": 172617,
+   "ocoError": null,
+   "closedAt": "2026-08-21T08:56:00+00:00",
+   "exit": 77821.64,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -51.47,
+   "pnl": -51.47,
+   "rMultiple": -1.19
+  },
+  {
+   "id": "t_450e183da1",
+   "openedAt": "2026-08-21T08:09:44+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.0409,
+   "entry": 77000.0,
+   "requestedEntry": 77063.36,
+   "stopLoss": 75923.48,
+   "targets": [
+    79821.24
+   ],
+   "riskAmount": 44.03,
+   "plannedRiskAmount": 51.35,
+   "riskPct": 0.5,
+   "rr": 2.62,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 70.0. SL 1.5×ATR, TP1 3.6×ATR — bội số này suy từ ATR/giá hiện tại (0.986%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5546326,
+   "ocoOrderListId": 171911,
+   "ocoError": null,
+   "closedAt": "2026-08-21T08:27:19+00:00",
+   "exit": 75757.27,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -50.83,
+   "pnl": -50.83,
+   "rMultiple": -1.15
+  },
+  {
+   "id": "t_d5b4fef74d",
+   "openedAt": "2026-08-21T06:53:10+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.04649,
+   "entry": 75646.21,
+   "requestedEntry": 75630.01,
+   "stopLoss": 74650.92,
+   "targets": [
+    78043.44
+   ],
+   "riskAmount": 46.27,
+   "plannedRiskAmount": 50.79,
+   "riskPct": 0.5,
+   "rr": 2.41,
+   "plannedRr": 2.11,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 68.6. SL 1.5×ATR, TP1 3.7×ATR — bội số này suy từ ATR/giá hiện tại (0.863%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5508888,
+   "ocoOrderListId": 170923,
+   "ocoError": null,
+   "closedAt": "2026-08-21T08:09:43+00:00",
+   "exit": 78043.44,
    "exitReason": "TAKE_PROFIT",
-   "grossPnl": 85.06,
-   "pnl": 75.11,
-   "rMultiple": 1.5,
-   "holdingMinutes": 0
+   "grossPnl": 111.45,
+   "pnl": 111.45,
+   "rMultiple": 2.41
+  },
+  {
+   "id": "t_c8e3dce467",
+   "openedAt": "2026-08-21T05:53:23+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.04627,
+   "entry": 75422.0,
+   "requestedEntry": 75404.01,
+   "stopLoss": 74413.44,
+   "targets": [
+    77840.5
+   ],
+   "riskAmount": 46.67,
+   "plannedRiskAmount": 51.08,
+   "riskPct": 0.5,
+   "rr": 2.4,
+   "plannedRr": 2.11,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 67.8. SL 1.5×ATR, TP1 3.7×ATR — bội số này suy từ ATR/giá hiện tại (0.876%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5485232,
+   "ocoOrderListId": 170242,
+   "ocoError": null,
+   "closedAt": "2026-08-21T06:39:53+00:00",
+   "exit": 74190.19,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -57.0,
+   "pnl": -57.0,
+   "rMultiple": -1.22
+  },
+  {
+   "id": "t_5a784d98f0",
+   "openedAt": "2026-08-21T04:53:30+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.04544,
+   "entry": 75004.47,
+   "requestedEntry": 75000.0,
+   "stopLoss": 74000.88,
+   "targets": [
+    77452.53
+   ],
+   "riskAmount": 45.6,
+   "plannedRiskAmount": 50.52,
+   "riskPct": 0.5,
+   "rr": 2.44,
+   "plannedRr": 2.11,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 67.0. SL 1.5×ATR, TP1 3.7×ATR — bội số này suy từ ATR/giá hiện tại (0.888%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5465005,
+   "ocoOrderListId": 169686,
+   "ocoError": null,
+   "closedAt": "2026-08-21T05:24:02+00:00",
+   "exit": 77452.53,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 111.24,
+   "pnl": 111.24,
+   "rMultiple": 2.44
+  },
+  {
+   "id": "t_f880b5cf7d",
+   "openedAt": "2026-08-21T00:10:41+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.05035,
+   "entry": 73490.0,
+   "requestedEntry": 73490.0,
+   "stopLoss": 72607.91,
+   "targets": [
+    75689.64
+   ],
+   "riskAmount": 44.41,
+   "plannedRiskAmount": 49.97,
+   "riskPct": 0.5,
+   "rr": 2.49,
+   "plannedRr": 2.11,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 63.0. SL 1.5×ATR, TP1 3.7×ATR — bội số này suy từ ATR/giá hiện tại (0.800%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5377556,
+   "ocoOrderListId": 167216,
+   "ocoError": null,
+   "closedAt": "2026-08-21T04:53:29+00:00",
+   "exit": 75689.64,
+   "exitReason": "TAKE_PROFIT",
+   "grossPnl": 110.75,
+   "pnl": 110.75,
+   "rMultiple": 2.49
+  },
+  {
+   "id": "t_a866268ccc",
+   "openedAt": "2026-08-20T17:10:04+00:00",
+   "symbol": "BTCUSDT",
+   "side": "LONG",
+   "qty": 0.04568,
+   "entry": 72640.0,
+   "requestedEntry": 72676.0,
+   "stopLoss": 71685.4,
+   "targets": [
+    75099.66
+   ],
+   "riskAmount": 43.61,
+   "plannedRiskAmount": 50.23,
+   "riskPct": 0.5,
+   "rr": 2.58,
+   "plannedRr": 2.1,
+   "stopAtrMultiple": 1.5,
+   "feesPaid": 0.0,
+   "regimeAtEntry": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "strategy": "MOCK_RULES_V1",
+   "confidence": 0.6,
+   "reasonCodes": [
+    "MOCK_BRAIN",
+    "TREND_ALIGNED",
+    "ADX_CONFIRMS"
+   ],
+   "thesisSummary": "[mock] Thuận TREND_UP với ADX 64.9. SL 1.5×ATR, TP1 3.7×ATR — bội số này suy từ ATR/giá hiện tại (0.909%) để RR còn ≥2.0 sau khi trừ phí và trượt giá, không phải con số ghi cứng.",
+   "status": "CLOSED",
+   "venue": "binance-spot-testnet",
+   "entryOrderId": 5257569,
+   "ocoOrderListId": 163291,
+   "ocoError": null,
+   "closedAt": "2026-08-21T00:10:41+00:00",
+   "exit": 71470.34,
+   "exitReason": "STOP_LOSS",
+   "grossPnl": -53.43,
+   "pnl": -53.43,
+   "rMultiple": -1.23
   }
  ],
- "baiHoc": [],
+ "baiHoc": [
+  {
+   "soatLai": null,
+   "at": "2026-08-21T22:48:49+00:00",
+   "tradeId": "t_26bec9c59e",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": 105.85,
+   "rMultiple": 2.5,
+   "exitReason": "TAKE_PROFIT",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": true,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": false,
+   "classification": "GOOD_TRADE_GOOD_OUTCOME",
+   "lesson": "[luật] Chạy tới mục tiêu, setup và cách thoát giữ nguyên.",
+   "change_strategy": false,
+   "confidence_in_lesson": 0.3
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T21:28:50+00:00",
+   "tradeId": "t_392a855d4e",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -51.69,
+   "rMultiple": -1.17,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -645 qua 31 lệnh (25 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T20:03:43+00:00",
+   "tradeId": "t_8413f9bc3a",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -47.52,
+   "rMultiple": -1.06,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -593 qua 30 lệnh (24 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T19:54:37+00:00",
+   "tradeId": "t_8141408e9b",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -52.75,
+   "rMultiple": -1.17,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -545 qua 29 lệnh (23 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T18:03:33+00:00",
+   "tradeId": "t_9244d92a68",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -52.49,
+   "rMultiple": -1.17,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -493 qua 28 lệnh (22 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T17:10:44+00:00",
+   "tradeId": "t_8c0f417944",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -52.02,
+   "rMultiple": -1.17,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -440 qua 27 lệnh (21 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T15:58:09+00:00",
+   "tradeId": "t_ed56df2bc7",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -52.23,
+   "rMultiple": -1.16,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -388 qua 26 lệnh (20 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T15:00:34+00:00",
+   "tradeId": "t_1cfa383fd2",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -53.44,
+   "rMultiple": -1.16,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -336 qua 25 lệnh (19 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T13:55:19+00:00",
+   "tradeId": "t_6633640f2f",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -53.74,
+   "rMultiple": -1.16,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -282 qua 24 lệnh (18 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  },
+  {
+   "soatLai": null,
+   "at": "2026-08-21T13:24:37+00:00",
+   "tradeId": "t_1a36618aa0",
+   "symbol": "BTCUSDT",
+   "regime": "TREND_UP",
+   "regimeKey": "TREND_UP|HIGH_VOLATILITY",
+   "side": "LONG",
+   "pnl": -54.77,
+   "rMultiple": -1.16,
+   "exitReason": "STOP_LOSS",
+   "strategy": "MOCK_RULES_V1",
+   "regime_appropriate": false,
+   "entry_valid": true,
+   "size_valid": true,
+   "stop_placement_valid": true,
+   "thesis_was_wrong": true,
+   "classification": "GOOD_TRADE_BAD_OUTCOME",
+   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|HIGH_VOLATILITY đã lỗ -229 qua 23 lệnh (17 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "change_strategy": true,
+   "confidence_in_lesson": 0.6
+  }
+ ],
  "theGioi": {
-  "luc": 1786814223.3312566,
+  "luc": 1787930781.9760988,
   "phaiSinh": {
-   "fundingNamHoa": 4.92,
-   "openInterestUsd": 7052187705.819402,
-   "oiDoi24hPct": -0.5,
+   "fundingNamHoa": 5.67,
+   "openInterestUsd": 8404228204.22043,
+   "oiDoi24hPct": -3.0,
    "topTrader": {
-    "tyLe": 1.4699,
-    "long": 0.5951,
-    "short": 0.4049,
-    "doi12h": -0.012
+    "tyLe": 2.0516,
+    "long": 0.6723,
+    "short": 0.3277,
+    "doi12h": -0.045
    },
    "toanSan": {
-    "tyLe": 2.076,
-    "long": 0.6749,
-    "short": 0.3251,
-    "doi12h": 0.023
+    "tyLe": 1.0404,
+    "long": 0.5099,
+    "short": 0.4901,
+    "doi12h": 0.115
    },
    "nguon": "Binance Futures"
   },
@@ -715,50 +1479,50 @@ window.TU_CAM_THANH = {
    "muc": {
     "DXY": {
      "ten": "chỉ số đô la",
-     "gia": 99.67,
-     "doiPct": -0.29
+     "gia": 99.496,
+     "doiPct": 0.34
     },
     "US10Y": {
      "ten": "lợi suất trái phiếu 10 năm",
-     "gia": 4.696,
-     "doiPct": 1.19
+     "gia": 4.694,
+     "doiPct": 0.47
     },
     "DAU": {
      "ten": "dầu WTI",
-     "gia": 82.4,
-     "doiPct": 1.42
+     "gia": 83.18,
+     "doiPct": -0.42
     },
     "SP500": {
      "ten": "S&P 500",
-     "gia": 7785.76,
-     "doiPct": -0.17
+     "gia": 7769.6,
+     "doiPct": 0.5
     },
     "VANG": {
      "ten": "vàng",
-     "gia": 4380.4,
-     "doiPct": 0.38
+     "gia": 4615.3,
+     "doiPct": 0.12
     }
    },
    "khauVi": {
-    "diem": -0.56,
+    "diem": 0.18,
     "soChiSo": 3,
-    "nhan": "RISK_OFF",
+    "nhan": "TRUNG_TINH",
     "ghiChu": "suy ra từ chiều đổi của DXY, lợi suất và S&P — không phải một chỉ số có sẵn"
    },
    "nguon": "Yahoo Finance"
   },
   "tamLy": {
-   "gt": 34,
-   "nhan": "Fear",
+   "gt": 73,
+   "nhan": "Greed",
    "chuoi": [
-    30,
-    31,
-    30,
-    29,
-    27,
-    29,
-    29,
-    34
+    72,
+    71,
+    66,
+    73,
+    74,
+    65,
+    71,
+    73
    ]
   },
   "tin": [
@@ -767,73 +1531,73 @@ window.TU_CAM_THANH = {
     "soBai": 6,
     "bai": [
      {
-      "tieuDe": "Federal Reserve issues FOMC statement",
+      "tieuDe": "Minutes of the Board's discount rate meetings on July 20 and July 29, 2026",
       "nguon": "Fed",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm"
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260825a.htm"
      },
      {
-      "tieuDe": "Minutes of the Board's discount rate meetings on June 8 and June 17, 2026",
+      "tieuDe": "Minutes of the Federal Open Market Committee, July 28–29, 2026",
       "nguon": "Fed",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260714a.htm"
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260819a.htm"
      }
     ]
    },
    {
     "ma": "LAM_PHAT",
-    "soBai": 1,
+    "soBai": 4,
     "bai": [
      {
-      "tieuDe": "Bitcoin slips as U.S. inflation fails to spark gains, ETFs see August's first two-day drawdown",
+      "tieuDe": "Fed Chair Kevin Warsh at Jackson Hole: 'We have work to do' on inflation",
       "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/markets/2026/08/14/bitcoin-slips-as-u-s-inflation-fails-to-spark-gains-etfs-see-august-s-first-two-day-drawdown"
+      "url": "https://www.coindesk.com/markets/2026/08/28/warsh-at-jackson-hole-we-have-work-to-do-on-inflaiton"
+     },
+     {
+      "tieuDe": "Morning Minute: Solana Jumps with Network Inflation Set to Drop",
+      "nguon": "Decrypt",
+      "url": "https://decrypt.co/376800/morning-minute-solana-jumps-with-network-inflation-set-to-drop"
      }
     ]
    },
    {
     "ma": "QUY_DINH",
-    "soBai": 5,
+    "soBai": 1,
     "bai": [
      {
-      "tieuDe": "Tokenization stocks slip as SEC delay puts 'speed bump' in crypto’s Wall Street push",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/markets/2026/08/14/tokenization-stocks-slip-as-sec-delay-puts-speed-bump-in-crypto-s-wall-street-push"
-     },
-     {
-      "tieuDe": "SEC cancels long-awaited proposal of Reg Crypto, postponing meeting without new date",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/policy/2026/08/13/sec-cancels-long-awaited-proposal-of-reg-crypto-postponing-meeting-without-new-date"
+      "tieuDe": "SEC Proposes New Regulation Crypto Assets",
+      "nguon": "SEC",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-76-sec-proposes-new-regulation-crypto-assets"
      }
     ]
    },
    {
     "ma": "ETF",
-    "soBai": 6,
+    "soBai": 3,
     "bai": [
      {
-      "tieuDe": "Swiss mega-bank UBS ramps up its Bitcoin exposure with a massive 24-fold surge in ETF call options",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/business/2026/08/15/swiss-mega-bank-ubs-ramps-up-its-bitcoin-exposure-with-a-massive-24-fold-surge-in-etf-call-options"
+      "tieuDe": "Grayscale says Zcash can challenge Bitcoin’s network effects as privacy demand grows",
+      "nguon": "Cointelegraph",
+      "url": "https://cointelegraph.com/markets/zcash-bitcoin-network-effects-grayscale-privacy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
      },
      {
-      "tieuDe": "Paul Tudor Jones’ investment firm increases stake in BlackRock's bitcoin ETF after year of selling",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/business/2026/08/15/paul-tudor-jones-investment-firm-increases-blackrock-s-bitcoin-etf-stake-after-year-of-selling"
+      "tieuDe": "Ethereum ETFs Take $226M in a Day, Almost Matching Bitcoin's Haul",
+      "nguon": "Decrypt",
+      "url": "https://decrypt.co/376810/ethereum-etfs-take-226m-in-a-day-almost-matching-bitcoins-haul"
      }
     ]
    },
    {
     "ma": "VI_MO",
-    "soBai": 2,
+    "soBai": 5,
     "bai": [
      {
-      "tieuDe": "Fear is fading across markets, be it bitcoin, stocks, gold or bonds",
+      "tieuDe": "Bitcoin is outperforming stocks and correlating with gold just when it matters most",
       "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/daybook-us/2026/08/14/volatility-exits-crypto-tradfi-markets-even-as-u-s-iran-risks-linger-sovereign-debt-rises"
+      "url": "https://www.coindesk.com/daybook-us/2026/08/28/bitcoin-is-outperforming-stocks-and-correlating-with-gold-just-when-it-matters-most"
      },
      {
-      "tieuDe": "Amex Green vs. Amex Gold: Tons of benefits and rewards for foodies and travelers",
-      "nguon": "Yahoo",
-      "url": "https://finance.yahoo.com/personal-finance/credit-cards/comparison/amex-green-vs-gold-174325977.html"
+      "tieuDe": "Here’s why Warsh’s Jackson Hole speech is a major event for bitcoin and gold",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/markets/2026/08/28/here-s-why-warsh-s-jackson-hole-speech-is-a-major-event-for-bitcoin-and-gold"
      }
     ]
    }
@@ -841,65 +1605,5 @@ window.TU_CAM_THANH = {
   "soFeed": 9,
   "soBai": 186
  },
- "huanLuyen": {
-  "viec": "quet",
-  "xong": 1786813332.0640948,
-  "totNhat": {
-   "bo": {
-    "stopAtr": 2.5,
-    "demTp": 1.3,
-    "adxToiThieu": 0,
-    "chanBienDongCao": false
-   },
-   "trongMau": {
-    "so": 50,
-    "soThang": 21,
-    "soThua": 29,
-    "tyLeThang": 42.0,
-    "kyVongR": 0.085,
-    "tongR": 4.26,
-    "trungBinhThangR": 1.475,
-    "trungBinhThuaR": -0.922,
-    "heSoLoiNhuan": 1.16,
-    "sutGiamToiDaPct": 3.92,
-    "chuoiThuaDaiNhat": 8,
-    "vonDau": 10000,
-    "vonCuoi": 10203.07,
-    "loiNhuanPct": 2.03,
-    "trungBinhNenGiu": 30.3,
-    "theoLyDoThoat": {
-     "TP": 10,
-     "SL": 23,
-     "HET_HAN": 17
-    }
-   },
-   "ngoaiMau": {
-    "so": 27,
-    "soThang": 6,
-    "soThua": 21,
-    "tyLeThang": 22.2,
-    "kyVongR": -0.645,
-    "tongR": -17.43,
-    "trungBinhThangR": 0.731,
-    "trungBinhThuaR": -1.039,
-    "heSoLoiNhuan": 0.2,
-    "sutGiamToiDaPct": 8.38,
-    "chuoiThuaDaiNhat": 5,
-    "vonDau": 10000,
-    "vonCuoi": 9162.25,
-    "loiNhuanPct": -8.38,
-    "trungBinhNenGiu": 24.1,
-    "theoLyDoThoat": {
-     "TP": 0,
-     "SL": 18,
-     "HET_HAN": 9
-    }
-   },
-   "khopTroi": 0.73
-  },
-  "ketLuan": "bộ tốt nhất trong mẫu (+0.085R) rơi xuống -0.645R khi ra ngoài mẫu — ĐỪNG áp dụng (bộ đang dùng: -0.666R trên 44 lệnh)",
-  "soToHop": 72,
-  "mocCat": 2800,
-  "tongNen": 4000
- }
+ "huanLuyen": null
 };

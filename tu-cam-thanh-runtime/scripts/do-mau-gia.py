@@ -1,6 +1,6 @@
 """ĐO MẪU GIÁ — mỗi mẫu kinh điển thật sự đáng bao nhiêu trên chính thị trường này.
 
-    python scripts/do-mau-gia.py            đo trên nến 1h đã tải
+    python scripts/do-mau-gia.py            đo trên khung đang cấu hình
     python scripts/do-mau-gia.py --ghi      đo xong ghi vào data/mau-gia.json
 
 Sách vở nói "vai-đầu-vai đúng 83%". Câu đó không có cỡ mẫu, không có sàn, không
@@ -46,7 +46,11 @@ CACH_NHAU = 12      # hai lần cùng tên phải cách nhau ngần này nến
 TOI_THIEU = 15      # dưới ngần này lần xuất hiện thì chưa kết luận
 
 
-def _nap(tf: str = "1h") -> list[dict]:
+def _nap(tf: str | None = None) -> list[dict]:
+    # Khung phải theo CẤU HÌNH, không ghi cứng. Bản đầu cố định "1h"; khi bản
+    # chạy thật chuyển sang 4h thì bảng mẫu giá vẫn nói về 1h mà không có gì
+    # trong câu chữ lộ ra điều đó — cùng loại lỗi với cầu dao chặn nhầm khung.
+    tf = tf or CONFIG["timeframes"]["primary"]
     f = ROOT / "data" / "lich-su" / f"BTCUSDT-{tf}.json"
     if not f.exists():
         return []
@@ -128,7 +132,8 @@ def main() -> int:
         return 1
     r = CONFIG["risk"]
     drag_bps = r["feeBps"] + r["slippageBps"]
-    print(f"{len(nen)} nến 1h · cửa sổ {CUA_SO} · giữ tối đa {GIU} nến · "
+    tf_nay = CONFIG["timeframes"]["primary"]
+    print(f"{len(nen)} nến {tf_nay} · cửa sổ {CUA_SO} · giữ tối đa {GIU} nến · "
           f"chi phí {drag_bps}bps mỗi đầu\n")
 
     lan_cuoi: dict[str, int] = {}
@@ -204,7 +209,8 @@ def main() -> int:
 
     if GHI:
         f = DATA_DIR / "mau-gia.json"
-        f.write_text(json.dumps({"luc": None, "nen": len(nen), "cuaSo": CUA_SO,
+        f.write_text(json.dumps({"luc": None, "khung": CONFIG["timeframes"]["primary"],
+                                 "nen": len(nen), "cuaSo": CUA_SO,
                                  "giu": GIU, "toiThieu": TOI_THIEU, "mau": hang},
                                 ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"\nđã ghi {f}")
