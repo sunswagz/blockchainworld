@@ -28,12 +28,18 @@
 
        than.innerHTML = veGiHetPhong() + (TT ? TT.ve(maPhong) : "");
 
-   ── FILE SINH RA LÀ SINH TAY, PHẢI COMMIT ─────────────
-   Cùng loại với `hoang-thanh/assets/js/data.js` và ba lát cắt của
-   ba runtime Python: máy sinh, nhưng KHÔNG có workflow nào chạy nó,
-   nên người chạy phải commit kết quả. Đừng thêm nó vào
-   scripts/node/ — một node khai nhịp mà không workflow nào gọi thì
-   Bảng vận hành sẽ mãi báo "đến hạn" cho thứ không bao giờ chạy.
+   ── FILE SINH RA NAY DO BOT GHI ───────────────────────
+   Bản đầu của khối này viết "KHÔNG có workflow nào chạy nó, nên
+   người chạy phải commit kết quả" và dặn đừng thêm vào
+   scripts/node/. Đúng lúc viết (26/08), sai từ khi
+   `scripts/node/knowledge-os.mjs` khai hai node:
+
+     tri-thuc            M12 · script · 24 giờ · dựng lại 11 lát cắt
+     tri-thuc-tien-hoa   claude · 24 giờ · mở rộng lớp tri thức
+
+   Nên 11 đường `assets/js/v/tri-thuc.js` nay là ĐƯỜNG BOT GHI:
+   chạy tay để kiểm thì được, nhưng đừng commit kết quả — để lượt
+   bot ghi, không thì thành hai nguồn viết vào cùng một file.
 
    Đường ghi nằm ở `assets/js/v/`, nhánh MẠNG-TRƯỚC của mọi sw.js,
    nên sửa nó KHÔNG cần nâng CACHE_VERSION.
@@ -337,7 +343,9 @@ const DAU =
   "   Mang CẢ dữ liệu lẫn phần vẽ — khuôn HTML chung cho mọi cung,\n" +
   "   viết một lần trong sinh.mjs. Cung gọi TRI_THUC.ve(maPhong).\n" +
   "\n" +
-  "   SINH TAY, PHẢI COMMIT — không workflow nào chạy lệnh này.\n" +
+  "   BOT GHI mỗi 24 giờ (node `tri-thuc`) — ĐỪNG SỬA TAY file này,\n" +
+  "   sửa dữ liệu nguồn rồi sinh lại. Sửa thẳng vào đây thì đúng cho\n" +
+  "   tới lượt bot kế tiếp, rồi biến mất không dấu vết.\n" +
   "   Nằm ở assets/js/v/ nên đi nhánh MẠNG-TRƯỚC: KHÔNG cần nâng\n" +
   "   CACHE_VERSION khi file này đổi. */\n";
 
