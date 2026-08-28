@@ -16,6 +16,24 @@ bảng điều khiển nói dối, tệ hơn hẳn không có bảng nào. Đún
 `logos.js` của Công Bộ.
 
     python -m kham.snapshot      ghi một lần rồi thoát
+
+## Vòng lặp nền KHÔNG tự ghi file này, và tiêu đề từng nói ngược
+
+Tiêu đề của `dai-chiem.js` hứa `python run.py — ghi mỗi vòng lặp` từ đầu.
+Câu ấy chép từ Tử Cấm Thành, nơi nó đúng thật (`trader/loop.py` gọi
+`snapshot.write` sau MỌI vòng). Ở đây không lời gọi nào tồn tại:
+`ghi_lat_cat` chỉ có hai chỗ gọi — nút trong buồng lái và
+`python -m kham.snapshot`.
+
+Hậu quả im lặng: cung tĩnh chỉ đổi khi có người nhớ bấm nút, nên trang
+công khai đứng ở lát cắt cũ trong khi tiêu đề của chính nó nói nó tươi mỗi
+vòng. Đo ngày 28/08/2026: `dai-chiem.js` đã tám ngày tuổi.
+
+**Cách chữa đúng là sửa LỜI HỨA, không thêm lời gọi vào vòng lặp.** Thị
+Bạc Ty đã thử chiều kia trước và phải lùi lại: trang công khai đọc bản ĐÃ
+COMMIT, nên ghi ra đĩa 30 giây một lần không đẩy được byte nào lên site —
+đổi lại chỉ được một file được git theo dõi luôn bẩn, và
+`git merge --ff-only` ở cây chính hỏng ngay lần đầu có commit chạm tới nó.
 """
 from __future__ import annotations
 
@@ -33,8 +51,13 @@ HEADER = """/* SINH TỰ ĐỘNG bởi kham-thien-giam-runtime — ĐỪNG SỬA
    và không cần khoá nào. Sửa tay thì lượt ghi kế tiếp đè lên.
 
    Sinh bằng tay (runtime không chạy trên Actions được — xem CLAUDE.md):
-       python run.py                 ghi mỗi vòng lặp
        python -m kham.snapshot       ghi một lần rồi thoát
+       nút "Ghi lát cắt" ở buồng lái localhost:5186
+
+   Vòng lặp nền KHÔNG tự ghi file này. Trang công khai đọc bản ĐÃ COMMIT,
+   nên ghi mỗi vòng cũng không làm site tươi hơn một giây nào — nó chỉ để
+   lại một file được theo dõi luôn bẩn. SINH RỒI PHẢI COMMIT thì site mới
+   đổi.
 */
 """
 
