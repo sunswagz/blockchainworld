@@ -287,6 +287,20 @@ async function thuVeConThuc() {
       if (h.length > 1 && h.startsWith("#")) g.tuyen.add(h);
     }
   }
+  /* NEO TRONG TRANG KHÔNG PHẢI TUYẾN. `<a href="#than">` là đường
+     nhảy qua thanh bên (WCAG 2.4.1), không phải một phòng — mà bộ dò
+     tuyến nhặt mọi href bắt đầu bằng "#", nên nó đếm thêm một phòng
+     ma. Đo thật: Hộ Bộ nhảy 8 phòng lên 9 ngay lúc thêm đường nhảy,
+     và "phòng" thứ chín chỉ là phòng trước đó vẽ lại.
+
+     Phân biệt được vì neo trỏ vào một `id` CÓ THẬT trong trang, còn
+     tuyến thì không: `#/kho-bac` hay `#kho-bac` là mã phòng, không
+     có thẻ nào mang id đó. */
+  for (const t of [...g.tuyen]) {
+    const id = t.replace(/^#\/?/, "");
+    if (id && html.includes(`id="${id}"`)) g.tuyen.delete(t);
+  }
+
   const phong = [];
   for (const t of g.tuyen) {
     global.location.hash = t;
@@ -689,6 +703,27 @@ function do_() {
       : `${kcSo} giá trị khác nhau (${kcPx.size} px thẳng + ${nacCach} nấc)` +
         (kcSo > 24 ? " — nhiều hơn một thang thật có" : ""));
 
+  /* accessibility (affaan-m/ECC), WCAG 2.2 AA — tiêu chí 2.4.1
+     "Bypass Blocks": phải có đường NHẢY QUA khối lặp lại.
+
+     Mọi cung ở đây đều mở đầu bằng một thanh bên dài: hiệu, 6–54 mục
+     phòng, 12 mục cung, rồi mới tới nội dung. Người dùng bàn phím
+     phải Tab qua trọn khối đó ở MỖI trang, mỗi lần đổi phòng. Đo
+     ngày 29/08: 12 trên 12 cung không có đường nhảy nào.
+
+     Phép đo: một thẻ <a href="#x"> đứng TRƯỚC <nav>, và #x là id có
+     thật trong trang. Đứng trước nav là phần quan trọng — một đường
+     nhảy nằm sau khối cần nhảy qua thì không nhảy qua được gì.
+     Cung không có <nav> thì soi 800 ký tự đầu của <body>. */
+  const thanTrang = html.slice(Math.max(0, html.indexOf("<body")));
+  const viNav = thanTrang.search(/<nav\b/);
+  const dauTrang = viNav > 0 ? thanTrang.slice(0, viNav) : thanTrang.slice(0, 800);
+  const coBoQua = [...dauTrang.matchAll(/<a\b[^>]*href="#([\w-]+)"/g)]
+    .some((m) => html.includes(`id="${m[1]}"`));
+  cham("bo-qua", "Có đường nhảy qua thanh bên", coBoQua,
+    coBoQua ? "có <a href=\"#…\"> trước thanh bên, trỏ vào id có thật"
+      : "chưa có — người dùng bàn phím phải Tab qua cả thanh bên ở mỗi phòng");
+
   /* frontend-a11y (affaan-m/ECC): tiêu điểm bàn phím phải THẤY ĐƯỢC.
      Đây là lỗi không ai phát hiện cho tới lúc thử rời chuột ra — và
      lúc đó thì người dùng bàn phím đã lạc giữa trang từ lâu. */
@@ -733,6 +768,7 @@ const TU_KHOA = {
   "ve": ["debug", "frontend", "error"],
   "rac": ["test", "validation", "frontend"],
   "o-trong": ["empty state", "loading", "skeleton", "fallback"],
+  "bo-qua": ["accessibility", "a11y", "keyboard", "wcag", "skip link", "navigation"],
   "thang-chu": ["typography", "type scale", "font", "design system", "tokens"],
   "hieu-ung": ["animation", "motion", "performance", "transition", "compositor"],
   "so-cot": ["typography", "table", "data", "tabular", "dashboard"],

@@ -26,6 +26,12 @@
 </head>
 <body>
 
+<!-- WCAG 2.2 tiêu chí 2.4.1 "Bypass Blocks". Thanh bên có hiệu, 8 mục
+     phòng và 12 mục cung; không có dòng này thì người dùng bàn phím phải
+     Tab qua trọn khối đó ở MỖI phòng, mỗi lần đổi phòng. Nấp cho tới khi
+     được tiêu điểm — xem .bo-qua trong app.css. -->
+<a class="bo-qua" href="#than">Tới nội dung chính</a>
+
 <div class="khung">
 
   <!-- ── thanh bên ─────────────────────────────────── -->
@@ -72,7 +78,7 @@
     <p class="canhbao" id="canhBao" hidden></p>
 
     <!-- app.js vẽ vào đây theo tuyến hash -->
-    <div id="than"></div>
+    <div id="than" tabindex="-1"></div>
 
     <footer class="chan">
       <p><b>Nguồn:</b> DefiLlama — TVL theo chuỗi và giao thức, phí, doanh thu, khối lượng DEX,

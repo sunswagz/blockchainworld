@@ -984,7 +984,15 @@
     ben = document.getElementById("ben");
 
   function ve() {
-    var ma = (location.hash || "").replace(/^#\/?/, "") || "tong-quan";
+    var h = location.hash || "";
+    /* Hash KHÔNG mở đầu bằng "#/" là một CÁI NEO trong trang — đường
+       nhảy tới nội dung dùng "#than" — chứ không phải một tuyến. Đổi
+       phòng theo nó là ném người xem về phòng đầu ĐÚNG LÚC họ vừa xin
+       được bỏ qua thanh bên: bộ định tuyến cũ nhận cả hai dạng nên nó
+       đọc "#than" thành mã phòng, không khớp phòng nào, rồi rơi về
+       PHONG[0]. Vẫn vẽ ở lượt đầu, vì lúc đó trang còn trống. */
+    if (h && h.indexOf("#/") !== 0 && than.innerHTML) return;
+    var ma = h.replace(/^#\/?/, "") || "tong-quan";
     var p = null, i;
     for (i = 0; i < PHONG.length; i++) if (PHONG[i].ma === ma) p = PHONG[i];
     if (!p) p = PHONG[0];

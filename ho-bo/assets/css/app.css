@@ -75,6 +75,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 a{color:var(--tien);text-decoration:none}
 a:hover{text-decoration:underline}
 code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* Đường nhảy qua thanh bên. Nấp bằng `transform` chứ không bằng
+   `top`: thước `hieu-ung` cấm chạy hiệu ứng trên thuộc tính bố cục,
+   và luật đó áp cho chính dòng CSS này chứ không chỉ cho người khác.
+
+   Nấp bằng transform mà KHÔNG dùng display:none hay visibility:hidden
+   là có chủ ý — hai cái đó gỡ thẻ khỏi thứ tự Tab, tức là gỡ mất đúng
+   thứ đang dựng. */
+.bo-qua{position:fixed;left:var(--k-11);top:var(--k-11);z-index:calc(var(--z-ben) + 1);
+  padding:var(--k-8) var(--k-13);border-radius:9px;
+  background:var(--card-2);color:var(--fg);border:1px solid var(--tien);
+  font-size:var(--t-3);font-weight:600;box-shadow:var(--bong);
+  transform:translateY(-300%);transition:transform .14s ease-out}
+.bo-qua:focus{transform:translateY(0)}
+
 :focus-visible{outline:2.5px solid var(--tien);outline-offset:2px;border-radius:5px}
 ::selection{background:rgba(22,189,161,.3)}
 ::-webkit-scrollbar{width:10px;height:10px}

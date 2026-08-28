@@ -34,6 +34,11 @@ ios/
 # giữ là những sửa đổi đã qua cổng chặn. Cùng lý do với de-bai.json
 # và quet.json của Đài Quan Trắc.
 ho-bo/assets/data/de-bai-tien-hoa.json
+# Hai cung tiến hoá còn lại, cùng lý do. Thiếu chúng thì ai chạy vòng
+# ở máy rồi `git add <cung>/` là commit nhầm một file bot — mà file đó
+# sinh lại mỗi lượt nên nó chỉ tạo xung đột, không mang gì.
+thai-boc-tu/assets/data/de-bai-tien-hoa.json
+kham-thien-giam/assets/data/de-bai-tien-hoa.json
 
 # Đề bài của vòng tiến hoá tri thức — chỉ sống trong một lượt chạy,
 # thứ đáng giữ là dữ liệu đã qua cổng chặn. Cùng lý do với de-bai.json
