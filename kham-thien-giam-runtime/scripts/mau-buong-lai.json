@@ -578,5 +578,16 @@
     },
     "sanPhanGiaiMs": 50.0,
     "gan": []
+  },
+  "nanLai": {
+    "dungDuoc": true,
+    "tongMau": 2542,
+    "soMoc": 10,
+    "saiTruoc": 0.0637,
+    "saiSau": 0.0191,
+    "caiThien": 0.0446,
+    "heSoGiamChan": 0.7,
+    "doiToiDa": 0.25,
+    "moc": []
   }
 }

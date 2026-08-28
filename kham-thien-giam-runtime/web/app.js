@@ -381,6 +381,39 @@
     }
     g.appendChild(o);
 
+    // NẮN LẠI — chỗ hở cuối của vòng học vừa khép. Đặt ngay dưới bảng
+    // hiệu chỉnh vì nó đọc chính bảng đó: đo được lệch thì phải sửa lệch,
+    // không thì đo để làm gì.
+    var nl = T.nanLai || {};
+    var on = oKhung("Nắn lại", nl.dungDuoc
+      ? nl.tongMau + " mẫu · giảm chấn " + nl.heSoGiamChan
+      : "chưa nắn");
+    if (!nl.dungDuoc) {
+      on._than.appendChild(chuaCo(
+        "Chưa nắn. Cần đủ mẫu kết toán trước khi sửa mô hình theo sổ — " +
+        "nắn trên vài chục lượt là học thuộc tiếng ồn rồi đem tiếng ồn đi cược."));
+    } else {
+      var ln = el("div", "luoi3");
+      ln.appendChild(chi("Sai số trước", so(nl.saiTruoc * 100, 2) + " điểm",
+        "mô hình thô", "xuong"));
+      ln.appendChild(chi("Sai số sau", so(nl.saiSau * 100, 2) + " điểm",
+        "sau khi nắn", "len"));
+      ln.appendChild(chi("Cải thiện", so(nl.caiThien * 100, 2) + " điểm",
+        nl.soMoc + " mốc", "len"));
+      on._than.appendChild(ln);
+      on._than.appendChild(el("div", "ghi",
+        "Bảng trên đo được mô hình bị NÉN VỀ 50% — nói 34% thì thật 13,5%, " +
+        "nói 75% thì thật 93%. Phép nắn kéo giãn lại. Nó làm TĂNG lợi thế " +
+        "thô chứ không chỉ làm đẹp số: mô hình nén thì tự kéo ước lượng về " +
+        "gần giá chợ, và lợi thế teo đúng ở những lần nó tự tin nhất."));
+      on._than.appendChild(el("div", "ghi",
+        "Giảm chấn " + nl.heSoGiamChan + " vì sổ chỉ lưu TỔNG theo ô nên " +
+        "chưa kiểm được ngoài mẫu. Từ nay ghi thêm từng cặp thô; đủ rồi " +
+        "mới nói chuyện bỏ giảm chấn. Trần dịch chuyển " +
+        so(nl.doiToiDa * 100, 0) + " điểm — khớp hỏng thì cùng lắm lệch chừng ấy."));
+    }
+    g.appendChild(on);
+
     var o2 = oKhung("Kết quả", tk.n ? tk.n + " market đã kết toán" : null);
     if (tk.chuaCo || !tk.n) {
       o2._than.appendChild(chuaCo("Chưa market nào kết toán. Mỗi khung 5 phút kết toán một lần sau "

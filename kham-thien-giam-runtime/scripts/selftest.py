@@ -814,6 +814,76 @@ def kiem_lui_nguon() -> None:
          not t.dang_nghi() and t.soLoi == 0)
 
 
+def kiem_nan_lai() -> None:
+    print("\n── Nắn lại: khép chỗ hở cuối của vòng học ────────────────────")
+    from kham.nan_lai import DOI_TOI_DA, TOI_THIEU_MAU, PhepNan, khop
+
+    class _So:
+        def __init__(self, o):
+            self.o = o
+
+    def so(cap, n_moi_o=60):
+        """Dựng sổ hiệu chỉnh giả từ (mô hình nói, thực tế ra)."""
+        o = {}
+        for i, (du, that) in enumerate(cap):
+            o[f"o{i}"] = {"n": n_moi_o, "thang": round(that * n_moi_o),
+                          "tongP": du * n_moi_o}
+        return _So(o)
+
+    # Hình chữ S đúng như đo được trên máy thật: mô hình bị NÉN VỀ 50%.
+    nen = [(0.05, 0.01), (0.15, 0.03), (0.25, 0.10), (0.35, 0.14),
+           (0.45, 0.46), (0.55, 0.50), (0.65, 0.76), (0.75, 0.93),
+           (0.85, 0.99), (0.95, 1.00)]
+    p = khop(so(nen))
+    kiem("mô hình nén về 50% → nắn được", p.dung_duoc, p.tom_tat())
+    kiem("sai số giảm thật sự", p.saiSau < p.saiTruoc,
+         f"{p.saiTruoc*100:.2f} → {p.saiSau*100:.2f} điểm")
+    kiem("kéo GIÃN khỏi 50%, không nén thêm",
+         p.nan(0.75) > 0.75 and p.nan(0.25) < 0.25,
+         f"0,25→{p.nan(0.25):.3f} · 0,75→{p.nan(0.75):.3f}")
+
+    # ĐƠN ĐIỆU là chốt quan trọng nhất: một phép nắn đảo thứ tự sẽ biến
+    # "tôi tin UP hơn" thành "tôi tin DOWN hơn" — hỏng nặng hơn hẳn sai số
+    # nó định chữa. Kiểm trên cả dải, kể cả với dữ liệu vào LỘN XỘN.
+    loanXa = [(0.05, 0.30), (0.15, 0.02), (0.25, 0.40), (0.35, 0.10),
+              (0.45, 0.60), (0.55, 0.20), (0.65, 0.80), (0.75, 0.35),
+              (0.85, 0.90), (0.95, 0.55)]
+    q = khop(so(loanXa))
+    truoc = None
+    daoNguoc = 0
+    for i in range(0, 1001):
+        v = q.nan(i / 1000.0)
+        if truoc is not None and v < truoc - 1e-9:
+            daoNguoc += 1
+        truoc = v
+    kiem("dữ liệu lộn xộn vẫn KHÔNG bao giờ đảo thứ tự", daoNguoc == 0,
+         f"{daoNguoc} lần đảo trên 1001 điểm")
+
+    # Trần dịch chuyển: một phép khớp hỏng cùng lắm lệch chừng ấy.
+    xa = [(0.05, 0.95), (0.5, 0.95), (0.95, 0.99)]
+    r = khop(so(xa))
+    lech = max(abs(r.nan(i / 100.0) - i / 100.0) for i in range(101))
+    kiem("không lần nào dời quá trần", lech <= DOI_TOI_DA + 1e-9,
+         f"dời tối đa {lech:.3f} ≤ {DOI_TOI_DA}")
+
+    # Thiếu mẫu thì KHÔNG nắn. Nắn trên vài chục lượt là học thuộc tiếng
+    # ồn rồi đem tiếng ồn đi cược.
+    it = khop(so(nen, n_moi_o=3))
+    kiem("thiếu mẫu → không nắn", not it.dung_duoc,
+         f"{it.tongMau} < {TOI_THIEU_MAU}")
+    kiem("không nắn thì trả nguyên giá trị vào", it.nan(0.73) == 0.73)
+
+    # Mô hình vốn đã đúng thì đừng đụng vào.
+    dung = [(x / 20.0, x / 20.0) for x in range(1, 20)]
+    d = khop(so(dung))
+    lechDung = max(abs(d.nan(i / 100.0) - i / 100.0) for i in range(5, 96))
+    kiem("mô hình vốn đúng → nắn gần như không đổi gì", lechDung < 0.02,
+         f"dời tối đa {lechDung:.4f}")
+
+    kiem("luôn nằm trong (0,1)",
+         all(0.0 < p.nan(i / 100.0) < 1.0 for i in range(101)))
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1230,6 +1300,7 @@ def main() -> int:
     kiem_nhom_tai_san()
     kiem_do_tre()
     kiem_lui_nguon()
+    kiem_nan_lai()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)
