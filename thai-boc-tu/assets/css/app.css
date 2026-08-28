@@ -429,7 +429,21 @@ code,.mono{font-family:var(--mono)}
    trái sang như nhìn một đoàn tàu chạy ngang mặt. Trên máy hẹp
    nó tự rơi xuống thành lưới dọc — một dải ngang 18 thẻ trên điện
    thoại là 18 lần vuốt, không ai vuốt hết. */
-.tau{display:flex;gap:0;overflow-x:auto;padding:4px 0 12px;scroll-snap-type:x proximity}
+/* ── CHỖ DUY NHẤT CUNG NÀY TIÊU "ĐỘ BẠO" ──
+   Trước đây 18 toa là 18 thẻ giống nhau nối bằng một gạch nhỏ; đọc
+   ra một danh sách, không đọc ra một đoàn tàu. Hai thứ thêm vào, và
+   cả hai đều MANG THÔNG TIN chứ không trang trí:
+
+     · đường ray LIỀN MẠCH chạy dưới cả dải — nối các toa thành một
+       vật thể, đúng phép ẩn dụ của cả cung
+     · mép trên mỗi toa tô theo THỨ TỰ BỊ ĐỐT — lướt mắt dọc dải là
+       thấy ngay toa nào bị bỏ trước, không cần mở phòng Thứ Tự
+
+   Lấy từ skill frontend-design (anthropics/skills): "structural
+   devices should encode something true about the content, not
+   decorate it", và "spend your boldness in one place". Mọi thứ còn
+   lại của cung giữ nguyên vẻ trầm. */
+.tau{display:flex;gap:0;overflow-x:auto;padding:4px 0 22px;scroll-snap-type:x proximity}
 .tau::-webkit-scrollbar{height:8px}
 .toa{flex:0 0 186px;scroll-snap-align:start;position:relative;
   background:var(--card);border:1px solid var(--line);border-radius:var(--r);
@@ -439,14 +453,31 @@ code,.mono{font-family:var(--mono)}
 .toa+.toa{margin-left:16px}
 /* thanh móc giữa hai toa */
 .toa+.toa::before{content:"";position:absolute;left:-17px;top:50%;width:16px;height:3px;
-  background:var(--line);border-radius:2px}
+  background:var(--line);border-radius:2px;z-index:1}
+/* đường ray: mỗi toa cõng một đoạn, đoạn nối liền qua khe 16px nên
+   cả dải thành một đường duy nhất. Toa cuối không nối tiếp nữa. */
+.toa::after{content:"";position:absolute;left:0;right:-16px;bottom:-10px;height:2px;
+  background:linear-gradient(90deg,var(--line-2),var(--card-3),var(--line-2))}
+.toa:last-child::after{right:0}
+/* mép trên tô theo hạng trụ lại: đỏ = bỏ trước, xanh = trụ lâu */
+.toa::before{content:"";position:absolute;left:11px;right:11px;top:0;height:2px;
+  border-radius:0 0 2px 2px;background:var(--line)}
+.toa[data-vung="som"]::before{background:var(--xuong)}
+.toa[data-vung="giua"]::before{background:var(--canh)}
+.toa[data-vung="muon"]::before{background:var(--len)}
 .toa-so{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--tau);letter-spacing:.06em}
 .toa-ten{font-size:13.5px;font-weight:650;line-height:1.35;margin:2px 0 7px;min-height:2.7em}
 .toa-gt{font-family:var(--mono);font-size:16px;font-weight:700;letter-spacing:-.02em}
 .toa-gt[data-do="0"]{color:var(--fg-3);font-size:14px}
 .toa-th{font-size:10.5px;color:var(--fg-3);margin-top:1px;line-height:1.3}
 .toa-tt{margin-top:8px;height:4px;border-radius:3px;background:var(--card-3);overflow:hidden}
-.toa-tt i{display:block;height:100%;background:var(--tau);width:0;transition:width .5s ease}
+/* scaleX chứ không phải width — animate width buộc trình duyệt tính
+   lại bố cục mỗi khung hình, còn transform chạy trên lớp hợp thành.
+   Luật lấy từ skill motion-foundations (affaan-m/ECC): thuộc tính bố
+   cục bị CẤM khỏi animation. Ba thanh đo trong cung này đều đã sửa. */
+.toa-tt i{display:block;height:100%;background:var(--tau);
+  width:100%;transform:scaleX(0);transform-origin:left center;
+  transition:transform .5s cubic-bezier(.22,.61,.36,1)}
 .toa-tt-n{font-size:10.5px;color:var(--fg-2);margin-top:4px;font-family:var(--mono)}
 
 /* ── thứ tự bị đốt ────────────────────────────────────── */
@@ -493,7 +524,8 @@ code,.mono{font-family:var(--mono)}
 .sk-v{font-family:var(--mono);font-size:14px;font-weight:600}
 .sk-b{margin-top:9px;height:9px;border-radius:5px;background:var(--card-3);
   overflow:hidden;display:flex}
-.sk-b i{display:block;height:100%;width:0;transition:width .55s ease}
+.sk-b i{display:block;height:100%;width:100%;transform:scaleX(0);
+  transform-origin:left center;transition:transform .55s cubic-bezier(.22,.61,.36,1)}
 .sk-b i[data-p="rieng"]{background:var(--xuong)}
 .sk-b i[data-p="lui"]{background:var(--len)}
 /* Ruột của nút là <span> cho hợp lệ, nên dòng cuối phải tự dựng lại
@@ -534,7 +566,8 @@ code,.mono{font-family:var(--mono)}
   gap:8px;flex-wrap:wrap}
 .tg-b{margin-top:6px;height:6px;border-radius:4px;background:var(--card-3);overflow:hidden}
 .tg-b i{display:block;height:100%;background:linear-gradient(90deg,var(--tim),var(--tau));
-  width:0;transition:width .6s ease}
+  width:100%;transform:scaleX(0);transform-origin:left center;
+  transition:transform .6s cubic-bezier(.22,.61,.36,1)}
 .tg-y{margin:6px 0 0;font-size:11.5px;color:var(--fg-2);line-height:1.55}
 .tg-p{font-family:var(--mono);font-size:11.5px;color:var(--fg-2);margin-left:auto;
   white-space:nowrap}
@@ -750,3 +783,9 @@ code,.mono{font-family:var(--mono)}
 .tt-vi{flex:1 1 100%;color:var(--fg-2)}
 .tt-chan{margin:0;padding:10px 15px;border-top:1px solid var(--line-2);background:var(--card);
   font-size:11.3px;line-height:1.6;color:var(--fg-2)}
+
+/* Vùng loa: chỉ trình đọc màn hình thấy. Không dùng display:none —
+   thứ bị display:none thì trình đọc cũng bỏ qua, tức là tắt luôn
+   công dụng của nó. */
+.loa{position:absolute;width:1px;height:1px;margin:-1px;padding:0;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}

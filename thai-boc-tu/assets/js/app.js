@@ -197,11 +197,17 @@
 
   /* ═══════════════ PHÒNG · ĐOÀN TÀU ═══════════════ */
 
+  /* Hạng trụ lại chia ba vùng. Khai ở đây chứ không ở phòng Thứ Tự
+     vì giờ CẢ HAI chỗ dùng: dải tàu tô mép theo nó, phòng Thứ Tự xếp
+     hàng theo nó. Một chỗ khai, hai chỗ đọc. */
+  function vungCua(h) { return h >= 13 ? "som" : h >= 7 ? "giua" : "muon"; }
+
   function theToa(t) {
     var s = t.s, c = t.c;
     var doDuoc = s.thuoc !== "khong-do-duoc" && s.tvl != null;
     var tt = s.tapTrung;
-    return '<button class="toa" type="button" data-toa="' + esc(c.ma) + '">' +
+    return '<button class="toa" type="button" data-toa="' + esc(c.ma) + '"' +
+      ' data-vung="' + vungCua(c.songSot) + '">' +
       '<div class="toa-so">TOA ' + esc(c.so) + "</div>" +
       '<div class="toa-ten">' + esc(c.ten) + "</div>" +
       '<div class="toa-gt" data-do="' + (doDuoc ? "1" : "0") + '">' +
@@ -484,7 +490,6 @@
 
   /* ═══════════════ PHÒNG · THỨ TỰ BỊ ĐỐT ═══════════════ */
 
-  function vungCua(h) { return h >= 13 ? "som" : h >= 7 ? "giua" : "muon"; }
   var TEN_VUNG = { som: "BỎ SỚM", giua: "GIỮA", muon: "TRỤ LẠI" };
 
   function veThuTu() {
@@ -935,12 +940,22 @@
     hosoTren = document.getElementById("hosoTren"),
     hosoBody = document.getElementById("hosoBody");
 
+  /* Nhớ chỗ vừa bấm để TRẢ TIÊU ĐIỂM khi đóng ngăn.
+     Không có nó thì người dùng bàn phím đóng ngăn xong bị ném về đầu
+     trang và phải Tab lại từ đầu qua 18 toa — mở một toa là mất chỗ
+     đang đứng. Lấy từ checklist skill frontend-a11y: "modals restore
+     focus on close". */
+  var oCu = null;
+
   function dongHoso() {
     hoso.dataset.open = "0";
     scrim.dataset.open = "0";
     hoso.setAttribute("aria-hidden", "true");
+    if (oCu && oCu.focus) { try { oCu.focus(); } catch (e) {} }
+    oCu = null;
   }
   function moHoso(tren, ten, than) {
+    oCu = document.activeElement;
     hosoTren.textContent = tren;
     hosoTen.textContent = ten;
     hosoBody.innerHTML = than;
@@ -1120,7 +1135,8 @@
     });
   }
 
-  var than = document.getElementById("than"),
+  var loa = document.getElementById("loa"),
+    than = document.getElementById("than"),
     tieu = document.getElementById("tieu"),
     ben = document.getElementById("ben");
 
@@ -1132,6 +1148,12 @@
 
     tieu.textContent = p.ten;
     document.title = "Thái Bộc Tự · " + p.ten;
+    /* Đổi phòng là thay TOÀN BỘ thân trang mà địa chỉ chỉ đổi phần
+       sau dấu thăng — trình đọc màn hình không có gì báo cho người
+       dùng biết vừa có chuyện gì. Một dòng thông báo lịch sự là đủ;
+       aria-live trên cả #than thì mỗi lần vẽ lại đọc hết vài nghìn
+       chữ, tệ hơn hẳn không có. */
+    if (loa) loa.textContent = "Đã mở phòng " + p.ten + ".";
     than.innerHTML = p.ve();
     than.style.animation = "none";
     void than.offsetWidth;
@@ -1151,7 +1173,12 @@
     if (bars.length) {
       requestAnimationFrame(function () {
         Array.prototype.forEach.call(bars, function (b) {
-          b.style.width = b.getAttribute("data-rong") + "%";
+          /* scaleX chứ không phải width. Đặt width ở đây thì trình
+             duyệt tính lại bố cục mỗi khung hình của mọi thanh cùng
+             lúc — với 18 toa cộng 14 khớp nối là hàng chục lần dựng
+             lại lưới. Luật lấy từ skill motion-foundations. */
+          b.style.transform = "scaleX(" +
+            (Math.max(0, Math.min(100, parseFloat(b.getAttribute("data-rong")) || 0)) / 100) + ")";
         });
       });
     }
