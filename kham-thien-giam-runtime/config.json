@@ -22,6 +22,11 @@
       "dongCo": "updown-crypto", "phutSong": 5,  "theo": true },
     { "ma": "XRP_5M",  "tienTo": "xrp-updown-5m-",  "nen": "XRPUSDT",
       "dongCo": "updown-crypto", "phutSong": 5,  "theo": true },
+    { "//BTC_150K": "Họ CHẠM MỐC — market sống hàng THÁNG, không phải cửa 300 giây. Khai `slug` thẳng vì market là MỘT và cố định: không có gì để dựng từ mốc thời gian, và quét theo tiền tố thì Gamma chặn 100 kết quả nên một market lẻ nằm giữa hàng nghìn cái khác không có lý do gì lọt vào 100 đầu. `moc` là rào giá, `lenTren` là hướng. KHÔNG có `tienTo`/`phutSong` — hai trường đó chỉ họ Lên/Xuống mới dùng, và đó chính là dấu hiệu hai họ đi hai đường tìm khung khác nhau.",
+      "ma": "BTC_150K", "dongCo": "cham-moc-crypto",
+      "slug": "will-bitcoin-hit-150k-by-december-31-2026",
+      "nen": "BTCUSDT", "moc": 150000, "lenTren": true, "theo": true },
+
     { "//BTC_15M": "Đo ngày dựng: 100 market gần hạn nhất mà Gamma trả về CHỈ có khung 5 phút (btc/eth/sol/xrp, mỗi loại 13-14 khung). Không thấy tiền tố nào dạng *-updown-15m-. Để `theo: false` chứ không xoá — nếu Polymarket mở lại khung 15 phút thì chỉ cần bật, và dòng này ghi lại vì sao nó đang tắt.",
       "ma": "BTC_15M", "tienTo": "btc-updown-15m-", "nen": "BTCUSDT",
       "dongCo": "updown-crypto", "phutSong": 15, "theo": false }

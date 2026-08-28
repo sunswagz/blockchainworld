@@ -248,6 +248,47 @@ class Nguon:
         return [m for m in d
                 if (m.get("slug") or "").startswith(tienTo) and not m.get("closed")]
 
+    def tim_theo_slug(self, slug: str) -> dict | None:
+        """Một market, hỏi đúng slug. Dùng cho họ khung DÀI.
+
+        Họ Lên/Xuống phải dựng slug từ mốc thời gian vì mỗi 5 phút là một
+        market mới. Họ chạm mốc thì ngược lại: MỘT market sống hàng tháng,
+        slug cố định, khai thẳng trong config. Không có gì để dựng.
+        """
+        d = self._lay("gamma", f"{_NG['gamma']}/markets", {"slug": slug})
+        if isinstance(d, list) and d:
+            return d[0]
+        return None
+
+    def dinh_da_qua(self, cap: str, tuMs: float, lenTren: bool = True,
+                    denMs: float | None = None) -> float | None:
+        """Đỉnh cao nhất (hoặc đáy thấp nhất) đã đi qua kể từ `tuMs`.
+
+        Đây là tham số BẮT BUỘC của động cơ chạm mốc, và là bẫy chết người
+        của họ market ấy: ta chỉ nhìn thấy giá HIỆN TẠI. Nếu tháng trước
+        giá đã vọt qua mốc rồi quay về thì market đã ngã ngũ, còn công
+        thức vẫn vui vẻ trả ra một xác suất nhỏ xinh.
+
+        Nến NGÀY, không nến phút: một market bốn tháng là ~120 nến ngày
+        (một lượt gọi) so với ~170.000 nến phút (hàng trăm lượt). Và đỉnh
+        của nến ngày ĐÚNG BẰNG đỉnh của các nến phút trong ngày đó — không
+        mất mát gì, vì `high` đã là cực trị.
+        """
+        moc = int(tuMs // 86_400_000 * 86_400_000)
+        for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
+            d = self._lay("binance-kline", f"{goc}/api/v3/klines",
+                          {"symbol": cap, "interval": "1d",
+                           "startTime": moc, "limit": 1000})
+            if not isinstance(d, list) or not d:
+                continue
+            try:
+                if lenTren:
+                    return max(float(r[2]) for r in d if len(r) > 2)
+                return min(float(r[3]) for r in d if len(r) > 3)
+            except (TypeError, ValueError, IndexError):
+                continue
+        return None
+
     def tim_khung_dung_slug(self, tienTo: str, songGiay: float = 300.0,
                             soKhung: int = 4) -> list[dict]:
         """Dựng thẳng slug từ mốc thời gian rồi hỏi đúng slug đó.

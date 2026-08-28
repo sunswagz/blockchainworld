@@ -57,6 +57,11 @@ class HoSoDongCo:
     nguonGia: str             # nguồn tham chiếu mà động cơ này cần
     canGi: tuple[str, ...]
     dinhGia: HamDinhGia
+    # Họ khung: "cua-ngan" = mỗi 5 phút một market mới, có cửa đặt cược
+    # tách khỏi cửa quan sát. "khung-dai" = MỘT market sống hàng tháng,
+    # đặt được suốt tới hạn. Vòng chạy đọc trường này để biết đi đường
+    # tìm market nào — chứ không đoán từ tên động cơ.
+    hoKhung: str = "cua-ngan"
     nhipGiay: float = 2.0     # nhịp hợp lý cho họ này
 
     def thieu_gi(self, thamSo: dict) -> list[str]:
@@ -103,7 +108,7 @@ def goi(maDongCo: str, ma: str, **thamSo) -> tuple[GiaChuan | None, str | None]:
 
 def tom_tat() -> list[dict]:
     return [{"ma": h.ma, "ten": h.ten, "nhom": h.nhom, "mota": h.mota,
-             "nguonGia": h.nguonGia, "canGi": list(h.canGi),
+             "nguonGia": h.nguonGia, "canGi": list(h.canGi), "hoKhung": h.hoKhung,
              "nhipGiay": h.nhipGiay} for h in danh_sach()]
 
 
@@ -138,6 +143,7 @@ def _khai_san() -> None:
         nguonGia="binance",
         canGi=("giaHienTai", "moc", "tauGiay", "dinhDaQua"),
         dinhGia=_cham,
+        hoKhung="khung-dai",
         nhipGiay=30.0,
     ))
 
