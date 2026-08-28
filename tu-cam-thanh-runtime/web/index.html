@@ -193,7 +193,8 @@
           </div>
         </div>
         <div class="soan">
-          <textarea id="chatO" placeholder="Enter để gửi · Shift+Enter xuống dòng"></textarea>
+          <textarea id="chatO" aria-label="Hỏi bộ não về trạng thái hệ thống"
+                    placeholder="Enter để gửi · Shift+Enter xuống dòng"></textarea>
           <button class="nut chinh" id="chatGui">Gửi</button>
         </div>
       </div>
@@ -206,13 +207,14 @@
     <div class="ai-dinh"><span class="xung"></span>Quyết định của AI</div>
     <div class="kinh quyet" id="aiQuyet"></div>
     <div class="kinh the" id="aiNgu"></div>
-    <div class="kinh the" id="aiMauGia"></div>
+    <div class="kinh the" id="aiMauGia" aria-live="polite"></div>
         <div class="kinh the" id="aiPhanQuyet"></div>
     <div class="ai-dinh" style="color:var(--fg-4)">Điều khiển</div>
     <div class="nut-hang">
       <button class="nut" id="btPhanTich">Phân tích ngay</button>
       <button class="nut" id="btDung">Tạm dừng</button>
-      <button class="nut nguy" id="btDatLai">Đặt lại</button>
+      <button class="nut nguy" id="btDatLai"
+              aria-label="Đặt lại sổ vị thế — không hoàn tác được">Đặt lại</button>
     </div>
     <div class="kinh the" id="aiSuKien" style="flex:1;min-height:150px;overflow:hidden;display:flex;flex-direction:column">
       <h3>Dòng sự kiện</h3>

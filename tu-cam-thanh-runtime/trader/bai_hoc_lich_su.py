@@ -24,6 +24,7 @@ import datetime as _dt
 from collections import defaultdict
 from typing import Any
 
+from .config import CONFIG
 from . import store
 from .bus import bus
 
@@ -89,6 +90,11 @@ def duc(kq: dict, *, tham: dict | None = None, toi_da: int = 400) -> dict:
             "change_strategy": False,   # một lệnh không bao giờ đủ cớ — xem `gop()`
             "confidence_in_lesson": 0.2,
             "tham": tham or {},
+            # KHUNG mà bài học này được đúc trên. Bắt buộc, vì tên chế độ không
+            # đủ để nhận dạng thị trường: «TREND_UP|none» trên 1h và trên 4h là
+            # hai thứ khác hẳn nhau. Thiếu trường này thì cầu dao sẽ lấy bằng
+            # chứng của khung cũ ra chặn khung mới, và bot đứng im không lý do.
+            "khung": CONFIG["timeframes"]["primary"],
         })
 
     store.write_all(store.LESSONS_CHAY_LAI, ra)

@@ -66,9 +66,9 @@ button{font:inherit;cursor:pointer;color:inherit;background:none;border:none}
 
 .gia-dai{display:flex;gap:16px;overflow-x:auto;flex:1;min-width:0}
 .gia-o{display:flex;align-items:baseline;gap:7px;white-space:nowrap}
-.gia-o b{font-family:var(--mono);font-size:14px;font-weight:600}
+.gia-o b{font-family:var(--mono);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
 .gia-o i{font-style:normal;font-size:10.5px;color:var(--fg-3);letter-spacing:.7px}
-.gia-o s{text-decoration:none;font-family:var(--mono);font-size:11.5px}
+.gia-o s{text-decoration:none;font-family:var(--mono);font-size:11.5px;font-variant-numeric:tabular-nums}
 
 .huy{
   display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;
@@ -138,8 +138,8 @@ button{font:inherit;cursor:pointer;color:inherit;background:none;border:none}
 }
 .the h3 .cuoi{margin-left:auto;font-weight:500;letter-spacing:0;text-transform:none;font-size:11px;color:var(--fg-3)}
 
-.so-lon{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1.1}
-.so-vua{font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:-.4px}
+.so-lon{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1.1;font-variant-numeric:tabular-nums}
+.so-vua{font-family:var(--mono);font-size:17px;font-weight:600;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
 .phu-nho{font-size:11px;color:var(--fg-3);margin-top:3px}
 .len{color:var(--green)} .xuong{color:var(--red)} .nhac{color:var(--amber)}
 .lam{color:var(--cyan)} .tim{color:var(--violet)} .mo{color:var(--fg-3)}
@@ -156,9 +156,18 @@ button{font:inherit;cursor:pointer;color:inherit;background:none;border:none}
 .do{margin:9px 0}
 .do-nhan{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px}
 .do-nhan span{color:var(--fg-3)}
-.do-nhan b{font-family:var(--mono);font-weight:500}
+.do-nhan b{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
 .do-rai{height:6px;border-radius:99px;background:rgba(125,158,200,.1);overflow:hidden;position:relative}
-.do-day{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);
+.do-day{height:100%;border-radius:99px;
+  /* KHÔNG có transition ở đây, và đó là chủ ý.
+     Skill `baseline-ui` bảo đừng animate thuộc tính bố cục (`width`) — đúng.
+     Nhưng bản cũ có `transition: width .6s` lại là MÃ CHẾT: sáu chỗ trong
+     app.js dựng thanh đo bằng chuỗi template rồi gán vào `innerHTML`, nên nút
+     DOM bị huỷ và tạo lại mỗi lượt vẽ. Phần tử mới thì không có trạng thái cũ
+     để chuyển từ đó, nên transition chưa bao giờ chạy một lần nào.
+     Đổi sang `transform:scaleX()` cho "đúng luật" còn tệ hơn: JS vẫn đặt
+     `style="width:X%"`, mà không có transform thì scale = 1, và MỌI thanh đo
+     sẽ hiện đầy 100%. Một con số sai, im lặng, trên bảng điều khiển. */
   background:linear-gradient(90deg,var(--cyan),var(--teal))}
 .do-day.nhac{background:linear-gradient(90deg,var(--amber),#f59e0b)}
 .do-day.dut{background:linear-gradient(90deg,var(--rose),var(--red))}
@@ -306,7 +315,7 @@ tbody tr:hover{background:rgba(125,158,200,.04)}
 .doi-n{width:14px;height:1px;background:var(--line);flex:0 0 auto}
 
 /* ── chat ────────────────────────────────────────────────────────── */
-.chat{display:flex;flex-direction:column;height:calc(100vh - 190px)}
+.chat{display:flex;flex-direction:column;height:calc(100dvh - 190px)}
 .chat-cuon{flex:1;overflow-y:auto;padding:4px 2px;display:flex;flex-direction:column;gap:13px}
 .tin{max-width:88%}
 .tin .ai{font-size:9.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--fg-4);margin-bottom:4px;font-weight:700}
@@ -406,3 +415,26 @@ table.bang tr.dau td{background:rgba(34,211,238,.06)}
 .ct-nut.on .ct-num{left:26px;background:var(--green)}
 .ct-nut:disabled{opacity:.4;cursor:not-allowed}
 .ct-nut:not(:disabled):hover{border-color:rgba(34,211,238,.45)}
+
+
+/* ═══ TIÊU ĐIỂM BÀN PHÍM ═══════════════════════════════════════════
+   Không có vành này thì đi bằng Tab là đi trong bóng tối. Ở một buồng
+   lái có nút ĐẶT LẠI TÀI KHOẢN, đó không phải chuyện thẩm mỹ.
+   `:focus-visible` chứ không phải `:focus`: chuột bấm thì không hiện
+   vành, bàn phím thì hiện — đúng cái người dùng chuột vẫn phàn nàn. */
+:where(button,a,input,textarea,select,[tabindex]):focus-visible{
+  outline:2px solid var(--cyan);outline-offset:2px;border-radius:6px}
+
+/* ═══ TÔN TRỌNG «GIẢM CHUYỂN ĐỘNG» ════════════════════════════════
+   Người bị chóng mặt do tiền đình bật cờ này ở hệ điều hành. Bỏ qua nó
+   không phải là bỏ một tuỳ chọn nhỏ — với họ, giao diện động là thứ
+   dùng xong thì buồn nôn. Giữ lại `opacity` vì nó không gây chuyện đó. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important}
+}
+
+/* ═══ SỐ LIỆU: BỀ NGANG CỐ ĐỊNH ═══════════════════════════════════
+   Áp cho mọi chỗ hiện số còn sót, kể cả ô sinh động từ JS. */
+.mono,.hang b,.the b,td,.doi-b{font-variant-numeric:tabular-nums}
