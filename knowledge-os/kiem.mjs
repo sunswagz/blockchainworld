@@ -24,8 +24,14 @@
 
 import { readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+/* `--im`: chỉ in khi CÓ lỗi. Cờ này khai ở đây chứ không ở khối
+   kết quả, vì phép kiểm 9 phải hỏi nó TRƯỚC khi quyết có chạy
+   `sinh.mjs --kiem` hay không — xem chỗ ấy để biết vì sao. */
+const im = process.argv.includes("--im");
 
 const GOI = dirname(fileURLToPath(import.meta.url));
 const REPO = join(GOI, "..");
@@ -346,12 +352,32 @@ for (const [c, p, phai] of HOP_DONG) {
    rỗng thì `window.TRI_THUC` là undefined — mọi hàm vẽ đều có nhánh
    thoát êm, nên trang trông hoàn toàn bình thường. */
 {
-  const { statSync } = await import("node:fs");
-  let moiNhat = 0;
-  for (const f of ["data/concepts/core.json", "data/relations/core.json",
-    "data/bridges/repo.json", "data/bridges/capital-os.json",
-    "data/2026/concepts.json", "data/2026/relations.json"]) {
-    try { moiNhat = Math.max(moiNhat, statSync(join(GOI, f)).mtimeMs); } catch { /* phép khác báo rồi */ }
+  /* Cung nào có lát cắt LỆCH với dữ liệu hiện tại — đo bằng NỘI DUNG,
+     không bằng dấu thời gian.
+
+     Bản đầu so mtime của lát cắt với mtime mới nhất trong `data/`, và
+     nó sai theo một kiểu khó thấy: từ khi `sinh.mjs` bỏ qua file không
+     đổi, mtime của lát cắt đứng yên mãi. Nên MỌI thao tác chạm data/ —
+     kể cả `git checkout` một nhánh khác, thứ đặt lại mtime mà không đổi
+     một byte nào — đều làm sáu cung "cũ" cùng lúc. Đã xảy ra thật:
+     `npm run kiem` nhắc sáu cung phải sinh lại trong khi
+     `npm run tri-thuc-do` cùng lúc chấm "cả 11 cung đều khớp". Hai phép
+     kiểm cãi nhau thì người ta tin phép nào im hơn.
+
+     `sinh.mjs --kiem` dựng đúng nội dung nó SẼ ghi rồi so với file trên
+     đĩa — cùng một nguồn cho cả sinh lẫn đo, không có bản chép nào để
+     mà lệch. do.mjs đã đo đúng cách này từ đầu; đây là chép cách ấy về.
+
+     CHỈ chạy khi KHÔNG `--im`, và đó vừa là tiết kiệm vừa là phép chống
+     đệ quy: `--im` nghĩa là không ai đọc phần Nhắc, còn `sinh.mjs` thì
+     luôn gọi `kiem.mjs --im` làm bước đầu. Bỏ điều kiện này là kiem gọi
+     sinh gọi kiem gọi sinh, không đáy. */
+  let lechND = [];
+  if (!im) {
+    try {
+      lechND = execFileSync(process.execPath, [join(GOI, "sinh.mjs"), "--kiem"],
+        { encoding: "utf8" }).trim().split("\n").filter(Boolean);
+    } catch { /* sinh.mjs hỏng thì phép kiểm khác đã báo rồi */ }
   }
 
   for (const h of B.hall_mappings) {
@@ -375,8 +401,8 @@ for (const [c, p, phai] of HOP_DONG) {
     else if (!nap)
       bao(`${h.hall}/assets/js/v/tri-thuc.js đã sinh nhưng index.html KHÔNG nạp nó\n` +
         "        → file nằm chết trên đĩa, và không có lỗi nào báo.");
-    else if (statSync(ra).mtimeMs + 1000 < moiNhat)
-      luu(`${h.hall}: lát cắt sinh TRƯỚC lần sửa dữ liệu gần nhất — ` +
+    else if (lechND.includes(h.hall))
+      luu(`${h.hall}: lát cắt LỆCH với dữ liệu hiện tại — ` +
         `chạy lại: node knowledge-os/sinh.mjs ${h.hall}`);
   }
 }
@@ -399,7 +425,6 @@ for (const [c, p, phai] of HOP_DONG) {
 }
 
 /* ── kết quả ──────────────────────────────────────────── */
-const im = process.argv.includes("--im");
 const soPhong = B.hall_mappings.reduce((n, h) => n + (h.rooms?.length || 0), 0);
 
 if (!im || loi.length) {
