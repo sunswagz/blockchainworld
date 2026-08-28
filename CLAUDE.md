@@ -741,13 +741,13 @@ thì bỏ qua cung đó chứ không nâng bừa. Viết sw.js theo dạng mới
 một nhánh nhận dạng vào `scripts/mang-truoc.mjs`** — đừng bẻ sw.js cho vừa
 bộ kiểm, công cụ phải theo được mã thật chứ không phải ngược lại.
 
-### Thang chữ: một lệnh cho mỗi cung, đừng sửa CSS cung người khác
+### Hai thang: một lệnh cho mỗi cung, đừng sửa CSS cung người khác
 
-    npm run thang-chu -- <cung> --thu     xem sẽ đổi gì, chưa ghi
-    npm run thang-chu -- <cung>           ghi thật
-    npm run thang-chu -- --tat-ca --thu   soi cả 12 cung một lượt
+    npm run thang -- <cung> --thu     xem sẽ đổi gì, chưa ghi (cả hai thang)
+    npm run thang -- <cung>           ghi thật · --chu / --cach để chọn một
+    npm run thang -- --tat-ca --thu   soi cả 12 cung một lượt
 
-Thước `thang-chu` trong `scripts/tien-hoa.mjs` — dịch từ skill
+Hai thước `thang-chu` và `thang-cach` trong `scripts/tien-hoa.mjs` — dịch từ skill
 `frontend-design` (kho anthropics/skills, đang nằm trên kệ
 `.claude/skills/`): *"set a clear type scale"* — đếm số cỡ chữ px rời
 rạc còn viết thẳng vào rule. Đo ngày 28/08 thì **11 trên 12 cung
@@ -765,6 +765,24 @@ Vì sao là máy chứ không sửa tay: lúc viết mục này có **16 worktre
 đang mở**, bảy trong số đó giữ đúng những cung cần sửa. Một phiên đi
 sửa CSS của 11 cung khác là đúng thứ luật "chỉ sửa thư mục cung mình"
 sinh ra để chặn. `--tat-ca` **cố ý chỉ chạy cùng `--thu`**.
+
+**Thang khoảng cách là chuyện khác thang chữ, đừng lẫn.** Cỡ chữ gom
+được sâu (32 → 10 nấc) vì các cỡ nằm sát nhau; khoảng cách thì không —
+`8px` và `10px` cách nhau 25%, gom lại là đổi bố cục thấy được. Nên máy
+**chặn theo MỨC ĐỔI (6%) chứ không chặn theo số nấc**, và số nấc là thứ
+rơi ra. Bản đầu làm ngược, ép xuống 16 nấc bằng mọi giá, và khoảng cách
+phải dịch 10–15% — ở `padding: 40px` là 6px, mắt thấy rõ.
+
+Hệ quả phải chấp nhận: với khoảng cách, máy thường chỉ bớt được vài
+nấc. Nó **in ra một dòng ⚠ khi kết quả vẫn trên 12 nấc**, và **từ chối
+chạy** khi không bớt được nấc nào — vì lúc đó nó chỉ đang đổi tên.
+
+Và hai thước **đếm cả nấc `--t-*` / `--k-*`, không chỉ px viết thẳng**.
+Không đếm thì chúng lách được bằng đúng phép đổi tên ấy: `12.3px` thành
+`var(--t-7)` là px biến sạch, thước báo 0, mà cung vẫn có 32 giá trị
+rời rạc — chỉ là đã dọn vào một chỗ. Dọn vào một chỗ là tốt, nhưng đó
+không phải câu thước hỏi. Không có phép đếm này thì `scripts/thang.mjs`
+là một cái máy dựng ra để lách chính thước mà nó phục vụ.
 
 Sửa xong thì `node scripts/tien-hoa.mjs do <cung>` để soát, rồi
 `npm run nang` — `app.css` nằm trong SHELL.
