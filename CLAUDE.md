@@ -861,6 +861,40 @@ chạy lệnh cho cung ấy.
 
 `index.html` nằm trong SHELL, nên vá `nhan` xong phải `npm run nang`.
 
+### Chỗ đè im lặng trong CSS
+
+    npm run de-im-lang            soi cả 12 cung · thoát 1 khi còn chỗ đè
+    npm run de-im-lang -- <cung>  soi một cung
+
+`npm run kiem` gọi nó ở đầu mỗi phiên và **nhắc** chứ không chặn: CSS
+của cung khác không phải việc của phiên đang mở.
+
+Báo khi **cùng ngữ cảnh, cùng selector, cùng thuộc tính, khác giá trị,
+ở hai khối khác nhau** — tức là một trong hai đang chết mà người viết
+nó không hay.
+
+**Vì sao đáng có một phép canh riêng: lớp lỗi này mở rộng theo số
+cung.** `knowledge-os` sinh widget mang tiền tố `tt-` cho mười một
+cung, nên mỗi lớp mới là mười một chỗ có thể đụng tên với lớp sẵn có.
+Đã đụng thật: Đài Quan Trắc dùng `tt-` cho *trạng thái*, widget dùng
+`tt-` cho *tri thức*, cùng độ đặc hiệu thì cái nằm dưới thắng — số cấp
+độ, chữ to nhất trên dải trạng thái, bị vẽ 10,5px thay vì 27px ở mọi
+trang, mọi chủ thể, không lỗi nào báo. Tìm ra nó là do may.
+
+Hai luật trừ, cả hai đều đã báo nhầm trong bản nháp và đều phải giữ:
+
+- **Khai hai lần trong CÙNG một khối là dự phòng cố ý**, không phải
+  chỗ đè — `height:100vh; height:100dvh`, `display:block;
+  display:-webkit-box`. Đó là cách duy nhất viết dự phòng trong CSS.
+  Nên trong mỗi khối chỉ lấy giá trị CUỐI, đúng thứ trình duyệt dùng.
+- **Khoá theo CẢ danh sách selector, không tách ra.** `.a,.b{color:x}`
+  rồi `.b{color:y}` là nền chung rồi biệt hoá — tác giả cố ý viết thế.
+  Tách danh sách thì nó thành "cùng `.b`, khác giá trị" và bị gọi oan.
+
+Máy **chỉ báo, không tự sửa**, và đó là chủ ý: `.drawer` rộng 470px
+hay 400px là quyết định thiết kế, chỉ người dựng cung ấy biết. Thứ máy
+nói chắc chắn là hôm nay một trong hai đang chết.
+
 ### Cổng dev
 
 Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của
