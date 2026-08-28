@@ -199,7 +199,8 @@
     var hangs = SO_MAU.slice().reverse().map(function (m) {
       var d = el("div", "so-muc");
       var t = el("div", "thanh");
-      t.style.width = (m.luong / maxL * 62) + "%";
+      // Bề rộng nằm ở CSS (62%); ở đây chỉ đặt tỷ lệ. Xem .so-muc .thanh.
+      t.style.transform = "scaleX(" + (m.luong / maxL) + ")";
       d.appendChild(t);
       d.appendChild(el("div", "g", (m.gia * 100).toFixed(0) + "¢"));
       d.appendChild(el("div", "l", m.luong.toLocaleString("vi-VN") + " cổ"));

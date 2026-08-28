@@ -466,7 +466,13 @@ code,.mono,.ma{font-family:var(--mono)}
 .so-muc{display:flex;align-items:center;gap:var(--k-7);padding:var(--k-2) 0;font-family:var(--mono);
   font-size:var(--t-3);position:relative}
 .so-muc .thanh{position:absolute;left:56px;top:2px;bottom:2px;border-radius:3px;
-  background:var(--xuong);opacity:.18;transition:width var(--dur)}
+  background:var(--xuong);opacity:.18;
+  /* Bề rộng cố định ở trần cũ (62%), rồi scaleX theo tỷ lệ. Chạy
+     `width` là mỗi khung hình tính lại bố cục cả hàng; scaleX chạy
+     trên lớp ghép và không đụng bố cục. 62% × tỷ lệ = đúng con số
+     cũ, nên không phải căn lại mắt. */
+  width:62%;transform-origin:left center;transform:scaleX(0);
+  transition:transform var(--dur)}
 .so-muc[data-an="1"] .thanh{opacity:.5}
 .so-muc .g{position:relative;width:52px;color:var(--xuong);text-align:right}
 .so-muc[data-an="1"] .g{font-weight:700}
