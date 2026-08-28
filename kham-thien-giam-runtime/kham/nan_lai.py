@@ -29,10 +29,24 @@ tự tin nhất. Kéo giãn ra là trả lại phần lợi thế vốn có.
    nặng hơn hẳn sai số nó định chữa.
 2. **Đủ mẫu mới nắn.** Nắn trên vài chục lượt là học thuộc tiếng ồn rồi
    đem tiếng ồn đi cược.
-3. **GIẢM CHẤN.** Chỉ đi `HE_SO_GIAM_CHAN` phần đường. Ta CHƯA kiểm được
-   ngoài mẫu — sổ chỉ lưu tổng theo ô, không lưu từng cặp — nên chưa có
-   quyền tin hết. Từ nay ghi thêm từng cặp thô để lượt sau kiểm được
-   đàng hoàng, và khi ấy mới nói chuyện bỏ giảm chấn.
+3. **GIẢM CHẤN.** Chỉ đi một phần đường mà bảng chỉ ra.
+
+   Ban đầu đặt 0,7 vì CHƯA kiểm được ngoài mẫu. Nay kiểm được rồi
+   (`scripts/kiem-nan-ngoai-mau.py`), ghép cặp thô từ băng + sổ kết quả
+   rồi chia theo THỜI GIAN — khớp trên phần đầu, chấm trên phần đuôi mà
+   đường khớp chưa từng thấy:
+
+       phần đầu  (đã thấy)    thô 5,62 → nắn 2,77 điểm    giảm 51%
+       phần đuôi (chưa thấy)  thô 6,52 → nắn 4,68 điểm    giảm 28%
+
+   Khoảng cách 51% với 28% CHÍNH LÀ phần khớp quá, và nay nó là một con
+   số chứ không phải một nỗi lo. Phần đuôi vẫn giảm rõ rệt nên phép nắn
+   học được quy luật thật, không thuộc bảng.
+
+   Nhưng bằng chứng ấy nói "nới được", không nói "nới bao nhiêu". Nên hệ
+   số vào BẢNG VẶN của vòng tiến hoá thay vì để tôi chọn tay — chọn một
+   con số từ một lần chia đôi là thay phỏng đoán này bằng phỏng đoán
+   khác. Và vì thế nó phải đọc CONFIG mỗi lần, xem `he_so_giam_chan()`.
 4. **Trần dịch chuyển.** Không lần nào được dời quá `DOI_TOI_DA`. Một
    phép khớp hỏng thì cùng lắm lệch chừng ấy, không bao giờ thành một
    con số hoang dại chảy vào phép tính tiền.
@@ -48,8 +62,21 @@ _NL = (CONFIG.get("nanLai") or {})
 
 TOI_THIEU_MAU = int(_NL.get("toiThieuMau", 400))
 TOI_THIEU_MOI_O = int(_NL.get("toiThieuMoiO", 20))
-HE_SO_GIAM_CHAN = float(_NL.get("heSoGiamChan", 0.7))
 DOI_TOI_DA = float(_NL.get("doiToiDa", 0.25))
+
+
+def he_so_giam_chan() -> float:
+    """Đọc CONFIG mỗi lần, KHÔNG chốt lúc nạp module.
+
+    Nút này nằm trong bảng vặn được của vòng tiến hoá. Nếu chốt thành
+    hằng số lúc import thì cổng sẽ thử một giá trị mới, đo ra "không khác
+    gì" — vì phép nắn vẫn dùng giá trị cũ — rồi trả lại. Nút có mặt trong
+    bảng mà vặn thì không nhúc nhích: đúng kiểu hỏng im lặng mà cả cung
+    này được dựng để tránh.
+    """
+    return float((CONFIG.get("nanLai") or {}).get("heSoGiamChan", 0.7))
+
+
 DUONG_THO = DATA_DIR / "hieu-chinh-tho.jsonl"
 
 
@@ -109,7 +136,7 @@ class PhepNan:
                     q = a[1] + t * (b[1] - a[1])
                     break
         # Chốt 3 — giảm chấn: mới đi một phần đường.
-        q = p + (q - p) * HE_SO_GIAM_CHAN
+        q = p + (q - p) * he_so_giam_chan()
         # Chốt 4 — trần dịch chuyển.
         q = max(p - DOI_TOI_DA, min(p + DOI_TOI_DA, q))
         return max(0.001, min(0.999, q))
@@ -120,7 +147,7 @@ class PhepNan:
             "soMoc": len(self.moc),
             "saiTruoc": self.saiTruoc, "saiSau": self.saiSau,
             "caiThien": (self.saiTruoc - self.saiSau) if self.moc else 0.0,
-            "heSoGiamChan": HE_SO_GIAM_CHAN, "doiToiDa": DOI_TOI_DA,
+            "heSoGiamChan": he_so_giam_chan(), "doiToiDa": DOI_TOI_DA,
             "moc": [{"tu": round(a, 4), "toi": round(b, 4)} for a, b in self.moc],
         }
 

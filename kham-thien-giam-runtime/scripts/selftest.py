@@ -1127,6 +1127,53 @@ def kiem_cong_phan_biet() -> None:
          CONFIG["dinhGia"]["batDinhToiThieu"])
 
 
+def kiem_giam_chan_dong() -> None:
+    print("\n-- Nut van duoc thi phai VAN duoc that ----------------------")
+    from kham.chan_doan import NUT_THEO_DUONG, kep
+    from kham.config import CONFIG
+    from kham.dinh_gia import HieuChinh
+    from kham.nan_lai import khop
+
+    kiem("giảm chấn nằm trong bảng vặn",
+         "nanLai.heSoGiamChan" in NUT_THEO_DUONG)
+    kiem("vượt trần thì bị kẹp", kep("nanLai.heSoGiamChan", 1.5) == 1.0)
+    kiem("dưới sàn thì bị kẹp", kep("nanLai.heSoGiamChan", 0.1) == 0.30)
+
+    # Bẫy: hằng số đọc CONFIG lúc nạp module thì cổng sẽ thử giá trị mới,
+    # đo ra "không khác gì" — vì phép nắn vẫn dùng giá trị cũ — rồi trả
+    # lại. Nút có mặt trong bảng mà vặn không nhúc nhích là kiểu hỏng im
+    # lặng tệ nhất: mọi thứ chạy, chỉ kết quả là vô nghĩa.
+    # Sổ GIẢ, không dùng sổ thật: môi trường kiểm trỏ `KTG_DATA_DIR` sang
+    # thư mục tạm nên `HieuChinh()` rỗng, và phép kiểm sẽ lặng lẽ đi tắt
+    # qua đúng ba khẳng định quan trọng nhất. Một phép kiểm bỏ qua phần
+    # đáng kiểm mà vẫn in dấu ✓ thì tệ hơn không có.
+    class _SoGia:
+        def __init__(self, cap):
+            self.o = {}
+            for i, (du, that) in enumerate(cap):
+                self.o[f"o{i}"] = {"n": 80, "thang": round(that * 80),
+                                   "tongP": du * 80}
+
+    nen = [(0.05, 0.01), (0.15, 0.03), (0.25, 0.10), (0.35, 0.14),
+           (0.45, 0.46), (0.55, 0.50), (0.65, 0.76), (0.75, 0.93),
+           (0.85, 0.99), (0.95, 1.00)]
+    pn = khop(_SoGia(nen))
+    kiem("khớp được đường nắn từ sổ giả", pn.dung_duoc)
+    cu = CONFIG["nanLai"]["heSoGiamChan"]
+    try:
+        CONFIG["nanLai"]["heSoGiamChan"] = 0.30
+        thap = pn.nan(0.75)
+        CONFIG["nanLai"]["heSoGiamChan"] = 1.00
+        cao = pn.nan(0.75)
+    finally:
+        CONFIG["nanLai"]["heSoGiamChan"] = cu
+    kiem("đổi giảm chấn thì kết quả nắn ĐỔI THEO", abs(cao - thap) > 1e-6,
+         f"0,30 → {thap:.4f} · 1,00 → {cao:.4f}")
+    kiem("giảm chấn cao hơn thì nắn mạnh hơn", cao > thap)
+    kiem("tóm tắt khai đúng hệ số đang dùng",
+         abs(pn.tom_tat()["heSoGiamChan"] - cu) < 1e-9)
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1552,6 +1599,7 @@ def main() -> int:
     kiem_tien_hoa_chay_that()
     kiem_huong_de_xuat()
     kiem_cong_phan_biet()
+    kiem_giam_chan_dong()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

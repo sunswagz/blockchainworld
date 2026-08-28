@@ -74,6 +74,18 @@ NUT_VAN: list[NutVan] = [
            "cửa sổ ước lượng σ; ngắn thì nhạy, dài thì mượt"),
     NutVan("dinhGia.batDinhToiThieu", 0.005, 0.050, 0.005,
            "sàn bất định; cao là bảo thủ hơn"),
+    # Giảm chấn của phép nắn. Thêm vào bảng này thay vì tự chọn một con
+    # số mới, vì đã có bằng chứng NGOÀI MẪU và bằng chứng ấy nói "nới
+    # được" chứ không nói "nới bao nhiêu":
+    #
+    #     phần đầu (đã thấy)     thô 5,62 → nắn 2,77 điểm   giảm 51%
+    #     phần đuôi (chưa thấy)  thô 6,52 → nắn 4,68 điểm   giảm 28%
+    #
+    # Khoảng cách 51% với 28% chính là phần khớp quá — đo được. Chọn tay
+    # một hệ số từ một lần chia đôi là thay một phỏng đoán bằng một phỏng
+    # đoán khác. Để cổng chạy lại quyết, đó là việc nó sinh ra để làm.
+    NutVan("nanLai.heSoGiamChan", 0.30, 1.00, 0.05,
+           "đi bao nhiêu phần đường mà bảng hiệu chỉnh chỉ ra"),
 ]
 
 NUT_THEO_DUONG = {n.duong: n for n in NUT_VAN}
