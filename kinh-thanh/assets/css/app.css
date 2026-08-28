@@ -162,8 +162,6 @@ body[data-nav="mini"] .nav-label{height:1px; padding:9px 0 0; margin:0 6px; back
 .crest{flex:0 0 auto; width:52px; height:52px; border-radius:14px; background:var(--acc-t);
   color:var(--acc); display:grid; place-items:center; border:1px solid rgba(16,27,51,.07)}
 .crest svg{width:28px; height:28px; display:block}
-.legend i{display:grid; place-items:center; color:var(--ink-2)}
-.legend i svg{width:11px; height:11px; display:block}
 .card.more .nm{color:var(--ink-3); font-size:var(--t-3)}
 .card.gate .nm::after{content:"→"; margin-left:6px; color:var(--c); font-weight:700}
 .card[hidden]{display:none}
@@ -180,8 +178,9 @@ body[data-nav="mini"] .nav-label{height:1px; padding:9px 0 0; margin:0 6px; back
 .fbox h3{font-size:var(--t-2); font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-2); margin-bottom:10px}
 .legend{display:grid; gap:7px}
 .legend div{display:flex; align-items:center; gap:9px; font-size:var(--t-4)}
-.legend i{width:24px; height:24px; border-radius:7px; flex:0 0 auto; border:1px solid rgba(16,27,51,.08)}
-.legend i svg{width:14px; height:14px}
+.legend i{width:24px; height:24px; border-radius:7px; flex:0 0 auto; border:1px solid rgba(16,27,51,.08);
+  display:grid; place-items:center; color:var(--ink-2)}
+.legend i svg{width:14px; height:14px; display:block}
 .notes{display:grid; gap:7px}
 .notes p{margin:0; font-size:var(--t-4); color:var(--ink-2)}
 .notes b{color:var(--ink); font-weight:600}
@@ -268,7 +267,6 @@ body[data-nav="mini"] .nav-label{height:1px; padding:9px 0 0; margin:0 6px; back
 
 
 /* ── bảng chi tiết bên phải ───────────────────────────── */
-.drawer{width:min(470px,94vw)}
 .d-sec{margin-bottom:20px}
 .d-sec:last-child{margin-bottom:0}
 .d-h{font-family:"IBM Plex Mono",monospace; font-size:var(--t-1); font-weight:600; letter-spacing:.12em;
