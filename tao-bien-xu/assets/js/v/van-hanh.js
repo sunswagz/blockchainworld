@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-28T11:44:39.776Z",
- "lan": 354,
+ "generatedAt": "2026-08-28T15:37:29.979Z",
+ "lan": 355,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -224,14 +224,14 @@ window.VAN_HANH = {
    "cung": "hoang-thanh",
    "cungTen": "Hoàng Thành",
    "wf": null,
-   "luc": "2026-08-14T09:16:24.800Z",
+   "luc": "2026-08-28T15:37:29.979Z",
    "ket": "ok",
    "giay": null,
    "doi": false,
-   "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+   "chuThich": "chạy tay từ worktree, RUNG_NGUON trỏ sang sunswagz-hub",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-08-14T09:16:24.800Z",
+   "lucOk": "2026-08-28T15:37:29.979Z",
    "lucDoi": "2026-08-14T09:16:24.800Z"
   },
   {
@@ -690,6 +690,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-28T15:37:29.979Z",
+   "ma": "hoang-thanh",
+   "ket": "ok",
+   "giay": null,
+   "doi": false,
+   "chuThich": "chạy tay từ worktree, RUNG_NGUON trỏ sang sunswagz-hub",
+   "vi": null
+  },
   {
    "luc": "2026-08-28T11:44:39.776Z",
    "ma": "thai-boc-tu-tin-pt",
@@ -1217,15 +1226,6 @@ window.VAN_HANH = {
    "ma": "thai-boc-tu-tin",
    "ket": "ok",
    "giay": 1,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-26T20:07:16.528Z",
-   "ma": "thai-boc-tu-cong-truong",
-   "ket": "ok",
-   "giay": 9,
    "doi": true,
    "chuThich": "",
    "vi": null

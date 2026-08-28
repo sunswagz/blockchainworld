@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-28T11:44:39.776Z",
-  "lan": 354,
+  "generatedAt": "2026-08-28T15:37:29.979Z",
+  "lan": 355,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-28T11:28:33.332Z",
@@ -58,13 +58,14 @@
       "lucDoi": "2026-08-28T11:40:27.694Z"
     },
     "hoang-thanh": {
-      "luc": "2026-08-14T09:16:24.800Z",
+      "luc": "2026-08-28T15:37:29.979Z",
       "ket": "ok",
       "giay": null,
       "doi": false,
-      "chuThich": "mồi từ dấu generatedAt sẵn có trong file",
+      "chuThich": "chạy tay từ worktree, RUNG_NGUON trỏ sang sunswagz-hub",
       "chuoiLoi": 0,
-      "lucOk": "2026-08-14T09:16:24.800Z",
+      "vi": null,
+      "lucOk": "2026-08-28T15:37:29.979Z",
       "lucDoi": "2026-08-14T09:16:24.800Z"
     },
     "quan-trac-do": {
@@ -223,6 +224,15 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-28T15:37:29.979Z",
+      "ma": "hoang-thanh",
+      "ket": "ok",
+      "giay": null,
+      "doi": false,
+      "chuThich": "chạy tay từ worktree, RUNG_NGUON trỏ sang sunswagz-hub",
+      "vi": null
+    },
     {
       "luc": "2026-08-28T11:44:39.776Z",
       "ma": "thai-boc-tu-tin-pt",
@@ -2012,15 +2022,6 @@
       "giay": 75,
       "doi": true,
       "chuThich": "nhận 12 · loại 0 · phủ 13/30 bài · haiku-4.5",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-22T02:12:35.672Z",
-      "ma": "thai-boc-tu-tien-hoa",
-      "ket": "ok",
-      "giay": 236,
-      "doi": true,
-      "chuThich": "phiếu đo 6/7 → 6/7 · opus-5",
       "vi": null
     }
   ]
