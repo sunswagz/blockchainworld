@@ -1043,6 +1043,11 @@
       nc.dangNghi ? "am" : "duong", true));
     d.appendChild(oSo("Gas giữ lại", so(ng.soGiuLai),
       "lần giữ số cũ vì RPC lỗi", (ng.soGiuLai || 0) ? "nhat" : null));
+    var kc = (S && S.khoCau) || {};
+    d.appendChild(oSo("Báo giá cầu nạp lại", kc.co ? so(kc.nap) : "—",
+      kc.co ? "từ đĩa lúc khởi động · bỏ " + so(kc.boQuaCu) + " bản quá hạn"
+            : "chưa có kho trên đĩa",
+      kc.co ? null : "nhat", true));
     k.appendChild(d);
     f.appendChild(k);
 

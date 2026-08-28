@@ -71,6 +71,11 @@
 
     <p class="canhbao" id="canhBao" hidden></p>
 
+    <!-- Vùng loa cho trình đọc màn hình: chỉ chứa MỘT câu ngắn báo
+         vừa đổi phòng. Không đặt aria-live lên #than — vẽ lại vài
+         nghìn chữ thì nó đọc hết, tệ hơn không có. -->
+    <p id="loa" class="loa" role="status" aria-live="polite"></p>
+
     <!-- app.js vẽ vào đây theo tuyến hash -->
     <div id="than"></div>
 

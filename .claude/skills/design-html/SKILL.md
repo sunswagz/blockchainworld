@@ -3,7 +3,7 @@
      Đường  : design-html
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-html/SKILL.md
-     sha256 : 5e58a737798d760a · nhập 2026-08-28T15:06:22.252Z
+     sha256 : 5e58a737798d760a · nhập 2026-08-28T15:19:55.237Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

@@ -777,7 +777,20 @@ jobs:
       - name: Đánh dấu mốc trước khi sửa
         id: n-th-moc
         if: steps.n-th-de.outcome == 'success'
-        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          # Chụp cả danh sách file ĐÃ BẨN SẴN, vì `rev-parse HEAD` chỉ
+          # biết commit cuối. Ba bước dữ liệu Quan Trắc chạy TRƯỚC bước
+          # này đã ghi do.js · scan.js · tin.js mà chưa commit, nên phép
+          # soát phạm vi bên dưới so với HEAD sẽ LUÔN thấy chúng nằm
+          # ngoài `CHO` và LUÔN trả lại.
+          #
+          # Đã cắn thật: node ngã 9 lượt liên tiếp, chưa thành công lần
+          # nào (`lucOk: null`), mỗi lượt đúng 2 giây — chết trước cả khi
+          # model kịp chạy — trong khi cả ba lệnh `do`/`de-bai`/`cong`
+          # đều chạy sạch ở máy. Bảng vận hành báo "loi" mà không ai lần
+          # ra vì lỗi nằm ở YAML chứ không ở script.
+          git diff --name-only -- dai-quan-trac > "$RUNNER_TEMP/dqt-ban-truoc.txt"
 
       # Không còn điểm yếu thì KHÔNG gọi model. Bảy thước đã hết chỗ
       # để đo là chuyện tốt, không phải lý do đi tìm việc cho model.
@@ -838,14 +851,18 @@ jobs:
         env:
           MOC: ${{ steps.n-th-moc.outputs.sha }}
         run: |
+          BAN_TRUOC="$RUNNER_TEMP/dqt-ban-truoc.txt"
+          [ -f "$BAN_TRUOC" ] || : > "$BAN_TRUOC"
+          # MOI = thứ bản vá làm bẩn, đã trừ thứ đã bẩn từ trước.
+          MOI=$(git diff --name-only "$MOC" -- dai-quan-trac | grep -vxF -f "$BAN_TRUOC" || true)
           CHO='dai-quan-trac/assets/css/app.css dai-quan-trac/assets/js/app.js'
           NGOAI=''
-          for f in $(git diff --name-only "$MOC" -- dai-quan-trac); do
+          for f in $MOI; do
             case " $CHO " in *" $f "*) ;; *) NGOAI="$NGOAI $f" ;; esac
           done
           if [ -n "$NGOAI" ]; then
             echo "::error::Bản vá chạm file ngoài phạm vi:$NGOAI"
-            git checkout -- dai-quan-trac/
+            if [ -n "$MOI" ]; then git checkout -- $MOI; fi
             exit 1
           fi
           if node scripts/tien-hoa.mjs cong dai-quan-trac --so "$RUNNER_TEMP/dqt-goc.json" 2>&1 \
@@ -867,7 +884,12 @@ jobs:
             echo "::notice::Vòng tiến hoá Đài Quan Trắc: NHẬN"
           else
             echo "::error::Vòng tiến hoá Đài Quan Trắc: TRẢ LẠI — cổng chặn không qua"
-            git checkout -- dai-quan-trac/
+            # Trả lại đúng thứ bước NÀY làm bẩn. `git checkout -- dai-quan-trac/`
+            # là cuốn theo cả do.js · scan.js · tin.js mà ba bước dữ liệu vừa
+            # ghi trong CÙNG lượt — một lượt tiến hoá trượt thành một lượt mất
+            # số liệu, và không dòng log nào nói ra điều đó.
+            HONG=$(git diff --name-only "$MOC" -- dai-quan-trac | grep -vxF -f "$BAN_TRUOC" || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
             exit 1
           fi
 
@@ -1012,7 +1034,12 @@ jobs:
             echo "::notice::Vòng tiến hoá Hộ Bộ: NHẬN"
           else
             echo "::error::Vòng tiến hoá Hộ Bộ: TRẢ LẠI — cổng chặn không qua"
-            git checkout -- ho-bo/
+            # Trừ assets/js/v/ ra: bước "Lấy dòng tiền" chạy TRƯỚC bước này
+            # trong cùng lượt, nên trả cả thư mục là ném luôn dong-tien.js
+            # vừa lấy về. Chưa nổ vì cổng Hộ Bộ chưa trượt lần nào — cùng
+            # cái bẫy đã giết node tiến hoá Đài Quan Trắc 9 lượt liền.
+            HONG=$(git diff --name-only -- ho-bo | grep -v '^ho-bo/assets/js/v/' || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
             exit 1
           fi
 

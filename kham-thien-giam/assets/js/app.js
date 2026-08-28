@@ -672,6 +672,44 @@
   if (LC && LC.date) ngay.textContent = "lát cắt " + LC.date;
   else ngay.textContent = "chưa có lát cắt";
 
+  /* ── MÁY CÓ ĐANG NHÌN THẤY GÌ KHÔNG ──────────────────────────
+     Ô `#canhBao` có sẵn trong HTML và CSS từ đầu nhưng **chưa hề có
+     dòng JS nào đổ chữ vào** — một chỗ báo động chưa bao giờ báo.
+
+     Nó cần thiết vì lát cắt có thể vừa TƯƠI vừa MÙ cùng lúc: ngày
+     28/08/2026 đường mạng ở máy này chặn `*.polymarket.com` ở tầng TLS,
+     nên runtime không đọc nổi một market nào, và lát cắt ghi ra đúng
+     "0/0 cơ hội qua sàng". Không có dòng dưới đây thì trang công khai
+     đọc y hệt một phiên chợ vắng — trong khi sự thật là cỗ máy đang bịt
+     mắt. Hai chuyện ấy phải KHÁC NHAU trên màn hình.
+
+     Đọc từ `LC.nguon` chứ không tự đoán: runtime đã đếm sẵn `soLoi` và
+     `tongLuot` cho từng nguồn. `tongLuot === 0` mà `soLoi > 0` nghĩa là
+     CHƯA LẦN NÀO đọc được — nặng hơn hẳn "có đọc được nhưng đang lỗi". */
+  (function veCanhNguon() {
+    var o = document.getElementById("canhBao");
+    if (!o || !LC || !LC.nguon) return;
+    var chuaBaoGio = [], dangLoi = [];
+    Object.keys(LC.nguon).forEach(function (k) {
+      var n = LC.nguon[k] || {};
+      if (!n.soLoi) return;
+      (n.tongLuot ? dangLoi : chuaBaoGio).push(k);
+    });
+    if (!chuaBaoGio.length && !dangLoi.length) return;
+    var c = [];
+    if (chuaBaoGio.length)
+      c.push("KHÔNG với tới được " + chuaBaoGio.join(", ")
+             + " — chưa lần nào đọc được trong lượt ghi lát cắt này.");
+    if (dangLoi.length)
+      c.push("Đang lỗi: " + dangLoi.join(", ") + ".");
+    c.push("Nên mọi con số «0» ở dưới KHÔNG có nghĩa là thị "
+           + "trường vắng; nó có nghĩa là máy không nhìn thấy gì.");
+    var n0 = LC.nguon[(chuaBaoGio[0] || dangLoi[0])] || {};
+    if (n0.loiCuoi) c.push("Lỗi cuối: " + n0.loiCuoi);
+    o.textContent = "MÁY ĐANG MÙ · " + c.join(" ");
+    o.hidden = false;
+  })();
+
   var che = document.getElementById("cheDo");
   if (LC && LC.che) {
     che.hidden = false;

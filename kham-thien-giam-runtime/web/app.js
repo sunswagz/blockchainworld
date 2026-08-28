@@ -93,7 +93,8 @@
   function veDaiChiem() {
     var g = document.createDocumentFragment();
     var tt = khungDeVe();
-    if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
+    if (!tt.length) { g.appendChild(chuaCo("Chưa theo market nào. Bật một khung trong `config.json` "
+        + "(`thiTruong[].theo = true`) rồi khởi động lại runtime.")); return g; }
 
     tt.forEach(function (m) {
       var o = oKhung("Đài Chiêm · " + m.ma, m.gia ? null : "chưa đủ mẫu biến động");
@@ -212,7 +213,9 @@
       ch.length ? ch.filter(function (c) { return c.dangLam; }).length + "/" + ch.length + " qua sàng" : null);
 
     if (!ch.length) {
-      o._than.appendChild(chuaCo("chưa cân được cơ hội nào lượt này"));
+      o._than.appendChild(chuaCo("Chưa cân được cơ hội nào lượt này. Bảng này chỉ có mục khi sổ "
+        + "đang yết giá THẬT và mô hình đủ mẫu σ — xem dòng CHỢ ở thẻ chỉ huy "
+        + "để biết đang vướng cái nào."));
       g.appendChild(o);
       return g;
     }
@@ -276,7 +279,8 @@
     var vt = k.viThe || [];
     var o2 = oKhung("Tồn kho ba phần");
     if (!vt.length) {
-      o2._than.appendChild(chuaCo("chưa có vị thế nào"));
+      o2._than.appendChild(chuaCo("Chưa có vị thế nào. Kho chỉ có hàng sau lần khớp đầu tiên; "
+        + "trước đó mọi cột ở đây đều bằng 0 một cách đúng đắn."));
     } else {
       o2._than.appendChild(bang(
         ["market", { t: "UP", num: 1 }, { t: "DOWN", num: 1 },
@@ -377,9 +381,43 @@
     }
     g.appendChild(o);
 
+    // NẮN LẠI — chỗ hở cuối của vòng học vừa khép. Đặt ngay dưới bảng
+    // hiệu chỉnh vì nó đọc chính bảng đó: đo được lệch thì phải sửa lệch,
+    // không thì đo để làm gì.
+    var nl = T.nanLai || {};
+    var on = oKhung("Nắn lại", nl.dungDuoc
+      ? nl.tongMau + " mẫu · giảm chấn " + nl.heSoGiamChan
+      : "chưa nắn");
+    if (!nl.dungDuoc) {
+      on._than.appendChild(chuaCo(
+        "Chưa nắn. Cần đủ mẫu kết toán trước khi sửa mô hình theo sổ — " +
+        "nắn trên vài chục lượt là học thuộc tiếng ồn rồi đem tiếng ồn đi cược."));
+    } else {
+      var ln = el("div", "luoi3");
+      ln.appendChild(chi("Sai số trước", so(nl.saiTruoc * 100, 2) + " điểm",
+        "mô hình thô", "xuong"));
+      ln.appendChild(chi("Sai số sau", so(nl.saiSau * 100, 2) + " điểm",
+        "sau khi nắn", "len"));
+      ln.appendChild(chi("Cải thiện", so(nl.caiThien * 100, 2) + " điểm",
+        nl.soMoc + " mốc", "len"));
+      on._than.appendChild(ln);
+      on._than.appendChild(el("div", "ghi",
+        "Bảng trên đo được mô hình bị NÉN VỀ 50% — nói 34% thì thật 13,5%, " +
+        "nói 75% thì thật 93%. Phép nắn kéo giãn lại. Nó làm TĂNG lợi thế " +
+        "thô chứ không chỉ làm đẹp số: mô hình nén thì tự kéo ước lượng về " +
+        "gần giá chợ, và lợi thế teo đúng ở những lần nó tự tin nhất."));
+      on._than.appendChild(el("div", "ghi",
+        "Giảm chấn " + nl.heSoGiamChan + " vì sổ chỉ lưu TỔNG theo ô nên " +
+        "chưa kiểm được ngoài mẫu. Từ nay ghi thêm từng cặp thô; đủ rồi " +
+        "mới nói chuyện bỏ giảm chấn. Trần dịch chuyển " +
+        so(nl.doiToiDa * 100, 0) + " điểm — khớp hỏng thì cùng lắm lệch chừng ấy."));
+    }
+    g.appendChild(on);
+
     var o2 = oKhung("Kết quả", tk.n ? tk.n + " market đã kết toán" : null);
     if (tk.chuaCo || !tk.n) {
-      o2._than.appendChild(chuaCo("chưa market nào kết toán"));
+      o2._than.appendChild(chuaCo("Chưa market nào kết toán. Mỗi khung 5 phút kết toán một lần sau "
+        + "khi hết hạn — con số này chỉ đứng yên khi máy không với tới được sàn."));
     } else {
       var l = el("div", "luoi3");
       l.appendChild(chi("Tỉ lệ thắng", pc(tk.tiLeThang),
@@ -424,7 +462,8 @@
     var v = T.vi || {};
     var o = oKhung("Đài Quan Ví", v.soVi ? v.soVi + " ví" : "chưa quét");
     if (!v.vi || !v.vi.length) {
-      o._than.appendChild(chuaCo("chưa quét ví nào — lượt quét cách nhau 30 phút"));
+      o._than.appendChild(chuaCo("Chưa quét ví nào. Lượt quét cách nhau 30 phút, nên trống ở đây "
+        + "chỉ có nghĩa là chưa tới lượt."));
     } else {
       o._than.appendChild(bang(
         ["ví", { t: "lệnh", num: 1 }, { t: "market", num: 1 },
@@ -468,7 +507,8 @@
       r.appendChild(el("span", null, e.muc));
       d.appendChild(r);
     });
-    if (!(T.nhatKy || []).length) d.appendChild(chuaCo("chưa có dòng nào"));
+    if (!(T.nhatKy || []).length) d.appendChild(chuaCo("Chưa có dòng nào. Nhật ký ghi từ lúc runtime khởi động, "
+        + "nên trống nghĩa là vừa bật chưa lâu."));
     o._than.style.padding = "0";
     o._than.appendChild(d);
     g.appendChild(o);
@@ -476,7 +516,8 @@
     var n = T.nguon || {};
     var o2 = oKhung("Sức khoẻ nguồn");
     var ks = Object.keys(n);
-    if (!ks.length) o2._than.appendChild(chuaCo("chưa gọi nguồn nào"));
+    if (!ks.length) o2._than.appendChild(chuaCo("Chưa gọi nguồn nào. Bảng này lấp đầy sau nhịp đầu tiên; "
+        + "trống quá một phút là dấu hiệu vòng chạy không quay."));
     else o2._than.appendChild(bang(
       ["nguồn", { t: "tuổi", num: 1 }, { t: "lượt", num: 1 },
        { t: "lỗi liên tiếp", num: 1 }, "lỗi cuối"],
@@ -691,7 +732,8 @@
   function veChiHuy() {
     var g = document.createDocumentFragment();
     var tt = khungDangTheo();
-    if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
+    if (!tt.length) { g.appendChild(chuaCo("Chưa theo market nào. Bật một khung trong `config.json` "
+        + "(`thiTruong[].theo = true`) rồi khởi động lại runtime.")); return g; }
     g.appendChild(veHangChon());
 
     [khungHienTai()].forEach(function (m) {
@@ -948,7 +990,8 @@
     var o = oKhung("Bản đồ khung", d.soNut ? d.soNut + " nút" : null);
 
     if (!d.nut || !d.nut.length) {
-      o._than.appendChild(chuaCo("chưa có khung nào để so"));
+      o._than.appendChild(chuaCo("Chưa có khung nào để so. Bản đồ cần ít nhất hai khung định giá "
+        + "được cùng lúc — một khung thì không có gì để so với gì."));
       g.appendChild(o); return g;
     }
 
@@ -1195,7 +1238,8 @@
   function veApLuc() {
     var g = document.createDocumentFragment();
     var tt = khungDeVe();
-    if (!tt.length) { g.appendChild(chuaCo("chưa theo market nào")); return g; }
+    if (!tt.length) { g.appendChild(chuaCo("Chưa theo market nào. Bật một khung trong `config.json` "
+        + "(`thiTruong[].theo = true`) rồi khởi động lại runtime.")); return g; }
 
     tt.forEach(function (m) {
       var lich = LICH[m.ma] || [];

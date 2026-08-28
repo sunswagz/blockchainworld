@@ -38,6 +38,7 @@ import json
 import time
 from dataclasses import dataclass, field
 
+from . import nan_lai
 from .bus import bus
 from .dinh_gia import HieuChinh
 from .kho_doi import Kho
@@ -205,6 +206,11 @@ class KetToan:
         # Hiệu chỉnh ghi CẢ khi không có vị thế — xem ghi_danh().
         if c.pDuDoanUp is not None:
             self.hieuChinh.them(c.pDuDoanUp, upThang)
+            # Ghi thêm TỪNG CẶP thô. Sổ hiệu chỉnh chỉ lưu tổng theo ô;
+            # từ tổng thì khớp được đường nắn nhưng KHÔNG kiểm được nó
+            # ngoài mẫu — mà đó mới là phép phân biệt "học được quy luật"
+            # với "học thuộc bảng".
+            nan_lai.ghi_tho(c.pDuDoanUp, upThang, getattr(c, "ma", ""))
             self.hieuChinh.ghi()
 
         self.xong.append({

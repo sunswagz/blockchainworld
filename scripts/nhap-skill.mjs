@@ -26,7 +26,7 @@
    Mỗi file nhập về đội thêm một khối đầu ghi rõ nó là hàng ngoài.
    ═══════════════════════════════════════════════════════ */
 
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
@@ -43,40 +43,57 @@ const SO = join(ROOT, "factory", "skills.json");
 const NHOM_CAN = ["giao-dien", "kiem-thu", "tai-lieu", "lap-trinh"];
 const SAN_SAO = 500;
 const TRAN_MOI_KHO = 2;
-const TRAN_TONG = 20;
+const TRAN_TONG = 24;
 
-/* ── GHIM: chọn tay, luôn có mặt, không tính vào trần mỗi kho ──
-   Xếp theo sao là cách chọn TỐT KHI KHÔNG BIẾT GÌ HƠN. Nhưng sao đo
-   độ nổi tiếng của cả kho, không đo skill đó có hợp việc ở đây
-   không — `affaan-m/ECC` 243K sao thì MỌI skill trong đó đều 243K,
-   kể cả cái chẳng liên quan.
+/* ── DANH SÁCH ƯU TIÊN, CHỌN TAY ─────────────────────────
+   Phép xếp hạng ở dưới sắp theo chính-chủ rồi sao, nên các suất đầu
+   đi hết vào skill tổng quát. Kệ từng có đúng 3 mục nhóm giao-diện
+   — algorithmic-art, brainstorming, autoplan — mà không cái nào nói
+   về màu, chữ, khoảng cách hay bố cục.
 
-   Mấy cái dưới đây chọn vì đúng thứ xưởng này cần, và mỗi cái ghi rõ
-   vì sao. Chúng bỏ qua trần mỗi kho — trần đó sinh ra để chặn việc
-   một kho to nuốt hết kệ khi máy TỰ chọn, không phải để chặn người
-   chọn có chủ đích.
+   Vì sao xếp theo sao là không đủ: sao đo độ nổi tiếng của cả KHO,
+   không đo skill đó có hợp việc ở đây không. `affaan-m/ECC` 243K sao
+   thì MỌI skill trong đó đều 243K, kể cả cái chẳng liên quan.
 
-   Vòng tiến hoá đo bảy thước, và ba trong số đó là chuyện thiết kế
-   thuần tuý (tương phản WCAG, nhãn cho nút/SVG, ô trống mỗi phòng).
-   Kệ mà không có skill thiết kế thì `tien-hoa.mjs ky-nang` chỉ đưa
-   cho model những skill lập trình chung chung. */
-const GHIM = [
-  ["nextlevelbuilder/ui-ux-pro-max-skill/.claude/skills/ui-ux-pro-max",
+   Danh sách này vẫn đi qua đủ bốn chốt: phải có TRONG catalogue,
+   phải qua sàn sao và bộ lọc nhóm, chỉ tải SKILL.md, vẫn ghi sổ kèm
+   sha256. Nó chỉ đổi THỨ TỰ, không mở thêm cửa nào.
+
+   Miễn trần mỗi-kho cho riêng danh sách này: mấy skill thiết kế mạnh
+   nhất dồn vào vài kho. Trần ấy sinh ra để một kho nhiều sao không
+   chiếm kệ bằng skill lạc đề, chứ không phải để chặn skill đúng việc.
+
+   Cột thứ ba là LÝ DO. Bắt buộc, và không phải để trang trí: sáu
+   tháng nữa không ai nhớ vì sao `baoyu-diagram` có mặt, và một danh
+   sách chọn tay không nói được vì sao thì lần dọn kệ sau sẽ bị cắt
+   bừa. */
+const UU_TIEN = [
+  ["nextlevelbuilder/ui-ux-pro-max-skill", "ui-ux-pro-max",
    "trí tuệ giao diện tổng hợp — web, di động, soát lẫn dựng"],
-  ["affaan-m/ECC/skills/design-system",
+  ["nextlevelbuilder/ui-ux-pro-max-skill", "design-system",
    "mã thông số ba tầng: nguyên thuỷ → ngữ nghĩa → component"],
-  ["nexu-io/open-design/skills/color-expert",
-   "OKLCH/OKLAB, sinh bảng màu, TƯƠNG PHẢN — đúng thước hay trượt nhất"],
-  ["garrytan/gstack/design-review",
-   "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, khuôn nhàm do AI sinh"],
-  ["anthropics/skills/skills/frontend-design",
-   "thiết kế thị giác có chủ đích, chính chủ Anthropic"],
-  ["JimLiu/baoyu-skills/skills/baoyu-diagram",
-   "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy"],
-  ["garrytan/gstack/design-html",
+  ["nextlevelbuilder/ui-ux-pro-max-skill", "ui-styling",
+   "dựng giao diện tiếp cận được — đọc lấy nguyên lý, không lấy Tailwind"],
+  ["sickn33/agentic-awesome-skills", "anti-ui-slop",
+   "chống khuôn nhàm do AI sinh — đúng bệnh của trang do model sửa hằng ngày"],
+  ["sickn33/agentic-awesome-skills", "baseline-ui",
+   "sàn chất lượng giao diện, hợp với lối 'bảy thước đo sàn' của vòng tiến hoá"],
+  ["anthropics/skills", "frontend-design",
+   "thiết kế thị giác có chủ đích, chính chủ — skill dùng được nhất trên kệ"],
+  ["anthropics/skills", "theme-factory",
+   "dựng bộ chủ đề mạch lạc thay vì sửa màu lẻ từng chỗ"],
+  ["anthropics/skills", "brand-guidelines",
+   "giữ nhận diện nhất quán giữa mười hai cung"],
+  ["nexu-io/open-design", "frontend-design",
+   "bản của một kho khác — hai giọng về cùng một việc, đọc chéo được"],
+  ["nexu-io/open-design", "color-expert",
+   "OKLCH/OKLAB và TƯƠNG PHẢN — đúng thước hay trượt nhất trong bảy thước"],
+  ["garrytan/gstack", "design-review",
+   "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, thứ bậc hỏng"],
+  ["garrytan/gstack", "design-html",
    "chốt thiết kế thành HTML/CSS chất lượng sản phẩm"],
-  ["nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/ui-styling",
-   "dựng giao diện tiếp cận được, nền Radix/Tailwind — đọc lấy nguyên lý"]
+  ["JimLiu/baoyu-skills", "baoyu-diagram",
+   "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy"]
 ];
 
 function docCatalogue() {
@@ -92,30 +109,32 @@ function docCatalogue() {
    quá TRAN_MOI_KHO suất. */
 function chon(d) {
   const nhanhTheoKho = Object.fromEntries((d.kho || []).map((k) => [k.id, k.nhanh || "main"]));
-  const theoId = Object.fromEntries(d.skills.map((k) => [k.id, k]));
-  const lay = [];
-  const daCo = new Set();
 
-  /* Ghim trước. Thiếu một cái thì BÁO chứ không im: id ghim mà biến
-     mất khỏi catalogue nghĩa là kho gốc đã đổi tên hoặc xoá skill —
-     im lặng bỏ qua thì kệ cứ thiếu dần mà không ai hay. */
-  for (const [id, vi] of GHIM) {
-    const k = theoId[id];
-    if (!k) { console.log(`  ⚠ ghim "${id}" không còn trong catalogue`); continue; }
-    lay.push({ ...k, nhanh: nhanhTheoKho[k.kho] || "main", ghim: vi });
-    daCo.add(id);
-  }
-
-  /* Rồi tự chọn lấp phần còn lại: chính chủ trước, sao giảm dần, và
-     không kho nào quá TRAN_MOI_KHO suất. Skill đã ghim không tính
-     vào trần — nó vào kệ vì được chọn, không vì xếp hạng. */
+  /* Ứng viên: qua sàn sao và bộ lọc nhóm. Danh sách ưu tiên cũng tra
+     TRONG đây chứ không tra thẳng catalogue — như vậy một skill bị gỡ
+     giấy phép hay rơi khỏi nhóm sẽ tự rụng, không cần ai nhớ sửa
+     danh sách. */
   const ung = d.skills
     .filter((k) => NHOM_CAN.includes(k.nhom) && (k.sao || 0) >= SAN_SAO && k.kho && k.duong)
-    .filter((k) => !daCo.has(k.id))
     .sort((a, b) => (b.chinhChu ? 1 : 0) - (a.chinhChu ? 1 : 0) || (b.sao || 0) - (a.sao || 0));
 
   const dem = {};
+  const lay = [];
+
+  /* Ưu tiên trước, và KHÔNG tính vào trần mỗi kho: trần đó sinh ra
+     để chặn một kho nhiều sao chiếm kệ bằng skill lạc đề khi máy TỰ
+     chọn, không phải để chặn người chọn có chủ đích. */
+  for (const [kho, ten, vi] of UU_TIEN) {
+    const k = ung.find((x) => x.kho === kho &&
+      String(x.ten).toLowerCase() === String(ten).toLowerCase());
+    if (!k) { console.log(`  ⚠ ưu tiên "${ten}" (${kho}) không còn trong catalogue — bỏ qua`); continue; }
+    if (lay.some((x) => x.id === k.id)) continue;
+    lay.push({ ...k, nhanh: nhanhTheoKho[k.kho] || "main", uuTien: vi || true });
+  }
+
+  /* Rồi máy lấp phần còn lại: chính chủ trước, sao giảm dần. */
   for (const k of ung) {
+    if (lay.some((x) => x.id === k.id)) continue;
     if (lay.length >= TRAN_TONG) break;
     if ((dem[k.kho] || 0) >= TRAN_MOI_KHO) continue;
     dem[k.kho] = (dem[k.kho] || 0) + 1;
@@ -185,13 +204,43 @@ for (const k of ds) {
 
   so.push({ id: k.id, ten, kho: k.kho, duong: k.duong, nhom: k.nhom,
             sao: k.sao, giayPhep: k.giayPhep || null, nhanh: k.nhanh,
-            ghim: k.ghim || null,
+            uuTien: k.uuTien || null,
             sha, luc: new Date().toISOString() });
 }
 
 if (!so.length) {
   console.error("\nKhông nhập được skill nào — giữ nguyên kệ cũ.");
   process.exit(1);
+}
+
+/* ── DỌN THƯ MỤC MỒ CÔI ────────────────────────────────────
+   Tên thư mục lấy theo tên skill, và `tenKe` thêm tiền tố tên chủ khi
+   hai kho có skill TRÙNG TÊN. Nên một skill đang yên vị có thể bị đổi
+   tên thư mục chỉ vì lượt sau nhập thêm một skill trùng tên ở kho
+   khác: `frontend-design` thành `anthropics-frontend-design`, và cái
+   thư mục cũ nằm lại vĩnh viễn.
+
+   Hậu quả không phải tốn đĩa mà là NÓI DỐI: Claude Code nạp mọi thư
+   mục trong .claude/skills/, nên bản mồ côi vẫn được đọc như một
+   skill thật, trong khi sổ xuất xứ không còn dòng nào cho nó — không
+   ai tra được nó từ đâu ra hay đã cũ bao lâu.
+
+   Chỉ xoá thư mục CHÍNH SCRIPT NÀY từng ghi (có trong sổ cũ mà không
+   có trong sổ mới). Thư mục người tự đặt vào không nằm trong sổ nào
+   nên không bị đụng tới. */
+{
+  const tenMoi = new Set(so.map((x) => x.ten));
+  const tenCu = new Set((soCu.skill || []).map((x) => x.ten).filter(Boolean));
+  let don = 0;
+  for (const t of tenCu) {
+    if (tenMoi.has(t)) continue;
+    const p = join(KE, t);
+    if (!existsSync(p)) continue;
+    await rm(p, { recursive: true, force: true });
+    don++;
+    console.log(`  − ${t.padEnd(28)} dọn (đổi tên hoặc không còn được chọn)`);
+  }
+  if (don) console.log("");
 }
 
 await mkdir(dirname(SO), { recursive: true });

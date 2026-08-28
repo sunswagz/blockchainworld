@@ -9,6 +9,13 @@
   --mono:ui-monospace,SFMono-Regular,"JetBrains Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --r:6px; --r2:10px;
+  /* THANG z-index, đặt tên theo VIỆC chứ không theo số. Trước đó
+     rải rác 1·2·30·35·40·45·200·300·500 — mỗi lần thêm một lớp nổi
+     là phải đi dò xem số nào còn trống, và đoán sai thì thanh bên
+     chui xuống dưới màn che mà không lỗi nào báo.
+     (baseline-ui: "MUST use a fixed z-index scale, no arbitrary z-*") */
+  --z-nen:1; --z-noi:2; --z-thanh:30; --z-man:35; --z-ngan:40;
+  --z-noc:45; --z-lenh:200; --z-banh:300; --z-khoi-dong:500;
   --nav:264px; --rail:400px;
 }
 *{box-sizing:border-box}
@@ -43,7 +50,7 @@ a:hover{text-decoration:underline}
 #app.nav-collapsed{--nav:62px}
 
 /* ============ NAV ============ */
-#nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;z-index:40}
+#nav{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;min-height:0;position:relative;z-index:var(--z-ngan)}
 .brand{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid var(--line);min-height:57px}
 .mark{width:30px;height:30px;flex:0 0 30px;border-radius:8px;background:linear-gradient(150deg,#1f6feb,#0d1117 55%,var(--lac));display:grid;place-items:center;box-shadow:0 0 0 1px var(--line3),0 0 18px -6px #1f6feb}
 .mark svg{width:17px;height:17px}
@@ -77,7 +84,7 @@ a:hover{text-decoration:underline}
 
 /* ============ MAIN ============ */
 #main{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--canvas)}
-.topbar{height:57px;flex:0 0 57px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 16px;background:#0a0c10e6;backdrop-filter:blur(8px);position:relative;z-index:30}
+.topbar{height:57px;flex:0 0 57px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 16px;background:#0a0c10e6;backdrop-filter:blur(8px);position:relative;z-index:var(--z-thanh)}
 .hamb{display:none}
 .crumb{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
 .crumb h1{margin:0;font-size:14px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -93,7 +100,7 @@ a:hover{text-decoration:underline}
 
 /* ticker */
 .ticker{height:30px;flex:0 0 30px;border-bottom:1px solid var(--line);background:var(--inset);display:flex;align-items:center;overflow:hidden;position:relative}
-.ticker-lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--canvas);background:var(--lac);padding:0 9px;height:100%;display:flex;align-items:center;font-weight:700;flex:0 0 auto;z-index:2}
+.ticker-lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--canvas);background:var(--lac);padding:0 9px;height:100%;display:flex;align-items:center;font-weight:700;flex:0 0 auto;z-index:var(--z-noi)}
 .ticker-run{display:flex;gap:34px;white-space:nowrap;animation:run 64s linear infinite;padding-left:20px;will-change:transform}
 .ticker:hover .ticker-run{animation-play-state:paused}
 @keyframes run{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -143,7 +150,7 @@ ul.tight li::marker{color:var(--dim)}
 .circuit{position:relative;padding:6px 0}
 .cnode{display:grid;grid-template-columns:34px minmax(0,1fr);gap:0;position:relative}
 .cn-gut{position:relative;display:flex;flex-direction:column;align-items:center}
-.cn-mark{width:22px;height:22px;border-radius:50%;border:2px solid var(--line3);background:var(--inset);display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--muted);flex:0 0 22px;z-index:2;transition:.2s}
+.cn-mark{width:22px;height:22px;border-radius:50%;border:2px solid var(--line3);background:var(--inset);display:grid;place-items:center;font-family:var(--mono);font-size:9px;color:var(--muted);flex:0 0 22px;z-index:var(--z-noi);transition:.2s}
 .cn-mark.g{border-color:var(--ok);color:#5ee07d;box-shadow:0 0 0 4px #2ea04318}
 .cn-mark.y{border-color:var(--warn);color:#e3b341;box-shadow:0 0 0 4px #d2992218}
 .cn-mark.r{border-color:var(--dgr);color:#ff8b7e;box-shadow:0 0 0 4px #f0503f22}
@@ -187,6 +194,13 @@ ul.tight li::marker{color:var(--dim)}
 .gauge-t b{display:block;font-size:13px;font-weight:600;margin-bottom:1px}
 .gauge-t span{display:block;font-size:11.5px;color:var(--muted);line-height:1.4}
 .meter{width:74px;height:5px;border-radius:5px;background:var(--inset);box-shadow:inset 0 0 0 1px var(--line2);overflow:hidden;flex:0 0 74px}
+/* CÂN NHẮC RỒI GIỮ `width`, không đổi sang `transform: scaleX`.
+   baseline-ui viết "NEVER animate layout properties", và luật đó
+   đúng cho thứ chạy liên tục hoặc chiếm nhiều diện tích. Ở đây là
+   một thanh 74×5px chạy đúng một lần lúc vẽ, còn `scaleX` thì bóp
+   méo hai đầu bo 5px theo chiều ngang — đổi một khuyết điểm NHÌN
+   THẤY lấy một khoản lợi hiệu năng không đo được.
+   Ghi lại để lần sau khỏi "sửa" lại. */
 .meter i{display:block;height:100%;border-radius:5px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .meter i.g{background:var(--ok);width:26%}
 .meter i.y{background:var(--warn);width:60%}
@@ -211,7 +225,7 @@ ul.tight li::marker{color:var(--dim)}
 .feed{display:grid;gap:0}
 .ev{display:grid;grid-template-columns:20px minmax(0,1fr);gap:12px;position:relative}
 .ev-gut{position:relative;display:flex;flex-direction:column;align-items:center;padding-top:16px}
-.ev-dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--canvas);z-index:2;flex:0 0 11px;box-shadow:0 0 0 1px var(--line3)}
+.ev-dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--canvas);z-index:var(--z-noi);flex:0 0 11px;box-shadow:0 0 0 1px var(--line3)}
 .ev-line{flex:1;width:2px;background:var(--line);margin-top:-1px}
 .ev:last-child .ev-line{background:linear-gradient(180deg,var(--line),transparent)}
 .ev-b{padding:10px 0 14px}
@@ -266,7 +280,7 @@ ul.tight li::marker{color:var(--dim)}
 .kv dd{margin:0;color:var(--fg2)}
 
 /* ============ COMMAND PALETTE ============ */
-#cmdk{position:fixed;inset:0;background:#04060ac7;backdrop-filter:blur(3px);z-index:200;display:none;padding-top:12vh;justify-content:center}
+#cmdk{position:fixed;inset:0;background:#04060ac7;backdrop-filter:blur(3px);z-index:var(--z-lenh);display:none;padding-top:12vh;justify-content:center}
 #cmdk.on{display:flex}
 .cmd{width:min(560px,92vw);max-height:64vh;background:var(--surface);border:1px solid var(--line3);border-radius:12px;box-shadow:0 24px 70px -12px #000;display:flex;flex-direction:column;overflow:hidden}
 .cmd input{width:100%;border:0;background:transparent;padding:15px 16px;font-size:15px;outline:none;border-bottom:1px solid var(--line)}
@@ -278,20 +292,23 @@ ul.tight li::marker{color:var(--dim)}
 .cmd-foot{border-top:1px solid var(--line);padding:7px 12px;font-size:11px;color:var(--dim);display:flex;gap:14px;font-family:var(--mono)}
 
 /* toast */
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(120%);background:var(--raise);border:1px solid var(--line3);border-radius:8px;padding:9px 15px;font-size:13px;z-index:300;transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 14px 40px -10px #000;display:flex;align-items:center;gap:9px;max-width:88vw}
+/* Trên máy có khấc và thanh vuốt, `bottom:18px` nằm ĐÈ lên thanh
+   vuốt — người dùng chạm vào toast thay vì vuốt về màn hình chính.
+   (baseline-ui: "MUST respect safe-area-inset for fixed elements") */
+#toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(120%);background:var(--raise);border:1px solid var(--line3);border-radius:8px;padding:9px 15px;font-size:13px;z-index:var(--z-banh);transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 14px 40px -10px #000;display:flex;align-items:center;gap:9px;max-width:88vw}
 #toast.on{transform:translateX(-50%) translateY(0)}
 .spin{width:13px;height:13px;border:2px solid var(--line3);border-top-color:var(--info);border-radius:50%;animation:sp .7s linear infinite;flex:0 0 13px}
 @keyframes sp{to{transform:rotate(360deg)}}
 
 /* boot */
-#boot{position:fixed;inset:0;background:var(--canvas);z-index:500;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;font-family:var(--mono);font-size:11.5px;color:var(--muted);transition:opacity .45s;letter-spacing:.05em}
+#boot{position:fixed;inset:0;background:var(--canvas);z-index:var(--z-khoi-dong);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;font-family:var(--mono);font-size:11.5px;color:var(--muted);transition:opacity .45s;letter-spacing:.05em}
 #boot.off{opacity:0;pointer-events:none}
 #boot .ln{opacity:0;animation:bl .3s forwards}
 @keyframes bl{to{opacity:1}}
 #boot .ok{color:#5ee07d}
 
 /* scrim for mobile nav */
-#scrim{position:fixed;inset:0;background:#04060ab0;z-index:35;display:none}
+#scrim{position:fixed;inset:0;background:#04060ab0;z-index:var(--z-man);display:none}
 #scrim.on{display:block}
 
 /* ============ RESPONSIVE ============ */
@@ -306,7 +323,7 @@ ul.tight li::marker{color:var(--dim)}
   #app.nav-collapsed{--nav:272px}
   .nav-collapsed .brand-t,.nav-collapsed .navlab,.nav-collapsed .nv-x,.nav-collapsed .nav-foot,.nav-collapsed .nv b{display:revert}
   .nav-collapsed .nv{justify-content:flex-start}
-  #rail{position:fixed;top:0;bottom:0;right:0;width:min(400px,92vw);transform:translateX(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1);opacity:1;z-index:45}
+  #rail{position:fixed;top:0;bottom:0;right:0;width:min(400px,92vw);transform:translateX(100%);transition:transform .24s cubic-bezier(.2,.8,.2,1);opacity:1;z-index:var(--z-noc)}
   .rail-open #rail{transform:none;box-shadow:0 0 60px -10px #000}
   .hamb{display:grid;place-items:center;width:30px;height:30px;border-radius:var(--r);color:var(--fg2);flex:0 0 30px}
   .hamb:hover{background:#ffffff0d}
@@ -558,7 +575,7 @@ ul.tight li::marker{color:var(--dim)}
   width:2px;background:linear-gradient(180deg,var(--a),var(--line2))}
 .thac-k{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;
   font-family:var(--mono);font-size:15px;font-weight:600;
-  background:var(--surface);border:2px solid var(--a);color:var(--a);z-index:1}
+  background:var(--surface);border:2px solid var(--a);color:var(--a);z-index:var(--z-nen)}
 .thac-b{min-width:0;padding-top:4px}
 .thac-h{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:5px}
 .thac-h b{font-size:15px}
@@ -763,6 +780,32 @@ ul.tight li::marker{color:var(--dim)}
 .tin-chan{margin:14px 0 0;font-size:11.5px;line-height:1.6;color:var(--muted);
   padding:10px 12px;border:1px dashed var(--line2);border-radius:var(--r)}
 @media (max-width:560px){ .tin-luoi{grid-template-columns:1fr} }
+
+/* ── CHỮ SỐ ĐỀU CỘT ─────────────────────────────────────
+   Bảng này dày số: đồng hồ, phép đo, phần trăm, ngày, số đếm ở
+   thanh bên. Chữ số tỷ lệ có bề rộng khác nhau — `1` hẹp hơn `8` —
+   nên mỗi lượt bot ghi số mới thì cả cột nhích trái phải, và người
+   đọc thấy bố cục rung chứ không thấy số đổi.
+
+   Chỉ đặt lên BỀ MẶT DỮ LIỆU, không đặt toàn trang: trong văn xuôi
+   tiếng Việt thì chữ số tỷ lệ vẫn đọc dễ hơn. Ranh giới ấy trùng
+   đúng ranh giới đã có sẵn của thiết kế này — mono là dữ liệu, sans
+   là văn xuôi.
+   (baseline-ui: "MUST use tabular-nums for data") */
+.gauge-s, .gauge-i, .tt-n, .tt-den, .nv-x, .nl-n, .lv-n, .meter,
+.chip, .do-luc, .sc-r, .ss-r, .ascii, .kbd, .cn-tag, .ev-m,
+.tin-ng, .tin-di, .tin-meta, .tin-ai-h, .fchip, .do-chet{
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* ── NGẮT DÒNG CHO CHỮ ───────────────────────────────────
+   Tiêu đề tiếng Việt hay rơi một chữ xuống dòng cuối; `balance`
+   chia đều các dòng. Văn xuôi thì `pretty` chỉ lo chống chữ mồ côi,
+   rẻ hơn nhiều so với balance trên đoạn dài.
+   (baseline-ui: "MUST use text-balance for headings and text-pretty
+   for body") */
+h1, h2, h3, .big, .card-h b, .tin-than>b, .nl-t, .lv-b>b{text-wrap:balance}
+.lede, .muted, .tin-than>p, .tin-ai p, .lv-x>p, .tin-chan,
+.gauge-vi, blockquote{text-wrap:pretty}
 
 /* Số đo mà nguồn đã im quá lâu — vẫn hiện, nhưng không được
    trông giống một số đo sống. */

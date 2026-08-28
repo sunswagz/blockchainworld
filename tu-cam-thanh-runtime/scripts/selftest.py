@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import tempfile
+import datetime as _dt
 import time as _tg
 from pathlib import Path
 
@@ -597,6 +598,59 @@ async def main() -> int:
     # Tra ra được cái đã hỏng — công cụ đáng gọi nhất trong module.
     check(any(g["ma"] == "gt-thu" for g in G.tra("gt-thu")),
           "tra ra được giả thuyết đã bác bỏ")
+
+    print("\n[16] BÀN GIAO — PHẢI BIẾT BOT ĐANG TẮT, VÀ KHÔNG ĐƯỢC TỰ ĂN MẤT PHẦN SO SÁNH")
+    import importlib.util as _il
+    _sp = _il.spec_from_file_location("bg", str(ROOT / "scripts" / "ban-giao.py"))
+    BG = _il.module_from_spec(_sp)
+    _sp.loader.exec_module(BG)
+
+    # — Chọn mốc so sánh: ảnh chụp vừa ghi 2 phút trước KHÔNG được che mất
+    #   ảnh chụp của hôm qua. Đây là lỗi đã đo được: nghi thức tự chạy lúc
+    #   13:59, mở bàn giao lúc 14:01, và nó báo "không có gì đổi" trong khi số
+    #   lệnh thật vừa nhảy 17 → 38.
+    _now = _dt.datetime.now(_dt.timezone.utc)
+
+    def _anh(gio_truoc, so_lenh):
+        return {"luc": (_now - _dt.timedelta(hours=gio_truoc)).isoformat(timespec="seconds"),
+                "soLenhThat": so_lenh, "phatHien": {}, "soKyNang": 1, "soBoLuat": 1}
+
+    BG.LICH_SU.write_text(
+        json.dumps(_anh(30, 17), ensure_ascii=False) + "\n"
+        + json.dumps(_anh(0.03, 38), ensure_ascii=False) + "\n", encoding="utf-8")
+    cu, gio = BG._doc_truoc()
+    check(cu.get("soLenhThat") == 17 and gio and gio > 6,
+          f"có ảnh 30h và ảnh 2 phút → chọn ảnh {gio:.0f}h ({cu.get('soLenhThat')} lệnh), "
+          f"không để ảnh mới che mất")
+
+    # Chỉ có ảnh quá mới thì vẫn phải so, NHƯNG phải khai ra là mốc quá gần.
+    BG.LICH_SU.write_text(json.dumps(_anh(0.03, 38), ensure_ascii=False) + "\n",
+                          encoding="utf-8")
+    cu2, gio2 = BG._doc_truoc()
+    check(cu2.get("soLenhThat") == 38 and gio2 is not None and gio2 < 1,
+          f"chỉ có ảnh 2 phút → vẫn dùng, và trả về tuổi {gio2:.2f}h để báo cáo nói rõ")
+
+    # — Sống hay chết: không có nhật ký phải kêu lên, không được im —
+    BG.LICH_SU.unlink(missing_ok=True)
+    canh = BG._con_song()
+    check(any("KHÔNG CÓ NHẬT KÝ" in x or "IM" in x for x in canh),
+          f"không có nhật ký runtime → có cảnh báo ({len(canh)} dòng)")
+
+    # Nhật ký cũ 3 ngày phải bị bắt. Đây là cái đã im suốt 5 ngày rưỡi.
+    _nk = DATA_DIR / "nhat-ky"
+    _nk.mkdir(parents=True, exist_ok=True)
+    _f = _nk / "runtime.log"
+    _f.write_text("x", encoding="utf-8")
+    _cu = _tg.time() - 3 * 86400
+    os.utime(_f, (_cu, _cu))
+    canh2 = BG._con_song()
+    check(any("IM" in x and "ngày" in x for x in canh2),
+          f"nhật ký cũ 3 ngày → báo im lặng kèm số ngày")
+
+    # Và cửa ngược lại: nhật ký vừa ghi xong thì KHÔNG được kêu.
+    os.utime(_f, None)
+    check(not any("IM" in x for x in BG._con_song()),
+          "nhật ký vừa ghi → không kêu (nếu không thì cảnh báo thành tiếng ồn)")
 
     broker.reset()
     print("\n" + "=" * 62)

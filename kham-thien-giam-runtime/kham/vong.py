@@ -37,7 +37,9 @@ from .chan_rui_ro import quyet as quyet_chan
 from .chien_thuat import BoiCanh, SO_DANG_KY, chay_tat_ca
 from .config import CONFIG, che_hieu_luc
 from .dat_lenh import CongLenh
-from . import dong_co
+from dataclasses import replace
+
+from . import dong_co, nan_lai
 from .dinh_gia import DoBienDong, HieuChinh
 from .do_thi import Nut, do_thi, nhom_cua
 from .do_tre import DoTre
@@ -74,6 +76,8 @@ class Runtime:
         self.so = So()
         self.ketToan = KetToan(self.kho, self.hieuChinh, self.so, self.risk)
         self.doTre = DoTre(dongSongNen, dong_song)
+        self.phepNan = nan_lai.khop(self.hieuChinh)
+        self._nanLucMs = 0.0
 
         self.bienDong: dict[str, DoBienDong] = {}
         self.khungHienTai: dict[str, Khung] = {}
@@ -188,6 +192,7 @@ class Runtime:
         # máy này đang tắt và bật lại cần quyền quản trị — đã ghi trong
         # `tu-cam-thanh-runtime/dichvu/cai-dat.ps1`. Runtime vốn sống 24/7
         # nên nó là chỗ đáng tin hơn một bộ lịch có thể không tồn tại.
+        self._soat_nan_lai()
         self._soat_tien_hoa()
 
         may_ghi.ghi({
@@ -195,6 +200,26 @@ class Runtime:
             "thiTruong": khung_ghi,
             "kho": self.kho.tom_tat(), "risk": self.risk.tom_tat(),
         })
+
+    def _soat_nan_lai(self) -> None:
+        """Khớp lại đường nắn mỗi 10 phút.
+
+        Không khớp mỗi vòng: sổ hiệu chỉnh chỉ dày thêm khi có market kết
+        toán, tức vài phút một lần, nên khớp mỗi 2 giây là tính lại y hệt
+        con số cũ hàng trăm lần. Cũng không khớp một lần rồi thôi: cỗ máy
+        này chạy nhiều ngày, và một đường nắn khớp từ 300 mẫu mà dùng mãi
+        cho 30.000 mẫu thì chính nó thành thứ lạc hậu nhất trong hệ.
+        """
+        now = time.time() * 1000.0
+        if now - self._nanLucMs < 600_000.0:
+            return
+        self._nanLucMs = now
+        cu = self.phepNan
+        self.phepNan = nan_lai.khop(self.hieuChinh)
+        m = self.phepNan
+        if m.dung_duoc and abs(m.saiSau - cu.saiSau) > 1e-4:
+            bus.ghi(f"nắn lại: {m.tongMau} mẫu · sai số "
+                    f"{m.saiTruoc*100:.2f} → {m.saiSau*100:.2f} điểm", loai="he")
 
     def _soat_tien_hoa(self) -> None:
         """Chạy vòng tiến hoá đúng MỘT lượt THÀNH CÔNG mỗi ngày, sau giờ hẹn.
@@ -350,6 +375,18 @@ class Runtime:
         gc, viSao = dong_co.goi(
             maDC, ma, giaHienTai=gia, giaMo=mo, tauGiay=tau,
             sigmaGiay=sigma, tinHieu=self._tin_hieu(su))
+        # NẮN LẠI trước khi ai dùng con số này. Sổ hiệu chỉnh đo được mô
+        # hình bị nén về 50%; không nắn thì lợi thế thô tự teo lại đúng ở
+        # những lần mô hình tự tin nhất.
+        if gc is not None and self.phepNan.dung_duoc:
+            pNan = self.phepNan.nan(gc.pUp)
+            if abs(pNan - gc.pUp) > 1e-9:
+                gt = dict(gc.giaiTrinh or {})
+                gt["pTruocNan"] = gc.pUp
+                gt["nanLai"] = {"saiTruoc": self.phepNan.saiTruoc,
+                                "saiSau": self.phepNan.saiSau,
+                                "tongMau": self.phepNan.tongMau}
+                gc = replace(gc, pUp=pNan, pDown=1.0 - pNan, giaiTrinh=gt)
         if gc is None:
             # "Không định giá được" có nhiều lý do rất khác nhau. Khai sai
             # tên động cơ mà lặng lẽ bỏ qua thì market biến mất khỏi bảng
@@ -448,6 +485,7 @@ class Runtime:
             "dongSong": dong_song.tom_tat(),
             "dongNen": dongSongNen.tom_tat(),
             "doTre": self.doTre.tom_tat(),
+            "nanLai": self.phepNan.tom_tat(),
             "ketToan": self.ketToan.tom_tat(),
             "doThi": do_thi.tom_tat(),
             "voDich": so_vo_dich.tom_tat(),

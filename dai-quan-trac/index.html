@@ -118,6 +118,13 @@
 <script src="assets/js/v/tri-thuc.js"></script>
 <!-- giao diện -->
 <script src="assets/js/app.js"></script>
+<!-- Mười sáu hàm vẽ, tách khỏi app.js vì vỏ ứng dụng tăng ~30 KB mỗi
+     tuần và ngưỡng phiếu đo là 200 KB. Nạp SAU app.js: app.js khởi
+     động bất đồng bộ nên tới lúc nó vẽ thì bốn tệp này đã nạp xong. -->
+<script src="assets/js/trang/dong.js"></script>
+<script src="assets/js/trang/bang.js"></script>
+<script src="assets/js/trang/soi.js"></script>
+<script src="assets/js/trang/nen.js"></script>
 <!-- vỏ ứng dụng -->
 <script src="assets/js/halls.js"></script>
 <script src="assets/js/pwa.js"></script>

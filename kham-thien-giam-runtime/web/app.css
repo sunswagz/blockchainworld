@@ -2,6 +2,10 @@
    Nguyên tắc: mỗi ô phải có SỐ THẬT hoặc nói rõ là chưa có. Không ô nào
    tồn tại chỉ để nhìn cho oai. */
 
+/* Thang z-index CỐ ĐỊNH. Trước đây là 20 và 5 — hai con số bắt, không
+   ai biết cái nào phải nằm trên cái nào khi thêm lớp thứ ba.
+     1  nội dung nổi trong một ô     10 thanh nhảy (dính trong cột)
+     50 đỉnh trang (dính toàn cục)  ─ chỉ dùng bốn mức này */
 :root{
   --nen:#07090D; --nen2:#0C1016; --the:#11161F; --the2:#161C27;
   --vien:#1E2634; --chu:#DDE3EC; --mo:#8592A6; --mo2:#5C6979;
@@ -20,7 +24,7 @@ code,.so{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace}
 
 /* ── đỉnh ─────────────────────────────────────────────── */
 .dinh{
-  position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:18px;
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:18px;
   padding:11px 18px;background:var(--nen2);border-bottom:1px solid var(--vien)}
 .hieu{display:flex;align-items:center;gap:10px}
 .sao{display:grid;place-items:center;width:30px;height:30px;flex:0 0 auto;
@@ -140,7 +144,7 @@ tr:last-child td{border-bottom:0}
 
 /* nhật ký */
 .nk{font-family:"Cascadia Mono",Consolas,ui-monospace,monospace;font-size:11.5px;
-  max-height:60vh;overflow-y:auto}
+  max-height:60dvh;overflow-y:auto}
 .nk div{padding:3px 10px;border-bottom:1px solid rgba(30,38,52,.4);display:flex;gap:10px}
 .nk .t{color:var(--mo2);flex:0 0 auto}
 .nk [data-l="loi"]{color:var(--xuong)}
@@ -425,7 +429,7 @@ tr:last-child td{border-bottom:0}
    tới nó. Trong một buồng lái thì vế sau đúng hơn — thứ phải bấm mới
    thấy là thứ trên thực tế không được nhìn. */
 .nhay{
-  position:sticky;top:0;z-index:5;display:flex;gap:4px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:10;display:flex;gap:4px;flex-wrap:wrap;
   padding:7px 0 8px;margin-bottom:2px;background:var(--nen);
   border-bottom:1px solid var(--vien)}
 .nhay-nut{
@@ -441,3 +445,16 @@ tr:last-child td{border-bottom:0}
    mất hẳn cột "giá cặp" — cột đáng đọc nhất — mà không một dấu hiệu nào. */
 .bang-vo{overflow-x:auto;max-width:100%}
 .bang-vo table{min-width:max-content}
+
+/* Người đặt máy ở chế độ giảm chuyển động thì TẮT hẳn, không làm nhanh
+   hơn. Với một trang tự dựng lại mỗi 2 giây, mọi transition đều là
+   chuyển động ngoài ý muốn của họ — và ở đây không có transition nào
+   mang thông tin, chúng chỉ làm mềm mắt. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

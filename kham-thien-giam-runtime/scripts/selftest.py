@@ -814,6 +814,76 @@ def kiem_lui_nguon() -> None:
          not t.dang_nghi() and t.soLoi == 0)
 
 
+def kiem_nan_lai() -> None:
+    print("\n── Nắn lại: khép chỗ hở cuối của vòng học ────────────────────")
+    from kham.nan_lai import DOI_TOI_DA, TOI_THIEU_MAU, PhepNan, khop
+
+    class _So:
+        def __init__(self, o):
+            self.o = o
+
+    def so(cap, n_moi_o=60):
+        """Dựng sổ hiệu chỉnh giả từ (mô hình nói, thực tế ra)."""
+        o = {}
+        for i, (du, that) in enumerate(cap):
+            o[f"o{i}"] = {"n": n_moi_o, "thang": round(that * n_moi_o),
+                          "tongP": du * n_moi_o}
+        return _So(o)
+
+    # Hình chữ S đúng như đo được trên máy thật: mô hình bị NÉN VỀ 50%.
+    nen = [(0.05, 0.01), (0.15, 0.03), (0.25, 0.10), (0.35, 0.14),
+           (0.45, 0.46), (0.55, 0.50), (0.65, 0.76), (0.75, 0.93),
+           (0.85, 0.99), (0.95, 1.00)]
+    p = khop(so(nen))
+    kiem("mô hình nén về 50% → nắn được", p.dung_duoc, p.tom_tat())
+    kiem("sai số giảm thật sự", p.saiSau < p.saiTruoc,
+         f"{p.saiTruoc*100:.2f} → {p.saiSau*100:.2f} điểm")
+    kiem("kéo GIÃN khỏi 50%, không nén thêm",
+         p.nan(0.75) > 0.75 and p.nan(0.25) < 0.25,
+         f"0,25→{p.nan(0.25):.3f} · 0,75→{p.nan(0.75):.3f}")
+
+    # ĐƠN ĐIỆU là chốt quan trọng nhất: một phép nắn đảo thứ tự sẽ biến
+    # "tôi tin UP hơn" thành "tôi tin DOWN hơn" — hỏng nặng hơn hẳn sai số
+    # nó định chữa. Kiểm trên cả dải, kể cả với dữ liệu vào LỘN XỘN.
+    loanXa = [(0.05, 0.30), (0.15, 0.02), (0.25, 0.40), (0.35, 0.10),
+              (0.45, 0.60), (0.55, 0.20), (0.65, 0.80), (0.75, 0.35),
+              (0.85, 0.90), (0.95, 0.55)]
+    q = khop(so(loanXa))
+    truoc = None
+    daoNguoc = 0
+    for i in range(0, 1001):
+        v = q.nan(i / 1000.0)
+        if truoc is not None and v < truoc - 1e-9:
+            daoNguoc += 1
+        truoc = v
+    kiem("dữ liệu lộn xộn vẫn KHÔNG bao giờ đảo thứ tự", daoNguoc == 0,
+         f"{daoNguoc} lần đảo trên 1001 điểm")
+
+    # Trần dịch chuyển: một phép khớp hỏng cùng lắm lệch chừng ấy.
+    xa = [(0.05, 0.95), (0.5, 0.95), (0.95, 0.99)]
+    r = khop(so(xa))
+    lech = max(abs(r.nan(i / 100.0) - i / 100.0) for i in range(101))
+    kiem("không lần nào dời quá trần", lech <= DOI_TOI_DA + 1e-9,
+         f"dời tối đa {lech:.3f} ≤ {DOI_TOI_DA}")
+
+    # Thiếu mẫu thì KHÔNG nắn. Nắn trên vài chục lượt là học thuộc tiếng
+    # ồn rồi đem tiếng ồn đi cược.
+    it = khop(so(nen, n_moi_o=3))
+    kiem("thiếu mẫu → không nắn", not it.dung_duoc,
+         f"{it.tongMau} < {TOI_THIEU_MAU}")
+    kiem("không nắn thì trả nguyên giá trị vào", it.nan(0.73) == 0.73)
+
+    # Mô hình vốn đã đúng thì đừng đụng vào.
+    dung = [(x / 20.0, x / 20.0) for x in range(1, 20)]
+    d = khop(so(dung))
+    lechDung = max(abs(d.nan(i / 100.0) - i / 100.0) for i in range(5, 96))
+    kiem("mô hình vốn đúng → nắn gần như không đổi gì", lechDung < 0.02,
+         f"dời tối đa {lechDung:.4f}")
+
+    kiem("luôn nằm trong (0,1)",
+         all(0.0 < p.nan(i / 100.0) < 1.0 for i in range(101)))
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1102,6 +1172,100 @@ def kiem_tien_hoa_thu_lai() -> None:
             th["gioUTC"] = gio_cu
 
 
+def kiem_lat_cat() -> None:
+    print("\n-- LAT CAT: cau noi runtime -> cung tinh --")
+    import ast as _ast
+    import json as _js
+    import pathlib as _pl
+    from kham import snapshot as _sn
+    from kham.config import CONFIG as _CFG
+
+    goc = _pl.Path(_sn.__file__).resolve().parent.parent
+
+    # ── 1. tiêu đề HỨA gì thì phải có chỗ THỰC HIỆN ────────────────────
+    # Đã cắn: tiêu đề ghi `python run.py — ghi mỗi vòng lặp`, câu chép từ
+    # Tử Cấm Thành nơi nó đúng, còn ở đây `kham/vong.py` không hề gọi
+    # `ghi_lat_cat`. Cung tĩnh chỉ đổi khi có người bấm nút, nên trang công
+    # khai đứng ở lát cắt cũ — đo 28/08/2026: tám ngày tuổi — trong khi
+    # tiêu đề của chính nó nói nó tươi mỗi vòng.
+    #
+    # Tìm bằng AST chứ KHÔNG bằng `"ghi_lat_cat" in nguon`: đổi lời gọi
+    # thành `pass  # ghi_lat_cat(self)` là phép kiểm khớp-chuỗi vẫn xanh.
+    def _co_goi(tep: str, ten: str) -> bool:
+        p = goc / tep
+        if not p.is_file():
+            return False
+        for n in _ast.walk(_ast.parse(p.read_text(encoding="utf-8"))):
+            if isinstance(n, _ast.Call):
+                f = n.func
+                if isinstance(f, _ast.Name) and f.id == ten:
+                    return True
+                if isinstance(f, _ast.Attribute) and f.attr == ten:
+                    return True
+        return False
+
+    hua = "mỗi vòng lặp" in _sn.HEADER
+    goi = _co_goi("kham/vong.py", "ghi_lat_cat")
+    kiem("tiêu đề hứa 'ghi mỗi vòng lặp' thì vòng lặp PHẢI GỌI ghi_lat_cat",
+         hua == goi, f"tiêu đề hứa={hua} · vòng lặp gọi thật={goi}")
+    kiem("nút trong buồng lái gọi thật",
+         _co_goi("kham/server.py", "ghi_lat_cat"))
+    kiem("và `python -m kham.snapshot` có `_main` thật",
+         callable(getattr(_sn, "_main", None)))
+
+    # ── 2. ghi vào nhánh MẠNG-TRƯỚC ────────────────────────────────────
+    kiem("lát cắt nằm ở `assets/js/v/` — nhánh mạng-trước",
+         _sn._TUONG_DOI[:3] == ("assets", "js", "v"),
+         f"{_sn._TUONG_DOI} — đặt sang nhánh cache-trước thì máy đã cài app "
+         f"hiện lát cắt hôm qua tới lần nâng CACHE_VERSION kế tiếp")
+
+    # ── 3. GHI THẬT ra một cung giả, rồi đọc lại ───────────────────────
+    class _RtBan:
+        """Runtime GIẢ trả số bẩn. `json.dumps` ném giữa chừng ở `inf`, và
+        vòng lặp chỉ ghi một dòng nhật ký rồi đi tiếp — cung tĩnh đứng im
+        mà không ai biết."""
+        def anh_chup(self):
+            return {"vong": 3, "coHoi": [], "khung": [],
+                    "vi": {"soDuUsdc": float("inf")},
+                    "ketToan": {"laiLoUsd": float("nan")}}
+
+    d = Path(tempfile.mkdtemp(prefix="ktg-cung-gia-"))
+    (d / "index.html").write_text("<!doctype html>", encoding="utf-8")
+    cu = _CFG.get("cungTinh")
+    _CFG["cungTinh"] = str(d)
+    try:
+        duong = _sn.ghi_lat_cat(_RtBan())
+        ra = duong.read_text(encoding="utf-8") if duong else ""
+        vo = ""
+    except (ValueError, TypeError) as e:
+        duong, ra, vo = None, "", f"{type(e).__name__}: {e}"
+    finally:
+        if cu is None:
+            _CFG.pop("cungTinh", None)
+        else:
+            _CFG["cungTinh"] = cu
+
+    kiem("ghi được ra cung giả, inf/nan KHÔNG làm ném giữa chừng",
+         bool(duong) and not vo, vo or "ghi_lat_cat trả None")
+    kiem("file ra KHÔNG còn Infinity/NaN nào",
+         bool(ra) and "Infinity" not in ra and "NaN" not in ra,
+         "JSON không có Infinity; trình duyệt nạp file ấy là lỗi cú pháp, "
+         "và trang tĩnh trắng trơn")
+
+    # ── 4. `date` và `tomTat` phải ở 900 BYTE ĐẦU ──────────────────────
+    # Cổng Thành huỷ dòng tải sau 900 byte. Đổi thứ tự khoá là thẻ ngoài
+    # cổng mất ngày cập nhật, và mất trong im lặng.
+    kiem("`date` và `tomTat` nằm trong 900 byte đầu FILE ĐÃ GHI",
+         '"date"' in ra[:900] and '"tomTat"' in ra[:900],
+         "Cổng Thành chỉ đọc 900 byte đầu rồi huỷ dòng tải")
+    kiem("phần JSON đọc lại được",
+         bool(ra) and isinstance(
+             _js.loads(ra[ra.index("{"):ra.rindex("}") + 1]), dict))
+    kiem("file ra mở bằng chú thích ĐỪNG SỬA TAY và đóng bằng `;`",
+         ra.startswith("/*") and "ĐỪNG SỬA TAY" in ra[:400]
+         and ra.rstrip().endswith(";"))
+
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -1136,6 +1300,8 @@ def main() -> int:
     kiem_nhom_tai_san()
     kiem_do_tre()
     kiem_lui_nguon()
+    kiem_nan_lai()
+    kiem_lat_cat()
 
     print("\n" + "=" * 70)
     if _loi:

@@ -42,6 +42,59 @@ CHET_NHANH_GIAY = 30          # sống ngắn hơn ngần này thì coi là ch�
 NGHI = [5, 10, 30, 60, 120, 300]
 TOI_DA_CHET_NHANH = 10
 
+# Nghỉ giữa hai lần thử khi nghi mất mạng. Dài hơn hẳn thang thường: mạng rớt
+# thì đo lại sau mười phút là đủ, còn thử mỗi năm giây chỉ đốt pin.
+NGHI_MANG = 600
+
+# Dấu hiệu trong nhật ký cho thấy nguyên nhân là MẠNG chứ không phải cấu hình.
+# Cố ý chỉ nhận diện những thứ rõ ràng — đoán mò rồi thử lại mãi một lỗi cấu
+# hình thật thì đúng vào cái bẫy mà luật "dừng hẳn" sinh ra để chặn.
+DAU_HIEU_MANG = ("getaddrinfo failed", "Temporary failure in name resolution",
+                 "ConnectError", "ConnectTimeout", "ReadTimeout",
+                 "Network is unreachable", "Connection aborted",
+                 "[Errno 11001]", "[Errno -3]", "WinError 10051")
+
+
+def _co_ve_loi_mang(tu_byte: int) -> bool:
+    """Nhật ký ghi TỪ `tu_byte` TRỞ ĐI có nói đây là lỗi mạng không?
+
+    Bộ giám sát không thấy được ngoại lệ bên trong tiến trình con, nó chỉ thấy
+    mã thoát — còn lý do thật thì con đã ghi ra log trước khi chết. Nên phải đọc
+    lại chính file log ấy.
+
+    `tu_byte` là mấu chốt, và bản đầu tôi bỏ quên nó: nó đọc 20KB cuối file, tức
+    là gồm cả lỗi của những lượt chạy TRƯỚC. Hậu quả đo được ngay — máy này có
+    514 dòng `getaddrinfo failed` từ tuần trước, nên một tiến trình chết vì cấu
+    hình sai vẫn bị chẩn đoán là "mất mạng" và thử lại mãi, đúng cái vòng quay
+    tít mà luật dừng-hẳn sinh ra để chặn. `dichvu/kiem-giam-sat.py` bắt được
+    chuyện này: nó xanh khi chạy riêng và đỏ khi chạy sau một bộ kiểm khác, vì
+    log lúc đó còn dấu vết cũ.
+
+    Chỉ đọc phần ghi thêm KỂ TỪ lúc con này khởi động thì chẩn đoán mới nói về
+    đúng lượt chạy vừa chết.
+    """
+    try:
+        f = NHAT_KY / "runtime.log"
+        if not f.exists():
+            return False
+        cuoi = f.stat().st_size
+        if cuoi <= tu_byte:      # log vừa xoay vòng, hoặc con chưa ghi được gì
+            return False
+        with f.open("r", encoding="utf-8", errors="replace") as fh:
+            fh.seek(tu_byte)
+            moi = fh.read(200_000)
+    except OSError:
+        return False
+    return any(x in moi for x in DAU_HIEU_MANG)
+
+
+def _co_log() -> int:
+    """Kích thước nhật ký lúc này — mốc để biết con sắp chạy ghi thêm những gì."""
+    try:
+        return (NHAT_KY / "runtime.log").stat().st_size
+    except OSError:
+        return 0
+
 
 def _log() -> logging.Logger:
     NHAT_KY.mkdir(parents=True, exist_ok=True)
@@ -105,6 +158,7 @@ def main() -> int:
     while True:
         lan += 1
         t0 = time.time()
+        moc_log = _co_log()      # mọi dòng sau mốc này là của riêng lượt chạy sắp tới
         try:
             con = subprocess.Popen(
                 [str(py_con), "run.py"], cwd=str(GOC), env=moi,
@@ -150,6 +204,31 @@ def main() -> int:
             chet_nhanh += 1
 
         if chet_nhanh >= TOI_DA_CHET_NHANH:
+            # MẤT MẠNG KHÔNG PHẢI LỖI CẤU HÌNH.
+            #
+            # Luật "chết nhanh 10 lần thì dừng hẳn" đúng cho lỗi cấu hình: sửa
+            # xong mới chạy lại được, và cứ dựng lại chỉ nện API sàn. Nhưng mất
+            # mạng trông y hệt như vậy với bộ giám sát — và nó thì tự khỏi.
+            #
+            # Nhật ký ở đây có 514 dòng `getaddrinfo failed`: máy này rớt mạng
+            # thường xuyên. Dừng hẳn vì một cú rớt mạng nghĩa là bot nằm chết
+            # cho tới khi có người để ý — mà lần gần nhất, không ai để ý trong
+            # năm ngày rưỡi.
+            #
+            # Nên tách hai loại: lỗi MẠNG thì nghỉ dài rồi thử lại mãi; lỗi
+            # KHÁC thì vẫn dừng hẳn như cũ.
+            if _co_ve_loi_mang(moc_log):
+                lg.info(f"[giám sát] chết nhanh {chet_nhanh} lần, nhưng dấu hiệu là "
+                        f"MẤT MẠNG chứ không phải lỗi cấu hình — nghỉ {NGHI_MANG}s "
+                        f"rồi thử lại. Sẽ thử mãi: mạng thì tự khỏi, còn dừng hẳn "
+                        f"thì phải có người bật lại.")
+                _ghi_trang_thai(giamSatPid=os.getpid(), conPid=None, cong=cong,
+                                choMang=True, lyDo="nghi mất mạng — vẫn đang thử lại",
+                                luc=time.time(), goc=str(GOC))
+                chet_nhanh = 0
+                time.sleep(NGHI_MANG)
+                continue
+
             lg.info(f"[giám sát] DỪNG HẲN — chết nhanh {chet_nhanh} lần liên tiếp. "
                     f"Đây gần như luôn là lỗi cấu hình chứ không phải trục trặc "
                     f"tạm thời: xem mấy dòng ngay trên đây, sửa, rồi chạy "

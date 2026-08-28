@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T15:06:25.672Z",
+  "generatedAt": "2026-08-28T15:19:55.819Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/nhap-skill.mjs — sổ xuất xứ của .claude/skills/.",
   "luat": {
     "nhom": [
@@ -10,7 +10,7 @@
     ],
     "sanSao": 500,
     "tranMoiKho": 2,
-    "tranTong": 20
+    "tranTong": 24
   },
   "skill": [
     {
@@ -22,87 +22,22 @@
       "sao": 122330,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": "trí tuệ giao diện tổng hợp — web, di động, soát lẫn dựng",
+      "uuTien": "trí tuệ giao diện tổng hợp — web, di động, soát lẫn dựng",
       "sha": "ea087c341bfb5b23",
-      "luc": "2026-08-28T15:06:20.624Z"
+      "luc": "2026-08-28T15:19:54.688Z"
     },
     {
-      "id": "affaan-m/ECC/skills/design-system",
+      "id": "nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/design-system",
       "ten": "design-system",
-      "kho": "affaan-m/ECC",
-      "duong": "skills/design-system",
+      "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "duong": "cli/assets/skills/design-system",
       "nhom": "giao-dien",
-      "sao": 243855,
-      "giayPhep": null,
+      "sao": 122330,
+      "giayPhep": "MIT",
       "nhanh": "main",
-      "ghim": "mã thông số ba tầng: nguyên thuỷ → ngữ nghĩa → component",
-      "sha": "baa6057bec07334f",
-      "luc": "2026-08-28T15:06:20.907Z"
-    },
-    {
-      "id": "nexu-io/open-design/skills/color-expert",
-      "ten": "color-expert",
-      "kho": "nexu-io/open-design",
-      "duong": "skills/color-expert",
-      "nhom": "giao-dien",
-      "sao": 92252,
-      "giayPhep": null,
-      "nhanh": "main",
-      "ghim": "OKLCH/OKLAB, sinh bảng màu, TƯƠNG PHẢN — đúng thước hay trượt nhất",
-      "sha": "b49392ab158a0278",
-      "luc": "2026-08-28T15:06:21.273Z"
-    },
-    {
-      "id": "garrytan/gstack/design-review",
-      "ten": "design-review",
-      "kho": "garrytan/gstack",
-      "duong": "design-review",
-      "nhom": "giao-dien",
-      "sao": 130138,
-      "giayPhep": null,
-      "nhanh": "main",
-      "ghim": "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, khuôn nhàm do AI sinh",
-      "sha": "8a74c2068bea907e",
-      "luc": "2026-08-28T15:06:21.594Z"
-    },
-    {
-      "id": "anthropics/skills/skills/frontend-design",
-      "ten": "frontend-design",
-      "kho": "anthropics/skills",
-      "duong": "skills/frontend-design",
-      "nhom": "giao-dien",
-      "sao": 172172,
-      "giayPhep": "Complete terms in LICENSE.txt",
-      "nhanh": "main",
-      "ghim": "thiết kế thị giác có chủ đích, chính chủ Anthropic",
-      "sha": "1608ea77fbb6fc30",
-      "luc": "2026-08-28T15:06:21.644Z"
-    },
-    {
-      "id": "JimLiu/baoyu-skills/skills/baoyu-diagram",
-      "ten": "baoyu-diagram",
-      "kho": "JimLiu/baoyu-skills",
-      "duong": "skills/baoyu-diagram",
-      "nhom": "giao-dien",
-      "sao": 25422,
-      "giayPhep": null,
-      "nhanh": "main",
-      "ghim": "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy",
-      "sha": "55a2d050c3a2faea",
-      "luc": "2026-08-28T15:06:21.929Z"
-    },
-    {
-      "id": "garrytan/gstack/design-html",
-      "ten": "design-html",
-      "kho": "garrytan/gstack",
-      "duong": "design-html",
-      "nhom": "giao-dien",
-      "sao": 130138,
-      "giayPhep": null,
-      "nhanh": "main",
-      "ghim": "chốt thiết kế thành HTML/CSS chất lượng sản phẩm",
-      "sha": "5e58a737798d760a",
-      "luc": "2026-08-28T15:06:22.255Z"
+      "uuTien": "mã thông số ba tầng: nguyên thuỷ → ngữ nghĩa → component",
+      "sha": "655468bb723a6bc9",
+      "luc": "2026-08-28T15:19:54.738Z"
     },
     {
       "id": "nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/ui-styling",
@@ -113,9 +48,139 @@
       "sao": 122330,
       "giayPhep": "MIT",
       "nhanh": "main",
-      "ghim": "dựng giao diện tiếp cận được, nền Radix/Tailwind — đọc lấy nguyên lý",
+      "uuTien": "dựng giao diện tiếp cận được — đọc lấy nguyên lý, không lấy Tailwind",
       "sha": "f8b6c3832d2af51f",
-      "luc": "2026-08-28T15:06:22.621Z"
+      "luc": "2026-08-28T15:19:54.788Z"
+    },
+    {
+      "id": "sickn33/agentic-awesome-skills/skills/anti-ui-slop",
+      "ten": "anti-ui-slop",
+      "kho": "sickn33/agentic-awesome-skills",
+      "duong": "skills/anti-ui-slop",
+      "nhom": "giao-dien",
+      "sao": 45579,
+      "giayPhep": "MIT",
+      "nhanh": "main",
+      "uuTien": "chống khuôn nhàm do AI sinh — đúng bệnh của trang do model sửa hằng ngày",
+      "sha": "8ff04df7f8bcce91",
+      "luc": "2026-08-28T15:19:54.842Z"
+    },
+    {
+      "id": "sickn33/agentic-awesome-skills/skills/baseline-ui",
+      "ten": "baseline-ui",
+      "kho": "sickn33/agentic-awesome-skills",
+      "duong": "skills/baseline-ui",
+      "nhom": "giao-dien",
+      "sao": 45579,
+      "giayPhep": "MIT",
+      "nhanh": "main",
+      "uuTien": "sàn chất lượng giao diện, hợp với lối 'bảy thước đo sàn' của vòng tiến hoá",
+      "sha": "8e6c70a04d4c0701",
+      "luc": "2026-08-28T15:19:54.889Z"
+    },
+    {
+      "id": "anthropics/skills/skills/frontend-design",
+      "ten": "anthropics-frontend-design",
+      "kho": "anthropics/skills",
+      "duong": "skills/frontend-design",
+      "nhom": "giao-dien",
+      "sao": 172172,
+      "giayPhep": "Complete terms in LICENSE.txt",
+      "nhanh": "main",
+      "uuTien": "thiết kế thị giác có chủ đích, chính chủ — skill dùng được nhất trên kệ",
+      "sha": "1608ea77fbb6fc30",
+      "luc": "2026-08-28T15:19:54.935Z"
+    },
+    {
+      "id": "anthropics/skills/skills/theme-factory",
+      "ten": "theme-factory",
+      "kho": "anthropics/skills",
+      "duong": "skills/theme-factory",
+      "nhom": "giao-dien",
+      "sao": 172172,
+      "giayPhep": "Complete terms in LICENSE.txt",
+      "nhanh": "main",
+      "uuTien": "dựng bộ chủ đề mạch lạc thay vì sửa màu lẻ từng chỗ",
+      "sha": "c35893e221e28895",
+      "luc": "2026-08-28T15:19:54.980Z"
+    },
+    {
+      "id": "anthropics/skills/skills/brand-guidelines",
+      "ten": "brand-guidelines",
+      "kho": "anthropics/skills",
+      "duong": "skills/brand-guidelines",
+      "nhom": "giao-dien",
+      "sao": 172172,
+      "giayPhep": "Complete terms in LICENSE.txt",
+      "nhanh": "main",
+      "uuTien": "giữ nhận diện nhất quán giữa mười hai cung",
+      "sha": "1120b3769e2985ce",
+      "luc": "2026-08-28T15:19:55.028Z"
+    },
+    {
+      "id": "nexu-io/open-design/skills/frontend-design",
+      "ten": "nexu-io-frontend-design",
+      "kho": "nexu-io/open-design",
+      "duong": "skills/frontend-design",
+      "nhom": "giao-dien",
+      "sao": 92252,
+      "giayPhep": "Complete terms in LICENSE.txt",
+      "nhanh": "main",
+      "uuTien": "bản của một kho khác — hai giọng về cùng một việc, đọc chéo được",
+      "sha": "6963d8b4ae3d285b",
+      "luc": "2026-08-28T15:19:55.077Z"
+    },
+    {
+      "id": "nexu-io/open-design/skills/color-expert",
+      "ten": "color-expert",
+      "kho": "nexu-io/open-design",
+      "duong": "skills/color-expert",
+      "nhom": "giao-dien",
+      "sao": 92252,
+      "giayPhep": null,
+      "nhanh": "main",
+      "uuTien": "OKLCH/OKLAB và TƯƠNG PHẢN — đúng thước hay trượt nhất trong bảy thước",
+      "sha": "b49392ab158a0278",
+      "luc": "2026-08-28T15:19:55.124Z"
+    },
+    {
+      "id": "garrytan/gstack/design-review",
+      "ten": "design-review",
+      "kho": "garrytan/gstack",
+      "duong": "design-review",
+      "nhom": "giao-dien",
+      "sao": 130138,
+      "giayPhep": null,
+      "nhanh": "main",
+      "uuTien": "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, thứ bậc hỏng",
+      "sha": "8a74c2068bea907e",
+      "luc": "2026-08-28T15:19:55.187Z"
+    },
+    {
+      "id": "garrytan/gstack/design-html",
+      "ten": "design-html",
+      "kho": "garrytan/gstack",
+      "duong": "design-html",
+      "nhom": "giao-dien",
+      "sao": 130138,
+      "giayPhep": null,
+      "nhanh": "main",
+      "uuTien": "chốt thiết kế thành HTML/CSS chất lượng sản phẩm",
+      "sha": "5e58a737798d760a",
+      "luc": "2026-08-28T15:19:55.239Z"
+    },
+    {
+      "id": "JimLiu/baoyu-skills/skills/baoyu-diagram",
+      "ten": "baoyu-diagram",
+      "kho": "JimLiu/baoyu-skills",
+      "duong": "skills/baoyu-diagram",
+      "nhom": "giao-dien",
+      "sao": 25422,
+      "giayPhep": null,
+      "nhanh": "main",
+      "uuTien": "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy",
+      "sha": "55a2d050c3a2faea",
+      "luc": "2026-08-28T15:19:55.286Z"
     },
     {
       "id": "anthropics/skills/skills/academy-guide",
@@ -126,9 +191,9 @@
       "sao": 172172,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "f27992510c051355",
-      "luc": "2026-08-28T15:06:22.675Z"
+      "luc": "2026-08-28T15:19:55.329Z"
     },
     {
       "id": "anthropics/skills/skills/algorithmic-art",
@@ -139,9 +204,9 @@
       "sao": 172172,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "3bc4092c09804853",
-      "luc": "2026-08-28T15:06:22.722Z"
+      "luc": "2026-08-28T15:19:55.377Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/plugin-dev/skills/agent-development",
@@ -152,9 +217,9 @@
       "sao": 34838,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "6a2826571320828c",
-      "luc": "2026-08-28T15:06:23.069Z"
+      "luc": "2026-08-28T15:19:55.422Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/mcp-server-dev/skills/build-mcp-app",
@@ -165,9 +230,9 @@
       "sao": 34838,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "d2fd94f009650646",
-      "luc": "2026-08-28T15:06:23.341Z"
+      "luc": "2026-08-28T15:19:55.478Z"
     },
     {
       "id": "obra/superpowers/skills/brainstorming",
@@ -178,9 +243,9 @@
       "sao": 278843,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "74edf03ea6d24ef5",
-      "luc": "2026-08-28T15:06:23.608Z"
+      "luc": "2026-08-28T15:19:55.525Z"
     },
     {
       "id": "obra/superpowers/skills/receiving-code-review",
@@ -191,9 +256,9 @@
       "sao": 278843,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "091df1629510af1b",
-      "luc": "2026-08-28T15:06:23.961Z"
+      "luc": "2026-08-28T15:19:55.569Z"
     },
     {
       "id": "affaan-m/ECC/skills/accessibility",
@@ -204,9 +269,9 @@
       "sao": 243855,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "d8578fe750e73216",
-      "luc": "2026-08-28T15:06:24.235Z"
+      "luc": "2026-08-28T15:19:55.617Z"
     },
     {
       "id": "affaan-m/ECC/skills/agent-architecture-audit",
@@ -217,9 +282,9 @@
       "sao": 243855,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "64f57e232c353387",
-      "luc": "2026-08-28T15:06:24.509Z"
+      "luc": "2026-08-28T15:19:55.674Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/ask-matt",
@@ -230,9 +295,9 @@
       "sao": 239701,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "b25d86fb36b1d294",
-      "luc": "2026-08-28T15:06:24.785Z"
+      "luc": "2026-08-28T15:19:55.723Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/code-review",
@@ -243,9 +308,9 @@
       "sao": 239701,
       "giayPhep": null,
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "47f4e52c21694def",
-      "luc": "2026-08-28T15:06:25.130Z"
+      "luc": "2026-08-28T15:19:55.772Z"
     },
     {
       "id": "multica-ai/andrej-karpathy-skills/skills/karpathy-guidelines",
@@ -256,22 +321,9 @@
       "sao": 208278,
       "giayPhep": "MIT",
       "nhanh": "main",
-      "ghim": null,
+      "uuTien": null,
       "sha": "6e22cc54cb02a5e9",
-      "luc": "2026-08-28T15:06:25.401Z"
-    },
-    {
-      "id": "garrytan/gstack/autoplan",
-      "ten": "autoplan",
-      "kho": "garrytan/gstack",
-      "duong": "autoplan",
-      "nhom": "giao-dien",
-      "sao": 130138,
-      "giayPhep": null,
-      "nhanh": "main",
-      "ghim": null,
-      "sha": "043d2d876e07dc8a",
-      "luc": "2026-08-28T15:06:25.672Z"
+      "luc": "2026-08-28T15:19:55.818Z"
     }
   ]
 }

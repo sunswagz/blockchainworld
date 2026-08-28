@@ -82,6 +82,13 @@
     "tranMoiLenhUsd": 5
   },
 
+  "//nanLai": "Nắn lại xác suất theo sổ hiệu chỉnh — chỗ hở cuối của vòng học. Bảng hiệu chỉnh đo được mô hình bị NÉN VỀ 50% (nói 34% thì thật 13,5%; nói 75% thì thật 93%) nhưng không dòng nào đọc nó lại vào mô hình. `heSoGiamChan` < 1 vì sổ chỉ lưu tổng theo ô nên CHƯA kiểm được ngoài mẫu; từ nay ghi thêm `hieu-chinh-tho.jsonl` để lượt sau kiểm đàng hoàng rồi mới nói chuyện bỏ giảm chấn. `doiToiDa` là trần dịch chuyển: một phép khớp hỏng thì cùng lắm lệch chừng ấy.",
+  "nanLai": {
+    "toiThieuMau": 400,
+    "toiThieuMoiO": 20,
+    "heSoGiamChan": 0.7,
+    "doiToiDa": 0.25
+  },
   "//tienHoa": "Vòng tiến hoá ngày. Chạy TRONG runtime, mỗi ngày UTC một lượt sau `gioUTC`. Nhịp 24 giờ chứ không ngắn hơn: cổng chặn bắt được 'tệ hơn' nhưng không bắt được 'khác đi mà rối hơn', nên tốc độ tiến hoá phải chậm hơn tốc độ một người kịp nhìn.",
   "tienHoa": { "bat": true, "gioUTC": 2 },
 
