@@ -4381,9 +4381,9 @@ def kiem_dong_co_chua_co() -> None:
          all(k["chanQuet"] is False
              for d in r["dongCo"] for k in d["dieuKien"]
              if k["ma"] == "ky-lenh-onchain"),
-         "cả runtime đang moPhong=True — KHÔNG ty nào trong sáu ty hiện có "
-         "thực thi gì cả. Nếu thiếu lớp ký lệnh mà chặn cả quét thì sáu ty "
-         "đang chạy cũng lẽ ra không được tồn tại")
+         "cả runtime đang moPhong=True — KHÔNG ty nào đang thực thi gì cả. "
+         "Nếu thiếu lớp ký lệnh mà chặn cả quét thì mọi ty đang chạy cũng "
+         "lẽ ra không được tồn tại")
     kiem("`mempool` thì CHẶN QUÉT thật",
          all(k["chanQuet"] is True
              for d in r["dongCo"] for k in d["dieuKien"]
@@ -4971,6 +4971,133 @@ def kiem_lp_amm() -> None:
     kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
          any("SUY RA" in b for b in t.bangChung))
 
+def kiem_lat_cat() -> None:
+    print("\n-- LAT CAT: cau noi runtime -> cung tinh --")
+    import ast as _ast
+    import json as _js
+    import pathlib
+    import re as _re
+    from bac import snapshot as _sn
+    from bac.config import CONFIG as _CFG
+
+    goc = pathlib.Path(_sn.__file__).resolve().parent.parent
+
+    # ── 1. tiêu đề HỨA gì thì phải có chỗ THỰC HIỆN ────────────────────
+    # Đã cắn thật: tiêu đề ghi `python run.py — ghi mỗi vòng lặp`, câu chép
+    # từ Tử Cấm Thành nơi nó đúng, còn ở đây `bac/vong.py` không hề gọi
+    # `ghi_lat_cat`. Cung tĩnh chỉ đổi khi có người bấm nút, nên trang công
+    # khai đứng ở lát cắt cũ mà tiêu đề vẫn nói nó tươi mỗi vòng.
+    #
+    # Tìm bằng AST chứ KHÔNG bằng `"ghi_lat_cat" in nguon`: phép cấy lỗi
+    # ngược đổi lời gọi thành `pass  # ghi_lat_cat(self)` và phép kiểm
+    # khớp-chuỗi vẫn xanh — đúng lần thứ ba kiểu hỏng ấy đi lọt trong dự
+    # án này.
+    def _co_goi(tep: str, ten: str) -> bool:
+        cay = _ast.parse((goc / tep).read_text(encoding="utf-8"))
+        for n in _ast.walk(cay):
+            if isinstance(n, _ast.Call):
+                f = n.func
+                if isinstance(f, _ast.Name) and f.id == ten:
+                    return True
+                if isinstance(f, _ast.Attribute) and f.attr == ten:
+                    return True
+        return False
+
+    hua_vong = "mỗi vòng lặp" in _sn.HEADER
+    goi_vong = _co_goi("bac/vong.py", "ghi_lat_cat")
+    kiem("tiêu đề hứa 'ghi mỗi vòng lặp' thì vòng lặp PHẢI GỌI ghi_lat_cat",
+         hua_vong == goi_vong,
+         f"tiêu đề hứa={hua_vong} · vòng lặp gọi thật={goi_vong}")
+    kiem("và câu 'ghi một lần rồi thoát' có `_main` thật",
+         ("ghi một lần rồi thoát" not in _sn.HEADER)
+         or callable(getattr(_sn, "_main", None)))
+    kiem("nút trong buồng lái cũng gọi thật",
+         _co_goi("bac/server.py", "ghi_lat_cat")
+         and "/api/lat-cat" in (goc / "bac" / "server.py").read_text(
+             encoding="utf-8"))
+
+    # ── 2. ghi vào nhánh MẠNG-TRƯỚC ────────────────────────────────────
+    kiem("lát cắt nằm ở `assets/js/v/` — nhánh mạng-trước",
+         _sn._TUONG_DOI[:3] == ("assets", "js", "v"),
+         f"{_sn._TUONG_DOI} — đặt sang nhánh cache-trước thì máy đã cài app "
+         f"hiện lát cắt hôm qua tới lần nâng CACHE_VERSION kế tiếp, tức là "
+         f"một bảng điều khiển nói dối")
+
+    # ── 3. GHI THẬT ra một cung giả, rồi đọc lại ───────────────────────
+    # Dựng object rồi tự gọi `sach()` trong phép kiểm là kiểm `sach()`,
+    # KHÔNG kiểm `ghi_lat_cat()` có dùng nó không — bỏ `sach` khỏi hàm ghi
+    # mà phép kiểm vẫn xanh. Nên ở đây đi qua đúng đường thật.
+    class _RtBan:
+        """Runtime GIẢ trả về số bẩn. `json.dumps` ném giữa chừng ở `inf`,
+        và vòng lặp chỉ ghi một dòng nhật ký rồi đi tiếp — cung tĩnh đứng
+        im mà không ai biết."""
+        def anh_chup(self):
+            return {"maChienLuoc": "x.y.v1", "vong": 3,
+                    "coHoi": [{"ma": "BTC", "duyet": True,
+                               "sanLong": "binance", "sanShort": "okx",
+                               "netBps": float("inf")}],
+                    "cang": [{"ten": "a", "tre": float("nan")}],
+                    "trungUong": {"danhMuc": {"navUsd": float("-inf")}}}
+
+    tam = _tam("cung-gia")
+    (tam / "index.html").write_text("<!doctype html>", encoding="utf-8")
+    cu = _CFG.get("cungTinh")
+    _CFG["cungTinh"] = str(tam)
+    try:
+        duong = _sn.ghi_lat_cat(_RtBan())
+        ra = duong.read_text(encoding="utf-8") if duong else ""
+        vo = ""
+    except (ValueError, TypeError) as e:
+        duong, ra, vo = None, "", f"{type(e).__name__}: {e}"
+    finally:
+        if cu is None:
+            _CFG.pop("cungTinh", None)
+        else:
+            _CFG["cungTinh"] = cu
+
+    kiem("ghi được ra cung giả, inf/nan KHÔNG làm ném giữa chừng",
+         bool(duong) and not vo, vo or "ghi_lat_cat trả None")
+    kiem("và đúng đường `assets/js/v/cang-phi.js`",
+         bool(duong) and duong.parts[-4:] == _sn._TUONG_DOI,
+         str(duong))
+    kiem("file ra KHÔNG còn Infinity/NaN nào",
+         bool(ra) and "Infinity" not in ra and "NaN" not in ra,
+         "JSON không có Infinity; trình duyệt nạp file ấy là lỗi cú pháp, "
+         "và trang tĩnh trắng trơn")
+
+    # ── 4. `date` và `tomTat` phải ở 900 BYTE ĐẦU ──────────────────────
+    # Cổng Thành huỷ dòng tải sau 900 byte. Đổi thứ tự khoá là thẻ ngoài
+    # cổng mất ngày cập nhật, và mất trong im lặng.
+    kiem("`date` và `tomTat` nằm trong 900 byte đầu FILE ĐÃ GHI",
+         '"date"' in ra[:900] and '"tomTat"' in ra[:900],
+         "Cổng Thành chỉ đọc 900 byte đầu rồi huỷ dòng tải")
+    o = _sn.dung(_RtBan())
+    kiem("và chúng là HAI khoá đầu tiên, đúng thứ tự",
+         list(o.keys())[:2] == ["date", "tomTat"], str(list(o.keys())[:3]))
+
+    # ── 5. hình dạng file ra ───────────────────────────────────────────
+    kiem("file ra mở bằng chú thích ĐỪNG SỬA TAY",
+         ra.startswith("/*") and "ĐỪNG SỬA TAY" in ra[:400])
+    kiem("và đóng bằng dấu chấm phẩy", ra.rstrip().endswith(";"),
+         "thiếu `;` thì trình duyệt vẫn chạy được nhờ ASI, nhưng ghép file "
+         "thì hỏng — và lỗi hiện ra ở file KHÁC")
+    kiem("phần JSON đọc lại được",
+         bool(ra) and isinstance(
+             _js.loads(ra[ra.index("{"):ra.rindex("}") + 1]), dict))
+
+    # ── 6. không HỨA con số ty trong lời nhắc gửi ra trang công khai ───
+    # Lời nhắc từng ghi "KHÔNG ty nào trong sáu ty" và ở lại đó khi hệ đã
+    # có chín ty — trang công khai nói sai về chính nó, không lỗi nào báo.
+    from dong_co_chua_co.so_dang_ky import tom_tat as _dc_tom
+    nhac = str((_dc_tom() or {}).get("loiNhac") or "")
+    so_ty = _re.search(
+        r"(một|hai|ba|bốn|năm|sáu|bảy|tám|chín|mười|\d+)\s+ty\b", nhac)
+    kiem("lời nhắc engine KHÔNG chôn cứng số ty",
+         so_ty is None,
+         f"«{so_ty.group(0) if so_ty else ''}» — con số ấy đứng yên trong "
+         f"khi hệ thêm ty, và nó đi thẳng ra trang công khai")
+
+
 def kiem_doi_soat_vi_the() -> None:
     print("\n-- DOI SOAT VI THE: so nho, danh muc quen --")
     from thi_bac_ty.cau_dao import CauDao
@@ -5385,6 +5512,7 @@ def main() -> int:
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_doi_soat_vi_the()
+    kiem_lat_cat()
     kiem_buong_lai()
     kiem_nhap_so_ngoai()
     kiem_bon_ty()

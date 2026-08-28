@@ -297,11 +297,11 @@ def soat() -> dict:
         "soDaDung": len(theo[DA_DUNG]),
         "dongCo": ds,
         "loiNhac": (
-            "QUET_DUOC nghĩa là quét được NGAY, chỉ chưa thực thi được — mà "
-            "cả runtime đang moPhong=True, nên KHÔNG ty nào trong sáu ty "
-            "hiện có thực thi gì cả. «Chưa thực thi được» không phải lý do "
-            "để không dựng. Cái phân biệt QUET_DUOC với CHAN là dữ liệu "
-            "công khai không cần khoá."),
+            "QUET_DUOC nghĩa là quét được NGAY, chỉ chưa thực thi được — "
+            "mà cả runtime đang moPhong=True, nên KHÔNG ty nào đang thực "
+            "thi gì cả. «Chưa thực thi được» không phải lý do để không "
+            "dựng. Cái phân biệt QUET_DUOC với CHAN là dữ liệu công khai "
+            "không cần khoá."),
     }
 
 

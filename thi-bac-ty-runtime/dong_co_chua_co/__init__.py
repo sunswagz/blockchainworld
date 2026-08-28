@@ -19,8 +19,8 @@ Chạy một lượt thì biết cái nào còn chặn, cái nào đã mở, và
 `QUET_DUOC` là trạng thái đáng giá nhất và cũng dễ bị bỏ sót nhất. Một
 engine quét được mà chưa thực thi được vẫn **có ích ngay**: nó đo được cơ
 hội có thật hay không trước khi ai bỏ công dựng lớp thực thi. Cả runtime
-này đang chạy `moPhong=True` — không ty nào trong sáu ty hiện có thực thi
-gì cả — nên "chưa thực thi được" không phải lý do để không dựng.
+này đang chạy `moPhong=True` — không ty nào đang thực thi gì cả — nên
+"chưa thực thi được" không phải lý do để không dựng.
 
 Cái phân biệt `QUET_DUOC` với `CHAN` là **dữ liệu công khai không cần
 khoá**. Không có dữ liệu thì scanner chỉ là một cái vỏ luôn trả rỗng, và

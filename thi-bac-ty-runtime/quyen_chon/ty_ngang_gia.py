@@ -33,8 +33,8 @@ tiền trả cho việc vượt chênh giá. Ty này sẽ từ chối gần như
 là **kết quả đúng**: một ty tìm được nhiều cơ hội ngang giá là một ty đang
 tính sai chứ không phải một ty giỏi.
 
-Bản đồ §21 nói đích đúng là **từ chối 95 trên 100**. Đây là ty gần cái đích
-ấy nhất trong bảy ty — nó từ chối 100 trên 100.
+Bản đồ §21 nói đích đúng là **từ chối 95 trên 100**. Ty này từ chối 100
+trên 100 — gần cái đích ấy nhất trong cả hệ tính tới lúc viết.
 
 ## HỆ SỐ CHIẾT KHẤU HIỆN KHÔNG LÀM GÌ, và phải nói ra
 

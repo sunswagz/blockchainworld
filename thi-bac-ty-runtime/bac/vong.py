@@ -320,6 +320,27 @@ class Runtime:
             except Exception as e:                  # noqa: BLE001
                 self.loiVongCuoi = f"{type(e).__name__}: {e}"
                 bus.ghi(f"vòng {self.vong} lỗi: {self.loiVongCuoi}", loai="loi")
+
+            # Ghi lát cắt cho cung tĩnh sau MỌI vòng, kể cả vòng hỏng.
+            #
+            # Trước 28/08/2026 chỗ này KHÔNG tồn tại, trong khi tiêu đề của
+            # chính file được sinh ra lại ghi `python run.py — ghi mỗi vòng
+            # lặp`. Câu ấy chép từ Tử Cấm Thành, nơi nó đúng
+            # (`trader/loop.py` gọi `snapshot.write` thật). Ở đây nó sai, và
+            # hậu quả im lặng đúng kiểu runtime này sinh ra để bắt: cung
+            # tĩnh chỉ đổi khi có người bấm nút, nên trang công khai đứng
+            # im ở lát cắt cũ mà tiêu đề vẫn nói nó tươi mỗi vòng.
+            #
+            # Đặt Ở ĐÂY chứ không trong `mot_vong()`: hàm ấy có nhiều nhánh
+            # `return` sớm (cầu dao ngắt, không tờ trình nào), và đặt trong
+            # đó là chắc chắn sót một nhánh — đúng nhánh đáng ghi nhất.
+            try:
+                from .snapshot import ghi_lat_cat
+                ghi_lat_cat(self)
+            except Exception as e:                  # noqa: BLE001
+                bus.ghi(f"ghi lát cắt hỏng: {type(e).__name__}: {e}",
+                        loai="loi")
+
             con = nhip - (time.time() - t0)
             if con > 0:
                 time.sleep(con)
