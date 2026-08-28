@@ -140,13 +140,8 @@ def phan_giai(m: dict, ma: str, capNen: str, songGiay: float = 300.0) -> Khung |
     if end is None:
         end = evs + songGiay * 1000.0
 
-    toks = m.get("clobTokenIds") or []
-    if isinstance(toks, str):
-        try:
-            toks = _json.loads(toks)
-        except _json.JSONDecodeError:
-            return None
-    if len(toks) < 2:
+    toks = doc_token(m)
+    if toks is None:
         return None
 
     return Khung(
@@ -155,6 +150,50 @@ def phan_giai(m: dict, ma: str, capNen: str, songGiay: float = 300.0) -> Khung |
         batDauDatCuocMs=evs - songGiay * 1000.0,
         eventStartMs=evs, endMs=end, daiSongGiay=songGiay,
     )
+
+
+def doc_token(m: dict) -> tuple[str, str] | None:
+    """Hai token của một market. Gamma có lúc trả mảng, có lúc trả CHUỖI
+    JSON của mảng — nên phải thử cả hai chứ không tin một dạng."""
+    import json as _json
+    toks = m.get("clobTokenIds") or []
+    if isinstance(toks, str):
+        try:
+            toks = _json.loads(toks)
+        except _json.JSONDecodeError:
+            return None
+    if not isinstance(toks, (list, tuple)) or len(toks) < 2:
+        return None
+    return str(toks[0]), str(toks[1])
+
+
+def phan_giai_dai(m: dict, ma: str, capNen: str) -> Khung | None:
+    """Một market sống hàng tháng — họ chạm mốc.
+
+    Dùng lại nguyên `Khung` chứ không dựng lớp thứ hai, bằng cách đặt mốc
+    khác đi: cửa đặt cược mở SUỐT từ lúc market mở tới lúc hết hạn.
+
+        batDauDatCuocMs = lúc market mở
+        eventStartMs    = endMs          ← cửa đặt cược đóng đúng lúc hết hạn
+        endMs           = hạn
+
+    Nhờ vậy `giai_doan()` trả DAT_CUOC suốt vòng đời, và `con_lai_giay()`
+    trả đúng τ tới hạn — chính là τ mà công thức chạm mốc cần. Không phải
+    mẹo: ở họ này, "cửa còn đặt được" và "còn bao lâu tới kết quả" ĐÚNG là
+    một khoảng, khác hẳn họ Lên/Xuống nơi chúng là hai cửa tách rời.
+    """
+    het = doc_moc(m.get("endDate"))
+    mo = doc_moc(m.get("startDate")) or doc_moc(m.get("createdAt"))
+    if not het or not mo or het <= mo:
+        return None
+    toks = doc_token(m)
+    if toks is None:
+        return None
+    up, down = toks
+    return Khung(slug=m.get("slug") or "", ma=ma, capNen=capNen,
+                 tokenUp=up, tokenDown=down,
+                 batDauDatCuocMs=mo, eventStartMs=het, endMs=het,
+                 daiSongGiay=(het - mo) / 1000.0)
 
 
 def chon_dat_cuoc(ds: list[Khung], bayGioMs: float) -> Khung | None:

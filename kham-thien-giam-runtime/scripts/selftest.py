@@ -884,6 +884,66 @@ def kiem_nan_lai() -> None:
          all(0.0 < p.nan(i / 100.0) < 1.0 for i in range(101)))
 
 
+def kiem_khung_dai() -> None:
+    print("\n-- Khung DAI: mot market song hang thang --------------------")
+    import json as _j
+    import time as _t
+
+    from kham.khung import DAT_CUOC, doc_token, phan_giai_dai
+
+    def m(mo, het, toks='["a","b"]'):
+        return {"slug": "thu", "startDate": mo, "endDate": het,
+                "clobTokenIds": toks}
+
+    k = phan_giai_dai(m("2026-01-05T00:00:00Z", "2027-01-01T00:00:00Z"),
+                      "BTC_150K", "BTCUSDT")
+    now = _t.time() * 1000.0
+    kiem("phân giải được khung dài", k is not None)
+    # Khác họ Lên/Xuống ở đúng chỗ này: cửa đặt cược mở SUỐT tới hạn, vì
+    # ở họ chạm mốc thì "còn đặt được" và "còn bao lâu tới kết quả" là
+    # MỘT khoảng, không phải hai cửa tách rời.
+    kiem("đặt cược được suốt vòng đời", k.giai_doan(now) == DAT_CUOC,
+         k.giai_doan(now))
+    kiem("tau = thời gian tới HẠN, không phải tới cửa",
+         abs(k.con_lai_giay(now) - (k.endMs - now) / 1000.0) < 1.0)
+    kiem("hết hạn rồi thì KHÔNG còn đặt được",
+         k.giai_doan(k.endMs + 1000.0) != DAT_CUOC)
+
+    # Thiếu mốc hoặc thiếu token thì TỪ CHỐI, không dựng khung nửa vời.
+    kiem("thiếu endDate → từ chối",
+         phan_giai_dai(m("2026-01-05T00:00:00Z", None), "X", "Y") is None)
+    kiem("hạn trước lúc mở → từ chối",
+         phan_giai_dai(m("2027-01-01T00:00:00Z", "2026-01-05T00:00:00Z"),
+                       "X", "Y") is None)
+    kiem("thiếu token → từ chối",
+         phan_giai_dai(m("2026-01-05T00:00:00Z", "2027-01-01T00:00:00Z",
+                         '["chi-mot"]'), "X", "Y") is None)
+
+    # Gamma có lúc trả mảng, có lúc trả CHUỖI JSON của mảng.
+    kiem("đọc token cả khi Gamma trả chuỗi JSON",
+         doc_token({"clobTokenIds": '["a","b"]'}) == ("a", "b"))
+    kiem("đọc token cả khi Gamma trả mảng",
+         doc_token({"clobTokenIds": ["a", "b"]}) == ("a", "b"))
+
+    # Sổ đăng ký phải khai đúng họ khung — vòng chạy đọc trường này để
+    # biết đi đường tìm market nào, chứ không đoán từ tên động cơ.
+    from kham import dong_co
+    kiem("động cơ chạm mốc khai hoKhung = khung-dai",
+         dong_co.lay("cham-moc-crypto").hoKhung == "khung-dai")
+    kiem("động cơ Lên/Xuống khai hoKhung = cua-ngan",
+         dong_co.lay("updown-crypto").hoKhung == "cua-ngan")
+
+    # Config phải khai đủ thứ họ dài cần, và KHÔNG khai thứ nó không dùng.
+    from kham.config import CONFIG
+    d = [x for x in CONFIG["thiTruong"] if x.get("dongCo") == "cham-moc-crypto"]
+    kiem("có ít nhất một market họ chạm mốc trong config", len(d) >= 1)
+    for x in d:
+        kiem(f"{x['ma']}: khai đủ slug/moc/nen",
+             x.get("slug") and x.get("moc") and x.get("nen"))
+        kiem(f"{x['ma']}: KHÔNG khai tienTo (trường của họ khác)",
+             "tienTo" not in x)
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1301,6 +1361,7 @@ def main() -> int:
     kiem_do_tre()
     kiem_lui_nguon()
     kiem_nan_lai()
+    kiem_khung_dai()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

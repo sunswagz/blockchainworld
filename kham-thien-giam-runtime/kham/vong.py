@@ -48,7 +48,7 @@ from .dong_song_nen import dongSongNen
 from .dongho import dong_ho
 from .ket_toan import KetToan
 from .kho_doi import Kho
-from .khung import DAT_CUOC, Khung, chon_dat_cuoc, phan_giai
+from .khung import DAT_CUOC, Khung, chon_dat_cuoc, phan_giai, phan_giai_dai
 from .nguon import nguon
 from .rui_ro import RiskEngine, SucKhoeNguon
 from .so import So, thong_ke
@@ -291,7 +291,12 @@ class Runtime:
         for tt in CONFIG["thiTruong"]:
             if not tt.get("theo"):
                 continue
-            ma, dai = tt["ma"], float(tt["phutSong"]) * 60.0
+            ma = tt["ma"]
+            hs = dong_co.lay(tt.get("dongCo") or "updown-crypto")
+            if hs is not None and hs.hoKhung == "khung-dai":
+                self._tim_khung_dai(tt, now)
+                continue
+            dai = float(tt["phutSong"]) * 60.0
             # Dựng thẳng slug — Gamma chặn cứng 100 kết quả nên quét theo
             # tiền tố có lúc không chạm tới cặp mình cần. Giữ đường quét làm
             # lưới đỡ phòng khi Polymarket đổi quy luật đặt slug.
@@ -326,6 +331,35 @@ class Runtime:
                 self.khungHienTai[ma] = k
                 bus.ghi(f"{ma}: vào cửa đặt cược {k.slug} "
                         f"(còn {k.con_lai_giay(now):.0f}s)", loai="tin")
+
+    def _tim_khung_dai(self, tt: dict, now: float) -> None:
+        """Họ khung DÀI: một market sống hàng tháng, slug khai thẳng.
+
+        Không dựng slug từ mốc thời gian như họ Lên/Xuống — ở đây không có
+        gì để dựng, market là một và cố định. Cũng không quét theo tiền tố:
+        Gamma chặn cứng 100 kết quả, và một market lẻ nằm giữa hàng nghìn
+        market khác thì không có lý do gì lọt vào 100 cái đầu.
+        """
+        ma = tt["ma"]
+        slug = tt.get("slug")
+        if not slug:
+            self._than_phien(ma, "họ khung dài phải khai `slug` trong config")
+            return
+        if self.khungHienTai.get(ma) is not None:
+            return                      # market sống hàng tháng, hỏi lại làm gì
+        m = nguon.tim_theo_slug(slug)
+        if not m:
+            self._than_phien(ma, f"không thấy market `{slug}`")
+            return
+        k = phan_giai_dai(m, ma, tt["nen"])
+        if k is None:
+            self._than_phien(ma, f"market `{slug}` thiếu mốc thời gian hoặc token")
+            return
+        dong_song.dang_ky(k.tokenUp, ma, "UP")
+        dong_song.dang_ky(k.tokenDown, ma, "DOWN")
+        self.khungHienTai[ma] = k
+        bus.ghi(f"{ma}: theo khung dài {k.slug} "
+                f"(còn {k.con_lai_giay(now)/86400:.0f} ngày)", loai="tin")
 
     # ── một thị trường, một vòng ──────────────────────────────────────────
     def _mot_thi_truong(self, tt: dict, now: float, ghi: list[dict]) -> None:
@@ -372,9 +406,25 @@ class Runtime:
         # tâm. Thêm một họ market là khai thêm một động cơ, không phải
         # dựng một bot khác.
         maDC = tt.get("dongCo") or "updown-crypto"
-        gc, viSao = dong_co.goi(
-            maDC, ma, giaHienTai=gia, giaMo=mo, tauGiay=tau,
-            sigmaGiay=sigma, tinHieu=self._tin_hieu(su))
+        hs = dong_co.lay(maDC)
+        if hs is not None and hs.hoKhung == "khung-dai":
+            # Họ chạm mốc cần thứ họ Lên/Xuống không cần: ĐỈNH ĐÃ ĐI QUA.
+            # Chỉ nhìn giá hiện tại thì một market đã ngã ngũ từ tháng
+            # trước vẫn ra một xác suất nhỏ xinh.
+            dinh = nguon.dinh_da_qua(tt["nen"], k.batDauDatCuocMs,
+                                     bool(tt.get("lenTren", True)))
+            if dinh is None:
+                self._than_phien(ma, "không lấy được đỉnh đã đi qua — "
+                                     "động cơ chạm mốc từ chối đoán khi thiếu")
+                return
+            gc, viSao = dong_co.goi(
+                maDC, ma, giaHienTai=gia, moc=float(tt["moc"]), tauGiay=tau,
+                dinhDaQua=dinh, sigmaGiay=sigma,
+                lenTren=bool(tt.get("lenTren", True)))
+        else:
+            gc, viSao = dong_co.goi(
+                maDC, ma, giaHienTai=gia, giaMo=mo, tauGiay=tau,
+                sigmaGiay=sigma, tinHieu=self._tin_hieu(su))
         # NẮN LẠI trước khi ai dùng con số này. Sổ hiệu chỉnh đo được mô
         # hình bị nén về 50%; không nắn thì lợi thế thô tự teo lại đúng ở
         # những lần mô hình tự tin nhất.
