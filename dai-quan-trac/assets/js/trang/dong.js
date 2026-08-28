@@ -114,11 +114,11 @@ function vFlow(K){
     bulbs+='<i class="'+lv+(ng==='tay'?' tay':'')+'" title="'+esc(g.t)+' — '+LVNAME[lv]+
       (ng==='tay'?' (bạn đặt)':ng==='tu'?' (tự đo)':'')+'"></i>'; });
   st.innerHTML=
-    '<div class="tt-cap"><span class="tt-n">'+(lvl||'—')+'</span>'+
-      '<span class="tt-t"><b>'+(lvl?esc(LEVELS[lvl-1].t):'CHƯA ĐỌC RA')+'</b>'+
+    '<div class="ts-cap"><span class="ts-n">'+(lvl||'—')+'</span>'+
+      '<span class="ts-t"><b>'+(lvl?esc(LEVELS[lvl-1].t):'CHƯA ĐỌC RA')+'</b>'+
       '<i>'+(lvl?dm.r+' đỏ · '+dm.y+' vàng · '+dm.g+' xanh':'chưa đèn nào sáng')+'</i></span></div>'+
-    '<div class="tt-den">'+bulbs+'</div>'+
-    '<a class="tt-go" href="#gauges" onclick="go(\'gauges\');return false">bảng đồng hồ →</a>';
+    '<div class="ts-den">'+bulbs+'</div>'+
+    '<a class="ts-go" href="#gauges" onclick="go(\'gauges\');return false">bảng đồng hồ →</a>';
   w.appendChild(st);
 
   if(TIN.length) w.appendChild(vTin(K));

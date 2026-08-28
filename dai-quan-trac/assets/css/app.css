@@ -81,7 +81,7 @@ a:hover{text-decoration:underline}
 .nv .ic{width:16px;height:16px;flex:0 0 16px;opacity:.85;display:grid;place-items:center}
 .nv .ic svg{width:15px;height:15px;display:block}
 .nv b{font-weight:inherit;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nv-x{font-family:var(--mono);font-size:9.5px;color:var(--muted);background:var(--inset);border:1px solid var(--line2);border-radius:20px;padding:1px 6px;flex:0 0 auto;font-variant-numeric:tabular-nums}
+.nv-x{font-family:var(--mono);font-size:9.5px;color:var(--muted);background:var(--inset);border:1px solid var(--line2);border-radius:20px;padding:1px 6px;flex:0 0 auto}
 .dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
 .dot.g{background:var(--ok);box-shadow:0 0 7px #2ea04390}
 .dot.y{background:var(--warn);box-shadow:0 0 7px #d2992290}
@@ -105,7 +105,7 @@ a:hover{text-decoration:underline}
 .tbtn.pri:hover{background:#388bfd;border-color:#388bfd}
 .tbtn svg{width:14px;height:14px}
 .tbtn[disabled]{opacity:.5;pointer-events:none}
-.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:1px 4px;color:var(--muted);background:var(--inset);font-variant-numeric:tabular-nums}
+.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:1px 4px;color:var(--muted);background:var(--inset)}
 
 /* ticker */
 .ticker{height:30px;flex:0 0 30px;border-bottom:1px solid var(--line);background:var(--inset);display:flex;align-items:center;overflow:hidden;position:relative}
@@ -140,7 +140,7 @@ p{margin:0 0 12px}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;padding:2px 8px;border-radius:20px;border:1px solid var(--line2);color:var(--fg2);background:var(--inset);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;padding:2px 8px;border-radius:20px;border:1px solid var(--line2);color:var(--fg2);background:var(--inset);white-space:nowrap}
 .chip.g{color:#5ee07d;border-color:#2ea04355;background:var(--ok-d)}
 .chip.y{color:#e3b341;border-color:#d2992255;background:var(--warn-d)}
 .chip.r{color:#ff8b7e;border-color:#f0503f55;background:var(--dgr-d)}
@@ -174,7 +174,7 @@ ul.tight li::marker{color:var(--dim)}
 .cn-top{display:flex;align-items:center;gap:9px;margin-bottom:3px;flex-wrap:wrap}
 .cn-top b{font-size:13.5px;font-weight:600}
 .cn-note{font-size:12.5px;color:var(--muted);line-height:1.45}
-.cn-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--dim);margin-left:auto;font-variant-numeric:tabular-nums}
+.cn-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--dim);margin-left:auto}
 
 /* compass */
 .compass{display:grid;grid-template-columns:1fr 1.15fr 1fr;grid-template-rows:auto auto auto;gap:10px;align-items:stretch}
@@ -195,7 +195,7 @@ ul.tight li::marker{color:var(--dim)}
 .gauge{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);transition:.15s}
 .gauge:last-child{border-bottom:0}
 .gauge:hover{background:#ffffff05}
-.gauge-i{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.gauge-i{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:10.5px;font-weight:700}
 .gauge-i.g{background:var(--ok-d);color:#5ee07d;box-shadow:inset 0 0 0 1px #2ea04355}
 .gauge-i.y{background:var(--warn-d);color:#e3b341;box-shadow:inset 0 0 0 1px #d2992255}
 .gauge-i.r{background:var(--dgr-d);color:#ff8b7e;box-shadow:inset 0 0 0 1px #f0503f55}
@@ -219,7 +219,7 @@ ul.tight li::marker{color:var(--dim)}
 .lv:first-child{border-radius:var(--r2) var(--r2) 0 0}
 .lv:last-child{border-radius:0 0 var(--r2) var(--r2)}
 .lv.on{opacity:1;border-color:var(--line3);background:var(--raise)}
-.lv-n{display:grid;place-items:center;font-family:var(--mono);font-size:19px;font-weight:700;color:var(--dim);border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
+.lv-n{display:grid;place-items:center;font-family:var(--mono);font-size:19px;font-weight:700;color:var(--dim);border-right:1px solid var(--line)}
 .lv.on .lv-n{color:var(--canvas)}
 .lv.on.l1 .lv-n{background:var(--ok)}.lv.on.l2 .lv-n{background:var(--warn)}
 .lv.on.l3 .lv-n{background:#e07b39}.lv.on.l4 .lv-n{background:var(--dgr)}
@@ -468,25 +468,38 @@ ul.tight li::marker{color:var(--dim)}
 .trang-thai.c2{border-left-color:var(--warn)}
 .trang-thai.c3{border-left-color:var(--dgr)}
 .trang-thai.c4{border-left-color:var(--lac);background:linear-gradient(90deg,#2d121055,var(--surface) 60%)}
-.tt-cap{display:flex;align-items:center;gap:12px;flex:0 0 auto}
-.tt-n{font-family:var(--mono);font-size:27px;font-weight:600;line-height:1;color:var(--fg);font-variant-numeric:tabular-nums}
-.tt-t{display:flex;flex-direction:column;line-height:1.3}
-.tt-t b{font-size:13.5px;letter-spacing:.02em}
-.tt-t i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.tt-den{display:flex;gap:4px;flex:1;min-width:120px;flex-wrap:wrap}
-.tt-den i{width:9px;height:22px;border-radius:3px;background:var(--line2);display:block}
-.tt-den i.g{background:var(--ok)}
-.tt-den i.y{background:var(--warn)}
-.tt-den i.r{background:var(--dgr)}
+
+/* ── DẢI TRẠNG THÁI · tiền tố `ts-`, KHÔNG phải `tt-` ────────────
+   Khối này từng mang tiền tố `tt-` (trạng thái). Lớp tri thức của
+   knowledge-os cũng dùng `tt-` (tri thức) và sinh vào cùng tệp này,
+   phía dưới. Hai bên đụng nhau đúng một tên: `.tt-n`.
+
+   Cùng độ đặc hiệu, cái nằm dưới thắng — nên SỐ CẤP ĐỘ to nhất của
+   trang Dòng chảy bị vẽ bằng luật của widget tri thức: 10.5px thay
+   vì 27px, màu --fg2 thay vì --fg, lại thêm margin-left:auto đẩy
+   sang phải. Ở mọi trang, mọi chủ thể. Không lỗi nào báo.
+
+   `tt-` bên kia là tên chung của mười một cung, sinh tự động; `tt-`
+   bên này chỉ có ở cung này. Nên bên đổi tên là bên này. */
+.ts-cap{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+.ts-n{font-family:var(--mono);font-size:27px;font-weight:600;line-height:1;color:var(--fg)}
+.ts-t{display:flex;flex-direction:column;line-height:1.3}
+.ts-t b{font-size:13.5px;letter-spacing:.02em}
+.ts-t i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ts-den{display:flex;gap:4px;flex:1;min-width:120px;flex-wrap:wrap}
+.ts-den i{width:9px;height:22px;border-radius:3px;background:var(--line2);display:block}
+.ts-den i.g{background:var(--ok)}
+.ts-den i.y{background:var(--warn)}
+.ts-den i.r{background:var(--dgr)}
 /* Đèn người dùng tự đặt có vạch chân — phân biệt được mà không cần chú giải */
-.tt-den i.tay{box-shadow:inset 0 -4px 0 #ffffff59}
-.tt-go{font-family:var(--mono);font-size:11.5px;color:var(--muted);flex:0 0 auto;white-space:nowrap;font-variant-numeric:tabular-nums}
-.tt-go:hover{color:var(--info)}
+.ts-den i.tay{box-shadow:inset 0 -4px 0 #ffffff59}
+.ts-go{font-family:var(--mono);font-size:11.5px;color:var(--muted);flex:0 0 auto;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ts-go:hover{color:var(--info)}
 
 /* --- băng giờ đo --- */
 .do-luc{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;
   color:var(--muted);padding:8px 12px;margin:14px 0 4px;border:1px dashed var(--line2);
-  border-radius:var(--r2);background:var(--inset);font-variant-numeric:tabular-nums}
+  border-radius:var(--r2);background:var(--inset)}
 .do-luc b{color:var(--ok)}
 
 /* --- hàng đồng hồ: thêm cột số đo --- */
@@ -525,7 +538,7 @@ ul.tight li::marker{color:var(--dim)}
   .gauge-s{margin-left:0;width:100%;padding:6px 0 0}
   .spk{width:56px}
   .trang-thai{gap:12px}
-  .tt-den i{width:7px;height:18px}
+  .ts-den i{width:7px;height:18px}
 }
 
 /* ============ NHÓM THANH BÊN THU GỌN ĐƯỢC ============
@@ -759,7 +772,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-than{display:block;padding:12px 12px 12px}
 .tin-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px}
 .tin-ng{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;color:var(--fg2);
-  border:1px solid var(--line3);border-radius:20px;padding:2px 7px;font-variant-numeric:tabular-nums}
+  border:1px solid var(--line3);border-radius:20px;padding:2px 7px}
 /* Báo nhà nước: viền vàng. Không cấm đọc, chỉ bắt buộc biết. */
 .tin-ng.nn{color:var(--gold);border-color:var(--gold-mo);background:#d4a72c14}
 .tin-meta i{font-style:normal;font-size:10.5px;color:var(--muted)}
@@ -769,7 +782,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-than>p{margin:0 0 9px;font-size:12.5px;line-height:1.55;color:var(--fg2);
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .tin-di{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;
-  color:var(--muted);border:1px solid var(--line2);border-radius:20px;padding:2px 8px;font-variant-numeric:tabular-nums}
+  color:var(--muted);border:1px solid var(--line2);border-radius:20px;padding:2px 8px}
 
 .tin-ai{margin-top:auto;padding:10px 12px 12px;background:var(--inset);
   border-top:1px solid var(--line2);box-shadow:inset 2px 0 0 var(--purple)}
@@ -797,8 +810,13 @@ ul.tight li::marker{color:var(--dim)}
    tiếng Việt thì chữ số tỷ lệ vẫn đọc dễ hơn. Ranh giới ấy trùng
    đúng ranh giới đã có sẵn của thiết kế này — mono là dữ liệu, sans
    là văn xuôi.
-   (baseline-ui: "MUST use tabular-nums for data") */
-.gauge-s, .gauge-i, .tt-n, .tt-den, .nv-x, .nl-n, .lv-n, .meter,
+   (baseline-ui: "MUST use tabular-nums for data")
+
+   Danh sách này là CHỖ KHAI CHÍNH SÁCH cho những lớp có tên ở đây:
+   chúng KHÔNG lặp lại `font-variant-numeric` trong luật riêng nữa.
+   Trước đây mười một lớp khai cả hai nơi — cùng giá trị nên không
+   sai, nhưng ai sửa một nơi mà quên nơi kia thì sinh ra chỗ đè. */
+.gauge-s, .gauge-i, .ts-n, .ts-den, .nv-x, .nl-n, .lv-n, .meter,
 .chip, .do-luc, .sc-r, .ss-r, .ascii, .kbd, .cn-tag, .ev-m,
 .tin-ng, .tin-di, .tin-meta, .tin-ai-h, .fchip, .do-chet{
   font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
@@ -816,7 +834,7 @@ h1, h2, h3, .big, .card-h b, .tin-than>b, .nl-t, .lv-b>b{text-wrap:balance}
 /* Số đo mà nguồn đã im quá lâu — vẫn hiện, nhưng không được
    trông giống một số đo sống. */
 .do-chet{display:block;margin-bottom:5px;font-size:11.5px;line-height:1.5;
-  color:var(--gold);font-family:var(--mono);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+  color:var(--gold);font-family:var(--mono);letter-spacing:.02em}
 
 /* ── lớp tri thức nền (knowledge-os) ─────────────────────────────────
    Khối giải nghĩa cuối mỗi phòng. Khuôn HTML sinh ra từ
