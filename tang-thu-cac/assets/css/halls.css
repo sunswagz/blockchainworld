@@ -2,9 +2,9 @@
    Lối chuyển cung dùng lại .bmuc của thanh bên (xem app.css). */
 
 .install-tt{
-  display:none;align-items:center;gap:9px;width:100%;text-align:left;margin-top:8px;
-  padding:8px 9px;border:1px dashed var(--acc);border-radius:6px;
-  background:transparent;color:var(--acc);font-size:13px;font-weight:600}
+  display:none;align-items:center;gap:var(--k-8);width:100%;text-align:left;margin-top:var(--k-7);
+  padding:var(--k-7) var(--k-8);border:1px dashed var(--acc);border-radius:6px;
+  background:transparent;color:var(--acc);font-size:var(--t-4);font-weight:600}
 .install-tt[data-show="1"]{display:flex}
 .install-tt svg{width:16px;height:16px;flex:0 0 auto}
 .install-tt:hover{background:var(--acc-t)}
@@ -12,9 +12,9 @@
 .sw-toast{
   position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));z-index:80;
   transform:translate(-50%,140%);transition:transform var(--dur) ease;
-  display:flex;align-items:center;gap:12px;max-width:calc(100vw - 32px);
-  padding:11px 14px;border-radius:10px;border:1px solid var(--line);
-  background:var(--card-2);box-shadow:0 14px 40px -18px rgba(31,27,20,.4);font-size:13px}
+  display:flex;align-items:center;gap:var(--k-11);max-width:calc(100vw - 32px);
+  padding:var(--k-10) var(--k-13);border-radius:10px;border:1px solid var(--line);
+  background:var(--card-2);box-shadow:0 14px 40px -18px rgba(31,27,20,.4);font-size:var(--t-4)}
 .sw-toast[data-open="1"]{transform:translate(-50%,0)}
-.sw-toast button{padding:5px 12px;border-radius:7px;background:var(--acc);color:#FFFDF8;
-  font-size:12.5px;font-weight:650;white-space:nowrap}
+.sw-toast button{padding:var(--k-4) var(--k-11);border-radius:7px;background:var(--acc);color:#FFFDF8;
+  font-size:var(--t-3);font-weight:650;white-space:nowrap}

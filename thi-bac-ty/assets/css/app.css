@@ -18,6 +18,18 @@
   --don:"JetBrains Mono",ui-monospace,Consolas,monospace;
   --dur:.22s;
 }
+/* ── THANG CHỮ ─────────────────────────────────────
+   Sinh bởi scripts/thang.mjs từ chính số của cung này: 16 giá trị
+   px rời rạc gom thành 8 nấc, số dịch nhiều nhất 5.3%.
+   Nấc lấy số DÙNG NHIỀU NHẤT của mỗi cụm, nên số phổ biến đứng yên
+   và chỉ số lẻ bị kéo về.
+
+   Thêm giá trị mới thì thêm NẤC, đừng viết px thẳng vào rule. */
+:root{
+  --t-0:10px;  --t-1:10.5px;  --t-2:11.5px;  --t-3:12.5px;
+  --t-4:14px;  --t-5:15.5px;  --t-6:23px;  --t-7:27px;
+}
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:16px}
 body{margin:0;background:var(--nen);color:var(--chu);
@@ -39,15 +51,15 @@ code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
   border-radius:10px;background:var(--tau-t);color:var(--tau);
   border:1px solid rgba(217,164,65,.3)}
 .hieu .dau svg{width:21px;height:21px}
-.hieu b{display:block;font-size:15px}
-.hieu i{display:block;font-style:normal;font-size:11.5px;color:var(--mo);
+.hieu b{display:block;font-size:var(--t-5)}
+.hieu i{display:block;font-style:normal;font-size:var(--t-2);color:var(--mo);
   line-height:1.35;margin-top:1px}
 
 .bnhom{margin-bottom:10px}
-.blab{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+.blab{font-size:var(--t-1);font-weight:700;letter-spacing:.09em;text-transform:uppercase;
   color:var(--mo2);padding:10px 9px 6px}
 .bmuc{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
-  padding:8px 9px;border-radius:7px;color:var(--mo);font-size:13.5px;
+  padding:8px 9px;border-radius:7px;color:var(--mo);font-size:var(--t-4);
   font-weight:500;border:0;background:none;cursor:pointer;
   transition:background var(--dur) ease,color var(--dur) ease}
 .bmuc:hover{background:rgba(255,255,255,.04);color:var(--chu)}
@@ -67,8 +79,8 @@ code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
 .dinh{display:flex;gap:22px;justify-content:space-between;align-items:flex-start;
   flex-wrap:wrap;padding-bottom:20px;margin-bottom:20px;
   border-bottom:1px solid var(--line)}
-.dinh h1{font-size:27px}
-.phu{margin:8px 0 0;max-width:62ch;color:var(--mo);font-size:14px}
+.dinh h1{font-size:var(--t-7)}
+.phu{margin:8px 0 0;max-width:62ch;color:var(--mo);font-size:var(--t-4)}
 .phu b{color:var(--chu);font-weight:600}
 .dau-so{display:flex;gap:8px;flex-wrap:wrap}
 .vien{font:12px/1 var(--don);padding:7px 11px;border-radius:999px;
@@ -78,7 +90,7 @@ code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
 .vien.canh{color:var(--cam);border-color:rgba(217,130,43,.4)}
 .vien.xau{color:var(--do);border-color:rgba(229,83,75,.4)}
 
-.canh-tinh{padding:11px 15px;border-radius:9px;margin-bottom:18px;font-size:13.5px;
+.canh-tinh{padding:11px 15px;border-radius:9px;margin-bottom:18px;font-size:var(--t-4);
   background:rgba(217,130,43,.09);border:1px solid rgba(217,130,43,.32);
   color:#E9BE86}
 .canh-tinh.nang{background:rgba(229,83,75,.09);
@@ -86,14 +98,14 @@ code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
 
 .o{background:var(--card);border:1px solid var(--line);border-radius:13px;
   padding:18px 20px;margin:0 0 18px}
-.o>h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+.o>h2{font-size:var(--t-2);letter-spacing:.08em;text-transform:uppercase;
   color:var(--mo);margin-bottom:14px}
-.o h3{font-size:15.5px;margin:22px 0 8px;color:var(--tau)}
+.o h3{font-size:var(--t-5);margin:22px 0 8px;color:var(--tau)}
 .o h3:first-of-type{margin-top:4px}
-.o p{margin:0 0 10px;max-width:74ch;font-size:14px;color:#C9D3DC}
+.o p{margin:0 0 10px;max-width:74ch;font-size:var(--t-4);color:#C9D3DC}
 .o p b{color:var(--chu)}
-.nho{font-size:13px !important;color:var(--mo) !important}
-.giai{font-size:12.5px;color:var(--mo2);margin:12px 0 0;max-width:78ch;
+.nho{font-size:var(--t-3) !important;color:var(--mo) !important}
+.giai{font-size:var(--t-3);color:var(--mo2);margin:12px 0 0;max-width:78ch;
   line-height:1.65}
 
 pre.vd{font:12.5px/1.7 var(--don);background:#080B10;border:1px solid var(--line);
@@ -107,12 +119,12 @@ table{border-collapse:collapse;width:100%;font:12.5px/1.5 var(--don);min-width:6
 th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);
   white-space:nowrap}
 th:first-child,td:first-child,th.trai,td.trai{text-align:left}
-th{color:var(--mo);font-weight:600;font-size:10.5px;text-transform:uppercase;
+th{color:var(--mo);font-weight:600;font-size:var(--t-1);text-transform:uppercase;
   letter-spacing:.05em}
 tbody tr:hover{background:rgba(255,255,255,.025)}
 .duong{color:var(--luc)} .am{color:var(--do)} .nhat{color:var(--mo2)}
 .qua{color:var(--luc);font-weight:600} .chan{color:var(--cam)}
-.vi{font-size:11.5px;color:var(--mo);white-space:normal;
+.vi{font-size:var(--t-2);color:var(--mo);white-space:normal;
   max-width:400px;text-align:left;line-height:1.5}
 
 .luoi{display:grid;gap:10px;
@@ -120,12 +132,12 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .so{background:#080B10;border:1px solid var(--line);border-radius:9px;
   padding:11px 13px}
 .so .n{font:700 21px/1.2 var(--don)}
-.so .t{font-size:11px;color:var(--mo);margin-top:4px}
+.so .t{font-size:var(--t-1);color:var(--mo);margin-top:4px}
 
-.trong{color:var(--mo);font-size:14px;margin:0}
+.trong{color:var(--mo);font-size:var(--t-4);margin:0}
 
 .chan-trang{border-top:1px solid var(--line);margin-top:26px;padding-top:16px}
-.chan-trang p{margin:0;font-size:12.5px;color:var(--mo2);max-width:80ch}
+.chan-trang p{margin:0;font-size:var(--t-3);color:var(--mo2);max-width:80ch}
 
 @media (max-width:900px){
   .khung{grid-template-columns:1fr}
@@ -135,7 +147,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   .ben[data-mo="1"]{transform:none}
   .ben-nut{display:grid}
   .chinh{padding:22px 16px 74px}
-  .dinh h1{font-size:23px}
+  .dinh h1{font-size:var(--t-6)}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -164,20 +176,20 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .tt{margin:16px 0 0;border:1px solid var(--line);border-left:2px solid var(--tau);
   border-radius:0 10px 10px 0;background:var(--card);overflow:hidden}
 .tt-d{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0;padding:11px 15px;
-  font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--chu);
+  font-size:var(--t-2);letter-spacing:.06em;text-transform:uppercase;color:var(--chu);
   background:var(--card);border-bottom:1px solid var(--line)}
 .tt-n{margin-left:auto;font:10.5px/1 var(--don);letter-spacing:0;text-transform:none;color:var(--mo)}
-.tt-y{margin:0;padding:12px 15px;font-size:13px;line-height:1.7;color:var(--chu);
+.tt-y{margin:0;padding:12px 15px;font-size:var(--t-3);line-height:1.7;color:var(--chu);
   background:var(--card);border-bottom:1px solid var(--line)}
 .tt-luoi{display:grid;gap:9px;padding:13px 15px;background:var(--card);
   grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
 .tt-k{padding:9px 11px;background:var(--nen);border:1px solid var(--line);border-radius:8px}
 .tt-kd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px}
-.tt-kd b{font-size:12.5px;color:var(--chu)}
-.tt-k p{margin:0;font-size:12.2px;line-height:1.62;color:var(--mo)}
+.tt-kd b{font-size:var(--t-3);color:var(--chu)}
+.tt-k p{margin:0;font-size:var(--t-3);line-height:1.62;color:var(--mo)}
 .tt-vt{font:10.5px/1 var(--don);color:var(--mo)}
 
-.tt-g{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.05em;
+.tt-g{font-style:normal;font-size:var(--t-0);font-weight:700;letter-spacing:.05em;
   text-transform:uppercase;padding:2px 6px;border-radius:5px;white-space:nowrap}
 .tt-g[data-g="sach"]{color:var(--tt-sach);background:var(--tt-sach-n)}
 .tt-g[data-g="tacGia"]{color:var(--tt-tacgia);background:var(--tt-tacgia-n)}
@@ -186,17 +198,17 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 .tt-g[data-g="web"]{color:var(--tt-web);background:var(--tt-web-n)}
 
 .tt-26{padding:0 15px 13px;background:var(--card)}
-.tt-26 h4{margin:0 0 8px;font-size:10px;font-weight:700;letter-spacing:.11em;
+.tt-26 h4{margin:0 0 8px;font-size:var(--t-0);font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--mo)}
 .tt-26 p{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:0 0 8px;
-  font-size:12.2px;line-height:1.62;color:var(--mo)}
+  font-size:var(--t-3);line-height:1.62;color:var(--mo)}
 .tt-26 p:last-child{margin-bottom:0}
 .tt-26 b{color:var(--chu)}
 .tt-loai{font:10.5px/1 var(--don);color:var(--tt-repo)}
-.tt-tin{font-size:10px;color:var(--mo)}
+.tt-tin{font-size:var(--t-0);color:var(--mo)}
 .tt-vi{flex:1 1 100%;color:var(--mo)}
 .tt-chan{margin:0;padding:10px 15px;border-top:1px solid var(--line);background:var(--card);
-  font-size:11.3px;line-height:1.6;color:var(--mo)}
+  font-size:var(--t-2);line-height:1.6;color:var(--mo)}
 /* Dòng nối vào chân trang, nói lát cắt tri thức đến từ đâu. */
 .tt-chan-dong{color:var(--mo)}
 
@@ -214,3 +226,16 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
   border:1px solid var(--vien,rgba(255,255,255,.22));text-decoration:none;
   transform:translateY(-260%);transition:transform .14s ease}
 .bo-qua:focus{transform:translateY(0)}
+
+/* Số cùng bề rộng, khai ở GỐC để di truyền cả trang. Cung này vẽ
+   lại số mỗi lượt cập nhật; thiếu dòng này thì mỗi lượt là một lần
+   các cột số nhảy ngang dưới mắt người đang đọc.
+   Khai một chỗ chứ không ở từng khối mono — quên một khối là đúng
+   cột đó nhảy, và đó là thứ không ai soi lại. */
+body{font-variant-numeric:tabular-nums}
+
+/* Tiêu điểm bàn phím phải THẤY ĐƯỢC. Đây là lỗi không ai phát hiện
+   cho tới lúc thử rời chuột ra — và tới lúc đó thì người dùng bàn
+   phím đã lạc giữa trang từ lâu.
+   :focus-visible chứ không :focus, để bấm chuột không vẽ vòng. */
+:focus-visible{outline:2px solid var(--nhan,#5b9dff);outline-offset:2px;border-radius:4px}
