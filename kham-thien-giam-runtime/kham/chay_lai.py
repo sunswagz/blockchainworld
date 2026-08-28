@@ -117,6 +117,22 @@ class ThamSo:
 def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
     """Chạy lại toàn bộ băng với MỘT bộ tham số."""
     kq = KetQua(ten=ts.ten)
+    # MỖI CỬA SỔ CHỈ VÀO MỘT LẦN.
+    #
+    # Băng ghi nhịp 2 giây, nên một khung 5 phút xuất hiện trong ~44 khung
+    # hình. Bản đầu chấm từng khung hình một, tức là đếm cùng một cửa sổ
+    # thành 44 lệnh độc lập — và ra lãi 2,9 TRIỆU đô trên một tài khoản
+    # 1.000 đô mà không ai chớp mắt.
+    #
+    # Sai đó không chỉ phóng đại con số: nó còn làm lệch cả phép SO SÁNH,
+    # vì hai bộ tham số vào lệnh ở những khung hình khác nhau thì bị đếm
+    # lặp khác nhau. Một phép chạy lại đếm lặp thì không bác bỏ được gì.
+    #
+    # Vào MỘT lần cho mỗi (cửa sổ, bên), tại khung hình ĐẦU TIÊN mà cơ hội
+    # qua sàng — đúng hành vi của máy thật: thấy tín hiệu thì vào, không
+    # vào lại mỗi hai giây.
+    daVao: set[tuple[str, str]] = set()
+
     def bo(ly: str) -> None:
         kq.boQua[ly] = kq.boQua.get(ly, 0) + 1
 
@@ -154,6 +170,10 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
                 kq.tongNetEdge += ch.netEdge
                 if ch.netEdge < ts.netEdgeToiThieu:
                     continue
+                khoa = (tt.get("slug") or ma, ben)
+                if khoa in daVao:
+                    bo("cửa sổ này đã vào rồi"); continue
+                daVao.add(khoa)
                 kq.soQuaSang += 1
 
                 # Kết quả chỉ dùng để CHẤM, không chảy ngược vào quyết định.
