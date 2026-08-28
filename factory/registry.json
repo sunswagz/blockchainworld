@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T15:46:14.611Z",
+  "generatedAt": "2026-08-28T19:31:43.890Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -72,8 +72,14 @@
       "nhip": 24,
       "lenh": "tien-hoa.mjs de-bai → claude-code-action → tien-hoa.mjs cong --so",
       "ra": [
+        "dai-quan-trac/index.html",
         "dai-quan-trac/assets/css/app.css",
+        "dai-quan-trac/assets/css/halls.css",
         "dai-quan-trac/assets/js/app.js",
+        "dai-quan-trac/assets/js/trang/dong.js",
+        "dai-quan-trac/assets/js/trang/bang.js",
+        "dai-quan-trac/assets/js/trang/soi.js",
+        "dai-quan-trac/assets/js/trang/nen.js",
         "dai-quan-trac/sw.js"
       ],
       "y": "Phiếu đo bảy thước tự đo được chỉ ra điểm yếu, cầu nối Tàng Thư Các chọn skill khớp đúng điểm yếu đó, model đề xuất bản vá, rồi cổng chặn quyết định nhận hay trả lại. Model nằm giữa hai lớp số học nó không viết ra. Phiếu đầy đủ thì KHÔNG gọi model.",

@@ -837,9 +837,19 @@ jobs:
             Chọn MỘT điểm yếu — cái có số đo tệ nhất — và sửa DUY NHẤT nó.
             Đọc 1–2 skill khớp trước khi sửa nếu thấy cần.
 
-            CHỈ được sửa hai file:
+            CHỈ được sửa những file này:
+              dai-quan-trac/index.html
               dai-quan-trac/assets/css/app.css
+              dai-quan-trac/assets/css/halls.css
               dai-quan-trac/assets/js/app.js
+              dai-quan-trac/assets/js/trang/dong.js
+              dai-quan-trac/assets/js/trang/bang.js
+              dai-quan-trac/assets/js/trang/soi.js
+              dai-quan-trac/assets/js/trang/nen.js
+
+            Chú ý assets/js/soi.js và assets/js/trang/soi.js là HAI
+            file khác nhau. Cái ở trang/ là hàm vẽ, được sửa; cái ở
+            gốc là nội dung, không được sửa.
 
             Luật, vi phạm luật nào cũng làm CẢ bản vá bị trả lại:
             · KHÔNG sửa file nào khác. Không đụng data.js, tq/data.js,
@@ -857,10 +867,20 @@ jobs:
       # hợp "vẫn chạy nhưng XẤU ĐI" mà năm phép kia không thấy: đổi
       # màu thành khó nhìn, gỡ một nhãn, phình file.
       #
-      # Trước đó còn một phép của riêng node này: model chỉ được sửa
-      # app.css và app.js. Chạm ra ngoài là trả lại cả thư mục, kể cả
-      # khi cổng chặn xanh — vì sửa data.js hay tin.js thì không phải
+      # Trước đó còn một phép của riêng node này: bản vá chỉ được chạm
+      # những file GIAO DIỆN viết tay. Ra ngoài là trả lại cả bản vá, kể
+      # cả khi cổng chặn xanh — sửa data.js hay tin.js thì không phải
       # tiến hoá giao diện nữa.
+      #
+      # Danh sách này từng chỉ có app.css và app.js, đúng vào ngày app.js
+      # còn giữ cả 16 hàm vẽ. Sau khi 16 hàm ấy tách sang assets/js/trang/
+      # thì phần lớn giao diện nằm NGOÀI phạm vi của chính vòng sửa giao
+      # diện, và model sửa đúng chỗ cần sửa lại làm hỏng cả lượt.
+      #
+      # Vẫn ở ngoài, có lý do: halls.js và v/tri-thuc.js do máy sinh nên
+      # sửa tay là mất ở lượt sinh sau; khung.js là lớp phương pháp chứ
+      # không phải lớp vẽ; pwa.js đụng vòng đời service worker, hỏng ở
+      # đó thì người dùng kẹt bản cũ mà cổng chặn không thấy.
       - name: Cổng chặn — nhận hay trả lại
         id: n-th-cong
         if: always() && steps.n-th-va.outcome != 'skipped'
@@ -873,7 +893,20 @@ jobs:
           [ -f "$BAN_TRUOC" ] || : > "$BAN_TRUOC"
           # MOI = thứ bản vá làm bẩn, đã trừ thứ đã bẩn từ trước.
           MOI=$(git diff --name-only "$MOC" -- dai-quan-trac | grep -vxF -f "$BAN_TRUOC" || true)
-          CHO='dai-quan-trac/assets/css/app.css dai-quan-trac/assets/js/app.js'
+          # Danh sách này phải khớp lời nhắc ở bước trên. Lệch nhau là
+          # model làm đúng lời dặn rồi vẫn bị trả lại — không log nào nói
+          # ra chỗ lệch, vì cả hai bên đều đang tự cho là mình đúng.
+          CHO='dai-quan-trac/index.html
+               dai-quan-trac/assets/css/app.css
+               dai-quan-trac/assets/css/halls.css
+               dai-quan-trac/assets/js/app.js
+               dai-quan-trac/assets/js/trang/dong.js
+               dai-quan-trac/assets/js/trang/bang.js
+               dai-quan-trac/assets/js/trang/soi.js
+               dai-quan-trac/assets/js/trang/nen.js'
+          # `echo` không bọc nháy: gộp mọi xuống dòng và thụt lề thành
+          # một dấu cách, để phép so `*" $f "*` bên dưới còn khớp được.
+          CHO=$(echo $CHO)
           NGOAI=''
           for f in $MOI; do
             case " $CHO " in *" $f "*) ;; *) NGOAI="$NGOAI $f" ;; esac
