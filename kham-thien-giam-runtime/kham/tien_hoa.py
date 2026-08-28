@@ -45,6 +45,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .bang import doc_bang
+from .chay_lai import ThamSo as ChayLaiThamSo
+from .chay_lai import mot_luot as chay_lai_mot_luot
 from .chan_doan import (NUT_THEO_DUONG, NUT_VAN, TrieuChung, chan_doan,
                         de_bai, doc_tham_so, kep)
 from .chay_lai import ThamSo, doi_chieu
@@ -80,6 +82,7 @@ class KetQuaTienHoa:
     luc: str
     soKhungBang: int
     soLenhKetToan: int
+    nguonMau: str = "that"
     trieuChung: list[dict] = field(default_factory=list)
     deXuat: list[dict] = field(default_factory=list)
     nhan: dict | None = None
@@ -92,6 +95,7 @@ class KetQuaTienHoa:
         return {
             "luc": self.luc, "soKhungBang": self.soKhungBang,
             "soLenhKetToan": self.soLenhKetToan,
+            "nguonMau": self.nguonMau,
             "trieuChung": self.trieuChung, "deXuat": self.deXuat,
             "nhan": self.nhan, "traLai": self.traLai,
             "kyVongTruoc": self.kyVongTruoc, "kyVongSau": self.kyVongSau,
@@ -294,12 +298,38 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
 
     bo_qua = _dem_bo_qua(khung)
 
+    # ── mẫu để chẩn: THẬT trước, mô phỏng sau ─────────────────────────
+    #
+    # Cỗ máy này có thể chạy hàng tuần mà chưa đặt lệnh nào — đường tới
+    # sàn đứt, hoặc chưa cơ hội nào qua sàng. Lúc đó `chan_doan` chỉ trả
+    # đúng một câu: "chưa đủ để chẩn gì". Câu ấy đúng, nhưng nó khoá luôn
+    # vòng tiến hoá: 12/12 lượt đứng yên, không tham số nào từng đổi.
+    #
+    # Nay khi sổ thật còn mỏng thì dựng mẫu từ CHẠY LẠI trên băng đã ghi —
+    # việc này làm được kể từ khi có sổ kết quả. Nhưng mẫu mô phỏng lạc
+    # quan có hệ thống (không trượt thêm, không khớp một phần, không chọn
+    # lọc bất lợi), nên nó đi kèm nhãn `nguonMau` và nhãn ấy theo xuống
+    # tận từng triệu chứng.
+    nguonMau = "that"
+    if len(ket) < TOI_THIEU_MAU and khung:
+        cl = CONFIG["canLoi"]
+        mp = chay_lai_mot_luot(khung, ChayLaiThamSo(
+            ten="mô phỏng", netEdgeToiThieu=float(cl["netEdgeToiThieu"]),
+            bienAnToan=float(cl["bienAnToan"])))
+        if mp.laiLoTungLenh:
+            ket = [{"laiLo": x} for x in mp.laiLoTungLenh]
+            tk = thong_ke(ket)
+            nguonMau = "chay-lai"
+            kq.nguonMau = nguonMau
+            kq.soLenhKetToan = len(ket)
+            kq.kyVongTruoc = None if tk.get("chuaCo") else tk["kyVong"]
+
     # 3. chẩn
     tc = chan_doan(ket, {
         "saiSoTB": hc.sai_so_tuyet_doi_tb(),
         "tongMau": hc.tong_mau,
         "bang": hc.bang(),
-    }, bo_qua)
+    }, bo_qua, nguonMau=nguonMau)
     kq.trieuChung = [t.tom_tat() for t in tc]
 
     if all(t.ma in ("khoe", "thieu-mau") for t in tc):

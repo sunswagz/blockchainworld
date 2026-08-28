@@ -991,6 +991,59 @@ def kiem_ket_qua() -> None:
              so4.lay("a-1") is True and so4.lay("b-2") is False)
 
 
+def kiem_nguon_mau() -> None:
+    print("\n-- Nguon mau: THAT va MO PHONG khong duoc lan ---------------")
+    from kham.chan_doan import chan_doan
+
+    hc = {"saiSoTB": 0.06, "tongMau": 2542, "bang": []}
+
+    # Nhãn phải THEO XUỐNG tận từng triệu chứng, không chỉ nằm ở đâu đó
+    # cấp trên. Một chẩn đoán dựng trên mẫu mô phỏng lạc quan có hệ thống
+    # — không trượt thêm, không khớp một phần, không chọn lọc bất lợi —
+    # nên người đọc phải thấy nhãn ngay chỗ đọc, không phải đi tra.
+    t = chan_doan([], hc, {}, nguonMau="chay-lai")
+    kiem("mẫu mô phỏng → triệu chứng mang nhãn",
+         t and t[0].bangChung.get("nguonMau") == "chay-lai",
+         t[0].bangChung if t else None)
+
+    t2 = chan_doan([], hc, {})
+    kiem("mặc định là mẫu THẬT",
+         t2 and t2[0].bangChung.get("nguonMau") == "that")
+
+    # Đủ mẫu thì phải chẩn được bệnh thật, không dừng ở "thiếu mẫu".
+    lo = [{"laiLo": -1.0} for _ in range(40)]
+    t3 = chan_doan(lo, hc, {}, nguonMau="chay-lai")
+    ma = [x.ma for x in t3]
+    kiem("đủ mẫu + lỗ đều → chẩn ra kỳ vọng âm", "ky-vong-am" in ma, ma)
+    kiem("đủ mẫu thì KHÔNG còn báo thiếu mẫu", "thieu-mau" not in ma, ma)
+
+
+def kiem_tien_hoa_chay_that() -> None:
+    print("\n-- Vong tien hoa: GOI THAT mot luot, khong thay bang lambda ---")
+    from kham.tien_hoa import mot_luot
+
+    # Phép kiểm này tồn tại vì một lỗi đã lọt: tôi thêm một tham số vào
+    # `chan_doan()` rồi dán nhầm nó sang lời gọi `de_bai()`. Cả bộ kiểm
+    # vẫn XANH 281/281, còn `mot_luot()` thì ném `TypeError` ngay dòng đầu
+    # — vì không phép nào gọi nó THẬT. Mọi phép kiểm quanh vòng tiến hoá
+    # đều thay nó bằng một `lambda`, tức là kiểm cái lịch chạy chứ không
+    # kiểm cái được chạy.
+    #
+    # Hàm này là chỗ cả vòng tự tiến hoá đi qua. Nó phải được gọi thật,
+    # dù chỉ trên băng rỗng: chữ ký sai thì gãy ngay đây.
+    kq = mot_luot(thu=True)
+    kiem("gọi thật mot_luot(thu=True) không ném", kq is not None)
+    d = kq.tom_tat()
+    for khoa in ("luc", "soKhungBang", "soLenhKetToan", "trieuChung",
+                 "deXuat", "ghiChu", "nguonMau"):
+        kiem(f"kết quả có khoá `{khoa}`", khoa in d, sorted(d)[:8])
+    kiem("băng rỗng → nguồn mẫu vẫn là THẬT", d["nguonMau"] == "that",
+         d["nguonMau"])
+    kiem("băng rỗng → chẩn ra thiếu mẫu, không vặn gì",
+         any(t.get("ma") == "thieu-mau" for t in d["trieuChung"])
+         and not d["deXuat"])
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1412,6 +1465,8 @@ def main() -> int:
     kiem_nan_lai()
     kiem_khung_dai()
     kiem_ket_qua()
+    kiem_nguon_mau()
+    kiem_tien_hoa_chay_that()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

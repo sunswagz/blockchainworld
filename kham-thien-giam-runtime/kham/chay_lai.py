@@ -44,6 +44,7 @@ from .ket_qua import so_ket_qua as _SO_KQ
 
 @dataclass
 class KetQua:
+    # Lãi lỗ TỪNG lệnh, để chẩn đoán dùng được khi sổ thật còn rỗng.
     """Kết quả một lượt chạy lại."""
     ten: str
     soKhung: int = 0
@@ -56,6 +57,7 @@ class KetQua:
     soThua: int = 0
     thuaLonNhat: float = 0.0
     boQua: dict[str, int] = field(default_factory=dict)
+    laiLoTungLenh: list = field(default_factory=list)
 
     @property
     def netEdgeTrungBinh(self) -> float:
@@ -194,6 +196,7 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
                 tra = 1.0 if (bool(that) == (ben == "UP")) else 0.0
                 lai = (tra - ch.vwap - ch.phi) * ch.soCo
                 kq.tongLaiLo += lai
+                kq.laiLoTungLenh.append(lai)
                 if lai > 0:
                     kq.soThang += 1
                 else:
