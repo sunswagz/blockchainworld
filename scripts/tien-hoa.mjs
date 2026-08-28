@@ -814,6 +814,75 @@ function kyNang(phieu) {
   return { tongSkill: tatCa.length, tuKhoa: tu, yeu, skill, quetLuc: kho.generatedAt || null };
 }
 
+/* ── ỨNG VIÊN MỚI TỪ DÒ KHO ────────────────────────────────
+   kyNang() ở trên có hai chỗ hẹp, và cả hai đều cố ý: nó chỉ nhìn
+   nhóm "giao-dien" và "lap-trinh", và chỉ khớp theo từ khoá của
+   thước ĐANG TRƯỢT. Hẹp như vậy thì lượt vá bám sát điểm yếu —
+   nhưng cái giá là vòng tiến hoá KHÔNG BAO GIỜ tự tìm ra thứ đáng
+   học mà ta chưa nghĩ tới việc đo. Bốn lĩnh vực kiểm thử · dữ liệu
+   · hạ tầng · nghiên cứu không có cửa nào vào đề bài.
+
+   scripts/do-kho.mjs quét cả 3.696 kỹ năng mỗi tuần theo sáu lĩnh
+   vực, bỏ những cái đã khai thác, và để đề xuất ở
+   factory/kho-de-xuat.json. Ở đây ghép hai mục đầu bảng vào ĐUÔI
+   `kyNang` — đúng cái khoá mà cả bảy đề bài đã dặn model đọc bằng
+   WebFetch. Nối ở một chỗ này thì bảy vòng cùng hưởng; sửa bảy
+   prompt là bảy cơ hội sót một cung.
+
+   HAI mục thôi, và ở đuôi. Đây là gợi ý mở rộng chứ không phải việc
+   chính của lượt: để nhiều hơn thì phần khớp-với-điểm-yếu bị loãng,
+   và model có 24 lượt gọi chứ không vô hạn.
+
+   Đổi `doc` sang đường raw. Bản dò ghi đường blob của github.com —
+   đọc được, nhưng đó là cả một trang HTML cho một file văn bản, và
+   nó khác đường mà kyNang() đang dùng. Hai kiểu đường cho cùng một
+   loại tài liệu là thứ sớm muộn có người sửa nhầm một bên. */
+function themUngVienMoi(k) {
+  try {
+    const p = join(ROOT, "factory", "kho-de-xuat.json");
+    if (!co(p)) return;
+    const d = JSON.parse(doc(p));
+    if (!Array.isArray(d.deXuat)) return;
+    const daCo = new Set(k.skill.map((s) => s.kho + "/" + s.duong));
+
+    /* XOAY VÒNG, không đánh dấu "đã dùng".
+       Cách hiển nhiên là ghi mục đã đưa vào sổ kho-da-dung.json rồi
+       lượt sau bỏ qua. Nó hỏng ở đây vì hai lẽ đo được:
+       — Kho đề xuất chỉ giữ 5–6 mục, mà mỗi ngày có BẢY cung chạy
+         de-bai. Đánh dấu thì hết sạch trong một ngày, rồi sáu ngày
+         còn lại không cung nào thấy gì cho tới lượt quét tuần sau.
+       — "Đã đưa tới model" không phải "đã dùng". Ghi vào sổ khai
+         thác một thứ model có thể đã đọc lướt rồi bỏ là làm sổ đó
+         nói dối, và sổ ấy chính là thứ quyết định lượt quét sau bỏ
+         qua cái gì.
+       Xoay theo (ngày, cung) thì mỗi cung mỗi ngày thấy một cặp
+       khác, qua một tuần cả kho được đọc nhiều lượt bởi nhiều cung,
+       và không phải ghi gì cả — de-bai chạy trên runner, thêm một
+       file phải commit là thêm một chỗ hỏng. */
+    const ngay = Math.floor(Date.now() / 86400000);
+    let bam = 0;
+    for (const c of CUNG) bam = (bam * 31 + c.charCodeAt(0)) % 9973;
+    const batDau = d.deXuat.length ? (ngay + bam) % d.deXuat.length : 0;
+    const xoay = d.deXuat.map((_, i) => d.deXuat[(batDau + i) % d.deXuat.length]);
+
+    for (const u of xoay) {
+      if (k.skill.filter((s) => s.moi).length >= 2) break;
+      if (!u.kho || !u.duong || daCo.has(u.kho + "/" + u.duong)) continue;
+      k.skill.push({
+        ten: u.ten, kho: u.kho, duong: u.duong, nhom: "do-kho", sao: null,
+        giayPhep: u.giayPhep || null, khop: u.lv || [],
+        moTa: (u.mo || "").slice(0, 220),
+        moi: true,
+        vi: "MỚI dò được từ Tàng Thư Các, chưa cung nào dùng. Không bắt " +
+            "buộc phải theo — đọc, và chỉ áp dụng nếu nó thật sự hợp cung này.",
+        doc: `https://raw.githubusercontent.com/${u.kho}/HEAD/${u.duong}/SKILL.md`
+      });
+    }
+  } catch { /* Dò kho hỏng KHÔNG được phép chặn vòng tiến hoá: đây là
+                phần thêm, không phải phần chính. Im lặng bỏ qua rồi
+                lượt sau dò lại. */ }
+}
+
 /* ═══════════════ CỔNG CHẶN ═══════════════
 
    Không có cổng thì đây không phải vòng tiến hoá — chỉ là một cái
@@ -924,6 +993,7 @@ if (LENH === "do") {
 } else if (LENH === "de-bai") {
   const phieu = do_();
   const k = kyNang(phieu);
+  themUngVienMoi(k);
 
   /* ── THƯỚC NÀO CHỮA KHÔNG BẰNG GIAO DIỆN THÌ PHẢI NÓI RA ────
      Một thước trượt không tự nói cách chữa nó nằm ở đâu. Model
