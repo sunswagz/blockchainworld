@@ -63,5 +63,8 @@
     "moiCoHoiUsd": 100.0,
     "toiDaUsd": 300.0,
     "donBayToiDa": 1.0
+  },
+  "trungUong": {
+    "vonBanDauUsd": 10000.0
   }
 }
