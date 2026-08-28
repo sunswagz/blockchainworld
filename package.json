@@ -38,7 +38,8 @@
     "tri-thuc": "node knowledge-os/sinh.mjs",
     "tri-thuc-kiem": "node knowledge-os/kiem.mjs",
     "tra": "node knowledge-os/tra.mjs",
-    "tri-thuc-do": "node knowledge-os/do.mjs"
+    "tri-thuc-do": "node knowledge-os/do.mjs",
+    "tri-thuc-thu": "node knowledge-os/thu-cong.mjs"
   },
   "engines": {
     "node": ">=18"

@@ -63,7 +63,7 @@ const { DOC_PHONG, docMaPhong } = await import("./ma-phong.mjs");
 /* ── đo ──────────────────────────────────────────────── */
 async function do_() {
   const diem = [];
-  const cham = (ma, ten, dat, y) => diem.push({ ma, ten, dat, y });
+  const cham = (ma, ten, dat, y, n) => diem.push({ ma, ten, dat, y, ...(typeof n === "number" ? { n } : {}) });
 
   const idSach = new Set(C.map((x) => x.id));
   const id26 = new Set(C26.map((x) => x.id));
@@ -190,6 +190,44 @@ async function do_() {
   cham("nguon-co-that", "Nguồn lớp repo trỏ vào đường có thật", bia.length === 0,
     bia.length ? `${bia.length} đường không tồn tại: ${bia.slice(0, 3).join(", ")}` : "mọi đường đều có trên đĩa");
 
+  /* 8. PHÁN QUYẾT 2026 — sách viết năm 2018. Một khái niệm sách không
+        có dòng nào nói "từ đó tới nay chuyện gì đã xảy ra với nó" thì
+        lớp 2026 chưa chạm tới nó, và trang chỉ nói được nửa câu.
+
+        VÌ SAO CÓ THƯỚC NÀY, và nói thẳng: bảy thước kia đều hỏi "có
+        gì hỏng không". Hỏng thì sửa xong là hết, nên chúng cùng xanh
+        và ở nguyên đó. Vòng tiến hoá tri thức đọc `de-bai` từ chính
+        phiếu này, nên bảy thước xanh nghĩa là `yeu=0`, nghĩa là model
+        KHÔNG BAO GIỜ được gọi. Vòng đã dựng xong mà nằm im — thứ tệ
+        hơn một vòng chưa dựng, vì nhìn vào sổ thì nó có vẻ đang chạy.
+
+        Nên thước này hỏi chuyện khác: lớp 2026 đã PHỦ tới đâu. Nó là
+        thước duy nhất trong bảy — nay tám — mà làm việc mới thì mới
+        nhích lên được.
+
+        MỐC LÀ MỘT NỬA, KHÔNG PHẢI TẤT CẢ, và có lý do. Trong 48 khái
+        niệm sách có những cái thuần định nghĩa (`economic_value`,
+        `unit_of_account`) mà 2018→2026 thật sự không có tin gì. Đòi
+        đủ 48 là dựng một thước không bao giờ xanh nổi, đúng cái hỏng
+        mà repo này đã ghi lại nhiều lần. Một nửa thì tới được, và tới
+        rồi thì thước đứng lại chứ không đòi thêm.
+
+        KHÔNG có danh sách khai-bỏ-qua ở đây, khác thước "phủ phòng",
+        và khác có chủ ý: danh sách ấy sẽ nằm trong lớp 2026 hoặc lớp
+        cầu nối — hai lớp model ĐƯỢC PHÉP sửa. Cho model tự khai miễn
+        trừ là cho nó tự chấm mình đạt mà không làm gì. */
+  const noi26 = new Set();
+  for (const r of R26) { noi26.add(r.from); noi26.add(r.to); }
+  const daPhanQuyet = C.filter((x) => noi26.has(x.id));
+  const MOC = Math.ceil(C.length / 2);
+  cham("phan-quyet-2026", "Khái niệm sách có phán quyết 2026",
+    daPhanQuyet.length >= MOC,
+    `${daPhanQuyet.length}/${C.length} · mốc ${MOC}` +
+    (daPhanQuyet.length >= MOC ? "" :
+      ` · còn thiếu ${MOC - daPhanQuyet.length}, ví dụ: ` +
+      C.filter((x) => !noi26.has(x.id)).slice(0, 3).map((x) => x.id).join(", ")),
+    daPhanQuyet.length);
+
   return {
     luc: new Date().toISOString(),
     dat: diem.filter((d) => d.dat === true).length,
@@ -284,12 +322,35 @@ if (LENH === "de-bai") {
 }
 
 if (LENH === "cong") {
-  /* CỔNG CHẶN — ba lớp, theo đúng thứ tự đắt dần:
+  /* CỔNG CHẶN — ba lớp:
        1. validator phải qua       (dữ liệu không được hỏng)
-       2. phiếu không được tụt     (bản vá phải tiến, hoặc ít nhất giữ)
-       3. sinh lại phải chạy được  (lát cắt phải dựng được từ dữ liệu mới) */
+       2. sinh lại phải chạy được  (lát cắt phải dựng được từ dữ liệu mới)
+       3. phiếu không được tụt     (bản vá phải tiến, hoặc ít nhất giữ)
+
+     THỨ TỰ NÀY LÀ BẮT BUỘC, và bản đầu xếp sai. Bản đầu chấm phiếu
+     trước rồi mới sinh lại, "cho rẻ trước, đắt sau". Nhưng thước
+     `lat-cat-tuoi` hỏi "lát cắt có khớp dữ liệu hiện tại không" — mà
+     ngay sau khi model sửa dữ liệu thì câu trả lời LUÔN là không, cho
+     tới khi sinh lại. Nên phiếu tụt ở lớp 2 và MỌI bản vá hợp lệ đều
+     bị trả lại: một lượt Opus mỗi ngày, vĩnh viễn, không lượt nào
+     được nhận, và sổ ghi "loi" mà không ai đọc ra vì sao.
+
+     Đúng cái bẫy đã giết vòng Đài Quan Trắc chín lượt liền: so với một
+     trạng thái mà chính các bước trước đó đã làm bẩn.
+
+     Bộ thử `thu-cong.mjs` bắt được nó ngay lượt chạy đầu tiên. Nếu ai
+     đổi lại thứ tự "cho rẻ trước", kịch bản 1 sẽ đỏ. */
   if (!kiemQua()) {
     console.log("✗ Cổng chặn: validator KHÔNG qua — trả lại.");
+    process.exit(1);
+  }
+
+
+  try {
+    execFileSync(process.execPath, [join(GOI, "sinh.mjs")], { stdio: "pipe" });
+  } catch (e) {
+    console.log("✗ Cổng chặn: sinh lát cắt HỎNG — trả lại.");
+    process.stdout.write(String(e.stdout || "").slice(0, 600));
     process.exit(1);
   }
 
@@ -307,14 +368,22 @@ if (LENH === "cong") {
       }
       process.exit(1);
     }
-  }
 
-  try {
-    execFileSync(process.execPath, [join(GOI, "sinh.mjs")], { stdio: "pipe" });
-  } catch (e) {
-    console.log("✗ Cổng chặn: sinh lát cắt HỎNG — trả lại.");
-    process.stdout.write(String(e.stdout || "").slice(0, 600));
-    process.exit(1);
+    /* Thước CÓ SỐ thì số cũng không được tụt, không chỉ đếm ô xanh.
+       Thước "phán quyết 2026" đi từ 12 lên mốc 24, nên trong suốt quãng
+       ấy nó vẫn ĐỎ — và đếm ô xanh thì 12→7 với 12→20 đều là "giữ
+       nguyên 7/8", đều qua cổng. Tức là model xoá năm quan hệ rồi thêm
+       một cái cũng được nhận, và lượt sau lại được ra đúng đề ấy.
+       Thước có số mà cổng không đọc số thì phần thang đo ở giữa hai
+       đầu là vô nghĩa. */
+    for (const d of p.diem) {
+      if (typeof d.n !== "number") continue;
+      const cu = goc.diem.find((x) => x.ma === d.ma);
+      if (cu && typeof cu.n === "number" && d.n < cu.n) {
+        console.log(`✗ Cổng chặn: "${d.ten}" TỤT ${cu.n} → ${d.n} — trả lại.`);
+        process.exit(1);
+      }
+    }
   }
 
   console.log(`✓ Cổng chặn: tri thức qua cả ba phép` +
