@@ -69,6 +69,12 @@ SUC_CHUA_CON_THIEU = ("duong-cong-lai-suat", "do-sau-thi-truong-that")
 _VON_TOI_THIEU = 500.0
 
 
+#: Số liệu pool cũ hơn ngần này thì THÔI kế toán, không cộng bừa. Ty nhịp
+#: 900 giây mà Trung Ương gọi kế toán mỗi 30 giây, nên tuổi tới 15 phút là
+#: bình thường; gấp đôi thế là nguồn đang hỏng chứ không phải nhịp thưa.
+TUOI_KE_TOAN_TOI_DA_GIAY = 1800.0
+
+
 class TyTinDung(Ty):
     ma = MA_CHIEN_LUOC
     ho = HO
@@ -127,6 +133,72 @@ class TyTinDung(Ty):
 
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
+
+    # ── kế toán: ty ĐẦU TIÊN biết tự cộng lãi cho vị thế của mình ─────────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Lãi cho vay cộng LIÊN TỤC, nên kế toán là một phép nhân thời gian.
+
+        Ba chỗ dễ nói dối, và cả ba đều đóng ở đây:
+
+        **1. Dùng `apyGocPhanTram`, KHÔNG cộng `apyThuongPhanTram`.** Token
+        thưởng sẽ bốc hơi; chính `can_loi.py` của ty này đã loại nó khỏi
+        `netBps` lúc quyết định. Cộng nó vào lúc kế toán là để cỗ máy tự
+        thưởng cho mình bằng thứ nó vừa bảo là không đáng tin — và đường
+        NAV sẽ đẹp hơn sự thật đúng bằng khoản ấy.
+
+        **2. Thị trường không có trong lượt quét gần nhất thì trả
+        `doDuoc=False`, không trả 0.** Pool biến mất khỏi nguồn có thể là
+        nguồn lỗi, có thể là pool đóng — cả hai đều KHÁC "pool trả 0%".
+
+        **3. Rate lấy từ lượt quét của ty, và lượt ấy có TUỔI.** Ty này
+        nhịp 900 giây còn Trung Ương gọi kế toán mỗi 30 giây, nên rate có
+        thể cũ tới 15 phút. Cộng dồn theo từng đoạn ngắn với rate đo được
+        gần nhất là đúng cách tích phân một hàm bậc thang; nhưng quá hạn
+        thì thôi hẳn, vì lúc ấy nó không còn là phép đo nữa.
+        """
+        from thi_bac_ty.ke_toan import NAM_GIAY, KetToanVong
+
+        dt = max(0.0, float(denGiay) - float(tuGiay))
+        if dt <= 0.0:
+            return KetToanVong(vi="chưa qua giây nào kể từ lần kế toán trước")
+
+        cang = (toTrinh.get("cang") or [None])[0]
+        chuoi = (toTrinh.get("chuoi") or [None])[0]
+        taiSan = toTrinh.get("taiSan")
+        t = next((x for x in self.thiTruong
+                  if x.giaoThuc == cang and x.chuoi == chuoi
+                  and x.taiSan == taiSan), None)
+        if t is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"KHÔNG thấy {cang}/{chuoi}/{taiSan} trong lượt quét gần "
+                   f"nhất — pool biến mất khác hẳn pool trả 0%")
+
+        tuoi = t.tuoi_giay()
+        if tuoi is not None and tuoi > TUOI_KE_TOAN_TOI_DA_GIAY:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"số liệu pool cũ {tuoi / 60:.0f} phút > trần "
+                   f"{TUOI_KE_TOAN_TOI_DA_GIAY / 60:.0f} phút, không còn là "
+                   f"phép đo")
+
+        von = sum(abs(float(getattr(c, "vonUsd", 0.0) or 0.0)) for c in viThe)
+        apy = float(t.apyGocPhanTram) / 100.0
+        thu = von * apy * dt / NAM_GIAY
+
+        if apy <= 0.0:
+            return KetToanVong(
+                thuUsd=thu, dongLai=True,
+                lyDoDong=f"APY gốc về {t.apyGocPhanTram:.2f}% — giữ tiếp là "
+                         f"trả phí để không thu gì",
+                vi=f"lãi cho vay {t.giaoThuc} {taiSan}: APY gốc "
+                   f"{t.apyGocPhanTram:.2f}% × {dt / 3600:.4f}h trên "
+                   f"{von:.2f} USD")
+        return KetToanVong(
+            thuUsd=thu,
+            vi=f"lãi cho vay {t.giaoThuc} {taiSan}: APY gốc "
+               f"{t.apyGocPhanTram:.2f}% × {dt / 3600:.4f}h trên {von:.2f} "
+               f"USD (thưởng {t.apyThuongPhanTram:.2f}% KHÔNG tính)")
 
 
 def _chay(coro):

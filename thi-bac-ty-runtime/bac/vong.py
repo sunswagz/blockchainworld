@@ -120,6 +120,24 @@ class _NhipRieng(Ty):
     def trinh(self, co):
         return self._ty.trinh(co)
 
+    # ── việc thứ TƯ: kế toán ─────────────────────────────────────────────
+    #
+    # Uỷ quyền như ba việc kia, và phải viết TAY vì cùng lý do ở trên:
+    # `Ty.ke_toan` có sẵn ở lớp gốc nên tra thuộc tính THÀNH CÔNG (ra hàm
+    # gốc trả `None`) và `__getattr__` không bao giờ chạy.
+    #
+    # Đây là lần thứ BA cùng một kiểu hỏng — sau `kiem_khai` và
+    # `vonToiThieuKinhTeUsd`. Lần này hậu quả là mọi ty có nhịp riêng đều
+    # bị báo "chưa có kế toán": bảy vị thế, 3.500 USD, không đồng lãi nào
+    # được cộng, và buồng lái nói đúng câu ấy nên không ai nghi ngờ mã.
+    # Phép kiểm nay dò MỌI thành viên uỷ quyền được, không chỉ ba cái tên
+    # ai đó nhớ ra.
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        return self._ty.ke_toan(viThe, toTrinh, tuGiay, denGiay)
+
+    def co_ke_toan(self) -> bool:
+        return type(self._ty).co_ke_toan()
+
     # Tiện đọc `._nguon`, `.coHoi`… của ty thật từ buồng lái.
     def __getattr__(self, ten):
         return getattr(self.__dict__["_ty"], ten)

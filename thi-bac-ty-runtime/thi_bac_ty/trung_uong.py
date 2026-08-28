@@ -78,6 +78,8 @@ from .chay_lai_he import doi_chieu, thu_hoach
 from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
 from .doi_soat_vi_the import canh as canh_vi_the, doi_soat as doi_soat_vi_the
+from .ke_toan import (LatCatKeToan, SoViThe, phi_vao_thieu,
+                      phi_vao_usd)
 from .hieu_nang import DuongNav, doi_chieu_giay_that
 from .phan_bo import PhanBo
 from .rui_ro_tong import RuiRoTong
@@ -233,6 +235,13 @@ class TrungUong:
         #: không tự dựng lại — dựng lại thì mỗi lần một mã khác, và người
         #: đọc không nối được tờ trên màn hình với tờ trong sổ đăng ký.
         self.toTrinhVongNay: list = []
+        #: Sổ vị thế đang mở của Trung Ương: mã tờ trình → `SoViThe`.
+        #: Tách khỏi `DanhMuc.viThe` vì Danh Mục trả lời "đang phơi nhiễm
+        #: bao nhiêu", còn sổ này trả lời "đã sống bao lâu, đã cộng dồn
+        #: được gì". Chỉ sống trong RAM — vị thế mô phỏng không mang qua
+        #: được lần khởi động lại, và `doi_soat_vi_the` dọn phần sót ở sổ.
+        self.soViThe: dict[str, SoViThe] = {}
+        self.latCatKeToan = LatCatKeToan()
         #: dấu vân cơ hội → lần cuối vào sổ (giây, đồng hồ đơn điệu)
         self._dauVet: dict[str, float] = {}
         self.soBoTrung = 0
@@ -330,6 +339,12 @@ class TrungUong:
         # Đường NAV ghi ở ĐÂY, sau khi đã cộng vốn ngoài và trước khi phân
         # bổ: đó là ảnh chụp gia sản lúc bắt đầu vòng, và mọi phép đo sụt
         # vốn phải dựa trên cùng một thời điểm trong vòng.
+        # ── 2b. KẾ TOÁN vị thế đang mở, TRƯỚC khi ghi đường NAV ─────────
+        # Thứ tự bắt buộc: kế toán xong thì `navUsd` mới gồm dòng tiền của
+        # vòng này. Ghi đường NAV trước là ghi lại ảnh chụp của vòng
+        # TRƯỚC, và mọi phép đo sụt vốn lệch đi đúng một nhịp.
+        self.latCatKeToan = self._ke_toan_vi_the()
+
         self.duongNav.ghi(self.danh_muc.navUsd)
 
         # ── 3. cầu dao — TRƯỚC khi cam kết bất cứ đồng nào ───────────────
@@ -398,10 +413,140 @@ class TrungUong:
                                        "chân B không khớp, đã đóng gấp")
             elif p.trangThai == "GIU":
                 self.so_dang_ky.chuyen(tt.ma, "DA_MO", "hai chân đã vào")
+                self._mo_so_vi_the(tt, x["capUsd"])
 
         self.latCatCuoi = lat
         self._don_dinh_ky()
         return lat
+
+    # ── kế toán vị thế đang mở ────────────────────────────────────────────
+    def _ke_toan_vi_the(self) -> LatCatKeToan:
+        """Mỗi vòng: hỏi ty "vị thế này thu/mất bao nhiêu", rồi đóng cái
+        đã hết hạn giữ.
+
+        Đây là nửa vòng đời trước 28/08/2026 không tồn tại. Xem
+        `thi_bac_ty/ke_toan.py` để biết vì sao nó không được nằm ở Trung
+        Ương và vì sao ty trả `None` phải được ĐẾM chứ không ngầm là 0.
+        """
+        import time as _time
+        from .ke_toan import LatCatKeToan as _L
+
+        now = _time.time()
+        l = _L()
+        if not self.soViThe:
+            return l
+
+        for ma in list(self.soViThe.keys()):
+            so = self.soViThe.get(ma)
+            if so is None:
+                continue
+            chan = self.danh_muc.viThe.get(ma)
+            if chan is None:
+                # Danh mục không giữ nữa mà sổ còn — đóng gấp đã dọn bên
+                # kia. Bỏ khỏi sổ chứ đừng kế toán cho một thứ không còn.
+                self.soViThe.pop(ma, None)
+                continue
+
+            l.soViThe += 1
+            ty = self.ty.get(so.chienLuoc)
+            kq = None
+            if ty is not None:
+                try:
+                    kq = ty.ke_toan(list(chan), dict(so.toTrinh),
+                                    so.keToanLucGiay, now)
+                except Exception as e:                    # noqa: BLE001
+                    l.loi.append(f"{ma}: ke_toan ném {type(e).__name__}: {e}")
+                    kq = None
+
+            if kq is None:
+                so.coKeToan = False
+                l.soKhongCoKeToan += 1
+                l.vonKhongDuocKeToanUsd += abs(so.vonUsd)
+            else:
+                so.coKeToan = True
+                so.keToanLucGiay = now
+                so.soVongKeToan += 1
+                if not getattr(kq, "doDuoc", True):
+                    so.soVongKhongDoDuoc += 1
+                    l.soVongMu += 1
+                else:
+                    l.soKeToanDuoc += 1
+                    thu = float(getattr(kq, "thuUsd", 0.0) or 0.0)
+                    phi = float(getattr(kq, "phiUsd", 0.0) or 0.0)
+                    if thu:
+                        self.danh_muc.ghi_dong_tien(thu)
+                        so.thuCongDonUsd += thu
+                        l.thuUsd += thu
+                        self.so_cai.ghi(ButToan(
+                            "FUNDING", (getattr(kq, "vi", "") or
+                                        f"thu theo thời gian · {so.chienLuoc}"),
+                            thu, so.chienLuoc, ma,
+                            {"tuGiay": so.keToanLucGiay, "denGiay": now}))
+                    if phi:
+                        self.danh_muc.ghi_dong_tien(-phi)
+                        so.phiCongDonUsd += phi
+                        l.phiUsd += phi
+                        self.so_cai.ghi(ButToan(
+                            "PHI", (getattr(kq, "vi", "") or
+                                    f"phí trong kỳ · {so.chienLuoc}"),
+                            -phi, so.chienLuoc, ma, {}))
+
+            # ── đóng: hết hạn giữ, hoặc ty đòi đóng ──────────────────────
+            lyDo = ""
+            if kq is not None and getattr(kq, "dongLai", False):
+                lyDo = getattr(kq, "lyDoDong", "") or "ty yêu cầu đóng sớm"
+            elif so.giuGio > 0 and so.daGiuGio(now) >= so.giuGio:
+                lyDo = (f"hết hạn giữ: {so.daGiuGio(now):.2f}h "
+                        f"≥ {so.giuGio:.2f}h")
+            if not lyDo:
+                continue
+
+            laiLo = so.thuCongDonUsd - so.phiCongDonUsd
+            if not self.danh_muc.dong(ma, 0.0):
+                l.loi.append(f"{ma}: danh mục từ chối đóng")
+                continue
+            self.so_dang_ky.chuyen(ma, "DA_DONG", lyDo[:400])
+            self.so_cai.ghi(ButToan(
+                "DONG_VI_THE", f"đóng · {lyDo}", 0.0, so.chienLuoc, ma,
+                {"laiLoUsd": laiLo, "thuUsd": so.thuCongDonUsd,
+                 "phiUsd": so.phiCongDonUsd,
+                 "daGiuGio": so.daGiuGio(now),
+                 "soVongKeToan": so.soVongKeToan,
+                 "coKeToan": so.coKeToan}))
+            self.soViThe.pop(ma, None)
+            l.daDong.append({"ma": ma, "chienLuoc": so.chienLuoc,
+                             "laiLoUsd": laiLo, "lyDo": lyDo})
+        return l
+
+    def _mo_so_vi_the(self, tt, vonUsd: float) -> None:
+        """Ghi một vị thế vừa mở vào sổ, và THU PHÍ VÀO ngay lúc này.
+
+        Phí trước, thu nhập sau — cỗ máy nào cũng dễ trông có lãi khi phí
+        được hoãn tới cuối. Hệ quả cố ý: mở rồi đóng ngay là hiện ra một
+        khoản LỖ đúng bằng phí, và đó là sự thật.
+        """
+        import time as _time
+        now = _time.time()
+        d = tt.tom_tat() if hasattr(tt, "tom_tat") else dict(tt)
+        self.soViThe[tt.ma] = SoViThe(
+            ma=tt.ma, chienLuoc=tt.chienLuoc, toTrinh=d, vonUsd=float(vonUsd),
+            moLucGiay=now, keToanLucGiay=now)
+        so = self.soViThe[tt.ma]
+        phi = phi_vao_usd(d, vonUsd)
+        if phi > 0:
+            self.danh_muc.ghi_dong_tien(-phi)
+            so.phiCongDonUsd += phi
+            self.so_cai.ghi(ButToan(
+                "PHI", f"phí vào lệnh · {d.get('phiUocBps')} bps trên "
+                       f"{vonUsd:.2f} USD", -phi, tt.chienLuoc, tt.ma,
+                {"phiUocBps": d.get("phiUocBps"), "vonUsd": vonUsd}))
+        elif phi_vao_thieu(d):
+            # Tờ trình không khai phí thì vị thế vào sổ mà không mất đồng
+            # nào — trông có lãi hơn sự thật. Ghi ra để đếm được.
+            self.so_cai.ghi(ButToan(
+                "PHI", "tờ trình KHÔNG khai `phiUocBps` — vị thế này vào "
+                       "sổ mà không bị trừ phí vào lệnh nào",
+                0.0, tt.chienLuoc, tt.ma, {"phiThieu": True}))
 
     def _don_dinh_ky(self) -> None:
         ngay = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
@@ -651,6 +796,9 @@ class TrungUong:
             "cauDao": self.cau_dao.tom_tat(),
             "doiSoatViThe": self.doiSoatViThe.tom_tat(),
             "doiSoatKhoiDong": self.doiSoatKhoiDong.tom_tat(),
+            "keToan": self.latCatKeToan.tom_tat(),
+            "soViThe": [v.tom_tat(_gio_he()) for v in
+                        list(self.soViThe.values())[:40]],
             "thucThi": self.thuc_thi.tom_tat(),
             "soCai": self.so_cai.tom_tat(),
             "pheuDayDu": self.pheu_day_du(),
@@ -698,6 +846,14 @@ def _hien_phap() -> dict:
         return tom_tat()
     except Exception as e:                                # noqa: BLE001
         return {"loi": f"{type(e).__name__}: {e}"}
+
+
+def _gio_he() -> float:
+    """Giờ hệ thống, giây. Tách khỏi `_monotonic()` vì hai việc khác nhau:
+    đơn điệu dùng cho cửa chống trùng, còn giờ hệ dùng cho tuổi vị thế —
+    và tuổi vị thế phải so được với `moLucGiay` ghi lúc mở."""
+    import time
+    return time.time()
 
 
 def _monotonic() -> float:

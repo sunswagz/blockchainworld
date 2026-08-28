@@ -413,6 +413,11 @@ def _chay(coro):
         return ex.submit(asyncio.run, coro).result()
 
 
+#: Số liệu pool cũ hơn ngần này thì THÔI kế toán. Ty nhịp 1800 giây, nên
+#: tuổi tới nửa giờ là bình thường; gấp đôi thế là nguồn đang hỏng.
+TUOI_KE_TOAN_TOI_DA_GIAY = 3600.0
+
+
 class TyCapThanhKhoan(Ty):
     ma = MA_CHIEN_LUOC
     ho = HO
@@ -471,6 +476,71 @@ class TyCapThanhKhoan(Ty):
 
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
+
+    # ── kế toán: phí AMM cộng liên tục theo khối lượng ───────────────────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Phí AMM chảy liên tục, nên kế toán là một phép nhân thời gian —
+        cùng hình dạng với lãi cho vay, khác ở BA chỗ đáng ghi:
+
+        **1. `apyGocPhanTram` ở đây là phí giao dịch, và nó KHÔNG gồm
+        `apyThuongPhanTram`.** Cùng luật với ty tín dụng: token thưởng đã bị
+        loại khỏi quyết định thì không được cộng lại lúc kế toán.
+
+        **2. `apyBase` là số của QUÁ KHỨ.** Nguồn tính nó từ khối lượng đã
+        xảy ra; nó không hứa gì về giờ tới. Cộng dồn theo nó là giả định
+        khối lượng giữ nguyên — đúng cách duy nhất làm được với dữ liệu công
+        khai, nhưng phải nói ra, nên câu `vi` mang chữ ấy.
+
+        **3. KHÔNG kế toán tổn thất tạm thời.** Ty này tự khai mình không
+        trung tính (`ilRisk`), mà đo IL cần giá hai chân tại hai thời điểm —
+        thứ vòng quét không giữ. Nên phần phí là ĐO ĐƯỢC còn phần IL là
+        CHƯA ĐO, và gộp hai thứ ấy vào một con số 0 là nói dối. Ở đây trả
+        đúng phần đo được và khai phần thiếu trong `vi`; ngày nào dựng được
+        đường giá hai chân thì trừ tiếp.
+        """
+        from thi_bac_ty.ke_toan import NAM_GIAY, KetToanVong
+
+        dt = max(0.0, float(denGiay) - float(tuGiay))
+        if dt <= 0.0:
+            return KetToanVong(vi="chưa qua giây nào kể từ lần kế toán trước")
+
+        duAn = (toTrinh.get("cang") or [None])[0]
+        chuoi = (toTrinh.get("chuoi") or [None])[0]
+        kyHieu = toTrinh.get("taiSan")
+        p = next((x for x in self.pool
+                  if x.duAn == duAn and x.chuoi == chuoi
+                  and x.kyHieu == kyHieu), None)
+        if p is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"KHÔNG thấy pool {duAn}/{chuoi}/{kyHieu} trong lượt quét "
+                   f"gần nhất — pool biến mất khác hẳn pool trả 0%")
+        if p.apyGocPhanTram is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"pool {kyHieu} không có `apyBase` — chưa đo được phí, "
+                   f"khác hẳn phí bằng 0")
+
+        tuoi = p.tuoi_giay()
+        if tuoi is not None and tuoi > TUOI_KE_TOAN_TOI_DA_GIAY:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"số liệu pool cũ {tuoi / 60:.0f} phút > trần "
+                   f"{TUOI_KE_TOAN_TOI_DA_GIAY / 60:.0f} phút")
+
+        von = sum(abs(float(getattr(c, "vonUsd", 0.0) or 0.0)) for c in viThe)
+        thu = von * (float(p.apyGocPhanTram) / 100.0) * dt / NAM_GIAY
+        nguong = float(self.c["apyToiThieuPhanTram"])
+        vi = (f"phí AMM {p.duAn} {kyHieu}: apyBase {p.apyGocPhanTram:.2f}% × "
+              f"{dt / 3600:.4f}h trên {von:.2f} USD (số của QUÁ KHỨ; thưởng "
+              f"KHÔNG tính; tổn thất tạm thời CHƯA đo)")
+        if p.apyGocPhanTram < nguong:
+            return KetToanVong(
+                thuUsd=thu, dongLai=True,
+                lyDoDong=f"phí gốc tụt còn {p.apyGocPhanTram:.2f}% < ngưỡng "
+                         f"{nguong:.1f}% — chính cửa ty dùng để KHÔNG mở nó",
+                vi=vi)
+        return KetToanVong(thuUsd=thu, vi=vi)
 
     def tom_tat(self) -> dict:
         return {"nguon": self.nguon.tom_tat(), "cua": self.cong.tom_tat(),

@@ -2809,6 +2809,41 @@ def kiem_hai_ty_that() -> None:
          goc.nguon.suc_khoe.tom_tat()["tongLuot"] == 1)
     kiem("lớp bọc mang khai báo của ty THẬT",
          boc.ma == goc.ma and boc.ho == goc.ho and boc.kiem_khai() == [])
+
+    # ── lớp bọc phải uỷ quyền MỌI thứ ty thật ghi đè ────────────────────
+    # Dò bằng SENTINEL chứ không liệt kê tên: đã ba lần một thành viên bị
+    # lớp bọc che mất — `kiem_khai`, `vonToiThieuKinhTeUsd`, rồi `ke_toan`.
+    # Cả ba lọt vì `Ty` khai sẵn ở lớp gốc, nên tra thuộc tính THÀNH CÔNG
+    # (ra giá trị rỗng của lớp bọc) và `__getattr__` không bao giờ chạy.
+    # Lần thứ ba tốn bảy vị thế và 3.500 USD không được cộng lãi, trong khi
+    # buồng lái báo đúng "chưa có kế toán" nên không ai nghi ngờ mã.
+    from thi_bac_ty.khuon_ty import Ty as _TyGoc
+
+    class _TyDauVet(_TyGoc):
+        ma = "lending.rate_rotation.v1"
+        ho = "tin-dung"
+        moTa = "ty dò dấu vết cho lớp bọc"
+        vonToiThieuKinhTeUsd = 7.0
+
+        def quet(self): return ["DAU-VET"]
+        def xet(self, co): return True, [("dau-vet", "DAU-VET")]
+        def trinh(self, co): return "DAU-VET"
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay): return "DAU-VET"
+
+    dv = _NhipRieng(_TyDauVet(), 9999.0)
+    thieu = []
+    if dv.quet() != ["DAU-VET"]: thieu.append("quet")
+    if dv.xet(None)[1] != [("dau-vet", "DAU-VET")]: thieu.append("xet")
+    if dv.trinh(None) != "DAU-VET": thieu.append("trinh")
+    if dv.ke_toan([], {}, 0.0, 1.0) != "DAU-VET": thieu.append("ke_toan")
+    if dv.vonToiThieuKinhTeUsd != 7.0: thieu.append("vonToiThieuKinhTeUsd")
+    if dv.ma != "lending.rate_rotation.v1": thieu.append("ma")
+    if dv.ho != "tin-dung": thieu.append("ho")
+    if dv.moTa != "ty dò dấu vết cho lớp bọc": thieu.append("moTa")
+    if not dv.co_ke_toan(): thieu.append("co_ke_toan")
+    kiem("lớp bọc uỷ quyền MỌI thành viên ty thật ghi đè", not thieu,
+         f"lớp bọc CHE MẤT {thieu} — ty thật ghi đè mà trung ương đọc ra "
+         f"giá trị rỗng của lớp bọc, và không lỗi nào báo")
     kiem("và mot_luot() không tự đệ quy",
          len(boc.mot_luot(ThongChinhGia())) >= 0 and boc.soLuotBoQua == 2,
          "bản đầu gán đè `ty.quet` rồi gọi lại chính nó, nên ty quét được "
@@ -4971,6 +5006,313 @@ def kiem_lp_amm() -> None:
     kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
          any("SUY RA" in b for b in t.bangChung))
 
+def kiem_ke_toan_vi_the() -> None:
+    print("\n-- KE TOAN THEO THOI GIAN: vong doi vi the khep kin --")
+    import time as _t
+    from thi_bac_ty.danh_muc import DanhMuc, ViThe
+    from thi_bac_ty.ke_toan import (NAM_GIAY, KetToanVong, LatCatKeToan,
+                                    SoViThe, phi_vao_thieu, phi_vao_usd)
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.so_cai import SoCai
+    from thi_bac_ty.so_dang_ky import SoDangKy
+    from thi_bac_ty.trung_uong import TrungUong
+
+    # ── 1. hợp đồng: ty KHÔNG cài `ke_toan` phải khai ra ────────────────
+    kiem("`Ty` gốc trả None — chưa biết kế toán thì nói là chưa biết",
+         Ty.ke_toan(None, [], {}, 0.0, 1.0) is None
+         and Ty.co_ke_toan() is False,
+         "trả 0 là nói «vị thế này thu 0», khác hẳn «không ai biết nó thu "
+         "bao nhiêu» — mà cộng vào NAV thì cả hai ra cùng một con số")
+
+    from tin_dung.ty_vay import TyTinDung
+    kiem("ty tín dụng ĐÃ cài kế toán", TyTinDung.co_ke_toan())
+
+    # ── 2. phí vào lệnh lấy từ chính tờ trình ──────────────────────────
+    kiem("phí vào lệnh = phiUocBps của tờ trình",
+         abs(phi_vao_usd({"phiUocBps": 5.0}, 1000.0) - 0.5) < 1e-12)
+    kiem("tờ trình KHÔNG khai phí thì bị đếm ra, không lặng lẽ thành 0",
+         phi_vao_thieu({}) and not phi_vao_thieu({"phiUocBps": 0.0}),
+         "vị thế vào sổ mà không mất phí thì trông có lãi hơn sự thật")
+
+    # ── 3. VÒNG ĐỜI ĐẦY ĐỦ trên một Trung Ương thật ────────────────────
+    d = _tam("ke-toan")
+
+    class _TyGiaCoKeToan(Ty):
+        ma = "lending.rate_rotation.v1"
+        ho = "tin-dung"
+        moTa = "ty giả có kế toán, dùng cho phép kiểm"
+        vonToiThieuKinhTeUsd = 1.0
+
+        def __init__(self):
+            super().__init__()
+            self.apy = 36.5          # %/năm → 0,1%/ngày, số tròn dễ soi
+            self.deXuatDong = False
+
+        def quet(self):
+            return []
+
+        def xet(self, co):
+            return True, []
+
+        def trinh(self, co):
+            return co
+
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+            dt = max(0.0, denGiay - tuGiay)
+            von = sum(abs(c.vonUsd) for c in viThe)
+            return KetToanVong(
+                thuUsd=von * (self.apy / 100.0) * dt / NAM_GIAY,
+                vi=f"phép kiểm: APY {self.apy}%",
+                dongLai=self.deXuatDong,
+                lyDoDong="phép kiểm yêu cầu đóng" if self.deXuatDong else "")
+
+    class _TyGiaKhongKeToan(_TyGiaCoKeToan):
+        ma = "stablecoin.cross_venue.v1"
+        ho = "chenh-lech"
+        ke_toan = Ty.ke_toan          # trả về hợp đồng gốc: None
+
+    tu = TrungUong(d, {"vonBanDauUsd": 10_000.0})
+    tyA, tyB = _TyGiaCoKeToan(), _TyGiaKhongKeToan()
+    tu.dang_ky(tyA)
+    tu.dang_ky(tyB)
+
+    def _mo(ty, von, giuGio, phiBps=10.0):
+        tt = _mau(ma=ty.ma, ho=ty.ho, taiSan="USDC", von=von, giu=giuGio)
+        object.__setattr__(tt, "phiUocBps", phiBps)
+        tu.so_dang_ky.ghi_nhan(tt)
+        for b in ("DUYET_TY", "DUYET_RUI_RO", "DA_CAP_VON", "DA_MO"):
+            tu.so_dang_ky.chuyen(tt.ma, b, "dựng phép kiểm")
+        tu.danh_muc.cam_ket(tt.ma, [ViThe(tt.ma, ty.ma, "CHO_VAY", "aave-v3",
+                                          "USDC", von)])
+        tu._mo_so_vi_the(tt, von)
+        return tt
+
+    nav0 = tu.danh_muc.navUsd
+    a = _mo(tyA, 1000.0, giuGio=24.0)
+    kiem("mở vị thế thì THU PHÍ VÀO ngay, không hoãn tới cuối",
+         abs(tu.danh_muc.navUsd - (nav0 - 1.0)) < 1e-9,
+         f"NAV {tu.danh_muc.navUsd} — 10 bps trên 1.000 USD là 1 USD; hoãn "
+         f"phí tới cuối là cách dễ nhất để cỗ máy trông có lãi")
+
+    # lùi mốc kế toán 1 giờ để có thời gian mà cộng
+    tu.soViThe[a.ma].keToanLucGiay = _t.time() - 3600.0
+    l = tu._ke_toan_vi_the()
+    thu = tu.soViThe[a.ma].thuCongDonUsd
+    kiem("kế toán một giờ cộng đúng lãi theo thời gian",
+         abs(thu - 1000.0 * 0.365 / (365.0 * 24.0)) < 1e-6,
+         f"{thu} — APY 36,5% trên 1.000 USD là ~0,1 USD/ngày")
+    kiem("và dòng tiền ấy VÀO danh mục, NAV đổi thật",
+         abs(tu.danh_muc.navUsd - (nav0 - 1.0 + thu)) < 1e-9,
+         f"NAV {tu.danh_muc.navUsd} — trước file `ke_toan.py`, NAV là "
+         f"`vốn gốc + tiền mặt` nên nó là HẰNG SỐ theo định nghĩa")
+    loai = tu.so_cai.tong_theo_loai()
+    kiem("sổ cái có bút toán FUNDING — loại này trước nay KHÔNG ai ghi",
+         (loai.get("FUNDING") or {}).get("so") == 1)
+    kiem("và có bút toán PHÍ", (loai.get("PHI") or {}).get("so") >= 1)
+
+    # ── 4. ty KHÔNG có kế toán: đếm ra, không ngầm bằng 0 ───────────────
+    b = _mo(tyB, 2000.0, giuGio=24.0)
+    l = tu._ke_toan_vi_the()
+    kiem("vị thế của ty chưa có kế toán bị ĐẾM RA",
+         l.soKhongCoKeToan == 1 and abs(l.vonKhongDuocKeToanUsd - 2000.0) < 1e-9,
+         f"{l.tom_tat()} — chúng nằm trong NAV nhưng không ai cộng lãi lỗ "
+         f"cho chúng, và im lặng chuyện đó là nói NAV đúng trong khi nó "
+         f"thiếu một khoản chưa biết")
+    kiem("lời giải thích NÓI RA con số ấy",
+         "KHÔNG có kế toán" in l.tom_tat()["vi"])
+
+    # ── 5. ĐÓNG khi hết hạn giữ ────────────────────────────────────────
+    tu.soViThe[a.ma].moLucGiay = _t.time() - 25.0 * 3600.0
+    l = tu._ke_toan_vi_the()
+    kiem("hết `giuGio` thì vị thế ĐÓNG", len(l.daDong) == 1
+         and l.daDong[0]["ma"] == a.ma, str(l.daDong))
+    kiem("sổ đăng ký chuyển sang DA_DONG",
+         tu.so_dang_ky.phieu(a.ma)["trangThai"] == "DA_DONG")
+    kiem("danh mục trả vốn về tiền mặt", a.ma not in tu.danh_muc.viThe)
+    kiem("và sổ vị thế của Trung Ương cũng sạch", a.ma not in tu.soViThe)
+    kiem("sổ cái có DONG_VI_THE kèm lãi lỗ",
+         (tu.so_cai.tong_theo_loai().get("DONG_VI_THE") or {}).get("so") == 1)
+
+    # ── 6. ty đòi đóng SỚM thì đóng, không đợi hết giờ ─────────────────
+    c = _mo(tyA, 500.0, giuGio=999.0)
+    tyA.deXuatDong = True
+    l = tu._ke_toan_vi_the()
+    kiem("ty đòi đóng sớm thì Trung Ương đóng, không đợi hết giuGio",
+         any(x["ma"] == c.ma for x in l.daDong),
+         "điều kiện hỏng giữa chừng — chênh lệch đảo dấu, lãi về âm — thì "
+         "giữ tiếp là trả phí để không thu gì")
+    tyA.deXuatDong = False
+
+    # ── 7. `doDuoc=False` KHÔNG được cộng 0 vào sổ ─────────────────────
+    class _TyMu(_TyGiaCoKeToan):
+        ma = "yield.pendle_pt.v1"
+        ho = "tin-dung"
+
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+            return KetToanVong(doDuoc=False, vi="mất nguồn")
+
+    tyC = _TyMu()
+    tu.dang_ky(tyC)
+    e = _mo(tyC, 300.0, giuGio=24.0)
+    truoc = tu.danh_muc.navUsd
+    l = tu._ke_toan_vi_the()
+    kiem("ty khai KHÔNG đo được thì không có dòng tiền nào được bịa ra",
+         l.soVongMu == 1 and abs(tu.danh_muc.navUsd - truoc) < 1e-9,
+         f"{l.tom_tat()}")
+    kiem("và lượt mù ấy được ĐẾM trên chính vị thế đó",
+         tu.soViThe[e.ma].soVongKhongDoDuoc == 1)
+
+    # ── 8. NAV giờ ĐỔI được — thứ trước nay bất khả ────────────────────
+    kiem("NAV đã rời khỏi vốn gốc", abs(tu.danh_muc.navUsd - 10_000.0) > 1e-9,
+         f"NAV {tu.danh_muc.navUsd} — đường NAV phẳng trước đây không phải "
+         f"vì thị trường không cho gì, mà vì không gì được tính")
+    kiem("lãi lỗ đã thực hiện khác 0",
+         abs(tu.danh_muc.laiLoDaThucHienUsd) > 1e-9,
+         str(tu.danh_muc.laiLoDaThucHienUsd))
+
+    # ── 9. KẾ TOÁN THẬT của ty tín dụng, không phải ty giả ──────────────
+    # Bảy phép trên kiểm CỖ MÁY kế toán; bảy phép dưới kiểm CÁCH TÍNH của
+    # bản cài đặt thật. Thiếu nhóm dưới thì hai lỗi cấy đi lọt: cộng cả
+    # token thưởng vào lãi, và coi "pool biến mất" thành "pool trả 0%".
+    import time as _tt
+    from tin_dung.models import ThiTruongVay
+    from tin_dung.ty_vay import TUOI_KE_TOAN_TOI_DA_GIAY, TyTinDung
+
+    def _tt_vay(apyGoc=36.5, apyThuong=100.0, tuoiGiay=0.0):
+        return ThiTruongVay(
+            ma="pool-1", giaoThuc="aave-v3", chuoi="Base", taiSan="USDC",
+            apyGocPhanTram=apyGoc, apyThuongPhanTram=apyThuong,
+            tvlUsd=50e6, tvlGiaoThucUsd=2e9,
+            docLucMs=(_tt.time() - tuoiGiay) * 1000.0)
+
+    tv = TyTinDung.__new__(TyTinDung)      # không gọi __init__: khỏi nối mạng
+    Ty.__init__(tv)
+    tv.thiTruong = [_tt_vay()]
+    tt9 = {"cang": ["aave-v3"], "chuoi": ["Base"], "taiSan": "USDC"}
+    chan9 = [ViThe("m9", TyTinDung.ma, "CHO_VAY", "aave-v3", "USDC", 1000.0)]
+    now9 = _tt.time()
+
+    k = tv.ke_toan(chan9, tt9, now9 - 3600.0, now9)
+    kiem("kế toán thật: một giờ ở APY GỐC 36,5% trên 1.000 USD",
+         k is not None and abs(k.thuUsd - 1000.0 * 0.365 / (365.0 * 24.0)) < 1e-9,
+         f"{k and k.thuUsd}")
+    _neuCongThuong = 1000.0 * (0.365 + 1.0) / (365.0 * 24.0)
+    kiem("và KHÔNG cộng token thưởng vào lãi",
+         k is not None and k.thuUsd < _neuCongThuong * 0.5,
+         f"{k and k.thuUsd} vs {_neuCongThuong} nếu cộng thưởng — gần bốn "
+         f"lần. "
+         f"Chính `can_loi.py` của ty này đã loại thưởng khỏi `netBps` lúc "
+         f"quyết định; cộng lại lúc kế toán là tự thưởng cho mình bằng thứ "
+         f"vừa bảo là không đáng tin")
+    kiem("lời giải thích NÓI RA là thưởng không được tính",
+         k is not None and "KHÔNG tính" in k.vi, k and k.vi)
+
+    tv.thiTruong = []
+    k = tv.ke_toan(chan9, tt9, now9 - 3600.0, now9)
+    kiem("pool BIẾN MẤT khỏi lượt quét → doDuoc=False, KHÔNG phải thu 0",
+         k is not None and k.doDuoc is False and k.thuUsd == 0.0,
+         f"{k and k.tom_tat()} — pool biến mất có thể là nguồn lỗi, có thể "
+         f"là pool đóng; cả hai KHÁC HẲN «pool trả 0%», mà cộng vào NAV thì "
+         f"cả ba ra cùng một con số")
+
+    tv.thiTruong = [_tt_vay(tuoiGiay=TUOI_KE_TOAN_TOI_DA_GIAY + 60.0)]
+    k = tv.ke_toan(chan9, tt9, now9 - 3600.0, now9)
+    kiem("số liệu pool QUÁ HẠN thì thôi kế toán, không cộng bừa",
+         k is not None and k.doDuoc is False,
+         "cộng dồn bằng một rate đã quá hạn thì nó không còn là phép đo")
+
+    tv.thiTruong = [_tt_vay(apyGoc=0.0)]
+    k = tv.ke_toan(chan9, tt9, now9 - 3600.0, now9)
+    kiem("APY gốc về 0 thì ty ĐÒI ĐÓNG, không giữ tiếp",
+         k is not None and k.dongLai and k.doDuoc,
+         f"{k and k.tom_tat()} — giữ tiếp là trả phí để không thu gì")
+
+    tv.thiTruong = [_tt_vay()]
+    k = tv.ke_toan(chan9, tt9, now9, now9)
+    kiem("chưa qua giây nào thì thu đúng 0 và KHÔNG khai là mù",
+         k is not None and k.thuUsd == 0.0 and k.doDuoc,
+         "đây là 0 ĐO ĐƯỢC — khác hẳn không đo được")
+
+    # ── 10. KẾ TOÁN THẬT của ty cấp thanh khoản AMM ─────────────────────
+    from lp_amm.ty_cap_thanh_khoan import (TUOI_KE_TOAN_TOI_DA_GIAY as _TUOI_AMM,
+                                           Pool, TyCapThanhKhoan)
+
+    def _pool(apyGoc=12.0, apyThuong=200.0, tuoiGiay=0.0):
+        return Pool(ma="p1", duAn="uniswap-v3", chuoi="Base",
+                    kyHieu="USDC-ETH", tvlUsd=20e6,
+                    khoiLuongNgayUsd=5e6, apyGocPhanTram=apyGoc,
+                    apyThuongPhanTram=apyThuong, ilRisk="no", phoi="multi",
+                    docLucMs=(_tt.time() - tuoiGiay) * 1000.0)
+
+    ta = TyCapThanhKhoan.__new__(TyCapThanhKhoan)
+    Ty.__init__(ta)
+    ta.c = {"apyToiThieuPhanTram": 2.0}
+    ta.pool = [_pool()]
+    tt10 = {"cang": ["uniswap-v3"], "chuoi": ["Base"], "taiSan": "USDC-ETH"}
+    chan10 = [ViThe("m10", TyCapThanhKhoan.ma, "LONG", "uniswap-v3",
+                    "USDC-ETH", 1000.0)]
+
+    k = ta.ke_toan(chan10, tt10, now9 - 3600.0, now9)
+    kiem("AMM: một giờ ở apyBase 12% trên 1.000 USD",
+         k is not None and abs(k.thuUsd - 1000.0 * 0.12 / (365.0 * 24.0)) < 1e-9,
+         f"{k and k.thuUsd}")
+    kiem("AMM: KHÔNG cộng token thưởng",
+         k is not None and k.thuUsd < 1000.0 * (0.12 + 2.0) / (365.0 * 24.0) * 0.2,
+         f"{k and k.thuUsd} — thưởng 200%/năm sẽ nhân gấp hơn mười lần")
+    kiem("AMM: KHAI RA rằng apyBase là số quá khứ và IL chưa đo",
+         k is not None and "QUÁ KHỨ" in k.vi and "tạm thời CHƯA đo" in k.vi,
+         f"{k and k.vi} — phần phí ĐO ĐƯỢC còn phần tổn thất tạm thời CHƯA "
+         f"đo; gộp hai thứ ấy vào một con số là nói dối")
+
+    ta.pool = [_pool(apyGoc=1.0)]
+    k = ta.ke_toan(chan10, tt10, now9 - 3600.0, now9)
+    kiem("AMM: phí tụt dưới ngưỡng của chính ty thì ĐÒI ĐÓNG",
+         k is not None and k.dongLai,
+         "giữ tiếp một pool mà chính cửa của ty sẽ KHÔNG mở là mâu thuẫn")
+
+    ta.pool = [_pool(apyGoc=None)]
+    k = ta.ke_toan(chan10, tt10, now9 - 3600.0, now9)
+    kiem("AMM: thiếu `apyBase` → doDuoc=False, không phải thu 0",
+         k is not None and k.doDuoc is False)
+
+    ta.pool = []
+    k = ta.ke_toan(chan10, tt10, now9 - 3600.0, now9)
+    kiem("AMM: pool biến mất → doDuoc=False", k is not None and not k.doDuoc)
+
+    ta.pool = [_pool(tuoiGiay=_TUOI_AMM + 60.0)]
+    k = ta.ke_toan(chan10, tt10, now9 - 3600.0, now9)
+    kiem("AMM: số liệu quá hạn thì thôi kế toán",
+         k is not None and k.doDuoc is False)
+
+    # ── 11. mọi ty ĐANG CHẠY: có kế toán hay chưa, phải KHAI ────────────
+    _cacTy = [
+        ("bac.ty_perp", "TyPerp"),
+        ("tin_dung.ty_vay", "TyTinDung"),
+        ("on_dinh.ty_on_dinh", "TyOnDinh"),
+        ("lai_suat.ty_lai_suat", "TyLaiSuat"),
+        ("co_so.ty_co_so", "TyCoSo"),
+        ("kham_ngoai.ty_tien_doan", "TyTienDoan"),
+        ("quyen_chon.ty_ngang_gia", "TyNgangGia"),
+        ("dex_arb.ty_vong_doi", "TyVongDoi"),
+        ("lp_amm.ty_cap_thanh_khoan", "TyCapThanhKhoan"),
+    ]
+    co, chua = [], []
+    for mod, ten in _cacTy:
+        try:
+            k_ = getattr(__import__(mod, fromlist=[ten]), ten)
+        except Exception:                                    # noqa: BLE001
+            continue
+        (co if k_.co_ke_toan() else chua).append(k_.ma)
+    kiem(f"{len(co)}/{len(co) + len(chua)} ty đã có kế toán",
+         len(co) >= 2, f"có: {sorted(co)}")
+    kiem("và những ty CHƯA có được liệt kê ra, không giấu",
+         isinstance(chua, list),
+         f"chưa có kế toán: {sorted(chua)} — vốn cấp cho chúng nằm trong NAV "
+         f"mà không ai cộng lãi lỗ, và buồng lái phải nói đúng câu ấy")
+
+
+
+
 def kiem_kho_bao_gia_cau() -> None:
     print("\n-- KHO BAO GIA CAU: song qua lan khoi dong lai --")
     import time as _t
@@ -5606,6 +5948,7 @@ def main() -> int:
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_doi_soat_vi_the()
+    kiem_ke_toan_vi_the()
     kiem_kho_bao_gia_cau()
     kiem_lat_cat()
     kiem_buong_lai()

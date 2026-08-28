@@ -86,6 +86,39 @@ class Ty(ABC):
     def trinh(self, co) -> object:
         """Dịch một cơ hội đã qua `xet()` thành `ToTrinh`."""
 
+    # ── việc THỨ TƯ, không bắt buộc nhưng phải KHAI nếu không làm ─────────
+    def ke_toan(self, viThe: list, toTrinh: dict,
+                tuGiay: float, denGiay: float):
+        """Vị thế này THU/MẤT bao nhiêu kể từ lần kế toán trước.
+
+        Trả `KetToanVong`, hoặc `None` = **ty này chưa biết tự kế toán**.
+
+        `None` KHÔNG phải 0. Trung Ương đếm số vị thế trả `None` và bày ra,
+        vì "vị thế này thu 0" và "không ai biết vị thế này thu bao nhiêu"
+        là hai câu khác hẳn — mà cộng vào NAV thì cả hai ra cùng con số.
+
+        **Trả lời bằng cái ĐO ĐƯỢC, không bằng cái đã dự đoán.** Tờ trình
+        có sẵn `netUocBps` và `giuGio`, nên cộng dồn theo tỉ lệ thời gian
+        là ra ngay một đường lãi đẹp — và đó là trả lại chính con số máy
+        đã đoán. Đường NAV khi ấy là bản sao của kỳ vọng, không phải của
+        thị trường, và khoảng cách giữa hai thứ ấy — thứ đáng học nhất —
+        biến mất. Xem `bac/chay_lai.py`.
+
+        Nguồn đúng là dữ liệu ty VỪA QUÉT trong chính vòng này: rate sàn
+        đang công bố, APY pool đang trả. Không quét được thì trả
+        `KetToanVong(doDuoc=False)` chứ đừng trả 0.
+
+        `viThe` là các chân đang mở (`danh_muc.ViThe`), `toTrinh` là tờ
+        trình gốc đã `tom_tat()`, `tuGiay`/`denGiay` là khoảng thời gian
+        cần kế toán (giây, đồng hồ hệ thống).
+        """
+        return None
+
+    @classmethod
+    def co_ke_toan(cls) -> bool:
+        """Ty này có tự cài `ke_toan()` không. Dùng để KHAI, không để chặn."""
+        return cls.ke_toan is not Ty.ke_toan
+
     # ── khuôn ─────────────────────────────────────────────────────────────
     @classmethod
     def kiem_khai(cls) -> list[str]:

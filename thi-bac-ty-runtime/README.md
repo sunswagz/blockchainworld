@@ -791,6 +791,67 @@ chỗ, một slot vị thế bị tiêu, và lãi không bù nổi phí cố đ�
 Và hợp đồng chặn một mâu thuẫn nữa: **ty xin ít hơn ngưỡng nó tự khai** là
 tờ trình tự mâu thuẫn. Ty phải hoặc xin đủ, hoặc hạ ngưỡng nó khai.
 
+## KẾ TOÁN THEO THỜI GIAN — nửa vòng đời trước 28/08 không tồn tại
+
+Vòng đời một vị thế từng dừng ở nửa đầu: **mở, rồi không có gì xảy ra nữa,
+mãi mãi.** Ba phép đo, không phải nhận định:
+
+- `FUNDING`, `PHI`, `TRUOT_GIA` có trong bảng `LOAI` của Sổ Cái mà **không
+  dòng mã nào ghi chúng**;
+- `DanhMuc.ghi_dong_tien()` — hàm dịch tiền mặt — **không chỗ nào gọi**;
+- `DanhMuc.dong()` gọi ở ĐÚNG MỘT chỗ: đóng gấp khi chân B không khớp.
+
+Hệ quả: `navUsd` theo cấu tạo là `vốn gốc + tiền mặt`, nên đường NAV phẳng
+vì nó là **hằng số theo định nghĩa**. "Lãi 0%" không phải "hoà vốn" — nó là
+"chưa bao giờ tính". Và bốn thứ đứng trên đường NAV — sụt vốn, cầu dao
+`sut-von`, `hieu_nang`, vòng tiến hoá — đều đang đo một hằng số.
+
+### Ba luật của lớp kế toán
+
+**1. THU phải ĐO ĐƯỢC, không suy từ dự đoán.** Tờ trình đã khai `netUocBps`
+và `giuGio`, nên cộng dồn theo tỉ lệ thời gian là ra ngay một đường lãi
+đẹp — và đó là **trả lại chính con số máy đã đoán**. Đường NAV khi ấy là
+bản sao của kỳ vọng, không phải của thị trường, và khoảng cách giữa hai thứ
+ấy — thứ đáng học nhất, theo đúng `bac/chay_lai.py` — biến mất.
+
+Nên kế toán **không nằm ở Trung Ương**. Trung Ương không biết funding trả
+theo mốc hay lãi cho vay cộng liên tục; nó hỏi ty qua `Ty.ke_toan()`, và ty
+trả lời bằng dữ liệu ty vừa quét trong chính vòng ấy.
+
+**2. Ty chưa biết kế toán thì KHAI, không ngầm bằng 0.** `Ty.ke_toan()` trả
+`None` mặc định. Trung Ương ĐẾM số vị thế trả `None` **và số vốn nằm trong
+chúng**, rồi bày ra ở buồng lái. "Vị thế này thu 0" và "không ai biết vị
+thế này thu bao nhiêu" là hai câu khác hẳn, mà cộng vào NAV thì cả hai ra
+cùng một con số.
+
+**3. PHÍ thu TRƯỚC, thu nhập cộng SAU.** Phí vào lệnh ghi ngay lúc mở, lấy
+từ `phiUocBps` của chính tờ trình — đúng con số ty đã dùng để tính
+`netUocBps`, nên sổ cái và tờ trình không nói hai chuyện. Hệ quả cố ý: mở
+rồi đóng ngay hiện ra một khoản **LỖ đúng bằng phí**. Cỗ máy nào cũng dễ
+trông có lãi khi phí được hoãn tới cuối.
+
+### Đóng vị thế — ba đường
+
+    hết `giuGio`        Trung Ương đóng, ghi lãi lỗ cộng dồn
+    ty đòi đóng sớm     `KetToanVong(dongLai=True)` — điều kiện đã hỏng
+    chân B không khớp   đóng gấp, đường có từ trước
+
+### Lớp bọc che mất `ke_toan` — lần thứ BA cùng một kiểu hỏng
+
+`_NhipRieng` bọc ty để cho nó nhịp quét thưa hơn. Nó uỷ quyền `quet`/`xet`/
+`trinh` — nhưng không uỷ quyền `ke_toan`, và vì `Ty` khai sẵn `ke_toan` ở
+lớp gốc nên tra thuộc tính **thành công**: ra hàm gốc trả `None`.
+
+Hậu quả đo được ngay lượt chạy thật đầu tiên: bảy vị thế, **3.500 USD, không
+đồng lãi nào được cộng** — và buồng lái báo đúng câu "chưa có kế toán" nên
+không ai nghi ngờ mã.
+
+Đây là lần thứ ba: trước đó là `kiem_khai`, rồi `vonToiThieuKinhTeUsd` (lần
+ấy ba ty tụt xuống QUAN_SAT). Nên phép kiểm nay **dò bằng sentinel** thay vì
+liệt kê tên: dựng một ty ghi đè mọi thành viên bằng chuỗi `"DAU-VET"`, bọc
+lại, rồi đòi lớp bọc trả về đúng chuỗi ấy. Thêm thành viên mới vào hợp đồng
+mà quên uỷ quyền thì phép kiểm đỏ, không cần ai nhớ.
+
 ## Hiệu năng đo bằng đường NAV, không bằng một APR nhân thẳng
 
 Vốn thật đi qua `100 × 1,12 × 1,31 × 0,92 × 1,22 × 1,05`, chứ không phải

@@ -191,6 +191,20 @@
         lam: "Ty này không nộp được tờ trình nào trong vòng vừa rồi."
       });
     });
+    var kt3 = t.keToan || {};
+    if (kt3.soKhongCoKeToan) ra.push({
+      nang: false,
+      ten: "Vốn KHÔNG được kế toán · " + kt3.soKhongCoKeToan + " vị thế · "
+           + tien(kt3.vonKhongDuocKeToanUsd, 0),
+      mo: "Ty của những vị thế này chưa cài `ke_toan()`, nên lãi lỗ của "
+          + "phần vốn ấy KHÔNG được biết — không phải bằng 0.",
+      lam: "Cài `ke_toan()` cho ty ấy, hoặc đừng cấp vốn cho nó nữa. NAV "
+           + "hiện đang thiếu một khoản chưa biết bao nhiêu."
+    });
+    (kt3.loi || []).forEach(function (m) {
+      ra.push({ nang: true, ten: "Kế toán vị thế ném lỗi", mo: String(m),
+                lam: "Vị thế ấy không được cộng lãi lỗ vòng này." });
+    });
     var ds = t.doiSoatViThe || {};
     if (ds.lech) ra.push({
       nang: !!ds.canNguoi,
@@ -709,6 +723,63 @@
       f.appendChild(kb);
     }
 
+    var kt = t.keToan || {}, sv = t.soViThe || [];
+    var kk = khoi("Kế toán theo thời gian",
+      "Mỗi vòng, mỗi vị thế đang mở được hỏi «thu/mất bao nhiêu kể từ vòng "
+      + "trước». Ty nào chưa biết tự kế toán thì KHAI ra — vốn của nó nằm "
+      + "trong NAV mà không ai cộng lãi lỗ, và im lặng chuyện đó là nói NAV "
+      + "đúng trong khi nó thiếu một khoản chưa biết.");
+    var dk = el("div", "day-so");
+    dk.appendChild(oSo("Vị thế đang mở", so(kt.soViThe || 0),
+      so(kt.soKeToanDuoc || 0) + " kế toán được vòng này"));
+    dk.appendChild(oSo("Thu vòng này", tien(kt.thuUsd, 4),
+      "phí " + tien(kt.phiUsd, 4)));
+    dk.appendChild(oSo("Ròng vòng này", tien(kt.rongUsd, 4),
+      (kt.rongUsd || 0) >= 0 ? "vào danh mục" : "ra khỏi danh mục",
+      (kt.rongUsd || 0) >= 0 ? "duong" : "am"));
+    dk.appendChild(oSo("KHÔNG có kế toán", so(kt.soKhongCoKeToan || 0),
+      (kt.soKhongCoKeToan || 0)
+        ? tien(kt.vonKhongDuocKeToanUsd, 0) + " không ai cộng lãi lỗ"
+        : "mọi ty đang giữ vốn đều kế toán được",
+      (kt.soKhongCoKeToan || 0) ? "am" : "duong"));
+    kk.appendChild(dk);
+    if (kt.vi) kk.appendChild(giai(kt.vi));
+    if (sv.length) {
+      kk.appendChild(bang(
+        [{ t: "Tờ trình" }, { t: "Ty" }, { t: "Vốn", n: true },
+         { t: "Đã giữ", n: true }, { t: "Hạn giữ", n: true },
+         { t: "Thu", n: true }, { t: "Phí", n: true },
+         { t: "Lãi/lỗ", n: true }, { t: "Kế toán" }],
+        sv.map(function (x) {
+          return [{ t: String(x.ma).slice(0, 12) },
+                  { t: (TEN_DEP[x.chienLuoc] || [x.chienLuoc])[0] },
+                  { t: tien(x.vonUsd, 0), c: "n" },
+                  { t: (x.daGiuGio || 0).toFixed(2) + "h", c: "n" },
+                  { t: (x.giuGio || 0).toFixed(0) + "h", c: "n" },
+                  { t: tien(x.thuCongDonUsd, 4), c: "n" },
+                  { t: tien(x.phiCongDonUsd, 4), c: "n" },
+                  { t: tien(x.laiLoUsd, 4), c: "n" },
+                  { t: x.coKeToan === false ? "CHƯA CÓ"
+                       : (x.soVongKhongDoDuoc ? "mù " + x.soVongKhongDoDuoc
+                                                + " vòng" : "đủ") }];
+        })));
+    }
+    (kt.daDong || []).forEach(function (x) {
+      var b = el("div", "viec-1 nhe");
+      b.appendChild(el("b", null, "Vừa đóng · "
+        + (TEN_DEP[x.chienLuoc] || [x.chienLuoc])[0] + " · "
+        + tien(x.laiLoUsd, 4)));
+      b.appendChild(el("span", null, x.lyDo));
+      kk.appendChild(b);
+    });
+    (kt.loi || []).forEach(function (m) {
+      var b = el("div", "viec-1");
+      b.appendChild(el("b", null, "Kế toán lỗi"));
+      b.appendChild(el("span", null, String(m)));
+      kk.appendChild(b);
+    });
+    f.appendChild(kk);
+
     var k2 = khoi("Danh mục đang giữ những chân nào");
     var vt = dm.viThe || {}, ma = Object.keys(vt);
     if (!ma.length) {
@@ -907,6 +978,12 @@
       + "con số dưới đây đều là SỔ GIẤY.");
     var d = el("div", "day-so");
     d.appendChild(oSo("Tiền thật", "—", "chưa có giao dịch tiền thật nào", "nhat"));
+    var kt2 = t.keToan || {};
+    d.appendChild(oSo("Kế toán vòng này", tien(kt2.rongUsd, 4),
+      (kt2.soViThe || 0) + " vị thế · "
+      + ((kt2.soKhongCoKeToan || 0) ? kt2.soKhongCoKeToan + " CHƯA kế toán"
+                                    : "đều kế toán được"),
+      (kt2.soKhongCoKeToan || 0) ? "am" : null, true));
     d.appendChild(oSo("Sổ giấy · lãi lỗ",
       hn.duDeKetLuan ? phan(hn.laiLoPhanTram) : "chưa kết luận",
       hn.duDeKetLuan ? "" : "cần ≥ 168 giờ dữ liệu", hn.duDeKetLuan
