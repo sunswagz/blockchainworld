@@ -93,7 +93,16 @@ self.addEventListener("fetch", function (e) {
   // trong CLAUDE.md.
   var MANG_TRUOC = ["/assets/js/scan.js", "/assets/js/do.js",
                   "/assets/js/tq/scan.js", "/assets/js/tq/do.js",
-                  "/assets/js/tin.js"];
+                  "/assets/js/tin.js",
+                  /* Cả thư mục v/ — knowledge-os sinh tri-thuc.js vào đó, và
+                     chính đầu tệp ấy khai "nằm ở assets/js/v/ nên đi nhánh
+                     MẠNG-TRƯỚC". Nhưng cung này khai mạng-trước bằng MẢNG
+                     đường dẫn chứ không bằng luật thư mục như chín cung kia,
+                     nên tệp đó lọt cả hai lưới: không SHELL, không mạng-trước.
+                     Hệ quả im lặng: online thì chạy, offline thì lớp tri thức
+                     biến mất mà không lỗi nào báo — app.js bọc
+                     `if(TT&&TT.them)` nên trang vẫn vẽ, chỉ thiếu. */
+                  "/assets/js/v/"];
   if (MANG_TRUOC.some(function (p) { return url.pathname.indexOf(p) !== -1; })) {
     e.respondWith(fetch(req).then(function (res) {
       if (res && res.ok) {

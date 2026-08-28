@@ -48,6 +48,18 @@
        MANG_TRUOC.some(function (p) { return url.pathname.indexOf(p) !== -1; })
 */
 export function docMangTruoc(sw) {
+  /* CẮT CHÚ THÍCH TRƯỚC. Cả hai phép dò dưới đây rút chuỗi trong
+     ngoặc kép, nên một câu giải thích có cụm trong ngoặc kép sẽ bị
+     nhặt thành một đường dẫn — rồi phép `every(startsWith("/"))`
+     trượt và bộ kiểm kết luận "không đọc được khai báo".
+
+     Đã cắn thật ở dai-quan-trac: chú thích ngay trong mảng dẫn lại
+     lời của knowledge-os, có dấu ngoặc kép, và cả cung bị báo là
+     không khai được mạng-trước.
+
+     CLAUDE.md đã dặn: công cụ phải theo được mã thật, đừng bẻ mã cho
+     vừa công cụ. Chú thích trong mảng là mã hợp lệ. */
+  sw = sw.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1 ");
   const duong = new Set();
 
   /* dạng chuỗi thẳng */
