@@ -374,7 +374,6 @@ function toast(msg,spin){
   const t=$('#toast'); t.innerHTML=(spin?'<span class="spin"></span>':'')+'<span>'+msg+'</span>'; t.classList.add('on');
   clearTimeout(toastT); if(!spin) toastT=setTimeout(()=>t.classList.remove('on'),3200);
 }
-function hideToast(){ $('#toast').classList.remove('on'); }
 
 /* ============================================================
    ĐIỀU HƯỚNG

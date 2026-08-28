@@ -156,7 +156,6 @@ p{margin:0 0 12px}
 .grid{display:grid;gap:14px}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;padding:2px 8px;border-radius:20px;border:1px solid var(--line2);color:var(--fg2);background:var(--inset);white-space:nowrap}
 .chip.g{color:#5ee07d;border-color:#2ea04355;background:var(--ok-d)}
 .chip.y{color:#e3b341;border-color:#d2992255;background:var(--warn-d)}
@@ -170,7 +169,6 @@ blockquote{margin:0 0 14px;padding:12px 16px;border-left:3px solid var(--gold);b
 ul.tight{margin:0 0 14px;padding-left:20px;color:var(--fg2)}
 ul.tight li{margin-bottom:5px}
 ul.tight li::marker{color:var(--dim)}
-.divider{height:1px;background:var(--line);margin:30px 0}
 
 /* ============ SIGNATURE: MẠCH TRUYỀN DẪN ============ */
 .circuit{position:relative;padding:6px 0}
@@ -270,14 +268,6 @@ ul.tight li::marker{color:var(--dim)}
 .fchip.on{background:var(--info-d);border-color:#1f6feb99;color:#79c0ff}
 .fchip .n{font-family:var(--mono);font-size:9.5px;opacity:.7;font-variant-numeric:tabular-nums}
 
-/* heat strip */
-.heat{display:flex;gap:3px;align-items:flex-end;padding:2px 0}
-.hcell{width:11px;height:11px;border-radius:2px;background:#161b22;box-shadow:inset 0 0 0 1px #ffffff08}
-.hcell.l1{background:#0e4429}.hcell.l2{background:#006d32}
-.hcell.l3{background:#26a641}.hcell.l4{background:#39d353}
-.hcell.w1{background:#4d3800}.hcell.w2{background:#8a6300}
-.hcell.r1{background:#67060c}.hcell.r2{background:#a40e26}.hcell.r3{background:#f0503f}
-
 /* empty state */
 .empty{text-align:center;padding:52px 20px;border:1px dashed var(--line2);border-radius:var(--r2);background:#ffffff03}
 .empty svg{width:34px;height:34px;color:var(--dim);margin-bottom:12px}
@@ -351,7 +341,7 @@ ul.tight li::marker{color:var(--dim)}
   .hamb{display:grid;place-items:center;width:30px;height:30px;border-radius:var(--r);color:var(--fg2);flex:0 0 30px}
   .hamb:hover{background:#ffffff0d}
   .hamb svg{width:17px;height:17px}
-  .g2,.g3,.g4{grid-template-columns:1fr}
+  .g2,.g3{grid-template-columns:1fr}
   .wrap{padding:20px 16px 80px}
   .compass{grid-template-columns:1fr}
   .cp.n,.cp.w,.cp.core,.cp.e,.cp.s{grid-column:1;grid-row:auto}
@@ -397,7 +387,6 @@ ul.tight li::marker{color:var(--dim)}
 .tc-q{color:var(--fg2);font-size:13.5px;margin:0 0 9px}
 .tc-t{margin:0;font-size:12.5px;color:var(--muted);padding-top:9px;border-top:1px dashed var(--line2)}
 .tc-t span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--dim);margin-bottom:3px;font-variant-numeric:tabular-nums}
-.tc-soon{display:inline-flex;align-items:center;font-size:12.5px;color:var(--dim);font-style:italic;padding:6px 2px}
 
 /* --- hồ sơ: vai + hai giả thuyết --- */
 .soi-vai{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:-6px 0 14px;font-variant-numeric:tabular-nums}
@@ -417,20 +406,6 @@ ul.tight li::marker{color:var(--dim)}
 .sc-h b{font-size:14.5px;flex:1;min-width:120px}
 .sc-q{font-size:12.5px;color:var(--muted);font-style:italic;margin-bottom:7px}
 .sc-d{font-size:13.5px;color:var(--fg2);max-width:78ch}
-
-/* --- phản chứng --- */
-.pc-w{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:14px}
-.pc{border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:var(--r2);padding:12px 16px;background:var(--surface)}
-.pc b{display:block;font-size:13.5px;margin-bottom:6px}
-.pc p{margin:0;font-size:13.5px;color:var(--fg2)}
-
-/* --- 4 tầng doanh nghiệp --- */
-.tang-w{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0}
-.tang{border:1px solid var(--line);border-top:3px solid var(--a);border-radius:var(--r2);padding:12px 16px;background:var(--surface)}
-.tang-n{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--a);margin-bottom:6px;font-variant-numeric:tabular-nums}
-.tang b{display:block;font-size:14.5px;margin-bottom:5px}
-.tang-vd{font-family:var(--mono);font-size:11.5px;color:var(--fg2);background:var(--inset);border-radius:var(--r);padding:4px 8px;margin-bottom:8px;font-variant-numeric:tabular-nums}
-.tang p{margin:0;font-size:12.5px;color:var(--muted)}
 
 /* --- ổ cắm --- */
 .oc-w{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
