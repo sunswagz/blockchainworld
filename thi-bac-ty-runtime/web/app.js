@@ -191,6 +191,19 @@
         lam: "Ty này không nộp được tờ trình nào trong vòng vừa rồi."
       });
     });
+    var ds = t.doiSoatViThe || {};
+    if (ds.lech) ra.push({
+      nang: !!ds.canNguoi,
+      ten: "Vị thế mồ côi · " + (ds.soConMoCoi || 0) + " tờ"
+           + (ds.vonMoCoiUsd == null ? "" : " · " + tien(ds.vonMoCoiUsd)),
+      mo: "Sổ đăng ký ghi là ĐANG MỞ, danh mục không giữ chân nào — nên vốn "
+          + "ấy nằm ngoài mọi phép tính trần.",
+      lam: ds.canNguoi
+        ? "Lớp thực thi chạy TIỀN THẬT: phải đối soát với sàn rồi đóng tay. "
+          + "Máy không tự đóng."
+        : "Bấm «Đối soát vị thế» ở thanh dưới — vị thế mô phỏng, đóng ở sổ "
+          + "kèm bút toán là ghi đúng cái đã xảy ra."
+    });
     var nc = (S && S.nguonCau) || {};
     if (nc.dangNghi) ra.push({
       nang: false, ten: "Nguồn cầu nối đang nghỉ vì hạn mức",
@@ -215,6 +228,11 @@
     var f = document.createDocumentFragment();
     var t = (S && S.trungUong) || {}, dm = t.danhMuc || {}, hn = t.hieuNang || {};
     var cd = t.cauDao || {}, lat = t.latCatVong || {}, dc = dsDongCo();
+
+    /* — BÂY GIỜ: một câu, đọc trước mọi con số —
+     * Bảng số nói "bao nhiêu"; câu này nói "đang xảy ra chuyện gì". Người
+     * mở buồng lái ra lúc 2 giờ sáng cần câu thứ hai trước. */
+    f.appendChild(cauBayGio(t, lat, dc));
 
     /* — tám câu hỏi, năm ô — */
     var k1 = khoi("Tám câu hỏi, mười giây");
@@ -295,6 +313,44 @@
     k5.appendChild(veNhatKyNgan());
     f.appendChild(k5);
     return f;
+  }
+
+  /* Câu tường thuật. Dựng từ dữ liệu chứ không phải một câu cố định —
+   * một câu cố định thì đọc lần thứ hai đã thành trang trí, và trang trí
+   * ở buồng lái là thứ che mất chỗ đáng lẽ nói điều gì đó. */
+  function cauBayGio(t, lat, dc) {
+    var cd = t.cauDao || {}, dm = t.danhMuc || {};
+    var tho = 0;
+    (t.ty || []).forEach(function (x) { tho += x.soCoHoi || 0; });
+    var chay = dc.filter(function (x) { return x.dung; }).length;
+    var loi = dc.filter(function (x) { return x.tt === "FAULT"; }).length;
+
+    var c = [];
+    c.push("Vòng " + (S.vong != null ? S.vong : "—") + ", nhịp "
+           + (S.nhipGiay || 30) + " giây: " + chay + " động cơ vừa quét xong "
+           + "và cân " + so(tho) + " cơ hội, "
+           + so(lat.soToTrinhNhan || 0) + " tờ trình lên tới Trung Ương.");
+    if (loi) c.push(loi + " động cơ đang NÉM LỖI.");
+    if (cd.dangNgat) {
+      c.push("Cầu dao ĐANG NGẮT ("
+             + (cd.lyDo || []).map(function (l) { return l.ma; }).join(", ")
+             + ") nên không đồng nào được cam kết trong vòng này — máy vẫn "
+             + "quét, vẫn ghi nhận, chỉ không tiêu tiền.");
+    } else if (lat.phanBo && lat.phanBo.soCap) {
+      c.push("Phân Bổ vừa cấp " + tien(lat.phanBo.tongCapUsd) + " qua "
+             + lat.phanBo.soCap + " lần, xét lại trần sau mỗi lần.");
+    } else {
+      c.push("Cầu dao đóng và không tờ nào được cấp vốn — trần chặn trước "
+             + "khi tiền cạn, không phải vì hết tiền.");
+    }
+    c.push("Tiền rảnh " + tien(dm.tienMatUsd) + " trên NAV " + tien(dm.navUsd)
+           + (dm.ngoaiDayDu ? "." : ", và NAV đang THIẾU phần vốn ngoài "
+              + "chưa đọc được."));
+
+    var d = el("p", "bay-gio");
+    d.appendChild(el("b", null, "BÂY GIỜ"));
+    d.appendChild(el("span", null, c.join(" ")));
+    return d;
   }
 
   /* mạch: chín chặng, chặng đang chặn thì đỏ */
@@ -553,6 +609,293 @@
     return f;
   }
 
+  /* ══════════════════ TRANG: VỊ THẾ ═════════════════════════════
+   * Trang này tồn tại vì HAI sổ nói về cùng một thứ mà có thể lệch nhau,
+   * và trước 28/08/2026 không chỗ nào trong buồng lái đặt chúng cạnh nhau:
+   *
+   *   DANH MỤC     dựng trong RAM → khởi động lại là quên
+   *   SỔ ĐĂNG KÝ   nằm trên đĩa   → nó nhớ
+   *
+   * Lệch ấy đã có thật: 4 tờ đứng DA_MO với 500 USD đã cấp, trong khi
+   * danh mục báo 0 vị thế và 0 đã cam kết. Xem `doi_soat_vi_the.py`.       */
+  function ve_vi_the() {
+    var f = document.createDocumentFragment();
+    var t = (S && S.trungUong) || {}, dm = t.danhMuc || {};
+    var ds = t.doiSoatViThe || {}, sdk = t.soDangKy || {};
+    /* Bản đối soát LÚC KHỞI ĐỘNG giữ riêng: `doiSoatViThe` là lượt đo của
+       vòng gần nhất, và nó ghi đè sau một nhịp. Chỉ đọc nó thì "vừa đóng
+       4 tờ mồ côi, 500 USD" sống được 30 giây rồi biến mất. */
+    var dk = t.doiSoatKhoiDong || {};
+    var tr = sdk.theoTrangThai || {}, ph = sdk.pheu || {};
+
+    var k = khoi("Vị thế đang mở",
+      "Hai sổ nói về cùng một thứ. DANH MỤC là thứ mọi trần rủi ro tính "
+      + "theo; SỔ ĐĂNG KÝ là thứ sống sót qua mỗi lần khởi động lại. Chúng "
+      + "phải khớp — và ô «Mồ côi» là chỗ nói ra khi không.");
+    var d = el("div", "day-so");
+    d.appendChild(oSo("Danh mục đang giữ", so(dm.soViThe),
+      tien(dm.daCamKetUsd) + " đã cam kết"));
+    d.appendChild(oSo("Sổ ghi là ĐANG MỞ", so(tr.DA_MO || 0),
+      "đã đóng " + so(ph.DA_DONG || 0) + " từ đầu"));
+    var con = ds.soConMoCoi || 0;
+    var daDong = (ds.daDong || []).length || (dk.daDong || []).length;
+    var dsHien = (ds.daDong || []).length ? ds : dk;
+    d.appendChild(oSo("Mồ côi", so(con),
+      con ? "sổ mở · danh mục không giữ"
+          : (daDong ? "lúc khởi động đã dọn " + daDong + " tờ"
+                    : "hai sổ khớp nhau"),
+      con ? "am" : "duong"));
+    d.appendChild(oSo("Vốn mồ côi",
+      con ? (ds.vonMoCoiUsd == null ? "KHÔNG đo được" : tien(ds.vonMoCoiUsd))
+          : "—",
+      con ? "nằm ngoài mọi phép tính trần" : "không có",
+      con ? "am" : "nhat", ds.vonMoCoiUsd == null));
+    k.appendChild(d);
+    if (ds.vi) k.appendChild(giai(ds.vi));
+    f.appendChild(k);
+
+    if (!ds.lech && daDong) {
+      var kx = khoi("Lúc khởi động, máy đã dọn một chỗ lệch");
+      var bx = el("div", "viec-1 nhe");
+      bx.appendChild(el("b", null, "Đã đóng " + daDong
+        + " tờ mồ côi ở sổ"
+        + (dsHien.vonDaDongUsd ? " · " + tien(dsHien.vonDaDongUsd) : "")
+        + ", kèm bút toán"));
+      bx.appendChild(el("span", null,
+        "Chúng mở từ trước lần khởi động này. Vị thế MÔ PHỎNG không sống "
+        + "qua được một lần restart — danh mục dựng lại rỗng — nên đóng "
+        + "chúng ở sổ là ghi đúng cái đã xảy ra, không phải xoá dấu vết."));
+      bx.appendChild(el("span", null,
+        "Sổ cái nhận một bút toán DONG_VI_THE và một HOAN_VON cho mỗi tờ, "
+        + "nên vẫn truy nguyên được."));
+      kx.appendChild(bx);
+      f.appendChild(kx);
+    }
+
+    if (ds.lech) {
+      var k0 = khoi("Lệch — và vì sao nó im lặng");
+      var b = el("div", "viec-1");
+      b.appendChild(el("b", null, ds.canNguoi
+        ? "PHẢI CÓ NGƯỜI: lớp thực thi chạy tiền thật"
+        : "Vốn đã cam kết đang nằm ngoài phép tính trần"));
+      b.appendChild(el("span", null,
+        "Danh mục dựng lại rỗng sau mỗi lần khởi động, còn sổ đăng ký thì "
+        + "nhớ. Nên phần vốn ĐÃ TIÊU biến khỏi mẫu số, và tiền rảnh trông "
+        + "rộng hơn sự thật — cùng họ với «không đọc được vốn ngoài», chỉ "
+        + "ngược chiều."));
+      b.appendChild(el("span", null, ds.canNguoi
+        ? "Máy KHÔNG tự đóng: vị thế tiền thật vẫn ở trên sàn sau khi "
+          + "runtime chết, và tự đóng ở sổ là bịa ra một lần đóng chưa từng "
+          + "xảy ra. Đối soát với sàn rồi đóng tay."
+        : "Đây là vị thế MÔ PHỎNG — chưa từng tồn tại ngoài RAM. Bấm «Đối "
+          + "soát vị thế» ở thanh dưới để đóng chúng ở sổ, kèm bút toán."));
+      k0.appendChild(b);
+      f.appendChild(k0);
+
+      var k1 = khoi("Bốn cột, và cột «vốn đã cấp» đọc từ SỔ CÁI",
+        "Không đọc từ tờ trình: `vonCanUsd` là vốn XIN, còn Phân Bổ thường "
+        + "cấp ít hơn. Lấy số xin mà báo là vốn bị quên thì thổi phồng nó.");
+      k1.appendChild(bangMoCoi(ds));
+      if (ds.soKhongDoDuocVon)
+        k1.appendChild(giai("Có " + ds.soKhongDoDuocVon + " tờ KHÔNG đọc "
+          + "được vốn đã cấp, nên ô «Vốn mồ côi» ở trên không cộng ra tổng — "
+          + "một lỗ thì cả tổng mù, không cộng vòng qua lỗ hổng."));
+      f.appendChild(k1);
+    }
+
+    if (!ds.lech && daDong) {
+      var kb = khoi("Những tờ đã được đóng");
+      kb.appendChild(bangMoCoi(dsHien));
+      f.appendChild(kb);
+    }
+
+    var k2 = khoi("Danh mục đang giữ những chân nào");
+    var vt = dm.viThe || {}, ma = Object.keys(vt);
+    if (!ma.length) {
+      k2.appendChild(giai(dm.soViThe
+        ? "danh mục báo " + dm.soViThe + " vị thế nhưng không trả về chân nào"
+        : "Danh mục KHÔNG giữ chân nào. Đây là rỗng ĐO ĐƯỢC — khác hẳn rỗng "
+          + "vì không nhìn thấy. " + (dm.loiNhac || "")));
+    } else {
+      var hang = [];
+      ma.forEach(function (m) {
+        (vt[m] || []).forEach(function (c) {
+          hang.push([{ t: m }, { t: (TEN_DEP[c.chienLuoc] || [c.chienLuoc])[0] },
+                     { t: c.ben }, { t: c.taiSan }, { t: c.cang },
+                     { t: c.chuoi || "—" }, { t: tien(c.vonUsd), c: "n" }]);
+        });
+      });
+      k2.appendChild(bang([{ t: "Tờ trình" }, { t: "Ty" }, { t: "Bên" },
+                           { t: "Tài sản" }, { t: "Cảng" }, { t: "Chuỗi" },
+                           { t: "Vốn", n: true }], hang));
+    }
+    f.appendChild(k2);
+
+    var k3 = khoi("Vị thế ở cỗ máy khác",
+      "Thị Bạc Ty không quản, nhưng phải THẤY — nếu không thì NAV thiếu một "
+      + "phần và mọi trần rộng hơn sự thật.");
+    var ng = t.vonNgoai || [];
+    if (!ng.length) k3.appendChild(giai("chưa khai nguồn vốn ngoài nào"));
+    else k3.appendChild(bang(
+      [{ t: "Nguồn" }, { t: "Đọc được" }, { t: "Vị thế", n: true },
+       { t: "Đã cam kết", n: true }, { t: "Chưa phòng hộ", n: true },
+       { t: "Tuổi số liệu", n: true }],
+      ng.map(function (v) {
+        return [{ t: v.ten }, { el: cot(v.docDuoc ? "PAPER" : "FAULT") },
+                { t: v.docDuoc ? so(v.soViThe) : "—", c: "n" },
+                { t: v.docDuoc ? tien(v.daCamKetUsd) : "—", c: "n" },
+                { t: v.docDuoc ? tien(v.chuaPhongHoUsd) : "—", c: "n" },
+                { t: gio(v.tuoiGiay), c: "n" }];
+      })));
+    f.appendChild(k3);
+
+    var k4 = khoi("Cả đời vị thế, theo sổ đăng ký");
+    k4.appendChild(bang([{ t: "Nấc" }, { t: "Số", n: true }],
+      [["Đã cấp vốn", ph.DA_CAP_VON], ["Đã mở", ph.DA_MO],
+       ["Đã đóng", ph.DA_DONG], ["Hỏng (legging)", ph.HONG],
+       ["Hết hạn", ph.HET_HAN]].map(function (x) {
+        return [{ t: x[0] }, { t: so(x[1] || 0), c: "n" }];
+      })));
+    k4.appendChild(giai("«Đã mở» trừ «Đã đóng» phải bằng số danh mục đang "
+      + "giữ. Không bằng thì phần chênh chính là ô «Mồ côi» ở trên."));
+    f.appendChild(k4);
+    return f;
+  }
+
+  function bangMoCoi(ds) {
+    var xong = {};
+    (ds.daDong || []).forEach(function (m) { xong[m] = true; });
+    return bang(
+      [{ t: "Mã tờ trình" }, { t: "Ty" }, { t: "Tài sản" }, { t: "Mở lúc" },
+       { t: "Vốn đã cấp", n: true }, { t: "Vốn xin", n: true },
+       { t: "Hiện sao" }],
+      (ds.moCoi || []).map(function (x) {
+        return [{ t: x.ma },
+                { t: (TEN_DEP[x.chienLuoc] || [x.chienLuoc])[0] },
+                { t: x.taiSan },
+                { t: String(x.moLuc || "").slice(0, 16).replace("T", " ") },
+                { t: x.vonDaCapUsd == null ? "KHÔNG đo được"
+                                           : tien(x.vonDaCapUsd), c: "n" },
+                { t: tien(x.vonXinUsd), c: "n" },
+                { t: xong[x.ma] ? "đã đóng ở sổ" : "CÒN mồ côi" }];
+      }));
+  }
+
+  /* ══════════════════ TRANG: CƠ HỘI ═════════════════════════════
+   * Bảng cơ hội của CẢ hệ, viết bằng ngôn ngữ chung (tờ trình) chứ không
+   * bằng ngôn ngữ nội bộ của một ty. Đây là chỗ trả lời "vòng vừa rồi máy
+   * thấy gì, và vì sao gần như không cái nào qua".                        */
+  function ve_co_hoi() {
+    var f = document.createDocumentFragment();
+    var t = (S && S.trungUong) || {}, lat = t.latCatVong || {};
+    var tt = t.toTrinh || [], dc = dsDongCo();
+
+    var tho = 0, qua = 0;
+    (t.ty || []).forEach(function (x) {
+      tho += x.soCoHoi || 0; qua += x.soQuaCongTy || 0;
+    });
+
+    var k = khoi("Vòng này máy thấy gì",
+      "Bốn con số dưới đây là bốn cái sàng nối tiếp nhau. Sàng gắt là dấu "
+      + "hiệu LÀNH — ở những góc cạnh tranh nhất của thị trường, từ chối "
+      + "giỏi đáng giá hơn phát hiện nhiều.");
+    var d = el("div", "day-so");
+    d.appendChild(oSo("Cơ hội thô", so(tho), "chín ty cộng lại, vòng này"));
+    d.appendChild(oSo("Qua cổng ty", so(qua),
+      tho ? ((qua / tho) * 100).toFixed(2) + "% — tầng rủi ro THỨ NHẤT" : ""));
+    d.appendChild(oSo("Thành tờ trình", so(tt.length),
+      "viết bằng ngôn ngữ chung của Thị Bạc Ty"));
+    d.appendChild(oSo("Được cấp vốn",
+      lat.phanBo ? so(lat.phanBo.soCap) : "0",
+      lat.cauDaoNgat ? "⚠ cầu dao NGẮT — không cam kết đồng nào"
+                     : tien(lat.phanBo && lat.phanBo.tongCapUsd),
+      lat.cauDaoNgat ? "am" : null));
+    k.appendChild(d);
+    f.appendChild(k);
+
+    var k2 = khoi("Tờ trình vòng này — cả chín ty trong một bảng",
+      "Cột «phí đủ chưa» là cột đáng đọc nhất: một tuyến có chặng không đo "
+      + "được thì CẢ tuyến không đo được, và ty khai ra thay vì cộng vòng "
+      + "qua lỗ hổng.");
+    if (!tt.length) {
+      k2.appendChild(giai("Không ty nào nộp tờ trình nào trong vòng vừa rồi. "
+        + "Đây là kết quả BÌNH THƯỜNG: mọi cơ hội đã bị chính ty của nó loại "
+        + "ở cổng thứ nhất."));
+    } else {
+      k2.appendChild(bang(
+        [{ t: "Ty" }, { t: "Tài sản" }, { t: "Cảng" },
+         { t: "NET bps", n: true }, { t: "Vốn xin", n: true },
+         { t: "Giữ", n: true }, { t: "Rủi ro cao nhất", n: true },
+         { t: "Tin cậy", n: true }, { t: "Phí đủ chưa" }],
+        tt.slice(0, 60).map(function (x) {
+          var rr = x.ruiRo || {};
+          var thieu = (x.phiConThieu || []).length;
+          return [
+            { t: (TEN_DEP[x.chienLuoc] || [x.chienLuoc])[0] },
+            { t: x.taiSan || "—" },
+            { t: (x.cang || []).join(", ") || "—" },
+            { t: x.netUocBps == null ? "—" : x.netUocBps.toFixed(2), c: "n" },
+            { t: tien(x.vonCanUsd, 0), c: "n" },
+            { t: gio((x.giuGio || 0) * 3600), c: "n" },
+            { t: rr.caoNhat == null ? "—" : rr.caoNhat.toFixed(2), c: "n" },
+            { t: x.tinCay == null ? "—" : x.tinCay.toFixed(2), c: "n" },
+            { t: x.moHinhPhiDuChua ? "đủ"
+                 : "THIẾU " + thieu + ": " + (x.phiConThieu || []).join(", ") }
+          ];
+        })));
+      if (tt.length > 60)
+        k2.appendChild(giai("Hiện 60 tờ đầu trong " + tt.length + " tờ."));
+    }
+    f.appendChild(k2);
+
+    var k3 = khoi("Rồi chuyện gì xảy ra với chúng");
+    k3.appendChild(bang([{ t: "Khâu" }, { t: "Số", n: true }, { t: "Nghĩa là" }],
+      [[{ t: "Trung Ương nhận" }, { t: so(lat.soToTrinhNhan), c: "n" },
+        { t: "qua Thông Chính, đúng khuôn ToTrinh" }],
+       [{ t: "Ghi vào sổ đăng ký" }, { t: so(lat.soGhiNhan), c: "n" },
+        { t: "được cấp một mã theo dõi được cả đời" }],
+       [{ t: "Bỏ vì TRÙNG" }, { t: so(lat.soBoTrung), c: "n" },
+        { t: "cùng dấu vân với một tờ vừa vào — cùng một cơ hội thấy lại, "
+             + "không phải cơ hội mới" }],
+       [{ t: "Cầu dao" }, { t: lat.cauDaoNgat ? "NGẮT" : "đóng", c: "n" },
+        { t: (lat.lyDoNgat || []).join("; ")
+             || "không điều kiện nào bật; phân bổ được phép chạy" }],
+       [{ t: "Thực thi" }, { t: so(lat.soThucThi), c: "n" },
+        { t: "mô phỏng — lớp ký lệnh chưa tồn tại" }]]));
+    f.appendChild(k3);
+
+    var k4 = khoi("Phễu từ đầu tới giờ");
+    k4.appendChild(vePheu(t.pheuDayDu || {}));
+    f.appendChild(k4);
+
+    var vs = (S && S.viSaoTuChoi) || {};
+    var kv = Object.keys(vs);
+    var k5 = khoi("Vì sao bị từ chối — ty chênh funding",
+      "Bảng này CHỈ của một ty: các ty khác chưa nộp bảng lý do theo mã. "
+      + "Ghi rõ phạm vi còn hơn để người đọc tưởng đây là cả hệ.");
+    if (!kv.length) k5.appendChild(giai("chưa có lý do nào được đếm"));
+    else k5.appendChild(bang([{ t: "Lý do" }, { t: "Số lần", n: true }],
+      kv.sort(function (a, b) { return vs[b] - vs[a]; }).map(function (x) {
+        return [{ t: x }, { t: so(vs[x]), c: "n" }];
+      })));
+    f.appendChild(k5);
+
+    var k6 = khoi("Mỗi động cơ thấy bao nhiêu");
+    k6.appendChild(bang(
+      [{ t: "Động cơ" }, { t: "Trạng thái" }, { t: "Quét", n: true },
+       { t: "Cơ hội", n: true }, { t: "Qua cổng", n: true },
+       { t: "Ngưỡng vốn", n: true }],
+      dc.map(function (x) {
+        return [{ t: x.ten }, { el: cot(x.tt) },
+                { t: x.dung ? so(x.soQuet) : "—", c: "n" },
+                { t: x.dung ? so(x.soCoHoi) : "—", c: "n" },
+                { t: x.dung ? so(x.soQua) : "—", c: "n" },
+                { t: x.dung ? tien(x.nguong, 0) : "—", c: "n" }];
+      })));
+    f.appendChild(k6);
+    return f;
+  }
+
   /* ══════════════════ TRANG: LỜI / LỖ ═══════════════════════════ */
   function ve_loi_lo() {
     var f = document.createDocumentFragment();
@@ -672,6 +1015,15 @@
     var t = (S && S.trungUong) || {};
 
     var song = cang.filter(function (c) { return c.songSot && !c.loiCuoi; }).length;
+
+    var k0 = khoi("Hạ tầng — cái gì nuôi cái gì",
+      "Bốn cột đọc từ TRÁI sang PHẢI. Ô nào đỏ thì mọi thứ bên phải nó đang "
+      + "đi trên số liệu thiếu — và đó là lý do sơ đồ này tồn tại: một cảng "
+      + "chết ở cột một hiện thành «không có cơ hội nào» ở cột bốn, hai chỗ "
+      + "cách nhau xa tới mức không ai nối được nếu phải nối bằng trí nhớ.");
+    k0.appendChild(veSoDoHaTang(cang, r, ng, nc, t));
+    f.appendChild(k0);
+
     var k = khoi("Nguồn dữ liệu",
       "Mọi nguồn đều CÔNG KHAI, không khoá. Ngày một nguồn cần khoá là ngày "
       + "nó thôi là nguồn và trở thành thứ khác.");
@@ -732,6 +1084,174 @@
       })));
     f.appendChild(k4);
     return f;
+  }
+
+  /* ── sơ đồ hạ tầng ────────────────────────────────────────────────
+   * Sơ đồ này CỐ Ý không dùng sáu màu trạng thái. Sáu màu ấy nói về động
+   * cơ ("đang chạy tiền thật", "chỉ quan sát"); một nguồn dữ liệu khoẻ
+   * không phải "LIVE" theo nghĩa đó, và tô nó xanh y hệt là dạy mắt đọc
+   * sai. Ở đây chỉ có HAI dấu: **đỏ = đang hỏng**, **nét đứt = chưa đo
+   * được sức khoẻ**. Không dấu nào nghĩa là đang đọc được.
+   *
+   * Và phải phân biệt "đo" với "suy": bốn cảng perp, RPC gas và LI.FI có
+   * bộ đếm sức khoẻ thật; Deribit, DefiLlama, Polymarket thì không — ta
+   * chỉ suy từ việc ty của chúng có ném lỗi hay không. Vẽ cả sáu cùng một
+   * kiểu là biến một suy đoán thành một phép đo.                        */
+  function veSoDoHaTang(cang, r, ng, nc, t) {
+    var NS = "http://www.w3.org/2000/svg";
+    function e(ten, thuoc) {
+      var x = document.createElementNS
+        ? document.createElementNS(NS, ten) : el(ten);
+      for (var k in thuoc) if (thuoc[k] != null) x.setAttribute(k, thuoc[k]);
+      return x;
+    }
+    var loiTy = {};
+    (t.ty || []).forEach(function (x) { loiTy[x.ma] = !!x.loiCuoi; });
+    function tyHong() {
+      for (var i = 0; i < arguments.length; i++)
+        if (loiTy[arguments[i]]) return true;
+      return false;
+    }
+    var cangChet = (cang || []).filter(function (c) {
+      return !c.songSot || c.loiCuoi;
+    });
+
+    var COT = [
+      { nhan: "NGUỒN CÔNG KHAI", x: 8, o: [
+        { id: "perp", ten: "4 sàn perp",
+          phu: (cang.length - cangChet.length) + "/" + cang.length
+               + " đọc được · Hyperliquid·Binance·OKX·Bybit",
+          hong: cangChet.length > 0, doDuoc: true },
+        { id: "deribit", ten: "Deribit", phu: "chuỗi quyền chọn — suy từ ty",
+          hong: tyHong("options.put_call_parity.v1"), doDuoc: false },
+        { id: "llama", ten: "DefiLlama", phu: "lãi cho vay · pool AMM · Pendle",
+          hong: tyHong("lending.rate_rotation.v1", "yield.pendle_pt.v1",
+                       "amm.fee_farming.v1"), doDuoc: false },
+        { id: "poly", ten: "Polymarket", phu: "đọc QUA Khâm Thiên Giám",
+          hong: tyHong("prediction.polymarket.v1"), doDuoc: false },
+        { id: "rpc", ten: "RPC " + (r.chuoiCoGas || []).length + " chuỗi",
+          phu: "giá gas · " + ((ng.soGiuLai || 0)
+               ? "giữ số cũ " + ng.soGiuLai + " lần" : "chưa phải giữ số cũ"),
+          hong: !!ng.loiCuoi || !(r.chuoiCoGas || []).length, doDuoc: true },
+        { id: "lifi", ten: "LI.FI", phu: nc.dangNghi
+            ? "ĐANG NGHỈ vì hạn mức" : "báo giá cầu nối",
+          hong: !!nc.dangNghi || !!nc.loiCuoi, doDuoc: true }
+      ] },
+      { nhan: "HẠ TẦNG DÙNG CHUNG", x: 228, o: [
+        { id: "doc", ten: "Bộ đọc chung",
+          phu: "sàn · phái sinh · chuỗi — một bộ, chín ty dùng",
+          hong: false, doDuoc: false },
+        { id: "router", ten: "Router chuyển vốn",
+          phu: (r.chuoiDungDuoc || []).length + "/"
+               + (r.chuoiCoGas || []).length + " chuỗi dùng được · nhà "
+               + (r.nha || "—"),
+          hong: (r.chuoiCoGasNhungThieuGia || []).length > 0, doDuoc: true }
+      ] },
+      { nhan: "CHÍN TY, NĂM HỌ", x: 448, o: [
+        { id: "ho-phai-sinh", ten: "Phái sinh", phu: "3 ty", hong: false, doDuoc: true },
+        { id: "ho-tin-dung", ten: "Tín dụng", phu: "2 ty", hong: false, doDuoc: true },
+        { id: "ho-chenh-lech", ten: "Chênh lệch", phu: "2 ty", hong: false, doDuoc: true },
+        { id: "ho-thanh-khoan", ten: "Thanh khoản", phu: "1 ty", hong: false, doDuoc: true },
+        { id: "ho-tien-doan", ten: "Tiên đoán", phu: "1 ty", hong: false, doDuoc: true }
+      ] },
+      { nhan: "TRUNG ƯƠNG", x: 668, o: [
+        { id: "tu", ten: "Trung Ương",
+          phu: "cầu dao · rủi ro tổng · phân bổ · sổ cái",
+          hong: !!(t.cauDao || {}).dangNgat, doDuoc: true }
+      ] }
+    ];
+    /* Đếm ty hỏng theo HỌ, để một ty ném lỗi hiện ra đúng ô của nó. */
+    var hoCua = { "phai-sinh": 0, "tin-dung": 0, "chenh-lech": 0,
+                  "thanh-khoan": 0, "tien-doan": 0 };
+    (t.ty || []).forEach(function (x) {
+      if (x.loiCuoi && hoCua[x.ho] != null) hoCua[x.ho] += 1;
+    });
+    COT[2].o.forEach(function (o) {
+      var h = o.id.replace(/^ho-/, "");
+      if (hoCua[h]) { o.hong = true; o.phu = o.phu + " · " + hoCua[h] + " ĐANG LỖI"; }
+    });
+
+    var W = 176, H = 54, KHE = 14, DAU = 26;
+    var caoNhat = 0;
+    COT.forEach(function (c) {
+      caoNhat = Math.max(caoNhat, c.o.length * H + (c.o.length - 1) * KHE);
+    });
+    var CAO = DAU + caoNhat + 40;
+    var oi = {};
+    COT.forEach(function (c) {
+      var cao = c.o.length * H + (c.o.length - 1) * KHE;
+      var y0 = DAU + (caoNhat - cao) / 2;
+      c.o.forEach(function (o, i) {
+        o.x = c.x; o.y = y0 + i * (H + KHE); o.w = W; o.h = H;
+        oi[o.id] = o;
+      });
+    });
+
+    var svg = e("svg", { viewBox: "0 0 852 " + CAO, class: "so-do",
+                         role: "img", "aria-label": "sơ đồ hạ tầng" });
+    /* Cạnh vẽ TRƯỚC ô, để đường không đè lên chữ. */
+    function canh(a, b, hong) {
+      var A = oi[a], B = oi[b];
+      if (!A || !B) return;
+      var x1 = A.x + A.w, y1 = A.y + A.h / 2, x2 = B.x, y2 = B.y + B.h / 2;
+      var g = (x2 - x1) / 2;
+      svg.appendChild(e("path", {
+        d: "M" + x1 + " " + y1 + "C" + (x1 + g) + " " + y1 + ","
+           + (x2 - g) + " " + y2 + "," + x2 + " " + y2,
+        class: "sd-canh" + (hong ? " hong" : "") }));
+    }
+    ["perp", "deribit", "llama", "poly"].forEach(function (x) {
+      canh(x, "doc", oi[x].hong);
+    });
+    ["rpc", "lifi"].forEach(function (x) { canh(x, "router", oi[x].hong); });
+    COT[2].o.forEach(function (o) { canh("doc", o.id, false); });
+    ["ho-tin-dung", "ho-chenh-lech", "ho-thanh-khoan"].forEach(function (x) {
+      canh("router", x, oi.router.hong);
+    });
+    COT[2].o.forEach(function (o) { canh(o.id, "tu", o.hong); });
+
+    COT.forEach(function (c) {
+      svg.appendChild(chuSvg(e, c.x, 16, c.nhan, "sd-nhan"));
+      c.o.forEach(function (o) {
+        svg.appendChild(e("rect", {
+          x: o.x, y: o.y, width: o.w, height: o.h, rx: 6,
+          class: "sd-o" + (o.hong ? " hong" : "") + (o.doDuoc ? "" : " suy") }));
+        svg.appendChild(chuSvg(e, o.x + 11, o.y + 21, o.ten, "sd-ten"
+          + (o.hong ? " hong" : "")));
+        /* Chữ SVG không tự xuống dòng, nên dòng phụ phải cắt. Câu đủ đi
+           vào `<title>` — cắt mà không giữ bản đủ ở đâu cả thì thông tin
+           mất hẳn, chứ không phải chỉ khuất đi. */
+        var phu = chuSvg(e, o.x + 11, o.y + 38, lamNgan(o.phu, 30), "sd-phu");
+        var tenDay = e("title");
+        tenDay.textContent = o.ten + " — " + o.phu;
+        phu.appendChild(tenDay);
+        svg.appendChild(phu);
+      });
+    });
+
+    var w = el("div", "cuon");
+    w.appendChild(svg);
+    var ch = el("div", "chu-thich");
+    ch.appendChild(nhanSvg("đang hỏng", "hong"));
+    ch.appendChild(nhanSvg("chưa đo được sức khoẻ — chỉ SUY từ ty của nó", "suy"));
+    ch.appendChild(nhanSvg("đang đọc được", ""));
+    w.appendChild(ch);
+    return w;
+  }
+  function chuSvg(e, x, y, s, lop) {
+    var t = e("text", { x: x, y: y, class: lop });
+    t.textContent = s;
+    return t;
+  }
+  function nhanSvg(s, lop) {
+    var d = el("span", "ct" + (lop ? " " + lop : ""));
+    d.appendChild(el("i"));
+    d.appendChild(el("span", null, s));
+    return d;
+  }
+  function lamNgan(s, n) {
+    s = String(s || "");
+    return s.length > n ? s.slice(0, n - 1) + "…" : s;
   }
 
   /* ══════════════════ TRANG: SỔ CÁI ═════════════════════════════ */
@@ -889,6 +1409,7 @@
   /* ══════════════════ BỘ ĐỊNH TUYẾN ═════════════════════════════ */
   var TRANG = {
     "trung-tam": ve_trung_tam, "dong-co": ve_dong_co, "von": ve_von,
+    "vi-the": ve_vi_the, "co-hoi": ve_co_hoi,
     "loi-lo": ve_loi_lo, "rui-ro": ve_rui_ro, "du-lieu": ve_du_lieu,
     "so-cai": ve_so_cai, "he-thong": ve_he_thong
   };
@@ -1015,6 +1536,22 @@
       .then(function (j) { nhac(j.tamDung ? "ĐÃ TẠM DỪNG" : "chạy tiếp"); })
       .then(tai);
   });
+  $("#nut-doi-soat").addEventListener("click", function () {
+    nhac("đang đối soát vị thế…");
+    fetch("/api/doi-soat-vi-the", { method: "POST" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        nhac(j.lech
+          ? (j.canNguoi ? "VẪN LỆCH — cần người: " + j.soMoCoi + " tờ"
+                        : "đóng " + (j.daDong || []).length + " tờ, còn lệch")
+          : "khớp — không tờ nào mồ côi"
+          + ((j.daDong || []).length ? " (vừa đóng "
+             + j.daDong.length + " tờ)" : ""));
+      })
+      .catch(function (e) { nhac("đối soát lỗi: " + e.message); })
+      .then(tai);
+  });
+
   $("#nut-lat").addEventListener("click", function () {
     nhac("đang ghi lát cắt…");
     fetch("/api/lat-cat", { method: "POST" })

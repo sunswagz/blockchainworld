@@ -135,11 +135,62 @@ TỜ TRÌNH ──► THÔNG CHÍNH TY ──► SỔ ĐĂNG KÝ (PHAT_HIEN)
 | `so_cai.py` | sổ chỉ-thêm; sửa sai chỉ có một đường là **đảo** |
 | `thuc_thi.py` | máy trạng thái hai chân, có đường lùi |
 | `cau_dao.py` | ngắt **tự động**, đóng lại **phải có người** |
+| `doi_soat_vi_the.py` | sổ nhớ, danh mục quên — và ai đóng cái lệch ấy |
 | `chan_doan_he.py` | bệnh của cả bộ máy, và đề xuất vặn tham số phân bổ |
 | `chay_lai_he.py` | chạy lại phân bổ để **đo** đề xuất, không đoán |
 | `cong_duyet.py` | bảy luật một đề xuất phải qua trước khi thành bản |
 | `ban_tham_so.py` | tham số có số hiệu, có lịch sử, quay lui được |
 | `trung_uong.py` | khép vòng, và ép mọi tầng đi đúng thứ tự |
+
+### Sổ NHỚ, danh mục QUÊN — và 500 USD biến khỏi mẫu số
+
+Đo ngày 28/08/2026 trên máy đang chạy: sổ đăng ký có **bốn tờ đứng
+`DA_MO`**, mở từ 26/08, sổ cái ghi `CAP_VON` tổng **500 USD** cho đúng bốn
+tờ ấy. Danh mục cùng lúc báo `soViThe: 0`, `daCamKetUsd: 0`,
+`tiLeDungVon: 0`.
+
+Cả hai đều đúng theo cách của mình, và đó mới là chỗ nguy:
+
+    sổ đăng ký   nằm trên đĩa   → sống qua mọi lần khởi động lại
+    danh mục     dựng trong RAM → `DanhMuc.__init__` đặt `viThe = {}`
+
+Nên **mỗi lần khởi động lại là một lần vốn đã cam kết bốc hơi khỏi phép
+tính trần**. Cùng họ với `von-ngoai-mu` nhưng ngược chiều: ở đó NAV thiếu
+một phần nên trần rộng hơn sự thật; ở đây phần ĐÃ TIÊU bị quên nên tiền
+rảnh rộng hơn sự thật. Trên NAV 1000 thì 500 bị quên là một nửa — và
+không lỗi nào nổ, không dòng nhật ký nào báo, chỉ có một con số 0 trông
+rất khoẻ.
+
+Nó cũng không tự hết: trong cả hệ **không có đường nào chuyển sang
+`DA_DONG`**. Vị thế mở ra thì ở lại `DA_MO` vĩnh viễn.
+
+`doi_soat_vi_the.py` đo chỗ lệch ấy mỗi vòng, và xử lý theo **`moPhong`**:
+
+| lớp thực thi | máy làm gì | vì sao |
+|---|---|---|
+| mô phỏng | ĐÓNG ở sổ, kèm `DONG_VI_THE` + `HOAN_VON` | vị thế chưa bao giờ tồn tại ngoài RAM; khởi động lại là nó biến mất **thật** |
+| tiền thật | KHÔNG đóng gì, ngắt cầu dao `tuMo=False` | vị thế vẫn ở trên sàn sau khi runtime chết; tự đóng ở sổ là bịa ra một lần đóng chưa từng xảy ra |
+
+Nhánh thứ hai chưa đi vào được từ mã thật (`DieuPhoiThucThi.moPhong` là
+True cứng), nên phép kiểm dựng một lớp thực thi giả để đi vào nó — một
+nhánh chỉ có văn xuôi bảo vệ là một nhánh chưa được bảo vệ.
+
+Hai chi tiết đáng giữ:
+
+- **Vốn đọc từ SỔ CÁI, không từ tờ trình.** `vonCanUsd` là vốn *xin*; Phân
+  Bổ thường cấp ít hơn, và ở đây đã thật: bốn tờ xin 200 mỗi tờ, được cấp
+  100·150·100·150. Lấy số xin thì thổi 500 thành 800.
+- **Tờ không có `CAP_VON` nào thì vốn là `None`, không phải 0**, và một
+  lỗ thì **cả tổng mù** — cùng luật với Router. Một tờ đứng `DA_MO` mà sổ
+  cái không có dòng cấp vốn nào là chuyện đáng báo động hơn hẳn một tờ
+  được cấp 0 đồng.
+
+Cầu dao chỉ được nối vào **SAU** khi đã dọn: ngắt rồi gỡ ngay trong một
+lượt khởi động thì `soLanNgat` cộng thêm một mỗi lần chạy lại, và chẩn
+đoán `cau-dao-ngat-nhieu` (ngưỡng 5) sẽ kêu vì chính việc dọn dẹp thành
+công.
+
+    curl -X POST localhost:5188/api/doi-soat-vi-the
 
 ### Bảy việc một ty KHÔNG được làm
 
@@ -921,7 +972,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 917 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 996 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 ```
 
@@ -1194,6 +1245,49 @@ chưa có gì để học. Đó là lý do `dichvu/chay-nen.py` tồn tại.
     GET  /api/bang                     băng có bao nhiêu khung, có lành không
 
 Hoặc mở buồng lái, tab **Đào tạo**.
+
+## Buồng lái — MƯỜI đường, ba tầng, và trang gốc thuộc TRUNG ƯƠNG
+
+`localhost:5188/` **không thuộc về bất kỳ ty nào.** Trước 28/08/2026 trang
+gốc là bảng chẩn đoán của riêng ty chênh funding — bps, mốc L+S, lệch
+mark — nên một động cơ trong mười ba chiếm cửa vào của cả bộ máy, và
+người mở nó ra phải giải mã mới biết máy có ổn không.
+
+| tầng | trả lời câu gì | ở đâu |
+|---|---|---|
+| 1 | máy có ổn không · tiền ở đâu · lời lỗ · ai đang chạy | `/` |
+| 2 | vì sao — vốn, vị thế, cơ hội, rủi ro, nguồn dữ liệu | `/von` `/vi-the` `/co-hoi` `/rui-ro` `/du-lieu` |
+| 3 | mổ máy — bps thô, lệch mark, RPC, log | `/dong-co/<mã>` |
+
+    /            trung tâm — BÂY GIỜ, năm ô, mạch tám chặng, việc cần người
+    /dong-co     mười ba động cơ, SÁU trạng thái quy về một hệ
+    /von         NAV · vốn ngoài · năm lát cắt phơi nhiễm
+    /vi-the      danh mục ↔ sổ đăng ký, và chỗ chúng lệch nhau
+    /co-hoi      tờ trình CẢ CHÍN TY trong một bảng, và phễu
+    /loi-lo      KHÔNG trộn tiền thật với mô phỏng
+    /rui-ro      cầu dao · trần Rủi Ro Tổng · hiến pháp
+    /du-lieu     sơ đồ hạ tầng + sức khoẻ từng nguồn
+    /so-cai      bút toán, tờ trình theo ty, nhật ký
+    /he-thong    vòng chạy · lớp thực thi · bản tham số
+
+Ba luật của lớp giao diện, và cả ba đều có phép kiểm canh:
+
+1. **Trang trắng không được im lặng.** Một hàm vẽ ném giữa chừng để lại
+   thân trang rỗng nhìn y hệt máy chết — nên chỗ đáng lẽ là nội dung sẽ
+   hiện chính lỗi ấy, kèm câu *"máy VẪN đang chạy"*.
+2. **Màu là trạng thái.** Sáu màu trạng thái không dùng vào việc gì khác,
+   kể cả làm màu nhấn. Sơ đồ hạ tầng vì thế **không mượn** chúng: nó chỉ
+   có hai dấu — đỏ là hỏng, nét đứt là **chưa đo được**, và nét đứt ấy
+   phân biệt "đo" (bốn cảng perp, RPC gas, LI.FI có bộ đếm thật) với
+   "suy" (Deribit, DefiLlama, Polymarket — chỉ suy từ ty của chúng).
+3. **Số thô của tầng ba không được leo lên tầng một.** `markPx`,
+   `lechMarkBps`, `aprPhanTram`, `mocL` chỉ sống ở `/dong-co/...`.
+
+Dựng thử KHÔNG chỉ là kiểm cú pháp: một harness DOM giả chạy cả mười ba
+đường trên **dữ liệu thật**, và trên cả những trạng thái *không* đang xảy
+ra — cảng chết, ty ném lỗi, vị thế mồ côi chưa đối soát. Chúng là đúng
+những ô mà buồng lái tồn tại để hiện; dựng chỉ trên ảnh chụp "mọi thứ đều
+ổn" thì chúng chưa bao giờ được vẽ lần nào.
 
 ## Lộ trình — V0.6 là mốc duy nhất chạm tới tiền
 

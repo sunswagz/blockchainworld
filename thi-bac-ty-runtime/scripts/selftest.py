@@ -4971,6 +4971,155 @@ def kiem_lp_amm() -> None:
     kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
          any("SUY RA" in b for b in t.bangChung))
 
+def kiem_doi_soat_vi_the() -> None:
+    print("\n-- DOI SOAT VI THE: so nho, danh muc quen --")
+    from thi_bac_ty.cau_dao import CauDao
+    from thi_bac_ty.danh_muc import DanhMuc, ViThe
+    from thi_bac_ty.doi_soat_vi_the import MA_NGAT, canh, do, doi_soat
+    from thi_bac_ty.so_cai import ButToan, SoCai
+    from thi_bac_ty.so_dang_ky import SoDangKy
+
+    class _That:
+        """Lớp thực thi GIẢ, chạy tiền thật. `DieuPhoiThucThi.moPhong` là
+        True cứng nên nhánh tiền thật không đi vào được từ mã thật — mà
+        một nhánh chỉ có văn xuôi bảo vệ là một nhánh chưa được bảo vệ."""
+        moPhong = False
+
+    class _Gia:
+        moPhong = True
+
+    def _dung(ten):
+        d = _tam(ten)
+        sdk = SoDangKy(d / "sdk.sqlite3")
+        sc = SoCai(d / "sc.sqlite3")
+        dm = DanhMuc(1000.0)
+        return sdk, sc, dm
+
+    def _mo(sdk, sc, taiSan, capUsd, vonXin=200.0):
+        """Đưa một tờ trình đi hết đường tới DA_MO, và ghi CAP_VON.
+
+        `taiSan` khác nhau để dấu vân khác nhau — `SoDangKy.ghi_nhan()`
+        chặn hai tờ cùng mã, nên hai tờ giống hệt là một tờ."""
+        tt = _mau(taiSan=taiSan, von=vonXin)
+        sdk.ghi_nhan(tt)
+        for b in ("DUYET_TY", "DUYET_RUI_RO", "DA_CAP_VON", "DA_MO"):
+            sdk.chuyen(tt.ma, b, "dựng phép kiểm")
+        if capUsd is not None:
+            sc.ghi(ButToan("CAP_VON", "phép kiểm cấp vốn", float(capUsd),
+                           tt.chienLuoc, tt.ma))
+        return tt
+
+    # ── 1. ĐO: sổ mở, danh mục rỗng → mồ côi ────────────────────────────
+    sdk, sc, dm = _dung("ds1")
+    t1 = _mo(sdk, sc, "BTC", 100.0)
+    t2 = _mo(sdk, sc, "ETH", 150.0)
+    b = do(sdk, dm, sc)
+    kiem("sổ ghi DA_MO mà danh mục không giữ → MỒ CÔI", len(b.moCoi) == 2,
+         f"{len(b.moCoi)} — sổ đăng ký nằm trên đĩa, danh mục dựng trong RAM; "
+         f"mỗi lần khởi động lại là một lần vốn đã cam kết bốc hơi khỏi phép "
+         f"tính trần")
+    kiem("vốn mồ côi đọc từ SỔ CÁI, không từ tờ trình",
+         b.vonMoCoiUsd == 250.0,
+         f"{b.vonMoCoiUsd} — hai tờ XIN 200 mỗi tờ nhưng chỉ được cấp "
+         f"100+150; lấy số xin thì thổi 250 thành 400")
+
+    # ── 2. danh mục có giữ → KHÔNG phải mồ côi ──────────────────────────
+    dm.cam_ket(t1.ma, [ViThe(t1.ma, t1.chienLuoc, "CHO_VAY", "aave-v3",
+                             "USDC", 100.0)])
+    b = do(sdk, dm, sc)
+    kiem("tờ nào danh mục ĐANG giữ thì không tính là mồ côi",
+         [x.ma for x in b.moCoi] == [t2.ma])
+
+    # ── 3. không có CAP_VON → None, KHÔNG phải 0 ────────────────────────
+    sdk3, sc3, dm3 = _dung("ds3")
+    _mo(sdk3, sc3, "BTC", None)
+    _mo(sdk3, sc3, "ETH", 100.0)
+    b3 = do(sdk3, dm3, sc3)
+    kiem("tờ không có bút toán CAP_VON thì vốn là None, không phải 0",
+         any(x.vonDaCapUsd is None for x in b3.moCoi),
+         "một tờ đứng DA_MO mà sổ cái không có dòng cấp vốn nào là chuyện "
+         "đáng báo động hơn hẳn một tờ được cấp 0 đồng")
+    kiem("và một lỗ thì CẢ TỔNG mù, không cộng vòng qua nó",
+         b3.vonMoCoiUsd is None and b3.soKhongDoDuocVon == 1,
+         f"{b3.vonMoCoiUsd} — cùng luật với Router: một chặng không đo được "
+         f"thì cả tuyến không đo được")
+
+    # ── 4. nhánh TIỀN THẬT: không đóng gì, ngắt cầu dao, đòi NGƯỜI ──────
+    sdk4, sc4, dm4 = _dung("ds4")
+    _mo(sdk4, sc4, "BTC", 100.0)
+    cd4 = CauDao()
+    b4 = doi_soat(sdk4, dm4, _That(), sc4, cd4)
+    kiem("tiền thật: KHÔNG đóng tờ nào", b4.daDong == [] and b4.canNguoi,
+         "vị thế tiền thật vẫn ở trên sàn sau khi runtime chết; tự đóng ở sổ "
+         "là bịa ra một lần đóng chưa từng xảy ra")
+    kiem("tiền thật: sổ vẫn còn tờ ấy ở DA_MO",
+         len(sdk4.theo_trang_thai("DA_MO", 9)) == 1)
+    kiem("tiền thật: cầu dao NGẮT", cd4.dang_ngat)
+    kiem("và lý do ấy KHÔNG tự mở lại được", not cd4.het_ly_do(MA_NGAT),
+         "chỉ NGƯỜI đối soát được với sàn — máy không phân biệt được «vị thế "
+         "đã đóng» với «vị thế còn mở mà ta không thấy»")
+
+    # ── 5. nhánh MÔ PHỎNG: đóng, ghi sổ, hết lệch ───────────────────────
+    sdk5, sc5, dm5 = _dung("ds5")
+    _mo(sdk5, sc5, "BTC", 100.0)
+    _mo(sdk5, sc5, "ETH", 150.0)
+    cd5 = CauDao()
+    b5 = doi_soat(sdk5, dm5, _Gia(), sc5, cd5)
+    kiem("mô phỏng: đóng cả hai tờ", len(b5.daDong) == 2 and not b5.loi)
+    kiem("mô phỏng: sổ chuyển sang DA_DONG",
+         sdk5.pheu()["DA_DONG"] == 2
+         and not sdk5.theo_trang_thai("DA_MO", 9))
+    loai5 = sc5.tong_theo_loai()
+    kiem("mỗi tờ đóng đều có bút toán DONG_VI_THE",
+         (loai5.get("DONG_VI_THE") or {}).get("so") == 2,
+         "sổ cái tồn tại để trả lời «vì sao»; đóng im lặng thì lần sau không "
+         "ai biết vốn đi đâu")
+    kiem("và HOÀN VỐN đúng số đã cấp",
+         (loai5.get("HOAN_VON") or {}).get("tongUsd") == 250.0)
+    kiem("đo lại thì hết lệch", not do(sdk5, dm5, sc5).lech)
+    kiem("vốn ĐÃ DỌN đếm riêng, không lẫn vào vốn CÒN lệch",
+         b5.vonDaDongUsd == 250.0 and b5.vonMoCoiUsd == 0.0,
+         f"{b5.vonDaDongUsd} / {b5.vonMoCoiUsd} — «còn đang lệch bao nhiêu» "
+         f"và «vừa dọn bao nhiêu» là hai câu khác nhau; gộp vào một con số "
+         f"là cách chắc chắn để không câu nào còn đọc được")
+
+    # ── 6. đối soát THÀNH CÔNG không được để lại một lần ngắt ───────────
+    kiem("dọn dẹp xong KHÔNG để lại vết ngắt nào",
+         cd5.soLanNgat == 0 and not cd5.dang_ngat,
+         f"{cd5.soLanNgat} lần — ngắt rồi gỡ ngay trong một lượt khởi động "
+         f"thì mỗi lần chạy lại cộng thêm một, và chẩn đoán "
+         f"«cau-dao-ngat-nhieu» (ngưỡng 5) sẽ kêu vì chính việc dọn dẹp "
+         f"thành công")
+
+    # ── 7. `soMoCoi` giữ nguyên, `conMoCoi` mới là thứ báo động ─────────
+    kiem("sau khi đóng: soMoCoi vẫn đếm tập ĐÃ TÌM THẤY",
+         len(b5.moCoi) == 2)
+    kiem("nhưng conMoCoi rỗng, nên `lech` tắt",
+         b5.conMoCoi == [] and not b5.lech,
+         "báo động theo con số cũ là báo động cho việc vừa sửa xong")
+
+    # ── 8. canh() chỉ ĐO, không được đóng gì ────────────────────────────
+    sdk8, sc8, dm8 = _dung("ds8")
+    _mo(sdk8, sc8, "BTC", 100.0)
+    cd8 = CauDao()
+    b8 = canh(sdk8, dm8, _Gia(), sc8, cd8)
+    kiem("canh() không đóng tờ nào — nó chỉ đo và nối vào cầu dao",
+         b8.daDong == [] and len(sdk8.theo_trang_thai("DA_MO", 9)) == 1)
+    kiem("canh() mô phỏng thì lý do ngắt TỰ mở lại được",
+         cd8.dang_ngat and cd8.het_ly_do(MA_NGAT),
+         "lệch trên giấy: đối soát xong là số khớp lại, và đọc lại là biết "
+         "ngay — cùng họ với `von-ngoai-mu`")
+
+    # ── 9. chiều ngược: danh mục giữ thứ sổ không biết ──────────────────
+    sdk9, sc9, dm9 = _dung("ds9")
+    dm9.cam_ket("khong-co-trong-so", [
+        ViThe("khong-co-trong-so", "x.y.v1", "LONG", "binance", "BTC", 50.0)])
+    b9 = do(sdk9, dm9, sc9)
+    kiem("danh mục giữ thứ sổ KHÔNG ghi là DA_MO cũng bị nêu ra",
+         b9.laTrongDanhMuc == ["khong-co-trong-so"] and b9.lech,
+         "chiều này tệ hơn: vốn đang bị giữ cho một thứ sổ không biết tới")
+
+
 def kiem_buong_lai() -> None:
     print("\n-- Buong lai: trang goc thuoc TRUNG UONG, khong thuoc mot ty --")
     import pathlib
@@ -4988,9 +5137,9 @@ def kiem_buong_lai() -> None:
 
     # ── điều hướng phải là của HỆ, không phải của một ty ────────────────
     muc = set(_re.findall(r'data-o="([a-z-]+)"', htm))
-    can = {"trung-tam", "dong-co", "von", "loi-lo", "rui-ro", "du-lieu",
-           "so-cai", "he-thong"}
-    kiem("điều hướng có đủ tám mục của Trung Ương", can <= muc,
+    can = {"trung-tam", "dong-co", "von", "vi-the", "co-hoi", "loi-lo",
+           "rui-ro", "du-lieu", "so-cai", "he-thong"}
+    kiem("điều hướng có đủ mười mục của Trung Ương", can <= muc,
          f"thiếu {sorted(can - muc)}")
     kiem("và KHÔNG còn mục nào là tab nội bộ của ty perp",
          not ({"bao-gia", "cang", "cua"} & muc),
@@ -5062,6 +5211,51 @@ def kiem_buong_lai() -> None:
     kiem("và NÓI RA là log", "LOGARIT" in app,
          "vẽ tuyến tính thì mọi nấc sau nấc đầu thành một vạch không nhìn "
          "thấy; vẽ log mà không nói thì người đọc so sai tỉ lệ")
+
+    # ── sơ đồ hạ tầng: HAI dấu, không mượn sáu màu trạng thái ──────────
+    kiem("trang Dữ liệu có sơ đồ hạ tầng, không chỉ có bảng",
+         "veSoDoHaTang" in app and ".so-do" in css,
+         "bảng nói «cảng nào chết»; sơ đồ nói «cái chết ấy làm mù chỗ nào» — "
+         "và đó mới là câu người vận hành cần")
+    # Cắt đúng khối CSS của sơ đồ rồi soi trong đó. Soi cả file thì sáu màu
+    # trạng thái ở khối `.cot` luôn khớp, và phép kiểm này xanh vĩnh viễn.
+    m = _re.search(r"/\* ── sơ đồ hạ tầng.*?(?=/\* ── bảng)", css, _re.S)
+    khoiSd = m.group(0) if m else ""
+    kiem("và khối CSS của sơ đồ đọc ra được", bool(khoiSd))
+    muon = [x for x in ("--live", "--paper", "--observe", "--off")
+            if "var(" + x + ")" in khoiSd]
+    kiem("sơ đồ KHÔNG mượn màu trạng thái của động cơ", not muon,
+         f"{muon} — sáu màu ấy nói «đang chạy tiền thật», «chỉ quan sát»; "
+         f"một nguồn dữ liệu khoẻ không phải LIVE theo nghĩa đó, và tô nó "
+         f"xanh y hệt là dạy mắt đọc sai")
+    kiem("sơ đồ phân biệt ĐO được với SUY ra",
+         ".sd-o.suy" in css and "doDuoc" in app,
+         "bốn cảng perp, RPC gas và LI.FI có bộ đếm sức khoẻ thật; Deribit, "
+         "DefiLlama, Polymarket thì không — vẽ cả sáu cùng một kiểu là biến "
+         "một suy đoán thành một phép đo")
+    kiem("chữ bị cắt vẫn giữ bản ĐỦ ở <title>",
+         'e("title")' in app and "lamNgan" in app,
+         "chữ SVG không tự xuống dòng nên dòng phụ phải cắt; cắt mà không "
+         "giữ bản đủ ở đâu cả thì thông tin mất hẳn, không phải khuất đi")
+
+    # ── câu BÂY GIỜ phải dựng TỪ DỮ LIỆU ───────────────────────────────
+    kiem("trang gốc mở bằng một câu tường thuật", "cauBayGio" in app
+         and ".bay-gio" in css)
+    m2 = _re.search(r"function cauBayGio\(.*?\n  \}", app, _re.S)
+    tt2 = m2.group(0) if m2 else ""
+    kiem("và câu ấy dựng từ dữ liệu, không phải một câu cố định",
+         "S.vong" in tt2 and "cd.dangNgat" in tt2 and "dm.navUsd" in tt2,
+         "một câu cố định thì đọc lần thứ hai đã thành trang trí, và trang "
+         "trí ở buồng lái là thứ che mất chỗ đáng lẽ nói điều gì đó")
+
+    # ── vị thế mồ côi: báo động theo số CÒN lại, không theo số đã tìm ──
+    kiem("nút Đối soát vị thế có mặt và nối đúng đường",
+         'id="nut-doi-soat"' in htm and "/api/doi-soat-vi-the" in app
+         and "/api/doi-soat-vi-the" in sv)
+    kiem("buồng lái báo động theo `soConMoCoi`, không theo `soMoCoi`",
+         app.count("soConMoCoi") >= 2 and "ds.soMoCoi" not in app,
+         "sau một lượt đối soát thành công `soMoCoi` vẫn là 4 trong khi lệch "
+         "đã hết — báo động theo con số cũ là báo động cho việc vừa sửa xong")
 
 def kiem_hien_phap() -> None:
     print("\n-- HIEN PHAP: luat van hanh, viet duoi dang CHAY DUOC --")
@@ -5190,6 +5384,7 @@ def main() -> int:
     kiem_lp_amm()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
+    kiem_doi_soat_vi_the()
     kiem_buong_lai()
     kiem_nhap_so_ngoai()
     kiem_bon_ty()

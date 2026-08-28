@@ -231,6 +231,43 @@ main { padding: 22px 20px 96px; max-width: 1320px; margin: 0 auto; }
 .canh-cay.con { padding-left: 22px; color: var(--chu-mo); font-size: 12.5px; }
 .canh-cay .tien { font-variant-numeric: tabular-nums; font-weight: 600; }
 
+/* ── BÂY GIỜ: một câu tường thuật, đứng trên mọi con số ─────────── */
+.bay-gio {
+  margin: 0 0 20px; padding: 13px 16px; border-radius: var(--r);
+  background: var(--nhan-mo); border: 1px solid var(--vien);
+  border-left: 3px solid var(--nhan);
+  font-size: 13.5px; line-height: 1.62; max-width: 96ch;
+}
+.bay-gio b {
+  display: block; font-size: 10.5px; letter-spacing: .12em;
+  color: var(--nhan); margin-bottom: 4px;
+}
+
+/* ── sơ đồ hạ tầng ──────────────────────────────────────────────
+ * Biến CSS KHÔNG đọc được trong thuộc tính `fill=`/`stroke=` của SVG —
+ * chỉ đọc được trong CSS. Nên mọi màu của sơ đồ nằm ở đây, không nằm
+ * trong thuộc tính trình bày.
+ *
+ * Sơ đồ CỐ Ý không dùng sáu màu trạng thái: chúng nói về động cơ, còn ở
+ * đây chỉ có hai dấu — đỏ là hỏng, nét đứt là chưa đo được.            */
+.so-do { display: block; width: 100%; height: auto; min-width: 852px; }
+.sd-o { fill: var(--the); stroke: var(--vien); }
+.sd-o.suy { stroke-dasharray: 4 3; }
+.sd-o.hong { fill: color-mix(in srgb, var(--fault) 12%, var(--the)); stroke: var(--fault); }
+.sd-canh { fill: none; stroke: var(--vien); stroke-width: 1.3; }
+.sd-canh.hong { stroke: var(--fault); stroke-width: 1.6; }
+.sd-nhan { fill: var(--chu-rat-mo); font: 700 10px system-ui, sans-serif; letter-spacing: .09em; }
+.sd-ten { fill: var(--chu); font: 600 13px system-ui, sans-serif; }
+.sd-ten.hong { fill: var(--fault); }
+.sd-phu { fill: var(--chu-mo); font: 400 10.5px system-ui, sans-serif; }
+.chu-thich { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 10px;
+             font-size: 12px; color: var(--chu-mo); }
+.ct { display: inline-flex; align-items: center; gap: 7px; }
+.ct i { width: 22px; height: 12px; border-radius: 3px; border: 1px solid var(--vien);
+        background: var(--the); }
+.ct.hong i { border-color: var(--fault); background: color-mix(in srgb, var(--fault) 12%, var(--the)); }
+.ct.suy i { border-style: dashed; }
+
 /* ── bảng ───────────────────────────────────────────────────────── */
 .cuon { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }

@@ -77,6 +77,7 @@ from .chan_doan_he import chan_doan_he, de_xuat
 from .chay_lai_he import doi_chieu, thu_hoach
 from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
+from .doi_soat_vi_the import canh as canh_vi_the, doi_soat as doi_soat_vi_the
 from .hieu_nang import DuongNav, doi_chieu_giay_that
 from .phan_bo import PhanBo
 from .rui_ro_tong import RuiRoTong
@@ -202,6 +203,21 @@ class TrungUong:
         self.cau_dao = CauDao()
         self.thuc_thi = DieuPhoiThucThi()
 
+        #: Đối soát NGAY lúc khởi động, trước khi vòng nào chạy. Sổ đăng ký
+        #: sống trên đĩa còn danh mục dựng lại rỗng, nên đúng lúc này là
+        #: lúc lệch lớn nhất — và cũng là lúc duy nhất sửa được mà không
+        #: giẫm lên vị thế của vòng đang chạy. Xem `doi_soat_vi_the.py`.
+        self.doiSoatViThe = doi_soat_vi_the(
+            self.so_dang_ky, self.danh_muc, self.thuc_thi, self.so_cai,
+            self.cau_dao)
+        #: GIỮ RIÊNG bản đối soát lúc khởi động. `doiSoatViThe` bị lượt
+        #: đo mỗi vòng ghi đè sau đúng một nhịp, nên nếu chỉ có nó thì
+        #: "vừa đóng 4 tờ mồ côi, 500 USD" sống được 30 giây rồi biến mất
+        #: khỏi buồng lái — trong khi đó là việc đáng kể nhất một lần khởi
+        #: động làm. Sổ cái vẫn giữ bút toán, nhưng buồng lái phải nói ra
+        #: mà không bắt người đi tra sổ.
+        self.doiSoatKhoiDong = self.doiSoatViThe
+
         self.docVonNgoai = [DocVonNgoai(t, u)
                             for t, u in (c["vonNgoai"] or {}).items()]
         #: Sổ nhập kết toán từ cỗ máy ngoài — MỘT sổ của sự thật.
@@ -321,6 +337,12 @@ class TrungUong:
         if self.danh_muc.vonBanDauUsd > 0:
             sut = max(0.0, (1.0 - self.danh_muc.navUsd
                             / self.danh_muc.vonBanDauUsd) * 100.0)
+        # Lệch sổ/danh mục đo lại MỖI VÒNG, không chỉ lúc khởi động: đo một
+        # lần rồi tin mãi là đúng cái thói quen mà `von-ngoai-mu` đã dạy —
+        # trạng thái đọc được thì phải đọc lại, không được nhớ.
+        self.doiSoatViThe = canh_vi_the(
+            self.so_dang_ky, self.danh_muc, self.thuc_thi, self.so_cai,
+            self.cau_dao)
         self.cau_dao.tu_soat(
             lechDongHoGiay=lechDongHoGiay, cangChet=list(cangChet or []),
             tuoiXauNhatGiay=tuoiXauNhatGiay, sutVonPct=sut,
@@ -627,6 +649,8 @@ class TrungUong:
             "ruiRoTong": self.rui_ro_tong.tom_tat(),
             "phanBo": self.phan_bo.tom_tat(),
             "cauDao": self.cau_dao.tom_tat(),
+            "doiSoatViThe": self.doiSoatViThe.tom_tat(),
+            "doiSoatKhoiDong": self.doiSoatKhoiDong.tom_tat(),
             "thucThi": self.thuc_thi.tom_tat(),
             "soCai": self.so_cai.tom_tat(),
             "pheuDayDu": self.pheu_day_du(),

@@ -338,6 +338,26 @@ def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
                               "cauDao": tu.cau_dao.tom_tat()}))
 
 
+@app.post("/api/doi-soat-vi-the")
+def api_doi_soat_vi_the() -> JSONResponse:
+    """Đối soát sổ đăng ký với danh mục, và đóng những tờ MỒ CÔI.
+
+    Chạy sẵn một lượt lúc khởi động; đường này để bấm lại sau khi đã sửa
+    tay, hoặc để xem lệch có hết chưa mà không phải khởi động lại.
+
+    Nó KHÔNG đóng gì khi lớp thực thi chạy tiền thật — lúc ấy vị thế vẫn ở
+    trên sàn, và tự đóng ở sổ là bịa ra một lần đóng chưa từng xảy ra.
+    """
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    from thi_bac_ty.doi_soat_vi_the import doi_soat
+    b = doi_soat(tu.so_dang_ky, tu.danh_muc, tu.thuc_thi, tu.so_cai,
+                 tu.cau_dao)
+    tu.doiSoatViThe = b
+    return JSONResponse(sach(b.tom_tat()))
+
+
 @app.post("/api/lat-cat")
 def lat_cat() -> JSONResponse:
     duong = ghi_lat_cat(runtime)
@@ -368,8 +388,8 @@ async def _khong_giu_ban_cu(yc, tiep):
 #:
 #: Danh sách tường minh chứ không bắt-tất-cả: bắt tất cả thì một đường gõ
 #: sai cũng trả về trang chủ, và người gõ sai tưởng mình gõ đúng.
-DUONG_BUONG_LAI = ("trung-tam", "dong-co", "von", "loi-lo", "rui-ro",
-                   "du-lieu", "so-cai", "he-thong")
+DUONG_BUONG_LAI = ("trung-tam", "dong-co", "von", "vi-the", "co-hoi",
+                   "loi-lo", "rui-ro", "du-lieu", "so-cai", "he-thong")
 
 
 @app.get("/{muc}")
