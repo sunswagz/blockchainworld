@@ -32,10 +32,9 @@
 :root{
   --k-0:1px;  --k-1:2px;  --k-2:3px;  --k-3:4px;
   --k-4:5px;  --k-5:6px;  --k-6:7px;  --k-7:8px;
-  --k-8:9px;  --k-9:10px;  --k-10:11px;  --k-11:12px;
-  --k-12:13px;  --k-13:14px;  --k-14:15px;  --k-15:16px;
-  --k-16:18px;  --k-17:20px;  --k-18:22px;  --k-19:30px;
-  --k-20:32px;  --k-21:34px;  --k-22:40px;  --k-23:44px;
+  --k-8:9px;  --k-9:10px;  --k-10:11px;  --k-11:12px;  --k-13:14px;  --k-14:15px;  --k-15:16px;
+  --k-16:18px;  --k-17:20px;  --k-18:22px;
+  --k-20:32px;  --k-22:40px;  --k-23:44px;
   --k-24:52px;
 }
 
@@ -236,7 +235,7 @@ table.bang tbody tr:hover td{background:var(--card-2)}
 .hs-h{font-size:var(--t-1);font-weight:700;letter-spacing:.11em;text-transform:uppercase;
   color:var(--ink-3);margin-bottom:var(--k-8)}
 .hs-p{margin:0;font-size:var(--t-4);line-height:1.65;color:var(--ink)}
-.hs-goc{margin:0;padding:var(--k-10) var(--k-12);background:var(--card-2);border-radius:8px;
+.hs-goc{margin:0;padding:var(--k-10) var(--k-13);background:var(--card-2);border-radius:8px;
   font-size:var(--t-3);line-height:1.65;color:var(--ink-2)}
 .hs-ban{margin:0;padding:var(--k-11) var(--k-13);background:var(--acc-t);border-radius:8px;
   font-size:var(--t-4);line-height:1.65;color:var(--ink-2);border-left:3px solid var(--acc)}
@@ -246,7 +245,7 @@ table.bang tbody tr:hover td{background:var(--card-2)}
 .hs-lam li:first-child{border-top:0}
 .hs-lam li::before{content:"";position:absolute;left:4px;top:15px;width:7px;height:7px;
   border-radius:2px;background:var(--acc)}
-.hs-khi{margin:0;padding:var(--k-10) var(--k-12);background:var(--vang-t);border-radius:8px;
+.hs-khi{margin:0;padding:var(--k-10) var(--k-13);background:var(--vang-t);border-radius:8px;
   font-size:var(--t-3);line-height:1.6;color:#6B4E08}
 
 .cai{margin:0;padding:var(--k-11) var(--k-13);background:#2A2620;border-radius:8px;
@@ -265,14 +264,14 @@ table.bang tbody tr:hover td{background:var(--card-2)}
 .nut-phu:hover{border-color:var(--acc);color:var(--acc)}
 .goiy{font-size:var(--t-2);color:var(--ink-3)}
 
-.trong{padding:var(--k-21);text-align:center;color:var(--ink-3);font-size:var(--t-4)}
+.trong{padding:var(--k-20);text-align:center;color:var(--ink-3);font-size:var(--t-4)}
 .chan{margin-top:var(--k-16);padding-top:var(--k-13);border-top:1px solid var(--line);
   font-size:var(--t-2);color:var(--ink-3);line-height:1.65}
 .chan b{color:var(--ink-2)}
 .chan p{margin:0 0 var(--k-5)}
 
 /* ── tab (xu hướng) ───────────────────────────────────── */
-.tabs{display:flex;gap:var(--k-3);overflow-x:auto;scrollbar-width:none;margin-bottom:-1px}
+.tabs{display:flex;gap:var(--k-3);overflow-x:auto;scrollbar-width:none;margin-bottom:calc(var(--k-0) * -1)}
 .tabs::-webkit-scrollbar{display:none}
 .tab{display:flex;align-items:center;gap:var(--k-6);flex:0 0 auto;padding:var(--k-9) var(--k-16);
   border:1px solid var(--line);border-bottom-color:transparent;
@@ -323,7 +322,7 @@ td.len b,td.xuong b{font-weight:700}
    CSS counter chứ không phải <ol> mặc định: mục con phải KHÔNG được
    đánh số, không thì "3.1" đọc như một chặng riêng. */
 .tua{list-style:none;counter-reset:tua;margin:0;padding:0}
-.tua-b{counter-increment:tua;position:relative;padding:var(--k-6) 0 var(--k-6) var(--k-19);
+.tua-b{counter-increment:tua;position:relative;padding:var(--k-6) 0 var(--k-6) var(--k-20);
   font-size:var(--t-4);color:var(--ink);border-bottom:1px solid var(--line)}
 .tua-b::before{content:counter(tua);position:absolute;left:0;top:7px;
   width:20px;height:20px;border-radius:5px;background:var(--acc-t);color:var(--acc);
@@ -399,7 +398,7 @@ td.len b,td.xuong b{font-weight:700}
 .tt-n{margin-left:auto;font:10.5px/1 ui-monospace,Consolas,monospace;letter-spacing:0;text-transform:none;color:var(--ink-2)}
 .tt-y{margin:0;padding:var(--k-11) var(--k-14);font-size:var(--t-4);line-height:1.7;color:var(--ink);
   background:var(--card);border-bottom:1px solid var(--line-2)}
-.tt-luoi{display:grid;gap:var(--k-8);padding:var(--k-12) var(--k-14);background:var(--card);
+.tt-luoi{display:grid;gap:var(--k-8);padding:var(--k-13) var(--k-14);background:var(--card);
   grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
 .tt-k{padding:var(--k-8) var(--k-10);background:var(--card-2);border:1px solid var(--line-2);border-radius:8px}
 .tt-kd{display:flex;align-items:center;gap:var(--k-6);flex-wrap:wrap;margin-bottom:var(--k-3)}
@@ -415,7 +414,7 @@ td.len b,td.xuong b{font-weight:700}
 .tt-g[data-g="repo"]{color:var(--tt-repo);background:var(--tt-repo-n)}
 .tt-g[data-g="web"]{color:var(--tt-web);background:var(--tt-web-n)}
 
-.tt-26{padding:0 var(--k-14) var(--k-12);background:var(--card)}
+.tt-26{padding:0 var(--k-14) var(--k-13);background:var(--card)}
 .tt-26 h4{margin:0 0 var(--k-7);font-size:var(--t-0);font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--ink-2)}
 .tt-26 p{display:flex;align-items:baseline;gap:var(--k-6);flex-wrap:wrap;margin:0 0 var(--k-7);
