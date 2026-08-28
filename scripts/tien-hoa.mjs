@@ -472,8 +472,18 @@ function doMau(css) {
 function do_() {
   const file = quet(DUONG());
   const html = doc(DUONG("index.html"));
-  const css = ["app.css", "halls.css"]
-    .filter((f) => co(DUONG("assets/css", f)))
+  /* MỌI file .css của cung, không chỉ hai cái tên quen.
+
+     Danh sách cứng ["app.css","halls.css"] bỏ sót đúng những cung
+     chia CSS ra nhiều file: Kinh Thành có BẢY file và năm cái chưa
+     từng được soi, Đài Quan Trắc có ba và một cái chưa. Nghĩa là
+     "Kinh Thành 13/13" là điểm chấm trên hai phần bảy số CSS của
+     nó — một con số đẹp đo trên một mẩu.
+
+     Hỏng im lặng theo đúng lối tệ nhất: thêm một file CSS mới không
+     làm thước nào đỏ lên, nó chỉ lặng lẽ ra khỏi tầm đo. */
+  const css = readdirSync(DUONG("assets/css"))
+    .filter((f) => f.endsWith(".css")).sort()
     .map((f) => doc(DUONG("assets/css", f))).join("\n");
 
   /* Ba thước dưới dò bằng CHUỖI THÔ, nên phải cắt chú thích trước.
@@ -643,6 +653,40 @@ function do_() {
   const monoThieu = thieuSo.length;
   const coBangSo = monoCo > 0 || /<table|class="bang"/.test(html);
 
+  /* BIẾN CSS GỌI RA MÀ KHÔNG AI KHAI — hỏng câm hoàn toàn.
+
+     `border-left:3px solid var(--a)` với `--a` chưa khai là một
+     khai báo KHÔNG HỢP LỆ LÚC TÍNH GIÁ TRỊ: trình duyệt không báo
+     lỗi, không bỏ qua dòng, mà trả thuộc tính về giá trị kế thừa —
+     nên viền đổi sang màu chữ và trông vẫn như một lựa chọn thiết
+     kế. Không có gì đỏ lên ở bất kỳ đâu.
+
+     Đo 29/08: Đài Quan Trắc dùng `var(--a)` ở năm chỗ (viền nhấn,
+     color-mix, gradient) mà `--a` không khai ở đâu cả; Tử Cấm
+     Thành có `--am` và `--am-t` trong halls.css cùng tình trạng.
+
+     CHỈ tính dạng KHÔNG dự phòng. `var(--vien,rgba(...))` là dạng
+     hợp lệ và cố ý — mười cung đang dùng nó, và bản đo đầu của
+     phép này cờ cả mười một cung vì không phân biệt hai dạng.
+
+     Và coi mọi lần `--x` xuất hiện trong js/html là ĐÃ KHAI: biến
+     đặt bằng `style.setProperty` hay `style="--x:…"` thì CSS không
+     thấy. Rộng tay ở đây là cố ý — thà sót một lỗi thật còn hơn vu
+     oan một cung, vì thước kêu oan thì lần nó đúng cũng bị bỏ qua. */
+  const jsVan = file.filter((f) => extname(f) === ".js").map((f) => doc(f)).join("\n");
+  const bienKhai = new Set([...cssMa.matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
+  /* CHỈ hai dạng ĐẶT biến thật, không phải mọi lần `--x` hiện ra.
+     Bản đầu nhận mọi lần xuất hiện, và nó nuốt luôn lỗi: Đài Quan
+     Trắc ship vài trăm KB dữ liệu bot trong scan.js/tin.js, nên
+     `--a` khớp đâu đó trong đống văn bản ấy và thước báo ĐẠT trong
+     khi cung dùng `var(--a)` mười một lần mà không khai ở đâu cả.
+     Rộng tay để khỏi vu oan là đúng; rộng tới mức không bắt được gì
+     thì thước chỉ còn là một dòng xanh. */
+  for (const m of (jsVan + html).matchAll(/setProperty\(\s*["'](--[\w-]+)/g)) bienKhai.add(m[1]);
+  for (const m of (jsVan + html).matchAll(/(--[\w-]+)\s*:/g)) bienKhai.add(m[1]);
+  const bienThieu = [...new Set([...cssMa.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)]
+    .map((m) => m[1]).filter((v) => !bienKhai.has(v)))];
+
   const diem = [];
   const cham = (ma, ten, dat, y) => diem.push({ ma, ten, dat, y });
 
@@ -762,6 +806,11 @@ function do_() {
   /* frontend-a11y (affaan-m/ECC): tiêu điểm bàn phím phải THẤY ĐƯỢC.
      Đây là lỗi không ai phát hiện cho tới lúc thử rời chuột ra — và
      lúc đó thì người dùng bàn phím đã lạc giữa trang từ lâu. */
+  cham("bien-css", "Biến CSS gọi ra đều có khai", bienThieu.length === 0,
+    bienThieu.length
+      ? `${bienThieu.length} biến chưa khai, không dự phòng: ${bienThieu.slice(0, 6).join(" ")}`
+      : "mọi var(--x) không dự phòng đều có nơi khai");
+
   const coTieuDiem = /:focus-visible/.test(css);
   cham("tieu-diem", "Tiêu điểm bàn phím thấy được", coTieuDiem,
     coTieuDiem ? "có kiểu :focus-visible"
@@ -803,6 +852,7 @@ const TU_KHOA = {
   "ve": ["debug", "frontend", "error"],
   "rac": ["test", "validation", "frontend"],
   "o-trong": ["empty state", "loading", "skeleton", "fallback"],
+  "bien-css": ["css", "design system", "tokens", "refactor", "lint"],
   "bo-qua": ["accessibility", "a11y", "keyboard", "wcag", "skip link", "navigation"],
   "thang-chu": ["typography", "type scale", "font", "design system", "tokens"],
   "hieu-ung": ["animation", "motion", "performance", "transition", "compositor"],
