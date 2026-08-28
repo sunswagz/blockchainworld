@@ -728,6 +728,43 @@ thì bỏ qua cung đó chứ không nâng bừa. Viết sw.js theo dạng mới
 một nhánh nhận dạng vào `scripts/mang-truoc.mjs`** — đừng bẻ sw.js cho vừa
 bộ kiểm, công cụ phải theo được mã thật chứ không phải ngược lại.
 
+### Thang chữ: một lệnh cho mỗi cung, đừng sửa CSS cung người khác
+
+    npm run thang-chu -- <cung> --thu     xem sẽ đổi gì, chưa ghi
+    npm run thang-chu -- <cung>           ghi thật
+    npm run thang-chu -- --tat-ca --thu   soi cả 12 cung một lượt
+
+Thước `thang-chu` trong `scripts/tien-hoa.mjs` — dịch từ skill
+`frontend-design` (kho anthropics/skills, đang nằm trên kệ
+`.claude/skills/`): *"set a clear type scale"* — đếm số cỡ chữ px rời
+rạc còn viết thẳng vào rule. Đo ngày 28/08 thì **11 trên 12 cung
+trượt**, từ 16 tới 34 cỡ. Hộ Bộ có 32 cỡ, trong đó **mười một** cỡ chen
+giữa 11px và 13px. Đó không phải thang, đó là số bốc từng lúc.
+
+Máy gom cỡ của **chính cung đang sửa** thành cụm rồi lấy cỡ dùng nhiều
+nhất mỗi cụm làm nấc — nên cỡ phổ biến đứng yên, chỉ cỡ lẻ bị kéo về,
+và nó luôn in ra "cỡ dịch nhiều nhất bao nhiêu phần trăm" (đo được
+3,8–6,6%, tức dưới một pixel ở cỡ chữ thân bài). **Không áp thang của
+Hộ Bộ cho cung khác**: cung 54 phòng và cung 5 phòng không cần cùng
+một thang.
+
+Vì sao là máy chứ không sửa tay: lúc viết mục này có **16 worktree
+đang mở**, bảy trong số đó giữ đúng những cung cần sửa. Một phiên đi
+sửa CSS của 11 cung khác là đúng thứ luật "chỉ sửa thư mục cung mình"
+sinh ra để chặn. `--tat-ca` **cố ý chỉ chạy cùng `--thu`**.
+
+Sửa xong thì `node scripts/tien-hoa.mjs do <cung>` để soát, rồi
+`npm run nang` — `app.css` nằm trong SHELL.
+
+**Một bẫy đã cắn thật, ghi lại để đừng ai gỡ mất bản vá.** Bản đầu của
+máy này chèn khối thang chữ **trước** khối `:root` đầu tiên. Phép đo
+tương phản khi đó chỉ đọc khối `:root` **đầu tiên**, nên nó gặp một
+khối toàn px không màu nào và chuyển sang "không đo được" — Đô Sát Viện
+đi từ 10/11 xuống 10/10: mẫu số tụt một, **điểm vẫn đẹp**, và không
+dòng nào kêu. Nay `doMau` đọc **mọi** khối `:root`, còn máy vẫn chèn
+sau khối đầu. Giữ cả hai; bỏ một cái là mở lại cửa cho một phép kiểm
+biến mất trong im lặng.
+
 ### Cổng dev
 
 Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của
