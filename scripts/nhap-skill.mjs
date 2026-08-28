@@ -43,7 +43,41 @@ const SO = join(ROOT, "factory", "skills.json");
 const NHOM_CAN = ["giao-dien", "kiem-thu", "tai-lieu", "lap-trinh"];
 const SAN_SAO = 500;
 const TRAN_MOI_KHO = 2;
-const TRAN_TONG = 12;
+const TRAN_TONG = 20;
+
+/* ── GHIM: chọn tay, luôn có mặt, không tính vào trần mỗi kho ──
+   Xếp theo sao là cách chọn TỐT KHI KHÔNG BIẾT GÌ HƠN. Nhưng sao đo
+   độ nổi tiếng của cả kho, không đo skill đó có hợp việc ở đây
+   không — `affaan-m/ECC` 243K sao thì MỌI skill trong đó đều 243K,
+   kể cả cái chẳng liên quan.
+
+   Mấy cái dưới đây chọn vì đúng thứ xưởng này cần, và mỗi cái ghi rõ
+   vì sao. Chúng bỏ qua trần mỗi kho — trần đó sinh ra để chặn việc
+   một kho to nuốt hết kệ khi máy TỰ chọn, không phải để chặn người
+   chọn có chủ đích.
+
+   Vòng tiến hoá đo bảy thước, và ba trong số đó là chuyện thiết kế
+   thuần tuý (tương phản WCAG, nhãn cho nút/SVG, ô trống mỗi phòng).
+   Kệ mà không có skill thiết kế thì `tien-hoa.mjs ky-nang` chỉ đưa
+   cho model những skill lập trình chung chung. */
+const GHIM = [
+  ["nextlevelbuilder/ui-ux-pro-max-skill/.claude/skills/ui-ux-pro-max",
+   "trí tuệ giao diện tổng hợp — web, di động, soát lẫn dựng"],
+  ["affaan-m/ECC/skills/design-system",
+   "mã thông số ba tầng: nguyên thuỷ → ngữ nghĩa → component"],
+  ["nexu-io/open-design/skills/color-expert",
+   "OKLCH/OKLAB, sinh bảng màu, TƯƠNG PHẢN — đúng thước hay trượt nhất"],
+  ["garrytan/gstack/design-review",
+   "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, khuôn nhàm do AI sinh"],
+  ["anthropics/skills/skills/frontend-design",
+   "thiết kế thị giác có chủ đích, chính chủ Anthropic"],
+  ["JimLiu/baoyu-skills/skills/baoyu-diagram",
+   "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy"],
+  ["garrytan/gstack/design-html",
+   "chốt thiết kế thành HTML/CSS chất lượng sản phẩm"],
+  ["nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/ui-styling",
+   "dựng giao diện tiếp cận được, nền Radix/Tailwind — đọc lấy nguyên lý"]
+];
 
 function docCatalogue() {
   const hop = { window: {} };
@@ -58,12 +92,29 @@ function docCatalogue() {
    quá TRAN_MOI_KHO suất. */
 function chon(d) {
   const nhanhTheoKho = Object.fromEntries((d.kho || []).map((k) => [k.id, k.nhanh || "main"]));
+  const theoId = Object.fromEntries(d.skills.map((k) => [k.id, k]));
+  const lay = [];
+  const daCo = new Set();
+
+  /* Ghim trước. Thiếu một cái thì BÁO chứ không im: id ghim mà biến
+     mất khỏi catalogue nghĩa là kho gốc đã đổi tên hoặc xoá skill —
+     im lặng bỏ qua thì kệ cứ thiếu dần mà không ai hay. */
+  for (const [id, vi] of GHIM) {
+    const k = theoId[id];
+    if (!k) { console.log(`  ⚠ ghim "${id}" không còn trong catalogue`); continue; }
+    lay.push({ ...k, nhanh: nhanhTheoKho[k.kho] || "main", ghim: vi });
+    daCo.add(id);
+  }
+
+  /* Rồi tự chọn lấp phần còn lại: chính chủ trước, sao giảm dần, và
+     không kho nào quá TRAN_MOI_KHO suất. Skill đã ghim không tính
+     vào trần — nó vào kệ vì được chọn, không vì xếp hạng. */
   const ung = d.skills
     .filter((k) => NHOM_CAN.includes(k.nhom) && (k.sao || 0) >= SAN_SAO && k.kho && k.duong)
+    .filter((k) => !daCo.has(k.id))
     .sort((a, b) => (b.chinhChu ? 1 : 0) - (a.chinhChu ? 1 : 0) || (b.sao || 0) - (a.sao || 0));
 
   const dem = {};
-  const lay = [];
   for (const k of ung) {
     if (lay.length >= TRAN_TONG) break;
     if ((dem[k.kho] || 0) >= TRAN_MOI_KHO) continue;
@@ -134,6 +185,7 @@ for (const k of ds) {
 
   so.push({ id: k.id, ten, kho: k.kho, duong: k.duong, nhom: k.nhom,
             sao: k.sao, giayPhep: k.giayPhep || null, nhanh: k.nhanh,
+            ghim: k.ghim || null,
             sha, luc: new Date().toISOString() });
 }
 

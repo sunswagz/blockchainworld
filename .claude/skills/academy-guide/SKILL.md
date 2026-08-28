@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/skills (172.065 sao)
+     Kho    : anthropics/skills (172.172 sao)
      Đường  : skills/academy-guide
      Giấy phép: Complete terms in LICENSE.txt
      Nguồn  : https://raw.githubusercontent.com/anthropics/skills/main/skills/academy-guide/SKILL.md
-     sha256 : f27992510c051355 · nhập 2026-08-27T22:28:21.948Z
+     sha256 : f27992510c051355 · nhập 2026-08-28T15:06:22.673Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
