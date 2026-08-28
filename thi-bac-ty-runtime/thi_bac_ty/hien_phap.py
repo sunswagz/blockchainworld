@@ -342,6 +342,32 @@ def _khai_gi_phai_noi_do():
                        + ", ".join(da_soi))
 
 
+def _von_cam_ket_phai_thay_duoc():
+    """Vốn đã cam kết phải HIỆN ở danh mục, hoặc chỗ lệch phải được KHAI.
+
+    Canh tĩnh, đọc mã: một phép canh động cần một `TrungUong` đang chạy, mà
+    hiến pháp thì soát được cả lúc chưa có runtime nào.
+    """
+    tu = _doc(GOC / "thi_bac_ty" / "trung_uong.py")
+    ds = _doc(GOC / "thi_bac_ty" / "doi_soat_vi_the.py")
+    xau = []
+    if "doi_soat_vi_the(" not in tu:
+        xau.append("Trung Ương KHÔNG đối soát lúc khởi động")
+    if "canh_vi_the(" not in tu:
+        xau.append("Trung Ương KHÔNG đo lại lệch mỗi vòng")
+    if "moPhong" not in ds:
+        xau.append("đối soát không phân biệt mô phỏng với tiền thật")
+    if "if not b.moCoi or b.canNguoi:" not in ds:
+        xau.append("nhánh TIỀN THẬT không được chặn trước vòng đóng")
+    n = ds.count('"DA_DONG"')
+    if n != 1:
+        xau.append(f"có {n} chỗ chuyển sang DA_DONG, phải đúng 1")
+    return (not xau), ("; ".join(xau) if xau else
+                       "đối soát chạy lúc khởi động VÀ mỗi vòng; mô phỏng "
+                       "thì đóng ở sổ kèm bút toán, tiền thật thì ngắt cầu "
+                       "dao và đòi người")
+
+
 def _none_khac_khong():
     from .phan_bo import MAC_DINH as PB
     from .rui_ro_tong import PHAT_CHUA_DO
@@ -575,6 +601,16 @@ DIEU: tuple[Dieu, ...] = (
          "buồng lái bày chúng dưới nhãn 'đang có hiệu lực' suốt nhiều tuần. "
          "Không ai nói dối — luật ở một chỗ, mã ở chỗ khác.",
          "sự cố ba cửa giả", _khai_gi_phai_noi_do),
+
+    Dieu("von-cam-ket-phai-thay-duoc",
+         "Vốn đã cam kết phải HIỆN ở Danh Mục — hoặc chỗ lệch phải được "
+         "KHAI ra và chặn việc cam kết thêm.",
+         "Đo 28/08/2026: sổ đăng ký có 4 tờ đứng DA_MO với 500 USD đã cấp, "
+         "danh mục báo 0 vị thế và 0 đã cam kết. Sổ nằm trên đĩa, danh mục "
+         "dựng trong RAM — nên mỗi lần khởi động lại là một lần vốn đã tiêu "
+         "bốc hơi khỏi mẫu số, và tiền rảnh rộng hơn sự thật. Không lỗi nào "
+         "nổ; chỉ có một con số 0 trông rất khoẻ.",
+         "doi_soat_vi_the.py", _von_cam_ket_phai_thay_duoc),
 
     Dieu("none-khac-khong",
          "`None` là CHƯA ĐO, không phải 0.",
