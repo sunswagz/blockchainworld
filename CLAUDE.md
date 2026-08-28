@@ -451,7 +451,7 @@ thư mục, cổng, và lệnh sinh lát cắt:
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
     python -m bac.snapshot        quét một lượt, ghi, rồi thoát
-    python scripts/selftest.py    967 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    996 phép kiểm số học, KHÔNG cần mạng
     pythonw dichvu/chay-nen.py    chạy nền 24/7 để tích băng đào tạo
 
 Thị Bạc Ty **không cần khoá nào để chạy đủ**: nó chỉ đọc dữ liệu CÔNG KHAI
