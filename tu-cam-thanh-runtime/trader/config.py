@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # sổ là hàng giả của selftest, toàn TAKE_PROFIT, cùng một giá vào. Bảng điều
 # khiển vì thế khoe "thắng 82,4% · kỳ vọng +1,135R" trong khi bot chưa từng tự
 # vào một lệnh nào. Con số đẹp nhất hệ thống lại là con số bịa — đúng thứ mà
-# `chuaCo()` ở giao diện được dựng ra để tránh, nhưng lọt qua đường khác.
+
 DATA_DIR = Path(os.environ.get("TCT_DATA_DIR") or (ROOT / "data"))
 SKILLS_DIR = ROOT / "skills"
 WEB_DIR = ROOT / "web"
@@ -52,6 +52,23 @@ _load_dotenv()
 
 CONFIG: dict = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
 
+
+def _chong_tran_cli() -> None:
+    """Khi bộ não chạy qua CLI, chồng `brain.cli` lên `brain`.
+
+    Chồng ở MỘT chỗ, ngay sau khi đọc config, thay vì rải điều kiện
+    `if mode == "cli"` khắp `loop.py`, đồng hồ chi phí và `brain.py`. Mọi tầng
+    phía sau chỉ đọc `CONFIG["brain"]` như cũ và tự nhiên thấy đúng trần.
+
+    Rải điều kiện là cách chắc chắn để một tầng nào đó bị bỏ sót — và tầng bị
+    bỏ sót ở đây là tầng tiêu quota của người dùng.
+    """
+    if brain_mode() != "cli":
+        return
+    rieng = {k: v for k, v in (CONFIG["brain"].get("cli") or {}).items()
+             if not k.startswith("_")}
+    CONFIG["brain"].update(rieng)
+
 # Cờ dòng lệnh thắng config: python run.py --brain=mock --port=5231 --symbol=ETHUSDT
 for _arg in sys.argv[1:]:
     if not _arg.startswith("--") or "=" not in _arg:
@@ -81,15 +98,40 @@ if CONFIG.get("mode") not in ("paper", "testnet"):
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def brain_mode() -> str:
-    """auto = có khoá thì dùng Claude; claude = bắt buộc; mock = không bao giờ gọi API.
 
-    'auto' cố ý rơi về mock khi thiếu khoá: hệ thống phải chạy kín vòng được
-    mà không tốn đồng nào, nếu không thì không ai dám để nó chạy lâu.
+def brain_mode() -> str:
+    """Ba đường tới một bộ não, xếp theo thứ tự ưu tiên khi để `auto`:
+
+        claude   SDK + ANTHROPIC_API_KEY — tính TIỀN theo từng lượt gọi
+        cli      claude.exe đã đăng nhập — tính QUOTA GÓI, không đồng nào
+        mock     luật thuần, không gọi gì
+
+    'auto' cố ý rơi về mock khi không có đường nào: hệ thống phải chạy kín vòng
+    được mà không tốn gì, nếu không thì không ai dám để nó chạy lâu.
+
+    Vì sao `claude` đứng trước `cli` dù `cli` rẻ hơn: ai đã cắm khoá API vào
+    `.env` là đã chọn trả tiền để có độ trễ thấp và ràng buộc schema ở tầng API.
+    Lặng lẽ chuyển họ sang CLI chậm hơn là quyết định hộ người dùng.
     """
     want = (os.environ.get("BRAIN") or "auto").lower()
-    if want == "mock":
-        return "mock"
-    if want == "claude":
+    if want in ("mock", "claude", "cli"):
+        if want != "cli":
+            return want
+        from . import cli_claude
+        return "cli" if cli_claude.co_the() else "mock"
+
+    if os.environ.get("ANTHROPIC_API_KEY"):
         return "claude"
-    return "claude" if os.environ.get("ANTHROPIC_API_KEY") else "mock"
+    try:
+        from . import cli_claude
+        if cli_claude.co_the():
+            return "cli"
+    except Exception:  # noqa: BLE001 — thiếu module thì coi như không có đường này
+        pass
+    return "mock"
+
+
+# Chồng trần CLI ở CUỐI file: nó cần cả `CONFIG` (đã đọc), cờ dòng lệnh (đã áp)
+# và `brain_mode()` (định nghĩa phía trên). Đặt sớm hơn một dòng nào là hỏng một
+# trong ba thứ đó — và đã hỏng thật một lần vì gọi trước khi hàm tồn tại.
+_chong_tran_cli()

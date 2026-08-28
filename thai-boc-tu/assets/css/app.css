@@ -809,3 +809,18 @@ code,.mono{font-family:var(--mono)}
    công dụng của nó. */
 .loa{position:absolute;width:1px;height:1px;margin:-1px;padding:0;
   overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* ── ĐƯỜNG NHẢY QUA THANH BÊN ─────────────────────────────
+   Nấp bằng `transform`, KHÔNG bằng `display:none` hay `top`. Phần
+   tử ẩn bằng display không nhận được tiêu điểm, mà nhận tiêu điểm
+   mới là toàn bộ việc của nó; còn `top` thì chạm bố cục và cung này
+   có thước chặn đúng thứ đó.
+
+   Đệm 8px/12px là hai giá trị ĐÃ CÓ trong cung — thêm một con số
+   mới ở đây là thêm một nấc vào thang khoảng cách, và thang ấy cũng
+   đang được canh. */
+.bo-qua{position:fixed;left:12px;top:12px;z-index:9999;padding:8px 12px;
+  border-radius:8px;background:var(--card,#14161c);color:var(--fg,#e8ecf4);
+  border:1px solid var(--vien,rgba(255,255,255,.22));text-decoration:none;
+  transform:translateY(-260%);transition:transform .14s ease}
+.bo-qua:focus{transform:translateY(0)}

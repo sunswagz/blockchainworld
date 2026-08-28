@@ -53,6 +53,30 @@ export const NODE = [
        "tải SKILL.md kèm trích dẫn. Máy lo tìm và xếp; model lo đọc hiểu — đã thử " +
        "rút luật bằng regex và bỏ vì cho ra rác."
   },
+  /* PHIẾU TOÀN THÀNH — nhìn cả mười hai cung một lượt.
+
+     `tien-hoa.mjs do` chấm được MỌI cung, nhưng chỉ BỐN cung có vòng
+     tiến hoá gọi tới nó. Tám cung còn lại chưa từng được chấm trong
+     một lượt bot nào, nên điểm của chúng chỉ hiện khi có người ngồi
+     gõ lệnh — tức là gần như không bao giờ.
+
+     Lượt chấm đầu tiên lộ ngay hai chuyện không ai biết: Thị Bạc Ty
+     và Tử Cấm Thành đều trượt thước `ve` — phòng của chúng KHÔNG
+     VẼ ĐƯỢC — và 11 trên 12 cung chưa có đường nhảy qua thanh bên.
+
+     `che: "script"`: không gọi model, không tốn quota. Thấy được
+     vấn đề là việc rẻ; sửa mới là việc đắt, và sửa vẫn là việc của
+     vòng tiến hoá hoặc của người. Cả mười hai cung chấm xong trong
+     ~8 giây, nên nhịp 24 giờ là rộng rãi. */
+  {
+    ma: "phieu", ten: "Phiếu toàn thành",
+    tram: "M18", che: "script", nhip: 24,
+    lenh: "node scripts/phieu-toan-thanh.mjs",
+    ra: ["factory/phieu.json"],
+    y: "Chấm cả 12 cung bằng đúng bộ thước của vòng tiến hoá, rồi xếp thước nào " +
+       "đang trượt ở NHIỀU cung nhất. Nhìn từng cung thì mỗi lỗi trông như chuyện " +
+       "riêng của cung đó; nhìn cả bảng mới thấy cái nào là bệnh chung."
+  },
   {
     ma: "giao-hang", ten: "Giao hàng lên Pages",
     tram: "M16", che: "theo", nhip: 0,

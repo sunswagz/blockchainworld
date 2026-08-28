@@ -45,6 +45,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .bang import doc_bang
+from .chay_lai import ThamSo as ChayLaiThamSo
+from .chay_lai import gop_doi_chieu
+from .chay_lai import mot_luot as chay_lai_mot_luot
 from .chan_doan import (NUT_THEO_DUONG, NUT_VAN, TrieuChung, chan_doan,
                         de_bai, doc_tham_so, kep)
 from .chay_lai import ThamSo, doi_chieu
@@ -80,6 +83,7 @@ class KetQuaTienHoa:
     luc: str
     soKhungBang: int
     soLenhKetToan: int
+    nguonMau: str = "that"
     trieuChung: list[dict] = field(default_factory=list)
     deXuat: list[dict] = field(default_factory=list)
     nhan: dict | None = None
@@ -92,6 +96,7 @@ class KetQuaTienHoa:
         return {
             "luc": self.luc, "soKhungBang": self.soKhungBang,
             "soLenhKetToan": self.soLenhKetToan,
+            "nguonMau": self.nguonMau,
             "trieuChung": self.trieuChung, "deXuat": self.deXuat,
             "nhan": self.nhan, "traLai": self.traLai,
             "kyVongTruoc": self.kyVongTruoc, "kyVongSau": self.kyVongSau,
@@ -123,6 +128,21 @@ def de_xuat_tat_dinh(tc: list[TrieuChung]) -> list[DeXuat]:
                 continue
             # `dung-ngoai` là bệnh ngược: nới ra. Còn lại thì siết vào.
             chieu = -1.0 if t.ma == "dung-ngoai" else 1.0
+            # Nhưng `mo-hinh-lech` thì TRIỆU CHỨNG ĐÃ BIẾT HƯỚNG, và bản
+            # đầu vứt nó đi.
+            #
+            # Đã thấy tận mắt trên băng thật: chẩn ra "thiên RỤT RÈ QUÁ"
+            # rồi đề xuất SIẾT `batDinhToiThieu` chặt thêm — đúng ngược
+            # hướng bệnh. Cổng trả lại, nên không hại gì; nhưng một người
+            # đề xuất chỉ biết đi một chiều thì mãi mãi không tìm ra chiều
+            # kia, và vòng tiến hoá đứng yên vì lý do sai.
+            if t.ma == "mo-hinh-lech":
+                nhan = str(t.bangChung.get("chieu") or "")
+                if "RỤT RÈ" in nhan:
+                    chieu = -1.0          # rụt rè thì phải NỚI bất định ra
+                elif "TỰ TIN" in nhan:
+                    chieu = 1.0
+                # "hai chiều lẫn lộn" thì giữ mặc định — không đoán bừa.
             # Nút "càng thấp càng kỹ" thì đảo chiều lại cho đúng nghĩa siết.
             if duong in ("khoDoi.giaCapToiDa", "ruiRo.kellyPhan",
                          "khoDoi.capChuaKhopToiDaUsd", "khoDoi.giayChoChanHai"):
@@ -213,14 +233,24 @@ def thu_mot_de_xuat(khung: list[dict], dx: DeXuat) -> dict:
         b = ThamSo("ứng viên", net, dx.denGiaTri)
         kq = doi_chieu(khung, a, b)
     else:
-        # Nút không nằm trong đường chạy lại: đặt tạm vào CONFIG, chạy, trả lại.
+        # Nút không đi qua `ThamSo` mà nằm trong CONFIG. Phải chạy HAI
+        # lượt ở HAI trạng thái config khác nhau.
+        #
+        # Bản đầu đặt config sang giá trị MỚI rồi chạy cả A lẫn B với hai
+        # `ThamSo` giống hệt nhau — tức là so một thứ với chính nó. Kết
+        # quả luôn "bằng", nên tám trong mười nút vặn được KHÔNG BAO GIỜ
+        # qua nổi cổng, bất kể đề xuất đúng hay sai hướng.
+        #
+        # Đây mới là lý do thật khiến vòng tiến hoá chưa từng nhận gì —
+        # nặng hơn cả chuyện thiếu mẫu, vì nó không lộ ra ở đâu cả: cổng
+        # vẫn chạy, vẫn in ra một phán quyết, chỉ là phán quyết đó vô nghĩa.
+        ka = chay_lai_mot_luot(khung, ThamSo("đương nhiệm", net, at))
         cu = _dat_tham_so(dx.nut, dx.denGiaTri)
         try:
-            a = ThamSo("đương nhiệm", net, at)
-            b = ThamSo("ứng viên", net, at)
-            kq = doi_chieu(khung, a, b)
+            kb = chay_lai_mot_luot(khung, ThamSo("ứng viên", net, at))
         finally:
             _dat_tham_so(dx.nut, cu)
+        kq = gop_doi_chieu(ka, kb)
 
     A, B = kq["A"], kq["B"]
     ly: list[str] = []
@@ -294,12 +324,38 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
 
     bo_qua = _dem_bo_qua(khung)
 
+    # ── mẫu để chẩn: THẬT trước, mô phỏng sau ─────────────────────────
+    #
+    # Cỗ máy này có thể chạy hàng tuần mà chưa đặt lệnh nào — đường tới
+    # sàn đứt, hoặc chưa cơ hội nào qua sàng. Lúc đó `chan_doan` chỉ trả
+    # đúng một câu: "chưa đủ để chẩn gì". Câu ấy đúng, nhưng nó khoá luôn
+    # vòng tiến hoá: 12/12 lượt đứng yên, không tham số nào từng đổi.
+    #
+    # Nay khi sổ thật còn mỏng thì dựng mẫu từ CHẠY LẠI trên băng đã ghi —
+    # việc này làm được kể từ khi có sổ kết quả. Nhưng mẫu mô phỏng lạc
+    # quan có hệ thống (không trượt thêm, không khớp một phần, không chọn
+    # lọc bất lợi), nên nó đi kèm nhãn `nguonMau` và nhãn ấy theo xuống
+    # tận từng triệu chứng.
+    nguonMau = "that"
+    if len(ket) < TOI_THIEU_MAU and khung:
+        cl = CONFIG["canLoi"]
+        mp = chay_lai_mot_luot(khung, ChayLaiThamSo(
+            ten="mô phỏng", netEdgeToiThieu=float(cl["netEdgeToiThieu"]),
+            bienAnToan=float(cl["bienAnToan"])))
+        if mp.laiLoTungLenh:
+            ket = [{"laiLo": x} for x in mp.laiLoTungLenh]
+            tk = thong_ke(ket)
+            nguonMau = "chay-lai"
+            kq.nguonMau = nguonMau
+            kq.soLenhKetToan = len(ket)
+            kq.kyVongTruoc = None if tk.get("chuaCo") else tk["kyVong"]
+
     # 3. chẩn
     tc = chan_doan(ket, {
         "saiSoTB": hc.sai_so_tuyet_doi_tb(),
         "tongMau": hc.tong_mau,
         "bang": hc.bang(),
-    }, bo_qua)
+    }, bo_qua, nguonMau=nguonMau)
     kq.trieuChung = [t.tom_tat() for t in tc]
 
     if all(t.ma in ("khoe", "thieu-mau") for t in tc):

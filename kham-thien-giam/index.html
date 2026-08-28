@@ -25,6 +25,27 @@
 <link rel="stylesheet" href="assets/css/halls.css">
 </head>
 <body>
+<!-- WCAG 2.2 AA · 2.4.1 "Bypass Blocks". Cung này mở đầu bằng một
+     thanh bên dài — hiệu, danh sách phòng, rồi 12 mục cung — nên
+     người dùng bàn phím phải Tab qua trọn khối đó ở MỖI lần đổi
+     phòng. Nấp cho tới khi được tiêu điểm; xem .bo-qua trong app.css.
+
+     href giữ nguyên cho trình đọc màn hình, nhưng onclick CHẶN
+     trình duyệt đổi location.hash. Cung này định tuyến bằng hash,
+     nên để hash thành "than" là bộ định tuyến đi tìm một phòng
+     không có — đúng cái mà đường nhảy sinh ra để tránh. Chuyển tiêu
+     điểm bằng tay, hash giữ nguyên.
+
+     Chặn ngay cả ở cung dùng "#/phòng": đổi hash vẫn bắn hashchange,
+     và một bộ định tuyến gặp hash lạ thì rơi về phòng mặc định —
+     người dùng bấm "tới nội dung" rồi bị đá sang phòng khác.
+
+     Viết thẳng vào onclick chứ không gọi hàm trong app.js: mười cung
+     là mười file app.js với mười bộ helper khác nhau, và thêm một
+     hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #than thì
+     onclick trả undefined và trình duyệt nhảy theo lối thường — hụt
+     nhẹ chứ không chết. -->
+<a class="bo-qua" href="#than" onclick="var m=document.getElementById('than');if(m){m.focus();return false}">Tới nội dung chính</a>
 
 <div class="khung">
 
@@ -55,7 +76,7 @@
   </nav>
 
   <!-- ── thân ──────────────────────────────────────── -->
-  <main class="than-ngoai">
+  <main class="than-ngoai" id="than" tabindex="-1">
 
     <header class="dinh">
       <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">

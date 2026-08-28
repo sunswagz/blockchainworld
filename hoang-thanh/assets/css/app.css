@@ -448,3 +448,18 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .tt-vi{flex:1 1 100%;color:var(--ink-2)}
 .tt-chan{margin:0;padding:10px 16px;border-top:1px solid var(--line-2);background:var(--card);
   font-size:var(--t-2);line-height:1.6;color:var(--ink-2)}
+
+/* ── ĐƯỜNG NHẢY QUA THANH BÊN ─────────────────────────────
+   Nấp bằng `transform`, KHÔNG bằng `display:none` hay `top`. Phần
+   tử ẩn bằng display không nhận được tiêu điểm, mà nhận tiêu điểm
+   mới là toàn bộ việc của nó; còn `top` thì chạm bố cục và cung này
+   có thước chặn đúng thứ đó.
+
+   Đệm 8px/12px là hai giá trị ĐÃ CÓ trong cung — thêm một con số
+   mới ở đây là thêm một nấc vào thang khoảng cách, và thang ấy cũng
+   đang được canh. */
+.bo-qua{position:fixed;left:12px;top:12px;z-index:9999;padding:8px 12px;
+  border-radius:8px;background:var(--card,#14161c);color:var(--fg,#e8ecf4);
+  border:1px solid var(--vien,rgba(255,255,255,.22));text-decoration:none;
+  transform:translateY(-260%);transition:transform .14s ease}
+.bo-qua:focus{transform:translateY(0)}

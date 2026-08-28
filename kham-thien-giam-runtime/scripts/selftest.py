@@ -991,6 +991,142 @@ def kiem_ket_qua() -> None:
              so4.lay("a-1") is True and so4.lay("b-2") is False)
 
 
+def kiem_nguon_mau() -> None:
+    print("\n-- Nguon mau: THAT va MO PHONG khong duoc lan ---------------")
+    from kham.chan_doan import chan_doan
+
+    hc = {"saiSoTB": 0.06, "tongMau": 2542, "bang": []}
+
+    # Nhãn phải THEO XUỐNG tận từng triệu chứng, không chỉ nằm ở đâu đó
+    # cấp trên. Một chẩn đoán dựng trên mẫu mô phỏng lạc quan có hệ thống
+    # — không trượt thêm, không khớp một phần, không chọn lọc bất lợi —
+    # nên người đọc phải thấy nhãn ngay chỗ đọc, không phải đi tra.
+    t = chan_doan([], hc, {}, nguonMau="chay-lai")
+    kiem("mẫu mô phỏng → triệu chứng mang nhãn",
+         t and t[0].bangChung.get("nguonMau") == "chay-lai",
+         t[0].bangChung if t else None)
+
+    t2 = chan_doan([], hc, {})
+    kiem("mặc định là mẫu THẬT",
+         t2 and t2[0].bangChung.get("nguonMau") == "that")
+
+    # Đủ mẫu thì phải chẩn được bệnh thật, không dừng ở "thiếu mẫu".
+    lo = [{"laiLo": -1.0} for _ in range(40)]
+    t3 = chan_doan(lo, hc, {}, nguonMau="chay-lai")
+    ma = [x.ma for x in t3]
+    kiem("đủ mẫu + lỗ đều → chẩn ra kỳ vọng âm", "ky-vong-am" in ma, ma)
+    kiem("đủ mẫu thì KHÔNG còn báo thiếu mẫu", "thieu-mau" not in ma, ma)
+
+
+def kiem_tien_hoa_chay_that() -> None:
+    print("\n-- Vong tien hoa: GOI THAT mot luot, khong thay bang lambda ---")
+    from kham.tien_hoa import mot_luot
+
+    # Phép kiểm này tồn tại vì một lỗi đã lọt: tôi thêm một tham số vào
+    # `chan_doan()` rồi dán nhầm nó sang lời gọi `de_bai()`. Cả bộ kiểm
+    # vẫn XANH 281/281, còn `mot_luot()` thì ném `TypeError` ngay dòng đầu
+    # — vì không phép nào gọi nó THẬT. Mọi phép kiểm quanh vòng tiến hoá
+    # đều thay nó bằng một `lambda`, tức là kiểm cái lịch chạy chứ không
+    # kiểm cái được chạy.
+    #
+    # Hàm này là chỗ cả vòng tự tiến hoá đi qua. Nó phải được gọi thật,
+    # dù chỉ trên băng rỗng: chữ ký sai thì gãy ngay đây.
+    kq = mot_luot(thu=True)
+    kiem("gọi thật mot_luot(thu=True) không ném", kq is not None)
+    d = kq.tom_tat()
+    for khoa in ("luc", "soKhungBang", "soLenhKetToan", "trieuChung",
+                 "deXuat", "ghiChu", "nguonMau"):
+        kiem(f"kết quả có khoá `{khoa}`", khoa in d, sorted(d)[:8])
+    kiem("băng rỗng → nguồn mẫu vẫn là THẬT", d["nguonMau"] == "that",
+         d["nguonMau"])
+    kiem("băng rỗng → chẩn ra thiếu mẫu, không vặn gì",
+         any(t.get("ma") == "thieu-mau" for t in d["trieuChung"])
+         and not d["deXuat"])
+
+
+def kiem_huong_de_xuat() -> None:
+    print("\n-- De xuat phai di DUNG HUONG benh -------------------------")
+    from kham.chan_doan import TrieuChung
+    from kham.tien_hoa import de_xuat_tat_dinh
+
+    def thu(nhan):
+        tc = [TrieuChung("mo-hinh-lech", 2, "x", {"chieu": nhan},
+                         ["dinhGia.batDinhToiThieu"])]
+        dx = de_xuat_tat_dinh(tc)
+        return dx[0].tom_tat() if dx else None
+
+    # Đã thấy tận mắt trên băng thật: chẩn ra "thiên RỤT RÈ QUÁ" rồi đề
+    # xuất SIẾT bất định chặt thêm — đúng ngược hướng bệnh. Cổng trả lại
+    # nên không hại gì, nhưng một người đề xuất chỉ biết đi MỘT chiều thì
+    # mãi mãi không tìm ra chiều kia, và vòng đứng yên vì lý do sai.
+    a = thu("RỤT RÈ QUÁ")
+    kiem("rụt rè quá → NỚI bất định ra", a and a["den"] < a["tu"],
+         f"{a['tu']} → {a['den']}" if a else None)
+
+    b = thu("TỰ TIN QUÁ")
+    kiem("tự tin quá → SIẾT bất định vào", b and b["den"] > b["tu"],
+         f"{b['tu']} → {b['den']}" if b else None)
+
+    c = thu("hai chiều lẫn lộn")
+    kiem("lẫn lộn → vẫn đề xuất, không đứng im", c is not None)
+
+    # `dung-ngoai` là bệnh ngược, và nó KHÔNG được lẫn với luật trên.
+    tc = [TrieuChung("dung-ngoai", 2, "x", {},
+                     ["canLoi.netEdgeToiThieu"])]
+    dx = de_xuat_tat_dinh(tc)
+    d = dx[0].tom_tat() if dx else None
+    kiem("đứng ngoài quá → NỚI ngưỡng lợi thế", d and d["den"] < d["tu"],
+         f"{d['tu']} → {d['den']}" if d else None)
+
+
+def kiem_cong_phan_biet() -> None:
+    print("\n-- Cong phai PHAN BIET duoc hai cau hinh --------------------")
+    from kham.chan_doan import TrieuChung
+    from kham.ket_qua import so_ket_qua
+    from kham.tien_hoa import DeXuat, thu_mot_de_xuat
+
+    # Băng giả: một cửa sổ, sổ hai bên có hàng, mô hình lệch xa giá chợ.
+    def muc(g, l):
+        return {"gia": g, "luong": l}
+
+    khung = []
+    for i in range(80):
+        slug = f"btc-updown-5m-{1787000000 + i * 300}"
+        so_ket_qua.o[slug] = {"slug": slug, "upThang": i % 3 != 0}
+        khung.append({"thiTruong": [{
+            "ma": "BTC_5M", "slug": slug,
+            "giaNen": 70000.0 + i, "giaMo": 70000.0,
+            "sigmaGiay": 1.0e-5, "conLaiGiay": 120.0,
+            "so": {
+                "UP": {"bid": [muc(0.40, 900)], "ask": [muc(0.42, 900)]},
+                "DOWN": {"bid": [muc(0.56, 900)], "ask": [muc(0.58, 900)]},
+            }}]})
+
+    dx = DeXuat(nut="dinhGia.batDinhToiThieu", tuGiaTri=0.005,
+                denGiaTri=0.30, chuaTrieuChung="mo-hinh-lech", lyLe="thử")
+    kq = thu_mot_de_xuat(khung, dx)
+    A, B = kq["A"], kq["B"]
+
+    # Đây là bất biến CHÍNH. Bản đầu đặt config sang giá trị mới rồi chạy
+    # cả hai lượt với hai `ThamSo` giống hệt nhau — tức so một thứ với
+    # chính nó, nên A luôn bằng B và tám trong mười nút KHÔNG BAO GIỜ qua
+    # nổi cổng. Cổng vẫn chạy, vẫn in phán quyết; chỉ là phán quyết vô
+    # nghĩa, và không có gì trên đời lộ ra điều đó.
+    kiem("đổi bất định 0,005 → 0,30 thì HAI lượt phải khác nhau",
+         A["soQuaSang"] != B["soQuaSang"] or A["tongLaiLo"] != B["tongLaiLo"],
+         f"A qua sàng {A['soQuaSang']} / B {B['soQuaSang']}")
+
+    kiem("cổng trả về phán quyết đọc được",
+         isinstance(kq.get("cho"), bool) and kq.get("lyDo") is not None,
+         kq.get("lyDo"))
+
+    # Và config phải được TRẢ LẠI nguyên trạng dù đi nhánh nào.
+    from kham.config import CONFIG
+    kiem("config trả lại nguyên trạng sau khi thử",
+         abs(float(CONFIG["dinhGia"]["batDinhToiThieu"]) - 0.30) > 1e-9,
+         CONFIG["dinhGia"]["batDinhToiThieu"])
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1412,6 +1548,10 @@ def main() -> int:
     kiem_nan_lai()
     kiem_khung_dai()
     kiem_ket_qua()
+    kiem_nguon_mau()
+    kiem_tien_hoa_chay_that()
+    kiem_huong_de_xuat()
+    kiem_cong_phan_biet()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

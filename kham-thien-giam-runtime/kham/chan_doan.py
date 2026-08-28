@@ -119,8 +119,23 @@ class TrieuChung:
 
 
 def chan_doan(ketToan: list[dict], hieuChinh: dict,
-              boQua: dict[str, int] | None = None) -> list[TrieuChung]:
-    """Đọc sổ kết toán + sổ hiệu chỉnh, trả về danh sách bệnh ĐO ĐƯỢC."""
+              boQua: dict[str, int] | None = None,
+              nguonMau: str = "that") -> list[TrieuChung]:
+    """Đọc sổ kết toán + sổ hiệu chỉnh, trả về danh sách bệnh ĐO ĐƯỢC.
+
+    `nguonMau` — "that" là lệnh đã đặt và đã kết toán; "chay-lai" là lệnh
+    MÔ PHỎNG dựng từ băng ghi. Hai thứ đó không được lẫn vào nhau:
+
+    · lệnh thật mang theo trượt giá thật, khớp một phần thật, chọn lọc
+      bất lợi thật — những thứ mô hình khớp lệnh của chạy lại không có;
+    · nên một chẩn đoán dựng trên mẫu mô phỏng LẠC QUAN có hệ thống, và
+      người đọc phải biết điều đó ngay chỗ đọc, không phải đi tra.
+
+    Vậy vì sao vẫn cho dùng? Vì cỗ máy này có thể chạy hàng tuần mà chưa
+    đặt lệnh nào — và lúc đó "chưa đủ để chẩn gì" là câu đúng nhưng vô
+    dụng, nó khoá luôn vòng tiến hoá. Mẫu mô phỏng có dán nhãn tốt hơn
+    KHÔNG có mẫu, miễn là cái nhãn không bao giờ rơi ra.
+    """
     ra: list[TrieuChung] = []
     tk = thong_ke(ketToan)
 
@@ -130,7 +145,7 @@ def chan_doan(ketToan: list[dict], hieuChinh: dict,
             "thieu-mau", 1,
             f"mới {tk.get('n', 0)} lệnh đã kết toán — chưa đủ để chẩn gì. "
             f"Chạy thêm, đừng vặn.",
-            {"n": tk.get("n", 0), "canToiThieu": 20}))
+            {"n": tk.get("n", 0), "canToiThieu": 20, "nguonMau": nguonMau}))
         return ra
 
     # ── 1. kỳ vọng âm ────────────────────────────────────────────────────
@@ -205,7 +220,6 @@ def _chieu_lech(bang: list[dict]) -> str:
             continue
         # ô xác suất cao mà thực tế thấp hơn => tự tin quá
         if h["duDoan"] > 0.5:
-            (tren if h["lech"] < 0 else duoi).__str__()
             if h["lech"] < 0:
                 tren += h["n"]
             else:

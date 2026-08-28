@@ -181,6 +181,7 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     factory/skills.json
     factory/tien-hoa.jsonl
     factory/kho-de-xuat.json
+    factory/phieu.json
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
@@ -206,8 +207,14 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     thai-boc-tu/assets/js/app.js
     thai-boc-tu/index.html
     thai-boc-tu/sw.js
+    dai-quan-trac/index.html
     dai-quan-trac/assets/css/app.css
+    dai-quan-trac/assets/css/halls.css
     dai-quan-trac/assets/js/app.js
+    dai-quan-trac/assets/js/trang/dong.js
+    dai-quan-trac/assets/js/trang/bang.js
+    dai-quan-trac/assets/js/trang/soi.js
+    dai-quan-trac/assets/js/trang/nen.js
     dai-quan-trac/sw.js
     kham-thien-giam/assets/css/app.css
     kham-thien-giam/assets/js/app.js
@@ -229,11 +236,26 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
 | sinh tay (`hoang-thanh/data.js`…) | chỉ người | có, đó là cách duy nhất |
 | **đồng sửa** (bảng trên) | **cả hai** | **có** — nhưng xem dưới |
 
-Đài Quan Trắc hẹp hơn hai cung kia: lời nhắc chỉ cho model sửa
-`app.css` và `app.js`, và cổng chặn trả lại CẢ thư mục nếu bản vá
-chạm ra ngoài hai đường đó — nên `index.html` không nằm trong bảng.
+Đài Quan Trắc **từng** hẹp hơn hai cung kia: lời nhắc chỉ cho model
+sửa `app.css` và `app.js`. Điều đó đúng vào ngày `app.js` còn giữ cả
+16 hàm vẽ. Sau khi 16 hàm ấy tách sang `assets/js/trang/`, phần lớn
+giao diện nằm NGOÀI phạm vi của chính vòng sửa giao diện — và vì cổng
+chặn `exit 1` khi thấy file ngoài danh sách, model sửa đúng chỗ cần
+sửa lại làm hỏng cả lượt. Nay phạm vi gồm `index.html`, hai file CSS,
+`app.js` và bốn file `assets/js/trang/`.
+
+Ba nơi khai phạm vi ấy phải TRÙNG nhau: lời nhắc trong `refresh-data.yml`,
+biến `CHO` của bước cổng chặn, và `ra` của node trong
+`scripts/node/dai-quan-trac.mjs` — `ra` là chỗ `duong-ra` sinh `git add`,
+nên thiếu một đường thì bản vá biến mất mà mọi log đều xanh.
+
+Vẫn ở ngoài, có lý do: `halls.js` và `v/tri-thuc.js` do máy sinh nên sửa
+tay là mất ở lượt sinh sau; `khung.js` là lớp phương pháp chứ không phải
+lớp vẽ; `pwa.js` đụng vòng đời service worker, hỏng ở đó thì người dùng
+kẹt bản cũ mà cổng chặn không thấy.
+
 `sw.js` có mặt vì bước nâng CACHE_VERSION ghi vào nó sau khi bản vá
-được nhận.
+được nhận, chứ không phải thứ model sửa.
 
 Node `ho-bo-tien-hoa` (nhịp 24 giờ) để model đề xuất sửa giao diện,
 rồi `scripts/tien-hoa.mjs cong --so` quyết định nhận hay trả lại. Nên
@@ -838,6 +860,40 @@ bốn đều đang nằm trong worktree của phiên khác, nên phiên giữ cu
 chạy lệnh cho cung ấy.
 
 `index.html` nằm trong SHELL, nên vá `nhan` xong phải `npm run nang`.
+
+### Chỗ đè im lặng trong CSS
+
+    npm run de-im-lang            soi cả 12 cung · thoát 1 khi còn chỗ đè
+    npm run de-im-lang -- <cung>  soi một cung
+
+`npm run kiem` gọi nó ở đầu mỗi phiên và **nhắc** chứ không chặn: CSS
+của cung khác không phải việc của phiên đang mở.
+
+Báo khi **cùng ngữ cảnh, cùng selector, cùng thuộc tính, khác giá trị,
+ở hai khối khác nhau** — tức là một trong hai đang chết mà người viết
+nó không hay.
+
+**Vì sao đáng có một phép canh riêng: lớp lỗi này mở rộng theo số
+cung.** `knowledge-os` sinh widget mang tiền tố `tt-` cho mười một
+cung, nên mỗi lớp mới là mười một chỗ có thể đụng tên với lớp sẵn có.
+Đã đụng thật: Đài Quan Trắc dùng `tt-` cho *trạng thái*, widget dùng
+`tt-` cho *tri thức*, cùng độ đặc hiệu thì cái nằm dưới thắng — số cấp
+độ, chữ to nhất trên dải trạng thái, bị vẽ 10,5px thay vì 27px ở mọi
+trang, mọi chủ thể, không lỗi nào báo. Tìm ra nó là do may.
+
+Hai luật trừ, cả hai đều đã báo nhầm trong bản nháp và đều phải giữ:
+
+- **Khai hai lần trong CÙNG một khối là dự phòng cố ý**, không phải
+  chỗ đè — `height:100vh; height:100dvh`, `display:block;
+  display:-webkit-box`. Đó là cách duy nhất viết dự phòng trong CSS.
+  Nên trong mỗi khối chỉ lấy giá trị CUỐI, đúng thứ trình duyệt dùng.
+- **Khoá theo CẢ danh sách selector, không tách ra.** `.a,.b{color:x}`
+  rồi `.b{color:y}` là nền chung rồi biệt hoá — tác giả cố ý viết thế.
+  Tách danh sách thì nó thành "cùng `.b`, khác giá trị" và bị gọi oan.
+
+Máy **chỉ báo, không tự sửa**, và đó là chủ ý: `.drawer` rộng 470px
+hay 400px là quyết định thiết kế, chỉ người dựng cung ấy biết. Thứ máy
+nói chắc chắn là hôm nay một trong hai đang chết.
 
 ### Cổng dev
 

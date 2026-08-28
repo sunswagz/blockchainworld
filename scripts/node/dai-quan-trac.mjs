@@ -63,14 +63,26 @@ export const NODE = [
                    hỏng thì file người dùng NẠP đã bị ghi đè
        cổng chặn quyết định, không phải mã thoát của model
 
-     `ra` khai ba đường vì `duong-ra` sinh `git add` từ đây: app.css và
-     app.js là thứ model được sửa, sw.js là chỗ bước nâng
-     CACHE_VERSION ghi vào sau khi bản vá được nhận. */
+     `ra` khai đúng những đường mà `duong-ra` sinh `git add` từ đây, và
+     nó phải TRÙNG danh sách CHO trong refresh-data.yml. Thiếu một
+     đường thì model sửa xong mà `git add` không nhặt: cổng chặn xanh,
+     log xanh, và bản vá biến mất không dấu vết.
+
+     Danh sách này từng chỉ có app.css và app.js — đúng vào ngày app.js
+     còn giữ cả 16 hàm vẽ. Sau khi tách sang assets/js/trang/ thì phần
+     lớn giao diện đã nằm ngoài phạm vi của chính vòng sửa giao diện.
+
+     sw.js không phải thứ model sửa: đó là chỗ bước nâng CACHE_VERSION
+     ghi vào sau khi bản vá được nhận. */
   {
     ma: "tien-hoa-dqt", ten: "Tiến hoá Đài Quan Trắc", cung: "dai-quan-trac",
     tram: "M09", che: "claude", nhip: 24,
     lenh: "tien-hoa.mjs de-bai → claude-code-action → tien-hoa.mjs cong --so",
-    ra: ["dai-quan-trac/assets/css/app.css", "dai-quan-trac/assets/js/app.js",
+    ra: ["dai-quan-trac/index.html",
+         "dai-quan-trac/assets/css/app.css", "dai-quan-trac/assets/css/halls.css",
+         "dai-quan-trac/assets/js/app.js",
+         "dai-quan-trac/assets/js/trang/dong.js", "dai-quan-trac/assets/js/trang/bang.js",
+         "dai-quan-trac/assets/js/trang/soi.js", "dai-quan-trac/assets/js/trang/nen.js",
          "dai-quan-trac/sw.js"],
     y: "Phiếu đo bảy thước tự đo được chỉ ra điểm yếu, cầu nối Tàng Thư " +
        "Các chọn skill khớp đúng điểm yếu đó, model đề xuất bản vá, rồi " +

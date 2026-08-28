@@ -18,7 +18,13 @@
     "minSecondsBetweenTheses": 300,
     "dailyBudgetUsd": 5.0,
     "maxCallsPerDay": 80,
-    "requireNewCandle": true
+    "requireNewCandle": true,
+    "cli": {
+      "_": "Trần RIÊNG khi bộ não chạy qua claude CLI. ĐO ĐƯỢC 40.103 token nạp mỗi lượt với lời nhắc hệ thống đầy đủ (1,7k luật + 46,7k ký tự kho kỹ năng), tính vào QUOTA GÓI chứ không phải tiền. Ước ban đầu 29k là ĐOÁN và đoán thiếu 38%; con số ở đây là số đo. Khung 4h có 6 lần nến đóng mỗi ngày, nên 8 lượt là đủ kể cả khi có vài lần đổi chế độ. 8 × 40k = 320k token/ngày. Muốn nới thì nới ở đây, và nhớ nhân lại: mỗi lượt là 40k, không phải 15k.",
+      "minSecondsBetweenTheses": 1800,
+      "maxCallsPerDay": 8,
+      "model": "claude-sonnet-4-6"
+    }
   },
   "risk": {
     "startingEquity": 10000,

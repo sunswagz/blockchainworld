@@ -44,6 +44,7 @@ from .ket_qua import so_ket_qua as _SO_KQ
 
 @dataclass
 class KetQua:
+    # Lãi lỗ TỪNG lệnh, để chẩn đoán dùng được khi sổ thật còn rỗng.
     """Kết quả một lượt chạy lại."""
     ten: str
     soKhung: int = 0
@@ -56,6 +57,7 @@ class KetQua:
     soThua: int = 0
     thuaLonNhat: float = 0.0
     boQua: dict[str, int] = field(default_factory=dict)
+    laiLoTungLenh: list = field(default_factory=list)
 
     @property
     def netEdgeTrungBinh(self) -> float:
@@ -117,6 +119,22 @@ class ThamSo:
 def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
     """Chạy lại toàn bộ băng với MỘT bộ tham số."""
     kq = KetQua(ten=ts.ten)
+    # MỖI CỬA SỔ CHỈ VÀO MỘT LẦN.
+    #
+    # Băng ghi nhịp 2 giây, nên một khung 5 phút xuất hiện trong ~44 khung
+    # hình. Bản đầu chấm từng khung hình một, tức là đếm cùng một cửa sổ
+    # thành 44 lệnh độc lập — và ra lãi 2,9 TRIỆU đô trên một tài khoản
+    # 1.000 đô mà không ai chớp mắt.
+    #
+    # Sai đó không chỉ phóng đại con số: nó còn làm lệch cả phép SO SÁNH,
+    # vì hai bộ tham số vào lệnh ở những khung hình khác nhau thì bị đếm
+    # lặp khác nhau. Một phép chạy lại đếm lặp thì không bác bỏ được gì.
+    #
+    # Vào MỘT lần cho mỗi (cửa sổ, bên), tại khung hình ĐẦU TIÊN mà cơ hội
+    # qua sàng — đúng hành vi của máy thật: thấy tín hiệu thì vào, không
+    # vào lại mỗi hai giây.
+    daVao: set[tuple[str, str]] = set()
+
     def bo(ly: str) -> None:
         kq.boQua[ly] = kq.boQua.get(ly, 0) + 1
 
@@ -154,6 +172,10 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
                 kq.tongNetEdge += ch.netEdge
                 if ch.netEdge < ts.netEdgeToiThieu:
                     continue
+                khoa = (tt.get("slug") or ma, ben)
+                if khoa in daVao:
+                    bo("cửa sổ này đã vào rồi"); continue
+                daVao.add(khoa)
                 kq.soQuaSang += 1
 
                 # Kết quả chỉ dùng để CHẤM, không chảy ngược vào quyết định.
@@ -174,6 +196,7 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
                 tra = 1.0 if (bool(that) == (ben == "UP")) else 0.0
                 lai = (tra - ch.vwap - ch.phi) * ch.soCo
                 kq.tongLaiLo += lai
+                kq.laiLoTungLenh.append(lai)
                 if lai > 0:
                     kq.soThang += 1
                 else:
@@ -184,7 +207,17 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
 
 def doi_chieu(khung: list[dict], a: ThamSo, b: ThamSo) -> dict:
     """Chạy hai bộ tham số trên CÙNG băng rồi so. Đây mới là backtest."""
-    ka, kb = mot_luot(khung, a), mot_luot(khung, b)
+    return gop_doi_chieu(mot_luot(khung, a), mot_luot(khung, b))
+
+
+def gop_doi_chieu(ka: KetQua, kb: KetQua) -> dict:
+    """So hai kết quả ĐÃ chạy sẵn.
+
+    Tách ra khỏi `doi_chieu` vì có những nút không đi qua `ThamSo` mà nằm
+    trong `CONFIG` — muốn so chúng thì phải chạy lượt A với config CŨ và
+    lượt B với config MỚI, tức hai lượt ở hai thời điểm khác nhau, không
+    thể gói trong một lời gọi.
+    """
 
     def hon(x: float, y: float) -> str:
         if abs(x - y) < 1e-12:
