@@ -16,6 +16,31 @@ Chọn `assets/js/v/` không tuỳ tiện: đó là nhánh **mạng-trước** t
 bảng điều khiển nói dối, tệ hơn hẳn không có bảng nào.
 
     python -m bac.snapshot      quét một lượt, ghi, rồi thoát
+
+## Vì sao vòng lặp nền KHÔNG tự ghi file này
+
+Tiêu đề file sinh ra từng hứa `python run.py — ghi mỗi vòng lặp`, câu chép
+từ Tử Cấm Thành nơi nó đúng thật. Ngày 28/08/2026 lời hứa ấy được "sửa"
+bằng cách thêm lời gọi vào `_vong_lap()` — và đó là chữa MÃ cho khớp một
+lời hứa vốn đã sai thiết kế.
+
+Cái bị bỏ sót: **trang công khai đọc bản ĐÃ COMMIT.** Ghi ra đĩa 30 giây
+một lần không đẩy được một byte nào lên site; thứ đẩy là `git commit`, và
+việc ấy vẫn do người làm. Nên lời gọi ấy đổi lấy đúng hai thứ, cả hai đều
+xấu:
+
+- một file **được git theo dõi luôn ở trạng thái bẩn** trong mọi cây có
+  runtime chạy — và `git add thi-bac-ty/` của phiên lo cung ấy sẽ nuốt một
+  ảnh chụp ngẫu nhiên vào commit của họ;
+- `git merge --ff-only` ở cây chính **hỏng ngay** lần đầu có commit chạm
+  tới file này, vì thay đổi cục bộ sẽ bị đè.
+
+Cái thứ hai đã xảy ra thật, mười phút sau khi thêm lời gọi.
+
+Nên đường đúng vẫn là đường cũ: sinh khi CẦN (nút buồng lái hoặc
+`python -m bac.snapshot`), rồi COMMIT. Và tiêu đề file nói đúng như vậy —
+phép kiểm `kiem_lat_cat` canh hai chiều: tiêu đề hứa ghi mỗi vòng thì vòng
+lặp phải gọi thật, và ngược lại.
 """
 from __future__ import annotations
 
@@ -34,8 +59,13 @@ HEADER = """/* SINH TỰ ĐỘNG bởi thi-bac-ty-runtime — ĐỪNG SỬA TAY.
    cần server và không cần khoá nào. Sửa tay thì lượt ghi kế tiếp đè lên.
 
    Sinh bằng tay (runtime không chạy trên Actions được — xem CLAUDE.md):
-       python run.py                 ghi mỗi vòng lặp
-       python -m bac.snapshot        ghi một lần rồi thoát
+       python -m bac.snapshot        quét một lượt, ghi, rồi thoát
+       nút "Ghi lát cắt" ở buồng lái localhost:5188
+
+   Vòng lặp nền KHÔNG tự ghi file này. Trang công khai đọc bản ĐÃ COMMIT,
+   nên ghi mỗi 30 giây không làm site tươi hơn một giây nào — nó chỉ để
+   lại một file được theo dõi luôn bẩn. SINH RỒI PHẢI COMMIT thì site mới
+   đổi.
 */
 """
 

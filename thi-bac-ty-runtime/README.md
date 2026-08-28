@@ -982,7 +982,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 | lệnh | làm gì |
 |---|---|
-| `python run.py` | vòng lặp nền + buồng lái, ghi sổ **và lát cắt** mỗi lượt |
+| `python run.py` | vòng lặp nền + buồng lái, ghi sổ mỗi lượt |
 | `python -m bac.snapshot` | một lượt rồi ghi `thi-bac-ty/assets/js/v/cang-phi.js` |
 | `python scripts/selftest.py` | toán, không mạng, không chạm sổ thật |
 | `pythonw dichvu/chay-nen.py` | chạy nền 24/7, log xoay vòng, ghi PID |
@@ -992,29 +992,35 @@ Buồng lái **chỉ sống ở localhost** và không bao giờ lên site. Cung
 `thi-bac-ty/` (cổng 5187) là thứ lên GitHub Pages — nó **quan sát**, runtime
 **điều khiển**. Đó là hai giao diện khác nhau, cố ý.
 
-### Lát cắt ghi mỗi vòng — và trước 28/08 nó KHÔNG ghi
+### Lát cắt sinh KHI CẦN, rồi phải COMMIT — và một lần chữa sai chiều
 
-Tiêu đề của `cang-phi.js` vẫn luôn ghi `python run.py — ghi mỗi vòng lặp`.
-Câu ấy chép từ Tử Cấm Thành, nơi nó đúng: `trader/loop.py` gọi
-`snapshot.write` thật, sau MỌI vòng. Ở đây thì không lời gọi nào tồn tại —
+Tiêu đề của `cang-phi.js` từng hứa `python run.py — ghi mỗi vòng lặp`. Câu
+ấy chép từ Tử Cấm Thành, nơi nó đúng thật (`trader/loop.py` gọi
+`snapshot.write` sau MỌI vòng). Ở đây không lời gọi nào tồn tại —
 `ghi_lat_cat` chỉ có hai chỗ gọi: nút trong buồng lái và `python -m
 bac.snapshot`.
 
-Hậu quả im lặng, đúng kiểu runtime này sinh ra để bắt: cung tĩnh chỉ đổi
-khi có người nhớ bấm nút, nên **trang công khai đứng ở lát cắt cũ trong khi
-tiêu đề của chính nó nói nó tươi mỗi vòng**. Không lỗi nào, không cảnh báo
-nào — `tuoi-du-lieu.mjs` xếp nó vào nhóm `botSinh: false` nên cũng không
-gắn ⚠.
+Lần chữa đầu đi sai chiều: thêm lời gọi vào `_vong_lap()` cho khớp lời
+hứa. Cái bị bỏ sót là **trang công khai đọc bản ĐÃ COMMIT** — ghi ra đĩa
+30 giây một lần không đẩy được một byte nào lên site; thứ đẩy là
+`git commit`, và việc ấy vẫn do người làm. Đổi lại được đúng hai thứ, cả
+hai đều xấu:
 
-Nay `_vong_lap()` gọi nó sau mọi vòng, **kể cả vòng hỏng**, và đặt ở vòng
-lặp chứ không trong `mot_vong()`: hàm ấy có nhiều nhánh `return` sớm (cầu
-dao ngắt, không tờ trình nào) và đặt trong đó là chắc chắn sót một nhánh —
-đúng nhánh đáng ghi nhất.
+- một file **được git theo dõi luôn ở trạng thái bẩn** trong mọi cây có
+  runtime chạy — và `git add thi-bac-ty/` của phiên lo cung ấy sẽ nuốt
+  một ảnh chụp ngẫu nhiên vào commit của họ;
+- `git merge --ff-only` ở cây chính **hỏng ngay** lần đầu có commit chạm
+  tới file này. Đã xảy ra thật, mười phút sau khi thêm lời gọi.
 
-Phép kiểm canh lời hứa ấy bằng **AST**, không bằng khớp chuỗi: bản đầu tìm
-`"ghi_lat_cat" in nguồn`, và phép cấy lỗi ngược đổi lời gọi thành
-`pass  # ghi_lat_cat(self)` đã đi lọt — lần thứ ba kiểu hỏng ấy lọt qua một
-phép kiểm khớp chuỗi trong dự án này.
+Nên lời hứa được sửa chứ không phải mã: sinh khi CẦN, rồi COMMIT. Bài học
+chung là **đừng chữa mã cho khớp một lời hứa mà chưa hỏi lời hứa ấy có
+đúng thiết kế không** — ở đây câu văn đúng cho runtime khác, và chép sang
+là chép cả một quyết định không thuộc về mình.
+
+Phép kiểm canh hai chiều bằng **AST**, không bằng khớp chuỗi: tiêu đề hứa
+ghi mỗi vòng thì vòng lặp phải GỌI thật, và ngược lại. Bản đầu tìm
+`"ghi_lat_cat" in nguồn` và lỗi cấy `pass  # ghi_lat_cat(self)` đã đi lọt
+— lần thứ ba kiểu hỏng ấy lọt qua một phép kiểm khớp chuỗi ở đây.
 
 ## Hai phép tính, và vì sao lẫn chúng là mất tiền
 
