@@ -127,6 +127,21 @@ def de_xuat_tat_dinh(tc: list[TrieuChung]) -> list[DeXuat]:
                 continue
             # `dung-ngoai` là bệnh ngược: nới ra. Còn lại thì siết vào.
             chieu = -1.0 if t.ma == "dung-ngoai" else 1.0
+            # Nhưng `mo-hinh-lech` thì TRIỆU CHỨNG ĐÃ BIẾT HƯỚNG, và bản
+            # đầu vứt nó đi.
+            #
+            # Đã thấy tận mắt trên băng thật: chẩn ra "thiên RỤT RÈ QUÁ"
+            # rồi đề xuất SIẾT `batDinhToiThieu` chặt thêm — đúng ngược
+            # hướng bệnh. Cổng trả lại, nên không hại gì; nhưng một người
+            # đề xuất chỉ biết đi một chiều thì mãi mãi không tìm ra chiều
+            # kia, và vòng tiến hoá đứng yên vì lý do sai.
+            if t.ma == "mo-hinh-lech":
+                nhan = str(t.bangChung.get("chieu") or "")
+                if "RỤT RÈ" in nhan:
+                    chieu = -1.0          # rụt rè thì phải NỚI bất định ra
+                elif "TỰ TIN" in nhan:
+                    chieu = 1.0
+                # "hai chiều lẫn lộn" thì giữ mặc định — không đoán bừa.
             # Nút "càng thấp càng kỹ" thì đảo chiều lại cho đúng nghĩa siết.
             if duong in ("khoDoi.giaCapToiDa", "ruiRo.kellyPhan",
                          "khoDoi.capChuaKhopToiDaUsd", "khoDoi.giayChoChanHai"):

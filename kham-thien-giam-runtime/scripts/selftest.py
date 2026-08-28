@@ -1044,6 +1044,41 @@ def kiem_tien_hoa_chay_that() -> None:
          and not d["deXuat"])
 
 
+def kiem_huong_de_xuat() -> None:
+    print("\n-- De xuat phai di DUNG HUONG benh -------------------------")
+    from kham.chan_doan import TrieuChung
+    from kham.tien_hoa import de_xuat_tat_dinh
+
+    def thu(nhan):
+        tc = [TrieuChung("mo-hinh-lech", 2, "x", {"chieu": nhan},
+                         ["dinhGia.batDinhToiThieu"])]
+        dx = de_xuat_tat_dinh(tc)
+        return dx[0].tom_tat() if dx else None
+
+    # Đã thấy tận mắt trên băng thật: chẩn ra "thiên RỤT RÈ QUÁ" rồi đề
+    # xuất SIẾT bất định chặt thêm — đúng ngược hướng bệnh. Cổng trả lại
+    # nên không hại gì, nhưng một người đề xuất chỉ biết đi MỘT chiều thì
+    # mãi mãi không tìm ra chiều kia, và vòng đứng yên vì lý do sai.
+    a = thu("RỤT RÈ QUÁ")
+    kiem("rụt rè quá → NỚI bất định ra", a and a["den"] < a["tu"],
+         f"{a['tu']} → {a['den']}" if a else None)
+
+    b = thu("TỰ TIN QUÁ")
+    kiem("tự tin quá → SIẾT bất định vào", b and b["den"] > b["tu"],
+         f"{b['tu']} → {b['den']}" if b else None)
+
+    c = thu("hai chiều lẫn lộn")
+    kiem("lẫn lộn → vẫn đề xuất, không đứng im", c is not None)
+
+    # `dung-ngoai` là bệnh ngược, và nó KHÔNG được lẫn với luật trên.
+    tc = [TrieuChung("dung-ngoai", 2, "x", {},
+                     ["canLoi.netEdgeToiThieu"])]
+    dx = de_xuat_tat_dinh(tc)
+    d = dx[0].tom_tat() if dx else None
+    kiem("đứng ngoài quá → NỚI ngưỡng lợi thế", d and d["den"] < d["tu"],
+         f"{d['tu']} → {d['den']}" if d else None)
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1467,6 +1502,7 @@ def main() -> int:
     kiem_ket_qua()
     kiem_nguon_mau()
     kiem_tien_hoa_chay_that()
+    kiem_huong_de_xuat()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

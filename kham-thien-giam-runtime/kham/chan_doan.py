@@ -220,7 +220,6 @@ def _chieu_lech(bang: list[dict]) -> str:
             continue
         # ô xác suất cao mà thực tế thấp hơn => tự tin quá
         if h["duDoan"] > 0.5:
-            (tren if h["lech"] < 0 else duoi).__str__()
             if h["lech"] < 0:
                 tren += h["n"]
             else:
