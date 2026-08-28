@@ -51,6 +51,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const DUONG_SO = "factory/registry.json";
 export const DUONG_TRANG_THAI = "factory/state.json";
 export const DUONG_CHIEU = "tao-bien-xu/assets/js/v/van-hanh.js";
+/* Nhật ký vòng tiến hoá — scripts/tien-hoa.mjs nối thêm một dòng mỗi
+   lượt qua cổng chặn. Là file của NHÀ MÁY chứ không phải đầu ra của
+   một cung nào: mọi cung có vòng tiến hoá đều ghi vào đây, nên nó
+   thuộc nhóm gieo sẵn bên dưới chứ không thuộc `ra` của node. */
+export const DUONG_NHAT_KY_TH = "factory/tien-hoa.jsonl";
 
 /* Nhật ký giữ bao nhiêu dòng. 200 ≈ hai tuần ở nhịp 6 giờ với
    9 node — đủ để nhìn ra một node hỏng lặp lại, chưa đủ to để
@@ -435,7 +440,7 @@ export async function soDangKy() {
    không thuộc `ra` của node nào vì chúng là của chính nhà máy —
    lấy thẳng từ hằng số ở đầu file, không chép tay. */
 export function duongRa() {
-  const ds = new Set([DUONG_TRANG_THAI, DUONG_CHIEU, DUONG_SO]);
+  const ds = new Set([DUONG_TRANG_THAI, DUONG_CHIEU, DUONG_SO, DUONG_NHAT_KY_TH]);
   for (const n of NODE) {
     /* BỎ node `che: "tay"`. Hoàng Thành và Tử Cấm Thành lấy nguồn
        ngoài repo nên người chạy ở máy mình rồi commit tay — đó là

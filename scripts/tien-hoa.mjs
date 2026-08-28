@@ -36,7 +36,7 @@
    ═══════════════════════════════════════════════════════ */
 
 import { writeFile, mkdir } from "node:fs/promises";
-import { existsSync, readdirSync, statSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, statSync, readFileSync, appendFileSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import vm from "node:vm";
@@ -738,6 +738,43 @@ if (LENH === "do") {
     } else {
       console.log(`  phiếu đo ${cu.dat}/${cu.tong} → ${moi.dat}/${moi.tong}` +
         (moi.dat > cu.dat ? "  ↑ tiến" : "  = giữ nguyên"));
+    }
+
+    /* ── NHẬT KÝ TIẾN HOÁ ────────────────────────────────────
+       Đề bài dặn model ghi việc nó vừa làm vào khoá `daLam`. Nhưng
+       file đề bài nằm trong .gitignore, nên lời khai đó bị XOÁ sau
+       mỗi lượt. Năm lượt đầu tiên của Hộ Bộ đã mất trắng lý do như
+       thế, và hậu quả không nhẹ: sổ nhà máy chỉ ghi "6/7 → 6/7" năm
+       lần liền, nên nhìn từ ngoài thì vòng này trông như chạy không
+       tải — trong khi lượt 27/08 thật ra vá một lỗi a11y có thật
+       (ngăn hồ sơ đóng bằng transform vẫn nằm trong luồng Tab).
+
+       Một vòng tiến hoá mà thành quả không đọc được thì sớm muộn có
+       người tắt nó đi, và họ tắt đúng thứ đang làm việc.
+
+       Ghi ở đây chứ không ở workflow là có chủ ý: cổng chặn là chỗ
+       DUY NHẤT biết cả phiếu trước lẫn phiếu sau, và nó chạy đúng
+       một lần cho mỗi cung mỗi lượt. Đặt vào đây thì mọi cung có
+       nhật ký mà không phải sửa YAML ở ba chỗ — chỗ mà mỗi lần sửa
+       là một cơ hội sót một cung.
+
+       Chỉ ghi khi có `--so`, tức là chỉ trong vòng tiến hoá. Gõ tay
+       `npm run cong <cung>` để soát thì không đẻ ra dòng rác nào. */
+    try {
+      const deBai = DUONG("assets", "data", "de-bai-tien-hoa.json");
+      const daLam = co(deBai) ? (JSON.parse(doc(deBai)).daLam || null) : null;
+      const soNk = join(ROOT, "factory", "tien-hoa.jsonl");
+      mkdirSync(dirname(soNk), { recursive: true });
+      appendFileSync(soNk, JSON.stringify({
+        luc: new Date().toISOString(), cung: CUNG,
+        truoc: `${cu.dat}/${cu.tong}`, sau: `${moi.dat}/${moi.tong}`,
+        nhan: loi.length ? "tra-lai" : "nhan",
+        daLam: typeof daLam === "string" ? daLam.slice(0, 600) : daLam
+      }) + "\n", "utf8");
+    } catch (e) {
+      /* Không ném: ghi nhật ký hỏng không được phép làm cổng chặn
+         trượt, vì cổng mới là thứ giữ site khỏi vỡ. */
+      console.log(`  (không ghi được nhật ký tiến hoá: ${e.message.slice(0, 80)})`);
     }
   }
   process.exit(loi.length ? 1 : 0);
