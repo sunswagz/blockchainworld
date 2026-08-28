@@ -583,7 +583,7 @@ nhưng trần ấy chỉ bảo vệ được máy đang chạy — nó không th
 ### knowledge-os là ngoại lệ thứ tư — dữ liệu, không phải cung
 
     knowledge-os/                     ← nguồn, KHÔNG lên site
-    <cung>/assets/js/v/tri-thuc.js    ← sinh tay, PHẢI commit · 11 cung
+    <cung>/assets/js/v/tri-thuc.js    ← BOT ghi (node `tri-thuc`) · 11 cung
 
 Lớp tri thức nền: nó trả lời "con số đang hiện đóng vai trò kinh tế gì",
 không đổi công thức nào. **Đây không phải cung đọc sách và đừng dựng một
@@ -635,6 +635,48 @@ model sửa dữ liệu mà cổng chặn không có gì để chấm ngoài "c�
 Có số rồi thì mới có vòng. Đây là vòng tiến hoá **thứ năm** của xưởng và
 là vòng đầu tiên không sửa giao diện: bốn vòng kia vá `app.css`/`app.js`,
 vòng này vá chính dữ liệu tri thức.
+
+**Thước thứ tám tồn tại vì bảy thước kia không cho vòng việc gì làm.**
+Bảy thước đầu đều hỏi "có gì hỏng không" — hỏng thì sửa xong là hết,
+nên chúng cùng xanh và ở nguyên đó. Mà `de-bai` đọc chính phiếu này,
+nên bảy-xanh nghĩa là `yeu=0`, nghĩa là **model không bao giờ được
+gọi**: vòng đã dựng xong mà nằm im, thứ tệ hơn một vòng chưa dựng vì
+nhìn vào sổ thì nó có vẻ đang chạy.
+
+Thước tám hỏi chuyện khác — lớp 2026 đã phủ tới đâu:
+
+    Khái niệm sách có phán quyết 2026    12/48 · mốc 24
+
+Mốc là **một nửa, không phải tất cả**. Trong 48 khái niệm sách có
+những cái thuần định nghĩa (`economic_value`, `unit_of_account`) mà
+2018→2026 thật sự không có tin gì; đòi đủ 48 là dựng một thước không
+bao giờ xanh nổi. Và **không có danh sách khai-bỏ-qua** ở thước này,
+khác thước "phủ phòng" — danh sách ấy sẽ phải nằm trong lớp model
+được phép sửa, tức là cho model tự khai miễn trừ cho chính nó.
+
+Cổng chặn nay đọc cả **số**, không chỉ đếm ô xanh: thước nào có số thì
+số cũng không được tụt. Không có phép ấy thì 12→7 và 12→20 đều là
+"giữ nguyên 7/8" và đều qua cổng — model xoá năm quan hệ rồi thêm một
+cái cũng được nhận.
+
+#### Thứ tự ba lớp của cổng chặn là BẮT BUỘC
+
+    1. validator qua        2. sinh lại chạy được        3. phiếu không tụt
+
+Bản đầu xếp "rẻ trước, đắt sau" nên chấm phiếu trước rồi mới sinh lại.
+Nhưng thước `lat-cat-tuoi` hỏi "lát cắt có khớp dữ liệu hiện tại
+không", mà ngay sau khi model sửa dữ liệu thì câu trả lời **luôn** là
+không — cho tới khi sinh lại. Nên phiếu tụt ở lớp 2 và **mọi bản vá
+hợp lệ đều bị trả lại**: một lượt Opus mỗi ngày, vĩnh viễn, không lượt
+nào được nhận, sổ ghi `loi` mà không ai đọc ra vì sao. Đúng cái bẫy đã
+giết vòng Đài Quan Trắc chín lượt liền.
+
+    npm run tri-thuc-thu      bắn 4 bản vá giả vào cổng, xem nhận/trả đúng không
+
+Bốn kịch bản: bản vá thật phải **nhận**; xoá bớt quan hệ, chạm lớp
+sách, và trùng id lớp 2026 phải **trả lại**. Nó bắt được lỗi thứ tự
+trên ngay lượt chạy đầu tiên. Chạy nó mỗi khi sửa `do.mjs`.
+
 
 **Phạm vi model hẹp hơn mọi vòng khác, và cố ý.** Nó chỉ được chạm lớp
 phân tích (`data/bridges/repo.json`) và lớp 2026. Lớp **sách cấm tuyệt
