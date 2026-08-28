@@ -797,6 +797,48 @@ dòng nào kêu. Nay `doMau` đọc **mọi** khối `:root`, còn máy vẫn ch
 sau khối đầu. Giữ cả hai; bỏ một cái là mở lại cửa cho một phép kiểm
 biến mất trong im lặng.
 
+### Ba thước tiếp cận: một máy nữa, cùng lối `thang.mjs`
+
+    npm run tiep-can -- <cung> --thu     xem sẽ đổi gì, chưa ghi
+    npm run tiep-can -- <cung>           ghi thật
+    npm run tiep-can -- --tat-ca --thu   soi cả 12 cung một lượt
+
+Cùng giao diện và cùng luật `--tat-ca` chỉ đi với `--thu` như mục trên,
+nên đây chỉ nói phần khác.
+
+Ba thước, ba cách hỏng khác nhau, nhưng cùng một tính chất: **người dùng
+chuột trên màn hình sáng không bao giờ gặp chúng**, nên chúng nằm im
+nhiều tháng mà không ai báo.
+
+    nhan       svg trang trí thiếu aria-hidden → trình đọc màn hình đọc
+               ra một mớ toạ độ giữa câu
+    tieu-diem  thiếu :focus-visible → đi bằng bàn phím thì không biết
+               mình đang đứng ở đâu trên trang
+    so-cot     thiếu tabular-nums → mỗi lượt cập nhật là cả bảng số nhảy
+               ngang, và mắt đọc lướt theo cột bị gãy
+
+Vòng tiêu điểm dùng **màu nhấn cung tự chọn** — biến đang làm `color`
+của thẻ `a` — chứ không bịa thêm một màu thứ hai. `tabular-nums` khai ở
+`body` vì `font-variant-numeric` **di truyền**: một dòng phủ cả trang,
+và bộ đo có nhánh nhận đúng chuyện đó.
+
+**Phép nhận diện của máy phải là bản CHÉP của thước, không phải bản rút
+gọn.** Đã cắn thật ngay lúc viết file này: bản đầu chỉ hỏi "`tabular-nums`
+có khai ở gốc không", nên nó đòi vá **sáu** cung đang khai theo từng khối
+và đang ĐẠT thước. Máy vá thứ không hỏng thì sinh ra diff rỗng, mà người
+duyệt gặp diff rỗng vài lần là thôi đọc diff. Nay nó chép nguyên cả nhánh
+di truyền của `so-cot` trong `scripts/tien-hoa.mjs`, và in ra **đếm được
+bao nhiêu mặt số còn thiếu** thay vì một câu chung. Nghĩ ra một phép nhận
+diện khác là sớm muộn máy vá một tập, bộ đo soi một tập khác, và không
+bên nào sai rõ ràng để mà sửa.
+
+Đo ngày 29/08: tám cung đủ cả ba; còn `kham-thien-giam` (53 mặt số),
+`tang-thu-cac` (1), `thi-bac-ty` và `tu-cam-thanh` (thiếu cả ba) — cả
+bốn đều đang nằm trong worktree của phiên khác, nên phiên giữ cung nào
+chạy lệnh cho cung ấy.
+
+`index.html` nằm trong SHELL, nên vá `nhan` xong phải `npm run nang`.
+
 ### Cổng dev
 
 Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của
