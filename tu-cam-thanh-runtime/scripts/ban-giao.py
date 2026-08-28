@@ -36,10 +36,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import chung_cat, journal, store  # noqa: E402
 from trader.brain import BO_LUAT, load_skills  # noqa: E402
-from trader.config import DATA_DIR  # noqa: E402
+from trader.config import DATA_DIR, ROOT  # noqa: E402
 
 GHI = "--ghi" in sys.argv
-TRUOC = DATA_DIR / "ban-giao-truoc.json"
+LICH_SU = DATA_DIR / "ban-giao-lich-su.jsonl"
+
+# So với ảnh chụp cũ ÍT NHẤT ngần này giờ. Không có ngưỡng ấy thì mỗi lần nghi
+# thức tự chạy lại ghi đè mốc, và bản bàn giao kế tiếp luôn báo "không có gì
+# đổi" — kể cả khi vừa có 21 lệnh mới và năm ngày chết.
+#
+# Đo được đúng chuyện đó: nghi thức chạy lúc 13:59, tôi mở bàn giao lúc 14:01,
+# và nó nói "không có gì đổi" trong khi số lệnh thật vừa nhảy 17 → 38. Không sai
+# một con số nào, và vô dụng hoàn toàn.
+CACH_TOI_THIEU_GIO = 6.0
 
 
 def _anh_chup() -> dict:
@@ -66,13 +75,38 @@ def _anh_chup() -> dict:
     }
 
 
-def _doc_truoc() -> dict:
-    if not TRUOC.exists():
-        return {}
-    try:
-        return json.loads(TRUOC.read_text(encoding="utf-8"))
-    except (ValueError, OSError):
-        return {}
+def _doc_truoc() -> tuple[dict, float | None]:
+    """Ảnh chụp cũ nhất còn dùng được, và nó cách đây mấy giờ.
+
+    Chọn ảnh MỚI NHẤT trong số những ảnh đã đủ già (≥ `CACH_TOI_THIEU_GIO`).
+    Không có cái nào đủ già thì lấy cái cũ nhất đang có — thà so với hai giờ
+    trước còn hơn không so với gì.
+    """
+    if not LICH_SU.exists():
+        return {}, None
+    ds = []
+    for dong in LICH_SU.read_text(encoding="utf-8").splitlines():
+        if not dong.strip():
+            continue
+        try:
+            ds.append(json.loads(dong))
+        except ValueError:
+            continue
+    if not ds:
+        return {}, None
+    nay = _dt.datetime.now(_dt.timezone.utc)
+
+    def _gio(x):
+        try:
+            return (nay - _dt.datetime.fromisoformat(x["luc"])).total_seconds() / 3600
+        except (KeyError, ValueError):
+            return None
+
+    du_gia = [(x, g) for x in ds if (g := _gio(x)) is not None and g >= CACH_TOI_THIEU_GIO]
+    if du_gia:
+        return min(du_gia, key=lambda t: t[1])
+    x = ds[0]
+    return x, _gio(x)
 
 
 def _so(nay: dict, truoc: dict) -> list[str]:
@@ -111,9 +145,67 @@ def _so(nay: dict, truoc: dict) -> list[str]:
     return ra or ["Không có gì đổi kể từ lần bàn giao trước."]
 
 
+# Ngưỡng "im lặng đáng báo động", tính bằng giờ. Vòng lặp chạy 20 giây một lượt,
+# nên hơn một giờ không ghi gì là đã có chuyện.
+IM_LANG_GIO = 1.0
+
+
+def _con_song() -> list[str]:
+    """Bot có đang chạy không — câu hỏi phải trả lời TRƯỚC mọi câu khác.
+
+    Bản đầu của file này không hỏi câu đó. Hậu quả đo được: runtime chết lúc
+    23/08 08:03 và không ai biết cho tới khi có người hỏi, **năm ngày rưỡi sau**.
+    Trong suốt thời gian ấy bản bàn giao vẫn liệt kê phát hiện, vẫn xếp hạng
+    bằng chứng, vẫn trông rất tử tế — về một bộ máy đã tắt.
+
+    Một báo cáo đẹp về một cái xác là dạng nói dối tệ nhất trong cả hệ này, vì
+    nó không sai một con số nào.
+    """
+    import socket
+    import time as _t
+
+    ra = []
+    nk = DATA_DIR / "nhat-ky" / "runtime.log"
+    if nk.exists():
+        gio = (_t.time() - nk.stat().st_mtime) / 3600
+        if gio > IM_LANG_GIO:
+            ngay = int(gio // 24)
+            ra.append(f"**NHẬT KÝ IM {gio:.1f} GIỜ" + (f" ({ngay} ngày)" if ngay else "")
+                      + f".** Dòng cuối lúc "
+                      + _dt.datetime.fromtimestamp(nk.stat().st_mtime).isoformat(timespec="minutes")
+                      + ". Vòng lặp chạy 20 giây một lượt, nên im quá một giờ là đã dừng.")
+    else:
+        ra.append("**KHÔNG CÓ NHẬT KÝ** — runtime chưa từng chạy trên máy này.")
+
+    cong = 5182
+    s_ = socket.socket()
+    s_.settimeout(1.5)
+    try:
+        s_.connect(("127.0.0.1", cong))
+        song = True
+    except OSError:
+        song = False
+    finally:
+        s_.close()
+    if not song:
+        ra.append(f"**CỔNG {cong} KHÔNG TRẢ LỜI.** Bot đang TẮT. Bật lại: "
+                  f"`powershell -File dichvu/bat.ps1` hoặc bấm icon Tử Cấm Thành.")
+
+    try:
+        tt = json.loads((ROOT / "dichvu" / "trang-thai.json").read_text(encoding="utf-8"))
+        if tt.get("dungHan"):
+            ra.append(f"**BỘ GIÁM SÁT ĐÃ DỪNG HẲN** — lý do: {tt.get('lyDo')}. "
+                      f"Nó sẽ KHÔNG tự dựng lại; phải sửa rồi bật tay.")
+        if tt.get("choMang"):
+            ra.append(f"Bộ giám sát đang chờ mạng — {tt.get('lyDo')}. Nó vẫn thử lại.")
+    except (OSError, ValueError):
+        pass
+    return ra
+
+
 def main() -> int:
     nay = _anh_chup()
-    truoc = _doc_truoc()
+    truoc, cach_gio = _doc_truoc()
     kq = chung_cat.chung_cat()
 
     d: list[str] = []
@@ -125,7 +217,22 @@ def main() -> int:
       f"({nay['championKyVong']}R ngoài mẫu)")
     W("")
 
-    W("## Đổi gì kể từ lần trước")
+    # ĐẶT TRƯỚC MỌI MỤC KHÁC. Nếu bot đang tắt thì mọi phần bên dưới là báo cáo
+    # về quá khứ, và người đọc cần biết điều đó ở dòng đầu tiên chứ không phải
+    # sau khi đã đọc hết bảng phát hiện.
+    song = _con_song()
+    if song:
+        W("## ⚠ BOT KHÔNG CHẠY")
+        W("")
+        for x in song:
+            W(f"- {x}")
+        W("")
+        W("Mọi con số bên dưới là ảnh chụp lúc nó còn chạy, không phải hiện tại.")
+        W("")
+
+    moc = (f"so với ảnh chụp cách đây {cach_gio:.1f} giờ" if cach_gio is not None
+           else "chưa có ảnh chụp nào để so")
+    W(f"## Đổi gì kể từ lần trước — {moc}")
     W("")
     for x in _so(nay, truoc):
         W(f"- {x}")
@@ -185,8 +292,12 @@ def main() -> int:
     if GHI:
         f = DATA_DIR / "BAN-GIAO.md"
         f.write_text(ra + "\n", encoding="utf-8")
-        TRUOC.write_text(json.dumps(nay, ensure_ascii=False, indent=1), encoding="utf-8")
-        print(f"\nđã ghi {f} và mốc so sánh {TRUOC.name}")
+        # CỘNG DỒN, không ghi đè. Mỗi lần chạy thêm một ảnh chụp; phần so sánh
+        # tự chọn ảnh đủ già. Ghi đè là cách chắc chắn nhất để mất đúng khoảng
+        # thời gian có chuyện xảy ra.
+        with LICH_SU.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(nay, ensure_ascii=False) + "\n")
+        print(f"\nđã ghi {f} và thêm một ảnh chụp vào {LICH_SU.name}")
     else:
         print("\n(chưa ghi — thêm --ghi để lưu và đặt mốc so sánh cho lần sau)")
     return 0
