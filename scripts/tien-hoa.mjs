@@ -441,10 +441,10 @@ function do_() {
      nhầm. Mà cảnh báo báo nhầm mãi thì người ta bỏ qua cảnh báo, kéo
      theo cả lần nó đúng; đó là luật đã ghi trong CLAUDE.md, ở đây chỉ
      áp vào chỗ mới. Nên soi thêm ~240 ký tự ngay trước thẻ svg. */
-  const svgTran = [...html.matchAll(/<svg([^>]*)>/g)].filter((m) => {
+  const svgTran = [...html.matchAll(/<svg\b([^>]*)>/g)].filter((m) => {
     if (/aria-hidden|role=|aria-label/.test(m[1])) return false;
     const truoc = html.slice(Math.max(0, m.index - 240), m.index);
-    const cha = [...truoc.matchAll(/<(?:span|button|a|div)([^>]*)>/g)].pop();
+    const cha = [...truoc.matchAll(/<(?:span|button|a|div)\b([^>]*)>/g)].pop();
     return !(cha && /aria-hidden|aria-label/.test(cha[1]));
   }).length;
   const svgKhongCo = [...html.matchAll(/<svg\b([^>]*)>/g)]
@@ -574,6 +574,28 @@ function do_() {
       : nvGoc ? "khai ở gốc, di truyền cả trang"
       : monoThieu === 0 ? `${monoCo} khối dùng font mono, khối nào cũng khai tabular-nums`
       : `${monoThieu}/${monoCo} khối font mono thiếu tabular-nums — số nhảy ngang mỗi lượt đổi`);
+
+  /* design-system (affaan-m/ECC), tải từ Tàng Thư Các: khoảng cách
+     phải rút về một thang, cùng lý do với thang cỡ chữ ngay trên.
+     Khoảng trắng là thứ mắt bắt được ngay cả khi người xem không gọi
+     tên được — mỗi chỗ một con số nghĩa là không ai quyết một thang.
+
+     Ngưỡng 24 rộng hơn hẳn mọi thang thật, vì thước này bắt chỗ
+     KHÔNG có thang chứ không ép ai theo thang của cung khác. */
+  const kcPx = new Set([...css.matchAll(/(?:padding|margin|gap)[^;}]*:\s*([^;}]+)/g)]
+    .flatMap((m) => m[1].match(/\b\d+px\b/g) || []));
+  cham("thang-cach", "Khoảng cách đi theo thang", kcPx.size <= 24,
+    kcPx.size === 0 ? "mọi khoảng cách đã nằm trong biến"
+      : `${kcPx.size} giá trị px rời rạc trong padding/margin/gap` +
+        (kcPx.size > 24 ? " — nhiều hơn một thang thật có" : ""));
+
+  /* frontend-a11y (affaan-m/ECC): tiêu điểm bàn phím phải THẤY ĐƯỢC.
+     Đây là lỗi không ai phát hiện cho tới lúc thử rời chuột ra — và
+     lúc đó thì người dùng bàn phím đã lạc giữa trang từ lâu. */
+  const coTieuDiem = /:focus-visible/.test(css);
+  cham("tieu-diem", "Tiêu điểm bàn phím thấy được", coTieuDiem,
+    coTieuDiem ? "có kiểu :focus-visible"
+      : "THIẾU :focus-visible — dùng bàn phím thì không biết đang đứng ở đâu");
 
   /* Mẫu số chỉ đếm thước ĐO ĐƯỢC. Để thước không đo được nằm trong
      mẫu số là hạ điểm một cung vì bộ đo yếu, không vì cung yếu. */
