@@ -1646,6 +1646,32 @@ jobs:
             --ghi "${UV:-chưa quét được}" \
             --log "$RUNNER_TEMP/do-kho.log"
 
+      # PHIẾU TOÀN THÀNH. Chỉ bốn cung có vòng tiến hoá gọi tới
+      # `tien-hoa.mjs do`; tám cung còn lại chưa từng được chấm trong
+      # một lượt bot nào. Bước này chấm cả mười hai bằng ĐÚNG bộ thước
+      # đó rồi ghi factory/phieu.json.
+      #
+      # Không gọi model. Cả mười hai cung xong trong ~8 giây ở máy,
+      # nên trần 6 phút là rất rộng — để rộng vì máy ảo Actions chậm
+      # hơn, và vì mỗi cung phải dựng DOM giả rồi nạp app.js của nó.
+      - name: Phiếu toàn thành
+        id: n-phieu
+        if: contains(steps.kehoach.outputs.han, ',phieu,')
+        continue-on-error: true
+        timeout-minutes: 6
+        run: |
+          t0=$(date +%s)
+          node scripts/phieu-toan-thanh.mjs 2>&1 | tee "$RUNNER_TEMP/phieu.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · phieu
+        if: always() && steps.n-phieu.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-phieu.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-phieu.outputs.giay }}
+        run: |
+          TT=$(grep -oE "[0-9]+/[0-9]+ thước đạt trên [0-9]+ cung" "$RUNNER_TEMP/phieu.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi phieu "$KET"             ${GIAY:+--giay $GIAY}             --ghi "${TT:-chưa chấm được}"             --log "$RUNNER_TEMP/phieu.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true

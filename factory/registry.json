@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T19:31:43.890Z",
+  "generatedAt": "2026-08-28T19:43:56.814Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -417,6 +417,19 @@
         "factory/kho-de-xuat.json"
       ],
       "y": "Tìm kỹ năng CHƯA khai thác trong 3.696 cái, xếp hạng theo sáu lĩnh vực, tải SKILL.md kèm trích dẫn. Máy lo tìm và xếp; model lo đọc hiểu — đã thử rút luật bằng regex và bỏ vì cho ra rác.",
+      "khai": "scripts/node/xuong.mjs"
+    },
+    {
+      "ma": "phieu",
+      "ten": "Phiếu toàn thành",
+      "tram": "M18",
+      "che": "script",
+      "nhip": 24,
+      "lenh": "node scripts/phieu-toan-thanh.mjs",
+      "ra": [
+        "factory/phieu.json"
+      ],
+      "y": "Chấm cả 12 cung bằng đúng bộ thước của vòng tiến hoá, rồi xếp thước nào đang trượt ở NHIỀU cung nhất. Nhìn từng cung thì mỗi lỗi trông như chuyện riêng của cung đó; nhìn cả bảng mới thấy cái nào là bệnh chung.",
       "khai": "scripts/node/xuong.mjs"
     },
     {
