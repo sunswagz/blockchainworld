@@ -424,6 +424,65 @@ class TyLaiSuat(Ty):
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
 
+    # ── kế toán: lãi CỐ ĐỊNH, cộng đều tới ngày đáo hạn ──────────────────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """PT khoá lãi tới đáo hạn, nên đây là ty duy nhất mà rate KHÔNG
+        đổi giữa chừng: mua xong là biết trước sẽ nhận bao nhiêu.
+
+        Hệ quả cho kế toán, và nó ngược với ba ty kia: rate lấy từ **tờ
+        trình lúc mở**, không lấy từ lượt quét mới nhất. `apyPhanTram` hôm
+        nay là lãi ngụ ý cho người mua HÔM NAY — vị thế đã mở thì không
+        hưởng con số ấy. Dùng số mới là âm thầm đánh giá lại một hợp đồng
+        đã khoá, và đường NAV sẽ nhấp nhô theo một thứ không chạm tới ta.
+
+        Vẫn phải tra lượt quét gần nhất, nhưng chỉ để trả lời MỘT câu:
+        thị trường ấy còn tồn tại không. Biến mất là `doDuoc=False`.
+
+        Quá ngày đáo hạn thì ĐÒI ĐÓNG: sau đáo hạn PT không sinh thêm gì,
+        giữ tiếp là giam vốn không lãi.
+        """
+        import datetime as _d
+
+        from thi_bac_ty.ke_toan import NAM_GIAY, KetToanVong
+
+        dt = max(0.0, float(denGiay) - float(tuGiay))
+        if dt <= 0.0:
+            return KetToanVong(vi="chưa qua giây nào kể từ lần kế toán trước")
+
+        chuoi = (toTrinh.get("chuoi") or [None])[0]
+        taiSan = toTrinh.get("taiSan")
+        t = next((x for x in self.thiTruong
+                  if x.chuoi == chuoi and x.taiSan == taiSan), None)
+        if t is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"KHÔNG thấy thị trường PT {taiSan} trên {chuoi} trong "
+                   f"lượt quét gần nhất — biến mất khác hẳn trả 0%")
+
+        # Lãi ĐÃ KHOÁ lúc mở, đọc từ tờ trình. Xem docstring.
+        try:
+            apy = float(toTrinh["grossBps"]) / 100.0 * (
+                365.0 * 24.0 / float(toTrinh["giuGio"]))
+        except (KeyError, TypeError, ValueError, ZeroDivisionError):
+            return KetToanVong(
+                doDuoc=False,
+                vi="tờ trình thiếu `grossBps`/`giuGio` nên không dựng lại "
+                   "được lãi đã khoá — không đoán")
+
+        von = sum(abs(float(getattr(c, "vonUsd", 0.0) or 0.0)) for c in viThe)
+        thu = von * (apy / 100.0) * dt / NAM_GIAY
+        con = t.conLaiGio
+        vi = (f"PT {taiSan} trên {chuoi}: lãi ĐÃ KHOÁ {apy:.2f}%/năm × "
+              f"{dt / 3600:.4f}h trên {von:.2f} USD"
+              + (f" · còn {con:.1f}h tới đáo hạn" if con is not None else ""))
+        if con is not None and con <= 0.0:
+            return KetToanVong(
+                thuUsd=thu, dongLai=True,
+                lyDoDong=f"đã qua ngày đáo hạn ({t.daoHan}) — PT không sinh "
+                         f"thêm gì, giữ tiếp là giam vốn không lãi",
+                vi=vi)
+        return KetToanVong(thuUsd=thu, vi=vi)
+
 
 def _chay(coro):
     """Xem `tin_dung/ty_vay._chay` — cùng lý do, cùng cái giá."""

@@ -5356,6 +5356,57 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("perp: vị thế một chân thì doDuoc=False, không đoán chân kia",
          k is not None and k.doDuoc is False)
 
+    # ── 13. KẾ TOÁN THẬT của ty Pendle PT: lãi ĐÃ KHOÁ, không đánh giá lại
+    import datetime as _d13
+
+    from lai_suat.ty_lai_suat import ThiTruongPT, TyLaiSuat
+
+    def _pt(apyMoi=99.0, conLaiGio=240.0):
+        return ThiTruongPT(
+            ma="pt-1", chuoi="Arbitrum", taiSan="SKAITO", meta="pendle",
+            apyPhanTram=apyMoi, tvlUsd=8e6, tvlGiaoThucUsd=3e8,
+            daoHan=_d13.datetime.now(_d13.timezone.utc)
+            + _d13.timedelta(hours=conLaiGio),
+            docLucMs=now9 * 1000.0)
+
+    tl = TyLaiSuat.__new__(TyLaiSuat)
+    Ty.__init__(tl)
+    tl.thiTruong = [_pt()]
+    # giuGio 720h, grossBps 1200 → lãi khoá = 12% cho 720h ≈ 146,0%/năm
+    tt13 = {"chuoi": ["Arbitrum"], "taiSan": "SKAITO",
+            "grossBps": 1200.0, "giuGio": 720.0}
+    chan13 = [ViThe("m13", TyLaiSuat.ma, "LONG", "pendle", "SKAITO", 1000.0)]
+
+    k = tl.ke_toan(chan13, tt13, now9 - 3600.0, now9)
+    _apyKhoa = 12.0 * (365.0 * 24.0 / 720.0)
+    kiem("Pendle: cộng theo lãi ĐÃ KHOÁ lúc mở, không theo apy hôm nay",
+         k is not None
+         and abs(k.thuUsd - 1000.0 * (_apyKhoa / 100.0) / (365.0 * 24.0)) < 1e-9,
+         f"{k and k.thuUsd} — `apyPhanTram` hôm nay (99%) là lãi ngụ ý cho "
+         f"người mua HÔM NAY; vị thế đã mở không hưởng con số ấy, và dùng "
+         f"nó là âm thầm đánh giá lại một hợp đồng đã khoá")
+    kiem("và NÓI RA là lãi đã khoá",
+         k is not None and "ĐÃ KHOÁ" in k.vi, k and k.vi)
+
+    tl.thiTruong = [_pt(conLaiGio=-1.0)]
+    k = tl.ke_toan(chan13, tt13, now9 - 3600.0, now9)
+    kiem("Pendle: quá ngày đáo hạn thì ĐÒI ĐÓNG",
+         k is not None and k.dongLai,
+         "sau đáo hạn PT không sinh thêm gì; giữ tiếp là giam vốn không lãi")
+
+    tl.thiTruong = []
+    k = tl.ke_toan(chan13, tt13, now9 - 3600.0, now9)
+    kiem("Pendle: thị trường biến mất thì doDuoc=False",
+         k is not None and k.doDuoc is False)
+
+    tl.thiTruong = [_pt()]
+    k = tl.ke_toan(chan13, {"chuoi": ["Arbitrum"], "taiSan": "SKAITO"},
+                   now9 - 3600.0, now9)
+    kiem("Pendle: tờ trình thiếu grossBps/giuGio thì KHÔNG đoán",
+         k is not None and k.doDuoc is False,
+         "dựng lại lãi khoá từ số không có là bịa")
+
+
 
     # ── 11. mọi ty ĐANG CHẠY: có kế toán hay chưa, phải KHAI ────────────
     _cacTy = [
