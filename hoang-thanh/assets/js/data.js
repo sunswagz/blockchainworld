@@ -1,7 +1,7 @@
 /* TỰ SINH — đừng sửa tay. Nguồn: scripts/build-hoangthanh.mjs */
 window.RUNG = {
- "generatedAt": "2026-08-14T09:16:24.800Z",
- "date": "14/08/2026",
+ "generatedAt": "2026-08-28T15:00:42.623Z",
+ "date": "28/08/2026",
  "nguon": "sunswagz-hub/08_world_culture_forest",
  "tong": {
   "vanHoa": 15,
