@@ -26,6 +26,15 @@
 </head>
 <body>
 
+<!-- Đường nhảy qua thanh bên — WCAG 2.4.1 "Bypass Blocks".
+     Cung này có 298 phòng, và thanh bên đứng TRƯỚC nội dung ở mọi
+     phòng. Không có dòng này thì người dùng bàn phím phải Tab qua
+     trọn khối điều hướng mỗi lần đổi phòng — 298 lần.
+     Phải nằm TRƯỚC thanh điều hướng: đường nhảy đặt sau khối cần
+     nhảy qua thì không nhảy qua được gì.
+     Ẩn khỏi mắt, hiện ra khi nhận tiêu điểm. -->
+<a class="bo-qua" href="#than">Bỏ qua thanh bên, vào thẳng nội dung</a>
+
 <div class="khung">
 
   <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">

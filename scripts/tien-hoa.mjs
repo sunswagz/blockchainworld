@@ -715,11 +715,19 @@ function do_() {
      thật trong trang. Đứng trước nav là phần quan trọng — một đường
      nhảy nằm sau khối cần nhảy qua thì không nhảy qua được gì.
      Cung không có <nav> thì soi 800 ký tự đầu của <body>. */
-  const thanTrang = html.slice(Math.max(0, html.indexOf("<body")));
+  /* CẮT CHÚ THÍCH HTML TRƯỚC ĐÃ. Thước này dò bằng chuỗi thô, nên
+     một chú thích nhắc tên thẻ điều hướng sẽ bị tính là chính thẻ đó
+     — và vì phép đo cắt tại thẻ ấy, chú thích GIẢI THÍCH đường nhảy
+     lại giấu mất đường nhảy nằm ngay sau nó.
+     Đã cắn thật ngày 29/08 ở Hoàng Thành: thêm đường nhảy kèm một
+     khối chú thích, thước vẫn báo "chưa có". Cùng đúng cái bẫy mà ba
+     thước bên trên đã phải cắt chú thích để tránh — chỗ này sót. */
+  const htmlSach = html.replace(/<!--[sS]*?-->/g, " ");
+  const thanTrang = htmlSach.slice(Math.max(0, htmlSach.indexOf("<body")));
   const viNav = thanTrang.search(/<nav\b/);
   const dauTrang = viNav > 0 ? thanTrang.slice(0, viNav) : thanTrang.slice(0, 800);
   const coBoQua = [...dauTrang.matchAll(/<a\b[^>]*href="#([\w-]+)"/g)]
-    .some((m) => html.includes(`id="${m[1]}"`));
+    .some((m) => htmlSach.includes(`id="${m[1]}"`));
   cham("bo-qua", "Có đường nhảy qua thanh bên", coBoQua,
     coBoQua ? "có <a href=\"#…\"> trước thanh bên, trỏ vào id có thật"
       : "chưa có — người dùng bàn phím phải Tab qua cả thanh bên ở mỗi phòng");

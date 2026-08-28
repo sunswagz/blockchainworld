@@ -59,6 +59,28 @@ a:hover{text-decoration:underline}
 img{display:block}
 code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 :focus-visible{outline:2.5px solid var(--vang);outline-offset:2px;border-radius:5px}
+
+/* ── ĐƯỜNG NHẢY QUA THANH BÊN — WCAG 2.4.1 ─────────────────
+   Thanh bên đứng trước nội dung ở mọi phòng, và cung này có 298
+   phòng. Không có đường nhảy thì người dùng bàn phím phải Tab qua
+   trọn khối điều hướng mỗi lần đổi phòng.
+
+   KHÔNG dùng display:none hay visibility:hidden — cả hai gỡ thẻ ra
+   khỏi thứ tự Tab, nên đường nhảy sẽ không bao giờ nhận được tiêu
+   điểm và thành ra vô dụng. Cách đúng là đẩy nó ra ngoài khung nhìn
+   rồi kéo về khi :focus.
+
+   Trượt bằng `transform` chứ không `top`: đổi `top` là chạm bố
+   cục nên trình duyệt phải tính lại layout mỗi khung hình, và thước
+   "hiệu ứng chỉ chạy transform/opacity" bắt đúng chuyện đó. Lần đầu
+   viết bản này mình dùng `top` và bị thước hạ điểm — đáng, vì nó
+   đúng. */
+.bo-qua{position:fixed;left:8px;top:8px;z-index:100;transform:translateY(-200%);
+  padding:10px 16px;border-radius:8px;
+  background:var(--vang);color:#12161C;
+  font-size:var(--t-3);font-weight:700;text-decoration:none;
+  transition:transform var(--dur) ease}
+.bo-qua:focus{transform:none;text-decoration:none}
 ::selection{background:rgba(201,162,39,.3)}
 
 /* ── khung ────────────────────────────────────────────── */
@@ -78,9 +100,9 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
   letter-spacing:.07em;text-transform:uppercase;margin-top:2px}
 
 .blab{font-size:var(--t-0);font-weight:700;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--ink-3);padding:14px 8px 5px}
-.bmuc{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
-  padding:7px 9px;border-radius:7px;font-size:var(--t-4);color:var(--ink-2);
+  color:var(--ink-3);padding:14px 8px 6px}
+.bmuc{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:8px 10px;border-radius:7px;font-size:var(--t-4);color:var(--ink-2);
   transition:background var(--dur),color var(--dur)}
 .bmuc:hover{background:var(--card-2);color:var(--ink);text-decoration:none}
 .bmuc[aria-current="page"]{background:var(--vang-t);color:var(--vang-s);font-weight:650}
@@ -94,7 +116,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
   box-shadow:0 0 0 2px rgba(0,0,0,.25) inset}
 .bmuc .bten{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.bchan{margin-top:18px;padding:12px 9px 0;border-top:1px solid var(--line);
+.bchan{margin-top:18px;padding:12px 10px 0;border-top:1px solid var(--line);
   font-size:var(--t-1);color:var(--ink-3);line-height:1.55}
 .bchan code{font-size:var(--t-0);color:var(--ink-2)}
 
@@ -119,7 +141,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dinh .ngay{font-size:var(--t-2);color:var(--ink-3);white-space:nowrap}
 .tim{position:relative;flex:0 0 auto;width:min(300px,42vw)}
-.tim input{width:100%;padding:9px 12px 9px 32px;border:1px solid var(--line);
+.tim input{width:100%;padding:10px 12px 10px 32px;border:1px solid var(--line);
   border-radius:8px;background:var(--card);font-size:var(--t-4);color:var(--ink)}
 .tim input::placeholder{color:var(--ink-3)}
 .tim .ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);
@@ -129,16 +151,16 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .canhbao{margin:0 0 12px;padding:10px 14px;border-radius:8px;
   background:var(--sen-t);border:1px solid #5A2A22;color:#E9A79C;font-size:var(--t-3);line-height:1.55}
 
-.giaithich{padding:15px 18px;border:1px solid var(--line);border-radius:var(--r);
+.giaithich{padding:16px 18px;border:1px solid var(--line);border-radius:var(--r);
   background:var(--card);font-size:var(--t-3);color:var(--ink-2);line-height:1.68;margin:0 0 14px;
   box-shadow:var(--bong)}
 .giaithich b{color:var(--ink)}
-.giaithich .vn{display:block;margin-top:9px;padding:10px 12px;background:var(--vang-t);
+.giaithich .vn{display:block;margin-top:10px;padding:10px 12px;background:var(--vang-t);
   border-radius:8px;color:var(--ink-2);border-left:3px solid var(--vang)}
 
 .khoi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--bong);margin-bottom:14px}
-.khoi-dinh{display:flex;align-items:baseline;gap:10px;padding:15px 18px;
+.khoi-dinh{display:flex;align-items:baseline;gap:10px;padding:16px 18px;
   border-bottom:1px solid var(--line-2)}
 .khoi-dinh h2{font-family:var(--serif);font-size:var(--t-6);flex:1;min-width:0}
 .khoi-n{font-size:var(--t-2);color:var(--ink-3);font-variant-numeric:tabular-nums}
@@ -160,7 +182,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
   transition:transform var(--dur),box-shadow var(--dur),border-color var(--dur)}
 .nen:hover{transform:translateY(-2px);border-color:var(--m);text-decoration:none;
   box-shadow:0 8px 28px -14px rgba(0,0,0,.9)}
-.nen-dinh{display:flex;align-items:center;gap:11px;padding:15px 17px 12px;
+.nen-dinh{display:flex;align-items:center;gap:12px;padding:16px 18px 12px;
   border-top:3px solid var(--m)}
 .nen-chu{font-family:var(--serif);font-size:var(--t-8);color:var(--m);opacity:.75;
   flex:0 0 auto;max-width:82px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
@@ -169,7 +191,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .nen-ten h3{font-family:var(--serif);font-size:var(--t-7);color:var(--ink)}
 .nen-ten em{display:block;font-style:normal;font-size:var(--t-2);color:var(--ink-3);margin-top:2px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nen-than{padding:0 17px 15px}
+.nen-than{padding:0 18px 16px}
 .nen-so{display:flex;align-items:baseline;gap:6px;margin-bottom:8px}
 .nen-so b{font-size:var(--t-7);font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
 .nen-so span{font-size:var(--t-2);color:var(--ink-3)}
@@ -188,7 +210,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
 /* ── roadmap: nguyên → pha → chương ───────────────────── */
 .nguyen{margin-bottom:26px}
-.ng-dinh{display:flex;align-items:center;gap:15px;padding:14px 18px;border-radius:var(--r);
+.ng-dinh{display:flex;align-items:center;gap:16px;padding:14px 18px;border-radius:var(--r);
   background:linear-gradient(180deg,var(--card-2),var(--card));
   border:1px solid var(--line);position:relative;overflow:hidden}
 .ng-dinh::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
@@ -198,7 +220,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .ng-tin{flex:1;min-width:0}
 .ng-tin h2{font-family:var(--serif);font-size:var(--t-6);color:var(--vang-s);font-weight:700}
 .ng-tin em{display:block;font-style:normal;font-size:var(--t-2);color:var(--ink-3);
-  margin-top:3px;letter-spacing:.03em}
+  margin-top:4px;letter-spacing:.03em}
 .ng-chu{font-family:var(--serif);font-size:var(--t-8);color:var(--vang);opacity:.38;flex:0 0 auto}
 .ng-tien{flex:0 0 auto;text-align:right}
 .ng-tien b{display:block;font-size:var(--t-3);font-variant-numeric:tabular-nums;color:var(--ink-2)}
@@ -206,10 +228,10 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 @media (max-width:620px){ .ng-chu,.ng-tin em{display:none} }
 
 .pha-nhan{font-size:var(--t-0);font-weight:700;letter-spacing:.28em;text-transform:uppercase;
-  color:var(--ink-3);margin:18px 0 9px 4px}
-.luoi-ch{display:grid;gap:9px;grid-template-columns:repeat(auto-fill,minmax(232px,1fr))}
+  color:var(--ink-3);margin:18px 0 10px 4px}
+.luoi-ch{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(232px,1fr))}
 
-.ch{display:block;text-align:left;padding:12px 14px 11px;border-radius:8px;
+.ch{display:block;text-align:left;padding:12px 14px 12px;border-radius:8px;
   border:1px solid var(--line);background:var(--card);position:relative;
   transition:transform var(--dur),border-color var(--dur),background var(--dur)}
 .ch:hover{transform:translateY(-2px);text-decoration:none;border-color:var(--m);background:var(--card-2)}
@@ -218,10 +240,10 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .ch-khoa:hover{transform:none;border-color:var(--line-2);background:rgba(255,255,255,.012)}
 .ch-tt{position:absolute;top:9px;right:10px;font-size:var(--t-1);opacity:.9}
 .ch-chu{font-family:var(--serif);font-size:var(--t-3);color:var(--m);opacity:.7;
-  margin-bottom:3px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:calc(100% - 22px)}
+  margin-bottom:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:calc(100% - 22px)}
 .ch-so{font-family:var(--mono);font-size:var(--t-0);letter-spacing:.12em;color:var(--ink-3);
   text-transform:uppercase;font-variant-numeric:tabular-nums}
-.ch-ten{display:block;font-size:var(--t-4);line-height:1.45;color:var(--ink);margin-top:3px;
+.ch-ten{display:block;font-size:var(--t-4);line-height:1.45;color:var(--ink);margin-top:4px;
   font-weight:500}
 .ch-khoa .ch-ten{color:var(--khoa)}
 .ch-khoa .ch-chu{color:var(--khoa);opacity:1}
@@ -229,13 +251,13 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 /* ── dòng chảy: mô-típ xuyên văn hoá ──────────────────── */
 .motif{padding:16px 18px;border-bottom:1px solid var(--line-2)}
 .motif:last-child{border-bottom:0}
-.motif-dinh{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin-bottom:4px}
+.motif-dinh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
 .motif-dinh h3{font-family:var(--serif);font-size:var(--t-6);color:var(--ink)}
 .motif-n{margin-left:auto;font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums;
   white-space:nowrap}
-.motif-hoi{margin:0 0 11px;font-size:var(--t-3);color:var(--ink-3);font-style:italic}
+.motif-hoi{margin:0 0 12px;font-size:var(--t-3);color:var(--ink-3);font-style:italic}
 .motif-day{display:flex;gap:6px;flex-wrap:wrap}
-.motif-nen{display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:6px;
+.motif-nen{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;
   background:var(--card-2);border:1px solid var(--line);font-size:var(--t-2);color:var(--ink-2);
   transition:border-color var(--dur)}
 .motif-nen:hover{border-color:var(--m);text-decoration:none;color:var(--ink)}
@@ -244,7 +266,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .motif-nen span{color:var(--ink-3);font-variant-numeric:tabular-nums}
 
 /* ── xu hướng: dải nhãn theo nguyên ───────────────────── */
-.xu-hang{display:flex;align-items:center;gap:12px;padding:9px 18px;border-bottom:1px solid var(--line-2)}
+.xu-hang{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--line-2)}
 .xu-hang:last-child{border-bottom:0}
 .xu-ng{flex:0 0 auto;width:44px;font-family:var(--serif);font-size:var(--t-4);color:var(--vang);
   opacity:.65;text-align:right}
@@ -265,21 +287,21 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .hoc:last-child{border-bottom:0}
 .hoc-trai{flex:0 0 auto;width:52px;text-align:center}
 .hoc-ng{font-family:var(--serif);font-size:var(--t-7);font-weight:900;color:var(--vang);opacity:.5;line-height:1}
-.hoc-ch{display:block;font-family:var(--mono);font-size:var(--t-0);color:var(--ink-3);margin-top:5px;font-variant-numeric:tabular-nums}
+.hoc-ch{display:block;font-family:var(--mono);font-size:var(--t-0);color:var(--ink-3);margin-top:6px;font-variant-numeric:tabular-nums}
 .hoc-phai{flex:1;min-width:0}
-.hoc-dinh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:5px}
+.hoc-dinh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .hoc-dinh b{font-size:var(--t-4);color:var(--ink);font-weight:650}
 .hoc-dan{font-size:var(--t-1);color:var(--ink-3);white-space:nowrap}
 .hoc-loi{margin:0;font-size:var(--t-3);line-height:1.68;color:var(--ink-2)}
 .hoc-nen{font-size:var(--t-1);color:var(--ink-3);letter-spacing:.05em;text-transform:uppercase;
-  margin-bottom:3px}
+  margin-bottom:4px}
 
 /* ── kết quả tìm ──────────────────────────────────────── */
 .kq{display:block;width:100%;text-align:left;padding:12px 18px;border-bottom:1px solid var(--line-2);
   transition:background var(--dur)}
 .kq:last-child{border-bottom:0}
 .kq:hover{background:var(--card-2);text-decoration:none}
-.kq-dinh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.kq-dinh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .kq-nen{display:inline-flex;align-items:center;gap:6px;font-size:var(--t-1);color:var(--ink-3)}
 .kq-nen i{width:7px;height:7px;border-radius:50%;background:var(--m)}
 .kq-so{font-family:var(--mono);font-size:var(--t-1);color:var(--ink-3);font-variant-numeric:tabular-nums}
@@ -288,11 +310,11 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
 .trong{padding:36px;text-align:center;color:var(--ink-3);font-size:var(--t-4)}
 .dang{padding:36px;text-align:center;color:var(--ink-3);font-size:var(--t-3)}
-.chan{margin-top:20px;padding-top:15px;border-top:1px solid var(--line);
+.chan{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);
   font-size:var(--t-2);color:var(--ink-3);line-height:1.68}
 .chan b{color:var(--ink-2)}
 .chan code{font-size:var(--t-1);color:var(--vang-s)}
-.chan p{margin:0 0 7px}
+.chan p{margin:0 0 8px}
 
 /* ── ngăn kéo đọc chương ──────────────────────────────── */
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:60;opacity:0;
@@ -310,17 +332,17 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .hoso-top{padding:16px 52px 14px 20px;border-bottom:1px solid var(--line);position:relative;
   background:var(--card);flex:0 0 auto}
 .hoso-eyebrow{font-family:var(--mono);font-size:var(--t-0);letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ink-3);margin-bottom:5px;font-variant-numeric:tabular-nums}
+  color:var(--ink-3);margin-bottom:6px;font-variant-numeric:tabular-nums}
 .hoso-top h2{font-family:var(--serif);font-size:var(--t-9);font-weight:700;line-height:1.25;
   color:var(--ink);word-break:break-word}
-.hoso-tag{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:9px}
+.hoso-tag{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .hoso-x{position:absolute;right:14px;top:15px;width:30px;height:30px;border-radius:7px;
   border:1px solid var(--line);background:var(--bg-2);display:grid;place-items:center}
 .hoso-x:hover{border-color:var(--vang);color:var(--vang-s)}
 .hoso-body{padding:18px 20px 24px;overflow-y:auto;flex:1;overscroll-behavior:contain}
-.hoso-chan{flex:0 0 auto;border-top:1px solid var(--line);padding:11px 20px;
+.hoso-chan{flex:0 0 auto;border-top:1px solid var(--line);padding:12px 20px;
   display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--card)}
-.hoso-chan .nut-phu{padding:7px 13px;border-radius:7px;border:1px solid var(--line);
+.hoso-chan .nut-phu{padding:8px 14px;border-radius:7px;border:1px solid var(--line);
   background:var(--bg-2);color:var(--ink-2);font-size:var(--t-3)}
 .hoso-chan .nut-phu:hover{border-color:var(--vang);color:var(--vang-s);text-decoration:none}
 .hoso-chan .goiy{font-size:var(--t-1);color:var(--ink-3);margin-left:auto}
@@ -333,24 +355,24 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .md h2{font-family:var(--serif);font-size:var(--t-5);color:var(--vang-s);margin:26px 0 10px;
   letter-spacing:.01em}
 .md h3{font-size:var(--t-4);color:var(--ink);margin:20px 0 8px;font-weight:700}
-.md p{margin:0 0 13px}
+.md p{margin:0 0 14px}
 .md strong{color:var(--ink);font-weight:650}
 .md em{color:var(--ink-2)}
-.md ul,.md ol{margin:0 0 13px;padding-left:20px}
-.md li{margin-bottom:7px}
+.md ul,.md ol{margin:0 0 14px;padding-left:20px}
+.md li{margin-bottom:8px}
 .md li::marker{color:var(--vang);opacity:.7}
 .md hr{border:0;border-top:1px solid var(--line);margin:22px 0}
-.md code{background:var(--card-2);padding:1px 5px;border-radius:4px;font-size:var(--t-3);
+.md code{background:var(--card-2);padding:2px 6px;border-radius:4px;font-size:var(--t-3);
   color:var(--vang-s)}
-.md blockquote{margin:0 0 13px;padding:10px 14px;border-left:3px solid var(--vang);
+.md blockquote{margin:0 0 14px;padding:10px 14px;border-left:3px solid var(--vang);
   background:var(--vang-t);border-radius:0 8px 8px 0;color:var(--ink-2)}
 .md blockquote p:last-child{margin-bottom:0}
 .md a{color:var(--vang-s)}
-.md-bang{overflow-x:auto;margin:0 0 15px;border:1px solid var(--line);border-radius:8px}
+.md-bang{overflow-x:auto;margin:0 0 16px;border:1px solid var(--line);border-radius:8px}
 .md table{width:100%;border-collapse:collapse;min-width:440px;font-size:var(--t-3)}
-.md th{text-align:left;padding:9px 12px;background:var(--card-2);color:var(--ink);
+.md th{text-align:left;padding:10px 12px;background:var(--card-2);color:var(--ink);
   font-weight:650;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
-.md td{padding:9px 12px;border-bottom:1px solid var(--line-2);vertical-align:top;color:var(--ink-2)}
+.md td{padding:10px 12px;border-bottom:1px solid var(--line-2);vertical-align:top;color:var(--ink-2)}
 .md tr:last-child td{border-bottom:0}
 
 /* nhãn độ chắc chắn nhúng trong câu — tô để quét mắt được */
@@ -364,7 +386,7 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
 .thieu{padding:26px 20px;border:1px dashed var(--line);border-radius:var(--r);
   background:var(--card);color:var(--ink-2);font-size:var(--t-4);line-height:1.7}
-.thieu b{display:block;color:var(--ink);font-size:var(--t-5);margin-bottom:7px;font-family:var(--serif)}
+.thieu b{display:block;color:var(--ink);font-size:var(--t-5);margin-bottom:8px;font-family:var(--serif)}
 
 /* dải nhãn trong đầu ngăn kéo */
 .hoso-tag .the{font-size:var(--t-0)}
@@ -392,16 +414,16 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 }
 .tt{margin:16px 0 0;border:1px solid var(--line);border-left:2px solid var(--vang);
   border-radius:0 var(--r) var(--r) 0;background:var(--card);overflow:hidden}
-.tt-d{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0;padding:11px 15px;
+.tt-d{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0;padding:12px 16px;
   font-size:var(--t-2);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);
   background:var(--card);border-bottom:1px solid var(--line-2)}
 .tt-n{margin-left:auto;font:10.5px/1 var(--mono);letter-spacing:0;text-transform:none;color:var(--ink-2)}
-.tt-y{margin:0;padding:12px 15px;font-size:var(--t-3);line-height:1.7;color:var(--ink);
+.tt-y{margin:0;padding:12px 16px;font-size:var(--t-3);line-height:1.7;color:var(--ink);
   background:var(--card);border-bottom:1px solid var(--line-2)}
-.tt-luoi{display:grid;gap:9px;padding:13px 15px;background:var(--card);
+.tt-luoi{display:grid;gap:10px;padding:14px 16px;background:var(--card);
   grid-template-columns:repeat(auto-fit,minmax(232px,1fr))}
-.tt-k{padding:9px 11px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px}
-.tt-kd{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px}
+.tt-k{padding:10px 12px;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px}
+.tt-kd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .tt-kd b{font-size:var(--t-3);color:var(--ink)}
 .tt-k p{margin:0;font-size:var(--t-3);line-height:1.62;color:var(--ink-2)}
 .tt-vt{font:10.5px/1 var(--mono);color:var(--ink-2)}
@@ -414,15 +436,15 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .tt-g[data-g="repo"]{color:var(--tt-repo);background:var(--tt-repo-n)}
 .tt-g[data-g="web"]{color:var(--tt-web);background:var(--tt-web-n)}
 
-.tt-26{padding:0 15px 13px;background:var(--card)}
+.tt-26{padding:0 16px 14px;background:var(--card)}
 .tt-26 h4{margin:0 0 8px;font-size:var(--t-0);font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--ink-2)}
-.tt-26 p{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin:0 0 8px;
+.tt-26 p{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:0 0 8px;
   font-size:var(--t-3);line-height:1.62;color:var(--ink-2)}
 .tt-26 p:last-child{margin-bottom:0}
 .tt-26 b{color:var(--ink)}
 .tt-loai{font:10.5px/1 var(--mono);color:var(--tt-repo)}
 .tt-tin{font-size:var(--t-0);color:var(--ink-2)}
 .tt-vi{flex:1 1 100%;color:var(--ink-2)}
-.tt-chan{margin:0;padding:10px 15px;border-top:1px solid var(--line-2);background:var(--card);
+.tt-chan{margin:0;padding:10px 16px;border-top:1px solid var(--line-2);background:var(--card);
   font-size:var(--t-2);line-height:1.6;color:var(--ink-2)}
