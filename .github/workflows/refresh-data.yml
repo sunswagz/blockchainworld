@@ -803,7 +803,7 @@ jobs:
             Đọc dai-quan-trac/assets/data/de-bai-tien-hoa.json.
 
             Trong đó có:
-            · `phieu.diem` — bảy thước, mỗi cái có `dat` (true/false) và
+            · `phieu.diem` — mỗi thước có `dat` (true/false) và
               `y` (số đo cụ thể). Thước nào `dat: false` là điểm yếu.
             · `phieu.tuongPhanXau` — cặp màu chưa đạt WCAG AA, kèm tỉ lệ.
             · `kyNang` — skill Tàng Thư Các đã chọn sẵn cho ĐÚNG những
@@ -924,7 +924,7 @@ jobs:
       # và điều khiến chuyện đó không mâu thuẫn là hai lớp số học kẹp
       # nó ở giữa, cả hai đều không do model viết:
       #
-      #   do --ghi   chấm phiếu 7 thước TRƯỚC khi model đụng vào gì
+      #   do --ghi   chấm phiếu mọi thước TRƯỚC khi model đụng vào gì
       #   cong --so  chấm lại SAU, chặn nếu VỠ hoặc nếu ĐIỂM TỤT
       #
       # Trượt bất kỳ đầu nào là `git checkout -- ho-bo/` trả cả thư mục
@@ -966,9 +966,14 @@ jobs:
           prompt: |
             Đọc ho-bo/assets/data/de-bai-tien-hoa.json.
 
-            Trong đó có `phieu` — kết quả chấm cung Hộ Bộ theo bảy thước
+            Trong đó có `phieu` — kết quả chấm cung Hộ Bộ theo các thước
             đo được — và `kyNang`, các kỹ năng chọn từ kho Tàng Thư Các
             khớp với những thước đang trượt.
+
+            Và `luuY` — lời dặn cho những thước mà cách chữa KHÔNG
+            nằm ở lớp giao diện. Thước nào có mặt ở đó thì đọc lời
+            dặn TRƯỚC khi vá; làm điểm lên bằng cách nó cấm là đang
+            tối ưu cho việc che, không phải cho người xem.
 
             VIỆC CỦA BẠN: làm cung Hộ Bộ tốt lên MỘT BƯỚC, đúng một bước.
 
@@ -978,7 +983,7 @@ jobs:
                đọc trước khi tự nghĩ.
             2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu đo
                được. Ưu tiên chúng trước.
-            3. Nếu cả bảy thước đều đạt, hãy tìm MỘT chỗ làm trang dễ
+            3. Nếu mọi thước đều đạt, hãy tìm MỘT chỗ làm trang dễ
                đọc hoặc dễ dùng hơn mà không thước nào đo được: nhãn khó
                hiểu, thứ bậc thị giác lẫn lộn, khoảng cách không đều,
                trạng thái trống không nói được gì.
@@ -1095,8 +1100,13 @@ jobs:
             Đọc thai-boc-tu/assets/data/de-bai-tien-hoa.json.
 
             Trong đó có `phieu` — kết quả chấm cung Thái Bộc Tự theo
-            bảy thước đo được — và `kyNang`, các kỹ năng chọn từ kho
+            các thước đo được — và `kyNang`, các kỹ năng chọn từ kho
             Tàng Thư Các khớp với những thước đang trượt.
+
+            Và `luuY` — lời dặn cho những thước mà cách chữa KHÔNG
+            nằm ở lớp giao diện. Thước nào có mặt ở đó thì đọc lời
+            dặn TRƯỚC khi vá; làm điểm lên bằng cách nó cấm là đang
+            tối ưu cho việc che, không phải cho người xem.
 
             VIỆC CỦA BẠN: làm cung Thái Bộc Tự tốt lên MỘT BƯỚC, đúng
             một bước.
@@ -1107,7 +1117,7 @@ jobs:
                đã viết ra; đọc trước khi tự nghĩ.
             2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu
                đo được. Ưu tiên chúng trước.
-            3. Nếu cả bảy thước đều đạt, tìm MỘT chỗ làm trang dễ đọc
+            3. Nếu mọi thước đều đạt, tìm MỘT chỗ làm trang dễ đọc
                hơn mà không thước nào đo được: nhãn khó hiểu, thứ bậc
                thị giác lẫn lộn, khoảng cách không đều, trạng thái
                trống không nói được gì.
@@ -1320,8 +1330,13 @@ jobs:
             Đọc kham-thien-giam/assets/data/de-bai-tien-hoa.json.
 
             Trong đó có `phieu` — kết quả chấm cung Khâm Thiên Giám
-            theo bảy thước đo được — và `kyNang`, các kỹ năng chọn từ
+            theo các thước đo được — và `kyNang`, các kỹ năng chọn từ
             kho Tàng Thư Các khớp với những thước đang trượt.
+
+            Và `luuY` — lời dặn cho những thước mà cách chữa KHÔNG
+            nằm ở lớp giao diện. Thước nào có mặt ở đó thì đọc lời
+            dặn TRƯỚC khi vá; làm điểm lên bằng cách nó cấm là đang
+            tối ưu cho việc che, không phải cho người xem.
 
             VIỆC CỦA BẠN: làm cung Khâm Thiên Giám tốt lên MỘT BƯỚC,
             đúng một bước.
@@ -1332,7 +1347,7 @@ jobs:
                đã viết ra; đọc trước khi tự nghĩ.
             2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu
                đo được. Ưu tiên chúng trước.
-            3. Nếu cả bảy thước đều đạt, tìm MỘT chỗ làm trang dễ đọc
+            3. Nếu mọi thước đều đạt, tìm MỘT chỗ làm trang dễ đọc
                hơn mà không thước nào đo được: nhãn khó hiểu, thứ bậc
                thị giác lẫn lộn, khoảng cách không đều, trạng thái
                trống không nói được gì.

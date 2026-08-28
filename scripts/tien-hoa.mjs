@@ -474,6 +474,49 @@ function do_() {
   const oTrong = ve.phong.length ? Math.round((gachTong / ve.phong.length) * 10) / 10 : 0;
   const nhoNhat = ve.phong.length ? Math.min(...ve.phong.map((p) => p.ky)) : 0;
 
+  /* ═══ BA PHÉP ĐO ĐẾN TỪ KỆ DỤNG CỤ ═══════════════════
+     Ba luật dưới KHÔNG do repo này nghĩ ra. Chúng nằm trong hai
+     SKILL.md trên kệ `.claude/skills/`, nhập từ Tàng Thư Các bằng
+     `scripts/nhap-skill.mjs`:
+
+       baseline-ui   ibelick/ui-skills      (MIT)
+       frontend-design  anthropics/skills   (xem LICENSE.txt)
+
+     Vì sao dịch chúng thành phép canh chứ không chép vào lời nhắc:
+     luật nằm trong văn xuôi thì lượt sau model đọc hay không đọc là
+     hên xui, và không ai biết cung nào đang phạm. Thành thước thì nó
+     hiện trên phiếu, vào đề bài, và cổng chặn giữ được nó.
+
+     Thước nào cung không có gì để đo thì trả `null` — không đo được
+     khác hẳn trượt, và mẫu số chỉ đếm thước đo được. */
+
+  /* frontend-design: "set a clear type scale with intentional weights,
+     widths, and spacing". Đếm số cỡ px RỜI RẠC còn viết thẳng vào
+     rule. Đo được Hộ Bộ 32 cỡ, trong đó mười một cỡ chen giữa 11 và
+     13px — đó không phải thang, đó là số bốc từng lúc. Cung nào đã
+     đưa cỡ chữ vào biến thì đếm này về 0 và thước tự đạt. */
+  const coPx = [...css.matchAll(/font-size:\s*([\d.]+)px/g)].map((m) => m[1]);
+  const soCo = new Set(coPx).size;
+
+  /* baseline-ui: "MUST animate only compositor props (transform,
+     opacity) · NEVER animate layout properties (width, height, top,
+     left, margin, padding)". Mỗi khung hình của một transition chạm
+     bố cục là một lượt tính lại bố cục CẢ TRANG. */
+  const chuyenXau = [...css.matchAll(/transition:[^;}]*/g)]
+    .map((m) => m[0])
+    .filter((t) => /\b(width|height|top|left|right|bottom|margin|padding)\b/.test(t));
+
+  /* baseline-ui: "MUST use tabular-nums for data". `font-variant-numeric`
+     DI TRUYỀN, nên một dòng ở body/html/:root là phủ cả trang — bắt
+     từng rule khai lại thì thành báo nhầm. Không có dòng gốc ấy thì
+     mới soi từng khối rule dùng font mono. */
+  const nvGoc = /(?:^|\})\s*(?:body|html|:root)[^{}]*\{[^{}]*tabular-nums/.test(css);
+  const khoiCss = [...css.matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
+  const monoCo = khoiCss.filter((k) => /font-family:\s*var\(--mono\)/.test(k)).length;
+  const monoThieu = nvGoc ? 0
+    : khoiCss.filter((k) => /font-family:\s*var\(--mono\)/.test(k) && !/tabular-nums/.test(k)).length;
+  const coBangSo = monoCo > 0 || /<table|class="bang"/.test(html);
+
   const diem = [];
   const cham = (ma, ten, dat, y) => diem.push({ ma, ten, dat, y });
 
@@ -513,6 +556,25 @@ function do_() {
   else cham("o-trong", "Ít ô trống mỗi phòng", oTrong <= 2,
     `${oTrong} dấu — mỗi phòng (tổng ${gachTong} trên ${ve.phong.length} phòng)`);
 
+  /* Ngưỡng 12: rộng hơn mọi thang chữ thật (thang của Hộ Bộ có 10
+     nấc, và 10 đã là nhiều cho một bảng số dày). Đặt rộng vì thước
+     này sinh ra để bắt chỗ KHÔNG có thang, không phải để ép mọi
+     cung dùng đúng thang của Hộ Bộ. */
+  cham("thang-chu", "Cỡ chữ đi theo thang", soCo <= 12,
+    soCo === 0 ? "mọi cỡ chữ đã nằm trong biến"
+      : `${soCo} cỡ px rời rạc${soCo > 12 ? " — nhiều hơn một thang thật có" : ""}`);
+
+  cham("hieu-ung", "Hiệu ứng chỉ chạy transform/opacity", chuyenXau.length === 0,
+    chuyenXau.length
+      ? `${chuyenXau.length} transition chạm bố cục · ${chuyenXau[0].slice(0, 52)}`
+      : "không transition nào chạm bố cục");
+
+  cham("so-cot", "Số liệu đứng cột", coBangSo ? monoThieu === 0 : null,
+    !coBangSo ? "cung không có bảng số — không đo"
+      : nvGoc ? "khai ở gốc, di truyền cả trang"
+      : monoThieu === 0 ? `${monoCo} khối dùng font mono, khối nào cũng khai tabular-nums`
+      : `${monoThieu}/${monoCo} khối font mono thiếu tabular-nums — số nhảy ngang mỗi lượt đổi`);
+
   /* Mẫu số chỉ đếm thước ĐO ĐƯỢC. Để thước không đo được nằm trong
      mẫu số là hạ điểm một cung vì bộ đo yếu, không vì cung yếu. */
   return {
@@ -549,6 +611,9 @@ const TU_KHOA = {
   "ve": ["debug", "frontend", "error"],
   "rac": ["test", "validation", "frontend"],
   "o-trong": ["empty state", "loading", "skeleton", "fallback"],
+  "thang-chu": ["typography", "type scale", "font", "design system", "tokens"],
+  "hieu-ung": ["animation", "motion", "performance", "transition", "compositor"],
+  "so-cot": ["typography", "table", "data", "tabular", "dashboard"],
   "chung": ["frontend", "design", "ui", "ux", "interface", "layout", "typography"]
 };
 
@@ -701,11 +766,34 @@ if (LENH === "do") {
 } else if (LENH === "de-bai") {
   const phieu = do_();
   const k = kyNang(phieu);
+
+  /* ── THƯỚC NÀO CHỮA KHÔNG BẰNG GIAO DIỆN THÌ PHẢI NÓI RA ────
+     Một thước trượt không tự nói cách chữa nó nằm ở đâu. Model
+     chỉ chạm được bốn file giao diện, nên nếu điểm yếu thật ra
+     nằm ở đường ống dữ liệu, nó vẫn sẽ vá — bằng đúng thứ nó
+     chạm được. Với "ô trống" thì thứ nó chạm được là chỗ làm
+     dấu "—" biến mất khỏi mắt, chứ không phải chỗ làm số liệu
+     có thật. Vòng tiến hoá khi ấy đang tối ưu cho việc che.
+
+     Nên đề bài mang theo lời dặn cho những thước như vậy. */
+  const LUU_Y = {
+    "o-trong":
+      'Dấu "—" là DỮ LIỆU HỤT, không phải lỗi giao diện. Giấu ô trống đi ' +
+      'là nói dối người xem, và vẫn làm điểm lên — đừng làm thế. Cách đúng: ' +
+      'để ô trống tự nói nó trống VÌ SAO, và chỉ ra một việc kế tiếp ' +
+      '(baseline-ui, kho ibelick/ui-skills: "MUST give empty states one clear ' +
+      'next action"). Còn nguồn số thì nằm ở scripts/build-*.mjs — NGOÀI phạm ' +
+      'vi lượt này, đừng đụng.'
+  };
+  const luuY = phieu.diem
+    .filter((d) => d.dat === false && LUU_Y[d.ma])
+    .map((d) => ({ thuoc: d.ma, dan: LUU_Y[d.ma] }));
+
   const ra = DUONG("assets", "data", "de-bai-tien-hoa.json");
   await mkdir(dirname(ra), { recursive: true });
   await writeFile(ra, JSON.stringify({
     ghiChu: "SINH TỰ ĐỘNG bởi scripts/tien-hoa.mjs. Đừng sửa tay, đừng commit.",
-    cung: CUNG, phieu, kyNang: k.skill, quetSkillLuc: k.quetLuc
+    cung: CUNG, phieu, luuY, kyNang: k.skill, quetSkillLuc: k.quetLuc
   }, null, 2) + "\n", "utf8");
   console.log(`Đề bài: ${phieu.tong - phieu.dat} điểm yếu · ${k.skill.length} kỹ năng → ${relative(ROOT, ra)}`);
 } else if (LENH === "cong") {
