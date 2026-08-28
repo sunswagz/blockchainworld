@@ -35,7 +35,7 @@
 
 .halls-head .lbl { flex: 1; min-width: 0; line-height: 1.25; }
 .halls-head .lbl b {
-  display: block; font-size: 13px; font-weight: 600; color: var(--fg);
+  display: block; font-size: 13.5px; font-weight: 600; color: var(--fg);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .halls-head .lbl i {
@@ -63,7 +63,8 @@
      chiều cao sẽ bị cắt cụt, không cuộn được. */
   overflow-x: hidden;
   overflow-y: auto;
-  transition: max-height .22s cubic-bezier(.2, .8, .2, 1);
+  /* KHÔNG chuyển tiếp max-height: mỗi khung hình bắt dàn lại bố cục.
+     Mở/đóng tức thì, và nội dung vẫn mờ dần nhờ opacity ở luật khác. */
 }
 .halls-nav.closed .halls-tree { border-left-color: transparent; }
 
@@ -87,7 +88,7 @@
 
 .hall-link .lbl { flex: 1; min-width: 0; line-height: 1.25; }
 .hall-link .lbl b {
-  display: block; font-size: 13px; font-weight: 600;
+  display: block; font-size: 13.5px; font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .hall-link .lbl i {

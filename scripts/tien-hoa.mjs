@@ -428,6 +428,19 @@ function do_() {
     .filter((f) => co(DUONG("assets/css", f)))
     .map((f) => doc(DUONG("assets/css", f))).join("\n");
 
+  /* Ba thước dưới dò bằng CHUỖI THÔ, nên phải cắt chú thích trước.
+     Không cắt thì một dòng giải thích nhắc `transition: width` bị
+     tính thành một hiệu ứng chạm bố cục thật, và một cỡ px nhắc
+     trong chú thích thành một bậc thang thật.
+
+     Đã báo nhầm: Đài Quan Trắc bị tính 2 hiệu ứng chạm bố cục, mà
+     mẫu in ra chính là câu chú thích kể chuyện đã GỠ hiệu ứng đó.
+     Cung nào càng ghi rõ lý do trong CSS thì càng bị phạt.
+
+     `doMau` KHÔNG dùng bản này: nó ghép cặp theo khối luật `{ }` nên
+     chú thích vốn đã không lọt vào cặp nào. */
+  const cssMa = css.replace(/\/\*[\s\S]*?\*\//g, " ");
+
   const ve = thuVe();
   const mau = doMau(css);
 
@@ -495,14 +508,14 @@ function do_() {
      rule. Đo được Hộ Bộ 32 cỡ, trong đó mười một cỡ chen giữa 11 và
      13px — đó không phải thang, đó là số bốc từng lúc. Cung nào đã
      đưa cỡ chữ vào biến thì đếm này về 0 và thước tự đạt. */
-  const coPx = [...css.matchAll(/font-size:\s*([\d.]+)px/g)].map((m) => m[1]);
+  const coPx = [...cssMa.matchAll(/font-size:\s*([\d.]+)px/g)].map((m) => m[1]);
   const soCo = new Set(coPx).size;
 
   /* baseline-ui: "MUST animate only compositor props (transform,
      opacity) · NEVER animate layout properties (width, height, top,
      left, margin, padding)". Mỗi khung hình của một transition chạm
      bố cục là một lượt tính lại bố cục CẢ TRANG. */
-  const chuyenXau = [...css.matchAll(/transition:[^;}]*/g)]
+  const chuyenXau = [...cssMa.matchAll(/transition:[^;}]*/g)]
     .map((m) => m[0])
     .filter((t) => /\b(width|height|top|left|right|bottom|margin|padding)\b/.test(t));
 
@@ -510,8 +523,8 @@ function do_() {
      DI TRUYỀN, nên một dòng ở body/html/:root là phủ cả trang — bắt
      từng rule khai lại thì thành báo nhầm. Không có dòng gốc ấy thì
      mới soi từng khối rule dùng font mono. */
-  const nvGoc = /(?:^|\})\s*(?:body|html|:root)[^{}]*\{[^{}]*tabular-nums/.test(css);
-  const khoiCss = [...css.matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
+  const nvGoc = /(?:^|\})\s*(?:body|html|:root)[^{}]*\{[^{}]*tabular-nums/.test(cssMa);
+  const khoiCss = [...cssMa.matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]);
   const monoCo = khoiCss.filter((k) => /font-family:\s*var\(--mono\)/.test(k)).length;
   const monoThieu = nvGoc ? 0
     : khoiCss.filter((k) => /font-family:\s*var\(--mono\)/.test(k) && !/tabular-nums/.test(k)).length;
