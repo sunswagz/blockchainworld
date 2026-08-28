@@ -863,7 +863,7 @@ chạy lệnh cho cung ấy.
 
 ### Chỗ đè im lặng trong CSS
 
-    npm run de-im-lang            soi cả 12 cung · thoát 1 khi còn chỗ đè
+    npm run de-im-lang            soi Cổng Thành + 12 cung · thoát 1 khi còn chỗ đè
     npm run de-im-lang -- <cung>  soi một cung
 
 `npm run kiem` gọi nó ở đầu mỗi phiên và **nhắc** chứ không chặn: CSS
