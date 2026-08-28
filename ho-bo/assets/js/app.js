@@ -326,7 +326,7 @@
       return '<div class="tp-d"' + (co ? "" : ' data-trong="1"') + '>' +
         '<span class="tp-t" title="' + esc(p.y) + '">' + esc(p.ten) + "</span>" +
         '<span class="tp-b"><i data-h="' + (p.diem >= 0 ? "len" : "xuong") +
-        '" style="left:' + trai + '%;width:0"  data-rong="' + rong + '"></i></span>' +
+        '" style="left:' + trai + '%;width:' + rong + '%" data-rong="1"></i></span>' +
         '<span class="tp-v">' + (p.gt == null ? "—" : phanTram(p.gt, 1)) + "</span></div>";
     }).join("");
 
@@ -1013,13 +1013,16 @@
     if (ma === "kho-nguon") locVaVe();
 
     /* Thanh thành phần mọc ra ở khung hình sau, để mắt thấy nó CHẠY
-       tới giá trị chứ không phải đã nằm sẵn ở đó. */
+       tới giá trị chứ không phải đã nằm sẵn ở đó.
+
+       Bề rộng thật đã nằm sẵn trong style từ lúc dựng; ở đây chỉ bật
+       một cờ để CSS cho scaleX chạy từ 0 lên 1. Đổi `width` từng
+       khung hình như bản cũ là bắt trình duyệt tính lại bố cục cả
+       trang cho mỗi thanh, mỗi khung hình. */
     var bars = than.querySelectorAll(".tp-b i[data-rong]");
     if (bars.length) {
       requestAnimationFrame(function () {
-        Array.prototype.forEach.call(bars, function (b) {
-          b.style.width = b.getAttribute("data-rong") + "%";
-        });
+        Array.prototype.forEach.call(bars, function (b) { b.dataset.hien = "1"; });
       });
     }
 

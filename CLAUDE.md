@@ -228,9 +228,14 @@ Hệ quả khi bạn sửa tay chúng:
 
 - **Cứ sửa.** Đây là mã nguồn thật, không phải file sinh ra. Không có
   lượt nào "đè" bạn: model chỉ sửa *thêm* trên bản mới nhất trong repo.
-- **Chạy `node scripts/tien-hoa.mjs do ho-bo` trước khi commit.** Bảy
-  thước phải còn 7/7. Sửa tay làm tụt điểm thì lượt tiến hoá kế tiếp
+- **Chạy `node scripts/tien-hoa.mjs do ho-bo` trước khi commit.** Không
+  thước nào được tụt. Sửa tay làm tụt điểm thì lượt tiến hoá kế tiếp
   sẽ thấy đó là điểm yếu và đi vá — tốn một lượt cho việc bạn vừa làm.
+
+  Đừng ghi cứng con số ở đây. Số thước đã đổi một lần (bảy → mười, khi
+  ba luật của `baseline-ui` và `frontend-design` được dịch thành phép
+  canh), và mọi chỗ ghi "bảy thước" trong workflow lúc ấy thành nói sai
+  cùng lúc — model đọc lời nhắc rồi tưởng mình đã xem hết bảng.
 - **Xung đột lúc gộp là có thật**, khác hẳn hai loại kia. Bot commit
   thẳng vào `main` nên nhánh worktree đụng bốn file này phải rebase
   như với bất kỳ file dùng chung nào.

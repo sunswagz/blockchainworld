@@ -59,15 +59,31 @@ MAU_TOI_THIEU = {
 }
 
 
+def _khung_hien_tai() -> str:
+    """Khung chính đang cấu hình — cũng là khung mà kho chạy lại vừa được đúc."""
+    from .config import CONFIG
+    return CONFIG["timeframes"]["primary"]
+
+
 def _gio() -> str:
     return _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
 
 
-def _pd(ma, nguon, cau, mau, so=None, che_do=None, do_tin=None) -> dict:
+def _pd(ma, nguon, cau, mau, so=None, che_do=None, do_tin=None, khung=None) -> dict:
+    """Một phát hiện. `khung` là khung thời gian nó được ĐO TRÊN.
+
+    Thiếu trường này là một cái bẫy đã sập một lần: phát hiện «TREND_UP|none lỗ
+    đều −0,422R» đo trên khung 1h, và khi bản chạy thật chuyển sang 4h thì cầu
+    dao vẫn lấy nó ra chặn — cùng tên chế độ, khác hẳn thị trường. Bot sẽ đứng
+    im ở đúng chế độ mà bằng chứng 4h nói là được, và không có gì báo sai.
+
+    `None` = phát hiện không phụ thuộc khung (kích thước vị thế, mẫu số rủi ro,
+    kết quả âm đã lưu). Những cái đó vẫn áp cho mọi khung.
+    """
     return {
         "ma": ma, "nguon": nguon, "cheDo": che_do, "cau": cau,
         "mau": mau, "doTin": do_tin or _do_tin(nguon, mau),
-        "so": so or {}, "luc": _gio(),
+        "khung": khung, "so": so or {}, "luc": _gio(),
     }
 
 
@@ -89,15 +105,19 @@ def _tu_chay_lai(bo: list) -> list[dict]:
     có tồn tại cũng như không. Gộp lại thì cả 36 lệnh cùng đứng sau một câu.
     """
     ra = []
-    g: dict[str, list] = defaultdict(list)
+    # Gom theo (KHUNG, chế độ). Gom theo mình chế độ là trộn hai thị trường khác
+    # hẳn nhau dưới một cái tên — và bài học 1h sẽ đi chặn lệnh 4h.
+    # `khung=None` là bài học đúc TRƯỚC khi thêm trường này; giữ lại làm bối
+    # cảnh nhưng không bao giờ cho cầu dao dùng.
+    g: dict[tuple, list] = defaultdict(list)
     for l in store.read_all(store.LESSONS_CHAY_LAI):
-        g[l.get("regimeKey") or l.get("regime") or "?"].append(l)
+        g[(l.get("khung"), l.get("regimeKey") or l.get("regime") or "?")].append(l)
 
-    for ma, ds in sorted(g.items()):
+    for (khung, ma), ds in sorted(g.items(), key=lambda x: (str(x[0][0]), x[0][1])):
         if ma == "?":
             continue
         if len(ds) < MAU_TOI_THIEU["chay-lai"]:
-            bo.append({"ma": f"che-do:{ma}", "nguon": "chay-lai",
+            bo.append({"ma": f"che-do:{khung or 'khung?'}:{ma}", "nguon": "chay-lai",
                        "viSao": f"{len(ds)} lệnh < ngưỡng {MAU_TOI_THIEU['chay-lai']}"})
             continue
         rs = [l.get("rMultiple") or 0 for l in ds]
@@ -108,20 +128,21 @@ def _tu_chay_lai(bo: list) -> list[dict]:
         # Chỉ phát biểu khi hiệu ứng đủ rõ. Kỳ vọng ±0,1R trên vài chục lệnh là
         # tiếng ồn, và một câu chắc nịch về tiếng ồn còn tệ hơn im lặng.
         if abs(ky_vong) < 0.1:
-            bo.append({"ma": f"che-do:{ma}", "nguon": "chay-lai",
+            bo.append({"ma": f"che-do:{khung or 'khung?'}:{ma}", "nguon": "chay-lai",
                        "viSao": f"kỳ vọng {ky_vong:+.3f}R quá gần 0 — chưa phải hiệu ứng"})
             continue
 
         huong = "LỖ ĐỀU" if ky_vong < 0 else "ăn được"
-        cau = (f"Chế độ {ma}: {huong} — kỳ vọng {ky_vong:+.3f}R, thắng {ty_thang:.1f}% "
+        cau = (f"Chế độ {ma} (khung {khung or 'không rõ'}): {huong} — "
+               f"kỳ vọng {ky_vong:+.3f}R, thắng {ty_thang:.1f}% "
                f"qua {len(ds)} lệnh CHẠY LẠI. Đây là phát biểu về CẤU TRÚC (chế độ nào "
                f"hợp chiến lược này), không phải về ĐỘ LỚN: lệnh chạy lại khớp đúng giá "
                f"đặt và không nhảy giá qua stop, nên số R thật sẽ xấu hơn.")
         if ky_vong < -0.25 and len(ds) >= 20:
             cau += " Ở mức lỗ này và cỡ mẫu này, đứng ngoài chế độ đó là quyết định có căn cứ."
-        ra.append(_pd(f"che-do:{ma}", "chay-lai", cau, len(ds),
+        ra.append(_pd(f"che-do:{khung or 'khung?'}:{ma}", "chay-lai", cau, len(ds),
                       {"kyVongR": round(ky_vong, 3), "tyLeThang": round(ty_thang, 1)},
-                      che_do=ma))
+                      che_do=ma, khung=khung))
     return ra
 
 
@@ -690,7 +711,18 @@ def doc(che_do_key: str | None = None, che_do: str | None = None,
     # cắt. Cắt theo thứ tự ngẫu nhiên là bỏ đi phần đắt nhất mà không ai thấy.
     hang = {"CAO": 0, "VỪA": 1, "THẤP": 2}
     khoa = lambda p: (hang.get(p.get("doTin"), 3), -(p.get("mau") or 0))
-    return (sorted(hop, key=khoa) + sorted(chung, key=khoa))[:gioi_han]
+    ds2 = (sorted(hop, key=khoa) + sorted(chung, key=khoa))[:gioi_han]
+
+    # Đánh dấu phát hiện đo trên khung KHÁC. Vẫn đưa vào prompt — nó là bối
+    # cảnh có ích — nhưng bộ não phải biết nó không nói về thị trường đang xem.
+    nay = _khung_hien_tai()
+    ra = []
+    for p in ds2:
+        k = p.get("khung")
+        if k and k != nay:
+            p = {**p, "cau": f"[đo trên khung {k}, hiện đang chạy {nay}] " + p["cau"]}
+        ra.append(p)
+    return ra
 
 # — Ngưỡng cầu dao: chỉ chế độ đã ĐO ĐỦ và lỗ ĐỦ SÂU mới bị ngắt —
 CAU_DAO_KY_VONG = -0.25   # R
@@ -717,10 +749,20 @@ def cau_dao(che_do_key: str | None, che_do: str | None) -> dict | None:
     −0,25R. Ngưỡng thấp hơn thì một chế độ xui vài lệnh cũng đủ bị khai tử vĩnh
     viễn, mà chế độ bị khai tử thì không bao giờ tự thu thêm dữ liệu để cãi lại.
     """
+    khung = _khung_hien_tai()
     for pd in store.read_all(store.PHAT_HIEN):
         if pd.get("nguon") != "chay-lai" or pd.get("doTin") != "CAO":
             continue
         if pd.get("cheDo") not in (che_do_key, che_do):
+            continue
+        # KHUNG PHẢI KHỚP. «TREND_UP|none» trên 1h và trên 4h là hai thị trường
+        # khác nhau mang cùng một cái tên; chặn cái này bằng bằng chứng của cái
+        # kia là đóng băng bot mà không ai thấy vì sao.
+        #
+        # Phát hiện cũ không có trường `khung` (đúc trước khi thêm) cũng bị bỏ
+        # qua: thà không chặn còn hơn chặn nhầm — cầu dao là thứ DUY NHẤT ở đây
+        # tự ý ngăn bot giao dịch, nên nó phải chắc chắn hơn mọi thứ khác.
+        if pd.get("khung") != khung:
             continue
         ky_vong = (pd.get("so") or {}).get("kyVongR")
         if ky_vong is not None and ky_vong <= CAU_DAO_KY_VONG and (pd.get("mau") or 0) >= CAU_DAO_MAU:

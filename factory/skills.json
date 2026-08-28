@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T15:19:55.819Z",
+  "generatedAt": "2026-08-28T15:21:37.339Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/nhap-skill.mjs — sổ xuất xứ của .claude/skills/.",
   "luat": {
     "nhom": [
@@ -24,7 +24,7 @@
       "nhanh": "main",
       "uuTien": "trí tuệ giao diện tổng hợp — web, di động, soát lẫn dựng",
       "sha": "ea087c341bfb5b23",
-      "luc": "2026-08-28T15:19:54.688Z"
+      "luc": "2026-08-28T15:21:34.849Z"
     },
     {
       "id": "nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/design-system",
@@ -37,7 +37,7 @@
       "nhanh": "main",
       "uuTien": "mã thông số ba tầng: nguyên thuỷ → ngữ nghĩa → component",
       "sha": "655468bb723a6bc9",
-      "luc": "2026-08-28T15:19:54.738Z"
+      "luc": "2026-08-28T15:21:34.894Z"
     },
     {
       "id": "nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/ui-styling",
@@ -50,7 +50,7 @@
       "nhanh": "main",
       "uuTien": "dựng giao diện tiếp cận được — đọc lấy nguyên lý, không lấy Tailwind",
       "sha": "f8b6c3832d2af51f",
-      "luc": "2026-08-28T15:19:54.788Z"
+      "luc": "2026-08-28T15:21:34.942Z"
     },
     {
       "id": "sickn33/agentic-awesome-skills/skills/anti-ui-slop",
@@ -63,7 +63,7 @@
       "nhanh": "main",
       "uuTien": "chống khuôn nhàm do AI sinh — đúng bệnh của trang do model sửa hằng ngày",
       "sha": "8ff04df7f8bcce91",
-      "luc": "2026-08-28T15:19:54.842Z"
+      "luc": "2026-08-28T15:21:34.988Z"
     },
     {
       "id": "sickn33/agentic-awesome-skills/skills/baseline-ui",
@@ -76,7 +76,7 @@
       "nhanh": "main",
       "uuTien": "sàn chất lượng giao diện, hợp với lối 'bảy thước đo sàn' của vòng tiến hoá",
       "sha": "8e6c70a04d4c0701",
-      "luc": "2026-08-28T15:19:54.889Z"
+      "luc": "2026-08-28T15:21:35.037Z"
     },
     {
       "id": "anthropics/skills/skills/frontend-design",
@@ -89,7 +89,7 @@
       "nhanh": "main",
       "uuTien": "thiết kế thị giác có chủ đích, chính chủ — skill dùng được nhất trên kệ",
       "sha": "1608ea77fbb6fc30",
-      "luc": "2026-08-28T15:19:54.935Z"
+      "luc": "2026-08-28T15:21:35.391Z"
     },
     {
       "id": "anthropics/skills/skills/theme-factory",
@@ -102,7 +102,7 @@
       "nhanh": "main",
       "uuTien": "dựng bộ chủ đề mạch lạc thay vì sửa màu lẻ từng chỗ",
       "sha": "c35893e221e28895",
-      "luc": "2026-08-28T15:19:54.980Z"
+      "luc": "2026-08-28T15:21:35.741Z"
     },
     {
       "id": "anthropics/skills/skills/brand-guidelines",
@@ -115,7 +115,7 @@
       "nhanh": "main",
       "uuTien": "giữ nhận diện nhất quán giữa mười hai cung",
       "sha": "1120b3769e2985ce",
-      "luc": "2026-08-28T15:19:55.028Z"
+      "luc": "2026-08-28T15:21:36.097Z"
     },
     {
       "id": "nexu-io/open-design/skills/frontend-design",
@@ -128,7 +128,7 @@
       "nhanh": "main",
       "uuTien": "bản của một kho khác — hai giọng về cùng một việc, đọc chéo được",
       "sha": "6963d8b4ae3d285b",
-      "luc": "2026-08-28T15:19:55.077Z"
+      "luc": "2026-08-28T15:21:36.144Z"
     },
     {
       "id": "nexu-io/open-design/skills/color-expert",
@@ -141,7 +141,7 @@
       "nhanh": "main",
       "uuTien": "OKLCH/OKLAB và TƯƠNG PHẢN — đúng thước hay trượt nhất trong bảy thước",
       "sha": "b49392ab158a0278",
-      "luc": "2026-08-28T15:19:55.124Z"
+      "luc": "2026-08-28T15:21:36.189Z"
     },
     {
       "id": "garrytan/gstack/design-review",
@@ -154,7 +154,7 @@
       "nhanh": "main",
       "uuTien": "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, thứ bậc hỏng",
       "sha": "8a74c2068bea907e",
-      "luc": "2026-08-28T15:19:55.187Z"
+      "luc": "2026-08-28T15:21:36.252Z"
     },
     {
       "id": "garrytan/gstack/design-html",
@@ -167,7 +167,7 @@
       "nhanh": "main",
       "uuTien": "chốt thiết kế thành HTML/CSS chất lượng sản phẩm",
       "sha": "5e58a737798d760a",
-      "luc": "2026-08-28T15:19:55.239Z"
+      "luc": "2026-08-28T15:21:36.301Z"
     },
     {
       "id": "JimLiu/baoyu-skills/skills/baoyu-diagram",
@@ -180,7 +180,7 @@
       "nhanh": "main",
       "uuTien": "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy",
       "sha": "55a2d050c3a2faea",
-      "luc": "2026-08-28T15:19:55.286Z"
+      "luc": "2026-08-28T15:21:36.372Z"
     },
     {
       "id": "anthropics/skills/skills/academy-guide",
@@ -193,7 +193,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "f27992510c051355",
-      "luc": "2026-08-28T15:19:55.329Z"
+      "luc": "2026-08-28T15:21:36.651Z"
     },
     {
       "id": "anthropics/skills/skills/algorithmic-art",
@@ -206,7 +206,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "3bc4092c09804853",
-      "luc": "2026-08-28T15:19:55.377Z"
+      "luc": "2026-08-28T15:21:36.922Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/plugin-dev/skills/agent-development",
@@ -219,7 +219,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "6a2826571320828c",
-      "luc": "2026-08-28T15:19:55.422Z"
+      "luc": "2026-08-28T15:21:36.970Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/mcp-server-dev/skills/build-mcp-app",
@@ -232,7 +232,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "d2fd94f009650646",
-      "luc": "2026-08-28T15:19:55.478Z"
+      "luc": "2026-08-28T15:21:37.016Z"
     },
     {
       "id": "obra/superpowers/skills/brainstorming",
@@ -245,7 +245,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "74edf03ea6d24ef5",
-      "luc": "2026-08-28T15:19:55.525Z"
+      "luc": "2026-08-28T15:21:37.064Z"
     },
     {
       "id": "obra/superpowers/skills/receiving-code-review",
@@ -258,7 +258,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "091df1629510af1b",
-      "luc": "2026-08-28T15:19:55.569Z"
+      "luc": "2026-08-28T15:21:37.109Z"
     },
     {
       "id": "affaan-m/ECC/skills/accessibility",
@@ -271,7 +271,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "d8578fe750e73216",
-      "luc": "2026-08-28T15:19:55.617Z"
+      "luc": "2026-08-28T15:21:37.155Z"
     },
     {
       "id": "affaan-m/ECC/skills/agent-architecture-audit",
@@ -284,7 +284,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "64f57e232c353387",
-      "luc": "2026-08-28T15:19:55.674Z"
+      "luc": "2026-08-28T15:21:37.201Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/ask-matt",
@@ -297,7 +297,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "b25d86fb36b1d294",
-      "luc": "2026-08-28T15:19:55.723Z"
+      "luc": "2026-08-28T15:21:37.249Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/code-review",
@@ -310,7 +310,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "47f4e52c21694def",
-      "luc": "2026-08-28T15:19:55.772Z"
+      "luc": "2026-08-28T15:21:37.293Z"
     },
     {
       "id": "multica-ai/andrej-karpathy-skills/skills/karpathy-guidelines",
@@ -323,7 +323,7 @@
       "nhanh": "main",
       "uuTien": null,
       "sha": "6e22cc54cb02a5e9",
-      "luc": "2026-08-28T15:19:55.818Z"
+      "luc": "2026-08-28T15:21:37.338Z"
     }
   ]
 }

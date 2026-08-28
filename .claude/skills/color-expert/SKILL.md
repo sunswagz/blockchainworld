@@ -3,7 +3,7 @@
      Đường  : skills/color-expert
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/nexu-io/open-design/main/skills/color-expert/SKILL.md
-     sha256 : b49392ab158a0278 · nhập 2026-08-28T15:19:55.122Z
+     sha256 : b49392ab158a0278 · nhập 2026-08-28T15:21:36.188Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

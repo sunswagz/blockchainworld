@@ -368,26 +368,29 @@ async def main() -> int:
     from trader import chung_cat
 
     # Kho chạy lại giả: một chế độ lỗ sâu và đủ mẫu, một chế độ lỗ nhẹ thiếu mẫu.
+    # `khung` bắt buộc: từ khi cầu dao đòi khung khớp, bài học không ghi khung
+    # thì không bao giờ ngắt — xem mục [17]. Fixture phải giống hàng thật.
+    _tf12 = CONFIG["timeframes"]["primary"]
     store.write_all(store.LESSONS_CHAY_LAI, [
-        {"regimeKey": "XAU|none", "regime": "XAU", "rMultiple": -0.5, "at": "x"}
+        {"regimeKey": "XAU|none", "regime": "XAU", "rMultiple": -0.5, "khung": _tf12, "at": "x"}
         for _ in range(36)
     ] + [
-        {"regimeKey": "IT|none", "regime": "IT", "rMultiple": -0.4, "at": "x"}
+        {"regimeKey": "IT|none", "regime": "IT", "rMultiple": -0.4, "khung": _tf12, "at": "x"}
         for _ in range(4)
     ])
     kq = chung_cat.chung_cat()
     ds = {p["ma"]: p for p in store.read_all(store.PHAT_HIEN)}
 
-    check("che-do:XAU|none" in ds, "chế độ đủ mẫu ra được phát hiện")
-    check("che-do:IT|none" not in ds, "chế độ 4 lệnh KHÔNG ra phát hiện (dưới ngưỡng 10)")
+    check(f"che-do:{_tf12}:XAU|none" in ds, "chế độ đủ mẫu ra được phát hiện")
+    check(f"che-do:{_tf12}:IT|none" not in ds, "chế độ 4 lệnh KHÔNG ra phát hiện (dưới ngưỡng 10)")
 
     # Từ chối phải ĐẾM ĐƯỢC. Bỏ im lặng thì "không phát hiện nào" trông y hệt
     # "chưa đo lần nào", và hai chuyện đó cần phân biệt được từ bên ngoài.
-    check(any(b["ma"] == "che-do:IT|none" for b in kq["daBo"]),
+    check(any(b["ma"] == f"che-do:{_tf12}:IT|none" for b in kq["daBo"]),
           f"cái bị bỏ có ghi lý do ({kq['soDaBo']} mục trong daBo)")
 
-    if "che-do:XAU|none" in ds:
-        cau = ds["che-do:XAU|none"]["cau"]
+    if f"che-do:{_tf12}:XAU|none" in ds:
+        cau = ds[f"che-do:{_tf12}:XAU|none"]["cau"]
         check("36" in cau, "cỡ mẫu nằm TRONG câu, không chỉ ở trường bên cạnh")
         check("CHẠY LẠI" in cau, "câu tự khai nguồn là lệnh mô phỏng")
 
@@ -401,7 +404,7 @@ async def main() -> int:
     # này thì ngưỡng sẽ trôi dần cho tới khi mọi chế độ đều bị khai tử — mà chế
     # độ bị khai tử thì không bao giờ thu thêm dữ liệu để cãi lại.
     store.write_all(store.LESSONS_CHAY_LAI, [
-        {"regimeKey": "NONG|none", "regime": "NONG", "rMultiple": -0.15, "at": "x"}
+        {"regimeKey": "NONG|none", "regime": "NONG", "rMultiple": -0.15, "khung": _tf12, "at": "x"}
         for _ in range(40)
     ])
     chung_cat.chung_cat()
@@ -651,6 +654,50 @@ async def main() -> int:
     os.utime(_f, None)
     check(not any("IM" in x for x in BG._con_song()),
           "nhật ký vừa ghi → không kêu (nếu không thì cảnh báo thành tiếng ồn)")
+
+    print("\n[17] CẦU DAO KHÔNG ĐƯỢC CHẶN KHUNG NÀY BẰNG BẰNG CHỨNG CỦA KHUNG KHÁC")
+    from trader import chung_cat as CC2
+    from trader.config import CONFIG as CFG2
+
+    # «TREND_UP|none» trên 1h và trên 4h là hai thị trường khác hẳn nhau mang
+    # cùng một cái tên. Bản đầu gom bài học chạy lại theo mình chế độ, nên khi
+    # bản chạy thật đổi sang 4h thì cầu dao lấy bằng chứng 1h ra chặn — bot đứng
+    # im ở đúng chế độ mà bằng chứng 4h nói là được, và không có gì báo sai.
+    _tf_cu = CFG2["timeframes"]["primary"]
+    try:
+        store.write_all(store.LESSONS_CHAY_LAI,
+                        [{"regimeKey": "K|none", "regime": "K", "rMultiple": -0.6,
+                          "khung": "1h", "at": "x"} for _ in range(40)])
+        CC2.chung_cat()
+
+        CFG2["timeframes"]["primary"] = "1h"
+        check(CC2.cau_dao("K|none", "K") is not None,
+              "đang chạy 1h + bằng chứng 1h → cầu dao NGẮT")
+
+        CFG2["timeframes"]["primary"] = "4h"
+        check(CC2.cau_dao("K|none", "K") is None,
+              "đang chạy 4h + bằng chứng 1h → KHÔNG ngắt (đây là lỗi đã sập một lần)")
+
+        # Bài học cũ chưa có trường `khung` cũng không được cho cầu dao dùng:
+        # thà không chặn còn hơn chặn nhầm — cầu dao là thứ DUY NHẤT tự ý ngăn
+        # bot giao dịch, nên nó phải chắc chắn hơn mọi thứ khác trong hệ.
+        store.write_all(store.LESSONS_CHAY_LAI,
+                        [{"regimeKey": "K|none", "regime": "K", "rMultiple": -0.6,
+                          "at": "x"} for _ in range(40)])
+        CC2.chung_cat()
+        CFG2["timeframes"]["primary"] = "1h"
+        check(CC2.cau_dao("K|none", "K") is None,
+              "bài học KHÔNG ghi khung → không bao giờ ngắt")
+
+        # Nhưng nó vẫn phải VÀO prompt làm bối cảnh, kèm nhãn khung.
+        ds17 = CC2.doc("K|none", "K")
+        co = [p for p in ds17 if p.get("cheDo") == "K|none"]
+        check(bool(co), f"vẫn đưa vào prompt làm bối cảnh ({len(co)} phát hiện)")
+        if co:
+            check("khung" in co[0]["cau"].lower(),
+                  "…và câu tự khai khung nó được đo trên")
+    finally:
+        CFG2["timeframes"]["primary"] = _tf_cu
 
     broker.reset()
     print("\n" + "=" * 62)
