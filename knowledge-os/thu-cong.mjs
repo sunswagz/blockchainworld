@@ -26,7 +26,7 @@
    bình thường, mà ném xong không trả tệp là bỏ lại một repo bẩn.
    ═══════════════════════════════════════════════════════ */
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -110,6 +110,15 @@ const KICH_BAN = [
   },
 ];
 
+/* Chụp cả 11 lát cắt trước khi bắn kịch bản nào — cổng sẽ dựng lại
+   chúng, kể cả từ dữ liệu giả. */
+const B = JSON.parse(doc("data/bridges/repo.json"));
+const LUU_LAT_CAT = B.hall_mappings
+  .filter((h) => h.rooms?.length)
+  .map((h) => join(GOI, "..", h.hall, "assets", "js", "v", "tri-thuc.js"))
+  .filter((p) => existsSync(p))
+  .map((p) => [p, readFileSync(p, "utf8")]);
+
 let hong = 0;
 for (const kb of KICH_BAN) {
   const luu = SUA.map((p) => [p, doc(p)]);
@@ -127,11 +136,17 @@ for (const kb of KICH_BAN) {
     (dung ? "" : `\n     ${kq.ra.split("\n").filter((x) => x.trim()).slice(-3).join("\n     ")}`));
 }
 
-/* Cổng vừa chạy `sinh.mjs` thật ở kịch bản được NHẬN, nên lát cắt trên
-   đĩa có thể đã dựng lại từ dữ liệu giả. Dựng lại lần cuối từ dữ liệu
-   ĐÃ TRẢ để không bỏ lại một repo bẩn. */
-try { execFileSync(process.execPath, [join(GOI, "sinh.mjs")], { stdio: "pipe" }); } catch { }
-if (existsSync(GOC_JSON)) { try { (await import("node:fs")).unlinkSync(GOC_JSON); } catch { } }
+/* Cổng chạy `sinh.mjs` THẬT ở mỗi kịch bản, nên lát cắt trên đĩa vừa
+   bị dựng lại — có kịch bản dựng từ dữ liệu giả. Chép trả nguyên văn
+   thay vì sinh lại: sinh lại đúng nội dung nhưng đóng dấu `sinhLuc`
+   mới, và mười một tệp đổi dấu thời gian là mười một dòng nhiễu trong
+   `git status` của người vừa chạy bộ thử. Bộ thử phải không để lại vết
+   nào, không thì lần sau người ta ngại chạy. */
+for (const [p, t] of LUU_LAT_CAT) writeFileSync(p, t);
+
+/* Phiếu chụp là tệp tạm của chính bộ thử — xoá, đừng để nó thành
+   một tệp lạ chưa theo dõi mà người sau phải đoán là của ai. */
+if (existsSync(GOC_JSON)) unlinkSync(GOC_JSON);
 
 console.log(hong ? `\n✗ ${hong}/${KICH_BAN.length} kịch bản SAI.` : `\n✓ Cả ${KICH_BAN.length} kịch bản đúng.`);
 process.exit(hong ? 1 : 0);
