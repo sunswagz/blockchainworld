@@ -134,12 +134,25 @@ class CostMeter:
     def today(self) -> dict:
         return dict(self._day())
 
-    def blocked(self) -> str | None:
+    # Phần trần dành RIÊNG cho luận điểm. Hậu kiểm và luận điểm dùng chung một
+    # trần, nên một ngày nhiều lệnh đóng có thể tiêu hết 8 lượt vào hậu kiểm và
+    # bộ não không còn lượt nào để NGHĨ trước khi vào lệnh tiếp theo.
+    #
+    # Hậu kiểm trễ một ngày vẫn còn nguyên giá trị — lệnh đã đóng rồi. Luận
+    # điểm trễ thì mất hẳn cơ hội. Nên khi đã tiêu quá nửa trần, hậu kiểm nhường
+    # chỗ và rơi về `mock_postmortem`; luận điểm vẫn được gọi tới lượt cuối.
+    PHAN_CHO_HAU_KIEM = 0.5
+
+    def blocked(self, loai: str = "") -> str | None:
         d = self._day()
         if d["usd"] >= self.cfg["dailyBudgetUsd"]:
             return f"đã tiêu ${d['usd']:.2f} ≥ hạn mức ${self.cfg['dailyBudgetUsd']}/ngày"
-        if d["calls"] >= self.cfg["maxCallsPerDay"]:
-            return f"đã gọi {d['calls']} lượt ≥ trần {self.cfg['maxCallsPerDay']}/ngày"
+        tran = self.cfg["maxCallsPerDay"]
+        if d["calls"] >= tran:
+            return f"đã gọi {d['calls']} lượt ≥ trần {tran}/ngày"
+        if loai == "postmortem" and d["calls"] >= tran * self.PHAN_CHO_HAU_KIEM:
+            return (f"đã gọi {d['calls']}/{tran} lượt — phần còn lại để dành cho luận "
+                    f"điểm; hậu kiểm dùng luật thuần, đọc lại sau cũng được")
         return None
 
 
@@ -1143,7 +1156,7 @@ class Brain:
         Để nó chặn vòng lặp async là bỏ lỡ nến, mất SSE, và bảng đứng hình đúng
         khoảng thời gian bộ não đang nghĩ.
         """
-        blocked = self.cost.blocked()
+        blocked = self.cost.blocked(label)
         if blocked:
             bus.log("brain", "het-han-muc", f"bỏ qua {label}: {blocked}")
             return None
@@ -1171,7 +1184,7 @@ class Brain:
         """Một lượt gọi có schema. Trả về None nếu bị chặn/lỗi/từ chối."""
         if self.mode == "cli":
             return await self._structured_cli(user=user, schema=schema, label=label)
-        blocked = self.cost.blocked()
+        blocked = self.cost.blocked(label)
         if blocked:
             bus.log("brain", "het-han-muc", f"bỏ qua {label}: {blocked}")
             return None

@@ -830,6 +830,33 @@ async def main() -> int:
     _dat(12, -300.0, 9, khung="khung-khac")
     check(CC4.cau_dao("R|none", "R") is None,
           "bằng chứng của khung KHÁC → không ngắt")
+    print("\n[20] HẬU KIỂM PHẢI NHƯỜNG TRẦN CHO LUẬN ĐIỂM")
+    import trader.brain as _B20
+
+    # Hai loại lượt gọi dùng CHUNG một trần. Một ngày nhiều lệnh đóng có thể
+    # tiêu hết trần vào hậu kiểm, và bộ não không còn lượt nào để NGHĨ trước khi
+    # vào lệnh tiếp theo. Hậu kiểm trễ một ngày vẫn nguyên giá trị (lệnh đã
+    # đóng); luận điểm trễ thì mất hẳn cơ hội.
+    _lop = next((getattr(_B20, n) for n in dir(_B20)
+                 if isinstance(getattr(_B20, n), type)
+                 and hasattr(getattr(_B20, n), "PHAN_CHO_HAU_KIEM")), None)
+    check(_lop is not None, "tìm được lớp đồng hồ có PHAN_CHO_HAU_KIEM")
+    if _lop:
+        _o = _lop.__new__(_lop)
+        _o.cfg = {"dailyBudgetUsd": 999.0, "maxCallsPerDay": 8}
+        _o._day = lambda: _o._d
+
+        _o._d = {"usd": 0.0, "calls": 3}
+        check(_o.blocked("thesis") is None and _o.blocked("postmortem") is None,
+              "3/8 lượt: cả hai loại đều được gọi")
+
+        _o._d = {"usd": 0.0, "calls": 4}
+        check(_o.blocked("thesis") is None and _o.blocked("postmortem") is not None,
+              "4/8 lượt (nửa trần): hậu kiểm nhường, luận điểm vẫn chạy")
+
+        _o._d = {"usd": 0.0, "calls": 8}
+        check(_o.blocked("thesis") is not None,
+              "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:
