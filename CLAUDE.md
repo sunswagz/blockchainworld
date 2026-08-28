@@ -447,7 +447,7 @@ thư mục, cổng, và lệnh sinh lát cắt:
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
-    python scripts/selftest.py    230 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    244 phép kiểm số học, KHÔNG cần mạng
 
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
