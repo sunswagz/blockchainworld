@@ -736,14 +736,20 @@ function do_() {
      thật trong trang. Đứng trước nav là phần quan trọng — một đường
      nhảy nằm sau khối cần nhảy qua thì không nhảy qua được gì.
      Cung không có <nav> thì soi 800 ký tự đầu của <body>. */
-  /* CẮT CHÚ THÍCH HTML TRƯỚC ĐÃ. Thước này dò bằng chuỗi thô, nên
-     một chú thích nhắc tên thẻ điều hướng sẽ bị tính là chính thẻ đó
-     — và vì phép đo cắt tại thẻ ấy, chú thích GIẢI THÍCH đường nhảy
-     lại giấu mất đường nhảy nằm ngay sau nó.
-     Đã cắn thật ngày 29/08 ở Hoàng Thành: thêm đường nhảy kèm một
-     khối chú thích, thước vẫn báo "chưa có". Cùng đúng cái bẫy mà ba
-     thước bên trên đã phải cắt chú thích để tránh — chỗ này sót. */
-  const htmlSach = html.replace(/<!--[sS]*?-->/g, " ");
+  /* `[\s\S]` chứ KHÔNG phải `[sS]`. Bản trước rơi mất hai dấu gạch
+     chéo, và `[sS]` là lớp ký tự "chữ s hoặc S" — nên nó chỉ cắt nổi
+     những chú thích viết toàn chữ s, tức là không cắt gì cả. Bản vá
+     nằm đó, chú thích giải thích bản vá nằm đó, mà phép cắt thì chết.
+
+     Hậu quả không dừng ở một thước im: cung nào có khối chú thích
+     nhắc tên thẻ điều hướng ngay trên đường nhảy sẽ bị chấm "chưa
+     có", và người viết — vừa mới thêm đường nhảy xong — sẽ tin thước
+     mà thêm cái THỨ HAI. Hoàng Thành đang có đúng hai đường nhảy và
+     hai khối CSS `.bo-qua` chọi nhau, từ hai phiên khác nhau.
+
+     Lớp lỗi "regex rơi mất dấu gạch chéo" không có gì báo: nó vẫn là
+     regex hợp lệ, vẫn chạy, chỉ khớp sai. */
+  const htmlSach = html.replace(/<!--[\s\S]*?-->/g, " ");
   const thanTrang = htmlSach.slice(Math.max(0, htmlSach.indexOf("<body")));
   const viNav = thanTrang.search(/<nav\b/);
   const dauTrang = viNav > 0 ? thanTrang.slice(0, viNav) : thanTrang.slice(0, 800);
