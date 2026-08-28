@@ -4971,6 +4971,100 @@ def kiem_lp_amm() -> None:
     kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
          any("SUY RA" in b for b in t.bangChung))
 
+def kiem_kho_bao_gia_cau() -> None:
+    print("\n-- KHO BAO GIA CAU: song qua lan khoi dong lai --")
+    import time as _t
+    from chuyen_von.cau_noi import BaoGiaCau
+    from chuyen_von.dinh_tuyen import (TUOI_BAO_GIA_TOI_DA_GIAY, DinhTuyen,
+                                       _khoa)
+
+    now = _t.time() * 1000.0
+
+    def _bg(taiSan, tu, den, von, phi, tuoiGiay=0.0):
+        return BaoGiaCau(taiSan=taiSan, tuChuoi=tu, denChuoi=den,
+                         vonUsd=von, phiTaiSan=phi, gasUsd=0.03,
+                         giayCho=120.0, congCu="across",
+                         docLucMs=now - tuoiGiay * 1000.0)
+
+    def _mu(taiSan, tu, den, von, tuoiGiay=0.0):
+        return BaoGiaCau(taiSan=taiSan, tuChuoi=tu, denChuoi=den,
+                         vonUsd=von, phiTaiSan=None, gasUsd=None,
+                         giayCho=None, congCu="?",
+                         docLucMs=now - tuoiGiay * 1000.0,
+                         loi="LI.FI 429")
+
+    d = _tam("kho-cau")
+    tep = d / "kho-bao-gia-cau.json"
+
+    a = DinhTuyen()
+    a.kho[_khoa("USDC", "arbitrum", "polygon", 1000)] = _bg(
+        "USDC", "arbitrum", "polygon", 1000, 2.5)
+    a.kho[_khoa("USDC", "arbitrum", "base", 1000)] = _bg(
+        "USDC", "arbitrum", "base", 1000, 1.1, tuoiGiay=600.0)
+    a.kho[_khoa("USDC", "base", "ethereum", 1000)] = _mu(
+        "USDC", "base", "ethereum", 1000)
+    a.kho[_khoa("USDC", "polygon", "ethereum", 1000)] = _bg(
+        "USDC", "polygon", "ethereum", 1000, 4.0,
+        tuoiGiay=TUOI_BAO_GIA_TOI_DA_GIAY + 600.0)
+
+    so = a.luu_kho(tep)
+    kiem("chỉ ghi báo giá ĐO ĐƯỢC, không ghi bản mù", so == 3,
+         f"{so}/4 — một báo giá mù ghi ra đĩa rồi nạp lại ở lần chạy sau là "
+         f"mang sự mù qua một ranh giới nó lẽ ra không vượt được")
+
+    b = DinhTuyen()
+    r = b.nap_kho(tep)
+    kiem("nạp lại được kho từ đĩa", r["nap"] == 2 and r["co"],
+         f"{r} — kho nằm trong RAM nên nó chết theo tiến trình, trong khi "
+         f"phí cầu đổi rất chậm")
+    kiem("và BỎ bản quá hạn thay vì nạp bừa", r["boQuaCu"] == 1,
+         f"{r} — nạp lại một báo giá già hơn TUOI_BAO_GIA_TOI_DA_GIAY là "
+         f"lách chính ngưỡng ấy")
+
+    con = b.kho.get(_khoa("USDC", "arbitrum", "base", 1000))
+    kiem("tuổi vẫn tính từ `docLucMs` GỐC, không đóng dấu lại",
+         con is not None and (now - con.docLucMs) / 1000.0 > 500.0,
+         "đóng dấu lại là làm một báo giá hai tiếng trông như vừa đọc xong, "
+         "và `chang_cau()` sẽ thôi khai tuổi — cái khai tuổi ấy mới là thứ "
+         "khiến việc dùng số cũ trung thực")
+
+    # ── KHÔNG đè bản đang có trong RAM ─────────────────────────────────
+    c = DinhTuyen()
+    moi = _bg("USDC", "arbitrum", "polygon", 1000, 9.99)
+    c.kho[_khoa("USDC", "arbitrum", "polygon", 1000)] = moi
+    r2 = c.nap_kho(tep)
+    kiem("KHÔNG đè bản đang có trong RAM", r2["boQuaDaCo"] == 1
+         and c.kho[_khoa("USDC", "arbitrum", "polygon", 1000)] is moi,
+         "bản trong bộ nhớ luôn mới hơn hoặc bằng bản trên đĩa")
+
+    # ── không có tệp thì nói ra, không nổ ──────────────────────────────
+    e = DinhTuyen()
+    r3 = e.nap_kho(d / "khong-co-tep.json")
+    kiem("chưa có kho trên đĩa thì khai `co: False`, không nổ",
+         r3["co"] is False and r3["nap"] == 0, str(r3))
+
+    # ── tệp hỏng cũng không được giết lượt khởi động ───────────────────
+    xau = d / "hong.json"
+    xau.write_text("{ khong phai json", encoding="utf-8")
+    f = DinhTuyen()
+    r4 = f.nap_kho(xau)
+    kiem("kho hỏng thì KHAI lỗi rồi đi tiếp, không giết runtime",
+         r4["nap"] == 0 and "loi" in r4, str(r4))
+
+    # ── runtime PHẢI gọi cả hai đầu ────────────────────────────────────
+    import ast as _ast
+    import pathlib as _pl
+    from bac import vong as _v
+    cay = _ast.parse(_pl.Path(_v.__file__).read_text(encoding="utf-8"))
+    ten = {n.func.attr for n in _ast.walk(cay)
+           if isinstance(n, _ast.Call) and isinstance(n.func, _ast.Attribute)}
+    kiem("runtime nạp kho lúc khởi động VÀ lưu sau mỗi lượt nạp mới",
+         {"nap_kho", "luu_kho"} <= ten,
+         f"thiếu {sorted({'nap_kho', 'luu_kho'} - ten)} — chỉ lưu mà không "
+         f"nạp thì kho là một file không ai đọc; chỉ nạp mà không lưu thì "
+         f"nó đứng yên ở lần ghi đầu tiên")
+
+
 def kiem_lat_cat() -> None:
     print("\n-- LAT CAT: cau noi runtime -> cung tinh --")
     import ast as _ast
@@ -5512,6 +5606,7 @@ def main() -> int:
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_doi_soat_vi_the()
+    kiem_kho_bao_gia_cau()
     kiem_lat_cat()
     kiem_buong_lai()
     kiem_nhap_so_ngoai()

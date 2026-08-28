@@ -915,6 +915,37 @@ Bốn ty hiện tại từ chối rất giỏi, và mỗi lần từ chối đ�
    Mọi điều kiện `ky-lenh-onchain` trong sổ engine đều chờ nó, và chúng sẽ
    còn chờ.
 
+### Kho báo giá cầu SỐNG QUA lần khởi động lại
+
+LI.FI có hạn mức theo GIỜ, và mỗi lần bật máy nạp trước chín báo giá. Khởi
+động lại năm lần trong một giờ — chuyện thường lúc đang sửa mã — là tự đẩy
+mình vào `429` rồi nghỉ 80 phút, tức là **mọi tuyến liên chuỗi mù đúng lúc
+vừa bật máy lên**. Đã xảy ra thật ngày 28/08/2026.
+
+Kho báo giá nằm trong RAM nên nó chết theo tiến trình, trong khi phí cầu
+đổi rất chậm. Vứt nó ở ranh giới tiến trình là **thay tri thức bằng sự
+mù** — đúng cái luật `nap()` đã giữ được bên trong một vòng chạy, nhưng
+mất ngay khi tiến trình dừng.
+
+Nay kho ghi ra `data/kho-bao-gia-cau.json` sau mỗi lượt nạp mới và đọc lại
+lúc khởi động. Bốn ràng buộc, và cả bốn là điều kiện để việc này không
+thành nói dối:
+
+1. **Chỉ ghi bản ĐO ĐƯỢC.** Một báo giá mù ghi ra đĩa rồi nạp lại ở lần
+   chạy sau là mang sự mù qua một ranh giới nó lẽ ra không vượt được.
+2. **Quá `TUOI_BAO_GIA_TOI_DA_GIAY` thì BỎ.** Nạp lại một bản già hơn
+   ngưỡng ấy là lách chính ngưỡng ấy.
+3. **KHÔNG đè bản đang có trong RAM.** Bản trong bộ nhớ luôn mới hơn hoặc
+   bằng bản trên đĩa.
+4. **Tuổi vẫn tính từ `docLucMs` GỐC**, không đóng dấu lại lúc nạp. Đóng
+   dấu lại là làm một báo giá hai tiếng trông như vừa đọc xong, và
+   `chang_cau()` sẽ thôi khai tuổi — mà cái khai tuổi ấy mới là thứ khiến
+   việc dùng số cũ trung thực.
+
+Buồng lái nói ra ở trang **Dữ liệu**: nạp lại bao nhiêu bản, bỏ bao nhiêu
+bản quá hạn. "Chín tuyến đo được" mà không nói chúng đến từ đâu thì người
+đọc không phân biệt được số vừa hỏi với số nạp lại.
+
 ## Thứ tự triển khai — §19 THAY THẾ thứ tự cũ
 
 Bản khảo sát đầu xếp `Polymarket → Perp → Hyperliquid/Drift → Liquidation →
@@ -1448,7 +1479,7 @@ chuyen_von/       ROUTER — hạ tầng, KHÔNG phải ty, không xin vốn
   bang_do.py      phí rút CEX gõ tay, có xuất xứ và có HẠN 45 ngày
   gas.py          gas bốn chuỗi từ RPC công khai
   cau_noi.py      LI.FI · bảng token đã đối chiếu, thập phân theo từng cặp
-  dinh_tuyen.py   cửa DUY NHẤT ty nên gọi
+  dinh_tuyen.py   cửa DUY NHẤT ty nên gọi · kho báo giá SỐNG QUA restart
 
 dong_co_chua_co/  sổ engine CHƯA dựng — điều kiện chặn viết dạng CHẠY ĐƯỢC
   so_dang_ky.py   CHAN · QUET_DUOC · SAN_SANG · DA_DUNG, tự nạp thử gói ty

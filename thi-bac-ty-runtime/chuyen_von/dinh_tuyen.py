@@ -133,6 +133,91 @@ class DinhTuyen:
             self.kho[k] = bg
         return self.kho
 
+    # ── kho sống qua lần khởi động lại ──────────────────────────────────
+
+    def luu_kho(self, duong) -> int:
+        """Ghi báo giá ĐO ĐƯỢC ra đĩa. Trả về số bản đã ghi.
+
+        Chỉ ghi cái đo được: một báo giá mù ghi ra đĩa rồi nạp lại ở lần
+        chạy sau là mang theo sự mù qua một ranh giới mà nó lẽ ra không
+        vượt được.
+        """
+        import json
+        from pathlib import Path
+        ds = []
+        for k, bg in self.kho.items():
+            if not getattr(bg, "doDuoc", False):
+                continue
+            ds.append({"khoa": list(k), "taiSan": bg.taiSan,
+                       "tuChuoi": bg.tuChuoi, "denChuoi": bg.denChuoi,
+                       "vonUsd": bg.vonUsd, "phiTaiSan": bg.phiTaiSan,
+                       "gasUsd": bg.gasUsd, "giayCho": bg.giayCho,
+                       "congCu": bg.congCu, "docLucMs": bg.docLucMs})
+        p = Path(duong)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps({"baoGia": ds}, ensure_ascii=False),
+                     encoding="utf-8")
+        return len(ds)
+
+    def nap_kho(self, duong) -> dict:
+        """Nạp lại kho từ đĩa lúc khởi động. Trả về tóm tắt để nhật ký nói.
+
+        Vì sao cần: LI.FI có hạn mức giờ, và mỗi lần khởi động nạp trước
+        chín báo giá. Khởi động lại năm lần trong một giờ — chuyện thường
+        khi đang sửa mã — là tự đẩy mình vào 429 và nghỉ 80 phút, tức là
+        **mọi tuyến liên chuỗi mù** đúng lúc vừa bật máy lên. Đã xảy ra
+        thật ngày 28/08/2026.
+
+        Kho nằm trong RAM nên nó chết theo tiến trình, trong khi phí cầu
+        đổi rất chậm — vứt nó đi ở ranh giới tiến trình là **thay tri thức
+        bằng sự mù**, đúng cái luật `nap()` đã giữ trong một vòng chạy.
+
+        Ba ràng buộc, và cả ba đều là điều kiện để việc này không thành
+        nói dối:
+
+        1. **Quá hạn thì BỎ.** `TUOI_BAO_GIA_TOI_DA_GIAY` là ngưỡng đã có;
+           nạp lại một báo giá già hơn thế là lách chính ngưỡng ấy.
+        2. **KHÔNG đè cái đang có trong RAM.** Bản trong bộ nhớ luôn mới
+           hơn hoặc bằng bản trên đĩa.
+        3. **Tuổi vẫn tính từ `docLucMs` gốc**, không đóng dấu lại lúc
+           nạp. Đóng dấu lại là làm một báo giá hai tiếng trông như vừa
+           đọc xong — `chang_cau()` sẽ thôi khai tuổi, và cái khai tuổi ấy
+           mới là thứ khiến việc dùng số cũ trung thực.
+        """
+        import json
+        import time
+        from pathlib import Path
+        from .cau_noi import BaoGiaCau
+        p = Path(duong)
+        if not p.is_file():
+            return {"nap": 0, "boQuaCu": 0, "boQuaDaCo": 0, "co": False}
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            return {"nap": 0, "loi": f"{type(e).__name__}: {e}", "co": True}
+        now = time.time() * 1000.0
+        nap = cu = daCo = 0
+        for x in (d.get("baoGia") or []):
+            try:
+                k = tuple(x["khoa"][:3]) + (x["khoa"][3],)
+                tuoi = (now - float(x["docLucMs"])) / 1000.0
+            except (KeyError, TypeError, ValueError):
+                continue
+            if tuoi > TUOI_BAO_GIA_TOI_DA_GIAY:
+                cu += 1
+                continue
+            if k in self.kho:
+                daCo += 1
+                continue
+            self.kho[k] = BaoGiaCau(
+                taiSan=x["taiSan"], tuChuoi=x["tuChuoi"],
+                denChuoi=x["denChuoi"], vonUsd=float(x["vonUsd"]),
+                phiTaiSan=x["phiTaiSan"], gasUsd=x["gasUsd"],
+                giayCho=x["giayCho"], congCu=x.get("congCu") or "?",
+                docLucMs=float(x["docLucMs"]))
+            nap += 1
+        return {"nap": nap, "boQuaCu": cu, "boQuaDaCo": daCo, "co": True}
+
     # ── ba chặng nguyên tố ──────────────────────────────────────────────
 
     def _gas_usd(self, chuoi: str, viec: str) -> float | None:

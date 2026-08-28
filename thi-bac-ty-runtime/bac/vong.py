@@ -210,6 +210,14 @@ class Runtime:
                 from chuyen_von.gas import NguonGas
                 self.nguonGas, self.nguonCau = NguonGas(), NguonCauNoi()
                 self.dinhTuyen = DinhTuyen()
+                # Kho báo giá cầu SỐNG QUA lần khởi động lại. LI.FI có hạn
+                # mức giờ và mỗi lần bật máy nạp trước chín báo giá — khởi
+                # động lại năm lần trong một giờ (chuyện thường lúc đang
+                # sửa mã) là tự đẩy mình vào 429 và nghỉ 80 phút, tức là
+                # mọi tuyến liên chuỗi MÙ đúng lúc vừa bật máy lên. Đã xảy
+                # ra thật 28/08/2026. Xem `DinhTuyen.nap_kho`.
+                self.duongKhoCau = DATA_DIR / "kho-bao-gia-cau.json"
+                self.napKhoCau = self.dinhTuyen.nap_kho(self.duongKhoCau)
             except Exception as e:                       # noqa: BLE001
                 self.loiVongCuoi = f"router: {type(e).__name__}: {e}"
 
@@ -410,6 +418,10 @@ class Runtime:
                            and ("USDC", NHA) in TOKEN]
                     await self.dinhTuyen.nap(c, self.nguonCau, can)
                     self._lanNapCau = gio
+                    try:
+                        self.dinhTuyen.luu_kho(self.duongKhoCau)
+                    except OSError as e:
+                        bus.ghi(f"lưu kho báo giá cầu hỏng: {e}", loai="loi")
         except Exception as e:                                # noqa: BLE001
             bus.ghi(f"Router không nạp được: {type(e).__name__}: {e} — các ty "
                     f"sẽ giữ nguyên khai báo phiConThieu", loai="canh")
@@ -684,6 +696,10 @@ class Runtime:
             "nguonCau": (self.nguonCau.tom_tat()
                          if getattr(self, "nguonCau", None) is not None
                          else {}),
+            # Kho báo giá cầu nạp lại từ đĩa lúc khởi động. Buồng lái phải
+            # thấy: "chín tuyến đo được" mà không nói chúng đến từ ĐÂU thì
+            # người đọc không phân biệt được số vừa hỏi với số nạp lại.
+            "khoCau": getattr(self, "napKhoCau", None),
             "trungUong": (self.trungUong.anh_chup()
                           if self.trungUong is not None else
                           {"tat": True,
