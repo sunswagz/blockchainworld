@@ -269,7 +269,20 @@ class Runtime:
 
     def _chay_tien_hoa(self) -> None:
         try:
-            kq = tien_hoa_mot_luot()
+            # CỬA SỔ BĂNG, không phải cả băng.
+            #
+            # Đo hôm nay: cả băng là 115.779 khung, nạp mất ~90 giây và
+            # giữ chừng ấy dict trong bộ nhớ. Một tháng nữa là nhiều phút
+            # và hàng gigabyte — và đây là việc chạy MỖI NGÀY.
+            #
+            # Nhưng lý do chính không phải tốc độ. Vòng tiến hoá vặn tham
+            # số theo hành vi GẦN ĐÂY của chợ; một tham số khớp với dữ
+            # liệu một tháng trước là khớp với một cái chợ không còn tồn
+            # tại. Nạp cả băng vừa chậm vừa SAI HƯỚNG.
+            soNgay = int((CONFIG.get("tienHoa") or {}).get("soNgayBang", 7))
+            tuNgay = time.strftime(
+                "%Y-%m-%d", time.gmtime(time.time() - soNgay * 86400))
+            kq = tien_hoa_mot_luot(tuNgay=tuNgay)
             self.tienHoaGanNhat = kq.tom_tat()
             self._tienHoaXong = True
             self.tienHoaLoi = None
