@@ -150,6 +150,28 @@ def _so(nay: dict, truoc: dict) -> list[str]:
 IM_LANG_GIO = 1.0
 
 
+def _cong_tra_loi(cong: int) -> bool:
+    """Cổng có ai trả lời không.
+
+    Tách khỏi `_con_song()` để phép kiểm thay được. Gộp chung thì mục [16] của
+    selftest phụ thuộc vào việc runtime có TÌNH CỜ đang chạy hay không lúc chạy
+    kiểm — và nó đã đỏ đúng một lần vì thế, trong khi mã hoàn toàn đúng.
+
+    Một phép kiểm đọc trạng thái ngoài là một phép kiểm sẽ đỏ ngẫu nhiên, và
+    phép kiểm đỏ ngẫu nhiên thì rồi sẽ bị bỏ qua.
+    """
+    import socket
+
+    s = socket.socket()
+    s.settimeout(1.5)
+    try:
+        s.connect(("127.0.0.1", cong))
+        return True
+    except OSError:
+        return False
+    finally:
+        s.close()
+
 def _con_song() -> list[str]:
     """Bot có đang chạy không — câu hỏi phải trả lời TRƯỚC mọi câu khác.
 
@@ -161,7 +183,6 @@ def _con_song() -> list[str]:
     Một báo cáo đẹp về một cái xác là dạng nói dối tệ nhất trong cả hệ này, vì
     nó không sai một con số nào.
     """
-    import socket
     import time as _t
 
     ra = []
@@ -178,16 +199,7 @@ def _con_song() -> list[str]:
         ra.append("**KHÔNG CÓ NHẬT KÝ** — runtime chưa từng chạy trên máy này.")
 
     cong = 5182
-    s_ = socket.socket()
-    s_.settimeout(1.5)
-    try:
-        s_.connect(("127.0.0.1", cong))
-        song = True
-    except OSError:
-        song = False
-    finally:
-        s_.close()
-    if not song:
+    if not _cong_tra_loi(cong):
         ra.append(f"**CỔNG {cong} KHÔNG TRẢ LỜI.** Bot đang TẮT. Bật lại: "
                   f"`powershell -File dichvu/bat.ps1` hoặc bấm icon Tử Cấm Thành.")
 

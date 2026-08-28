@@ -60,6 +60,12 @@ VIEC = (
     ("hình học khung", [sys.executable, "scripts/do-khung.py", "--ghi"], 900),
     ("đấu chiến lược", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca"], 900),
     ("bộ phá", [sys.executable, "scripts/bo-pha.py", "--ghi"], 600),
+    # Đấu NHIỀU CHỢ. Nghi thức trước chỉ chạy `--tat-ca` trên một chợ, nên
+    # `dau-nhieu-cho.json` đứng im 9 ngày và phát hiện "dương ở mấy chợ" nói về
+    # một cấu hình đã đổi từ lâu. Ba coin cùng khung đang chạy: chuỗi tín hiệu
+    # đã có cache nên lượt sau chỉ mất ~1 phút.
+    ("đấu nhiều chợ", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca",
+                       "--cho", "BTCUSDT:4h,ETHUSDT:4h,SOLUSDT:4h"], 1200),
 )
 
 # Chạy SAU khi đã chưng cất — xem "THỨ TỰ KHÔNG ĐƯỢC ĐỔI" ở đầu file.
@@ -127,6 +133,24 @@ def _chay() -> None:
 
         for x in VIEC:
             _mot(*x)
+
+        # ĐÀI QUAN SÁT chạy trong tiến trình này chứ không phải tiến trình con:
+        # nó tự dựng luồng nền và tự giới hạn tần suất gọi sàn ngoài. Gọi bằng
+        # subprocess là mở một bản thứ hai cùng nện API Hyperliquid/OKX, và cả
+        # hai cùng ăn 429.
+        #
+        # `trader-ho-so.json` đã đứng im 12 ngày trước khi có dòng này — đúng
+        # loại kho đo mà nghi thức sinh ra để không ai phải nhớ gõ lệnh.
+        try:
+            from . import phien_quan_sat
+            r = phien_quan_sat.bat_dau()
+            kq["đài quan sát"] = {"ma": 0 if r.get("ok") else 1,
+                                  "cuoi": "đã khởi động ở luồng nền" if r.get("ok")
+                                          else str(r.get("vi_sao"))}
+            bus.emit("hoc", "nghi-thuc", "đài quan sát: " + str(kq["đài quan sát"]["cuoi"]))
+        except Exception as e:  # noqa: BLE001
+            kq["đài quan sát"] = {"ma": -1, "loi": f"{type(e).__name__}: {e}"}
+            bus.log("hoc", "nghi-thuc-loi", f"đài quan sát: {type(e).__name__}: {e}")
 
         from . import chung_cat
         c = chung_cat.chung_cat()

@@ -635,6 +635,10 @@ async def main() -> int:
 
     # — Sống hay chết: không có nhật ký phải kêu lên, không được im —
     BG.LICH_SU.unlink(missing_ok=True)
+    # Ép cổng "đang trả lời" để phép kiểm chỉ đo phần NHẬT KÝ. Không ép thì kết
+    # quả đổi theo việc runtime có tình cờ chạy hay không, và nó đã đỏ một lần
+    # vì thế trong khi mã đúng.
+    BG._cong_tra_loi = lambda cong: True
     canh = BG._con_song()
     check(any("KHÔNG CÓ NHẬT KÝ" in x or "IM" in x for x in canh),
           f"không có nhật ký runtime → có cảnh báo ({len(canh)} dòng)")
@@ -654,6 +658,10 @@ async def main() -> int:
     os.utime(_f, None)
     check(not any("IM" in x for x in BG._con_song()),
           "nhật ký vừa ghi → không kêu (nếu không thì cảnh báo thành tiếng ồn)")
+
+    BG._cong_tra_loi = lambda cong: False
+    check(any("KHÔNG TRẢ LỜI" in x for x in BG._con_song()),
+          "cổng câm → báo bot đang TẮT, kể cả khi nhật ký vừa ghi")
 
     print("\n[17] CẦU DAO KHÔNG ĐƯỢC CHẶN KHUNG NÀY BẰNG BẰNG CHỨNG CỦA KHUNG KHÁC")
     from trader import chung_cat as CC2
