@@ -1547,7 +1547,24 @@
 
     var bc = document.getElementById("bangCanh");
     var r = T.risk || {};
-    if (r.ngatKhanCap) {
+    // MÙ NGUỒN phải kêu to hơn cả cầu dao, vì nó dễ bị đọc nhầm thành
+    // "chợ đang yên". Khi Gamma không với tới được, mọi khung đều rơi vào
+    // "không thấy khung nào có tiền tố …" — một câu nghe hoàn toàn bình
+    // thường. Máy đã mù suốt nhiều giờ mà bảng vẫn trông như một phiên
+    // vắng khách.
+    var mu = [];
+    Object.keys(T.nguon || {}).forEach(function (n) {
+      var v = T.nguon[n] || {};
+      if ((v.soLoi || 0) >= 3 && !v.tongLuot) mu.push(n);
+    });
+    if (mu.length) {
+      var v0 = T.nguon[mu[0]] || {};
+      bc.textContent = "MÁY ĐANG MÙ — không với tới được " + mu.join(", ") +
+        " (" + (v0.loiCuoi || "?") + "). Mọi khung bị bỏ qua vì KHÔNG CÓ " +
+        "dữ liệu, không phải vì chợ yên. Kiểm đường mạng tới sàn trước khi " +
+        "nghi mô hình.";
+      bc.hidden = false;
+    } else if (r.ngatKhanCap) {
       bc.textContent = "CẦU DAO ĐANG NGẮT — " + (r.lyDoNgat || "") +
         ". Mọi lệnh bị chặn cho tới khi mở lại bằng tay.";
       bc.hidden = false;

@@ -41,6 +41,15 @@ def _httpx():
         return None
 
 
+# Lùi thời gian khi một nguồn hỏng liên tiếp. Ba lần đầu còn hỏi ngay —
+# mạng chập chờn là chuyện thường. Từ lần thứ tư thì giãn gấp đôi mỗi lần,
+# trần 60 giây: đủ thưa để không hỏi dồn, đủ dày để nguồn sống lại là biết
+# trong vòng một phút.
+LOI_TRUOC_KHI_LUI = 3
+NGHI_DAU_MS = 2_000.0
+NGHI_TOI_DA_MS = 60_000.0
+
+
 @dataclass
 class TrangThaiNguon:
     """Sức khoẻ từng nguồn — thứ Risk Engine đọc để quyết có cho lệnh đi không."""
@@ -49,6 +58,7 @@ class TrangThaiNguon:
     soLoi: int = 0
     loiCuoi: str = ""
     tongLuot: int = 0
+    nghiToiMs: float = 0.0        # lùi thời gian sau nhiều lần hỏng liên tiếp
 
     def tuoi_ms(self) -> float:
         if self.lanCuoiMs <= 0:
@@ -59,10 +69,25 @@ class TrangThaiNguon:
         self.lanCuoiMs = time.time() * 1000.0
         self.tongLuot += 1
         self.soLoi = 0
+        self.nghiToiMs = 0.0
 
     def loi(self, e: str) -> None:
         self.soLoi += 1
         self.loiCuoi = e[:200]
+        # LÙI THỜI GIAN. Không có nó, một nguồn chết sẽ bị hỏi lại mỗi
+        # nhịp 2 giây, mãi mãi — đo được: 2.140 lần hỏng liên tiếp, không
+        # một lần thành công, và nhật ký chỉ còn là một cột lỗi trôi qua.
+        #
+        # Hỏi dồn như thế không vô hại: nếu phía kia chặn vì tần suất thì
+        # chính việc hỏi lại đang giữ cho cửa đóng, và ta tự làm mình mù
+        # lâu hơn.
+        if self.soLoi >= LOI_TRUOC_KHI_LUI:
+            n = self.soLoi - LOI_TRUOC_KHI_LUI
+            cho = min(NGHI_TOI_DA_MS, NGHI_DAU_MS * (2 ** min(n, 10)))
+            self.nghiToiMs = time.time() * 1000.0 + cho
+
+    def dang_nghi(self) -> bool:
+        return time.time() * 1000.0 < self.nghiToiMs
 
     def lanh(self, tranMs: float) -> bool:
         return self.tuoi_ms() <= tranMs and self.soLoi < 3
@@ -96,6 +121,9 @@ class Nguon:
             self._client = None
 
     def _lay(self, ten: str, url: str, tham: dict | None = None):
+        ts = self._ts(ten)
+        if ts.dang_nghi():
+            return None                 # đang lùi, đừng hỏi dồn
         c = self.client()
         if c is None:
             self._ts(ten).loi("thiếu httpx")

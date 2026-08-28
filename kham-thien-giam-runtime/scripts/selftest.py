@@ -780,6 +780,40 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def kiem_lui_nguon() -> None:
+    print("\n── Nguồn hỏng: phải LÙI, không hỏi dồn ────────────────────────")
+    import time as _t
+
+    from kham.nguon import (LOI_TRUOC_KHI_LUI, NGHI_TOI_DA_MS, TrangThaiNguon)
+
+    t = TrangThaiNguon("thử")
+    # Vài lần đầu KHÔNG lùi — mạng chập chờn là chuyện thường, lùi ngay
+    # thì một cú vấp 200ms biến thành hai giây mù không cần thiết.
+    for _ in range(LOI_TRUOC_KHI_LUI - 1):
+        t.loi("X")
+    kiem(f"{LOI_TRUOC_KHI_LUI - 1} lỗi đầu: chưa lùi", not t.dang_nghi())
+
+    t.loi("X")
+    kiem(f"lỗi thứ {LOI_TRUOC_KHI_LUI}: bắt đầu lùi", t.dang_nghi())
+
+    # Giãn gấp đôi, và có TRẦN. Không trần thì sau một đêm hỏng, khoảng
+    # nghỉ dài tới mức nguồn sống lại cả tiếng mà máy vẫn chưa hỏi lại.
+    truoc = t.nghiToiMs
+    t.loi("X")
+    kiem("mỗi lần hỏng thêm thì nghỉ dài hơn", t.nghiToiMs > truoc)
+    for _ in range(40):
+        t.loi("X")
+    con = t.nghiToiMs - _t.time() * 1000.0
+    kiem("có trần, không dài vô hạn", con <= NGHI_TOI_DA_MS + 1000,
+         f"{con/1000:.0f}s ≤ {NGHI_TOI_DA_MS/1000:.0f}s")
+
+    # MỘT lần thành công là xoá sạch. Nguồn sống lại thì phải dùng được
+    # ngay, không bắt nó "chuộc lỗi" thêm vòng nào.
+    t.dat()
+    kiem("một lần thành công → thôi lùi ngay",
+         not t.dang_nghi() and t.soLoi == 0)
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1101,6 +1135,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_lui_nguon()
 
     print("\n" + "=" * 70)
     if _loi:
