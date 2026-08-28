@@ -1142,9 +1142,19 @@ jobs:
           [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
           DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
             "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log" 2>/dev/null | tail -1)
+          # Chấm lại MỘT lần nữa chỉ để lấy TÊN thước trượt. Rẻ — thuần
+          # số học, không gọi model. Vì sao cần: sáu lượt 22–27/08 đều
+          # ghi "6/7 → 6/7" trong khi đo lại chính những commit đó bằng
+          # đúng thước cùng thời đều ra 7/7. Lệch có thật, dai, và KHÔNG
+          # tái hiện được ở máy — nên chỉ CI mới nói được nó trượt ở đâu.
+          # Một vòng tự tiến hoá không đo được chính nó là vòng chạy
+          # không tải.
+          TRUOT=$(node scripts/tien-hoa.mjs do thai-boc-tu 2>/dev/null \
+            | grep "^  ✗" | sed "s/^  ✗ *//; s/  */ /g" | cut -c1-58 \
+            | paste -sd ";" - || true)
           node scripts/nha-may.mjs ghi thai-boc-tu-tien-hoa "$KET" \
             ${TONG:+--giay $TONG} \
-            --ghi "${DIEM:-chưa chấm được} · opus-5" \
+            --ghi "${DIEM:-chưa chấm được}${TRUOT:+ · trượt: $TRUOT} · opus-5" \
             --log "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log"
 
 
