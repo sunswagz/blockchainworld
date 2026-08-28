@@ -183,6 +183,17 @@ conflict lúc merge.
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
+    cong-bo/assets/js/v/tri-thuc.js
+    dai-quan-trac/assets/js/v/tri-thuc.js
+    do-sat-vien/assets/js/v/tri-thuc.js
+    ho-bo/assets/js/v/tri-thuc.js
+    hoang-thanh/assets/js/v/tri-thuc.js
+    kham-thien-giam/assets/js/v/tri-thuc.js
+    tang-thu-cac/assets/js/v/tri-thuc.js
+    tao-bien-xu/assets/js/v/tri-thuc.js
+    thai-boc-tu/assets/js/v/tri-thuc.js
+    thi-bac-ty/assets/js/v/tri-thuc.js
+    tu-cam-thanh/assets/js/v/tri-thuc.js
 
 ### File bot ĐỒNG SỬA — vẫn sửa tay được, nhưng đọc mục này trước
 
@@ -205,6 +216,9 @@ conflict lúc merge.
     tao-bien-xu/assets/js/app.js
     tao-bien-xu/index.html
     tao-bien-xu/sw.js
+    knowledge-os/data/bridges/repo.json
+    knowledge-os/data/2026/concepts.json
+    knowledge-os/data/2026/relations.json
 
 Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
 
@@ -223,6 +237,12 @@ chạm ra ngoài hai đường đó — nên `index.html` không nằm trong b�
 Node `ho-bo-tien-hoa` (nhịp 24 giờ) để model đề xuất sửa giao diện,
 rồi `scripts/tien-hoa.mjs cong --so` quyết định nhận hay trả lại. Nên
 bốn file đó vừa là mã viết tay, vừa là thứ bot chạm vào mỗi ngày.
+
+Ba đường `knowledge-os/data/` ở cuối bảng cũng là đồng sửa, nhưng do
+node `tri-thuc-tien-hoa` chứ không phải vòng giao diện. Model **chỉ**
+được chạm ba đường đó; lớp sách (`data/concepts/`, `data/relations/`,
+`data/chapters/`, `data/sources/`) là **người viết, tuyệt đối không có
+bot** — xem mục knowledge-os bên dưới để biết vì sao.
 
 Hệ quả khi bạn sửa tay chúng:
 
@@ -556,14 +576,43 @@ nó khai `rooms_note_vi` nói đúng câu đó.
 Thêm cung mới **không bắt buộc** ánh xạ tri thức; bộ kiểm của gói chỉ
 nhắc, không chặn.
 
-Cùng luật với Hoàng Thành và ba runtime: máy sinh, **không workflow nào
-chạy**, nên phải commit kết quả. Và cùng lý do — **đừng thêm bước này vào
-`refresh-data.yml`**, cũng đừng khai node trong `scripts/node/`. Node có
-`nhip` mà không workflow nào gọi thì Bảng vận hành mãi báo "đến hạn" cho
-thứ không bao giờ chạy.
-
 Đường ghi nằm ở `assets/js/v/`, nhánh **mạng-trước**, nên sửa nó không cần
 nâng `CACHE_VERSION`.
+
+#### Hai node, và vì sao trước đây không có node nào
+
+    tri-thuc            script · 24 giờ · dựng lại 11 lát cắt
+    tri-thuc-tien-hoa   claude · 24 giờ · mở rộng chính lớp tri thức
+
+Bản đầu **cố ý** không khai node nào, và lý do khi đó đúng: chưa có
+**phiếu đo** cho lớp tri thức. `kiem.mjs` trả đúng/sai, mà đúng/sai thì
+không so được giữa hai lượt — cắm một vòng tiến hoá vào lúc ấy là cho
+model sửa dữ liệu mà cổng chặn không có gì để chấm ngoài "còn hợp lệ".
+
+`knowledge-os/do.mjs` lấp đúng chỗ đó — bảy thước bằng số:
+
+    npm run tri-thuc-do          phiếu đo
+    node knowledge-os/do.mjs de-bai            ra đề cho model
+    node knowledge-os/do.mjs cong --so <file>  cổng chặn
+
+Có số rồi thì mới có vòng. Đây là vòng tiến hoá **thứ năm** của xưởng và
+là vòng đầu tiên không sửa giao diện: bốn vòng kia vá `app.css`/`app.js`,
+vòng này vá chính dữ liệu tri thức.
+
+**Phạm vi model hẹp hơn mọi vòng khác, và cố ý.** Nó chỉ được chạm lớp
+phân tích (`data/bridges/repo.json`) và lớp 2026. Lớp **sách cấm tuyệt
+đối** — nó cần người có PDF trong tay, còn một model đoán một số trang
+nằm đúng khoảng chương thì qua được **mọi** phép kiểm mà vẫn là trích dẫn
+bịa. Cổng chặn không bắt được chuyện đó, nên chặn ở **phạm vi** chứ không
+chặn ở kết quả.
+
+Thước thứ bảy canh đúng lớp model được sửa: `source_ref` của lớp 2026
+phải trỏ vào một đường **có thật trên đĩa**. Một đường không tồn tại là
+trích dẫn bịa mà qua được mọi phép kiểm khác.
+
+`npm run kiem` nay gọi `knowledge-os/kiem.mjs` ở đầu mỗi phiên. Trước đó
+không có gì gọi nó, nên drift nằm im tới khi ai đó nhớ ra — đã có thật:
+Thị Bạc Ty thêm phòng `trung-uong` mà lớp giải nghĩa không hay biết.
 
 **Ranh giới nguồn là luật, không phải khuyến nghị.** Bốn nhãn hiện trên
 từng dòng của trang: `sách` (tác giả mô tả, có chương/trang) · `tác giả`

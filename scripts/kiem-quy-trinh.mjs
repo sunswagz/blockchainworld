@@ -516,6 +516,63 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── 10. node nào ngã nhiều lượt liền ───────────────
+   Sổ nhà máy ghi `chuoiLoi` cho mỗi node, và Bảng vận hành hiện nó.
+   Nhưng cả hai chỉ tới được người ĐI TÌM. Một node chết không làm
+   Actions đỏ — workflow vẫn xanh vì bước đó `continue-on-error`, và
+   lượt sau lại chạy, lại ngã, lại ghi sổ.
+
+   Đã xảy ra thật: `tien-hoa-dqt` khai `--model claude-haiku-4-5`, một
+   id KHÔNG tồn tại (Haiku 4.5 là `claude-haiku-4-5-20251001`). Bước
+   gọi model chết sau 2 giây, chín lượt liền, `lucOk: null` — chưa
+   thành công lần nào kể từ khi dựng. Chín ngày, không dòng nào nổi
+   lên chỗ người ta nhìn.
+
+   Nhắc chứ không báo lỗi, cùng lý do với mục dữ liệu cũ: node chết
+   không phải lỗi của phiên đang mở. Nhưng in ở đầu mỗi phiên thì nó
+   không chết âm thầm được nữa. */
+{
+  const p = join(ROOT, "factory", "state.json");
+  if (existsSync(p)) {
+    try {
+      const s = JSON.parse(await doc("factory/state.json"));
+      const n = s.node || s;
+      for (const [ma, v] of Object.entries(n)) {
+        if (!v || typeof v !== "object" || !v.chuoiLoi || v.chuoiLoi < 3) continue;
+        nhac(`node "${ma}": ngã ${v.chuoiLoi} lượt liền` +
+          (v.lucOk ? `, lần chạy được cuối là ${String(v.lucOk).slice(0, 10)}` : ", CHƯA thành công lần nào") +
+          (v.chuThich ? `\n        ghi sổ: ${v.chuThich}` : ""));
+      }
+    } catch { nhac("factory/state.json không đọc được — không soi được node nào đang ngã."); }
+  }
+}
+
+/* ── 11. lớp tri thức có còn khớp repo không ─────────
+   `knowledge-os/kiem.mjs` đọc mã phòng THẲNG từ mã nguồn từng cung,
+   nên nó là thứ duy nhất phát hiện được chuyện này: một cung thêm
+   phòng mới, và lớp giải nghĩa im lặng vắng mặt ở đó.
+
+   Nhưng chuông chỉ kêu khi có người bấm. Trước khi cắm vào đây, không
+   có gì bấm nó — `npm run kiem` chạy đầu mỗi phiên mà không hề gọi
+   tới, nên drift nằm im tới lúc ai đó nhớ ra. Đã có thật: Thị Bạc Ty
+   thêm phòng `trung-uong` và lớp tri thức không hay biết.
+
+   Gọi bằng tiến trình con để bộ kiểm của gói giữ được mã thoát riêng,
+   và để `kiem` này không phải biết gì về cấu trúc dữ liệu bên đó. */
+{
+  const p = join(ROOT, "knowledge-os", "kiem.mjs");
+  if (existsSync(p)) {
+    try {
+      execFileSync(process.execPath, [p, "--im"], { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      const ra = String(e.stdout || "") + String(e.stderr || "");
+      const dong = ra.split("\n").filter((x) => x.trim().startsWith("✗")).slice(0, 3);
+      bao("lớp tri thức lệch với repo — chạy: npm run tri-thuc-kiem\n" +
+        dong.map((x) => "        " + x.trim()).join("\n"));
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
