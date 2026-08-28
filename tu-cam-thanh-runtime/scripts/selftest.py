@@ -699,6 +699,95 @@ async def main() -> int:
     finally:
         CFG2["timeframes"]["primary"] = _tf_cu
 
+    print("\n[18] BỘ NÃO QUA CLI — QUOTA GÓI, VÀ BỐN CHỐT AN TOÀN")
+    from trader import cli_claude as CLI
+    from trader import config as CFG3
+
+    # — Bóc JSON: CLI hay trả kèm rào ```json —
+    check(CLI._boc_json('```json\n{"a":1}\n```') == {"a": 1},
+          "bóc được JSON nằm trong rào ```json")
+    check(CLI._boc_json('{"a":2}') == {"a": 2}, "bóc được JSON trần")
+    check(CLI._boc_json('Đây là kết quả: {"a":3} — hết.') == {"a": 3},
+          "bóc được JSON lẫn trong câu chữ")
+    try:
+        CLI._boc_json("không có json ở đây")
+        check(False, "chuỗi rác phải NÉM, không được trả dict rỗng")
+    except ValueError:
+        # Nuốt im ở đây là để bộ não chạy trên một dict rỗng và ra quyết định
+        # trên số 0 — tệ hơn nhiều so với rơi về mock.
+        check(True, "chuỗi rác thì NÉM, không im lặng trả rỗng")
+
+    # — Chốt an toàn: phải TẮT công cụ —
+    # Bộ não giao dịch chỉ cần suy luận trên dữ liệu được đưa vào. Cho nó quyền
+    # chạy Bash/Write trên máy là mở một cửa không ai xin.
+    for cong_cu in ("Bash", "Write", "Edit", "WebFetch"):
+        check(cong_cu in CLI.TAT_CONG_CU, f"{cong_cu} nằm trong danh sách tắt")
+    # Trần thời gian phải NHỎ HƠN giãn cách giữa hai luận điểm. Đó mới là bất
+    # biến thật: một lượt gọi treo không được kéo dài quá lượt kế tiếp, nếu không
+    # hai lượt chồng nhau và tiêu quota gấp đôi cho cùng một cây nến.
+    #
+    # Ngưỡng cũ "≤300s" dựa trên tiền đề SAI là vòng lặp sẽ đứng chờ. Nó không:
+    # `asyncio.to_thread` giữ vòng lặp sống, và `tick()` được await tuần tự nên
+    # không có lượt thứ hai nào bắt đầu. Canh nhầm bất biến thì phép kiểm sẽ đỏ
+    # đúng lúc mã đang đúng — và lần này nó đã đỏ như thế.
+    _gian = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))["brain"]
+    _gian = (_gian.get("cli") or {}).get("minSecondsBetweenTheses") or _gian["minSecondsBetweenTheses"]
+    check(0 < CLI.HET_GIAY < _gian,
+          f"trần {CLI.HET_GIAY}s < giãn cách {_gian}s — lượt treo không chồng lượt sau")
+
+    # — Chọn chế độ: đúng thứ tự ưu tiên —
+    _bo = {k: os.environ.get(k) for k in ("BRAIN", "ANTHROPIC_API_KEY")}
+    try:
+        os.environ["BRAIN"] = "mock"
+        check(CFG3.brain_mode() == "mock", "BRAIN=mock luôn thắng, kể cả khi có CLI")
+
+        os.environ["BRAIN"] = "auto"
+        os.environ["ANTHROPIC_API_KEY"] = "sk-thu-nghiem"
+        check(CFG3.brain_mode() == "claude",
+              "auto + có khoá API → claude (người đã chọn trả tiền thì đừng đổi hộ)")
+
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+        mong = "cli" if CLI.co_the() else "mock"
+        check(CFG3.brain_mode() == mong,
+              f"auto + không khoá → {mong} (CLI trên máy này: {CLI.co_the()})")
+    finally:
+        for k, v in _bo.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+    # — Đường CLI không ép được kiểu, nên tầng nhận phải tự dọn —
+    from trader.brain import _ma_hop_le, _don_dep_cli
+    check(_ma_hop_le("MOCK_RULES_V1") and not _ma_hop_le("Chiến lược dài dòng"),
+          "phân biệt được MÃ chiến lược với câu văn")
+    _d = {"strategy": "NO_TRADE — bốn lý do cộng hưởng đo được: (1) expectancy âm"}
+    _don_dep_cli(_d, "thu")
+    check(_d["strategy"] == "CLI_V1",
+          "câu văn lọt vào `strategy` bị đổi thành mã, không làm vỡ bảng byStrategy")
+    _g = {"strategy": "MOCK_RULES_V1"}
+    _don_dep_cli(_g, "thu")
+    check(_g["strategy"] == "MOCK_RULES_V1", "…và mã hợp lệ thì KHÔNG bị đụng vào")
+
+    # — Trần quota riêng của CLI phải CHẶT HƠN đường API —
+    goc = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))["brain"]
+    rieng = goc.get("cli") or {}
+    check(bool(rieng), "config có khối brain.cli riêng")
+    if rieng:
+        check(rieng["maxCallsPerDay"] < goc["maxCallsPerDay"],
+              f"trần lượt/ngày chặt hơn: {rieng['maxCallsPerDay']} < {goc['maxCallsPerDay']}")
+        check(rieng["minSecondsBetweenTheses"] > goc["minSecondsBetweenTheses"],
+              f"giãn cách rộng hơn: {rieng['minSecondsBetweenTheses']}s > "
+              f"{goc['minSecondsBetweenTheses']}s")
+        # Mỗi lượt nạp ~14k token. Trần phải giữ mức tiêu quota trong ngày ở chỗ
+        # người dùng gói tháng chịu được, không phải chỗ vừa đủ chạy.
+        # 40k token mỗi lượt — ĐO ĐƯỢC với lời nhắc hệ thống đầy đủ, không phải
+        # ước. Lần ước đầu ra 29k và thiếu 38%; hằng số ở đây phải là số đo, nếu
+        # không thì phép kiểm này canh một cái trần tưởng tượng.
+        check(rieng["maxCallsPerDay"] * 40 <= 350,
+              f"tiêu tối đa ~{rieng['maxCallsPerDay'] * 40}k token/ngày "
+              f"({rieng['maxCallsPerDay']} lượt × 40k đo được)")
+
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:

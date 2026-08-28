@@ -68,7 +68,11 @@ THESIS_SCHEMA = {
         "invalidation_logic": {"type": "string"},
         "targets": {"type": "array", "items": {"type": "number"}},
         "suggested_risk_pct": {"type": "number"},
-        "strategy": {"type": "string"},
+        # MÃ, không phải câu văn. Đường SDK có `output_config` ép kiểu ở tầng
+        # API; đường CLI thì lược đồ chỉ là một câu trong lời nhắc, nên model đã
+        # nhét nguyên đoạn 300 chữ lý lẽ vào đây ở lượt chạy thật đầu tiên.
+        "strategy": {"type": "string", "maxLength": 40,
+                     "description": "MÃ ngắn viết HOA và gạch dưới, ví dụ MOCK_RULES_V1 hay CLI_TREND_V1. KHÔNG phải câu văn — lý lẽ thuộc về `reasoning`."},
         "reason_codes": {"type": "array", "items": {"type": "string"}},
         "reasoning": {"type": "string"},
         "event_risk": {"type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "UNKNOWN"]},
@@ -886,6 +890,33 @@ def suy_luan(ma: str, state: dict, regime: dict, primary_tf: str,
     return ham(state, regime, primary_tf, tham)
 
 
+def _ma_hop_le(x: str) -> bool:
+    """Mã chiến lược: HOA, số, gạch dưới, tối đa 40 ký tự."""
+    return (bool(x) and len(x) <= 40
+            and all(c.isupper() or c.isdigit() or c == "_" for c in x))
+
+
+def _don_dep_cli(out: dict, label: str) -> None:
+    """Dọn những chỗ đường CLI không ép kiểu được. Sửa TẠI CHỖ.
+
+    Trên đường SDK, `output_config.format` ép JSON đúng lược đồ ở tầng API —
+    sai kiểu là không nhận. Đường CLI không có cơ chế ấy: lược đồ chỉ là một
+    câu trong lời nhắc, và model làm theo phần lớn nhưng không phải luôn luôn.
+
+    Đo được ở lượt chạy thật ĐẦU TIÊN: `strategy` nhận nguyên một đoạn 300 chữ
+    lý lẽ. `journal.performance()` gom thống kê theo trường đó, nên mỗi luận
+    điểm sẽ thành một "chiến lược" riêng, và bảng theo-chiến-lược vỡ vụn thành
+    hàng chục dòng dùng đúng một lần — không sai con số nào, và vô dụng.
+
+    Sửa thay vì vứt cả luận điểm: phần còn lại vẫn dùng được, và bỏ một lượt
+    suy luận đã tốn 40k token vì một trường sai định dạng thì quá đắt.
+    """
+    ma = out.get("strategy")
+    if isinstance(ma, str) and not _ma_hop_le(ma):
+        out["strategy"] = "CLI_V1"
+        bus.log("brain", "don-dep",
+                f"{label}: `strategy` không phải mã ({len(ma)} ký tự) - đổi thành CLI_V1")
+
 def mock_postmortem(trade: dict, so: list[dict] | None = None) -> dict:
     """Hậu kiểm bằng luật — có SO VỚI SỔ, không chỉ nhìn một lệnh.
 
@@ -1052,9 +1083,26 @@ class Brain:
     # System prompt là phần ỔN ĐỊNH của mọi lượt gọi, nên nó được cache. Đặt
     # dữ liệu biến thiên (giá, feature) vào message chứ không vào đây — nhét
     # timestamp vào system prompt là tự huỷ cache mà không có gì báo.
+    def _system_text(self) -> str:
+        """Lời nhắc hệ thống dưới dạng CHUỖI THUẦN.
+
+        Tách ra vì hai đường tiêu thụ nó khác hình dạng: SDK muốn danh sách
+        khối (để gắn `cache_control`), CLI muốn một chuỗi cho
+        `--system-prompt`. Trước đây chỉ có `_system()` trả danh sách, và
+        đường CLI đưa thẳng danh sách ấy vào `subprocess`:
+
+            TypeError: expected str, bytes or os.PathLike object, not list
+
+        Mọi lượt gọi hỏng, hệ rơi về mock. Và KHÔNG CÓ GÌ trên bảng báo sai —
+        đường rơi-về-mock làm đúng việc của nó, bot vẫn vào lệnh, chỉ là bằng
+        luật thuần. Chỉ dòng `loi-cli` trong nhật ký là biết. Đây là lý do
+        phải đọc nhật ký sau mỗi lần nối một đường mới, chứ không chỉ nhìn
+        bảng xem có xanh không.
+        """
+        return SYSTEM_RULES + ("\n\n# KHO KỸ NĂNG\n\n" + self.skills if self.skills else "")
     def _system(self) -> list[dict]:
-        text = SYSTEM_RULES + ("\n\n# KHO KỸ NĂNG\n\n" + self.skills if self.skills else "")
-        return [{"type": "text", "text": text, "cache_control": {"type": "ephemeral"}}]
+        return [{"type": "text", "text": self._system_text(),
+                 "cache_control": {"type": "ephemeral"}}]
 
     def status(self) -> dict:
         return {
@@ -1068,8 +1116,53 @@ class Brain:
             "skillsLoaded": self.so_ky_nang,
         }
 
+    def _goi_duoc(self) -> bool:
+        """Có đường nào tới model thật không.
+
+        Gom về MỘT chỗ. Trước đây câu hỏi này được viết lại ba lần dưới dạng
+        `mode != "claude" or not self.client`, nên thêm đường CLI là phải nhớ
+        sửa đủ ba chỗ — quên một chỗ thì bộ não lặng lẽ rơi về mock ở đúng chức
+        năng đó, và không có gì báo.
+        """
+        if self.mode == "cli":
+            return True
+        return self.mode == "claude" and bool(self.client)
+
+    async def _structured_cli(self, *, user: str, schema: dict, label: str) -> dict | None:
+        """Một lượt gọi qua `claude` CLI — quota gói, không phải tiền.
+
+        Chạy trong luồng khác: `subprocess.run` chặn, và một lượt mất ~10 giây.
+        Để nó chặn vòng lặp async là bỏ lỡ nến, mất SSE, và bảng đứng hình đúng
+        khoảng thời gian bộ não đang nghĩ.
+        """
+        blocked = self.cost.blocked()
+        if blocked:
+            bus.log("brain", "het-han-muc", f"bỏ qua {label}: {blocked}")
+            return None
+        from . import cli_claude
+        try:
+            out, usage = await asyncio.to_thread(
+                cli_claude.goi, he_thong=self._system_text(), nguoi_dung=user,
+                schema=schema, model=self.cfg.get("modelCli", "claude-sonnet-4-6"))
+        except Exception as e:  # noqa: BLE001
+            self.last_error = f"{type(e).__name__}: {e}"
+            bus.log("brain", "loi-cli", f"{label}: {self.last_error}")
+            return None
+        if not isinstance(out, dict):
+            bus.log("brain", "json-hong", f"{label}: phản hồi không phải object")
+            return None
+        _don_dep_cli(out, label)
+        usd = self.cost.record(self.cfg.get("modelCli", "claude-sonnet-4-6"), usage)
+        bus.emit("brain", "chi-phi",
+                 f"{label} (CLI · quota gói): tương đương ${usd:.4f} · "
+                 f"nạp {usage.cache_creation_input_tokens} tok · ra {usage.output_tokens} tok",
+                 usd=usd, label=label)
+        return out
+
     async def _structured(self, *, user: str, schema: dict, effort: str, label: str) -> dict | None:
         """Một lượt gọi có schema. Trả về None nếu bị chặn/lỗi/từ chối."""
+        if self.mode == "cli":
+            return await self._structured_cli(user=user, schema=schema, label=label)
         blocked = self.cost.blocked()
         if blocked:
             bus.log("brain", "het-han-muc", f"bỏ qua {label}: {blocked}")
@@ -1134,7 +1227,7 @@ class Brain:
                 "rồi mới quyết định. NO_TRADE là câu trả lời hợp lệ và thường là câu trả lời đúng.\n\n"
                 + _fmt_state(payload))
 
-        if self.mode != "claude" or not self.client:
+        if not self._goi_duoc():
             out = mock_thesis(state, regime, primary_tf)
         else:
             out = await self._structured(user=user, schema=THESIS_SCHEMA,
@@ -1154,7 +1247,7 @@ class Brain:
         return out
 
     async def postmortem(self, trade: dict, regime_now: dict) -> dict:
-        if self.mode != "claude" or not self.client:
+        if not self._goi_duoc():
             out = mock_postmortem(trade, store.read_all(store.TRADES))
         else:
             user = (
@@ -1189,7 +1282,7 @@ class Brain:
 
     async def chat(self, messages: list[dict], context: dict) -> AsyncIterator[str]:
         """Hỏi đáp với bộ não, có toàn bộ trạng thái hiện tại làm ngữ cảnh."""
-        if self.mode != "claude" or not self.client:
+        if not self._goi_duoc():
             yield ("Brain đang ở chế độ **mock** nên không có mô hình để trả lời.\n\n"
                    "Đặt `ANTHROPIC_API_KEY` trong `.env` rồi khởi động lại là chat hoạt động. "
                    "Mọi tầng khác — dữ liệu, chỉ báo, regime, risk engine, sàn giấy, nhật ký — "
