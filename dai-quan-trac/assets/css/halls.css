@@ -56,7 +56,7 @@
 
 /* ── nhánh con ──────────────────────────────────────────── */
 .halls-tree {
-  margin: 3px 0 0 11px; padding-left: 8px;
+  margin: 3px 0 0 12px; padding-left: 8px;
   border-left: 1px solid var(--line);   /* đường dẫn hướng của cây */
   /* halls.css nạp SAU app.css nên phải viết đủ cả hai trục, không thì
      dòng này đè mất overflow-y:auto của .scroll và phần chạm trần
@@ -127,7 +127,7 @@
   #app.nav-collapsed .halls-head .lbl,
   #app.nav-collapsed .hall-link .lbl { display: block; }
   #app.nav-collapsed .halls-tree {
-    margin-left: 11px; padding-left: 8px; border-left: 1px solid var(--line);
+    margin-left: 12px; padding-left: 8px; border-left: 1px solid var(--line);
   }
   #app.nav-collapsed .hall-link { justify-content: flex-start; padding: 6px 8px; }
 }
