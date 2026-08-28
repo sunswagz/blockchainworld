@@ -40,6 +40,7 @@ from .dat_lenh import CongLenh
 from dataclasses import replace
 
 from . import dong_co, nan_lai
+from .ket_qua import so_ket_qua
 from .dinh_gia import DoBienDong, HieuChinh
 from .do_thi import Nut, do_thi, nhom_cua
 from .do_tre import DoTre
@@ -537,6 +538,7 @@ class Runtime:
             "doTre": self.doTre.tom_tat(),
             "nanLai": self.phepNan.tom_tat(),
             "duongRa": nguon.duong_ra(),
+            "soKetQua": so_ket_qua.tom_tat(),
             "ketToan": self.ketToan.tom_tat(),
             "doThi": do_thi.tom_tat(),
             "voDich": so_vo_dich.tom_tat(),

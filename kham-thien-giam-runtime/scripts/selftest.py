@@ -944,6 +944,53 @@ def kiem_khung_dai() -> None:
              "tienTo" not in x)
 
 
+def kiem_ket_qua() -> None:
+    print("\n-- So KET QUA: manh con thieu de chay lai cham diem ----------")
+    import tempfile
+    from pathlib import Path as _P
+
+    from kham.ket_qua import SoKetQua, ket_thuc_tu_slug, moc_tu_slug
+
+    # Slug tự nó là một cái đồng hồ — đọc được mà KHÔNG cần gọi mạng, nên
+    # băng cũ dựng lại được cả khi đường tới sàn đang đứt.
+    kiem("đọc mốc từ đuôi slug",
+         moc_tu_slug("btc-updown-5m-1787243400") == 1787243400000.0,
+         moc_tu_slug("btc-updown-5m-1787243400"))
+    kiem("slug không có mốc → None", moc_tu_slug("fed-decision-september") is None)
+    kiem("slug rỗng → None, không ném", moc_tu_slug("") is None)
+    kiem("kết thúc = mốc + độ dài khung",
+         ket_thuc_tu_slug("btc-updown-5m-1787243400", 300.0) == 1787243700000.0)
+
+    with tempfile.TemporaryDirectory() as t:
+        d = _P(t) / "kq.jsonl"
+        so = SoKetQua(d)
+        kiem("sổ mới thì rỗng", so.tom_tat()["soSlug"] == 0)
+        so.them("a-1", True, 100.0, 101.0)
+        so.them("b-2", False, 100.0, 99.0)
+        kiem("ghi rồi tra được", so.lay("a-1") is True and so.lay("b-2") is False)
+        kiem("slug lạ → None chứ không đoán", so.lay("chua-co") is None)
+
+        # Đọc lại từ đĩa phải ra đúng thế — đây là điểm khác nhau giữa một
+        # cuốn sổ và một biến trong bộ nhớ.
+        so2 = SoKetQua(d)
+        kiem("đọc lại từ đĩa giữ nguyên",
+             so2.lay("a-1") is True and so2.tom_tat()["soSlug"] == 2)
+
+        # HAI NGUỒN NÓI NGƯỢC NHAU là tin đáng đọc, không phải chuyện để
+        # dọn. Ghi đè im lặng là mất dấu đúng thứ đáng ngờ nhất.
+        so2.them("a-1", False, 100.0, 98.0, "san")
+        so3 = SoKetQua(d)
+        kiem("bất đồng thì GIỮ cái cũ và đánh dấu",
+             so3.lay("a-1") is True and so3.tom_tat()["soBatDong"] == 1)
+
+        # Một dòng hỏng không được kéo cả sổ theo.
+        with d.open("a", encoding="utf-8") as f:
+            f.write("{khong-phai-json\n")
+        so4 = SoKetQua(d)
+        kiem("một dòng hỏng không làm hỏng cả sổ",
+             so4.lay("a-1") is True and so4.lay("b-2") is False)
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1362,6 +1409,7 @@ def main() -> int:
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
+    kiem_ket_qua()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

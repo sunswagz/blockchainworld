@@ -1041,8 +1041,19 @@
     var g = document.createDocumentFragment();
     var kt = T.ketToan || {}, vd = T.voDich || {}, th = T.tienHoa || {};
 
+    var kq = T.soKetQua || {};
     var o = oKhung("Kết toán", (kt.daKetToan || 0) + " xong · " +
-      (kt.dangCho || 0) + " chờ");
+      (kt.dangCho || 0) + " chờ" +
+      (kq.soSlug ? " · sổ kết quả " + kq.soSlug + " khung" : ""));
+    if (kq.soSlug) {
+      o._than.appendChild(el("div", "ghi",
+        "Sổ kết quả có " + kq.soSlug + " khung (" + kq.soUp + " UP / " +
+        kq.soDown + " DOWN" + (kq.soBatDong ? ", " + kq.soBatDong +
+        " BẤT ĐỒNG" : "") + "). Đây là thứ cho phép chạy lại CHẤM ĐƯỢC " +
+        "điểm — băng ghi khung hình lúc nó đang diễn ra nên không thể tự " +
+        "chứa kết quả, và trước khi có sổ này thì cỗ máy chạy lại chưa " +
+        "từng chấm được một khung nào."));
+    }
     if (kt.soBatDong) {
       var w = el("p", "ghi xuong");
       w.innerHTML = "<b>" + kt.soBatDong + " lần hai nguồn BẤT ĐỒNG.</b> " +

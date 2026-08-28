@@ -593,5 +593,11 @@
   "duongRa": {
     "coProxy": false,
     "moTa": "đường thẳng"
+  },
+  "soKetQua": {
+    "soSlug": 2627,
+    "soUp": 1310,
+    "soDown": 1317,
+    "soBatDong": 0
   }
 }

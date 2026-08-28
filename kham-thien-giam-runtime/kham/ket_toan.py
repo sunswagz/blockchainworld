@@ -39,6 +39,7 @@ import time
 from dataclasses import dataclass, field
 
 from . import nan_lai
+from .ket_qua import so_ket_qua
 from .bus import bus
 from .dinh_gia import HieuChinh
 from .kho_doi import Kho
@@ -206,6 +207,11 @@ class KetToan:
         # Hiệu chỉnh ghi CẢ khi không có vị thế — xem ghi_danh().
         if c.pDuDoanUp is not None:
             self.hieuChinh.them(c.pDuDoanUp, upThang)
+            # Vào SỔ KẾT QUẢ ngay. Không có bước này thì băng ghi từ hôm
+            # nay lại rơi vào đúng cảnh cũ: có khung hình mà không có kết
+            # quả, và phải chờ một lượt dựng lại thủ công mới chấm được.
+            so_ket_qua.them(c.slug, upThang, c.giaMo,
+                            nguon="san" if san is not None else "tu-tinh")
             # Ghi thêm TỪNG CẶP thô. Sổ hiệu chỉnh chỉ lưu tổng theo ô;
             # từ tổng thì khớp được đường nắn nhưng KHÔNG kiểm được nó
             # ngoài mẫu — mà đó mới là phép phân biệt "học được quy luật"

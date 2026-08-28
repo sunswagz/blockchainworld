@@ -33,12 +33,14 @@ xanh vĩnh viễn, thứ tệ hơn không có backtest.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import replace, dataclass, field
 
 from .can_loi import can
 from .dinh_gia import dinh_gia
 from .so_lenh import Muc, SoLenh
 
+
+from .ket_qua import so_ket_qua as _SO_KQ
 
 @dataclass
 class KetQua:
@@ -106,6 +108,10 @@ class ThamSo:
     bienAnToan: float
     loCo: float = 100.0
     sanNenGiay: float | None = None
+    # Phép nắn đem thử. None = mô hình thô. Có đây thì A/B được chính
+    # phép nắn trên băng thật — trước đó nó chỉ được đo trên chính bảng
+    # hiệu chỉnh đã sinh ra nó, tức là tự chấm bài mình.
+    phepNan: object | None = None
 
 
 def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
@@ -134,6 +140,9 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
             gc = dinh_gia(ma, float(gia), float(mo), float(tau), float(sig))
             if gc is None:
                 bo("định giá trả None"); continue
+            if ts.phepNan is not None and getattr(ts.phepNan, "dung_duoc", False):
+                p_nan = ts.phepNan.nan(gc.pUp)
+                gc = replace(gc, pUp=p_nan, pDown=1.0 - p_nan)
 
             for ben, p, so in (("UP", gc.pUp, su), ("DOWN", gc.pDown, sd)):
                 if not so.dung_duoc:
@@ -148,9 +157,19 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
                 kq.soQuaSang += 1
 
                 # Kết quả chỉ dùng để CHẤM, không chảy ngược vào quyết định.
+                #
+                # Lấy từ SỔ KẾT QUẢ, không từ băng. Băng ghi khung hình lúc
+                # nó đang diễn ra nên không thể chứa kết quả — mãi năm phút
+                # sau mới biết, và lúc đó dòng băng đã nằm trong một file
+                # gzip đã đóng. Đo được: 5.854 bản ghi thị trường trong
+                # băng, KHÔNG cái nào có `upThang`. Nên trước bản này,
+                # `soKhop` luôn bằng 0 và cỗ máy chạy lại chưa từng chấm
+                # được một khung nào — kể cả khi cổng tiến hoá hỏi nó.
                 that = tt.get("upThang")
                 if that is None:
-                    continue
+                    that = _SO_KQ.lay(tt.get("slug") or "")
+                if that is None:
+                    bo("chưa có kết quả cho slug này"); continue
                 kq.soKhop += 1
                 tra = 1.0 if (bool(that) == (ben == "UP")) else 0.0
                 lai = (tra - ch.vwap - ch.phi) * ch.soCo
