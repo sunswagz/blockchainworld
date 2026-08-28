@@ -134,6 +134,7 @@ jobs:
       # có phẩy hai đầu để `contains()` không khớp nhầm tiền tố.
       - name: Lập kế hoạch — node nào đến hạn
         id: kehoach
+        timeout-minutes: 2
         env:
           NHA_MAY_EP: ${{ inputs.ep && '1' || '' }}
         run: |
@@ -166,27 +167,17 @@ jobs:
       # timeout-minutes. Cờ đó chỉ nuốt được bước NGÃ; bước TREO thì
       # nó bất lực, và hết giờ ở cấp job là huỷ cả job.
       #
-      # Tổng các trần bước phải nhỏ hơn trần job, không thì trần bước
-      # thành trang trí. Cộng lại MỖI LẦN thêm bước:
-      #   5 + 3 + 2 + 5 + 14 + 3 + 2  (lấy số liệu + đóng dấu)
-      # + 2 + 15 + 2                  (ra đề · quét · dựng)
-      # + 2 + 6 + 2                   (kiểm · báo cáo · cảnh báo)
-      # + 5 + 4 + 3                   (Thái Bộc Tự: đoàn tàu · công trường · tin)
-      #   = 75  <  80
-      # (+5 cho Hộ Bộ, 15/08. +9 cho Thái Bộc Tự, 20/08 — và lần thêm
-      #  cung đó ĐÃ QUÊN cộng lại ở đây, làm tổng vọt lên 72 trong khi
-      #  trần job vẫn là 70. Không nổ lượt nào vì hai node mới chạy
-      #  hết ~35 giây, nhưng lúc đó trần bước đã thành trang trí đúng
-      #  như dòng ngay trên cảnh báo. Nâng trần job 70 → 80 cho khớp.
-      #  Còn 8 phút đệm — bước nặng tiếp theo phải nâng trần job
-      #  trước, đừng nhét thêm vào chỗ này.)
-      # Thực tế không bao giờ cộng hết: node nhịp 12 và 24 giờ chỉ
-      # chạy 2 và 1 trong 4 lượt mỗi ngày. Trần job vẫn là chốt cuối.
+      # Ngân sách thời gian của một lượt KHÔNG cộng tay ở đây nữa.
+      # Chỗ này từng là một khối cộng trần bước, và nó đã lệch hai
+      # lần: 20/08 quên cộng cung mới (tổng thật 72 > trần job 70),
+      # rồi lệch tiếp cho tới khi khai 75 trong khi cộng thật 236 và
+      # trần job đã là 130. Một con số phải cộng tay mỗi lần thêm
+      # bước thì sớm muộn cũng thành trang trí.
       #
-      # Trần đặt theo giờ chạy đo được, không đoán:
-      #   L2BEAT    78s → 3 phút
-      #   Công Bộ    6s → 2 phút
-      #   Quan Trắc ~5s bình thường, xấu nhất ~1,6 phút → 3 phút
+      # Giờ `npm run kiem` canh việc đó bằng giây chạy THẬT trong
+      # factory/state.json, và báo lỗi nếu khối cộng tay sống lại.
+      # Nó cũng bắt bước có việc mà quên timeout-minutes, và kêu
+      # trước khi một node kịp chạy sát van của chính nó.
 
       - name: Lấy số mới — Kinh Thành
         id: n-kinh-thanh
@@ -1587,6 +1578,41 @@ jobs:
             --ghi "${DIEM:-chưa chấm được} · opus-5" \
             --log "$RUNNER_TEMP/kham-thien-giam-tien-hoa.log"
 
+
+      # ── DÒ KHO TÀNG THƯ CÁC ────────────────────────────────────
+      # Nguồn ý tưởng MỚI cho vòng tiến hoá. `tien-hoa.mjs ky-nang`
+      # chỉ chọn được kỹ năng hợp với thước ĐANG CÓ, nên nó không bao
+      # giờ tìm ra thứ đáng canh mà ta chưa nghĩ tới. Node này lục cả
+      # 3.696 kỹ năng, bỏ những cái đã khai thác, và tải vài ứng viên
+      # đầu bảng về kèm trích dẫn.
+      #
+      # Nhịp 168 giờ (một tuần) nên phần lớn lượt chạy nó bị bỏ qua —
+      # đúng ý: kho chỉ được quét lại vài lượt mỗi ngày, dò mỗi 6 giờ
+      # là 28 lượt tải cho cùng một danh sách không đổi.
+      #
+      # Trần 4 phút: sáu lời gọi raw.githubusercontent nối đuôi, mỗi
+      # cái timeout 30 giây.
+      - name: Dò kho Tàng Thư Các
+        id: n-do-kho
+        if: contains(steps.kehoach.outputs.han, ',do-kho,')
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          t0=$(date +%s)
+          node scripts/do-kho.mjs quet 2>&1 | tee "$RUNNER_TEMP/do-kho.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · do-kho
+        if: always() && steps.n-do-kho.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-do-kho.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-do-kho.outputs.giay }}
+        run: |
+          UV=$(grep -oE "[0-9]+ ứng viên chưa khai thác" "$RUNNER_TEMP/do-kho.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi do-kho "$KET" \
+            ${GIAY:+--giay $GIAY} \
+            --ghi "${UV:-chưa quét được}" \
+            --log "$RUNNER_TEMP/do-kho.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true
@@ -1880,6 +1906,7 @@ jobs:
         run: node scripts/nha-may.mjs canh-bao
 
       - name: Commit nếu có thay đổi
+        timeout-minutes: 3
         id: commit
         if: always()
         env:

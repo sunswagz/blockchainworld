@@ -1,0 +1,84 @@
+{
+ "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
+ "luc": "2026-08-28T15:44:49.206Z",
+ "khoQuetLuc": "28/08/2026",
+ "tongSkill": 3696,
+ "daDung": 14,
+ "ungVien": 769,
+ "theoLinhVuc": {
+  "lập trình công cụ": 431,
+  "kiểm thử rà soát": 174,
+  "dữ liệu phân tích": 53,
+  "hạ tầng vận hành": 48,
+  "giao tiếp nội dung": 41,
+  "nghiên cứu": 44
+ },
+ "deXuat": [
+  {
+   "ten": "pre-publish-review",
+   "kho": "code-yeongyu/oh-my-openagent",
+   "duong": ".opencode/skills/pre-publish-review",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "Nuclear-grade 16-agent pre-publish release gate. Runs /get-unpublished-changes to detect all changes since last npm release, spawns up to 10 ultrabrain agents for deep per-change a",
+   "byte": 17074,
+   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/.opencode/skills/pre-publish-review/SKILL.md",
+   "trich": "# Pre-Publish Review — 16-Agent Release Gate Three-agent-layer review before publishing to npm. Every layer covers a different angle, and every result is mapped onto the release layers below. | Layer | Agents | Type | What They Check | |-------|--------|------|-----------------| | Per-Change Deep Dive | up to 10 | ultrabrain | Each logical change group individually — correctness, edge cases, pattern adherence | | Holistic Review | 5 | review-work | Goal compliance, QA execution, code quality, security, context mining across full changeset | | Release Synthesis | 1 | oracle | Overall release readiness, version bump, breaking changes, deployment risk | ## Release Layer Taxonomy Every phase classifies evidence and risk across: | Release Layer | Scope | Required version decision | |---|---|---| | `omo pure components` | Core packages, MCP packages, shared skills, reusable scripts, platform b"
+  },
+  {
+   "ten": "review-work",
+   "kho": "code-yeongyu/oh-my-openagent",
+   "duong": "packages/shared-skills/skills/review-work",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "Post-implementation review orchestrator. Launches 5 parallel background sub-agents: Oracle (goal/constraint verification), Oracle (code quality), Oracle (security), unspecified-hig",
+   "byte": 28852,
+   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/packages/shared-skills/skills/review-work/SKILL.md",
+   "trich": "## Codex Harness Tool Compatibility This skill may include examples copied from the OpenCode harness. In Codex, do not call OpenCode-only tools such as `call_omo_agent(...)`, `task(...)`, `background_output(...)`, or `team_*(...)` literally. Translate those examples to Codex native tools: | OpenCode example | Codex tool to use | | --- | --- | | `call_omo_agent(subagent_type=\"explore\", ...)` | `multi_agent_v1.spawn_agent({\"message\":\"TASK: act as an explorer. ...\",\"agent_type\":\"explorer\",\"fork_context\":false})` | | `call_omo_agent(subagent_type=\"librarian\", ...)` | `multi_agent_v1.spawn_agent({\"message\":\"TASK: act as a librarian. ...\",\"agent_type\":\"librarian\",\"fork_context\":false})` | | `task(subagent_type=\"plan\", ...)` | `multi_agent_v1.spawn_agent({\"message\":\"TASK: act as a planning agent. ...\",\"agent_type\":\"plan\",\"fork_context\":false})` | | `task(subagent_type=\"oracle\", ...)` for final "
+  },
+  {
+   "ten": "visual-qa",
+   "kho": "code-yeongyu/oh-my-openagent",
+   "duong": "packages/shared-skills/skills/visual-qa",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "MUST USE after building/changing any UI or when asked whether a page, component, or TUI looks right. Rigorous visual QA across web/page, terminal, and paginated-document surfaces. ",
+   "byte": 26333,
+   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/packages/shared-skills/skills/visual-qa/SKILL.md",
+   "trich": "# Visual QA - Dual-Oracle Web and TUI Verification Verify a rendered UI against intent using objective script evidence plus two parallel read-only oracle passes, then synthesize one good/bad verdict. The script numbers focus the reviewers. They are not the verdict. ## Purpose and when to use - Use after you build or change any UI, before calling it done. Covers web/page UIs and TUI/terminal UIs. - Use when output must match a mock, a baseline, or a stated design intent; when you suspect a regression; when CJK (Korean/Japanese/Chinese) text may clip, misalign, or wrap awkwardly; when a claimed design system might actually be a flat image; when a terminal layout may overflow or its borders may break. - Skip when there is no rendered surface (pure backend or library logic with no visual or terminal output). For broad post-implementation review use review-work; this skill is the visual speci"
+  },
+  {
+   "ten": "writing-hookify-rules",
+   "kho": "anthropics/claude-plugins-official",
+   "duong": "plugins/hookify/skills/writing-rules",
+   "lv": [
+    "giao tiếp nội dung"
+   ],
+   "diem": 7,
+   "mo": "This skill should be used when the user asks to \"create a hookify rule\", \"write a hook rule\", \"configure hookify\", \"add a hookify rule\", or needs guidance on hookify rule syntax an",
+   "byte": 8413,
+   "doc": "https://github.com/anthropics/claude-plugins-official/blob/main/plugins/hookify/skills/writing-rules/SKILL.md",
+   "trich": "# Writing Hookify Rules ## Overview Hookify rules are markdown files with YAML frontmatter that define patterns to watch for and messages to show when those patterns match. Rules are stored in `.claude/hookify.{rule-name}.local.md` files. ## Rule File Format ### Basic Structure ```markdown name: rule-identifier enabled: true event: bash|file|stop|prompt|all pattern: regex-pattern-here Message to show Claude when this rule triggers. Can include markdown formatting, warnings, suggestions, etc. ``` ### Frontmatter Fields **name** (required): Unique identifier for the rule - Use kebab-case: `warn-dangerous-rm`, `block-console-log` - Be descriptive and action-oriented - Start with verb: warn, prevent, block, require, check **enabled** (required): Boolean to activate/deactivate - `true`: Rule is active - `false`: Rule is disabled (won't trigger) - Can toggle without deleting rule **event** (re"
+  },
+  {
+   "ten": "ab-test-analysis",
+   "kho": "phuryn/pm-skills",
+   "duong": "pm-data-analytics/skills/ab-test-analysis",
+   "lv": [
+    "kiểm thử rà soát",
+    "nghiên cứu"
+   ],
+   "diem": 5,
+   "mo": "Analyze A/B test results with statistical significance, sample size validation, confidence intervals, and ship/extend/stop recommendations. Use when evaluating experiment results, ",
+   "byte": 3570,
+   "doc": "https://github.com/phuryn/pm-skills/blob/main/pm-data-analytics/skills/ab-test-analysis/SKILL.md",
+   "trich": "## A/B Test Analysis Evaluate A/B test results with statistical rigor and translate findings into clear product decisions. ### Context You are analyzing A/B test results for **$ARGUMENTS**. If the user provides data files (CSV, Excel, or analytics exports), read and analyze them directly. Generate Python scripts for statistical calculations when needed. ### Instructions 1. **Understand the experiment**: - What was the hypothesis? - What was changed (the variant)? - What is the primary metric? Any guardrail metrics? - How long did the test run? - What is the traffic split? 2. **Validate the test setup**: - **Sample size**: Is the sample large enough for the expected effect size? - Use the formula: n = (Z²α/2 × 2 × p × (1-p)) / MDE² - Flag if the test is underpowered (<80% power) - **Duration**: Did the test run for at least 1-2 full business cycles? - **Randomization**: Any evidence of sa"
+  }
+ ]
+}

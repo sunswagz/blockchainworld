@@ -573,6 +573,112 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: NGÂN SÁCH THỜI GIAN CỦA LƯỢT CHẠY ──────────
+   Trước đây workflow tự canh bằng MỘT KHỐI CỘNG TAY:
+
+     #   5 + 3 + 2 + 5 + 14 + 3 + 2   (lấy số liệu + đóng dấu)
+     # + 2 + 15 + 2                   (ra đề · quét · dựng)
+     #   = 75  <  80
+
+   Khối đó đã lệch HAI LẦN. Lần đầu 20/08 (thêm Thái Bộc Tự, quên
+   cộng, tổng thật 72 > trần job 70). Lần hai lộ ra hôm nay: khai
+   75, cộng thật 236, trần job đã bị nâng lên 130 mà khối cộng
+   không ai đụng. Một con số phải cộng tay mỗi lần thêm bước thì
+   sớm muộn cũng thành trang trí — đúng như dòng cảnh báo nằm ngay
+   trên chính nó.
+
+   Bỏ luôn cách cộng đó, vì ngoài chuyện lệch nó còn SAI VỀ CHẤT:
+   `timeout-minutes` của một bước là VAN AN TOÀN, không phải ước
+   lượng. Cộng các van lại rồi so với trần job là so hai đại lượng
+   khác loại — muốn tổng đó nhỏ hơn trần job thì phải siết van
+   xuống sát thời gian chạy thật, tức là biến van thành thứ hay nổ
+   oan.
+
+   Cái đáng canh là thời gian chạy THẬT, và sổ nhà máy đã ghi sẵn
+   (`--giay` mỗi node). Nên phép này hỏi ba câu đo được:
+
+     1. Bước nào có việc mà KHÔNG có van?  (một bước treo là cả
+        lượt treo tới trần job)
+     2. Cộng giây thật của MỌI node có vượt trần job không? Đây là
+        lượt xấu nhất và nó xảy ra THẬT mỗi ngày: nhịp 6·12·24·168
+        đều chia hết cho lượt gióng hàng, nên có một lượt trong
+        ngày mọi node cùng đến hạn.
+     3. Node nào đang chạy sát van của chính nó? Sát van là sắp nổ,
+        và nó sẽ nổ vào lúc mạng chậm chứ không phải lúc ta đang
+        nhìn.
+
+   Số liệu là một mẫu gần nhất mỗi node, không phải p100 — nên
+   ngưỡng để rộng (gấp ba) chứ không bắt sát. */
+{
+  const wf = ".github/workflows/refresh-data.yml";
+  if (existsSync(join(ROOT, wf))) {
+    const L = (await doc(wf)).split("\n");
+    let tranJob = 0;
+    const buoc = [];
+    let cur = null;
+    for (const l of L) {
+      let m;
+      if ((m = l.match(/^    timeout-minutes:\s*(\d+)/))) tranJob = +m[1];
+      if ((m = l.match(/^      - name:\s*(.+?)\s*$/))) {
+        if (cur) buoc.push(cur);
+        cur = { ten: m[1], tran: null, id: null, viec: false };
+      }
+      if (!cur) continue;
+      if ((m = l.match(/^        timeout-minutes:\s*(\d+)/))) cur.tran = +m[1];
+      if ((m = l.match(/^        id:\s*n-(.+?)\s*$/))) cur.id = m[1];
+      if (/^        (run|uses):/.test(l)) cur.viec = true;
+    }
+    if (cur) buoc.push(cur);
+
+    /* 0. khối cộng tay không được sống lại */
+    const congTay = L.filter((l) => /^\s*#\s*=\s*\d+\s*<\s*\d+/.test(l));
+    if (congTay.length)
+      bao(
+        `refresh-data.yml lại có khối cộng trần bước bằng tay ("${congTay[0].trim()}").\n` +
+        `        Con số đó đã lệch hai lần. Ngân sách lượt chạy do phép này canh bằng\n` +
+        `        giây THẬT trong factory/state.json — xoá khối cộng tay đi.`
+      );
+
+    /* 1. bước có việc mà không có van */
+    const hoBuoc = buoc.filter((b) => b.viec && b.tran === null && !/^Ghi sổ|^Bấm giờ|^Đánh dấu|^Chiếu sổ/.test(b.ten));
+    for (const b of hoBuoc)
+      bao(`bước "${b.ten}" trong refresh-data.yml có việc nhưng KHÔNG khai timeout-minutes — treo là cả lượt treo tới trần job ${tranJob} phút`);
+
+    /* 2 + 3. đối chiếu với giây chạy thật */
+    let so = null;
+    try { so = JSON.parse(await doc("factory/state.json")); } catch { /* chưa có sổ */ }
+    if (so?.node && tranJob) {
+      const giayTong = Object.values(so.node).reduce((a, n) => a + (n.giay || 0), 0);
+      const phut = giayTong / 60;
+      if (phut * 3 > tranJob)
+        bao(
+          `lượt xấu nhất (mọi node cùng đến hạn) chạy thật ${phut.toFixed(1)} phút, trần job ${tranJob} phút —\n` +
+          `        còn chưa tới ba lần đệm. Nâng trần job, hoặc giãn nhịp node nặng nhất.`
+        );
+      else
+        nhac(`ngân sách lượt: ${phut.toFixed(1)} phút chạy thật / ${tranJob} phút trần job (đệm ${(tranJob / phut).toFixed(1)}×)`);
+
+      const wfT = L.join(String.fromCharCode(10));
+      const nhieuBuoc = [];
+      for (const b of buoc) {
+        if (!b.id || b.tran === null) continue;
+        const g = so.node[b.id]?.giay;
+        if (typeof g !== "number" || !g) continue;
+        const donBuoc = wfT.includes("GIAY: ${{ steps.n-" + b.id + ".outputs.giay }}");
+        if (!donBuoc) { nhieuBuoc.push(b.id); continue; }
+        const tyLe = g / (b.tran * 60);
+        if (tyLe > 0.6)
+          nhac(`node "${b.id}" chạy ${g}s, van của nó là ${b.tran} phút — dùng hết ${(tyLe * 100).toFixed(0)}% van, sắp nổ khi mạng chậm`);
+      }
+      /* KHAI RA CÁI KHÔNG CANH ĐƯỢC — im lặng bỏ qua thì lần sau
+         người đọc tưởng mọi node đều đã được soi van. */
+      if (nhieuBuoc.length)
+        nhac(`không soi được van của ${nhieuBuoc.length} node đo-nhiều-bước (${nhieuBuoc.join(", ")}) — ` +
+             `giây của chúng là tổng cả nhóm bước, không so được với van của một bước`);
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 

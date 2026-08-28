@@ -21,6 +21,7 @@
     "congtruong": "node scripts/build-congtruong.mjs",
     "tintuc": "node scripts/build-tintuc.mjs",
     "tinpt": "node scripts/build-tin-phantich.mjs",
+    "dokho": "node scripts/do-kho.mjs",
     "tangthu": "node scripts/build-tangthu.mjs",
     "hoangthanh": "node scripts/build-hoangthanh.mjs",
     "thang": "node scripts/thang.mjs",

@@ -30,6 +30,29 @@ export const NODE = [
     y: "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: " +
        "node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước."
   },
+  /* DÒ KHO — nguồn ý tưởng MỚI cho vòng tiến hoá.
+
+     `tien-hoa.mjs ky-nang` chỉ chọn kỹ năng hợp với THƯỚC ĐANG
+     TRƯỢT, nên nó không bao giờ tìm ra thứ đáng canh mà ta chưa nghĩ
+     tới. Đó là trần thật: cung nào đạt hết thước thì model chỉ còn
+     được bảo "tìm chỗ nào không thước nào đo được".
+
+     Node này lục 3.696 kỹ năng của Tàng Thư Các theo sáu lĩnh vực,
+     bỏ những cái đã khai thác (sổ ở factory/kho-da-dung.json), rồi
+     tải vài ứng viên đầu bảng về kèm đoạn trích.
+
+     Nhịp 168 giờ — MỘT LƯỢT MỖI TUẦN. Kho chỉ được quét lại vài
+     lượt mỗi ngày và ứng viên mới nhỏ giọt; dò mỗi 6 giờ là 28 lượt
+     tải cho cùng một danh sách không đổi. */
+  {
+    ma: "do-kho", ten: "Dò kho Tàng Thư Các",
+    tram: "M11", che: "script", nhip: 168,
+    lenh: "node scripts/do-kho.mjs quet",
+    ra: ["factory/kho-de-xuat.json"],
+    y: "Tìm kỹ năng CHƯA khai thác trong 3.696 cái, xếp hạng theo sáu lĩnh vực, " +
+       "tải SKILL.md kèm trích dẫn. Máy lo tìm và xếp; model lo đọc hiểu — đã thử " +
+       "rút luật bằng regex và bỏ vì cho ra rác."
+  },
   {
     ma: "giao-hang", ten: "Giao hàng lên Pages",
     tram: "M16", che: "theo", nhip: 0,

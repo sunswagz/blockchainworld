@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T15:36:53.124Z",
+  "generatedAt": "2026-08-28T15:46:14.611Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -398,6 +398,19 @@
         "factory/bao-cao.md"
       ],
       "y": "Claude Code Action đọc state.json rồi viết vài dòng tiếng Việt: node nào đang ốm, ốm từ bao giờ, nên xem chỗ nào trước.",
+      "khai": "scripts/node/xuong.mjs"
+    },
+    {
+      "ma": "do-kho",
+      "ten": "Dò kho Tàng Thư Các",
+      "tram": "M11",
+      "che": "script",
+      "nhip": 168,
+      "lenh": "node scripts/do-kho.mjs quet",
+      "ra": [
+        "factory/kho-de-xuat.json"
+      ],
+      "y": "Tìm kỹ năng CHƯA khai thác trong 3.696 cái, xếp hạng theo sáu lĩnh vực, tải SKILL.md kèm trích dẫn. Máy lo tìm và xếp; model lo đọc hiểu — đã thử rút luật bằng regex và bỏ vì cho ra rác.",
       "khai": "scripts/node/xuong.mjs"
     },
     {
