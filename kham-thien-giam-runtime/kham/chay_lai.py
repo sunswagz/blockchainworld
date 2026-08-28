@@ -207,7 +207,17 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
 
 def doi_chieu(khung: list[dict], a: ThamSo, b: ThamSo) -> dict:
     """Chạy hai bộ tham số trên CÙNG băng rồi so. Đây mới là backtest."""
-    ka, kb = mot_luot(khung, a), mot_luot(khung, b)
+    return gop_doi_chieu(mot_luot(khung, a), mot_luot(khung, b))
+
+
+def gop_doi_chieu(ka: KetQua, kb: KetQua) -> dict:
+    """So hai kết quả ĐÃ chạy sẵn.
+
+    Tách ra khỏi `doi_chieu` vì có những nút không đi qua `ThamSo` mà nằm
+    trong `CONFIG` — muốn so chúng thì phải chạy lượt A với config CŨ và
+    lượt B với config MỚI, tức hai lượt ở hai thời điểm khác nhau, không
+    thể gói trong một lời gọi.
+    """
 
     def hon(x: float, y: float) -> str:
         if abs(x - y) < 1e-12:

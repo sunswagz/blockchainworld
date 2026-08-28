@@ -1079,6 +1079,54 @@ def kiem_huong_de_xuat() -> None:
          f"{d['tu']} → {d['den']}" if d else None)
 
 
+def kiem_cong_phan_biet() -> None:
+    print("\n-- Cong phai PHAN BIET duoc hai cau hinh --------------------")
+    from kham.chan_doan import TrieuChung
+    from kham.ket_qua import so_ket_qua
+    from kham.tien_hoa import DeXuat, thu_mot_de_xuat
+
+    # Băng giả: một cửa sổ, sổ hai bên có hàng, mô hình lệch xa giá chợ.
+    def muc(g, l):
+        return {"gia": g, "luong": l}
+
+    khung = []
+    for i in range(80):
+        slug = f"btc-updown-5m-{1787000000 + i * 300}"
+        so_ket_qua.o[slug] = {"slug": slug, "upThang": i % 3 != 0}
+        khung.append({"thiTruong": [{
+            "ma": "BTC_5M", "slug": slug,
+            "giaNen": 70000.0 + i, "giaMo": 70000.0,
+            "sigmaGiay": 1.0e-5, "conLaiGiay": 120.0,
+            "so": {
+                "UP": {"bid": [muc(0.40, 900)], "ask": [muc(0.42, 900)]},
+                "DOWN": {"bid": [muc(0.56, 900)], "ask": [muc(0.58, 900)]},
+            }}]})
+
+    dx = DeXuat(nut="dinhGia.batDinhToiThieu", tuGiaTri=0.005,
+                denGiaTri=0.30, chuaTrieuChung="mo-hinh-lech", lyLe="thử")
+    kq = thu_mot_de_xuat(khung, dx)
+    A, B = kq["A"], kq["B"]
+
+    # Đây là bất biến CHÍNH. Bản đầu đặt config sang giá trị mới rồi chạy
+    # cả hai lượt với hai `ThamSo` giống hệt nhau — tức so một thứ với
+    # chính nó, nên A luôn bằng B và tám trong mười nút KHÔNG BAO GIỜ qua
+    # nổi cổng. Cổng vẫn chạy, vẫn in phán quyết; chỉ là phán quyết vô
+    # nghĩa, và không có gì trên đời lộ ra điều đó.
+    kiem("đổi bất định 0,005 → 0,30 thì HAI lượt phải khác nhau",
+         A["soQuaSang"] != B["soQuaSang"] or A["tongLaiLo"] != B["tongLaiLo"],
+         f"A qua sàng {A['soQuaSang']} / B {B['soQuaSang']}")
+
+    kiem("cổng trả về phán quyết đọc được",
+         isinstance(kq.get("cho"), bool) and kq.get("lyDo") is not None,
+         kq.get("lyDo"))
+
+    # Và config phải được TRẢ LẠI nguyên trạng dù đi nhánh nào.
+    from kham.config import CONFIG
+    kiem("config trả lại nguyên trạng sau khi thử",
+         abs(float(CONFIG["dinhGia"]["batDinhToiThieu"]) - 0.30) > 1e-9,
+         CONFIG["dinhGia"]["batDinhToiThieu"])
+
+
 def kiem_dong_co() -> None:
     print("\n── Sổ đăng ký động cơ ────────────────────────────────────────")
     from kham import dong_co
@@ -1503,6 +1551,7 @@ def main() -> int:
     kiem_nguon_mau()
     kiem_tien_hoa_chay_that()
     kiem_huong_de_xuat()
+    kiem_cong_phan_biet()
     kiem_lat_cat()
 
     print("\n" + "=" * 70)

@@ -46,6 +46,7 @@ from pathlib import Path
 
 from .bang import doc_bang
 from .chay_lai import ThamSo as ChayLaiThamSo
+from .chay_lai import gop_doi_chieu
 from .chay_lai import mot_luot as chay_lai_mot_luot
 from .chan_doan import (NUT_THEO_DUONG, NUT_VAN, TrieuChung, chan_doan,
                         de_bai, doc_tham_so, kep)
@@ -232,14 +233,24 @@ def thu_mot_de_xuat(khung: list[dict], dx: DeXuat) -> dict:
         b = ThamSo("ứng viên", net, dx.denGiaTri)
         kq = doi_chieu(khung, a, b)
     else:
-        # Nút không nằm trong đường chạy lại: đặt tạm vào CONFIG, chạy, trả lại.
+        # Nút không đi qua `ThamSo` mà nằm trong CONFIG. Phải chạy HAI
+        # lượt ở HAI trạng thái config khác nhau.
+        #
+        # Bản đầu đặt config sang giá trị MỚI rồi chạy cả A lẫn B với hai
+        # `ThamSo` giống hệt nhau — tức là so một thứ với chính nó. Kết
+        # quả luôn "bằng", nên tám trong mười nút vặn được KHÔNG BAO GIỜ
+        # qua nổi cổng, bất kể đề xuất đúng hay sai hướng.
+        #
+        # Đây mới là lý do thật khiến vòng tiến hoá chưa từng nhận gì —
+        # nặng hơn cả chuyện thiếu mẫu, vì nó không lộ ra ở đâu cả: cổng
+        # vẫn chạy, vẫn in ra một phán quyết, chỉ là phán quyết đó vô nghĩa.
+        ka = chay_lai_mot_luot(khung, ThamSo("đương nhiệm", net, at))
         cu = _dat_tham_so(dx.nut, dx.denGiaTri)
         try:
-            a = ThamSo("đương nhiệm", net, at)
-            b = ThamSo("ứng viên", net, at)
-            kq = doi_chieu(khung, a, b)
+            kb = chay_lai_mot_luot(khung, ThamSo("ứng viên", net, at))
         finally:
             _dat_tham_so(dx.nut, cu)
+        kq = gop_doi_chieu(ka, kb)
 
     A, B = kq["A"], kq["B"]
     ly: list[str] = []
