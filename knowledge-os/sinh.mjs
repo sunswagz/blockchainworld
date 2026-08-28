@@ -366,14 +366,28 @@ if (cho.length) {
 /* So NỘI DUNG, bỏ qua dấu giờ. `sinhLuc` đổi mỗi lượt nên so cả file
    là lượt nào cũng "đổi" — mỗi ngày một commit rỗng, và người đọc
    lịch sử phải lội qua nó để tìm lượt có đổi thật. */
-const KHUON = /window\.TRI_THUC = (\{[\s\S]*?\});\n/;
-function doiKhac(duong, d) {
+/* So CẢ TỆP, không chỉ so phần dữ liệu.
+
+   Bản đầu chỉ so khối `window.TRI_THUC = {...}`, và chỗ hở im lặng
+   nằm đúng ở phần còn lại: tệp sinh ra mang CẢ phần vẽ (`T.ve`,
+   `T.them`, `T.gan`…) lẫn khối chú thích đầu tệp. Sửa phần vẽ trong
+   sinh.mjs thì dữ liệu không đổi một byte, nên `--kiem` báo "khớp",
+   thước `lat-cat-tuoi` xanh, và MƯỜI MỘT cung tiếp tục chạy phần vẽ
+   CŨ — vĩnh viễn, không lỗi nào báo.
+
+   Đã trôi thật: khối chú thích đầu tệp còn ghi "SINH TAY, PHẢI
+   COMMIT — không workflow nào chạy lệnh này" ở tám cung, trong khi
+   node `tri-thuc` đã ghi chúng mỗi 24 giờ. Tệp dạy người sau một luật
+   đã hết đúng, và không phép kiểm nào nhìn thấy.
+
+   `sinhLuc` phải chuẩn hoá ở CẢ HAI bên trước khi so — nó đổi mỗi lần
+   sinh, nên so thô thì mọi tệp luôn "lệch" và cả `--kiem` lẫn thước
+   kia đỏ vĩnh viễn. Đúng cái bẫy mtime đã gỡ một lần ở chỗ khác. */
+const DAU_LUC = /"sinhLuc":"[^"]*"/;
+function doiKhac(duong, noiMoi) {
   if (!existsSync(duong)) return true;
-  const m = readFileSync(duong, "utf8").match(KHUON);
-  if (!m) return true;
-  try {
-    return JSON.stringify({ ...JSON.parse(m[1]), sinhLuc: "" }) !== JSON.stringify({ ...d, sinhLuc: "" });
-  } catch { return true; }
+  const chuan = (t) => t.replace(DAU_LUC, '"sinhLuc":""');
+  return chuan(readFileSync(duong, "utf8")) !== chuan(noiMoi);
 }
 
 let n = 0;
@@ -397,7 +411,7 @@ for (const h of lam) {
     continue;
   }
 
-  if (!doiKhac(duong, d)) {
+  if (!doiKhac(duong, noi)) {
     if (KIEM) continue;
     console.log(`· ${h.hall.padEnd(16)} không đổi — giữ nguyên`);
     continue;
