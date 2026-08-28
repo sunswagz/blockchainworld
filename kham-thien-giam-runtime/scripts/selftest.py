@@ -1231,7 +1231,9 @@ def kiem_tien_hoa_thu_lai() -> None:
     th["gioUTC"] = 0                    # để phép kiểm không phụ thuộc giờ chạy
     try:
         # ── lượt ném ra lỗi ───────────────────────────────────────────────
-        V.tien_hoa_mot_luot = lambda: (_ for _ in ()).throw(
+        # `**_kw`: bản giả phải nuốt mọi tham số của hàm thật. Không thì
+        # hàm thật mọc thêm một tham số là phép kiểm đỏ ở chỗ chẳng liên quan.
+        V.tien_hoa_mot_luot = lambda **_kw: (_ for _ in ()).throw(
             RuntimeError("băng hỏng giả lập"))
         rt = V.Runtime()
         rt._soat_tien_hoa()
