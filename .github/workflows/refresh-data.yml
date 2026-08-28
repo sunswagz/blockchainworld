@@ -10,8 +10,8 @@ name: Cập nhật số liệu
 # mà không có gì bắt ba chỗ đó khớp nhau.
 #
 # Giờ nhịp nằm ở NODE trong scripts/nha-may.mjs, một chỗ. Cron chỉ
-# nói "cứ 6 giờ ngó một lần xem có gì đến hạn không". Node nhịp 24
-# giờ vẫn chỉ chạy 1 lượt/ngày dù workflow thức dậy 4 lần — bước
+# nói "cứ 3 giờ ngó một lần xem có gì đến hạn không". Node nhịp 24
+# giờ vẫn chỉ chạy 1 lượt/ngày dù workflow thức dậy 8 lần — bước
 # "Lập kế hoạch" bên dưới lọc.
 #
 # Hệ quả: đổi nhịp một cung = sửa một con số trong nha-may.mjs.
@@ -19,9 +19,36 @@ name: Cập nhật số liệu
 
 on:
   schedule:
-    # 17 phút sau các giờ 0, 6, 12, 18 (UTC).
-    # Lệch 17 phút để tránh giờ tròn — lúc đó GitHub kẹt hàng đợi, chạy trễ cả tiếng.
-    - cron: "17 0,6,12,18 * * *"
+    # ── VÌ SAO TÁM MỐC CHỨ KHÔNG PHẢI BỐN ─────────────────────────
+    # Cron ở đây là TRẦN, không phải nhịp — thêm mốc KHÔNG làm node
+    # nào chạy dày hơn, vì `den-han` vẫn chặn theo `nhip` của từng
+    # node. Thêm mốc chỉ cho nhà máy thêm cơ hội thức dậy.
+    #
+    # Cần thêm cơ hội vì GitHub đang bỏ bớt lượt của ta. Đo ngày
+    # 28/08 trên 56 lượt theo lịch:
+    #
+    #   14/08 → 26/08   ĐÚNG 4 lượt/ngày, mười ba ngày liền
+    #   26/08 20:05 →   còn 2 lượt/ngày, cách nhau 12–13 giờ
+    #
+    # Không phải hai lượt chồng nhau: lượt dài nhất 38 phút. Thứ đổi
+    # là ĐỘ TRỄ so với giờ cron — trước 35 phút đến 1,6 giờ, sau
+    # 3,6 đến 5,2 giờ. Trễ quá 6 giờ thì mốc kế bị bỏ hẳn, nên cứ
+    # hai lượt mất một.
+    #
+    # Mốc 26/08 20:05 chính là lượt 38 phút đầu tiên, đúng lúc các
+    # node tiến hoá lên. Xưởng nặng lên thì GitHub giãn lịch ra.
+    #
+    # Tám mốc cách nhau 3 giờ: trễ tới 3 giờ vẫn không mất mốc nào,
+    # và trễ 5 giờ thì mất một trong ba thay vì một trong hai.
+    #
+    # Giá phải trả gần bằng không, và đây là số ĐO chứ không phải ước:
+    # lượt không có node nào đến hạn chạy hết 0,8 phút (đo lượt
+    # 20/08 07:09). Bốn mốc thêm = khoảng 4 phút runner mỗi ngày,
+    # trên kho công khai thì miễn phí.
+    #
+    # Lệch 17 phút để tránh giờ tròn — lúc đó hàng đợi GitHub đông
+    # nhất và độ trễ tệ nhất.
+    - cron: "17 0,3,6,9,12,15,18,21 * * *"
   workflow_dispatch:
     inputs:
       ep:
@@ -1840,8 +1867,10 @@ jobs:
       # trả lời được thì đừng trả tiền cho model trả lời.
       #
       # Một việc duy nhất, sửa đi sửa lại. Mở việc mới mỗi lượt thì
-      # nhịp 4 lượt/ngày thành 28 việc một tuần nói cùng một chuyện,
-      # và người ta tắt thông báo — cảnh báo tự huỷ chính nó.
+      # tám lượt/ngày thành hơn năm chục việc một tuần nói cùng một
+      # chuyện, và người ta tắt thông báo — cảnh báo tự huỷ chính nó.
+      # Bước này chạy MỌI lượt thức dậy (không có `nhip` chặn), nên
+      # thêm mốc cron là thêm thẳng vào con số đó.
       - name: Mở việc nếu có node ốm
         if: always()
         continue-on-error: true

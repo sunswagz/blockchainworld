@@ -149,11 +149,11 @@ dưới, không chép lại — hai bản sao thì sẽ lệch. Gỡ hook: xoá
 
 ### File do workflow tự sinh — đừng sửa tay
 
-Hai workflow chạy theo lịch và commit thẳng vào `main`, mỗi cái 4 lần một
-ngày. Chúng ghi đè đúng những đường dẫn dưới đây; sửa tay là chắc chắn
-conflict lúc merge.
+Workflow chạy theo lịch và commit thẳng vào `main`. Chúng ghi đè đúng
+những đường dẫn dưới đây; sửa tay là chắc chắn conflict lúc merge.
 
-`refresh-data.yml` (17 phút sau 0, 6, 12, 18 giờ UTC):
+`refresh-data.yml` (17 phút sau 0, 3, 6, 9, 12, 15, 18, 21 giờ UTC —
+tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dưới):
 
     kinh-thanh/assets/js/data/live.js
     kinh-thanh/assets/js/data/provenance.js
@@ -369,10 +369,22 @@ Hệ quả kèm theo: `factory/registry.json` mang thêm trường `khai` — fi
 nào khai node đó. Lỗi ném ra từ phép kiểm cũng chỉ thẳng file phải sửa,
 thay vì bắt đi tìm trong một mảng dài.
 
-`cron` trong hai workflow chỉ còn là **TRẦN** — "cứ 6 giờ ngó một lần xem
+`cron` trong hai workflow chỉ còn là **TRẦN** — "cứ 3 giờ ngó một lần xem
 có gì đến hạn không". Đến hạn hay chưa thì sổ quyết. Hệ quả: **đổi nhịp
-một cung là sửa đúng một con số**, không đụng YAML. Muốn nhịp mịn hơn 6
+một cung là sửa đúng một con số**, không đụng YAML. Muốn nhịp mịn hơn 3
 giờ thì mới phải sửa cron.
+
+**Tám mốc chứ không bốn, và đó là chuyện GitHub chứ không phải chuyện
+nhịp.** Đo ngày 28/08 trên 56 lượt: từ 14/08 tới 26/08 chạy đúng 4
+lượt/ngày, mười ba ngày liền; từ 26/08 20:05 tụt còn 2 lượt/ngày. Không
+phải hai lượt chồng nhau (lượt dài nhất 38 phút) — thứ đổi là **độ trễ
+so với giờ cron**, từ 35 phút–1,6 giờ lên 3,6–5,2 giờ. Trễ quá khoảng
+cách giữa hai mốc thì GitHub bỏ hẳn mốc kế.
+
+Mốc gãy trùng đúng lượt 38 phút đầu tiên, tức lúc các node tiến hoá lên:
+xưởng nặng lên thì GitHub giãn lịch ra. Thêm mốc là cách duy nhất ta
+điều khiển được từ phía mình, và nó gần như miễn phí — lượt không có
+node nào đến hạn chạy hết **0,8 phút** (đo lượt 20/08 07:09).
 
 Thêm một node thì `npm run kiem` bắt ba thứ phải khớp, và cả ba đều hỏng
 im lặng nếu sai:
@@ -455,8 +467,9 @@ hơn là một bước đỏ.
 
 Hệ quả cho độ tươi dữ liệu: dòng "rừng văn hoá Hoàng Thành: sinh cách đây N
 ngày" **không bao giờ kèm ⚠**, vì nó sinh tay. **Năm** nguồn kia do bot ghi
-và phải tươi trong **1 ngày** — bot chạy 4 lượt/ngày, quá 1 ngày nghĩa là
-bốn lượt liên tiếp không ghi được gì.
+và phải tươi trong **1 ngày**. Node số liệu có `nhip: 6` nên nhiều nhất
+4 lượt ghi mỗi ngày dù workflow thức dậy 8 lần; quá 1 ngày nghĩa là bốn
+lượt liên tiếp không ghi được gì.
 
 ### Ba runtime Python là ngoại lệ — và KHÔNG thư mục nào trong ba là cung
 
