@@ -759,10 +759,11 @@ jobs:
           # Đo sau khi model đã sửa rồi mới nghĩ tới việc so là mất mốc.
           node scripts/tien-hoa.mjs do dai-quan-trac --ghi "$RUNNER_TEMP/dqt-goc.json"
           node scripts/tien-hoa.mjs de-bai dai-quan-trac
-          # Đếm điểm yếu để bước sau biết có đáng gọi model không.
-          YEU=$(node -e "const d=require('./dai-quan-trac/assets/data/de-bai-tien-hoa.json');console.log(d.phieu.diem.filter(x=>!x.dat).length)")
-          echo "yeu=$YEU" >> "$GITHUB_OUTPUT"
-          echo "::notice::Phiếu đo: $(node -e \"const d=require('./dai-quan-trac/assets/data/de-bai-tien-hoa.json');console.log(d.phieu.dat+'/'+d.phieu.tong)\") đạt · $YEU điểm yếu"
+          # node tự ghi `yeu=N` vào $GITHUB_OUTPUT và tự in ::notice::
+          # kèm tên thước đang trượt. Bash KHÔNG ghép chuỗi quanh JSON —
+          # bản trước làm thế và bash báo syntax error, hỏng cả bước
+          # suốt chín lượt trong khi phiếu vẫn đo xong bình thường.
+          node scripts/tien-hoa.mjs tom-tat dai-quan-trac --ra "$GITHUB_OUTPUT"
 
       # Chụp mốc TRƯỚC khi model chạm vào. Không có nó thì bước hoàn
       # nguyên không biết trả về đâu.

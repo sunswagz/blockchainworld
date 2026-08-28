@@ -643,6 +643,27 @@ function cong() {
 /* ═══════════════ DÒNG LỆNH ═══════════════ */
 /* Chế độ nội bộ: cha gọi lại chính file này để phần vẽ chạy trong
    tiến trình con có hạn giờ. Không dành cho người gõ tay. */
+/* Đọc lại đề bài vừa dựng rồi tóm tắt — KHÔNG đo lại, vì đo lại là
+   tốn thêm một lượt dựng 54 phòng cho một dòng chữ.
+
+   `--ra <file>`: ghi `yeu=N` vào đó (workflow truyền $GITHUB_OUTPUT).
+   stdout in dòng ::notice:: kèm tên thước đang trượt.
+
+   Có lệnh này để BASH KHÔNG PHẢI GHÉP CHUỖI quanh JSON nữa. Bản
+   trước ghép bằng `$(node -e \"…\")` lồng trong nháy kép của echo và
+   bash báo syntax error, làm hỏng cả bước suốt chín lượt. */
+if (LENH === "tom-tat") {
+  const p = DUONG("assets", "data", "de-bai-tien-hoa.json");
+  if (!co(p)) thoat("chưa có đề bài — chạy `de-bai` trước.");
+  const d = JSON.parse(doc(p));
+  const yeu = d.phieu.diem.filter((x) => !x.dat);
+  const raFile = co_("ra");
+  if (raFile) await writeFile(raFile, `yeu=${yeu.length}\n`, { flag: "a" });
+  console.log(`::notice::Phiếu đo ${CUNG}: ${d.phieu.dat}/${d.phieu.tong} đạt · ` +
+    `${yeu.length} điểm yếu` + (yeu.length ? ` · trượt: ${yeu.map((x) => x.ten).join(", ")}` : ""));
+  process.exit(0);
+}
+
 if (LENH === "ve-json") {
   process.stdout.write(JSON.stringify(await thuVeConThuc()));
   process.exit(0);
@@ -721,5 +742,5 @@ if (LENH === "do") {
   }
   process.exit(loi.length ? 1 : 0);
 } else {
-  thoat(`Lệnh lạ "${LENH}". Có: do · ky-nang · de-bai · cong`);
+  thoat(`Lệnh lạ "${LENH}". Có: do · ky-nang · de-bai · tom-tat · cong`);
 }
