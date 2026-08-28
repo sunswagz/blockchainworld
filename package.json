@@ -33,7 +33,8 @@
     "cong": "node scripts/tien-hoa.mjs cong",
     "tri-thuc": "node knowledge-os/sinh.mjs",
     "tri-thuc-kiem": "node knowledge-os/kiem.mjs",
-    "tra": "node knowledge-os/tra.mjs"
+    "tra": "node knowledge-os/tra.mjs",
+    "tri-thuc-do": "node knowledge-os/do.mjs"
   },
   "engines": {
     "node": ">=18"

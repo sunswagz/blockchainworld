@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T15:22:14.054Z",
+  "generatedAt": "2026-08-28T15:27:05.975Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -186,6 +186,46 @@
       ],
       "y": "TVL và số on-chain 9 quốc gia L1, lấy từ DefiLlama.",
       "khai": "scripts/node/kinh-thanh.mjs"
+    },
+    {
+      "ma": "tri-thuc",
+      "ten": "Lát cắt tri thức",
+      "cung": null,
+      "tram": "M12",
+      "che": "script",
+      "nhip": 24,
+      "lenh": "node knowledge-os/sinh.mjs",
+      "ra": [
+        "cong-bo/assets/js/v/tri-thuc.js",
+        "dai-quan-trac/assets/js/v/tri-thuc.js",
+        "do-sat-vien/assets/js/v/tri-thuc.js",
+        "ho-bo/assets/js/v/tri-thuc.js",
+        "hoang-thanh/assets/js/v/tri-thuc.js",
+        "kham-thien-giam/assets/js/v/tri-thuc.js",
+        "tang-thu-cac/assets/js/v/tri-thuc.js",
+        "tao-bien-xu/assets/js/v/tri-thuc.js",
+        "thai-boc-tu/assets/js/v/tri-thuc.js",
+        "thi-bac-ty/assets/js/v/tri-thuc.js",
+        "tu-cam-thanh/assets/js/v/tri-thuc.js"
+      ],
+      "y": "Dựng lại lát cắt cho 11 cung từ knowledge-os/data/. `sinh.mjs` chạy validator trước và KHÔNG ghi gì nếu dữ liệu sai; nó cũng bỏ qua cung nào nội dung không đổi, nên lượt không có gì mới thì không sinh ra commit rỗng. Nhịp 24 giờ vì dữ liệu nguồn đổi khi có người sửa, không đổi theo giờ như số liệu thị trường.",
+      "khai": "scripts/node/knowledge-os.mjs"
+    },
+    {
+      "ma": "tri-thuc-tien-hoa",
+      "ten": "Tiến hoá lớp tri thức",
+      "cung": null,
+      "tram": "M18",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "do.mjs de-bai → claude-code-action → do.mjs cong --so",
+      "ra": [
+        "knowledge-os/data/bridges/repo.json",
+        "knowledge-os/data/2026/concepts.json",
+        "knowledge-os/data/2026/relations.json"
+      ],
+      "y": "Phiếu đo bảy thước chỉ ra chỗ lớp tri thức còn hụt — phòng chưa ánh xạ, khái niệm 2026 chưa nối tới trang nào — rồi model đề xuất vá, rồi cổng chặn chấm lại bằng chính phiếu đó. Model CHỈ được sửa lớp phân tích và lớp 2026; lớp SÁCH cấm tuyệt đối vì nó cần người có PDF trong tay, và một số trang đoán trúng khoảng chương thì qua được mọi phép kiểm mà vẫn là trích dẫn bịa.",
+      "khai": "scripts/node/knowledge-os.mjs"
     },
     {
       "ma": "tang-thu-cac",

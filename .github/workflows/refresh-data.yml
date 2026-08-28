@@ -1659,6 +1659,172 @@ jobs:
           node scripts/nha-may.mjs ghi bao-cao "$KET" ${GIAY:+--giay $GIAY} \
             --ghi "opus-5 · max-turns 8"
 
+      # ── M12 · Lát cắt tri thức ──────────────────────────────────
+      # Thuần script, không gọi model. Dựng lại 11 lát cắt từ
+      # knowledge-os/data/ để trang nói đúng bản dữ liệu hiện tại.
+      #
+      # `sinh.mjs` tự chạy validator trước và KHÔNG ghi gì nếu dữ liệu
+      # sai — cùng luật với build-scan.mjs: một dòng sai ở đây không
+      # nằm yên trong file JSON, nó thành chữ trên trang người ta đọc.
+      # Nó cũng bỏ qua cung nào nội dung không đổi, nên lượt không có
+      # gì mới thì không sinh ra một commit rỗng.
+      - name: Lát cắt tri thức
+        id: n-tri-thuc
+        if: contains(steps.kehoach.outputs.han, ',tri-thuc,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          t0=$(date +%s)
+          node knowledge-os/sinh.mjs 2>&1 | tee "$RUNNER_TEMP/tri-thuc.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · tri-thuc
+        if: always() && steps.n-tri-thuc.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-tri-thuc.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-tri-thuc.outputs.giay }}
+        run: node scripts/nha-may.mjs ghi tri-thuc "$KET" ${GIAY:+--giay $GIAY} --log "$RUNNER_TEMP/tri-thuc.log"
+
+      # ── M18 · Tiến hoá lớp tri thức ─────────────────────────────
+      # Vòng thứ năm của xưởng, và là vòng đầu tiên KHÔNG sửa giao
+      # diện: bốn vòng kia vá app.css/app.js, vòng này vá chính lớp
+      # tri thức.
+      #
+      # Cùng khuôn ba lớp với bốn vòng kia — đo TRƯỚC, model ở giữa,
+      # cổng chặn chấm lại SAU — nhưng phiếu đo là của riêng nó:
+      # `knowledge-os/do.mjs`, bảy thước về độ phủ và độ truy ngược
+      # được. Không dùng `tien-hoa.mjs` vì thước ở đó đo giao diện.
+      #
+      # PHẠM VI HẸP HƠN MỌI VÒNG KHÁC, và cố ý: model chỉ được chạm
+      # lớp phân tích (cầu nối) và lớp 2026. Lớp SÁCH cấm tuyệt đối —
+      # nó cần người có PDF trong tay, còn một model đoán một số trang
+      # nằm đúng khoảng chương thì qua được MỌI phép kiểm mà vẫn là
+      # trích dẫn bịa. Cổng chặn không bắt được chuyện đó, nên chặn ở
+      # phạm vi chứ không chặn ở kết quả.
+      - name: Ra đề tiến hoá — tri thức
+        id: n-tt-de
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',tri-thuc-tien-hoa,')
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          node knowledge-os/do.mjs --ghi "$RUNNER_TEMP/tt-goc.json"
+          node knowledge-os/do.mjs de-bai --ra "$GITHUB_OUTPUT"
+
+      - name: Đánh dấu mốc trước khi sửa
+        id: n-tt-moc
+        if: steps.n-tt-de.outcome == 'success'
+        run: |
+          # Chụp danh sách file ĐÃ BẨN SẴN, không chỉ `rev-parse HEAD`.
+          # Node `tri-thuc` chạy TRƯỚC bước này trong CÙNG một lượt và
+          # đã ghi lát cắt mà chưa commit; so với HEAD thì phép soát
+          # phạm vi sẽ luôn thấy chúng nằm ngoài và luôn trả lại. Đúng
+          # cái bẫy đã giết vòng Đài Quan Trắc chín lượt liền.
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git diff --name-only -- knowledge-os > "$RUNNER_TEMP/tt-ban-truoc.txt"
+
+      # Không còn điểm yếu thì KHÔNG gọi model. Bảy thước hết chỗ đo là
+      # chuyện tốt, không phải lý do đi tìm việc cho model.
+      - name: Đề xuất bản vá tri thức (Claude Code)
+        id: n-tt-va
+        if: steps.n-tt-de.outcome == 'success' && steps.n-tt-de.outputs.yeu != '0'
+        continue-on-error: true
+        timeout-minutes: 12
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 20
+            --allowedTools "Read,Write,Edit"
+          prompt: |
+            Đọc knowledge-os/data/de-bai-tien-hoa.json.
+
+            Trong đó có:
+            · `phieu.diem` — bảy thước, mỗi cái có `dat` và `y` (số đo
+              cụ thể). Thước nào `dat: false` là điểm yếu.
+            · `chuaAnhXa` — phòng có thật trong mã nguồn cung mà lớp
+              tri thức chưa nói gì về nó.
+            · `khaiNiemDungDuoc` — TOÀN BỘ id khái niệm được phép dùng.
+            · `duocSua` / `camSua` — đọc kỹ hai danh sách này.
+
+            VIỆC CỦA BẠN: làm lớp tri thức tốt lên MỘT BƯỚC, đúng một
+            bước. Chọn điểm yếu có số đo tệ nhất và sửa duy nhất nó.
+
+            Cách sửa thường gặp nhất — phòng chưa ánh xạ:
+            đọc mã nguồn cung để hiểu phòng đó LÀM GÌ, rồi hoặc
+
+              (a) thêm vào `rooms` của cung trong
+                  knowledge-os/data/bridges/repo.json:
+                  { "id": "<mã phòng>", "name_vi": "...",
+                    "concepts": ["<id có sẵn>", ...],
+                    "note_vi": "<một hai câu nói phòng này đang đo
+                                VIỆC KINH TẾ nào>" }
+
+              hoặc (b) nếu phòng đó là công cụ thuần tuý — trang tra
+                  từ, xưởng ảnh, danh mục dự án — thì thêm vào
+                  `rooms_skipped` kèm `why_vi` nói vì sao. Bỏ qua có
+                  lý do là một câu trả lời ĐÚNG, không phải né việc.
+
+            LUẬT CỨNG, vi phạm là cổng chặn trả lại cả bản vá:
+            · Chỉ sửa file trong `duocSua`. Không chạm `camSua`.
+            · Chỉ dùng id khái niệm có trong `khaiNiemDungDuoc`.
+            · Không thêm `source_chapters` / `source_pages` cho bất cứ
+              thứ gì. Chương và trang chỉ người đọc sách mới đặt được.
+            · Khái niệm 2026 phải có `source_ref` trỏ vào một đường
+              CÓ THẬT trong repo. Đường không tồn tại là trích dẫn bịa.
+            · `note_vi` phải nói được điều mà TÊN PHÒNG không nói. Chép
+              lại tên phòng thành câu là không thêm gì cả.
+
+            Chỉ sửa file. Không chạy lệnh nào.
+
+      - name: Cổng chặn tri thức — nhận hay trả lại
+        id: n-tt-cong
+        if: always() && steps.n-tt-va.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          MOC: ${{ steps.n-tt-moc.outputs.sha }}
+        run: |
+          BAN_TRUOC="$RUNNER_TEMP/tt-ban-truoc.txt"
+          [ -f "$BAN_TRUOC" ] || : > "$BAN_TRUOC"
+          MOI=$(git diff --name-only "$MOC" -- knowledge-os | grep -vxF -f "$BAN_TRUOC" || true)
+          # de-bai-tien-hoa.json đã gitignore nên nó không bao giờ hiện
+          # trong "git diff" — không cần khai ở đây.
+          CHO='knowledge-os/data/bridges/repo.json knowledge-os/data/2026/concepts.json knowledge-os/data/2026/relations.json'
+          NGOAI=''
+          for f in $MOI; do
+            case " $CHO " in *" $f "*) ;; *) NGOAI="$NGOAI $f" ;; esac
+          done
+          if [ -n "$NGOAI" ]; then
+            echo "::error::Bản vá tri thức chạm file ngoài phạm vi:$NGOAI"
+            if [ -n "$MOI" ]; then git checkout -- $MOI; fi
+            exit 1
+          fi
+          if node knowledge-os/do.mjs cong --so "$RUNNER_TEMP/tt-goc.json" 2>&1 \
+               | tee "$RUNNER_TEMP/tri-thuc-tien-hoa.log"; then
+            echo "::notice::Vòng tiến hoá tri thức: NHẬN"
+          else
+            echo "::error::Vòng tiến hoá tri thức: TRẢ LẠI — cổng chặn không qua"
+            HONG=$(git diff --name-only "$MOC" -- knowledge-os | grep -vxF -f "$BAN_TRUOC" || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
+            exit 1
+          fi
+
+      - name: Ghi sổ · tri-thuc-tien-hoa
+        if: always() && steps.n-tt-de.outcome != 'skipped'
+        env:
+          # Phiếu đầy đủ (không gọi model) cũng là `ok`: node đã chạy,
+          # đã đo, và kết luận đúng là không có gì phải sửa.
+          KET: ${{ (steps.n-tt-de.outputs.yeu == '0' || steps.n-tt-cong.outcome == 'success') && 'ok' || 'loi' }}
+          YEU: ${{ steps.n-tt-de.outputs.yeu }}
+          T_DAU: ${{ steps.n-tt-de.outputs.t0 }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          node scripts/nha-may.mjs ghi tri-thuc-tien-hoa "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${YEU:-?} điểm yếu · opus-5 · cổng chặn quyết định" \
+            --log "$RUNNER_TEMP/tri-thuc-tien-hoa.log"
+
       - name: Chiếu sổ sang Bảng vận hành
         if: always()
         run: node scripts/nha-may.mjs chieu

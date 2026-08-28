@@ -323,6 +323,17 @@
       "example_vi": "Funding được diễn giải như giá cân bằng vị thế/đòn bẩy và tín hiệu nơi vốn được trả tiền.",
       "rooms": [
         {
+          "id": "trung-uong",
+          "name_vi": "Chín ty dưới một Thị Bạc Ty",
+          "concepts": [
+            "capital_market",
+            "economic_calculation",
+            "counterparty_risk",
+            "salability"
+          ],
+          "note_vi": "Chín ty là chín cách vốn kiếm ra tiền, nhưng vốn thì chỉ có một túi — nên chỗ này không đo từng ty, nó đo VIỆC PHÂN VỐN giữa chín ty. Một ty lãi cao mà nuốt hết thanh khoản là làm nghèo tám ty còn lại, và chỉ một phép tính chung mới thấy được điều đó."
+        },
+        {
           "id": "co-hoi",
           "name_vi": "Cơ hội",
           "concepts": [

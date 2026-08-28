@@ -34,3 +34,8 @@ ios/
 # giữ là những sửa đổi đã qua cổng chặn. Cùng lý do với de-bai.json
 # và quet.json của Đài Quan Trắc.
 ho-bo/assets/data/de-bai-tien-hoa.json
+
+# Đề bài của vòng tiến hoá tri thức — chỉ sống trong một lượt chạy,
+# thứ đáng giữ là dữ liệu đã qua cổng chặn. Cùng lý do với de-bai.json
+# của Đài Quan Trắc và de-bai-tien-hoa.json của Hộ Bộ.
+knowledge-os/data/de-bai-tien-hoa.json
