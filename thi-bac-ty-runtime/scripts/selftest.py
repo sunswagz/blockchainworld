@@ -5244,9 +5244,12 @@ def kiem_ke_toan_vi_the() -> None:
                     apyThuongPhanTram=apyThuong, ilRisk="no", phoi="multi",
                     docLucMs=(_tt.time() - tuoiGiay) * 1000.0)
 
-    ta = TyCapThanhKhoan.__new__(TyCapThanhKhoan)
-    Ty.__init__(ta)
-    ta.c = {"apyToiThieuPhanTram": 2.0}
+    # Dựng bằng `__init__` THẬT (không nối mạng ở đó), không bịa thuộc
+    # tính. Bản đầu dùng `__new__` rồi tự gán `ta.c = {...}` — và `self.c`
+    # KHÔNG tồn tại trên lớp này, nên phép kiểm xanh trong khi mã sống ném
+    # `AttributeError`. Phép kiểm bịa ra hình dạng đối tượng là phép kiểm
+    # kiểm chính giả định của người viết.
+    ta = TyCapThanhKhoan()
     ta.pool = [_pool()]
     tt10 = {"cang": ["uniswap-v3"], "chuoi": ["Base"], "taiSan": "USDC-ETH"}
     chan10 = [ViThe("m10", TyCapThanhKhoan.ma, "LONG", "uniswap-v3",

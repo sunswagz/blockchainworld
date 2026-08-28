@@ -530,7 +530,13 @@ class TyCapThanhKhoan(Ty):
 
         von = sum(abs(float(getattr(c, "vonUsd", 0.0) or 0.0)) for c in viThe)
         thu = von * (float(p.apyGocPhanTram) / 100.0) * dt / NAM_GIAY
-        nguong = float(self.c["apyToiThieuPhanTram"])
+        # `self.cong` là cổng rủi ro của ty; `self.c` KHÔNG tồn tại trên
+        # `TyCapThanhKhoan` — nó là thuộc tính của `CongRuiRo`. Bản đầu
+        # viết `self.c` và phép kiểm vẫn xanh vì chính phép kiểm ấy tự gán
+        # `ta.c = {...}`: nó kiểm giả định của tôi, không kiểm lớp thật.
+        # Lỗi lộ ra ở lượt chạy sống đầu tiên, và lộ ra ĐÚNG CHỖ nhờ
+        # `_ke_toan_vi_the` bọc `ke_toan` trong try và ghi vào `loi`.
+        nguong = float(self.cong.c["apyToiThieuPhanTram"])
         vi = (f"phí AMM {p.duAn} {kyHieu}: apyBase {p.apyGocPhanTram:.2f}% × "
               f"{dt / 3600:.4f}h trên {von:.2f} USD (số của QUÁ KHỨ; thưởng "
               f"KHÔNG tính; tổn thất tạm thời CHƯA đo)")
