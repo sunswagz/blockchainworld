@@ -87,11 +87,18 @@ jobs:
       # commit thì không có nền chung để rebase — lượt #12 (15/08) chết
       # đúng chỗ đó, trong 2 giây, sau khi push bị từ chối.
       # Đắt thêm vài giây mỗi lượt, đổi lấy bước cuối không mất trắng.
-      - uses: actions/checkout@v4
+      #
+      # @v5 chứ không @v4: v4 chạy trên node20, mà GitHub đã báo deprecated
+      # và đang ép nó chạy tạm trên node24. v5 là major ĐẦU TIÊN khai
+      # `using: node24` — tra thẳng `action.yml` của từng tag chứ không
+      # đoán theo ghi chú phát hành. Cố ý KHÔNG nhảy lên v7 (bản mới nhất
+      # lúc nâng): v5→v7 mang theo thay đổi phá vỡ về `pull_request_target`
+      # mà repo này không dùng, nên nhảy xa chỉ thêm rủi ro không đổi lấy gì.
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
 
