@@ -111,6 +111,8 @@
   },
 
   "nguon": {
+    "//proxy": "Lối ra cho mọi lời gọi HTTP. Để rỗng thì dùng đường mạng thẳng, và runtime vẫn tôn trọng biến môi trường HTTPS_PROXY. Khai ở đây khi đường thẳng tới sàn không đi được — 21-28/08/2026 cả ba host polymarket.com đều bị đóng ở tầng TLS từ máy này (TCP 443 bắt tay xong mới bị giết, chỉ nhắm đúng tên miền ấy; Binance bình thường). Lối đang dùng hiện ngay trên bảng Sức khoẻ nguồn, để không ai phải đoán runtime đi đường nào.",
+    "proxy": "",
     "polymarketGamma": "https://gamma-api.polymarket.com",
     "polymarketClob": "https://clob.polymarket.com",
     "polymarketData": "https://data-api.polymarket.com",

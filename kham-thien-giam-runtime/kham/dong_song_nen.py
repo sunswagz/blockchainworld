@@ -121,8 +121,15 @@ class DongSongNen:
             raise _ChuaCoMa()
 
         duong = "/".join(f"{m}@bookTicker" for m in ds)
+        # `websockets` KHÔNG tự đọc HTTPS_PROXY như `httpx` — nên nếu
+        # không truyền vào đây thì phần REST đi lối proxy còn phần dòng
+        # sống vẫn đi đường thẳng, và ta được một cỗ máy nửa thấy nửa mù
+        # mà không có gì báo.
+        from .nguon import nguon as _ng
+        _proxy = _ng.proxy
         with connect(f"{self.wss}?streams={duong}",
-                     open_timeout=10, close_timeout=3) as ws:
+                     open_timeout=10, close_timeout=3,
+                     **({"proxy": _proxy} if _proxy else {})) as ws:
             self.noiLucMs = time.time() * 1000.0
             bus.ghi(f"dòng nền đã nối — {len(ds)} mã (bookTicker)", loai="he")
             while self._chay:

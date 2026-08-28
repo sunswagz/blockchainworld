@@ -514,7 +514,9 @@
     g.appendChild(o);
 
     var n = T.nguon || {};
-    var o2 = oKhung("Sức khoẻ nguồn");
+    var dr = T.duongRa || {};
+    var o2 = oKhung("Sức khoẻ nguồn",
+      (dr.coProxy ? "qua proxy · " : "") + (dr.moTa || "—"));
     var ks = Object.keys(n);
     if (!ks.length) o2._than.appendChild(chuaCo("Chưa gọi nguồn nào. Bảng này lấp đầy sau nhịp đầu tiên; "
         + "trống quá một phút là dấu hiệu vòng chạy không quay."));

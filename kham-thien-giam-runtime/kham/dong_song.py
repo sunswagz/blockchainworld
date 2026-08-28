@@ -121,7 +121,14 @@ class DongSong:
             time.sleep(2.0)
             raise _ChuaCoToken()
 
-        with connect(self.wss, open_timeout=10, close_timeout=3) as ws:
+        # `websockets` KHÔNG tự đọc HTTPS_PROXY như `httpx` — nên nếu
+        # không truyền vào đây thì phần REST đi lối proxy còn phần dòng
+        # sống vẫn đi đường thẳng, và ta được một cỗ máy nửa thấy nửa mù
+        # mà không có gì báo.
+        from .nguon import nguon as _ng
+        _proxy = _ng.proxy
+        with connect(self.wss, open_timeout=10, close_timeout=3,
+                     **({"proxy": _proxy} if _proxy else {})) as ws:
             ws.send(json.dumps({"assets_ids": ds, "type": "market"}))
             self.noiLucMs = time.time() * 1000.0
             bus.ghi(f"dòng sống đã nối — {len(ds)} token", loai="he")

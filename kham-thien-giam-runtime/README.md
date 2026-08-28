@@ -15,7 +15,7 @@ Máy này có Python 3.12 cài portable, **ngoài PATH**:
 $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py -m pip install -r requirements.txt
-& $py scripts\selftest.py      # 230 phép kiểm số học, KHÔNG cần mạng
+& $py scripts\selftest.py      # 267 phép kiểm số học, KHÔNG cần mạng
 & $py run.py                   # buồng lái → http://localhost:5186
 ```
 
@@ -26,7 +26,8 @@ Xem cung tĩnh (từ gốc repo): `node server.js 5185`
 | `python run.py` | buồng lái + vòng lặp, chế độ theo `config.json` |
 | `python run.py --che=quan-sat` | chỉ đo, không mở vị thế nào kể cả trên sổ giấy |
 | `python -m kham.snapshot` | ghi một lát cắt ra cung tĩnh rồi thoát |
-| `python scripts/selftest.py` | phép kiểm số học, không cần mạng |
+| `python scripts/selftest.py` | 267 phép kiểm số học, không cần mạng |
+| `node scripts/kiem-giao-dien.mjs` | 10 phép kiểm giao diện: tương phản, z-index, ô trống |
 | `python scripts/sinh-icon.py` | sinh lại 5 icon PNG cho cung |
 | `node scripts/kiem-buong-lai.mjs` | vẽ thật 11 ô buồng lái, KHÔNG cần mạng |
 | `python -m kham.tien_hoa --thu` | xem vòng tiến hoá sẽ làm gì, không ghi gì |

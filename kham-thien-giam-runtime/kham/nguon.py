@@ -108,9 +108,31 @@ class Nguon:
         if hx is None:
             return None
         if self._client is None:
-            self._client = hx.Client(timeout=_HET_GIO,
-                                     headers={"User-Agent": "kham-thien-giam/0.1"})
+            # ĐƯỜNG RA phải khai được và NHÌN THẤY được.
+            #
+            # 21–28/08/2026: cả ba host của Polymarket (gamma, clob, và cả
+            # WebSocket) đều bị đóng ở tầng TLS từ máy này — TCP 443 bắt
+            # tay xong mới bị giết, chỉ nhắm đúng tên miền ấy. Binance thì
+            # bình thường. Đó là chuyện của đường mạng, không phải của mã.
+            #
+            # Cái mã LÀM ĐƯỢC là đừng bắt người vận hành sửa mã để đổi
+            # đường ra. `httpx` vốn đã tôn trọng HTTPS_PROXY, nhưng biến
+            # môi trường thì vô hình: không ai nhìn buồng lái mà biết
+            # runtime đang đi lối nào. Nay khai trong config, và lối đang
+            # dùng hiện ngay trên bảng sức khoẻ nguồn.
+            kw = {"timeout": _HET_GIO,
+                  "headers": {"User-Agent": "kham-thien-giam/0.1"}}
+            if self.proxy:
+                kw["proxy"] = self.proxy
+            self._client = hx.Client(**kw)
         return self._client
+
+    @property
+    def proxy(self) -> str | None:
+        """Lối ra khai trong config, hoặc từ biến môi trường."""
+        import os
+        p = (_NG.get("proxy") or "").strip()
+        return p or os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy") or None
 
     def dong(self) -> None:
         if self._client is not None:
@@ -382,6 +404,20 @@ class Nguon:
                         "soLoi": t.soLoi, "tongLuot": t.tongLuot,
                         "loiCuoi": t.loiCuoi}
                 for t in self.trangThai.values()}
+
+    def duong_ra(self) -> dict:
+        """Runtime đang đi lối nào. Hiện trên bảng sức khoẻ nguồn.
+
+        Biến môi trường thì vô hình: không ai nhìn buồng lái mà biết
+        `HTTPS_PROXY` có đang được dùng hay không, nên một máy đi lối khác
+        với máy bên cạnh mà cả hai đều trông giống hệt nhau.
+        """
+        p = self.proxy
+        return {"coProxy": bool(p),
+                # Không in nguyên chuỗi: proxy hay có user:mật khẩu trong
+                # URL, và buồng lái tuy chỉ chạy ở localhost nhưng lát cắt
+                # thì đi lên site.
+                "moTa": (p.split("@")[-1] if p else "đường thẳng")}
 
 
 def doc_so(ma: str, ben: str, d: dict) -> SoLenh:

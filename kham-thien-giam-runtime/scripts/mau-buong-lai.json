@@ -589,5 +589,9 @@
     "heSoGiamChan": 0.7,
     "doiToiDa": 0.25,
     "moc": []
+  },
+  "duongRa": {
+    "coProxy": false,
+    "moTa": "đường thẳng"
   }
 }

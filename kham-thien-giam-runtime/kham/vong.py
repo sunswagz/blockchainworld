@@ -536,6 +536,7 @@ class Runtime:
             "dongNen": dongSongNen.tom_tat(),
             "doTre": self.doTre.tom_tat(),
             "nanLai": self.phepNan.tom_tat(),
+            "duongRa": nguon.duong_ra(),
             "ketToan": self.ketToan.tom_tat(),
             "doThi": do_thi.tom_tat(),
             "voDich": so_vo_dich.tom_tat(),
