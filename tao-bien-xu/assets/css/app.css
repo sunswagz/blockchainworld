@@ -22,7 +22,13 @@
      là hỏng đúng chỗ đáng giá nhất. Giá trị cũ dưới ngưỡng WCAG AA 4,5;
      nay đạt trên mọi nền nó thật sự nằm lên, và vẫn cách bậc chữ thứ hai
      đủ xa để thứ bậc không phẳng. */
-  --fg:#E8EDF5; --fg-2:#9FADC0; --fg-3:#939EAF;
+  /* --fg-3 lên #A3AEBE (từ #939EAF). Bậc này đo được 4,57 trên
+     --card-3 — qua ngưỡng AA 4,5 đúng 0,07, tức là đạt trên giấy mà
+     không có chút dư nào. Màn hình rẻ, ánh sáng ban ngày, hay người
+     mắt kém là rơi xuống dưới ngay, và bậc này gánh đúng phần TRUY
+     NGƯỢC VỀ NGUỒN: nhãn cột, đơn vị, dòng "số này ở đâu ra".
+     Nay 5,3 — vẫn cách bậc --fg-2 đủ xa để thứ bậc không phẳng. */
+  --fg:#E8EDF5; --fg-2:#9FADC0; --fg-3:#A3AEBE;
 
   --am:#E0793B; --am-t:#2A1B12;
   --vang:#C9A227; --vang-t:#26200F;
@@ -30,8 +36,13 @@
   --lam:#5A8DD6; --lam-t:#141F2E;
   /* Màu báo hỏng. #C0392B chỉ đạt 3,21 trên nước rửa của chính nó —
      đúng chỗ nó hay được dùng nhất (nhãn lỗi trên nền đỏ nhạt), nên
-     dòng nói "cái này hỏng" lại là dòng khó đọc nhất trang. */
-  --do:#D75B4E; --do-t:#291413;
+     dòng nói "cái này hỏng" lại là dòng khó đọc nhất trang.
+     Lần chữa trước nâng lên #D75B4E = 4,57: qua AA đúng 0,07. Cùng
+     một cái bẫy như --fg-3 ở trên — đạt trên giấy, hết dư trên máy
+     thật. Nay #E37366 = 5,74 trên nền rửa, 5,38 trên thẻ, 6,22 trên
+     nền chính. Dòng báo hỏng phải là dòng DỄ đọc nhất trang, không
+     phải dòng vừa đủ đọc. */
+  --do:#E37366; --do-t:#291413;
 
   --r:10px; --dur:.18s;
   --bong:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,1);
@@ -47,8 +58,14 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);
   font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:14.5px;line-height:1.62;
-  background-image:linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
+  /* Lưới bản vẽ. Alpha lên .022 (từ .014): ở .014 nó nằm dưới ngưỡng
+     nhìn thấy của gần như mọi màn hình không phải màn hiệu chỉnh —
+     tức là một chi tiết có trong mã mà không có trên trang, tốn byte
+     và không nói gì. Đã trót chọn nó thì phải thấy được; không thấy
+     được thì nên cắt. Ở .022 nó hiện ra như giấy kẻ ô của xưởng vẽ
+     mà vẫn chìm hẳn dưới chữ, không tranh chỗ với số liệu. */
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
   background-size:34px 34px}
 h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.012em}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -117,9 +134,28 @@ code,.mono{font-family:var(--mono)}
 
 .khoi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--bong);margin-bottom:14px}
+/* ── GIỌNG TIÊU ĐỀ: chữ máy, không phải chữ thân ────────────
+   Trước đây h2 dùng chính font thân chỉ đậm lên, nên trang không có
+   giọng riêng nào cho tiêu đề — chữ chỉ to hơn chứ không nói thêm
+   điều gì. Cả app đã dùng mono cho nhãn máy, mã trạm, đơn vị; đưa
+   mono lên cả đầu khối là nói đúng thứ tiếng của chỗ này: bảng ghi
+   trên thân máy, không phải đầu đề bài báo.
+
+   Không nạp thêm bộ chữ nào. IBM Plex Mono vốn đã tải sẵn cho phần
+   số liệu, và nó vốn là bộ chữ công nghiệp — dùng lại là chọn theo
+   thế giới của chính chủ đề, không phải theo mốt.
+
+   BA CHỖ PHẢI CẨN THẬN với tiếng Việt, đều đã tính:
+     · KHÔNG viết hoa toàn bộ. "PHIẾU ĐO" hoa hết thì dấu nặng và dấu
+       mũ chồng lên nhau ở cỡ nhỏ, và tên riêng mất mặt chữ.
+     · line-height 1.35 chứ không 1.2 — dấu thanh tiếng Việt cần chỗ
+       ở trên, cắt sát là mất dấu trên màn hình thường.
+     · giãn chữ .02em thôi. Mono đã rộng sẵn; giãn thêm nữa thì tên
+       cung dài như "Rừng văn hoá Hoàng Thành" vỡ dòng trên điện thoại. */
 .khoi-dinh{display:flex;align-items:baseline;gap:10px;padding:14px 18px;
   border-bottom:1px solid var(--line-2)}
-.khoi-dinh h2{font-size:15.5px;flex:1;min-width:0}
+.khoi-dinh h2{font-size:14px;flex:1;min-width:0;
+  font-family:var(--mono);font-weight:600;letter-spacing:.02em;line-height:1.35}
 .khoi-n{font-size:11px;color:var(--fg-3);font-family:var(--mono)}
 
 /* ── sàn máy: băng chuyền chạy ─────────────────────────── */
