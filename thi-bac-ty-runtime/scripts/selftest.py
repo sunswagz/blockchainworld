@@ -5406,6 +5406,49 @@ def kiem_ke_toan_vi_the() -> None:
          k is not None and k.doDuoc is False,
          "dựng lại lãi khoá từ số không có là bịa")
 
+    # ── 14. KẾ TOÁN THẬT của cash-and-carry: CHỈ chân perp sinh tiền ────
+    from co_so.ty_co_so import TyCoSo
+
+    chan14 = [ViThe("m14", TyCoSo.ma, "LONG", "binance", "BTC", 500.0,
+                    loai="spot"),
+              ViThe("m14", TyCoSo.ma, "SHORT", "binance", "BTC", 500.0,
+                    loai="perp")]
+    tt14 = {"taiSan": "BTC"}
+
+    def _cs(baoGia, tuGio=1.0):
+        return TyCoSo(_RtGia(baoGia)).ke_toan(
+            chan14, tt14, now9 - tuGio * 3600.0, now9)
+
+    k = _cs([_bg("binance", 0.0003, -0.5)])
+    kiem("cash-carry: mốc đi qua thì chân SHORT perp THU funding",
+         k is not None and abs(k.thuUsd - 500.0 * 0.0003) < 1e-9,
+         f"{k and k.thuUsd} — chỉ chân perp sinh dòng tiền; chân giao ngay "
+         f"nằm đó để trung hoà giá, không trả lãi gì")
+    kiem("và KHAI RA phần hội tụ basis chưa đo",
+         k is not None and "HỘI TỤ BASIS chưa đo" in k.vi, k and k.vi)
+
+    k = _cs([_bg("binance", 0.0003, 5.0)])
+    kiem("cash-carry: không mốc nào đi qua thì thu đúng 0",
+         k is not None and k.thuUsd == 0.0 and k.doDuoc)
+
+    k = _cs([])
+    kiem("cash-carry: mất báo giá perp thì doDuoc=False",
+         k is not None and k.doDuoc is False and "sàn rớt" in k.vi)
+
+    _bgCs = _bg("binance", 0.0003, -0.5)
+    object.__setattr__(_bgCs, "mocKeMs", None)
+    k = _cs([_bgCs])
+    kiem("cash-carry: sàn không công bố mốc kế thì doDuoc=False",
+         k is not None and k.doDuoc is False and "ước lượng" in k.vi,
+         "tiền đoán ra không ghi vào sổ như tiền đã nhận")
+
+    k = TyCoSo(_RtGia([_bg("binance", 0.0003, -0.5)])).ke_toan(
+        [ViThe("m14", TyCoSo.ma, "LONG", "binance", "BTC", 500.0,
+               loai="spot")], tt14, now9 - 3600.0, now9)
+    kiem("cash-carry: thiếu chân perp thì doDuoc=False",
+         k is not None and k.doDuoc is False)
+
+
 
 
     # ── 11. mọi ty ĐANG CHẠY: có kế toán hay chưa, phải KHAI ────────────

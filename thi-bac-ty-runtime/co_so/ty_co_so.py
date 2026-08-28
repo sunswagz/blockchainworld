@@ -317,6 +317,64 @@ class TyCoSo(Ty):
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
 
+    # ── kế toán: chỉ chân PERP sinh dòng tiền, chân giao ngay thì KHÔNG ──
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Cash-and-carry giữ giao ngay + short perp trên CÙNG một sàn.
+
+        Chỉ chân perp sinh dòng tiền: nó nhận funding tại mốc kết toán. Chân
+        giao ngay không trả lãi gì cả — nó chỉ nằm đó để trung hoà giá.
+
+        **Phần hội tụ basis KHÔNG kế toán ở đây, và phải nói ra.** Chênh
+        lệch giao ngay ↔ perp co lại theo thời gian và đó là nửa còn lại của
+        lợi nhuận chiến lược này; đo nó cần giá hai chân tại hai thời điểm,
+        thứ vòng quét không giữ. Nên con số trả về là phần ĐO ĐƯỢC, và câu
+        `vi` khai phần chưa đo — gộp hai thứ ấy vào một số 0 là nói dối.
+
+        Dùng `thu_thuc()` cho MỘT chân chứ không `thu_cap()`: cặp ở đây
+        không phải hai perp đối nhau mà là giao ngay + perp, nên công thức
+        hai chân của chênh funding không áp được.
+        """
+        from phai_sinh_chung.dongho import thu_thuc
+
+        from thi_bac_ty.ke_toan import KetToanVong
+
+        dt = max(0.0, float(denGiay) - float(tuGiay))
+        if dt <= 0.0:
+            return KetToanVong(vi="chưa qua giây nào kể từ lần kế toán trước")
+
+        ma = toTrinh.get("taiSan")
+        chanPerp = next((c for c in viThe
+                         if getattr(c, "loai", "") == "perp"), None)
+        if chanPerp is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi="vị thế không có chân perp — không biết đếm mốc ở đâu")
+
+        bg = next((b for b in getattr(self._rt, "baoGia", []) or []
+                   if b.ma == ma and b.san == chanPerp.cang), None)
+        if bg is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"KHÔNG có báo giá perp {ma} trên {chanPerp.cang} trong "
+                   f"lượt quét gần nhất — sàn rớt khác hẳn funding bằng 0")
+
+        thu1, lich = thu_thuc(float(tuGiay) * 1000.0, dt / 3600.0,
+                              bg.rate, bg.mocKeMs, bg.intervalGio)
+        if lich.uocLuong:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"lịch mốc của {ma} trên {chanPerp.cang} phải ước lượng "
+                   f"— tiền đoán ra không ghi vào sổ")
+
+        von = abs(float(getattr(chanPerp, "vonUsd", 0.0) or 0.0))
+        thu = von * thu1                     # chân SHORT perp: nhận `thu1`
+        return KetToanVong(
+            thuUsd=thu,
+            vi=(f"cash-and-carry {ma} trên {chanPerp.cang}: {lich.soMoc} mốc "
+                f"funding trong {dt / 3600:.4f}h trên {von:.2f} USD chân "
+                f"perp (chân giao ngay không sinh dòng tiền; phần HỘI TỤ "
+                f"BASIS chưa đo)"))
+
 
 def _chay(coro):
     """Xem `tin_dung/ty_vay._chay` — cùng lý do, cùng cái giá."""
