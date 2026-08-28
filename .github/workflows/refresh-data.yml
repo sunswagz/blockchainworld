@@ -1166,6 +1166,137 @@ jobs:
             --log "$RUNNER_TEMP/thai-boc-tu-tien-hoa.log"
 
 
+      # ── VÒNG TIẾN HOÁ · Tạo Biện Xứ ────────────────────────────
+      # Cung thứ NĂM dùng đúng bộ máy này. Vẫn không script mới.
+      #
+      # Khác bốn cung trước ở một điểm đáng nói: phiếu đo lúc bật đã
+      # 7/7. Không có thước nào trượt để mà vá — nên lượt đầu đi thẳng
+      # vào nhánh "cả bảy thước đều đạt thì tìm MỘT chỗ làm trang dễ
+      # đọc hơn mà không thước nào đo được".
+      #
+      # Đó chính là chỗ đáng thử nhất của cả vòng: bảy thước đo SÀN
+      # (vẽ được, đọc được, có nhãn), chúng không với tới thứ bậc thị
+      # giác, nhịp khoảng cách hay giọng của trang. Một cung 7/7 vẫn
+      # có thể nhàm.
+      #
+      # Và cung này đáng chăm hơn cả — nó là chỗ người ta mở ra để
+      # NHÌN cả nhà máy. Bảng vận hành hỏng thì mọi cung khác vẫn
+      # chạy nhưng không ai thấy chúng chạy.
+      - name: Tiến hoá TBX 1/3 — chấm phiếu gốc và ra đề
+        id: n-tbx-goc
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',tao-bien-xu-tien-hoa,')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/tien-hoa.mjs do tao-bien-xu --ghi "$RUNNER_TEMP/tbx-goc.json"
+          node scripts/tien-hoa.mjs de-bai tao-bien-xu
+
+      - name: Tiến hoá giao diện Tạo Biện Xứ (Claude Code)
+        id: n-tbx-lam
+        if: steps.n-tbx-goc.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 12
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 24
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Đọc tao-bien-xu/assets/data/de-bai-tien-hoa.json.
+
+            Trong đó có `phieu` — kết quả chấm cung Tạo Biện Xứ theo
+            bảy thước đo được — và `kyNang`, các kỹ năng chọn từ kho
+            Tàng Thư Các khớp với những thước đang trượt.
+
+            VIỆC CỦA BẠN: làm cung Tạo Biện Xứ tốt lên MỘT BƯỚC, đúng
+            một bước.
+
+            Trình tự:
+            1. Với mỗi mục trong `kyNang` có trường `doc`, dùng
+               WebFetch đọc SKILL.md đó. Đấy là kinh nghiệm người khác
+               đã viết ra; đọc trước khi tự nghĩ.
+            2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu
+               đo được. Ưu tiên chúng trước.
+            3. Cung này nhiều khả năng đã 7/7, nên phần lớn lượt sẽ
+               rơi vào nhánh này: tìm MỘT chỗ làm trang dễ đọc hơn mà
+               không thước nào đo được — thứ bậc thị giác lẫn lộn,
+               khoảng cách không đều, nhãn khó hiểu, trạng thái trống
+               không nói được gì.
+
+            Chỉ sửa trong ba file này, không file nào khác:
+              tao-bien-xu/assets/css/app.css
+              tao-bien-xu/assets/js/app.js
+              tao-bien-xu/index.html
+
+            LUẬT, đọc kỹ — có cổng chặn tự động sau bạn:
+            · MỘT bước thôi. Một thay đổi mạch lạc, không phải năm thứ
+              rời rạc. Sửa ít mà đúng hơn sửa nhiều mà loãng.
+            · KHÔNG sửa assets/js/data.js. Đó là bản thiết kế 18 máy
+              viết tay — nội dung chứ không phải giao diện.
+            · KHÔNG đụng assets/js/v/van-hanh.js. Đó là bản chiếu sổ
+              nhà máy, bot ghi đè mỗi lượt.
+            · KHÔNG đổi tuyến hash, không bỏ phòng nào, không đổi tên
+              khoá trong window.TBX_DATA / window.VAN_HANH.
+            · KHÔNG thêm thư viện ngoài, không thêm thẻ <script> mới.
+              Trang này chạy offline và không có bước dựng.
+            · KHÔNG nạp thêm bộ chữ. Hai bộ đang có (Be Vietnam Pro,
+              IBM Plex Mono) là đủ; thêm bộ thứ ba là thêm một lượt
+              tải mạng cho mọi người xem.
+            · GIỮ mọi aria-label và aria-hidden đang có. Gỡ một nhãn là
+              cổng chặn hạ điểm và trả lại toàn bộ việc bạn vừa làm.
+            · Màu mới phải đạt tương phản WCAG AA (4.5) trên MỌI nền
+              --bg/--bg-2/--card/--card-2/--card-3.
+
+            HAI LUẬT RIÊNG CỦA CUNG NÀY:
+            1. Năm màu tín hiệu (hổ phách · vàng · lục · lam · đỏ) mang
+               NGHĨA, không phải trang trí: đang chạy · chờ người · đạt
+               · đã giao · chặn. Đừng đổi nghĩa, đừng thêm màu thứ sáu.
+            2. Bảng vận hành phải hiện SỐ THẬT từ sổ nhà máy. Đừng thêm
+               số mô phỏng, đừng vẽ 0 khi thiếu dữ liệu — vẽ dấu gạch.
+
+            Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
+            vào tao-bien-xu/assets/data/de-bai-tien-hoa.json dưới khoá
+            `daLam`.
+
+      - name: Cổng chặn TBX — nhận hay trả lại
+        id: n-tao-bien-xu-tien-hoa
+        if: always() && steps.n-tbx-lam.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 4
+        run: |
+          if node scripts/tien-hoa.mjs cong tao-bien-xu --so "$RUNNER_TEMP/tbx-goc.json" 2>&1 | tee "$RUNNER_TEMP/tao-bien-xu-tien-hoa.log"; then
+            SW_BAN_TRUOC=$(git diff --name-only -- '*/sw.js')
+            node scripts/nang-version.mjs
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v '^tao-bien-xu/' | grep -vxF "$SW_BAN_TRUOC" || true)
+            echo "::notice::Vòng tiến hoá Tạo Biện Xứ: NHẬN"
+          else
+            echo "::error::Vòng tiến hoá Tạo Biện Xứ: TRẢ LẠI — cổng chặn không qua"
+            git checkout -- tao-bien-xu/
+            exit 1
+          fi
+
+      - name: Ghi sổ · tao-bien-xu-tien-hoa
+        if: always() && steps.n-tbx-goc.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-tao-bien-xu-tien-hoa.outcome == 'success' && 'ok' || 'loi' }}
+          T_DAU: ${{ steps.n-tbx-goc.outputs.t0 }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
+            "$RUNNER_TEMP/tao-bien-xu-tien-hoa.log" 2>/dev/null | tail -1)
+          TRUOT=$(node scripts/tien-hoa.mjs do tao-bien-xu 2>/dev/null \
+            | grep "^  ✗" | sed "s/^  ✗ *//; s/  */ /g" | cut -c1-58 \
+            | paste -sd ";" - || true)
+          node scripts/nha-may.mjs ghi tao-bien-xu-tien-hoa "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${DIEM:-chưa chấm được}${TRUOT:+ · trượt: $TRUOT} · opus-5" \
+            --log "$RUNNER_TEMP/tao-bien-xu-tien-hoa.log"
+
+
       # ── PHÂN TÍCH TIN · Thái Bộc Tự ────────────────────────────
       # Ba bước, cùng đường với bản quét Đài Quan Trắc và tách ba bước
       # vì cùng một lý do: ĐỪNG cho model ghi thẳng file .js. Nó viết

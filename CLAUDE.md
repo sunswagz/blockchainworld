@@ -201,6 +201,10 @@ conflict lúc merge.
     kham-thien-giam/assets/js/app.js
     kham-thien-giam/index.html
     kham-thien-giam/sw.js
+    tao-bien-xu/assets/css/app.css
+    tao-bien-xu/assets/js/app.js
+    tao-bien-xu/index.html
+    tao-bien-xu/sw.js
 
 Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
 

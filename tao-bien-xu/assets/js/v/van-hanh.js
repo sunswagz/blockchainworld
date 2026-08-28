@@ -363,6 +363,33 @@ window.VAN_HANH = {
    "lucDoi": "2026-08-27T22:28:22.736Z"
   },
   {
+   "ma": "tao-bien-xu-tien-hoa",
+   "ten": "Tiến hoá giao diện Tạo Biện Xứ",
+   "y": "Cùng khuôn ho-bo-tien-hoa, đổi tên cung. Phiếu đo lúc bật: 7/7 — nên lượt đầu đi thẳng vào nhánh 'không thước nào đo được': thứ bậc, nhịp khoảng cách, giọng của trang.",
+   "tram": "M18",
+   "che": "claude",
+   "nhip": 24,
+   "lenh": "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+   "ra": [
+    "tao-bien-xu/assets/css/app.css",
+    "tao-bien-xu/assets/js/app.js",
+    "tao-bien-xu/index.html",
+    "tao-bien-xu/sw.js"
+   ],
+   "cung": "tao-bien-xu",
+   "cungTen": "Tạo Biện Xứ",
+   "wf": "refresh-data.yml",
+   "luc": null,
+   "ket": null,
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": null,
+   "lucDoi": null
+  },
+  {
    "ma": "thai-boc-tu",
    "ten": "Đoàn tàu Thái Bộc Tự",
    "y": "Ba đường DefiLlama công khai. Không gọi AI, không khoá nào. Việc nặng nhất làm ở đây chứ không ở trình duyệt: xếp hơn 8.000 giao thức vào 18 toa và dựng quan hệ phụ thuộc oracle từ khai báo của từng cái.",

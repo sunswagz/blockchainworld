@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-21T15:36:04.402Z",
+  "generatedAt": "2026-08-28T15:15:29.590Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -217,6 +217,23 @@
       ],
       "y": "Chọn skill đầu bảng theo nhóm rồi tải SKILL.md vào .claude/skills/. CHỈ lấy chỉ dẫn, không lấy script chạy được của người lạ.",
       "khai": "scripts/node/tang-thu-cac.mjs"
+    },
+    {
+      "ma": "tao-bien-xu-tien-hoa",
+      "ten": "Tiến hoá giao diện Tạo Biện Xứ",
+      "cung": "tao-bien-xu",
+      "tram": "M18",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "tien-hoa.mjs de-bai + claude-code-action + tien-hoa.mjs cong --so",
+      "ra": [
+        "tao-bien-xu/assets/css/app.css",
+        "tao-bien-xu/assets/js/app.js",
+        "tao-bien-xu/index.html",
+        "tao-bien-xu/sw.js"
+      ],
+      "y": "Cùng khuôn ho-bo-tien-hoa, đổi tên cung. Phiếu đo lúc bật: 7/7 — nên lượt đầu đi thẳng vào nhánh 'không thước nào đo được': thứ bậc, nhịp khoảng cách, giọng của trang.",
+      "khai": "scripts/node/tao-bien-xu.mjs"
     },
     {
       "ma": "thai-boc-tu",
