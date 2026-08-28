@@ -679,6 +679,34 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── 12. chỗ đè im lặng trong CSS ─────────────────────
+   Cùng ngữ cảnh, cùng selector, cùng thuộc tính, khác giá trị, ở hai
+   khối khác nhau: một trong hai đang chết và người viết nó không hay.
+
+   Cắm vào đây vì lớp lỗi này MỞ RỘNG THEO SỐ CUNG. `knowledge-os`
+   sinh widget mang tiền tố `tt-` cho mười một cung, nên mỗi lớp mới
+   là mười một chỗ có thể đụng tên với lớp sẵn có của cung. Đã đụng
+   thật: Đài Quan Trắc dùng `tt-` cho "trạng thái", widget dùng `tt-`
+   cho "tri thức", và số cấp độ — chữ to nhất trên dải — bị vẽ 10,5px
+   thay vì 27px ở mọi trang, không lỗi nào báo. Tìm ra nó là do may.
+
+   NHẮC chứ không báo lỗi: CSS của cung khác không phải việc của phiên
+   đang mở, và chặn họ vì chuyện đó là đúng thứ luật worktree sinh ra
+   để tránh. Nhưng in ở đầu mỗi phiên thì không ai nằm im được nữa. */
+{
+  const p = join(ROOT, "scripts", "de-im-lang.mjs");
+  if (existsSync(p)) {
+    try {
+      execFileSync(process.execPath, [p], { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      const ra = String(e.stdout || "") + String(e.stderr || "");
+      const dong = ra.split("\n").filter((x) => /chỗ đè$/.test(x.trim()));
+      nhac(`${dong.length} tệp CSS có chỗ đè im lặng — chạy: npm run de-im-lang\n` +
+        dong.slice(0, 4).map((x) => "        · " + x.trim()).join("\n"));
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
