@@ -301,12 +301,33 @@ async function thuVeConThuc() {
     if (id && html.includes(`id="${id}"`)) g.tuyen.delete(t);
   }
 
+  /* ── CUNG MỘT TRANG ────────────────────────────────────
+     Vòng gạt neo ngay trên xoá mọi "#x" trỏ vào một id có thật. Với
+     cung định tuyến thì đúng — nhưng Thị Bạc Ty và Tử Cấm Thành
+     CUỘN theo neo chứ không đổi phòng, nên cả sáu, bảy tuyến của
+     chúng đều là neo thật và danh sách về 0.
+
+     0 phòng làm BA thước nói sai cùng một lúc:
+       ✗ "Mọi phòng vẽ được"      trượt vì không có gì để vẽ
+       ✓ "Ít ô trống mỗi phòng"   đạt · "0 dấu — trên 0 phòng"
+       ✓ "Không rò undefined"     đạt · vì không soi gì cả
+     Hai cái đạt mới là chỗ nguy: xanh mà không đo được gì, đúng
+     loại hỏng im lặng mà cả bộ thước này sinh ra để chặn — và cùng
+     họ với thước svg xanh suốt vì regex hỏng hồi 28/08.
+
+     Không có tuyến thì trang CHÍNH NÓ là phòng duy nhất. Đo nó ở
+     trạng thái vừa nạp xong, không đụng hash. */
+  const motTrang = g.tuyen.size === 0;
+  const dsTuyen = motTrang ? ["(trang chính)"] : [...g.tuyen];
+
   const phong = [];
-  for (const t of g.tuyen) {
-    global.location.hash = t;
-    global.window.location.hash = t;
+  for (const t of dsTuyen) {
+    if (!motTrang) {
+      global.location.hash = t;
+      global.window.location.hash = t;
+    }
     try {
-      (g.nghe.hashchange || []).forEach((f) => f());
+      if (!motTrang) (g.nghe.hashchange || []).forEach((f) => f());
       await nhip();
       const h = g.catTrang();
       phong.push({
