@@ -55,12 +55,21 @@ const CUNG = process.argv.slice(2).find((a) => !a.startsWith("--"));
 
 /* Cùng phép nhận diện "cung" với kiem-quy-trinh.mjs, thang.mjs và
    tiep-can.mjs: thư mục có index.html NGAY tại gốc nó. */
+/* Cổng Thành ở GỐC repo cũng là một webapp có CSS riêng, nhưng nó
+   không lọt qua phép nhận diện "thư mục con có index.html" — nó CHÍNH
+   LÀ thư mục gốc. Bản đầu bỏ sót nó, và sót im lặng: lệnh in "✓ không
+   chỗ nào" trong khi có một tệp chưa hề được đọc.
+
+   Ký hiệu bằng chuỗi rỗng và in ra là "(cổng thành)". */
+const GOC = "";
+
 function moiCung() {
-  return readdirSync(ROOT, { withFileTypes: true })
+  const con = readdirSync(ROOT, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !d.name.startsWith(".") && d.name !== "node_modules")
     .map((d) => d.name)
     .filter((n) => existsSync(join(ROOT, n, "index.html")))
     .sort();
+  return existsSync(join(ROOT, "index.html")) ? [GOC, ...con] : con;
 }
 
 /* Tách CSS thành từng khối luật, mang theo ngăn xếp @media đang mở và
@@ -142,13 +151,14 @@ function soi(duong) {
 
 let tong = 0;
 for (const c of CUNG ? [CUNG] : moiCung()) {
+  const ten = c || "(cổng thành)";
   const thu = join(ROOT, c, "assets", "css");
   if (!existsSync(thu)) continue;
   for (const f of readdirSync(thu).filter((x) => x.endsWith(".css")).sort()) {
     const de = soi(join(thu, f));
     if (!de.length) continue;
     tong += de.length;
-    console.log(`\n${c}/assets/css/${f} — ${de.length} chỗ đè`);
+    console.log(`\n${ten}${c ? "/" : " "}assets/css/${f} — ${de.length} chỗ đè`);
     for (const d of de) {
       console.log(`   ${d.sel} · ${d.tp}${d.nganh ? `   [${d.nganh}]` : ""}`);
       console.log(`      ${d.v.map((x) => `dòng ${x.dong}: ${x.gt}`).join("   →   ")}` +
