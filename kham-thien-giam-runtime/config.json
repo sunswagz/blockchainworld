@@ -100,7 +100,10 @@
   "//tienHoa": "Vòng tiến hoá ngày. Chạy TRONG runtime, mỗi ngày UTC một lượt sau `gioUTC`. Nhịp 24 giờ chứ không ngắn hơn: cổng chặn bắt được 'tệ hơn' nhưng không bắt được 'khác đi mà rối hơn', nên tốc độ tiến hoá phải chậm hơn tốc độ một người kịp nhìn.",
   "tienHoa": {
     "//soNgayBang": "Vòng tiến hoá chỉ đọc băng trong ngần này ngày gần nhất. Không phải để chạy nhanh hơn (dù cả băng nạp mất ~90 giây và còn dày lên) mà vì vặn tham số theo hành vi GẦN ĐÂY mới đúng: một tham số khớp với dữ liệu một tháng trước là khớp với một cái chợ không còn tồn tại.",
-    "soNgayBang": 7, "bat": true, "gioUTC": 2 },
+    "soNgayBang": 7,
+
+    "//soNgayHoc": "Bao nhiêu ngày nến Binance để DỰNG LẠI sổ hiệu chỉnh mỗi ngày. Việc này KHÔNG cần chợ — nó chỉ hỏi 'mô hình đoán chuẩn tới đâu', mà câu ấy chỉ cần (S, K, τ, σ) và kết quả, tất cả đều là giá Binance. Nhờ vậy nửa vòng ngày vẫn chạy được khi đường tới Polymarket đứt. 7 ngày ra chừng 40.000 cặp.",
+    "soNgayHoc": 7, "bat": true, "gioUTC": 2 },
 
   "//bang": "Băng ghi. Không có băng thì ba tháng nữa không có gì để chạy lại — tài liệu gọi đây là P0 và bắt làm TRƯỚC mô hình.",
   "bang": {

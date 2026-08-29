@@ -1918,7 +1918,11 @@ def kiem_ghi_ket_qua_vo_dieu_kien() -> None:
         cu = KT.so_ket_qua
         KT.so_ket_qua = KQ.SoKetQua(_P(t) / "kq.jsonl")
         try:
-            kt = KetToan(Kho(), HieuChinh(), So())
+            # Sổ hiệu chỉnh RIÊNG: cuốn chung trong thư mục tạm nay có
+            # thể đã bị một lượt học offline ghi đầy, và phép kiểm này
+            # khẳng định `tong_mau == 0`.
+            kt = KetToan(Kho(), HieuChinh(_P(t) / "hc.json"),
+                         So(_P(t) / "so.jsonl"))
             # Khung KHÔNG có dự đoán: thiếu nguyên liệu định giá.
             c = ChoKetToan(ma="BTC_5M", slug="btc-updown-5m-1787243400",
                            ketThucMs=1787243700000.0, giaMo=100.0,
@@ -2437,6 +2441,12 @@ def kiem_tien_hoa_thu_lai() -> None:
     th = CONFIG.setdefault("tienHoa", {})
     gio_cu, that = th.get("gioUTC"), V.tien_hoa_mot_luot
     th["gioUTC"] = 0                    # để phép kiểm không phụ thuộc giờ chạy
+    # `_chay_tien_hoa` nay gọi `_hoc_offline` TRƯỚC, và việc ấy đi mạng
+    # (lấy 10.000 nến Binance) rồi ghi đè sổ hiệu chỉnh. Bộ kiểm này chạy
+    # KHÔNG mạng và đang kiểm chuyện khác hẳn — chặn nó lại, và chặn ở
+    # đây chứ không nới điều kiện trong mã thật.
+    hoc_cu = V.Runtime._hoc_offline
+    V.Runtime._hoc_offline = lambda self: None
     try:
         # ── lượt ném ra lỗi ───────────────────────────────────────────────
         # `**_kw`: bản giả phải nuốt mọi tham số của hàm thật. Không thì
@@ -2483,6 +2493,7 @@ def kiem_tien_hoa_thu_lai() -> None:
              rt2._tienHoaSoLanThu == 1)
     finally:
         V.tien_hoa_mot_luot = that
+        V.Runtime._hoc_offline = hoc_cu
         if gio_cu is None:
             th.pop("gioUTC", None)
         else:

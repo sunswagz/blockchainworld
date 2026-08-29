@@ -106,6 +106,10 @@ class Runtime:
         self._ngayTienHoa = ""      # ngày đã XÉT vòng tiến hoá gần nhất
         # Làn nào ngã trong vòng vừa rồi, và ngã vì gì. Rỗng = trọn vẹn.
         self.lanNga: dict[str, str] = {}
+        # Lượt học/tiến hoá MÔ HÌNH gần nhất — nửa vòng ngày
+        # chạy được cả khi đường tới chợ đứt.
+        self.hocGanNhat: dict | None = None
+        self.tienHoaMoHinh: dict | None = None
         self.tienHoaGanNhat: dict | None = None
         self._tienHoaXong = False           # lượt hôm nay đã chạy TRỌN chưa
         self._tienHoaDangChay = False
@@ -319,6 +323,47 @@ class Runtime:
         self._tienHoaDangChay = True
         threading.Thread(target=self._chay_tien_hoa, daemon=True).start()
 
+    def _hoc_offline(self) -> None:
+        """Dựng lại sổ hiệu chỉnh, rồi vặn một nút mô hình. Không cần chợ.
+
+        Đây là nửa vòng ngày CHẠY ĐƯỢC khi đường tới chợ đứt. Nó không
+        trả lời "bot kiếm được bao nhiêu" — chỉ trả lời "mô hình đoán
+        chuẩn hơn hay kém đi", và câu ấy đo được bằng nến Binance cùng
+        kết quả thật, không cần một giá chợ nào.
+        """
+        from . import hoc_offline as HO
+
+        soNgay = int((CONFIG.get("tienHoa") or {}).get("soNgayHoc", 7))
+        ma = next((t["ma"] for t in CONFIG["thiTruong"] if t.get("theo")),
+                  "BTC_5M")
+
+        r = HO.dung_so_hieu_chinh(soNgay=soNgay, ma=ma)
+        if r.get("loi"):
+            bus.ghi(f"học từ Binance: {r['loi']}", loai="canh")
+            return
+        self.hieuChinh = HieuChinh()
+        self.phepNan = nan_lai.khop(self.hieuChinh)
+        self._nanLucMs = time.time() * 1000.0
+        self.hocGanNhat = r
+        bus.ghi(f"sổ hiệu chỉnh dựng lại: {r['tongMau']:,} mẫu · sai "
+                f"{(r['saiSoTB'] or 0)*100:.2f} điểm · Kelly "
+                f"{'mở' if r['duKelly'] else 'khoá'}", loai="he")
+
+        v = HO.mot_luot_mo_hinh(soNgay=max(soNgay, 10), ma=ma)
+        self.tienHoaMoHinh = v
+        if v.get("loi"):
+            bus.ghi(f"tiến hoá mô hình: {v['loi']}", loai="canh")
+        elif v.get("nhan"):
+            n = v["nhan"]
+            bus.ghi(f"tiến hoá MÔ HÌNH NHẬN: {n['nut']} {n['tu']:g} → "
+                    f"{n['den']:g} · Brier CHỐT {v['chotGoc']:.5f} → "
+                    f"{v['chotMoi']:.5f}"
+                    + (" · ⚠ nằm trong tiếng ồn"
+                       if v.get("trongTiengOn") else ""), loai="he")
+        else:
+            bus.ghi(f"tiến hoá mô hình: giữ nguyên — {v.get('lyDo','')}",
+                    loai="tin")
+
     def _chay_tien_hoa(self) -> None:
         try:
             # CỬA SỔ BĂNG, không phải cả băng.
@@ -334,6 +379,21 @@ class Runtime:
             soNgay = int((CONFIG.get("tienHoa") or {}).get("soNgayBang", 7))
             tuNgay = time.strftime(
                 "%Y-%m-%d", time.gmtime(time.time() - soNgay * 86400))
+
+            # ── HỌC KHÔNG CẦN CHỢ, chạy TRƯỚC ────────────────────────
+            #
+            # Cổng tiền bên dưới cần giá chợ. Chợ đứt thì nó đứng yên với
+            # lý do "thiếu mẫu" — đúng, nhưng nó sẽ đứng yên MÃI, và một
+            # vòng ngày chỉ biết một cổng không chạy được thì bằng không
+            # có vòng ngày.
+            #
+            # Hai việc dưới đây chỉ cần Binance:
+            #   1. dựng lại sổ hiệu chỉnh — bảng cũ đi thì Kelly khoá
+            #   2. vặn một nút mô hình nếu đáng
+            # Việc 2 chấm bằng phép nắn khớp từ chính sổ ở việc 1, nên
+            # thứ tự này bắt buộc.
+            self._lan("học từ Binance", self._hoc_offline)
+
             kq = tien_hoa_mot_luot(tuNgay=tuNgay)
             self.tienHoaGanNhat = kq.tom_tat()
             self._tienHoaXong = True
@@ -725,6 +785,8 @@ class Runtime:
             "ketToan": self.ketToan.tom_tat(),
             "doThi": do_thi.tom_tat(),
             "voDich": so_vo_dich.tom_tat(),
+            "hocOffline": self.hocGanNhat,
+            "tienHoaMoHinh": self.tienHoaMoHinh,
             "tienHoa": {
                 "ganNhat": self.tienHoaGanNhat,
                 "duong": duong_tien_hoa(),
