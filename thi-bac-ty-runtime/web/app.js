@@ -1070,6 +1070,34 @@
       "thu − phí trong kỳ, KHÔNG gồm phí vào lệnh"));
     kvd.appendChild(dvd);
     if (vd.vi) kvd.appendChild(giai(vd.vi));
+
+    /* TÁCH THEO TY. Con số gộp trả lời «tiền đang làm việc lãi bao
+       nhiêu» cho cả túi; nó KHÔNG trả lời «ty nào đang làm ra tiền» — mà
+       đó mới là câu vòng tiến hoá cần. Trước lượt này câu ấy chỉ có một
+       nguồn: bảng hứa-vs-thực, thứ đòi 20 lần ĐÓNG mỗi ty. Đóng thì
+       hiếm; cộng dồn lãi thì mỗi vòng ba mươi giây một lần. */
+    var vdt = vd.theoTy || {};
+    if (Object.keys(vdt).length) {
+      kvd.appendChild(bang(
+        [{ t: "Ty" }, { t: "Vốn-giờ", n: true }, { t: "Thu ròng", n: true },
+         { t: "%/năm trên vốn ấy", n: true }],
+        Object.keys(vdt).sort(function (a, b) {
+          return (vdt[b].vonGioUsd || 0) - (vdt[a].vonGioUsd || 0);
+        }).map(function (k) {
+          var x = vdt[k];
+          return [{ t: k },
+                  { t: so(x.vonGioUsd, 2), c: "n" },
+                  { t: tien(x.thuRongUsd, 4),
+                    c: x.thuRongUsd >= 0 ? "duong" : "am" },
+                  { t: x.loiSuatNamPhanTram == null ? "chưa đo được"
+                       : phan(x.loiSuatNamPhanTram),
+                    c: x.loiSuatNamPhanTram == null ? "nhat"
+                       : (x.loiSuatNamPhanTram >= 0 ? "duong" : "am") }];
+        })));
+      kvd.appendChild(giai("«chưa đo được» là chưa có vốn-giờ nào để chia, "
+        + "KHÁC HẲN một tỉ suất bằng 0. Tổng vốn-giờ các ty bằng đúng con "
+        + "số gộp ở trên — một con số cộng hai đường là một con số sẽ lệch."));
+    }
     f.appendChild(kvd);
 
     /* HẬU KIỂM trên băng — phép đo duy nhất trong cả cỗ máy dám mang tên

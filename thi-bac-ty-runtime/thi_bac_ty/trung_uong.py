@@ -783,7 +783,8 @@ class TrungUong:
             # nằm trong vị thế, bất kể ty có kế toán nổi hay không. Cộng
             # sau nhánh `kq is None` là bỏ mất mẫu số của đúng những vị
             # thế mù — và tỉ suất sẽ đẹp lên nhờ giấu bớt mẫu số.
-            self.soVonGio.cong(abs(so.vonUsd), so.keToanLucGiay, now)
+            self.soVonGio.cong(abs(so.vonUsd), so.keToanLucGiay, now,
+                               ty=so.chienLuoc)
             ty = self.ty.get(so.chienLuoc)
             kq = None
             if ty is not None:
@@ -836,6 +837,7 @@ class TrungUong:
                              "thuUsd": thu, "tranUsd": tran,
                              "lanVuot": (thu / tran) if tran > 0 else None})
                     self.soVonGio.thuRongUsd += thu - phi
+                    self.soVonGio.cong_thu(so.chienLuoc, thu - phi)
                     if thu:
                         so.thuCongDonUsd += thu
                         l.thuUsd += thu

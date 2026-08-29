@@ -160,6 +160,17 @@ class SoVonGio:
     thuRongUsd: float = 0.0      # Σ (thu − phí trong kỳ)
     tuGiay: float = 0.0          # bắt đầu cộng từ lúc nào
     denGiay: float = 0.0         # cộng tới lúc nào
+    #: Cùng hai con số ấy, TÁCH THEO TY.
+    #:
+    #: Tổng gộp trả lời «tiền đang làm việc lãi bao nhiêu» cho cả túi. Nó
+    #: KHÔNG trả lời được «ty nào đang làm ra tiền», mà đó mới là câu vòng
+    #: tiến hoá cần — và trước lượt này câu ấy chỉ có một nguồn: bảng
+    #: hứa-vs-thực, thứ đòi **20 lần ĐÓNG** mỗi ty mới nói được gì. Đóng
+    #: thì hiếm; cộng dồn lãi thì mỗi vòng ba mươi giây một lần.
+    #:
+    #: Nên tách ở đây là đổi một tín hiệu thưa lấy một tín hiệu dày, trên
+    #: cùng một phép đo đã có sẵn mẫu số đúng.
+    theoTy: dict = field(default_factory=dict)
 
     def nhip(self, denGiay: float) -> None:
         """Đẩy mốc cuối, kể cả vòng KHÔNG có vị thế nào.
@@ -171,11 +182,23 @@ class SoVonGio:
         """
         self.denGiay = max(self.denGiay, float(denGiay))
 
-    def cong(self, vonUsd: float, tuGiay: float, denGiay: float) -> None:
+    def _o(self, ty: str | None) -> dict:
+        return self.theoTy.setdefault(
+            ty or "?", {"vonGioUsd": 0.0, "thuRongUsd": 0.0})
+
+    def cong_thu(self, ty: str | None, thuRongUsd: float) -> None:
+        """Thu ròng của MỘT ty. Tổng gộp vẫn cộng ở chỗ gọi, không cộng
+        hai lần ở đây — một con số cộng hai đường là một con số sẽ lệch."""
+        self._o(ty)["thuRongUsd"] += float(thuRongUsd)
+
+    def cong(self, vonUsd: float, tuGiay: float, denGiay: float,
+             ty: str | None = None) -> None:
         self.nhip(denGiay)
         dt = max(0.0, denGiay - tuGiay)
         if dt <= 0.0 or vonUsd <= 0.0:
             return
+        if ty is not None:
+            self._o(ty)["vonGioUsd"] += vonUsd * (dt / 3600.0)
         self.vonGioUsd += vonUsd * dt / 3600.0
 
     def loi_suat_nam(self) -> float | None:
@@ -199,6 +222,16 @@ class SoVonGio:
             "soGio": gio,
             "vonBinhQuanUsd": (self.vonGioUsd / gio) if gio > 0 else None,
             "loiSuatNamPhanTram": apr,
+            # TÁCH THEO TY — câu «ty nào đang làm ra tiền», trả lời được
+            # mỗi vòng thay vì đợi 20 lần đóng. `None` khi ty ấy chưa có
+            # vốn-giờ nào: chưa có mẫu số thì không có tỉ suất, không
+            # phải tỉ suất bằng 0.
+            "theoTy": {
+                k: {**v,
+                    "loiSuatNamPhanTram": (
+                        v["thuRongUsd"] / v["vonGioUsd"] * (365.0 * 24.0)
+                        * 100.0 if v["vonGioUsd"] > 0 else None)}
+                for k, v in sorted(self.theoTy.items())},
             "vi": ("chưa có vốn-giờ nào — chưa đồng nào làm việc, nên chưa "
                    "có mẫu số để chia" if apr is None else
                    f"vốn đang dùng bình quân "

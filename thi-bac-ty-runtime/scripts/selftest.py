@@ -2636,7 +2636,12 @@ def kiem_chan_doan_he() -> None:
     # Ty tử tế thì KHÔNG bị kêu oan — một phép soát báo nhầm là một phép
     # soát người ta dạy nó im.
     class _TyNgoan(_TyIn):
-        ma = "ngoan.v1"
+        # Mã phải đúng khuôn `<họ>.<tên>.v<số>` — `dang_ky` từ chối mọi
+        # thứ khác. Bản đầu đặt `"ngoan.v1"` (hai phần), nên cỗ máy đối
+        # chứng KHÔNG có ty nào, không có vị thế nào, và phép kiểm «không
+        # bị kêu oan» xanh vì RỖNG chứ không vì đúng. Phép kiểm ngay dưới
+        # đòi nó có vị thế thật, và chính nó lôi chuyện này ra.
+        ma = "ngoan.chuan.v1"
 
         def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
             from thi_bac_ty.ke_toan import KetToanVong
@@ -2675,6 +2680,44 @@ def kiem_chan_doan_he() -> None:
          f"{_ph[:2]} — nửa dòng tiền dựng lại được theo thời gian, nửa kia "
          f"không, thì cả cuốn sổ không tua lại được")
 
+    # ── VỐN-GIỜ TÁCH THEO TY ────────────────────────────────────────────
+    # Tổng gộp trả lời «tiền đang làm việc lãi bao nhiêu» cho cả túi,
+    # KHÔNG trả lời «ty nào đang làm ra tiền». Trước lượt này câu sau chỉ
+    # có một nguồn: bảng hứa-vs-thực, thứ đòi 20 lần ĐÓNG mỗi ty. Đóng thì
+    # hiếm; cộng dồn lãi thì mỗi vòng ba mươi giây một lần.
+    _vg = _tuNg.anh_chup()["vonDangDung"]
+    _tt = _vg.get("theoTy") or {}
+    kiem("vốn-giờ tách được theo ty", bool(_tt), str(_vg)[:200])
+    kiem("và TỔNG các ty bằng đúng con số gộp — không cộng hai đường",
+         gan(sum(v["vonGioUsd"] for v in _tt.values()), _vg["vonGioUsd"],
+             1e-9),
+         f"{sum(v['vonGioUsd'] for v in _tt.values())} vs {_vg['vonGioUsd']} "
+         f"— một con số cộng hai đường là một con số sẽ lệch")
+    kiem("thu ròng cũng thế",
+         gan(sum(v["thuRongUsd"] for v in _tt.values()), _vg["thuRongUsd"],
+             1e-9),
+         f"{[v['thuRongUsd'] for v in _tt.values()]} vs {_vg['thuRongUsd']}")
+    kiem("mỗi ty có tỉ suất riêng, và nó khớp phép chia của chính nó",
+         all(v["loiSuatNamPhanTram"] is None
+             or gan(v["loiSuatNamPhanTram"],
+                    v["thuRongUsd"] / v["vonGioUsd"] * 365 * 24 * 100, 1e-6)
+             for v in _tt.values()),
+         str(_tt))
+    # `None` khi chưa có vốn-giờ: chưa có mẫu số thì không có tỉ suất,
+    # không phải tỉ suất bằng 0.
+    from thi_bac_ty.ke_toan import SoVonGio as _SVG
+    _sv = _SVG()
+    _sv.cong_thu("chua.v1", 5.0)
+    kiem("ty có thu mà CHƯA có vốn-giờ thì tỉ suất là None, không phải 0",
+         _sv.tom_tat()["theoTy"]["chua.v1"]["loiSuatNamPhanTram"] is None,
+         str(_sv.tom_tat()["theoTy"]))
+
+    # Và phép kiểm phải chứng minh nó THẬT SỰ có vị thế để soi — không
+    # thì «0 lần vượt trần» chỉ nói rằng chẳng có gì để vượt.
+    kiem("cỗ máy đối chứng có vị thế thật, không phải rỗng",
+         _tuNg.latCatKeToan.tom_tat()["soKeToanDuoc"] >= 1,
+         f"{_tuNg.latCatKeToan.tom_tat()} — một phép đối chứng chạy trên "
+         f"danh mục rỗng thì xanh vì rỗng, không vì đúng")
     kiem("ty kế toán ĐÚNG thì không bị kêu oan",
          _tuNg.latCatKeToan.tom_tat()["soThuVuotTran"] == 0,
          f"{_tuNg.latCatKeToan.tom_tat()} — báo nhầm thì người ta dạy phép "
