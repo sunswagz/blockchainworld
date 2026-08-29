@@ -111,22 +111,40 @@ class PaperBroker:
         return trade
 
     # ── Cập nhật theo giá & đóng khi chạm ─────────────────────────────────
-    def mark(self, price: float) -> list[dict]:
+    def mark(self, price: float | dict) -> list[dict]:
         """Chạm SL/TP thì đóng. Trong một nến, nếu cả hai cùng nằm trong biên độ,
         giả định SL chạm trước — đó là giả định BI QUAN, cố ý: mọi giả định lạc
-        quan trong backtest đều quay lại thành lỗ thật."""
+        quan trong backtest đều quay lại thành lỗ thật.
+
+        `price` nhận MỘT SỐ (một chợ, cách cũ) hoặc MỘT TỪ ĐIỂN {chợ: giá}.
+
+        Bản cũ chỉ nhận một số và áp nó lên MỌI vị thế. Đúng chừng nào bot còn
+        đánh một coin. Mở ra nhiều coin thì nó thành hỏng nặng và im lặng: vị
+        thế ETH bị chấm bằng giá BTC, chạm stop ở một mức chẳng liên quan gì,
+        và sổ giao dịch ghi lại một con số lãi/lỗ hoàn toàn bịa.
+
+        Vị thế nào KHÔNG có giá của chính chợ nó thì BỎ QUA, không chấm. Thà
+        giữ một vị thế thêm một vòng còn hơn đóng nó ở giá của coin khác — và
+        đó là lý do chỗ này không có đường "rơi về giá mặc định".
+        """
         closed = []
         for t in list(self.state["positions"]):
+            if isinstance(price, dict):
+                gia = price.get(t.get("symbol"))
+                if gia is None:
+                    continue
+            else:
+                gia = price
             hit = None
             if t["side"] == "LONG":
-                if price <= t["stopLoss"]:
+                if gia <= t["stopLoss"]:
                     hit = ("STOP_LOSS", t["stopLoss"])
-                elif price >= t["targets"][0]:
+                elif gia >= t["targets"][0]:
                     hit = ("TAKE_PROFIT", t["targets"][0])
             else:
-                if price >= t["stopLoss"]:
+                if gia >= t["stopLoss"]:
                     hit = ("STOP_LOSS", t["stopLoss"])
-                elif price <= t["targets"][0]:
+                elif gia <= t["targets"][0]:
                     hit = ("TAKE_PROFIT", t["targets"][0])
             if hit:
                 closed.append(self.close(t, hit[1], hit[0]))

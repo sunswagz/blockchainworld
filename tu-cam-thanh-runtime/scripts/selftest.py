@@ -1063,6 +1063,43 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[37] MỖI VỊ THẾ PHẢI ĐƯỢC CHẤM BẰNG GIÁ CỦA CHÍNH CHỢ NÓ")
+
+    # `mark(price)` bản cũ áp MỘT giá lên MỌI vị thế. Đúng chừng nào bot còn
+    # đánh một coin. Mở ra nhiều coin thì nó hỏng nặng và im lặng: vị thế ETH
+    # bị chấm bằng giá BTC, chạm stop ở một mức chẳng liên quan, và sổ ghi lại
+    # một con số lãi/lỗ hoàn toàn bịa.
+    broker.reset()
+    def _mo(sym, gia):
+        pos = {"side": "LONG", "entry": gia, "stopLoss": gia * 0.9,
+               "targets": [gia * 1.2], "qty": 1.0, "riskAmount": 50.0,
+               "riskPct": 0.5, "rr": 2.0, "stopAtrMultiple": 1.5,
+               "notional": gia * 1.0}
+        th = {"symbol": sym, "confidence": 0.7, "strategy": "KIEM",
+              "reason_codes": [], "summary": "kiểm"}
+        return broker.open(pos, th, {"primary": "TREND_UP", "key": "TREND_UP|none"})
+
+    _mo("BTCUSDT", 100.0)
+    _mo("ETHUSDT", 10.0)
+    check(len(broker.snapshot(100.0)["positions"]) == 2, "mở được hai vị thế khác chợ")
+
+    # Giá BTC rơi xuống 80 (chạm stop BTC ở 90). Giá ETH đứng yên ở 10.
+    # Bản cũ: 80 áp cho cả hai ⇒ ETH cũng "chạm stop" ở 9 — sai hoàn toàn.
+    _dong = broker.mark({"BTCUSDT": 80.0, "ETHUSDT": 10.0})
+    check(len(_dong) == 1 and _dong[0]["symbol"] == "BTCUSDT",
+          f"chỉ BTC đóng, ETH không việc gì (đóng: "
+          f"{[x[chr(115)+chr(121)+chr(109)+chr(98)+chr(111)+chr(108)] for x in _dong]})")
+
+    # Cửa quan trọng nhất: thiếu giá của một chợ thì BỎ QUA, không rơi về giá
+    # nào khác. Thà giữ vị thế thêm một vòng còn hơn đóng nó ở giá coin khác.
+    check(broker.mark({"BTCUSDT": 1.0}) == [],
+          "thiếu giá ETH → KHÔNG chấm ETH, không rơi về giá BTC")
+    check(len(broker.snapshot(10.0)["positions"]) == 1, "và vị thế ETH vẫn còn nguyên")
+
+    # Đường CŨ (một số) vẫn phải chạy: bản chạy lại và chế độ một chợ dùng nó.
+    _dong2 = broker.mark(8.0)
+    check(len(_dong2) == 1, "truyền MỘT SỐ vẫn chấm được (đường cũ còn sống)")
+    broker.reset()
     print("\n[36] GIÁ COIN RẺ KHÔNG ĐƯỢC LÀM TRÒN VỀ 0")
     from trader.features import _rg as _rg36, build_market_state as _bms36
 
