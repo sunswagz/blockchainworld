@@ -198,10 +198,18 @@ class DoBienDong:
         return len(self._luoi)
 
     def sigma_giay(self) -> float | None:
-        """Độ lệch chuẩn log-return trên lưới phút, quy về mỗi giây."""
+        """Độ lệch chuẩn log-return trên lưới phút, quy về mỗi giây.
+
+        Tự cắt theo cửa sổ ở ĐÂY, không dựa vào `them()` đã dọn hay chưa.
+        `mo_dau()` có thể nạp nhiều nến hơn cửa sổ, và nếu `them()` chưa
+        chạy lần nào thì σ sẽ tính trên một quãng DÀI HƠN cửa sổ đã khai
+        — một sai lệch nhỏ, im lặng, và chỉ xuất hiện ngay sau khởi động.
+        """
         if len(self._luoi) < self.TOI_THIEU_PHUT:
             return None
-        c = [self._luoi[k] for k in sorted(self._luoi)]
+        toiDa = max(self.TOI_THIEU_PHUT, int(self.cuaSoGiay / 60.0) + 1)
+        ks = sorted(self._luoi)[-toiDa:]
+        c = [self._luoi[k] for k in ks]
         r = [math.log(c[i + 1] / c[i]) for i in range(len(c) - 1)
              if c[i] > 0 and c[i + 1] > 0]
         if len(r) < self.TOI_THIEU_PHUT - 1:

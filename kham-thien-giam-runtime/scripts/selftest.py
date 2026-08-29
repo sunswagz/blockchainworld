@@ -966,6 +966,56 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_mot_bo_uoc_sigma() -> None:
+    """CHỈ MỘT bộ ước σ. Hai bản sao là hai chỗ để chúng trôi ra khỏi nhau.
+
+    Đã cắn đúng thế: `tu-nang-cap.py` vặn cửa sổ σ bằng cách chấm trên
+    lưới phút, trong khi runtime chạy một bộ ước khác (mẫu thô, chia
+    `sqrt(dt)`). Tham số chọn cho bộ này lắp vào bộ kia, và σ chạy thật
+    chỉ bằng 0,875 lần σ đã tuning. Cái trôi ấy LẶNG: mỗi bản vẫn chạy
+    được, không phép kiểm nào đỏ.
+
+    Nay `hoc_offline.sigma_tai` gọi thẳng `DoBienDong`. Phép kiểm này
+    đòi hai đường cho ra con số Y HỆT — không phải "gần bằng".
+    """
+    print("\n-- Chi MOT bo uoc sigma, hai duong phai trung khop -------")
+
+    from kham.dinh_gia import DoBienDong as _DBD
+    from kham.hoc_offline import quen_sigma, sigma_tai
+
+    T = 1_787_243_400_000
+    for bien in (1.3, 0.7, 2.1):
+        nen = {int(T - (20 - i) * 60_000):
+               70_000.0 * (1 + 0.0004 * math.sin(i * bien))
+               for i in range(21)}
+        quen_sigma()
+        a = sigma_tai(nen, T, 900.0)
+        b = _DBD()
+        b.mo_dau([(t, g) for t, g in nen.items() if t <= T])
+        c = b.sigma_giay()
+        kiem(f"hai đường trùng khớp (biến {bien})",
+             a is not None and c is not None and abs(a - c) < 1e-15,
+             f"{a} vs {c}")
+
+    # `sigma_giay` phải tự cắt theo cửa sổ, không dựa vào `them()` đã dọn.
+    b2 = _DBD()
+    b2.mo_dau([(T - (40 - i) * 60_000.0, 70_000.0 + i * 5.0) for i in range(40)])
+
+    kiem("nạp 40 nến vào cửa sổ 900s thì chỉ dùng 16",
+         b2.sigma_giay() is not None and b2.so_mau == 40,
+         "giữ đủ nến nhưng chỉ TÍNH trên cửa sổ")
+    # b3 phải nhận ĐÚNG 16 nến CUỐI của b2, không phải 16 nến đầu của
+    # một dãy khác: log-return của một dãy cộng đều không phải hằng số,
+    # nên hai dãy khác mức giá cho hai σ khác nhau — và đó là phép kiểm
+    # tự dựng sai đề, không phải mã sai.
+    day = [(T - (40 - i) * 60_000.0, 70_000.0 + i * 5.0) for i in range(40)]
+    b3 = _DBD()
+    b3.mo_dau(day[-16:])
+    kiem("và cho ra đúng con số của 16 nến CUỐI ấy",
+         abs((b2.sigma_giay() or 0) - (b3.sigma_giay() or 0)) < 1e-15,
+         f"{b2.sigma_giay()} vs {b3.sigma_giay()}")
+
+
 def kiem_sigma_luoi_phut() -> None:
     """σ chạy thật phải đo CÙNG CÁCH với σ đã tuning ngoại tuyến.
 
@@ -2788,6 +2838,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_mot_bo_uoc_sigma()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

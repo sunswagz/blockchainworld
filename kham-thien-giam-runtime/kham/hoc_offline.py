@@ -33,7 +33,7 @@ import time
 
 from .chan_doan import NUT_THEO_DUONG, doc_tham_so
 from .config import CONFIG, DATA_DIR
-from .dinh_gia import HieuChinh, dinh_gia
+from .dinh_gia import DoBienDong, HieuChinh, dinh_gia
 from .nan_lai import ghi_tho, khop
 from .nguon import nguon
 
@@ -90,27 +90,32 @@ _NHO_SIGMA: dict = {}
 
 
 def sigma_tai(theoMoc: dict, T: int, cuaSoGiay: float) -> float | None:
-    """σ mỗi giây từ `cuaSoGiay` giây nến 1 phút TRƯỚC T. Có nhớ lại.
+    """σ mỗi giây tại mốc T. Có nhớ lại.
 
-    Quét hàng chục ứng viên mà chỉ một nút đụng tới σ, nên ba nút kia
-    tính lại y hệt con số cũ hàng trăm nghìn lần. Nhớ theo (mốc, số nến)
-    làm một lượt chấm nhanh gấp 3,4 lần.
+    DÙNG LẠI `DoBienDong` chứ không tự tính. Hai bản sao của một bộ ước
+    là hai chỗ để chúng trôi ra khỏi nhau, và cái trôi ấy lặng — mỗi bản
+    vẫn chạy được, chỉ là tham số vặn cho bản này không còn đúng cho bản
+    kia. Đã cắn đúng thế một lần: `tu-nang-cap.py` vặn cửa sổ σ trên lưới
+    phút trong khi runtime chạy bộ ước mẫu thô, và σ chạy thật chỉ bằng
+    0,875 lần σ đã tuning.
+
+    Quét hàng chục ứng viên mà chỉ một nút đụng tới σ, nên nhớ theo
+    (mốc, số nến) làm một lượt chấm nhanh gấp 3,4 lần.
     """
     soNen = max(2, int(round(cuaSoGiay / 60.0)))
     khoa = (T, soNen)
     if khoa in _NHO_SIGMA:
         return _NHO_SIGMA[khoa]
-    gs = [theoMoc.get(T - i * int(PHUT)) for i in range(soNen + 1)]
-    if any(g is None or g <= 0 for g in gs):
-        _NHO_SIGMA[khoa] = None
-        return None
-    c = gs[::-1]
-    r = [math.log(c[i + 1] / c[i]) for i in range(len(c) - 1)]
-    if len(r) < 2:
-        _NHO_SIGMA[khoa] = None
-        return None
-    sd = statistics.pstdev(r)
-    ra = (sd / math.sqrt(60.0)) if sd > 0 else None
+    nen = []
+    for i in range(soNen + 1):
+        g = theoMoc.get(T - i * int(PHUT))
+        if g is None or g <= 0:
+            _NHO_SIGMA[khoa] = None
+            return None
+        nen.append((float(T - i * int(PHUT)), float(g)))
+    bd = DoBienDong()
+    bd.mo_dau(nen)
+    ra = bd.sigma_giay()
     _NHO_SIGMA[khoa] = ra
     return ra
 
