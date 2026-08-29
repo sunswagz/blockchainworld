@@ -77,7 +77,24 @@ const SO = join(ROOT, CUNG, "assets/js/v/tin-phan-tich.js");
 const DE = join(ROOT, CUNG, "assets/data/tin-de-bai.json");
 const THO = join(ROOT, CUNG, "assets/data/tin-phan-tich.json");
 
-const MOI_LUOT = 12;
+/* 12 → 24 (29/08). Sổ nhà máy ghi "nhận 12 · phủ 14/30 bài": mười sáu
+   bài trên bảng tin KHÔNG có phân tích nào, và đó đúng là thứ người
+   dùng đòi ("mỗi bài viết đều có AI phân tích").
+
+   Vì sao nâng con số này chứ không nâng nhịp node: van chi phí THẬT
+   là bộ nhớ ngay dưới — mỗi bài chỉ phân tích đúng một lần trong
+   đời, nên tổng lượt gọi model bằng SỐ BÀI KHÁC NHAU từng xuất hiện,
+   không phụ thuộc MOI_LUOT. Con số này chỉ quyết BAO LÂU thì phủ
+   hết. Nâng nhịp 12 → 6 giờ thì cũng phủ nhanh bằng, nhưng thêm hai
+   lượt chạy mỗi ngày và đẩy đệm ngân sách lượt xuống 2,95× — dưới
+   ngưỡng 3× mà `npm run kiem` đòi.
+
+   24 bài/lượt × 2 lượt/ngày = 48, so với bảng tin 30 bài làm mới 4
+   lượt/ngày. Đo trước khi nâng: cả nhóm ba bước chạy 125 giây với 12
+   bài, van của bước model là 8 phút — còn thừa nhiều. Nếu sổ vẫn ghi
+   "phủ dưới 30/30" sau vài ngày thì nguồn tin đang đẻ hơn 48 bài
+   mới mỗi ngày, và lúc đó mới đáng nâng tiếp. */
+const MOI_LUOT = 24;
 /* Giữ bao nhiêu phân tích cũ. Bài rơi khỏi bảng tin vẫn giữ một thời
    gian: nguồn hay đưa lại cùng một link, và phân tích lại là trả tiền
    hai lần cho cùng một bài. */
