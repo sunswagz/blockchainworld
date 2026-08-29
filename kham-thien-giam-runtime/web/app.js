@@ -448,6 +448,34 @@
     var o3 = oKhung("Băng ghi",
       (b.bat ? "đang ghi" : "TẮT") + " · " +
       (b.soKhung || 0).toLocaleString("vi-VN") + " khung");
+    // Báo cáo ĐỌC. Khối trên chỉ nói chuyện GHI, nên trước bản này hai
+    // file băng hỏng nằm trên đĩa mà buồng lái vẫn xanh — con số đã được
+    // tính rất kỹ trong `BaoCaoDoc` rồi vứt đi.
+    var bd = b.doc;
+    if (!bd) {
+      // CHƯA ĐO và SẠCH là hai chuyện. Đừng vẽ đèn xanh cho một phép đo
+      // chưa từng chạy.
+      o3._than.appendChild(el("div", "ghi",
+        "Chưa lượt quét băng đầy đủ nào chạy trong phiên này, nên chưa biết "
+        + "băng lành hay hỏng. Chạy lại hoặc mở /api/bang thì có số."));
+    } else {
+      var hong = (bd.soFileHong || 0) > 0;
+      var d = el("div", hong ? "canh" : "ghi");
+      d.appendChild(el("span", null,
+        bd.soFile + " file · " + (bd.soKhung || 0).toLocaleString("vi-VN")
+        + " khung đọc được · " + (bd.soFileCutDuoi || 0) + " cụt đuôi"));
+      if (hong) {
+        // "cụt đuôi" là bình thường sau mỗi lần tắt máy; "đứt giữa" mới là
+        // mất dữ liệu. Gộp hai thứ lại thì đèn đỏ vĩnh viễn, rồi người ta
+        // thôi nhìn nó — kể cả lần nó đúng.
+        d.appendChild(el("div", null,
+          "ĐỨT GIỮA " + bd.soFileHong + " file, nhảy qua "
+          + (bd.soByteBoQua || 0).toLocaleString("vi-VN") + " byte: "
+          + (bd.fileHong || []).join(", ")));
+      }
+      d.appendChild(el("div", "mo", "đo lúc " + String(bd.luc || "")));
+      o3._than.appendChild(d);
+    }
     o3._than.appendChild(el("div", "ghi",
       "Không lưu sổ lệnh và tick ngay từ đầu thì ba tháng nữa dù muốn nghiên " +
       "cứu cũng không có ký ức nào để chạy lại. Mô hình viết sau lúc nào cũng " +

@@ -29,7 +29,7 @@ from __future__ import annotations
 import threading
 import time
 
-from .bang import may_ghi
+from .bang import bao_cao_doc_cuoi, may_ghi
 from .bus import bus
 from .can_loi import CoHoi, can
 from .cap_token import CapSo
@@ -860,7 +860,10 @@ class Runtime:
                  "dangLam": c.dang_lam, "ghiChu": c.ghiChu}
                 for c in self.coHoi[:40]],
             "boQua": dict(self.boQua),
-            "bang": may_ghi.tom_tat(),
+            # Thống kê GHI và báo cáo ĐỌC là hai chuyện. Bản trước chỉ hiện
+            # cái đầu, nên hai file băng hỏng nằm trên đĩa suốt mà buồng lái
+            # vẫn xanh — `BaoCaoDoc` được tính rất kỹ rồi vứt đi.
+            "bang": dict(may_ghi.tom_tat(), doc=bao_cao_doc_cuoi()),
             "nhatKy": bus.gan_day(80),
         }
 

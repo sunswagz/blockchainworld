@@ -3022,6 +3022,65 @@ def kiem_dich_vu_hoi_cong() -> None:
         kiem(f"{t} lưu UTF-8 CÓ BOM",
              (dv / t).read_bytes()[:3] == b"\xef\xbb\xbf")
 
+def kiem_bao_cao_doc_hien_ra() -> None:
+    """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
+
+    `BaoCaoDoc` tính rất kỹ — phân biệt "cụt đuôi" (bình thường sau mỗi
+    lần tắt máy) với "đứt giữa" (mất dữ liệu thật) — rồi VỨT ĐI. Buồng
+    lái chỉ hiện thống kê GHI, nên đo được trên máy 30/08/2026: hai file
+    băng đứt giữa và 200.695 byte phải nhảy qua nằm trên đĩa suốt mà
+    không chỗ nào nói ra. Một phép đo đã tính xong mà không ai đọc được
+    thì bằng chưa đo.
+    """
+    print("\n── Băng: báo cáo ĐỌC phải hiện ra ───────────────────────────")
+
+    import kham.bang as B
+
+    cu = B._BAO_CAO_CUOI
+    try:
+        B._BAO_CAO_CUOI = None
+        kiem("chưa quét lượt nào thì trả None, KHÔNG trả bản sạch giả",
+             B.bao_cao_doc_cuoi() is None)
+
+        bao = B.BaoCaoDoc(soFile=3, soFileHong=1, soFileCutDuoi=2,
+                          soKhung=100, soByteBoQua=999)
+        bao.fileHong.append("bang-2026-08-20.jsonl.gz")
+
+        # Lượt quét CÓ LỌC NGÀY không được ghi đè: nó không mở file cũ,
+        # nên báo cáo của nó nói "sạch" về những file nó chưa hề nhìn.
+        B._nho_bao_cao(bao, "2026-08-29")
+        kiem("lượt quét lọc ngày KHÔNG ghi đè báo cáo đầy đủ",
+             B.bao_cao_doc_cuoi() is None)
+
+        B._nho_bao_cao(bao, None)
+        r = B.bao_cao_doc_cuoi()
+        kiem("lượt quét đầy đủ thì có ghi lại", r is not None)
+        kiem("giữ đủ số đứt giữa", r["soFileHong"] == 1, r)
+        kiem("giữ đủ số byte nhảy qua", r["soByteBoQua"] == 999, r)
+        kiem("kể TÊN file hỏng, không chỉ đếm",
+             r["fileHong"] == ["bang-2026-08-20.jsonl.gz"], r)
+        kiem("có mốc thời gian để biết nó cũ tới đâu", bool(r.get("luc")))
+        kiem("trả BẢN SAO, sửa bên ngoài không đụng bản gốc",
+             (r.pop("soFile") is not None)
+             and B.bao_cao_doc_cuoi()["soFile"] == 3)
+
+        # Cụt đuôi KHÔNG phải hỏng — gộp hai thứ là đèn đỏ vĩnh viễn.
+        b2 = B.BaoCaoDoc(soFile=3, soFileHong=0, soFileCutDuoi=3, soKhung=9)
+        B._nho_bao_cao(b2, None)
+        kiem("chỉ cụt đuôi thì vẫn là LÀNH LẶN",
+             B.bao_cao_doc_cuoi()["lanhLan"] is True)
+    finally:
+        B._BAO_CAO_CUOI = cu
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    vg = (GOC_MA / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("vong.py gắn báo cáo đọc vào khối `bang`",
+         "bao_cao_doc_cuoi()" in vg)
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("app.js vẽ báo cáo đọc ra", "b.doc" in js and "soFileHong" in js)
+    kiem("app.js nói rõ CHƯA ĐO khác với SẠCH",
+         "Chưa lượt quét băng đầy đủ nào" in js)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3079,6 +3138,7 @@ def main() -> int:
     kiem_lan_nga_khong_giet_vong()
     kiem_bus_gop_dong_lap()
     kiem_dich_vu_hoi_cong()
+    kiem_bao_cao_doc_hien_ra()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

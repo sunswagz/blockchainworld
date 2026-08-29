@@ -54,6 +54,7 @@ bao nhiêu. Im lặng nuốt lỗi và im lặng trả về thiếu là cùng m�
 """
 from __future__ import annotations
 
+import datetime as _dt
 import gzip
 import json
 import os
@@ -353,10 +354,54 @@ def giai_doan_cua(tt: dict) -> str:
     return str(tt.get("giaiDoan") or "dat-cuoc")
 
 
+#: Báo cáo đọc của lượt quét ĐẦY ĐỦ gần nhất, kèm mốc thời gian.
+#:
+#: `BaoCaoDoc` được tính rất kỹ rồi VỨT ĐI: buồng lái chỉ hiện thống kê
+#: GHI (`Bang.tom_tat`), nên hai file hỏng và 200.695 byte phải nhảy qua
+#: nằm trên đĩa suốt mà không chỗ nào nói ra. Một phép đo đã tính xong mà
+#: không ai đọc được thì bằng chưa đo.
+#:
+#: Không tính lại theo yêu cầu: một lượt quét là 30 MB, 30–70 giây. Chỉ
+#: ghi lại kết quả của những lượt quét DÙ SAO CŨNG PHẢI CHẠY (chạy lại,
+#: tiến hoá, /api/bang) — kèm `luc` để người đọc biết nó cũ tới đâu.
+_BAO_CAO_CUOI: dict | None = None
+
+
+def _nho_bao_cao(bao: "BaoCaoDoc", tuNgay: str | None) -> None:
+    """Ghi lại báo cáo của một lượt quét ĐẦY ĐỦ.
+
+    Lượt quét có lọc ngày thì BỎ QUA. Một lượt "từ hôm qua" không thấy
+    file hỏng của tuần trước, và ghi đè nó lên báo cáo đầy đủ là biến
+    "chưa nhìn" thành "nhìn rồi, sạch" — kiểu nói dối tệ nhất mà một
+    cái đèn báo có thể làm.
+    """
+    if tuNgay:
+        return
+    global _BAO_CAO_CUOI
+    d = {f: getattr(bao, f) for f in
+         ("soFile", "soFileHong", "soFileCutDuoi", "soKhung", "soDongHong",
+          "soByteBoQua")}
+    d["fileHong"] = list(bao.fileHong)
+    d["lanhLan"] = bao.lanh_lan
+    d["luc"] = _dt.datetime.now(_dt.timezone.utc).isoformat(
+        timespec="seconds").replace("+00:00", "Z")
+    _BAO_CAO_CUOI = d
+
+
+def bao_cao_doc_cuoi() -> dict | None:
+    """Báo cáo đọc gần nhất, hoặc None nếu chưa lượt quét đầy đủ nào chạy.
+
+    None và "sạch" là HAI chuyện. Chỗ nào hiện nó ra phải nói được cả
+    hai, đừng vẽ đèn xanh cho một phép đo chưa từng chạy.
+    """
+    return dict(_BAO_CAO_CUOI) if _BAO_CAO_CUOI else None
+
 def doc_bang_day_du(tuNgay: str | None = None) -> tuple[list[dict], BaoCaoDoc]:
     """Đọc cả băng vào bộ nhớ, kèm báo cáo hư hỏng. KHÔNG BAO GIỜ ném."""
     bao = BaoCaoDoc()
-    return list(lan_luot(tuNgay, bao)), bao
+    ra = list(lan_luot(tuNgay, bao))
+    _nho_bao_cao(bao, tuNgay)
+    return ra, bao
 
 
 def doc_bang(tuNgay: str | None = None) -> list[dict]:
@@ -401,7 +446,18 @@ class NguonKhung:
     def __iter__(self) -> Iterator[dict]:
         self.bao = BaoCaoDoc()
         self.soLuot += 1
-        return lan_luot(self.tuNgay, self.bao)
+        return self._quet(self.bao)
+
+    def _quet(self, bao: BaoCaoDoc) -> Iterator[dict]:
+        """Quét xuôi, và ghi lại báo cáo KHI ĐI HẾT.
+
+        Chỉ ghi khi lượt quét chạy tới cùng. Một lượt bị bỏ dở giữa
+        chừng mới thấy vài file đầu, nên báo cáo của nó nói "sạch"
+        về những file nó chưa hề mở.
+        """
+        for k in lan_luot(self.tuNgay, bao):
+            yield k
+        _nho_bao_cao(bao, self.tuNgay)
 
     @property
     def soKhung(self) -> int:
@@ -419,6 +475,7 @@ def dem_bang(tuNgay: str | None = None) -> BaoCaoDoc:
     bao = BaoCaoDoc()
     for _ in lan_luot(tuNgay, bao):
         pass
+    _nho_bao_cao(bao, tuNgay)
     return bao
 
 
