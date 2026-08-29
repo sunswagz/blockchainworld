@@ -110,6 +110,9 @@ class LatCatXoayCho:
     #: đổi", cái này là "đã đổi". Bằng 0 khi `tuXoayCho` tắt, và lúc ấy
     #: buồng lái phải đọc được rằng đây mới chỉ là phép đo.
     soDaDong: int = 0
+    #: Còn ghế trống thì KHÔNG đuổi ai — tiền đề của cả cơ chế này là chỗ
+    #: ngồi có hạn, và còn chỗ thì câu hỏi «ai nên ngồi» không đặt ra.
+    viConGhe: bool = False
     xoay: list = field(default_factory=list)
     vi: str = ""
 
@@ -121,6 +124,7 @@ class LatCatXoayCho:
             "aprHienTai": self.aprHienTai,
             "aprSauKhiXoay": self.aprSauKhiXoay,
             "loiRongUsd": self.loiRongUsd, "soDaDong": self.soDaDong,
+            "viConGhe": self.viConGhe,
             "xoay": [x.tom_tat() for x in self.xoay],
             "vi": self.vi,
         }

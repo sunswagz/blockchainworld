@@ -7049,7 +7049,23 @@ def kiem_ke_toan_vi_the() -> None:
          f"{_l49.tom_tat()} — xoay chỗ là ĐỔI DANH MỤC, không phải đổi một "
          f"con số hiển thị")
     _bat49 = _may49(True)
+    _bat49.phan_bo.c["toiDaSoViThe"] = 1        # HẾT ghế — mới được đuổi
     _l50 = _bat49._xoay_cho_neu_duoc()
+    # CÒN GHẾ TRỐNG thì KHÔNG đuổi ai. Đã cắn thật ngay lượt đầu chạy với
+    # vốn một triệu và trần 120 chỗ: máy cấp 6 vị thế rồi ĐÓNG 8 trong CÙNG
+    # một vòng, vòng sau cấp lại đúng những cái vừa đóng — mỗi vòng một lần
+    # phí vào + phí ra trên 25.000 USD, cho một danh mục không đổi.
+    _ghe49 = _may49(True)
+    _ghe49.phan_bo.c["toiDaSoViThe"] = 120
+    _l49b = _ghe49._xoay_cho_neu_duoc()
+    kiem("còn GHẾ TRỐNG thì KHÔNG đuổi ai",
+         _l49b.soDaDong == 0 and _l49b.viConGhe
+         and len(_ghe49.soViThe) == 1,
+         f"{_l49b.tom_tat()} — tiền đề của cả cơ chế là «chỗ ngồi CÓ HẠN»; "
+         f"còn chỗ thì câu hỏi «ai nên ngồi» không đặt ra")
+    kiem("nhưng vẫn ĐO và nói ra sẽ đổi được mấy chỗ",
+         _l49b.soXoayDuoc == 1 and "ghế trống" in _l49b.vi, _l49b.vi)
+
     kiem("BẬT thì đóng thật, và hoàn vốn về tiền mặt",
          _l50.soDaDong == 1 and not _bat49.soViThe
          and gan(_bat49.danh_muc.tienMatUsd, 10_500.0),
@@ -7070,6 +7086,7 @@ def kiem_ke_toan_vi_the() -> None:
     # Đặt dấu vào TRƯỚC rồi mới xoay, không thì phép kiểm xanh vì `_dauVet`
     # vốn rỗng — xanh vì một lý do không liên quan là loại xanh tệ nhất.
     _may51 = _may49(True)
+    _may51.phan_bo.c["toiDaSoViThe"] = 1
     _van51 = _dvd49(_may51.soViThe["m1"].toTrinh)
     kiem("sổ vị thế dựng được dấu vân tay từ tờ trình đã lưu",
          _van51 is not None, "thiếu `chan` hay `chienLuoc` thì xoá trượt")

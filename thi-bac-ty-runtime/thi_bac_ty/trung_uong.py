@@ -578,6 +578,23 @@ class TrungUong:
                           bienAnToan=float(self.c.get("bienXoayCho") or 1.5))
         if not self.c.get("tuXoayCho"):
             return lat
+        # CÒN GHẾ TRỐNG thì không đuổi ai. Tiền đề của cả cơ chế này là
+        # «chỗ ngồi CÓ HẠN, và ai ngồi mới là câu hỏi» — còn chỗ thì câu
+        # hỏi ấy không đặt ra: cơ hội tốt hơn cứ ngồi vào ghế trống.
+        #
+        # Đã cắn thật 29/08, ngay lượt đầu chạy với vốn một triệu và trần
+        # 120 chỗ: máy cấp 6 vị thế rồi ĐÓNG 8 trong CÙNG một vòng, và
+        # vòng sau lại cấp lại đúng những cái vừa đóng. Mỗi vòng một lần
+        # phí vào + phí ra trên 25.000 USD, cho một danh mục không đổi.
+        # Cửa chống trùng từng che lỗi này; gỡ nó ra thì nó lộ ngay.
+        tran = int(self.phan_bo.c.get("toiDaSoViThe") or 0)
+        if tran and len(self.danh_muc.viThe) < tran:
+            lat.viConGhe = True
+            lat.vi = (f"còn {tran - len(self.danh_muc.viThe)} ghế trống — "
+                      f"KHÔNG đuổi ai. Cơ hội tốt hơn cứ ngồi vào chỗ trống, "
+                      f"và Phân Bổ làm việc ấy ở bước 4. "
+                      f"({lat.soXoayDuoc} chỗ sẽ đáng đổi khi hết ghế.)")
+            return lat
         for x in lat.xoay:
             so = self.soViThe.get(x.maCu)
             if so is None:
