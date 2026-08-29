@@ -39,7 +39,7 @@
   },
   "ruiRo": {
     "grossToiThieuBpsNgay": 3.0,
-    "netToiThieuBps": 0.5,
+    "netToiThieuBps": 2.75,
     "lechMarkToiDaBps": 40.0,
     "doiHoiHaiMark": true,
     "tuoiToiDaGiay": 90.0,
