@@ -66,6 +66,13 @@ class Ty(ABC):
         self.soQuaCongTy = 0
         self.soTrinh = 0
         self.soTrinhSaiKhuon = 0
+        #: VÌ SAO cổng ty từ chối — xem `_ghi_ly_do`. Đây là cái lọc LỚN
+        #: NHẤT của cả cỗ máy (99,98% cơ hội chết ở đây) và trước lượt này
+        #: nó không khai một chữ nào.
+        self.soBiTuChoi = 0
+        self.soMaBiBo = 0
+        self.lyDoTuChoi: dict[str, int] = {}
+        self.cauViDu: dict[str, str] = {}
         self.loiCuoi: str | None = None
 
     # ── ba việc, và chỉ ba ────────────────────────────────────────────────
@@ -160,11 +167,12 @@ class Ty(ABC):
         for co in tho:
             self.soCoHoi += 1
             try:
-                qua, _ = self.xet(co)
+                qua, ly = self.xet(co)
             except Exception as e:                   # noqa: BLE001
                 self.loiCuoi = f"xét lỗi: {type(e).__name__}: {e}"
                 continue
             if not qua:
+                self._ghi_ly_do(ly)
                 continue
             self.soQuaCongTy += 1
             try:
@@ -181,10 +189,63 @@ class Ty(ABC):
                                 + "; ".join(tt.kiem()[:3]))
         return ra
 
+    #: Nhiều nhất ngần này MÃ lý do được giữ. Ty tự viết mã của mình, nên
+    #: một ty lỡ nhét số vào mã (`"net-thap-2.31"`) sẽ đẻ ra vô hạn khoá.
+    #: Trần này biến một lỗi rò bộ nhớ thành một dòng khai «có mã bị bỏ».
+    TRAN_MA_LY_DO = 24
+
+    def _ghi_ly_do(self, ly) -> None:
+        """Đếm VÌ SAO cổng ty từ chối — theo MÃ, không theo câu.
+
+        Trước lượt này dòng ấy viết `qua, _ = self.xet(co)`: lý do bị vứt
+        ngay tại chỗ nó vừa được sinh ra. Hậu quả đo được trên máy sống
+        30/08 — cổng ty là cái lọc LỚN NHẤT của cả cỗ máy:
+
+            thanh-khoan   68.936 cơ hội thô  →  14 qua cổng ty
+            phai-sinh      4.914             →   7
+            quyen-chon     1.983             →   0
+
+        99,98% số cơ hội chết ở đây, và không ai biết vì sao. Bảng «vì sao
+        bị từ chối» của buồng lái chỉ đọc Sổ Đăng Ký, mà sổ chỉ có tờ
+        trình — thứ chỉ ra đời SAU cổng này. Nên một ty hỏng (ngưỡng đặt
+        sai, một trường luôn `None`, nguồn trả rác) trông hệt một ty đang
+        từ chối đúng.
+
+        Đếm theo MÃ chứ không theo câu: câu mang số bên trong, và gom theo
+        câu thì một nguyên nhân vỡ thành hàng trăm dòng — đúng cái bẫy đã
+        cắn ở bảng lý do của Sổ Đăng Ký.
+
+        Một lần từ chối có thể mang NHIỀU mã. Mỗi mã đếm một lần cho lần
+        ấy, nên tổng các mã có thể lớn hơn `soBiTuChoi` — mẫu số riêng là
+        vì thế.
+        """
+        self.soBiTuChoi += 1
+        thay = set()
+        for x in (ly or ()):
+            ma = x[0] if isinstance(x, (tuple, list)) and x else x
+            ma = str(ma or "").strip() or "(khong-ma)"
+            if ma in thay:
+                continue
+            thay.add(ma)
+            if ma not in self.lyDoTuChoi:
+                if len(self.lyDoTuChoi) >= self.TRAN_MA_LY_DO:
+                    self.soMaBiBo += 1
+                    continue
+                self.lyDoTuChoi[ma] = 0
+                if isinstance(x, (tuple, list)) and len(x) > 1:
+                    self.cauViDu[ma] = str(x[1])[:200]
+            self.lyDoTuChoi[ma] += 1
+
     def tom_tat(self) -> dict:
+        top = sorted(self.lyDoTuChoi.items(), key=lambda kv: -kv[1])[:5]
         return {"ma": self.ma, "ho": self.ho, "moTa": self.moTa,
                 "vonToiThieuKinhTeUsd": self.vonToiThieuKinhTeUsd,
                 "soLuotQuet": self.soLuotQuet, "soCoHoi": self.soCoHoi,
                 "soQuaCongTy": self.soQuaCongTy, "soTrinh": self.soTrinh,
                 "soTrinhSaiKhuon": self.soTrinhSaiKhuon,
+                "soBiTuChoi": self.soBiTuChoi,
+                "soMaBiBo": self.soMaBiBo,
+                "lyDoTuChoi": [{"ma": k, "so": v,
+                                "cau": self.cauViDu.get(k, "")}
+                               for k, v in top],
                 "loiCuoi": self.loiCuoi}

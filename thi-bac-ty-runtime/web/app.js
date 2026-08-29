@@ -153,6 +153,8 @@
         ma: c.ma, ten: d[0], mo: d[1], ho: c.ho, tt: tt, dung: true,
         soQuet: n.soLuotQuet, soCoHoi: n.soCoHoi, soQua: n.soQuaCongTy,
         soTrinh: n.soTrinh, loi: n.loiCuoi,
+        soBiTuChoi: n.soBiTuChoi, soMaBiBo: n.soMaBiBo,
+        lyDoCongTy: n.lyDoTuChoi,
         nguong: c.vonToiThieuUsd, tran: c.tranMotCoHoiUsd, vi: c.vi
       });
     });
@@ -1773,6 +1775,34 @@
     d.appendChild(oSo("Ngưỡng kinh tế", tien(dc.nguong, 0),
       "rót được nhiều nhất " + tien(dc.tran, 0)));
     k.appendChild(d);
+
+    /* VÌ SAO cổng ty từ chối. Đây là cái lọc LỚN NHẤT của cả cỗ máy —
+       99,98% số cơ hội chết ở đây — và cho tới lượt này nó không khai một
+       chữ nào: `mot_luot()` viết `qua, _ = self.xet(co)`, vứt lý do ngay
+       tại chỗ nó vừa được sinh ra. Một ty hỏng trông hệt một ty đang từ
+       chối đúng. */
+    if ((dc.lyDoCongTy || []).length) {
+      var kl2 = el("div", "vi-sao-tu-choi");
+      kl2.appendChild(el("h4", null, "Vì sao CỔNG TY từ chối"));
+      var r2 = el("div", "viec-1 nhe");
+      dc.lyDoCongTy.forEach(function (x) {
+        r2.appendChild(el("span", null, "× " + so(x.so) + "  [" + x.ma + "] "
+          + (x.cau || "")));
+      });
+      r2.appendChild(el("span", "nhat", "— trên " + so(dc.soBiTuChoi)
+        + " lần từ chối" + (dc.soMaBiBo
+          ? " · " + so(dc.soMaBiBo) + " mã bị BỎ vì quá trần 24 mã" : "")));
+      kl2.appendChild(r2);
+      k.appendChild(kl2);
+      k.appendChild(giai("Một lần từ chối mang được NHIỀU mã, nên tổng các "
+        + "mã có thể lớn hơn số lần từ chối. Gộp theo MÃ chứ không theo câu "
+        + "— câu mang số bên trong thì một nguyên nhân vỡ thành hàng trăm "
+        + "dòng."));
+    } else if (dc.soBiTuChoi) {
+      k.appendChild(giai("Cổng ty từ chối " + so(dc.soBiTuChoi) + " lần mà "
+        + "KHÔNG khai mã nào — `xet()` của ty này trả về danh sách lý do "
+        + "rỗng. Từ chối không lý do là một con số câm."));
+    }
     f.appendChild(k);
 
     /* Chỉ ty chênh funding mới có tầng ba đã dựng. Nói thẳng thay vì để

@@ -8388,6 +8388,97 @@ def kiem_hien_phap() -> None:
              f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
 
 
+def kiem_ly_do_cong_ty() -> None:
+    print("\n-- CONG TY: cai loc lon nhat, va no phai khai VI SAO --")
+    from thi_bac_ty.khuon_ty import Ty
+
+    class TyThu(Ty):
+        ma, ho, moTa = "thu.v1", "phai-sinh", "thử"
+
+        def quet(self):
+            return list(range(30))
+
+        def xet(self, co):
+            if co % 10 == 0:
+                return True, []
+            if co % 3 == 0:
+                return False, [("net-thap", f"net {co} bps < 5")]
+            return False, [("thanh-khoan-mong", "sổ mỏng"),
+                           ("net-thap", "net thấp")]
+
+        def trinh(self, co):
+            return co
+
+    class TCGia:
+        def nop(self, tt):
+            return True
+
+    t = TyThu()
+    t.mot_luot(TCGia())
+    d = t.tom_tat()
+    # Trước lượt này dòng ấy là `qua, _ = self.xet(co)`: lý do bị vứt ngay
+    # tại chỗ nó vừa sinh ra. Cổng ty là cái lọc LỚN NHẤT của cả cỗ máy —
+    # đo 30/08: 68.936 cơ hội thô → 14 qua, tức 99,98% chết ở đây — và
+    # không ai biết vì sao. Một ty hỏng (ngưỡng sai, một trường luôn None,
+    # nguồn trả rác) trông hệt một ty đang từ chối đúng.
+    kiem("cổng ty ĐẾM được số lần từ chối",
+         d["soBiTuChoi"] == 27 and d["soQuaCongTy"] == 3,
+         f"{d['soBiTuChoi']}/{d['soQuaCongTy']}")
+    theo = {x["ma"]: x for x in d["lyDoTuChoi"]}
+    kiem("và khai VÌ SAO, theo MÃ",
+         theo["net-thap"]["so"] == 27 and theo["thanh-khoan-mong"]["so"] == 18,
+         f"{d['lyDoTuChoi']} — gom theo câu thì `net 3 bps` và `net 6 bps` "
+         f"thành hai nguyên nhân khác nhau")
+    kiem("giữ một CÂU làm ví dụ, không chỉ mã trần",
+         all(x["cau"] for x in d["lyDoTuChoi"]),
+         "mã để máy đếm, câu để người đọc — thiếu câu thì người đọc phải "
+         "đi tra mã trong mã nguồn")
+    kiem("xếp theo số lần, thủ phạm chính đứng đầu",
+         d["lyDoTuChoi"][0]["ma"] == "net-thap",
+         str(d["lyDoTuChoi"]))
+
+    # Một lần từ chối mang NHIỀU mã, nhưng mỗi mã chỉ đếm MỘT lần cho lần
+    # ấy — không thì một `xet()` trả về mã trùng sẽ tự thổi phồng mình.
+    class TyTrung(TyThu):
+        def xet(self, co):
+            return False, [("a", "x"), ("a", "x"), ("a", "x")]
+
+    t2 = TyTrung()
+    t2.mot_luot(TCGia())
+    d2 = t2.tom_tat()
+    kiem("mã TRÙNG trong cùng một lần từ chối chỉ đếm một lần",
+         d2["lyDoTuChoi"][0]["so"] == d2["soBiTuChoi"] == 30,
+         f"{d2['lyDoTuChoi']} vs {d2['soBiTuChoi']}")
+
+    # Ty tự viết mã của mình, nên một ty lỡ nhét số vào mã sẽ đẻ ra vô hạn
+    # khoá. Trần biến một lỗi rò bộ nhớ thành một dòng khai «có mã bị bỏ».
+    class TyVoHan(TyThu):
+        def xet(self, co):
+            return False, [(f"ma-so-{co}", "mỗi lần một mã khác")]
+
+    t3 = TyVoHan()
+    t3.mot_luot(TCGia())
+    d3 = t3.tom_tat()
+    kiem("số MÃ có TRẦN, và phần bị bỏ được KHAI RA",
+         len(t3.lyDoTuChoi) == Ty.TRAN_MA_LY_DO and d3["soMaBiBo"] > 0,
+         f"{len(t3.lyDoTuChoi)} mã · bỏ {d3['soMaBiBo']} — một ty nhét số "
+         f"vào mã sẽ làm bảng này phình vô hạn; bỏ IM LẶNG thì người đọc "
+         f"tưởng mình đang nhìn cả bức tranh")
+
+    # Từ chối mà KHÔNG khai mã nào vẫn phải đếm được — im lặng ở đây là
+    # một con số câm, và buồng lái nói thẳng ra điều đó.
+    class TyCam(TyThu):
+        def xet(self, co):
+            return False, []
+
+    t4 = TyCam()
+    t4.mot_luot(TCGia())
+    d4 = t4.tom_tat()
+    kiem("từ chối KHÔNG lý do vẫn vào mẫu số, và bảng mã thì rỗng",
+         d4["soBiTuChoi"] == 30 and d4["lyDoTuChoi"] == [],
+         f"{d4['soBiTuChoi']} · {d4['lyDoTuChoi']}")
+
+
 def kiem_khoa_cu_doi_ten() -> None:
     print("\n-- Doi ten khoa: ban tham so DA DUYET khong duoc mat --")
     from thi_bac_ty.rui_ro_tong import KHOA_CU, MAC_DINH, RuiRoTong
@@ -8596,6 +8687,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_ly_do_cong_ty()
     kiem_khoa_cu_doi_ten()
     kiem_hai_lan()
     kiem_khong_trung_ten()
