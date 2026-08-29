@@ -52,6 +52,33 @@ BIEN_VUOT = 0.15
 #: Mỗi lượt dịch tối đa bấy nhiêu phần giá trị hiện tại.
 BUOC_TOI_DA = 0.25
 
+#: SÀN của bước vặn, tính theo BỀ RỘNG khuôn của núm.
+#:
+#: Bước nhân theo giá trị hiện tại (`hien × 0,25`) có một chỗ chết: núm nào
+#: đang ở gần 0 thì bước cũng gần 0, và nó KHÔNG BAO GIỜ đi được đâu.
+#: `netToiThieuBps` xuất phát 0,5 nên bước đầu là 0,125 — đổi ngưỡng ngần
+#: ấy thì kỳ vọng nhích vài phần trăm bps, dưới `BIEN_VUOT` 0,15, nên lượt
+#: nào cũng bị TRẢ LẠI. Đo trên băng thật: 0,5 → 15 cải thiện 0,56 bps, thừa
+#: sức vượt biên nhiễu; nhưng đi bằng bước nhân thì phải qua ~20 lượt mà
+#: lượt nào cũng nhỏ hơn nhiễu. Cỗ máy ĐO ĐƯỢC đích nhưng không bước tới
+#: được — và nó im lặng, vì mỗi lượt trả lại đều trông như một quyết định
+#: thận trọng đúng đắn.
+#:
+#: 5% bề rộng khuôn: đủ để một lượt tạo ra khác biệt đo được, vẫn đủ nhỏ để
+#: cần hai chục lượt mới đi hết khuôn.
+SAN_BUOC_KHUON = 0.05
+
+
+def buoc_van(nut: str, hien: float) -> float:
+    """Bước vặn của một núm — LỚN HƠN trong hai cách tính.
+
+    Nhân theo giá trị hiện tại giữ cho núm lớn không nhảy quá xa; sàn theo
+    bề rộng khuôn giữ cho núm nhỏ không đứng yên mãi.
+    """
+    k = NUT_VAN[nut]
+    return max(abs(hien) * BUOC_TOI_DA,
+               (float(k["max"]) - float(k["min"])) * SAN_BUOC_KHUON)
+
 #: Cần bấy nhiêu cơ hội hậu kiểm được ở CẢ HAI bên mới dám kết luận.
 TOI_THIEU_MAU = 30
 
@@ -130,7 +157,7 @@ def de_xuat_tat_dinh(trieuChung: list, ts: ThamSo) -> list[DeXuat]:
             huong = _huong(t.ma, nut)
             if huong == 0:
                 continue
-            moi = _kep(nut, hien * (1.0 + huong * BUOC_TOI_DA))
+            moi = _kep(nut, hien + huong * buoc_van(nut, hien))
             if abs(moi - hien) < 1e-9:
                 continue                       # đã chạm biên, không đề xuất
             ra.append(DeXuat(nut, hien, moi, t.ma))

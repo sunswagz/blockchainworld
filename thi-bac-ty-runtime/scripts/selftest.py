@@ -909,8 +909,18 @@ def kiem_tien_hoa_hoc() -> None:
     kiem("triệu chứng lỗ → đề xuất SIẾT ngưỡng NET",
          len(dx) == 1 and dx[0].den > dx[0].tu,
          str([d.tom_tat() for d in dx]))
-    kiem("bước không vượt trần 25%",
-         abs(dx[0].den - dx[0].tu) <= abs(dx[0].tu) * 0.2500001 + 1e-9)
+    # Trần 25% giữ cho núm LỚN không nhảy xa. Nhưng nó không được là trần
+    # duy nhất: núm gần 0 thì 25% cũng gần 0, và núm ấy đứng yên vĩnh viễn.
+    # Nên bước = LỚN HƠN trong hai cách tính, và trần thật là chính nó.
+    from bac.tien_hoa import buoc_van as _bv
+    _tran = _bv("netToiThieuBps", dx[0].tu)
+    kiem("bước không vượt LỚN HƠN của (25% giá trị, 5% bề rộng khuôn)",
+         abs(dx[0].den - dx[0].tu) <= _tran + 1e-9,
+         f"{dx[0].tom_tat()} vs trần {_tran}")
+    kiem("và với núm gần 0, chính SÀN theo khuôn là thứ quyết",
+         gan(_tran, 45.0 * 0.05) and _tran > abs(dx[0].tu) * 0.25,
+         "0,5 × 25% = 0,125 — nhích ngần ấy thì cải thiện nhỏ hơn nhiễu, "
+         "và lượt nào cũng bị trả lại")
 
     nhieu = de_xuat_tat_dinh(
         [T("ky-vong-am", ["netToiThieuBps"]),
@@ -936,6 +946,39 @@ def kiem_tien_hoa_hoc() -> None:
 
     kiem("biên vượt nhiễu là 0,15 bps", gan(BIEN_VUOT, 0.15))
     kiem("tối thiểu mẫu để chẩn là 30", TOI_THIEU_MAU == 30)
+
+    # ── NÚM GẦN 0 KHÔNG ĐƯỢC ĐÓNG BĂNG ──────────────────────────────────
+    # Bước nhân theo giá trị hiện tại có một chỗ chết: `netToiThieuBps` xuất
+    # phát 0,5 nên bước đầu là 0,125 — đổi ngưỡng ngần ấy thì kỳ vọng nhích
+    # vài phần trăm bps, dưới biên nhiễu 0,15, nên lượt nào cũng bị TRẢ LẠI.
+    # Đo trên băng thật: 0,5 → 15 cải thiện 0,56 bps, thừa sức vượt nhiễu.
+    # Cỗ máy ĐO ĐƯỢC đích mà không bước tới được, và mỗi lượt trả lại trông
+    # y hệt một quyết định thận trọng đúng đắn.
+    from bac.tien_hoa import (BUOC_TOI_DA as _BTD31, SAN_BUOC_KHUON,
+                              _kep as _kep31, buoc_van)
+
+    _b31 = buoc_van("netToiThieuBps", 0.5)
+    kiem("núm gần 0 vẫn có bước ĐỦ LỚN để đo được",
+         _b31 > 0.5 * _BTD31 and gan(_b31, 45.0 * SAN_BUOC_KHUON),
+         f"bước {_b31} — nhân theo giá trị hiện tại thì một núm gần 0 có "
+         f"bước gần 0, và nó đứng yên vĩnh viễn")
+    kiem("núm LỚN vẫn dùng bước nhân, không bị sàn kéo lên",
+         gan(buoc_van("tuoiToiDaGiay", 200.0), 200.0 * _BTD31),
+         "sàn để cứu núm nhỏ, không phải để cho núm lớn nhảy xa hơn")
+    _T31 = type("T31", (), {})
+    _t31 = _T31(); _t31.ma = "ky-vong-am"; _t31.nutGoiY = ["netToiThieuBps"]
+    _g31 = ThamSo("g", 8.0, {"netToiThieuBps": 0.5,
+                             "grossToiThieuBpsNgay": 3.0})
+    _dx31 = de_xuat_tat_dinh([_t31], _g31)
+    kiem("và đề xuất thật sự nhảy khỏi 0,5, không nhích 0,125",
+         _dx31 and _dx31[0].den - _dx31[0].tu > 1.0,
+         f"{[d.tom_tat() for d in _dx31]}")
+    _dem31, _v31 = 0, 0.5
+    while _v31 < 15.0 and _dem31 < 50:
+        _v31 = _kep31("netToiThieuBps", _v31 + buoc_van("netToiThieuBps", _v31))
+        _dem31 += 1
+    kiem("đi từ 0,5 tới 15 trong ít lượt, không phải hai chục",
+         _dem31 <= 8, f"{_dem31} lượt — mỗi lượt cách nhau 6 giờ")
 
     # ── VÒNG LẶP PHẢI GỌI, lần thứ BA cùng một lớp hỏng ─────────────────
     # `tien_hoa.mot_luot()` chỉ tới được qua `POST /api/tien-hoa`, nên
@@ -2127,8 +2170,20 @@ def kiem_chan_doan_he() -> None:
     dx = de_xuat(tr3, {"ruiRoTong": {"tranMotCang": 0.40}})
     kiem("và đề xuất NỚI, không phải siết",
          dx and dx[0].den > dx[0].tu, str([d.tom_tat() for d in dx]))
+    from thi_bac_ty.chan_doan_he import SAN_BUOC_KHUON as _SBK
+    _tranHe = max(abs(dx[0].tu) * BUOC_TOI_DA, (0.35 - 0.02) * _SBK)
     kiem("bước vặn có trần",
-         dx and abs(dx[0].den - dx[0].tu) <= abs(dx[0].tu) * BUOC_TOI_DA + 1e-9)
+         dx and abs(dx[0].den - dx[0].tu) <= _tranHe + 1e-9,
+         f"{dx[0].tom_tat()} vs trần {_tranHe}")
+    # Cùng cái bẫy như tầng ty, và ở đây nó còn núp sau một chữ `or`: `or`
+    # chỉ cứu đúng `hien == 0`, mà chỗ chết nằm ở MỌI giá trị nhỏ so với
+    # khuôn. Một núm 0,02 trong khuôn [0,02 · 0,35] có bước nhân 0,005 —
+    # nó không đi được đâu cả.
+    _dxNho = de_xuat(tr3, {"ruiRoTong": {"tranMotCoHoi": 0.02}})
+    kiem("núm gần biên dưới vẫn bước được, không đứng yên",
+         _dxNho and _dxNho[0].den - _dxNho[0].tu >= (0.35 - 0.02) * _SBK - 1e-9,
+         f"{[d.tom_tat() for d in _dxNho]} — `or` chỉ cứu số 0, không cứu "
+         f"số nhỏ")
     kiem("mỗi lượt đề xuất ĐÚNG MỘT núm", len(dx) == 1,
          "vặn hai núm rồi thấy khá lên thì không biết núm nào có công")
 

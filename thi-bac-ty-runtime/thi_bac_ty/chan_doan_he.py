@@ -84,6 +84,10 @@ CUA_AN_TOAN_HE = (
 #: Mỗi lượt dịch tối đa bấy nhiêu phần giá trị hiện tại.
 BUOC_TOI_DA = 0.25
 
+#: SÀN của bước, theo bề rộng khuôn — xem `bac/tien_hoa.SAN_BUOC_KHUON`.
+#: Không có sàn thì núm nào đang ở gần 0 sẽ đứng yên mãi mãi.
+SAN_BUOC_KHUON = 0.05
+
 
 @dataclass
 class TrieuChungHe:
@@ -309,7 +313,15 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
             # siết vào. Bước có trần, và không bao giờ ra ngoài khuôn.
             noi = t.ma in ("tong-chan-het", "tran-dat-sai-cho",
                            "tran-vi-the-chan")
-            buoc = abs(hien) * BUOC_TOI_DA or (khuon["max"] - khuon["min"]) * 0.1
+            # `or` chỉ cứu đúng trường hợp `hien == 0`, mà chỗ chết không
+            # nằm ở 0 — nó nằm ở MỌI giá trị nhỏ so với khuôn. `hien = 0,5`
+            # cho bước 0,125 và núm ấy đứng yên vĩnh viễn, vì mỗi lượt đổi
+            # quá ít để tạo ra khác biệt đo được, nên lượt nào cũng bị trả
+            # lại. Cỗ máy đo được đích mà không bước tới được, và nó im
+            # lặng — mỗi lượt trả lại trông y hệt một quyết định thận
+            # trọng đúng đắn. `max`, không phải `or`.
+            buoc = max(abs(hien) * BUOC_TOI_DA,
+                       (khuon["max"] - khuon["min"]) * SAN_BUOC_KHUON)
             moi = hien + buoc if noi else hien - buoc
             moi = max(khuon["min"], min(khuon["max"], moi))
             if abs(moi - hien) < 1e-9:

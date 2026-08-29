@@ -937,6 +937,27 @@ không chép tay: thêm một `LOAI` vào đó mà quên chỗ cộng thì `KHOA
 ném `KeyError` ngay, thay vì để khoản tiền ấy rơi vào hư không — đúng
 chỗ hở mà phép cấy lỗi ngược đã lộ ra.
 
+## Cấy lỗi ngược: khôi phục MÃ NGUỒN chưa đủ, còn BYTECODE
+
+Bộ cấy lỗi sửa file, chạy bộ kiểm, rồi khôi phục file trong `finally`.
+Đủ, cho tới 29/08/2026: lượt chạy NGAY SAU một loạt cấy lỗi đỏ đúng phép
+kiểm mà bản cấy lỗi vừa nhắm, trong khi mã nguồn trên đĩa đã đúng —
+`grep` xác nhận đúng, chạy riêng hàm ấy thì xanh.
+
+Thủ phạm là `__pycache__`. Tiến trình con biên dịch file ĐÃ CẤY LỖI thành
+`.pyc`; khôi phục xong, Python thấy `.pyc` còn "hợp lệ" và dùng lại nó —
+nên lỗi đã gỡ khỏi mã nguồn vẫn còn sống trong bytecode.
+
+Hai chỗ phải sửa, và cả hai đều rẻ:
+
+    PYTHONDONTWRITEBYTECODE=1   cho tiến trình con của bộ cấy lỗi
+    xoá __pycache__             sau khi khôi phục
+
+Vì sao đáng ghi lại: một đột biến sống sót qua lúc khôi phục KHÔNG báo
+lỗi gì — nó chỉ làm lượt kiểm kế tiếp đỏ ở một chỗ trông chẳng liên quan,
+và người đọc sẽ đi tìm lỗi ở đúng chỗ không có lỗi. Cùng hình dạng với
+bài học `_bg` bị định nghĩa hai lần: hỏng ở đây, vỡ ở đằng kia.
+
 ## Hiệu năng đo bằng đường NAV, không bằng một APR nhân thẳng
 
 Vốn thật đi qua `100 × 1,12 × 1,31 × 0,92 × 1,22 × 1,05`, chứ không phải
