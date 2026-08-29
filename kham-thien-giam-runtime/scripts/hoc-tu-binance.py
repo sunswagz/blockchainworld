@@ -51,6 +51,7 @@ GIAN: phần đuôi vẫn là quãng mà đường khớp chưa từng thấy. N
 """
 from __future__ import annotations
 
+import json
 import math
 import statistics
 import sys
@@ -177,6 +178,42 @@ def _ngoai_mau(cap: list) -> None:
         print("      Đừng bật nó lên. Siết giảm chấn hoặc lấy thêm mẫu.")
 
 
+def _doc_tho():
+    """Mọi cặp thô đã ghi, MỌI chợ: (p, thắng, mã)."""
+    from kham.nan_lai import DUONG_THO
+    if not DUONG_THO.exists():
+        return
+    for dong in DUONG_THO.read_text(encoding="utf-8").splitlines():
+        if not dong.strip():
+            continue
+        try:
+            g = json.loads(dong)
+            yield float(g["p"]), bool(g["thang"]), str(g.get("ma") or "?")
+        except (ValueError, KeyError, TypeError):
+            continue
+
+
+def _giu_lai_cho_khac(ma: str) -> int:
+    """Xoá mẫu thô của RIÊNG `ma`, giữ nguyên các chợ khác.
+
+    Ghi ra file tạm rồi THAY: đứt giữa chừng thì sổ cũ còn nguyên, chứ
+    không thành một sổ cụt — và một sổ hiệu chỉnh cụt không kêu lên,
+    nó chỉ làm mọi con số sau đó lệch đi.
+    """
+    from kham.nan_lai import DUONG_THO
+    if not DUONG_THO.exists():
+        return 0
+    dau = chr(34)
+    nhan = dau + "ma" + dau + ": " + dau + ma + dau
+    giu = [d for d in DUONG_THO.read_text(encoding="utf-8").splitlines()
+           if d.strip() and nhan not in d]
+    tam = DUONG_THO.with_suffix(DUONG_THO.suffix + ".tam")
+    tam.write_text((chr(10).join(giu) + chr(10)) if giu else "",
+                   encoding="utf-8")
+    tam.replace(DUONG_THO)
+    return len(giu)
+
+
 def main() -> int:
     cap = next((t.get("nen") for t in CONFIG["thiTruong"]
                 if t.get("ma") == MA), None)
@@ -200,9 +237,15 @@ def main() -> int:
         # đôi số cặp thô, và phép kiểm ngoài mẫu chia 70/30 trên một danh
         # sách có mỗi cặp hai lần thì phần đuôi chứa đúng thứ phần đầu đã
         # thấy — tự chấm bài mình mà vẫn trông như ngoài mẫu.
-        tho = DATA_DIR / "hieu-chinh-tho.jsonl"
-        if tho.exists():
-            tho.unlink()
+        #
+        # Nhưng xoá SẠCH là sai từ khi có `--ma`: chạy cho ETH thì mất
+        # trắng mẫu của BTC. Đo được — sau khi chạy lần lượt ETH, SOL,
+        # XRP thì sổ thô còn đúng 56.836 dòng và TẤT CẢ đều là XRP;
+        # 57.532 mẫu BTC biến mất không một dòng nhật ký. Mà `tongMau`
+        # chính là thứ quyết định Kelly có được mở hay không.
+        #
+        # Xoá THEO CHỢ: dựng lại cái mình vừa đo, giữ nguyên chợ khác.
+        _giu_lai_cho_khac(MA)
 
     nen = nen_1p(cap, tuMs, soNen)
     if len(nen) < 400:
@@ -315,8 +358,23 @@ def main() -> int:
     if THU:
         print("\n  --thu: KHÔNG ghi sổ.\n")
         return 0
+    # Sổ TỔNG phải gộp MỌI chợ, không chỉ chợ vừa chạy.
+    #
+    # `hc` ở trên chỉ tích mẫu của `MA`. Ghi thẳng nó là để lại một sổ
+    # hiệu chỉnh nói về đúng MỘT chợ trong khi cỗ máy chạy bốn — và
+    # `dinh_gia` áp sổ ấy cho cả bốn.
+    #
+    # Dựng lại từ sổ THÔ, nơi mọi chợ cùng nằm: một nguồn sự thật, và
+    # nó vừa được cập nhật đúng chợ vừa đo ở trên.
+    hc.o = {}
+    theoCho: dict[str, int] = {}
+    for pMoi, thangMoi, maMoi in _doc_tho():
+        hc.them(pMoi, thangMoi)
+        theoCho[maMoi] = theoCho.get(maMoi, 0) + 1
     hc.ghi()
-    print(f"\n  Đã ghi {hc.duong}")
+    print()
+    print("  Đã ghi " + str(hc.duong) + " — sổ TỔNG gộp "
+          + ", ".join(k + " " + format(v, ",") for k, v in sorted(theoCho.items())))
     print(f"  Sổ kết quả: {soKq.tom_tat()}")
     print()
     print("  NHẮC: sổ này nói MÔ HÌNH đoán chuẩn tới đâu. Nó KHÔNG nói chợ")
