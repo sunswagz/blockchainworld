@@ -101,10 +101,20 @@ def performance() -> dict:
     CÓ VÀO tài khoản thật. Chỉ là nó trả lời câu hỏi khác.
     """
     tat_ca = store.read_all(store.TRADES)
-    trades = [t for t in tat_ca
-              if not t.get("closedAt") or t.get("exitReason") in LY_DO_TU_NHIEN]
-    ky_thuat = [t for t in tat_ca
-                if t.get("closedAt") and t.get("exitReason") not in LY_DO_TU_NHIEN]
+
+    def _ky_thuat(t) -> bool:
+        """Lệnh này có phải đóng KỸ THUẬT không.
+
+        THIẾU `exitReason` thì tính là TỰ NHIÊN, không phải kỹ thuật. Bản đầu
+        làm ngược, và hậu quả đúng bằng thứ bản vá này sinh ra để chặn: một lệnh
+        thiếu trường sẽ lặng lẽ rơi khỏi kỳ vọng chiến lược. Chỉ những lý do
+        thoát được KHAI RÕ mới bị tách ra.
+        """
+        return bool(t.get("closedAt") and t.get("exitReason")
+                    and t["exitReason"] not in LY_DO_TU_NHIEN)
+
+    trades = [t for t in tat_ca if not _ky_thuat(t)]
+    ky_thuat = [t for t in tat_ca if _ky_thuat(t)]
     by_regime: dict[str, list] = defaultdict(list)
     by_strategy: dict[str, list] = defaultdict(list)
     for t in trades:

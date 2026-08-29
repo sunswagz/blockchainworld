@@ -1141,6 +1141,16 @@ async def main() -> int:
     _p43b = _J43.performance()
     check(_p43b["kyThuat"]["so"] == 0 and _p43b["overall"]["count"] == 2,
           "không lệnh kỹ thuật nào → khối rỗng, kỳ vọng không đổi")
+
+    # THIẾU `exitReason` phải tính là TỰ NHIÊN. Làm ngược thì một lệnh thiếu
+    # trường lặng lẽ rơi khỏi kỳ vọng — đúng thứ bản vá này sinh ra để chặn.
+    (DATA_DIR / store.TRADES).write_text(
+        _json.dumps({"id": "d", "closedAt": "x", "status": "CLOSED", "pnl": -5.0,
+                     "rMultiple": -0.5, "riskAmount": 10.0,
+                     "regimeAtEntry": "Z", "strategy": "S"}) + NL, encoding="utf-8")
+    _p43c = _J43.performance()
+    check(_p43c["overall"]["count"] == 1 and _p43c["kyThuat"]["so"] == 0,
+          "lệnh đã đóng mà THIẾU exitReason → vẫn tính vào kỳ vọng, không bị vứt")
     print("\n[42] VÀO ĐƯỢC MÀ KHÔNG ĐẶT ĐƯỢC STOP → BÁN NGAY")
 
     # Đã xảy ra thật trên sàn: sổ lệnh testnet mỏng nên lệnh MARKET khớp ở
