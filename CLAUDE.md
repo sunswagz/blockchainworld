@@ -1159,7 +1159,7 @@ repo riêng tư. Thứ chạm trần là Pinata và Anthropic, không phải Git
 Thiếu bất kỳ dòng nào dưới đây thì **chưa được nối vào `HALLS` và chưa
 được gộp về `main`** — nối sớm là dựng ra một site gãy.
 
-Bảy chỗ phải sửa, không chỗ nào tự báo nếu quên:
+Tám chỗ phải sửa, và chỉ MỘT chỗ tự báo nếu quên (mục 8):
 
     <cung>/index.html · sw.js · manifest.webmanifest
     <cung>/assets/css/app.css · halls.css
@@ -1173,6 +1173,15 @@ Bảy chỗ phải sửa, không chỗ nào tự báo nếu quên:
     5. scripts/build-dist.mjs      thêm vào mảng HALLS
     6. bảng "Cổng dev" trong file này        cấp số cổng kế tiếp
     7. `npm run nang`              nâng CACHE_VERSION mọi sw.js vừa đổi
+    8. scripts/vong-xoay.mjs       thêm cung vào VONG_XOAY (xem dưới)
+
+Mục 8 là chỗ DUY NHẤT trong danh sách này tự báo khi quên: `npm run
+kiem` nhắc tên cung nào không thuộc vòng tiến hoá nào. Cung quên khai
+ở đó vẫn chạy bình thường — nó chỉ **không bao giờ tự tiến hoá**, và
+đó là loại đứng yên mà mọi bảng vẫn xanh. Cấp cho cung một vòng riêng
+thì ngược lại: phải GỠ nó khỏi VONG_XOAY, không thì mỗi tuần có một
+ngày hai model sửa nó trong cùng một lượt. `npm run kiem` canh cả hai
+chiều.
 
 Mục 3 sinh ra file nằm trong thư mục cung KHÁC — ngoại lệ duy nhất của
 luật "chỉ sửa thư mục cung mình". Nhưng giờ là máy sinh chứ không sửa
