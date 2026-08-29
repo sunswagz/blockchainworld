@@ -1016,6 +1016,58 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[26] SETUP THƯA: GỘP CHỢ THAY VÌ VỨT THẦM")
+    from trader import chung_cat as C26
+
+    # Cổng cũ đòi MỖI chợ ≥20 lệnh ngoài mẫu. Với một setup hiếm điều đó không
+    # bao giờ xảy ra dù dữ liệu về bao nhiêu: MOCK_BUNG_NEN_V1 có 45 lệnh trải
+    # 8 chợ, nhiều nhất một chợ là 8 — nên nó nằm mãi ở "chưa đủ dữ liệu", và
+    # dòng đó đọc giống hệt lúc thật sự chưa có gì. Bộ máy vứt bằng chứng tốt
+    # nhất của chính nó, một cách im lặng.
+    _mt, _sn, _gp = (C26.MAU_TOI_THIEU["nhieu-cho"],
+                     C26.MAU_TOI_THIEU["nhieu-cho-san"],
+                     C26.MAU_TOI_THIEU["nhieu-cho-gop"])
+
+    def _dat26(ds):
+        (DATA_DIR / "dau-nhieu-cho.json").write_text(_json.dumps({
+            "cho": [f"C{i}:4h" for i in range(len(ds))],
+            "ket": {"X": {f"C{i}:4h": {"kyVongR": r, "so": n}
+                          for i, (r, n) in enumerate(ds)}},
+        }), encoding="utf-8")
+
+    # Thưa nhưng cộng lại đủ → PHẢI nói được, dưới mã cho-gop.
+    _dat26([(0.2, _gp // 4 + 1)] * 5)
+    _r26 = C26._tu_nhieu_cho([])
+    check(any(x["ma"] == "cho-gop:X" for x in _r26),
+          f"5 chợ nhỏ cộng lại > {_gp} lệnh → có phát hiện GỘP")
+    check(all(x["ma"] != "cho:X" for x in _r26),
+          "và KHÔNG giả vờ là phát hiện theo-chợ — hai loại câu khác nhau")
+
+    # Cửa ngược lại 1: cộng lại vẫn không đủ → vẫn phải im, và phải NÓI vì sao.
+    _bo26 = []
+    _dat26([(0.2, _sn)] * 2)
+    check(not C26._tu_nhieu_cho(_bo26), "gộp lại vẫn dưới ngưỡng → không phát hiện")
+    check(any("gộp lại cũng chỉ" in x["viSao"] for x in _bo26),
+          "và nói rõ đã thử gộp rồi mới bỏ, không im lặng")
+
+    # Cửa ngược lại 2: chợ quá nhỏ không được kéo vào cho đủ số.
+    _dat26([(9.0, _sn - 1)] * 50)
+    check(not C26._tu_nhieu_cho([]),
+          f"50 chợ mỗi chợ {_sn - 1} lệnh → vẫn im; gộp nhiễu vẫn là nhiễu")
+
+    # Cửa ngược lại 3: có chợ đủ mẫu riêng thì đi đường CŨ, không đổi mã.
+    _dat26([(0.1, _mt), (0.1, _mt)])
+    _r26b = C26._tu_nhieu_cho([])
+    check(any(x["ma"] == "cho:X" for x in _r26b) and
+          all(x["ma"] != "cho-gop:X" for x in _r26b),
+          "chợ đủ mẫu riêng → giữ mã cũ `cho:`, nhánh gộp không cướp việc")
+
+    # Kỳ vọng GỘP phải theo TRỌNG SỐ số lệnh, không phải trung bình đầu chợ:
+    # một chợ 3 lệnh không được nặng bằng một chợ 26 lệnh.
+    _dat26([(1.0, _mt), (-1.0, _mt * 3)])
+    _kv = next(x["so"]["kyVongR"] for x in C26._tu_nhieu_cho([]) if x["ma"] == "cho:X")
+    check(abs(_kv - (-0.5)) < 1e-9,
+          f"gộp theo trọng số lệnh: (+1×n, -1×3n) → -0.5R, được {_kv}")
     print("\n[25] LẶP LẠI KHÔNG ĐƯỢC ĐỌC NHƯ BẰNG CHỨNG CHỒNG CHẤT")
     from trader.journal import _gop_trung as _gt25, _gon as _gn25
 

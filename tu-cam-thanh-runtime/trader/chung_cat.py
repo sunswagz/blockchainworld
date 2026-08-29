@@ -54,6 +54,15 @@ MAU_TOI_THIEU = {
     "mau-gia": 15,       # một mẫu biểu đồ dưới 15 lần xuất hiện chưa nói lên gì
     "do-khung": 500,     # hình học đo trên hàng nghìn điểm vào, ngưỡng cao theo
     "nhieu-cho": 20,     # lệnh ngoài mẫu mỗi chợ — cùng ngưỡng với cửa duyệt
+    # Lệnh ngoài mẫu GỘP mọi chợ. Ngưỡng riêng vì nó trả lời câu hỏi khác:
+    # "nhieu-cho" hỏi «chợ NÀY có nói được gì không», còn cái này hỏi «bộ luật
+    # này, chạy khắp nơi, được bao nhiêu». Một setup hiếm không bao giờ đủ 20
+    # lệnh ở MỘT chợ, nhưng 45 lệnh trải 8 chợ vẫn là 45 lệnh — và trải rộng
+    # còn khó khớp trội hơn là dồn một chỗ.
+    "nhieu-cho-gop": 40,
+    # Sàn để một chợ được vào phép gộp. Dưới mức này thì con số của chợ đó là
+    # nhiễu thuần, và gộp nhiễu vào vẫn ra nhiễu — chỉ là nhiễu có vẻ nhiều mẫu.
+    "nhieu-cho-san": 3,
     "gia-thuyet": 1,     # một hướng đã hỏng là một hướng đã hỏng, không cần lặp lại
     "bo-pha": 20,        # lệnh ở lượt phá gốc
 }
@@ -587,14 +596,54 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
             continue
         du = [x for x in o if (x.get("so") or 0) >= MAU_TOI_THIEU["nhieu-cho"]]
         if not du:
-            bo.append({"ma": f"cho:{ma}", "nguon": "nhieu-cho",
-                       "viSao": f"mọi chợ đều dưới {MAU_TOI_THIEU['nhieu-cho']} lệnh ngoài mẫu"})
+            # Không chợ nào đủ mẫu RIÊNG — nhưng cộng lại thì có thể đủ.
+            #
+            # Cổng cũ đòi mỗi chợ ≥20 lệnh. Với một setup hiếm, điều đó không bao
+            # giờ xảy ra dù dữ liệu về bao nhiêu: MOCK_BUNG_NEN_V1 có 45 lệnh
+            # trải 8 chợ, nhiều nhất một chợ là 8, nên nó ở mãi trong mục "chưa
+            # đủ dữ liệu để nói". Bộ máy đang vứt đi bằng chứng tốt nhất nó có,
+            # và vứt một cách IM LẶNG — dòng "chưa đủ mẫu" đọc giống hệt lúc
+            # thật sự chưa có gì.
+            #
+            # 45 lệnh trải 8 chợ độc lập khó khớp trội hơn 45 lệnh dồn một chợ.
+            # Cái phải nói kèm là: KHÔNG chợ nào riêng lẻ kết luận được.
+            gop = [x for x in o if (x.get("so") or 0) >= MAU_TOI_THIEU["nhieu-cho-san"]]
+            n_gop = sum(x["so"] for x in gop)
+            if n_gop < MAU_TOI_THIEU["nhieu-cho-gop"]:
+                bo.append({"ma": f"cho:{ma}", "nguon": "nhieu-cho",
+                           "viSao": (f"mọi chợ dưới {MAU_TOI_THIEU['nhieu-cho']} lệnh, "
+                                     f"và gộp lại cũng chỉ {n_gop} < "
+                                     f"{MAU_TOI_THIEU['nhieu-cho-gop']}")})
+                continue
+            kv_g = sum(x["kyVongR"] * x["so"] for x in gop) / n_gop
+            d_g = sum(1 for x in gop if x["kyVongR"] > 0)
+            ra.append(_pd(
+                f"cho-gop:{ma}", "nhieu-cho",
+                f"{ma}: KHÔNG chợ nào đủ {MAU_TOI_THIEU['nhieu-cho']} lệnh ngoài mẫu "
+                f"để nói riêng, nhưng GỘP {len(gop)} chợ được {n_gop} lệnh: kỳ vọng "
+                f"{kv_g:+.3f}R, dương ở {d_g}/{len(gop)} chợ. Đọc đây là câu về BỘ "
+                f"LUẬT chạy khắp nơi, không phải câu về chợ nào cả — và setup thưa "
+                f"tới mức này thì mỗi chợ chỉ ~{n_gop // len(gop)} lệnh, nên đừng "
+                f"đọc con số của bất kỳ chợ đơn lẻ nào.",
+                n_gop, {"kyVongR": round(kv_g, 3), "duong": d_g, "soCho": len(gop)}))
             continue
         duong = sum(1 for x in du if x["kyVongR"] > 0)
         tong_lenh = sum(x["so"] for x in du)
         chi = " · ".join(f"{c} {v[c]['kyVongR']:+.3f}R/{v[c]['so']}"
                          for c in cho if c in v and (v[c].get("so") or 0) >= MAU_TOI_THIEU["nhieu-cho"])
-        cau = (f"{ma} trên {len(du)} chợ đủ mẫu: {chi} — dương ở {duong}/{len(du)}.")
+        # KỲ VỌNG GỘP theo trọng số số lệnh — con số đáy, và nó thiếu suốt.
+        #
+        # "dương ở 2/9 chợ" đếm ĐẦU CHỢ, nên một chợ 3 lệnh nặng bằng một chợ
+        # 26 lệnh. Câu hỏi thật là "nếu chạy bộ luật này ở mọi chợ thì được bao
+        # nhiêu", và đó là trung bình có trọng số. Đo được: champion dương 2/9
+        # chợ, gộp lại −0,045R qua 203 lệnh — hai con số cùng hướng, nhưng chỉ
+        # con số thứ hai nói ĐỘ LỚN.
+        #
+        # Gộp R được vì R đã chuẩn hoá theo rủi ro mỗi lệnh nên so được giữa
+        # các chợ. Cái KHÔNG gộp được là tiền — mỗi chợ một cỡ vị thế.
+        kv_gop = sum(x["kyVongR"] * x["so"] for x in du) / tong_lenh
+        cau = (f"{ma} trên {len(du)} chợ đủ mẫu: {chi} — dương ở {duong}/{len(du)}, "
+               f"kỳ vọng GỘP {kv_gop:+.3f}R qua {tong_lenh} lệnh ngoài mẫu.")
         if duong == len(du):
             cau += (" Dương ở MỌI chợ đo được: đây là dấu hiệu của lợi thế thật, "
                     "không phải khớp với lịch sử của một chợ.")
@@ -603,8 +652,22 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
         else:
             cau += (" Thắng chợ này thua chợ kia ⇒ chưa phân biệt được lợi thế với "
                     "may rủi; cần thêm chợ hoặc thêm lệnh trước khi tin.")
+        # Hai thước nói ngược nhau thì phải NÓI RA, chứ đừng để người đọc tự
+        # chọn thước hợp ý mình.
+        if duong > len(du) / 2 and kv_gop <= 0:
+            cau += (f" LƯU Ý HAI THƯỚC NGƯỢC NHAU: dương ở đa số chợ nhưng gộp lại "
+                    f"vẫn {kv_gop:+.3f}R — mấy chợ thua thua ĐẬM hơn mấy chợ thắng "
+                    f"thắng. Đếm đầu chợ đang nói đẹp hơn sự thật.")
+        elif duong <= len(du) / 2 and kv_gop > 0:
+            cau += (f" LƯU Ý HAI THƯỚC NGƯỢC NHAU: âm ở đa số chợ nhưng gộp lại "
+                    f"{kv_gop:+.3f}R — con số dương này đang dựa vào ít chợ; kiểm "
+                    f"chợ nào đang gánh trước khi tin.")
+        # `kyVongR` vào ô số chứ không chỉ nằm trong câu: mục "đổi DẤU" của bàn
+        # giao soi đúng trường này, nên thiếu nó thì một bộ luật lật từ dương
+        # sang âm mà không ai được báo.
         ra.append(_pd(f"cho:{ma}", "nhieu-cho", cau, tong_lenh,
-                      {"duong": duong, "soCho": len(du)}))
+                      {"kyVongR": round(kv_gop, 3), "duong": duong,
+                       "soCho": len(du)}))
     return ra
 
 
