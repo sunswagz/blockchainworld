@@ -1063,6 +1063,52 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[34] LÒ LUYỆN: LÁT DƯƠNG XẾP TRƯỚC KỲ VỌNG GỘP")
+    import importlib.util as _il34
+    _sp34 = _il34.spec_from_file_location(
+        "lo34", str(ROOT / "scripts" / "lo-luyen.py"))
+    LO = _il34.module_from_spec(_sp34)
+    _sp34.loader.exec_module(LO)
+
+    # Ba lần trong hệ này, một bộ luật dương ở chỗ tìm ra nó rồi chết ở chỗ lạ.
+    # Xếp hạng theo MỘT con số gộp là cách chắc chắn nhất để lặp lần thứ tư:
+    # một lát rất tốt kéo được cả bảng lên. Nên lát-dương phải xếp TRƯỚC.
+    #
+    # Thế cờ: A dương cả 4 lát nhưng gộp nhỏ; B chỉ dương 1 lát mà gộp to nhờ
+    # đúng lát ấy. B phải THUA.
+    _b34 = LO.cham(
+        [{"stopAtr": 1}, {"stopAtr": 2}],
+        [[[(0.05, 10)], [(0.05, 10)], [(0.05, 10)], [(0.05, 10)]],
+         [[(-0.30, 10)], [(-0.30, 10)], [(-0.30, 10)], [(2.00, 10)]]],
+        4)
+    check(_b34[0]["i"] == 0,
+          f"dương 4/4 lát (gộp +0.05) xếp TRÊN dương 1/4 lát (gộp "
+          f"{_b34[1]['kyVongGop']:+.3f}) — được #{_b34[0]['i']}")
+    check(_b34[1]["soLatDuong"] == 1, "và đếm đúng số lát dương của cái kia")
+
+    # Kỳ vọng gộp phải theo TRỌNG SỐ SỐ LỆNH: một lát 3 lệnh không được nặng
+    # bằng một lát 30 lệnh.
+    _c34 = LO.cham([{"stopAtr": 1}],
+                   [[[(1.0, 10)], [(-1.0, 30)], [], []]], 4)[0]
+    check(abs(_c34["kyVongGop"] - (-0.5)) < 1e-9,
+          f"gộp theo trọng số lệnh: (+1×10, −1×30) → −0.5, được {_c34['kyVongGop']}")
+    check(_c34["soLatCo"] == 2, "lát KHÔNG có lệnh nào không bị tính là lát âm")
+
+    # Lát phải LIÊN TIẾP, phủ hết, không chồng nhau. Xáo trộn hoặc chồng lát là
+    # cho một biến thể nhìn thấy tương lai của chính đoạn đang chấm nó.
+    _l34 = LO.chia_lat(1000, 4)
+    check(_l34[0][0] == 0 and _l34[-1][1] == 1000, "lát phủ hết dãy nến")
+    check(all(_l34[i][1] == _l34[i + 1][0] for i in range(3)),
+          "lát nối đuôi nhau, không chồng và không hở")
+
+    # Biến thể phải LẶP LẠI ĐƯỢC theo hạt giống, và champion luôn đứng đầu.
+    _v1 = LO.bien_the(6, 42)
+    _v2 = LO.bien_the(6, 42)
+    check(_v1 == _v2, "cùng hạt giống → cùng tập biến thể (lặp lại được)")
+    check(_v1 != LO.bien_the(6, 43), "khác hạt giống → khác tập")
+    from trader.brain import THAM_MAC_DINH as _TMD34
+    check(_v1[0] == dict(_TMD34),
+          "biến thể số 0 LUÔN là champion, để mọi bảng có mốc so")
     print("\n[33] HAI KHUNG ĐEM SO PHẢI PHỦ CÙNG QUÃNG")
     import importlib.util as _il33
 
