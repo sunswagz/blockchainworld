@@ -75,12 +75,28 @@ class BaoGia:
         return (nowMs - self.nguonTsMs) / 1000.0
 
     def tom_tat(self, nowMs: float) -> dict:
+        """Bản tóm tắt này vừa lên buồng lái vừa VÀO BĂNG — và băng là thứ
+        duy nhất chạy lại được.
+
+        Nên nó phải mang cả `nguonTsMs`, không chỉ `tuoiGiay`. Tuổi là số ĐÃ
+        DẪN, đúng tại thời điểm ghi và vô nghĩa khi đọc lại; dấu gốc mới là
+        nguyên liệu. Bản đầu chỉ ghi tuổi, và hậu quả không phải một sai số
+        mà là **toàn bộ năng lực hậu kiểm chết im lặng**: `chay_lai` dựng lại
+        báo giá với `nguonTsMs = None`, `tuoi_giay()` trả `None`, cổng rủi ro
+        chặn «sàn không đóng dấu thời gian», và 460.035 cơ hội trên 188 giờ
+        băng cho ra ĐÚNG 0 lần hậu kiểm. Không lỗi nào phát ra; chỉ có một
+        vòng tiến hoá đứng ở 0 lượt suốt từ lúc dựng.
+
+        Đúng luật «băng ghi NGUYÊN LIỆU, sổ ghi KẾT LUẬN» mà `vong.py` viết
+        ngay chỗ gọi hàm này — chỉ là hàm này chưa làm theo.
+        """
         return {
             "san": self.san, "ma": self.ma,
             "rate": self.rate, "intervalGio": self.intervalGio,
             "moiGio": self.moiGio, "moiNgayBps": self.moiNgay * 10_000.0,
             "markPx": self.markPx, "mocKeMs": self.mocKeMs,
             "oiUsd": self.oiUsd, "tuoiGiay": self.tuoi_giay(nowMs),
+            "nguonTsMs": self.nguonTsMs, "nhanTsMs": self.nhanTsMs,
             "nguonTuSan": self.nguonTuSan,
             "intervalSuyRa": self.intervalSuyRa, "ghiChu": self.ghiChu,
         }

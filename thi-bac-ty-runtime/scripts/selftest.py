@@ -735,6 +735,41 @@ def kiem_chay_lai() -> None:
          dung_bao_gia({"san": "a", "ma": "BTC", "rate": 0.0,
                        "intervalGio": 0}) is None)
 
+    # ── BĂNG PHẢI MANG DẤU GỐC, không chỉ TUỔI ──────────────────────────
+    # `BaoGia.tom_tat()` bản đầu ghi `tuoiGiay` mà không ghi `nguonTsMs`.
+    # Tuổi là số ĐÃ DẪN, đúng tại thời điểm ghi và vô nghĩa lúc đọc lại.
+    # Hậu quả không phải một sai số mà là toàn bộ năng lực hậu kiểm chết
+    # IM LẶNG: dựng lại với `nguonTsMs = None` → `tuoi_giay()` trả None →
+    # cổng chặn «sàn không đóng dấu thời gian» → 460.035 cơ hội trên 188
+    # giờ băng cho ra ĐÚNG 0 lần hậu kiểm, và không lỗi nào phát ra.
+    from phai_sinh_chung.models import BaoGia as _BG26
+    _tt26 = _BG26(san="a", ma="BTC", rate=1e-4, intervalGio=8.0,
+                  markPx=100.0, mocKeMs=9_000,
+                  nguonTsMs=1_000, nhanTsMs=1_100).tom_tat(2_000.0)
+    kiem("băng ghi DẤU GỐC, không chỉ tuổi đã dẫn",
+         _tt26.get("nguonTsMs") == 1_000 and _tt26.get("nhanTsMs") == 1_100,
+         "băng ghi NGUYÊN LIỆU, sổ ghi KẾT LUẬN — và tuổi là kết luận")
+    kiem("và vẫn ghi tuổi cho người đọc", _tt26.get("tuoiGiay") == 1.0)
+
+    # Băng CŨ (chỉ có `tuoiGiay`) phải DẪN LẠI được, không phải vứt đi.
+    _cu26 = {"san": "a", "ma": "BTC", "rate": 1e-4, "intervalGio": 8.0,
+             "tuoiGiay": 1.5}
+    kiem("báo giá băng CŨ dẫn lại được dấu gốc từ `luc`",
+         dung_bao_gia(_cu26, 5_000.0).nguonTsMs == 5_000 - 1_500,
+         "`luc` của khung và `nowMs` của tóm tắt là CÙNG một biến trong "
+         "`vong.py`, nên đảo ngược là phép DẪN CHÍNH XÁC — nó cứu 188 giờ "
+         "băng khỏi bị vứt")
+    kiem("nhưng dấu ghi THẲNG vẫn thắng dấu dẫn lại",
+         dung_bao_gia({**_cu26, "nguonTsMs": 42}, 5_000.0).nguonTsMs == 42,
+         "dẫn lại là để đọc bản cũ, không phải để thay bản mới")
+    kiem("thiếu CẢ dấu lẫn tuổi thì None, không bịa",
+         dung_bao_gia({"san": "a", "ma": "BTC", "rate": 1e-4,
+                       "intervalGio": 8.0}, 5_000.0).nguonTsMs is None,
+         "bịa một dấu là bịa luôn độ tươi, và cổng rủi ro mất cửa duy nhất "
+         "nó có để chặn dữ liệu cũ")
+    kiem("thiếu `luc` thì cũng không dẫn được, và nói None",
+         dung_bao_gia(_cu26, None).nguonTsMs is None)
+
     GIO = 3_600_000.0
     t0 = 1_000_000_000_000.0
     khung = []
@@ -767,6 +802,26 @@ def kiem_chay_lai() -> None:
          KetQua("rỗng").ky_vong_bps is None)
     kiem("cờ đủ mẫu đúng bằng ngưỡng 30",
          kq.tom_tat()["duMau"] == (kq.soDoDuoc >= 30))
+
+    # ── BĂNG CŨ chạy lại được, ĐẦU-CUỐI ─────────────────────────────────
+    # Kiểm `_dau_thoi_gian` một mình không đủ: đột biến ngừng truyền `luc`
+    # xuống `dung_bao_gia` vẫn qua, vì băng thử ở trên có sẵn `nguonTsMs`.
+    # Điều đáng giữ là «băng CŨ vẫn hậu kiểm được», và chỉ chạy cả lượt mới
+    # nói được điều đó.
+    khungCu = [{"luc": k["luc"],
+                "baoGia": [{x: v for x, v in b.items()
+                            if x not in ("nguonTsMs", "nhanTsMs")}
+                           | {"tuoiGiay": 0.0} for b in k["baoGia"]]}
+               for k in khung]
+    kqCu = chay_lai_mot_luot(khungCu, ts, {"a": {}, "b": {}})
+    kiem("băng CŨ (chỉ có `tuoiGiay`) vẫn hậu kiểm được, ĐẦU-CUỐI",
+         kqCu.soDoDuoc == kq.soDoDuoc and kqCu.soDoDuoc > 0,
+         f"{kqCu.soDoDuoc} vs {kq.soDoDuoc} — 188 giờ băng đã ghi cho ra "
+         f"ĐÚNG 0 lần hậu kiểm chỉ vì thiếu một khoá, và không lỗi nào "
+         f"phát ra")
+    kiem("và mọi cơ hội KHÔNG còn bị chặn vì «không đóng dấu thời gian»",
+         not kqCu.boQua.get("khong-dau-thoi-gian"),
+         f"{kqCu.boQua} — đây đúng là cửa đã chặn 460.035/460.035 cơ hội")
 
     so = doi_chieu(khung, ts, ThamSo("B", 4.0, dict(mo)), {"a": {}, "b": {}})
     kiem("đối chiếu chạy hai bộ trên CÙNG băng", "A" in so and "B" in so)
@@ -881,6 +936,77 @@ def kiem_tien_hoa_hoc() -> None:
 
     kiem("biên vượt nhiễu là 0,15 bps", gan(BIEN_VUOT, 0.15))
     kiem("tối thiểu mẫu để chẩn là 30", TOI_THIEU_MAU == 30)
+
+    # ── VÒNG LẶP PHẢI GỌI, lần thứ BA cùng một lớp hỏng ─────────────────
+    # `tien_hoa.mot_luot()` chỉ tới được qua `POST /api/tien-hoa`, nên
+    # `duong_tien_hoa()` đứng ở `soLuot: 0` từ lúc dựng: cỗ máy ghi băng
+    # suốt 188 giờ mà chưa một lần đọc lại. Trước đó là lát cắt cung tĩnh,
+    # rồi tới `TrungUong.hoc()`. Cùng một cách hỏng, cùng một cách giấu.
+    import ast as _ast30
+    import pathlib as _pl30
+
+    _goc30 = _pl30.Path(__file__).resolve().parent.parent
+
+    def _goi30(tep: str, ham: str, ten: str) -> bool:
+        for nd in _ast30.walk(_ast30.parse(
+                (_goc30 / tep).read_text(encoding="utf-8"))):
+            if isinstance(nd, (_ast30.FunctionDef, _ast30.AsyncFunctionDef))                     and nd.name == ham:
+                for x in _ast30.walk(nd):
+                    if isinstance(x, _ast30.Call):
+                        fn = x.func
+                        if isinstance(fn, _ast30.Name) and fn.id == ten:
+                            return True
+                        if isinstance(fn, _ast30.Attribute) and fn.attr == ten:
+                            return True
+        return False
+
+    kiem("vòng quét GỌI hậu kiểm, không đợi người bấm",
+         _goi30("bac/vong.py", "mot_vong", "_tien_hoa_dinh_ky"),
+         "băng ghi mà không ai đọc lại thì mọi lần vặn ngưỡng đều là đổi số "
+         "cho vui — không cách nào biết tốt hơn hay chỉ khác đi")
+    kiem("và nó chạy ở LUỒNG NỀN, không treo vòng quét",
+         _goi30("bac/vong.py", "_tien_hoa_dinh_ky", "Thread"),
+         "một lượt mất ~30 giây trên 14.400 khung; chạy thẳng trong vòng "
+         "quét thì cầu dao ngắt vì chính phép đo của mình")
+    _nguon30 = (_goc30 / "bac/vong.py").read_text(encoding="utf-8")
+    kiem("mặc định là THỬ — không tự vặn config khi chưa ai bật",
+         "tuVanTienHoa" in _nguon30 and "thu=not bool(" in _nguon30
+         and CONFIG.get("tuVanTienHoa") is False,
+         "tầng ty A/B được nên nó CÓ QUYỀN tự nhận, nhưng «có quyền» và "
+         "«được bật sẵn» là hai chuyện")
+
+    # Lượt THỬ cũng phải VÀO SỔ. Không thì vòng chạy đều mà
+    # `duong_tien_hoa()` vẫn báo `soLuot: 0`, và người đọc kết luận đúng
+    # cái ngược lại với sự thật.
+    _th30 = (_goc30 / "bac/tien_hoa.py").read_text(encoding="utf-8")
+    _cay30 = _ast30.parse(_th30)
+    _ml30 = [x for x in _ast30.walk(_cay30)
+             if isinstance(x, _ast30.FunctionDef) and x.name == "mot_luot"][0]
+    _ghiSo = [x for x in _ast30.walk(_ml30) if isinstance(x, _ast30.Call)
+              and getattr(x.func, "id", "") == "_ghi_so"]
+    # Không cấm `_ghi_so` nằm trong `if` — ba nhánh thoát sớm của `mot_luot`
+    # đều hợp lệ. Cấm đúng một thứ: nhánh `if` NÀO nhắc tới `thu` mà lại bao
+    # một lời ghi sổ. Đó chính là hình dạng của lỗi cũ.
+    _duoiThu = []
+    for nd in _ast30.walk(_ml30):
+        if not isinstance(nd, _ast30.If):
+            continue
+        if not any(isinstance(x, _ast30.Name) and x.id == "thu"
+                   for x in _ast30.walk(nd.test)):
+            continue
+        for than in nd.body:
+            for x in _ast30.walk(than):
+                if isinstance(x, _ast30.Call)                         and getattr(x.func, "id", "") == "_ghi_so":
+                    _duoiThu.append(x)
+    kiem("MỌI lượt vào sổ, kể cả lượt THỬ",
+         len(_ghiSo) >= 1 and not _duoiThu,
+         f"{len(_ghiSo)} lời gọi `_ghi_so`, {len(_duoiThu)} nằm dưới một "
+         f"nhánh xét `thu` — một cơ chế chạy mà không ghi thì với người đọc "
+         f"nó bằng một cơ chế không chạy")
+    kiem("và sổ phân biệt được lượt THỬ với lượt ÁP THẬT",
+         '"thu": self.thu' in _th30,
+         "đọc lại một dòng «NHẬN giuGio 8→6» mà không biết nó đã được áp "
+         "hay chỉ là diễn tập thì hai thứ ấy lẫn vào nhau")
 
 
 def kiem_cua_that() -> None:

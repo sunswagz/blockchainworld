@@ -32,6 +32,12 @@ from .rui_ro import NHAN, CongRuiRo
 from .san import TAT_CA
 from thi_bac_ty.khuon_ty import Ty
 
+#: Bao lâu chạy lại BĂNG một lượt. Sáu giờ — hậu kiểm đọc cả băng và chạy
+#: lại hàng trăm nghìn cơ hội, mất khoảng 30 giây; và bức tranh nó vẽ đổi
+#: theo NGÀY, không theo phút. Chạy dày hơn là đốt CPU cho cùng một câu
+#: trả lời.
+NHIP_TIEN_HOA_GIAY = 6 * 3600.0
+
 from .so import So
 from .ty_perp import TyPerp
 from .xuat_to_trinh import xuat_to_trinh
@@ -302,6 +308,15 @@ class Runtime:
                     self.loiVongCuoi = f"{khoa}: {type(e).__name__}: {e}"
             self.tyTinDung = self.tyPhu.get("tyTinDung")
         self.latCatTrungUong = None
+
+        #: Hậu kiểm trên băng — chạy ở luồng nền, xem `_tien_hoa_dinh_ky`.
+        #: `_lanTienHoa = 0` để lượt ĐẦU chạy ngay lúc máy lên: không thế
+        #: thì mỗi lần deploy đẩy lượt hậu kiểm lùi thêm sáu tiếng, và một
+        #: buổi chiều deploy mười lăm lần là một buổi chiều không hậu kiểm.
+        self._lanTienHoa = 0.0
+        self._luongTienHoa = None
+        self.tienHoaCuoi: dict | None = None
+        self.loiTienHoa = ""
 
         self.vong = 0
         self.batDauLuc = time.time()
@@ -595,9 +610,59 @@ class Runtime:
                 bus.ghi(f"Trung Ương lỗi: {e}", loai="canh")
 
         self._don_so_moi_ngay()
+        self._tien_hoa_dinh_ky()
         d = (time.perf_counter() - t0) * 1000.0
         self.quetCuoiMs = d
         self.quetLauNhatMs = max(self.quetLauNhatMs, d)
+
+    def _tien_hoa_dinh_ky(self) -> None:
+        """Chạy lại BĂNG và hậu kiểm, theo nhịp riêng, trong LUỒNG NỀN.
+
+        ## Vì sao việc này từng không bao giờ chạy
+
+        `tien_hoa.mot_luot()` chỉ tới được qua `POST /api/tien-hoa`. Nên
+        `duong_tien_hoa()` đứng ở `soLuot: 0` từ lúc dựng, và cỗ máy ghi
+        băng suốt 188 giờ mà chưa một lần đọc lại. Lần thứ BA trong cùng một
+        cây mã: có mã, có phép kiểm, có ô trên buồng lái, và không ai gọi.
+
+        ## Vì sao phải LUỒNG NỀN
+
+        Một lượt mất ~30 giây trên 14.400 khung: dựng chỉ mục cả băng rồi
+        chạy lại 460.000 cơ hội. Chạy thẳng trong vòng quét là treo vòng
+        30 giây — và cầu dao đo tuổi dữ liệu, nên nó sẽ ngắt vì chính phép
+        đo của mình. Ném sang luồng khác thì vòng quét không hề chậm lại.
+
+        ## Vì sao THỬ, không THẬT
+
+        `thu=True` nghĩa là chẩn, đề xuất, chạy lại đo, ghi sổ — nhưng KHÔNG
+        vặn `config.json`. Tầng ty A/B được nên nó có quyền tự nhận (khác
+        tầng phân bổ), nhưng "có quyền" và "được bật sẵn" là hai chuyện.
+        Bật bằng `tuVanTienHoa: true` trong config, và người bật là người
+        chịu trách nhiệm.
+        """
+        gio = time.time()
+        if gio - self._lanTienHoa < float(
+                CONFIG.get("nhipTienHoaGiay") or NHIP_TIEN_HOA_GIAY):
+            return
+        self._lanTienHoa = gio
+        if self._luongTienHoa is not None and self._luongTienHoa.is_alive():
+            return                    # lượt trước còn chạy — đừng chồng lên
+
+        def _chay():
+            from .tien_hoa import mot_luot
+            try:
+                kq = mot_luot(thu=not bool(CONFIG.get("tuVanTienHoa")))
+                self.tienHoaCuoi = kq.tom_tat()
+                self.loiTienHoa = ""
+                bus.ghi(f"tiến hoá: {kq.soDoDuoc} cơ hội hậu kiểm được · "
+                        f"{kq.ghiChu[:160]}", loai="he")
+            except Exception as e:                        # noqa: BLE001
+                self.loiTienHoa = f"{type(e).__name__}: {e}"
+                bus.ghi(f"tiến hoá lỗi: {e}", loai="canh")
+
+        self._luongTienHoa = threading.Thread(
+            target=_chay, name="tien-hoa", daemon=True)
+        self._luongTienHoa.start()
 
     def _don_so_moi_ngay(self) -> None:
         ngay = time.strftime("%Y-%m-%d", time.gmtime())
@@ -662,6 +727,11 @@ class Runtime:
             "quetCuoiMs": self.quetCuoiMs,
             "quetLauNhatMs": self.quetLauNhatMs,
             "loiVongCuoi": self.loiVongCuoi,
+            # Hậu kiểm trên băng: SỔ GIẤY nói một đằng, BĂNG nói một nẻo.
+            # Đây là phép đo duy nhất trong cả cỗ máy dám gọi là hậu kiểm,
+            # và nó phải nằm ngay trong ảnh chụp chứ không đợi ai bấm nút.
+            "tienHoa": self.tienHoaCuoi,
+            "loiTienHoa": self.loiTienHoa,
             "cang": [c.suc_khoe.tom_tat() for c in self.cang.values()],
             "dongHo": dong_ho.tom_tat(),
             # "giữ dưới N giờ thì thu ĐÚNG BẰNG KHÔNG" — con số này từng

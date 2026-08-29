@@ -1057,6 +1057,45 @@
     if (vd.vi) kvd.appendChild(giai(vd.vi));
     f.appendChild(kvd);
 
+    /* HẬU KIỂM trên băng — phép đo duy nhất trong cả cỗ máy dám mang tên
+       ấy. Sổ giấy nói cơ hội này lãi bao nhiêu; băng nói nó ĐÃ lãi bao
+       nhiêu. Hai con số ấy lệch nhau là thứ đáng đọc nhất trên trang này. */
+    var th = (S && S.tienHoa) || null;
+    var kth = khoi("Hậu kiểm trên BĂNG — sổ giấy nói một đằng",
+      "Chạy lại toàn bộ băng đã ghi, tra funding THỰC NHẬN tại từng mốc kết "
+      + "toán. Không đủ băng phía sau một cơ hội thì KHÔNG đoán — thà không "
+      + "đo còn hơn đo một nửa rồi gọi đó là kết quả.");
+    if (!th) {
+      kth.appendChild(giai(((S && S.loiTienHoa)
+        ? "lượt hậu kiểm gần nhất LỖI: " + S.loiTienHoa
+        : "chưa có lượt hậu kiểm nào — lượt đầu chạy ngay khi máy lên, "
+          + "rồi mỗi 6 giờ một lượt ở luồng nền")));
+    } else {
+      var dth = el("div", "day-so");
+      dth.appendChild(oSo("Cơ hội hậu kiểm được", so(th.soDoDuoc),
+        so(th.soKhungBang) + " khung băng",
+        (th.soDoDuoc || 0) >= 30 ? null : "nhat"));
+      dth.appendChild(oSo("Kỳ vọng THỰC",
+        th.kyVongTruoc == null ? "chưa đo được"
+          : th.kyVongTruoc.toFixed(2) + " bps",
+        "mỗi cơ hội qua cửa",
+        th.kyVongTruoc == null ? "nhat"
+          : (th.kyVongTruoc >= 0 ? "duong" : "am"),
+        th.kyVongTruoc == null));
+      dth.appendChild(oSo("Lượt này", th.thu ? "THỬ" : "ÁP THẬT",
+        th.thu ? "không vặn tham số nào" : "đã ghi vào config",
+        th.thu ? "nhat" : "am", true));
+      kth.appendChild(dth);
+      (th.trieuChung || []).forEach(function (t) {
+        var b = el("div", "viec-1");
+        b.appendChild(el("b", null, "TRIỆU CHỨNG · " + t.ma));
+        b.appendChild(el("span", null, t.moTa || ""));
+        kth.appendChild(b);
+      });
+      if (th.ghiChu) kth.appendChild(giai(th.ghiChu));
+    }
+    f.appendChild(kth);
+
     var k2 = khoi("Vì sao chưa kết luận được",
       "Quy một con số nửa ngày ra năm là bịa ra một CAGR. Hệ thống TỪ CHỐI "
       + "tính, thay vì đưa một con số đẹp mà sai.");

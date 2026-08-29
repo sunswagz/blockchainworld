@@ -52,6 +52,13 @@ DUONG_CONFIG = Path(os.environ.get("TBT_CONFIG") or (ROOT / "config.json"))
 MAC_DINH = {
     "port": 5188,
     "nhipGiay": 30,
+    #: Bao lâu chạy lại BĂNG và hậu kiểm một lượt. Xem `vong._tien_hoa_dinh_ky`.
+    "nhipTienHoaGiay": 6 * 3600.0,
+    #: Cho vòng tiến hoá TẦNG TY tự vặn `config.json` khi phép chạy lại nói
+    #: rõ là tốt hơn. Tắt mặc định — tầng ty A/B được nên nó CÓ QUYỀN tự
+    #: nhận, nhưng "có quyền" và "được bật sẵn" là hai chuyện, và người bật
+    #: là người chịu trách nhiệm.
+    "tuVanTienHoa": False,
     "che": "quan-sat",
     "cungTinh": "",
     "quet": {

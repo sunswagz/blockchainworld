@@ -496,6 +496,34 @@ def _ngat_roi_van_quan_sat():
     return True, "hai vòng liền, cầu dao ngắt: vẫn quét, vẫn ghi nhận, KHÔNG cam kết vốn"
 
 
+def _bang_chay_lai_duoc():
+    """Ghi một khung băng THẬT rồi dựng lại từ nó — không đọc mã.
+
+    Vòng khép kín: `BaoGia` → `tom_tat()` (đúng thứ vào băng) →
+    `dung_bao_gia()` (đúng thứ đọc ra) → phải có lại DẤU THỜI GIAN. Đọc mã
+    chỉ chứng minh có một khoá tên `nguonTsMs`; chỉ đi hết vòng mới chứng
+    minh nó về đúng chỗ cần.
+    """
+    from phai_sinh_chung.models import BaoGia
+
+    bg = BaoGia(san="a", ma="BTC", rate=1e-4, intervalGio=8.0,
+                markPx=100.0, mocKeMs=9_000,
+                nguonTsMs=1_000, nhanTsMs=1_100)
+    d = bg.tom_tat(2_000.0)
+    thieu = [k for k in ("nguonTsMs", "nhanTsMs", "rate", "intervalGio",
+                         "markPx", "mocKeMs") if d.get(k) is None]
+    if thieu:
+        return False, ("bản vào băng THIẾU nguyên liệu: " + ", ".join(thieu)
+                       + " — chạy lại được hay không quyết ở đây")
+    if d["nguonTsMs"] != 1_000:
+        return False, f"dấu thời gian méo trên đường vào băng: {d['nguonTsMs']}"
+    return True, ("bản vào băng mang đủ nguyên liệu, gồm cả dấu thời gian "
+                  "gốc — nửa ĐỌC canh ở `kiem_chay_lai()`, vì canh nó ở đây "
+                  "đòi Trung Ương import `bac/`, và điều "
+                  "`trung-uong-khong-biet-ty` cấm đúng chuyện ấy (nó đã bắt "
+                  "được bản đầu của chính phép canh này)")
+
+
 def _ly_do_deu_mang_ma():
     """Chạy THẬT mọi cửa từ chối, rồi soát mã trên câu chúng ĐẺ RA.
 
@@ -920,6 +948,23 @@ DIEU: tuple[Dieu, ...] = (
          "«CẦU DAO NGẮT» có dấu cách và chữ hoa nên 520 lần từ chối lớn "
          "nhất của cỗ máy rơi vào ô «không phân loại được».",
          "thi_bac_ty/phan_bo.py · rui_ro_tong.py", _ly_do_deu_mang_ma),
+
+    Dieu("bang-phai-chay-lai-duoc",
+         "Băng ghi NGUYÊN LIỆU. Ghi một con số đã dẫn thay cho nguyên liệu "
+         "là ghi một cuốn băng không tua lại được.",
+         "Băng tồn tại để chạy lại. `BaoGia.tom_tat()` bản đầu ghi "
+         "`tuoiGiay` mà bỏ `nguonTsMs` — tuổi là số ĐÃ DẪN, đúng tại thời "
+         "điểm ghi và vô nghĩa lúc đọc lại. Hậu quả không phải một sai số "
+         "mà là toàn bộ năng lực hậu kiểm chết IM LẶNG: 460.035 cơ hội "
+         "trên 188 giờ băng cho ra ĐÚNG 0 lần hậu kiểm, cổng chặn hết vì "
+         "«sàn không đóng dấu thời gian», và vòng tiến hoá đứng ở 0 lượt "
+         "suốt từ lúc dựng mà không ai biết.",
+         # Chỉ canh được nửa GHI ở đây. Nửa ĐỌC (`dung_bao_gia` dẫn lại
+         # dấu từ băng cũ) nằm ở `bac/`, và Trung Ương không được import
+         # ty — điều `trung-uong-khong-biet-ty` đã bắt được bản đầu của
+         # chính phép canh này. Nửa ấy canh ở `kiem_chay_lai()`, nơi phép
+         # cấy lỗi ngược (ngừng truyền `luc`) làm nó đỏ.
+         "phai_sinh_chung/models.py · bac/chay_lai.py", _bang_chay_lai_duoc),
 
     Dieu("tu-choi-gioi-hon-phat-hien-nhieu",
          "Đích đúng: quét 13 họ → phát hiện 100 → TỪ CHỐI 95 → rót vào 5.",

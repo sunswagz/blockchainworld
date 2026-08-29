@@ -115,7 +115,7 @@ class KetQua:
 # ══════════════════════════════════════════════════════════════════════════
 #  DỰNG LẠI BÁO GIÁ TỪ BĂNG
 # ══════════════════════════════════════════════════════════════════════════
-def dung_bao_gia(d: dict) -> BaoGia | None:
+def dung_bao_gia(d: dict, lucMs: float | None = None) -> BaoGia | None:
     """Dựng lại `BaoGia` từ một bản ghi thô trong băng.
 
     Trả `None` thay vì ném khi bản ghi thiếu trường: băng sáu tháng trước có
@@ -134,7 +134,8 @@ def dung_bao_gia(d: dict) -> BaoGia | None:
             san=str(d["san"]), ma=str(d["ma"]),
             rate=float(d["rate"]), intervalGio=gio,
             markPx=_so(d.get("markPx")), mocKeMs=_nguyen(d.get("mocKeMs")),
-            oiUsd=_so(d.get("oiUsd")), nguonTsMs=_nguyen(d.get("nguonTsMs")),
+            oiUsd=_so(d.get("oiUsd")),
+            nguonTsMs=_dau_thoi_gian(d, lucMs),
             nhanTsMs=_nguyen(d.get("nhanTsMs")),
             nguonTuSan=bool(d.get("nguonTuSan", False)),
             intervalSuyRa=bool(d.get("intervalSuyRa", False)),
@@ -157,6 +158,29 @@ def _so(v):
 def _nguyen(v):
     f = _so(v)
     return None if f is None else int(f)
+
+
+def _dau_thoi_gian(d: dict, lucMs: float | None) -> int | None:
+    """Dấu thời gian nguồn của báo giá, DẪN LẠI được từ băng cũ.
+
+    Băng ghi trước 29/08/2026 không có `nguonTsMs` — chỉ có `tuoiGiay`. Mà
+    tuổi ấy được tính đúng bằng `(luc − nguonTsMs) / 1000` với CÙNG một
+    `luc` mà khung mang theo (xem `vong.py`: `"luc": now` và
+    `b.tom_tat(now)` dùng chung một biến). Nên đảo ngược lại là một phép
+    DẪN CHÍNH XÁC, không phải một phép đoán — và nó cứu 188 giờ băng khỏi
+    bị vứt.
+
+    Ưu tiên dấu ghi thẳng khi có: dẫn lại chỉ để đọc bản cũ, không để thay
+    bản mới. Thiếu cả hai thì trả `None`, và cổng rủi ro chặn — đúng như
+    nó vẫn làm, chứ không phải bịa ra một dấu.
+    """
+    thang = _nguyen(d.get("nguonTsMs"))
+    if thang is not None:
+        return thang
+    tuoi = _so(d.get("tuoiGiay"))
+    if tuoi is None or lucMs is None:
+        return None
+    return int(lucMs - tuoi * 1000.0)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -222,7 +246,8 @@ def mot_luot(khung: list[dict], ts: ThamSo, phiSan: dict) -> KetQua:
         if luc is None:
             continue
         kq.soKhung += 1
-        bao = [b for b in (dung_bao_gia(d) for d in (k.get("baoGia") or []))
+        bao = [b for b in (dung_bao_gia(d, luc)
+                           for d in (k.get("baoGia") or []))
                if b is not None]
         if len(bao) < 2:
             continue

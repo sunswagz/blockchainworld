@@ -93,6 +93,10 @@ class KetQuaTienHoa:
     nhan: dict | None = None
     traLai: list = field(default_factory=list)
     ghiChu: str = ""
+    #: Lượt THỬ (không ghi tham số) hay lượt THẬT. Phải nằm trong sổ, không
+    #: thì đọc lại một dòng «NHẬN giuGio 8→6» mà không biết nó đã được áp
+    #: hay chỉ là một lượt diễn tập — và hai thứ ấy khác nhau hoàn toàn.
+    thu: bool = True
 
     def tom_tat(self) -> dict:
         return {
@@ -101,7 +105,7 @@ class KetQuaTienHoa:
             "kyVongTruoc": self.kyVongTruoc, "kyVongSau": self.kyVongSau,
             "trieuChung": list(self.trieuChung), "deXuat": list(self.deXuat),
             "nhan": self.nhan, "traLai": list(self.traLai),
-            "ghiChu": self.ghiChu,
+            "ghiChu": self.ghiChu, "thu": self.thu,
         }
 
 
@@ -197,7 +201,7 @@ def mot_luot(thu: bool = True, tuNgay: str | None = None) -> KetQuaTienHoa:
     Mặc định là chế độ thử, và đó là chủ ý: một nút bấm nhầm không được phép
     vặn tham số của cỗ máy. Muốn ghi thật phải truyền `thu=False`.
     """
-    kq = KetQuaTienHoa(luc=bay_gio())
+    kq = KetQuaTienHoa(luc=bay_gio(), thu=bool(thu))
     khung = doc_bang(tuNgay)
     kq.soKhungBang = len(khung)
     phi = CONFIG["san"]
@@ -215,8 +219,7 @@ def mot_luot(thu: bool = True, tuNgay: str | None = None) -> KetQuaTienHoa:
     if all(t.ma in ("khoe", "thieu-mau", "dong-ho-lech") for t in tc):
         kq.ghiChu = ("không bệnh nào vặn tham số chữa được — không vặn gì. "
                      "Vòng tiến hoá đứng yên là một kết quả hợp lệ.")
-        if not thu:
-            _ghi_so(kq)
+        _ghi_so(kq)
         return kq
 
     # 4. đề xuất
@@ -224,8 +227,7 @@ def mot_luot(thu: bool = True, tuNgay: str | None = None) -> KetQuaTienHoa:
     kq.deXuat = [d.tom_tat() for d in dx]
     if not dx:
         kq.ghiChu = "có triệu chứng nhưng không núm nào hợp lệ để vặn."
-        if not thu:
-            _ghi_so(kq)
+        _ghi_so(kq)
         return kq
 
     # 5–6. thử rồi quyết
@@ -251,8 +253,7 @@ def mot_luot(thu: bool = True, tuNgay: str | None = None) -> KetQuaTienHoa:
         if not thu:
             _ghi_cau_hinh(d.nut, d.den)
 
-    if not thu:
-        _ghi_so(kq)
+    _ghi_so(kq)
     return kq
 
 
@@ -283,11 +284,21 @@ def _ghi_cau_hinh(nut: str, gt: float) -> None:
 
 
 def _ghi_so(kq: KetQuaTienHoa) -> None:
-    """Ghi CẢ lượt trả lại, không chỉ lượt nhận.
+    """Ghi CẢ lượt trả lại, không chỉ lượt nhận — và cả lượt THỬ.
 
     Sổ chỉ ghi lượt thành công là một lịch sử toàn thắng lợi, và nó giấu mất
     thứ đáng đọc nhất: bao nhiêu lần đề xuất bị nhiễu đánh lừa mà cổng đã
     chặn được.
+
+    Bản đầu còn bỏ luôn mọi lượt THỬ, và hệ quả tệ hơn hẳn: vòng chạy tự
+    động phải chạy ở chế độ thử (nó không được tự vặn tham số khi chưa ai
+    cho phép), nên nó chạy mà **không để lại dấu vết nào**. Nhìn vào
+    `duong_tien_hoa()` thấy `soLuot: 0` và kết luận vòng chưa bao giờ quay —
+    trong khi nó quay đều. Một cơ chế chạy mà không ghi thì với người đọc
+    nó bằng một cơ chế không chạy.
+
+    `thu` nằm trong mỗi dòng, nên đọc lại phân biệt được ngay lượt diễn tập
+    với lượt đã áp thật.
     """
     try:
         SO_TIEN_HOA.parent.mkdir(parents=True, exist_ok=True)
