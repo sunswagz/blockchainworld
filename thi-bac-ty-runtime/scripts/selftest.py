@@ -2437,6 +2437,70 @@ def kiem_so_dang_ky() -> None:
     kiem("đường đi của một tờ trình đọc lại được đủ",
          len(sdk.phieu(t1.ma)["duongDi"]) == 4)
 
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ──────────────────────
+    #
+    # Sổ này là cái PHỄU — nơi câu «từ chối 95 trên 100» được đếm. Quét
+    # đột biến cho 5/6 con sống sót.
+
+    # NẤC ĐẦU. `tu is None` nghĩa là tờ trình vừa vào sổ, và nó chỉ được
+    # vào ở PHAT_HIEN. Đổi `==` thành `!=` là cho một tờ trình xuất hiện
+    # thẳng ở giữa phễu — lúc ấy nấc đầu nhỏ hơn nấc sau, và mọi tỉ lệ
+    # sống sót tính từ nó đều vượt 100%.
+    kiem("tờ trình mới chỉ vào sổ được ở PHAT_HIEN",
+         _hop_le(None, "PHAT_HIEN"))
+    for _t in ("DUYET_TY", "DUYET_RUI_RO", "DA_CAP_VON", "DA_MO",
+               "TU_CHOI", "DA_DONG"):
+        kiem(f"KHÔNG vào thẳng được ở {_t}", not _hop_le(None, _t),
+             "vào giữa phễu thì nấc đầu nhỏ hơn nấc sau, và tỉ lệ sống "
+             "sót tính từ nó vượt 100%")
+
+    # SỔ RỖNG: 0 tờ và `chuaCo` là True. `int(n or 0)` che cho ca bảng
+    # rỗng trả `None`; đổi thành `and` là `int(None)` nổ ngay, hoặc tệ
+    # hơn, trả 0 mà `chuaCo` sai — và một cuốn sổ trắng lúc ấy trông y
+    # hệt một cuốn sổ đã có tờ nào đó.
+    _sdkR = SoDangKy(_tam("sdk-rong") / "sdk.sqlite3")
+    _tR = _sdkR.tom_tat()
+    kiem("sổ RỖNG: 0 tờ, và `chuaCo` nói thẳng là chưa có gì",
+         _tR["soToTrinh"] == 0 and _tR["chuaCo"] is True,
+         f"{_tR}")
+    _sdkR.ghi_nhan(_mau(taiSan="ETH"))
+    _tR2 = _sdkR.tom_tat()
+    kiem("có một tờ rồi thì `chuaCo` TẮT",
+         _tR2["soToTrinh"] == 1 and _tR2["chuaCo"] is False,
+         f"{_tR2} — một cờ không bao giờ tắt được là một cờ không ai đọc")
+
+    # LÝ DO TỪ CHỐI gom theo MÃ. Câu trần không có mã thì gom theo chính
+    # câu ấy — `ly or ""` che cho ca `lyDo` rỗng trong sổ cũ. Đổi thành
+    # `and` là mọi câu gom về khoá rỗng, và bảng thủ phạm chỉ còn một
+    # dòng trắng.
+    _sdkL = SoDangKy(_tam("sdk-lydo") / "sdk.sqlite3")
+    for _i, _ly in enumerate(("tran-vi-the: đã đủ 12",
+                              "tran-vi-the: đã đủ 12 chỗ",
+                              "duoi-von-toi-thieu: cần 500",
+                              "một câu trần không có mã",
+                              "một câu trần KHÁC cũng không có mã")):
+        _t = _mau(taiSan=f"C{_i}")
+        _sdkL.ghi_nhan(_t)
+        _sdkL.chuyen(_t.ma, "TU_CHOI", _ly)
+    _ld = _sdkL.ly_do_tu_choi(9)
+    _ho = _ld.get("phai-sinh") or []
+    _theoMa = {x["ma"]: x for x in _ho}
+    kiem("hai câu KHÁC NHAU cùng một MÃ gom về một dòng",
+         (_theoMa.get("tran-vi-the") or {}).get("so") == 2
+         and (_theoMa["tran-vi-the"]).get("soCauKhac") == 2,
+         f"{_ho} — gom theo câu thì một dòng dài lặp nguyên văn thành "
+         f"«thủ phạm chính» chỉ vì nó lặp lại")
+    # HAI câu trần KHÁC NHAU thì là HAI dòng. Gom chúng về một khoá rỗng
+    # là biến hai lý do khác nhau thành một dòng trắng đếm 2 — và bảng
+    # thủ phạm mất đúng cái nó sinh ra để chỉ.
+    _khongMa = [x for x in _ho if x["ma"] is None]
+    kiem("hai câu trần KHÁC NHAU, không mã, thì là HAI dòng",
+         len(_khongMa) == 2 and all(x["so"] == 1 for x in _khongMa),
+         f"{_khongMa} — gom về một khoá rỗng là biến hai lý do khác nhau "
+         f"thành một dòng trắng, và bảng thủ phạm mất đúng cái nó chỉ")
+    kiem("và cả hai đều mang nguyên câu ra làm bằng",
+         len({x["lyDo"] for x in _khongMa}) == 2, str(_khongMa))
+
 
 def kiem_cau_dao() -> None:
     print("\n── Cầu Dao: ngắt TỰ ĐỘNG, đóng lại PHẢI CÓ NGƯỜI ─────────────")
