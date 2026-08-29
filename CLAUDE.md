@@ -560,10 +560,20 @@ phải thêm THÔNG TIN MỚI vào `p`: sổ lệnh, dòng lệnh, độ trễ l
 
 Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
 
-    cửa sổ σ 300s → 900s                   −1,9%  ĐÃ NHẬN, đưa gần hết đường
-    bộ ước σ: parkinson thay close-close    −0,13% trả lại (dưới biên 0,5%)
-    nắn RIÊNG theo τ thay vì gộp            −0,08% trả lại
+    cửa sổ σ 300s → 900s                   −1,9%   ĐÃ NHẬN, đưa gần hết đường
+    bộ ước σ: parkinson thay close-close    −0,13%  trả lại (dưới biên 0,5%)
+    nắn RIÊNG theo τ thay vì gộp            −0,08%  trả lại
+    dòng lệnh nhịp 1 phút (taker buy)       TỆ HƠN  khoảng tin hẳn bên âm
+    BTC dẫn ETH/SOL/XRP                     không / TỆ HƠN
+    cửa sổ σ riêng từng market              cả ba đều chọn 900s
     (`ewma` thì TỆ HƠN close-close rõ rệt)
+
+**Dữ liệu giá Binance đã cạn.** Sáu hướng, sáu kết quả, cùng một kết
+luận. Alpha còn lại — nếu có — nằm ở vi cấu trúc của chính cái chợ: sổ
+lệnh, hàng chờ, độ trễ tới sàn. Tất cả sau đúng một cánh cửa đang đóng.
+
+Những kết quả ÂM ở trên đáng giữ đúng bằng kết quả dương: chúng ngăn một
+phiên sau làm lại toàn bộ chuỗi thí nghiệm này.
 
 Công cụ, tất cả chỉ cần Binance — không cần chợ, không cần giả định:
 
@@ -573,6 +583,8 @@ Công cụ, tất cả chỉ cần Binance — không cần chợ, không cần 
     scripts/do-tran-mo-hinh.py    còn bao nhiêu chỗ để cải thiện
     scripts/thu-uoc-sigma.py      so bốn bộ ước σ
     scripts/thu-nan-theo-tau.py   nắn gộp hay nắn riêng theo τ
+    scripts/thu-dong-lenh.py      dòng lệnh có thêm thông tin không
+    scripts/thu-btc-dan.py        BTC có dẫn các đồng khác không
     scripts/chay-demo.py          demo trọn vẹn, tiền ảo, có `--quet`
 
 **Luật của mọi phép thử ở đây: BA TẬP tách theo THỜI GIAN.** HỌC khớp
