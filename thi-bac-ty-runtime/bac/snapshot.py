@@ -49,7 +49,7 @@ import datetime as dt
 import json
 from pathlib import Path
 
-from .config import CONFIG, ROOT, che_hieu_luc
+from .config import CONFIG, ROOT, SO_RIENG, che_hieu_luc
 from .sach import sach
 
 _TUONG_DOI = ("assets", "js", "v", "cang-phi.js")
@@ -84,6 +84,16 @@ def _cung_tinh() -> Path | None:
         if not p.is_absolute():
             p = (ROOT / p).resolve()
         return p if (p / "index.html").exists() else None
+    # Tự tìm cung anh em CHỈ dành cho cỗ máy chính. Một cỗ máy chạy trên sổ
+    # riêng (`TBT_DATA_DIR`) là cỗ máy thứ hai — bản thử vốn khác, bản chạy
+    # lại, phép kiểm — và nó tự tìm ra cung tĩnh THẬT thì mỗi vòng nó đè lát
+    # cắt công khai bằng số của mình. Không lỗi nào, chỉ có một trang web
+    # nói số của một cỗ máy không ai định công bố.
+    #
+    # Muốn cỗ máy thứ hai vẫn ghi cung tĩnh thì KHAI `cungTinh` ra: khai là
+    # cố ý, tự tìm là tình cờ, và chỉ cái tình cờ mới nguy hiểm.
+    if SO_RIENG:
+        return None
     anh_em = ROOT.parent / "thi-bac-ty"
     return anh_em if (anh_em / "index.html").exists() else None
 

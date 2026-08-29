@@ -63,7 +63,14 @@ import bac  # noqa: F401,E402  — lớp ép UTF-8 cho console Windows
 
 from bac.config import CONFIG, DATA_DIR, che_hieu_luc  # noqa: E402
 
-PID = Path(__file__).resolve().parent / "pid.txt"
+#: Tên phiên bản đang chạy. Cỗ máy DEMO chạy cạnh cỗ máy thật — cùng mã,
+#: cùng dữ liệu thế giới bên ngoài, khác vốn ảo, khác cổng, khác sổ — nên nó
+#: cũng phải có file PID RIÊNG. Dùng chung một `pid.txt` thì bật cái thứ hai
+#: là ghi đè PID của cái thứ nhất, và `dung.ps1` từ đó về sau dừng nhầm máy
+#: hoặc không dừng được máy nào.
+TEN = (os.environ.get("TBT_TEN") or "").strip()
+PID = Path(__file__).resolve().parent / (f"pid-{TEN}.txt" if TEN
+                                         else "pid.txt")
 
 
 def _dat_nhat_ky() -> None:

@@ -1,5 +1,6 @@
 .env
 data/
+data-demo/
 __pycache__/
 *.pyc
 .venv/
@@ -7,3 +8,4 @@ __pycache__/
 
 # vết của tiến trình nền — sinh lúc chạy, không phải mã nguồn
 dichvu/pid.txt
+dichvu/pid-*.txt

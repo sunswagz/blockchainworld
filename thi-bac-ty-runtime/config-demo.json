@@ -1,0 +1,76 @@
+{
+  "_doc": [
+    "BẢN DEMO — chạy CẠNH bản thật, không thay nó.",
+    "",
+    "    powershell -ExecutionPolicy Bypass -File dichvu\\bat.ps1 -Demo",
+    "    powershell -ExecutionPolicy Bypass -File dichvu\\dung.ps1 -Demo",
+    "",
+    "Cùng mã, cùng dữ liệu THẬT của thế giới bên ngoài, khác vốn ảo, khác",
+    "cổng, khác sổ. Dùng để thử một cỗ máy lớn hơn — hay một bộ tham số",
+    "khác — mà không đụng vào cỗ máy đang tích đường NAV.",
+    "",
+    "Ba biến môi trường tách hai cỗ máy ra, và bat.ps1 -Demo đặt cả ba:",
+    "TBT_CONFIG (file này), TBT_DATA_DIR (data-demo/), TBT_TEN (file PID).",
+    "TBT_DATA_DIR còn khoá luôn việc tự tìm cung tĩnh, nên bản demo KHÔNG",
+    "bao giờ đè lát cắt công khai của bản thật.",
+    "",
+    "Cổng 5288 = 5188 + 100, KHÔNG phải 5189: dãy 518x là dãy cấp cho CUNG,",
+    "và lấy 5189 ở đây là ăn mất số của cung tiếp theo. Bản demo không",
+    "phải một cung; nó là làn thứ hai của cùng một runtime.",
+    "",
+    "che PHẢI là quan-sat. Tầng đặt lệnh thật không tồn tại trong cây mã",
+    "này, và bản demo không phải chỗ để thử làm nó tồn tại."
+  ],
+  "port": 5288,
+  "nhipGiay": 30,
+  "che": "quan-sat",
+  "cungTinh": "",
+  "quet": {
+    "ma": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "DOGE",
+      "POL"
+    ],
+    "giuGio": 8.0,
+    "hetGioHoiGiay": 10.0
+  },
+  "san": {
+    "hyperliquid": { "bat": true, "phiTakerBps": 4.5, "truotGiaBps": 2.0 },
+    "binance":     { "bat": true, "phiTakerBps": 5.0, "truotGiaBps": 2.0 },
+    "okx":         { "bat": true, "phiTakerBps": 5.0, "truotGiaBps": 2.0 },
+    "bybit":       { "bat": true, "phiTakerBps": 5.5, "truotGiaBps": 2.0 }
+  },
+  "ruiRo": {
+    "grossToiThieuBpsNgay": 3.0,
+    "netToiThieuBps": 0.5,
+    "lechMarkToiDaBps": 40.0,
+    "doiHoiHaiMark": true,
+    "tuoiToiDaGiay": 90.0,
+    "nhanUocLuongMoc": false,
+    "doiHoiItNhatMotMoc": true,
+    "lechDongHoToiDaGiay": 10.0
+  },
+  "datLenh": {
+    "toiXacNhanDaDocRuiRo": false
+  },
+  "so": {
+    "giuNgay": 30
+  },
+  "bang": {
+    "ghi": true,
+    "thuMuc": "bang",
+    "ngayGiuLai": 30
+  },
+  "von": {
+    "coHieuLuc": false,
+    "moiCoHoiUsd": 100.0,
+    "toiDaUsd": 300.0,
+    "donBayToiDa": 1.0
+  },
+  "trungUong": {
+    "vonBanDauUsd": 100000.0
+  }
+}

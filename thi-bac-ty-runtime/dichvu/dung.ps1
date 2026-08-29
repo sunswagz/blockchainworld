@@ -4,8 +4,13 @@
 #
 # ⚠ FILE .ps1 Ở ĐÂY PHẢI LƯU UTF-8 **CÓ BOM** — xem đầu bat.ps1.
 
+param([switch]$Demo)
+
 $ErrorActionPreference = "Stop"
-$PID_FILE = Join-Path $PSScriptRoot "pid.txt"
+# Mỗi bản một file PID. Xem đầu `bat.ps1`: dùng chung thì bật bản thứ hai
+# là ghi đè PID bản thứ nhất, và từ đó dừng nhầm máy.
+$PID_FILE = Join-Path $PSScriptRoot $(if ($Demo) { "pid-demo.txt" }
+                                     else       { "pid.txt" })
 
 function Ok($m)   { Write-Host "  OK   $m" }
 function Nhac($m) { Write-Host "  ~    $m" }

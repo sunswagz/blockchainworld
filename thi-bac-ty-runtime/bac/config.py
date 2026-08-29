@@ -37,6 +37,18 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = Path(os.environ.get("TBT_DATA_DIR") or (ROOT / "data"))
 WEB_DIR = ROOT / "web"
 
+#: Sổ sách có nằm ở chỗ RIÊNG không? Nhiều chỗ khác cần biết điều này —
+#: đáng kể nhất là `snapshot._cung_tinh()`, nơi một cỗ máy phụ chạy trên
+#: sổ riêng mà vẫn tự tìm ra cung tĩnh THẬT thì nó sẽ đè lát cắt công khai
+#: bằng số của mình, và không có lỗi nào phát ra.
+SO_RIENG = bool(os.environ.get("TBT_DATA_DIR"))
+
+#: `TBT_CONFIG` cho phép dựng một cỗ máy THỨ HAI cạnh cỗ máy thật: cùng mã,
+#: cùng dữ liệu thế giới bên ngoài, khác vốn ảo, khác cổng, khác sổ. Không
+#: có nó thì `config.json` là một đường dẫn cứng, và hai cỗ máy trên cùng
+#: một cây mã buộc phải dùng chung mọi tham số.
+DUONG_CONFIG = Path(os.environ.get("TBT_CONFIG") or (ROOT / "config.json"))
+
 MAC_DINH = {
     "port": 5188,
     "nhipGiay": 30,
@@ -267,10 +279,18 @@ def _doc_dotenv() -> None:
 
 def _nap() -> dict:
     _doc_dotenv()
-    p = ROOT / "config.json"
+    p = DUONG_CONFIG
     tren = {}
     if p.exists():
         tren = json.loads(p.read_text(encoding="utf-8-sig"))
+    elif os.environ.get("TBT_CONFIG"):
+        # KHAI TỬ chứ không lặng lẽ về mặc định. Người đặt `TBT_CONFIG` là
+        # người đang cố chạy một cỗ máy khác; rơi về mặc định ở đây nghĩa là
+        # cỗ máy ấy lên đúng cổng của cỗ máy thật, đúng vốn của cỗ máy thật,
+        # và trông y hệt như đã cấu hình đúng.
+        raise FileNotFoundError(
+            f"TBT_CONFIG trỏ tới {p} nhưng không có file ấy. "
+            f"Về mặc định ở đây là dựng nhầm cỗ máy — nên dừng.")
     c = _gop(MAC_DINH, tren)
     if c["che"] not in CHE_HOP_LE:
         raise ValueError(f"che={c['che']!r} không hợp lệ, phải là một trong {CHE_HOP_LE}")

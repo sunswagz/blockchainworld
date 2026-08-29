@@ -6158,6 +6158,8 @@ def kiem_lat_cat() -> None:
                     "cang": [{"ten": "a", "tre": float("nan")}],
                     "trungUong": {"danhMuc": {"navUsd": float("-inf")}}}
 
+    _goc_cfg = (Path(__file__).resolve().parent.parent
+                / "bac/config.py").read_text(encoding="utf-8")
     tam = _tam("cung-gia")
     (tam / "index.html").write_text("<!doctype html>", encoding="utf-8")
     cu = _CFG.get("cungTinh")
@@ -6183,6 +6185,74 @@ def kiem_lat_cat() -> None:
          bool(ra) and "Infinity" not in ra and "NaN" not in ra,
          "JSON không có Infinity; trình duyệt nạp file ấy là lỗi cú pháp, "
          "và trang tĩnh trắng trơn")
+
+    # ── CỖ MÁY THỨ HAI không được đè lát cắt của cỗ máy thật ────────────
+    # Người muốn chạy một bản demo vốn khác, trên cùng dữ liệu thật, cạnh
+    # cỗ máy đang chạy. Cùng cây mã, nên `_cung_tinh()` tự tìm ra cung anh
+    # em và mỗi vòng bản demo ghi đè lát cắt công khai bằng số của nó.
+    # Không lỗi nào phát ra; chỉ có một trang web nói số của một cỗ máy
+    # không ai định công bố.
+    kiem("máy chạy trên sổ RIÊNG thì KHÔNG tự tìm cung tĩnh",
+         _sn.SO_RIENG and _sn._cung_tinh() is None,
+         "khai `cungTinh` là cố ý, tự tìm là tình cờ — và chỉ cái tình cờ "
+         "mới nguy hiểm")
+    kiem("nhưng KHAI ra thì vẫn ghi được", bool(duong),
+         "chặn hẳn thì bản demo không bao giờ có trang riêng được")
+
+    # Kiểm bằng cách CHẠY THẬT một tiến trình con với `TBT_CONFIG` trỏ sang
+    # một config khác, chứ không so đường dẫn với chính công thức sinh ra nó
+    # — so như thế thì lúc `TBT_CONFIG` không đặt, hai vế bằng nhau kể cả
+    # khi mã đã bị chôn cứng lại. Phép kiểm ấy đã SỐNG SÓT qua đột biến.
+    import json as _js22
+    import subprocess as _sp22
+    _cfgTam = _tam("config-rieng") / "khac.json"
+    _cfgTam.write_text(_js22.dumps({"port": 59999,
+                                    "trungUong": {"vonBanDauUsd": 777.0}}),
+                       encoding="utf-8")
+    _mt = dict(os.environ, TBT_CONFIG=str(_cfgTam), PYTHONIOENCODING="utf-8")
+    _r22 = _sp22.run(
+        [sys.executable, "-c",
+         "import sys;sys.path.insert(0,'.');from bac.config import CONFIG;"
+         "print(CONFIG['port'], CONFIG['trungUong']['vonBanDauUsd'])"],
+        cwd=str(Path(__file__).resolve().parent.parent), env=_mt,
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
+    kiem("`TBT_CONFIG` thật sự đổi được cấu hình cỗ máy",
+         _r22.stdout.strip() == "59999 777.0",
+         f"ra {_r22.stdout.strip()!r} {_r22.stderr.strip()[-200:]!r} — đường "
+         f"cứng thì hai cỗ máy trên cùng cây mã buộc dùng chung mọi tham số: "
+         f"cùng cổng, cùng vốn ảo, cùng sổ")
+    _goc22 = Path(__file__).resolve().parent.parent
+    _cfgThat = _js22.loads((_goc22 / "config.json").read_text(
+        encoding="utf-8-sig"))
+    _cfgDemo = _js22.loads((_goc22 / "config-demo.json").read_text(
+        encoding="utf-8-sig"))
+    kiem("bản demo và bản thật KHÔNG dùng chung cổng",
+         _cfgDemo["port"] != _cfgThat["port"],
+         "cùng cổng thì bản bật sau chết vì cổng bận — mà `pythonw` không có "
+         "màn hình, nên nó chỉ đơn giản là không lên")
+    kiem("bản demo vẫn là QUAN SÁT",
+         _cfgDemo["che"] == "quan-sat",
+         "tầng đặt lệnh thật không tồn tại trong cây mã này, và bản demo "
+         "không phải chỗ để thử làm nó tồn tại")
+    kiem("bản demo KHÔNG khai `cungTinh`",
+         not (_cfgDemo.get("cungTinh") or "").strip(),
+         "khai ra là cố ý đè lát cắt công khai bằng số của bản demo")
+    _bat22 = (_goc22 / "dichvu/bat.ps1").read_text(encoding="utf-8-sig")
+    for _bien in ("TBT_CONFIG", "TBT_DATA_DIR", "TBT_TEN"):
+        kiem(f"`bat.ps1 -Demo` đặt `{_bien}`", f"$env:{_bien}" in _bat22,
+             "thiếu một biến là hai cỗ máy giẫm lên nhau đúng ở chỗ ấy: "
+             "chung cổng, chung sổ, hoặc chung file PID")
+    kiem("và `chay-nen.py` ghi PID theo TÊN bản",
+         "TBT_TEN" in (_goc22 / "dichvu/chay-nen.py").read_text(
+             encoding="utf-8"),
+         "chung một `pid.txt` thì bật bản thứ hai là ghi đè PID bản thứ "
+         "nhất, và từ đó `dung.ps1` dừng nhầm máy")
+
+    kiem("và `TBT_CONFIG` trỏ vào hư không thì DỪNG, không về mặc định",
+         "raise FileNotFoundError" in _goc_cfg
+         and 'os.environ.get("TBT_CONFIG")' in _goc_cfg,
+         "về mặc định ở đây là dựng nhầm cỗ máy: đúng cổng của cỗ máy thật, "
+         "đúng vốn của cỗ máy thật, và trông y hệt như đã cấu hình đúng")
 
     # ── 4. `date` và `tomTat` phải ở 900 BYTE ĐẦU ──────────────────────
     # Cổng Thành huỷ dòng tải sau 900 byte. Đổi thứ tự khoá là thẻ ngoài

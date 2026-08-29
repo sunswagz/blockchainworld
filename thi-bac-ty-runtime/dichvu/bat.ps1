@@ -9,10 +9,39 @@
 #   của file này. Cùng bẫy đã ghi ở tu-cam-thanh-runtime/dichvu/ và
 #   kham-thien-giam-runtime/dichvu/.
 
+param([switch]$Demo)
+
 $ErrorActionPreference = "Stop"
 $GOC = Split-Path -Parent $PSScriptRoot
 $PYW = "D:\SUNSWaGz 2027\Python 3.12.10\pythonw.exe"
-$PID_FILE = Join-Path $PSScriptRoot "pid.txt"
+
+# ── BẢN DEMO chạy CẠNH bản thật, không thay nó ──────────────────────────
+# Cùng mã, cùng dữ liệu thế giới bên ngoài, khác vốn ảo, khác cổng, khác sổ.
+# Ba biến dưới đây là ba thứ phải tách; thiếu thứ nào là hai cỗ máy giẫm lên
+# nhau đúng ở chỗ ấy:
+#
+#   TBT_CONFIG    cổng và vốn ảo    — thiếu: demo lên đúng cổng bản thật
+#   TBT_DATA_DIR  sổ cái, danh mục  — thiếu: hai máy ghi chung một sổ
+#   TBT_TEN       file PID          — thiếu: dung.ps1 dừng nhầm máy
+#
+# `TBT_DATA_DIR` còn khoá luôn việc tự tìm cung tĩnh (xem `_cung_tinh` trong
+# bac/snapshot.py), nên bản demo KHÔNG bao giờ đè lát cắt công khai.
+if ($Demo) {
+  $ten = "demo"
+  $cfg = Join-Path $GOC "config-demo.json"
+  if (-not (Test-Path $cfg)) { Write-Host "  LỖI  không thấy $cfg"; exit 1 }
+  $env:TBT_CONFIG   = $cfg
+  $env:TBT_DATA_DIR = Join-Path $GOC "data-demo"
+  $env:TBT_TEN      = "demo"
+  $PID_FILE = Join-Path $PSScriptRoot "pid-demo.txt"
+  $cong = (Get-Content $cfg -Raw | ConvertFrom-Json).port
+  $nhatKy = "data-demo\nhat-ky\runtime.log"
+} else {
+  $ten = "thật"
+  $PID_FILE = Join-Path $PSScriptRoot "pid.txt"
+  $cong = 5188
+  $nhatKy = "data\nhat-ky\runtime.log"
+}
 
 function Ok($m)   { Write-Host "  OK   $m" }
 function Loi($m)  { Write-Host "  LỖI  $m"; exit 1 }
@@ -28,7 +57,7 @@ function Lay-Pid {
 }
 
 $dang = Lay-Pid
-if ($dang) { Nhac "đang chạy rồi, PID $($dang.Id)"; exit 0 }
+if ($dang) { Nhac "bản $ten đang chạy rồi, PID $($dang.Id)"; exit 0 }
 
 if (-not (Test-Path $PYW)) { Loi "không thấy pythonw ở $PYW" }
 
@@ -48,10 +77,10 @@ Start-Sleep -Seconds 12
 
 $moi = Lay-Pid
 if ($moi) {
-  Ok "đã bật, PID $($moi.Id)"
-  Ok "buồng lái → http://localhost:5188"
+  Ok "đã bật bản $ten, PID $($moi.Id)"
+  Ok "buồng lái → http://localhost:$cong"
   Nhac "băng ghi tích mỗi lượt quét — tab Đào tạo trong buồng lái để xem"
   Nhac "cửa sổ giữ 8 giờ: phải chạy ít nhất ngần ấy giờ mới có mẫu hậu kiểm đầu tiên"
 } else {
-  Loi "không lên — xem data\nhat-ky\runtime.log"
+  Loi "không lên — xem $nhatKy"
 }
