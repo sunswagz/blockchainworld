@@ -908,13 +908,20 @@ def _tu_lo_luyen(bo: list) -> list[dict]:
         return []
 
     n_thu = d.get("soLanThu") or 0
+    kt = cha.get("khoangTin")
+    doan_kt = ""
+    if kt:
+        doan_kt = (f" Khoảng tin 95% [{kt[0]:+.4f}; {kt[1]:+.4f}]"
+                   + (" — CHỨA 0, tức chưa phân biệt được với «không có gì»."
+                      if cha.get("chuaKhong") else "."))
     lat = " ".join(f"{x:+.2f}" if x is not None else "—" for x in (cha.get("theoLat") or []))
     ra = [_pd("lo-luyen-champion", "lo-luyen",
               f"Champion đo trên {d.get('soCho')} chợ × {d.get('soLat')} lát thời gian: "
               f"dương {cha['soLatDuong']}/{cha['soLatCo']} lát, gộp "
               f"{cha['kyVongGop']:+.4f}R qua {cha['soLenh']} lệnh. Từng lát: {lat}. "
               f"Lát là quãng thời gian LIÊN TIẾP — dương ở một lát và âm ở lát khác "
-              f"nghĩa là kết quả phụ thuộc chế độ thị trường, không phải lợi thế.",
+              f"nghĩa là kết quả phụ thuộc chế độ thị trường, không phải lợi thế."
+              + doan_kt,
               cha["soLenh"], {"kyVongR": cha["kyVongGop"], "soLatDuong": cha["soLatDuong"],
                               "soLat": cha["soLatCo"]})]
 

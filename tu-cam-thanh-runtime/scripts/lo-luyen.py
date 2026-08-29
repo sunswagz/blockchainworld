@@ -161,6 +161,29 @@ def chia_lat(tong: int, so: int) -> list[tuple[int, int]]:
     return [(i * b, (i + 1) * b if i < so - 1 else tong) for i in range(so)]
 
 
+def khoang_tin(o: list[tuple[float, int]]) -> tuple[float, float] | None:
+    """Khoảng tin 95% của kỳ vọng gộp, tính THEO CHỢ chứ không theo lệnh.
+
+    Một con số đứng một mình không nói được gì: "+0,0603R qua 430 lệnh" và
+    "+0,0603R qua 430 lệnh, khoảng tin [−0,08; +0,20]" là hai câu khác hẳn —
+    câu thứ hai nói rõ nó CHỨA 0, tức chưa phân biệt được với không có gì.
+
+    Tính theo CHỢ, không theo lệnh: câu hỏi ở đây là "bộ luật này có chạy được
+    ở chợ khác không", nên đơn vị quan sát là một chợ. Tính theo lệnh sẽ cho
+    khoảng hẹp giả — 430 lệnh của 48 chợ tương quan cao không phải 430 quan
+    sát độc lập, và chính chỗ đó đã ba lần làm một bộ luật trông tốt hơn thật.
+
+    Dùng 1,96 thay vì tra bảng t: với ≥30 chợ khác biệt không đáng kể, và ở đây
+    độ chính xác của HỆ SỐ không phải chỗ đáng lo.
+    """
+    xs = [r for r, n in o if n]
+    if len(xs) < 3:
+        return None
+    tb = sum(xs) / len(xs)
+    var = sum((x - tb) ** 2 for x in xs) / (len(xs) - 1)
+    se = (var / len(xs)) ** 0.5
+    return (tb - 1.96 * se, tb + 1.96 * se)
+
 def cham(bien: list[dict], diem: list[list[list]], so_lat: int) -> list[dict]:
     """Gộp điểm rồi xếp hạng. Hàm THUẦN — kiểm được bằng số bịa."""
     bang = []
@@ -177,7 +200,11 @@ def cham(bien: list[dict], diem: list[list[list]], so_lat: int) -> list[dict]:
             tong_n += n
             tong_r += kv * n
         co = [x for x in theo_lat if x is not None]
+        # Khoảng tin gộp mọi ô (chợ × lát) — mỗi ô là một quan sát.
+        kt = khoang_tin([x for j in range(so_lat) for x in diem[i][j]])
         bang.append({
+            "khoangTin": [round(kt[0], 4), round(kt[1], 4)] if kt else None,
+            "chuaKhong": (kt[0] <= 0 <= kt[1]) if kt else None,
             "i": i, "tham": {k: tham[k] for k in LUOI if k in tham},
             "theoLat": theo_lat, "soLatDuong": sum(1 for x in co if x > 0),
             "soLatCo": len(co), "soLenh": tong_n,
@@ -254,9 +281,12 @@ def main() -> int:
            and (r["kyVongGop"] if r["kyVongGop"] is not None else -9)
            > (cha["kyVongGop"] if cha["kyVongGop"] is not None else -9)]
 
+    _kt = cha.get("khoangTin")
     print(NL + f"champion: {cha['soLatDuong']}/{cha['soLatCo']} lát dương · "
           f"gộp {(cha['kyVongGop'] or 0):+.4f}R qua {cha['soLenh']} lệnh "
-          f"trên {so_cho_that} chợ")
+          f"trên {so_cho_that} chợ"
+          + (f" · khoảng tin 95% [{_kt[0]:+.4f}; {_kt[1]:+.4f}]"
+             + ("  ← CHỨA 0" if cha.get("chuaKhong") else "") if _kt else ""))
     print(f"{len(tot)}/{len(bien) - 1} biến thể vượt champion VÀ dương "
           f"≥{can}/{so_lat} lát.")
     if tot:

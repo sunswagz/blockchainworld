@@ -1822,6 +1822,21 @@ async def main() -> int:
     check(sorted(x["_lan"] for x in _ra25) == [1, 2, 4],
           "số lần được ĐẾM chứ không bị vứt (1·2·4)")
 
+    # KHOẢNG TIN, tính theo CHỢ chứ không theo lệnh. "+0,0603R qua 430 lệnh" và
+    # "+0,0603R, khoảng tin [−0,08; +0,20]" là hai câu khác hẳn — câu sau nói rõ
+    # nó CHỨA 0. Tính theo lệnh cho khoảng hẹp giả: 430 lệnh của 48 chợ tương
+    # quan cao không phải 430 quan sát độc lập, và chính chỗ đó đã ba lần làm
+    # một bộ luật trông tốt hơn thật.
+    _kt_sat = LO.khoang_tin([(0.05, 10)] * 5)
+    check(abs(_kt_sat[1] - _kt_sat[0]) < 1e-6,
+          "năm chợ cho cùng một con số → khoảng tin gần như một điểm")
+    _kt_tan = LO.khoang_tin([(0.5, 10), (-0.4, 10), (0.1, 10), (-0.2, 10), (0.3, 10)])
+    check(_kt_tan[0] < 0 < _kt_tan[1],
+          f"năm chợ phân tán quanh 0,06 → khoảng tin CHỨA 0 "
+          f"([{_kt_tan[0]:+.3f}; {_kt_tan[1]:+.3f}])")
+    check(LO.khoang_tin([(0.1, 10), (0.2, 10)]) is None,
+          "dưới 3 chợ → KHÔNG bịa ra khoảng tin")
+
     # Cửa ngược lại: câu khác nhau thì KHÔNG được gộp. Thiếu phép này thì một
     # lỗi gộp quá tay sẽ nuốt mất bài học thật mà bảng vẫn gọn đẹp.
     _kh25 = _gt25([{"lesson": f"câu {i}"} for i in range(5)])
