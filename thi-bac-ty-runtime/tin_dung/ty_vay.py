@@ -29,7 +29,8 @@ import asyncio
 
 from chuoi_chung.thang import rui_ro_su_dung, rui_ro_tvl, thang
 from thi_bac_ty.khuon_ty import Ty
-from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
+from thi_bac_ty.to_trinh import (Chan, RuiRo, ToTrinh,
+                             xin_theo_suc_chua)
 
 from .can_loi import tim_co_hoi
 from .config import CONFIG, HO, MA_CHIEN_LUOC
@@ -302,6 +303,15 @@ def _NHA() -> str:
         return "arbitrum"
 
 
+def _xin(co) -> float:
+    """Cỡ XIN theo sức chứa. Sàn là `vonXinUsd` — cỡ đã tính mọi bps."""
+    v = CONFIG.get("von") or {}
+    return xin_theo_suc_chua(
+        co.vonXinUsd, getattr(co, "sucChuaToiDaUsd", None),
+        float(v.get("phanSucChuaXin") or 0.5),
+        float(v.get("tranMotLanUsd") or 25_000.0))
+
+
 def xuat_to_trinh(co) -> ToTrinh:
     """`CoHoiVay` → `ToTrinh`. Không logic mới, chỉ dịch ngôn ngữ."""
     t = co.thiTruong
@@ -309,9 +319,12 @@ def xuat_to_trinh(co) -> ToTrinh:
            else f"hoà gas sau {co.hoaVonSauGio:.1f} giờ")
     return ToTrinh(
         chienLuoc=MA_CHIEN_LUOC, ho=HO, taiSan=t.taiSan,
-        chan=(Chan("CHO_VAY", t.giaoThuc, t.taiSan, co.vonXinUsd,
+        chan=(Chan("CHO_VAY", t.giaoThuc, t.taiSan, _xin(co),
                    "lending", t.chuoi),),
-        vonCanUsd=co.vonXinUsd,
+        # XIN theo SỨC CHỨA, không xin một con số cứng. Mọi con số bps ở
+        # dưới vẫn tính ở cỡ `co.vonXinUsd` (sàn kinh tế), nên chúng là cận
+        # dưới: được cấp nhiều hơn thì phí theo bps chỉ nhỏ đi.
+        vonCanUsd=_xin(co),
         vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         sucChuaToiDaUsd=co.sucChuaToiDaUsd,
         grossBps=co.grossBps, phiUocBps=co.phiBps, netUocBps=co.netBps,

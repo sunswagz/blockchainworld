@@ -6723,6 +6723,79 @@ def kiem_ke_toan_vi_the() -> None:
          f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
          f"chưa từng đo là bịa ra một tỉ suất")
 
+    # ── XIN THEO SỨC CHỨA, không xin một con số cứng ────────────────────
+    # Đo sau khi nâng vốn ảo lên một triệu: máy vẫn chỉ rót 6.200 USD, dùng
+    # vốn 0,62%. Không phải hết tiền (còn 797.000 khả dụng), không phải
+    # trần vị thế (120 chỗ, dùng 14) — mà vì MỖI TY XIN CỨNG 500 USD. Vốn
+    # không chạm được thị trường vì không ai xin nó.
+    from thi_bac_ty.to_trinh import xin_theo_suc_chua as _xtsc
+
+    kiem("sức chứa lớn thì xin LỚN, theo tỉ lệ",
+         gan(_xtsc(500.0, 25_000.0, 0.5, 25_000.0), 12_500.0),
+         "xin 500 vào một pool nuốt được 25.000 là bỏ phí")
+    kiem("sức chứa NHỎ hơn sàn thì vẫn xin đúng SÀN",
+         gan(_xtsc(500.0, 200.0, 0.5, 25_000.0), 500.0),
+         "dưới sàn thì phí cố định ăn hết — và Rủi Ro Tổng sẽ từ chối vì "
+         "sức chứa, đó mới là cửa đúng để chặn")
+    kiem("KHÔNG xin trọn sức chứa",
+         _xtsc(500.0, 25_000.0, 0.5, 1e9) < 25_000.0,
+         "xin trọn nghĩa là TA CHÍNH LÀ sức chứa, và lúc ấy con số ấy "
+         "không còn đúng nữa — nó được tính cho một thị trường chưa có ta")
+    kiem("có TRẦN, chặn một sức chứa sai đơn vị",
+         gan(_xtsc(500.0, 1e12, 0.5, 25_000.0), 25_000.0),
+         "cùng lý do với `TRAN_USD` của `bac/suc_chua.py`")
+    kiem("chưa đo được sức chứa thì xin ĐÚNG SÀN, không đoán",
+         gan(_xtsc(500.0, None, 0.5, 25_000.0), 500.0)
+         and gan(_xtsc(500.0, 0.0, 0.5, 25_000.0), 500.0),
+         "không biết pool nuốt được bao nhiêu thì xin nhỏ nhất")
+
+    # Và BA ty ĐANG được cấp vốn phải THẬT SỰ dùng nó. Hàm đúng mà không ty
+    # nào gọi thì vốn vẫn không chạm được thị trường — đúng lớp hỏng «có mã,
+    # không ai gọi» đã cắn ba lần trong cây này.
+    import ast as _a53
+    import pathlib as _p53
+
+    _g53 = _p53.Path(__file__).resolve().parent.parent
+
+    def _von_can_tu_dau(tep: str) -> str:
+        """Biểu thức gán cho `vonCanUsd` trong `xuat_to_trinh`, dạng chữ."""
+        cay = _a53.parse((_g53 / tep).read_text(encoding="utf-8"))
+        for nd in _a53.walk(cay):
+            if not (isinstance(nd, _a53.FunctionDef)
+                    and nd.name == "xuat_to_trinh"):
+                continue
+            for x in _a53.walk(nd):
+                if isinstance(x, _a53.keyword) and x.arg == "vonCanUsd":
+                    return _a53.dump(x.value)
+        return ""
+
+    def _co_goi53(tep: str, ten: str) -> bool:
+        cay = _a53.parse((_g53 / tep).read_text(encoding="utf-8"))
+        for x in _a53.walk(cay):
+            if isinstance(x, _a53.Call):
+                f = x.func
+                if getattr(f, "id", "") == ten or getattr(f, "attr", "") == ten:
+                    return True
+        return False
+
+    for _tep53 in ("lp_amm/ty_cap_thanh_khoan.py", "tin_dung/ty_vay.py",
+                   "lai_suat/ty_lai_suat.py"):
+        _bt53 = _von_can_tu_dau(_tep53)
+        kiem(f"`{_tep53.split('/')[0]}` xin theo SỨC CHỨA, không xin số cứng",
+             _co_goi53(_tep53, "xin_theo_suc_chua")
+             and (("_xin" in _bt53) or ("xin_theo_suc_chua" in _bt53)
+                  or "vonXinUsd" in _bt53),
+             f"`vonCanUsd={_bt53[:70]}` — hàm đúng mà không ty nào gọi thì "
+             f"vốn vẫn không chạm được thị trường")
+    # `lp_amm` quy phí theo cỡ SÀN, không theo cỡ xin: được cấp ít hơn xin
+    # là chuyện thường, và lúc ấy phí thật cao hơn con số đã khai.
+    _lpNguon53 = (_g53 / "lp_amm/ty_cap_thanh_khoan.py").read_text(
+        encoding="utf-8")
+    kiem("`lp_amm` quy phí theo cỡ SÀN, không theo cỡ XIN",
+         "co.vonSanUsd or co.vonXinUsd" in _lpNguon53,
+         "khai phí ở cỡ xin rồi được cấp ở cỡ sàn là khai LẠC QUAN, và "
+         "tầng trên không cách nào biết")
+
     # ── NẠP VỐN là SỰ KIỆN, không phải một tham số ──────────────────────
     # Sửa `vonBanDauUsd` từ 10.000 lên 1.000.000 mà tiền mặt vẫn 4.000 thì
     # NAV/vốn gốc ra 1% — cầu dao đọc thành SỤT VỐN 99% và ngắt ngay. Còn

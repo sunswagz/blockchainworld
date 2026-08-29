@@ -47,7 +47,8 @@ from dataclasses import dataclass, field, replace
 from chuoi_chung.thang import rui_ro_tvl
 from thi_bac_ty.khuon_ty import Ty
 from thi_bac_ty.nguon import Nguon, so_hoac_none
-from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
+from thi_bac_ty.to_trinh import (Chan, RuiRo, ToTrinh,
+                             xin_theo_suc_chua)
 
 MA_CHIEN_LUOC = "yield.pendle_pt.v1"
 HO = "tin-dung"
@@ -69,7 +70,11 @@ CONFIG = {
     },
     # Xin ĐÚNG bằng ngưỡng kinh tế: mua PT là một lượt swap có trượt
     # giá, và vốn khoá tới đáo hạn — xin ít hơn là tự mâu thuẫn.
-    "von": {"moiCoHoiUsd": 1000.0},
+    #: `moiCoHoiUsd` là SÀN — cỡ dùng để tính mọi con số bps. Cỡ XIN thì
+    #: theo SỨC CHỨA của chính thị trường ấy: xin cứng 1.000 vào một PT
+    #: chứa nổi 50.000 là bỏ phí. Xem `to_trinh.xin_theo_suc_chua`.
+    "von": {"moiCoHoiUsd": 1000.0, "phanSucChuaXin": 0.5,
+            "tranMotLanUsd": 50_000.0},
     "sucChua": {"phanTvl": 0.01, "tranUsd": 50_000.0},
 }
 
@@ -512,14 +517,25 @@ def _tin_cay(co: CoHoiPT) -> float:
     return max(0.0, min(1.0, d))
 
 
+def _xin(co) -> float:
+    """Cỡ XIN theo sức chứa. Sàn là `vonXinUsd` — cỡ đã tính mọi bps."""
+    v = CONFIG.get("von") or {}
+    return xin_theo_suc_chua(
+        co.vonXinUsd, getattr(co, "sucChuaToiDaUsd", None),
+        float(v.get("phanSucChuaXin") or 0.5),
+        float(v.get("tranMotLanUsd") or 50_000.0))
+
+
 def xuat_to_trinh(co: CoHoiPT) -> ToTrinh:
     t = co.tt
     gt = rui_ro_tvl(t.tvlGiaoThucUsd or t.tvlUsd)
     return ToTrinh(
         chienLuoc=MA_CHIEN_LUOC, ho=HO, taiSan=t.taiSan,
-        chan=(Chan("CHO_VAY", "pendle", t.taiSan, co.vonXinUsd, "yield",
+        chan=(Chan("CHO_VAY", "pendle", t.taiSan, _xin(co), "yield",
                    t.chuoi),),
-        vonCanUsd=co.vonXinUsd, sucChuaToiDaUsd=co.sucChuaToiDaUsd,
+        # XIN theo SỨC CHỨA — xem `thi_bac_ty.to_trinh.xin_theo_suc_chua`.
+        # Các con số bps vẫn tính ở cỡ sàn, nên chúng là cận dưới.
+        vonCanUsd=_xin(co), sucChuaToiDaUsd=co.sucChuaToiDaUsd,
         vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         grossBps=co.grossBps, phiUocBps=0.0, netUocBps=co.netBps,
         giuGio=co.giuGio,

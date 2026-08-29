@@ -69,9 +69,17 @@ MAC_DINH = {
     },
 
     "von": {
-        # Xin ĐÚNG bằng ngưỡng kinh tế của engine. Xin ít hơn ngưỡng
-        # mình vừa khai là tờ trình tự mâu thuẫn, và hợp đồng chặn.
+        # SÀN — cỡ dùng để tính mọi con số bps của tờ trình. Xin ít hơn
+        # ngưỡng kinh tế mình vừa khai là tờ trình tự mâu thuẫn, và hợp
+        # đồng chặn.
         "moiCoHoiUsd": 500.0,
+        # Cỡ XIN thì theo SỨC CHỨA của chính thị trường ấy, không phải một
+        # con số cứng: xin 500 vào một thị trường nuốt được 25.000 là bỏ
+        # phí, mà xin 500 vào một thị trường chứa 600 lại là quá tay.
+        # Nửa sức chứa, vì xin trọn nghĩa là TA CHÍNH LÀ sức chứa — và lúc
+        # ấy con số ấy không còn đúng. Xem `to_trinh.xin_theo_suc_chua`.
+        "phanSucChuaXin": 0.5,
+        "tranMotLanUsd": 25_000.0,
     },
     # Rót được bao nhiêu mà không dìm chính lãi suất mình vừa thấy. Chưa có
     # đường cong lãi suất nên đây là proxy thô trên thanh khoản rảnh, và

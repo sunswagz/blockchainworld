@@ -136,6 +136,47 @@ class RuiRo:
                 "chuaDo": list(self.chua_do()), "caoNhat": self.cao_nhat()}
 
 
+def xin_theo_suc_chua(vonSanUsd: float, sucChuaToiDaUsd: float | None,
+                      phan: float = 0.5,
+                      tranUsd: float = 25_000.0) -> float:
+    """Cỡ vốn NÊN XIN, theo sức chứa của chính cơ hội ấy.
+
+    ## Vì sao không xin một con số cứng
+
+    Đo trên máy sống 29/08/2026, sau khi nâng vốn ảo lên một triệu: máy
+    vẫn chỉ rót được **6.200 USD**, tỉ lệ dùng vốn 0,62%. Không phải vì
+    hết tiền (còn 797.000 khả dụng), không phải vì trần vị thế (120 chỗ,
+    mới dùng 14) — mà vì **mỗi ty xin cứng 500 USD**. Vốn không chạm được
+    thị trường vì không ai xin nó.
+
+    Xin cứng còn sai theo cả hai chiều: 500 USD vào một pool chứa nổi
+    25.000 là bỏ phí, mà 500 USD vào một pool chứa 600 lại là quá tay.
+    Sức chứa là con số duy nhất biết pool ấy nuốt được bao nhiêu.
+
+    ## Vì sao chỉ một PHẦN sức chứa
+
+    Xin trọn sức chứa nghĩa là **ta chính là sức chứa** — và lúc ấy con số
+    ấy không còn đúng nữa, vì nó được tính cho một thị trường chưa có ta
+    trong đó. Một nửa là chỗ đứng thận trọng.
+
+    ## Sàn và trần
+
+    SÀN là `vonSanUsd` — cỡ mà mọi con số bps của tờ trình được tính ở đó.
+    Không bao giờ xin ít hơn sàn, vì dưới sàn thì phí cố định ăn hết.
+
+    TRẦN chặn một sức chứa sai đơn vị biến thành một lời xin vô nghĩa —
+    cùng lý do với `TRAN_USD` trong `bac/suc_chua.py`.
+
+    `None` sức chứa → xin đúng sàn. Không biết pool nuốt được bao nhiêu
+    thì xin nhỏ nhất, chứ không đoán.
+    """
+    san = max(0.0, float(vonSanUsd))
+    if sucChuaToiDaUsd is None or sucChuaToiDaUsd <= 0:
+        return san
+    return max(san, min(float(tranUsd),
+                        float(sucChuaToiDaUsd) * float(phan)))
+
+
 @dataclass(frozen=True)
 class ToTrinh:
     """Một cơ hội, viết bằng ngôn ngữ mọi ty đều hiểu."""

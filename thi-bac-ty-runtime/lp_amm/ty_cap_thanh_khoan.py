@@ -58,7 +58,8 @@ from dataclasses import dataclass, replace
 
 from thi_bac_ty.khuon_ty import Ty
 from thi_bac_ty.nguon import Nguon, so_hoac_none
-from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
+from thi_bac_ty.to_trinh import (Chan, RuiRo, ToTrinh,
+                             xin_theo_suc_chua)
 
 MA_CHIEN_LUOC = "amm.fee_farming.v1"
 HO = "thanh-khoan"
@@ -103,7 +104,16 @@ CONFIG = {
         "phiNgamToiDaBps": 100.0,
         "netToiThieuBps": 20.0,
     },
-    "von": {"moiCoHoiUsd": 500.0},
+    #: `moiCoHoiUsd` là SÀN, không phải cỡ vị thế. Ty xin theo SỨC CHỨA
+    #: của chính pool ấy — xin cứng 500 USD vào một pool chứa nổi 25.000 là
+    #: bỏ phí, mà xin 500 vào một pool chứa 600 lại là quá tay. Và vì phí
+    #: vào/ra tính bằng ĐÔ LA (gas), xin lớn hơn còn làm phí theo bps nhỏ
+    #: đi: 1 USD gas trên 500 USD là 20 bps, trên 25.000 là 0,4 bps.
+    #:
+    #: `phanSucChuaXin` để 0,5 chứ không phải 1,0: xin trọn sức chứa nghĩa
+    #: là TA CHÍNH LÀ sức chứa, và lúc ấy con số ấy không còn đúng nữa.
+    "von": {"moiCoHoiUsd": 500.0, "phanSucChuaXin": 0.5,
+            "tranMotLanUsd": 25_000.0},
     "sucChua": {"phanTvl": 0.002, "tranUsd": 25_000.0},
 }
 
@@ -205,6 +215,7 @@ class Pool:
 @dataclass(frozen=True)
 class CoHoiLp:
     pool: Pool
+    #: Cỡ ty XIN — theo sức chứa của pool. Trung Ương vẫn cắt xuống được.
     vonXinUsd: float
     giuGio: float
     grossBps: float | None
@@ -212,6 +223,12 @@ class CoHoiLp:
     netBps: float | None
     sucChuaToiDaUsd: float | None
     hoaVonSauGio: float | None
+    #: Cỡ dùng để tính MỌI con số bps ở trên. Bằng SÀN kinh tế, không bằng
+    #: cỡ xin — nên `netBps` là một CẬN DƯỚI: rót nhiều hơn sàn thì phí
+    #: theo bps chỉ nhỏ đi, và lãi thật chỉ tốt hơn con số đã khai. Khai ở
+    #: cỡ XIN rồi được cấp ở cỡ SÀN là khai lạc quan, và tầng trên không
+    #: cách nào biết.
+    vonSanUsd: float = 0.0
     #: Thứ chính Router khai là nó CHƯA tính. Rỗng ở đây từng là rỗng
     #: GIẢ — trường được khai rồi không ai điền, và người đọc thấy `[]` sẽ
     #: hiểu là «Router không thiếu gì». Cùng họ với ba cửa giả trong
@@ -366,7 +383,8 @@ class NguonPool(Nguon):
 
 def mot_co_hoi(p: Pool, vonUsd: float, giuGio: float, sucChuaC: dict,
                phiVaoRaUsd: float | None,
-               routerConThieu: tuple = ()) -> CoHoiLp:
+               routerConThieu: tuple = (),
+               vonC: dict | None = None) -> CoHoiLp:
     """Phí thu trong cửa sổ giữ, trừ chi phí vào+ra.
 
     `apyBase` là phí GỐC — thưởng KHÔNG cộng vào, cùng luật `tin_dung/`.
@@ -383,18 +401,25 @@ def mot_co_hoi(p: Pool, vonUsd: float, giuGio: float, sucChuaC: dict,
     if (p.apyGocPhanTram or 0) > 0 and phiVaoRaUsd is not None and vonUsd > 0:
         moiGio = vonUsd * (p.apyGocPhanTram / 100.0) / (365.0 * 24.0)
         hoa = phiVaoRaUsd / moiGio if moiGio > 0 else None
-    return CoHoiLp(pool=p, vonXinUsd=vonUsd, giuGio=giuGio, grossBps=gross,
+    # XIN theo sức chứa, nhưng MỌI con số bps ở trên tính ở cỡ SÀN — nên
+    # chúng là cận dưới, và rót nhiều hơn chỉ làm lãi thật tốt hơn.
+    vc = vonC or {}
+    xin = xin_theo_suc_chua(
+        vonUsd, chua, float(vc.get("phanSucChuaXin") or 0.5),
+        float(vc.get("tranMotLanUsd") or 25_000.0))
+    return CoHoiLp(pool=p, vonXinUsd=xin, vonSanUsd=vonUsd,
+                   giuGio=giuGio, grossBps=gross,
                    phiVaoRaUsd=phiVaoRaUsd, netBps=net,
                    sucChuaToiDaUsd=chua, hoaVonSauGio=hoa,
                    routerConThieu=tuple(routerConThieu))
 
 
 def tim_co_hoi(ds, vonUsd: float, giuGio: float, sucChuaC: dict, cong,
-               phiVaoRa=None) -> list:
+               phiVaoRa=None, vonC: dict | None = None) -> list:
     ra = []
     for p in ds:
         phi, thieu = (phiVaoRa(p.chuoi) if phiVaoRa else (None, ()))
-        co = mot_co_hoi(p, vonUsd, giuGio, sucChuaC, phi, thieu)
+        co = mot_co_hoi(p, vonUsd, giuGio, sucChuaC, phi, thieu, vonC)
         qua, ly = cong.xet(co)
         ra.append(replace(co, duyet=qua, lyDoMa=tuple(ly),
                           lyDo=tuple(c for _, c in ly)))
@@ -440,7 +465,7 @@ class TyCapThanhKhoan(Ty):
         self.coHoi = tim_co_hoi(
             self.pool, float(CONFIG["von"]["moiCoHoiUsd"]),
             float(CONFIG["quet"]["giuGio"]), CONFIG["sucChua"], self.cong,
-            self._phi_vao_ra)
+            self._phi_vao_ra, CONFIG["von"])
         return list(self.coHoi)
 
     async def _doc(self):
@@ -595,7 +620,11 @@ def xuat_to_trinh(co: CoHoiLp) -> ToTrinh:
         vonToiThieuKinhTeUsd=_VON_TOI_THIEU,
         sucChuaToiDaUsd=co.sucChuaToiDaUsd,
         grossBps=(co.grossBps or 0.0),
-        phiUocBps=((co.phiVaoRaUsd or 0.0) / max(co.vonXinUsd, 1.0) * 10_000.0),
+        # Phí theo bps tính ở cỡ SÀN, không ở cỡ xin: được cấp ít hơn xin
+        # là chuyện thường, và lúc ấy phí thật cao hơn con số đã khai. Khai
+        # ở sàn thì mọi mức cấp ≥ sàn đều có phí THẤP HƠN hoặc bằng.
+        phiUocBps=((co.phiVaoRaUsd or 0.0)
+                   / max(co.vonSanUsd or co.vonXinUsd, 1.0) * 10_000.0),
         netUocBps=(co.netBps or 0.0),
         giuGio=co.giuGio,
         # Rút được bất cứ lúc nào — vị thế LP không có kỳ hạn.
