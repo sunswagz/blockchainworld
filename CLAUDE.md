@@ -585,6 +585,36 @@ một khoảng tin do chính script in ra — [[luat-phai-chay-duoc]].)
 `scripts/do-cho-that.py` và `scripts/chay-phat-lai.py` chạy lại được mỗi
 khi băng dày thêm.
 
+### Khâm Thiên Giám — PHÍ từng biến mất khỏi lãi lỗ (30/08/2026)
+
+`dat_lenh` tính phí đúng và in ra nhật ký — `phí $0.0900` — rồi thả nó
+xuống đất. `ghi_khop()` không nhận phí, `tienUp/tienDown` chỉ là tiền
+HÀNG, `ket_toan._ghi_so` ghi thẳng `phiUsd=0.0`. Không ai trừ nó.
+
+Ba hệ quả, tất cả cùng một chiều — ĐẸP HƠN SỰ THẬT:
+
+    · sổ kết toán khai tổng phí = $0 vĩnh viễn
+    · lãi lỗ mỗi cửa sổ cao hơn thật đúng bằng khoản phí ($2,93 trên
+      $32,99 lãi trong phiên giấy chạy hết băng — 9%)
+    · `risk.ghi_lai_lo` nhận con số đẹp ấy ⇒ cầu dao lỗ ngày ngắt MUỘN
+      hơn mức đã thiết kế
+
+Chỗ làm lộ ra: `phat_lai.py` (mô phỏng) TRỪ phí đúng, đường chạy thật
+thì không — nên **máy thật báo đẹp hơn chính bản mô phỏng của nó** trên
+cùng những lệnh ấy. Khi hai đường nói khác nhau về cùng một lệnh, đừng
+cho là chuyện lặt vặt: một trong hai đang sai.
+
+Nay `ViThe.phiUsd` cộng dồn theo từng lần khớp và `lai_lo_khi_ket_qua()`
+trừ nó. **Bất biến buộc hai đường về một định nghĩa**, canh trong
+selftest trên mọi dòng sổ đã ghi:
+
+    laiLo = tienRa − tienVao − phiUsd
+
+Bài học rộng hơn: một khoản chi được TÍNH và được IN RA thì rất dễ bị
+tưởng là đã được TRỪ. Nhật ký có chữ "phí $0.09" nằm ngay đó suốt, và
+chính nó làm người đọc yên tâm. Muốn biết một khoản có vào sổ không thì
+phải lần theo nó tới tận phép trừ, đừng dừng ở chỗ nó được in.
+
 ### Khâm Thiên Giám — MÔ HÌNH ĐÃ Ở SÁT TRẦN, thôi vặn
 
 Đo được (`scripts/do-tran-mo-hinh.py`, 20 ngày BTC, 9.220 cặp ngoài mẫu):
