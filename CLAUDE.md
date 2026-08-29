@@ -512,8 +512,10 @@ thư mục, cổng, và lệnh sinh lát cắt:
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
-    python scripts/selftest.py    267 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    305 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
+    node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
+    node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không
 
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
@@ -546,6 +548,7 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
     python -m trader.snapshot     ghi một lần rồi thoát
     python scripts/selftest.py    phép kiểm số học, KHÔNG cần mạng
                                   (không in tổng số như hai runtime kia)
+    node scripts/kiem-giao-dien.mjs   giao diện có đọc được mọi trường nó cần không
 
 **Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một
 bước xanh vĩnh viễn không sinh ra gì.
