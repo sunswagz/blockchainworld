@@ -3364,7 +3364,10 @@ def kiem_co_dong_lenh() -> None:
     GOC_MA = Path(__file__).resolve().parent.parent
     rieng, thieu = [], []
     for f in sorted((GOC_MA / "scripts").glob("*.py")):
-        if f.name in ("selftest.py", "sinh-icon.py") or f.name.startswith("kiem-"):
+        # `kiem-*.mjs` là JavaScript, không dính. Nhưng `kiem-*.py` thì
+        # vẫn là phép ĐO viết bằng Python và chịu đúng kỷ luật ấy —
+        # `kiem-nan-ngoai-mau.py` còn đưa ra khuyến nghị vặn nút.
+        if f.name in ("selftest.py", "sinh-icon.py"):
             continue
         ma = f.read_text(encoding="utf-8")
         if "def _tham(" in ma or "def _tham_so(" in ma:

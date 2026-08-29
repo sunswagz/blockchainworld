@@ -49,6 +49,13 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+
+from kham import tham_so  # noqa: E402
+
+# Không cờ nào — nhưng vẫn phải TỪ CHỐI cờ lạ. Script này là một
+# phép ĐO và còn đưa ra khuyến nghị vặn nút, nên nó chịu đúng kỷ
+# luật của mọi phép đo khác: cờ gõ sai thì DỪNG, đừng nuốt im lặng.
+tham_so.doc({}, ten='kiem-nan-ngoai-mau.py')
 from kham.bang import BaoCaoDoc, lan_luot  # noqa: E402
 from kham.dinh_gia import o_hieu_chinh  # noqa: E402
 from kham.ket_qua import moc_tu_slug, so_ket_qua  # noqa: E402
