@@ -242,6 +242,9 @@ class TrungUong:
         #: được lần khởi động lại, và `doi_soat_vi_the` dọn phần sót ở sổ.
         self.soViThe: dict[str, SoViThe] = {}
         self.latCatKeToan = LatCatKeToan()
+        #: Tổng mọi đồng ĐÃ đi qua `_ghi_tien`. Đối chiếu với
+        #: `danh_muc.laiLoDaThucHienUsd` mỗi vòng — xem `lech_tien()`.
+        self.tienDaGhiUsd = 0.0
         #: dấu vân cơ hội → lần cuối vào sổ (giây, đồng hồ đơn điệu)
         self._dauVet: dict[str, float] = {}
         self.soBoTrung = 0
@@ -419,6 +422,54 @@ class TrungUong:
         self._don_dinh_ky()
         return lat
 
+    # ── CỬA DUY NHẤT cho mọi đồng tiền ────────────────────────────────────
+    def _ghi_tien(self, soTienUsd: float, loai: str, lyDo: str,
+                  chienLuoc=None, ma=None, chiTiet=None) -> None:
+        """Dịch tiền mặt VÀ ghi sổ cái, trong một lời gọi.
+
+        Trước hàm này, hai việc ấy là hai dòng cạnh nhau ở ba chỗ. Không gì
+        buộc chúng đi cùng nhau, nên một dòng thiếu là tiền dịch mà sổ
+        không biết — hoặc sổ ghi mà tiền không dịch. Cả hai đều im lặng, và
+        cả hai đều làm `laiLoDaThucHienUsd` với sổ cái nói hai chuyện khác
+        nhau mà không ai đối chiếu.
+
+        Ràng buộc ấy nay là CẤU TRÚC chứ không phải phép canh: muốn dịch
+        tiền thì phải đi qua đây, và đi qua đây thì sổ cái luôn có dòng.
+        `scripts/selftest.py` canh bằng AST rằng `ghi_dong_tien()` chỉ có
+        ĐÚNG MỘT chỗ gọi trong cả `thi_bac_ty/`.
+
+        `soTienUsd` dương là tiền VÀO, âm là tiền RA — cùng quy ước với
+        `DanhMuc.ghi_dong_tien()`, và bút toán mang đúng dấu ấy để sổ cộng
+        lại ra đúng dòng tiền ròng.
+        """
+        if not soTienUsd:
+            return
+        self.danh_muc.ghi_dong_tien(soTienUsd)
+        self.tienDaGhiUsd += soTienUsd
+        self.so_cai.ghi(ButToan(loai, lyDo, soTienUsd, chienLuoc, ma,
+                                dict(chiTiet or {})))
+
+    def lech_tien(self) -> dict:
+        """Sổ tiền của Trung Ương có khớp Danh Mục không.
+
+        Hai con số phải bằng nhau tuyệt đối: `tienDaGhiUsd` là tổng mọi
+        đồng ĐI QUA `_ghi_tien`, còn `laiLoDaThucHienUsd` là tổng Danh Mục
+        đã cộng. Lệch nghĩa là có đường thứ hai dịch tiền — và đường thứ
+        hai ấy không ghi sổ.
+
+        `dong()` cũng cộng vào `laiLoDaThucHienUsd`, nhưng Trung Ương luôn
+        truyền `0.0` cho nó: mọi dòng tiền đã được ghi lúc phát sinh, cộng
+        lại lần nữa lúc đóng là đếm hai lần.
+        """
+        a = float(self.tienDaGhiUsd)
+        b = float(self.danh_muc.laiLoDaThucHienUsd)
+        return {"tienDaGhiUsd": a, "laiLoDanhMucUsd": b, "lechUsd": b - a,
+                "khop": abs(b - a) < 1e-9,
+                "vi": ("sổ tiền Trung Ương khớp Danh Mục"
+                       if abs(b - a) < 1e-9 else
+                       f"LỆCH {b - a:+.10f} USD — có đường dịch tiền KHÔNG "
+                       f"đi qua `_ghi_tien`, nên sổ cái thiếu mất nó")}
+
     # ── kế toán vị thế đang mở ────────────────────────────────────────────
     def _ke_toan_vi_the(self) -> LatCatKeToan:
         """Mỗi vòng: hỏi ty "vị thế này thu/mất bao nhiêu", rồi đóng cái
@@ -474,22 +525,22 @@ class TrungUong:
                     thu = float(getattr(kq, "thuUsd", 0.0) or 0.0)
                     phi = float(getattr(kq, "phiUsd", 0.0) or 0.0)
                     if thu:
-                        self.danh_muc.ghi_dong_tien(thu)
                         so.thuCongDonUsd += thu
                         l.thuUsd += thu
-                        self.so_cai.ghi(ButToan(
-                            "FUNDING", (getattr(kq, "vi", "") or
-                                        f"thu theo thời gian · {so.chienLuoc}"),
-                            thu, so.chienLuoc, ma,
-                            {"tuGiay": so.keToanLucGiay, "denGiay": now}))
+                        self._ghi_tien(
+                            thu, "FUNDING",
+                            (getattr(kq, "vi", "") or
+                             f"thu theo thời gian · {so.chienLuoc}"),
+                            so.chienLuoc, ma,
+                            {"tuGiay": so.keToanLucGiay, "denGiay": now})
                     if phi:
-                        self.danh_muc.ghi_dong_tien(-phi)
                         so.phiCongDonUsd += phi
                         l.phiUsd += phi
-                        self.so_cai.ghi(ButToan(
-                            "PHI", (getattr(kq, "vi", "") or
-                                    f"phí trong kỳ · {so.chienLuoc}"),
-                            -phi, so.chienLuoc, ma, {}))
+                        self._ghi_tien(
+                            -phi, "PHI",
+                            (getattr(kq, "vi", "") or
+                             f"phí trong kỳ · {so.chienLuoc}"),
+                            so.chienLuoc, ma)
 
             # ── đóng: hết hạn giữ, hoặc ty đòi đóng ──────────────────────
             lyDo = ""
@@ -534,12 +585,12 @@ class TrungUong:
         so = self.soViThe[tt.ma]
         phi = phi_vao_usd(d, vonUsd)
         if phi > 0:
-            self.danh_muc.ghi_dong_tien(-phi)
             so.phiCongDonUsd += phi
-            self.so_cai.ghi(ButToan(
-                "PHI", f"phí vào lệnh · {d.get('phiUocBps')} bps trên "
-                       f"{vonUsd:.2f} USD", -phi, tt.chienLuoc, tt.ma,
-                {"phiUocBps": d.get("phiUocBps"), "vonUsd": vonUsd}))
+            self._ghi_tien(
+                -phi, "PHI",
+                f"phí vào lệnh · {d.get('phiUocBps')} bps trên "
+                f"{vonUsd:.2f} USD", tt.chienLuoc, tt.ma,
+                {"phiUocBps": d.get("phiUocBps"), "vonUsd": vonUsd})
         elif phi_vao_thieu(d):
             # Tờ trình không khai phí thì vị thế vào sổ mà không mất đồng
             # nào — trông có lãi hơn sự thật. Ghi ra để đếm được.
@@ -797,6 +848,7 @@ class TrungUong:
             "doiSoatViThe": self.doiSoatViThe.tom_tat(),
             "doiSoatKhoiDong": self.doiSoatKhoiDong.tom_tat(),
             "keToan": self.latCatKeToan.tom_tat(),
+            "lechTien": self.lech_tien(),
             "soViThe": [v.tom_tat(_gio_he()) for v in
                         list(self.soViThe.values())[:40]],
             "thucThi": self.thuc_thi.tom_tat(),

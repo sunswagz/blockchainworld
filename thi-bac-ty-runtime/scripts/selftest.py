@@ -5170,6 +5170,44 @@ def kiem_ke_toan_vi_the() -> None:
          abs(tu.danh_muc.laiLoDaThucHienUsd) > 1e-9,
          str(tu.danh_muc.laiLoDaThucHienUsd))
 
+    # ── 15. TIỀN chỉ có MỘT CỬA, và sổ phải khớp danh mục ───────────────
+    import ast as _ast15
+    import pathlib as _pl15
+
+    _goi = []
+    _goc15 = _pl15.Path(__file__).resolve().parent.parent
+    for _p in (_goc15 / "thi_bac_ty").glob("*.py"):
+        if _p.name == "danh_muc.py":
+            continue          # nơi ĐỊNH NGHĨA, không phải nơi gọi
+        for _x in _ast15.walk(_ast15.parse(_p.read_text(encoding="utf-8"))):
+            if (isinstance(_x, _ast15.Call)
+                    and isinstance(_x.func, _ast15.Attribute)
+                    and _x.func.attr == "ghi_dong_tien"):
+                _goi.append(f"{_p.name}:{_x.lineno}")
+    kiem("dịch tiền mặt chỉ có ĐÚNG MỘT chỗ gọi trong cả Trung Ương",
+         len(_goi) == 1, f"{_goi} — hai chỗ gọi là hai chỗ có thể quên ghi "
+         f"sổ cái. Ràng buộc «tiền dịch thì sổ phải có dòng» là CẤU TRÚC: "
+         f"mọi đồng đi qua `_ghi_tien`, và hàm ấy làm cả hai việc")
+
+    # ── và sổ tiền phải khớp Danh Mục sau một vòng đời đầy đủ ───────────
+    lt = tu.lech_tien()
+    kiem("sổ tiền Trung Ương KHỚP Danh Mục sau khi mở, cộng dồn, đóng",
+         lt["khop"], f"{lt} — lệch nghĩa là có đường thứ hai dịch tiền, và "
+         f"đường ấy không ghi sổ")
+    kiem("và con số đối chiếu ấy được PHƠI RA cho buồng lái",
+         "lechTien" in tu.anh_chup(),
+         "một bất biến không ai nhìn được là một bất biến không ai tin")
+
+    # cấy tay một đồng KHÔNG qua cửa: phép đối chiếu phải bắt được
+    tu.danh_muc.ghi_dong_tien(0.01)
+    kiem("một đồng dịch NGOÀI cửa thì đối chiếu ĐỎ ngay",
+         not tu.lech_tien()["khop"]
+         and abs(tu.lech_tien()["lechUsd"] - 0.01) < 1e-9,
+         str(tu.lech_tien()))
+    tu.danh_muc.ghi_dong_tien(-0.01)          # trả lại cho sạch
+    kiem("trả lại thì khớp lại", tu.lech_tien()["khop"])
+
+
     # ── 9. KẾ TOÁN THẬT của ty tín dụng, không phải ty giả ──────────────
     # Bảy phép trên kiểm CỖ MÁY kế toán; bảy phép dưới kiểm CÁCH TÍNH của
     # bản cài đặt thật. Thiếu nhóm dưới thì hai lỗi cấy đi lọt: cộng cả

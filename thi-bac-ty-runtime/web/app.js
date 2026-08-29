@@ -191,6 +191,14 @@
         lam: "Ty này không nộp được tờ trình nào trong vòng vừa rồi."
       });
     });
+    var lt = t.lechTien || {};
+    if (lt.khop === false) ra.push({
+      nang: true,
+      ten: "Sổ tiền LỆCH danh mục · " + tien(lt.lechUsd, 6),
+      mo: lt.vi || "",
+      lam: "Có đường dịch tiền KHÔNG đi qua `_ghi_tien`, nên sổ cái thiếu "
+           + "mất nó. Mọi con số lãi lỗ đọc từ sổ đang sai đúng khoản ấy."
+    });
     var kt3 = t.keToan || {};
     if (kt3.soKhongCoKeToan) ra.push({
       nang: false,
