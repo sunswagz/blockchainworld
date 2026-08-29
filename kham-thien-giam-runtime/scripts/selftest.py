@@ -5046,6 +5046,88 @@ def kiem_trang_kham_biet_keu() -> None:
         encoding="utf-8")
     kiem("và công cụ kia CÓ in dòng ấy ra", "KETLUAN khop=" in dc)
 
+def kiem_loi_ra_mang() -> None:
+    """Lối ra mạng phải thông ở CẢ BỐN chỗ gọi — không chỗ nào đi đường thẳng.
+
+    Cả ba host Polymarket đang bị đóng ở tầng TLS từ máy này, và cách gỡ
+    duy nhất nằm ngoài mã: người vận hành cấp một lối ra. Nên đây là một
+    tính năng chưa bao giờ chạy thật, và nếu nó hỏng thì hôm cắm lối ra
+    vào sẽ KHÔNG CÓ GÌ BÁO — chỉ tiếp tục thất bại y như cũ.
+
+    Bốn chỗ phải cùng đi một lối: client HTTP, dòng sống Polymarket, dòng
+    nền Binance, và bảng sức khoẻ nguồn (để người ta NHÌN THẤY đang đi lối
+    nào). Sót một chỗ là được "một cỗ máy nửa thấy nửa mù mà không có gì
+    báo" — đúng câu ghi trong `dong_song.py`.
+    """
+    print("\n── Lối ra mạng phải thông ở cả bốn chỗ ─────────────────────")
+
+    import os
+
+    from kham.config import CONFIG
+    from kham.nguon import nguon
+
+    cuCfg = (CONFIG.get("nguon") or {}).get("proxy")
+    cuEnv = os.environ.get("HTTPS_PROXY")
+    cuEnv2 = os.environ.get("https_proxy")
+    try:
+        CONFIG.setdefault("nguon", {})["proxy"] = ""
+        os.environ.pop("HTTPS_PROXY", None)
+        os.environ.pop("https_proxy", None)
+        kiem("không khai gì ⇒ đường thẳng", nguon.proxy is None, nguon.proxy)
+
+        os.environ["HTTPS_PROXY"] = "http://tu-moi-truong:8080"
+        kiem("đọc được từ biến môi trường",
+             nguon.proxy == "http://tu-moi-truong:8080", nguon.proxy)
+
+        os.environ.pop("HTTPS_PROXY", None)
+        os.environ["https_proxy"] = "http://chu-thuong:8080"
+        kiem("chấp nhận cả tên biến chữ thường",
+             nguon.proxy == "http://chu-thuong:8080", nguon.proxy)
+
+        CONFIG["nguon"]["proxy"] = "http://tu-config:3128"
+        kiem("config ĐÈ được biến môi trường",
+             nguon.proxy == "http://tu-config:3128", nguon.proxy)
+
+        CONFIG["nguon"]["proxy"] = "   "
+        kiem("khai toàn khoảng trắng ⇒ coi như không khai",
+             nguon.proxy == "http://chu-thuong:8080", nguon.proxy)
+
+        # Đọc CONFIG mỗi lần gọi, không chốt lúc nạp module.
+        CONFIG["nguon"]["proxy"] = "http://doi-giua-chung:9999"
+        kiem("đọc CONFIG lúc GỌI, không chốt lúc nạp",
+             nguon.proxy == "http://doi-giua-chung:9999", nguon.proxy)
+    finally:
+        if cuCfg is None:
+            (CONFIG.get("nguon") or {}).pop("proxy", None)
+        else:
+            CONFIG["nguon"]["proxy"] = cuCfg
+        for k, v in (("HTTPS_PROXY", cuEnv), ("https_proxy", cuEnv2)):
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+    # Bốn chỗ gọi phải CÙNG đọc `nguon.proxy`.
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    def khong_chu_thich(vb: str) -> str:
+        return chr(10).join(x.split("#", 1)[0] for x in vb.splitlines())
+
+    ng = khong_chu_thich((GOC_MA / "kham" / "nguon.py")
+                         .read_text(encoding="utf-8"))
+    kiem("client HTTP truyền lối ra vào httpx",
+         'kw["proxy"] = self.proxy' in ng)
+
+    for ten in ("dong_song.py", "dong_song_nen.py"):
+        t = khong_chu_thich((GOC_MA / "kham" / ten).read_text(encoding="utf-8"))
+        kiem(f"{ten} lấy lối ra từ `nguon.proxy`", "_ng.proxy" in t)
+        kiem(f"{ten} TRUYỀN nó vào `connect`",
+             '"proxy": _proxy' in t,
+             "websockets KHÔNG tự đọc HTTPS_PROXY như httpx")
+
+    kiem("bảng sức khoẻ nguồn KHAI lối đang dùng",
+         "duongRa" in ng or "coProxy" in ng)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -5134,6 +5216,7 @@ def main() -> int:
     kiem_tien_hoa_mot_luot_moi_ngay()
     kiem_quyet_dinh_cua_nguoi_song_sot()
     kiem_trang_kham_biet_keu()
+    kiem_loi_ra_mang()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
