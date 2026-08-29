@@ -966,6 +966,61 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_ghi_config_tai_cho() -> None:
+    """`ghi_config` sửa ĐÚNG MỘT SỐ, không viết lại cả file.
+
+    Bản đầu nạp JSON rồi `json.dumps(indent=2)` đè lại: giữ được khoá chú
+    thích nhưng mất sạch bố cục xếp tay — dòng trống ngăn nhóm, bốn
+    market viết gọn hai dòng mỗi cái. Một lượt vặn đổi đúng một con số mà
+    `git diff` ra 55 thêm / 32 xoá.
+
+    Và đây là việc chạy MỖI NGÀY. Config bị xáo lại hằng ngày thì
+    `git log` của nó hết đọc được — mà đó chính là biên niên sử của vòng
+    tiến hoá.
+    """
+    print("\n-- ghi_config sua DUNG MOT SO ---------------------------")
+
+    import json as _json
+    import shutil as _sh
+    import tempfile as _tf
+    from pathlib import Path as _P
+
+    import kham.tien_hoa as _TH
+
+    goc = _P(__file__).resolve().parent.parent / "config.json"
+    with _tf.TemporaryDirectory() as t:
+        d = _P(t)
+        _sh.copy2(goc, d / "config.json")
+        truoc = (d / "config.json").read_text(encoding="utf-8")
+        cuRoot = _TH.ROOT
+        _TH.ROOT = d
+        try:
+            cu = _json.loads(truoc)["dinhGia"]["bienDongCuaSoGiay"]
+            moi = 60 if cu != 60 else 120
+            kiem("ghi được", _TH.ghi_config("dinhGia.bienDongCuaSoGiay", moi))
+            sau = (d / "config.json").read_text(encoding="utf-8")
+            kiem("giá trị đã đổi thật",
+                 _json.loads(sau)["dinhGia"]["bienDongCuaSoGiay"] == moi)
+
+            a = truoc.splitlines()
+            b = sau.splitlines()
+            kiem("số dòng KHÔNG đổi", len(a) == len(b), f"{len(a)} → {len(b)}")
+            khac = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
+            kiem("đúng MỘT dòng đổi", len(khac) == 1,
+                 f"{len(khac)} dòng đổi — viết lại cả file là xoá bố cục")
+            if khac:
+                kiem("dòng đổi đúng là dòng của khoá ấy",
+                     "bienDongCuaSoGiay" in a[khac[0]], a[khac[0]].strip())
+
+            # Khoá không tồn tại thì phải TỪ CHỐI, không được ghi bừa.
+            kiem("khoá lạ thì từ chối",
+                 not _TH.ghi_config("dinhGia.khongCoKhoaNay", 1))
+            kiem("và file không bị đụng",
+                 (d / "config.json").read_text(encoding="utf-8") == sau)
+        finally:
+            _TH.ROOT = cuRoot
+
+
 def kiem_chan_mo_hinh_khong_can_lenh() -> None:
     """Bệnh của MÔ HÌNH phải chẩn được khi CHƯA có lệnh nào kết toán.
 
@@ -2519,6 +2574,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_ghi_config_tai_cho()
     kiem_chan_mo_hinh_khong_can_lenh()
     kiem_hoc_khong_nhin_trom()
     kiem_duong_quyet_dinh()

@@ -394,25 +394,85 @@ def _dat_tham_so(duong: str, gt) -> float | None:
 def ghi_config(duong: str, gt: float) -> bool:
     """Ghi tham số mới xuống `config.json`. Đây là bước duy nhất ĐỔI THẬT.
 
-    Giữ nguyên mọi khoá chú thích `//...` — chúng là tài liệu nằm trong
-    chính file cấu hình, và mất chúng là mất lý do vì sao mỗi con số ở đó.
+    ## Sửa TẠI CHỖ, không viết lại cả file
+
+    Bản đầu nạp JSON, đổi một khoá, rồi `json.dumps(..., indent=2)` đè
+    lại. Nó giữ được mọi khoá chú thích `//...` — nhưng mất sạch bố cục
+    người ta xếp tay: dòng trống ngăn nhóm, và bốn market viết gọn mỗi
+    cái hai dòng. Một lượt vặn đổi đúng một con số mà `git diff` ra 55
+    thêm / 32 xoá.
+
+    Và đây là việc chạy MỖI NGÀY. File cấu hình bị xáo lại hằng ngày thì
+    không ai còn đọc được `git log` của nó, mà `git log` của config chính
+    là biên niên sử của vòng tiến hoá.
+
+    Nên: tìm đúng dòng, thay đúng con số, đụng vào không gì khác.
+
+    ## Và ĐỌC LẠI để chắc là đã đổi thật
+
+    Sửa văn bản thì có đường thất bại mà JSON không có: khớp nhầm một
+    khoá cùng tên ở nhánh khác, hoặc không khớp gì cả. Nên sau khi ghi
+    thì nạp lại và đối chiếu; không khớp thì trả file về như cũ và báo
+    hỏng, chứ không để lại một file nửa vời.
     """
     p = ROOT / "config.json"
     try:
-        d = json.loads(p.read_text(encoding="utf-8"))
+        tho = p.read_text(encoding="utf-8")
+        d = json.loads(tho)
     except (OSError, json.JSONDecodeError):
         return False
-    n = d
+
     k = duong.split(".")
+    n = d
     for x in k[:-1]:
         if x not in n or not isinstance(n[x], dict):
             return False
         n = n[x]
-    n[k[-1]] = gt
-    p.write_text(json.dumps(d, ensure_ascii=False, indent=2) + "\n",
-                 encoding="utf-8")
+    if k[-1] not in n:
+        return False
+
+    moi_tho = _thay_tai_cho(tho, k, gt)
+    if moi_tho is None:
+        return False
+    try:
+        kiem = json.loads(moi_tho)
+    except json.JSONDecodeError:
+        return False
+    doc = kiem
+    for x in k[:-1]:
+        doc = doc.get(x) or {}
+    if abs(float(doc.get(k[-1], 0)) - float(gt)) > 1e-12:
+        return False
+
+    p.write_text(moi_tho, encoding="utf-8")
     _dat_tham_so(duong, gt)
     return True
+
+
+def _thay_tai_cho(tho: str, k: list[str], gt) -> str | None:
+    """Thay giá trị của khoá `k` trong văn bản JSON, giữ nguyên phần còn lại.
+
+    Đi theo ĐƯỜNG chứ không tìm tên khoá khắp file: `netEdgeToiThieu` có
+    thể xuất hiện ở nhiều nhánh, và thay nhầm nhánh là đổi một tham số
+    không ai yêu cầu.
+    """
+    import re
+
+    vi = 0
+    for cha in k[:-1]:
+        m = re.compile(r'"' + re.escape(cha) + r'"\s*:\s*\{').search(tho, vi)
+        if m is None:
+            return None
+        vi = m.end()
+
+    m = re.compile(r'("' + re.escape(k[-1]) + r'"\s*:\s*)(-?[0-9.eE+]+)'
+                   ).search(tho, vi)
+    if m is None:
+        return None
+    so = repr(gt)
+    if isinstance(gt, float) and gt.is_integer():
+        so = str(int(gt))
+    return tho[:m.start()] + m.group(1) + so + tho[m.end():]
 
 
 # ══════════════════════════════════════════════════════════════════════════

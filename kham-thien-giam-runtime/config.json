@@ -34,7 +34,7 @@
 
   "//dinhGia": "Mô hình fair value. bienDongCuaSo = số giây lấy mẫu để ước lượng σ. sanNenGiay = τ không bao giờ nhỏ hơn ngần này giây — chống chia cho 0 lúc sắp hết hạn.",
   "dinhGia": {
-    "bienDongCuaSoGiay": 300,
+    "bienDongCuaSoGiay": 900,
     "sanNenGiay": 3.0,
     "batDinhToiThieu": 0.015,
     "matPhangCanKetQua": 0.02,
