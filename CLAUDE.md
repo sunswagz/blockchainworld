@@ -653,6 +653,20 @@ cặp cho khoảng tin hẹp hơn 2,18 lần, và nó ĐÃ làm sai một kết 
 ghi vào tài liệu. Mọi phép thử ở đây gọi
 `kham/hoc_offline.khoang_tin_theo_khoi()`.
 
+**Luật thứ ba: BIÊN TÍNH TRÊN ĐỘ LỚN, đừng nhân thẳng vào một số CÓ
+DẤU.** `B < A * 1,1` đọc như "ứng viên phải hơn đương nhiệm 10%", và nó
+đúng — chừng nào A dương. Khi A âm nó LẬT: A = −10 ⇒ ngưỡng −11 ⇒ ứng
+viên −10,5 (TỆ HƠN) lọt qua. Biên "phải hơn 10%" thành "được phép kém
+tới 10%", và nó lật đúng vào lúc cần cổng nhất — khi cỗ máy đang lỗ.
+
+Viết `A + |A|·(bien − 1)`, và dùng `<=` để mép cũng đóng. Đã cắn ở HAI
+chỗ cùng khuôn (`tien_hoa.thu_mot_de_xuat`, `vo_dich` cửa 3), cả hai đều
+nằm im vì kỳ vọng hiện tại đang dương — chúng chờ đúng ngày xấu.
+
+Nhân thẳng CHỈ đúng khi đại lượng có dấu cố định và ta muốn nới theo
+chiều ấy: `duoi5pct` (phân vị 5%, gần như luôn âm) nhân 1,15 chính là
+"cho phép đuôi xấu thêm 15%". Kiểm dấu trước, đừng chép công thức.
+
 **Luật của mọi phép thử ở đây: BA TẬP tách theo THỜI GIAN.** HỌC khớp
 nắn · CHỌN xếp hạng ứng viên · CHỐT chỉ GẬT hay LẮC, không bao giờ dùng
 để xếp hạng. Lặp N vòng trên một tập kiểm thì tập ấy thôi còn là ngoài
