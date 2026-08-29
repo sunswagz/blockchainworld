@@ -603,8 +603,20 @@ khi băng dày thêm.
 
 Danh sách này chỉ gồm những điều **đã kiểm được bằng chứng**, không gồm
 phỏng đoán. Ba cổng là `che:"that"` + `toiXacNhanDaDocRuiRo` +
-`POLYMARKET_PRIVATE_KEY`; cả ba đang đóng, và `sdk_polymarket.dat_lenh`
-còn dừng ở `NotImplementedError`.
+`POLYMARKET_PRIVATE_KEY`; cả ba đang đóng.
+
+Nhưng đo thật thì có **BỐN lớp**, không phải ba — và biết đủ bốn thì mới
+biết mở cổng nghĩa là gì:
+
+    1. `CongLenh.dat` đọc `che_hieu_luc()`; thiếu cổng ⇒ đi đường GIẤY
+    2. `AdapterPolymarket` TỰ kiểm cổng lần nữa, ném `RuntimeError` kể
+       tên từng cửa đang đóng — gọi thẳng adapter vẫn không lọt
+    3. gói `polymarket-client` chưa cài ⇒ `RuntimeError` khác
+    4. `NotImplementedError` trong chính `dat_lenh`
+
+Mở hết ba cổng trong bộ nhớ (kể cả cắm khoá ví giả vào môi trường):
+`che_hieu_luc()` thành `that`, không cửa nào còn đóng — và lệnh VẪN không
+đặt được, chặn ở lớp 3. `kiem_lenh_that_khong_thoat_duoc` canh cả bốn.
 
 **1. Vị thế KHÔNG sống qua khởi động lại — và đây là món nặng nhất.**
 `Kho` và `KetToan.cho` chỉ nằm trong bộ nhớ. `VoDich`, `HieuChinh`,
