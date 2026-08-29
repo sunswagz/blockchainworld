@@ -4347,6 +4347,54 @@ def kiem_nut_o_mep_phai_lo_ra() -> None:
     kiem("kèm câu nói rõ mép đang quyết định",
          "mép đang quyết định" in js)
 
+def kiem_so_ket_qua_khai_nguon() -> None:
+    """Sổ kết quả phải khai NGUỒN, không chỉ số lượng.
+
+    Đo trên máy: 4.503 khung, **100% nguồn `tu-tinh`** — không một dòng
+    nào do sàn xác nhận. Nghĩa là toàn bộ điểm Brier, toàn bộ điểm kỹ
+    năng, cả vòng tiến hoá đều đứng trên một sự thật do CHÍNH MÌNH tính
+    ra.
+
+    Với market lên/xuống thì phép tính ấy đơn giản và gần như chắc đúng
+    (so giá Binance ở hai mốc). Nhưng "gần như chắc đúng" không phải "đã
+    đối chiếu", và `can_ket_qua` liệt kê "sai nguồn giá resolution" là
+    một trong những rủi ro vận hành mà không mô hình nào bắt được.
+
+    Buồng lái khai "4.503 khung (2.303 UP / 2.200 DOWN)" mà không nói
+    dòng nào được sàn xác nhận — con số nền của cả hệ, thiếu đúng phần
+    đáng ngờ nhất.
+    """
+    print("\n── Sổ kết quả phải khai NGUỒN của sự thật ───────────────────")
+
+    import tempfile
+
+    from kham.ket_qua import SoKetQua
+
+    with tempfile.TemporaryDirectory() as d:
+        so = SoKetQua(duong=Path(d) / "kq.jsonl")
+        so.them("a-1", True, nguon="tu-tinh")
+        so.them("a-2", False, nguon="tu-tinh")
+        so.them("a-3", True, nguon="san")
+        t = so.tom_tat()
+        kiem("đếm đủ số khung", t["soSlug"] == 3, t)
+        kiem("tách được số do SÀN xác nhận", t["soTheoSan"] == 1, t)
+        kiem("và số tự tính", t["soTuTinh"] == 2, t)
+        kiem("hai phần cộng lại bằng tổng",
+             t["soTheoSan"] + t["soTuTinh"] == t["soSlug"])
+
+        # Bất đồng vẫn phải được giữ — hai nguồn nói ngược nhau là TIN.
+        so.them("a-3", False, nguon="tu-tinh")
+        kiem("hai nguồn nói ngược thì đánh dấu BẤT ĐỒNG",
+             so.tom_tat()["soBatDong"] == 1, so.tom_tat())
+        kiem("và GIỮ kết quả cũ, không ghi đè im lặng",
+             so.lay("a-3") is True)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("buồng lái vẽ nguồn ra", "kq.soTheoSan" in js)
+    kiem("và kêu to khi CHƯA dòng nào được sàn xác nhận",
+         "CHƯA MỘT DÒNG NÀO" in js)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4423,6 +4471,7 @@ def main() -> int:
     kiem_don_bang_qua_han()
     kiem_canh_bao_duoi_di_theo_du_lieu()
     kiem_nut_o_mep_phai_lo_ra()
+    kiem_so_ket_qua_khai_nguon()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

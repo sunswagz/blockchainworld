@@ -656,7 +656,18 @@ chính chú thích của nó nói là không nên làm. Phơi nhiễm vẫn bị
 KÍCH THƯỚC bởi `capChuaKhopToiDaUsd`, chỉ là không được định giá. Chọn
 thứ nguyên đúng (phạt nên tính bằng đơn vị XÁC SUẤT) trước khi mở cổng.
 
-**6. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
+**6. Sự thật nền chưa bao giờ được sàn xác nhận.** Sổ kết quả có 4.503
+khung, **100% nguồn `tu-tinh`** — tự tính bằng cách so giá Binance ở hai
+mốc. Không một dòng nào do sàn xác nhận. Toàn bộ điểm Brier, điểm kỹ
+năng, và cả vòng tiến hoá đứng trên sự thật do chính mình tính ra.
+
+Với market lên/xuống thì phép tính ấy đơn giản và gần như chắc đúng.
+Nhưng `can_ket_qua` liệt kê "sai nguồn giá resolution" là một rủi ro vận
+hành mà không mô hình nào bắt được, và cách duy nhất biết là ĐỐI CHIẾU.
+Đường tới chợ thông trở lại thì việc đầu tiên là lấy kết quả `san` cho
+vài chục khung và so với `tu-tinh`.
+
+**7. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
 6 cửa sổ, +$23,59, **khoảng tin 95% [−$132,46, +$169,04] — chứa 0**. Con
 số dương ấy chưa nói được gì. Cần nhiều cửa sổ hơn, và cửa sổ chỉ dày
 thêm khi đường tới Polymarket thông.

@@ -1156,6 +1156,19 @@
         "điểm — băng ghi khung hình lúc nó đang diễn ra nên không thể tự " +
         "chứa kết quả, và trước khi có sổ này thì cỗ máy chạy lại chưa " +
         "từng chấm được một khung nào."));
+      // NGUỒN của sự thật, không chỉ số lượng. 100% `tu-tinh` nghĩa là
+      // mọi điểm Brier, mọi điểm kỹ năng, cả vòng tiến hoá đều đứng trên
+      // một sự thật do chính mình tính ra — chưa dòng nào sàn xác nhận.
+      if (kq.soTheoSan != null) {
+        var het = kq.soTheoSan === 0;
+        o._than.appendChild(el("div", het ? "canh" : "ghi",
+          "Nguồn: " + kq.soTheoSan + " do SÀN xác nhận · " +
+          (kq.soTuTinh || 0) + " tự tính từ giá Binance." +
+          (het ? " CHƯA MỘT DÒNG NÀO được sàn xác nhận — mọi điểm chấm "
+               + "đứng trên sự thật do chính mình tính ra. Phép tính ấy đơn "
+               + "giản và gần như chắc đúng, nhưng 'gần như chắc đúng' "
+               + "không phải 'đã đối chiếu'." : "")));
+      }
     }
     if (kt.soBatDong) {
       var w = el("p", "ghi xuong");

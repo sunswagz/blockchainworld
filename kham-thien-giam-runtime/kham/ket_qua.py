@@ -124,10 +124,27 @@ class SoKetQua:
         return None if d is None else bool(d.get("upThang"))
 
     def tom_tat(self) -> dict:
+        """Sổ kết quả tóm tắt — kèm NGUỒN, vì nguồn mới là chỗ đáng ngờ.
+
+        Bản trước chỉ khai số khung và tỉ lệ UP/DOWN. Đo được trên máy:
+        4.523 khung, **100% nguồn `tu-tinh`**, không một dòng nào do sàn
+        xác nhận.
+
+        Nghĩa là toàn bộ điểm Brier, toàn bộ điểm kỹ năng, cả vòng tiến
+        hoá — mọi thứ đứng trên một sự thật do CHÍNH MÌNH tính ra. Với
+        market lên/xuống thì phép tính ấy đơn giản và gần như chắc đúng
+        (so giá Binance ở hai mốc), nhưng "gần như chắc đúng" không phải
+        "đã đối chiếu". `can_ket_qua` liệt kê "sai nguồn giá resolution"
+        là một trong những rủi ro vận hành không mô hình nào bắt được.
+
+        Con số ấy phải nằm cạnh con số tổng, không nằm trong đầu ai.
+        """
         bd = sum(1 for d in self.o.values() if d.get("batDong"))
         up = sum(1 for d in self.o.values() if d.get("upThang"))
+        san = sum(1 for d in self.o.values() if d.get("nguon") == "san")
         return {"soSlug": len(self.o), "soUp": up,
-                "soDown": len(self.o) - up, "soBatDong": bd}
+                "soDown": len(self.o) - up, "soBatDong": bd,
+                "soTheoSan": san, "soTuTinh": len(self.o) - san}
 
 
 so_ket_qua = SoKetQua()
