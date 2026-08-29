@@ -3260,6 +3260,91 @@ def kiem_cong_duyet() -> None:
          not xet_duyet(dx, do("a-tot-hon")).duDieuKien)
     pq = xet_duyet(dx, do("b-tot-hon-NHUNG-dam-hon"))
     kiem("tốt hơn nhờ ÔM RỦI RO ĐẬM HƠN → không duyệt", not pq.duDieuKien)
+
+    # ── BIÊN, và đây là chỗ quét đột biến chỉ ra đang trống ─────────────
+    #
+    # Cổng này gác MỌI thay đổi tham số rủi ro của cỗ máy. Quét đột biến
+    # tự động trên `cong_duyet.py` cho 5/10 con SỐNG SÓT, và bốn trong số
+    # đó nằm đúng ở biên: `<=` đổi thành `<`, `>` thành `>=`, `or` thành
+    # `and`. Nghĩa là hôm nay không phép kiểm nào phân biệt được «đúng
+    # bằng trần» với «vượt trần» — mà cả cổng này chỉ sống bằng chỗ đó.
+    _nut = "ruiRoTong.tranMotCang"
+    _kh = NUT_TRUNG_UONG[_nut]
+
+    # Bước ĐÚNG BẰNG trần thì QUA; hơn một hạt thì không.
+    _tu = 0.40
+    _tran = abs(_tu) * BUOC_TOI_DA
+    kiem("bước ĐÚNG BẰNG trần thì vẫn qua",
+         xet_duyet(DeXuatHe(_nut, _tu, _tu + _tran, "x"),
+                   do("b-tot-hon")).duDieuKien,
+         f"trần {_tran:g} — «vượt trần» phải nghĩa là HƠN trần, không phải "
+         f"bằng trần")
+    kiem("nhích thêm một hạt thì KHÔNG qua",
+         not xet_duyet(DeXuatHe(_nut, _tu, _tu + _tran * 1.02, "x"),
+                       do("b-tot-hon")).duDieuKien,
+         "không có phép kiểm này thì `>` và `>=` là một")
+
+    # Giá trị ĐÚNG BẰNG hai đầu khuôn thì trong khuôn, không phải ngoài.
+    _min, _max = _kh["min"], _kh["max"]
+    _tuMin = _min / (1.0 - BUOC_TOI_DA)          # để bước vừa đủ tới min
+    kiem("giá trị ĐÚNG BẰNG min vẫn nằm TRONG khuôn",
+         not any("ra ngoài khuôn" in x for x in
+                 xet_duyet(DeXuatHe(_nut, _tuMin, _min, "x"),
+                           do("b-tot-hon")).lyDo),
+         f"min={_min:g} — khuôn ĐÓNG hai đầu; đổi `<=` thành `<` thì chính "
+         f"cái biên hợp lệ bị gọi là vi phạm")
+    _tuMax = _max / (1.0 + BUOC_TOI_DA)
+    kiem("và ĐÚNG BẰNG max cũng thế",
+         not any("ra ngoài khuôn" in x for x in
+                 xet_duyet(DeXuatHe(_nut, _tuMax, _max, "x"),
+                           do("b-tot-hon")).lyDo),
+         f"max={_max:g}")
+    kiem("nhích ra ngoài max thì bị bắt",
+         any("ra ngoài khuôn" in x for x in
+             xet_duyet(DeXuatHe(_nut, _max, _max * 1.02, "x"),
+                       do("b-tot-hon")).lyDo),
+         "không thì phép kiểm trên chỉ chứng minh hàm luôn im lặng")
+
+    # THIẾU MỘT VẾ cũng là thiếu — `or`, không phải `and`.
+    for _tu2, _den2, _ten in ((None, 0.40, "thiếu giá trị CŨ"),
+                              (0.40, None, "thiếu giá trị MỚI"),
+                              (None, None, "thiếu CẢ HAI")):
+        kiem(f"{_ten} → không duyệt",
+             any("thiếu giá trị" in x for x in
+                 xet_duyet(DeXuatHe(_nut, _tu2, _den2, "x"),
+                           do("b-tot-hon")).lyDo),
+             f"tu={_tu2} den={_den2} — `and` ở đây nghĩa là chỉ chặn khi "
+             f"THIẾU CẢ HAI, và một đề xuất nửa vời sẽ đi tiếp rồi nổ ở "
+             f"phép trừ dưới")
+
+    # Trần bước tính từ |giá trị hiện tại|; hiện tại BẰNG 0 thì trần ấy
+    # bằng 0, và lúc đó phải rơi về khuôn — không thì núm nào đang ở 0 sẽ
+    # đứng yên vĩnh viễn, đúng cái bẫy `SAN_BUOC_KHUON` đã sửa ở tầng đề
+    # xuất.
+    _nutBps = "ruiRoTong.netMoiGioToiThieuBps"
+    _khB = NUT_TRUNG_UONG[_nutBps]
+    _tranKhuon = (_khB["max"] - _khB["min"]) * BUOC_TOI_DA
+    kiem("giá trị hiện tại BẰNG 0 thì trần bước rơi về khuôn, không kẹt 0",
+         xet_duyet(DeXuatHe(_nutBps, 0.0, _tranKhuon, "x"),
+                   do("b-tot-hon")).duDieuKien,
+         f"trần theo khuôn {_tranKhuon:g} — `tran <= 0` mà đổi thành "
+         f"`tran < 0` thì trần giữ nguyên 0 và núm đang ở 0 không bao giờ "
+         f"nhúc nhích được")
+    kiem("và từ 0 mà nhảy quá trần khuôn thì vẫn bị chặn",
+         not xet_duyet(DeXuatHe(_nutBps, 0.0, _tranKhuon * 1.5, "x"),
+                       do("b-tot-hon")).duDieuKien)
+
+    # Lý do phải MANG THEO câu của chính phép đo. Nói trống «chưa đủ để
+    # kết luận» thì người đọc phải đi mở phép đo ra mới biết thiếu gì —
+    # mà cái thiếu ấy chính là thứ quyết định lượt sau làm gì.
+    _lyKhongDu = xet_duyet(dx, do("b-tot-hon", du=False,
+                                  vi="mới 3 cơ hội hậu kiểm được")).lyDo
+    kiem("«chưa đủ mẫu» dẫn nguyên câu của phép đo, không nói trống",
+         any("mới 3 cơ hội hậu kiểm được" in x for x in _lyKhongDu),
+         f"{_lyKhongDu} — «không rõ» chỉ dành cho lúc phép đo im lặng thật")
+    _lyIm = xet_duyet(dx, do("b-tot-hon", du=False, vi="")).lyDo
+    kiem("và phép đo IM LẶNG thì mới nói «không rõ»",
+         any("không rõ" in x for x in _lyIm), str(_lyIm))
     kiem("và nói thẳng đó là tự tháo phanh",
          any("tháo phanh" in l for l in pq.lyDo), str(pq.lyDo))
 
