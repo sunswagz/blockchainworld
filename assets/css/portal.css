@@ -258,3 +258,22 @@ body::after {
 }
 .install-gate[data-show="1"] { display: inline-flex; }
 .install-gate svg { width: 13px; height: 13px; }
+
+/* ── ĐƯỜNG NHẢY QUA ĐẦU TRANG ─────────────────────────────
+   WCAG 2.4.1 "Bypass Blocks". Trang này mở đầu bằng hiệu, tên cổng
+   và dòng dẫn trước khi tới lưới cung; người dùng bàn phím phải Tab
+   qua trọn khối đó mỗi lần vào trang.
+
+   Nấp bằng transform, KHÔNG bằng display:none — phần tử ẩn theo lối
+   ấy không nhận được tiêu điểm, mà nhận tiêu điểm mới là toàn bộ
+   việc của nó. Cũng không dùng top: top chạm bố cục.
+
+   Đệm 8px/14px vì cả hai ĐÃ CÓ trong file này — bản đầu tôi viết
+   8px/12px kèm câu "cả hai đã có sẵn", mà 12px thì không, nên nó
+   vừa thêm một giá trị vừa nói dối về việc đó. Vị trí left/top
+   không bị đếm vào thang khoảng cách nên giữ 12px. */
+.bo-qua{position:fixed;left:12px;top:12px;z-index:9999;padding:8px 14px;
+  border-radius:8px;background:var(--card,#161b24);color:var(--fg,#e8edf5);
+  border:1px solid var(--line,rgba(255,255,255,.22));text-decoration:none;
+  transform:translateY(-260%);transition:transform .14s ease}
+.bo-qua:focus{transform:translateY(0)}

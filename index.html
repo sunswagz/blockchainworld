@@ -25,6 +25,7 @@
 <body>
 
 <div class="shell">
+  <a class="bo-qua" href="#chinh" onclick="var m=document.getElementById('chinh');if(m){m.focus();return false}">Tới nội dung chính</a>
 
   <header class="gate">
     <div class="gate-mark" aria-hidden="true">
@@ -41,6 +42,15 @@
     <p>Cửa ngõ dẫn vào các cung. Mỗi cung là một ứng dụng độc lập — cài riêng được, chạy offline được, số liệu tự cập nhật.</p>
   </header>
 
+  <!-- Vùng nội dung chính. Trước đây trang này có BA thẻ <main>, dùng
+       làm khung lưới cho ba nhóm cung — mà <main> là mốc điều hướng
+       "nội dung chính của trang", mỗi trang chỉ được một. Trình đọc
+       màn hình thấy ba mốc ngang hàng và người dùng nhảy theo mốc
+       không biết vào cái nào. Ba cái đó nay là <section class="halls">
+       (CSS chỉ bám lớp .halls nên nhìn không đổi gì), và đây là mốc
+       main duy nhất — cũng là đích của đường nhảy qua đầu trang. -->
+  <main id="chinh" tabindex="-1">
+
   <div class="band">Các cung đã dựng <span class="n" id="hallCount"></span></div>
 
   <p class="dan">Các cung <b>không xếp ngang hàng</b>. Vị trí trên trang này theo đúng
@@ -55,7 +65,7 @@
       <em>vòng thành ngoài — vùng đô thị và bộ máy hành chính quốc gia</em>
     </div>
 
-    <main class="halls halls-don">
+    <section class="halls halls-don">
   <a class="hall" href="kinh-thanh/" style="--accent:#7C9CF5">
         <div class="hall-top">
           <span class="hall-ic" aria-hidden="true">
@@ -80,7 +90,7 @@
           <span id="ktDate"></span>
         </div>
       </a>
-    </main>
+    </section>
 
     <div class="cho">
       <span class="cho-nhan">Chỗ để trống</span>
@@ -94,7 +104,7 @@
         <em>vòng thành trong — lõi quyền lực, quanh nó là nghi lễ, hậu cần, vườn ngự</em>
       </div>
 
-      <main class="halls">
+      <section class="halls">
     <a class="hall" href="hoang-thanh/" style="--accent:#C9A227">
           <div class="hall-top">
             <span class="hall-ic" aria-hidden="true">
@@ -167,7 +177,7 @@
             <span class="pill">4 mức duyệt</span>
           </div>
         </a>
-      </main>
+      </section>
 
       <div class="cho">
         <span class="cho-nhan">Chỗ để trống</span>
@@ -185,7 +195,7 @@
         <em>trong Kinh Thành, ngoài Hoàng Thành — Lục Bộ, đô sát, chuyên môn, thư khố</em>
       </div>
 
-      <main class="halls">
+      <section class="halls">
     <a class="hall" href="cong-bo/" style="--accent:#F0B429">
           <div class="hall-top">
             <span class="hall-ic" aria-hidden="true">
@@ -382,7 +392,7 @@
             <span id="tbtDate"></span>
           </div>
         </a>
-      </main>
+      </section>
 
       <div class="cho">
         <span class="cho-nhan">Lục Bộ còn thiếu</span>
@@ -402,6 +412,8 @@
     </section>
   </section>
 
+  </main>
+
   <footer class="foot">
     <div>
       <span>SUNSWaGz</span>
@@ -409,7 +421,7 @@
       <a href="https://github.com/sunswagz/blockchainworld" target="_blank" rel="noopener">mã nguồn</a>
     </div>
     <button class="install-gate" id="installGate" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3.5v11"/><path d="m7.5 10 4.5 4.5 4.5-4.5"/><path d="M4.5 16.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2"/>
       </svg>
       <span>Cài Cổng Thành</span>
