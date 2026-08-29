@@ -624,8 +624,7 @@ class TrungUong:
                 {"laiLoUsd": laiLo, "thuUsd": so.thuCongDonUsd,
                  "phiUsd": so.phiCongDonUsd, "daGiuGio": daGiu,
                  "duDoanBpsGio": _bps_gio_du_doan(so.toTrinh),
-                 "thucBpsGio": (laiLo / abs(so.vonUsd) * 10_000.0 / daGiu
-                                if daGiu > 0 and so.vonUsd else None),
+                 "thucBpsGio": _bps_gio_thuc(laiLo, so.vonUsd, daGiu),
                  "xoayCho": True, "aprCu": x.aprCu, "aprMoi": x.aprMoi,
                  "loiRongUocUsd": x.loiRongUsd}))
             self._xoa_dau_van(so.toTrinh)
@@ -801,8 +800,7 @@ class TrungUong:
             # nói nó đóng sớm chứ không nói nó dở.
             gio = so.daGiuGio(now)
             duDoan = _bps_gio_du_doan(so.toTrinh)
-            thuc = (laiLo / abs(so.vonUsd) * 10_000.0 / gio
-                    if gio > 0 and so.vonUsd else None)
+            thuc = _bps_gio_thuc(laiLo, so.vonUsd, gio)
             self.so_cai.ghi(ButToan(
                 "DONG_VI_THE", f"đóng · {lyDo}", 0.0, so.chienLuoc, ma,
                 {"laiLoUsd": laiLo, "thuUsd": so.thuCongDonUsd,
@@ -1313,6 +1311,31 @@ class TrungUong:
                         if self.latCatXoayCho is not None
                         else self.xoay_cho().tom_tat()),
         }
+
+
+#: Giữ ngắn hơn ngần này giờ thì KHÔNG quy ra «bps mỗi giờ».
+#:
+#: Đo trên máy sống 29/08: bảng «hứa vs thực» hiện `thực −2.618 bps/giờ`
+#: cho ty cash-and-carry. Không phải nó lỗ 2.618 bps — nó mất đúng phí vào
+#: lệnh (−0,45 bps) rồi đóng sau vài giây, và phép chia cho một mẫu số gần
+#: bằng 0 phóng con số ấy lên gần sáu nghìn lần.
+#:
+#: Một tỉ suất chia cho gần-không thì không phải một tỉ suất — nó là hình
+#: chiếu của mẫu số. Mười lăm phút là chỗ đứng: đủ ngắn để không bỏ sót vị
+#: thế thật, đủ dài để mẫu số nói được điều gì.
+TOI_THIEU_GIO_DOI_CHIEU = 0.25
+
+
+def _bps_gio_thuc(laiLoUsd: float, vonUsd: float,
+                  daGiuGio: float) -> float | None:
+    """Lãi lỗ THỰC quy ra bps mỗi giờ. `None` khi giữ quá ngắn để chia.
+
+    `None` chứ không phải 0: «giữ chưa đủ lâu để nói» khác hẳn «huề vốn»,
+    và bảng đối chiếu đã biết cách bỏ qua `None` mà đếm riêng.
+    """
+    if daGiuGio < TOI_THIEU_GIO_DOI_CHIEU or not vonUsd:
+        return None
+    return laiLoUsd / abs(vonUsd) * 10_000.0 / daGiuGio
 
 
 def _bps_gio_du_doan(toTrinh: dict) -> float | None:

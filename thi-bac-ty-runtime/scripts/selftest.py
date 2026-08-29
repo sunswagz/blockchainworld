@@ -6102,6 +6102,29 @@ def kiem_ke_toan_vi_the() -> None:
          "một ty chưa đóng vị thế nào chưa nói được gì về mình, và số 0 ở "
          "đây đọc thành «hứa huề vốn»")
 
+    # ── GIỮ QUÁ NGẮN thì KHÔNG quy ra «bps mỗi giờ» ─────────────────────
+    # Đo trên máy sống: bảng hứa-vs-thực hiện «thực −2.618 bps/giờ» cho ty
+    # cash-and-carry. Nó không lỗ 2.618 bps — nó mất đúng phí vào lệnh rồi
+    # đóng sau vài giây, và phép chia cho một mẫu số gần bằng 0 phóng con
+    # số ấy lên gần sáu nghìn lần. Một tỉ suất chia cho gần-không thì không
+    # phải một tỉ suất, nó là hình chiếu của mẫu số.
+    from thi_bac_ty.trung_uong import (TOI_THIEU_GIO_DOI_CHIEU as _TG35,
+                                       _bps_gio_thuc as _bt35)
+
+    kiem("giữ quá ngắn thì trả None, không phóng đại tỉ suất",
+         _bt35(-1.14, 25_000.0, 0.001) is None,
+         "−0,456 bps chia cho 0,001 giờ ra −456 bps/giờ — một con số của "
+         "mẫu số, không phải của chiến lược")
+    kiem("đủ lâu thì tính bình thường",
+         gan(_bt35(-1.14, 25_000.0, _TG35), -1.824, 1e-3),
+         str(_bt35(-1.14, 25_000.0, _TG35)))
+    kiem("vốn 0 thì cũng None, không chia cho không",
+         _bt35(1.0, 0.0, 10.0) is None)
+    kiem("ngưỡng đủ ngắn để không bỏ sót vị thế thật",
+         0.0 < _TG35 <= 1.0,
+         f"{_TG35} giờ — quá dài thì mọi vị thế ngắn hạn biến khỏi bảng "
+         f"đối chiếu, và đó là loại vị thế đáng soi nhất")
+
     from thi_bac_ty.trung_uong import _bps_gio_du_doan as _bg35
     kiem("lời hứa quy về bps MỖI GIỜ, ưu tiên số tờ trình tự khai",
          gan(_bg35({"netMoiGioBps": 1.5}), 1.5)
@@ -7155,6 +7178,11 @@ def kiem_ke_toan_vi_the() -> None:
          f"con số hiển thị")
     _bat49 = _may49(True)
     _bat49.phan_bo.c["toiDaSoViThe"] = 1        # HẾT ghế — mới được đuổi
+    # Giữ MỘT PHÚT: nhỏ hơn ngưỡng 15 phút nhưng KHÁC 0. Để đúng `now` thì
+    # `daGiuGio` ra 0 tròn trên Windows, và phép kiểm xanh vì nhánh «chia
+    # cho 0» chứ không vì nhánh «giữ quá ngắn» — hai lý do khác nhau, và
+    # đột biến sống sót đúng ở khe ấy.
+    _bat49.soViThe["m1"].moLucGiay = time.time() - 60.0
     _l50 = _bat49._xoay_cho_neu_duoc()
     # CÒN GHẾ TRỐNG thì KHÔNG đuổi ai. Đã cắn thật ngay lượt đầu chạy với
     # vốn một triệu và trần 120 chỗ: máy cấp 6 vị thế rồi ĐÓNG 8 trong CÙNG
@@ -7175,6 +7203,16 @@ def kiem_ke_toan_vi_the() -> None:
          _l50.soDaDong == 1 and not _bat49.soViThe
          and gan(_bat49.danh_muc.tienMatUsd, 10_500.0),
          f"{_l50.tom_tat()} · tiền mặt {_bat49.danh_muc.tienMatUsd}")
+    # Vị thế vừa mở đã bị xoay đi thì «lãi mỗi giờ» không nói được gì —
+    # đường XOAY CHỖ cũng phải tôn trọng ngưỡng ấy, không chỉ đường hết hạn.
+    _bt49 = [x for x in _bat49.so_cai.gan_day(20)
+             if x["loai"] == "DONG_VI_THE"
+             and (x["chiTiet"] or {}).get("xoayCho")]
+    kiem("xoay một vị thế vừa mở thì KHÔNG ghi một tỉ suất bịa",
+         _bt49 and (_bt49[0]["chiTiet"] or {}).get("thucBpsGio") is None,
+         f"{_bt49[:1]} — chia lãi lỗ cho vài giây giữ ra một con số của "
+         f"mẫu số, không phải của chiến lược")
+
     kiem("lần đóng ấy VÀO SỔ, kèm lý do đọc được",
          any(x["loai"] == "DONG_VI_THE"
              and (x["chiTiet"] or {}).get("xoayCho")
