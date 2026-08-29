@@ -832,6 +832,59 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: CỔNG THÀNH CŨNG PHẢI CHỊU LUẬT ──────────────
+   `scripts/tien-hoa.mjs` chấm 17 thước cho MỖI CUNG, nhưng trang gốc
+   không phải cung nên không thước nào chạm tới nó — trong khi đó là
+   trang ĐẦU TIÊN người ta thấy.
+
+   Soi tay ngày 29/08 ra ba lỗi, hai trong đó đúng loại vừa vá xong ở
+   cả mười hai cung: ba thẻ <main> cùng lúc, không đường nhảy qua đầu
+   trang, một svg trần. Không có gì báo, và sẽ không bao giờ có nếu
+   không viết ra đây.
+
+   Không gọi thẳng bộ thước kia: nó dựng đường theo `<cung>/…` và quét
+   cả thư mục cung để tìm file — trỏ nó vào gốc repo là nó quét cả
+   mười hai cung. Nên chép LẠI đúng những luật đọc được bằng chuỗi,
+   và nói rõ đây là tập con: các thước động (vẽ phòng, tương phản
+   màu, thang chữ) vẫn KHÔNG canh trang gốc. */
+{
+  const p = join(ROOT, "index.html");
+  if (existsSync(p)) {
+    const h = (await doc("index.html")).replace(/<!--[\s\S]*?-->/g, "");
+    const dem = (re) => (h.match(re) || []).length;
+
+    const soMain = dem(/<main\b/g);
+    if (soMain !== 1)
+      bao(`index.html ở gốc có ${soMain} thẻ <main> — mỗi trang chỉ được MỘT mốc "nội dung chính";\n` +
+          `        nhiều hơn là trình đọc màn hình thấy nhiều mốc ngang hàng, ít hơn là không có mốc nào`);
+
+    const soH1 = dem(/<h1\b/g);
+    if (soH1 !== 1) bao(`index.html ở gốc có ${soH1} thẻ <h1> — mục lục trang phải có đúng một gốc`);
+
+    const id = new Map();
+    for (const m of h.matchAll(/\sid="([^"]+)"/g)) id.set(m[1], (id.get(m[1]) || 0) + 1);
+    const trung = [...id].filter(([, n]) => n > 1);
+    if (trung.length)
+      bao(`index.html ở gốc có id trùng (${trung.map(([k, n]) => k + "×" + n).join(", ")}) — ` +
+          `getElementById trả thẻ ĐẦU TIÊN, phần còn lại thành vô hình với JS`);
+
+    const nhay = [...h.matchAll(/<a\b[^>]*href="#([\w-]+)"/g)].some((m) => h.includes(`id="${m[1]}"`));
+    if (!nhay) bao(`index.html ở gốc thiếu đường nhảy qua đầu trang (WCAG 2.4.1) — ` +
+                   `người dùng bàn phím phải Tab qua hiệu, tên cổng và dòng dẫn ở mỗi lần vào`);
+
+    /* Cùng phép với thước "Nút và SVG có nhãn": thẻ cha mang nhãn thì
+       icon bên trong không cần. Đếm thô ở đây báo 29/29 và suýt làm
+       tôi đi sửa 28 chỗ không cần sửa. */
+    const svgTran = [...h.matchAll(/<svg\b([^>]*)>/g)].filter((m) => {
+      if (/aria-hidden|role=|aria-label/.test(m[1])) return false;
+      const cha = [...h.slice(Math.max(0, m.index - 240), m.index)
+        .matchAll(/<(?:span|button|a|div)\b([^>]*)>/g)].pop();
+      return !(cha && /aria-hidden|aria-label/.test(cha[1]));
+    }).length;
+    if (svgTran) bao(`index.html ở gốc có ${svgTran} svg không aria-hidden và không nằm trong thẻ cha có nhãn`);
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
