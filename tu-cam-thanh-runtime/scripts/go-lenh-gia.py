@@ -71,7 +71,10 @@ def _don_so_gia_thuyet() -> int:
     """
     ma_cua = lambda xs: [str(x.get("ma", "")) for x in xs]
     ds = store.read_all(store.GIA_THUYET)
-    la_thu = lambda x: str(x.get("ma", "")).startswith("gt-")
+    # Tiền tố `gt-` là của selftest. `thu-` là của người gõ tay thử công cụ —
+    # chính tôi vừa ghi «thu-canh-bao» vào sổ THẬT khi thử một cảnh báo mới, vì
+    # quên đặt TCT_DATA_DIR sang thư mục tạm. Cùng một lỗi, cùng cách gỡ.
+    la_thu = lambda x: str(x.get("ma", "")).startswith(("gt-", "thu-"))
     rac = [x for x in ds if la_thu(x)]
     if not rac:
         return 0

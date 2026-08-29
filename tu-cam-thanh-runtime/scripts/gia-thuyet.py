@@ -27,6 +27,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import so_gia_thuyet as G  # noqa: E402
 
+NL = chr(10)
+
 MAU_PQ = {"XÁC_NHẬN": "✓", "BÁC_BỎ": "✗", "KHÔNG_KẾT_LUẬN": "?", None: "…"}
 
 
@@ -60,6 +62,8 @@ def main() -> int:
             print("KHÔNG KHAI ĐƯỢC:", r["viSao"])
             return 1
         print(f"đã khai «{ma}» lúc {r['banKhai']['luc']} · vân tay {r['banKhai']['dau']}")
+        if r.get("canhBao"):
+            print(f"{NL}⚠ {r['canhBao']}")
         print("Bản khai này không sửa được nữa. Đo xong thì --chot.")
         return 0
 

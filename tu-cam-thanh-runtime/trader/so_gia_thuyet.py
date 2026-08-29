@@ -56,6 +56,54 @@ def _dau(d: dict) -> str:
     return hashlib.sha256(loi.encode()).hexdigest()[:16]
 
 
+def _bao_lau(mau_can: int) -> str | None:
+    """Ở nhịp vào lệnh hiện tại, gom đủ ngần này lệnh THẬT mất bao lâu.
+
+    Kỷ luật khai-trước của sổ này hợp với phép chạy lại — đo xong trong một
+    buổi — và hợp rất tệ với lệnh thật. `doi-khung-sang-4h` cần 20 lệnh và thu
+    được 2 trong 1,5 ngày; ở nhịp đó nó cần hàng tháng, mà cấu hình sẽ đổi
+    trước khi nó chốt được. Khi ấy bản khai không sai — nó chỉ vĩnh viễn treo,
+    và một giả thuyết treo trông y hệt một giả thuyết đang tiến triển.
+
+    Không CHẶN việc khai: có những câu chỉ lệnh thật trả lời được, và chậm vẫn
+    hơn không đo. Chỉ nói ra cái giá, lúc còn kịp đổi cách đo.
+
+    Trả None khi chưa đủ lịch sử để ước — thà im còn hơn đưa một con số bịa.
+    """
+    import datetime as _d
+
+    # Nhịp GẦN ĐÂY, không phải nhịp cả đời sổ.
+    #
+    # Bản đầu chia tổng số lệnh cho tổng số ngày: 41 lệnh / 11 ngày = 3,7
+    # lệnh/ngày, nên "20 lệnh nữa" ra 5 ngày và cảnh báo không bao giờ nổ. Nhưng
+    # phần lớn 41 lệnh ấy đến từ hồi bot còn chạy luật thuần trên 1h và vào lệnh
+    # liên tục; nhịp bây giờ là ~1,4. Đúng dạng lỗi đã ghi trong sổ: ngưỡng đo
+    # trên tập trôi thì luật chết lặng, và "chưa từng thấy vấn đề" đọc giống hệt
+    # "không có vấn đề".
+    tat = [t for t in store.read_all(store.TRADES) if t.get("openedAt")]
+    if len(tat) < 5:
+        return None
+    ds = sorted(tat, key=lambda t: t["openedAt"])[-10:]
+    moc = [t["openedAt"] for t in ds]
+    try:
+        dau = _d.datetime.fromisoformat(min(moc))
+        cuoi = _d.datetime.fromisoformat(max(moc))
+    except ValueError:
+        return None
+    ngay = (cuoi - dau).total_seconds() / 86400
+    if ngay < 1:
+        return None
+    nhip = len(ds) / ngay
+    if nhip <= 0:
+        return None
+    can = mau_can / nhip
+    if can < 14:
+        return None
+    return (f"cỡ mẫu {mau_can} lệnh THẬT ở nhịp hiện tại ({nhip:.2f} lệnh/ngày "
+            f"qua {len(ds)} lệnh gần nhất) cần khoảng {can:.0f} NGÀY. Cấu hình nhiều khả "
+            f"năng đổi trước lúc đó, và bản khai sẽ treo vĩnh viễn — treo thì "
+            f"trông y hệt đang tiến triển. Cân nhắc một cách đo bằng chạy lại.")
+
 def khai(ma: str, cau_hoi: str, du_doan: str, cach_do: str,
          nguong: dict, boi_canh: dict | None = None) -> dict:
     """Khai một giả thuyết TRƯỚC khi đo.
@@ -80,7 +128,9 @@ def khai(ma: str, cau_hoi: str, du_doan: str, cach_do: str,
          "boiCanh": boi_canh or {}}
     b["dau"] = _dau(b)
     store.append(store.GIA_THUYET, b)
-    return {"ok": True, "banKhai": b}
+    # Cảnh báo tính SAU khi đã ghi: nó không phải điều kiện, chỉ là cái giá.
+    return {"ok": True, "banKhai": b,
+            "canhBao": _bao_lau(nguong["mauToiThieu"])}
 
 
 def _phan_quyet(nguong: dict, do_duoc: dict) -> tuple[str, str]:

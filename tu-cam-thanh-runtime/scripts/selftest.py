@@ -1165,6 +1165,47 @@ async def main() -> int:
     _G30.khai("t30c", "h", "d", "c", dict(_ng30))
     check(_G30.chot("t30c", {"x": 0.4, "mau": 32})["phanQuyet"] == "XÁC_NHẬN",
           "đủ mẫu, đạt ngưỡng → XÁC_NHẬN")
+
+    # ── Giả thuyết đo trên lệnh thật: nói ra bao lâu mới chốt được ──
+    #
+    # Kỷ luật khai-trước hợp với chạy lại (đo xong trong một buổi) và hợp rất tệ
+    # với lệnh thật. `doi-khung-sang-4h` cần 20 lệnh, thu được 2 trong 1,5 ngày.
+    # Bản khai khi ấy không sai — nó chỉ treo vĩnh viễn, mà treo thì trông y hệt
+    # đang tiến triển.
+    #
+    # Nhịp phải đo GẦN ĐÂY. Bản đầu chia tổng lệnh cho tổng ngày: 41/11 = 3,7
+    # lệnh/ngày nên "20 lệnh nữa" ra 5 ngày và cảnh báo không bao giờ nổ — trong
+    # khi nhịp thật lúc đó là 1,4. Ngưỡng đo trên tập trôi thì luật chết lặng.
+    def _nhip30(n, ngay):
+        (DATA_DIR / store.TRADES).write_text("".join(
+            _json.dumps({"openedAt": (_dt21.datetime(2026, 1, 1,
+                                                     tzinfo=_dt21.timezone.utc)
+                                      + _dt21.timedelta(days=i * ngay / max(n - 1, 1)))
+                         .isoformat(timespec="seconds"),
+                         "status": "CLOSED", "closedAt": "x"}) + NL
+            for i in range(n)), encoding="utf-8")
+
+    # Nhịp CHẬM (10 lệnh trong 7 ngày) → 20 lệnh cần 14 ngày → phải kêu.
+    _nhip30(10, 7.0)
+    check(bool(_G30._bao_lau(20)), "nhịp chậm + cỡ mẫu lớn → cảnh báo BAO LÂU")
+    check(not _G30._bao_lau(3), "cỡ mẫu nhỏ ở cùng nhịp → im, không doạ suông")
+
+    # Nhịp NHANH → im, dù cỡ mẫu vẫn 20.
+    _nhip30(10, 0.5)
+    check(not _G30._bao_lau(20), "nhịp nhanh → im (cửa ngược lại)")
+
+    # Và phải đo 10 lệnh GẦN NHẤT: một quá khứ dày đặc không được che nhịp hiện tại.
+    _cu = [{"openedAt": (_dt21.datetime(2026, 1, 1, tzinfo=_dt21.timezone.utc)
+                         + _dt21.timedelta(hours=i)).isoformat(timespec="seconds"),
+            "status": "CLOSED", "closedAt": "x"} for i in range(60)]
+    _moi = [{"openedAt": (_dt21.datetime(2026, 6, 1, tzinfo=_dt21.timezone.utc)
+                          + _dt21.timedelta(days=i)).isoformat(timespec="seconds"),
+             "status": "CLOSED", "closedAt": "x"} for i in range(10)]
+    (DATA_DIR / store.TRADES).write_text(
+        "".join(_json.dumps(x) + NL for x in _cu + _moi), encoding="utf-8")
+    check(bool(_G30._bao_lau(20)),
+          "60 lệnh dày đặc hồi tháng 1 KHÔNG che được nhịp 1 lệnh/ngày hiện tại")
+    (DATA_DIR / store.TRADES).write_text("", encoding="utf-8")
     print("\n[29] IMPORT TRONG HÀM KHÔNG CHE CHO HÀM KHÁC")
     import ast as _ast29
 
