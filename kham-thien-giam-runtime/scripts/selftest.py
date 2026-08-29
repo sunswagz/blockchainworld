@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 os.environ["KTG_DATA_DIR"] = tempfile.mkdtemp(prefix="ktg-selftest-")
 
 from kham.bang import (MayGhi, _thu_muc, dem_bang,               # noqa: E402
-                       doc_bang, doc_bang_day_du)
+                       doc_bang, doc_bang_day_du, NguonKhung)
 from kham.can_loi import can, gia_cap, phi_maker, phi_taker      # noqa: E402
 from kham.config import CONFIG, che_hieu_luc, ly_do_khong_that   # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia, phi, TinMoi       # noqa: E402
@@ -41,6 +41,7 @@ from kham.chan_rui_ro import (CHIU, CHO, DONG_CHAN, VUOT_SPREAD, # noqa: E402
                               quyet)
 from kham.do_thi import DoThi, Nut                               # noqa: E402
 from kham.chay_lai import ThamSo, doi_chieu, dung_so, mot_luot    # noqa: E402
+from kham.chay_lai import mot_luot as chay_lai_mot_luot          # noqa: E402
 from kham.vo_dich import SoVoDich                                # noqa: E402
 from kham.chan_doan import (NUT_THEO_DUONG, NUT_VAN, TrieuChung,  # noqa: E402
                             chan_doan, de_bai, doc_tham_so, kep)
@@ -1399,6 +1400,71 @@ def kiem_bang() -> None:
          dem_bang("2999-01-01").soFile == 0)
 
 
+def kiem_nguon_khung() -> None:
+    """Băng phải ĐỌC LẠI ĐƯỢC, và thứ chỉ đọc được một lần phải bị chặn.
+
+    Hai chỗ hỏng khác nhau, cùng một hậu quả: cổng tiến hoá quét băng hai
+    lượt ở hai trạng thái config, nên lượt thứ hai mà thấy băng rỗng thì
+    cổng phán "chưa đủ mẫu" — một câu đúng ngữ pháp, sai sự thật, và
+    không kèm một dòng đỏ nào.
+    """
+    print("\n── Nguồn khung: quét lại được, và cạn thì phải nói ───────────")
+
+    # Thư mục băng tạm đã có khung của phép kiểm trước, nên đo THÊM
+    # bao nhiêu chứ đừng đo tổng — một phép kiểm chỉ đúng khi chạy một
+    # mình thì sớm muộn cũng đỏ vì lý do không liên quan.
+    truoc = dem_bang().soKhung
+    m = MayGhi()
+    for i in range(6):
+        m.ghi({"vong": i, "thiTruong": []})
+    m.dong()
+
+    ng = NguonKhung()
+    a = list(ng)
+    kiem("lượt quét đầu đọc được khung", len(a) == truoc + 6,
+         f"đọc {len(a)}, chờ {truoc + 6}")
+    kiem("soKhung khớp với lượt vừa quét", ng.soKhung == len(a),
+         f"{ng.soKhung} vs {len(a)}")
+    b = list(ng)
+    kiem("lượt quét THỨ HAI đọc lại đủ, không cạn", len(b) == len(a),
+         f"lượt 1 {len(a)} khung, lượt 2 {len(b)} khung — "
+         "đây chính là chỗ cổng tiến hoá nói dối nếu hỏng")
+    kiem("đếm được số lượt đã quét", ng.soLuot == 2)
+    kiem("iter() trả về đối tượng KHÁC, nên không phải iterator một lần",
+         iter(ng) is not ng)
+
+    ts = ThamSo(ten="t", netEdgeToiThieu=0.0, bienAnToan=0.0)
+
+    # Danh sách và NguonKhung: đều phải chạy được.
+    for ten, nguon in (("danh sách", list(ng)), ("NguonKhung", NguonKhung())):
+        try:
+            chay_lai_mot_luot(nguon, ts)
+            dat = True
+        except TypeError:
+            dat = False
+        kiem(f"chay_lai nhận {ten}", dat)
+
+    # Generator: phải bị chặn TO TIẾNG, không được âm thầm trả 0.
+    def sinh():
+        yield from ({"vong": i, "thiTruong": []} for i in range(3))
+
+    g = sinh()
+    da_chan = False
+    try:
+        chay_lai_mot_luot(g, ts)
+    except TypeError as e:
+        da_chan = "một lần" in str(e)
+    kiem("chay_lai CHẶN generator dùng một lần", da_chan,
+         "im lặng nhận nó là cách sinh ra một cổng phán bừa")
+
+    # Và bằng chứng vì sao phải chặn: quét lượt hai trên generator ra 0.
+    g2 = sinh()
+    n1 = len(list(g2))
+    n2 = len(list(g2))
+    kiem("bằng chứng: generator quét lượt hai ra RỖNG",
+         n1 == 3 and n2 == 0, f"{n1} rồi {n2}")
+
+
 def kiem_tien_hoa_thu_lai() -> None:
     print("\n── Vòng tiến hoá: một lượt CHẾT không được tính là đã chạy ────")
 
@@ -1586,6 +1652,7 @@ def main() -> int:
     kiem_cong_tien_hoa()
     kiem_vong_tien_hoa()
     kiem_bang()
+    kiem_nguon_khung()
     kiem_tien_hoa_thu_lai()
     kiem_dong_co()
     kiem_cham_moc()

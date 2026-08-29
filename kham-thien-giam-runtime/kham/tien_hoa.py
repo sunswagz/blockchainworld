@@ -41,10 +41,11 @@ import datetime as dt
 import json
 import os
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .bang import doc_bang
+from .bang import NguonKhung
 from .chay_lai import ThamSo as ChayLaiThamSo
 from .chay_lai import gop_doi_chieu
 from .chay_lai import mot_luot as chay_lai_mot_luot
@@ -56,6 +57,11 @@ from .dinh_gia import HieuChinh
 from .so import So, bay_gio, thong_ke
 
 SO_TIEN_HOA = DATA_DIR / "tien-hoa.jsonl"
+
+# Mốc để đo mỗi bước mất bao lâu. Một lượt trên băng 8 ngày mất
+# quãng hai mươi phút, và trước bản này nó chạy CÂM suốt chừng ấy —
+# không phân biệt được "đang quét băng" với "treo".
+_MOC = 0.0
 
 # Cổng chặn. Đặt TRƯỚC khi nhìn dữ liệu, và không nới theo kết quả.
 TOI_THIEU_MAU = 40          # mỗi bên phải khớp ngần này trong băng
@@ -308,21 +314,48 @@ def ghi_config(duong: str, gt: float) -> bool:
 #  VÒNG
 # ══════════════════════════════════════════════════════════════════════════
 
+def _buoc(so: int, ten: str) -> None:
+    """Kêu lên mình đang ở bước nào. Bảy bước, mỗi bước quét lại cả băng."""
+    global _MOC
+    gio = time.time()
+    troi = gio - _MOC
+    _MOC = gio
+    dong = f"[tiến hoá {so}/7] {ten}" + (f"  (+{troi:.0f}s)" if so > 1 else "")
+    print(dong, file=sys.stderr, flush=True)
+    try:
+        from .bus import bus
+        bus.ghi(dong, loai="tin")
+    except Exception:      # noqa: BLE001
+        pass
+
+
 def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
+    global _MOC
+    _MOC = time.time()
     kq = KetQuaTienHoa(luc=bay_gio(), soKhungBang=0, soLenhKetToan=0)
 
+    _buoc(1, "thu hoạch: quét băng đếm lý do đứng ngoài")
     # 1–2. thu hoạch + đo
-    khung = doc_bang(tuNgay)
+    #
+    # `NguonKhung` chứ KHÔNG `doc_bang`. Đo trên băng 8 ngày: nạp cả băng
+    # mất 77 giây và 3,4 GB thường trú, rồi vòng này quét lại nó ba tới
+    # bốn lượt trong khi vẫn giữ nguyên khối ấy. Máy lún xuống swap và
+    # một lượt tiến hoá chạy quá hai mươi phút mà chưa in nổi dòng đầu —
+    # trong khi đây là thứ phải chạy được MỖI NGÀY, không ai ngồi canh.
+    # Hạn giữ băng là 30 ngày, nên đường đi của cách cũ là hết bộ nhớ.
+    khung = NguonKhung(tuNgay)
     so = So()
     ket = so.doc(5000)
     hc = HieuChinh()
-    kq.soKhungBang = len(khung)
     kq.soLenhKetToan = len(ket)
 
     tk = thong_ke(ket)
     kq.kyVongTruoc = None if tk.get("chuaCo") else tk["kyVong"]
 
+    # Lượt quét đầu; sau nó `khung.soKhung` mới có số.
     bo_qua = _dem_bo_qua(khung)
+    kq.soKhungBang = khung.soKhung
+    _buoc(2, f"đo: {kq.soKhungBang} khung, sổ thật {len(ket)} lệnh")
 
     # ── mẫu để chẩn: THẬT trước, mô phỏng sau ─────────────────────────
     #
@@ -337,8 +370,9 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
     # lọc bất lợi), nên nó đi kèm nhãn `nguonMau` và nhãn ấy theo xuống
     # tận từng triệu chứng.
     nguonMau = "that"
-    if len(ket) < TOI_THIEU_MAU and khung:
+    if len(ket) < TOI_THIEU_MAU and kq.soKhungBang:
         cl = CONFIG["canLoi"]
+        _buoc(2, "sổ thật còn mỏng — dựng mẫu bằng CHẠY LẠI trên băng")
         mp = chay_lai_mot_luot(khung, ChayLaiThamSo(
             ten="mô phỏng", netEdgeToiThieu=float(cl["netEdgeToiThieu"]),
             bienAnToan=float(cl["bienAnToan"])))
@@ -350,6 +384,7 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
             kq.soLenhKetToan = len(ket)
             kq.kyVongTruoc = None if tk.get("chuaCo") else tk["kyVong"]
 
+    _buoc(3, f"chẩn trên {len(ket)} mẫu ({nguonMau})")
     # 3. chẩn
     tc = chan_doan(ket, {
         "saiSoTB": hc.sai_so_tuyet_doi_tb(),
@@ -365,6 +400,7 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
             _ghi_so(kq)
         return kq
 
+    _buoc(4, "đề xuất")
     # 4. đề xuất — model trước, tất định là lưới đỡ
     db = de_bai(tc, {n.duong: doc_tham_so(n.duong) for n in NUT_VAN})
     dx = de_xuat_bang_model(db) or de_xuat_tat_dinh(tc)
@@ -375,6 +411,7 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
             _ghi_so(kq)
         return kq
 
+    _buoc(5, f"thử {len(dx)} đề xuất qua cổng — mỗi đề xuất quét băng HAI lượt")
     # 5–6. thử rồi cổng
     for d in dx:
         r = thu_mot_de_xuat(khung, d)

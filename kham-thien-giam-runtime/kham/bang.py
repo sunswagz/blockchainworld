@@ -340,8 +340,53 @@ def doc_bang_day_du(tuNgay: str | None = None) -> tuple[list[dict], BaoCaoDoc]:
 
 
 def doc_bang(tuNgay: str | None = None) -> list[dict]:
-    """Đọc lại băng. Giữ nguyên chữ ký cũ cho chỗ cần quét lại nhiều lượt."""
+    """Đọc lại băng VÀO BỘ NHỚ. Đo trước khi gọi — xem `NguonKhung`.
+
+    Đã đo trên băng 8 ngày: 115.779 khung, **77 giây và 3,4 GB thường trú**.
+    Hạn giữ băng là 30 ngày, nên chỗ này lớn tuyến tính tới quãng 12 GB —
+    và nó lún xuống swap từ rất lâu trước đó. Vòng tiến hoá gọi hàm này
+    rồi quét băng ba lượt; đó là toàn bộ lý do một lượt tiến hoá chạy quá
+    hai mươi phút mà không in nổi một dòng.
+
+    Chữ ký giữ nguyên cho chỗ nào thật sự cần một danh sách trong tay.
+    Chỗ chỉ quét xuôi — mà đó là mọi chỗ đang gọi — dùng `NguonKhung`.
+    """
     return doc_bang_day_du(tuNgay)[0]
+
+
+class NguonKhung:
+    """Băng ĐỌC LẠI ĐƯỢC: mỗi lần lặp là một lượt quét mới, không giữ gì.
+
+    `chay_lai.mot_luot` chỉ quét xuôi một lượt, nên nó không cần danh sách
+    — nó cần một thứ lặp được. Nhưng truyền thẳng một generator vào thì
+    lượt quét THỨ HAI nhận một iterator đã cạn và trả về 0 khung, 0 cơ
+    hội, im lặng. Cổng tiến hoá sẽ đọc con số rỗng đó thành "hai bên bằng
+    nhau" rồi phán y như thật — đúng hình dạng cái hỏng vừa vá xong ở
+    chính cổng ấy.
+
+    Nên nguồn phải TỰ MỞ LẠI mỗi lần `__iter__`, và `mot_luot` chặn thẳng
+    iterator dùng-một-lần. Đắt hơn: mỗi lượt giải nén lại băng. Đổi lại
+    bộ nhớ đứng yên, và trên máy này giải nén lại rẻ hơn nhiều so với
+    việc giữ ba gigabyte rồi để hệ điều hành lo phần còn lại.
+
+    `bao` giữ báo cáo hư hỏng của lượt quét GẦN NHẤT — đọc sau khi lượt
+    ấy chạy xong.
+    """
+
+    def __init__(self, tuNgay: str | None = None) -> None:
+        self.tuNgay = tuNgay
+        self.bao = BaoCaoDoc()
+        self.soLuot = 0
+
+    def __iter__(self) -> Iterator[dict]:
+        self.bao = BaoCaoDoc()
+        self.soLuot += 1
+        return lan_luot(self.tuNgay, self.bao)
+
+    @property
+    def soKhung(self) -> int:
+        """Số khung của lượt quét gần nhất. 0 nếu chưa quét lượt nào."""
+        return self.bao.soKhung
 
 
 def dem_bang(tuNgay: str | None = None) -> BaoCaoDoc:

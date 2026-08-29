@@ -102,6 +102,28 @@ def dung_so(d: dict, ma: str, ben: str) -> SoLenh | None:
                   ask=muc(d.get("ask"), False), nhanLucMs=float(d.get("luc") or 0))
 
 
+def _doi_lap_lai_duoc(khung) -> None:
+    """Chặn iterator dùng-một-lần TRƯỚC khi nó kịp trả về số 0 im lặng.
+
+    `iter(x) is x` đúng với generator và mọi iterator, sai với list, tuple
+    và `NguonKhung` — nên một dòng này phân biệt được đúng thứ cần phân
+    biệt.
+
+    Vì sao phải chặn to tiếng: cổng tiến hoá quét băng HAI lượt với hai
+    trạng thái config. Đưa nó một generator thì lượt hai nhận iterator đã
+    cạn, trả 0 khung / 0 cơ hội / 0 khớp — và cổng đọc thành "chưa đủ
+    mẫu", in ra một phán quyết đầy đủ lý do rồi trả lại đề xuất. Không có
+    lỗi nào, không có dòng đỏ nào, chỉ có một vòng tiến hoá đứng yên vì
+    một lý do bịa. Đúng hình dạng hai cái hỏng vừa vá xong ở chính vòng
+    này, nên lần này chặn ngay tại cửa.
+    """
+    if iter(khung) is khung:
+        raise TypeError(
+            "chay_lai cần nguồn khung LẶP LẠI ĐƯỢC (list hoặc "
+            "bang.NguonKhung), không phải iterator dùng một lần: lượt quét "
+            "thứ hai sẽ thấy băng rỗng và im lặng báo 'chưa đủ mẫu'.")
+
+
 @dataclass
 class ThamSo:
     """Bộ tham số đem thử. Mặc định lấy từ config đang chạy."""
@@ -116,8 +138,15 @@ class ThamSo:
     phepNan: object | None = None
 
 
-def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
-    """Chạy lại toàn bộ băng với MỘT bộ tham số."""
+def mot_luot(khung, ts: ThamSo) -> KetQua:
+    """Chạy lại toàn bộ băng với MỘT bộ tham số.
+
+    `khung` là bất cứ thứ gì LẶP LẠI ĐƯỢC: một danh sách, hay một
+    `bang.NguonKhung` tự mở lại băng mỗi lượt. Chỉ quét xuôi một lần, nên
+    không cần cả băng nằm trong bộ nhớ — và ở cỡ băng hiện tại thì giữ nó
+    trong bộ nhớ là thứ làm vòng tiến hoá đứng hình.
+    """
+    _doi_lap_lai_duoc(khung)
     kq = KetQua(ten=ts.ten)
     # MỖI CỬA SỔ CHỈ VÀO MỘT LẦN.
     #
@@ -205,7 +234,7 @@ def mot_luot(khung: list[dict], ts: ThamSo) -> KetQua:
     return kq
 
 
-def doi_chieu(khung: list[dict], a: ThamSo, b: ThamSo) -> dict:
+def doi_chieu(khung, a: ThamSo, b: ThamSo) -> dict:
     """Chạy hai bộ tham số trên CÙNG băng rồi so. Đây mới là backtest."""
     return gop_doi_chieu(mot_luot(khung, a), mot_luot(khung, b))
 

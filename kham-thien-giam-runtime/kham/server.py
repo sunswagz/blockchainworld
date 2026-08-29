@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .bang import dem_bang, doc_bang, may_ghi
+from .bang import NguonKhung, dem_bang, may_ghi
 from .chay_lai import ThamSo, doi_chieu, mot_luot
 from .bus import bus
 from .config import CONFIG, WEB_DIR, che_hieu_luc, ly_do_khong_that, nao_cham_bat
@@ -132,7 +132,7 @@ def api_chay_lai(tuNgay: str | None = None, nguong: float | None = None) -> JSON
     ts = ThamSo(ten="hien-tai",
                 netEdgeToiThieu=nguong if nguong is not None else float(cl["netEdgeToiThieu"]),
                 bienAnToan=float(cl["bienAnToan"]))
-    return JSONResponse(sach(mot_luot(doc_bang(tuNgay), ts).tom_tat()))
+    return JSONResponse(sach(mot_luot(NguonKhung(tuNgay), ts).tom_tat()))
 
 
 @app.post("/api/doi-chieu")
@@ -143,7 +143,7 @@ def api_doi_chieu(nguongA: float, nguongB: float,
     at = float(cl["bienAnToan"])
     a = ThamSo(ten=f"A(net>={nguongA})", netEdgeToiThieu=nguongA, bienAnToan=at)
     b = ThamSo(ten=f"B(net>={nguongB})", netEdgeToiThieu=nguongB, bienAnToan=at)
-    return JSONResponse(sach(doi_chieu(doc_bang(tuNgay), a, b)))
+    return JSONResponse(sach(doi_chieu(NguonKhung(tuNgay), a, b)))
 
 
 @app.post("/api/vo-dich/{ma}")
