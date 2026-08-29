@@ -708,9 +708,19 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
             cau += (f" Khoảng tin 95% theo chợ [{_kt[0]:+.3f}; {_kt[1]:+.3f}]"
                     + (" — CHỨA 0, chưa phân biệt được với «không có gì»."
                        if _kt[0] <= 0 <= _kt[1] else "."))
-        if duong == len(du):
-            cau += (" Dương ở MỌI chợ đo được: đây là dấu hiệu của lợi thế thật, "
-                    "không phải khớp với lịch sử của một chợ.")
+        # "Dương ở MỌI chợ" chỉ có nghĩa khi có NHIỀU chợ. Với đúng một chợ đủ
+        # mẫu, câu đó vẫn đúng về mặt chữ và hoàn toàn rỗng về mặt bằng chứng —
+        # mà nó lại là câu mạnh nhất trong cả nguồn này.
+        #
+        # Đã in ra thật: "dương ở 1/1 … Dương ở MỌI chợ đo được: đây là dấu hiệu
+        # của lợi thế thật" — dựa trên đúng 21 lệnh của một coin.
+        if duong == len(du) and len(du) >= 3:
+            cau += (f" Dương ở MỌI {len(du)} chợ đo được: đây là dấu hiệu của lợi "
+                    f"thế thật, không phải khớp với lịch sử của một chợ.")
+        elif duong == len(du):
+            cau += (f" Dương ở cả {len(du)} chợ — nhưng {len(du)} chợ thì «dương ở "
+                    f"mọi chợ» chưa nói được gì; cần ≥3 chợ đủ mẫu mới đọc được "
+                    f"như một dấu hiệu.")
         elif duong == 0:
             cau += " Âm ở mọi chợ — vấn đề nằm ở chính bộ luật, không ở chợ nào."
         else:

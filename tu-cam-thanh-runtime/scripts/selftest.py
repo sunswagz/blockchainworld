@@ -533,8 +533,12 @@ async def main() -> int:
 
     check("cho:MOT_CHO" in ds and "may rủi" in ds["cho:MOT_CHO"]["cau"],
           "dương 1/2 chợ → nói rõ chưa phân biệt được lợi thế với may rủi")
-    check("cho:MOI_CHO" in ds and "MỌI chợ" in ds["cho:MOI_CHO"]["cau"],
-          "dương 2/2 chợ → nói rõ đây là dấu hiệu lợi thế thật")
+    # Phép kiểm này TRƯỚC ĐÂY đòi câu "dấu hiệu lợi thế thật" ở 2/2 chợ. Sai:
+    # "dương ở MỌI chợ" với hai chợ chưa nói được gì, mà nó lại là câu mạnh nhất
+    # trong cả nguồn. Dữ liệu thật đã in ra "dương ở 1/1 … dấu hiệu của lợi thế
+    # thật" dựa trên 21 lệnh của một coin.
+    check("cho:MOI_CHO" in ds and "chưa nói được gì" in ds["cho:MOI_CHO"]["cau"],
+          "dương 2/2 chợ → nói rõ HAI chợ thì chưa đủ để gọi là dấu hiệu")
     # Cửa ngược lại: kỳ vọng đẹp mà mẫu bé thì KHÔNG được thành phát hiện.
     check("cho:THIEU_MAU" not in ds,
           f"+0,9R mà chỉ 3 lệnh/chợ → bị bỏ (bỏ {len(bo)} mục, có ghi lý do)")
@@ -1780,6 +1784,22 @@ async def main() -> int:
           f"5 chợ nhỏ cộng lại > {_gp} lệnh → có phát hiện GỘP")
     check(all(x["ma"] != "cho:X" for x in _r26),
           "và KHÔNG giả vờ là phát hiện theo-chợ — hai loại câu khác nhau")
+
+    # "Dương ở MỌI chợ" chỉ có nghĩa khi có NHIỀU chợ. Với đúng một chợ đủ mẫu,
+    # câu đó vẫn đúng về mặt chữ và rỗng về mặt bằng chứng — mà nó lại là câu
+    # MẠNH NHẤT trong cả nguồn này. Đã in ra thật: "dương ở 1/1 … dấu hiệu của
+    # lợi thế thật", dựa trên đúng 21 lệnh của một coin.
+    # Thế cờ THẬT: nhiều chợ trong bảng nhưng chỉ MỘT qua được cổng ≥20 lệnh.
+    # Nguồn cần ≥2 chợ mới chạy, nên dựng đúng một chợ thì nó im — và phép kiểm
+    # sẽ xanh vì lý do sai.
+    _dat26([(0.22, _mt), (0.30, _sn)])
+    _c1 = next((x["cau"] for x in C26._tu_nhieu_cho([]) if x["ma"] == "cho:X"), "")
+    check("chưa nói được gì" in _c1,
+          f"chỉ 1 chợ qua cổng → KHÔNG gọi là dấu hiệu lợi thế thật")
+    _dat26([(0.22, _mt)] * 3)
+    _c3 = next((x["cau"] for x in C26._tu_nhieu_cho([]) if x["ma"] == "cho:X"), "")
+    check("dấu hiệu của lợi thế thật" in _c3,
+          "3 chợ cùng dương → được gọi là dấu hiệu (cửa ngược lại)")
 
     # Cửa ngược lại 1: cộng lại vẫn không đủ → vẫn phải im, và phải NÓI vì sao.
     _bo26 = []
