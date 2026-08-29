@@ -96,9 +96,36 @@ def _nap_cho(sym: str, chinh: str, ctx: str):
     # Cắt theo THỜI GIAN chứ không theo số nến: khung chính và khung ngữ cảnh
     # có mật độ khác nhau, nên cắt 70% số nến của mỗi bên là lệch nhau, và
     # khung ngữ cảnh sẽ nhìn thấy tương lai của khung chính.
-    if TRUOC is not None:
+    # CHỢ CHẾT: đủ nến nhưng nến cuối đã cũ. MKRUSDT có tròn 1500 nến 1d và
+    # ngừng ngày 15/09/2025 (đổi tên sang SKY). Nó qua mọi phép đếm, rồi đóng
+    # góp một cửa sổ "ngoài mẫu" kết thúc từ một năm trước vào bảng gộp — cùng
+    # đúng loại lỗi vừa mắc giữa 4h và 1d, chỉ đổi trục sang coin.
+    #
+    # Bỏ qua khi mốc cắt đuôi KHÔNG được đặt: có `--truoc` thì cũ là chuyện
+    # đương nhiên, chính người gọi vừa yêu cầu điều đó.
+    if TRUOC is None:
+        _cuoi = max((x.get("t") or 0) for x in nen[chinh])
+        _cu_ngay = (_dt.datetime.now(_dt.timezone.utc).timestamp() * 1000
+                    - _cuoi) / 86_400_000
+        if _cu_ngay > 30:
+            print(f"    ⚠ {sym}:{chinh} — nến cuối cách đây {_cu_ngay:.0f} ngày "
+                  f"(chợ chết hoặc đổi tên). BỎ QUA: cửa sổ ngoài mẫu của nó "
+                  f"kết thúc ở một thời điểm khác hẳn mọi chợ còn lại.")
+            return None
+
+    # `--tu` cắt ĐẦU chuỗi, `--truoc` cắt ĐUÔI. Cần cả hai để ép mọi chợ về
+    # CÙNG một cửa sổ lịch.
+    #
+    # Vì sao cần: mỗi chợ tự lấy 30% cuối CỦA RIÊNG NÓ làm ngoài mẫu. Một coin
+    # có 1499 ngày dữ liệu thì ngoài mẫu là 450 ngày cuối; một coin lên sàn năm
+    # ngoái, 400 ngày dữ liệu, thì ngoài mẫu là 120 ngày cuối. Gộp hai con số ấy
+    # lại là gộp hai quãng thời gian khác nhau — đúng lỗi vừa mắc giữa 4h và 1d,
+    # chỉ đổi trục từ khung sang coin. Mở rộng ra coin mới làm nó nặng thêm.
+    for moc, giu in ((TRUOC, lambda t: t < TRUOC), (TU, lambda t: t >= TU)):
+        if moc is None:
+            continue
         for tf in list(nen):
-            nen[tf] = [x for x in nen[tf] if (x.get("t") or 0) < TRUOC]
+            nen[tf] = [x for x in nen[tf] if giu(x.get("t") or 0)]
             if len(nen[tf]) < 300:
                 return None
 
@@ -120,7 +147,17 @@ def _moc_truoc():
                .replace(tzinfo=_d.timezone.utc).timestamp() * 1000)
 
 
+def _moc(co: str):
+    if co not in sys.argv:
+        return None
+    import datetime as _d
+    x = sys.argv[sys.argv.index(co) + 1]
+    return int(_d.datetime.fromisoformat(x)
+               .replace(tzinfo=_d.timezone.utc).timestamp() * 1000)
+
+
 TRUOC = _moc_truoc()
+TU = _moc("--tu")
 
 
 
@@ -189,7 +226,12 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     # mtime nói "lần ghi cuối", không nói "đo trên dữ liệu tới lúc nào". Một
     # lượt chạy hỏng nửa chừng vẫn chạm file và làm kho trông tươi. Số nến thì
     # nói cỡ mẫu — thiếu nó, "+0,4R" đọc giống nhau ở n=3 và n=300.
-    _f.write_text(_json.dumps({
+    # Ghi qua file tạm rồi đổi tên: hai lượt đấu có thể chạy song song (một gõ
+    # tay, một của nghi thức) và cùng ghi đúng file này. `write_text` không
+    # nguyên tử, nên chồng nhau để lại JSON cụt — mà lò chưng cất đọc hỏng thì
+    # bỏ CẢ nguồn nhiều-chợ, tức mất luôn loại bằng chứng mạnh nhất, im lặng.
+    _tam = _f.with_suffix(f".{__import__(chr(111) + chr(115)).getpid()}.tmp")
+    _tam.write_text(_json.dumps({
         "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
         "cho": cot,
         # QUÃNG THỜI GIAN đã đo. Thiếu nó thì hai bảng của hai khung trông như
@@ -214,6 +256,7 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
                      for c in cot if c in v}
                 for ma, v in bang.items()},
     }, ensure_ascii=False, indent=1), encoding="utf-8")
+    __import__("os").replace(_tam, _f)
     print(f"đã ghi {_f.name}")
 
 
