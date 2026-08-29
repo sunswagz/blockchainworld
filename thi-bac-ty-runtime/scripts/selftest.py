@@ -7503,6 +7503,54 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("nhưng vẫn ĐO và nói ra sẽ đổi được mấy chỗ",
          _l49b.soXoayDuoc == 1 and "ghế trống" in _l49b.vi, _l49b.vi)
 
+    # ── LỜI HỨA «Phân Bổ sẽ lấp chỗ» phải KIỂM CHỨNG ĐƯỢC ───────────────
+    # Luật «còn ghế thì không đuổi ai» đứng trên một lời hứa, và trên máy
+    # sống 30/08 lời hứa ấy đang sai: 54 vị thế, 66 ghế trống, 478 nghìn
+    # USD nằm không, số vị thế đứng yên vòng này qua vòng khác — vì cơ hội
+    # tốt hơn nằm trong một họ đã chạm trần `tranMotTy`, nên ghế trống
+    # không giúp gì cho chúng. Đo được 15 chỗ đáng đổi, APR 3,31% → 6,63%.
+    #
+    # ĐẾM thôi, không tự đổi hành vi: đóng một vị thế mà Phân Bổ không mở
+    # lại được là đẩy vốn về tiền mặt ăn 0% — tệ hơn giữ nguyên.
+    from thi_bac_ty.trung_uong import VONG_GHE_TRONG_DANG_NGO as _NGO
+    _dem = _may49(True)
+    _dem.phan_bo.c["toiDaSoViThe"] = 120
+    _ds, _cuoi = [], None
+    for _ in range(_NGO + 1):
+        _cuoi = _dem._xoay_cho_neu_duoc()
+        _ds.append(_cuoi.soVongGheTrongKhongLap)
+    # Vòng ĐẦU đếm 0, và đó là đúng: «số vị thế không tăng» là một câu về
+    # HAI vòng, nên vòng đầu chưa nói được gì. Đếm nó thành 1 là bịa ra
+    # một quan sát chưa xảy ra.
+    kiem("đếm được số VÒNG LIÊN TIẾP còn ghế mà số vị thế không tăng",
+         _ds == list(range(_NGO + 1)),
+         f"{_ds} — lời hứa «Phân Bổ sẽ lấp chỗ trống» kiểm chứng được, và "
+         f"không đếm thì nó sai im lặng mãi mãi")
+    kiem("quá ngưỡng thì NÓI RA, và nói rõ máy KHÔNG tự đuổi ai vì thế",
+         "vòng LIÊN TIẾP" in _cuoi.vi and "tiền mặt ăn 0%" in _cuoi.vi,
+         _cuoi.vi)
+    # Vị thế TĂNG thì lời hứa đang được giữ — bộ đếm phải về 0, không thì
+    # nó chỉ đếm số vòng đã chạy chứ không đếm điều nó nói mình đếm.
+    _dem.soViThe["m9"] = _dem.soViThe["m1"]
+    _dem.danh_muc.viThe["m9"] = _dem.danh_muc.viThe["m1"]
+    kiem("số vị thế TĂNG thì bộ đếm về 0",
+         _dem._xoay_cho_neu_duoc().soVongGheTrongKhongLap == 0,
+         "lời hứa đang được giữ thì không có gì để nghi ngờ")
+    # Và HẾT GHẾ cũng phải về 0: lúc ấy luật «còn ghế thì không đuổi ai»
+    # không còn áp dụng, nên con số đếm nó cũng thôi có nghĩa. Để nguyên
+    # là mang một quan sát cũ sang một trạng thái khác.
+    _het = _may49(True)
+    _het.phan_bo.c["toiDaSoViThe"] = 120
+    for _ in range(_NGO + 1):
+        _het._xoay_cho_neu_duoc()
+    _het.phan_bo.c["toiDaSoViThe"] = 1          # hết ghế
+    _het.soViThe["m1"].moLucGiay = time.time() - 60.0
+    kiem("HẾT GHẾ thì bộ đếm cũng về 0",
+         _het._xoay_cho_neu_duoc().soVongGheTrongKhongLap == 0
+         and _het._vongGheTrongKhongLap == 0,
+         f"{_het._vongGheTrongKhongLap} — luật «còn ghế thì không đuổi ai» "
+         f"hết áp dụng thì con số đếm nó cũng thôi có nghĩa")
+
     kiem("BẬT thì đóng thật, và hoàn vốn về tiền mặt",
          _l50.soDaDong == 1 and not _bat49.soViThe
          and gan(_bat49.danh_muc.tienMatUsd, 10_500.0),

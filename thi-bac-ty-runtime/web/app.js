@@ -1172,6 +1172,16 @@
     if (xc.viConGhe) {
       kxc.appendChild(giai("CÒN GHẾ TRỐNG nên không đuổi ai — cơ hội tốt "
         + "hơn cứ ngồi vào chỗ trống. Xoay chỗ chỉ có nghĩa khi hết ghế."));
+      /* Câu trên là một LỜI HỨA, và lời hứa ấy kiểm chứng được. Đo 30/08:
+         54 vị thế, 66 ghế trống, 478 nghìn USD nằm không, và số vị thế
+         đứng yên vòng này qua vòng khác — vì cơ hội tốt hơn nằm trong một
+         họ đã chạm trần, nên ghế trống không giúp gì cho chúng. */
+      dxc.appendChild(oSo("Vòng ghế trống KHÔNG lấp",
+        so(xc.soVongGheTrongKhongLap),
+        (xc.soVongGheTrongKhongLap || 0) >= 3
+          ? "lời hứa «Phân Bổ sẽ lấp chỗ» KHÔNG được giữ"
+          : "liên tiếp, số vị thế không tăng",
+        (xc.soVongGheTrongKhongLap || 0) >= 3 ? "am" : "nhat"));
     }
     dxc.appendChild(oSo("Không xoay được",
       so((xc.soBiKhoa || 0) + (xc.soKhongDoDuocThoat || 0)),

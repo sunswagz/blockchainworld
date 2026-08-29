@@ -241,6 +241,9 @@ class TrungUong:
             self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
             self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
         self.duongNav = DuongNav()
+        #: Đếm cho luật «còn ghế thì không đuổi ai» — xem `_xoay_cho_neu_duoc`.
+        self._vongGheTrongKhongLap = 0
+        self._soViTheVongTruoc = 0
         # Mốc BẬT MÁY. Bộ đếm cơ hội thô nằm trong RAM của từng ty nên
         # nó đếm từ lúc này; mọi con số ghép cạnh nó phải bó về cùng
         # cửa sổ, không thì phễu trộn hai quãng thời gian.
@@ -602,13 +605,39 @@ class TrungUong:
         # phí vào + phí ra trên 25.000 USD, cho một danh mục không đổi.
         # Cửa chống trùng từng che lỗi này; gỡ nó ra thì nó lộ ngay.
         tran = int(self.phan_bo.c.get("toiDaSoViThe") or 0)
-        if tran and len(self.danh_muc.viThe) < tran:
+        n = len(self.danh_muc.viThe)
+        if tran and n < tran:
+            # Luật này dựa trên một LỜI HỨA — «Phân Bổ sẽ lấp chỗ trống» —
+            # và lời hứa ấy kiểm chứng được. Đếm số vòng liên tiếp còn ghế
+            # mà số vị thế KHÔNG tăng: đó chính là số vòng lời hứa không
+            # được giữ. Trên máy sống 30/08 nó đang sai vì cơ hội tốt hơn
+            # nằm trong một họ đã chạm trần `tranMotTy`, nên ghế trống
+            # không giúp gì cho chúng.
+            #
+            # ĐẾM, không tự đổi hành vi: đóng một vị thế mà Phân Bổ không
+            # mở lại được là đẩy vốn về tiền mặt ăn 0%, tệ hơn giữ nguyên.
+            self._vongGheTrongKhongLap = (
+                self._vongGheTrongKhongLap + 1
+                if n <= self._soViTheVongTruoc else 0)
+            self._soViTheVongTruoc = n
             lat.viConGhe = True
-            lat.vi = (f"còn {tran - len(self.danh_muc.viThe)} ghế trống — "
-                      f"KHÔNG đuổi ai. Cơ hội tốt hơn cứ ngồi vào chỗ trống, "
-                      f"và Phân Bổ làm việc ấy ở bước 4. "
-                      f"({lat.soXoayDuoc} chỗ sẽ đáng đổi khi hết ghế.)")
+            lat.soVongGheTrongKhongLap = self._vongGheTrongKhongLap
+            k = self._vongGheTrongKhongLap
+            lat.vi = (f"còn {tran - n} ghế trống — KHÔNG đuổi ai. Cơ hội tốt "
+                      f"hơn cứ ngồi vào chỗ trống, và Phân Bổ làm việc ấy ở "
+                      f"bước 4. ({lat.soXoayDuoc} chỗ sẽ đáng đổi khi hết "
+                      f"ghế.)")
+            if k >= VONG_GHE_TRONG_DANG_NGO:
+                lat.vi += (
+                    f" ⚠ Nhưng đã {k} vòng LIÊN TIẾP còn ghế mà số vị thế "
+                    f"không tăng — lời hứa «Phân Bổ sẽ lấp chỗ» đang KHÔNG "
+                    f"được giữ. Xem phễu: cơ hội tốt hơn có đang kẹt ở một "
+                    f"trần nào không. Máy KHÔNG tự đuổi ai vì chuyện này: "
+                    f"đóng một vị thế mà Phân Bổ không mở lại được là đẩy "
+                    f"vốn về tiền mặt ăn 0%.")
             return lat
+        self._vongGheTrongKhongLap = 0
+        self._soViTheVongTruoc = n
         for x in lat.xoay:
             so = self.soViThe.get(x.maCu)
             if so is None:
@@ -1348,6 +1377,12 @@ class TrungUong:
 #: chiếu của mẫu số. Mười lăm phút là chỗ đứng: đủ ngắn để không bỏ sót vị
 #: thế thật, đủ dài để mẫu số nói được điều gì.
 TOI_THIEU_GIO_DOI_CHIEU = 0.25
+
+#: Bao nhiêu vòng liên tiếp còn ghế trống mà số vị thế không tăng thì bắt
+#: đầu nghi ngờ lời hứa «Phân Bổ sẽ lấp chỗ trống». Ba vòng, vì một vòng
+#: có thể là chưa có cơ hội nào và hai vòng có thể là trùng hợp; ba vòng
+#: liên tiếp thì đó là một trạng thái, không phải một lúc.
+VONG_GHE_TRONG_DANG_NGO = 3
 
 
 def _bps_gio_thuc(laiLoUsd: float, vonUsd: float,

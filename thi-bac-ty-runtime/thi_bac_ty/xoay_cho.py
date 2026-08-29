@@ -113,6 +113,19 @@ class LatCatXoayCho:
     #: Còn ghế trống thì KHÔNG đuổi ai — tiền đề của cả cơ chế này là chỗ
     #: ngồi có hạn, và còn chỗ thì câu hỏi «ai nên ngồi» không đặt ra.
     viConGhe: bool = False
+    #: Bao nhiêu VÒNG LIÊN TIẾP còn ghế trống mà số vị thế KHÔNG tăng.
+    #:
+    #: Luật «còn ghế thì không đuổi ai» dựa trên một lời hứa: cơ hội tốt
+    #: hơn sẽ tự ngồi vào ghế trống ở bước Phân Bổ. Lời hứa ấy KIỂM CHỨNG
+    #: ĐƯỢC, và trên máy sống nó đang sai: 54 vị thế, 66 ghế trống, 478
+    #: nghìn USD nằm không, và số vị thế đứng yên vòng này qua vòng khác —
+    #: vì những cơ hội tốt hơn nằm trong một họ đã chạm trần `tranMotTy`,
+    #: nên ghế trống không giúp gì cho chúng.
+    #:
+    #: Con số này KHÔNG tự đổi hành vi. Đóng một vị thế mà Phân Bổ không
+    #: mở lại được là đẩy vốn về tiền mặt ăn 0% — tệ hơn giữ nguyên. Nó ở
+    #: đây để người đọc thấy tiền đề đang sai, và quyết định là của người.
+    soVongGheTrongKhongLap: int = 0
     xoay: list = field(default_factory=list)
     vi: str = ""
 
@@ -125,6 +138,7 @@ class LatCatXoayCho:
             "aprSauKhiXoay": self.aprSauKhiXoay,
             "loiRongUsd": self.loiRongUsd, "soDaDong": self.soDaDong,
             "viConGhe": self.viConGhe,
+            "soVongGheTrongKhongLap": self.soVongGheTrongKhongLap,
             "xoay": [x.tom_tat() for x in self.xoay],
             "vi": self.vi,
         }
