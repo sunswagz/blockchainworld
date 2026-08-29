@@ -25,7 +25,20 @@ from pathlib import Path
 
 # PHẢI đặt trước khi import trader.* — `config.py` đọc biến này lúc nạp module,
 # đặt sau thì DATA_DIR đã trỏ vào thư mục thật rồi.
-os.environ.setdefault("TCT_DATA_DIR", tempfile.mkdtemp(prefix="tct-selftest-"))
+#
+# GHI ĐÈ, không `setdefault`. Bản cũ dùng `setdefault` nên hễ môi trường ĐÃ có
+# `TCT_DATA_DIR` là phép kiểm chạy thẳng vào SỔ THẬT. Chuyện đó đã xảy ra hai
+# lần: một dòng `export TCT_DATA_DIR=.../data` trong shell là đủ, và phép kiểm
+# ghi 3 lệnh giả vào sổ giao dịch, đè kho chạy lại 86 → 40 bản, đè kho phát
+# hiện 28 → 2.
+#
+# Mục [9] có bắt được — nhưng nó chỉ BÁO, và lúc báo thì các mục trước đã ghi
+# xong rồi. Một phép kiểm phát hiện ô nhiễm sau khi ô nhiễm đã xảy ra thì chỉ
+# là bản cáo phó. Chỗ đúng để chặn là ở đây, trước mọi import.
+#
+# Muốn chạy trên một sổ cụ thể thì sửa dòng này một cách có chủ ý, đừng để nó
+# phụ thuộc vào một biến môi trường mà bất kỳ ai cũng có thể đã đặt vì việc khác.
+os.environ["TCT_DATA_DIR"] = tempfile.mkdtemp(prefix="tct-selftest-")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 

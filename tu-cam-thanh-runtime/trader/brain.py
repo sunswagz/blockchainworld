@@ -1111,8 +1111,17 @@ class Brain:
                 self.mode = "mock"
                 self.last_error = f"không khởi tạo được SDK: {e}"
                 bus.log("brain", "sdk-loi", self.last_error)
-        bus.log("brain", "che-do", f"brain = {self.mode.upper()}"
-                + ("" if self.mode == "claude" else " (không gọi API, không tốn tiền)"))
+        # Mỗi chế độ một câu RIÊNG. Câu cũ chia hai: "claude" thì im, còn lại thì
+        # "(không gọi API, không tốn tiền)" — với `cli` thì nửa đầu đúng và nửa
+        # sau SAI: nó gọi model thật và tiêu quota gói. Một dòng log trấn an sai
+        # là thứ khiến người ta thôi để mắt tới đúng chỗ cần để mắt.
+        _giai_thich = {
+            "claude": "",
+            "cli": " (qua claude CLI — không tốn TIỀN, nhưng CÓ tiêu quota gói)",
+            "mock": " (luật thuần, không gọi model, không tốn gì)",
+        }
+        bus.log("brain", "che-do",
+                f"brain = {self.mode.upper()}" + _giai_thich.get(self.mode, ""))
 
     # System prompt là phần ỔN ĐỊNH của mọi lượt gọi, nên nó được cache. Đặt
     # dữ liệu biến thiên (giá, feature) vào message chứ không vào đây — nhét

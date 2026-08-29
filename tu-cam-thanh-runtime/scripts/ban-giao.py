@@ -371,10 +371,13 @@ def main() -> int:
     # dòng cảnh báo hiện lên đúng vì lý do sai. Cùng loại lỗi với mọi thứ khác
     # trong hệ này: không báo lỗi, chỉ nói nhầm.
     from trader.config import brain_mode
-    if brain_mode() != "claude":
+    # `!= "claude"` là phép so của thời chỉ có HAI chế độ. Sau khi thêm `cli`,
+    # nó khiến bản bàn giao báo "bộ não ở chế độ mock" trong khi bộ não thật
+    # đang chạy — chính tài liệu sinh ra để phát hiện nói dối lại đi nói dối.
+    if brain_mode() == "mock":
         dut.append("Bộ não ở chế độ `mock` — kho kỹ năng và mọi phát hiện KHÔNG tới "
-                   "được chỗ ra quyết định. Đây là chỗ đứt lớn nhất và nó không sửa "
-                   "được bằng mã.")
+                   "được chỗ ra quyết định. Nối bằng khoá API, hoặc bằng claude CLI "
+                   "nếu máy đã đăng nhập gói tháng (`BRAIN=cli`).")
     lenh = [t for t in store.read_all(store.TRADES) if t.get("status") == "CLOSED"]
     if lenh:
         cd = {t.get("regimeKey") for t in lenh[-10:]}
@@ -385,7 +388,13 @@ def main() -> int:
                 dut.append(f"10 lệnh gần nhất đều ở `{ma}` mà KHÔNG phát hiện nào phủ chế "
                            f"độ đó — bot đang giao dịch ở chỗ nó biết ít nhất.")
     if not dut:
-        dut.append("(không phát hiện chỗ đứt nào ở lượt này)")
+        # KHÔNG viết "không phát hiện chỗ đứt nào". Mục này chỉ soi đúng hai
+        # thứ, và một câu như thế nghe như đã soát hết — cùng loại trấn an sai
+        # với dòng log "CLI (không tốn tiền)". Im lặng không phải bằng chứng.
+        dut.append("Hai phép soi ở mục này đều sạch: bộ não KHÔNG ở chế độ mock, "
+                   "và các lệnh gần nhất không dồn vào một chế độ chưa có phát hiện "
+                   "nào phủ. Đó là TẤT CẢ những gì mục này biết soi — chỗ đứt kiểu "
+                   "khác vẫn có thể đang mở.")
     for x in dut:
         W(f"- {x}")
     W("")
