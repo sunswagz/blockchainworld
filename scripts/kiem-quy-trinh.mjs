@@ -969,6 +969,44 @@ for (const c of ["."].concat(cung)) {
   if (tong) nhac(`điều hướng: ${tong} đường trong halls.js của ${cung.length} cung, tất cả trỏ vào chỗ có thật`);
 }
 
+/* ── PHÉP: BƯỚC GỌI MODEL PHẢI CÓ continue-on-error ────
+   Model là phần DUY NHẤT của xưởng hỏng được vì lý do ngoài repo:
+   hết quota, mạng chập, API đổi. Nên nó phải là phần không bao giờ
+   kéo theo ai. Thiếu `continue-on-error: true` thì một lượt tiến hoá
+   hỏng làm ĐỎ cả job và bỏ luôn bước deploy — tức là dữ liệu của
+   mười hai cung đứng lại vì một bản vá giao diện không chạy được.
+
+   Đã trả giá thật: lượt 10:10Z ngày 29/08. Tám bước
+   claude-code-action trong workflow đều có dòng ấy; bước thứ chín
+   tôi vừa thêm thì không, và nó ngã sau 15 giây vì hết quota, kéo
+   theo cả pipeline. Tám lần đúng không ngăn được lần thứ chín —
+   nên luật này phải là phép canh, không phải thói quen. */
+{
+  const wf = ".github/workflows/refresh-data.yml";
+  if (existsSync(join(ROOT, wf))) {
+    const L = (await doc(wf)).split("\n");
+    /* Gom theo KHỐI bước, không quét dòng rời: `uses` có thể đứng
+       trước hay sau `continue-on-error` trong cùng một bước. */
+    const thieu = [];
+    let khoi = [], tenKhoi = null;
+    const xet = () => {
+      if (!tenKhoi) return;
+      const t = khoi.join("\n");
+      if (/uses:\s*anthropics\/claude-code-action/.test(t) &&
+          !/continue-on-error:\s*true/.test(t)) thieu.push(tenKhoi);
+    };
+    for (const l of L) {
+      const m = l.match(/^      - name:\s*(.+?)\s*$/);
+      if (m) { xet(); tenKhoi = m[1]; khoi = []; continue; }
+      if (tenKhoi) khoi.push(l);
+    }
+    xet();
+    for (const t of thieu)
+      bao(`bước "${t}" gọi claude-code-action nhưng THIẾU continue-on-error: true —\n` +
+          `        model hỏng vì hết quota sẽ làm đỏ cả job và bỏ luôn bước deploy.`);
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 

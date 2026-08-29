@@ -2085,6 +2085,18 @@ jobs:
       - name: Đề xuất bản vá — vòng xoay (Claude Code)
         id: n-xv-va
         if: steps.n-xv-de.outcome == 'success'
+        # BẮT BUỘC, và tôi đã quên nó ở bản đầu — trả giá ngay lượt
+        # đầu tiên: lượt 10:10Z ngày 29/08 hết quota, bước này ngã sau
+        # 15 giây, và vì không có dòng này nó kéo ĐỎ cả job. Deploy bị
+        # bỏ qua, tức là một lượt tiến hoá hỏng đã chặn luôn đường dữ
+        # liệu của mười hai cung.
+        #
+        # Cả tám bước claude-code-action khác trong file này đều có
+        # dòng này. Đó không phải thói quen — đó là luật: model là
+        # phần DUY NHẤT của xưởng có thể hỏng vì lý do ngoài repo
+        # (hết quota, mạng, API đổi), nên nó phải là phần không bao
+        # giờ được phép kéo theo ai.
+        continue-on-error: true
         timeout-minutes: 15
         uses: anthropics/claude-code-action@v1
         with:
