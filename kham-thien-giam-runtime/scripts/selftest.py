@@ -4696,6 +4696,48 @@ def kiem_doi_token_khong_phai_dut() -> None:
          xu2 and "soLanNoiLai" not in _a.unparse(
              _a.Module(body=xu2[0].body, type_ignores=[])))
 
+def kiem_cau_dao_chan_that() -> None:
+    """Cầu dao ngắt thì KHÔNG một lệnh nào đi qua. Kiểm đầu-cuối.
+
+    Cầu dao là lớp phòng thủ CUỐI CÙNG, và nó chưa hề có phép kiểm chạy
+    hết đường ống. `duyet` có đọc `ngatKhanCap` — nhưng "có một dòng `if`"
+    và "không lệnh nào lọt" là hai khẳng định khác nhau, và chỉ khẳng định
+    thứ hai mới đáng tin.
+
+    Chạy thật trên băng đầy đủ trước khi viết phép kiểm này: ngắt từ đầu
+    phiên → 0 khớp, 0 kết toán, $0,00, và 3.694 lần từ chối đều ghi lý do
+    "CẦU DAO". Ở đây dựng lại điều đó trên băng giả cho nhanh.
+    """
+    print("\n── Cầu dao ngắt: không một lệnh nào đi qua ─────────────────")
+
+    import tempfile
+
+    from kham.phat_lai import PhienPhatLai
+
+    khung = _bang_gia(120)
+    tam = Path(tempfile.mkdtemp(prefix="ktg-caudao-"))
+
+    # 1. KHÔNG ngắt — phải có lệnh, không thì phép kiểm dưới vô nghĩa.
+    a = PhienPhatLai(von=1000.0, thuMucSo=tam / "mo")
+    ka = a.chay(khung)
+    kiem("phiên đối chứng CÓ khớp lệnh", ka.soKhop > 0, ka.soKhop)
+
+    # 2. Ngắt từ đầu — không được có lệnh nào.
+    b = PhienPhatLai(von=1000.0, thuMucSo=tam / "ngat")
+    b.risk.ngat("thử: ngắt từ đầu phiên")
+    kb = b.chay(khung)
+    kiem("ngắt từ đầu ⇒ KHÔNG khớp lệnh nào", kb.soKhop == 0, kb.soKhop)
+    kiem("và không kết toán gì", kb.soKetToan == 0, kb.soKetToan)
+    kiem("và lãi lỗ đúng bằng 0", kb.tongLaiLo == 0.0, kb.tongLaiLo)
+    kiem("mọi lần từ chối đều ghi lý do CẦU DAO",
+         all("CẦU DAO" in ly for ly in kb.lyDoTuChoi),
+         list(kb.lyDoTuChoi)[:2])
+
+    # 3. Cầu dao KHÔNG tự mở lại — đó là cả điểm của nó.
+    kiem("cầu dao vẫn ngắt sau khi chạy hết băng", b.risk.ngatKhanCap)
+    b.risk.mo_lai()
+    kiem("chỉ người mở mới mở được", not b.risk.ngatKhanCap)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4779,6 +4821,7 @@ def main() -> int:
     kiem_ban_thu_mot_cho()
     kiem_khong_co_file_lac()
     kiem_doi_token_khong_phai_dut()
+    kiem_cau_dao_chan_that()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
