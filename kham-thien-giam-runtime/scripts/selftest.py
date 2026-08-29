@@ -3729,6 +3729,29 @@ def kiem_phi_khong_bien_mat() -> None:
              (GOC_MA / "kham" / "phat_lai.py").read_text(encoding="utf-8")
          ).split("def _tra_ton_kho")[-1][:400])
 
+    # Phiên phát lại KHÔNG được ghi vào sổ thật, kể cả khi ai đó quên
+    # truyền `thuMucSo`. Docstring đã viết "bắt buộc tách khỏi sổ thật"
+    # từ lâu trong khi mặc định làm ngược lại, và nó cắn thật: 14 dòng
+    # mô phỏng chảy vào `data/ket-toan.jsonl` — chính sổ mà cầu dao đọc
+    # lúc khởi động.
+    from kham import phat_lai as _PLM
+    from kham.config import DATA_DIR as _DD
+    _pm = _PLM.PhienPhatLai(von=1000.0)
+    kiem("PhienPhatLai không truyền thuMucSo → KHÔNG ghi vào sổ thật",
+         Path(_pm.so.duong).resolve()
+         != (Path(_DD) / "ket-toan.jsonl").resolve(),
+         str(_pm.so.duong))
+    kiem("mà rơi vào một thư mục con của data/phat-lai",
+         "phat-lai" in Path(_pm.so.duong).as_posix())
+    _nem = False
+    try:
+        _PLM.PhienPhatLai(von=1000.0, thuMucSo=Path(_DD))
+    except ValueError:
+        _nem = True
+    # NÉM chứ không cảnh báo: `_don_so_phien` XOÁ sổ trong thư mục ấy
+    # trước khi chạy, nên nhắm sai không phải bẩn sổ mà là MẤT sổ.
+    kiem("trỏ thẳng vào DATA_DIR thì NÉM, không phải cảnh báo", _nem)
+
     # Bất biến CHUNG cho cả hai đường: một dòng sổ phải tự nhất quán.
     # Đây là thứ nối `ket_toan` (thật) với `phat_lai` (giấy) về một
     # định nghĩa duy nhất của chữ "lãi lỗ".

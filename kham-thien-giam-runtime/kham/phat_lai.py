@@ -240,12 +240,35 @@ class PhienPhatLai:
         Tách bằng ĐƯỜNG DẪN chứ không bằng `KTG_DATA_DIR`: băng và sổ kết
         quả vẫn phải đọc từ chỗ thật, nên đổi cả `DATA_DIR` là cắt luôn
         nguồn dữ liệu của chính phiên này.
+
+        ## `None` KHÔNG còn nghĩa là "sổ thật"
+
+        Đoạn trên viết "bắt buộc tách khỏi sổ thật" từ lâu, rồi để mặc
+        định làm đúng ngược lại: `thuMucSo=None` cho `So(None)`, tức
+        `DATA_DIR/ket-toan.jsonl` — CHÍNH sổ thật. Một luật nằm trong
+        văn xuôi thì không giữ được gì.
+
+        Nó đã cắn: hai lần trong một buổi, một phiên phát lại nối 14 dòng
+        mô phỏng vào sổ kết toán thật. Sổ ấy là thứ `RiskEngine.nap_tu_so`
+        đọc lúc khởi động để dựng lại vốn, đỉnh vốn và lỗ ngày — nên vốn
+        ảo của phiên chạy lại trở thành vốn "thật" của cầu dao. Không lỗi
+        nào ném ra; mọi con số vẫn đúng cú pháp.
+
+        Nay `None` trỏ vào `data/phat-lai/khong-ten`, và trỏ vào chính
+        `DATA_DIR` thì NÉM. Ném chứ không cảnh báo: `_don_so_phien` xoá
+        sạch sổ trong thư mục ấy trước khi chạy, nên nhắm sai chỗ này
+        không phải là bẩn sổ, mà là mất sổ.
         """
         from pathlib import Path as _P
-        tm = _P(thuMucSo) if thuMucSo else None
-        if tm is not None:
-            tm.mkdir(parents=True, exist_ok=True)
-            _don_so_phien(tm)
+
+        from .config import DATA_DIR as _DD
+        tm = _P(thuMucSo) if thuMucSo else _P(_DD) / "phat-lai" / "khong-ten"
+        if tm.resolve() == _P(_DD).resolve():
+            raise ValueError(
+                "PhienPhatLai: thuMucSo trỏ thẳng vào DATA_DIR — phiên mô "
+                "phỏng sẽ XOÁ rồi ghi đè sổ kết toán thật")
+        tm.mkdir(parents=True, exist_ok=True)
+        _don_so_phien(tm)
         self.kho = Kho()
         # ĐỒNG HỒ CỦA BĂNG, không phải đồng hồ tường. Trần lỗ NGÀY cần một
         # ranh giới ngày; chạy lại tám ngày bằng đồng hồ tường thì với nó
@@ -266,8 +289,11 @@ class PhienPhatLai:
             # Gốc của ba trần cũng phải theo, không thì phiên $100.000
             # chạy với trần của tài khoản $1.000.
             self.risk.vonDauNgay = float(von)
-        self.hieuChinh = HieuChinh(tm / "hieu-chinh.json" if tm else None)
-        self.so = So(tm / "ket-toan.jsonl" if tm else None)
+        # `tm` không bao giờ còn là None, nên không còn nhánh nào rơi
+        # về sổ thật nữa.
+        self.hieuChinh = HieuChinh(tm / "hieu-chinh.json")
+        self.so = So(tm / "ket-toan.jsonl")
+        self.thuMucSo = tm
         self.phepNan = khop_nan(self.hieuChinh)
         self.batTat = batTat
         self.mo: dict[str, ViKhung] = {}
