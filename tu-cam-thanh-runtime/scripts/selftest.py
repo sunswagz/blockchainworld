@@ -903,6 +903,24 @@ async def main() -> int:
     check(any("CHƯA CÓ" in x and _ten in x for x in BG21._kho_cu()),
           f"{_ten} không tồn tại → báo CHƯA CÓ, khác với «cũ»")
 
+
+    # ── Hai danh sách rời nhau phải khớp ──
+    #
+    # Nghi thức có bảng việc; bàn giao có bảng kho-phải-canh. Chúng viết tay,
+    # rời nhau, và không gì nối. Thêm một việc mà quên khai bên kia thì kho ấy
+    # đứng im vô hạn và KHÔNG AI KÊU — đã xảy ra với soát-lại-bài-học, 9 ngày.
+    #
+    # Không hợp nhất hai bảng: chúng trả lời hai câu hỏi khác nhau (chạy cái gì
+    # / kho nào cũ). Nhưng bảng canh phải PHỦ bảng việc, và đó là phép kiểm.
+    from trader import nghi_thuc as _NT19
+    _canh = {t for t, _, _ in BG21.KHO_DO}
+    _sinh = {x[3] for x in _NT19.VIEC if x[3]}
+    _sot = sorted(_sinh - _canh)
+    check(not _sot,
+          "mọi kho nghi thức sinh ra đều được bàn giao canh tuổi"
+          + (f" — KHÔNG AI CANH: {_sot}" if _sot else ""))
+    check(bool({"kho-khong-ai-canh.json"} - _canh),
+          "phép so BẮT ĐƯỢC một kho lạ — không tự chấm mù")
     print("\n[20] HẬU KIỂM PHẢI NHƯỜNG TRẦN CHO LUẬN ĐIỂM")
     import trader.brain as _B20
 

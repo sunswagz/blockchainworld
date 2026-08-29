@@ -64,21 +64,47 @@ _trang_thai: dict[str, Any] = {
     "ketQua": {}, "loi": None,
 }
 
+# Phần tử thứ tư là KHO việc đó sinh ra. Không phải để chạy — để CANH.
+#
+# `lessons-soat-lai.jsonl` đứng im 9 ngày: việc soát lại chưa từng nằm trong
+# nghi thức, nên phải gõ tay, nên không ai gõ. Và bàn giao cũng không kêu, vì
+# danh sách kho-phải-canh của nó là một danh sách RIÊNG, viết tay, không dính
+# gì tới bảng này. Hai danh sách rời nhau thì thêm việc mà quên khai bên kia là
+# chuyện đương nhiên xảy ra — đã xảy ra.
+#
+# Khai ở ĐÂY, một chỗ. `selftest` bắt bàn giao phải canh đủ mọi kho trong bảng.
 VIEC = (
-    ("mẫu giá", [sys.executable, "scripts/do-mau-gia.py", "--ghi"], 900),
-    ("hình học khung", [sys.executable, "scripts/do-khung.py", "--ghi"], 900),
-    ("đấu chiến lược", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca"], 900),
-    ("bộ phá", [sys.executable, "scripts/bo-pha.py", "--ghi"], 600),
+    ("mẫu giá", [sys.executable, "scripts/do-mau-gia.py", "--ghi"], 900,
+     "mau-gia.json"),
+    ("hình học khung", [sys.executable, "scripts/do-khung.py", "--ghi"], 900,
+     "do-khung.json"),
+    ("đấu chiến lược", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca"], 900,
+     "chien-luoc.json"),
+    ("bộ phá", [sys.executable, "scripts/bo-pha.py", "--ghi"], 600, "bo-pha.json"),
+    # SOÁT LẠI BÀI HỌC. Đứng im 9 ngày vì nó chưa từng nằm trong nghi thức —
+    # phải gõ tay, nên không ai gõ. Bài học được đúc NGAY LÚC lệnh đóng, khi sổ
+    # còn quá ít để trả lời "lệnh này cược lớn hơn mức thường bao nhiêu"; soát
+    # lại là chạy hậu kiểm lần nữa với cả sổ trong tay. Bỏ nó ra khỏi vòng thì
+    # `recall()` mãi rót vào prompt những câu đúc lúc chưa biết gì.
+    #
+    # Rẻ và an toàn để chạy mỗi 6 tiếng: dùng `mock_postmortem`, luật thuần,
+    # không gọi model nên không tiêu lượt nào của trần `brain.cli`. Và nó ghi
+    # sang file PHỦ chứ không đè `lessons.jsonl` — bản ghi bộ não đã nghĩ gì
+    # lúc đó là bằng chứng, không được xoá.
+    ("soát lại bài học", [sys.executable, "scripts/soat-lai-bai-hoc.py", "--ghi"], 300,
+     "lessons-soat-lai.jsonl"),
     # Đấu NHIỀU CHỢ. Nghi thức trước chỉ chạy `--tat-ca` trên một chợ, nên
     # `dau-nhieu-cho.json` đứng im 9 ngày và phát hiện "dương ở mấy chợ" nói về
     # một cấu hình đã đổi từ lâu. Ba coin cùng khung đang chạy: chuỗi tín hiệu
     # đã có cache nên lượt sau chỉ mất ~1 phút.
     ("đấu nhiều chợ", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca",
-                       "--cho", "BTCUSDT:4h,ETHUSDT:4h,SOLUSDT:4h"], 1200),
+                       "--cho", "BTCUSDT:4h,ETHUSDT:4h,SOLUSDT:4h"], 1200,
+     "dau-nhieu-cho.json"),
 )
 
 # Chạy SAU khi đã chưng cất — xem "THỨ TỰ KHÔNG ĐƯỢC ĐỔI" ở đầu file.
-VIEC_CUOI = (("bàn giao", [sys.executable, "scripts/ban-giao.py", "--ghi"], 300),)
+VIEC_CUOI = (("bàn giao", [sys.executable, "scripts/ban-giao.py", "--ghi"], 300,
+              "BAN-GIAO.md"),)
 
 
 def trang_thai() -> dict:
@@ -117,7 +143,7 @@ def _chay() -> None:
         # 14 lệnh giả của selftest vào thống kê thật.
         moi = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1",
                "TCT_DATA_DIR": str(DATA_DIR)}
-        def _mot(ten, lenh, han):
+        def _mot(ten, lenh, han, _kho=None):
             _trang_thai.update(viec=ten)
             bus.emit("hoc", "nghi-thuc", f"đang chạy: {ten}…")
             t0 = time.time()

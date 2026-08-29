@@ -157,6 +157,7 @@ KHO_DO = (
     ("do-khung.json", "hình học khung", 48),
     ("bo-pha.json", "bộ phá", 48),
     ("dau-nhieu-cho.json", "đấu nhiều chợ", 48),
+    ("lessons-soat-lai.jsonl", "soát lại bài học", 48),
     ("chien-luoc.json", "sổ chiến lược", 72),
     ("trader-ho-so.json", "đài quan sát", 168),
 )
