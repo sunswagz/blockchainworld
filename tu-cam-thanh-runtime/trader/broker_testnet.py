@@ -73,6 +73,19 @@ class TestnetBroker:
             lech = self.client.sync_time()
             f = self.client.filters(self.symbol)
             bal = self.client.balances()
+            # Kiểm MỌI chợ khai trong config, không chỉ chợ chính. Sàn không có
+            # cặp đó thì phải biết lúc khởi động, chứ không phải lúc bot vừa
+            # quyết định vào lệnh và lệnh bị từ chối.
+            self.cho_loi = []
+            for _s in (CONFIG.get("symbols") or []):
+                try:
+                    self.client.filters(_s)
+                except BinanceError as e:
+                    self.cho_loi.append(f"{_s}: {e}")
+            if self.cho_loi:
+                bus.log("exec", "testnet-cho-khong-dung-duoc",
+                        f"{len(self.cho_loi)} chợ trong config sàn không nhận: "
+                        + " · ".join(self.cho_loi[:5]))
             self.ready = True
             self.last_error = None
             bus.log("exec", "testnet-noi-duoc",
@@ -95,13 +108,24 @@ class TestnetBroker:
     def _save(self) -> None:
         store.write_json(ACCOUNT_FILE, self.state)
 
-    def _equity(self, price: float) -> float:
-        """Vốn quy về USDT. Đọc từ sàn — sổ của mình không có quyền nói khác."""
+    def _equity(self, price: float | dict) -> float:
+        """Vốn quy về USDT. Đọc từ sàn — sổ của mình không có quyền nói khác.
+
+        `price` nhận một số (một chợ) hoặc {chợ: giá}. Cộng qua mọi tài sản có
+        giá: giữ ETH mà chỉ tính BTC là báo vốn thấp hơn thật.
+        """
+        gia = price if isinstance(price, dict) else {self.symbol: price}
         f = self.client.filters(self.symbol)
         bal = self.client.balances()
-        quote = bal.get(f["quote"], {}).get("total", 0.0)
-        base = bal.get(f["base"], {}).get("total", 0.0)
-        return quote + base * price
+        tong = bal.get(f["quote"], {}).get("total", 0.0)
+        for sym, g in gia.items():
+            try:
+                fi = self.client.filters(sym)
+            except BinanceError:
+                continue
+            if fi["quote"] == f["quote"]:
+                tong += bal.get(fi["base"], {}).get("total", 0.0) * g
+        return tong
 
     def reset(self) -> dict:
         """Huỷ mọi lệnh treo và xoá sổ vị thế cục bộ.
@@ -110,10 +134,15 @@ class TestnetBroker:
         Hết tiền thì tạo khoá mới ở testnet.binance.vision.
         """
         if self.ready:
-            try:
-                self.client.cancel_all(self.symbol)
-            except BinanceError as e:
-                bus.log("exec", "testnet-huy-loi", str(e))
+            # Huỷ ở MỌI chợ đang có vị thế, không chỉ chợ chính: reset mà để lại
+            # OCO của ETH treo trên sàn là để lại một lệnh mồ côi sẽ khớp lúc nào
+            # đó, cho một vị thế mà sổ cục bộ đã xoá.
+            for _s in {self.symbol} | {t.get("symbol") or self.symbol
+                                       for t in self.state["positions"]}:
+                try:
+                    self.client.cancel_all(_s)
+                except BinanceError as e:
+                    bus.log("exec", "testnet-huy-loi", f"{_s}: {e}")
         self.state = self._fresh()
         self._touch_day()
         self._save()
@@ -129,7 +158,10 @@ class TestnetBroker:
             bus.log("exec", "testnet-tu-choi", "spot không short được — lệnh bị bỏ")
             return None
 
-        sym = self.symbol
+        # Chợ lấy từ chính LUẬN ĐIỂM, không từ cấu hình broker. Quét 15 coin mà
+        # đặt lệnh bằng symbol cố định là gửi lệnh ETH lên sàn mang mã BTC —
+        # sàn khớp, sổ ghi, và không gì báo sai.
+        sym = thesis.get("symbol") or self.symbol
         qty = self.client.round_qty(sym, pos["qty"])
         why = self.client.check_order(sym, qty, pos["entry"])
         if why:
@@ -227,7 +259,14 @@ class TestnetBroker:
         if not self.ready or not self.state["positions"]:
             return []
         try:
-            open_ids = {o.get("orderListId") for o in self.client.open_orders(self.symbol)}
+            # Hỏi từng chợ ĐANG có vị thế, không chỉ chợ chính: lệnh OCO của
+            # ETH không xuất hiện trong `open_orders("BTCUSDT")`, nên vị thế
+            # ETH sẽ trông như đã khớp xong trong khi nó vẫn đang treo.
+            open_ids = set()
+            for _s in {t.get("symbol") or self.symbol
+                       for t in self.state["positions"]}:
+                open_ids |= {o.get("orderListId")
+                             for o in self.client.open_orders(_s)}
         except BinanceError as e:
             bus.log("exec", "testnet-loi-doc-lenh", str(e))
             return []
@@ -255,7 +294,8 @@ class TestnetBroker:
         fee = 0.0
         reason = ly_do or "OCO_FILLED"
         try:
-            for tr in reversed(self.client.my_trades(self.symbol, limit=20)):
+            for tr in reversed(self.client.my_trades(
+                    trade.get("symbol") or self.symbol, limit=20)):
                 if tr.get("isBuyer"):
                     continue
                 exit_price = float(tr["price"])
@@ -308,8 +348,9 @@ class TestnetBroker:
         """Đóng bằng tay: huỷ OCO rồi bán MARKET."""
         if self.ready:
             try:
-                self.client.cancel_all(self.symbol)
-                self.client.market_sell(self.symbol, self.client.round_qty(self.symbol, trade["qty"]))
+                _s = trade.get("symbol") or self.symbol
+                self.client.cancel_all(_s)
+                self.client.market_sell(_s, self.client.round_qty(_s, trade["qty"]))
             except BinanceError as e:
                 bus.log("exec", "testnet-loi-dong", str(e))
         return self._settle(trade, ly_do=reason)
@@ -326,7 +367,10 @@ class TestnetBroker:
             return []
         canh = []
         try:
-            treo = self.client.open_orders(self.symbol)
+            treo = []
+            for _s in {self.symbol} | {t.get("symbol") or self.symbol
+                                       for t in self.state["positions"]}:
+                treo += self.client.open_orders(_s)
         except BinanceError as e:
             return [f"không đọc được lệnh treo: {e}"]
         ids = {o.get("orderListId") for o in treo}
@@ -360,11 +404,25 @@ class TestnetBroker:
         da_doc = False
         if self.ready and price:
             try:
+                # `price` nhận MỘT SỐ (một chợ) hoặc TỪ ĐIỂN {chợ: giá}.
+                #
+                # Vốn phải cộng qua MỌI tài sản đang giữ, không chỉ tài sản của
+                # chợ chính. Quét 15 coin mà tính vốn bằng "USDT + BTC×giá BTC"
+                # là bỏ sót ETH, SOL… đang nắm — vốn thấp hơn thật, và vốn sai
+                # thì cỡ vị thế sai ở MỌI lệnh sau đó.
+                gia = price if isinstance(price, dict) else {self.symbol: price}
                 f = self.client.filters(self.symbol)
                 bal = self.client.balances()
                 quote = bal.get(f["quote"], {})
-                base = bal.get(f["base"], {})
-                equity = quote.get("total", 0.0) + base.get("total", 0.0) * price
+                equity = quote.get("total", 0.0)
+                for sym, g in gia.items():
+                    try:
+                        fi = self.client.filters(sym)
+                    except BinanceError:
+                        continue
+                    if fi["quote"] != f["quote"]:
+                        continue
+                    equity += bal.get(fi["base"], {}).get("total", 0.0) * g
                 # Tiền MUA ĐƯỢC, không phải vốn: phần USDT đang rảnh. Risk Engine
                 # cần con số này để không sinh ra lệnh mà sàn chắc chắn từ chối.
                 avail = quote.get("free", 0.0)

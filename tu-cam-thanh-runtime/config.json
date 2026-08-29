@@ -1,5 +1,9 @@
 {
   "symbol": "BTCUSDT",
+  "_symbols": "Các chợ được QUÉT mỗi khi tới lượt ra quyết định. Chợ chính (symbol) luôn đứng đầu. Chỉ chạy ở mode=paper: TestnetBroker khoá cứng một symbol nên nhiều chợ ở đó là gửi lệnh ETH mang mã BTC.",
+  "symbols": ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT",
+              "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "DOTUSDT",
+              "ATOMUSDT", "NEARUSDT", "LTCUSDT", "TRXUSDT", "BCHUSDT"],
   "timeframes": {
     "primary": "4h",
     "context": "1d"
@@ -29,7 +33,8 @@
   "risk": {
     "startingEquity": 10000,
     "maxRiskPerTradePct": 0.5,
-    "maxOpenPositions": 1,
+    "_maxOpenPositions": "4 = trần tổng rủi ro 2,0% chia cho 0,5% mỗi lệnh. Hai con số này phải đi cùng nhau: để 1 thì quét nhiều chợ vô nghĩa, để 10 thì trần tổng chặn ở lệnh thứ 5 và bốn lệnh sau chỉ tốn công quét.",
+  "maxOpenPositions": 4,
   "_maxTongRuiRoPct": "TỔNG rủi ro đang mở, tính bằng % vốn. Khác maxRiskPerTradePct: cái đó canh MỘT lệnh. Khi maxOpenPositions=1 thì hai con số là một; mở nhiều coin thì chúng tách hẳn, và 15 lệnh crypto không phải 15 cược độc lập — chúng thua cùng nhau.",
   "maxTongRuiRoPct": 2.0,
     "maxDailyLossPct": 2.0,

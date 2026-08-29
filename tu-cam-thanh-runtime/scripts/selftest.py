@@ -1091,12 +1091,12 @@ async def main() -> int:
     # không được âm thầm quét một chợ: một cấu hình khai 15 chợ mà chạy đúng một
     # chợ là thứ không ai phát hiện, và nó sẽ được đọc như "15 chợ chẳng bắt
     # được gì".
+    # Chợ sàn KHÔNG nhận phải bị loại ở bước quét, không để tới lúc đặt lệnh:
+    # tới đó thì bot đã bỏ một vòng quyết định để chọn một chợ không đặt được.
     _t38 = _G38({"symbol": "BTCUSDT", "symbols": ["BTCUSDT", "ETHUSDT"]}, [])
-    _t38.mode = "testnet"
-    check(_t38._cho_quet() == ["BTCUSDT"],
-          "testnet + nhiều chợ → chỉ quét chợ của broker")
-    _t38.mode = "paper"
-    check(len(_t38._cho_quet()) == 2, "sàn giấy → quét đủ hai chợ")
+    check(len(_t38._cho_quet()) == 2, "chợ sàn nhận đủ → quét cả hai")
+    _t38.broker.cho_loi = ["ETHUSDT: khong co cap"]
+    check(_t38._cho_quet() == ["BTCUSDT"], "chợ sàn không nhận → loại khỏi quét")
 
     # Chợ ĐANG có vị thế bị loại khỏi ứng viên: mở lệnh thứ hai trên cùng coin
     # là nhân đôi rủi ro của đúng một cược, không phải thêm một cược mới.

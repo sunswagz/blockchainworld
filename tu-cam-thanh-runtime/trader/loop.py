@@ -172,22 +172,16 @@ class Runtime:
         cần hàng tuần mới chốt được.
         """
         ds = self.cfg.get("symbols") or [self.cfg["symbol"]]
-        if len(ds) > 1 and self.mode == "testnet":
-            # `TestnetBroker` nhận symbol lúc khởi tạo và dùng nó ở 11 chỗ —
-            # bộ lọc khối lượng, huỷ lệnh treo, đọc lệnh khớp, đóng khẩn cấp.
-            # Bật nhiều chợ ở đây là gửi lệnh ETH lên sàn mang mã BTC.
-            #
-            # Chặn thẳng thay vì âm thầm quét một chợ: một cấu hình khai 15 chợ
-            # mà chạy đúng một chợ là thứ không ai phát hiện ra, và nó sẽ được
-            # đọc như "15 chợ mà chẳng bắt được gì".
-            #
-            # Sàn GIẤY không khoá symbol và đánh được cả SHORT — nửa duy nhất
-            # có lãi trong phép đo. Nhiều chợ chạy ở đó.
-            bus.log("system", "nhieu-cho-can-paper",
-                    f"config khai {len(ds)} chợ nhưng đang chạy testnet, mà "
-                    f"TestnetBroker khoá cứng {self.cfg['symbol']} — CHỈ quét chợ "
-                    f"đó. Muốn nhiều chợ thì đặt mode=paper.")
-            return [self.cfg["symbol"]]
+        # Chợ nào sàn KHÔNG nhận thì loại ngay, không để tới lúc đặt lệnh.
+        #
+        # `TestnetBroker` từng khoá cứng một symbol ở 11 chỗ và bản trước chặn
+        # thẳng nhiều chợ ở chế độ testnet. Giờ nó nhận symbol từ chính luận
+        # điểm, cộng vốn qua mọi tài sản, huỷ lệnh ở mọi chợ, và kiểm cả danh
+        # sách chợ lúc nối — nên chặn không còn cần. Cái vẫn cần là loại đúng
+        # những chợ sàn không có cặp.
+        hong = set(getattr(self.broker, "cho_loi", None) or [])
+        if hong:
+            ds = [x for x in ds if not any(h.startswith(x) for h in hong)]
         # Chợ chính LUÔN đứng đầu: nó là chợ mà bảng, ảnh chụp và `/api/state`
         # nói về khi không nói rõ chợ nào.
         return [self.cfg["symbol"]] + [x for x in ds if x != self.cfg["symbol"]]
