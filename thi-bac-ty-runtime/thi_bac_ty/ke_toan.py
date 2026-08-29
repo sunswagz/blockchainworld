@@ -107,9 +107,15 @@ class SoViThe:
 
     @property
     def giuGio(self) -> float:
+        # `AttributeError` chứ không chỉ `TypeError`: `toTrinh` là `None`
+        # thì `None.get(...)` ném `AttributeError`, và cửa cũ không bắt
+        # nó. Một bản lưu có `"toTrinh": null` — sổ cũ, hoặc file hỏng —
+        # đủ để giết CẢ vòng kế toán, không riêng vị thế ấy. Hai dòng
+        # dưới trong `tom_tat()` đã che bằng `(self.toTrinh or {})`, nên
+        # cửa này là chỗ duy nhất còn hở, và nó chạy TRƯỚC hai dòng kia.
         try:
             return float(self.toTrinh.get("giuGio") or 0.0)
-        except (TypeError, ValueError):
+        except (AttributeError, TypeError, ValueError):
             return 0.0
 
     def daGiuGio(self, nowGiay: float) -> float:
@@ -207,6 +213,11 @@ class SoVonGio:
              ty: str | None = None) -> None:
         self.nhip(denGiay)
         dt = max(0.0, denGiay - tuGiay)
+        # `dt <= 0` và `dt < 0` cho cùng kết quả: `dt` đã qua `max(0.0, …)`
+        # ở trên nên không âm được, và `dt == 0` đi tiếp thì mọi phép cộng
+        # dưới đây cộng đúng 0. Con đột biến ở vế ấy TƯƠNG ĐƯƠNG — ghi lại
+        # để lượt quét sau khỏi đi tìm phép kiểm không tồn tại. Vế
+        # `vonUsd <= 0` thì KHÔNG tương đương, và đã có phép kiểm riêng.
         if dt <= 0.0 or vonUsd <= 0.0:
             return
         if ty is not None:

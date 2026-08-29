@@ -2552,6 +2552,69 @@ def kiem_cau_dao() -> None:
     kiem("lịch sử ghi lại ai đóng",
          any(x.get("nguoi") == "nguoi-van-hanh" for x in cd.lichSu))
 
+    # ── BIÊN của từng cửa ngắt ─────────────────────────────────────────
+    #
+    # Cầu dao là lớp CUỐI: nó dừng cỗ máy khi ta không còn chắc mình đang
+    # nhìn đúng thế giới. Quét đột biến cho 3/6 con sống sót, cả ba đều
+    # ở biên — không phép kiểm nào phân biệt «đúng bằng trần» với «vượt
+    # trần» trên chính ba cái trần ấy.
+    #
+    # Ngưỡng ĐÓNG: đúng bằng trần thì CÒN TRONG trần. Đảo lại là ngắt
+    # oan, và một cầu dao ngắt oan là một cầu dao người ta gỡ.
+    def _soat(**kw):
+        o = dict(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0,
+                 sutVonPct=0.0, nguong=NG)
+        o.update(kw)
+        c = CauDao()
+        c.tu_soat(**o)
+        return c
+
+    kiem("lệch đồng hồ ĐÚNG BẰNG trần thì KHÔNG ngắt",
+         not _soat(lechDongHoGiay=60.0).dang_ngat,
+         "60s là trần; ngắt ở đúng 60 là ngắt oan, và cầu dao ngắt oan là "
+         "cầu dao người ta gỡ")
+    kiem("hơn trần một giây thì ngắt",
+         _soat(lechDongHoGiay=60.001).dang_ngat)
+    kiem("và lệch ÂM cũng tính theo trị tuyệt đối",
+         _soat(lechDongHoGiay=-60.001).dang_ngat
+         and not _soat(lechDongHoGiay=-60.0).dang_ngat,
+         "đồng hồ chạy nhanh cũng sai y như chạy chậm")
+
+    kiem("tuổi báo giá ĐÚNG BẰNG trần thì KHÔNG ngắt",
+         not _soat(tuoiXauNhatGiay=300.0).dang_ngat)
+    kiem("già hơn trần thì ngắt", _soat(tuoiXauNhatGiay=300.001).dang_ngat)
+
+    kiem("sụt vốn ĐÚNG BẰNG trần thì KHÔNG ngắt",
+         not _soat(sutVonPct=10.0).dang_ngat,
+         "ngắt ở đúng trần là siết cỗ máy chặt hơn con số người vận hành "
+         "đã chọn, mà không ai khai là đã siết")
+    kiem("sụt quá trần thì ngắt", _soat(sutVonPct=10.001).dang_ngat)
+
+    # Số cảng chết: trần 0 nghĩa là KHÔNG được chết cái nào.
+    kiem("đúng bằng trần cảng chết (0) thì không ngắt",
+         not _soat(cangChet=[]).dang_ngat)
+    kiem("một cảng chết là vượt trần 0", _soat(cangChet=["binance"]).dang_ngat)
+
+    # Chưa đo được thì NGẮT, và đó không phải một cái trần — nó là một
+    # trạng thái khác hẳn. `None` không được rơi vào nhánh so sánh.
+    # Đọc MÃ trong `lyDo`, không đọc một khoá tự bịa. Bản đầu của phép
+    # kiểm này dò `tom_tat()["maNgat"]` — một khoá KHÔNG TỒN TẠI — nên
+    # `.get(..., [])` trả rỗng và phép kiểm xanh mà chưa nhìn vào gì cả.
+    # Một phép kiểm rỗng tệ hơn không có phép kiểm: nó chiếm chỗ.
+    def _ma_ngat(c):
+        return {x["ma"] for x in c.tom_tat()["lyDo"]}
+
+    kiem("và cửa ấy CÓ THẬT: quá tuổi thì mã `du-lieu-dung` hiện ra",
+         "du-lieu-dung" in _ma_ngat(_soat(tuoiXauNhatGiay=999.0)),
+         "không có vế này thì phép kiểm dưới chỉ chứng minh một khoá "
+         "không tồn tại vẫn trả về rỗng")
+    kiem("tuổi báo giá CHƯA đo được thì KHÔNG ngắt vì tuổi",
+         "du-lieu-dung" not in _ma_ngat(_soat(tuoiXauNhatGiay=None)),
+         "so `None` với một con số là nổ; bỏ qua nó ở đây là đúng, và cửa "
+         "«chưa đo» của đồng hồ mới là cửa canh chuyện ấy")
+    kiem("sụt vốn CHƯA đo được thì cũng không ngắt vì sụt vốn",
+         not _soat(sutVonPct=None).dang_ngat)
+
 
 def kiem_thuc_thi() -> None:
     print("\n── Thực Thi: máy trạng thái hai chân, và legging risk ─────────")
@@ -8081,6 +8144,83 @@ def kiem_ke_toan_vi_the() -> None:
          "đi là khoe một mức dùng vốn cao hơn thật, đúng phần đáng lo nhất")
     kiem("và lời giải thích NÓI RÕ đây không phải lợi suất cả gia sản",
          "KHÔNG phải lợi suất của cả gia sản" in tt26["vi"], tt26["vi"])
+
+    # ── BIÊN của sổ vốn-giờ ────────────────────────────────────────────
+    #
+    # Đây là MẪU SỐ của mọi câu «lợi suất bao nhiêu». Quét đột biến cho
+    # 5/9 con sống sót.
+
+    # Quãng bằng 0 hoặc vốn bằng 0 thì KHÔNG cộng gì. `<=` đổi thành `<`
+    # là cộng những quãng dài 0 giây — mỗi vòng một lần, và mẫu số phồng
+    # lên bằng những quãng chưa từng tồn tại.
+    _sgB = SoVonGio(tuGiay=_t26, denGiay=_t26)
+    _sgB.cong(6000.0, _t26, _t26, ty="a.v1")
+    kiem("quãng dài ĐÚNG 0 giây thì không cộng vốn-giờ nào",
+         gan(_sgB.vonGioUsd, 0.0) and not _sgB.theoTy.get("a.v1", {}).get(
+             "vonGioUsd"),
+         f"{_sgB.vonGioUsd} — cộng một quãng 0 giây là phồng mẫu số bằng "
+         f"những quãng chưa từng tồn tại")
+    _sgB.cong(0.0, _t26, _t26 + 3600.0, ty="a.v1")
+    kiem("vốn ĐÚNG BẰNG 0 chạy một giờ cũng không cộng gì",
+         gan(_sgB.vonGioUsd, 0.0),
+         "0 đồng chạy một giờ vẫn là 0 vốn-giờ; cộng nó vào là đếm một "
+         "quãng KHÔNG có vốn thành một quãng CÓ")
+    _sgB.cong(1.0, _t26, _t26 + 3600.0, ty="a.v1")
+    kiem("một xu chạy một giờ thì CÓ cộng — biên mở đúng phía",
+         gan(_sgB.vonGioUsd, 1.0) and gan(
+             _sgB.theoTy["a.v1"]["vonGioUsd"], 1.0))
+
+    # Lợi suất THEO TY: `None` khi ty ấy chưa có vốn-giờ nào, không phải
+    # 0. Một ty vừa đăng ký mà bảng ghi «0,00%/năm» đọc thành «đã chạy và
+    # huề vốn» — hai câu khác hẳn nhau.
+    _sgT = SoVonGio(tuGiay=_t26, denGiay=_t26)
+    _sgT.cong_thu("chua_chay.v1", 0.0)
+    _sgT.cong(1000.0, _t26, _t26 + 3600.0, ty="da_chay.v1")
+    _sgT.cong_thu("da_chay.v1", 0.5)
+    _tt = _sgT.tom_tat()["theoTy"]
+    kiem("ty CHƯA có vốn-giờ thì lợi suất là None, không phải 0",
+         _tt["chua_chay.v1"]["loiSuatNamPhanTram"] is None,
+         f"{_tt} — «chưa chạy» và «đã chạy và huề vốn» là hai câu")
+    kiem("ty ĐÃ chạy thì tính ra được",
+         gan(_tt["da_chay.v1"]["loiSuatNamPhanTram"],
+             0.5 / 1000.0 * 8760.0 * 100.0, 1e-6),
+         str(_tt["da_chay.v1"]))
+
+    # Vị thế có `toTrinh` là `None` — bản lưu cũ, hoặc một vị thế nạp lại
+    # từ đĩa mà tờ trình đã mất. `(self.toTrinh or {})` che cho ca ấy;
+    # đổi thành `and` là `None.get(...)` nổ ngay giữa vòng kế toán, và
+    # một vòng nổ là một vòng KHÔNG kế toán vị thế nào.
+    from thi_bac_ty.ke_toan import SoViThe as _SVT
+    _svMat = _SVT(ma="mat-to-trinh", chienLuoc="a.v1", toTrinh=None,
+                  vonUsd=500.0, moLucGiay=_t26, keToanLucGiay=_t26)
+    _ttMat = _svMat.tom_tat(_t26 + 3600.0)
+    kiem("vị thế MẤT tờ trình vẫn tóm tắt được, không nổ",
+         (_ttMat["netUocBps"] is None and _ttMat["giuGioHua"] is None
+          and gan(_ttMat["giuGio"], 0.0)),
+         f"{_ttMat} — «mất tờ trình» phải ra None, không phải một vòng "
+         f"kế toán chết. Cửa `giuGio` từng chỉ bắt `TypeError`, mà "
+         f"`None.get(...)` ném `AttributeError` — một bản lưu có "
+         f"`\"toTrinh\": null` đủ để giết CẢ vòng, không riêng vị thế ấy")
+    _svCo = _SVT(ma="co-to-trinh", chienLuoc="a.v1",
+                 toTrinh={"netUocBps": 8.0, "giuGio": 24.0},
+                 vonUsd=500.0, moLucGiay=_t26, keToanLucGiay=_t26)
+    kiem("và có tờ trình thì đọc ra đúng con số hứa",
+         (_svCo.tom_tat(_t26)["netUocBps"] == 8.0
+          and _svCo.tom_tat(_t26)["giuGioHua"] == 24.0),
+         "không có vế này thì phép kiểm trên chỉ chứng minh hàm luôn trả "
+         "None")
+
+    # Cửa sổ dài ĐÚNG 0 giờ mà đã có vốn-giờ: câu giải thích phải tránh
+    # phép chia. Ca này dựng được khi nạp lại bản lưu — vốn-giờ sống qua
+    # khởi động lại, còn mốc cửa sổ thì vừa đặt lại.
+    _sgG = SoVonGio(tuGiay=_t26, denGiay=_t26)
+    _sgG.vonGioUsd = 500.0
+    _sgG.thuRongUsd = 0.1
+    _viG = _sgG.tom_tat()["vi"]
+    kiem("cửa sổ 0 giờ mà đã có vốn-giờ thì KHÔNG chia cho không",
+         "cửa sổ đo còn quá ngắn" in _viG,
+         f"{_viG} — nạp lại bản lưu là đúng ca này: vốn-giờ sống qua khởi "
+         f"động lại, mốc cửa sổ thì vừa đặt lại")
 
     sg2 = SoVonGio(tuGiay=_t26, denGiay=_t26)
     sg2.nhip(_t26 + 3600.0)
