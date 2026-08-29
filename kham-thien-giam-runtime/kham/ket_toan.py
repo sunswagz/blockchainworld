@@ -204,14 +204,22 @@ class KetToan:
             bus.ghi(f"kết toán {c.slug}: UP {'thắng' if upThang else 'thua'} "
                     f"(không có vị thế)", loai="tin")
 
-        # Hiệu chỉnh ghi CẢ khi không có vị thế — xem ghi_danh().
+        # SỔ KẾT QUẢ ghi VÔ ĐIỀU KIỆN — kể cả khi mình không dự đoán gì.
+        #
+        # Kết quả một khung là sự thật về thế giới, không phải sản phẩm
+        # của mình. Trước bản này nó nằm trong nhánh `pDuDoanUp is not
+        # None`, nên khung nào thiếu nguyên liệu định giá là mất kết quả
+        # luôn — trong khi băng vẫn ghi đủ khung hình của nó, và `chay_lai`
+        # thì chấm bằng cách tra SỔ NÀY. Mất một dòng ở đây là mất vĩnh
+        # viễn khả năng chấm điểm cả một cửa sổ, cho mọi bộ tham số về
+        # sau. Sổ kết quả là hạ tầng, không phải phụ phẩm của một lượt đoán.
+        so_ket_qua.them(c.slug, upThang, c.giaMo,
+                        nguon="san" if san is not None else "tu-tinh")
+
+        # Hiệu chỉnh thì NGƯỢC LẠI: nó chấm điểm chính mình, nên không có
+        # dự đoán thì không có gì để chấm. Xem ghi_danh().
         if c.pDuDoanUp is not None:
             self.hieuChinh.them(c.pDuDoanUp, upThang)
-            # Vào SỔ KẾT QUẢ ngay. Không có bước này thì băng ghi từ hôm
-            # nay lại rơi vào đúng cảnh cũ: có khung hình mà không có kết
-            # quả, và phải chờ một lượt dựng lại thủ công mới chấm được.
-            so_ket_qua.them(c.slug, upThang, c.giaMo,
-                            nguon="san" if san is not None else "tu-tinh")
             # Ghi thêm TỪNG CẶP thô. Sổ hiệu chỉnh chỉ lưu tổng theo ô;
             # từ tổng thì khớp được đường nắn nhưng KHÔNG kiểm được nó
             # ngoài mẫu — mà đó mới là phép phân biệt "học được quy luật"

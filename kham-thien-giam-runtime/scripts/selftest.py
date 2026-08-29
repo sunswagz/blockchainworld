@@ -992,6 +992,55 @@ def kiem_ket_qua() -> None:
              so4.lay("a-1") is True and so4.lay("b-2") is False)
 
 
+def kiem_ghi_ket_qua_vo_dieu_kien() -> None:
+    """Kết quả một khung phải vào sổ KỂ CẢ khi mình không đoán gì.
+
+    Kết quả là sự thật về thế giới, không phải sản phẩm của một lượt
+    đoán. Trước bản này nó nằm trong nhánh `pDuDoanUp is not None`, nên
+    khung nào thiếu nguyên liệu định giá là mất kết quả vĩnh viễn — mà
+    `chay_lai` chấm điểm bằng cách tra đúng cuốn sổ ấy, cho mọi bộ tham
+    số về sau. Phép kiểm này đỏ nếu ai gộp nó trở lại vào nhánh cũ.
+    """
+    print("\n-- Ket qua vao so ke ca khi khong du doan -----------------")
+
+    import tempfile
+    from pathlib import Path as _P
+
+    import kham.ket_qua as KQ
+    import kham.ket_toan as KT
+    from kham.ket_toan import ChoKetToan, KetToan
+    from kham.so import So
+
+    with tempfile.TemporaryDirectory() as t:
+        cu = KT.so_ket_qua
+        KT.so_ket_qua = KQ.SoKetQua(_P(t) / "kq.jsonl")
+        try:
+            kt = KetToan(Kho(), HieuChinh(), So())
+            # Khung KHÔNG có dự đoán: thiếu nguyên liệu định giá.
+            c = ChoKetToan(ma="BTC_5M", slug="btc-updown-5m-1787243400",
+                           ketThucMs=1787243700000.0, giaMo=100.0,
+                           capNen="btcusdt", tokenUp="u", tokenDown="d",
+                           pDuDoanUp=None)
+            kt._ghi_so(c, True, None, True, False)
+            kiem("không dự đoán vẫn ghi được kết quả",
+                 KT.so_ket_qua.lay(c.slug) is True,
+                 "mất dòng này là mất khả năng chấm cả cửa sổ, mãi mãi")
+            kiem("không dự đoán thì KHÔNG đụng sổ hiệu chỉnh",
+                 kt.hieuChinh.tong_mau == 0,
+                 "hiệu chỉnh chấm chính mô hình, không có đoán thì không có gì chấm")
+
+            # Khung CÓ dự đoán: cả hai sổ đều phải nhận.
+            c2 = ChoKetToan(ma="BTC_5M", slug="btc-updown-5m-1787243700",
+                            ketThucMs=1787244000000.0, giaMo=100.0,
+                            capNen="btcusdt", tokenUp="u", tokenDown="d",
+                            pDuDoanUp=0.62)
+            kt._ghi_so(c2, False, None, True, False)
+            kiem("có dự đoán thì cả hai sổ cùng nhận",
+                 KT.so_ket_qua.lay(c2.slug) is False and kt.hieuChinh.tong_mau == 1)
+        finally:
+            KT.so_ket_qua = cu
+
+
 def kiem_nguon_mau() -> None:
     print("\n-- Nguon mau: THAT va MO PHONG khong duoc lan ---------------")
     from kham.chan_doan import chan_doan
@@ -1662,6 +1711,7 @@ def main() -> int:
     kiem_nan_lai()
     kiem_khung_dai()
     kiem_ket_qua()
+    kiem_ghi_ket_qua_vo_dieu_kien()
     kiem_nguon_mau()
     kiem_tien_hoa_chay_that()
     kiem_huong_de_xuat()
