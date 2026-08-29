@@ -956,9 +956,20 @@ vỡ, và **không lỗi nào báo** — không 404 trong log build, không phé
 kiểm nào đỏ, Actions xanh.
 
 Lời cảnh báo nằm trong văn xuôi chỉ cứu được người vừa đọc đúng đoạn
-ấy. Đây là bản chạy được của nó. Soi 387 đường: mọi `src`/`href` cục
-bộ trong `index.html` của Cổng Thành + 12 cung, và cả hai bảng tra
-logo.
+ấy. Đây là bản chạy được của nó. Soi 596 đường, ba nhóm: mọi
+`src`/`href` cục bộ trong `index.html` của Cổng Thành + 12 cung; mảng
+`SHELL` của mọi `sw.js`; và cả hai bảng tra logo.
+
+**Nhóm SHELL hậu quả nặng hơn ảnh vỡ.** `cache.addAll(SHELL)` là MỘT
+giao dịch — một đường 404 làm cả lời hứa thất bại, service worker
+**không cài được**, và PWA mất sạch phần chạy offline. Trang đang mở
+thì không thấy gì khác thường, vì mạng vẫn phục vụ bình thường.
+
+**Cắt chú thích trước khi bóc chuỗi.** Bản nháp không cắt và báo
+`tang-thu-cac` thiếu đường `"còn nguyên bản gốc 2859"` — một câu tiếng
+Việt trong khối chú thích GIỮA mảng SHELL. Cùng đúng cái bẫy thước
+`bo-qua` đã vấp: dò bằng chuỗi thô thì chú thích giải thích một thứ bị
+tính là chính thứ đó.
 
 **Đọc bảng bằng cách NẠP, không bằng regex.** Bản nháp bóc bảng bằng
 regex rồi báo 93/93 ảnh thiếu — báo oan sạch, vì có **hai** bảng trỏ
