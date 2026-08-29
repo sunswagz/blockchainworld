@@ -782,6 +782,41 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: MỘT CUNG KHÔNG ĐƯỢC NẰM Ở HAI VÒNG TIẾN HOÁ ──
+   `VONG_XOAY` trong scripts/tien-hoa.mjs là danh sách cung dùng
+   CHUNG một node xoay vòng, mỗi ngày một cung. Cung nào được cấp
+   vòng RIÊNG thì phải gỡ khỏi danh sách đó.
+
+   Quên gỡ là mỗi tuần có một ngày cung ấy bị hai model sửa trong
+   cùng một lượt, không biết nhau: model thứ hai đo phiếu SAU khi
+   model thứ nhất đã sửa, nên "không được xấu đi" so với một mốc gốc
+   đã dịch. Hai bản vá chồng lên nhau và cổng chặn vẫn xanh.
+
+   Không đọc YAML để đoán — hỏi thẳng chuỗi `de-bai <cung>` mà mỗi
+   vòng riêng đều phải gọi. */
+{
+  const wf = ".github/workflows/refresh-data.yml";
+  if (existsSync(join(ROOT, wf))) {
+    const t = await doc(wf);
+    /* Đọc từ scripts/vong-xoay.mjs, KHÔNG từ tien-hoa.mjs: file kia
+       gọi `thoat("Thiếu lệnh")` ngay ở đầu khi không có tham số, nên
+       import nó là giết cả bộ kiểm. Đã dính đúng một lần. */
+    let VX = null;
+    try { VX = await import("./vong-xoay.mjs"); } catch { /* chưa có file */ }
+    const xoay = VX && Array.isArray(VX.VONG_XOAY) ? VX.VONG_XOAY : null;
+    if (xoay) {
+      for (const c of xoay) {
+        if (t.includes(`tien-hoa.mjs de-bai ${c}`))
+          bao(`cung "${c}" vừa nằm trong VONG_XOAY vừa có vòng tiến hoá RIÊNG trong workflow —\n` +
+              `        mỗi tuần một ngày nó bị hai model sửa trong cùng một lượt.\n` +
+              `        Gỡ nó khỏi VONG_XOAY ở scripts/tien-hoa.mjs.`);
+        if (!existsSync(join(ROOT, c, "index.html")))
+          bao(`VONG_XOAY khai cung "${c}" nhưng không có ${c}/index.html — node xoay sẽ ngã vào ngày tới lượt nó`);
+      }
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 

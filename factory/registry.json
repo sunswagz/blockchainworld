@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-28T19:43:56.814Z",
+  "generatedAt": "2026-08-29T08:28:26.059Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -417,6 +417,17 @@
         "factory/kho-de-xuat.json"
       ],
       "y": "Tìm kỹ năng CHƯA khai thác trong 3.696 cái, xếp hạng theo sáu lĩnh vực, tải SKILL.md kèm trích dẫn. Máy lo tìm và xếp; model lo đọc hiểu — đã thử rút luật bằng regex và bỏ vì cho ra rác.",
+      "khai": "scripts/node/xuong.mjs"
+    },
+    {
+      "ma": "tien-hoa-xoay",
+      "ten": "Tiến hoá xoay vòng (7 cung)",
+      "tram": "M14",
+      "che": "claude",
+      "nhip": 24,
+      "lenh": "tien-hoa.mjs xoay → do/de-bai → claude-code-action → cong --so",
+      "ra": [],
+      "y": "Mỗi ngày một cung trong scripts/vong-xoay.mjs, bảy ngày giáp vòng. Cùng đường với năm vòng riêng, chỉ khác tên cung là biến.",
       "khai": "scripts/node/xuong.mjs"
     },
     {

@@ -2020,6 +2020,182 @@ jobs:
             --ghi "${YEU:-?} điểm yếu · opus-5 · cổng chặn quyết định" \
             --log "$RUNNER_TEMP/tri-thuc-tien-hoa.log"
 
+      # ── VÒNG TIẾN HOÁ XOAY · bảy cung dùng chung một node ──────
+      # Năm cung có vòng riêng chạy mỗi ngày. Bảy cung còn lại không
+      # có gì cả. Thêm bảy node nữa là thêm ~21 phút model mỗi lượt và
+      # đệm ngân sách tụt từ 4× xuống 2,4× — dưới ngưỡng `npm run kiem`
+      # đòi. Nên xoay: mỗi ngày một cung, bảy ngày giáp vòng, chi phí
+      # bằng một vòng. Danh sách và lý do đầy đủ ở scripts/vong-xoay.mjs.
+      #
+      # Chỉ khác các vòng riêng ở MỘT chỗ: tên cung là biến. Mọi thứ
+      # còn lại — đo trước, ra đề, model, cổng chặn, hoàn nguyên — đi
+      # đúng đường đã có.
+      - name: Chọn cung — vòng xoay
+        id: n-xv-chon
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',tien-hoa-xoay,')
+        timeout-minutes: 1
+        run: |
+          echo "t0=$(date +%s)" >> "$GITHUB_OUTPUT"
+          node scripts/tien-hoa.mjs xoay --ra "$GITHUB_OUTPUT"
+
+      - name: Ra đề — vòng xoay
+        id: n-xv-de
+        if: steps.n-xv-chon.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          C: ${{ steps.n-xv-chon.outputs.cung }}
+        run: |
+          node scripts/tien-hoa.mjs do "$C" --ghi "$RUNNER_TEMP/xv-goc.json"
+          node scripts/tien-hoa.mjs de-bai "$C"
+          node scripts/tien-hoa.mjs tom-tat "$C" --ra "$GITHUB_OUTPUT"
+          # Chụp danh sách file ĐÃ BẨN SẴN trước khi model chạm vào.
+          # Bốn trong bảy cung này có node dữ liệu nhịp 6 giờ chạy
+          # TRƯỚC bước này trong cùng lượt; `git checkout -- <cung>/`
+          # lúc trả lại sẽ cuốn theo cả số liệu vừa lấy về, và một lượt
+          # tiến hoá trượt thành một lượt MẤT SỐ LIỆU mà không dòng log
+          # nào nói ra. Vòng Đài Quan Trắc đã cắn đúng chỗ này.
+          git diff --name-only -- "$C" > "$RUNNER_TEMP/xv-ban-truoc.txt"
+
+      # KHÔNG chặn ở `yeu != '0'` như năm vòng riêng. Đo ngày 29/08:
+      # cả mười hai cung đều tròn phiếu, nên điều kiện ấy làm TOÀN BỘ
+      # hệ tiến hoá ngủ — năm vòng riêng cũng đang ngủ vì đúng lý do
+      # này, chỉ là không ai thấy vì sổ vẫn ghi "ok".
+      #
+      # Phiếu đầy không có nghĩa là trang đã tốt; nó có nghĩa là các
+      # thước hiện có không còn thấy gì. Đề bài có sẵn bước 3 cho đúng
+      # tình huống này: tìm MỘT chỗ đọc dễ hơn mà không thước nào đo
+      # được. Cổng chặn vẫn đứng sau, và chốt "không được xấu đi" vẫn
+      # khoá mọi chiều ĐO ĐƯỢC.
+      #
+      # Nói thẳng cái nó KHÔNG khoá: bố cục xấu đi, chữ nghĩa dở đi.
+      # Đổi lại là mỗi cung một bước mỗi tuần, và mỗi bước là một
+      # commit người đọc được và hoàn lại được.
+      - name: Đề xuất bản vá — vòng xoay (Claude Code)
+        id: n-xv-va
+        if: steps.n-xv-de.outcome == 'success'
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 24
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Cung của lượt này là: ${{ steps.n-xv-chon.outputs.cung }}
+            Dưới đây gọi nó là <cung>.
+
+            Đọc <cung>/assets/data/de-bai-tien-hoa.json.
+
+            Trong đó có `phieu` — kết quả chấm cung theo các thước đo
+            được — và `kyNang`, các kỹ năng chọn từ kho Tàng Thư Các.
+            Mục nào có `moi: true` là ứng viên MỚI dò được, chưa cung
+            nào dùng: đọc, nhưng chỉ áp dụng nếu nó thật sự hợp cung
+            này. Và `luuY` — lời dặn cho những thước mà cách chữa
+            KHÔNG nằm ở lớp giao diện; thước nào có mặt ở đó thì đọc
+            lời dặn TRƯỚC khi vá.
+
+            VIỆC CỦA BẠN: làm cung này tốt lên MỘT BƯỚC, đúng một
+            bước.
+
+            Trình tự:
+            1. Với mỗi mục trong `kyNang` có trường `doc`, dùng
+               WebFetch đọc SKILL.md đó. Đấy là kinh nghiệm người khác
+               đã viết ra; đọc trước khi tự nghĩ.
+            2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu
+               đo được. Ưu tiên chúng trước.
+            3. Nếu mọi thước đều đạt, tìm MỘT chỗ làm trang dễ đọc hơn
+               mà không thước nào đo được: nhãn khó hiểu, thứ bậc thị
+               giác lẫn lộn, khoảng cách không đều, trạng thái trống
+               không nói được gì.
+
+            Chỉ sửa trong ba file này, không file nào khác:
+              <cung>/assets/css/app.css
+              <cung>/assets/js/app.js
+              <cung>/index.html
+            (thay <cung> bằng tên ở dòng đầu)
+
+            LUẬT, đọc kỹ — có cổng chặn tự động sau bạn:
+            · MỘT bước thôi. Một thay đổi mạch lạc, không phải năm thứ
+              rời rạc. Sửa ít mà đúng hơn sửa nhiều mà loãng.
+            · KHÔNG đổi cấu trúc dữ liệu, không đổi tên khoá trong
+              các biến window.*, không bỏ phòng nào, không đổi tuyến
+              hash.
+            · GIỮ mọi aria-label và aria-hidden đang có. Gỡ một nhãn
+              là cổng chặn hạ điểm và trả lại toàn bộ việc bạn vừa làm.
+            · MỖI id chỉ được xuất hiện MỘT lần trong trang. Trình
+              duyệt lấy thẻ đầu tiên, nên gắn trùng một id là làm thẻ
+              còn lại vô hình với JS. Ngày 29/08 đúng lỗi này thổi bay
+              đỉnh trang và chân trang của bốn cung, mà phiếu đo vẫn
+              xanh vì phòng vẫn vẽ ra — chỉ vào nhầm thẻ.
+            · Màu mới phải đạt tương phản WCAG AA (4.5) trên mọi nền.
+            · KHÔNG thêm thư viện ngoài, không thêm thẻ <script> mới.
+              Trang chạy offline và không có bước dựng.
+            · ĐỪNG đụng vào <cung>/assets/js/v/ và <cung>/assets/data/
+              — bot số liệu ghi hai chỗ đó, sửa tay là mất lúc gộp.
+
+            Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
+            vào <cung>/assets/data/de-bai-tien-hoa.json dưới khoá
+            `daLam`. Đừng để chữ "undefined" hay "NaN" lọt vào dòng đó
+            — cổng chặn soi hai chữ ấy trong HTML và sẽ trả lại.
+
+      - name: Cổng chặn — vòng xoay
+        id: n-tien-hoa-xoay
+        if: always() && steps.n-xv-va.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          C: ${{ steps.n-xv-chon.outputs.cung }}
+        run: |
+          if node scripts/tien-hoa.mjs cong "$C" --so "$RUNNER_TEMP/xv-goc.json" 2>&1 \
+               | tee "$RUNNER_TEMP/tien-hoa-xoay.log"; then
+            SW_BAN_TRUOC=$(git diff --name-only -- '*/sw.js')
+            node scripts/nang-version.mjs
+            git checkout -- $(git diff --name-only -- '*/sw.js' | grep -v "^$C/" | grep -vxF "$SW_BAN_TRUOC" || true)
+            echo "::notice::Vòng tiến hoá xoay ($C): NHẬN"
+          else
+            echo "::error::Vòng tiến hoá xoay ($C): TRẢ LẠI — cổng chặn không qua"
+            # Chỉ trả lại đúng thứ bước NÀY làm bẩn, không cuốn theo số
+            # liệu bot vừa ghi trong cùng lượt.
+            HONG=$(git diff --name-only -- "$C" | grep -vxF -f "$RUNNER_TEMP/xv-ban-truoc.txt" || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
+            exit 1
+          fi
+
+      - name: Ghi sổ · tien-hoa-xoay
+        if: always() && steps.n-xv-chon.outcome != 'skipped'
+        env:
+          # Model LUÔN chạy ở vòng này, nên cổng chặn luôn chạy theo —
+          # kết quả của nó là kết quả của cả node, không cần nhánh
+          # "phiếu đầy nên coi như ok" như năm vòng riêng.
+          KET: ${{ steps.n-tien-hoa-xoay.outcome == 'success' && 'ok' || 'loi' }}
+          C: ${{ steps.n-xv-chon.outputs.cung }}
+          YEU: ${{ steps.n-xv-de.outputs.yeu }}
+          T_DAU: ${{ steps.n-xv-chon.outputs.t0 }}
+          KC_DE: ${{ steps.n-xv-de.outcome }}
+          KC_VA: ${{ steps.n-xv-va.outcome }}
+          KC_CONG: ${{ steps.n-tien-hoa-xoay.outcome }}
+        run: |
+          TONG=""
+          [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          # Tên cung ĐỨNG ĐẦU: sổ này gộp bảy cung vào một dòng mỗi
+          # ngày, nên không có tên thì cả cột chuThich vô nghĩa.
+          NGA=""
+          if [ "$KC_DE" != "success" ] && [ "$KC_DE" != "skipped" ]; then
+            NGA="ngã ở RA ĐỀ ($KC_DE) — model chưa hề chạy"
+          elif [ "$KC_VA" = "failure" ]; then
+            NGA="ngã ở MODEL"
+          elif [ "$KC_CONG" = "failure" ]; then
+            NGA="cổng chặn TRẢ LẠI"
+          fi
+          DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
+            "$RUNNER_TEMP/tien-hoa-xoay.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi tien-hoa-xoay "$KET" \
+            ${TONG:+--giay $TONG} \
+            --ghi "${C:-?}: ${NGA:+$NGA · }${DIEM:-${YEU:-?} điểm yếu} · opus-5" \
+            --log "$RUNNER_TEMP/tien-hoa-xoay.log"
+
       - name: Chiếu sổ sang Bảng vận hành
         if: always()
         run: node scripts/nha-may.mjs chieu

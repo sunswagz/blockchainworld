@@ -54,6 +54,20 @@ const co_ = (ten) => {
 
 function thoat(msg) { console.error(msg); process.exit(1); }
 if (!LENH) thoat("Thiếu lệnh. Xem đầu file scripts/tien-hoa.mjs.");
+
+/* Cung nào tới lượt hôm nay — xem scripts/vong-xoay.mjs cho lý do
+   một node xoay bảy cung thay vì bảy node. Danh sách nằm ở file
+   riêng vì `npm run kiem` phải đọc được nó, mà import file NÀY là
+   chạy luôn phần thân của nó. */
+if (LENH === "xoay") {
+  const { cungHomNay } = await import("./vong-xoay.mjs");
+  const c = cungHomNay();
+  const ra = co_("ra");
+  if (ra) await writeFile(ra, `cung=${c}\n`, { flag: "a" });
+  console.log(c);
+  process.exit(0);
+}
+
 if (!CUNG || !existsSync(join(ROOT, CUNG, "index.html")))
   thoat(`"${CUNG}" không phải một cung (không có index.html ở gốc thư mục).`);
 
@@ -1194,7 +1208,16 @@ if (LENH === "do") {
        là một cơ hội sót một cung.
 
        Chỉ ghi khi có `--so`, tức là chỉ trong vòng tiến hoá. Gõ tay
-       `npm run cong <cung>` để soát thì không đẻ ra dòng rác nào. */
+       `npm run cong <cung>` để soát thì không đẻ ra dòng rác nào.
+
+       NHƯNG `--so` KHÔNG phân biệt được CI với người: chạy thử vòng
+       lặp bằng tay (`cong <cung> --so <phiếu>`) cũng đẻ ra dòng ở
+       đây, và dòng ấy trông y hệt một lượt tiến hoá thật. Đã dính
+       29/08 khi thử vòng xoay trên bảy cung: bảy dòng "15/15→15/15 ·
+       nhan" trong khi không model nào chạy. Chạy thử xong thì
+       `git checkout -- factory/tien-hoa.jsonl` trước khi commit —
+       cuốn nhật ký này là thứ đã giúp tìm ra lỗi id trùng, đừng làm
+       bẩn nó. */
     try {
       const deBai = DUONG("assets", "data", "de-bai-tien-hoa.json");
       const daLam = co(deBai) ? (JSON.parse(doc(deBai)).daLam || null) : null;

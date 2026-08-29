@@ -53,6 +53,30 @@ export const NODE = [
        "tải SKILL.md kèm trích dẫn. Máy lo tìm và xếp; model lo đọc hiểu — đã thử " +
        "rút luật bằng regex và bỏ vì cho ra rác."
   },
+  /* VÒNG TIẾN HOÁ XOAY — bảy cung dùng chung một node.
+
+     Năm cung có vòng riêng chạy mỗi ngày; bảy cung còn lại trước
+     node này không có gì cả, chúng chỉ tiến khi có người ngồi vào
+     sửa. Thêm bảy node nữa là thêm ~21 phút model mỗi lượt và đệm
+     ngân sách tụt từ 4× xuống 2,4× — dưới ngưỡng mà phép canh trong
+     `npm run kiem` đòi. Xoay thì tốn bằng MỘT vòng.
+
+     Đổi lại mỗi cung chỉ được một bước mỗi tuần. So sánh đúng không
+     phải "mỗi tuần" với "mỗi ngày", mà "mỗi tuần" với "không bao
+     giờ".
+
+     `ra` để rỗng: node này sửa file của cung nào là tuỳ ngày, nên
+     không khai trước được. Bước cổng chặn trong workflow tự hoàn
+     nguyên phần nó làm bẩn khi trượt; phần được NHẬN đi theo lệnh
+     `git add` của chính cung ấy, vốn đã có sẵn. */
+  {
+    ma: "tien-hoa-xoay", ten: "Tiến hoá xoay vòng (7 cung)",
+    tram: "M14", che: "claude", nhip: 24,
+    lenh: "tien-hoa.mjs xoay → do/de-bai → claude-code-action → cong --so",
+    ra: [],
+    y: "Mỗi ngày một cung trong scripts/vong-xoay.mjs, bảy ngày giáp vòng. " +
+       "Cùng đường với năm vòng riêng, chỉ khác tên cung là biến."
+  },
   /* PHIẾU TOÀN THÀNH — nhìn cả mười hai cung một lượt.
 
      `tien-hoa.mjs do` chấm được MỌI cung, nhưng chỉ BỐN cung có vòng
