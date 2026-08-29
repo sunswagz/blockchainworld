@@ -319,6 +319,19 @@ class Runtime:
             _cho.update(await self._nap_cho(
                 client, [x for x in _ds if x not in _cho]))
             _chon = self._chon_cho(_cho)
+            if not _chon and any(t.get("symbol") == self.cfg["symbol"]
+                                 for t in self.broker.state["positions"]):
+                # Không chợ nào có tín hiệu VÀ chợ chính đang có vị thế ⇒ đứng
+                # ngoài. Rơi về chợ chính ở đây là mở lệnh thứ hai trên đúng
+                # coin đang giữ — nhân đôi rủi ro của MỘT cược, không phải thêm
+                # một cược. `_chon_cho` loại chợ đang giữ khỏi ứng viên; đường
+                # rơi-về này đi vòng qua chính luật đó.
+                #
+                # Đã xảy ra: bảng hiện 4 vị thế mà hai trong đó là BTCUSDT.
+                bus.emit("brain", "bo-qua",
+                         f"không chợ nào có tín hiệu và {self.cfg['symbol']} đang "
+                         f"có vị thế — đứng ngoài thay vì mở thêm trên cùng coin")
+                return
             if _chon:
                 _sym, _st, _rg = _chon
                 if _sym != self.cfg["symbol"]:

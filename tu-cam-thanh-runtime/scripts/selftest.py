@@ -1185,6 +1185,18 @@ async def main() -> int:
     check(_r38._chon_cho({"ETHUSDT": {}}) is None,
           "chợ đang giữ vị thế → không thành ứng viên")
 
+    # Đường RƠI VỀ chợ chính đi vòng qua chính luật "không mở lệnh thứ hai trên
+    # coin đang giữ": `_chon_cho` loại chợ đang giữ khỏi ứng viên, nhưng khi nó
+    # trả None thì vòng lặp giữ nguyên chợ chính và vẫn quyết định trên đó.
+    # Đã xảy ra: bảng hiện 4 vị thế mà HAI trong đó là BTCUSDT.
+    _src_lp2 = NL.join(d.split("#")[0] for d in
+                       (ROOT / "trader" / "loop.py").read_text(encoding="utf-8").splitlines())
+    check("if not _chon and any(" in _src_lp2,
+          "có cửa chặn đường rơi-về khi chợ chính đang giữ vị thế")
+    _i_chan = _src_lp2.index("if not _chon and any(")
+    _i_dung = _src_lp2.index("if _chon:", _i_chan)
+    check(_i_chan < _i_dung, "cửa chặn đứng TRƯỚC nhánh dùng ứng viên")
+
     # Chợ hỏng dữ liệu không được làm chết cả vòng quét.
     check(_r38._chon_cho({"XXXUSDT": {"hong": True}}) is None,
           "chợ dữ liệu hỏng → bỏ qua, không nổ")
