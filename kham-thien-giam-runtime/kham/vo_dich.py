@@ -144,14 +144,34 @@ class SoVoDich:
             return PhanXu(True, [f"chưa có đương kim nhóm `{nhom}` → `{thachDau}` lên"])
 
         # cửa 3 — vượt đương kim đủ biên
-        if td.kyVong < dk.kyVong * BIEN_VUOT:
+        #
+        # Biên tính trên ĐỘ LỚN. `td < dk * 1,15` đúng khi `dk` dương và
+        # LẬT NGƯỢC khi âm: đương kim −$10 thì ngưỡng là −$11,5, nên một
+        # thách đấu −$11 — TỆ HƠN đương kim — lên ngôi. Biên "phải hơn
+        # 15%" thành "được phép kém tới 15%", và nó lật đúng vào lúc cần
+        # cổng nhất: khi mọi chiến thuật đang lỗ.
+        #
+        # Cùng lỗi đã sửa ở `tien_hoa.thu_mot_de_xuat`. Hai chỗ, một
+        # khuôn — nên chép cả cách sửa sang đây.
+        can = dk.kyVong + abs(dk.kyVong) * (BIEN_VUOT - 1.0)
+        if td.kyVong <= can:
             ly.append(f"kỳ vọng {td.kyVong:+.5f} chưa vượt đương kim "
-                      f"`{dk.ma}` {dk.kyVong:+.5f} đủ biên {BIEN_VUOT:g}×")
+                      f"`{dk.ma}` {dk.kyVong:+.5f} đủ biên {BIEN_VUOT:g}× "
+                      f"(cần > {can:+.5f})")
 
         # cửa 4 — đuôi không tệ hơn
         if abs(td.thuaLonNhat) > abs(dk.thuaLonNhat) * DUOI_TOI_DA:
             ly.append(f"thua lớn nhất ${abs(td.thuaLonNhat):.2f} vượt "
                       f"{DUOI_TOI_DA:g}× đương kim ${abs(dk.thuaLonNhat):.2f}")
+        # Ở đây NHÂN THẲNG là đúng, khác cửa 3: `duoi5pct` là phân vị 5%
+        # của lãi lỗ, tức gần như luôn ÂM, và `dk × 1,15` âm hơn chính là
+        # "cho phép đuôi xấu thêm 15%" — đúng ý. Chốt `td < 0` chặn nốt
+        # phần còn lại.
+        #
+        # Còn một kẽ đã biết và cố ý để lại: nếu đương kim có `duoi5pct`
+        # DƯƠNG (lãi cả ở 5% xấu nhất — hiếm), thì một thách đấu dương
+        # nhưng thấp hơn nhiều vẫn qua cửa này. Ghi ra đây để người sau
+        # biết đó là lựa chọn chứ không phải sót.
         if td.duoi5pct < dk.duoi5pct * DUOI_TOI_DA and td.duoi5pct < 0:
             ly.append(f"đuôi 5% ${td.duoi5pct:.2f} xấu hơn đương kim "
                       f"${dk.duoi5pct:.2f}")

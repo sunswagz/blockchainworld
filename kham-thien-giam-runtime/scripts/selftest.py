@@ -537,6 +537,31 @@ def kiem_vo_dich() -> None:
          any(("thua lớn nhất" in l) or ("đuôi" in l) for l in px2.lyDo))
     kiem("đương kim không bị thay", sv.duongKim.get("chung") == "tot")
 
+    # ── biên đương kim cũng phải đóng ở CẢ HAI DẤU ───────────────────
+    #
+    # Cùng khuôn với `tien_hoa`: `td < dk * 1,15` lật ngược khi `dk` âm,
+    # nên đương kim −$10 cho một thách đấu −$11 lên ngôi. Hai chỗ một
+    # khuôn, nên canh cả hai.
+    from kham.vo_dich import BIEN_VUOT as BV
+
+    def len_ngoi(dk_: float, td_: float) -> bool:
+        return not (td_ <= dk_ + abs(dk_) * (BV - 1.0))
+
+    kiem("đương kim dương: hơn chưa đủ biên thì GIỮ NGÔI",
+         not len_ngoi(10.0, 11.0))
+    kiem("đương kim dương: hơn đủ biên thì ĐỔI NGÔI", len_ngoi(10.0, 12.0))
+    kiem("đương kim ÂM: thách đấu TỆ HƠN không được lên ngôi",
+         not len_ngoi(-10.0, -11.0))
+    kiem("đương kim ÂM: khá hơn đủ biên thì ĐỔI NGÔI",
+         len_ngoi(-10.0, -8.0))
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    vd = (GOC_MA / "kham" / "vo_dich.py").read_text(encoding="utf-8")
+    ma = chr(10).join(d.split("#", 1)[0] for d in vd.splitlines())
+    kiem("vo_dich.py KHÔNG còn nhân thẳng `dk.kyVong * BIEN_VUOT`",
+         "dk.kyVong * BIEN_VUOT" not in ma)
+    kiem("mà dùng biên theo ĐỘ LỚN",
+         "abs(dk.kyVong) * (BIEN_VUOT - 1.0)" in ma)
 
 def kiem_chay_lai() -> None:
     print("\n── Chạy lại theo sự kiện ─────────────────────────────────────")
