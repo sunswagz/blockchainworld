@@ -13,12 +13,12 @@
 */
 window.DAI_CHIEM = {
   "date": "29/08/2026",
-  "tomTat": "0/0 cơ hội qua sàng · chưa có market nào kết toán",
-  "generatedAt": "2026-08-29T13:22:58.712Z",
+  "tomTat": "1 market đã kết toán · kỳ vọng -49.9483$/lệnh",
+  "generatedAt": "2026-08-29T20:42:42.830Z",
   "che": "giay",
   "cheKhai": "giay",
   "vong": 1,
-  "chayDuocGiay": 0.9870736598968506,
+  "chayDuocGiay": 0.8890748023986816,
   "thiTruong": [
     {
       "ma": "BTC_5M",
@@ -98,13 +98,14 @@ window.DAI_CHIEM = {
     "tongLoKhoaUsd": 0
   },
   "risk": {
-    "von": 1000.0,
+    "von": 950.0517497348915,
     "vonBanDau": 1000.0,
+    "vonDauNgay": 1000.0,
     "dinhVon": 1000.0,
-    "sutVonPct": 0.0,
-    "loNgayUsd": 0.0,
-    "laiRongNgayUsd": 0.0,
-    "loGopNgayUsd": 0.0,
+    "sutVonPct": 4.994825026510853,
+    "loNgayUsd": 49.94825026510855,
+    "laiRongNgayUsd": -49.94825026510855,
+    "loGopNgayUsd": 49.94825026510855,
     "tranLoNgayUsd": 50.0,
     "tranMoiThiTruongUsd": 100.0,
     "tranMoiTaiSanUsd": 200.0,
@@ -128,82 +129,94 @@ window.DAI_CHIEM = {
     "bang": [
       {
         "o": "0-10",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 5222,
+        "duDoan": 0.038940755698483445,
+        "thucTe": 0.0534278054385293,
+        "lech": 0.014487049740045853
       },
       {
         "o": "10-20",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 2829,
+        "duDoan": 0.15060746974278225,
+        "thucTe": 0.15129020855425945,
+        "lech": 0.000682738811477207
       },
       {
         "o": "20-30",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 3330,
+        "duDoan": 0.25157190837641763,
+        "thucTe": 0.23153153153153153,
+        "lech": -0.020040376844886104
       },
       {
         "o": "30-40",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 3965,
+        "duDoan": 0.35136791339957857,
+        "thucTe": 0.32686002522068097,
+        "lech": -0.024507888178897597
       },
       {
         "o": "40-50",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 4969,
+        "duDoan": 0.454847024929898,
+        "thucTe": 0.4342926142080902,
+        "lech": -0.020554410721807803
       },
       {
         "o": "50-60",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 4631,
+        "duDoan": 0.5486320115135455,
+        "thucTe": 0.5545238609371625,
+        "lech": 0.00589184942361709
       },
       {
         "o": "60-70",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 3967,
+        "duDoan": 0.6480837871467847,
+        "thucTe": 0.6617091000756239,
+        "lech": 0.013625312928839173
       },
       {
         "o": "70-80",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 3358,
+        "duDoan": 0.7489704072232416,
+        "thucTe": 0.7608695652173914,
+        "lech": 0.011899157994149756
       },
       {
         "o": "80-90",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 2883,
+        "duDoan": 0.8492937110032727,
+        "thucTe": 0.8449531737773153,
+        "lech": -0.004340537225957397
       },
       {
         "o": "90-100",
-        "n": 0,
-        "duDoan": null,
-        "thucTe": null,
-        "lech": null
+        "n": 5186,
+        "duDoan": 0.9611990387453453,
+        "thucTe": 0.9541072117238719,
+        "lech": -0.007091827021473374
       }
     ],
-    "tongMau": 0,
-    "duDeDungKelly": false,
-    "saiSoTB": null
+    "tongMau": 40340,
+    "duDeDungKelly": true,
+    "saiSoTB": 0.012746952593189831
   },
   "thongKe": {
-    "n": 0,
-    "chuaCo": true
+    "n": 1,
+    "chuaCo": false,
+    "tiLeThang": 0.0,
+    "soThang": 0,
+    "soThua": 1,
+    "tbThang": 0.0,
+    "tbThua": 49.94825026510855,
+    "kyVong": -49.94825026510855,
+    "tongLaiLo": -49.94825026510855,
+    "tongPhi": 0.0,
+    "thuaLonNhat": -49.94825026510855,
+    "xoaBaoNhieuLanThang": null,
+    "duoi5pct": -49.94825026510855,
+    "canhBaoDuoi": false
   },
   "chienThuat": [
     {
@@ -245,7 +258,8 @@ window.DAI_CHIEM = {
   ],
   "vi": {
     "soVi": 0,
-    "quetLucMs": 1788009778706.4365,
+    "nga": {},
+    "quetLucMs": 1788036162824.8176,
     "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP. Không dựng lại được vòng đời báo giá, và vì vậy không kết luận được ai là market maker.",
     "vi": []
   },
@@ -261,6 +275,12 @@ window.DAI_CHIEM = {
       "soLoi": 3,
       "tongLuot": 0,
       "loiCuoi": "ConnectError: [WinError 10054] An existing connection was forcibly closed by the remote host"
+    },
+    "binance-kline": {
+      "tuoiMs": null,
+      "soLoi": 0,
+      "tongLuot": 0,
+      "loiCuoi": ""
     }
   },
   "dongSong": {
@@ -296,29 +316,43 @@ window.DAI_CHIEM = {
       "bienVuot": 1.15,
       "duoiToiDa": 1.25
     },
-    "hoSo": []
+    "hoSo": [
+      {
+        "ma": "khong-nhan",
+        "n": 1,
+        "kyVong": -49.94825026510855,
+        "tongLaiLo": -49.94825026510855,
+        "tiLeThang": 0.0,
+        "thuaLonNhat": -49.94825026510855,
+        "duoi5pct": -49.94825026510855,
+        "capNhatLuc": 1788036162.8257363
+      }
+    ]
   },
   "tienHoa": {
     "ganNhat": null,
     "duong": {
-      "soLuot": 3,
+      "soLuot": 37,
       "soLanNhan": 0,
-      "soLanTraLai": 0,
-      "soLanDungYen": 3,
+      "soLanTraLai": 1,
+      "soLanDungYen": 36,
       "chuoi": [],
       "tongCaiThien": null,
       "ganNhat": {
-        "luc": "2026-08-20T15:44:24Z",
-        "soKhungBang": 0,
-        "soLenhKetToan": 0,
+        "luc": "2026-08-29T20:23:48Z",
+        "soKhungBang": 89964,
+        "soLenhKetToan": 19,
+        "nguonMau": "chay-lai",
+        "daThu": 0,
         "trieuChung": [
           {
             "ma": "thieu-mau",
             "nang": 1,
-            "moTa": "mới 0 lệnh đã kết toán — chưa đủ để chẩn gì. Chạy thêm, đừng vặn.",
+            "moTa": "mới 19 lệnh đã kết toán — chưa đủ để chẩn gì. Chạy thêm, đừng vặn.",
             "bangChung": {
-              "n": 0,
-              "canToiThieu": 20
+              "n": 19,
+              "canToiThieu": 20,
+              "nguonMau": "chay-lai"
             },
             "nutGoiY": []
           }
@@ -326,7 +360,7 @@ window.DAI_CHIEM = {
         "deXuat": [],
         "nhan": null,
         "traLai": [],
-        "kyVongTruoc": null,
+        "kyVongTruoc": 22.231841999999993,
         "kyVongSau": null,
         "ghiChu": "không có bệnh nào vượt ngưỡng — không vặn gì. Vòng tiến hoá đứng yên là một kết quả hợp lệ."
       }
@@ -348,7 +382,8 @@ window.DAI_CHIEM = {
     "bat": true,
     "soLoiGhi": 0,
     "loiCuoi": null,
-    "duong": "bang-2026-08-29-132258-7412.jsonl.gz"
+    "duong": "bang-2026-08-29-204242-3968.jsonl.gz",
+    "doc": null
   },
   "loiNhac": "Đây là LÁT CẮT tĩnh do runtime ở máy ghi ra, không phải số liệu sống. Trang này không gọi API nào và không đặt được lệnh nào."
 };
