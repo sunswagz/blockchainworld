@@ -6128,6 +6128,30 @@ def kiem_ke_toan_vi_the() -> None:
          f"{dt38} — gia sản là một nên sổ chung là đúng, nhưng câu «ty này "
          f"có giữ lời không» chỉ hỏi được về những lần CHÍNH NÓ đóng")
 
+    # Mẫu số phải CỘNG ĐÚNG. Đo 29/08: bảng hiện «đối chiếu 8/282» và
+    # người đọc trừ ra 274 lần thất bại — trong khi 209 là «giữ quá ngắn»
+    # (đã có tên) và 65 là lần đóng không khai đủ hai vế. Một phần dư
+    # không tên là một mẫu số nói dối, và nó nói dối theo hướng làm ty
+    # trông tệ hơn thực tế.
+    sc39 = SoCai(_tam("mau-so-cong-dung") / "sc.sqlite3")
+    sc39.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "f.v1", "m",
+                   {"duDoanBpsGio": 1.0, "thucBpsGio": 2.0,
+                    "daGiuGio": 24.0}))
+    sc39.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "f.v1", "m",
+                   {"duDoanBpsGio": 1.0, "thucBpsGio": 2.0,
+                    "daGiuGio": 0.001}))
+    # dòng ghi TRƯỚC khi bút toán biết khai hứa/thực — hình dạng thật
+    sc39.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "f.v1", "m",
+                   {"moLuc": 1, "moPhong": True, "vonDaCapUsd": 500.0}))
+    sc39.ghi(_BT35("DONG_VI_THE", "kết toán ngoài", 0.0, "f.v1", "m",
+                   {"nguon": "kham-thien-giam", "daGiuGio": 24.0}))
+    dt39 = sc39.du_doan_va_thuc()["f.v1"]
+    kiem("mẫu số CỘNG ĐÚNG: đối chiếu + giữ quá ngắn + thiếu vế = số đóng",
+         (dt39["soDoiChieuDuoc"] + dt39["soGiuQuaNgan"] + dt39["soThieuVe"]
+          == dt39["soDong"] == 3) and dt39["soThieuVe"] == 1
+         and dt39["soTuSoNgoai"] == 1,
+         f"{dt39} — phần dư không tên bị người đọc trừ ra thành thất bại")
+
     from thi_bac_ty.trung_uong import TOI_THIEU_GIO_DOI_CHIEU as _TGD
     kiem("và hai ngưỡng ghi/đọc BẰNG NHAU",
          gan(SoCai.TOI_THIEU_GIO_TI_SUAT, _TGD),

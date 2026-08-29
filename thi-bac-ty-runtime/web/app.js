@@ -1198,11 +1198,14 @@
         + "ít nhất một lần đóng có khai dự đoán thì mới đối chiếu được"));
     } else {
       kdv.appendChild(bang(
-        [{ t: "Ty" }, { t: "Đối chiếu" }, { t: "HỨA bps/giờ" },
+        [{ t: "Ty" }, { t: "Đối chiếu" }, { t: "Giữ quá ngắn" },
+         { t: "Thiếu vế" }, { t: "HỨA bps/giờ" },
          { t: "THỰC bps/giờ" }, { t: "Lệch" }],
         mdv.map(function (k) {
           var x = dv[k];
           return [{ t: k }, { t: so(x.soDoiChieuDuoc) + "/" + so(x.soDong) },
+                  { t: so(x.soGiuQuaNgan), c: "n" },
+                  { t: so(x.soThieuVe), c: "n" },
                   { t: x.duDoanBpsGio.toFixed(3), c: "n" },
                   { t: x.thucBpsGio.toFixed(3), c: "n" },
                   { t: (x.lechBpsGio >= 0 ? "+" : "") + x.lechBpsGio.toFixed(3),
@@ -1211,6 +1214,12 @@
       kdv.appendChild(giai("Lệch DƯƠNG nghĩa là HỨA QUÁ — ty ấy đang lạc "
         + "quan. Đó là con số đáng đọc nhất ở bảng này, và nó chỉ nói được "
         + "sau khi vị thế đã đóng."));
+      kdv.appendChild(giai("Mẫu số CỘNG ĐÚNG: đối chiếu + giữ quá ngắn + "
+        + "thiếu vế = số lần đóng. «Giữ quá ngắn» là dưới 0,25 giờ — quy "
+        + "ra bps mỗi giờ ở đó là nhân một sai số nhỏ lên hàng nghìn lần. "
+        + "«Thiếu vế» là lần đóng không khai đủ hứa và thực, phần lớn là "
+        + "dòng ghi trước khi bút toán biết khai hai vế ấy. Không tách ra "
+        + "thì người đọc trừ mẫu số ra và đọc thành ngần ấy lần thất bại."));
     }
     f.appendChild(kdv);
 

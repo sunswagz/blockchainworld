@@ -292,6 +292,7 @@ class SoCai:
             du, thuc = d.get("duDoanBpsGio"), d.get("thucBpsGio")
             o = ra.setdefault(cl, {"soDong": 0, "soDoiChieuDuoc": 0,
                                    "soGiuQuaNgan": 0, "soTuSoNgoai": 0,
+                                   "soThieuVe": 0,
                                    "tongDuDoan": 0.0, "tongThuc": 0.0})
             # Kết toán NHẬP TỪ cỗ máy khác không phải lần đóng của ty này.
             # `nhap_so_ngoai` cố ý đổ chúng vào CÙNG một sổ cái — đúng, vì
@@ -318,6 +319,17 @@ class SoCai:
                 o["soGiuQuaNgan"] += 1
                 continue
             if du is None or thuc is None:
+                # Vế thiếu là một ĐÁM RIÊNG, không phải phần dư vô
+                # danh. Đo 29/08: 78 lần đóng ở đây chỉ mang
+                # `moLuc/moPhong/vonDaCapUsd` — dòng ghi TRƯỚC khi
+                # bút toán đóng biết khai hứa và thực. Chúng không
+                # phải «giữ quá ngắn», cũng không phải «của máy
+                # khác», nên trước lượt này chúng biến mất khỏi mọi
+                # phép cộng và bảng hiện «8/282» — người đọc trừ ra
+                # 274 lần thất bại trong khi 209 trong số đó đã có
+                # tên. Một mẫu số không giải thích được là một mẫu
+                # số nói dối.
+                o["soThieuVe"] += 1
                 continue
             o["soDoiChieuDuoc"] += 1
             o["tongDuDoan"] += float(du)
@@ -325,6 +337,7 @@ class SoCai:
         for o in ra.values():
             o.setdefault("soGiuQuaNgan", 0)
             o.setdefault("soTuSoNgoai", 0)
+            o.setdefault("soThieuVe", 0)
             k = o["soDoiChieuDuoc"]
             # `None` khi chưa đối chiếu được lần nào — không phải 0. Một ty
             # chưa đóng vị thế nào chưa nói được gì về mình.
