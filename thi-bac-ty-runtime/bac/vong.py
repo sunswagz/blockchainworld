@@ -335,7 +335,22 @@ class Runtime:
         self.coHoi = []
         self.loiVongCuoi: str | None = None
         self._lanNapGas = 0.0
-        self._lanNapCau = 0.0
+        # NHỊP nạp cầu cũng phải sống qua khởi động lại, không chỉ cái kho.
+        # `0.0` nghĩa là «nạp ngay», nên mỗi lần bật máy là chín lời gọi
+        # LI.FI nữa — mà LI.FI có hạn mức GIỜ. Mười lăm lần bật trong một
+        # buổi chiều sửa mã là 429 kèm nghỉ 83 phút, tức mọi tuyến liên
+        # chuỗi MÙ đúng lúc vừa bật máy lên. Đã xảy ra thật hai lần: 28/08
+        # (trước khi có kho) và 30/08 (có kho rồi, nhưng nhịp vẫn về 0).
+        #
+        # Kho biết báo giá mới nhất của nó đọc lúc nào, nên nhịp bắt đầu
+        # TỪ ĐÓ. Kho rỗng hay quá hạn thì `moiNhatMs` là None và nhịp về 0
+        # như cũ — lúc ấy nạp ngay là đúng, vì thật sự không còn gì.
+        # `getattr`, không phải `self.napKhoCau`: khối dựng Router nằm
+        # trong một `try`, nên nó ném thì thuộc tính này không tồn tại —
+        # và lúc ấy `__init__` chết giữa chừng vì một dòng tối ưu hoá
+        # nhịp nạp. Dòng 835 đã dùng `getattr` cho đúng lý do ấy.
+        _moi = (getattr(self, "napKhoCau", None) or {}).get("moiNhatMs")
+        self._lanNapCau = float(_moi) / 1000.0 if _moi else 0.0
         self.quetCuoiMs: float = 0.0
         self.quetLauNhatMs: float = 0.0
 

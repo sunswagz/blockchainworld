@@ -7803,6 +7803,32 @@ def kiem_kho_bao_gia_cau() -> None:
     kiem("kho hỏng thì KHAI lỗi rồi đi tiếp, không giết runtime",
          r4["nap"] == 0 and "loi" in r4, str(r4))
 
+    # ── NHỊP nạp cũng phải sống qua khởi động lại, không chỉ cái kho ───
+    #
+    # Kho sống sót từ 28/08, nhưng `_lanNapCau = 0.0` mỗi lần bật máy nên
+    # nhịp vẫn về 0 và runtime vẫn nạp trước chín báo giá. Mười lăm lần
+    # bật trong một buổi chiều sửa mã là 429 kèm «retry in 1 hour», tức
+    # mọi tuyến liên chuỗi MÙ đúng lúc vừa bật máy lên. Đo thật 30/08:
+    # `soLoi 9/9 · dangNghi true · conNghiGiay 4892`.
+    kiem("kho khai BÁO GIÁ MỚI NHẤT nó vừa nạp",
+         r["moiNhatMs"] is not None
+         and r["moiNhatMs"] <= now and (now - r["moiNhatMs"]) < 3_600_000.0,
+         f"{r.get('moiNhatMs')} — không khai thì bên gọi không có cách nào "
+         f"biết kho còn tươi tới đâu, và nó nạp lại ngay khi vừa bật")
+    kiem("kho RỖNG thì KHÔNG khai một mốc bịa",
+         r3.get("moiNhatMs") is None,
+         f"{r3} — không có gì trên đĩa thì nạp ngay là đúng; bịa một mốc "
+         f"ở đây là làm runtime ngồi im 30 phút với một kho trống")
+
+    # Và runtime phải THẬT SỰ dùng nó — một con số khai ra mà không ai đọc
+    # thì nhịp vẫn về 0 y như cũ.
+    import pathlib as _plv
+    _src = _plv.Path(__import__("bac.vong", fromlist=["x"]).__file__
+                     ).read_text(encoding="utf-8")
+    kiem("và vòng lặp ĐỌC mốc ấy để đặt nhịp, không đặt 0",
+         "moiNhatMs" in _src and "self._lanNapCau = 0.0" not in _src,
+         "kho sống qua khởi động lại mà nhịp thì không là sửa được một nửa")
+
     # ── runtime PHẢI gọi cả hai đầu ────────────────────────────────────
     import ast as _ast
     import pathlib as _pl

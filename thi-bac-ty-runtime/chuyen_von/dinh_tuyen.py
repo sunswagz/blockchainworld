@@ -197,6 +197,9 @@ class DinhTuyen:
             return {"nap": 0, "loi": f"{type(e).__name__}: {e}", "co": True}
         now = time.time() * 1000.0
         nap = cu = daCo = 0
+        #: `docLucMs` MỚI NHẤT trong đám vừa nạp. Bên gọi cần nó để biết
+        #: kho này còn tươi tới đâu — xem `moiNhatMs` ở cuối hàm.
+        moiNhat = None
         for x in (d.get("baoGia") or []):
             try:
                 k = tuple(x["khoa"][:3]) + (x["khoa"][3],)
@@ -216,7 +219,15 @@ class DinhTuyen:
                 giayCho=x["giayCho"], congCu=x.get("congCu") or "?",
                 docLucMs=float(x["docLucMs"]))
             nap += 1
-        return {"nap": nap, "boQuaCu": cu, "boQuaDaCo": daCo, "co": True}
+            ms = float(x["docLucMs"])
+            moiNhat = ms if moiNhat is None else max(moiNhat, ms)
+        # `moiNhatMs` là điều kiện để bên gọi KHÔNG nạp lại ngay khi vừa
+        # bật máy. Không có nó thì kho sống sót qua khởi động lại nhưng
+        # NHỊP nạp thì không: mỗi lần bật là chín lời gọi LI.FI nữa, và
+        # mười lăm lần bật trong một buổi chiều là 429 kèm nghỉ 83 phút —
+        # đúng thứ cái kho này sinh ra để tránh. Đã xảy ra thật 30/08.
+        return {"nap": nap, "boQuaCu": cu, "boQuaDaCo": daCo, "co": True,
+                "moiNhatMs": moiNhat}
 
     # ── ba chặng nguyên tố ──────────────────────────────────────────────
 
