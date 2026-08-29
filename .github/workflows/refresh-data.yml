@@ -353,7 +353,18 @@ jobs:
         id: n-tang-thu-cac
         if: contains(steps.kehoach.outputs.han, ',tang-thu-cac,')
         continue-on-error: true
-        timeout-minutes: 14
+        # 14 → 20 phút. Bước này PHÌNH THEO KHO: chú thích trong sổ
+        # đăng ký ghi "có lượt 532 giây", lượt 29/08 đã là 684 — tức
+        # 81% của van 14 phút, và kho vẫn đang lớn (3.696 → 3.697 kỹ
+        # năng trong một ngày). Phép canh ngân sách trong `npm run
+        # kiem` kêu trước khi nó nổ; đây là hành động theo tiếng kêu
+        # đó, không phải đoán.
+        #
+        # Nới van chứ không siết nhịp: nhịp 6 giờ là thứ giữ kho tươi,
+        # còn van chỉ là chỗ chặn một lượt treo. Van nổ ở đây nghĩa là
+        # cả Tàng Thư Các đứng số liệu, mà bốn thứ khác đọc kho ấy —
+        # kể cả vòng dò kho và phần chọn kỹ năng của mọi vòng tiến hoá.
+        timeout-minutes: 20
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |

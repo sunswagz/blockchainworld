@@ -29,7 +29,7 @@ export const NODE = [
     ra: ["tang-thu-cac/assets/js/data.js",
          "tang-thu-cac/assets/data/lich-su.json",
          "tang-thu-cac/assets/data/kb/"],
-    y: "Quét kho Claude Skills trên GitHub. Bước chậm nhất — có lượt 532 giây."
+    y: "Quét kho Claude Skills trên GitHub. Bước chậm nhất, và PHÌNH THEO KHO: 532 giây khi viết dòng này, 684 giây ngày 29/08. Van đã nới 14 → 20 phút."
   },
   /* M11 · Kho dụng cụ. Tàng Thư Các quét 3.656 skill rồi để đó — repo
      không có `.claude/skills/` nên KHÔNG phiên nào, kể cả bot, gọi

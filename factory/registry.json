@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T08:28:26.059Z",
+  "generatedAt": "2026-08-29T08:43:59.655Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -246,7 +246,7 @@
         "tang-thu-cac/assets/data/lich-su.json",
         "tang-thu-cac/assets/data/kb/"
       ],
-      "y": "Quét kho Claude Skills trên GitHub. Bước chậm nhất — có lượt 532 giây.",
+      "y": "Quét kho Claude Skills trên GitHub. Bước chậm nhất, và PHÌNH THEO KHO: 532 giây khi viết dòng này, 684 giây ngày 29/08. Van đã nới 14 → 20 phút.",
       "khai": "scripts/node/tang-thu-cac.mjs"
     },
     {
