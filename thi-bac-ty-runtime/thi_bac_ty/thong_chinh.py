@@ -44,7 +44,6 @@ class ThongChinh:
     def __init__(self, tran: int = 2000) -> None:
         self._khoa = threading.Lock()
         self._hang: deque = deque(maxlen=tran)
-        self._nghe: list = []
         self.tongNhan = 0
         self.tongSaiKhuon = 0
         self.tongTran = 0            # số tờ bị đẩy ra vì hàng đầy
@@ -71,20 +70,14 @@ class ThongChinh:
             self._hang.append(tt)
             self.tongNhan += 1
             self.theoTy[tt.chienLuoc] = self.theoTy.get(tt.chienLuoc, 0) + 1
-            nghe = list(self._nghe)
-        for f in nghe:
-            try:
-                f(tt)
-            except Exception:                        # noqa: BLE001
-                # Một người nghe hỏng KHÔNG được chặn những người nghe khác,
-                # và càng không được chặn ty đang nộp. Nuốt ở đây là đúng —
-                # nhưng người nghe phải tự ghi lỗi của mình.
-                pass
         return True
 
-    def dang_ky_nghe(self, f) -> None:
-        with self._khoa:
-            self._nghe.append(f)
+    # Từng có `dang_ky_nghe()` và một vòng phát tin cho người nghe ở đây.
+    # Không tầng nào đăng ký, chưa bao giờ — nên mỗi lần nộp tờ trình đều
+    # sao chép một danh sách rỗng dưới khoá, hai nghìn lần mỗi vòng, cho một
+    # tính năng không ai dùng. Gỡ đi. Cần phát tin thì `bus.ghi()` đã có
+    # sẵn và đang chạy thật; dựng lại một đường thứ hai chỉ vì nó nghe hay
+    # là dựng một đường không ai đi.
 
     def lay_het(self) -> list:
         """Lấy trọn hàng đợi và dọn sạch. Trung Ương gọi mỗi lượt."""
@@ -92,10 +85,6 @@ class ThongChinh:
             ra = list(self._hang)
             self._hang.clear()
             return ra
-
-    def dang_cho(self) -> int:
-        with self._khoa:
-            return len(self._hang)
 
     def tom_tat(self) -> dict:
         with self._khoa:
@@ -106,5 +95,4 @@ class ThongChinh:
                 "tongTran": self.tongTran,
                 "theoTy": dict(self.theoTy),
                 "saiKhuonTheoTy": dict(self.saiKhuonTheoTy),
-                "soNguoiNghe": len(self._nghe),
             }

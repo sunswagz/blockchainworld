@@ -1032,6 +1032,122 @@ def kiem_tien_hoa_hoc() -> None:
                             return True
         return False
 
+    # ── MỖI NÚT BẤM: hoặc vòng lặp cũng gọi, hoặc KHAI là việc của người ─
+    # Ba lần cùng một lớp hỏng — lát cắt cung tĩnh, `TrungUong.hoc()`,
+    # `tien_hoa.mot_luot()` — và cả ba đều KHÔNG phải mã chết: chúng có
+    # người gọi, chỉ là qua một nút bấm. Bộ dò "hàm không ai gọi" bỏ lọt cả
+    # ba. Bất biến đúng không phải «có ai gọi không» mà là **«ai gọi: cỗ máy
+    # hay ngón tay người»**.
+    #
+    # Danh sách dưới đây là những nút CỐ Ý chỉ dành cho người, mỗi cái một
+    # lý do. Thêm một nút mới mà không nối vào vòng lặp và cũng không khai ở
+    # đây thì phép kiểm này đỏ — đó là điểm của nó.
+    NGUOI_BAM = {
+        "/api/tam-dung": "dừng máy là quyết định của người, không của máy",
+        "/api/quet-ngay": "quét ép ngoài nhịp — công cụ gỡ rối",
+        "/api/chay-lai": "chạy lại một bộ tham số tuỳ chọn — công cụ khảo sát",
+        "/api/doi-chieu": "so hai bộ tham số tuỳ chọn — công cụ khảo sát",
+        "/api/chay-lai-he": "như trên, ở tầng phân bổ",
+        "/api/ap-dung-tham-so": "ĐÒI TÊN NGƯỜI — máy đề xuất, người ký",
+        "/api/quay-lui-tham-so": "ĐÒI TÊN NGƯỜI, cùng lý do",
+        "/api/cau-dao/dong-lai": "bất đối xứng cầu dao: máy NGẮT được, "
+                                 "đóng lại phải có người xem",
+        "/api/lat-cat": "cung tĩnh chỉ đổi khi có người bấm — tiêu đề file "
+                        "đã sửa cho khớp, xem `kiem_lat_cat`",
+    }
+    VONG_GOI = {
+        "/api/hoc": ("thi_bac_ty/trung_uong.py", "_cuoi_vong",
+                     "_hoc_dinh_ky"),
+        "/api/tien-hoa": ("bac/vong.py", "mot_vong", "_tien_hoa_dinh_ky"),
+        "/api/doi-soat-vi-the": ("thi_bac_ty/trung_uong.py", "mot_vong",
+                                 "canh_vi_the"),
+    }
+    _sv30 = (_goc30 / "bac/server.py").read_text(encoding="utf-8")
+    _duong30 = _ast30.parse(_sv30)
+    _post30 = set()
+    for nd in _ast30.walk(_duong30):
+        if not isinstance(nd, (_ast30.FunctionDef, _ast30.AsyncFunctionDef)):
+            continue
+        for dec in nd.decorator_list:
+            f = dec.func if isinstance(dec, _ast30.Call) else dec
+            if getattr(f, "attr", "") == "post" and isinstance(dec, _ast30.Call):
+                for arg in dec.args:
+                    if isinstance(arg, _ast30.Constant):
+                        _post30.add(arg.value)
+    _la30 = _post30 - set(NGUOI_BAM) - set(VONG_GOI)
+    kiem("mỗi nút BẤM: hoặc vòng lặp cũng gọi, hoặc KHAI là việc của người",
+         not _la30,
+         f"{sorted(_la30)} — một cơ chế chỉ tới được qua nút bấm là một cơ "
+         f"chế không chạy, và nhìn vào buồng lái thì nó có vẻ đang chạy. Đã "
+         f"cắn BA lần: lát cắt cung tĩnh, `hoc()`, `tien_hoa.mot_luot()`")
+    for _d30, (_t30, _h30, _g30) in VONG_GOI.items():
+        kiem(f"và `{_d30}` thật sự được vòng lặp gọi",
+             _goi30(_t30, _h30, _g30),
+             f"khai là vòng lặp gọi mà `{_h30}` không gọi `{_g30}` thì lời "
+             f"khai ấy còn tệ hơn không khai")
+    # ── và HÀM nào không ai gọi ở đâu cả ────────────────────────────────
+    # Bộ dò này KHÔNG bắt được ba lỗi trên — chúng đều có người gọi. Nó bắt
+    # lớp khác: mã dựng ra rồi bỏ quên. `dang_ky_nghe()` của Thông Chính là
+    # một ví dụ đã gỡ: không tầng nào đăng ký, chưa bao giờ, mà mỗi lần nộp
+    # tờ trình vẫn sao chép một danh sách rỗng dưới khoá — hai nghìn lần
+    # mỗi vòng cho một tính năng không ai dùng.
+    _BO_QUA_MC = {"__pycache__", "scripts", "dichvu", "web", "data",
+                  "data-demo", ".venv"}
+    #: Hàm KHÔNG ai gọi mà vẫn giữ, mỗi cái một lý do. Danh sách này phải
+    #: NGẮN: nó là chỗ để khai ngoại lệ, không phải chỗ để giấu mã chết.
+    _MO_COI_CHO_PHEP = {
+        "dang_ngat": "thuộc tính đọc trạng thái cầu dao — phép kiểm dùng, "
+                     "buồng lái đọc qua `tom_tat()`",
+        "kiem_token": "phép soát bảng token, đúng chỗ của nó là bộ kiểm chứ "
+                      "không phải vòng chạy",
+    }
+    _dn, _du = {}, {}
+    _tepMC = [q for q in _goc30.rglob("*.py")
+              if not any(x in _BO_QUA_MC for x in q.parts)]
+    for q in _tepMC:
+        try:
+            _cay = _ast30.parse(q.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue
+        for nd in _ast30.walk(_cay):
+            if isinstance(nd, (_ast30.FunctionDef, _ast30.AsyncFunctionDef)):
+                # Hàm có decorator là hàm KHUNG gọi (route, middleware,
+                # property, sự kiện) — người gọi nằm ngoài cây mã này.
+                if nd.decorator_list:
+                    continue
+                _dn.setdefault(nd.name, str(q.relative_to(_goc30)))
+    for q in _tepMC + [_pl30.Path(__file__)]:
+        try:
+            _cay = _ast30.parse(q.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue
+        for nd in _ast30.walk(_cay):
+            if isinstance(nd, _ast30.Name):
+                _du[nd.id] = 1
+            elif isinstance(nd, _ast30.Attribute):
+                _du[nd.attr] = 1
+            elif isinstance(nd, _ast30.Constant) and isinstance(nd.value, str):
+                _du[nd.value] = 1
+            elif isinstance(nd, _ast30.alias):
+                _du[nd.name.split(".")[-1]] = 1
+                if nd.asname:
+                    _du[nd.asname] = 1
+    _mocoi = sorted(t for t in _dn
+                    if not t.startswith("__") and t not in _du
+                    and t not in _MO_COI_CHO_PHEP)
+    kiem("KHÔNG hàm nào bị bỏ quên — dựng ra rồi không ai gọi",
+         not _mocoi,
+         f"{[(t, _dn[t]) for t in _mocoi]} — mã chết không sai, nó chỉ tốn "
+         f"công đọc và tốn công giữ đúng; và có lúc tốn cả CPU")
+    kiem("và danh sách ngoại lệ mồ côi NGẮN, mỗi cái một lý do",
+         len(_MO_COI_CHO_PHEP) <= 5
+         and all(len(v) > 20 for v in _MO_COI_CHO_PHEP.values()),
+         "danh sách ngoại lệ dài ra là cách mã chết ở lại vĩnh viễn")
+
+    kiem("danh sách nút-người nào cũng có LÝ DO, không có dòng trống",
+         all(len(v) > 20 for v in NGUOI_BAM.values()),
+         "một danh sách miễn trừ không kèm lý do sẽ dài ra mãi")
+
     kiem("vòng quét GỌI hậu kiểm, không đợi người bấm",
          _goi30("bac/vong.py", "mot_vong", "_tien_hoa_dinh_ky"),
          "băng ghi mà không ai đọc lại thì mọi lần vặn ngưỡng đều là đổi số "
