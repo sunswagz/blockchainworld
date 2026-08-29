@@ -726,13 +726,18 @@ def _tu_gia_thuyet(bo: list) -> list[dict]:
     mo = [g for g in ds if not g["daChot"]]
 
     if bac:
-        chi = " · ".join(f"«{g['ma']}» {(g.get('moTa') or '')[:60]}" for g in bac[:4])
+        # `bac` theo thứ tự SỔ, tức cũ trước. Cắt đầu danh sách là giữ lại cái
+        # cũ nhất và vứt cái vừa đo xong — nên càng học nhiều, bài học mới càng
+        # không tới được bộ não. Cắt từ ĐUÔI.
+        chi = " · ".join(f"«{g['ma']}» {(g.get('moTa') or '')[:60]}" for g in bac[-4:])
         ra.append(_pd("da-thu-va-hong", "gia-thuyet",
                       f"{len(bac)} hướng ĐÃ THỬ VÀ HỎNG, đừng đề xuất lại: {chi}. "
                       f"Mỗi cái đã tốn một phép đo đầy đủ; tra sổ giả thuyết trước khi "
                       f"dựng phép đo mới.",
                       len(bac), {"maDaBacBo": [g["ma"] for g in bac]}))
-        for g in bac[:3]:
+        # Ba cái GẦN NHẤT, không phải ba cái đầu sổ: cái vừa đo xong là cái đắt
+        # nhất và hợp thời nhất, còn cái cũ đã nằm trong câu tóm tắt ở trên.
+        for g in bac[-3:]:
             ra.append(_pd(f"bac-bo:{g['ma']}", "gia-thuyet",
                           f"BÁC BỎ — {g['cauHoi']} Dự đoán lúc chưa biết: {g['duDoan']} "
                           f"Đo được: {g.get('moTa')}. "

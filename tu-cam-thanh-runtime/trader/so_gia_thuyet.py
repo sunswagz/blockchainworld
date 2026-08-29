@@ -111,6 +111,22 @@ def chot(ma: str, do_duoc: dict, ghi_chu: str = "") -> dict:
     if _dau(khai_b) != khai_b.get("dau"):
         return {"ok": False, "viSao": f"bản khai «{ma}» đã bị sửa sau khi ghi (vân tay lệch)"}
 
+    # THIẾU khoá «mau» là lỗi người gọi, không phải một phán quyết.
+    #
+    # `_phan_quyet` xử lý mọi thứ không phải số thành KHÔNG_KẾT_LUẬN, nên một
+    # lời gọi gõ nhầm tên khoá cho ra "mẫu None < ngưỡng 30 — chưa đủ để nói
+    # gì". Câu đó đọc y hệt một phép đo thật sự thiếu mẫu, và vì sổ append-only
+    # từ chối chốt lại, bản ghi sai ấy nằm lại VĨNH VIỄN. Đã xảy ra một lần.
+    #
+    # Phân biệt: «mau» vắng mặt ⇒ từ chối, bảo người gọi đưa vào. «mau» có mặt
+    # mà nhỏ ⇒ để `_phan_quyet` phán KHÔNG_KẾT_LUẬN, vì đó là kết quả thật.
+    if "mau" not in do_duoc:
+        return {"ok": False,
+                "viSao": ("số đo thiếu khoá «mau» (cỡ mẫu). Không chốt được: thiếu "
+                          "khoá và mẫu quá nhỏ sẽ cho cùng một phán quyết, mà sổ "
+                          "append-only không cho chốt lại — bản ghi sai sẽ nằm lại "
+                          f"vĩnh viễn. Khoá đã nhận: {sorted(do_duoc)}")}
+
     pq, mo_ta = _phan_quyet(khai_b["nguong"], do_duoc)
     b = {"loai": "chot", "ma": ma, "luc": _gio(), "dauBanKhai": khai_b["dau"],
          "doDuoc": do_duoc, "phanQuyet": pq, "moTa": mo_ta, "ghiChu": ghi_chu,

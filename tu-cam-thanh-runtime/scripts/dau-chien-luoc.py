@@ -143,6 +143,7 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     # Ghi ra đĩa để lò chưng cất đọc được. Không ghi thì bảng này chỉ tồn tại
     # trong terminal của lượt chạy đó — đúng chỗ đứt mà cả hệ đã sửa một lần.
     from trader.config import DATA_DIR as _DD
+    import datetime as _dt
     import json as _json
     _f = _DD / "dau-nhieu-cho.json"
     # `luc` không phải trang trí. Bàn giao đo tuổi kho bằng mtime của file, mà

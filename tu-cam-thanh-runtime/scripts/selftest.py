@@ -1027,6 +1027,108 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[30] THIẾU KHOÁ LÀ LỖI NGƯỜI GỌI, KHÔNG PHẢI PHÁN QUYẾT")
+    from trader import so_gia_thuyet as _G30
+
+    # `_phan_quyet` biến mọi thứ không phải số thành KHÔNG_KẾT_LUẬN. Nên một
+    # lời gọi gõ nhầm tên khoá cho ra "mẫu None < ngưỡng 30 — chưa đủ để nói
+    # gì" — đọc y hệt một phép đo thật sự thiếu mẫu. Và vì sổ append-only từ
+    # chối chốt lại, bản ghi sai ấy nằm lại VĨNH VIỄN.
+    #
+    # Đã xảy ra với `bung-nen-giu-duoc-o-cho-moi`: số đo có thật (−0,236R qua
+    # 32 lệnh, đủ ngưỡng) nhưng ghi dưới tên khoá sai, và sổ ghi KHÔNG_KẾT_LUẬN.
+    _ng30 = {"truong": "x", "toanTu": ">", "giaTri": 0, "mauToiThieu": 30}
+    _G30.khai("t30a", "h", "d", "c", dict(_ng30))
+    _r30 = _G30.chot("t30a", {"x": -0.2, "mauToiThieu": 32})
+    check(_r30.get("ok") is False, "thiếu khoá «mau» → TỪ CHỐI, không phán quyết")
+    check("mauToiThieu" in (_r30.get("viSao") or ""),
+          "và kể ra những khoá ĐÃ nhận, để thấy ngay mình gõ nhầm gì")
+
+    # Cửa ngược lại 1: có «mau» mà nhỏ vẫn phải là KHÔNG_KẾT_LUẬN — đó là kết
+    # quả thật, không phải lỗi gọi.
+    check(_G30.chot("t30a", {"x": -0.2, "mau": 5})["phanQuyet"] == "KHÔNG_KẾT_LUẬN",
+          "có «mau» nhưng nhỏ → KHÔNG_KẾT_LUẬN như cũ")
+
+    # Cửa ngược lại 2: đủ mẫu thì vẫn phán quyết bình thường, cả hai chiều.
+    _G30.khai("t30b", "h", "d", "c", dict(_ng30))
+    check(_G30.chot("t30b", {"x": -0.2, "mau": 32})["phanQuyet"] == "BÁC_BỎ",
+          "đủ mẫu, không đạt ngưỡng → BÁC_BỎ")
+    _G30.khai("t30c", "h", "d", "c", dict(_ng30))
+    check(_G30.chot("t30c", {"x": 0.4, "mau": 32})["phanQuyet"] == "XÁC_NHẬN",
+          "đủ mẫu, đạt ngưỡng → XÁC_NHẬN")
+    print("\n[29] IMPORT TRONG HÀM KHÔNG CHE CHO HÀM KHÁC")
+    import ast as _ast29
+
+    # `dau-chien-luoc.py` có `import datetime as _dt` bên trong `_nap_cho`. Một
+    # bản vá thêm chỗ dùng `_dt` trong `dau_nhieu_cho` — hàm khác, không thấy
+    # cái import kia. Python biên dịch sạch, và NameError chỉ nổ ở dòng CUỐI
+    # của một lượt đo 40 phút, sau khi mọi con số đã tính xong và trước khi kịp
+    # ghi ra đĩa. Cả lượt đo mất trắng.
+    #
+    # Chỉ soi bí danh dạng `import X as _y` — quy ước ở đây cho import cục bộ.
+    # Đủ hẹp để không báo bừa, và đúng chỗ đã cắn.
+    def _khai_trong(node):
+        return {a.asname for n in _ast29.walk(node)
+                if isinstance(n, (_ast29.Import, _ast29.ImportFrom))
+                for a in n.names if a.asname and a.asname.startswith("_")}
+
+    _thieu = []
+    for _f29 in sorted(list((ROOT / "trader").glob("*.py"))
+                       + list((ROOT / "scripts").glob("*.py"))):
+        try:
+            _cay29 = _ast29.parse(_f29.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue
+        _mod = _khai_trong(_ast29.Module(body=[n for n in _cay29.body
+                                               if isinstance(n, (_ast29.Import,
+                                                                 _ast29.ImportFrom))],
+                                         type_ignores=[]))
+        # Bí danh nào từng được khai CỤC BỘ ở file này thì mới đáng soi: nó là
+        # thứ dễ tưởng đã có mà thật ra chỉ có trong một hàm.
+        _cuc_bo = set()
+        _ham = [n for n in _ast29.walk(_cay29)
+                if isinstance(n, (_ast29.FunctionDef, _ast29.AsyncFunctionDef))]
+        for _h in _ham:
+            _cuc_bo |= _khai_trong(_h)
+        # Hàm LỒNG thấy được import của hàm bao ngoài qua bao đóng. Bỏ qua chuyện
+        # đó là báo nhầm ngay lần chạy đầu — và một phép canh hay báo nhầm sẽ bị
+        # tắt, rồi lỗi thật đi qua cửa đang mở.
+        _cha = {}
+        for _n29 in _ast29.walk(_cay29):
+            for _con in _ast29.iter_child_nodes(_n29):
+                _cha[_con] = _n29
+
+        def _khai_ke_thua(h):
+            ra, cur = _khai_trong(h), _cha.get(h)
+            while cur is not None:
+                if isinstance(cur, (_ast29.FunctionDef, _ast29.AsyncFunctionDef)):
+                    ra = ra | _khai_trong(cur)
+                cur = _cha.get(cur)
+            return ra
+
+        for _h in _ham:
+            _co = _khai_ke_thua(_h) | _mod
+            _dung = {n.id for n in _ast29.walk(_h) if isinstance(n, _ast29.Name)}
+            for _t in sorted((_dung & _cuc_bo) - _co):
+                _thieu.append(f"{_f29.name}:{_h.name} dùng {_t}")
+    check(not _thieu,
+          f"không hàm nào dùng bí danh import của hàm KHÁC ({len(_ham)} hàm ở file cuối)"
+          + (f" — THIẾU: {_thieu}" if _thieu else ""))
+
+    # Cửa ngược lại: phép quét phải BẮT được một file dựng sẵn có đúng lỗi đó.
+    _gia29 = _ast29.parse(NL.join([
+        "def a():",
+        "    import datetime as _dt",
+        "    return _dt.datetime.now()",
+        "def b():",
+        "    return _dt.datetime.now()",
+    ]))
+    _hs = [n for n in _ast29.walk(_gia29) if isinstance(n, _ast29.FunctionDef)]
+    _cb = set().union(*[_khai_trong(h) for h in _hs])
+    _bat29 = [h.name for h in _hs
+              if ({n.id for n in _ast29.walk(h) if isinstance(n, _ast29.Name)}
+                  & _cb) - _khai_trong(h)]
+    check(_bat29 == ["b"], f"quét BẮT được hàm b() dùng _dt của a() — được {_bat29}")
     print("\n[28] LỆCH CŨ KHÁC LỆCH ĐANG XẢY RA")
     from trader import chung_cat as C28
 
@@ -1065,6 +1167,20 @@ async def main() -> int:
     _c = _lam28(cu_lech=False, gan_lech=False)
     check("KHÔNG đều" not in _c, "rủi ro đều → không câu cảnh báo nào")
 
+
+    # ── Cắt danh sách phải giữ cái MỚI, không phải cái đầu sổ ──
+    #
+    # `bac[:3]` giữ ba bác-bỏ CŨ NHẤT và vứt cái vừa đo xong. Càng học nhiều
+    # thì bài học mới càng không tới được bộ não — một cửa tự đóng lại theo
+    # thời gian, và không có gì báo vì phát hiện vẫn đủ số.
+    from trader import so_gia_thuyet as _Gc
+    for _i in range(5):
+        _Gc.khai(f"bb{_i}", "h", "d", "c",
+                 {"truong": "x", "toanTu": ">", "giaTri": 0, "mauToiThieu": 1})
+        _Gc.chot(f"bb{_i}", {"x": -1, "mau": 9})
+    _ma = [x["ma"] for x in C28._tu_gia_thuyet([]) if x["ma"].startswith("bac-bo:")]
+    check("bac-bo:bb4" in _ma, f"bác bỏ MỚI NHẤT vào được prompt — có {_ma}")
+    check("bac-bo:bb0" not in _ma, "và cái cũ nhất nhường chỗ, không chiếm mãi")
     # ── Mẫu giá: số CHỢ phải vào câu ──
     #
     # "45.000 nến khung 4h" và "45.000 nến khung 4h trên 15 chợ độc lập" là hai
