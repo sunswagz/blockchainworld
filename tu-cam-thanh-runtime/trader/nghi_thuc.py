@@ -64,6 +64,16 @@ _trang_thai: dict[str, Any] = {
     "ketQua": {}, "loi": None,
 }
 
+# Danh sách chợ khung 4h — MỘT chỗ, dùng cho cả mẫu giá lẫn đấu nhiều chợ.
+# Hai bảng riêng thì thêm coin là phải nhớ sửa hai nơi, và quên một nơi thì
+# hai phép đo nói về hai tập chợ khác nhau mà không gì lộ ra.
+# Nến tải bằng: python scripts/tai-lich-su.py --coin <ds> --khung 4h,1d
+CHO_4H = (
+    "BTCUSDT:4h,ETHUSDT:4h,SOLUSDT:4h,BNBUSDT:4h,XRPUSDT:4h,ADAUSDT:4h,"
+    "DOGEUSDT:4h,AVAXUSDT:4h,LINKUSDT:4h,DOTUSDT:4h,ATOMUSDT:4h,"
+    "NEARUSDT:4h,FILUSDT:4h,UNIUSDT:4h,LTCUSDT:4h"
+)
+
 # Phần tử thứ tư là KHO việc đó sinh ra. Không phải để chạy — để CANH.
 #
 # `lessons-soat-lai.jsonl` đứng im 9 ngày: việc soát lại chưa từng nằm trong
@@ -74,7 +84,18 @@ _trang_thai: dict[str, Any] = {
 #
 # Khai ở ĐÂY, một chỗ. `selftest` bắt bàn giao phải canh đủ mọi kho trong bảng.
 VIEC = (
-    ("mẫu giá", [sys.executable, "scripts/do-mau-gia.py", "--ghi"], 900,
+    # MẪU GIÁ trên 15 chợ, không phải một. Đo trên riêng BTC thì 5 trong 12 mẫu
+    # nằm dưới ngưỡng 15 lần xuất hiện và vĩnh viễn "chưa đủ dữ liệu" — đo thêm
+    # 10 năm BTC cũng chỉ nhích chút, vì mẫu hiếm thì hiếm ở mọi độ dài. Trải
+    # qua 15 chợ: 14/14 mẫu đủ cỡ mẫu, HAI_ĐỈNH từ 12 lần lên 701.
+    #
+    # Và nó lật một kết luận: NẾN_TRÙM_GIẢM là mẫu dương duy nhất hồi đo trên
+    # một chợ, qua 15 chợ thành −0,107R trên 697 lần.
+    #
+    # Đo được ~9 phút cho 45.000 nến nên hạn nâng lên 1800s: 900s là vừa đủ
+    # trong điều kiện tốt, và một lần quá giờ là mất cả kho đo của lượt đó.
+    ("mẫu giá", [sys.executable, "scripts/do-mau-gia.py", "--ghi",
+                 "--cho", CHO_4H], 1800,
      "mau-gia.json"),
     ("hình học khung", [sys.executable, "scripts/do-khung.py", "--ghi"], 900,
      "do-khung.json"),
@@ -98,7 +119,7 @@ VIEC = (
     # một cấu hình đã đổi từ lâu. Ba coin cùng khung đang chạy: chuỗi tín hiệu
     # đã có cache nên lượt sau chỉ mất ~1 phút.
     ("đấu nhiều chợ", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca",
-                       "--cho", "BTCUSDT:4h,ETHUSDT:4h,SOLUSDT:4h"], 1200,
+                       "--cho", CHO_4H], 3600,
      "dau-nhieu-cho.json"),
 )
 

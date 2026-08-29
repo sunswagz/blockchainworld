@@ -971,6 +971,17 @@ async def main() -> int:
           "mọi script sinh kho đo đều đóng dấu lúc đo"
           + (f" — KHÔNG ĐÓNG DẤU: {_khong}" if _khong else ""))
 
+    # Và khoá có mặt KHÔNG đủ. `do-mau-gia.py` từng ghi `"luc": None` cứng: phép
+    # canh trên tìm thấy chữ "luc" nên báo xanh, mà giá trị thì vô dụng — bàn
+    # giao rơi về mtime mà vẫn nghĩ mình đang đọc dấu. Khai một trường rồi để
+    # trống còn tệ hơn không khai, vì nó làm cái canh im.
+    _rong = [f for f in _phai_dau
+             if chr(34) + "luc" + chr(34) + ": None"
+             in (ROOT / f).read_text(encoding="utf-8")]
+    check(not _rong,
+          "không script nào ghi `luc: None` cứng"
+          + (f" — DẤU RỖNG: {_rong}" if _rong else ""))
+
     # ── Đổi tên mã KHÔNG được báo là mất phép đo ──
     #
     # `that:TREND_UP` thành `that:khung?:TREND_UP` trong một commit, và bản bàn

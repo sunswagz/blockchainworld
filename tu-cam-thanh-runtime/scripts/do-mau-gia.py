@@ -2,6 +2,7 @@
 
     python scripts/do-mau-gia.py            đo trên khung đang cấu hình
     python scripts/do-mau-gia.py --ghi      đo xong ghi vào data/mau-gia.json
+    python scripts/do-mau-gia.py --cho BTCUSDT:4h,ETHUSDT:4h,SOLUSDT:4h --ghi
 
 Sách vở nói "vai-đầu-vai đúng 83%". Câu đó không có cỡ mẫu, không có sàn, không
 có khung thời gian, không nói đúng tới ĐÂU và sai thì mất bao nhiêu. Script này
@@ -29,6 +30,7 @@ nhưng ghi rõ CHƯA ĐỦ, và lò chưng cất sẽ không lấy.
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import sys
 from collections import defaultdict
@@ -46,12 +48,29 @@ CACH_NHAU = 12      # hai lần cùng tên phải cách nhau ngần này nến
 TOI_THIEU = 15      # dưới ngần này lần xuất hiện thì chưa kết luận
 
 
-def _nap(tf: str | None = None) -> list[dict]:
-    # Khung phải theo CẤU HÌNH, không ghi cứng. Bản đầu cố định "1h"; khi bản
-    # chạy thật chuyển sang 4h thì bảng mẫu giá vẫn nói về 1h mà không có gì
-    # trong câu chữ lộ ra điều đó — cùng loại lỗi với cầu dao chặn nhầm khung.
+def _cho_ds() -> list[str]:
+    """Danh sách chợ cần đo, dạng SYMBOL:khung.
+
+    Mặc định là chợ trong cấu hình. `--cho` mở ra nhiều chợ, và đó là cách DUY
+    NHẤT để mấy mẫu hiếm nói được gì: `CỐC_TAY_CẦM` xuất hiện 12 lần trên 3000
+    nến BTC — dưới ngưỡng 15 nên vĩnh viễn "chưa đủ dữ liệu", mà đo thêm 10 năm
+    BTC cũng chỉ nhích chút. Trải qua 15 chợ thì thành 150+, và 15 chợ độc lập
+    còn khó khớp trội hơn một chợ dài.
+    """
+    if "--cho" in sys.argv:
+        return [x.strip() for x in sys.argv[sys.argv.index("--cho") + 1].split(",")
+                if x.strip()]
+    return [f"{CONFIG['symbol']}:{CONFIG['timeframes']['primary']}"]
+
+
+def _nap(cho: str | None = None) -> list[dict]:
+    # Khung VÀ chợ đều phải theo dữ liệu, không ghi cứng. Bản đầu cố định "1h";
+    # khi bản chạy thật sang 4h thì bảng mẫu giá vẫn nói về 1h mà không gì lộ ra.
+    # Bản sau vẫn ghi cứng "BTCUSDT" — cùng lỗi, chỉ đổi trục.
+    cho = cho or _cho_ds()[0]
+    sym, _, tf = cho.partition(":")
     tf = tf or CONFIG["timeframes"]["primary"]
-    f = ROOT / "data" / "lich-su" / f"BTCUSDT-{tf}.json"
+    f = ROOT / "data" / "lich-su" / f"{sym}-{tf}.json"
     if not f.exists():
         return []
     d = json.loads(f.read_text(encoding="utf-8"))
@@ -126,31 +145,46 @@ def _cham(nen: list[dict], m: dict, i: int, drag_bps: float) -> dict | None:
 
 
 def main() -> int:
-    nen = _nap()
-    if len(nen) < CUA_SO + GIU + 10:
-        print("Chưa đủ nến lịch sử. Chạy: python scripts/tai-lich-su.py --so 4000")
-        return 1
     r = CONFIG["risk"]
     drag_bps = r["feeBps"] + r["slippageBps"]
-    tf_nay = CONFIG["timeframes"]["primary"]
-    print(f"{len(nen)} nến {tf_nay} · cửa sổ {CUA_SO} · giữ tối đa {GIU} nến · "
-          f"chi phí {drag_bps}bps mỗi đầu\n")
+    cho_ds = _cho_ds()
 
-    lan_cuoi: dict[str, int] = {}
     ket: dict[str, list] = defaultdict(list)
     bo_trung = 0
+    da_do: list[str] = []
+    tong_nen = 0
 
-    for i in range(CUA_SO, len(nen) - GIU - 1):
-        for m in mau_gia.nhan_dien(nen[i - CUA_SO: i + 1]):
-            ten = m["ten"]
-            if i - lan_cuoi.get(ten, -10 ** 9) < CACH_NHAU:
-                bo_trung += 1
-                continue
-            o = _cham(nen, m, i, drag_bps)
-            if o is None:
-                continue
-            lan_cuoi[ten] = i
-            ket[ten].append({**o, "rr": m["rr"], "loai": m["loai"], "huong": m["huong"]})
+    for cho in cho_ds:
+        nen = _nap(cho)
+        if len(nen) < CUA_SO + GIU + 10:
+            print(f"  bỏ qua {cho} — chưa đủ nến lịch sử")
+            continue
+        da_do.append(cho)
+        tong_nen += len(nen)
+        print(f"  {cho} · {len(nen)} nến")
+
+        # `lan_cuoi` phải đặt lại MỖI CHỢ. Dùng chung thì chỉ số nến của chợ sau
+        # bị so với chỉ số của chợ trước, và luật "hai lần cùng tên phải cách
+        # nhau 12 nến" loại bừa những lần xuất hiện hoàn toàn hợp lệ.
+        lan_cuoi: dict[str, int] = {}
+        for i in range(CUA_SO, len(nen) - GIU - 1):
+            for m in mau_gia.nhan_dien(nen[i - CUA_SO: i + 1]):
+                ten = m["ten"]
+                if i - lan_cuoi.get(ten, -10 ** 9) < CACH_NHAU:
+                    bo_trung += 1
+                    continue
+                o = _cham(nen, m, i, drag_bps)
+                if o is None:
+                    continue
+                lan_cuoi[ten] = i
+                ket[ten].append({**o, "rr": m["rr"], "loai": m["loai"],
+                                 "huong": m["huong"], "cho": cho})
+
+    if not da_do:
+        print("Chưa đủ nến lịch sử. Chạy: python scripts/tai-lich-su.py --so 4000")
+        return 1
+    print(f"{chr(10)}{len(da_do)} chợ · {tong_nen} nến · cửa sổ {CUA_SO} · giữ tối đa "
+          f"{GIU} nến · chi phí {drag_bps}bps mỗi đầu{chr(10)}")
 
     if not ket:
         print("Không nhận diện được mẫu nào — kiểm lại dung sai trong mau_gia.py")
@@ -209,10 +243,15 @@ def main() -> int:
 
     if GHI:
         f = DATA_DIR / "mau-gia.json"
-        f.write_text(json.dumps({"luc": None, "khung": CONFIG["timeframes"]["primary"],
-                                 "nen": len(nen), "cuaSo": CUA_SO,
-                                 "giu": GIU, "toiThieu": TOI_THIEU, "mau": hang},
-                                ensure_ascii=False, indent=1), encoding="utf-8")
+        # `luc` từng là None ghi cứng: khoá có mặt nên phép canh "kho phải đóng
+        # dấu" cho qua, mà giá trị thì vô dụng. Khai một trường rồi để trống còn
+        # tệ hơn không khai — nó làm phép canh báo xanh.
+        f.write_text(json.dumps({
+            "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+            "cho": da_do, "khung": CONFIG["timeframes"]["primary"],
+            "nen": tong_nen, "cuaSo": CUA_SO,
+            "giu": GIU, "toiThieu": TOI_THIEU, "mau": hang},
+            ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"\nđã ghi {f}")
     else:
         print("\n(chưa ghi — thêm --ghi để lưu cho lò chưng cất)")
