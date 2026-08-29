@@ -45,7 +45,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .bang import NguonKhung
+from .bang import NguonKhung, giai_doan_cua
 from .chay_lai import ThamSo as ChayLaiThamSo
 from .chay_lai import gop_doi_chieu
 from .chay_lai import mot_luot as chay_lai_mot_luot
@@ -550,6 +550,8 @@ def _dem_bo_qua(khung: list[dict]) -> dict[str, int]:
     ra: dict[str, int] = {}
     for k in khung:
         for tt in (k.get("thiTruong") or []):
+            if giai_doan_cua(tt) != "dat-cuoc":
+                continue
             so = tt.get("so") or {}
             up = so.get("UP") or {}
             ly = "thang-cho" if up.get("thangCho") else (

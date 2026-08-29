@@ -196,6 +196,31 @@ def phan_giai_dai(m: dict, ma: str, capNen: str) -> Khung | None:
                  daiSongGiay=(het - mo) / 1000.0)
 
 
+def chon_quan_sat(ds: list[Khung], bayGioMs: float) -> Khung | None:
+    """Khung ĐANG trong cửa ăn thua [T, T+300]. None nếu không có.
+
+    Đây là cửa mà runtime chưa bao giờ chạm tới, và cũng là cửa DUY NHẤT
+    mô hình làm việc được. Đo trên Binance, cùng mô hình, cùng τ=60s,
+    cùng tỉ lệ nền, chỉ khác chỗ đứng (`scripts/do-cua-nao.py`):
+
+        đứng ở cửa đặt cược, K = giá(T−300)   điểm kỹ năng  −74,3%
+        đứng trong cửa ăn thua, K = giá(T)    điểm kỹ năng  +43,5%
+
+    Lý do đơn giản tới mức khó tin là mình đã bỏ qua: trong cửa đặt cược
+    strike CHƯA TỒN TẠI — nó là giá lúc T, mà T còn ở phía trước. Số gia
+    từ T tới T+300 độc lập với mọi thứ quan sát được, nên giá trị thật là
+    đúng 0,5 bất kể giá đang ở đâu.
+
+    Hàm này để GHI BĂNG, chưa để đặt lệnh. Chưa ai đo được có tiền trong
+    cửa ấy không, vì chưa có một dòng sổ lệnh nào của nó — và không có dữ
+    liệu thì mọi quyết định về nó chỉ là đoán.
+    """
+    qs = [k for k in ds if k.giai_doan(bayGioMs) == QUAN_SAT]
+    if not qs:
+        return None
+    return min(qs, key=lambda k: k.endMs)
+
+
 def chon_dat_cuoc(ds: list[Khung], bayGioMs: float) -> Khung | None:
     """Khung ĐANG đặt cược được, gần hết cửa nhất. None nếu không có.
 

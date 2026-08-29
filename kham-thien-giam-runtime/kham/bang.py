@@ -333,6 +333,26 @@ def lan_luot(tuNgay: str | None = None,
                 yield k
 
 
+def giai_doan_cua(tt: dict) -> str:
+    """Dòng băng này thuộc cửa nào. MỘT CHỖ DUY NHẤT trả lời câu ấy.
+
+    Băng nay có HAI loại dòng và chúng KHÔNG cùng nghĩa:
+
+        "dat-cuoc"  cửa [T−300, T]. `giaMo` là giá lúc T−300 và đó KHÔNG
+                    phải strike; `conLaiGiay` đếm tới T.
+        "quan-sat"  cửa [T, T+300]. `giaMo` là STRIKE THẬT (giá lúc T);
+                    `conLaiGiay` đếm tới T+300.
+
+    Trộn hai loại vào cùng một phép tính là dựng một con số không nói về
+    thứ gì cả — cùng hình dạng lỗi mà `_giai_nen` phải tránh khi nó từ
+    chối dán hai mẩu dòng ở hai bên chỗ đứt.
+
+    Dòng CŨ không có trường này. Toàn bộ băng tám ngày đầu là cửa đặt
+    cược, nên thiếu thì đọc là "dat-cuoc" — đúng, không phải đoán.
+    """
+    return str(tt.get("giaiDoan") or "dat-cuoc")
+
+
 def doc_bang_day_du(tuNgay: str | None = None) -> tuple[list[dict], BaoCaoDoc]:
     """Đọc cả băng vào bộ nhớ, kèm báo cáo hư hỏng. KHÔNG BAO GIỜ ném."""
     bao = BaoCaoDoc()

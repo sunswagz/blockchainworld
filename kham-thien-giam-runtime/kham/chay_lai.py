@@ -35,6 +35,7 @@ from __future__ import annotations
 import math
 from dataclasses import replace, dataclass, field
 
+from .bang import giai_doan_cua
 from .can_loi import can
 from .dinh_gia import dinh_gia
 from .so_lenh import Muc, SoLenh
@@ -170,6 +171,12 @@ def mot_luot(khung, ts: ThamSo) -> KetQua:
     for k in khung:
         kq.soKhung += 1
         for tt in (k.get("thiTruong") or []):
+            # Băng nay có cả dòng của cửa ĂN THUA, và ở đó `giaMo` là
+            # strike thật còn `conLaiGiay` đếm tới một mốc khác. Chấm lẫn
+            # hai loại là dựng một con số không nói về thứ gì cả.
+            if giai_doan_cua(tt) != "dat-cuoc":
+                bo("dòng cửa ăn thua, chưa chấm ở đây")
+                continue
             ma = tt.get("ma") or "?"
             so_tho = tt.get("so") or {}
             su = dung_so(so_tho.get("UP"), ma, "UP")

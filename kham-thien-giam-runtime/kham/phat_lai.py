@@ -58,7 +58,7 @@ import sys
 import time
 from dataclasses import dataclass, field, replace
 
-from .bang import NguonKhung
+from .bang import NguonKhung, giai_doan_cua
 from .can_loi import CoHoi, phi_taker
 from .chay_lai import dung_so
 from .chien_thuat import BoiCanh, chay_tat_ca
@@ -242,6 +242,12 @@ class PhienPhatLai:
 
     # ── một khung hình của một market ─────────────────────────────────
     def _mot_khung(self, tt: dict, luc: float) -> None:
+        # Chỉ chạy trên dòng của CỬA ĐẶT CƯỢC. Dòng cửa ăn thua có `giaMo`
+        # là strike thật và `conLaiGiay` đếm tới mốc khác — trộn vào là
+        # dựng một con số không nói về thứ gì.
+        if giai_doan_cua(tt) != "dat-cuoc":
+            self._bo("dòng cửa ăn thua, chưa chạy ở đây")
+            return
         ma = tt.get("ma") or "?"
         slug = tt.get("slug") or ma
         soTho = tt.get("so") or {}

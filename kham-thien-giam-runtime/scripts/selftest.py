@@ -935,6 +935,55 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def kiem_giai_doan_bang() -> None:
+    """Dòng cửa ĐẶT CƯỢC và dòng cửa ĂN THUA không được lẫn vào nhau.
+
+    Băng nay có hai loại dòng và chúng KHÔNG cùng nghĩa:
+
+        "dat-cuoc"  `giaMo` là giá lúc T−300, KHÔNG phải strike;
+                    `conLaiGiay` đếm tới T.
+        "quan-sat"  `giaMo` là STRIKE THẬT (giá lúc T);
+                    `conLaiGiay` đếm tới T+300.
+
+    Trộn hai loại vào cùng một phép tính là dựng một con số không nói về
+    thứ gì cả — cùng hình dạng lỗi mà `_giai_nen` phải tránh khi nó từ
+    chối dán hai mẩu dòng ở hai bên chỗ đứt.
+
+    Và dòng CŨ không có trường ấy: toàn bộ băng tám ngày đầu là cửa đặt
+    cược, nên thiếu thì phải đọc là "dat-cuoc" — đúng, không phải đoán.
+    """
+    print("\n-- Hai loai dong bang khong duoc lan --------------------")
+
+    from kham.bang import giai_doan_cua
+
+    kiem("dòng cũ (thiếu trường) đọc là cửa đặt cược",
+         giai_doan_cua({"ma": "BTC_5M"}) == "dat-cuoc")
+    kiem("dòng khai quan-sat đọc đúng",
+         giai_doan_cua({"giaiDoan": "quan-sat"}) == "quan-sat")
+
+    # Băng trộn: một nửa dòng là cửa ăn thua. `chay_lai` phải BỎ chúng và
+    # NÓI RA, không được lặng lẽ chấm lẫn.
+    khung = _bang_sat_bien(20)
+    tron = []
+    for k in khung:
+        tt = dict(k["thiTruong"][0])
+        qs = dict(tt)
+        qs["giaiDoan"] = "quan-sat"
+        qs["giaMo"] = 100_060      # strike thật, khác hẳn dòng kia
+        tron.append({"luc": 0, "thiTruong": [tt, qs]})
+
+    ts = ThamSo(ten="t", netEdgeToiThieu=0.005, bienAnToan=0.005)
+    a = mot_luot(khung, ts)
+    b = mot_luot(tron, ts)
+    kiem("thêm dòng cửa ăn thua KHÔNG đổi kết quả chạy lại",
+         (a.soQuaSang, round(a.tongLaiLo, 6))
+         == (b.soQuaSang, round(b.tongLaiLo, 6)),
+         f"{a.soQuaSang}/{a.tongLaiLo:.4f} vs {b.soQuaSang}/{b.tongLaiLo:.4f}")
+    kiem("và nó NÓI RA là đã bỏ bao nhiêu dòng",
+         b.boQua.get("dòng cửa ăn thua, chưa chấm ở đây", 0) == len(khung),
+         dict(b.boQua))
+
+
 def kiem_lo_ngay_rong() -> None:
     """Trần "lỗ ngày" phải nhảy vì THUA, không vì BẬN.
 
@@ -2190,6 +2239,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_giai_doan_bang()
     kiem_lo_ngay_rong()
     kiem_dong_ho_rui_ro()
     kiem_treo_tra_han_muc()

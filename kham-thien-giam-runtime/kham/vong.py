@@ -49,7 +49,8 @@ from .dong_song_nen import dongSongNen
 from .dongho import dong_ho
 from .ket_toan import KetToan
 from .kho_doi import Kho
-from .khung import DAT_CUOC, Khung, chon_dat_cuoc, phan_giai, phan_giai_dai
+from .khung import (DAT_CUOC, QUAN_SAT, Khung, chon_dat_cuoc,
+                    chon_quan_sat, phan_giai, phan_giai_dai)
 from .nguon import nguon
 from .rui_ro import RiskEngine, SucKhoeNguon
 from .so import So, thong_ke
@@ -82,6 +83,9 @@ class Runtime:
 
         self.bienDong: dict[str, DoBienDong] = {}
         self.khungHienTai: dict[str, Khung] = {}
+        # Khung ĐANG ăn thua [T, T+300]. Chỉ để ghi băng —
+        # chưa ai đo được có tiền trong cửa ấy không.
+        self.khungQuanSat: dict[str, Khung] = {}
         self.capSo: dict[str, CapSo] = {}
         self.giaChuan: dict[str, object] = {}
         self.giaNen: dict[str, float] = {}
@@ -211,6 +215,14 @@ class Runtime:
                 self._mot_thi_truong(tt, now, khung_ghi)
             except Exception as e:                  # noqa: BLE001
                 bus.ghi(f"{tt['ma']}: {type(e).__name__}: {e}", loai="loi")
+            # Ghi băng cho khung ĐANG ăn thua. Tách khỏi lời gọi trên vì
+            # nó phải chạy KỂ CẢ khi cửa đặt cược không có gì để làm —
+            # phần lớn thời gian là như vậy.
+            try:
+                self._ghi_quan_sat(tt, now, khung_ghi)
+            except Exception as e:                  # noqa: BLE001
+                bus.ghi(f"{tt['ma']} (quan sát): {type(e).__name__}: {e}",
+                        loai="loi")
 
         # ── soát lệnh maker chờ + kết toán ───────────────────────────────
         self._lan("soát lệnh chờ", lambda: self.cong.soat_cho(
@@ -361,6 +373,7 @@ class Runtime:
             if not ks:
                 self._than_phien(ma, f"không thấy khung nào có tiền tố `{tt['tienTo']}`")
                 continue
+            self._bam_quan_sat(ma, ks, now)
             k = chon_dat_cuoc(ks, now)
             if k is None:
                 gan = min(ks, key=lambda x: abs(x.batDauDatCuocMs - now))
@@ -385,6 +398,73 @@ class Runtime:
                 self.khungHienTai[ma] = k
                 bus.ghi(f"{ma}: vào cửa đặt cược {k.slug} "
                         f"(còn {k.con_lai_giay(now):.0f}s)", loai="tin")
+
+    def _bam_quan_sat(self, ma: str, ks: list, now: float) -> None:
+        """Đăng ký sổ lệnh của khung ĐANG ăn thua, chỉ để GHI BĂNG.
+
+        Băng tám ngày, 115.779 khung hình, và KHÔNG một dòng nào là sổ
+        lệnh trong cửa ăn thua — vì `_tim_khung` chỉ từng chọn khung đang
+        đặt cược. Nên câu hỏi đắt nhất của cung này chưa từng trả lời
+        được: cửa ấy có báo giá thật không, hay chỉ có thang chờ.
+
+        Không đặt lệnh ở đây. Dữ liệu trước, quyết định sau.
+        """
+        k = chon_quan_sat(ks, now)
+        cu = self.khungQuanSat.get(ma)
+        if k is None:
+            if cu is not None:
+                dong_song.bo_dang_ky(cu.tokenUp)
+                dong_song.bo_dang_ky(cu.tokenDown)
+                self.khungQuanSat.pop(ma, None)
+            return
+        if cu is not None and cu.slug == k.slug:
+            return
+        if cu is not None:
+            dong_song.bo_dang_ky(cu.tokenUp)
+            dong_song.bo_dang_ky(cu.tokenDown)
+        dong_song.dang_ky(k.tokenUp, ma, "UP")
+        dong_song.dang_ky(k.tokenDown, ma, "DOWN")
+        self.khungQuanSat[ma] = k
+        bus.ghi(f"{ma}: bám khung ăn thua {k.slug} để ghi băng "
+                f"(còn {(k.endMs - now)/1000.0:.0f}s)", loai="tin")
+
+    def _ghi_quan_sat(self, tt: dict, now: float, ghi: list[dict]) -> None:
+        """Một dòng băng cho khung đang ăn thua. Chỉ ghi, không quyết gì.
+
+        `giaMo` ở đây là STRIKE THẬT: giá lúc `eventStartMs`, và lúc này
+        nó đã xảy ra nên biết được. `conLaiGiay` đếm tới `endMs`, không
+        tới `eventStartMs`. Hai chỗ ấy là toàn bộ khác biệt giữa dòng này
+        và dòng của cửa đặt cược — và cũng là toàn bộ lý do mô hình làm
+        việc được ở đây mà không làm việc được ở kia.
+        """
+        ma = tt["ma"]
+        k = self.khungQuanSat.get(ma)
+        if k is None:
+            return
+        su = dong_song.lay(k.tokenUp)
+        sd = dong_song.lay(k.tokenDown)
+        if su is None or sd is None:
+            return
+        gia = self.giaNen.get(ma)
+        mo = nguon.gia_mo_khung(tt["nen"], k.eventStartMs)
+        if gia is None or not mo:
+            return
+        bd = self.bienDong.get(ma)
+        sigma = bd.sigma_giay() if bd is not None else None
+        ghi.append({
+            "ma": ma, "slug": k.slug, "giaiDoan": QUAN_SAT,
+            "giaNen": gia, "giaMo": mo,
+            "sigmaGiay": sigma,
+            "conLaiGiay": max(0.0, (k.endMs - now) / 1000.0),
+            "so": {
+                "UP": {"luc": su.nhanLucMs,
+                       "bid": [{"gia": m.gia, "luong": m.luong} for m in su.bid[:30]],
+                       "ask": [{"gia": m.gia, "luong": m.luong} for m in su.ask[:30]]},
+                "DOWN": {"luc": sd.nhanLucMs,
+                         "bid": [{"gia": m.gia, "luong": m.luong} for m in sd.bid[:30]],
+                         "ask": [{"gia": m.gia, "luong": m.luong} for m in sd.ask[:30]]},
+            },
+        })
 
     def _tim_khung_dai(self, tt: dict, now: float) -> None:
         """Họ khung DÀI: một market sống hàng tháng, slug khai thẳng.
