@@ -59,20 +59,50 @@ TOI_THIEU_TU_CHOI = 20
 
 #: Núm Trung Ương được phép ĐỀ XUẤT vặn. So với `bac/tien_hoa.NUT_VAN`, đây
 #: là tầng phân bổ chứ không phải tầng phát hiện.
+#: `cuc` = CAO LÊN thì NỚI RA (+1) hay SIẾT VÀO (−1).
+#:
+#: Trước lượt này hướng vặn được quyết bằng TÊN BỆNH: bệnh «chặn quá
+#: nhiều» thì cộng bước, bệnh khác thì trừ bước. Điều đó chỉ đúng khi mọi
+#: núm cùng cực, và chúng KHÔNG cùng cực: `tranMot*` và `ruiRoToiDa` cao
+#: lên là nới ra, còn `tinCayToiThieu` cao lên là siết vào.
+#:
+#: Hậu quả đã nằm sẵn trong bảng: `tong-chan-het` («không cơ hội nào qua
+#: cửa») gợi ý hai núm, và núm thứ hai là `tinCayToiThieu`. Khi
+#: `ruiRoToiDa` chạm biên trên — tức đúng lúc bệnh nặng nhất — máy quay
+#: sang núm thứ hai và NÂNG sàn tin cậy lên, chặn chặt hơn nữa. Chữa bệnh
+#: nghẽn bằng cách bóp cổ họng.
+#:
+#: Và nó hỏng IM LẶNG: bước sau A/B thấy tệ hơn nên trả lại, sổ ghi «trả
+#: lại», và một lượt vặn ngược hướng trông y hệt một quyết định thận
+#: trọng đúng đắn.
+#: Bao nhiêu lần đóng đối chiếu được thì mới dám nói một ty «hứa quá».
+#: Dưới ngưỡng này thì con số lệch nói về vài lần đóng chứ không nói về
+#: cái ty — và vặn theo nó là vặn theo tiếng ồn.
+TOI_THIEU_DOI_CHIEU = 20
+
+#: Lệch bao nhiêu bps mỗi giờ thì gọi là hứa quá. Không đặt 0: mọi phép đo
+#: đều có sai số, và một cỗ máy báo bệnh ở lệch 0,001 bps là một cỗ máy
+#: báo bệnh mỗi vòng.
+NGUONG_HUA_QUA_BPS_GIO = 0.05
+
 NUT_TRUNG_UONG = {
-    "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60},
-    "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80},
-    "ruiRoTong.tranMotCoHoi":      {"min": 0.02, "max": 0.35},
-    "ruiRoTong.tranMotTaiSanRong": {"min": 0.02, "max": 0.30},
-    "ruiRoTong.ruiRoToiDa":        {"min": 0.30, "max": 0.85},
-    "ruiRoTong.tinCayToiThieu":    {"min": 0.30, "max": 0.90},
+    "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
+    "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
+    "ruiRoTong.tranMotCoHoi":      {"min": 0.02, "max": 0.35, "cuc": +1},
+    "ruiRoTong.tranMotTaiSanRong": {"min": 0.02, "max": 0.30, "cuc": +1},
+    "ruiRoTong.ruiRoToiDa":        {"min": 0.30, "max": 0.85, "cuc": +1},
+    "ruiRoTong.tinCayToiThieu":    {"min": 0.30, "max": 0.90, "cuc": -1},
+    # Sàn NET mỗi giờ: cao lên là siết. Núm này vào bảng cùng lượt với
+    # triệu chứng `hua-qua-he` — nó là núm duy nhất chữa đúng bệnh «hứa
+    # nhiều hơn thực nhận»: đòi thêm ngần ấy khoảng hở trước khi nhận.
+    "ruiRoTong.netMoiGioToiThieuBps": {"min": 0.0, "max": 5.0, "cuc": -1},
     # Trần trên nới từ 40 lên 300 ngày 29/08. Lý do đặt ra con số 40 là
     # «quá nhiều vị thế thì không theo dõi nổi» — lý do của thời chưa có
     # kế toán tự động, mà nay mỗi vòng đều kế toán từng vị thế và khai ra
     # cái nào không kế toán được. Người theo dõi đã được thay bằng máy
     # theo dõi, nên ràng buộc cũ hết hiệu lực; giữ nó là để một lý do đã
     # chết tiếp tục chặn tiền.
-    "phanBo.toiDaSoViThe":         {"min": 3,    "max": 300},
+    "phanBo.toiDaSoViThe":         {"min": 3,    "max": 300, "cuc": +1},
 }
 
 #: Cố ý KHÔNG vặn được. Liệt kê tường minh để phép kiểm bắt được nếu ai đó
@@ -255,6 +285,41 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                 {"chienLuoc": ma, "laiLoUsd": v},
                 ["ruiRoTong.tranMotTy"]))
 
+    # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──
+    #
+    # Chỉ ty chênh funding ghi băng, nên chỉ nó chạy lại được. Tám ty còn
+    # lại — và chúng đang giữ gần hết vốn — chỉ có một tín hiệu học được:
+    # tờ trình lúc mở đã hứa `netUocBps` trong `giuGio` giờ, sổ lúc đóng
+    # biết thu thật bao nhiêu trong bao lâu.
+    #
+    # Bảng ấy đã có, đã hiện trên buồng lái, và trước lượt này KHÔNG AI
+    # ĐỌC. Lần thứ tư trong cùng cây mã: có mã, có phép kiểm, có ô trên
+    # buồng lái, và vòng tiến hoá không biết nó tồn tại — nên vòng ấy chỉ
+    # học được về đúng cái ty mà chính nó đã tắt.
+    dvt = anh.get("duDoanVaThuc") or {}
+    for ma, o in sorted(dvt.items()):
+        try:
+            k = int(o.get("soDoiChieuDuoc") or 0)
+            lech = o.get("lechBpsGio")
+        except (TypeError, ValueError, AttributeError):
+            continue
+        # `None` là chưa đo được, KHÔNG phải 0 — bỏ qua, đừng đọc thành
+        # "hứa đúng".
+        if lech is None or k < TOI_THIEU_DOI_CHIEU:
+            continue
+        if float(lech) <= NGUONG_HUA_QUA_BPS_GIO:
+            continue
+        ra.append(TrieuChungHe(
+            "hua-qua-he", 2,
+            f"ty {ma} hứa cao hơn thực nhận {float(lech):.3f} bps mỗi giờ "
+            f"trên {k} lần đóng đối chiếu được. Lệch DƯƠNG nghĩa là lạc "
+            f"quan — và một cỗ máy lạc quan sai theo hướng nguy hiểm nhất: "
+            f"hào phóng với chính mình.",
+            {"chienLuoc": ma, "soDoiChieuDuoc": k,
+             "duDoanBpsGio": o.get("duDoanBpsGio"),
+             "thucBpsGio": o.get("thucBpsGio"), "lechBpsGio": lech},
+            ["ruiRoTong.netMoiGioToiThieuBps"]))
+
     if not ra:
         ra.append(TrieuChungHe(
             "khoe", 1,
@@ -315,10 +380,19 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
             hien = _lay(cau_hinh, nut)
             if hien is None:
                 continue
-            # Hướng: bệnh "chặn quá nhiều" thì nới ra, bệnh "legging" thì
-            # siết vào. Bước có trần, và không bao giờ ra ngoài khuôn.
+            # Hướng vặn = Ý ĐỊNH của bệnh × CỰC của núm.
+            #
+            # Ý định là chuyện của bệnh: "chặn quá nhiều" thì muốn NỚI,
+            # "legging" hay "hứa quá" thì muốn SIẾT. Nhưng cộng hay trừ
+            # bước lại là chuyện của NÚM: `tranMot*` cao lên là nới, còn
+            # `tinCayToiThieu` và `netMoiGioToiThieuBps` cao lên là siết.
+            #
+            # Trộn hai chuyện ấy vào một cờ là chỗ đã sai: `tong-chan-het`
+            # gợi ý `tinCayToiThieu`, và máy NÂNG sàn tin cậy để chữa bệnh
+            # nghẽn. Bước có trần, và không bao giờ ra ngoài khuôn.
             noi = t.ma in ("tong-chan-het", "tran-dat-sai-cho",
                            "tran-vi-the-chan")
+            huong = (1 if noi else -1) * int(khuon.get("cuc", 1))
             # `or` chỉ cứu đúng trường hợp `hien == 0`, mà chỗ chết không
             # nằm ở 0 — nó nằm ở MỌI giá trị nhỏ so với khuôn. `hien = 0,5`
             # cho bước 0,125 và núm ấy đứng yên vĩnh viễn, vì mỗi lượt đổi
@@ -328,7 +402,7 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
             # trọng đúng đắn. `max`, không phải `or`.
             buoc = max(abs(hien) * BUOC_TOI_DA,
                        (khuon["max"] - khuon["min"]) * SAN_BUOC_KHUON)
-            moi = hien + buoc if noi else hien - buoc
+            moi = hien + huong * buoc
             moi = max(khuon["min"], min(khuon["max"], moi))
             if abs(moi - hien) < 1e-9:
                 continue         # đã chạm biên, núm này hết đường

@@ -2568,6 +2568,75 @@ def kiem_chan_doan_he() -> None:
          "đọc self.c thì thấy {} và kết luận là không có núm nào")
     kiem("nhật ký xét tham số được ghi ra đĩa", tu._soXet.exists())
 
+    # ── CỰC của núm, không phải tên bệnh, quyết hướng vặn ───────────────
+    # `tong-chan-het` gợi ý HAI núm. Khi `ruiRoToiDa` đã chạm biên trên —
+    # tức đúng lúc bệnh nặng nhất — máy quay sang núm thứ hai là
+    # `tinCayToiThieu`. Núm ấy ngược cực: cao lên là SIẾT. Bản cũ quyết
+    # hướng bằng tên bệnh nên nó NÂNG sàn tin cậy để chữa bệnh nghẽn —
+    # bóp cổ họng để chữa nghẹn. Và hỏng im lặng: A/B thấy tệ hơn nên trả
+    # lại, sổ ghi «trả lại», trông y hệt một quyết định thận trọng.
+    from thi_bac_ty.chan_doan_he import (
+        NUT_TRUNG_UONG as _NUT_HE, chan_doan_he as _cdh, de_xuat as _dxh)
+    kiem("mọi núm Trung Ương đều khai CỰC của mình",
+         all("cuc" in v and v["cuc"] in (1, -1)
+             for v in _NUT_HE.values()),
+         f"{[k for k, v in _NUT_HE.items() if v.get('cuc') not in (1, -1)]} — "
+         f"thiếu cực thì hướng vặn quay về đoán theo tên bệnh")
+    _chan = _cdh({"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                        "DUYET_RUI_RO": 0, "DA_CAP_VON": 0}},
+                  "danhMuc": {"tiLeDungVon": 0.0}})
+    _dx = _dxh(_chan, {"ruiRoTong": {"ruiRoToiDa": 0.85,
+                                     "tinCayToiThieu": 0.5}})
+    kiem("tổng chặn hết + núm ngược cực → HẠ sàn tin cậy, không nâng",
+         len(_dx) == 1 and _dx[0].nut == "ruiRoTong.tinCayToiThieu"
+         and _dx[0].den < _dx[0].tu,
+         f"{_dx} — nới ra là HẠ `tinCayToiThieu`; nâng nó lên là siết thêm "
+         f"đúng lúc đang nghẽn")
+
+    # ── HỨA QUÁ: tín hiệu duy nhất của tám ty KHÔNG có băng ─────────────
+    # Bảng hứa-vs-thực đã có, đã hiện trên buồng lái, và vòng tiến hoá
+    # không đọc — nên vòng ấy chỉ học được về đúng cái ty mà chính nó đã
+    # tắt, trong khi tám ty kia đang giữ gần hết vốn.
+    _anh = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                  "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+            "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+            "duDoanVaThuc": {
+                "hua_qua.v1": {"soDoiChieuDuoc": 25, "lechBpsGio": 1.2},
+                "it_mau.v1": {"soDoiChieuDuoc": 3, "lechBpsGio": 9.0},
+                "chua_do.v1": {"soDoiChieuDuoc": 99, "lechBpsGio": None},
+                "hua_dung.v1": {"soDoiChieuDuoc": 99, "lechBpsGio": 0.001},
+                "hua_it.v1": {"soDoiChieuDuoc": 99, "lechBpsGio": -3.0}}}
+    _t = {x.ma: x for x in _cdh(_anh)}
+    kiem("ty hứa quá bị BẮT, và bằng chứng chỉ đúng ty ấy",
+         "hua-qua-he" in _t
+         and _t["hua-qua-he"].bangChung["chienLuoc"] == "hua_qua.v1",
+         f"{[x for x in _t]} — bảng hứa-vs-thực là tín hiệu học DUY NHẤT "
+         f"của tám ty không ghi băng")
+    _ma = [x.ma for x in _cdh(_anh)]
+    kiem("và chỉ MỘT ty bị bắt, ba ca kia đều bị loại đúng lý do",
+         _ma.count("hua-qua-he") == 1,
+         f"{_ma} — ít mẫu là tiếng ồn, `None` là CHƯA ĐO ĐƯỢC chứ không "
+         f"phải hứa đúng, và hứa THẤP hơn thực nhận thì không phải bệnh")
+    _dx2 = _dxh(_cdh(_anh), {"ruiRoTong": {"netMoiGioToiThieuBps": 0.0}})
+    kiem("chữa bằng cách NÂNG sàn NET, không hạ",
+         len(_dx2) == 1
+         and _dx2[0].nut == "ruiRoTong.netMoiGioToiThieuBps"
+         and _dx2[0].den > _dx2[0].tu,
+         f"{_dx2} — hứa cao hơn thực nhận thì đòi thêm ngần ấy khoảng hở "
+         f"trước khi nhận; hạ sàn xuống là nhận thêm đúng loại cơ hội vừa "
+         f"làm mình lỗ")
+
+    # `None` phải đi qua nhánh CHƯA ĐO ĐƯỢC, không được đọc thành 0.
+    _anh3 = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                   "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+             "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+             "duDoanVaThuc": {"x.v1": {"soDoiChieuDuoc": 999,
+                                       "lechBpsGio": None}}}
+    kiem("ty chưa đối chiếu được lần nào KHÔNG bị chẩn bệnh",
+         "hua-qua-he" not in [x.ma for x in _cdh(_anh3)],
+         "None là chưa đo được, không phải hứa đúng — đọc nó thành 0 là "
+         "bịa ra một lời khen chưa ai nói")
+
 
 def kiem_chong_trung() -> None:
     print("\n── Chống trùng: cùng một cơ hội KHÔNG vào sổ 120 lần mỗi giờ ──")
