@@ -1807,6 +1807,20 @@ async def main() -> int:
           "một chợ → nêu đích danh chợ đó, không nói «độc lập»")
     check("KHÔNG RÕ" in _mg28(None),
           "kho đo cũ chưa khai chợ → nói KHÔNG RÕ, không im lặng")
+
+    # PHẠM VI phải đi kèm TỪNG câu, không chỉ câu tổng. Ba câu mẫu giá được đọc
+    # RIÊNG — vào prompt riêng, lên bảng riêng, được trích dẫn riêng — nên "−0,184R
+    # qua 5.126 lần" mà không nói khung nào chợ nào là một câu treo lơ lửng.
+    _d_mg = {"khung": "4h", "nen": 100, "toiThieu": 15, "cho": ["A:4h", "B:4h", "C:4h"],
+             "mau": [{"ten": "M", "so": 20, "kyVongR": -0.1, "duMau": True,
+                      "tyLeThang": 50, "mfeTrungVi": 0.5, "rrTrungBinh": 0.6,
+                      "chamDich": 60, "dinhStop": 40, "nenTrungBinh": 5,
+                      "coDinh": {}, "loai": "x"}]}
+    (DATA_DIR / "mau-gia.json").write_text(_json.dumps(_d_mg), encoding="utf-8")
+    _ra_mg = {x["ma"]: x["cau"] for x in C28._tu_mau_gia([])}
+    for _k in ("mau-gia-xau", "mau-gia-rr-thap"):
+        check(_k in _ra_mg and "3 chợ độc lập" in _ra_mg[_k],
+              f"{_k} tự khai phạm vi trong CHÍNH câu của nó")
     print("\n[27] CON SỐ ĐẸP CỦA MỘT CHỢ KHÔNG ĐƯỢC ĐỨNG MỘT MÌNH")
     import importlib.util as _il27
     _sp27 = _il27.spec_from_file_location("bg27", str(ROOT / "scripts" / "ban-giao.py"))

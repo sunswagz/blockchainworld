@@ -512,10 +512,18 @@ def _tu_mau_gia(bo: list) -> list[dict]:
                   tong, {"soMau": len(ds), "soAm": len(am), "soCho": n_cho},
                   khung=d.get("khung")))
 
+    # PHẠM VI đi kèm TỪNG câu, không chỉ câu tổng.
+    #
+    # "NẾN_TRONG_TĂNG: −0,184R qua 5.126 lần" là phát hiện cỡ mẫu lớn thứ ba
+    # trong kho, và nó không nói đo ở khung nào, chợ nào. Câu tổng có nói, nhưng
+    # ba câu này được đọc RIÊNG — chúng vào prompt riêng, lên bảng riêng, và
+    # được trích dẫn riêng.
+    pv = (f" (đo trên {noi})" if noi else "")
+
     # Mẫu tệ nhất — cái đáng nhớ hơn mẫu tốt nhất, vì nó là cái sẽ bị dùng nhầm
     xau = min(ds, key=lambda m: m["kyVongR"])
     ra.append(_pd("mau-gia-xau", "mau-gia",
-                  f"{xau['ten']}: kỳ vọng {xau['kyVongR']:+.3f}R qua {xau['so']} lần, "
+                  f"{xau['ten']}{pv}: kỳ vọng {xau['kyVongR']:+.3f}R qua {xau['so']} lần, "
                   f"thắng {xau['tyLeThang']}%, MFE trung vị chỉ {xau['mfeTrungVi']}R — "
                   f"một nửa số lần nó còn không đi nổi {xau['mfeTrungVi']}R về phía mình "
                   f"trước khi kết thúc. Thấy mẫu này thì đừng coi là lý do vào lệnh.",
@@ -527,7 +535,7 @@ def _tu_mau_gia(bo: list) -> list[dict]:
     if hay:
         m = max(hay, key=lambda x: x["so"])
         ra.append(_pd("mau-gia-rr-thap", "mau-gia",
-                      f"{m['ten']}: thắng {m['tyLeThang']}% và chạm đích {m['chamDich']}% — "
+                      f"{m['ten']}{pv}: thắng {m['tyLeThang']}% và chạm đích {m['chamDich']}% — "
                       f"nghe rất tốt — nhưng kỳ vọng vẫn {m['kyVongR']:+.3f}R qua {m['so']} lần, "
                       f"vì luật đặt mục tiêu kinh điển của nó cho RR chỉ {m['rrTrungBinh']}. "
                       f"Đích gần hơn cả stop thì thắng bao nhiêu cũng không đủ.",
