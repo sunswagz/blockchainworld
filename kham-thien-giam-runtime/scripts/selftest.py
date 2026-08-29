@@ -4446,6 +4446,62 @@ def kiem_doi_chung_cong_bang() -> None:
     kiem("nhánh thật vẫn chia cho MỌI cú động",
          "len(tre) / len(xong)" in ma)
 
+def kiem_tran_phoi_nhiem_gop() -> None:
+    """Bốn cược tương quan là MỘT cược — và phải có trần cho nó.
+
+    `Kho.phoi_nhiem_gop()` tính phơi nhiễm crypto gộp bằng chuẩn bậc hai
+    có ma trận tương quan, và docstring của nó nói thẳng: "Trần đặt trên
+    từng market không hề chặn được tình huống đó."
+
+    Rồi KHÔNG AI CHẶN theo nó — nó chỉ được vẽ lên buồng lái.
+
+    Khác `quyet_chan` (nơi ba lớp khác đã che phần nguy hiểm), ở đây
+    KHÔNG có lớp nào khác: trần mỗi market không che, mà trần mỗi NHÓM
+    cũng không, vì bốn crypto nằm ở BỐN nhóm khác nhau — mỗi cái đều
+    "trong hạn mức" trong khi cả rổ là một cược duy nhất vào beta crypto.
+    """
+    print("\n── Trần phơi nhiễm GỘP: bốn cược tương quan là một ─────────")
+
+    from kham.kho_doi import Kho
+    from kham.rui_ro import RiskEngine
+
+    kho = Kho()
+    r = RiskEngine(kho)
+    kiem("có trần cho phơi nhiễm gộp", r.tranPhoiNhiemGopUsd > 0,
+         r.tranPhoiNhiemGopUsd)
+    kiem("và nó BẰNG trần mỗi nhóm tài sản — cả rổ tương quan là một nhóm",
+         abs(r.tranPhoiNhiemGopUsd - r.tranMoiTaiSanUsd) < 1e-9)
+
+    # Bốn market, mỗi cái $90 — dưới trần mỗi market ($100) VÀ dưới trần
+    # mỗi nhóm ($200, và mỗi cái một nhóm riêng). Từng cái đều "trong
+    # hạn mức"; cả rổ thì không.
+    for ma in ("BTC_5M", "ETH_5M", "SOL_5M", "XRP_5M"):
+        kho.lay(ma).ghi_khop("UP", 180.0, 0.50)
+    gop = kho.phoi_nhiem_gop()
+    kiem("từng market đều dưới trần riêng",
+         all((kho.lay(m).tienUp + kho.lay(m).tienDown) < r.tranMoiThiTruongUsd
+             for m in ("BTC_5M", "ETH_5M", "SOL_5M", "XRP_5M")),
+         [kho.lay(m).tienUp for m in ("BTC_5M", "ETH_5M")])
+    kiem("nhưng phơi nhiễm GỘP vượt trần",
+         gop > r.tranPhoiNhiemGopUsd, (gop, r.tranPhoiNhiemGopUsd))
+
+    # Hai chiều NGƯỢC nhau phải bù trừ — nếu không thì trần này chỉ là
+    # một phép cộng đội lốt phép đo rủi ro.
+    kho2 = Kho()
+    kho2.lay("BTC_5M").ghi_khop("UP", 180.0, 0.50)
+    kho2.lay("ETH_5M").ghi_khop("DOWN", 180.0, 0.50)
+    kiem("hai chiều ngược nhau thì phơi nhiễm gộp NHỎ đi",
+         kho2.phoi_nhiem_gop() < gop,
+         (kho2.phoi_nhiem_gop(), gop))
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    rr = (GOC_MA / "kham" / "rui_ro.py").read_text(encoding="utf-8")
+    ma = chr(10).join(x.split("#", 1)[0] for x in rr.splitlines())
+    kiem("cổng rủi ro THẬT SỰ đọc phơi nhiễm gộp",
+         "self.kho.phoi_nhiem_gop()" in ma)
+    kiem("và từ chối khi chạm trần",
+         "phơi nhiễm crypto GỘP" in rr)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4524,6 +4580,7 @@ def main() -> int:
     kiem_nut_o_mep_phai_lo_ra()
     kiem_so_ket_qua_khai_nguon()
     kiem_doi_chung_cong_bang()
+    kiem_tran_phoi_nhiem_gop()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

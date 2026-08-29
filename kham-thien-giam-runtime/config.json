@@ -78,6 +78,8 @@
     "phanTramMoiThiTruong": 10,
     "phanTramMoiTaiSan": 20,
     "phanTramLoNgay": 5,
+    "//phanTramPhoiNhiemGop": "Trần cho phơi nhiễm crypto GỘP, tính theo chuẩn bậc hai có ma trận tương quan (`Kho.phoi_nhiem_gop`). Bốn market mỗi cái 800 đô nhìn như bốn cược nhỏ; nếu cả bốn cùng long và tương quan gần 1 thì thực chất là MỘT cược 3.200 đô. Trần mỗi market KHÔNG chặn được chuyện đó, và trần mỗi NHÓM cũng không — bốn crypto nằm ở bốn nhóm khác nhau (BTC/ETH/SOL/XRP) nên mỗi cái đều trong hạn mức. Đặt BẰNG trần mỗi nhóm tài sản: nếu cả rổ tương quan gần 1 thì nó đúng là một nhóm, nên chịu đúng cái trần của một nhóm.",
+    "phanTramPhoiNhiemGop": 20,
     "tranSutVonPct": 10,
     "kellyPhan": 0.2,
     "tuoiSoLenhToiDaMs": 2500,

@@ -156,6 +156,16 @@ class RiskEngine:
         return self._tran("phanTramMoiTaiSan", "vonToiDaMoiTaiSanUsd", 20.0)
 
     @property
+    def tranPhoiNhiemGopUsd(self) -> float:
+        """Trần cho phơi nhiễm crypto GỘP (có tính tương quan chéo).
+
+        Mặc định bằng ĐÚNG trần mỗi nhóm tài sản, và đó là cả lý lẽ: nếu
+        cả rổ crypto tương quan gần 1 thì nó đúng là MỘT nhóm tài sản, nên
+        phải chịu đúng cái trần của một nhóm.
+        """
+        return self._tran("phanTramPhoiNhiemGop", "phoiNhiemGopToiDaUsd", 20.0)
+
+    @property
     def tranLoNgayUsd(self) -> float:
         return self._tran("phanTramLoNgay", "tranLoNgayUsd", 5.0)
 
@@ -386,6 +396,37 @@ class RiskEngine:
             cho_phep = max_nhom
             canh.append(f"trần vốn nhóm {nhom} cắt còn {max_nhom:.0f} cổ")
 
+        # 7b. TRẦN PHƠI NHIỄM GỘP — bốn cược tương quan là MỘT cược
+        #
+        # `Kho.phoi_nhiem_gop()` đã tính sẵn con số này từ đầu, có ma
+        # trận tương quan hẳn hoi, và docstring của nó nói thẳng: "Trần
+        # đặt trên từng market không hề chặn được tình huống đó." Rồi
+        # KHÔNG AI CHẶN theo nó — nó chỉ được vẽ lên buồng lái.
+        #
+        # Khác với `quyet_chan` (nơi ba lớp khác đã che phần nguy hiểm),
+        # ở đây KHÔNG có lớp nào khác: trần mỗi market không che, mà trần
+        # mỗi nhóm cũng không — bốn crypto nằm ở BỐN nhóm khác nhau
+        # (BTC, ETH, SOL, XRP), nên mỗi cái đều "trong hạn mức" trong khi
+        # cả rổ là một cược duy nhất vào beta crypto.
+        #
+        # Trần đặt BẰNG trần mỗi nhóm tài sản, và đó là cả lý lẽ: nếu cả
+        # rổ crypto tương quan gần 1 thì nó ĐÚNG LÀ một nhóm tài sản, nên
+        # phải chịu đúng cái trần của một nhóm. Không phải một con số mới
+        # nghĩ ra — là con số cũ áp cho đúng thứ nó mô tả.
+        gop = self.kho.phoi_nhiem_gop()
+        tranGop = self.tranPhoiNhiemGopUsd
+        if tranGop > 0:
+            con_gop = tranGop - gop
+            if con_gop <= 0:
+                return PhanQuyet(False, 0.0, [
+                    f"phơi nhiễm crypto GỘP ${gop:.2f} chạm trần "
+                    f"${tranGop:.2f} — bốn market tương quan là MỘT cược, "
+                    "trần mỗi market không chặn được chuyện này"])
+            max_gop = con_gop / max(1e-9, ch.vwap)
+            if max_gop < cho_phep:
+                cho_phep = max_gop
+                canh.append(f"trần phơi nhiễm gộp cắt còn {max_gop:.0f} cổ")
+
         # 8. trần tiền nằm trần một chân
         them_tran = cho_phep * ch.vwap
         dang_tran = self.kho.tong_chua_phong_ho_usd()
@@ -457,6 +498,7 @@ class RiskEngine:
             "laiRongNgayUsd": self.laiRongNgayUsd,
             "loGopNgayUsd": self.loGopNgayUsd,
             "tranLoNgayUsd": self.tranLoNgayUsd,
+            "tranPhoiNhiemGopUsd": self.tranPhoiNhiemGopUsd,
             "tranMoiThiTruongUsd": self.tranMoiThiTruongUsd,
             "tranMoiTaiSanUsd": self.tranMoiTaiSanUsd,
             "ngatKhanCap": self.ngatKhanCap,
