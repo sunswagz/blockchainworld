@@ -241,6 +241,10 @@ class TrungUong:
             self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
             self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
         self.duongNav = DuongNav()
+        # Mốc BẬT MÁY. Bộ đếm cơ hội thô nằm trong RAM của từng ty nên
+        # nó đếm từ lúc này; mọi con số ghép cạnh nó phải bó về cùng
+        # cửa sổ, không thì phễu trộn hai quãng thời gian.
+        self.lucKhoiDong = _gio_iso()
         self.cau_dao = CauDao()
         self.thuc_thi = DieuPhoiThucThi()
 
@@ -1219,6 +1223,20 @@ class TrungUong:
 
         Số cơ hội THÔ lấy từ bộ đếm của từng ty, không từ sổ đăng ký — sổ chỉ
         có tờ trình, mà tờ trình chỉ ra đời sau khi đã qua cổng ty.
+
+        **Cả năm cột phải cùng MỘT cửa sổ thời gian, và cửa sổ ấy là TỪ LÚC
+        BẬT MÁY.** Bộ đếm của ty nằm trong RAM nên nó không thể trả lời câu
+        nào rộng hơn; sổ đăng ký thì nằm trên đĩa và trả lời cả đời máy.
+        Ghép hai thứ ấy vào một hàng cho ra một cái phễu PHÌNH RA ở giữa:
+        đo 30/08 trên máy sống, họ thanh-khoan hiện «thô 39.392 · qua cổng
+        ty 8 · qua Rủi Ro Tổng 49» — 8 tờ trình đẻ ra 49 lần duyệt.
+
+        Một phễu phình ra không chỉ khó coi. Nó chỉ sai chỗ nghẽn: người
+        đọc thấy cổng ty lọc 39.392 xuống 8 và đi vặn cổng ty, trong khi
+        con số 8 ấy nói về một quãng khác hẳn con số 49 bên cạnh. Và bảng
+        lý do từ chối kéo theo cùng bệnh — nó hiện «đã đủ 12 vị thế» hàng
+        chục lần trong khi trần đang là 120, vì đó là những lần từ chối
+        của trước một lần nạp vốn.
         """
         tho: dict[str, int] = {}
         qua: dict[str, int] = {}
@@ -1226,16 +1244,17 @@ class TrungUong:
             h = getattr(t, "ho", "?") or "?"
             tho[h] = tho.get(h, 0) + t.soCoHoi
             qua[h] = qua.get(h, 0) + t.soQuaCongTy
+        tu = self.lucKhoiDong
         try:
             with self.so_dang_ky._mo() as con:
                 rr = {r[0]: r[1] for r in con.execute(
                     "SELECT ho, COUNT(DISTINCT ma) FROM to_trinh WHERE ma IN "
-                    "(SELECT ma FROM chuyen_trang_thai WHERE den='DUYET_RUI_RO') "
-                    "GROUP BY ho").fetchall()}
+                    "(SELECT ma FROM chuyen_trang_thai WHERE den='DUYET_RUI_RO'"
+                    " AND luc >= ?) GROUP BY ho", (tu,)).fetchall()}
                 cv = {r[0]: r[1] for r in con.execute(
                     "SELECT ho, COUNT(DISTINCT ma) FROM to_trinh WHERE ma IN "
-                    "(SELECT ma FROM chuyen_trang_thai WHERE den='DA_CAP_VON') "
-                    "GROUP BY ho").fetchall()}
+                    "(SELECT ma FROM chuyen_trang_thai WHERE den='DA_CAP_VON'"
+                    " AND luc >= ?) GROUP BY ho", (tu,)).fetchall()}
         except Exception:                                # noqa: BLE001
             rr, cv = {}, {}
         von = self.danh_muc.phoi_nhiem_ty()
@@ -1247,7 +1266,7 @@ class TrungUong:
         # đồng nào: cổng ty quá chặt và hết chỗ vì trần vị thế trông giống
         # hệt nhau nếu chỉ nhìn con số 0 — mà hai cái ấy sửa bằng hai việc
         # khác hẳn.
-        ly = self.so_dang_ky.ly_do_tu_choi()
+        ly = self.so_dang_ky.ly_do_tu_choi(tuLuc=tu)
         return [{"ho": h, "coHoiTho": tho.get(h, 0), "quaCongTy": qua.get(h, 0),
                  "quaRuiRoTong": int(rr.get(h, 0)),
                  "daCapVon": int(cv.get(h, 0)),
@@ -1438,6 +1457,23 @@ def _hien_phap() -> dict:
     if not ra.get("long"):
         _HP = (gio, ra)
     return dict(ra, tuoiGiay=0.0)
+
+
+def _gio_iso() -> str:
+    """Giờ UTC theo ĐÚNG khuôn Sổ Đăng Ký ghi vào `chuyen_trang_thai.luc`.
+
+    Khuôn phải trùng vì nó được đem đi so bằng `luc >= ?` — sqlite so hai
+    chuỗi, không so hai mốc thời gian. Lệch một chữ (`+00:00` thay cho
+    `Z`, hay `timespec="seconds"`) thì phép so vẫn chạy, vẫn trả về một
+    tập hợp, chỉ là tập hợp sai — và sai theo hướng RỖNG, tức phễu tự
+    nhiên có 0 ở nửa dưới mà không dòng nào kêu.
+
+    Sổ Đăng Ký giữ bản của nó vì mỗi mô-đun ở đây cố ý không biết mô-đun
+    khác tồn tại. Cái giá là hai bản có thể trôi khỏi nhau, nên chỗ ấy
+    được canh bằng một phép kiểm chứ không bằng trí nhớ.
+    """
+    return _dt.datetime.now(_dt.timezone.utc).isoformat(
+        timespec="milliseconds").replace("+00:00", "Z")
 
 
 def _gio_he() -> float:

@@ -224,7 +224,8 @@ class SoDangKy:
         ra["phatHien"] = pd
         return ra
 
-    def ly_do_tu_choi(self, dinh: int = 5) -> dict[str, list[dict]]:
+    def ly_do_tu_choi(self, dinh: int = 5,
+                      tuLuc: str | None = None) -> dict[str, list[dict]]:
         """VÌ SAO mỗi họ bị từ chối — không chỉ BAO NHIÊU.
 
         Phễu theo họ nói được «họ phái-sinh có 2115 cơ hội và không được
@@ -232,6 +233,12 @@ class SoDangKy:
         cổng ty quá chặt là một việc, hết chỗ vì trần vị thế lại là việc
         hoàn toàn khác — cái đầu sửa bằng vặn ngưỡng, cái sau sửa bằng
         nhường chỗ, và nhìn vào một con số 0 thì hai cái ấy giống hệt nhau.
+
+        `tuLuc` bó về một CỬA SỔ thời gian. Không bó thì hàm này trả lời
+        cả đời máy, và ghép nó cạnh một con số đếm-từ-lúc-bật là dựng một
+        bảng trong đó hai cột nói về hai quãng thời gian khác nhau — đã
+        cắn thật: phễu hiện «đã đủ 12 vị thế» hàng chục lần trong khi trần
+        đang là 120, vì những lần từ chối ấy xảy ra trước một lần nạp vốn.
 
         Lý do là CÂU chứ không phải MÃ, nên hai lý do gần giống nhau sẽ
         nằm tách. Phần lớn chỗ tách là do tên cảng dính trong câu («hết
@@ -245,7 +252,9 @@ class SoDangKy:
                     "SELECT t.ho, c.lyDo, COUNT(*) AS n "
                     "FROM chuyen_trang_thai c JOIN to_trinh t ON t.ma = c.ma "
                     "WHERE c.den = 'TU_CHOI' AND c.lyDo != '' "
-                    "GROUP BY t.ho, c.lyDo ORDER BY t.ho, n DESC").fetchall()
+                    "AND (? IS NULL OR c.luc >= ?) "
+                    "GROUP BY t.ho, c.lyDo ORDER BY t.ho, n DESC",
+                    (tuLuc, tuLuc)).fetchall()
         except (sqlite3.Error, OSError):
             return {}
         ra: dict[str, list[dict]] = {}

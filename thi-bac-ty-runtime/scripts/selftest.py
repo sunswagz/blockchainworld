@@ -3063,6 +3063,71 @@ def kiem_pheu_theo_ho() -> None:
     kiem("và ảnh chụp mang nó ra ngoài",
          "theoHo" in (tu.anh_chup()["pheuDayDu"] or {}))
 
+    # ── PHỄU KHÔNG ĐƯỢC PHÌNH RA ────────────────────────────────────────
+    # Cột «thô» và «qua cổng ty» đếm trong RAM của ty nên chúng nói TỪ LÚC
+    # BẬT MÁY. Hai cột sau đọc Sổ Đăng Ký trên đĩa, vốn nhớ cả đời máy.
+    # Ghép hai thứ ấy vào một hàng thì hàng ấy phình ra ở giữa — đo 30/08
+    # trên máy sống: «thô 39.392 · qua cổng ty 8 · qua Rủi Ro Tổng 49»,
+    # tức 8 tờ trình đẻ ra 49 lần duyệt.
+    #
+    # Cái giá không phải một bảng khó coi. Người đọc thấy cổng ty lọc
+    # 39.392 xuống 8 rồi đi vặn cổng ty, trong khi con số 8 ấy nói về một
+    # quãng thời gian khác hẳn con số 49 nằm ngay cạnh.
+    for _x in p["theoHo"]:
+        kiem(f"phễu họ {_x['ho']} KHÔNG phình ra ở giữa",
+             _x["coHoiTho"] >= _x["quaCongTy"] >= _x["quaRuiRoTong"]
+             >= _x["daCapVon"],
+             f"{_x['coHoiTho']} → {_x['quaCongTy']} → "
+             f"{_x['quaRuiRoTong']} → {_x['daCapVon']} — bốn cột phải cùng "
+             f"MỘT cửa sổ thời gian, và cửa sổ ấy là từ lúc bật máy")
+
+    # Và phép trên chỉ chứng minh được điều đó trên một máy VỪA BẬT, nơi
+    # mọi dòng đều nằm sau mốc. Bệnh thật chỉ lộ ra khi sổ còn dòng của
+    # kiếp trước — nên dựng thẳng một dòng như thế.
+    _truoc = {h: x["quaRuiRoTong"] for h, x in theo.items()}
+    with tu.so_dang_ky._mo() as _con:
+        _con.execute(
+            "INSERT INTO to_trinh (ma, chienLuoc, ho, taiSan, lucTao, "
+            "trangThai, lucDoi, payload) VALUES (?,?,?,?,?,?,?,?)",
+            ("KIEP_TRUOC", "lending.rate_spread.v1", "tin-dung", "U0",
+             "2020-01-01T00:00:00.000Z", "DUYET_RUI_RO",
+             "2020-01-01T00:00:00.000Z", "{}"))
+        _con.execute(
+            "INSERT INTO chuyen_trang_thai (ma, tu, den, luc, lyDo) "
+            "VALUES (?,?,?,?,?)",
+            ("KIEP_TRUOC", "MOI", "DUYET_RUI_RO",
+             "2020-01-01T00:00:00.000Z", ""))
+        _con.execute(
+            "INSERT INTO chuyen_trang_thai (ma, tu, den, luc, lyDo) "
+            "VALUES (?,?,?,?,?)",
+            ("KIEP_TRUOC", "MOI", "TU_CHOI", "2020-01-01T00:00:00.000Z",
+             "tran-vi-the: đã đủ 12 vị thế — quá nhiều thì không theo dõi nổi"))
+    _sau = {x["ho"]: x for x in tu.pheu_day_du()["theoHo"]}
+    kiem("dòng của KIẾP TRƯỚC không lọt vào phễu của lần chạy này",
+         _sau["tin-dung"]["quaRuiRoTong"] == _truoc["tin-dung"],
+         f"{_sau['tin-dung']['quaRuiRoTong']} vs {_truoc['tin-dung']} — bộ "
+         f"đếm cơ hội thô nằm trong RAM nên nó chỉ đếm từ lúc bật; sổ trên "
+         f"đĩa thì nhớ cả đời máy")
+    kiem("và lý do từ chối của kiếp trước cũng không lọt",
+         not any("12 vị thế" in l["lyDo"]
+                 for l in _sau["tin-dung"]["lyDoTuChoi"]),
+         f"{_sau['tin-dung']['lyDoTuChoi']} — trần đang là bao nhiêu thì "
+         f"bảng phải nói về trần ấy, không phải trần của một lần chạy trước")
+
+    # Sổ Đăng Ký ghi `luc` bằng bản `_bay_gio` của nó; Trung Ương bó cửa
+    # sổ bằng bản `_gio_iso` của mình. Hai mô-đun cố ý không biết nhau, nên
+    # hai bản có thể trôi khỏi nhau — và sqlite so hai CHUỖI chứ không so
+    # hai mốc, nên lệch một chữ («+00:00» thay cho «Z») vẫn chạy, vẫn trả
+    # về một tập hợp, chỉ là tập RỖNG. Phễu sẽ có 0 ở nửa dưới, im lặng.
+    from thi_bac_ty.so_dang_ky import _bay_gio as _bgSdk
+    from thi_bac_ty.trung_uong import _gio_iso as _bgTu
+    _a, _b = _bgSdk(), _bgTu()
+    kiem("khuôn giờ của Sổ Đăng Ký và Trung Ương SO ĐƯỢC với nhau",
+         len(_a) == len(_b) and _a[10] == _b[10] and _a[-1] == _b[-1]
+         and _a[:4].isdigit() and _bgTu() >= _b,
+         f"{_a!r} vs {_b!r} — lệch khuôn thì `luc >= ?` lọc ra tập RỖNG "
+         f"mà không dòng nào kêu")
+
     # ── VÌ SAO, không chỉ BAO NHIÊU ─────────────────────────────────────
     # Trên máy sống, họ phái-sinh có 2115 cơ hội thô và KHÔNG được đồng nào.
     # Nhìn con số 0 ấy thì «cổng ty quá chặt» và «hết chỗ vì trần vị thế»
