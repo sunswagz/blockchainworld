@@ -1225,6 +1225,14 @@
           : "liên tiếp, số vị thế không tăng",
         (xc.soVongGheTrongKhongLap || 0) >= 3 ? "am" : "nhat"));
     }
+    /* ĐÍCH bị tầng trên chặn. Không lọc thì bảng hứa một việc Phân Bổ sẽ
+       từ chối làm — đo 30/08: bốn dòng lớn nhất của bảng xoay chỗ đều trỏ
+       sang một ty mà Rủi Ro Tổng đang chặn sạch. */
+    if (xc.soDichBiChan) {
+      dxc.appendChild(oSo("Đích bị CHẶN", so(xc.soDichBiChan),
+        "cơ hội tốt hơn mà Rủi Ro Tổng không cho — đã BỎ khỏi phép đo này",
+        "nhat"));
+    }
     dxc.appendChild(oSo("Không xoay được",
       so((xc.soBiKhoa || 0) + (xc.soKhongDoDuocThoat || 0)),
       (xc.soBiKhoa || 0) + " khoá vốn · "

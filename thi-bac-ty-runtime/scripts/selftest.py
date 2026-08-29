@@ -7581,6 +7581,34 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("nhưng vẫn ĐO và nói ra sẽ đổi được mấy chỗ",
          _l49b.soXoayDuoc == 1 and "ghế trống" in _l49b.vi, _l49b.vi)
 
+    # ── ĐÍCH phải qua được RỦI RO TỔNG ─────────────────────────────────
+    # Không lọc thì bảng hứa một việc Phân Bổ sẽ từ chối làm. Đo 30/08
+    # trên máy sống: «15 chỗ đáng đổi · +1.394 USD», và bốn dòng lớn nhất
+    # (289+208+187+173 USD) đều trỏ sang `yield.pendle_pt.v1` — đúng cái
+    # ty mà Rủi Ro Tổng chặn sạch vì khoá vốn 2.119 giờ > trần 720. Cả một
+    # con số đẹp dựng trên những lần đổi không bao giờ xảy ra được.
+    _chan49 = _may49(True)
+    _chan49.phan_bo.c["toiDaSoViThe"] = 1        # hết ghế, để nó chạy thật
+    _chan49.soViThe["m1"].moLucGiay = time.time() - 60.0
+    # Trần khoá vốn 0 giờ: mọi tờ trình khai khoá > 0 đều bị chặn.
+    _chan49.rui_ro_tong.c["khoaVonToiDaGio"] = 0.0
+    _chan49.toTrinhVongNay = [_mau(taiSan="MOI", von=100.0, chua=9000.0,
+                                   net=900.0, giu=720.0, khoa=5000.0)]
+    _lc = _chan49._xoay_cho_neu_duoc()
+    kiem("đích bị Rủi Ro Tổng chặn thì KHÔNG vào phép đo, và ĐẾM ra",
+         _lc.soDichBiChan == 1 and _lc.soXoayDuoc == 0
+         and _lc.soDaDong == 0,
+         f"{_lc.tom_tat()} — đổi sang một chỗ Phân Bổ sẽ không cấp vốn là "
+         f"hứa một việc máy sẽ từ chối làm")
+    # Và cùng tờ trình ấy, khi trần khoá cho phép, thì nó PHẢI vào phép đo
+    # — không thì bộ lọc đang chặn nhầm mọi thứ và con số 0 kia vô nghĩa.
+    _chan49.rui_ro_tong.c["khoaVonToiDaGio"] = 9000.0
+    _lc2 = _chan49._xoay_cho_neu_duoc()
+    kiem("nới trần ra thì chính tờ ấy vào lại phép đo",
+         _lc2.soDichBiChan == 0 and _lc2.soXoayDuoc >= 1,
+         f"{_lc2.tom_tat()} — bộ lọc chặn nhầm mọi thứ thì con số 0 ở trên "
+         f"cũng xanh, và nó không nói gì cả")
+
     # ── LỜI HỨA «Phân Bổ sẽ lấp chỗ» phải KIỂM CHỨNG ĐƯỢC ───────────────
     # Luật «còn ghế thì không đuổi ai» đứng trên một lời hứa, và trên máy
     # sống 30/08 lời hứa ấy đang sai: 54 vị thế, 66 ghế trống, 478 nghìn

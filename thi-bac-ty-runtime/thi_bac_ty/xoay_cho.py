@@ -110,6 +110,15 @@ class LatCatXoayCho:
     #: đổi", cái này là "đã đổi". Bằng 0 khi `tuXoayCho` tắt, và lúc ấy
     #: buồng lái phải đọc được rằng đây mới chỉ là phép đo.
     soDaDong: int = 0
+    #: Bao nhiêu cơ hội tốt hơn bị RỦI RO TỔNG chặn, nên KHÔNG được
+    #: đem vào phép đo này.
+    #:
+    #: Không lọc thì bảng hứa một thứ máy sẽ từ chối làm. Đo 30/08
+    #: trên máy sống: «15 chỗ đáng đổi · lợi ròng +1.394 USD», và bốn
+    #: dòng lớn nhất (289+208+187+173 USD) đều trỏ sang
+    #: `yield.pendle_pt.v1` — đúng cái ty mà Rủi Ro Tổng đang chặn
+    #: sạch vì khoá vốn 2.119 giờ > trần 720.
+    soDichBiChan: int = 0
     #: Còn ghế trống thì KHÔNG đuổi ai — tiền đề của cả cơ chế này là chỗ
     #: ngồi có hạn, và còn chỗ thì câu hỏi «ai nên ngồi» không đặt ra.
     viConGhe: bool = False
@@ -137,6 +146,7 @@ class LatCatXoayCho:
             "aprHienTai": self.aprHienTai,
             "aprSauKhiXoay": self.aprSauKhiXoay,
             "loiRongUsd": self.loiRongUsd, "soDaDong": self.soDaDong,
+            "soDichBiChan": self.soDichBiChan,
             "viConGhe": self.viConGhe,
             "soVongGheTrongKhongLap": self.soVongGheTrongKhongLap,
             "xoay": [x.tom_tat() for x in self.xoay],

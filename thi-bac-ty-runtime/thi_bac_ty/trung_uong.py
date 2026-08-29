@@ -591,8 +591,31 @@ class TrungUong:
         """
         from .xoay_cho import do_xoay_cho
         gio = _gio_he()
-        lat = do_xoay_cho(self.soViThe, self.toTrinhVongNay, gio,
+        # ĐÍCH phải qua được Rủi Ro Tổng, không thì bảng này hứa một việc
+        # Phân Bổ sẽ từ chối làm.
+        #
+        # Đo 30/08 trên máy sống: «15 chỗ đáng đổi · +1.394 USD», và bốn
+        # dòng lớn nhất đều trỏ sang `yield.pendle_pt.v1` — đúng cái ty bị
+        # chặn sạch vì khoá vốn 2.119 giờ > trần 720. Cả một con số đẹp
+        # dựng trên những lần đổi không bao giờ xảy ra được.
+        #
+        # Hỏi CHÍNH tầng ấy chứ không chép luật của nó xuống đây: hai bản
+        # chép sẽ lệch nhau đúng vào ngày ai đó sửa một bản, và bản lệch ở
+        # đây sẽ nói dối theo hướng lạc quan.
+        duoc, chan = [], 0
+        for tt in self.toTrinhVongNay:
+            try:
+                if self.rui_ro_tong.xet(tt, self.danh_muc).duyet:
+                    duoc.append(tt)
+                else:
+                    chan += 1
+            except Exception:                            # noqa: BLE001
+                # Xét hỏng thì GIỮ tờ ấy: bỏ nó đi là lặng lẽ thu hẹp phép
+                # đo vì một lỗi ở chỗ khác.
+                duoc.append(tt)
+        lat = do_xoay_cho(self.soViThe, duoc, gio,
                           bienAnToan=float(self.c.get("bienXoayCho") or 1.5))
+        lat.soDichBiChan = chan
         if not self.c.get("tuXoayCho"):
             return lat
         # CÒN GHẾ TRỐNG thì không đuổi ai. Tiền đề của cả cơ chế này là
