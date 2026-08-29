@@ -1070,6 +1070,7 @@ async def main() -> int:
         def __init__(self, cfg, vt):
             self.cfg = cfg
             self.primary, self.context = "4h", "1d"
+            self.mode = "paper"
             class _B:
                 state = {"positions": vt}
             self.broker = _B()
@@ -1085,6 +1086,17 @@ async def main() -> int:
                  "symbols": ["ETHUSDT", "BTCUSDT", "SOLUSDT"]}, [])._cho_quet()
     check(_q38[0] == "BTCUSDT", "chợ chính đứng đầu danh sách quét")
     check(len(_q38) == len(set(_q38)) == 3, "không chợ nào bị lặp")
+
+    # Testnet + nhiều chợ = gửi lệnh ETH lên sàn mang mã BTC. Phải chặn THẲNG,
+    # không được âm thầm quét một chợ: một cấu hình khai 15 chợ mà chạy đúng một
+    # chợ là thứ không ai phát hiện, và nó sẽ được đọc như "15 chợ chẳng bắt
+    # được gì".
+    _t38 = _G38({"symbol": "BTCUSDT", "symbols": ["BTCUSDT", "ETHUSDT"]}, [])
+    _t38.mode = "testnet"
+    check(_t38._cho_quet() == ["BTCUSDT"],
+          "testnet + nhiều chợ → chỉ quét chợ của broker")
+    _t38.mode = "paper"
+    check(len(_t38._cho_quet()) == 2, "sàn giấy → quét đủ hai chợ")
 
     # Chợ ĐANG có vị thế bị loại khỏi ứng viên: mở lệnh thứ hai trên cùng coin
     # là nhân đôi rủi ro của đúng một cược, không phải thêm một cược mới.
