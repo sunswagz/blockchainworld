@@ -125,8 +125,14 @@ from kham.hoc_offline import sigma_tai as _sigma_chung  # noqa: E402
 def sigma_tai(theoMoc, T, cuaSoGiay):
     """σ mỗi giây tại mốc T. Gọi thẳng bộ ước chung."""
     return _sigma_chung(theoMoc, int(T), float(cuaSoGiay))
-def cap_du_doan(theoMoc: dict, mocs: list, cuaSoGiay: float) -> list:
-    """(p, thắng) theo THỨ TỰ THỜI GIAN, trên đúng các mốc đưa vào."""
+def cap_du_doan(theoMoc: dict, mocs: list, cuaSoGiay: float,
+                keoMoc: bool = False) -> list:
+    """(p, thắng[, mốc khung]) theo THỨ TỰ THỜI GIAN.
+
+    `keoMoc` để bootstrap gộp được theo KHUNG: bốn lát cắt của một
+    khung chia chung MỘT kết quả, nên chúng không phải bốn quan sát
+    độc lập.
+    """
     ra = []
     for T in mocs:
         K = theoMoc.get(T)
@@ -146,17 +152,19 @@ def cap_du_doan(theoMoc: dict, mocs: list, cuaSoGiay: float) -> list:
                 continue
             gc = dinh_gia(MA, float(S), float(K), tau, sig)
             if gc is not None:
-                ra.append((gc.pUp, thang))
+                ra.append((gc.pUp, thang, T) if keoMoc
+                          else (gc.pUp, thang))
     return ra
 
 
 def _brier(cap) -> float:
-    return sum((p - (1.0 if t else 0.0)) ** 2 for p, t in cap) / max(1, len(cap))
+    return sum((p - (1.0 if t else 0.0)) ** 2 for p, t, *_ in cap) / max(1, len(cap))
 
 
 def cham(theoMoc: dict, ba: tuple, cuaSoGiay: float) -> dict | None:
     """Khớp nắn trên HỌC, chấm trên CHỌN và CHỐT. Ba tập tách theo thời gian."""
-    hoc, chon, chot = (cap_du_doan(theoMoc, m, cuaSoGiay) for m in ba)
+    hoc, chon = (cap_du_doan(theoMoc, m, cuaSoGiay) for m in ba[:2])
+    chot = cap_du_doan(theoMoc, ba[2], cuaSoGiay, keoMoc=True)
     if len(hoc) < 1500 or len(chon) < 500 or len(chot) < 500:
         return None
     hc = HieuChinh(duong=DATA_DIR / "_tam-tu-nang.json")
@@ -166,7 +174,7 @@ def cham(theoMoc: dict, ba: tuple, cuaSoGiay: float) -> dict | None:
     pn = khop(hc)
 
     def nan(cap):
-        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t in cap]
+        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t, *_ in cap]
 
     return {"nHoc": len(hoc), "nChon": len(chon), "nChot": len(chot),
             "chon": _brier(nan(chon)), "chot": _brier(nan(chot)),
@@ -174,7 +182,8 @@ def cham(theoMoc: dict, ba: tuple, cuaSoGiay: float) -> dict | None:
             # Giữ lại dãy sai số TỪNG CẶP của tập CHỐT để còn dựng được
             # khoảng tin có cặp. Không có nó thì "khá hơn 0,00001" và
             # "khá hơn 0,01" đọc y hệt nhau.
-            "_saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)]}
+            "_saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)],
+            "_mocChot": [x[-1] for x in chot]}
 
 
 def _bien(soUngVien: int) -> float:
@@ -255,17 +264,18 @@ def mot_vong(theoMoc: dict, ba: tuple, vong: int) -> dict | None:
     # ứng viên qua ngưỡng bằng 0,00001 và một ứng viên qua bằng 0,01 thì
     # đọc y hệt nhau nếu chỉ in chữ "NHẬN" — mà chúng là hai chuyện khác
     # hẳn. Khoảng tin có cặp trên tập CHỐT nói ra chỗ khác nhau ấy.
-    import random as _rd
+    from kham.hoc_offline import khoang_tin_theo_khoi
     a, b2 = goc.get("_saiChot") or [], r.get("_saiChot") or []
     if a and b2 and len(a) == len(b2):
         hieu = [x - y for x, y in zip(a, b2)]     # dương = ứng viên khá hơn
-        _rd.seed(20260829)
         n_ = len(hieu)
-        lan = sorted(sum(hieu[_rd.randrange(n_)] for _ in range(n_)) / n_
-                     for _ in range(2000))
-        thap, cao = lan[int(0.025 * len(lan))], lan[int(0.975 * len(lan))]
+        # Lấy lại theo KHUNG, không theo cặp: bốn lát cắt của một khung
+        # chia chung một kết quả, nên bootstrap theo cặp là giả vờ có
+        # gấp bốn số quan sát thực. Đo được: khoảng tin HẸP ĐI 2,18 lần,
+        # tức cổng dễ nhận một thay đổi chỉ là tiếng ồn.
+        thap, cao, soK = khoang_tin_theo_khoi(hieu, goc.get("_mocChot"))
         print(f"      chênh Brier CHỐT {sum(hieu)/n_:+.6f} · "
-              f"khoảng tin 95% [{thap:+.6f}, {cao:+.6f}]")
+              f"khoảng tin 95% [{thap:+.6f}, {cao:+.6f}] ({soK} khung)")
         if thap <= 0 <= cao:
             print("      ⚠ khoảng tin CHỨA 0: qua ngưỡng nhưng nằm trong")
             print("        tiếng ồn. Nhận theo đúng luật đã đặt trước, nhưng")

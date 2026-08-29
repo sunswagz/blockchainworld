@@ -125,8 +125,13 @@ def quen_sigma() -> None:
 
 
 def cap_du_doan(theoMoc: dict, mocs, ma: str, cuaSoGiay: float,
-                keoTau: bool = False) -> list:
-    """(p, thắng[, τ]) theo THỨ TỰ THỜI GIAN."""
+                keoTau: bool = False, keoMoc: bool = False) -> list:
+    """(p, thắng[, τ][, mốc khung]) theo THỨ TỰ THỜI GIAN.
+
+    `keoMoc` để người gọi gộp được theo KHUNG. Bốn lát cắt của một khung
+    chia chung MỘT kết quả, nên chúng không phải bốn quan sát độc lập —
+    và bootstrap theo cặp là tự cho mình gấp bốn lần độ chắc chắn.
+    """
     ra = []
     for T in mocs:
         K = theoMoc.get(T)
@@ -147,7 +152,12 @@ def cap_du_doan(theoMoc: dict, mocs, ma: str, cuaSoGiay: float,
             gc = dinh_gia(ma, float(S), float(K), tau, sig)
             if gc is None:
                 continue
-            ra.append((gc.pUp, thang, tau) if keoTau else (gc.pUp, thang))
+            x = [gc.pUp, thang]
+            if keoTau:
+                x.append(tau)
+            if keoMoc:
+                x.append(T)
+            ra.append(tuple(x))
     return ra
 
 
@@ -224,8 +234,47 @@ def dung_so_hieu_chinh(soNgay: int = 7, ma: str = "BTC_5M",
 #  VIỆC 2 — VẶN MỘT NÚT MÔ HÌNH
 # ══════════════════════════════════════════════════════════════════════
 
+def khoang_tin_theo_khoi(hieu: list, moc: list | None,
+                         soLan: int = 2000) -> tuple:
+    """Khoảng tin 95% cho trung bình `hieu`, lấy lại theo KHỐI.
+
+    Bốn lát cắt (τ = 240/180/120/60) của một khung chia chung MỘT kết
+    quả, nên chúng không phải bốn quan sát độc lập. Lấy lại theo từng
+    cặp là giả vờ có gấp bốn số quan sát thực, và khoảng tin hẹp đi theo
+    căn của cái giả vờ ấy — tức cổng dễ NHẬN một thay đổi chỉ là tiếng
+    ồn.
+
+    Cùng cái bẫy đã cắn ở `chay_lai` (đếm mỗi cửa sổ 44 lần, ra lãi 2,9
+    triệu đô) và ở `do-cho-that.py` (1.006 dòng hoá ra là 14 cửa sổ).
+    Lần này nó nằm đúng chỗ ghi vào `config.json`.
+
+    Trả (thấp, cao, số khối). `moc` thiếu thì mỗi cặp là một khối — vẫn
+    chạy, nhưng khoảng tin sẽ hẹp hơn sự thật, nên người gọi nên đưa mốc.
+    """
+    if not hieu:
+        return (0.0, 0.0, 0)
+    khoi: dict = {}
+    for h, m in zip(hieu, moc or range(len(hieu))):
+        khoi.setdefault(m, []).append(h)
+    ds = list(khoi.values())
+    soK = len(ds)
+    rd = random.Random(20260829)
+    lan = []
+    for _ in range(soLan):
+        t = 0.0
+        c = 0
+        for _k in range(soK):
+            b = ds[rd.randrange(soK)]
+            t += sum(b)
+            c += len(b)
+        lan.append(t / max(1, c))
+    lan.sort()
+    return (lan[int(0.025 * soLan)], lan[int(0.975 * soLan)], soK)
+
+
 def _cham(theoMoc, ba, ma, cuaSo) -> dict | None:
-    hoc, chon, chot = (cap_du_doan(theoMoc, m, ma, cuaSo) for m in ba)
+    hoc, chon = (cap_du_doan(theoMoc, m, ma, cuaSo) for m in ba[:2])
+    chot = cap_du_doan(theoMoc, ba[2], ma, cuaSo, keoMoc=True)
     if len(hoc) < 1500 or len(chon) < 500 or len(chot) < 500:
         return None
     hc = HieuChinh(duong=DATA_DIR / "_tam-hoc-offline.json")
@@ -235,10 +284,13 @@ def _cham(theoMoc, ba, ma, cuaSo) -> dict | None:
     pn = khop(hc)
 
     def nan(cap):
-        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t in cap]
+        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t, *_ in cap]
 
     return {"chon": brier(nan(chon)), "chot": brier(nan(chot)),
-            "saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)]}
+            "saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)],
+            # Mốc khung của TỪNG cặp ở tập CHỐT, để bootstrap gộp theo
+            # KHUNG. Bốn lát cắt của một khung chia chung một kết quả.
+            "mocChot": [x[-1] for x in chot]}
 
 
 def mot_luot_mo_hinh(soNgay: int = 10, ma: str = "BTC_5M",
@@ -313,11 +365,10 @@ def mot_luot_mo_hinh(soNgay: int = 10, ma: str = "BTC_5M",
     # đọc y hệt nhau nếu chỉ ghi chữ NHẬN.
     hieu = [x - y for x, y in zip(goc["saiChot"], r["saiChot"])]
     n_ = len(hieu)
-    rd = random.Random(20260829)
-    lan = sorted(sum(hieu[rd.randrange(n_)] for _ in range(n_)) / n_
-                 for _ in range(2000))
+    thap, cao, soK = khoang_tin_theo_khoi(hieu, goc.get("mocChot"))
     ban["chenhChot"] = sum(hieu) / n_
-    ban["tin95"] = [lan[int(0.025 * len(lan))], lan[int(0.975 * len(lan))]]
+    ban["soKhoiChot"] = soK
+    ban["tin95"] = [thap, cao]
     ban["trongTiengOn"] = ban["tin95"][0] <= 0 <= ban["tin95"][1]
 
     if not thu:

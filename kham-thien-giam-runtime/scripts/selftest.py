@@ -966,6 +966,50 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bootstrap_theo_khoi() -> None:
+    """Bốn lát cắt của MỘT khung không phải bốn quan sát độc lập.
+
+    Chúng chia chung một kết quả. Lấy lại theo từng cặp là giả vờ có gấp
+    bốn số quan sát thực, và khoảng tin hẹp đi theo căn của cái giả vờ ấy
+    — tức cổng dễ NHẬN một thay đổi chỉ là tiếng ồn, ở đúng chỗ ghi vào
+    `config.json`.
+
+    Cùng cái bẫy đã cắn ở `chay_lai` (đếm mỗi cửa sổ 44 lần, ra lãi 2,9
+    triệu đô) và ở `do-cho-that.py` (1.006 dòng hoá ra 14 cửa sổ).
+    """
+    print("\n-- Bootstrap phai lay lai theo KHUNG, khong theo cap ------")
+
+    import random as _rd
+
+    from kham.hoc_offline import khoang_tin_theo_khoi
+
+    rd = _rd.Random(1)
+    hieu, moc = [], []
+    for k in range(100):
+        goc = rd.gauss(0, 0.01)          # sai lệch CHUNG của cả khung
+        for _ in range(4):
+            hieu.append(goc + rd.gauss(0, 0.0005))
+            moc.append(k)
+
+    a = khoang_tin_theo_khoi(hieu, moc)
+    b = khoang_tin_theo_khoi(hieu, None)
+    kiem("đếm đúng số khung", a[2] == 100, a[2])
+    kiem("không có mốc thì mỗi cặp là một khối", b[2] == 400, b[2])
+    kiem("khoảng tin theo KHỐI RỘNG HƠN theo cặp",
+         (a[1] - a[0]) > (b[1] - b[0]) * 1.5,
+         f"khối {a[1]-a[0]:.5f} vs cặp {b[1]-b[0]:.5f} — chênh chính là "
+         "phần độ chắc chắn tự cho mình")
+    kiem("dãy rỗng thì không ném", khoang_tin_theo_khoi([], None) == (0.0, 0.0, 0))
+
+    # Và hai công cụ VẶN phải gọi nó.
+    GOC_MA = Path(__file__).resolve().parent.parent
+    for ten in ("tu-nang-cap.py",):
+        ma = (GOC_MA / "scripts" / ten).read_text(encoding="utf-8")
+        kiem(f"{ten} dùng bootstrap theo khối",
+             "khoang_tin_theo_khoi" in ma and "_mocChot" in ma,
+             "bootstrap theo cặp ở đây là nới cổng mà không ai khai")
+
+
 def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
     """Script nào GHI CONFIG thì phải đo bằng bộ ước của runtime.
 
@@ -2885,6 +2929,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bootstrap_theo_khoi()
     kiem_cong_cu_van_dung_bo_uoc_chung()
     kiem_mot_bo_uoc_sigma()
     kiem_sigma_luoi_phut()
