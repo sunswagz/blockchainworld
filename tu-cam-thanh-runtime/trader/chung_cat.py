@@ -349,10 +349,14 @@ def _tu_chien_luoc(bo: list) -> list[dict]:
         cau += (" KỲ VỌNG ÂM: chính bản chiến lược đang chạy đã lỗ trên lịch sử. "
                 "Mọi lệnh nó đề xuất đều xuất phát từ đây — kết quả tốt lẻ tẻ là "
                 "phương sai, không phải bằng chứng ngược lại.")
+    khung_cl = kq.get("khung")
+    if kq.get("cho"):
+        cau += f" (đo trên {kq['cho']})"
     ra.append(_pd("champion", "chien-luoc", cau, so,
                   {"kyVongR": ky_vong, "tyLeThang": kq.get("tyLeThang"),
-                   "heSoLoiNhuan": kq.get("heSoLoiNhuan"),
-                   "sutGiamToiDaPct": kq.get("sutGiamToiDaPct"), "tham": ch.get("tham")}))
+                   "heSoLoiNhuan": kq.get("heSoLoiNhuan"), "cho": kq.get("cho"),
+                   "sutGiamToiDaPct": kq.get("sutGiamToiDaPct"), "tham": ch.get("tham")},
+                  khung=khung_cl))
 
     chuoi = kq.get("chuoiThuaDaiNhat")
     if chuoi:
@@ -361,7 +365,7 @@ def _tu_chien_luoc(bo: list) -> list[dict]:
                       f"chạy lại. Đây mới là con số quyết định mức rủi ro mỗi lệnh — không "
                       f"phải kỳ vọng. Sống sót qua chuỗi thua là điều kiện để kỳ vọng có "
                       f"cơ hội hiện ra.",
-                      so, {"chuoiThuaDaiNhat": chuoi}))
+                      so, {"chuoiThuaDaiNhat": chuoi}, khung=khung_cl))
 
     kt = kq.get("khopTroi")
     if kt is not None:
@@ -369,7 +373,7 @@ def _tu_chien_luoc(bo: list) -> list[dict]:
                       f"Khớp trội {kt}: chênh lệch giữa điểm TRONG mẫu và điểm NGOÀI mẫu "
                       f"của bộ tham số cầm quyền. Càng lớn thì nó càng học thuộc quá khứ "
                       f"thay vì học quy luật — và phần học thuộc sẽ không lặp lại.",
-                      so, {"khopTroi": kt}))
+                      so, {"khopTroi": kt}, khung=khung_cl))
 
     # — Đấu trường: các bộ luật đã đem ra thi và kết quả —
     #
@@ -408,7 +412,7 @@ def _tu_chien_luoc(bo: list) -> list[dict]:
                           f"({sl / tong * 100:.0f}%), chỉ {ly_do.get('TP', 0)} lệnh chạm mục "
                           f"tiêu. Tỉ lệ này nói vấn đề nằm ở điểm VÀO hoặc ở chỗ đặt stop, "
                           f"không nằm ở mục tiêu.",
-                          tong, {"theoLyDoThoat": ly_do}))
+                          tong, {"theoLyDoThoat": ly_do}, khung=khung_cl))
     return ra
 
 

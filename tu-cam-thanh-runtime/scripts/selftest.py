@@ -895,6 +895,50 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[23] MỌI PHÉP ĐO PHẢI TỰ KHAI CHỢ CỦA NÓ")
+    from trader import chung_cat as CC23
+
+    # Bốn lần cùng một lỗi trong hệ này: cầu dao chặn khung 4h bằng bằng chứng
+    # 1h · bài học chạy lại không ghi khung · bảng mẫu giá ghi cứng "1h" · sổ
+    # chiến lược ghi "+0,032R qua 26 lệnh" mà không nói của chợ nào.
+    #
+    # Mỗi lần đều sửa riêng một chỗ. Phép kiểm này là chỗ CHUNG: phát hiện nào
+    # gắn với một chế độ thị trường thì phải khai khung nó được đo trên, nếu
+    # không nó sẽ được đọc như thể đúng cho mọi khung.
+    store.write_all(store.PHAT_HIEN, [
+        {"ma": "co-khung", "nguon": "chay-lai", "cheDo": "R",
+         "khung": CONFIG["timeframes"]["primary"],
+         "cau": "x", "mau": 30, "doTin": "CAO", "so": {"kyVongR": -0.5}, "luc": "x"},
+        {"ma": "thieu-khung", "nguon": "chay-lai", "cheDo": "R",
+         "cau": "y", "mau": 30, "doTin": "CAO", "so": {}, "luc": "x"},
+        {"ma": "khong-che-do", "nguon": "so-that", "cheDo": None,
+         "cau": "z", "mau": 30, "doTin": "CAO", "so": {}, "luc": "x"},
+    ])
+    _ds23 = CC23.doc("R", "R", gioi_han=20)
+    _theo = {p["ma"]: p for p in _ds23}
+
+    check("thieu-khung" in _theo,
+          "phát hiện thiếu khung vẫn VÀO prompt — bỏ hẳn là mất bối cảnh")
+    check(CC23.cau_dao("R", "R") is not None,
+          "phát hiện CÓ khung khớp → cầu dao ngắt được")
+
+    # Và cửa quan trọng nhất: bỏ cái có khung đi thì cầu dao phải im, chứ không
+    # được rơi sang dùng cái thiếu khung.
+    store.write_all(store.PHAT_HIEN, [p for p in store.read_all(store.PHAT_HIEN)
+                                      if p["ma"] != "co-khung"])
+    check(CC23.cau_dao("R", "R") is None,
+          "chỉ còn phát hiện THIẾU khung → cầu dao KHÔNG ngắt")
+
+    # Kho đo trên đĩa: cái nào gắn chế độ thì phải có khung.
+    CC23.chung_cat()
+    # Không ép PHẢI có khung: bài học cũ chưa ghi khung vẫn đáng giữ làm bối
+    # cảnh. Bất biến THẬT là — không rõ thì phải NÓI RA, chứ không im lặng trôi
+    # qua như thể đã biết. Mã định danh mang "khung?" chính là chỗ nói ra đó.
+    _im = [p["ma"] for p in store.read_all(store.PHAT_HIEN)
+           if p.get("cheDo") and not p.get("khung") and "khung?" not in p["ma"]]
+    check(not _im,
+          "phát hiện không rõ khung đều tự khai trong mã định danh"
+          + (f" — IM LẶNG: {_im}" if _im else ""))
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:

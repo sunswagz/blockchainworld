@@ -24,6 +24,7 @@ import datetime as _dt
 from typing import Any
 
 from . import store
+from .config import CONFIG
 from .brain import BO_LUAT
 from .bus import bus
 
@@ -143,6 +144,16 @@ def danh_gia(khoa: str, chay: Any) -> dict:
 
     cha_tk = chay(d["champion"]["ma"], d["champion"].get("tham") or {})
     thu_tk = chay(c["ma"], c.get("tham") or {})
+
+    # CHỢ mà con số này được đo trên. Lần thứ tư trong hệ này một kho đo ghi kết
+    # quả mà không ghi bối cảnh: cầu dao, bài học chạy lại, bảng mẫu giá, và giờ
+    # là sổ chiến lược. Champion ghi "+0,032R qua 26 lệnh" — đúng cho BTCUSDT:4h
+    # và vô nghĩa ở mọi chợ khác, nhưng không có gì trong bản ghi nói ra điều đó.
+    cho = f"{CONFIG['symbol']}:{CONFIG['timeframes']['primary']}"
+    for tk in (cha_tk, thu_tk):
+        if isinstance(tk, dict):
+            tk.setdefault("cho", cho)
+            tk.setdefault("khung", CONFIG["timeframes"]["primary"])
 
     pq = phan_quyet(cha_tk, thu_tk)
     c.update({"trangThai": "đã đo", "ketQua": thu_tk, "phanQuyet": pq,
