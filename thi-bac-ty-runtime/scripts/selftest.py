@@ -2766,6 +2766,73 @@ def kiem_chan_doan_he() -> None:
          f"{_dx} — nới ra là HẠ `tinCayToiThieu`; nâng nó lên là siết thêm "
          f"đúng lúc đang nghẽn")
 
+    # ── HỨA QUÁ đo trên VỊ THẾ ĐANG MỞ — tín hiệu DÀY ───────────────────
+    # Bảng hứa-vs-thực chỉ nói về những lần ĐÃ ĐÓNG và đòi 20 mẫu mỗi ty.
+    # Máy sống 30/08: ty cao nhất mới có 8 mẫu sau nhiều ngày, trong khi
+    # ba giờ gần nhất có 48 lần MỞ và 0 lần đóng. Nguồn khác, cùng câu
+    # hỏi: lợi suất THỰC trên vốn-giờ so với lời hứa của chính những vị
+    # thế đang mở — cùng một tập, cùng một quãng.
+    def _vt(ma, von, aprHua):
+        net = (None if aprHua is None
+               else aprHua / 100.0 * (24.0 / (365 * 24)) * 10_000.0)
+        return {"chienLuoc": ma, "vonUsd": von, "netUocBps": net,
+                "giuGioHua": 24.0}
+
+    _anhMo = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                    "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+              "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 4},
+              "soViThe": [_vt("hua.qua.v1", 1000.0, 20.0),
+                          _vt("hua.dung.v1", 1000.0, 2.5),
+                          _vt("khong.khai.v1", 1000.0, None),
+                          _vt("it.von.v1", 1000.0, 20.0)],
+              "vonDangDung": {"theoTy": {
+                  "hua.qua.v1": {"vonGioUsd": 5000.0,
+                                 "loiSuatNamPhanTram": 2.0},
+                  "hua.dung.v1": {"vonGioUsd": 5000.0,
+                                  "loiSuatNamPhanTram": 2.0},
+                  "khong.khai.v1": {"vonGioUsd": 5000.0,
+                                    "loiSuatNamPhanTram": 2.0},
+                  "it.von.v1": {"vonGioUsd": 1.0,
+                                "loiSuatNamPhanTram": 2.0}}}}
+    _mo = {x.bangChung.get("chienLuoc"): x for x in _cdh(_anhMo)
+           if x.ma == "hua-qua-dang-mo"}
+    kiem("ty hứa 20% mà chạy 2% bị BẮT, trên chính vị thế đang mở của nó",
+         "hua.qua.v1" in _mo
+         and gan(_mo["hua.qua.v1"].bangChung["aprHuaPhanTram"], 20.0, 1e-6),
+         f"{sorted(_mo)} — cùng một tập vị thế, cùng một quãng; không phải "
+         f"hai cửa sổ khác nhau")
+    kiem("ty hứa sát thực thì KHÔNG bị kêu",
+         "hua.dung.v1" not in _mo,
+         f"{sorted(_mo)} — lời hứa dựng trên ảnh chụp còn thực nhận là "
+         f"trung bình cả quãng; lệch chút ít là bình thường")
+    kiem("ty KHÔNG khai lời hứa thì không bị chấm, không bị đọc thành 0",
+         "khong.khai.v1" not in _mo,
+         f"{sorted(_mo)} — `None` là không khai, kéo bình quân xuống bằng "
+         f"một số bịa thì tệ hơn không đo")
+    kiem("và vốn-giờ quá ít thì chưa kết luận",
+         "it.von.v1" not in _mo,
+         f"{sorted(_mo)} — một trăm đô chạy một tiếng quy ra năm là tiếng "
+         f"ồn nhân lên 8.760 lần")
+    # Vị thế KHÔNG khai lời hứa phải ra khỏi CẢ TỬ SỐ LẪN MẪU SỐ. Đọc nó
+    # thành «hứa 0%» thì nó kéo bình quân xuống, và một ty hứa quá thật sẽ
+    # lọt lưới — càng nhiều vị thế không khai thì càng dễ lọt.
+    _anhTron = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                      "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+                "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 2},
+                "soViThe": [_vt("tron.v1", 1000.0, 20.0),
+                            _vt("tron.v1", 9000.0, None)],
+                "vonDangDung": {"theoTy": {
+                    "tron.v1": {"vonGioUsd": 5000.0,
+                                "loiSuatNamPhanTram": 2.0}}}}
+    _tron = {x.bangChung.get("chienLuoc"): x for x in _cdh(_anhTron)
+             if x.ma == "hua-qua-dang-mo"}
+    kiem("vị thế KHÔNG khai hứa bị loại khỏi CẢ mẫu số, không kéo bình quân",
+         "tron.v1" in _tron
+         and gan(_tron["tron.v1"].bangChung["aprHuaPhanTram"], 20.0, 1e-6),
+         f"{_tron and _tron['tron.v1'].bangChung} — đọc «không khai» thành "
+         f"«hứa 0%» thì chín phần mười vốn kéo bình quân xuống 2%, và một "
+         f"ty hứa 20% mà chạy 2% lọt lưới")
+
     # ── HỨA QUÁ: tín hiệu duy nhất của tám ty KHÔNG có băng ─────────────
     # Bảng hứa-vs-thực đã có, đã hiện trên buồng lái, và vòng tiến hoá
     # không đọc — nên vòng ấy chỉ học được về đúng cái ty mà chính nó đã

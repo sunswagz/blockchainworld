@@ -95,6 +95,16 @@ NGUONG_CHURN = 0.8
 #: đóng hết chúng mà không hề churn.
 TOI_THIEU_LAN_VAO = 10
 
+#: Bao nhiêu VỐN-GIỜ mới đủ để nói một ty «hứa quá». 100 USD-giờ là một
+#: trăm đô chạy một tiếng — dưới ngần ấy thì tỉ suất năm quy ra từ nó chỉ
+#: là tiếng ồn nhân lên 8.760 lần.
+TOI_THIEU_VON_GIO = 100.0
+
+#: Hứa cao hơn thực bao nhiêu ĐIỂM PHẦN TRĂM mỗi năm thì mới kêu. Hai
+#: điểm, vì lời hứa dựng trên một ảnh chụp thị trường còn thực nhận là
+#: trung bình của cả quãng — chúng lệch nhau chút ít là bình thường.
+NGUONG_HUA_QUA_DIEM = 2.0
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -392,6 +402,51 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"lỗi mã: NAV đang phồng lên, và sổ vẫn cân vì nó ghi đúng con "
             f"số bịa ấy.",
             {"soThuVuotTran": vuot, "nangNhat": x0}))
+
+    # ── 7c. HỨA QUÁ, đo trên VỊ THẾ ĐANG MỞ ─────────────────────────────
+    #
+    # Bảng hứa-vs-thực (mục 8 dưới) chỉ nói về những lần ĐÃ ĐÓNG, và đòi
+    # 20 mẫu mỗi ty. Máy sống 30/08: ty cao nhất mới có 8 mẫu sau nhiều
+    # ngày, trong khi ba giờ gần nhất có 48 lần MỞ và 0 lần đóng. Tín
+    # hiệu ấy quá thưa để dạy được ai.
+    #
+    # Cùng câu hỏi, nguồn khác: lợi suất THỰC trên vốn-giờ (cộng mỗi 30
+    # giây) so với LỜI HỨA của chính những vị thế đang mở, có trọng số
+    # theo vốn. Cùng một tập vị thế, cùng một quãng — không trộn cửa sổ.
+    vdd = ((anh.get("vonDangDung") or {}).get("theoTy")) or {}
+    hua: dict = {}
+    for v in (anh.get("soViThe") or []):
+        try:
+            net, giu = v.get("netUocBps"), v.get("giuGioHua")
+            von = abs(float(v.get("vonUsd") or 0.0))
+        except (TypeError, ValueError, AttributeError):
+            continue
+        # `None` là ty không khai, KHÔNG phải hứa 0 — bỏ ra khỏi cả tử số
+        # lẫn mẫu số, chứ đừng kéo bình quân xuống bằng một số bịa.
+        if net is None or not giu or von <= 0:
+            continue
+        apr = float(net) / 10_000.0 * (24.0 / float(giu)) * 365.0 * 100.0
+        o = hua.setdefault(v.get("chienLuoc") or "?", {"von": 0.0, "x": 0.0})
+        o["von"] += von
+        o["x"] += von * apr
+    for ma, o in sorted(hua.items()):
+        thuc = (vdd.get(ma) or {}).get("loiSuatNamPhanTram")
+        vg = float((vdd.get(ma) or {}).get("vonGioUsd") or 0.0)
+        if thuc is None or o["von"] <= 0 or vg < TOI_THIEU_VON_GIO:
+            continue
+        aprHua = o["x"] / o["von"]
+        if aprHua - float(thuc) <= NGUONG_HUA_QUA_DIEM:
+            continue
+        ra.append(TrieuChungHe(
+            "hua-qua-dang-mo", 2,
+            f"ty {ma} đang chạy THỰC {float(thuc):+.2f}%/năm trên "
+            f"{vg:,.0f} vốn-giờ, trong khi chính những vị thế đang mở của "
+            f"nó HỨA {aprHua:+.2f}%/năm (bình quân theo vốn). Lệch "
+            f"{aprHua - float(thuc):+.2f} điểm. Đây là cùng một tập vị "
+            f"thế và cùng một quãng — không phải hai cửa sổ khác nhau.",
+            {"chienLuoc": ma, "aprHuaPhanTram": aprHua,
+             "aprThucPhanTram": float(thuc), "vonGioUsd": vg},
+            ["ruiRoTong.netMoiGioToiThieuBps"]))
 
     # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──
     #

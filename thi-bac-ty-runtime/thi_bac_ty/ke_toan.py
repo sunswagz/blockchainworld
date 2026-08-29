@@ -126,6 +126,18 @@ class SoViThe:
             "soVongKeToan": self.soVongKeToan,
             "soVongKhongDoDuoc": self.soVongKhongDoDuoc,
             "coKeToan": self.coKeToan,
+            # LỜI HỨA của chính tờ trình đã mở vị thế này.
+            #
+            # Không có nó thì «ty ấy hứa bao nhiêu» chỉ đọc được từ bảng
+            # hứa-vs-thực, thứ chỉ nói về những lần ĐÃ ĐÓNG — và đóng thì
+            # hiếm. Đem lời hứa của những lần đóng đi so với lợi suất
+            # THỰC của những vị thế đang mở là trộn hai tập khác nhau,
+            # đúng cái bẫy «hai cửa sổ thời gian» đã cắn ở phễu.
+            #
+            # Khai ở đây thì lời hứa và thực nhận nói về CÙNG một tập vị
+            # thế, cùng một quãng.
+            "netUocBps": (self.toTrinh or {}).get("netUocBps"),
+            "giuGioHua": (self.toTrinh or {}).get("giuGio"),
         }
 
 
