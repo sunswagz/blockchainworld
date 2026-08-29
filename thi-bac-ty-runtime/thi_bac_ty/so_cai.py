@@ -229,6 +229,9 @@ class SoCai:
                     "FROM but_toan GROUP BY loai").fetchall()
         except (sqlite3.Error, OSError):
             return {}
+        # `or 0.0` là lớp thứ hai, không với tới được bằng đột biến:
+        # `soTienUsd` khai `NOT NULL`, và `GROUP BY` chỉ trả về nhóm CÓ
+        # dòng — nên `SUM` không ra `NULL` ở đây bao giờ.
         return {r[0]: {"so": r[1], "tongUsd": r[2] or 0.0} for r in h}
 
     def lai_lo_theo_chien_luoc(self) -> dict:
@@ -406,6 +409,10 @@ class SoCai:
                                   "soLanDong": 0, "soLanDongXoayCho": 0,
                                   "soButToan": 0})
             o["soButToan"] += 1
+            # `or 0.0` ở đây KHÔNG với tới được: lược đồ khai
+            # `soTienUsd REAL NOT NULL`, nên SQLite không trả `None` ở cột
+            # ấy bao giờ. Con đột biến TƯƠNG ĐƯƠNG — giữ `or` làm lớp
+            # thứ hai thì được, nhưng đừng đi tìm phép kiểm cho nó.
             v = float(tien or 0.0)
             o_ten = KHOAN[loai]              # KeyError = truy vấn lệch bảng
             if o_ten == "_dem_dong":
@@ -520,6 +527,10 @@ class SoCai:
             d = _json(ct) or {}
             if not d.get("xoayCho"):
                 continue
+            # `>=` chứ không `>`: hai cách viết chỉ khác nhau khi dấu
+            # thời gian TRÙNG KHÍT tới mili giây với mốc cửa sổ, mà mốc
+            # ấy tính từ `bay_gio()` lúc gọi. Con đột biến TƯƠNG ĐƯƠNG
+            # trên mọi cuốn sổ thật.
             if _ms(luc) >= moc:
                 gan["soLan"] += 1
                 gan["huaLoiRongUsd"] += float(d.get("loiRongUocUsd") or 0.0)
@@ -563,6 +574,9 @@ class SoCai:
         gnHua = _trung_vi(gan.pop("gioHua"))
         gan["gioGiuTrungVi"] = gnGiu
         gan["gioHuaTrungVi"] = gnHua
+        # `gnHua <= 0` và `< 0` cho cùng kết quả: `not gnHua` ở vế trước
+        # đã bắt trọn số 0. Vế `gnGiu is None` thì KHÔNG thừa — bỏ nó là
+        # chia `None` cho một con số, và đã có phép kiểm riêng.
         gan["tiLeSongTrenHua"] = (None if not gnHua or gnHua <= 0
                                   or gnGiu is None else gnGiu / gnHua)
         gan["gioCuaSo"] = gioGanDay

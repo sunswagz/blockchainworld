@@ -1831,6 +1831,86 @@ def kiem_so_cai() -> None:
          "0 ở đây đọc thành «đã đóng, và không lần nào do xoay» — một câu "
          "khác hẳn «chưa đóng lần nào»")
 
+    # ── BIÊN của Sổ Cái ─────────────────────────────────────────────────
+    #
+    # Đây là cuốn sổ TIỀN. Quét đột biến cho 18/25 con sống sót.
+
+    # Một loại bút toán KHÔNG mang tiền thì `SUM(soTienUsd)` trả về tổng
+    # của những số 0, nhưng một loại chưa có dòng nào thì SQLite trả
+    # `NULL`. `r[2] or 0.0` che ca ấy; đổi thành `and` là `tongUsd` thành
+    # `None` và mọi phép cộng phía trên nó nổ.
+    scT = SoCai(_tam("socai-tong") / "so.sqlite3")
+    scT.ghi(ButToan("DONG_VI_THE", "đóng", 0.0, "a.v1", "T1"))
+    _tl = scT.tong_theo_loai()
+    kiem("loại bút toán KHÔNG mang tiền vẫn có `tongUsd` là số, không None",
+         isinstance(_tl["DONG_VI_THE"]["tongUsd"], float)
+         and gan(_tl["DONG_VI_THE"]["tongUsd"], 0.0),
+         f"{_tl} — `None` ở đây làm mọi phép cộng phía trên nó nổ")
+
+    # `chiTiet` rỗng: bút toán cũ, hoặc một dòng ghi tay. Không được nổ,
+    # và không được biến mất khỏi mẫu số.
+    scC = SoCai(_tam("socai-chitiet") / "so.sqlite3")
+    scC.ghi(ButToan("DONG_VI_THE", "đóng · không chi tiết", 0.0, "a.v1",
+                    "T1"))
+    scC.ghi(ButToan("DONG_VI_THE", "đóng · đủ", 0.0, "a.v1", "T2",
+                    {"duDoanBpsGio": 1.0, "thucBpsGio": 0.8,
+                     "daGiuGio": 10.0}))
+    # THIẾU MỘT VẾ cũng là thiếu. `or` đổi thành `and` là chỉ chặn khi
+    # thiếu CẢ HAI, và một dòng có hứa mà không có thực sẽ đi tiếp rồi
+    # nổ ở phép trừ dưới — hoặc tệ hơn, lặng lẽ trừ `None`.
+    scC.ghi(ButToan("DONG_VI_THE", "đóng · chỉ có HỨA", 0.0, "a.v1", "T3",
+                    {"duDoanBpsGio": 1.0, "daGiuGio": 10.0}))
+    scC.ghi(ButToan("DONG_VI_THE", "đóng · chỉ có THỰC", 0.0, "a.v1", "T4",
+                    {"thucBpsGio": 0.8, "daGiuGio": 10.0}))
+    _dt = scC.du_doan_va_thuc()["a.v1"]
+    kiem("bút toán KHÔNG có chi tiết vẫn vào mẫu số, không biến mất",
+         _dt["soDong"] == 4 and _dt["soDoiChieuDuoc"] == 1
+         and _dt["soThieuVe"] == 3,
+         f"{_dt} — một mẫu số không giải thích được là một mẫu số không "
+         f"ai tin")
+    kiem("và mẫu số CỘNG ĐÚNG: đối chiếu + thiếu vế + quá ngắn = số đóng",
+         (_dt["soDoiChieuDuoc"] + _dt["soThieuVe"] + _dt["soGiuQuaNgan"]
+          + _dt["soTuSoNgoai"]) == _dt["soDong"], str(_dt))
+
+    # Ngưỡng «giữ quá ngắn» ĐÓNG: giữ ĐÚNG 0,25 giờ thì vẫn quy ra bps
+    # mỗi giờ được. Đổi `<` thành `<=` là ném đúng cái biên hợp lệ.
+    scN = SoCai(_tam("socai-ngan") / "so.sqlite3")
+    for _ma, _g in (("DU", 0.25), ("THIEU", 0.2499)):
+        scN.ghi(ButToan("DONG_VI_THE", "đóng", 0.0, "a.v1", _ma,
+                        {"duDoanBpsGio": 1.0, "thucBpsGio": 0.8,
+                         "daGiuGio": _g}))
+    _dn = scN.du_doan_va_thuc()["a.v1"]
+    kiem("giữ ĐÚNG BẰNG ngưỡng thì vẫn đối chiếu được",
+         _dn["soDoiChieuDuoc"] == 1 and _dn["soGiuQuaNgan"] == 1,
+         f"{_dn} — ngưỡng 0,25h; đúng bằng ngưỡng là còn đủ dài")
+
+    # `chiTiet` rỗng ở bút toán PHÍ: không có `phiUocBps` thì đó là phí
+    # TRONG KỲ, không phải phí vào lệnh. `(_json(ct) or {})` che ca
+    # `chiTiet` là `None`; đổi thành `and` là `"phiUocBps" in None` nổ.
+    scF = SoCai(_tam("socai-phi") / "so.sqlite3")
+    scF.ghi(ButToan("PHI", "phí trong kỳ, không chi tiết", -1.0, "a.v1",
+                    "F1"))
+    scF.ghi(ButToan("PHI", "phí vào lệnh", -2.0, "a.v1", "F2",
+                    {"phiUocBps": 2.0}))
+    _lf = scF.lai_lo_tach_khoan()["a.v1"]
+    kiem("phí KHÔNG có chi tiết đọc là phí TRONG KỲ, không phải phí vào",
+         (gan(_lf["phiKhacUsd"], -1.0) and gan(_lf["phiVaoUsd"], -2.0)
+          and _lf["soLanVaoLenh"] == 1),
+         f"{_lf} — đếm nhầm nó thành phí vào lệnh là đổ chi phí vận hành "
+         f"lên đầu chiến lược, đúng cái bảng này sinh ra để tránh")
+
+    # SỔ RỖNG: 0 bút toán và `chuaCo` bật. `int(n or 0)` che cho ca
+    # `COUNT(*)` trả `None`; và `chuaCo` phải TẮT khi đã có dòng.
+    scR = SoCai(_tam("socai-rong") / "so.sqlite3")
+    _tr = scR.tom_tat()
+    kiem("sổ cái RỖNG: 0 bút toán, `chuaCo` nói thẳng là chưa có gì",
+         _tr["soButToan"] == 0 and _tr["chuaCo"] is True, str(_tr))
+    scR.ghi(ButToan("FUNDING", "thu", 1.0, "a.v1", "R1"))
+    _tr2 = scR.tom_tat()
+    kiem("ghi một dòng rồi thì `chuaCo` TẮT",
+         _tr2["soButToan"] == 1 and _tr2["chuaCo"] is False,
+         f"{_tr2} — một cờ không bao giờ tắt được là một cờ không ai đọc")
+
     # ── XOAY CHỖ: lời hứa đặt cạnh đời thật của vị thế ──────────────────
     scX = SoCai(_tam("socai-xoay") / "so.sqlite3")
 
@@ -1899,6 +1979,93 @@ def kiem_so_cai() -> None:
     kiem("nhưng giờ GIỮ thì vẫn đo được, vì trường ấy có",
          gan(_yc["gioGiuTrungVi"], 0.015),
          f"{_yc['gioGiuTrungVi']} — mù một trường không phải mù cả hàng")
+
+    # THIẾU nửa cặp thì KHÔNG đếm. `if a and b` đổi thành `or` là dựng ra
+    # một cặp «USDT → None», và bảng cặp-đi-lại hiện một dòng không ai
+    # đọc được — đúng lúc nó phải chỉ ra cái vòng.
+    scP = SoCai(_tam("socai-cap-thieu") / "so.sqlite3")
+    for _cu, _moi in (("USDT", "SUSDAI"), ("USDT", None), (None, "SUSDAI")):
+        _ct = {"xoayCho": True, "loiRongUocUsd": 1.0, "daGiuGio": 0.01,
+               "gioChungHua": 100.0}
+        if _cu:
+            _ct["taiSanCu"] = _cu
+        if _moi:
+            _ct["taiSanMoi"] = _moi
+        scP.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1",
+                        f"{_cu}-{_moi}", _ct))
+    _pc = scP.xoay_cho_hua_va_thuc()
+    kiem("thiếu một nửa cặp thì KHÔNG vào bảng cặp — cả đời lẫn gần đây",
+         _pc["capLapNhieuNhat"] == [{"cap": "USDT → SUSDAI", "soLan": 1}]
+         and _pc["ganDay"]["capLapNhieuNhat"]
+         == [{"cap": "USDT → SUSDAI", "soLan": 1}],
+         f"{_pc['capLapNhieuNhat']} — một dòng «USDT → None» xuất hiện "
+         f"đúng lúc bảng này phải chỉ ra cái vòng")
+    kiem("nhưng cả BA lần xoay vẫn được đếm — thiếu cặp không phải mất tích",
+         _pc["soLan"] == 3, str(_pc))
+
+    # `loiRongUocUsd` vắng mặt: bút toán cũ. Đọc thành 0 là đúng — nó
+    # nghĩa là «lần xoay ấy không khai hứa bao nhiêu», và cộng 0 giữ cho
+    # tổng vẫn cộng lại được.
+    scH = SoCai(_tam("socai-hua-thieu") / "so.sqlite3")
+    scH.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1", "K1",
+                    {"xoayCho": True, "daGiuGio": 0.01,
+                     "gioChungHua": 100.0}))
+    scH.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1", "K2",
+                    {"xoayCho": True, "daGiuGio": 0.01,
+                     "gioChungHua": 100.0, "loiRongUocUsd": 7.0}))
+    _hh = scH.xoay_cho_hua_va_thuc()
+    kiem("lần xoay KHÔNG khai lời hứa vẫn được đếm, hứa cộng 0",
+         _hh["soLan"] == 2 and gan(_hh["huaLoiRongUsd"], 7.0),
+         f"{_hh} — bỏ nó ra khỏi mẫu số là làm «hứa bình quân» to lên "
+         f"bằng cách giấu những lần không hứa gì")
+
+    # Ngưỡng «cặp đi lại NHIỀU LẦN» ĐÓNG ở 3: đúng ba lần đã là đi lại.
+    scL = SoCai(_tam("socai-cap-3") / "so.sqlite3")
+    for _i in range(3):
+        scL.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1", f"B{_i}",
+                        {"xoayCho": True, "taiSanCu": "A", "taiSanMoi": "B",
+                         "loiRongUocUsd": 1.0, "daGiuGio": 0.01,
+                         "gioChungHua": 100.0}))
+    for _i in range(2):
+        scL.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1", f"C{_i}",
+                        {"xoayCho": True, "taiSanCu": "C", "taiSanMoi": "D",
+                         "loiRongUocUsd": 1.0, "daGiuGio": 0.01,
+                         "gioChungHua": 100.0}))
+    _ll = scL.xoay_cho_hua_va_thuc()
+    kiem("cặp lặp ĐÚNG BA lần đã tính là đi lại nhiều lần",
+         _ll["soCapDiLaiNhieuLan"] == 1
+         and _ll["ganDay"]["soCapDiLaiNhieuLan"] == 1,
+         f"{_ll['capLapNhieuNhat']} — hai lần còn cãi được là trùng hợp, "
+         f"ba lần thì không")
+
+    # Hứa trên quãng ĐÚNG BẰNG 0 giờ: tỉ lệ sống/hứa là None, không phải
+    # vô cực. Đổi `<= 0` thành `< 0` là chia cho không.
+    scZ = SoCai(_tam("socai-hua-0") / "so.sqlite3")
+    scZ.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1", "Z1",
+                    {"xoayCho": True, "taiSanCu": "A", "taiSanMoi": "B",
+                     "loiRongUocUsd": 1.0, "daGiuGio": 0.0,
+                     "gioChungHua": 0.0}))
+    _zz = scZ.xoay_cho_hua_va_thuc()
+    # Có quãng HỨA mà KHÔNG có quãng GIỮ: bút toán khai một nửa. Tỉ lệ
+    # sống/hứa phải là None. Bỏ vế `gnGiu is None` đi là chia `None` cho
+    # một con số, và cả ảnh chụp chết theo.
+    scG = SoCai(_tam("socai-thieu-giu") / "so.sqlite3")
+    scG.ghi(ButToan("DONG_VI_THE", "xoay chỗ", 0.0, "a.v1", "G1",
+                    {"xoayCho": True, "taiSanCu": "A", "taiSanMoi": "B",
+                     "loiRongUocUsd": 1.0, "gioChungHua": 100.0}))
+    _gg = scG.xoay_cho_hua_va_thuc()
+    kiem("có quãng HỨA mà không có quãng GIỮ thì tỉ lệ là None, không nổ",
+         (_gg["tiLeSongTrenHua"] is None
+          and _gg["ganDay"]["tiLeSongTrenHua"] is None
+          and _gg["gioHuaTrungVi"] == 100.0),
+         f"{_gg} — khai một nửa vẫn phải đọc được nửa kia; chia `None` "
+         f"cho một con số là giết cả ảnh chụp")
+
+    kiem("hứa trên quãng 0 giờ thì tỉ lệ sống/hứa là None, không chia cho 0",
+         (_zz["tiLeSongTrenHua"] is None
+          and _zz["ganDay"]["tiLeSongTrenHua"] is None),
+         f"{_zz} — «hứa trên 0 giờ» là một lời hứa hỏng, không phải một "
+         f"lời hứa vô hạn")
 
 
 def kiem_danh_muc() -> None:
