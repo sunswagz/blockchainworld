@@ -8414,6 +8414,57 @@ def kiem_hien_phap() -> None:
              f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
 
 
+def kiem_router_doi_lo_hong() -> None:
+    print("ROUTER go duoc khoan nao thi PHAI thay bang khoan khac")
+    import importlib
+
+    # BA ty khai `ROUTER_GO_DUOC`, và cả ba dùng cùng một lối: Router đo
+    # được thì khoản ấy biến khỏi `phiConThieu`, THAY bằng những khoản
+    # chính Router khai là nó chưa tính. Đổi một lỗ hổng lấy một lỗ hổng
+    # NHỎ HƠN ĐÃ ĐƯỢC ĐẶT TÊN, không phải xoá lỗ hổng.
+    #
+    # Chỗ nguy hiểm nằm ở nhánh KHÔNG đo được. `can_loi.phi_bps()` viết
+    # `phiCauUsd or 0.0`: phí cầu chưa đo được thì KHÔNG cộng gì. Một mình
+    # dòng ấy là «đọc CHƯA ĐO thành 0» — điều `none-khac-khong` cấm. Nó
+    # hợp lệ CHỈ VÌ khai báo `chuyen-von-giua-chuoi` ở lại. Bỏ khai báo đi
+    # thì dòng `or 0.0` lập tức thành một lời nói dối, và không phép kiểm
+    # nào của ty ấy đỏ lên.
+    #
+    # Hôm nay chuyện «Router không đo được» KHÔNG phải giả định: LI.FI ăn
+    # 429 và nghỉ 83 phút. Đúng cửa sổ ấy là lúc khai báo phải còn đó.
+    ba = [("tin_dung.ty_vay", "tin dụng"),
+          ("lai_suat.ty_lai_suat", "Pendle PT"),
+          ("on_dinh.ty_on_dinh", "chênh stablecoin")]
+    thay = 0
+    for ten, nhan in ba:
+        m = importlib.import_module(ten)
+        go = getattr(m, "ROUTER_GO_DUOC", None)
+        pct = getattr(m, "PHI_CON_THIEU", None)
+        f = getattr(m, "_phi_con_thieu", None)
+        if go is None or f is None or pct is None:
+            continue
+        thay += 1
+        kiem(f"[{nhan}] mọi khoản Router gỡ được đều CÓ trong khai báo gốc",
+             set(go) <= set(pct),
+             f"{sorted(set(go) - set(pct))} — gỡ một khoản chưa từng được "
+             f"khai là một cơ chế không làm gì mà trông như đang làm")
+        mu = set(f(False))
+        kiem(f"[{nhan}] Router MÙ thì khai báo Ở LẠI, không lặng lẽ về 0",
+             set(go) <= mu,
+             f"{sorted(set(go) - mu)} — `phiCauUsd or 0.0` chỉ trung thực "
+             f"khi khoản thiếu ấy còn được khai ở chỗ khác")
+        do = set(f(True, ("rui-ro-cau-noi",)))
+        kiem(f"[{nhan}] Router ĐO ĐƯỢC thì khoản ấy biến mất",
+             not (set(go) & do), f"{sorted(set(go) & do)}")
+        kiem(f"[{nhan}] và được THAY bằng khoản Router tự khai còn thiếu",
+             "router:rui-ro-cau-noi" in do,
+             f"{sorted(do)} — xoá một lỗ hổng mà không đặt tên lỗ hổng mới "
+             f"là làm cơ hội trông sạch hơn thực tế")
+    kiem("đủ BA ty khai ROUTER_GO_DUOC đều được soát", thay == 3,
+         f"{thay}/3 — thêm một ty dùng Router mà quên khai là thêm một chỗ "
+         f"đọc CHƯA ĐO thành 0 mà không ai canh")
+
+
 def kiem_chan_doan_doc_dung_khoa() -> None:
     print("KHOA chan doan doc: co that trong anh chup khong")
     import ast
@@ -8840,6 +8891,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_router_doi_lo_hong()
     kiem_chan_doan_doc_dung_khoa()
     kiem_ly_do_cong_ty()
     kiem_khoa_cu_doi_ten()
