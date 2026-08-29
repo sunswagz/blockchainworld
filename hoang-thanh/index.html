@@ -45,7 +45,7 @@
      hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #than thì
      onclick trả undefined và trình duyệt nhảy theo lối thường — hụt
      nhẹ chứ không chết. -->
-<a class="bo-qua" href="#than" onclick="var m=document.getElementById('than');if(m){m.focus();return false}">Bỏ qua thanh bên, vào thẳng nội dung</a>
+<a class="bo-qua" href="#chinh" onclick="var m=document.getElementById('chinh');if(m){m.focus();return false}">Bỏ qua thanh bên, vào thẳng nội dung</a>
 
 
 <div class="khung">
@@ -72,7 +72,19 @@
     </div>
   </nav>
 
-  <main class="than-ngoai" id="than" tabindex="-1">
+  <!-- id="chinh" là đích của đường nhảy qua thanh bên; #than bên
+       dưới là chỗ app.js vẽ phòng — ĐỪNG gộp hai cái làm một.
+       Bản đầu của đường nhảy (07894c4) gắn id="than" lên chính thẻ
+       <main> này, mà bên trong đã có sẵn <div id="than">. Trình
+       duyệt lấy thẻ ĐẦU TIÊN mang id đó, nên getElementById("than")
+       trả về <main>, và dòng than.innerHTML = p.ve() của app.js thổi
+       bay đỉnh trang, dải cảnh báo số liệu cũ, vùng loa aria-live và
+       cả chân trang khai nguồn — mỗi lần đổi phòng.
+       Phiếu đo KHÔNG bắt được: phòng vẫn vẽ ra, chỉ là vào nhầm thẻ,
+       nên thước "Mọi phòng vẽ được" vẫn xanh. Vòng tiến hoá của Thái
+       Bộc Tự mới là chỗ phát hiện, và nó ghi lại trong
+       factory/tien-hoa.jsonl. -->
+  <main class="than-ngoai" id="chinh" tabindex="-1">
 
     <header class="dinh">
       <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
