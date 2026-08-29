@@ -1063,6 +1063,31 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[39] VỐN CỦA BOT KHÔNG PHẢI TỔNG SỐ DƯ VÍ")
+    import trader.broker_testnet as _BT39
+
+    # Ví testnet có sẵn 1 BTC mà không chiến lược nào mở — 89% "vốn". Đo được:
+    # sụt giảm 2,39% trong khi giao dịch chỉ lỗ 510 đô; 1.634 đô còn lại, tức
+    # 76%, là giá BTC nhúc nhích. BTC rơi 10% là vốn rơi 8,9% — gần chạm kill
+    # switch 10% MÀ KHÔNG CÓ LỆNH NÀO. Bot bị dừng vì thứ nó không hề mở.
+    #
+    # Đây là phép kiểm ở tầng MÃ NGUỒN: dựng một TestnetBroker thật cần mạng.
+    _src39 = (ROOT / "trader" / "broker_testnet.py").read_text(encoding="utf-8")
+    check("DINH_NGHIA_VON" in _src39,
+          "sổ tài khoản mang dấu phiên bản của cách tính vốn")
+    check("for t in self.state[" + chr(34) + "positions" + chr(34) + "]:" in _src39,
+          "vốn cộng theo VỊ THẾ đang giữ, không quét toàn ví")
+    check("viNgoai" in _src39,
+          "tài sản lạ trong ví vẫn được BÁO RA, chỉ là không tính vào vốn")
+
+    # Cửa nguy hiểm nhất: đổi định nghĩa mà giữ đỉnh cũ thì ngắt mạch thấy sụt
+    # giảm 89% và chốt cứng ngay lượt đầu. Phải đặt lại đỉnh khi dấu lệch.
+    _i_ver = _src39.index("dinhNghiaVon" + chr(34) + ") != DINH_NGHIA_VON")
+    _i_pk = _src39.index("peak = max(self.state.get")
+    check(_i_ver < _i_pk,
+          "kiểm dấu phiên bản NGAY TRƯỚC khi tính đỉnh, không phải sau")
+    check("self.state[" + chr(34) + "peakEquity" + chr(34) + "] = equity" in _src39,
+          "và đặt lại đỉnh về vốn hiện tại khi dấu lệch")
     print("\n[38] QUÉT NHIỀU CHỢ: MẶC ĐỊNH KHÔNG ĐỔI HÀNH VI")
     from trader.loop import Runtime as _RT38
 

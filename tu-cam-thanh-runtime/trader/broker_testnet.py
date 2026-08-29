@@ -33,6 +33,13 @@ from . import store
 
 ACCOUNT_FILE = "account_testnet.json"
 
+# Dấu phiên bản của CÁCH TÍNH VỐN. Tăng khi đổi công thức — sổ tài khoản mang
+# dấu này, và lệch dấu thì đỉnh vốn được đặt lại thay vì đem so hai định nghĩa
+# khác nhau với nhau.
+#   1 = tổng số dư ví (quote + mọi tài sản × giá)
+#   2 = tiền quote + các vị thế BOT đang giữ
+DINH_NGHIA_VON = 2
+
 
 def _now() -> str:
     return _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
@@ -410,11 +417,34 @@ class TestnetBroker:
                 # chợ chính. Quét 15 coin mà tính vốn bằng "USDT + BTC×giá BTC"
                 # là bỏ sót ETH, SOL… đang nắm — vốn thấp hơn thật, và vốn sai
                 # thì cỡ vị thế sai ở MỌI lệnh sau đó.
+                # VỐN CỦA BOT = tiền quote + giá trị các vị thế NÓ ĐANG GIỮ.
+                # KHÔNG phải tổng số dư ví.
+                #
+                # Ví testnet này có sẵn 1 BTC mà không chiến lược nào mở — 89%
+                # "vốn". Đo được: mức sụt giảm 2,39% trong khi giao dịch chỉ lỗ
+                # 510 đô; 1.634 đô còn lại, tức 76%, là giá BTC nhúc nhích. Và
+                # BTC rơi 10% là vốn rơi 8,9% — gần chạm kill switch 10% MÀ
+                # KHÔNG CÓ LỆNH NÀO. Bot bị dừng vì thứ nó không hề mở.
+                #
+                # Đếm theo vị thế đang theo dõi thì tài sản lạ trong ví không
+                # lọt vào: mua BTC là quote giảm và một vị thế xuất hiện, nên
+                # hai vế vẫn khớp. Số dư ví vẫn được báo riêng ở `viNgoai` —
+                # loại nó khỏi phép tính không có nghĩa là giấu nó đi.
                 gia = price if isinstance(price, dict) else {self.symbol: price}
                 f = self.client.filters(self.symbol)
                 bal = self.client.balances()
                 quote = bal.get(f["quote"], {})
                 equity = quote.get("total", 0.0)
+                for t in self.state["positions"]:
+                    g = gia.get(t.get("symbol") or self.symbol)
+                    if g:
+                        equity += (t.get("qty") or 0.0) * g
+                # Tài sản trong ví KHÔNG thuộc vị thế nào — báo ra, không tính vào.
+                ngoai = 0.0
+                _giu = {}
+                for t in self.state["positions"]:
+                    _s = t.get("symbol") or self.symbol
+                    _giu[_s] = _giu.get(_s, 0.0) + (t.get("qty") or 0.0)
                 for sym, g in gia.items():
                     try:
                         fi = self.client.filters(sym)
@@ -422,7 +452,10 @@ class TestnetBroker:
                         continue
                     if fi["quote"] != f["quote"]:
                         continue
-                    equity += bal.get(fi["base"], {}).get("total", 0.0) * g
+                    du = bal.get(fi["base"], {}).get("total", 0.0) - _giu.get(sym, 0.0)
+                    if du > 0:
+                        ngoai += du * g
+                s["viNgoai"] = round(ngoai, 2)
                 # Tiền MUA ĐƯỢC, không phải vốn: phần USDT đang rảnh. Risk Engine
                 # cần con số này để không sinh ra lệnh mà sàn chắc chắn từ chối.
                 avail = quote.get("free", 0.0)
@@ -434,6 +467,24 @@ class TestnetBroker:
         s["equityKnown"] = da_doc
 
         # Đỉnh vốn chỉ được cập nhật bằng con số ĐÃ ĐỌC ĐƯỢC.
+        # ĐỔI ĐỊNH NGHĨA VỐN thì phải đặt lại ĐỈNH VỐN.
+        #
+        # Đỉnh cũ (89.587) đo theo "tổng số dư ví"; vốn mới đo theo "tiền quote
+        # + vị thế bot giữ" và ra ~9.500. Giữ nguyên đỉnh cũ là ngắt mạch thấy
+        # sụt giảm 89% rồi CHỐT CỨNG kill switch ngay lượt đầu — đúng loại lỗi
+        # đã xảy ra một lần ở đây.
+        #
+        # Nhận ra bằng một dấu phiên bản trong chính sổ tài khoản, không bằng
+        # ngưỡng đoán mò: ngưỡng kiểu "lệch quá 50% thì đặt lại" sẽ nuốt luôn
+        # một cú sụt thật 50%.
+        if da_doc and self.state.get("dinhNghiaVon") != DINH_NGHIA_VON:
+            _cu = self.state.get("peakEquity", 0.0)
+            bus.log("exec", "doi-dinh-nghia-von",
+                    f"vốn đổi cách tính (đỉnh cũ {_cu:,.0f} đo theo tổng số dư ví)"
+                    f" — đặt lại đỉnh về {equity:,.0f}. Không đặt lại thì ngắt"
+                    f" mạch thấy sụt giảm giả và chốt cứng kill switch.")
+            self.state["peakEquity"] = equity
+            self.state["dinhNghiaVon"] = DINH_NGHIA_VON
         peak = max(self.state.get("peakEquity", 0.0), equity) if da_doc \
             else self.state.get("peakEquity", 0.0)
         self.state["peakEquity"] = peak
