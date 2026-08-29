@@ -181,6 +181,42 @@ class KetQuaPhien:
         }
 
 
+def _don_so_phien(tm) -> None:
+    """Xoá sổ của PHIÊN TRƯỚC trong `tm`. Chỉ gọi cho thư mục riêng.
+
+    `So.ghi` luôn NỐI THÊM — đúng cho sổ thật, sai cho phiên phát lại.
+    Phiên phát lại chạy đi chạy lại trên cùng một cuộn băng, nên mỗi lần
+    chạy lại ghi lại đúng những cửa sổ ấy. Đo được trên đĩa 30/08/2026:
+
+        33 dòng sổ · chỉ 6 mốc thời gian RIÊNG BIỆT · một mốc lặp 8 lần
+        tổng lãi lỗ đọc từ file: $165,89 — gấp năm lần sự thật $32,99
+
+    Báo cáo trong phiên vẫn đúng vì nó đếm trên `kq` của phiên. Nhưng
+    thứ CÒN LẠI TRÊN ĐĨA là thuốc độc: ai đọc file ấy để chấm phiên giấy
+    sẽ thấy một con số gấp năm. Đúng cái bẫy đã cắn ở `chay_lai` (đếm
+    mỗi cửa sổ 44 lần → +2,9 triệu đô trên tài khoản 1.000 đô), lần này
+    ở một file khác.
+
+    Sổ hiệu chỉnh cũng phải xoá, và lý do NẶNG HƠN: nếu phiên trước để
+    lại `hieu-chinh.json`, phiên sau khai sinh đã có bảng nắn khớp trên
+    kết quả của chính quãng băng nó sắp chạy — tức NHÌN TRỘM TƯƠNG LAI.
+    Hiện chưa xảy ra vì 17 mẫu không đủ để ghi, nhưng băng dày thêm là
+    nó xảy ra, và xảy ra im lặng.
+    """
+    from .config import DATA_DIR as _DD
+    for ten in ("ket-toan.jsonl", "hieu-chinh.json"):
+        f = tm / ten
+        # Chặn cứng: KHÔNG bao giờ được chạm sổ thật. Một lỗi truyền
+        # `thuMucSo` sai ở đây là xoá sạch sổ kết toán thật.
+        try:
+            if f.resolve().parent == _DD.resolve():
+                raise RuntimeError(
+                    f"từ chối xoá {f} — đó là thư mục sổ THẬT")
+        except OSError:
+            pass
+        if f.exists():
+            f.unlink()
+
 class PhienPhatLai:
     """Một phiên giấy TRỌN VẸN trên băng đã ghi.
 
@@ -208,6 +244,7 @@ class PhienPhatLai:
         tm = _P(thuMucSo) if thuMucSo else None
         if tm is not None:
             tm.mkdir(parents=True, exist_ok=True)
+            _don_so_phien(tm)
         self.kho = Kho()
         # ĐỒNG HỒ CỦA BĂNG, không phải đồng hồ tường. Trần lỗ NGÀY cần một
         # ranh giới ngày; chạy lại tám ngày bằng đồng hồ tường thì với nó

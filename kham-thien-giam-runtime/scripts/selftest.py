@@ -2602,11 +2602,26 @@ def kiem_nhom_tai_san() -> None:
 
 def kiem_vong_tien_hoa() -> None:
     print("\n── Vòng tiến hoá: một lượt đầy đủ, không ghi gì ──────────────")
+
+    # Chụp sổ TRƯỚC khi chạy. Bản trước viết
+    #     not SO_TIEN_HOA.exists() or True
+    # — `or True` làm phép kiểm không bao giờ trượt được. Ai đó gặp trở
+    # ngại (sổ nằm ở KTG_DATA_DIR tạm nên có thể đã tồn tại) rồi vô hiệu
+    # hoá phép kiểm thay vì sửa nó. Mà "chế độ thử không ghi gì" là cả
+    # cơ sở của cờ `--thu`: nếu nó sai thì một lượt CHẠY THỬ ghi thật
+    # vào sổ tiến hoá, và không ai biết.
+    #
+    # Cách đúng: so bytes trước/sau. Đúng dù sổ có sẵn hay chưa.
+    truocSo = SO_TIEN_HOA.read_bytes() if SO_TIEN_HOA.exists() else None
+
     kq = tien_hoa_mot_luot(thu=True)
     kiem("chạy được một lượt mà không ném", kq is not None)
     kiem("luôn ghi lại triệu chứng", len(kq.trieuChung) >= 1)
-    kiem("chế độ thử KHÔNG ghi sổ",
-         not SO_TIEN_HOA.exists() or True)   # sổ nằm ở KTG_DATA_DIR tạm
+
+    sauSo = SO_TIEN_HOA.read_bytes() if SO_TIEN_HOA.exists() else None
+    kiem("chế độ thử KHÔNG ghi sổ — không đổi một byte nào",
+         sauSo == truocSo,
+         f"trước {len(truocSo or b'')} byte, sau {len(sauSo or b'')} byte")
     kiem("có ghi chú giải thích kết quả", bool(kq.ghiChu))
 
     dt = duong_tien_hoa()
@@ -3386,6 +3401,136 @@ def kiem_doc_bang_quet() -> None:
     kiem("và câu kết nói ĐỨNG NGOÀI chứ không nói LỖ",
          "ĐỨNG NGOÀI" in src)
 
+def kiem_so_phien_khong_tich_lai() -> None:
+    """Sổ của phiên phát lại phải SẠCH mỗi lần chạy.
+
+    `So.ghi` luôn nối thêm — đúng cho sổ thật, sai cho phiên phát lại,
+    vì phiên ấy chạy đi chạy lại trên CÙNG một cuộn băng. Đo trên đĩa
+    30/08/2026: 33 dòng sổ, chỉ 6 mốc thời gian riêng biệt, một mốc lặp
+    8 lần, tổng lãi lỗ đọc từ file $165,89 — gấp năm lần sự thật $32,99.
+
+    Báo cáo trong phiên vẫn đúng (nó đếm trên `kq`), nhưng thứ CÒN LẠI
+    TRÊN ĐĨA là thuốc độc. Đúng bẫy đã cắn ở `chay_lai`: đếm mỗi cửa sổ
+    44 lần → +2,9 triệu đô trên tài khoản 1.000 đô.
+    """
+    print("\n── Sổ phiên phát lại: sạch mỗi lần chạy ──────────────────────")
+
+    import tempfile
+
+    from kham.config import DATA_DIR
+    from kham.phat_lai import _don_so_phien
+
+    with tempfile.TemporaryDirectory() as d:
+        tm = Path(d)
+        (tm / "ket-toan.jsonl").write_text('{"laiLo": 1}' + chr(10),
+                                           encoding="utf-8")
+        (tm / "hieu-chinh.json").write_text("{}", encoding="utf-8")
+        (tm / "khac.txt").write_text("giữ nguyên", encoding="utf-8")
+        _don_so_phien(tm)
+        kiem("xoá sổ kết toán của phiên trước",
+             not (tm / "ket-toan.jsonl").exists())
+        kiem("xoá cả sổ hiệu chỉnh — giữ lại là NHÌN TRỘM TƯƠNG LAI",
+             not (tm / "hieu-chinh.json").exists())
+        kiem("không đụng file khác trong thư mục",
+             (tm / "khac.txt").exists())
+        lai = None
+        try:
+            _don_so_phien(tm)   # gọi lại khi đã sạch
+        except Exception as e:  # noqa: BLE001
+            lai = repr(e)
+        kiem("gọi lại lúc đã sạch thì im lặng, không ném", lai is None, lai)
+
+    # Chặn cứng: một lỗi truyền `thuMucSo` sai là xoá sạch sổ kết toán
+    # THẬT. Cửa này phải đóng, và phải đóng bằng ngoại lệ chứ không phải
+    # bằng lời dặn trong tài liệu.
+    # Chụp trạng thái sổ thật TRƯỚC, để câu "vẫn còn nguyên" là một
+    # phép đo chứ không phải một hằng đúng.
+    fThat = Path(DATA_DIR) / "ket-toan.jsonl"
+    truoc = fThat.read_bytes() if fThat.exists() else None
+
+    nem = False
+    try:
+        _don_so_phien(Path(DATA_DIR))
+    except RuntimeError:
+        nem = True
+    except Exception:
+        nem = False
+    kiem("TỪ CHỐI xoá khi trỏ vào thư mục sổ THẬT", nem)
+
+    sau = fThat.read_bytes() if fThat.exists() else None
+    kiem("sổ thật KHÔNG suy suyển một byte nào", sau == truoc,
+         f"trước {len(truoc or b'')} byte, sau {len(sau or b'')} byte")
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    pl = (GOC_MA / "kham" / "phat_lai.py").read_text(encoding="utf-8")
+    kiem("phiên gọi dọn sổ ngay lúc khai sinh",
+         "_don_so_phien(tm)" in pl)
+
+def kiem_khong_co_phep_kiem_gia() -> None:
+    """Không phép kiểm nào được LUÔN ĐÚNG. Bộ kiểm tự soi chính nó.
+
+    Một phép kiểm không bao giờ trượt được thì tệ hơn không có phép kiểm:
+    nó xanh vĩnh viễn và làm người đọc tin rằng thứ nó nhắc tới đã được
+    canh. Tìm được hai cái, và cái nặng là:
+
+        kiem("chế độ thử KHÔNG ghi sổ",
+             not SO_TIEN_HOA.exists() or True)
+
+    `or True` — ai đó gặp trở ngại rồi vô hiệu hoá phép kiểm thay vì sửa
+    nó. Mà "chế độ thử không ghi gì" là cả cơ sở của cờ `--thu`: nếu nó
+    sai thì một lượt CHẠY THỬ ghi thật vào sổ tiến hoá.
+
+    Đây là bản trong-nhà của luật đã ghi ở [thước đo hỏng thì điểm đẹp]:
+    phiếu 7/7 có thể là thước gãy. Nên bộ kiểm phải tự soi được mình.
+    """
+    print("\n── Bộ kiểm tự soi: không phép kiểm nào luôn đúng ─────────────")
+
+    import ast as _ast
+
+    def luon_dung(n) -> bool:
+        """Biểu thức LUÔN đúng bất kể chương trình chạy ra sao?"""
+        if isinstance(n, _ast.Constant):
+            return bool(n.value)
+        if isinstance(n, _ast.BoolOp) and isinstance(n.op, _ast.Or):
+            # `X or True`
+            if any(isinstance(x, _ast.Constant) and bool(x.value)
+                   for x in n.values):
+                return True
+            # `A or not A`
+            dump = [_ast.dump(x) for x in n.values]
+            for i, x in enumerate(n.values):
+                if isinstance(x, _ast.UnaryOp) and isinstance(x.op, _ast.Not):
+                    if _ast.dump(x.operand) in dump[:i] + dump[i + 1:]:
+                        return True
+        return False
+
+    goc = Path(__file__).resolve()
+    cay = _ast.parse(goc.read_text(encoding="utf-8"))
+    xau = []
+    for n in _ast.walk(cay):
+        if not (isinstance(n, _ast.Call) and isinstance(n.func, _ast.Name)
+                and n.func.id == "kiem"):
+            continue
+        if len(n.args) >= 2 and luon_dung(n.args[1]):
+            nhan = (n.args[0].value if isinstance(n.args[0], _ast.Constant)
+                    else "?")
+            xau.append(f"dòng {n.lineno}: {str(nhan)[:50]}")
+    kiem("không phép kiểm nào luôn đúng", not xau, "; ".join(xau))
+
+    # Và phép dò tự chứng minh nó BẮT ĐƯỢC — không thì nó lại đúng là
+    # thứ nó đi tìm.
+    def dò(ma: str) -> bool:
+        c = _ast.parse(ma).body[0].value
+        return luon_dung(c.args[1])
+
+    kiem("bắt được `True`", dò('kiem("x", True)'))
+    kiem("bắt được `X or True`", dò('kiem("x", a.b() or True)'))
+    kiem("bắt được `not A or A`", dò('kiem("x", not p.exists() or p.exists())'))
+    kiem("KHÔNG bắt nhầm phép so thật", not dò('kiem("x", a == b)'))
+    kiem("KHÔNG bắt nhầm `A or B` khác nhau",
+         not dò('kiem("x", a.exists() or b.exists())'))
+    kiem("KHÔNG bắt nhầm `X or False`", not dò('kiem("x", a() or False)'))
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3448,6 +3593,8 @@ def main() -> int:
     kiem_phat_lai_khai_that()
     kiem_co_dong_lenh()
     kiem_doc_bang_quet()
+    kiem_so_phien_khong_tich_lai()
+    kiem_khong_co_phep_kiem_gia()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
