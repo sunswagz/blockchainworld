@@ -489,9 +489,22 @@
     var g = document.createDocumentFragment();
     var v = T.vi || {};
     var o = oKhung("Đài Quan Ví", v.soVi ? v.soVi + " ví" : "chưa quét");
+    // Ví NGÃ phải hiện trước, không thì "trống" đọc thành "chưa tới lượt"
+    // trong khi thật ra mọi ví đều hỏng — đúng hình dạng lỗi đã giấu
+    // `KeyError: gamma` mấy tiếng.
+    var nga = v.nga || {};
+    var tenNga = Object.keys(nga);
+    if (tenNga.length) {
+      o._than.appendChild(el("div", "canh",
+        tenNga.length + " ví NGÃ lượt quét vừa rồi — " +
+        tenNga.slice(0, 3).map(function (t) { return t + ": " + nga[t]; })
+          .join(" · ")));
+    }
     if (!v.vi || !v.vi.length) {
-      o._than.appendChild(chuaCo("Chưa quét ví nào. Lượt quét cách nhau 30 phút, nên trống ở đây "
-        + "chỉ có nghĩa là chưa tới lượt."));
+      o._than.appendChild(chuaCo(tenNga.length
+        ? "Trống vì MỌI ví đều ngã, không phải vì chưa tới lượt. Xem dòng trên."
+        : "Chưa quét ví nào. Lượt quét cách nhau 30 phút, nên trống ở đây "
+          + "chỉ có nghĩa là chưa tới lượt."));
     } else {
       o._than.appendChild(bang(
         ["ví", { t: "lệnh", num: 1 }, { t: "market", num: 1 },

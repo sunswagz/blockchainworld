@@ -24,6 +24,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 
 from .config import CONFIG
+from .bus import bus
 from .nguon import nguon
 
 _VI = CONFIG["vi"]
@@ -95,6 +96,7 @@ LUAT_NHAN = [
 class DaiQuanVi:
     def __init__(self) -> None:
         self.hoSo: dict[str, HoSoVi] = {}
+        self.nga: dict[str, str] = {}
         self._lanCuoiMs = 0.0
 
     def den_luot(self) -> bool:
@@ -102,13 +104,28 @@ class DaiQuanVi:
         return (time.time() * 1000.0 - self._lanCuoiMs) >= cach
 
     def quet(self, danhSach: list[str] | None = None) -> dict[str, HoSoVi]:
-        """Quét các ví theo dõi. Chỉ ĐỌC, không sao chép lệnh của ai."""
+        """Quét các ví theo dõi. Chỉ ĐỌC, không sao chép lệnh của ai.
+
+        Một ví hỏng KHÔNG được giết cả lượt quét — nhưng cũng không được
+        biến mất không dấu vết. Bản trước là `except Exception: continue`
+        trần: một `KeyError` trong `_mot_vi` làm MỌI ví trượt im lặng, và
+        buồng lái hiện "chưa quét ví nào" — không phân biệt được với
+        "chưa tới lượt". Đúng hình dạng lỗi đã giấu `KeyError: 'gamma'`
+        suốt mấy tiếng trong khi buồng lái vẫn xanh.
+
+        Nên: vẫn đi tiếp, nhưng GHI LẠI, và `tom_tat` khai ra.
+        """
         self._lanCuoiMs = time.time() * 1000.0
+        self.nga = {}
         for ten in (danhSach or _VI["theoDoi"]):
             try:
                 self.hoSo[ten] = self._mot_vi(ten)
-            except Exception:                       # noqa: BLE001
+            except Exception as e:                  # noqa: BLE001
+                self.nga[ten] = f"{type(e).__name__}: {e}"[:160]
                 continue
+        if self.nga:
+            bus.ghi(f"quét ví: {len(self.nga)}/{len(danhSach or _VI['theoDoi'])}"
+                    f" ví ngã — {'; '.join(list(self.nga)[:3])}", loai="canh")
         return self.hoSo
 
     def _mot_vi(self, ten: str) -> HoSoVi:
@@ -163,6 +180,9 @@ class DaiQuanVi:
     def tom_tat(self) -> dict:
         return {
             "soVi": len(self.hoSo),
+            # Ví nào ngã và vì sao. Không có trường này thì một lượt quét
+            # hỏng sạch trông y hệt một lượt quét chưa tới lượt.
+            "nga": dict(self.nga),
             "quetLucMs": self._lanCuoiMs,
             "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các "
                        "lần KHỚP. Không dựng lại được vòng đời báo giá, và vì "

@@ -3717,6 +3717,50 @@ def kiem_quyet_chan_la_loi_khuyen() -> None:
     kiem("và dán nhãn để không ai tưởng bot tự làm",
          "bot KHÔNG tự làm" in js)
 
+def kiem_quet_vi_khai_nga() -> None:
+    """Ví ngã phải hiện ra, không được biến mất không dấu vết.
+
+    `DaiQuanVi.quet` từng là `except Exception: continue` trần. Một
+    `KeyError` trong `_mot_vi` làm MỌI ví trượt im lặng, và buồng lái
+    hiện "Chưa quét ví nào. Lượt quét cách nhau 30 phút, nên trống ở đây
+    chỉ có nghĩa là chưa tới lượt." — một câu AN ỦI SAI, đúng lúc mọi
+    thứ đang hỏng.
+
+    Cùng hình dạng lỗi đã giấu `KeyError: gamma` suốt mấy tiếng, và cùng
+    cách chữa đã dùng cho nó: vẫn đi tiếp, nhưng GHI LẠI và KHAI RA.
+    """
+    print("\n── Quét ví: ngã thì phải khai ─────────────────────────────────")
+
+    import kham.vi as V
+
+    v = V.DaiQuanVi()
+    cu = V.nguon.hoat_dong_vi
+    try:
+        def no(*a, **k):
+            raise KeyError("gamma")
+        V.nguon.hoat_dong_vi = no
+        r = v.quet(["0xAAA", "0xBBB"])
+    finally:
+        V.nguon.hoat_dong_vi = cu
+
+    kiem("một ví hỏng không giết cả lượt quét", isinstance(r, dict))
+    kiem("ghi lại ĐỦ hai ví ngã", len(v.nga) == 2, v.nga)
+    kiem("và ghi cả LÝ DO, không chỉ tên",
+         all("KeyError" in x for x in v.nga.values()), v.nga)
+    kiem("`tom_tat` khai ra cho buồng lái đọc",
+         v.tom_tat().get("nga") == v.nga)
+
+    # Lượt sau sạch thì sổ ngã phải RỖNG lại — không thì một lỗi cũ ám
+    # mãi và người đọc thôi tin cái đèn ấy.
+    v.quet([])
+    kiem("lượt quét sau sạch thì sổ ngã rỗng lại", v.nga == {}, v.nga)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("buồng lái vẽ danh sách ví ngã", "v.nga" in js)
+    kiem("và KHÔNG còn an ủi sai khi mọi ví đều ngã",
+         "không phải vì chưa tới lượt" in js)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3784,6 +3828,7 @@ def main() -> int:
     kiem_phi_khong_bien_mat()
     kiem_phien_giay_dung_giai_doan()
     kiem_quyet_chan_la_loi_khuyen()
+    kiem_quet_vi_khai_nga()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
