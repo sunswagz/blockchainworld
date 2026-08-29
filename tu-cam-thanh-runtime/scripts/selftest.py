@@ -970,6 +970,25 @@ async def main() -> int:
     check(not _khong,
           "mọi script sinh kho đo đều đóng dấu lúc đo"
           + (f" — KHÔNG ĐÓNG DẤU: {_khong}" if _khong else ""))
+
+    # ── Đổi tên mã KHÔNG được báo là mất phép đo ──
+    #
+    # `that:TREND_UP` thành `that:khung?:TREND_UP` trong một commit, và bản bàn
+    # giao báo 5 phát hiện BIẾN MẤT kèm câu "nguồn không còn đủ mẫu, hoặc vừa
+    # hỏng" — lời giải thích sai về chuyện không xảy ra. Báo động sai dạy người
+    # ta bỏ qua báo động, nên nó không rẻ hơn im lặng.
+    _r = BG21._so({"phatHien": {"that:khung?:X": {}, "that-su-moi": {}}},
+                  {"phatHien": {"that:X": {}, "mat-that": {}}})
+    _t = " ".join(_r)
+    check("ĐỔI TÊN MÃ" in _t, "trùng đuôi mã → ngờ là đổi tên, không kêu mất")
+    check("that:X" in _t and "mat-that" in _t,
+          "vẫn liệt kê ĐỦ cả hai — ngờ đổi tên không được nuốt mất cái thật")
+
+    # Cửa ngược lại: mất thật thì KHÔNG được ngờ là đổi tên.
+    _r2 = BG21._so({"phatHien": {"hoan-toan-khac": {}}},
+                   {"phatHien": {"that:X": {}}})
+    check("ĐỔI TÊN MÃ" not in " ".join(_r2),
+          "không trùng đuôi nào → báo mất thẳng, không ngờ vẩn vơ")
     print("\n[20] HẬU KIỂM PHẢI NHƯỜNG TRẦN CHO LUẬN ĐIỂM")
     import trader.brain as _B20
 

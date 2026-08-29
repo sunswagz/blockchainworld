@@ -118,11 +118,29 @@ def _so(nay: dict, truoc: dict) -> list[str]:
     a, b = nay["phatHien"], truoc.get("phatHien") or {}
     moi = [k for k in a if k not in b]
     mat = [k for k in b if k not in a]
+
+    # ĐỔI TÊN MÃ đọc y hệt "biến mất + mới". Đã xảy ra: `that:TREND_UP` thành
+    # `that:khung?:TREND_UP` trong một commit, và bản bàn giao báo 5 phát hiện
+    # biến mất kèm câu "nguồn không còn đủ mẫu, hoặc vừa hỏng" — một lời giải
+    # thích sai về một chuyện không xảy ra. Báo động sai dạy người ta bỏ qua
+    # báo động.
+    #
+    # Không đoán bằng cách so nội dung câu: hai phát hiện khác nguồn có thể
+    # trùng câu, và đoán sai còn tệ hơn không đoán. Chỉ soi phần ĐUÔI của mã —
+    # quy ước đặt tên ở đây là `<loại>:<khung>:<chế độ>`, nên đổi tên thường
+    # chỉ chèn thêm một đoạn mà giữ nguyên đuôi.
+    duoi = lambda k: k.rsplit(":", 1)[-1]
+    doi_ten = {duoi(k) for k in moi} & {duoi(k) for k in mat}
+
     if moi:
         ra.append(f"**Phát hiện MỚI ({len(moi)}):** " + " · ".join(moi))
     if mat:
+        ngo = [k for k in mat if duoi(k) in doi_ten]
         ra.append(f"**Phát hiện BIẾN MẤT ({len(mat)}):** " + " · ".join(mat)
-                  + " — nguồn của chúng không còn đủ mẫu, hoặc vừa hỏng.")
+                  + " — nguồn của chúng không còn đủ mẫu, hoặc vừa hỏng."
+                  + (f" NHƯNG {len(ngo)} trong số đó có một phát hiện MỚI trùng"
+                     f" đuôi mã ({', '.join(sorted(ngo))}) — nhiều khả năng chỉ"
+                     f" là ĐỔI TÊN MÃ, không phải mất phép đo." if ngo else ""))
 
     # Đổi DẤU là thứ đáng báo nhất: cùng một phép đo, kết luận ngược lại.
     doi_dau = []
