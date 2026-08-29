@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./tang-thu-cac/assets/js/data.js)",
+      "Read(./tang-thu-cac/assets/data/**)",
+      "Read(**/tang-thu-cac/assets/js/data.js)",
+      "Read(**/tang-thu-cac/assets/data/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/chan-doc-du-lieu.mjs\" || exit 2",
+            "statusMessage": "Soi lệnh xem có đọc dữ liệu Tàng Thư Các không"
+          }
+        ]
+      }
+    ]
+  }
+}
