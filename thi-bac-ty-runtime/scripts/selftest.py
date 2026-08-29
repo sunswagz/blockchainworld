@@ -1734,6 +1734,75 @@ def kiem_so_cai() -> None:
     kiem("lãi lỗ không tính CAP_VON", gan(ll, 12.5 - 12.5 - 3.0),
          f"đang là {ll}")
 
+    # ── XOAY CHỖ: lời hứa đặt cạnh đời thật của vị thế ──────────────────
+    scX = SoCai(_tam("socai-xoay") / "so.sqlite3")
+
+    def _xoayGhi(so, cu, moi, hua, giu, gioHua=160.0, ty="lending.v1"):
+        ct = {"xoayCho": True, "taiSanCu": cu, "taiSanMoi": moi,
+              "loiRongUocUsd": hua, "daGiuGio": giu}
+        if gioHua is not None:
+            ct["gioChungHua"] = gioHua
+        so.ghi(ButToan("DONG_VI_THE", f"xoay chỗ · {cu} → {moi}", 0.0,
+                       ty, f"{cu}-{moi}-{giu}", ct))
+
+    kiem("chưa xoay lần nào thì mọi con số là None, không phải 0",
+         (scX.xoay_cho_hua_va_thuc()["soLan"] == 0
+          and scX.xoay_cho_hua_va_thuc()["gioGiuTrungVi"] is None),
+         "0 giờ nghĩa là «đã đo, và bằng không»; ở đây chưa đo gì cả")
+
+    # Một lần đóng THƯỜNG không được lẫn vào phép đo xoay chỗ.
+    scX.ghi(ButToan("DONG_VI_THE", "đóng · hết hạn giữ", 0.0, "lending.v1",
+                    "thuong-1", {"daGiuGio": 720.0}))
+    for g in (0.01, 0.02, 0.03, 5.0):
+        _xoayGhi(scX, "USDT", "SUSDAI", 40.0, g)
+    kiem("lần đóng THƯỜNG không bị đếm vào phép đo xoay chỗ",
+         scX.xoay_cho_hua_va_thuc()["soLan"] == 4,
+         "một vị thế hết hạn giữ sau 720 giờ mà lẫn vào đây thì trung vị "
+         "giờ giữ nhảy lên và cả phép đo im")
+    _xc = scX.xoay_cho_hua_va_thuc()
+    kiem("lời hứa cộng đúng", gan(_xc["huaLoiRongUsd"], 160.0),
+         f"{_xc['huaLoiRongUsd']}")
+    kiem("giờ giữ lấy TRUNG VỊ, không lấy trung bình",
+         gan(_xc["gioGiuTrungVi"], 0.025),
+         f"{_xc['gioGiuTrungVi']} — trung bình là 1,265: một lần giữ 5 giờ "
+         f"giữa ba lần giữ vài phút kéo nó lên năm mươi lần, và con số ấy "
+         f"đọc thành «giữ cũng khá lâu»")
+    kiem("tỉ lệ sống trên hứa = giờ giữ ÷ giờ hứa",
+         gan(_xc["tiLeSongTrenHua"], 0.025 / 160.0),
+         f"{_xc['tiLeSongTrenHua']}")
+    kiem("cặp đi–đến đếm từ TRƯỜNG, không tách từ câu lý do",
+         _xc["capLapNhieuNhat"][0] == {"cap": "USDT → SUSDAI", "soLan": 4},
+         f"{_xc['capLapNhieuNhat']} — tách chuỗi «xoay chỗ · A → B» là dựng "
+         f"phép phân tích trên câu văn, và câu văn đổi lúc nào không hay")
+    kiem("và đếm được có bao nhiêu cặp đi lại NHIỀU LẦN",
+         _xc["soCapDiLaiNhieuLan"] == 1, str(_xc))
+    kiem("cửa sổ GẦN ĐÂY cũng đếm cặp, không chỉ tổng cộng dồn",
+         (_xc["ganDay"]["capLapNhieuNhat"]
+          == [{"cap": "USDT → SUSDAI", "soLan": 4}]
+          and _xc["ganDay"]["soCapDiLaiNhieuLan"] == 1),
+         f"{_xc['ganDay']} — chẩn đoán đọc `ganDay`, nên bằng chứng phải "
+         f"nằm trong `ganDay`; để trống ở đó là dựng một triệu chứng nói "
+         f"về hôm nay mà không kèm được bằng chứng nào của hôm nay")
+    kiem("cửa sổ hẹp lại thì đếm ít đi — cửa sổ có thật, không phải nhãn",
+         scX.xoay_cho_hua_va_thuc(gioGanDay=0.0)["ganDay"]["soLan"] == 0
+         and scX.xoay_cho_hua_va_thuc(gioGanDay=0.0)["soLan"] == 4,
+         "cộng dồn cả đời KHÔNG đổi theo cửa sổ; chỉ `ganDay` đổi")
+
+    # Bút toán CŨ không có `gioChungHua`: khai ra là thiếu, đừng đếm
+    # thành 0 giờ hứa — bịa ra một lời hứa khiêm tốn chưa ai từng nói.
+    scY = SoCai(_tam("socai-xoay-cu") / "so.sqlite3")
+    _xoayGhi(scY, "USDT", "REUSD", 5.0, 0.01, gioHua=None)
+    _xoayGhi(scY, "DAI", "USD3", 5.0, 0.02, gioHua=None)
+    _yc = scY.xoay_cho_hua_va_thuc()
+    kiem("bút toán thiếu quãng hứa được ĐẾM RIÊNG, không lẫn vào trung vị",
+         (_yc["soThieuGioHua"] == 2 and _yc["gioHuaTrungVi"] is None
+          and _yc["tiLeSongTrenHua"] is None),
+         f"{_yc} — đếm thiếu thành 0 thì tỉ lệ sống/hứa hoá vô cực và cả "
+         f"phép đo thành vô nghĩa")
+    kiem("nhưng giờ GIỮ thì vẫn đo được, vì trường ấy có",
+         gan(_yc["gioGiuTrungVi"], 0.015),
+         f"{_yc['gioGiuTrungVi']} — mù một trường không phải mù cả hàng")
+
 
 def kiem_danh_muc() -> None:
     print("\n── Danh Mục: ba thước phơi nhiễm, ba câu hỏi khác nhau ───────")
@@ -2944,7 +3013,8 @@ def kiem_chan_doan_he() -> None:
     # bóp cổ họng để chữa nghẹn. Và hỏng im lặng: A/B thấy tệ hơn nên trả
     # lại, sổ ghi «trả lại», trông y hệt một quyết định thận trọng.
     from thi_bac_ty.chan_doan_he import (
-        NUT_TRUNG_UONG as _NUT_HE, chan_doan_he as _cdh, de_xuat as _dxh)
+        NGUONG_SONG_TREN_HUA, NUT_TRUNG_UONG as _NUT_HE,
+        chan_doan_he as _cdh, de_xuat as _dxh)
     kiem("mọi núm Trung Ương đều khai CỰC của mình",
          all("cuc" in v and v["cuc"] in (1, -1)
              for v in _NUT_HE.values()),
@@ -3223,6 +3293,91 @@ def kiem_chan_doan_he() -> None:
     kiem("và `de_xuat` cũng bỏ qua nó, kể cả khi có ai đó thêm núm",
          all(x.vi != "phi-vao-an-het"
              for x in _dxh(_cdh(_anhTL), {"ruiRoTong": {"tranMotTy": 0.5}})),
+         "hai lớp chặn, vì lớp trong nằm ở file khác")
+
+    # ── XOAY CHỖ hứa dài hơn đời thật của vị thế ────────────────────────
+    #
+    # Đo làn thật 30/08: 267 lần xoay trong 39 phút, tổng lời hứa
+    # +11.136 USD trên sổ 10.000 USD, trong khi chính ty được xoay nhiều
+    # nhất đang âm 77,51 USD. Trung vị số giờ giữ được trước lần xoay kế:
+    # 0,008 giờ. Lời hứa dài hơn đời thật khoảng hai vạn lần.
+    def _anhXC(**kw):
+        o = {"soLan": 267, "huaLoiRongUsd": 11136.0, "gioHuaTrungVi": 160.0,
+             "gioGiuTrungVi": 0.008, "tiLeSongTrenHua": 0.00005,
+             "soThieuGioHua": 0, "gioCuaSo": 24.0,
+             "capLapNhieuNhat": [{"cap": "USDT → SUSDAI", "soLan": 31}],
+             "soCapDiLaiNhieuLan": 7}
+        o.update(kw)
+        return {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                      "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+                "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+                # Cộng dồn CẢ ĐỜI để đó, còn chẩn đoán phải đọc `ganDay`:
+                # bệnh đã khỏi mà số cộng dồn thì không bao giờ giảm.
+                "soCai": {"xoayChoHuaVaThuc": {
+                    "soLan": 9999, "huaLoiRongUsd": 999999.0,
+                    "tiLeSongTrenHua": 0.000001, "ganDay": o}}}
+
+    _xc = {x.ma: x for x in _cdh(_anhXC())}
+    kiem("vị thế mới sống được 0,005% quãng đã hứa → KÊU, và kêu NẶNG",
+         "xoay-cho-hua-qua" in _xc and _xc["xoay-cho-hua-qua"].nang == 3,
+         f"{sorted(_xc)} — lời hứa cộng trước lãi của 160 giờ trong khi vị "
+         f"thế sống 30 giây; phí thì trả đủ mỗi lần")
+    kiem("và nó mang cả hai con số ra làm bằng chứng, không chỉ kết luận",
+         (_xc["xoay-cho-hua-qua"].bangChung.get("gioHuaTrungVi") == 160.0
+          and _xc["xoay-cho-hua-qua"].bangChung.get("gioGiuTrungVi")
+          == 0.008),
+         str(_xc["xoay-cho-hua-qua"].bangChung))
+
+    kiem("sống ĐỦ phần lời hứa thì im — đây không phải cảnh báo luôn bật",
+         not any(x.ma == "xoay-cho-hua-qua"
+                 for x in _cdh(_anhXC(tiLeSongTrenHua=0.5,
+                                      gioGiuTrungVi=80.0))),
+         "một cảnh báo không bao giờ tắt được là một cảnh báo người ta bỏ "
+         "qua")
+    kiem("ĐÚNG BẰNG ngưỡng sống/hứa thì cũng im",
+         not any(x.ma == "xoay-cho-hua-qua"
+                 for x in _cdh(_anhXC(tiLeSongTrenHua=NGUONG_SONG_TREN_HUA))),
+         "ngưỡng ĐÓNG: bằng ngưỡng là còn đạt")
+    kiem("chưa đủ 30 lần xoay thì chưa dám kết luận",
+         not any(x.ma.startswith("xoay-cho")
+                 for x in _cdh(_anhXC(soLan=5))),
+         "trung vị dựng trên năm mẫu là tiếng ồn, và một lần xoay giữ ngắn "
+         "có thể chỉ vì runtime khởi động lại")
+
+    # Và cửa sổ GẦN ĐÂY mới là thứ chẩn đoán đọc. Cửa chặn «còn ghế trống
+    # thì không đuổi ai» đã dừng vòng xoay từ 29/08, nhưng 267 bút toán
+    # cũ nằm lại trong sổ mãi — đọc số cộng dồn là dựng một cảnh báo kêu
+    # đúng một lần rồi kêu mãi, kể cả sau khi bệnh đã khỏi.
+    kiem("bệnh đã KHỎI thì cảnh báo TẮT, dù sổ vẫn còn 9.999 lần cộng dồn",
+         not any(x.ma.startswith("xoay-cho")
+                 for x in _cdh(_anhXC(soLan=0, tiLeSongTrenHua=None,
+                                      gioGiuTrungVi=None,
+                                      gioHuaTrungVi=None))),
+         "một cảnh báo không bao giờ tắt được là một cảnh báo người ta học "
+         "cách bỏ qua")
+
+    # Chưa đo được thì NÓI RA là chưa đo được — im lặng ở đây đọc y hệt
+    # như «đã đo, và không sao cả».
+    _xcM = {x.ma: x for x in _cdh(_anhXC(gioHuaTrungVi=None,
+                                         tiLeSongTrenHua=None,
+                                         soThieuGioHua=267))}
+    kiem("bút toán cũ thiếu quãng hứa → KHAI RA, không im",
+         "xoay-cho-chua-doi-chieu" in _xcM
+         and "xoay-cho-hua-qua" not in _xcM,
+         f"{sorted(_xcM)}")
+    kiem("và nó KHÔNG đội lốt một kết luận: mức nhẹ, không phải mức nặng",
+         _xcM["xoay-cho-chua-doi-chieu"].nang == 1,
+         "«chưa đối chiếu được» không phải một phát hiện, nó là một lỗ")
+
+    kiem("cả hai đều KHÔNG khai núm nào — không có núm nào chữa được",
+         (_xc["xoay-cho-hua-qua"].nutGoiY == []
+          and _xcM["xoay-cho-chua-doi-chieu"].nutGoiY == []),
+         "đây là công thức cộng trước lãi của một quãng mà cỗ máy không "
+         "cho vị thế sống tới — vặn trần vốn ở đây là phạt nhầm chỗ")
+    kiem("và `de_xuat` cũng bỏ qua chúng, kể cả khi ai đó thêm núm",
+         all(not x.vi.startswith("xoay-cho")
+             for x in _dxh(_cdh(_anhXC()),
+                           {"ruiRoTong": {"tranMotTy": 0.5}})),
          "hai lớp chặn, vì lớp trong nằm ở file khác")
 
 

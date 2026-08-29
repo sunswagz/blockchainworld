@@ -451,6 +451,124 @@ class SoCai:
                                     if o["soLanVaoLenh"] else None)
         return ra
 
+    def xoay_cho_hua_va_thuc(self, gioGanDay: float = 24.0) -> dict:
+        """Mỗi lần XOAY CHỖ hứa bao nhiêu, và vị thế mới sống được bao lâu.
+
+        `xoay_cho` tính lợi ròng bằng `vốn × (aprMới − aprCũ) × giờChung /
+        8.760`, tức là nó CỘNG TRƯỚC phần lãi hơn của cả `giờChung` giờ —
+        có thể tới 167 giờ — rồi trừ phí đổi một lần. Phép tính ấy chỉ
+        đúng nếu vị thế mới THẬT SỰ sống hết chừng ấy giờ.
+
+        Đo trên làn thật 30/08: 267 lần xoay trong 39 phút, tổng lời hứa
+        **+11.136 USD** trên một cuốn sổ 10.000 USD, trong khi ty
+        `lending.rate_rotation.v1` đang âm 77,51 USD. Trung vị số giờ giữ
+        được trước lần xoay kế: **0,01 giờ** — ba mươi sáu giây. Lời hứa
+        dài hơn thực tế khoảng mười sáu nghìn lần.
+
+        Hàm này không phán xét, nó chỉ đặt hai con số cạnh nhau. Cùng
+        họ với `du_doan_va_thuc()`: một lời hứa không ai đối chiếu là một
+        lời hứa không tốn gì để nói.
+
+        `None` chứ không phải 0 ở mọi chỗ chưa đo được — bút toán cũ
+        không có `gioChungHua`, và đếm chúng thành 0 giờ hứa là bịa ra
+        một lời hứa khiêm tốn chưa ai từng nói.
+
+        **`ganDay` là chỗ để nhìn, không phải tổng cộng dồn.** Cửa chặn
+        «còn ghế trống thì không đuổi ai» vào ngày 29/08 đã dừng hẳn vòng
+        xoay ấy — nhưng 267 bút toán cũ thì nằm lại trong sổ mãi mãi. Một
+        con số cộng dồn cả đời sẽ kêu đúng một lần rồi kêu mãi, kể cả sau
+        khi bệnh đã khỏi, và một cảnh báo không bao giờ tắt được là một
+        cảnh báo người ta học cách bỏ qua. Cùng bài học `phi-vao-an-het`
+        đã học bằng mẫu số «vào bao nhiêu · đóng bao nhiêu».
+        """
+        try:
+            with self._mo() as con:
+                h = con.execute(
+                    "SELECT chienLuoc, chiTiet, luc FROM but_toan "
+                    "WHERE loai = 'DONG_VI_THE'").fetchall()
+        except (sqlite3.Error, OSError):
+            return {}
+        moc = _ms(bay_gio()) - int(max(0.0, gioGanDay) * 3_600_000)
+
+        so = 0
+        hua = 0.0
+        gioHua: list[float] = []
+        gioGiu: list[float] = []
+        thieuGioHua = 0
+        theoTy: dict = {}
+        cap: dict = {}
+        gan = {"soLan": 0, "huaLoiRongUsd": 0.0, "gioHua": [], "gioGiu": [],
+               "soThieuGioHua": 0}
+        capGan: dict = {}
+        for chienLuoc, ct, luc in h:
+            d = _json(ct) or {}
+            if not d.get("xoayCho"):
+                continue
+            if _ms(luc) >= moc:
+                gan["soLan"] += 1
+                gan["huaLoiRongUsd"] += float(d.get("loiRongUocUsd") or 0.0)
+                if d.get("gioChungHua") is None:
+                    gan["soThieuGioHua"] += 1
+                else:
+                    gan["gioHua"].append(float(d["gioChungHua"]))
+                if d.get("daGiuGio") is not None:
+                    gan["gioGiu"].append(float(d["daGiuGio"]))
+                ca, cb = d.get("taiSanCu"), d.get("taiSanMoi")
+                if ca and cb:
+                    capGan[f"{ca} → {cb}"] = capGan.get(f"{ca} → {cb}", 0) + 1
+            so += 1
+            hua += float(d.get("loiRongUocUsd") or 0.0)
+            gh = d.get("gioChungHua")
+            if gh is None:
+                thieuGioHua += 1
+            else:
+                gioHua.append(float(gh))
+            gg = d.get("daGiuGio")
+            if gg is not None:
+                gioGiu.append(float(gg))
+            t = theoTy.setdefault(str(chienLuoc), {"soLan": 0, "huaUsd": 0.0,
+                                                   "gioGiu": []})
+            t["soLan"] += 1
+            t["huaUsd"] += float(d.get("loiRongUocUsd") or 0.0)
+            if gg is not None:
+                t["gioGiu"].append(float(gg))
+            # Cặp đi–đến lấy từ TRƯỜNG, không tách từ câu lý do.
+            a, b = d.get("taiSanCu"), d.get("taiSanMoi")
+            if a and b:
+                cap[f"{a} → {b}"] = cap.get(f"{a} → {b}", 0) + 1
+
+        for t in theoTy.values():
+            t["gioGiuTrungVi"] = _trung_vi(t.pop("gioGiu"))
+
+        lap = sorted(cap.items(), key=lambda x: -x[1])
+        gGiu = _trung_vi(gioGiu)
+        gHua = _trung_vi(gioHua)
+        gnGiu = _trung_vi(gan.pop("gioGiu"))
+        gnHua = _trung_vi(gan.pop("gioHua"))
+        gan["gioGiuTrungVi"] = gnGiu
+        gan["gioHuaTrungVi"] = gnHua
+        gan["tiLeSongTrenHua"] = (None if not gnHua or gnHua <= 0
+                                  or gnGiu is None else gnGiu / gnHua)
+        gan["gioCuaSo"] = gioGanDay
+        lapGan = sorted(capGan.items(), key=lambda x: -x[1])
+        gan["capLapNhieuNhat"] = [{"cap": k, "soLan": v} for k, v in lapGan[:8]]
+        gan["soCapDiLaiNhieuLan"] = sum(1 for _, v in lapGan if v >= 3)
+        return {
+            "ganDay": gan,
+            "soLan": so,
+            "huaLoiRongUsd": hua,
+            "gioHuaTrungVi": gHua,
+            "gioGiuTrungVi": gGiu,
+            # Sống được bao nhiêu phần lời hứa. 1,0 là hứa đúng; 0,001 là
+            # lời hứa dài gấp nghìn lần đời thật của vị thế.
+            "tiLeSongTrenHua": (None if not gHua or gHua <= 0 or gGiu is None
+                                else gGiu / gHua),
+            "soThieuGioHua": thieuGioHua,
+            "theoTy": theoTy,
+            "capLapNhieuNhat": [{"cap": k, "soLan": v} for k, v in lap[:8]],
+            "soCapDiLaiNhieuLan": sum(1 for _, v in lap if v >= 3),
+        }
+
     def tom_tat(self) -> dict:
         try:
             with self._mo() as con:
@@ -462,8 +580,23 @@ class SoCai:
         return {"soButToan": int(n or 0), "butDau": dau, "butCuoi": cuoi,
                 "theoLoai": self.tong_theo_loai(),
                 "laiLoTheoTy": self.lai_lo_theo_chien_luoc(),
+                "xoayChoHuaVaThuc": self.xoay_cho_hua_va_thuc(),
                 "soLoiGhi": self.soLoiGhi, "loiCuoi": self.loiCuoi,
                 "duong": self.duong.name, "chuaCo": not int(n or 0)}
+
+
+def _trung_vi(ds: list) -> float | None:
+    """Trung vị, `None` khi chưa có mẫu nào.
+
+    Trung vị chứ không phải trung bình: một lần xoay giữ được 7 giờ giữa
+    hai trăm lần giữ ba mươi giây sẽ kéo trung bình lên gấp đôi, và con
+    số ấy đọc thành «giữ cũng khá lâu».
+    """
+    if not ds:
+        return None
+    d = sorted(ds)
+    n = len(d)
+    return d[n // 2] if n % 2 else (d[n // 2 - 1] + d[n // 2]) / 2.0
 
 
 def _ms(iso: str) -> int:

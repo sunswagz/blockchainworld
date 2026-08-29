@@ -681,7 +681,19 @@ class TrungUong:
                  "phiUsd": so.phiCongDonUsd, "daGiuGio": daGiu,
                  "duDoanBpsGio": _bps_gio_du_doan(so.toTrinh),
                  "thucBpsGio": _bps_gio_thuc(laiLo, so.vonUsd, daGiu),
+                 # Tài sản đi và tài sản đến là TRƯỜNG, không phải chữ
+                 # trong câu lý do. Muốn biết có đang xoay vòng quanh
+                 # cùng một cặp hay không thì phải đếm được cặp ấy, mà
+                 # tách chuỗi "xoay chỗ · A → B" là dựng một phép phân
+                 # tích trên câu văn — đúng cái lỗi «mã chứ không phải
+                 # câu» đã sửa ở Sổ Đăng Ký.
                  "xoayCho": True, "aprCu": x.aprCu, "aprMoi": x.aprMoi,
+                 "taiSanCu": x.taiSanCu, "taiSanMoi": x.taiSanMoi,
+                 "chienLuocMoi": x.chienLuocMoi,
+                 # Lời hứa được TÍNH TRÊN chừng này giờ. Không ghi nó
+                 # xuống thì sau này không đối chiếu được lời hứa với
+                 # số giờ vị thế mới THẬT SỰ sống.
+                 "gioChungHua": x.gioChung,
                  "loiRongUocUsd": x.loiRongUsd}))
             self._xoa_dau_van(so.toTrinh)
             self.soViThe.pop(x.maCu, None)

@@ -105,6 +105,18 @@ TOI_THIEU_VON_GIO = 100.0
 #: trung bình của cả quãng — chúng lệch nhau chút ít là bình thường.
 NGUONG_HUA_QUA_DIEM = 2.0
 
+#: Bao nhiêu lần XOAY CHỖ mới đủ để nói lời hứa của nó không đứng vững.
+#: Ba mươi lần: dưới ngần ấy thì trung vị số giờ giữ được còn là tiếng ồn,
+#: và một lần xoay lẻ giữ ngắn có thể chỉ vì runtime khởi động lại.
+TOI_THIEU_LAN_XOAY = 30
+
+#: Vị thế mới phải sống được ít nhất chừng này PHẦN lời hứa. `xoay_cho`
+#: cộng trước phần lãi hơn của cả `gioChung` giờ rồi trừ phí đổi một lần;
+#: nếu vị thế mới chỉ sống 1% quãng ấy thì 99% lời hứa chưa bao giờ tới,
+#: mà phí thì đã trả đủ. Để 0,20 — sống được một phần năm lời hứa là còn
+#: cãi được; dưới nữa thì không.
+NGUONG_SONG_TREN_HUA = 0.20
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -403,6 +415,67 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"số bịa ấy.",
             {"soThuVuotTran": vuot, "nangNhat": x0}))
 
+    # ── 7bb. XOAY CHỖ hứa dài hơn đời thật của vị thế ──────────────────
+    #
+    # `xoay_cho` tính lợi ròng bằng `vốn × (aprMới − aprCũ) × giờChung /
+    # 8.760` — nó CỘNG TRƯỚC phần lãi hơn của cả quãng `giờChung`, có thể
+    # tới 167 giờ, rồi trừ phí đổi MỘT lần. Phép tính ấy chỉ đúng nếu vị
+    # thế mới thật sự sống hết chừng ấy giờ.
+    #
+    # Đo làn thật 30/08: 267 lần xoay trong 39 phút, tổng lời hứa
+    # +11.136 USD trên sổ 10.000 USD, trong khi chính ty được xoay nhiều
+    # nhất đang âm 77,51 USD. Trung vị số giờ giữ được trước lần xoay kế:
+    # 0,008 giờ — chưa tới ba mươi giây.
+    #
+    # Đây KHÔNG phải bệnh của tham số, và cũng không phải bệnh của người
+    # vận hành: nó là một lời hứa tính trên quãng thời gian mà chính cỗ
+    # máy không cho vị thế sống tới. Nên nó khai núm rỗng — cùng lý do
+    # với `phi-vao-an-het`.
+    # Đọc CỬA SỔ GẦN ĐÂY, không đọc tổng cộng dồn cả đời. Cửa chặn «còn
+    # ghế trống thì không đuổi ai» vào 29/08 đã dừng hẳn vòng xoay ấy,
+    # nhưng 267 bút toán cũ nằm lại trong sổ mãi mãi — đọc số cộng dồn là
+    # dựng một cảnh báo kêu đúng một lần rồi kêu mãi, kể cả sau khi bệnh
+    # đã khỏi. Cùng bài học mà `phi-vao-an-het` đã học bằng mẫu số «vào
+    # bao nhiêu · đóng bao nhiêu», và tôi suýt quên nó lần nữa ở đây.
+    xc = ((anh.get("soCai") or {}).get("xoayChoHuaVaThuc") or {})
+    xc = xc.get("ganDay") or {}
+    n_xoay = int(xc.get("soLan") or 0)
+    ti_song = xc.get("tiLeSongTrenHua")
+    if n_xoay >= TOI_THIEU_LAN_XOAY and ti_song is not None:
+        if ti_song < NGUONG_SONG_TREN_HUA:
+            gGiu = xc.get("gioGiuTrungVi")
+            gHua = xc.get("gioHuaTrungVi")
+            ra.append(TrieuChungHe(
+                "xoay-cho-hua-qua", 3,
+                f"{n_xoay} lần xoay chỗ trong "
+                f"{float(xc.get('gioCuaSo') or 0):.0f} giờ qua hứa tổng cộng "
+                f"{float(xc.get('huaLoiRongUsd') or 0.0):+.2f} USD lợi "
+                f"ròng, nhưng lời hứa ấy tính trên trung vị {gHua:.2f} giờ "
+                f"trong khi vị thế mới chỉ sống trung vị {gGiu:.3f} giờ — "
+                f"{ti_song * 100:.1f}% quãng đã hứa. Phần lãi hơn chưa bao "
+                f"giờ tới, còn phí đổi thì trả đủ mỗi lần. Không núm nào "
+                f"chữa được: đây là công thức cộng trước lãi của một quãng "
+                f"mà cỗ máy không cho vị thế sống tới.",
+                {"soLanXoay": n_xoay, "huaLoiRongUsd": xc.get("huaLoiRongUsd"),
+                 "gioHuaTrungVi": gHua, "gioGiuTrungVi": gGiu,
+                 "tiLeSongTrenHua": ti_song,
+                 "capLapNhieuNhat": xc.get("capLapNhieuNhat"),
+                 "soCapDiLaiNhieuLan": xc.get("soCapDiLaiNhieuLan")}))
+    elif n_xoay >= TOI_THIEU_LAN_XOAY and xc.get("soThieuGioHua"):
+        # KHAI RA chỗ không đo được, đừng im. Bút toán xoay cũ không ghi
+        # `gioChungHua`, nên tỉ lệ sống/hứa chưa tính được — và im lặng ở
+        # đây đọc y hệt như «đã đo, và không sao cả».
+        ra.append(TrieuChungHe(
+            "xoay-cho-chua-doi-chieu", 1,
+            f"{n_xoay} lần xoay chỗ trong "
+            f"{float(xc.get('gioCuaSo') or 0):.0f} giờ qua, nhưng "
+            f"{int(xc.get('soThieuGioHua') or 0)} lần trong đó không ghi "
+            f"lại quãng giờ mà lời hứa được tính trên — bút toán dựng "
+            f"trước khi trường ấy có. Chưa đối chiếu được lời hứa với đời "
+            f"thật của vị thế; những lần xoay từ nay sẽ ghi đủ.",
+            {"soLanXoay": n_xoay, "soThieuGioHua": xc.get("soThieuGioHua"),
+             "huaLoiRongUsd": xc.get("huaLoiRongUsd")}))
+
     # ── 7c. HỨA QUÁ, đo trên VỊ THẾ ĐANG MỞ ─────────────────────────────
     #
     # Bảng hứa-vs-thực (mục 8 dưới) chỉ nói về những lần ĐÃ ĐÓNG, và đòi
@@ -532,8 +605,9 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
     """
     for t in sorted(trieu, key=lambda x: -x.nang):
         if t.ma in ("thieu-to-trinh", "khoe", "di-tat", "phi-vao-an-het",
-                    "thu-vuot-tran"):
-            # NĂM cái này không vặn được bằng núm. `phi-vao-an-het` là
+                    "thu-vuot-tran", "xoay-cho-hua-qua",
+                    "xoay-cho-chua-doi-chieu"):
+            # BẢY cái này không vặn được bằng núm. `phi-vao-an-het` là
             # chuyện của người vận hành: siết trần vốn ở đây là rút vốn
             # khỏi một ty ĐANG làm ra tiền vì một buổi chiều deploy nhiều
             # lần.

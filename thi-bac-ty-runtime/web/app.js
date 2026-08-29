@@ -1292,6 +1292,95 @@
     if (xc.vi) kxc.appendChild(giai(xc.vi));
     f.appendChild(kxc);
 
+    /* XOAY CHỖ ĐÃ HỨA GÌ — và vị thế mới sống được bao lâu.
+
+       Bảng trên là lời hứa của vòng NÀY. Bảng này là hoá đơn của mọi
+       vòng đã qua. Đo làn thật 30/08: 267 lần xoay trong 39 phút, tổng
+       lời hứa +11.136 USD trên một cuốn sổ 10.000 USD — trong khi chính
+       ty được xoay nhiều nhất đang âm 77,51 USD. Trung vị số giờ giữ
+       được trước lần xoay kế: 0,008 giờ, chưa tới ba mươi giây.
+
+       Lời hứa cộng trước phần lãi hơn của cả `giờChung` (có thể 167
+       giờ) rồi trừ phí đổi MỘT lần. Phí trả đủ, lãi thì không bao giờ
+       tới. Một lời hứa không ai đối chiếu là một lời hứa không tốn gì
+       để nói — nên nó phải nằm ở đây, cạnh chính lời hứa ấy. */
+    var xhAll = (t.soCai || {}).xoayChoHuaVaThuc || {};
+    /* GẦN ĐÂY là con số phải nhìn. Cửa chặn «còn ghế trống thì không đuổi
+       ai» vào 29/08 đã dừng vòng xoay ấy, nhưng 267 bút toán cũ nằm lại
+       trong sổ mãi mãi — bày số cộng dồn lên đầu là dựng một ô đỏ không
+       bao giờ tắt được, và ô ấy thì người ta học cách bỏ qua. */
+    var xh = xhAll.ganDay || {};
+    if (xhAll.soLan) {
+      var kxh = khoi("Xoay chỗ đã hứa gì — và giữ được bao lâu",
+        "Lợi ròng của mỗi lần xoay tính trên quãng giờ hai bên cùng còn "
+        + "hiệu lực. Nếu vị thế mới bị xoay tiếp sau vài phút thì phần "
+        + "lãi hơn ấy chưa bao giờ tới, còn phí đổi đã trả đủ.");
+      var dxh = el("div", "day-so");
+      dxh.appendChild(oSo("Xoay trong " + so(xh.gioCuaSo, 0) + "h qua",
+        so(xh.soLan),
+        so(xhAll.soLan) + " lần cộng dồn cả đời",
+        (xh.soLan || 0) ? "" : "nhat"));
+      dxh.appendChild(oSo("Lời hứa " + so(xh.gioCuaSo, 0) + "h qua",
+        tien(xh.huaLoiRongUsd, 2),
+        "lợi ròng đã trừ phí · " + tien(xhAll.huaLoiRongUsd, 0)
+        + " cả đời"));
+      dxh.appendChild(oSo("Hứa trên",
+        xh.gioHuaTrungVi == null ? "—" : so(xh.gioHuaTrungVi, 1) + "h",
+        "trung vị quãng giờ lời hứa tính trên"));
+      var tl = xh.tiLeSongTrenHua;
+      dxh.appendChild(oSo("Giữ được thật",
+        xh.gioGiuTrungVi == null ? "—" : so(xh.gioGiuTrungVi, 3) + "h",
+        tl == null ? "chưa đối chiếu được"
+                   : so(tl * 100, 2) + "% quãng đã hứa",
+        tl == null ? "nhat" : (tl < 0.2 ? "am" : "duong")));
+      if (xh.soThieuGioHua) {
+        dxh.appendChild(oSo("Chưa đối chiếu được", so(xh.soThieuGioHua),
+          "bút toán cũ không ghi quãng hứa", "nhat"));
+      }
+      kxh.appendChild(dxh);
+      if (!xh.soLan) {
+        kxh.appendChild(giai("KHÔNG xoay lần nào trong cửa sổ này. Bảng "
+          + "dưới là hoá đơn cũ, giữ lại để đọc — không phải chuyện đang "
+          + "xảy ra."));
+      }
+      if ((xh.capLapNhieuNhat || []).length) {
+        /* Cùng một cặp đi–đến lặp lại hàng chục lần nghĩa là Phân Bổ mở
+           lại đúng cái chỗ Xoay Chỗ vừa bỏ. Hai tầng xếp hạng bằng hai
+           thước khác nhau — đô-la mỗi giờ và %/năm — nên chúng đổi chỗ
+           cho nhau mãi, và mỗi vòng trả thêm hai lần phí vào lệnh. */
+        kxh.appendChild(bang(
+          [{ t: "Cặp đi → đến" }, { t: "Số lần" }],
+          (xh.capLapNhieuNhat || []).map(function (x) {
+            return [{ t: x.cap },
+                    { t: so(x.soLan), c: x.soLan >= 3 ? "am" : "n" }];
+          })));
+        if (xh.soCapDiLaiNhieuLan) {
+          kxh.appendChild(giai(xh.soCapDiLaiNhieuLan + " cặp đi lại từ ba "
+            + "lần trở lên. Cùng một cặp lặp lại nghĩa là Phân Bổ mở lại "
+            + "đúng chỗ Xoay Chỗ vừa bỏ — hai tầng xếp hạng bằng hai "
+            + "thước khác nhau, và mỗi vòng qua lại trả thêm phí vào "
+            + "lệnh."));
+        }
+      }
+      var mxh = Object.keys(xhAll.theoTy || {});
+      if (mxh.length) {
+        kxh.appendChild(bang(
+          [{ t: "Ty (cộng dồn)" }, { t: "Số lần" }, { t: "Lời hứa" },
+           { t: "Giữ được (trung vị)" }],
+          mxh.sort(function (a2, b2) {
+            return (xhAll.theoTy[b2].soLan || 0)
+                 - (xhAll.theoTy[a2].soLan || 0);
+          }).map(function (k) {
+            var o = xhAll.theoTy[k] || {};
+            return [{ t: k }, { t: so(o.soLan), c: "n" },
+                    { t: tien(o.huaUsd, 2), c: "n" },
+                    { t: o.gioGiuTrungVi == null
+                         ? "—" : so(o.gioGiuTrungVi, 3) + "h", c: "n" }];
+          })));
+      }
+      f.appendChild(kxh);
+    }
+
     /* LỜI HỨA vs THỰC NHẬN — hậu kiểm cho TÁM ty không có băng. Ty chênh
        funding chạy lại băng được; tám ty kia thì tờ trình lúc mở đã hứa,
        sổ lúc đóng biết thực nhận. Trước đây những ty ĐANG kiếm được tiền
