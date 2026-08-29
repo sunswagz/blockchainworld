@@ -41,6 +41,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from trader import mau_gia  # noqa: E402
 from trader.config import CONFIG, DATA_DIR, ROOT  # noqa: E402
 
+NL = chr(10)
 GHI = "--ghi" in sys.argv
 CUA_SO = 120        # nến quá khứ đưa cho bộ nhận diện
 GIU = 48            # nến tối đa giữ một lệnh, giống bản chạy thật
@@ -241,6 +242,18 @@ def main() -> int:
         duong = [h for h in du if h["kyVongR"] > 0]
         print(f"{len(duong)}/{len(du)} mẫu đủ mẫu có kỳ vọng DƯƠNG sau phí")
 
+    # BỘ DÒ HỎNG phải hiện ra ở đây, không nằm im trong bộ nhớ.
+    #
+    # Một bộ dò ném lỗi cho ra 0 lần xuất hiện, và "0 lần" đọc y hệt "mẫu này
+    # hiếm": bảng vẫn đủ dòng, vẫn có cỡ mẫu, vẫn xanh. Với 22.997 lần xuất hiện
+    # trên 15 chợ, đây là nguồn bằng chứng lớn thứ hai của cả hệ.
+    if mau_gia.LOI_DO:
+        print(f"{NL}⚠ BỘ DÒ NÉM LỖI — những mẫu này đang bị đếm THIẾU:")
+        for ten, so in sorted(mau_gia.LOI_DO.items(), key=lambda x: -x[1]):
+            print(f"    {ten:22} {so:>7} lần · ví dụ: {mau_gia.LOI_DO_VIDU.get(ten)}")
+    else:
+        print(f"{NL}không bộ dò nào ném lỗi trong lượt này.")
+
     if GHI:
         f = DATA_DIR / "mau-gia.json"
         # `luc` từng là None ghi cứng: khoá có mặt nên phép canh "kho phải đóng
@@ -250,7 +263,8 @@ def main() -> int:
             "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
             "cho": da_do, "khung": CONFIG["timeframes"]["primary"],
             "nen": tong_nen, "cuaSo": CUA_SO,
-            "giu": GIU, "toiThieu": TOI_THIEU, "mau": hang},
+            "giu": GIU, "toiThieu": TOI_THIEU, "mau": hang,
+            "loiDo": dict(mau_gia.LOI_DO)},
             ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"\nđã ghi {f}")
     else:

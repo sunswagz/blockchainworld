@@ -360,6 +360,11 @@ BO_MAU = (
 )
 
 
+
+# Đếm lần một BỘ DÒ ném lỗi. Bộ dò hỏng cho ra 0 lần xuất hiện, và "0 lần" đọc
+# y hệt "mẫu này hiếm" — bảng vẫn đủ dòng, vẫn có cỡ mẫu, vẫn xanh.
+LOI_DO: dict[str, int] = {}
+LOI_DO_VIDU: dict[str, str] = {}
 def nhan_dien(c: Sequence[Candle], lr: int = 2) -> list[dict]:
     """Mọi mẫu ĐÃ XÁC NHẬN tại nến cuối của cửa sổ `c`.
 
@@ -373,25 +378,36 @@ def nhan_dien(c: Sequence[Candle], lr: int = 2) -> list[dict]:
     a = _atr(c, 14)
     atr_now = a[-1] if a and a[-1] else None
     ra = []
-    for _, ham in BO_MAU:
+
+    def _thu(ten, goi):
+        """Gọi một bộ dò, ĐẾM lần hỏng thay vì nuốt im lặng.
+
+        Bộ dò hỏng cho ra 0 lần xuất hiện, và "0 lần" đọc y hệt "mẫu này hiếm".
+        Bảng mẫu giá khi đó vẫn đủ 14 dòng, vẫn có cỡ mẫu, vẫn xanh — chỉ một
+        dòng nói dối. Với 22.997 lần xuất hiện trên 15 chợ, đó là nguồn bằng
+        chứng lớn thứ hai của cả hệ.
+
+        Vẫn nuốt lỗi để một bộ dò hỏng không giết cả lượt quét — nhưng đếm vào
+        `LOI_DO`, và `do-mau-gia.py` in ra ở cuối bảng.
+        """
         try:
-            m = (ham(c, s, atr_now) if ham in (coc_tay_cam,) else ham(c, s))
-        except (KeyError, IndexError, TypeError, ZeroDivisionError):
-            continue
+            return goi()
+        except (KeyError, IndexError, TypeError, ZeroDivisionError) as e:
+            LOI_DO[ten] = LOI_DO.get(ten, 0) + 1
+            LOI_DO_VIDU.setdefault(ten, f"{type(e).__name__}: {e}")
+            return None
+
+    for _ten, ham in BO_MAU:
+        m = _thu(_ten, (lambda h=ham: h(c, s, atr_now) if h in (coc_tay_cam,)
+                        else h(c, s)))
         if m:
             ra.append(m)
     for ham in (co,):
-        try:
-            m = ham(c, s, atr_now)
-        except (KeyError, IndexError, TypeError, ZeroDivisionError):
-            m = None
+        m = _thu(ham.__name__, lambda h=ham: h(c, s, atr_now))
         if m:
             ra.append(m)
     for ham in (nen_trong, nen_trum):
-        try:
-            m = ham(c, atr_now)
-        except (KeyError, IndexError, TypeError, ZeroDivisionError):
-            m = None
+        m = _thu(ham.__name__, lambda h=ham: h(c, atr_now))
         if m:
             ra.append(m)
     return ra

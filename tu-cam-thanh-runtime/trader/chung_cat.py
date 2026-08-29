@@ -484,6 +484,17 @@ def _tu_mau_gia(bo: list) -> list[dict]:
         bo.append({"ma": "mau-gia", "nguon": "mau-gia", "viSao": f"đọc hỏng: {e}"})
         return []
 
+    # BỘ DÒ HỎNG phải tới được bộ não, không chỉ ra màn hình lúc chạy tay.
+    #
+    # Một bộ dò ném lỗi cho ra 0 lần xuất hiện; bảng vẫn đủ dòng, vẫn có cỡ mẫu.
+    # "Mẫu này hiếm" và "bộ dò mẫu này hỏng" đọc giống hệt nhau, và chỉ một
+    # trong hai là sự thật về thị trường.
+    loi = d.get("loiDo") or {}
+    if loi:
+        bo.append({"ma": "mau-gia-bo-do-hong", "nguon": "mau-gia",
+                   "viSao": (f"{len(loi)} bộ dò ném lỗi trong lượt đo gần nhất "
+                             f"({sorted(loi)}) — số lần xuất hiện của chúng "
+                             f"đang THIẾU, đừng đọc như «mẫu hiếm»")})
     ds = [m for m in (d.get("mau") or []) if m.get("duMau")]
     thieu = [m for m in (d.get("mau") or []) if not m.get("duMau")]
     for m in thieu:

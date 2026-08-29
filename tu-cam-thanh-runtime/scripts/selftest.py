@@ -1857,6 +1857,22 @@ async def main() -> int:
     for _k in ("mau-gia-xau", "mau-gia-rr-thap"):
         check(_k in _ra_mg and "3 chợ độc lập" in _ra_mg[_k],
               f"{_k} tự khai phạm vi trong CHÍNH câu của nó")
+
+    # BỘ DÒ HỎNG phải tới được bộ não. Một bộ dò ném lỗi cho ra 0 lần xuất hiện;
+    # bảng vẫn đủ dòng, vẫn có cỡ mẫu, vẫn xanh. "Mẫu này hiếm" và "bộ dò mẫu này
+    # hỏng" đọc giống hệt nhau, và chỉ một trong hai là sự thật về thị trường.
+    _bo_mg = []
+    (DATA_DIR / "mau-gia.json").write_text(
+        _json.dumps({**_d_mg, "loiDo": {"vai_dau_vai": 12}}), encoding="utf-8")
+    C28._tu_mau_gia(_bo_mg)
+    check(any(x["ma"] == "mau-gia-bo-do-hong" for x in _bo_mg),
+          "có bộ dò ném lỗi → khai ra, không im")
+    _bo_ok = []
+    (DATA_DIR / "mau-gia.json").write_text(_json.dumps(_d_mg), encoding="utf-8")
+    C28._tu_mau_gia(_bo_ok)
+    check(not any(x["ma"] == "mau-gia-bo-do-hong" for x in _bo_ok),
+          "không bộ dò nào lỗi → im (cửa ngược lại)")
+
     print("\n[27] CON SỐ ĐẸP CỦA MỘT CHỢ KHÔNG ĐƯỢC ĐỨNG MỘT MÌNH")
     import importlib.util as _il27
     _sp27 = _il27.spec_from_file_location("bg27", str(ROOT / "scripts" / "ban-giao.py"))
