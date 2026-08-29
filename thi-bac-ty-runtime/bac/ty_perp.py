@@ -68,7 +68,19 @@ class TyPerp(Ty):
         liệu, nhưng nó tạo ra hai chỗ cùng quyết một chuyện — và hai chỗ ấy
         sẽ lệch nhau đúng vào ngày ai đó sửa một chỗ.
         """
-        return bool(co.duyet), list(co.lyDoMa or ())
+        # ZIP mã với CÂU. Bản cũ trả `list(co.lyDoMa)` — toàn mã trần,
+        # đúng kiểu `list[str]` chứ không phải `list[tuple[str, str]]` mà
+        # chữ ký khai. Không ai phát hiện suốt nhiều tháng vì `mot_luot()`
+        # viết `qua, _ = self.xet(co)` và vứt luôn vế thứ hai; hai lỗi che
+        # nhau. Lượt đầu tiên có người đọc vế ấy, bảng buồng lái hiện
+        # «180× [net-am] » — mã có, câu rỗng.
+        #
+        # `can_loi.py` dựng `lyDo` và `lyDoMa` cùng một lượt, cùng thứ tự,
+        # nên ghép lại là đúng cặp chứ không phải đoán.
+        cau = list(co.lyDo or ())
+        return bool(co.duyet), [
+            (ma, cau[i] if i < len(cau) else "")
+            for i, ma in enumerate(co.lyDoMa or ())]
 
     # ── kế toán: funding trả theo MỐC, không chảy liên tục ───────────────
     def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):

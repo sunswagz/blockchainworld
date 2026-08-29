@@ -8478,6 +8478,44 @@ def kiem_ly_do_cong_ty() -> None:
          d4["soBiTuChoi"] == 30 and d4["lyDoTuChoi"] == [],
          f"{d4['soBiTuChoi']} · {d4['lyDoTuChoi']}")
 
+    # MÃ TRẦN, không kèm câu — nửa lời khai. `bac/ty_perp.py` trả về
+    # `list(co.lyDoMa)`, đúng `list[str]` chứ không phải
+    # `list[tuple[str, str]]` mà chữ ký khai, và không ai thấy suốt nhiều
+    # tháng vì `mot_luot()` vứt luôn vế thứ hai. Hai lỗi che nhau.
+    class TyMaTran(TyThu):
+        def xet(self, co):
+            return False, ["net-am", "gross-mong"]
+
+    t5 = TyMaTran()
+    t5.mot_luot(TCGia())
+    d5 = t5.tom_tat()
+    kiem("mã TRẦN vẫn đếm được, nhưng ĐẾM RA là thiếu câu",
+         d5["soMaThieuCau"] == 2 and d5["lyDoTuChoi"][0]["cau"] == "",
+         f"{d5['lyDoTuChoi']} · thiếu câu {d5['soMaThieuCau']} — mã để máy "
+         f"đếm, câu để người đọc; thiếu câu thì người đọc phải đi tra mã "
+         f"trong mã nguồn, và không ai làm thế")
+    kiem("còn ty khai đủ cặp thì KHÔNG bị kêu oan",
+         d["soMaThieuCau"] == 0, str(d))
+
+    # Và chính ty chênh funding — ty duy nhất ghi băng — phải khai đủ cặp.
+    # Kiểm bằng HÀNH VI, không bằng chuỗi trong mã nguồn: bản đầu hỏi
+    # `"co.lyDo" in nguồn` và nó khớp luôn `co.lyDoMa`, nên phép kiểm xanh
+    # kể cả khi hàm quay về trả mã trần. Dò bằng chuỗi thì một cái tên dài
+    # hơn chứa cái tên ngắn hơn.
+    from bac.ty_perp import TyPerp as _TyPerp
+
+    class _CoGia:
+        duyet = False
+        lyDo = ("net âm 3 bps", "sổ mỏng")
+        lyDoMa = ("net-am", "gross-mong")
+
+    _qua, _ly = _TyPerp.xet(object.__new__(_TyPerp), _CoGia())
+    kiem("ty chênh funding GHÉP mã với câu, không trả mã trần",
+         _qua is False and _ly == [("net-am", "net âm 3 bps"),
+                                   ("gross-mong", "sổ mỏng")],
+         f"{_ly} — `can_loi.py` dựng `lyDo` và `lyDoMa` cùng một lượt, cùng "
+         f"thứ tự, nên ghép lại là đúng cặp chứ không phải đoán")
+
 
 def kiem_khoa_cu_doi_ten() -> None:
     print("\n-- Doi ten khoa: ban tham so DA DUYET khong duoc mat --")

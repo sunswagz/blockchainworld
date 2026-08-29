@@ -238,6 +238,13 @@ class Ty(ABC):
 
     def tom_tat(self) -> dict:
         top = sorted(self.lyDoTuChoi.items(), key=lambda kv: -kv[1])[:5]
+        # Mã KHÔNG kèm câu là nửa lời khai. `bac/ty_perp.py` trả về
+        # `list(co.lyDoMa)` — mã trần, đúng `list[str]` chứ không phải
+        # `list[tuple[str, str]]` mà chữ ký khai — và không ai thấy suốt
+        # nhiều tháng vì `mot_luot()` vứt luôn vế thứ hai. Hai lỗi che
+        # nhau, và lượt đầu tiên có người đọc vế ấy thì bảng hiện
+        # «180× [net-am] » với một khoảng trắng ở cuối.
+        thieuCau = sum(1 for k in self.lyDoTuChoi if not self.cauViDu.get(k))
         return {"ma": self.ma, "ho": self.ho, "moTa": self.moTa,
                 "vonToiThieuKinhTeUsd": self.vonToiThieuKinhTeUsd,
                 "soLuotQuet": self.soLuotQuet, "soCoHoi": self.soCoHoi,
@@ -245,6 +252,7 @@ class Ty(ABC):
                 "soTrinhSaiKhuon": self.soTrinhSaiKhuon,
                 "soBiTuChoi": self.soBiTuChoi,
                 "soMaBiBo": self.soMaBiBo,
+                "soMaThieuCau": thieuCau,
                 "lyDoTuChoi": [{"ma": k, "so": v,
                                 "cau": self.cauViDu.get(k, "")}
                                for k, v in top],

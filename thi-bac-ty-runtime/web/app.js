@@ -154,6 +154,7 @@
         soQuet: n.soLuotQuet, soCoHoi: n.soCoHoi, soQua: n.soQuaCongTy,
         soTrinh: n.soTrinh, loi: n.loiCuoi,
         soBiTuChoi: n.soBiTuChoi, soMaBiBo: n.soMaBiBo,
+        soMaThieuCau: n.soMaThieuCau,
         lyDoCongTy: n.lyDoTuChoi,
         nguong: c.vonToiThieuUsd, tran: c.tranMotCoHoiUsd, vi: c.vi
       });
@@ -1791,7 +1792,9 @@
       });
       r2.appendChild(el("span", "nhat", "— trên " + so(dc.soBiTuChoi)
         + " lần từ chối" + (dc.soMaBiBo
-          ? " · " + so(dc.soMaBiBo) + " mã bị BỎ vì quá trần 24 mã" : "")));
+          ? " · " + so(dc.soMaBiBo) + " mã bị BỎ vì quá trần 24 mã" : "")
+        + (dc.soMaThieuCau
+          ? " · " + so(dc.soMaThieuCau) + " mã KHÔNG kèm câu" : "")));
       kl2.appendChild(r2);
       k.appendChild(kl2);
       k.appendChild(giai("Một lần từ chối mang được NHIỀU mã, nên tổng các "

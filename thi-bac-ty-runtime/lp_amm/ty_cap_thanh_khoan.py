@@ -304,10 +304,17 @@ class CongRuiRo:
                        f"lỗ là con số nói dối"))
         if p.apyGocPhanTram < float(self.c["apyToiThieuPhanTram"]):
             ly.append(("apy-duoi-nguong",
-                       f"phí gốc {p.apyGocPhanTram:.2f}% < "
-                       f"{self.c['apyToiThieuPhanTram']:.1f}%"))
+                       f"phí gốc {p.apyGocPhanTram:.4f}% < "
+                       f"{float(self.c['apyToiThieuPhanTram']):.4f}%"))
         if p.tvlUsd < float(self.c["tvlToiThieuUsd"]):
-            ly.append(("tvl-qua-nho", f"TVL ${p.tvlUsd:,.0f}"))
+            # Câu lý do phải mang CẢ PHÉP SO, không chỉ con số đo được.
+            # `TVL $54,511` đọc như một lời khai trung tính; người đọc
+            # không biết ngần ấy là nhiều hay ít nếu không đi tra ngưỡng
+            # trong mã nguồn. Mọi cửa khác ở đây đều in «< ngưỡng» —
+            # đúng một cửa này quên.
+            ly.append(("tvl-qua-nho",
+                       f"TVL ${p.tvlUsd:,.0f} < "
+                       f"${float(self.c['tvlToiThieuUsd']):,.0f}"))
         if p.tvlUsd > float(self.c["tvlToiDaUsd"]):
             ly.append(("tvl-phi-ly",
                        f"TVL ${p.tvlUsd:,.0f} — cả DeFi cộng lại mới cỡ "
@@ -332,7 +339,9 @@ class CongRuiRo:
         if co.netBps is None:
             ly.append(("thieu-so", "chưa đo được phí vào/ra"))
         elif co.netBps < float(self.c["netToiThieuBps"]):
-            ly.append(("net-duoi-nguong", f"NET {co.netBps:.1f} bps"))
+            ly.append(("net-duoi-nguong",
+                       f"NET {co.netBps:.1f} bps < "
+                       f"{float(self.c['netToiThieuBps']):.2f}"))
         return (not ly), ly
 
     def tom_tat(self) -> dict:
