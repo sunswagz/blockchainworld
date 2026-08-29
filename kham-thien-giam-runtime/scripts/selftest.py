@@ -2893,6 +2893,67 @@ def kiem_lat_cat() -> None:
          and ra.rstrip().endswith(";"))
 
 
+def kiem_bus_gop_dong_lap() -> None:
+    """Dòng lặp phải GỘP, không được đẩy dòng hiếm ra khỏi đệm.
+
+    Đo thật trên buồng lái đang chạy: 78 trong 80 dòng là ĐÚNG NĂM câu
+    lặp lại, tất cả nói một chuyện (mất đường tới chợ). Cái trần đệm khi
+    ấy chỉ quyết định dòng nào bị đẩy ra — và dòng bị đẩy ra luôn là
+    dòng HIẾM, tức dòng đáng đọc nhất. Đúng cơ chế đã giấu
+    `KeyError: 'gamma'` suốt mấy tiếng.
+    """
+    print("\n── Nhật ký: gộp dòng lặp, giữ dòng hiếm ───────────────────────")
+
+    from kham.bus import Bus
+
+    b = Bus(tran=10)
+    b.ghi("chuyện HIẾM, chỉ nói một lần", loai="loi")
+    for _ in range(50):
+        b.ghi("mất đường tới chợ", loai="canh")
+
+    d = b.gan_day(50)
+    muc = [e["muc"] for e in d]
+    kiem("50 lần kêu chỉ chiếm 1 dòng",
+         muc.count("mất đường tới chợ") == 1, muc)
+    kiem("dòng HIẾM không bị đẩy ra",
+         "chuyện HIẾM, chỉ nói một lần" in muc, muc)
+    lap = [e for e in d if e["muc"] == "mất đường tới chợ"][0]
+    kiem("dòng gộp tự khai số lần", lap.get("soLan") == 50, lap.get("soLan"))
+    kiem("giữ mốc BẮT ĐẦU, không phải mốc kêu gần nhất",
+         lap.get("tuLuc") and lap["tuLuc"] <= lap["luc"], lap)
+    kiem("dòng gộp nằm CUỐI (mới nhất)", d[-1]["muc"] == "mất đường tới chợ")
+    kiem("stt vẫn tăng đều", [e["stt"] for e in d] == sorted(e["stt"] for e in d))
+    kiem("tổng đếm vẫn đếm ĐỦ 51 lần ghi", b.tong() == 51, b.tong())
+
+    # Hai câu KHÁC nhau thì không được gộp vào nhau.
+    b2 = Bus(tran=20)
+    b2.ghi("A", loai="canh")
+    b2.ghi("B", loai="canh")
+    b2.ghi("A", loai="canh")
+    m2 = [e["muc"] for e in b2.gan_day(20)]
+    kiem("hai câu khác nhau không dính vào nhau", m2 == ["B", "A"], m2)
+
+    # Cùng câu nhưng KHÁC loại là hai chuyện khác nhau.
+    b3 = Bus(tran=20)
+    b3.ghi("x", loai="canh")
+    b3.ghi("x", loai="loi")
+    kiem("cùng câu khác loại thì KHÔNG gộp", len(b3.gan_day(20)) == 2)
+
+    # Kêu lại sau khi đã im lâu phải là dòng MỚI — "im rồi lại kêu" là tin.
+    b4 = Bus(tran=200)
+    b4.ghi("dai", loai="canh")
+    for i in range(Bus._GOP_TRONG + 1):
+        b4.ghi(f"chuyện khác {i}", loai="tin")
+    b4.ghi("dai", loai="canh")
+    m4 = [e["muc"] for e in b4.gan_day(200)]
+    kiem("im lâu rồi kêu lại thì ghi dòng MỚI", m4.count("dai") == 2, m4[:3])
+
+    # Buồng lái phải IN số lần ra, không thì gộp xong lại thành giấu.
+    GOC_MA = Path(__file__).resolve().parent.parent
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("app.js có in `soLan` ra màn hình", "soLan" in js)
+
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -2948,6 +3009,7 @@ def main() -> int:
     kiem_phien_phat_lai()
     kiem_khoa_cau_hinh_co_that()
     kiem_lan_nga_khong_giet_vong()
+    kiem_bus_gop_dong_lap()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

@@ -505,6 +505,13 @@
       r.dataset.l = e.loai;
       r.appendChild(el("span", "t", (e.luc || "").slice(11, 23)));
       r.appendChild(el("span", null, e.muc));
+      // Dòng lặp được GỘP ở `kham/bus.py`. Không in số lần thì một câu
+      // kêu 78 lần trông y hệt một câu kêu đúng một lần — và chênh giữa
+      // hai cái ấy chính là thứ người đọc cần.
+      if (e.soLan > 1) {
+        r.appendChild(el("span", "lap", "×" + e.soLan
+          + (e.tuLuc ? " từ " + String(e.tuLuc).slice(11, 19) : "")));
+      }
       d.appendChild(r);
     });
     if (!(T.nhatKy || []).length) d.appendChild(chuaCo("Chưa có dòng nào. Nhật ký ghi từ lúc runtime khởi động, "
