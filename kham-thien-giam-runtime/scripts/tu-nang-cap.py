@@ -107,34 +107,24 @@ def nen_1p(cap: str, tuMs: float, soNen: int) -> dict:
     return ra
 
 
-#: σ tại (mốc, số nến) — nhớ lại giữa các ứng viên.
-#:
-#: Quét 60 ứng viên × 3 tập × ~2.900 khung, và chỉ MỘT nút trong bốn nút
-#: đụng tới σ. Ba nút kia tính lại y hệt con số cũ hàng trăm nghìn lần.
-#: Đây là chỗ chậm nhất của cả vòng, và nó chậm vì lý do không cần thiết.
-_NHO_SIGMA: dict = {}
+# σ: MỘT bộ ước duy nhất, ở `kham/hoc_offline.py` → `DoBienDong`.
+#
+# File này VẶN THAM SỐ rồi ghi vào `config.json`, nên nó bắt buộc phải
+# đo bằng đúng bộ ước mà runtime chạy. Bản đầu có một bản sao riêng, và
+# cái trôi ấy đã cắn thật: cửa sổ σ được vặn 300s → 900s trên lưới phút
+# trong khi runtime chạy bộ ước mẫu thô — σ chạy thật chỉ bằng 0,875
+# lần σ đã tuning. Vặn nút của cỗ máy A rồi lắp vào cỗ máy B.
+#
+# Các script THU THẬP thuần (`thu-*.py`, `do-*.py`) vẫn giữ bản riêng:
+# chúng không ghi config nên một cái trôi ở đó làm sai một PHÉP ĐO, chứ
+# không làm sai một THAM SỐ đang chạy.
+from kham.hoc_offline import quen_sigma  # noqa: E402
+from kham.hoc_offline import sigma_tai as _sigma_chung  # noqa: E402
 
 
-def _sigma(theoMoc: dict, T: int, cuaSoGiay: float) -> float | None:
-    soNen = max(2, int(round(cuaSoGiay / 60.0)))
-    khoa = (T, soNen)
-    if khoa in _NHO_SIGMA:
-        return _NHO_SIGMA[khoa]
-    gs = [theoMoc.get(T - i * int(PHUT)) for i in range(soNen + 1)]
-    if any(g is None or g <= 0 for g in gs):
-        _NHO_SIGMA[khoa] = None
-        return None
-    gs = gs[::-1]
-    r = [math.log(gs[i + 1] / gs[i]) for i in range(len(gs) - 1)]
-    if len(r) < 2:
-        _NHO_SIGMA[khoa] = None
-        return None
-    sd = statistics.pstdev(r)
-    ra = (sd / math.sqrt(60.0)) if sd > 0 else None
-    _NHO_SIGMA[khoa] = ra
-    return ra
-
-
+def sigma_tai(theoMoc, T, cuaSoGiay):
+    """σ mỗi giây tại mốc T. Gọi thẳng bộ ước chung."""
+    return _sigma_chung(theoMoc, int(T), float(cuaSoGiay))
 def cap_du_doan(theoMoc: dict, mocs: list, cuaSoGiay: float) -> list:
     """(p, thắng) theo THỨ TỰ THỜI GIAN, trên đúng các mốc đưa vào."""
     ra = []
@@ -143,7 +133,7 @@ def cap_du_doan(theoMoc: dict, mocs: list, cuaSoGiay: float) -> list:
         het = theoMoc.get(T + 5 * int(PHUT))
         if K is None or het is None or abs(het - K) < 1e-12:
             continue
-        sig = _sigma(theoMoc, T, cuaSoGiay)
+        sig = sigma_tai(theoMoc, T, cuaSoGiay)
         if sig is None:
             continue
         thang = het > K

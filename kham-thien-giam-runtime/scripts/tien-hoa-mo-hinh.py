@@ -110,24 +110,23 @@ def nen_1p(cap: str, tuMs: float, soNen: int) -> dict:
     return ra
 
 
-def sigma_tai(theoMoc: dict, T: int, cuaSoGiay: float) -> float | None:
-    """σ mỗi giây từ `cuaSoGiay` giây nến 1 phút TRƯỚC T.
+# σ: MỘT bộ ước duy nhất, ở `kham/hoc_offline.py` → `DoBienDong`.
+#
+# File này VẶN THAM SỐ rồi ghi vào `config.json`, nên nó bắt buộc phải
+# đo bằng đúng bộ ước mà runtime chạy. Bản đầu có một bản sao riêng, và
+# cái trôi ấy đã cắn thật: cửa sổ σ được vặn 300s → 900s trên lưới phút
+# trong khi runtime chạy bộ ước mẫu thô — σ chạy thật chỉ bằng 0,875
+# lần σ đã tuning. Vặn nút của cỗ máy A rồi lắp vào cỗ máy B.
+#
+# Các script THU THẬP thuần (`thu-*.py`, `do-*.py`) vẫn giữ bản riêng:
+# chúng không ghi config nên một cái trôi ở đó làm sai một PHÉP ĐO, chứ
+# không làm sai một THAM SỐ đang chạy.
+from kham.hoc_offline import sigma_tai as _sigma_chung  # noqa: E402
 
-    Đây là chỗ `dinhGia.bienDongCuaSoGiay` thật sự có tác dụng. Ước σ từ
-    ít nến thì nhạy nhưng ồn; nhiều nến thì mượt nhưng chậm phản ứng. Và
-    σ ồn là ứng viên số một cho việc mô hình lệch ở HAI ĐUÔI — chỗ mà
-    bảng hiệu chỉnh đo được là lệch nhất.
-    """
-    soNen = max(2, int(round(cuaSoGiay / 60.0)))
-    gs = [theoMoc.get(T - i * int(PHUT)) for i in range(soNen + 1)]
-    if any(g is None or g <= 0 for g in gs):
-        return None
-    gs = gs[::-1]
-    r = [math.log(gs[i + 1] / gs[i]) for i in range(len(gs) - 1)]
-    if len(r) < 2:
-        return None
-    sd = statistics.pstdev(r)
-    return (sd / math.sqrt(60.0)) if sd > 0 else None
+
+def sigma_tai(theoMoc, T, cuaSoGiay):
+    """σ mỗi giây tại mốc T. Gọi thẳng bộ ước chung."""
+    return _sigma_chung(theoMoc, int(T), float(cuaSoGiay))
 
 
 def cap_du_doan(theoMoc: dict, cuaSoGiay: float) -> list[tuple[float, bool]]:

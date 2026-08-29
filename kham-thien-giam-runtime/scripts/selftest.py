@@ -966,6 +966,53 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
+    """Script nào GHI CONFIG thì phải đo bằng bộ ước của runtime.
+
+    Đây là ranh giới đáng canh nhất trong cả cung: một script chỉ ĐO thì
+    trôi ra khỏi runtime cũng chỉ làm sai một phép đo; một script VẶN
+    THAM SỐ mà trôi thì nó ghi một con số sai vào `config.json` và con
+    số ấy chạy thật.
+
+    Đã cắn: cửa sổ σ được vặn 300s → 900s trên lưới phút trong khi
+    runtime chạy bộ ước mẫu thô — σ chạy thật chỉ bằng 0,875 lần σ đã
+    tuning.
+    """
+    print("\n-- Cong cu VAN phai dung bo uoc cua runtime --------------")
+
+    import importlib.util as _iu
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    from kham.hoc_offline import sigma_tai as chuan
+
+    for ten in ("tien-hoa-mo-hinh.py", "tu-nang-cap.py"):
+        f = GOC_MA / "scripts" / ten
+        kiem(f"{ten} có mặt", f.exists())
+        if not f.exists():
+            continue
+        ma = f.read_text(encoding="utf-8")
+        kiem(f"{ten} nhập bộ ước chung",
+             "from kham.hoc_offline import sigma_tai" in ma,
+             "script GHI CONFIG mà tự tính σ là vặn nút của cỗ máy khác")
+        kiem(f"{ten} KHÔNG tự tính lại σ",
+             "pstdev" not in ma and "sqrt(60" not in ma, ma.count("pstdev"))
+
+        sp = _iu.spec_from_file_location("_x_" + ten.replace("-", "_"), f)
+        m = _iu.module_from_spec(sp)
+        sp.loader.exec_module(m)
+        T = 1_787_243_400_000
+        nen = {int(T - (20 - i) * 60_000):
+               70_000.0 * (1 + 0.0005 * math.sin(i * 1.7)) for i in range(21)}
+        m.quen_sigma() if hasattr(m, "quen_sigma") else None
+        a = m.sigma_tai(nen, T, 900.0)
+        from kham.hoc_offline import quen_sigma as _qs
+        _qs()
+        b = chuan(nen, T, 900.0)
+        kiem(f"{ten} cho ra ĐÚNG con số của bộ ước chung",
+             a is not None and b is not None and abs(a - b) < 1e-15,
+             f"{a} vs {b}")
+
+
 def kiem_mot_bo_uoc_sigma() -> None:
     """CHỈ MỘT bộ ước σ. Hai bản sao là hai chỗ để chúng trôi ra khỏi nhau.
 
@@ -2838,6 +2885,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_cong_cu_van_dung_bo_uoc_chung()
     kiem_mot_bo_uoc_sigma()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
