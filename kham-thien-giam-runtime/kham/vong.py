@@ -77,6 +77,27 @@ class Runtime:
         self.hieuChinh = HieuChinh()
         self.so = So()
         self.ketToan = KetToan(self.kho, self.hieuChinh, self.so, self.risk)
+
+        # Dựng lại trạng thái rủi ro TỪ SỔ. Không có dòng này thì mỗi lần
+        # khởi động lại là quên sạch vốn, đỉnh vốn và lỗ ngày — nên một
+        # bot vừa chạm trần lỗ ngày, bị khởi động lại, có ngay ngân sách
+        # lỗ mới nguyên. Xem `RiskEngine.nap_tu_so`.
+        try:
+            nap = self.risk.nap_tu_so(self.so.doc())
+            if nap["soDong"]:
+                bus.ghi(
+                    f"dựng lại rủi ro từ sổ: {nap['soDong']} lệnh · "
+                    f"vốn ${nap['von']:,.2f} · đỉnh ${nap['dinhVon']:,.2f} · "
+                    f"ngày ròng ${nap['laiRongNgayUsd']:+,.2f}"
+                    + (f" · CẦU DAO NGẮT: {nap['lyDoNgat']}"
+                       if nap["ngatKhanCap"] else ""),
+                    loai="he")
+        except Exception as e:      # noqa: BLE001
+            # Không dựng lại được thì phải KÊU, đừng lặng lẽ chạy tiếp với
+            # vốn khai sinh — chạy tiếp im lặng chính là cái lỗi đang sửa.
+            bus.ghi(f"KHÔNG dựng lại được rủi ro từ sổ: {type(e).__name__}: {e}"
+                    " — đang chạy bằng vốn khai sinh, cầu dao ngày đã QUÊN "
+                    "mọi khoản lỗ trước đó", loai="loi")
         self.doTre = DoTre(dongSongNen, dong_song)
         self.phepNan = nan_lai.khop(self.hieuChinh)
         self._nanLucMs = 0.0

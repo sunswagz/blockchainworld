@@ -3761,6 +3761,83 @@ def kiem_quet_vi_khai_nga() -> None:
     kiem("và KHÔNG còn an ủi sai khi mọi ví đều ngã",
          "không phải vì chưa tới lượt" in js)
 
+def kiem_rui_ro_nho_qua_khoi_dong_lai() -> None:
+    """Khởi động lại KHÔNG được xoá sạch trí nhớ rủi ro.
+
+    `RiskEngine.__init__` đặt `von = vonBanDau` từ config và không đọc
+    gì. Đo được trên máy: sổ ghi một lệnh lỗ $49,95 mà buồng lái vẫn
+    khai `von 1.000` và `sutVonPct 0,0%`.
+
+    Ba cầu dao dựa trên đúng những con số ấy — trần lỗ ngày, trần sụt
+    vốn, và cỡ lệnh Kelly. Nên một bot vừa chạm trần lỗ ngày, bị khởi
+    động lại (sập, cập nhật, hay người bấm), có NGAY một ngân sách lỗ
+    mới nguyên. Lỗ hổng kiểm soát rủi ro kinh điển, và nó im lặng:
+    buồng lái hiện những con số đẹp và đúng cú pháp.
+    """
+    print("\n── Rủi ro phải NHỚ qua khởi động lại ────────────────────────")
+
+    import time as _t
+
+    from kham.kho_doi import Kho
+    from kham.rui_ro import RiskEngine
+
+    hn = _t.strftime("%Y-%m-%d", _t.gmtime())
+    ds = [{"luc": "2026-08-01T10:00:00Z", "laiLo": 120.0},
+          {"luc": "2026-08-01T11:00:00Z", "laiLo": -60.0},
+          {"luc": hn + "T10:00:00Z", "laiLo": -30.0},
+          {"luc": hn + "T11:00:00Z", "laiLo": 10.0}]
+
+    r = RiskEngine(Kho())
+    v0 = r.vonBanDau
+    nap = r.nap_tu_so(ds)
+    kiem("vốn dựng lại đúng tổng lãi lỗ",
+         abs(r.von - (v0 + 40.0)) < 1e-9, r.von)
+    kiem("ĐỈNH vốn là đỉnh của cả đường, không phải giá trị cuối",
+         abs(r.dinhVon - (v0 + 120.0)) < 1e-9, r.dinhVon)
+    kiem("sụt vốn đo từ đỉnh ấy", r.sutVonPct > 0.0, r.sutVonPct)
+    kiem("lỗ NGÀY chỉ tính dòng của hôm nay",
+         abs(r.loNgayUsd - 20.0) < 1e-9, r.loNgayUsd)
+    kiem("lỗ gộp ngày vẫn đếm riêng độ chao",
+         abs(r.loGopNgayUsd - 30.0) < 1e-9, r.loGopNgayUsd)
+    kiem("trả về bản tóm tắt để chỗ gọi KHAI RA",
+         nap["soDong"] == 4 and "von" in nap, nap)
+
+    # Dòng sổ CŨ không được tính vào lỗ ngày — ngày lấy từ mốc trong sổ,
+    # không lấy đồng hồ máy. Lấy đồng hồ thì đọc lại một sổ cũ là mọi
+    # dòng đều thành "hôm nay" và cầu dao ngắt oan ngay lúc khởi động.
+    r2 = RiskEngine(Kho())
+    r2.nap_tu_so([{"luc": "2020-01-01T00:00:00Z", "laiLo": -999.0}])
+    kiem("dòng sổ CŨ không rơi vào lỗ ngày", r2.loNgayUsd == 0.0,
+         r2.loNgayUsd)
+    kiem("nhưng vẫn trừ vào vốn", r2.von < v0, r2.von)
+
+    # Ca quan trọng nhất: sổ cho thấy ĐÃ quá trần thì cầu dao phải ngắt
+    # NGAY lúc nạp, chứ không đợi lệnh kế tiếp — vì có thể không bao giờ
+    # có lệnh kế tiếp nào để soát.
+    r3 = RiskEngine(Kho())
+    qua = r3.tranLoNgayUsd * 2.0 + 1.0
+    r3.nap_tu_so([{"luc": hn + "T09:00:00Z", "laiLo": -qua}])
+    kiem("sổ đã quá trần lỗ ngày ⇒ cầu dao NGẮT ngay lúc nạp",
+         r3.ngatKhanCap, (r3.ngatKhanCap, r3.lyDoNgat))
+
+    # Sổ rỗng thì phải y hệt lúc khai sinh, không được lệch một xu.
+    r4 = RiskEngine(Kho())
+    r4.nap_tu_so([])
+    kiem("sổ rỗng thì trạng thái y hệt khai sinh",
+         r4.von == v0 and r4.dinhVon == v0 and not r4.ngatKhanCap)
+
+    # Dòng rác không được làm sập lúc khởi động.
+    r5 = RiskEngine(Kho())
+    r5.nap_tu_so([{"luc": "x", "laiLo": "khong-phai-so"}, {"laiLo": 5.0}])
+    kiem("dòng rác bị bỏ qua, không ném", abs(r5.von - (v0 + 5.0)) < 1e-9,
+         r5.von)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    vg = (GOC_MA / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("runtime gọi nạp lúc khởi động", "risk.nap_tu_so(self.so.doc())" in vg)
+    kiem("và KÊU khi không dựng lại được",
+         "KHÔNG dựng lại được rủi ro từ sổ" in vg)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3829,6 +3906,7 @@ def main() -> int:
     kiem_phien_giay_dung_giai_doan()
     kiem_quyet_chan_la_loi_khuyen()
     kiem_quet_vi_khai_nga()
+    kiem_rui_ro_nho_qua_khoi_dong_lai()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

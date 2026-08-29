@@ -138,6 +138,65 @@ class RiskEngine:
         return self._tran("phanTramLoNgay", "tranLoNgayUsd", 5.0)
 
     # ── kế toán ───────────────────────────────────────────────────────────
+    def nap_tu_so(self, ds: list[dict]) -> dict:
+        """Dựng lại vốn, đỉnh vốn và lỗ ngày TỪ SỔ KẾT TOÁN.
+
+        `__init__` đặt `von = vonBanDau` từ config và không đọc gì cả,
+        nên **mỗi lần khởi động lại là quên sạch**. Đo được trên máy:
+        sổ ghi một lệnh lỗ $49,95 mà buồng lái vẫn khai `von 1.000` và
+        `sutVonPct 0,0%`.
+
+        Ba cầu dao dựa trên đúng những con số ấy:
+
+            tranLoNgayUsd   lỗ RÒNG trong ngày
+            tranSutVonPct   sụt từ ĐỈNH vốn
+            von             cỡ lệnh theo Kelly
+
+        Nên một bot vừa chạm trần lỗ ngày, bị khởi động lại (sập, cập
+        nhật, hay người bấm), sẽ có NGAY một ngân sách lỗ mới nguyên.
+        Đó là lỗ hổng kiểm soát rủi ro kinh điển, và nó im lặng: buồng
+        lái hiện những con số đẹp và đúng cú pháp.
+
+        Dựng lại từ SỔ chứ không thêm một file trạng thái mới: sổ kết
+        toán đã là nguồn sự thật, và hai nguồn sự thật thì sớm muộn lệch
+        nhau. Đổi lại phải đi qua cả sổ, nhưng chỉ một lần lúc khởi
+        động.
+
+        Trả về bản tóm tắt những gì đã dựng lại, để chỗ gọi KHAI RA —
+        một lần khôi phục im lặng cũng khó tin như một lần quên im lặng.
+        """
+        hom_nay = self._ngay_hien_tai()
+        von = self.vonBanDau
+        dinh = self.vonBanDau
+        rong_ngay = 0.0
+        gop_ngay = 0.0
+        n = 0
+        for g in (ds or []):
+            try:
+                lai = float(g.get("laiLo"))
+            except (TypeError, ValueError):
+                continue
+            n += 1
+            von += lai
+            dinh = max(dinh, von)
+            # Ngày lấy từ mốc ghi trong sổ, KHÔNG lấy đồng hồ máy: đọc
+            # lại một sổ cũ thì mọi dòng đều thành "hôm nay".
+            if str(g.get("luc") or "")[:10] == hom_nay:
+                rong_ngay += lai
+                if lai < 0:
+                    gop_ngay += -lai
+        self.von = von
+        self.dinhVon = dinh
+        self.ngay = hom_nay
+        self.laiRongNgayUsd = rong_ngay
+        self.loGopNgayUsd = gop_ngay
+        # Dựng lại xong thì phải SOÁT: nếu sổ cho thấy đã quá trần thì
+        # cầu dao phải ngắt NGAY, chứ không đợi lệnh kế tiếp.
+        self._soat_ngat()
+        return {"soDong": n, "von": von, "dinhVon": dinh,
+                "laiRongNgayUsd": rong_ngay, "ngatKhanCap": self.ngatKhanCap,
+                "lyDoNgat": self.lyDoNgat}
+
     def ghi_lai_lo(self, usd: float) -> None:
         """Ghi một lần kết toán vào vốn và vào sổ ngày.
 
