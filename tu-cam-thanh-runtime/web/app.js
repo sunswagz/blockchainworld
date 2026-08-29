@@ -330,6 +330,24 @@ function dungNgoai() {
        + "nguyên. <b>Cái chờ này không tự kết thúc</b> — thứ phải đổi là chiến lược "
        + 'hoặc chợ, không phải thời gian.</div>';
 }
+/* LỆNH ĐÓNG KỸ THUẬT — an toàn, can thiệp tay.
+
+   Không tính vào kỳ vọng chiến lược, nhưng tiền CÓ vào tài khoản. Không nói ra
+   thì số dư và tổng lãi/lỗ ở trên lệch nhau mà không ai biết vì sao.
+
+   Đã xảy ra: MỘT lệnh đóng tay (+284 đô, do sổ lệnh testnet khớp lệch 15%) làm
+   kỳ vọng biểu kiến đi từ −13,60 lên −6,83 mỗi lệnh — giảm một nửa mức lỗ. */
+function veKyThuat() {
+  const kt = (J && J.performance || {}).kyThuat;
+  if (!kt || !kt.so) return "";
+  return '<div class="nhac" style="margin-top:10px;font-size:12px;line-height:1.6">'
+    + "<b>" + kt.so + " lệnh đóng KỸ THUẬT</b> ("
+    + esc((kt.lyDo || []).join(", ")) + ") với " + tien(kt.tien)
+    + " — <b>không</b> tính vào kỳ vọng ở trên, vì chúng nói về hệ thống chứ không "
+    + "về chiến lược. Tiền vẫn vào tài khoản, nên số dư và tổng lãi/lỗ chiến lược "
+    + "lệch nhau đúng ngần ấy.</div>";
+}
+
 /* ── TẦNG 1 · TỔNG QUAN ────────────────────────────────────────── */
 function veTongQuan() {
   if (!S) return;
@@ -1693,6 +1711,8 @@ function veNhatKy() {
       ${oSo("Tổng lãi/lỗ", tien(perf.totalPnl), dau(perf.totalPnl),
           perf.riskCv != null ? `độ lệch rủi ro ${num(perf.riskCv, 2)}` : "")}
     </div>
+
+    ${veKyThuat()}
 
     <div class="tieu-muc">Dòng thời gian</div>
     ${td.length ? `<div class="kinh the">${td.slice(0, 25).map((t) => {
