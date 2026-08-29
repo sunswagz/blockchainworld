@@ -1100,6 +1100,25 @@ async def main() -> int:
     check("self.gia_cho" in _src_lp,
           "loop giữ bản đồ giá của mọi chợ đã nạp")
 
+    # Và KHÔNG broker nào còn làm phép toán thẳng trên biến `price`. Quét bằng
+    # AST chứ không bằng chuỗi: `price` xuất hiện hợp lệ ở nhiều chỗ (kiểm None,
+    # dựng bản đồ), chỉ PHÉP TOÁN mới là dấu hiệu ai đó đang coi nó là một số.
+    #
+    # Đã sập hai lần trong cùng một buổi: lãi/lỗ chưa chốt của SOL tính bằng giá
+    # BTC, một lần ở mỗi broker.
+    import ast as _ast39
+    _bo = []
+    for _f in ("broker.py", "broker_testnet.py"):
+        _c = _ast39.parse((ROOT / "trader" / _f).read_text(encoding="utf-8-sig"))
+        for _n in _ast39.walk(_c):
+            if isinstance(_n, _ast39.BinOp) and any(
+                    isinstance(x, _ast39.Name) and x.id == "price"
+                    for x in (_n.left, _n.right)):
+                _bo.append(f"{_f}:{_n.lineno}")
+    check(not _bo,
+          "không broker nào làm phép toán thẳng trên `price`"
+          + (f" — CÒN: {_bo}" if _bo else ""))
+
     # Cửa nguy hiểm nhất: đổi định nghĩa mà giữ đỉnh cũ thì ngắt mạch thấy sụt
     # giảm 89% và chốt cứng ngay lượt đầu. Phải đặt lại đỉnh khi dấu lệch.
     _i_ver = _src39.index("dinhNghiaVon" + chr(34) + ") != DINH_NGHIA_VON")

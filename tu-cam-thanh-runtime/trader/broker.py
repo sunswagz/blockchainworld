@@ -192,11 +192,15 @@ class PaperBroker:
         s = dict(self.state)
         open_pnl = 0.0
         positions = []
+        # Giá của CHÍNH chợ vị thế đó — sàn giấy cũng giữ nhiều chợ được. Một
+        # giá chung ở đây là lãi/lỗ chưa chốt của SOL tính bằng giá BTC.
+        _gm = price if isinstance(price, dict) else ({"*": price} if price else {})
         for t in self.state["positions"]:
             p = dict(t)
-            if price:
+            _g = _gm.get(t.get("symbol")) or _gm.get("*")
+            if _g:
                 d = 1 if t["side"] == "LONG" else -1
-                p["unrealizedPnl"] = round((price - t["entry"]) * d * t["qty"], 2)
+                p["unrealizedPnl"] = round((_g - t["entry"]) * d * t["qty"], 2)
                 p["unrealizedR"] = round(p["unrealizedPnl"] / t["riskAmount"], 2) if t["riskAmount"] else None
                 open_pnl += p["unrealizedPnl"]
             positions.append(p)

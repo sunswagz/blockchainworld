@@ -492,10 +492,16 @@ class TestnetBroker:
 
         open_pnl = 0.0
         positions = []
+        # Giá của CHÍNH chợ vị thế đó. Một giá chung ở đây là lãi/lỗ chưa chốt
+        # của SOL được tính bằng giá BTC — con số vô nghĩa, và nó chảy thẳng vào
+        # `openPnl` rồi lên bảng.
+        _gia_map = price if isinstance(price, dict) else (
+            {self.symbol: price} if price else {})
         for t in self.state["positions"]:
             p = dict(t)
-            if price:
-                p["unrealizedPnl"] = round((price - t["entry"]) * t["qty"], 2)
+            _g = _gia_map.get(t.get("symbol") or self.symbol)
+            if _g:
+                p["unrealizedPnl"] = round((_g - t["entry"]) * t["qty"], 2)
                 p["unrealizedR"] = (round(p["unrealizedPnl"] / t["riskAmount"], 2)
                                     if t["riskAmount"] else None)
                 open_pnl += p["unrealizedPnl"]
