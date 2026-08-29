@@ -813,6 +813,21 @@ for (const c of ["."].concat(cung)) {
         if (!existsSync(join(ROOT, c, "index.html")))
           bao(`VONG_XOAY khai cung "${c}" nhưng không có ${c}/index.html — node xoay sẽ ngã vào ngày tới lượt nó`);
       }
+
+      /* Chiều ngược lại: cung KHÔNG thuộc vòng nào thì không bao giờ
+         tiến hoá, và không có gì báo. Đây là hình dạng của một cung
+         vừa được thêm — người thêm nhớ bảy chỗ trong CLAUDE.md,
+         nhưng vòng tiến hoá không nằm trong bảy chỗ đó.
+
+         `nhac` chứ không `bao`: có thể là cố ý (một cung tĩnh hoàn
+         toàn, hoặc đang dựng dở). Nhưng phải NÓI RA — im lặng ở đây
+         nghĩa là cung ấy đứng yên nhiều tháng mà mọi bảng đều xanh. */
+      const coVongRieng = (c) => t.includes(`tien-hoa.mjs de-bai ${c}`);
+      const boRoi = cung.filter((c) => !xoay.includes(c) && !coVongRieng(c));
+      if (boRoi.length)
+        nhac(`${boRoi.length} cung không thuộc vòng tiến hoá nào (${boRoi.join(", ")}) — ` +
+             `chúng chỉ tiến khi có người ngồi vào sửa. Thêm vào VONG_XOAY ở scripts/vong-xoay.mjs, ` +
+             `hoặc cấp vòng riêng.`);
     }
   }
 }
