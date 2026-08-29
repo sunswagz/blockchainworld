@@ -163,19 +163,82 @@ class MayGhi:
             self._f = None
 
     def don_cu(self) -> int:
-        """Xoá băng quá hạn giữ. Trả về số file đã xoá."""
+        """Xoá băng quá hạn giữ — TRỪ file chứa dòng KHUNG ĂN THUA.
+
+        ## Vì sao có ngoại lệ này
+
+        Dòng cửa đặt cược thì lúc nào cũng ghi được: runtime chạy 24/7 và
+        Binance không bao giờ đứt. Dòng KHUNG ĂN THUA thì khác — nó chỉ
+        có trong những phút hiếm hoi đường tới Polymarket thông. Tới nay
+        gom được đúng **1.018 dòng, 14 cửa sổ**, và chúng nằm gọn trong
+        BA file.
+
+        Mất ba file ấy là mất thứ không cách nào lấy lại: mọi phép đo về
+        chợ thật, mọi lãi lỗ phiên giấy, và con số dương duy nhất đứng
+        được của cả hệ (kỹ năng mô hình +49,6%). Băng cửa đặt cược mất thì
+        vài ngày là có lại.
+
+        Chính tài liệu của module này viết: *"Mô hình viết sau lúc nào
+        cũng được; dữ liệu thì không quay lại."* Một chính sách hạn giữ mà
+        xoá đúng phần không quay lại được thì phản lại câu ấy.
+
+        ## Cái giá
+
+        Phải mở và quét từng file quá hạn. Đắt — nhưng chỉ với file ĐÃ quá
+        hạn, mỗi ngày một lần, và cái giá kia là không thể trả.
+        """
         gio_han = time.time() - float(_B.get("ngayGiuLai", 30)) * 86400
         xoa = 0
         for p in _thu_muc().glob("bang-*.jsonl.gz"):
             if self.duong is not None and p == self.duong:
                 continue                    # đừng xoá file đang mở
             try:
-                if p.stat().st_mtime < gio_han:
-                    p.unlink()
-                    xoa += 1
+                if p.stat().st_mtime >= gio_han:
+                    continue
+                if self._co_khung_an_thua(p):
+                    continue                # KHÔNG BAO GIỜ xoá
+                p.unlink()
+                xoa += 1
             except OSError:
                 pass
         return xoa
+
+    @staticmethod
+    def _co_khung_an_thua(p: Path) -> bool:
+        """File này có dòng khung ăn thua không.
+
+        Đọc qua `_giai_nen` để chịu được file cụt đuôi — mà gần như MỌI
+        file đều cụt đuôi (26/31 lúc đo), vì tiến trình bị giết chứ không
+        đóng luồng gzip tử tế. Dùng `gzip.open` trơn thì nó ném giữa
+        chừng, và một ngoại lệ ở đây nghĩa là "coi như không có dòng quý"
+        — tức xoá mất.
+
+        **Không chắc thì GIỮ.** Trả True trong CA BA trường hợp:
+
+            · đọc thấy dòng khung ăn thua                    → giữ, hiển nhiên
+            · `_giai_nen` phải NHẢY QUA byte, hoặc file hỏng → giữ, vì phần
+              không đọc được có thể chính là phần quý
+            · ném ngoại lệ                                   → giữ
+
+        Ca thứ hai là ca dễ sót nhất, và nó KHÔNG ném: `_giai_nen` cố ý
+        chịu được rác — "rác hoàn toàn cũng không được làm sập lời gọi".
+        Nên rác trả về danh sách rỗng, không có dòng quý nào, và file bị
+        xoá. Đọc không hết thì không được kết luận "không có gì quý".
+
+        Sai chiều này tốn đĩa; sai chiều kia mất dữ liệu không lấy lại
+        được. Hai cái giá ấy không cùng hạng.
+        """
+        try:
+            bao = BaoCaoDoc()
+            doan = _giai_nen(p.read_bytes(), bao, p.name)
+            for d in doan:
+                if b'"quan-sat"' in d:
+                    return True
+            if bao.soByteBoQua or bao.soFileHong or not doan:
+                return True                 # đọc không hết ⇒ GIỮ
+            return False
+        except Exception:                   # noqa: BLE001
+            return True
 
     def tom_tat(self) -> dict:
         return {"soKhung": self.soKhung, "bat": self.bat,

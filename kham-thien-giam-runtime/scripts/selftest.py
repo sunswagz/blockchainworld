@@ -4249,11 +4249,21 @@ def kiem_don_bang_qua_han() -> None:
         cu = B._thu_muc
         try:
             B._thu_muc = lambda: tm
+            import gzip as _gz
+
+            # File băng THẬT là gzip hợp lệ. Fixture cũ ghi `b"x"` —
+            # không giải nén được — nên sau khi thêm luật "đọc không hết
+            # thì GIỮ" nó bị giữ lại và phép kiểm trượt. Một fixture
+            # không giống thứ thật thì chứng minh được rất ít.
             gia_cu = tm / "bang-2020-01-01.jsonl.gz"
             gia_moi = tm / "bang-2099-01-01.jsonl.gz"
             khac = tm / "khong-phai-bang.txt"
-            for f in (gia_cu, gia_moi, khac):
-                f.write_bytes(b"x")
+            for f in (gia_cu, gia_moi):
+                with _gz.open(f, "wt", encoding="utf-8") as _fh:
+                    # chỉ dòng cửa ĐẶT CƯỢC — loại lúc nào cũng ghi lại được
+                    _fh.write('{"thiTruong":[{"giaiDoan":"dat-cuoc"}]}'
+                              + chr(10))
+            khac.write_bytes(b"x")
             gio = _t.time()
             os.utime(gia_cu, (gio - 400 * 86400, gio - 400 * 86400))
 
@@ -4262,6 +4272,29 @@ def kiem_don_bang_qua_han() -> None:
             n = B.MayGhi.don_cu(mg)
 
             kiem("xoá đúng file quá hạn", n == 1 and not gia_cu.exists())
+            # KHÔNG BAO GIỜ xoá file có dòng KHUNG ĂN THUA, dù quá hạn.
+            #
+            # Dòng cửa đặt cược lúc nào cũng ghi được. Dòng khung ăn thua
+            # chỉ có trong những phút hiếm hoi đường tới Polymarket thông
+            # — tới nay gom được đúng 1.018 dòng, nằm gọn trong BA file.
+            # Mất chúng là mất mọi phép đo về chợ thật và con số dương duy
+            # nhất đứng được của cả hệ.
+            import gzip as _gz
+            quy = tm / "bang-2019-01-01.jsonl.gz"
+            with _gz.open(quy, "wt", encoding="utf-8") as _f:
+                _f.write('{"thiTruong":[{"giaiDoan":"quan-sat"}]}' + chr(10))
+            os.utime(quy, (gio - 400 * 86400, gio - 400 * 86400))
+            n3 = B.MayGhi.don_cu(mg)
+            kiem("file QUÁ HẠN mà có khung ăn thua thì KHÔNG xoá",
+                 n3 == 0 and quy.exists(), (n3, quy.exists()))
+
+            # File hỏng không đọc được ⇒ GIỮ. Không chắc thì đừng xoá.
+            hong = tm / "bang-2018-01-01.jsonl.gz"
+            hong.write_bytes(b"khong-phai-gzip")
+            os.utime(hong, (gio - 400 * 86400, gio - 400 * 86400))
+            n4 = B.MayGhi.don_cu(mg)
+            kiem("file HỎNG không đọc được thì GIỮ, không xoá",
+                 n4 == 0 and hong.exists(), (n4, hong.exists()))
             kiem("KHÔNG xoá file đang mở", gia_moi.exists())
             kiem("KHÔNG đụng file không phải băng", khac.exists())
 
