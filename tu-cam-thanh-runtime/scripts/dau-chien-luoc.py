@@ -72,6 +72,7 @@ def _nap_cho(sym: str, chinh: str, ctx: str):
     lẫn sang nhau — chỗ này mà sai thì kết quả của ETH sẽ là chuỗi của BTC, trả
     về trong một giây và trông rất hợp lý.
     """
+    import datetime as _dt
     import json as _json
     from trader.config import ROOT as _ROOT
 
@@ -144,7 +145,12 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     from trader.config import DATA_DIR as _DD
     import json as _json
     _f = _DD / "dau-nhieu-cho.json"
+    # `luc` không phải trang trí. Bàn giao đo tuổi kho bằng mtime của file, mà
+    # mtime nói "lần ghi cuối", không nói "đo trên dữ liệu tới lúc nào". Một
+    # lượt chạy hỏng nửa chừng vẫn chạm file và làm kho trông tươi. Số nến thì
+    # nói cỡ mẫu — thiếu nó, "+0,4R" đọc giống nhau ở n=3 và n=300.
     _f.write_text(_json.dumps({
+        "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
         "cho": cot,
         "ket": {ma: {c: {"kyVongR": v[c].get("kyVongR"), "so": v[c].get("so"),
                          "tyLeThang": v[c].get("tyLeThang"),

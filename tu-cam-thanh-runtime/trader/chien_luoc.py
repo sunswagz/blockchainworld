@@ -59,6 +59,10 @@ def doc() -> dict:
 
 
 def ghi(d: dict) -> dict:
+    # Sổ tự đóng dấu lần ghi cuối. Bàn giao đo tuổi kho bằng mtime của file, mà
+    # mtime nói "file bị chạm", không nói "số bên trong được đo lại". Một lượt
+    # đấu hỏng nửa chừng vẫn chạm file và làm sổ trông tươi.
+    d["luc"] = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
     store.write_json(SO, d)
     return d
 

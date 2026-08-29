@@ -881,6 +881,7 @@ async def main() -> int:
           f"(~{len(_sk22) / 3.2:,.0f} token mỗi lượt gọi, {_n22} kỹ năng)")
 
     print("\n[21] BÀN GIAO PHẢI ĐO TUỔI KHO ĐO, KHÔNG TIN LỜI BÁO CÁO")
+    import datetime as _dt21
     import importlib.util as _il21
     _sp21 = _il21.spec_from_file_location("bg21", str(ROOT / "scripts" / "ban-giao.py"))
     BG21 = _il21.module_from_spec(_sp21)
@@ -899,6 +900,32 @@ async def main() -> int:
     os.utime(_f21, (_gia, _gia))
     check(any(_ten in x for x in BG21._kho_cu()),
           f"{_ten} quá ngưỡng {_ng}h → báo cũ")
+
+    # ── mtime tươi + dấu `luc` CŨ: đúng thế cờ mtime không thấy được ──
+    #
+    # Một lượt đo hỏng nửa chừng vẫn ghi file. mtime thành mới, số bên trong là
+    # của hôm kia, và bàn giao báo "kho tươi". Đây là chỗ duy nhất hai thước
+    # cho hai câu trả lời khác nhau — nên phải kiểm bằng chính thế cờ đó.
+    _f21.write_text(json.dumps({
+        "luc": (_dt21.datetime.now(_dt21.timezone.utc)
+                - _dt21.timedelta(hours=_ng + 5)).isoformat(timespec="seconds")
+    }), encoding="utf-8")   # mtime = BÂY GIỜ
+    check(any(_ten in x for x in BG21._kho_cu()),
+          "mtime tươi nhưng dấu `luc` quá ngưỡng → VẪN báo cũ")
+
+    _f21.write_text(json.dumps({
+        "luc": _dt21.datetime.now(_dt21.timezone.utc).isoformat(timespec="seconds")
+    }), encoding="utf-8")
+    _gia2 = _tg.time() - (_ng + 5) * 3600
+    os.utime(_f21, (_gia2, _gia2))   # mtime CŨ, dấu mới
+    check(not any(_ten in x for x in BG21._kho_cu()),
+          "dấu `luc` mới thắng mtime cũ — cửa ngược lại")
+
+    # Và phải NÓI RA khi rơi về mtime, chứ không lặng lẽ đo bằng thước yếu hơn.
+    _f21.write_text("{}", encoding="utf-8")
+    os.utime(_f21, (_gia2, _gia2))
+    check(any("không đóng dấu" in x for x in BG21._kho_cu()),
+          "kho không đóng dấu → báo cũ KÈM lời khai đang đo bằng mtime")
     _f21.unlink()
     check(any("CHƯA CÓ" in x and _ten in x for x in BG21._kho_cu()),
           f"{_ten} không tồn tại → báo CHƯA CÓ, khác với «cũ»")
@@ -921,6 +948,28 @@ async def main() -> int:
           + (f" — KHÔNG AI CANH: {_sot}" if _sot else ""))
     check(bool({"kho-khong-ai-canh.json"} - _canh),
           "phép so BẮT ĐƯỢC một kho lạ — không tự chấm mù")
+
+    # ── Kho phải tự đóng dấu LÚC ĐO ──
+    #
+    # Bàn giao đo tuổi kho bằng mtime. mtime nói "file bị chạm", không nói "số
+    # bên trong được đo lại": một lượt hỏng nửa chừng vẫn chạm file, và kho
+    # trông tươi trong khi nội dung là của hôm kia. Bốn trong sáu kho không có
+    # trường nào nói lúc đo — do-khung, bo-pha, dau-nhieu-cho, chien-luoc.
+    #
+    # Canh ở tầng MÃ NGUỒN vì kho trong DATA_DIR tạm thì rỗng: mỗi script ghi
+    # kho phải nhắc "luc" ngay trong câu lệnh ghi.
+    _phai_dau = {
+        "scripts/do-khung.py": "do-khung.json",
+        "scripts/bo-pha.py": "bo-pha.json",
+        "scripts/dau-chien-luoc.py": "dau-nhieu-cho.json",
+        "trader/chien_luoc.py": "chien-luoc.json",
+        "scripts/do-mau-gia.py": "mau-gia.json",
+    }
+    _khong = [f for f in _phai_dau
+              if chr(34) + "luc" + chr(34) not in (ROOT / f).read_text(encoding="utf-8")]
+    check(not _khong,
+          "mọi script sinh kho đo đều đóng dấu lúc đo"
+          + (f" — KHÔNG ĐÓNG DẤU: {_khong}" if _khong else ""))
     print("\n[20] HẬU KIỂM PHẢI NHƯỜNG TRẦN CHO LUẬN ĐIỂM")
     import trader.brain as _B20
 

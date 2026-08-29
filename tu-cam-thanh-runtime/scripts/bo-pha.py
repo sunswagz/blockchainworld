@@ -32,6 +32,7 @@ quả backtest.
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import sys
 from pathlib import Path
@@ -186,7 +187,9 @@ def main() -> int:
 
     if GHI:
         f = DATA_DIR / "bo-pha.json"
-        f.write_text(json.dumps({"cho": cho, "ma": ma, "cuaSo": CUA_SO,
+        f.write_text(json.dumps({"luc": _dt.datetime.now(_dt.timezone.utc)
+                                 .isoformat(timespec="seconds"),
+                                 "cho": cho, "ma": ma, "cuaSo": CUA_SO,
                                  "soCuaSo": SO_CUA_SO, "ket": ket},
                                 ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"\nđã ghi {f.name}")

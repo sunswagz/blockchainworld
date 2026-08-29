@@ -237,6 +237,34 @@ def _dung_im() -> list[str]:
             + "nên bằng chứng âm đứng nguyên. Thứ phải đổi là CHIẾN LƯỢC hoặc CHỢ, "
             + "không phải thời gian."]
 
+def _tuoi(f) -> tuple[float, str]:
+    """Tuổi kho tính bằng giờ, và ĐO THEO CÁI GÌ.
+
+    mtime nói "file bị chạm", không nói "số bên trong được đo lại". Một lượt đo
+    hỏng nửa chừng vẫn ghi file, và kho trông tươi trong khi nội dung là của
+    hôm kia. Nên ưu tiên dấu `luc` mà chính script đo đóng vào file.
+
+    Rơi về mtime khi không có dấu — và NÓI RA là đang rơi về. Kho chưa kịp học
+    đóng dấu vẫn phải đo được; cái không được phép là đo bằng thước yếu hơn mà
+    không ai biết.
+    """
+    import time as _t
+
+    mt = (_t.time() - f.stat().st_mtime) / 3600
+    if f.suffix != ".json":
+        return mt, "mtime"
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+        luc = d.get("luc") if isinstance(d, dict) else None
+        if not luc:
+            return mt, "mtime (kho không đóng dấu)"
+        t = _dt.datetime.fromisoformat(luc)
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=_dt.timezone.utc)
+        return (_dt.datetime.now(_dt.timezone.utc) - t).total_seconds() / 3600, "dấu `luc`"
+    except (ValueError, OSError, TypeError):
+        return mt, "mtime (dấu hỏng)"
+
 def _kho_cu() -> list[str]:
     """Kho đo nào đã cũ.
 
@@ -255,12 +283,12 @@ def _kho_cu() -> list[str]:
         if not f.exists():
             ra.append(f"`{ten}` — CHƯA CÓ, {nhan} chưa chạy lần nào")
             continue
-        gio = (_t.time() - f.stat().st_mtime) / 3600
+        gio, theo = _tuoi(f)
         if gio > nguong:
             ngay = gio / 24
             ra.append(f"`{ten}` — {nhan} cũ {gio:.0f} giờ"
                       + (f" ({ngay:.1f} ngày)" if ngay >= 1 else "")
-                      + f", ngưỡng {nguong}h")
+                      + f", ngưỡng {nguong}h (đo theo {theo})")
     return ra
 
 

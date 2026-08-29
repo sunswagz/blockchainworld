@@ -35,6 +35,7 @@ lệch của **khung cộng với thời kỳ**, không phải của riêng khun
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import sys
 from pathlib import Path
@@ -178,7 +179,11 @@ def main() -> int:
 
     if GHI:
         f = DATA_DIR / "do-khung.json"
-        f.write_text(json.dumps({"stopAtr": STOP_ATR, "giu": GIU, "buoc": BUOC,
+        # `luc`: mtime chỉ nói "lần ghi cuối", không nói "đo trên dữ liệu tới lúc
+        # nào" — một lượt hỏng nửa chừng vẫn chạm file và làm kho trông tươi.
+        f.write_text(json.dumps({"luc": _dt.datetime.now(_dt.timezone.utc)
+                                 .isoformat(timespec="seconds"),
+                                 "stopAtr": STOP_ATR, "giu": GIU, "buoc": BUOC,
                                  "dragBps": drag, "ket": ra}, ensure_ascii=False, indent=1),
                      encoding="utf-8")
         print(f"\nđã ghi {f}")
