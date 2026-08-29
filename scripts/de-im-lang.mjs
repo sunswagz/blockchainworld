@@ -112,17 +112,24 @@ function tach(css) {
   return ra;
 }
 
+/* Rút khai báo của MỘT khối, chỉ giữ giá trị cuối của mỗi thuộc tính
+   — xem "bẫy 1" ở đầu file. Tách ra vì hai lượt soi bên dưới cùng
+   cần nó, và hai bản chép của một phép rút là hai bản sẽ lệch nhau. */
+function khaiCuoi(than) {
+  const cuoi = new Map();
+  for (const m of than.matchAll(/([-\w]+)\s*:\s*([^;]+)/g)) {
+    const tp = m[1].toLowerCase();
+    if (tp.startsWith("--")) continue;   /* biến: khai lại là chuyện thường */
+    cuoi.set(tp, m[2].trim().replace(/\s+/g, " ").replace(/!important$/, "").trim());
+  }
+  return cuoi;
+}
+
 function soi(duong) {
   const luat = tach(readFileSync(duong, "utf8"));
   const bang = new Map();
   for (const l of luat) {
-    /* Chỉ giữ giá trị CUỐI của mỗi thuộc tính trong khối — xem "bẫy 1". */
-    const cuoi = new Map();
-    for (const m of l.than.matchAll(/([-\w]+)\s*:\s*([^;]+)/g)) {
-      const tp = m[1].toLowerCase();
-      if (tp.startsWith("--")) continue;   /* biến: khai lại là chuyện thường */
-      cuoi.set(tp, m[2].trim().replace(/\s+/g, " ").replace(/!important$/, "").trim());
-    }
+    const cuoi = khaiCuoi(l.than);
     /* Khoá theo CẢ danh sách selector, không theo từng selector tách ra.
        Lý do là một lối viết đúng đắn rất phổ biến:
 
@@ -149,12 +156,60 @@ function soi(duong) {
   return de;
 }
 
+/* THỨ TỰ NẠP, đọc từ index.html chứ không xếp theo tên. Cái nào nạp
+   sau thì thắng, nên in sai thứ tự là chỉ nhầm bên đang chết. */
+function theoThuTuNap(c, thu) {
+  const co = readdirSync(thu).filter((x) => x.endsWith(".css")).sort();
+  let thuTu = [];
+  const ih = join(ROOT, c, "index.html");
+  if (existsSync(ih)) {
+    const html = readFileSync(ih, "utf8");
+    for (const m of html.matchAll(/href="[^"]*?([-\w]+\.css)"/g))
+      if (co.includes(m[1]) && !thuTu.includes(m[1])) thuTu.push(m[1]);
+  }
+  for (const f of co) if (!thuTu.includes(f)) thuTu.push(f);
+  return thuTu.map((f) => ({ ten: f, ma: readFileSync(join(thu, f), "utf8") }));
+}
+
+/* CHỖ ĐÈ BẮC QUA HAI TỆP — lượt soi thứ hai, và nó có vì lượt thứ
+   nhất đã để lọt một ca thật.
+
+   Đài Quan Trắc nạp ba tệp CSS. `app-shell.css` style `.sw-toast` và
+   `.install-dqt` từ 12/08; một phiên sau soi app.css với halls.css,
+   không thấy hai lớp ấy đâu, và viết khối mới vào halls.css — tệp
+   nạp SAU CÙNG. Khối mới thắng ở mọi thuộc tính nó đặt: thanh thông
+   báo đổi từ viên thuốc 999px sang góc 10px, nút đổi nền. Giao diện
+   đổi trên site mà không ai định đổi, và lượt soi từng-tệp in ✓.
+
+   Khoá y hệt lượt kia (ngữ cảnh @ + cả danh sách selector + thuộc
+   tính), chỉ thêm một điều kiện: hai lần khai phải ở HAI TỆP khác
+   nhau — cùng tệp thì lượt kia đã lo, in hai lần là tiếng ồn. */
+function soiBatCau(tep) {
+  const bang = new Map();
+  for (const t of tep) for (const l of tach(t.ma)) {
+    for (const [tp, gt] of khaiCuoi(l.than)) {
+      const k = `${l.nganh}\u0000${l.sel}\u0000${tp}`;
+      if (!bang.has(k)) bang.set(k, []);
+      bang.get(k).push({ gt, dong: l.dong, tep: t.ten });
+    }
+  }
+  const de = [];
+  for (const [k, v] of bang) {
+    if (new Set(v.map((x) => x.tep)).size < 2) continue;
+    if (new Set(v.map((x) => x.gt)).size < 2) continue;
+    const [nganh, sel, tp] = k.split("\u0000");
+    de.push({ nganh, sel, tp, v });
+  }
+  return de;
+}
+
 let tong = 0;
 for (const c of CUNG ? [CUNG] : moiCung()) {
   const ten = c || "(cổng thành)";
   const thu = join(ROOT, c, "assets", "css");
   if (!existsSync(thu)) continue;
-  for (const f of readdirSync(thu).filter((x) => x.endsWith(".css")).sort()) {
+  const tep = theoThuTuNap(c, thu);
+  for (const f of tep.map((t) => t.ten)) {
     const de = soi(join(thu, f));
     if (!de.length) continue;
     tong += de.length;
@@ -163,6 +218,17 @@ for (const c of CUNG ? [CUNG] : moiCung()) {
       console.log(`   ${d.sel} · ${d.tp}${d.nganh ? `   [${d.nganh}]` : ""}`);
       console.log(`      ${d.v.map((x) => `dòng ${x.dong}: ${x.gt}`).join("   →   ")}` +
         `   ⟵ chỉ giá trị cuối có tác dụng`);
+    }
+  }
+
+  const bc = soiBatCau(tep);
+  if (bc.length) {
+    tong += bc.length;
+    console.log(`\n${ten}${c ? "/" : " "}assets/css/ — ${bc.length} chỗ đè BẮC QUA TỆP`);
+    for (const d of bc) {
+      console.log(`   ${d.sel} · ${d.tp}${d.nganh ? `   [${d.nganh}]` : ""}`);
+      console.log(`      ${d.v.map((x) => `${x.tep}:${x.dong} ${x.gt}`).join("   →   ")}` +
+        `   ⟵ tệp nạp sau thắng`);
     }
   }
 }
