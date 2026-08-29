@@ -380,6 +380,64 @@ class RiskEngine:
             cho_phep = max_co
             canh.append(f"trần vốn market cắt còn {max_co:.0f} cổ")
 
+        # 6b. NGÂN SÁCH LỖ NGÀY CÒN LẠI — trần ngày phải chặn TRƯỚC
+        #
+        # Trước bản này, trần lỗ ngày chỉ sống ở cổng 1: cầu dao đã ngắt
+        # thì từ chối. Tức là nó không bao giờ NGĂN được lần vượt trần —
+        # nó chỉ ghi nhận sau khi tiền đã đi.
+        #
+        # Và hai cái trần không đứng chung được với nhau. Trần mỗi market
+        # là 10% vốn; trần lỗ ngày là 5%. Vị thế nhị phân thua thì mất
+        # TRỌN số tiền vào. Nên MỘT lệnh cỡ tối đa, thua, là mất gấp đôi
+        # ngân sách cả ngày — và không cổng nào ngăn được.
+        #
+        # Không phải giả thiết. Sổ kết toán ngày 29/08 có đúng một dòng:
+        # mua 109,91 cổ UP hết $49,95, thua sạch. Trần ngày $50,00. Một
+        # lệnh, một lần, 99,9% ngân sách ngày. Cầu dao chưa kịp ngắt vì
+        # nó chỉ được hỏi ở lệnh SAU.
+        #
+        # Phép chặn dựa trên LỖ XẤU NHẤT, thứ tính chính xác được ở chợ
+        # nhị phân: `min(coUp, coDown) − tiềnVào − phí`. Cộng qua mọi
+        # market vì một ngày xấu thì chúng xấu cùng nhau.
+        #
+        # Chân PHÒNG HỘ đi qua tự do: mua chân đối diện làm lỗ xấu nhất
+        # GIẢM, nên `dư` không bao giờ âm vì nó. Chặn phòng hộ vì hết
+        # ngân sách là để lại một chân trần trụi — làm rủi ro TO RA nhân
+        # danh giảm rủi ro.
+        tranNgay = self.tranLoNgayUsd
+        if tranNgay > 0:
+            # `laiRongNgayUsd` âm khi đang lỗ; lãi của ngày KHÔNG được
+            # cộng thêm vào ngân sách (lãi chưa rút thì vẫn là tiền đang
+            # đặt cược, và một cái trần nới ra theo lãi thì lại là cái
+            # trần đuổi theo chính mình).
+            # Dùng CHÍNH hai phép mà buồng lái đọc, không tính lại tại
+            # chỗ: một cái cổng chặn theo con số A trong khi màn hình
+            # hiện con số B là thứ không ai gỡ nổi lúc có chuyện.
+            con_ngay = tranNgay + min(0.0, self.laiRongNgayUsd)
+            dang_ganh = self.lo_xau_nhat_gop_usd()
+            du = self.con_ngan_sach_ngay_usd()
+            # Sức chứa phòng hộ: mua tới ngần này cổ bên `ben` thì lỗ xấu
+            # nhất còn GIẢM, vì nó lấp vào chân mỏng.
+            phong_ho = max(0.0, (v.coDown - v.coUp) if ch.ben == "UP"
+                           else (v.coUp - v.coDown))
+            if du <= 0:
+                if phong_ho < 1:
+                    return PhanQuyet(False, 0.0, [
+                        f"lỗ xấu nhất đang gánh ${dang_ganh:.2f} đã hết "
+                        f"ngân sách lỗ ngày ${con_ngay:.2f} — chỉ còn nhận "
+                        "lệnh PHÒNG HỘ"])
+                if phong_ho < cho_phep:
+                    cho_phep = phong_ho
+                    canh.append(f"hết ngân sách lỗ ngày, chỉ cho phòng hộ "
+                                f"{phong_ho:.0f} cổ")
+            else:
+                max_ngay = (du + phong_ho) / max(1e-9, ch.vwap)
+                if max_ngay < cho_phep:
+                    cho_phep = max_ngay
+                    canh.append(
+                        f"ngân sách lỗ ngày còn ${du:.2f} cắt còn "
+                        f"{max_ngay:.0f} cổ")
+
         # 7. trần vốn mỗi nhóm tài sản (BTC_5M + BTC_15M cùng một rổ)
         nhom = nhom_tai_san(ch.ma)
         dang_nhom = sum(
@@ -482,6 +540,21 @@ class RiskEngine:
         von_cho = self.von * f
         return von_cho / max(1e-9, ch.vwap)
 
+    def lo_xau_nhat_gop_usd(self) -> float:
+        """Tổng lỗ xấu nhất đang gánh, cộng qua mọi market.
+
+        Cộng THẲNG chứ không chiết khấu theo tương quan, và đó là chủ ý:
+        đây là câu hỏi "ngày hôm nay xấu nhất thì mất bao nhiêu", mà một
+        ngày xấu thì bốn market crypto xấu cùng nhau. Chỗ cần tương quan
+        là trần PHƠI NHIỄM (cổng 7b), không phải chỗ này.
+        """
+        return sum(x.lo_xau_nhat_usd() for x in self.kho.viThe.values())
+
+    def con_ngan_sach_ngay_usd(self) -> float:
+        """Ngân sách lỗ ngày còn lại, TRỪ ĐI phần đang gánh chưa kết toán."""
+        return (self.tranLoNgayUsd + min(0.0, self.laiRongNgayUsd)
+                - self.lo_xau_nhat_gop_usd())
+
     def tom_tat(self) -> dict:
         return {
             "von": self.von,
@@ -498,6 +571,12 @@ class RiskEngine:
             "laiRongNgayUsd": self.laiRongNgayUsd,
             "loGopNgayUsd": self.loGopNgayUsd,
             "tranLoNgayUsd": self.tranLoNgayUsd,
+            # Hai con số của cổng 6b. Chúng đáng hiện ra vì `loNgayUsd`
+            # chỉ kể chuyện ĐÃ RỒI: nó không nói cỗ máy đang gánh sẵn
+            # bao nhiêu rủi ro chưa kết toán. Một ngày có `loNgayUsd = 0`
+            # mà `loXauNhatGopUsd` bằng đúng trần thì trần ấy đã tiêu.
+            "loXauNhatGopUsd": self.lo_xau_nhat_gop_usd(),
+            "conNganSachNgayUsd": self.con_ngan_sach_ngay_usd(),
             "tranPhoiNhiemGopUsd": self.tranPhoiNhiemGopUsd,
             "tranMoiThiTruongUsd": self.tranMoiThiTruongUsd,
             "tranMoiTaiSanUsd": self.tranMoiTaiSanUsd,

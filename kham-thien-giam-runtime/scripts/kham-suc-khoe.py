@@ -179,6 +179,23 @@ def main() -> int:
             hong.append(f"{len(nga)} làn ngã: {', '.join(list(nga)[:3])}")
         if b.get("soLoiGhi"):
             hong.append(f"{b['soLoiGhi']} lỗi ghi băng")
+        # Ngân sách lỗ ngày: cả phần ĐÃ MẤT lẫn phần ĐANG GÁNH.
+        # Trang này từng chỉ kêu khi cầu dao đã ngắt, tức là chỉ kêu khi
+        # đã muộn. `lỗ ngày 49,95/50,00` từng hiện ra dưới dòng chữ
+        # "Không có gì hỏng".
+        tran = float(r.get("tranLoNgayUsd") or 0.0)
+        con = r.get("conNganSachNgayUsd")
+        ganh = float(r.get("loXauNhatGopUsd") or 0.0)
+        if tran > 0:
+            print(f"    ngân sách ngày còn "
+                  f"{(con if con is not None else 0.0):,.2f}/{tran:,.2f}"
+                  f" · đang gánh (chưa kết toán) {ganh:,.2f}")
+            if con is not None and con <= 0:
+                nhac.append("ngân sách lỗ ngày ĐÃ CẠN — chỉ còn nhận lệnh "
+                            "phòng hộ")
+            elif con is not None and con < tran * 0.2:
+                nhac.append(f"ngân sách lỗ ngày chỉ còn {con:,.2f}/"
+                            f"{tran:,.2f} — dưới một phần năm")
         if r.get("ngatKhanCap"):
             nhac.append("cầu dao đang NGẮT — không lệnh nào đi qua")
         if tt.get("tamDung"):

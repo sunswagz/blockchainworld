@@ -158,6 +158,42 @@ class ViThe:
         return (self.gia_tri_khi_ket_qua(upThang)
                 - (self.tienUp + self.tienDown) - self.phiUsd)
 
+    def lo_xau_nhat_usd(self) -> float:
+        """Mất nhiều nhất bao nhiêu nếu khung này quay ra chiều xấu nhất.
+
+        Thị trường nhị phân chỉ có hai kết cục, nên "xấu nhất" tính được
+        CHÍNH XÁC, không phải ước:
+
+            UP thắng   →  lãi lỗ = coUp   − tiềnVào − phí
+            DOWN thắng →  lãi lỗ = coDown − tiềnVào − phí
+            xấu nhất   =  min(coUp, coDown) − tiềnVào − phí
+
+        Trả số DƯƠNG là số đô có thể mất; số 0 nghĩa là cặp đã ghép kín,
+        chiều nào cũng không lỗ.
+
+        Có phép này thì trần lỗ ngày mới chặn được TRƯỚC. Không có nó,
+        trần lỗ ngày chỉ biết kêu sau khi tiền đã đi.
+        """
+        xau = min(self.coUp, self.coDown) - (self.tienUp + self.tienDown)             - self.phiUsd
+        return max(0.0, -xau)
+
+    def lo_xau_nhat_khi_mua(self, ben: str, soCo: float,
+                            gia: float) -> float:
+        """Lỗ xấu nhất SAU KHI mua thêm `soCo` cổ bên `ben` giá `gia`.
+
+        Tách khỏi `lo_xau_nhat_usd` vì cổng rủi ro phải hỏi câu "nếu tôi
+        mua thì sao", chứ hỏi "hiện giờ thế nào" thì đã muộn.
+
+        Mua chân ĐỐI DIỆN là PHÒNG HỘ — nó làm số này GIẢM. Cổng nào chặn
+        theo số này sẽ tự động không bao giờ chặn một lệnh phòng hộ, và
+        đó là chủ ý: chặn phòng hộ vì hết ngân sách lỗ là để lại một chân
+        trần trụi, tức là làm rủi ro TO RA nhân danh giảm rủi ro.
+        """
+        up = self.coUp + (soCo if ben == "UP" else 0.0)
+        down = self.coDown + (0.0 if ben == "UP" else soCo)
+        tien = self.tienUp + self.tienDown + soCo * gia
+        return max(0.0, tien + self.phiUsd - min(up, down))
+
     def tom_tat(self) -> dict:
         return {
             "ma": self.ma,

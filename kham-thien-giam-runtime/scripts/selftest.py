@@ -314,6 +314,64 @@ def kiem_rui_ro() -> None:
     xau = can("BTC_5M", "UP", "t", 0.50, 0.02, SO_MAU, 600)
     kiem("net edge âm → TỪ CHỐI", re.duyet(xau, lanh, 200, False).tu_choi)
 
+    # ── trần lỗ ngày phải chặn TRƯỚC, không phải kêu sau ──────────────
+    #
+    # Cổng 1 chỉ từ chối khi cầu dao ĐÃ ngắt, nên nó không bao giờ ngăn
+    # được lần vượt trần đầu tiên. Mà trần mỗi market (10% vốn) lớn gấp
+    # đôi trần lỗ ngày (5%), và vị thế nhị phân thua thì mất TRỌN tiền
+    # vào — nên đúng MỘT lệnh cỡ tối đa là đủ thổi bay ngân sách cả ngày.
+    #
+    # Đã xảy ra thật: sổ ngày 29/08 có một dòng duy nhất, mua 109,91 cổ
+    # UP hết $49,95, thua sạch, trần ngày $50,00.
+    def _re_moi():
+        kk = Kho()
+        return kk, RiskEngine(kk)
+
+    k2, re2 = _re_moi()
+    sach = re2.duyet(ch, lanh, 200, True)
+    k3, re3 = _re_moi()
+    re3.ghi_lai_lo(-45.0)                      # ngân sách còn $5
+    hep = re3.duyet(ch, lanh, 200, True)
+    kiem("lỗ gần trần ngày → SIẾT cỡ lệnh, không phải chờ cầu dao",
+         hep.cho and hep.soCoChoPhep < sach.soCoChoPhep,
+         f"{hep.soCoChoPhep:.1f} vs {sach.soCoChoPhep:.1f}")
+    kiem("cỡ còn lại không vượt ngân sách ngày còn lại",
+         hep.soCoChoPhep * ch.vwap <= 5.0 + 1e-6,
+         f"${hep.soCoChoPhep * ch.vwap:.4f} > $5.00")
+
+    # Chân PHÒNG HỘ phải đi qua kể cả khi ngân sách cạn: chặn nó là để
+    # lại một chân trần trụi — làm rủi ro TO RA nhân danh giảm rủi ro.
+    k4, re4 = _re_moi()
+    v4 = k4.lay("BTC_5M")
+    v4.ghi_khop("DOWN", 50, 0.50)
+    re4.ghi_lai_lo(-49.5)                      # ngân sách còn $0,50
+    ph = re4.duyet(ch, lanh, 200, True)
+    kiem("hết ngân sách ngày nhưng lệnh PHÒNG HỘ vẫn đi qua",
+         ph.cho and ph.soCoChoPhep > 1, (ph.cho, ph.soCoChoPhep))
+    kiem("và nó thật sự LÀM GIẢM lỗ xấu nhất",
+         v4.lo_xau_nhat_khi_mua("UP", ph.soCoChoPhep, ch.vwap)
+         < v4.lo_xau_nhat_usd(),
+         f"{v4.lo_xau_nhat_khi_mua('UP', ph.soCoChoPhep, ch.vwap):.2f} "
+         f"vs {v4.lo_xau_nhat_usd():.2f}")
+    down = can("BTC_5M", "DOWN", "t", 0.55, 0.02,
+               SoLenh("BTC_5M", "DOWN", ask=SO_MAU.ask, bid=SO_MAU.bid), 600)
+    kiem("cùng chiều — CHỒNG CHẤT rủi ro — thì TỪ CHỐI",
+         re4.duyet(down, lanh, 200, True).tu_choi)
+
+    # Lỗ xấu nhất ở chợ nhị phân tính CHÍNH XÁC được, không phải ước.
+    v5 = Kho().lay("BTC_5M")
+    v5.ghi_khop("UP", 100, 0.40)
+    kiem("một chân: lỗ xấu nhất = trọn tiền vào",
+         gan(v5.lo_xau_nhat_usd(), 40.0), v5.lo_xau_nhat_usd())
+    v5.ghi_khop("DOWN", 100, 0.40)
+    kiem("cặp ghép kín dưới $1: lỗ xấu nhất về 0",
+         gan(v5.lo_xau_nhat_usd(), 0.0), v5.lo_xau_nhat_usd())
+    v6 = Kho().lay("BTC_5M")
+    v6.ghi_khop("UP", 100, 0.60)
+    v6.ghi_khop("DOWN", 100, 0.60)
+    kiem("cặp ghép QUÁ $1 thì lỗ khoá lại, và số ấy hiện ra",
+         gan(v6.lo_xau_nhat_usd(), 20.0), v6.lo_xau_nhat_usd())
+
     # chưa hiệu chỉnh thì KHÔNG được dùng Kelly
     chua = re.duyet(ch, lanh, 200, False)
     du = re.duyet(ch, lanh, 200, True)
