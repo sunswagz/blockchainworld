@@ -66,7 +66,43 @@ for (const cung of moiTrang()) {
   }
 }
 
-/* ── 2. bảng tra logo ────────────────────────────────────────
+/* ── 2. mảng SHELL của service worker ────────────────────────
+   Hậu quả nặng hơn ảnh vỡ: `cache.addAll(SHELL)` là MỘT giao dịch —
+   một đường 404 làm cả lời hứa thất bại, service worker KHÔNG cài
+   được, và PWA mất sạch phần chạy offline. Trên trang đang mở thì
+   không thấy gì khác thường, vì mạng vẫn phục vụ bình thường.
+
+   CẮT CHÚ THÍCH TRƯỚC KHI BÓC CHUỖI. Bản nháp không cắt, và nó báo
+   `tang-thu-cac` thiếu đường "còn nguyên bản gốc 2859" — một câu tiếng
+   Việt nằm trong khối chú thích GIỮA mảng SHELL. Cùng đúng cái bẫy mà
+   thước `bo-qua` trong scripts/tien-hoa.mjs đã vấp: dò bằng chuỗi thô
+   thì chú thích giải thích một thứ bị tính là chính thứ đó. */
+const SW_CHU = /\/\*[\s\S]*?\*\//g;
+for (const cung of moiTrang()) {
+  const p = join(ROOT, cung, "sw.js");
+  if (!existsSync(p)) continue;
+  const ma = readFileSync(p, "utf8").replace(SW_CHU, " ");
+  const m = ma.match(/SHELL\s*=\s*\[([\s\S]*?)\]/);
+  if (!m) {
+    /* Không đọc được thì nói thẳng, đừng im — im là một cung mất canh
+       mà không ai hay. */
+    thieu.push(`${cung || "(cổng thành)"}/sw.js: không đọc được mảng SHELL`);
+    continue;
+  }
+  for (const q of m[1].matchAll(/["']([^"']+)["']/g)) {
+    const d = q[1];
+    if (/^(https?:|\/\/|data:)/.test(d)) continue;
+    tong += 1;
+    let p2 = d.startsWith("/") ? join(ROOT, d) : join(ROOT, cung, d);
+    if (d === "./" || d === "." || d.endsWith("/")) p2 = join(p2, "index.html");
+    if (!existsSync(p2)) {
+      thieu.push(`${cung || "(cổng thành)"}/sw.js SHELL → ${d}` +
+        "  (một đường hỏng là service worker KHÔNG cài được)");
+    }
+  }
+}
+
+/* ── 3. bảng tra logo ────────────────────────────────────────
    Khai tường minh bảng nào trỏ vào thư mục nào. Đoán bằng tên bảng là
    sớm muộn đoán sai, và một phép kiểm đoán sai thì báo oan — mà cảnh
    báo báo oan đều đặn thì người ta bỏ qua luôn lần nó đúng. */
