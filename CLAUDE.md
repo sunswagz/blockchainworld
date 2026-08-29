@@ -593,6 +593,38 @@ một khoảng tin do chính script in ra — [[luat-phai-chay-duoc]].)
 `scripts/do-cho-that.py` và `scripts/chay-phat-lai.py` chạy lại được mỗi
 khi băng dày thêm.
 
+### Khâm Thiên Giám — RỦI RO từng quên sạch mỗi lần khởi động lại
+
+Buồng lái khai `von 1.000` và `sutVonPct 0,0%` trong khi sổ kết toán ghi
+một lệnh LỖ $49,95. `RiskEngine.__init__` đặt `von = vonBanDau` từ config
+và không đọc gì cả.
+
+Ba cầu dao dựa trên đúng những con số ấy — trần lỗ NGÀY, trần sụt vốn từ
+ĐỈNH, và cỡ lệnh Kelly theo vốn. Nên một bot vừa chạm trần lỗ ngày, bị
+khởi động lại (sập, cập nhật, hay người bấm), có NGAY một ngân sách lỗ
+mới nguyên. Riêng ngày sửa lỗi này runtime được khởi động lại sáu lần.
+
+Sau khi sửa, đọc thật từ máy đang chạy:
+
+    von 950,05 · đỉnh 1.000 · sụt 4,99% · lỗ ngày 49,95 / trần 50,00
+
+Tức bot đã dùng gần hết ngân sách lỗ của ngày — và chính con số ấy trước
+đây bị xoá mỗi lần khởi động.
+
+`RiskEngine.nap_tu_so()` dựng lại từ SỔ, không thêm file trạng thái mới:
+sổ kết toán đã là nguồn sự thật, và **hai nguồn sự thật thì sớm muộn lệch
+nhau**. Bốn chỗ cố ý, mỗi chỗ một cái bẫy đã tránh:
+
+    · ĐỈNH vốn dựng theo cả đường vốn, không lấy giá trị cuối
+    · ngày lấy từ mốc GHI TRONG SỔ, không lấy đồng hồ máy — lấy đồng hồ
+      thì đọc lại sổ cũ là mọi dòng thành "hôm nay", cầu dao ngắt oan
+    · nạp xong SOÁT NGAY, không đợi lệnh kế tiếp (có thể không có)
+    · nạp hỏng thì KÊU — chạy tiếp im lặng chính là cái lỗi đang sửa
+
+Bài học chung với mục PHÍ ngay dưới: **trạng thái sống trong bộ nhớ mà
+sự thật nằm trên đĩa thì phải hỏi đĩa lúc khởi động.** Không hỏi thì cỗ
+máy không sai một phép tính nào — nó chỉ bắt đầu lại từ một quá khứ khác.
+
 ### Khâm Thiên Giám — PHÍ từng biến mất khỏi lãi lỗ (30/08/2026)
 
 `dat_lenh` tính phí đúng và in ra nhật ký — `phí $0.0900` — rồi thả nó
