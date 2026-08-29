@@ -310,6 +310,76 @@ class TyOnDinh(Ty):
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
 
+    # ── kế toán: chiến lược HỘI TỤ, lãi lỗ chỉ có thật LÚC ĐÓNG ──────────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Chênh stablecoin không sinh dòng tiền lúc giữ, và đó là điểm
+        khác căn bản với bốn ty đã có kế toán.
+
+        Cho vay và AMM có tiền CHẢY VÀO mỗi giây; funding có tiền chảy tại
+        mốc. Ở đây thì không: ta mua rẻ ở sàn này, bán đắt ở sàn kia, và
+        cả lãi lẫn lỗ chỉ thành thật **lúc gỡ hai chân ra**. Trong lúc
+        giữ, thứ duy nhất đổi là giá — mà giá đổi không phải tiền vào túi.
+
+        Nên `thuUsd` là **0 ĐO ĐƯỢC** suốt thời gian giữ, không phải
+        "không đo được". Cộng chênh lệch hiện tại vào như một khoản thu là
+        đánh giá lại theo giá rồi ghi nó vào sổ như tiền mặt — hai lỗi
+        chồng nhau, và đường NAV sẽ nhấp nhô theo một thứ chưa ai nhận.
+
+        Lãi lỗ THẬT trả về đúng một lần, kèm `dongLai=True`, khi:
+
+        · chênh lệch đã hội tụ (còn dưới ngưỡng NET của chính ty) — ăn
+          xong, gỡ ra;
+        · hoặc chênh lệch ĐẢO DẤU — giữ tiếp là lỗ thêm.
+
+        Số trả về đo bằng chính hai đỉnh sổ lệnh của lượt quét này: bán
+        chân đang giữ ở sàn MUA, mua lại ở sàn BÁN. Đó là giá thoát THẬT
+        chứ không phải giá giữa.
+        """
+        from thi_bac_ty.ke_toan import KetToanVong
+
+        cap = toTrinh.get("dinhGiaBang")
+        ma = toTrinh.get("taiSan")
+        sanMua = next((c.cang for c in viThe if c.ben == "LONG"), None)
+        sanBan = next((c.cang for c in viThe if c.ben == "SHORT"), None)
+        if not (sanMua and sanBan):
+            return KetToanVong(
+                doDuoc=False,
+                vi="vị thế không đủ hai chân mua/bán để đo hội tụ")
+
+        tra = {(d.san, d.cap): d for d in getattr(self, "dinh", []) or []}
+        capTen = next((k[1] for k in tra if k[1].split("/")[0] == ma), cap)
+        dMua, dBan = tra.get((sanMua, capTen)), tra.get((sanBan, capTen))
+        thieu = [x for x, d in ((sanMua, dMua), (sanBan, dBan)) if d is None]
+        if thieu:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"KHÔNG có đỉnh sổ lệnh {capTen} trên {', '.join(thieu)} "
+                   f"trong lượt quét gần nhất — sàn rớt khác hẳn chênh lệch "
+                   f"bằng 0")
+
+        # Thoát: BÁN chân đang giữ ở sàn mua (giá bid), MUA lại ở sàn bán
+        # (giá ask). Dùng bid/ask chứ không dùng giá giữa — giá giữa là
+        # một con số không ai khớp được.
+        raBps = (dMua.mua - dBan.ban) / dBan.ban * 10_000.0
+        von = sum(abs(float(getattr(c, "vonUsd", 0.0) or 0.0))
+                  for c in viThe) / 2.0
+        nguong = float(self.cong.c["netToiThieuBps"])
+        vi = (f"chênh {capTen} {sanMua}↔{sanBan}: thoát được {raBps:+.2f} "
+              f"bps trên {von:.2f} USD mỗi chân. Chiến lược HỘI TỤ — không "
+              f"có dòng tiền lúc giữ, lãi lỗ chỉ thật lúc gỡ hai chân")
+        if raBps <= 0.0:
+            return KetToanVong(
+                thuUsd=von * raBps / 10_000.0, dongLai=True,
+                lyDoDong=f"chênh lệch ĐẢO DẤU còn {raBps:+.2f} bps — giữ "
+                         f"tiếp là lỗ thêm", vi=vi)
+        if raBps < nguong:
+            return KetToanVong(
+                thuUsd=von * raBps / 10_000.0, dongLai=True,
+                lyDoDong=f"đã hội tụ: {raBps:.2f} bps < ngưỡng NET "
+                         f"{nguong:.2f} bps của chính ty — ăn xong thì gỡ",
+                vi=vi)
+        return KetToanVong(thuUsd=0.0, vi=vi)
+
 
 def _chay(coro):
     """Xem `tin_dung/ty_vay._chay` — cùng lý do, cùng cái giá."""

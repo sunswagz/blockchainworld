@@ -852,6 +852,59 @@ liệt kê tên: dựng một ty ghi đè mọi thành viên bằng chuỗi `"DA
 lại, rồi đòi lớp bọc trả về đúng chuỗi ấy. Thêm thành viên mới vào hợp đồng
 mà quên uỷ quyền thì phép kiểm đỏ, không cần ai nhớ.
 
+### Danh mục sống qua lần khởi động lại, và vì sao điều đó là bắt buộc
+
+`DanhMuc` từng dựng trong RAM. Hệ quả đo được trên sổ thật: ty xoay lãi
+cho vay có **51 lần vào lệnh cho BẢY vị thế** trong một buổi chiều, vì
+mỗi lần `run.py` khởi động lại là quên sạch rồi mở lại từ đầu — và trả
+phí vào lệnh lần nữa.
+
+Cái giá không phải 3,43 USD phí. Nó là **đường NAV không bao giờ dài quá
+một lần chạy**: `hieuNang` đòi ≥168 giờ mới dám kết luận, mà khởi động
+lại vài lần một ngày thì con số ấy vĩnh viễn ở mức vài phút. Sụt vốn,
+thời gian dưới đáy, CAGR, và vòng tiến hoá tham số ăn chính chúng — tất
+cả đều không bao giờ có gì để đo.
+
+`luu_danh_muc.py` ghi sau mỗi vòng, nạp lúc khởi động. Bốn quyết định
+đáng nhớ, và cả bốn là điều kiện để nó không thành nói dối:
+
+| giữ | không giữ | vì sao |
+|---|---|---|
+| tiền mặt, lãi lỗ, vị thế, sổ vị thế, đường NAV | | trạng thái thật của danh mục |
+| | **vốn ngoài** | đọc lại được mỗi vòng; giữ bản cũ là đúng thứ `von-ngoai-mu` sinh ra để chặn |
+| | **`vonBanDauUsd`** | nó là cấu hình; giữ bản cũ thì đổi vốn ảo sẽ im lặng không có tác dụng |
+
+**Mốc kế toán đặt lại thành BÂY GIỜ.** Cộng bù khoảng máy tắt là bịa ra
+một phép đo chưa từng chạy — không ai biết rate trong lúc máy không
+chạy. `giayTatMay` khai đúng nó mất bao lâu, và đường NAV có một quãng
+đứt tương ứng vì các điểm mang dấu thời gian thật.
+
+**Ghi qua file tạm rồi `os.replace`.** Ghi thẳng mà tiến trình chết giữa
+chừng là một JSON cụt, và lúc ấy máy mất sạch vị thế trong khi sổ đăng
+ký vẫn ghi chúng đang mở — quay về đúng chỗ lệch mà `doi_soat_vi_the`
+sinh ra để bắt.
+
+Điều đó đổi **ý nghĩa** của một tờ mồ côi chứ không làm phép đối soát
+thành thừa: trước đây mồ côi là chuyện thường sau mỗi restart, nay nó
+nghĩa là **bản lưu đã mất hoặc hỏng**.
+
+### Lãi lỗ TÁCH KHOẢN — con số gộp nói dối theo cách khó thấy
+
+    lending.rate_rotation.v1   GỘP −3,28    CHIẾN LƯỢC +0,15
+    amm.fee_farming.v1         GỘP +0,44    CHIẾN LƯỢC +0,80
+
+Cột GỘP trả lời *"tài khoản đã đổi bao nhiêu"*; cột CHIẾN LƯỢC trả lời
+*"ty này có kiếm được không"*. Cả hai đều đúng và chúng khác nhau, vì
+phí vào lệnh phần lớn do người vận hành restart chứ không do quyết định
+của ty. Gộp lại là bắt người đọc kết luận sai về chiến lược vì một
+chuyện của mình.
+
+Dấu duy nhất phân biệt phí vào lệnh với phí trong kỳ trên sổ là
+`phiUocBps` trong `chiTiet`. Và truy vấn **dựng từ bảng xử lý** chứ
+không chép tay: thêm một `LOAI` vào đó mà quên chỗ cộng thì `KHOAN[loai]`
+ném `KeyError` ngay, thay vì để khoản tiền ấy rơi vào hư không — đúng
+chỗ hở mà phép cấy lỗi ngược đã lộ ra.
+
 ## Hiệu năng đo bằng đường NAV, không bằng một APR nhân thẳng
 
 Vốn thật đi qua `100 × 1,12 × 1,31 × 0,92 × 1,22 × 1,05`, chứ không phải

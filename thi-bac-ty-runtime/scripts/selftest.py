@@ -5656,6 +5656,68 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("cash-carry: thiếu chân perp thì doDuoc=False",
          k is not None and k.doDuoc is False)
 
+    # ── 18. KẾ TOÁN ty chênh stablecoin: HỘI TỤ, không sinh dòng tiền ───
+    from san_chung.giao_ngay import DinhSo
+
+    from on_dinh.ty_on_dinh import TyOnDinh
+
+    to18 = TyOnDinh()
+    chan18 = [ViThe("m18", TyOnDinh.ma, "LONG", "binance", "USDC", 500.0,
+                    loai="spot"),
+              ViThe("m18", TyOnDinh.ma, "SHORT", "okx", "USDC", 500.0,
+                    loai="spot")]
+    tt18 = {"taiSan": "USDC", "dinhGiaBang": "USDC/USDT"}
+
+    def _dinh(san, mua, ban):
+        return DinhSo(san=san, cap="USDC/USDT", mua=mua, ban=ban,
+                      muaLuong=1e6, banLuong=1e6)
+
+    # chênh còn RỘNG: giữ tiếp, thu đúng 0 và là 0 ĐO ĐƯỢC
+    to18.dinh = [_dinh("binance", 1.0050, 1.0051), _dinh("okx", 0.9990, 0.9991)]
+    k = to18.ke_toan(chan18, tt18, now9 - 60.0, now9)
+    kiem("chênh stablecoin: giữ thì thu ĐÚNG 0, và doDuoc vẫn True",
+         k is not None and k.thuUsd == 0.0 and k.doDuoc and not k.dongLai,
+         f"{k and k.tom_tat()} — chiến lược HỘI TỤ không có dòng tiền lúc "
+         f"giữ; cộng chênh lệch hiện tại vào như một khoản thu là đánh giá "
+         f"lại theo giá rồi ghi vào sổ như tiền mặt")
+    kiem("và NÓI RA rằng lãi lỗ chỉ thật lúc gỡ hai chân",
+         k is not None and "HỘI TỤ" in k.vi, k and k.vi)
+
+    # đã HỘI TỤ: chênh còn dưới ngưỡng NET → đóng, ghi lãi thật
+    to18.dinh = [_dinh("binance", 1.00002, 1.00012),
+                 _dinh("okx", 0.99998, 1.00000)]
+    k = to18.ke_toan(chan18, tt18, now9 - 60.0, now9)
+    kiem("hội tụ xong thì ĐÓNG và ghi lãi thật",
+         k is not None and k.dongLai and k.thuUsd > 0.0,
+         f"{k and k.tom_tat()}")
+    kiem("và lý do đóng nói ĐÃ HỘI TỤ",
+         k is not None and "hội tụ" in k.lyDoDong, k and k.lyDoDong)
+
+    # ĐẢO DẤU: đóng, và ghi LỖ
+    to18.dinh = [_dinh("binance", 0.9980, 0.9981), _dinh("okx", 1.0040, 1.0041)]
+    k = to18.ke_toan(chan18, tt18, now9 - 60.0, now9)
+    kiem("chênh ĐẢO DẤU thì đóng và ghi LỖ, không giả vờ hoà",
+         k is not None and k.dongLai and k.thuUsd < 0.0,
+         f"{k and k.thuUsd} — một cỗ máy chỉ biết cộng là cỗ máy nói dối "
+         f"một nửa")
+    # Lý do đóng phải PHÂN BIỆT hai chuyện. Không có phép kiểm này thì bỏ
+    # hẳn nhánh đảo dấu cũng không ai thấy: chênh âm vẫn nhỏ hơn ngưỡng
+    # nên nó rơi vào nhánh hội tụ, đóng đúng, ghi lỗ đúng — chỉ có LỜI
+    # GIẢI THÍCH là sai, và người đọc sổ tưởng mình vừa ăn xong.
+    kiem("và lý do đóng nói ĐẢO DẤU, không nói «đã hội tụ»",
+         k is not None and "ĐẢO DẤU" in k.lyDoDong
+         and "hội tụ" not in k.lyDoDong, k and k.lyDoDong)
+
+    to18.dinh = [_dinh("binance", 1.0050, 1.0051)]
+    k = to18.ke_toan(chan18, tt18, now9 - 60.0, now9)
+    kiem("mất đỉnh sổ lệnh một sàn thì doDuoc=False",
+         k is not None and k.doDuoc is False and "sàn rớt" in k.vi)
+
+    k = to18.ke_toan([chan18[0]], tt18, now9 - 60.0, now9)
+    kiem("vị thế một chân thì doDuoc=False, không đoán chân kia",
+         k is not None and k.doDuoc is False)
+
+
 
 
 
