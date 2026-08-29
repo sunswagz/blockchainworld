@@ -163,6 +163,33 @@ def mot_cho(kieu: str, theoMoc: dict, pn) -> None:
         print("       trong phiên này KHÔNG dùng được cho tới khi tìm ra.")
 
 
+def doc_quet(hang: list) -> tuple:
+    """Đọc bảng quét: (w hoà vốn, w bắt đầu đứng ngoài).
+
+    `hang` là [(w, số cửa sổ kết toán, tổng lãi lỗ)] theo thứ tự w tăng.
+
+    Tách ra thành hàm thuần vì phần này TỪNG SAI, và sai ở đúng con số
+    script gọi là "quyết định". Ở w cao thì không cơ hội nào qua nổi
+    cổng rủi ro, nên `tongLaiLo` là $0,00 — rồi phép dò đổi dấu đọc số
+    0 ấy thành "hoà vốn ở đây" và in ra "chợ giỏi hơn mức đó thì bot
+    LỖ". Bot không lỗ; nó ĐỨNG NGOÀI. Cái sai đẩy w* lên CAO hơn thật,
+    tức về phía lạc quan.
+    """
+    truoc = None
+    hoaVon = None
+    dungGiaoDich = None
+    for w, soKetToan, laiLo in hang:
+        if soKetToan == 0:
+            if dungGiaoDich is None:
+                dungGiaoDich = w
+            # KHÔNG cập nhật `truoc`: hàng này không phải một mức lãi.
+            continue
+        if truoc is not None and truoc > 0 >= laiLo and hoaVon is None:
+            hoaVon = w
+        truoc = laiLo
+    return hoaVon, dungGiaoDich
+
+
 def quet(theoMoc: dict, pn) -> None:
     """Chợ giỏi tới đâu thì bot hết lãi. Đây là con số quyết định."""
     def p_nan(S, K, tau, sig):
@@ -180,8 +207,7 @@ def quet(theoMoc: dict, pn) -> None:
     print("    không' thành một câu đo được.")
     print()
     print("       w      cửa sổ   khớp   kết toán  thắng     lãi lỗ      %vốn")
-    truoc = None
-    hoaVon = None
+    hang: list = []
     for w in BAC_QUET:
         def pha(S, K, tau, sig, _w=w):
             p = p_nan(S, K, tau, sig)
@@ -190,18 +216,33 @@ def quet(theoMoc: dict, pn) -> None:
         khung = dung_khung(theoMoc, MA, "pha", pha)
         ph = PhienPhatLai(von=VON, thuMucSo=RIENG / f"quet-{w:g}")
         kq = ph.chay(khung)
+        # KHÔNG GIAO DỊCH ≠ HOÀ VỐN. Đây từng là một lỗi thật, và nó nằm
+        # ở đúng con số script này gọi là "quyết định": ở w cao thì không
+        # cơ hội nào qua nổi cổng rủi ro, nên `tongLaiLo` là $0,00 — rồi
+        # phép dò đổi dấu đọc số 0 ấy thành "hoà vốn ở đây" và in ra câu
+        # "chợ giỏi hơn mức đó thì bot LỖ". Bot không lỗ; nó ĐỨNG NGOÀI.
+        # Hai chuyện khác hẳn nhau, và cái sai đẩy w* lên CAO hơn thật —
+        # tức về phía lạc quan.
+        khong = kq.soKetToan == 0
+        nhan = "  ⟨không giao dịch⟩" if khong else ""
         print(f"    {w:>4.2f}   {kq.soCuaSo:>7,} {kq.soKhop:>7,} "
               f"{kq.soKetToan:>9,}  {kq.tiLeThang:>5.1%}  "
-              f"{_tien(kq.tongLaiLo):>11}  {kq.loiNhuanPct:>+7.2f}%")
-        if truoc is not None and truoc > 0 >= kq.tongLaiLo and hoaVon is None:
-            hoaVon = w
-        truoc = kq.tongLaiLo
+              f"{_tien(kq.tongLaiLo):>11}  {kq.loiNhuanPct:>+7.2f}%{nhan}")
+        hang.append((w, kq.soKetToan, kq.tongLaiLo))
 
+    hoaVon, dungGiaoDich = doc_quet(hang)
     print()
-    if hoaVon is None:
-        print("    Không thấy điểm hoà vốn trong dãy đã quét.")
-    else:
+    if hoaVon is not None:
         print(f"    Hoà vốn quanh w ≈ {hoaVon:g}: chợ giỏi hơn mức đó thì bot LỖ.")
+    elif dungGiaoDich is not None:
+        print(f"    KHÔNG có điểm hoà vốn trong dãy quét. Từ w ≈ "
+              f"{dungGiaoDich:g} trở lên bot ĐỨNG NGOÀI hẳn — không cơ hội")
+        print("    nào qua nổi cổng rủi ro — chứ không phải nó lỗ ở đó.")
+        print("    Đọc đúng: cổng rủi ro chặn TRƯỚC khi lợi thế thành âm.")
+        print("    Đó là tin tốt, nhưng nó KHÔNG trả lời được câu 'chợ giỏi")
+        print("    tới đâu thì bot lỗ' — câu ấy vẫn để ngỏ.")
+    else:
+        print("    Không thấy điểm hoà vốn trong dãy đã quét.")
     print()
     print("    KHÔNG lấy con số +6,6% đã đo để chọn w. Nó đo chợ ở CUỐI CỬA")
     print("    ĐẶT CƯỢC, nơi strike chưa tồn tại; trong khung ăn thua thì")

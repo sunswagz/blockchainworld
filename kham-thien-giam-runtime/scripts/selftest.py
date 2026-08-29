@@ -3279,6 +3279,60 @@ def kiem_co_dong_lenh() -> None:
     kiem("không script nào giữ bộ đọc cờ riêng", not rieng, rieng)
     kiem("mọi script đo đạc đều khai cờ qua `tham_so.doc`", not thieu, thieu)
 
+def kiem_doc_bang_quet() -> None:
+    """KHÔNG GIAO DỊCH không phải HOÀ VỐN.
+
+    `chay-demo.py --quet` in bảng "chợ giỏi tới đâu thì bot hết lãi" và
+    rút ra w* — con số chính script gọi là "quyết định cả cung này có
+    tương lai hay không". Bảng đo thật ngày 30/08/2026:
+
+        0.90   202 kết toán   +$90,28
+        0.95     0 kết toán    $0,00   ← không cơ hội nào qua cổng rủi ro
+        1.00     0 kết toán    $0,00
+
+    Phép dò đổi dấu đọc số 0 ấy thành "hoà vốn ở w = 0,95" rồi in ra
+    "chợ giỏi hơn mức đó thì bot LỖ". Bot không lỗ ở đó — nó ĐỨNG
+    NGOÀI. Hai chuyện khác hẳn nhau, và cái sai đẩy w* lên CAO hơn
+    thật, tức về phía lạc quan.
+    """
+    print("\n── Bảng quét: không giao dịch ≠ hoà vốn ──────────────────────")
+
+    import ast as _ast
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    src = (GOC_MA / "scripts" / "chay-demo.py").read_text(encoding="utf-8")
+    cay = _ast.parse(src)
+    ham = next((n for n in cay.body
+                if isinstance(n, _ast.FunctionDef) and n.name == "doc_quet"), None)
+    kiem("`doc_quet` tách ra được thành hàm thuần", ham is not None)
+    if ham is None:
+        return
+    ns: dict = {}
+    exec(compile(_ast.Module(body=[ham], type_ignores=[]),
+                 "<doc_quet>", "exec"), ns)
+    dq = ns["doc_quet"]
+
+    kiem("dương → âm thì đúng là hoà vốn",
+         dq([(0.0, 10, 500.0), (0.5, 10, 100.0), (0.8, 10, -50.0)])
+         == (0.8, None))
+    kiem("dương → 0 lệnh thì KHÔNG phải hoà vốn, mà là đứng ngoài",
+         dq([(0.0, 10, 500.0), (0.9, 10, 90.0),
+             (0.95, 0, 0.0), (1.0, 0, 0.0)]) == (None, 0.95),
+         dq([(0.0, 10, 500.0), (0.9, 10, 90.0),
+             (0.95, 0, 0.0), (1.0, 0, 0.0)]))
+    kiem("lãi suốt dãy thì không có mốc nào",
+         dq([(0.0, 10, 500.0), (1.0, 10, 300.0)]) == (None, None))
+    # Hàng "không giao dịch" nằm GIỮA không được xoá dấu vết mức lãi
+    # trước nó — nếu xoá thì lần đổi dấu sau đó bị bỏ sót.
+    kiem("hàng 0 lệnh ở giữa không làm mất lần đổi dấu sau đó",
+         dq([(0.0, 10, 500.0), (0.5, 0, 0.0),
+             (0.8, 10, 200.0), (0.9, 10, -5.0)]) == (0.9, 0.5))
+
+    kiem("bảng dán nhãn ⟨không giao dịch⟩ ngay trên hàng ấy",
+         "không giao dịch" in src)
+    kiem("và câu kết nói ĐỨNG NGOÀI chứ không nói LỖ",
+         "ĐỨNG NGOÀI" in src)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3340,6 +3394,7 @@ def main() -> int:
     kiem_tien_do_khong_phai_loi()
     kiem_phat_lai_khai_that()
     kiem_co_dong_lenh()
+    kiem_doc_bang_quet()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
