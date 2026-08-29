@@ -118,6 +118,7 @@ def cham_moc(
     sigmaGiay: float | None = None,
     lenTren: bool = True,
     nhipQuanSatGiay: float | None = None,
+    cuaSoSigmaGiay: float | None = None,
     tinHieu: dict[str, float] | None = None,
 ) -> GiaChuan | None:
     """P(chạm mốc trước hạn). None khi thiếu nguyên liệu — không bịa.
@@ -130,6 +131,36 @@ def cham_moc(
     if dinhDaQua is None:
         return None
     if giaHienTai <= 0 or moc <= 0 or sigmaGiay is None or sigmaGiay <= 0:
+        return None
+
+    # Bẫy 5 — σ ĐO TRÊN CỬA SỔ QUÁ NGẮN so với chân trời.
+    #
+    # Runtime dùng MỘT cửa sổ σ cho mọi market: 900 giây. Với khung 5
+    # phút thì hợp lý. Với market bốn tháng thì nó là 900 giây nói về
+    # 10,7 triệu giây — tỉ lệ 1 : 11.900.
+    #
+    # Đo trên 30 ngày BTC, σ quy năm:
+    #
+    #     cửa sổ 900s   trung vị 0,209 · tứ phân vị [0,132; 0,353]
+    #                   min 0,000  max 2,239      ← chênh nhau 2000 lần
+    #     cửa sổ 7 ngày trung vị 0,263 · tứ phân vị [0,210; 0,506]
+    #                   min 0,203  max 0,595
+    #
+    # Hai chuyện, cả hai đều hỏng: cửa sổ ngắn vừa THIÊN THẤP (0,209 so
+    # với 0,263, tức −21%) vừa NHIỄU khủng khiếp. Cắm một σ như thế vào
+    # chân trời bốn tháng thì P(chạm) nhảy từ gần 0% tới gần 100% chỉ vì
+    # mười lăm phút vừa rồi tình cờ lặng hay tình cờ động.
+    #
+    # Từ chối, đúng nguyên tắc của chính module này: "None khi thiếu
+    # nguyên liệu — không bịa". Một σ nhiễu gấp hai nghìn lần KHÔNG phải
+    # nguyên liệu, dù nó là một số thực hợp lệ.
+    #
+    # Ngưỡng 1/50: cửa sổ ước phải dài ít nhất 2% chân trời. Với khung 5
+    # phút (τ = 300s, cửa sổ 900s) thì thừa; với bốn tháng thì đòi ~2,5
+    # ngày mẫu. Không có `cuaSoSigmaGiay` thì KHÔNG chặn — chỗ gọi cũ và
+    # phép kiểm cũ vẫn chạy y như trước.
+    if (cuaSoSigmaGiay is not None and cuaSoSigmaGiay > 0
+            and tauGiay > 50.0 * cuaSoSigmaGiay):
         return None
 
     # Bẫy 1 — đã chạm rồi thì market đã ngã ngũ. Kiểm TRƯỚC mọi phép tính:

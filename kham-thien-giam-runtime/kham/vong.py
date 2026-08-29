@@ -687,9 +687,29 @@ class Runtime:
                 self._than_phien(ma, "không lấy được đỉnh đã đi qua — "
                                      "động cơ chạm mốc từ chối đoán khi thiếu")
                 return
+            # Cổng cứng nằm trong `cham_moc` (bẫy 5) để không ai đi vòng
+            # được. Câu GIẢI THÍCH thì nói ở đây, vì đây là chỗ đối diện
+            # người vận hành — `dong_co.goi` chỉ trả được "động cơ từ chối
+            # kết luận", mà gộp mọi lý do vào một câu chính là thứ chính
+            # docstring của nó cảnh báo.
+            cs = bd.cuaSoGiay if bd is not None else None
+            if cs and tau > 50.0 * cs:
+                self._than_phien(
+                    ma, f"σ đo trên {cs:.0f}s mà chân trời {tau / 86400.0:.0f} "
+                        f"ngày — lệch {tau / cs:,.0f} lần. Từ chối định giá: "
+                        "σ 900s quy năm có trung vị 0,209 nhưng min 0,000 và "
+                        "max 2,239, cắm vào đây thì P(chạm) nhảy từ ~0% tới "
+                        "~100% chỉ vì mười lăm phút vừa rồi tình cờ lặng hay "
+                        "tình cờ động")
+                return
             gc, viSao = dong_co.goi(
                 maDC, ma, giaHienTai=gia, moc=float(tt["moc"]), tauGiay=tau,
                 dinhDaQua=dinh, sigmaGiay=sigma,
+                # Cho động cơ biết σ này đo trên cửa sổ dài bao nhiêu. Nó
+                # cần con số ấy để TỪ CHỐI khi cửa sổ quá ngắn so với chân
+                # trời — xem bẫy 5 ở `cham_moc`. Không truyền thì nó định
+                # giá bằng một σ nhiễu gấp hai nghìn lần mà không ai biết.
+                cuaSoSigmaGiay=bd.cuaSoGiay if bd is not None else None,
                 lenTren=bool(tt.get("lenTren", True)))
         else:
             gc, viSao = dong_co.goi(

@@ -3931,6 +3931,66 @@ def kiem_tran_theo_von_dau_ngay() -> None:
 
     kiem("buồng lái đọc được gốc ấy", "vonDauNgay" in r.tom_tat())
 
+def kiem_cham_moc_tu_choi_sigma_ngan() -> None:
+    """Động cơ chạm mốc phải TỪ CHỐI khi σ đo trên cửa sổ quá ngắn.
+
+    Runtime dùng MỘT cửa sổ σ cho mọi market: 900 giây. Với khung 5 phút
+    thì hợp lý. Với `BTC_150K` — chân trời bốn tháng — đó là 900 giây nói
+    về 10,7 triệu giây, tỉ lệ 1 : 11.900.
+
+    Đo trên 30 ngày BTC, σ quy năm:
+
+        cửa sổ 900s    trung vị 0,209 · min 0,000 · max 2,239
+        cửa sổ 7 ngày  trung vị 0,263 · min 0,203 · max 0,595
+
+    Cửa sổ ngắn vừa THIÊN THẤP (−21%) vừa nhiễu gấp hai nghìn lần. Cắm
+    vào chân trời bốn tháng thì P(chạm) nhảy từ ~0% tới ~100% chỉ vì mười
+    lăm phút vừa rồi tình cờ lặng hay tình cờ động.
+
+    Từ chối, đúng nguyên tắc của chính module ấy: "None khi thiếu nguyên
+    liệu — không bịa". Một σ nhiễu như thế KHÔNG phải nguyên liệu, dù nó
+    là một số thực hợp lệ.
+    """
+    print("\n── Chạm mốc: từ chối khi σ quá ngắn so với chân trời ────────")
+
+    import math as _m
+
+    from kham.cham_moc import cham_moc
+
+    KW = dict(ma="BTC_150K", giaHienTai=78016.0, moc=150000.0,
+              dinhDaQua=80000.0,
+              sigmaGiay=0.209 / _m.sqrt(365 * 86400.0), lenTren=True)
+
+    kiem("KHÔNG truyền cửa sổ thì cư xử y như trước",
+         cham_moc(tauGiay=124 * 86400.0, **KW) is not None)
+    kiem("truyền cửa sổ 900s + chân trời 124 ngày ⇒ TỪ CHỐI",
+         cham_moc(tauGiay=124 * 86400.0, cuaSoSigmaGiay=900.0, **KW) is None)
+    kiem("khung 5 phút KHÔNG bị chặn oan",
+         cham_moc(tauGiay=300.0, cuaSoSigmaGiay=900.0, **KW) is not None)
+
+    # Mép: τ = 50×cửa sổ phải QUA, nhích lên là chặn. Một cái cổng mà
+    # không ai biết mép nó ở đâu thì không kiểm được.
+    kiem("đúng mép 50× thì vẫn qua",
+         cham_moc(tauGiay=50.0 * 900.0, cuaSoSigmaGiay=900.0, **KW)
+         is not None)
+    kiem("nhích qua mép là chặn",
+         cham_moc(tauGiay=50.0 * 900.0 + 1.0, cuaSoSigmaGiay=900.0, **KW)
+         is None)
+    kiem("cửa sổ 0 hoặc âm thì KHÔNG chặn (coi như không khai)",
+         cham_moc(tauGiay=124 * 86400.0, cuaSoSigmaGiay=0.0, **KW)
+         is not None)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    vg = (GOC_MA / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("runtime TRUYỀN cửa sổ σ vào động cơ",
+         "cuaSoSigmaGiay=bd.cuaSoGiay" in vg)
+    kiem("và nói rõ LÝ DO chứ không để `None` câm",
+         "Từ chối định giá" in vg and "lệch" in vg)
+
+    cm = (GOC_MA / "kham" / "cham_moc.py").read_text(encoding="utf-8")
+    kiem("`cham_moc` khai luôn CHIỀU và CỠ của sai lệch bỏ trôi",
+         "+40,6%" in cm and "CAO HƠN" in cm)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4001,6 +4061,7 @@ def main() -> int:
     kiem_quet_vi_khai_nga()
     kiem_rui_ro_nho_qua_khoi_dong_lai()
     kiem_tran_theo_von_dau_ngay()
+    kiem_cham_moc_tu_choi_sigma_ngan()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
