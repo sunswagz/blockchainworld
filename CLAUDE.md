@@ -543,6 +543,45 @@ lượt liên tiếp không ghi được gì.
 trước; mọi câu dưới đây áp dụng y nguyên cho hai runtime kia, chỉ đổi tên
 thư mục, cổng, và lệnh sinh lát cắt:
 
+### Khâm Thiên Giám — MÔ HÌNH ĐÃ Ở SÁT TRẦN, thôi vặn
+
+Đo được (`scripts/do-tran-mo-hinh.py`, 20 ngày BTC, 9.220 cặp ngoài mẫu):
+
+    SÀN   đoán bừa tỉ lệ nền (49,0%)      0.24990
+    NAY   mô hình + nắn, ngoài mẫu        0.15774
+    TRẦN  biến đổi đơn điệu tốt nhất      0.15669   ← khớp TRONG mẫu, cố ý
+
+    đã vắt 98,9% khoảng cách SÀN→TRẦN · CÒN LẠI 1,1%
+
+Mọi phép nắn đều là biến đổi đơn điệu của `p`, nên không phép nắn nào
+vượt được cái trần ấy — và nó khớp gian lận ngay trên tập chấm nên 1,1%
+kia còn rộng rãi. **Vặn thêm tham số mô hình là phí công.** Muốn khá hơn
+phải thêm THÔNG TIN MỚI vào `p`: sổ lệnh, dòng lệnh, độ trễ liên sàn.
+
+Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
+
+    cửa sổ σ 300s → 900s                   −1,9%  ĐÃ NHẬN, đưa gần hết đường
+    bộ ước σ: parkinson thay close-close    −0,13% trả lại (dưới biên 0,5%)
+    nắn RIÊNG theo τ thay vì gộp            −0,08% trả lại
+    (`ewma` thì TỆ HƠN close-close rõ rệt)
+
+Công cụ, tất cả chỉ cần Binance — không cần chợ, không cần giả định:
+
+    scripts/hoc-tu-binance.py     dựng sổ hiệu chỉnh (7 ngày ≈ 40.000 mẫu)
+    scripts/tien-hoa-mo-hinh.py   vặn MỘT nút, chấm bằng Brier ngoài mẫu
+    scripts/tu-nang-cap.py        lặp tới khi hết cải thiện, tự dừng
+    scripts/do-tran-mo-hinh.py    còn bao nhiêu chỗ để cải thiện
+    scripts/thu-uoc-sigma.py      so bốn bộ ước σ
+    scripts/thu-nan-theo-tau.py   nắn gộp hay nắn riêng theo τ
+    scripts/chay-demo.py          demo trọn vẹn, tiền ảo, có `--quet`
+
+**Luật của mọi phép thử ở đây: BA TẬP tách theo THỜI GIAN.** HỌC khớp
+nắn · CHỌN xếp hạng ứng viên · CHỐT chỉ GẬT hay LẮC, không bao giờ dùng
+để xếp hạng. Lặp N vòng trên một tập kiểm thì tập ấy thôi còn là ngoài
+mẫu, và chuyện đó không lộ ra ở đâu — mọi con số vẫn đẹp dần. Đã cứu một
+bàn thua thật: một ứng viên qua cả CHỌN lẫn CHỐT ở lượt đầu, chạy lại
+vài phút sau với dữ liệu mới hơn thì CHỐT lắc.
+
 ### Khâm Thiên Giám — CỬA NÀO là cửa làm việc (đọc trước khi sửa)
 
 Slug `<coin>-updown-5m-T` có HAI cửa và chúng không thay nhau được:
