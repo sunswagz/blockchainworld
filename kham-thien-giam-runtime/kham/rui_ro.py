@@ -89,6 +89,13 @@ class RiskEngine:
         self.vonBanDau = float(_RR["vonBanDau"])
         self.von = self.vonBanDau
         self.dinhVon = self.vonBanDau
+        #: Vốn lúc ngày mới bắt đầu — gốc của cả ba trần. Xem `_tran`.
+        #:
+        #: `None` = CHƯA CHỐT, và khi ấy `_tran` rơi về `vonBanDau`. Phải
+        #: lười như vậy vì nhiều chỗ đặt `vonBanDau` SAU khi dựng —
+        #: `PhienPhatLai(von=...)` và mấy phép kiểm. Chốt cứng ở đây thì
+        #: `--von=10000` chạy với trần của tài khoản 1.000 đô, im lặng.
+        self.vonDauNgay: float | None = None
         self.laiRongNgayUsd = 0.0
         self.loGopNgayUsd = 0.0
         self.ngay = self._ngay_hien_tai()
@@ -116,6 +123,20 @@ class RiskEngine:
     # không bằng `[...]`: một khoá thiếu mà ném KeyError ở đây là giết
     # cả vòng lặp, đúng lớp lỗi vừa vá ở `nguon.py`.
 
+    # Neo vào VỐN ĐẦU NGÀY, không vào `vonBanDau`.
+    #
+    # `vonBanDau` là một hằng số trong config, không bao giờ đổi. Tài
+    # khoản mất nửa vốn thì trần "5% lỗ ngày" vẫn là $50 — tức 10% của
+    # số còn lại. Rủi ro LỚN LÊN đúng lúc tài khoản YẾU ĐI, ngược hẳn ý
+    # nghĩa của một cái trần theo phần trăm.
+    #
+    # Nhưng cũng KHÔNG neo vào vốn hiện tại: trần lỗ ngày mà chạy theo
+    # vốn đang lỗ dần thì nó lùi xa mãi, không bao giờ chạm tới. Một cái
+    # trần đuổi theo chính mình thì không phải trần.
+    #
+    # Vốn ĐẦU NGÀY đúng cả hai: đứng yên trong ngày (nên chạm tới được),
+    # và bám theo tài khoản qua các ngày.
+
     def _tran(self, khoaPct: str, khoaUsd: str, macDinhPct: float) -> float:
         pct = _RR.get(khoaPct)
         if pct is None:
@@ -123,7 +144,8 @@ class RiskEngine:
             if cu is not None:
                 return float(cu)
             pct = macDinhPct
-        return self.vonBanDau * float(pct) / 100.0
+        goc = self.vonDauNgay if self.vonDauNgay is not None else self.vonBanDau
+        return max(0.0, goc) * float(pct) / 100.0
 
     @property
     def tranMoiThiTruongUsd(self) -> float:
@@ -188,6 +210,10 @@ class RiskEngine:
         self.von = von
         self.dinhVon = dinh
         self.ngay = hom_nay
+        # Vốn ĐẦU NGÀY = vốn hiện tại trừ đi lãi lỗ đã xảy ra TRONG ngày.
+        # Lấy thẳng `von` là sai: những khoản lỗ của hôm nay đã nằm trong
+        # nó rồi, nên trần ngày sẽ co lại theo chính khoản lỗ nó đang đo.
+        self.vonDauNgay = von - rong_ngay
         self.laiRongNgayUsd = rong_ngay
         self.loGopNgayUsd = gop_ngay
         # Dựng lại xong thì phải SOÁT: nếu sổ cho thấy đã quá trần thì
@@ -256,6 +282,9 @@ class RiskEngine:
         self.ngay = hom_nay
         self.laiRongNgayUsd = 0.0
         self.loGopNgayUsd = 0.0
+        # Chốt lại gốc của ba trần cho ngày mới. Đây là chỗ DUY NHẤT
+        # `vonDauNgay` đổi trong lúc chạy — trong ngày nó phải đứng yên.
+        self.vonDauNgay = self.von
         return True
 
     def ngat(self, lyDo: str) -> None:
@@ -416,6 +445,8 @@ class RiskEngine:
         return {
             "von": self.von,
             "vonBanDau": self.vonBanDau,
+            "vonDauNgay": (self.vonDauNgay if self.vonDauNgay is not None
+                           else self.vonBanDau),
             "dinhVon": self.dinhVon,
             "sutVonPct": self.sutVonPct,
             "loNgayUsd": self.loNgayUsd,

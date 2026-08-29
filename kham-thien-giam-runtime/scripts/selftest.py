@@ -3838,6 +3838,90 @@ def kiem_rui_ro_nho_qua_khoi_dong_lai() -> None:
     kiem("và KÊU khi không dựng lại được",
          "KHÔNG dựng lại được rủi ro từ sổ" in vg)
 
+def kiem_tran_theo_von_dau_ngay() -> None:
+    """Ba trần phải neo vào VỐN ĐẦU NGÀY, không vào một hằng số config.
+
+    `_tran` từng tính `vonBanDau * pct`. `vonBanDau` là hằng số trong
+    config, không bao giờ đổi — nên tài khoản mất nửa vốn thì trần "5%
+    lỗ ngày" vẫn là $50, tức 10% của số còn lại. **Rủi ro lớn lên đúng
+    lúc tài khoản yếu đi**, ngược hẳn ý nghĩa của một trần phần trăm.
+
+    Nhưng cũng KHÔNG được neo vào vốn hiện tại: trần lỗ ngày chạy theo
+    vốn đang lỗ dần thì nó lùi xa mãi. Một cái trần đuổi theo chính mình
+    thì không phải trần.
+    """
+    print("\n── Trần neo vào VỐN ĐẦU NGÀY ────────────────────────────────")
+
+    import time as _t
+
+    from kham.kho_doi import Kho
+    from kham.rui_ro import RiskEngine
+
+    hn = _t.strftime("%Y-%m-%d", _t.gmtime())
+
+    r = RiskEngine(Kho())
+    # `vonDauNgay` cố ý LƯỜI: chưa chốt thì là None và `_tran` rơi về
+    # `vonBanDau`. Phải thế, vì nhiều chỗ đặt `vonBanDau` SAU khi dựng
+    # (`PhienPhatLai(von=...)`); chốt cứng lúc dựng thì `--von=10000`
+    # chạy với trần của tài khoản 1.000 đô, im lặng.
+    kiem("tài khoản mới: gốc chưa chốt, rơi về vốn ban đầu",
+         r.vonDauNgay is None and r.tom_tat()["vonDauNgay"] == r.vonBanDau)
+    r2b = RiskEngine(Kho())
+    r2b.vonBanDau = 10_000.0
+    kiem("nên đặt vốn SAU khi dựng vẫn co giãn trần",
+         r2b.tranLoNgayUsd == 500.0, r2b.tranLoNgayUsd)
+    tranMoi = r.tranLoNgayUsd
+    kiem("và ba trần y hệt như trước", tranMoi == r.vonBanDau * 0.05,
+         tranMoi)
+
+    # Vốn đầu ngày phải TRỪ ĐI lãi lỗ đã xảy ra trong ngày. Lấy thẳng
+    # `von` là sai: khoản lỗ hôm nay đã nằm trong nó, nên trần sẽ co lại
+    # theo chính khoản lỗ nó đang đo.
+    r2 = RiskEngine(Kho())
+    r2.nap_tu_so([{"luc": "2026-08-01T10:00:00Z", "laiLo": -500.0},
+                  {"luc": hn + "T10:00:00Z", "laiLo": -30.0}])
+    kiem("vốn đầu ngày KHÔNG gồm lãi lỗ của hôm nay",
+         abs(r2.vonDauNgay - 500.0) < 1e-9, r2.vonDauNgay)
+    kiem("trần co theo tài khoản đã teo",
+         abs(r2.tranLoNgayUsd - 25.0) < 1e-9, r2.tranLoNgayUsd)
+    kiem("và cầu dao NGẮT — bản cũ để trần $50 nên không ngắt",
+         r2.ngatKhanCap, r2.lyDoNgat)
+
+    # Trong NGÀY thì gốc phải đứng yên, không nhúc nhích theo từng lệnh.
+    r3 = RiskEngine(Kho())
+    goc = r3.vonDauNgay
+    tran = r3.tranLoNgayUsd
+    r3.ghi_lai_lo(-10.0)
+    r3.ghi_lai_lo(-10.0)
+    kiem("gốc đứng yên trong ngày", r3.vonDauNgay == goc, r3.vonDauNgay)
+    kiem("nên trần cũng đứng yên — không lùi xa theo khoản lỗ",
+         r3.tranLoNgayUsd == tran, r3.tranLoNgayUsd)
+
+    # Sang ngày mới thì chốt lại gốc.
+    r3.ngay = "1999-01-01"
+    kiem("sang ngày mới trả True", r3.sang_ngay_moi() is True)
+    kiem("và chốt lại gốc theo vốn hiện tại",
+         abs(r3.vonDauNgay - r3.von) < 1e-9, (r3.vonDauNgay, r3.von))
+    kiem("trần ngày mới nhỏ hơn vì tài khoản đã teo",
+         r3.tranLoNgayUsd < tran, (r3.tranLoNgayUsd, tran))
+
+    # Tài khoản LỚN lên thì trần cũng lớn lên — đó mới là ý của một
+    # trần theo phần trăm.
+    r4 = RiskEngine(Kho())
+    r4.nap_tu_so([{"luc": "2026-08-01T10:00:00Z", "laiLo": 1000.0}])
+    kiem("tài khoản gấp đôi thì trần gấp đôi",
+         abs(r4.tranLoNgayUsd - 2 * tranMoi) < 1e-9, r4.tranLoNgayUsd)
+    kiem("trần mỗi thị trường cũng theo",
+         r4.tranMoiThiTruongUsd > RiskEngine(Kho()).tranMoiThiTruongUsd)
+
+    # Vốn âm không được sinh ra trần âm.
+    r5 = RiskEngine(Kho())
+    r5.vonDauNgay = -100.0
+    kiem("vốn âm thì trần bằng 0, không âm", r5.tranLoNgayUsd == 0.0,
+         r5.tranLoNgayUsd)
+
+    kiem("buồng lái đọc được gốc ấy", "vonDauNgay" in r.tom_tat())
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3907,6 +3991,7 @@ def main() -> int:
     kiem_quyet_chan_la_loi_khuyen()
     kiem_quet_vi_khai_nga()
     kiem_rui_ro_nho_qua_khoi_dong_lai()
+    kiem_tran_theo_von_dau_ngay()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

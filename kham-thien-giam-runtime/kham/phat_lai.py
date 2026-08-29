@@ -262,6 +262,9 @@ class PhienPhatLai:
             self.risk.vonBanDau = float(von)
             self.risk.von = float(von)
             self.risk.dinhVon = float(von)
+            # Gốc của ba trần cũng phải theo, không thì phiên $100.000
+            # chạy với trần của tài khoản $1.000.
+            self.risk.vonDauNgay = float(von)
         self.hieuChinh = HieuChinh(tm / "hieu-chinh.json" if tm else None)
         self.so = So(tm / "ket-toan.jsonl" if tm else None)
         self.phepNan = khop_nan(self.hieuChinh)
