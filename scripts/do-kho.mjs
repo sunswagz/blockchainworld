@@ -71,6 +71,20 @@ const LINH_VUC = {
   "nghiên cứu": /\b(research|literature|survey|analysis|investigat|explor)\b/i
 };
 
+/* ── LOẠI TRỪ: NGHĨA KHÁC CỦA CÙNG MỘT TỪ ──────────────────
+   Lượt quét 29/08 mang về "analyzing-linux-audit-logs-for-intrusion"
+   và "analyzing-office365-audit-logs-for-compromise" — hai kỹ năng
+   điều tra xâm nhập, lọt vào "kiểm thử rà soát" chỉ vì tên có chữ
+   "audit". Hai trên năm suất của lượt ấy là rác, và mỗi suất rác
+   tốn một lượt WebFetch trong hạn 24 lượt của model.
+
+   "audit" ở đây nghĩa là rà soát MÃ NGUỒN của mình, không phải đọc
+   nhật ký hệ thống tìm kẻ đột nhập. Danh sách này hẹp có chủ ý: chỉ
+   những từ mà một kỹ năng hợp với repo tĩnh này gần như chắc chắn
+   không mang. Rộng tay hơn là bắt đầu loại nhầm thứ có ích, và một
+   bộ lọc loại nhầm thì không ai còn tin cái nó giữ lại. */
+const LOAI_TRU = /\b(intrusion|compromise|malware|forensic|phishing|threat-hunt|incident-response|siem)\b/i;
+
 /* Bao nhiêu SKILL.md tải mỗi lượt. Đây là van chi phí duy nhất:
    mỗi cái là một lượt gọi raw.githubusercontent, và tải cả kho là
    3.696 lượt cho thứ phần lớn không dùng tới. */
@@ -125,13 +139,48 @@ if (!D) { console.error("Không đọc được kho Tàng Thư Các."); process.
 const so = docSo();
 const daDung = new Set(Object.keys(so.daDung));
 
+/* ── ĐỪNG ĐỀ XUẤT LẠI THỨ VỪA ĐỀ XUẤT TUẦN TRƯỚC ──────────
+   Xếp hạng ở dưới là TẤT ĐỊNH: cùng một kho, cùng một phép chấm thì
+   ra cùng một top. Nên nếu chỉ loại "đã khai thác", lượt quét tuần
+   sau đề xuất lại đúng năm cái tuần này — và vòng lặp thành một cái
+   máy lặp lại chính nó. Lỗ này là của tôi, thấy ra khi lượt quét đầu
+   chạy thật trên runner.
+
+   Ghi danh sách "vừa đề xuất" vào CHÍNH file đề xuất, không mở sổ
+   khai thác. Hai lý do:
+   — "Đã đưa tới model" KHÔNG phải "đã dùng". Sổ khai thác là thứ
+     quyết định lượt sau bỏ qua cái gì VĨNH VIỄN; nhét vào đó một
+     thứ model có thể đã đọc lướt rồi bỏ là làm sổ ấy nói dối.
+   — File đề xuất đã được khai ở `ra` của node và đã nằm trong lệnh
+     git add. Thêm một file phải commit là thêm một chỗ hỏng, và
+     thêm một mục phải khai trong CLAUDE.md.
+
+   Cửa sổ 56 ngày rồi cho quay lại: chúng chưa từng bị khai thác,
+   chỉ là chưa tới lượt. Kho có 769 ứng viên nên không lo cạn. */
+const CUA_SO_NGAY = 56;
+let ganDay = [];
+try {
+  const cu = JSON.parse(readFileSync(RA, "utf8"));
+  const moc = Date.now() - CUA_SO_NGAY * 86400000;
+  ganDay = [
+    ...(cu.deXuat || []).map((x) => ({ ten: x.ten, luc: cu.luc })),
+    ...(cu.ganDay || []),
+  ].filter((x) => x && x.ten && Date.parse(x.luc) > moc);
+  /* Bỏ trùng, giữ lần gần nhất. */
+  const m = new Map();
+  for (const x of ganDay) if (!m.has(x.ten) || m.get(x.ten).luc < x.luc) m.set(x.ten, x);
+  ganDay = [...m.values()];
+} catch { /* chưa có file đề xuất nào — lượt đầu, không loại gì */ }
+const vuaDeXuat = new Set(ganDay.map((x) => x.ten));
+
 /* Chấm ứng viên. Ba tín hiệu, và không cái nào là số sao của kho —
    sao là của cả repo nên xếp theo nó thì đầu bảng toàn một kho. */
 const ungVien = [];
 const thayTen = new Set();
 for (const s of D.skills) {
   const ten = s.ten || "";
-  if (!ten || daDung.has(ten) || thayTen.has(ten)) continue;
+  if (!ten || daDung.has(ten) || thayTen.has(ten) || vuaDeXuat.has(ten)) continue;
+  if (LOAI_TRU.test(ten)) continue;
   const lv = Object.keys(LINH_VUC).filter((k) => LINH_VUC[k].test(ten));
   if (!lv.length) continue;
   const mo = String(s.moTa || "");
@@ -217,6 +266,9 @@ const data = {
   tongSkill: D.skills.length,
   daDung: daDung.size,
   ungVien: ungVien.length,
+  /* Ai vừa được đề xuất, để lượt sau không đề xuất lại. Xem khối
+     "ĐỪNG ĐỀ XUẤT LẠI" ở đầu file: đây KHÔNG phải sổ khai thác. */
+  ganDay: [...ganDay, ...deXuat.map((x) => ({ ten: x.ten, luc: now.toISOString() }))],
   theoLinhVuc: Object.fromEntries(Object.keys(LINH_VUC).map((k) =>
     [k, ungVien.filter((u) => u.lv.includes(k)).length])),
   deXuat

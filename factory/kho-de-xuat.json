@@ -1,84 +1,125 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-08-29T03:47:25.628Z",
+ "luc": "2026-08-29T08:03:27.519Z",
  "khoQuetLuc": "29/08/2026",
  "tongSkill": 3697,
  "daDung": 14,
- "ungVien": 769,
- "theoLinhVuc": {
-  "lập trình công cụ": 431,
-  "kiểm thử rà soát": 174,
-  "dữ liệu phân tích": 53,
-  "hạ tầng vận hành": 48,
-  "giao tiếp nội dung": 41,
-  "nghiên cứu": 44
- },
- "deXuat": [
+ "ungVien": 764,
+ "ganDay": [
   {
    "ten": "pre-publish-review",
-   "kho": "code-yeongyu/oh-my-openagent",
-   "duong": ".opencode/skills/pre-publish-review",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 9,
-   "mo": "Nuclear-grade 16-agent pre-publish release gate. Runs /get-unpublished-changes to detect all changes since last npm release, spawns up to 10 ultrabrain agents for deep per-change a",
-   "byte": 17074,
-   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/.opencode/skills/pre-publish-review/SKILL.md",
-   "trich": "# Pre-Publish Review — 16-Agent Release Gate Three-agent-layer review before publishing to npm. Every layer covers a different angle, and every result is mapped onto the release layers below. | Layer | Agents | Type | What They Check | |-------|--------|------|-----------------| | Per-Change Deep Dive | up to 10 | ultrabrain | Each logical change group individually — correctness, edge cases, pattern adherence | | Holistic Review | 5 | review-work | Goal compliance, QA execution, code quality, security, context mining across full changeset | | Release Synthesis | 1 | oracle | Overall release readiness, version bump, breaking changes, deployment risk | ## Release Layer Taxonomy Every phase classifies evidence and risk across: | Release Layer | Scope | Required version decision | |---|---|---| | `omo pure components` | Core packages, MCP packages, shared skills, reusable scripts, platform b"
+   "luc": "2026-08-29T03:47:25.628Z"
   },
   {
    "ten": "review-work",
-   "kho": "code-yeongyu/oh-my-openagent",
-   "duong": "packages/shared-skills/skills/review-work",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 9,
-   "mo": "Post-implementation review orchestrator. Launches 5 parallel background sub-agents: Oracle (goal/constraint verification), Oracle (code quality), Oracle (security), unspecified-hig",
-   "byte": 28852,
-   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/packages/shared-skills/skills/review-work/SKILL.md",
-   "trich": "## Codex Harness Tool Compatibility This skill may include examples copied from the OpenCode harness. In Codex, do not call OpenCode-only tools such as `call_omo_agent(...)`, `task(...)`, `background_output(...)`, or `team_*(...)` literally. Translate those examples to Codex native tools: | OpenCode example | Codex tool to use | | --- | --- | | `call_omo_agent(subagent_type=\"explore\", ...)` | `multi_agent_v1.spawn_agent({\"message\":\"TASK: act as an explorer. ...\",\"agent_type\":\"explorer\",\"fork_context\":false})` | | `call_omo_agent(subagent_type=\"librarian\", ...)` | `multi_agent_v1.spawn_agent({\"message\":\"TASK: act as a librarian. ...\",\"agent_type\":\"librarian\",\"fork_context\":false})` | | `task(subagent_type=\"plan\", ...)` | `multi_agent_v1.spawn_agent({\"message\":\"TASK: act as a planning agent. ...\",\"agent_type\":\"plan\",\"fork_context\":false})` | | `task(subagent_type=\"oracle\", ...)` for final "
+   "luc": "2026-08-29T03:47:25.628Z"
   },
   {
    "ten": "visual-qa",
-   "kho": "code-yeongyu/oh-my-openagent",
-   "duong": "packages/shared-skills/skills/visual-qa",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 9,
-   "mo": "MUST USE after building/changing any UI or when asked whether a page, component, or TUI looks right. Rigorous visual QA across web/page, terminal, and paginated-document surfaces. ",
-   "byte": 26333,
-   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/packages/shared-skills/skills/visual-qa/SKILL.md",
-   "trich": "# Visual QA - Dual-Oracle Web and TUI Verification Verify a rendered UI against intent using objective script evidence plus two parallel read-only oracle passes, then synthesize one good/bad verdict. The script numbers focus the reviewers. They are not the verdict. ## Purpose and when to use - Use after you build or change any UI, before calling it done. Covers web/page UIs and TUI/terminal UIs. - Use when output must match a mock, a baseline, or a stated design intent; when you suspect a regression; when CJK (Korean/Japanese/Chinese) text may clip, misalign, or wrap awkwardly; when a claimed design system might actually be a flat image; when a terminal layout may overflow or its borders may break. - Skip when there is no rendered surface (pure backend or library logic with no visual or terminal output). For broad post-implementation review use review-work; this skill is the visual speci"
+   "luc": "2026-08-29T03:47:25.628Z"
   },
   {
    "ten": "writing-hookify-rules",
-   "kho": "anthropics/claude-plugins-official",
-   "duong": "plugins/hookify/skills/writing-rules",
-   "lv": [
-    "giao tiếp nội dung"
-   ],
-   "diem": 7,
-   "mo": "This skill should be used when the user asks to \"create a hookify rule\", \"write a hook rule\", \"configure hookify\", \"add a hookify rule\", or needs guidance on hookify rule syntax an",
-   "byte": 8413,
-   "doc": "https://github.com/anthropics/claude-plugins-official/blob/main/plugins/hookify/skills/writing-rules/SKILL.md",
-   "trich": "# Writing Hookify Rules ## Overview Hookify rules are markdown files with YAML frontmatter that define patterns to watch for and messages to show when those patterns match. Rules are stored in `.claude/hookify.{rule-name}.local.md` files. ## Rule File Format ### Basic Structure ```markdown name: rule-identifier enabled: true event: bash|file|stop|prompt|all pattern: regex-pattern-here Message to show Claude when this rule triggers. Can include markdown formatting, warnings, suggestions, etc. ``` ### Frontmatter Fields **name** (required): Unique identifier for the rule - Use kebab-case: `warn-dangerous-rm`, `block-console-log` - Be descriptive and action-oriented - Start with verb: warn, prevent, block, require, check **enabled** (required): Boolean to activate/deactivate - `true`: Rule is active - `false`: Rule is disabled (won't trigger) - Can toggle without deleting rule **event** (re"
+   "luc": "2026-08-29T03:47:25.628Z"
   },
   {
    "ten": "ab-test-analysis",
-   "kho": "phuryn/pm-skills",
-   "duong": "pm-data-analytics/skills/ab-test-analysis",
+   "luc": "2026-08-29T03:47:25.628Z"
+  },
+  {
+   "ten": "academic-pipeline",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "accesslint-audit",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "ai-regression-testing",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "analyzing-linux-audit-logs-for-intrusion",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "analyzing-office365-audit-logs-for-compromise",
+   "luc": "2026-08-29T08:03:27.519Z"
+  }
+ ],
+ "theoLinhVuc": {
+  "lập trình công cụ": 431,
+  "kiểm thử rà soát": 170,
+  "dữ liệu phân tích": 53,
+  "hạ tầng vận hành": 48,
+  "giao tiếp nội dung": 40,
+  "nghiên cứu": 43
+ },
+ "deXuat": [
+  {
+   "ten": "academic-pipeline",
+   "kho": "Imbad0202/academic-research-skills",
+   "duong": "academic-pipeline",
    "lv": [
-    "kiểm thử rà soát",
-    "nghiên cứu"
+    "hạ tầng vận hành"
    ],
    "diem": 5,
-   "mo": "Analyze A/B test results with statistical significance, sample size validation, confidence intervals, and ship/extend/stop recommendations. Use when evaluating experiment results, ",
-   "byte": 3570,
-   "doc": "https://github.com/phuryn/pm-skills/blob/main/pm-data-analytics/skills/ab-test-analysis/SKILL.md",
-   "trich": "## A/B Test Analysis Evaluate A/B test results with statistical rigor and translate findings into clear product decisions. ### Context You are analyzing A/B test results for **$ARGUMENTS**. If the user provides data files (CSV, Excel, or analytics exports), read and analyze them directly. Generate Python scripts for statistical calculations when needed. ### Instructions 1. **Understand the experiment**: - What was the hypothesis? - What was changed (the variant)? - What is the primary metric? Any guardrail metrics? - How long did the test run? - What is the traffic split? 2. **Validate the test setup**: - **Sample size**: Is the sample large enough for the expected effect size? - Use the formula: n = (Z²α/2 × 2 × p × (1-p)) / MDE² - Flag if the test is underpowered (<80% power) - **Duration**: Did the test run for at least 1-2 full business cycles? - **Randomization**: Any evidence of sa"
+   "mo": "Orchestrator for the full academic research pipeline: research -> write -> integrity check -> review -> revise -> re-review -> re-revise -> final integrity check -> finalize. Coord",
+   "byte": 51866,
+   "doc": "https://github.com/Imbad0202/academic-research-skills/blob/main/academic-pipeline/SKILL.md",
+   "trich": "# Academic Pipeline v3.21.1 — Full Academic Research Workflow Orchestrator A lightweight orchestrator that manages the complete academic pipeline from research exploration to final manuscript. It does not perform substantive work — it only detects stages, recommends modes, dispatches skills, manages transitions, and tracks state. > **Routing discipline (v3.9.2):** see `.claude/CLAUDE.md` \"Routing Discipline (v3.9.2)\" + `shared/references/intent_clarification_protocol.md` for cross-skill routing rules. This skill assumes routing has already settled — ambiguous cross-phase materials should have been clarified upstream. **v3.6.3 (opt-in):** Set `ARS_PASSPORT_RESET=1` to promote FULL checkpoints to context-reset boundaries. Use `resume_from_passport=<hash>` in a fresh session to continue from the recorded stage. See [`references/passport_as_reset_boundary.md`](references/passport_as_reset_bo"
+  },
+  {
+   "ten": "accesslint-audit",
+   "kho": "sickn33/agentic-awesome-skills",
+   "duong": "skills/accesslint-audit",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 5,
+   "mo": "Find and fix WCAG 2.2 accessibility issues. Two modes — report (sweep a codebase or page, produce a prioritized written report, no edits) and fix (audit→edit→verify loop on a targe",
+   "byte": 7170,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/accesslint-audit/SKILL.md",
+   "trich": "You audit accessibility and optionally fix what's broken. ## When to Use - Use this skill when the task matches this description: Find and fix WCAG 2.2 accessibility issues. Two modes — report (sweep a codebase or page, produce a prioritized written report, no edits) and fix (audit→edit→verify loop on a target). Prefers direct-CDP live-DOM auditing; falls back to a browser-MCP composition or HTML-string audits. ## Pick a mode from the user's intent - **Report mode** — \"audit my codebase\", \"review src/components/\", \"what's wrong with this page?\", \"give me an a11y report\". You audit + write a report. **You do not edit files.** - **Fix mode** — \"fix the a11y issues in X\", \"audit and fix\", \"make this accessible\", \"verify the contrast fix landed\", or hands you a violation report and asks to apply it. You audit → edit → verify. If unsure, ask. Don't default-to-fix when the user only asked for "
+  },
+  {
+   "ten": "ai-regression-testing",
+   "kho": "affaan-m/ECC",
+   "duong": "skills/ai-regression-testing",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 5,
+   "mo": "Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spo",
+   "byte": 11509,
+   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/ai-regression-testing/SKILL.md",
+   "trich": "# AI Regression Testing Testing patterns specifically designed for AI-assisted development, where the same model writes code and reviews it — creating systematic blind spots that only automated tests can catch. ## When to Activate - AI agent (Claude Code, Cursor, Codex) has modified API routes or backend logic - A bug was found and fixed — need to prevent re-introduction - Project has a sandbox/mock mode that can be leveraged for DB-free testing - Running `/bug-check` or similar review commands after code changes - Multiple code paths exist (sandbox vs production, feature flags, etc.) ## The Core Problem When an AI writes code and then reviews its own work, it carries the same assumptions into both steps. This creates a predictable failure pattern: ``` AI writes fix → AI reviews fix → AI says \"looks correct\" → Bug still exists ``` **Real-world example** (observed in production): ``` Fix "
+  },
+  {
+   "ten": "analyzing-linux-audit-logs-for-intrusion",
+   "kho": "mukul975/Anthropic-Cybersecurity-Skills",
+   "duong": "skills/analyzing-linux-audit-logs-for-intrusion",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 5,
+   "mo": "Uses the Linux Audit framework (auditd) with ausearch and aureport utilities to detect intrusion attempts, unauthorized access, privilege escalation, and suspicious system activity",
+   "byte": 9790,
+   "doc": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills/blob/main/skills/analyzing-linux-audit-logs-for-intrusion/SKILL.md",
+   "trich": "# Analyzing Linux Audit Logs for Intrusion ## When to Use - Investigating suspected unauthorized access or privilege escalation on Linux hosts - Hunting for evidence of exploitation, backdoor installation, or persistence mechanisms - Auditing compliance with security baselines (CIS, STIG, PCI-DSS) that require system call monitoring - Reconstructing a timeline of attacker actions during incident response - Detecting file tampering on critical system files such as `/etc/passwd`, `/etc/shadow`, or SSH keys **Do not use** for network-level intrusion detection; use Suricata or Zeek for network traffic analysis. Auditd operates at the kernel level on individual hosts. ## Prerequisites - Linux system with `auditd` package installed and the audit daemon running (`systemctl status auditd`) - Root or sudo access to configure audit rules and query logs - Audit rules deployed via `/etc/audit/rules."
+  },
+  {
+   "ten": "analyzing-office365-audit-logs-for-compromise",
+   "kho": "mukul975/Anthropic-Cybersecurity-Skills",
+   "duong": "skills/analyzing-office365-audit-logs-for-compromise",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 5,
+   "mo": "Parse Office 365 Unified Audit Logs via Microsoft Graph API to detect email forwarding rule creation, inbox delegation, suspicious OAuth app grants, and other indicators of account",
+   "byte": 2336,
+   "doc": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills/blob/main/skills/analyzing-office365-audit-logs-for-compromise/SKILL.md",
+   "trich": "# Analyzing Office 365 Audit Logs for Compromise ## Overview Business Email Compromise (BEC) attacks often leave traces in Office 365 audit logs: suspicious inbox rule creation, email forwarding to external addresses, mailbox delegation changes, and unauthorized OAuth application consent grants. This skill uses the Microsoft Graph API to query the Unified Audit Log, enumerate inbox rules across mailboxes, detect forwarding configurations, and identify compromised account indicators. ## When to Use - When investigating security incidents that require analyzing office365 audit logs for compromise - When building detection rules or threat hunting queries for this domain - When SOC analysts need structured procedures for this analysis type - When validating security monitoring coverage for related attack techniques ## Prerequisites - Azure AD app registration with `AuditLog.Read.All`, `Mailb"
   }
  ]
 }
