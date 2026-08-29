@@ -4603,6 +4603,41 @@ def kiem_ban_thu_mot_cho() -> None:
     kiem("`cap_du_doan` cũng vậy",
          "ma" in _i.signature(cap_du_doan).parameters)
 
+def kiem_khong_co_file_lac() -> None:
+    """Gốc runtime chỉ được có `run.py`. Bản chép lạc phải tự lộ.
+
+    Trong lúc làm việc, một lệnh `cp a.py b.py <thư-mục>/` chép NHIỀU
+    file vào một chỗ, và chỉ cần gõ sai đích một lần là có một bản sao
+    lạc nằm im. Đã xảy ra BA lần trong một ngày: `scripts/phat_lai.py`,
+    `cap_token.py`, `rui_ro.py` ở gốc runtime.
+
+    Bản sao lạc không vô hại. Nó là mã CŨ mang đúng tên mã mới, và tuỳ
+    `sys.path` mà Python có thể nạp nhầm nó — lúc ấy cỗ máy chạy bằng
+    một phiên bản không ai biết là đang chạy. Lần đầu bắt được là nhờ
+    phép canh cờ dòng lệnh kêu lên, tình cờ.
+
+    Đừng bắt ai phải nhớ. Canh nó.
+    """
+    print("\n── Không có bản chép lạc trong cây ──────────────────────────")
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    goc = {f.name for f in GOC_MA.glob("*.py")}
+    kiem("gốc runtime chỉ có `run.py`", goc == {"run.py"}, sorted(goc))
+
+    # Một module `kham/` mang đúng tên ấy mà nằm ở `scripts/` là bản lạc.
+    ten_kham = {f.stem for f in (GOC_MA / "kham").glob("*.py")}
+    lac = sorted(f.name for f in (GOC_MA / "scripts").glob("*.py")
+                 if f.stem in ten_kham)
+    kiem("không module `kham/` nào bị chép lạc sang `scripts/`",
+         not lac, lac)
+
+    # Và ngược lại.
+    ten_sc = {f.stem for f in (GOC_MA / "scripts").glob("*.py")}
+    lac2 = sorted(f.name for f in (GOC_MA / "kham").glob("*.py")
+                  if f.stem in ten_sc)
+    kiem("không script nào bị chép lạc sang `kham/`", not lac2, lac2)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4684,6 +4719,7 @@ def main() -> int:
     kiem_tran_phoi_nhiem_gop()
     kiem_chan_lenh_tu_trang_khac()
     kiem_ban_thu_mot_cho()
+    kiem_khong_co_file_lac()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
