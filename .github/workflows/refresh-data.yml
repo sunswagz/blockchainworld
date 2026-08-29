@@ -1784,6 +1784,23 @@ jobs:
             Không suy đoán ngoài dữ liệu trong hai file đó. Không có gì
             đáng lo thì nói thẳng là không có, đừng bịa ra việc.
             Chỉ ghi file, không chạy lệnh nào khác.
+
+            MỘT ĐIỀU BẠN KHÔNG THẤY ĐƯỢC, và nó đã làm bạn báo sai một
+            lần: bạn chạy Ở GIỮA lượt, không phải cuối. Vài node nằm sau
+            bước này trong cùng một job, nên state.json bạn đọc CHƯA có
+            lượt của chúng.
+
+            Vì vậy: một node khai `nhip` mà KHÔNG có dòng nào trong
+            state.json thì đừng kết luận "chưa từng được gọi". Đó là
+            hình dạng của một node mới, chạy sau bạn, và sẽ ghi sổ vài
+            giây nữa. Ngày 29/08 bạn đã đặt đúng câu ấy vào ô "việc nên
+            làm trước" cho `tri-thuc` và `tri-thuc-tien-hoa` — cả hai
+            ghi sổ đúng 0,2 giây và 3 phút sau khi bạn viết xong.
+
+            Node vắng mặt hoàn toàn thì cứ nêu, nhưng nêu như một điều
+            CẦN KIỂM, và đừng dùng nó làm "việc nên làm trước" khi còn
+            chỗ nào đáng hơn. Ô đó chỉ có một suất; tiêu nó vào một báo
+            động sai là lượt ấy không nói được gì thật.
       # Bấm giờ SAU nằm luôn trong bước ghi sổ, không tách riêng: đây
       # là bước `run:` đầu tiên chạy sau action, và nó có `always()`
       # nên đo được cả lượt ngã. Node dai-quan-trac phải tách riêng vì
