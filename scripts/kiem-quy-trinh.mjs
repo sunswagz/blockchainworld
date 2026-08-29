@@ -931,6 +931,44 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: ĐƯỜNG ĐIỀU HƯỚNG PHẢI TRỎ VÀO CHỖ CÓ THẬT ───
+   Mỗi cung mang một `assets/js/halls.js` do `npm run halls` sinh, và
+   trong đó là 12 đường sang 12 cung. Cộng cả lưới trên Cổng Thành là
+   156 đường; đổi tên hay bỏ một cung mà quên sinh lại là gãy đồng
+   loạt 13 trang, và không có gì báo — `npm run live` chỉ soi TÀI
+   NGUYÊN (script, css, ảnh), không soi liên kết trang.
+
+   Soi trên ĐĨA chứ không gọi mạng: phép này phải chạy được trước khi
+   đẩy, và một cung mới ở nhánh chưa gộp thì trên site chưa có. */
+{
+  const duongCung = (u) => u.replace(/^\.\.\//, "").replace(/\/$/, "");
+  let tong = 0;
+  for (const c of cung) {
+    const p = join(ROOT, c, "assets", "js", "halls.js");
+    if (!existsSync(p)) continue;
+    const s = await doc(`${c}/assets/js/halls.js`);
+    const hrefs = [...s.matchAll(/href:\s*"([^"]+)"/g)].map((m) => m[1]);
+    tong += hrefs.length;
+    const hong = hrefs.filter((u) => {
+      if (/^https?:/.test(u)) return false;
+      const t = duongCung(u);
+      return t !== "" && !existsSync(join(ROOT, t, "index.html")) && !existsSync(join(ROOT, t));
+    });
+    if (hong.length)
+      bao(`${c}/assets/js/halls.js trỏ vào ${hong.length} chỗ không có: ${hong.join(", ")}\n` +
+          `        Chạy \`npm run halls\` để sinh lại cả 12 file.`);
+  }
+  if (existsSync(join(ROOT, "index.html"))) {
+    const h = await doc("index.html");
+    const hong = [...h.matchAll(/<a class="hall" href="([^"]+)"/g)]
+      .map((m) => m[1])
+      .filter((u) => !/^https?:/.test(u) && !existsSync(join(ROOT, duongCung(u), "index.html")));
+    if (hong.length)
+      bao(`index.html ở gốc trỏ vào ${hong.length} cung không có: ${hong.join(", ")}`);
+  }
+  if (tong) nhac(`điều hướng: ${tong} đường trong halls.js của ${cung.length} cung, tất cả trỏ vào chỗ có thật`);
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
