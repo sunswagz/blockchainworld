@@ -384,7 +384,11 @@ class SoCai:
         # thêm một loại vào đây BUỘC phải thêm chỗ cộng cho nó.
         KHOAN = {"FUNDING": "thuUsd", "TRUOT_GIA": "truotGiaUsd",
                  "DIEU_CHINH": "dieuChinhUsd",
-                 "PHI": None}       # None = tách tiếp thành vào-lệnh / trong-kỳ
+                 "PHI": None,       # None = tách tiếp thành vào-lệnh / trong-kỳ
+                 # `DONG_VI_THE` KHÔNG mang tiền (soTienUsd = 0) — nó chỉ
+                 # ở đây để ĐẾM. Bỏ nó ra khỏi mọi khoản cộng bằng cách
+                 # trỏ vào một ô riêng.
+                 "DONG_VI_THE": "_dem_dong"}
         try:
             with self._mo() as con:
                 h = con.execute(
@@ -399,11 +403,21 @@ class SoCai:
             o = ra.setdefault(k, {"thuUsd": 0.0, "phiVaoUsd": 0.0,
                                   "phiKhacUsd": 0.0, "truotGiaUsd": 0.0,
                                   "dieuChinhUsd": 0.0, "soLanVaoLenh": 0,
-                                  "soButToan": 0})
+                                  "soLanDong": 0, "soButToan": 0})
             o["soButToan"] += 1
             v = float(tien or 0.0)
             o_ten = KHOAN[loai]              # KeyError = truy vấn lệch bảng
-            if o_ten is not None:
+            if o_ten == "_dem_dong":
+                # Kết toán NHẬP TỪ cỗ máy khác không phải lần đóng của ty
+                # này — cùng bộ lọc `du_doan_va_thuc()` đã phải đặt sáng
+                # nay, và chính con số mới này lôi nó ra ánh sáng: ty tiên
+                # đoán hiện «vào 1 · đóng 50 · tỉ lệ 50,00», tức năm mươi
+                # lần đóng của Khâm Thiên Giám đối lại một lần vào lệnh
+                # của ta. Một tỉ lệ như thế không nói về churn, nó chỉ nói
+                # rằng hai cỗ máy đang bị cộng chung.
+                if not (_json(ct) or {}).get("nguon"):
+                    o["soLanDong"] += 1
+            elif o_ten is not None:
                 o[o_ten] += v
             elif "phiUocBps" in (_json(ct) or {}):
                 o["phiVaoUsd"] += v
@@ -419,6 +433,21 @@ class SoCai:
                                       + o["truotGiaUsd"]
                                       + o["dieuChinhUsd"])
             o["phiMoiLanVaoUsd"] = (o["phiVaoUsd"] / o["soLanVaoLenh"]
+                                    if o["soLanVaoLenh"] else None)
+            # VÀO bao nhiêu lần / ĐÓNG bao nhiêu lần — hai con số này cạnh
+            # nhau mới phân biệt được hai thứ hoàn toàn khác nhau mà cùng
+            # trả phí vào lệnh:
+            #
+            #   vào 289 · đóng 282   gần như mọi vị thế đã đóng rồi mở
+            #                        lại — CHURN, chi phí vận hành
+            #   vào  48 · đóng   0   bốn tám vị thế MỚI — chi phí bình
+            #                        thường của việc rót vốn
+            #
+            # Không có mẫu số ấy thì triệu chứng `phi-vao-an-het` kêu mãi
+            # bằng một con số cộng dồn cả đời, kể cả sau khi churn đã hết.
+            # Một cảnh báo không bao giờ tắt được là một cảnh báo người ta
+            # học cách bỏ qua.
+            o["tiLeDongTrenVao"] = (o["soLanDong"] / o["soLanVaoLenh"]
                                     if o["soLanVaoLenh"] else None)
         return ra
 

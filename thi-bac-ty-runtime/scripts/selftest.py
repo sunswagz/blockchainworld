@@ -2680,6 +2680,35 @@ def kiem_chan_doan_he() -> None:
     # KHÔNG khai núm nào. Chỉ dựa vào danh sách bỏ qua trong `de_xuat` thì
     # ngày ai đó thêm một núm gợi ý, danh sách ấy là thứ duy nhất còn
     # chặn — mà nó nằm ở file khác, cách đó 200 dòng.
+    # VÀO bao nhiêu lần rồi ĐÓNG bao nhiêu lần — không có mẫu số ấy thì
+    # triệu chứng này kêu bằng một con số cộng dồn CẢ ĐỜI và không bao giờ
+    # tắt được, kể cả sau khi churn đã hết hẳn. Đo 30/08: ba giờ liền 48
+    # lần mở, 0 lần đóng — churn đã dừng — mà con số 289 vẫn nguyên.
+    _anhCh = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                    "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+              "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+              "soCai": {"laiLoTheoTy": {"churn.v1": {"laiLoUsd": -80.0},
+                                        "moi.v1": {"laiLoUsd": -3.0}}},
+              "laiLoTachKhoan": {
+                  "churn.v1": {"laiLoChienLuocUsd": 4.0, "soLanVaoLenh": 289,
+                               "soLanDong": 282, "tiLeDongTrenVao": 0.98},
+                  "moi.v1": {"laiLoChienLuocUsd": 1.0, "soLanVaoLenh": 48,
+                             "soLanDong": 0, "tiLeDongTrenVao": 0.0}}}
+    _ch = {x.bangChung.get("chienLuoc"): x for x in _cdh(_anhCh)
+           if x.ma == "phi-vao-an-het"}
+    kiem("mở-rồi-đóng-rồi-mở-lại thì NẶNG, và gọi thẳng ra là CHURN",
+         _ch["churn.v1"].nang == 2 and "CHURN" in _ch["churn.v1"].moTa,
+         f"{_ch['churn.v1'].moTa[:120]}")
+    kiem("còn toàn vị thế MỚI thì NHẸ, vì đó là chi phí bình thường",
+         _ch["moi.v1"].nang == 1 and "MỚI" in _ch["moi.v1"].moTa,
+         f"{_ch['moi.v1'].moTa[:120]} — một cảnh báo không bao giờ tắt được "
+         f"là một cảnh báo người ta học cách bỏ qua")
+    kiem("và cả hai đều mang mẫu số ra làm bằng chứng",
+         all(x.bangChung.get("soLanDong") is not None
+             and x.bangChung.get("tiLeDongTrenVao") is not None
+             for x in _ch.values()),
+         str([x.bangChung for x in _ch.values()]))
+
     kiem("phí-vào-ăn-hết KHÔNG khai núm nào — không có núm nào chữa được",
          _tTL["phi-vao-an-het"].nutGoiY == [],
          f"{_tTL['phi-vao-an-het'].nutGoiY} — siết trần vốn ở đây là rút "
@@ -6295,6 +6324,38 @@ def kiem_ke_toan_vi_the() -> None:
          "chúng là chuyển vốn; gộp vào là mỗi lần cấp 500 lại thành lỗ 500")
     kiem("và phí mỗi lần vào lệnh chia ra được",
          tach["phiMoiLanVaoUsd"] == -10.0)
+
+    # ── VÀO bao nhiêu lần / ĐÓNG bao nhiêu lần ─────────────────────────
+    # Hai con số cạnh nhau phân biệt hai thứ khác hẳn nhau mà cùng trả
+    # phí vào lệnh: mở-rồi-đóng-rồi-mở-lại (CHURN, chi phí vận hành) và
+    # mở vị thế MỚI (chi phí bình thường của việc rót vốn). Thiếu mẫu số
+    # thì triệu chứng `phi-vao-an-het` kêu bằng một con số cộng dồn cả đời
+    # và không bao giờ tắt được.
+    kiem("chưa đóng lần nào thì tỉ lệ đóng/vào là 0, không phải None",
+         tach["soLanDong"] == 0 and tach["tiLeDongTrenVao"] == 0.0,
+         f"{tach} — ba lần vào, chưa đóng lần nào: đó là vị thế MỚI, "
+         f"không phải churn")
+    for _i in range(2):
+        sc16.ghi(_BT16("DONG_VI_THE", "đóng", 0.0, "x.y.v1", f"m{_i}",
+                       {"daGiuGio": 5.0}))
+    # Kết toán NHẬP TỪ máy khác KHÔNG phải lần đóng của ty này — cùng bộ
+    # lọc `du_doan_va_thuc()` đã phải đặt. Chính con số này lôi nó ra ánh
+    # sáng: ty tiên đoán hiện «vào 1 · đóng 50 · tỉ lệ 50,00».
+    sc16.ghi(_BT16("DONG_VI_THE", "kết toán ngoài", 0.0, "x.y.v1", "m9",
+                   {"nguon": "kham-thien-giam", "daGiuGio": 5.0}))
+    t2 = sc16.lai_lo_tach_khoan()["x.y.v1"]
+    kiem("đóng ĐẾM được, và tỉ lệ đóng/vào tính ra",
+         t2["soLanDong"] == 2 and abs(t2["tiLeDongTrenVao"] - 2 / 3) < 1e-9,
+         f"{t2['soLanDong']}/{t2['soLanVaoLenh']}")
+    kiem("kết toán NHẬP TỪ máy khác KHÔNG vào mẫu số ấy",
+         t2["soLanDong"] == 2,
+         f"{t2['soLanDong']} — 50 lần đóng của một cỗ máy khác đối lại 1 "
+         f"lần vào lệnh của ta không nói gì về churn, nó chỉ nói hai cỗ "
+         f"máy đang bị cộng chung")
+    kiem("và DONG_VI_THE không mang tiền nên không lọt vào lãi lỗ",
+         t2["laiLoUsd"] == tach["laiLoUsd"],
+         f"{t2['laiLoUsd']} vs {tach['laiLoUsd']} — nó ở trong truy vấn "
+         f"chỉ để ĐẾM")
 
     kiem("KHÔNG khoản nào rơi vào hư không: truy vấn dựng TỪ bảng xử lý",
          all(k in ("FUNDING", "PHI", "TRUOT_GIA", "DIEU_CHINH")

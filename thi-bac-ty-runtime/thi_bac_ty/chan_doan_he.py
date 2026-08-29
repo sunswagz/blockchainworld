@@ -85,6 +85,11 @@ TOI_THIEU_DOI_CHIEU = 20
 #: báo bệnh mỗi vòng.
 NGUONG_HUA_QUA_BPS_GIO = 0.05
 
+#: Đóng trên Vào từ ngưỡng này trở lên thì gọi là CHURN. 0,8 vì một danh
+#: mục lành mạnh luôn có một phần vị thế đang mở: đóng bằng 100% số lần
+#: vào nghĩa là không còn giữ gì, mà máy đang giữ 74 vị thế.
+NGUONG_CHURN = 0.8
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -325,16 +330,32 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             # Chiến lược dương mà gộp âm: phí vào lệnh ăn hết. KHÔNG có
             # núm nào chữa — vặn trần vốn ở đây là phạt nhầm người.
             n = int(t6.get("soLanVaoLenh") or 0)
+            dg = int(t6.get("soLanDong") or 0)
+            ti = t6.get("tiLeDongTrenVao")
+            # VÀO bao nhiêu lần rồi ĐÓNG bao nhiêu lần — hai con số cạnh
+            # nhau phân biệt hai thứ khác hẳn nhau mà cùng trả phí vào:
+            # mở-rồi-đóng-rồi-mở-lại (churn, chi phí vận hành) và mở vị
+            # thế MỚI (chi phí bình thường của việc rót vốn).
+            #
+            # Không có mẫu số ấy thì triệu chứng này kêu bằng một con số
+            # cộng dồn cả đời và KHÔNG BAO GIỜ TẮT được, kể cả sau khi
+            # churn đã hết hẳn — đo 30/08: ba giờ liền 48 lần mở, 0 lần
+            # đóng, mà con số 289 vẫn nguyên. Một cảnh báo không tắt được
+            # là một cảnh báo người ta học cách bỏ qua.
+            cao = ti is not None and ti >= NGUONG_CHURN
+            vi = (f"gần như mọi vị thế đã đóng rồi mở lại — CHURN"
+                  if cao else
+                  f"phần lớn là vị thế MỚI, không phải mở lại")
             ra.append(TrieuChungHe(
-                "phi-vao-an-het", 2,
+                "phi-vao-an-het", 2 if cao else 1,
                 f"ty {ma} lãi {cl:+.2f} USD bằng chiến lược nhưng gộp lại "
                 f"vẫn âm {abs(gop):.2f} USD: phí vào lệnh {n} lần đã ăn hết. "
-                f"Phần lớn số lần ấy là mở lại sau khi runtime khởi động "
-                f"lại — chi phí VẬN HÀNH, không phải chi phí chiến lược. "
-                f"Không núm nào chữa được: giữ vị thế lâu hơn, hoặc khởi "
-                f"động lại ít đi.",
+                f"Vào {n} · đóng {dg} ({vi}). Phí vào lệnh do mở lại là chi "
+                f"phí VẬN HÀNH, không phải chi phí chiến lược. Không núm "
+                f"nào chữa được: giữ vị thế lâu hơn, hoặc khởi động lại ít "
+                f"đi.",
                 {"chienLuoc": ma, "laiLoUsd": gop, "laiLoChienLuocUsd": cl,
-                 "soLanVaoLenh": n,
+                 "soLanVaoLenh": n, "soLanDong": dg, "tiLeDongTrenVao": ti,
                  "phiMoiLanVaoUsd": t6.get("phiMoiLanVaoUsd")}))
 
     # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──
