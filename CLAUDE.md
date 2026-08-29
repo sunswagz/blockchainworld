@@ -228,6 +228,40 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     knowledge-os/data/2026/concepts.json
     knowledge-os/data/2026/relations.json
 
+Bảy cung dưới đây do **một** node đồng sửa — `tien-hoa-xoay`, mỗi ngày
+một cung, bảy ngày giáp vòng (xem `scripts/vong-xoay.mjs`). Danh sách
+đường sinh thẳng từ `VONG_XOAY` nên thêm cung vào vòng là bốn đường
+này tự có; không phải chép tay ở hai chỗ:
+
+    cong-bo/index.html
+    cong-bo/assets/css/app.css
+    cong-bo/assets/js/app.js
+    cong-bo/sw.js
+    do-sat-vien/index.html
+    do-sat-vien/assets/css/app.css
+    do-sat-vien/assets/js/app.js
+    do-sat-vien/sw.js
+    hoang-thanh/index.html
+    hoang-thanh/assets/css/app.css
+    hoang-thanh/assets/js/app.js
+    hoang-thanh/sw.js
+    kinh-thanh/index.html
+    kinh-thanh/assets/css/app.css
+    kinh-thanh/assets/js/app.js
+    kinh-thanh/sw.js
+    tang-thu-cac/index.html
+    tang-thu-cac/assets/css/app.css
+    tang-thu-cac/assets/js/app.js
+    tang-thu-cac/sw.js
+    thi-bac-ty/index.html
+    thi-bac-ty/assets/css/app.css
+    thi-bac-ty/assets/js/app.js
+    thi-bac-ty/sw.js
+    tu-cam-thanh/index.html
+    tu-cam-thanh/assets/css/app.css
+    tu-cam-thanh/assets/js/app.js
+    tu-cam-thanh/sw.js
+
 Đây là một loại thứ **ba**, đừng lẫn với hai loại trên:
 
 | loại | ai ghi | sửa tay được không |

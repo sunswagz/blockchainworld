@@ -14,6 +14,33 @@
 /* Node của CHÍNH nhà máy — không thuộc cung nào.
    Đóng dấu bản số liệu, báo cáo sức khoẻ, giao hàng. */
 
+import { VONG_XOAY } from "../vong-xoay.mjs";
+
+/* Đường ra của node `tien-hoa-xoay`, SINH TỪ chính danh sách xoay.
+
+   Bản đầu tôi khai `ra: []` kèm câu "phần được NHẬN đi theo lệnh
+   git add của chính cung ấy, vốn đã có sẵn". Câu đó SAI, và sai kiểu
+   im lặng nhất: bước commit dùng `git add --pathspec-from-file` với
+   đúng danh sách sinh từ `ra` của các node, mà `ra` của bảy cung
+   trong vòng xoay chỉ khai file DỮ LIỆU (data.js, v/…) chứ không khai
+   index.html hay app.css. Đếm thật trước khi vá: 0 trên 28 đường ấy
+   có mặt trong danh sách 70 đường được commit.
+
+   Nghĩa là node sẽ chạy, model sẽ sửa, cổng chặn sẽ NHẬN, rồi bước
+   commit bỏ qua toàn bộ — mỗi ngày một lượt model vứt đi mà sổ vẫn
+   ghi "ok".
+
+   Sinh từ VONG_XOAY chứ không gõ tay 28 đường: thêm một cung vào
+   vòng xoay mà quên thêm bốn đường ở đây thì đúng cung ấy im lặng
+   không bao giờ được commit. `duong-ra` chỉ in đường CÓ THẬT trên
+   đĩa nên cung thiếu file nào cũng không sinh lỗi pathspec. */
+const RA_XOAY = VONG_XOAY.flatMap((c) => [
+  `${c}/index.html`,
+  `${c}/assets/css/app.css`,
+  `${c}/assets/js/app.js`,
+  `${c}/sw.js`,
+]);
+
 export const NODE = [
   {
     ma: "dong-dau", ten: "Đóng dấu bản số liệu",
@@ -65,15 +92,15 @@ export const NODE = [
      phải "mỗi tuần" với "mỗi ngày", mà "mỗi tuần" với "không bao
      giờ".
 
-     `ra` để rỗng: node này sửa file của cung nào là tuỳ ngày, nên
-     không khai trước được. Bước cổng chặn trong workflow tự hoàn
-     nguyên phần nó làm bẩn khi trượt; phần được NHẬN đi theo lệnh
-     `git add` của chính cung ấy, vốn đã có sẵn. */
+     `ra` khai BỐN file của CẢ BẢY cung (xem RA_XOAY ở đầu file), chứ
+     không rỗng: node sửa cung nào là tuỳ ngày, nhưng `git add` cần
+     biết trước mọi đường có thể đụng tới. Khai rỗng là model sửa
+     xong, cổng chặn nhận, rồi bước commit bỏ qua toàn bộ. */
   {
     ma: "tien-hoa-xoay", ten: "Tiến hoá xoay vòng (7 cung)",
     tram: "M14", che: "claude", nhip: 24,
     lenh: "tien-hoa.mjs xoay → do/de-bai → claude-code-action → cong --so",
-    ra: [],
+    ra: RA_XOAY,
     y: "Mỗi ngày một cung trong scripts/vong-xoay.mjs, bảy ngày giáp vòng. " +
        "Cùng đường với năm vòng riêng, chỉ khác tên cung là biến."
   },
