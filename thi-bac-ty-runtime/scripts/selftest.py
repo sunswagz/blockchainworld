@@ -2703,6 +2703,23 @@ def kiem_chan_doan_he() -> None:
          _ch["moi.v1"].nang == 1 and "MỚI" in _ch["moi.v1"].moTa,
          f"{_ch['moi.v1'].moTa[:120]} — một cảnh báo không bao giờ tắt được "
          f"là một cảnh báo người ta học cách bỏ qua")
+    # ĐỦ MẪU rồi mới dám gọi là churn. Đo 30/08 ngay sau khi dựng con số
+    # này: ty tiên đoán «vào 1 · đóng 1 · tỉ lệ 1,00» và bị gắn mức NẶNG
+    # y như một ty churn 289 lần. Cùng bài học `hua-qua-he` đã học ở trên,
+    # cùng một phiên.
+    _anhIt = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                    "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+              "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+              "soCai": {"laiLoTheoTy": {"it.v1": {"laiLoUsd": -8.0}}},
+              "laiLoTachKhoan": {
+                  "it.v1": {"laiLoChienLuocUsd": 0.0, "soLanVaoLenh": 1,
+                            "soLanDong": 1, "tiLeDongTrenVao": 1.0}}}
+    _it = [x for x in _cdh(_anhIt) if x.ma == "phi-vao-an-het"]
+    kiem("MỘT lần vào lệnh thì tỉ lệ 1,00 KHÔNG bị gọi là churn",
+         len(_it) == 1 and _it[0].nang == 1,
+         f"{[(x.ma, x.nang) for x in _it]} — một tỉ lệ dựng trên một mẫu "
+         f"không nói gì về ty ấy")
+
     kiem("và cả hai đều mang mẫu số ra làm bằng chứng",
          all(x.bangChung.get("soLanDong") is not None
              and x.bangChung.get("tiLeDongTrenVao") is not None

@@ -90,6 +90,11 @@ NGUONG_HUA_QUA_BPS_GIO = 0.05
 #: vào nghĩa là không còn giữ gì, mà máy đang giữ 74 vị thế.
 NGUONG_CHURN = 0.8
 
+#: Dưới ngần này lần vào lệnh thì tỉ lệ đóng/vào là tiếng ồn, không phải
+#: một tính chất của ty. Mười, vì một ty mới mở vài vị thế có thể tình cờ
+#: đóng hết chúng mà không hề churn.
+TOI_THIEU_LAN_VAO = 10
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -342,7 +347,14 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             # churn đã hết hẳn — đo 30/08: ba giờ liền 48 lần mở, 0 lần
             # đóng, mà con số 289 vẫn nguyên. Một cảnh báo không tắt được
             # là một cảnh báo người ta học cách bỏ qua.
-            cao = ti is not None and ti >= NGUONG_CHURN
+            # ĐỦ MẪU rồi mới dám gọi là churn. Một tỉ lệ dựng trên
+            # MỘT lần vào lệnh không nói gì — đo 30/08 ngay sau khi
+            # dựng con số này: ty tiên đoán «vào 1 · đóng 1 · tỉ lệ
+            # 1,00» và bị gắn mức NẶNG như một ty churn 289 lần.
+            # Cùng bài học `hua-qua-he` đã học ở trên, cùng một
+            # phiên, và tôi vẫn quên nó ở đây.
+            cao = (ti is not None and ti >= NGUONG_CHURN
+                   and n >= TOI_THIEU_LAN_VAO)
             vi = (f"gần như mọi vị thế đã đóng rồi mở lại — CHURN"
                   if cao else
                   f"phần lớn là vị thế MỚI, không phải mở lại")
