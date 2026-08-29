@@ -41,6 +41,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .config import CONFIG
 from .so_lenh import Muc, SoLenh
 
 
@@ -72,12 +73,74 @@ class CapSo:
 
     # ── sổ có đáng tin không ──────────────────────────────────────────────
     @property
+    def lech_toi_da(self) -> float:
+        """Ngưỡng lệch soi gương chấp nhận được. Đọc CONFIG mỗi lần."""
+        return float((CONFIG.get("capToken") or {})
+                     .get("lechSoiGuongToiDa", 0.10))
+
+    @property
+    def nhat_quan(self) -> bool:
+        """Hai sổ có nói về CÙNG MỘT lúc không.
+
+        `lech_soi_guong` đo được điều đó, và trước bản này nó chỉ được vẽ
+        lên buồng lái rồi thôi — trong khi chính docstring của nó gọi tình
+        huống lệch là "thứ hỏng im lặng".
+
+        Đo trên 1.018 dòng khung ăn thua đã bắt được:
+
+            trung vị 0,000  ·  p75 0,010  ·  p90 0,030  ·  max 0,570
+            vượt  1c: 25,6% dòng · vượt 2c: 12,1% · vượt 10c: 6,4%
+
+        Và chỗ quyết định — đối chiếu với chênh MỐC THỜI GIAN hai sổ:
+
+            lệch ≤ 2c (895 dòng): chênh mốc trung vị    0,22 s
+            lệch > 2c (123 dòng): chênh mốc trung vị  114,45 s
+                                  72% trong đó lệch quá 10 giây
+
+        Gần hai phút giữa hai lát cắt, trên một khung sống năm phút. Lệch
+        lớn gần như luôn là DỮ LIỆU LỆCH GIỜ.
+
+        ## Vì sao ngưỡng 10c chứ không phải 2c
+
+        Vì phép đo này lẫn HAI chuyện, và chỉ một trong hai là hỏng:
+
+        · dữ liệu lệch giờ — hai lát cắt ở hai thời điểm;
+        · chênh lệch giá THẬT giữa hai token — chính là thứ chiến thuật
+          `cap-tuc-thi` sinh ra để bắt.
+
+        Cả hai có cùng HÌNH DẠNG. Chặn ở 2c là chặn luôn cơ hội thật.
+        Một chênh lệch 10 cent giữa hai token của cùng một khung 5 phút
+        thì không phải giá — không ai để một món hời như thế nằm đó hai
+        phút. 10c là chỗ hai chuyện tách nhau ra được.
+
+        ## Và KHÔNG được biện minh bằng lãi lỗ
+
+        Tôi đã thử: chạy lại phiên giấy với các ngưỡng khác nhau, lãi lỗ
+        ra 23,59 / 41,81 / 16,17 / 13,15 / 10,43 đô — **không đơn điệu**,
+        và ngưỡng LỎNG nhất lại cho lãi cao nhất. Lý do: chặn một dòng
+        giải phóng sức chứa cho dòng sau, nên đây là hệ phụ thuộc đường
+        đi chứ không phải một cái sàng. Trên 6 cửa sổ kết toán với khoảng
+        tin ±150 đô, mọi chênh lệch ấy là NHIỄU.
+
+        Nên cổng này đứng trên đúng một chân: **10 cent lệch giữa hai sổ
+        không phải một mức giá.** Không đứng trên chân "nó làm lãi hơn" —
+        chân ấy không chịu nổi sức nặng nào.
+        """
+        v = self.lech_soi_guong()
+        return v is None or v <= self.lech_toi_da
+
+    @property
     def dung_duoc(self) -> bool:
-        return self.up.dung_duoc or self.down.dung_duoc
+        return (self.up.dung_duoc or self.down.dung_duoc) and self.nhat_quan
 
     def ly_do_khong_dung(self) -> str | None:
         if self.dung_duoc:
             return None
+        if not self.nhat_quan:
+            v = self.lech_soi_guong()
+            return (f"hai sổ lệch soi gương {v:.4f} > {self.lech_toi_da:.4f} "
+                    "— chúng đang nói về hai thời điểm khác nhau, mọi lệch "
+                    "giá đọc từ đây là lợi thế MA")
         u = self.up.ly_do_khong_dung()
         d = self.down.ly_do_khong_dung()
         if u and d and u == d:

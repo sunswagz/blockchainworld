@@ -581,8 +581,12 @@ def kiem_chay_lai() -> None:
             "sigmaGiay": sig, "conLaiGiay": 120.0, "upThang": d > 0,
             "so": {"UP": {"luc": 1, "bid": [{"gia": 0.40, "luong": 500}],
                           "ask": [{"gia": 0.42, "luong": 500}]},
-                   "DOWN": {"luc": 1, "bid": [{"gia": 0.55, "luong": 500}],
-                            "ask": [{"gia": 0.57, "luong": 500}]}}}]})
+                   # Sổ DOWN là ẢNH SOI GƯƠNG của sổ UP: mua UP ≡ bán
+                   # DOWN nên UP_bid + DOWN_ask = 1. Bản trước để
+                   # 0,55/0,57 cạnh UP 0,40/0,42 — một cặp sổ KHÔNG THỂ
+                   # tồn tại trên sàn thật.
+                   "DOWN": {"luc": 1, "bid": [{"gia": 0.58, "luong": 500}],
+                            "ask": [{"gia": 0.60, "luong": 500}]}}}]})
     at = float(CONFIG["canLoi"]["bienAnToan"])
     r = mot_luot(khung, ThamSo("chat", 0.02, at))
     kiem("chạy lại đọc hết khung", r.soKhung == 60)
@@ -616,8 +620,14 @@ def _bang_gia(n=80, thang_xen_ke=True):
                           "bid": [{"gia": 0.40, "luong": 900}],
                           "ask": [{"gia": 0.42, "luong": 900}]},
                    "DOWN": {"luc": 1, "thangCho": False, "dungDuoc": True,
-                            "bid": [{"gia": 0.55, "luong": 900}],
-                            "ask": [{"gia": 0.57, "luong": 900}]}}}]})
+                            # Sổ DOWN phải là ẢNH SOI GƯƠNG của sổ UP:
+                            # mua UP ≡ bán DOWN, nên UP_ask + DOWN_bid = 1.
+                            # Bản trước để 0,55/0,57 cạnh UP 0,40/0,42 —
+                            # một cặp sổ KHÔNG THỂ tồn tại trên sàn thật,
+                            # và một fixture không thể tồn tại thì phép
+                            # kiểm dựng trên nó chứng minh được rất ít.
+                            "bid": [{"gia": 0.58, "luong": 900}],
+                            "ask": [{"gia": 0.60, "luong": 900}]}}}]})
     return ra
 
 
@@ -2415,7 +2425,8 @@ def kiem_cong_phan_biet() -> None:
             "sigmaGiay": 1.0e-5, "conLaiGiay": 120.0,
             "so": {
                 "UP": {"bid": [muc(0.40, 900)], "ask": [muc(0.42, 900)]},
-                "DOWN": {"bid": [muc(0.56, 900)], "ask": [muc(0.58, 900)]},
+                # ảnh soi gương của sổ UP — xem `CapSo.nhat_quan`
+                "DOWN": {"bid": [muc(0.58, 900)], "ask": [muc(0.60, 900)]},
             }}]})
 
     dx = DeXuat(nut="dinhGia.batDinhToiThieu", tuGiaTri=0.005,
@@ -4098,6 +4109,102 @@ def kiem_nut_van_khong_bi_dong_bang() -> None:
             if tk2.get(o) and k in nut.get(tk2[o], ())]
     kiem("KHÔNG bắt nhầm chỗ đọc trong thân hàm", not bat2, bat2)
 
+def kiem_hai_so_phai_nhat_quan() -> None:
+    """Hai sổ lệch soi gương thì KHÔNG được dùng — gần nửa lãi là từ đó.
+
+    Mua UP ≡ bán DOWN, nên sổ DOWN thật và ảnh soi gương của sổ UP phải
+    khớp. `lech_soi_guong` đo được điều đó từ đầu, và nó chỉ được VẼ lên
+    buồng lái rồi thôi — trong khi chính docstring của nó gọi tình huống
+    lệch là "thứ hỏng im lặng".
+
+    Đo trên 1.018 dòng khung ăn thua ĐÃ BẮT ĐƯỢC:
+
+        trung vị 0,000 · p75 0,010 · p90 0,030 · max 0,570
+        vượt 1c: 25,6% · vượt 2c: 12,1% · vượt 10c: 6,4%
+        chênh MỐC hai sổ: trung vị 0,23s · max 290s
+
+    Gần năm phút giữa hai lát cắt, trên một khung sống đúng năm phút.
+
+    Và chỗ quyết định — đối chiếu với chênh MỐC THỜI GIAN hai sổ:
+
+        lệch ≤ 2c (895 dòng): chênh mốc trung vị    0,22 s
+        lệch > 2c (123 dòng): chênh mốc trung vị  114,45 s
+
+    Ngưỡng 10c chứ không phải 2c: phép đo này lẫn hai chuyện CÙNG HÌNH
+    DẠNG — dữ liệu lệch giờ, và chênh lệch giá THẬT giữa hai token (thứ
+    `cap-tuc-thi` sinh ra để bắt). Chặn ở 2c là chặn luôn cơ hội thật.
+
+    KHÔNG chọn ngưỡng theo lãi lỗ. Thử các ngưỡng cho ra 23,59 / 41,81 /
+    16,17 / 13,15 / 10,43 đô — không đơn điệu, và ngưỡng LỎNG nhất lại
+    cho lãi cao nhất, vì chặn một dòng giải phóng sức chứa cho dòng sau.
+    Trên 6 cửa sổ với khoảng tin ±150 đô thì đó là nhiễu.
+    """
+    print("\n── Hai sổ phải nói về CÙNG MỘT LÚC ──────────────────────────")
+
+    from kham.cap_token import CapSo
+    from kham.config import CONFIG
+    from kham.so_lenh import Muc, SoLenh
+
+    def so(ma, ben, bid, ask):
+        return SoLenh(ma=ma, ben=ben,
+                      bid=[Muc(*x) for x in bid],
+                      ask=[Muc(*x) for x in ask],
+                      nhanLucMs=0.0)
+
+    # UP: bid 0,40 / ask 0,42  ⇒  ảnh soi gương DOWN: bid 0,58 / ask 0,60
+    up = so("X", "UP", [(0.40, 100)], [(0.42, 100)])
+    hop = so("X", "DOWN", [(0.58, 100)], [(0.60, 100)])
+    lech = so("X", "DOWN", [(0.20, 100)], [(0.22, 100)])   # lệch 38c
+
+    a = CapSo("X", up, hop)
+    # `x or 9` là bẫy: lệch BẰNG 0 là kết quả ĐÚNG, mà 0 lại falsy nên
+    # `0.0 or 9` cho ra 9. Đúng cái bệnh "số 0 nghĩa là không có gì" mà
+    # cả ngày hôm nay đi sửa — và nó cắn vào chính phép kiểm này.
+    kiem("hai sổ khớp ⇒ lệch soi gương 0",
+         a.lech_soi_guong() is not None
+         and abs(a.lech_soi_guong()) < 1e-9, a.lech_soi_guong())
+    kiem("và NHẤT QUÁN", a.nhat_quan is True)
+    kiem("và dùng được", a.dung_duoc is True)
+    kiem("không có lý do từ chối", a.ly_do_khong_dung() is None)
+
+    b = CapSo("X", up, lech)
+    kiem("hai sổ lệch 38c ⇒ đo ra đúng",
+         abs((b.lech_soi_guong() or 0) - 0.38) < 1e-9, b.lech_soi_guong())
+    kiem("KHÔNG nhất quán", b.nhat_quan is False)
+    kiem("và KHÔNG dùng được — đây là chỗ bản trước bỏ sót",
+         b.dung_duoc is False)
+    ly = b.ly_do_khong_dung() or ""
+    kiem("lý do nói rõ đây là lợi thế MA", "lợi thế MA" in ly, ly[:70])
+
+    # Lệch cỡ MỘT CƠ HỘI THẬT (5c) phải được qua — nếu không thì cổng
+    # này bóp chết đúng chiến thuật `cap-tuc-thi`.
+    vua = so("X", "DOWN", [(0.53, 100)], [(0.55, 100)])   # lệch 5c
+    kiem("lệch 5c — cỡ một cơ hội thật — vẫn ĐƯỢC QUA",
+         CapSo("X", up, vua).nhat_quan is True,
+         CapSo("X", up, vua).lech_soi_guong())
+
+    # Ngưỡng phải đọc CONFIG lúc GỌI — nới ra thì cùng cặp sổ ấy qua được.
+    cu = (CONFIG.get("capToken") or {}).get("lechSoiGuongToiDa")
+    try:
+        CONFIG.setdefault("capToken", {})["lechSoiGuongToiDa"] = 0.90
+        kiem("nới ngưỡng thì CÙNG cặp sổ ấy qua được (đọc lúc gọi)",
+             CapSo("X", up, lech).nhat_quan is True)
+    finally:
+        if cu is None:
+            (CONFIG.get("capToken") or {}).pop("lechSoiGuongToiDa", None)
+        else:
+            CONFIG["capToken"]["lechSoiGuongToiDa"] = cu
+    kiem("trả ngưỡng về rồi thì chặn lại như cũ",
+         CapSo("X", up, lech).nhat_quan is False)
+
+    # Phiên giấy phải dùng CHUNG phép kiểm, không tự viết lại.
+    GOC_MA = Path(__file__).resolve().parent.parent
+    pl = (GOC_MA / "kham" / "phat_lai.py").read_text(encoding="utf-8")
+    ma = chr(10).join(d.split("#", 1)[0] for d in pl.splitlines())
+    kiem("phiên giấy gọi `CapSo.dung_duoc`", "capSo.dung_duoc" in ma)
+    kiem("và KHÔNG còn tự viết phép kiểm riêng",
+         "su.dung_duoc or sd.dung_duoc" not in ma)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4170,6 +4277,7 @@ def main() -> int:
     kiem_tran_theo_von_dau_ngay()
     kiem_cham_moc_tu_choi_sigma_ngan()
     kiem_nut_van_khong_bi_dong_bang()
+    kiem_hai_so_phai_nhat_quan()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

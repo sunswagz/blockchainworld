@@ -60,6 +60,7 @@ from dataclasses import dataclass, field, replace
 
 from .bang import NguonKhung, giai_doan_cua
 from .can_loi import CoHoi, phi_taker
+from .cap_token import CapSo
 from .chay_lai import dung_so
 from .chien_thuat import BoiCanh, chay_tat_ca
 from .config import CONFIG
@@ -320,8 +321,14 @@ class PhienPhatLai:
         if su is None or sd is None:
             self._bo("thiếu sổ")
             return
-        if not (su.dung_duoc or sd.dung_duoc):
-            self._bo("thang chờ / sổ một chiều")
+        # DÙNG CHUNG phép kiểm với đường chạy thật. Bản trước tự viết
+        # `su.dung_duoc or sd.dung_duoc` ở đây, nên nó bỏ sót đúng phần
+        # `CapSo` biết mà từng sổ riêng không biết: hai sổ có nói về CÙNG
+        # MỘT LÚC không. Hai đường tự kiểm theo hai cách là hai đường sẽ
+        # lệch nhau — hôm nay đã gặp chuyện ấy hai lần rồi.
+        capSo = CapSo(ma, su, sd)
+        if not capSo.dung_duoc:
+            self._bo(capSo.ly_do_khong_dung() or "sổ không dùng được")
             return
 
         gia, mo = tt.get("giaNen"), tt.get("giaMo")
