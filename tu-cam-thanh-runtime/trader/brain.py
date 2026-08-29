@@ -1330,7 +1330,15 @@ class Brain:
         # của bộ não THẬT bị ghi là "mock". Sổ luận điểm khi đó nói rằng bộ não
         # chưa từng chạy — và ai đọc lại về sau sẽ tin đúng như thế, vì không có
         # gì mâu thuẫn với nó ngoài mấy dòng chi phí trong nhật ký.
-        roi_ve_mock = "FALLBACK_SAU_LOI_BRAIN" in (out.get("reason_codes") or [])
+        # HAI mã đều nghĩa là luận điểm này do LUẬT THUẦN nghĩ ra. Bản trước chỉ
+        # nhận `FALLBACK_SAU_LOI_BRAIN`; khi tách đường hết-trần thành mã riêng,
+        # luận điểm hết-trần lập tức được ghi `source: "cli"` — sổ nói bộ não đã
+        # suy luận trong khi nó còn chưa được hỏi.
+        #
+        # Đúng lỗi đã sửa một lần ở đây, tái phát vì thêm một mã mới. Nên danh
+        # sách này phải nằm cạnh chỗ sinh ra mã, không phải rải hai nơi.
+        MA_LUAT_THUAN = ("FALLBACK_SAU_LOI_BRAIN", "HET_TRAN_DUNG_LUAT_THUAN")
+        roi_ve_mock = any(m in (out.get("reason_codes") or []) for m in MA_LUAT_THUAN)
         out["source"] = ("mock" if (roi_ve_mock or self.mode == "mock")
                          else self.mode)      # "claude" hoặc "cli"
         out["regimeFromClassifier"] = regime["primary"]

@@ -1418,6 +1418,10 @@ async def main() -> int:
               f"nhìn từ ngoài trông y hệt bot tự thấy không chắc")
         check("FALLBACK_SAU_LOI_BRAIN" not in _o_tran["reason_codes"],
               "và không mang mã «rơi về sau LỖI» — không có lỗi nào cả")
+        check(_o_tran["source"] == "mock",
+              f"và khai nguồn là MOCK (được {_o_tran['source']}) — luận điểm này do "
+              f"luật thuần nghĩ ra, ghi «cli» là sổ nói bộ não đã suy luận trong "
+              f"khi nó chưa được hỏi")
         # Cửa ngược lại: bộ não CHẠY ĐƯỢC thì không ép gì cả.
         _o31b = await _Nao31(hong=False).thesis(_st31, _rg31, {}, _acc31, "4h")
         check(_o31b["action"] == "LONG", "bộ não chạy được → giữ nguyên quyết định")
