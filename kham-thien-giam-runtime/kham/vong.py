@@ -215,13 +215,13 @@ class Runtime:
                 self._mot_thi_truong(tt, now, khung_ghi)
             except Exception as e:                  # noqa: BLE001
                 bus.ghi(f"{tt['ma']}: {type(e).__name__}: {e}", loai="loi")
-            # Ghi băng cho khung ĐANG ăn thua. Tách khỏi lời gọi trên vì
-            # nó phải chạy KỂ CẢ khi cửa đặt cược không có gì để làm —
-            # phần lớn thời gian là như vậy.
+            # Ghi băng cho CỬA ĐẶT CƯỢC. Tách khỏi lời gọi trên vì
+            # bot không còn quyết định ở đó, nhưng nó vẫn là dữ liệu —
+            # và là cách duy nhất kiểm lại kết luận nhắm-sai-cửa.
             try:
-                self._ghi_quan_sat(tt, now, khung_ghi)
+                self._ghi_dat_cuoc(tt, now, khung_ghi)
             except Exception as e:                  # noqa: BLE001
-                bus.ghi(f"{tt['ma']} (quan sát): {type(e).__name__}: {e}",
+                bus.ghi(f"{tt['ma']} (ghi cửa đặt cược): {type(e).__name__}: {e}",
                         loai="loi")
 
         # ── soát lệnh maker chờ + kết toán ───────────────────────────────
@@ -428,17 +428,19 @@ class Runtime:
         bus.ghi(f"{ma}: bám khung ăn thua {k.slug} để ghi băng "
                 f"(còn {(k.endMs - now)/1000.0:.0f}s)", loai="tin")
 
-    def _ghi_quan_sat(self, tt: dict, now: float, ghi: list[dict]) -> None:
-        """Một dòng băng cho khung đang ăn thua. Chỉ ghi, không quyết gì.
+    def _ghi_dat_cuoc(self, tt: dict, now: float, ghi: list[dict]) -> None:
+        """Một dòng băng cho CỬA ĐẶT CƯỢC. Chỉ ghi, không quyết gì.
 
-        `giaMo` ở đây là STRIKE THẬT: giá lúc `eventStartMs`, và lúc này
-        nó đã xảy ra nên biết được. `conLaiGiay` đếm tới `endMs`, không
-        tới `eventStartMs`. Hai chỗ ấy là toàn bộ khác biệt giữa dòng này
-        và dòng của cửa đặt cược — và cũng là toàn bộ lý do mô hình làm
-        việc được ở đây mà không làm việc được ở kia.
+        Bot không còn ra quyết định ở cửa này — mô hình không làm việc
+        được ở đó vì strike chưa tồn tại. Nhưng nó vẫn là dữ liệu: thước
+        đo độ trễ bám nó, và đối chiếu hai cửa là cách duy nhất kiểm lại
+        chính kết luận "nhắm sai cửa".
+
+        `giaMo` ở đây là giá lúc mở cửa đặt cược và nó KHÔNG phải strike —
+        giữ tên cũ để băng cũ đọc được, nhưng đừng nhầm.
         """
         ma = tt["ma"]
-        k = self.khungQuanSat.get(ma)
+        k = self.khungHienTai.get(ma)
         if k is None:
             return
         su = dong_song.lay(k.tokenUp)
@@ -446,16 +448,16 @@ class Runtime:
         if su is None or sd is None:
             return
         gia = self.giaNen.get(ma)
-        mo = nguon.gia_mo_khung(tt["nen"], k.eventStartMs)
+        mo = nguon.gia_mo_khung(tt["nen"], k.batDauDatCuocMs)
         if gia is None or not mo:
             return
         bd = self.bienDong.get(ma)
         sigma = bd.sigma_giay() if bd is not None else None
         ghi.append({
-            "ma": ma, "slug": k.slug, "giaiDoan": QUAN_SAT,
+            "ma": ma, "slug": k.slug, "giaiDoan": DAT_CUOC,
             "giaNen": gia, "giaMo": mo,
             "sigmaGiay": sigma,
-            "conLaiGiay": max(0.0, (k.endMs - now) / 1000.0),
+            "conLaiGiay": k.con_lai_giay(now),
             "so": {
                 "UP": {"luc": su.nhanLucMs,
                        "bid": [{"gia": m.gia, "luong": m.luong} for m in su.bid[:30]],
@@ -497,12 +499,41 @@ class Runtime:
 
     # ── một thị trường, một vòng ──────────────────────────────────────────
     def _mot_thi_truong(self, tt: dict, now: float, ghi: list[dict]) -> None:
+        """Một lượt quyết định cho một market — TRONG KHUNG ĂN THUA.
+
+        ## Vì sao đổi cửa
+
+        Trước bản này hàm chỉ chạy khi `giai_doan == DAT_CUOC`, tức cửa
+        [T−300, T]. Đo ra rằng đó là cửa mô hình KHÔNG làm việc được:
+        strike là giá lúc T (`scripts/do-strike.py`, điểm kỹ năng của chợ
+        +6,6% cho định nghĩa ấy, −38,7% cho định nghĩa cũ), nên trong cửa
+        đặt cược strike CHƯA TỒN TẠI. Số gia từ T tới T+300 độc lập với
+        mọi thứ quan sát được lúc t < T ⇒ giá trị thật đúng 0,5, bất kể
+        giá đang ở đâu.
+
+        Cùng mô hình, cùng τ=60s, cùng tỉ lệ nền, khác đúng chỗ đứng
+        (`scripts/do-cua-nao.py`, 199 mốc):
+
+            đứng ở cửa đặt cược,    K = giá(T−300)   kỹ năng  −74,3%
+            đứng trong khung ăn thua, K = giá(T)     kỹ năng  +43,5%
+
+        Nên bot làm việc ở [T, T+300] và ĐỨNG NGOÀI [T−300, T]. Cửa đặt
+        cược vẫn được ghi băng — nó là dữ liệu, chỉ không phải chỗ ra
+        quyết định.
+
+        ## Điều này chưa chứng minh có tiền ở đây
+
+        Chợ cũng biết strike và cũng thấy đồng hồ. Nếu sổ lệnh trong khung
+        ăn thua chỉ là thang chờ thì `cap.dung_duoc` sẽ False và bot đứng
+        ngoài, có khai lý do — đúng hành vi cần có khi chưa biết.
+        """
         ma = tt["ma"]
-        k = self.khungHienTai.get(ma)
+        k = self.khungQuanSat.get(ma)
         if k is None:
+            self._than_phien(ma, "chưa bám được khung nào đang ăn thua")
             return
-        if k.giai_doan(now) != DAT_CUOC:
-            return          # ra khỏi cửa rồi; `_tim_khung` sẽ đổi khung
+        if k.giai_doan(now) != QUAN_SAT:
+            return          # ra khỏi khung rồi; `_tim_khung` sẽ đổi
 
         # 1. giá nền + biến động
         gia = nguon.gia_binance(tt["nen"])
@@ -529,11 +560,16 @@ class Runtime:
             return
 
         # 3. strike + định giá
-        mo = nguon.gia_mo_khung(tt["nen"], k.batDauDatCuocMs)
+        #
+        # STRIKE = giá lúc `eventStartMs`, không phải lúc mở cửa đặt cược.
+        # Đây là chỗ sai gốc của cả cung, và nó im lặng: lấy nhầm mốc thì
+        # mô hình vẫn ra một xác suất trông rất hợp lý, chỉ là về một câu
+        # hỏi khác. 25,7% kết quả lật ngược giữa hai định nghĩa.
+        mo = nguon.gia_mo_khung(tt["nen"], k.eventStartMs)
         if not mo:
-            self._than_phien(ma, "không lấy được giá mở cửa đặt cược (strike)")
+            self._than_phien(ma, "không lấy được strike (giá lúc mở khung)")
             return
-        tau = k.con_lai_giay(now)
+        tau = k.con_lai_an_thua_giay(now)
         # Qua SỔ ĐĂNG KÝ chứ không gọi thẳng `dinh_gia`. Đây là mối nối
         # duy nhất trong cả hệ biết "market này thuộc họ nào" — mọi thứ
         # phía sau (sổ lệnh, cân lợi, kho, rủi ro, kết toán) không quan
@@ -619,7 +655,8 @@ class Runtime:
 
         # 9. băng ghi — đủ để CHẠY LẠI, không chỉ để nhìn
         ghi.append({
-            "ma": ma, "slug": k.slug, "giaNen": gia, "giaMo": mo,
+            "ma": ma, "slug": k.slug, "giaiDoan": QUAN_SAT,
+            "giaNen": gia, "giaMo": mo,
             "sigmaGiay": sigma, "conLaiGiay": tau,
             "pUp": gc.pUp, "batDinh": gc.batDinh,
             "so": {

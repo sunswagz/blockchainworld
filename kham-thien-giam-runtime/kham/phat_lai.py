@@ -242,11 +242,21 @@ class PhienPhatLai:
 
     # ── một khung hình của một market ─────────────────────────────────
     def _mot_khung(self, tt: dict, luc: float) -> None:
-        # Chỉ chạy trên dòng của CỬA ĐẶT CƯỢC. Dòng cửa ăn thua có `giaMo`
-        # là strike thật và `conLaiGiay` đếm tới mốc khác — trộn vào là
-        # dựng một con số không nói về thứ gì.
-        if giai_doan_cua(tt) != "dat-cuoc":
-            self._bo("dòng cửa ăn thua, chưa chạy ở đây")
+        # CHỈ chạy trên dòng KHUNG ĂN THUA. Đây là chỗ nghiêm khắc nhất
+        # của cả module, và nó cố ý làm phiên trả về SỐ KHÔNG trên băng cũ.
+        #
+        # Dòng cửa đặt cược mang `giaMo` = giá lúc T−300, và đó KHÔNG phải
+        # strike (`scripts/do-strike.py`). Định giá bằng nó rồi chấm bằng
+        # sổ kết quả ĐÚNG là ghép một mô hình sai với một đáp án đúng —
+        # tệ hơn cả hai đều sai, vì con số ra trông rất thuyết phục. Đã đo:
+        # ghép như thế ra +191% với tỉ lệ thắng 26%.
+        #
+        # Băng tám ngày đầu KHÔNG có dòng nào thuộc khung ăn thua, nên
+        # phiên chạy trên nó sẽ ra 0 cửa sổ, 0 lệnh, 0 lãi lỗ. Đó là câu
+        # trả lời ĐÚNG: chưa có dữ liệu để đo. Một con số đẹp dựng trên dữ
+        # liệu sai thì tệ hơn hẳn không có số.
+        if giai_doan_cua(tt) != "quan-sat":
+            self._bo("dòng cửa đặt cược — mô hình không định giá được ở đó")
             return
         ma = tt.get("ma") or "?"
         slug = tt.get("slug") or ma

@@ -1166,9 +1166,13 @@ def kiem_phien_phat_lai() -> None:
     import kham.phat_lai as _PL
 
     khung = _bang_sat_bien(40)
-    # Băng phải mang `luc` để sổ kết toán ghi đúng mốc thời gian của nó.
+    # Băng phải mang `luc` để sổ kết toán ghi đúng mốc thời gian của nó,
+    # và phải là dòng KHUNG ĂN THUA: phiên phát lại cố ý từ chối dòng cửa
+    # đặt cược, vì ở đó `giaMo` không phải strike.
     for i, k in enumerate(khung):
         k["luc"] = 1787243400000.0 + i * 2000.0
+        for tt in k["thiTruong"]:
+            tt["giaiDoan"] = "quan-sat"
 
     with tempfile.TemporaryDirectory() as t:
         d = _P(t)

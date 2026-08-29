@@ -96,13 +96,27 @@ class Khung:
         return self.giai_doan(bayGioMs) == DAT_CUOC
 
     def con_lai_giay(self, bayGioMs: float) -> float:
-        """Số giây còn lại của CỬA ĐẶT CƯỢC, không phải của khung.
+        """Số giây còn lại của CỬA ĐẶT CƯỢC.
 
-        Đây là τ đúng cho mô hình: nó là khoảng thời gian bot còn có thể
-        hành động, và cũng là khoảng còn lại tới lúc kết quả được chốt nếu
-        strike cố định từ đầu cửa.
+        KHÔNG phải τ của mô hình. Chú thích cũ ở đây viết nó là "τ đúng
+        cho mô hình… nếu strike cố định từ đầu cửa" — và cái "nếu" ấy đã
+        được đo là SAI (`scripts/do-strike.py`). Strike là giá lúc
+        `eventStartMs`, nên trong cửa đặt cược nó chưa tồn tại.
+
+        Giữ hàm này cho phần hiển thị và cho việc ghi băng cửa đặt cược.
+        τ của mô hình là `con_lai_an_thua_giay`.
         """
         return max(0.0, (self.eventStartMs - bayGioMs) / 1000.0)
+
+    def con_lai_an_thua_giay(self, bayGioMs: float) -> float:
+        """Số giây còn lại của KHUNG ĂN THUA [T, T+300]. τ đúng của mô hình.
+
+        Ở đây strike đã cố định (giá lúc `eventStartMs`) và thời gian còn
+        lại là quãng khuếch tán thật sự chưa biết. Đo được: cùng mô hình,
+        cùng τ=60s, cùng tỉ lệ nền, đứng ở đây điểm kỹ năng +43,5%; đứng
+        ở cửa đặt cược −74,3%.
+        """
+        return max(0.0, (self.endMs - bayGioMs) / 1000.0)
 
     def troi_qua_pct(self, bayGioMs: float) -> float:
         tong = max(1.0, self.eventStartMs - self.batDauDatCuocMs)

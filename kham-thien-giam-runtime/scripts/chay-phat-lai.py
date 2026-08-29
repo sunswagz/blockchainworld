@@ -109,6 +109,21 @@ def main() -> int:
     print(f"    số ngày băng       {kq.soNgay+1:>10,}")
     print()
 
+    if not kq.soCuaSo:
+        print("  ⚠ BĂNG NÀY KHÔNG CÓ DÒNG NÀO THUỘC KHUNG ĂN THUA.")
+        print()
+        print("    Phiên chỉ chạy trên dòng `giaiDoan == quan-sat` — nơi")
+        print("    strike đã cố định và mô hình định giá được. Dòng cửa đặt")
+        print("    cược mang `giaMo` = giá lúc T−300, và đó KHÔNG phải strike")
+        print("    (xem scripts/do-strike.py). Định giá bằng nó rồi chấm bằng")
+        print("    sổ kết quả đúng thì ra +191% với tỉ lệ thắng 26% — một con")
+        print("    số thuyết phục về không có gì.")
+        print()
+        print("    Băng tám ngày đầu chỉ có cửa đặt cược, vì `_tim_khung` chưa")
+        print("    bao giờ bám khung đang ăn thua. Runtime nay có bám; chạy")
+        print("    tiếp vài ngày rồi phiên này mới có gì để đo.")
+        print()
+
     if kq.boQua:
         print("  VÌ SAO ĐỨNG NGOÀI (nhiều nhất trước):")
         for ly, n in sorted(kq.boQua.items(), key=lambda x: -x[1])[:8]:
