@@ -941,6 +941,31 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def _tao_lap_thu(lc) -> list:
+    """Chạy riêng ngón `tạo lập` với một lát cắt đồng hồ cho trước.
+
+    Dùng để chứng minh: lát cắt sai giai đoạn thì ngón nghề câm, không
+    báo lỗi, không để lại dấu vết nào.
+    """
+    from kham.chien_thuat import BoiCanh as _BC
+    from kham.chien_thuat import tao_lap as _tl
+    from kham.dinh_gia import dinh_gia as _dg
+    from kham.so_lenh import Muc as _M
+    from kham.so_lenh import SoLenh as _S
+
+    gc = _dg("BTC_5M", 100_060.0, 100_000.0, 60.0,
+             0.55 / math.sqrt(365 * 24 * 3600))
+    if gc is None:
+        return []
+    su = _S(ma="BTC_5M", ben="UP", bid=[_M(0.55, 900.0)],
+            ask=[_M(0.57, 900.0)], nhanLucMs=0.0)
+    sd = _S(ma="BTC_5M", ben="DOWN", bid=[_M(0.41, 900.0)],
+            ask=[_M(0.43, 900.0)], nhanLucMs=0.0)
+    from kham.kho_doi import Kho as _K
+    return _tl(_BC(ma="BTC_5M", gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                   viThe=_K().lay("BTC_5M"))) or []
+
+
 def kiem_duong_quyet_dinh() -> None:
     """Gọi THẬT `_mot_thi_truong` — ở khung ăn thua, không phải cửa đặt cược.
 
@@ -962,16 +987,23 @@ def kiem_duong_quyet_dinh() -> None:
     from kham.khung import QUAN_SAT, Khung
     from kham.so_lenh import Muc, SoLenh
 
-    T = 1_787_243_400_000.0
+    # Dựng quanh GIỜ THẬT, không quanh một mốc bịa.
+    #
+    # `dong_ho.lat_cat()` đọc đồng hồ MÁY chứ không đọc `now` truyền vào,
+    # nên một khung đặt ở mốc bịa sẽ luôn cho lát cắt "đã khoá" — và ở
+    # trạng thái đó bốn trong sáu ngón nghề lặng lẽ trả về rỗng. Phép
+    # kiểm chạy trên mốc bịa vẫn xanh mà không kiểm được gì.
+    T = time.time() * 1000.0 - 240_000.0
     now = T + 240_000.0          # trong khung ăn thua, còn 60 giây
-    k = Khung(slug="btc-updown-5m-1787243400", ma="BTC_5M", capNen="BTCUSDT",
+    k = Khung(slug=f"btc-updown-5m-{int(T // 1000)}", ma="BTC_5M",
+              capNen="BTCUSDT",
               tokenUp="u", tokenDown="d",
               batDauDatCuocMs=T - 300_000.0, eventStartMs=T,
               endMs=T + 300_000.0, daiSongGiay=300.0)
     kiem("khung dựng đúng giai đoạn để thử", k.giai_doan(now) == QUAN_SAT,
          k.giai_doan(now))
     kiem("τ đếm tới endMs, không tới eventStartMs",
-         abs(k.con_lai_an_thua_giay(now) - 60.0) < 1e-6
+         abs(k.con_lai_an_thua_giay(now) - 60.0) < 1.0
          and k.con_lai_giay(now) == 0.0,
          f"{k.con_lai_an_thua_giay(now)} vs {k.con_lai_giay(now)}")
 
@@ -1037,9 +1069,24 @@ def kiem_duong_quyet_dinh() -> None:
                  d.get("giaiDoan"))
             kiem("dòng băng mang strike thật", d.get("giaMo") == 100_000.0)
             kiem("dòng băng mang τ của khung ăn thua",
-                 abs(d.get("conLaiGiay", -1) - 60.0) < 1e-6, d.get("conLaiGiay"))
+                 abs(d.get("conLaiGiay", -1) - 60.0) < 1.0, d.get("conLaiGiay"))
         kiem("có cân ra cơ hội ở cửa này", len(rt.coHoi) >= 1,
              f"{len(rt.coHoi)} cơ hội · bỏ qua {rt.boQua}")
+
+        # Lát cắt đồng hồ phải đếm tới endMs. Chỗ này từng bị bỏ sót lúc
+        # đổi cửa và nó hỏng rất lặng: trỏ vào eventStartMs thì trong khung
+        # ăn thua giai đoạn LUÔN là "đã khoá", và bốn trong sáu ngón nghề
+        # — vốn soi `bc.dongHo.giaiDoan` — không bao giờ được gọi tới.
+        from kham.dongho import dong_ho as _dh
+        lc = _dh.lat_cat(k.endMs, k.daiSongGiay, tuoiDuLieuMs=0.0)
+        kiem("lát cắt đồng hồ KHÔNG báo đã khoá giữa khung ăn thua",
+             not lc.da_khoa and lc.conLaiGiay > 0,
+             f"giai đoạn {lc.giaiDoan}, còn {lc.conLaiGiay:.0f}s")
+        lcSai = _dh.lat_cat(k.eventStartMs, k.daiSongGiay, tuoiDuLieuMs=0.0)
+        kiem("bằng chứng: trỏ vào eventStartMs thì ĐÃ KHOÁ",
+             lcSai.da_khoa and lcSai.conLaiGiay == 0.0, lcSai.giaiDoan)
+        kiem("và ở trạng thái ĐÃ KHOÁ thì ngón `tạo lập` câm",
+             not _tao_lap_thu(lcSai), "bốn trong sáu ngón soi giai đoạn")
 
         # Và ở CỬA ĐẶT CƯỢC thì phải đứng ngoài.
         rt2 = V.Runtime.__new__(V.Runtime)
@@ -1051,7 +1098,7 @@ def kiem_duong_quyet_dinh() -> None:
         rt2.khungHienTai = {"BTC_5M": k}
         rt2.khungQuanSat = {}
         ghi2: list = []
-        rt2._mot_thi_truong(tt, T - 60_000.0, ghi2)
+        rt2._mot_thi_truong(tt, T - 60_000.0, ghi2)   # trong cửa đặt cược
         kiem("ở cửa đặt cược thì ĐỨNG NGOÀI, không ghi dòng nào",
              not ghi2 and not rt2.coHoi,
              f"{len(ghi2)} dòng, {len(rt2.coHoi)} cơ hội")

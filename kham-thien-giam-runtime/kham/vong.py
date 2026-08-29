@@ -640,7 +640,15 @@ class Runtime:
              "khoaLoUsd": qc.khoaLoUsd, "lyDo": qc.lyDo} if qc else {})
 
         # 7. chiến thuật đề xuất
-        lc = dong_ho.lat_cat(k.eventStartMs, k.daiSongGiay,
+        #
+        # Lát cắt đếm tới `endMs`, KHÔNG tới `eventStartMs`. Chỗ này bị bỏ
+        # sót lúc đổi cửa và nó hỏng rất lặng: với `eventStartMs` thì trong
+        # khung ăn thua `conLaiGiay` luôn bằng 0, giai đoạn luôn là ĐÃ
+        # KHOÁ, và mọi chiến thuật soi `bc.dongHo.giaiDoan` — `tao-lap`
+        # đòi GOM_THANH_KHOAN/GIUA_KHUNG, `can-ket-qua` đòi CUOI_KHUNG —
+        # đều lặng lẽ trả về rỗng. Bot vẫn chạy, vẫn ghi băng, chỉ là bốn
+        # trong sáu ngón nghề không bao giờ được gọi tới.
+        lc = dong_ho.lat_cat(k.endMs, k.daiSongGiay,
                              tuoiDuLieuMs=now - su.nhanLucMs)
         bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc, viThe=v)
         de_xuat = chay_tat_ca(bc, self.batTat)
