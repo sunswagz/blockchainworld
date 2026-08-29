@@ -338,6 +338,24 @@ def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
                               "cauDao": tu.cau_dao.tom_tat()}))
 
 
+@app.post("/api/nap-von")
+def api_nap_von(soTienUsd: float, nguoi: str, vi: str = "") -> JSONResponse:
+    """CHỦ bỏ thêm vốn ẢO vào (dương) hoặc rút ra (âm). ĐÒI TÊN NGƯỜI.
+
+    Không sửa `vonBanDauUsd` trong config để nâng vốn: tiền mặt sẽ không
+    theo, và cầu dao đọc thành sụt vốn 99% rồi ngắt. Nạp qua cửa này thì
+    tiền mặt, vốn gốc, sổ cái và ĐƯỜNG NAV cùng đổi một lượt — và đường
+    NAV đánh dấu dòng vốn để lợi suất không tính nó thành lãi.
+    """
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    try:
+        return JSONResponse(sach(tu.nap_von(soTienUsd, nguoi, vi)))
+    except ValueError as e:
+        return JSONResponse({"loi": str(e)}, status_code=400)
+
+
 @app.post("/api/doi-soat-vi-the")
 def api_doi_soat_vi_the() -> JSONResponse:
     """Đối soát sổ đăng ký với danh mục, và đóng những tờ MỒ CÔI.

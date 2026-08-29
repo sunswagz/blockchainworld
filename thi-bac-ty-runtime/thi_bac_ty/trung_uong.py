@@ -224,6 +224,11 @@ class TrungUong:
         #: nhiêu». Xem `ke_toan.SoVonGio`. Dựng TRƯỚC khi nạp bản lưu: nạp
         #: rồi mới dựng là dựng đè lên đúng thứ vừa nạp về.
         self.soVonGio = SoVonGio(tuGiay=_gio_he(), denGiay=_gio_he())
+        #: Vốn CHỦ bỏ thêm vào, cộng dồn. Nằm ở bản lưu chứ không ở config:
+        #: `vonBanDauUsd` trong config là vốn KHỞI ĐIỂM và nó phải đổi được;
+        #: `napThemUsd` là chuỗi sự kiện đã xảy ra và nó không được mất.
+        self.napThemUsd = 0.0
+        self._dongVonChoGhi = 0.0
         self.duongLuu = d / f"{ten}-danh-muc.json"
         self.napLuu = nap_danh_muc(self.duongLuu, self.danh_muc,
                                    self.duongNav)
@@ -233,6 +238,13 @@ class TrungUong:
         _vg = self.napLuu.pop("_soVonGio", None)
         if _vg is not None:
             self.soVonGio = _vg
+        # Vốn đã nạp phải cộng LẠI vào vốn gốc: `vonBanDauUsd` dựng từ
+        # config (vốn khởi điểm), còn tiền mặt trong bản lưu ĐÃ gồm phần
+        # nạp. Không cộng thì hai vế lệch nhau đúng bằng số đã nạp, và sụt
+        # vốn đọc ra một con số bịa.
+        self.napThemUsd = float(self.napLuu.pop("_napThemUsd", 0.0) or 0.0)
+        if self.napThemUsd:
+            self.danh_muc.vonBanDauUsd += self.napThemUsd
 
         #: Đối soát NGAY lúc khởi động, trước khi vòng nào chạy. Sổ đăng ký
         #: sống trên đĩa còn danh mục dựng lại rỗng, nên đúng lúc này là
@@ -377,7 +389,9 @@ class TrungUong:
         # TRƯỚC, và mọi phép đo sụt vốn lệch đi đúng một nhịp.
         self.latCatKeToan = self._ke_toan_vi_the()
 
-        self.duongNav.ghi(self.danh_muc.navUsd)
+        self.duongNav.ghi(self.danh_muc.navUsd,
+                          dongVonUsd=self._dongVonChoGhi)
+        self._dongVonChoGhi = 0.0
 
         # ── 3. cầu dao — TRƯỚC khi cam kết bất cứ đồng nào ───────────────
         sut = None
@@ -518,7 +532,7 @@ class TrungUong:
         """Ghi danh mục sau MỖI vòng. Hỏng thì khai ra, đừng giết vòng."""
         try:
             luu_danh_muc(self.duongLuu, self.danh_muc, self.soViThe,
-                         self.duongNav, self.soVonGio)
+                         self.duongNav, self.soVonGio, self.napThemUsd)
             self.loiLuu = ""
         except OSError as e:                              # noqa: BLE001
             self.loiLuu = f"{type(e).__name__}: {e}"
@@ -737,6 +751,61 @@ class TrungUong:
         self._dauVet = {k: v for k, v in self._dauVet.items() if v > han}
 
     # ── bước 6–7: CHẨN ĐOÁN → XÉT LẠI THAM SỐ ────────────────────────────
+    def nap_von(self, soTienUsd: float, nguoi: str, vi: str = "") -> dict:
+        """CHỦ bỏ thêm vốn vào (dương) hay rút ra (âm). **ĐÒI TÊN NGƯỜI.**
+
+        ## Vì sao không phải là sửa một con số trong config
+
+        Sửa `vonBanDauUsd` từ 10.000 lên 1.000.000 mà tiền mặt vẫn 4.000 thì
+        NAV/vốn gốc ra 1% — **cầu dao đọc thành sụt vốn 99% và ngắt ngay**.
+        Còn nếu vá chỗ ấy bằng cách cộng luôn tiền mặt, thì đường NAV nhảy
+        từ 10.000 lên 1.000.000 và mọi phép đo lợi suất đọc cú nhảy ấy
+        thành **lãi gấp một trăm lần**.
+
+        Nạp vốn là một SỰ KIỆN, không phải một tham số. Nó phải:
+
+            vào tiền mặt          để có mà rót
+            nâng vốn gốc          để sụt vốn tính đúng thang
+            vào SỔ CÁI            để sau này còn lần lại được
+            đánh dấu ĐƯỜNG NAV    để lợi suất không tính nó thành lãi
+
+        Thiếu bước cuối là lời nói dối lớn nhất một cỗ máy vốn có thể nói.
+
+        Đòi tên người vì cùng một bất đối xứng với `ap_dung` và cầu dao: máy
+        được phép đề nghị, người quyết định bỏ tiền vào.
+        """
+        nguoi = (nguoi or "").strip()
+        if not nguoi:
+            raise ValueError("nạp vốn phải có TÊN NGƯỜI — máy không tự nạp")
+        x = float(soTienUsd)
+        if x == 0.0:
+            raise ValueError("nạp 0 đồng không phải một sự kiện")
+        if self.danh_muc.tienMatUsd + x < 0.0:
+            raise ValueError(
+                f"rút {abs(x):,.2f} nhưng tiền mặt chỉ {self.danh_muc.tienMatUsd:,.2f}"
+                f" — vốn đang nằm trong vị thế, phải đóng trước")
+        self.danh_muc.tienMatUsd += x
+        self.danh_muc.vonBanDauUsd += x
+        self.napThemUsd += x
+        # Cộng dồn để `mot_vong` gắn vào ĐIỂM NAV kế tiếp. Không ghi thẳng
+        # vào đường NAV ở đây: điểm NAV chỉ sinh ra ở một chỗ duy nhất, và
+        # thêm một cửa thứ hai là mở đường cho hai cửa lệch nhau.
+        self._dongVonChoGhi += x
+        self.so_cai.ghi(ButToan(
+            "NAP_VON", vi or f"{nguoi} {'nạp' if x > 0 else 'rút'} vốn",
+            x, "", "", {"nguoi": nguoi, "vonGocMoiUsd":
+                        self.danh_muc.vonBanDauUsd,
+                        "napThemUsd": self.napThemUsd}))
+        return {"soTienUsd": x, "nguoi": nguoi,
+                "tienMatUsd": self.danh_muc.tienMatUsd,
+                "vonGocUsd": self.danh_muc.vonBanDauUsd,
+                "napThemUsd": self.napThemUsd,
+                "vi": (f"{nguoi} {'nạp' if x > 0 else 'rút'} "
+                       f"{abs(x):,.2f} USD ẢO. Vốn gốc nay "
+                       f"{self.danh_muc.vonBanDauUsd:,.2f}. Đường NAV đánh "
+                       f"dấu dòng vốn này, nên lợi suất KHÔNG tính nó là "
+                       f"lãi.")}
+
     def xoay_cho(self):
         """Chỗ nào đang ngồi mà đáng nhường cho cơ hội tốt hơn — ĐO thôi.
 

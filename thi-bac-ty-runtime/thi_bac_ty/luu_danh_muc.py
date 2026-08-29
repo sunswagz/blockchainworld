@@ -72,7 +72,8 @@ from pathlib import Path
 BAN = 1
 
 
-def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None) -> int:
+def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
+        napThemUsd: float = 0.0) -> int:
     """Ghi danh mục ra đĩa. Trả về số byte đã ghi.
 
     Ghi qua file tạm rồi đổi tên: chết giữa chừng thì file đích vẫn là
@@ -95,8 +96,16 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None) -> int:
             "soVongKhongDoDuoc": s.soVongKhongDoDuoc,
             "coKeToan": s.coKeToan,
         } for s in soViThe.values()],
-        "duongNav": [[float(a), float(b)] for a, b in
-                     getattr(duongNav, "diem", [])],
+        # Ba phần tử: thời điểm, NAV, DÒNG VỐN ngoài. Thiếu phần tử thứ ba
+        # thì một cú nạp vốn đọc thành lợi nhuận — xem `hieu_nang.py`.
+        "duongNav": [[float(x[0]), float(x[1]),
+                      float(x[2]) if len(x) >= 3 else 0.0]
+                     for x in getattr(duongNav, "diem", [])],
+        # Vốn CHỦ bỏ thêm, cộng dồn. KHÁC `vonBanDauUsd`: cái kia là cấu
+        # hình và phải đổi được, cái này là chuỗi sự kiện đã xảy ra và không
+        # được mất — mất nó thì lần khởi động sau vốn gốc tụt về mức cũ
+        # trong khi tiền mặt vẫn còn, và sụt vốn đọc ra một con số bịa.
+        "napThemUsd": float(napThemUsd),
         # Trường THÊM, không đổi cấu trúc cũ — nên KHÔNG tăng `BAN`. Bản đọc
         # cũ bỏ qua khoá lạ; bản đọc mới gặp bản lưu thiếu khoá này thì cộng
         # lại từ 0 và KHAI ra là mới bắt đầu. Tăng `BAN` ở đây sẽ vứt cả danh
@@ -173,8 +182,9 @@ def nap(duong, danh_muc, duongNav) -> dict:
             soVongKhongDoDuoc=int(s.get("soVongKhongDoDuoc") or 0),
             coKeToan=s.get("coKeToan"))
 
-    duongNav.diem = [(float(a), float(b))
-                     for a, b in (d.get("duongNav") or [])]
+    duongNav.diem = [(float(x[0]), float(x[1]),
+                      float(x[2]) if len(x) >= 3 else 0.0)
+                     for x in (d.get("duongNav") or [])]
 
     # Vốn-giờ: thiếu khoá thì KHÔNG cộng bù, y như mốc kế toán. Ta không
     # biết vốn nằm bao lâu trong lúc máy tắt, và đoán ra một mẫu số là bịa
@@ -191,6 +201,7 @@ def nap(duong, danh_muc, duongNav) -> dict:
         "co": True, "nap": True,
         "soViThe": len(soViThe), "soDiemNav": len(duongNav.diem),
         "_soVonGio": soVonGio, "coSoVonGio": vg is not None,
+        "_napThemUsd": float(d.get("napThemUsd") or 0.0),
         "tienMatUsd": danh_muc.tienMatUsd,
         "laiLoDaThucHienUsd": danh_muc.laiLoDaThucHienUsd,
         "giayTatMay": tat,

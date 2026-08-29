@@ -19,6 +19,27 @@ Nên bộ máy đo:
 Con số thứ hai và thứ ba là thứ quyết định người ta có giữ nổi hệ thống qua
 một đợt xấu hay không, và không APR nào nói được chúng.
 
+## NẠP VỐN không phải LỢI NHUẬN — và đây là chỗ dễ nói dối nhất
+
+Chủ bỏ thêm 990.000 USD vào một cỗ máy đang có 10.000 thì NAV nhảy từ
+10.000 lên 1.000.000. Một phép đo lấy `NAV cuối / NAV đầu` sẽ đọc cú
+nhảy ấy thành **lợi nhuận gấp một trăm lần**, và nó sẽ khoe con số ấy
+với đầy đủ chữ số thập phân.
+
+Nên đường NAV phải mang theo DÒNG VỐN tại từng điểm, và lợi suất tính
+theo kiểu **có trọng số thời gian**: cắt đường ở mỗi lần nạp/rút, tính
+lợi suất từng đoạn trên vốn ĐANG CÓ trước dòng vốn ấy, rồi nhân chuỗi.
+
+    đoạn i:  r_i = (NAV_cuối − dòng vốn) / NAV_đầu − 1
+    cả kỳ:   (1+r_1)(1+r_2)…(1+r_k) − 1
+
+Cách này trả lời đúng câu người ta muốn hỏi — *"tay lái này giỏi cỡ
+nào"* — chứ không phải *"chủ đã bỏ vào bao nhiêu"*. Hai câu ấy khác
+nhau, và chỉ câu đầu là thành tích của cỗ máy.
+
+Sụt vốn cũng phải cắt theo dòng vốn: một cú nạp làm NAV vọt lên tạo ra
+một "đỉnh" giả, và mọi ngày sau đó đọc thành đang-dưới-đỉnh.
+
 ## Chưa đủ mẫu thì NÓI CHƯA ĐỦ MẪU
 
 Với vài giờ dữ liệu, CAGR ngoại suy ra một con số vô nghĩa và trông rất
@@ -39,14 +60,23 @@ NAM_GIO = 365.0 * 24.0
 
 @dataclass
 class DuongNav:
-    """Đường NAV theo thời gian. Chỉ thêm, và có trần độ dài."""
-    tran: int = 20_000
-    diem: list = field(default_factory=list)     # [(lucMs, nav)]
+    """Đường NAV theo thời gian, KÈM dòng vốn ngoài tại từng điểm.
 
-    def ghi(self, navUsd: float, lucMs: float | None = None) -> None:
+    Mỗi điểm là `(lucMs, nav, dongVonUsd)`. `dongVonUsd` là tiền CHỦ bỏ
+    thêm vào (dương) hay rút ra (âm) NGAY TRƯỚC điểm ấy — không phải lãi
+    lỗ. Thiếu nó thì một cú nạp vốn đọc thành lợi nhuận.
+
+    Điểm hai phần tử của bản lưu cũ vẫn nạp được: dòng vốn coi như 0, vì
+    trước 29/08 chưa có đường nạp vốn nào nên đúng là không có dòng nào.
+    """
+    tran: int = 20_000
+    diem: list = field(default_factory=list)     # [(lucMs, nav, dongVon)]
+
+    def ghi(self, navUsd: float, lucMs: float | None = None,
+            dongVonUsd: float = 0.0) -> None:
         import time
         t = lucMs if lucMs is not None else time.time() * 1000.0
-        self.diem.append((float(t), float(navUsd)))
+        self.diem.append((float(t), float(navUsd), float(dongVonUsd)))
         if len(self.diem) > self.tran:
             # Bỏ điểm CŨ NHẤT, không bỏ ngẫu nhiên: đỉnh và đáy gần đây là
             # thứ quyết định sụt vốn, và chúng nằm ở cuối.
@@ -56,16 +86,24 @@ class DuongNav:
         return do_hieu_nang(self.diem, vonBanDauUsd)
 
 
+def _ba(d) -> tuple[float, float, float]:
+    """Một điểm về dạng ba phần tử. Điểm cũ hai phần tử → dòng vốn 0."""
+    if len(d) >= 3:
+        return float(d[0]), float(d[1]), float(d[2])
+    return float(d[0]), float(d[1]), 0.0
+
+
 def do_hieu_nang(diem: list, vonBanDauUsd: float) -> dict:
     """`[(lucMs, nav)]` → CAGR, sụt vốn tối đa, thời gian dưới đáy."""
     if not diem:
         return {"duDeKetLuan": False, "vi": "chưa có điểm NAV nào",
                 "soDiem": 0}
 
-    ds = sorted(diem, key=lambda x: x[0])
-    t0, n0 = ds[0]
-    t1, n1 = ds[-1]
+    ds = sorted((_ba(x) for x in diem), key=lambda x: x[0])
+    t0, n0, _ = ds[0]
+    t1, n1, _ = ds[-1]
     gio = (t1 - t0) / 3_600_000.0
+    tongDongVon = sum(x[2] for x in ds)
 
     # ── sụt vốn: đáy sâu nhất tính từ ĐỈNH TRƯỚC ĐÓ ─────────────────────
     dinh = ds[0][1]
@@ -74,7 +112,12 @@ def do_hieu_nang(diem: list, vonBanDauUsd: float) -> dict:
     dinh_luc = ds[0][0]
     duoi_day_lau = 0.0
     dang_duoi_tu = None
-    for t, n in ds:
+    for t, n, dv in ds:
+        if dv:
+            # Nạp/rút vốn dịch cả cái thang. Không dịch đỉnh theo thì một cú
+            # nạp tạo ra một "đỉnh" giả, và mọi ngày sau đó đọc thành
+            # đang-dưới-đỉnh trong khi cỗ máy không mất gì cả.
+            dinh += dv
         if n >= dinh:
             dinh, dinh_luc = n, t
             if dang_duoi_tu is not None:
@@ -89,11 +132,28 @@ def do_hieu_nang(diem: list, vonBanDauUsd: float) -> dict:
     if dang_duoi_tu is not None:
         duoi_day_lau = max(duoi_day_lau, (ds[-1][0] - dang_duoi_tu) / 3_600_000.0)
 
+    # Lợi suất CÓ TRỌNG SỐ THỜI GIAN: cắt ở mỗi dòng vốn, tính từng đoạn
+    # trên vốn ĐANG CÓ, rồi nhân chuỗi. Không thế thì một cú nạp 990.000
+    # vào một cỗ máy 10.000 đọc thành lợi nhuận gấp trăm lần.
+    tich = 1.0
+    truoc = ds[0][1]
+    doDuocChuoi = True
+    for t, nav, dv in ds[1:]:
+        if truoc <= 0:
+            doDuocChuoi = False
+            break
+        tich *= (nav - dv) / truoc
+        truoc = nav
     ra = {
         "soDiem": len(ds), "soGio": gio,
         "navDau": n0, "navCuoi": n1, "vonBanDauUsd": float(vonBanDauUsd),
-        "laiLoPhanTram": ((n1 / float(vonBanDauUsd) - 1.0) * 100.0
-                          if vonBanDauUsd else None),
+        "dongVonNgoaiUsd": tongDongVon,
+        # `laiLoPhanTram` là lợi suất CỦA TAY LÁI — đã trừ mọi đồng chủ bỏ
+        # thêm vào. `None` khi có một đoạn NAV không dương, vì lúc ấy phép
+        # nhân chuỗi không nói được gì.
+        "laiLoPhanTram": ((tich - 1.0) * 100.0) if doDuocChuoi else None,
+        "laiLoGomNapVonPhanTram": ((n1 / float(vonBanDauUsd) - 1.0) * 100.0
+                                   if vonBanDauUsd else None),
         "sutVonToiDaPhanTram": sut_max * 100.0,
         "sutVonLuc": _iso(sut_luc) if sut_luc else None,
         "gioDuoiDayLauNhat": duoi_day_lau,
@@ -115,8 +175,15 @@ def do_hieu_nang(diem: list, vonBanDauUsd: float) -> dict:
         return ra
 
     nam = gio / NAM_GIO
+    if not doDuocChuoi:
+        ra.update({"duDeKetLuan": False, "cagrPhanTram": None,
+                   "vi": "có đoạn NAV không dương — phép nhân chuỗi không "
+                         "nói được gì"})
+        return ra
+    # CAGR gộp từ TÍCH CHUỖI, không từ `n1/n0`: `n1/n0` gồm cả tiền chủ bỏ
+    # thêm vào, và đó không phải thành tích của cỗ máy.
     ra.update({"duDeKetLuan": True,
-               "cagrPhanTram": ((n1 / n0) ** (1.0 / nam) - 1.0) * 100.0,
+               "cagrPhanTram": (tich ** (1.0 / nam) - 1.0) * 100.0,
                "vi": ""})
     return ra
 

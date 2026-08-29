@@ -1081,6 +1081,7 @@ def kiem_tien_hoa_hoc() -> None:
     # lý do. Thêm một nút mới mà không nối vào vòng lặp và cũng không khai ở
     # đây thì phép kiểm này đỏ — đó là điểm của nó.
     NGUOI_BAM = {
+        "/api/nap-von": "ĐÒI TÊN NGƯỜI — máy không tự quyết bỏ thêm tiền",
         "/api/tam-dung": "dừng máy là quyết định của người, không của máy",
         "/api/quet-ngay": "quét ép ngoài nhịp — công cụ gỡ rối",
         "/api/chay-lai": "chạy lại một bộ tham số tuỳ chọn — công cụ khảo sát",
@@ -6713,6 +6714,99 @@ def kiem_ke_toan_vi_the() -> None:
          and gan(tu28.soVonGio.vonGioUsd, 0.0),
          f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
          f"chưa từng đo là bịa ra một tỉ suất")
+
+    # ── NẠP VỐN là SỰ KIỆN, không phải một tham số ──────────────────────
+    # Sửa `vonBanDauUsd` từ 10.000 lên 1.000.000 mà tiền mặt vẫn 4.000 thì
+    # NAV/vốn gốc ra 1% — cầu dao đọc thành SỤT VỐN 99% và ngắt ngay. Còn
+    # nếu vá bằng cách cộng luôn tiền mặt thì đường NAV nhảy 100 lần và mọi
+    # phép đo lợi suất đọc cú nhảy ấy thành lãi gấp trăm lần.
+    from thi_bac_ty.hieu_nang import do_hieu_nang as _dhn
+
+    _G50 = 3_600_000.0
+    _d50 = [(0.0, 10_000.0, 0.0), (_G50, 10_100.0, 0.0),
+            (2 * _G50, 1_000_100.0, 990_000.0), (3 * _G50, 1_010_101.0, 0.0)]
+    _r50 = _dhn(_d50, 10_000.0)
+    kiem("lợi suất là của TAY LÁI — đã trừ mọi đồng chủ bỏ thêm vào",
+         gan(_r50["laiLoPhanTram"], 2.01, 1e-6),
+         f"{_r50['laiLoPhanTram']} — tăng 1% rồi nạp 990k rồi tăng 1% nữa "
+         f"thì đúng là 2,01%, không phải 10.001%")
+    kiem("và con số GỒM nạp vốn vẫn giữ riêng, không trộn",
+         gan(_r50["laiLoGomNapVonPhanTram"], 10_001.01, 1e-6)
+         and gan(_r50["dongVonNgoaiUsd"], 990_000.0),
+         "hai câu hỏi khác nhau: «tay lái giỏi cỡ nào» và «chủ đã bỏ vào "
+         "bao nhiêu» — trộn chúng là khoe tiền của người khác")
+    # CAGR chỉ tính khi có ≥168 giờ dữ liệu, nên phải dựng một đường DÀI
+    # mới soi được nó. Bản kiểm đầu dùng đường 3 giờ, và đột biến đổi CAGR
+    # sang `n1/n0` sống sót vì CAGR chưa bao giờ được tính.
+    _dai = [(0.0, 10_000.0, 0.0)]
+    for _i in range(1, 200):
+        _dv = 990_000.0 if _i == 100 else 0.0
+        _nav = _dai[-1][1] * 1.001 + _dv
+        _dai.append((_i * _G50, _nav, _dv))
+    _r52 = _dhn(_dai, 10_000.0)
+    kiem("CAGR gộp từ TÍCH CHUỖI, không từ `NAV cuối / NAV đầu`",
+         _r52["duDeKetLuan"] and _r52["cagrPhanTram"] < 1e6,
+         f"CAGR {_r52['cagrPhanTram']} — lấy `n1/n0` thì cú nạp 990k biến "
+         f"thành một CAGR thiên văn, và nó sẽ được khoe với đủ chữ số")
+    kiem("và nó khớp lợi suất tay lái quy ra năm",
+         gan((1.0 + _r52["laiLoPhanTram"] / 100.0)
+             ** (1.0 / (_r52["soGio"] / (365.0 * 24.0))) - 1.0,
+             _r52["cagrPhanTram"] / 100.0, 1e-6),
+         f"{_r52['cagrPhanTram']} vs {_r52['laiLoPhanTram']}")
+
+    kiem("điểm HAI phần tử của bản lưu cũ vẫn đọc được",
+         gan(_dhn([(0.0, 100.0), (_G50, 110.0)], 100.0)["laiLoPhanTram"],
+             10.0, 1e-9),
+         "trước 29/08 chưa có đường nạp vốn nào, nên dòng vốn đúng là 0")
+    # Nạp vốn dịch cả cái THANG, đỉnh phải dịch theo. Ca phân biệt được:
+    # LÊN ĐỈNH → LỖ → NẠP. Không dịch đỉnh thì tiền nạp vào đẩy NAV vượt
+    # đỉnh cũ, và khoản lỗ có thật đọc thành "đã hồi phục" — cỗ máy được
+    # khen vì tiền của chủ.
+    _r51 = _dhn([(0.0, 100.0, 0.0), (_G50, 200.0, 0.0),
+                 (2 * _G50, 150.0, 0.0), (3 * _G50, 1150.0, 1000.0)], 100.0)
+    kiem("nạp vốn KHÔNG chữa lành một khoản lỗ đã xảy ra",
+         _r51["dangDuoiDay"] is True,
+         f"{_r51} — lỗ 25% rồi nạp 1000 thì vẫn đang dưới đỉnh; không dịch "
+         f"đỉnh theo thì cỗ máy được khen vì tiền của chủ")
+    kiem("và sụt vốn tối đa vẫn giữ nguyên khoản lỗ THẬT",
+         gan(_r51["sutVonToiDaPhanTram"], 25.0),
+         f"{_r51['sutVonToiDaPhanTram']} — 200 xuống 150 là 25%")
+
+    tu50 = TrungUong(_tam("nap-von"), {"vonBanDauUsd": 10_000.0})
+    _k50 = tu50.nap_von(990_000.0, "chủ")
+    kiem("nạp vốn đổi CÙNG LÚC tiền mặt và vốn gốc",
+         gan(tu50.danh_muc.tienMatUsd, 1_000_000.0)
+         and gan(tu50.danh_muc.vonBanDauUsd, 1_000_000.0),
+         f"{_k50} — lệch một trong hai là cầu dao đọc ra sụt vốn bịa")
+    kiem("và vào SỔ CÁI với loại riêng",
+         any(x["loai"] == "NAP_VON" for x in tu50.so_cai.gan_day(20)),
+         "không vào sổ thì sau này không lần lại được")
+    tu50.mot_vong()
+    kiem("đường NAV đánh dấu DÒNG VỐN ở điểm kế tiếp",
+         gan(tu50.duongNav.diem[-1][2], 990_000.0),
+         f"{tu50.duongNav.diem[-1]} — thiếu dấu này là lời nói dối lớn nhất "
+         f"một cỗ máy vốn có thể nói")
+    tu50.mot_vong()
+    kiem("và CHỈ điểm ấy, không dính sang điểm sau",
+         gan(tu50.duongNav.diem[-1][2], 0.0),
+         "dính sang là mỗi vòng trừ đi 990k khỏi lợi suất")
+    kiem("nạp vốn ĐÒI TÊN NGƯỜI",
+         _nem(lambda: tu50.nap_von(1.0, ""), ValueError),
+         "cùng bất đối xứng với `ap_dung` và cầu dao: máy được phép đề "
+         "nghị, người quyết định bỏ tiền vào")
+    kiem("nạp 0 đồng không phải một sự kiện",
+         _nem(lambda: tu50.nap_von(0.0, "chủ"), ValueError))
+    kiem("rút quá tiền mặt thì TỪ CHỐI, không âm quỹ",
+         _nem(lambda: tu50.nap_von(-9e9, "chủ"), ValueError),
+         "vốn đang nằm trong vị thế thì phải đóng trước")
+    tu50._luu_danh_muc()
+    tu51 = TrungUong(tu50.duongLuu.parent, {"vonBanDauUsd": 10_000.0})
+    kiem("vốn đã nạp SỐNG QUA lần khởi động lại",
+         gan(tu51.napThemUsd, 990_000.0)
+         and gan(tu51.danh_muc.vonBanDauUsd, 1_000_000.0),
+         f"nạp {tu51.napThemUsd}, gốc {tu51.danh_muc.vonBanDauUsd} — mất nó "
+         f"thì vốn gốc tụt về mức cũ trong khi tiền mặt vẫn còn, và sụt vốn "
+         f"đọc ra một con số bịa")
 
     # ── XOAY CHỖ: chỗ ngồi có hạn, và ai ngồi mới là câu hỏi ────────────
     # Đo trên máy sống 29/08: 8 chỗ bị khoá 30 ngày ở 1,9–3,0 %/năm trong

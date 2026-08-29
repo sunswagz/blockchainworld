@@ -37,6 +37,7 @@ from pathlib import Path
 #: này, nên một loại tự bịa sẽ bị chặn ngay lúc ghi thay vì lộ ra sau ba
 #: tháng khi ai đó gộp thống kê.
 LOAI = (
+    "NAP_VON",        # CHỦ bỏ thêm vốn vào (hoặc rút ra) — KHÔNG phải lãi
     "CAP_VON",        # Thị Bạc Ty cấp vốn cho một tờ trình
     "TU_CHOI",        # Rủi Ro Tổng hoặc Phân Bổ từ chối
     "MO_VI_THE",      # một chân đã mở
