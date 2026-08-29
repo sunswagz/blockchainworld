@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir, rm, readdir, stat } from "node:fs/promises"
 import { existsSync } from "node:fs";
 import { dirname, join, relative, extname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { docShell } from "./mang-truoc.mjs";
 import { NGUON, nguongCua, tuoi } from "./tuoi-du-lieu.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -113,7 +114,11 @@ for (const f of allFiles) {
    đối với thư mục của chính cung đó. */
 async function checkShell(swPath, baseDir, files) {
   const swTxt = await readFile(swPath, "utf8");
-  const shell = [...swTxt.matchAll(/^\s*"(\.\/[^"]+)"/gm)].map((m) => m[1]);
+  /* docShell — một chỗ duy nhất, xem scripts/mang-truoc.mjs. Regex cũ ở
+     đây neo đầu dòng nên bỏ qua đường thứ hai trở đi trên cùng một dòng.
+     dai-quan-trac viết hai đường một dòng, nên bang.js và nen.js — 30 KB —
+     vô hình với cả bốn script chép cùng regex này. */
+  const shell = docShell(swTxt).duong.map((f) => "./" + f);
   const present = new Set(
     files.map((f) => "./" + relative(baseDir, f).replace(/\\/g, "/"))
   );

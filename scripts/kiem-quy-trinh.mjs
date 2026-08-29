@@ -26,7 +26,7 @@ import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NGUON, nguongCua, tuoi } from "./tuoi-du-lieu.mjs";
-import { docMangTruoc, laMangTruoc } from "./mang-truoc.mjs";
+import { docMangTruoc, laMangTruoc, docShell } from "./mang-truoc.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const doc = (p) => readFile(join(ROOT, p), "utf8");
@@ -479,7 +479,11 @@ for (const c of ["."].concat(cung)) {
      dùng khuôn này để BỎ QUA đường của từng cung, nhưng SHELL của nó
      không chứa đường nào như vậy nên không có chuyện miễn trừ nhầm.) */
   const { duong: mangTruoc, docDuoc } = docMangTruoc(sw);
-  const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((m) => m[1]);
+  /* docShell — một chỗ duy nhất, xem scripts/mang-truoc.mjs. Regex cũ ở
+     đây neo đầu dòng nên bỏ qua đường thứ hai trở đi trên cùng một dòng.
+     dai-quan-trac viết hai đường một dòng, nên bang.js và nen.js — 30 KB —
+     vô hình với cả bốn script chép cùng regex này. */
+  const shell = docShell(sw).duong;
 
   /* Không đọc được khai báo thì NÓI RA, đừng buộc tội. Rút ra không
      đường nào có thể vì cung ấy thật sự không có file mạng-trước,

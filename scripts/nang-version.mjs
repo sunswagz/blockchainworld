@@ -22,7 +22,7 @@ import { existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { docMangTruoc, laMangTruoc } from "./mang-truoc.mjs";
+import { docMangTruoc, laMangTruoc, docShell } from "./mang-truoc.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const THU = process.argv.includes("--thu");
@@ -106,7 +106,11 @@ for (const c of noi) {
      dùng chứ chẳng sửa gì, lại xoá luôn dấu hiệu để lần sau không ai
      lần ra. `npm run kiem` mới là chỗ nói ra chuyện đó. */
   const { duong: mangTruoc, docDuoc } = docMangTruoc(sw);
-  const shell = [...sw.matchAll(/^\s*"\.\/([^"]+)"/gm)].map((x) => x[1]);
+  /* docShell — một chỗ duy nhất, xem scripts/mang-truoc.mjs. Regex cũ ở
+     đây neo đầu dòng nên bỏ qua đường thứ hai trở đi trên cùng một dòng.
+     dai-quan-trac viết hai đường một dòng, nên bang.js và nen.js — 30 KB —
+     vô hình với cả bốn script chép cùng regex này. */
+  const shell = docShell(sw).duong;
   if (!docDuoc) {
     console.log("  · " + swP + " — không đọc được khai báo mạng-trước, bỏ qua " +
       "(chạy `npm run kiem` để xem chi tiết)");

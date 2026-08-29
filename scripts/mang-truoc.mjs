@@ -96,3 +96,39 @@ export function docMangTruoc(sw) {
 export function laMangTruoc(duong, f) {
   return duong.some((p) => ("/" + f).indexOf(p) !== -1);
 }
+
+/* ĐỌC DANH SÁCH SHELL TỪ MỘT sw.js — cũng một chỗ duy nhất.
+
+   Trước hàm này, BỐN script chép cùng một regex neo đầu dòng:
+   build-dist.mjs, kiem-quy-trinh.mjs, nang-version.mjs, tien-hoa.mjs.
+   Neo `^` nghĩa là trên một dòng có HAI đường thì chỉ thấy đường
+   thứ nhất. dai-quan-trac viết
+
+       "./assets/js/trang/dong.js", "./assets/js/trang/bang.js",
+
+   nên bang.js và nen.js — 30 KB, hai trong bốn file vẽ — vô hình với
+   cả bốn. Hậu quả xếp theo mức: sửa hai file ấy KHÔNG nâng
+   CACHE_VERSION nên máy đã cài giữ bản cũ mãi; chúng không vào bản
+   dist; và thước 'vỏ dưới 200 KB' đếm thiếu chúng, tức báo vỏ nhẹ
+   hơn thật.
+
+   Không cái nào ném lỗi. Bốn công cụ cùng im lặng theo cùng một
+   kiểu, vì chúng là bốn bản sao của một sự thật.
+
+   Cắt đúng khối `var SHELL = [ … ]` rồi mới quét, để không nhặt
+   nhầm đường nằm ở chỗ khác trong file. */
+export function docShell(sw) {
+  /* Cắt bằng indexOf chứ không bằng regex nhiều dấu thoát: đoạn mã
+     này đã hỏng một lượt vì dấu thoát bị nuốt lúc ghi file, và nó
+     hỏng THẦM — regex vẫn hợp lệ, chỉ là khớp sai. */
+  const i = sw.indexOf("var SHELL");
+  if (i < 0) return { duong: [], docDuoc: false };
+  const j = sw.indexOf("[", i), k = sw.indexOf("]", j);
+  if (j < 0 || k < 0) return { duong: [], docDuoc: false };
+  /* Dấu + chứ không phải *: mục đầu của SHELL là "./" — chính trang gốc.
+     Bắt nó thì mọi nơi gọi hàm này nhận thêm một đường RỖNG; bản kiểm thử
+     cho thấy cả mười ba sw.js đều lệch đúng một mục ấy. */
+  const re = new RegExp('"[.]/([^"]+)"', 'g');
+  const duong = [...sw.slice(j, k).matchAll(re)].map((m) => m[1]);
+  return { duong, docDuoc: duong.length > 0 };
+}

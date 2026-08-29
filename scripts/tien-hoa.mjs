@@ -39,6 +39,7 @@ import { writeFile, mkdir } from "node:fs/promises";
 import { existsSync, readdirSync, statSync, readFileSync, appendFileSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { docShell } from "./mang-truoc.mjs";
 import vm from "node:vm";
 import { dirname, join, relative, extname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1034,7 +1035,11 @@ function cong() {
   }
 
   const sw = doc(DUONG("sw.js"));
-  const shell = [...sw.matchAll(/^\s*"(\.\/[^"]+)"/gm)].map((m) => m[1]);
+  /* docShell — một chỗ duy nhất, xem scripts/mang-truoc.mjs. Regex cũ ở
+     đây neo đầu dòng nên bỏ qua đường thứ hai trở đi trên cùng một dòng.
+     dai-quan-trac viết hai đường một dòng, nên bang.js và nen.js — 30 KB —
+     vô hình với cả bốn script chép cùng regex này. */
+  const shell = docShell(sw).duong.map((f) => "./" + f);
   const coFile = new Set(file.map((f) => "./" + relative(DUONG(), f).split(/[\\/]/).join("/")));
   for (const s of shell) {
     if (s !== "./" && !coFile.has(s)) loi.push(`sw.js khai "${s}" nhưng không có file đó`);

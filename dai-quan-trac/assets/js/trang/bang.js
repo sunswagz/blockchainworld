@@ -162,7 +162,7 @@ function vGauges(K){
     w.appendChild(p2);
     const nw=el('div','nguong-w');
     nen.forEach(x=>{ const m=DO[x.id];
-      const c=el('div','nguong'); c.style.setProperty('--a', m?MAU[m.muc]:'var(--vien)');
+      const c=el('div','nguong'); c.style.setProperty('--a', m ? MAU[m.muc] : MAU.n);  /* MAU.n, KHÔNG phải var(--vien): biến ấy chưa bao giờ được khai, nên --a thành giá trị không hợp lệ và cả border-left bị bỏ — viền trái biến mất hẳn, kể cả 1px của border viết trước. Nhánh này chạy đúng lúc một nguồn số liệu chết. */
       const vach = x.nghich
         ? '<span class="g">≥ '+x.g+'</span><span class="y">'+x.r+'–'+x.g+'</span><span class="r">≤ '+x.r+'</span>'
         : '<span class="g">≤ '+x.g+'</span><span class="y">'+x.g+'–'+x.r+'</span><span class="r">≥ '+x.r+'</span>';
