@@ -174,6 +174,27 @@ def _tu_so_that(bo: list) -> list[dict]:
                    f"lệnh thật. Khi rủi ro trôi, R không so sánh được giữa các lệnh — "
                    f"đọc con số TIỀN (kỳ vọng {chung['expectancyUsd']:+.2f}/lệnh) chứ đừng "
                    f"đọc R ({chung['expectancyR']:+.3f}R).")
+            # CŨ hay ĐANG XẢY RA — hai chuyện khác nhau, và câu trên nói y hệt cho
+            # cả hai. Đo được: cv 0,357 trên 40 lệnh, nhưng gần hết nằm ở 3 lệnh
+            # ngày 19/08 có cùng riskPct 0,5 mà số tiền gấp 2,5× — đúng lỗi MẪU SỐ
+            # (tính trên vốn giấy thay vì tiền mua được) đã sửa từ lâu. 20 lệnh gần
+            # nhất có cv 0,02.
+            #
+            # Khác biệt này đổi hẳn việc phải làm: lệch CŨ nghĩa là R vẫn đọc được
+            # cho phần gần đây và chỉ cần cẩn thận khi gộp cả sổ; lệch ĐANG XẢY RA
+            # nghĩa là có một chỗ hỏng phải tìm ngay.
+            gan = [t.get("riskAmount") for t in trades[-20:] if t.get("riskAmount")]
+            if len(gan) >= 10:
+                tb = sum(gan) / len(gan)
+                cv_gan = (sum((x - tb) ** 2 for x in gan) / len(gan)) ** 0.5 / tb if tb else None
+                if cv_gan is not None and cv_gan <= 0.35:
+                    cau += (f" NHƯNG {len(gan)} lệnh GẦN NHẤT có hệ số biến thiên "
+                            f"{cv_gan:.3f} — chỗ lệch nằm ở phần CŨ của sổ, không phải "
+                            f"đang xảy ra. R vẫn đọc được cho phần gần đây; cẩn thận "
+                            f"khi gộp cả sổ.")
+                elif cv_gan is not None:
+                    cau += (f" Và {len(gan)} lệnh gần nhất vẫn lệch ({cv_gan:.3f}) — "
+                            f"đây là chuyện ĐANG XẢY RA, có một chỗ hỏng phải tìm.")
             ra.append(_pd("rui-ro-deu", "so-that", cau, chung["count"],
                           {"riskCv": cv, "expectancyUsd": chung["expectancyUsd"],
                            "expectancyR": chung["expectancyR"]}))

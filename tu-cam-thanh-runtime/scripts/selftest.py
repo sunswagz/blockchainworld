@@ -1016,6 +1016,43 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[28] LỆCH CŨ KHÁC LỆCH ĐANG XẢY RA")
+    from trader import chung_cat as C28
+
+    # cv 0,357 trên 40 lệnh — nhưng gần hết nằm ở 3 lệnh ngày 19/08 có cùng
+    # riskPct 0,5 mà số tiền gấp 2,5×: đúng lỗi MẪU SỐ đã sửa từ lâu. 20 lệnh
+    # gần nhất có cv 0,03. Câu cũ nói y hệt cho cả hai trường hợp, mà việc phải
+    # làm thì ngược nhau: lệch CŨ ⇒ R vẫn đọc được cho phần gần đây; lệch ĐANG
+    # XẢY RA ⇒ có một chỗ hỏng phải tìm ngay.
+    def _lam28(cu_lech, gan_lech):
+        ds = []
+        for i in range(20):
+            ds.append({"id": f"c{i}", "openedAt": f"2026-08-0{i % 9 + 1}T00:00:00",
+                       "closedAt": "x", "status": "CLOSED",
+                       "regimeAtEntry": "Z", "khung": "4h",
+                       "riskAmount": (200.0 if (cu_lech and i < 5) else 50.0),
+                       "pnl": -1.0, "rMultiple": -1.0, "riskPct": 0.5})
+        for i in range(20):
+            ds.append({"id": f"g{i}", "openedAt": f"2026-08-2{i % 9}T00:00:00",
+                       "closedAt": "x", "status": "CLOSED",
+                       "regimeAtEntry": "Z", "khung": "4h",
+                       "riskAmount": (200.0 if (gan_lech and i % 2) else 50.0),
+                       "pnl": -1.0, "rMultiple": -1.0, "riskPct": 0.5})
+        (DATA_DIR / store.TRADES).write_text(
+            "".join(_json.dumps(x) + NL for x in ds), encoding="utf-8")
+        return next((x["cau"] for x in C28._tu_so_that([]) if x["ma"] == "rui-ro-deu"), "")
+
+    _c = _lam28(cu_lech=True, gan_lech=False)
+    check("phần CŨ của sổ" in _c, "lệch dồn ở phần cũ → nói rõ là CŨ")
+    check("ĐANG XẢY RA" not in _c, "và KHÔNG kêu là đang xảy ra")
+
+    _c = _lam28(cu_lech=True, gan_lech=True)
+    check("ĐANG XẢY RA" in _c, "lệch cả ở phần gần nhất → kêu ĐANG XẢY RA")
+    check("phần CŨ của sổ" not in _c, "và KHÔNG trấn an bằng câu «lệch cũ»")
+
+    # Rủi ro đều thì cả hai câu đều phải im.
+    _c = _lam28(cu_lech=False, gan_lech=False)
+    check("KHÔNG đều" not in _c, "rủi ro đều → không câu cảnh báo nào")
     print("\n[27] CON SỐ ĐẸP CỦA MỘT CHỢ KHÔNG ĐƯỢC ĐỨNG MỘT MÌNH")
     import importlib.util as _il27
     _sp27 = _il27.spec_from_file_location("bg27", str(ROOT / "scripts" / "ban-giao.py"))
