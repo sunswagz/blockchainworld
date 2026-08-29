@@ -20,7 +20,7 @@ import traceback
 
 import httpx
 
-from .brain import get_brain
+from .brain import get_brain, mock_thesis
 from .broker import PaperBroker
 from .broker_testnet import TestnetBroker
 from .bus import bus
@@ -161,10 +161,83 @@ class Runtime:
             self.chung_cat_kq = {"loi": f"{type(e).__name__}: {e}", "soPhatHien": 0}
             bus.log("hoc", "chung-cat-loi", f"{type(e).__name__}: {e}")
 
+    # ── QUÉT NHIỀU CHỢ ────────────────────────────────────────────────────
+
+    def _cho_quet(self) -> list[str]:
+        """Danh sách chợ được quét. Mặc định đúng một chợ — hành vi cũ y nguyên.
+
+        Đây là trục cuối cùng còn bằng 1. Bảng đo đã mở ra 48 chợ, 4 lát thời
+        gian và hàng chục biến thể tham số; riêng bot chạy thật vẫn nhìn đúng
+        một coin, nên nó vào ~1,4 lệnh/ngày và mọi giả thuyết đo trên lệnh thật
+        cần hàng tuần mới chốt được.
+        """
+        ds = self.cfg.get("symbols") or [self.cfg["symbol"]]
+        # Chợ chính LUÔN đứng đầu: nó là chợ mà bảng, ảnh chụp và `/api/state`
+        # nói về khi không nói rõ chợ nào.
+        return [self.cfg["symbol"]] + [x for x in ds if x != self.cfg["symbol"]]
+
+    async def _nap_cho(self, client, ds: list[str]) -> dict[str, dict]:
+        """Nạp dữ liệu thị trường cho từng chợ. Chợ nào hỏng thì BỎ, không dừng.
+
+        Một chợ lỗi mạng không được làm chết cả vòng: 14 chợ còn lại vẫn quyết
+        định được, và vị thế đang mở ở 14 chợ đó vẫn phải được chấm.
+        """
+        ra: dict[str, dict] = {}
+        for sym in ds:
+            try:
+                ra[sym] = await get_market_data(client, sym)
+            except Exception as e:  # noqa: BLE001
+                bus.log("data", "cho-loi", f"{sym}: {type(e).__name__}: {e}")
+        return ra
+
+    def _chon_cho(self, cho: dict[str, dict]) -> tuple[str, dict, dict] | None:
+        """Chấm mọi chợ bằng LUẬT THUẦN rồi chọn một. Trả (chợ, state, regime).
+
+        Luật thuần chứ không phải bộ não: trần `brain.cli` là 8 lượt/ngày, còn
+        đây là 15 chợ mỗi vòng. Chấm bằng luật thì miễn phí và chạy tại máy;
+        bộ não chỉ suy luận cho ỨNG VIÊN được chọn, tức đúng chỗ nó đáng tiền.
+
+        Bỏ qua chợ ĐANG có vị thế: mở thêm lệnh thứ hai trên cùng một coin là
+        nhân đôi rủi ro của đúng một cược, không phải thêm một cược mới.
+        """
+        dang_giu = {t.get("symbol") for t in self.broker.state["positions"]}
+        ung_vien = []
+        for sym, m in cho.items():
+            if sym in dang_giu:
+                continue
+            try:
+                st = build_market_state(m)
+                rg = classify(st, self.primary, self.context)
+                ld = mock_thesis(st, rg, self.primary)
+            except Exception as e:  # noqa: BLE001
+                bus.log("data", "cham-cho-loi", f"{sym}: {type(e).__name__}: {e}")
+                continue
+            if ld.get("action") in (None, "NO_TRADE"):
+                continue
+            # Chất lượng chế độ đứng TRƯỚC độ tin cậy của luật: một tín hiệu
+            # rất tự tin trong một chế độ đọc không rõ vẫn là đoán mò.
+            diem = ({"HIGH": 2, "MEDIUM": 1}.get(rg.get("quality"), 0),
+                    ld.get("confidence") or 0.0)
+            ung_vien.append((diem, sym, st, rg))
+        if not ung_vien:
+            return None
+        ung_vien.sort(key=lambda x: x[0], reverse=True)
+        _, sym, st, rg = ung_vien[0]
+        if len(ung_vien) > 1:
+            bus.emit("brain", "chon-cho",
+                     f"{len(ung_vien)} chợ có tín hiệu · chọn {sym} "
+                     f"({rg['quality']}, tin cậy {ung_vien[0][0][1]:.2f})")
+        return sym, st, rg
     async def tick(self, client: httpx.AsyncClient) -> None:
         self.ticks += 1
 
-        market = await get_market_data(client)
+        # Nạp chợ CHÍNH, cộng thêm mọi chợ ĐANG có vị thế — cái sau bắt buộc,
+        # vì không có giá của chính nó thì `mark` không chấm được vị thế đó, và
+        # nó sẽ treo qua stop mà không ai đóng.
+        _giu = {t.get("symbol") for t in self.broker.state["positions"]}
+        _can = [self.cfg["symbol"]] + sorted(_giu - {self.cfg["symbol"]})
+        _cho = await self._nap_cho(client, _can)
+        market = _cho.get(self.cfg["symbol"]) or await get_market_data(client)
         # Giữ lại nến thô cho /api/candles. Feature là số ĐÃ ĐO; biểu đồ cần
         # chính cái nến để vẽ, không dựng lại được từ feature.
         self.last_market = market
@@ -184,7 +257,9 @@ class Runtime:
 
         # Vị thế đang mở được kiểm TRƯỚC khi nghĩ tới lệnh mới. Thoát lệnh không
         # bao giờ được xếp sau việc vào lệnh.
-        closed = self.broker.mark(market["price"])
+        # Chấm bằng TỪ ĐIỂN {chợ: giá}, không bằng một số. Một số áp lên mọi vị
+        # thế nghĩa là vị thế ETH bị chấm bằng giá BTC.
+        closed = self.broker.mark({k: v["price"] for k, v in _cho.items()})
         for t in closed:
             bus.emit("journal", "ghi-so", f"đã ghi giao dịch {t['id']} vào nhật ký", trade=t)
             try:
@@ -214,7 +289,24 @@ class Runtime:
                  f"{len(memory['lessonsForThisRegime'])} bài học liên quan · "
                  f"lịch sử regime này: {memory['performanceThisRegime'].get('count', 0)} lệnh")
 
-        bus.emit("brain", "dang-nghi", f"gọi brain ({why})…")
+        # QUÉT các chợ khác và chọn ứng viên tốt nhất. Chỉ làm ở đây — sau khi
+        # `_should_call_brain` đã cho qua — nên chi phí mạng mỗi vòng không đổi:
+        # quét 15 chợ chỉ xảy ra khi thật sự sắp ra quyết định, tức mỗi nến.
+        _ds = self._cho_quet()
+        if len(_ds) > 1:
+            _cho.update(await self._nap_cho(
+                client, [x for x in _ds if x not in _cho]))
+            _chon = self._chon_cho(_cho)
+            if _chon:
+                _sym, _st, _rg = _chon
+                if _sym != self.cfg["symbol"]:
+                    # Đổi chợ đang xét. `self.state`/`self.regime` là thứ mọi
+                    # bước sau đọc, kể cả `/api/state` — nên đổi ở đây là đổi
+                    # đúng một chỗ, không phải rải điều kiện khắp nơi.
+                    market = _cho[_sym]
+                    self.last_market, self.state, self.regime = market, _st, _rg
+
+        bus.emit("brain", "dang-nghi", f"gọi brain ({why}) · chợ {market['symbol']}…")
         thesis = await self.brain.thesis(self.state, self.regime, memory, account, self.primary)
 
         # — CẦU DAO CHẾ ĐỘ: chỗ vòng tuần hoàn khép lại —

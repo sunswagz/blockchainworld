@@ -1063,6 +1063,38 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[38] QUÉT NHIỀU CHỢ: MẶC ĐỊNH KHÔNG ĐỔI HÀNH VI")
+    from trader.loop import Runtime as _RT38
+
+    class _G38(_RT38):
+        def __init__(self, cfg, vt):
+            self.cfg = cfg
+            self.primary, self.context = "4h", "1d"
+            class _B:
+                state = {"positions": vt}
+            self.broker = _B()
+
+    # Không khai `symbols` → đúng một chợ, tức hành vi hôm nay y nguyên. Đây là
+    # cửa quan trọng nhất: thêm một tính năng mà lặng lẽ đổi hành vi mặc định
+    # của một con bot đang giữ tiền là kiểu thay đổi tệ nhất.
+    check(_G38({"symbol": "BTCUSDT"}, [])._cho_quet() == ["BTCUSDT"],
+          "không khai symbols → quét đúng một chợ")
+
+    # Có khai thì chợ CHÍNH luôn đứng đầu, và không bị lặp.
+    _q38 = _G38({"symbol": "BTCUSDT",
+                 "symbols": ["ETHUSDT", "BTCUSDT", "SOLUSDT"]}, [])._cho_quet()
+    check(_q38[0] == "BTCUSDT", "chợ chính đứng đầu danh sách quét")
+    check(len(_q38) == len(set(_q38)) == 3, "không chợ nào bị lặp")
+
+    # Chợ ĐANG có vị thế bị loại khỏi ứng viên: mở lệnh thứ hai trên cùng coin
+    # là nhân đôi rủi ro của đúng một cược, không phải thêm một cược mới.
+    _r38 = _G38({"symbol": "BTCUSDT"}, [{"symbol": "ETHUSDT"}])
+    check(_r38._chon_cho({"ETHUSDT": {}}) is None,
+          "chợ đang giữ vị thế → không thành ứng viên")
+
+    # Chợ hỏng dữ liệu không được làm chết cả vòng quét.
+    check(_r38._chon_cho({"XXXUSDT": {"hong": True}}) is None,
+          "chợ dữ liệu hỏng → bỏ qua, không nổ")
     print("\n[37] MỖI VỊ THẾ PHẢI ĐƯỢC CHẤM BẰNG GIÁ CỦA CHÍNH CHỢ NÓ")
 
     # `mark(price)` bản cũ áp MỘT giá lên MỌI vị thế. Đúng chừng nào bot còn
