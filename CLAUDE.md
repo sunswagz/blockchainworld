@@ -956,7 +956,7 @@ phải lọc qua `bang.giai_doan_cua(tt)`; thiếu trường thì đọc là
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
-    python scripts/selftest.py    1456 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    447 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không
@@ -964,7 +964,7 @@ phải lọc qua `bang.giai_doan_cua(tt)`; thiếu trường thì đọc là
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
     python -m bac.snapshot        quét một lượt, ghi, rồi thoát
-    python scripts/selftest.py    1444 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1456 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-buong-lai.mjs   58 phép: 10 trang + 7 khối tầng ba, × 3 mẫu; khoá đọc/sinh có khớp
     pythonw dichvu/chay-nen.py    chạy nền 24/7 để tích băng đào tạo
 
