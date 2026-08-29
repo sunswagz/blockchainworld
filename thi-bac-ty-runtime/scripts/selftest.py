@@ -2962,6 +2962,22 @@ def kiem_khuon_ty() -> None:
     kiem("và Thông Chính đếm được ty nào gửi sai",
          tc.tom_tat()["saiKhuonTheoTy"].get("BAY") == 1)
 
+    # HÀNG ĐẦY: `deque` có `maxlen` nên nó tự đẩy tờ CŨ NHẤT ra, im lặng.
+    # `tongTran` là chỗ DUY NHẤT nói ra chuyện ấy — không đếm thì mỗi vòng
+    # có tờ trình bốc hơi mà phễu vẫn cộng đủ, và tỉ lệ sống sót tính
+    # trên một mẫu số không còn đúng.
+    _tcT = ThongChinh(tran=2)
+    for _i in range(2):
+        _tcT.nop(_mau(taiSan=f"D{_i}"))
+    kiem("hàng CHƯA đầy thì không đếm tràn", _tcT.tom_tat()["tongTran"] == 0,
+         f"{_tcT.tom_tat()} — trần 2, mới nộp 2")
+    _tcT.nop(_mau(taiSan="D2"))
+    kiem("tờ thứ (trần+1) đẩy tờ CŨ NHẤT ra, và lần tràn ấy được ĐẾM",
+         (_tcT.tom_tat()["tongTran"] == 1
+          and _tcT.tom_tat()["tongNhan"] == 3),
+         f"{_tcT.tom_tat()} — `deque` đẩy im lặng; không đếm thì mỗi vòng "
+         f"có tờ trình bốc hơi mà phễu vẫn cộng đủ")
+
     # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
     #
     # Bảng LÝ DO TỪ CHỐI của ty là chỗ người đọc đi tìm «vì sao không cơ
@@ -9591,6 +9607,32 @@ def kiem_ke_toan_vi_the() -> None:
          f"về sức nuốt, chứ không coi là 0")
     kiem("không dựng được thì NÓI, không trả một đường cong rỗng im lặng",
          "chưa dựng được" in _dsc([]).vi, _dsc([]).vi)
+
+    # ── BIÊN, y như `duong_khoa_von` ────────────────────────────────────
+    #
+    # Hai đường cong này là anh em: cùng hình dạng, cùng ba cái bẫy. Quét
+    # đột biến cho 3/6 con sống sót ở đây, đúng ba chỗ đã vá bên kia.
+    _d57 = _dsc([_tt55(9.0, 0.0), _tt55(9.0, 0.01)], muc=(1_000.0,))
+    kiem("sức chứa ĐÚNG BẰNG 0 thì bỏ, sức chứa 0,01 thì nhận",
+         _d57.soBoViThieuSucChua == 1 and _d57.soCoHoiDung == 1,
+         f"{_d57.tom_tat()} — «chứa được 0 đồng» không phải một cơ hội, "
+         f"nhưng «chứa được một xu» thì là")
+
+    _d58 = _dsc([_tt55(20.0, 1_000.0), _tt55(10.0, 1_000.0)],
+                muc=(1_000.0,))
+    _m58 = _d58.muc[0]
+    kiem("hết vốn thì cơ hội sau KHÔNG được rót thêm, và lãi chỉ tính "
+         "phần rót được",
+         (gan(_m58.rotDuocUsd, 1_000.0)
+          and gan(_m58.aprTrenCaTuiUsd, 20.0)),
+         f"{_m58.tom_tat()} — cộng cả cơ hội không rót được là cộng một "
+         f"khoản lãi chưa ai nhận")
+
+    _d59 = _dsc([_tt55(9.0, 1_000.0)], muc=(0.0,))
+    kiem("túi rỗng thì lợi suất là 0 và KHÔNG nổ",
+         gan(_d59.muc[0].aprTrenCaTuiUsd, 0.0),
+         f"{_d59.muc[0].tom_tat()} — chia cho một túi rỗng là chia cho "
+         f"không")
     tu57 = TrungUong(_tam("duong-suc-chua"), {"vonBanDauUsd": 10_000.0})
     kiem("ảnh chụp mang đường sức chứa ra buồng lái",
          "muc" in (tu57.anh_chup().get("duongSucChua") or {}),

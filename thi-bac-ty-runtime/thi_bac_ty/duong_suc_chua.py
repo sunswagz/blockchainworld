@@ -122,7 +122,10 @@ def do_duong_suc_chua(toTrinh: list, muc=MUC_MAC_DINH) -> DuongSucChua:
         tong = 0.0
         dem = 0
         for apr, sc in ds:
-            if con <= 0:
+            # `<=` và `<` cho cùng kết quả: `con == 0` thì `lay = min(0, sc)`
+        # cũng bằng 0 và mọi phép cộng dưới đây cộng 0. TƯƠNG ĐƯƠNG — y
+        # như dòng cùng dạng trong `duong_khoa_von.py`.
+        if con <= 0:
                 break
             lay = min(con, sc)
             rot += lay
