@@ -1098,8 +1098,17 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
         if not f.exists():
             continue
         ma = f.read_text(encoding="utf-8")
+        # Dò bằng AST, không dò chuỗi nguyên văn. Bản trước tìm đúng câu
+        # `from kham.hoc_offline import sigma_tai` và vỡ ngay khi có thêm
+        # một tên nữa trên cùng dòng nhập — một phép canh gãy vì lý do
+        # không liên quan gì tới thứ nó canh.
+        import ast as _a
+        nhap = set()
+        for _n in _a.walk(_a.parse(ma)):
+            if isinstance(_n, _a.ImportFrom) and _n.module == "kham.hoc_offline":
+                nhap.update(x.name for x in _n.names)
         kiem(f"{ten} nhập bộ ước chung",
-             "from kham.hoc_offline import sigma_tai" in ma,
+             "sigma_tai" in nhap,
              "script GHI CONFIG mà tự tính σ là vặn nút của cỗ máy khác")
         kiem(f"{ten} KHÔNG tự tính lại σ",
              "pstdev" not in ma and "sqrt(60" not in ma, ma.count("pstdev"))

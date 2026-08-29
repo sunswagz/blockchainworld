@@ -122,7 +122,7 @@ def nen_1p(cap: str, tuMs: float, soNen: int) -> dict:
 # Các script THU THẬP thuần (`thu-*.py`, `do-*.py`) vẫn giữ bản riêng:
 # chúng không ghi config nên một cái trôi ở đó làm sai một PHÉP ĐO, chứ
 # không làm sai một THAM SỐ đang chạy.
-from kham.hoc_offline import sigma_tai as _sigma_chung  # noqa: E402
+from kham.hoc_offline import cua_so_sigma, sigma_tai as _sigma_chung  # noqa: E402
 
 
 def sigma_tai(theoMoc, T, cuaSoGiay):
@@ -200,7 +200,7 @@ def main() -> int:
     print(f"  đã lấy {len(theoMoc):,} nến")
 
     # ── đương nhiệm ──────────────────────────────────────────────────
-    cs0 = float(doc_tham_so("dinhGia.bienDongCuaSoGiay") or 300.0)
+    cs0 = cua_so_sigma()
     goc = cham(theoMoc, cs0)
     if goc is None:
         print("  Chưa đủ cặp để chấm.\n")

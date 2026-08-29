@@ -89,6 +89,27 @@ def nen_1p(cap: str, tuMs: float, soNen: int) -> dict:
 _NHO_SIGMA: dict = {}
 
 
+def cua_so_sigma() -> float:
+    """Cửa sổ ước σ, giây. MỘT chỗ duy nhất trả lời — kể cả khi thiếu khoá.
+
+    Bốn chỗ từng tự đọc khoá này, và một trong bốn rơi về **300** trong
+    khi ba chỗ kia rơi về **900**:
+
+        hoc_offline (×2)        or 900.0
+        do-cho-that.py          or 900.0
+        tien-hoa-mo-hinh.py     or 300.0     ← lệch
+
+    Khoá đang có trong config nên mặc định chưa bao giờ được dùng tới, và
+    chính vì thế nó nằm im. Ngày ai đó đổi tên khoá hoặc chạy với một
+    config tối giản thì `tien-hoa-mo-hinh` đo bằng cửa sổ 300s trong khi
+    cả hệ dùng 900s — và cổng tiến hoá sẽ kết luận về một cỗ máy không
+    tồn tại. Đúng lớp lỗi "hai đường nói khác nhau" đã gặp nhiều lần.
+
+    Mặc định 900 vì đó là giá trị vòng tự nâng cấp đã ĐO và chọn.
+    """
+    return float(doc_tham_so("dinhGia.bienDongCuaSoGiay") or 900.0)
+
+
 def sigma_tai(theoMoc: dict, T: int, cuaSoGiay: float) -> float | None:
     """σ mỗi giây tại mốc T. Có nhớ lại.
 
@@ -196,7 +217,7 @@ def dung_so_hieu_chinh(soNgay: int = 7, ma: str = "BTC_5M",
                 if t.get("ma") == ma), None)
     if not cap:
         return {"loi": f"không có market `{ma}`"}
-    cuaSo = float(doc_tham_so("dinhGia.bienDongCuaSoGiay") or 900.0)
+    cuaSo = cua_so_sigma()
     soNen = soNgay * 24 * 60 + int(cuaSo / 60.0) + 20
     hetMs = int(time.time() * 1000.0 // PHUT * PHUT) - PHUT
     quen_sigma()
@@ -307,7 +328,7 @@ def mot_luot_mo_hinh(soNgay: int = 10, ma: str = "BTC_5M",
                 if t.get("ma") == ma), None)
     if not cap:
         return {"loi": f"không có market `{ma}`"}
-    cuaSo0 = float(doc_tham_so("dinhGia.bienDongCuaSoGiay") or 900.0)
+    cuaSo0 = cua_so_sigma()
     soNen = soNgay * 24 * 60 + int(cuaSo0 / 60.0) + 20
     hetMs = int(time.time() * 1000.0 // PHUT * PHUT) - PHUT
     quen_sigma()

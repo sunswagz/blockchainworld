@@ -70,7 +70,7 @@ from kham.chan_doan import doc_tham_so  # noqa: E402
 from kham.chay_lai import dung_so  # noqa: E402
 from kham.config import CONFIG  # noqa: E402
 from kham.dinh_gia import dinh_gia  # noqa: E402
-from kham.hoc_offline import nen_1p, quen_sigma, sigma_tai  # noqa: E402
+from kham.hoc_offline import cua_so_sigma, nen_1p, quen_sigma, sigma_tai  # noqa: E402
 from kham.ket_qua import moc_tu_slug, so_ket_qua  # noqa: E402
 
 
@@ -81,7 +81,7 @@ def _p_tinh_lai(dong: list) -> dict:
     lấp bằng giá trị cũ, vì lấp là trộn hai bộ ước vào một phép đo và
     làm hỏng đúng thứ phép đo này đi tìm.
     """
-    cuaSo = float(doc_tham_so("dinhGia.bienDongCuaSoGiay") or 900.0)
+    cuaSo = cua_so_sigma()
     moc = [moc_tu_slug(tt.get("slug") or "") for tt, _su, _sd in dong]
     moc = [m for m in moc if m]
     if not moc:
