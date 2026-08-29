@@ -555,12 +555,25 @@ hiện tại, nó chỉ nói lúc này.
     Brier mô hình  0,16078  kỹ năng +35,7%
     w ước lượng    0,710    (phiên giấy hoà vốn quanh w ≈ 1)
 
-Lãi lỗ THẬT đầu tiên, chạy trên chính 578 dòng ấy: 5 cửa sổ, thắng 4/1,
-**+$33,94 trên $10.000 (+0,34%)**, phí $1,97, sụt vốn 0,50%.
+Lãi lỗ THẬT, chạy hết băng (133.829 khung, 8 ngày, 30/08/2026):
 
-Năm cửa sổ là vô nghĩa về thống kê — giá trị của nó là chứng minh cả
-đường ống chạy trọn. Không đổi cấu hình theo nó. `scripts/do-cho-that.py`
-và `scripts/chay-phat-lai.py` chạy lại được mỗi khi băng dày thêm.
+    17 cửa sổ thấy được · 7 kết toán · thắng/thua 5/2
+    +$32,99 trên $1.000 (+3,30%) · phí $2,93 · sụt vốn đỉnh-đáy 4,76%
+    khoảng tin 95%  [-$130,75, +$183,26]   ← CHỨA 0
+    phép nắn: 17 mẫu, KHÔNG bật ⇒ đây là mô hình THÔ, chưa nắn
+
+**Khoảng tin chứa 0, nên con số +3,30% CHƯA nói được rằng cỗ máy này có
+lãi.** Giá trị của phiên là chứng minh cả đường ống chạy trọn. KHÔNG đổi
+cấu hình theo nó. `scripts/chay-phat-lai.py` nay tự in khoảng tin ấy —
+lấy lại THEO CỬA SỔ — và tự nói thẳng khi nó chứa 0, để lần sau không ai
+đọc con số giữa mà bỏ qua bề rộng.
+
+(Lần đo trước ghi *"5 cửa sổ, +$33,94 trên $10.000"* kèm câu "năm cửa sổ
+là vô nghĩa về thống kê". Câu ấy đúng nhưng là văn xuôi; nay nó thành
+một khoảng tin do chính script in ra — [[luat-phai-chay-duoc]].)
+
+`scripts/do-cho-that.py` và `scripts/chay-phat-lai.py` chạy lại được mỗi
+khi băng dày thêm.
 
 ### Khâm Thiên Giám — MÔ HÌNH ĐÃ Ở SÁT TRẦN, thôi vặn
 
