@@ -1016,6 +1016,44 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[27] CON SỐ ĐẸP CỦA MỘT CHỢ KHÔNG ĐƯỢC ĐỨNG MỘT MÌNH")
+    import importlib.util as _il27
+    _sp27 = _il27.spec_from_file_location("bg27", str(ROOT / "scripts" / "ban-giao.py"))
+    BG27 = _il27.module_from_spec(_sp27); _sp27.loader.exec_module(BG27)
+
+    # Dòng tiêu đề ghi "champion MOCK_RULES_V1 (0.032R ngoài mẫu)" — con số của
+    # MỘT chợ, đúng cái chợ mọi thứ ở đây từng được đo lên. Gộp 8 chợ thì cùng
+    # bộ luật ấy −0,047R qua 193 lệnh. Và không có đường nào gỡ champion xuống:
+    # `phan_quyet` là cửa DUYỆT, chặn kẻ thách đấu kém chứ không chặn kẻ đang ngồi.
+    def _dat27(kv_mot, kv_gop):
+        (DATA_DIR / "chien-luoc.json").write_text(_json.dumps(
+            {"champion": {"ma": "X", "ketQua": {"kyVongR": kv_mot, "cho": "C:4h"}}}
+        ), encoding="utf-8")
+        store.write_all(store.PHAT_HIEN, [] if kv_gop is None else [
+            {"ma": "cho:X", "nguon": "nhieu-cho", "cau": "c", "mau": 193,
+             "doTin": "CAO", "so": {"kyVongR": kv_gop, "duong": 2, "soCho": 8},
+             "cheDo": None, "khung": None, "luc": "x"}])
+
+    _dat27(0.032, -0.047)
+    _t27 = " ".join(BG27._champion_bi_bac_bo())
+    check("-0.047" in _t27 and "193" in _t27,
+          "champion dương ở chợ nhà, âm khi gộp → NÓI RA con số gộp")
+    check("gỡ champion xuống" in _t27,
+          "và nói rõ không có đường gỡ xuống — cửa duyệt chỉ chặn kẻ vào")
+
+    # Cửa ngược lại 1: gộp lại vẫn dương thì im. Kêu khi không có gì để kêu là
+    # dạy người đọc bỏ qua mục này.
+    _dat27(0.032, 0.05)
+    check(not BG27._champion_bi_bac_bo(), "gộp lại vẫn dương → mục IM")
+
+    # Cửa ngược lại 2: chưa có phép đo nhiều chợ thì không được đoán bừa.
+    _dat27(0.032, None)
+    check(not BG27._champion_bi_bac_bo(),
+          "chưa có phát hiện nhiều chợ → im, không suy diễn")
+
+    # Champion âm ở CẢ HAI thước vẫn phải kêu — đó là ca nặng nhất.
+    _dat27(-0.2, -0.3)
+    check(bool(BG27._champion_bi_bac_bo()), "âm ở cả hai thước → vẫn kêu")
     print("\n[26] SETUP THƯA: GỘP CHỢ THAY VÌ VỨT THẦM")
     from trader import chung_cat as C26
 

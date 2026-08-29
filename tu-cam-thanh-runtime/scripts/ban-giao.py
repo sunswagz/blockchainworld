@@ -219,6 +219,57 @@ def _gia_kho_ky_nang() -> list[str]:
 DUNG_IM_LIEN_TIEP = 12
 
 
+def _champion_bi_bac_bo() -> list[str]:
+    """Champion có đang bị chính phép đo của mình bác bỏ không.
+
+    Dòng tiêu đề của bản bàn giao ghi "champion MOCK_RULES_V1 (0.032R ngoài
+    mẫu)". Con số đó là của MỘT chợ — BTCUSDT:4h, chợ mà cấu hình đang chạy.
+    Đo trên 8 chợ thì cùng bộ luật ấy được −0,047R qua 193 lệnh, dương ở 2/8.
+    Hai chợ dương là BTC và ETH: đúng hai chợ mọi thứ ở đây từng được đo lên.
+
+    Và không có đường nào gỡ champion xuống. `chien_luoc.phan_quyet` là cửa
+    DUYỆT — nó chặn kẻ thách đấu kém, nhưng không ai chặn kẻ đang ngồi. Một bộ
+    luật lên champion rồi thì chỉ bị thay khi có cái tốt hơn, mà không cái nào
+    tốt hơn, nên nó ngồi mãi dù phép đo đã bác bỏ nó.
+
+    Mục này KHÔNG tự gỡ ai xuống — đưa một bộ luật vào hay ra khỏi tiền thật là
+    việc bấm tay ở buồng lái. Nó chỉ không để con số đẹp của một chợ đứng một
+    mình ở dòng tiêu đề.
+    """
+    try:
+        cl = json.loads((DATA_DIR / "chien-luoc.json").read_text(encoding="utf-8"))
+    except (ValueError, OSError, FileNotFoundError):
+        return []
+    ma = (cl.get("champion") or {}).get("ma")
+    if not ma:
+        return []
+    mot_cho = ((cl.get("champion") or {}).get("ketQua") or {})
+    kv_mot, cho_mot = mot_cho.get("kyVongR"), mot_cho.get("cho") or "chợ không rõ"
+
+    gop = next((p for p in store.read_all(store.PHAT_HIEN)
+                if p["ma"] in (f"cho:{ma}", f"cho-gop:{ma}")), None)
+    if not gop:
+        return []
+    kv_gop = (gop.get("so") or {}).get("kyVongR")
+    if kv_gop is None or kv_mot is None:
+        return []
+    if kv_gop > 0:
+        return []
+
+    ra = [f"Dòng tiêu đề ghi champion `{ma}` **{kv_mot:+.3f}R** — con số của MỘT "
+          f"chợ ({cho_mot}). Gộp {(gop.get('so') or {}).get('soCho')} chợ thì cùng "
+          f"bộ luật ấy được **{kv_gop:+.3f}R qua {gop['mau']} lệnh ngoài mẫu**, "
+          f"dương ở {(gop.get('so') or {}).get('duong')}."]
+    if kv_mot > 0:
+        ra.append("Chợ đang chạy là một trong số ít chợ nó dương. Đó chính là chợ "
+                  "mọi thứ ở đây từng được đo lên — nên đừng đọc nó như bằng chứng "
+                  "độc lập.")
+    ra.append("Và **không có đường nào gỡ champion xuống**: `phan_quyet` là cửa "
+              "DUYỆT, nó chặn kẻ thách đấu kém chứ không chặn kẻ đang ngồi. Bộ luật "
+              "này chỉ bị thay khi có cái tốt hơn — mà chưa cái nào tốt hơn. Gỡ hay "
+              "giữ là việc bấm tay ở buồng lái, không phải việc của bản bàn giao.")
+    return ra
+
 def _dung_im() -> list[str]:
     """Bot đứng ngoài liên tục có căn cứ — và vì thế sẽ đứng mãi.
 
@@ -415,6 +466,14 @@ def main() -> int:
         W("## Giá của kho kỹ năng")
         W("")
         for x in gia:
+            W(f"- {x}")
+        W("")
+
+    bb = _champion_bi_bac_bo()
+    if bb:
+        W("## Champion đang bị chính phép đo của mình bác bỏ")
+        W("")
+        for x in bb:
             W(f"- {x}")
         W("")
 
