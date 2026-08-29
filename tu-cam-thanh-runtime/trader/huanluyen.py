@@ -535,8 +535,23 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
     c = sinh_luan_diem(nen, symbol=symbol, bao_tien_do=bao_tien_do)
     _bo_nho[vt] = c
     if dung_dia:
+        # Ghi qua file tạm rồi ĐỔI TÊN. `write_text` không nguyên tử: hai tiến
+        # trình cùng sinh một chuỗi (nghi thức chạy nền + một lượt gõ tay) có thể
+        # để lại file cụt giữa chừng.
+        #
+        # Đường đọc ở trên nuốt mọi lỗi parse và tính lại, nên file cụt KHÔNG gây
+        # sập — nó gây chuyện khó thấy hơn: mỗi lượt đều "tính mới" một chuỗi vốn
+        # đã có sẵn, và một chuỗi 9000 nến mất hàng chục phút. Cache im lặng biến
+        # thành vô dụng, mà bảng nào cũng xanh.
+        #
+        # `os.replace` nguyên tử trên cùng ổ đĩa, kể cả Windows. Tên tạm mang PID
+        # để hai tiến trình không giẫm lên file tạm của nhau.
+        import os
+
         f.parent.mkdir(parents=True, exist_ok=True)
-        f.write_text(json.dumps(c), encoding="utf-8")
+        tam = f.with_suffix(f".{os.getpid()}.tmp")
+        tam.write_text(json.dumps(c), encoding="utf-8")
+        os.replace(tam, f)
     bus.emit("hoc", "sinh-chuoi",
              f"sinh {len(c)} điểm vào lệnh từ lịch sử trong {time.time() - t0:.0f}s")
     return c, "tính mới"
