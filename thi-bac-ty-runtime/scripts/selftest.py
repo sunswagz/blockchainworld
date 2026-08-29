@@ -5965,6 +5965,7 @@ def kiem_che_van_hanh() -> None:
 def kiem_hieu_nang() -> None:
     print("\n-- Hieu nang: duong NAV, khong phai mot APR nhan thang --")
     from thi_bac_ty.hieu_nang import (TOI_THIEU_GIO, DuongNav,
+                                      _iso as _iso_hn,
                                       doi_chieu_giay_that, do_hieu_nang)
 
     GIO = 3_600_000.0
@@ -6013,6 +6014,137 @@ def kiem_hieu_nang() -> None:
          dc["doiChieuDuoc"] is False and dc["soButToanThat"] == 0,
          "trả về một con số 'sai lệch' lúc này là bịa")
     kiem("và nói rõ khi nào mới đo được", "lớp ký lệnh" in dc["khiNaoDoDuoc"])
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang TRỐNG SẠCH ──────────────────
+    #
+    # Quét đột biến trên `hieu_nang.py` cho 11/11 con SỐNG SÓT — không
+    # một biên nào được kiểm. Đây là module tính CAGR, sụt vốn tối đa và
+    # lãi lỗ tay lái: đúng những con số người vận hành đọc để quyết định.
+
+    # ĐỦ MẪU: đúng `TOI_THIEU_GIO` giờ là ĐỦ, không phải «gần đủ».
+    _dDu = do_hieu_nang([(0.0, 100.0), (TOI_THIEU_GIO * GIO, 101.0)], 100.0)
+    kiem("đúng bằng số giờ tối thiểu thì ĐÃ quy ra năm được",
+         _dDu["duDeKetLuan"] and _dDu["cagrPhanTram"] is not None,
+         f"ngưỡng {TOI_THIEU_GIO:g} giờ — «chưa đủ» phải nghĩa là ÍT HƠN")
+    _dThieu = do_hieu_nang(
+        [(0.0, 100.0), ((TOI_THIEU_GIO - 0.01) * GIO, 101.0)], 100.0)
+    kiem("thiếu một chút thì vẫn từ chối quy ra năm",
+         _dThieu["cagrPhanTram"] is None)
+
+    # NAV ĐÚNG BẰNG ĐỈNH thì KHÔNG phải đang dưới đáy, và không tính sụt.
+    _dDinh = do_hieu_nang([(0.0, 100.0), (GIO, 110.0), (2 * GIO, 110.0)],
+                          100.0)
+    kiem("NAV về ĐÚNG BẰNG đỉnh thì KHÔNG còn «đang dưới đáy»",
+         _dDinh["dangDuoiDay"] is False
+         and gan(_dDinh["sutVonToiDaPhanTram"], 0.0)
+         and gan(_dDinh["gioDuoiDayLauNhat"], 0.0),
+         f"{_dDinh} — bằng đỉnh là đã hồi hết; báo còn dưới đáy ở đó là "
+         f"một cảnh báo không bao giờ tắt, và «giờ dưới đáy» cũng phải là "
+         f"0 chứ không phải cả quãng đứng ngang đỉnh")
+
+    # HAI cú sụt BẰNG NHAU: mốc thời gian phải là cú ĐẦU. `>` đổi thành
+    # `>=` là dời mốc sang cú sau, và người đi tìm nguyên nhân sẽ mở đúng
+    # quãng không có gì xảy ra.
+    _dHai = do_hieu_nang([(0.0, 100.0), (GIO, 90.0), (2 * GIO, 100.0),
+                          (3 * GIO, 90.0)], 100.0)
+    kiem("hai cú sụt BẰNG NHAU thì mốc là cú ĐẦU",
+         _dHai["sutVonLuc"] == _iso_hn(GIO),
+         f"{_dHai['sutVonLuc']} — dời mốc sang cú sau là chỉ người đi tìm "
+         f"nguyên nhân vào đúng quãng không có gì xảy ra")
+    _dDuoi = do_hieu_nang([(0.0, 100.0), (GIO, 110.0), (2 * GIO, 109.99)],
+                          100.0)
+    kiem("thấp hơn đỉnh một chút thì mới là đang dưới đáy",
+         _dDuoi["dangDuoiDay"] is True and _dDuoi["sutVonToiDaPhanTram"] > 0)
+
+    # NẠP VỐN dịch cả cái thang: nạp đúng bằng phần thiếu thì KHÔNG tạo
+    # ra một đỉnh giả, và cũng không xoá một cú sụt đã xảy ra.
+    _dNap = do_hieu_nang(
+        [(0.0, 100.0), (GIO, 90.0), (2 * GIO, 190.0, 100.0)], 100.0)
+    kiem("nạp vốn KHÔNG xoá cú sụt đã xảy ra",
+         gan(_dNap["sutVonToiDaPhanTram"], 10.0, 1e-6),
+         f"{_dNap['sutVonToiDaPhanTram']} — 100 → 90 là sụt 10%, và một cú "
+         f"nạp sau đó không chữa lành nó")
+    kiem("và lợi suất TAY LÁI không tính đồng chủ bỏ thêm vào",
+         gan(_dNap["laiLoPhanTram"], -10.0, 1e-6),
+         f"{_dNap['laiLoPhanTram']} — 100→90 rồi nạp 100 thành 190: tay "
+         f"lái vẫn đang âm 10%, không phải dương 90%")
+
+    # NAV KHÔNG DƯƠNG: chuỗi nhân không nói được gì. `<= 0` phải bắt cả
+    # số 0, không chỉ số âm.
+    _dHet = do_hieu_nang(
+        [(0.0, 100.0), (GIO, 0.0), (TOI_THIEU_GIO * GIO, 50.0)], 100.0)
+    kiem("có đoạn NAV bằng ĐÚNG 0 thì lợi suất tay lái là None",
+         _dHet["laiLoPhanTram"] is None and _dHet["cagrPhanTram"] is None,
+         f"{_dHet['vi']} — chia cho 0 hay đọc nó thành «huề vốn» đều là "
+         f"bịa; câu đúng là «không nói được gì»")
+
+    # ĐƯỜNG NAV có trần: ghi ĐÚNG BẰNG trần thì chưa cắt.
+    _dnB = DuongNav(tran=3)
+    for _v in (100.0, 101.0, 102.0):
+        _dnB.ghi(_v)
+    kiem("ghi ĐÚNG BẰNG trần thì chưa cắt điểm nào", len(_dnB.diem) == 3,
+         "cắt ở đúng trần là vứt một điểm còn chỗ chứa")
+    _dnB.ghi(103.0)
+    kiem("quá trần một điểm thì mới cắt, và cắt điểm CŨ NHẤT",
+         len(_dnB.diem) == 3 and gan(_dnB.diem[0][1], 101.0),
+         "đỉnh và đáy gần đây quyết định sụt vốn, và chúng nằm ở cuối")
+
+    # NAV MỞ ĐẦU bằng ĐÚNG 0: không có mẫu số. `<= 0` phải bắt cả số 0.
+    _dDau0 = do_hieu_nang([(0.0, 0.0), (TOI_THIEU_GIO * GIO, 50.0)], 100.0)
+    kiem("NAV mở đầu bằng ĐÚNG 0 thì KHÔNG tính gộp được",
+         _dDau0["cagrPhanTram"] is None
+         and _dDau0["duDeKetLuan"] is False,
+         f"{_dDau0['vi']} — chia cho 0 ở mẫu số đầu là ra vô cực, và một "
+         f"CAGR vô cực trông rất giống một cỗ máy tuyệt vời")
+
+    # NAV KẾT bằng ĐÚNG 0: cũng không tính gộp được. Không chặn thì
+    # `0 ** (1/năm) − 1` ra đúng −100%/năm — một con số trông như một kết
+    # luận, trong khi sự thật là «không nói được gì».
+    _dCuoi0 = do_hieu_nang([(0.0, 100.0), (TOI_THIEU_GIO * GIO, 0.0)],
+                           100.0)
+    kiem("NAV kết bằng ĐÚNG 0 thì CAGR là None, không phải −100%",
+         _dCuoi0["cagrPhanTram"] is None
+         and _dCuoi0["duDeKetLuan"] is False,
+         f"{_dCuoi0.get('cagrPhanTram')} — «−100%/năm» trông như một kết "
+         f"luận; sự thật là không nói được gì")
+
+    # NAV xuống dưới 0 trong khi ĐỈNH đang là 0: mẫu số của phép tính sụt
+    # vốn bằng 0. Không chặn thì cả ảnh chụp chết vì chia cho không.
+    _dAm = do_hieu_nang([(0.0, 0.0), (GIO, -5.0), (2 * GIO, 10.0)], 100.0)
+    kiem("đỉnh bằng 0 mà NAV xuống âm thì KHÔNG chia cho không",
+         gan(_dAm["sutVonToiDaPhanTram"], 0.0),
+         f"{_dAm} — sụt bao nhiêu phần của số 0 là một câu hỏi không có "
+         f"câu trả lời; trả 0 và đi tiếp là đúng, nổ thì mất cả ảnh chụp")
+
+    # ĐỐI CHIẾU GIẤY ↔ THẬT: sổ chưa có bảng `theoLoai` thì vẫn trả lời
+    # được, và đếm 0 — không nổ. `or {}` che cho ca ấy ở CẢ hai dòng.
+    class _SoRong:
+        def tom_tat(self):
+            return {}
+
+    class _SoLoi:
+        def tom_tat(self):
+            raise RuntimeError("sổ hỏng")
+
+    class _SoNua:
+        def tom_tat(self):
+            return {"theoLoai": {"FUNDING": None, "PHI": {"so": 3}}}
+
+    for _ten, _so, _n in (("sổ chưa có bảng loại", _SoRong(), 0),
+                          ("sổ ĐỌC HỎNG", _SoLoi(), 0),
+                          ("một loại thiếu ô đếm", _SoNua(), 3)):
+        _dc2 = doi_chieu_giay_that(_so)
+        kiem(f"{_ten} vẫn đối chiếu được, đếm {_n}, và KHÔNG nổ",
+             _dc2["soButToanGiay"] == _n and _dc2["doiChieuDuoc"] is False,
+             f"{_dc2} — một bảng nổ là một bảng KHÔNG có số nào cả")
+
+    # Điểm HAI phần tử (bản lưu cũ) đọc được, và dòng vốn về 0.
+    _dCu = do_hieu_nang([(0.0, 100.0), (GIO, 110.0)], 100.0)
+    kiem("điểm HAI phần tử của bản lưu cũ vẫn đọc được, dòng vốn là 0",
+         gan(_dCu["dongVonNgoaiUsd"], 0.0)
+         and gan(_dCu["laiLoPhanTram"], 10.0, 1e-6),
+         f"{_dCu} — đọc thiếu trường thứ ba thành một dòng vốn bịa là "
+         f"biến mọi bản lưu cũ thành một cỗ máy đã nạp tiền")
 
 
 def kiem_lop_boc_khai_bao() -> None:

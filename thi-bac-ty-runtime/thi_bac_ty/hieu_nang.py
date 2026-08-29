@@ -77,6 +77,9 @@ class DuongNav:
         import time
         t = lucMs if lucMs is not None else time.time() * 1000.0
         self.diem.append((float(t), float(navUsd), float(dongVonUsd)))
+        # `>` và `>=` cho cùng kết quả: cắt ở ĐÚNG trần thì
+        # `diem[-tran:]` của một danh sách dài đúng `tran` là chính nó.
+        # Con đột biến TƯƠNG ĐƯƠNG.
         if len(self.diem) > self.tran:
             # Bỏ điểm CŨ NHẤT, không bỏ ngẫu nhiên: đỉnh và đáy gần đây là
             # thứ quyết định sụt vốn, và chúng nằm ở cuối.
@@ -157,6 +160,9 @@ def do_hieu_nang(diem: list, vonBanDauUsd: float) -> dict:
         "sutVonToiDaPhanTram": sut_max * 100.0,
         "sutVonLuc": _iso(sut_luc) if sut_luc else None,
         "gioDuoiDayLauNhat": duoi_day_lau,
+        # `<` và `<=` chỉ khác nhau trong dải 1e-9 — TƯƠNG ĐƯƠNG trên
+        # mọi đường NAV thật. Cái đáng kiểm là «bằng đỉnh thì thôi báo»,
+        # và phép kiểm ấy đã có.
         "dangDuoiDay": ds[-1][1] < dinh - 1e-9,
     }
 
@@ -169,6 +175,11 @@ def do_hieu_nang(diem: list, vonBanDauUsd: float) -> dict:
                   f"mà trông rất thuyết phục"})
         return ra
 
+    # Vế `n0 <= 0` KHÔNG với tới được: `n0` bằng 0 thì `truoc` ở vòng
+    # nhân chuỗi cũng bằng 0 ngay bước đầu, `doDuocChuoi` tắt, và hàm đã
+    # trả về trước khi tới đây. Giữ nó làm lớp thứ hai thì được, nhưng
+    # đừng đi tìm phép kiểm cho nó — vế `n1 <= 0` mới là vế sống, và nó
+    # đã có phép kiểm riêng.
     if n0 <= 0 or n1 <= 0:
         ra.update({"duDeKetLuan": False, "cagrPhanTram": None,
                    "vi": "NAV không dương, không tính gộp được"})
