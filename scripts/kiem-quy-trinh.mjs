@@ -754,6 +754,34 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── 13. ảnh khai mà không có trên đĩa ────────────────
+   `build-l2beat.mjs` và `build-congbo.mjs` TẢI ảnh về `assets/logos/`
+   rồi ghi `logos.js` trỏ tới chúng. `git add` không phủ thư mục ảnh
+   thì bảng tra được commit còn ảnh thì không — trang hiện ô vỡ, và
+   không lỗi nào báo: không 404 trong log build, Actions vẫn xanh.
+
+   Mục "File do workflow tự sinh" trong CLAUDE.md đã mô tả đúng lớp lỗi
+   này bằng văn xuôi, kèm cả câu "sẽ nổ đúng lần L2BEAT thêm dự án
+   mới". Lời cảnh báo trong văn xuôi chỉ cứu được người vừa đọc đúng
+   đoạn ấy; đây là bản chạy được của nó.
+
+   NHẮC chứ không báo lỗi, cùng lý do với phép kiểm chỗ-đè: ảnh do bot
+   ghi, nên phiên đang mở không phải người gây ra và không đáng bị chặn
+   vì chuyện đó. */
+{
+  const p = join(ROOT, "scripts", "kiem-anh.mjs");
+  if (existsSync(p)) {
+    try {
+      execFileSync(process.execPath, [p], { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      const ra = String(e.stdout || "") + String(e.stderr || "");
+      const dong = ra.split("\n").filter((x) => x.trim().startsWith("✗"));
+      nhac(`ảnh khai mà thiếu trên đĩa — chạy: npm run kiem-anh\n` +
+        dong.slice(0, 2).map((x) => "        " + x.trim()).join("\n"));
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
