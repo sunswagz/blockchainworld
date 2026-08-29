@@ -1395,6 +1395,23 @@ async def main() -> int:
         check(_o31["confidence"] == 0.0, "tin cậy về 0 — không có gì để tự tin")
         check(_o31["source"] == "mock", "vẫn khai nguồn là mock, không nhận vơ")
 
+        # HẾT TRẦN không phải lỗi. `_structured` trả None cho CẢ HAI, nên thiếu
+        # chỗ phân biệt thì ngày nào tiêu hết 8 lượt là bot ngừng vào lệnh hẳn
+        # tới nửa đêm — trong khi thiết kế là rơi về luật thuần và chạy tiếp.
+        # Đã xảy ra thật: log in "het-han-muc" rồi ngay sau đó "bộ não lỗi → ép
+        # NO_TRADE".
+        class _NaoTran(_Nao31):
+            async def _structured(self, **kw):
+                self.bo_vi_tran = True
+                return None
+
+        _o_tran = await _NaoTran(hong=True).thesis(_st31, _rg31, {}, _acc31, "4h")
+        check(_o_tran["action"] == "LONG",
+              f"hết trần → GIỮ quyết định của luật thuần (được {_o_tran['action']})")
+        check("HET_TRAN_DUNG_LUAT_THUAN" in _o_tran["reason_codes"],
+              "và ghi rõ là chế độ suy giảm, không phải suy luận đầy đủ")
+        check("EP_NO_TRADE_VI_BRAIN_LOI" not in _o_tran["reason_codes"],
+              "KHÔNG dán nhãn lỗi lên một chuyện có chủ ý")
         # Cửa ngược lại: bộ não CHẠY ĐƯỢC thì không ép gì cả.
         _o31b = await _Nao31(hong=False).thesis(_st31, _rg31, {}, _acc31, "4h")
         check(_o31b["action"] == "LONG", "bộ não chạy được → giữ nguyên quyết định")

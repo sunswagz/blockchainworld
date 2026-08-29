@@ -1180,6 +1180,9 @@ class Brain:
         """
         blocked = self.cost.blocked(label)
         if blocked:
+            # Ghi lại rằng lượt này bị bỏ vì TRẦN, không phải vì lỗi. Người gọi
+            # đọc cờ này để không xử lý chế độ suy giảm có chủ ý như một sự cố.
+            self.bo_vi_tran = True
             bus.log("brain", "het-han-muc", f"bỏ qua {label}: {blocked}")
             return None
         from . import cli_claude
@@ -1208,6 +1211,9 @@ class Brain:
             return await self._structured_cli(user=user, schema=schema, label=label)
         blocked = self.cost.blocked(label)
         if blocked:
+            # Ghi lại rằng lượt này bị bỏ vì TRẦN, không phải vì lỗi. Người gọi
+            # đọc cờ này để không xử lý chế độ suy giảm có chủ ý như một sự cố.
+            self.bo_vi_tran = True
             bus.log("brain", "het-han-muc", f"bỏ qua {label}: {blocked}")
             return None
         try:
@@ -1270,6 +1276,7 @@ class Brain:
                 "rồi mới quyết định. NO_TRADE là câu trả lời hợp lệ và thường là câu trả lời đúng.\n\n"
                 + _fmt_state(payload))
 
+        self.bo_vi_tran = False
         if not self._goi_duoc():
             out = mock_thesis(state, regime, primary_tf)
         else:
@@ -1292,12 +1299,17 @@ class Brain:
                 # Vẫn giữ nguyên phần ĐỌC của mock (regime_read, mức giá) — chúng
                 # có ích cho người xem bảng. Chỉ chặn phần HÀNH ĐỘNG.
                 #
-                # Đường HẾT TRẦN thì KHÔNG đi qua đây (xem `_goi_duoc()` ở trên):
-                # đó là chế độ suy giảm có chủ ý, người dùng tự đặt trần và biết
-                # mình đang đổi gì lấy gì. Lỗi thì không ai chọn.
+                # Chế độ suy giảm có chủ ý (hết trần) đi qua ĐÚNG chỗ này vì
+                # `_structured` trả None cho cả hai — phân biệt bằng `bo_vi_tran`.
                 out = mock_thesis(state, regime, primary_tf)
                 out["reason_codes"].append("FALLBACK_SAU_LOI_BRAIN")
-                if out.get("action") != "NO_TRADE":
+                # HẾT TRẦN không phải lỗi. `_structured` trả None cho cả hai
+                # trường hợp, nên phân biệt bằng cờ `bo_vi_tran` — thiếu nó thì
+                # ngày nào tiêu hết 8 lượt là bot ngừng vào lệnh hẳn tới nửa đêm,
+                # trong khi thiết kế là rơi về luật thuần và chạy tiếp.
+                if self.bo_vi_tran:
+                    out["reason_codes"].append("HET_TRAN_DUNG_LUAT_THUAN")
+                elif out.get("action") != "NO_TRADE":
                     bus.log("brain", "chan-vao-lenh",
                             f"bộ não lỗi → luật thuần đề nghị {out['action']}, "
                             f"đã ép NO_TRADE: lỗi tiến trình không phải lý do vào lệnh")
