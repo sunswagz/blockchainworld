@@ -613,8 +613,22 @@ class TrungUong:
                 # Xét hỏng thì GIỮ tờ ấy: bỏ nó đi là lặng lẽ thu hẹp phép
                 # đo vì một lỗi ở chỗ khác.
                 duoc.append(tt)
+        # TRẦN THEO BẰNG CHỨNG cho quãng tính lãi. Đọc từ sổ cái, cửa sổ
+        # gần đây: vị thế vừa xoay THẬT SỰ sống được bao lâu trước lần
+        # xoay kế. Đo làn thật 30/08: trung vị 0,008 giờ, trong khi lời
+        # hứa tính trên 160 giờ. Xem docstring `do_xoay_cho`.
+        #
+        # Hỏng thì KHÔNG kẹp, chứ không kẹp bằng 0: một lỗi đọc sổ mà làm
+        # đứng hẳn cơ chế xoay chỗ là để một chuyện của lớp lưu trữ quyết
+        # thay cho một chuyện của danh mục.
+        try:
+            gsong = ((self.so_cai.xoay_cho_hua_va_thuc().get("ganDay") or {})
+                     .get("gioGiuTrungVi"))
+        except Exception:                                # noqa: BLE001
+            gsong = None
         lat = do_xoay_cho(self.soViThe, duoc, gio,
-                          bienAnToan=float(self.c.get("bienXoayCho") or 1.5))
+                          bienAnToan=float(self.c.get("bienXoayCho") or 1.5),
+                          gioSongTrungVi=gsong)
         lat.soDichBiChan = chan
         if not self.c.get("tuXoayCho"):
             return lat

@@ -135,6 +135,14 @@ class LatCatXoayCho:
     #: mở lại được là đẩy vốn về tiền mặt ăn 0% — tệ hơn giữ nguyên. Nó ở
     #: đây để người đọc thấy tiền đề đang sai, và quyết định là của người.
     soVongGheTrongKhongLap: int = 0
+    #: Bao nhiêu lần xoay có quãng tính lãi bị KẸP lại theo bằng chứng —
+    #: tức là lời hứa vừa được cắt bớt cho khớp với đời thật của vị thế.
+    #: Khai ra để đọc được rằng con số lợi ròng dưới kia đã bị kẹp, chứ
+    #: không phải thị trường bỗng dưng tệ đi.
+    soBiKepTheoBangChung: int = 0
+    #: Trần theo bằng chứng đang là bao nhiêu giờ. `None` = chưa có bằng
+    #: chứng, nên không kẹp gì.
+    gioSongTrungVi: float | None = None
     xoay: list = field(default_factory=list)
     vi: str = ""
 
@@ -147,6 +155,8 @@ class LatCatXoayCho:
             "aprSauKhiXoay": self.aprSauKhiXoay,
             "loiRongUsd": self.loiRongUsd, "soDaDong": self.soDaDong,
             "soDichBiChan": self.soDichBiChan,
+            "soBiKepTheoBangChung": self.soBiKepTheoBangChung,
+            "gioSongTrungVi": self.gioSongTrungVi,
             "viConGhe": self.viConGhe,
             "soVongGheTrongKhongLap": self.soVongGheTrongKhongLap,
             "xoay": [x.tom_tat() for x in self.xoay],
@@ -190,14 +200,42 @@ def phi_mot_chieu_usd(toTrinh: dict, vonUsd: float) -> float | None:
 
 
 def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
-                bienAnToan: float = 1.0) -> LatCatXoayCho:
+                bienAnToan: float = 1.0,
+                gioSongTrungVi: float | None = None) -> LatCatXoayCho:
     """Đo xem đổi chỗ nào ĐÁNG, sau khi trừ phí. **KHÔNG đổi gì.**
 
     `bienAnToan` nhân lên phí: 1,0 là hoà vốn đúng bằng phí. Để 1,0 ở đây
     vì phép đo này để NGƯỜI đọc; đường tự động — nếu có ngày được nối —
     phải đặt biên rộng hơn, vì lúc ấy không ai nhìn từng lần đổi nữa.
+
+    `gioSongTrungVi` là TRẦN THEO BẰNG CHỨNG cho quãng giờ được đem ra
+    tính lãi: trung vị số giờ một vị thế vừa xoay thật sự sống được trước
+    lần xoay kế, lấy từ sổ cái.
+
+    Vì sao cần nó. Lãi tính bằng `vốn × (aprMới − aprCũ) × giờChung /
+    8.760`, và `giờChung` là quãng hai bên cùng KHAI còn hiệu lực — có
+    thể 167 giờ. Phí thì trả NGAY và trả đủ. Phép tính ấy đúng nếu vị thế
+    mới sống hết chừng ấy giờ. Đo làn thật 30/08 thì không: 267 lần xoay
+    trong 39 phút, trung vị vị thế mới sống **0,008 giờ**, và lời hứa
+    cộng dồn **+11.136 USD** trên một cuốn sổ 10.000 USD chưa bao giờ
+    tới.
+
+    Đây KHÔNG phải chi phí đã chìm. Phí vào của vị thế cũ đã tiêu rồi và
+    không được tính vào quyết định này — quyết định vẫn nhìn về phía
+    trước. Cái được sửa là một GIẢ ĐỊNH lạc quan: thay «vị thế mới sẽ
+    sống hết quãng nó khai» bằng «vị thế mới sống được bao lâu, đo từ sổ».
+
+    Và nó tự gỡ. Vòng xoay dừng ⇒ vị thế sống lâu ⇒ trung vị dâng lên ⇒
+    trần nới ra ⇒ xoay lại được. Một vòng phản hồi ÂM, không phải một cái
+    khoá.
+
+    `None` nghĩa là CHƯA CÓ bằng chứng — chưa xoay lần nào, hoặc sổ chưa
+    ghi. Lúc ấy không kẹp gì cả: kẹp bằng 0 khi chưa đo được là dựng ra
+    một bằng chứng chưa ai thu thập, và nó sẽ khoá chết cơ chế này ngay
+    lần chạy đầu tiên trên một cuốn sổ trắng.
     """
-    lat = LatCatXoayCho(soViThe=len(soViThe))
+    lat = LatCatXoayCho(soViThe=len(soViThe),
+                        gioSongTrungVi=gioSongTrungVi)
     if not soViThe:
         lat.vi = "chưa giữ vị thế nào — không có chỗ nào để xoay"
         return lat
@@ -243,6 +281,10 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
     them = 0.0
     for aprCu, ma, (so, tCu, von, conLai) in dang:
         for i, (aprMoi, tMoi) in enumerate(moi):
+            # `<=` chứ không `<`, nhưng hai cách viết cho cùng kết quả:
+            # APR bằng nhau thì `lai` bằng 0 và cửa `lai <= phi` ở dưới
+            # chặn nốt. Ghi lại để lượt quét đột biến sau khỏi đi tìm một
+            # phép kiểm không tồn tại — con ấy TƯƠNG ĐƯƠNG.
             if i in daDung or aprMoi <= aprCu:
                 continue
             phiRa = phi_mot_chieu_usd(tCu, von)
@@ -254,6 +296,10 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
             # cơ hội chưa hứa.
             giuMoi = float(tMoi.get("giuGio") or 0.0)
             chung = min(conLai, giuMoi) if giuMoi > 0 else conLai
+            if gioSongTrungVi is not None and gioSongTrungVi >= 0:
+                # Trần theo BẰNG CHỨNG. Xem docstring: không phải chi phí
+                # đã chìm, mà là thay một giả định bằng một phép đo.
+                chung = min(chung, float(gioSongTrungVi))
             lai = von * (aprMoi - aprCu) / 100.0 * (chung / NAM_GIO)
             phi = (phiRa + phiVao) * bienAnToan
             if lai <= phi:
@@ -262,6 +308,10 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
             lat.soXoayDuoc += 1
             lat.loiRongUsd += lai - phi
             them += von * (aprMoi - aprCu)
+            lat.soBiKepTheoBangChung += (
+                1 if gioSongTrungVi is not None
+                and chung < (min(conLai, giuMoi) if giuMoi > 0 else conLai)
+                else 0)
             lat.xoay.append(CoHoiDoiCho(
                 maCu=ma, chienLuocCu=str(getattr(so, "chienLuoc", "?")),
                 taiSanCu=str(tCu.get("taiSan")), aprCu=aprCu,
@@ -272,6 +322,9 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
                 laiThemUsd=lai, phiDoiUsd=phi, loiRongUsd=lai - phi))
             break
 
+    # `tongVon > 0` không với tới được bằng `>= 0`: `aprHienTai` chỉ khác
+    # None khi `tongVon > 0`, nên vế trái đã chặn trước. Con đột biến ấy
+    # TƯƠNG ĐƯƠNG, không phải một chỗ thiếu phép kiểm.
     if lat.aprHienTai is not None and tongVon > 0:
         lat.aprSauKhiXoay = lat.aprHienTai + them / tongVon
     lat.vi = _vi(lat)

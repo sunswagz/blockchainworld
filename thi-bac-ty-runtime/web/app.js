@@ -1249,7 +1249,19 @@
       so(xc.soXoayDuoc) + " chỗ đáng đổi",
       (xc.soXoayDuoc || 0) ? "duong" : "nhat"));
     dxc.appendChild(oSo("Lợi ròng đã trừ phí", tien(xc.loiRongUsd, 3),
-      "trong quãng hai bên cùng còn hiệu lực"));
+      xc.gioSongTrungVi == null
+        ? "trong quãng hai bên cùng còn hiệu lực"
+        : "trong quãng ngắn nhất giữa ba: hai bên còn hiệu lực, và "
+          + "bằng chứng"));
+    /* TRẦN THEO BẰNG CHỨNG. Khai ra, đừng kẹp lặng lẽ: lợi ròng tụt
+       xuống mà không nói vì sao thì đọc thành «thị trường bỗng tệ đi»,
+       trong khi thật ra ta vừa thôi tin một giả định. */
+    if (xc.gioSongTrungVi != null) {
+      dxc.appendChild(oSo("Trần theo bằng chứng",
+        so(xc.gioSongTrungVi, 3) + "h",
+        so(xc.soBiKepTheoBangChung) + " lời hứa bị cắt cho khớp đời thật",
+        (xc.soBiKepTheoBangChung || 0) ? "am" : "nhat"));
+    }
     if (xc.viConGhe) {
       kxc.appendChild(giai("CÒN GHẾ TRỐNG nên không đuổi ai — cơ hội tốt "
         + "hơn cứ ngồi vào chỗ trống. Xoay chỗ chỉ có nghĩa khi hết ghế."));

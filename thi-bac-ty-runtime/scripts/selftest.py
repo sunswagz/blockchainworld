@@ -8284,6 +8284,149 @@ def kiem_ke_toan_vi_the() -> None:
          f"{_x41b.tom_tat()} — xoay vì thấy một con số đẹp hơn là cách chắc "
          f"chắn để thua vì phí, mà mỗi lần đổi vẫn trông thông minh")
 
+    # ── BIÊN của chính cơ chế xoay chỗ ─────────────────────────────────
+    #
+    # Quét đột biến trên `xoay_cho.py` cho 10/15 con SỐNG SÓT. Đây là chỗ
+    # cỗ máy tự đuổi vị thế của mình và trả phí hai chiều, nên mỗi con
+    # sống là một dòng có thể sửa sai mà không phép kiểm nào kêu.
+
+    # APR BẰNG NHAU thì KHÔNG đổi. Đổi `<=` thành `<` là trả hai chiều phí
+    # để đứng nguyên chỗ cũ — và mỗi lần đổi vẫn trông như một quyết định.
+    kiem("cơ hội mới BẰNG ĐÚNG cơ hội cũ thì KHÔNG đổi",
+         do_xoay_cho({"a": _so40("a", 5.0)}, [_tt40("b", 5.0)],
+                     _G40).soXoayDuoc == 0,
+         "đổi để đứng yên là trả phí hai chiều lấy con số không đổi")
+    kiem("nhỉnh hơn một chút thì mới xét",
+         do_xoay_cho({"a": _so40("a", 5.0)}, [_tt40("b", 9.0)],
+                     _G40).soXoayDuoc == 1)
+
+    # LÃI ĐÚNG BẰNG PHÍ thì cũng không đổi. Hoà vốn mà vẫn đổi là nhận
+    # trọn rủi ro thực thi để lấy về đúng số không.
+    _phiHV = 500.0 * 0.6 / 10_000.0 * 2.0                 # phí ra + phí vào
+    _aprHV = 5.0 + _phiHV * 100.0 * (365.0 * 24.0) / (500.0 * 720.0)
+    _xHV = do_xoay_cho({"a": _so40("a", 5.0)}, [_tt40("b", _aprHV)], _G40)
+    kiem("lãi ĐÚNG BẰNG phí thì KHÔNG đổi", _xHV.soXoayDuoc == 0,
+         f"{_xHV.tom_tat()} — hoà vốn mà vẫn đổi là nhận trọn rủi ro thực "
+         f"thi để lấy về đúng số không")
+    kiem("nhích trên hoà vốn thì mới đổi",
+         do_xoay_cho({"a": _so40("a", 5.0)}, [_tt40("b", _aprHV * 1.01)],
+                     _G40).soXoayDuoc == 1)
+
+    # KHOÁ VỐN hết hạn ĐÚNG LÚC thì xoay được. `<` đổi thành `<=` là giam
+    # thêm một vòng đúng cái vị thế vừa được tự do.
+    kiem("khoá vốn vừa ĐÚNG hết hạn thì xoay được",
+         do_xoay_cho({"a": _so40("a", 2.0, khoa=10.0, moGio=10.0)},
+                     [_tt40("b", 30.0)], _G40).soXoayDuoc == 1,
+         "hết khoá là hết khoá, không phải «sắp hết»")
+    kiem("còn thiếu một chút thì vẫn bị giữ",
+         do_xoay_cho({"a": _so40("a", 2.0, khoa=10.0, moGio=9.9)},
+                     [_tt40("b", 30.0)], _G40).soBiKhoa == 1)
+
+    # KHÔNG BIẾT phí một bên là không biết. `or` đổi thành `and` là đổi
+    # chỗ với một phép trừ thiếu một số hạng.
+    for _ai, _cu, _moi in (("bên CŨ", {"phiUocBps": None}, {}),
+                           ("bên MỚI", {}, {"phiUocBps": None})):
+        _soP = _so40("a", 2.0)
+        _soP.toTrinh.update(_cu)
+        _ttP = _tt40("b", 30.0)
+        _ttP.update(_moi)
+        kiem(f"không khai phí ở {_ai} thì KHÔNG đổi",
+             do_xoay_cho({"a": _soP}, [_ttP], _G40).soXoayDuoc == 0,
+             "coi phí chưa khai là 0 là dựng ra một phép đổi miễn phí")
+
+    # `giuGio` của bên MỚI bằng 0 nghĩa là KHÔNG KHAI, nên lấy quãng của
+    # bên cũ. `>` đổi thành `>=` là kẹp quãng về 0 và không gì đổi được
+    # nữa — một cơ chế im lặng đứng hình.
+    kiem("bên mới không khai giữ bao lâu thì lấy quãng của bên cũ",
+         gan(do_xoay_cho({"a": _so40("a", 2.0, giu=500.0)},
+                         [_tt40("b", 30.0, giu=0.0)],
+                         _G40).xoay[0].gioChung, 500.0),
+         "0 ở đây là «không khai», không phải «không giờ nào»")
+
+    # VỐN BẰNG 0 hết thì không có mẫu số. `> 0` đổi thành `>= 0` là chia
+    # cho không ngay dòng dưới.
+    _x0v = do_xoay_cho({"a": _so40("a", 2.0, von=0.0)},
+                       [_tt40("b", 30.0)], _G40)
+    kiem("danh mục toàn vốn 0 thì APR là None, và KHÔNG nổ",
+         _x0v.aprHienTai is None and _x0v.aprSauKhiXoay is None,
+         f"{_x0v.tom_tat()} — mẫu số bằng 0 thì câu trả lời là «chưa đo "
+         f"được», không phải một con số")
+
+    # Lời giải thích phải khớp với việc CÓ đổi được hay không.
+    kiem("không đổi được thì nói «ngồi yên là hợp lệ»",
+         "Ngồi yên" in do_xoay_cho({"a": _so40("a", 5.0)},
+                                   [_tt40("b", 5.0)], _G40).vi)
+    kiem("đổi được thì nói danh mục đi từ đâu tới đâu",
+         "ĐÁNG đổi" in do_xoay_cho({"a": _so40("a", 2.0)},
+                                   [_tt40("b", 30.0)], _G40).vi)
+
+    # ── TRẦN THEO BẰNG CHỨNG ───────────────────────────────────────────
+    #
+    # Lãi tính trên `giờChung` — quãng hai bên cùng KHAI còn hiệu lực,
+    # có thể 167 giờ. Phí thì trả NGAY và trả đủ. Đo làn thật 30/08: 267
+    # lần xoay trong 39 phút, trung vị vị thế mới sống 0,008 giờ, lời hứa
+    # cộng dồn +11.136 USD trên một cuốn sổ 10.000 USD — chưa bao giờ tới.
+    #
+    # KHÔNG phải chi phí đã chìm: phí vào của vị thế cũ không được đem vào
+    # quyết định này, quyết định vẫn nhìn về phía trước. Cái được sửa là
+    # một GIẢ ĐỊNH — «vị thế mới sẽ sống hết quãng nó khai» — thay bằng
+    # một PHÉP ĐO đọc từ sổ.
+    _x41c = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                        [_tt40("b", 2.5, giu=720.0)], _G40,
+                        gioSongTrungVi=0.008)
+    kiem("bằng chứng nói vị thế chỉ sống 0,008h → lời hứa 720h bị KẸP",
+         _x41c.soXoayDuoc == 0,
+         f"{_x41c.tom_tat()} — cộng trước lãi của 720 giờ cho một vị thế "
+         f"sổ nói sống ba mươi giây là một cỗ máy bơm phí")
+    kiem("và nó KHAI ra trần ấy, không kẹp lặng lẽ",
+         gan(_x41c.tom_tat()["gioSongTrungVi"], 0.008),
+         f"{_x41c.tom_tat()} — kẹp mà không khai thì con số lợi ròng tụt "
+         f"xuống trông như thị trường bỗng tệ đi")
+
+    _x41d = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                        [_tt40("b", 30.0, giu=720.0)], _G40,
+                        gioSongTrungVi=900.0)
+    kiem("bằng chứng RỘNG hơn quãng khai thì không kẹp gì cả",
+         (_x41d.soXoayDuoc == 1 and gan(_x41d.xoay[0].gioChung, 720.0)
+          and _x41d.soBiKepTheoBangChung == 0),
+         f"{_x41d.tom_tat()} — trần là TRẦN, không phải một giá trị áp đặt")
+
+    _x41e = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                        [_tt40("b", 30.0, giu=720.0)], _G40,
+                        gioSongTrungVi=100.0)
+    kiem("kẹp thật thì ĐẾM được là đã kẹp",
+         (_x41e.soXoayDuoc == 1 and gan(_x41e.xoay[0].gioChung, 100.0)
+          and _x41e.soBiKepTheoBangChung == 1),
+         str(_x41e.tom_tat()))
+
+    # Bằng chứng ĐÚNG BẰNG 0 giờ là một bằng chứng, không phải sự vắng
+    # mặt của bằng chứng: sổ nói vị thế vừa xoay không sống nổi một giây.
+    # `>= 0` đổi thành `> 0` là bỏ qua đúng cái ca nặng nhất.
+    _x41g = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                        [_tt40("b", 30.0, giu=720.0)], _G40,
+                        gioSongTrungVi=0.0)
+    kiem("bằng chứng ĐÚNG BẰNG 0 giờ vẫn là bằng chứng",
+         _x41g.soXoayDuoc == 0,
+         f"{_x41g.tom_tat()} — «sổ nói vị thế không sống nổi một giây» "
+         f"khác hẳn «sổ chưa nói gì», và cái sau là None chứ không phải 0")
+
+    _x41f = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                        [_tt40("b", 30.0, giu=720.0)], _G40)
+    kiem("CHƯA có bằng chứng thì KHÔNG kẹp — sổ trắng không phải bằng 0",
+         (_x41f.soXoayDuoc == 1 and gan(_x41f.xoay[0].gioChung, 720.0)
+          and _x41f.tom_tat()["gioSongTrungVi"] is None),
+         f"{_x41f.tom_tat()} — kẹp bằng 0 khi chưa đo được là dựng ra một "
+         f"bằng chứng chưa ai thu thập, và nó khoá chết cơ chế này ngay "
+         f"lần chạy đầu trên một cuốn sổ trắng")
+
+    # Vòng phản hồi ÂM, không phải một cái khoá: xoay dừng ⇒ vị thế sống
+    # lâu ⇒ trung vị dâng ⇒ trần nới ⇒ xoay lại được.
+    kiem("trần nới ra thì cơ hội ấy vào lại được — đây là vòng, không phải khoá",
+         (do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                      [_tt40("b", 2.5, giu=720.0)], _G40,
+                      gioSongTrungVi=720.0).soXoayDuoc == 1),
+         "cùng một cặp cơ hội, chỉ khác bằng chứng")
+
     # Giờ CHUNG là ngắn hơn trong hai bên. Bản đầu lấy giờ của bên CŨ và ra
     # một khoản lợi lớn gấp bốn lần sự thật.
     _x42 = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
