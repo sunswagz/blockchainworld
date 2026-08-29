@@ -6714,6 +6714,109 @@ def kiem_ke_toan_vi_the() -> None:
          f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
          f"chưa từng đo là bịa ra một tỉ suất")
 
+    # ── XOAY CHỖ: chỗ ngồi có hạn, và ai ngồi mới là câu hỏi ────────────
+    # Đo trên máy sống 29/08: 8 chỗ bị khoá 30 ngày ở 1,9–3,0 %/năm trong
+    # khi 9–16 % đi qua mỗi vòng rồi bị từ chối vì «đã đủ 12 vị thế». Ty
+    # giữ tám chỗ ấy tên là `lending.rate_rotation` — và nó không xoay.
+    from thi_bac_ty.xoay_cho import (apr_tu_to_trinh, do_xoay_cho,
+                                     phi_mot_chieu_usd)
+
+    _G40 = 1_800_000_000.0
+
+    def _so40(ma, apr, giu=720.0, von=500.0, phi=0.6, khoa=None,
+              thoat=9e9, moGio=0.0):
+        t = {"taiSan": ma, "netMoiGioBps": apr * 100.0 / (365.0 * 24.0),
+             "giuGio": giu, "phiUocBps": phi, "khoaVonDenGiay": khoa,
+             "thanhKhoanThoatUsd": thoat}
+        return SoViThe(ma=ma, chienLuoc="cu.v1", toTrinh=t, vonUsd=von,
+                       moLucGiay=_G40 - moGio * 3600.0, keToanLucGiay=_G40)
+
+    def _tt40(ma, apr, giu=720.0, phi=0.6):
+        return {"ma": ma, "taiSan": ma, "chienLuoc": "moi.v1",
+                "netMoiGioBps": apr * 100.0 / (365.0 * 24.0),
+                "giuGio": giu, "phiUocBps": phi}
+
+    kiem("APR đọc từ `netMoiGioBps`, và suy được từ `netUocBps/giuGio`",
+         gan(apr_tu_to_trinh({"netMoiGioBps": 1.0}), 87.6)
+         and gan(apr_tu_to_trinh({"netUocBps": 8.0, "giuGio": 8.0}), 87.6))
+    kiem("không khai lãi thì None, không phải 0",
+         apr_tu_to_trinh({"netUocBps": 8.0}) is None
+         and apr_tu_to_trinh(None) is None,
+         "trộn «chưa biết» với «huề vốn» làm bảng xếp hạng đẩy tờ trình IM "
+         "LẶNG xuống đáy như thể chúng tệ")
+    kiem("không khai PHÍ thì None, không phải 0",
+         phi_mot_chieu_usd({}, 500.0) is None
+         and gan(phi_mot_chieu_usd({"phiUocBps": 10.0}, 500.0), 0.5),
+         "coi phí là 0 là dựng ra một phép đổi miễn phí — đúng cách để xoay "
+         "liên tục rồi thua sạch vì phí")
+
+    _x40 = do_xoay_cho({"a": _so40("a", 2.0)}, [_tt40("b", 16.0)], _G40)
+    kiem("lãi hơn nhiều, phí bé → ĐÁNG đổi",
+         _x40.soXoayDuoc == 1 and _x40.loiRongUsd > 0, _x40.vi)
+    kiem("và nói được danh mục sẽ đi từ đâu tới đâu",
+         gan(_x40.aprHienTai, 2.0) and gan(_x40.aprSauKhiXoay, 16.0),
+         f"{_x40.aprHienTai} → {_x40.aprSauKhiXoay}")
+
+    # Cùng khoảng chênh 0,5 %/năm, chỉ khác QUÃNG chạy: 720 giờ thì đáng,
+    # 8 giờ thì phí ăn hết. Cặp này kiểm đúng thứ đáng kiểm — phép tính có
+    # nhìn vào quãng thời gian không, hay chỉ nhìn con số APR.
+    _x41a = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                        [_tt40("b", 2.5, giu=720.0)], _G40)
+    _x41b = do_xoay_cho({"a": _so40("a", 2.0, giu=8.0)},
+                        [_tt40("b", 2.5, giu=8.0)], _G40)
+    kiem("chênh 0,5 %/năm suốt 720 giờ thì ĐÁNG đổi", _x41a.soXoayDuoc == 1,
+         str(_x41a.tom_tat()))
+    kiem("cùng chênh ấy nhưng chỉ 8 giờ thì phí ăn hết → KHÔNG đổi",
+         _x41b.soXoayDuoc == 0,
+         f"{_x41b.tom_tat()} — xoay vì thấy một con số đẹp hơn là cách chắc "
+         f"chắn để thua vì phí, mà mỗi lần đổi vẫn trông thông minh")
+
+    # Giờ CHUNG là ngắn hơn trong hai bên. Bản đầu lấy giờ của bên CŨ và ra
+    # một khoản lợi lớn gấp bốn lần sự thật.
+    _x42 = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                       [_tt40("b", 30.0, giu=168.0)], _G40)
+    _x43 = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                       [_tt40("b", 30.0, giu=720.0)], _G40)
+    kiem("quãng lãi hơn tính theo bên NGẮN HƠN, không theo bên cũ",
+         gan(_x42.xoay[0].gioChung, 168.0)
+         and _x42.xoay[0].laiThemUsd < _x43.xoay[0].laiThemUsd / 3.0,
+         f"{_x42.xoay[0].tom_tat()} — sau 168h cơ hội mới đóng, và 552 giờ "
+         f"còn lại kia là một lời hứa không ai đưa ra")
+
+    _x44 = do_xoay_cho({"a": _so40("a", 2.0, giu=720.0, moGio=719.5)},
+                       [_tt40("b", 30.0)], _G40)
+    kiem("vị thế SẮP HẾT HẠN thì đổi chẳng được gì",
+         _x44.soXoayDuoc == 0,
+         f"{_x44.vi} — phần lãi hơn chỉ chạy trong quãng còn lại")
+
+    _x45 = do_xoay_cho({"a": _so40("a", 2.0, khoa=720.0)},
+                       [_tt40("b", 30.0)], _G40)
+    kiem("vốn còn KHOÁ thì không xoay được, và đếm RIÊNG",
+         _x45.soXoayDuoc == 0 and _x45.soBiKhoa == 1,
+         "không xoay được là một việc KHÔNG LÀM ĐƯỢC, không phải một việc "
+         "lỗ — gộp hai thứ ấy là đọc nhầm bảng")
+
+    _x46 = do_xoay_cho({"a": _so40("a", 2.0, thoat=None)},
+                       [_tt40("b", 30.0)], _G40)
+    kiem("chưa đo được thanh khoản THOÁT thì chặn, đếm riêng",
+         _x46.soXoayDuoc == 0 and _x46.soKhongDoDuocThoat == 1,
+         "vào được không có nghĩa là ra được")
+
+    _x47 = do_xoay_cho({"a": _so40("a", 2.0), "b": _so40("b", 3.0)},
+                       [_tt40("c", 30.0)], _G40)
+    kiem("một cơ hội chỉ dùng cho MỘT chỗ, không nhân bản",
+         _x47.soXoayDuoc == 1
+         and _x47.xoay[0].taiSanCu == "a",
+         f"{_x47.tom_tat()} — và nó nhường cho chỗ TỆ NHẤT trước")
+
+    kiem("chưa giữ gì thì nói thẳng, không nổ",
+         do_xoay_cho({}, [_tt40("b", 30.0)], _G40).soXoayDuoc == 0)
+
+    tu48 = TrungUong(_tam("xoay-cho"), {"vonBanDauUsd": 10_000.0})
+    kiem("ảnh chụp mang phép đo xoay chỗ ra buồng lái",
+         "xoayCho" in tu48.anh_chup(),
+         "đo được mà không ra tới buồng lái thì vẫn là im lặng")
+
     # ── config.json xin một đằng, máy chạy một nẻo ──────────────────────
     # Kho bản tham số thắng config — cố ý, không thì mỗi lần khởi động lại
     # là xoá sạch mọi bản đã có người ký. Nhưng cái đúng ấy im lặng.

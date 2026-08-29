@@ -1107,6 +1107,45 @@
         { t: "≥ 1" }]]));
     f.appendChild(k2);
 
+    /* XOAY CHỖ. Chỗ ngồi có hạn (trần vị thế), nên câu hỏi không phải
+       "có cơ hội nào không" mà là "ai đang ngồi". Đo trên máy sống: 8 chỗ
+       khoá 30 ngày ở 1,9–3,0 %/năm trong khi 9–16 % đi qua mỗi vòng rồi bị
+       từ chối vì «đã đủ 12 vị thế». */
+    var xc = t.xoayCho || {};
+    var kxc = khoi("Xoay chỗ — ai đang ngồi, và ai đáng ngồi hơn",
+      "Đổi chỗ TỐN TIỀN: phí ra + phí vào trả ngay, phần lãi hơn thì nhỏ "
+      + "giọt theo giờ. Chỉ đổi khi (lãi mới − lãi cũ) × số giờ CHUNG lớn "
+      + "hơn phí. Đây là phép ĐO — đường thực hiện chưa nối.");
+    var dxc = el("div", "day-so");
+    dxc.appendChild(oSo("Danh mục hiện tại",
+      xc.aprHienTai == null ? "—" : phan(xc.aprHienTai),
+      "bình quân gia quyền, lãi khai lúc mở"));
+    dxc.appendChild(oSo("Nếu xoay chỗ",
+      xc.aprSauKhiXoay == null ? "—" : phan(xc.aprSauKhiXoay),
+      so(xc.soXoayDuoc) + " chỗ đáng đổi",
+      (xc.soXoayDuoc || 0) ? "duong" : "nhat"));
+    dxc.appendChild(oSo("Lợi ròng đã trừ phí", tien(xc.loiRongUsd, 3),
+      "trong quãng hai bên cùng còn hiệu lực"));
+    dxc.appendChild(oSo("Không xoay được",
+      so((xc.soBiKhoa || 0) + (xc.soKhongDoDuocThoat || 0)),
+      (xc.soBiKhoa || 0) + " khoá vốn · "
+      + (xc.soKhongDoDuocThoat || 0) + " chưa đo thoát", "nhat"));
+    kxc.appendChild(dxc);
+    if ((xc.xoay || []).length) {
+      kxc.appendChild(bang(
+        [{ t: "Đang giữ" }, { t: "%/năm" }, { t: "Đáng đổi sang" },
+         { t: "%/năm" }, { t: "Giờ chung" }, { t: "Lợi ròng" }],
+        xc.xoay.map(function (x) {
+          return [{ t: x.taiSanCu }, { t: x.aprCu.toFixed(2), c: "n" },
+                  { t: x.taiSanMoi + " · " + x.chienLuocMoi },
+                  { t: x.aprMoi.toFixed(2), c: "n" },
+                  { t: Math.round(x.gioChung) + "h", c: "nhat" },
+                  { t: tien(x.loiRongUsd, 3), c: "duong" }];
+        })));
+    }
+    if (xc.vi) kxc.appendChild(giai(xc.vi));
+    f.appendChild(kxc);
+
     /* LỜI HỨA vs THỰC NHẬN — hậu kiểm cho TÁM ty không có băng. Ty chênh
        funding chạy lại băng được; tám ty kia thì tờ trình lúc mở đã hứa,
        sổ lúc đóng biết thực nhận. Trước đây những ty ĐANG kiếm được tiền

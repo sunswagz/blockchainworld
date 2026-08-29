@@ -737,6 +737,16 @@ class TrungUong:
         self._dauVet = {k: v for k, v in self._dauVet.items() if v > han}
 
     # ── bước 6–7: CHẨN ĐOÁN → XÉT LẠI THAM SỐ ────────────────────────────
+    def xoay_cho(self):
+        """Chỗ nào đang ngồi mà đáng nhường cho cơ hội tốt hơn — ĐO thôi.
+
+        Dùng tờ trình của CHÍNH vòng này (`toTrinhVongNay`), không dùng sổ
+        đăng ký: câu hỏi là «ngay bây giờ có gì tốt hơn đang gõ cửa», và
+        một tờ trình từ ba giờ trước không còn là cơ hội đang gõ cửa nữa.
+        """
+        from .xoay_cho import do_xoay_cho
+        return do_xoay_cho(self.soViThe, self.toTrinhVongNay, _gio_he())
+
     def lech_cau_hinh(self) -> list[dict]:
         """`config.json` xin một đằng, máy chạy một nẻo — kể ra chỗ nào.
 
@@ -1043,6 +1053,9 @@ class TrungUong:
             # nhận lúc đóng. Ty duy nhất có băng thì hậu kiểm bằng chạy
             # lại, và nó nằm ở `trangThai.tienHoa`.
             "duDoanVaThuc": self.so_cai.du_doan_va_thuc(),
+            # Chỗ ngồi có hạn, và ai ngồi mới là câu hỏi. Xem `xoay_cho.py`.
+            # ĐO thôi — đường thực hiện chưa nối.
+            "xoayCho": self.xoay_cho().tom_tat(),
         }
 
 
