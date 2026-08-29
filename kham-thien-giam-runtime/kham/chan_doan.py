@@ -149,6 +149,39 @@ class TrieuChung:
                 "bangChung": self.bangChung, "nutGoiY": self.nutGoiY}
 
 
+def _benh_mo_hinh(hieuChinh: dict, ra: list) -> None:
+    """Bệnh của MÔ HÌNH — đọc thẳng từ bảng hiệu chỉnh, không cần lệnh nào.
+
+    Tách riêng vì nó KHÔNG phụ thuộc sổ kết toán. Trước đây nó nằm sau
+    cửa "chưa đủ 20 lệnh thì return", nên một bảng hiệu chỉnh 40.276 mẫu
+    — đo được, kiểm được ngoài mẫu — bị vứt đi chỉ vì chưa lệnh nào kết
+    toán. Mà "mô hình đoán chuẩn tới đâu" và "bot kiếm được bao nhiêu" là
+    hai câu hỏi khác nhau, cần hai bộ dữ liệu khác nhau, và câu đầu trả
+    lời được mà không cần chạm vào chợ (`scripts/hoc-tu-binance.py`).
+    """
+    sai = hieuChinh.get("saiSoTB")
+    if sai is not None and sai > 0.06:
+        chieu = _chieu_lech(hieuChinh.get("bang") or [])
+        ra.append(TrieuChung(
+            "mo-hinh-lech", 2,
+            f"mô hình lệch trung bình {sai:.3f} so với thực tế, thiên "
+            f"{chieu} — bất định đang bị khai quá thấp",
+            {"saiSoTB": sai, "chieu": chieu, "tongMau": hieuChinh.get("tongMau")},
+            # `nanLai.heSoGiamChan` nằm ĐẦU danh sách vì nó là nút
+            # nhắm thẳng vào bệnh này: bảng hiệu chỉnh đã ĐO được mô
+            # hình lệch đi đâu, giảm chấn quyết đi bao nhiêu phần
+            # đường ấy. Hai nút kia chỉ nới bất định chung chung.
+            #
+            # Trước bản này nút giảm chấn có mặt trong bảng vặn mà
+            # KHÔNG triệu chứng nào trỏ tới, nên người đề xuất tất
+            # định không bao giờ với tới được nó — chỉ model mới đề
+            # nghị nổi, mà cung này chạy không cần model. Một nút
+            # nằm trong bảng mà không ai vặn được thì bằng không có.
+            ["nanLai.heSoGiamChan", "dinhGia.batDinhToiThieu",
+             "dinhGia.bienDongCuaSoGiay"]))
+
+
+
 def chan_doan(ketToan: list[dict], hieuChinh: dict,
               boQua: dict[str, int] | None = None,
               nguonMau: str = "that") -> list[TrieuChung]:
@@ -177,6 +210,11 @@ def chan_doan(ketToan: list[dict], hieuChinh: dict,
             f"mới {tk.get('n', 0)} lệnh đã kết toán — chưa đủ để chẩn gì. "
             f"Chạy thêm, đừng vặn.",
             {"n": tk.get("n", 0), "canToiThieu": 20, "nguonMau": nguonMau}))
+        # Nhưng KHÔNG trả về ngay: bệnh của mô hình đọc từ bảng hiệu
+        # chỉnh, và bảng ấy dựng được mà không cần một lệnh nào. "Chưa đủ
+        # lệnh để chẩn CHIẾN THUẬT" không có nghĩa là "chưa biết gì về MÔ
+        # HÌNH".
+        _benh_mo_hinh(hieuChinh, ra)
         return ra
 
     # ── 1. kỳ vọng âm ────────────────────────────────────────────────────
@@ -199,27 +237,7 @@ def chan_doan(ketToan: list[dict], hieuChinh: dict,
             ["ruiRo.kellyPhan", "canLoi.sucChuaToiThieu",
              "khoDoi.capChuaKhopToiDaUsd"]))
 
-    # ── 3. mô hình lệch hệ thống ─────────────────────────────────────────
-    sai = hieuChinh.get("saiSoTB")
-    if sai is not None and sai > 0.06:
-        chieu = _chieu_lech(hieuChinh.get("bang") or [])
-        ra.append(TrieuChung(
-            "mo-hinh-lech", 2,
-            f"mô hình lệch trung bình {sai:.3f} so với thực tế, thiên "
-            f"{chieu} — bất định đang bị khai quá thấp",
-            {"saiSoTB": sai, "chieu": chieu, "tongMau": hieuChinh.get("tongMau")},
-            # `nanLai.heSoGiamChan` nằm ĐẦU danh sách vì nó là nút
-            # nhắm thẳng vào bệnh này: bảng hiệu chỉnh đã ĐO được mô
-            # hình lệch đi đâu, giảm chấn quyết đi bao nhiêu phần
-            # đường ấy. Hai nút kia chỉ nới bất định chung chung.
-            #
-            # Trước bản này nút giảm chấn có mặt trong bảng vặn mà
-            # KHÔNG triệu chứng nào trỏ tới, nên người đề xuất tất
-            # định không bao giờ với tới được nó — chỉ model mới đề
-            # nghị nổi, mà cung này chạy không cần model. Một nút
-            # nằm trong bảng mà không ai vặn được thì bằng không có.
-            ["nanLai.heSoGiamChan", "dinhGia.batDinhToiThieu",
-             "dinhGia.bienDongCuaSoGiay"]))
+    _benh_mo_hinh(hieuChinh, ra)
 
     # ── 4. cặp khoá lỗ nhiều ─────────────────────────────────────────────
     khoa = [g for g in ketToan if (g.get("giaCap") or 0) > 1.0]

@@ -966,6 +966,43 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_chan_mo_hinh_khong_can_lenh() -> None:
+    """Bệnh của MÔ HÌNH phải chẩn được khi CHƯA có lệnh nào kết toán.
+
+    `chan_doan` từng `return` ngay ở cửa "chưa đủ 20 lệnh". Nhưng bệnh
+    của mô hình đọc thẳng từ bảng hiệu chỉnh, và bảng ấy dựng được mà
+    không cần chạm vào chợ — `scripts/hoc-tu-binance.py` dựng 40.276 mẫu
+    từ nến Binance trong khi sổ kết toán rỗng trơn.
+
+    "Chưa đủ lệnh để chẩn CHIẾN THUẬT" không có nghĩa là "chưa biết gì về
+    MÔ HÌNH". Trộn hai câu đó là vứt đi một phép đo đã có sẵn.
+    """
+    print("\n-- Chan benh MO HINH khong can lenh nao ------------------")
+
+    from kham.chan_doan import chan_doan as _cd
+
+    hcXau = {"saiSoTB": 0.11, "tongMau": 40_276,
+             "bang": [{"o": "10-20", "n": 500, "duDoan": 0.15,
+                       "thucTe": 0.30, "lech": 0.15},
+                      {"o": "80-90", "n": 500, "duDoan": 0.85,
+                       "thucTe": 0.70, "lech": -0.15}]}
+    t = _cd([], hcXau)
+    ma = [x.ma for x in t]
+    kiem("sổ kết toán rỗng vẫn báo thiếu mẫu", "thieu-mau" in ma, ma)
+    kiem("VÀ vẫn chẩn được bệnh mô hình", "mo-hinh-lech" in ma,
+         f"{ma} — bảng 40.276 mẫu bị vứt vì chưa lệnh nào kết toán")
+
+    mh = next(x for x in t if x.ma == "mo-hinh-lech")
+    kiem("bệnh mô hình trỏ tới nút giảm chấn trước tiên",
+         mh.nutGoiY and mh.nutGoiY[0] == "nanLai.heSoGiamChan", mh.nutGoiY)
+
+    # Bảng LÀNH thì không được bịa bệnh ra.
+    hcLanh = {"saiSoTB": 0.028, "tongMau": 40_276, "bang": []}
+    ma2 = [x.ma for x in _cd([], hcLanh)]
+    kiem("bảng hiệu chỉnh lành thì KHÔNG bịa bệnh", "mo-hinh-lech" not in ma2,
+         ma2)
+
+
 def kiem_hoc_khong_nhin_trom() -> None:
     """Lát cắt học từ nến 1 phút KHÔNG được lấy giá của tương lai.
 
@@ -1855,9 +1892,16 @@ def kiem_tien_hoa_chay_that() -> None:
         kiem(f"kết quả có khoá `{khoa}`", khoa in d, sorted(d)[:8])
     kiem("băng rỗng → nguồn mẫu vẫn là THẬT", d["nguonMau"] == "that",
          d["nguonMau"])
-    kiem("băng rỗng → chẩn ra thiếu mẫu, không vặn gì",
-         any(t.get("ma") == "thieu-mau" for t in d["trieuChung"])
-         and not d["deXuat"])
+    kiem("băng rỗng → vẫn báo thiếu mẫu",
+         any(t.get("ma") == "thieu-mau" for t in d["trieuChung"]),
+         [t.get("ma") for t in d["trieuChung"]])
+    # Bất biến thật KHÔNG phải "không đề xuất gì". Chẩn đoán nay đọc được
+    # cả bảng hiệu chỉnh — dựng được mà không cần một lệnh nào — nên nó
+    # CÓ THỂ đề xuất vặn nút mô hình. Thứ không bao giờ được phép xảy ra
+    # là NHẬN: cổng đo trên băng rỗng thì không có gì để so, và một tham
+    # số đổi mà không đo được là đúng thứ cả cung này dựng lên để chặn.
+    kiem("băng rỗng → KHÔNG BAO GIỜ nhận đề xuất nào",
+         d["nhan"] is None, d["nhan"])
 
 
 def kiem_huong_de_xuat() -> None:
@@ -2475,6 +2519,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_chan_mo_hinh_khong_can_lenh()
     kiem_hoc_khong_nhin_trom()
     kiem_duong_quyet_dinh()
     kiem_giai_doan_bang()
