@@ -27,9 +27,18 @@ BA CÁI BẪY đã cắn, đều đã vá trong file này:
 
 Thước đo hỏng thì điểm đẹp. Điểm đẹp là lúc phải nghi thước.
 
-File đang quét bị GHI ĐÈ rồi trả lại sau mỗi con. Đừng chạy nó song
-song với một phiên đang sửa cùng file ấy, và đừng chạy khi cây làm việc
-còn thay đổi chưa commit ở file đó.
+File đang quét bị GHI ĐÈ rồi trả lại sau mỗi con. Ba điều phải nhớ:
+
+- ĐỪNG chạy song song với một phiên đang sửa cùng file ấy.
+- ĐỪNG chạy `git` (rebase, checkout, pull) trên cây làm việc trong lúc
+  quét. Đã cắn thật: `git rebase` chạm vào file đúng lúc bộ quét đang
+  ghi lại bản gốc, Windows trả `OSError: [Errno 22]`, bộ quét chết, và
+  **một con đột biến ở lại trong mã** — trong `trung_uong.py`, giữa cỗ
+  máy chia tiền. Nay có bản sao lưu và vòng thử lại, nhưng cách chắc
+  chắn nhất vẫn là để nó chạy một mình.
+- Bản gốc được chép ra `<file>.goc-quet` TRƯỚC con đột biến đầu tiên,
+  và chỉ xoá khi đã trả lại xong xuôi. File ấy còn nằm đó nghĩa là lần
+  quét trước chết giữa chừng.
 """
 import io
 import os
@@ -114,19 +123,67 @@ if "✗" in _o0 or _r0.returncode != 0:
     print("  " + (_o0.strip().splitlines() or ["(không có gì in ra)"])[-1])
     sys.exit(2)
 
+SAO_LUU = F + ".goc-quet"
+
+
+def _ghi(duong, noi_dung, lan=6):
+    """Ghi, thử lại vài lần.
+
+    Windows khoá file trong tích tắc khi một tiến trình khác chạm vào
+    nó — `git`, trình soạn, trình duyệt file — và MỘT lần ghi hỏng ở đây
+    để lại một con đột biến trong mã.
+    """
+    import time as _t
+    for k in range(lan):
+        try:
+            io.open(duong, "w", encoding="utf-8", newline="\n").write(noi_dung)
+            return True
+        except OSError:
+            if k == lan - 1:
+                return False
+            _t.sleep(0.3 * (k + 1))
+    return False
+
+
+def _tra_lai():
+    if _ghi(F, goc):
+        return True
+    print(f"\n  !! KHÔNG TRẢ LẠI ĐƯỢC {F} — nó ĐANG MANG MỘT CON ĐỘT BIẾN.")
+    print(f"  !! Bản gốc nằm ở {SAO_LUU}. Chạy:")
+    print(f"  !!     cp '{SAO_LUU}' '{F}'")
+    print(f"  !! hoặc `git checkout -- {F}` nếu file ấy đã commit.")
+    return False
+
+
+if not _ghi(SAO_LUU, goc):
+    print(f"  DỪNG: không ghi nổi bản sao lưu {SAO_LUU} — không quét khi "
+          f"chưa có đường lùi.")
+    sys.exit(3)
+
 print(f"  {len(ca)} chỗ đem đột biến trong {F}")
 song = []
 for i, moi, nhan in ca:
     ds = list(dong)
     ds[i] = moi
-    io.open(F, "w", encoding="utf-8", newline="\n").write("".join(ds))
+    if not _ghi(F, "".join(ds)):
+        print(f"  DỪNG ở dòng {i + 1}: không ghi nổi bản đột biến.")
+        _tra_lai()
+        sys.exit(4)
     try:
         r, out = _chay()
     finally:
-        io.open(F, "w", encoding="utf-8", newline="\n").write(goc)
+        if not _tra_lai():
+            sys.exit(5)
     bat = "✗" in out or r.returncode != 0
     if not bat:
         song.append((i + 1, nhan, dong[i].strip()[:78]))
+
+# Dọn bản sao lưu CHỈ khi đã trả lại xong xuôi. File ấy còn nằm đó nghĩa
+# là lần quét trước chết giữa chừng.
+try:
+    os.remove(SAO_LUU)
+except OSError:
+    pass
 
 print(f"  SỐNG SÓT {len(song)}/{len(ca)}")
 for ln, nhan, txt in song:
