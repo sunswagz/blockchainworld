@@ -1859,6 +1859,117 @@ def kiem_rui_ro_tong() -> None:
          gan(pq7.choToiDaUsd, 150.0),
          f"NAV vẫn 1000 nên trần vẫn 150; đang cho {pq7.choToiDaUsd}")
 
+    # ── BIÊN của từng cửa: «đúng bằng ngưỡng» phải QUA ──────────────────
+    #
+    # Quét đột biến tự động trên `rui_ro_tong.py` cho 10/15 con SỐNG SÓT,
+    # và phần lớn nằm ở đây: `>` đổi thành `>=`, `<` thành `<=`. Nghĩa là
+    # không phép kiểm nào phân biệt được «đúng bằng trần» với «vượt trần»
+    # — trên chính cái cửa quyết định tiền có được cam kết hay không.
+    #
+    # Ngưỡng ở đây ĐÓNG: đúng bằng trần thì còn trong trần. Đảo lại là
+    # loại đúng những cơ hội nằm sát mép, và sát mép là chỗ phần lớn cơ
+    # hội thật nằm.
+    _dmB = DanhMuc(10_000.0)
+
+    _rrD = RuiRoTong({"ruiRoToiDa": 0.60})
+    _ttD = _mau(von=100.0, chua=9000.0,
+                rr=RuiRo(0.60, 0.10, 0.10, 0.10, 0.10, 0.10))
+    kiem("điểm rủi ro ĐÚNG BẰNG trần thì vẫn qua",
+         not any("diem-rui-ro-cao" in x for x in _rrD.xet(_ttD, _dmB).lyDo),
+         f"{_rrD.xet(_ttD, _dmB).lyDo} — trần là trần, không phải mép vực")
+    _ttD2 = _mau(von=100.0, chua=9000.0,
+                 rr=RuiRo(0.61, 0.10, 0.10, 0.10, 0.10, 0.10))
+    kiem("nhích trên trần một chút thì bị chặn",
+         any("diem-rui-ro-cao" in x for x in _rrD.xet(_ttD2, _dmB).lyDo),
+         "không có vế này thì phép kiểm trên chỉ chứng minh cửa luôn im")
+
+    _rrT = RuiRoTong({"tinCayToiThieu": 0.50})
+    kiem("độ tin ĐÚNG BẰNG sàn thì vẫn qua",
+         not any("tin-cay-thap" in x for x in
+                 _rrT.xet(_mau(von=100.0, chua=9000.0, tin=0.50),
+                          _dmB).lyDo))
+    kiem("dưới sàn một chút thì bị chặn",
+         any("tin-cay-thap" in x for x in
+             _rrT.xet(_mau(von=100.0, chua=9000.0, tin=0.49), _dmB).lyDo))
+
+    # NET mỗi giờ = netUocBps / giuGio. Dựng ngược để chạm đúng sàn.
+    _san = 0.5
+    _rrN = RuiRoTong({"netMoiGioToiThieuBps": _san})
+    kiem("NET mỗi giờ ĐÚNG BẰNG sàn thì vẫn qua",
+         not any("net-thap" in x for x in
+                 _rrN.xet(_mau(von=100.0, chua=9000.0,
+                               net=_san * 24.0, giu=24.0), _dmB).lyDo),
+         f"sàn {_san} bps/giờ")
+    kiem("dưới sàn thì bị chặn",
+         any("net-thap" in x for x in
+             _rrN.xet(_mau(von=100.0, chua=9000.0,
+                           net=_san * 24.0 * 0.9, giu=24.0), _dmB).lyDo))
+
+    _rrK = RuiRoTong({"khoaVonToiDaGio": 720.0})
+    kiem("khoá vốn ĐÚNG BẰNG trần thì vẫn qua",
+         not any("khoa-von-lau" in x for x in
+                 _rrK.xet(_mau(von=100.0, chua=9000.0, khoa=720.0),
+                          _dmB).lyDo))
+    kiem("khoá quá trần một giờ thì bị chặn",
+         any("khoa-von-lau" in x for x in
+             _rrK.xet(_mau(von=100.0, chua=9000.0, khoa=721.0), _dmB).lyDo))
+
+    # `and` chứ không `or`: cờ TẮT thì thiếu mô hình phí KHÔNG phải lý do
+    # từ chối. Đổi thành `or` là bật một cửa mà người vận hành đã tắt —
+    # và tắt nó là quyết định có chủ ý, ghi ngay trong MAC_DINH.
+    # `_mau` đặt `moHinhPhiDuChua=True` cứng, nên ép lại sau khi dựng —
+    # `ToTrinh` đông cứng, đi cửa `object.__setattr__` như mọi phép kiểm
+    # khác cần một tờ trình lệch chuẩn.
+    def _thieuMoHinh():
+        t = _mau(von=100.0, chua=9000.0)
+        object.__setattr__(t, "moHinhPhiDuChua", False)
+        object.__setattr__(t, "phiConThieu", ("vay-coin",))
+        return t
+
+    kiem("cờ mô-hình-phí TẮT thì thiếu mô hình KHÔNG bị chặn",
+         not any("mo-hinh-phi-thieu" in x for x in
+                 RuiRoTong({"batBuocDuMoHinhPhi": False}).xet(
+                     _thieuMoHinh(), _dmB).lyDo),
+         "bật một cửa người vận hành đã tắt là tự ý siết, dù siết cũng là "
+         "một hướng")
+    kiem("và BẬT cờ ấy thì mới chặn",
+         any("mo-hinh-phi-thieu" in x for x in
+             RuiRoTong({"batBuocDuMoHinhPhi": True}).xet(
+                 _thieuMoHinh(), _dmB).lyDo))
+
+    # `biCat` phải phân biệt CẮT với CHO ĐỦ. Trần đúng bằng số xin không
+    # phải là cắt — báo cắt ở đó là dạy người đọc bỏ qua chữ «đã cắt».
+    _pqDu = RuiRoTong().xet(_mau(von=100.0, chua=9000.0), DanhMuc(10_000.0))
+    kiem("cho ĐỦ số xin thì KHÔNG gọi là bị cắt",
+         _pqDu.duyet and not _pqDu.biCat,
+         f"xin {_pqDu.xinUsd} cho {_pqDu.choToiDaUsd}")
+    _pqCat = RuiRoTong().xet(_mau(von=5000.0, chua=9000.0),
+                             DanhMuc(10_000.0))
+    kiem("cho ÍT hơn số xin thì mới là bị cắt",
+         _pqCat.duyet and _pqCat.biCat,
+         f"xin {_pqCat.xinUsd} cho {_pqCat.choToiDaUsd}")
+
+    # Trần siết về 0 là TỪ CHỐI, và một tờ bị từ chối KHÔNG phải một tờ «bị
+    # cắt». Hai chữ ấy đi hai chỗ khác nhau trong phễu: «bị cắt» đếm những
+    # cơ hội mình bóp nhỏ lại, «từ chối» đếm những cơ hội mình bỏ hẳn. Trộn
+    # chúng vào nhau là đếm một lần vào cả hai cột, và tổng thì không cộng
+    # lại được nữa.
+    _tt0 = _mau(von=100.0, chua=9000.0)
+    # Bỏ sàn vốn tối thiểu đi, để chạm ĐÚNG nhánh «hết chỗ ở trần» chứ
+    # không rơi vào nhánh «dưới vốn tối thiểu» ở trên nó.
+    object.__setattr__(_tt0, "vonToiThieuKinhTeUsd", None)
+    _pq0 = RuiRoTong({"tranMotCoHoi": 0.0,
+                      "batBuocKhaiVonToiThieu": False}).xet(
+        _tt0, DanhMuc(10_000.0))
+    kiem("trần siết về 0 thì KHÔNG duyệt", not _pq0.duyet,
+         f"đang cho {_pq0.choToiDaUsd}")
+    kiem("và tờ bị từ chối thì KHÔNG gọi là «bị cắt»", not _pq0.biCat,
+         "0 đồng là bỏ hẳn, không phải bóp nhỏ")
+    kiem("một phán quyết 0 đồng phải KÈM lý do",
+         any("het-cho-o-tran" in x for x in _pq0.lyDo),
+         f"lyDo={_pq0.lyDo} — ô lý do trống thì trong phễu nó hiện thành "
+         f"một tờ bị đánh rớt không ai biết vì sao")
+
 
 def kiem_phan_bo() -> None:
     print("\n── Phân Bổ: cấp TUẦN TỰ, vì cấp song song thì trần vô nghĩa ───")

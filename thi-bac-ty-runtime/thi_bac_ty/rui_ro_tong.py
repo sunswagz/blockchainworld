@@ -307,6 +307,10 @@ class RuiRoTong:
         for ts, hs in lech.items():
             if hs == 0:
                 continue                       # trung tính, không chạm trần ròng
+            # `hs > 0` chứ không `>= 0` — nhưng dòng `continue` ngay trên đã
+            # loại hết `hs == 0`, nên hai cách viết cho cùng một kết quả.
+            # Ghi lại để lần quét đột biến sau khỏi đi tìm phép kiểm còn
+            # thiếu ở đây: không thiếu, con ấy TƯƠNG ĐƯƠNG.
             hien = pn_rong.get(ts, 0.0)
             tran_ts = nav * float(c["tranMotTaiSanRong"])
             con = (tran_ts - hien) if hs > 0 else (tran_ts + hien)
