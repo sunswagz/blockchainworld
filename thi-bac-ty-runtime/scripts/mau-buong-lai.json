@@ -7917,6 +7917,20 @@
    "vi": "còn 113 ghế trống — KHÔNG đuổi ai. Cơ hội tốt hơn cứ ngồi vào chỗ trống, và Phân Bổ làm việc ấy ở bước 4. (5 chỗ sẽ đáng đổi khi hết ghế.)",
    "gioSongTrungVi": 0.00824,
    "soBiKepTheoBangChung": 1
+  },
+  "vonRanh": {
+   "navUsd": 999893.46,
+   "tienMatUsd": 439050.18,
+   "tiLeDuTru": 0.2,
+   "duTruUsd": 199978.69,
+   "khaDungUsd": 799914.77,
+   "dangDungUsd": 560843.28,
+   "ranhNgoaiDuTruUsd": 239071.49,
+   "tiLeRanhTrenKhaDung": 0.29887,
+   "loiSuatTrenVonDungPhanTram": 4.2985,
+   "loiSuatQuyVeNavPhanTram": 2.4108,
+   "loiSuatNeuLapDayPhanTram": 3.4388,
+   "soTyChuaDoDuocLoiSuat": 1
   }
  },
  "duongSo": "C:\\Users\\Admin\\AppData\\Local\\Temp\\claude\\d--SUNSWaGz-2027\\0cb527eb-abe0-4481-ace7-774fb8b5a138\\scratchpad\\data-tam",

@@ -1232,6 +1232,69 @@ class TrungUong:
             "soChuyenSai": self.so_dang_ky.soChuyenSai,
         }
 
+    def von_ranh(self) -> dict:
+        """Bao nhiêu vốn ĐƯỢC PHÉP làm việc mà đang không làm gì.
+
+        MẪU SỐ ở đây là VỐN KHẢ DỤNG, không phải NAV. Dự trữ là một lựa
+        chọn có chủ ý (`phanBo.tiLeDuTru`, đang 20%) — tính nó vào phần
+        «nằm không» là buộc tội cỗ máy vì chính cái luật ta đặt ra cho
+        nó. Còn phần ngoài dự trữ mà vẫn nằm im thì không ai chọn cả.
+
+        Vì sao cần con số này. Chẩn đoán `tran-dat-sai-cho` canh
+        `tiLeDungVon < 0,15` — tỉ lệ trên NAV. Làn thật 30/08 dùng vốn
+        56%, nên nó im; mà 56% trên NAV là **70% của phần khả dụng**, và
+        30% còn lại — **239.071 USD** — đang ăn 0%. Lợi suất trên vốn
+        đang dùng là 4,30%/năm, quy về NAV còn **2,41%**. Gần một nửa
+        lợi suất mất ở chỗ này, và không cảnh báo nào kêu.
+
+        `loiSuatNeuLapDayPhanTram` là câu «nếu phần rảnh cũng chạy được
+        như phần đang chạy thì NAV sinh lời bao nhiêu». Đó là một PHÉP
+        ĐỐI CHIẾU, không phải một lời hứa: phần rảnh nằm im thường vì
+        những cơ hội còn lại tệ hơn hoặc bị trần chặn, nên nó là TRẦN
+        TRÊN của phần đang bỏ lỡ, không phải số sẽ thu được.
+        """
+        nav = float(self.danh_muc.navUsd)
+        mat = float(self.danh_muc.tienMatUsd)
+        ti_du_tru = float(self.phan_bo.c.get("tiLeDuTru") or 0.0)
+        du_tru = nav * ti_du_tru
+        kha_dung = nav * (1.0 - ti_du_tru)
+        dang_dung = nav - mat
+        ranh = max(0.0, mat - du_tru)
+
+        # Lợi suất trên vốn ĐANG DÙNG, gia quyền theo VỐN-GIỜ. Không lấy
+        # trung bình cộng các ty: một ty giữ 764 nghìn vốn-giờ và một ty
+        # giữ 1.587 không nói cùng một tiếng.
+        theo_ty = (self.soVonGio.tom_tat() or {}).get("theoTy") or {}
+        tong_vg = 0.0
+        tong_ls = 0.0
+        mu = 0
+        for o in theo_ty.values():
+            vg = float(o.get("vonGioUsd") or 0.0)
+            ls = o.get("loiSuatNamPhanTram")
+            if ls is None:
+                mu += 1
+                continue
+            tong_vg += vg
+            tong_ls += vg * float(ls)
+        # `None` chứ không phải 0: chưa có vốn-giờ nào thì ta chưa biết
+        # lợi suất, khác hẳn biết nó bằng không.
+        ls_dung = (tong_ls / tong_vg) if tong_vg > 0 else None
+        ls_nav = (ls_dung * dang_dung / nav) if (ls_dung is not None
+                                                 and nav > 0) else None
+        ls_lap = (ls_dung * kha_dung / nav) if (ls_dung is not None
+                                                and nav > 0) else None
+        return {
+            "navUsd": nav, "tienMatUsd": mat,
+            "tiLeDuTru": ti_du_tru, "duTruUsd": du_tru,
+            "khaDungUsd": kha_dung, "dangDungUsd": dang_dung,
+            "ranhNgoaiDuTruUsd": ranh,
+            "tiLeRanhTrenKhaDung": (ranh / kha_dung) if kha_dung > 0 else None,
+            "loiSuatTrenVonDungPhanTram": ls_dung,
+            "loiSuatQuyVeNavPhanTram": ls_nav,
+            "loiSuatNeuLapDayPhanTram": ls_lap,
+            "soTyChuaDoDuocLoiSuat": mu,
+        }
+
     # ── chế độ vận hành từng ty ───────────────────────────────────────────
     def che_ty(self) -> list[dict]:
         """Chế độ của từng ty: QUAN_SAT · GIAY · THAT.
@@ -1485,6 +1548,7 @@ class TrungUong:
             "banThamSo": self.kho_tham_so.tom_tat(),
             "lechCauHinh": self.lech_cau_hinh(),
             "vonDangDung": self.soVonGio.tom_tat(),
+            "vonRanh": self.von_ranh(),
             # Hậu kiểm cho TÁM ty không có băng: lời hứa lúc mở vs thực
             # nhận lúc đóng. Ty duy nhất có băng thì hậu kiểm bằng chạy
             # lại, và nó nằm ở `trangThai.tienHoa`.

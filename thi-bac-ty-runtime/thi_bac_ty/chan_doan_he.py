@@ -122,6 +122,17 @@ NGUONG_SONG_TREN_HUA = 0.20
 #: đóng góp nhiều hơn, và chỉ sang xoay chỗ là chỉ nhầm chỗ.
 NGUONG_DONG_DO_XOAY = 0.5
 
+#: Bao nhiêu PHẦN vốn KHẢ DỤNG nằm không thì mới kêu. Mẫu số là vốn khả
+#: dụng chứ không phải NAV: dự trữ là một lựa chọn có chủ ý, tính nó vào
+#: phần «nằm không» là buộc tội cỗ máy vì chính luật ta đặt ra.
+#:
+#: Một phần tư. `tran-dat-sai-cho` canh `tiLeDungVon < 0,15` trên NAV, và
+#: làn thật 30/08 dùng vốn 56% nên nó im — trong khi 56% trên NAV chính
+#: là 70% của phần khả dụng, và 239.071 USD còn lại đang ăn 0%. Lợi suất
+#: 4,30%/năm trên vốn đang dùng, quy về NAV còn 2,41%. Gần một nửa lợi
+#: suất mất ở đó, không cảnh báo nào kêu.
+NGUONG_RANH_TREN_KHA_DUNG = 0.25
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -443,6 +454,46 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"lỗi mã: NAV đang phồng lên, và sổ vẫn cân vì nó ghi đúng con "
             f"số bịa ấy.",
             {"soThuVuotTran": vuot, "nangNhat": x0}))
+
+    # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────
+    #
+    # Khác `tran-dat-sai-cho` ở MẪU SỐ, và mẫu số là cả vấn đề. Cái kia
+    # canh `tiLeDungVon` trên NAV; cái này canh phần KHẢ DỤNG — NAV trừ
+    # dự trữ. Dự trữ là lựa chọn có chủ ý, phần ngoài dự trữ mà nằm im
+    # thì không ai chọn cả.
+    vr = anh.get("vonRanh") or {}
+    ti_ranh = vr.get("tiLeRanhTrenKhaDung")
+    if ti_ranh is not None and ti_ranh >= NGUONG_RANH_TREN_KHA_DUNG:
+        ls_d = vr.get("loiSuatTrenVonDungPhanTram")
+        ls_n = vr.get("loiSuatQuyVeNavPhanTram")
+        ls_l = vr.get("loiSuatNeuLapDayPhanTram")
+        # Câu về lợi suất chỉ nói khi ĐO ĐƯỢC. Ghép «0,00%/năm» vào đây
+        # lúc chưa có vốn-giờ nào là bịa ra một cỗ máy đang huề vốn.
+        them = ("" if ls_d is None or ls_n is None else
+                f" Lợi suất trên vốn ĐANG DÙNG là {ls_d:.2f}%/năm, quy về "
+                f"NAV còn {ls_n:.2f}%"
+                + ("" if ls_l is None else
+                   f"; nếu phần rảnh chạy được như phần đang chạy thì NAV "
+                   f"sẽ là {ls_l:.2f}%")
+                + ". Con số sau là TRẦN TRÊN của phần đang bỏ lỡ, không "
+                  "phải số sẽ thu được: phần rảnh nằm im thường vì những "
+                  "cơ hội còn lại tệ hơn, hoặc vì một trần đang chặn.")
+        ra.append(TrieuChungHe(
+            "von-ranh-an-khong", 2,
+            f"{float(vr.get('ranhNgoaiDuTruUsd') or 0):,.0f} USD nằm NGOÀI "
+            f"dự trữ mà không làm gì — {ti_ranh:.0%} phần vốn khả dụng, ăn "
+            f"0%. Dự trữ {float(vr.get('tiLeDuTru') or 0):.0%} đã trừ ra "
+            f"rồi, nên đây không phải chỗ tiền được cố ý để yên." + them,
+            {"ranhNgoaiDuTruUsd": vr.get("ranhNgoaiDuTruUsd"),
+             "tiLeRanhTrenKhaDung": ti_ranh,
+             "khaDungUsd": vr.get("khaDungUsd"),
+             "dangDungUsd": vr.get("dangDungUsd"),
+             "loiSuatTrenVonDungPhanTram": ls_d,
+             "loiSuatQuyVeNavPhanTram": ls_n,
+             "loiSuatNeuLapDayPhanTram": ls_l},
+            # Cùng bộ núm với `tran-dat-sai-cho`: tiền nằm không mà cơ hội
+            # vẫn đi qua nghĩa là một cái trần chặn trước khi tiền cạn.
+            ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy"]))
 
     # ── 7bb. XOAY CHỖ hứa dài hơn đời thật của vị thế ──────────────────
     #

@@ -3037,8 +3037,8 @@ def kiem_chan_doan_he() -> None:
     # bóp cổ họng để chữa nghẹn. Và hỏng im lặng: A/B thấy tệ hơn nên trả
     # lại, sổ ghi «trả lại», trông y hệt một quyết định thận trọng.
     from thi_bac_ty.chan_doan_he import (
-        NGUONG_SONG_TREN_HUA, NUT_TRUNG_UONG as _NUT_HE,
-        chan_doan_he as _cdh, de_xuat as _dxh)
+        NGUONG_RANH_TREN_KHA_DUNG, NGUONG_SONG_TREN_HUA,
+        NUT_TRUNG_UONG as _NUT_HE, chan_doan_he as _cdh, de_xuat as _dxh)
     kiem("mọi núm Trung Ương đều khai CỰC của mình",
          all("cuc" in v and v["cuc"] in (1, -1)
              for v in _NUT_HE.values()),
@@ -3362,6 +3362,66 @@ def kiem_chan_doan_he() -> None:
          all(x.vi != "phi-vao-an-het"
              for x in _dxh(_cdh(_anhTL), {"ruiRoTong": {"tranMotTy": 0.5}})),
          "hai lớp chặn, vì lớp trong nằm ở file khác")
+
+    # ── VỐN KHẢ DỤNG nằm không ──────────────────────────────────────────
+    #
+    # Khác `tran-dat-sai-cho` ở MẪU SỐ, và mẫu số là cả vấn đề. Cái kia
+    # canh `tiLeDungVon` trên NAV, nên làn thật 30/08 dùng vốn 56% thì nó
+    # im — trong khi 56% trên NAV chính là 70% của phần KHẢ DỤNG, và
+    # 239.071 USD còn lại đang ăn 0%. Lợi suất 4,30%/năm trên vốn đang
+    # dùng, quy về NAV còn 2,41%: gần một nửa mất ở chỗ ấy.
+    def _anhVR(**kw):
+        o = {"ranhNgoaiDuTruUsd": 239071.0, "tiLeRanhTrenKhaDung": 0.299,
+             "tiLeDuTru": 0.2, "khaDungUsd": 799915.0,
+             "dangDungUsd": 560843.0,
+             "loiSuatTrenVonDungPhanTram": 4.30,
+             "loiSuatQuyVeNavPhanTram": 2.41,
+             "loiSuatNeuLapDayPhanTram": 3.44}
+        o.update(kw)
+        return {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                      "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+                "danhMuc": {"tiLeDungVon": 0.56, "soViThe": 106},
+                "vonRanh": o}
+
+    _vr = {x.ma: x for x in _cdh(_anhVR())}
+    kiem("dùng vốn 56% trên NAV vẫn là 30% khả dụng nằm không → KÊU",
+         "von-ranh-an-khong" in _vr,
+         f"{sorted(_vr)} — `tran-dat-sai-cho` canh 15% trên NAV nên nó im "
+         f"ở đây, và 239 nghìn USD ăn 0% thì không ai được báo")
+    kiem("và nó nói cả hai lợi suất, vì hai mẫu số là hai câu hỏi",
+         ("4.30" in _vr["von-ranh-an-khong"].moTa
+          and "2.41" in _vr["von-ranh-an-khong"].moTa),
+         _vr["von-ranh-an-khong"].moTa)
+    kiem("con số «nếu lấp đầy» khai rõ là TRẦN TRÊN, không phải lời hứa",
+         "TRẦN TRÊN" in _vr["von-ranh-an-khong"].moTa,
+         "phần rảnh nằm im thường vì cơ hội còn lại tệ hơn; hứa nó sẽ "
+         "chạy như phần đang chạy là hứa thay cho một thứ chưa ai đo")
+    kiem("ĐÚNG BẰNG ngưỡng thì đã kêu — ngưỡng ĐÓNG",
+         any(x.ma == "von-ranh-an-khong" for x in
+             _cdh(_anhVR(tiLeRanhTrenKhaDung=NGUONG_RANH_TREN_KHA_DUNG))))
+    kiem("dưới ngưỡng thì im — đây không phải cảnh báo luôn bật",
+         not any(x.ma == "von-ranh-an-khong" for x in
+                 _cdh(_anhVR(tiLeRanhTrenKhaDung=0.10))),
+         "một cảnh báo không bao giờ tắt được là một cảnh báo người ta bỏ "
+         "qua")
+    kiem("chưa đo được tỉ lệ thì KHÔNG kêu, và cũng không đoán",
+         not any(x.ma == "von-ranh-an-khong" for x in
+                 _cdh(_anhVR(tiLeRanhTrenKhaDung=None))),
+         "NAV bằng 0 thì mẫu số bằng 0; kêu ở đó là kêu về một phép chia "
+         "chưa làm được")
+    _vrM = {x.ma: x for x in
+            _cdh(_anhVR(loiSuatTrenVonDungPhanTram=None,
+                        loiSuatQuyVeNavPhanTram=None,
+                        loiSuatNeuLapDayPhanTram=None))}
+    kiem("chưa có vốn-giờ nào thì vẫn kêu, nhưng KHÔNG nói lợi suất",
+         ("von-ranh-an-khong" in _vrM
+          and "%/năm" not in _vrM["von-ranh-an-khong"].moTa),
+         f"{_vrM['von-ranh-an-khong'].moTa} — ghép «0,00%/năm» vào đây là "
+         f"bịa ra một cỗ máy đang huề vốn")
+    kiem("và nó khai núm để vặn, vì đây LÀ bệnh của trần",
+         _vr["von-ranh-an-khong"].nutGoiY == ["ruiRoTong.tranMotCang",
+                                              "ruiRoTong.tranMotTy"],
+         str(_vr["von-ranh-an-khong"].nutGoiY))
 
     # ── XOAY CHỖ hứa dài hơn đời thật của vị thế ────────────────────────
     #

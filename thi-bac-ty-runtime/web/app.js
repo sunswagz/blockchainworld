@@ -630,6 +630,52 @@
     k.appendChild(d);
     f.appendChild(k);
 
+    /* VỐN KHẢ DỤNG NẰM KHÔNG. Mẫu số là vốn khả dụng — NAV trừ dự trữ —
+       chứ không phải NAV. Dự trữ là một lựa chọn có chủ ý; tính nó vào
+       phần «nằm không» là buộc tội cỗ máy vì chính luật ta đặt ra.
+
+       Đo làn thật 30/08: dùng vốn 56% trên NAV, nghe không tệ. Cùng con
+       số ấy trên phần KHẢ DỤNG là 70%, và 30% còn lại — 239.071 USD —
+       đang ăn 0%. Lợi suất 4,30%/năm trên vốn đang dùng, quy về NAV còn
+       2,41%. Gần một nửa lợi suất mất ở chỗ này. */
+    var vr = t.vonRanh || {};
+    if (vr.khaDungUsd != null) {
+      var kvr = khoi("Vốn khả dụng có đang làm việc không",
+        "Dự trữ đã trừ ra rồi. Phần còn lại mà vẫn nằm im thì không ai "
+        + "chọn cả — nó chỉ đơn giản là không vào được chỗ nào.");
+      var dvr = el("div", "day-so");
+      dvr.appendChild(oSo("Khả dụng", tien(vr.khaDungUsd, 0),
+        "NAV trừ dự trữ " + so((vr.tiLeDuTru || 0) * 100, 0) + "%"));
+      dvr.appendChild(oSo("Đang làm việc", tien(vr.dangDungUsd, 0),
+        vr.tiLeRanhTrenKhaDung == null ? "—"
+          : so((1 - vr.tiLeRanhTrenKhaDung) * 100, 1) + "% phần khả dụng"));
+      dvr.appendChild(oSo("NẰM KHÔNG", tien(vr.ranhNgoaiDuTruUsd, 0),
+        vr.tiLeRanhTrenKhaDung == null ? "chưa chia được"
+          : so(vr.tiLeRanhTrenKhaDung * 100, 1) + "% phần khả dụng · ăn 0%",
+        (vr.tiLeRanhTrenKhaDung || 0) >= 0.25 ? "am" : "nhat"));
+      dvr.appendChild(oSo("Lợi suất trên vốn DÙNG",
+        vr.loiSuatTrenVonDungPhanTram == null ? "—"
+          : phan(vr.loiSuatTrenVonDungPhanTram),
+        "gia quyền theo VỐN-GIỜ, không phải trung bình các ty"));
+      dvr.appendChild(oSo("Quy về NAV",
+        vr.loiSuatQuyVeNavPhanTram == null ? "—"
+          : phan(vr.loiSuatQuyVeNavPhanTram),
+        vr.loiSuatNeuLapDayPhanTram == null ? "—"
+          : "lấp đầy phần khả dụng thì tới "
+            + phan(vr.loiSuatNeuLapDayPhanTram)));
+      kvr.appendChild(dvr);
+      if (vr.soTyChuaDoDuocLoiSuat) {
+        kvr.appendChild(giai(vr.soTyChuaDoDuocLoiSuat + " ty chưa đo được "
+          + "lợi suất nên KHÔNG nằm trong hai con số trên — chúng bị bỏ "
+          + "khỏi cả tử lẫn mẫu, không bị coi là 0%."));
+      }
+      kvr.appendChild(giai("Con số «lấp đầy» là TRẦN TRÊN của phần đang bỏ "
+        + "lỡ, không phải số sẽ thu được: phần nằm không thường nằm không "
+        + "vì những cơ hội còn lại tệ hơn, hoặc vì một trần đang chặn "
+        + "trước khi tiền cạn. Xem phễu để biết trần nào."));
+      f.appendChild(kvr);
+    }
+
     var k2 = khoi("Vốn ở cỗ máy khác",
       "Thị Bạc Ty KHÔNG quản phần này, nhưng phải THẤY nó — nếu không thì mọi "
       + "trần tính theo NAV đều rộng hơn sự thật.");
