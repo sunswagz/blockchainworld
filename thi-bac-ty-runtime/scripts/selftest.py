@@ -8388,6 +8388,95 @@ def kiem_hien_phap() -> None:
              f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
 
 
+def kiem_chan_doan_doc_dung_khoa() -> None:
+    print("KHOA chan doan doc: co that trong anh chup khong")
+    import ast
+    import pathlib
+
+    from thi_bac_ty.trung_uong import TrungUong
+
+    # Chẩn đoán hệ đọc ảnh chụp bằng một rừng `.get("...")`. Mỗi lời gọi
+    # ấy trả `None` khi khoá sai, và `or 0` ngay sau đó biến `None` thành
+    # 0 — nên một khoá bị đổi tên làm TẮT HẲN một triệu chứng, vĩnh viễn,
+    # không lỗi nào báo. Buồng lái vẫn xanh; nó chỉ thôi kêu.
+    #
+    # Đã suýt xảy ra trong chính lượt sửa `ty-lo`: `laiLoTachKhoan` là
+    # khoá mới, và gõ sai một chữ thì mọi ty rơi về nhánh «chưa tách được»
+    # mà bảng vẫn đầy chữ.
+    #
+    # Đọc khoá bằng AST chứ không bằng regex: `.get("x") or {}` và
+    # `.get("x", {})` viết khác nhau, và chuỗi trong chú thích thì không
+    # phải khoá.
+    goc = pathlib.Path(__file__).resolve().parent.parent
+    cay = ast.parse((goc / "thi_bac_ty" / "chan_doan_he.py")
+                    .read_text(encoding="utf-8"))
+    #: `bien -> {khoá}`. Chỉ theo dõi những biến gán thẳng từ `anh.get(...)`;
+    #: đi sâu hơn là dựng một trình thông dịch, và một phép canh phức tạp
+    #: hơn thứ nó canh thì chính nó thành chỗ hỏng.
+    tuAnh: dict[str, str] = {}
+    docTang1: set[str] = set()
+    docTang2: dict[str, set[str]] = {}
+
+    def _khoa(n):
+        """`X.get("k")` → ("X", "k") nếu bắt được, không thì None."""
+        if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                and n.func.attr == "get" and n.args
+                and isinstance(n.args[0], ast.Constant)
+                and isinstance(n.args[0].value, str)):
+            return None
+        goc_ = n.func.value
+        if isinstance(goc_, ast.Name):
+            return goc_.id, n.args[0].value
+        return None, n.args[0].value
+
+    for n in ast.walk(cay):
+        if isinstance(n, ast.Assign) and len(n.targets) == 1 and \
+                isinstance(n.targets[0], ast.Name):
+            # `sdk = anh.get("soDangKy") or {}` → BoolOp(Or, [Call, Dict])
+            ve = (n.value.values[0] if isinstance(n.value, ast.BoolOp)
+                  else n.value)
+            k = _khoa(ve)
+            if k and k[0] == "anh":
+                tuAnh[n.targets[0].id] = k[1]
+                docTang1.add(k[1])
+        k = _khoa(n)
+        if not k:
+            continue
+        if k[0] == "anh":
+            docTang1.add(k[1])
+        elif k[0] in tuAnh:
+            docTang2.setdefault(tuAnh[k[0]], set()).add(k[1])
+
+    kiem("đọc được danh sách khoá mà chẩn đoán dùng",
+         len(docTang1) >= 6 and len(docTang2) >= 3,
+         f"tầng 1: {sorted(docTang1)} · tầng 2: "
+         f"{ {a: sorted(b) for a, b in docTang2.items()} } — không đọc ra "
+         f"khoá nào thì phép kiểm này đang canh một cái rỗng")
+
+    tu = TrungUong(_tam("khoa-chan-doan"), {"vonBanDauUsd": 5000.0})
+    tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    anh = tu.anh_chup()
+
+    thieu1 = sorted(k for k in docTang1 if k not in anh)
+    kiem("mọi khoá TẦNG 1 đều có thật trong ảnh chụp",
+         not thieu1,
+         f"{thieu1} — `.get()` trả None, `or 0` biến nó thành 0, và một "
+         f"triệu chứng tắt hẳn mà không dòng nào kêu")
+
+    thieu2 = []
+    for cha, ds in sorted(docTang2.items()):
+        o = anh.get(cha)
+        if not isinstance(o, dict):
+            continue          # danh sách hoặc None — không soát được ở đây
+        for k in sorted(ds):
+            if k not in o:
+                thieu2.append(f"{cha}.{k}")
+    kiem("và mọi khoá TẦNG 2 cũng thế",
+         not thieu2,
+         f"{thieu2} — đổi tên một trường trong `tom_tat()` mà quên bên đọc "
+         f"thì bên đọc im lặng đọc ra 0")
+
+
 def kiem_ly_do_cong_ty() -> None:
     print("\n-- CONG TY: cai loc lon nhat, va no phai khai VI SAO --")
     from thi_bac_ty.khuon_ty import Ty
@@ -8725,6 +8814,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_chan_doan_doc_dung_khoa()
     kiem_ly_do_cong_ty()
     kiem_khoa_cu_doi_ten()
     kiem_hai_lan()

@@ -247,6 +247,47 @@ globalThis._datS(T);
   ok ? xong++ : loi++;
 }
 
+// Khoá trang ĐỌC có thật trong ảnh chụp không.
+//
+// Trang lấy dữ liệu bằng `t.<khoá>` với `t = (S && S.trungUong) || {}`.
+// Đổi tên một trường trong `anh_chup()` mà quên bên đọc thì `t.cuKhoa` ra
+// `undefined`, `|| {}` ngay sau đó biến nó thành rỗng, và cả một ô hiện
+// «—» mãi mãi. Không lỗi, không cảnh báo, và phép kiểm vẽ-được ở trên
+// vẫn xanh vì trang vẫn vẽ ra nút — chỉ là nút rỗng.
+//
+// Chỉ soi những HÀM có nhắc `S.trungUong`: `t` còn được dùng cho thẻ DOM
+// ở vài chỗ khác (`var t = el("span", …)`), và soi cả file thì `t.style`
+// bị gọi oan. Cắt chú thích và chuỗi trước khi dò, vì một chú thích giải
+// thích `t.danhMuc` sẽ bị tính là chính nó.
+{
+  const sach = ma
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ")
+    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+    .replace(/'(?:[^'\\\n]|\\.)*'/g, "''");
+  const khoi = sach.split(/\bfunction\b/);
+  const doc = new Set();
+  for (const k of khoi) {
+    if (!k.includes("S.trungUong")) continue;
+    for (const m of k.matchAll(/\bt\.([A-Za-z][A-Za-z0-9]*)/g)) {
+      doc.add(m[1]);
+    }
+  }
+  // `t` của trang là `S.trungUong`, KHÔNG phải cả ảnh chụp — soi
+  // nhầm tầng thì mọi khoá đều "không có" và bảng đỏ rực một cách vô
+  // nghĩa, đúng kiểu báo động giả làm người ta thôi tin bộ kiểm.
+  const tu = T.trungUong || {};
+  const thieu = [...doc].filter((k) => !(k in tu)).sort();
+  const ok = doc.size >= 10 && !thieu.length;
+  console.log("  " + (ok ? "OK   " : "LỖI  ") + " " + "khoá-đọc".padEnd(11)
+    + " " + doc.size + " khoá trang đọc"
+    + (thieu.length ? " · KHÔNG CÓ trong ảnh chụp: " + thieu.join(", ")
+                    : " · đều có thật")
+    + (doc.size < 10 ? " · dò được quá ít, phép kiểm này đang canh cái rỗng"
+                     : ""));
+  ok ? xong++ : loi++;
+}
+
 // Phép kiểm cuối: một hàm vẽ NÉM thì `ve()` phải dựng Ô BÁO LỖI vào
 // `#than`, tuyệt đối không để thân trang rỗng. Đây là lưới đỡ cuối cùng
 // của cả trang, nên chính nó cũng phải có người canh.
