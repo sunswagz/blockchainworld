@@ -664,6 +664,18 @@ class TrungUong:
                       f"hơn cứ ngồi vào chỗ trống, và Phân Bổ làm việc ấy ở "
                       f"bước 4. ({lat.soXoayDuoc} chỗ sẽ đáng đổi khi hết "
                       f"ghế.)")
+            # Câu này GHI ĐÈ câu của `do_xoay_cho`, nên nó phải mang theo
+            # cái mà câu kia định nói. Đo làn thật 30/08 ngay sau khi nối
+            # trần bằng chứng: «0 chỗ sẽ đáng đổi khi hết ghế» — đúng,
+            # nhưng lý do là 56 chỗ vừa bị trần chặn, và câu bị ghi đè đã
+            # nuốt mất chỗ ấy. Một con số 0 không kèm lý do đọc thành
+            # «chợ hôm nay không có gì».
+            if lat.soBiChanBoiBangChung and lat.gioSongTrungVi is not None:
+                lat.vi += (
+                    f" Trong đó {lat.soBiChanBoiBangChung} chỗ bị TRẦN BẰNG "
+                    f"CHỨNG chặn ({lat.gioSongTrungVi:.3f}h): công thức cũ "
+                    f"sẽ nhận cả, và sẽ hứa {lat.loiRongBiChanUsd:+.2f} USD "
+                    f"trên một quãng mà sổ nói vị thế không sống tới.")
             if k >= VONG_GHE_TRONG_DANG_NGO:
                 lat.vi += (
                     f" ⚠ Nhưng đã {k} vòng LIÊN TIẾP còn ghế mà số vị thế "

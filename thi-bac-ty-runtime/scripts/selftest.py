@@ -8637,6 +8637,31 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("nhưng vẫn ĐO và nói ra sẽ đổi được mấy chỗ",
          _l49b.soXoayDuoc == 1 and "ghế trống" in _l49b.vi, _l49b.vi)
 
+    # Câu «còn ghế trống» GHI ĐÈ câu của `do_xoay_cho`, nên nó phải mang
+    # theo cái mà câu kia định nói. Đo làn thật 30/08 ngay sau khi nối
+    # trần bằng chứng: «0 chỗ sẽ đáng đổi khi hết ghế» — đúng, nhưng lý
+    # do là 56 chỗ vừa bị trần chặn, và câu bị ghi đè đã nuốt mất chỗ ấy.
+    # Một con số 0 không kèm lý do đọc thành «chợ hôm nay không có gì».
+    _kep49 = _may49(True)
+    _kep49.phan_bo.c["toiDaSoViThe"] = 120
+    from thi_bac_ty.so_cai import ButToan as _BT49
+    _kep49.so_cai.ghi(_BT49(
+        "DONG_VI_THE", "xoay chỗ · A → B", 0.0, "cu.v1", "cu-1",
+        {"xoayCho": True, "taiSanCu": "A", "taiSanMoi": "B",
+         "gioChungHua": 700.0, "daGiuGio": 0.008,
+         "loiRongUocUsd": 40.0}))
+    _l49c = _kep49._xoay_cho_neu_duoc()
+    kiem("trần bằng chứng đọc được TỪ SỔ, không phải một tham số",
+         _l49c.gioSongTrungVi == 0.008,
+         f"{_l49c.tom_tat()} — nối sai thì cả cơ chế im lặng thành không "
+         f"trần, và im lặng ấy trông y hệt «sổ chưa có bằng chứng»")
+    kiem("câu «còn ghế trống» KHÔNG nuốt mất lý do bị chặn",
+         (_l49c.soBiChanBoiBangChung >= 1
+          and "ghế trống" in _l49c.vi
+          and "TRẦN BẰNG CHỨNG" in _l49c.vi),
+         f"{_l49c.vi} — một con số 0 không kèm lý do đọc thành «chợ hôm "
+         f"nay không có gì»")
+
     # ── ĐÍCH phải qua được RỦI RO TỔNG ─────────────────────────────────
     # Không lọc thì bảng hứa một việc Phân Bổ sẽ từ chối làm. Đo 30/08
     # trên máy sống: «15 chỗ đáng đổi · +1.394 USD», và bốn dòng lớn nhất
