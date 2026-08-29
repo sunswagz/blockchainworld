@@ -940,8 +940,15 @@ def _tu_lo_luyen(bo: list) -> list[dict]:
                    + (" — CHỨA 0, tức chưa phân biệt được với «không có gì»."
                       if cha.get("chuaKhong") else "."))
     lat = " ".join(f"{x:+.2f}" if x is not None else "—" for x in (cha.get("theoLat") or []))
+    # KHÔNG GIAN đã dò phải nằm trong câu. "champion −0,15R" của bảng chỉ-LONG
+    # và của bảng cả-hai-chiều là hai con số về hai thứ khác nhau, và chênh nhau
+    # 0,13R — đem so nhau là sai hẳn. Kho cũ chưa có cờ thì khai KHÔNG RÕ.
+    kg = d.get("chiLong")
+    doan_kg = (" (CHỈ LONG — đúng không gian sàn spot cho phép)" if kg is True
+               else " (cả hai chiều — gồm cả SHORT mà sàn spot KHÔNG đánh được)"
+               if kg is False else " (không rõ dò chiều nào — kho đo cũ)")
     ra = [_pd("lo-luyen-champion", "lo-luyen",
-              f"Champion đo trên {d.get('soCho')} chợ × {d.get('soLat')} lát thời gian: "
+              f"Champion đo trên {d.get('soCho')} chợ × {d.get('soLat')} lát thời gian" + doan_kg + ": "
               f"dương {cha['soLatDuong']}/{cha['soLatCo']} lát, gộp "
               f"{cha['kyVongGop']:+.4f}R qua {cha['soLenh']} lệnh. Từng lát: {lat}. "
               f"Lát là quãng thời gian LIÊN TIẾP — dương ở một lát và âm ở lát khác "
@@ -956,7 +963,7 @@ def _tu_lo_luyen(bo: list) -> list[dict]:
     if tot:
         t = tot[0]
         ra.append(_pd("lo-luyen-dan-dau", "lo-luyen",
-                      f"{len(tot)}/{n_thu} biến thể tham số vừa vượt champion vừa dương "
+                      f"{len(tot)}/{n_thu} biến thể tham số{doan_kg} vừa vượt champion vừa dương "
                       f"≥{can}/{cha['soLatCo']} lát. Dẫn đầu: {json.dumps(t.get('tham') or {}, ensure_ascii=False)} "
                       f"— {t['kyVongGop']:+.4f}R qua {t['soLenh']} lệnh, dương "
                       f"{t['soLatDuong']}/{t['soLatCo']} lát. ĐÃ THỬ {n_thu} BIẾN THỂ: "
