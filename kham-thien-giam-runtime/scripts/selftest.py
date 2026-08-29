@@ -591,6 +591,32 @@ def _bang_gia(n=80, thang_xen_ke=True):
     return ra
 
 
+def _bang_sat_bien(n=60):
+    """Băng đặt lợi thế SÁT BIÊN, mỗi khung một slug riêng.
+
+    `_bang_gia` để giá lệch xa nên xác suất gần 1 và mọi bộ tham số đều
+    qua sàng như nhau — dùng nó để đo một nút chỉ dịch xác suất vài điểm
+    thì phép kiểm xanh vì lý do sai. Ở đây giá chỉ lệch 60 đô với 120
+    giây còn lại (pUp quãng 0,65) và giá chào quét dần qua vùng quyết
+    định, nên một cú nắn vài điểm LÀ đủ để đổi câu trả lời.
+    """
+    sig = 0.55 / math.sqrt(365 * 24 * 3600)
+    ra = []
+    for i in range(n):
+        ask = 0.50 + (i % 30) * 0.01
+        ra.append({"thiTruong": [{
+            "ma": "BTC_5M", "slug": f"btc-updown-5m-{1787243400 + i * 300}",
+            "giaNen": 100_060, "giaMo": 100_000, "sigmaGiay": sig,
+            "conLaiGiay": 120.0, "upThang": True,
+            "so": {"UP": {"luc": 1, "thangCho": False, "dungDuoc": True,
+                          "bid": [{"gia": round(ask - 0.02, 4), "luong": 900}],
+                          "ask": [{"gia": round(ask, 4), "luong": 900}]},
+                   "DOWN": {"luc": 1, "thangCho": False, "dungDuoc": True,
+                            "bid": [{"gia": round(0.96 - ask, 4), "luong": 900}],
+                            "ask": [{"gia": round(0.98 - ask, 4), "luong": 900}]}}}]})
+    return ra
+
+
 def kiem_chan_doan() -> None:
     print("\n── Chẩn đoán: tìm bệnh bằng SỐ, trước khi model nói ──────────")
     # thiếu mẫu thì KHÔNG được chẩn bừa
@@ -681,6 +707,134 @@ def kiem_de_xuat() -> None:
     kiem("đề bài có kèm trần của từng nút",
          all("thap" in x and "cao" in x
              for x in de_bai(tc, {})["nutVanChoPhep"]))
+
+
+def kiem_cong_chay_may_dang_chay() -> None:
+    """Cổng phải chạy lại ĐÚNG cỗ máy đang chạy — tức là có phép nắn.
+
+    Vòng chạy thật nắn `gc.pUp` bằng `self.phepNan` trước khi cân lợi.
+    Cổng thì dựng `ThamSo` không có `phepNan`, nên nó đo một cỗ máy thô.
+    Hai tầng hậu quả, tầng dưới nặng hơn: nút `nanLai.heSoGiamChan` vặn
+    kiểu gì cũng không đổi kết quả (lượt chạy có nắn đâu mà giảm chấn),
+    và "đương nhiệm" mà cổng đo không phải đương nhiệm.
+    """
+    print("\n-- Cong phai do CO MAY DANG CHAY, khong phai may tho -------")
+
+    import kham.tien_hoa as TH
+    from kham.chan_doan import doc_tham_so
+    from kham.config import CONFIG as _CF
+    from kham.nan_lai import khop
+
+    class _So:
+        def __init__(self, o):
+            self.o = o
+
+    # Sổ hiệu chỉnh hình chữ S — mô hình bị nén về 50%, đúng hình đo được
+    # trên máy thật. Đủ mẫu để `khop()` cho ra một phép nắn dùng được.
+    nen = [(0.05, 0.01), (0.15, 0.03), (0.25, 0.10), (0.35, 0.14),
+           (0.45, 0.46), (0.55, 0.50), (0.65, 0.76), (0.75, 0.93),
+           (0.85, 0.99), (0.95, 1.00)]
+    o = {}
+    for i, (du, that) in enumerate(nen):
+        o[f"o{i}"] = {"n": 60, "thang": round(that * 60), "tongP": du * 60}
+    hc_gia = _So(o)
+
+    cu_hc = TH.HieuChinh
+    TH.HieuChinh = lambda *a, **k: hc_gia
+    cu_gc = (_CF.get("nanLai") or {}).get("heSoGiamChan")
+    try:
+        pn = khop(hc_gia)
+        kiem("dựng được phép nắn dùng được để thử cổng", pn.dung_duoc,
+             f"sai {pn.saiTruoc:.4f} → {pn.saiSau:.4f}")
+
+        # Băng phải đặt lợi thế SÁT BIÊN mới đo được nút này. Băng chuẩn
+        # của bộ kiểm có giá lệch xa, xác suất gần 1, nên nắn kiểu gì
+        # cũng qua sàng như nhau và phép kiểm sẽ xanh vì lý do sai.
+        khung = _bang_sat_bien(60)
+        ts_tho = ThamSo("thô", 0.005, 0.005)
+        ts_nan = ThamSo("nắn", 0.005, 0.005, phepNan=pn)
+        k_tho, k_nan = mot_luot(khung, ts_tho), mot_luot(khung, ts_nan)
+        kiem("phép nắn có tác dụng thật lên lượt chạy lại",
+             (k_tho.soQuaSang, round(k_tho.tongLaiLo, 6))
+             != (k_nan.soQuaSang, round(k_nan.tongLaiLo, 6)),
+             f"thô {k_tho.soQuaSang}/{k_tho.tongLaiLo:.4f} vs "
+             f"nắn {k_nan.soQuaSang}/{k_nan.tongLaiLo:.4f}")
+
+        # Và cổng, khi thử chính nút giảm chấn, phải đo ra HAI bên khác nhau.
+        _CF.setdefault("nanLai", {})["heSoGiamChan"] = 0.30
+        hien = doc_tham_so("nanLai.heSoGiamChan")
+        kiem("đọc được nút giảm chấn từ config", hien == 0.30, hien)
+
+        dx = DeXuat("nanLai.heSoGiamChan", 0.30, 1.00, "mo-hinh-lech", "thử")
+        r = thu_mot_de_xuat(khung, dx)
+        A, B = r["A"], r["B"]
+        kiem("vặn giảm chấn thì cổng đo ra HAI bên KHÁC nhau",
+             (A["soQuaSang"], round(A["kyVong"], 8))
+             != (B["soQuaSang"], round(B["kyVong"], 8)),
+             f"A {A['soQuaSang']}/{A['kyVong']:.6f} · "
+             f"B {B['soQuaSang']}/{B['kyVong']:.6f} — bằng nhau nghĩa là "
+             "cổng đang chạy một cỗ máy không có phép nắn")
+        kiem("cổng trả về phán quyết đầy đủ",
+             isinstance(r.get("cho"), bool) and "lyDo" in r)
+    finally:
+        TH.HieuChinh = cu_hc
+        if cu_gc is None:
+            (_CF.get("nanLai") or {}).pop("heSoGiamChan", None)
+        else:
+            _CF["nanLai"]["heSoGiamChan"] = cu_gc
+
+
+def kiem_do_ung_vien() -> None:
+    """Cùng một bệnh, đã trả lại rồi thì phải ra ứng viên KHÁC.
+
+    Bản trước của người đề xuất tất định là một vòng lặp chết: triệu
+    chứng nặng nhất → nút gợi ý đầu tiên → một bước → trả về ngay. Tức là
+    ĐÚNG MỘT ứng viên, mỗi ngày, mãi mãi. Đã đo tận mắt hai lượt liên tiếp
+    trên băng thật đề nghị y hệt nhau và bị cổng trả lại y hệt nhau. Sổ
+    tiến hoá dài thêm mỗi ngày một dòng giống hệt dòng trước.
+    """
+    print("\n-- De xuat: da tra lai roi thi phai do cho khac -----------")
+
+    tc = [TrieuChung("mo-hinh-lech", 2, "", {"chieu": "RỤT RÈ QUÁ"},
+                     ["nanLai.heSoGiamChan", "dinhGia.batDinhToiThieu"])]
+
+    d1 = de_xuat_tat_dinh(tc, set())
+    kiem("có ứng viên đầu tiên", len(d1) == 1)
+    kiem("nút giảm chấn được với tới",
+         d1[0].nut == "nanLai.heSoGiamChan",
+         f"đề xuất {d1[0].nut} — nút này từng nằm trong bảng mà "
+         "KHÔNG triệu chứng nào trỏ tới, nên không ai vặn được")
+    kiem("chữa lệch bằng giảm chấn là đi XA HƠN, không phải rút về",
+         d1[0].denGiaTri > d1[0].tuGiaTri,
+         f"{d1[0].tuGiaTri} → {d1[0].denGiaTri}")
+
+    # Đã trả lại ứng viên đó → phải ra một ứng viên khác, không lặp lại.
+    da = {(d1[0].nut, round(d1[0].denGiaTri, 10))}
+    d2 = de_xuat_tat_dinh(tc, da)
+    kiem("không đề nghị lại thứ vừa bị trả lại", len(d2) == 1 and
+         (d2[0].nut, round(d2[0].denGiaTri, 10)) not in da,
+         f"{d2[0].nut}={d2[0].denGiaTri}" if d2 else "rỗng")
+
+    # Dò cạn dần: gom hết ứng viên bằng cách trả lại từng cái một.
+    da2, thay = set(), []
+    for _ in range(40):
+        d = de_xuat_tat_dinh(tc, da2)
+        if not d:
+            break
+        thay.append((d[0].nut, d[0].denGiaTri))
+        da2.add((d[0].nut, round(d[0].denGiaTri, 10)))
+    kiem("dò được NHIỀU ứng viên chứ không phải một", len(thay) >= 4,
+         f"{len(thay)} ứng viên: {thay[:5]}")
+    kiem("dò tới cả nút thứ hai, không kẹt ở nút đầu",
+         len({n for n, _ in thay}) >= 2, str({n for n, _ in thay}))
+    kiem("hết ứng viên thì trả RỖNG, không lặp lại cái cũ",
+         de_xuat_tat_dinh(tc, da2) == [])
+
+    # Giá trị đề xuất phải bám lưới bước, không mang rác dấu phẩy động.
+    xau = [v for _n, v in thay if len(repr(float(v))) > 8]
+    kiem("mọi giá trị đề xuất đều bám lưới bước", not xau,
+         f"còn {xau[:3]} — hai lượt cùng một chỗ mà ra hai chuỗi khác "
+         "nhau thì trí nhớ đã-thử-gì không nhận ra chúng là một")
 
 
 def kiem_cong_tien_hoa() -> None:
@@ -1698,6 +1852,8 @@ def main() -> int:
     kiem_chan_doan()
     kiem_nut_van()
     kiem_de_xuat()
+    kiem_cong_chay_may_dang_chay()
+    kiem_do_ung_vien()
     kiem_cong_tien_hoa()
     kiem_vong_tien_hoa()
     kiem_bang()

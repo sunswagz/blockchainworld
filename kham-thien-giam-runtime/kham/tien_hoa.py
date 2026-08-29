@@ -53,6 +53,7 @@ from .chan_doan import (NUT_THEO_DUONG, NUT_VAN, TrieuChung, chan_doan,
                         de_bai, doc_tham_so, kep)
 from .chay_lai import ThamSo, doi_chieu
 from .config import CONFIG, DATA_DIR, ROOT, nao_cham_bat
+from . import nan_lai
 from .dinh_gia import HieuChinh
 from .so import So, bay_gio, thong_ke
 
@@ -90,6 +91,7 @@ class KetQuaTienHoa:
     soKhungBang: int
     soLenhKetToan: int
     nguonMau: str = "that"
+    daThu: int = 0              # bao nhiêu ứng viên đã đo và bị trả lại
     trieuChung: list[dict] = field(default_factory=list)
     deXuat: list[dict] = field(default_factory=list)
     nhan: dict | None = None
@@ -102,7 +104,7 @@ class KetQuaTienHoa:
         return {
             "luc": self.luc, "soKhungBang": self.soKhungBang,
             "soLenhKetToan": self.soLenhKetToan,
-            "nguonMau": self.nguonMau,
+            "nguonMau": self.nguonMau, "daThu": self.daThu,
             "trieuChung": self.trieuChung, "deXuat": self.deXuat,
             "nhan": self.nhan, "traLai": self.traLai,
             "kyVongTruoc": self.kyVongTruoc, "kyVongSau": self.kyVongSau,
@@ -114,13 +116,42 @@ class KetQuaTienHoa:
 #  BƯỚC 4 — ĐỀ XUẤT
 # ══════════════════════════════════════════════════════════════════════════
 
-def de_xuat_tat_dinh(tc: list[TrieuChung]) -> list[DeXuat]:
-    """Người đề xuất KHÔNG cần model: quét lưới một nút quanh giá trị hiện tại.
+TIM_MAY_BUOC = 4        # dò xa nhất mấy bước dọc theo chiều bệnh
+NHO_MAY_LUOT = 20       # trả lại trong ngần này lượt thì coi như đã thử
 
-    Chọn triệu chứng nặng nhất còn nút vặn được, rồi thử nhích nút gợi ý
-    đầu tiên một bước theo chiều LÀM CHẶT LẠI. Chiều đó là mặc định vì
-    phần lớn bệnh của một bot non là nó vào lệnh quá dễ; nới lỏng thì để
-    triệu chứng `dung-ngoai` yêu cầu riêng.
+
+def da_tra_lai(soLuot: int = NHO_MAY_LUOT) -> set:
+    """Những (nút, giá trị) mà cổng đã đo và trả lại gần đây.
+
+    Không có trí nhớ này thì người đề xuất tất định là một vòng lặp chết:
+    nó luôn chọn triệu chứng nặng nhất, nút gợi ý đầu tiên, một bước theo
+    chiều bệnh — tức là ĐÚNG MỘT ứng viên, mỗi ngày, mãi mãi. Cổng đo, cổng
+    trả lại, hôm sau đề xuất lại y hệt. Đã thấy tận mắt hai lượt liên tiếp:
+
+        dinhGia.batDinhToiThieu 0,015 → 0,010
+        → TRẢ LẠI: kỳ vọng +24,11 chưa vượt +24,54 đủ biên 1,1×
+
+    Sổ tiến hoá sẽ dài ra mỗi ngày một dòng giống hệt dòng trước, và
+    "mạnh hơn mỗi ngày" thành một câu không có gì đỡ.
+
+    Nhớ có HẠN, không nhớ vĩnh viễn: băng đổi, chợ đổi, một ứng viên thua
+    hôm nay có thể thắng tháng sau. Hết `soLuot` lượt thì nó được thử lại.
+    """
+    ra = set()
+    for d in doc_so(soLuot):
+        for r in (d.get("traLai") or []):
+            dx = r.get("deXuat") or {}
+            nut, den = dx.get("nut"), dx.get("den")
+            if nut is not None and isinstance(den, (int, float)):
+                ra.add((nut, round(float(den), 10)))
+    return ra
+
+
+def ung_vien(tc: list[TrieuChung]):
+    """Sinh lần lượt mọi ứng viên đáng thử, ưu tiên bệnh nặng, bước ngắn.
+
+    Dò dọc theo chiều mà chẩn đoán chỉ ra: một bước, hai bước, ba bước.
+    Đây mới là "quét lưới" đúng nghĩa — bản trước dừng ngay ở bước một.
     """
     for t in sorted(tc, key=lambda x: -x.nang):
         if not t.nutGoiY:
@@ -132,33 +163,71 @@ def de_xuat_tat_dinh(tc: list[TrieuChung]) -> list[DeXuat]:
             hien = doc_tham_so(duong)
             if hien is None:
                 continue
-            # `dung-ngoai` là bệnh ngược: nới ra. Còn lại thì siết vào.
-            chieu = -1.0 if t.ma == "dung-ngoai" else 1.0
-            # Nhưng `mo-hinh-lech` thì TRIỆU CHỨNG ĐÃ BIẾT HƯỚNG, và bản
-            # đầu vứt nó đi.
-            #
-            # Đã thấy tận mắt trên băng thật: chẩn ra "thiên RỤT RÈ QUÁ"
-            # rồi đề xuất SIẾT `batDinhToiThieu` chặt thêm — đúng ngược
-            # hướng bệnh. Cổng trả lại, nên không hại gì; nhưng một người
-            # đề xuất chỉ biết đi một chiều thì mãi mãi không tìm ra chiều
-            # kia, và vòng tiến hoá đứng yên vì lý do sai.
-            if t.ma == "mo-hinh-lech":
-                nhan = str(t.bangChung.get("chieu") or "")
-                if "RỤT RÈ" in nhan:
-                    chieu = -1.0          # rụt rè thì phải NỚI bất định ra
-                elif "TỰ TIN" in nhan:
-                    chieu = 1.0
-                # "hai chiều lẫn lộn" thì giữ mặc định — không đoán bừa.
-            # Nút "càng thấp càng kỹ" thì đảo chiều lại cho đúng nghĩa siết.
-            if duong in ("khoDoi.giaCapToiDa", "ruiRo.kellyPhan",
-                         "khoDoi.capChuaKhopToiDaUsd", "khoDoi.giayChoChanHai"):
-                chieu = -chieu
-            moi = kep(duong, hien + chieu * n.buoc)
-            if moi is None or abs(moi - hien) < 1e-12:
-                continue
-            return [DeXuat(duong, hien, moi, t.ma,
-                           f"quét lưới một bước {'siết' if chieu > 0 else 'nới'} "
-                           f"để chữa `{t.ma}`")]
+            chieu = _chieu_van(t, duong)
+            for k in range(1, TIM_MAY_BUOC + 1):
+                moi = kep(duong, hien + chieu * n.buoc * k)
+                if moi is None or abs(moi - hien) < 1e-12:
+                    continue
+                yield t, duong, hien, moi, chieu, k
+
+
+def _chieu_van(t: TrieuChung, duong: str) -> float:
+    """Vặn về phía nào. Tách riêng để đọc được, và để kiểm được."""
+    # `dung-ngoai` là bệnh ngược: nới ra. Còn lại thì siết vào.
+    chieu = -1.0 if t.ma == "dung-ngoai" else 1.0
+
+    if t.ma == "mo-hinh-lech":
+        # Nút giảm chấn là ngoại lệ, và ngoại lệ có lý do: bảng hiệu chỉnh
+        # ĐÃ đo được mô hình lệch đi đâu, ở cả hai đuôi. Giảm chấn chỉ
+        # quyết đi bao nhiêu phần đường ấy — nên chữa `mo-hinh-lech` bằng
+        # nút này luôn là đi XA HƠN, bất kể bệnh là rụt rè hay tự tin.
+        # Nhét nó vào cái thang "siết/nới" chung là hiểu sai nó làm gì.
+        if duong == "nanLai.heSoGiamChan":
+            return 1.0
+        # Còn hai nút kia thì TRIỆU CHỨNG ĐÃ BIẾT HƯỚNG, và bản đầu vứt
+        # nó đi: chẩn ra "thiên RỤT RÈ QUÁ" rồi đề xuất SIẾT bất định chặt
+        # thêm — đúng ngược hướng bệnh. Cổng trả lại nên không hại gì,
+        # nhưng một người đề xuất chỉ biết đi một chiều thì mãi mãi không
+        # tìm ra chiều kia.
+        nhan = str(t.bangChung.get("chieu") or "")
+        if "RỤT RÈ" in nhan:
+            chieu = -1.0          # rụt rè thì phải NỚI bất định ra
+        elif "TỰ TIN" in nhan:
+            chieu = 1.0
+        # "hai chiều lẫn lộn" thì giữ mặc định — không đoán bừa.
+
+    # Nút "càng thấp càng kỹ" thì đảo chiều lại cho đúng nghĩa siết.
+    if duong in ("khoDoi.giaCapToiDa", "ruiRo.kellyPhan",
+                 "khoDoi.capChuaKhopToiDaUsd", "khoDoi.giayChoChanHai"):
+        chieu = -chieu
+    return chieu
+
+
+def de_xuat_tat_dinh(tc: list[TrieuChung],
+                     daThu: set | None = None) -> list[DeXuat]:
+    """Người đề xuất KHÔNG cần model: dò lưới dọc theo chiều chẩn đoán chỉ.
+
+    Chọn ứng viên đầu tiên chưa bị cổng trả lại gần đây — ưu tiên bệnh
+    nặng nhất, nút nhắm thẳng nhất, bước ngắn nhất. Hết ứng viên mới thì
+    trả rỗng và NÓI RA, chứ không lặng lẽ đề nghị lại thứ vừa bị bác.
+    """
+    daThu = daThu if daThu is not None else da_tra_lai()
+    daBo: list[str] = []
+    for t, duong, hien, moi_gt, chieu, k in ung_vien(tc):
+        if (duong, round(moi_gt, 10)) in daThu:
+            daBo.append(f"{duong}={moi_gt:g}")
+            continue
+        buoc = "một bước" if k == 1 else f"{k} bước"
+        return [DeXuat(duong, hien, moi_gt, t.ma,
+                       f"dò {buoc} {'siết' if chieu > 0 else 'nới'} "
+                       f"để chữa `{t.ma}`")]
+    if daBo:
+        # Không im lặng. "Hết ứng viên mới" là một trạng thái có thật và
+        # đáng đọc — nó nói rằng vùng quanh cấu hình hiện tại đã được đo
+        # hết và không chỗ nào khá hơn, chứ không phải vòng tiến hoá hỏng.
+        print(f"[tiến hoá 4/7] {len(daBo)} ứng viên đều đã bị trả lại gần "
+              f"đây, bỏ qua: {', '.join(daBo[:6])}",
+              file=sys.stderr, flush=True)
     return []
 
 
@@ -223,20 +292,42 @@ def de_xuat_bang_model(deBai: dict) -> list[DeXuat]:
 #  BƯỚC 5–6 — THỬ rồi CỔNG
 # ══════════════════════════════════════════════════════════════════════════
 
-def thu_mot_de_xuat(khung: list[dict], dx: DeXuat) -> dict:
-    """Chạy lại băng với tham số cũ và mới, rồi cho qua cổng."""
+def thu_mot_de_xuat(khung, dx: DeXuat) -> dict:
+    """Chạy lại băng với tham số cũ và mới, rồi cho qua cổng.
+
+    ## Cả hai lượt đều chạy KÈM PHÉP NẮN, vì máy thật chạy kèm phép nắn
+
+    Vòng chạy thật đọc `self.phepNan` rồi nắn `gc.pUp` trước khi cân lợi
+    (`vong.py`). Cổng thì dựng `ThamSo` không có `phepNan`, nên nó chạy
+    lại một cỗ máy KHÔNG nắn — tức là không phải cỗ máy đang chạy.
+
+    Hậu quả có hai tầng, và tầng dưới nặng hơn:
+
+    1. `nanLai.heSoGiamChan` vặn kiểu gì cũng không đổi kết quả chạy lại,
+       vì lượt chạy ấy có nắn đâu mà giảm chấn. Một nút nữa nằm trong
+       bảng mà không ai vặn được.
+    2. Nặng hơn: "đương nhiệm" mà cổng đo KHÔNG PHẢI đương nhiệm. Mọi
+       phán quyết cổng từng đưa ra đều là phán quyết về một cỗ máy khác.
+       Nó vẫn bác bỏ được (thô so với thô là một phép so hợp lệ), nhưng
+       nó trả lời sai câu hỏi đang hỏi.
+
+    Nên nắn được khớp lại ở CẢ HAI phía. Phía B khớp lại SAU khi đổi
+    config: `dung_duoc` của phép nắn phụ thuộc chính hệ số giảm chấn, nên
+    dùng lại đường khớp của phía A là lặng lẽ đo nhầm lần nữa.
+    """
     cl = CONFIG["canLoi"]
     at = float(cl["bienAnToan"])
     net = float(cl["netEdgeToiThieu"])
+    pn = nan_lai.khop(HieuChinh())
 
     # Hai nút này vào thẳng ThamSo; các nút khác đổi CONFIG rồi chạy lại.
     if dx.nut == "canLoi.netEdgeToiThieu":
-        a = ThamSo("đương nhiệm", net, at)
-        b = ThamSo("ứng viên", dx.denGiaTri, at)
+        a = ThamSo("đương nhiệm", net, at, phepNan=pn)
+        b = ThamSo("ứng viên", dx.denGiaTri, at, phepNan=pn)
         kq = doi_chieu(khung, a, b)
     elif dx.nut == "canLoi.bienAnToan":
-        a = ThamSo("đương nhiệm", net, at)
-        b = ThamSo("ứng viên", net, dx.denGiaTri)
+        a = ThamSo("đương nhiệm", net, at, phepNan=pn)
+        b = ThamSo("ứng viên", net, dx.denGiaTri, phepNan=pn)
         kq = doi_chieu(khung, a, b)
     else:
         # Nút không đi qua `ThamSo` mà nằm trong CONFIG. Phải chạy HAI
@@ -250,10 +341,14 @@ def thu_mot_de_xuat(khung: list[dict], dx: DeXuat) -> dict:
         # Đây mới là lý do thật khiến vòng tiến hoá chưa từng nhận gì —
         # nặng hơn cả chuyện thiếu mẫu, vì nó không lộ ra ở đâu cả: cổng
         # vẫn chạy, vẫn in ra một phán quyết, chỉ là phán quyết đó vô nghĩa.
-        ka = chay_lai_mot_luot(khung, ThamSo("đương nhiệm", net, at))
+        ka = chay_lai_mot_luot(khung, ThamSo("đương nhiệm", net, at,
+                                             phepNan=pn))
         cu = _dat_tham_so(dx.nut, dx.denGiaTri)
         try:
-            kb = chay_lai_mot_luot(khung, ThamSo("ứng viên", net, at))
+            # Khớp LẠI sau khi đổi config: `dung_duoc` phụ thuộc hệ số
+            # giảm chấn, nên đường khớp của phía A không đại diện cho B.
+            kb = chay_lai_mot_luot(khung, ThamSo("ứng viên", net, at,
+                                                 phepNan=nan_lai.khop(HieuChinh())))
         finally:
             _dat_tham_so(dx.nut, cu)
         kq = gop_doi_chieu(ka, kb)
@@ -403,10 +498,16 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
     _buoc(4, "đề xuất")
     # 4. đề xuất — model trước, tất định là lưới đỡ
     db = de_bai(tc, {n.duong: doc_tham_so(n.duong) for n in NUT_VAN})
-    dx = de_xuat_bang_model(db) or de_xuat_tat_dinh(tc)
+    daThu = da_tra_lai()
+    dx = de_xuat_bang_model(db) or de_xuat_tat_dinh(tc, daThu)
     kq.deXuat = [d.tom_tat() for d in dx]
+    kq.daThu = len(daThu)
     if not dx:
-        kq.ghiChu = "không nghĩ ra đề xuất nào hợp lệ"
+        kq.ghiChu = (
+            f"vùng quanh cấu hình hiện tại đã dò hết: {len(daThu)} ứng viên "
+            f"đều đã đo và bị trả lại trong {NHO_MAY_LUOT} lượt gần đây. "
+            "Đứng yên vì ĐÃ THỬ, không phải vì chưa nghĩ ra."
+            if daThu else "không nghĩ ra đề xuất nào hợp lệ")
         if not thu:
             _ghi_so(kq)
         return kq

@@ -110,7 +110,26 @@ def kep(duong: str, gt: float) -> float | None:
     n = NUT_THEO_DUONG.get(duong)
     if n is None:
         return None
-    return max(n.thap, min(n.cao, float(gt)))
+    gt = max(n.thap, min(n.cao, float(gt)))
+    # Bám LƯỚI BƯỚC, và làm tròn theo số chữ số của chính bước.
+    #
+    # `0.015 - 0.005` trong dấu phẩy động ra `0.009999999999999998`. Con
+    # số ấy chảy thẳng vào đề xuất, vào sổ tiến hoá, và nếu cổng nhận thì
+    # vào cả `config.json`. Nó không sai về giá trị nhưng nó phá thứ khác:
+    # hai lượt đề xuất "cùng một chỗ" lại ra hai chuỗi khác nhau, nên phép
+    # nhớ-đã-thử-gì không nhận ra chúng là một.
+    thap, buoc = float(n.thap), float(n.buoc)
+    if buoc > 0:
+        gt = thap + round((gt - thap) / buoc) * buoc
+        gt = max(n.thap, min(n.cao, gt))
+    # Số chữ số thập phân lấy từ bước, không đặt cứng: bước 0.0025 cần 4
+    # chữ số, bước 5 cần 0.
+    le = 0
+    b = buoc
+    while b > 0 and abs(b - round(b)) > 1e-12 and le < 10:
+        b *= 10
+        le += 1
+    return round(gt, le)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -189,7 +208,18 @@ def chan_doan(ketToan: list[dict], hieuChinh: dict,
             f"mô hình lệch trung bình {sai:.3f} so với thực tế, thiên "
             f"{chieu} — bất định đang bị khai quá thấp",
             {"saiSoTB": sai, "chieu": chieu, "tongMau": hieuChinh.get("tongMau")},
-            ["dinhGia.batDinhToiThieu", "dinhGia.bienDongCuaSoGiay"]))
+            # `nanLai.heSoGiamChan` nằm ĐẦU danh sách vì nó là nút
+            # nhắm thẳng vào bệnh này: bảng hiệu chỉnh đã ĐO được mô
+            # hình lệch đi đâu, giảm chấn quyết đi bao nhiêu phần
+            # đường ấy. Hai nút kia chỉ nới bất định chung chung.
+            #
+            # Trước bản này nút giảm chấn có mặt trong bảng vặn mà
+            # KHÔNG triệu chứng nào trỏ tới, nên người đề xuất tất
+            # định không bao giờ với tới được nó — chỉ model mới đề
+            # nghị nổi, mà cung này chạy không cần model. Một nút
+            # nằm trong bảng mà không ai vặn được thì bằng không có.
+            ["nanLai.heSoGiamChan", "dinhGia.batDinhToiThieu",
+             "dinhGia.bienDongCuaSoGiay"]))
 
     # ── 4. cặp khoá lỗ nhiều ─────────────────────────────────────────────
     khoa = [g for g in ketToan if (g.get("giaCap") or 0) > 1.0]
