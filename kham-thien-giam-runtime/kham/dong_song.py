@@ -44,6 +44,19 @@ from .so_lenh import Muc, SoLenh
 WSS = "wss://ws-subscriptions-clob.polymarket.com/ws/market"
 
 
+class _DoiToken(Exception):
+    """Danh sách token đổi — phải đăng ký lại. KHÔNG phải đứt kết nối.
+
+    Mỗi khung 5 phút là một cặp asset_id MỚI, nên chuyện này xảy ra
+    khoảng 288 lần một ngày trong lúc mọi thứ hoàn toàn bình thường.
+    Đếm nó vào `soLanNoiLai` thì buồng lái hiện "nối lại 288 lần" sau
+    một ngày yên ả — đúng cái báo động giả mà chính docstring của
+    `_mot_phien` cảnh báo ở ca `_ChuaCoToken`, chỉ khác lối vào.
+
+    Và báo động giả thì người ta tắt cả báo động thật.
+    """
+
+
 class _ChuaCoToken(Exception):
     """Chưa đăng ký token nào — khác hẳn với đứt kết nối."""
 
@@ -97,6 +110,12 @@ class DongSong:
                 cho = 1.0                     # nối được thì đặt lại
             except _ChuaCoToken:
                 continue                      # chưa có gì để nối, không đếm
+            except _DoiToken:
+                # Đăng ký lại NGAY, không chờ và không đếm: đây là nhịp
+                # bình thường của khung 5 phút, không phải sự cố. Chờ 1
+                # giây ở đây là mỗi năm phút mù một giây, không vì gì.
+                cho = 1.0
+                continue
             except Exception as e:            # noqa: BLE001
                 self.loiCuoi = f"{type(e).__name__}: {e}"
                 bus.ghi(f"dòng sống đứt: {self.loiCuoi}", loai="canh")
@@ -137,7 +156,7 @@ class DongSong:
                 # Token theo dõi đổi thì phải đăng ký lại: mỗi khung 5 phút
                 # là một cặp asset_id MỚI, nên danh sách đổi liên tục.
                 if set(self.danh_sach()) != set(ds):
-                    return
+                    raise _DoiToken()
                 try:
                     tho = ws.recv(timeout=20)
                 except TimeoutError:

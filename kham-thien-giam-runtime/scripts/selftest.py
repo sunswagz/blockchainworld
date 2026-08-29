@@ -4638,6 +4638,55 @@ def kiem_khong_co_file_lac() -> None:
                   if f.stem in ten_sc)
     kiem("không script nào bị chép lạc sang `kham/`", not lac2, lac2)
 
+def kiem_doi_token_khong_phai_dut() -> None:
+    """Đăng ký lại token KHÔNG phải đứt kết nối — đừng đếm nó.
+
+    Mỗi khung 5 phút là một cặp asset_id MỚI, nên `dong_song` phải đăng
+    ký lại khoảng **288 lần một ngày** trong lúc mọi thứ hoàn toàn bình
+    thường. Bản trước `_mot_phien` chỉ `return` khi danh sách đổi, và
+    vòng nối lại đếm mọi lần trở về là một lần nối lại — nên buồng lái
+    hiện "nối lại 288 lần" sau một ngày yên ả, kèm một giây chờ mỗi lần.
+
+    Chính docstring của `_mot_phien` cảnh báo đúng chuyện này ở ca
+    `_ChuaCoToken`: "báo động giả thì người ta tắt cả báo động thật".
+    Cùng cái bẫy, khác lối vào.
+    """
+    print("\n── Đăng ký lại token không phải đứt kết nối ─────────────────")
+
+    import ast as _a
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    src = (GOC_MA / "kham" / "dong_song.py").read_text(encoding="utf-8")
+    ma = chr(10).join(x.split("#", 1)[0] for x in src.splitlines())
+
+    kiem("có ngoại lệ riêng cho việc đổi token",
+         "class _DoiToken" in ma)
+    kiem("danh sách đổi thì NÉM nó, không `return` trơn",
+         "raise _DoiToken()" in ma)
+    kiem("vòng nối lại bắt riêng ca ấy", "except _DoiToken" in ma)
+
+    # Ca ấy KHÔNG được đi qua `soLanNoiLai += 1`.
+    cay = _a.parse(src)
+    vong = next(n for n in _a.walk(cay)
+                if isinstance(n, _a.FunctionDef) and n.name == "_vong")
+    xu = [h for n in _a.walk(vong) if isinstance(n, _a.Try)
+          for h in n.handlers
+          if isinstance(h.type, _a.Name) and h.type.id == "_DoiToken"]
+    kiem("có đúng một nhánh bắt `_DoiToken`", len(xu) == 1, len(xu))
+    if xu:
+        than = _a.unparse(_a.Module(body=xu[0].body, type_ignores=[]))
+        kiem("nhánh ấy KHÔNG đếm nối lại", "soLanNoiLai" not in than, than)
+        kiem("và KHÔNG ngủ", "sleep" not in than, than)
+        kiem("mà đi tiếp ngay", "continue" in than, than)
+
+    # `_ChuaCoToken` cũng phải giữ nguyên tính chất ấy — nó là ca gốc.
+    xu2 = [h for n in _a.walk(vong) if isinstance(n, _a.Try)
+           for h in n.handlers
+           if isinstance(h.type, _a.Name) and h.type.id == "_ChuaCoToken"]
+    kiem("`_ChuaCoToken` vẫn không đếm nối lại",
+         xu2 and "soLanNoiLai" not in _a.unparse(
+             _a.Module(body=xu2[0].body, type_ignores=[])))
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4720,6 +4769,7 @@ def main() -> int:
     kiem_chan_lenh_tu_trang_khac()
     kiem_ban_thu_mot_cho()
     kiem_khong_co_file_lac()
+    kiem_doi_token_khong_phai_dut()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
