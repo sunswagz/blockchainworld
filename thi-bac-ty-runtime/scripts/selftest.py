@@ -6113,6 +6113,21 @@ def kiem_ke_toan_vi_the() -> None:
          and gan(dt37["thucBpsGio"], 2.0),
          f"{dt37} — luật này nói con số CÓ NGHĨA hay không, chứ không nói "
          f"lúc nào mã được sửa")
+    # Kết toán NHẬP TỪ cỗ máy khác không phải lần đóng của ty này. Đo
+    # thật: bảng ghi «prediction.polymarket.v1 đóng 41» trong khi ty ấy
+    # chưa tự đóng lần nào — cả 41 đều là kết toán của Khâm Thiên Giám.
+    sc38 = SoCai(_tam("so-ngoai") / "sc.sqlite3")
+    sc38.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "e.v1", "m",
+                   {"duDoanBpsGio": 1.0, "thucBpsGio": 2.0,
+                    "daGiuGio": 24.0}))
+    sc38.ghi(_BT35("DONG_VI_THE", "kết toán ngoài", 0.0, "e.v1", "m",
+                   {"nguon": "kham-thien-giam", "daGiuGio": 24.0}))
+    dt38 = sc38.du_doan_va_thuc()["e.v1"]
+    kiem("kết toán NHẬP TỪ máy khác KHÔNG đếm là lần đóng của ty này",
+         dt38["soDong"] == 1 and dt38["soTuSoNgoai"] == 1,
+         f"{dt38} — gia sản là một nên sổ chung là đúng, nhưng câu «ty này "
+         f"có giữ lời không» chỉ hỏi được về những lần CHÍNH NÓ đóng")
+
     from thi_bac_ty.trung_uong import TOI_THIEU_GIO_DOI_CHIEU as _TGD
     kiem("và hai ngưỡng ghi/đọc BẰNG NHAU",
          gan(SoCai.TOI_THIEU_GIO_TI_SUAT, _TGD),

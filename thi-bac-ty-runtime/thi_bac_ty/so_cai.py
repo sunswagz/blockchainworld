@@ -291,8 +291,20 @@ class SoCai:
                 continue
             du, thuc = d.get("duDoanBpsGio"), d.get("thucBpsGio")
             o = ra.setdefault(cl, {"soDong": 0, "soDoiChieuDuoc": 0,
-                                   "soGiuQuaNgan": 0,
+                                   "soGiuQuaNgan": 0, "soTuSoNgoai": 0,
                                    "tongDuDoan": 0.0, "tongThuc": 0.0})
+            # Kết toán NHẬP TỪ cỗ máy khác không phải lần đóng của ty này.
+            # `nhap_so_ngoai` cố ý đổ chúng vào CÙNG một sổ cái — đúng, vì
+            # gia sản là một. Nhưng câu «ty này có giữ lời không» thì chỉ
+            # hỏi được về những lần CHÍNH NÓ đóng.
+            #
+            # Đo thật 29/08: bảng ghi «prediction.polymarket.v1 đóng 41»
+            # trong khi ty ấy chưa tự đóng lần nào — cả 41 đều là kết toán
+            # của Khâm Thiên Giám. Đếm gộp là gán lời hứa cho người không
+            # hứa.
+            if d.get("nguon"):
+                o["soTuSoNgoai"] += 1
+                continue
             o["soDong"] += 1
             # Luật «giữ quá ngắn thì không quy ra bps mỗi giờ» phải áp ở CẢ
             # HAI phía. Bên GHI đã chặn từ 29/08, nhưng những dòng ghi
@@ -312,6 +324,7 @@ class SoCai:
             o["tongThuc"] += float(thuc)
         for o in ra.values():
             o.setdefault("soGiuQuaNgan", 0)
+            o.setdefault("soTuSoNgoai", 0)
             k = o["soDoiChieuDuoc"]
             # `None` khi chưa đối chiếu được lần nào — không phải 0. Một ty
             # chưa đóng vị thế nào chưa nói được gì về mình.
