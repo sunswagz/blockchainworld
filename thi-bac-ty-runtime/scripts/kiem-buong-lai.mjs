@@ -4,6 +4,9 @@
  *     node scripts/kiem-buong-lai.mjs
  *     node scripts/kiem-buong-lai.mjs --song     (lấy từ máy đang chạy)
  *     node scripts/kiem-buong-lai.mjs --ghi-mau  (chép lại mẫu từ máy sống)
+ *     node scripts/kiem-buong-lai.mjs --ghi-mau --cong 5388
+ *         (chụp từ một máy khác — dùng khi cây chính đang chạy mã cũ,
+ *          chẳng hạn vì một phiên khác đang giữ nó)
  *     node scripts/kiem-buong-lai.mjs --in von   (in cây nút của một trang)
  *
  * VÌ SAO CẦN, và vì sao `node --check` không thay được:
@@ -128,7 +131,8 @@ function dungDomGia() {
 
 async function layTrangThai() {
   if (co("--song") || co("--ghi-mau")) {
-    const r = await fetch("http://127.0.0.1:5188/api/trang-thai");
+    const cong = co("--cong") ? doi[doi.indexOf("--cong") + 1] : "5188";
+    const r = await fetch("http://127.0.0.1:" + cong + "/api/trang-thai");
     return r.json();
   }
   return JSON.parse(readFileSync(DUONG_MAU, "utf8"));
