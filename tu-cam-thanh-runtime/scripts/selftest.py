@@ -1000,6 +1000,27 @@ async def main() -> int:
                    {"phatHien": {"that:X": {}}})
     check("ĐỔI TÊN MÃ" not in " ".join(_r2),
           "không trùng đuôi nào → báo mất thẳng, không ngờ vẩn vơ")
+
+    # LUÂN PHIÊN cũng đọc như biến mất. Lò chưng cất chỉ đưa 3 bác-bỏ gần nhất
+    # thành phát hiện riêng; cái thứ tư rời bảng nhưng vẫn nằm trong danh sách
+    # tóm tắt. Nó không mất, nó nhường chỗ — và báo "vừa hỏng" về nó là câu sai.
+    _r3 = BG21._so(
+        {"phatHien": {"da-thu-va-hong": {"so": {"maDaBacBo": ["cu", "moi"]}},
+                      "bac-bo:moi": {}}},
+        {"phatHien": {"bac-bo:cu": {}, "bac-bo:moi": {}, "mat-han": {}}})
+    _t3 = " ".join(_r3)
+    check("LUÂN PHIÊN" in _t3, "bác bỏ còn trong tóm tắt → nói rõ là luân phiên")
+    check("mat-han" in _t3, "và cái mất THẬT vẫn được nêu, không bị nuốt chung")
+
+    # Cửa ngược lại: không có tóm tắt thì không được đoán là luân phiên.
+    check("LUÂN PHIÊN" not in " ".join(BG21._so(
+        {"phatHien": {"x": {}}}, {"phatHien": {"bac-bo:cu": {}}})),
+        "không có «da-thu-va-hong» → báo mất thẳng, không suy diễn")
+
+    # Và `_so` phải chịu được phát hiện THIẾU trường `so`: nó đọc dữ liệu của
+    # LẦN TRƯỚC, tức dữ liệu do một bản mã có thể đã khác sinh ra.
+    BG21._so({"phatHien": {"k": {}}}, {"phatHien": {"k": {}}})
+    check(True, "_so chịu được phát hiện thiếu trường `so`, không nổ")
     print("\n[20] HẬU KIỂM PHẢI NHƯỜNG TRẦN CHO LUẬN ĐIỂM")
     import trader.brain as _B20
 

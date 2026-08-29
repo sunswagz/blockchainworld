@@ -135,9 +135,18 @@ def _so(nay: dict, truoc: dict) -> list[str]:
     if moi:
         ra.append(f"**Phát hiện MỚI ({len(moi)}):** " + " · ".join(moi))
     if mat:
+        # LUÂN PHIÊN cũng đọc như biến mất. Lò chưng cất chỉ đưa 3 bác-bỏ gần
+        # nhất thành phát hiện riêng; cái thứ tư rời bảng nhưng vẫn nằm trong
+        # danh sách tóm tắt `da-thu-va-hong`. Nó không mất, nó nhường chỗ.
+        con = set((a.get("da-thu-va-hong", {}).get("so") or {}).get("maDaBacBo") or [])
+        xoay = [k for k in mat
+                if k.startswith("bac-bo:") and k.split(":", 1)[1] in con]
         ngo = [k for k in mat if duoi(k) in doi_ten]
         ra.append(f"**Phát hiện BIẾN MẤT ({len(mat)}):** " + " · ".join(mat)
                   + " — nguồn của chúng không còn đủ mẫu, hoặc vừa hỏng."
+                  + (f" {len(xoay)} trong số đó ({', '.join(sorted(xoay))}) vẫn"
+                     f" nằm trong «da-thu-va-hong» — chúng LUÂN PHIÊN ra khỏi"
+                     f" bảng cho bác bỏ mới hơn, không mất." if xoay else "")
                   + (f" NHƯNG {len(ngo)} trong số đó có một phát hiện MỚI trùng"
                      f" đuôi mã ({', '.join(sorted(ngo))}) — nhiều khả năng chỉ"
                      f" là ĐỔI TÊN MÃ, không phải mất phép đo." if ngo else ""))
@@ -146,7 +155,11 @@ def _so(nay: dict, truoc: dict) -> list[str]:
     doi_dau = []
     for k in set(a) & set(b):
         for truong in ("kyVongR", "expectancyUsd", "riskCv"):
-            x, y = (a[k]["so"] or {}).get(truong), (b[k].get("so") or {}).get(truong)
+            # Cả hai bên dùng `.get`: một bên `[...]` là chỗ nổ nếu có phát hiện
+            # nào thiếu trường `so` — và mục này chạy trên dữ liệu của LẦN TRƯỚC,
+            # tức dữ liệu sinh bởi một bản mã có thể đã khác.
+            x, y = ((a[k].get("so") or {}).get(truong),
+                    (b[k].get("so") or {}).get(truong))
             if isinstance(x, (int, float)) and isinstance(y, (int, float)) and x * y < 0:
                 doi_dau.append(f"{k}.{truong}: {y:+.3f} → {x:+.3f}")
     if doi_dau:
@@ -218,6 +231,31 @@ def _gia_kho_ky_nang() -> list[str]:
 # Trên khung 4h, 12 lượt là khoảng hai ngày không vào lệnh nào.
 DUNG_IM_LIEN_TIEP = 12
 
+
+def _champion_so() -> str:
+    """Con số đứng cạnh tên champion ở DÒNG ĐẦU bản bàn giao.
+
+    Mặc định là `ketQua.kyVongR` — kết quả trên chợ trong cấu hình, tức MỘT chợ,
+    đúng cái chợ mọi thứ ở đây từng được đo lên. Dòng đầu là dòng người ta đọc
+    khi không đọc gì khác, nên để con số dễ dãi nhất ở đó là chọn sai chỗ.
+
+    Có phép đo nhiều chợ thì lấy con số GỘP, và ghi cả hai để không ai tưởng
+    con số đổi vì bộ luật đổi.
+    """
+    try:
+        cl = json.loads((DATA_DIR / "chien-luoc.json").read_text(encoding="utf-8"))
+    except (ValueError, OSError, FileNotFoundError):
+        return "chưa có sổ chiến lược"
+    ma = (cl.get("champion") or {}).get("ma")
+    mot = ((cl.get("champion") or {}).get("ketQua") or {}).get("kyVongR")
+    gop = next((p for p in store.read_all(store.PHAT_HIEN)
+                if p["ma"] in (f"cho:{ma}", f"cho-gop:{ma}")), None)
+    kv = (gop.get("so") or {}).get("kyVongR") if gop else None
+    if kv is None:
+        return f"{mot}R ngoài mẫu, MỘT chợ" if mot is not None else "chưa đo"
+    return (f"{kv:+.3f}R gộp {(gop.get('so') or {}).get('soCho')} chợ / "
+            f"{gop['mau']} lệnh"
+            + (f", {mot:+.3f}R ở chợ đang chạy" if mot is not None else ""))
 
 def _champion_bi_bac_bo() -> list[str]:
     """Champion có đang bị chính phép đo của mình bác bỏ không.
@@ -478,7 +516,7 @@ def main() -> int:
     W("")
     W(f"{nay['soLenhThat']} lệnh thật · {nay['soKyNang']} kỹ năng · {nay['soBoLuat']} bộ luật · "
       f"{kq['soPhatHien']} phát hiện · champion `{nay['champion']}` "
-      f"({nay['championKyVong']}R ngoài mẫu)")
+      f"({_champion_so()})")
     W("")
 
     # ĐẶT TRƯỚC MỌI MỤC KHÁC. Nếu bot đang tắt thì mọi phần bên dưới là báo cáo
