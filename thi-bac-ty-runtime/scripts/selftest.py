@@ -1508,6 +1508,79 @@ def kiem_hop_dong() -> None:
     kiem("gom ĐỦ lỗi khuôn, không dừng ở cái đầu", len(xau.kiem()) >= 3,
          str(xau.kiem()))
 
+    # ── BIÊN của hợp đồng ───────────────────────────────────────────────
+    #
+    # Đây là cái cổng MỌI ty phải qua, và quét đột biến cho 10/15 con
+    # SỐNG SÓT — gần như mọi biên của `kiem()` đang trống. Một cổng
+    # không ai kiểm ở biên là một cổng chỉ chặn được những tờ trình sai
+    # rõ ràng, mà tờ trình sai rõ ràng thì không ai gửi.
+
+    kiem("xin ĐÚNG BẰNG sức chứa thì hợp lệ",
+         _tt(vonCanUsd=100.0, sucChuaToiDaUsd=100.0).hop_le,
+         "«xin nhiều hơn chỗ chứa» phải nghĩa là HƠN, không phải bằng")
+    kiem("xin hơn sức chứa một xu thì bắt",
+         not _tt(vonCanUsd=100.01, sucChuaToiDaUsd=100.0).hop_le)
+
+    kiem("cửa sổ giữ đúng bằng 0 thì BẮT — không có cơ hội nào dài 0 giờ",
+         not _tt(giuGio=0.0).hop_le,
+         "giữ 0 giờ nghĩa là vào rồi ra tức thì, và mọi con số bps mỗi "
+         "giờ dựng trên nó đều chia cho không")
+    kiem("nhưng một khoảnh khắc dương thì qua", _tt(giuGio=0.001).hop_le)
+
+    kiem("khoá vốn ĐÚNG BẰNG 0 là hợp lệ — nghĩa là không khoá",
+         _tt(khoaVonDenGio=0.0).hop_le,
+         "0 ở đây là «không khoá», không phải một giá trị sai")
+    kiem("khoá vốn ÂM thì bắt", not _tt(khoaVonDenGio=-0.001).hop_le)
+
+    kiem("thanh khoản thoát ĐÚNG BẰNG 0 là hợp lệ — nghĩa là không ra được",
+         _tt(thanhKhoanThoatUsd=0.0).hop_le,
+         "«ra được 0 đồng» là một phép đo có thật và rất đáng biết; loại "
+         "nó ra là bắt ty im lặng đúng lúc nó nói điều tệ nhất")
+    kiem("thanh khoản thoát ÂM thì bắt",
+         not _tt(thanhKhoanThoatUsd=-0.001).hop_le)
+
+    kiem("xin ĐÚNG BẰNG vốn tối thiểu kinh tế thì hợp lệ",
+         _tt(vonCanUsd=500.0, vonToiThieuKinhTeUsd=500.0).hop_le,
+         "«xin ít hơn ngưỡng mình khai» phải nghĩa là ÍT HƠN")
+    kiem("xin dưới ngưỡng ấy thì bắt",
+         not _tt(vonCanUsd=499.0, vonToiThieuKinhTeUsd=500.0).hop_le)
+    kiem("khai vốn tối thiểu = 0 thì bắt",
+         not _tt(vonToiThieuKinhTeUsd=0.0).hop_le,
+         "khai 0 nghĩa là «engine này kinh tế ở mọi cỡ vốn», và chưa "
+         "engine nào như thế")
+    kiem("khai một xu thì qua — thang MỞ ở 0, không mở ở 1",
+         _tt(vonCanUsd=100.0, vonToiThieuKinhTeUsd=0.01).hop_le)
+
+    # Thang [0,1] ĐÓNG hai đầu: 0 là «không rủi ro mặt này», 1 là «rủi ro
+    # tối đa». Đổi `<=` thành `<` là gọi chính hai đầu thang là vi phạm.
+    for _v in (0.0, 1.0):
+        kiem(f"rủi ro đúng bằng {_v:g} nằm TRONG thang",
+             _tt(ruiRo=RuiRo(thiTruong=_v)).hop_le,
+             f"{_tt(ruiRo=RuiRo(thiTruong=_v)).kiem()}")
+        kiem(f"tin cậy đúng bằng {_v:g} cũng thế",
+             _tt(tinCay=_v).hop_le, f"{_tt(tinCay=_v).kiem()}")
+    kiem("nhích ra ngoài thang thì bắt",
+         not _tt(tinCay=1.001).hop_le and not _tt(tinCay=-0.001).hop_le)
+
+    # `raDuocKhong`: ra được ĐÚNG BẰNG số xin thì ra được.
+    kiem("thoát ĐÚNG BẰNG số xin thì «ra được»",
+         _tt(vonCanUsd=100.0, thanhKhoanThoatUsd=100.0).raDuocKhong is True)
+    kiem("thiếu một xu thì KHÔNG ra được",
+         _tt(vonCanUsd=100.0,
+             thanhKhoanThoatUsd=99.98).raDuocKhong is False)
+    kiem("chưa đo thanh khoản thoát thì None, không phải False",
+         _tt(thanhKhoanThoatUsd=None).raDuocKhong is None,
+         "«chưa đo» và «đo rồi, và ra không được» là hai câu khác nhau")
+
+    # `xin_theo_suc_chua`: sức chứa ĐÚNG BẰNG 0 nghĩa là không chứa được
+    # gì, nên xin đúng sàn — cùng luật với `None`.
+    from thi_bac_ty.to_trinh import xin_theo_suc_chua as _xin
+    kiem("sức chứa 0 thì xin đúng SÀN, y như chưa đo",
+         gan(_xin(500.0, 0.0), 500.0) and gan(_xin(500.0, None), 500.0))
+    kiem("sức chứa dương bé xíu cũng vẫn xin đúng sàn, không xin dưới sàn",
+         gan(_xin(500.0, 1.0), 500.0),
+         "dưới sàn thì phí cố định ăn hết — sàn là SÀN")
+
 
 def kiem_rui_ro_chua_do() -> None:
     print("\n── Rủi ro: KHÔNG BIẾT phải khác KHÔNG ────────────────────────")
@@ -1831,6 +1904,23 @@ def kiem_so_cai() -> None:
 def kiem_danh_muc() -> None:
     print("\n── Danh Mục: ba thước phơi nhiễm, ba câu hỏi khác nhau ───────")
     from thi_bac_ty.danh_muc import DanhMuc, ViThe
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    #
+    # `danh_muc.py` chỉ có HAI chỗ đem đột biến được, và cả hai đều sống
+    # sót — tức là cả hai đều chưa ai kiểm. Một trong hai là cửa duy nhất
+    # canh «có đủ tiền không».
+    _dmB = DanhMuc(1000.0)
+    kiem("cam kết ĐÚNG BẰNG toàn bộ tiền mặt thì ĐƯỢC",
+         _dmB.cam_ket("het", [ViThe("het", "a.b.v1", "LONG", "kraken",
+                                    "SOL", 1000.0)])
+         and gan(_dmB.tienMatUsd, 0.0),
+         "«quá tiền mặt» phải nghĩa là QUÁ, không phải vừa hết — chặn ở "
+         "đây là để lại một đồng lẻ vĩnh viễn không tiêu được")
+    kiem("nhưng quá một xu thì KHÔNG",
+         not DanhMuc(1000.0).cam_ket(
+             "qua", [ViThe("qua", "a.b.v1", "LONG", "kraken", "SOL",
+                           1000.01)]))
 
     dm = DanhMuc(1000.0)
     kiem("cờ trung thực mặc định là MÔ PHỎNG", dm.nguonThat is False)

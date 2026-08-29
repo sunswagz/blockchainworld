@@ -113,6 +113,11 @@ class DanhMuc:
             if maToTrinh in self.viThe:
                 return False                          # đã cấp rồi, không cấp hai lần
             can = sum(abs(c.vonUsd) for c in chan)
+            # `>` và `>=` cho cùng kết quả ở đây: dải 1e-9 nuốt trọn chỗ
+            # hai cách viết khác nhau, nên con đột biến ấy TƯƠNG ĐƯƠNG.
+            # Ghi lại để lượt quét sau khỏi đi tìm phép kiểm không tồn
+            # tại — cái đáng kiểm là «cam kết đúng bằng toàn bộ tiền mặt
+            # thì ĐƯỢC», và phép kiểm ấy đã có.
             if can > self.tienMatUsd + 1e-9:
                 return False
             self.tienMatUsd -= can

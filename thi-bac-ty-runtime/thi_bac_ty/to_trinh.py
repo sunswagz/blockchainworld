@@ -171,6 +171,11 @@ def xin_theo_suc_chua(vonSanUsd: float, sucChuaToiDaUsd: float | None,
     thì xin nhỏ nhất, chứ không đoán.
     """
     san = max(0.0, float(vonSanUsd))
+    # `<= 0` và `< 0` cho cùng kết quả: sức chứa đúng bằng 0 đi tiếp thì
+    # `max(san, min(tran, 0)) == san`, y hệt nhánh này. Con đột biến ấy
+    # TƯƠNG ĐƯƠNG — ghi lại để lượt quét sau khỏi đi tìm phép kiểm không
+    # tồn tại. Cái đáng kiểm là «sức chứa 0 thì xin đúng SÀN», và phép
+    # kiểm ấy đã có.
     if sucChuaToiDaUsd is None or sucChuaToiDaUsd <= 0:
         return san
     return max(san, min(float(tranUsd),
