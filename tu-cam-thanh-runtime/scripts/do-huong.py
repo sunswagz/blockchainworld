@@ -38,6 +38,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import huanluyen  # noqa: E402
+from trader import data as DATA  # noqa: E402
 from trader.config import CONFIG, DATA_DIR, ROOT  # noqa: E402
 
 GHI = "--ghi" in sys.argv
@@ -57,8 +58,9 @@ def _nap(sym: str, tf: str):
         if not f.exists():
             return None
         nen[k] = json.loads(f.read_text(encoding="utf-8"))
-    cuoi = max(x.get("t") or 0 for x in nen[tf])
-    if (_dt.datetime.now(_dt.timezone.utc).timestamp() * 1000 - cuoi) / 86_400_000 > 30:
+    cu = DATA.qua_cu(nen[tf], tf)
+    if cu is not None:
+        print(f"  bỏ qua {sym}:{tf} — nến cuối cách đây {cu:.0f} ngày (chợ chết)")
         return None
     CONFIG["timeframes"]["primary"] = tf
     CONFIG["timeframes"]["context"] = ctx

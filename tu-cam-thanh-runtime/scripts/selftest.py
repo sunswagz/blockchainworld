@@ -99,7 +99,11 @@ def ma_khong_chu_thich(f) -> str:
     return NL.join("" if i + 1 in xoa else d.split(chr(35))[0]
                    for i, d in enumerate(dong))
 
+DA_KIEM = [0]
+
+
 def check(cond: bool, label: str) -> None:
+    DA_KIEM[0] += 1
     print(("  OK   " if cond else "  SAI  ") + label)
     if not cond:
         FAILS.append(label)
@@ -1107,6 +1111,53 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[46] MỌI CHỖ ĐỌC NẾN TỪ ĐĨA PHẢI CANH TUỔI")
+    # MKRUSDT ngừng cập nhật 15/09/2025 nhưng file vẫn đủ 1500 nến, vẫn đọc
+    # được, vẫn qua mọi phép đếm. Luật «bỏ chợ chết» từng nằm ở BA bản chép tay
+    # và THIẾU ở hai script khác — tức nó không phải luật, nó là thói quen.
+    import re as _re46
+
+    from trader import data as _D46
+
+    check(_D46.han_cu_ngay("1d") == 30.0, "hạn cũ 1d giữ nguyên 30 ngày như luật cũ")
+    check(_D46.han_cu_ngay("4h") == 10.0, "hạn cũ 4h chặt hơn 30 ngày (60 nến)")
+    check(_D46.han_cu_ngay("5m") == 3.0, "hạn cũ 5m không tụt dưới sàn 3 ngày")
+    _nay46 = 1_700_000_000_000
+    check(_D46.qua_cu([{"t": _nay46 - 40 * 86_400_000}], "1d", _nay46) is not None,
+          "nến cuối cách 40 ngày trên 1d ⇒ chợ chết")
+    check(_D46.qua_cu([{"t": _nay46 - 5 * 86_400_000}], "1d", _nay46) is None,
+          "nến cuối cách 5 ngày trên 1d ⇒ vẫn dùng được")
+    check(_D46.qua_cu([{"t": _nay46 - 15 * 86_400_000}], "4h", _nay46) is not None,
+          "15 ngày trên 4h ⇒ chợ chết (luật 30 ngày phẳng cũ sẽ cho qua)")
+    check(_D46.qua_cu([], "1d", _nay46) is None and _D46.tuoi_nen([]) is None,
+          "danh sách rỗng không bị đoán bừa là chợ chết")
+
+    # Quét: script nào đọc `data/lich-su` thì phải gọi `qua_cu`. Cắt chú thích
+    # TRƯỚC khi dò — chính đoạn giải thích ngay trên có đủ mọi từ khoá cần tìm.
+    # «lich-su» phải đứng RIÊNG một đoạn đường dẫn. Bản đầu dò chuỗi con nên
+    # bắt nhầm `ban-giao-lich-su.jsonl` và `tai-lich-su.py` — hai thứ không đọc
+    # nến nào. Dò lỏng thì phép kiểm kêu ở chỗ không có lỗi, rồi người ta tắt nó.
+    _RE46 = _re46.compile(r"(?<![\w-])lich-su(?![\w.])")
+    check(bool(_RE46.search('ROOT / "data" / "lich-su" / f"{s}.json"'))
+          and bool(_RE46.search('open("data/lich-su/x.json")'))
+          and not _RE46.search('DATA_DIR / "ban-giao-lich-su.jsonl"')
+          and not _RE46.search("chạy scripts/tai-lich-su.py trước"),
+          "phép dò «lich-su» bắt đúng đường dẫn kho nến, bỏ qua tên file khác")
+    _thieu46 = []
+    for _f46 in sorted((ROOT / "scripts").glob("*.py")):
+        if _f46.name in ("tai-lich-su.py", "selftest.py"):
+            continue          # một cái GHI nến, một cái là chính phép kiểm này
+        _s46 = ma_khong_chu_thich(_f46)
+        if _RE46.search(_s46) and "qua_cu" not in _s46:
+            _thieu46.append(_f46.name)
+    check(not _thieu46,
+          "mọi script đọc nến từ đĩa đều canh tuổi"
+          + (f" — THIẾU: {_thieu46}" if _thieu46 else ""))
+    # Cửa ngược: phép quét phải BẮT ĐƯỢC một nguồn hỏng dựng sẵn.
+    _hong46 = "d = json.load(open('data/lich-su/x.json'))"
+    check("lich-su" in _hong46 and "qua_cu" not in _hong46,
+          "phép quét bắt được nguồn hỏng dựng sẵn — không tự chấm mù")
+
     print("\n[45] CỬA DUYỆT PHẢI NHÌN RA NGOÀI CHỢ NHÀ")
     from trader.chien_luoc import phan_quyet as _pq45
 
@@ -2374,11 +2425,15 @@ async def main() -> int:
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:
-        print(f"  {len(FAILS)} PHÉP KIỂM SAI:")
+        print(f"  {len(FAILS)}/{DA_KIEM[0]} PHÉP KIỂM SAI:")
         for x in FAILS:
             print("   - " + x)
         return 1
-    print("  TẤT CẢ ĐỀU ĐÚNG — vòng chạy kín từ nến tới bài học.")
+    # In TỔNG SỐ như hai runtime kia. Không có con số này thì CLAUDE.md không
+    # neo được vào đâu, và "bộ kiểm vẫn xanh" không phân biệt được với "bộ kiểm
+    # vừa mất 40 phép vì một lần sửa hỏng".
+    print(f"  TẤT CẢ {DA_KIEM[0]} PHÉP KIỂM ĐỀU ĐÚNG — "
+          "vòng chạy kín từ nến tới bài học.")
     print("=" * 62)
     return 0
 

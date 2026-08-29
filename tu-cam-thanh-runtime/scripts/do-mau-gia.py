@@ -39,6 +39,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import mau_gia  # noqa: E402
+from trader import data as DATA  # noqa: E402
 from trader.config import CONFIG, DATA_DIR, ROOT  # noqa: E402
 
 NL = chr(10)
@@ -77,6 +78,10 @@ def _nap(cho: str | None = None) -> list[dict]:
     d = json.loads(f.read_text(encoding="utf-8"))
     if isinstance(d, dict):
         d = d.get("candles") or d.get("nen") or next(iter(d.values()))
+    cu = DATA.qua_cu(d, tf)
+    if cu is not None:
+        print(f"  bỏ qua {sym}:{tf} — nến cuối cách đây {cu:.0f} ngày (chợ chết)")
+        return []
     return d
 
 

@@ -130,3 +130,56 @@ async def get_market_data(client: httpx.AsyncClient, symbol: str | None = None) 
         "source": data_source(),
         "lastClosedCandleTime": p[-2]["t"] if len(p) > 1 else p[-1]["t"],
     }
+
+
+# ── NẾN QUÁ CŨ ────────────────────────────────────────────────────────────────
+#
+# MKRUSDT ngừng cập nhật 15/09/2025 (đổi tên sang SKY). File của nó vẫn đủ 1500
+# nến, vẫn đọc được, vẫn qua mọi phép đếm — và đóng góp vào bảng gộp một cửa sổ
+# "ngoài mẫu" kết thúc từ một năm trước. Không gì đỏ lên.
+#
+# Luật ấy đã được viết BA LẦN, chép tay, ở `dau-chien-luoc.py`, `lo-luyen.py`,
+# `do-huong.py` — và THIẾU HẲN ở `do-khung.py` với `do-mau-gia.py`. Một luật
+# nằm ở ba bản sao thì nó không phải luật, nó là ba thói quen trùng nhau.
+#
+# ĐẾM THEO NẾN, KHÔNG THEO NGÀY
+#
+# Ngưỡng 30 ngày phẳng đúng cho 1d và quá lỏng cho mọi khung dưới nó: 30 ngày
+# trên 5m là 8.640 nến thiếu, mà phép kiểm vẫn xanh. Nên ngưỡng đếm bằng NẾN
+# rồi mới quy ra ngày, có chặn trên chặn dưới:
+#
+#     1d → 60 ngày, ép về trần 30   (đúng bằng luật cũ, không đổi hành vi)
+#     4h → 10 ngày
+#     5m → 0,2 ngày, ép về sàn 3    (mạng chập vài giờ không được tính là chết)
+QUA_CU_NEN = 60
+QUA_CU_SAN_NGAY = 3.0
+QUA_CU_TRAN_NGAY = 30.0
+
+
+def tuoi_nen(ds: list[dict], bay_gio_ms: float | None = None) -> float | None:
+    """Số NGÀY kể từ nến cuối. `None` khi không có nến nào đọc được mốc thời gian."""
+    moc = [x.get("t") or 0 for x in (ds or []) if x.get("t")]
+    if not moc:
+        return None
+    if bay_gio_ms is None:
+        bay_gio_ms = time.time() * 1000
+    return (bay_gio_ms - max(moc)) / 86_400_000
+
+
+def han_cu_ngay(tf: str) -> float:
+    """Ngưỡng «quá cũ» của một khung, tính bằng ngày."""
+    ms = TF_MS.get(tf) or TF_MS["1d"]
+    return min(QUA_CU_TRAN_NGAY,
+               max(QUA_CU_SAN_NGAY, QUA_CU_NEN * ms / 86_400_000))
+
+
+def qua_cu(ds: list[dict], tf: str, bay_gio_ms: float | None = None) -> float | None:
+    """Trả TUỔI (ngày) nếu chợ đã chết, `None` nếu còn dùng được.
+
+    Trả về tuổi chứ không phải `True`: chỗ gọi luôn cần in ra con số, và một hàm
+    trả bool thì chỗ gọi lại đi tính tuổi lần nữa — tức lại có hai bản sao.
+    """
+    t = tuoi_nen(ds, bay_gio_ms)
+    if t is None:
+        return None
+    return t if t > han_cu_ngay(tf) else None

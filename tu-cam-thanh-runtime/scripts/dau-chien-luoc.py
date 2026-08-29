@@ -38,6 +38,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import chien_luoc, huanluyen as HL  # noqa: E402
+from trader import data as DATA  # noqa: E402
 from trader.brain import BO_LUAT  # noqa: E402
 from trader.config import CONFIG  # noqa: E402
 
@@ -104,10 +105,8 @@ def _nap_cho(sym: str, chinh: str, ctx: str):
     # Bỏ qua khi mốc cắt đuôi KHÔNG được đặt: có `--truoc` thì cũ là chuyện
     # đương nhiên, chính người gọi vừa yêu cầu điều đó.
     if TRUOC is None:
-        _cuoi = max((x.get("t") or 0) for x in nen[chinh])
-        _cu_ngay = (_dt.datetime.now(_dt.timezone.utc).timestamp() * 1000
-                    - _cuoi) / 86_400_000
-        if _cu_ngay > 30:
+        _cu_ngay = DATA.qua_cu(nen[chinh], chinh)
+        if _cu_ngay is not None:
             print(f"    ⚠ {sym}:{chinh} — nến cuối cách đây {_cu_ngay:.0f} ngày "
                   f"(chợ chết hoặc đổi tên). BỎ QUA: cửa sổ ngoài mẫu của nó "
                   f"kết thúc ở một thời điểm khác hẳn mọi chợ còn lại.")

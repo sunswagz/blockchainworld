@@ -42,6 +42,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from trader import data as DATA  # noqa: E402
 from trader.config import CONFIG, DATA_DIR, ROOT  # noqa: E402
 from trader.indicators import atr as _atr  # noqa: E402
 
@@ -63,7 +64,15 @@ def _nap(sym: str, tf: str) -> list[dict]:
     if not f.exists():
         return []
     d = json.loads(f.read_text(encoding="utf-8"))
-    return d if isinstance(d, list) else []
+    if not isinstance(d, list):
+        return []
+    # Bảng hình học so các khung với nhau, nên một chợ chết ở khung này mà sống
+    # ở khung kia là đúng chỗ làm lệch bảng nhất. Trước đây không canh gì cả.
+    cu = DATA.qua_cu(d, tf)
+    if cu is not None:
+        print(f"  bỏ qua {sym}:{tf} — nến cuối cách đây {cu:.0f} ngày (chợ chết)")
+        return []
+    return d
 
 
 def do_mot(nen: list[dict], drag_bps: float) -> dict | None:

@@ -1140,8 +1140,7 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
     cd tu-cam-thanh-runtime
     python run.py                 buồng lái ở localhost:5182, ghi mỗi vòng lặp
     python -m trader.snapshot     ghi một lần rồi thoát
-    python scripts/selftest.py    phép kiểm số học, KHÔNG cần mạng
-                                  (không in tổng số như hai runtime kia)
+    python scripts/selftest.py    335 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   giao diện có đọc được mọi trường nó cần không
 
 **Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một

@@ -40,6 +40,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import huanluyen as HL  # noqa: E402
+from trader import data as DATA  # noqa: E402
 from trader.config import CONFIG, DATA_DIR, ROOT  # noqa: E402
 
 GHI = "--ghi" in sys.argv
@@ -60,6 +61,10 @@ def _nap(sym: str, chinh: str, ctx: str):
         if not f.exists():
             return None
         nen[tf] = json.loads(f.read_text(encoding="utf-8"))
+    cu = DATA.qua_cu(nen[chinh], chinh)
+    if cu is not None:
+        print(f"  bỏ qua {sym}:{chinh} — nến cuối cách đây {cu:.0f} ngày (chợ chết)")
+        return None
     CONFIG["timeframes"]["primary"] = chinh
     CONFIG["timeframes"]["context"] = ctx
     return nen

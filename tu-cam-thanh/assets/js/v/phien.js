@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-29T21:27:58.131Z",
- "chayTu": "2026-08-29T21:27:52+00:00",
- "vong": 1,
+ "generatedAt": "2026-08-29T22:47:43.916Z",
+ "chayTu": "2026-08-29T21:12:23+00:00",
+ "vong": 267,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "4h",
   "context": "1d"
  },
- "gia": 78106.54,
+ "gia": 78196.21,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "04:27:56",
+  "lastOk": "05:47:43",
   "lastError": null
  },
  "cheDo": {
@@ -40,25 +40,25 @@ window.TU_CAM_THANH = {
  },
  "thiTruong": {
   "4h": {
-   "price": 78106.54,
-   "ema20": 78378.688,
-   "ema50": 77012.484,
-   "ema200": 70129.578,
+   "price": 78196.21,
+   "ema20": 78387.228,
+   "ema50": 77016.001,
+   "ema200": 70130.471,
    "emaStack": "BULLISH_ALIGNED",
-   "rsi14": 48.4,
-   "rsiSlope": 1.67,
-   "macdHist": -220.99,
-   "macdHistSlope": 50.618,
+   "rsi14": 49.2,
+   "rsiSlope": 1.94,
+   "macdHist": -215.26,
+   "macdHistSlope": 52.526,
    "atr": 843.16686,
-   "atrPct": 1.08,
+   "atrPct": 1.078,
    "atrRatioVsMedian": 0.8,
    "volatility": "NORMAL",
    "adx": 23.0,
    "plusDI": 23.0,
    "minusDI": 20.3,
-   "bbWidthPct": 4.755243,
-   "bbPosition": 0.33,
-   "volumeRatio": 0.09,
+   "bbWidthPct": 4.7402678,
+   "bbPosition": 0.35,
+   "volumeRatio": 0.23,
    "structure": "TRANSITION",
    "swingHighs": [
     80000.0,
@@ -108,29 +108,29 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 76888.0,
-   "distToRange20HighPct": 4.32,
-   "distToRange20LowPct": 1.56
+   "distToRange20HighPct": 4.2,
+   "distToRange20LowPct": 1.67
   },
   "1d": {
-   "price": 78106.54,
-   "ema20": 73123.746,
-   "ema50": 69001.425,
-   "ema200": 73008.275,
+   "price": 78196.21,
+   "ema20": 73132.286,
+   "ema50": 69004.942,
+   "ema200": 73009.167,
    "emaStack": "MIXED",
-   "rsi14": 71.3,
-   "rsiSlope": -3.1,
-   "macdHist": 730.19,
-   "macdHistSlope": -228.017,
+   "rsi14": 71.4,
+   "rsiSlope": -3.05,
+   "macdHist": 735.91,
+   "macdHistSlope": -226.109,
    "atr": 2340.4684,
-   "atrPct": 2.997,
+   "atrPct": 2.993,
    "atrRatioVsMedian": 1.04,
    "volatility": "NORMAL",
    "adx": 42.0,
    "plusDI": 38.7,
    "minusDI": 11.8,
-   "bbWidthPct": 39.822461,
+   "bbWidthPct": 39.845252,
    "bbPosition": 0.75,
-   "volumeRatio": 0.36,
+   "volumeRatio": 0.38,
    "structure": "UPTREND",
    "swingHighs": [
     65409.56,
@@ -176,7 +176,7 @@ window.TU_CAM_THANH = {
       "ten": "HAI_ĐÁY",
       "loai": "ĐẢO_CHIỀU",
       "huong": "LONG",
-      "rr": 0.6,
+      "rr": 0.61,
       "doTin": 0.86
      },
      {
@@ -190,7 +190,7 @@ window.TU_CAM_THANH = {
       "ten": "NẾN_TRONG_GIẢM",
       "loai": "NÉN",
       "huong": "SHORT",
-      "rr": 1.36,
+      "rr": 1.4,
       "doTin": 0.45
      }
     ],
@@ -198,20 +198,20 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 4.32,
-   "distToRange20LowPct": 19.94
+   "distToRange20HighPct": 4.2,
+   "distToRange20LowPct": 20.03
   }
  },
  "luanDiem": null,
  "phanQuyet": null,
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 9712.43,
-  "vonThucHien": 9712.43,
-  "dinhVon": 9715.28,
-  "laiLoMo": 2.2,
+  "von": 9718.5,
+  "vonThucHien": 9718.5,
+  "dinhVon": 9718.75,
+  "laiLoMo": 8.26,
   "laiLoHomNay": 158.73,
-  "drawdownPct": 0.03,
+  "drawdownPct": 0.0,
   "soLenhDaDong": 46,
   "viThe": [
    {
@@ -250,8 +250,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 1382525,
     "ocoOrderListId": 303090,
     "ocoError": null,
-    "unrealizedPnl": 0.19,
-    "unrealizedR": 0.01
+    "unrealizedPnl": 2.72,
+    "unrealizedR": 0.08
    },
    {
     "id": "t_9fa9a550c3",
@@ -289,8 +289,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 3024893,
     "ocoOrderListId": 304336,
     "ocoError": null,
-    "unrealizedPnl": 2.61,
-    "unrealizedR": 0.1
+    "unrealizedPnl": 3.85,
+    "unrealizedR": 0.14
    },
    {
     "id": "t_ca4aa0c3d2",
@@ -328,8 +328,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9772656,
     "ocoOrderListId": 309125,
     "ocoError": null,
-    "unrealizedPnl": -0.6,
-    "unrealizedR": -0.02
+    "unrealizedPnl": 1.69,
+    "unrealizedR": 0.05
    }
   ]
  },
@@ -1485,7 +1485,156 @@ window.TU_CAM_THANH = {
    "soatLaiLuc": null
   }
  ],
- "theGioi": null,
+ "theGioi": {
+  "luc": 1788043376.2238357,
+  "phaiSinh": {
+   "fundingNamHoa": 9.15,
+   "openInterestUsd": 8410536676.9,
+   "oiDoi24hPct": 2.2,
+   "topTrader": {
+    "tyLe": 2.0866,
+    "long": 0.676,
+    "short": 0.324,
+    "doi12h": 0.026
+   },
+   "toanSan": {
+    "tyLe": 1.1891,
+    "long": 0.5432,
+    "short": 0.4568,
+    "doi12h": 0.016
+   },
+   "nguon": "Binance Futures"
+  },
+  "viMo": {
+   "muc": {
+    "DXY": {
+     "ten": "chỉ số đô la",
+     "gia": 99.16,
+     "doiPct": -0.01
+    },
+    "US10Y": {
+     "ten": "lợi suất trái phiếu 10 năm",
+     "gia": 4.672,
+     "doiPct": 0.17
+    },
+    "DAU": {
+     "ten": "dầu WTI",
+     "gia": 83.4,
+     "doiPct": -0.16
+    },
+    "SP500": {
+     "ten": "S&P 500",
+     "gia": 7730.99,
+     "doiPct": 0.72
+    },
+    "VANG": {
+     "ten": "vàng",
+     "gia": 4478.1,
+     "doiPct": -2.85
+    }
+   },
+   "khauVi": {
+    "diem": 1.01,
+    "soChiSo": 3,
+    "nhan": "RISK_ON",
+    "ghiChu": "suy ra từ chiều đổi của DXY, lợi suất và S&P — không phải một chỉ số có sẵn"
+   },
+   "nguon": "Yahoo Finance"
+  },
+  "tamLy": {
+   "gt": 68,
+   "nhan": "Greed",
+   "chuoi": [
+    71,
+    66,
+    73,
+    74,
+    65,
+    71,
+    73,
+    68
+   ]
+  },
+  "tin": [
+   {
+    "ma": "FED",
+    "soBai": 6,
+    "bai": [
+     {
+      "tieuDe": "Minutes of the Board's discount rate meetings on July 20 and July 29, 2026",
+      "nguon": "Fed",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260825a.htm"
+     },
+     {
+      "tieuDe": "Minutes of the Federal Open Market Committee, July 28–29, 2026",
+      "nguon": "Fed",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260819a.htm"
+     }
+    ]
+   },
+   {
+    "ma": "LAM_PHAT",
+    "soBai": 5,
+    "bai": [
+     {
+      "tieuDe": "Fed Chair Kevin Warsh at Jackson Hole: 'We have work to do' on inflation",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/markets/2026/08/28/warsh-at-jackson-hole-we-have-work-to-do-on-inflaiton"
+     },
+     {
+      "tieuDe": "Bitcoin dips to $78.4K as Fed’s Warsh downplays softer inflation prints",
+      "nguon": "Cointelegraph",
+      "url": "https://cointelegraph.com/markets/bitcoin-dips-fed-warsh-dismisses-recent-low-inflation-prints?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+     }
+    ]
+   },
+   {
+    "ma": "QUY_DINH",
+    "soBai": 1,
+    "bai": [
+     {
+      "tieuDe": "SEC Proposes New Regulation Crypto Assets",
+      "nguon": "SEC",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-76-sec-proposes-new-regulation-crypto-assets"
+     }
+    ]
+   },
+   {
+    "ma": "ETF",
+    "soBai": 4,
+    "bai": [
+     {
+      "tieuDe": "Bitcoin ETFs end 9-day inflow streak as BTC dips below $78K",
+      "nguon": "Cointelegraph",
+      "url": "https://cointelegraph.com/markets/bitcoin-etf-end-9-day-inflow-streak-btc-below-78k?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
+     },
+     {
+      "tieuDe": "Ethereum ETFs Take $226M in a Day, Almost Matching Bitcoin's Haul",
+      "nguon": "Decrypt",
+      "url": "https://decrypt.co/376810/ethereum-etfs-take-226m-in-a-day-almost-matching-bitcoins-haul"
+     }
+    ]
+   },
+   {
+    "ma": "VI_MO",
+    "soBai": 6,
+    "bai": [
+     {
+      "tieuDe": "Ditching 'digital gold': BPI study suggests everyday Americans prefer control and micro-investing",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/business/2026/08/28/ditch-digital-gold-bpi-study-suggests-everyday-americans-prefer-control-and-micro-investing"
+     },
+     {
+      "tieuDe": "Bitcoin is outperforming stocks and correlating with gold just when it matters most",
+      "nguon": "CoinDesk",
+      "url": "https://www.coindesk.com/daybook-us/2026/08/28/bitcoin-is-outperforming-stocks-and-correlating-with-gold-just-when-it-matters-most"
+     }
+    ]
+   }
+  ],
+  "soFeed": 9,
+  "soBai": 186
+ },
  "huanLuyen": null,
  "phatHien": [
   {
