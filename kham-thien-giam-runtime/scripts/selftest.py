@@ -3668,15 +3668,60 @@ def kiem_phi_khong_bien_mat() -> None:
 
     dl = khong_chu_thich((GOC_MA / "kham" / "dat_lenh.py")
                          .read_text(encoding="utf-8"))
+    # Phép kiểm này từng dò ĐÚNG MỘT CHUỖI mã nguồn — nó đỏ ngay lần
+    # đầu ai đó thêm một tham số vào lời gọi, dù hành vi không đổi. Dò
+    # hành vi thì bền, và nó kiểm đúng thứ đáng kiểm.
+    from kham.dat_lenh import CongLenh, Lenh
+    _k = Kho()
+    _c = CongLenh(_k)
+    _l = Lenh(id="x", ma="BTC_5M", ben="UP", chienThuat="t", soCo=10,
+              giaDat=0.5, laMaker=False, datLucMs=0.0,
+              soCoKhop=10, giaKhop=0.5, phiUsd=0.37, pMoHinh=0.62)
+    _c._ghi_kho(_l)
+    _v = _k.lay("BTC_5M")
     kiem("đường đặt lệnh TRUYỀN phí vào vị thế",
-         "ghi_khop(l.ben, l.soCoKhop, l.giaKhop, l.phiUsd)" in dl)
+         gan(_v.phiUsd, 0.37), _v.phiUsd)
+    kiem("và TRUYỀN cả niềm tin mô hình lúc vào lệnh",
+         _v.pVaoTb is not None and gan(_v.pVaoTb, 0.62), _v.pVaoTb)
+    _l2 = Lenh(id="y", ma="BTC_5M", ben="DOWN", chienThuat="t", soCo=10,
+               giaDat=0.5, laMaker=False, datLucMs=0.0,
+               soCoKhop=10, giaKhop=0.5, phiUsd=0.0, pMoHinh=0.62)
+    _c._ghi_kho(_l2)
+    kiem("chân DOWN quy về P(UP) — 0,62 bên DOWN nghĩa là P(UP)=0,38",
+         gan(_v.pVaoTb, 0.5), _v.pVaoTb)
 
     kt = khong_chu_thich((GOC_MA / "kham" / "ket_toan.py")
                          .read_text(encoding="utf-8"))
     kiem("kết toán ghi phí THẬT, không ghi 0", "phiUsd=v.phiUsd" in kt)
     kiem("và KHÔNG còn ghi cứng phiUsd=0.0", "phiUsd=0.0" not in kt)
-    kiem("dọn vị thế thì dọn cả phí — không rớt sang cửa sổ sau",
-         kt.count("v.phiUsd = 0.0") >= 2, kt.count("v.phiUsd = 0.0"))
+    # `don()` phải trả MỌI trường về mặc định.
+    #
+    # Bản trước dò `kt.count("v.phiUsd = 0.0") >= 2` — đếm số lần một
+    # chuỗi xuất hiện trong mã nguồn. Nó đúng chừng nào có đúng hai chỗ
+    # dọn và cả hai viết y hệt nhau; thực tế có BA chỗ, và chỗ thứ ba
+    # (`phat_lai._tra_ton_kho`) quên `phiUsd` mà phép kiểm vẫn xanh.
+    #
+    # So với dataclass thì mỗi trường MỚI thêm vào `ViThe` đều tự động
+    # được canh: quên nó trong `don()` là đỏ, không cần ai nhớ.
+    import dataclasses as _dc
+
+    from kham.kho_doi import ChanCho, ViThe
+    _z = ViThe(ma="z")
+    _z.ghi_khop("UP", 40, 0.4, 1.5, 0.7)
+    _z.ghi_khop("DOWN", 10, 0.3, 0.2, 0.6)
+    _z.choCap.append(ChanCho(ben="UP", soCo=1, giaTrungBinh=0.4,
+                             moLucMs=0.0, capMongMuon=0.98))
+    _z.don()
+    _sach = ViThe(ma="z")
+    _sot = [f.name for f in _dc.fields(ViThe)
+            if f.name != "ma"
+            and getattr(_z, f.name) != getattr(_sach, f.name)]
+    kiem("don() trả MỌI trường của ViThe về mặc định", not _sot, _sot)
+    kiem("và ba chỗ dọn tồn kho đều gọi don(), không gán tay",
+         "v.phiUsd = 0.0" not in kt
+         and "coUp = " not in khong_chu_thich(
+             (GOC_MA / "kham" / "phat_lai.py").read_text(encoding="utf-8")
+         ).split("def _tra_ton_kho")[-1][:400])
 
     # Bất biến CHUNG cho cả hai đường: một dòng sổ phải tự nhất quán.
     # Đây là thứ nối `ket_toan` (thật) với `phat_lai` (giấy) về một

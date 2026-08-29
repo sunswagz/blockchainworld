@@ -45,6 +45,10 @@ class Lenh:
     khopLucMs: float = 0.0
     duong: str = "giay"             # giay | that
     ghiChu: str = ""
+    #: Giá trị hợp lý mô hình gán cho BÊN NÀY lúc đặt lệnh. Đi theo lệnh
+    #: để tới được sổ kết toán: sổ chỉ ghi niềm tin lúc GẦN ĐÓNG, nên
+    #: không nói được cỗ máy đã tin gì lúc nó tiêu tiền.
+    pMoHinh: float | None = None
 
     @property
     def tienUsd(self) -> float:
@@ -81,6 +85,7 @@ class CongLenh:
             chienThuat=ch.chienThuat, soCo=soCo,
             giaDat=ch.vwap if not ch.laMaker else _gia_yet_maker(so, ch),
             laMaker=ch.laMaker, datLucMs=time.time() * 1000.0,
+            pMoHinh=ch.fairValue,
         )
         self.lenh.append(l)
 
@@ -185,7 +190,7 @@ class CongLenh:
         # Phí phải ĐI THEO vào vị thế. Bản trước tính nó, in nó ra
         # nhật ký, rồi bỏ rơi — nên lãi lỗ ở `ket_toan` đẹp hơn sự
         # thật đúng bằng khoản phí, ở CẢ chế độ giấy lẫn chế độ thật.
-        v.ghi_khop(l.ben, l.soCoKhop, l.giaKhop, l.phiUsd)
+        v.ghi_khop(l.ben, l.soCoKhop, l.giaKhop, l.phiUsd, l.pMoHinh)
 
         # Chân của một cặp thì phải vào sổ chờ, để đồng hồ chưa-phòng-hộ chạy.
         if l.chienThuat.startswith("cap-") and abs(v.dinhHuong) > 0:

@@ -436,7 +436,8 @@ class PhienPhatLai:
         if ch.chienThuat not in v.chienThuat:
             v.chienThuat.append(ch.chienThuat)
         # Vào tồn kho chung để `quyet_chan` và phơi nhiễm nhóm nhìn thấy.
-        self.kho.lay(ch.ma).ghi_khop(ch.ben, r.khop, r.vwap)
+        self.kho.lay(ch.ma).ghi_khop(ch.ben, r.khop, r.vwap,
+                                     pMoHinh=ch.fairValue)
 
     # ── kết toán một cửa sổ ───────────────────────────────────────────
     def _ket_toan(self, slug: str) -> None:
@@ -494,16 +495,20 @@ class PhienPhatLai:
             ma=v.ma, upThang=bool(that), coUp=v.coUp, coDown=v.coDown,
             tienVao=v.tienVao, tienRa=tienRa, phiUsd=v.phi, laiLo=lai,
             giaCap=v.gia_cap, chienThuat=list(v.chienThuat),
-            pDuDoan=v.pDuDoanUp))
+            pDuDoan=v.pDuDoanUp,
+            # `v` là tồn kho riêng của đường chạy lại; hai trường này
+            # sống ở tồn kho CHUNG (`kho_doi.ViThe`), nơi `ghi_khop`
+            # cộng dồn chúng. Đọc TRƯỚC khi trả tồn kho.
+            pLucVao=self.kho.lay(v.ma).pVaoTb,
+            giaVaoTb=self.kho.lay(v.ma).giaVaoTb))
         self._tra_ton_kho(v.ma)
         self._khop_lai_nan()
 
     def _tra_ton_kho(self, ma: str) -> None:
         """Cửa sổ đóng thì tồn kho của market ấy về 0, dù chấm được hay không."""
-        vt = self.kho.lay(ma)
-        vt.coUp = vt.coDown = 0.0
-        vt.tienUp = vt.tienDown = 0.0
-        vt.choCap.clear()
+        # Chỗ dọn tồn kho THỨ BA, và nó đã quên `phiUsd` sẵn từ trước —
+        # đúng thứ `ViThe.don()` sinh ra để chặn.
+        self.kho.lay(ma).don()
 
     # ── khớp lại đường nắn trong lúc chạy ─────────────────────────────
     def _khop_lai_nan(self) -> None:

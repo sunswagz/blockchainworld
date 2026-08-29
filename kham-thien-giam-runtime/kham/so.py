@@ -34,7 +34,17 @@ class GhiKetToan:
     laiLo: float
     giaCap: float | None
     chienThuat: list[str] = field(default_factory=list)
+    #: Niềm tin GẦN LÚC ĐÓNG — dùng để chấm mô hình.
     pDuDoan: float | None = None
+    #: Niềm tin LÚC VÀO LỆNH, quy về P(UP), bình quân theo tiền — và giá
+    #: bình quân đã trả. Hai số này trả lời câu mà `pDuDoan` không trả
+    #: lời được: lệnh này lúc đặt ra có dương kỳ vọng không.
+    #:
+    #: `None` ở những dòng ghi TRƯỚC bản này, và ở tồn kho dựng tay để
+    #: đo phơi nhiễm. Chỗ đọc phải chịu được `None` chứ đừng mặc định 0:
+    #: p bằng 0 là một khẳng định rất mạnh, không phải "chưa biết".
+    pLucVao: float | None = None
+    giaVaoTb: float | None = None
 
 
 class So:

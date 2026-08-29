@@ -61,6 +61,22 @@ class ViThe:
     #: buồng lái đều ĐẸP HƠN sự thật đúng bằng khoản phí — trong phiên
     #: giấy chạy hết băng, phí là $2,93 trên $32,99 lãi, tức 9%.
     phiUsd: float = 0.0
+    #: Niềm tin của mô hình LÚC VÀO LỆNH, quy về P(UP), trọng số theo
+    #: tiền. Hai trường thô để cộng dồn được qua nhiều lần khớp.
+    #:
+    #: Sổ kết toán vốn chỉ ghi `pDuDoan` — mà `ket_toan` cố ý giữ dự
+    #: đoán GẦN LÚC ĐÓNG nhất, "vì đó là lúc mô hình biết nhiều nhất".
+    #: Đúng cho việc chấm mô hình, nhưng nó KHÔNG phải con số đã tiêu
+    #: tiền. Nhìn một dòng thua trong sổ, không cách nào biết đó là
+    #: cược đúng mà xui hay cược ngược dấu — mà đấy đúng là câu vòng
+    #: tiến hoá cần trả lời.
+    #:
+    #: Đo được trên sổ thật: dòng duy nhất ngày 29/08 ghi `pDuDoan
+    #: 0,0438` cạnh một lệnh MUA UP giá $0,4545. Đọc thẳng thì như một
+    #: lỗi dấu tày trời; thật ra là hai thời điểm khác nhau bị in cạnh
+    #: nhau. Ghi cả hai thì hết mơ hồ.
+    pVaoTichLuy: float = 0.0
+    tienCoP: float = 0.0
     choCap: list[ChanCho] = field(default_factory=list)
 
     # ── giá vốn ───────────────────────────────────────────────────────────
@@ -132,16 +148,30 @@ class ViThe:
 
     # ── ghi khớp ──────────────────────────────────────────────────────────
     def ghi_khop(self, ben: str, soCo: float, giaKhop: float,
-                 phiUsd: float = 0.0) -> None:
+                 phiUsd: float = 0.0, pMoHinh: float | None = None) -> None:
         """Ghi một lần khớp. `giaKhop` phải là giá KHỚP, không phải giá đặt.
 
         `phiUsd` là phí của CHÍNH lần khớp này. Mặc định 0 cho những chỗ
         chỉ dựng tồn kho để đo phơi nhiễm (phơi nhiễm không quan tâm phí);
         đường đặt lệnh THẬT phải truyền vào.
+
+        `pMoHinh` là giá trị hợp lý mô hình gán cho CHÍNH BÊN đang mua,
+        tại thời điểm đặt lệnh. Quy về P(UP) ngay tại đây — một chân
+        DOWN mua ở p=0,55 nghĩa là mô hình tin P(UP)=0,45 — vì nếu để
+        hai quy ước cùng chạy trong sổ thì sớm muộn có người cộng nhầm.
         """
         if soCo <= 0:
             return
         self.phiUsd += max(0.0, float(phiUsd or 0.0))
+        if pMoHinh is not None:
+            try:
+                pUp = float(pMoHinh) if ben == "UP" else 1.0 - float(pMoHinh)
+            except (TypeError, ValueError):
+                pUp = None
+            if pUp is not None:
+                tien = soCo * giaKhop
+                self.pVaoTichLuy += pUp * tien
+                self.tienCoP += tien
         if ben == "UP":
             self.coUp += soCo
             self.tienUp += soCo * giaKhop
@@ -157,6 +187,44 @@ class ViThe:
         """Lãi lỗ RÒNG — đã trừ phí. Xem ghi chú ở `phiUsd`."""
         return (self.gia_tri_khi_ket_qua(upThang)
                 - (self.tienUp + self.tienDown) - self.phiUsd)
+
+    def don(self) -> None:
+        """Khung đã xong: tồn kho về 0. MỘT chỗ, vì đã sót một lần rồi.
+
+        `ket_toan` dọn vị thế ở HAI nơi, mỗi nơi một danh sách gán tay.
+        Khi `phiUsd` ra đời, một trong hai nơi quên nó, nên phí của khung
+        cũ chảy sang khung mới. Mỗi trường mới thêm vào `ViThe` lại là
+        một lần bốc thăm xem có ai nhớ sửa cả hai chỗ không.
+
+        Không dùng `__init__` lại: `Kho` giữ tham chiếu tới chính đối
+        tượng này, thay bằng cái mới thì chỗ nào đang cầm bản cũ sẽ nhìn
+        thấy tồn kho ma.
+        """
+        self.coUp = self.coDown = 0.0
+        self.tienUp = self.tienDown = 0.0
+        self.phiUsd = 0.0
+        self.pVaoTichLuy = 0.0
+        self.tienCoP = 0.0
+        self.choCap.clear()
+
+    @property
+    def pVaoTb(self) -> float | None:
+        """P(UP) mô hình tin lúc vào lệnh, bình quân theo TIỀN.
+
+        Theo tiền chứ không theo số cổ: một lệnh $40 và một lệnh $2 không
+        được nói bằng nhau về việc cỗ máy đã tin cái gì.
+        """
+        if self.tienCoP <= 0:
+            return None
+        return self.pVaoTichLuy / self.tienCoP
+
+    @property
+    def giaVaoTb(self) -> float | None:
+        """Giá bình quân một cổ, gộp cả hai chân. Cặp kín thì vượt 1,00."""
+        co = self.coUp + self.coDown
+        if co <= 0:
+            return None
+        return (self.tienUp + self.tienDown) / co
 
     def lo_xau_nhat_usd(self) -> float:
         """Mất nhiều nhất bao nhiêu nếu khung này quay ra chiều xấu nhất.

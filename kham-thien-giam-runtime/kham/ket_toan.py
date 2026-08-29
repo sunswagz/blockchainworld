@@ -148,10 +148,7 @@ class KetToan:
         treo = 0.0
         if v is not None and (v.coUp > 0 or v.coDown > 0):
             treo = v.tienUp + v.tienDown
-            v.coUp = v.coDown = 0.0
-            v.tienUp = v.tienDown = 0.0
-            v.phiUsd = 0.0
-            v.choCap.clear()
+            v.don()
         self.tienTreoUsd += treo
         self.soTreo += 1
         bus.ghi(
@@ -226,15 +223,12 @@ class KetToan:
                 tienRa=v.gia_tri_khi_ket_qua(upThang),
                 phiUsd=v.phiUsd, laiLo=lai_lo, giaCap=v.giaCap,
                 chienThuat=list(c.chienThuat), pDuDoan=c.pDuDoanUp,
+                pLucVao=v.pVaoTb, giaVaoTb=v.giaVaoTb,
             )
             self.so.ghi(g)
             if self.risk is not None:
                 self.risk.ghi_lai_lo(lai_lo)
-            # dọn vị thế: khung đã kết toán, tồn kho về 0
-            v.coUp = v.coDown = 0.0
-            v.tienUp = v.tienDown = 0.0
-            v.phiUsd = 0.0
-            v.choCap.clear()
+            v.don()          # khung đã kết toán, tồn kho về 0
             bus.ghi(f"kết toán {c.slug}: UP {'thắng' if upThang else 'thua'} · "
                     f"lãi lỗ ${lai_lo:+.4f}", loai="khop")
         else:
