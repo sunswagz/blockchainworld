@@ -149,7 +149,17 @@ def main() -> int:
             if len(viDu) < 5:
                 viDu.append((d.get("slug"), d.get("upThang"), moi, a, b))
 
+    # MỘT dòng máy đọc được, in trước phần cho người đọc.
+    #
+    # `kham-suc-khoe.py` từng phải dò văn xuôi để lấy mấy con số này, và
+    # nó bắt nhầm ngay lần chạy đầu: câu cảnh báo *"vẫn báo khớp 100%
+    # trong khi cả sổ sai"* bị xuống dòng thành một dòng bắt đầu bằng
+    # "khớp", và trang khám in câu ấy vào chỗ đáng lẽ là một con số.
+    #
+    # Dò văn xuôi khéo hơn không phải cách chữa. Cách chữa là cho công cụ
+    # NÓI một dòng dành cho máy — chữ cho người, số cho máy, tách hẳn.
     print()
+    print(f"KETLUAN khop={khop} lech={lech} hoa={hoa} thieu={thieu}")
     print("    khớp        " + format(khop, ">8,"))
     print("    LỆCH        " + format(lech, ">8,")
           + ("   ← mỗi dòng ở đây là một con số sai chảy vào mọi phép chấm"
