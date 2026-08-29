@@ -706,7 +706,13 @@ class Runtime:
                        fairUp=gc.pUp, giaChoUp=cap.gia_mua("UP"),
                        batDinh=gc.batDinh))
 
-        # 6. chân lệch — quyết TRƯỚC khi mở thêm
+        # 6. chân lệch — LỜI KHUYÊN, không phải hành động
+        #
+        # `qc` chỉ đi vào buồng lái. Không chỗ nào trong vòng lặp huỷ lệnh,
+        # nâng giá, vượt spread hay đóng chân theo nó. Ghi ở đây vì cái
+        # tên `quyet_chan` đọc như thể có ai đó thi hành — xem docstring
+        # của `chan_rui_ro.quyet` để biết ba lớp nào đã che phần nguy
+        # hiểm, và ca nào thì KHÔNG được che.
         v = self.kho.lay(ma)
         qc = quyet_chan(v, cap, tau, now)
         self.quyetChan[ma] = (

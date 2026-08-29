@@ -3672,6 +3672,51 @@ def kiem_phien_giay_dung_giai_doan() -> None:
     kiem("và nó gọi lại `_giai_doan` chứ không chép logic",
          "return _giai_doan(conLaiGiay, tongGiay)" in dh)
 
+def kiem_quyet_chan_la_loi_khuyen() -> None:
+    """`quyet_chan` là LỜI KHUYÊN — và điều đó phải được nói ra.
+
+    `vong._mot_thi_truong` gọi nó mỗi vòng, cất vào `self.quyetChan[ma]`,
+    gửi qua API và vào cả ẢNH CHỤP CÔNG KHAI — rồi không chỗ nào huỷ
+    lệnh, nâng giá, vượt spread hay đóng chân theo nó. Buồng lái cũng
+    KHÔNG vẽ nó ra. Một phép tính đi suốt đường ống rồi chết ở cuối.
+
+    Không sửa thành hành động: nối `DONG_CHAN` / `VUOT_SPREAD` / `HUY`
+    vào là đổi hành vi giao dịch thật, phải là quyết định có chủ ý và đo
+    được. Nhưng cái TÊN `quyet` đọc như thể có ai thi hành, nên chỗ nào
+    nói ra sự thật ấy thì phải giữ được — bằng phép canh, không bằng
+    lòng tin.
+    """
+    print("\n── `quyet_chan` phải tự khai là lời khuyên ──────────────────")
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    crr = (GOC_MA / "kham" / "chan_rui_ro.py").read_text(encoding="utf-8")
+    kiem("chan_rui_ro nói rõ đây là LỜI KHUYÊN",
+         "LỜI KHUYÊN, KHÔNG PHẢI HÀNH ĐỘNG" in crr)
+    kiem("và kể ba lớp đã che phần nguy hiểm",
+         all(x in crr for x in ("capChuaKhopToiDaUsd", "cap_theo_thoi",
+                                "tự tất toán")))
+    kiem("và nói rõ ca nào KHÔNG được che",
+         "không ai bán bên thiếu" in crr)
+
+    vg = (GOC_MA / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("chỗ gọi cũng ghi, không bắt người đọc đi tra",
+         "LỜI KHUYÊN, không phải hành động" in vg)
+
+    # Nếu có ngày ai nối nó vào thật, phép canh này phải TRƯỢT để người
+    # ấy buộc phải quay lại sửa cả tài liệu — chứ không lặng lẽ đi qua.
+    than = vg[vg.index("qc = quyet_chan("):]
+    than = than[:than.index("# 7.")] if "# 7." in than else than[:400]
+    ma = chr(10).join(d.split("#", 1)[0] for d in than.splitlines())
+    kiem("hiện tại `qc` KHÔNG dẫn tới hành động nào",
+         not any(x in ma for x in ("dat_lenh", "huy(", "dong_chan",
+                                   "vuot_spread")), ma[:120])
+
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("buồng lái VẼ lời khuyên ra", "T.quyetChan" in js)
+    kiem("và dán nhãn để không ai tưởng bot tự làm",
+         "bot KHÔNG tự làm" in js)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3738,6 +3783,7 @@ def main() -> int:
     kiem_khong_co_phep_kiem_gia()
     kiem_phi_khong_bien_mat()
     kiem_phien_giay_dung_giai_doan()
+    kiem_quyet_chan_la_loi_khuyen()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

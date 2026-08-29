@@ -77,7 +77,29 @@ class QuyetChan:
 
 def quyet(v: ViThe, cap: CapSo, conLaiGiay: float,
           bayGioMs: float | None = None) -> QuyetChan | None:
-    """Nhìn một vị thế lệch chân, quyết phải làm gì. None nếu đã cân bằng."""
+    """Nhìn một vị thế lệch chân, khuyên nên làm gì. None nếu đã cân bằng.
+
+    ⚠ **LỜI KHUYÊN, KHÔNG PHẢI HÀNH ĐỘNG.** `vong._mot_thi_truong` gọi hàm
+    này rồi cất kết quả vào `self.quyetChan[ma]` cho buồng lái đọc — và
+    dừng ở đó. Không chỗ nào huỷ lệnh, nâng giá, vượt spread hay đóng
+    chân theo nó. Ai đọc tên `quyet` mà tưởng bot tự làm là hiểu sai, nên
+    câu này phải nằm ngay đây chứ không nằm trong đầu ai.
+
+    Vì sao vẫn chấp nhận được — ba lớp đã che phần nguy hiểm:
+
+    · `capChuaKhopToiDaUsd` ở RiskEngine chặn MỞ THÊM khi phần trần đã
+      quá hạn mức, nên phơi nhiễm một chân bị chặn KÍCH THƯỚC.
+    · `cap_theo_thoi` ưu tiên bù chân thiếu ở những ca bù được — tức là
+      những ca dễ, khi giá cặp sau khi bù vẫn dưới trần.
+    · khung 5 phút tự tất toán, nên một chân trần sống nhiều nhất vài
+      phút rồi ngã ngũ.
+
+    Cái KHÔNG có: lối thoát cho ca khó — không ai bán bên thiếu, hoặc đã
+    chờ quá lâu. Ở đó `DONG_CHAN` / `CHIU` / `VUOT_SPREAD` / `HUY` là
+    những nước đi đúng mà bot không đi. Nối chúng vào là đổi hành vi giao
+    dịch thật, nên phải là một quyết định có chủ ý, đo được, chứ không
+    phải một lần "sửa cho gọn".
+    """
     du = v.dinhHuong
     if abs(du) < 1e-9:
         return None

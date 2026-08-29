@@ -944,6 +944,19 @@
             so(v.choLauNhatMs / 1000, 0) + "s — đây LÀ vị thế định hướng, " +
             "chưa phải cặp khoá", "canh")));
         }
+        // `quyetChan` được tính mỗi vòng và gửi cả lên ảnh chụp công
+        // khai, mà trước bản này KHÔNG nơi nào vẽ ra — một phép tính đi
+        // suốt đường ống rồi chết ở cuối. Hiện nó ra, kèm nhãn LỜI
+        // KHUYÊN: bot không tự làm việc này, và người đọc phải biết thế.
+        var qc = (T.quyetChan || {})[v.ma];
+        if (qc && qc.loi) {
+          b.appendChild(hang("", manh(
+            "khuyên: " + qc.loi + (qc.ben ? " " + qc.ben : "") +
+            (qc.soCo ? " " + so(qc.soCo, 0) + " cổ" : "") +
+            " — LỜI KHUYÊN, bot KHÔNG tự làm" +
+            (qc.lyDo && qc.lyDo.length ? " (" + qc.lyDo.join("; ") + ")" : ""),
+            "mo")));
+        }
       }
 
       /* ── rủi ro ───────────────────────────────────────────────── */
