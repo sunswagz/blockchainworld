@@ -1124,8 +1124,8 @@
           return [{ t: tien(m.vonUsd, 0) }, { t: tien(m.rotDuocUsd, 0),
                     c: het ? "am" : "n" },
                   { t: so(m.soCoHoi), c: "nhat" },
-                  { t: m.aprTrenVonRot.toFixed(2) + "%", c: "n" },
-                  { t: m.aprTrenCaTui.toFixed(2) + "%",
+                  { t: so(m.aprTrenVonRot, 2) + "%", c: "n" },
+                  { t: so(m.aprTrenCaTui, 2) + "%",
                     c: m.aprTrenCaTui >= 5 ? "duong" : "nhat" }];
         })));
     }
@@ -1171,10 +1171,10 @@
         [{ t: "Đang giữ" }, { t: "%/năm" }, { t: "Đáng đổi sang" },
          { t: "%/năm" }, { t: "Giờ chung" }, { t: "Lợi ròng" }],
         xc.xoay.map(function (x) {
-          return [{ t: x.taiSanCu }, { t: x.aprCu.toFixed(2), c: "n" },
+          return [{ t: x.taiSanCu }, { t: so(x.aprCu, 2), c: "n" },
                   { t: x.taiSanMoi + " · " + x.chienLuocMoi },
-                  { t: x.aprMoi.toFixed(2), c: "n" },
-                  { t: Math.round(x.gioChung) + "h", c: "nhat" },
+                  { t: so(x.aprMoi, 2), c: "n" },
+                  { t: so(x.gioChung, 0) + "h", c: "nhat" },
                   { t: tien(x.loiRongUsd, 3), c: "duong" }];
         })));
     }
@@ -1206,9 +1206,10 @@
           return [{ t: k }, { t: so(x.soDoiChieuDuoc) + "/" + so(x.soDong) },
                   { t: so(x.soGiuQuaNgan), c: "n" },
                   { t: so(x.soThieuVe), c: "n" },
-                  { t: x.duDoanBpsGio.toFixed(3), c: "n" },
-                  { t: x.thucBpsGio.toFixed(3), c: "n" },
-                  { t: (x.lechBpsGio >= 0 ? "+" : "") + x.lechBpsGio.toFixed(3),
+                  { t: so(x.duDoanBpsGio, 3), c: "n" },
+                  { t: so(x.thucBpsGio, 3), c: "n" },
+                  { t: x.lechBpsGio == null ? "—"
+                      : (x.lechBpsGio >= 0 ? "+" : "") + so(x.lechBpsGio, 3),
                     c: x.lechBpsGio > 0 ? "am" : "duong" }];
         })));
       kdv.appendChild(giai("Lệch DƯƠNG nghĩa là HỨA QUÁ — ty ấy đang lạc "

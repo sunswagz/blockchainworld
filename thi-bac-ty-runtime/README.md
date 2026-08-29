@@ -1174,8 +1174,9 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 1009 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 1328 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
+node scripts/kiem-buong-lai.mjs  # 10 trang buồng lái có vẽ được không
 ```
 
 | lệnh | làm gì |
@@ -1183,6 +1184,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 | `python run.py` | vòng lặp nền + buồng lái, ghi sổ mỗi lượt |
 | `python -m bac.snapshot` | một lượt rồi ghi `thi-bac-ty/assets/js/v/cang-phi.js` |
 | `python scripts/selftest.py` | toán, không mạng, không chạm sổ thật |
+| `node scripts/kiem-buong-lai.mjs` | vẽ thật 10 trang trên ba mẫu: đầy đủ, RỖNG, NULL |
 | `pythonw dichvu/chay-nen.py` | chạy nền 24/7, log xoay vòng, ghi PID |
 | `dichvu\bat.ps1` · `dung.ps1` · `trang-thai.ps1` | bật / tắt / xem bản chạy nền |
 
