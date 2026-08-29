@@ -37,6 +37,17 @@ là đúng 0,5 — xem `scripts/do-cua-nao.py`.
 Có tiền hay không. Sổ này nói mô hình đoán chuẩn tới đâu; nó không nói
 chợ có trả giá sai không, và cũng không nói lệnh có khớp nổi không. Hai
 chuyện ấy vẫn phải chờ sổ lệnh thật.
+
+## Và một điều phải trừ hao khi đọc con số mẫu
+
+Vòng quét MỌI mốc phút, nên hai khung liền nhau dùng chung bốn phần năm
+quãng đường. 40.276 cặp KHÔNG phải 40.276 quan sát độc lập — số quan sát
+độc lập gần với số khung không chồng lấn, tức chừng một phần năm. Bảng
+hiệu chỉnh vì thế chắc chắn hơn vẻ ngoài của nó ít nhiều.
+
+Chồng lấn không làm hỏng phép kiểm ngoài mẫu, vì đó là chia theo THỜI
+GIAN: phần đuôi vẫn là quãng mà đường khớp chưa từng thấy. Nó chỉ làm
+`n` trông to hơn lượng thông tin thật.
 """
 from __future__ import annotations
 
@@ -243,8 +254,17 @@ def main() -> int:
             bo += 1
             continue
         thang = het > K
-        slug = f"{MA.split('_')[0].lower()}-updown-5m-{T // 1000}"
-        soKq.them(slug, thang, K, het, "tu-tinh")
+        # SỔ KẾT QUẢ chỉ nhận khung THẬT — mốc chia hết 5 phút.
+        #
+        # Vòng này quét mọi mốc PHÚT, vì để hiệu chỉnh mô hình thì khung
+        # [T, T+300] nào cũng hợp lệ, không cần trùng lưới của Polymarket.
+        # Nhưng sổ kết quả là danh sách sự thật về những market CÓ THẬT;
+        # bịa slug ở mốc 1 phút là nhét 12.000 dòng không tương ứng với
+        # market nào vào một cuốn sổ mà cả `chay_lai` lẫn `phat_lai` tra
+        # để chấm điểm. Lần đầu chạy đã đẻ ra `soBatDong: 33`.
+        if T % 300_000 == 0:
+            slug = f"{MA.split('_')[0].lower()}-updown-5m-{T // 1000}"
+            soKq.them(slug, thang, K, het, "tu-tinh")
         for tau in LAT_CAT:
             # Giá tại thời điểm còn `tau` giây = mốc T + (300 − tau), và
             # mốc ấy rơi đúng ranh giới phút nên tra thẳng được. KHÔNG
