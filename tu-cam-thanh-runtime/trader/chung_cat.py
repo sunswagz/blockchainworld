@@ -181,9 +181,12 @@ def _tu_so_that(bo: list) -> list[dict]:
         if che_do == "UNKNOWN":
             continue
         if p.get("count", 0) < MAU_TOI_THIEU["so-that"]:
-            bo.append({"ma": f"that:{che_do}", "nguon": "so-that",
+            bo.append({"ma": f"that:khung?:{che_do}", "nguon": "so-that",
                        "viSao": f"{p.get('count', 0)} lệnh thật < ngưỡng {MAU_TOI_THIEU['so-that']}"})
             continue
+        khung_ds = {t.get("khung") for t in trades
+                    if (t.get("regimeAtEntry") or "UNKNOWN") == che_do and t.get("khung")}
+        khung = next(iter(khung_ds)) if len(khung_ds) == 1 else None
         cau = (f"Chế độ {che_do} trên lệnh THẬT: {p['count']} lệnh, thắng {p['winRate']}%, "
                f"tiền {p['totalPnl']:+.2f} ({p['expectancyUsd']:+.2f}/lệnh). Lệnh thật ít "
                f"hơn lệnh chạy lại rất nhiều, nhưng nó có nhảy giá và khớp một phần — "
@@ -191,14 +194,11 @@ def _tu_so_that(bo: list) -> list[dict]:
         # Khung lấy TỪ CHÍNH các lệnh, không từ cấu hình hiện tại: sổ có thể
         # chứa lệnh của khung cũ, và gán nhãn khung mới lên chúng là đúng loại
         # lỗi đã sập một lần với bài học chạy lại.
-        khung_ds = {t.get("khung") for t in trades
-                    if (t.get("regimeAtEntry") or "UNKNOWN") == che_do and t.get("khung")}
-        khung = next(iter(khung_ds)) if len(khung_ds) == 1 else None
         doi_cl = sum(1 for l in bai_hoc
                      if l.get("change_strategy") and l.get("regime") == che_do)
         if doi_cl:
             cau += (f" Và {doi_cl} bài học từ chính các lệnh này ĐÒI ĐỔI CHIẾN LƯỢC.")
-        ra.append(_pd(f"that:{che_do}", "so-that", cau, p["count"],
+        ra.append(_pd(f"that:{khung or 'khung?'}:{che_do}", "so-that", cau, p["count"],
                       {"tyLeThang": p["winRate"], "tienMoiLenh": p["expectancyUsd"],
                        "tongTien": p["totalPnl"], "soDoiChienLuoc": doi_cl},
                       che_do=che_do, khung=khung))
@@ -225,17 +225,21 @@ def _tu_dai_quan_sat(bo: list) -> list[dict]:
 
     ra = []
 
+    # Mã mang "khung?" chứ không mang khung: người trong nhóm quan sát giao dịch
+    # trên khung của HỌ, và dữ liệu không nói khung nào. Đây không phải chỗ thiếu
+    # sót chờ vá — nó là điều vĩnh viễn không biết được, nên phải khai vĩnh viễn.
+    # Cầu dao không bao giờ ngắt dựa trên phát hiện mang "khung?".
     # — Chuyên gia theo chế độ —
     for che_do, v in (d.get("chuyenGiaTheoCheDo") or {}).items():
         ds = v.get("chuyenGia") or []
         if not ds:
-            bo.append({"ma": f"chuyen-gia:{che_do}", "nguon": "dai-quan-sat",
+            bo.append({"ma": f"chuyen-gia:khung?:{che_do}", "nguon": "dai-quan-sat",
                        "viSao": f"0 trader đủ mẫu ở chế độ {che_do}"})
             continue
         top = ds[0]
         vong = top.get("soVong") or 0
         if vong < MAU_TOI_THIEU["dai-quan-sat"]:
-            bo.append({"ma": f"chuyen-gia:{che_do}", "nguon": "dai-quan-sat",
+            bo.append({"ma": f"chuyen-gia:khung?:{che_do}", "nguon": "dai-quan-sat",
                        "viSao": f"chuyên gia đầu bảng chỉ {vong} vòng ở chế độ này"})
             continue
         yeu = top.get("hang") in ("BO_QUA", "WEAK")
@@ -248,7 +252,7 @@ def _tu_dai_quan_sat(bo: list) -> list[dict]:
                     f"trong chế độ đó, không phải một người đáng bắt chước.")
         if len(ds) < 3:
             cau += (f" Cả chế độ chỉ có {len(ds)} người đủ mẫu, nên chưa so được ai với ai.")
-        ra.append(_pd(f"chuyen-gia:{che_do}", "dai-quan-sat", cau, vong,
+        ra.append(_pd(f"chuyen-gia:khung?:{che_do}", "dai-quan-sat", cau, vong,
                       {"phongCach": top.get("phongCach"), "hang": top.get("hang"),
                        "diemTong": top.get("diemTong"), "soUngVien": len(ds)},
                       che_do=che_do, do_tin="THẤP" if (yeu or len(ds) < 3) else None))

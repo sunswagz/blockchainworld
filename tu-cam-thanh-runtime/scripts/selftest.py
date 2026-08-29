@@ -1014,6 +1014,43 @@ async def main() -> int:
     check(not _im,
           "phát hiện không rõ khung đều tự khai trong mã định danh"
           + (f" — IM LẶNG: {_im}" if _im else ""))
+
+    # ── Và cửa mà phép kiểm trên KHÔNG canh được ──
+    #
+    # Bốn dòng vừa rồi chạy trên DATA_DIR tạm, nơi không nguồn nào đủ mẫu để
+    # sinh ra phát hiện gắn chế độ. Nên `_im` rỗng, và nó xanh vì luật CHƯA
+    # TỪNG CHẠY chứ không vì luật đúng. Kho THẬT lúc đó đang có 5 vi phạm:
+    # that:TREND_UP và bốn chuyen-gia:*. Đúng dạng đã ghi trong sổ — "ngưỡng đo
+    # trên tập trôi nên luật không bao giờ kích hoạt, và «chưa từng thấy vấn
+    # đề» đọc giống hệt «không có vấn đề»".
+    #
+    # Nên canh thêm ở tầng MÃ NGUỒN, nơi không phụ thuộc dữ liệu: hễ một phát
+    # hiện khai `che_do=` thì mã định danh của nó phải nhắc tới khung. Cách này
+    # bắt được cả nguồn CHƯA AI VIẾT, ngay lúc nó được viết.
+    import ast as _ast23
+    _src = (ROOT / "trader" / "chung_cat.py").read_text(encoding="utf-8")
+    _cay = _ast23.parse(_src)
+    _hong = []
+    for _n in _ast23.walk(_cay):
+        if not (isinstance(_n, _ast23.Call)
+                and getattr(_n.func, "id", "") == "_pd"
+                and any(k.arg == "che_do" for k in _n.keywords)
+                and _n.args):
+            continue
+        if "khung" not in _ast23.get_source_segment(_src, _n.args[0]):
+            _hong.append(f"dòng {_n.lineno}")
+    check(not _hong,
+          "mọi _pd(che_do=…) dựng mã có nhắc khung"
+          + (f" — THIẾU: {_hong}" if _hong else ""))
+
+    # Cửa ngược lại: phép kiểm trên phải BẮT ĐƯỢC một nguồn hỏng. Không có nó
+    # thì một lỗi đánh máy trong chính đoạn quét cũng đọc là "sạch".
+    _gia = _ast23.parse('_pd(f"x:{che_do}", "n", "c", 1, che_do=che_do)')
+    _bat = [n for n in _ast23.walk(_gia)
+            if isinstance(n, _ast23.Call) and getattr(n.func, "id", "") == "_pd"
+            and any(k.arg == "che_do" for k in n.keywords)]
+    check(bool(_bat) and "khung" not in _ast23.dump(_bat[0].args[0]),
+          "phép quét BẮT ĐƯỢC nguồn hỏng dựng sẵn — không tự chấm mù")
     broker.reset()
     print("\n" + "=" * 62)
     if FAILS:
