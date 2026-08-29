@@ -207,13 +207,27 @@ def _chay(moi_nhom: int) -> None:
                 okx = DQ.okx_lead(c, so_trang=8)
                 # Vị thế đang mở của vài lead trader đầu — nguồn THỨ HAI cho
                 # Elite Positioning, để chỉ số không chỉ dựa vào một sàn.
+                _hong = 0
                 for x in okx[:10]:
                     try:
                         x["viThe"] = DQ.okx_vi_the(c, x["diaChi"])
                     except Exception:  # noqa: BLE001
                         x["viThe"] = []
+                        _hong += 1
                     time.sleep(0.2)
-            except Exception:  # noqa: BLE001
+                if _hong:
+                    bus.log("hoc", "okx-vi-the-thieu",
+                            f"{_hong}/{min(len(okx), 10)} lead trader OKX không đọc "
+                            f"được vị thế — chỉ số Elite Positioning đang dựa vào ít "
+                            f"người hơn con số hiển thị")
+            except Exception as e:  # noqa: BLE001
+                # MẤT HẲN một nguồn thì phải nói ra. `okx = []` im lặng nghĩa là
+                # chỉ số đồng thuận rơi từ HAI sàn xuống MỘT, mà con số vẫn hiện
+                # ra bình thường — không có gì trên bảng phân biệt "hai sàn đồng ý"
+                # với "chỉ còn một sàn nói".
+                bus.log("hoc", "okx-mat-nguon",
+                        f"{type(e).__name__}: {e} — bỏ hẳn nguồn OKX lượt này; "
+                        f"đồng thuận chỉ còn dựa vào một sàn")
                 okx = []
 
             _trang_thai.update(phanTram=96, viec="đồng thuận + chen chúc")
