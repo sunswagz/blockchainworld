@@ -73,7 +73,7 @@ BAN = 1
 
 
 def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
-        napThemUsd: float = 0.0) -> int:
+        napThemUsd: float = 0.0, tienDaGhiUsd: float = 0.0) -> int:
     """Ghi danh mục ra đĩa. Trả về số byte đã ghi.
 
     Ghi qua file tạm rồi đổi tên: chết giữa chừng thì file đích vẫn là
@@ -106,6 +106,13 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
         # được mất — mất nó thì lần khởi động sau vốn gốc tụt về mức cũ
         # trong khi tiền mặt vẫn còn, và sụt vốn đọc ra một con số bịa.
         "napThemUsd": float(napThemUsd),
+        # Bộ đếm đối chiếu của Trung Ương. PHẢI lưu cùng
+        # `laiLoDaThucHienUsd`: một cái nằm trong RAM còn một cái nằm trên
+        # đĩa thì mỗi lần khởi động lại `lech_tien()` kêu LỆCH đúng bằng
+        # toàn bộ lãi lỗ đã ghi trước đó — một báo động giả, mỗi lần
+        # deploy một lần, và nó dạy người vận hành ngó lơ đúng cái phép
+        # canh sinh ra để bắt chuyện thật.
+        "tienDaGhiUsd": float(tienDaGhiUsd),
         # Trường THÊM, không đổi cấu trúc cũ — nên KHÔNG tăng `BAN`. Bản đọc
         # cũ bỏ qua khoá lạ; bản đọc mới gặp bản lưu thiếu khoá này thì cộng
         # lại từ 0 và KHAI ra là mới bắt đầu. Tăng `BAN` ở đây sẽ vứt cả danh
@@ -202,6 +209,8 @@ def nap(duong, danh_muc, duongNav) -> dict:
         "soViThe": len(soViThe), "soDiemNav": len(duongNav.diem),
         "_soVonGio": soVonGio, "coSoVonGio": vg is not None,
         "_napThemUsd": float(d.get("napThemUsd") or 0.0),
+        "_tienDaGhiUsd": float(d.get("tienDaGhiUsd") or 0.0),
+        "coTienDaGhi": "tienDaGhiUsd" in d,
         "tienMatUsd": danh_muc.tienMatUsd,
         "laiLoDaThucHienUsd": danh_muc.laiLoDaThucHienUsd,
         "giayTatMay": tat,

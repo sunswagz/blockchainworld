@@ -6723,6 +6723,62 @@ def kiem_ke_toan_vi_the() -> None:
          f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
          f"chưa từng đo là bịa ra một tỉ suất")
 
+    # ── BỘ ĐẾM ĐỐI CHIẾU phải sống cùng lãi lỗ ──────────────────────────
+    # `tienDaGhiUsd` nằm trong RAM, `laiLoDaThucHienUsd` nằm trên đĩa. Mỗi
+    # lần khởi động lại, `lech_tien()` kêu LỆCH đúng bằng toàn bộ lãi lỗ đã
+    # ghi trước đó. Đo thật trên máy sống: LỆCH −89,69 USD, và không có
+    # đường dịch tiền nào sai cả — chỉ có một bộ đếm quên mất mình.
+    #
+    # Một báo động giả mỗi lần deploy dạy người vận hành ngó lơ đúng cái
+    # phép canh sinh ra để bắt chuyện thật.
+    _d58 = _tam("lech-tien-qua-restart")
+    tu58 = TrungUong(_d58, {"vonBanDauUsd": 10_000.0})
+    tu58._ghi_tien(-12.5, "PHI", "thử", "x", "y")
+    kiem("trước khi lưu thì sổ khớp", tu58.lech_tien()["khop"])
+    tu58._luu_danh_muc()
+    tu59 = TrungUong(_d58, {"vonBanDauUsd": 10_000.0})
+    _l59 = tu59.lech_tien()
+    kiem("và VẪN khớp sau khi khởi động lại",
+         _l59["khop"] and gan(_l59["tienDaGhiUsd"], -12.5),
+         f"{_l59} — một cái nằm trong RAM, một cái nằm trên đĩa thì mỗi lần "
+         f"deploy là một báo động giả")
+
+    # Bản lưu CŨ chưa có khoá này: lấy thẳng `laiLoDaThucHienUsd` làm điểm
+    # xuất phát, vì mọi đồng trong đó ĐÃ từng đi qua `_ghi_tien` ở một lần
+    # chạy trước — coi là 0 thì kêu lệch oan đúng bằng ngần ấy.
+    import json as _js58
+    _f58 = _js58.loads(tu59.duongLuu.read_text(encoding="utf-8"))
+    _f58.pop("tienDaGhiUsd", None)
+    tu59.duongLuu.write_text(_js58.dumps(_f58, ensure_ascii=False),
+                             encoding="utf-8")
+    tu60 = TrungUong(_d58, {"vonBanDauUsd": 10_000.0})
+    kiem("bản lưu CŨ (chưa có bộ đếm) cũng không kêu lệch oan",
+         tu60.lech_tien()["khop"],
+         f"{tu60.lech_tien()} — mọi đồng trong lãi lỗ đã thực hiện đều ĐÃ "
+         f"đi qua `_ghi_tien` ở một lần chạy trước")
+
+    # Và đây mới là lý do PHẢI lưu bộ đếm, không chỉ dựa vào đường dự phòng:
+    # một RÒ RỈ THẬT — tiền dịch mà không qua `_ghi_tien` — phải SỐNG SÓT
+    # qua khởi động lại. Đường dự phòng lấy `laiLoDaThucHienUsd` sẽ tự
+    # "chữa lành" chỗ lệch, và cái rò rỉ biến mất khỏi màn hình đúng lúc
+    # người vận hành khởi động lại để xem nó là gì.
+    _d61 = _tam("ro-ri-song-sot")
+    tu61 = TrungUong(_d61, {"vonBanDauUsd": 10_000.0})
+    tu61._ghi_tien(-10.0, "PHI", "ghi đúng cửa", "x", "y")
+    tu61.danh_muc.ghi_dong_tien(-7.0)      # RÒ RỈ: không qua `_ghi_tien`
+    kiem("rò rỉ bị BẮT ngay khi nó xảy ra",
+         not tu61.lech_tien()["khop"]
+         and gan(tu61.lech_tien()["lechUsd"], -7.0),
+         str(tu61.lech_tien()))
+    tu61._luu_danh_muc()
+    tu62 = TrungUong(_d61, {"vonBanDauUsd": 10_000.0})
+    kiem("và nó SỐNG SÓT qua khởi động lại, không tự chữa lành",
+         not tu62.lech_tien()["khop"]
+         and gan(tu62.lech_tien()["lechUsd"], -7.0),
+         f"{tu62.lech_tien()} — đây mới là lý do phải LƯU bộ đếm: đường dự "
+         f"phòng sẽ xoá dấu vết rò rỉ đúng lúc người vận hành khởi động lại "
+         f"để xem nó là gì")
+
     # ── ĐƯỜNG SỨC CHỨA: lợi suất TỤT theo quy mô ────────────────────────
     # Đo trên máy sống: 10.000 USD → 20,15 %/năm; một triệu → 5,52 %; năm
     # triệu → 1,11 % vì hết sức chứa ở 1,07 triệu. Cùng một cỗ máy, cùng

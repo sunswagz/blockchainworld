@@ -250,6 +250,11 @@ class TrungUong:
         #: mục, nên phải để danh mục đầy đủ rồi mới so. Đảo thứ tự là đối
         #: soát thấy danh mục rỗng, đóng sạch vị thế ở sổ, rồi bản nạp
         #: mới về sau lại dựng lên những vị thế vừa bị đóng.
+        #: Tổng mọi đồng ĐÃ đi qua `_ghi_tien`. Đối chiếu với
+        #: `danh_muc.laiLoDaThucHienUsd` mỗi vòng — xem `lech_tien()`.
+        #: Dựng TRƯỚC khi nạp bản lưu: nạp rồi mới dựng là dựng đè lên đúng
+        #: thứ vừa nạp về, và phép đối chiếu quay lại kêu lệch oan.
+        self.tienDaGhiUsd = 0.0
         #: Vốn-giờ và thu ròng — mẫu số đúng cho «tiền ĐANG DÙNG lãi bao
         #: nhiêu». Xem `ke_toan.SoVonGio`. Dựng TRƯỚC khi nạp bản lưu: nạp
         #: rồi mới dựng là dựng đè lên đúng thứ vừa nạp về.
@@ -272,6 +277,14 @@ class TrungUong:
         # config (vốn khởi điểm), còn tiền mặt trong bản lưu ĐÃ gồm phần
         # nạp. Không cộng thì hai vế lệch nhau đúng bằng số đã nạp, và sụt
         # vốn đọc ra một con số bịa.
+        # Bộ đếm đối chiếu phải sống cùng lãi lỗ đã thực hiện. Bản lưu CŨ
+        # không có nó: lúc ấy lấy thẳng `laiLoDaThucHienUsd` làm điểm xuất
+        # phát, vì mọi đồng trong đó ĐÃ từng đi qua `_ghi_tien` ở một lần
+        # chạy trước — coi là 0 thì kêu lệch oan đúng bằng ngần ấy.
+        _tdg = self.napLuu.pop("_tienDaGhiUsd", 0.0)
+        self.tienDaGhiUsd = float(
+            _tdg if self.napLuu.get("coTienDaGhi")
+            else self.danh_muc.laiLoDaThucHienUsd)
         self.napThemUsd = float(self.napLuu.pop("_napThemUsd", 0.0) or 0.0)
         if self.napThemUsd:
             self.danh_muc.vonBanDauUsd += self.napThemUsd
@@ -313,9 +326,6 @@ class TrungUong:
         #: được lần khởi động lại, và `doi_soat_vi_the` dọn phần sót ở sổ.
         self.latCatKeToan = LatCatKeToan()
         self.latCatXoayCho = None
-        #: Tổng mọi đồng ĐÃ đi qua `_ghi_tien`. Đối chiếu với
-        #: `danh_muc.laiLoDaThucHienUsd` mỗi vòng — xem `lech_tien()`.
-        self.tienDaGhiUsd = 0.0
         #: dấu vân cơ hội → lần cuối vào sổ (giây, đồng hồ đơn điệu)
         self._dauVet: dict[str, float] = {}
         self.soBoTrung = 0
@@ -627,7 +637,8 @@ class TrungUong:
         """Ghi danh mục sau MỖI vòng. Hỏng thì khai ra, đừng giết vòng."""
         try:
             luu_danh_muc(self.duongLuu, self.danh_muc, self.soViThe,
-                         self.duongNav, self.soVonGio, self.napThemUsd)
+                         self.duongNav, self.soVonGio, self.napThemUsd,
+                         self.tienDaGhiUsd)
             self.loiLuu = ""
         except OSError as e:                              # noqa: BLE001
             self.loiLuu = f"{type(e).__name__}: {e}"
