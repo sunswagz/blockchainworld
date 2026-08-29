@@ -277,7 +277,12 @@ class Nguon:
         market mới. Họ chạm mốc thì ngược lại: MỘT market sống hàng tháng,
         slug cố định, khai thẳng trong config. Không có gì để dựng.
         """
-        d = self._lay("gamma", f"{_NG['gamma']}/markets", {"slug": slug})
+        # `polymarketGamma`, KHÔNG phải `gamma`. Gõ nhầm khoá ở đây thì
+        # `_NG[...]` ném `KeyError` NGAY khi dựng chuỗi — trước cả khi
+        # `_lay` kịp bọc lỗi mạng — và cú ném ấy trồi lên tận vòng lặp
+        # chính, giết trọn một vòng. Xem `Runtime._lan`.
+        d = self._lay("gamma-slug", f"{_NG['polymarketGamma']}/markets",
+                      {"slug": slug})
         if isinstance(d, list) and d:
             return d[0]
         return None

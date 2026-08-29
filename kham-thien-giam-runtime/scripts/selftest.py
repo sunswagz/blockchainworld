@@ -935,6 +935,69 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def kiem_khoa_nguon_co_that() -> None:
+    """Mọi khoá `_NG[...]` trong nguon.py phải CÓ THẬT trong config.
+
+    Đây là phép kiểm dựng lên từ một lỗi đã cắn rất sâu. `tim_theo_slug()`
+    gõ `_NG['gamma']` trong khi khoá thật là `polymarketGamma`. `_NG[...]`
+    nằm trong một f-string, nên nó ném `KeyError` NGAY lúc dựng chuỗi —
+    trước cả khi `_lay()` kịp bọc lỗi mạng — và cú ném trồi lên tận vòng
+    lặp chính, giết trọn một vòng, mỗi hai giây, suốt nhiều giờ.
+
+    Một lỗi gõ một chữ. Không phép kiểm nào chạm tới vì đường đi ấy chỉ
+    sống khi có market khung dài, và cả bộ kiểm thì chạy không mạng.
+    """
+    print("\n-- Khoa cau hinh nguon: co that hay chi go cho co ---------")
+
+    import re as _re
+    from kham.config import CONFIG as _CF
+
+    ma = (Path(__file__).resolve().parent.parent / "kham" / "nguon.py"
+          ).read_text(encoding="utf-8")
+    # Mẫu dựng bằng MÃ KÝ TỰ, không gõ gạch chéo ngược: file này bị
+    # sửa qua nhiều lớp shell và gạch chéo bị nuốt một lớp mỗi lần —
+    # mẫu hỏng thì nó khớp 0 khoá và phép kiểm xanh vì không tìm thấy
+    # gì để chê. Xem chốt "có tìm thấy khoá nào để kiểm" ngay dưới.
+    C = chr(92)
+    NHAY = "[" + chr(39) + chr(34) + "]"
+    mau = "_NG" + C + "[" + NHAY + "([a-zA-Z]+)" + NHAY + C + "]"
+    khoa = sorted(set(_re.findall(mau, ma)))
+    kiem("có tìm thấy khoá nào để kiểm", len(khoa) >= 3, khoa)
+    co = _CF.get("nguon") or {}
+    thieu = [k for k in khoa if k not in co]
+    kiem("mọi khoá nguồn đều có trong config.json", not thieu,
+         f"thiếu {thieu} — `_NG[...]` nằm trong f-string nên ném KeyError "
+         "ngay lúc dựng chuỗi, và cú ném ấy giết trọn một vòng lặp")
+
+
+def kiem_lan_nga_khong_giet_vong() -> None:
+    """Một làn ngã thì các làn SAU vẫn phải chạy.
+
+    Bản đầu xâu mọi làn trên một mạch thẳng, nên một `KeyError` ở làn tìm
+    khung làm mất sạch: không ghi băng, không kết toán, không khớp lại
+    phép nắn, không lượt tiến hoá nào. Mà buồng lái vẫn đếm vòng và vẫn
+    xanh — một cỗ máy chết trông y hệt một cỗ máy đang chạy.
+    """
+    print("\n-- Mot lan nga thi cac lan sau van chay -------------------")
+
+    import kham.vong as V
+
+    rt = V.Runtime.__new__(V.Runtime)
+    rt.lanNga = {}
+    daChay = []
+
+    def nga():
+        raise KeyError("gamma")
+
+    kiem("làn ngã trả về False", V.Runtime._lan(rt, "thử", nga) is False)
+    kiem("ghi lại tên làn và lý do",
+         "thử" in rt.lanNga and "KeyError" in rt.lanNga["thử"], rt.lanNga)
+    kiem("làn sau vẫn chạy được",
+         V.Runtime._lan(rt, "sau", lambda: daChay.append(1)) is True
+         and daChay == [1])
+    kiem("làn chạy trót lọt thì KHÔNG ghi vào sổ ngã", "sau" not in rt.lanNga)
+
+
 def kiem_lui_nguon() -> None:
     print("\n── Nguồn hỏng: phải LÙI, không hỏi dồn ────────────────────────")
     import time as _t
@@ -1863,6 +1926,8 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_khoa_nguon_co_that()
+    kiem_lan_nga_khong_giet_vong()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

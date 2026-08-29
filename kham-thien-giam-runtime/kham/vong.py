@@ -100,6 +100,8 @@ class Runtime:
         self._lanTimKhung = 0.0
         self._lanVoDich = 0.0
         self._ngayTienHoa = ""      # ngày đã XÉT vòng tiến hoá gần nhất
+        # Làn nào ngã trong vòng vừa rồi, và ngã vì gì. Rỗng = trọn vẹn.
+        self.lanNga: dict[str, str] = {}
         self.tienHoaGanNhat: dict | None = None
         self._tienHoaXong = False           # lượt hôm nay đã chạy TRỌN chưa
         self._tienHoaDangChay = False
@@ -148,20 +150,55 @@ class Runtime:
             if con > 0:
                 time.sleep(con)
 
+    def _lan(self, ten: str, viec) -> bool:
+        """Chạy MỘT làn. Nó ngã thì kêu tên nó ra, và các làn sau vẫn chạy.
+
+        Vì sao phải tách: các làn trong một vòng là những việc ĐỘC LẬP —
+        tìm khung, cân lợi, kết toán, ghi băng, vòng tiến hoá ngày. Bản
+        đầu xâu tất cả trên một mạch thẳng, nên làn đầu ngã là mất sạch
+        các làn sau.
+
+        Đã cắn thật, và cắn to. `nguon.tim_theo_slug()` gõ nhầm khoá
+        config (`_NG['gamma']` trong khi khoá là `polymarketGamma`), nên
+        MỌI vòng ném `KeyError: 'gamma'` ngay ở làn tìm khung. Hậu quả
+        không phải "họ khung dài không chạy" mà là:
+
+            không ghi được khung nào vào băng
+            không kết toán được khung nào  → sổ kết quả đứng
+            không khớp lại được phép nắn
+            không lượt tiến hoá nào chạy   → vòng tự tiến hoá đứng HẲN
+
+        Và buồng lái vẫn đếm `vòng 21590`, vẫn xanh. Một cỗ máy chết mà
+        trông y hệt một cỗ máy đang chạy. Nhật ký có ghi `vòng N lỗi`
+        mỗi hai giây, nhưng nó không nói mất những gì, và không ai đọc
+        nhật ký của một cái bảng đang xanh.
+        """
+        try:
+            viec()
+            return True
+        except Exception as e:                      # noqa: BLE001
+            self.lanNga[ten] = f"{type(e).__name__}: {e}"
+            bus.ghi(f"làn `{ten}` ngã: {type(e).__name__}: {e} — "
+                    "các làn sau vẫn chạy", loai="loi")
+            return False
+
     def _mot_vong(self) -> None:
         self.vong += 1
         now = time.time() * 1000.0
+        self.lanNga = {}
 
         # ── hiệu chỉnh đồng hồ, mỗi 60 giây ──────────────────────────────
         if now - self._lanHieuChinhDongHo > 60_000:
-            moc = nguon.moc_thoi_gian_binance()
-            if moc:
-                dong_ho.hieu_chinh(*moc)
+            def _dong_ho() -> None:
+                moc = nguon.moc_thoi_gian_binance()
+                if moc:
+                    dong_ho.hieu_chinh(*moc)
+            self._lan("đồng hồ", _dong_ho)
             self._lanHieuChinhDongHo = now
 
         # ── tìm khung mới, mỗi 20 giây (khung 5 phút nên không cần dày) ──
         if now - self._lanTimKhung > 20_000:
-            self._tim_khung(now)
+            self._lan("tìm khung", lambda: self._tim_khung(now))
             self._lanTimKhung = now
 
         # ── làn nhanh ────────────────────────────────────────────────────
@@ -176,16 +213,19 @@ class Runtime:
                 bus.ghi(f"{tt['ma']}: {type(e).__name__}: {e}", loai="loi")
 
         # ── soát lệnh maker chờ + kết toán ───────────────────────────────
-        self.cong.soat_cho({m: {"UP": c.up, "DOWN": c.down}
-                            for m, c in self.capSo.items()})
-        if self.ketToan.soat(now):
-            so_vo_dich.cap_nhat(self.so.doc(2000))
+        self._lan("soát lệnh chờ", lambda: self.cong.soat_cho(
+            {m: {"UP": c.up, "DOWN": c.down} for m, c in self.capSo.items()}))
+
+        def _ket_toan() -> None:
+            if self.ketToan.soat(now):
+                so_vo_dich.cap_nhat(self.so.doc(2000))
+        self._lan("kết toán", _ket_toan)
 
         # ── làn chậm ─────────────────────────────────────────────────────
         if dai_quan_vi.den_luot():
             threading.Thread(target=dai_quan_vi.quet, daemon=True).start()
         if now - self._lanVoDich > 600_000:
-            so_vo_dich.cap_nhat(self.so.doc(2000))
+            self._lan("vô địch", lambda: so_vo_dich.cap_nhat(self.so.doc(2000)))
             self._lanVoDich = now
 
         # ── LÀN CHẬM NHẤT: vòng tiến hoá, mỗi ngày một lượt ──────────────
@@ -193,8 +233,8 @@ class Runtime:
         # máy này đang tắt và bật lại cần quyền quản trị — đã ghi trong
         # `tu-cam-thanh-runtime/dichvu/cai-dat.ps1`. Runtime vốn sống 24/7
         # nên nó là chỗ đáng tin hơn một bộ lịch có thể không tồn tại.
-        self._soat_nan_lai()
-        self._soat_tien_hoa()
+        self._lan("nắn lại", self._soat_nan_lai)
+        self._lan("vòng tiến hoá", self._soat_tien_hoa)
 
         may_ghi.ghi({
             "luc": now, "vong": self.vong, "che": che_hieu_luc(),
@@ -576,6 +616,10 @@ class Runtime:
                 "bat": bool((CONFIG.get("tienHoa") or {}).get("bat", True)),
                 "gioUTC": int((CONFIG.get("tienHoa") or {}).get("gioUTC", 2)),
             },
+            # Làn nào ngã trong vòng vừa rồi. Buồng lái phải thấy được:
+            # đếm `vòng` tăng đều mà mọi làn đều ngã là một cỗ máy chết
+            # trông y hệt một cỗ máy đang chạy.
+            "lanNga": dict(self.lanNga),
             "quyetChan": dict(self.quyetChan),
             "hieuChinh": {
                 "bang": self.hieuChinh.bang(),
