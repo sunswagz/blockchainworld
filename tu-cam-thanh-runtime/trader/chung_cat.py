@@ -184,9 +184,16 @@ def _tu_so_that(bo: list) -> list[dict]:
             bo.append({"ma": f"that:khung?:{che_do}", "nguon": "so-that",
                        "viSao": f"{p.get('count', 0)} lệnh thật < ngưỡng {MAU_TOI_THIEU['so-that']}"})
             continue
+        # Lệnh KHÔNG khai khung phải được ĐẾM, không được lọc bỏ. Bản trước lọc
+        # chúng ra (`and t.get("khung")`), nên một lệnh 4h mới là đủ để tập còn
+        # đúng {"4h"} và cả 40 lệnh cũ không rõ khung bị dán nhãn "4h" — trong
+        # khi câu vẫn đọc "41 lệnh". Lần thứ sáu của cùng một lỗi, bắt được lúc
+        # nó chưa kịp xảy ra: hai bên môi giới mới ghi khung từ commit trước, sổ
+        # thật thì toàn lệnh cũ, nên bẫy sập ngay ở lệnh thật kế tiếp.
         khung_ds = {t.get("khung") for t in trades
-                    if (t.get("regimeAtEntry") or "UNKNOWN") == che_do and t.get("khung")}
-        khung = next(iter(khung_ds)) if len(khung_ds) == 1 else None
+                    if (t.get("regimeAtEntry") or "UNKNOWN") == che_do}
+        khung = (next(iter(khung_ds))
+                 if len(khung_ds) == 1 and None not in khung_ds else None)
         cau = (f"Chế độ {che_do} trên lệnh THẬT: {p['count']} lệnh, thắng {p['winRate']}%, "
                f"tiền {p['totalPnl']:+.2f} ({p['expectancyUsd']:+.2f}/lệnh). Lệnh thật ít "
                f"hơn lệnh chạy lại rất nhiều, nhưng nó có nhảy giá và khớp một phần — "

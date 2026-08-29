@@ -1039,6 +1039,30 @@ async def main() -> int:
             continue
         if "khung" not in _ast23.get_source_segment(_src, _n.args[0]):
             _hong.append(f"dòng {_n.lineno}")
+
+    # ── Sổ TRỘN: lệnh cũ không khai khung + lệnh mới có khai ──
+    #
+    # Thế cờ này chưa xảy ra nhưng sắp: hai bên môi giới đã ghi `khung` lúc mở
+    # lệnh, còn 40 lệnh trong sổ thật thì không có trường đó. Lệnh thật KẾ TIẾP
+    # là đủ để tập khung còn đúng {"4h"} — nếu chỗ đọc lọc bỏ lệnh thiếu khung.
+    # Khi ấy câu vẫn đọc "41 lệnh" mà nhãn là 4h, và 40 trong số đó không ai
+    # biết đo trên khung nào.
+    _tr23 = [
+        {"regimeAtEntry": "Z", "closedAt": "x"},          # cũ, không khung
+        {"regimeAtEntry": "Z", "closedAt": "x"},
+        {"regimeAtEntry": "Z", "closedAt": "x", "khung": "4h"},   # mới
+    ]
+    _g23 = lambda ds: (lambda k: next(iter(k)) if len(k) == 1 and None not in k
+                       else None)({t.get("khung") for t in ds})
+    check(_g23(_tr23) is None,
+          "sổ trộn (2 lệnh không khung + 1 lệnh 4h) → khung KHÔNG rõ, không dán 4h")
+    check(_g23([t for t in _tr23 if t.get("khung")]) == "4h",
+          "sổ chỉ toàn lệnh 4h → khai đúng 4h (cửa ngược lại)")
+
+    # Và chỗ đọc THẬT phải dùng đúng phép ấy, không phải một bản sao trong test.
+    _seg = (ROOT / "trader" / "chung_cat.py").read_text(encoding="utf-8")
+    check("None not in khung_ds" in _seg,
+          "chung_cat dùng phép «None trong tập ⇒ không rõ», không lọc bỏ lệnh")
     check(not _hong,
           "mọi _pd(che_do=…) dựng mã có nhắc khung"
           + (f" — THIẾU: {_hong}" if _hong else ""))
