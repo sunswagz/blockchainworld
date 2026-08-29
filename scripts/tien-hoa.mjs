@@ -816,6 +816,35 @@ function do_() {
     coTieuDiem ? "có kiểu :focus-visible"
       : "THIẾU :focus-visible — dùng bàn phím thì không biết đang đứng ở đâu");
 
+  /* ── MỘT id MỘT CHỖ ────────────────────────────────────────
+     Thước này có vì một ca hỏng THẬT, không vì lý thuyết. Ngày
+     29/08 lượt thêm đường nhảy gắn id="than" lên thẻ <main> ở bốn
+     cung, mà bên trong <main> đã có sẵn <div id="than"> — chỗ
+     app.js vẽ phòng. Trình duyệt lấy thẻ ĐẦU TIÊN mang id đó, nên
+     getElementById("than") trả về <main>, và than.innerHTML =
+     p.ve() thổi bay đỉnh trang, dải cảnh báo số liệu cũ, vùng loa
+     aria-live và cả chân trang khai nguồn — mỗi lần đổi phòng.
+
+     Cả phiếu lẫn cổng chặn đều cho qua: phòng VẪN vẽ ra, chỉ là
+     vào nhầm thẻ. "Mọi phòng vẽ được" xanh, năm phép của cổng
+     xanh, và bản hỏng lên thẳng site. Vòng tiến hoá của một cung
+     khác mới là chỗ phát hiện, một ngày sau.
+
+     Bỏ chú thích trước khi đếm: chính khối chú thích giải thích ca
+     hỏng này có nhắc lại id="than" hai lần, và đếm cả nó thì thước
+     báo động vì đúng lời giải thích của mình. Dùng lại `htmlSach`
+     mà thước đường-nhảy ở trên đã dựng — cùng một bản bỏ chú thích,
+     không dựng lại lần hai. */
+  const demId = new Map();
+  for (const m of htmlSach.matchAll(/\sid="([^"]+)"/g))
+    demId.set(m[1], (demId.get(m[1]) || 0) + 1);
+  const idTrung = [...demId].filter(([, n]) => n > 1);
+  cham("id-trung", "Mỗi id chỉ một chỗ", idTrung.length === 0,
+    idTrung.length
+      ? `${idTrung.length} id trùng: ${idTrung.map(([k, n]) => `${k}×${n}`).join(", ").slice(0, 90)}` +
+        ` — getElementById trả thẻ ĐẦU TIÊN, phần còn lại thành vô hình với JS`
+      : `${demId.size} id, không cái nào trùng`);
+
   /* Mẫu số chỉ đếm thước ĐO ĐƯỢC. Để thước không đo được nằm trong
      mẫu số là hạ điểm một cung vì bộ đo yếu, không vì cung yếu. */
   return {
