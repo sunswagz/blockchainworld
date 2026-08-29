@@ -131,25 +131,46 @@ def main() -> int:
     if NHANH:
         print("  sổ kết quả          BỎ QUA (--nhanh)")
     else:
-        ma3, ra3 = chay([PY, "scripts/doi-chieu-ket-qua.py", "--ngay=3"], 240.0)
-        # Đọc DÒNG MÁY, không dò văn xuôi — xem ghi chú trong
-        # `doi-chieu-ket-qua.py`.
-        con = {}
-        for _x in (dong_bat_dau(ra3, "KETLUAN") or "").split()[1:]:
-            if "=" in _x:
-                _k, _v = _x.split("=", 1)
-                con[_k] = _v
-        kh = "khớp " + con.get("khop", "?")
-        le = "LỆCH " + con.get("lech", "?")
-        if ma3 == 2:
-            print(f"  sổ kết quả          HỎNG   {le}")
-            hong.append("sổ kết quả có dòng SAI")
-        elif ma3 == 0:
-            print(f"  sổ kết quả          ĐẠT    {kh} · {le}")
-        else:
-            print("  sổ kết quả          không đối chiếu được "
-                  "(thiếu mạng Binance hoặc chưa đủ khung)")
-            nhac.append("chưa đối chiếu được sổ kết quả")
+        # CẢ BỐN chợ, không mỗi market mặc định. Bản trước chạy
+        # `doi-chieu-ket-qua.py` không kèm `--ma`, nên nó chỉ soi BTC_5M
+        # và ba sổ kia chưa từng được đối chiếu lần nào — chúng góp
+        # 1.956 trên 4.523 dòng.
+        #
+        # Danh sách lấy từ `kham.ket_qua`, không tự dựng ở đây: hai lý
+        # do loại một market (không `tienTo` = họ CHẠM MỐC; `theo:
+        # false`) là một cái luật, và luật thì phải nằm một chỗ.
+        from kham.ket_qua import thi_truong_doi_chieu_duoc
+        tongKhop = tongLech = 0
+        khongDo: list[str] = []
+        for _tt in thi_truong_doi_chieu_duoc():
+            _ma = str(_tt.get("ma"))
+            ma3, ra3 = chay([PY, "scripts/doi-chieu-ket-qua.py",
+                             f"--ma={_ma}", "--ngay=3"], 240.0)
+            # Đọc DÒNG MÁY, không dò văn xuôi — xem ghi chú trong
+            # `doi-chieu-ket-qua.py`.
+            con = {}
+            for _x in (dong_bat_dau(ra3, "KETLUAN") or "").split()[1:]:
+                if "=" in _x:
+                    _k, _v = _x.split("=", 1)
+                    con[_k] = _v
+            try:
+                tongKhop += int(con.get("khop", 0))
+                tongLech += int(con.get("lech", 0))
+            except ValueError:
+                pass
+            if ma3 not in (0, 2):
+                khongDo.append(_ma)
+        if tongLech:
+            print(f"  sổ kết quả          HỎNG   {tongLech:,} LỆCH trên "
+                  f"{tongKhop + tongLech:,}")
+            hong.append(f"sổ kết quả có {tongLech:,} dòng SAI")
+        elif tongKhop:
+            print(f"  sổ kết quả          ĐẠT    {tongKhop:,} dòng tái lập "
+                  f"đúng · 0 lệch")
+        if khongDo:
+            print("  sổ kết quả          không đối chiếu được: "
+                  + ", ".join(khongDo))
+            nhac.append("chưa đối chiếu được " + ", ".join(khongDo))
 
     # ── 4. runtime ───────────────────────────────────────────────────
     print()
