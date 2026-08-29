@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-08-29T10:22:00.934Z",
+ "generatedAt": "2026-08-29T16:59:18.681Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -90,7 +90,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-08-29T10:22:00.370Z"
+   "luc": "2026-08-29T16:59:18.419Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -119,11 +119,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-08-29T10:22:00.370Z"
+   "luc": "2026-08-29T16:59:18.419Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
-   "so": 525.43,
+   "so": 508.62,
    "dv": "USD",
    "nguon": "Yahoo Finance · SOXX",
    "ghi": "Chỉ báo THAY THẾ và phải đọc rất cẩn thận: nó đo sức khoẻ NGÀNH bán dẫn toàn cầu, KHÔNG đo năng lực chip của Trung Quốc. Ngành nóng lên không có nghĩa Trung Quốc tiếp cận được tầng tiên tiến.",
@@ -191,21 +191,22 @@ window.DQT_TQ_DO = {
     506.18,
     514.06,
     515.4,
-    525.43
+    525.43,
+    508.62
    ],
-   "doi7": -1.1,
-   "doi30": -1,
+   "doi7": -2.1,
+   "doi30": -2.5,
    "nguong": {
     "g": 480,
     "r": 400,
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-08-29T10:22:00.475Z"
+   "luc": "2026-08-29T16:59:18.488Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
-   "so": 35.24,
+   "so": 35.51,
    "dv": "USD",
    "nguon": "Yahoo Finance · FXI",
    "ghi": "Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài về cổ phiếu Trung Quốc, đối xứng với VNM bên Việt Nam.",
@@ -273,17 +274,18 @@ window.DQT_TQ_DO = {
     35.55,
     35.56,
     35.55,
-    35.24
+    35.24,
+    35.51
    ],
-   "doi7": 0.5,
-   "doi30": 2.1,
+   "doi7": -0.5,
+   "doi30": 4,
    "nguong": {
     "g": 38,
     "r": 30,
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-08-29T10:22:00.573Z"
+   "luc": "2026-08-29T16:59:18.556Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -315,11 +317,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-08-29T10:22:00.852Z"
+   "luc": "2026-08-29T16:59:18.637Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 25565.74,
+   "so": 25584.79,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
@@ -388,17 +390,18 @@ window.DQT_TQ_DO = {
     25517.33,
     25511.1,
     25652.97,
-    25565.74
+    25565.74,
+    25584.79
    ],
    "doi7": 0.4,
-   "doi30": 2.2,
+   "doi30": 4.2,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-08-29T10:22:00.934Z"
+   "luc": "2026-08-29T16:59:18.681Z"
   }
  }
 };
