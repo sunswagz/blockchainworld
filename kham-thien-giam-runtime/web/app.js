@@ -513,6 +513,31 @@
     o._than.appendChild(d);
     g.appendChild(o);
 
+    /* LÀN NGÃ — đặt TRƯỚC sức khoẻ nguồn vì nó nặng hơn.
+
+       Một lỗi gõ một chữ trong `nguon.tim_theo_slug` từng ném KeyError ở
+       làn tìm khung và giết trọn mỗi vòng lặp, suốt nhiều giờ: không ghi
+       băng, không kết toán, không lượt tiến hoá nào. Mà bảng vẫn đếm
+       `vòng 21590` và vẫn xanh — một cỗ máy chết trông y hệt một cỗ máy
+       đang chạy. Ô này là để lần sau nhìn là thấy. */
+    var ln = T.lanNga || {};
+    var tenLan = Object.keys(ln);
+    if (tenLan.length) {
+      var oL = oKhung("Làn ngã trong vòng vừa rồi",
+        tenLan.length + " làn không chạy được");
+      oL._than.appendChild(bang(
+        ["làn", "ngã vì"],
+        tenLan.map(function (k) {
+          return [{ v: k, cls: "t xuong" }, { v: ln[k], cls: "t mo" }];
+        })));
+      oL._than.appendChild(chuaCo("Các làn KHÁC vẫn chạy — vòng lặp không "
+        + "còn chết cả cụm vì một làn. Nhưng làn nào ở đây thì việc của nó "
+        + "hôm nay KHÔNG xảy ra: tìm khung ngã là không có cơ hội nào, ghi "
+        + "băng ngã là mất dữ liệu đào tạo, tiến hoá ngã là hôm nay không "
+        + "học được gì."));
+      g.appendChild(oL);
+    }
+
     var n = T.nguon || {};
     var dr = T.duongRa || {};
     var o2 = oKhung("Sức khoẻ nguồn",
