@@ -314,6 +314,35 @@ def kiem_rui_ro() -> None:
     xau = can("BTC_5M", "UP", "t", 0.50, 0.02, SO_MAU, 600)
     kiem("net edge âm → TỪ CHỐI", re.duyet(xau, lanh, 200, False).tu_choi)
 
+    # ── MỌI trần tiền phải co giãn theo vốn, không sót cái nào ────────
+    #
+    # Ba trần `ruiRo` đã đổi sang phần trăm; hai trần `khoDoi` bị bỏ sót
+    # và ở lại đơn vị đô. Tài khoản $100.000 vẫn chỉ dám ôm $50 chân
+    # trần — cỗ máy không lớn lên được; tài khoản $200 thì hai trần ấy
+    # lớn hơn cả vốn nên chúng không chặn gì.
+    #
+    # Đếm theo DANH SÁCH chứ không kiểm từng cái: thêm một trần mới mà
+    # quên cho co giãn thì phải đỏ, không cần ai nhớ viết thêm phép kiểm.
+    _TRAN = ("tranMoiThiTruongUsd", "tranMoiTaiSanUsd", "tranLoNgayUsd",
+             "tranPhoiNhiemGopUsd", "tranChuaPhongHoUsd",
+             "tranLechHuongUsd")
+    _r1 = RiskEngine(Kho())
+    _r1.vonDauNgay = 1_000.0
+    _r10 = RiskEngine(Kho())
+    _r10.vonDauNgay = 10_000.0
+    _cung = [t for t in _TRAN
+             if not gan(getattr(_r10, t), getattr(_r1, t) * 10.0, 1e-6)]
+    kiem("mọi trần tiền nhân 10 khi vốn nhân 10", not _cung, _cung)
+    kiem("và không trần nào bằng 0 (khoá viết sai thì im lặng về 0)",
+         all(getattr(_r1, t) > 0 for t in _TRAN),
+         {t: getattr(_r1, t) for t in _TRAN})
+    # Tỉ lệ cũ phải giữ nguyên, không thì đây là đổi HÀNH VI chứ không
+    # phải đổi đơn vị.
+    kiem("tài khoản $1.000 cư xử Y HỆT trước khi đổi đơn vị",
+         gan(_r1.tranChuaPhongHoUsd, 50.0)
+         and gan(_r1.tranLechHuongUsd, 100.0),
+         (_r1.tranChuaPhongHoUsd, _r1.tranLechHuongUsd))
+
     # ── trần lỗ ngày phải chặn TRƯỚC, không phải kêu sau ──────────────
     #
     # Cổng 1 chỉ từ chối khi cầu dao ĐÃ ngắt, nên nó không bao giờ ngăn

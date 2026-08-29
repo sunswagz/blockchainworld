@@ -866,7 +866,8 @@ class Runtime:
         # của `chan_rui_ro.quyet` để biết ba lớp nào đã che phần nguy
         # hiểm, và ca nào thì KHÔNG được che.
         v = self.kho.lay(ma)
-        qc = quyet_chan(v, cap, tau, now)
+        qc = quyet_chan(v, cap, tau, now,
+                        tranTranUsd=self.risk.tranChuaPhongHoUsd)
         self.quyetChan[ma] = (
             {"loi": qc.loi, "nhan": qc.nhan, "ben": qc.ben, "soCo": qc.soCo,
              "khoaLoUsd": qc.khoaLoUsd, "lyDo": qc.lyDo} if qc else {})
@@ -882,7 +883,9 @@ class Runtime:
         # trong sáu ngón nghề không bao giờ được gọi tới.
         lc = dong_ho.lat_cat(k.endMs, k.daiSongGiay,
                              tuoiDuLieuMs=now - su.nhanLucMs)
-        bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc, viThe=v)
+        bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                     viThe=v,
+                     tranLechHuongUsd=self.risk.tranLechHuongUsd)
         de_xuat = chay_tat_ca(bc, self.batTat)
 
         # 8. Risk Engine quyết

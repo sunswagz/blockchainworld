@@ -62,11 +62,12 @@
   "//khoDoi": "Tồn kho. capChuaKhopToiDaUsd là số tiền được phép nằm trần một chân trong lúc chờ chân kia khớp — đây là rủi ro thật, không phải arbitrage.",
   "//capToken": "Hai token của một market. `lechSoiGuongToiDa` là mức lệch cho phép giữa sổ DOWN thật và ảnh soi gương của sổ UP. Đo trên 1.018 dòng khung ăn thua: trung vị 0,000, nhưng 12,1% dòng vượt 2c và 6,4% vượt 10c — và nhóm lệch > 2c có chênh MỐC THỜI GIAN hai sổ trung vị 114 GIÂY (nhóm còn lại: 0,22 giây). Lệch lớn gần như luôn là dữ liệu lệch giờ. NGƯỠNG 10c chứ không phải 2c vì phép đo này lẫn hai chuyện cùng hình dạng: dữ liệu lệch giờ, và chênh lệch giá THẬT giữa hai token — thứ chiến thuật `cap-tuc-thi` sinh ra để bắt. Chặn ở 2c là chặn luôn cơ hội thật. KHÔNG chọn ngưỡng theo lãi lỗ: thử các ngưỡng cho ra 23,59/41,81/16,17/13,15/10,43 đô, không đơn điệu, vì chặn một dòng giải phóng sức chứa cho dòng sau — trên 6 cửa sổ với khoảng tin ±150 đô thì đó là nhiễu.",
   "capToken": { "lechSoiGuongToiDa": 0.10 },
+  "//khoDoiPhanTram": "Hai trần này cũng TỪNG khai bằng đô-la ($50 chân trần / $100 lệch hướng) và cũng đúng cho một tài khoản 1.000 đô — lần đổi ba trần `ruiRo` sang phần trăm đã bỏ sót chúng. Tài khoản 100.000 đô vẫn chỉ dám ôm 50 đô chân trần, tức cỗ máy không lớn lên được; tài khoản 200 đô thì hai trần này lớn hơn cả vốn nên chúng không chặn gì. Phần trăm giữ đúng tỉ lệ cũ (5/10) nên tài khoản 1.000 đô cư xử Y HỆT. Gốc là VỐN ĐẦU NGÀY, cùng một gốc với ba trần kia — xem `//tranTheoPhanTram`.",
   "khoDoi": {
-    "capChuaKhopToiDaUsd": 50,
+    "phanTramChuaPhongHo": 5,
     "giayChoChanHai": 20,
     "giaCapToiDa": 0.995,
-    "lechHuongToiDaUsd": 100
+    "phanTramLechHuong": 10
   },
 
   "//ruiRo": "Risk Engine — Python thuần, không gọi model, có quyền phủ quyết. Mọi số ở đây là TRẦN CỨNG.",

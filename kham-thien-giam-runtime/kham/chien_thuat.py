@@ -35,6 +35,10 @@ class BoiCanh:
     dongHo: LatCat
     viThe: ViThe
     loMacDinh: float = 100.0
+    #: Trần lệch hướng, tính theo VỐN. `None` = rơi về khoá đô cũ trong
+    #: `khoDoi`, cho những chỗ dựng `BoiCanh` mà không có RiskEngine
+    #: (phép kiểm, công cụ đo). Chỗ chạy thật LUÔN truyền vào.
+    tranLechHuongUsd: float | None = None
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -180,7 +184,9 @@ def dinh_huong_phong_ho(bc: BoiCanh) -> list[CoHoi]:
 
     # Phần thiên lệch tỉ lệ với việc mô hình rõ tới đâu, và có trần cứng.
     do_tin = min(1.0, max(0.0, (abs(p - 0.5) - bc.gia.batDinh) / 0.25))
-    lech_cho = min(float(_KD["lechHuongToiDaUsd"]), bc.loMacDinh * do_tin)
+    tran_lech = (bc.tranLechHuongUsd if bc.tranLechHuongUsd is not None
+                 else float(_KD.get("lechHuongToiDaUsd", 100.0)))
+    lech_cho = min(tran_lech, bc.loMacDinh * do_tin)
     if lech_cho < 1:
         return []
     c = can(bc.ma, ben, "phong-ho", p, bc.gia.batDinh, so, lech_cho)

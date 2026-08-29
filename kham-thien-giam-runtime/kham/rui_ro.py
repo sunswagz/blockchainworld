@@ -137,10 +137,17 @@ class RiskEngine:
     # Vốn ĐẦU NGÀY đúng cả hai: đứng yên trong ngày (nên chạm tới được),
     # và bám theo tài khoản qua các ngày.
 
-    def _tran(self, khoaPct: str, khoaUsd: str, macDinhPct: float) -> float:
-        pct = _RR.get(khoaPct)
+    def _tran(self, khoaPct: str, khoaUsd: str, macDinhPct: float,
+              khoi: dict | None = None) -> float:
+        """`khoi` mặc định là `ruiRo`; truyền vào để dùng cho khối khác.
+
+        Có hai cái trần nữa nằm ở `khoDoi` mà lần đổi sang phần trăm bỏ
+        sót — xem `tranChuaPhongHoUsd`.
+        """
+        kh = _RR if khoi is None else khoi
+        pct = kh.get(khoaPct)
         if pct is None:
-            cu = _RR.get(khoaUsd)
+            cu = kh.get(khoaUsd)
             if cu is not None:
                 return float(cu)
             pct = macDinhPct
@@ -168,6 +175,32 @@ class RiskEngine:
     @property
     def tranLoNgayUsd(self) -> float:
         return self._tran("phanTramLoNgay", "tranLoNgayUsd", 5.0)
+
+    # ── HAI TRẦN CÒN SÓT LẠI Ở `khoDoi` ──────────────────────────────────
+    #
+    # Lần đổi ba trần trên sang phần trăm nêu đúng cái bệnh: "cả ba đều
+    # lấy con số hợp lý cho MỘT tài khoản 1.000 đô... nạp thêm vốn thì
+    # chúng đứng yên, tức là thêm tiền vào KHÔNG đổi hành vi cỗ máy".
+    #
+    # Rồi nó dừng ở khối `ruiRo`. Khối `khoDoi` còn nguyên hai cái, và
+    # cùng một gốc $1.000: chân trần tối đa $50 (5%), lệch hướng tối đa
+    # $100 (10%). Tài khoản $100.000 vẫn chỉ dám ôm $50 chân trần — tức
+    # là cỗ máy không lớn lên được, còn tài khoản $200 thì hai cái trần
+    # này lớn hơn cả vốn nên chúng không chặn gì hết.
+    #
+    # Phần trăm giữ đúng tỉ lệ cũ, nên tài khoản 1.000 đô cư xử y hệt.
+
+    @property
+    def tranChuaPhongHoUsd(self) -> float:
+        """Trần tiền nằm TRẦN một chân (cổng 8)."""
+        return self._tran("phanTramChuaPhongHo", "capChuaKhopToiDaUsd",
+                          5.0, _KD)
+
+    @property
+    def tranLechHuongUsd(self) -> float:
+        """Trần cho phần thiên lệch có chủ ý của chiến thuật phòng hộ."""
+        return self._tran("phanTramLechHuong", "lechHuongToiDaUsd",
+                          10.0, _KD)
 
     # ── kế toán ───────────────────────────────────────────────────────────
     def nap_tu_so(self, ds: list[dict]) -> dict:
@@ -496,12 +529,13 @@ class RiskEngine:
         # 8. trần tiền nằm trần một chân
         them_tran = cho_phep * ch.vwap
         dang_tran = self.kho.tong_chua_phong_ho_usd()
-        if dang_tran + them_tran > float(_KD["capChuaKhopToiDaUsd"]):
-            con = float(_KD["capChuaKhopToiDaUsd"]) - dang_tran
+        tranTran = self.tranChuaPhongHoUsd
+        if dang_tran + them_tran > tranTran:
+            con = tranTran - dang_tran
             if con <= 0:
                 return PhanQuyet(False, 0.0, [
                     f"đang có ${dang_tran:.2f} nằm trần một chân, chạm trần "
-                    f"${_KD['capChuaKhopToiDaUsd']}"])
+                    f"${tranTran:.2f}"])
             cho_phep = con / max(1e-9, ch.vwap)
             canh.append(f"trần chưa phòng hộ cắt còn {cho_phep:.0f} cổ")
 

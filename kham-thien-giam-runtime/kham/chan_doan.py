@@ -66,8 +66,11 @@ NUT_VAN: list[NutVan] = [
            "giá cặp trần; càng thấp càng kỹ tính khi bù chân"),
     NutVan("khoDoi.giayChoChanHai", 5, 60, 5,
            "chờ chân hai bao lâu trước khi dứt điểm"),
-    NutVan("khoDoi.capChuaKhopToiDaUsd", 10, 200, 10,
-           "tiền được phép nằm trần một chân"),
+    # Khoá đô cũ nay là khoá RƠI VỀ, không phải khoá đang sống — vặn nó
+    # thì không có gì đổi. Một nút vặn không đổi gì là tệ hơn không có
+    # nút: vòng tiến hoá vẫn tốn lượt đo nó và vẫn báo "không cải thiện".
+    NutVan("khoDoi.phanTramChuaPhongHo", 1, 20, 1,
+           "phần trăm vốn được phép nằm trần một chân"),
     NutVan("ruiRo.kellyPhan", 0.05, 0.40, 0.05,
            "phần Kelly; cao là đặt to hơn khi mô hình tự tin"),
     # Mép trên nới 900 → 3600. Lý do: mép cũ BẰNG ĐÚNG giá trị đang dùng,
@@ -298,7 +301,7 @@ def chan_doan(ketToan: list[dict], hieuChinh: dict,
             {"thuaLonNhat": tk["thuaLonNhat"], "duoi5pct": tk["duoi5pct"],
              "xoa": tk["xoaBaoNhieuLanThang"]},
             ["ruiRo.kellyPhan", "canLoi.sucChuaToiThieu",
-             "khoDoi.capChuaKhopToiDaUsd"]))
+             "khoDoi.phanTramChuaPhongHo"]))
 
     _benh_mo_hinh(hieuChinh, ra)
 

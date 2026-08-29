@@ -414,7 +414,8 @@ class PhienPhatLai:
                     troiQuaPct=min(100.0, max(0.0, (1.0 - tau / tong) * 100.0)),
                     lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
         bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc,
-                     viThe=self.kho.lay(ma))
+                     viThe=self.kho.lay(ma),
+                     tranLechHuongUsd=self.risk.tranLechHuongUsd)
         deXuat = chay_tat_ca(bc, self.batTat)
         if not deXuat:
             self._bo("không chiến thuật nào đề xuất")

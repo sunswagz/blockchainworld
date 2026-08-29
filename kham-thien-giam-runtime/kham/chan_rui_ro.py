@@ -76,7 +76,8 @@ class QuyetChan:
 
 
 def quyet(v: ViThe, cap: CapSo, conLaiGiay: float,
-          bayGioMs: float | None = None) -> QuyetChan | None:
+          bayGioMs: float | None = None,
+          tranTranUsd: float | None = None) -> QuyetChan | None:
     """Nhìn một vị thế lệch chân, khuyên nên làm gì. None nếu đã cân bằng.
 
     ⚠ **LỜI KHUYÊN, KHÔNG PHẢI HÀNH ĐỘNG.** `vong._mot_thi_truong` gọi hàm
@@ -109,7 +110,8 @@ def quyet(v: ViThe, cap: CapSo, conLaiGiay: float,
     gia_von_da_co = v.giaVonUp if du > 0 else v.giaVonDown
     gia_bu = cap.gia_mua(ben_thieu)
     tran_cap = float(_KD["giaCapToiDa"])
-    tran_tran_usd = float(_KD["capChuaKhopToiDaUsd"])
+    tran_tran_usd = (tranTranUsd if tranTranUsd is not None
+                     else float(_KD.get("capChuaKhopToiDaUsd", 50.0)))
     han_cho_giay = float(_KD["giayChoChanHai"])
 
     tran_usd = v.chuaPhongHoUsd
