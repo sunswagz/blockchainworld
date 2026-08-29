@@ -139,13 +139,34 @@ class KetQuaTienHoa:
 # ══════════════════════════════════════════════════════════════════════════
 #  ĐỀ XUẤT — tất định, không gọi model
 # ══════════════════════════════════════════════════════════════════════════
-def de_xuat_tat_dinh(trieuChung: list, ts: ThamSo) -> list[DeXuat]:
+def de_xuat_tat_dinh(trieuChung: list, ts: ThamSo,
+                     daTraLai=()) -> list[DeXuat]:
     """Từ triệu chứng ra đề xuất. Cùng đầu vào luôn cho cùng đầu ra.
 
     Không gọi model, và đó là chủ ý: một cỗ máy tự vặn tham số của chính mình
     phải dựng lại được từng quyết định. Model có thể vào ở tầng GIẢI THÍCH
     (`vì sao chênh lệch đổi`), không vào ở tầng quyết định.
+
+    ## `daTraLai` — vì sao vòng lặp từng kẹt ở đúng một đề xuất
+
+    Đo trên máy sống 29/08: triệu chứng nặng nhất là `du-doan-lac-quan`, núm
+    của nó là `giuGio`, đề xuất 8→6, chạy lại đo ra TỆ HƠN, trả lại. Lượt
+    sau: cùng dữ liệu, cùng triệu chứng, cùng đề xuất, cùng kết quả. Mãi
+    mãi. Núm `netToiThieuBps` — thứ mà một phép quét tay cho thấy có cải
+    thiện thật — không bao giờ tới lượt, vì nó thuộc một triệu chứng nhẹ
+    hơn và hàm này chỉ trả về đúng cái đầu tiên.
+
+    Truyền vào những đề xuất ĐÃ ĐO VÀ ĐÃ TRẢ LẠI thì lượt sau đi tiếp
+    xuống ứng viên kế. Vẫn ĐÚNG MỘT đề xuất mỗi lượt — luật «vặn hai núm
+    rồi khá lên thì không biết núm nào có công» không đổi.
+
+    Thứ tự ứng viên là TẤT ĐỊNH (theo độ nặng triệu chứng), không theo kết
+    quả đo. Đó là khác biệt giữa "thử lần lượt theo một danh sách đã định
+    trước" và "thử hết rồi chọn cái đẹp nhất" — cái sau là tự lừa bằng
+    nhiều phép so sánh, và hàm này không làm thế.
     """
+    bo = {(str(x.get("nut")), round(float(x.get("den", 0.0)), 9))
+          for x in (daTraLai or []) if isinstance(x, dict)}
     ra: list[DeXuat] = []
     for t in trieuChung:
         for nut in (t.nutGoiY or []):
@@ -160,9 +181,12 @@ def de_xuat_tat_dinh(trieuChung: list, ts: ThamSo) -> list[DeXuat]:
             moi = _kep(nut, hien + huong * buoc_van(nut, hien))
             if abs(moi - hien) < 1e-9:
                 continue                       # đã chạm biên, không đề xuất
+            if (nut, round(moi, 9)) in bo:
+                continue                       # đã đo rồi và đã trả lại
             ra.append(DeXuat(nut, hien, moi, t.ma))
             break                              # luật 2: mỗi triệu chứng MỘT núm
-    # Luật 2 lần nữa, ở tầng lượt: chỉ giữ đề xuất của triệu chứng NẶNG nhất.
+    # Luật 2 lần nữa, ở tầng lượt: chỉ giữ đề xuất của triệu chứng NẶNG nhất
+    # trong số những cái CHƯA bị trả lại.
     return ra[:1]
 
 
@@ -249,8 +273,16 @@ def mot_luot(thu: bool = True, tuNgay: str | None = None) -> KetQuaTienHoa:
         _ghi_so(kq)
         return kq
 
-    # 4. đề xuất
-    dx = de_xuat_tat_dinh(tc, goc)
+    # 4. đề xuất — bỏ qua những cái đã đo và đã trả lại trên MẪU KHÔNG LỚN
+    # HƠN mẫu hiện tại. Băng dài thêm thì một đề xuất từng bị trả lại đáng
+    # được đo lại: nó bị trả vì chưa đủ bằng chứng, không phải vì đã có
+    # bằng chứng ngược.
+    daTra = []
+    for x in doc_so(200):
+        if int(x.get("soKhungBang") or 0) > kq.soKhungBang:
+            continue
+        daTra.extend(x.get("traLai") or [])
+    dx = de_xuat_tat_dinh(tc, goc, daTra)
     kq.deXuat = [d.tom_tat() for d in dx]
     if not dx:
         kq.ghiChu = "có triệu chứng nhưng không núm nào hợp lệ để vặn."

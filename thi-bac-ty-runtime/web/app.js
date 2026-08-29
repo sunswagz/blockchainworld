@@ -1107,6 +1107,39 @@
         { t: "≥ 1" }]]));
     f.appendChild(k2);
 
+    /* LỜI HỨA vs THỰC NHẬN — hậu kiểm cho TÁM ty không có băng. Ty chênh
+       funding chạy lại băng được; tám ty kia thì tờ trình lúc mở đã hứa,
+       sổ lúc đóng biết thực nhận. Trước đây những ty ĐANG kiếm được tiền
+       lại là những ty không ai đối chiếu. */
+    var dv = t.duDoanVaThuc || {};
+    var mdv = Object.keys(dv).filter(function (k) {
+      return dv[k].soDoiChieuDuoc > 0;
+    });
+    var kdv = khoi("Lời hứa vs THỰC NHẬN — theo ty",
+      "Quy về bps MỖI GIỜ ở cả hai vế. So bps trần thì một vị thế đóng sớm "
+      + "luôn «thua» lời hứa của cả cửa sổ, và cái thua ấy chỉ nói nó đóng "
+      + "sớm chứ không nói nó dở.");
+    if (!mdv.length) {
+      kdv.appendChild(giai("chưa vị thế nào đóng KÈM ĐỦ hai vế — mỗi ty cần "
+        + "ít nhất một lần đóng có khai dự đoán thì mới đối chiếu được"));
+    } else {
+      kdv.appendChild(bang(
+        [{ t: "Ty" }, { t: "Đối chiếu" }, { t: "HỨA bps/giờ" },
+         { t: "THỰC bps/giờ" }, { t: "Lệch" }],
+        mdv.map(function (k) {
+          var x = dv[k];
+          return [{ t: k }, { t: so(x.soDoiChieuDuoc) + "/" + so(x.soDong) },
+                  { t: x.duDoanBpsGio.toFixed(3), c: "n" },
+                  { t: x.thucBpsGio.toFixed(3), c: "n" },
+                  { t: (x.lechBpsGio >= 0 ? "+" : "") + x.lechBpsGio.toFixed(3),
+                    c: x.lechBpsGio > 0 ? "am" : "duong" }];
+        })));
+      kdv.appendChild(giai("Lệch DƯƠNG nghĩa là HỨA QUÁ — ty ấy đang lạc "
+        + "quan. Đó là con số đáng đọc nhất ở bảng này, và nó chỉ nói được "
+        + "sau khi vị thế đã đóng."));
+    }
+    f.appendChild(kdv);
+
     var tk = t.laiLoTachKhoan || {};
     var mtk = Object.keys(tk);
     if (mtk.length) {

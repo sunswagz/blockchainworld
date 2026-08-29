@@ -928,6 +928,35 @@ def kiem_tien_hoa_hoc() -> None:
     kiem("MỘT lượt chỉ vặn MỘT núm", len(nhieu) == 1,
          f"{len(nhieu)} — vặn hai núm rồi khá lên thì không biết núm nào có công")
 
+    # ── ĐÃ TRẢ LẠI thì đi tiếp, đừng đề xuất lại y nguyên ───────────────
+    # Đo trên máy sống: triệu chứng nặng nhất là `du-doan-lac-quan`, núm của
+    # nó là `giuGio`, đề xuất 8→6, đo ra TỆ HƠN, trả lại. Lượt sau: cùng dữ
+    # liệu, cùng triệu chứng, cùng đề xuất, cùng kết quả. Mãi mãi. Núm
+    # `netToiThieuBps` — thứ một phép quét tay cho thấy CÓ cải thiện thật —
+    # không bao giờ tới lượt.
+    _tc32 = [T("du-doan-lac-quan", ["giuGio"]),
+             T("ky-vong-am", ["netToiThieuBps"])]
+    _d32 = de_xuat_tat_dinh(_tc32, goc)
+    kiem("chưa trả lại gì thì lấy triệu chứng NẶNG nhất",
+         len(_d32) == 1 and _d32[0].nut == "giuGio", str(_d32))
+    _d33 = de_xuat_tat_dinh(_tc32, goc,
+                            [{"nut": "giuGio", "den": _d32[0].den}])
+    kiem("đã đo và trả lại rồi thì ĐI TIẾP xuống ứng viên kế",
+         len(_d33) == 1 and _d33[0].nut == "netToiThieuBps",
+         f"{_d33} — cùng dữ liệu, cùng đề xuất, cùng kết quả, mãi mãi")
+    kiem("và VẪN đúng MỘT đề xuất mỗi lượt", len(_d33) == 1,
+         "vặn hai núm rồi khá lên thì không biết núm nào có công")
+    _d34 = de_xuat_tat_dinh(
+        _tc32, goc, [{"nut": "giuGio", "den": _d32[0].den},
+                     {"nut": "netToiThieuBps", "den": _d33[0].den}])
+    kiem("hết ứng viên thì ĐỨNG YÊN, không quay lại cái đã trả",
+         _d34 == [], f"{_d34}")
+    kiem("trả lại một GIÁ TRỊ KHÁC thì không chặn nhầm",
+         de_xuat_tat_dinh(_tc32, goc,
+                          [{"nut": "giuGio", "den": 999.0}])[0].nut == "giuGio",
+         "chặn theo (núm, giá trị) chứ không theo mỗi tên núm — bước sau "
+         "dịch tới một giá trị khác, và giá trị ấy chưa ai đo")
+
     an = de_xuat_tat_dinh([T("dong-ho-lech", ["doiHoiHaiMark"])], goc)
     kiem("gợi ý chạm cửa an toàn thì BỎ QUA", an == [])
 
@@ -5794,6 +5823,50 @@ def kiem_ke_toan_vi_the() -> None:
 
     tr16 = SoCai(_tam("tach-rong") / "sc.sqlite3").lai_lo_tach_khoan()
     kiem("sổ rỗng thì trả bảng rỗng, không nổ", tr16 == {})
+
+    # ── LỜI HỨA vs THỰC NHẬN, cho TÁM ty không có băng ──────────────────
+    # Ty chênh funding ghi băng nên hậu kiểm bằng chạy lại. Tám ty còn lại
+    # không có băng, và trước lượt này KHÔNG có phép hậu kiểm nào — nghĩa
+    # là những ty ĐANG kiếm được tiền lại là những ty không ai đối chiếu,
+    # còn ty duy nhất bị đối chiếu thì hoá ra đang lỗ.
+    from thi_bac_ty.so_cai import ButToan as _BT35
+    sc35 = SoCai(_tam("du-doan-thuc") / "sc.sqlite3")
+    for cl, du, thuc in (("a.v1", 2.0, 1.0), ("a.v1", 4.0, 3.0),
+                         ("b.v1", 1.0, 1.5)):
+        sc35.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, cl, "m",
+                         {"duDoanBpsGio": du, "thucBpsGio": thuc}))
+    # Một lần đóng KHÔNG khai dự đoán: phải đếm vào `soDong` mà KHÔNG đếm
+    # vào mẫu số đối chiếu.
+    sc35.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "a.v1", "m",
+                     {"thucBpsGio": 99.0}))
+    dt35 = sc35.du_doan_va_thuc()
+    kiem("gộp lời hứa và thực nhận theo TY",
+         set(dt35) == {"a.v1", "b.v1"}, str(list(dt35)))
+    kiem("bình quân tính trên số lần ĐỐI CHIẾU ĐƯỢC, không trên số lần đóng",
+         dt35["a.v1"]["soDong"] == 3
+         and dt35["a.v1"]["soDoiChieuDuoc"] == 2
+         and gan(dt35["a.v1"]["duDoanBpsGio"], 3.0)
+         and gan(dt35["a.v1"]["thucBpsGio"], 2.0),
+         f"{dt35['a.v1']} — một bên thiếu thì không có gì để so, và coi vế "
+         f"thiếu là 0 là bịa ra một lời hứa chưa ai hứa")
+    kiem("lệch = hứa − thực, dương nghĩa là HỨA QUÁ",
+         gan(dt35["a.v1"]["lechBpsGio"], 1.0)
+         and gan(dt35["b.v1"]["lechBpsGio"], -0.5))
+    sc36 = SoCai(_tam("du-doan-rong") / "sc.sqlite3")
+    sc36.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "c.v1", "m", {}))
+    kiem("chưa đối chiếu được lần nào thì None, KHÔNG phải 0",
+         sc36.du_doan_va_thuc()["c.v1"]["duDoanBpsGio"] is None,
+         "một ty chưa đóng vị thế nào chưa nói được gì về mình, và số 0 ở "
+         "đây đọc thành «hứa huề vốn»")
+
+    from thi_bac_ty.trung_uong import _bps_gio_du_doan as _bg35
+    kiem("lời hứa quy về bps MỖI GIỜ, ưu tiên số tờ trình tự khai",
+         gan(_bg35({"netMoiGioBps": 1.5}), 1.5)
+         and gan(_bg35({"netUocBps": 12.0, "giuGio": 8.0}), 1.5),
+         "so bps trần thì một vị thế đóng sớm luôn «thua» lời hứa của cả "
+         "cửa sổ, và cái thua ấy chỉ nói nó đóng sớm chứ không nói nó dở")
+    kiem("không khai gì thì None, không suy bừa",
+         _bg35({"netUocBps": 12.0}) is None and _bg35(None) is None)
 
 
 

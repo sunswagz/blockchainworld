@@ -250,6 +250,57 @@ class SoCai:
         return {(r[0] or "?"): {"soButToan": r[1], "laiLoUsd": r[2] or 0.0}
                 for r in h}
 
+    def du_doan_va_thuc(self) -> dict:
+        """LỜI HỨA vs THỰC NHẬN, theo ty — hậu kiểm cho tám ty KHÔNG có băng.
+
+        Ty chênh funding ghi băng nên chạy lại được. Tám ty còn lại không
+        có băng, và trước lượt này không có phép hậu kiểm nào cả — nghĩa là
+        **những ty ĐANG kiếm được tiền lại là những ty không ai đối chiếu**,
+        còn ty duy nhất bị đối chiếu thì hoá ra đang lỗ. Đúng chiều ngược
+        với chiều cần.
+
+        Chúng không cần băng: tờ trình lúc mở đã hứa `netUocBps` trong
+        `giuGio` giờ, và sổ vị thế lúc đóng biết đã thu thật bao nhiêu
+        trong bao lâu. `_bps_gio_du_doan` quy cả hai về bps MỖI GIỜ —
+        so bps trần thì một vị thế đóng sớm luôn "thua" lời hứa của cả cửa
+        sổ, và cái thua ấy chỉ nói nó đóng sớm chứ không nói nó dở.
+
+        Chỉ đếm những lần đóng có ĐỦ HAI vế. Một bên thiếu thì không có gì
+        để so, và đưa nó vào với vế thiếu coi như 0 là bịa ra một lời hứa
+        chưa ai hứa.
+        """
+        try:
+            with self._mo() as con:
+                h = con.execute(
+                    "SELECT chienLuoc, chiTiet FROM but_toan "
+                    "WHERE loai = 'DONG_VI_THE'").fetchall()
+        except (sqlite3.Error, OSError):
+            return {}
+        ra: dict = {}
+        for cl, ct in h:
+            try:
+                d = json.loads(ct or "{}")
+            except (TypeError, ValueError):
+                continue
+            du, thuc = d.get("duDoanBpsGio"), d.get("thucBpsGio")
+            o = ra.setdefault(cl, {"soDong": 0, "soDoiChieuDuoc": 0,
+                                   "tongDuDoan": 0.0, "tongThuc": 0.0})
+            o["soDong"] += 1
+            if du is None or thuc is None:
+                continue
+            o["soDoiChieuDuoc"] += 1
+            o["tongDuDoan"] += float(du)
+            o["tongThuc"] += float(thuc)
+        for o in ra.values():
+            k = o["soDoiChieuDuoc"]
+            # `None` khi chưa đối chiếu được lần nào — không phải 0. Một ty
+            # chưa đóng vị thế nào chưa nói được gì về mình.
+            o["duDoanBpsGio"] = o["tongDuDoan"] / k if k else None
+            o["thucBpsGio"] = o["tongThuc"] / k if k else None
+            o["lechBpsGio"] = ((o["tongDuDoan"] - o["tongThuc"]) / k
+                               if k else None)
+        return ra
+
     def lai_lo_tach_khoan(self) -> dict:
         """Lãi lỗ theo ty, TÁCH ra từng khoản — và đó là điểm của hàm này.
 

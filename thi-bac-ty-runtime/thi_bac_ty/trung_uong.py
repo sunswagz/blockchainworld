@@ -668,11 +668,27 @@ class TrungUong:
                 l.loi.append(f"{ma}: danh mục từ chối đóng")
                 continue
             self.so_dang_ky.chuyen(ma, "DA_DONG", lyDo[:400])
+            # DỰ ĐOÁN vs THỰC NHẬN, ghi ngay lúc đóng.
+            #
+            # Ty chênh funding có băng nên hậu kiểm được bằng cách chạy lại.
+            # Tám ty còn lại KHÔNG có băng — nhưng chúng không cần: tờ trình
+            # lúc mở đã HỨA `netUocBps` trong `giuGio` giờ, và sổ vị thế lúc
+            # đóng biết đã thu thật bao nhiêu trong bao lâu. Hai con số ấy
+            # đủ để hỏi câu quan trọng nhất: **lời hứa có đúng không.**
+            #
+            # Quy về bps MỖI GIỜ ở cả hai vế. So bps trần thì một vị thế
+            # đóng sớm luôn "thua" lời hứa của cả cửa sổ, và cái thua ấy chỉ
+            # nói nó đóng sớm chứ không nói nó dở.
+            gio = so.daGiuGio(now)
+            duDoan = _bps_gio_du_doan(so.toTrinh)
+            thuc = (laiLo / abs(so.vonUsd) * 10_000.0 / gio
+                    if gio > 0 and so.vonUsd else None)
             self.so_cai.ghi(ButToan(
                 "DONG_VI_THE", f"đóng · {lyDo}", 0.0, so.chienLuoc, ma,
                 {"laiLoUsd": laiLo, "thuUsd": so.thuCongDonUsd,
                  "phiUsd": so.phiCongDonUsd,
-                 "daGiuGio": so.daGiuGio(now),
+                 "daGiuGio": gio,
+                 "duDoanBpsGio": duDoan, "thucBpsGio": thuc,
                  "soVongKeToan": so.soVongKeToan,
                  "coKeToan": so.coKeToan}))
             self.soViThe.pop(ma, None)
@@ -1023,7 +1039,33 @@ class TrungUong:
             "banThamSo": self.kho_tham_so.tom_tat(),
             "lechCauHinh": self.lech_cau_hinh(),
             "vonDangDung": self.soVonGio.tom_tat(),
+            # Hậu kiểm cho TÁM ty không có băng: lời hứa lúc mở vs thực
+            # nhận lúc đóng. Ty duy nhất có băng thì hậu kiểm bằng chạy
+            # lại, và nó nằm ở `trangThai.tienHoa`.
+            "duDoanVaThuc": self.so_cai.du_doan_va_thuc(),
         }
+
+
+def _bps_gio_du_doan(toTrinh: dict) -> float | None:
+    """Lời hứa của tờ trình, quy về bps MỖI GIỜ. `None` khi không khai.
+
+    Ưu tiên `netMoiGioBps` nếu tờ trình có sẵn — đó là con số chính tờ trình
+    đã quy đổi, và tự quy lại là dựng bản sao thứ hai của một phép tính đã
+    có. Không có thì suy từ `netUocBps / giuGio`.
+
+    `None` chứ không phải 0: một ty không khai dự đoán thì nó chưa hứa gì,
+    khác hẳn một ty hứa huề vốn — và trộn hai thứ ấy làm bảng đối chiếu
+    khen nhầm đúng những ty im lặng.
+    """
+    if not isinstance(toTrinh, dict):
+        return None
+    v = toTrinh.get("netMoiGioBps")
+    if v is not None:
+        return float(v)
+    net, gio = toTrinh.get("netUocBps"), toTrinh.get("giuGio")
+    if net is None or not gio:
+        return None
+    return float(net) / float(gio)
 
 
 def _dat_nut(thamSo: dict, duong: str, gt) -> dict:
