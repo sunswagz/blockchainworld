@@ -543,6 +543,25 @@ lượt liên tiếp không ghi được gì.
 trước; mọi câu dưới đây áp dụng y nguyên cho hai runtime kia, chỉ đổi tên
 thư mục, cổng, và lệnh sinh lát cắt:
 
+### Khâm Thiên Giám — đường tới chợ CHẬP CHỜN, và khung ăn thua CÓ giá
+
+Không phải "bị chặn TLS vĩnh viễn". Trong 24 phút thông (14:54–15:18 UTC
+29/08) runtime ghi được 578 dòng sổ lệnh KHUNG ĂN THUA. Cách nhận ra:
+đếm `giai_doan_cua(tt) == "quan-sat"` trong băng — đừng tin cờ nguồn lỗi
+hiện tại, nó chỉ nói lúc này.
+
+    sổ dùng được   578/578 (100%) · thang chờ 0 · spread 1,00¢
+    Brier chợ      0,20799  kỹ năng +16,8%
+    Brier mô hình  0,16078  kỹ năng +35,7%
+    w ước lượng    0,710    (phiên giấy hoà vốn quanh w ≈ 1)
+
+Lãi lỗ THẬT đầu tiên, chạy trên chính 578 dòng ấy: 5 cửa sổ, thắng 4/1,
+**+$33,94 trên $10.000 (+0,34%)**, phí $1,97, sụt vốn 0,50%.
+
+Năm cửa sổ là vô nghĩa về thống kê — giá trị của nó là chứng minh cả
+đường ống chạy trọn. Không đổi cấu hình theo nó. `scripts/do-cho-that.py`
+và `scripts/chay-phat-lai.py` chạy lại được mỗi khi băng dày thêm.
+
 ### Khâm Thiên Giám — MÔ HÌNH ĐÃ Ở SÁT TRẦN, thôi vặn
 
 Đo được (`scripts/do-tran-mo-hinh.py`, 20 ngày BTC, 9.220 cặp ngoài mẫu):
