@@ -140,6 +140,12 @@ class KetQuaPhien:
     # một phiên "không có cơ hội nào".
     ngatLucKhung: int = 0
     ngatLyDo: str = ""
+    #: Lãi lỗ của TỪNG cửa sổ. Không phải trang trí: `tongLaiLo` một mình
+    #: không nói được nó chắc tới đâu, và bảy cửa sổ thì "+3,30%" là một
+    #: con số nghe như kết luận mà thật ra là tiếng ồn. Có danh sách này
+    #: thì lấy lại được khoảng tin — THEO CỬA SỔ, đúng luật đã ghi trong
+    #: CLAUDE.md, vì bốn lát cắt của một khung chia chung MỘT kết quả.
+    laiLoTungCuaSo: list = field(default_factory=list)
     duongVon: list = field(default_factory=list)
     lyDoTuChoi: dict = field(default_factory=dict)
     boQua: dict = field(default_factory=dict)
@@ -226,7 +232,8 @@ class PhienPhatLai:
         self.mo: dict[str, ViKhung] = {}
         self.kq = KetQuaPhien(von0=self.risk.von, von=self.risk.von,
                               dinhVon=self.risk.von)
-        self.soLanKhopNan = 0
+        self.soLanKhopNan = 0     # số lần THẬT SỰ khớp lại
+        self._soLanGoiKhop = 0    # số lần được gọi, kể cả lần bỏ qua
         from .ket_qua import so_ket_qua
         self._kqThat = so_ket_qua
 
@@ -389,6 +396,7 @@ class PhienPhatLai:
         lai = tienRa - v.tienVao - v.phi
         self.kq.soKetToan += 1
         self.kq.tongLaiLo += lai
+        self.kq.laiLoTungCuaSo.append(lai)
         if lai > 0:
             self.kq.soThang += 1
         else:
@@ -436,10 +444,17 @@ class PhienPhatLai:
         quyết định ở phút thứ nhất dựa trên kết quả của ngày thứ tám.
         Khởi đầu lạnh chậm hơn, và đó là cái giá của một con số đứng được.
         """
-        self.soLanKhopNan += 1
-        if self.soLanKhopNan % NHIP_KHOP_NAN:
+        # Đếm RIÊNG số lần gọi và số lần THẬT SỰ khớp lại. Bản trước dùng
+        # một biến cho cả hai, tên là `soLanKhopNan` mà đếm số lần GỌI —
+        # nên báo cáo cuối phiên nói "khớp lại 7 lần" trong khi nó khớp
+        # lại ĐÚNG 0 lần, và `phepNan` vẫn là bản 0 mẫu lúc khai sinh.
+        # Một bộ đếm mang tên việc A mà đếm việc B thì mọi câu đọc từ nó
+        # đều sai, kể cả khi con số đúng.
+        self._soLanGoiKhop += 1
+        if self._soLanGoiKhop % NHIP_KHOP_NAN:
             return
         self.phepNan = khop_nan(self.hieuChinh)
+        self.soLanKhopNan += 1
 
     # ── ranh giới ngày ────────────────────────────────────────────────
     def _nhip_ngay(self) -> None:
@@ -482,6 +497,11 @@ class PhienPhatLai:
         for slug in list(self.mo):
             self._ket_toan(slug)
         self.kq.von = self.risk.von
+        # Khớp lần cuối trước khi ai đọc báo cáo. Không có dòng này thì
+        # `phepNan` in ra là bản của lần khớp gần nhất — có thể là bản
+        # 0 mẫu lúc khai sinh — trong khi sổ hiệu chỉnh đã dày lên
+        # suốt phiên. Báo cáo đọc một cỗ máy không phải cỗ máy vừa chạy.
+        self.phepNan = khop_nan(self.hieuChinh)
         return self.kq
 
 

@@ -51,6 +51,38 @@ from kham.config import CONFIG  # noqa: E402
 from kham.phat_lai import PhienPhatLai  # noqa: E402
 
 
+def _khoang_tin(kq) -> None:
+    """Khoảng tin 95% cho tổng lãi lỗ, lấy lại THEO CỬA SỔ.
+
+    Một con số "+3,30%" đứng trơ thì đọc như kết luận. Trên BẢY cửa sổ
+    nó là tiếng ồn, và chuyện ấy phải hiện ra ngay cạnh con số chứ
+    không nằm trong đầu người viết. Cùng luật đã ghi trong CLAUDE.md:
+    **bootstrap theo KHUNG, không theo cặp** — bốn lát cắt τ của một
+    khung chia chung MỘT kết quả, nên đơn vị lấy lại là cửa sổ.
+
+    Đã có tiền lệ đắt: lấy lại theo cặp cho khoảng tin hẹp hơn 2,18 lần
+    và nó ĐÃ làm sai một kết luận đã ghi vào tài liệu.
+    """
+    import random
+
+    v = list(kq.laiLoTungCuaSo)
+    n = len(v)
+    if n < 3:
+        print(f"    khoảng tin          — chỉ {n} cửa sổ, không nói được gì")
+        return
+    rd = random.Random(20260830)
+    lan = []
+    for _ in range(4000):
+        lan.append(sum(v[rd.randrange(n)] for _ in range(n)))
+    lan.sort()
+    lo, hi = lan[int(0.025 * 4000)], lan[int(0.975 * 4000)]
+    print(f"    khoảng tin 95%      [{_tien(lo)}, {_tien(hi)}]"
+          f"   ({n} cửa sổ)")
+    if lo <= 0 <= hi:
+        print("      ↳ khoảng tin CHỨA 0 — con số lãi ở trên CHƯA nói được")
+        print("        rằng cỗ máy này có lãi. Cần thêm cửa sổ, đừng vặn gì")
+        print("        theo nó.")
+
 def _tien(x: float) -> str:
     return f"{'-' if x < 0 else ''}${abs(x):,.2f}"
 
@@ -106,7 +138,18 @@ def main() -> int:
               f"tiêu, KHÔNG nằm trong con số lãi lỗ trên)")
     if kq.soKetToan:
         print(f"    lãi lỗ mỗi cửa sổ  {_tien(kq.tongLaiLo/kq.soKetToan):>10}")
+        _khoang_tin(kq)
     print(f"    số ngày băng       {kq.soNgay+1:>10,}")
+    # Phép nắn khai ở ĐẦU là "0 mẫu", và người đọc dễ tưởng nó ấm lên dần
+    # trong phiên. Phải khai lại ở CUỐI: sổ hiệu chỉnh của phiên giấy là
+    # sổ RIÊNG, khởi đầu rỗng cố ý (dùng bảng nắn khớp trên kết quả phiên
+    # chưa thấy là nhìn trộm tương lai), nên với bảy cửa sổ nó chưa bao
+    # giờ đủ để bật.
+    print(f"    phép nắn cuối phiên {p.phepNan.tongMau:>9,} mẫu · "
+          f"{'CÓ dùng' if p.phepNan.dung_duoc else 'KHÔNG bật'}"
+          f" · khớp lại {p.soLanKhopNan} lần")
+    if not p.phepNan.dung_duoc:
+        print("      ↳ con số lãi lỗ trên là của mô hình THÔ, chưa nắn.")
     print()
 
     if not kq.soCuaSo:

@@ -3140,6 +3140,69 @@ def kiem_tien_do_khong_phai_loi() -> None:
          "_Ong(logging.ERROR)" in cn)
     kiem("và stdout → INFO", "_Ong(logging.INFO)" in cn)
 
+def kiem_phat_lai_khai_that() -> None:
+    """Phiên giấy phải khai đúng: khoảng tin, phép nắn, và bộ đếm.
+
+    Ba chỗ nói sai, đo thật trên phiên chạy hết băng 30/08/2026:
+
+    1. In "+3,30%" trên BẢY cửa sổ mà không một khoảng tin nào. Lấy lại
+       theo cửa sổ thì khoảng tin là [−$130,75, +$183,26] — CHỨA 0.
+       Con số ấy đọc như kết luận nhưng là tiếng ồn.
+    2. `soLanKhopNan` mang tên "số lần khớp lại" mà đếm số lần GỌI, nên
+       báo cáo nói "khớp lại 7 lần" trong khi nó khớp lại ĐÚNG 0 lần.
+    3. `chay()` trả về mà không khớp lại lần cuối, nên `phepNan` in ra
+       là bản 0 mẫu lúc khai sinh trong khi sổ đã có 17 mẫu — báo cáo
+       đọc một cỗ máy không phải cỗ máy vừa chạy.
+    """
+    print("\n── Phiên giấy phải khai đúng những gì nó đã làm ──────────────")
+
+    from kham.phat_lai import KetQuaPhien, NHIP_KHOP_NAN, PhienPhatLai
+
+    kq = KetQuaPhien()
+    kiem("có sổ lãi lỗ TỪNG cửa sổ để lấy lại khoảng tin",
+         hasattr(kq, "laiLoTungCuaSo") and kq.laiLoTungCuaSo == [])
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    sc = (GOC_MA / "scripts" / "chay-phat-lai.py").read_text(encoding="utf-8")
+    kiem("báo cáo in khoảng tin 95%", "khoảng tin 95%" in sc)
+    kiem("và nói thẳng khi khoảng tin CHỨA 0", "CHỨA 0" in sc)
+    kiem("lấy lại THEO CỬA SỔ, không theo dòng",
+         "laiLoTungCuaSo" in sc)
+    kiem("khai phép nắn ở CUỐI phiên, không chỉ ở đầu",
+         "phép nắn cuối phiên" in sc)
+    kiem("và nói rõ lãi lỗ là của mô hình THÔ khi nắn chưa bật",
+         "mô hình THÔ" in sc)
+
+    # Bộ đếm phải đếm đúng việc mang tên nó.
+    ph = PhienPhatLai.__new__(PhienPhatLai)
+    ph.soLanKhopNan = 0
+    ph._soLanGoiKhop = 0
+    ph.hieuChinh = None
+    goi = [0]
+
+    import kham.phat_lai as PL
+    cu = PL.khop_nan
+    try:
+        def gia(_hc):
+            goi[0] += 1
+            return "phep-nan-gia"
+        PL.khop_nan = gia
+        for _ in range(NHIP_KHOP_NAN * 2):
+            PhienPhatLai._khop_lai_nan(ph)
+    finally:
+        PL.khop_nan = cu
+
+    kiem("gọi 2×nhịp thì khớp lại ĐÚNG 2 lần", goi[0] == 2, goi[0])
+    kiem("`soLanKhopNan` đếm lần KHỚP, không đếm lần gọi",
+         ph.soLanKhopNan == 2, ph.soLanKhopNan)
+    kiem("số lần gọi được đếm riêng",
+         ph._soLanGoiKhop == NHIP_KHOP_NAN * 2, ph._soLanGoiKhop)
+
+    pl = (GOC_MA / "kham" / "phat_lai.py").read_text(encoding="utf-8")
+    than = pl[pl.index("def chay("):]
+    kiem("`chay()` khớp lại lần cuối TRƯỚC khi trả kết quả",
+         than.index("khop_nan(self.hieuChinh)") < than.index("return self.kq"))
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3199,6 +3262,7 @@ def main() -> int:
     kiem_dich_vu_hoi_cong()
     kiem_bao_cao_doc_hien_ra()
     kiem_tien_do_khong_phai_loi()
+    kiem_phat_lai_khai_that()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
