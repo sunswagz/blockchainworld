@@ -131,12 +131,40 @@ def _phu_soat_lai(that: list[dict]) -> tuple[list[dict], int]:
     return ra, n
 
 
+def _gop_trung(ds: list[dict]) -> list[dict]:
+    """Gộp bài học TRÙNG CÂU, giữ bản mới nhất và đếm số lần.
+
+    Đo được: `lessonsForThisRegime` đưa cho bộ não 9 mục mà chỉ là 3 câu. Sáu
+    mục kia không thêm một chữ nào — chúng chỉ là cùng một câu đúc lại ở những
+    lệnh khác nhau của cùng chế độ.
+
+    Hai cái hại, cái thứ hai nặng hơn:
+
+    - Tốn chỗ trong lời nhắc, mà chỗ ấy trả bằng token mỗi lượt gọi.
+    - LẶP LẠI ĐỌC NHƯ BẰNG CHỨNG CHỒNG CHẤT. Thấy cùng một câu 9 lần thì nó
+      nặng hơn thấy một lần, dù nó vẫn chỉ là một quan sát. Đó là cân sai, và
+      cân sai theo hướng làm bộ não tự tin hơn mức dữ liệu cho phép.
+
+    Nên gộp lại và NÓI RA số lần: "3 câu, câu này gặp 5 lần" trung thực hơn
+    "9 câu" — nó biến cái lặp thành một con số đếm được thay vì một cảm giác.
+    """
+    theo: dict[str, dict] = {}
+    for l in ds:
+        k = (l.get("lesson") or "").strip()
+        if not k:
+            k = f"_khong-cau-{id(l)}"
+        cu = theo.get(k)
+        theo[k] = {**l, "_lan": (cu or {}).get("_lan", 0) + 1}
+    return list(theo.values())
+
 def _gon(l: dict) -> dict:
     return {
         "at": l.get("at"), "regime": l.get("regime"), "side": l.get("side"),
         "rMultiple": l.get("rMultiple"), "classification": l.get("classification"),
         "lesson": l.get("lesson"), "changeStrategy": l.get("change_strategy"),
         "soatLai": l.get("soatLai") or None,
+        # Chỉ hiện khi >1: "gặp 1 lần" là nhiễu thị giác trong lời nhắc.
+        "gapMayLan": l.get("_lan") if (l.get("_lan") or 0) > 1 else None,
     }
 
 
@@ -160,21 +188,26 @@ def recall(regime_key: str, regime_primary: str, limit: int = 6) -> dict:
     from . import chung_cat  # nhập tại chỗ: chung_cat nhập ngược journal
     phat_hien = chung_cat.doc(regime_key, regime_primary)
     return {
-        "note": "Bài học là quan sát trong quá khứ, không phải quy tắc. Nói rõ nếu bạn bỏ qua một bài học và vì sao.",
+        "note": ("Bài học là quan sát trong quá khứ, không phải quy tắc. Nói rõ nếu "
+                 "bạn bỏ qua một bài học và vì sao. Bài học TRÙNG CÂU đã được gộp: "
+                 "`gapMayLan` là số lệnh đúc ra đúng câu đó — hãy cân theo nó, "
+                 "chứ một câu lặp nhiều lần vẫn là MỘT quan sát về chế độ."),
         "soatLaiNote": (
             f"{so_soat} bài học dưới đây mang cờ soatLai — chúng đã được hậu kiểm LẠI "
             f"khi sổ đã dài hơn, nên nhận xét về kích thước vị thế và về nhịp vào lệnh "
             f"trong đó là so với cả sổ, không phải so với một lệnh đứng lẻ. Bản đúc lần "
             f"đầu vẫn còn nguyên trong lessons.jsonl."
         ) if so_soat else None,
-        "lessonsForThisRegime": [_gon(l) for l in _chon(that, regime_key, regime_primary, limit)],
+        "lessonsForThisRegime": [_gon(l) for l in _gop_trung(
+            _chon(that, regime_key, regime_primary, limit))],
         "replayNote": (
             "Những bài học dưới đây đúc từ CHẠY LẠI LỊCH SỬ, không phải lệnh thật. "
             "Trong mô phỏng, lệnh khớp đúng giá đặt và không có nhảy giá qua stop, "
             "nên hãy tin phần CẤU TRÚC (chế độ nào ăn, chế độ nào lỗ, mẫu lặp lại) "
             "và đừng tin phần ĐỘ LỚN (số R cụ thể sẽ xấu hơn ngoài thực tế)."
         ),
-        "lessonsFromReplay": [_gon(l) for l in _chon(chay_lai, regime_key, regime_primary, limit)],
+        "lessonsFromReplay": [_gon(l) for l in _gop_trung(
+            _chon(chay_lai, regime_key, regime_primary, limit))],
         # PHÁT HIỆN — thứ ba cỗ máy đo đã đo ra mà trước đây không có đường tới
         # đây. Đặt TRƯỚC hiệu suất trong gói trả về vì nó là loại có cỡ mẫu lớn
         # nhất: 44 lệnh chạy lại của champion, 36 lệnh của một chế độ, 111 vị thế

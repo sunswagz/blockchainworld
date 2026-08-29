@@ -997,6 +997,35 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[25] LẶP LẠI KHÔNG ĐƯỢC ĐỌC NHƯ BẰNG CHỨNG CHỒNG CHẤT")
+    from trader.journal import _gop_trung as _gt25, _gon as _gn25
+
+    # `lessonsForThisRegime` đưa cho bộ não 9 mục mà chỉ là 3 câu. Sáu mục kia
+    # không thêm chữ nào — cùng một câu đúc lại ở những lệnh khác nhau của cùng
+    # chế độ. Hại nặng hơn chuyện tốn token: thấy một câu 9 lần thì nó NẶNG hơn
+    # thấy một lần, dù vẫn là một quan sát. Cân sai, và sai theo hướng làm bộ
+    # não tự tin hơn mức dữ liệu cho phép.
+    _ds25 = ([{"lesson": "A", "rMultiple": -1}] * 4
+             + [{"lesson": "B", "rMultiple": 2}] * 2
+             + [{"lesson": "C", "rMultiple": 0}])
+    _ra25 = _gt25(_ds25)
+    check(len(_ra25) == 3, f"7 mục · 3 câu → còn {len(_ra25)} mục")
+    check(sorted(x["_lan"] for x in _ra25) == [1, 2, 4],
+          "số lần được ĐẾM chứ không bị vứt (1·2·4)")
+
+    # Cửa ngược lại: câu khác nhau thì KHÔNG được gộp. Thiếu phép này thì một
+    # lỗi gộp quá tay sẽ nuốt mất bài học thật mà bảng vẫn gọn đẹp.
+    _kh25 = _gt25([{"lesson": f"câu {i}"} for i in range(5)])
+    check(len(_kh25) == 5, "5 câu KHÁC nhau → giữ nguyên 5, không gộp nhầm")
+
+    # Và bài học không có câu thì không được gộp vào nhau thành một.
+    _rong = _gt25([{"lesson": "", "rMultiple": 1}, {"lesson": None, "rMultiple": 2}])
+    check(len(_rong) == 2, "hai bài học RỖNG câu vẫn là hai, không nhập một")
+
+    check(_gn25({"lesson": "A", "_lan": 1}).get("gapMayLan") is None,
+          "gặp đúng 1 lần → KHÔNG hiện gapMayLan, tránh nhiễu lời nhắc")
+    check(_gn25({"lesson": "A", "_lan": 4}).get("gapMayLan") == 4,
+          "gặp 4 lần → hiện gapMayLan=4")
     print("\n[24] ĐỨNG NGOÀI LÂU PHẢI KÊU LÊN — CẢ CỬA NGƯỢC LẠI")
     import importlib.util as _il24
     _sp24 = _il24.spec_from_file_location("bg24", str(ROOT / "scripts" / "ban-giao.py"))
