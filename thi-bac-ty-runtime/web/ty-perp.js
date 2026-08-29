@@ -268,6 +268,24 @@ window.TYPERP = (function () {
       })),
       "Phí và trượt giá ở đây là THAM SỐ trong config.json, không phải số đo "
       + "được từ sàn. Đặt quá thấp là tự vẽ ra lợi nhuận không có thật."));
+
+    /* GIỮ TỐI THIỂU. `vong.py` tính bảng này mỗi vòng kèm một docstring nói
+       thẳng vì sao nó tồn tại — «người vận hành không nên phải tự suy ra
+       điều đó từ một bảng mốc kế tiếp» — rồi không ai vẽ nó. Funding trả
+       theo MỐC: giữ bốn giờ trên sàn kết toán tám giờ có thể thu ĐÚNG BẰNG
+       KHÔNG, và đó là chỗ dễ mất tiền nhất mà nhìn bảng bps không thấy. */
+    f.appendChild(o("Giữ tối thiểu bao lâu mới CHẠM một mốc", bang(
+      [{ t: "Cảng", trai: 1 }, { t: "Mã", trai: 1 }, { t: "phải giữ" },
+       { t: "chu kỳ" }],
+      (S.giuToiThieuGio || []).map(function (x) {
+        return [{ t: x.san, c: "trai" }, { t: x.ma, c: "trai" },
+                { t: so(x.gio, 2) + " h",
+                  c: (x.gio || 0) > (x.chuKyGio || 0) * 0.5 ? "am" : null },
+                { t: so(x.chuKyGio, 0) + " h", c: "nhat" }];
+      })),
+      "Funding chỉ chảy TẠI MỐC, không chảy liên tục. Vào lệnh ngay sau một "
+      + "mốc là phải giữ gần trọn một chu kỳ mới thu được đồng nào — và "
+      + "phí vào lệnh thì trả ngay."));
     return f;
   }
 

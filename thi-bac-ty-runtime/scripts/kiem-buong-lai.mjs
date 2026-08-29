@@ -408,6 +408,48 @@ globalThis._datS(T);
       + " ngoài " + T.vong + " · Trung Ương " + tu.vong
       + (ok3 ? " · khớp" : " · LỆCH, hai chỗ đếm rời nhau"));
     ok3 ? xong++ : loi++;
+
+    // Và cùng câu hỏi ấy cho ảnh chụp NGOÀI — `bac/vong.py`. Tầng này có
+    // hai người đọc: `app.js` + `ty-perp.js` (qua `S.<khoá>`) và
+    // `bac/snapshot.py` (lát cắt cho cung tĩnh).
+    //
+    // Bắt được ngay một chỗ: `giuToiThieuGio` — bảng «giữ tối thiểu bao
+    // lâu mới chạm một mốc», tính mỗi vòng, kèm một docstring nói thẳng
+    // vì sao nó tồn tại («người vận hành không nên phải tự suy ra điều đó
+    // từ một bảng mốc kế tiếp») — rồi không ai vẽ nó.
+    const NGOAI_LE_NGOAI = new Map([
+      ["batDauLuc", "mốc bật máy; trang đọc `chayDuocGiay` đã dẫn từ nó"],
+      ["duongSo", "đường thư mục dữ liệu — cho người gỡ rối ở dòng lệnh, "
+                + "không phải số để bày"],
+      ["soDuyet", "trang perp đọc `S.so.soDuyet` (sổ), còn khoá này là số "
+                + "của VÒNG NÀY; `bac/snapshot.py` tự tính lại cho lát cắt"],
+    ]);
+    // `bac/snapshot.py` là NGƯỜI ĐỌC THỨ HAI của tầng này — nó dựng lát
+    // cắt cho cung tĩnh. Bỏ nó ra thì `maChienLuoc` và `cheKhai` bị gọi
+    // oan là "không ai đọc", và một phép kiểm buộc tội oan thì người ta
+    // sẽ dạy nó im bằng cách khai ngoại lệ — tức là làm hỏng chính nó.
+    const pySnap = readFileSync(join(GOC, "bac/snapshot.py"), "utf8");
+    const docS = new Set(
+      [...pySnap.matchAll(/\ba\.get\("([A-Za-z][A-Za-z0-9]*)"/g),
+       ...pySnap.matchAll(/\ba\["([A-Za-z][A-Za-z0-9]*)"\]/g)]
+        .map((m) => m[1]));
+    for (const src of [ma, maTy]) {
+      const sach2 = src
+        .replace(/\/\*[\s\S]*?\*\//g, " ")
+        .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+      for (const m of sach2.matchAll(/\bS\.([A-Za-z][A-Za-z0-9]*)/g)) {
+        docS.add(m[1]);
+      }
+    }
+    const treo = Object.keys(T)
+      .filter((k) => !docS.has(k) && !NGOAI_LE_NGOAI.has(k))
+      .sort();
+    const ok4 = !treo.length;
+    console.log("  " + (ok4 ? "OK   " : "LỖI  ") + " " + "sinh-ngoài".padEnd(11)
+      + " " + Object.keys(T).length + " trường ảnh chụp ngoài"
+      + (ok4 ? " · trường nào cũng có người đọc"
+             : " · KHÔNG AI ĐỌC: " + treo.join(", ")));
+    ok4 ? xong++ : loi++;
   }
 }
 
