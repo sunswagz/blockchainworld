@@ -69,10 +69,10 @@
 
   "//ruiRo": "Risk Engine — Python thuần, không gọi model, có quyền phủ quyết. Mọi số ở đây là TRẦN CỨNG.",
   "ruiRo": {
-    "//vonBanDau": "Vốn ảo ở chế độ `giay`. Đặt bao nhiêu tuỳ ý — ba trần dưới đây tính THEO PHẦN TRĂM của nó nên cỗ máy co giãn theo. Phiên phát lại đè được bằng `--von=`.",
+    "//vonBanDau": "Vốn ảo ở chế độ `giay`, dùng khi chưa có sổ kết toán nào. Có sổ rồi thì runtime DỰNG LẠI vốn thật từ sổ lúc khởi động (`RiskEngine.nap_tu_so`) — không có bước ấy thì mỗi lần khởi động lại là quên sạch lỗ, và cầu dao ngày được cấp ngân sách mới. Phiên phát lại đè được bằng `--von=`.",
     "vonBanDau": 1000,
 
-    "//tranTheoPhanTram": "Ba trần này TỪNG khai bằng đô-la ($100 mỗi market / $200 mỗi nhóm / $50 lỗ ngày) và cả ba đều là con số hợp lý cho đúng MỘT tài khoản 1.000 đô. Nạp thêm vốn thì chúng đứng yên — tức là thêm tiền KHÔNG đổi hành vi cỗ máy, chỉ làm cầu dao ngày ngắt sớm hơn về tỉ lệ. Đo được: phiên giấy 10.000 đô ngắt cầu dao ở mức lỗ 0,51% sau đúng hai cửa sổ. Phần trăm dưới đây giữ nguyên tỉ lệ cũ (10/20/5) nên tài khoản 1.000 đô cư xử Y HỆT như trước, chỗ khác là nay nó biết co giãn. Khoá `...Usd` cũ vẫn còn đọc được nếu ai cố ý muốn một trần tuyệt đối, nhưng chỉ khi KHÔNG khai phần trăm.",
+    "//tranTheoPhanTram": "Ba trần này TỪNG khai bằng đô-la ($100 mỗi market / $200 mỗi nhóm / $50 lỗ ngày) và cả ba đều là con số hợp lý cho đúng MỘT tài khoản 1.000 đô. Nạp thêm vốn thì chúng đứng yên — tức là thêm tiền KHÔNG đổi hành vi cỗ máy, chỉ làm cầu dao ngày ngắt sớm hơn về tỉ lệ. Đo được: phiên giấy 10.000 đô ngắt cầu dao ở mức lỗ 0,51% sau đúng hai cửa sổ. Phần trăm dưới đây giữ nguyên tỉ lệ cũ (10/20/5) nên tài khoản 1.000 đô cư xử Y HỆT như trước, chỗ khác là nay nó biết co giãn. Khoá `...Usd` cũ vẫn còn đọc được nếu ai cố ý muốn một trần tuyệt đối, nhưng chỉ khi KHÔNG khai phần trăm. GỐC của phần trăm là VỐN ĐẦU NGÀY, không phải `vonBanDau`: neo vào hằng số config thì tài khoản mất nửa vốn mà trần 5% vẫn là 5% của số CŨ, tức 10% số còn lại — rủi ro lớn lên đúng lúc tài khoản yếu đi. Cũng không neo vào vốn HIỆN TẠI: trần lỗ ngày chạy theo vốn đang lỗ dần thì nó lùi xa mãi, một cái trần đuổi theo chính mình thì không phải trần. Vốn đầu ngày đứng yên trong ngày (nên chạm tới được) và bám theo tài khoản qua các ngày.",
     "phanTramMoiThiTruong": 10,
     "phanTramMoiTaiSan": 20,
     "phanTramLoNgay": 5,
