@@ -1114,8 +1114,20 @@
     d3.appendChild(oSo("Canh được bằng máy", so(hp.soCanhDuoc), "chạy mỗi vòng"));
     d3.appendChild(oSo("KHÔNG canh được", so(hp.soKhongCanhDuoc),
       "khai ra, không giấu", "nhat"));
-    d3.appendChild(oSo("Vi phạm", so(hp.soViPham), hp.soViPham ? "PHẢI XEM" : "sạch",
-      hp.soViPham ? "am" : "duong"));
+    d3.appendChild(oSo("Vi phạm", so(hp.soViPham),
+      hp.soViPham === null || hp.soViPham === undefined
+        ? "CHƯA soát" : (hp.soViPham ? "PHẢI XEM" : "sạch"),
+      hp.soViPham === null || hp.soViPham === undefined
+        ? "nhat" : (hp.soViPham ? "am" : "duong")));
+    /* Soát hiến pháp có nhịp riêng: 31 điều, phần lớn phân tích cả cây mã,
+       và một điều dựng hẳn một Trung Ương rồi quay hai vòng thật. Buồng lái
+       hỏi mỗi vài giây, nên bản này có thể CŨ — và một con số cũ mà không
+       nói mình cũ thì trông y hệt một con số mới. */
+    d3.appendChild(oSo("Soát cách đây",
+      hp.tuoiGiay === null || hp.tuoiGiay === undefined
+        ? "—" : Math.round(hp.tuoiGiay) + "s",
+      "hiến pháp là hàm của mã nguồn, nên soát theo nhịp chứ không mỗi lần hỏi",
+      "nhat"));
     k3.appendChild(d3);
     if ((hp.khongCanhDuoc || []).length) {
       k3.appendChild(giai("Không canh được: " + hp.khongCanhDuoc.join(", ")

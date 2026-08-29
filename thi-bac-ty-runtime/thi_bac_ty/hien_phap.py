@@ -839,8 +839,52 @@ DIEU: tuple[Dieu, ...] = (
 )
 
 
+#: Đang ở giữa một lượt soát? Xem `soat()`.
+_DANG_SOAT = False
+
+
 def soat() -> dict:
-    """Chạy mọi phép canh. Trả về vi phạm, và cả những điều KHÔNG canh được."""
+    """Chạy mọi phép canh. Trả về vi phạm, và cả những điều KHÔNG canh được.
+
+    ## Vì sao có chốt chống ĐỆ QUY ở đây
+
+    Hiến pháp này không chỉ đọc mã — điều `ngat-roi-van-quan-sat` **dựng
+    một Trung Ương thật rồi quay hai vòng**, vì cách duy nhất để biết «ngắt
+    rồi vẫn quét» là ngắt thật rồi xem nó có quét không. Đọc mã bằng AST
+    trả lời được «có gọi hàm ấy không», không trả lời được «hành vi ra sao».
+
+    Nhưng ảnh chụp của Trung Ương lại GỌI hiến pháp (`anh_chup` →
+    `_hien_phap` → `tom_tat` → `soat`). Nên khi vòng lặp bắt đầu tự chẩn
+    đoán, đường đi khép kín lại:
+
+        anh_chup → hiến pháp → mot_vong → hoc → anh_chup → hiến pháp → …
+
+    và Python đệ quy tới chết. Nó ngủ yên suốt bao lâu `hoc()` còn phải
+    đợi người bấm nút; vòng tự quay là thứ khép kín cái vòng tròn ấy.
+
+    Chốt này cắt vòng tròn ở chỗ đúng: máy dựng bên trong một lượt soát
+    **không được soát lại hiến pháp**. Nó trả về một tóm tắt KHAI RÕ mình
+    là ảnh chụp lồng nhau, chứ không trả về 0 vi phạm — số 0 ở đây sẽ là
+    một lời nói dối đọc y hệt một tin tốt.
+    """
+    global _DANG_SOAT
+    if _DANG_SOAT:
+        return {
+            "soDieu": len(DIEU), "soCanhDuoc": None, "soKhongCanhDuoc": None,
+            "soViPham": None, "viPham": [], "khongCanhDuoc": [], "dieu": [],
+            "long": True,
+            "loiNhac": ("ảnh chụp LỒNG trong một lượt soát hiến pháp — cỗ "
+                        "máy này do chính hiến pháp dựng ra để thử, nên nó "
+                        "KHÔNG soát lại. `soViPham` là None, không phải 0."),
+        }
+    _DANG_SOAT = True
+    try:
+        return _soat()
+    finally:
+        _DANG_SOAT = False
+
+
+def _soat() -> dict:
     ds = [d.soat() for d in DIEU]
     vi_pham = [x for x in ds if x["canhDuoc"] and not x["dat"]]
     khong_canh = [x for x in ds if not x["canhDuoc"]]
@@ -862,7 +906,10 @@ def soat() -> dict:
 
 def tom_tat() -> dict:
     r = soat()
+    # `long` phải đi theo tóm tắt: bên gọi dùng nó để KHÔNG giữ lại một
+    # ảnh chụp lồng. Lọc mất cờ ấy thì bản rỗng được giữ như bản thật.
     return {k: r[k] for k in ("soDieu", "soCanhDuoc", "soKhongCanhDuoc",
                               "soViPham", "khongCanhDuoc", "loiNhac")} | {
         "viPham": [{"ma": x["ma"], "chiTiet": x["chiTiet"]}
-                   for x in r["viPham"]]}
+                   for x in r["viPham"]],
+        "long": bool(r.get("long"))}

@@ -91,8 +91,15 @@ from .thuc_thi import DieuPhoiThucThi, YChiThucThi
 from .nhap_so_ngoai import NhapSoNgoai
 from .von_ngoai import DocVonNgoai
 
+#: Nhịp mặc định cho vòng chẩn đoán → đề xuất. `config.json` đè được.
+NHIP_HOC_GIAY = 3600.0
+
 MAC_DINH = {
     "vonBanDauUsd": 1000.0,
+    #: Bao lâu chẩn đoán + đề xuất một lượt. Triệu chứng của bộ máy đổi
+    #: theo GIỜ, không theo giây; chạy mỗi vòng là đốt công cho một bức
+    #: tranh gần như đứng yên.
+    "nhipHocGiay": 3600.0,
     "duLieuTrong": "thi-bac-ty",
     "nguongCauDao": {
         "lechDongHoToiDaGiay": 60.0,
@@ -261,6 +268,8 @@ class TrungUong:
         self._dauVet: dict[str, float] = {}
         self.soBoTrung = 0
         self.hocCuoi: dict | None = None
+        self._lanHoc = 0.0
+        self.loiHoc = ""
         self._deXuatChoDuyet = None
         self._soXet = d / f"{ten}-xet-tham-so.jsonl"
         self._ngayDon = ""
@@ -388,9 +397,7 @@ class TrungUong:
             for tt in song:
                 self.so_dang_ky.chuyen(tt.ma, "TU_CHOI",
                                        "CẦU DAO NGẮT: " + "; ".join(ly))
-            self.latCatCuoi = lat
-            self._don_dinh_ky()
-            return lat
+            return self._cuoi_vong(lat)
 
         # ── 4. rủi ro tổng + phân bổ (cấp TUẦN TỰ, xem phan_bo.py) ───────
         pb = self.phan_bo.chia(song, self.rui_ro_tong, self.danh_muc,
@@ -429,10 +436,68 @@ class TrungUong:
                 self.so_dang_ky.chuyen(tt.ma, "DA_MO", "hai chân đã vào")
                 self._mo_so_vi_the(tt, x["capUsd"])
 
+        return self._cuoi_vong(lat)
+
+    def _cuoi_vong(self, lat: LatCatVong) -> LatCatVong:
+        """MỘT cửa duy nhất để rời `mot_vong` — mọi lối ra đi qua đây.
+
+        Vòng có HAI lối ra: cầu dao ngắt thì thoát sớm ở bước 3, không thì
+        chạy hết tới bước 5. Trước 29/08 mỗi lối làm một việc khác nhau, và
+        lối ngắt bỏ mất hai thứ:
+
+        **Bỏ `_luu_danh_muc`.** Kế toán đã chạy ở bước 2b rồi mới tới cầu
+        dao, nên lúc ngắt vẫn có thu nhập vừa cộng vào sổ vị thế — và không
+        ai ghi nó xuống đĩa. Cầu dao ngắt vì sụt vốn thì nó ngắt HÀNG GIỜ;
+        khởi động lại giữa quãng ấy là mất trắng phần đã cộng.
+
+        **Bỏ `_hoc_dinh_ky`.** Đúng lúc bộ máy hỏng thì nó thôi chẩn đoán,
+        trong khi comment ngay trên nhánh ấy hứa «vẫn quét, vẫn ghi nhận,
+        vẫn chẩn đoán — CHỈ không cam kết vốn». Lời hứa đúng, mã sai.
+
+        Cùng một bài với `_ghi_tien` và với cửa vòng đời khung của Khâm
+        Thiên Giám: **hai lối ra thì sớm muộn chúng lệch nhau**. Gộp lại
+        một cửa thì thêm việc cuối vòng chỉ phải nhớ một chỗ.
+        """
         self.latCatCuoi = lat
         self._don_dinh_ky()
+        self._hoc_dinh_ky()
         self._luu_danh_muc()
         return lat
+
+    def _hoc_dinh_ky(self) -> None:
+        """Chẩn đoán và ĐỀ XUẤT theo nhịp riêng. Không tự áp dụng.
+
+        Trước 29/08 `hoc()` chỉ chạy khi có người `POST /api/hoc`, nên
+        `hocCuoi` là `None` vĩnh viễn và `banThamSo.soBan` đứng ở 1 —
+        **vòng tự tiến hoá đã dựng xong nhưng chưa bao giờ quay một
+        vòng**. Cùng lớp hỏng với lát cắt cung tĩnh: một cơ chế có mã, có
+        phép kiểm, có chỗ hiện trên buồng lái, và không ai gọi.
+
+        Chạy tự động ở đây AN TOÀN vì `hoc()` chỉ đề xuất: đường áp dụng
+        là `ap_dung(nguoi)` và nó đòi TÊN NGƯỜI, đúng bất đối xứng của cầu
+        dao. Máy được phép nghĩ ra; người quyết định.
+
+        Nhịp RIÊNG và thưa: chẩn đoán đọc cả ảnh chụp rồi chạy lại phân bổ
+        trên toàn bộ tờ trình đã ghi. Chạy mỗi 30 giây là đốt công cho một
+        bức tranh gần như đứng yên — triệu chứng của bộ máy đổi theo giờ,
+        không theo giây.
+        """
+        import time as _t
+        # `or` ở đây sẽ nuốt số 0: `nhipHocGiay: 0` nghĩa là «chẩn mỗi
+        # vòng», một cấu hình hợp lệ, mà `0 or 3600` lại ra 3600. Cùng cái
+        # bẫy «None khác 0» đã gỡ ở ba chỗ khác trong cỗ máy này.
+        nhip = self.c.get("nhipHocGiay")
+        nhip = NHIP_HOC_GIAY if nhip is None else float(nhip)
+        gio = _t.time()
+        if gio - getattr(self, "_lanHoc", 0.0) < nhip:
+            return
+        self._lanHoc = gio
+        try:
+            self.hoc(ghiSo=True)
+        except Exception as e:                            # noqa: BLE001
+            self.loiHoc = f"{type(e).__name__}: {e}"
+        else:
+            self.loiHoc = ""
 
     def _luu_danh_muc(self) -> None:
         """Ghi danh mục sau MỖI vòng. Hỏng thì khai ra, đừng giết vòng."""
@@ -885,6 +950,7 @@ class TrungUong:
             "toTrinh": [t.tom_tat() for t in self.toTrinhVongNay],
             "latCatVong": self.latCatCuoi.tom_tat() if self.latCatCuoi else None,
             "hoc": self.hocCuoi,
+            "loiHoc": getattr(self, "loiHoc", ""),
             "thamSo": self.tham_so(),
             "hienPhap": _hien_phap(),
             "cheTy": self.che_ty(),
@@ -918,14 +984,44 @@ def _ly_do(x: dict) -> str:
     return str(l or "không được cấp vốn")
 
 
+#: Nhịp soát hiến pháp trong ảnh chụp. Xem `_hien_phap`.
+NHIP_HIEN_PHAP_GIAY = 60.0
+_HP: tuple[float, dict] | None = None
+
+
 def _hien_phap() -> dict:
     """Tóm tắt hiến pháp. Bọc try vì một phép canh nổ KHÔNG được làm chết
-    ảnh chụp — buồng lái mất một ô còn hơn mất cả trang."""
+    ảnh chụp — buồng lái mất một ô còn hơn mất cả trang.
+
+    ## Có NHỊP, vì soát hiến pháp KHÔNG rẻ
+
+    Ba mươi mốt điều, phần lớn phân tích AST cả cây mã, và một điều dựng
+    hẳn một Trung Ương rồi quay hai vòng thật — có ghi đĩa, có thư mục tạm.
+    Buồng lái hỏi ảnh chụp mỗi vài giây, nên soát mỗi lần hỏi là chạy cả
+    bộ luật vài chục lần một phút để nhận về **đúng một kết quả**: hiến
+    pháp là hàm của MÃ NGUỒN, và mã nguồn không đổi giữa hai lần hỏi.
+
+    Nên giữ bản cũ trong `NHIP_HIEN_PHAP_GIAY` giây, và **khai tuổi của
+    nó**. Một con số cũ mà không nói mình cũ thì trông y hệt một con số
+    mới — đúng cái bẫy `von-ngoai-mu` đã dạy.
+
+    Bản LỒNG (`long`) không bao giờ được giữ: nó là ảnh chụp của cỗ máy do
+    chính hiến pháp dựng lên để thử, giữ nó là để cả phút sau buồng lái
+    vẫn đọc phải một tóm tắt rỗng.
+    """
+    global _HP
+    import time as _t
+    gio = _t.time()
+    if _HP is not None and gio - _HP[0] < NHIP_HIEN_PHAP_GIAY:
+        return dict(_HP[1], tuoiGiay=round(gio - _HP[0], 1))
     try:
         from .hien_phap import tom_tat
-        return tom_tat()
+        ra = tom_tat()
     except Exception as e:                                # noqa: BLE001
         return {"loi": f"{type(e).__name__}: {e}"}
+    if not ra.get("long"):
+        _HP = (gio, ra)
+    return dict(ra, tuoiGiay=0.0)
 
 
 def _gio_he() -> float:

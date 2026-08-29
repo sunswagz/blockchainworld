@@ -5110,7 +5110,7 @@ def kiem_luu_danh_muc() -> None:
          "JSON cụt — và lúc ấy máy mất sạch vị thế trong khi sổ đăng ký vẫn "
          "ghi chúng đang mở")
     kiem("và VÒNG LẶP gọi lưu sau mỗi vòng",
-         _goi_trong("thi_bac_ty/trung_uong.py", "mot_vong", "_luu_danh_muc"),
+         _goi_trong("thi_bac_ty/trung_uong.py", "_cuoi_vong", "_luu_danh_muc"),
          "lưu mà không ai gọi thì bản trên đĩa đứng ở lần ghi đầu tiên, và "
          "mọi thứ nạp lại được đều là của quá khứ")
 
@@ -5836,6 +5836,129 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("chín trên chín ty nay đều trả lời được câu hỏi kế toán",
          TyTienDoan.co_ke_toan(),
          "trả lời «không đo được» vẫn là trả lời; im lặng thì không")
+
+    # ── 22. VÒNG TỰ TIẾN HOÁ phải TỰ QUAY, và chỉ ĐỀ XUẤT ───────────────
+    # Trước 29/08 `hoc()` chỉ chạy khi có người POST, nên `hocCuoi` là
+    # None vĩnh viễn và `banThamSo.soBan` đứng ở 1: vòng đã dựng xong mà
+    # chưa bao giờ quay một vòng. Cùng lớp hỏng với lát cắt cung tĩnh —
+    # có mã, có phép kiểm, có chỗ hiện trên buồng lái, và không ai gọi.
+    import ast as _ast22
+    import pathlib as _pl22
+
+    def _goi22(tep: str, ham: str, ten: str) -> bool:
+        goc = _pl22.Path(__file__).resolve().parent.parent
+        for n in _ast22.walk(_ast22.parse(
+                (goc / tep).read_text(encoding="utf-8"))):
+            if isinstance(n, (_ast22.FunctionDef, _ast22.AsyncFunctionDef))                     and n.name == ham:
+                for x in _ast22.walk(n):
+                    if isinstance(x, _ast22.Call):
+                        f = x.func
+                        if isinstance(f, _ast22.Name) and f.id == ten:
+                            return True
+                        if isinstance(f, _ast22.Attribute) and f.attr == ten:
+                            return True
+        return False
+
+    kiem("vòng lặp GỌI chẩn đoán, không đợi người bấm",
+         _goi22("thi_bac_ty/trung_uong.py", "_cuoi_vong", "_hoc_dinh_ky")
+         and _goi22("thi_bac_ty/trung_uong.py", "mot_vong", "_cuoi_vong"),
+         "một cơ chế không ai gọi là một cơ chế không chạy, và nhìn vào sổ "
+         "thì nó có vẻ đang chạy")
+    _mv = [x for x in _ast22.walk(_ast22.parse(_pl22.Path(
+        _pl22.Path(__file__).resolve().parent.parent
+        / "thi_bac_ty/trung_uong.py").read_text(encoding="utf-8")))
+        if isinstance(x, _ast22.FunctionDef) and x.name == "mot_vong"][0]
+    kiem("MỌI lối ra khỏi vòng đi qua cùng một cửa cuối vòng",
+         all(isinstance(r.value, _ast22.Call)
+             and getattr(r.value.func, "attr", "") == "_cuoi_vong"
+             for r in _ast22.walk(_mv) if isinstance(r, _ast22.Return)),
+         "nhánh cầu dao ngắt từng thoát sớm, bỏ mất cả lưu danh mục lẫn "
+         "chẩn đoán — đúng lúc bộ máy hỏng thì nó thôi ghi và thôi nhìn")
+    kiem("và cửa ấy LƯU danh mục",
+         _goi22("thi_bac_ty/trung_uong.py", "_cuoi_vong", "_luu_danh_muc"))
+    kiem("và `_hoc_dinh_ky` gọi `hoc`",
+         _goi22("thi_bac_ty/trung_uong.py", "_hoc_dinh_ky", "hoc"))
+
+    tu22 = TrungUong(_tam("hoc-tu-quay"), {"vonBanDauUsd": 10_000.0,
+                                           "nhipHocGiay": 0.0})
+    tu22.dang_ky(_TyGiaCoKeToan())
+    tu22.mot_vong()
+    kiem("chạy một vòng là có ngay bản chẩn đoán",
+         tu22.hocCuoi is not None and "trieuChung" in tu22.hocCuoi,
+         f"{tu22.hocCuoi}")
+    kiem("và nó KHÔNG tự áp dụng tham số",
+         tu22.kho_tham_so.hien_hanh().so == 1
+         and tu22.hocCuoi["loiNhac"].startswith("Đề xuất, KHÔNG tự áp dụng"),
+         "đổi tham số phân bổ là đổi cách chia tiền giữa các ty, mà chuyện "
+         "ấy KHÔNG chạy lại được — không A/B được thì không tự nhận được")
+    kiem("đường áp dụng vẫn ĐÒI TÊN NGƯỜI",
+         "nguoi" in TrungUong.ap_dung.__code__.co_varnames,
+         "cùng bất đối xứng với cầu dao: máy được phép nghĩ ra, người "
+         "quyết định")
+
+    _v22 = tu22.hocCuoi["vong"]
+    tu22.mot_vong()
+    kiem("`nhipHocGiay: 0` nghĩa là chẩn MỖI vòng, và số 0 ấy không bị nuốt",
+         tu22.hocCuoi["vong"] != _v22,
+         "`self.c.get(...) or MAC_DINH` biến 0 thành mặc định — cùng cái bẫy "
+         "«None khác 0» đã gỡ ở ba chỗ khác trong cỗ máy này")
+
+    # ── và cái vòng tròn mà việc tự quay ấy khép lại ────────────────────
+    # anh_chup → hiến pháp → mot_vong → hoc → anh_chup → … Điều
+    # `ngat-roi-van-quan-sat` dựng một Trung Ương THẬT và quay hai vòng,
+    # nên vòng tròn này có thật chứ không phải giả thuyết.
+    import thi_bac_ty.hien_phap as _hp22
+    import thi_bac_ty.trung_uong as _tu22m
+
+    _hp22._DANG_SOAT = True
+    try:
+        _long = _hp22.tom_tat()
+    finally:
+        _hp22._DANG_SOAT = False
+    kiem("soát hiến pháp LỒNG thì dừng, không đệ quy",
+         _long.get("long") is True,
+         "máy do chính hiến pháp dựng ra để thử thì không soát lại hiến pháp")
+    kiem("và bản lồng nói KHÔNG BIẾT, chứ không nói 0 vi phạm",
+         _long["soViPham"] is None,
+         "số 0 ở đây là một lời nói dối đọc y hệt một tin tốt")
+    kiem("cờ `long` sống sót qua `tom_tat`",
+         "long" in _long,
+         "lọc mất cờ ấy thì bên gọi giữ bản rỗng lại như bản thật")
+
+    _tu22m._HP = None
+    _hp22._DANG_SOAT = True
+    try:
+        _r = _tu22m._hien_phap()
+    finally:
+        _hp22._DANG_SOAT = False
+    kiem("ảnh chụp KHÔNG giữ lại bản lồng", _tu22m._HP is None,
+         "giữ nó là cả phút sau buồng lái vẫn đọc phải một tóm tắt rỗng")
+    _tu22m._HP = None
+    _t22a = time.time()
+    _tu22m._hien_phap()
+    _lan1 = time.time() - _t22a
+    _t22b = time.time()
+    _r2 = _tu22m._hien_phap()
+    _lan2 = time.time() - _t22b
+    kiem("soát hiến pháp có NHỊP, không chạy lại mỗi lần hỏi ảnh chụp",
+         _lan2 < _lan1 / 4 and _tu22m._HP is not None,
+         f"lần đầu {_lan1 * 1000:.0f}ms, lần sau {_lan2 * 1000:.0f}ms — "
+         f"buồng lái hỏi mỗi vài giây, mà hiến pháp là hàm của MÃ NGUỒN")
+    kiem("và bản giữ lại KHAI TUỔI của nó", _r2.get("tuoiGiay") is not None,
+         "một con số cũ mà không nói mình cũ thì trông y hệt một con số mới")
+
+    tu23 = TrungUong(_tam("hoc-nhip"), {"vonBanDauUsd": 10_000.0,
+                                        "nhipHocGiay": 9_999.0})
+    tu23.dang_ky(_TyGiaKhongKeToan())
+    tu23.mot_vong()
+    lan1 = tu23.hocCuoi and tu23.hocCuoi["luc"]
+    tu23.mot_vong()
+    kiem("nhịp thưa được TÔN TRỌNG, không chẩn mỗi vòng",
+         tu23.hocCuoi and tu23.hocCuoi["luc"] == lan1,
+         "chẩn đoán đọc cả ảnh chụp rồi chạy lại phân bổ trên toàn bộ tờ "
+         "trình đã ghi; chạy mỗi 30 giây là đốt công cho một bức tranh gần "
+         "như đứng yên")
+
 
 
 
