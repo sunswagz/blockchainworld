@@ -36,7 +36,7 @@
     "trungUong.nhipHocGiay": "đi theo tuVanTienHoa",
     "trungUong.tuXoayCho": "xoay chỗ là một cơ chế ĐANG THỬ; làn demo không bật để còn chỗ so",
     "trungUong.bienXoayCho": "đi theo tuXoayCho",
-    "trungUong.phanBo.toiDaSoViThe": "TRÔI, chưa cố ý: làn thật lên 120 theo lệnh chủ, làn demo còn 12 mặc định. Vốn nhỏ hơn 10 lần thì 12 chỗ chưa chắc là chỗ nghẽn, nhưng nó KHÔNG phải một lựa chọn ai đó đã cân nhắc"
+    "trungUong.phanBo.toiDaSoViThe": "TRÔI, chưa cố ý: làn thật lên 120 theo lệnh chủ, làn demo còn 12 mặc định. ĐO 30/08 — nó ĐÚNG LÀ chỗ nghẽn, và nghẽn sạch: 220 cơ hội qua cổng ty mỗi vòng, KHÔNG cơ hội nào qua Rủi Ro Tổng, lý do duy nhất là «đã đủ 12 vị thế». 92,5% vốn khả dụng nằm không, lợi suất 5,99%/năm trên phần đang chạy nhưng chỉ 0,36% quy về NAV. Điều đó làm làn demo HỎNG với tư cách một MỐC SO: nó và làn thật đang bị hai ràng buộc khác nhau chặn, nên chênh lệch giữa hai làn không còn đọc được thành «lợi suất tụt theo quy mô». Đổi con số này là `dat_tham_so` — việc của người, không phải của máy"
   },
   "port": 5288,
   "nhipGiay": 30,

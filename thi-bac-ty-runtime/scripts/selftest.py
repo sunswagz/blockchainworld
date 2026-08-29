@@ -3892,6 +3892,216 @@ def kiem_chan_doan_he() -> None:
                            {"ruiRoTong": {"tranMotTy": 0.5}})),
          "hai lớp chặn, vì lớp trong nằm ở file khác")
 
+    # ══ BIÊN của TỪNG NGƯỠNG CHẨN ĐOÁN ═════════════════════════════════
+    #
+    # Quét đột biến trên `chan_doan_he.py` cho 27/71 con SỐNG SÓT, và gần
+    # như tất cả là NGƯỠNG: không phép kiểm nào phân biệt «đúng bằng
+    # ngưỡng» với «vượt ngưỡng» trên bất kỳ cửa nào.
+    #
+    # Đây là tầng quyết định cỗ máy NÓI GÌ với người. Sai một hạt ở đây
+    # ra hai loại hỏng, và cả hai đều đắt: kêu khi chưa đáng kêu thì
+    # người ta học cách bỏ qua, im khi đáng kêu thì không ai biết.
+    from thi_bac_ty.chan_doan_he import (NGUONG_CHURN, NGUONG_DUNG_VON_THAP,
+                                         NGUONG_HUA_QUA_BPS_GIO,
+                                         NGUONG_HUA_QUA_DIEM,
+                                         NGUONG_MA_AP_DAO, NGUONG_PHANG_GAP,
+                                         NGUONG_TONG_CHAN,
+                                         TOI_THIEU_DOI_CHIEU,
+                                         TOI_THIEU_LAN_VAO,
+                                         TOI_THIEU_LAN_XOAY,
+                                         TOI_THIEU_TO_TRINH,
+                                         TOI_THIEU_TU_CHOI,
+                                         TOI_THIEU_VON_GIO)
+
+    def _ma(anh):
+        return {x.ma for x in _cdh(anh)}
+
+    def _pheu(**kw):
+        o = {"phatHien": 400, "DUYET_TY": 200, "DUYET_RUI_RO": 150,
+             "DA_CAP_VON": 100, "DA_MO": 100}
+        o.update(kw)
+        return {"soDangKy": {"pheu": o}, "danhMuc": {"tiLeDungVon": 0.5}}
+
+    # 1. ĐỦ MẪU: đúng `TOI_THIEU_TO_TRINH` tờ là ĐỦ, không phải «gần đủ».
+    kiem("đúng bằng số tờ trình tối thiểu thì THÔI kêu «chạy thêm»",
+         "thieu-to-trinh" not in _ma(_pheu(phatHien=TOI_THIEU_TO_TRINH)),
+         f"ngưỡng {TOI_THIEU_TO_TRINH} — «chưa đủ» phải nghĩa là ÍT HƠN")
+    kiem("thiếu một tờ thì vẫn kêu",
+         "thieu-to-trinh" in _ma(_pheu(phatHien=TOI_THIEU_TO_TRINH - 1)))
+
+    # 2. LEGGING: tỉ lệ đóng gấp ĐÚNG BẰNG ngưỡng thì chưa gọi là hệ thống.
+    def _leg(gap, phien=100):
+        a = _pheu()
+        a["thucThi"] = {"soPhien": phien, "soPhangGap": gap}
+        return _ma(a)
+
+    kiem("đóng gấp ĐÚNG BẰNG ngưỡng thì chưa gọi là legging hệ thống",
+         "legging-he-thong" not in _leg(int(NGUONG_PHANG_GAP * 100)),
+         f"ngưỡng {NGUONG_PHANG_GAP:.0%} trên 100 phiên")
+    kiem("hơn ngưỡng một phiên thì kêu",
+         "legging-he-thong" in _leg(int(NGUONG_PHANG_GAP * 100) + 1))
+
+    # 3. TỔNG CHẶN HẾT: chặn ĐÚNG BẰNG ngưỡng thì chưa gọi là hai tầng cãi
+    # nhau. Ngưỡng 0,90 trên 100 tờ qua cổng ty.
+    def _chan(qua_rr, qua_ty=100):
+        a = _pheu(DUYET_TY=qua_ty, DUYET_RUI_RO=qua_rr,
+                  DA_CAP_VON=qua_rr, DA_MO=qua_rr)
+        return _ma(a)
+
+    _r90 = int(round(100 * (1.0 - NGUONG_TONG_CHAN)))
+    kiem("chặn ĐÚNG BẰNG ngưỡng thì chưa gọi là tổng chặn hết",
+         "tong-chan-het" not in _chan(_r90),
+         f"ngưỡng {NGUONG_TONG_CHAN:.0%}; qua {_r90}/100 nghĩa là chặn "
+         f"đúng {NGUONG_TONG_CHAN:.0%}")
+    kiem("chặn thêm một tờ nữa thì kêu", "tong-chan-het" in _chan(_r90 - 1))
+
+    # 4. TRẦN ĐẶT SAI CHỖ: dùng vốn ĐÚNG BẰNG ngưỡng thì chưa kêu.
+    def _tran(ti, da_cap=50, qua_rr=90):
+        a = _pheu(DUYET_RUI_RO=qua_rr, DA_CAP_VON=da_cap, DA_MO=da_cap)
+        a["danhMuc"] = {"tiLeDungVon": ti}
+        return _ma(a)
+
+    kiem("dùng vốn ĐÚNG BẰNG ngưỡng thì chưa gọi là trần đặt sai chỗ",
+         "tran-dat-sai-cho" not in _tran(NGUONG_DUNG_VON_THAP),
+         f"ngưỡng {NGUONG_DUNG_VON_THAP:.0%}")
+    kiem("dưới ngưỡng một chút thì kêu",
+         "tran-dat-sai-cho" in _tran(NGUONG_DUNG_VON_THAP - 0.001))
+    kiem("và cấp ĐÚNG BẰNG số qua rủi ro thì cũng thôi kêu",
+         "tran-dat-sai-cho" not in _tran(0.05, da_cap=90, qua_rr=90),
+         "cấp hết những tờ đã qua thì không còn gì bị chặn — kêu ở đó là "
+         "kêu về một việc vừa làm xong")
+
+    # 5. MÃ ÁP ĐẢO: đủ mẫu ĐÚNG BẰNG `TOI_THIEU_TU_CHOI`, và phần ĐÚNG
+    # BẰNG `NGUONG_MA_AP_DAO`.
+    # Lý do từ chối đọc từ `pheuDayDu.theoHo`, KHÔNG từ `soDangKy` — hai
+    # chỗ khác nhau, và đặt nhầm chỗ thì phép kiểm xanh vì bảng đếm rỗng.
+    # `ma_top` là mã ĐÔNG NHẤT, nên để chạm đúng biên 25% thì mã ấy phải
+    # vừa chiếm đúng một phần tư vừa là mã đông nhất: 5 trên 20, còn lại
+    # chia thành 4+4+4+3.
+    def _apDao(ds):
+        a = _pheu()
+        a["pheuDayDu"] = {"theoHo": [{"ho": "phai-sinh", "lyDoTuChoi": [
+            {"lyDo": f"{m}: câu gì đó", "so": n} for m, n in ds]}]}
+        return _ma(a)
+
+    _tong = TOI_THIEU_TU_CHOI
+    _top = int(_tong * NGUONG_MA_AP_DAO)
+    _con = _tong - _top
+    _khac = [("khac-a", _con // 3 + _con % 3), ("khac-b", _con // 3),
+             ("khac-c", _con // 3)]
+    kiem("đủ mẫu ĐÚNG BẰNG ngưỡng và phần ĐÚNG BẰNG ngưỡng thì đã kêu",
+         "tran-vi-the-chan" in _apDao([("tran-vi-the", _top)] + _khac),
+         f"{_tong} lần từ chối, {_top} lần là mã ấy = "
+         f"{NGUONG_MA_AP_DAO:.0%}, và nó vẫn là mã đông nhất")
+    kiem("thiếu một mẫu thì chưa dám kết luận",
+         "tran-vi-the-chan" not in _apDao(
+             [("tran-vi-the", _top)] + _khac[:-1]
+             + [(_khac[-1][0], _khac[-1][1] - 1)]),
+         "một tỉ lệ dựng trên ít mẫu hơn ngưỡng không nói về cỗ máy")
+    kiem("và câu trần KHÔNG mang mã thì KHÔNG vào mẫu số",
+         "tran-vi-the-chan" in _apDao(
+             [("tran-vi-the", _top)] + _khac
+             + [("Một câu trần không có mã", 999)]),
+         "chia cho một mẫu số có cả thứ mình không phân loại nổi là tự "
+         "pha loãng chính mình, và cái loãng ấy giấu đúng thủ phạm")
+
+    # 6. CẤP RỒI KHÔNG MỞ: đủ 10 lần cấp, và mở ĐÚNG một nửa thì chưa kêu.
+    kiem("cấp 10 · mở ĐÚNG một nửa thì chưa kêu",
+         "cap-roi-khong-mo" not in _ma(_pheu(DA_CAP_VON=10, DA_MO=5)),
+         "một nửa là ngưỡng; đúng bằng ngưỡng là còn đạt")
+    kiem("mở dưới một nửa thì kêu",
+         "cap-roi-khong-mo" in _ma(_pheu(DA_CAP_VON=10, DA_MO=4)))
+    kiem("chưa đủ 10 lần cấp thì chưa dám kết luận",
+         "cap-roi-khong-mo" not in _ma(_pheu(DA_CAP_VON=9, DA_MO=0)),
+         "chín lần cấp mà không mở được lần nào vẫn có thể là xui")
+
+    # 7. CẦU DAO NGẮT NHIỀU: đúng 5 lần đã là nhiều.
+    def _ngat(n):
+        a = _pheu()
+        a["cauDao"] = {"soLanNgat": n, "dangNgat": False, "lyDo": []}
+        return _ma(a)
+
+    kiem("ngắt ĐÚNG 5 lần đã là ngắt liên miên", "cau-dao-ngat-nhieu" in _ngat(5))
+    kiem("bốn lần thì chưa", "cau-dao-ngat-nhieu" not in _ngat(4))
+
+    # 8. CHURN: tỉ lệ đóng/vào ĐÚNG BẰNG ngưỡng, và số lần vào ĐÚNG BẰNG
+    # mẫu tối thiểu, thì đã đủ để gọi là churn.
+    def _churn(ti, n):
+        a = _pheu()
+        a["soCai"] = {"laiLoTheoTy": {"c.v1": {"laiLoUsd": -80.0}}}
+        a["laiLoTachKhoan"] = {"c.v1": {
+            "laiLoChienLuocUsd": 4.0, "soLanVaoLenh": n,
+            "soLanDong": int(n * ti), "tiLeDongTrenVao": ti,
+            "soLanDongXoayCho": 0, "phanDongDoXoayCho": 0.0}}
+        return {x.bangChung.get("chienLuoc"): x for x in _cdh(a)
+                if x.ma == "phi-vao-an-het"}
+
+    kiem("tỉ lệ đóng/vào ĐÚNG BẰNG ngưỡng, đủ mẫu → gọi là CHURN, mức NẶNG",
+         _churn(NGUONG_CHURN, TOI_THIEU_LAN_VAO)["c.v1"].nang == 2,
+         f"ngưỡng {NGUONG_CHURN}, mẫu tối thiểu {TOI_THIEU_LAN_VAO}")
+    kiem("dưới ngưỡng một chút thì là chi phí bình thường, mức NHẸ",
+         _churn(NGUONG_CHURN - 0.01, TOI_THIEU_LAN_VAO)["c.v1"].nang == 1)
+    kiem("thiếu một lần vào lệnh thì cũng chưa dám gọi là churn",
+         _churn(NGUONG_CHURN, TOI_THIEU_LAN_VAO - 1)["c.v1"].nang == 1,
+         "một tỉ lệ dựng trên ít mẫu hơn ngưỡng không nói về ty ấy")
+
+    # 9. XOAY CHỖ HỨA QUÁ: số lần xoay ĐÚNG BẰNG mẫu tối thiểu thì đã xét.
+    kiem("xoay ĐÚNG BẰNG mẫu tối thiểu thì đã xét",
+         "xoay-cho-hua-qua" in _ma(_anhXC(soLan=TOI_THIEU_LAN_XOAY)),
+         f"mẫu tối thiểu {TOI_THIEU_LAN_XOAY}")
+    kiem("thiếu một lần thì chưa",
+         "xoay-cho-hua-qua" not in _ma(_anhXC(soLan=TOI_THIEU_LAN_XOAY - 1)))
+
+    # 10. HỨA QUÁ trên vị thế ĐANG MỞ: lệch ĐÚNG BẰNG ngưỡng thì CHƯA kêu,
+    # và vốn-giờ ĐÚNG BẰNG mẫu tối thiểu thì đã đủ để xét.
+    def _huaMo(lech, vg=1000.0, von=5000.0):
+        a = _pheu()
+        a["huaTheoTy"] = {"h.v1": {"aprHuaPhanTram": 10.0 + lech,
+                                   "vonUsd": von}}
+        a["vonDangDung"] = {"theoTy": {"h.v1": {"loiSuatNamPhanTram": 10.0,
+                                                "vonGioUsd": vg}}}
+        return _ma(a)
+
+    kiem("lệch hứa/thực ĐÚNG BẰNG ngưỡng thì CHƯA kêu",
+         "hua-qua-dang-mo" not in _huaMo(NGUONG_HUA_QUA_DIEM),
+         f"ngưỡng {NGUONG_HUA_QUA_DIEM} điểm — lời hứa dựng trên một ảnh "
+         f"chụp còn thực nhận là bình quân cả quãng; lệch chút ít là "
+         f"bình thường")
+    kiem("hơn ngưỡng một chút thì kêu",
+         "hua-qua-dang-mo" in _huaMo(NGUONG_HUA_QUA_DIEM + 0.01))
+    kiem("vốn-giờ ĐÚNG BẰNG mẫu tối thiểu thì đã đủ để xét",
+         "hua-qua-dang-mo" in _huaMo(NGUONG_HUA_QUA_DIEM + 0.01,
+                                     vg=TOI_THIEU_VON_GIO),
+         f"mẫu tối thiểu {TOI_THIEU_VON_GIO} USD-giờ")
+    kiem("thiếu vốn-giờ thì im — tỉ suất năm quy từ đó là tiếng ồn ×8.760",
+         "hua-qua-dang-mo" not in _huaMo(NGUONG_HUA_QUA_DIEM + 0.01,
+                                         vg=TOI_THIEU_VON_GIO - 0.01))
+    kiem("vốn ĐÚNG BẰNG 0 thì cũng im, không chia cho không",
+         "hua-qua-dang-mo" not in _huaMo(NGUONG_HUA_QUA_DIEM + 0.01, von=0.0))
+
+    # 11. HỨA QUÁ trên bảng ĐÃ ĐÓNG: đủ mẫu đối chiếu, lệch đúng ngưỡng.
+    def _huaDong(lech, k):
+        a = _pheu()
+        a["duDoanVaThuc"] = {"d.v1": {"lechBpsGio": lech,
+                                      "soDoiChieuDuoc": k}}
+        return _ma(a)
+
+    kiem("lệch bps/giờ ĐÚNG BẰNG ngưỡng thì CHƯA kêu",
+         "hua-qua-he" not in _huaDong(NGUONG_HUA_QUA_BPS_GIO,
+                                      TOI_THIEU_DOI_CHIEU),
+         f"ngưỡng {NGUONG_HUA_QUA_BPS_GIO} bps/giờ")
+    kiem("hơn ngưỡng thì kêu",
+         "hua-qua-he" in _huaDong(NGUONG_HUA_QUA_BPS_GIO * 2,
+                                  TOI_THIEU_DOI_CHIEU))
+    kiem("đủ mẫu đối chiếu ĐÚNG BẰNG ngưỡng thì đã xét",
+         "hua-qua-he" in _huaDong(NGUONG_HUA_QUA_BPS_GIO * 2,
+                                  TOI_THIEU_DOI_CHIEU))
+    kiem("thiếu một mẫu thì chưa",
+         "hua-qua-he" not in _huaDong(NGUONG_HUA_QUA_BPS_GIO * 2,
+                                      TOI_THIEU_DOI_CHIEU - 1),
+         "con số lệch dựng trên vài lần đóng nói về vài lần đóng, không "
+         "nói về cái ty")
+
 
 def kiem_chong_trung() -> None:
     print("\n── Chống trùng: cùng một cơ hội KHÔNG vào sổ 120 lần mỗi giờ ──")
