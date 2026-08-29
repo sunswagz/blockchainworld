@@ -1048,6 +1048,13 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5186  kham-thien-giam-runtime  ← KHÔNG phải cung; runtime Python thứ hai
     5187  thi-bac-ty
     5188  thi-bac-ty-runtime  ← KHÔNG phải cung; runtime Python thứ ba
+    5288  thi-bac-ty-runtime BẢN DEMO  ← làn thứ hai của cùng runtime ấy
+
+`5288 = 5188 + 100` chứ KHÔNG phải 5189: dãy `518x` là dãy cấp cho
+CUNG, và lấy 5189 cho một bản demo là ăn mất số của cung tiếp theo.
+Bản demo không phải một cung — nó là cùng một runtime chạy làn thứ
+hai, vốn ảo khác, sổ khác (`data-demo/`), và KHÔNG ghi cung tĩnh.
+Bật bằng `dichvu\bat.ps1 -Demo`.
 
 Luôn truyền cổng, đừng để mặc định:
 
