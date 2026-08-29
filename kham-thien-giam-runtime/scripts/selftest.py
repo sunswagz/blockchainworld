@@ -3616,6 +3616,62 @@ def kiem_phi_khong_bien_mat() -> None:
     kiem("mọi dòng sổ đã ghi đều thoả laiLo = tienRa − tienVao − phiUsd",
          not lech, lech[:3])
 
+def kiem_phien_giay_dung_giai_doan() -> None:
+    """Phiên giấy phải tính GIAI ĐOẠN, không đóng cứng một chuỗi lạ.
+
+    `phat_lai` từng truyền `giaiDoan="dat-cuoc"` — một chuỗi KHÔNG nằm
+    trong bốn giai đoạn hợp lệ. Hai chiến thuật soi thẳng trường ấy:
+
+        tao-lap      đòi giaiDoan ∈ (gom, giua)
+        can-ket-qua  đòi giaiDoan ∈ (cuoi, can-ket)
+
+    nên cả hai lặng lẽ trả rỗng suốt phiên. Đếm được: trong 1.018 lượt
+    gọi, chỉ `lech-gia`, `phong-ho`, `cap-*` đề xuất — hai ngón nghề kia
+    ĐÚNG 0 lần. Con số lãi lỗ của phiên giấy vì thế là của một cỗ máy
+    KHÁC cỗ máy đang chạy thật (+$32,99 → +$23,59 sau khi sửa).
+
+    Đây đúng lỗi `vong.py` đã sửa ở bước 7 và ghi chú dài dòng. Sửa một
+    nơi mà không quét tìm bản sao thì nó ở lại nơi kia.
+    """
+    print("\n── Phiên giấy phải tính giai đoạn thật ──────────────────────")
+
+    from kham.dongho import (CAN_KET_QUA, CUOI_KHUNG, GIUA_KHUNG,
+                             GOM_THANH_KHOAN, giai_doan_theo_thoi_gian)
+
+    hople = {GOM_THANH_KHOAN, GIUA_KHUNG, CUOI_KHUNG, CAN_KET_QUA}
+    kiem("`dat-cuoc` KHÔNG phải một giai đoạn hợp lệ",
+         "dat-cuoc" not in hople)
+
+    # Đi hết một khung 300s: phải chạm được cả hai đầu mà hai chiến
+    # thuật kia cần, không thì chúng vẫn im.
+    thay = {giai_doan_theo_thoi_gian(t, 300.0) for t in range(300, 0, -1)}
+    kiem("có giai đoạn `tao-lap` dùng được",
+         bool(thay & {GOM_THANH_KHOAN, GIUA_KHUNG}), sorted(thay))
+    kiem("có giai đoạn `can-ket-qua` dùng được",
+         bool(thay & {CUOI_KHUNG, CAN_KET_QUA}), sorted(thay))
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    def khong_chu_thich(vb: str) -> str:
+        return chr(10).join(d.split("#", 1)[0] for d in vb.splitlines())
+
+    pl = khong_chu_thich((GOC_MA / "kham" / "phat_lai.py")
+                         .read_text(encoding="utf-8"))
+    kiem("phat_lai KHÔNG còn đóng cứng giaiDoan",
+         'giaiDoan="dat-cuoc"' not in pl)
+    kiem("mà gọi chung một phép tính với đường thật",
+         "giai_doan_theo_thoi_gian(tau, tong)" in pl)
+    kiem("`tongGiay` là ĐỘ DÀI KHUNG, không phải max(tau, 1)",
+         "max(tau, 1.0)" not in pl and "_dai_song_giay(ma)" in pl)
+
+    # Và phép tính ấy phải là MỘT chỗ — `dongho` giữ bản gốc.
+    dh = khong_chu_thich((GOC_MA / "kham" / "dongho.py")
+                         .read_text(encoding="utf-8"))
+    kiem("dongho xuất tên công khai cho phép tính giai đoạn",
+         "def giai_doan_theo_thoi_gian" in dh)
+    kiem("và nó gọi lại `_giai_doan` chứ không chép logic",
+         "return _giai_doan(conLaiGiay, tongGiay)" in dh)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3681,6 +3737,7 @@ def main() -> int:
     kiem_so_phien_khong_tich_lai()
     kiem_khong_co_phep_kiem_gia()
     kiem_phi_khong_bien_mat()
+    kiem_phien_giay_dung_giai_doan()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

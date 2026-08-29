@@ -65,7 +65,7 @@ from .chien_thuat import BoiCanh, chay_tat_ca
 from .config import CONFIG
 from .dinh_gia import HieuChinh
 from .dong_co import goi as goi_dong_co
-from .dongho import LatCat
+from .dongho import LatCat, giai_doan_theo_thoi_gian
 from .kho_doi import Kho
 from .nan_lai import khop as khop_nan
 from .rui_ro import RiskEngine, SucKhoeNguon
@@ -278,6 +278,13 @@ class PhienPhatLai:
     def _bo(self, ly: str) -> None:
         self.kq.boQua[ly] = self.kq.boQua.get(ly, 0) + 1
 
+    def _dai_song_giay(self, ma: str) -> float:
+        """Khung này dài bao nhiêu giây. Cần cho GIAI ĐOẠN, không phải trang trí."""
+        for t in CONFIG["thiTruong"]:
+            if t.get("ma") == ma:
+                return float(t.get("phutSong", 5)) * 60.0
+        return 300.0
+
     def _ma_dong_co(self, ma: str) -> str:
         for t in CONFIG["thiTruong"]:
             if t.get("ma") == ma:
@@ -345,8 +352,30 @@ class PhienPhatLai:
         v.lucCuoiMs = luc
 
         # Chiến thuật thật — năm ngón nghề, không phải một phép so ngưỡng.
-        lc = LatCat(conLaiGiay=tau, tongGiay=max(tau, 1.0),
-                    giaiDoan="dat-cuoc", troiQuaPct=0.0,
+        # GIAI ĐOẠN phải tính thật, không đóng cứng.
+        #
+        # Bản trước truyền `giaiDoan="dat-cuoc"` — một chuỗi KHÔNG nằm
+        # trong bốn giai đoạn hợp lệ (`gom` / `giua` / `cuoi` / `can-ket`).
+        # Mà hai chiến thuật soi thẳng trường ấy:
+        #
+        #     tao-lap      đòi giaiDoan ∈ (gom, giua)
+        #     can-ket-qua  đòi giaiDoan ∈ (cuoi, can-ket)
+        #
+        # nên cả hai lặng lẽ trả rỗng suốt phiên. Đếm được: trong 1.018
+        # lượt gọi chiến thuật, chỉ `lech-gia`, `phong-ho`, `cap-*` đề
+        # xuất — hai ngón nghề kia ĐÚNG 0 lần. Con số lãi lỗ của phiên
+        # giấy vì thế là của một cỗ máy KHÁC cỗ máy đang chạy thật.
+        #
+        # Đây đúng cái lỗi `vong.py` đã sửa và ghi chú dài dòng ở bước 7 —
+        # sửa một nơi mà không quét tìm bản sao thì nó ở lại nơi kia.
+        #
+        # `tongGiay` cũng phải là ĐỘ DÀI KHUNG, không phải `max(tau, 1)`:
+        # lấy tau thì `troiQuaPct` luôn bằng 0 và lối đo theo TỈ LỆ của
+        # `_giai_doan` mất tác dụng, chỉ còn lối tuyệt đối.
+        tong = self._dai_song_giay(ma)
+        lc = LatCat(conLaiGiay=tau, tongGiay=tong,
+                    giaiDoan=giai_doan_theo_thoi_gian(tau, tong),
+                    troiQuaPct=min(100.0, max(0.0, (1.0 - tau / tong) * 100.0)),
                     lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
         bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc,
                      viThe=self.kho.lay(ma))

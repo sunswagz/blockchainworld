@@ -106,6 +106,21 @@ class DongHo:
         )
 
 
+def giai_doan_theo_thoi_gian(conLaiGiay: float,
+                             tongGiay: float) -> str:
+    """Tên công khai của `_giai_doan`.
+
+    `DongHo.lat_cat` đọc ĐỒNG HỒ MÁY, nên phiên phát lại không dùng
+    được nó — băng có đồng hồ riêng. Trước đây phiên ấy đóng cứng
+    `giaiDoan="dat-cuoc"`, một chuỗi không nằm trong bốn giai đoạn
+    hợp lệ, và hai chiến thuật soi trường ấy im suốt phiên.
+
+    Phép tính giai đoạn là hàm THUẦN của (còn lại, tổng) — nên nó
+    phải dùng chung được. MỘT chỗ định nghĩa, hai đường cùng gọi.
+    """
+    return _giai_doan(conLaiGiay, tongGiay)
+
+
 def _giai_doan(conLaiGiay: float, tongGiay: float) -> str:
     """Giai đoạn = cái KHẨN HƠN trong hai lối đo, tỉ lệ và tuyệt đối.
 
