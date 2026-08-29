@@ -246,6 +246,21 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
     ghi. Lúc ấy không kẹp gì cả: kẹp bằng 0 khi chưa đo được là dựng ra
     một bằng chứng chưa ai thu thập, và nó sẽ khoá chết cơ chế này ngay
     lần chạy đầu tiên trên một cuốn sổ trắng.
+
+    **Nó DAO ĐỘNG theo chu kỳ của cửa sổ, và đó là chuyện đã biết.**
+    Trung Ương lấy con số này từ cửa sổ 24 giờ của sổ cái. Trần siết →
+    xoay dừng → 24 giờ sau cửa sổ ấy rỗng → `None` → hết kẹp → xoay lại
+    được → nếu vòng cũ còn thì churn quay lại và trần siết lại. Tức là
+    tệ nhất cũng chỉ còn MỘT đợt churn mỗi ngày, thay vì churn liên tục.
+
+    Không đổi sang dùng trung vị CẢ ĐỜI để chặn dao động ấy, vì làm thế
+    là dựng một cái khoá không bao giờ mở: trần siết ⇒ không xoay ⇒
+    không có bằng chứng mới ⇒ trung vị cả đời đứng nguyên ⇒ trần siết
+    mãi. Một cơ chế tự khoá chết mình thì im lặng đúng như một cơ chế
+    đang chạy tốt.
+
+    Cửa «còn ghế trống thì không đuổi ai» ở `TrungUong` là lớp chặn thứ
+    hai, và hai lớp ấy độc lập nhau.
     """
     lat = LatCatXoayCho(soViThe=len(soViThe),
                         gioSongTrungVi=gioSongTrungVi)

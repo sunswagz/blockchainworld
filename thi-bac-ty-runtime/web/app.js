@@ -856,6 +856,18 @@
                        : (x.soVongKhongDoDuoc ? "mù " + x.soVongKhongDoDuoc
                                                 + " vòng" : "đủ") }];
         })));
+      /* BẢNG NÀY BỊ CẮT. Ảnh chụp chỉ mang 40 vị thế đầu để payload khỏi
+         phình, còn `soViTheDayDu` mới là số thật. Không nói ra thì người
+         đọc đếm 40 dòng và kết luận cỗ máy đang giữ 40 — đo 30/08 nó
+         giữ 106. Cùng cái bẫy đã cắn ở `hua-qua-dang-mo`: gộp từ danh
+         sách ĐÃ CẮT rồi đem so với một con số tính trên toàn bộ. */
+      if (t.soViTheDayDu != null && t.soViTheDayDu > sv.length) {
+        kk.appendChild(giai("Bảng trên chỉ hiện " + so(sv.length) + " trên "
+          + so(t.soViTheDayDu) + " vị thế — ảnh chụp cắt bớt cho payload "
+          + "khỏi phình, và phần hiện ra chọn theo thứ tự từ điển nên "
+          + "KHÔNG phải một mẫu đại diện. Mọi con số gộp phải đọc từ ô "
+          + "riêng của nó, đừng cộng từ bảng này."));
+      }
     }
     (kt.daDong || []).forEach(function (x) {
       var b = el("div", "viec-1 nhe");
