@@ -1320,25 +1320,41 @@
     var d3 = el("div", "day-so");
     d3.appendChild(oSo("Điều", so(hp.soDieu), "mỗi điều kèm sự cố đã dạy ra nó"));
     d3.appendChild(oSo("Canh được bằng máy", so(hp.soCanhDuoc), "chạy mỗi vòng"));
-    d3.appendChild(oSo("KHÔNG canh được", so(hp.soKhongCanhDuoc),
-      "khai ra, không giấu", "nhat"));
+    /* «KHÔNG canh được» tách làm hai, vì gộp lại là nói mình được che ít
+       hơn thực tế. Bốn điều có người canh — chỉ là canh ở selftest, nơi
+       được phép nhìn sang một ty; canh từ Trung Ương là phạm chính điều
+       `trung-uong-khong-biet-ty`. Hai điều còn lại thì thật sự chưa ai
+       canh, và đó mới là con số đáng nhìn. */
+    d3.appendChild(oSo("Canh ở TẦNG KHÁC", so(hp.soCanhOTangKhac),
+      "selftest canh, không phải Trung Ương", "nhat"));
+    d3.appendChild(oSo("CHƯA AI canh", so(hp.soHoanToanTrong),
+      "khai ra, không giấu",
+      hp.soHoanToanTrong ? "nhat" : "duong"));
     d3.appendChild(oSo("Vi phạm", so(hp.soViPham),
       hp.soViPham === null || hp.soViPham === undefined
         ? "CHƯA soát" : (hp.soViPham ? "PHẢI XEM" : "sạch"),
       hp.soViPham === null || hp.soViPham === undefined
         ? "nhat" : (hp.soViPham ? "am" : "duong")));
-    /* Soát hiến pháp có nhịp riêng: 31 điều, phần lớn phân tích cả cây mã,
-       và một điều dựng hẳn một Trung Ương rồi quay hai vòng thật. Buồng lái
-       hỏi mỗi vài giây, nên bản này có thể CŨ — và một con số cũ mà không
-       nói mình cũ thì trông y hệt một con số mới. */
+    /* Soát hiến pháp có nhịp riêng: hàng chục điều, phần lớn phân tích cả
+       cây mã, và một điều dựng hẳn một Trung Ương rồi quay hai vòng thật.
+       Buồng lái hỏi mỗi vài giây, nên bản này có thể CŨ — và một con số cũ
+       mà không nói mình cũ thì trông y hệt một con số mới. */
     d3.appendChild(oSo("Soát cách đây",
       hp.tuoiGiay === null || hp.tuoiGiay === undefined
         ? "—" : Math.round(hp.tuoiGiay) + "s",
       "hiến pháp là hàm của mã nguồn, nên soát theo nhịp chứ không mỗi lần hỏi",
       "nhat"));
     k3.appendChild(d3);
-    if ((hp.khongCanhDuoc || []).length) {
-      k3.appendChild(giai("Không canh được: " + hp.khongCanhDuoc.join(", ")
+    if ((hp.canhOTangKhac || []).length) {
+      k3.appendChild(giai("Canh ở tầng khác: "
+        + hp.canhOTangKhac.map(function (x) {
+            return x.ma + " → " + x.ham + "()"; }).join(", ")
+        + " — và chính cái chỉ tay ấy được canh: điều "
+        + "«chi-tay-phai-chi-vao-cho-co-that» đòi mỗi tên phải là một hàm CÓ "
+        + "THẬT và ĐANG ĐƯỢC GỌI, vì hàm tồn tại không có nghĩa là hàm chạy."));
+    }
+    if ((hp.hoanToanTrong || []).length) {
+      k3.appendChild(giai("CHƯA AI canh: " + hp.hoanToanTrong.join(", ")
         + " — một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì "
         + "tệ hơn không có."));
     }

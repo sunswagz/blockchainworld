@@ -53,19 +53,27 @@ class Dieu:
     vi: str
     nguon: str
     kiem: object = None          # () -> (bool, str) | None = chưa canh được
+    #: Tên hàm canh điều này ở TẦNG KHÁC, khi canh từ đây là phạm một điều
+    #: khác của chính hiến pháp này (phần lớn là `trung-uong-khong-biet-ty`).
+    #: Đây là TRƯỜNG chứ không phải chú thích, và đó là cả điểm của nó —
+    #: bốn điều đang khai chỗ canh của mình trong chú thích, tức là buồng
+    #: lái đếm chúng vào «KHÔNG canh được» và người đọc tưởng mình được che
+    #: ít hơn thực tế. Chú thích thì không máy nào đọc, nên cũng không máy
+    #: nào biết khi cái tên ấy bị đổi hoặc bị xoá.
+    canhODau: str | None = None
 
     def soat(self) -> dict:
         if self.kiem is None:
             return {"ma": self.ma, "canhDuoc": False, "dat": None,
                     "chiTiet": "", "cau": self.cau, "vi": self.vi,
-                    "nguon": self.nguon}
+                    "nguon": self.nguon, "canhODau": self.canhODau}
         try:
             dat, ct = self.kiem()
         except Exception as e:                            # noqa: BLE001
             dat, ct = False, f"phép canh NỔ: {type(e).__name__}: {e}"
         return {"ma": self.ma, "canhDuoc": True, "dat": bool(dat),
                 "chiTiet": str(ct), "cau": self.cau, "vi": self.vi,
-                "nguon": self.nguon}
+                "nguon": self.nguon, "canhODau": self.canhODau}
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -661,6 +669,43 @@ def _do_bang_duong_nav():
 #  Các điều
 # ══════════════════════════════════════════════════════════════════════
 
+def _chi_tay_phai_chi_vao_cho_co_that() -> tuple[bool, str]:
+    """Mọi `canhODau` phải trỏ vào một hàm CÓ THẬT và ĐƯỢC GỌI.
+
+    Bốn điều nói «tôi được canh ở `kiem_...` trong selftest». Đó là lời
+    khai duy nhất che cho chúng — không có nó thì buồng lái đếm chúng là
+    trống. Nên lời khai ấy phải đúng, và phải còn đúng sau khi ai đó đổi
+    tên hàm.
+
+    Hai vế, và vế thứ hai mới là vế hay bị hỏng: hàm **tồn tại** không có
+    nghĩa là hàm **chạy**. Một hàm kiểm không ai gọi là một hàm kiểm không
+    chạy, và nó vẫn nằm đó cho người đọc yên tâm.
+
+    Đọc bằng VĂN BẢN chứ không import: `scripts/` là tầng trên, và
+    `thi_bac_ty/` import ngược lên tầng ấy thì lại phạm đúng cái điều đã
+    khiến bốn phép canh kia phải đi ra ngoài.
+    """
+    khai = [(d.ma, d.canhODau) for d in DIEU if d.canhODau]
+    if not khai:
+        return True, "không điều nào khai chỗ canh ở tầng khác"
+    src = _doc(GOC / "scripts" / "selftest.py")
+    if not src:
+        return False, ("KHÔNG đọc được `scripts/selftest.py` — bốn điều đang "
+                       "dựa vào nó mà không ai xác nhận nó có ở đó")
+    thieu, khong_goi = [], []
+    for ma, ham in khai:
+        if not re.search(rf"^def {re.escape(ham)}" + r"\b", src, re.M):
+            thieu.append(f"{ma} → {ham}()")
+        elif not re.search(rf"^    {re.escape(ham)}\(\)", src, re.M):
+            khong_goi.append(f"{ma} → {ham}()")
+    if thieu or khong_goi:
+        return False, "; ".join(
+            ([f"KHÔNG CÓ HÀM: {', '.join(thieu)}"] if thieu else [])
+            + ([f"CÓ mà KHÔNG AI GỌI: {', '.join(khong_goi)}"]
+               if khong_goi else []))
+    return True, f"{len(khai)} chỉ tay, cái nào cũng trỏ vào hàm có thật và "                  f"đang được gọi"
+
+
 def _ha_tang_khong_phai_ty() -> tuple[bool, str]:
     """Gói hạ tầng dùng chung KHÔNG được nhận nhầm là ty.
 
@@ -880,7 +925,8 @@ DIEU: tuple[Dieu, ...] = (
          # ty nào tồn tại, huống hồ đọc cấu hình của một ty.
          #
          # Canh ở tầng đúng: `kiem_von_ngoai_bat_san()` trong selftest.
-         "bac/config.py · von_ngoai.py", None),
+         "bac/config.py · von_ngoai.py", None,
+         canhODau="kiem_von_ngoai_bat_san"),
 
     Dieu("khong-dem-hai-lan",
          "Cơ hội cỗ máy thứ hai ĐANG LÀM thì không được nộp tờ trình xin "
@@ -894,7 +940,8 @@ DIEU: tuple[Dieu, ...] = (
          # Ương biết một ty tồn tại. Canh ở tầng đúng —
          # `kiem_kham_adapter()` dựng ba cơ hội, hai cái `dangLam`, rồi đòi
          # chỉ một cái đi qua; cấy lỗi ngược làm nó đỏ.
-         "kham_ngoai/ty_tien_doan.py", None),
+         "kham_ngoai/ty_tien_doan.py", None,
+         canhODau="kiem_kham_adapter"),
 
     Dieu("ha-tang-khong-phai-ty",
          "Gói dùng chung của một HỌ không phải ty, và nhận diện ty phải "
@@ -923,7 +970,8 @@ DIEU: tuple[Dieu, ...] = (
          #
          # Nên nó được canh ở TẦNG ĐÚNG: `kiem_ha_tang_ho()` trong
          # `scripts/selftest.py`, nơi được phép nhìn cả hai bên.
-         "tách hạ tầng cho ty Cơ Sở", None),
+         "tách hạ tầng cho ty Cơ Sở", None,
+         canhODau="kiem_ha_tang_ho"),
 
     Dieu("basis-khong-phai-thu-nhap",
          "Chỉ ghi vào NET khoản đã có người TRẢ. Chênh lệch giá của một hợp "
@@ -936,7 +984,8 @@ DIEU: tuple[Dieu, ...] = (
          # `thi_bac_ty/` import `co_so/`. Được canh ở tầng đúng —
          # `kiem_co_so()` nới rộng basis rồi đòi NET không đổi, và phép
          # cấy lỗi ngược (cộng basis vào NET) làm nó đỏ.
-         "co_so/ty_co_so.py", None),
+         "co_so/ty_co_so.py", None,
+         canhODau="kiem_co_so"),
 
     Dieu("ly-do-tu-choi-phai-mang-ma",
          "Mọi lý do TỪ CHỐI phải mở đầu bằng một MÃ máy đọc được.",
@@ -971,6 +1020,18 @@ DIEU: tuple[Dieu, ...] = (
          "Mục tiêu KHÔNG phải '13 chiến lược đều kiếm tiền'. Một hệ thống từ "
          "chối giỏi quan trọng hơn một hệ thống phát hiện nhiều.",
          "bản đồ §21", None),
+
+    Dieu("chi-tay-phai-chi-vao-cho-co-that",
+         "Điều nào khai «tôi được canh ở chỗ khác» thì cái tên ấy phải là "
+         "một hàm CÓ THẬT và ĐƯỢC GỌI.",
+         "Bốn điều không canh được từ đây vì canh từ đây là phạm "
+         "`trung-uong-khong-biet-ty`. Lời khai `canhODau` là thứ DUY NHẤT "
+         "che cho chúng — bỏ nó đi thì chúng là bốn ô trống. Mà một lời "
+         "khai không ai đối chiếu sẽ sống sót qua đúng cái lần người ta đổi "
+         "tên hàm, và từ đó hiến pháp nói dối bằng một câu vẫn đúng ngữ "
+         "pháp. Vế thứ hai mới là vế hay hỏng: hàm TỒN TẠI không có nghĩa "
+         "là hàm CHẠY.",
+         "scripts/selftest.py", _chi_tay_phai_chi_vao_cho_co_that),
 )
 
 
@@ -1020,22 +1081,47 @@ def soat() -> dict:
 
 
 def _soat() -> dict:
+    """Ba nhóm, không phải hai — và nhóm thứ ba là nhóm dễ đọc sai nhất.
+
+    «Canh được từ đây» và «không ai canh cả» là hai đầu. Ở giữa có một
+    nhóm thật: điều canh được, nhưng canh từ ĐÂY thì phạm một điều khác
+    của chính hiến pháp này — phần lớn là `trung-uong-khong-biet-ty`, vì
+    phép canh phải nhìn sang một ty. Bốn điều như thế được canh trong
+    `scripts/selftest.py`, nơi được phép nhìn cả hai bên.
+
+    Trước lượt này chúng khai chỗ canh trong CHÚ THÍCH, nên buồng lái đếm
+    cả bốn vào «KHÔNG canh được» và người đọc tưởng mình được che ít hơn
+    thực tế — 6 điều trống, trong khi thật ra chỉ có 2.
+
+    Và chú thích thì không máy nào đọc, nên cũng không máy nào biết khi
+    cái tên ấy bị đổi hoặc bị xoá. Điều `chi-tay-phai-chi-vao-cho-co-that`
+    canh đúng chuyện đó.
+    """
     ds = [d.soat() for d in DIEU]
     vi_pham = [x for x in ds if x["canhDuoc"] and not x["dat"]]
     khong_canh = [x for x in ds if not x["canhDuoc"]]
+    tang_khac = [x for x in khong_canh if x.get("canhODau")]
+    trong = [x for x in khong_canh if not x.get("canhODau")]
     return {
         "soDieu": len(ds),
         "soCanhDuoc": len(ds) - len(khong_canh),
+        "soCanhOTangKhac": len(tang_khac),
         "soKhongCanhDuoc": len(khong_canh),
+        "soHoanToanTrong": len(trong),
         "soViPham": len(vi_pham),
         "viPham": vi_pham,
         "khongCanhDuoc": [x["ma"] for x in khong_canh],
+        "canhOTangKhac": [{"ma": x["ma"], "ham": x["canhODau"]}
+                          for x in tang_khac],
+        "hoanToanTrong": [x["ma"] for x in trong],
         "dieu": ds,
         "loiNhac": (
             "Một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì tệ "
             "hơn không có. `soKhongCanhDuoc` in ra ở đây để không ai tưởng "
             "mình được che nhiều hơn thực tế — đó là bài học ba cửa giả, "
-            "nâng lên tầm cả hệ thống."),
+            "nâng lên tầm cả hệ thống. Và nó tách làm hai: `soCanhOTangKhac` "
+            "có người canh, chỉ là không canh từ đây; `soHoanToanTrong` thì "
+            "thật sự chưa ai canh."),
     }
 
 
@@ -1043,8 +1129,11 @@ def tom_tat() -> dict:
     r = soat()
     # `long` phải đi theo tóm tắt: bên gọi dùng nó để KHÔNG giữ lại một
     # ảnh chụp lồng. Lọc mất cờ ấy thì bản rỗng được giữ như bản thật.
-    return {k: r[k] for k in ("soDieu", "soCanhDuoc", "soKhongCanhDuoc",
-                              "soViPham", "khongCanhDuoc", "loiNhac")} | {
+    return {k: r.get(k) for k in ("soDieu", "soCanhDuoc", "soKhongCanhDuoc",
+                                  "soCanhOTangKhac", "soHoanToanTrong",
+                                  "soViPham", "khongCanhDuoc",
+                                  "canhOTangKhac", "hoanToanTrong",
+                                  "loiNhac")} | {
         "viPham": [{"ma": x["ma"], "chiTiet": x["chiTiet"]}
                    for x in r["viPham"]],
         "long": bool(r.get("long"))}

@@ -8109,6 +8109,58 @@ def kiem_hien_phap() -> None:
          <= set(__import__("thi_bac_ty.hien_phap", fromlist=["tom_tat"])
                 .tom_tat()))
 
+    # ── «KHÔNG canh được» TÁCH LÀM HAI ──────────────────────────────────
+    # Gộp lại là nói mình được che ÍT hơn thực tế: bốn điều trong đó có
+    # người canh hẳn hoi, chỉ là canh ở selftest chứ không ở Trung Ương,
+    # vì canh từ Trung Ương là phạm chính `trung-uong-khong-biet-ty`.
+    kiem("hai nhóm CỘNG ĐÚNG lại thành nhóm không canh được từ đây",
+         r["soCanhOTangKhac"] + r["soHoanToanTrong"] == r["soKhongCanhDuoc"],
+         f"{r['soCanhOTangKhac']} + {r['soHoanToanTrong']} != "
+         f"{r['soKhongCanhDuoc']}")
+    kiem("và mỗi điều canh ở tầng khác KHAI RA tên hàm canh nó",
+         all(x.get("ham") for x in r["canhOTangKhac"]),
+         f"{r['canhOTangKhac']} — khai «có người canh» mà không nói ai canh "
+         f"thì lời khai ấy không đối chiếu được, tức là không khai gì")
+
+    # Chỉ tay phải chỉ vào chỗ có thật, và phép canh ấy phải BẮT ĐƯỢC khi
+    # cái tên bị đổi. Cấy lỗi ngược ngay tại đây thay vì tin nó chạy đúng.
+    from thi_bac_ty.hien_phap import (
+        DIEU as _DIEU, _chi_tay_phai_chi_vao_cho_co_that as _chiTay)
+    _dat, _ct = _chiTay()
+    kiem("mọi chỉ tay đều trỏ vào hàm CÓ THẬT và ĐANG ĐƯỢC GỌI", _dat, _ct)
+    _cu = [d for d in _DIEU if d.canhODau]
+    if _cu:
+        import dataclasses as _dc
+        _goc = list(_DIEU)
+        try:
+            _hp = __import__("thi_bac_ty.hien_phap", fromlist=["DIEU"])
+            _hp.DIEU = tuple(
+                _dc.replace(d, canhODau="kiem_ham_nay_khong_ton_tai")
+                if d is _cu[0] else d for d in _goc)
+            _dat2, _ct2 = _chiTay()
+        finally:
+            _hp.DIEU = tuple(_goc)
+        kiem("và ĐỔI TÊN một hàm canh thì phép ấy ĐỎ",
+             not _dat2 and "KHÔNG CÓ HÀM" in _ct2,
+             f"{_dat2} · {_ct2} — một lời khai không ai đối chiếu sẽ sống "
+             f"sót qua đúng cái lần người ta đổi tên hàm")
+
+        # Vế thứ hai, và là vế hay hỏng hơn: hàm TỒN TẠI không có nghĩa
+        # là hàm CHẠY. `dung_chuoi` có thật trong file này và không bao
+        # giờ được gọi ở dạng `dung_chuoi()`, nên nó là mẫu hoàn hảo cho
+        # một chỉ tay trỏ vào một cơ chế không ai gọi.
+        try:
+            _hp.DIEU = tuple(
+                _dc.replace(d, canhODau="gan")
+                if d is _cu[0] else d for d in _goc)
+            _dat3, _ct3 = _chiTay()
+        finally:
+            _hp.DIEU = tuple(_goc)
+        kiem("và trỏ vào một hàm CÓ THẬT mà KHÔNG AI GỌI cũng ĐỎ",
+             not _dat3 and "KHÔNG AI GỌI" in _ct3,
+             f"{_dat3} · {_ct3} — một cơ chế không ai gọi là một cơ chế "
+             f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
+
 
 def kiem_khong_trung_ten() -> None:
     print("\n-- File nay: dinh nghia sau DE dinh nghia truoc, khong bao --")
