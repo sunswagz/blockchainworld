@@ -117,6 +117,10 @@ def do_duong_khoa_von(toTrinh: list, vonUsd: float,
                 continue
             dem += 1
             chua += sc
+            # `<=` chứ không `<`, nhưng hai cách viết cho cùng kết quả:
+            # `con == 0` thì `lay = min(0, sc)` cũng bằng 0 và mọi phép
+            # cộng dưới đây cộng 0. Ghi lại để lượt quét đột biến sau khỏi
+            # đi tìm một phép kiểm không tồn tại — con ấy TƯƠNG ĐƯƠNG.
             if con <= 0:
                 continue
             lay = min(con, sc)

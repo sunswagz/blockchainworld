@@ -9780,6 +9780,59 @@ def kiem_duong_khoa_von() -> None:
          f"{d4.muc[0].tom_tat()} — ty không bắc cầu, không kỳ hạn thì "
          f"không có gì để khoá; loại nó ra là phạt một ty vì nó đơn giản")
 
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    #
+    # Bảng này là bảng người vận hành đọc để quyết `khoaVonToiDaGio` —
+    # cái tham số đang chặn cả một động cơ. Quét đột biến cho 5/9 con
+    # sống sót, và cả bốn con đáng kể nằm đúng ở biên.
+
+    # Khoá ĐÚNG BẰNG trần thì QUA. `>` đổi thành `>=` là loại đúng những
+    # cơ hội nằm sát mép — và bảng này tồn tại để hỏi «nới mép ra thì
+    # được gì», nên sai ở mép là sai ở chính câu hỏi.
+    d5 = do_duong_khoa_von([_tt(9.0, 1000.0, 720.0)], 1000.0, 720.0,
+                           muc=(720.0,))
+    kiem("khoá ĐÚNG BẰNG trần thì vẫn vào bảng",
+         d5.muc[0].soCoHoi == 1 and gan(d5.muc[0].aprTrenCaTuiUsd, 9.0),
+         f"{d5.muc[0].tom_tat()} — trần là trần, không phải mép vực")
+    kiem("quá trần một giờ thì bị loại",
+         do_duong_khoa_von([_tt(9.0, 1000.0, 721.0)], 1000.0, 720.0,
+                           muc=(720.0,)).muc[0].soCoHoi == 0)
+
+    # SỨC CHỨA đúng bằng 0 là «không chứa được gì», nên BỎ; nhưng sức chứa
+    # dương bé xíu thì vẫn là một cơ hội thật. `<=` đổi thành `<` là nhận
+    # vào một cơ hội chứa 0 đồng, và nó chiếm một dòng của bảng mà không
+    # rót được đồng nào.
+    d6 = do_duong_khoa_von([_tt(9.0, 0.0, 0.0), _tt(9.0, 0.01, 0.0)],
+                           1000.0, 720.0, muc=(None,))
+    kiem("sức chứa ĐÚNG BẰNG 0 thì bỏ, sức chứa 0,01 thì nhận",
+         d6.soBoViThieuSucChua == 1 and d6.muc[0].soCoHoi == 1,
+         f"{d6.tom_tat()} — «chứa được 0 đồng» không phải một cơ hội, "
+         f"nhưng «chứa được một xu» thì là")
+
+    # HẾT VỐN rồi thì cơ hội sau vẫn ĐẾM vào `soCoHoi` và `sucChuaUsd` —
+    # bảng phải nói «trần này mở ra bao nhiêu cơ hội», không phải «bao
+    # nhiêu cơ hội ta đủ tiền lấy». Nhưng nó KHÔNG được rót thêm.
+    d7 = do_duong_khoa_von([_tt(20.0, 1000.0, 0.0), _tt(10.0, 1000.0, 0.0)],
+                           1000.0, 720.0, muc=(None,))
+    kiem("hết vốn thì cơ hội sau vẫn ĐẾM, nhưng KHÔNG rót thêm",
+         (d7.muc[0].soCoHoi == 2 and gan(d7.muc[0].rotDuocUsd, 1000.0)
+          and gan(d7.muc[0].sucChuaUsd, 2000.0)),
+         f"{d7.muc[0].tom_tat()} — hai câu khác nhau: «trần mở ra mấy cơ "
+         f"hội» và «ta đủ tiền lấy mấy cơ hội»")
+    kiem("và lợi suất chỉ tính phần RÓT ĐƯỢC",
+         gan(d7.muc[0].aprTrenCaTuiUsd, 20.0),
+         f"{d7.muc[0].aprTrenCaTuiUsd} — cộng cả cơ hội không rót được là "
+         f"cộng một khoản lãi chưa ai nhận")
+
+    # VỐN BẰNG 0 thì không có mẫu số. `> 0` đổi thành `>= 0` là chia cho
+    # không ngay dòng ấy.
+    d8 = do_duong_khoa_von([_tt(9.0, 1000.0, 0.0)], 0.0, 720.0, muc=(None,))
+    kiem("túi rỗng thì lợi suất là 0 và KHÔNG nổ, khoá bình quân là None",
+         (gan(d8.muc[0].aprTrenCaTuiUsd, 0.0)
+          and d8.muc[0].khoaBinhQuanGio is None),
+         f"{d8.muc[0].tom_tat()} — chưa rót đồng nào thì «khoá bình quân» "
+         f"là chưa đo được, không phải 0 giờ")
+
 
 def kiem_router_doi_lo_hong() -> None:
     print("ROUTER go duoc khoan nao thi PHAI thay bang khoan khac")
