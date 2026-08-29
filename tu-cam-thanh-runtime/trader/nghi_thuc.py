@@ -47,6 +47,15 @@ from .config import DATA_DIR, ROOT
 # 6 tiếng: nguồn của hai phép đo này là nến lịch sử và sổ chiến lược — thứ đổi
 # theo ngày chứ không theo giờ. Chạy dày hơn chỉ tốn nhân mà ra cùng một số.
 MOI_GIAY = 6 * 3600
+
+# Đài quan sát gọi sàn ngoài và tự giới hạn tần suất, nên nó CHẬM: đo thật là
+# ~3 hồ sơ trong 4 phút, tức 48 hồ sơ mất hơn một giờ.
+#
+# 20 phút là con số tôi đoán lúc đầu và nó sẽ cắt ngang giữa chừng — ghi "hỏng"
+# cho một việc đang chạy đúng, rồi lần sau lại bắt đầu lại từ đầu. Một giờ rưỡi
+# vẫn nằm gọn trong nhịp 6 tiếng của nghi thức, và luồng này không chặn vòng
+# giao dịch.
+QUAN_SAT_HET_GIAY = 5400
 COC = DATA_DIR / "nghi-thuc.json"
 
 _khoa = threading.Lock()
@@ -143,10 +152,32 @@ def _chay() -> None:
         # loại kho đo mà nghi thức sinh ra để không ai phải nhớ gõ lệnh.
         try:
             from . import phien_quan_sat
+            t0 = time.time()
             r = phien_quan_sat.bat_dau()
-            kq["đài quan sát"] = {"ma": 0 if r.get("ok") else 1,
-                                  "cuoi": "đã khởi động ở luồng nền" if r.get("ok")
-                                          else str(r.get("vi_sao"))}
+            if not r.get("ok"):
+                kq["đài quan sát"] = {"ma": 1, "cuoi": str(r.get("vi_sao"))}
+            else:
+                # CHỜ cho tới khi nó thật sự xong. Bản đầu ghi "đã khởi động ở
+                # luồng nền" rồi coi là thành công — nhưng luồng nền chết cùng
+                # tiến trình mỗi lần runtime dựng lại, nên `trader-ho-so.json`
+                # đứng im 291 giờ trong khi nghi thức vẫn xanh suốt.
+                #
+                # Chờ ở đây an toàn: nghi thức đã chạy trong luồng riêng, và mọi
+                # việc đo nặng khác đã xong trước dòng này.
+                while time.time() - t0 < QUAN_SAT_HET_GIAY:
+                    tt = phien_quan_sat.trang_thai().get("trangThai")
+                    if tt in ("xong", "lỗi", "chưa chạy"):
+                        break
+                    time.sleep(5)
+                tt = phien_quan_sat.trang_thai()
+                xong = tt.get("trangThai")
+                kq["đài quan sát"] = {
+                    "ma": 0 if xong == "xong" else 1,
+                    "giay": round(time.time() - t0, 1),
+                    "cuoi": f"trạng thái cuối: {xong}",
+                }
+                if xong != "xong":
+                    kq["đài quan sát"]["loi"] = str(tt.get("loi") or f"dừng ở «{xong}»")
             bus.emit("hoc", "nghi-thuc", "đài quan sát: " + str(kq["đài quan sát"]["cuoi"]))
         except Exception as e:  # noqa: BLE001
             kq["đài quan sát"] = {"ma": -1, "loi": f"{type(e).__name__}: {e}"}

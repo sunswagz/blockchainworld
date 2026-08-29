@@ -830,6 +830,21 @@ async def main() -> int:
     _dat(12, -300.0, 9, khung="khung-khac")
     check(CC4.cau_dao("R|none", "R") is None,
           "bằng chứng của khung KHÁC → không ngắt")
+    print("\n[22] KHO KỸ NĂNG KHÔNG CÒN LÀ CHỖ CHỨA MIỄN PHÍ")
+    from trader.brain import load_skills as _ls22
+    import importlib.util as _il22
+    _sp22 = _il22.spec_from_file_location("bg22", str(ROOT / "scripts" / "ban-giao.py"))
+    BG22 = _il22.module_from_spec(_sp22)
+    _sp22.loader.exec_module(BG22)
+
+    # Trước khi bộ não chạy thật, thêm kỹ năng là miễn phí. Từ khi nối CLI,
+    # TOÀN BỘ kho đi vào lời nhắc hệ thống của MỌI lượt gọi. Ngưỡng này không
+    # cấm thêm — nó bắt người thêm phải nhìn thấy cái giá.
+    _sk22, _n22 = _ls22()
+    check(len(_sk22) <= BG22.NGAN_SACH_KY_NANG,
+          f"kho {len(_sk22):,} ký tự ≤ ngân sách {BG22.NGAN_SACH_KY_NANG:,} "
+          f"(~{len(_sk22) / 3.2:,.0f} token mỗi lượt gọi, {_n22} kỹ năng)")
+
     print("\n[21] BÀN GIAO PHẢI ĐO TUỔI KHO ĐO, KHÔNG TIN LỜI BÁO CÁO")
     import importlib.util as _il21
     _sp21 = _il21.spec_from_file_location("bg21", str(ROOT / "scripts" / "ban-giao.py"))

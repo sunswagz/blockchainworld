@@ -59,6 +59,7 @@ python scripts/do-mau-gia.py --ghi        # đo 13 mẫu giá kinh điển trên
 python scripts/do-khung.py --ghi          # khung nào đỡ nổi mức RR đang đòi
 python scripts/ban-giao.py --ghi          # bản tóm tắt cho lượt làm việc sau
 python scripts/gia-thuyet.py --tra "..."  # cái này đã thử chưa? (tra TRƯỚC khi đo)
+BRAIN=cli python run.py                   # bộ não thật bằng quota gói, không cần khoá
 python scripts/bo-pha.py --ghi            # phí ×2 ×3, đoạn lịch sử tệ nhất
 python scripts/soat-lai-bai-hoc.py --ghi   # hậu kiểm LẠI bài học cũ khi sổ đã dài hơn
 
@@ -298,6 +299,7 @@ trader/
   features.py           đo, KHÔNG kết luận
   regime.py             gán nhãn bằng luật xác định
   brain.py              Claude + mock + schema + đồng hồ chi phí + THAM_MAC_DINH
+  cli_claude.py         đường thứ ba tới model: claude CLI, trả bằng QUOTA GÓI
   risk.py               bức tường cứng
   broker.py             sàn giấy, tính phí và trượt giá thật
   broker_testnet.py     Binance Spot Testnet — lệnh thật, tiền giả

@@ -162,6 +162,39 @@ KHO_DO = (
 )
 
 
+# Ngân sách cho kho kỹ năng, tính bằng ký tự. Vượt là phải QUYẾT ĐỊNH, không
+# phải trôi qua.
+#
+# Trước khi bộ não chạy thật, thêm một kỹ năng là miễn phí — nó chỉ nằm đó.
+# Từ khi nối đường CLI, TOÀN BỘ kho đi vào lời nhắc hệ thống của MỌI lượt gọi:
+# 46.652 ký tự ≈ 14.578 token, nhân với trần 8 lượt/ngày là ~117k token/ngày
+# chỉ để chở kỹ năng.
+#
+# Nên kho kỹ năng không còn là chỗ chứa miễn phí. Ngưỡng này không cấm — nó
+# bắt người thêm phải nhìn thấy cái giá và nói ra lý do.
+NGAN_SACH_KY_NANG = 60_000
+
+
+def _gia_kho_ky_nang() -> list[str]:
+    """Kho kỹ năng đang tốn bao nhiêu mỗi lượt gọi."""
+    try:
+        from trader.brain import load_skills
+        from trader.config import CONFIG, brain_mode
+        sk, n = load_skills()
+    except Exception:  # noqa: BLE001
+        return []
+    if brain_mode() == "mock":
+        return []      # chưa gọi model thì kho chưa tốn gì
+    tok = len(sk) / 3.2
+    tran = CONFIG["brain"].get("maxCallsPerDay") or 0
+    ra = [f"{n} kỹ năng · {len(sk):,} ký tự ≈ {tok:,.0f} token MỖI LƯỢT GỌI"
+          f" · ~{tok * tran / 1000:,.0f}k token/ngày ở trần {tran} lượt"]
+    if len(sk) > NGAN_SACH_KY_NANG:
+        ra.append(f"**VƯỢT NGÂN SÁCH** {NGAN_SACH_KY_NANG:,} ký tự — mỗi kỹ năng thêm "
+                  f"vào từ đây làm mọi lượt gọi đắt hơn. Gộp, cắt, hoặc nâng ngưỡng "
+                  f"một cách có chủ ý.")
+    return ra
+
 def _kho_cu() -> list[str]:
     """Kho đo nào đã cũ.
 
@@ -288,6 +321,14 @@ def main() -> int:
     for x in _so(nay, truoc):
         W(f"- {x}")
     W("")
+
+    gia = _gia_kho_ky_nang()
+    if gia:
+        W("## Giá của kho kỹ năng")
+        W("")
+        for x in gia:
+            W(f"- {x}")
+        W("")
 
     cu = _kho_cu()
     if cu:
