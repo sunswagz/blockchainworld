@@ -1080,6 +1080,26 @@ async def main() -> int:
     check("viNgoai" in _src39,
           "tài sản lạ trong ví vẫn được BÁO RA, chỉ là không tính vào vốn")
 
+    # MỌI chỗ tính vốn phải nhận BẢN ĐỒ GIÁ, không một giá. Đã sập ngay lượt
+    # đầu chạy nhiều chợ: `snapshot(market["price"])` chỉ biết giá chợ đang xét
+    # nên giá trị vị thế SOL bị tính là 0 — vốn tụt 1.020 đô trong khi hai lệnh
+    # chỉ rủi ro 95, sụt giảm hiện 10,74% và kill switch nổ. Vị thế vẫn nguyên
+    # trên sàn; chỉ phép cộng là sai.
+    # CẮT CHÚ THÍCH trước khi dò. Chú thích giải thích một lỗi bị tính là chính
+    # lỗi đó — bẫy này đã cắn nhiều lần ở repo này, kể cả ngay trong phép kiểm
+    # vừa viết ra để canh nó.
+    _src_lp = NL.join(
+        d.split("#")[0] for d in
+        (ROOT / "trader" / "loop.py").read_text(encoding="utf-8").splitlines())
+    _xau = [d for d in ("snapshot(market[" + chr(34) + "price" + chr(34) + "])",
+                        "mark(market[" + chr(34) + "price" + chr(34) + "])")
+            if d in _src_lp]
+    check(not _xau,
+          "loop không còn chỗ nào truyền MỘT giá vào snapshot/mark"
+          + (f" — CÒN: {_xau}" if _xau else ""))
+    check("self.gia_cho" in _src_lp,
+          "loop giữ bản đồ giá của mọi chợ đã nạp")
+
     # Cửa nguy hiểm nhất: đổi định nghĩa mà giữ đỉnh cũ thì ngắt mạch thấy sụt
     # giảm 89% và chốt cứng ngay lượt đầu. Phải đặt lại đỉnh khi dấu lệch.
     _i_ver = _src39.index("dinhNghiaVon" + chr(34) + ") != DINH_NGHIA_VON")

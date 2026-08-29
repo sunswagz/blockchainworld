@@ -122,7 +122,10 @@ async def candles(limit: int = 160) -> JSONResponse:
     pri = runtime.primary
     f = (st.get("timeframes") or {}).get(pri, {})
     th = runtime.last_thesis or {}
-    pos = runtime.broker.snapshot(m["price"]).get("positions") or []
+    # Bản đồ giá, không một giá: vị thế ở chợ khác sẽ được tính là 0 và bảng
+    # hiện một mức vốn thấp hơn thật.
+    pos = runtime.broker.snapshot(
+        getattr(runtime, "gia_cho", None) or m["price"]).get("positions") or []
 
     return JSONResponse({
         "ready": True,

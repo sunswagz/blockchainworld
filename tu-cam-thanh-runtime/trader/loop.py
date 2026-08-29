@@ -65,6 +65,9 @@ class Runtime:
         self.risk = RiskEngine(CONFIG["risk"], spot_only=(self.mode == "testnet"))
         self.brain = None
 
+        # Giá mới nhất của MỌI chợ đã nạp. Vốn và ngắt mạch đọc bản đồ này;
+        # một giá duy nhất thì vị thế ở chợ khác bị tính là 0.
+        self.gia_cho: dict[str, float] = {}
         self.state: dict | None = None
         self.last_market: dict | None = None
         self.regime: dict | None = None
@@ -115,7 +118,8 @@ class Runtime:
         if self.force_analyze:
             return True, "người dùng bấm phân tích"
 
-        blockers = self.risk.circuit_breakers(self.broker.snapshot(market["price"]))
+        blockers = self.risk.circuit_breakers(
+            self.broker.snapshot(getattr(self, "gia_cho", None) or market["price"]))
         if blockers:
             return False, blockers[0]
 
@@ -269,7 +273,15 @@ class Runtime:
         # bao giờ được xếp sau việc vào lệnh.
         # Chấm bằng TỪ ĐIỂN {chợ: giá}, không bằng một số. Một số áp lên mọi vị
         # thế nghĩa là vị thế ETH bị chấm bằng giá BTC.
-        closed = self.broker.mark({k: v["price"] for k, v in _cho.items()})
+        # GIỮ LẠI bản đồ giá. Mọi chỗ tính vốn phải dùng nó, không dùng một giá.
+        #
+        # Đã sập ngay lượt đầu chạy nhiều chợ: `snapshot(market["price"])` chỉ
+        # biết giá chợ đang xét, nên giá trị vị thế SOL không được cộng vào vốn.
+        # Vốn tụt 1.020 đô trong khi hai lệnh chỉ rủi ro 95 — sụt giảm hiện 10,74%
+        # và kill switch nổ. Vị thế vẫn còn nguyên trên sàn; chỉ phép cộng là sai.
+        self.gia_cho = {**getattr(self, "gia_cho", {}),
+                        **{k: v["price"] for k, v in _cho.items()}}
+        closed = self.broker.mark(self.gia_cho)
         for t in closed:
             bus.emit("journal", "ghi-so", f"đã ghi giao dịch {t['id']} vào nhật ký", trade=t)
             try:
@@ -288,7 +300,7 @@ class Runtime:
         self.last_candle_seen = market["lastClosedCandleTime"]
         self.last_regime_key = self.regime["key"]
 
-        account = self.broker.snapshot(market["price"])
+        account = self.broker.snapshot(self.gia_cho)
         self._chung_cat_neu_den_han()
         # Nghi thức tự lo hạn 6 tiếng và tự chạy ở tiến trình riêng; gọi mỗi
         # vòng là an toàn và rẻ. Không đặt trong `_chung_cat_neu_den_han` vì hai
@@ -396,7 +408,7 @@ class Runtime:
     # ── Ảnh chụp cho dashboard ────────────────────────────────────────────
     def snapshot(self) -> dict:
         price = self.state["price"] if self.state else None
-        acct = self.broker.snapshot(price)
+        acct = self.broker.snapshot(getattr(self, "gia_cho", None) or price)
         return {
             "startedAt": self.started_at,
             "ticks": self.ticks,
