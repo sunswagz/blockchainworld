@@ -2852,6 +2852,60 @@ def kiem_thuc_thi() -> None:
          dp.chay(YChiThucThi("TT4", "a.b.v1", chan, 0.0), sc).trangThai
          == "HONG")
 
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    #
+    # Tầng này canh LEGGING: chân A khớp mà chân B chưa thì cỗ máy đang
+    # ôm một vị thế trần một bên, và mỗi giây ở đó là rủi ro giá thật.
+
+    # MỘT chân là hợp lệ — nhiều engine chỉ có một chân (cho vay, LP,
+    # tiên đoán). `< 1` đổi thành `<= 1` là chặn sạch năm ty.
+    kiem("MỘT chân là hợp lệ, không phải lỗi",
+         YChiThucThi("M1", "a.b.v1",
+                     (Chan("CHO_VAY", "aave-v3", "USDC"),), 100.0).kiem()
+         == [],
+         "cho vay, LP và tiên đoán đều chỉ có một chân; chặn ở đây là "
+         "chặn sạch năm ty")
+    kiem("KHÔNG chân nào thì mới là lỗi",
+         YChiThucThi("M0", "a.b.v1", (), 100.0).kiem() != [])
+
+    # Luật «nhiều chân cùng một bên» chỉ áp khi CÓ nhiều chân. `> 1` đổi
+    # thành `>= 1` là một chân LONG duy nhất cũng bị gọi là «không phải
+    # delta-neutral» — mà một chân thì làm gì có gì để trung hoà.
+    kiem("một chân LONG duy nhất KHÔNG bị gọi là «không delta-neutral»",
+         YChiThucThi("M1b", "a.b.v1",
+                     (Chan("LONG", "okx", "BTC"),), 100.0).kiem() == [],
+         "một chân thì không có gì để trung hoà; đòi nó cân là đòi một "
+         "thứ vô nghĩa")
+
+    # Trần CHƯA PHÒNG HỘ: ĐÚNG BẰNG trần thì CHƯA quá hạn.
+    _pQ = dp.chay(YChiThucThi("Q1", "a.b.v1", chan, 100.0), sc)
+    _pQ.trangThai = "CHUA_PHONG_HO"
+    _pQ.vaoChuaPhongHoLuc = 1_000.0
+    kiem("ở CHƯA PHÒNG HỘ đúng bằng trần thì CHƯA phải đóng gấp",
+         not _pQ.qua_han_phong_ho(1_000.0 + TRAN_CHUA_PHONG_HO_GIAY),
+         f"trần {TRAN_CHUA_PHONG_HO_GIAY:g}s — đóng gấp sớm một giây là "
+         f"tự cắt lỗ ở chỗ chưa lỗ")
+    kiem("quá trần một chút thì PHẢI đóng gấp",
+         _pQ.qua_han_phong_ho(1_000.0 + TRAN_CHUA_PHONG_HO_GIAY + 0.01))
+    _ycQ = YChiThucThi("Q2", "a.b.v1", chan, 100.0)
+    kiem("không ở CHƯA PHÒNG HỘ thì không bao giờ quá hạn",
+         not PhienThucThi(_ycQ).qua_han_phong_ho(1e12),
+         "trạng thái khác thì không có gì đang trần một bên")
+
+    # Vào `CHUA_PHONG_HO` thì BẤM GIỜ; rời khỏi nó thì XOÁ giờ. Nhầm một
+    # trạng thái là hoặc quên bấm (không bao giờ đóng gấp), hoặc quên xoá
+    # (đóng gấp một vị thế đã phòng hộ xong).
+    _pB = PhienThucThi(YChiThucThi("B1", "a.b.v1", chan, 100.0))
+    for _b in ("GIU_VON", "MO_CHAN_A", "MO_CHAN_B", "CHUA_PHONG_HO"):
+        kiem(f"đường CHO→…→{_b} đi được", _pB.chuyen(_b, "dựng phép kiểm"),
+             f"đang ở {_pB.trangThai} — dựng sai đường thì mọi phép kiểm "
+             f"dưới đây xanh vì một lý do khác")
+    kiem("vào CHƯA PHÒNG HỘ thì bấm giờ",
+         _pB.vaoChuaPhongHoLuc is not None)
+    _pB.chuyen("DA_PHONG_HO", "chân B khớp")
+    kiem("phòng hộ xong thì XOÁ giờ", _pB.vaoChuaPhongHoLuc is None,
+         "quên xoá là đóng gấp một vị thế đã cân xong")
+
 
 def kiem_khuon_ty() -> None:
     print("\n── Khuôn Ty: khai sai thì chết Ở CỬA, không chết sau ba tháng ─")
@@ -2907,6 +2961,103 @@ def kiem_khuon_ty() -> None:
          tb.soTrinh == 0 and tb.soTrinhSaiKhuon == 1)
     kiem("và Thông Chính đếm được ty nào gửi sai",
          tc.tom_tat()["saiKhuonTheoTy"].get("BAY") == 1)
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    #
+    # Bảng LÝ DO TỪ CHỐI của ty là chỗ người đọc đi tìm «vì sao không cơ
+    # hội nào qua». Nó gom theo MÃ, và mọi cửa của phép gom ấy đang trống.
+
+    class _TyLy(Ty):
+        ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "x"
+        vonToiThieuKinhTeUsd = 50.0
+        def quet(self): return []
+        def xet(self, co): return False, []
+        def trinh(self, co): return _mau()
+
+    _tl = _TyLy()
+    # Một lần từ chối KHÔNG kèm mã nào: vẫn phải đếm vào `soBiTuChoi`.
+    _tl._ghi_ly_do(None)
+    _tl._ghi_ly_do(())
+    kiem("từ chối KHÔNG kèm mã nào vẫn được ĐẾM",
+         _tl.soBiTuChoi == 2 and _tl.lyDoTuChoi == {},
+         f"{_tl.tom_tat()} — mẫu số phải cộng lại được, kể cả khi tử số "
+         f"rỗng")
+
+    # Mã RỖNG hoặc toàn khoảng trắng rơi về `(khong-ma)`, không biến mất.
+    _tl._ghi_ly_do([("", "câu"), ("   ", "câu"), (None, "câu")])
+    kiem("mã rỗng gom về `(khong-ma)`, không biến mất",
+         _tl.lyDoTuChoi.get("(khong-ma)") == 1,
+         f"{_tl.lyDoTuChoi} — ba dạng rỗng là CÙNG một chuyện «không khai "
+         f"mã», và đếm một lần cho một lần từ chối")
+
+    # Mã TRẦN (chuỗi, không phải cặp) vẫn nhận — `bac/ty_perp.py` trả về
+    # đúng dạng ấy suốt nhiều tháng.
+    _tl._ghi_ly_do(["net-thap", "tin-cay-thap"])
+    kiem("mã TRẦN không kèm câu vẫn vào bảng",
+         (_tl.lyDoTuChoi.get("net-thap") == 1
+          and "net-thap" not in _tl.cauViDu),
+         f"{_tl.tom_tat()} — nửa lời khai vẫn hơn không lời nào, nhưng "
+         f"đừng bịa ra một câu ví dụ chưa ai viết")
+    _tl._ghi_ly_do([("net-thap", "NET 0,2 < sàn 2,75")])
+    kiem("và lần sau CÓ câu thì mới điền vào ô ví dụ",
+         _tl.cauViDu.get("net-thap") == "NET 0,2 < sàn 2,75",
+         "một mã gặp lần đầu ở dạng TRẦN rồi lần sau mới kèm câu — bản cũ "
+         "giữ ô ví dụ rỗng vĩnh viễn, mà `bac/ty_perp.py` trả về đúng "
+         "dạng trần ấy suốt nhiều tháng")
+    _tl._ghi_ly_do([("net-thap", "một câu KHÁC")])
+    kiem("nhưng đã có ví dụ rồi thì KHÔNG ghi đè",
+         _tl.cauViDu.get("net-thap") == "NET 0,2 < sàn 2,75",
+         "ô ví dụ nhảy mỗi vòng thì người đọc không so được hai lần đọc")
+
+    # Cặp MỘT phần tử — `("ma",)` — là mã không kèm câu, không phải một
+    # cặp hỏng. Đọc `x[1]` ở đó là `IndexError` giữa vòng quét.
+    _tl._ghi_ly_do([("chi-co-ma",)])
+    kiem("cặp MỘT phần tử vẫn vào bảng, và KHÔNG có câu ví dụ",
+         (_tl.lyDoTuChoi.get("chi-co-ma") == 1
+          and "chi-co-ma" not in _tl.cauViDu),
+         f"{_tl.tom_tat()} — đọc vế thứ hai của một cặp một phần tử là nổ "
+         f"giữa vòng quét, và cả lượt quét ấy mất trắng")
+
+    # MỘT lần từ chối mang mã TRÙNG NHAU chỉ đếm MỘT.
+    _tl2 = _TyLy()
+    _tl2._ghi_ly_do([("a", "x"), ("a", "y"), "a"])
+    kiem("cùng một mã lặp trong MỘT lần từ chối chỉ đếm một",
+         _tl2.lyDoTuChoi == {"a": 1} and _tl2.soBiTuChoi == 1,
+         f"{_tl2.lyDoTuChoi} — đếm ba là làm một nguyên nhân trông nặng "
+         f"gấp ba chính nó")
+
+    # TRẦN số mã: đúng bằng trần thì mã mới bị BỎ, và lần bỏ ấy được đếm.
+    _tl3 = _TyLy()
+    for _i in range(_tl3.TRAN_MA_LY_DO):
+        _tl3._ghi_ly_do([(f"ma-{_i}", "x")])
+    kiem("đủ trần số mã thì mã MỚI bị bỏ, và lần bỏ được ĐẾM",
+         (len(_tl3.lyDoTuChoi) == _tl3.TRAN_MA_LY_DO
+          and _tl3.soMaBiBo == 0),
+         f"{len(_tl3.lyDoTuChoi)}/{_tl3.TRAN_MA_LY_DO}")
+    _tl3._ghi_ly_do([("ma-moi", "x")])
+    kiem("mã thứ (trần+1) bị bỏ, và KHAI ra là đã bỏ",
+         (len(_tl3.lyDoTuChoi) == _tl3.TRAN_MA_LY_DO
+          and _tl3.soMaBiBo == 1
+          and "ma-moi" not in _tl3.lyDoTuChoi),
+         f"{_tl3.tom_tat()} — bỏ im lặng thì bảng lý do thiếu đúng cái mã "
+         f"mới xuất hiện, tức là đúng cái đáng nhìn nhất")
+    _tl3._ghi_ly_do([("ma-0", "x")])
+    kiem("nhưng mã ĐÃ CÓ thì vẫn cộng tiếp, không bị trần chặn",
+         _tl3.lyDoTuChoi["ma-0"] == 2,
+         "trần là trần cho SỐ MÃ, không phải trần cho số lần")
+
+    # Vốn tối thiểu kinh tế: ĐÚNG BẰNG 0 là sai, một xu là đúng.
+    class _TyV0(_TyLy):
+        vonToiThieuKinhTeUsd = 0.0
+
+    class _TyV1(_TyLy):
+        vonToiThieuKinhTeUsd = 0.01
+
+    kiem("khai vốn tối thiểu ĐÚNG BẰNG 0 thì chết ở cửa",
+         _TyV0.kiem_khai() != [],
+         "khai 0 nghĩa là «engine này kinh tế ở mọi cỡ vốn», và chưa "
+         "engine nào như thế")
+    kiem("khai một xu thì qua", _TyV1.kiem_khai() == [])
 
 
 def kiem_trung_uong_vong() -> None:
@@ -5538,6 +5689,35 @@ def kiem_von_ngoai() -> None:
          f"{tran_khong} → {tran_co}: rủi ro là của CẢ gia sản, nên trần "
          f"phải tính trên cả gia sản")
 
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+
+    # `che` thiếu thì đọc là chuỗi RỖNG, không phải `None`. Chuỗi "None"
+    # hiện ra buồng lái đọc thành một chế độ tên là None.
+    kiem("thiếu `che` thì đọc là rỗng, không phải chữ «None»",
+         _doc_kham("k", {"kho": {}, "risk": {}}).che == "",
+         "chữ «None» trong một ô chế độ đọc thành một chế độ có tên ấy")
+    kiem("có `che` thì giữ nguyên",
+         _doc_kham("k", {"che": "giay"}).che == "giay")
+
+    # NHỊP đọc: chưa tới nhịp thì trả lát cắt CŨ, tới nhịp thì đọc lại.
+    # `<` đổi thành `<=` chỉ khác nhau ở đúng một điểm, nhưng cửa `ep`
+    # thì phải luôn xuyên qua được — không thì «đọc lại ngay» thành một
+    # nút bấm không làm gì.
+    _dv = DocVonNgoai("k", "http://127.0.0.1:1/khong-co-that", nhipGiay=9e9)
+    _l1 = _dv.doc()
+    kiem("lần đọc đầu LUÔN đi ra ngoài, dù nhịp có dài đến đâu",
+         _dv._lanCuoi > 0.0 and _l1.docDuoc is False,
+         "đường không có thật nên đọc hỏng — cái đáng kiểm là nó CÓ thử")
+    _soLoi = _dv.soLoi
+    _dv.doc()
+    kiem("chưa tới nhịp thì KHÔNG đọc lại, trả lát cắt cũ",
+         _dv.soLoi == _soLoi,
+         "nhịp 9e9 giây thì lần thứ hai phải là lát cắt cũ")
+    _dv.doc(ep=True)
+    kiem("nhưng `ep=True` thì LUÔN đọc lại, bất kể nhịp",
+         _dv.soLoi == _soLoi + 1,
+         "một nút «đọc lại ngay» mà không đọc lại là một nút nói dối")
+
 
 
 def kiem_on_dinh() -> None:
@@ -7829,6 +8009,102 @@ def kiem_luu_danh_muc() -> None:
          '"vonBanDauUsd"' not in goc17,
          "nó là cấu hình; giữ bản cũ thì đổi vốn ảo trong config.json sẽ "
          "không có tác dụng, và im lặng")
+
+    # ── BẢN LƯU TỐI THIỂU: thiếu MỌI trường tuỳ chọn ────────────────────
+    #
+    # Quét đột biến trên `luu_danh_muc.py` cho 11/23 con sống sót, và
+    # MƯỜI trong số ấy là những chữ `or` che cho trường thiếu. Chúng chưa
+    # bao giờ được đi vào, vì mọi bản lưu trong phép kiểm đều do chính
+    # `luu()` sinh ra — tức là luôn đủ trường.
+    #
+    # Nhưng bản lưu THẬT trên đĩa thì không: nó do một phiên bản mã CŨ
+    # ghi ra. Và một trường thiếu ở đây không làm hỏng một con số — nó
+    # ném ra giữa lúc khởi động và cỗ máy chạy tiếp với DANH MỤC RỖNG,
+    # trong khi sổ đăng ký vẫn ghi đủ vị thế. Đúng hình dạng của lỗi
+    # `SoViThe.giuGio` đã sửa cùng phiên này.
+    import json as _js17
+    _dToi = _tam("luu-toi-thieu")
+    _tepToi = _dToi / "dm.json"
+    _tepToi.write_text(_js17.dumps({
+        "ban": BAN,
+        # KHÔNG có: lucGiay · tienMatUsd · laiLoDaThucHienUsd · duongNav ·
+        # soVonGio · napThemUsd · tienDaGhiUsd
+        "viThe": {"m9": [{"maToTrinh": "m9", "chienLuoc": "x.y.v1",
+                          "ben": "LONG", "cang": "kraken", "taiSan": "SOL",
+                          "vonUsd": 100.0}]},   # thiếu chuoi/loai/moLuc
+        "soViThe": [{"ma": "m9", "chienLuoc": "x.y.v1",
+                     "toTrinh": {"giuGio": 8.0}, "vonUsd": 100.0,
+                     "moLucGiay": _t17.time()}],  # thiếu mọi ô cộng dồn
+        "duongNav": [[1.0, 100.0], [2.0, 110.0]],  # điểm HAI phần tử
+    }), encoding="utf-8")
+
+    _dmT = DanhMuc(10_000.0)
+    _dnT = DuongNav()
+    _r17 = nap(_tepToi, _dmT, _dnT)
+    kiem("bản lưu TỐI THIỂU vẫn nạp được, không ném",
+         _r17["nap"] is True and _r17["soViThe"] == 1,
+         f"{_r17} — một trường thiếu ở đây không hỏng một con số, nó ném "
+         f"giữa lúc khởi động và cỗ máy chạy tiếp với DANH MỤC RỖNG")
+    kiem("thiếu tiền mặt và lãi lỗ thì đọc là 0, không phải None",
+         (gan(_dmT.tienMatUsd, 0.0)
+          and gan(_dmT.laiLoDaThucHienUsd, 0.0)))
+    kiem("chân thiếu `loai` rơi về «perp», thiếu `moLuc` rơi về rỗng",
+         (_dmT.viThe["m9"][0].loai == "perp"
+          and _dmT.viThe["m9"][0].moLuc == ""),
+         f"{_dmT.viThe['m9'][0]}")
+    _s9 = _r17["_soViThe"]["m9"]
+    kiem("sổ vị thế thiếu mọi ô cộng dồn thì đọc là 0, và `coKeToan` None",
+         (gan(_s9.thuCongDonUsd, 0.0) and gan(_s9.phiCongDonUsd, 0.0)
+          and _s9.soVongKeToan == 0 and _s9.soVongKhongDoDuoc == 0
+          and _s9.coKeToan is None),
+         f"{_s9} — `coKeToan` là None nghĩa là CHƯA BIẾT ty ấy có kế toán "
+         f"không, khác hẳn False")
+    kiem("điểm NAV HAI phần tử đọc được, dòng vốn về 0",
+         (len(_dnT.diem) == 2 and gan(_dnT.diem[0][2], 0.0)),
+         f"{_dnT.diem} — đọc thiếu trường thứ ba thành một dòng vốn bịa là "
+         f"biến mọi bản lưu cũ thành một cỗ máy đã nạp tiền")
+    kiem("thiếu `soVonGio` thì KHAI RA là chưa có, và cộng lại từ 0",
+         (_r17["coSoVonGio"] is False
+          and gan(_r17["_soVonGio"].vonGioUsd, 0.0)
+          and _r17["_soVonGio"].theoTy == {}),
+         f"{_r17['coSoVonGio']} — cộng bù cho quãng máy tắt là bịa ra một "
+         f"phép đo chưa từng chạy")
+    kiem("thiếu `tienDaGhiUsd` thì `coTienDaGhi` TẮT, không kêu lệch oan",
+         _r17["coTienDaGhi"] is False and gan(_r17["_tienDaGhiUsd"], 0.0),
+         "bản lưu cũ chưa có bộ đếm ấy; kêu lệch vì nó là kêu về quá khứ")
+    kiem("thiếu `lucGiay` thì «máy tắt bao lâu» là 0, không phải âm",
+         _r17["giayTatMay"] >= 0.0, f"{_r17['giayTatMay']}")
+
+    # ĐIỂM NAV BA phần tử: dòng vốn phải sống qua cả lượt GHI lẫn lượt
+    # NẠP. `>= 3` đổi thành `> 3` là đọc mọi điểm ba phần tử thành hai —
+    # dòng vốn về 0, và từ đó mỗi cú nạp cũ hoá thành một «đỉnh» giả mà
+    # đường sụt vốn đo mãi không hết.
+    _dnBa = DuongNav()
+    _dnBa.ghi(100.0, lucMs=1.0)
+    _dnBa.ghi(1_100.0, lucMs=2.0, dongVonUsd=1_000.0)
+    _tepBa = _dToi / "dm-ba.json"
+    luu(_tepBa, DanhMuc(1.0), {}, _dnBa, None, 0.0, 0.0)
+    _dnLai = DuongNav()
+    nap(_tepBa, DanhMuc(1.0), _dnLai)
+    kiem("dòng vốn của điểm NAV sống qua cả GHI lẫn NẠP",
+         (len(_dnLai.diem) == 2 and gan(_dnLai.diem[1][2], 1_000.0)),
+         f"{_dnLai.diem} — mất dòng vốn thì cú nạp cũ hoá một «đỉnh» giả, "
+         f"và đường sụt vốn đo mãi không hết")
+
+    # `soVonGio` có mặt nhưng một TY bên trong là null.
+    _tepNua = _dToi / "dm-nua.json"
+    _tepNua.write_text(_js17.dumps({
+        "ban": BAN, "tienMatUsd": 1.0, "viThe": {}, "soViThe": [],
+        "duongNav": [], "soVonGio": {"vonGioUsd": 5.0, "theoTy": {
+            "a.v1": None, "b.v1": {"vonGioUsd": 2.0}}},
+    }), encoding="utf-8")
+    _rNua = nap(_tepNua, DanhMuc(1.0), DuongNav())
+    _tyNua = _rNua["_soVonGio"].theoTy
+    kiem("một ty trong bản lưu là null thì đọc là 0, không ném",
+         (gan(_tyNua["a.v1"]["vonGioUsd"], 0.0)
+          and gan(_tyNua["b.v1"]["vonGioUsd"], 2.0)
+          and gan(_tyNua["b.v1"]["thuRongUsd"], 0.0)),
+         f"{_tyNua} — mù một ô không phải mù cả bảng")
 
 
 def kiem_ke_toan_vi_the() -> None:

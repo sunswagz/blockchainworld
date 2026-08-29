@@ -232,8 +232,15 @@ class Ty(ABC):
                     self.soMaBiBo += 1
                     continue
                 self.lyDoTuChoi[ma] = 0
-                if isinstance(x, (tuple, list)) and len(x) > 1:
-                    self.cauViDu[ma] = str(x[1])[:200]
+            # Câu ví dụ điền khi CHƯA CÓ, không chỉ lúc mã xuất hiện lần
+            # đầu. Một mã gặp lần đầu ở dạng TRẦN (chuỗi, không kèm câu)
+            # rồi lần sau mới kèm câu thì bản cũ giữ ô ví dụ rỗng vĩnh
+            # viễn — mà `bac/ty_perp.py` trả về đúng dạng trần ấy suốt
+            # nhiều tháng, nên đây không phải một ca hiếm. Ô ví dụ là
+            # manh mối duy nhất người đọc có để hiểu một mã.
+            if (ma not in self.cauViDu
+                    and isinstance(x, (tuple, list)) and len(x) > 1):
+                self.cauViDu[ma] = str(x[1])[:200]
             self.lyDoTuChoi[ma] += 1
 
     def tom_tat(self) -> dict:

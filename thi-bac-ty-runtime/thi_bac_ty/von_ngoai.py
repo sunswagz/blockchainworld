@@ -85,6 +85,10 @@ class DocVonNgoai:
 
     def doc(self, ep: bool = False) -> LatCatNgoai:
         now = time.monotonic()
+        # `<` và `<=` chỉ khác nhau khi quãng trôi qua BẰNG ĐÚNG nhịp
+        # tính theo `monotonic()` — TƯƠNG ĐƯƠNG trên mọi lần chạy thật.
+        # Cái đáng kiểm là cửa `ep` luôn xuyên qua được, và phép kiểm ấy
+        # đã có.
         if not ep and self._lanCuoi and (now - self._lanCuoi) < self.nhip:
             return self.latCat
         self._lanCuoi = now
