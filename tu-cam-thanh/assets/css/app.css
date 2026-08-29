@@ -302,3 +302,26 @@ body{font-variant-numeric:tabular-nums}
    phím đã lạc giữa trang từ lâu.
    :focus-visible chứ không :focus, để bấm chuột không vẽ vòng. */
 :focus-visible{outline:2px solid var(--nhan,#5b9dff);outline-offset:2px;border-radius:4px}
+
+/* ── PHÁT HIỆN ───────────────────────────────────────────────────────────
+   Cỡ mẫu và nguồn đứng NGAY CẠNH câu chữ, cùng một thẻ, không đẩy xuống
+   chú thích: một phát hiện 23.000 lần xuất hiện và một phát hiện 9 lệnh
+   trông giống hệt nhau nếu chỉ đọc câu.
+
+   Con số R dùng chung màu lên/xuống với phần còn lại của trang, và cố ý KHÔNG
+   to hơn câu chữ — ở đây phần lớn kết quả là âm, và câu giải thích vì sao mới
+   là thứ đáng đọc.
+
+   Lớp tên `.ph`, KHÔNG phải `.the`: `.the` đã có từ dòng 115 và dùng khắp
+   trang — đặt trùng tên là lặng lẽ đổi hình dạng mọi thẻ khác.
+   `npm run de-im-lang` bắt được ngay, và đó đúng là việc của nó. */
+.ph{padding:11px 13px;margin-bottom:9px;background:var(--bg-2);
+     border:1px solid var(--line-2);border-radius:8px}
+.ph:last-child{margin-bottom:0}
+.ph-dau{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:5px}
+.ph-dau .ma{font:11.5px/1.3 var(--mono);color:var(--fg);font-weight:600;
+             word-break:break-all}
+.ph-dau .phu{font-size:var(--t-0);color:var(--fg-2);font-variant-numeric:tabular-nums}
+.ph .so-vua{font:600 var(--t-2)/1.3 var(--mono);margin-bottom:4px;
+             font-variant-numeric:tabular-nums}
+.ph .cau{font-size:var(--t-3);line-height:1.62;color:var(--fg-2)}

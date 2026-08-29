@@ -191,7 +191,7 @@
     }
     var cls = t.action === "LONG" ? "len" : t.action === "SHORT" ? "xuong" : "nhac";
     var h = '<div class="luoi">' +
-      '<div class="the"><h3>quyết định</h3>' +
+      '<div class="ph"><h3>quyết định</h3>' +
         hang("hành động", t.action, cls) +
         hang("độ tin cậy", so(t.confidence, 2)) +
         hang("bộ não đọc chế độ", t.regime_read) +
@@ -199,7 +199,7 @@
         hang("chiến lược", t.strategy) +
         hang("rủi ro sự kiện", t.event_risk) +
       "</div>" +
-      '<div class="the"><h3>mức giá</h3>' +
+      '<div class="ph"><h3>mức giá</h3>' +
         /* Phiên NO_TRADE thì KHÔNG CÓ vùng vào, mức vô hiệu hoá hay mục
            tiêu — và đó là một kết luận, không phải dữ liệu hụt. Bốn dấu
            gạch xếp thành cột đọc y hệt "đường ống ngã", nên nói thẳng ra
@@ -220,7 +220,7 @@
     if (t.scenarios && t.scenarios.length) {
       h += '<h2 class="tieu" style="margin-top:18px">kịch bản</h2><div class="luoi">' +
         t.scenarios.map(function (s) {
-          return '<div class="the"><h3>' + esc(s.name) + " — " + Math.round((s.probability || 0) * 100) + "%</h3>" +
+          return '<div class="ph"><h3>' + esc(s.name) + " — " + Math.round((s.probability || 0) * 100) + "%</h3>" +
             '<p style="margin:0;font-size:13px;color:var(--fg-2);line-height:1.6">' + esc(s.description) + "</p></div>";
         }).join("") + "</div>";
     }
@@ -256,7 +256,7 @@
     }
 
     h += '<div class="luoi">' +
-      '<div class="the"><h3>giới hạn cứng</h3>' +
+      '<div class="ph"><h3>giới hạn cứng</h3>' +
         hang("rủi ro mỗi lệnh", (gh.maxRiskPerTradePct === undefined ? "—" : gh.maxRiskPerTradePct + "%")) +
         hang("RR tối thiểu (sau phí)", gh.minRR === undefined ? "—" : gh.minRR) +
         hang("tin cậy tối thiểu", gh.minConfidence === undefined ? "—" : gh.minConfidence) +
@@ -265,7 +265,7 @@
         hang("kill switch drawdown", gh.maxDrawdownPct === undefined ? "—" : gh.maxDrawdownPct + "%") +
         hang("vị thế mở tối đa", gh.maxOpenPositions === undefined ? "—" : gh.maxOpenPositions) +
       "</div>" +
-      '<div class="the"><h3>tài khoản</h3>' +
+      '<div class="ph"><h3>tài khoản</h3>' +
         hang("vốn (đã đánh dấu)", tien(tk.von)) +
         hang("vốn thực hiện", tien(tk.vonThucHien)) +
         hang("P&L mở", tien(tk.laiLoMo), dau(tk.laiLoMo)) +
@@ -273,7 +273,7 @@
         hang("đỉnh vốn", tien(tk.dinhVon)) +
         hang("drawdown", (tk.drawdownPct === undefined ? "—" : tk.drawdownPct + "%")) +
       "</div>" +
-      (pq ? '<div class="the"><h3>phán quyết gần nhất</h3>' +
+      (pq ? '<div class="ph"><h3>phán quyết gần nhất</h3>' +
         hang("kết quả", pq.approved ? "CHO QUA" : pq.action === "NO_TRADE" ? "NO_TRADE" : "CHẶN",
              pq.approved ? "len" : pq.action === "NO_TRADE" ? "nhac" : "xuong") +
         /* Không vào lệnh thì không có tỉ lệ lời/lỗ để mà tính. */
@@ -322,6 +322,37 @@
     });
   }
 
+  /* PHÁT HIỆN — xếp theo CỠ MẪU, không theo độ hay.
+
+     Một phát hiện 23.000 lần xuất hiện và một phát hiện 9 lệnh không được đọc
+     như nhau, nên cỡ mẫu đứng ngay cạnh câu chữ chứ không nằm trong chú thích
+     cuối trang. Nguồn cũng vậy: "chạy lại" nói đúng về cấu trúc và quá đẹp về
+     độ lớn, "sổ thật" thì ngược lại — người đọc phải thấy được mình đang đọc
+     loại nào. */
+  function vePhatHien() {
+    var host = el("oPhatHien");
+    if (!host) return;
+    var P = (D && D.phatHien) || [];
+    if (!P.length) {
+      host.innerHTML = trong("Ảnh chụp này chưa có phát hiện nào. Lò chưng cất " +
+        "chạy ở buồng lái (runtime, cổng 5182); trang này chỉ đăng lại.");
+      return;
+    }
+    var h = "";
+    P.forEach(function (x) {
+      var kv = x.so && x.so.kyVongR;
+      h += '<div class="ph">' +
+           '<div class="ph-dau"><span class="ma">' + esc(x.ma || "") + "</span>" +
+           '<span class="phu">mẫu ' + (x.mau || 0).toLocaleString("vi-VN") +
+           " · nguồn " + esc(x.nguon || "?") +
+           (x.khung ? " · khung " + esc(x.khung) : "") +
+           (x.doTin ? " · độ tin " + esc(x.doTin) : "") + "</span></div>" +
+           (kv == null ? "" :
+             '<div class="so-vua ' + dau(kv) + '">' + kyDau(kv, 4) + "R</div>") +
+           '<div class="cau">' + esc(x.cau || "") + "</div></div>";
+    });
+    host.innerHTML = h;
+  }
   function veNhatKy() {
     var host = el("oNhatKy");
     var tk = (D && D.thongKe) || {};
@@ -334,10 +365,10 @@
       return x.count + " lệnh · thắng " + x.winRate + "% · kỳ vọng " + x.expectancyR + "R · " + tien(x.totalPnl);
     }
     h += '<div class="luoi">' +
-      '<div class="the"><h3>tổng thể</h3><div class="mono" style="font-size:12.5px;color:var(--fg-2)">' +
+      '<div class="ph"><h3>tổng thể</h3><div class="mono" style="font-size:12.5px;color:var(--fg-2)">' +
         esc(ke(tk.overall)) + "</div></div>" +
       Object.keys(tk.byRegime || {}).map(function (k) {
-        return '<div class="the"><h3>chế độ ' + esc(k) + "</h3>" +
+        return '<div class="ph"><h3>chế độ ' + esc(k) + "</h3>" +
           '<div class="mono" style="font-size:12.5px;color:var(--fg-2)">' + esc(ke(tk.byRegime[k])) + "</div></div>";
       }).join("") + "</div>";
 
@@ -524,6 +555,7 @@
   veRuiRo();
   veTheGioi();
   veHuanLuyen();
+  vePhatHien();
   veNhatKy();
   veTriThuc();
   benMo();

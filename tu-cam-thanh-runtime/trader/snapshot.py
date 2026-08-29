@@ -21,6 +21,7 @@ import datetime as _dt
 import json
 from pathlib import Path
 
+from . import store
 from .bus import bus
 from .config import CONFIG, ROOT
 from .journal import performance, recent_lessons, recent_trades
@@ -118,8 +119,37 @@ def build(runtime) -> dict:
         "baiHoc": recent_lessons(10),
         "theGioi": _the_gioi(),
         "huanLuyen": _huan_luyen(),
+        # PHÁT HIỆN — thứ bộ máy sinh ra, không chỉ thứ nó đang làm.
+        "phatHien": _phat_hien(),
     }
 
+
+def _phat_hien(gioi_han: int = 14) -> list[dict] | None:
+    """Những phát hiện MẠNH NHẤT, đủ gọn để nằm trong một file trang tĩnh.
+
+    Ảnh chụp trước chỉ mang trạng thái phiên: giá, vị thế, luận điểm, vài bài
+    học. Nhưng thứ bộ máy này thật sự sinh ra là PHÁT HIỆN — "11/14 mẫu giá
+    kinh điển có kỳ vọng âm sau phí trên 45.000 nến, 15 chợ", "nửa SHORT là nửa
+    có lãi mà sàn spot không đánh được". Đó mới là tin.
+
+    Sắp theo CỠ MẪU giảm dần, không theo độ hay: phát hiện 7.500 lần xuất hiện
+    đáng đọc trước phát hiện 9 lệnh, kể cả khi cái sau nghe kêu hơn.
+
+    Cắt `cau` ở 600 ký tự và giữ tối đa 14 mục: file này được commit và tải về
+    mỗi lần mở trang, nên nó phải có trần. Kho đầy đủ vẫn nằm ở buồng lái.
+    """
+    try:
+        ds = store.read_all(store.PHAT_HIEN)
+    except Exception:  # noqa: BLE001
+        return None
+    if not ds:
+        return None
+    ds = sorted(ds, key=lambda x: -(x.get("mau") or 0))[:gioi_han]
+    return [{"ma": x.get("ma"), "nguon": x.get("nguon"), "mau": x.get("mau"),
+             "doTin": x.get("doTin"), "khung": x.get("khung"),
+             "cheDo": x.get("cheDo"), "so": x.get("so") or {},
+             "cau": (x.get("cau") or "")[:600]}
+            for x in ds]
 
 def _the_gioi() -> dict | None:
     """Lát cắt nguồn ngoài, đủ gọn để nằm trong một file trang tĩnh.
