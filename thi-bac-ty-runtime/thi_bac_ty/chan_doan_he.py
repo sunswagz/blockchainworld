@@ -117,6 +117,11 @@ TOI_THIEU_LAN_XOAY = 30
 #: cãi được; dưới nữa thì không.
 NGUONG_SONG_TREN_HUA = 0.20
 
+#: Bao nhiêu PHẦN số lần đóng phải do xoay chỗ thì mới gọi xoay chỗ là
+#: thủ phạm. Một nửa: dưới ngần ấy thì hết hạn giữ và khởi động lại còn
+#: đóng góp nhiều hơn, và chỉ sang xoay chỗ là chỉ nhầm chỗ.
+NGUONG_DONG_DO_XOAY = 0.5
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -380,16 +385,40 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             vi = (f"gần như mọi vị thế đã đóng rồi mở lại — CHURN"
                   if cao else
                   f"phần lớn là vị thế MỚI, không phải mở lại")
+            # ĐÓNG VÌ ĐÂU. Câu khuyên cũ — «giữ vị thế lâu hơn, hoặc khởi
+            # động lại ít đi» — chỉ đúng khi thủ phạm là khởi động lại. Đo
+            # làn thật 30/08: 217 trong 282 lần đóng của ty cho vay là
+            # XOAY CHỖ, và 29/29 của ty basis cũng thế. Chỉ người vận hành
+            # sang một cái nút họ không hề chạm vào là gửi họ đi sai
+            # đường, và đường sai ấy nghe rất hợp lý.
+            dx = t6.get("soLanDongXoayCho")
+            px = t6.get("phanDongDoXoayCho")
+            if px is not None and px >= NGUONG_DONG_DO_XOAY:
+                khuyen = (f"{dx}/{dg} lần đóng là do XOAY CHỖ, không phải "
+                          f"do khởi động lại — xem `xoay-cho-hua-qua`: mỗi "
+                          f"lần xoay cộng trước phần lãi hơn của cả trăm "
+                          f"giờ rồi trừ phí một lần, còn vị thế mới thì "
+                          f"sống vài phút.")
+            elif px is not None:
+                khuyen = (f"chỉ {dx}/{dg} lần đóng là do xoay chỗ, nên "
+                          f"phần còn lại là hết hạn giữ hoặc khởi động "
+                          f"lại. Không núm nào chữa được: giữ vị thế lâu "
+                          f"hơn, hoặc khởi động lại ít đi.")
+            else:
+                # `None` nghĩa là CHƯA ĐÓNG lần nào, nên chưa chia được.
+                # Nói «0% do xoay chỗ» ở đây là bịa ra một phép đo.
+                khuyen = ("chưa đóng lần nào nên chưa tách được đóng vì "
+                          "đâu. Phí vào lệnh này là của những vị thế đang "
+                          "còn mở.")
             ra.append(TrieuChungHe(
                 "phi-vao-an-het", 2 if cao else 1,
                 f"ty {ma} lãi {cl:+.2f} USD bằng chiến lược nhưng gộp lại "
                 f"vẫn âm {abs(gop):.2f} USD: phí vào lệnh {n} lần đã ăn hết. "
                 f"Vào {n} · đóng {dg} ({vi}). Phí vào lệnh do mở lại là chi "
-                f"phí VẬN HÀNH, không phải chi phí chiến lược. Không núm "
-                f"nào chữa được: giữ vị thế lâu hơn, hoặc khởi động lại ít "
-                f"đi.",
+                f"phí VẬN HÀNH, không phải chi phí chiến lược. " + khuyen,
                 {"chienLuoc": ma, "laiLoUsd": gop, "laiLoChienLuocUsd": cl,
                  "soLanVaoLenh": n, "soLanDong": dg, "tiLeDongTrenVao": ti,
+                 "soLanDongXoayCho": dx, "phanDongDoXoayCho": px,
                  "phiMoiLanVaoUsd": t6.get("phiMoiLanVaoUsd")}))
 
     # ── 7b. THU VƯỢT TRẦN — không cần đủ mẫu, vì mỗi lần là NAV sai ─────

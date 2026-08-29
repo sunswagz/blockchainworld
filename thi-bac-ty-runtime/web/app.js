@@ -1428,14 +1428,15 @@
     var mtk = Object.keys(tk);
     if (mtk.length) {
       var kt4 = khoi("Lãi lỗ TÁCH KHOẢN — vì con số gộp nói dối",
-        "Phí vào lệnh phần lớn KHÔNG do chiến lược sinh ra: vị thế mô phỏng "
-        + "không sống qua một lần khởi động lại, nên mỗi lần restart là một "
-        + "lần vào lệnh mới và trả phí lần nữa. Đó là chi phí VẬN HÀNH. Gộp "
-        + "nó vào là bắt người đọc kết luận sai về chiến lược vì một chuyện "
-        + "của người vận hành.");
+        "Phí vào lệnh phần lớn KHÔNG do chiến lược sinh ra. Cột «đóng» "
+        + "nói vì đâu: khởi động lại (vị thế mô phỏng không sống qua đó, "
+        + "nên mỗi lần restart là một lần vào lệnh mới), hay XOAY CHỖ (cỗ "
+        + "máy tự đuổi vị thế của mình để nhường ghế). Hai nguyên nhân, "
+        + "hai cách chữa khác hẳn nhau — và trước đây ô này chỉ kể một.");
       kt4.appendChild(bang(
         [{ t: "Ty" }, { t: "Thu", n: true }, { t: "Phí vào lệnh", n: true },
          { t: "Số lần vào", n: true }, { t: "Phí mỗi lần", n: true },
+         { t: "Đóng · do xoay", n: true },
          { t: "GỘP", n: true }, { t: "CHIẾN LƯỢC", n: true }],
         mtk.sort(function (a, b) {
           return (tk[b].laiLoChienLuocUsd || 0) - (tk[a].laiLoChienLuocUsd || 0);
@@ -1446,6 +1447,13 @@
                   { t: tien(v.phiVaoUsd, 4), c: "n" },
                   { t: so(v.soLanVaoLenh), c: "n" },
                   { t: tien(v.phiMoiLanVaoUsd, 4), c: "n" },
+                  /* «đóng vì đâu» là mẫu số phân biệt hai bệnh khác hẳn
+                     nhau. Đo làn thật 30/08: ty cho vay 217/282 lần đóng
+                     là xoay chỗ, ty basis 29/29 — chỉ người vận hành sang
+                     nút restart là gửi họ đi sai đường. */
+                  { t: so(v.soLanDong) + (v.phanDongDoXoayCho == null ? ""
+                      : " · " + so(v.soLanDongXoayCho)),
+                    c: (v.phanDongDoXoayCho || 0) >= 0.5 ? "am" : "n" },
                   { el: (function () {
                       var e = el("span", (v.laiLoUsd || 0) >= 0 ? "duong" : "am",
                                  tien(v.laiLoUsd, 4));
@@ -1460,7 +1468,10 @@
         })));
       kt4.appendChild(giai("Cột CHIẾN LƯỢC bỏ phí vào lệnh ra. Nó trả lời "
         + "«ty này có kiếm được không», còn cột GỘP trả lời «tài khoản đã "
-        + "đổi bao nhiêu». Cả hai đều đúng, và chúng khác nhau."));
+        + "đổi bao nhiêu». Cả hai đều đúng, và chúng khác nhau. Cột «đóng "
+        + "· do xoay» đỏ khi quá nửa số lần đóng là do Xoay Chỗ — lúc ấy "
+        + "phí vào lệnh không phải chuyện của người vận hành nữa, nó là "
+        + "chuyện của chính cỗ máy."));
       f.appendChild(kt4);
     }
 

@@ -403,7 +403,8 @@ class SoCai:
             o = ra.setdefault(k, {"thuUsd": 0.0, "phiVaoUsd": 0.0,
                                   "phiKhacUsd": 0.0, "truotGiaUsd": 0.0,
                                   "dieuChinhUsd": 0.0, "soLanVaoLenh": 0,
-                                  "soLanDong": 0, "soButToan": 0})
+                                  "soLanDong": 0, "soLanDongXoayCho": 0,
+                                  "soButToan": 0})
             o["soButToan"] += 1
             v = float(tien or 0.0)
             o_ten = KHOAN[loai]              # KeyError = truy vấn lệch bảng
@@ -415,8 +416,17 @@ class SoCai:
                 # lần đóng của Khâm Thiên Giám đối lại một lần vào lệnh
                 # của ta. Một tỉ lệ như thế không nói về churn, nó chỉ nói
                 # rằng hai cỗ máy đang bị cộng chung.
-                if not (_json(ct) or {}).get("nguon"):
+                _ct = _json(ct) or {}
+                if not _ct.get("nguon"):
                     o["soLanDong"] += 1
+                    # ĐÓNG VÌ ĐÂU. Không tách ra thì triệu chứng
+                    # `phi-vao-an-het` chỉ biết nói «giữ vị thế lâu hơn,
+                    # hoặc khởi động lại ít đi» — hai lời khuyên đều SAI
+                    # khi thủ phạm là Xoay Chỗ. Đo làn thật 30/08: 267
+                    # trong 282 lần đóng của ty cho vay là xoay chỗ, chứ
+                    # không phải khởi động lại lần nào.
+                    if _ct.get("xoayCho"):
+                        o["soLanDongXoayCho"] += 1
             elif o_ten is not None:
                 o[o_ten] += v
             elif "phiUocBps" in (_json(ct) or {}):
@@ -449,6 +459,12 @@ class SoCai:
             # học cách bỏ qua.
             o["tiLeDongTrenVao"] = (o["soLanDong"] / o["soLanVaoLenh"]
                                     if o["soLanVaoLenh"] else None)
+            # Bao nhiêu phần của churn là do XOAY CHỖ. `None` khi chưa
+            # đóng lần nào — 0 ở đây đọc thành «đã đóng, và không lần nào
+            # do xoay», một câu khác hẳn.
+            o["phanDongDoXoayCho"] = (
+                o["soLanDongXoayCho"] / o["soLanDong"]
+                if o["soLanDong"] else None)
         return ra
 
     def xoay_cho_hua_va_thuc(self, gioGanDay: float = 24.0) -> dict:

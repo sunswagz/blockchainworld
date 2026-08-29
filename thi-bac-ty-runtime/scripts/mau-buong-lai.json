@@ -4987,7 +4987,9 @@
     "laiLoUsd": -0.25817015566758567,
     "laiLoChienLuocUsd": 0.0003392821999448968,
     "phiMoiLanVaoUsd": -0.12925471893376528,
-    "tiLeDongTrenVao": 0
+    "tiLeDongTrenVao": 0,
+    "soLanDongXoayCho": 0,
+    "phanDongDoXoayCho": null
    },
    "lending.rate_rotation.v1": {
     "thuUsd": 7.1211036170429e-05,
@@ -5001,7 +5003,9 @@
     "laiLoUsd": -0.10800257331771217,
     "laiLoChienLuocUsd": 7.1211036170429e-05,
     "phiMoiLanVaoUsd": -0.02701844608847065,
-    "tiLeDongTrenVao": 0
+    "tiLeDongTrenVao": 0,
+    "soLanDongXoayCho": 0,
+    "phanDongDoXoayCho": null
    },
    "basis.cash_carry.v1": {
     "thuUsd": 0,
@@ -5015,7 +5019,9 @@
     "laiLoUsd": -0.4,
     "laiLoChienLuocUsd": 0,
     "phiMoiLanVaoUsd": -0.4,
-    "tiLeDongTrenVao": 0
+    "tiLeDongTrenVao": 0,
+    "soLanDongXoayCho": 0,
+    "phanDongDoXoayCho": null
    }
   },
   "soViThe": [

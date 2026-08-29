@@ -1734,6 +1734,30 @@ def kiem_so_cai() -> None:
     kiem("lãi lỗ không tính CAP_VON", gan(ll, 12.5 - 12.5 - 3.0),
          f"đang là {ll}")
 
+    # ĐÓNG VÌ ĐÂU: xoay chỗ hay khởi động lại. Hai bệnh khác hẳn nhau mà
+    # cùng trả phí vào lệnh, và trước đây bảng tách khoản chỉ kể một.
+    scD = SoCai(_tam("socai-dong") / "so.sqlite3")
+    scD.ghi(ButToan("PHI", "phí vào lệnh", -1.0, "d.v1", "T1",
+                    {"phiUocBps": 2.0}))
+    scD.ghi(ButToan("DONG_VI_THE", "xoay chỗ · A → B", 0.0, "d.v1", "T1",
+                    {"xoayCho": True}))
+    scD.ghi(ButToan("DONG_VI_THE", "đóng · hết hạn giữ", 0.0, "d.v1", "T2",
+                    {}))
+    scD.ghi(ButToan("PHI", "phí vào lệnh", -1.0, "e.v1", "T3",
+                    {"phiUocBps": 2.0}))
+    _d = scD.lai_lo_tach_khoan()
+    kiem("số lần đóng tách được ra ĐÓNG VÌ ĐÂU",
+         (_d["d.v1"]["soLanDong"] == 2
+          and _d["d.v1"]["soLanDongXoayCho"] == 1
+          and gan(_d["d.v1"]["phanDongDoXoayCho"], 0.5)),
+         f"{_d['d.v1']} — «giữ vị thế lâu hơn, hoặc khởi động lại ít đi» "
+         f"là lời khuyên SAI khi thủ phạm là xoay chỗ")
+    kiem("chưa đóng lần nào thì phần-do-xoay là None, không phải 0",
+         _d["e.v1"]["soLanDong"] == 0
+         and _d["e.v1"]["phanDongDoXoayCho"] is None,
+         "0 ở đây đọc thành «đã đóng, và không lần nào do xoay» — một câu "
+         "khác hẳn «chưa đóng lần nào»")
+
     # ── XOAY CHỖ: lời hứa đặt cạnh đời thật của vị thế ──────────────────
     scX = SoCai(_tam("socai-xoay") / "so.sqlite3")
 
@@ -3278,6 +3302,50 @@ def kiem_chan_doan_he() -> None:
          len(_it) == 1 and _it[0].nang == 1,
          f"{[(x.ma, x.nang) for x in _it]} — một tỉ lệ dựng trên một mẫu "
          f"không nói gì về ty ấy")
+
+    # ĐÓNG VÌ ĐÂU. Câu khuyên cũ chỉ đúng khi thủ phạm là khởi động lại.
+    # Đo làn thật 30/08: 217/282 lần đóng của ty cho vay là XOAY CHỖ, và
+    # 29/29 của ty basis cũng thế. Chỉ người vận hành sang một cái nút họ
+    # không hề chạm vào là gửi họ đi sai đường — và đường sai ấy nghe rất
+    # hợp lý, nên không ai quay lại.
+    _anhVi = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                    "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+              "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+              "soCai": {"laiLoTheoTy": {"xoay.v1": {"laiLoUsd": -80.0},
+                                        "khoiDong.v1": {"laiLoUsd": -80.0},
+                                        "chuaDong.v1": {"laiLoUsd": -8.0}}},
+              "laiLoTachKhoan": {
+                  "xoay.v1": {"laiLoChienLuocUsd": 4.0, "soLanVaoLenh": 289,
+                              "soLanDong": 282, "tiLeDongTrenVao": 0.98,
+                              "soLanDongXoayCho": 217,
+                              "phanDongDoXoayCho": 217 / 282},
+                  "khoiDong.v1": {"laiLoChienLuocUsd": 4.0,
+                                  "soLanVaoLenh": 289, "soLanDong": 282,
+                                  "tiLeDongTrenVao": 0.98,
+                                  "soLanDongXoayCho": 3,
+                                  "phanDongDoXoayCho": 3 / 282},
+                  "chuaDong.v1": {"laiLoChienLuocUsd": 1.0,
+                                  "soLanVaoLenh": 48, "soLanDong": 0,
+                                  "tiLeDongTrenVao": 0.0,
+                                  "soLanDongXoayCho": 0,
+                                  "phanDongDoXoayCho": None}}}
+    _vi = {x.bangChung.get("chienLuoc"): x for x in _cdh(_anhVi)
+           if x.ma == "phi-vao-an-het"}
+    kiem("phần lớn đóng do XOAY CHỖ thì chỉ thẳng vào xoay chỗ",
+         "XOAY CHỖ" in _vi["xoay.v1"].moTa
+         and "khởi động lại ít đi" not in _vi["xoay.v1"].moTa,
+         f"{_vi['xoay.v1'].moTa[-200:]} — chỉ người vận hành sang một cái "
+         f"nút họ không hề chạm vào là gửi họ đi sai đường")
+    kiem("phần lớn đóng KHÔNG do xoay chỗ thì vẫn là lời khuyên cũ",
+         "khởi động lại ít đi" in _vi["khoiDong.v1"].moTa,
+         f"{_vi['khoiDong.v1'].moTa[-200:]}")
+    kiem("chưa đóng lần nào thì KHÔNG chia, và nói rõ là chưa chia được",
+         "chưa tách được" in _vi["chuaDong.v1"].moTa,
+         f"{_vi['chuaDong.v1'].moTa[-160:]} — «0% do xoay chỗ» ở đây là "
+         f"bịa ra một phép đo trên không mẫu nào")
+    kiem("và con số đóng-vì-đâu đi kèm làm bằng chứng",
+         _vi["xoay.v1"].bangChung.get("soLanDongXoayCho") == 217,
+         str(_vi["xoay.v1"].bangChung))
 
     kiem("và cả hai đều mang mẫu số ra làm bằng chứng",
          all(x.bangChung.get("soLanDong") is not None
