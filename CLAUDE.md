@@ -718,6 +718,23 @@ liên sàn.
 > trần. Nhắc lại luật chung: **cái thước tự khớp trên tập nó chấm thì
 > phải khai ra nó thiên vị chiều nào.**
 
+**Cái TRẦN đã đóng sẵn nửa danh sách ý tưởng — đọc kỹ chỗ này trước khi
+nghĩ hướng mới.** Trần đo bằng phép biến đổi ĐƠN ĐIỆU tốt nhất của `p`.
+Nên bất cứ ý tưởng nào chỉ đổi cách biến `z` thành xác suất đều nằm DƯỚI
+trần ấy theo định nghĩa, và không cần đo:
+
+    thay Φ bằng Student-t (đuôi dày)     ĐƠN ĐIỆU trong p ⇒ vô ích
+    hiệu chỉnh lại, nắn kiểu khác        ĐƠN ĐIỆU ⇒ vô ích
+    kẹp, làm trơn, đổi thang xác suất    ĐƠN ĐIỆU ⇒ vô ích
+
+Crypto có đuôi dày thật, và Student-t nghe rất hợp lý — nhưng nếu `z`
+không đổi thì `t_ν(Φ⁻¹(p))` chỉ là một hàm tăng của `p`, và trần đã nói
+không hàm tăng nào giúp được. Muốn dùng đuôi dày thì phải đổi **chính
+`z`**, tức đổi một trong `S, K, τ, σ`.
+
+Vậy hướng còn cửa chỉ có một loại: **thứ gì làm `z` khác đi.** Danh sách
+dưới đây toàn là loại ấy, và tới nay đều đóng.
+
 Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
 
     cửa sổ σ 300s → 900s                   −1,9%   ĐÃ NHẬN, đưa gần hết đường
