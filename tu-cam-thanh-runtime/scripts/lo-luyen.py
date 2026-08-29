@@ -59,6 +59,18 @@ from trader.brain import THAM_MAC_DINH  # noqa: E402
 from trader.config import CONFIG, DATA_DIR, ROOT  # noqa: E402
 
 GHI = "--ghi" in sys.argv
+
+# `--chi-long`: chỉ dò trong không gian bot CHẠY ĐƯỢC.
+#
+# Đo trên 48 chợ, 2.069 lệnh: nửa SHORT +0,0911R qua 1.134 lệnh, nửa LONG
+# −0,1474R qua 935 lệnh. Sàn spot chỉ bán được thứ đang giữ, nên bot chạy thật
+# chạy đúng nửa lỗ — còn lò luyện thì đang chấm điểm CẢ HAI nửa.
+#
+# Hậu quả không phải sai số mà là tối ưu nhầm mục tiêu: một biến thể thắng ở
+# bảng gộp có thể thắng hoàn toàn nhờ phần short, rồi được đem áp cho một con
+# bot không short được. Dò trong không gian chạy được thì tệ hơn về con số và
+# đúng hơn về việc.
+CHI_LONG = "--chi-long" in sys.argv
 NL = chr(10)
 
 # Khung ngữ cảnh cho mỗi khung chính — luôn dài hơn một bậc.
@@ -122,7 +134,10 @@ def bien_the(n: int, hat: int) -> list[dict]:
     đổ cho nhiễu thay vì cho một lỗi.
     """
     r = random.Random(hat)
-    ra = [dict(THAM_MAC_DINH)]
+    goc = dict(THAM_MAC_DINH)
+    if CHI_LONG:
+        goc["cheDoVao"] = ["TREND_UP"]
+    ra = [goc]
     thay = set()
     canh = 1
     while len(ra) < n + 1 and canh < n * 200:
@@ -132,7 +147,7 @@ def bien_the(n: int, hat: int) -> list[dict]:
         if khoa in thay:
             continue
         thay.add(khoa)
-        ra.append({**THAM_MAC_DINH, **t})
+        ra.append({**goc, **t})
     return ra
 
 
@@ -185,7 +200,11 @@ def main() -> int:
     print(f"LÒ LUYỆN · {len(cho_ds)} chợ × {so_lat} lát × {len(bien)} biến thể "
           f"(1 champion + {len(bien) - 1} thử) · hạt {hat}")
     print("tiền ảo, sàn giấy, GIÁ THẬT — cùng RiskEngine và mô hình chi phí của "
-          "bản chạy thật" + NL)
+          "bản chạy thật")
+    print(("CHỈ LONG — đúng không gian sàn spot cho phép"
+           if CHI_LONG else
+           "CẢ HAI CHIỀU — lưu ý: sàn spot không short được, dùng --chi-long để "
+           "dò đúng thứ bot chạy được") + NL)
 
     diem: list[list[list]] = [[[] for _ in range(so_lat)] for _ in bien]
     so_cho_that = 0
@@ -256,7 +275,7 @@ def main() -> int:
         tam.write_text(json.dumps({
             "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
             "cho": cho_ds, "soCho": so_cho_that, "soLat": so_lat,
-            "soLanThu": len(bien) - 1, "hat": hat,
+            "soLanThu": len(bien) - 1, "hat": hat, "chiLong": CHI_LONG,
             "giay": round(time.time() - t0, 1),
             "bang": bang[:20],
         }, ensure_ascii=False, indent=1), encoding="utf-8")
