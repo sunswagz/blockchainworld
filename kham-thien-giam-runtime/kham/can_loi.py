@@ -179,6 +179,31 @@ def can(
 
     # Sức chứa: gom được nhiều nhất bao nhiêu cổ mà net edge vẫn dương.
     # Trần giá = fair trừ hết các khoản trừ; vượt trần là hết lợi thế.
+    #
+    # ⚠ Trần này là XẤP XỈ, và đây là chỗ khai ra sai số của nó. `phi_moi_co`
+    # được tính ở `vwap` của lô hiện tại, nhưng phí mỗi cổ phụ thuộc GIÁ:
+    # `heSo * min(p, 1-p)`. Đi sâu vào sổ thì p đổi, nên phí mỗi cổ ở mép
+    # trần không đúng bằng phí ở vwap đang cầm.
+    #
+    # Giải chính xác được, và có dạng đóng:
+    #
+    #     p < 0,5 :  p* = (fair - c) / (1 + heSo)
+    #     p ≥ 0,5 :  p* = (fair - heSo - c) / (1 - heSo)
+    #     với c = trượt giá + bất định + biên an toàn
+    #
+    # Đã đo chênh giữa hai cách, với heSo 0,02 và c ≈ 0,0188:
+    #
+    #     fair 0,35 → trần cao hơn thật 0,049 cent   (RỘNG RÃI)
+    #     fair 0,45 → cao hơn 0,045 cent             (RỘNG RÃI)
+    #     fair 0,60 → thấp hơn thật 0,045 cent       (chặt hơn cần)
+    #     fair 0,90 → thấp hơn 0,058 cent            (chặt hơn cần)
+    #
+    # Dưới 50c thì xấp xỉ này NỚI TAY — chiều nguy hiểm. Nhưng 0,05 cent
+    # nằm gọn trong biên an toàn 0,8 cent vốn dựng ra đúng cho loại sai số
+    # này, tức nhỏ hơn nó mười sáu lần. Nên giữ dạng xấp xỉ cho dễ đọc, và
+    # ghi con số ra đây để người sau khỏi phải đo lại — và cũng để biết
+    # rằng nếu `bienAnToan` có ngày bị vặn xuống dưới ~0,1 cent thì chỗ
+    # này phải đổi sang dạng đóng ở trên.
     tran = fairValue - phi_moi_co - truot - batDinh - an_toan
     suc_chua = so.suc_chua(tran, mua=True)
 
