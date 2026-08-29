@@ -46,6 +46,7 @@ sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
 from kham import tham_so  # noqa: E402
+from kham.ban_thu import _brier  # noqa: E402
 from kham.config import CONFIG  # noqa: E402
 from kham.dinh_gia import dinh_gia  # noqa: E402
 from kham.nguon import nguon  # noqa: E402
@@ -120,10 +121,6 @@ def _lech(oh, t, soNen: int = 5):
 
 def _brier1(q, t):
     return (q - (1.0 if t else 0.0)) ** 2
-
-
-def _brier(cap):
-    return sum(_brier1(q, t) for q, t in cap) / max(1, len(cap))
 
 
 def _o(v, canh):

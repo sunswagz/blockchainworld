@@ -4553,6 +4553,56 @@ def kiem_chan_lenh_tu_trang_khac() -> None:
     kiem("KHÔNG cho phép đúng host mà SAI CỔNG",
          "http://localhost:1234" not in ds)
 
+def kiem_ban_thu_mot_cho() -> None:
+    """Bộ máy chấm của các phép thử chỉ được có MỘT bản.
+
+    Năm script `thu-*` từng có năm bản sao của đúng bộ máy này —
+    `nen_ohlc`, `_lay_nen`, `_brier`, `cap_du_doan`, `cham`, `uoc_tron`.
+    Chúng ra đời bằng cách chép khung của nhau (tôi chép, hôm nay).
+
+    Ở đây nguy hiểm hơn chỗ khác vì đây là THƯỚC. Thước lệch thì mọi kết
+    luận đo bằng nó đều lệch, và không con số nào tự khai chuyện ấy — cả
+    năm script vẫn in ra bảng đẹp như thường.
+    """
+    print("\n── Bàn thử: một bộ máy chấm, không phải năm ─────────────────")
+
+    import ast as _a
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    CHUNG = {"nen_ohlc", "_lay_nen", "_brier", "cap_du_doan", "cham",
+             "uoc_tron"}
+
+    kiem("có `kham/ban_thu.py`", (GOC_MA / "kham" / "ban_thu.py").exists())
+    bt = _a.parse((GOC_MA / "kham" / "ban_thu.py").read_text(encoding="utf-8"))
+    co = {n.name for n in bt.body if isinstance(n, _a.FunctionDef)}
+    kiem("bàn thử có đủ sáu hàm chung", CHUNG <= co, sorted(CHUNG - co))
+
+    xau = []
+    for f in sorted((GOC_MA / "scripts").glob("thu-*.py")):
+        cay = _a.parse(f.read_text(encoding="utf-8"))
+        lai = {n.name for n in cay.body
+               if isinstance(n, _a.FunctionDef)} & CHUNG
+        if lai:
+            xau.append(f"{f.name}: {sorted(lai)}")
+    kiem("không script `thu-*` nào giữ bản sao riêng", not xau, xau)
+
+    # Ba luật của bàn thử phải nằm TRONG nó, không nằm trong trí nhớ ai.
+    doc = (GOC_MA / "kham" / "ban_thu.py").read_text(encoding="utf-8")
+    kiem("bàn thử nói rõ ba tập tách theo THỜI GIAN",
+         "tách theo THỜI GIAN" in doc)
+    kiem("và nói bốn lát τ chia chung MỘT kết quả",
+         "MỘT kết quả" in doc)
+    kiem("và vì sao chỉ nhận τ đúng mốc phút",
+         "nhìn trộm" in doc)
+
+    # `cham` phải NHẬN `ma` chứ không đọc biến toàn cục của script gọi.
+    from kham.ban_thu import cap_du_doan, cham
+    import inspect as _i
+    kiem("`cham` nhận mã thị trường qua tham số",
+         "ma" in _i.signature(cham).parameters)
+    kiem("`cap_du_doan` cũng vậy",
+         "ma" in _i.signature(cap_du_doan).parameters)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4633,6 +4683,7 @@ def main() -> int:
     kiem_doi_chung_cong_bang()
     kiem_tran_phoi_nhiem_gop()
     kiem_chan_lenh_tu_trang_khac()
+    kiem_ban_thu_mot_cho()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

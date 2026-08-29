@@ -59,6 +59,8 @@ from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
 from kham.hoc_offline import (BIEN_CHOT, bien_theo_ung_vien,  # noqa: E402
                               khoang_tin_theo_khoi)
+from kham.ban_thu import (_brier, _lay_nen, cap_du_doan,  # noqa: E402
+                          cham as _cham_chung, nen_ohlc, uoc_tron)
 from kham.nan_lai import khop  # noqa: E402
 from kham.nguon import nguon  # noqa: E402
 
@@ -80,59 +82,9 @@ MA = CO.lay("ma", "BTC_5M")
 CUA_SO = float(CO.lay("cuaso", "900"))
 
 
-def nen_ohlc(cap: str, tuMs: float, soNen: int) -> dict:
-    """{mốc đóng: (mở, cao, thấp, đóng)} — bốn giá, không chỉ giá đóng."""
-    moc = int(tuMs // PHUT * PHUT)
-    ra: dict = {}
-    con = soNen
-    while con > 0:
-        lo = min(1000, con)
-        d = nguon._lay("binance-kline",
-                       f"{CONFIG['nguon']['binanceSpot']}/api/v3/klines",
-                       {"symbol": cap, "interval": "1m",
-                        "startTime": moc, "limit": lo})
-        if not isinstance(d, list) or not d:
-            break
-        for n in d:
-            try:
-                ra[int(n[0]) + int(PHUT)] = (float(n[1]), float(n[2]),
-                                             float(n[3]), float(n[4]))
-            except (TypeError, ValueError, IndexError):
-                pass
-        moc = int(d[-1][0]) + int(PHUT)
-        con -= len(d)
-        if len(d) < lo:
-            break
-    return ra
-
-
 # ══════════════════════════════════════════════════════════════════════
 #  BỐN BỘ ƯỚC — tất cả trả về σ MỖI GIÂY
 # ══════════════════════════════════════════════════════════════════════
-
-def _lay_nen(oh: dict, T: int, soNen: int):
-    ns = [oh.get(T - i * int(PHUT)) for i in range(soNen)]
-    if any(x is None or min(x) <= 0 for x in ns):
-        return None
-    return ns[::-1]
-
-
-
-
-
-def uoc_tron(oh, T, soNen):
-    """σ đương nhiệm: độ lệch chuẩn log-return giá đóng trên lưới phút."""
-    c = _lay_nen(oh, T, soNen)
-    if c is None:
-        return None
-    r = [math.log(c[i + 1][3] / c[i][3]) for i in range(len(c) - 1)
-         if c[i][3] > 0 and c[i + 1][3] > 0]
-    if len(r) < 5:
-        return None
-    s = statistics.pstdev(r) / math.sqrt(60.0)
-    return s if s > 0 else None
-
-
 
 
 #: Lưới beta. 0.0 là ĐƯƠNG NHIỆM, cố ý nằm trong lưới làm đối chứng.
@@ -211,55 +163,6 @@ def uoc_theo_khoi_luong(vThuong, beta):
         return s * min(1.70, max(0.60, he))
     return ham
 
-def _brier(cap):
-    return (sum((p - (1.0 if t else 0.0)) ** 2 for p, t, *_ in cap)
-            / max(1, len(cap)))
-
-
-def cap_du_doan(oh, mocs, ham, soNen):
-    ra = []
-    for T in mocs:
-        n0, n5 = oh.get(T), oh.get(T + 5 * int(PHUT))
-        if n0 is None or n5 is None:
-            continue
-        K, het = n0[3], n5[3]
-        if abs(het - K) < 1e-12:
-            continue
-        sig = ham(oh, T, soNen)
-        if sig is None:
-            continue
-        thang = het > K
-        for tau in LAT_CAT:
-            t = T + int((300.0 - tau) * 1000.0)
-            if t % int(PHUT):
-                continue
-            n = oh.get(t)
-            if n is None:
-                continue
-            gc = dinh_gia(MA, float(n[3]), float(K), tau, sig)
-            if gc is not None:
-                ra.append((gc.pUp, thang, T))
-    return ra
-
-
-def cham(oh, ba, ham, soNen):
-    hoc, chon, chot = (cap_du_doan(oh, m, ham, soNen) for m in ba)
-    if len(hoc) < 1500 or len(chon) < 500 or len(chot) < 500:
-        return None
-    hc = HieuChinh(duong=DATA_DIR / "_tam-sigma.json")
-    hc.o = {}
-    for p, t, *_ in hoc:
-        hc.them(p, t)
-    pn = khop(hc)
-
-    def nan(cap):
-        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t, *_ in cap]
-
-    return {"n": len(chon), "chon": _brier(nan(chon)),
-            "chot": _brier(nan(chot)),
-            "saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)],
-            "mocChot": [x[-1] for x in chot]}
-
 
 def main() -> int:
     cap = next((t.get("nen") for t in CONFIG["thiTruong"]
@@ -303,7 +206,7 @@ def main() -> int:
     ketQua = {}
     for beta in BETA:
         ten = "beta " + format(beta, ".2f")
-        ketQua[ten] = cham(oh, ba, uoc_theo_khoi_luong(vThuong, beta),
+        ketQua[ten] = _cham_chung(oh, ba, uoc_theo_khoi_luong(vThuong, beta),
                            soNen)
     ketQua = {k: v for k, v in ketQua.items() if v}
     goc_ten = "beta 0.00"
