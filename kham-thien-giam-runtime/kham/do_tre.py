@@ -243,15 +243,28 @@ class DoTre:
         """
         rng = random.Random(20260821)
         tre: list[float] = []
+        # ĐẾM MỌI cú động, kể cả cú không đánh giá được — đúng quy ước
+        # nhánh thật.
+        #
+        # Bản trước `n += 1` nằm SAU hai lệnh `continue`, nên đối chứng
+        # bỏ những cú có đệm sổ mỏng ra khỏi mẫu số, trong khi nhánh thật
+        # tính chúng vào (`tyLePhanUng = len(tre) / len(xong)`) — ở đó
+        # chúng thành "không phản ứng kịp" và KÉO TỈ LỆ THẬT XUỐNG.
+        #
+        # Hai mẫu số khác nhau thì hai tỉ lệ không so được với nhau, và
+        # cái so ấy là toàn bộ lý do nhóm đối chứng tồn tại. Lệch theo
+        # chiều LÀM TÍN HIỆU THẬT TRÔNG KÉM HƠN — chiều an toàn, nhưng
+        # một nhóm đối chứng không công bằng thì không phải nhóm đối
+        # chứng.
         n = 0
         for sk in xong:
+            n += 1
             b = poly.get(sk.ma) or []
             if len(b) < 10:
                 continue
             t0, t1 = b[0][0], b[-1][0] - TRE_TOI_DA_MS
             if t1 <= t0:
                 continue
-            n += 1
             gia = rng.uniform(t0, t1)
             goc = None
             for t, g in b:

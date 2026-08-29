@@ -4395,6 +4395,57 @@ def kiem_so_ket_qua_khai_nguon() -> None:
     kiem("và kêu to khi CHƯA dòng nào được sàn xác nhận",
          "CHƯA MỘT DÒNG NÀO" in js)
 
+def kiem_doi_chung_cong_bang() -> None:
+    """Nhóm đối chứng phải dùng CÙNG mẫu số với nhánh thật.
+
+    `do_tre` đo Binance động trước bao lâu thì Polymarket đổi giá, và nó
+    có nhóm đối chứng — mốc thời gian rút NGẪU NHIÊN, cùng số sự kiện.
+    Đúng cách, vì chọn bất kỳ mốc nào rồi chờ giá dịch 0,4 xu thì bao giờ
+    cũng chờ được, nên không có đối chứng thì mọi con số đều vô nghĩa.
+
+    Nhưng hai bên đếm mẫu số khác nhau:
+
+        thật       len(tre) / len(xong)   ← MỌI cú động
+        đối chứng  len(tre) / n           ← chỉ cú ĐÁNH GIÁ ĐƯỢC
+
+    Cú có đệm sổ mỏng bị đối chứng loại khỏi mẫu số, trong khi nhánh thật
+    tính chúng vào — ở đó chúng thành "không phản ứng kịp" và KÉO TỈ LỆ
+    THẬT XUỐNG. Lệch theo chiều làm tín hiệu thật trông kém hơn, tức
+    chiều an toàn; nhưng một nhóm đối chứng KHÔNG CÔNG BẰNG thì không
+    phải nhóm đối chứng, và cái so ấy là toàn bộ lý do nó tồn tại.
+    """
+    print("\n── Nhóm đối chứng phải cùng mẫu số với nhánh thật ───────────")
+
+    from kham.do_tre import DoTre
+
+    class _SK:
+        def __init__(self, ma, huong):
+            self.ma, self.huong, self.treMs = ma, huong, 0.0
+
+    d = DoTre.__new__(DoTre)
+    xong = [_SK("A", 1), _SK("B", 1), _SK("C", 1)]
+    poly = {
+        "A": [(i * 100.0, 0.50 + (0.02 if i > 50 else 0.0))
+              for i in range(200)],
+        "B": [(0.0, 0.5)],       # đệm quá mỏng — không đánh giá được
+        "C": [],                 # không có đệm
+    }
+    n, _tv, _ty = DoTre._doi_chung(d, xong, poly)
+    kiem("đối chứng đếm CẢ cú không đánh giá được", n == 3, n)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    dt = (GOC_MA / "kham" / "do_tre.py").read_text(encoding="utf-8")
+    ma = chr(10).join(x.split("#", 1)[0] for x in dt.splitlines())
+    i = ma.index("def _doi_chung")
+    than = ma[i:ma.index("def ", i + 10)]
+    # `n += 1` phải đứng TRƯỚC mọi `continue` trong vòng lặp.
+    kiem("`n += 1` đứng trước mọi lệnh bỏ qua",
+         than.index("n += 1") < than.index("continue"),
+         "đặt sau `continue` là loại cú không đánh giá được ra khỏi mẫu số")
+
+    kiem("nhánh thật vẫn chia cho MỌI cú động",
+         "len(tre) / len(xong)" in ma)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4472,6 +4523,7 @@ def main() -> int:
     kiem_canh_bao_duoi_di_theo_du_lieu()
     kiem_nut_o_mep_phai_lo_ra()
     kiem_so_ket_qua_khai_nguon()
+    kiem_doi_chung_cong_bang()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
