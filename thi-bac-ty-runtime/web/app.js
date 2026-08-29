@@ -1156,6 +1156,42 @@
     }
     f.appendChild(ksc);
 
+    /* TRẦN KHOÁ VỐN. Đường sức chứa ở trên hỏi «bao nhiêu TIỀN thì hết
+       chỗ»; bảng này hỏi một câu khác hẳn: «cái trần 720 giờ đang chặn
+       mất bao nhiêu LỢI SUẤT».
+
+       Đo 30/08 trên máy sống: cùng 460k tiền mặt, 11 cơ hội và 2,48%/năm
+       dưới trần — 23 cơ hội và 9,38%/năm nếu bỏ trần. Cả động cơ Pendle
+       PT (12 tờ trình, khoá 88–137 ngày, NET 65–449 bps) đứng ngoài vì
+       đúng một tham số.
+
+       ĐO, KHÔNG đề xuất: nới trần là cửa `dat_tham_so`, đòi tên người. */
+    var dkv = t.duongKhoaVon || {};
+    if ((dkv.muc || []).length) {
+      var kkv = khoi("Trần KHOÁ VỐN đang chặn mất bao nhiêu",
+        "Khoá vốn lâu là từ chối mọi cơ hội tốt hơn xuất hiện trong ngần ấy "
+        + "thời gian — cái giá ấy có thật, và bảng Xoay Chỗ ngay dưới là chỗ "
+        + "đo nó. Bảng này chỉ đo phía bên kia: trần đang chặn những gì.");
+      kkv.appendChild(bang(
+        [{ t: "Trần khoá" }, { t: "Cơ hội" }, { t: "Sức chứa" },
+         { t: "Rót được" }, { t: "APR cả túi" }, { t: "Khoá bình quân" }],
+        dkv.muc.map(function (m) {
+          var dang = m.tranGio === dkv.tranDangChayGio;
+          return [{ t: (m.tranGio == null ? "KHÔNG trần"
+                        : so(m.tranGio, 0) + " h")
+                      + (dang ? "  ← đang chạy" : ""), c: dang ? "n" : null },
+                  { t: so(m.soCoHoi), c: "nhat" },
+                  { t: tien(m.sucChuaUsd, 0) },
+                  { t: tien(m.rotDuocUsd, 0) },
+                  { t: so(m.aprTrenCaTui, 2) + "%",
+                    c: m.aprTrenCaTui >= 5 ? "duong" : "nhat" },
+                  { t: m.khoaBinhQuanGio == null ? "—"
+                       : so(m.khoaBinhQuanGio, 0) + " h", c: "nhat" }];
+        })));
+      if (dkv.vi) kkv.appendChild(giai(dkv.vi));
+      f.appendChild(kkv);
+    }
+
     /* XOAY CHỖ. Chỗ ngồi có hạn (trần vị thế), nên câu hỏi không phải
        "có cơ hội nào không" mà là "ai đang ngồi". Đo trên máy sống: 8 chỗ
        khoá 30 ngày ở 1,9–3,0 %/năm trong khi 9–16 % đi qua mỗi vòng rồi bị

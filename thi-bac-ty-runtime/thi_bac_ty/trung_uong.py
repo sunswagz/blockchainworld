@@ -970,6 +970,18 @@ class TrungUong:
         from .duong_suc_chua import do_duong_suc_chua
         return do_duong_suc_chua(self.toTrinhVongNay).tom_tat()
 
+    def duong_khoa_von(self) -> dict:
+        """Trần khoá vốn đang chặn mất bao nhiêu lợi suất — ĐO, không đề xuất.
+
+        Đo trên TIỀN MẶT đang có, không trên NAV: câu hỏi là «số tiền chưa
+        rót ấy có thể đi đâu», và phần đã rót thì đã đi rồi.
+        """
+        from .duong_khoa_von import do_duong_khoa_von
+        tran = self.rui_ro_tong.c.get("khoaVonToiDaGio")
+        return do_duong_khoa_von(
+            self.toTrinhVongNay, float(self.danh_muc.tienMatUsd),
+            None if tran is None else float(tran)).tom_tat()
+
     def xoay_cho(self):
         """Chỗ nào đang ngồi mà đáng nhường cho cơ hội tốt hơn — ĐO thôi.
 
@@ -1360,6 +1372,11 @@ class TrungUong:
             # Lợi suất TỤT theo quy mô — một con số APR không kèm mức vốn
             # là một con số bỏ bớt. Xem `duong_suc_chua.py`.
             "duongSucChua": self.duong_suc_chua(),
+            # Trần khoá vốn 720 giờ chặn mất bao nhiêu. Đo 30/08 trên máy
+            # sống: cùng 460k tiền mặt, 2,48%/năm dưới trần và 9,38% nếu
+            # bỏ trần — cả động cơ Pendle PT đứng ngoài vì một tham số.
+            # ĐO, không đề xuất: nới trần là cửa `dat_tham_so`.
+            "duongKhoaVon": self.duong_khoa_von(),
             "xoayCho": (self.latCatXoayCho.tom_tat()
                         if self.latCatXoayCho is not None
                         else self.xoay_cho().tom_tat()),

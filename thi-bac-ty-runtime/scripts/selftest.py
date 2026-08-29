@@ -8492,6 +8492,77 @@ def kiem_hien_phap() -> None:
              f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
 
 
+def kiem_duong_khoa_von() -> None:
+    print("TRAN KHOA VON dang chan mat bao nhieu loi suat")
+    from thi_bac_ty.duong_khoa_von import do_duong_khoa_von
+
+    # Đo 30/08 trên máy sống: `lending.rate_rotation` giữ đúng 50,0% NAV
+    # (chạm trần `tranMotTy`) còn `yield.pendle_pt` giữ ĐÚNG SỐ KHÔNG —
+    # dù nó nộp 12 tờ trình mỗi vòng, NET 65–449 bps, so với 1,7 bps của
+    # phần vốn đang chạy. Cả mười hai tờ đều khoá 2.116–3.292 giờ, tức
+    # đều trên trần `khoaVonToiDaGio` 720. Một động cơ đứng ngoài vì đúng
+    # một tham số, và trước lượt này không bảng nào nói ra con số ấy.
+    def _tt(apr, chua, khoa):
+        # `apr_tu_to_trinh` đọc netUocBps + giuGio; dựng ngược lại từ APR
+        # mong muốn để phép kiểm nói bằng đơn vị người đọc hiểu.
+        giu = 24.0
+        net = apr / 100.0 * (giu / (365.0 * 24.0)) * 10_000.0
+        return {"netUocBps": net, "giuGio": giu, "sucChuaToiDaUsd": chua,
+                "khoaVonDenGio": khoa}
+
+    ds = [_tt(20.0, 1000.0, 3000.0),      # ngon nhất, khoá RẤT lâu
+          _tt(10.0, 1000.0, 1000.0),      # khá, khoá vừa
+          _tt(2.0, 1000.0, 0.0)]          # tệ, không khoá
+    d = do_duong_khoa_von(ds, 3000.0, 720.0,
+                          muc=(720.0, 1440.0, None))
+    m = {x.tranGio: x for x in d.muc}
+    kiem("trần chặt thì chỉ còn cơ hội KHÔNG khoá",
+         m[720.0].soCoHoi == 1 and gan(m[720.0].aprTrenCaTuiUsd, 2.0 / 3),
+         f"{m[720.0].tom_tat()} — rót 1000 lãi 2% trên túi 3000 là 0,67%")
+    kiem("nới trần lên 1440 thì thêm cơ hội 10%",
+         m[1440.0].soCoHoi == 2 and gan(m[1440.0].aprTrenCaTuiUsd, 4.0),
+         f"{m[1440.0].tom_tat()} — (1000×10 + 1000×2)/3000 = 4%")
+    kiem("bỏ trần thì cả ba, và lợi suất cao nhất",
+         m[None].soCoHoi == 3 and gan(m[None].aprTrenCaTuiUsd, 32.0 / 3),
+         f"{m[None].tom_tat()} — (20+10+2)/3 = 10,67%")
+    kiem("và KHOÁ BÌNH QUÂN nói ra cái giá phải trả",
+         m[None].khoaBinhQuanGio is not None
+         and gan(m[None].khoaBinhQuanGio, 4000.0 / 3),
+         f"{m[None].khoaBinhQuanGio} — nới trần không miễn phí, và con số "
+         f"phải đứng ngay cạnh con số lợi suất")
+
+    # Ba cái bẫy của `duong_suc_chua.py`, y nguyên ở đây.
+    d2 = do_duong_khoa_von(
+        [{"sucChuaToiDaUsd": 1000.0, "khoaVonDenGio": 0.0},   # không khai lãi
+         _tt(9.0, None, 0.0),                                  # không khai chứa
+         _tt(9.0, 1000.0, 0.0)], 5000.0, 720.0, muc=(None,))
+    kiem("cơ hội không khai LÃI thì BỎ, không coi là 0",
+         d2.soBoViThieuLai == 1, str(d2.tom_tat()))
+    kiem("cơ hội không khai SỨC CHỨA thì cũng BỎ",
+         d2.soBoViThieuSucChua == 1, str(d2.tom_tat()))
+    kiem("vốn không rót hết thì phần dư ăn lãi 0",
+         gan(d2.muc[0].aprTrenCaTuiUsd, 9.0 * 1000.0 / 5000.0),
+         f"{d2.muc[0].tom_tat()} — rót 1000 trên túi 5000 thì lãi cả túi là "
+         f"một phần năm, không phải 9%")
+
+    # Trần không chặn gì thì NÓI THẲNG là không chặn gì — một bảng kêu mãi
+    # kể cả khi không có gì để kêu là một bảng người ta thôi đọc.
+    d3 = do_duong_khoa_von([_tt(5.0, 1000.0, 0.0)], 1000.0, 720.0,
+                           muc=(720.0, None))
+    kiem("trần KHÔNG chặn gì thì bảng nói thẳng ra thế",
+         "KHÔNG chặn gì" in d3.vi, d3.vi)
+
+    # `khoaVonDenGio` vắng mặt nghĩa là ty ấy không có khái niệm khoá vốn —
+    # đọc là 0 ở đây là ĐÚNG nghĩa, khác hẳn `None` của một phép đo hỏng.
+    d4 = do_duong_khoa_von([{"netUocBps": 10.0, "giuGio": 24.0,
+                             "sucChuaToiDaUsd": 500.0}], 500.0, 720.0,
+                           muc=(720.0,))
+    kiem("thiếu `khoaVonDenGio` = không khoá, không phải chưa đo",
+         d4.muc[0].soCoHoi == 1,
+         f"{d4.muc[0].tom_tat()} — ty không bắc cầu, không kỳ hạn thì "
+         f"không có gì để khoá; loại nó ra là phạt một ty vì nó đơn giản")
+
+
 def kiem_router_doi_lo_hong() -> None:
     print("ROUTER go duoc khoan nao thi PHAI thay bang khoan khac")
     import importlib
@@ -8969,6 +9040,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_duong_khoa_von()
     kiem_router_doi_lo_hong()
     kiem_chan_doan_doc_dung_khoa()
     kiem_ly_do_cong_ty()
