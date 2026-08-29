@@ -171,11 +171,20 @@ def mot_luot(khung, ts: ThamSo) -> KetQua:
     for k in khung:
         kq.soKhung += 1
         for tt in (k.get("thiTruong") or []):
-            # Băng nay có cả dòng của cửa ĂN THUA, và ở đó `giaMo` là
-            # strike thật còn `conLaiGiay` đếm tới một mốc khác. Chấm lẫn
-            # hai loại là dựng một con số không nói về thứ gì cả.
-            if giai_doan_cua(tt) != "dat-cuoc":
-                bo("dòng cửa ăn thua, chưa chấm ở đây")
+            # CHỈ chấm dòng KHUNG ĂN THUA.
+            #
+            # Cỗ máy này là thước đo của cổng tiến hoá. Chấm trên dòng cửa
+            # đặt cược nghĩa là cổng quyết định dựa trên một mô hình định
+            # giá bằng `giaMo` = giá lúc T−300 — thứ KHÔNG phải strike
+            # (`scripts/do-strike.py`). Cổng vẫn in phán quyết đầy đủ lý
+            # do, chỉ là phán quyết về một câu hỏi khác.
+            #
+            # Trên băng cũ điều này làm `soKhop` về 0 và vòng tiến hoá
+            # đứng yên với lý do "thiếu mẫu". Đó là ĐÚNG: chưa có dữ liệu
+            # nào đo được. Một cổng phán bừa trên dữ liệu sai thì tệ hơn
+            # hẳn một cổng nói thẳng là chưa có gì để phán.
+            if giai_doan_cua(tt) != "quan-sat":
+                bo("dòng cửa đặt cược — mô hình không định giá được ở đó")
                 continue
             ma = tt.get("ma") or "?"
             so_tho = tt.get("so") or {}

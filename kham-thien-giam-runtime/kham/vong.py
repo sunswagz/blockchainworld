@@ -389,8 +389,13 @@ class Runtime:
                     dong_song.bo_dang_ky(cu.tokenDown)
                 dong_song.dang_ky(k.tokenUp, ma, "UP")
                 dong_song.dang_ky(k.tokenDown, ma, "DOWN")
-                # Thước đo trễ bám token UP: nền tăng thì P(UP) phải tăng,
-                # nên hướng hàm ý đọc thẳng được, không cần quy đổi.
+                # Thước đo trễ bám token UP của CỬA ĐẶT CƯỢC — cố ý.
+                #
+                # Trong cửa ấy strike chưa tồn tại, nên chợ KHÔNG phản ứng
+                # với giá nền vì lý do định giá. Nếu nó vẫn phản ứng thì
+                # đó là dòng lệnh, và đó chính là thứ thước này đi tìm.
+                # Nền tăng thì P(UP) phải tăng, nên hướng hàm ý đọc thẳng
+                # được, không cần quy đổi.
                 nenMa = next((t.get("nen") for t in CONFIG["thiTruong"]
                               if t.get("ma") == ma), None)
                 if nenMa:

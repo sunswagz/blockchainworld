@@ -551,7 +551,8 @@ def kiem_chay_lai() -> None:
     for i in range(60):
         d = 1 if i % 2 else -1
         khung.append({"thiTruong": [{
-            "ma": "BTC_5M", "giaNen": 100_000 + d * 60, "giaMo": 100_000,
+            "ma": "BTC_5M", "giaiDoan": "quan-sat",
+            "giaNen": 100_000 + d * 60, "giaMo": 100_000,
             "sigmaGiay": sig, "conLaiGiay": 120.0, "upThang": d > 0,
             "so": {"UP": {"luc": 1, "bid": [{"gia": 0.40, "luong": 500}],
                           "ask": [{"gia": 0.42, "luong": 500}]},
@@ -579,8 +580,12 @@ def _bang_gia(n=80, thang_xen_ke=True):
     ra = []
     for i in range(n):
         d = 1 if (i % 2 if thang_xen_ke else i % 3) else -1
+        # `quan-sat`: đây là loại dòng DUY NHẤT chấm điểm được. Dòng
+        # cửa đặt cược mang `giaMo` không phải strike, và `chay_lai`
+        # cố ý từ chối chúng.
         ra.append({"thiTruong": [{
-            "ma": "BTC_5M", "giaNen": 100_000 + d * 60, "giaMo": 100_000,
+            "ma": "BTC_5M", "giaiDoan": "quan-sat",
+            "giaNen": 100_000 + d * 60, "giaMo": 100_000,
             "sigmaGiay": sig, "conLaiGiay": 120.0, "upThang": d > 0,
             "so": {"UP": {"luc": 1, "thangCho": False, "dungDuoc": True,
                           "bid": [{"gia": 0.40, "luong": 900}],
@@ -605,7 +610,8 @@ def _bang_sat_bien(n=60):
     for i in range(n):
         ask = 0.50 + (i % 30) * 0.01
         ra.append({"thiTruong": [{
-            "ma": "BTC_5M", "slug": f"btc-updown-5m-{1787243400 + i * 300}",
+            "ma": "BTC_5M", "giaiDoan": "quan-sat",
+            "slug": f"btc-updown-5m-{1787243400 + i * 300}",
             "giaNen": 100_060, "giaMo": 100_000, "sigmaGiay": sig,
             "conLaiGiay": 120.0, "upThang": True,
             "so": {"UP": {"luc": 1, "thangCho": False, "dungDuoc": True,
@@ -961,26 +967,28 @@ def kiem_giai_doan_bang() -> None:
     kiem("dòng khai quan-sat đọc đúng",
          giai_doan_cua({"giaiDoan": "quan-sat"}) == "quan-sat")
 
-    # Băng trộn: một nửa dòng là cửa ăn thua. `chay_lai` phải BỎ chúng và
-    # NÓI RA, không được lặng lẽ chấm lẫn.
+    # Băng trộn: một nửa dòng là CỬA ĐẶT CƯỢC. `chay_lai` phải BỎ chúng
+    # và NÓI RA, không được lặng lẽ chấm lẫn — ở đó `giaMo` là giá lúc
+    # T−300 chứ không phải strike.
     khung = _bang_sat_bien(20)
     tron = []
     for k in khung:
         tt = dict(k["thiTruong"][0])
-        qs = dict(tt)
-        qs["giaiDoan"] = "quan-sat"
-        qs["giaMo"] = 100_060      # strike thật, khác hẳn dòng kia
-        tron.append({"luc": 0, "thiTruong": [tt, qs]})
+        dc = dict(tt)
+        dc["giaiDoan"] = "dat-cuoc"
+        dc["giaMo"] = 99_940       # giá lúc T−300, KHÔNG phải strike
+        tron.append({"luc": 0, "thiTruong": [tt, dc]})
 
     ts = ThamSo(ten="t", netEdgeToiThieu=0.005, bienAnToan=0.005)
     a = mot_luot(khung, ts)
     b = mot_luot(tron, ts)
-    kiem("thêm dòng cửa ăn thua KHÔNG đổi kết quả chạy lại",
+    kiem("thêm dòng cửa đặt cược KHÔNG đổi kết quả chạy lại",
          (a.soQuaSang, round(a.tongLaiLo, 6))
          == (b.soQuaSang, round(b.tongLaiLo, 6)),
          f"{a.soQuaSang}/{a.tongLaiLo:.4f} vs {b.soQuaSang}/{b.tongLaiLo:.4f}")
     kiem("và nó NÓI RA là đã bỏ bao nhiêu dòng",
-         b.boQua.get("dòng cửa ăn thua, chưa chấm ở đây", 0) == len(khung),
+         b.boQua.get("dòng cửa đặt cược — mô hình không định giá được ở đó",
+                     0) == len(khung),
          dict(b.boQua))
 
 
@@ -1166,13 +1174,11 @@ def kiem_phien_phat_lai() -> None:
     import kham.phat_lai as _PL
 
     khung = _bang_sat_bien(40)
-    # Băng phải mang `luc` để sổ kết toán ghi đúng mốc thời gian của nó,
-    # và phải là dòng KHUNG ĂN THUA: phiên phát lại cố ý từ chối dòng cửa
-    # đặt cược, vì ở đó `giaMo` không phải strike.
+    # Băng phải mang `luc` để sổ kết toán ghi đúng mốc thời gian của nó.
+    # `_bang_sat_bien` đã sinh ra dòng khung ăn thua — loại duy nhất mà
+    # phiên phát lại nhận.
     for i, k in enumerate(khung):
         k["luc"] = 1787243400000.0 + i * 2000.0
-        for tt in k["thiTruong"]:
-            tt["giaiDoan"] = "quan-sat"
 
     with tempfile.TemporaryDirectory() as t:
         d = _P(t)
@@ -1678,7 +1684,7 @@ def kiem_cong_phan_biet() -> None:
         slug = f"btc-updown-5m-{1787000000 + i * 300}"
         so_ket_qua.o[slug] = {"slug": slug, "upThang": i % 3 != 0}
         khung.append({"thiTruong": [{
-            "ma": "BTC_5M", "slug": slug,
+            "ma": "BTC_5M", "slug": slug, "giaiDoan": "quan-sat",
             "giaNen": 70000.0 + i, "giaMo": 70000.0,
             "sigmaGiay": 1.0e-5, "conLaiGiay": 120.0,
             "so": {
