@@ -106,6 +106,10 @@ class LatCatXoayCho:
     aprHienTai: float | None = None
     aprSauKhiXoay: float | None = None
     loiRongUsd: float = 0.0
+    #: Bao nhiêu chỗ ĐÃ đóng thật. Khác `soXoayDuoc` — cái kia là "đáng
+    #: đổi", cái này là "đã đổi". Bằng 0 khi `tuXoayCho` tắt, và lúc ấy
+    #: buồng lái phải đọc được rằng đây mới chỉ là phép đo.
+    soDaDong: int = 0
     xoay: list = field(default_factory=list)
     vi: str = ""
 
@@ -116,7 +120,7 @@ class LatCatXoayCho:
             "soKhongDoDuocThoat": self.soKhongDoDuocThoat,
             "aprHienTai": self.aprHienTai,
             "aprSauKhiXoay": self.aprSauKhiXoay,
-            "loiRongUsd": self.loiRongUsd,
+            "loiRongUsd": self.loiRongUsd, "soDaDong": self.soDaDong,
             "xoay": [x.tom_tat() for x in self.xoay],
             "vi": self.vi,
         }

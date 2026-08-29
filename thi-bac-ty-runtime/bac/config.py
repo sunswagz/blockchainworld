@@ -58,6 +58,11 @@ MAC_DINH = {
     #: rõ là tốt hơn. Tắt mặc định — tầng ty A/B được nên nó CÓ QUYỀN tự
     #: nhận, nhưng "có quyền" và "được bật sẵn" là hai chuyện, và người bật
     #: là người chịu trách nhiệm.
+    #: TẮT ở đây và mãi mãi: `MAC_DINH` là "máy mới dựng, chưa ai cấu hình
+    #: gì, thì làm gì" — và câu trả lời phải là KHÔNG tự vặn tham số của
+    #: chính mình. Bật cho MỘT cỗ máy cụ thể thì khai trong `config.json`
+    #: của cỗ máy ấy, kèm lý do; đó cũng là chỗ duy nhất người khác đọc
+    #: được rằng cỗ máy này đang được phép tự vặn.
     "tuVanTienHoa": False,
     "che": "quan-sat",
     "cungTinh": "",
@@ -129,6 +134,9 @@ MAC_DINH = {
     # và buồng lái bày cờ đó lên đầu bảng.
     "trungUong": {
         "bat": True,
+        #: Vốn ẢO khởi điểm. Nâng vốn trên máy ĐANG CHẠY thì KHÔNG sửa ở
+        #: đây — dùng `POST /api/nap-von`: sửa số này mà tiền mặt không
+        #: theo là cầu dao đọc thành sụt vốn rồi ngắt. Xem `nap_von()`.
         # Ty tín dụng — engine THỨ HAI. Cấu hình riêng của nó ở
         # `tin_dung/config.py`; ở đây chỉ có cái công tắc, vì Trung Ương là
         # chỗ duy nhất biết ty nào đang đăng ký.

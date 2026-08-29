@@ -65,6 +65,33 @@
     "donBayToiDa": 1.0
   },
   "trungUong": {
-    "vonBanDauUsd": 10000.0
-  }
+    "vonBanDauUsd": 10000.0,
+    "nhipHocGiay": 900.0,
+    "tuXoayCho": true,
+    "bienXoayCho": 1.5,
+    "phanBo": {
+      "toiDaSoViThe": 120
+    }
+  },
+  "_doc": [
+    "CHỦ mở van 29/08/2026 — mục đích là để máy TRẢI NGHIỆM nhiều và tự học.",
+    "Toàn bộ là tiền ẢO: lớp ký lệnh không tồn tại, moPhong là True CỨNG.",
+    "",
+    "tuVanTienHoa  cho tầng ty tự vặn tham số khi CHẠY LẠI BĂNG nói rõ là tốt",
+    "              hơn: đòi ≥30 mẫu hậu kiểm và cải thiện vượt biên nhiễu 0,15",
+    "              bps. Mọi lượt vào sổ, quay lui được.",
+    "nhipTienHoaGiay  2 giờ một lượt hậu kiểm (chạy ở TIẾN TRÌNH RIÊNG).",
+    "trungUong.nhipHocGiay  15 phút một lượt chẩn tầng phân bổ.",
+    "trungUong.tuXoayCho  máy tự đóng vị thế lãi thấp nhường chỗ cho cơ hội tốt",
+    "              hơn, CHỈ KHI lợi ròng vượt 1,5 lần phí đổi. Đo trước khi bật:",
+    "              8 chỗ đáng đổi, danh mục 13,2% → 21,7%/năm.",
+    "trungUong.phanBo.toiDaSoViThe  120 chỗ. LƯU Ý: trên máy đã có bản tham số",
+    "              thì số này KHÔNG có tác dụng — kho bản tham số thắng config.",
+    "              Đổi bằng POST /api/dat-tham-so; lechCauHinh sẽ chỉ ra lệch.",
+    "",
+    "Vốn KHÔNG sửa ở đây: dùng POST /api/nap-von. Sửa vonBanDauUsd mà tiền mặt",
+    "không theo là cầu dao đọc thành sụt vốn rồi ngắt."
+  ],
+  "tuVanTienHoa": true,
+  "nhipTienHoaGiay": 7200.0
 }

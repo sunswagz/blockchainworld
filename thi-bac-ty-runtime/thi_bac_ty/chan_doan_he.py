@@ -66,7 +66,13 @@ NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotTaiSanRong": {"min": 0.02, "max": 0.30},
     "ruiRoTong.ruiRoToiDa":        {"min": 0.30, "max": 0.85},
     "ruiRoTong.tinCayToiThieu":    {"min": 0.30, "max": 0.90},
-    "phanBo.toiDaSoViThe":         {"min": 3,    "max": 40},
+    # Trần trên nới từ 40 lên 300 ngày 29/08. Lý do đặt ra con số 40 là
+    # «quá nhiều vị thế thì không theo dõi nổi» — lý do của thời chưa có
+    # kế toán tự động, mà nay mỗi vòng đều kế toán từng vị thế và khai ra
+    # cái nào không kế toán được. Người theo dõi đã được thay bằng máy
+    # theo dõi, nên ràng buộc cũ hết hiệu lực; giữ nó là để một lý do đã
+    # chết tiếp tục chặn tiền.
+    "phanBo.toiDaSoViThe":         {"min": 3,    "max": 300},
 }
 
 #: Cố ý KHÔNG vặn được. Liệt kê tường minh để phép kiểm bắt được nếu ai đó

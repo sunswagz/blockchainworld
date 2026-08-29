@@ -338,6 +338,25 @@ def api_dong_cau_dao(ma: str, nguoi: str) -> JSONResponse:
                               "cauDao": tu.cau_dao.tom_tat()}))
 
 
+@app.post("/api/dat-tham-so")
+def api_dat_tham_so(nguoi: str, nut: str, giaTri: float,
+                    vi: str = "") -> JSONResponse:
+    """Đổi THẲNG một núm phân bổ / rủi ro tổng. ĐÒI TÊN NGƯỜI và LÝ DO.
+
+    `ap-dung-tham-so` chỉ áp được đề xuất máy vừa nghĩ ra. Đường này để
+    người đổi một thứ máy KHÔNG đề xuất — vì triệu chứng chưa đủ nặng,
+    hoặc vì người biết một điều máy chưa đo được.
+
+    Vẫn qua kho bản tham số: có số hiệu, quay lui được, ghi ai đổi và vì
+    sao. Bản ghi nói thẳng là KHÔNG qua phép chạy lại, thay vì giả vờ có
+    bằng chứng.
+    """
+    tu = _tu()
+    if tu is None:
+        return _tat()
+    return JSONResponse(sach(tu.dat_tham_so(nguoi, nut, giaTri, vi)))
+
+
 @app.post("/api/nap-von")
 def api_nap_von(soTienUsd: float, nguoi: str, vi: str = "") -> JSONResponse:
     """CHỦ bỏ thêm vốn ẢO vào (dương) hoặc rút ra (âm). ĐÒI TÊN NGƯỜI.

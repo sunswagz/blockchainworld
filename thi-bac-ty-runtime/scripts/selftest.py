@@ -1082,6 +1082,8 @@ def kiem_tien_hoa_hoc() -> None:
     # đây thì phép kiểm này đỏ — đó là điểm của nó.
     NGUOI_BAM = {
         "/api/nap-von": "ĐÒI TÊN NGƯỜI — máy không tự quyết bỏ thêm tiền",
+        "/api/dat-tham-so": "ĐÒI TÊN NGƯỜI và LÝ DO — người đổi một núm máy "
+                            "KHÔNG đề xuất",
         "/api/tam-dung": "dừng máy là quyết định của người, không của máy",
         "/api/quet-ngay": "quét ép ngoài nhịp — công cụ gỡ rối",
         "/api/chay-lai": "chạy lại một bộ tham số tuỳ chọn — công cụ khảo sát",
@@ -1210,16 +1212,22 @@ def kiem_tien_hoa_hoc() -> None:
     kiem("và luồng chỉ ĐỢI tiến trình con — đợi thì nhả GIL",
          _goi30("bac/vong.py", "_tien_hoa_dinh_ky", "Thread"),
          "vẫn cần một luồng để không chặn vòng quét lúc đợi")
+    from bac.config import MAC_DINH as _MD30
     _nguon30 = (_goc30 / "bac/vong.py").read_text(encoding="utf-8")
-    # Cửa `--that` chỉ được thêm khi `tuVanTienHoa` bật. Không có cờ ấy
-    # thì `bac.tien_hoa._main()` chạy `thu=True` — chẩn, đo, ghi sổ, KHÔNG
-    # vặn `config.json`.
-    kiem("mặc định là THỬ — không tự vặn config khi chưa ai bật",
+    # Khẳng định CƠ CHẾ, không khẳng định GIÁ TRỊ. Bản đầu đòi
+    # `CONFIG["tuVanTienHoa"] is False`, và nó đỏ ngay ngày chủ bật cờ ấy —
+    # một phép kiểm đóng băng một quyết định thuộc về người thì nó không
+    # bảo vệ gì cả, nó chỉ cản. Thứ đáng giữ là: có một cái cửa, cửa ấy
+    # được TÔN TRỌNG, và tắt thì máy KHÔNG tự vặn.
+    kiem("tự vặn tham số có CỬA, và cửa ấy được tôn trọng",
          'lenh.append("--that")' in _nguon30
-         and 'CONFIG.get("tuVanTienHoa")' in _nguon30
-         and CONFIG.get("tuVanTienHoa") is False,
+         and 'CONFIG.get("tuVanTienHoa")' in _nguon30,
          "tầng ty A/B được nên nó CÓ QUYỀN tự nhận, nhưng «có quyền» và "
-         "«được bật sẵn» là hai chuyện")
+         "«được bật sẵn» là hai chuyện — phải có cửa để người chọn")
+    kiem("và MẶC ĐỊNH trong mã là TẮT, dù config hiện đang bật hay không",
+         _MD30.get("tuVanTienHoa") is False,
+         "một cỗ máy mới dựng, chưa ai cấu hình gì, KHÔNG được tự vặn tham "
+         "số của chính nó")
 
     # Lượt THỬ cũng phải VÀO SỔ. Không thì vòng chạy đều mà
     # `duong_tien_hoa()` vẫn báo `soLuot: 0`, và người đọc kết luận đúng
@@ -6910,6 +6918,53 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("ảnh chụp mang phép đo xoay chỗ ra buồng lái",
          "xoayCho" in tu48.anh_chup(),
          "đo được mà không ra tới buồng lái thì vẫn là im lặng")
+
+    # ── ĐƯỜNG THỰC HIỆN: chỉ chạy khi người đã bật ──────────────────────
+    from thi_bac_ty.danh_muc import ViThe as _VT49
+
+    def _may49(tuXoay):
+        tu = TrungUong(_tam(f"xoay-{tuXoay}"),
+                       {"vonBanDauUsd": 10_000.0, "tuXoayCho": tuXoay})
+        t = {"taiSan": "CU", "netMoiGioBps": 2.0 * 100 / (365 * 24),
+             "giuGio": 720.0, "phiUocBps": 0.6, "khoaVonDenGiay": None,
+             "thanhKhoanThoatUsd": 9e9}
+        tu.soViThe["m1"] = SoViThe(ma="m1", chienLuoc="cu.v1", toTrinh=t,
+                                   vonUsd=500.0, moLucGiay=_G50 and time.time(),
+                                   keToanLucGiay=time.time())
+        tu.danh_muc.viThe["m1"] = [
+            _VT49("m1", "cu.v1", "CHO_VAY", "aave", "CU", 500.0)]
+        tu.toTrinhVongNay = [{"ma": "m2", "taiSan": "MOI",
+                              "chienLuoc": "moi.v1",
+                              "netMoiGioBps": 30.0 * 100 / (365 * 24),
+                              "giuGio": 720.0, "phiUocBps": 0.6}]
+        return tu
+
+    _tat49 = _may49(False)
+    _l49 = _tat49._xoay_cho_neu_duoc()
+    kiem("TẮT thì chỉ ĐO, không đóng gì",
+         _l49.soXoayDuoc == 1 and _l49.soDaDong == 0
+         and len(_tat49.soViThe) == 1,
+         f"{_l49.tom_tat()} — xoay chỗ là ĐỔI DANH MỤC, không phải đổi một "
+         f"con số hiển thị")
+    _bat49 = _may49(True)
+    _l50 = _bat49._xoay_cho_neu_duoc()
+    kiem("BẬT thì đóng thật, và hoàn vốn về tiền mặt",
+         _l50.soDaDong == 1 and not _bat49.soViThe
+         and gan(_bat49.danh_muc.tienMatUsd, 10_500.0),
+         f"{_l50.tom_tat()} · tiền mặt {_bat49.danh_muc.tienMatUsd}")
+    kiem("lần đóng ấy VÀO SỔ, kèm lý do đọc được",
+         any(x["loai"] == "DONG_VI_THE"
+             and (x["chiTiet"] or {}).get("xoayCho")
+             for x in _bat49.so_cai.gan_day(20)),
+         "đóng một vị thế mà không ghi vì sao thì ba tháng sau không ai "
+         "dựng lại được quyết định ấy")
+    kiem("và nó KHÔNG tự mở vị thế mới — chỗ trống để Phân Bổ rót",
+         not _bat49.danh_muc.viThe,
+         "dựng một đường mở ở đây là dựng một cửa cấp vốn KHÔNG đi qua Rủi "
+         "Ro Tổng")
+    kiem("biên an toàn lúc TỰ ĐỘNG rộng hơn lúc chỉ ĐO",
+         float(_bat49.c.get("bienXoayCho")) > 1.0,
+         "phép đo có người nhìn từng dòng, đường tự động thì không")
 
     # ── config.json xin một đằng, máy chạy một nẻo ──────────────────────
     # Kho bản tham số thắng config — cố ý, không thì mỗi lần khởi động lại

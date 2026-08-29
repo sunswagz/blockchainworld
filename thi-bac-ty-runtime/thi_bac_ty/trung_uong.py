@@ -100,6 +100,15 @@ MAC_DINH = {
     #: theo GIỜ, không theo giây; chạy mỗi vòng là đốt công cho một bức
     #: tranh gần như đứng yên.
     "nhipHocGiay": 3600.0,
+    #: Cho máy TỰ đóng vị thế lãi thấp để nhường chỗ cho cơ hội tốt hơn.
+    #: Tắt mặc định: xoay chỗ là ĐỔI DANH MỤC, không phải đổi một con số
+    #: hiển thị, và người bật là người chịu trách nhiệm.
+    "tuXoayCho": False,
+    #: Lúc tự động thì đòi lợi ròng phải bằng NGẦN NÀY LẦN phí đổi. Rộng
+    #: hơn mức 1,0 của phép ĐO, vì phép đo có người nhìn từng dòng còn
+    #: đường tự động thì không — và mọi sai số của `netUocBps` đều dồn vào
+    #: đúng cái hiệu số nhỏ mà phép tính này dựa lên.
+    "bienXoayCho": 1.5,
     "duLieuTrong": "thi-bac-ty",
     "nguongCauDao": {
         "lechDongHoToiDaGiay": 60.0,
@@ -282,6 +291,7 @@ class TrungUong:
         #: được gì". Chỉ sống trong RAM — vị thế mô phỏng không mang qua
         #: được lần khởi động lại, và `doi_soat_vi_the` dọn phần sót ở sổ.
         self.latCatKeToan = LatCatKeToan()
+        self.latCatXoayCho = None
         #: Tổng mọi đồng ĐÃ đi qua `_ghi_tien`. Đối chiếu với
         #: `danh_muc.laiLoDaThucHienUsd` mỗi vòng — xem `lech_tien()`.
         self.tienDaGhiUsd = 0.0
@@ -388,6 +398,7 @@ class TrungUong:
         # vòng này. Ghi đường NAV trước là ghi lại ảnh chụp của vòng
         # TRƯỚC, và mọi phép đo sụt vốn lệch đi đúng một nhịp.
         self.latCatKeToan = self._ke_toan_vi_the()
+        self.latCatXoayCho = self._xoay_cho_neu_duoc()
 
         self.duongNav.ghi(self.danh_muc.navUsd,
                           dongVonUsd=self._dongVonChoGhi)
@@ -527,6 +538,51 @@ class TrungUong:
             self.loiHoc = f"{type(e).__name__}: {e}"
         else:
             self.loiHoc = ""
+
+    def _xoay_cho_neu_duoc(self):
+        """Đóng vị thế lãi thấp để nhường chỗ — CHỈ KHI người đã bật.
+
+        Chạy NGAY SAU kế toán và TRƯỚC cầu dao: kế toán xong thì lãi lỗ của
+        vị thế sắp đóng đã đủ, và đóng trước phân bổ thì chỗ trống có ngay
+        trong lượt phân bổ của chính vòng này. Đóng sau phân bổ là để trống
+        một chỗ suốt cả vòng.
+
+        Chỉ ĐÓNG, không mở. Chỗ trống rồi thì `phan_bo.chia()` ở bước 4 tự
+        rót vào theo đúng thứ hạng của nó — dựng một đường mở thứ hai ở đây
+        là dựng một cửa cấp vốn KHÔNG đi qua Rủi Ro Tổng.
+        """
+        from .xoay_cho import do_xoay_cho
+        gio = _gio_he()
+        lat = do_xoay_cho(self.soViThe, self.toTrinhVongNay, gio,
+                          bienAnToan=float(self.c.get("bienXoayCho") or 1.5))
+        if not self.c.get("tuXoayCho"):
+            return lat
+        for x in lat.xoay:
+            so = self.soViThe.get(x.maCu)
+            if so is None:
+                continue
+            laiLo = so.thuCongDonUsd - so.phiCongDonUsd
+            daGiu = so.daGiuGio(gio)
+            if not self.danh_muc.dong(x.maCu, 0.0):
+                continue
+            self.so_dang_ky.chuyen(
+                x.maCu, "DA_DONG",
+                f"xoay-cho: nhường chỗ cho {x.taiSanMoi} "
+                f"({x.aprCu:.2f}% → {x.aprMoi:.2f}%/năm, lợi ròng "
+                f"{x.loiRongUsd:+.4f} USD đã trừ phí)"[:400])
+            self.so_cai.ghi(ButToan(
+                "DONG_VI_THE", f"xoay chỗ · {x.taiSanCu} → {x.taiSanMoi}",
+                0.0, so.chienLuoc, x.maCu,
+                {"laiLoUsd": laiLo, "thuUsd": so.thuCongDonUsd,
+                 "phiUsd": so.phiCongDonUsd, "daGiuGio": daGiu,
+                 "duDoanBpsGio": _bps_gio_du_doan(so.toTrinh),
+                 "thucBpsGio": (laiLo / abs(so.vonUsd) * 10_000.0 / daGiu
+                                if daGiu > 0 and so.vonUsd else None),
+                 "xoayCho": True, "aprCu": x.aprCu, "aprMoi": x.aprMoi,
+                 "loiRongUocUsd": x.loiRongUsd}))
+            self.soViThe.pop(x.maCu, None)
+            lat.soDaDong += 1
+        return lat
 
     def _luu_danh_muc(self) -> None:
         """Ghi danh mục sau MỖI vòng. Hỏng thì khai ra, đừng giết vòng."""
@@ -1012,6 +1068,52 @@ class TrungUong:
             None, {"banThamSo": ban.so, "nguoi": nguoi}))
         return {"xong": True, "ban": ban.tom_tat()}
 
+    def dat_tham_so(self, nguoi: str, duong: str, giaTri,
+                    vi: str = "") -> dict:
+        """Đổi THẲNG một núm, có TÊN NGƯỜI. Ghi thành một bản mới.
+
+        `ap_dung()` chỉ áp được đề xuất mà chính máy vừa nghĩ ra. Nhưng có
+        những lần người muốn đổi một thứ máy KHÔNG đề xuất — vì triệu chứng
+        chưa đủ nặng, hoặc vì người biết một điều máy chưa đo được. Trần vị
+        thế 12 là ví dụ: nó chặn ba trên bốn họ, mà lý do đặt ra nó («quá
+        nhiều thì không theo dõi nổi») là lý do của thời chưa có kế toán tự
+        động — máy không biết lý do ấy đã hết hiệu lực.
+
+        Vẫn đi qua kho bản tham số, nên vẫn có số hiệu, vẫn `quay_lui`
+        được, và vẫn ghi ai đổi + vì sao. Khác `ap_dung` đúng một chỗ:
+        không kèm phép đo chạy lại, vì không có đề xuất nào để đo. Bản ghi
+        nói thẳng điều đó thay vì giả vờ có bằng chứng.
+        """
+        if not (nguoi or "").strip():
+            return {"xong": False,
+                    "vi": "thiếu tên người — đổi cách chia tiền là hành động "
+                          "có trách nhiệm"}
+        if not (vi or "").strip():
+            return {"xong": False,
+                    "vi": "thiếu lý do — một bản không giải thích được thì "
+                          "không kiểm toán được"}
+        cu = _lay_nut(self.tham_so(), duong)
+        if cu is None:
+            return {"xong": False,
+                    "vi": f"không có núm «{duong}» ở tầng phân bổ hay rủi ro "
+                          f"tổng — gõ nhầm tên thì đổi trúng hư không"}
+        moi = _dat_nut(self.tham_so(), duong, giaTri)
+        ban = self.kho_tham_so.dat(
+            {"ruiRoTong": moi.get("ruiRoTong") or {},
+             "phanBo": moi.get("phanBo") or {}},
+            nguoi,
+            f"{duong}: {cu} -> {giaTri} — NGƯỜI đặt thẳng, KHÔNG qua phép "
+            f"chạy lại. Lý do: {vi}")
+        if ban is None:
+            return {"xong": False, "vi": self.kho_tham_so.loiCuoi or "ghi hỏng"}
+        self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
+        self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
+        self.so_cai.ghi(ButToan(
+            "DIEU_CHINH", f"tham số: bản #{ban.so} — {ban.vi}", 0.0, None,
+            None, {"banThamSo": ban.so, "nguoi": nguoi, "nut": duong,
+                   "tu": cu, "den": giaTri, "quaChayLai": False}))
+        return {"xong": True, "ban": ban.tom_tat(), "tu": cu, "den": giaTri}
+
     def quay_lui(self, veSo: int, nguoi: str, vi: str = "") -> dict:
         """Quay về nội dung bản `veSo`, bằng cách ghi một bản MỚI.
 
@@ -1124,7 +1226,12 @@ class TrungUong:
             "duDoanVaThuc": self.so_cai.du_doan_va_thuc(),
             # Chỗ ngồi có hạn, và ai ngồi mới là câu hỏi. Xem `xoay_cho.py`.
             # ĐO thôi — đường thực hiện chưa nối.
-            "xoayCho": self.xoay_cho().tom_tat(),
+            # Lát cắt của CHÍNH vòng vừa chạy, không đo lại: đo lại ở đây
+            # là chạy phép tính hai lần trên hai bức tranh khác nhau, và
+            # buồng lái sẽ hiện một bản kê không khớp việc máy đã làm.
+            "xoayCho": (self.latCatXoayCho.tom_tat()
+                        if self.latCatXoayCho is not None
+                        else self.xoay_cho().tom_tat()),
         }
 
 
@@ -1148,6 +1255,21 @@ def _bps_gio_du_doan(toTrinh: dict) -> float | None:
     if net is None or not gio:
         return None
     return float(net) / float(gio)
+
+
+def _lay_nut(thamSo: dict, duong: str):
+    """Giá trị hiện tại của một núm, hoặc `None` khi không có núm ấy.
+
+    `None` để bên gọi TỪ CHỐI, chứ không phải để nó tạo ra một núm mới:
+    gõ nhầm `phanBo.toiDaSoVite` mà máy vẫn ghi thành công là đổi trúng hư
+    không, và bản tham số mới trông y hệt một bản đã có hiệu lực.
+    """
+    o = thamSo
+    for k in duong.split("."):
+        if not isinstance(o, dict) or k not in o:
+            return None
+        o = o[k]
+    return o
 
 
 def _dat_nut(thamSo: dict, duong: str, gt) -> dict:
