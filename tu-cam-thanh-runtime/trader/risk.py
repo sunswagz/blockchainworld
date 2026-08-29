@@ -69,6 +69,31 @@ class RiskEngine:
 
         if len(account.get("positions", [])) >= c["maxOpenPositions"]:
             out.append(f"MAX_POSITIONS: đang giữ {len(account['positions'])}/{c['maxOpenPositions']} vị thế")
+
+        # TỔNG rủi ro đang mở, không phải rủi ro từng lệnh.
+        #
+        # `maxRiskPerTradePct` canh MỘT lệnh. Khi chỉ được mở một vị thế thì hai
+        # con số ấy là một, nên trần tổng chưa cần tồn tại. Mở ra nhiều coin thì
+        # chúng tách hẳn: 15 coin × 0,5% là 7,5% vốn đang chịu rủi ro cùng lúc.
+        #
+        # Và 15 lệnh crypto KHÔNG phải 15 cược độc lập. Chúng tương quan cao —
+        # đo được ngay trong lò luyện: MỌI biến thể đều âm ở cùng một lát thời
+        # gian trên cả ba chợ. Khi thị trường quay đầu thì chúng thua CÙNG NHAU,
+        # nên "đa dạng hoá" ở đây gần với "một lệnh to" hơn là với 15 lệnh nhỏ.
+        #
+        # Trần này là hàng rào, không phải mục tiêu tối ưu. Nó nằm trong
+        # `circuit_breakers` chứ không trong `evaluate` để không bộ luật nào —
+        # kể cả bộ não — nới được nó bằng cách tự tin hơn.
+        tran_tong = c.get("maxTongRuiRoPct")
+        if tran_tong is not None and equity > 0:
+            vt = account.get("positions", [])
+            dang = sum(abs(x.get("riskAmount") or 0.0) for x in vt)
+            pct = dang / equity * 100
+            if pct >= tran_tong:
+                out.append(
+                    f"MAX_TONG_RUI_RO: {len(vt)} vị thế đang chịu {pct:.2f}% vốn "
+                    f"≥ trần {tran_tong}% — crypto rơi thì rơi cùng nhau, đây "
+                    f"không phải {len(vt)} cược riêng")
         return out
 
     # ── Thẩm định một luận điểm ───────────────────────────────────────────

@@ -30,6 +30,8 @@
     "startingEquity": 10000,
     "maxRiskPerTradePct": 0.5,
     "maxOpenPositions": 1,
+  "_maxTongRuiRoPct": "TỔNG rủi ro đang mở, tính bằng % vốn. Khác maxRiskPerTradePct: cái đó canh MỘT lệnh. Khi maxOpenPositions=1 thì hai con số là một; mở nhiều coin thì chúng tách hẳn, và 15 lệnh crypto không phải 15 cược độc lập — chúng thua cùng nhau.",
+  "maxTongRuiRoPct": 2.0,
     "maxDailyLossPct": 2.0,
     "maxDrawdownPct": 10.0,
     "minRR": 2.0,

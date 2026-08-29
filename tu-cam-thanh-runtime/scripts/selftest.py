@@ -1063,6 +1063,40 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[35] TRẦN TỔNG RỦI RO — 15 COIN KHÔNG PHẢI 15 CƯỢC RIÊNG")
+    from trader.risk import RiskEngine as _RE35
+
+    # `maxRiskPerTradePct` canh MỘT lệnh. Khi chỉ được mở một vị thế thì hai con
+    # số ấy là một, nên trần tổng chưa cần tồn tại. Mở ra nhiều coin thì chúng
+    # tách hẳn: 15 coin × 0,5% là 7,5% vốn đang chịu rủi ro cùng lúc.
+    #
+    # Và 15 lệnh crypto KHÔNG phải 15 cược độc lập — đo được ngay trong lò luyện:
+    # mọi biến thể đều âm ở CÙNG một lát thời gian trên cả ba chợ. Khi thị trường
+    # quay đầu thì chúng thua cùng nhau.
+    _c35 = {**CONFIG["risk"], "maxOpenPositions": 20, "maxTongRuiRoPct": 2.0}
+    _e35 = _RE35(_c35)
+    _acc35 = lambda n: {"equity": 10000.0, "peakEquity": 10000.0,
+                        "positions": [{"riskAmount": 50.0} for _ in range(n)],
+                        "dailyPnl": {}, "dailyStartEquity": {}}
+    _co = lambda n: any("MAX_TONG_RUI_RO" in x for x in _e35.circuit_breakers(_acc35(n)))
+    check(not _co(3), "3 vị thế = 1,5% vốn → cho qua")
+    check(_co(4), "4 vị thế = 2,0% vốn → CHẶN (chạm trần)")
+    check(not _co(0), "không vị thế nào → cho qua, không chia cho không")
+
+    # Trần phải nằm ở CẦU DAO, không ở `evaluate`: chỗ đó là nơi luận điểm được
+    # chấm, và mọi thứ chấm được thì rồi sẽ có lúc bị nới bằng cách tự tin hơn.
+    _src35 = (ROOT / "trader" / "risk.py").read_text(encoding="utf-8")
+    _i_cb = _src35.index("def circuit_breakers")
+    _i_ev = _src35.index("def evaluate")
+    _i_tr = _src35.index("maxTongRuiRoPct")
+    check(_i_cb < _i_tr < _i_ev,
+          "trần tổng nằm trong circuit_breakers, KHÔNG trong evaluate")
+
+    # Và nó phải có trong config, không chỉ trong mã — thiếu thì `c.get()` trả
+    # None và hàng rào im lặng biến mất.
+    check(CONFIG["risk"].get("maxTongRuiRoPct") is not None,
+          "config khai maxTongRuiRoPct = "
+          + str(CONFIG["risk"].get("maxTongRuiRoPct")))
     print("\n[34] LÒ LUYỆN: LÁT DƯƠNG XẾP TRƯỚC KỲ VỌNG GỘP")
     import importlib.util as _il34
     _sp34 = _il34.spec_from_file_location(
