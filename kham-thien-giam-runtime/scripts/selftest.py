@@ -966,6 +966,67 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_hoc_khong_nhin_trom() -> None:
+    """Lát cắt học từ nến 1 phút KHÔNG được lấy giá của tương lai.
+
+    `scripts/hoc-tu-binance.py` dựng sổ hiệu chỉnh từ nến Binance: với
+    mỗi khung [T, T+300] nó lấy giá tại thời điểm còn τ giây, rồi so dự
+    đoán với kết quả `giá(T+300) > giá(T)`.
+
+    Nến 1 phút chỉ cho biết giá tại các mốc PHÚT. Bản đầu tra giá bằng
+    `floor(t) + 1 phút` — làm tròn LÊN — nên:
+
+        τ=240 → t=T+60s  (đúng mốc phút) → lấy giá T+120s, muộn 60 giây
+        τ=30  → t=T+270s (giữa phút)     → lấy giá T+300s, ĐÚNG ĐÁP ÁN
+
+    Nó hiện ra thành hai ô đầu và cuối bảng hiệu chỉnh khớp gần như hoàn
+    hảo (lệch −0,000 và −0,008) trên 3.476 mẫu, và trông y hệt một mô
+    hình giỏi.
+
+    Nay chỉ lấy những τ rơi đúng ranh giới phút, và tra thẳng.
+    """
+    print("\n-- Hoc tu Binance: KHONG duoc nhin trom -----------------")
+
+    import ast as _ast
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    ma = (GOC_MA / "scripts" / "hoc-tu-binance.py").read_text(encoding="utf-8")
+
+    # Đọc bằng CÂY CÚ PHÁP, không bằng regex: mẫu regex ở đây phải mang
+    # dấu gạch chéo ngược, mà file này đi qua nhiều lớp shell và gạch
+    # chéo bị nuốt một lớp mỗi lần.
+    lat: list = []
+    for nut in _ast.walk(_ast.parse(ma)):
+        if (isinstance(nut, _ast.Assign) and nut.targets
+                and isinstance(nut.targets[0], _ast.Name)
+                and nut.targets[0].id == "LAT_CAT"):
+            lat = [float(x.value) for x in nut.value.elts]
+    kiem("đọc được bảng lát cắt", bool(lat), lat)
+    if not lat:
+        return
+    kiem("có lát cắt để kiểm", len(lat) >= 3, lat)
+
+    # Mọi lát cắt phải rơi đúng ranh giới phút của khung 5 phút.
+    le = [t for t in lat if int((300.0 - t) * 1000.0) % 60_000]
+    kiem("mọi lát cắt rơi đúng ranh giới phút", not le,
+         f"{le} nằm giữa phút — tra giá ở đó là hoặc lấy giá cũ, hoặc "
+         "lấy giá của TƯƠNG LAI")
+
+    kiem("τ=30 đã bị bỏ (nó lấy đúng giá kết toán)", 30.0 not in lat, lat)
+
+    # Và mã phải TỪ CHỐI mốc giữa phút thay vì làm tròn lên.
+    kiem("mã bỏ qua mốc giữa phút, không làm tròn LÊN",
+         "if t % int(PHUT):" in ma and "// PHUT * PHUT) + int(PHUT))" not in ma,
+         "làm tròn lên là lấy giá của tương lai")
+
+    # Và nó phải dựng lại từ đầu, không cộng dồn lên sổ cũ.
+    kiem("dựng lại sổ từ đầu, không cộng dồn", "hc.o = {}" in ma,
+         "chạy hai lần mà cộng dồn thì `n` phình lên, và `n` mở Kelly")
+    kiem("xoá sổ thô trước khi dựng lại", "tho.unlink()" in ma,
+         "`ghi_tho` nối thêm; không xoá thì phần đuôi ngoài mẫu chứa "
+         "đúng thứ phần đầu đã thấy")
+
+
 def kiem_duong_quyet_dinh() -> None:
     """Gọi THẬT `_mot_thi_truong` — ở khung ăn thua, không phải cửa đặt cược.
 
@@ -2414,6 +2475,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_hoc_khong_nhin_trom()
     kiem_duong_quyet_dinh()
     kiem_giai_doan_bang()
     kiem_lo_ngay_rong()
