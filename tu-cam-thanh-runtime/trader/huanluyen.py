@@ -490,6 +490,33 @@ def nap_nen(symbol: str | None = None) -> dict[str, list[dict]] | None:
     return ra
 
 
+# Vân tay của MÃ sinh ra chuỗi. Tính một lần lúc nạp module.
+#
+# `PHIEN_BAN_CHUOI` là một con số phải TỰ TAY tăng khi sửa mã sinh chuỗi — và
+# nó vừa không được tăng: bản vá làm tròn giá theo chữ số có nghĩa đổi hẳn nội
+# dung chuỗi, nhưng vân tay không đổi nên cache cũ (chứa giá đã bị làm tròn về
+# 0) vẫn được dùng, và lượt đo tiếp theo nổ y hệt lượt trước bản vá.
+#
+# Một con số phải nhớ tăng thì sớm muộn sẽ quên. Nên băm luôn NỘI DUNG những
+# file thật sự quyết định chuỗi: sửa bất kỳ file nào trong số đó là vân tay đổi
+# và cache tự hết hạn, không ai phải nhớ gì.
+#
+# Giá: mỗi lần sửa một trong các file này là mọi chuỗi phải tính lại. Đó đúng
+# là điều cần xảy ra — chuỗi cũ được sinh bởi mã cũ.
+def _van_tay_ma() -> str:
+    import hashlib
+
+    h = hashlib.sha256()
+    for ten in ("features.py", "indicators.py", "regime.py", "mau_gia.py",
+                "brain.py", "huanluyen.py"):
+        f = ROOT / "trader" / ten
+        if f.exists():
+            h.update(f.read_bytes())
+    return h.hexdigest()[:12]
+
+
+VAN_TAY_MA = _van_tay_ma()
+
 def _van_tay(nen: dict[str, list[dict]], symbol: str) -> str:
     """Vân tay của bộ dữ liệu + những cấu hình ẢNH HƯỞNG tới chuỗi luận điểm.
 
@@ -502,7 +529,7 @@ def _van_tay(nen: dict[str, list[dict]], symbol: str) -> str:
 
     tf = CONFIG["timeframes"]
     m = [symbol, tf["primary"], tf["context"], str(CONFIG["data"]["candleLimit"]),
-         str(KHOI_DONG), f"v{PHIEN_BAN_CHUOI}"]
+         str(KHOI_DONG), f"v{PHIEN_BAN_CHUOI}", VAN_TAY_MA]
     for k in sorted(nen):
         v = nen[k]
         m += [k, str(len(v)), str(v[0]["t"]), str(v[-1]["t"])]
@@ -552,6 +579,19 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
         tam = f.with_suffix(f".{os.getpid()}.tmp")
         tam.write_text(json.dumps(c), encoding="utf-8")
         os.replace(tam, f)
+
+        # Dọn chuỗi CŨ của cùng chợ này. Vân tay giờ gồm cả mã nguồn, nên mỗi
+        # lần sửa `features.py` là toàn bộ cache thành rác không ai với tới —
+        # 74 file, 86 MB sau đúng một bản vá. Không dọn thì nó chỉ có tăng.
+        #
+        # Chỉ xoá file của CHÍNH chợ vừa ghi: một tiến trình khác có thể đang
+        # dùng cache của chợ khác với vân tay khác (ví dụ đang chạy bản mã cũ).
+        for cu_f in f.parent.glob(f"{symbol}-*.json"):
+            if cu_f.name != f.name:
+                try:
+                    cu_f.unlink()
+                except OSError:
+                    pass
     bus.emit("hoc", "sinh-chuoi",
              f"sinh {len(c)} điểm vào lệnh từ lịch sử trong {time.time() - t0:.0f}s")
     return c, "tính mới"
