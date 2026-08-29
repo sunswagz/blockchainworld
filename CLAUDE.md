@@ -918,6 +918,18 @@ Báo khi **cùng ngữ cảnh, cùng selector, cùng thuộc tính, khác giá t
 ở hai khối khác nhau** — tức là một trong hai đang chết mà người viết
 nó không hay.
 
+**Hai lượt soi: trong một tệp, và BẮC QUA hai tệp.** Lượt thứ hai có vì
+lượt thứ nhất để lọt một ca thật. Đài Quan Trắc nạp ba tệp CSS;
+`app-shell.css` style `.sw-toast` và `.install-dqt` từ 12/08. Một phiên
+soi `app.css` với `halls.css`, không thấy hai lớp ấy đâu, kết luận
+"không ai style", rồi viết khối mới vào `halls.css` — tệp nạp SAU CÙNG.
+22 thuộc tính bị đè, thanh thông báo bản mới đổi hình, và lượt soi
+từng-tệp in ✓ suốt. Thứ tự tệp đọc từ `<link>` của `index.html`, không
+xếp theo tên: cái nạp sau mới là cái thắng.
+
+Bài học đi kèm, cho mọi phiên: **trước khi kết luận một lớp "không ai
+style", đếm xem cung có mấy tệp CSS.** Không cung nào chỉ có một.
+
 **Vì sao đáng có một phép canh riêng: lớp lỗi này mở rộng theo số
 cung.** `knowledge-os` sinh widget mang tiền tố `tt-` cho mười một
 cung, nên mỗi lớp mới là mười một chỗ có thể đụng tên với lớp sẵn có.
