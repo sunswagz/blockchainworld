@@ -1063,6 +1063,41 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[36] GIÁ COIN RẺ KHÔNG ĐƯỢC LÀM TRÒN VỀ 0")
+    from trader.features import _rg as _rg36, build_market_state as _bms36
+
+    # `_r(v, 2)` làm tròn tới 2 chữ số THẬP PHÂN. Đúng cho BTC (77.584,67) và
+    # phá huỷ mọi thứ dưới một đô:
+    #
+    #     VETUSDT   0,00679    → 0,01   sai 47%
+    #     GALAUSDT  0,00182    → 0,0    chia cho không
+    #     SHIBUSDT  0,00000517 → 0,0    chia cho không
+    #
+    # Bot chỉ chạy BTCUSDT nên chưa ai thấy. Nó lộ đúng lúc mở bảng đo sang 48
+    # chợ: `mock_thesis` chia `atr / price` và nổ ở GALAUSDT. Cái NỔ là phần
+    # may — với VET thì không nổ, chỉ là mọi con số dẫn xuất sai 47% mà bảng
+    # vẫn xanh. Mở rộng thị trường làm lỗi này thành lỗi thật.
+    for _g in (77584.67, 123456.78, 12.34, 0.00679, 0.00182, 0.00000517):
+        check(_rg36(_g) == _g, f"giá {_g} giữ nguyên sau khi làm tròn")
+    check(_rg36(0.0) == 0.0 and _rg36(None) is None,
+          "0 và None đi qua được, không nổ log(0)")
+
+    # Cửa quan trọng nhất: dựng trạng thái từ nến GIÁ RẺ THẬT rồi chia thử.
+    _nen36 = [{"t": 1_600_000_000_000 + i * 86_400_000,
+               "o": 0.0000050 + i * 1e-9, "h": 0.0000053 + i * 1e-9,
+               "l": 0.0000048 + i * 1e-9, "c": 0.0000051 + i * 1e-9,
+               "v": 1e9, "closed": True} for i in range(260)]
+    _st36 = _bms36({"symbol": "SHIBUSDT", "price": 0.0000051,
+                    "source": {"name": "kiem", "live": False},
+                    "timeframes": {"1d": _nen36}})
+    _p36 = _st36["timeframes"]["1d"]["price"]
+    check(_p36 > 0, f"giá SHIB trong market state > 0 (được {_p36})")
+    # So với giá đóng của nến CUỐI, không với giá khởi tạo: nến giả tăng dần
+    # nên hai con số đó khác nhau, và so nhầm là phép kiểm đỏ vì lỗi của chính nó.
+    _dung36 = _nen36[-1]["c"]
+    check(abs(_p36 - _dung36) / _dung36 < 0.001,
+          f"và sai số dưới 0,1% ({_p36} so với {_dung36}) — "
+          f"không phải chỉ khác 0 là xong")
     print("\n[35] TRẦN TỔNG RỦI RO — 15 COIN KHÔNG PHẢI 15 CƯỢC RIÊNG")
     from trader.risk import RiskEngine as _RE35
 
