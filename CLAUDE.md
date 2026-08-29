@@ -727,7 +727,23 @@ Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
     BTC dẫn ETH · XRP                       KHÔNG đủ bằng chứng
     BTC dẫn SOL                             TỆ HƠN, khoảng tin hẳn bên âm
     cửa sổ σ riêng từng market              cả ba đều chọn 900s
+    mùa vụ theo GIỜ trong ngày              trả lại — khoảng tin chứa 0
     (`ewma` thì TỆ HƠN close-close rõ rệt)
+
+Hướng thứ bảy (`scripts/thu-mua-vu-gio.py`, 30/08/2026) đáng ghi riêng vì
+nó là hướng duy nhất thêm THÔNG TIN NGOÀI 900 giây nến vừa qua — giờ
+trong ngày không nằm trong cửa sổ ấy. Nhân σ với một hệ số học riêng cho
+từng khối 6 giờ (và 3 giờ) UTC:
+
+    trơn        Brier CHỌN 0.15591   CHỐT 0.15809
+    mùa vụ ×4              0.15603        0.15822
+    mùa vụ ×8              0.15599        0.15802
+    khoảng tin 95% chênh CHỐT (1.440 KHUNG): [−0,000293, +0,000144]
+
+Cả hai biến thể TỆ HƠN ở tập CHỌN, và chia mịn hơn không cứu được. Phần
+đáng đọc nhất là chính các hệ số học ra: **0,87–1,06**. Bộ ước 900 giây
+đã gần như không thiên vị theo giờ — nên không có mùa vụ nào để ăn, chứ
+không phải có mà đo không ra.
 
 **Dữ liệu giá Binance đã cạn.** Sáu hướng, sáu kết quả, cùng một kết
 luận. Alpha còn lại — nếu có — nằm ở vi cấu trúc của chính cái chợ: sổ
