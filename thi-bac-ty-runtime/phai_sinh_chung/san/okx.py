@@ -16,6 +16,17 @@ v0.1 lấy `last` rồi so với `markPrice` của Binance: `last` là giá kh�
 nhảy theo từng lệnh lẻ; `mark` là giá sàn dùng để thanh lý. So hai thứ đó với
 nhau ra một độ lệch pha trộn giữa lệch thật và tiếng ồn vi cấu trúc, rồi cổng
 `lechMarkToiDaBps` chặn nhầm hoặc thả nhầm theo.
+
+## Open interest hỏi MỘT LƯỢT cho cả sàn, không hỏi từng mã
+
+`/api/v5/public/open-interest?instType=SWAP` trả về mọi hợp đồng vĩnh cửu
+trong một lời hỏi. Hỏi từng mã là sáu lời hỏi để lấy sáu dòng của cùng một
+bảng — vô ích, và mỗi lời hỏi thêm là một dịp bị chặn tần suất.
+
+OKX trả sẵn `oiUsd`, khác Binance và Hyperliquid (hai chỗ ấy trả bằng COIN
+và phải nhân mark). Vẫn đối chứng `oiCcy × mark` khi có đủ hai số: lệch quá
+một nửa thì BỎ, vì lúc ấy ta không biết trường nào đúng — và một sức chứa
+sai gấp mấy lần tệ hơn hẳn một sức chứa không có.
 """
 from __future__ import annotations
 
@@ -34,6 +45,8 @@ class OKX(Cang):
     goc = "https://www.okx.com"
 
     async def _hoi(self, client, ma: list[str]) -> list[BaoGia]:
+        oi_bang = await _oi_ca_san(client, self.goc)
+
         async def mot(goc_ma: str):
             inst = f"{goc_ma}-USDT-SWAP"
             a, b = await asyncio.gather(
@@ -79,13 +92,53 @@ class OKX(Cang):
 
             return BaoGia(
                 san=self.ten, ma=goc_ma, rate=rate, intervalGio=gio,
-                markPx=mark, mocKeMs=moc_dung, nguonTsMs=ts,
+                markPx=mark, oiUsd=_oi_hop_le(oi_bang.get(inst), mark),
+                mocKeMs=moc_dung, nguonTsMs=ts,
                 nhanTsMs=now, nguonTuSan=True,   # `ts` là dấu của sàn
                 intervalSuyRa=suy_ra, ghiChu=ghi,
             )
 
         ds = await asyncio.gather(*(mot(x) for x in ma), return_exceptions=True)
         return [x for x in ds if isinstance(x, BaoGia)]
+
+
+async def _oi_ca_san(client, goc: str) -> dict:
+    """`instId` → `(oiUsd, oiCcy)` cho cả sàn, hoặc rỗng nếu hỏi không được.
+
+    Bọc kín: mất OI thì sức chứa thô hơn; để lỗi ném lên thì mất cả lượt báo
+    giá của cảng này, tức mất mọi cặp có một chân ở đây.
+    """
+    try:
+        r = await client.get(f"{goc}/api/v5/public/open-interest",
+                             params={"instType": "SWAP"})
+        if r.status_code >= 400:
+            return {}
+        ds = (r.json() or {}).get("data") or []
+    except Exception:                                     # noqa: BLE001
+        return {}
+    return {h["instId"]: (so_hoac_none(h.get("oiUsd")),
+                          so_hoac_none(h.get("oiCcy")))
+            for h in ds if h.get("instId")}
+
+
+def _oi_hop_le(cap, mark: float | None) -> float | None:
+    """OI theo USD, đã ĐỐI CHỨNG với `oiCcy × mark`. `None` khi không tin nổi.
+
+    OKX trả sẵn `oiUsd`, nhưng "trả sẵn" không phải "đã kiểm". Hai trường
+    cùng nói một chuyện thì phải khớp nhau; lệch quá một nửa nghĩa là ta
+    không biết trường nào đúng, và lúc ấy `None` trung thực hơn — một sức
+    chứa sai gấp mấy lần đắt hơn hẳn một sức chứa không có.
+    """
+    if not cap:
+        return None
+    usd, ccy = cap
+    if usd is None or usd <= 0:
+        return (ccy * mark) if (ccy and mark) else None
+    if ccy and mark:
+        doi = ccy * mark
+        if doi > 0 and abs(usd - doi) / doi > 0.5:
+            return None
+    return usd
 
 
 def _chu_ky(mocMs: int | None, mocKeMs: int | None) -> tuple[float, bool]:

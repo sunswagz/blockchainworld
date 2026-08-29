@@ -490,6 +490,98 @@ def kiem_adapter() -> None:
          _doi_chung(int(30 * GIO), 0) is None)
     kiem("Binance: mốc đã qua → None", _doi_chung(0, int(GIO)) is None)
 
+    # ── OPEN INTEREST: hai cảng câm làm cả họ phái-sinh không được cấp vốn ─
+    # Trước lượt này chỉ Hyperliquid và Bybit báo OI. Cặp nào hai chân đều
+    # binance/okx thì `uoc_luong` trả None, và «chưa đo được sức chứa» là lý
+    # do từ chối ĐỨNG ĐẦU của cả họ phái-sinh — 36 lần chỉ trong một buổi.
+    from phai_sinh_chung.san.binance import _oi_usd
+    from phai_sinh_chung.san.okx import _oi_ca_san, _oi_hop_le
+
+    kiem("OKX: `oiUsd` khớp `oiCcy × mark` thì NHẬN",
+         gan(_oi_hop_le((2.24e9, 28900.0), 77550.0), 2.24e9, 1.0))
+    kiem("OKX: hai trường lệch quá một nửa → None, không đoán trường nào đúng",
+         _oi_hop_le((2.24e9, 289.0), 77550.0) is None,
+         "một sức chứa sai gấp mấy lần đắt hơn hẳn một sức chứa không có")
+    kiem("OKX: thiếu `oiUsd` thì suy từ `oiCcy × mark`",
+         gan(_oi_hop_le((None, 100.0), 50.0), 5000.0))
+    kiem("OKX: thiếu cả hai → None", _oi_hop_le(None, 50.0) is None
+         and _oi_hop_le((None, None), 50.0) is None)
+
+    class _R:
+        def __init__(self, ma, d): self.status_code, self._d = ma, d
+        def json(self): return self._d
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise RuntimeError(f"HTTP {self.status_code}")
+
+    class _C:
+        def __init__(self, ra): self.ra, self.hoi = ra, []
+        async def get(self, url, params=None):
+            self.hoi.append((url, params))
+            if isinstance(self.ra, BaseException):
+                raise self.ra
+            return self.ra
+
+    import asyncio as _aio
+    # `openInterest` của Binance tính bằng COIN. Không nhân mark là ra một
+    # con số nhỏ hơn thật đúng bằng giá một đồng coin — mà vẫn trông hợp lệ.
+    _kh = _C(_R(200, {"openInterest": "106801.857"}))
+    kiem("Binance: OI bằng COIN được nhân mark ra USD",
+         gan(_aio.run(_oi_usd(_kh, "g", "BTCUSDT", 77550.0)),
+             106801.857 * 77550.0, 1.0),
+         "sai đơn vị ở đây không phải một lỗi mà là một con số nhỏ hơn thật "
+         "77.550 lần, và tầng trên không cách nào biết")
+    kiem("Binance: KHÔNG có mark thì OI là None, không phải số coin trần",
+         _aio.run(_oi_usd(_C(_R(200, {"openInterest": "1"})), "g", "X", None))
+         is None,
+         "`None` nghĩa là không biết; một con số sai đơn vị nghĩa là biết "
+         "sai, và hai thứ ấy phải khác nhau ở tầng trên")
+    kiem("Binance: HTTP hỏng thì bỏ THÂN, dù thân có số trông hợp lệ",
+         _aio.run(_oi_usd(_C(_R(418, {"openInterest": "999"})), "g", "X",
+                          1.0)) is None,
+         "đọc mã trạng thái TRƯỚC rồi mới đọc thân: sàn chặn tần suất, hay "
+         "một cổng proxy chen vào, đều trả 4xx kèm một thân JSON — và thân "
+         "ấy không phải số của sàn")
+
+    # Kiểm ở tầng `_hoi`, không ở tầng `_oi_usd`: điều đáng giữ không phải
+    # "hàm phụ trả None" mà là "báo giá VẪN VỀ khi hàm phụ hỏng". Kiểm hàm
+    # phụ một mình thì đột biến đổi `return None` thành `raise` vẫn qua —
+    # nó đã sống sót đúng một lượt như thế.
+    from phai_sinh_chung.san.binance import Binance as _Bn
+
+    class _CBn:
+        """Khách giả: fundingInfo và premiumIndex CHẠY, riêng OI thì HỎNG."""
+        def __init__(self, kieu): self.kieu = kieu
+        async def get(self, url, params=None):
+            if url.endswith("/fapi/v1/fundingInfo"):
+                return _R(200, [])
+            if url.endswith("/fapi/v1/premiumIndex"):
+                return _R(200, {"lastFundingRate": "0.0001",
+                                "markPrice": "100.0",
+                                "nextFundingTime": 0, "time": 0})
+            if self.kieu == "nem":
+                raise RuntimeError("đứt")
+            return _R(500, {})
+
+    for _k in ("nem", "500"):
+        _ds = _aio.run(_Bn()._hoi(_CBn(_k), ["BTC"]))
+        kiem(f"Binance: OI hỏng kiểu «{_k}» thì báo giá VẪN VỀ, chỉ mất OI",
+             len(_ds) == 1 and _ds[0].oiUsd is None
+             and gan(_ds[0].markPx, 100.0),
+             f"{_ds} — mất OI thì sức chứa thô hơn; mất báo giá là mất cả cặp")
+    kiem("OKX: hỏi OI hỏng thì trả bảng RỖNG, không ném",
+         _aio.run(_oi_ca_san(_C(RuntimeError("đứt")), "g")) == {}
+         and _aio.run(_oi_ca_san(_C(_R(500, {})), "g")) == {})
+    _kh2 = _C(_R(200, {"data": [{"instId": "BTC-USDT-SWAP", "oiUsd": "9",
+                                 "oiCcy": "3"}]}))
+    kiem("OKX: hỏi OI MỘT LƯỢT cho cả sàn, không hỏi từng mã",
+         _aio.run(_oi_ca_san(_kh2, "g")) == {"BTC-USDT-SWAP": (9.0, 3.0)}
+         and len(_kh2.hoi) == 1
+         and (_kh2.hoi[0][1] or {}).get("instType") == "SWAP"
+         and "instId" not in (_kh2.hoi[0][1] or {}),
+         "hỏi từng mã là sáu lời hỏi để lấy sáu dòng của cùng một bảng, và "
+         "mỗi lời hỏi thêm là một dịp bị chặn tần suất")
+
 
 def kiem_so() -> None:
     print("\n── Sổ: ghi cả lượt TRỐNG, và không ghi vào sổ thật ───────────")
@@ -1033,6 +1125,16 @@ def kiem_suc_chua() -> None:
     s5, t5 = uoc_luong(2_000_000.0, None)
     kiem("một cảng báo thì vẫn suy được", s5 is not None)
     kiem("nhưng khai rõ là suy từ MỘT phía", "chi-mot-cang-bao-oi" in t5)
+    kiem("và LÚC ẤY mới khai thiếu OI", "oi-thieu-o-mot-so-cang" in t5)
+    kiem("CẢ HAI chân báo OI thì KHÔNG khai thiếu OI nữa",
+         "oi-thieu-o-mot-so-cang" not in thieu,
+         "tới 29/08 chỉ hai trong bốn cảng báo OI nên dòng này khai vô điều "
+         "kiện; nay cả bốn đều báo, và khai một cái thiếu KHÔNG CÒN THIẾU thì "
+         "trung ương hạ trọng số cho một con số vốn đã tốt hơn nó tưởng")
+    kiem("nhưng độ sâu sổ lệnh thì VẪN thiếu, mọi lúc",
+         all("do-sau-so-lenh" in x for x in (thieu, t3, t4, t5)),
+         "runtime không hỏi sổ lệnh của cảng nào — cái thiếu ấy chưa lượt nào "
+         "hết thiếu, và nó là cái thiếu ĐÁNG kể nhất")
 
 
 def kiem_adapter_ty() -> None:

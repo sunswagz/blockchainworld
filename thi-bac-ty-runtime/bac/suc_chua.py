@@ -55,7 +55,16 @@ TRAN_USD = 250_000.0
 #: hành ăn hết phần lãi của một vị thế quá nhỏ.
 SAN_USD = 25.0
 
-THIEU = ("do-sau-so-lenh", "oi-thieu-o-mot-so-cang")
+#: Thiếu ở MỌI lần ước lượng, không có ngoại lệ: runtime không hỏi sổ lệnh
+#: của cảng nào, nên không lần nào đo được độ sâu.
+THIEU = ("do-sau-so-lenh",)
+
+#: Chỉ khai khi ĐÚNG là thiếu. Tới 29/08 bốn cảng chỉ có hai cảng báo OI, nên
+#: dòng này nằm trong `THIEU` và khai vô điều kiện. Nay cả bốn đều báo — giữ
+#: nguyên là khai một cái thiếu KHÔNG CÒN THIẾU, và một lời khai sai theo
+#: hướng bi quan vẫn là một lời khai sai: trung ương hạ trọng số cho một con
+#: số vốn đã tốt hơn nó tưởng.
+THIEU_OI = "oi-thieu-o-mot-so-cang"
 
 
 def uoc_luong(oiLongUsd: float | None, oiShortUsd: float | None) -> tuple[float | None, tuple[str, ...]]:
@@ -66,7 +75,7 @@ def uoc_luong(oiLongUsd: float | None, oiShortUsd: float | None) -> tuple[float 
     """
     co = [x for x in (oiLongUsd, oiShortUsd) if x is not None and x > 0]
     if not co:
-        return None, THIEU + ("khong-cang-nao-bao-oi",)
+        return None, THIEU + (THIEU_OI, "khong-cang-nao-bao-oi")
 
     # MIN, không phải trung bình — xem docstring đầu file.
     nen = min(co)
@@ -76,5 +85,5 @@ def uoc_luong(oiLongUsd: float | None, oiShortUsd: float | None) -> tuple[float 
 
     thieu = THIEU
     if len(co) == 1:
-        thieu = thieu + ("chi-mot-cang-bao-oi",)
+        thieu = thieu + (THIEU_OI, "chi-mot-cang-bao-oi")
     return suc, thieu
