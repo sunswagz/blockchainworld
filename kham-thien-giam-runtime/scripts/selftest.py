@@ -3991,6 +3991,113 @@ def kiem_cham_moc_tu_choi_sigma_ngan() -> None:
     kiem("`cham_moc` khai luôn CHIỀU và CỠ của sai lệch bỏ trôi",
          "+40,6%" in cm and "CAO HƠN" in cm)
 
+def kiem_nut_van_khong_bi_dong_bang() -> None:
+    """Nút trong bảng vặn phải đọc CONFIG lúc GỌI, không chốt lúc nạp.
+
+    Bẫy này đã cắn thật một lần: `dinhGia.bienDongCuaSoGiay` nằm trong
+    bảng vặn của vòng tiến hoá, nhưng `DoBienDong` chốt nó thành hằng số
+    lúc import. Cổng thử một giá trị mới, đo ra 'không khác gì' — vì bộ
+    ước vẫn dùng giá trị cũ — rồi trả lại. Một nút nằm trong bảng mà
+    không ai vặn được thì bằng không có, và tệ hơn: nó làm cổng tiến hoá
+    kết luận SAI về chính nút ấy, rồi ghi kết luận sai đó vào sổ.
+
+    `nan_lai` hiện có ba hằng số cùng dạng (`DOI_TOI_DA`, `TOI_THIEU_MAU`,
+    `TOI_THIEU_MOI_O`). Hiện KHÔNG sao vì không nút nào trỏ tới chúng —
+    nhưng `doiToiDa` là một nút rất hợp lý để ai đó thêm vào ngày mai.
+
+    Nên canh cả LỚP lỗi: soi mã, tìm mọi gán ở CẤP MODULE đọc một khoá
+    config mà khoá ấy nằm trong bảng vặn.
+    """
+    print("\n── Nút vặn được không được đông thành hằng số ───────────────")
+
+    import ast as _ast
+
+    from kham.chan_doan import NUT_VAN
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    nut = {}
+    for n in NUT_VAN:
+        duong = getattr(n, "duong", None) or getattr(n, "ten", None)
+        if duong and "." in duong:
+            khu, la = duong.split(".", 1)
+            nut.setdefault(khu, set()).add(la)
+    kiem("đọc được bảng nút vặn", len(nut) >= 3, sorted(nut))
+
+    def khu_cua(cay):
+        """Tên module-level nào đang trỏ vào khu config nào."""
+        ra = {}
+        for n in cay.body:
+            if not isinstance(n, _ast.Assign) or len(n.targets) != 1:
+                continue
+            t = n.targets[0]
+            if not isinstance(t, _ast.Name):
+                continue
+            for x in _ast.walk(n.value):
+                if (isinstance(x, _ast.Constant)
+                        and isinstance(x.value, str) and x.value in nut):
+                    ra[t.id] = x.value
+        return ra
+
+    def khoa_doc(n):
+        """Các khoá chuỗi mà biểu thức này đọc, kèm tên đối tượng."""
+        ra = []
+        for x in _ast.walk(n):
+            if (isinstance(x, _ast.Subscript)
+                    and isinstance(x.value, _ast.Name)
+                    and isinstance(x.slice, _ast.Constant)
+                    and isinstance(x.slice.value, str)):
+                ra.append((x.value.id, x.slice.value))
+            if (isinstance(x, _ast.Call)
+                    and isinstance(x.func, _ast.Attribute)
+                    and x.func.attr == "get"
+                    and isinstance(x.func.value, _ast.Name)
+                    and x.args and isinstance(x.args[0], _ast.Constant)
+                    and isinstance(x.args[0].value, str)):
+                ra.append((x.func.value.id, x.args[0].value))
+        return ra
+
+    dong = []
+    for f in sorted((GOC_MA / "kham").glob("*.py")):
+        cay = _ast.parse(f.read_text(encoding="utf-8"))
+        ten_khu = khu_cua(cay)
+        if not ten_khu:
+            continue
+        for n in cay.body:
+            if not isinstance(n, _ast.Assign) or len(n.targets) != 1:
+                continue
+            t = n.targets[0]
+            if not isinstance(t, _ast.Name):
+                continue
+            for obj, khoa in khoa_doc(n.value):
+                khu = ten_khu.get(obj)
+                if khu and khoa in nut.get(khu, ()):
+                    dong.append(f"{f.name}:{n.lineno} {t.id} = {khu}.{khoa}")
+
+    kiem("không nút vặn nào bị chốt thành hằng số lúc nạp module",
+         not dong, dong)
+
+    # Phép dò phải tự chứng minh nó BẮT ĐƯỢC, không thì nó chỉ là một
+    # dòng xanh vĩnh viễn — đúng thứ `kiem_khong_co_phep_kiem_gia` đi tìm.
+    mau = _ast.parse(
+        '_NL = CONFIG.get("nanLai") or {}' + chr(10)
+        + 'X = float(_NL.get("heSoGiamChan", 1.0))')
+    tk = khu_cua(mau)
+    bat = [(o, k) for n in mau.body if isinstance(n, _ast.Assign)
+           for o, k in khoa_doc(n.value)
+           if tk.get(o) and k in nut.get(tk[o], ())]
+    kiem("phép dò CÓ bắt được một ca dựng sẵn", bool(bat), bat)
+
+    # Và KHÔNG bắt nhầm chỗ đọc lúc GỌI (trong thân hàm).
+    mau2 = _ast.parse(
+        '_NL = CONFIG.get("nanLai") or {}' + chr(10)
+        + 'def f():' + chr(10)
+        + '    return float(_NL.get("heSoGiamChan", 1.0))')
+    tk2 = khu_cua(mau2)
+    bat2 = [(o, k) for n in mau2.body if isinstance(n, _ast.Assign)
+            for o, k in khoa_doc(n.value)
+            if tk2.get(o) and k in nut.get(tk2[o], ())]
+    kiem("KHÔNG bắt nhầm chỗ đọc trong thân hàm", not bat2, bat2)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4062,6 +4169,7 @@ def main() -> int:
     kiem_rui_ro_nho_qua_khoi_dong_lai()
     kiem_tran_theo_von_dau_ngay()
     kiem_cham_moc_tu_choi_sigma_ngan()
+    kiem_nut_van_khong_bi_dong_bang()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
