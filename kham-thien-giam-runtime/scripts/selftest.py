@@ -935,6 +935,61 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def kiem_treo_tra_han_muc() -> None:
+    """Khung không ra kết quả thì phải TRẢ LẠI hạn mức, không giữ mãi.
+
+    `RiskEngine` đọc `Kho` để tính "market này đã dùng bao nhiêu trên
+    trần". Bản đầu của `KetToan.soat` bỏ theo dõi bằng đúng một dòng
+    `del self.cho[slug]` — vị thế nằm lại trong `Kho` vĩnh viễn, nên
+    market ấy CHẾT cho tới lúc khởi động lại: mọi lệnh sau đều bị từ
+    chối vì "đã dùng $X, chạm trần", trong khi tiền ấy không còn làm
+    việc gì.
+
+    Không lỗi nào báo, không con số nào đỏ. Đã thấy tận mắt trên phiên
+    phát lại: khớp đứng hẳn ở 398 lệnh trong khi cửa sổ vẫn mở thêm hàng
+    nghìn — 12 khung thiếu kết quả trên 2.627 là đủ khoá cả bốn market.
+
+    Và nó KHÔNG được ghi thành lỗ: cổ phần vẫn trên sàn và vẫn sẽ ngã
+    ngũ. Thứ mất là khả năng chấm điểm, không phải tiền. Nên có sổ TREO.
+    """
+    print("\n-- Bo theo doi phai TRA LAI han muc ----------------------")
+
+    from kham.dinh_gia import HieuChinh as _HC
+    from kham.ket_toan import ChoKetToan as _CKT
+    from kham.ket_toan import KetToan as _KT
+    from kham.kho_doi import Kho as _Kho
+    from kham.so import So as _So
+
+    kho = _Kho()
+    kt = _KT(kho, _HC(), _So())
+    v = kho.lay("BTC_5M")
+    v.ghi_khop("UP", 150.0, 0.40)
+    truoc = v.tienUp + v.tienDown
+    kiem("dựng được một vị thế để thử", truoc > 0, truoc)
+
+    c = _CKT(ma="BTC_5M", slug="btc-updown-5m-1787243400",
+             ketThucMs=0.0, giaMo=100.0, capNen="btcusdt",
+             tokenUp="u", tokenDown="d", soLanHoi=99)
+    kt.cho[c.slug] = c
+    kt._bo_theo_doi(c.slug, c)
+
+    v2 = kho.lay("BTC_5M")
+    kiem("bỏ theo dõi thì tồn kho về 0",
+         v2.coUp == 0 and v2.tienUp == 0,
+         f"còn {v2.coUp} cổ / ${v2.tienUp:.2f} — market này đã chết")
+    kiem("khung ra khỏi danh sách chờ", c.slug not in kt.cho)
+    kiem("số tiền treo được ghi lại, không biến mất",
+         abs(kt.tienTreoUsd - truoc) < 1e-9,
+         f"{kt.tienTreoUsd} vs {truoc}")
+    kiem("đếm được số khung treo", kt.soTreo == 1)
+    kiem("sổ kết toán KHÔNG có dòng nào — treo không phải lỗ",
+         len(kt.xong) == 0,
+         "cổ phần vẫn trên sàn; ghi thành lỗ là bịa một con số")
+    d = kt.tom_tat()
+    kiem("buồng lái thấy được số treo",
+         d.get("soTreo") == 1 and d.get("tienTreoUsd") == truoc, d.get("soTreo"))
+
+
 def kiem_tran_theo_von() -> None:
     """Thêm tiền vào thì cỗ máy phải ĐỔI HÀNH VI, không chỉ đổi con số.
 
@@ -2057,6 +2112,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_treo_tra_han_muc()
     kiem_tran_theo_von()
     kiem_phien_phat_lai()
     kiem_khoa_cau_hinh_co_that()

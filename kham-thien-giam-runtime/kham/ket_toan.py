@@ -79,6 +79,8 @@ class KetToan:
         self.cho: dict[str, ChoKetToan] = {}
         self.xong: list[dict] = []
         self.soBatDong = 0
+        self.soTreo = 0
+        self.tienTreoUsd = 0.0
 
     # ── ghi danh ──────────────────────────────────────────────────────────
     def ghi_danh(self, ma: str, slug: str, ketThucMs: float, giaMo: float,
@@ -117,14 +119,47 @@ class KetToan:
             c.hoiLanCuoiMs = now
             c.soLanHoi += 1
             if c.soLanHoi > self.TOI_DA_HOI:
-                bus.ghi(f"bỏ theo dõi {slug}: hỏ�i {c.soLanHoi} lần không ra kết quả",
-                        loai="canh")
-                del self.cho[slug]
+                self._bo_theo_doi(slug, c)
                 continue
             if self._thu_ket_toan(c):
                 del self.cho[slug]
                 xong += 1
         return xong
+
+    def _bo_theo_doi(self, slug: str, c: ChoKetToan) -> None:
+        """Thôi hỏi kết quả — nhưng phải TRẢ LẠI hạn mức, và khai ra.
+
+        Bản đầu chỉ `del self.cho[slug]`. Vị thế trong `Kho` thì nằm lại
+        mãi mãi, và `RiskEngine` đọc chính chỗ đó để tính "market này đã
+        dùng bao nhiêu trên trần". Nên một khung không ra kết quả là
+        market ấy **chết cho tới lúc khởi động lại**: mọi lệnh sau đều bị
+        từ chối vì "đã dùng $X, chạm trần", trong khi tiền ấy không còn
+        làm việc gì nữa. Không lỗi nào báo, không con số nào đỏ.
+
+        Đã thấy tận mắt trên phiên phát lại: khớp đứng hẳn ở 398 lệnh
+        trong khi cửa sổ vẫn mở thêm hàng nghìn — 12 khung thiếu kết quả
+        là đủ khoá cả bốn market.
+
+        Nhưng KHÔNG được ghi nó thành lỗ. Cổ phần vẫn nằm trên sàn và
+        vẫn sẽ ngã ngũ; thứ mất là khả năng CHẤM ĐIỂM nó, không phải
+        tiền. Nên: trả hạn mức, cộng vào sổ TREO, và nói to.
+        """
+        v = self.kho.viThe.get(c.ma)
+        treo = 0.0
+        if v is not None and (v.coUp > 0 or v.coDown > 0):
+            treo = v.tienUp + v.tienDown
+            v.coUp = v.coDown = 0.0
+            v.tienUp = v.tienDown = 0.0
+            v.choCap.clear()
+        self.tienTreoUsd += treo
+        self.soTreo += 1
+        bus.ghi(
+            f"bỏ theo dõi {slug}: hỏi {c.soLanHoi} lần không ra kết quả"
+            + (f" — TREO ${treo:.2f}, đã trả lại hạn mức cho {c.ma} "
+               "(không tính là lỗ: cổ phần vẫn trên sàn, thứ mất là khả "
+               "năng chấm điểm)" if treo > 0 else ""),
+            loai="canh")
+        del self.cho[slug]
 
     def _thu_ket_toan(self, c: ChoKetToan) -> bool:
         san = self._hoi_san(c)
@@ -239,6 +274,12 @@ class KetToan:
             "dangCho": len(self.cho),
             "daKetToan": len(self.xong),
             "soBatDong": self.soBatDong,
+            # Khung bỏ theo dõi vì không ra kết quả. Tiền treo KHÔNG
+            # phải lỗ — cổ phần vẫn trên sàn — nhưng nó phải hiện ra:
+            # con số này lớn lên nghĩa là ta đang mù dần về chính
+            # những lệnh mình đã đặt.
+            "soTreo": self.soTreo,
+            "tienTreoUsd": self.tienTreoUsd,
             "ganDay": self.xong[-12:],
             "cho": [
                 {"slug": c.slug, "conMs": c.ketThucMs - time.time() * 1000.0,

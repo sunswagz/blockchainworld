@@ -99,6 +99,10 @@ def main() -> int:
     print(f"    thắng / thua       {kq.soThang:>5,} / {kq.soThua:<5,}  "
           f"({kq.tiLeThang:.1%})")
     print(f"    lỗ nặng nhất       {_tien(kq.thuaLonNhat):>10}")
+    if kq.soTreo:
+        print(f"    TREO               {_tien(kq.tienTreoUsd):>10}   "
+              f"({kq.soTreo} cửa sổ đóng mà không có kết quả — tiền đã "
+              f"tiêu, KHÔNG nằm trong con số lãi lỗ trên)")
     if kq.soKetToan:
         print(f"    lãi lỗ mỗi cửa sổ  {_tien(kq.tongLaiLo/kq.soKetToan):>10}")
     print()

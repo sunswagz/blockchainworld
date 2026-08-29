@@ -76,6 +76,11 @@ from .so import GhiKetToan, So
 # `CongLenh.soat_cho` của bản chạy thật.
 from .so_lenh import SoLenh
 
+#: Khớp lại đường nắn sau mỗi ngần này lần kết toán. Không khớp
+#: mỗi lần: PAVA chạy trên cả bảng, và bảng chỉ dày thêm một mẫu
+#: thì đường nắn gần như không đổi.
+NHIP_KHOP_NAN = 25
+
 
 @dataclass
 class ViKhung:
@@ -123,6 +128,11 @@ class KetQuaPhien:
     tongPhi: float = 0.0
     tongLaiLo: float = 0.0
     thuaLonNhat: float = 0.0
+    # Cửa sổ đóng mà không có kết quả: tiền đã tiêu, không chấm được.
+    # KHÔNG phải lỗ — cổ phần vẫn ngã ngũ trên sàn — nhưng phải hiện ra,
+    # vì nó là phần lãi lỗ mà con số cuối cùng KHÔNG bao gồm.
+    soTreo: int = 0
+    tienTreoUsd: float = 0.0
     duongVon: list = field(default_factory=list)
     lyDoTuChoi: dict = field(default_factory=dict)
     boQua: dict = field(default_factory=dict)
@@ -151,6 +161,7 @@ class KetQuaPhien:
             "soThua": self.soThua, "tiLeThang": self.tiLeThang,
             "tongPhi": self.tongPhi, "tongLaiLo": self.tongLaiLo,
             "thuaLonNhat": self.thuaLonNhat,
+            "soTreo": self.soTreo, "tienTreoUsd": self.tienTreoUsd,
             "lyDoTuChoi": dict(self.lyDoTuChoi), "boQua": dict(self.boQua),
         }
 
@@ -198,6 +209,7 @@ class PhienPhatLai:
         self.mo: dict[str, ViKhung] = {}
         self.kq = KetQuaPhien(von0=self.risk.von, von=self.risk.von,
                               dinhVon=self.risk.von)
+        self.soLanKhopNan = 0
         from .ket_qua import so_ket_qua
         self._kqThat = so_ket_qua
 
@@ -317,7 +329,19 @@ class PhienPhatLai:
             return
         that = self._kqThat.lay(slug)
         if that is None:
+            # KHÔNG được bỏ đi mà giữ tồn kho lại. `RiskEngine` đọc chính
+            # `Kho` để tính "market này đã dùng bao nhiêu trên trần", nên
+            # một cửa sổ không ra kết quả mà không trả lại hạn mức là
+            # market ấy CHẾT cho tới hết phiên.
+            #
+            # Đo được: khớp đứng hẳn ở 398 lệnh trong khi cửa sổ vẫn mở
+            # thêm hàng nghìn. 12 khung thiếu kết quả trên 2.627 là đủ
+            # khoá cả bốn market. Cùng chỗ hỏng ấy có trong bản chạy
+            # thật — xem `KetToan._bo_theo_doi`.
             self._bo("cửa sổ đóng mà chưa có kết quả")
+            self.kq.soTreo += 1
+            self.kq.tienTreoUsd += v.tienVao
+            self._tra_ton_kho(v.ma)
             return
 
         # Sổ hiệu chỉnh nhận CẢ khi không có vị thế — cùng lý do bản chạy
@@ -350,10 +374,35 @@ class PhienPhatLai:
             tienVao=v.tienVao, tienRa=tienRa, phiUsd=v.phi, laiLo=lai,
             giaCap=v.gia_cap, chienThuat=list(v.chienThuat),
             pDuDoan=v.pDuDoanUp))
-        vt = self.kho.lay(v.ma)
+        self._tra_ton_kho(v.ma)
+        self._khop_lai_nan()
+
+    def _tra_ton_kho(self, ma: str) -> None:
+        """Cửa sổ đóng thì tồn kho của market ấy về 0, dù chấm được hay không."""
+        vt = self.kho.lay(ma)
         vt.coUp = vt.coDown = 0.0
         vt.tienUp = vt.tienDown = 0.0
         vt.choCap.clear()
+
+    # ── khớp lại đường nắn trong lúc chạy ─────────────────────────────
+    def _khop_lai_nan(self) -> None:
+        """Khớp lại mỗi `NHIP_KHOP_NAN` lần kết toán.
+
+        Bản chạy thật khớp lại mỗi 10 phút (`vong._soat_nan_lai`) vì sổ
+        hiệu chỉnh dày thêm liên tục, và một đường nắn khớp từ 300 mẫu
+        mà dùng mãi cho 30.000 mẫu thì chính nó thành thứ lạc hậu nhất
+        trong hệ. Phiên phát lại khớp MỘT LẦN lúc khai sinh thì mô phỏng
+        một cỗ máy không học — tức là không phải cỗ máy đang chạy.
+
+        Phiên bắt đầu với sổ hiệu chỉnh RỖNG, cố ý: `hieu-chinh.json`
+        thật được tích từ chính quãng băng này, nên mượn nó về là để
+        quyết định ở phút thứ nhất dựa trên kết quả của ngày thứ tám.
+        Khởi đầu lạnh chậm hơn, và đó là cái giá của một con số đứng được.
+        """
+        self.soLanKhopNan += 1
+        if self.soLanKhopNan % NHIP_KHOP_NAN:
+            return
+        self.phepNan = khop_nan(self.hieuChinh)
 
     # ── chạy cả băng ──────────────────────────────────────────────────
     def chay(self, nguonKhung, moiBuoc=None) -> KetQuaPhien:
