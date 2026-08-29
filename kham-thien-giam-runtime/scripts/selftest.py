@@ -4502,6 +4502,54 @@ def kiem_tran_phoi_nhiem_gop() -> None:
     kiem("và từ chối khi chạm trần",
          "phơi nhiễm crypto GỘP" in rr)
 
+def kiem_chan_lenh_tu_trang_khac() -> None:
+    """POST điều khiển phải đến TỪ CHÍNH buồng lái, không từ trang khác.
+
+    Mọi lối POST của buồng lái — `tam-dung`, `cau-dao`, `chien-thuat/{ma}`,
+    `huy/{lenhId}`, `tien-hoa`, `chay-lai` — đều KHÔNG thân, KHÔNG xác
+    thực. Nghĩa là bất kỳ trang web nào người vận hành mở trong cùng trình
+    duyệt đều gọi được:
+
+        fetch("http://localhost:5186/api/tam-dung",
+              {method: "POST", mode: "no-cors"})
+
+    Đây là "simple request" nên trình duyệt KHÔNG hỏi preflight. Trang kia
+    không đọc được phản hồi, nhưng TÁC DỤNG PHỤ ĐÃ XẢY RA: bot dừng, cầu
+    dao lật, chiến thuật tắt, lệnh bị huỷ.
+
+    Nghe ở 127.0.0.1 KHÔNG cứu được — chính trình duyệt trên máy ấy là kẻ
+    gửi. Đã thử thật trên runtime đang chạy: trước khi vá, POST kèm
+    `Origin: http://evil.example` trả về HTTP 200.
+    """
+    print("\n── POST điều khiển phải từ chính buồng lái ──────────────────")
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    sv = (GOC_MA / "kham" / "server.py").read_text(encoding="utf-8")
+    ma = chr(10).join(x.split("#", 1)[0] for x in sv.splitlines())
+
+    kiem("có chốt chặn cho lệnh đổi trạng thái",
+         "@app.middleware" in ma and "_chan_lenh_tu_trang_khac" in ma)
+    kiem("GET / HEAD / OPTIONS KHÔNG bị chặn",
+         '("GET", "HEAD", "OPTIONS")' in ma)
+    kiem("chặn theo `Origin`", 'headers.get("origin")' in ma)
+    kiem("và trả 403 chứ không im lặng bỏ qua", "status_code=403" in ma)
+    kiem("GHI LẠI mỗi lần từ chối — một cú thử là tin đáng đọc",
+         "TỪ CHỐI lệnh POST từ trang khác" in sv)
+
+    # Danh sách Origin phải dựng TỪ CỔNG trong config, không chép số.
+    kiem("danh sách Origin dựng từ cổng trong config",
+         'CONFIG["port"]' in ma and "_origin_cho_phep" in ma)
+
+    import kham.server as SV
+    from kham.config import CONFIG
+    ds = SV._origin_cho_phep()
+    c = CONFIG["port"]
+    kiem("cho phép localhost", f"http://localhost:{c}" in ds, sorted(ds))
+    kiem("cho phép 127.0.0.1", f"http://127.0.0.1:{c}" in ds, sorted(ds))
+    kiem("KHÔNG cho phép trang lạ", "http://evil.example" not in ds)
+    kiem("KHÔNG cho phép đúng host mà SAI CỔNG",
+         "http://localhost:1234" not in ds)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4581,6 +4629,7 @@ def main() -> int:
     kiem_so_ket_qua_khai_nguon()
     kiem_doi_chung_cong_bang()
     kiem_tran_phoi_nhiem_gop()
+    kiem_chan_lenh_tu_trang_khac()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

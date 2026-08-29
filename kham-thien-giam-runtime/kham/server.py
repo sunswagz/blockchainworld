@@ -12,7 +12,8 @@ Cung tĩnh và buồng lái cố ý là HAI giao diện khác nhau:
 """
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse as _JR
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -25,6 +26,54 @@ from .snapshot import ghi_lat_cat
 from .vong import runtime
 
 app = FastAPI(title="Khâm Thiên Giám", docs_url=None, redoc_url=None)
+
+
+#: Origin được phép gửi lệnh ĐỔI TRẠNG THÁI.
+def _origin_cho_phep() -> set[str]:
+    c = CONFIG["port"]
+    return {f"http://localhost:{c}", f"http://127.0.0.1:{c}",
+            f"http://[::1]:{c}"}
+
+
+@app.middleware("http")
+async def _chan_lenh_tu_trang_khac(request: Request, call_next):
+    """Chặn POST đến từ một trang KHÁC. Đây là lỗ hổng thật, không phải giả định.
+
+    Mọi lối POST ở đây — `tam-dung`, `cau-dao`, `chien-thuat/{ma}`,
+    `huy/{lenhId}`, `tien-hoa`, `chay-lai` — đều KHÔNG thân, KHÔNG xác
+    thực. Nghĩa là bất kỳ trang web nào người vận hành mở trong cùng trình
+    duyệt đều gọi được:
+
+        fetch("http://localhost:5186/api/tam-dung",
+              {method: "POST", mode: "no-cors"})
+
+    Đây là "simple request" nên trình duyệt KHÔNG hỏi preflight; trang kia
+    không đọc được phản hồi, nhưng **tác dụng phụ đã xảy ra**: bot dừng,
+    cầu dao lật, chiến thuật tắt, lệnh bị huỷ. Buồng lái nghe ở 127.0.0.1
+    không cứu được — chính trình duyệt trên máy ấy là kẻ gửi.
+
+    Cách chặn: trình duyệt LUÔN gửi `Origin` cho POST khác trang. Nên:
+
+      · có `Origin` mà không nằm trong danh sách  → TỪ CHỐI
+      · có `Origin` đúng (buồng lái tự gọi)        → cho qua
+      · KHÔNG có `Origin` (curl, script, dịch vụ)  → cho qua
+
+    Ca thứ ba nghe như một lỗ, nhưng không phải: thứ ta chặn là TRÌNH
+    DUYỆT bị lừa. Một chương trình chạy trên máy này vốn đã làm được mọi
+    thứ nó muốn mà chẳng cần hỏi buồng lái.
+
+    GET không chặn: nó chỉ đọc, và `/api/cau-hinh` đã cố ý không bao giờ
+    trả về khoá nào.
+    """
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        o = request.headers.get("origin")
+        if o and o not in _origin_cho_phep():
+            bus.ghi(f"TỪ CHỐI lệnh POST từ trang khác: {o} → "
+                    f"{request.url.path}", loai="canh")
+            return _JR(status_code=403, content={
+                "loi": "lệnh đổi trạng thái phải đến từ chính buồng lái",
+                "origin": o})
+    return await call_next(request)
 
 
 @app.on_event("startup")
