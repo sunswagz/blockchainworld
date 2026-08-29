@@ -5766,6 +5766,56 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("tuyến biến mất khỏi lượt quét thì doDuoc=False",
          k is not None and k.doDuoc is False and "biến mất" in k.vi)
 
+    # ── 20. KẾ TOÁN ngang giá quyền chọn: giữ tới ĐÁO HẠN ───────────────
+    from quyen_chon.ty_ngang_gia import CoHoiNgangGia, TyNgangGia
+
+    tn20 = TyNgangGia.__new__(TyNgangGia)
+    Ty.__init__(tn20)
+    chan20 = [ViThe("m20", TyNgangGia.ma, "LONG", "deribit", "BTC", 1000.0,
+                    loai="option")]
+    tt20 = {"taiSan": "BTC", "netUocBps": 25.0}
+
+    def _ng(conLaiGio):
+        return CoHoiNgangGia(
+            tienTe="BTC", kyHan="26DEC26", giaThucHien=60_000.0,
+            tuongLai=60_500.0, conLaiGio=conLaiGio, heSoChietKhau=1.0,
+            chietKhauCoHieuLuc=False, veTraiUsd=100.0, vePhaiUsd=101.0,
+            lechUsd=1.0, huong="MUA_TONG_HOP", grossBps=30.0, phiBps=5.0,
+            netBps=25.0, oiToiThieu=50.0, chenhGiaPhanTram=1.0,
+            sucChuaToiDaUsd=50_000.0, vonXinUsd=1000.0, tuoiGiay=1.0)
+
+    tn20.coHoi = [_ng(240.0)]
+    k = tn20.ke_toan(chan20, tt20, now9 - 3600.0, now9)
+    kiem("ngang giá: còn hạn thì thu ĐÚNG 0, giữ tiếp",
+         k is not None and k.thuUsd == 0.0 and k.doDuoc and not k.dongLai,
+         f"{k and k.tom_tat()} — ba chân nằm im, cái đổi chỉ là giá của "
+         f"chúng; đóng sớm là bán lại ba chân trên ba sổ lệnh mỏng")
+
+    tn20.coHoi = [_ng(0.0)]
+    k = tn20.ke_toan(chan20, tt20, now9 - 3600.0, now9)
+    kiem("tới đáo hạn thì ĐÓNG và ghi khoản đã khoá LÚC MỞ",
+         k is not None and k.dongLai
+         and abs(k.thuUsd - 1000.0 * 25.0 / 10_000.0) < 1e-9,
+         f"{k and k.tom_tat()}")
+    kiem("và khoản ấy đọc từ TỜ TRÌNH, không từ lượt quét mới",
+         k is not None and "khoá lúc mở" in k.lyDoDong,
+         "chênh hôm nay là chênh cho người vào hôm nay; vị thế này đã chốt "
+         "giá của mình rồi — cùng luật với Pendle PT")
+
+    tn20.coHoi = [_ng(0.0)]
+    k = tn20.ke_toan(chan20, {"taiSan": "BTC"}, now9 - 3600.0, now9)
+    kiem("tờ trình thiếu `netUocBps` thì KHÔNG đoán",
+         k is not None and k.doDuoc is False)
+
+    tn20.coHoi = []
+    k = tn20.ke_toan(chan20, tt20, now9 - 3600.0, now9)
+    kiem("mất hợp đồng khỏi lượt quét thì GIỮ, và nói ra là không thấy",
+         k is not None and k.thuUsd == 0.0 and not k.dongLai
+         and "KHÔNG có hợp đồng" in k.vi,
+         "không thấy hợp đồng KHÔNG phải bằng chứng đã đáo hạn — đóng vì "
+         "mất nguồn là bịa ra một lần kết toán chưa xảy ra")
+
+
 
 
 

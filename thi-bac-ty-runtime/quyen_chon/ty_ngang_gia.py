@@ -474,6 +474,53 @@ class TyNgangGia(Ty):
     def xet(self, co):
         return bool(co.duyet), list(co.lyDoMa or ())
 
+    # ── kế toán: ngang giá ĐÓNG CHẮC CHẮN tại đáo hạn, không trước ───────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Ngang giá khoá một khoản chênh và giữ tới KẾT TOÁN.
+
+        Không có dòng tiền lúc giữ — ba chân nằm im, và cái đổi chỉ là giá
+        của chúng. Nên `thuUsd` là **0 ĐO ĐƯỢC** suốt thời gian giữ, cùng
+        lối với ty chênh stablecoin.
+
+        Khác ở chỗ ĐÓNG, và khác vì một lý do đã ghi sẵn trong
+        `CoHoiNgangGia.giuGio`: *"đóng sớm là bán lại ba chân trên ba sổ
+        lệnh mỏng"*. Nên ty này **không** đóng khi chênh hội tụ — nó giữ
+        tới đáo hạn, lúc ấy quan hệ ngang giá đúng theo định nghĩa và
+        khoản chênh đã khoá thành hiện thực.
+
+        Ngày đáo hạn tới thì trả về đúng khoản đã khoá LÚC MỞ, đọc từ tờ
+        trình. Không đọc `lechUsd` của lượt quét mới: chênh hôm nay là
+        chênh cho người vào hôm nay, còn vị thế này đã chốt giá của mình
+        rồi — cùng luật với Pendle PT.
+        """
+        from thi_bac_ty.ke_toan import KetToanVong
+
+        tien = toTrinh.get("taiSan")
+        c = next((x for x in self.coHoi if x.tienTe == tien), None)
+        con = c.conLaiGio if c is not None else None
+        von = sum(abs(float(getattr(x, "vonUsd", 0.0) or 0.0))
+                  for x in viThe)
+        vi = (f"ngang giá {tien}: giữ tới đáo hạn"
+              + (f", còn {con:.1f}h" if con is not None else
+                 " (lượt quét gần nhất KHÔNG có hợp đồng nào của mã này)")
+              + ". Không dòng tiền lúc giữ — ba chân nằm im, chỉ giá đổi")
+
+        if con is None or con > 0.0:
+            return KetToanVong(thuUsd=0.0, vi=vi)
+
+        try:
+            net = float(toTrinh["netUocBps"])
+        except (KeyError, TypeError, ValueError):
+            return KetToanVong(
+                doDuoc=False,
+                vi="tờ trình thiếu `netUocBps` nên không dựng lại được "
+                   "khoản đã khoá lúc mở — không đoán")
+        return KetToanVong(
+            thuUsd=von * net / 10_000.0, dongLai=True,
+            lyDoDong=f"đã tới đáo hạn — ngang giá đóng tại kết toán, khoản "
+                     f"chênh {net:+.2f} bps khoá lúc mở nay thành hiện thực",
+            vi=vi)
+
     def trinh(self, co):
         return xuat_to_trinh(co)
 
