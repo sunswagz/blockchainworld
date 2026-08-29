@@ -966,6 +966,46 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_nho_gia_mo_khung() -> None:
+    """Strike của một khung là HẰNG SỐ — đừng hỏi lại 750 lần.
+
+    Vòng lặp gọi `gia_mo_khung` mỗi 2 giây cho mỗi market. 5 market ×
+    một khung 5 phút = 750 lời gọi REST cho đúng một con số không đổi.
+    Nặng, và nguy: mỗi lời gọi là một cơ hội hỏng, mà hỏng thì
+    `_mot_thi_truong` thoát sớm — mất một dòng băng, đúng vào những phút
+    quý nhất khi đường tới chợ vừa thông.
+    """
+    print("\n-- Nho gia mo khung: hoi MOT lan cho moi moc -------------")
+
+    from kham.nguon import Nguon
+
+    ng = Nguon.__new__(Nguon)
+    ng.trangThai = {}
+    ng._nhoMoKhung = {}
+    dem = [0]
+
+    def gia_lay(ten, url, tham=None):
+        dem[0] += 1
+        return [[int(tham["startTime"]), "70000.5", "1", "1", "1"]]
+
+    ng._lay = gia_lay
+    T = 1_787_243_400_000.0
+    a = ng.gia_mo_khung("BTCUSDT", T)
+    for _ in range(20):
+        ng.gia_mo_khung("BTCUSDT", T)
+    kiem("hỏi mạng đúng MỘT lần cho 21 lượt gọi", dem[0] == 1, f"{dem[0]} lần")
+    kiem("trả đúng giá mở", a == 70000.5, a)
+
+    ng.gia_mo_khung("BTCUSDT", T + 300_000.0)
+    kiem("mốc KHÁC thì hỏi lại", dem[0] == 2, dem[0])
+    ng.gia_mo_khung("ETHUSDT", T)
+    kiem("cặp KHÁC thì hỏi lại", dem[0] == 3, dem[0])
+
+    # Mọi mốc trong cùng một PHÚT là một mốc — hàm làm tròn xuống phút.
+    ng.gia_mo_khung("BTCUSDT", T + 30_000.0)
+    kiem("cùng một phút thì KHÔNG hỏi lại", dem[0] == 3, dem[0])
+
+
 def kiem_cong_tien_ngan_mach() -> None:
     """Băng không có dòng khung ăn thua thì cổng tiền BỎ QUA phần chạy lại.
 
@@ -2667,6 +2707,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
     kiem_tu_nang_cap()
     kiem_ghi_config_tai_cho()

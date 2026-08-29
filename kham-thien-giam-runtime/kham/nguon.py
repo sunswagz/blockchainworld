@@ -98,6 +98,9 @@ class Nguon:
 
     def __init__(self) -> None:
         self.trangThai: dict[str, TrangThaiNguon] = {}
+        # Giá MỞ của một mốc phút đã qua không bao giờ đổi — xem
+        # `gia_mo_khung`. Nhớ lại để thôi hỏi 750 lần một con số.
+        self._nhoMoKhung: dict = {}
         self._client = None
 
     def _ts(self, ten: str) -> TrangThaiNguon:
@@ -181,15 +184,34 @@ class Nguon:
         Sai một chút ở K là sai TOÀN BỘ mô hình: `ln(S/K)` là tử số của
         z-score, mà ở khung 5 phút thì `ln(S/K)` chỉ cỡ 1e-3. Lệch K đi
         0,05% là lệch tử số đi một nửa — và không phép kiểm nào đỏ.
+
+        ## NHỚ LẠI, vì strike của một khung là HẰNG SỐ
+
+        Vòng lặp gọi hàm này mỗi 2 giây cho mỗi market. Với 5 market và
+        một khung 5 phút, đó là **750 lời gọi REST cho đúng một con số
+        không đổi**. Nó vừa nặng vừa nguy: mỗi lời gọi là một cơ hội
+        hỏng, và hỏng thì `_mot_thi_truong` thoát sớm — mất một dòng
+        băng, đúng vào những phút quý nhất khi đường tới chợ vừa thông.
+
+        Nhớ theo (cặp, mốc phút). Mốc đã qua thì giá mở của nó không bao
+        giờ đổi nữa, nên không có hạn dùng — chỉ có trần số mục để bộ
+        nhớ không phình theo ngày chạy.
         """
         moc = int(batDauMs // 60_000 * 60_000)
+        khoa = (cap, moc)
+        if khoa in self._nhoMoKhung:
+            return self._nhoMoKhung[khoa]
         for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
             d = self._lay("binance-kline", f"{goc}/api/v3/klines",
                           {"symbol": cap, "interval": "1m",
                            "startTime": moc, "limit": 1})
             if isinstance(d, list) and d and len(d[0]) > 1:
                 try:
-                    return float(d[0][1])       # [openTime, OPEN, high, low, ...]
+                    gia = float(d[0][1])    # [openTime, OPEN, high, low, ...]
+                    if len(self._nhoMoKhung) > 4000:
+                        self._nhoMoKhung.clear()
+                    self._nhoMoKhung[khoa] = gia
+                    return gia
                 except (TypeError, ValueError, IndexError):
                     pass
         return None
