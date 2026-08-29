@@ -150,7 +150,7 @@ def main() -> int:
                     continue
                 gc = dinh_gia(MA, float(S), float(K), tau, sig)
                 if gc is not None:
-                    ra.append((gc.pUp, thang, tau))
+                    ra.append((gc.pUp, thang, tau, T))
         return ra
 
     hoc, chon, chot = (dung(m) for m in ba)
@@ -166,8 +166,8 @@ def main() -> int:
             hc.them(p, t)
         return khop(hc)
 
-    gop = bang([(p, t) for p, t, _ in hoc], DATA_DIR / "_tau-gop.json")
-    rieng = {tau: bang([(p, t) for p, t, x in hoc if x == tau],
+    gop = bang([(p, t) for p, t, *_ in hoc], DATA_DIR / "_tau-gop.json")
+    rieng = {tau: bang([(p, t) for p, t, x, *_ in hoc if x == tau],
                        DATA_DIR / f"_tau-{int(tau)}.json")
              for tau in LAT_CAT}
 
@@ -181,7 +181,7 @@ def main() -> int:
 
     def cham(cap_, kieu):
         ra = []
-        for p, t, tau in cap_:
+        for p, t, tau, *_ in cap_:
             pn = gop if kieu == "gop" else rieng[tau]
             ra.append((pn.nan(p) if pn.dung_duoc else p, t))
         return ra
@@ -207,12 +207,13 @@ def main() -> int:
     rs = [_brier1(q, t) for q, t in cham(chot, "rieng")]
     hieu = [x - y for x, y in zip(gs, rs)]
     n = len(hieu)
-    rd = random.Random(20260829)
-    lan = sorted(sum(hieu[rd.randrange(n)] for _ in range(n)) / n
-                 for _ in range(2000))
-    thap, cao = lan[int(0.025 * len(lan))], lan[int(0.975 * len(lan))]
-    print(f"  CHỐT: chênh {sum(hieu)/n:+.6f} · khoảng tin 95% "
-          f"[{thap:+.6f}, {cao:+.6f}]")
+    # Lấy lại theo KHUNG: bốn lát cắt của một khung chia chung MỘT kết
+    # quả, nên bootstrap theo cặp cho khoảng tin hẹp hơn 2,18 lần. Đã
+    # làm SAI một kết luận ở `thu-dong-lenh.py`.
+    from kham.hoc_offline import khoang_tin_theo_khoi
+    thap, cao, soK = khoang_tin_theo_khoi(hieu, [x[-1] for x in chot])
+    print(f"  CHỐT: chênh {sum(hieu)/n:+.6f} · khoảng tin 95% theo KHUNG "
+          f"[{thap:+.6f}, {cao:+.6f}]  ({soK} khung)")
     if thap > 0:
         print("  NHẬN VỀ MẶT ĐO ĐẠC: nắn riêng theo τ khá hơn rõ rệt.")
         print("    Đây là đổi CẤU TRÚC sổ hiệu chỉnh, không phải vặn một số —")

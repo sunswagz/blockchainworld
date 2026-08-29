@@ -580,7 +580,7 @@ phải thêm THÔNG TIN MỚI vào `p`: sổ lệnh, dòng lệnh, độ trễ l
 Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
 
     cửa sổ σ 300s → 900s                   −1,9%   ĐÃ NHẬN, đưa gần hết đường
-    bộ ước σ: parkinson thay close-close    −0,13%  trả lại (dưới biên 0,5%)
+    bộ ước σ: parkinson thay close-close    trả lại — khoảng tin chứa 0
     nắn RIÊNG theo τ thay vì gộp            −0,08%  trả lại
     dòng lệnh nhịp 1 phút (taker buy)       KHÔNG đủ bằng chứng
     BTC dẫn ETH · XRP                       KHÔNG đủ bằng chứng
@@ -612,6 +612,12 @@ Công cụ, tất cả chỉ cần Binance — không cần chợ, không cần 
     scripts/thu-dong-lenh.py      dòng lệnh có thêm thông tin không
     scripts/thu-btc-dan.py        BTC có dẫn các đồng khác không
     scripts/chay-demo.py          demo trọn vẹn, tiền ảo, có `--quet`
+
+**Và luật thứ hai: BOOTSTRAP THEO KHUNG, không theo cặp.** Bốn lát cắt
+(τ = 240/180/120/60) của một khung chia chung MỘT kết quả. Lấy lại theo
+cặp cho khoảng tin hẹp hơn 2,18 lần, và nó ĐÃ làm sai một kết luận đã
+ghi vào tài liệu. Mọi phép thử ở đây gọi
+`kham/hoc_offline.khoang_tin_theo_khoi()`.
 
 **Luật của mọi phép thử ở đây: BA TẬP tách theo THỜI GIAN.** HỌC khớp
 nắn · CHỌN xếp hạng ứng viên · CHỐT chỉ GẬT hay LẮC, không bao giờ dùng

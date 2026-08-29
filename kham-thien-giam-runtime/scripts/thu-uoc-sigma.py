@@ -151,7 +151,8 @@ BO_UOC = {"dong-dong": uoc_dong_dong, "ewma": uoc_ewma,
 
 
 def _brier(cap):
-    return sum((p - (1.0 if t else 0.0)) ** 2 for p, t in cap) / max(1, len(cap))
+    return (sum((p - (1.0 if t else 0.0)) ** 2 for p, t, *_ in cap)
+            / max(1, len(cap)))
 
 
 def cap_du_doan(oh, mocs, ham, soNen):
@@ -176,7 +177,7 @@ def cap_du_doan(oh, mocs, ham, soNen):
                 continue
             gc = dinh_gia(MA, float(n[3]), float(K), tau, sig)
             if gc is not None:
-                ra.append((gc.pUp, thang))
+                ra.append((gc.pUp, thang, T))
     return ra
 
 
@@ -186,16 +187,17 @@ def cham(oh, ba, ham, soNen):
         return None
     hc = HieuChinh(duong=DATA_DIR / "_tam-sigma.json")
     hc.o = {}
-    for p, t in hoc:
+    for p, t, *_ in hoc:
         hc.them(p, t)
     pn = khop(hc)
 
     def nan(cap):
-        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t in cap]
+        return [(pn.nan(p) if pn.dung_duoc else p, t) for p, t, *_ in cap]
 
     return {"n": len(chon), "chon": _brier(nan(chon)),
             "chot": _brier(nan(chot)),
-            "saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)]}
+            "saiChot": [(q - (1.0 if t else 0.0)) ** 2 for q, t in nan(chot)],
+            "mocChot": [x[-1] for x in chot]}
 
 
 def main() -> int:
@@ -255,13 +257,11 @@ def main() -> int:
         return 0
 
     # Tập CHỐT chỉ gật hay lắc, kèm khoảng tin có cặp.
-    import random as _rd
+    # Lấy lại theo KHUNG — xem `khoang_tin_theo_khoi`.
+    from kham.hoc_offline import khoang_tin_theo_khoi
     hieu = [x - y for x, y in zip(goc["saiChot"], rTot["saiChot"])]
-    _rd.seed(20260829)
     n_ = len(hieu)
-    lan = sorted(sum(hieu[_rd.randrange(n_)] for _ in range(n_)) / n_
-                 for _ in range(2000))
-    thap, cao = lan[int(0.025 * len(lan))], lan[int(0.975 * len(lan))]
+    thap, cao, soK = khoang_tin_theo_khoi(hieu, goc.get("mocChot"))
     print(f"  CHỐT {goc['chot']:.5f} → {rTot['chot']:.5f} · chênh "
           f"{sum(hieu)/n_:+.6f} · khoảng tin 95% [{thap:+.6f}, {cao:+.6f}]")
     if rTot["chot"] >= goc["chot"]:
