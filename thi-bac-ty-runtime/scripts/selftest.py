@@ -8162,6 +8162,69 @@ def kiem_hien_phap() -> None:
              f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
 
 
+def kiem_hai_lan() -> None:
+    print("\n-- HAI LAN: khac nhau cho nao thi phai KHAI cho ay --")
+    import json as _js
+    import pathlib as _pl
+
+    goc = _pl.Path(__file__).resolve().parent.parent
+
+    def _phang(d, tien=""):
+        r = {}
+        for k, v in (d or {}).items():
+            if k.startswith("_"):
+                continue
+            n = f"{tien}{k}"
+            if isinstance(v, dict):
+                r.update(_phang(v, n + "."))
+            elif not isinstance(v, list):
+                r[n] = v
+        return r
+
+    try:
+        that = _js.loads((goc / "config.json").read_text(encoding="utf-8"))
+        demo = _js.loads((goc / "config-demo.json").read_text(encoding="utf-8"))
+    except OSError as e:
+        kiem("đọc được cả hai cấu hình", False, str(e))
+        return
+
+    a, b = _phang(that), _phang(demo)
+    khac = sorted(k for k in set(a) | set(b) if a.get(k, "\u2205") != b.get(k, "\u2205"))
+    khai = demo.get("_khacCoY") or {}
+
+    # Làn demo tồn tại để trả lời «cỗ máy này nói gì ở một cỡ vốn khác».
+    # Câu ấy chỉ có nghĩa khi mọi thứ KHÁC vốn đều giống nhau — hoặc khi
+    # chỗ khác được khai ra kèm lý do. Trôi âm thầm thì hai làn dần thành
+    # hai cỗ máy, và phép so mất nghĩa mà không dòng nào kêu. Đã trôi tới
+    # BẢY chỗ trước khi phép kiểm này ra đời.
+    thieu = [k for k in khac if not str(khai.get(k, "")).strip()]
+    kiem("mọi chỗ hai làn KHÁC nhau đều được KHAI kèm lý do",
+         not thieu,
+         f"chưa khai: {thieu} — thêm vào `_khacCoY` của config-demo.json, "
+         f"kèm lý do; một chỗ khác không ai cố ý là một chỗ TRÔI, và nó "
+         f"làm câu «demo nói gì về bản thật» mất nghĩa")
+
+    # Chiều ngược cũng phải canh, và nó là chiều dễ bị bỏ quên: một lời
+    # khai còn nằm đó sau khi chỗ khác đã được san bằng là một lời khai
+    # CHẾT — người đọc tưởng hai làn còn lệch chỗ ấy.
+    thua = [k for k in khai if k not in khac]
+    kiem("và không lời khai nào KHAI một chỗ đã hết khác",
+         not thua,
+         f"khai thừa: {thua} — hai làn đã giống nhau ở đó rồi, giữ lời khai "
+         f"lại là nói dối về một chỗ lệch không còn tồn tại")
+
+    kiem("vốn ban đầu PHẢI là một trong những chỗ khác",
+         "trungUong.vonBanDauUsd" in khac,
+         "hai làn cùng cỡ vốn thì không làn nào nói được gì về quy mô — "
+         "đó là cả lý do làn thứ hai tồn tại")
+    kiem("và cả hai làn đều ở chế QUAN SÁT",
+         that.get("che") == demo.get("che") == "quan-sat",
+         f"{that.get('che')!r} vs {demo.get('che')!r} — tầng đặt lệnh thật "
+         f"không tồn tại trong cây mã này, và làn demo không phải chỗ để "
+         f"thử làm nó tồn tại")
+    print(f"  ({len(khac)} chỗ khác, {len(khai)} chỗ khai)")
+
+
 def kiem_khong_trung_ten() -> None:
     print("\n-- File nay: dinh nghia sau DE dinh nghia truoc, khong bao --")
     import collections
@@ -8267,6 +8330,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_hai_lan()
     kiem_khong_trung_ten()
 
     print("\n" + "=" * 70)

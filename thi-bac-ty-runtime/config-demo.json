@@ -19,8 +19,25 @@
     "phải một cung; nó là làn thứ hai của cùng một runtime.",
     "",
     "che PHẢI là quan-sat. Tầng đặt lệnh thật không tồn tại trong cây mã",
-    "này, và bản demo không phải chỗ để thử làm nó tồn tại."
+    "này, và bản demo không phải chỗ để thử làm nó tồn tại.",
+    "",
+    "MỌI chỗ khác bản thật phải khai ở `_khacCoY` kèm LÝ DO, và phép kiểm",
+    "`kiem_hai_lan()` bắt cả hai chiều: khác mà không khai là TRÔI, khai mà",
+    "không khác là lời khai chết. Không có nó thì hai làn trôi xa nhau từng",
+    "chút một, và câu «demo nói gì về bản thật» mất nghĩa mà không ai hay —",
+    "đã trôi tới BẢY chỗ trước khi phép kiểm này ra đời."
   ],
+  "_khacCoY": {
+    "port": "hai làn không tranh cổng; 5288 = 5188 + 100",
+    "trungUong.vonBanDauUsd": "BIẾN ĐANG THỬ: lợi suất tụt theo quy mô tới đâu. Đường sức chứa nói 20%/năm ở 10k và 1,1% ở 5M; làn này là chỗ ĐO câu ấy thay vì tin nó",
+    "ruiRo.netToiThieuBps": "làn thật đã tự vặn lên 2,75 sau 127 mẫu hậu kiểm; làn demo giữ 0,5 để thấy cái ngưỡng ấy đáng giá bao nhiêu",
+    "tuVanTienHoa": "làn demo KHÔNG tự vặn tham số — nếu cả hai cùng vặn thì không làn nào là mốc để so",
+    "nhipTienHoaGiay": "đi theo tuVanTienHoa: không tự vặn thì không có nhịp vặn",
+    "trungUong.nhipHocGiay": "đi theo tuVanTienHoa",
+    "trungUong.tuXoayCho": "xoay chỗ là một cơ chế ĐANG THỬ; làn demo không bật để còn chỗ so",
+    "trungUong.bienXoayCho": "đi theo tuXoayCho",
+    "trungUong.phanBo.toiDaSoViThe": "TRÔI, chưa cố ý: làn thật lên 120 theo lệnh chủ, làn demo còn 12 mặc định. Vốn nhỏ hơn 10 lần thì 12 chỗ chưa chắc là chỗ nghẽn, nhưng nó KHÔNG phải một lựa chọn ai đó đã cân nhắc"
+  },
   "port": 5288,
   "nhipGiay": 30,
   "che": "quan-sat",
