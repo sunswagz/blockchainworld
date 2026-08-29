@@ -747,6 +747,7 @@ Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
     mùa vụ theo GIỜ trong ngày              trả lại — khoảng tin chứa 0
     KHỐI LƯỢNG báo σ                        trả lại — suy giảm ĐƠN ĐIỆU
     σ CHỐNG NHẢY GIÁ (bipower, medRV)       TỆ HƠN, khoảng tin hẳn bên dương
+    TRỌNG SỐ phần nhảy — quét cả trục λ     đương nhiệm Ở ĐÁY, trục đã hết
     (`ewma` thì TỆ HƠN close-close rõ rệt)
 
 Hướng thứ bảy (`scripts/thu-mua-vu-gio.py`, 30/08/2026) đáng ghi riêng vì
@@ -804,6 +805,40 @@ viên tốt nhất kém hơn một cách có ý nghĩa. Thứ tự `pha-nua` < `
 phần nhảy trong σ **không phải tạp chất — nó là dự báo thật cho 5 phút
 tới**. Biến động cụm lại; một cú nhảy vừa xảy ra là dấu hiệu mạnh rằng
 năm phút tới còn động. Bỏ nó ra là vứt tin đi.
+
+Hướng thứ mười (`scripts/thu-trong-so-nhay.py`) là hướng thứ chín viết
+lại cho ĐÚNG CÁCH, và nó nói được nhiều hơn hẳn. Thay vì so vài bộ ước
+rời rạc, đặt cả câu hỏi lên MỘT trục liên tục:
+
+    σ² = RV + λ·(RV − BV)
+
+λ = −1 là bipower (bỏ sạch nhảy), λ = 0 là đương nhiệm, λ > 0 khuếch đại
+phần nhảy. Quét bảy điểm:
+
+    λ        Brier CHỌN   Brier CHỐT
+    −1,00       0.15649      0.15889
+    −0,50       0.15614      0.15815
+    −0,25       0.15606      0.15791
+    +0,00       0.15605      0.15775   ← đương nhiệm
+    +0,25       0.15605      0.15766
+    +0,50       0.15607      0.15755
+    +1,00       0.15622      0.15756
+    khoảng tin 95% chênh CHỐT (1.440 KHUNG): [−0,000233, +0,000040]
+
+**Đường cong hình chữ U với đáy ngay tại đương nhiệm.** Đây là kết luận
+mạnh hơn "không tìm thấy cải thiện": trục đã được VẼ BẢN ĐỒ, và λ = 0
+nằm đúng đáy. Không còn chỗ nào trên trục ấy để đi.
+
+Hai chuyện phụ đáng giữ. Thứ nhất, λ = −1 tái lập gần khít kết quả
+hướng thứ chín — một phép tự kiểm chéo giữa hai phép đo viết độc lập.
+Thứ hai, phía CHỐT có đáy hơi lệch dương (λ +0,5), khớp chiều với kết
+luận "nhảy là tin thật" của hướng chín, nhưng khoảng tin chứa 0 nên
+không đủ để vặn.
+
+**Bài học về cách THỬ, không phải về mô hình:** hướng thứ chín lẽ ra
+nên viết theo trục ngay từ đầu. So vài ứng viên rời rạc chỉ cho biết ai
+thắng ai; quét một trục cho biết CHIỀU, chỗ tối ưu, và cả độ dốc quanh
+nó — tức là biết luôn còn đáng đi tiếp hay không. Cùng số lần chạy.
 
 Chú ý khi đọc lại: các phép thử này lấy nến MỚI mỗi lần chạy nên cửa sổ
 20 ngày trượt, và Brier của cùng một đương nhiệm xê dịch chừng 0,0002
