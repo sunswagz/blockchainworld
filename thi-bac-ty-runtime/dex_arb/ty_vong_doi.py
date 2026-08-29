@@ -420,6 +420,61 @@ class TyVongDoi(Ty):
     def xet(self, co):
         return bool(co.duyet), list(co.lyDoMa or ())
 
+    # ── kế toán: vòng đổi XONG TRONG VÀI GIÂY, lãi lỗ ở lúc thoát ────────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Vòng đổi A→B→A không giữ gì lâu, nên nó không cộng dồn gì cả.
+
+        Nếu ty này KHÔNG có kế toán thì mọi vị thế của nó là **lỗ chắc
+        chắn trên sổ**: phí vào lệnh bị trừ lúc mở, `giuGio` 0,25 giờ trôi
+        qua, vị thế đóng với `thuUsd` chưa bao giờ được đặt. Cỗ máy khi ấy
+        ghi lại đúng phần chi phí và bỏ mất toàn bộ phần thu — một cách
+        chắc chắn để một chiến lược có lãi hiện ra như một chiến lược lỗ.
+
+        Đo lại vòng đổi bằng lượt quét MỚI NHẤT: cùng chuỗi, cùng cặp
+        tài sản. Dùng `raBaoDamUsd` — mức sàn CÓ BẢO ĐẢM — chứ không dùng
+        `raKyVongUsd`: kỳ vọng là con số trước trượt giá, và ghi nó vào sổ
+        như tiền đã nhận là tự thưởng cho mình phần dung sai. Chính cổng
+        của ty này cũng quyết định bằng mức bảo đảm.
+
+        Trả về kèm `dongLai=True` ngay lượt kế toán đầu tiên: vốn quay về
+        sau vài giây, giữ tiếp không sinh thêm gì, và `giuGio` 0,25 giờ
+        chỉ là mẫu số cho `netMoiGioBps` chứ không phải thời gian nắm giữ
+        thật (xem `CoHoiVongDoi.giuGio`).
+        """
+        from thi_bac_ty.ke_toan import KetToanVong
+
+        chuoi = (toTrinh.get("chuoi") or [None])[0]
+        tu = toTrinh.get("taiSan")
+        qua = next((c.taiSan for c in viThe), None)
+        c = next((x for x in self.coHoi
+                  if x.chuoi == chuoi and x.tuTaiSan == tu
+                  and x.quaTaiSan == qua), None)
+        if c is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"KHÔNG thấy vòng đổi {tu}→{qua} trên {chuoi} trong lượt "
+                   f"quét gần nhất — tuyến biến mất khác hẳn tuyến hoà vốn")
+        if c.raBaoDamUsd is None or c.gasUsd is None:
+            return KetToanVong(
+                doDuoc=False,
+                vi=f"lượt báo giá {tu}→{qua} hỏng một chặng — không đo được "
+                   f"mức ra CÓ BẢO ĐẢM")
+
+        von = sum(abs(float(getattr(x, "vonUsd", 0.0) or 0.0)) for x in viThe)
+        # `netBps` của cơ hội tính trên `vaoUsd` của NÓ; quy về vốn thật
+        # đã cấp cho vị thế này.
+        net = c.netBps
+        thu = von * float(net) / 10_000.0
+        return KetToanVong(
+            thuUsd=thu, dongLai=True,
+            lyDoDong=f"vòng đổi xong — vốn quay về sau vài giây, giữ tiếp "
+                     f"không sinh thêm gì",
+            vi=(f"vòng đổi {tu}→{qua}→{tu} trên {chuoi}: NET {net:+.2f} bps "
+                f"ở mức CÓ BẢO ĐẢM trên {von:.2f} USD"
+                + (f" (kỳ vọng {c.kyVongBps:+.2f} bps — chênh "
+                   f"{c.khoangCachBps:.2f} bps là dung sai trượt giá)"
+                   if c.kyVongBps is not None else "")))
+
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
 

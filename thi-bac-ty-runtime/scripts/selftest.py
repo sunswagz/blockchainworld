@@ -5717,6 +5717,56 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("vị thế một chân thì doDuoc=False, không đoán chân kia",
          k is not None and k.doDuoc is False)
 
+    # ── 19. KẾ TOÁN vòng đổi DEX: không có ty này thì mọi vị thế của nó
+    #        là LỖ CHẮC CHẮN trên sổ ─────────────────────────────────────
+    from dex_arb.ty_vong_doi import CoHoiVongDoi, TyVongDoi
+
+    tv19 = TyVongDoi.__new__(TyVongDoi)
+    Ty.__init__(tv19)
+    chan19 = [ViThe("m19", TyVongDoi.ma, "LONG", "dex-router", "WETH",
+                    1000.0, chuoi="Base", loai="spot")]
+    tt19 = {"taiSan": "USDC", "chuoi": ["Base"]}
+
+    def _vd(raBaoDam=1001.5, raKyVong=1002.0, gas=0.3):
+        return CoHoiVongDoi(chuoi="Base", tuTaiSan="USDC", quaTaiSan="WETH",
+                            vaoUsd=1000.0, raBaoDamUsd=raBaoDam,
+                            raKyVongUsd=raKyVong, gasUsd=gas,
+                            congCu=("uniswap-v3",), tuoiGiay=1.0)
+
+    tv19.coHoi = [_vd()]
+    k = tv19.ke_toan(chan19, tt19, now9 - 60.0, now9)
+    _net = (1001.5 - 1000.0 - 0.3) / 1000.0 * 10_000.0
+    kiem("vòng đổi: ghi lãi ở mức CÓ BẢO ĐẢM",
+         k is not None and abs(k.thuUsd - 1000.0 * _net / 10_000.0) < 1e-9,
+         f"{k and k.thuUsd} — không có kế toán thì phí vào lệnh bị trừ lúc "
+         f"mở, `giuGio` trôi qua, vị thế đóng với `thuUsd` chưa bao giờ "
+         f"được đặt: một chiến lược có lãi hiện ra như một chiến lược lỗ")
+    kiem("KHÔNG dùng mức kỳ vọng — đó là số trước trượt giá",
+         k is not None and k.thuUsd < 1000.0 * ((1002.0 - 1000.0 - 0.3)
+                                                / 1000.0),
+         f"{k and k.thuUsd} — ghi kỳ vọng vào sổ như tiền đã nhận là tự "
+         f"thưởng cho mình phần dung sai trượt giá")
+    kiem("và ĐÓNG ngay, không giữ hết `giuGio`",
+         k is not None and k.dongLai,
+         "`giuGio` 0,25 giờ là mẫu số cho `netMoiGioBps`, không phải thời "
+         "gian nắm giữ thật")
+
+    tv19.coHoi = [_vd(raBaoDam=999.0)]
+    k = tv19.ke_toan(chan19, tt19, now9 - 60.0, now9)
+    kiem("vòng đổi lỗ thì ghi LỖ", k is not None and k.thuUsd < 0.0,
+         f"{k and k.thuUsd}")
+
+    tv19.coHoi = [_vd(raBaoDam=None)]
+    k = tv19.ke_toan(chan19, tt19, now9 - 60.0, now9)
+    kiem("một chặng báo giá hỏng thì doDuoc=False, không đoán",
+         k is not None and k.doDuoc is False)
+
+    tv19.coHoi = []
+    k = tv19.ke_toan(chan19, tt19, now9 - 60.0, now9)
+    kiem("tuyến biến mất khỏi lượt quét thì doDuoc=False",
+         k is not None and k.doDuoc is False and "biến mất" in k.vi)
+
+
 
 
 
