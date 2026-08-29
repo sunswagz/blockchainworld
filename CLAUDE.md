@@ -946,6 +946,34 @@ Bài học: **một quán quân nằm ở mép dải là một câu hỏi, khôn
 kết quả.** Phải nới mép rồi đo lại — có thể ra vàng, cũng có thể ra một
 mặt phẳng như lần này. Cái không được làm là đọc con số ở mép rồi tin nó.
 
+**Vì sao `nanLai.heSoGiamChan` cứ suýt thắng mãi — và vì sao đừng tin
+chuỗi suýt thắng ấy.** Nút này là quán quân ở nhiều lượt `tu-nang-cap`
+độc lập (0,7 → 0,35, rồi 0,7 → 0,3), lần nào cũng thiếu một chút so với
+biên. Thấy vậy rất dễ nghĩ "nó gần đúng rồi, nới biên đi".
+
+Quét cả trục thì hết nghĩ:
+
+    hệ số   Brier CHỌN   Brier CHỐT
+     0,30     0.15578      0.15861
+     0,50     0.15586      0.15857
+     0,70     0.15601      0.15861   ← đương nhiệm
+     0,85     0.15618      0.15868
+     1,00     0.15638      0.15879
+    mọi khoảng tin 95% của chênh CHỐT đều CHỨA 0
+
+**CHỌN cải thiện ĐƠN ĐIỆU, CHỐT PHẲNG LÌ.** Đó là dấu vân tay của khớp
+quá trên tập xếp hạng, và là lý do tập CHỐT tồn tại. Chuỗi "suýt thắng"
+không phải bằng chứng tích luỹ — nó là cùng một tiếng ồn nhìn từ nhiều
+lượt, vì nút này nhạy với nhiễu tập CHỌN hơn mọi nút khác.
+
+Đồng thời chuyện này giải luôn mâu thuẫn giữa hai công cụ:
+`kiem-nan-ngoai-mau` khuyên TĂNG hệ số (bỏ bớt giảm chấn) còn
+`tu-nang-cap` cứ nhắm GIẢM. Cả hai đều cư xử đúng — cái đầu chấm sai số
+hiệu chỉnh, cái sau chấm Brier, và trên Brier thì cả trục là mặt phẳng.
+
+`tu-nang-cap` nay in tập CHỐT ra ngay cả khi ứng viên đã bị loại ở CHỌN,
+để lần sau không ai phải đi quét trục mới biết chuyện này.
+
 **Dữ liệu giá Binance đã cạn.** Sáu hướng, sáu kết quả, cùng một kết
 luận. Alpha còn lại — nếu có — nằm ở vi cấu trúc của chính cái chợ: sổ
 lệnh, hàng chờ, độ trễ tới sàn. Tất cả sau đúng một cánh cửa đang đóng.

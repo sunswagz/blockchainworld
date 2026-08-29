@@ -247,6 +247,30 @@ def mot_vong(theoMoc: dict, ba: tuple, vong: int) -> dict | None:
           f"{len(ungVien)} ứng viên)")
     if r["chon"] >= goc["chon"] * bien:
         print("      TRẢ LẠI: chưa vượt biên ở tập CHỌN.")
+        # NÓI LUÔN tập CHỐT nói gì, dù ứng viên đã bị loại.
+        #
+        # Bản trước chỉ in CHỐT khi ứng viên ĐƯỢC NHẬN. Nên ca thường gặp
+        # nhất — suýt qua ở CHỌN — không bao giờ lộ ra CHỐT nghĩ sao, và
+        # người đọc thấy cùng một nút suýt thắng nhiều lượt liền thì rất
+        # dễ kết luận "nó gần đúng rồi, nới biên đi".
+        #
+        # Đo trên `nanLai.heSoGiamChan`, nút liên tục là quán quân:
+        #
+        #     hệ số   CHỌN      CHỐT
+        #      0,30   0.15578   0.15861
+        #      0,50   0.15586   0.15857
+        #      0,70   0.15601   0.15861   ← đương nhiệm
+        #      1,00   0.15638   0.15879
+        #
+        # CHỌN cải thiện ĐƠN ĐIỆU, CHỐT PHẲNG LÌ, mọi khoảng tin chứa 0.
+        # Đó là dấu vân tay của khớp quá trên tập xếp hạng — và là lý do
+        # tồn tại của tập CHỐT. Chuỗi "suýt thắng" KHÔNG phải bằng chứng
+        # tích luỹ; nó là cùng một tiếng ồn nhìn từ nhiều lượt.
+        dau = "khá hơn" if r["chot"] < goc["chot"] else "TỆ HƠN"
+        print(f"      (CHỐT {goc['chot']:.5f} → {r['chot']:.5f} — {dau}. "
+              "In ra ngay cả khi đã loại:")
+        print("       một nút suýt thắng nhiều lượt liền mà CHỐT không đi")
+        print("       cùng chiều thì đó là tiếng ồn, không phải bằng chứng)")
         return {"nhan": None, "duong": duong, "den": v, "goc": goc, "moi": r,
                 "soUngVien": len(ungVien), "bien": bien, "lyDo": "thua ở CHỌN"}
 
