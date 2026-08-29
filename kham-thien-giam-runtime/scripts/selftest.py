@@ -330,7 +330,7 @@ def kiem_rui_ro() -> None:
          f"{pq.soCoChoPhep:.0f} cổ")
 
     # cầu dao
-    re.ghi_lai_lo(-float(CONFIG["ruiRo"]["tranLoNgayUsd"]) - 1)
+    re.ghi_lai_lo(-re.tranLoNgayUsd - 1)
     kiem("chạm trần lỗ ngày → cầu dao NGẮT", re.ngatKhanCap)
     kiem("cầu dao ngắt thì mọi lệnh bị chặn", re.duyet(ch, lanh, 200, True).tu_choi)
     re.mo_lai()
@@ -935,39 +935,170 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
-def kiem_khoa_nguon_co_that() -> None:
-    """Mọi khoá `_NG[...]` trong nguon.py phải CÓ THẬT trong config.
+def kiem_tran_theo_von() -> None:
+    """Thêm tiền vào thì cỗ máy phải ĐỔI HÀNH VI, không chỉ đổi con số.
 
-    Đây là phép kiểm dựng lên từ một lỗi đã cắn rất sâu. `tim_theo_slug()`
-    gõ `_NG['gamma']` trong khi khoá thật là `polymarketGamma`. `_NG[...]`
-    nằm trong một f-string, nên nó ném `KeyError` NGAY lúc dựng chuỗi —
-    trước cả khi `_lay()` kịp bọc lỗi mạng — và cú ném trồi lên tận vòng
-    lặp chính, giết trọn một vòng, mỗi hai giây, suốt nhiều giờ.
-
-    Một lỗi gõ một chữ. Không phép kiểm nào chạm tới vì đường đi ấy chỉ
-    sống khi có market khung dài, và cả bộ kiểm thì chạy không mạng.
+    Ba trần rủi ro từng khai bằng đô-la, và cả ba là con số hợp lý cho
+    đúng một tài khoản 1.000 đô. Nạp 10.000 đô vào thì chúng đứng yên:
+    vẫn $100 mỗi market, và cầu dao ngày vẫn ngắt ở $50 — tức 0,51% vốn.
+    Đo được trên phiên giấy thật: ngắt sau đúng HAI cửa sổ.
     """
-    print("\n-- Khoa cau hinh nguon: co that hay chi go cho co ---------")
+    print("\n-- Tran rui ro phai co gian theo von ----------------------")
 
-    import re as _re
+    from kham.kho_doi import Kho as _Kho
+    from kham.rui_ro import RiskEngine as _RE
+
+    r = _RE(_Kho())
+    goc = (r.tranMoiThiTruongUsd, r.tranMoiTaiSanUsd, r.tranLoNgayUsd)
+    kiem("vốn 1.000 giữ NGUYÊN ba trần cũ ($100/$200/$50)",
+         goc == (100.0, 200.0, 50.0), str(goc))
+
+    r.vonBanDau = 10_000.0
+    moi = (r.tranMoiThiTruongUsd, r.tranMoiTaiSanUsd, r.tranLoNgayUsd)
+    kiem("gấp 10 vốn thì gấp 10 cả ba trần",
+         moi == (1000.0, 2000.0, 500.0),
+         f"{moi} — trần đứng yên nghĩa là thêm tiền KHÔNG đổi hành vi")
+
+    r2 = _RE(_Kho())
+    r2.vonBanDau = 10_000.0
+    r2.von = r2.dinhVon = 10_000.0
+    r2.ghi_lai_lo(-499.0)
+    kiem("lỗ 499 trên vốn 10.000 CHƯA ngắt cầu dao", not r2.ngatKhanCap)
+    r2.ghi_lai_lo(-2.0)
+    kiem("lỗ 501 thì ngắt", r2.ngatKhanCap, r2.lyDoNgat)
+
+
+def kiem_phien_phat_lai() -> None:
+    """Cả cỗ máy chạy trên băng: có lệnh, có kết toán, có lãi lỗ.
+
+    Đây là phép kiểm phân biệt "các mảnh đều đúng" với "cái VÒNG khép".
+    Cùng hình dạng lỗi đã cắn hồi dựng cung: có đủ `HieuChinh`, `So`,
+    `thong_ke()` mà không dòng nào gọi chúng.
+    """
+    print("\n-- Phien phat lai: ca co may chay tren bang --------------")
+
+    import tempfile
+    from pathlib import Path as _P
+
+    import kham.ket_qua as _KQ
+    import kham.phat_lai as _PL
+
+    khung = _bang_sat_bien(40)
+    # Băng phải mang `luc` để sổ kết toán ghi đúng mốc thời gian của nó.
+    for i, k in enumerate(khung):
+        k["luc"] = 1787243400000.0 + i * 2000.0
+
+    with tempfile.TemporaryDirectory() as t:
+        d = _P(t)
+        so_kq = _KQ.SoKetQua(d / "kq.jsonl")
+        for k in khung:
+            for tt in k["thiTruong"]:
+                so_kq.them(tt["slug"], bool(tt["upThang"]), 100.0, 101.0)
+
+        p = _PL.PhienPhatLai(von=50_000.0, thuMucSo=d)
+        p._kqThat = so_kq
+        kq = p.chay(khung)
+
+        kiem("vốn ban đầu đặt được tuỳ ý", kq.von0 == 50_000.0, kq.von0)
+        kiem("ba trần theo vốn mới, không theo config",
+             p.risk.tranMoiThiTruongUsd == 5000.0,
+             p.risk.tranMoiThiTruongUsd)
+        kiem("có thấy cửa sổ", kq.soCuaSo >= 5, kq.soCuaSo)
+        kiem("có khớp lệnh thật", kq.soKhop >= 1,
+             f"{kq.soKhop} khớp / {kq.soLenh} lệnh · bỏ qua {dict(kq.boQua)}")
+        kiem("có kết toán", kq.soKetToan >= 1, kq.soKetToan)
+        kiem("vốn cuối = vốn đầu + lãi lỗ",
+             abs(kq.von - (kq.von0 + kq.tongLaiLo)) < 1e-6,
+             f"{kq.von} vs {kq.von0 + kq.tongLaiLo}")
+        kiem("thắng + thua = số cửa sổ kết toán",
+             kq.soThang + kq.soThua == kq.soKetToan)
+        kiem("đường vốn dài bằng số lần kết toán",
+             len(kq.duongVon) == kq.soKetToan)
+        kiem("phí luôn dương khi có khớp", kq.tongPhi > 0 or kq.soKhop == 0)
+
+        # SỔ SÁCH KHÔNG ĐƯỢC LẪN VÀO SỔ THẬT.
+        kiem("sổ kết toán ghi vào thư mục riêng",
+             str(p.so.duong).startswith(str(d)), str(p.so.duong))
+        kiem("sổ hiệu chỉnh ghi vào thư mục riêng",
+             str(p.hieuChinh.duong).startswith(str(d)), str(p.hieuChinh.duong))
+        kiem("sổ kết toán có dòng thật", len(p.so.doc()) == kq.soKetToan)
+
+
+def kiem_khoa_cau_hinh_co_that() -> None:
+    """Mọi khoá config đọc bằng `[...]` phải CÓ THẬT trong config.json.
+
+    Dựng lên từ một lỗi đã cắn rất sâu, rồi cắn lại lần thứ hai trong
+    cùng một phiên:
+
+        nguon.py   `_NG['gamma']`  — khoá thật là `polymarketGamma`
+        run.py     `CONFIG['ruiRo']['tranLoNgayUsd']` — khoá đã đổi tên
+
+    Cả hai nằm trong f-string nên ném `KeyError` NGAY lúc dựng chuỗi. Cái
+    đầu giết trọn vòng lặp mỗi hai giây suốt nhiều giờ trong khi buồng
+    lái vẫn xanh; cái sau giết runtime trước cả khi mở cổng. Không phép
+    kiểm nào chạm tới, vì cả hai nằm trên đường chỉ sống lúc chạy thật.
+
+    Luật rút ra và nay canh được: **đọc config bằng `[...]` là một lời
+    hứa rằng khoá ấy tồn tại.** Không chắc thì dùng `.get` kèm mặc định.
+
+    ## Dò bằng CÂY CÚ PHÁP, không bằng regex
+
+    Bản regex đầu tiên báo oan ngay dòng chú thích trong `vong.py` kể lại
+    chính lỗi này — một khoá được NHẮC TỚI trong lời giải thích bị tính
+    thành một khoá được ĐỌC. Cắt chú thích bằng regex thì lại không cắt
+    được chuỗi tài liệu, mà cắt cả chuỗi thì mất luôn `'gamma'` — nó
+    cũng là một chuỗi. Cây cú pháp không có chỗ mơ hồ đó: chú thích
+    không vào cây, và chuỗi tài liệu là một câu lệnh chứ không phải một
+    phép lấy chỉ số.
+    """
+    print("\n-- Khoa cau hinh: co that hay chi go cho co ---------------")
+
+    import ast as _ast
+
     from kham.config import CONFIG as _CF
 
-    ma = (Path(__file__).resolve().parent.parent / "kham" / "nguon.py"
-          ).read_text(encoding="utf-8")
-    # Mẫu dựng bằng MÃ KÝ TỰ, không gõ gạch chéo ngược: file này bị
-    # sửa qua nhiều lớp shell và gạch chéo bị nuốt một lớp mỗi lần —
-    # mẫu hỏng thì nó khớp 0 khoá và phép kiểm xanh vì không tìm thấy
-    # gì để chê. Xem chốt "có tìm thấy khoá nào để kiểm" ngay dưới.
-    C = chr(92)
-    NHAY = "[" + chr(39) + chr(34) + "]"
-    mau = "_NG" + C + "[" + NHAY + "([a-zA-Z]+)" + NHAY + C + "]"
-    khoa = sorted(set(_re.findall(mau, ma)))
-    kiem("có tìm thấy khoá nào để kiểm", len(khoa) >= 3, khoa)
-    co = _CF.get("nguon") or {}
-    thieu = [k for k in khoa if k not in co]
-    kiem("mọi khoá nguồn đều có trong config.json", not thieu,
-         f"thiếu {thieu} — `_NG[...]` nằm trong f-string nên ném KeyError "
-         "ngay lúc dựng chuỗi, và cú ném ấy giết trọn một vòng lặp")
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    def _chuoi(nut):
+        return nut.value if isinstance(nut, _ast.Constant) and \
+            isinstance(nut.value, str) else None
+
+    thieu, soCho = [], 0
+    for f in sorted(GOC_MA.glob("kham/*.py")) + [GOC_MA / "run.py"]:
+        cay = _ast.parse(f.read_text(encoding="utf-8"), filename=f.name)
+        for nut in _ast.walk(cay):
+            if not isinstance(nut, _ast.Subscript):
+                continue
+            k = _chuoi(nut.slice)
+            if k is None:
+                continue
+            goc = nut.value
+            # `_NG['x']` — bảng nguồn.
+            if isinstance(goc, _ast.Name) and goc.id == "_NG":
+                soCho += 1
+                if k not in (_CF.get("nguon") or {}):
+                    thieu.append(f"{f.name}: nguon.{k}")
+                continue
+            # `CONFIG['a']` và `CONFIG['a']['b']`.
+            if isinstance(goc, _ast.Name) and goc.id == "CONFIG":
+                soCho += 1
+                if k not in _CF:
+                    thieu.append(f"{f.name}: {k}")
+                continue
+            if isinstance(goc, _ast.Subscript) and \
+                    isinstance(goc.value, _ast.Name) and goc.value.id == "CONFIG":
+                a = _chuoi(goc.slice)
+                if a is None:
+                    continue
+                soCho += 1
+                d = _CF.get(a)
+                if isinstance(d, dict) and k not in d:
+                    thieu.append(f"{f.name}: {a}.{k}")
+
+    kiem("có tìm thấy chỗ nào để kiểm", soCho >= 20, f"{soCho} chỗ")
+    kiem("mọi khoá config đọc bằng [...] đều có thật", not thieu,
+         f"thiếu {thieu[:4]} — `[...]` trong f-string ném KeyError ngay "
+         "lúc dựng chuỗi, và cú ném ấy giết cả vòng lặp hoặc cả runtime")
 
 
 def kiem_lan_nga_khong_giet_vong() -> None:
@@ -1926,7 +2057,9 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
-    kiem_khoa_nguon_co_that()
+    kiem_tran_theo_von()
+    kiem_phien_phat_lai()
+    kiem_khoa_cau_hinh_co_that()
     kiem_lan_nga_khong_giet_vong()
     kiem_lui_nguon()
     kiem_nan_lai()

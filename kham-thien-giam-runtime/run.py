@@ -14,6 +14,31 @@ import uvicorn
 from kham.config import CONFIG, che_hieu_luc, ly_do_khong_that, nao_cham_bat
 
 
+def _pct_von(khoaPct: str, khoaUsd: str, macDinhPct: float) -> float:
+    """Trần theo phần trăm vốn — cùng luật với `rui_ro.RiskEngine._tran`.
+
+    Đọc bằng `.get`, KHÔNG bằng `[...]`. Một khoá thiếu ở đây ném KeyError
+    ngay trong bảng khởi động, tức là runtime chết trước khi mở cổng — và
+    đó đúng là chuyện vừa xảy ra khi ba trần đổi từ đô-la sang phần trăm.
+    """
+    rr = CONFIG.get("ruiRo") or {}
+    pct = rr.get(khoaPct)
+    if pct is None:
+        cu = rr.get(khoaUsd)
+        if cu is not None:
+            return float(cu)
+        pct = macDinhPct
+    return float(rr.get("vonBanDau", 0)) * float(pct) / 100.0
+
+
+def _tran_lo_ngay() -> float:
+    return _pct_von("phanTramLoNgay", "tranLoNgayUsd", 5.0)
+
+
+def _tran_market() -> float:
+    return _pct_von("phanTramMoiThiTruong", "vonToiDaMoiThiTruongUsd", 10.0)
+
+
 def main() -> None:
     port = CONFIG["port"]
     che = che_hieu_luc()
@@ -42,12 +67,12 @@ def main() -> None:
     else:
         print("  ██ TIỀN THẬT ██  trần mỗi lệnh "
               f"${CONFIG['datLenh']['tranMoiLenhUsd']}"
-              f" · trần lỗ ngày ${CONFIG['ruiRo']['tranLoNgayUsd']}"
+              f" · trần lỗ ngày ${_tran_lo_ngay():,.0f}"
               f" · kill switch sụt vốn {CONFIG['ruiRo']['tranSutVonPct']}%")
 
     print()
     print(f"  vốn sổ sách ${CONFIG['ruiRo']['vonBanDau']}"
-          f" · trần/market ${CONFIG['ruiRo']['vonToiDaMoiThiTruongUsd']}"
+          f" · trần/market ${_tran_market():,.0f}"
           f" · trần nằm trần một chân ${CONFIG['khoDoi']['capChuaKhopToiDaUsd']}")
     print(f"  net edge tối thiểu {CONFIG['canLoi']['netEdgeToiThieu']}"
           f" · biên an toàn {CONFIG['canLoi']['bienAnToan']}")

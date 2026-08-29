@@ -69,10 +69,13 @@
 
   "//ruiRo": "Risk Engine — Python thuần, không gọi model, có quyền phủ quyết. Mọi số ở đây là TRẦN CỨNG.",
   "ruiRo": {
+    "//vonBanDau": "Vốn ảo ở chế độ `giay`. Đặt bao nhiêu tuỳ ý — ba trần dưới đây tính THEO PHẦN TRĂM của nó nên cỗ máy co giãn theo. Phiên phát lại đè được bằng `--von=`.",
     "vonBanDau": 1000,
-    "vonToiDaMoiThiTruongUsd": 100,
-    "vonToiDaMoiTaiSanUsd": 200,
-    "tranLoNgayUsd": 50,
+
+    "//tranTheoPhanTram": "Ba trần này TỪNG khai bằng đô-la ($100 mỗi market / $200 mỗi nhóm / $50 lỗ ngày) và cả ba đều là con số hợp lý cho đúng MỘT tài khoản 1.000 đô. Nạp thêm vốn thì chúng đứng yên — tức là thêm tiền KHÔNG đổi hành vi cỗ máy, chỉ làm cầu dao ngày ngắt sớm hơn về tỉ lệ. Đo được: phiên giấy 10.000 đô ngắt cầu dao ở mức lỗ 0,51% sau đúng hai cửa sổ. Phần trăm dưới đây giữ nguyên tỉ lệ cũ (10/20/5) nên tài khoản 1.000 đô cư xử Y HỆT như trước, chỗ khác là nay nó biết co giãn. Khoá `...Usd` cũ vẫn còn đọc được nếu ai cố ý muốn một trần tuyệt đối, nhưng chỉ khi KHÔNG khai phần trăm.",
+    "phanTramMoiThiTruong": 10,
+    "phanTramMoiTaiSan": 20,
+    "phanTramLoNgay": 5,
     "tranSutVonPct": 10,
     "kellyPhan": 0.2,
     "tuoiSoLenhToiDaMs": 2500,

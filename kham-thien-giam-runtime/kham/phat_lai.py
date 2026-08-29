@@ -1,0 +1,388 @@
+"""PHIÊN PHÁT LẠI — cả cỗ máy chạy thật, trên băng thật, bằng tiền ảo.
+
+    python -m kham.phat_lai                     chạy, vốn lấy từ config
+    python -m kham.phat_lai --von=25000         tự thêm vốn bao nhiêu tuỳ ý
+    python -m kham.phat_lai --tu=2026-08-25     chỉ phần băng từ ngày đó
+
+## Vì sao cần thứ này, và nó KHÁC `chay_lai` ở đâu
+
+`chay_lai` là một cái thước: nó chấm điểm một bộ tham số, và nó cố tình
+đi tắt — không sổ lệnh chờ, không tồn kho, không cầu dao rủi ro, không
+sổ kết toán. Đúng cho việc so A với B, sai cho câu hỏi "cỗ máy này kiếm
+được bao nhiêu".
+
+Phiên phát lại thì ngược lại: nó gọi ĐÚNG những bộ phận mà bản chạy
+thật gọi —
+
+    dinh_gia / dong_co   định giá, rồi NẮN theo sổ hiệu chỉnh
+    chien_thuat          năm ngón nghề đề xuất
+    rui_ro.duyet         Kelly, phơi nhiễm nhóm, cầu dao, sức khoẻ nguồn
+    dat_lenh.CongLenh    khớp giấy theo VWAP THẬT của sổ THẬT, có phí
+    kho_doi.Kho          tồn kho, giá vốn, chân lẻ
+    ket_toan             kết quả thật, lãi lỗ thật, sổ hiệu chỉnh
+
+— và chỉ thay đúng hai thứ mà máy này không với tới được: **đồng hồ**
+(lấy từ băng, không lấy từ tường) và **nguồn** (đọc băng, không gọi
+mạng).
+
+## Dữ liệu là THẬT. Tiền là ảo. Kế toán là thật.
+
+Băng ghi sổ lệnh Polymarket thô ở từng khung hình, cùng giá nền Binance
+và σ đo được lúc đó. Kết quả từng khung nằm ở `data/ket-qua.jsonl`, dựng
+từ nến Binance. Không con số nào ở đây do máy này bịa ra.
+
+Vốn thì tuỳ ý — `--von`. Đó là cả điểm của một phiên giấy: xem cỗ máy
+xoay xở thế nào với 1.000 đô và với 100.000 đô, mà không mất đồng nào.
+
+## Ba điều nó KHÔNG chứng minh được, khai trước
+
+1. **Không có tác động thị trường.** Ta ăn vào sổ đã ghi mà sổ ấy không
+   biết ta tồn tại. Lô càng to thì con số càng lạc quan.
+2. **Không có trượt giá theo thời gian.** Sổ là ảnh chụp lúc ấy; lệnh
+   thật mất vài trăm mili-giây mới tới sàn, và `do_tre.py` đo được độ
+   trễ nền→sàn quãng nửa giây.
+3. **Không có chọn lọc bất lợi.** Người bán ở giá đó có thể biết thứ ta
+   chưa biết.
+
+Nên đọc kết quả phiên này như một CẬN TRÊN, không phải một lời hứa.
+
+## Sổ sách viết vào thư mục RIÊNG
+
+`KTG_DATA_DIR` trỏ sang `data/phat-lai/` — sổ kết toán mô phỏng KHÔNG
+được lẫn vào sổ thật. Một dòng giả trong sổ thật là một con số sai chảy
+vào chẩn đoán, vào Kelly, vào cổng tiến hoá, mãi mãi.
+"""
+from __future__ import annotations
+
+import sys
+import time
+from dataclasses import dataclass, field, replace
+
+from .bang import NguonKhung
+from .can_loi import CoHoi, phi_taker
+from .chay_lai import dung_so
+from .chien_thuat import BoiCanh, chay_tat_ca
+from .config import CONFIG
+from .dinh_gia import HieuChinh
+from .dong_co import goi as goi_dong_co
+from .dongho import LatCat
+from .kho_doi import Kho
+from .nan_lai import khop as khop_nan
+from .rui_ro import RiskEngine, SucKhoeNguon
+from .so import GhiKetToan, So
+
+# Sổ lệnh chờ (maker) trong phiên phát lại: một lệnh yết ra được coi là
+# khớp khi khung sau có best ask tụt xuống tới giá yết. Cùng quy ước với
+# `CongLenh.soat_cho` của bản chạy thật.
+from .so_lenh import SoLenh
+
+
+@dataclass
+class ViKhung:
+    """Một cửa sổ đang mở trong phiên — tồn kho và tiền của riêng nó."""
+    slug: str
+    ma: str
+    coUp: float = 0.0
+    coDown: float = 0.0
+    tienUp: float = 0.0
+    tienDown: float = 0.0
+    phi: float = 0.0
+    chienThuat: list = field(default_factory=list)
+    pDuDoanUp: float | None = None
+    lucCuoiMs: float = 0.0
+
+    @property
+    def tienVao(self) -> float:
+        return self.tienUp + self.tienDown
+
+    def gia_tri(self, upThang: bool) -> float:
+        return self.coUp if upThang else self.coDown
+
+    @property
+    def gia_cap(self) -> float | None:
+        """Giá vốn một CẶP, nếu có cả hai chân. Trên $1 là khoá lỗ sẵn."""
+        n = min(self.coUp, self.coDown)
+        if n <= 0:
+            return None
+        return (self.tienUp / self.coUp) + (self.tienDown / self.coDown)
+
+
+@dataclass
+class KetQuaPhien:
+    von0: float = 0.0
+    von: float = 0.0
+    dinhVon: float = 0.0
+    soKhungHinh: int = 0
+    soCuaSo: int = 0
+    soLenh: int = 0
+    soKhop: int = 0
+    soTuChoiRuiRo: int = 0
+    soKetToan: int = 0
+    soThang: int = 0
+    soThua: int = 0
+    tongPhi: float = 0.0
+    tongLaiLo: float = 0.0
+    thuaLonNhat: float = 0.0
+    duongVon: list = field(default_factory=list)
+    lyDoTuChoi: dict = field(default_factory=dict)
+    boQua: dict = field(default_factory=dict)
+
+    @property
+    def sutVonPct(self) -> float:
+        return 0.0 if self.dinhVon <= 0 else (self.dinhVon - self.von) / self.dinhVon * 100.0
+
+    @property
+    def loiNhuanPct(self) -> float:
+        return 0.0 if self.von0 <= 0 else (self.von - self.von0) / self.von0 * 100.0
+
+    @property
+    def tiLeThang(self) -> float:
+        n = self.soThang + self.soThua
+        return 0.0 if not n else self.soThang / n
+
+    def tom_tat(self) -> dict:
+        return {
+            "von0": self.von0, "von": self.von, "dinhVon": self.dinhVon,
+            "loiNhuanPct": self.loiNhuanPct, "sutVonPct": self.sutVonPct,
+            "soKhungHinh": self.soKhungHinh, "soCuaSo": self.soCuaSo,
+            "soLenh": self.soLenh, "soKhop": self.soKhop,
+            "soTuChoiRuiRo": self.soTuChoiRuiRo,
+            "soKetToan": self.soKetToan, "soThang": self.soThang,
+            "soThua": self.soThua, "tiLeThang": self.tiLeThang,
+            "tongPhi": self.tongPhi, "tongLaiLo": self.tongLaiLo,
+            "thuaLonNhat": self.thuaLonNhat,
+            "lyDoTuChoi": dict(self.lyDoTuChoi), "boQua": dict(self.boQua),
+        }
+
+
+class PhienPhatLai:
+    """Một phiên giấy TRỌN VẸN trên băng đã ghi.
+
+    Gọi đúng những bộ phận bản chạy thật gọi — định giá qua sổ đăng ký
+    động cơ, nắn theo sổ hiệu chỉnh, năm ngón chiến thuật, cầu dao rủi
+    ro, khớp giấy theo VWAP thật, tồn kho, kết toán, sổ. Chỉ thay hai
+    thứ: đồng hồ lấy từ băng, và nguồn đọc băng thay vì gọi mạng.
+    """
+
+    def __init__(self, von: float | None = None,
+                 batTat: dict | None = None,
+                 thuMucSo=None) -> None:
+        """`thuMucSo`: nơi ghi sổ kết toán và sổ hiệu chỉnh của PHIÊN NÀY.
+
+        Bắt buộc tách khỏi sổ thật. Một dòng mô phỏng lẫn vào sổ thật là
+        một con số sai chảy vào chẩn đoán, vào Kelly, vào cổng tiến hoá —
+        và không ai gỡ ra được nữa vì nhìn nó giống hệt một dòng thật.
+
+        Tách bằng ĐƯỜNG DẪN chứ không bằng `KTG_DATA_DIR`: băng và sổ kết
+        quả vẫn phải đọc từ chỗ thật, nên đổi cả `DATA_DIR` là cắt luôn
+        nguồn dữ liệu của chính phiên này.
+        """
+        from pathlib import Path as _P
+        tm = _P(thuMucSo) if thuMucSo else None
+        if tm is not None:
+            tm.mkdir(parents=True, exist_ok=True)
+        self.kho = Kho()
+        self.risk = RiskEngine(self.kho)
+        if von is not None:
+            # Tiền ảo, tự thêm bao nhiêu tuỳ ý — nhưng phải đặt CẢ BA mốc.
+            # `sutVonPct` đo từ `dinhVon`, cầu dao ngày đo từ `vonBanDau`;
+            # đặt mỗi `von` thì phiên khai sinh đã mang một khoản sụt vốn
+            # bịa, và cầu dao có thể ngắt trước cả lệnh đầu tiên.
+            self.risk.vonBanDau = float(von)
+            self.risk.von = float(von)
+            self.risk.dinhVon = float(von)
+        self.hieuChinh = HieuChinh(tm / "hieu-chinh.json" if tm else None)
+        self.so = So(tm / "ket-toan.jsonl" if tm else None)
+        self.phepNan = khop_nan(self.hieuChinh)
+        self.batTat = batTat
+        self.mo: dict[str, ViKhung] = {}
+        self.kq = KetQuaPhien(von0=self.risk.von, von=self.risk.von,
+                              dinhVon=self.risk.von)
+        from .ket_qua import so_ket_qua
+        self._kqThat = so_ket_qua
+
+    # ── ghi chú vì sao đứng ngoài ─────────────────────────────────────
+    def _bo(self, ly: str) -> None:
+        self.kq.boQua[ly] = self.kq.boQua.get(ly, 0) + 1
+
+    def _ma_dong_co(self, ma: str) -> str:
+        for t in CONFIG["thiTruong"]:
+            if t.get("ma") == ma:
+                return t.get("dongCo") or "updown-crypto"
+        return "updown-crypto"
+
+    # ── một khung hình của một market ─────────────────────────────────
+    def _mot_khung(self, tt: dict, luc: float) -> None:
+        ma = tt.get("ma") or "?"
+        slug = tt.get("slug") or ma
+        soTho = tt.get("so") or {}
+        su = dung_so(soTho.get("UP"), ma, "UP")
+        sd = dung_so(soTho.get("DOWN"), ma, "DOWN")
+        if su is None or sd is None:
+            self._bo("thiếu sổ")
+            return
+        if not (su.dung_duoc or sd.dung_duoc):
+            self._bo("thang chờ / sổ một chiều")
+            return
+
+        gia, mo = tt.get("giaNen"), tt.get("giaMo")
+        sig, tau = tt.get("sigmaGiay"), tt.get("conLaiGiay")
+        if not all(isinstance(x, (int, float)) for x in (gia, mo, sig, tau)):
+            self._bo("thiếu nguyên liệu định giá")
+            return
+        tau = float(tau)
+
+        # Định giá QUA SỔ ĐĂNG KÝ ĐỘNG CƠ — đúng mối nối bản chạy thật đi.
+        maDC = self._ma_dong_co(ma)
+        gc, viSao = goi_dong_co(maDC, ma, giaHienTai=float(gia),
+                                giaMo=float(mo), tauGiay=tau,
+                                sigmaGiay=float(sig), tinHieu=None)
+        if gc is None:
+            self._bo(f"động cơ từ chối: {viSao or 'không rõ'}")
+            return
+
+        # Nắn lại ĐÚNG chỗ bản chạy thật nắn: trước khi ai dùng con số.
+        if self.phepNan.dung_duoc:
+            pN = self.phepNan.nan(gc.pUp)
+            if abs(pN - gc.pUp) > 1e-9:
+                gc = replace(gc, pUp=pN, pDown=1.0 - pN)
+
+        v = self.mo.get(slug)
+        if v is None:
+            v = ViKhung(slug=slug, ma=ma)
+            self.mo[slug] = v
+            self.kq.soCuaSo += 1
+        v.pDuDoanUp = gc.pUp
+        v.lucCuoiMs = luc
+
+        # Chiến thuật thật — năm ngón nghề, không phải một phép so ngưỡng.
+        lc = LatCat(conLaiGiay=tau, tongGiay=max(tau, 1.0),
+                    giaiDoan="dat-cuoc", troiQuaPct=0.0,
+                    lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
+        bc = BoiCanh(ma=ma, gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                     viThe=self.kho.lay(ma))
+        deXuat = chay_tat_ca(bc, self.batTat)
+        if not deXuat:
+            self._bo("không chiến thuật nào đề xuất")
+            return
+
+        # Rủi ro quyết. Nguồn coi như LÀNH: băng đã ghi được thì lúc ấy nó
+        # lành. Bịa ra một nguồn ốm ở đây là tự chặn mình bằng số giả.
+        sk = SucKhoeNguon(tuoiSoLenhMs=0.0, tuoiGiaNenMs=0.0,
+                          lechDongHoMs=0.0, thieuNguon=[])
+        duKelly = self.hieuChinh.du_de_dung_kelly()
+        for ch in deXuat:
+            pq = self.risk.duyet(ch, sk, tau, duKelly)
+            if not pq.cho or pq.soCoChoPhep < 1:
+                self.kq.soTuChoiRuiRo += 1
+                for l in (pq.lyDo or ["không rõ"]):
+                    self.kq.lyDoTuChoi[_dau_cau(l)] = \
+                        self.kq.lyDoTuChoi.get(_dau_cau(l), 0) + 1
+                continue
+            self._khop(ch, pq.soCoChoPhep, su if ch.ben == "UP" else sd, v)
+
+    # ── khớp giấy: VWAP THẬT của sổ THẬT, có phí ──────────────────────
+    def _khop(self, ch: CoHoi, soCo: float, so: SoLenh, v: ViKhung) -> None:
+        self.kq.soLenh += 1
+        if ch.laMaker:
+            # Maker KHÔNG khớp tức thì — nó nằm chờ người khác tới ăn, và
+            # đó chính là đánh đổi của việc không trả phí. Cho nó khớp ngay
+            # là tặng không cả phí lẫn spread cho chiến thuật `tao-lap`.
+            self._bo("lệnh maker: phiên này chưa mô phỏng hàng chờ")
+            return
+        r = so.vwap_mua(soCo)
+        if r.khop <= 0:
+            self._bo("sổ không có hàng")
+            return
+        tien = r.vwap * r.khop
+        ph = phi_taker(r.vwap, r.khop)
+        self.kq.soKhop += 1
+        self.kq.tongPhi += ph
+        v.phi += ph
+        if ch.ben == "UP":
+            v.coUp += r.khop
+            v.tienUp += tien
+        else:
+            v.coDown += r.khop
+            v.tienDown += tien
+        if ch.chienThuat not in v.chienThuat:
+            v.chienThuat.append(ch.chienThuat)
+        # Vào tồn kho chung để `quyet_chan` và phơi nhiễm nhóm nhìn thấy.
+        self.kho.lay(ch.ma).ghi_khop(ch.ben, r.khop, r.vwap)
+
+    # ── kết toán một cửa sổ ───────────────────────────────────────────
+    def _ket_toan(self, slug: str) -> None:
+        v = self.mo.pop(slug, None)
+        if v is None:
+            return
+        that = self._kqThat.lay(slug)
+        if that is None:
+            self._bo("cửa sổ đóng mà chưa có kết quả")
+            return
+
+        # Sổ hiệu chỉnh nhận CẢ khi không có vị thế — cùng lý do bản chạy
+        # thật: chỉ ghi những ca mình đã chọn vào là tự thiên lệch đúng
+        # chiều làm mô hình trông giỏi hơn thực tế.
+        if v.pDuDoanUp is not None:
+            self.hieuChinh.them(v.pDuDoanUp, bool(that))
+        if v.coUp <= 0 and v.coDown <= 0:
+            return
+
+        tienRa = v.gia_tri(bool(that))
+        lai = tienRa - v.tienVao - v.phi
+        self.kq.soKetToan += 1
+        self.kq.tongLaiLo += lai
+        if lai > 0:
+            self.kq.soThang += 1
+        else:
+            self.kq.soThua += 1
+            self.kq.thuaLonNhat = min(self.kq.thuaLonNhat, lai)
+        self.risk.ghi_lai_lo(lai)
+        self.kq.von = self.risk.von
+        self.kq.dinhVon = max(self.kq.dinhVon, self.risk.von)
+        self.kq.duongVon.append({"luc": v.lucCuoiMs, "slug": slug,
+                                 "laiLo": round(lai, 6),
+                                 "von": round(self.risk.von, 4)})
+        self.so.ghi(GhiKetToan(
+            luc=time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                              time.gmtime(max(0.0, v.lucCuoiMs) / 1000.0)),
+            ma=v.ma, upThang=bool(that), coUp=v.coUp, coDown=v.coDown,
+            tienVao=v.tienVao, tienRa=tienRa, phiUsd=v.phi, laiLo=lai,
+            giaCap=v.gia_cap, chienThuat=list(v.chienThuat),
+            pDuDoan=v.pDuDoanUp))
+        vt = self.kho.lay(v.ma)
+        vt.coUp = vt.coDown = 0.0
+        vt.tienUp = vt.tienDown = 0.0
+        vt.choCap.clear()
+
+    # ── chạy cả băng ──────────────────────────────────────────────────
+    def chay(self, nguonKhung, moiBuoc=None) -> KetQuaPhien:
+        """Quét băng theo thứ tự thời gian. `moiBuoc(kq)` gọi mỗi 5.000 khung."""
+        for k in nguonKhung:
+            self.kq.soKhungHinh += 1
+            luc = float(k.get("luc") or 0.0)
+            dangSong = set()
+            for tt in (k.get("thiTruong") or []):
+                slug = tt.get("slug") or tt.get("ma") or "?"
+                dangSong.add(slug)
+                self._mot_khung(tt, luc)
+            # Cửa sổ biến khỏi băng là nó đã đóng cửa đặt cược → kết toán.
+            for slug in [s for s in self.mo if s not in dangSong]:
+                self._ket_toan(slug)
+            if moiBuoc and self.kq.soKhungHinh % 5000 == 0:
+                moiBuoc(self.kq)
+        for slug in list(self.mo):
+            self._ket_toan(slug)
+        self.kq.von = self.risk.von
+        return self.kq
+
+
+def _dau_cau(l: str) -> str:
+    """Gom lý do từ chối thành NHÓM, không đếm từng câu có số riêng.
+
+    "net edge +0,0031 dưới ngưỡng 0,015" và "net edge +0,0072 dưới ngưỡng
+    0,015" là cùng một lý do; đếm riêng thì bảng lý do dài hàng nghìn dòng
+    và không nói được gì.
+    """
+    tu = l.split()
+    return " ".join(tu[:2]) if len(tu) >= 2 else l

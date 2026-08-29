@@ -80,6 +80,44 @@ class RiskEngine:
         self.ngatKhanCap = False
         self.lyDoNgat = ""
 
+    # ── TRẦN THEO PHẦN TRĂM VỐN, không phải đô-la cứng ───────────────────
+    #
+    # Ba trần này từng khai bằng đô-la, và cả ba đều lấy con số hợp lý
+    # cho MỘT tài khoản 1.000 đô: $100 mỗi market, $200 mỗi nhóm, $50 lỗ
+    # ngày. Nạp thêm vốn thì chúng đứng yên — tức là thêm tiền vào KHÔNG
+    # đổi hành vi cỗ máy, chỉ làm cầu dao ngày ngắt sớm hơn về tỉ lệ.
+    # Đo được: chạy phiên giấy với 10.000 đô thì cầu dao ngắt ở mức lỗ
+    # 0,51% sau đúng hai cửa sổ.
+    #
+    # Phần trăm giữ nguyên tỉ lệ cũ (10 / 20 / 5) nên tài khoản 1.000 đô
+    # cư xử Y HỆT như trước; chỗ khác là nó nay biết co giãn.
+    #
+    # Khoá `...Usd` cũ vẫn đọc được nếu ai đó cố ý muốn một trần tuyệt
+    # đối — nhưng chỉ khi KHÔNG khai phần trăm, và đọc bằng `.get` chứ
+    # không bằng `[...]`: một khoá thiếu mà ném KeyError ở đây là giết
+    # cả vòng lặp, đúng lớp lỗi vừa vá ở `nguon.py`.
+
+    def _tran(self, khoaPct: str, khoaUsd: str, macDinhPct: float) -> float:
+        pct = _RR.get(khoaPct)
+        if pct is None:
+            cu = _RR.get(khoaUsd)
+            if cu is not None:
+                return float(cu)
+            pct = macDinhPct
+        return self.vonBanDau * float(pct) / 100.0
+
+    @property
+    def tranMoiThiTruongUsd(self) -> float:
+        return self._tran("phanTramMoiThiTruong", "vonToiDaMoiThiTruongUsd", 10.0)
+
+    @property
+    def tranMoiTaiSanUsd(self) -> float:
+        return self._tran("phanTramMoiTaiSan", "vonToiDaMoiTaiSanUsd", 20.0)
+
+    @property
+    def tranLoNgayUsd(self) -> float:
+        return self._tran("phanTramLoNgay", "tranLoNgayUsd", 5.0)
+
     # ── kế toán ───────────────────────────────────────────────────────────
     def ghi_lai_lo(self, usd: float) -> None:
         hom_nay = time.strftime("%Y-%m-%d")
@@ -99,8 +137,8 @@ class RiskEngine:
         return (self.dinhVon - self.von) / self.dinhVon * 100.0
 
     def _soat_ngat(self) -> None:
-        if self.loNgayUsd >= float(_RR["tranLoNgayUsd"]):
-            self.ngat("chạm trần lỗ ngày $%.2f" % _RR["tranLoNgayUsd"])
+        if self.loNgayUsd >= self.tranLoNgayUsd:
+            self.ngat("chạm trần lỗ ngày $%.2f" % self.tranLoNgayUsd)
         if self.sutVonPct >= float(_RR["tranSutVonPct"]):
             self.ngat("sụt vốn %.1f%% (trần %.1f%%)"
                       % (self.sutVonPct, _RR["tranSutVonPct"]))
@@ -177,11 +215,11 @@ class RiskEngine:
         # 6. trần vốn mỗi market
         v = self.kho.lay(ch.ma)
         dang_co = v.tienUp + v.tienDown
-        con_duoc = float(_RR["vonToiDaMoiThiTruongUsd"]) - dang_co
+        con_duoc = self.tranMoiThiTruongUsd - dang_co
         if con_duoc <= 0:
             return PhanQuyet(False, 0.0, [
                 f"market {ch.ma} đã dùng ${dang_co:.2f}, chạm trần "
-                f"${_RR['vonToiDaMoiThiTruongUsd']}"])
+                f"${self.tranMoiThiTruongUsd:.2f}"])
         max_co = con_duoc / max(1e-9, ch.vwap)
         if max_co < cho_phep:
             cho_phep = max_co
@@ -193,11 +231,11 @@ class RiskEngine:
             (x.tienUp + x.tienDown) for m, x in self.kho.viThe.items()
             if nhom_tai_san(m) == nhom
         )
-        con_nhom = float(_RR["vonToiDaMoiTaiSanUsd"]) - dang_nhom
+        con_nhom = self.tranMoiTaiSanUsd - dang_nhom
         if con_nhom <= 0:
             return PhanQuyet(False, 0.0, [
                 f"nhóm {nhom} đã dùng ${dang_nhom:.2f}, chạm trần "
-                f"${_RR['vonToiDaMoiTaiSanUsd']}"])
+                f"${self.tranMoiTaiSanUsd:.2f}"])
         max_nhom = con_nhom / max(1e-9, ch.vwap)
         if max_nhom < cho_phep:
             cho_phep = max_nhom
@@ -265,7 +303,9 @@ class RiskEngine:
             "dinhVon": self.dinhVon,
             "sutVonPct": self.sutVonPct,
             "loNgayUsd": self.loNgayUsd,
-            "tranLoNgayUsd": float(_RR["tranLoNgayUsd"]),
+            "tranLoNgayUsd": self.tranLoNgayUsd,
+            "tranMoiThiTruongUsd": self.tranMoiThiTruongUsd,
+            "tranMoiTaiSanUsd": self.tranMoiTaiSanUsd,
             "ngatKhanCap": self.ngatKhanCap,
             "lyDoNgat": self.lyDoNgat,
         }
