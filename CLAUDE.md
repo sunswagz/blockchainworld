@@ -569,12 +569,18 @@ hiện tại, nó chỉ nói lúc này.
 
 Lãi lỗ THẬT, chạy hết băng (133.829 khung, 8 ngày, 30/08/2026):
 
-    17 cửa sổ thấy được · 6 kết toán · thắng/thua 4/2
-    +$23,59 trên $1.000 (+2,36%) · phí $2,85 · sụt vốn đỉnh-đáy 4,80%
-    khoảng tin 95%  [-$132,46, +$169,04]   ← CHỨA 0
+    17 cửa sổ thấy được · 6 kết toán · 18 lệnh khớp
+    +$16,17 trên $1.000 (+1,62%)
+    khoảng tin 95%  [-$140,52, +$163,17]   ← CHỨA 0
     phép nắn: 17 mẫu, KHÔNG bật ⇒ đây là mô hình THÔ, chưa nắn
 
-(Con số này TỪNG là +$32,99 / 7 cửa sổ. Nó được đo khi phiên giấy đóng
+(Con số này đã đổi ba lần trong một ngày: +$32,99 → +$23,59 → +$16,17.
+Lần đầu vì phiên giấy đóng cứng `giaiDoan`; lần sau vì thêm cổng nhất
+quán hai sổ. **Đừng đọc dãy ấy như một xu hướng** — với 6 cửa sổ và
+khoảng tin ±150 đô, cả ba con số là cùng một con số. Cái đổi thật là
+phiên giấy nay mô phỏng đúng cỗ máy đang chạy hơn trước.
+
+Chi tiết lần đầu: +$32,99 / 7 cửa sổ. Nó được đo khi phiên giấy đóng
 cứng `giaiDoan="dat-cuoc"`, một chuỗi không nằm trong bốn giai đoạn hợp
 lệ — nên `tao-lap` và `can-ket-qua` im suốt phiên và phiên ấy mô phỏng
 một cỗ máy KHÁC cỗ máy đang chạy. Xem mục PHÍ ở trên: cùng một bài học,
