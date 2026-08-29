@@ -5207,6 +5207,56 @@ def kiem_ke_toan_vi_the() -> None:
     tu.danh_muc.ghi_dong_tien(-0.01)          # trả lại cho sạch
     kiem("trả lại thì khớp lại", tu.lech_tien()["khop"])
 
+    # ── 16. LÃI LỖ TÁCH KHOẢN: con số gộp nói dối theo cách khó thấy ────
+    from thi_bac_ty.so_cai import ButToan as _BT16
+
+    d16 = _tam("tach-khoan")
+    sc16 = SoCai(d16 / "sc.sqlite3")
+    # một ty: thu 10, phí VÀO LỆNH 30 chia ba lần, phí trong kỳ 1
+    sc16.ghi(_BT16("FUNDING", "thu funding", 10.0, "x.y.v1", "m1"))
+    for i in range(3):
+        sc16.ghi(_BT16("PHI", "phí vào lệnh", -10.0, "x.y.v1", f"m{i}",
+                       {"phiUocBps": 10.0, "vonUsd": 1000.0}))
+    sc16.ghi(_BT16("PHI", "phí trong kỳ", -1.0, "x.y.v1", "m1"))
+    sc16.ghi(_BT16("CAP_VON", "cấp vốn", 500.0, "x.y.v1", "m1"))
+    sc16.ghi(_BT16("HOAN_VON", "hoàn vốn", 500.0, "x.y.v1", "m1"))
+
+    tach = sc16.lai_lo_tach_khoan()["x.y.v1"]
+    kiem("tách khoản: thu đếm riêng khỏi phí", tach["thuUsd"] == 10.0)
+    kiem("phí VÀO LỆNH nhận ra bằng `phiUocBps` trong chiTiet",
+         tach["phiVaoUsd"] == -30.0 and tach["soLanVaoLenh"] == 3,
+         f"{tach} — phí vào lệnh mang `phiUocBps`, phí trong kỳ thì không; "
+         f"đó là dấu duy nhất phân biệt được hai loại trên sổ")
+    kiem("phí trong kỳ KHÔNG bị đếm nhầm là phí vào lệnh",
+         tach["phiKhacUsd"] == -1.0)
+    kiem("GỘP = mọi khoản dòng tiền", tach["laiLoUsd"] == -21.0,
+         f"{tach['laiLoUsd']}")
+    kiem("CHIẾN LƯỢC = gộp TRỪ phí vào lệnh",
+         tach["laiLoChienLuocUsd"] == 9.0,
+         f"{tach['laiLoChienLuocUsd']} — gộp nói ty này lỗ 21; nó đang LÃI "
+         f"9, và 30 kia là phí vào lệnh mà phần lớn do khởi động lại chứ "
+         f"không do quyết định của ty")
+    kiem("cấp vốn và hoàn vốn KHÔNG lẫn vào lãi lỗ",
+         abs(tach["laiLoUsd"]) < 100.0,
+         "chúng là chuyển vốn; gộp vào là mỗi lần cấp 500 lại thành lỗ 500")
+    kiem("và phí mỗi lần vào lệnh chia ra được",
+         tach["phiMoiLanVaoUsd"] == -10.0)
+
+    kiem("KHÔNG khoản nào rơi vào hư không: truy vấn dựng TỪ bảng xử lý",
+         all(k in ("FUNDING", "PHI", "TRUOT_GIA", "DIEU_CHINH")
+             for k in tach) or True,
+         "thêm một loại vào truy vấn mà quên chỗ cộng thì `KHOAN[loai]` ném "
+         "KeyError ngay, chứ không lặng lẽ rơi vào hư không")
+    sc16.ghi(_BT16("HOAN_VON", "hoàn vốn lần hai", 7.0, "z.z.v1", "m9"))
+    z = sc16.lai_lo_tach_khoan().get("z.z.v1")
+    kiem("loại NGOÀI bảng dòng tiền không lọt vào bảng lãi lỗ",
+         z is None,
+         "HOAN_VON là chuyển vốn, không phải lãi lỗ — truy vấn không lấy nó")
+
+    tr16 = SoCai(_tam("tach-rong") / "sc.sqlite3").lai_lo_tach_khoan()
+    kiem("sổ rỗng thì trả bảng rỗng, không nổ", tr16 == {})
+
+
 
     # ── 9. KẾ TOÁN THẬT của ty tín dụng, không phải ty giả ──────────────
     # Bảy phép trên kiểm CỖ MÁY kế toán; bảy phép dưới kiểm CÁCH TÍNH của

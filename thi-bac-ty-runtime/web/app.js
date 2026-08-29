@@ -1016,6 +1016,46 @@
         { t: "≥ 1" }]]));
     f.appendChild(k2);
 
+    var tk = t.laiLoTachKhoan || {};
+    var mtk = Object.keys(tk);
+    if (mtk.length) {
+      var kt4 = khoi("Lãi lỗ TÁCH KHOẢN — vì con số gộp nói dối",
+        "Phí vào lệnh phần lớn KHÔNG do chiến lược sinh ra: vị thế mô phỏng "
+        + "không sống qua một lần khởi động lại, nên mỗi lần restart là một "
+        + "lần vào lệnh mới và trả phí lần nữa. Đó là chi phí VẬN HÀNH. Gộp "
+        + "nó vào là bắt người đọc kết luận sai về chiến lược vì một chuyện "
+        + "của người vận hành.");
+      kt4.appendChild(bang(
+        [{ t: "Ty" }, { t: "Thu", n: true }, { t: "Phí vào lệnh", n: true },
+         { t: "Số lần vào", n: true }, { t: "Phí mỗi lần", n: true },
+         { t: "GỘP", n: true }, { t: "CHIẾN LƯỢC", n: true }],
+        mtk.sort(function (a, b) {
+          return (tk[b].laiLoChienLuocUsd || 0) - (tk[a].laiLoChienLuocUsd || 0);
+        }).map(function (k) {
+          var v = tk[k];
+          return [{ t: (TEN_DEP[k] || [k])[0] },
+                  { t: tien(v.thuUsd, 4), c: "n" },
+                  { t: tien(v.phiVaoUsd, 4), c: "n" },
+                  { t: so(v.soLanVaoLenh), c: "n" },
+                  { t: tien(v.phiMoiLanVaoUsd, 4), c: "n" },
+                  { el: (function () {
+                      var e = el("span", (v.laiLoUsd || 0) >= 0 ? "duong" : "am",
+                                 tien(v.laiLoUsd, 4));
+                      return e;
+                    })() },
+                  { el: (function () {
+                      var e = el("b", (v.laiLoChienLuocUsd || 0) >= 0
+                                 ? "duong" : "am",
+                                 tien(v.laiLoChienLuocUsd, 4));
+                      return e;
+                    })() }];
+        })));
+      kt4.appendChild(giai("Cột CHIẾN LƯỢC bỏ phí vào lệnh ra. Nó trả lời "
+        + "«ty này có kiếm được không», còn cột GỘP trả lời «tài khoản đã "
+        + "đổi bao nhiêu». Cả hai đều đúng, và chúng khác nhau."));
+      f.appendChild(kt4);
+    }
+
     var k3 = khoi("Sổ cái nói gì");
     var loai = sc.theoLoai || {};
     k3.appendChild(bang([{ t: "Loại bút toán" }, { t: "Số", n: true }, { t: "Tổng USD", n: true }],

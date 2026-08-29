@@ -849,6 +849,11 @@ class TrungUong:
             "doiSoatKhoiDong": self.doiSoatKhoiDong.tom_tat(),
             "keToan": self.latCatKeToan.tom_tat(),
             "lechTien": self.lech_tien(),
+            # Lãi lỗ TÁCH KHOẢN. Con số gộp nói dối theo một cách khó
+            # thấy: phí vào lệnh phần lớn do runtime bị khởi động lại chứ
+            # không do quyết định của ty, mà gộp vào thì một chiến lược
+            # đang lãi trông như đang lỗ. Xem `SoCai.lai_lo_tach_khoan`.
+            "laiLoTachKhoan": self.so_cai.lai_lo_tach_khoan(),
             "soViThe": [v.tom_tat(_gio_he()) for v in
                         list(self.soViThe.values())[:40]],
             "thucThi": self.thuc_thi.tom_tat(),

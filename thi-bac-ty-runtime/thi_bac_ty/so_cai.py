@@ -250,6 +250,81 @@ class SoCai:
         return {(r[0] or "?"): {"soButToan": r[1], "laiLoUsd": r[2] or 0.0}
                 for r in h}
 
+    def lai_lo_tach_khoan(self) -> dict:
+        """Lãi lỗ theo ty, TÁCH ra từng khoản — và đó là điểm của hàm này.
+
+        Con số gộp nói dối theo một cách khó thấy. Đo trên máy đang chạy
+        ngày 29/08: ty xoay lãi cho vay hiện **−3,19 USD**, trông như một
+        chiến lược đang mất tiền. Tách ra thì nó là **+0,9 thu funding trừ
+        4,1 phí VÀO LỆNH** — và phần lớn phí ấy không do chiến lược sinh
+        ra, mà do **runtime bị khởi động lại**.
+
+        Vị thế mô phỏng không sống qua một lần restart: `doi_soat_vi_the`
+        đóng chúng ở sổ, rồi vòng sau mở lại từ đầu và trả phí vào lệnh
+        lần nữa. Mười lăm lần deploy trong một buổi chiều là mười lăm lần
+        vào lệnh — chi phí VẬN HÀNH, không phải chi phí chiến lược.
+
+        Gộp hai thứ ấy vào một con số là bắt người đọc kết luận sai về
+        chiến lược vì một chuyện của người vận hành. Nên bảng này tách:
+
+            thuUsd          FUNDING — tiền chiến lược thật sự sinh ra
+            phiVaoUsd       PHI có `phiUocBps` trong chiTiet → phí vào lệnh
+            phiKhacUsd      PHI còn lại — phí phát sinh trong kỳ
+            truotGiaUsd     TRUOT_GIA
+            dieuChinhUsd    DIEU_CHINH — bút toán đảo
+
+        `soLanVaoLenh` đếm luôn số lần vào lệnh, để chia ra phí mỗi lần.
+        """
+        # Danh sách truy vấn DỰNG TỪ bảng xử lý, không chép tay.
+        #
+        # Bản đầu viết thẳng bốn tên vào SQL, và phép cấy lỗi ngược lộ ra
+        # chỗ hở: nhét thêm `CAP_VON` vào truy vấn thì nó rơi qua mọi
+        # nhánh `elif` và **biến mất khỏi mọi tổng** — không phép kiểm nào
+        # đỏ, vì con số vẫn cộng ra một kết quả trông bình thường.
+        #
+        # Sửa bằng một ô "loại lạ" thì thành một nhánh không phép kiểm nào
+        # với tới được, tức là một nhánh chết. Sửa đúng là bỏ bản chép:
+        # thêm một loại vào đây BUỘC phải thêm chỗ cộng cho nó.
+        KHOAN = {"FUNDING": "thuUsd", "TRUOT_GIA": "truotGiaUsd",
+                 "DIEU_CHINH": "dieuChinhUsd",
+                 "PHI": None}       # None = tách tiếp thành vào-lệnh / trong-kỳ
+        try:
+            with self._mo() as con:
+                h = con.execute(
+                    "SELECT chienLuoc, loai, soTienUsd, chiTiet "
+                    "FROM but_toan WHERE loai IN "
+                    f"({','.join('?' * len(KHOAN))})", tuple(KHOAN)).fetchall()
+        except (sqlite3.Error, OSError):
+            return {}
+        ra: dict = {}
+        for chienLuoc, loai, tien, ct in h:
+            k = chienLuoc or "?"
+            o = ra.setdefault(k, {"thuUsd": 0.0, "phiVaoUsd": 0.0,
+                                  "phiKhacUsd": 0.0, "truotGiaUsd": 0.0,
+                                  "dieuChinhUsd": 0.0, "soLanVaoLenh": 0,
+                                  "soButToan": 0})
+            o["soButToan"] += 1
+            v = float(tien or 0.0)
+            o_ten = KHOAN[loai]              # KeyError = truy vấn lệch bảng
+            if o_ten is not None:
+                o[o_ten] += v
+            elif "phiUocBps" in (_json(ct) or {}):
+                o["phiVaoUsd"] += v
+                o["soLanVaoLenh"] += 1
+            else:
+                o["phiKhacUsd"] += v
+        for o in ra.values():
+            o["laiLoUsd"] = (o["thuUsd"] + o["phiVaoUsd"] + o["phiKhacUsd"]
+                             + o["truotGiaUsd"] + o["dieuChinhUsd"])
+            # Lãi lỗ CHIẾN LƯỢC: bỏ phí vào lệnh ra, vì phần lớn nó do
+            # khởi động lại chứ không do quyết định của ty.
+            o["laiLoChienLuocUsd"] = (o["thuUsd"] + o["phiKhacUsd"]
+                                      + o["truotGiaUsd"]
+                                      + o["dieuChinhUsd"])
+            o["phiMoiLanVaoUsd"] = (o["phiVaoUsd"] / o["soLanVaoLenh"]
+                                    if o["soLanVaoLenh"] else None)
+        return ra
+
     def tom_tat(self) -> dict:
         try:
             with self._mo() as con:
