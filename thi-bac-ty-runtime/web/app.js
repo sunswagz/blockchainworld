@@ -1095,8 +1095,19 @@
                        : (x.loiSuatNamPhanTram >= 0 ? "duong" : "am") }];
         })));
       kvd.appendChild(giai("«chưa đo được» là chưa có vốn-giờ nào để chia, "
-        + "KHÁC HẲN một tỉ suất bằng 0. Tổng vốn-giờ các ty bằng đúng con "
-        + "số gộp ở trên — một con số cộng hai đường là một con số sẽ lệch."));
+        + "KHÁC HẲN một tỉ suất bằng 0."));
+      /* Mẫu số phải CỘNG ĐÚNG. Phép tách ra đời sau con số gộp, nên phần
+         vốn-giờ tích trước đó không ty nào nhận — và nó KHÔNG chia lại
+         được, vì sổ chỉ giữ tổng. Đặt tên cho nó, đừng để hai con số cạnh
+         nhau mâu thuẫn. */
+      if (vd.vonGioChuaTachUsd > 0) {
+        kvd.appendChild(giai("Cộng lại: " + so(vd.vonGioChuaTachUsd, 0)
+          + " vốn-giờ CHƯA TÁCH ĐƯỢC + " + so(vd.vonGioUsd
+            - vd.vonGioChuaTachUsd, 0) + " đã tách = " + so(vd.vonGioUsd, 0)
+          + " gộp. Phần chưa tách là quãng tích TRƯỚC khi phép tách này ra "
+          + "đời; sổ chỉ giữ tổng nên không chia lại được. Nó teo dần theo "
+          + "thời gian, và mọi vốn-giờ từ nay đều có tên ty."));
+      }
     }
     f.appendChild(kvd);
 

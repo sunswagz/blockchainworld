@@ -226,6 +226,16 @@ class SoVonGio:
             # mỗi vòng thay vì đợi 20 lần đóng. `None` khi ty ấy chưa có
             # vốn-giờ nào: chưa có mẫu số thì không có tỉ suất, không
             # phải tỉ suất bằng 0.
+            # Phần vốn-giờ có TRƯỚC khi phép tách ra đời — không ty nào
+            # nhận nó, và nó KHÔNG chia lại được: sổ chỉ giữ tổng.
+            #
+            # Đặt tên cho nó thay vì để hai con số cạnh nhau mâu thuẫn.
+            # Máy sống 30/08 có 1.987.747 vốn-giờ gộp và 4.866 đã tách;
+            # một bảng nói «tổng các ty bằng con số gộp» ở đó là một bảng
+            # nói dối, dù luật ấy đúng cho mọi vốn-giờ tính TỪ NAY.
+            "vonGioChuaTachUsd": max(
+                0.0, self.vonGioUsd
+                - sum(v["vonGioUsd"] for v in self.theoTy.values())),
             "theoTy": {
                 k: {**v,
                     "loiSuatNamPhanTram": (

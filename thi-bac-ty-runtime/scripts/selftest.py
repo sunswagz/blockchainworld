@@ -2688,11 +2688,29 @@ def kiem_chan_doan_he() -> None:
     _vg = _tuNg.anh_chup()["vonDangDung"]
     _tt = _vg.get("theoTy") or {}
     kiem("vốn-giờ tách được theo ty", bool(_tt), str(_vg)[:200])
-    kiem("và TỔNG các ty bằng đúng con số gộp — không cộng hai đường",
-         gan(sum(v["vonGioUsd"] for v in _tt.values()), _vg["vonGioUsd"],
-             1e-9),
-         f"{sum(v['vonGioUsd'] for v in _tt.values())} vs {_vg['vonGioUsd']} "
-         f"— một con số cộng hai đường là một con số sẽ lệch")
+    # Mẫu số phải CỘNG ĐÚNG, và cách duy nhất giữ được điều đó khi phép
+    # tách ra đời SAU con số gộp là đặt tên cho phần chưa tách. Máy sống
+    # 30/08: 1.987.747 vốn-giờ gộp, 4.866 đã tách — một bảng nói «tổng
+    # các ty bằng gộp» ở đó là một bảng nói dối.
+    kiem("đã tách + CHƯA TÁCH = gộp, không con số nào lửng lơ",
+         gan(sum(v["vonGioUsd"] for v in _tt.values())
+             + _vg["vonGioChuaTachUsd"], _vg["vonGioUsd"], 1e-9),
+         f"{sum(v['vonGioUsd'] for v in _tt.values())} + "
+         f"{_vg['vonGioChuaTachUsd']} vs {_vg['vonGioUsd']} — một con số "
+         f"cộng hai đường là một con số sẽ lệch")
+    kiem("cỗ máy mới dựng thì KHÔNG có phần chưa tách nào",
+         gan(_vg["vonGioChuaTachUsd"], 0.0, 1e-9),
+         f"{_vg['vonGioChuaTachUsd']} — mọi vốn-giờ tính từ nay đều có tên "
+         f"ty; phần chưa tách chỉ là di sản của quãng trước khi có phép này")
+    from thi_bac_ty.ke_toan import SoVonGio as _SVG3
+    _sv3 = _SVG3(vonGioUsd=1000.0)          # di sản, chưa ty nào nhận
+    _sv3.cong(100.0, 0.0, 3600.0, ty="moi.moi.v1")
+    _t3 = _sv3.tom_tat()
+    kiem("di sản trước khi tách được ĐẶT TÊN, không biến mất",
+         gan(_t3["vonGioChuaTachUsd"], 1000.0, 1e-9)
+         and gan(_t3["theoTy"]["moi.moi.v1"]["vonGioUsd"], 100.0, 1e-9),
+         f"{_t3['vonGioChuaTachUsd']} — để hai con số cạnh nhau mâu thuẫn "
+         f"thì người đọc phải tự đoán, và đoán sai thì không ai biết")
     kiem("thu ròng cũng thế",
          gan(sum(v["thuRongUsd"] for v in _tt.values()), _vg["thuRongUsd"],
              1e-9),
