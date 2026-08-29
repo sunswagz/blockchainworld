@@ -130,6 +130,89 @@ class SoViThe:
 
 
 @dataclass
+class SoVonGio:
+    """VỐN-GIỜ: mẫu số đúng cho câu «tiền đang làm việc lãi bao nhiêu».
+
+    ## Vì sao NAV không trả lời được câu ấy
+
+    Máy demo có 100.000 USD vốn ảo mà chỉ rót được 6.000 — trần vị thế
+    chặn phần còn lại. NAV nhích 0,04 USD một vòng, quy ra năm là ~0,4%,
+    và con số ấy nói rằng chiến lược gần như vô dụng.
+
+    Nó không vô dụng. 6.000 USD ấy đang chạy ở khoảng 7–8%/năm; 94.000
+    còn lại nằm im. Hai câu hoàn toàn khác nhau:
+
+        trên VỐN TỔNG       cỗ máy đang làm ăn ra sao
+        trên VỐN ĐANG DÙNG  chiến lược đang làm ăn ra sao
+
+    Gộp chúng làm một thì hoặc ta chê oan chiến lược, hoặc ta khoe một
+    tỉ suất mà phần lớn vốn không hề hưởng. Đúng bài học «ba thước trả
+    lời ba câu khác nhau» của `danh_muc.py`, đặt lên tầng lợi suất.
+
+    ## Vì sao cộng VỐN-GIỜ chứ không lấy vốn hiện tại
+
+    Vốn đang rót thay đổi từng vòng: mở thêm, đóng bớt, cầu dao ngắt.
+    Chia thu nhập của cả tuần cho con số của phút này là chia cho một
+    mẫu số chưa từng đúng suốt tuần ấy. Vốn-giờ là mẫu số duy nhất khớp
+    với tử số — đúng thứ người cho vay gọi là APR.
+    """
+    vonGioUsd: float = 0.0       # Σ (vốn đang mở × số giờ nó mở)
+    thuRongUsd: float = 0.0      # Σ (thu − phí trong kỳ)
+    tuGiay: float = 0.0          # bắt đầu cộng từ lúc nào
+    denGiay: float = 0.0         # cộng tới lúc nào
+
+    def nhip(self, denGiay: float) -> None:
+        """Đẩy mốc cuối, kể cả vòng KHÔNG có vị thế nào.
+
+        Vòng rỗng vẫn là một vòng đã sống: nó nằm trong cửa sổ đo, và bỏ nó
+        đi là làm mẫu số nhỏ lại đúng bằng những quãng cỗ máy không rót
+        được đồng nào — tức là khoe một mức «vốn dùng bình quân» cao hơn
+        thật, đúng phần đáng lo nhất.
+        """
+        self.denGiay = max(self.denGiay, float(denGiay))
+
+    def cong(self, vonUsd: float, tuGiay: float, denGiay: float) -> None:
+        self.nhip(denGiay)
+        dt = max(0.0, denGiay - tuGiay)
+        if dt <= 0.0 or vonUsd <= 0.0:
+            return
+        self.vonGioUsd += vonUsd * dt / 3600.0
+
+    def loi_suat_nam(self) -> float | None:
+        """Lợi suất năm trên vốn ĐANG DÙNG, hoặc `None` khi chưa đo nổi.
+
+        `None` chứ không phải 0: chưa có vốn-giờ nào nghĩa là chưa có gì
+        để chia, khác hẳn "đã chạy và huề vốn".
+        """
+        if self.vonGioUsd <= 0.0:
+            return None
+        return self.thuRongUsd / self.vonGioUsd * (365.0 * 24.0) * 100.0
+
+    def tom_tat(self) -> dict:
+        gio = max(0.0, self.denGiay - self.tuGiay) / 3600.0
+        apr = self.loi_suat_nam()
+        # HAI con số `None` vì HAI lý do khác nhau, và trộn chúng là mất
+        # đúng cái phân biệt đang cần: `loiSuatNamPhanTram` thiếu vì chưa có vốn
+        # nào làm việc; `vonBinhQuanUsd` thiếu vì cửa sổ đo dài 0 giây.
+        return {
+            "vonGioUsd": self.vonGioUsd, "thuRongUsd": self.thuRongUsd,
+            "soGio": gio,
+            "vonBinhQuanUsd": (self.vonGioUsd / gio) if gio > 0 else None,
+            "loiSuatNamPhanTram": apr,
+            "vi": ("chưa có vốn-giờ nào — chưa đồng nào làm việc, nên chưa "
+                   "có mẫu số để chia" if apr is None else
+                   f"vốn đang dùng bình quân "
+                   f"{self.vonGioUsd / gio:,.0f} USD suốt {gio:.1f} giờ, thu "
+                   f"ròng {self.thuRongUsd:+.4f} USD → {apr:+.2f}%/năm TRÊN "
+                   f"PHẦN VỐN ẤY. Đây KHÔNG phải lợi suất của cả gia sản."
+                   if gio > 0 else
+                   f"{self.vonGioUsd:,.2f} vốn-giờ, thu ròng "
+                   f"{self.thuRongUsd:+.4f} USD → {apr:+.2f}%/năm trên phần "
+                   f"vốn ấy; cửa sổ đo còn quá ngắn để nói vốn bình quân"),
+        }
+
+
+@dataclass
 class LatCatKeToan:
     """Kết quả một lượt kế toán toàn danh mục. Buồng lái đọc chỗ này."""
     soViThe: int = 0

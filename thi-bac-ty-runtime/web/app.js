@@ -1029,6 +1029,34 @@
     if (hn.vi) k.appendChild(giai(hn.vi));
     f.appendChild(k);
 
+    /* HAI mẫu số, hai câu hỏi. Máy demo rót 6.000 trên 100.000 vốn ảo: trên
+       vốn TỔNG nó gần như đứng yên, trên vốn ĐANG DÙNG nó chạy ~7%/năm. Gộp
+       hai câu ấy thì hoặc ta chê oan chiến lược, hoặc ta khoe một tỉ suất mà
+       phần lớn vốn không hề hưởng. */
+    var vd = t.vonDangDung || {};
+    var kvd = khoi("Trên vốn ĐANG DÙNG — khác hẳn trên vốn tổng",
+      "Tiền nằm im không lãi, nhưng nó cũng không phải lỗi của chiến lược. "
+      + "Hai con số này trả lời hai câu: cỗ máy làm ăn ra sao, và chiến "
+      + "lược làm ăn ra sao.");
+    var dvd = el("div", "day-so");
+    dvd.appendChild(oSo("Lợi suất / năm trên vốn đang dùng",
+      vd.loiSuatNamPhanTram == null ? "chưa đo được" : phan(vd.loiSuatNamPhanTram),
+      "thu ròng ÷ vốn-giờ",
+      vd.loiSuatNamPhanTram == null ? "nhat"
+        : (vd.loiSuatNamPhanTram >= 0 ? "duong" : "am"),
+      vd.loiSuatNamPhanTram == null));
+    dvd.appendChild(oSo("Vốn dùng bình quân",
+      vd.vonBinhQuanUsd == null ? "—" : tien(vd.vonBinhQuanUsd),
+      "trên " + tien(t.danhMuc && t.danhMuc.vonBanDauUsd) + " vốn ảo"));
+    dvd.appendChild(oSo("Vốn-giờ đã cộng",
+      so(Math.round(vd.vonGioUsd || 0)),
+      (vd.soGio || 0).toFixed(1) + " giờ cửa sổ đo"));
+    dvd.appendChild(oSo("Thu ròng cộng dồn", tien(vd.thuRongUsd, 4),
+      "thu − phí trong kỳ, KHÔNG gồm phí vào lệnh"));
+    kvd.appendChild(dvd);
+    if (vd.vi) kvd.appendChild(giai(vd.vi));
+    f.appendChild(kvd);
+
     var k2 = khoi("Vì sao chưa kết luận được",
       "Quy một con số nửa ngày ra năm là bịa ra một CAGR. Hệ thống TỪ CHỐI "
       + "tính, thay vì đưa một con số đẹp mà sai.");

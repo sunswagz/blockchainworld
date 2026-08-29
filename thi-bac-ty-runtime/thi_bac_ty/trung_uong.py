@@ -78,7 +78,7 @@ from .chay_lai_he import doi_chieu, thu_hoach
 from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
 from .doi_soat_vi_the import canh as canh_vi_the, doi_soat as doi_soat_vi_the
-from .ke_toan import (LatCatKeToan, SoViThe, phi_vao_thieu,
+from .ke_toan import (LatCatKeToan, SoViThe, SoVonGio, phi_vao_thieu,
                       phi_vao_usd)
 from .luu_danh_muc import luu as luu_danh_muc, nap as nap_danh_muc
 from .hieu_nang import DuongNav, doi_chieu_giay_that
@@ -220,10 +220,19 @@ class TrungUong:
         #: mục, nên phải để danh mục đầy đủ rồi mới so. Đảo thứ tự là đối
         #: soát thấy danh mục rỗng, đóng sạch vị thế ở sổ, rồi bản nạp
         #: mới về sau lại dựng lên những vị thế vừa bị đóng.
+        #: Vốn-giờ và thu ròng — mẫu số đúng cho «tiền ĐANG DÙNG lãi bao
+        #: nhiêu». Xem `ke_toan.SoVonGio`. Dựng TRƯỚC khi nạp bản lưu: nạp
+        #: rồi mới dựng là dựng đè lên đúng thứ vừa nạp về.
+        self.soVonGio = SoVonGio(tuGiay=_gio_he(), denGiay=_gio_he())
         self.duongLuu = d / f"{ten}-danh-muc.json"
         self.napLuu = nap_danh_muc(self.duongLuu, self.danh_muc,
                                    self.duongNav)
         self.soViThe = self.napLuu.pop("_soViThe", {})
+        # Nạp SAU khi `__init__` đã dựng sổ mới: bản trên đĩa thắng, còn
+        # thiếu thì giữ sổ vừa dựng (bắt đầu cộng từ bây giờ).
+        _vg = self.napLuu.pop("_soVonGio", None)
+        if _vg is not None:
+            self.soVonGio = _vg
 
         #: Đối soát NGAY lúc khởi động, trước khi vòng nào chạy. Sổ đăng ký
         #: sống trên đĩa còn danh mục dựng lại rỗng, nên đúng lúc này là
@@ -509,7 +518,7 @@ class TrungUong:
         """Ghi danh mục sau MỖI vòng. Hỏng thì khai ra, đừng giết vòng."""
         try:
             luu_danh_muc(self.duongLuu, self.danh_muc, self.soViThe,
-                         self.duongNav)
+                         self.duongNav, self.soVonGio)
             self.loiLuu = ""
         except OSError as e:                              # noqa: BLE001
             self.loiLuu = f"{type(e).__name__}: {e}"
@@ -576,6 +585,10 @@ class TrungUong:
 
         now = _time.time()
         l = _L()
+        # Đẩy mốc TRƯỚC lối thoát sớm: vòng không có vị thế nào vẫn là một
+        # vòng nằm trong cửa sổ đo. Bỏ nó là làm mẫu số nhỏ lại đúng bằng
+        # những quãng cỗ máy không rót được đồng nào.
+        self.soVonGio.nhip(now)
         if not self.soViThe:
             return l
 
@@ -591,6 +604,11 @@ class TrungUong:
                 continue
 
             l.soViThe += 1
+            # Cộng vốn-giờ TRƯỚC khi hỏi ty: khoảng thời gian này vốn ĐÃ
+            # nằm trong vị thế, bất kể ty có kế toán nổi hay không. Cộng
+            # sau nhánh `kq is None` là bỏ mất mẫu số của đúng những vị
+            # thế mù — và tỉ suất sẽ đẹp lên nhờ giấu bớt mẫu số.
+            self.soVonGio.cong(abs(so.vonUsd), so.keToanLucGiay, now)
             ty = self.ty.get(so.chienLuoc)
             kq = None
             if ty is not None:
@@ -616,6 +634,7 @@ class TrungUong:
                     l.soKeToanDuoc += 1
                     thu = float(getattr(kq, "thuUsd", 0.0) or 0.0)
                     phi = float(getattr(kq, "phiUsd", 0.0) or 0.0)
+                    self.soVonGio.thuRongUsd += thu - phi
                     if thu:
                         so.thuCongDonUsd += thu
                         l.thuUsd += thu
@@ -846,6 +865,12 @@ class TrungUong:
             list(self.ty.values()),
             float(self.rui_ro_tong.c.get("tranMotCoHoi") or 0.0))
         d["giayVaThat"] = doi_chieu_giay_that(self.so_cai)
+        # HAI mẫu số, hai câu hỏi. `laiLoPhanTram` bên trên tính trên vốn
+        # TỔNG — nó trả lời «cỗ máy đang làm ăn ra sao». Con số dưới đây
+        # tính trên vốn ĐANG DÙNG — «chiến lược đang làm ăn ra sao». Máy
+        # demo rót được 6.000 trên 100.000 vốn ảo, và hai câu ấy lệch nhau
+        # gần hai mươi lần.
+        d["vonDangDung"] = self.soVonGio.tom_tat()
         return d
 
     # ── §17 · áp dụng và quay lui, cả hai đều đòi TÊN NGƯỜI ──────────────
@@ -997,6 +1022,7 @@ class TrungUong:
             "hieuNang": self.hieu_nang(),
             "banThamSo": self.kho_tham_so.tom_tat(),
             "lechCauHinh": self.lech_cau_hinh(),
+            "vonDangDung": self.soVonGio.tom_tat(),
         }
 
 

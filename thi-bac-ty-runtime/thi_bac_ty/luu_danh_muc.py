@@ -72,7 +72,7 @@ from pathlib import Path
 BAN = 1
 
 
-def luu(duong, danh_muc, soViThe: dict, duongNav) -> int:
+def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None) -> int:
     """Ghi danh mục ra đĩa. Trả về số byte đã ghi.
 
     Ghi qua file tạm rồi đổi tên: chết giữa chừng thì file đích vẫn là
@@ -97,6 +97,17 @@ def luu(duong, danh_muc, soViThe: dict, duongNav) -> int:
         } for s in soViThe.values()],
         "duongNav": [[float(a), float(b)] for a, b in
                      getattr(duongNav, "diem", [])],
+        # Trường THÊM, không đổi cấu trúc cũ — nên KHÔNG tăng `BAN`. Bản đọc
+        # cũ bỏ qua khoá lạ; bản đọc mới gặp bản lưu thiếu khoá này thì cộng
+        # lại từ 0 và KHAI ra là mới bắt đầu. Tăng `BAN` ở đây sẽ vứt cả danh
+        # mục đang mở chỉ để thêm một thước đo — cái giá ấy không tương xứng,
+        # và luật `BAN` sinh ra cho thay đổi KHÔNG ĐỌC NỔI, không phải cho
+        # mọi thay đổi.
+        "soVonGio": ({"vonGioUsd": float(soVonGio.vonGioUsd),
+                      "thuRongUsd": float(soVonGio.thuRongUsd),
+                      "tuGiay": float(soVonGio.tuGiay),
+                      "denGiay": float(soVonGio.denGiay)}
+                     if soVonGio is not None else None),
     }
     p = Path(duong)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -165,9 +176,21 @@ def nap(duong, danh_muc, duongNav) -> dict:
     duongNav.diem = [(float(a), float(b))
                      for a, b in (d.get("duongNav") or [])]
 
+    # Vốn-giờ: thiếu khoá thì KHÔNG cộng bù, y như mốc kế toán. Ta không
+    # biết vốn nằm bao lâu trong lúc máy tắt, và đoán ra một mẫu số là bịa
+    # ra một tỉ suất.
+    from .ke_toan import SoVonGio
+    vg = d.get("soVonGio") or None
+    soVonGio = SoVonGio(
+        vonGioUsd=float((vg or {}).get("vonGioUsd") or 0.0),
+        thuRongUsd=float((vg or {}).get("thuRongUsd") or 0.0),
+        tuGiay=float((vg or {}).get("tuGiay") or now),
+        denGiay=now)
+
     return {
         "co": True, "nap": True,
         "soViThe": len(soViThe), "soDiemNav": len(duongNav.diem),
+        "_soVonGio": soVonGio, "coSoVonGio": vg is not None,
         "tienMatUsd": danh_muc.tienMatUsd,
         "laiLoDaThucHienUsd": danh_muc.laiLoDaThucHienUsd,
         "giayTatMay": tat,

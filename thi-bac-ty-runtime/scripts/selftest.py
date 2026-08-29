@@ -6141,6 +6141,91 @@ def kiem_ke_toan_vi_the() -> None:
          "`self.c.get(...) or MAC_DINH` biến 0 thành mặc định — cùng cái bẫy "
          "«None khác 0» đã gỡ ở ba chỗ khác trong cỗ máy này")
 
+    # ── VỐN-GIỜ: mẫu số đúng cho «tiền đang dùng lãi bao nhiêu» ─────────
+    # Máy demo có 100.000 vốn ảo mà chỉ rót được 6.000. NAV nhích 0,04 USD
+    # một vòng → quy ra năm là ~0,4%, và con số ấy nói chiến lược gần như
+    # vô dụng. Nó không vô dụng: 6.000 ấy chạy ~7,3%/năm.
+    from thi_bac_ty.ke_toan import SoVonGio
+
+    _t26 = 1_800_000_000.0
+    sg = SoVonGio(tuGiay=_t26 - 7200.0, denGiay=_t26 - 7200.0)
+    kiem("chưa có vốn-giờ nào thì APR là None, KHÔNG phải 0",
+         sg.loi_suat_nam() is None
+         and sg.tom_tat()["loiSuatNamPhanTram"] is None,
+         "«chưa đồng nào làm việc» khác hẳn «đã chạy và huề vốn»")
+    sg.cong(6000.0, _t26 - 3600.0, _t26)
+    sg.thuRongUsd = 0.05
+    tt26 = sg.tom_tat()
+    kiem("6.000 USD chạy 1 giờ = 6.000 vốn-giờ",
+         gan(sg.vonGioUsd, 6000.0))
+    kiem("APR tính trên VỐN-GIỜ, không trên vốn tổng",
+         gan(tt26["loiSuatNamPhanTram"], 0.05 / 6000.0 * 8760.0 * 100.0, 1e-6),
+         f"{tt26['loiSuatNamPhanTram']} — chia thu nhập cả tuần cho con số của phút "
+         f"này là chia cho một mẫu số chưa từng đúng suốt tuần ấy")
+    kiem("vốn bình quân chia cho CẢ cửa sổ, gồm cả quãng rót được 0 đồng",
+         gan(tt26["vonBinhQuanUsd"], 3000.0),
+         "6.000 chạy 1 trong 2 giờ thì bình quân là 3.000 — bỏ quãng rỗng "
+         "đi là khoe một mức dùng vốn cao hơn thật, đúng phần đáng lo nhất")
+    kiem("và lời giải thích NÓI RÕ đây không phải lợi suất cả gia sản",
+         "KHÔNG phải lợi suất của cả gia sản" in tt26["vi"], tt26["vi"])
+
+    sg2 = SoVonGio(tuGiay=_t26, denGiay=_t26)
+    sg2.nhip(_t26 + 3600.0)
+    kiem("vòng KHÔNG có vị thế nào vẫn đẩy mốc cửa sổ",
+         gan(sg2.tom_tat()["soGio"], 1.0),
+         "vòng rỗng vẫn là một vòng đã sống; bỏ nó là làm mẫu số nhỏ lại "
+         "đúng bằng những quãng cỗ máy không rót được đồng nào")
+
+    tu26 = TrungUong(_tam("von-gio"), {"vonBanDauUsd": 10_000.0})
+    tu26.dang_ky(_TyGiaCoKeToan())
+    _v0 = tu26.soVonGio.denGiay
+    tu26.mot_vong()
+    # Khẳng định CƠ CHẾ, không khẳng định ĐỒNG HỒ. Bản đầu đòi
+    # `denGiay > _v0` và nó xanh đỏ ngẫu nhiên: `time.time()` trên Windows
+    # có lúc trả đúng một giá trị cho hai lần gọi cách nhau vài trăm micro
+    # giây, nên «mốc phải TIẾN» là một phép kiểm về đồng hồ chứ không về mã.
+    kiem("vòng lặp tự đẩy mốc vốn-giờ, không đợi ai gọi",
+         _goi22("thi_bac_ty/trung_uong.py", "_ke_toan_vi_the", "nhip")
+         and _goi22("thi_bac_ty/trung_uong.py", "_ke_toan_vi_the", "cong")
+         and tu26.soVonGio.denGiay >= _v0,
+         "một thước không ai cộng là một thước đứng ở 0 mãi mãi")
+    kiem("và mốc KHÔNG BAO GIỜ lùi",
+         (tu26.soVonGio.nhip(_v0 - 9999.0) or tu26.soVonGio.denGiay) >= _v0,
+         "lùi mốc là kéo dài cửa sổ đo về quá khứ, và mọi tỉ suất loãng đi "
+         "theo một quãng chưa từng được đo")
+    kiem("và ảnh chụp mang nó ra buồng lái",
+         (tu26.anh_chup().get("vonDangDung") or {}).get("loiSuatNamPhanTram", "x")
+         == tu26.soVonGio.loi_suat_nam()
+         and "vonDangDung" in tu26.hieu_nang(),
+         "đo được mà không ra tới buồng lái thì vẫn là im lặng")
+
+    tu26.soVonGio.vonGioUsd = 1234.0
+    tu26.soVonGio.thuRongUsd = 0.5
+    tu26._luu_danh_muc()
+    tu27 = TrungUong(tu26.duongLuu.parent, {"vonBanDauUsd": 10_000.0})
+    kiem("vốn-giờ SỐNG QUA lần khởi động lại",
+         gan(tu27.soVonGio.vonGioUsd, 1234.0)
+         and gan(tu27.soVonGio.thuRongUsd, 0.5),
+         f"{tu27.soVonGio} — không giữ thì mỗi lần deploy là một lần APR "
+         f"quay về «chưa đo được», và nó chẳng bao giờ đo được")
+    # Bản lưu CŨ: gỡ đúng khoá mới ra khỏi file rồi nạp lại. `BAN` giữ
+    # nguyên, nên file cũ phải đọc được — chỉ là chưa có vốn-giờ nào.
+    import json as _js26
+    _d26 = _js26.loads(tu27.duongLuu.read_text(encoding="utf-8"))
+    _d26.pop("soVonGio", None)
+    tu27.duongLuu.write_text(_js26.dumps(_d26, ensure_ascii=False),
+                             encoding="utf-8")
+    tu28 = TrungUong(tu27.duongLuu.parent, {"vonBanDauUsd": 10_000.0})
+    kiem("bản lưu CŨ (chưa có khoá này) vẫn NẠP ĐƯỢC",
+         tu28.napLuu.get("nap") is True,
+         "tăng `BAN` ở đây sẽ vứt cả danh mục đang mở chỉ để thêm một thước "
+         "đo — luật `BAN` sinh ra cho thay đổi KHÔNG ĐỌC NỔI")
+    kiem("và nó KHAI là chưa có vốn-giờ, rồi cộng lại từ 0",
+         tu28.napLuu.get("coSoVonGio") is False
+         and gan(tu28.soVonGio.vonGioUsd, 0.0),
+         f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
+         f"chưa từng đo là bịa ra một tỉ suất")
+
     # ── config.json xin một đằng, máy chạy một nẻo ──────────────────────
     # Kho bản tham số thắng config — cố ý, không thì mỗi lần khởi động lại
     # là xoá sạch mọi bản đã có người ký. Nhưng cái đúng ấy im lặng.
