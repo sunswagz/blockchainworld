@@ -104,6 +104,29 @@ class Runtime:
         elif action == "unkill":
             self.risk.halted_reason = None
             bus.log("system", "kill-switch-off", "gỡ kill switch")
+        elif action.startswith("dong:"):
+            # ĐÓNG MỘT VỊ THẾ, qua chính runtime.
+            #
+            # Trước đây không có đường này, nên khi cần đóng tay tôi đã dựng một
+            # `TestnetBroker` thứ hai trong tiến trình riêng. Sàn bán thật, file
+            # sổ được ghi đúng — rồi runtime đang chạy ghi đè bằng bản trong bộ
+            # nhớ của nó, và vị thế "sống lại" trong sổ dù không còn ở sàn.
+            #
+            # Hai tiến trình cùng sở hữu một sổ thì bản ghi cuối thắng, và bản
+            # ghi cuối là bản CŨ. Mọi thao tác đổi trạng thái phải đi qua tiến
+            # trình đang giữ nó.
+            _id = action.split(":", 1)[1]
+            _vt = next((t for t in self.broker.state["positions"]
+                        if t.get("id") == _id), None)
+            if not _vt:
+                return {"ok": False, "viSao": f"không có vị thế «{_id}»"}
+            _gia = (getattr(self, "gia_cho", {}) or {}).get(_vt.get("symbol"))
+            _kq = self.broker.close(_vt, _gia or _vt.get("entry"), "DONG_TAY")
+            bus.log("exec", "dong-tay",
+                    f"đóng tay {_id} ({_vt.get('symbol')}) — lãi/lỗ "
+                    f"{_kq.get('pnl')}. Lệnh đóng KỸ THUẬT: không tính vào kỳ "
+                    f"vọng chiến lược.")
+            return {"ok": True, "action": action, "ketQua": _kq}
         elif action == "reset":
             self.broker.reset()
             self.risk.halted_reason = None
