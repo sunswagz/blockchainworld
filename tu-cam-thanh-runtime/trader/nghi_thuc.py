@@ -150,7 +150,13 @@ VIEC = (
     # một cấu hình đã đổi từ lâu. Ba coin cùng khung đang chạy: chuỗi tín hiệu
     # đã có cache nên lượt sau chỉ mất ~1 phút.
     ("đấu nhiều chợ", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca",
-                       "--cho", CHO_4H], 3600,
+    # 3600 → 5400s. Đo được ở lượt thật: 2728s, tức 76% hạn cũ — và đó là lượt
+    # bị GIẾT giữa chừng, chưa phải lượt chạy hết. Chuỗi 4h vừa dài gấp ba (3000
+    # → 9000 nến, để phủ đúng quãng của 1d), nên biên cũ không còn.
+    #
+    # Quá giờ ở đây không chỉ mất một phép đo: `dau-nhieu-cho.json` giữ nguyên
+    # bản cũ, và lò chưng cất đọc nó như số liệu hiện hành.
+                       "--cho", CHO_4H], 5400,
      "dau-nhieu-cho.json"),
     # Khung 1d chạy SAU và ghi đè `dau-nhieu-cho.json`, nên kho đó luôn giữ kết
     # quả 1d. Cố ý: đó là khung có bằng chứng dương duy nhất, và lò chưng cất
