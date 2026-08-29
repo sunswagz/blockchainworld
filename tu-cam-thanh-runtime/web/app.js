@@ -231,12 +231,23 @@ function veDinh() {
 
   const hn = el("huyNao");
   hn.textContent = "bộ não " + (S.brain?.mode === "claude" ? S.brain.model : "mock");
-  hn.className = "huy " + (S.brain?.mode === "claude" ? "ai" : "");
+  hn.className = "huy " + (["claude", "cli"].includes(S.brain?.mode) ? "ai" : "");
 
+  // Ở chế độ `cli` KHÔNG có đồng nào — bot chạy bằng quota gói tháng. Hiện
+  // "$2,09 / $5" ở đó là một con số đúng về mặt số học và sai về mặt sự thật:
+  // nó là chi phí TƯƠNG ĐƯƠNG nếu gọi qua API, không phải tiền đã tiêu.
+  // Thứ thật sự có trần ở chế độ này là SỐ LƯỢT, nên số lượt phải đứng trước.
   const t = S.brain?.today || {}, cap = S.brain?.budgetUsd || 0;
+  const tranLuot = S.brain?.maxCalls || 0;
   const ht = el("huyTien");
-  ht.textContent = `$${(t.usd || 0).toFixed(4)} / $${cap} · ${t.calls || 0} lượt`;
-  ht.className = "huy " + (S.brain?.blocked ? "dut" : (t.usd || 0) > cap * 0.7 ? "nhac" : "");
+  const laCli = S.brain?.mode === "cli";
+  ht.textContent = laCli
+    ? `${t.calls || 0}/${tranLuot} lượt · quota gói (≈$${(t.usd || 0).toFixed(2)} nếu tính qua API)`
+    : `$${(t.usd || 0).toFixed(4)} / $${cap} · ${t.calls || 0} lượt`;
+  const gan = laCli
+    ? tranLuot && (t.calls || 0) > tranLuot * 0.7
+    : cap && (t.usd || 0) > cap * 0.7;
+  ht.className = "huy " + (S.brain?.blocked ? "dut" : gan ? "nhac" : "");
 
   el("btDung").textContent = S.paused ? "Chạy lại" : "Tạm dừng";
 }

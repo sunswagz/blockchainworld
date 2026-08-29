@@ -150,6 +150,45 @@ def _so(nay: dict, truoc: dict) -> list[str]:
 IM_LANG_GIO = 1.0
 
 
+# Kho đo + số giờ sau đó coi là CŨ. Ngưỡng khác nhau vì nhịp đổi khác nhau:
+# nến lịch sử đổi từng giờ, hồ sơ trader ngoài thì vài ngày một lần là đủ.
+KHO_DO = (
+    ("mau-gia.json", "mẫu giá", 48),
+    ("do-khung.json", "hình học khung", 48),
+    ("bo-pha.json", "bộ phá", 48),
+    ("dau-nhieu-cho.json", "đấu nhiều chợ", 48),
+    ("chien-luoc.json", "sổ chiến lược", 72),
+    ("trader-ho-so.json", "đài quan sát", 168),
+)
+
+
+def _kho_cu() -> list[str]:
+    """Kho đo nào đã cũ.
+
+    Nghi thức báo "đã khởi động ở luồng nền" là THÀNH CÔNG, nhưng luồng nền chết
+    cùng tiến trình mỗi lần runtime dựng lại — và không có gì nhận ra. Đài quan
+    sát đứng im 12 ngày trong khi nghi thức vẫn xanh.
+
+    Đo TUỔI FILE thay vì tin lời báo cáo: kho cũ là kho cũ, bất kể vì sao. Đây
+    là chỗ duy nhất trong bản bàn giao không quan tâm nguyên nhân.
+    """
+    import time as _t
+
+    ra = []
+    for ten, nhan, nguong in KHO_DO:
+        f = DATA_DIR / ten
+        if not f.exists():
+            ra.append(f"`{ten}` — CHƯA CÓ, {nhan} chưa chạy lần nào")
+            continue
+        gio = (_t.time() - f.stat().st_mtime) / 3600
+        if gio > nguong:
+            ngay = gio / 24
+            ra.append(f"`{ten}` — {nhan} cũ {gio:.0f} giờ"
+                      + (f" ({ngay:.1f} ngày)" if ngay >= 1 else "")
+                      + f", ngưỡng {nguong}h")
+    return ra
+
+
 def _cong_tra_loi(cong: int) -> bool:
     """Cổng có ai trả lời không.
 
@@ -249,6 +288,17 @@ def main() -> int:
     for x in _so(nay, truoc):
         W(f"- {x}")
     W("")
+
+    cu = _kho_cu()
+    if cu:
+        W("## Kho đo đã cũ")
+        W("")
+        W("Tuổi FILE, không phải lời báo cáo của nghi thức — luồng nền chết cùng")
+        W("tiến trình mà không có gì nhận ra.")
+        W("")
+        for x in cu:
+            W(f"- {x}")
+        W("")
 
     W("## Chưa đủ dữ liệu để nói")
     W("")

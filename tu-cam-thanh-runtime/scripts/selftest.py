@@ -830,6 +830,29 @@ async def main() -> int:
     _dat(12, -300.0, 9, khung="khung-khac")
     check(CC4.cau_dao("R|none", "R") is None,
           "bằng chứng của khung KHÁC → không ngắt")
+    print("\n[21] BÀN GIAO PHẢI ĐO TUỔI KHO ĐO, KHÔNG TIN LỜI BÁO CÁO")
+    import importlib.util as _il21
+    _sp21 = _il21.spec_from_file_location("bg21", str(ROOT / "scripts" / "ban-giao.py"))
+    BG21 = _il21.module_from_spec(_sp21)
+    _sp21.loader.exec_module(BG21)
+
+    # Nghi thức báo "đã khởi động ở luồng nền" là THÀNH CÔNG, nhưng luồng nền
+    # chết cùng tiến trình mỗi lần runtime dựng lại. Đài quan sát đứng im 12
+    # ngày trong khi nghi thức vẫn xanh. Nên đo TUỔI FILE, không tin báo cáo.
+    _ten, _nhan, _ng = BG21.KHO_DO[0]
+    _f21 = DATA_DIR / _ten
+    _f21.parent.mkdir(parents=True, exist_ok=True)
+    _f21.write_text("{}", encoding="utf-8")
+    check(not any(_ten in x for x in BG21._kho_cu()),
+          f"{_ten} vừa ghi → không báo cũ")
+    _gia = _tg.time() - (_ng + 5) * 3600
+    os.utime(_f21, (_gia, _gia))
+    check(any(_ten in x for x in BG21._kho_cu()),
+          f"{_ten} quá ngưỡng {_ng}h → báo cũ")
+    _f21.unlink()
+    check(any("CHƯA CÓ" in x and _ten in x for x in BG21._kho_cu()),
+          f"{_ten} không tồn tại → báo CHƯA CÓ, khác với «cũ»")
+
     print("\n[20] HẬU KIỂM PHẢI NHƯỜNG TRẦN CHO LUẬN ĐIỂM")
     import trader.brain as _B20
 
