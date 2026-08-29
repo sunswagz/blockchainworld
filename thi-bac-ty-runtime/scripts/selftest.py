@@ -6097,6 +6097,28 @@ def kiem_ke_toan_vi_the() -> None:
          and gan(dt35["b.v1"]["lechBpsGio"], -0.5))
     sc36 = SoCai(_tam("du-doan-rong") / "sc.sqlite3")
     sc36.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "c.v1", "m", {}))
+    # Luật «giữ quá ngắn» áp ở CẢ HAI phía. Bên ghi chặn từ 29/08, nhưng
+    # dòng ghi TRƯỚC đó vẫn nằm trong sổ và vẫn kéo bình quân đi — bảng
+    # hiện «thực −2.618 bps/giờ» cho tới khi chúng bị dọn sau 90 ngày.
+    sc37 = SoCai(_tam("giu-qua-ngan") / "sc.sqlite3")
+    sc37.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "d.v1", "m",
+                   {"duDoanBpsGio": 1.0, "thucBpsGio": 2.0,
+                    "daGiuGio": 24.0}))
+    sc37.ghi(_BT35("DONG_VI_THE", "đóng", 0.0, "d.v1", "m",
+                   {"duDoanBpsGio": 1.0, "thucBpsGio": -2618.0,
+                    "daGiuGio": 0.001}))
+    dt37 = sc37.du_doan_va_thuc()["d.v1"]
+    kiem("dòng CŨ giữ quá ngắn cũng bị LỌC lúc đọc, không chỉ lúc ghi",
+         dt37["soDoiChieuDuoc"] == 1 and dt37["soGiuQuaNgan"] == 1
+         and gan(dt37["thucBpsGio"], 2.0),
+         f"{dt37} — luật này nói con số CÓ NGHĨA hay không, chứ không nói "
+         f"lúc nào mã được sửa")
+    from thi_bac_ty.trung_uong import TOI_THIEU_GIO_DOI_CHIEU as _TGD
+    kiem("và hai ngưỡng ghi/đọc BẰNG NHAU",
+         gan(SoCai.TOI_THIEU_GIO_TI_SUAT, _TGD),
+         "sổ cái không được biết Trung Ương tồn tại, nên con số khai hai "
+         "lần — và lệch nhau thì một nửa dữ liệu lọt qua khe")
+
     kiem("chưa đối chiếu được lần nào thì None, KHÔNG phải 0",
          sc36.du_doan_va_thuc()["c.v1"]["duDoanBpsGio"] is None,
          "một ty chưa đóng vị thế nào chưa nói được gì về mình, và số 0 ở "

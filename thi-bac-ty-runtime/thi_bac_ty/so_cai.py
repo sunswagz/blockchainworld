@@ -251,6 +251,12 @@ class SoCai:
         return {(r[0] or "?"): {"soButToan": r[1], "laiLoUsd": r[2] or 0.0}
                 for r in h}
 
+    #: Giữ ngắn hơn ngần này giờ thì lần đóng ấy KHÔNG vào bảng đối chiếu.
+    #: Cùng con số với `trung_uong.TOI_THIEU_GIO_DOI_CHIEU`, cố ý khai lại
+    #: ở đây thay vì import: sổ cái không được biết Trung Ương tồn tại.
+    #: Phép kiểm đòi hai con số bằng nhau, nên lệch là đỏ chứ không trôi.
+    TOI_THIEU_GIO_TI_SUAT = 0.25
+
     def du_doan_va_thuc(self) -> dict:
         """LỜI HỨA vs THỰC NHẬN, theo ty — hậu kiểm cho tám ty KHÔNG có băng.
 
@@ -285,14 +291,27 @@ class SoCai:
                 continue
             du, thuc = d.get("duDoanBpsGio"), d.get("thucBpsGio")
             o = ra.setdefault(cl, {"soDong": 0, "soDoiChieuDuoc": 0,
+                                   "soGiuQuaNgan": 0,
                                    "tongDuDoan": 0.0, "tongThuc": 0.0})
             o["soDong"] += 1
+            # Luật «giữ quá ngắn thì không quy ra bps mỗi giờ» phải áp ở CẢ
+            # HAI phía. Bên GHI đã chặn từ 29/08, nhưng những dòng ghi
+            # TRƯỚC đó vẫn nằm trong sổ và vẫn kéo bình quân đi — bảng hiện
+            # «thực −2.618 bps/giờ» suốt ba tháng cho tới khi chúng bị dọn.
+            #
+            # Luật này nói về việc con số CÓ NGHĨA hay không, chứ không nói
+            # về lúc nào mã được sửa. Nên đọc cũng phải lọc.
+            gio = d.get("daGiuGio")
+            if gio is not None and float(gio) < self.TOI_THIEU_GIO_TI_SUAT:
+                o["soGiuQuaNgan"] += 1
+                continue
             if du is None or thuc is None:
                 continue
             o["soDoiChieuDuoc"] += 1
             o["tongDuDoan"] += float(du)
             o["tongThuc"] += float(thuc)
         for o in ra.values():
+            o.setdefault("soGiuQuaNgan", 0)
             k = o["soDoiChieuDuoc"]
             # `None` khi chưa đối chiếu được lần nào — không phải 0. Một ty
             # chưa đóng vị thế nào chưa nói được gì về mình.
