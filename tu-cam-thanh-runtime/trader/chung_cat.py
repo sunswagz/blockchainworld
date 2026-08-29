@@ -577,7 +577,14 @@ def _tu_do_khung(bo: list) -> list[dict]:
                   f"điểm phần trăm là dương; ở {te[0]} cần thêm {abs(te[1]):.1f} điểm — "
                   f"khoảng cách đó không điểm vào nào lấp nổi. Đây là TRẦN TRÊN lạc quan "
                   f"(khi mục tiêu và stop cùng nằm trong một nến, phần thắng tính cho mục "
-                  f"tiêu), nên thực tế còn thấp hơn.",
+                  f"tiêu), nên thực tế còn thấp hơn. "
+                  f"ĐỪNG DÙNG CON SỐ NÀY ĐỂ ĐOÁN MỘT BỘ LUẬT SẼ KHÁ LÊN BAO NHIÊU. "
+                  f"Nó đo bằng cách vào NGẪU NHIÊN, tức đo cái NỀN của thị trường — "
+                  f"không đo phân bố điểm vào của một bộ luật có hướng. Hai thứ khác "
+                  f"nhau: bảng này nói 1d chỉ hơn 4h {abs(tb.get('1d', 0) - tb.get('4h', 0)):.1f} "
+                  f"điểm phần trăm, mà đo thật thì cùng một champion đi từ −0,047R (4h) "
+                  f"lên +0,117R (1d) trên 15 chợ. Bảng này dùng để LOẠI khung (5m thì "
+                  f"không cách nào bù nổi), không dùng để xếp hạng mấy khung còn lại.",
                   diem, {"theoKhung": {k: round(v, 1) for k, v in tb.items()},
                          "totNhat": tot[0], "teNhat": te[0]}))
 
