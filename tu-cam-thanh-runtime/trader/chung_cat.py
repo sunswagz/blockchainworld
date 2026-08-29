@@ -69,6 +69,9 @@ MAU_TOI_THIEU = {
     # nói ra rằng phép đo và bản chạy thật đang đo hai thứ khác nhau, và câu
     # đó đúng ngay cả với ít lệnh.
     "do-huong": 20,
+    # Lệnh trong một lát của lò luyện. Bảng lò gộp nhiều chợ nên số lệnh lớn;
+    # ngưỡng ở đây canh cái ĐÁNG ĐỌC chứ không canh cái đáng tin.
+    "lo-luyen": 50,
 }
 
 
@@ -872,6 +875,72 @@ def _tu_do_huong(bo: list) -> list[dict]:
                 {"kyVongR": mot["kyVongR"], "caHaiR": hai["kyVongR"],
                  "chenhDoShort": chenh, "soCho": d.get("soCho")})]
 
+# ── Nguồn 11 · LÒ LUYỆN: nhiều chợ × nhiều lát × nhiều biến thể ──────────
+def _tu_lo_luyen(bo: list) -> list[dict]:
+    """Kết quả dò tham số theo LÁT thời gian, kèm số lần đã thử.
+
+    Hai câu, và câu thứ hai quan trọng hơn:
+
+    1. Champion dương ở mấy lát trên tổng số lát. Một con số gộp che mất chuyện
+       này: đo được ở lượt đầu là MỌI biến thể đều âm ở lát 1 và dương ở lát
+       2–4, tức phụ thuộc chế độ thị trường chứ không phải chuyện tham số.
+
+    2. ĐÃ THỬ BAO NHIÊU BIẾN THỂ. Thử 20 rồi lấy cái tốt nhất thì cái tốt nhất
+       ấy đẹp lên một phần chỉ vì đã thử 20 lần. Không có con số đó thì "+0,08R"
+       là một câu vô nghĩa, và bộ não sẽ đọc nó như một lợi thế.
+    """
+    f = DATA_DIR / "lo-luyen.json"
+    if not f.exists():
+        bo.append({"ma": "lo-luyen", "nguon": "lo-luyen",
+                   "viSao": "chưa chạy scripts/lo-luyen.py --ghi lần nào"})
+        return []
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        bo.append({"ma": "lo-luyen", "nguon": "lo-luyen", "viSao": f"đọc hỏng: {e}"})
+        return []
+
+    bang = d.get("bang") or []
+    cha = next((x for x in bang if x.get("i") == 0), None)
+    if not cha or cha.get("kyVongGop") is None:
+        bo.append({"ma": "lo-luyen", "nguon": "lo-luyen",
+                   "viSao": "chưa có hàng champion trong bảng"})
+        return []
+
+    n_thu = d.get("soLanThu") or 0
+    lat = " ".join(f"{x:+.2f}" if x is not None else "—" for x in (cha.get("theoLat") or []))
+    ra = [_pd("lo-luyen-champion", "lo-luyen",
+              f"Champion đo trên {d.get('soCho')} chợ × {d.get('soLat')} lát thời gian: "
+              f"dương {cha['soLatDuong']}/{cha['soLatCo']} lát, gộp "
+              f"{cha['kyVongGop']:+.4f}R qua {cha['soLenh']} lệnh. Từng lát: {lat}. "
+              f"Lát là quãng thời gian LIÊN TIẾP — dương ở một lát và âm ở lát khác "
+              f"nghĩa là kết quả phụ thuộc chế độ thị trường, không phải lợi thế.",
+              cha["soLenh"], {"kyVongR": cha["kyVongGop"], "soLatDuong": cha["soLatDuong"],
+                              "soLat": cha["soLatCo"]})]
+
+    can = (cha.get("soLatCo") or 0) // 2 + 1
+    tot = [x for x in bang if x.get("i") and x.get("soLatDuong", 0) >= can
+           and (x.get("kyVongGop") or -9) > cha["kyVongGop"]]
+    if tot:
+        t = tot[0]
+        ra.append(_pd("lo-luyen-dan-dau", "lo-luyen",
+                      f"{len(tot)}/{n_thu} biến thể tham số vừa vượt champion vừa dương "
+                      f"≥{can}/{cha['soLatCo']} lát. Dẫn đầu: {json.dumps(t.get('tham') or {}, ensure_ascii=False)} "
+                      f"— {t['kyVongGop']:+.4f}R qua {t['soLenh']} lệnh, dương "
+                      f"{t['soLatDuong']}/{t['soLatCo']} lát. ĐÃ THỬ {n_thu} BIẾN THỂ: "
+                      f"cái tốt nhất trong ngần ấy lần thử đẹp lên một phần chỉ vì đã "
+                      f"thử ngần ấy lần. Đây là ỨNG VIÊN để đo lại trên chợ chưa dùng, "
+                      f"KHÔNG phải một bộ tham số đáng đổi sang.",
+                      t["soLenh"], {"kyVongR": t["kyVongGop"], "soLanThu": n_thu,
+                                    "soVuot": len(tot)}))
+    else:
+        ra.append(_pd("lo-luyen-dan-dau", "lo-luyen",
+                      f"Thử {n_thu} biến thể tham số, KHÔNG cái nào vừa vượt champion "
+                      f"vừa dương ở đa số lát. Đó là một kết quả: chỗ dễ tìm quanh bộ "
+                      f"tham số hiện tại đã dò rồi và không có gì.",
+                      max(n_thu, 1), {"soLanThu": n_thu, "soVuot": 0}))
+    return ra
+
 def chung_cat() -> dict:
     """Chưng lại toàn bộ phát hiện. Ghi đè sạch kho, không cộng dồn."""
     bo: list[dict] = []
@@ -880,7 +949,8 @@ def chung_cat() -> dict:
                      ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
                      ("mau-gia", _tu_mau_gia), ("do-khung", _tu_do_khung),
                      ("nhieu-cho", _tu_nhieu_cho), ("gia-thuyet", _tu_gia_thuyet),
-                     ("bo-pha", _tu_bo_pha), ("do-huong", _tu_do_huong)):
+                     ("bo-pha", _tu_bo_pha), ("do-huong", _tu_do_huong),
+                     ("lo-luyen", _tu_lo_luyen)):
         try:
             ra.extend(ham(bo))
         except Exception as e:  # một nguồn hỏng không được kéo sập cả lò

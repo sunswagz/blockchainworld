@@ -136,6 +136,15 @@ VIEC = (
     ("đo hướng", [sys.executable, "scripts/do-huong.py", "--ghi",
                   "--cho", CHO_1D], 2400,
      "do-huong.json"),
+    # LÒ LUYỆN. Rẻ khi chuỗi đã có cache — đo được 16 chợ × 4 lát × 21 biến thể
+    # trong 138 giây. Đắt đúng một lần sau mỗi lần sửa mã sinh chuỗi, vì lúc đó
+    # vân tay đổi và mọi chuỗi phải dựng lại.
+    #
+    # Đặt SAU «đo hướng»: hai việc dùng chung cache chuỗi, nên chạy sau là chạy
+    # trên cache nóng.
+    ("lò luyện", [sys.executable, "scripts/lo-luyen.py", "--ghi",
+                  "--cho", CHO_1D, "--bien", "20", "--lat", "4"], 1800,
+     "lo-luyen.json"),
     # Đấu NHIỀU CHỢ. Nghi thức trước chỉ chạy `--tat-ca` trên một chợ, nên
     # `dau-nhieu-cho.json` đứng im 9 ngày và phát hiện "dương ở mấy chợ" nói về
     # một cấu hình đã đổi từ lâu. Ba coin cùng khung đang chạy: chuỗi tín hiệu
