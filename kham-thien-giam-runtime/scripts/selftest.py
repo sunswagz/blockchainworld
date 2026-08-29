@@ -941,6 +941,124 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def kiem_duong_quyet_dinh() -> None:
+    """Gọi THẬT `_mot_thi_truong` — ở khung ăn thua, không phải cửa đặt cược.
+
+    Phép kiểm này tồn tại vì đường ra quyết định vừa bị đổi cửa, và
+    không phép nào chạm tới nó: nó cần giá Binance, sổ lệnh WebSocket và
+    một khung đúng giai đoạn, nên cả bộ kiểm chạy-không-mạng đi vòng.
+
+    Cùng bài học với `kiem_tien_hoa_chay_that`: một hàm không ai gọi thật
+    thì chữ ký sai, giai đoạn sai, mốc sai đều xanh hết.
+
+    Ba điều phải đúng:
+      1. bám khung ở giai đoạn QUAN_SAT, không phải DAT_CUOC
+      2. strike lấy ở `eventStartMs`, không phải `batDauDatCuocMs`
+      3. τ đếm tới `endMs`, không tới `eventStartMs`
+    """
+    print("\n-- Duong ra quyet dinh: goi THAT, o dung cua --------------")
+
+    import kham.vong as V
+    from kham.khung import QUAN_SAT, Khung
+    from kham.so_lenh import Muc, SoLenh
+
+    T = 1_787_243_400_000.0
+    now = T + 240_000.0          # trong khung ăn thua, còn 60 giây
+    k = Khung(slug="btc-updown-5m-1787243400", ma="BTC_5M", capNen="BTCUSDT",
+              tokenUp="u", tokenDown="d",
+              batDauDatCuocMs=T - 300_000.0, eventStartMs=T,
+              endMs=T + 300_000.0, daiSongGiay=300.0)
+    kiem("khung dựng đúng giai đoạn để thử", k.giai_doan(now) == QUAN_SAT,
+         k.giai_doan(now))
+    kiem("τ đếm tới endMs, không tới eventStartMs",
+         abs(k.con_lai_an_thua_giay(now) - 60.0) < 1e-6
+         and k.con_lai_giay(now) == 0.0,
+         f"{k.con_lai_an_thua_giay(now)} vs {k.con_lai_giay(now)}")
+
+    def so(gia_bid, gia_ask, ben):
+        return SoLenh(ma="BTC_5M", ben=ben,
+                      bid=[Muc(gia_bid, 900.0)], ask=[Muc(gia_ask, 900.0)],
+                      nhanLucMs=now)
+
+    xin_mo: list[float] = []
+
+    class _Song:
+        def lay(self, token):
+            return so(0.55, 0.57, "UP") if token == "u" else so(0.41, 0.43, "DOWN")
+
+    dem = [0]
+
+    class _Nguon:
+        def gia_binance(self, cap):
+            # Phải NHÚC NHÍCH: giá đứng im thì σ = 0 và  trả
+            # None, nên vòng thoát sớm với lý do "chưa đủ mẫu" — một lý do
+            # đúng chữ nhưng sai nguyên nhân, và nó che mất thứ đang kiểm.
+            dem[0] += 1
+            return 100_060.0 + (7.0 if dem[0] % 2 else -5.0)
+        def gia_mo_khung(self, cap, ms):
+            xin_mo.append(ms)
+            return 100_000.0
+        trangThai: dict = {}
+
+    cuSong, cuNguon = V.dong_song, V.nguon
+    V.dong_song, V.nguon = _Song(), _Nguon()
+    try:
+        rt = V.Runtime.__new__(V.Runtime)
+        rt.kho = V.Kho()
+        rt.risk = V.RiskEngine(rt.kho)
+        rt.cong = V.CongLenh(rt.kho)
+        rt.hieuChinh = V.HieuChinh()
+        rt.so = V.So()
+        rt.ketToan = V.KetToan(rt.kho, rt.hieuChinh, rt.so, rt.risk)
+        rt.phepNan = V.nan_lai.khop(rt.hieuChinh)
+        rt.bienDong = {}
+        rt.khungHienTai = {}
+        rt.khungQuanSat = {"BTC_5M": k}
+        rt.capSo, rt.giaChuan, rt.giaNen = {}, {}, {}
+        rt.coHoi, rt.quyetChan, rt.boQua = [], {}, {}
+        rt._thanPhien = {}
+        rt.batTat = None
+        rt.lanNga = {}
+
+        tt = {"ma": "BTC_5M", "nen": "BTCUSDT", "dongCo": "updown-crypto"}
+        ghi: list = []
+        # σ cần ít nhất 12 mẫu — nuôi bằng chính giá Binance giả.
+        for i in range(20):
+            rt._mot_thi_truong(tt, now - (20 - i) * 2000.0, [])
+        rt._mot_thi_truong(tt, now, ghi)
+
+        kiem("strike xin ở eventStartMs, KHÔNG ở batDauDatCuocMs",
+             xin_mo and all(abs(x - T) < 1e-6 for x in xin_mo),
+             f"đã xin {sorted(set(xin_mo))[:3]}, chờ {T}")
+        kiem("có ghi được dòng băng", len(ghi) == 1, len(ghi))
+        if ghi:
+            d = ghi[0]
+            kiem("dòng băng khai đúng giai đoạn", d.get("giaiDoan") == QUAN_SAT,
+                 d.get("giaiDoan"))
+            kiem("dòng băng mang strike thật", d.get("giaMo") == 100_000.0)
+            kiem("dòng băng mang τ của khung ăn thua",
+                 abs(d.get("conLaiGiay", -1) - 60.0) < 1e-6, d.get("conLaiGiay"))
+        kiem("có cân ra cơ hội ở cửa này", len(rt.coHoi) >= 1,
+             f"{len(rt.coHoi)} cơ hội · bỏ qua {rt.boQua}")
+
+        # Và ở CỬA ĐẶT CƯỢC thì phải đứng ngoài.
+        rt2 = V.Runtime.__new__(V.Runtime)
+        for a in ("kho", "risk", "cong", "hieuChinh", "so", "ketToan",
+                  "phepNan", "bienDong", "capSo", "giaChuan", "giaNen",
+                  "quyetChan", "boQua", "_thanPhien", "batTat", "lanNga"):
+            setattr(rt2, a, getattr(rt, a))
+        rt2.coHoi = []
+        rt2.khungHienTai = {"BTC_5M": k}
+        rt2.khungQuanSat = {}
+        ghi2: list = []
+        rt2._mot_thi_truong(tt, T - 60_000.0, ghi2)
+        kiem("ở cửa đặt cược thì ĐỨNG NGOÀI, không ghi dòng nào",
+             not ghi2 and not rt2.coHoi,
+             f"{len(ghi2)} dòng, {len(rt2.coHoi)} cơ hội")
+    finally:
+        V.dong_song, V.nguon = cuSong, cuNguon
+
+
 def kiem_giai_doan_bang() -> None:
     """Dòng cửa ĐẶT CƯỢC và dòng cửa ĂN THUA không được lẫn vào nhau.
 
@@ -2249,6 +2367,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_duong_quyet_dinh()
     kiem_giai_doan_bang()
     kiem_lo_ngay_rong()
     kiem_dong_ho_rui_ro()
