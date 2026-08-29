@@ -4599,6 +4599,143 @@ def kiem_chay_lai_he() -> None:
     kiem("và chúng dựng lại đủ để chạy lại",
          mot_luot(tt, {}, 5000.0, "x").soCap > 0)
 
+    # ── PAYLOAD TỐI THIỂU: thiếu MỌI trường tuỳ chọn ────────────────────
+    #
+    # `dung_lai()` dựng lại một tờ trình từ payload đã lưu trong Sổ Đăng
+    # Ký, và mười hai chữ `or` của nó che cho trường thiếu. Chúng chưa
+    # bao giờ được đi vào, vì mọi payload trong phép kiểm đều do
+    # `ToTrinh.tom_tat()` sinh ra — tức là luôn đủ trường. Payload THẬT
+    # trong sổ thì do một phiên bản mã CŨ ghi.
+    #
+    # Ở đây `None` không làm chết một lượt: `except` bắt và trả `None`,
+    # và tờ ấy bị đếm là «dòng hỏng». Nhưng đếm hỏng một tờ CÒN DÙNG
+    # ĐƯỢC là thu hẹp mẫu của phép A/B — và mẫu nhỏ đi thì kết luận
+    # «B tốt hơn» dựng trên ít bằng chứng hơn chính nó khai.
+    _toiThieu = {
+        # chỉ những trường KHÔNG có `or`/`get` che:
+        "ma": "T-toi-thieu", "chienLuoc": "perpetual.funding_spread.v1",
+        "ho": "phai-sinh", "taiSan": "BTC", "vonCanUsd": 100.0,
+        "chan": [{"ben": "LONG", "cang": "hyperliquid", "taiSan": "BTC"}],
+    }
+    _tMin = dung_lai(_toiThieu)
+    kiem("payload TỐI THIỂU vẫn dựng lại được, không thành «dòng hỏng»",
+         _tMin is not None,
+         "đếm hỏng một tờ CÒN DÙNG ĐƯỢC là thu hẹp mẫu của phép A/B, và "
+         "kết luận «B tốt hơn» dựng trên ít bằng chứng hơn chính nó khai")
+    kiem("chân thiếu `loai` rơi về «perp», thiếu `chuoi` là None",
+         (_tMin.chan[0].loai == "perp" and _tMin.chan[0].chuoi is None))
+    kiem("thiếu các con số bps thì đọc là 0, và `giuGio` là 1 chứ không 0",
+         (gan(_tMin.grossBps, 0.0) and gan(_tMin.phiUocBps, 0.0)
+          and gan(_tMin.netUocBps, 0.0) and gan(_tMin.giuGio, 1.0)),
+         f"giuGio={_tMin.giuGio} — 0 giờ thì mọi con số bps mỗi giờ chia "
+         f"cho không; 1 là mặc định an toàn, và tờ ấy vẫn hợp lệ")
+    kiem("thiếu các danh sách thì là tuple RỖNG, không phải None",
+         (_tMin.phiConThieu == () and _tMin.sucChuaConThieu == ()
+          and _tMin.cang == () and _tMin.chuoi == ()
+          and _tMin.bangChung == ()))
+    kiem("thiếu `dinhGiaBang` rơi về USDT, thiếu `luc` là chuỗi rỗng",
+         _tMin.dinhGiaBang == "USDT" and _tMin.luc == "")
+    kiem("thiếu `ruiRo` thì mọi mặt là None — CHƯA ĐO, không phải 0",
+         all(getattr(_tMin.ruiRo, m) is None for m in
+             ("thiTruong", "thanhKhoan", "giaoThuc", "cang", "thucThi",
+              "cauNoi")),
+         "đọc «chưa đo rủi ro» thành 0 là dựng ra một cơ hội không rủi ro")
+    kiem("nhưng thiếu một trường BẮT BUỘC thì mới là dòng hỏng",
+         dung_lai({k: v for k, v in _toiThieu.items() if k != "vonCanUsd"})
+         is None,
+         "không có vế này thì phép kiểm trên chỉ chứng minh hàm luôn dựng "
+         "được cái gì đó")
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    #
+    # Đây là tầng A/B: nó quyết định một lần vặn tham số có được gọi là
+    # «tốt hơn» hay không. Mọi ngưỡng của nó đang trống.
+
+    _loA = [_mau(taiSan=f"X{i}", von=100.0, chua=9000.0, net=6.0)
+            for i in range(TOI_THIEU_MAU)]
+    kiem("đúng bằng số mẫu tối thiểu thì ĐÃ kết luận được",
+         doi_chieu(_loA, {}, {}, 5000.0)["duDeKetLuan"] is not False,
+         f"ngưỡng {TOI_THIEU_MAU} — «chưa đủ» phải nghĩa là ÍT HƠN")
+    kiem("thiếu một tờ thì chưa",
+         doi_chieu(_loA[:-1], {}, {}, 5000.0)["duDeKetLuan"] is False)
+
+    # HAI bộ tham số GIỐNG HỆT nhau phải ra «hoà» — chênh đúng 0 nằm
+    # trong biên nhiễu. `<` đổi thành `<=` chẳng đổi gì ở đây, nhưng
+    # thiếu phép kiểm thì cả nhánh «hoà» chưa ai đi vào.
+    _dcHoa = doi_chieu(_loA, {}, {}, 5000.0)
+    kiem("hai bộ tham số GIỐNG HỆT nhau thì ra «hoà»",
+         _dcHoa["ketLuan"] == "hoa",
+         f"{_dcHoa} — đứng yên là một kết quả hợp lệ, và nó phải có tên")
+
+    # KHÔNG BÊN NÀO rót được đồng nào → «không kết luận», chứ không phải
+    # «hoà». Hai câu khác nhau: một bên là «đo rồi, bằng nhau», bên kia
+    # là «chưa đo được gì».
+    _dcMu = doi_chieu(_loA, {"ruiRoTong": {"ruiRoToiDa": 0.01}},
+                      {"ruiRoTong": {"ruiRoToiDa": 0.01}}, 5000.0)
+    kiem("không bên nào rót được thì «không kết luận», không phải «hoà»",
+         _dcMu["ketLuan"] == "khong-ket-luan",
+         f"{_dcMu} — «đo rồi, bằng nhau» và «chưa đo được gì» là hai câu")
+
+    # `netMoiGioBinhQuanBps` là `None` khi KHÔNG rót được đồng nào — chứ
+    # không phải 0. Chia cho `tongCapUsd` bằng 0 là chia cho không.
+    _kqMu = mot_luot(_loA, {"ruiRoTong": {"ruiRoToiDa": 0.01}}, 5000.0, "M")
+    kiem("không rót được đồng nào thì NET bình quân là None, không phải 0",
+         (_kqMu.soCap == 0 and _kqMu.netMoiGioBinhQuanBps is None),
+         f"{_kqMu.tom_tat()} — mẫu số bằng 0 thì câu trả lời là «chưa đo "
+         f"được», và 0 bps/giờ đọc thành «đã rót, và huề»")
+
+    # LÝ DO CẮT / TỪ CHỐI: một lần từ chối mang lý do RỖNG thì không tạo
+    # ra một khoá rỗng trong bảng «trần nào chặn nhiều nhất».
+    kiem("bảng trần-chặn KHÔNG có khoá rỗng",
+         all(k.strip() for k in _kqMu.tranChanNhieuNhat),
+         f"{_kqMu.tranChanNhieuNhat} — một dòng trắng đứng đầu bảng «nới "
+         f"cái nào thì đáng» là một câu trả lời không dùng được")
+    kiem("và nó CÓ nói ra trần nào đang chặn",
+         bool(_kqMu.tranChanNhieuNhat),
+         "không có vế này thì phép kiểm trên chỉ chứng minh bảng luôn rỗng")
+
+    # Bảng trần-chặn phải đếm CẢ những lần bị CẮT BỚT, không chỉ những
+    # lần bị từ chối hẳn. Một tờ được cấp nhưng bị cắt còn một nửa vẫn
+    # là một cái trần đang chặn — và nó là loại chặn KHÓ THẤY NHẤT, vì
+    # tờ ấy vẫn hiện trong cột «đã cấp».
+    _loCat = [_mau(taiSan=f"C{i}", von=5000.0, chua=90000.0, net=6.0)
+              for i in range(TOI_THIEU_MAU)]
+    _kqCat = mot_luot(_loCat, {}, 5000.0, "C")
+    kiem("tờ ĐƯỢC CẤP nhưng bị CẮT vẫn vào bảng trần-chặn",
+         (_kqCat.soCap > 0 and bool(_kqCat.tranChanNhieuNhat)),
+         f"{_kqCat.tom_tat()} — một tờ bị cắt còn một nửa vẫn là một cái "
+         f"trần đang chặn, và nó khó thấy nhất vì tờ ấy vẫn ở cột «đã cấp»")
+    # Và KHÔNG có tờ nào bị từ chối thì bảng ấy vẫn phải có dòng — không
+    # thì nguồn «lyDoCat» chưa bao giờ được đọc, và mọi dòng trong bảng
+    # đều đến từ cột từ chối.
+    _kqChiCat = mot_luot(
+        [_mau(taiSan="ONE", von=5000.0, chua=90000.0, net=6.0)],
+        {}, 5000.0, "1")
+    kiem("KHÔNG tờ nào bị từ chối mà vẫn nêu được trần đang cắt",
+         (_kqChiCat.soCap == 1 and bool(_kqChiCat.tranChanNhieuNhat)),
+         f"{_kqChiCat.tom_tat()} — nếu bảng rỗng ở đây thì nguồn «lyDoCat» "
+         f"chưa bao giờ được đọc, và mọi dòng đều đến từ cột từ chối")
+
+    # Nhãn RỖNG rơi về «?», không thành chuỗi rỗng — một cột nhãn trắng
+    # trong bảng đối chiếu thì không biết dòng nào là A dòng nào là B.
+    kiem("nhãn rỗng rơi về «?»", mot_luot(_loA, {}, 5000.0, "").nhan == "?")
+
+    # `thamSo` khai `None` cho một tầng: đọc là «mặc định», không phải nổ.
+    kiem("tham số khai None cho một tầng thì dùng mặc định, không nổ",
+         mot_luot(_loA, {"phanBo": None, "ruiRoTong": None},
+                  5000.0, "N").soCap > 0,
+         "bản tham số cũ có thể thiếu hẳn một tầng; nổ ở đó là mất cả "
+         "lượt chạy lại")
+
+    # MỘT bên đo được, bên kia KHÔNG → «không kết luận». Thiếu một vế là
+    # thiếu; trừ `None` cho một con số là nổ giữa vòng tiến hoá.
+    _dcMotBen = doi_chieu(_loA, {}, {"ruiRoTong": {"ruiRoToiDa": 0.01}},
+                          5000.0)
+    kiem("A đo được mà B không thì «không kết luận», không nổ",
+         _dcMotBen["ketLuan"] == "khong-ket-luan",
+         f"{_dcMotBen} — trừ `None` cho một con số là nổ giữa vòng tiến "
+         f"hoá, và vòng ấy chạy không ai nhìn")
+
 
 
 def kiem_cong_duyet() -> None:
@@ -4799,6 +4936,38 @@ def kiem_ban_tham_so() -> None:
     kiem("quay lui về bản không có thì từ chối",
          kho.quay_lui(999, "admin") is None)
     kiem("lịch sử đọc lại đủ ba bản", len(kho.lich_su()) == 3)
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+
+    # QUAY LUI không kèm lý do: phải tự điền một câu đọc được. Ô lý do
+    # trống trong lịch sử tham số là một dòng không ai đọc lại được, mà
+    # cả cuốn sổ này tồn tại để đọc lại.
+    _b4 = kho.quay_lui(b1.so, "admin", "   ")
+    kiem("quay lui KHÔNG kèm lý do thì tự điền một câu đọc được",
+         _b4 is not None and str(b1.so) in (_b4.vi or ""),
+         f"{_b4.vi if _b4 else None} — ô lý do trống là một dòng lịch sử "
+         f"không ai đọc lại được")
+    _b5 = kho.quay_lui(b1.so, "admin", "vì nó tệ")
+    kiem("có lý do thì GIỮ nguyên lý do người viết",
+         _b5 is not None and _b5.vi == "vì nó tệ")
+
+    # KHÁC BIỆT giữa hai bản: thiếu MỘT bản cũng là thiếu. `or` đổi thành
+    # `and` là đem `None` đi so với một bản thật, và bảng khác-biệt hiện
+    # ra một danh sách «mọi núm đều đổi».
+    for _a, _b in ((b1.so, 999), (999, b1.so), (999, 998)):
+        kiem(f"so bản #{_a} với #{_b} — thiếu một bản thì trả RỖNG",
+             kho.khac_biet(_a, _b) == {},
+             "đem `None` đi so với một bản thật là hiện ra «mọi núm đều "
+             "đổi», và người đọc sẽ đi tìm một thay đổi chưa từng có")
+    kiem("hai bản CÓ THẬT thì so được",
+         kho.khac_biet(b1.so, b2.so) != {})
+
+    # KHO RỖNG: 0 bản, và không nổ.
+    _khoR = KhoThamSo(_tam("bts-rong") / "bts.sqlite3")
+    kiem("kho RỖNG đếm 0 bản và không có bản hiện hành",
+         (_khoR.tom_tat()["soBan"] == 0
+          and _khoR.tom_tat()["hienHanh"] is None),
+         str(_khoR.tom_tat()))
 
 
 def kiem_vong_duyet_tron() -> None:
@@ -6140,6 +6309,39 @@ def kiem_che_van_hanh() -> None:
          "$100 vốn kiếm 20%/năm là $20 — vẫn ÂM sau hạ tầng $120")
     kiem("kèm lời nhắc đừng đo bằng số đô",
          "chất lượng quyết định" in h["loiNhac"])
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+
+    # Rót được ĐÚNG BẰNG ngưỡng kinh tế thì ĐÃ đủ — không phải «gần đủ».
+    # Ngưỡng $150, trần 15% ⇒ NAV $1.000 rót được đúng $150.
+    _dung = _T("dung.v1", 150.0)
+    kiem("rót được ĐÚNG BẰNG ngưỡng kinh tế thì lên GIẤY",
+         che_cua_ty(_dung, 1000.0, 0.15).che == GIAY,
+         "«rót được ít hơn ngưỡng» phải nghĩa là ÍT HƠN; giữ nó ở QUAN "
+         "SÁT là giam một engine vừa đủ điều kiện")
+    kiem("thiếu một xu thì vẫn QUAN SÁT",
+         che_cua_ty(_T("thieu.v1", 150.01), 1000.0, 0.15).che == QUAN_SAT)
+
+    # Trần một cơ hội bằng ĐÚNG 0 thì không tính được vốn cần. `<= 0`
+    # phải bắt cả số 0 — chia cho nó là ra vô cực.
+    kiem("trần một cơ hội bằng ĐÚNG 0 thì «vốn cần» là None",
+         von_can_de_chay([re_, dat], 0.0) is None,
+         "chia cho 0 ra vô cực, và một con số vô cực trông như một câu "
+         "trả lời")
+    kiem("trần dương bé xíu thì vẫn tính được",
+         von_can_de_chay([re_], 0.01) is not None)
+    kiem("mọi ty khai 0 thì cũng None, không phải 0",
+         von_can_de_chay([_T("k.v1", 0.0)], 0.15) is None,
+         "khai 0 nghĩa là chưa khai; lấy nó làm ngưỡng rẻ nhất là nói cỗ "
+         "máy chạy được với 0 đồng")
+
+    # Lợi suất bằng ĐÚNG 0 trong bảng hoà vốn: `None`, không chia cho 0.
+    _h0 = von_hoa_ha_tang(10.0, loiSuat=(0.0, 0.20))
+    kiem("mức lợi suất 0% thì «vốn hoà vốn» là None, không chia cho 0",
+         (_h0["vonHoaVon"]["0%"] is None
+          and gan(_h0["vonHoaVon"]["20%"], 600.0)),
+         f"{_h0['vonHoaVon']} — 0%/năm thì không số vốn nào hoà được, và "
+         f"câu ấy là None chứ không phải một con số")
 
 
 def kiem_hieu_nang() -> None:

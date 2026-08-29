@@ -196,6 +196,8 @@ def mot_luot(toTrinh: list, thamSo: dict, vonBanDauUsd: float,
     """Rót lại cả lô trên một danh mục SẠCH, với bộ tham số cho trước."""
     dm = DanhMuc(float(vonBanDauUsd))
     rrt = RuiRoTong(thamSo.get("ruiRoTong") or {})
+    # `or {}` là lớp thứ hai: `PhanBo.__init__` đã viết `cau_hinh or {}`,
+    # nên `None` đi qua được cả hai đường. Con đột biến TƯƠNG ĐƯƠNG.
     pb = PhanBo(thamSo.get("phanBo") or {})
     lat = pb.chia(list(toTrinh), rrt, dm, None, "chay-lai")
 
@@ -252,6 +254,9 @@ def doi_chieu(toTrinh: list, thamSoA: dict, thamSoB: dict,
     lech = None if (na is None or nb is None) else nb - na
     # Tập trung so bằng TỈ TRỌNG vốn đã rót — xem `KetQua.tiTrongCang`.
     def _hon(x, y):
+        # Dải 1e-9 nuốt trọn chỗ `>` khác `>=` — con đột biến ở đó TƯƠNG
+        # ĐƯƠNG. Cái đáng kiểm là hai vế `is not None`, và chúng đã có
+        # phép kiểm.
         return x is not None and y is not None and x > y + 1e-9
     dam_hon = (_hon(b.tiTrongCang, a.tiTrongCang)
                or _hon(b.tiTrongTy, a.tiTrongTy))
