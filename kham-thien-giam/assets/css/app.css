@@ -676,3 +676,9 @@ code,.mono,.ma{font-family:var(--mono)}
    Khai một chỗ chứ không ở từng khối mono — quên một khối là đúng
    cột đó nhảy, và đó là thứ không ai soi lại. */
 body{font-variant-numeric:tabular-nums}
+
+/* Lát cắt ĐÃ CŨ (>24 giờ). Chữ đã nói "N ngày trước" ở app.js — màu chỉ
+   đi kèm, luật 3. Ngưỡng 24 giờ vì lát cắt phải commit tay mới lên site,
+   nên vài giờ là bình thường; một cảnh báo nhảy lúc mọi thứ đang đúng thì
+   lần nó đúng cũng không ai nhìn. */
+#ngay[data-cu] { color: var(--canh, #b45309); font-weight: 600; }

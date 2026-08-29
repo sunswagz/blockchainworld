@@ -449,13 +449,48 @@
     return k;
   }
 
+  /* TUỔI của lát cắt — thứ trang này chưa bao giờ nói ra.
+
+     Lát cắt mang sẵn `generatedAt` (ISO, có giờ phút giây) từ ngày đầu,
+     và trang chỉ hiện `date` — mỗi ngày. Nên một lát cắt ghi bảy tiếng
+     trước và một lát cắt ghi ba mươi giây trước đọc ra y hệt nhau, còn
+     một lát cắt cũ SÁU NGÀY thì bắt người đọc tự lấy hôm nay trừ đi.
+
+     Đây là cùng một cái bệnh với `dichvu/trang-thai.ps1` bên runtime:
+     in mười dòng nhật ký cũ hai mươi giờ như thể tin mới. Ở đây nó nặng
+     hơn một bậc vì đây là mặt CÔNG KHAI — người đọc không có cách nào
+     kiểm chứng, họ chỉ có những gì trang nói.
+
+     Chữ đứng trước, màu đi kèm — luật 3. Và ngưỡng đặt ở 24 giờ chứ
+     không phải 1 giờ: runtime chạy ở máy riêng và lát cắt phải COMMIT
+     tay mới lên site, nên vài giờ là bình thường, không phải sự cố. Một
+     cảnh báo nhảy lúc mọi thứ đang đúng thì lần nó đúng cũng không ai
+     nhìn — luật đã ghi ở `BaoCaoDoc` bên runtime. */
+  function tuoiLatCat() {
+    if (!LC || !LC.generatedAt) return null;
+    var t = Date.parse(LC.generatedAt);
+    if (!isFinite(t)) return null;
+    var gio = (Date.now() - t) / 3600000;
+    if (gio < 0) return null;          // đồng hồ máy đọc lệch, đừng đoán
+    var chu;
+    if (gio < 1) chu = Math.max(1, Math.round(gio * 60)) + " phút trước";
+    else if (gio < 48) chu = Math.round(gio) + " giờ trước";
+    else chu = Math.round(gio / 24) + " ngày trước";
+    return { gio: gio, chu: chu, cu: gio >= 24 };
+  }
+
   /* ── lát cắt runtime ──────────────────────────────────────── */
   function veLatCat() {
     /* Không có lát cắt thì bỏ luôn phụ đề "chưa có": nhãn CHƯA CÓ SỐ ĐO
        đã nói đúng câu đó ở chỗ dễ thấy hơn, và nói hai lần cạnh nhau
        làm người đọc đi tìm khác biệt giữa hai câu vốn không khác gì. */
-    var k = khoi("Lát cắt runtime", LC ? ("ghi " + (LC.date || "—")) : null,
-      LC ? DO_DUOC : CHUA_DO);
+    var tuoi = tuoiLatCat();
+    var phu = null;
+    if (LC) {
+      phu = "ghi " + (LC.date || "—");
+      if (tuoi) phu += " · " + tuoi.chu + (tuoi.cu ? " — ĐÃ CŨ" : "");
+    }
+    var k = khoi("Lát cắt runtime", phu, LC ? DO_DUOC : CHUA_DO);
     if (!LC) {
       k._than.appendChild(html("div", "latcat-trong",
         "<b>Chưa có lát cắt nào.</b><br>Runtime Python chạy ở máy riêng, ghi trạng " +
@@ -675,8 +710,11 @@
   tuyen();
 
   var ngay = document.getElementById("ngay");
-  if (LC && LC.date) ngay.textContent = "lát cắt " + LC.date;
-  else ngay.textContent = "chưa có lát cắt";
+  if (LC && LC.date) {
+    var _t = tuoiLatCat();
+    ngay.textContent = "lát cắt " + LC.date + (_t ? " · " + _t.chu : "");
+    if (_t && _t.cu) ngay.dataset.cu = "1";
+  } else ngay.textContent = "chưa có lát cắt";
 
   /* ── MÁY CÓ ĐANG NHÌN THẤY GÌ KHÔNG ──────────────────────────
      Ô `#canhBao` có sẵn trong HTML và CSS từ đầu nhưng **chưa hề có
