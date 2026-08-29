@@ -3531,6 +3531,91 @@ def kiem_khong_co_phep_kiem_gia() -> None:
          not dò('kiem("x", a.exists() or b.exists())'))
     kiem("KHÔNG bắt nhầm `X or False`", not dò('kiem("x", a() or False)'))
 
+def kiem_phi_khong_bien_mat() -> None:
+    """Phí phải bị TRỪ khỏi lãi lỗ, ở cả đường thật lẫn đường giấy.
+
+    `dat_lenh` tính phí đúng, in phí ra nhật ký (`phí $0.0900`), rồi thả
+    nó xuống đất: `ghi_khop` không nhận phí, `tienUp/tienDown` là tiền
+    HÀNG, và `ket_toan._ghi_so` ghi thẳng `phiUsd=0.0`. Hệ quả:
+
+      · sổ kết toán khai tổng phí = $0 vĩnh viễn
+      · lãi lỗ đẹp hơn sự thật đúng bằng khoản phí
+      · `risk.ghi_lai_lo` nhận con số đẹp ấy ⇒ cầu dao lỗ ngày mù phí
+
+    Cỡ lỗi: phiên giấy chạy hết băng trả $2,93 phí trên $32,99 lãi — 9%.
+    Và nó KHÔNG phải chuyện tương lai: chế độ giấy cũng tính phí thật.
+
+    Nghịch lý làm lộ ra: `phat_lai.py` (mô phỏng) TRỪ phí đúng, còn
+    đường chạy thật thì không — nên máy thật sẽ báo đẹp hơn chính bản
+    mô phỏng của nó trên cùng những lệnh ấy.
+    """
+    print("\n── Phí không được biến mất khỏi lãi lỗ ──────────────────────")
+
+    from kham.kho_doi import ViThe
+
+    v = ViThe(ma="BTC_5M")
+    v.ghi_khop("UP", 100, 0.40, 0.80)
+    v.ghi_khop("UP", 100, 0.42, 0.84)
+    kiem("phí cộng dồn qua nhiều lần khớp",
+         abs(v.phiUsd - 1.64) < 1e-9, v.phiUsd)
+    kiem("tiền vào vẫn là tiền HÀNG, không lẫn phí",
+         abs(v.tienUp - 82.0) < 1e-9, v.tienUp)
+    kiem("trả về khi thắng là số cổ × $1 (gộp, chưa trừ gì)",
+         abs(v.gia_tri_khi_ket_qua(True) - 200.0) < 1e-9)
+    kiem("lãi lỗ RÒNG đã trừ phí",
+         abs(v.lai_lo_khi_ket_qua(True) - (200.0 - 82.0 - 1.64)) < 1e-9,
+         v.lai_lo_khi_ket_qua(True))
+    kiem("thua cũng phải trừ phí",
+         abs(v.lai_lo_khi_ket_qua(False) - (0.0 - 82.0 - 1.64)) < 1e-9,
+         v.lai_lo_khi_ket_qua(False))
+    kiem("không truyền phí thì mặc định 0 (chỗ chỉ đo phơi nhiễm)",
+         ViThe(ma="x").phiUsd == 0.0)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    def khong_chu_thich(vb: str) -> str:
+        return chr(10).join(d.split("#", 1)[0] for d in vb.splitlines())
+
+    dl = khong_chu_thich((GOC_MA / "kham" / "dat_lenh.py")
+                         .read_text(encoding="utf-8"))
+    kiem("đường đặt lệnh TRUYỀN phí vào vị thế",
+         "ghi_khop(l.ben, l.soCoKhop, l.giaKhop, l.phiUsd)" in dl)
+
+    kt = khong_chu_thich((GOC_MA / "kham" / "ket_toan.py")
+                         .read_text(encoding="utf-8"))
+    kiem("kết toán ghi phí THẬT, không ghi 0", "phiUsd=v.phiUsd" in kt)
+    kiem("và KHÔNG còn ghi cứng phiUsd=0.0", "phiUsd=0.0" not in kt)
+    kiem("dọn vị thế thì dọn cả phí — không rớt sang cửa sổ sau",
+         kt.count("v.phiUsd = 0.0") >= 2, kt.count("v.phiUsd = 0.0"))
+
+    # Bất biến CHUNG cho cả hai đường: một dòng sổ phải tự nhất quán.
+    # Đây là thứ nối `ket_toan` (thật) với `phat_lai` (giấy) về một
+    # định nghĩa duy nhất của chữ "lãi lỗ".
+    import json as _json
+
+    from kham.config import DATA_DIR
+    lech = []
+    for ten in ("ket-toan.jsonl",):
+        for thu in (Path(DATA_DIR) / ten,
+                    GOC_MA / "data" / "phat-lai" / ten):
+            if not thu.exists():
+                continue
+            for d in thu.read_text(encoding="utf-8").splitlines():
+                if not d.strip():
+                    continue
+                try:
+                    g = _json.loads(d)
+                except ValueError:
+                    continue
+                if not all(k in g for k in
+                           ("laiLo", "tienRa", "tienVao", "phiUsd")):
+                    continue
+                if abs(g["laiLo"] - (g["tienRa"] - g["tienVao"]
+                                     - g["phiUsd"])) > 1e-6:
+                    lech.append(f"{thu.name}: {g.get('luc')}")
+    kiem("mọi dòng sổ đã ghi đều thoả laiLo = tienRa − tienVao − phiUsd",
+         not lech, lech[:3])
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3595,6 +3680,7 @@ def main() -> int:
     kiem_doc_bang_quet()
     kiem_so_phien_khong_tich_lai()
     kiem_khong_co_phep_kiem_gia()
+    kiem_phi_khong_bien_mat()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

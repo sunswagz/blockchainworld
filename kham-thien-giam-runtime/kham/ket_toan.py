@@ -150,6 +150,7 @@ class KetToan:
             treo = v.tienUp + v.tienDown
             v.coUp = v.coDown = 0.0
             v.tienUp = v.tienDown = 0.0
+            v.phiUsd = 0.0
             v.choCap.clear()
         self.tienTreoUsd += treo
         self.soTreo += 1
@@ -223,7 +224,7 @@ class KetToan:
                 coUp=v.coUp, coDown=v.coDown,
                 tienVao=v.tienUp + v.tienDown,
                 tienRa=v.gia_tri_khi_ket_qua(upThang),
-                phiUsd=0.0, laiLo=lai_lo, giaCap=v.giaCap,
+                phiUsd=v.phiUsd, laiLo=lai_lo, giaCap=v.giaCap,
                 chienThuat=list(c.chienThuat), pDuDoan=c.pDuDoanUp,
             )
             self.so.ghi(g)
@@ -232,6 +233,7 @@ class KetToan:
             # dọn vị thế: khung đã kết toán, tồn kho về 0
             v.coUp = v.coDown = 0.0
             v.tienUp = v.tienDown = 0.0
+            v.phiUsd = 0.0
             v.choCap.clear()
             bus.ghi(f"kết toán {c.slug}: UP {'thắng' if upThang else 'thua'} · "
                     f"lãi lỗ ${lai_lo:+.4f}", loai="khop")

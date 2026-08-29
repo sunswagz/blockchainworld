@@ -53,6 +53,14 @@ class ViThe:
     coDown: float = 0.0
     tienUp: float = 0.0      # tổng tiền đã trả cho UP
     tienDown: float = 0.0
+    #: Phí đã trả cho vị thế này. `tienUp`/`tienDown` là tiền HÀNG, không
+    #: gồm phí — nên nếu không giữ riêng khoản này thì phí biến mất khỏi
+    #: mọi phép tính lãi lỗ. Nó ĐÃ biến mất: `dat_lenh` tính phí, in phí
+    #: ra nhật ký, rồi thả nó xuống đất; `ket_toan._ghi_so` ghi thẳng
+    #: `phiUsd=0.0`. Cả sổ kết toán, cầu dao lỗ ngày lẫn con số lãi trên
+    #: buồng lái đều ĐẸP HƠN sự thật đúng bằng khoản phí — trong phiên
+    #: giấy chạy hết băng, phí là $2,93 trên $32,99 lãi, tức 9%.
+    phiUsd: float = 0.0
     choCap: list[ChanCho] = field(default_factory=list)
 
     # ── giá vốn ───────────────────────────────────────────────────────────
@@ -123,10 +131,17 @@ class ViThe:
         return [c for c in self.choCap if c.qua_han(bayGioMs)]
 
     # ── ghi khớp ──────────────────────────────────────────────────────────
-    def ghi_khop(self, ben: str, soCo: float, giaKhop: float) -> None:
-        """Ghi một lần khớp. `giaKhop` phải là giá KHỚP, không phải giá đặt."""
+    def ghi_khop(self, ben: str, soCo: float, giaKhop: float,
+                 phiUsd: float = 0.0) -> None:
+        """Ghi một lần khớp. `giaKhop` phải là giá KHỚP, không phải giá đặt.
+
+        `phiUsd` là phí của CHÍNH lần khớp này. Mặc định 0 cho những chỗ
+        chỉ dựng tồn kho để đo phơi nhiễm (phơi nhiễm không quan tâm phí);
+        đường đặt lệnh THẬT phải truyền vào.
+        """
         if soCo <= 0:
             return
+        self.phiUsd += max(0.0, float(phiUsd or 0.0))
         if ben == "UP":
             self.coUp += soCo
             self.tienUp += soCo * giaKhop
@@ -139,7 +154,9 @@ class ViThe:
         return self.coUp if upThang else self.coDown
 
     def lai_lo_khi_ket_qua(self, upThang: bool) -> float:
-        return self.gia_tri_khi_ket_qua(upThang) - (self.tienUp + self.tienDown)
+        """Lãi lỗ RÒNG — đã trừ phí. Xem ghi chú ở `phiUsd`."""
+        return (self.gia_tri_khi_ket_qua(upThang)
+                - (self.tienUp + self.tienDown) - self.phiUsd)
 
     def tom_tat(self) -> dict:
         return {

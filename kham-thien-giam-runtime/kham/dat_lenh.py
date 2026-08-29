@@ -182,7 +182,10 @@ class CongLenh:
         if l.soCoKhop <= 0:
             return
         v = self.kho.lay(l.ma)
-        v.ghi_khop(l.ben, l.soCoKhop, l.giaKhop)
+        # Phí phải ĐI THEO vào vị thế. Bản trước tính nó, in nó ra
+        # nhật ký, rồi bỏ rơi — nên lãi lỗ ở `ket_toan` đẹp hơn sự
+        # thật đúng bằng khoản phí, ở CẢ chế độ giấy lẫn chế độ thật.
+        v.ghi_khop(l.ben, l.soCoKhop, l.giaKhop, l.phiUsd)
 
         # Chân của một cặp thì phải vào sổ chờ, để đồng hồ chưa-phòng-hộ chạy.
         if l.chienThuat.startswith("cap-") and abs(v.dinhHuong) > 0:
