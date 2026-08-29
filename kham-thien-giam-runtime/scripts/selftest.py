@@ -3238,6 +3238,15 @@ def kiem_phat_lai_khai_that() -> None:
          "laiLoTungCuaSo" in sc)
     kiem("khai phép nắn ở CUỐI phiên, không chỉ ở đầu",
          "phép nắn cuối phiên" in sc)
+    # `--von` có đổi được gì không: câu này PHẢI trả lời. Đo được:
+    # $1.000 và $100.000 cho ĐÚNG cùng 20 lệnh và cùng $23,59 — vì
+    # Kelly TẮT (sổ hiệu chỉnh của phiên khởi đầu rỗng, cố ý) nên cỡ
+    # lệnh ghim ở lô sàn. Không nói ra thì `--von=100000` cho +0,02%
+    # và người đọc kết luận "máy kiếm kém trên vốn lớn".
+    kiem("báo cáo khai Kelly bật hay tắt", "Kelly" in sc)
+    kiem("và nói rõ khi TẮT thì cỡ lệnh KHÔNG theo vốn",
+         "KHÔNG theo vốn" in sc)
+    kiem("và nói máy chạy THẬT thì khác", "Máy CHẠY THẬT thì khác" in sc)
     kiem("và nói rõ lãi lỗ là của mô hình THÔ khi nắn chưa bật",
          "mô hình THÔ" in sc)
 

@@ -153,6 +153,22 @@ def main() -> int:
           f" · khớp lại {p.soLanKhopNan} lần")
     if not p.phepNan.dung_duoc:
         print("      ↳ con số lãi lỗ trên là của mô hình THÔ, chưa nắn.")
+    # VỐN CÓ ẢNH HƯỞNG GÌ KHÔNG — câu này phải trả lời, không thì
+    # `--von=100000` cho +0,02% và người đọc kết luận sai.
+    duKelly = p.hieuChinh.du_de_dung_kelly()
+    print(f"    Kelly              {'BẬT' if duKelly else 'TẮT'}"
+          f" ({p.hieuChinh.tong_mau:,} mẫu hiệu chỉnh trong phiên)")
+    if not duKelly:
+        print("      ↳ Kelly TẮT ⇒ cỡ lệnh ghim ở LÔ SÀN, KHÔNG theo vốn.")
+        print("        Nên đổi `--von` chỉ đổi mẫu số của phần trăm, không")
+        print("        đổi một lệnh nào: $1.000 và $100.000 cho ĐÚNG cùng")
+        print("        một chuỗi lệnh và cùng số đô lãi lỗ.")
+        print("        Đây là chủ ý: Kelly trên một xác suất chưa ai kiểm")
+        print("        thì khuếch đại chính sai lầm của mô hình. Sổ hiệu")
+        print("        chỉnh của phiên khởi đầu RỖNG (cố ý, để khỏi nhìn")
+        print("        trộm tương lai), nên nó nguội suốt phiên ngắn.")
+        print("        Máy CHẠY THẬT thì khác: nó có sổ hiệu chỉnh tích")
+        print("        sẵn, Kelly mở, và cỡ lệnh CÓ theo vốn.")
     print()
 
     if not kq.soCuaSo:
