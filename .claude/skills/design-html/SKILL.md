@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (130.138 sao)
+     Kho    : garrytan/gstack (130.229 sao)
      Đường  : design-html
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-html/SKILL.md
-     sha256 : 5e58a737798d760a · nhập 2026-08-28T15:21:36.300Z
+     sha256 : 9b2405439029226f · nhập 2026-08-29T03:24:41.441Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -495,7 +495,13 @@ If `NEEDS_SETUP`:
      BUN_INSTALL_SHA="bab8acfb046aac8c72407bdcce903957665d655d7acaa3e11c7c4616beae68dd"
      tmpfile=$(mktemp)
      curl -fsSL "https://bun.sh/install" -o "$tmpfile"
-     actual_sha=$(shasum -a 256 "$tmpfile" | awk '{print $1}')
+     # shasum is macOS/perl; coreutils-only Linux ships sha256sum instead —
+     # resolve whichever exists so the verify never fails on a missing tool.
+     if command -v sha256sum >/dev/null 2>&1; then
+       actual_sha=$(sha256sum "$tmpfile" | awk '{print $1}')
+     else
+       actual_sha=$(shasum -a 256 "$tmpfile" | awk '{print $1}')
+     fi
      if [ "$actual_sha" != "$BUN_INSTALL_SHA" ]; then
        echo "ERROR: bun install script checksum mismatch" >&2
        echo "  expected: $BUN_INSTALL_SHA" >&2

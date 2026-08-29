@@ -20,7 +20,7 @@
    trong SHELL thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v15";
+var CACHE_VERSION = "v16";
 var SHELL_CACHE = "thai-boc-tu-shell-" + CACHE_VERSION;
 var FONT_CACHE = "thai-boc-tu-fonts-" + CACHE_VERSION;
 

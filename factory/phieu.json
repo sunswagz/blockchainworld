@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-08-29T03:47:28.181Z",
+  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
+  "tongDat": 145,
+  "tongThuoc": 156,
+  "soCung": 12,
+  "truotNhieuNhat": [
+    {
+      "thuoc": "ve",
+      "soCung": 11
+    }
+  ],
+  "cung": [
+    {
+      "cung": "cong-bo",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "dai-quan-trac",
+      "dat": 13,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": []
+    },
+    {
+      "cung": "do-sat-vien",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "ho-bo",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "hoang-thanh",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "kham-thien-giam",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "kinh-thanh",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "tang-thu-cac",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "tao-bien-xu",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "thai-boc-tu",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "thi-bac-ty",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    },
+    {
+      "cung": "tu-cam-thanh",
+      "dat": 12,
+      "tong": 13,
+      "khongDo": 0,
+      "truot": [
+        "ve"
+      ]
+    }
+  ]
+}

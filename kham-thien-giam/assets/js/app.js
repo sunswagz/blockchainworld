@@ -22,7 +22,10 @@
   var TT = window.TRI_THUC || null;
   var LC = window.DAI_CHIEM || null;
 
-  var than = document.getElementById("than");
+  /* Hộp NỘI DUNG, không phải `<main>`. Hai thẻ ấy từng cùng mang id
+     "than", và khi đó dòng dọn nền trong tuyen() xoá cả đỉnh trang,
+     ô cảnh báo và chân trang — xem chú thích dài ở index.html. */
+  var noiDung = document.getElementById("noiDung");
   var tieu = document.getElementById("tieu");
   var benMuc = document.getElementById("benMuc");
 
@@ -650,11 +653,13 @@
 
     tieu.textContent = p.ten;
     document.title = "Khâm Thiên Giám · " + p.ten;
-    than.textContent = "";
+    /* Chỉ dọn hộp nội dung. Trỏ nhầm sang `<main>` là mỗi lần đổi
+       phòng lại xoá luôn đỉnh trang, ô #canhBao và chân trang. */
+    noiDung.textContent = "";
     /* vePhong trả về MẢNG, nên gắn TỪNG nút. `appendChild(mảng)` ném
        TypeError trên trình duyệt thật — và ném ở đây thì cả phòng
        trắng, không riêng một khối. */
-    vePhong(p).forEach(function (nut) { than.appendChild(nut); });
+    vePhong(p).forEach(function (nut) { noiDung.appendChild(nut); });
 
     [].forEach.call(benMuc.querySelectorAll(".bmuc"), function (a) {
       if (a.dataset.ma === p.ma) a.setAttribute("aria-current", "page");

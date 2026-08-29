@@ -42,10 +42,37 @@
 
      Viết thẳng vào onclick chứ không gọi hàm trong app.js: mười cung
      là mười file app.js với mười bộ helper khác nhau, và thêm một
-     hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #than thì
+     hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #chinh thì
      onclick trả undefined và trình duyệt nhảy theo lối thường — hụt
-     nhẹ chứ không chết. -->
-<a class="bo-qua" href="#than" onclick="var m=document.getElementById('than');if(m){m.focus();return false}">Tới nội dung chính</a>
+     nhẹ chứ không chết.
+
+     ĐÍCH LÀ #chinh, KHÔNG PHẢI #than — và đây là chỗ đã cắn thật,
+     lần thứ hai trong repo sau Thái Bốc Ty. Bản trước gắn id="than"
+     lên chính thẻ <main>, mà trong <main> đã có sẵn <div id="than">
+     là chỗ app.js vẽ phòng. Hai thẻ trùng id thì getElementById trả
+     thẻ ĐẦU trong cây, tức <main> — nên dòng `than.innerHTML = ""`
+     mở đầu MỌI hàm dựng trang thổi bay trọn đỉnh trang lẫn chân
+     trang, ngay ở lần vẽ đầu tiên.
+
+     Ba thứ mất đi, và cả ba đều là thứ cung này cần nhất:
+       · <h1 id="tieu"> + <span id="phu"> — tên phòng đang đứng và
+         dòng tóm tắt của nó ("Bảng vận hành · M17 · số thật từ
+         GitHub Actions"). Mất nó là trang không còn bậc chữ nào ở
+         trên cùng: người đọc rơi thẳng vào một khối thẻ máy mà
+         không biết mình đang ở đâu, và app.js vẫn cần cù ghi tiêu
+         đề vào một thẻ đã lìa khỏi cây.
+       · <button id="benMoNut"> — nút mở thanh bên, chỉ hiện dưới
+         900px. Nút biến mất sau lần vẽ đầu nghĩa là trên điện thoại
+         KHÔNG còn đường nào sang phòng khác.
+       · <footer class="chan"> — bốn đoạn khai nguồn: chỗ nào là
+         bản phác của người dùng, chỗ nào là suy ra, và vì sao trang
+         này không gọi API nào.
+
+     Hỏng theo kiểu tệ nhất: không lỗi, không 404, cổng chặn vẫn
+     xanh — bộ đo dựng DOM giả tra theo từng id nên ở đó không thẻ
+     nào bị thổi bay, và phiếu vẫn ghi đủ ký tự cho cả 28 phòng.
+     Nên <main> mang id RIÊNG, và #than để nguyên cho app.js. -->
+<a class="bo-qua" href="#chinh" onclick="var m=document.getElementById('chinh');if(m){m.focus();return false}">Tới nội dung chính</a>
 
 <div class="khung">
 
@@ -71,7 +98,7 @@
     </div>
   </nav>
 
-  <main class="than-ngoai" id="than" tabindex="-1">
+  <main class="than-ngoai" id="chinh" tabindex="-1">
 
     <header class="dinh">
       <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">

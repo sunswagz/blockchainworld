@@ -90,8 +90,27 @@
 
     <p class="canhbao" id="canhBao" hidden></p>
 
-    <!-- app.js vẽ vào đây theo tuyến hash -->
-    <div id="than"></div>
+    <!-- app.js vẽ vào đây theo tuyến hash.
+
+         Id là "noiDung" chứ KHÔNG phải "than", và khoảng cách giữa hai
+         cái tên ấy đúng bằng toàn bộ phần khung của trang. `<main>` ở
+         trên nhận id="than" lúc thêm đường nhảy qua thanh bên (07894c4);
+         từ đó trang có HAI thẻ cùng một id, mà getElementById trả thẻ
+         ĐẦU theo thứ tự cây — tức là `<main>`. Nên dòng dọn nền của bộ
+         định tuyến, `textContent = ""`, không dọn cái hộp này mà dọn
+         sạch ruột main: đỉnh trang (tên phòng, chế độ, ngày lát cắt),
+         ô #canhBao, và trọn chân trang — bốn đoạn nói rõ số nào là SỐ
+         ĐO, số nào là SỐ VÍ DỤ, số nào là CÔNG THỨC SÀN.
+
+         Hỏng trong im lặng, và hỏng đúng chỗ đắt nhất: #canhBao là ô
+         "MÁY ĐANG MÙ", thứ duy nhất phân biệt "chợ vắng" với "máy không
+         đọc nổi nguồn nào". Nó bị gỡ khỏi cây TRƯỚC khi veCanhNguon()
+         chạy, nên hàm ấy tìm không thấy ô, thoát sớm, không ném lỗi nào.
+
+         Đừng trả id="than" về đây. Đường nhảy và tabindex="-1" trỏ vào
+         `<main>` là đúng: nhảy tới đó thì người dùng bàn phím nghe được
+         tên phòng ở <h1> trước khi bước vào nội dung. -->
+    <div id="noiDung"></div>
 
     <footer class="chan">
       <p><b>Đây là trang tĩnh.</b> Số liệu ở mục “lát cắt” do runtime Python chạy

@@ -196,8 +196,13 @@ code,.mono,.ma{font-family:var(--mono)}
 @keyframes tho{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* Mỗi lần đổi phòng thì thân trang trôi lên một chút. Rẻ, và nó
-   nói cho mắt biết "đây là nội dung mới" mà không cần chữ nào. */
-#than{animation:vao var(--dur) ease}
+   nói cho mắt biết "đây là nội dung mới" mà không cần chữ nào.
+
+   Gắn vào #noiDung, tức đúng cái hộp bộ định tuyến vẽ lại — không
+   gắn vào `<main id="than">`, vì đỉnh trang dính bên trong main và
+   một thanh sticky mà trôi theo mỗi lượt đổi phòng thì thành nhấp
+   nháy chứ không thành tín hiệu. */
+#noiDung{animation:vao var(--dur) ease}
 @keyframes vao{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
 /* ── khối ─────────────────────────────────────────────── */

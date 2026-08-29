@@ -42,10 +42,26 @@
 
      Viết thẳng vào onclick chứ không gọi hàm trong app.js: mười cung
      là mười file app.js với mười bộ helper khác nhau, và thêm một
-     hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #than thì
+     hàm vào mỗi file là mười chỗ có thể lệch. Thiếu #chinh thì
      onclick trả undefined và trình duyệt nhảy theo lối thường — hụt
-     nhẹ chứ không chết. -->
-<a class="bo-qua" href="#than" onclick="var m=document.getElementById('than');if(m){m.focus();return false}">Tới nội dung chính</a>
+     nhẹ chứ không chết.
+
+     ĐÍCH LÀ #chinh, KHÔNG PHẢI #than — và đây là chỗ đã cắn thật.
+     Bản đầu của đường nhảy gắn id="than" lên chính thẻ <main>, mà
+     trong <main> đã có sẵn <div id="than"> là chỗ app.js vẽ phòng.
+     Hai thẻ trùng id thì getElementById trả về thẻ ĐẦU trong cây,
+     tức <main> — nên dòng `than.innerHTML = p.ve()` của app.js thổi
+     bay trọn đỉnh trang (tiêu đề, huy hiệu "số liệu sống", số giao
+     thức/chuỗi, ngày cập nhật), dải cảnh báo số liệu cũ, vùng loa
+     aria-live, và cả chân trang khai nguồn.
+
+     Hỏng theo kiểu tệ nhất: không lỗi, không 404, cổng chặn vẫn
+     xanh — vì bộ đo đọc từng thẻ có id ở DOM giả nên không thẻ nào
+     bị thổi bay ở đó. Thứ mất đi lại đúng ba thứ cung này tồn tại
+     để giữ: chân trang truy ngược nguồn (luật 3), dải cảnh báo khi
+     số liệu quá một ngày, và câu báo đổi phòng cho trình đọc màn
+     hình. Nên <main> mang id RIÊNG, và #than để nguyên cho app.js. -->
+<a class="bo-qua" href="#chinh" onclick="var m=document.getElementById('chinh');if(m){m.focus();return false}">Tới nội dung chính</a>
 
 <div class="khung">
 
@@ -77,7 +93,11 @@
   </nav>
 
   <!-- ── thân ──────────────────────────────────────── -->
-  <main class="than-ngoai" id="than" tabindex="-1">
+  <!-- id="chinh" là đích của đường nhảy; #than bên dưới là chỗ vẽ
+       phòng. Hai vai khác nhau nên hai id khác nhau — xem chú thích
+       ở đường nhảy đầu <body> để biết chuyện gì xảy ra khi chúng
+       trùng tên. -->
+  <main class="than-ngoai" id="chinh" tabindex="-1">
 
     <header class="dinh">
       <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">

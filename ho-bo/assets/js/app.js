@@ -205,7 +205,11 @@
       oT[o.chuoi] = (oT[o.chuoi] || 0) + t;
       oP[o.nhom] = (oP[o.nhom] || 0) + t;
       var x1 = xT + RONG, x2 = xP, xm = (x1 + x2) / 2;
-      s += '<path class="bd-noi" data-c="' + esc(o.chuoi) + '" data-n="' + esc(o.nhom) + '"' +
+      /* Dải nối là TRANG TRÍ với trình đọc màn hình: mỗi dải chỉ lặp
+         lại "chuỗi X → ngành Y" mà hai nút ở hai đầu đã nói rõ hơn,
+         và một bản đồ vừa phải có tới tám chục dải. Nghe hết tám chục
+         câu lặp trước khi tới được nút bấm được thì thà không nghe. */
+      s += '<path class="bd-noi" aria-hidden="true" data-c="' + esc(o.chuoi) + '" data-n="' + esc(o.nhom) + '"' +
         ' d="M' + x1 + " " + y1.toFixed(1) + "C" + xm + " " + y1.toFixed(1) +
         " " + xm + " " + y2.toFixed(1) + " " + x2 + " " + y2.toFixed(1) + '"' +
         ' stroke="' + mauCua[o.chuoi] + '" stroke-width="' + Math.max(1, t).toFixed(1) +
@@ -213,10 +217,21 @@
         tien(o.tvl) + "</title></path>";
     }
 
+    /* Mỗi nút là một CỬA vào ngăn hồ sơ — bấm vào nó mở đúng thứ mà
+       bảng Kho Bạc và Nhóm Ngành mở. Nên nó phải là một nút THẬT:
+       `role="button"`, một điểm dừng Tab, và một cái tên đọc được.
+       Cùng chỗ hổng đã vá ở `tenMo` cho cột tên bảng, và đây là cánh
+       cửa cuối cùng trong cung còn chỉ mở được bằng CHUỘT.
+
+       Nhãn mang luôn con số: tên của một `role="button"` nuốt hai thẻ
+       <text> bên trong, nên không ghi ra đây thì bề dày dải là thứ duy
+       nhất còn nói vốn nhiều hay ít — mà bề dày thì chỉ mắt đọc được. */
     function nut(ten, x, yy, cao, mau, giaTri, ben) {
       var neo = ben === "T" ? x - 9 : x + RONG + 9;
       var canh = ben === "T" ? "end" : "start";
-      var g = '<g class="bd-nut bd-o" data-' + (ben === "T" ? "c" : "n") + '="' + esc(ten) + '">';
+      var g = '<g class="bd-nut bd-o" role="button" tabindex="0" aria-label="Mở hồ sơ ' +
+        (ben === "T" ? "chuỗi " : "nhóm ngành ") + esc(ten) + ", " + tien(giaTri) + '"' +
+        " data-" + (ben === "T" ? "c" : "n") + '="' + esc(ten) + '">';
       g += '<rect x="' + x + '" y="' + yy.toFixed(1) + '" width="' + RONG + '" height="' +
         Math.max(2, cao).toFixed(1) + '" rx="3" fill="' + mau + '"/>';
       g += '<text class="bd-ten" x="' + neo + '" y="' + (yy + cao / 2 - 1).toFixed(1) +
@@ -235,7 +250,11 @@
     s += '<text class="bd-cot" x="' + (xT + RONG) + '" y="14" text-anchor="end">Chuỗi</text>';
     s += '<text class="bd-cot" x="' + xP + '" y="14">Nhóm ngành</text>';
 
-    return '<svg viewBox="0 0 ' + W + " " + (H + TREN + 18) + '" role="img" ' +
+    /* `role="group"` chứ KHÔNG phải `role="img"`. Một `role="img"` cắt
+       cả cây con khỏi cây trợ năng — nên mười tám nút bấm được bên
+       trong sẽ nhận được tiêu điểm mà trình đọc màn hình không có gì
+       để đọc: người dùng Tab vào một chỗ im lặng. Nhãn giữ nguyên. */
+    return '<svg viewBox="0 0 ' + W + " " + (H + TREN + 18) + '" role="group" ' +
       'aria-label="Bản đồ vốn theo chuỗi và nhóm ngành">' + s + "</svg>";
   }
 
@@ -1098,9 +1117,10 @@
     var el;
 
     /* Thẻ sẽ nhận lại tiêu điểm khi hồ sơ đóng. Nhặt ở đây, MỘT chỗ, vì
-       cả ba lối mở hồ sơ đều đi qua listener này. Null là hợp lệ: nút
-       trên bản đồ dòng tiền là một <g> trong SVG, vốn không nhận tiêu
-       điểm, nên ở lối đó không có gì để mà trả về. */
+       cả ba lối mở hồ sơ đều đi qua listener này. Nút trên bản đồ dòng
+       tiền là một <g> trong SVG nên nó không khớp `button,a[href]`;
+       lối đó tự nhặt lấy thẻ của mình ở dưới, giờ đã nhận được tiêu
+       điểm nên đã có chỗ để trả về. */
     var neo = e.target.closest ? e.target.closest("button,a[href]") : null;
 
     el = e.target.closest ? e.target.closest("[data-nguon]") : null;
@@ -1159,7 +1179,7 @@
     var bd = document.getElementById("bando");
     if (el && bd) {
       var c = el.getAttribute("data-c"), n = el.getAttribute("data-n");
-      hosoTuDau = neo;
+      hosoTuDau = el;
       if (c) hosoChuoi(c); else if (n) hosoNhom(n);
       return;
     }
@@ -1169,13 +1189,13 @@
     if (e.target && e.target.id === "timNguon") { locTim = e.target.value; locVaVe(); }
   });
 
-  /* Soi bản đồ khi rê chuột. Dùng mouseover ở cấp document vì SVG bị
-     vẽ lại cùng thân trang. */
-  document.addEventListener("mouseover", function (e) {
+  /* ── Soi bản đồ ────────────────────────────────────────────────
+     Tách hẳn thành hàm vì có HAI đường dẫn tới cùng một trạng thái:
+     rê chuột, và đưa tiêu điểm bằng bàn phím. Viết hai bản thì sớm
+     muộn chúng lệch nhau, và bản ít người dùng hơn là bản lệch. */
+  function soiBanDo(o) {
     var bd = document.getElementById("bando");
-    if (!bd) return;
-    var o = e.target.closest ? e.target.closest(".bd-o") : null;
-    if (!o) return;
+    if (!bd || !o) return;
     var c = o.getAttribute("data-c"), n = o.getAttribute("data-n");
     bd.setAttribute("data-soi", "1");
     Array.prototype.forEach.call(bd.querySelectorAll(".bd-noi"), function (p) {
@@ -1193,12 +1213,39 @@
       }
       g.setAttribute("data-sang", khop ? "1" : "0");
     });
-  });
-  document.addEventListener("mouseout", function (e) {
+  }
+  function thoiSoi(sang) {
     var bd = document.getElementById("bando");
     if (!bd) return;
-    if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".bd-o")) return;
+    /* Còn ở trong một nút khác thì đừng tắt — nếu không thì mỗi lần
+       đi từ nút này sang nút kia là một nháy tắt/bật thấy rõ. */
+    if (sang && sang.closest && sang.closest(".bd-o")) return;
     bd.removeAttribute("data-soi");
+  }
+
+  /* Nghe ở cấp document vì SVG bị vẽ lại cùng thân trang. */
+  document.addEventListener("mouseover", function (e) {
+    soiBanDo(e.target.closest ? e.target.closest(".bd-o") : null);
+  });
+  document.addEventListener("mouseout", function (e) { thoiSoi(e.relatedTarget); });
+  document.addEventListener("focusin", function (e) {
+    soiBanDo(e.target.closest ? e.target.closest(".bd-o") : null);
+  });
+  document.addEventListener("focusout", function (e) { thoiSoi(e.relatedTarget); });
+
+  /* Enter/Space trên một nút bản đồ = một cú bấm. `role="button"` nói
+     với trình đọc màn hình rằng hai phím đó chạy được, nên chúng phải
+     chạy thật — một vai trò hứa suông còn tệ hơn không khai vai trò
+     nào. `<g>` trong SVG không có hành vi nút sẵn như <button>, nên
+     đây là chỗ duy nhất phải nối tay. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+    var o = e.target.closest ? e.target.closest(".bd-o") : null;
+    if (!o) return;
+    e.preventDefault();
+    var c = o.getAttribute("data-c"), n = o.getAttribute("data-n");
+    hosoTuDau = o;
+    if (c) hosoChuoi(c); else if (n) hosoNhom(n);
   });
 
   document.getElementById("hosoDong").addEventListener("click", dongHoso);
