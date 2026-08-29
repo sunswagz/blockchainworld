@@ -885,6 +885,52 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: THẺ HTML PHẢI CÂN, CẢ 13 TRANG ──────────────
+   Trình duyệt vá HTML hỏng rất giỏi, nên một trang thiếu thẻ mở vẫn
+   hiện ra bình thường và không ai biết. Đo 29/08: `kinh-thanh` có
+   `</body>` ở dòng cuối mà KHÔNG có `<body>` — thiếu suốt từ đầu.
+
+   Hậu quả không chỉ là "HTML sai": thước "đường nhảy qua thanh bên"
+   cắt trang từ `indexOf("<body")`, và với cung đó nó nhận −1 rồi soi
+   nhầm cả phần <head>. Một thẻ thiếu làm lệch giả định của phép đo
+   khác, và đó là kiểu hỏng lan mà không ai lần ra.
+
+   Đặt ở ĐÂY chứ không trong bộ thước tiến hoá là có chủ ý: bảng thẻ
+   rỗng dưới đây phải nuôi bằng tay, và một phép đo tự nuôi-bằng-tay
+   mà đi chặn vòng tự động thì lần nó sai sẽ chặn cả bản vá đúng.
+   Ở bộ kiểm thì nó chỉ làm phiền người đọc, và người đọc sửa được.
+
+   Bỏ <script> trước khi đếm: bên trong là JS, mọi dấu < đều không
+   phải thẻ. */
+{
+  const RONG = new Set(["br", "img", "input", "meta", "link", "hr", "path", "circle",
+    "rect", "line", "polyline", "polygon", "use", "source", "area", "col", "embed",
+    "track", "wbr", "ellipse", "stop", "base", "param"]);
+  const trang = ["index.html", ...cung.map((c) => `${c}/index.html`)];
+  for (const f of trang) {
+    if (!existsSync(join(ROOT, f))) continue;
+    const s = (await doc(f))
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<script[\s\S]*?<\/script>/g, "");
+    const chong = [];
+    const loi = [];
+    for (const m of s.matchAll(/<(\/?)([a-zA-Z][\w-]*)([^>]*)>/g)) {
+      const [, dong, ten, attr] = m;
+      const t = ten.toLowerCase();
+      if (t === "!doctype" || RONG.has(t) || attr.trim().endsWith("/")) continue;
+      if (!dong) chong.push(t);
+      else {
+        const x = chong.pop();
+        if (x !== t) loi.push(`</${t}> khi đang mở <${x ?? "không có gì"}>`);
+      }
+    }
+    if (loi.length || chong.length)
+      bao(`${f}: thẻ không cân — ${loi.slice(0, 2).join(" · ") || ""}` +
+          (chong.length ? `${loi.length ? " · " : ""}còn mở: ${chong.join(", ")}` : "") +
+          `\n        Trình duyệt vá được nên trang vẫn hiện, nhưng phép đo khác thì lệch theo.`);
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
