@@ -454,6 +454,20 @@
     // Báo cáo ĐỌC. Khối trên chỉ nói chuyện GHI, nên trước bản này hai
     // file băng hỏng nằm trên đĩa mà buồng lái vẫn xanh — con số đã được
     // tính rất kỹ trong `BaoCaoDoc` rồi vứt đi.
+    // Nút nằm ở MÉP dải vặn: cái mép đang quyết định, không phải dữ liệu.
+    // Đã cắn thật — `bienDongCuaSoGiay` có mép trên bằng đúng giá trị đang
+    // dùng, nên mọi lượt tiến hoá kết luận "giữ nguyên" nghe như dữ liệu
+    // đã nói, thật ra là cái lồng đã nói.
+    var mep = T.nutOMep || [];
+    if (mep.length) {
+      o3._than.appendChild(el("div", "canh",
+        mep.length + " nút đang nằm ở MÉP dải vặn — mép đang quyết định, "
+        + "không phải dữ liệu: "
+        + mep.map(function (x) {
+            return x.duong + " = " + x.giaTri + " (mép " + x.ben + " của ["
+              + x.thap + ", " + x.cao + "])";
+          }).join(" · ")));
+    }
     var bd = b.doc;
     if (!bd) {
       // CHƯA ĐO và SẠCH là hai chuyện. Đừng vẽ đèn xanh cho một phép đo

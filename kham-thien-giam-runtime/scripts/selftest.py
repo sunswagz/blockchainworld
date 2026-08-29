@@ -4302,6 +4302,51 @@ def kiem_canh_bao_duoi_di_theo_du_lieu() -> None:
     kiem("và KHÔNG còn dựng lại câu ấy bằng JavaScript",
          "MỘT lần thua lớn nhất xoá" not in js)
 
+def kiem_nut_o_mep_phai_lo_ra() -> None:
+    """Nút nằm ở MÉP dải vặn phải TỰ LỘ, không đợi ai chạy tay.
+
+    Một nút ở mép nghĩa là cái MÉP đang quyết định, không phải dữ liệu.
+    Đã cắn thật: `dinhGia.bienDongCuaSoGiay` có mép trên BẰNG ĐÚNG giá
+    trị đang dùng (900). Một nút như thế không bao giờ tăng được, và mọi
+    lượt tiến hoá kết luận "giữ nguyên" — nghe như dữ liệu đã nói, thật
+    ra là cái lồng đã nói.
+
+    `tien-hoa-mo-hinh` CÓ phát hiện chuyện này, nhưng chỉ khi ai đó chạy
+    tay. Buồng lái chạy suốt ngày; đưa nó ra đó thì nó tự lộ.
+    """
+    print("\n── Nút ở mép dải vặn phải tự lộ ra ──────────────────────────")
+
+    from kham.chan_doan import nut_o_mep
+    from kham.config import CONFIG
+
+    kiem("hiện tại không nút nào ở mép", nut_o_mep() == [], nut_o_mep())
+
+    cu = CONFIG["ruiRo"]["kellyPhan"]
+    try:
+        CONFIG["ruiRo"]["kellyPhan"] = 0.40      # mép TRÊN
+        r = nut_o_mep()
+        kiem("đặt một nút lên mép trên thì phát hiện được",
+             any(x["duong"] == "ruiRo.kellyPhan" and x["ben"] == "trên"
+                 for x in r), r)
+        CONFIG["ruiRo"]["kellyPhan"] = 0.05      # mép DƯỚI
+        r = nut_o_mep()
+        kiem("mép dưới cũng phát hiện được",
+             any(x["duong"] == "ruiRo.kellyPhan" and x["ben"] == "dưới"
+                 for x in r), r)
+        CONFIG["ruiRo"]["kellyPhan"] = 0.25      # giữa dải
+        kiem("giá trị giữa dải thì KHÔNG báo",
+             not any(x["duong"] == "ruiRo.kellyPhan" for x in nut_o_mep()))
+    finally:
+        CONFIG["ruiRo"]["kellyPhan"] = cu
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    vg = (GOC_MA / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("buồng lái nhận được danh sách ấy", '"nutOMep": nut_o_mep()' in vg)
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("và VẼ nó ra", "T.nutOMep" in js)
+    kiem("kèm câu nói rõ mép đang quyết định",
+         "mép đang quyết định" in js)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4377,6 +4422,7 @@ def main() -> int:
     kiem_hai_so_phai_nhat_quan()
     kiem_don_bang_qua_han()
     kiem_canh_bao_duoi_di_theo_du_lieu()
+    kiem_nut_o_mep_phai_lo_ra()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

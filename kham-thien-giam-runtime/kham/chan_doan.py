@@ -177,6 +177,41 @@ class TrieuChung:
                 "bangChung": self.bangChung, "nutGoiY": self.nutGoiY}
 
 
+def nut_o_mep() -> list[dict]:
+    """Nút nào đang nằm ĐÚNG mép dải cho phép.
+
+    Một nút nằm ở mép nghĩa là **cái mép đang quyết định, không phải dữ
+    liệu**. Nó có thể vô hại (mép là giới hạn cứng thật, như
+    `heSoGiamChan = 1,0` nghĩa là nắn trọn phần đường) hoặc là một cái
+    lồng che mất chỗ tốt hơn ở ngoài.
+
+    Đã cắn thật: `dinhGia.bienDongCuaSoGiay` có mép trên BẰNG ĐÚNG giá
+    trị đang dùng (900). Một nút như thế không bao giờ tăng được, và
+    mọi lượt tiến hoá đều kết luận "giữ nguyên" — nghe như dữ liệu đã
+    nói, thật ra là cái lồng đã nói.
+
+    `tien-hoa-mo-hinh` có phát hiện chuyện này, nhưng chỉ khi ai đó chạy
+    tay. Đưa ra buồng lái thì nó tự lộ.
+    """
+    ra = []
+    for n in NUT_VAN:
+        v = doc_tham_so(n.duong)
+        if v is None:
+            continue
+        try:
+            v = float(v)
+        except (TypeError, ValueError):
+            continue
+        ben = None
+        if abs(v - float(n.cao)) < 1e-12:
+            ben = "trên"
+        elif abs(v - float(n.thap)) < 1e-12:
+            ben = "dưới"
+        if ben:
+            ra.append({"duong": n.duong, "giaTri": v, "ben": ben,
+                       "thap": float(n.thap), "cao": float(n.cao)})
+    return ra
+
 def _benh_mo_hinh(hieuChinh: dict, ra: list) -> None:
     """Bệnh của MÔ HÌNH — đọc thẳng từ bảng hiệu chỉnh, không cần lệnh nào.
 

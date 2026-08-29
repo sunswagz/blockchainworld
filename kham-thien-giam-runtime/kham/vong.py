@@ -31,6 +31,7 @@ import datetime as _dt
 import time
 
 from .bang import bao_cao_doc_cuoi, may_ghi
+from .chan_doan import nut_o_mep
 from .bus import bus
 from .can_loi import CoHoi, can
 from .cap_token import CapSo
@@ -936,6 +937,10 @@ class Runtime:
             # cái đầu, nên hai file băng hỏng nằm trên đĩa suốt mà buồng lái
             # vẫn xanh — `BaoCaoDoc` được tính rất kỹ rồi vứt đi.
             "bang": dict(may_ghi.tom_tat(), doc=bao_cao_doc_cuoi()),
+            # Nút nào đang nằm ở MÉP dải vặn. Mép quyết định thì mọi
+            # lượt tiến hoá kết luận "giữ nguyên" nghe như dữ liệu đã
+            # nói — thật ra là cái lồng đã nói.
+            "nutOMep": nut_o_mep(),
             "nhatKy": bus.gan_day(80),
         }
 
