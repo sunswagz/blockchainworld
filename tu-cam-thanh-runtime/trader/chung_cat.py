@@ -621,6 +621,16 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
         return []
 
     cho, ket = d.get("cho") or [], d.get("ket") or {}
+    # QUÃNG THỜI GIAN vào câu, ngang hàng với số chợ.
+    #
+    # "MOCK_RULES_V1 trên 8 chợ, gộp −0,047R" đọc như một sự thật về bộ luật.
+    # Nó là sự thật về bộ luật TRONG 150 ngày cuối — vì chuỗi 4h chỉ có 500 ngày
+    # nên cửa sổ ngoài mẫu là 150 ngày, trong khi cùng bảng ấy trên 1d là 450
+    # ngày. Hai con số trông so được với nhau và không phải.
+    q = d.get("quang") or {}
+    doan = (f" (dữ liệu {q['tu']} → {q['den']}; ngoài mẫu là ~30% cuối quãng đó)"
+            if q.get("tu") else " (QUÃNG THỜI GIAN không rõ — kho đo cũ)")
+
     if len(cho) < 2 or not ket:
         bo.append({"ma": "nhieu-cho", "nguon": "nhieu-cho",
                    "viSao": f"chỉ {len(cho)} chợ — cần ≥2 mới nói được gì"})
@@ -656,7 +666,7 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
             d_g = sum(1 for x in gop if x["kyVongR"] > 0)
             ra.append(_pd(
                 f"cho-gop:{ma}", "nhieu-cho",
-                f"{ma}: KHÔNG chợ nào đủ {MAU_TOI_THIEU['nhieu-cho']} lệnh ngoài mẫu "
+                f"{ma}{doan}: KHÔNG chợ nào đủ {MAU_TOI_THIEU['nhieu-cho']} lệnh ngoài mẫu "
                 f"để nói riêng, nhưng GỘP {len(gop)} chợ được {n_gop} lệnh: kỳ vọng "
                 f"{kv_g:+.3f}R, dương ở {d_g}/{len(gop)} chợ. Đọc đây là câu về BỘ "
                 f"LUẬT chạy khắp nơi, không phải câu về chợ nào cả — và setup thưa "
@@ -679,7 +689,7 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
         # Gộp R được vì R đã chuẩn hoá theo rủi ro mỗi lệnh nên so được giữa
         # các chợ. Cái KHÔNG gộp được là tiền — mỗi chợ một cỡ vị thế.
         kv_gop = sum(x["kyVongR"] * x["so"] for x in du) / tong_lenh
-        cau = (f"{ma} trên {len(du)} chợ đủ mẫu: {chi} — dương ở {duong}/{len(du)}, "
+        cau = (f"{ma} trên {len(du)} chợ đủ mẫu{doan}: {chi} — dương ở {duong}/{len(du)}, "
                f"kỳ vọng GỘP {kv_gop:+.3f}R qua {tong_lenh} lệnh ngoài mẫu.")
         if duong == len(du):
             cau += (" Dương ở MỌI chợ đo được: đây là dấu hiệu của lợi thế thật, "

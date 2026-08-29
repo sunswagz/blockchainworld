@@ -101,18 +101,57 @@ PHUT = {"1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60, "2h": 120,
 # nến khi `--so` nhỏ; không có TRẦN thì khung ngắn (5m) phình lên hàng trăm nghìn.
 # Hai cái này là lý do các khung KHÔNG phủ cùng một đoạn lịch sử — cố ý, và phải
 # nhớ khi đọc kết quả so sánh giữa các khung.
-SAN = {"5m": 12000, "15m": 8000, "30m": 6000, "1h": 2000, "4h": 3000, "1d": 1500}
-TRAN = {"5m": 12000, "15m": 8000, "30m": 6000, "1h": 8000, "4h": 4000, "1d": 2500}
+# 4h nâng 3000 → 9000 nến (500 ngày → 1499 ngày), để nó phủ ĐÚNG quãng của 1d.
+#
+# Trần cũ không sai về ý — nó giữ đĩa gọn — nhưng nó làm một phép so trở thành
+# bất khả mà không ai thấy: cửa sổ ngoài mẫu của 4h là 150 ngày cuối còn của 1d
+# là 450 ngày cuối, nên "4h −0,047R so với 1d +0,117R trên cùng 15 chợ" KHÔNG
+# phải so cùng kỳ. Tôi đã dùng đúng câu đó làm đối chứng cho một giả thuyết.
+#
+# Không phải khung nào cũng phủ được cùng quãng — 5m trong 4 năm là 420.000
+# nến. Nên bất biến KHÔNG phải "mọi khung cùng quãng" mà là: hai khung ĐANG
+# ĐƯỢC ĐEM SO phải cùng quãng, và mọi bảng phải tự khai quãng của nó
+# (`dau-nhieu-cho.json` → trường `quang`).
+#
+# Giá: 15 coin × 9000 nến 4h ≈ 20 MB. Đã đo, chấp nhận được.
+SAN = {"5m": 12000, "15m": 8000, "30m": 6000, "1h": 2000, "4h": 9000, "1d": 1500}
+TRAN = {"5m": 12000, "15m": 8000, "30m": 6000, "1h": 8000, "4h": 12000, "1d": 2500}
 
 
-def _co(tf: str, so_1h: int) -> int:
-    """Số nến cần tải cho khung `tf`, đã kẹp trong [SÀN, TRẦN] của chính nó."""
+def _co(tf: str, so_1h: int, ep: bool = False) -> int:
+    """Số nến cần tải cho khung `tf`, đã kẹp trong [SÀN, TRẦN] của chính nó.
+
+    `ep=True` khi người gọi ghi rõ `--so`: khi ấy TRẦN chỉ còn là mặc định, không
+    còn là luật. Bản trước kẹp im lặng — `--so 9000 --khung 4h` trả về đúng 3000
+    nến và không một dòng nào nói ra, nên "4h chỉ có 500 ngày" trông như sự thật
+    về sàn chứ không phải hệ quả của một hằng số trong file này.
+
+    Chỗ đó đã tốn một lập luận sai: chuỗi 4h phủ 500 ngày còn 1d phủ 1500, nên
+    cửa sổ ngoài mẫu của hai khung là hai quãng khác nhau (150 ngày cuối so với
+    450 ngày cuối) — và tôi đã so kết quả hai khung như thể cùng kỳ.
+    """
     p = PHUT.get(tf)
     if not p:
         return so_1h
-    n = int(so_1h * 60 / p)              # quy về cùng khoảng thời gian…
-    n = max(n, SAN.get(tf, 400))         # …rồi kẹp: khung dài không được quá ngắn
-    return min(n, TRAN.get(tf, 20000))   # khung ngắn không được phình
+    # `--so` đếm theo nến 1H, rồi quy đổi. `--so 9000 --khung 4h` nghĩa là 9000
+    # GIỜ, tức 2250 nến 4h — không phải 9000 nến 4h. Bất ngờ, nên phải in ra.
+    xin = int(so_1h * 60 / p)
+    n = max(xin, SAN.get(tf, 400))
+    tran = TRAN.get(tf, 20000)
+    if ep:
+        tran = max(tran, xin)
+    ra = min(n, tran)
+    # Nói ra MỌI lần con số bị đổi, cả khi SÀN nâng lên lẫn khi TRẦN cắt xuống.
+    # Bản trước chỉ canh chiều cắt xuống, nên `--so 9000 --khung 4h` bị SÀN nâng
+    # 2250 → 3000 và im lặng: xin nhiều hơn mà nhận ít hơn, không một dòng nào
+    # nói ra. "4h chỉ có 500 ngày lịch sử" khi ấy trông như sự thật về sàn giao
+    # dịch chứ không phải hệ quả của một hằng số trong chính file này.
+    if ra != xin:
+        vi = "SÀN nâng lên" if ra > xin else "TRẦN cắt xuống"
+        print(f"    ⚠ {tf}: --so {so_1h} quy ra {xin} nến {tf}, {vi} {ra}. "
+              f"(SÀN {SAN.get(tf)} · TRẦN {tran}) — muốn {tf} phủ dài hơn thì "
+              f"tăng --so, nó đếm theo nến 1H.")
+    return ra
 
 
 def _dsach(co: str, mac_dinh: list[str]) -> list[str]:
@@ -123,7 +162,8 @@ def _dsach(co: str, mac_dinh: list[str]) -> list[str]:
 
 def main() -> None:
     so = 3000
-    if "--so" in sys.argv:
+    ep_so = "--so" in sys.argv
+    if ep_so:
         so = int(sys.argv[sys.argv.index("--so") + 1])
     coins = _dsach("--coin", [CONFIG["symbol"]])
     tfs = _dsach("--khung", [CONFIG["timeframes"]["primary"],
@@ -134,7 +174,7 @@ def main() -> None:
     with httpx.Client(follow_redirects=True) as c:
         for symbol in coins:
             for tf in tfs:
-                n = _co(tf, so)
+                n = _co(tf, so, ep_so)
                 print(f"  {symbol} {tf} — cần {n} nến (≈{n * PHUT.get(tf, 60) / 1440:.0f} ngày)")
                 nen = tai(c, symbol, tf, n)
                 if not nen:

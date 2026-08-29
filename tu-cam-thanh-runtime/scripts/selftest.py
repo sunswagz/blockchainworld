@@ -1063,6 +1063,36 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[33] HAI KHUNG ĐEM SO PHẢI PHỦ CÙNG QUÃNG")
+    import importlib.util as _il33
+
+    # Chuỗi 4h có 3000 nến (từ 04/2025) còn 1d có 1500 nến (từ 07/2022). Cửa sổ
+    # ngoài mẫu vì thế là 150 ngày cuối so với 450 ngày cuối — hai quãng khác
+    # hẳn. Vậy mà "4h −0,047R so với 1d +0,117R trên cùng 15 chợ" đã được viết
+    # ra và dùng làm ĐỐI CHỨNG cho một giả thuyết.
+    #
+    # Sự thật ấy vốn nằm sẵn trong một chú thích ngay trên hai hằng số này:
+    # "các khung KHÔNG phủ cùng một đoạn lịch sử — cố ý, và phải nhớ khi đọc
+    # kết quả so sánh giữa các khung". Chú thích không chặn được gì.
+    #
+    # KHÔNG đòi mọi khung cùng quãng — 5m trong 4 năm là 420.000 nến. Chỉ đòi
+    # hai khung ĐANG được đem so (4h và 1d, hai khung nghi thức chạy song song).
+    _sp33 = _il33.spec_from_file_location(
+        "tls", str(ROOT / "scripts" / "tai-lich-su.py"))
+    _T = _il33.module_from_spec(_sp33)
+    _sp33.loader.exec_module(_T)
+    _ngay = lambda tf: _T.SAN[tf] * _T.PHUT[tf] / 1440
+    _l4, _l1 = _ngay("4h"), _ngay("1d")
+    check(abs(_l4 - _l1) / _l1 < 0.1,
+          f"SÀN 4h phủ {_l4:.0f} ngày ≈ SÀN 1d {_l1:.0f} ngày (lệch "
+          f"{abs(_l4 - _l1) / _l1:.0%})")
+
+    # Và bảng nhiều chợ phải TỰ KHAI quãng, để lần sau không phải suy ra từ hằng số.
+    _src33 = (ROOT / "scripts" / "dau-chien-luoc.py").read_text(encoding="utf-8")
+    check(chr(34) + "quang" + chr(34) in _src33,
+          "dau-nhieu-cho.json khai trường `quang`")
+    check("quang" in (ROOT / "trader" / "chung_cat.py").read_text(encoding="utf-8"),
+          "và lò chưng cất đưa quãng đó VÀO CÂU, không chỉ cất trong file")
     print("\n[32] CẮT MỐC THỜI GIAN PHẢI CẮT MỌI KHUNG CÙNG MỘT MỐC")
     import importlib.util as _il32
     import datetime as _dt32

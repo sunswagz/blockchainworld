@@ -56,6 +56,27 @@ def _dau(d: dict) -> str:
     return hashlib.sha256(loi.encode()).hexdigest()[:16]
 
 
+# Dấu hiệu một giả thuyết đo trên LỆNH THẬT. Cố ý hẹp.
+#
+# Cảnh báo "bao lâu mới chốt được" chỉ đúng cho lệnh thật; phép chạy lại sinh
+# 200 lệnh trong hai mươi phút. Bản đầu không phân biệt, nên nó nổ ngay ở một
+# giả thuyết đo bằng chạy lại và doạ "cần 56 NGÀY" — sai hoàn toàn.
+#
+# Báo động sai không rẻ hơn im lặng: nó dạy người ta bỏ qua báo động. Nên luật
+# là CHỈ kêu khi thấy dấu hiệu rõ ràng của lệnh thật. Bỏ sót thì chỉ mất một
+# lời nhắc; kêu nhầm thì mất chính cái cảnh báo.
+DAU_LENH_THAT = ("lệnh thật", "lệnh THẬT", "lenh that", "journal.performance",
+                 "sổ lệnh", "byStrategy", "expectancyUsd")
+
+
+def _do_tren_lenh_that(cach_do: str) -> bool:
+    t = (cach_do or "").lower()
+    if any(x in t for x in ("chạy lại", "chay lai", "ngoài mẫu", "ngoai mau",
+                            "dau-chien-luoc", "backtest")):
+        return False
+    return any(x.lower() in t for x in DAU_LENH_THAT)
+
+
 def _bao_lau(mau_can: int) -> str | None:
     """Ở nhịp vào lệnh hiện tại, gom đủ ngần này lệnh THẬT mất bao lâu.
 
@@ -130,7 +151,8 @@ def khai(ma: str, cau_hoi: str, du_doan: str, cach_do: str,
     store.append(store.GIA_THUYET, b)
     # Cảnh báo tính SAU khi đã ghi: nó không phải điều kiện, chỉ là cái giá.
     return {"ok": True, "banKhai": b,
-            "canhBao": _bao_lau(nguong["mauToiThieu"])}
+            "canhBao": (_bao_lau(nguong["mauToiThieu"])
+                        if _do_tren_lenh_that(cach_do) else None)}
 
 
 def _phan_quyet(nguong: dict, do_duoc: dict) -> tuple[str, str]:

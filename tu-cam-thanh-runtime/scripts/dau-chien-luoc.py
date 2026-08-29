@@ -131,6 +131,8 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     trên chợ nó đang chạy. Ghi kết quả đa chợ vào đó là trộn hai khái niệm.
     """
     bang: dict = {}
+    quang: list[tuple[int, int]] = []
+    soNen: list[int] = []
     for ten_cho in cho:
         sym, _, chinh = ten_cho.partition(":")
         chinh = chinh or CONFIG["timeframes"]["primary"]
@@ -143,6 +145,11 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
         chuoi, tu_dau = HL.lay_chuoi(nen, sym)
         print(f"  {ten_cho} (ngữ cảnh {ctx}) · {len(nen[chinh])} nến · "
               f"chuỗi {len(chuoi)} điểm ({tu_dau})")
+        # Quãng THỜI GIAN của chợ này, gom lại để bảng tự khai.
+        _t = [x.get("t") for x in nen[chinh] if x.get("t")]
+        if _t:
+            quang.append((min(_t), max(_t)))
+            soNen.append(len(nen[chinh]))
         chay = _chay_factory(nen, chuoi, moc, sym)
         for ma, _ in ma_ds:
             if ma not in BO_LUAT:
@@ -185,6 +192,22 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     _f.write_text(_json.dumps({
         "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
         "cho": cot,
+        # QUÃNG THỜI GIAN đã đo. Thiếu nó thì hai bảng của hai khung trông như
+        # so được với nhau, mà thật ra không.
+        #
+        # Đã sập: chuỗi 4h có 3000 nến (từ 04/2025) còn 1d có 1500 nến (từ
+        # 07/2022), nên cửa sổ ngoài mẫu của 4h là 150 ngày cuối còn của 1d là
+        # 450 ngày cuối. Câu "4h −0,047R so với 1d +0,117R trên cùng 15 chợ" vì
+        # thế KHÔNG phải so cùng kỳ — và nó đã được dùng làm đối chứng cho một
+        # giả thuyết. Sự thật này vốn nằm sẵn trong một chú thích ở
+        # `tai-lich-su.py`; chú thích không chặn được gì.
+        "quang": ({"tu": _dt.datetime.fromtimestamp(
+                       min(a for a, _ in quang) / 1000,
+                       _dt.timezone.utc).strftime("%Y-%m-%d"),
+                   "den": _dt.datetime.fromtimestamp(
+                       max(b for _, b in quang) / 1000,
+                       _dt.timezone.utc).strftime("%Y-%m-%d"),
+                   "soNen": max(soNen)} if quang else None),
         "ket": {ma: {c: {"kyVongR": v[c].get("kyVongR"), "so": v[c].get("so"),
                          "tyLeThang": v[c].get("tyLeThang"),
                          "khopTroi": v[c].get("khopTroi")}
