@@ -560,17 +560,25 @@ hiện tại, nó chỉ nói lúc này.
 > lỗ $0,00 vì bot ĐỨNG NGOÀI, không phải vì nó hoà. Phép dò đổi dấu đọc
 > số 0 ấy thành một điểm hoà vốn. Sự thật đo được: ở w = 0,7 phiên giấy
 > lãi +34%, và từ w ≈ 0,9 trở lên cổng rủi ro chặn hết — **không có điểm
-> hoà vốn nào trong dãy quét**. Nên câu "chợ thật nằm DƯỚI điểm hoà vốn"
-> cũng không đứng được: chưa đo được điểm ấy ở đâu. Cái đo được là cổng
+> hoà vốn nào trong dãy quét** (w = 0,7 cho quãng +30%, w = 0,9 cho quãng
+> +1%; hai số ấy đo trên nến Binance lấy mới mỗi lần chạy nên xê dịch vài
+> phần trăm — đọc bậc, đừng đọc chữ số). Nên câu "chợ thật nằm DƯỚI điểm
+> hoà vốn" cũng không đứng được: chưa đo được điểm ấy ở đâu. Cái đo được là cổng
 > rủi ro chặn TRƯỚC khi lợi thế thành âm — tin tốt, nhưng là một câu
 > khác. Đã sửa `doc_quet()` và canh bằng bốn phép kiểm.
 
 Lãi lỗ THẬT, chạy hết băng (133.829 khung, 8 ngày, 30/08/2026):
 
-    17 cửa sổ thấy được · 7 kết toán · thắng/thua 5/2
-    +$32,99 trên $1.000 (+3,30%) · phí $2,93 · sụt vốn đỉnh-đáy 4,76%
-    khoảng tin 95%  [-$130,75, +$183,26]   ← CHỨA 0
+    17 cửa sổ thấy được · 6 kết toán · thắng/thua 4/2
+    +$23,59 trên $1.000 (+2,36%) · phí $2,85 · sụt vốn đỉnh-đáy 4,80%
+    khoảng tin 95%  [-$132,46, +$169,04]   ← CHỨA 0
     phép nắn: 17 mẫu, KHÔNG bật ⇒ đây là mô hình THÔ, chưa nắn
+
+(Con số này TỪNG là +$32,99 / 7 cửa sổ. Nó được đo khi phiên giấy đóng
+cứng `giaiDoan="dat-cuoc"`, một chuỗi không nằm trong bốn giai đoạn hợp
+lệ — nên `tao-lap` và `can-ket-qua` im suốt phiên và phiên ấy mô phỏng
+một cỗ máy KHÁC cỗ máy đang chạy. Xem mục PHÍ ở trên: cùng một bài học,
+hai đường phải nói giống nhau về cùng một lệnh.)
 
 **Khoảng tin chứa 0, nên con số +3,30% CHƯA nói được rằng cỗ máy này có
 lãi.** Giá trị của phiên là chứng minh cả đường ống chạy trọn. KHÔNG đổi
