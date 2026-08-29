@@ -4856,6 +4856,70 @@ def kiem_lenh_that_khong_thoat_duoc() -> None:
          cuKhoa is not None
          or "POLYMARKET_PRIVATE_KEY" not in _os.environ)
 
+def kiem_tien_hoa_mot_luot_moi_ngay() -> None:
+    """Khởi động lại KHÔNG được cấp thêm một lượt tiến hoá.
+
+    `_ngayTienHoa` và `_tienHoaXong` chỉ nằm trong bộ nhớ, nên mỗi lần
+    khởi động lại là một lượt tiến hoá MỚI. Đo trên sổ thật:
+
+        29/08:  31 lượt      ← ngày có nhiều lần khởi động lại
+        28/08:   6 lượt
+        21/08:   7 lượt
+        22/08:   1 lượt
+
+    Không chỉ tốn hai phút CPU mỗi lượt. Nặng hơn nhiều: nhịp "mỗi ngày
+    MỘT lượt" là quyết định có chủ ý, ghi thẳng trong config — *"cổng
+    chặn bắt được tệ hơn nhưng không bắt được khác đi mà rối hơn, nên tốc
+    độ tiến hoá phải chậm hơn tốc độ một người kịp nhìn"*.
+
+    Chạy 31 lượt trong một ngày là cho cái cổng ấy 31 lần rút thay vì 1,
+    tức thổi tỉ lệ NHẬN NHẦM lên 31 lần. Cùng họ với `nap_tu_so`: sự thật
+    nằm trên đĩa mà không ai hỏi.
+    """
+    print("\n── Mỗi ngày MỘT lượt tiến hoá, kể cả khi khởi động lại ─────")
+
+    import datetime as _dt
+    import json as _json
+
+    import kham.vong as V
+    from kham.tien_hoa import SO_TIEN_HOA
+
+    hn = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+    cu = SO_TIEN_HOA.read_text(encoding="utf-8") if SO_TIEN_HOA.exists() else None
+    try:
+        # Sổ RỖNG ⇒ chưa chạy, phải cho chạy.
+        SO_TIEN_HOA.parent.mkdir(parents=True, exist_ok=True)
+        SO_TIEN_HOA.write_text("", encoding="utf-8")
+        r = V.Runtime()
+        kiem("sổ rỗng ⇒ chưa đánh dấu đã chạy", not r._tienHoaXong)
+
+        # Sổ có dòng của HÔM NAY ⇒ đã chạy, không chạy lại.
+        SO_TIEN_HOA.write_text(
+            _json.dumps({"luc": hn + "T02:05:00Z", "ghiChu": "thử"}) + chr(10),
+            encoding="utf-8")
+        r2 = V.Runtime()
+        kiem("sổ có dòng HÔM NAY ⇒ đánh dấu đã chạy", r2._tienHoaXong)
+        kiem("và nhớ đúng ngày", r2._ngayTienHoa == hn, r2._ngayTienHoa)
+
+        # Sổ chỉ có dòng CŨ ⇒ vẫn phải chạy hôm nay.
+        SO_TIEN_HOA.write_text(
+            _json.dumps({"luc": "2020-01-01T02:05:00Z"}) + chr(10),
+            encoding="utf-8")
+        r3 = V.Runtime()
+        kiem("sổ chỉ có dòng CŨ ⇒ hôm nay vẫn phải chạy",
+             not r3._tienHoaXong)
+
+        # Sổ hỏng ⇒ KHÔNG được chặn lượt, và phải kêu.
+        SO_TIEN_HOA.write_text("{khong-phai-json" + chr(10), encoding="utf-8")
+        r4 = V.Runtime()
+        kiem("sổ hỏng thì vẫn cho chạy, không im lặng khoá",
+             not r4._tienHoaXong)
+    finally:
+        if cu is None:
+            SO_TIEN_HOA.unlink(missing_ok=True)
+        else:
+            SO_TIEN_HOA.write_text(cu, encoding="utf-8")
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4941,6 +5005,7 @@ def main() -> int:
     kiem_doi_token_khong_phai_dut()
     kiem_cau_dao_chan_that()
     kiem_lenh_that_khong_thoat_duoc()
+    kiem_tien_hoa_mot_luot_moi_ngay()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

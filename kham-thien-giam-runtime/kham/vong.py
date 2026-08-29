@@ -137,6 +137,33 @@ class Runtime:
         self.tienHoaMoHinh: dict | None = None
         self.tienHoaGanNhat: dict | None = None
         self._tienHoaXong = False           # lượt hôm nay đã chạy TRỌN chưa
+
+        # HỎI SỔ xem hôm nay đã chạy lượt tiến hoá chưa.
+        #
+        # Hai cờ trên chỉ nằm trong bộ nhớ, nên MỖI LẦN KHỞI ĐỘNG LẠI là
+        # một lượt tiến hoá mới. Đo được trên sổ: **31 lượt riêng ngày
+        # 29/08**, so với 1–7 ở các ngày khác — gần như toàn bộ là do khởi
+        # động lại.
+        #
+        # Không chỉ tốn hai phút CPU mỗi lượt. Nặng hơn nhiều: nhịp "mỗi
+        # ngày MỘT lượt" là một quyết định có chủ ý, ghi thẳng trong
+        # config — *"cổng chặn bắt được tệ hơn nhưng không bắt được khác
+        # đi mà rối hơn, nên tốc độ tiến hoá phải chậm hơn tốc độ một
+        # người kịp nhìn"*. Chạy 31 lượt trong một ngày là cho cái cổng ấy
+        # 31 lần rút thay vì 1, tức thổi tỉ lệ NHẬN NHẦM lên 31 lần.
+        #
+        # Sổ đã có sẵn trên đĩa. Hỏi nó.
+        try:
+            _ds = doc_so_tien_hoa(5)
+            _hn = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+            if _ds and str(_ds[-1].get("luc") or "")[:10] == _hn:
+                self._ngayTienHoa = _hn
+                self._tienHoaXong = True
+                bus.ghi(f"lượt tiến hoá ngày {_hn} đã chạy rồi (đọc từ sổ)"
+                        " — không chạy lại vì khởi động lại", loai="he")
+        except Exception as e:      # noqa: BLE001
+            bus.ghi(f"không đọc được sổ tiến hoá: {type(e).__name__}: {e}"
+                    " — có thể chạy lại một lượt thừa", loai="canh")
         self._tienHoaDangChay = False
         self._tienHoaSoLanThu = 0
         self._tienHoaThuLai = 0.0           # mốc epoch, sớm nhất được thử lại
