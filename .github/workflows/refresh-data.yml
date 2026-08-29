@@ -2189,10 +2189,20 @@ jobs:
       - name: Ghi sổ · tien-hoa-xoay
         if: always() && steps.n-xv-chon.outcome != 'skipped'
         env:
-          # Model LUÔN chạy ở vòng này, nên cổng chặn luôn chạy theo —
-          # kết quả của nó là kết quả của cả node, không cần nhánh
-          # "phiếu đầy nên coi như ok" như năm vòng riêng.
-          KET: ${{ steps.n-tien-hoa-xoay.outcome == 'success' && 'ok' || 'loi' }}
+          # Model ngã thì node LỖI, dù cổng chặn có qua.
+          #
+          # Bản đầu chỉ đọc kết cục của cổng chặn. Lượt 10:10Z ngày
+          # 29/08 cho thấy chỗ hổng ngay: model ngã vì hết quota,
+          # KHÔNG có bản vá nào được sinh ra, cổng chặn chấm lại thấy
+          # 17/17 → 17/17 nên qua, và sổ ghi `ok`. Chú thích có nói
+          # "ngã ở MODEL" nhưng `ket` mới là thứ bộ đếm chuỗi lỗi và
+          # báo cáo sức khoẻ đọc.
+          #
+          # Một vòng tiến hoá chết vì hết quota mà mỗi ngày vẫn ghi
+          # "ok" thì đúng bằng thứ CLAUDE.md gọi là "vòng đã dựng xong
+          # mà nằm im, tệ hơn một vòng chưa dựng vì nhìn vào sổ thì nó
+          # có vẻ đang chạy".
+          KET: ${{ (steps.n-xv-va.outcome == 'success' && steps.n-tien-hoa-xoay.outcome == 'success') && 'ok' || 'loi' }}
           C: ${{ steps.n-xv-chon.outputs.cung }}
           YEU: ${{ steps.n-xv-de.outputs.yeu }}
           T_DAU: ${{ steps.n-xv-chon.outputs.t0 }}
