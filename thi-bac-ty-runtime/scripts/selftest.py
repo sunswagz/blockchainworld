@@ -7283,6 +7283,37 @@ def kiem_ke_toan_vi_the() -> None:
          f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
          f"chưa từng đo là bịa ra một tỉ suất")
 
+    # ── PHẦN TÁCH THEO TY cũng phải sống qua khởi động lại ─────────────
+    # Không lưu thì sau mỗi lần bật máy, con số GỘP là cả đời còn phần
+    # tách theo ty là từ lúc bật — hai con số nằm cạnh nhau trên cùng một
+    # bảng và không cộng lại thành nhau. Đo ngay lượt đầu trên máy sống:
+    # gộp 1.936.570 vốn-giờ, tổng theo ty 4.746.
+    from thi_bac_ty.ke_toan import SoVonGio as _SVG2
+    from thi_bac_ty.luu_danh_muc import luu as _luu2, nap as _nap2
+    from thi_bac_ty.danh_muc import DanhMuc as _DM2
+    from thi_bac_ty.hieu_nang import DuongNav as _DN2
+    _sv2 = _SVG2()
+    _sv2.cong(1000.0, 0.0, 3600.0, ty="a.b.v1")
+    _sv2.cong_thu("a.b.v1", 5.0)
+    _p2 = _tam("von-gio-ty") / "lu.json"
+    _luu2(_p2, _DM2(1000.0), {}, _DN2(), _sv2, 0.0, 0.0)
+    _r2 = _nap2(_p2, _DM2(1000.0), _DN2())["_soVonGio"]
+    kiem("vốn-giờ TÁCH THEO TY sống qua khởi động lại",
+         _r2.theoTy.get("a.b.v1", {}).get("vonGioUsd") == 1000.0
+         and _r2.theoTy["a.b.v1"]["thuRongUsd"] == 5.0,
+         f"{_r2.theoTy} — gộp là cả đời mà tách theo ty là từ lúc bật thì "
+         f"hai con số cạnh nhau không cộng lại thành nhau")
+    # Bản lưu CŨ chưa có khoá này: `{}` là đúng, và con số gộp vẫn nạp
+    # được. Phép kiểm phải tha cho bản cũ, không thì nó đỏ vì quá khứ.
+    _d2 = _js26.loads(_p2.read_text(encoding="utf-8"))
+    _d2["soVonGio"].pop("theoTy", None)
+    _p2.write_text(_js26.dumps(_d2, ensure_ascii=False), encoding="utf-8")
+    _r3 = _nap2(_p2, _DM2(1000.0), _DN2())["_soVonGio"]
+    kiem("bản lưu CŨ thiếu phần tách vẫn nạp được, và phần tách là RỖNG",
+         _r3.theoTy == {} and _r3.vonGioUsd == 1000.0,
+         f"{_r3.theoTy} · {_r3.vonGioUsd} — bịa ra một phần tách cho quãng "
+         f"chưa từng tách là bịa ra một tỉ suất theo ty")
+
     # ── BỘ ĐẾM ĐỐI CHIẾU phải sống cùng lãi lỗ ──────────────────────────
     # `tienDaGhiUsd` nằm trong RAM, `laiLoDaThucHienUsd` nằm trên đĩa. Mỗi
     # lần khởi động lại, `lech_tien()` kêu LỆCH đúng bằng toàn bộ lãi lỗ đã

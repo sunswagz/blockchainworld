@@ -122,7 +122,16 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
         "soVonGio": ({"vonGioUsd": float(soVonGio.vonGioUsd),
                       "thuRongUsd": float(soVonGio.thuRongUsd),
                       "tuGiay": float(soVonGio.tuGiay),
-                      "denGiay": float(soVonGio.denGiay)}
+                      "denGiay": float(soVonGio.denGiay),
+                      # Phần TÁCH THEO TY phải sống cùng đời với con số
+                      # gộp. Không lưu thì sau mỗi lần bật máy, gộp là cả
+                      # đời còn tách theo ty là từ lúc bật — hai con số
+                      # nằm cạnh nhau và không cộng lại thành nhau. Đo
+                      # ngay lượt đầu: gộp 1.936.570 vốn-giờ, tổng theo ty
+                      # 4.746.
+                      "theoTy": {k: {"vonGioUsd": float(v["vonGioUsd"]),
+                                     "thuRongUsd": float(v["thuRongUsd"])}
+                                 for k, v in soVonGio.theoTy.items()}}
                      if soVonGio is not None else None),
     }
     p = Path(duong)
@@ -202,7 +211,13 @@ def nap(duong, danh_muc, duongNav) -> dict:
         vonGioUsd=float((vg or {}).get("vonGioUsd") or 0.0),
         thuRongUsd=float((vg or {}).get("thuRongUsd") or 0.0),
         tuGiay=float((vg or {}).get("tuGiay") or now),
-        denGiay=now)
+        denGiay=now,
+        # Bản lưu CŨ không có khoá này — `{}` là đúng, và con số gộp vẫn
+        # nạp lại được. Phép kiểm «tổng theo ty bằng gộp» phải biết tha
+        # cho bản cũ, không thì nó đỏ vì một chuyện của quá khứ.
+        theoTy={k: {"vonGioUsd": float((v or {}).get("vonGioUsd") or 0.0),
+                    "thuRongUsd": float((v or {}).get("thuRongUsd") or 0.0)}
+                for k, v in ((vg or {}).get("theoTy") or {}).items()})
 
     return {
         "co": True, "nap": True,
