@@ -3901,7 +3901,8 @@ def kiem_chan_doan_he() -> None:
     # Đây là tầng quyết định cỗ máy NÓI GÌ với người. Sai một hạt ở đây
     # ra hai loại hỏng, và cả hai đều đắt: kêu khi chưa đáng kêu thì
     # người ta học cách bỏ qua, im khi đáng kêu thì không ai biết.
-    from thi_bac_ty.chan_doan_he import (NGUONG_CHURN, NGUONG_DUNG_VON_THAP,
+    from thi_bac_ty.chan_doan_he import (NGUONG_CHURN, NGUONG_DONG_DO_XOAY,
+                                         NGUONG_DUNG_VON_THAP,
                                          NGUONG_HUA_QUA_BPS_GIO,
                                          NGUONG_HUA_QUA_DIEM,
                                          NGUONG_MA_AP_DAO, NGUONG_PHANG_GAP,
@@ -4101,6 +4102,147 @@ def kiem_chan_doan_he() -> None:
                                       TOI_THIEU_DOI_CHIEU - 1),
          "con số lệch dựng trên vài lần đóng nói về vài lần đóng, không "
          "nói về cái ty")
+
+    # 12. TY LỖ: lãi lỗ ĐÚNG BẰNG 0 KHÔNG phải lỗ. Cả hai nhánh — nhánh
+    # đã tách khoản và nhánh chưa tách — đều phải giữ luật ấy.
+    def _tyLo(gop, cl=None):
+        a = _pheu()
+        a["soCai"] = {"laiLoTheoTy": {"z.v1": {"laiLoUsd": gop}}}
+        if cl is not None:
+            a["laiLoTachKhoan"] = {"z.v1": {
+                "laiLoChienLuocUsd": cl, "soLanVaoLenh": 5,
+                "soLanDong": 0, "tiLeDongTrenVao": 0.0,
+                "soLanDongXoayCho": 0, "phanDongDoXoayCho": None}}
+        return _ma(a)
+
+    kiem("ty huề vốn ĐÚNG BẰNG 0 (chưa tách được) KHÔNG bị gọi là ty lỗ",
+         "ty-lo" not in _tyLo(0.0),
+         "huề vốn là huề vốn; gọi nó là lỗ là dựng một cái tên xấu cho "
+         "một kết quả trung tính")
+    kiem("âm một xu thì mới là lỗ", "ty-lo" in _tyLo(-0.01))
+    kiem("và nhánh ĐÃ TÁCH cũng thế: gộp bằng 0 thì không kêu gì",
+         not ({"ty-lo", "phi-vao-an-het"} & _tyLo(0.0, cl=1.0)),
+         "cùng một luật, hai nhánh — và nhánh thứ hai là nhánh hay quên")
+    kiem("gộp âm mà chiến lược dương thì là phí-vào-ăn-hết",
+         "phi-vao-an-het" in _tyLo(-0.01, cl=1.0))
+
+    # 13. ĐÓNG DO XOAY: phần ĐÚNG BẰNG ngưỡng thì đã chỉ sang xoay chỗ.
+    def _doXoay(px):
+        a = _pheu()
+        a["soCai"] = {"laiLoTheoTy": {"x.v1": {"laiLoUsd": -80.0}}}
+        a["laiLoTachKhoan"] = {"x.v1": {
+            "laiLoChienLuocUsd": 4.0, "soLanVaoLenh": 100,
+            "soLanDong": 100, "tiLeDongTrenVao": 1.0,
+            "soLanDongXoayCho": int(100 * px), "phanDongDoXoayCho": px}}
+        return next(x for x in _cdh(a) if x.ma == "phi-vao-an-het").moTa
+
+    kiem("phần đóng do xoay ĐÚNG BẰNG ngưỡng thì đã chỉ sang XOAY CHỖ",
+         "XOAY CHỖ" in _doXoay(NGUONG_DONG_DO_XOAY),
+         f"ngưỡng {NGUONG_DONG_DO_XOAY:.0%}")
+    kiem("dưới ngưỡng một chút thì vẫn là lời khuyên cũ",
+         "khởi động lại ít đi" in _doXoay(NGUONG_DONG_DO_XOAY - 0.01))
+
+    # 14. THU VƯỢT TRẦN: có `soThuVuotTran` mà DANH SÁCH rỗng thì vẫn kêu,
+    # và không nổ. `or []` che ca ấy.
+    def _vuot(ds=None):
+        a = _pheu()
+        a["keToan"] = {"soThuVuotTran": 2}
+        if ds is not None:
+            a["keToan"]["thuVuotTran"] = ds
+        return {x.ma: x for x in _cdh(a)}
+
+    kiem("thu vượt trần mà thiếu danh sách chi tiết thì VẪN kêu, không nổ",
+         "thu-vuot-tran" in _vuot(),
+         "đây là lỗi ĐƠN VỊ làm NAV phồng lên; im vì thiếu một trường phụ "
+         "là im về chuyện in tiền")
+    kiem("và có danh sách thì nêu tên ty nặng nhất",
+         "n.v1" in _vuot([{"chienLuoc": "n.v1", "thuUsd": 9.0,
+                           "tranUsd": 0.1}])["thu-vuot-tran"].moTa)
+
+    # 15. VỐN RẢNH: chỉ nói lợi suất khi ĐO ĐƯỢC CẢ HAI. Thiếu một vế là
+    # thiếu — `or` đổi thành `and` là ghép nửa câu và để `None` vào chỗ
+    # định dạng số.
+    for _d, _n in ((4.3, None), (None, 2.4)):
+        kiem(f"thiếu một vế lợi suất (dùng={_d}, nav={_n}) thì KHÔNG nói",
+             "%/năm" not in next(
+                 x for x in _cdh(_anhVR(loiSuatTrenVonDungPhanTram=_d,
+                                        loiSuatQuyVeNavPhanTram=_n,
+                                        loiSuatNeuLapDayPhanTram=None))
+                 if x.ma == "von-ranh-an-khong").moTa,
+             "ghép nửa câu là để `None` rơi vào chỗ định dạng số")
+
+    # 16. HỨA QUÁ ĐANG MỞ: thiếu MỘT vế cũng là thiếu.
+    def _huaThieu(thuc, hua):
+        a = _pheu()
+        a["huaTheoTy"] = {"t.v1": {"aprHuaPhanTram": hua, "vonUsd": 5000.0}}
+        a["vonDangDung"] = {"theoTy": {"t.v1": {
+            "loiSuatNamPhanTram": thuc, "vonGioUsd": 5000.0}}}
+        return _ma(a)
+
+    kiem("thiếu vế THỰC thì không kết luận",
+         "hua-qua-dang-mo" not in _huaThieu(None, 20.0))
+    kiem("thiếu vế HỨA thì cũng không",
+         "hua-qua-dang-mo" not in _huaThieu(10.0, None))
+    kiem("có cả hai thì mới kết luận",
+         "hua-qua-dang-mo" in _huaThieu(10.0, 20.0),
+         "không có vế này thì hai phép kiểm trên chỉ chứng minh hàm luôn "
+         "im lặng")
+
+    # 17. XOAY CHỖ CHƯA ĐỐI CHIẾU: mẫu tối thiểu áp cho CẢ nhánh này.
+    # ── 18. BIÊN của tầng ĐỀ XUẤT VẶN ──────────────────────────────────
+    #
+    # Đây là chỗ máy khuyên người vặn cái gì. Ba con đột biến sống sót ở
+    # đây, và cả ba đều đổi lời khuyên chứ không đổi một con số hiển thị.
+
+    # Núm ĐÃ CHẠM BIÊN thì bỏ qua, đừng đề xuất một bước bằng 0. `<` đổi
+    # thành `<=` chẳng đổi gì, nhưng bỏ hẳn cửa ấy là trả về một đề xuất
+    # «vặn từ 0,60 sang 0,60» — người đọc thấy máy đang làm gì đó trong
+    # khi nó đứng yên.
+    _anhNghen = _pheu(DUYET_TY=100, DUYET_RUI_RO=1, DA_CAP_VON=1, DA_MO=1)
+    _tNghen = _cdh(_anhNghen)
+    _dxBien = _dxh(_tNghen, {"ruiRoTong": {"ruiRoToiDa": 0.85,
+                                           "tinCayToiThieu": 0.30}})
+    kiem("núm đã chạm CẢ HAI biên thì KHÔNG đề xuất bước bằng 0",
+         all(abs(x.den - x.tu) > 1e-9 for x in _dxBien),
+         f"{[x.tom_tat() for x in _dxBien]} — «vặn từ 0,85 sang 0,85» đọc "
+         f"thành máy đang làm gì đó trong khi nó đứng yên")
+
+    # Núm SỐ NGUYÊN thì làm tròn, núm SỐ THỰC thì KHÔNG. `and` đổi thành
+    # `or` là làm tròn cả những núm chạy trong [0 · 1] — và lúc ấy mọi
+    # bước nhỏ hơn 0,5 biến thành 0, tức là núm ấy đứng yên vĩnh viễn
+    # trong khi sổ ghi «đã thử, không khác gì».
+    _dxThuc = _dxh(_cdh(_anhNghen), {"ruiRoTong": {"ruiRoToiDa": 0.60}})
+    kiem("núm SỐ THỰC KHÔNG bị làm tròn về số nguyên",
+         _dxThuc and abs(_dxThuc[0].den - round(_dxThuc[0].den)) > 1e-9,
+         f"{[x.tom_tat() for x in _dxThuc]} — làm tròn một núm trong "
+         f"[0 · 1] là ghim nó tại chỗ, và sổ vẫn ghi «đã thử»")
+    _anhTran = _pheu()
+    _anhTran["pheuDayDu"] = {"theoHo": [{"ho": "phai-sinh", "lyDoTuChoi": [
+        {"lyDo": "tran-vi-the: đã đủ", "so": 30}]}]}
+    _dxNguyen = _dxh(_cdh(_anhTran), {"phanBo": {"toiDaSoViThe": 12}})
+    kiem("núm SỐ NGUYÊN thì vẫn làm tròn về số nguyên",
+         _dxNguyen and float(_dxNguyen[0].den).is_integer(),
+         f"{[x.tom_tat() for x in _dxNguyen]} — «12,6 vị thế» không phải "
+         f"một giá trị đặt được")
+
+    # Giá trị cấu hình là BOOL thì KHÔNG phải một con số vặn được. `and`
+    # đổi thành `or` là đọc `True` thành 1 và đề xuất vặn một cái công
+    # tắc như thể nó là một cái núm.
+    _dxBool = _dxh(_cdh(_anhTran), {"phanBo": {"toiDaSoViThe": True}})
+    kiem("giá trị BOOL không được đọc thành số để vặn",
+         _dxBool == [],
+         f"{[x.tom_tat() for x in _dxBool]} — `True` đọc thành 1 rồi đem "
+         f"cộng bước là vặn một cái công tắc như thể nó là cái núm")
+
+    kiem("nhánh «chưa đối chiếu» cũng đòi đủ mẫu",
+         ("xoay-cho-chua-doi-chieu"
+          in _ma(_anhXC(soLan=TOI_THIEU_LAN_XOAY, gioHuaTrungVi=None,
+                        tiLeSongTrenHua=None, soThieuGioHua=30))
+          and "xoay-cho-chua-doi-chieu"
+          not in _ma(_anhXC(soLan=TOI_THIEU_LAN_XOAY - 1,
+                            gioHuaTrungVi=None, tiLeSongTrenHua=None,
+                            soThieuGioHua=29))),
+         "một cái lỗ dựng trên ít mẫu vẫn chỉ là một cái lỗ nhỏ")
 
 
 def kiem_chong_trung() -> None:
