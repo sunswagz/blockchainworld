@@ -4738,6 +4738,124 @@ def kiem_cau_dao_chan_that() -> None:
     b.risk.mo_lai()
     kiem("chỉ người mở mới mở được", not b.risk.ngatKhanCap)
 
+def kiem_lenh_that_khong_thoat_duoc() -> None:
+    """Không lệnh thật nào thoát ra được — kiểm HÀNH VI, không chỉ cấu hình.
+
+    `kiem_cua_lenh_that` xác nhận ba cổng đang đóng trong config. Đó là
+    một khẳng định về CẤU HÌNH. Câu đáng tin hơn là câu về HÀNH VI: bật
+    `che = "that"` lên mà thiếu cổng thì lệnh có thật sự rơi về sổ giấy
+    không, hay nó vẫn đi ra sàn?
+
+    Đây là phép kiểm quan trọng nhất trong cả bộ, vì nó canh đúng ranh
+    giới giữa tiền giả và tiền thật.
+    """
+    print("\n── Không lệnh thật nào thoát ra được ───────────────────────")
+
+    from kham.can_loi import CoHoi
+    from kham.config import CONFIG, che_hieu_luc
+    from kham.dat_lenh import CongLenh
+    from kham.kho_doi import Kho
+    from kham.so_lenh import Muc, SoLenh
+
+    so = SoLenh(ma="BTC_5M", ben="UP",
+                bid=[Muc(0.40, 900)], ask=[Muc(0.42, 900)], nhanLucMs=0.0)
+    ch = CoHoi(ma="BTC_5M", ben="UP", chienThuat="thử", fairValue=0.55,
+               giaCho=0.42, vwap=0.42, soCo=100.0, grossEdge=0.13,
+               phi=0.008, truotGia=0.0008, batDinhMoHinh=0.015,
+               bienAnToan=0.008, netEdge=0.09, sucChua=900.0,
+               xacSuatKhop=0.95, nuaDoiMs=5000.0, laMaker=False,
+               dayDu=True, ghiChu=[])
+
+    cu = dict(CONFIG.get("datLenh") or {})
+    cuChe = CONFIG.get("che")
+    try:
+        # Bật `che = "that"` mà KHÔNG mở hai cổng còn lại.
+        CONFIG["che"] = "that"
+        CONFIG.setdefault("datLenh", {})["choPhepLenhThat"] = False
+        CONFIG["datLenh"]["toiXacNhanDaDocRuiRo"] = False
+        kiem("khai `that` mà thiếu cổng ⇒ chế độ hiệu lực vẫn là `giay`",
+             che_hieu_luc() == "giay", che_hieu_luc())
+        c = CongLenh(Kho())
+        l = c.dat(ch, 100.0, so)
+        kiem("và lệnh đi đường GIẤY", l.duong == "giay", l.duong)
+        kiem("khớp trên sổ giấy chứ không ra sàn", l.soCoKhop > 0, l.soCoKhop)
+
+        # Mở thêm MỘT cổng vẫn chưa đủ.
+        CONFIG["datLenh"]["choPhepLenhThat"] = True
+        kiem("mở một cổng vẫn chưa đủ", che_hieu_luc() == "giay",
+             che_hieu_luc())
+        kiem("và vẫn đi đường giấy",
+             CongLenh(Kho()).dat(ch, 100.0, so).duong == "giay")
+
+        # Mở hai — cổng thứ ba là KHOÁ VÍ, không nằm trong config.
+        CONFIG["datLenh"]["toiXacNhanDaDocRuiRo"] = True
+        kiem("mở hai cổng config vẫn chưa đủ — còn khoá ví",
+             che_hieu_luc() == "giay", che_hieu_luc())
+    finally:
+        CONFIG["che"] = cuChe
+        CONFIG["datLenh"] = cu
+
+    kiem("dọn xong thì chế độ trở lại như cũ", che_hieu_luc() == "giay")
+
+    # Adapter có HAI lớp, và đó là chỗ hay: nó tự kiểm cổng TRƯỚC, rồi
+    # mới tới `NotImplementedError`. Nghĩa là kể cả khi ai đó gọi thẳng
+    # adapter, bỏ qua `CongLenh`, thì vẫn có một cửa nữa.
+    from kham.sdk_polymarket import AdapterPolymarket
+
+    def nem_gi():
+        try:
+            AdapterPolymarket().dat_lenh(ma="BTC_5M", ben="UP", soCo=1.0,
+                                         gia=0.5, laMaker=False)
+        except Exception as e:  # noqa: BLE001
+            return type(e).__name__, str(e)
+        return None, ""
+
+    ten, loi = nem_gi()
+    kiem("gọi THẲNG adapter khi cổng đóng ⇒ vẫn ném",
+         ten is not None, ten)
+    kiem("và ném ra đúng lý do: cửa chưa mở",
+         ten == "RuntimeError" and "chưa mở đủ cửa" in loi, (ten, loi[:60]))
+    kiem("kể tên từng cửa đang đóng, không nói chung chung",
+         "choPhepLenhThat" in loi and "che" in loi, loi[:90])
+
+    # Mở hết ba cổng trong bộ nhớ — lớp CUỐI vẫn phải chặn.
+    import os as _os
+
+    from kham.config import CONFIG as _C
+    cu2, cuChe2 = dict(_C.get("datLenh") or {}), _C.get("che")
+    cuKhoa = _os.environ.get("POLYMARKET_PRIVATE_KEY")
+    try:
+        _C["che"] = "that"
+        _C.setdefault("datLenh", {})["choPhepLenhThat"] = True
+        _C["datLenh"]["toiXacNhanDaDocRuiRo"] = True
+        _os.environ["POLYMARKET_PRIVATE_KEY"] = "0x" + "0" * 64
+        from kham.config import che_hieu_luc as _chl, ly_do_khong_that as _lkt
+        kiem("mở hết ba cổng thì chế độ hiệu lực THÀNH `that`",
+             _chl() == "that", _chl())
+        kiem("và không còn cửa nào đóng", _lkt() == [], _lkt())
+
+        ten2, l2 = nem_gi()
+        # Lớp thứ BA, và nó nằm ngoài cả config lẫn khoá ví: gói
+        # `polymarket-client` chưa được cài. Sau nó mới tới
+        # `NotImplementedError` trong `dat_lenh`.
+        kiem("MỞ HẾT ba cổng thì VẪN không đặt được lệnh",
+             ten2 is not None, ten2)
+        kiem("lý do là một trong hai lớp cuối: chưa cài gói, hoặc chưa cài mã",
+             ten2 == "NotImplementedError"
+             or (ten2 == "RuntimeError" and "polymarket-client" in l2),
+             (ten2, l2[:70]))
+    finally:
+        _C["che"] = cuChe2
+        _C["datLenh"] = cu2
+        if cuKhoa is None:
+            _os.environ.pop("POLYMARKET_PRIVATE_KEY", None)
+        else:
+            _os.environ["POLYMARKET_PRIVATE_KEY"] = cuKhoa
+
+    kiem("dọn xong thì khoá ví KHÔNG còn trong môi trường",
+         cuKhoa is not None
+         or "POLYMARKET_PRIVATE_KEY" not in _os.environ)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4822,6 +4940,7 @@ def main() -> int:
     kiem_khong_co_file_lac()
     kiem_doi_token_khong_phai_dut()
     kiem_cau_dao_chan_that()
+    kiem_lenh_that_khong_thoat_duoc()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
