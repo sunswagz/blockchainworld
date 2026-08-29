@@ -1107,6 +1107,36 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[45] CỬA DUYỆT PHẢI NHÌN RA NGOÀI CHỢ NHÀ")
+    from trader.chien_luoc import phan_quyet as _pq45
+
+    # Đã suýt lọt thật: MOCK_BIEN_KEP_V1 qua MỌI cửa trên BTCUSDT:4h — +0,109R
+    # qua 37 lệnh ngoài mẫu, vượt champion −0,05R — trong khi CÙNG NGÀY nó bị đo
+    # trên 9 chợ và ra −0,165R qua 104 lệnh, dương ở 1/7.
+    #
+    # Mọi cửa khác đều nhìn MỘT chợ nên không thể bắt được. Ba lần trong hệ này,
+    # thứ khá ở chợ nhà đều chết ở chợ lạ; cửa này biến ba lần ấy thành một luật.
+    _tot45 = {"so": 37, "kyVongR": 0.109, "khopTroi": -0.228, "sutGiamToiDaPct": 5.23}
+    _cha45 = {"so": 85, "kyVongR": -0.05, "sutGiamToiDaPct": 6.68}
+    check(_pq45(_cha45, _tot45)["qua"],
+          "không có bằng chứng nhiều chợ → cửa cũ vẫn cho qua (hành vi không đổi)")
+    _r45 = _pq45(_cha45, _tot45, {"kyVongR": -0.165, "soCho": 7})
+    check(not _r45["qua"], "gộp 7 chợ ra ÂM → CHẶN dù chợ nhà dương")
+    check(any("7 chợ" in x for x in _r45["lyDo"]), "và nói rõ đo trên mấy chợ")
+    check(not _pq45(_cha45, _tot45,
+                    {"kyVongR": 0.2, "soCho": 7, "khoangTin": [-0.1, 0.5]})["qua"],
+          "gộp dương nhưng khoảng tin CHỨA 0 → vẫn chặn")
+    check(_pq45(_cha45, _tot45,
+                {"kyVongR": 0.2, "soCho": 7, "khoangTin": [0.05, 0.35]})["qua"],
+          "gộp dương và khoảng tin KHÔNG chứa 0 → cho qua (cửa ngược lại)")
+    check(_pq45(_cha45, _tot45, {"kyVongR": -0.9, "soCho": 2})["qua"],
+          "dưới 3 chợ → KHÔNG chặn; «âm ở 2 chợ» chưa nói được gì")
+
+    # Và hàm phải còn THUẦN: bằng chứng truyền VÀO, không tự đọc kho. Cửa duyệt
+    # là chỗ đáng kiểm nhất, không được là chỗ khó kiểm nhất.
+    import inspect as _in45
+    check("nhieu_cho" in _in45.signature(_pq45).parameters,
+          "phan_quyet nhận bằng chứng qua tham số, giữ được tính thuần")
     print("\n[44] NGUỒN BIẾN MẤT KHỎI LÒ CHƯNG CẤT PHẢI KÊU")
     from trader import chung_cat as C44
 

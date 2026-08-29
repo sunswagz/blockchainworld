@@ -90,7 +90,7 @@ def _ky(tham: dict) -> str:
     return ",".join(f"{k}={tham[k]}" for k in sorted(tham)) or "mặc-định"
 
 
-def phan_quyet(cha: dict | None, thu: dict) -> dict:
+def phan_quyet(cha: dict | None, thu: dict, nhieu_cho: dict | None = None) -> dict:
     """Cửa duyệt. Hàm THUẦN — đưa vào hai bộ thống kê ngoài mẫu, trả phán quyết.
 
     Thuần để kiểm được bằng số bịa, không cần chạy cả cỗ máy. Cửa duyệt là chỗ
@@ -114,6 +114,32 @@ def phan_quyet(cha: dict | None, thu: dict) -> dict:
         if kv_cha is not None and kv < kv_cha + CUA["vuotToiThieu"]:
             ly_do.append(f"kỳ vọng {kv:+.3f}R không vượt champion {kv_cha:+.3f}R "
                          f"quá {CUA['vuotToiThieu']}R")
+
+    # BẰNG CHỨNG NHIỀU CHỢ — cửa cuối, và là cửa duy nhất nhìn ra ngoài chợ nhà.
+    #
+    # Đã suýt lọt: MOCK_BIEN_KEP_V1 qua được mọi cửa trên BTCUSDT:4h (+0,109R,
+    # 37 lệnh ngoài mẫu, vượt champion −0,05R) — trong khi cùng ngày nó bị đo
+    # trên 9 chợ và ra −0,165R qua 104 lệnh, dương ở 1/7 chợ.
+    #
+    # Mọi cửa khác đều nhìn MỘT chợ, nên chúng không thể bắt được chuyện này.
+    # Ba lần trong hệ này, thứ khá ở chợ nhà đều chết ở chợ lạ; cửa này là chỗ
+    # duy nhất biến ba lần ấy thành một luật.
+    #
+    # Truyền VÀO chứ không tự đọc kho: hàm này phải thuần để kiểm được bằng số
+    # bịa, và cửa duyệt là chỗ đáng kiểm nhất chứ không phải chỗ khó kiểm nhất.
+    if nhieu_cho:
+        kv_g = nhieu_cho.get("kyVongR")
+        so_cho = nhieu_cho.get("soCho") or 0
+        ktin = nhieu_cho.get("khoangTin")
+        if kv_g is not None and so_cho >= 3:
+            if kv_g <= 0:
+                ly_do.append(f"đo trên {so_cho} chợ thì kỳ vọng gộp {kv_g:+.3f}R — "
+                             f"khá ở chợ nhà mà âm ở diện rộng là dấu hiệu khớp với "
+                             f"lịch sử MỘT chợ, đã xảy ra ba lần ở đây")
+            elif ktin and ktin[0] <= 0 <= ktin[1]:
+                ly_do.append(f"đo trên {so_cho} chợ được {kv_g:+.3f}R nhưng khoảng "
+                             f"tin [{ktin[0]:+.3f}; {ktin[1]:+.3f}] CHỨA 0 — chưa "
+                             f"phân biệt được với «không có gì»")
 
     kt = thu.get("khopTroi")
     if kt is not None and kt > CUA["khopTroiToiDa"]:
@@ -159,7 +185,17 @@ def danh_gia(khoa: str, chay: Any) -> dict:
             tk.setdefault("cho", cho)
             tk.setdefault("khung", CONFIG["timeframes"]["primary"])
 
-    pq = phan_quyet(cha_tk, thu_tk)
+    # Lấy bằng chứng nhiều chợ từ KHO PHÁT HIỆN — nơi lò chưng cất đã gộp và
+    # kèm khoảng tin. Không tự tính lại: hai chỗ tính cùng một thứ rồi sẽ lệch.
+    nc = None
+    try:
+        from . import store as _st
+
+        nc = next(((x.get("so") or {}) for x in _st.read_all(_st.PHAT_HIEN)
+                   if x.get("ma") in (f"cho:{c['ma']}", f"cho-gop:{c['ma']}")), None)
+    except Exception:  # noqa: BLE001
+        nc = None
+    pq = phan_quyet(cha_tk, thu_tk, nc)
     c.update({"trangThai": "đã đo", "ketQua": thu_tk, "phanQuyet": pq,
               "doLuc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")})
     d["champion"]["ketQua"] = cha_tk
