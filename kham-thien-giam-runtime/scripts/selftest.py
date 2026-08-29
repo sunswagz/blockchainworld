@@ -864,6 +864,34 @@ def kiem_cong_tien_hoa() -> None:
     kiem("ngưỡng cổng đặt trước, không nới theo kết quả",
          TOI_THIEU_MAU >= 40 and BIEN_VUOT > 1.0 and DUOI_TOI_DA < 1.5)
 
+    # ── biên phải đóng ở CẢ HAI DẤU ──────────────────────────────────
+    #
+    # `B < A * BIEN_VUOT` đúng khi A dương và LẬT NGƯỢC khi A âm: đương
+    # nhiệm −$10 thì A×1,1 = −$11, nên ứng viên −$10,5 — TỆ HƠN — lọt
+    # qua. Biên "phải hơn 10%" thành "được kém tới 10%", và nó lật đúng
+    # vào lúc cần cổng nhất: khi cỗ máy đang lỗ.
+    def qua(a: float, b: float) -> bool:
+        """Cổng có cho ứng viên `b` qua không, với đương nhiệm `a`."""
+        return not (b <= a + abs(a) * (BIEN_VUOT - 1.0))
+
+    kiem("A dương: hơn chưa đủ biên thì TRẢ LẠI", not qua(10.0, 10.5))
+    kiem("A dương: hơn đủ biên thì NHẬN", qua(10.0, 11.5))
+    kiem("A ÂM: ứng viên TỆ HƠN phải TRẢ LẠI", not qua(-10.0, -10.5))
+    kiem("A ÂM: khá hơn chưa đủ biên thì TRẢ LẠI", not qua(-10.0, -9.5))
+    kiem("A ÂM: khá hơn đủ biên thì NHẬN", qua(-10.0, -8.5))
+    kiem("A = 0: ứng viên 0 KHÔNG được qua với biên bằng không",
+         not qua(0.0, 0.0))
+    kiem("A = 0: ứng viên dương thì NHẬN", qua(0.0, 5.0))
+
+    # Và mã nguồn phải thật sự dùng công thức ấy, không phải nhân thẳng.
+    GOC_MA = Path(__file__).resolve().parent.parent
+    th = (GOC_MA / "kham" / "tien_hoa.py").read_text(encoding="utf-8")
+    ma = chr(10).join(d.split("#", 1)[0] for d in th.splitlines())
+    kiem("mã KHÔNG còn nhân thẳng `A * BIEN_VUOT`",
+         'kyVong"] * BIEN_VUOT' not in ma)
+    kiem("mà dùng biên theo ĐỘ LỚN",
+         'abs(A["kyVong"]) * (BIEN_VUOT - 1.0)' in ma)
+
 
 def kiem_do_tre() -> None:
     print("\n── Đo trễ: thước phải bắt được chính tiếng ồn ─────────────────")

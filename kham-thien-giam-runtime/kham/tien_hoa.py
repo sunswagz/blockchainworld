@@ -66,7 +66,9 @@ _MOC = 0.0
 
 # Cổng chặn. Đặt TRƯỚC khi nhìn dữ liệu, và không nới theo kết quả.
 TOI_THIEU_MAU = 40          # mỗi bên phải khớp ngần này trong băng
-BIEN_VUOT = 1.10            # ứng viên phải hơn đương nhiệm 10%
+BIEN_VUOT = 1.10            # ứng viên phải hơn đương nhiệm 10% ĐỘ LỚN
+                            # (xem `thu_mot_de_xuat` — nhân thẳng vào A
+                            #  thì lật ngược khi A âm)
 DUOI_TOI_DA = 1.15          # thua lớn nhất không được quá 1,15 lần
 
 
@@ -360,13 +362,30 @@ def thu_mot_de_xuat(khung, dx: DeXuat) -> dict:
         ly.append(f"chưa đủ mẫu (A {A['soKhop']}, B {B['soKhop']}, "
                   f"cần {TOI_THIEU_MAU} mỗi bên)")
     else:
-        if B["kyVong"] < A["kyVong"] * BIEN_VUOT:
+        # Biên phải tính trên ĐỘ LỚN, không nhân thẳng vào A.
+        #
+        # `B < A * 1,1` đúng khi A dương, nhưng LẬT NGƯỢC khi A âm: đương
+        # nhiệm −$10 thì A×1,1 = −$11, nên một ứng viên −$10,5 — TỆ HƠN
+        # đương nhiệm — lọt qua cổng. Biên "phải hơn 10%" biến thành
+        # "được phép kém tới 10%", và nó lật đúng vào lúc cần cổng nhất:
+        # khi cỗ máy đang lỗ.
+        #
+        #     A      B      A×1,1    cổng cũ    đúng ra
+        #     +10   +10,5   +11,0    từ chối    từ chối
+        #     −10   −10,5   −11,0    NHẬN ✗     từ chối
+        #     −10    −9,0   −11,0    nhận       nhận
+        #
+        # `A + |A|·0,1` đúng ở cả hai dấu, và trùng khít với cách cũ khi
+        # A dương. Dùng `<=` để A = 0 không cho ứng viên 0 đi qua với
+        # biên bằng không — trường hợp ấy gần như không xảy ra với 40 lệnh
+        # mỗi bên, nhưng một cái cổng thì phải đóng được cả ở mép.
+        if B["kyVong"] <= A["kyVong"] + abs(A["kyVong"]) * (BIEN_VUOT - 1.0):
             # Nói rõ ứng viên hơn hay kém, rồi mới nói thiếu bao nhiêu.
             # Bản trước viết "kỳ vọng +26,085 chưa vượt +25,920 đủ biên
             # 1,1×" — đúng chữ nhưng đọc như một lỗi số học, vì hai con
             # số ấy nhìn thoáng là B ĐÃ vượt A. Người đọc mất một lúc mới
             # hiểu ngưỡng là A×1,1 chứ không phải A.
-            can = A["kyVong"] * BIEN_VUOT
+            can = A["kyVong"] + abs(A["kyVong"]) * (BIEN_VUOT - 1.0)
             ty = (B["kyVong"] / A["kyVong"]) if A["kyVong"] else float("nan")
             ly.append(
                 f"kỳ vọng {B['kyVong']:+.5f} "
