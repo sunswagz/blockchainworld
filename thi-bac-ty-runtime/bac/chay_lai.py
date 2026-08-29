@@ -49,6 +49,20 @@ BPS = 10_000.0
 #: bỏ một mốc còn hơn gán cho nó một con số của mười phút trước.
 DUNG_SAI_MOC_MS = 120_000.0
 
+#: Cứ ngần này khung thì NHƯỜNG một nhịp cho luồng khác.
+#:
+#: Hậu kiểm chạy ở luồng nền, nhưng "luồng nền" trong Python KHÔNG có nghĩa
+#: là không cản ai: mã Python thuần giữ GIL, và một lượt chạy lại 460.000 cơ
+#: hội giữ nó gần như liên tục. Đo thật 29/08: cổng 5188 chết **110 giây**
+#: kể từ lúc máy lên — buồng lái không mở được, vòng quét không quay, và cầu
+#: dao đo tuổi dữ liệu nên nó sắp ngắt vì chính phép đo của mình.
+#:
+#: `sleep` một khoảng RẤT NGẮN thì nhả GIL thật (`sleep(0)` không chắc nhả
+#: trên Windows). 14.000 khung ÷ 200 = 70 lần nhường × 0,5 ms = 35 ms cho cả
+#: lượt — không đáng kể so với 30 giây, mà đổi lại cỗ máy vẫn sống.
+NHUONG_MOI_KHUNG = 200
+NHUONG_GIAY = 0.0005
+
 
 @dataclass
 class ThamSo:
@@ -155,6 +169,12 @@ def _so(v):
     return f if f == f and abs(f) != float("inf") else None
 
 
+def _nhuong() -> None:
+    """Nhả GIL cho luồng khác chạy. Xem `NHUONG_MOI_KHUNG`."""
+    import time as _t
+    _t.sleep(NHUONG_GIAY)
+
+
 def _nguyen(v):
     f = _so(v)
     return None if f is None else int(f)
@@ -196,7 +216,9 @@ class TraCuu:
 
     def __init__(self, khung: list[dict]) -> None:
         self.bang: dict[tuple[str, str], list[tuple[float, float]]] = {}
-        for k in khung:
+        for i, k in enumerate(khung):
+            if i % NHUONG_MOI_KHUNG == 0:
+                _nhuong()
             luc = _so(k.get("luc"))
             if luc is None:
                 continue
@@ -241,7 +263,14 @@ def mot_luot(khung: list[dict], ts: ThamSo, phiSan: dict) -> KetQua:
     tra = TraCuu(khung)
     cong = CongRuiRo(ts.ruiRo)
 
-    for k in khung:
+    for i, k in enumerate(khung):
+        # Nhường GIL theo NHỊP KHUNG, không theo thời gian: đếm khung thì
+        # tất định — chạy lại cùng một cuốn băng cho cùng một kết quả và
+        # cùng một số lần nhường. Nhường theo đồng hồ thì hai lượt trên cùng
+        # dữ liệu khác nhau, và một phép hậu kiểm không tất định thì không
+        # còn là bằng chứng.
+        if i % NHUONG_MOI_KHUNG == 0:
+            _nhuong()
         luc = _so(k.get("luc"))
         if luc is None:
             continue

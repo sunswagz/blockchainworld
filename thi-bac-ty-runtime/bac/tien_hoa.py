@@ -403,3 +403,34 @@ def duong_tien_hoa() -> dict:
                    "ghiChu": x.get("ghiChu")} for x in ds[-12:]],
         "ganNhat": ds[-1] if ds else None,
     }
+
+
+def _main() -> int:
+    """Chạy MỘT lượt hậu kiểm rồi in kết quả ra stdout dạng JSON.
+
+        python -m bac.tien_hoa            lượt THỬ, không vặn gì
+        python -m bac.tien_hoa --that     ghi tham số nếu đo được là tốt hơn
+
+    Có cửa này để vòng quét gọi hậu kiểm ở TIẾN TRÌNH RIÊNG. Một lượt mất
+    ~90 giây (đọc băng, dựng chỉ mục, chạy lại ba lượt trên 460.000 cơ hội)
+    và đó là 90 giây mã Python thuần. Đo thật 29/08: chạy nó ở một LUỒNG
+    trong cùng tiến trình làm cổng 5188 câm suốt 90 giây — buồng lái không
+    mở được, và cầu dao đo tuổi dữ liệu nên nó sắp ngắt vì chính phép đo
+    của mình. Nhường GIL theo nhịp khung có đỡ nhưng không đủ.
+
+    Tiến trình riêng thì hết chuyện: nó có GIL riêng, khoá riêng, và chết
+    cũng không kéo theo ai. Cái giá là một lần khởi động Python (~1 giây)
+    mỗi sáu tiếng.
+    """
+    import argparse
+    bo = argparse.ArgumentParser(prog="bac.tien_hoa")
+    bo.add_argument("--that", action="store_true",
+                    help="ghi tham số nếu phép chạy lại nói rõ là tốt hơn")
+    tv = bo.parse_args()
+    kq = mot_luot(thu=not tv.that)
+    print(json.dumps(kq.tom_tat(), ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

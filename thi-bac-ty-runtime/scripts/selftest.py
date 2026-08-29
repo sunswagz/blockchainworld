@@ -803,6 +803,44 @@ def kiem_chay_lai() -> None:
     kiem("cờ đủ mẫu đúng bằng ngưỡng 30",
          kq.tom_tat()["duMau"] == (kq.soDoDuoc >= 30))
 
+    # ── HẬU KIỂM PHẢI NHƯỜNG GIL, không thì cỗ máy đứng hình ────────────
+    # "Luồng nền" trong Python KHÔNG có nghĩa là không cản ai: mã Python
+    # thuần giữ GIL. Đo thật 29/08: cổng 5188 chết **110 giây** kể từ lúc
+    # máy lên — buồng lái không mở được, vòng quét không quay, và cầu dao
+    # đo tuổi dữ liệu nên nó sắp ngắt vì chính phép đo của mình.
+    import ast as _a22
+    import pathlib as _p22
+    from bac.chay_lai import NHUONG_GIAY, NHUONG_MOI_KHUNG, _nhuong
+
+    _nguon22 = (_p22.Path(__file__).resolve().parent.parent
+                / "bac/chay_lai.py").read_text(encoding="utf-8")
+    _c22 = _a22.parse(_nguon22)
+
+    def _co_nhuong(ham: str) -> bool:
+        for nd in _a22.walk(_c22):
+            if isinstance(nd, _a22.FunctionDef) and nd.name == ham:
+                for x in _a22.walk(nd):
+                    if isinstance(x, _a22.Call)                             and getattr(x.func, "id", "") == "_nhuong":
+                        return True
+        return False
+
+    kiem("CẢ HAI vòng nặng đều NHƯỜNG nhịp cho luồng khác",
+         _co_nhuong("mot_luot") and _co_nhuong("__init__"),
+         "dựng chỉ mục và chạy lại đều nặng; nhường một chỗ thì chỗ kia vẫn "
+         "giữ GIL suốt phần của nó")
+    kiem("nhường theo NHỊP KHUNG, tất định — không theo đồng hồ",
+         isinstance(NHUONG_MOI_KHUNG, int) and NHUONG_MOI_KHUNG > 0,
+         "nhường theo đồng hồ thì hai lượt trên cùng một cuốn băng khác "
+         "nhau, và một phép hậu kiểm không tất định thì không còn là bằng "
+         "chứng")
+    _t22n = time.perf_counter()
+    for _ in range(50):
+        _nhuong()
+    _het22 = time.perf_counter() - _t22n
+    kiem("mỗi lần nhường RẺ — 50 lần dưới 0,5 giây",
+         _het22 < 0.5 and NHUONG_GIAY <= 0.005,
+         f"{_het22 * 1000:.0f}ms — nhường quá đắt thì hậu kiểm chạy cả buổi")
+
     # ── BĂNG CŨ chạy lại được, ĐẦU-CUỐI ─────────────────────────────────
     # Kiểm `_dau_thoi_gian` một mình không đủ: đột biến ngừng truyền `luc`
     # xuống `dung_bao_gia` vẫn qua, vì băng thử ở trên có sẵn `nguonTsMs`.
@@ -1152,13 +1190,32 @@ def kiem_tien_hoa_hoc() -> None:
          _goi30("bac/vong.py", "mot_vong", "_tien_hoa_dinh_ky"),
          "băng ghi mà không ai đọc lại thì mọi lần vặn ngưỡng đều là đổi số "
          "cho vui — không cách nào biết tốt hơn hay chỉ khác đi")
-    kiem("và nó chạy ở LUỒNG NỀN, không treo vòng quét",
+    _vg30 = (_goc30 / "bac/vong.py").read_text(encoding="utf-8")
+    kiem("và nó chạy ở TIẾN TRÌNH RIÊNG, không phải luồng",
+         '"-m", "bac.tien_hoa"' in _vg30 and "_sp.run(" in _vg30,
+         "luồng trong Python chia GIL với cả tiến trình — «nền» không có "
+         "nghĩa là không cản ai. Đo thật 29/08: cổng 5188 câm 90 giây kể từ "
+         "lúc máy lên, buồng lái không mở được, và cầu dao đo tuổi dữ liệu "
+         "nên nó sắp ngắt vì chính phép đo của mình")
+    kiem("và có cửa `python -m bac.tien_hoa` để gọi",
+         '__name__ == "__main__"' in
+         (_goc30 / "bac/tien_hoa.py").read_text(encoding="utf-8"),
+         "gọi bằng `-m` mà module không có cửa ấy thì tiến trình con chết "
+         "lặng, và buồng lái chỉ thấy một ô trống")
+    kiem("tiến trình con có TRẦN THỜI GIAN",
+         "timeout=TREO_TIEN_HOA_GIAY" in _vg30,
+         "một tiến trình treo mà không ai giết thì nó nằm đó tới khi máy "
+         "tắt, và lượt hậu kiểm sau không bao giờ chạy")
+    kiem("và luồng chỉ ĐỢI tiến trình con — đợi thì nhả GIL",
          _goi30("bac/vong.py", "_tien_hoa_dinh_ky", "Thread"),
-         "một lượt mất ~30 giây trên 14.400 khung; chạy thẳng trong vòng "
-         "quét thì cầu dao ngắt vì chính phép đo của mình")
+         "vẫn cần một luồng để không chặn vòng quét lúc đợi")
     _nguon30 = (_goc30 / "bac/vong.py").read_text(encoding="utf-8")
+    # Cửa `--that` chỉ được thêm khi `tuVanTienHoa` bật. Không có cờ ấy
+    # thì `bac.tien_hoa._main()` chạy `thu=True` — chẩn, đo, ghi sổ, KHÔNG
+    # vặn `config.json`.
     kiem("mặc định là THỬ — không tự vặn config khi chưa ai bật",
-         "tuVanTienHoa" in _nguon30 and "thu=not bool(" in _nguon30
+         'lenh.append("--that")' in _nguon30
+         and 'CONFIG.get("tuVanTienHoa")' in _nguon30
          and CONFIG.get("tuVanTienHoa") is False,
          "tầng ty A/B được nên nó CÓ QUYỀN tự nhận, nhưng «có quyền» và "
          "«được bật sẵn» là hai chuyện")

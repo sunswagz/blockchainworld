@@ -17,8 +17,10 @@ cơ hội hoàn toàn lành, hoặc tệ hơn, thả một cơ hội đã hỏng
 from __future__ import annotations
 
 import asyncio
+import sys
 import threading
 import time
+from pathlib import Path
 
 import httpx
 
@@ -31,6 +33,14 @@ from .models import BaoGia
 from .rui_ro import NHAN, CongRuiRo
 from .san import TAT_CA
 from thi_bac_ty.khuon_ty import Ty
+
+#: Thư mục gốc của cây mã — `python -m bac.tien_hoa` phải chạy TỪ ĐÂY.
+GOC_MA = Path(__file__).resolve().parent.parent
+
+#: Quá ngần này thì giết tiến trình hậu kiểm. Một lượt bình thường ~90 giây;
+#: mười phút là đủ rộng cho một cuốn băng dài gấp mấy lần, và đủ chặt để một
+#: tiến trình treo không nằm đó mãi.
+TREO_TIEN_HOA_GIAY = 600.0
 
 #: Bao lâu chạy lại BĂNG một lượt. Sáu giờ — hậu kiểm đọc cả băng và chạy
 #: lại hàng trăm nghìn cơ hội, mất khoảng 30 giây; và bức tranh nó vẽ đổi
@@ -625,12 +635,22 @@ class Runtime:
         băng suốt 188 giờ mà chưa một lần đọc lại. Lần thứ BA trong cùng một
         cây mã: có mã, có phép kiểm, có ô trên buồng lái, và không ai gọi.
 
-        ## Vì sao phải LUỒNG NỀN
+        ## Vì sao phải TIẾN TRÌNH RIÊNG, không phải luồng
 
-        Một lượt mất ~30 giây trên 14.400 khung: dựng chỉ mục cả băng rồi
-        chạy lại 460.000 cơ hội. Chạy thẳng trong vòng quét là treo vòng
-        30 giây — và cầu dao đo tuổi dữ liệu, nên nó sẽ ngắt vì chính phép
-        đo của mình. Ném sang luồng khác thì vòng quét không hề chậm lại.
+        Một lượt mất ~90 giây: đọc băng, dựng chỉ mục, rồi chạy lại 460.000
+        cơ hội BA lượt (nền + hai bộ đối chiếu). Toàn mã Python thuần.
+
+        Bản đầu ném sang một LUỒNG, và đo thật thì cổng 5188 câm suốt 90
+        giây kể từ lúc máy lên: buồng lái không mở được, và cầu dao đo tuổi
+        dữ liệu nên nó sắp ngắt vì chính phép đo của mình. Luồng trong
+        Python chia GIL với cả tiến trình — "nền" không có nghĩa là không
+        cản ai. Nhường GIL theo nhịp khung có đỡ, nhưng đo lại vẫn ~90 giây
+        câm, nên không đủ.
+
+        Tiến trình riêng thì hết chuyện: GIL riêng, khoá riêng, chết cũng
+        không kéo ai theo. Giá là một lần khởi động Python mỗi sáu tiếng.
+        Luồng vẫn còn ở đây, nhưng nó chỉ ngồi ĐỢI tiến trình con — đợi thì
+        nhả GIL.
 
         ## Vì sao THỬ, không THẬT
 
@@ -649,13 +669,27 @@ class Runtime:
             return                    # lượt trước còn chạy — đừng chồng lên
 
         def _chay():
-            from .tien_hoa import mot_luot
+            import json as _js
+            import subprocess as _sp
+            lenh = [sys.executable, "-m", "bac.tien_hoa"]
+            if CONFIG.get("tuVanTienHoa"):
+                lenh.append("--that")
             try:
-                kq = mot_luot(thu=not bool(CONFIG.get("tuVanTienHoa")))
-                self.tienHoaCuoi = kq.tom_tat()
+                # Kế thừa môi trường: `TBT_DATA_DIR` và `TBT_CONFIG` phải đi
+                # theo, không thì bản demo hậu kiểm trên băng của bản thật.
+                r = _sp.run(lenh, cwd=str(GOC_MA), capture_output=True,
+                            text=True, encoding="utf-8", errors="replace",
+                            timeout=TREO_TIEN_HOA_GIAY)
+                if r.returncode != 0:
+                    raise RuntimeError(
+                        f"thoát {r.returncode}: {(r.stderr or '')[-300:]}")
+                self.tienHoaCuoi = _js.loads((r.stdout or "").strip()
+                                             .splitlines()[-1])
                 self.loiTienHoa = ""
-                bus.ghi(f"tiến hoá: {kq.soDoDuoc} cơ hội hậu kiểm được · "
-                        f"{kq.ghiChu[:160]}", loai="he")
+                bus.ghi(f"tiến hoá: {self.tienHoaCuoi.get('soDoDuoc')} cơ hội "
+                        f"hậu kiểm được · "
+                        f"{str(self.tienHoaCuoi.get('ghiChu'))[:160]}",
+                        loai="he")
             except Exception as e:                        # noqa: BLE001
                 self.loiTienHoa = f"{type(e).__name__}: {e}"
                 bus.ghi(f"tiến hoá lỗi: {e}", loai="canh")
