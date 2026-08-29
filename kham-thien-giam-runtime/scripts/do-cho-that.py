@@ -58,6 +58,13 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+
+from kham import tham_so  # noqa: E402
+
+# Không cờ nào — nhưng vẫn phải TỪ CHỐI cờ lạ. Một cờ gõ sai bị
+# nuốt im lặng thì phép đo chạy ở cấu hình khác cấu hình người ta
+# yêu cầu, rồi in ra một báo cáo trông hoàn toàn hợp lệ.
+tham_so.doc({}, ten='do-cho-that.py')
 from kham.bang import NguonKhung, giai_doan_cua  # noqa: E402
 from kham.chan_doan import doc_tham_so  # noqa: E402
 from kham.chay_lai import dung_so  # noqa: E402

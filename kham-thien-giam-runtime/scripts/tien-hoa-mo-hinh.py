@@ -53,6 +53,7 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
 from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so, kep  # noqa: E402
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
@@ -73,16 +74,16 @@ BIEN = 0.985
 CHIA = 0.7
 
 
-def _tham(ten: str, mac_dinh):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+CO = tham_so.doc({
+    "ma": "mã thị trường, ví dụ BTC_5M",
+    "ngay": "số ngày băng/nến lấy về",
+    "thu": tham_so.BAT,
+}, ten='tien-hoa-mo-hinh.py')
 
 
-THU = "--thu" in sys.argv
-SO_NGAY = int(_tham("ngay", "7"))
-MA = _tham("ma", "BTC_5M")
+THU = CO.co("thu")
+SO_NGAY = int(CO.lay("ngay", "7"))
+MA = CO.lay("ma", "BTC_5M")
 SO_TIEN_HOA = DATA_DIR / "tien-hoa-mo-hinh.jsonl"
 
 

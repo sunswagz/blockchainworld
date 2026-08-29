@@ -1,4 +1,4 @@
-"""DEMO — cả cỗ máy chạy, tiền ảo, dữ liệu thật, kế toán thật.
+r"""DEMO — cả cỗ máy chạy, tiền ảo, dữ liệu thật, kế toán thật.
 
     python scripts/chay-demo.py                         # cả ba chợ, 3 ngày
     python scripts/chay-demo.py --von=50000 --ngay=7
@@ -52,6 +52,7 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
 from kham.cho_gia_dinh import PHUT, dung_khung  # noqa: E402
 from kham.config import CONFIG  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
@@ -60,18 +61,20 @@ from kham.nguon import nguon  # noqa: E402
 from kham.phat_lai import PhienPhatLai  # noqa: E402
 
 
-def _tham(ten: str, mac_dinh):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+CO = tham_so.doc({
+    "cho": "chợ giả định: cong-bang | ...",
+    "ma": "mã thị trường, ví dụ BTC_5M",
+    "ngay": "số ngày băng/nến lấy về",
+    "quet": tham_so.BAT,
+    "von": "vốn ảo ban đầu, USD",
+}, ten='chay-demo.py')
 
 
-VON = float(_tham("von", "10000"))
-SO_NGAY = int(_tham("ngay", "3"))
-MA = _tham("ma", "BTC_5M")
-CHO = _tham("cho", "")
-QUET = "--quet" in sys.argv
+VON = float(CO.lay("von", "10000"))
+SO_NGAY = int(CO.lay("ngay", "3"))
+MA = CO.lay("ma", "BTC_5M")
+CHO = CO.lay("cho", "")
+QUET = CO.co("quet")
 BAC_QUET = (0.0, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95, 1.0)
 RIENG = GOC / "data" / "demo"
 

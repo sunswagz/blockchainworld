@@ -3203,6 +3203,82 @@ def kiem_phat_lai_khai_that() -> None:
     kiem("`chay()` khớp lại lần cuối TRƯỚC khi trả kết quả",
          than.index("khop_nan(self.hieuChinh)") < than.index("return self.kq"))
 
+def kiem_co_dong_lenh() -> None:
+    """Cờ gõ sai phải DỪNG, không được nuốt im lặng.
+
+    Mười script đo đạc từng có mười bộ đọc cờ giống hệt nhau, và cả mười
+    hỏng theo cùng một kiểu: cờ nào không thấy thì trả mặc định, cờ LẠ
+    thì không ai nói gì. `--vốn=10000` (có dấu), `--von 10000` (dấu cách),
+    `--capital=10000` — cả ba chạy ngon lành ở giá trị MẶC ĐỊNH rồi in ra
+    một báo cáo trông hoàn toàn hợp lệ.
+
+    Với một bộ dụng cụ ĐO thì đó là lỗi nặng: phép đo báo cáo một cấu
+    hình khác cấu hình người ta yêu cầu, và không dấu vết nào để lần.
+    """
+    print("\n── Cờ dòng lệnh: gõ sai phải DỪNG ────────────────────────────")
+
+    from kham import tham_so
+
+    khai = {"von": "vốn", "quet": tham_so.BAT}
+
+    def thu(av):
+        try:
+            return tham_so.doc(khai, argv=av, ten="thu"), None
+        except SystemExit as e:
+            return None, e.code
+
+    co, _ = thu(["--von=555"])
+    kiem("cờ đúng thì đọc được", co.lay("von") == "555")
+    kiem("và đổi ra số được", co.so("von") == 555.0)
+    co, _ = thu([])
+    kiem("vắng cờ thì trả mặc định", co.lay("von", "9") == "9")
+    kiem("cờ bật/tắt vắng thì False", co.co("quet") is False)
+    co, _ = thu(["--quet"])
+    kiem("cờ bật/tắt có mặt thì True", co.co("quet") is True)
+
+    # Năm kiểu gõ sai — cả năm phải DỪNG với mã 2.
+    for av, vi in ((["--vốn=555"], "cờ có dấu tiếng Việt"),
+                   (["--capital=5"], "cờ tên khác hẳn"),
+                   (["--von"], "cờ cần giá trị mà không cho"),
+                   (["--quet=1"], "cờ bật/tắt mà lại gán giá trị"),
+                   (["bua"], "tham số trần không có `--`")):
+        _, ma = thu(av)
+        kiem(f"DỪNG khi {vi}", ma == 2, (av, ma))
+
+    _, ma = thu(["--help"])
+    kiem("--help thì in bảng cờ rồi thoát ÊM (mã 0)", ma == 0, ma)
+
+    co, _ = thu(["--von=aaa"])
+    try:
+        co.so("von")
+        dung = False
+    except SystemExit as e:
+        dung = e.code == 2
+    kiem("giá trị sai kiểu thì DỪNG, không lặng lẽ lùi về mặc định", dung)
+
+    try:
+        co.lay("chua-khai")
+        nem = False
+    except KeyError:
+        nem = True
+    kiem("hỏi một cờ chưa khai thì ném — lỗi của người viết script", nem)
+
+    # Không script nào được giữ bộ đọc cờ riêng nữa.
+    GOC_MA = Path(__file__).resolve().parent.parent
+    rieng, thieu = [], []
+    for f in sorted((GOC_MA / "scripts").glob("*.py")):
+        if f.name in ("selftest.py", "sinh-icon.py") or f.name.startswith("kiem-"):
+            continue
+        ma = f.read_text(encoding="utf-8")
+        if "def _tham(" in ma or "def _tham_so(" in ma:
+            rieng.append(f.name)
+        if "in sys.argv" in ma:
+            rieng.append(f.name)
+        if "tham_so.doc(" not in ma:
+            thieu.append(f.name)
+    kiem("không script nào giữ bộ đọc cờ riêng", not rieng, rieng)
+    kiem("mọi script đo đạc đều khai cờ qua `tham_so.doc`", not thieu, thieu)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3263,6 +3339,7 @@ def main() -> int:
     kiem_bao_cao_doc_hien_ra()
     kiem_tien_do_khong_phai_loi()
     kiem_phat_lai_khai_that()
+    kiem_co_dong_lenh()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

@@ -49,6 +49,7 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
 from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so  # noqa: E402
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
@@ -69,17 +70,18 @@ BIEN_CHON = 0.995          # siết thêm theo số ứng viên, xem `_bien`
 BIEN_CHOT = 0.999          # tập CHỐT chỉ cần gật, không cần vượt xa
 
 
-def _tham(ten: str, mac_dinh):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+CO = tham_so.doc({
+    "ma": "mã thị trường, ví dụ BTC_5M",
+    "ngay": "số ngày băng/nến lấy về",
+    "thu": tham_so.BAT,
+    "vong": "số vòng tối đa",
+}, ten='tu-nang-cap.py')
 
 
-THU = "--thu" in sys.argv
-SO_NGAY = int(_tham("ngay", "10"))
-TOI_DA_VONG = int(_tham("vong", "6"))
-MA = _tham("ma", "BTC_5M")
+THU = CO.co("thu")
+SO_NGAY = int(CO.lay("ngay", "10"))
+TOI_DA_VONG = int(CO.lay("vong", "6"))
+MA = CO.lay("ma", "BTC_5M")
 SO = DATA_DIR / "tu-nang-cap.jsonl"
 
 

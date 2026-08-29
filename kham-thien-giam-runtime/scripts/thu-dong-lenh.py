@@ -45,6 +45,7 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
 from kham.config import CONFIG  # noqa: E402
 from kham.dinh_gia import dinh_gia  # noqa: E402
 from kham.nguon import nguon  # noqa: E402
@@ -55,16 +56,16 @@ CHIA_HOC, CHIA_CHON = 0.50, 0.75
 O_P, O_LECH = 8, 3          # 8 ô cho p × 3 ô cho lệch dòng lệnh
 
 
-def _tham(ten, mac_dinh):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+CO = tham_so.doc({
+    "cuaso": "cửa sổ σ, giây",
+    "ma": "mã thị trường, ví dụ BTC_5M",
+    "ngay": "số ngày băng/nến lấy về",
+}, ten='thu-dong-lenh.py')
 
 
-SO_NGAY = int(_tham("ngay", "20"))
-MA = _tham("ma", "BTC_5M")
-CUA_SO = float(_tham("cuaso", "900"))
+SO_NGAY = int(CO.lay("ngay", "20"))
+MA = CO.lay("ma", "BTC_5M")
+CUA_SO = float(CO.lay("cuaso", "900"))
 
 
 def nen_day_du(cap, tuMs, soNen) -> dict:

@@ -40,6 +40,7 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
 from kham.nan_lai import khop  # noqa: E402
@@ -51,16 +52,16 @@ CHIA_HOC, CHIA_CHON = 0.50, 0.75
 BIEN = 0.995
 
 
-def _tham(ten, mac_dinh):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+CO = tham_so.doc({
+    "cuaso": "cửa sổ σ, giây",
+    "ma": "mã thị trường, ví dụ BTC_5M",
+    "ngay": "số ngày băng/nến lấy về",
+}, ten='thu-uoc-sigma.py')
 
 
-SO_NGAY = int(_tham("ngay", "20"))
-MA = _tham("ma", "BTC_5M")
-CUA_SO = float(_tham("cuaso", "900"))
+SO_NGAY = int(CO.lay("ngay", "20"))
+MA = CO.lay("ma", "BTC_5M")
+CUA_SO = float(CO.lay("cuaso", "900"))
 
 
 def nen_ohlc(cap: str, tuMs: float, soNen: int) -> dict:

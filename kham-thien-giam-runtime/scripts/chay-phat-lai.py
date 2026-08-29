@@ -28,16 +28,18 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 
-def _tham_so(ten: str, mac_dinh=None):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+from kham import tham_so  # noqa: E402
+
+CO = tham_so.doc({
+    "mo-lai-moi-ngay": tham_so.BAT,
+    "tu": "chỉ chạy băng từ ngày này (YYYY-MM-DD)",
+    "von": "vốn ảo ban đầu, USD",
+}, ten='chay-phat-lai.py')
 
 
-VON = _tham_so("von")
-MO_LAI = "--mo-lai-moi-ngay" in sys.argv
-TU_NGAY = _tham_so("tu")
+VON = CO.lay("von")
+MO_LAI = CO.co("mo-lai-moi-ngay")
+TU_NGAY = CO.lay("tu")
 
 # Sổ sách của phiên ghi vào thư mục RIÊNG. Tách bằng ĐƯỜNG DẪN, không
 # bằng `KTG_DATA_DIR`: băng và sổ kết quả vẫn phải đọc từ chỗ thật, nên
@@ -45,7 +47,8 @@ TU_NGAY = _tham_so("tu")
 RIENG = GOC / "data" / "phat-lai"
 RIENG.mkdir(parents=True, exist_ok=True)
 
-import kham  # noqa: F401,E402  (đặt lại bảng mã console)
+import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402  (đặt lại bảng mã console)
 from kham.bang import NguonKhung  # noqa: E402
 from kham.config import CONFIG  # noqa: E402
 from kham.phat_lai import PhienPhatLai  # noqa: E402

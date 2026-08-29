@@ -42,12 +42,16 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402  (đặt lại bảng mã console)
+from kham import tham_so  # noqa: E402
 from kham.bang import BaoCaoDoc, lan_luot  # noqa: E402
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.ket_qua import SoKetQua, moc_tu_slug  # noqa: E402
 from kham.nguon import nguon  # noqa: E402
 
-THU = "--thu" in sys.argv
+CO = tham_so.doc({
+    "thu": tham_so.BAT,
+}, ten='dung-ket-qua.py')
+THU = CO.co("thu")
 NEN = {t["ma"]: t.get("nen") for t in CONFIG["thiTruong"]}
 SONG = {t["ma"]: float(t.get("phutSong", 5)) * 60.0 for t in CONFIG["thiTruong"]}
 

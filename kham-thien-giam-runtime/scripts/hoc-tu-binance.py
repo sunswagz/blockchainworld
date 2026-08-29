@@ -61,6 +61,7 @@ GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
 from kham.ket_qua import SoKetQua  # noqa: E402
@@ -80,16 +81,16 @@ LAT_CAT = (240.0, 180.0, 120.0, 60.0)
 PHUT = 60_000.0
 
 
-def _tham(ten: str, mac_dinh):
-    for a in sys.argv[1:]:
-        if a.startswith(f"--{ten}="):
-            return a.split("=", 1)[1]
-    return mac_dinh
+CO = tham_so.doc({
+    "ma": "mã thị trường, ví dụ BTC_5M",
+    "ngay": "số ngày băng/nến lấy về",
+    "thu": tham_so.BAT,
+}, ten='hoc-tu-binance.py')
 
 
-THU = "--thu" in sys.argv
-SO_NGAY = int(_tham("ngay", "3"))
-MA = _tham("ma", "BTC_5M")
+THU = CO.co("thu")
+SO_NGAY = int(CO.lay("ngay", "3"))
+MA = CO.lay("ma", "BTC_5M")
 
 
 def nen_1p(cap: str, tuMs: float, soNen: int) -> list[tuple[float, float]]:
