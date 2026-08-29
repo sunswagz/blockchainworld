@@ -1107,6 +1107,64 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[43] LỆNH ĐÓNG KỸ THUẬT KHÔNG PHẢI KẾT QUẢ CHIẾN LƯỢC")
+    from trader import journal as _J43
+
+    # Một lệnh bị đóng tay vì không đặt được stop ở sàn đem lại +284 đô — do sổ
+    # lệnh testnet mỏng khiến giá khớp lệch 15%, không do chiến lược. Gộp vào,
+    # kỳ vọng đi từ −13,60 lên −6,83 mỗi lệnh: MỘT lệnh làm mức lỗ biểu kiến
+    # giảm một nửa.
+    _tr43 = [{"id": "a", "closedAt": "x", "status": "CLOSED", "exitReason": "STOP_LOSS",
+              "pnl": -10.0, "rMultiple": -1.0, "riskAmount": 10.0,
+              "regimeAtEntry": "Z", "strategy": "S"},
+             {"id": "b", "closedAt": "x", "status": "CLOSED", "exitReason": "STOP_LOSS",
+              "pnl": -10.0, "rMultiple": -1.0, "riskAmount": 10.0,
+              "regimeAtEntry": "Z", "strategy": "S"},
+             {"id": "c", "closedAt": "x", "status": "CLOSED",
+              "exitReason": "DONG_TAY_VI_KHONG_CO_STOP",
+              "pnl": +200.0, "rMultiple": 20.0, "riskAmount": 10.0,
+              "regimeAtEntry": "Z", "strategy": "S"}]
+    (DATA_DIR / store.TRADES).write_text(
+        "".join(_json.dumps(x) + NL for x in _tr43), encoding="utf-8")
+    _p43 = _J43.performance()
+    check(_p43["overall"]["count"] == 2,
+          f"kỳ vọng chiến lược chỉ tính 2 lệnh tự nhiên (được {_p43['overall']['count']})")
+    check(_p43["overall"]["totalPnl"] == -20.0,
+          f"và tổng là −20, không phải +180 (được {_p43['overall']['totalPnl']})")
+    check(_p43["kyThuat"]["so"] == 1 and _p43["kyThuat"]["tien"] == 200.0,
+          "lệnh kỹ thuật vẫn được ĐẾM và BÁO riêng, không bị vứt")
+
+    # Cửa ngược lại: không có lệnh kỹ thuật nào thì khối đó rỗng, và mọi lệnh
+    # vào kỳ vọng như cũ.
+    (DATA_DIR / store.TRADES).write_text(
+        "".join(_json.dumps(x) + NL for x in _tr43[:2]), encoding="utf-8")
+    _p43b = _J43.performance()
+    check(_p43b["kyThuat"]["so"] == 0 and _p43b["overall"]["count"] == 2,
+          "không lệnh kỹ thuật nào → khối rỗng, kỳ vọng không đổi")
+    print("\n[42] VÀO ĐƯỢC MÀ KHÔNG ĐẶT ĐƯỢC STOP → BÁN NGAY")
+
+    # Đã xảy ra thật trên sàn: sổ lệnh testnet mỏng nên lệnh MARKET khớp ở
+    # 66.574 trong khi giá đặt là 78.241. Stop tính từ giá ĐẶT (76.988) hoá ra
+    # NẰM TRÊN giá khớp, sàn từ chối OCO với -2010, và vị thế nằm đó KHÔNG CÓ
+    # STOP — bản cũ chỉ ghi một dòng "vị thế đang không có ai canh" rồi giữ.
+    #
+    # Một vị thế không stop là rủi ro không chặn trên. Cắt ngay với một khoản lỗ
+    # nhỏ luôn tốt hơn giữ một thứ không biết mất bao nhiêu. Đây là HÀNG RÀO, nên
+    # nó phải nằm ở tầng sàn chứ không ở chiến lược.
+    _src42 = ma_khong_chu_thich(ROOT / "trader" / "broker_testnet.py")
+    _i_oco = _src42.index("oco_err = str(e)")
+    _i_ban = _src42.index("market_sell", _i_oco)
+    _i_ret = _src42.index("return None", _i_ban)
+    check(_i_oco < _i_ban < _i_ret,
+          "OCO hỏng → BÁN NGAY rồi trả None, không giữ vị thế")
+    check("dong-ngay-that-bai" in _src42,
+          "và nếu bán cũng không được thì KÊU LÊN là cần can thiệp tay")
+
+    # `an-toan-dung-lai.py` phải coi vị thế thiếu OCO là KHÔNG an toàn — chính nó
+    # đã tìm ra chuyện này.
+    _src_at = ma_khong_chu_thich(ROOT / "scripts" / "an-toan-dung-lai.py")
+    check("ocoError" in _src_at and "ocoOrderListId" in _src_at,
+          "cổng dừng-lại soi CẢ ocoError lẫn ocoOrderListId")
     print("\n[41] DÒNG HỎNG TRONG SỔ PHẢI KÊU LÊN")
 
     # `read_all` bỏ qua dòng JSON hỏng bằng `continue`, im lặng. Nghĩa là một

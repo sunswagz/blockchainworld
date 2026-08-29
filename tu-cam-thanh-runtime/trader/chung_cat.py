@@ -169,6 +169,19 @@ def _tu_so_that(bo: list) -> list[dict]:
     ra = []
     perf = journal.performance()
     chung = perf["overall"]
+    # Lệnh đóng KỸ THUẬT phải hiện ra, không nằm im ngoài bảng: chúng không nói
+    # về chiến lược nhưng có làm đổi số dư, và người đọc cần biết chênh lệch ấy
+    # từ đâu ra. Một lệnh kỹ thuật vừa làm kỳ vọng biểu kiến đi từ −13,60 lên
+    # −6,83 mỗi lệnh.
+    kt = perf.get("kyThuat") or {}
+    if kt.get("so"):
+        ra.append(_pd("lenh-ky-thuat", "so-that",
+                      f"{kt['so']} lệnh đóng KỸ THUẬT ({', '.join(kt.get('lyDo') or [])}) "
+                      f"với {kt['tien']:+.2f} đô — KHÔNG tính vào kỳ vọng chiến lược "
+                      f"vì chúng nói về hệ thống chứ không về chiến lược. Tiền vẫn "
+                      f"vào tài khoản thật, nên tổng số dư và tổng lãi/lỗ chiến lược "
+                      f"lệch nhau đúng ngần ấy.",
+                      kt["so"], {"tien": kt["tien"]}))
     trades = store.read_all(store.TRADES)
     bai_hoc, _ = journal._phu_soat_lai(store.read_all(store.LESSONS))
 

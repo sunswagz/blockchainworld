@@ -80,9 +80,31 @@ def _stats(trades: list[dict]) -> dict:
     }
 
 
+# Lý do thoát do CHIẾN LƯỢC quyết định. Mọi lý do khác là đóng KỸ THUẬT: an
+# toàn, can thiệp tay, dọn dẹp — chúng nói về hệ thống, không về chiến lược.
+LY_DO_TU_NHIEN = ("STOP_LOSS", "TAKE_PROFIT", "HET_HAN", "OCO_FILLED",
+                  "TRAILING_STOP", "TP2")
+
+
 def performance() -> dict:
-    """PERFORMANCE MEMORY — cắt theo regime và theo chiến lược."""
-    trades = store.read_all(store.TRADES)
+    """PERFORMANCE MEMORY — cắt theo regime và theo chiến lược.
+
+    `overall` chỉ tính lệnh KẾT THÚC TỰ NHIÊN — chạm stop, chạm đích, hết hạn.
+    Lệnh đóng KỸ THUẬT (an toàn, can thiệp tay) tách sang `kyThuat`.
+
+    Vì sao tách: một lệnh vừa bị đóng tay do không đặt được stop ở sàn đem lại
+    +284 đô — do sổ lệnh testnet mỏng khiến giá khớp lệch 15%, không do chiến
+    lược. Gộp vào, kỳ vọng đi từ −13,60 lên −6,83 mỗi lệnh: MỘT lệnh kỹ thuật
+    làm mức lỗ biểu kiến giảm một nửa.
+
+    Không vứt chúng đi — `kyThuat` vẫn báo đủ số lệnh và số tiền, vì tiền đó
+    CÓ VÀO tài khoản thật. Chỉ là nó trả lời câu hỏi khác.
+    """
+    tat_ca = store.read_all(store.TRADES)
+    trades = [t for t in tat_ca
+              if not t.get("closedAt") or t.get("exitReason") in LY_DO_TU_NHIEN]
+    ky_thuat = [t for t in tat_ca
+                if t.get("closedAt") and t.get("exitReason") not in LY_DO_TU_NHIEN]
     by_regime: dict[str, list] = defaultdict(list)
     by_strategy: dict[str, list] = defaultdict(list)
     for t in trades:
@@ -92,6 +114,13 @@ def performance() -> dict:
         "overall": _stats(trades),
         "byRegime": {k: _stats(v) for k, v in sorted(by_regime.items())},
         "byStrategy": {k: _stats(v) for k, v in sorted(by_strategy.items())},
+        "kyThuat": {
+            "so": len(ky_thuat),
+            "tien": round(sum(t.get("pnl") or 0 for t in ky_thuat), 2),
+            "lyDo": sorted({t.get("exitReason") for t in ky_thuat if t.get("exitReason")}),
+            "ghiChu": ("Lệnh đóng KỸ THUẬT (an toàn / can thiệp tay), KHÔNG tính "
+                       "vào kỳ vọng chiến lược. Tiền vẫn vào tài khoản thật."),
+        },
     }
 
 

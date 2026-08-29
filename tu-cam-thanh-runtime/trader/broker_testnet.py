@@ -216,7 +216,30 @@ class TestnetBroker:
         except BinanceError as e:
             oco_err = str(e)
             bus.log("exec", "testnet-oco-loi",
-                    f"VÀO ĐƯỢC nhưng KHÔNG đặt được OCO: {e} — vị thế đang không có ai canh")
+                    f"VÀO ĐƯỢC nhưng KHÔNG đặt được OCO: {e}")
+            # KHÔNG GIỮ một vị thế không ai canh. Bán ra ngay.
+            #
+            # Bản cũ ghi một dòng "vị thế đang không có ai canh" rồi giữ nguyên.
+            # Đã xảy ra thật: sổ lệnh testnet mỏng nên lệnh MARKET khớp ở 66.574
+            # trong khi giá đặt là 78.241 — stop tính từ giá đặt (76.988) hoá ra
+            # NẰM TRÊN giá khớp, sàn từ chối OCO, và vị thế nằm đó không stop.
+            #
+            # Một vị thế không stop là rủi ro không chặn trên. Cắt ngay với một
+            # khoản lỗ nhỏ luôn tốt hơn giữ một thứ không biết mất bao nhiêu.
+            # Đây là hàng rào, không phải quyết định giao dịch — nên nó nằm ở
+            # tầng sàn, không ở chiến lược.
+            try:
+                self.client.market_sell(sym, self.client.round_qty(sym, float(filled_qty)))
+                bus.log("exec", "dong-ngay-vi-khong-co-oco",
+                        f"đã BÁN NGAY {filled_qty} {sym}: vào được nhưng không đặt "
+                        f"được stop ở sàn. Giữ một vị thế không ai canh là rủi ro "
+                        f"không chặn trên.")
+                return None
+            except BinanceError as e2:
+                bus.log("exec", "dong-ngay-that-bai",
+                        f"KHÔNG đặt được OCO ({e}) VÀ không bán ra được ({e2}). "
+                        f"Vị thế {filled_qty} {sym} đang KHÔNG có stop — cần can "
+                        f"thiệp tay ở buồng lái.")
 
         real_stop_dist = abs(fill_price - float(stop))
         trade = {
