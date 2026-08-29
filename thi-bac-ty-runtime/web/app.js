@@ -1466,6 +1466,22 @@
        [{ t: "Bản hiện hành" }, { t: "#" + (hh.so != null ? hh.so : "—") }],
        [{ t: "Ai đặt" }, { t: hh.nguoi || "—" }],
        [{ t: "Vì sao" }, { t: hh.vi || "—" }]]));
+    /* Kho bản tham số THẮNG config.json — cố ý, không thì mỗi lần khởi động
+       lại là xoá sạch mọi bản đã có người ký. Nhưng cái đúng ấy im lặng: sửa
+       config, khởi động lại, không có gì xảy ra và cũng không có gì báo. Nên
+       chỗ lệch phải hiện ra ĐÂY, cạnh bản đang chạy. */
+    var lc = t.lechCauHinh || [];
+    if (lc.length) {
+      k3.appendChild(giai("`config.json` xin " + lc.length + " núm mà máy "
+        + "KHÔNG chạy theo — kho bản tham số thắng config, và đó là cố ý. "
+        + "Đường đổi tham số là Chẩn đoán → Cổng Duyệt → có người ký, "
+        + "không phải sửa file."));
+      k3.appendChild(bang([{ t: "Núm" }, { t: "config xin" }, { t: "đang chạy" }],
+        lc.map(function (x) {
+          return [{ t: x.nut }, { t: String(x.xin), c: "nhat" },
+                  { t: String(x.dangChay), c: "n" }];
+        })));
+    }
     f.appendChild(k3);
     return f;
   }

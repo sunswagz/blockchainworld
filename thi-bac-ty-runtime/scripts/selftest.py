@@ -5903,6 +5903,28 @@ def kiem_ke_toan_vi_the() -> None:
          "`self.c.get(...) or MAC_DINH` biến 0 thành mặc định — cùng cái bẫy "
          "«None khác 0» đã gỡ ở ba chỗ khác trong cỗ máy này")
 
+    # ── config.json xin một đằng, máy chạy một nẻo ──────────────────────
+    # Kho bản tham số thắng config — cố ý, không thì mỗi lần khởi động lại
+    # là xoá sạch mọi bản đã có người ký. Nhưng cái đúng ấy im lặng.
+    _d24 = _tam("lech-cau-hinh")
+    tu24 = TrungUong(_d24, {"vonBanDauUsd": 10_000.0,
+                            "phanBo": {"toiDaSoViThe": 12}})
+    kiem("config khớp bản đang chạy thì KHÔNG kêu",
+         tu24.lech_cau_hinh() == [], str(tu24.lech_cau_hinh()))
+    tu25 = TrungUong(_d24, {"vonBanDauUsd": 10_000.0,
+                            "phanBo": {"toiDaSoViThe": 40}})
+    _l25 = tu25.lech_cau_hinh()
+    kiem("sửa config trên máy ĐÃ có bản tham số thì máy KHÔNG đổi",
+         tu25.phan_bo.c["toiDaSoViThe"] == 12,
+         "kho bản tham số thắng config — cố ý, xem `__init__`")
+    kiem("và chỗ lệch ấy được KHAI ra, không im lặng",
+         _l25 == [{"nut": "phanBo.toiDaSoViThe", "xin": 40, "dangChay": 12}],
+         f"{_l25} — người sửa config không đọc mã trước khi sửa; im lặng ở "
+         f"đây nghĩa là họ tin mình đã đổi được")
+    kiem("ảnh chụp mang theo chỗ lệch ấy",
+         tu25.anh_chup().get("lechCauHinh") == _l25,
+         "đo được mà không hiện lên buồng lái thì vẫn là im lặng")
+
     # ── và cái vòng tròn mà việc tự quay ấy khép lại ────────────────────
     # anh_chup → hiến pháp → mot_vong → hoc → anh_chup → … Điều
     # `ngat-roi-van-quan-sat` dựng một Trung Ương THẬT và quay hai vòng,

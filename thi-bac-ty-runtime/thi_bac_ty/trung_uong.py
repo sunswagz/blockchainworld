@@ -696,6 +696,34 @@ class TrungUong:
         self._dauVet = {k: v for k, v in self._dauVet.items() if v > han}
 
     # ── bước 6–7: CHẨN ĐOÁN → XÉT LẠI THAM SỐ ────────────────────────────
+    def lech_cau_hinh(self) -> list[dict]:
+        """`config.json` xin một đằng, máy chạy một nẻo — kể ra chỗ nào.
+
+        Kho bản tham số THẮNG `config.json`, và đó là cố ý: không thế thì
+        mỗi lần khởi động lại sẽ âm thầm quay về mặc định, xoá sạch mọi bản
+        đã có người ký duyệt. Nhưng cái đúng ấy sinh ra một cái im lặng —
+        sửa `phanBo.toiDaSoViThe` trong config, khởi động lại, và **không
+        có gì xảy ra, cũng không có gì báo**.
+
+        Đúng lớp hỏng mà `bac/config.py` đã ghi ở `MAC_DINH`: «sửa mỗi chỗ
+        này thì KHÔNG có tác dụng gì trên máy đã có config.json». Ở đó lời
+        cảnh báo nằm trong chú thích; ở đây nó phải ĐO được, vì người sửa
+        config không đọc mã trước khi sửa.
+
+        Không tự áp: đường đổi tham số vẫn là `hoc()` → `ap_dung(nguoi)`.
+        Việc của hàm này chỉ là không để ai tưởng mình đã đổi được.
+        """
+        dang = self.tham_so()
+        ra = []
+        for tang in ("ruiRoTong", "phanBo"):
+            xin = self.c.get(tang) or {}
+            for nut, gt in xin.items():
+                co = (dang.get(tang) or {}).get(nut)
+                if co != gt:
+                    ra.append({"nut": f"{tang}.{nut}", "xin": gt,
+                               "dangChay": co})
+        return ra
+
     def tham_so(self) -> dict:
         """Tham số ĐANG CÓ HIỆU LỰC — đọc từ chính các tầng, không từ `self.c`.
 
@@ -956,6 +984,7 @@ class TrungUong:
             "cheTy": self.che_ty(),
             "hieuNang": self.hieu_nang(),
             "banThamSo": self.kho_tham_so.tom_tat(),
+            "lechCauHinh": self.lech_cau_hinh(),
         }
 
 
