@@ -430,12 +430,15 @@
         "một lần thua lớn nhất", tk.canhBaoDuoi ? "xuong" : "mo"));
       l.appendChild(chi("Đuôi 5%", usd(tk.duoi5pct), "trung bình 5% tệ nhất", "xuong"));
       o2._than.appendChild(l);
-      if (tk.canhBaoDuoi) {
+      // Câu cảnh báo lấy TỪ DỮ LIỆU (`so.dong_canh_bao`), không chép
+      // lại ở đây. Bản trước dựng đúng câu ấy bằng JavaScript trong khi
+      // Python đã có sẵn một bản — hai bản của một câu thì sớm muộn lệch
+      // nhau, và câu này là thứ chặn người đọc hiểu sai con số nguy hiểm
+      // nhất trong cả hệ: tỉ lệ thắng.
+      if (tk.canhBao) {
         var p = el("p", "ghi");
-        p.innerHTML = "<b class='xuong'>Đuôi lệch:</b> tỉ lệ thắng " +
-          pc(tk.tiLeThang) + " nhưng MỘT lần thua lớn nhất xoá " +
-          so(tk.xoaBaoNhieuLanThang, 0) + " lần thắng. Tỉ lệ thắng ở đây " +
-          "không nói lên điều gì về an toàn.";
+        p.appendChild(el("b", "xuong", "Đuôi lệch: "));
+        p.appendChild(document.createTextNode(tk.canhBao));
         o2._than.appendChild(p);
       }
     }

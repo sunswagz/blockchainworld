@@ -4258,6 +4258,41 @@ def kiem_don_bang_qua_han() -> None:
         finally:
             B._thu_muc = cu
 
+def kiem_canh_bao_duoi_di_theo_du_lieu() -> None:
+    """Câu cảnh báo đuôi phải đi TRONG dữ liệu, chỉ có MỘT bản.
+
+    `so.dong_canh_bao` có sẵn từ đầu và KHÔNG AI GỌI — trong khi
+    `web/app.js` chép tay đúng câu ấy bằng JavaScript. Hai bản của một
+    câu thì sớm muộn lệch nhau, và câu này là thứ chặn người đọc hiểu sai
+    con số nguy hiểm nhất trong cả hệ: TỈ LỆ THẮNG.
+
+    Một chiến thuật thắng 99,7% mà mỗi lần thua xoá 76 lần thắng thì tỉ
+    lệ thắng KHÔNG nói gì về an toàn. `can_ket_qua` mở đầu docstring bằng
+    đúng chuyện ấy.
+    """
+    print("\n── Cảnh báo đuôi: một bản, đi trong dữ liệu ─────────────────")
+
+    from kham.so import thong_ke
+
+    kiem("sổ rỗng ⇒ không có câu cảnh báo",
+         thong_ke([]).get("canhBao") is None)
+    kiem("đuôi bình thường ⇒ không cảnh báo",
+         thong_ke([{"laiLo": 1.0}, {"laiLo": -1.0}]).get("canhBao") is None)
+
+    tk = thong_ke([{"laiLo": 1.0}] * 100 + [{"laiLo": -90.0}])
+    c = tk.get("canhBao") or ""
+    kiem("đuôi lệch ⇒ CÓ câu cảnh báo", bool(c), c[:60])
+    kiem("câu ấy nêu cả tỉ lệ thắng lẫn số lần bị xoá",
+         "99.0%" in c and "90 lần thắng" in c, c)
+    kiem("và nói thẳng tỉ lệ thắng không nói gì về an toàn",
+         "không nói lên điều gì về an toàn" in c)
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    js = (GOC_MA / "web" / "app.js").read_text(encoding="utf-8")
+    kiem("buồng lái DÙNG câu từ dữ liệu", "tk.canhBao" in js)
+    kiem("và KHÔNG còn dựng lại câu ấy bằng JavaScript",
+         "MỘT lần thua lớn nhất xoá" not in js)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4332,6 +4367,7 @@ def main() -> int:
     kiem_nut_van_khong_bi_dong_bang()
     kiem_hai_so_phai_nhat_quan()
     kiem_don_bang_qua_han()
+    kiem_canh_bao_duoi_di_theo_du_lieu()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

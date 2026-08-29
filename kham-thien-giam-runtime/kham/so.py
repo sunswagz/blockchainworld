@@ -87,7 +87,7 @@ def thong_ke(ds: list[dict]) -> dict:
     # một lần thua lớn nhất xoá bao nhiêu lần thắng trung bình
     xoa = abs(thua_lon_nhat) / tb_thang if tb_thang > 0 else None
 
-    return {
+    tk = {
         "n": n,
         "chuaCo": False,
         "tiLeThang": p_thang,
@@ -103,6 +103,17 @@ def thong_ke(ds: list[dict]) -> dict:
         "duoi5pct": duoi,
         "canhBaoDuoi": xoa is not None and xoa > 20,
     }
+    # CÂU cảnh báo đi kèm NGAY TRONG DỮ LIỆU, không để mỗi chỗ hiển thị
+    # tự viết lại. `dong_canh_bao` có sẵn từ đầu và KHÔNG AI GỌI — trong
+    # khi `web/app.js` chép tay đúng câu ấy bằng JavaScript. Hai bản của
+    # một câu thì sớm muộn lệch nhau, và câu này là thứ chặn người đọc
+    # hiểu sai con số nguy hiểm nhất trong cả hệ: TỈ LỆ THẮNG.
+    #
+    # Vào dữ liệu thì mọi nơi hiện `tiLeThang` — buồng lái, ảnh chụp
+    # công khai, bất cứ thứ gì đọc `/api/trang-thai` — đều có nó đi kèm,
+    # không ai phải nhớ tự thêm.
+    tk["canhBao"] = dong_canh_bao(tk)
+    return tk
 
 
 def dong_canh_bao(tk: dict) -> str | None:
