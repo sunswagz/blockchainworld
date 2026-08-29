@@ -3081,6 +3081,65 @@ def kiem_bao_cao_doc_hien_ra() -> None:
     kiem("app.js nói rõ CHƯA ĐO khác với SẠCH",
          "Chưa lượt quét băng đầy đủ nào" in js)
 
+def kiem_tien_do_khong_phai_loi() -> None:
+    """Dòng tiến độ bình thường không được mang mức ERROR.
+
+    `dichvu/chay-nen.py` bắt stdout thành INFO và stderr thành ERROR.
+    Đó là mặc định ĐÚNG cho tiến trình nền — traceback lạc ra stderr thì
+    đúng là lỗi thật. Nhưng `tien_hoa._buoc` in bảy dòng tiến độ mỗi lượt
+    ra stderr, nên nhật ký thật có:
+
+        ERROR    [tiến hoá 2/7] đo: 87214 khung, sổ thật 1 lệnh  (+14s)
+
+    Chẳng có gì hỏng ở đó. Mà `trang-thai.ps1` in mười dòng cuối, nên
+    mười dòng ấy toàn ERROR vô nghĩa — rồi lần nhật ký ghi một ERROR
+    THẬT, nó nằm lẫn vào. Mức báo động dùng sai chỗ thì thôi mang nghĩa.
+    """
+    print("\n── Tiến độ không được đội lốt lỗi ────────────────────────────")
+
+    N = chr(10)
+    GOC_MA = Path(__file__).resolve().parent.parent
+
+    def khong_chu_thich(vb: str) -> str:
+        # Cắt chú thích trước khi dò: chính đoạn văn giải thích lỗi này
+        # có chữ `sys.stderr` trong đó.
+        import io, tokenize
+        try:
+            ra, cu = [], None
+            for t in tokenize.generate_tokens(io.StringIO(vb).readline):
+                if t.type in (tokenize.COMMENT, tokenize.STRING):
+                    continue
+                ra.append(t.string)
+                _ = cu
+            return " ".join(ra)
+        except Exception:
+            return vb
+
+    # Cấm IN ra stderr. `__init__.py` có nhắc `_sys.stderr` để đặt lại mã
+    # hoá luồng — đó không phải in, và bắt cả nó là bắt nhầm.
+    xau = []
+    for f in sorted((GOC_MA / "kham").glob("*.py")):
+        ma = khong_chu_thich(f.read_text(encoding="utf-8"))
+        if "file = sys . stderr" in ma or "file = stderr" in ma:
+            xau.append(f.name)
+    kiem("không module `kham/` nào IN thẳng ra stderr", not xau, xau)
+
+    # Phép dò tự kiểm chính nó: một mẫu có `file=sys.stderr` NẰM TRONG
+    # chú thích thì không được bị bắt. Chú thích giải thích một thứ bị
+    # tính là chính thứ đó — đã cắn nhiều lần trong repo này.
+    mau = ("# ví dụ: print(x, file=sys.stderr)" + N
+           + '"""tài liệu nhắc file=sys.stderr"""' + N
+           + "print(1)" + N)
+    kiem("phép dò CÓ cắt được chú thích và chuỗi tài liệu",
+         "file = sys . stderr" not in khong_chu_thich(mau))
+    kiem("nhưng vẫn bắt được lời gọi THẬT",
+         "file = sys . stderr" in khong_chu_thich("print(1, file=sys.stderr)"))
+
+    cn = (GOC_MA / "dichvu" / "chay-nen.py").read_text(encoding="utf-8")
+    kiem("chay-nen.py vẫn giữ stderr → ERROR (traceback thì đúng là lỗi)",
+         "_Ong(logging.ERROR)" in cn)
+    kiem("và stdout → INFO", "_Ong(logging.INFO)" in cn)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3139,6 +3198,7 @@ def main() -> int:
     kiem_bus_gop_dong_lap()
     kiem_dich_vu_hoi_cong()
     kiem_bao_cao_doc_hien_ra()
+    kiem_tien_do_khong_phai_loi()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

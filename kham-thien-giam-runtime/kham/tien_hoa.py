@@ -227,7 +227,7 @@ def de_xuat_tat_dinh(tc: list[TrieuChung],
         # hết và không chỗ nào khá hơn, chứ không phải vòng tiến hoá hỏng.
         print(f"[tiến hoá 4/7] {len(daBo)} ứng viên đều đã bị trả lại gần "
               f"đây, bỏ qua: {', '.join(daBo[:6])}",
-              file=sys.stderr, flush=True)
+              flush=True)
     return []
 
 
@@ -480,13 +480,30 @@ def _thay_tai_cho(tho: str, k: list[str], gt) -> str | None:
 # ══════════════════════════════════════════════════════════════════════════
 
 def _buoc(so: int, ten: str) -> None:
-    """Kêu lên mình đang ở bước nào. Bảy bước, mỗi bước quét lại cả băng."""
+    """Kêu lên mình đang ở bước nào. Bảy bước, mỗi bước quét lại cả băng.
+
+    In ra **stdout**, không phải stderr. `dichvu/chay-nen.py` bắt hai
+    luồng ấy vào nhật ký với hai mức khác nhau — stdout thành INFO,
+    stderr thành ERROR — và đó là mặc định đúng cho một tiến trình nền,
+    vì một traceback lạc ra stderr thì đúng là lỗi thật.
+
+    Nhưng nó biến bảy dòng tiến độ BÌNH THƯỜNG của mỗi lượt tiến hoá
+    thành bảy dòng ERROR. Đọc được trên nhật ký thật:
+
+        ERROR    [tiến hoá 2/7] đo: 87214 khung, sổ thật 1 lệnh  (+14s)
+
+    Chẳng có gì hỏng ở đó cả. Mà `trang-thai.ps1` in mười dòng cuối, nên
+    mười dòng ấy toàn ERROR vô nghĩa — rồi lần nhật ký ghi một ERROR
+    THẬT, nó nằm lẫn vào và không ai nhận ra. Cùng một căn bệnh với
+    `bus` để dòng lặp đẩy dòng hiếm ra khỏi đệm: mức báo động mà dùng
+    sai chỗ thì nó thôi mang nghĩa gì.
+    """
     global _MOC
     gio = time.time()
     troi = gio - _MOC
     _MOC = gio
     dong = f"[tiến hoá {so}/7] {ten}" + (f"  (+{troi:.0f}s)" if so > 1 else "")
-    print(dong, file=sys.stderr, flush=True)
+    print(dong, flush=True)
     try:
         from .bus import bus
         bus.ghi(dong, loai="tin")
