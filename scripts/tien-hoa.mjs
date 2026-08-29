@@ -185,11 +185,37 @@ function domGia() {
   global.requestAnimationFrame = global.window.requestAnimationFrame;
   global.location = { hash: "", protocol: "http:" };
   global.window.location = global.location;
-  /* KHÔNG gán global.navigator: từ Node 22 nó là thuộc tính chỉ-đọc của
-     chính Node, gán đè là ném TypeError. Bỏ đi lại đúng hơn — pwa.js
-     kiểm `"serviceWorker" in navigator`, mà navigator của Node không có
-     nên nhánh service worker tự tắt, đúng thứ ta muốn khi chạy ngoài
-     trình duyệt. */
+  /* ── navigator: CHỈ tạo khi Node chưa có ────────────────────
+     Lý luận cũ ở đây — "bỏ đi lại đúng hơn, navigator của Node không
+     có serviceWorker nên nhánh ấy tự tắt" — chỉ ĐÚNG TỪ NODE 21.
+     Trước đó Node không có `navigator` nào cả, và
+     `"serviceWorker" in navigator` không tắt nhánh mà ném thẳng
+     ReferenceError.
+
+     Workflow chạy Node 20 (setup-node@v5, node-version "20"). Máy
+     người viết chạy Node 24. Nên cùng một dòng mã cho hai kết quả
+     khác nhau, và cái sai chỉ xảy ra ở chỗ không ai nhìn:
+
+       máy  → pwa.js nạp gọn  → "Mọi phòng vẽ được" ĐẠT  → 17/17
+       CI   → pwa.js ném lỗi  → thước TRƯỢT              → 12/13
+
+     Sổ nhà máy ghi đúng chuyện đó suốt nhiều lượt — "trượt: Mọi
+     phòng vẽ được · assets/js/pwa.js: navigator is not defined" — ở
+     `thai-boc-tu-tien-hoa` và `tao-bien-xu-tien-hoa`. Và nó tệ hơn
+     một thước sai bình thường: điểm yếu ấy nằm ở pwa.js, NGOÀI ba
+     file model được phép sửa, nên mỗi lượt model đi vá một thứ nó
+     không với tới được. Hai vòng tiến hoá mất lượt vì một khác biệt
+     phiên bản Node.
+
+     `defineProperty` chứ không gán thẳng: từ Node 22 `navigator` là
+     thuộc tính chỉ-đọc của chính Node và `global.navigator = …` ném
+     TypeError — đó là chỗ lý luận cũ đúng, giữ nguyên phần ấy. */
+  if (typeof globalThis.navigator === "undefined") {
+    Object.defineProperty(globalThis, "navigator", {
+      value: { userAgent: "node", language: "vi" },
+      configurable: true, writable: true,
+    });
+  }
   /* `window.navigator` phải có, và phải là đối tượng RIÊNG chứ không
      phải navigator của Node: mã PWA hay đọc `navigator.standalone`
      (cờ iOS), mà Node không có `window` nên không ai gán hộ. */
