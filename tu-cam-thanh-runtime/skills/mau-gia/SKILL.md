@@ -57,61 +57,67 @@ nó chỉ nói **thị trường đang nén**.
 
 ## Phần II — Số đo: mỗi mẫu thật sự đáng bao nhiêu
 
-4000 nến BTC 1h. Vào tại nến xác nhận, stop và mục tiêu do chính mẫu khai, giữ
-tối đa 48 nến, trừ 15bps mỗi đầu. Hai lần cùng tên phải cách nhau ≥12 nến (không
-gộp trùng thì một hình vai-đầu-vai đứng yên 10 nến sẽ được đếm 10 lần).
+**135.000 nến khung 4h trên 15 chợ độc lập** (2022-07 → 2026-08). Vào tại nến
+xác nhận, stop và mục tiêu do chính mẫu khai, giữ tối đa 48 nến, trừ 15bps mỗi
+đầu. Hai lần cùng tên phải cách nhau ≥12 nến — không gộp trùng thì một hình
+vai-đầu-vai đứng yên 10 nến sẽ được đếm 10 lần.
 
 ```
-mẫu                   n   mục tiêu MẪU    RR   thắng  MFE giữa   1.0R    1.5R    2.0R
-NẾN_TRÙM_GIẢM        52        +0.021  1.19   61.5%      1.34  +0.095  +0.077  +0.197
-NẾN_TRÙM_TĂNG        49        -0.109  1.15   53.1%      0.74  -0.212  -0.191  -0.135
-HAI_ĐỈNH            111        -0.171  0.49   49.5%      0.77  -0.247  -0.353  -0.477
-HAI_ĐÁY             124        -0.230  0.47   44.4%      0.58  -0.289  -0.468  -0.495
-VAI_ĐẦU_VAI_NGƯỢC    21        -0.268  1.25   38.1%      0.88  -0.208  -0.550  -0.588
-VAI_ĐẦU_VAI          26        -0.332  1.49   42.3%      0.92  -0.206  -0.365  -0.554
-CỐC_TAY_CẦM          19        -0.366  1.92   36.8%      0.65  -0.525  -0.518  -0.557
-NẾN_TRONG_TĂNG      153        -0.383  2.36   33.3%      0.47  -0.426  -0.438  -0.487
-NẾN_TRONG_GIẢM      160        -0.454  2.38   28.7%      0.30  -0.422  -0.417  -0.403
+mẫu                        n  mục tiêu MẪU    RR   thắng    MFE    1.0R    1.5R    2.0R
+NÊM_GIẢM                  60        +0.056  1.95   46.7%   0.91  -0.112  -0.217  -0.357
+TAM_GIÁC_TĂNG            867        -0.021  1.48   43.7%   0.81  -0.113  -0.143  -0.191
+TAM_GIÁC_GIẢM            810        -0.022  1.54   44.6%   0.86  -0.110  -0.209  -0.306
+NÊM_TĂNG                  47        -0.034  1.82   40.4%   0.72  -0.245  -0.263  -0.177
+VAI_ĐẦU_VAI              698        -0.038  1.16   46.0%   0.84  -0.151  -0.242  -0.330
+HAI_ĐỈNH                2029        -0.040  0.53   55.9%   0.88  -0.093  -0.192  -0.311
+NẾN_TRÙM_TĂNG           2025        -0.068  1.17   46.2%   0.89  -0.081  -0.091  -0.123
+NẾN_TRÙM_GIẢM           2098        -0.069  1.19   45.8%   0.89  -0.081  -0.112  -0.139
+NẾN_TRONG_GIẢM          5645        -0.082  2.46   35.6%   0.94  -0.080  -0.098  -0.137
+CỐC_TAY_CẦM              237        -0.089  1.76   38.4%   0.73  -0.132  -0.084  +0.016
+VAI_ĐẦU_VAI_NGƯỢC        678        -0.118  1.10   43.5%   0.77  -0.140  -0.216  -0.266
+HAI_ĐÁY                 1970        -0.144  0.52   49.1%   0.74  -0.169  -0.237  -0.313
+TAM_GIÁC_CÂN             707        -0.172  2.89   29.8%   0.83  -0.129  -0.260  -0.371
+NẾN_TRONG_TĂNG          5126        -0.184  2.23   32.4%   0.79  -0.159  -0.187  -0.209
 ```
 
-**8/9 mẫu đủ cỡ mẫu có kỳ vọng ÂM sau phí**, ở mọi luật thoát.
+**13/14 mẫu có kỳ vọng ÂM sau phí**, ở mọi luật thoát. Cái duy nhất dương là
+`NÊM_GIẢM` với n=60 — và nó ÂM ở cả ba luật thoát cố định, tức con số dương ấy
+phụ thuộc hoàn toàn vào cách đặt đích riêng của mẫu.
+
+### Bảng này vừa LẬT một kết luận của chính nó
+
+Bản trước đo trên **4.000 nến BTC 1h** và kết luận: `NẾN_TRÙM_GIẢM` là "cái duy
+nhất sống sót", +0,021R, và **càng kéo đích ra càng tốt** (+0,095 → +0,197).
+
+Trên 40 lần dữ liệu, ở khung bot thật sự chạy, nó là **−0,069R qua 2.098 lần**,
+và **càng kéo đích ra càng tệ** (−0,081 → −0,139). Dấu đổi, và hướng của xu
+hướng cũng đổi.
+
+Đó không phải lỗi của phép đo cũ — 52 lần xuất hiện là 52 lần. Nó là bài học về
+việc **một kết luận rút từ 52 quan sát trên một chợ thì chưa phải kết luận**,
+kể cả khi nó đã qua cắt trong/ngoài mẫu.
 
 ### Ba điều bảng này nói mà sách không nói
 
 **1. Thắng nhiều vẫn lỗ — và đây là cách nó xảy ra.**
-`HAI_ĐỈNH` **chạm đích 69,4%** số lần. Vẫn lỗ −0,171R. Vì luật đặt mục tiêu kinh
-điển của nó cho **RR chỉ 0,49** — đích gần hơn cả stop. Ở RR 0,49 phải thắng
-**67%** mới hoà, và phí đẩy ngưỡng đó lên cao hơn nữa.
+`HAI_ĐỈNH` thắng **55,9%** qua 2.029 lần. Vẫn lỗ −0,040R. Vì luật đặt mục tiêu
+kinh điển của nó cho **RR chỉ 0,53** — đích gần hơn cả stop. Ở RR 0,53 phải
+thắng **65%** mới hoà, và phí đẩy ngưỡng đó lên cao hơn nữa.
 
 > Một mẫu có tỉ lệ thắng cao mà không kèm RR là một câu chưa nói hết.
 
 **2. Đích xa hơn không cứu được — nên lỗi không nằm ở luật đặt mục tiêu.**
-Cột 1.0R/1.5R/2.0R dùng đúng stop của mẫu nhưng đích cố định. `HAI_ĐỈNH` càng
-kéo đích ra càng tệ: −0,247 → −0,353 → −0,477. Nghĩa là sau khi phá cổ áo, giá
-**không có xu hướng đi tiếp**. Hình học ấy không đoán được gì trên khung này.
+Cột 1.0R/1.5R/2.0R dùng đúng stop của mẫu nhưng đích cố định. Gần như mọi mẫu
+càng kéo đích ra càng tệ. Nghĩa là sau khi phá mức xác nhận, giá **không có xu
+hướng đi tiếp** — hình học ấy không đoán được gì.
 
-Đối chiếu: `NẾN_TRÙM_GIẢM` càng kéo đích ra càng **tốt** hơn (+0,095 → +0,197).
-Đó mới là dấu hiệu của một tín hiệu có hướng thật.
+Ngoại lệ duy nhất là `CỐC_TAY_CẦM` (−0,132 → +0,016 ở 2R). Một ngoại lệ trong
+14 mẫu × 3 luật thoát = 42 ô là đúng thứ phép thử bội sinh ra khi chẳng có gì.
 
-**3. MFE trung vị dưới 1R ở gần như mọi mẫu.**
-Một nửa số lần `NẾN_TRONG_GIẢM` xuất hiện, giá **không đi nổi 0,3R** về phía mình
-trước khi kết thúc. Không luật thoát nào cứu được một tín hiệu như thế.
-
-### Cái duy nhất sống sót — và vì sao vẫn chưa được tin
-
-`NẾN_TRÙM_GIẢM` dương ở cả bốn luật thoát. Nhưng **12 mẫu × 4 luật = 48 tổ hợp
-đo một lượt**; tìm ra một cái dương nhẹ là đúng thứ phép thử bội sinh ra khi
-chẳng có gì cả. Nên chia đôi dữ liệu:
-
-```
-                     trong mẫu (70%)          ngoài mẫu (30%)
-NẾN_TRÙM_GIẢM   n=31  mẫu −0,075  1R +0,011   n=21  mẫu +0,162  1R +0,219
-```
-
-Dương ở **cả hai nửa** dưới mục tiêu cố định — hiếm, và đáng ghi lại. Nhưng
-+0,011R trong mẫu là gần bằng không, và n=21 ngoài mẫu là sát ngưỡng. **Chưa đủ
-để giao dịch.** Mọi mẫu còn lại âm ở cả hai nửa.
-
+**3. MFE trung vị dưới 1R ở MỌI mẫu.**
+Không mẫu nào có MFE trung vị chạm 1R. Một nửa số lần chúng xuất hiện, giá
+không đi nổi 0,95R về phía mình trước khi kết thúc. Không luật thoát nào cứu
+được một tín hiệu như thế.
 ## Phần III — Phép đo này KHÔNG chứng minh điều gì
 
 Nó đo mẫu giá làm **tín hiệu vào lệnh đứng một mình**, với stop và đích máy móc.
