@@ -87,13 +87,28 @@ def read_all(name: str) -> list[dict]:
     if not p.exists():
         return []
     out = []
+    hong = 0
     for line in p.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         try:
             out.append(json.loads(line))
         except json.JSONDecodeError:
-            continue
+            hong += 1
+    # DÒNG HỎNG PHẢI KÊU LÊN.
+    #
+    # Bỏ qua im lặng nghĩa là một lệnh biến mất khỏi MỌI thống kê — kỳ vọng,
+    # sụt giảm, hệ số biến thiên rủi ro — mà không con số nào lệch một cách
+    # nhìn thấy được. Sổ vẫn "đọc được", chỉ ngắn hơn thật.
+    #
+    # Vẫn TRẢ VỀ phần đọc được chứ không ném lỗi: một dòng hỏng ở cuối file (do
+    # ghi dở lúc mất điện) không được làm chết cả bot. Nhưng nó phải để lại dấu.
+    if hong:
+        from .bus import bus
+
+        bus.log("system", "so-co-dong-hong",
+                f"{name}: {hong}/{hong + len(out)} dòng KHÔNG đọc được và đã bị bỏ "
+                f"qua — mọi thống kê tính từ sổ này đang thiếu ngần ấy bản ghi")
     return out
 
 
@@ -109,5 +124,12 @@ def read_json(name: str, fallback: Any = None) -> Any:
         return fallback
     try:
         return json.loads(p.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        # Cùng lý do: kho đo hỏng mà trả mặc định im lặng thì bảng hiện "chưa
+        # có" — giống hệt lúc chưa chạy lần nào, và không ai đi tìm.
+        from .bus import bus
+
+        bus.log("system", "kho-doc-hong",
+                f"{name}: JSON hỏng ({e}) — dùng giá trị mặc định. Bảng sẽ hiện "
+                f"như thể kho này chưa chạy lần nào.")
         return fallback

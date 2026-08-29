@@ -1107,6 +1107,42 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[41] DÒNG HỎNG TRONG SỔ PHẢI KÊU LÊN")
+
+    # `read_all` bỏ qua dòng JSON hỏng bằng `continue`, im lặng. Nghĩa là một
+    # lệnh biến mất khỏi MỌI thống kê — kỳ vọng, sụt giảm, hệ số biến thiên rủi
+    # ro — mà không con số nào lệch một cách nhìn thấy được. Sổ vẫn "đọc được",
+    # chỉ ngắn hơn thật.
+    #
+    # Vẫn phải TRẢ VỀ phần đọc được: một dòng hỏng ở cuối file (ghi dở lúc mất
+    # điện) không được làm chết bot. Nhưng nó phải để lại dấu.
+    from trader.bus import bus as _bus41
+    _lg41 = []
+    _cu_log = _bus41.log
+    _bus41.log = lambda *a, **k: _lg41.append(a)
+    try:
+        (DATA_DIR / "hong41.jsonl").write_text(
+            _json.dumps({"a": 1}) + NL + "{hỏng" + NL + _json.dumps({"a": 2}) + NL,
+            encoding="utf-8")
+        _ra41 = store.read_all("hong41.jsonl")
+        check(len(_ra41) == 2, f"vẫn đọc được 2 bản ghi lành (được {len(_ra41)})")
+        check(any("so-co-dong-hong" in str(x) for x in _lg41),
+              "và KÊU LÊN rằng có dòng bị bỏ qua")
+
+        _lg41.clear()
+        (DATA_DIR / "lanh41.jsonl").write_text(
+            _json.dumps({"a": 1}) + NL, encoding="utf-8")
+        store.read_all("lanh41.jsonl")
+        check(not _lg41, "sổ lành → IM, không kêu suông (cửa ngược lại)")
+
+        _lg41.clear()
+        (DATA_DIR / "hong41.json").write_text("{hỏng", encoding="utf-8")
+        check(store.read_json("hong41.json", "MẶC_ĐỊNH") == "MẶC_ĐỊNH",
+              "kho JSON hỏng → vẫn trả giá trị mặc định, không nổ")
+        check(any("kho-doc-hong" in str(x) for x in _lg41),
+              "và kêu lên — «bảng hiện như chưa chạy» giống hệt «chưa chạy»")
+    finally:
+        _bus41.log = _cu_log
     print("\n[40] KHÔNG BỘ KIỂM NÀO ĐƯỢC CHẠM SỔ THẬT")
 
     # Đã sập BA lần. Hai lần đầu là `selftest.py` ghi lệnh giả vào sổ giao dịch.
