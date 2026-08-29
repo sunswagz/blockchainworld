@@ -1107,6 +1107,35 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[44] NGUỒN BIẾN MẤT KHỎI LÒ CHƯNG CẤT PHẢI KÊU")
+    from trader import chung_cat as C44
+
+    # Sau khi hoàn tác champion, nguồn `chien-luoc` im hẳn — vì bản hoàn tác để
+    # `ketQua` rỗng. Bảng vẫn 30 phát hiện, vẫn xanh, chỉ thiếu một NGUỒN. Không
+    # ai đếm nguồn, nên không ai thấy.
+    #
+    # Lò đã có danh sách `bo` (những thứ bị bỏ kèm lý do) — nguồn im lặng phải
+    # rơi vào đó chứ không biến mất không dấu vết.
+    _bo44 = []
+    _ra44 = C44._tu_chien_luoc(_bo44)
+    check(bool(_ra44) or bool(_bo44),
+          "nguồn chien-luoc hoặc sinh phát hiện, hoặc khai LÝ DO vào danh sách bỏ")
+
+    # Và mỗi nguồn trong bảng đăng ký phải làm được điều đó: im lặng hoàn toàn
+    # là cửa duy nhất không được phép.
+    _im = []
+    for _ten, _ham in C44.NGUON:
+        _b = []
+        try:
+            _r = _ham(_b)
+        except Exception as _e:  # noqa: BLE001
+            _im.append(f"{_ten} (nổ: {type(_e).__name__})")
+            continue
+        if not _r and not _b:
+            _im.append(_ten)
+    check(not _im,
+          "không nguồn nào im lặng hoàn toàn — có gì đó hoặc có lý do"
+          + (f" — IM: {_im}" if _im else ""))
     print("\n[43] LỆNH ĐÓNG KỸ THUẬT KHÔNG PHẢI KẾT QUẢ CHIẾN LƯỢC")
     from trader import journal as _J43
 

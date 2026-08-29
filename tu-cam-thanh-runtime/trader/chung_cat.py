@@ -1052,16 +1052,23 @@ def _tu_lo_luyen(bo: list) -> list[dict]:
                       max(n_thu, 1), {"soLanThu": n_thu, "soVuot": 0}))
     return ra
 
+# BẢNG NGUỒN, khai ở một chỗ. Trước đây nó nằm inline trong `chung_cat()`, nên
+# không phép kiểm nào duyệt được từng nguồn. Một nguồn im hẳn — không phát hiện,
+# không lý do bỏ — thì bảng vẫn xanh và không ai đếm nguồn.
+NGUON = (
+    ("chay-lai", _tu_chay_lai), ("so-that", _tu_so_that),
+    ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
+    ("mau-gia", _tu_mau_gia), ("do-khung", _tu_do_khung),
+    ("nhieu-cho", _tu_nhieu_cho), ("gia-thuyet", _tu_gia_thuyet),
+    ("bo-pha", _tu_bo_pha), ("do-huong", _tu_do_huong),
+    ("lo-luyen", _tu_lo_luyen),
+)
+
 def chung_cat() -> dict:
     """Chưng lại toàn bộ phát hiện. Ghi đè sạch kho, không cộng dồn."""
     bo: list[dict] = []
     ra: list[dict] = []
-    for ten, ham in (("chay-lai", _tu_chay_lai), ("so-that", _tu_so_that),
-                     ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
-                     ("mau-gia", _tu_mau_gia), ("do-khung", _tu_do_khung),
-                     ("nhieu-cho", _tu_nhieu_cho), ("gia-thuyet", _tu_gia_thuyet),
-                     ("bo-pha", _tu_bo_pha), ("do-huong", _tu_do_huong),
-                     ("lo-luyen", _tu_lo_luyen)):
+    for ten, ham in NGUON:
         try:
             ra.extend(ham(bo))
         except Exception as e:  # một nguồn hỏng không được kéo sập cả lò
