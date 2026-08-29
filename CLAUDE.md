@@ -553,7 +553,17 @@ hiện tại, nó chỉ nói lúc này.
     sổ dùng được   578/578 (100%) · thang chờ 0 · spread 1,00¢
     Brier chợ      0,20799  kỹ năng +16,8%
     Brier mô hình  0,16078  kỹ năng +35,7%
-    w ước lượng    0,710    (phiên giấy hoà vốn quanh w ≈ 1)
+    w ước lượng    0,710    (chợ mù 0 · chợ biết y hệt ta 1)
+
+> Dòng này từng ghi thêm *"(phiên giấy hoà vốn quanh w ≈ 1)"*, và câu ấy
+> SAI. Ở w = 0,95 và 1,00 phiên giấy có **0 lệnh khớp, 0 kết toán** — lãi
+> lỗ $0,00 vì bot ĐỨNG NGOÀI, không phải vì nó hoà. Phép dò đổi dấu đọc
+> số 0 ấy thành một điểm hoà vốn. Sự thật đo được: ở w = 0,7 phiên giấy
+> lãi +34%, và từ w ≈ 0,9 trở lên cổng rủi ro chặn hết — **không có điểm
+> hoà vốn nào trong dãy quét**. Nên câu "chợ thật nằm DƯỚI điểm hoà vốn"
+> cũng không đứng được: chưa đo được điểm ấy ở đâu. Cái đo được là cổng
+> rủi ro chặn TRƯỚC khi lợi thế thành âm — tin tốt, nhưng là một câu
+> khác. Đã sửa `doc_quet()` và canh bằng bốn phép kiểm.
 
 Lãi lỗ THẬT, chạy hết băng (133.829 khung, 8 ngày, 30/08/2026):
 
