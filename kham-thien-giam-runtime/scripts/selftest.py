@@ -966,6 +966,70 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_sigma_luoi_phut() -> None:
+    """σ chạy thật phải đo CÙNG CÁCH với σ đã tuning ngoại tuyến.
+
+    Bản đầu lấy log-return giữa hai mẫu liên tiếp rồi chia `sqrt(dt)`.
+    Nhưng giá nền tới từ REST hỏi vòng 2 giây, và đo trên băng thật:
+    **36,4% mẫu có giá y hệt mẫu trước**. Mỗi mẫu lặp là một return bằng
+    0 tiêm vào phương sai, nên σ chạy thật chỉ bằng 0,875 lần (trung vị,
+    19 quãng) σ đo trên lưới phút — σ bị dìm thì mô hình TỰ TIN QUÁ.
+
+    Nặng hơn con số: `tu-nang-cap.py` vặn `bienDongCuaSoGiay` 300→900
+    bằng cách chấm trên LƯỚI PHÚT. Tham số ấy được chọn cho một bộ ước
+    KHÁC với bộ ước đang chạy.
+    """
+    print("\n-- Sigma chay that do CUNG CACH voi sigma tuning ---------")
+
+    from kham.config import CONFIG as _CFG
+    from kham.dinh_gia import DoBienDong as _DBD
+
+    b = _DBD()
+    cu = (_CFG.get("dinhGia") or {}).get("bienDongCuaSoGiay")
+    try:
+        _CFG["dinhGia"]["bienDongCuaSoGiay"] = 900
+        kiem("cửa sổ đọc CONFIG động", b.cuaSoGiay == 900.0, b.cuaSoGiay)
+        _CFG["dinhGia"]["bienDongCuaSoGiay"] = 300
+        kiem("đổi CONFIG thì bộ ước thấy ngay", b.cuaSoGiay == 300.0,
+             "chốt lúc import là nút vặn mà không nhúc nhích")
+        _CFG["dinhGia"]["bienDongCuaSoGiay"] = 900
+
+        T = time.time() * 1000.0
+        # Mẫu LẶP: giá đứng im ở nhịp 2 giây trong cùng một phút.
+        b2 = _DBD()
+        for i in range(60):
+            b2.them(70_000.0, T - (60 - i) * 2_000.0)
+        kiem("mẫu lặp trong cùng phút chỉ thành MỘT nến",
+             b2.so_mau <= 3, f"{b2.so_mau} nến từ 60 mẫu 2 giây")
+
+        b3 = _DBD()
+        for i in range(20):
+            b3.them(70_000.0 * (1 + 0.0004 * math.sin(i)),
+                    T - (20 - i) * 60_000.0)
+        kiem("đủ nến phút thì có σ", b3.sigma_giay() is not None)
+        # 16 chứ không 15: cửa sổ giữ mốc `>= han` nên nó bao cả hai đầu —
+        # 15 khoảng thì 16 mốc. Chốt ở dải để phép kiểm không đỏ vì một
+        # sai lệch một đơn vị mà chính nó hiểu nhầm.
+        kiem("số nến khớp cửa sổ 900 giây", 15 <= b3.so_mau <= 16,
+             f"{b3.so_mau} nến cho cửa sổ 900s")
+
+        b4 = _DBD()
+        for i in range(4):
+            b4.them(70_000.0 + i, T - (4 - i) * 60_000.0)
+        kiem("thiếu nến thì trả None, KHÔNG lùi về bộ ước mẫu thô",
+             b4.sigma_giay() is None,
+             "lùi về là lặng lẽ dùng lại đúng bộ ước vừa bị bác")
+
+        b5 = _DBD()
+        b5.mo_dau([(T - (20 - i) * 60_000.0, 70_000.0 + i * 3.0)
+                   for i in range(20)])
+        kiem("nạp mồi cho σ có ngay từ vòng đầu",
+             b5.so_mau == 20 and b5.sigma_giay() is not None, b5.so_mau)
+    finally:
+        if cu is not None:
+            _CFG["dinhGia"]["bienDongCuaSoGiay"] = cu
+
+
 def kiem_nho_gia_mo_khung() -> None:
     """Strike của một khung là HẰNG SỐ — đừng hỏi lại 750 lần.
 
@@ -1116,6 +1180,11 @@ def kiem_ghi_config_tai_cho() -> None:
         truoc = (d / "config.json").read_text(encoding="utf-8")
         cuRoot = _TH.ROOT
         _TH.ROOT = d
+        # `ghi_config` đổi CẢ CONFIG trong bộ nhớ, không chỉ file. Không
+        # trả lại thì mọi phép kiểm SAU đây chạy với cửa sổ σ 60 giây —
+        # và chúng đỏ vì một lý do không liên quan gì tới thứ chúng kiểm.
+        from kham.config import CONFIG as _CFG
+        cuGiaTri = (_CFG.get("dinhGia") or {}).get("bienDongCuaSoGiay")
         try:
             cu = _json.loads(truoc)["dinhGia"]["bienDongCuaSoGiay"]
             moi = 60 if cu != 60 else 120
@@ -1141,6 +1210,8 @@ def kiem_ghi_config_tai_cho() -> None:
                  (d / "config.json").read_text(encoding="utf-8") == sau)
         finally:
             _TH.ROOT = cuRoot
+            if cuGiaTri is not None:
+                _CFG["dinhGia"]["bienDongCuaSoGiay"] = cuGiaTri
 
 
 def kiem_chan_mo_hinh_khong_can_lenh() -> None:
@@ -1305,6 +1376,16 @@ def kiem_duong_quyet_dinh() -> None:
         def gia_mo_khung(self, cap, ms):
             xin_mo.append(ms)
             return 100_000.0
+
+        def nen_gan_day(self, cap, soNen=20):
+            # NẠP MỒI cho `DoBienDong`. Bộ ước nay chạy trên LƯỚI PHÚT,
+            # nên 20 nhịp hai giây của phép kiểm chỉ cho 1–2 nến phút —
+            # không đủ, và không đủ thì vòng thoát sớm với lý do đúng
+            # chữ nhưng che mất thứ đang kiểm.
+            return [(T - (soNen - i) * 60_000.0,
+                     100_000.0 + (37.0 if i % 2 else -29.0))
+                    for i in range(soNen)]
+
         trangThai: dict = {}
 
     cuSong, cuNguon = V.dong_song, V.nguon
@@ -2707,6 +2788,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
     kiem_tu_nang_cap()

@@ -605,11 +605,25 @@ class Runtime:
         if gia is None:
             return
         self.giaNen[ma] = gia
-        bd = self.bienDong.setdefault(ma, DoBienDong())
+        bd = self.bienDong.get(ma)
+        if bd is None:
+            # NẠP MỒI ngay: lưới phút cần vài phút mẫu mới có nghĩa, và
+            # chờ là mù mất mấy phút đầu sau mỗi lần khởi động. Đường tới
+            # chợ chập chờn nên những phút ấy đắt.
+            bd = DoBienDong()
+            try:
+                bd.mo_dau(nguon.nen_gan_day(
+                    tt["nen"], int(bd.cuaSoGiay / 60.0) + 2))
+            except Exception as e:                  # noqa: BLE001
+                bus.ghi(f"{ma}: nạp mồi σ hỏng: {type(e).__name__}: {e}",
+                        loai="canh")
+            self.bienDong[ma] = bd
         bd.them(gia, now)
         sigma = bd.sigma_giay()
         if sigma is None:
-            self._than_phien(ma, f"chưa đủ mẫu ước lượng σ ({bd.so_mau}/12)")
+            self._than_phien(
+                ma, f"chưa đủ mẫu ước lượng σ ({bd.so_mau}/"
+                    f"{DoBienDong.TOI_THIEU_PHUT} nến phút)")
             return
 
         # 2. sổ lệnh — WebSocket trước, REST là lưới đỡ

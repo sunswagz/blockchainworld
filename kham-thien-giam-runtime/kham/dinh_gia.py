@@ -128,44 +128,87 @@ class TinMoi:
 
 @dataclass
 class DoBienDong:
-    """Ước lượng sigma mỗi giây từ một cửa sổ trượt các mẫu giá.
+    """Ước lượng sigma mỗi giây — trên LƯỚI PHÚT, cùng cách bộ ước ngoại tuyến.
 
-    Dùng log-return chuẩn hoá theo căn bậc hai của khoảng cách thời gian, vì
-    các mẫu tới KHÔNG đều nhau — WebSocket đẩy khi có giao dịch, không phải
-    theo nhịp. Chia cho `sqrt(dt)` là cách quy mọi mẫu về cùng một đơn vị
-    "mỗi giây"; bỏ bước đó thì lúc chợ sôi động (mẫu dày, dt nhỏ) sigma đo
-    được sẽ TỤT xuống thay vì tăng lên, tức là sai đúng chiều nguy hiểm nhất.
+    ## Vì sao không còn dùng mẫu thô nữa
+
+    Bản đầu lấy log-return giữa hai mẫu liên tiếp rồi chia `sqrt(dt)`.
+    Nghe hợp lý, và nó có một lý do đúng: mẫu WebSocket tới không đều.
+    Nhưng giá nền ở đây tới từ REST hỏi vòng mỗi 2 giây, và đo được:
+
+        **36,4% mẫu có giá y HỆT mẫu trước.**
+
+    Mỗi mẫu lặp là một log-return bằng 0 tiêm vào phương sai. Kết quả:
+    σ chạy thật chỉ bằng **0,875 lần** (trung vị, 19 quãng) σ đo trên
+    lưới phút — và σ bị dìm nghĩa là mô hình TỰ TIN QUÁ, đúng cái lệch
+    mà bảng hiệu chỉnh đo được ở hai đuôi.
+
+    Chuyện thứ hai còn nặng hơn con số: `scripts/tu-nang-cap.py` vặn
+    `bienDongCuaSoGiay` 300s → 900s bằng cách chấm trên **lưới phút**.
+    Tham số ấy được chọn cho một bộ ước KHÁC với bộ ước đang chạy. Vặn
+    một nút của cỗ máy A rồi lắp vào cỗ máy B là chuyện vô nghĩa dù mỗi
+    bên đều chạy được.
+
+    Nay cả hai đo cùng một cách: gom mẫu về lưới PHÚT (giá cuối mỗi
+    phút), rồi lấy độ lệch chuẩn log-return chia `sqrt(60)`.
+
+    ## Và nạp mồi để khỏi mù sau mỗi lần khởi động
+
+    Lưới phút cần vài phút mẫu mới có nghĩa. Chờ là mù mất mấy phút đầu —
+    đắt, vì đường tới chợ CHẬP CHỜN và những phút thông là quý nhất.
+    `mo_dau()` nạp thẳng nến 1 phút Binance vào lưới, nên σ có ngay từ
+    vòng đầu tiên.
     """
-    cuaSoGiay: float = float(_DG["bienDongCuaSoGiay"])
-    _mau: deque = field(default_factory=lambda: deque(maxlen=4000))
+    #: Số nến phút tối thiểu để nói được gì. Dưới ngần này thì trả None
+    #: chứ KHÔNG lùi về bộ ước mẫu thô — lùi về là lặng lẽ dùng lại đúng
+    #: bộ ước vừa bị bác, và không ai biết.
+    TOI_THIEU_PHUT = 6
+
+    _luoi: dict = field(default_factory=dict)     # mốc phút -> giá cuối
+    _moMoc: float = 0.0
+
+    @property
+    def cuaSoGiay(self) -> float:
+        """Đọc CONFIG MỖI LẦN, không chốt lúc nạp module.
+
+        Nút này nằm trong bảng vặn của vòng tự nâng cấp. Chốt thành hằng
+        số lúc import thì cổng thử một giá trị mới, đo ra "không khác gì"
+        — vì bộ ước vẫn dùng giá trị cũ — rồi trả lại. Cùng đúng cái bẫy
+        đã cắn ở `nan_lai.he_so_giam_chan`.
+        """
+        return float((CONFIG.get("dinhGia") or {}).get(
+            "bienDongCuaSoGiay", 900.0))
 
     def them(self, gia: float, lucMs: float) -> None:
         if gia is None or gia <= 0 or not math.isfinite(gia):
             return
-        self._mau.append((lucMs, gia))
-        han = lucMs - self.cuaSoGiay * 1000.0
-        while len(self._mau) > 2 and self._mau[0][0] < han:
-            self._mau.popleft()
+        self._luoi[int(lucMs // 60_000)] = float(gia)
+        han = int((lucMs - self.cuaSoGiay * 1000.0) // 60_000)
+        for k in [k for k in self._luoi if k < han]:
+            del self._luoi[k]
+
+    def mo_dau(self, nen: list[tuple[float, float]]) -> None:
+        """Nạp mồi từ nến 1 phút: [(mốc đóng ms, giá đóng)]."""
+        for t, g in nen:
+            if g and g > 0:
+                self._luoi[int(float(t) // 60_000)] = float(g)
 
     @property
     def so_mau(self) -> int:
-        return len(self._mau)
+        return len(self._luoi)
 
     def sigma_giay(self) -> float | None:
-        """Độ lệch chuẩn log-return quy về mỗi giây. None nếu chưa đủ mẫu."""
-        if len(self._mau) < 12:
+        """Độ lệch chuẩn log-return trên lưới phút, quy về mỗi giây."""
+        if len(self._luoi) < self.TOI_THIEU_PHUT:
             return None
-        r: list[float] = []
-        for (t0, p0), (t1, p1) in zip(self._mau, list(self._mau)[1:]):
-            dt = (t1 - t0) / 1000.0
-            if dt <= 1e-6 or p0 <= 0 or p1 <= 0:
-                continue
-            r.append(math.log(p1 / p0) / math.sqrt(dt))
-        if len(r) < 8:
+        c = [self._luoi[k] for k in sorted(self._luoi)]
+        r = [math.log(c[i + 1] / c[i]) for i in range(len(c) - 1)
+             if c[i] > 0 and c[i + 1] > 0]
+        if len(r) < self.TOI_THIEU_PHUT - 1:
             return None
         tb = sum(r) / len(r)
-        var = sum((x - tb) ** 2 for x in r) / (len(r) - 1)
-        s = math.sqrt(max(0.0, var))
+        var = sum((x - tb) ** 2 for x in r) / len(r)
+        s = math.sqrt(max(0.0, var)) / math.sqrt(60.0)
         return s if s > 0 else None
 
 

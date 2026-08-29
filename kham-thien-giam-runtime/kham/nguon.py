@@ -237,6 +237,28 @@ class Nguon:
                     pass
         return None
 
+    def nen_gan_day(self, cap: str, soNen: int = 20) -> list:
+        """`soNen` nến 1 phút gần nhất: [(mốc đóng ms, giá đóng)].
+
+        Để NẠP MỒI cho `DoBienDong`. Không có nó thì sau mỗi lần khởi
+        động runtime mù mất vài phút chờ lưới phút đầy — đắt, vì đường
+        tới chợ chập chờn và những phút thông là quý nhất.
+        """
+        for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
+            d = self._lay("binance-kline", f"{goc}/api/v3/klines",
+                          {"symbol": cap, "interval": "1m",
+                           "limit": max(2, int(soNen))})
+            if isinstance(d, list) and d:
+                ra = []
+                for n in d:
+                    try:
+                        ra.append((float(n[0]) + 60_000.0, float(n[4])))
+                    except (TypeError, ValueError, IndexError):
+                        pass
+                if ra:
+                    return ra
+        return []
+
     def moc_thoi_gian_binance(self) -> tuple[float, float, float] | None:
         """(mốc sàn ms, gửi ms, nhận ms) — nguyên liệu hiệu chỉnh đồng hồ."""
         c = self.client()
