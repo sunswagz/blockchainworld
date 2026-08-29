@@ -459,7 +459,28 @@ class TestnetBroker:
                 # Tiền MUA ĐƯỢC, không phải vốn: phần USDT đang rảnh. Risk Engine
                 # cần con số này để không sinh ra lệnh mà sàn chắc chắn từ chối.
                 avail = quote.get("free", 0.0)
-                da_doc = True
+                # VỐN CHỈ ĐÁNG TIN KHI ĐỦ GIÁ CHO MỌI VỊ THẾ.
+                #
+                # Thiếu giá một chợ thì vị thế ở đó được cộng bằng 0, và vốn hụt
+                # đúng bằng giá trị của nó. Đã xảy ra ngay lượt khởi động đầu tiên
+                # sau khi mở nhiều chợ: bảng báo sụt giảm 17,14% trong khi ba lệnh
+                # chỉ rủi ro 141 đô — và ngắt mạch CHỐT CỨNG kill switch vì một
+                # con số thoáng qua. Ba giây sau, đủ giá, vốn về 9.495 trên đỉnh
+                # 9.500, tức sụt giảm 0,05%. Chốt thì không tự mở.
+                #
+                # Đây đúng là lỗi file này đã ghi và đã sửa một lần cho trường hợp
+                # "chưa hỏi được số dư". Nhiều chợ làm nó tái phát dưới dạng khác:
+                # số dư ĐỌC ĐƯỢC, chỉ là chưa đủ giá. "Đọc được" và "đủ" là hai
+                # chuyện, và gộp lại thì mất bot.
+                _thieu = [t.get("symbol") or self.symbol
+                          for t in self.state["positions"]
+                          if not gia.get(t.get("symbol") or self.symbol)]
+                if _thieu:
+                    s["thieuGia"] = sorted(set(_thieu))
+                    bus.emit("exec", "von-chua-du-gia",
+                             f"chưa có giá cho {sorted(set(_thieu))} — chưa chốt vốn")
+                else:
+                    da_doc = True
             except BinanceError as e:
                 self.last_error = str(e)
         s["equity"] = round(equity, 2)

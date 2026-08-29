@@ -1119,6 +1119,23 @@ async def main() -> int:
           "không broker nào làm phép toán thẳng trên `price`"
           + (f" — CÒN: {_bo}" if _bo else ""))
 
+    # VỐN CHỈ ĐÁNG TIN KHI ĐỦ GIÁ CHO MỌI VỊ THẾ. Thiếu giá một chợ thì vị thế
+    # ở đó cộng bằng 0 và vốn hụt đúng bằng giá trị nó. Đã xảy ra ngay lượt khởi
+    # động đầu sau khi mở nhiều chợ: bảng báo sụt giảm 17,14% trong khi ba lệnh
+    # chỉ rủi ro 141 đô, và ngắt mạch CHỐT CỨNG kill switch. Ba giây sau, đủ giá,
+    # sụt giảm thật là 0,05%. Chốt thì không tự mở.
+    #
+    # "Đọc được số dư" và "đủ giá" là hai chuyện. File này đã sửa vế thứ nhất
+    # một lần; nhiều chợ làm nó tái phát ở vế thứ hai.
+    check("_thieu" in _src39 and "da_doc = True" in _src39,
+          "chỉ đặt cờ đọc-được-vốn khi KHÔNG thiếu giá vị thế nào")
+    _i_thieu = _src39.index("_thieu = [")
+    _i_dadoc = _src39.index("da_doc = True")
+    check(_i_thieu < _i_dadoc,
+          "phép kiểm thiếu-giá chạy TRƯỚC khi đặt cờ, không phải sau")
+    check("thieuGia" in _src39,
+          "và khai ra chợ nào đang thiếu giá, không im lặng bỏ qua")
+
     # Cửa nguy hiểm nhất: đổi định nghĩa mà giữ đỉnh cũ thì ngắt mạch thấy sụt
     # giảm 89% và chốt cứng ngay lượt đầu. Phải đặt lại đỉnh khi dấu lệch.
     _i_ver = _src39.index("dinhNghiaVon" + chr(34) + ") != DINH_NGHIA_VON")
