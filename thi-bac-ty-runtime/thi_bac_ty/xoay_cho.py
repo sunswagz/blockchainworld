@@ -140,6 +140,17 @@ class LatCatXoayCho:
     #: Khai ra để đọc được rằng con số lợi ròng dưới kia đã bị kẹp, chứ
     #: không phải thị trường bỗng dưng tệ đi.
     soBiKepTheoBangChung: int = 0
+    #: Bao nhiêu lần xoay bị trần bằng chứng CHẶN HẲN — công thức cũ sẽ
+    #: nhận, công thức có trần thì không.
+    #:
+    #: Phải đếm riêng với `soBiKepTheoBangChung`: khi trần chặn sạch thì
+    #: cái kia bằng 0, và «trần 0,008h · 0 lời hứa bị cắt» đọc đúng thành
+    #: «trần này chẳng làm gì» — trong khi nó vừa chặn tất cả.
+    soBiChanBoiBangChung: int = 0
+    #: Lời hứa của những lần bị chặn ấy, cộng lại. Đây chính là con số
+    #: công thức cũ sẽ ghi vào sổ, và cũng chính là con số chưa bao giờ
+    #: tới — 267 lần xoay hứa +11.136 USD trên một cuốn sổ 10.000.
+    loiRongBiChanUsd: float = 0.0
     #: Trần theo bằng chứng đang là bao nhiêu giờ. `None` = chưa có bằng
     #: chứng, nên không kẹp gì.
     gioSongTrungVi: float | None = None
@@ -156,6 +167,8 @@ class LatCatXoayCho:
             "loiRongUsd": self.loiRongUsd, "soDaDong": self.soDaDong,
             "soDichBiChan": self.soDichBiChan,
             "soBiKepTheoBangChung": self.soBiKepTheoBangChung,
+            "soBiChanBoiBangChung": self.soBiChanBoiBangChung,
+            "loiRongBiChanUsd": self.loiRongBiChanUsd,
             "gioSongTrungVi": self.gioSongTrungVi,
             "viConGhe": self.viConGhe,
             "soVongGheTrongKhongLap": self.soVongGheTrongKhongLap,
@@ -295,7 +308,8 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
             # CẢ HAI còn hiệu lực. Lấy giờ của bên cũ là hứa thay cho một
             # cơ hội chưa hứa.
             giuMoi = float(tMoi.get("giuGio") or 0.0)
-            chung = min(conLai, giuMoi) if giuMoi > 0 else conLai
+            chungKhai = min(conLai, giuMoi) if giuMoi > 0 else conLai
+            chung = chungKhai
             if gioSongTrungVi is not None and gioSongTrungVi >= 0:
                 # Trần theo BẰNG CHỨNG. Xem docstring: không phải chi phí
                 # đã chìm, mà là thay một giả định bằng một phép đo.
@@ -303,15 +317,24 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
             lai = von * (aprMoi - aprCu) / 100.0 * (chung / NAM_GIO)
             phi = (phiRa + phiVao) * bienAnToan
             if lai <= phi:
+                # ĐẾM những lần trần bằng chứng CHẶN HẲN, không chỉ những
+                # lần nó cắt bớt. Bản đầu chỉ đếm ở nhánh đi tiếp, nên khi
+                # trần chặn sạch thì buồng lái hiện «trần 0,008h · 0 lời
+                # hứa bị cắt» — đọc đúng thành «trần này chẳng làm gì»,
+                # trong khi nó vừa chặn tất cả. Một cửa chặn lặng lẽ là
+                # một cửa không ai biết mà xem lại.
+                if chung < chungKhai:
+                    laiKhai = (von * (aprMoi - aprCu) / 100.0
+                               * (chungKhai / NAM_GIO))
+                    if laiKhai > phi:
+                        lat.soBiChanBoiBangChung += 1
+                        lat.loiRongBiChanUsd += laiKhai - phi
                 continue
             daDung.add(i)
             lat.soXoayDuoc += 1
             lat.loiRongUsd += lai - phi
             them += von * (aprMoi - aprCu)
-            lat.soBiKepTheoBangChung += (
-                1 if gioSongTrungVi is not None
-                and chung < (min(conLai, giuMoi) if giuMoi > 0 else conLai)
-                else 0)
+            lat.soBiKepTheoBangChung += 1 if chung < chungKhai else 0
             lat.xoay.append(CoHoiDoiCho(
                 maCu=ma, chienLuocCu=str(getattr(so, "chienLuoc", "?")),
                 taiSanCu=str(tCu.get("taiSan")), aprCu=aprCu,
@@ -332,11 +355,20 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
 
 
 def _vi(lat: LatCatXoayCho) -> str:
+    # Trần bằng chứng chặn được bao nhiêu — nói ra ở CẢ HAI nhánh. Chặn
+    # lặng lẽ thì «không chỗ nào đáng đổi» đọc thành «chợ hôm nay chán»,
+    # trong khi thật ra ta vừa thôi tin một giả định.
+    bc = (f", và {lat.soBiChanBoiBangChung} chỗ bị TRẦN BẰNG CHỨNG chặn "
+          f"({lat.gioSongTrungVi:.3f}h — công thức cũ sẽ nhận, và sẽ hứa "
+          f"{lat.loiRongBiChanUsd:+.2f} USD trên một quãng mà sổ nói vị "
+          f"thế không sống tới)"
+          if lat.soBiChanBoiBangChung and lat.gioSongTrungVi is not None
+          else "")
     if lat.soXoayDuoc == 0:
         return (f"KHÔNG chỗ nào đáng đổi sau khi trừ phí — {lat.soBiKhoa} vị "
                 f"thế còn khoá vốn, {lat.soKhongDoDuocThoat} chưa đo được "
-                f"thanh khoản thoát. Ngồi yên là một kết quả hợp lệ.")
+                f"thanh khoản thoát{bc}. Ngồi yên là một kết quả hợp lệ.")
     return (f"{lat.soXoayDuoc} chỗ ĐÁNG đổi: danh mục {lat.aprHienTai:+.2f}% "
             f"→ {lat.aprSauKhiXoay:+.2f}%/năm, lợi ròng "
-            f"{lat.loiRongUsd:+.4f} USD ĐÃ TRỪ phí đổi. Đây là phép ĐO — "
+            f"{lat.loiRongUsd:+.4f} USD ĐÃ TRỪ phí đổi{bc}. Đây là phép ĐO — "
             f"chưa đổi gì, và đường thực hiện chưa nối.")

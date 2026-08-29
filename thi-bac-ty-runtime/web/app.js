@@ -1305,8 +1305,19 @@
     if (xc.gioSongTrungVi != null) {
       dxc.appendChild(oSo("Trần theo bằng chứng",
         so(xc.gioSongTrungVi, 3) + "h",
-        so(xc.soBiKepTheoBangChung) + " lời hứa bị cắt cho khớp đời thật",
-        (xc.soBiKepTheoBangChung || 0) ? "am" : "nhat"));
+        so(xc.soBiKepTheoBangChung) + " bị cắt · "
+          + so(xc.soBiChanBoiBangChung) + " bị CHẶN HẲN",
+        ((xc.soBiKepTheoBangChung || 0) + (xc.soBiChanBoiBangChung || 0))
+          ? "am" : "nhat"));
+      /* «Bị chặn hẳn» phải hiện RIÊNG. Khi trần chặn sạch thì số «bị
+         cắt» bằng 0, và «trần 0,008h · 0 lời hứa bị cắt» đọc đúng thành
+         «trần này chẳng làm gì» — trong khi nó vừa chặn tất cả. */
+      if (xc.soBiChanBoiBangChung) {
+        dxc.appendChild(oSo("Lời hứa đã CHẶN",
+          tien(xc.loiRongBiChanUsd, 2),
+          "công thức cũ sẽ nhận từng ấy — trên quãng vị thế không sống tới",
+          "nhat"));
+      }
     }
     if (xc.viConGhe) {
       kxc.appendChild(giai("CÒN GHẾ TRỐNG nên không đuổi ai — cơ hội tốt "

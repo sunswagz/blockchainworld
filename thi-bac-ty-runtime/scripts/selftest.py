@@ -8438,6 +8438,31 @@ def kiem_ke_toan_vi_the() -> None:
          _x41c.soXoayDuoc == 0,
          f"{_x41c.tom_tat()} — cộng trước lãi của 720 giờ cho một vị thế "
          f"sổ nói sống ba mươi giây là một cỗ máy bơm phí")
+    # CHẶN HẲN cũng phải đếm, không chỉ CẮT BỚT. Bản đầu chỉ đếm ở nhánh
+    # đi tiếp, nên khi trần chặn sạch thì buồng lái hiện «trần 0,008h · 0
+    # lời hứa bị cắt» — đọc đúng thành «trần này chẳng làm gì», trong khi
+    # nó vừa chặn tất cả. Một cửa chặn lặng lẽ là một cửa không ai biết
+    # mà xem lại.
+    kiem("chặn HẲN thì cũng phải đếm được, không chỉ cắt bớt",
+         (_x41c.tom_tat()["soBiChanBoiBangChung"] == 1
+          and _x41c.tom_tat()["loiRongBiChanUsd"] > 0),
+         f"{_x41c.tom_tat()} — «0 lời hứa bị cắt» khi trần vừa chặn sạch "
+         f"là một cửa chặn lặng lẽ")
+    kiem("và nó nói ra trong câu giải thích, không giấu trong số",
+         "TRẦN BẰNG CHỨNG" in _x41c.vi,
+         f"{_x41c.vi} — không nói thì «không chỗ nào đáng đổi» đọc thành "
+         f"«chợ hôm nay chán»")
+    kiem("chưa có bằng chứng thì KHÔNG có ai bị chặn vì nó",
+         do_xoay_cho({"a": _so40("a", 2.0, giu=720.0)},
+                     [_tt40("b", 2.5, giu=720.0)],
+                     _G40).tom_tat()["soBiChanBoiBangChung"] == 0,
+         "đếm một cửa chưa bật là khai một hành động chưa xảy ra")
+    kiem("bị phí chặn — KHÔNG phải bị bằng chứng chặn — thì không đếm nhầm",
+         do_xoay_cho({"a": _so40("a", 5.0)}, [_tt40("b", 5.001)], _G40,
+                     gioSongTrungVi=900.0
+                     ).tom_tat()["soBiChanBoiBangChung"] == 0,
+         "trần không kẹp gì ở đây, nên chỗ này bị chặn bởi phí; đổ cho "
+         "trần là đổ tội cho cửa vừa mở toang")
     kiem("và nó KHAI ra trần ấy, không kẹp lặng lẽ",
          gan(_x41c.tom_tat()["gioSongTrungVi"], 0.008),
          f"{_x41c.tom_tat()} — kẹp mà không khai thì con số lợi ròng tụt "
