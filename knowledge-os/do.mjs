@@ -293,11 +293,26 @@ if (LENH === "de-bai") {
     if (con.length) chuaAnhXa.push({ cung: h.hall, phong: con });
   }
 
+  const noi26DeBai = new Set();
+  for (const r of R26) { noi26DeBai.add(r.from); noi26DeBai.add(r.to); }
+
   const de = {
     luc: new Date().toISOString(),
     phieu: p,
     yeu: yeu.map((x) => ({ ma: x.ma, ten: x.ten, y: x.y })),
     chuaAnhXa,
+    /* Khái niệm sách chưa có dòng nào nói "từ 2018 tới nay chuyện gì đã
+       xảy ra với nó" — tức đúng phần việc của thước `phan-quyet-2026`.
+
+       Có trường này vì lượt chạy ĐẦU TIÊN của vòng đã đốt 167 giây Opus
+       mà không sửa một byte nào. Lúc ấy `chuaAnhXa` rỗng (phủ phòng đã
+       105/105) nên cách sửa duy nhất mà lời nhắc dạy không dùng được,
+       còn điểm yếu thật thì đề bài không nói nó nằm ở đâu. Model không
+       có gì để nắm, nên không làm gì — và sổ vẫn ghi `ok`.
+
+       Ra đề mà không chỉ được chỗ sửa thì cái vòng chỉ tốn quota. */
+    chuaPhanQuyet2026: C.filter((x) => !noi26DeBai.has(x.id))
+      .map((x) => ({ id: x.id, vi: x.label_vi, nghia: x.definition_vi })),
     khaiNiemDungDuoc: C.map((x) => ({ id: x.id, vi: x.label_vi, nghia: x.definition_vi })),
     duocSua: ["knowledge-os/data/bridges/repo.json", "knowledge-os/data/2026/concepts.json",
               "knowledge-os/data/2026/relations.json"],

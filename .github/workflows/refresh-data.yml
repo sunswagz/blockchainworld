@@ -1896,10 +1896,13 @@ jobs:
             Đọc knowledge-os/data/de-bai-tien-hoa.json.
 
             Trong đó có:
-            · `phieu.diem` — bảy thước, mỗi cái có `dat` và `y` (số đo
-              cụ thể). Thước nào `dat: false` là điểm yếu.
+            · `phieu.diem` — các thước, mỗi cái có `dat` và `y` (số đo
+              cụ thể). Thước nào `dat: false` là điểm yếu. ĐỪNG đoán
+              số thước; đọc hết mảng.
             · `chuaAnhXa` — phòng có thật trong mã nguồn cung mà lớp
-              tri thức chưa nói gì về nó.
+              tri thức chưa nói gì về nó. Rỗng là chuyện bình thường.
+            · `chuaPhanQuyet2026` — khái niệm SÁCH chưa có dòng nào nói
+              từ 2018 tới nay chuyện gì đã xảy ra với nó.
             · `khaiNiemDungDuoc` — TOÀN BỘ id khái niệm được phép dùng.
             · `duocSua` / `camSua` — đọc kỹ hai danh sách này.
 
@@ -1920,6 +1923,41 @@ jobs:
                   từ, xưởng ảnh, danh mục dự án — thì thêm vào
                   `rooms_skipped` kèm `why_vi` nói vì sao. Bỏ qua có
                   lý do là một câu trả lời ĐÚNG, không phải né việc.
+
+            Cách sửa khi điểm yếu là `phan-quyet-2026` — và đây là
+            trường hợp thường gặp khi `chuaAnhXa` rỗng:
+
+            Chọn MỘT khái niệm trong `chuaPhanQuyet2026` mà bạn thật sự
+            đọc được bằng chứng trong repo, rồi thêm vào
+            knowledge-os/data/2026/relations.json một quan hệ:
+
+              { "from": "<id khái niệm 2026>",
+                "relation": "supports" | "challenges" | "extends" | "carries",
+                "to": "<id khái niệm sách>",
+                "reason_vi": "<từ 2018 tới nay chuyện gì đã xảy ra với
+                              khái niệm ấy, và vì sao đó là supports hay
+                              challenges>",
+                "source_type": "repo",
+                "source_ref": "<đường CÓ THẬT trong repo>",
+                "confidence": "high" | "medium" | "low" }
+
+            Chưa có khái niệm 2026 nào hợp thì thêm một cái vào
+            knowledge-os/data/2026/concepts.json trước:
+
+              { "id": "<id mới, không trùng lớp sách>",
+                "label_en": "...", "label_vi": "...",
+                "kind": "...", "definition_vi": "...",
+                "stance": "repo", "source_type": "repo",
+                "source_ref": "<đường CÓ THẬT>", "observed": "2026-08",
+                "tags": ["2026"] }
+
+            Thà MỘT phán quyết viết chắc còn hơn năm cái viết cho đủ
+            số: cổng chặn không đo được chất lượng câu chữ, nên chỗ đó
+            chỉ có bạn giữ.
+
+            Nếu không có điểm yếu nào bạn sửa được một cách trung thực
+            thì ĐỪNG sửa bừa — nói ra là không sửa gì. Một lượt không
+            đổi gì tốt hơn một dòng bịa.
 
             LUẬT CỨNG, vi phạm là cổng chặn trả lại cả bản vá:
             · Chỉ sửa file trong `duocSua`. Không chạm `camSua`.
