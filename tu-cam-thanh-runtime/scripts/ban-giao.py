@@ -195,6 +195,47 @@ def _gia_kho_ky_nang() -> list[str]:
                   f"một cách có chủ ý.")
     return ra
 
+# Bao nhiêu lượt NO_TRADE liên tiếp thì gọi là ĐỨNG IM, không phải thận trọng.
+# Trên khung 4h, 12 lượt là khoảng hai ngày không vào lệnh nào.
+DUNG_IM_LIEN_TIEP = 12
+
+
+def _dung_im() -> list[str]:
+    """Bot đứng ngoài liên tục có căn cứ — và vì thế sẽ đứng mãi.
+
+    Đây KHÔNG phải lỗi. Bộ não đọc "chế độ này kỳ vọng âm qua 41 lệnh thật, 21
+    bài học đòi đổi chiến lược" rồi ra NO_TRADE là quyết định đúng.
+
+    Nhưng nó tạo một thế bí kín: đứng ngoài ⇒ không có lệnh mới ⇒ bằng chứng âm
+    không bao giờ được cập nhật ⇒ đứng ngoài tiếp. Hệ dừng ở một trạng thái
+    ĐÚNG và VÔ SINH, và không có gì trong bảng phân biệt nó với "đang chờ thời".
+
+    Mục này không đề nghị nới lỏng gì. Nó chỉ nói ra rằng cái chờ ấy sẽ không tự
+    kết thúc — thứ phải đổi là CHIẾN LƯỢC, không phải thời gian.
+    """
+    th = store.read_all(store.THESES)
+    if not th:
+        return []
+    lien = 0
+    for t in reversed(th):
+        if t.get("action") == "NO_TRADE":
+            lien += 1
+        else:
+            break
+    if lien < DUNG_IM_LIEN_TIEP:
+        return []
+    ma = []
+    for t in reversed(th[-lien:]):
+        ma.extend(t.get("reason_codes") or [])
+        if len(ma) > 6:
+            break
+    return [f"**{lien} lượt NO_TRADE liên tiếp.** Lý do gần nhất: "
+            + " · ".join(dict.fromkeys(ma[:6]))
+            + ". Nếu lý do là bằng chứng ÂM về chính chế độ đang chạy thì cái chờ "
+            + "này không tự kết thúc: không vào lệnh nghĩa là không có dữ liệu mới, "
+            + "nên bằng chứng âm đứng nguyên. Thứ phải đổi là CHIẾN LƯỢC hoặc CHỢ, "
+            + "không phải thời gian."]
+
 def _kho_cu() -> list[str]:
     """Kho đo nào đã cũ.
 
@@ -327,6 +368,14 @@ def main() -> int:
         W("## Giá của kho kỹ năng")
         W("")
         for x in gia:
+            W(f"- {x}")
+        W("")
+
+    im = _dung_im()
+    if im:
+        W("## Bot đang đứng im — có căn cứ, và sẽ đứng mãi")
+        W("")
+        for x in im:
             W(f"- {x}")
         W("")
 

@@ -15,6 +15,9 @@ hàng của selftest, toàn TAKE_PROFIT cùng một giá vào, và bảng điề
 from __future__ import annotations
 
 import asyncio
+import json as _json
+
+NL = chr(10)
 import json
 import os
 import sys
@@ -927,6 +930,46 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[24] ĐỨNG NGOÀI LÂU PHẢI KÊU LÊN — CẢ CỬA NGƯỢC LẠI")
+    import importlib.util as _il24
+    _sp24 = _il24.spec_from_file_location("bg24", str(ROOT / "scripts" / "ban-giao.py"))
+    BG24 = _il24.module_from_spec(_sp24)
+    _sp24.loader.exec_module(BG24)
+
+    # Bộ não ra NO_TRADE vì "chế độ này kỳ vọng âm" là quyết định ĐÚNG. Nhưng
+    # đúng mãi thì hệ đứng ở một trạng thái vô sinh: không vào lệnh ⇒ không có
+    # dữ liệu mới ⇒ bằng chứng âm đứng nguyên ⇒ không vào lệnh. Bàn giao phải
+    # phân biệt "đang chờ thời" với "đã kẹt".
+    #
+    # Canh CẢ HAI cửa. Một luật có ngưỡng mà chỉ kiểm cửa thuận thì nó có thể
+    # đang kêu SUỐT (vô dụng) hoặc CHẲNG BAO GIỜ kêu (chết lặng) — và cả hai
+    # đều đọc giống "chưa từng thấy vấn đề".
+    _lm = BG24.DUNG_IM_LIEN_TIEP
+    _nt = lambda: {"action": "NO_TRADE", "reason_codes": ["X"]}
+
+    # `store.write_all` TỪ CHỐI sổ luận điểm — nó append-only, và chốt đó đúng.
+    # Ở đây phải dựng từng thế cờ nên ghi thẳng file. An toàn vì DATA_DIR của
+    # phép kiểm là thư mục tạm (đặt ở đầu file, GHI ĐÈ chứ không setdefault —
+    # chính chỗ đó từng cho phép kiểm ghi vào sổ THẬT hai lần).
+    def _dat24(ds):
+        f = DATA_DIR / store.THESES
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("".join(_json.dumps(x) + NL for x in ds), encoding="utf-8")
+
+    _dat24([_nt() for _ in range(_lm - 1)])
+    check(not BG24._dung_im(), f"{_lm - 1} lượt (dưới ngưỡng {_lm}) → IM")
+
+    _dat24([_nt() for _ in range(_lm)])
+    check(bool(BG24._dung_im()), f"{_lm} lượt (chạm ngưỡng) → KÊU")
+
+    # Một lệnh thật xen vào là chuỗi đứt — bot vẫn đang giao dịch, không kẹt.
+    _dat24([_nt() for _ in range(_lm)] + [{"action": "LONG"}]
+            + [_nt() for _ in range(3)])
+    check(not BG24._dung_im(),
+          "một lệnh LONG xen vào → chuỗi đứt, không báo kẹt")
+
+    _dat24([])
+    check(not BG24._dung_im(), "sổ rỗng → im, không chia cho không")
     print("\n[23] MỌI PHÉP ĐO PHẢI TỰ KHAI CHỢ CỦA NÓ")
     from trader import chung_cat as CC23
 
