@@ -2954,6 +2954,74 @@ def kiem_bus_gop_dong_lap() -> None:
     kiem("app.js có in `soLan` ra màn hình", "soLan" in js)
 
 
+def kiem_dich_vu_hoi_cong() -> None:
+    """Câu "nó có đang chạy không" phải hỏi CỔNG, và không được SỬA gì.
+
+    Ba lỗi chồng nhau, đo được thật 30/08/2026: pid.txt ghi một tiến
+    trình đã chết, cổng 5186 do một tiến trình khác giữ và runtime vẫn
+    sống khoẻ, còn `trang-thai.ps1` in "KHÔNG chạy" rồi XOÁ LUÔN pid.txt
+    — tức là câu hỏi chỉ đọc lại phá mất tay nắm duy nhất của dung.ps1.
+    Hệ quả nặng nhất: cổng cửa của `bat.ps1` cũng đọc pid.txt, nên nó
+    sẵn sàng dựng runtime THỨ HAI ghi chung một quyển sổ.
+    """
+    print("\n── Dịch vụ: hỏi CỔNG, và đường chỉ đọc không được sửa ────────")
+
+    N = chr(10)
+    GOC_MA = Path(__file__).resolve().parent.parent
+    dv = GOC_MA / "dichvu"
+    ten = ("bat.ps1", "dung.ps1", "trang-thai.ps1")
+    doc = {t: (dv / t).read_text(encoding="utf-8-sig") for t in ten}
+
+    kiem("có chung.ps1 để ba script dùng chung", (dv / "chung.ps1").exists())
+    chung = (dv / "chung.ps1").read_text(encoding="utf-8-sig")
+    kiem("chung.ps1 hỏi cổng chứ không chỉ hỏi pid",
+         "Get-NetTCPConnection" in chung and "Ai-Giu-Cong" in chung)
+    kiem("cổng đọc từ config.json, không chép số vào script",
+         "config.json" in chung and "function Doc-Cong" in chung)
+
+    for t in ten:
+        kiem(f"{t} KHÔNG tự định nghĩa lại Lay-Pid",
+             "function Lay-Pid" not in doc[t])
+        kiem(f"{t} nạp chung.ps1", "chung.ps1" in doc[t])
+
+    # Đường CHỈ ĐỌC thì không được có động từ sửa. Đây là cả cái lỗi.
+    #
+    # CẮT CHÚ THÍCH TRƯỚC KHI DÒ. Bản đầu dò thẳng vào văn bản và báo
+    # hỏng ngay — thứ nó bắt được là câu chú thích *"không Remove-Item,
+    # không Stop-Process"* mà tôi vừa viết để giải thích luật. Chú thích
+    # giải thích một thứ bị tính là chính thứ đó; đã cắn nhiều lần rồi.
+    def khong_chu_thich(vb: str) -> str:
+        ra = []
+        for d in vb.splitlines():
+            t = d.split("#", 1)[0]
+            if t.strip():
+                ra.append(t)
+        return N.join(ra)
+
+    ma = khong_chu_thich(doc["trang-thai.ps1"])
+    kiem("phép dò này CÓ cắt được chú thích", "Remove-Item" in doc["trang-thai.ps1"]
+         and "Remove-Item" not in ma)
+    for dv_ in ("Remove-Item", "Stop-Process", "Start-Process", "Set-Content",
+                "Out-File"):
+        kiem(f"trang-thai.ps1 không có `{dv_}`", dv_ not in ma, dv_)
+
+    kiem("bat.ps1 hỏi CỔNG trước khi dựng thêm một cái nữa",
+         "Lay-Runtime" in doc["bat.ps1"])
+    kiem("dung.ps1 giết theo CỔNG, không giết theo pid.txt",
+         "Lay-Runtime" in doc["dung.ps1"]
+         and "Stop-Process -Id $tt.Id" in doc["dung.ps1"])
+    kiem("dung.ps1 kiểm lại sau khi giết: cổng còn ai giữ không",
+         doc["dung.ps1"].count("Lay-Runtime") >= 2)
+    kiem("trang-thai.ps1 dán tuổi lên nhật ký",
+         "LastWriteTime" in doc["trang-thai.ps1"]
+         and "CŨ HƠN TIẾN TRÌNH" in doc["trang-thai.ps1"])
+
+    # BOM: file .ps1 không BOM thì PowerShell 5.1 đọc chữ Việt bằng ANSI
+    # và script không parse nổi. Đã cắn thật, ghi ngay đầu mỗi file.
+    for t in ten + ("chung.ps1",):
+        kiem(f"{t} lưu UTF-8 CÓ BOM",
+             (dv / t).read_bytes()[:3] == b"\xef\xbb\xbf")
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -3010,6 +3078,7 @@ def main() -> int:
     kiem_khoa_cau_hinh_co_that()
     kiem_lan_nga_khong_giet_vong()
     kiem_bus_gop_dong_lap()
+    kiem_dich_vu_hoi_cong()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

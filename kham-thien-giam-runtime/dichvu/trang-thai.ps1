@@ -15,23 +15,20 @@ $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $OutputEncoding = [Text.Encoding]::UTF8
 $GOC = Split-Path -Parent $PSScriptRoot
-$PID_FILE = Join-Path $PSScriptRoot "pid.txt"
 
 function Ok($m)   { Write-Host "  OK   $m" }
 function Nhac($m) { Write-Host "  ~    $m" }
 
-function Lay-Pid {
-  if (-not (Test-Path $PID_FILE)) { return $null }
-  $p = (Get-Content $PID_FILE -Raw).Trim()
-  if (-not $p) { return $null }
-  $tt = Get-Process -Id $p -ErrorAction SilentlyContinue
-  if (-not $tt) { Remove-Item $PID_FILE -Force -ErrorAction SilentlyContinue; return $null }
-  return $tt
-}
+# Câu hỏi "nó có đang chạy không" nằm ở MỘT chỗ: chung.ps1. Ba script
+# này từng có ba bản sao của `Lay-Pid`, và cả ba hỏng cùng một kiểu.
+. (Join-Path $PSScriptRoot "chung.ps1")
 
-$tt = Lay-Pid
+# ĐƯỜNG NÀY CHỈ ĐỌC. Không Remove-Item, không Stop-Process, không ghi
+# gì hết. Bản trước hỏi "nó có chạy không" rồi XOÁ pid.txt — sau câu hỏi
+# ấy thì `dung.ps1` không còn tay nắm nào để dừng runtime cho tử tế.
+$tt = Lay-Runtime
 if (-not $tt) {
-  Nhac "KHÔNG chạy"
+  Nhac "KHÔNG chạy — không ai giữ cổng $(Doc-Cong)"
 } else {
   Ok "đang chạy, PID $($tt.Id), từ $($tt.StartTime)"
   try {
@@ -63,9 +60,40 @@ if (-not $tt) {
 # sinh file, nên PowerShell báo "Illegal characters in path" ở một dòng
 # trông hoàn toàn bình thường.
 $log = Join-Path (Join-Path (Join-Path $GOC "data") "nhat-ky") "runtime.log"
+# Ba nguồn tin có thể lệch nhau, và im lặng về chuyện lệch là cách buồng
+# lái nói dối mà không ai bắt được. Khai hết ra.
+$idThat = -1
+if ($tt) { $idThat = $tt.Id }
+$idFile = Doc-Pid-File
+if ($idFile -and $idFile -ne $idThat) {
+  Write-Host ""
+  Nhac "pid.txt ghi $idFile nhưng người giữ cổng là $idThat — pid.txt LẠC"
+  Nhac "(không xoá ở đây: câu hỏi chỉ đọc thì không được sửa gì)"
+}
+if (-not $idFile -and $tt) {
+  Write-Host ""
+  Nhac "runtime đang chạy nhưng KHÔNG có pid.txt — chắc chạy tay bằng run.py"
+}
+$lac = Xac-Tien-Trinh-Lac
+if ($lac.Count -gt 0) {
+  Write-Host ""
+  Nhac "xác treo (tiến trình của thư mục này mà không giữ cổng): $($lac -join ', ')"
+}
+
 if (Test-Path $log) {
   Write-Host ""
-  Write-Host "  --- 10 dòng nhật ký cuối ---"
+  # Nhật ký này có thể CŨ HƠN tiến trình đang chạy: `chay-nen.py` ghi
+  # vào đây, `python run.py` chạy tay thì KHÔNG. Đo được thật 30/08:
+  # runtime sống 40 phút, mà mười dòng in ra là chuyện của hôm trước —
+  # trình bày như tin mới. Nên phải dán nhãn tuổi lên nó.
+  $sua = (Get-Item $log).LastWriteTime
+  $tuoi = [math]::Round(((Get-Date) - $sua).TotalHours, 1)
+  $nhan = "  --- 10 dòng nhật ký cuối (ghi lúc $sua, $tuoi giờ trước) ---"
+  Write-Host $nhan
+  if ($tt -and $sua -lt $tt.StartTime) {
+    Nhac "NHẬT KÝ CŨ HƠN TIẾN TRÌNH ĐANG CHẠY — mấy dòng dưới KHÔNG nói"
+    Nhac "về nó. Đừng đọc như tin mới."
+  }
   Get-Content $log -Tail 10 -Encoding UTF8 | ForEach-Object { Write-Host "  $_" }
 } else {
   Write-Host ""

@@ -12,24 +12,26 @@ $ErrorActionPreference = "Stop"
 $GOC = Split-Path -Parent $PSScriptRoot
 $PY  = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 $PYW = "D:\SUNSWaGz 2027\Python 3.12.10\pythonw.exe"
-$PID_FILE = Join-Path $PSScriptRoot "pid.txt"
 
 function Ok($m)   { Write-Host "  OK   $m" }
 function Loi($m)  { Write-Host "  LỖI  $m"; exit 1 }
 function Nhac($m) { Write-Host "  ~    $m" }
 
-function Lay-Pid {
-  if (-not (Test-Path $PID_FILE)) { return $null }
-  $p = (Get-Content $PID_FILE -Raw).Trim()
-  if (-not $p) { return $null }
-  $tt = Get-Process -Id $p -ErrorAction SilentlyContinue
-  if (-not $tt) { Remove-Item $PID_FILE -Force -ErrorAction SilentlyContinue; return $null }
-  return $tt
+# Câu hỏi "nó có đang chạy không" nằm ở MỘT chỗ: chung.ps1. Ba script
+# này từng có ba bản sao của `Lay-Pid`, và cả ba hỏng cùng một kiểu.
+. (Join-Path $PSScriptRoot "chung.ps1")
+
+
+$dang = Lay-Runtime
+if ($dang) {
+  Nhac "đang chạy rồi, PID $($dang.Id) — giữ cổng $(Doc-Cong)"
+  exit 0
 }
 
-
-$dang = Lay-Pid
-if ($dang) { Nhac "đang chạy rồi, PID $($dang.Id)"; exit 0 }
+# Cổng trống nhưng pid.txt còn sót thì chỉ là rác, dọn rồi đi tiếp.
+# TRƯỚC ĐÂY chỗ này đọc pid.txt: không có file ⇒ dựng runtime THỨ HAI
+# ghi chung một quyển sổ. Nay cổng trả lời, nên chuyện ấy không xảy ra.
+if (Doc-Pid-File) { Remove-Item $PID_FILE -Force -ErrorAction SilentlyContinue }
 
 if (-not (Test-Path $PYW)) { Loi "không thấy pythonw ở $PYW" }
 # Tham số PHẢI được bọc dấu nháy. Đường dẫn máy này có dấu cách
@@ -45,10 +47,10 @@ Start-Process -FilePath $PYW -ArgumentList $kich `
 # thường — một báo động giả ở đúng lúc mọi thứ đang đúng.
 Start-Sleep -Seconds 12
 
-$moi = Lay-Pid
+$moi = Lay-Runtime
 if ($moi) {
   Ok "đã bật, PID $($moi.Id)"
-  Ok "buồng lái → http://localhost:5186"
+  Ok "buồng lái → http://localhost:$(Doc-Cong)"
   Nhac "vòng tiến hoá chạy mỗi ngày MỘT lượt, trong chính tiến trình này"
 } else {
   Loi "không lên — xem data/nhat-ky/runtime.log"
