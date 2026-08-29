@@ -168,6 +168,27 @@ def _dau_van(tt) -> str:
                               for c in tt.chan)))
 
 
+def _dau_van_tu_dict(d: dict) -> str | None:
+    """Cùng dấu vân tay ấy, dựng từ bản `tom_tat()` đã lưu ở sổ vị thế.
+
+    Cần nó để XOÁ dấu lúc vị thế đóng. Phải khớp từng chữ với hàm trên, nên
+    hai chỗ này sửa cùng nhau — và phép kiểm dựng cả hai từ CÙNG một tờ
+    trình rồi đòi chúng bằng nhau, để không ai sửa một bên rồi quên bên kia.
+    """
+    if not isinstance(d, dict):
+        return None
+    chan = d.get("chan")
+    if not isinstance(chan, (list, tuple)) or not chan:
+        return None
+    try:
+        return (f"{d['chienLuoc']}|{d['taiSan']}|"
+                + ",".join(sorted(
+                    f"{c['ben']}@{c['cang']}@{c.get('chuoi') or '-'}"
+                    for c in chan)))
+    except (KeyError, TypeError):
+        return None
+
+
 @dataclass
 class LatCatVong:
     luc: str
@@ -580,6 +601,7 @@ class TrungUong:
                                 if daGiu > 0 and so.vonUsd else None),
                  "xoayCho": True, "aprCu": x.aprCu, "aprMoi": x.aprMoi,
                  "loiRongUocUsd": x.loiRongUsd}))
+            self._xoa_dau_van(so.toTrinh)
             self.soViThe.pop(x.maCu, None)
             lat.soDaDong += 1
         return lat
@@ -761,6 +783,7 @@ class TrungUong:
                  "duDoanBpsGio": duDoan, "thucBpsGio": thuc,
                  "soVongKeToan": so.soVongKeToan,
                  "coKeToan": so.coKeToan}))
+            self._xoa_dau_van(so.toTrinh)
             self.soViThe.pop(ma, None)
             l.daDong.append({"ma": ma, "chienLuoc": so.chienLuoc,
                              "laiLoUsd": laiLo, "lyDo": lyDo})
@@ -805,6 +828,27 @@ class TrungUong:
         # Dấu vết cũ hơn hai nhịp thì không còn chặn gì nữa, chỉ tốn chỗ.
         han = _monotonic() - float(self.c["nhipGhiNhanGiay"]) * 2.0
         self._dauVet = {k: v for k, v in self._dauVet.items() if v > han}
+
+    def _xoa_dau_van(self, toTrinh: dict) -> None:
+        """Xoá dấu vân tay của một cơ hội vừa ĐÓNG.
+
+        Cửa chống trùng nói rõ giả định của nó: «nó đang có một tờ trình
+        SỐNG trong sổ rồi; cấp vốn lần nữa là cấp hai lần cho một cơ hội».
+        Đúng — chừng nào tờ trình còn sống. Vị thế đóng rồi thì giả định
+        ấy sai, mà cái dấu vẫn nằm đó chặn suốt `nhipGhiNhanGiay` (một giờ).
+
+        Đã cắn thật 29/08, ngay lượt đầu bật xoay chỗ: máy đóng 8 vị thế
+        lãi thấp đúng như thiết kế, rồi **không rót lại được cái nào** —
+        23 tờ trình, 23 lần BỎ TRÙNG, và 998.000 USD nằm không. Không lỗi
+        nào phát ra; cỗ máy chỉ đơn giản là ngồi im.
+
+        Đúng lớp hỏng «một giả định viết trong chú thích thôi đúng mà chú
+        thích vẫn còn đó»: cửa chống trùng không sai, nó chỉ không biết có
+        một đường đóng vị thế mới.
+        """
+        van = _dau_van_tu_dict(toTrinh)
+        if van:
+            self._dauVet.pop(van, None)
 
     # ── bước 6–7: CHẨN ĐOÁN → XÉT LẠI THAM SỐ ────────────────────────────
     def nap_von(self, soTienUsd: float, nguoi: str, vi: str = "") -> dict:

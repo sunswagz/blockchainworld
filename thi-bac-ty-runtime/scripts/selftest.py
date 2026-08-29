@@ -6919,13 +6919,42 @@ def kiem_ke_toan_vi_the() -> None:
          "xoayCho" in tu48.anh_chup(),
          "đo được mà không ra tới buồng lái thì vẫn là im lặng")
 
+    # ── ĐÓNG vị thế thì phải XOÁ dấu vân tay của cơ hội ─────────────────
+    # Cửa chống trùng nói rõ giả định của nó: «nó đang có một tờ trình SỐNG
+    # trong sổ rồi». Đúng — chừng nào tờ trình còn sống. Đóng rồi thì giả
+    # định ấy sai, mà cái dấu vẫn chặn suốt một giờ.
+    #
+    # Đã cắn thật ngay lượt đầu bật xoay chỗ: máy đóng 8 vị thế lãi thấp
+    # đúng như thiết kế, rồi KHÔNG rót lại được cái nào — 23 tờ trình, 23
+    # lần BỎ TRÙNG, 998.000 USD nằm không. Không lỗi nào phát ra.
+    from thi_bac_ty.trung_uong import _dau_van as _dv49
+    from thi_bac_ty.trung_uong import _dau_van_tu_dict as _dvd49
+
+    _tt49 = _mau(taiSan="BTC")
+    kiem("hai đường dựng dấu vân tay cho CÙNG một kết quả",
+         _dv49(_tt49) == _dvd49(_tt49.tom_tat()),
+         "một bên đọc đối tượng, một bên đọc bản đã lưu — lệch nhau thì xoá "
+         "trượt, và cơ hội bị chặn tiếp mà không ai hiểu vì sao")
+    kiem("bản lưu thiếu chân thì trả None, không dựng dấu nửa vời",
+         _dvd49({"chienLuoc": "a", "taiSan": "b"}) is None
+         and _dvd49(None) is None
+         # Chân RỖNG là ca phân biệt: thiếu khoá thì `try` cũng bắt được,
+         # nhưng `chan: []` chạy trót lọt và ra `"a|b|"` — dấu vân tay của
+         # một vị thế KHÔNG CÓ CHÂN NÀO, và nó xoá trúng cơ hội khác.
+         and _dvd49({"chienLuoc": "a", "taiSan": "b", "chan": []}) is None,
+         "một dấu nửa vời xoá trúng cơ hội KHÁC")
+
     # ── ĐƯỜNG THỰC HIỆN: chỉ chạy khi người đã bật ──────────────────────
     from thi_bac_ty.danh_muc import ViThe as _VT49
 
     def _may49(tuXoay):
         tu = TrungUong(_tam(f"xoay-{tuXoay}"),
                        {"vonBanDauUsd": 10_000.0, "tuXoayCho": tuXoay})
-        t = {"taiSan": "CU", "netMoiGioBps": 2.0 * 100 / (365 * 24),
+        # Giống bản `tom_tat()` thật: có `chienLuoc` và `chan`, không thì
+        # `_dau_van_tu_dict` trả None và phép kiểm xanh vì lý do sai.
+        t = {"chienLuoc": "cu.v1", "taiSan": "CU",
+             "chan": [{"ben": "CHO_VAY", "cang": "aave", "chuoi": None}],
+             "netMoiGioBps": 2.0 * 100 / (365 * 24),
              "giuGio": 720.0, "phiUocBps": 0.6, "khoaVonDenGiay": None,
              "thanhKhoanThoatUsd": 9e9}
         tu.soViThe["m1"] = SoViThe(ma="m1", chienLuoc="cu.v1", toTrinh=t,
@@ -6965,6 +6994,34 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("biên an toàn lúc TỰ ĐỘNG rộng hơn lúc chỉ ĐO",
          float(_bat49.c.get("bienXoayCho")) > 1.0,
          "phép đo có người nhìn từng dòng, đường tự động thì không")
+    # Đặt dấu vào TRƯỚC rồi mới xoay, không thì phép kiểm xanh vì `_dauVet`
+    # vốn rỗng — xanh vì một lý do không liên quan là loại xanh tệ nhất.
+    _may51 = _may49(True)
+    _van51 = _dvd49(_may51.soViThe["m1"].toTrinh)
+    kiem("sổ vị thế dựng được dấu vân tay từ tờ trình đã lưu",
+         _van51 is not None, "thiếu `chan` hay `chienLuoc` thì xoá trượt")
+    _may51._dauVet[_van51] = 1.0
+    kiem("dấu vân tay ĐANG chặn trước khi xoay",
+         _van51 in _may51._dauVet, _van51)
+    # Và đường ĐÓNG THỨ HAI — hết hạn giữ — cũng phải xoá. Hai đường đóng
+    # thì sớm muộn chúng lệch nhau; đúng bài học `_cuoi_vong`.
+    _may52 = _may49(False)
+    _may52.soViThe["m1"].toTrinh["giuGio"] = 0.001
+    _may52.soViThe["m1"].moLucGiay = time.time() - 3600.0
+    _van52 = _dvd49(_may52.soViThe["m1"].toTrinh)
+    _may52._dauVet[_van52] = 1.0
+    _may52._ke_toan_vi_the()
+    kiem("HẾT HẠN GIỮ cũng xoá dấu vân tay, không chỉ xoay chỗ",
+         _van52 not in _may52._dauVet and not _may52.soViThe,
+         f"{list(_may52._dauVet)} — hai đường đóng thì sớm muộn chúng lệch "
+         f"nhau, và đường quên xoá sẽ chặn im lặng")
+
+    _may51._xoay_cho_neu_duoc()
+    kiem("và đóng xong thì XOÁ dấu ấy, để cơ hội vào lại được",
+         _van51 not in _may51._dauVet,
+         f"{list(_may51._dauVet)} — dấu còn thì cơ hội bị chặn suốt "
+         f"`nhipGhiNhanGiay`, và vốn nằm không suốt ngần ấy. Đã cắn thật: "
+         f"23 tờ trình, 23 lần BỎ TRÙNG, 998.000 USD ngồi im")
 
     # ── config.json xin một đằng, máy chạy một nẻo ──────────────────────
     # Kho bản tham số thắng config — cố ý, không thì mỗi lần khởi động lại
