@@ -141,6 +141,42 @@ def phan_quyet(cha: dict | None, thu: dict, nhieu_cho: dict | None = None) -> di
                              f"tin [{ktin[0]:+.3f}; {ktin[1]:+.3f}] CHỨA 0 — chưa "
                              f"phân biệt được với «không có gì»")
 
+        # NỬA CHẠY ĐƯỢC. Con số gộp ở trên đo CẢ HAI CHIỀU; sàn spot chỉ bán
+        # được thứ đang giữ nên `risk.py` chặn SHORT. Hai thứ ấy có thể ngược
+        # dấu nhau, và đã ngược:
+        #
+        #   MOCK_KEO_LUI_V1, 33 chợ 1d chưa từng dùng, nửa ngoài mẫu
+        #     cả hai chiều  269 lệnh  +0,205R  khoảng tin [+0,063; +0,354]
+        #     riêng SHORT   226 lệnh  +0,303R      ← toàn bộ lợi thế ở đây
+        #     riêng LONG     44 lệnh  −0,306R      ← nửa bot thật sự đánh
+        #
+        # Cửa duyệt cũ nhìn dòng đầu và thấy một bằng chứng mạnh. Nó mạnh thật —
+        # về một chiến lược không chạy nổi trên sàn đang dùng.
+        #
+        # Thiếu số cũng là một lý do từ chối, không phải một lý do bỏ qua: duyệt
+        # champion mà không biết nửa chạy được đáng bao nhiêu thì không phải một
+        # quyết định, chỉ là một cú tung đồng xu có chữ ký.
+        # Bản đầu chỉ soi khi bằng chứng CÓ khai `chayDuoc`. Một bản ghi cũ,
+        # ghi trước bản vá này, không có trường ấy — và thế là lách qua đúng cái
+        # luật vừa dựng, im lặng. Phép kiểm [48] bắt được vì nó thử chính ca đó.
+        #
+        # Nên: bằng chứng không nói nửa nào chạy được thì KHÔNG dùng được. Cửa
+        # duyệt là chỗ duy nhất tiêu tiền thật; ở đây đóng nhầm rẻ hơn mở nhầm.
+        if nhieu_cho.get("chayDuoc") is None:
+            ly_do.append("bằng chứng nhiều chợ không khai nửa nào CHẠY ĐƯỢC trên "
+                         "sàn đang dùng — số gộp có thể là của nửa SHORT mà sàn "
+                         "spot không đánh; chạy lại dau-chien-luoc.py để có")
+        elif nhieu_cho.get("chayDuoc") == "LONG":
+            cl = nhieu_cho.get("chiLong") or {}
+            kv_l, so_l = cl.get("kyVongR"), cl.get("so") or 0
+            if kv_l is None or not so_l:
+                ly_do.append("chưa đo nửa CHẠY ĐƯỢC (chỉ LONG) — sàn spot không "
+                             "đánh được SHORT, mà con số gộp thì gồm cả hai chiều")
+            elif kv_l <= 0:
+                ly_do.append(f"nửa chạy được trên sàn spot (chỉ LONG) là "
+                             f"{kv_l:+.3f}R trên {so_l} lệnh — lợi thế nằm ở nửa "
+                             f"SHORT mà bot không đánh được")
+
     kt = thu.get("khopTroi")
     if kt is not None and kt > CUA["khopTroiToiDa"]:
         ly_do.append(f"khớp trội {kt:.3f}R > {CUA['khopTroiToiDa']}R — "

@@ -62,6 +62,20 @@ def _chay_factory(nen, chuoi, moc, symbol):
                           if (tr is not None and tk["kyVongR"] is not None) else None)
         tk["trongMau"] = trong["thongKe"]
         tk["boLuat"] = ma
+        # NỬA CHẠY ĐƯỢC. Bảng chính đo CẢ HAI CHIỀU, còn sàn spot chỉ bán được
+        # thứ đang giữ — `risk.py` chặn SHORT khi `spot_only`. Đo được ngày
+        # 30/08: MOCK_KEO_LUI_V1 trên 33 chợ 1d chưa từng dùng cho +0,205R gộp
+        # 269 lệnh, khoảng tin KHÔNG chứa 0 — mà tách ra thì SHORT 226 lệnh
+        # +0,303R còn LONG 44 lệnh −0,306R. Toàn bộ lợi thế nằm ở nửa bot không
+        # đánh được, và cửa duyệt champion đang đọc con số gộp ấy.
+        #
+        # `cheDoVao: [TREND_UP]` là cách `do-huong.py` cô lập nửa LONG. Không
+        # phải mô phỏng y hệt tầng rủi ro, nhưng cùng một quy ước, và có một
+        # con số còn hơn không có gì để so.
+        chi_long = HL.chay_lai(nen, symbol=symbol, chuoi=chuoi, bo_luat=ma,
+                               tham={**th, "cheDoVao": ["TREND_UP"]},
+                               tu_nen=moc, bo_qua_kill=True)["thongKe"]
+        tk["chiLong"] = {"kyVongR": chi_long["kyVongR"], "so": chi_long["so"]}
         return tk
     return chay
 
@@ -211,6 +225,21 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
             dong += f"{tk['kyVongR']:>+13.3f}/{tk['so']:<6}"
         print(f"{ma:20}{dong}{f'{duong}/{len(cot)}':>16}")
     print()
+    print(f"{'nửa CHẠY ĐƯỢC (chỉ LONG)':20}" + "".join(
+        f"{'—':>20}" for _ in cot) + f"{'gộp':>16}")
+    for ma, v in bang.items():
+        dong, ds = "", []
+        for c in cot:
+            cl = (v.get(c) or {}).get("chiLong") or {}
+            if cl.get("kyVongR") is None or not cl.get("so"):
+                dong += f"{'—':>20}"
+                continue
+            ds.append((cl["kyVongR"], cl["so"]))
+            dong += f"{cl['kyVongR']:>+13.3f}/{cl['so']:<6}"
+        _n = sum(n for _, n in ds)
+        _g = f"{sum(r * n for r, n in ds) / _n:+.3f}" if _n else "—"
+        print(f"{ma:20}{dong}{_g:>16}")
+    print()
     print("Mỗi ô: kỳ vọng R ngoài mẫu / số lệnh ngoài mẫu.")
     print("Một bộ luật chỉ đáng tin khi DƯƠNG ở nhiều chợ — dương ở đúng một chợ")
     print("là dấu hiệu khớp với lịch sử của riêng chợ đó.")
@@ -220,7 +249,27 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     from trader.config import DATA_DIR as _DD
     import datetime as _dt
     import json as _json
-    _f = _DD / "dau-nhieu-cho.json"
+
+    # AI ĐƯỢC GHI VÀO KHO CHÍNH THỨC
+    #
+    # Kho này là bằng-chứng-nhiều-chợ mà lò chưng cất đọc và cửa duyệt champion
+    # tra vào. Lượt gõ tay với danh sách chợ tự chọn KHÔNG được thành bằng chứng
+    # chính thức chỉ vì nó chạy sau.
+    #
+    # Đã xảy ra hôm nay: một lượt đo 33 chợ 1d gõ tay đè lên kho, và từ đó mọi
+    # câu "dương ở ≥3 chợ" của lò chưng cất nói về một tập chợ khác hẳn tập mà
+    # nghi thức khai. Không sai một con số nào, và nói về một hệ khác.
+    #
+    # Chú thích cũ ở đây đã lường trước chuyện hai lượt cùng ghi một file —
+    # nhưng chỉ lo NGUYÊN TỬ, tức lo file cụt. Vấn đề thật không phải file cụt.
+    from trader import nghi_thuc as _NT
+    _chinh_thuc = {tuple(x.strip() for x in _NT.CHO_4H.split(",")),
+                   tuple(x.strip() for x in _NT.CHO_1D.split(","))}
+    _la_nghi_thuc = tuple(cot) in _chinh_thuc
+    _f = _DD / ("dau-nhieu-cho.json" if _la_nghi_thuc else "dau-nhieu-cho-ngoai.json")
+    if not _la_nghi_thuc:
+        print(f"  ⓘ danh sách chợ KHÔNG phải của nghi thức ({len(cot)} chợ) — "
+              f"ghi sang {_f.name}, kho chính thức giữ nguyên.")
     # `luc` không phải trang trí. Bàn giao đo tuổi kho bằng mtime của file, mà
     # mtime nói "lần ghi cuối", không nói "đo trên dữ liệu tới lúc nào". Một
     # lượt chạy hỏng nửa chừng vẫn chạm file và làm kho trông tươi. Số nến thì
@@ -251,7 +300,9 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
                    "soNen": max(soNen)} if quang else None),
         "ket": {ma: {c: {"kyVongR": v[c].get("kyVongR"), "so": v[c].get("so"),
                          "tyLeThang": v[c].get("tyLeThang"),
-                         "khopTroi": v[c].get("khopTroi")}
+                         "khopTroi": v[c].get("khopTroi"),
+                         # nửa bot THẬT SỰ đánh được trên sàn spot
+                         "chiLong": v[c].get("chiLong")}
                      for c in cot if c in v}
                 for ma, v in bang.items()},
     }, ensure_ascii=False, indent=1), encoding="utf-8")

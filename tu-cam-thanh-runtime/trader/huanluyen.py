@@ -113,7 +113,8 @@ def _thoat(nen: list[dict], tu: int, side: int, entry: float, sl: float,
 
 
 def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
-                   bao_tien_do: Callable[[int, int], None] | None = None) -> list[dict]:
+                   bao_tien_do: Callable[[int, int], None] | None = None,
+                   chi_muc: list[int] | None = None) -> list[dict]:
     """Chạy feature → regime trên từng nến, trả về chuỗi TÍN HIỆU thô.
 
     Ranh giới ở đây là điều quan trọng nhất của cả module. Chuỗi này chứa
@@ -138,9 +139,12 @@ def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
 
     chuoi: list[dict] = []
     cuoi = len(nc) - 1
-    for i in range(KHOI_DONG, cuoi):
-        if bao_tien_do and i % 50 == 0:
-            bao_tien_do(i - KHOI_DONG, cuoi - KHOI_DONG)
+    # `chi_muc` cho phép tính LẺ vài nến thay vì cả chuỗi — đường dùng lại cache
+    # sau khi có nến mới. None nghĩa là tính hết, đúng như trước.
+    can = list(range(KHOI_DONG, cuoi)) if chi_muc is None else         [i for i in chi_muc if KHOI_DONG <= i < cuoi]
+    for _k, i in enumerate(can):
+        if bao_tien_do and _k % 50 == 0:
+            bao_tien_do(_k, len(can))
         st = _trang_thai(nc, nx, moc_ctx, i, tf_chinh, tf_ctx, symbol, cua_so)
         if st is None:
             continue
@@ -175,7 +179,7 @@ def sinh_luan_diem(nen: dict[str, list[dict]], *, symbol: str = "BTCUSDT",
             },
         })
     if bao_tien_do:
-        bao_tien_do(cuoi - KHOI_DONG, cuoi - KHOI_DONG)
+        bao_tien_do(len(can), len(can))
     return chuoi
 
 
@@ -546,7 +550,169 @@ def _van_tay(nen: dict[str, list[dict]], symbol: str) -> str:
     return hashlib.sha256("|".join(m).encode()).hexdigest()[:16]
 
 
+def _van_tay_hinh(symbol: str) -> str:
+    """Vân tay của MÃ + CẤU HÌNH — cố ý KHÔNG gồm quãng nến.
+
+    `_van_tay` gộp cả hai, nên chỉ cần một nến mới về là cả chuỗi 9000 điểm
+    thành rác. Đo được: nghi thức 4h phải dựng lại 15 chuỗi mỗi lượt, mà lượt
+    trước 8 chợ đã mất 75 phút — tức việc ấy quá hạn 5400s trước khi bắt đầu.
+
+    Tách ra thì quãng nến trở thành thứ ĐỐI CHIẾU chứ không phải thứ khoá: điểm
+    nào tính trên cùng cửa sổ dữ liệu thì dùng lại, phần còn lại tính thêm.
+    """
+    import hashlib
+
+    tf = CONFIG["timeframes"]
+    m = [symbol, tf["primary"], tf["context"], str(CONFIG["data"]["candleLimit"]),
+         str(KHOI_DONG), f"v{PHIEN_BAN_CHUOI}", VAN_TAY_MA]
+    return hashlib.sha256("|".join(m).encode()).hexdigest()[:16]
+
+
+def _quang(nen: dict[str, list[dict]]) -> dict:
+    """Quãng nến của từng khung: bao nhiêu nến, từ mốc nào tới mốc nào."""
+    return {k: {"n": len(v), "dau": v[0]["t"], "cuoi": v[-1]["t"]}
+            for k, v in nen.items()}
+
+
+def _moc_day(nen: dict[str, list[dict]]) -> list[int]:
+    """Mốc thời gian của những nến ĐÃ ĐƯỢC XÉT ở lượt dựng chuỗi này.
+
+    Cần vì "không có trong cache" và "đã xét rồi, không ra điểm nào" là hai
+    chuyện khác hẳn — chế độ UNKNOWN bị bỏ qua ở `sinh_luan_diem`, nên phân nửa
+    chỉ mục vốn không sinh điểm. Lẫn hai thứ ấy thì lượt bồi thêm tính lại 587
+    chỉ mục để ra 110 điểm; đo được đúng con số đó ở lượt thử đầu.
+    """
+    tf = CONFIG["timeframes"]["primary"]
+    nc = nen[tf]
+    return [nc[i]["t"] for i in range(KHOI_DONG, len(nc) - 1)]
+
+
+def _cung_lat(dau_cu: int, dau_moi: int, day: bool) -> bool:
+    """Lát cắt tại một mốc có TRÙNG tập nến giữa bộ cũ và bộ mới không?
+
+    Lát cắt là `arr[max(0, k - cua_so) : k]` với `k` chỉ phụ thuộc vào mốc thời
+    gian. Ba ca, và ca giữa là chỗ dễ sai nhất:
+
+      • đầu mảng KHÔNG đổi   → `k` như nhau ⇒ lát trùng, đầy hay chưa cũng vậy;
+      • mảng cuốn VỀ TRƯỚC   → `k_cũ > k_mới`, hai lát chỉ trùng khi lát MỚI đã
+                               đầy (cùng đếm ngược `cua_so` nến từ cùng một mốc);
+      • bộ mới có THÊM lịch sử ở đầu → `k_cũ < k_mới`, không suy ra được gì từ
+                               những số đang có ⇒ từ chối.
+
+    Bản đầu đòi "lát phải đầy" ở MỌI ca. Không sai kết quả, nhưng ở đoạn đầu
+    lịch sử — nơi khung ngữ cảnh chưa đủ `cua_so` nến — thì không điểm nào dùng
+    lại được, và cache im lặng thành vô dụng. Phép kiểm [11] bắt đúng chỗ đó.
+    """
+    if dau_cu == dau_moi:
+        return True
+    if dau_cu < dau_moi:
+        return day
+    return False
+
+
+def _diem_dung_lai(cu: list[dict], quang_cu: dict, xet_cu: list[int],
+                   nen: dict[str, list[dict]]) -> tuple[list[dict], list[int]]:
+    """Chọn điểm cache CÒN ĐÚNG với bộ nến mới. Trả (điểm dùng lại, chỉ mục thiếu).
+
+    Một điểm tại mốc `t` được quyết định bởi ĐÚNG hai lát cắt: `cua_so` nến
+    chính kết thúc ở `t`, và `cua_so` nến ngữ cảnh đã mở trước `t`. Nến đã đóng
+    thì không đổi giá, nên cùng hai lát ấy ⇒ cùng kết quả. Ba điều kiện:
+
+      1. mốc `t` có mặt trong bộ mới, và lát nến CHÍNH tại đó trùng bộ cũ;
+      2. lát nến NGỮ CẢNH tại đó cũng trùng;
+      3. `t` nằm trước nến ngữ cảnh cuối của bộ CŨ ít nhất một nhịp — nến cuối
+         lúc ấy có thể CHƯA ĐÓNG, và giá của nó sẽ đổi ở lần nạp sau.
+
+    Điều 3 là chỗ dễ bỏ sót nhất: hai điều đầu nhìn có vẻ đủ, nhưng phần đuôi
+    chuỗi lại đúng là phần được dùng nhiều nhất trong cửa sổ ngoài mẫu.
+    """
+    from .data import TF_MS
+
+    tf, ctx = CONFIG["timeframes"]["primary"], CONFIG["timeframes"]["context"]
+    if tf not in quang_cu or ctx not in quang_cu:
+        return [], []
+    nc, nx = nen[tf], nen[ctx]
+    cua_so = CONFIG["data"]["candleLimit"]
+    moc_ctx = [x["t"] for x in nx]
+    vi_tri = {x["t"]: i for i, x in enumerate(nc)}
+    han_duoi = quang_cu[ctx]["cuoi"] - (TF_MS.get(ctx) or TF_MS["1d"])
+    d_tf = (quang_cu[tf]["dau"], nc[0]["t"])
+    d_ctx = (quang_cu[ctx]["dau"], nx[0]["t"])
+    xet = set(xet_cu)
+
+    def dung_duoc(t: int, i: int) -> bool:
+        if t not in xet or t >= han_duoi or i < KHOI_DONG:
+            return False
+        if not _cung_lat(d_tf[0], d_tf[1], i + 1 >= cua_so):
+            return False
+        return _cung_lat(d_ctx[0], d_ctx[1],
+                         bisect.bisect_right(moc_ctx, t) >= cua_so)
+
+    giu = [{**d, "i": vi_tri[d["t"]]}      # chỉ số phải theo bộ nến MỚI
+           for d in cu
+           if d.get("t") in vi_tri and dung_duoc(d["t"], vi_tri[d["t"]])]
+    # THIẾU = chỉ mục mà bộ cũ chưa từng xét với cửa sổ dùng lại được. Chỗ đã
+    # xét mà không có điểm là chỗ ĐÃ BIẾT không ra gì — tính lại chỉ tốn giờ.
+    thieu = [i for i in range(KHOI_DONG, len(nc) - 1)
+             if not dung_duoc(nc[i]["t"], i)]
+    return giu, thieu
+
+
+def _doi_chieu(giu: list[dict], nen: dict[str, list[dict]], symbol: str,
+               so_mau: int = 5) -> bool:
+    """Tính LẠI vài điểm dùng lại và so từng chữ. Sai một điểm ⇒ vứt cả cache.
+
+    Không có bước này thì mọi điều kiện ở trên chỉ là lập luận, và một lập luận
+    sai ở đây không làm gì đổ — nó chỉ khiến mọi con số thuộc về một thị trường
+    khác. Năm điểm rải đều là đủ: lỗi lệch cửa sổ không bao giờ chỉ sai một chỗ.
+    """
+    import json
+
+    if not giu:
+        return True
+    b = max(1, len(giu) // so_mau)
+    mau = giu[::b][:so_mau]
+    moi = sinh_luan_diem(nen, symbol=symbol, chi_muc=[x["i"] for x in mau])
+    theo_i = {x["i"]: x for x in moi}
+    for x in mau:
+        y = theo_i.get(x["i"])
+        if y is None or json.dumps(y, sort_keys=True) != json.dumps(x, sort_keys=True):
+            return False
+    return True
+
+
 _bo_nho: dict[str, list[dict]] = {}
+
+
+def _ghi_goi(f, chuoi: list[dict], quang: dict, xet: list[int], symbol: str) -> None:
+    """Ghi gói chuỗi ra đĩa, nguyên tử, rồi dọn gói cũ của CHÍNH chợ này.
+
+    Ghi qua file tạm rồi ĐỔI TÊN. `write_text` không nguyên tử: hai tiến trình
+    cùng sinh một chuỗi (nghi thức chạy nền + một lượt gõ tay) có thể để lại
+    file cụt giữa chừng. Đường đọc nuốt mọi lỗi parse và tính lại, nên file cụt
+    KHÔNG gây sập — nó gây chuyện khó thấy hơn: mỗi lượt đều "tính mới" một
+    chuỗi vốn đã có sẵn, và một chuỗi 9000 nến mất hàng chục phút. Cache im
+    lặng thành vô dụng, mà bảng nào cũng xanh.
+
+    Dọn gói CŨ vì vân tay gồm cả mã nguồn: mỗi lần sửa `features.py` là toàn bộ
+    cache thành rác không ai với tới — 74 file, 86 MB sau đúng một bản vá. Chỉ
+    xoá file của chợ vừa ghi: tiến trình khác có thể đang dùng cache của chợ
+    khác với vân tay khác.
+    """
+    import json
+    import os
+
+    f.parent.mkdir(parents=True, exist_ok=True)
+    tam = f.with_suffix(f".{os.getpid()}.tmp")
+    tam.write_text(json.dumps({"quang": quang, "xet": xet, "chuoi": chuoi}),
+                   encoding="utf-8")
+    os.replace(tam, f)
+    for cu_f in f.parent.glob(f"{symbol}-*.json"):
+        if cu_f.name != f.name:
+            try:
+                cu_f.unlink()
+            except OSError:
+                pass
 
 
 def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
@@ -559,12 +725,35 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
     if vt in _bo_nho:
         return _bo_nho[vt], "bộ nhớ"
 
-    f = ROOT / "data" / "chuoi" / f"{symbol}-{vt}.json"
+    # Tên file theo vân tay MÃ+CẤU HÌNH, không theo quãng nến: một chợ có đúng
+    # một gói chuỗi, và gói ấy được BỒI THÊM mỗi lần nến mới về.
+    f = ROOT / "data" / "chuoi" / f"{symbol}-{_van_tay_hinh(symbol)}-goi.json"
+    quang_nay = _quang(nen)
     if dung_dia and f.exists():
         try:
-            c = json.loads(f.read_text(encoding="utf-8"))
-            _bo_nho[vt] = c
-            return c, "đĩa"
+            goi = json.loads(f.read_text(encoding="utf-8"))
+            cu, quang_cu = goi.get("chuoi") or [], goi.get("quang") or {}
+            if quang_cu == quang_nay:
+                _bo_nho[vt] = cu
+                return cu, "đĩa"
+            giu, thieu = _diem_dung_lai(cu, quang_cu, goi.get("xet") or [], nen)
+            if giu and _doi_chieu(giu, nen, symbol):
+                t0 = time.time()
+                them = sinh_luan_diem(nen, symbol=symbol, chi_muc=thieu,
+                                      bao_tien_do=bao_tien_do)
+                c = sorted(giu + them, key=lambda d: d["i"])
+                _bo_nho[vt] = c
+                if dung_dia:
+                    _ghi_goi(f, c, quang_nay, _moc_day(nen), symbol)
+                return c, (f"đĩa+{len(them)} điểm mới trong "
+                           f"{time.time() - t0:.0f}s (dùng lại {len(giu)})")
+            if giu:
+                # Đối chiếu TRƯỢT: điều kiện dùng lại có chỗ sai. Không nuốt im —
+                # tính lại thì chỉ chậm, còn im lặng thì mọi bảng số sau đó nói
+                # về một thị trường khác.
+                bus.log("hoc", "chuoi-doi-chieu-truot",
+                        f"{symbol}: {len(giu)} điểm cache không khớp khi tính lại "
+                        f"— dựng lại toàn bộ")
         except Exception:  # noqa: BLE001 — cache hỏng thì tính lại, không phải sự cố
             pass
 
@@ -572,36 +761,7 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
     c = sinh_luan_diem(nen, symbol=symbol, bao_tien_do=bao_tien_do)
     _bo_nho[vt] = c
     if dung_dia:
-        # Ghi qua file tạm rồi ĐỔI TÊN. `write_text` không nguyên tử: hai tiến
-        # trình cùng sinh một chuỗi (nghi thức chạy nền + một lượt gõ tay) có thể
-        # để lại file cụt giữa chừng.
-        #
-        # Đường đọc ở trên nuốt mọi lỗi parse và tính lại, nên file cụt KHÔNG gây
-        # sập — nó gây chuyện khó thấy hơn: mỗi lượt đều "tính mới" một chuỗi vốn
-        # đã có sẵn, và một chuỗi 9000 nến mất hàng chục phút. Cache im lặng biến
-        # thành vô dụng, mà bảng nào cũng xanh.
-        #
-        # `os.replace` nguyên tử trên cùng ổ đĩa, kể cả Windows. Tên tạm mang PID
-        # để hai tiến trình không giẫm lên file tạm của nhau.
-        import os
-
-        f.parent.mkdir(parents=True, exist_ok=True)
-        tam = f.with_suffix(f".{os.getpid()}.tmp")
-        tam.write_text(json.dumps(c), encoding="utf-8")
-        os.replace(tam, f)
-
-        # Dọn chuỗi CŨ của cùng chợ này. Vân tay giờ gồm cả mã nguồn, nên mỗi
-        # lần sửa `features.py` là toàn bộ cache thành rác không ai với tới —
-        # 74 file, 86 MB sau đúng một bản vá. Không dọn thì nó chỉ có tăng.
-        #
-        # Chỉ xoá file của CHÍNH chợ vừa ghi: một tiến trình khác có thể đang
-        # dùng cache của chợ khác với vân tay khác (ví dụ đang chạy bản mã cũ).
-        for cu_f in f.parent.glob(f"{symbol}-*.json"):
-            if cu_f.name != f.name:
-                try:
-                    cu_f.unlink()
-                except OSError:
-                    pass
+        _ghi_goi(f, c, quang_nay, _moc_day(nen), symbol)
     bus.emit("hoc", "sinh-chuoi",
              f"sinh {len(c)} điểm vào lệnh từ lịch sử trong {time.time() - t0:.0f}s")
     return c, "tính mới"

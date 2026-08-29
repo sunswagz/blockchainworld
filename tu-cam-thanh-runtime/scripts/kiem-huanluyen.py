@@ -9,6 +9,7 @@ người đi qua chứ không phải giả thuyết.
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -271,6 +272,42 @@ if tk2["heSoLoiNhuan"] is None:
     ok("không có lệnh thua → hệ số lợi nhuận để None chứ không phải vô cực")
 else:
     bao(f"hệ số lợi nhuận ra {tk2['heSoLoiNhuan']} khi chưa có lệnh thua nào")
+
+# ── 11. bồi thêm chuỗi phải ra ĐÚNG chuỗi tính lại từ đầu ──────────────────
+print("\n[11] bồi thêm chuỗi = tính lại từ đầu, từng chữ một")
+# Phép kiểm nhanh trong `selftest.py` [47] canh ĐIỀU KIỆN dùng lại; cái này
+# canh KẾT QUẢ, trên nến thật, và vì thế nó chậm. Hai phép không thay nhau
+# được: điều kiện đúng mà `_trang_thai` đọc thêm một trường nào đó ngoài hai
+# lát cắt thì chỉ phép này bắt được.
+_n11 = HL.nap_nen()
+if not _n11:
+    print("  —    bỏ qua: chưa có dữ liệu, chạy scripts/tai-lich-su.py trước")
+else:
+    _tf11 = CONFIG["timeframes"]["primary"]
+    _ctx11 = CONFIG["timeframes"]["context"]
+    # Cắt ngắn để chạy trong vài phút chứ không vài chục.
+    _N11 = min(len(_n11[_tf11]), HL.KHOI_DONG + CONFIG["data"]["candleLimit"] + 60)
+    _cu11 = {_tf11: _n11[_tf11][:_N11 - 2], _ctx11: _n11[_ctx11]}
+    _moi11 = {_tf11: _n11[_tf11][3:_N11], _ctx11: _n11[_ctx11]}
+    if _tf11 == _ctx11:
+        _cu11 = {_tf11: _n11[_tf11][:_N11 - 2]}
+        _moi11 = {_tf11: _n11[_tf11][3:_N11]}
+    HL._bo_nho.clear()
+    HL.lay_chuoi(_cu11, "BTCUSDT")                       # dựng gói cũ
+    HL._bo_nho.clear()
+    _boi11, _ng11 = HL.lay_chuoi(_moi11, "BTCUSDT")      # bồi thêm
+    HL._bo_nho.clear()
+    _het11 = HL.sinh_luan_diem(_moi11, symbol="BTCUSDT")  # chuẩn
+    if json.dumps(_boi11, sort_keys=True) == json.dumps(_het11, sort_keys=True):
+        ok(f"bồi thêm ra chuỗi y hệt tính lại từ đầu ({len(_boi11)} điểm · {_ng11})")
+    else:
+        bao(f"chuỗi bồi thêm KHÁC chuỗi tính lại: "
+            f"{len(_boi11)} điểm so với {len(_het11)}")
+    if "đĩa+" not in _ng11:
+        bao(f"lượt hai không đi đường bồi thêm mà đi «{_ng11}» — cache vô dụng")
+    else:
+        ok("lượt hai đi đúng đường bồi thêm, không dựng lại cả chuỗi")
+
 
 print("\n" + "=" * 60)
 if sai:

@@ -671,6 +671,27 @@ def _tu_do_khung(bo: list) -> list[dict]:
 
 
 # ── Nguồn 7 · đấu nhiều chợ ───────────────────────────────────────────────
+def _gop_chi_long(v: dict, cho: list[str]) -> dict:
+    """Gộp nửa CHẠY ĐƯỢC (chỉ LONG) của một bộ luật qua các chợ.
+
+    Sàn spot chỉ bán được thứ đang giữ, nên `risk.py` chặn SHORT. Con số gộp cả
+    hai chiều vì thế nói về một chiến lược bot KHÔNG chạy nổi — và hai nửa đã
+    ngược dấu nhau ở phép đo 30/08: MOCK_KEO_LUI_V1 trên 33 chợ 1d cho SHORT
+    +0,303R/226 lệnh còn LONG −0,306R/44 lệnh, gộp lại thành +0,205R.
+
+    Trả `{}` khi kho chưa có trường ấy — kho cũ ghi trước bản vá này thì thiếu,
+    và cửa duyệt đọc "thiếu" thành một lý do TỪ CHỐI chứ không phải bỏ qua.
+    """
+    ds = [(c["kyVongR"], c["so"]) for x in (v.get(k) for k in cho) if x
+          for c in [x.get("chiLong") or {}]
+          if c.get("kyVongR") is not None and c.get("so")]
+    n = sum(so for _, so in ds)
+    if not n:
+        return {}
+    return {"kyVongR": round(sum(r * so for r, so in ds) / n, 3), "so": n,
+            "soCho": len(ds)}
+
+
 def _tu_nhieu_cho(bo: list) -> list[dict]:
     """Cùng một bộ luật, đo trên nhiều coin và nhiều khung.
 
@@ -746,7 +767,8 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
                    + (" — CHỨA 0." if _ktg[0] <= 0 <= _ktg[1] else ".")
                    if _ktg else ""),
                 n_gop, {"kyVongR": round(kv_g, 3), "duong": d_g, "soCho": len(gop),
-                        "khoangTin": ([round(v, 3) for v in _ktg] if _ktg else None)}))
+                        "khoangTin": ([round(v, 3) for v in _ktg] if _ktg else None),
+                        "chayDuoc": "LONG", "chiLong": _gop_chi_long(v, cho)}))
             continue
         duong = sum(1 for x in du if x["kyVongR"] > 0)
         tong_lenh = sum(x["so"] for x in du)
@@ -804,7 +826,10 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
         ra.append(_pd(f"cho:{ma}", "nhieu-cho", cau, tong_lenh,
                       {"kyVongR": round(kv_gop, 3), "duong": duong,
                        "khoangTin": ([round(v, 3) for v in _kt] if _kt else None),
-                       "soCho": len(du)}))
+                       "soCho": len(du),
+                       # Nửa bot THẬT SỰ đánh được. Thiếu trường này thì cửa
+                       # duyệt đang so một chiến lược với chính nó ở một sàn khác.
+                       "chayDuoc": "LONG", "chiLong": _gop_chi_long(v, cho)}))
     return ra
 
 

@@ -1111,6 +1111,109 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[48] CỬA DUYỆT PHẢI ĐỌC NỬA BOT ĐÁNH ĐƯỢC")
+    # Đo được 30/08 trên 33 chợ 1d chưa từng dùng để tìm ra luật:
+    #   MOCK_KEO_LUI_V1  cả hai chiều  269 lệnh  +0,205R  KT [+0,063; +0,354]
+    #                    riêng SHORT   226 lệnh  +0,303R
+    #                    riêng LONG     44 lệnh  −0,306R
+    # Sàn spot chỉ bán được thứ đang giữ, nên bot chạy đúng nửa lỗ. Cửa duyệt cũ
+    # nhìn dòng đầu và thấy một bằng chứng mạnh — mạnh thật, về một chiến lược
+    # không chạy nổi trên sàn đang dùng.
+    from trader import chien_luoc as _CL48
+    from trader.chung_cat import _gop_chi_long as _gcl48
+
+    _tot48 = {"so": 60, "kyVongR": 0.25, "khopTroi": 0.05, "sutGiamToiDaPct": 8.0}
+    _cha48 = {"so": 60, "kyVongR": 0.05, "sutGiamToiDaPct": 8.0}
+    _nc48 = {"kyVongR": 0.205, "soCho": 29, "khoangTin": [0.063, 0.354]}
+
+    check(_CL48.phan_quyet(_cha48, _tot48, _nc48)["qua"] is False,
+          "bằng chứng nhiều chợ KHÔNG khai nửa chạy được ⇒ chưa đủ để duyệt")
+    _lydo48 = " ".join(_CL48.phan_quyet(_cha48, _tot48,
+                                        {**_nc48, "chayDuoc": "LONG"})["lyDo"])
+    check("chưa đo nửa CHẠY ĐƯỢC" in _lydo48,
+          "thiếu số nửa LONG là một lý do TỪ CHỐI, không phải lý do bỏ qua")
+    _am48 = _CL48.phan_quyet(_cha48, _tot48, {**_nc48, "chayDuoc": "LONG",
+                                              "chiLong": {"kyVongR": -0.306, "so": 44}})
+    check(not _am48["qua"] and any("nửa chạy được" in x for x in _am48["lyDo"]),
+          "gộp +0,205R mà nửa LONG −0,306R ⇒ TỪ CHỐI, nêu đúng lý do")
+    _duong48 = _CL48.phan_quyet(_cha48, _tot48, {**_nc48, "chayDuoc": "LONG",
+                                                 "chiLong": {"kyVongR": 0.18, "so": 44}})
+    check(_duong48["qua"],
+          "nửa LONG cũng dương ⇒ cửa mở (cửa ngược lại — luật không chặn tất)")
+    check(_CL48.phan_quyet(_cha48, _tot48, None)["qua"],
+          "không có bằng chứng nhiều chợ nào thì luật này im, như trước")
+
+    # Đường ống: lò chưng cất phải THẬT SỰ gắn trường ấy vào phát hiện, nếu không
+    # luật trên chỉ đúng trong phép kiểm này.
+    check(_gcl48({"A:1d": {"chiLong": {"kyVongR": -0.3, "so": 40}},
+                  "B:1d": {"chiLong": {"kyVongR": 0.1, "so": 10}}},
+                 ["A:1d", "B:1d"]) == {"kyVongR": -0.22, "so": 50, "soCho": 2},
+          "gộp nửa LONG theo TRỌNG SỐ số lệnh, không phải trung bình đầu chợ")
+    check(_gcl48({"A:1d": {}}, ["A:1d"]) == {},
+          "kho cũ chưa có trường chiLong ⇒ trả rỗng, không bịa số 0")
+    _src48 = ma_khong_chu_thich(ROOT / "trader" / "chung_cat.py")
+    check(_src48.count('"chayDuoc": "LONG"') == 2,
+          "cả HAI nhánh phát hiện nhiều-chợ đều khai nửa chạy được"
+          + f" — đếm được {_src48.count(chr(34) + 'chayDuoc' + chr(34) + ': ' + chr(34) + 'LONG' + chr(34))}")
+    _src48b = ma_khong_chu_thich(ROOT / "scripts" / "dau-chien-luoc.py")
+    check('"cheDoVao": ["TREND_UP"]' in _src48b and '"chiLong"' in _src48b,
+          "bảng đấu nhiều chợ có ĐO nửa LONG chứ không chỉ khai chỗ nhận nó")
+
+    print("\n[47] CHUỖI TÍN HIỆU PHẢI BỒI THÊM, KHÔNG DỰNG LẠI")
+    # Vân tay cũ gộp cả quãng nến, nên MỘT nến mới về là 9000 điểm thành rác.
+    # Nghi thức 4h phải dựng lại 15 chuỗi mỗi lượt trong hạn 5400s, mà lượt
+    # trước 8 chợ đã mất 75 phút — tức nó quá giờ trước khi bắt đầu.
+    #
+    # Điều kiện dùng lại rất dễ sai theo kiểu KHÔNG LÀM GÌ ĐỔ, nên canh thẳng
+    # vào `_diem_dung_lai`: hàm ấy thuần, không tính feature, chạy tức thì.
+    from trader import huanluyen as _H47
+
+    _cs47 = CONFIG["data"]["candleLimit"]
+    _d47 = max(_H47.KHOI_DONG, _cs47)          # chỉ số đầu tiên đủ cửa sổ
+    _n47 = _d47 + 40
+    _mk47 = lambda tu, den: [{"t": 1_000 + i * 3_600_000, "o": 1.0, "h": 1.0,
+                              "l": 1.0, "c": 1.0, "v": 1.0} for i in range(tu, den)]
+    _cu47 = {"1h": _mk47(0, _n47), "4h": _mk47(0, _n47)}
+    _moi47 = {"1h": _mk47(3, _n47 + 2), "4h": _mk47(3, _n47 + 2)}   # dịch CẢ HAI đầu
+    _tf47 = CONFIG["timeframes"]["primary"], CONFIG["timeframes"]["context"]
+    CONFIG["timeframes"]["primary"] = "1h"
+    CONFIG["timeframes"]["context"] = "4h"
+    try:
+        _xet47 = _H47._moc_day(_cu47)
+        _q47 = _H47._quang(_cu47)
+        # điểm cache: một ở vùng đầu (cửa sổ CHƯA đầy), một ở giữa, một sát đuôi
+        _tc47 = [x["t"] for x in _cu47["1h"]]
+        _diem47 = [{"i": _H47.KHOI_DONG, "t": _tc47[_H47.KHOI_DONG], "price": 1.0},
+                   {"i": _d47 + 5, "t": _tc47[_d47 + 5], "price": 2.0},
+                   {"i": _n47 - 2, "t": _tc47[_n47 - 2], "price": 3.0}]
+        _giu47, _thieu47 = _H47._diem_dung_lai(_diem47, _q47, _xet47, _moi47)
+        _tgiu47 = {d["t"] for d in _giu47}
+
+        check(_tc47[_d47 + 5] in _tgiu47, "điểm giữa chuỗi được dùng lại")
+        check(_tc47[_H47.KHOI_DONG] not in _tgiu47,
+              "điểm ở vùng khởi động (cửa sổ chưa đầy) KHÔNG được dùng lại")
+        check(_tc47[_n47 - 2] not in _tgiu47,
+              "điểm sát đuôi KHÔNG được dùng lại — nến ngữ cảnh cuối lúc ấy "
+              "có thể chưa đóng, giá của nó còn đổi")
+        _vt47 = {x["t"]: i for i, x in enumerate(_moi47["1h"])}
+        check(all(d["i"] == _vt47[d["t"]] for d in _giu47),
+              "chỉ số của điểm dùng lại được đánh lại theo bộ nến MỚI")
+        check(_vt47[_tc47[_d47 + 5]] not in _thieu47,
+              "chỗ đã dùng lại không nằm trong danh sách phải tính")
+        # Chỗ ĐÃ XÉT mà không sinh điểm nào thì cũng không phải tính lại — đó là
+        # khác biệt giữa 110 điểm mới và 587 chỉ mục bị quét lại.
+        check(_vt47[_tc47[_d47 + 9]] not in _thieu47,
+              "mốc đã xét mà không ra điểm ⇒ KHÔNG tính lại (đã biết là rỗng)")
+        _cuoi47 = [i for i in _thieu47 if i >= len(_moi47["1h"]) - 4]
+        check(bool(_cuoi47), "hai nến mới cuối chuỗi NẰM TRONG danh sách phải tính")
+
+        # Cửa ngược: gói cache của một bộ nến KHÁC HẲN không được dùng lại gì.
+        _la47 = {"1h": _mk47(9_000, 9_000 + _n47), "4h": _mk47(9_000, 9_000 + _n47)}
+        _g2, _ = _H47._diem_dung_lai(_diem47, _q47, _xet47, _la47)
+        check(not _g2, "bộ nến không giao nhau ⇒ không dùng lại điểm nào")
+    finally:
+        CONFIG["timeframes"]["primary"], CONFIG["timeframes"]["context"] = _tf47
+
     print("\n[46] MỌI CHỖ ĐỌC NẾN TỪ ĐĨA PHẢI CANH TUỔI")
     # MKRUSDT ngừng cập nhật 15/09/2025 nhưng file vẫn đủ 1500 nến, vẫn đọc
     # được, vẫn qua mọi phép đếm. Luật «bỏ chợ chết» từng nằm ở BA bản chép tay
@@ -1177,10 +1280,15 @@ async def main() -> int:
     check(not _pq45(_cha45, _tot45,
                     {"kyVongR": 0.2, "soCho": 7, "khoangTin": [-0.1, 0.5]})["qua"],
           "gộp dương nhưng khoảng tin CHỨA 0 → vẫn chặn")
+    # Từ mục [48] trở đi, bằng chứng nhiều chợ còn phải khai NỬA CHẠY ĐƯỢC.
+    # Hai phép dưới đây từng chỉ cần «gộp dương»; nay chúng phải khai thêm, và
+    # đó là thay đổi hợp đồng chứ không phải nới lỏng: nếu bỏ hai khoá này đi
+    # thì chúng lại trượt.
+    _lg45 = {"chayDuoc": "LONG", "chiLong": {"kyVongR": 0.15, "so": 40}}
     check(_pq45(_cha45, _tot45,
-                {"kyVongR": 0.2, "soCho": 7, "khoangTin": [0.05, 0.35]})["qua"],
+                {"kyVongR": 0.2, "soCho": 7, "khoangTin": [0.05, 0.35], **_lg45})["qua"],
           "gộp dương và khoảng tin KHÔNG chứa 0 → cho qua (cửa ngược lại)")
-    check(_pq45(_cha45, _tot45, {"kyVongR": -0.9, "soCho": 2})["qua"],
+    check(_pq45(_cha45, _tot45, {"kyVongR": -0.9, "soCho": 2, **_lg45})["qua"],
           "dưới 3 chợ → KHÔNG chặn; «âm ở 2 chợ» chưa nói được gì")
 
     # Và hàm phải còn THUẦN: bằng chứng truyền VÀO, không tự đọc kho. Cửa duyệt
