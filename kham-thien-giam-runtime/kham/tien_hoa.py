@@ -361,8 +361,18 @@ def thu_mot_de_xuat(khung, dx: DeXuat) -> dict:
                   f"cần {TOI_THIEU_MAU} mỗi bên)")
     else:
         if B["kyVong"] < A["kyVong"] * BIEN_VUOT:
-            ly.append(f"kỳ vọng {B['kyVong']:+.5f} chưa vượt "
-                      f"{A['kyVong']:+.5f} đủ biên {BIEN_VUOT:g}×")
+            # Nói rõ ứng viên hơn hay kém, rồi mới nói thiếu bao nhiêu.
+            # Bản trước viết "kỳ vọng +26,085 chưa vượt +25,920 đủ biên
+            # 1,1×" — đúng chữ nhưng đọc như một lỗi số học, vì hai con
+            # số ấy nhìn thoáng là B ĐÃ vượt A. Người đọc mất một lúc mới
+            # hiểu ngưỡng là A×1,1 chứ không phải A.
+            can = A["kyVong"] * BIEN_VUOT
+            ty = (B["kyVong"] / A["kyVong"]) if A["kyVong"] else float("nan")
+            ly.append(
+                f"kỳ vọng {B['kyVong']:+.5f} "
+                f"({'hơn' if B['kyVong'] > A['kyVong'] else 'kém'} đương "
+                f"nhiệm {A['kyVong']:+.5f}, tỉ lệ {ty:.3f}×) nhưng cổng "
+                f"đòi ≥ {can:+.5f} (biên {BIEN_VUOT:g}×)")
         if abs(B["thuaLonNhat"]) > abs(A["thuaLonNhat"]) * DUOI_TOI_DA:
             ly.append(f"thua lớn nhất ${abs(B['thuaLonNhat']):.2f} vượt "
                       f"{DUOI_TOI_DA:g}× đương nhiệm ${abs(A['thuaLonNhat']):.2f}")
