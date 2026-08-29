@@ -773,9 +773,28 @@ async def main() -> int:
     _don_dep_cli(_d, "thu")
     check(_d["strategy"] == "CLI_V1",
           "câu văn lọt vào `strategy` bị đổi thành mã, không làm vỡ bảng byStrategy")
+    # `strategy` hỏi BỘ LUẬT nào, không hỏi lần này làm gì. Đo được trong sổ:
+    # NO_TRADE, NO_TRADE_MTF_CONFLICT, NO_TRADE_STAT_GATE — qua được phép kiểm
+    # ký tự (HOA + gạch dưới) nhưng trả lời sai câu hỏi.
+    for _hd in ("NO_TRADE", "NO_TRADE_MTF_CONFLICT", "LONG_BREAKOUT"):
+        _x = {"strategy": _hd}
+        _don_dep_cli(_x, "thu")
+        check(_x["strategy"] == "CLI_V1", f"«{_hd}» là hành động → đổi thành mã bộ luật")
+
     _g = {"strategy": "MOCK_RULES_V1"}
     _don_dep_cli(_g, "thu")
     check(_g["strategy"] == "MOCK_RULES_V1", "…và mã hợp lệ thì KHÔNG bị đụng vào")
+
+    # `source` phải nói THẬT ai đã nghĩ. Bản cũ chỉ nhận mode "claude", nên mọi
+    # quyết định của bộ não thật ở chế độ cli bị ghi là "mock" — sổ luận điểm
+    # khi đó nói rằng bộ não chưa từng chạy, và không có gì mâu thuẫn với nó.
+    import inspect as _ins18
+    import trader.brain as _B18
+    _src18 = _ins18.getsource(_B18.Brain)
+    check('out["source"] = ("mock"' in _src18,
+          "source tính theo mode thật, không chỉ nhận «claude»")
+    check('else self.mode)' in _src18,
+          "…và ghi thẳng tên chế độ, nên thêm đường thứ tư không phải sửa lại")
 
     # — Trần quota riêng của CLI phải CHẶT HƠN đường API —
     goc = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))["brain"]

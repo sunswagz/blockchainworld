@@ -933,10 +933,23 @@ def _don_dep_cli(out: dict, label: str) -> None:
     suy luận đã tốn 40k token vì một trường sai định dạng thì quá đắt.
     """
     ma = out.get("strategy")
-    if isinstance(ma, str) and not _ma_hop_le(ma):
+    if not isinstance(ma, str):
+        return
+    if not _ma_hop_le(ma):
         out["strategy"] = "CLI_V1"
         bus.log("brain", "don-dep",
                 f"{label}: `strategy` không phải mã ({len(ma)} ký tự) - đổi thành CLI_V1")
+        return
+    # Và không được là HÀNH ĐỘNG. Đo được trong sổ: NO_TRADE, NO_TRADE_MTF_CONFLICT,
+    # NO_TRADE_STAT_GATE… — chúng qua được phép kiểm ký tự (HOA + gạch dưới) nhưng
+    # trả lời sai câu hỏi. `strategy` hỏi "bộ luật nào", không hỏi "lần này làm gì";
+    # lý do thuộc về `reason_codes`. Trộn lại thì bảng theo-chiến-lược vỡ thành
+    # hàng chục dòng dùng một lần, đúng như lần trước.
+    if ma.split("_")[0] in ("NO", "LONG", "SHORT") or ma.startswith("NO_TRADE"):
+        out["strategy"] = "CLI_V1"
+        bus.log("brain", "don-dep",
+                f"{label}: `strategy`=«{ma}» là hành động chứ không phải bộ luật"
+                f" - đổi thành CLI_V1")
 
 def mock_postmortem(trade: dict, so: list[dict] | None = None) -> dict:
     """Hậu kiểm bằng luật — có SO VỚI SỔ, không chỉ nhìn một lệnh.
@@ -1258,7 +1271,15 @@ class Brain:
                 out["reason_codes"].append("FALLBACK_SAU_LOI_BRAIN")
 
         out["symbol"] = state["symbol"]
-        out["source"] = "claude" if (self.mode == "claude" and "FALLBACK_SAU_LOI_BRAIN" not in out.get("reason_codes", [])) else "mock"
+        # `source` phải nói THẬT ai đã nghĩ ra luận điểm này.
+        #
+        # Bản cũ chỉ nhận mode "claude"; khi thêm đường "cli" thì mọi quyết định
+        # của bộ não THẬT bị ghi là "mock". Sổ luận điểm khi đó nói rằng bộ não
+        # chưa từng chạy — và ai đọc lại về sau sẽ tin đúng như thế, vì không có
+        # gì mâu thuẫn với nó ngoài mấy dòng chi phí trong nhật ký.
+        roi_ve_mock = "FALLBACK_SAU_LOI_BRAIN" in (out.get("reason_codes") or [])
+        out["source"] = ("mock" if (roi_ve_mock or self.mode == "mock")
+                         else self.mode)      # "claude" hoặc "cli"
         out["regimeFromClassifier"] = regime["primary"]
         out["at"] = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
         store.append(store.THESES, out)
