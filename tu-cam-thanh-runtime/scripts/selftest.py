@@ -1027,6 +1027,59 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[31] LỖI BỘ NÃO KHÔNG ĐƯỢC THÀNH MỘT LỆNH")
+    import trader.brain as _B31
+
+    # Chuyện đã xảy ra lúc 12:00 hôm nay: `claude` CLI thoát mã 1 → hệ rơi về
+    # luật thuần → luật thuần ra LONG → risk cho qua → một vị thế THẬT mở ra
+    # kèm OCO. Một tiến trình con chết đã trở thành một quyết định vào lệnh.
+    #
+    # Và luật thuần không phải chỗ dựa trung lập: nó chính là MOCK_RULES_V1, đo
+    # được −0,047R qua 193 lệnh ngoài mẫu trên 8 chợ.
+    _st31 = {"symbol": "BTCUSDT", "price": 100.0}
+    _rg31 = {"primary": "TREND_UP", "key": "TREND_UP|none", "quality": "HIGH"}
+
+    class _Nao31(_B31.Brain):
+        def __init__(self, hong):
+            self.hong, self.mode, self.so_ky_nang = hong, "cli", 0
+            self.skills, self.last_error, self.client = "", None, None
+            self.cfg = {"model": "m", "effort": "high", "dailyBudgetUsd": 5,
+                        "maxCallsPerDay": 8}
+
+        def _goi_duoc(self):
+            return True
+
+        async def _structured(self, **kw):
+            return None if self.hong else {
+                "action": "LONG", "confidence": 0.9, "regime_read": "TREND_UP",
+                "strategy": "CLI_V1", "reason_codes": ["OK"], "entry": 1.0,
+                "stop_loss": 0.9, "targets": [1.2], "invalidation": "x",
+                "summary": "x", "risk_notes": "x"}
+
+    _acc31 = {"equity": 10000.0, "positions": [], "cash": 10000.0,
+              "realizedPnl": 0.0, "unrealizedPnl": 0.0}
+    _cu31 = _B31.mock_thesis
+    _B31.mock_thesis = lambda *a, **k: {
+        "action": "LONG", "confidence": 0.7, "regime_read": "TREND_UP",
+        "strategy": "MOCK_RULES_V1", "reason_codes": ["MOCK"], "entry": 1.0,
+        "stop_loss": 0.9, "targets": [1.2], "invalidation": "x",
+        "summary": "x", "risk_notes": "x"}
+    try:
+        _o31 = await _Nao31(hong=True).thesis(_st31, _rg31, {}, _acc31, "4h")
+        check(_o31["action"] == "NO_TRADE",
+              f"bộ não lỗi + luật thuần đòi LONG → ép NO_TRADE (được {_o31['action']})")
+        check("EP_NO_TRADE_VI_BRAIN_LOI" in _o31["reason_codes"],
+              "và ghi lại LÝ DO bị ép, để đọc sổ về sau biết đó không phải suy luận")
+        check(_o31["confidence"] == 0.0, "tin cậy về 0 — không có gì để tự tin")
+        check(_o31["source"] == "mock", "vẫn khai nguồn là mock, không nhận vơ")
+
+        # Cửa ngược lại: bộ não CHẠY ĐƯỢC thì không ép gì cả.
+        _o31b = await _Nao31(hong=False).thesis(_st31, _rg31, {}, _acc31, "4h")
+        check(_o31b["action"] == "LONG", "bộ não chạy được → giữ nguyên quyết định")
+        check("EP_NO_TRADE_VI_BRAIN_LOI" not in _o31b["reason_codes"],
+              "và không dán nhãn bị ép lên một luận điểm bình thường")
+    finally:
+        _B31.mock_thesis = _cu31
     print("\n[30] THIẾU KHOÁ LÀ LỖI NGƯỜI GỌI, KHÔNG PHẢI PHÁN QUYẾT")
     from trader import so_gia_thuyet as _G30
 

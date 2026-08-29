@@ -1276,8 +1276,34 @@ class Brain:
             out = await self._structured(user=user, schema=THESIS_SCHEMA,
                                          effort=self.cfg.get("effort", "high"), label="thesis")
             if out is None:
+                # LỖI bộ não thì rơi về luật thuần để ĐỌC, nhưng KHÔNG được mở
+                # vị thế mới.
+                #
+                # Đã xảy ra: `claude` CLI thoát mã 1 lúc 12:00; hệ rơi về mock;
+                # mock ra LONG; risk cho qua; một vị thế thật mở ra kèm OCO. Một
+                # tiến trình con chết đã trở thành một quyết định vào lệnh.
+                #
+                # Lỗi tiến trình không phải bằng chứng gì về thị trường. Và luật
+                # thuần ở đây không phải chỗ dựa trung lập: chính nó là
+                # MOCK_RULES_V1, đo được −0,047R qua 193 lệnh ngoài mẫu trên 8
+                # chợ. Rơi về nó rồi vào lệnh là giao tiền cho một bộ luật đã bị
+                # phép đo bác bỏ, vì một lý do chẳng liên quan gì tới thị trường.
+                #
+                # Vẫn giữ nguyên phần ĐỌC của mock (regime_read, mức giá) — chúng
+                # có ích cho người xem bảng. Chỉ chặn phần HÀNH ĐỘNG.
+                #
+                # Đường HẾT TRẦN thì KHÔNG đi qua đây (xem `_goi_duoc()` ở trên):
+                # đó là chế độ suy giảm có chủ ý, người dùng tự đặt trần và biết
+                # mình đang đổi gì lấy gì. Lỗi thì không ai chọn.
                 out = mock_thesis(state, regime, primary_tf)
                 out["reason_codes"].append("FALLBACK_SAU_LOI_BRAIN")
+                if out.get("action") != "NO_TRADE":
+                    bus.log("brain", "chan-vao-lenh",
+                            f"bộ não lỗi → luật thuần đề nghị {out['action']}, "
+                            f"đã ép NO_TRADE: lỗi tiến trình không phải lý do vào lệnh")
+                    out["action"] = "NO_TRADE"
+                    out["reason_codes"].append("EP_NO_TRADE_VI_BRAIN_LOI")
+                out["confidence"] = 0.0
 
         out["symbol"] = state["symbol"]
         # `source` phải nói THẬT ai đã nghĩ ra luận điểm này.
