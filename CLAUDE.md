@@ -550,10 +550,25 @@ Không phải "bị chặn TLS vĩnh viễn". Trong 24 phút thông (14:54–15:
 đếm `giai_doan_cua(tt) == "quan-sat"` trong băng — đừng tin cờ nguồn lỗi
 hiện tại, nó chỉ nói lúc này.
 
-    sổ dùng được   578/578 (100%) · thang chờ 0 · spread 1,00¢
-    Brier chợ      0,20799  kỹ năng +16,8%
-    Brier mô hình  0,16078  kỹ năng +35,7%
-    w ước lượng    0,710    (chợ mù 0 · chợ biết y hệt ta 1)
+Số MỚI NHẤT (1.018 dòng, **14 CỬA SỔ**, khoảng tin lấy lại theo CỬA SỔ):
+
+    sổ dùng được   1.018/1.018 (100%) · thang chờ 0 · spread 1,00¢
+    kỹ năng CHỢ      +3,8%  [−47,8%, +44,7%]   ← CHỨA 0
+    kỹ năng MÔ HÌNH +49,6%  [+26,3%, +68,9%]   ← HẲN BÊN DƯƠNG
+    w ước lượng      0,491  [−0,248, +0,907]
+
+**Đây là kết quả dương duy nhất trong cả hệ đứng được về mặt thống kê:**
+mô hình có kỹ năng thật trên dữ liệu khung ăn thua có thật, và khoảng tin
+nằm hẳn bên dương. Kỹ năng của CHỢ thì chưa đo được — khoảng tin chứa 0.
+
+Nhưng đọc cho đúng cỡ: `w` trải từ −0,25 tới +0,91. Bảng quét cho thấy
+bot có lãi tới quãng w ≈ 0,9 và đứng ngoài từ 0,95 — nên cả điểm ước
+lượng lẫn cận trên của `w` vẫn nằm trong vùng có lãi, chỉ là cận trên
+nằm sát mép. Mười bốn cửa sổ không kết luận được nhiều hơn thế.
+
+(Lần đo trước, trên 578 dòng, ghi *"kỹ năng chợ +16,8% · w 0,710"* mà
+KHÔNG có khoảng tin — và đếm theo DÒNG chứ không theo cửa sổ. Đếm theo
+dòng làm 14 quan sát trông như một nghìn.)
 
 > Dòng này từng ghi thêm *"(phiên giấy hoà vốn quanh w ≈ 1)"*, và câu ấy
 > SAI. Ở w = 0,95 và 1,00 phiên giấy có **0 lệnh khớp, 0 kết toán** — lãi
