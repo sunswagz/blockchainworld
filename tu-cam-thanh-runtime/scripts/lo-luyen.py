@@ -86,6 +86,17 @@ LUOI: dict[str, list] = {
     "adxToiThieu": [0, 22, 25, 28, 32],
     "chanBienDongCao": [False, True],
     "chanXungDot": [True, False],
+    # THỜI GIAN GIỮ — trục thật sự thiếu cho tới giờ.
+    #
+    # 48 nến là mặc định, và trên khung 1d đó là 48 NGÀY. Đo mẫu giá cho thấy
+    # "hết cửa sổ mà không chạm SL lẫn TP" là một loại thoát có thật và không
+    # hiếm — nghĩa là mức giữ đang quyết định kết quả mà chưa ai dò nó.
+    #
+    # Nó KHÔNG nằm trong `tham` của bộ luật mà là tham số riêng của `chay_lai`,
+    # nên phải rút ra khỏi bộ tham số trước khi gọi. Chỗ đó dễ quên, và quên thì
+    # `mock_thesis` nhận một khoá lạ rồi bỏ qua im lặng — trục mới trông như đã
+    # dò mà thật ra mọi biến thể chạy cùng một mức giữ.
+    "soNenGiu": [16, 32, 48, 80],
 }
 
 
@@ -254,8 +265,15 @@ def main() -> int:
 
         for i, tham in enumerate(bien):
             for j, (a, b) in enumerate(lats):
-                kq = huanluyen.chay_lai(nen, symbol=sym, chuoi=chuoi, tham=tham,
-                                        tu_nen=a, den_nen=b, bo_qua_kill=True)
+                # RÚT `soNenGiu` ra khỏi `tham`: nó là tham số của `chay_lai`,
+                # không phải của bộ luật. Để lại trong `tham` thì mock_thesis
+                # nhận một khoá lạ và bỏ qua — trục mới trông như đã dò mà mọi
+                # biến thể vẫn chạy cùng một mức giữ.
+                _t = dict(tham)
+                _giu = _t.pop("soNenGiu", 48)
+                kq = huanluyen.chay_lai(nen, symbol=sym, chuoi=chuoi, tham=_t,
+                                        tu_nen=a, den_nen=b, bo_qua_kill=True,
+                                        toi_da_nen_giu=_giu)
                 tk = kq["thongKe"]
                 if tk["so"] and tk["kyVongR"] is not None:
                     diem[i][j].append((tk["kyVongR"], tk["so"]))

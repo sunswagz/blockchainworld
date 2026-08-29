@@ -1822,6 +1822,20 @@ async def main() -> int:
     check(sorted(x["_lan"] for x in _ra25) == [1, 2, 4],
           "số lần được ĐẾM chứ không bị vứt (1·2·4)")
 
+    # `soNenGiu` phải được RÚT RA khỏi `tham` trước khi gọi `chay_lai`: nó là
+    # tham số của cỗ chạy lại, không phải của bộ luật. Để lại thì `mock_thesis`
+    # nhận một khoá lạ và bỏ qua im lặng — trục mới trông như đã dò mà thật ra
+    # mọi biến thể vẫn chạy cùng một mức giữ 48 nến.
+    _src_lo = NL.join(d.split("#")[0] for d in
+                      (ROOT / "scripts" / "lo-luyen.py").read_text(encoding="utf-8").splitlines())
+    check("soNenGiu" in LO.LUOI, "lưới có trục thời gian giữ lệnh")
+    check('_t.pop("soNenGiu"' in _src_lo,
+          "và nó được RÚT khỏi tham trước khi gọi chay_lai")
+    check("toi_da_nen_giu=_giu" in _src_lo,
+          "rút ra rồi TRUYỀN vào đúng tham số của chay_lai")
+    check("soNenGiu" not in LO.bien_the(4, 7)[0],
+          "champion KHÔNG mang soNenGiu — nó chạy mức giữ mặc định, làm mốc so")
+
     # KHOẢNG TIN, tính theo CHỢ chứ không theo lệnh. "+0,0603R qua 430 lệnh" và
     # "+0,0603R, khoảng tin [−0,08; +0,20]" là hai câu khác hẳn — câu sau nói rõ
     # nó CHỨA 0. Tính theo lệnh cho khoảng hẹp giả: 430 lệnh của 48 chợ tương
