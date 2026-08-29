@@ -215,7 +215,39 @@ def tao_lap(bc: BoiCanh) -> list[CoHoi]:
     if sp_up is None or sp_up < 0.005:
         return []       # spread hẹp quá thì không còn gì để ăn
 
-    # phạt tồn kho — dấu quan trọng hơn độ lớn
+    # ⚠ PHẠT TỒN KHO ĐANG BẰNG KHÔNG — đo được, chưa sửa. Đọc hết.
+    #
+    # Chú thích trên gọi đây là "khác biệt lớn giữa một hệ thống thi hành
+    # thật và một con bot cứ thấy tín hiệu dương là mua thêm". Đúng về ý.
+    # Nhưng đo độ lớn thật của nó:
+    #
+    #     q(cổ)  σ/năm  τ(s)   phạt
+    #        50   0,21    60   0,00000063 cent
+    #       200   0,21   300   0,0000126 cent
+    #       900   0,55   300   0,00039  cent      ← ca cực đoan nhất
+    #
+    # Trần kẹp là ±0,05 (5 cent). Phạt lớn nhất còn nhỏ hơn trần ấy hơn
+    # MƯỜI NGHÌN LẦN. Nó không phải "nhỏ", nó là số không.
+    #
+    # Nguyên nhân là ĐƠN VỊ. Công thức gốc (Avellaneda–Stoikov) có
+    # `q·γ·σ²·(T−t)` với σ tính theo ĐƠN VỊ GIÁ của tài sản. Ở đây
+    # `sigmaGiay` là σ của log-return MỖI GIÂY (cỡ 3,7e-5), nên σ²τ ra
+    # cỡ 4e-7 — một phương sai log, không phải một khoảng giá. Còn `p` thì
+    # là xác suất trong [0,1]. Hai vế không cùng thứ nguyên.
+    #
+    # Để phạt đáng 1 cent với q = 100, σ 0,21/năm, τ = 300s thì `lam` phải
+    # cỡ 238, không phải 0,0015 — lệch NĂM BẬC.
+    #
+    # KHÔNG tự sửa con số ở đây. Đổi nó là đổi hành vi yết giá thật của
+    # chiến thuật tạo lập, và phải chọn có chủ ý một thứ nguyên đúng (phạt
+    # nên tính bằng đơn vị XÁC SUẤT — `bc.gia.batDinh` đã ở đúng đơn vị
+    # ấy). Việc phải làm nằm trong danh sách "PHẢI ĐÚNG TRƯỚC KHI MỞ BA
+    # CỔNG" ở CLAUDE.md.
+    #
+    # Hệ quả trong lúc chờ: `tao-lap` yết ĐỐI XỨNG quanh fair value, tức
+    # đúng con bot mà chú thích trên nói là không nên làm. Phơi nhiễm một
+    # chiều vẫn bị chặn KÍCH THƯỚC bởi `capChuaKhopToiDaUsd` và trần vốn
+    # mỗi market — bị chặn, chỉ là không được định giá.
     q = v.dinhHuong
     lam = 0.0015
     phat = q * lam * (bc.gia.sigmaGiay ** 2) * bc.dongHo.conLaiGiay

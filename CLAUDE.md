@@ -641,7 +641,22 @@ hiệu chỉnh bắt buộc để chính GIÁ là martingale, nên đây là chu
 quán nội bộ chứ không phải chuyện khẩu vị. Quyết trước khi mở cổng, và
 quyết có chủ ý — đừng sửa tiện tay.
 
-**5. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
+**5. Phạt tồn kho của `tao-lap` đang BẰNG KHÔNG.** Công thức
+`q·λ·σ²·(T−t)` mượn từ Avellaneda–Stoikov, nơi σ tính theo ĐƠN VỊ GIÁ.
+Ở đây `sigmaGiay` là σ của log-return mỗi giây (~3,7e-5), nên σ²τ ra cỡ
+4e-7 — một phương sai log, không phải khoảng giá — trong khi `p` là xác
+suất trong [0,1]. Hai vế không cùng thứ nguyên.
+
+    q 900 cổ · σ 0,55/năm · τ 300s  ⇒  phạt 0,00039 cent
+    trần kẹp ±5 cent  ⇒  nhỏ hơn trần MƯỜI NGHÌN lần
+
+Để phạt đáng 1 cent thì λ phải cỡ 238, không phải 0,0015 — lệch NĂM
+BẬC. Hệ quả: `tao-lap` yết ĐỐI XỨNG quanh fair value, đúng con bot mà
+chính chú thích của nó nói là không nên làm. Phơi nhiễm vẫn bị chặn
+KÍCH THƯỚC bởi `capChuaKhopToiDaUsd`, chỉ là không được định giá. Chọn
+thứ nguyên đúng (phạt nên tính bằng đơn vị XÁC SUẤT) trước khi mở cổng.
+
+**6. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
 6 cửa sổ, +$23,59, **khoảng tin 95% [−$132,46, +$169,04] — chứa 0**. Con
 số dương ấy chưa nói được gì. Cần nhiều cửa sổ hơn, và cửa sổ chỉ dày
 thêm khi đường tới Polymarket thông.
