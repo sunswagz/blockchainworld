@@ -1064,6 +1064,31 @@ async def main() -> int:
     # Rủi ro đều thì cả hai câu đều phải im.
     _c = _lam28(cu_lech=False, gan_lech=False)
     check("KHÔNG đều" not in _c, "rủi ro đều → không câu cảnh báo nào")
+
+    # ── Mẫu giá: số CHỢ phải vào câu ──
+    #
+    # "45.000 nến khung 4h" và "45.000 nến khung 4h trên 15 chợ độc lập" là hai
+    # mức bằng chứng khác hẳn: một chợ dài chỉ là một quan sát kéo dài, còn 15
+    # chợ độc lập là thứ khớp trội khó bịa. Thiếu con số ấy thì đúng cái làm
+    # phép đo đáng tin lại là thứ không được nói. Và kho đo CŨ chưa có trường
+    # `cho` thì phải khai "KHÔNG RÕ", không được im.
+    def _mg28(cho):
+        d = {"khung": "4h", "nen": 100, "toiThieu": 15,
+             "mau": [{"ten": "M", "so": 20, "kyVongR": -0.1, "duMau": True,
+                      "tyLeThang": 40, "mfeTrungVi": 0.5, "rrTrungBinh": 1.2,
+                      "chamDich": 30, "dinhStop": 50, "nenTrungBinh": 5,
+                      "coDinh": {}, "loai": "x"}]}
+        if cho is not None:
+            d["cho"] = cho
+        (DATA_DIR / "mau-gia.json").write_text(_json.dumps(d), encoding="utf-8")
+        return next(x["cau"] for x in C28._tu_mau_gia([]) if x["ma"] == "mau-gia-tong")
+
+    check("3 chợ độc lập" in _mg28(["A:4h", "B:4h", "C:4h"]),
+          "nhiều chợ → nói rõ mấy chợ ĐỘC LẬP")
+    check("của A:4h" in _mg28(["A:4h"]),
+          "một chợ → nêu đích danh chợ đó, không nói «độc lập»")
+    check("KHÔNG RÕ" in _mg28(None),
+          "kho đo cũ chưa khai chợ → nói KHÔNG RÕ, không im lặng")
     print("\n[27] CON SỐ ĐẸP CỦA MỘT CHỢ KHÔNG ĐƯỢC ĐỨNG MỘT MÌNH")
     import importlib.util as _il27
     _sp27 = _il27.spec_from_file_location("bg27", str(ROOT / "scripts" / "ban-giao.py"))

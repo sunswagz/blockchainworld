@@ -488,13 +488,22 @@ def _tu_mau_gia(bo: list) -> list[dict]:
     ra = []
     tong = sum(m["so"] for m in ds)
     am = [m for m in ds if m["kyVongR"] <= 0]
+    # SỐ CHỢ vào câu. "45.000 nến khung 4h" và "45.000 nến khung 4h trên 15 chợ"
+    # là hai mức bằng chứng khác hẳn: một chợ dài chỉ là một quan sát kéo dài,
+    # còn 15 chợ độc lập là thứ khớp trội khó bịa ra. Thiếu con số ấy thì đúng
+    # cái làm phép đo đáng tin lại là thứ không được nói.
+    n_cho = len(d.get("cho") or [])
+    noi = (f"{d.get('nen')} nến khung {d.get('khung') or 'không rõ'}"
+           + (f" trên {n_cho} chợ độc lập" if n_cho > 1
+              else (f" của {(d.get('cho') or ['chợ không rõ'])[0]}" if n_cho
+                    else " (chợ KHÔNG RÕ — kho đo cũ, chưa khai chợ)")))
     ra.append(_pd("mau-gia-tong", "mau-gia",
-                  f"{len(ds)} mẫu giá kinh điển đã đem đo trên {d.get('nen')} nến "
-                  f"khung {d.get('khung') or 'không rõ'} "
+                  f"{len(ds)} mẫu giá kinh điển đã đem đo trên {noi} "
                   f"({tong} lần xuất hiện, đã gộp trùng): {len(am)}/{len(ds)} có kỳ vọng ÂM "
                   f"sau phí, dùng đúng điểm vào/stop/mục tiêu mà chính mẫu khai. "
                   f"Mẫu giá ở đây là BỐI CẢNH để đọc, không phải tín hiệu để bấm.",
-                  tong, {"soMau": len(ds), "soAm": len(am)}, khung=d.get("khung")))
+                  tong, {"soMau": len(ds), "soAm": len(am), "soCho": n_cho},
+                  khung=d.get("khung")))
 
     # Mẫu tệ nhất — cái đáng nhớ hơn mẫu tốt nhất, vì nó là cái sẽ bị dùng nhầm
     xau = min(ds, key=lambda m: m["kyVongR"])
