@@ -399,7 +399,7 @@ def _to_trinh_thu(ma, net, von=200.0, chua=9000.0, vmin=1.0):
         chienLuoc="perpetual.funding_spread.v1", ho="phai-sinh", taiSan=ma,
         chan=(Chan("LONG", "a", ma), Chan("SHORT", "b", ma)),
         vonCanUsd=von, sucChuaToiDaUsd=chua, grossBps=net + 2.0,
-        phiUocBps=2.0, netUocBps=net, giuGio=8.0, khoaVonDenGiay=0.0,
+        phiUocBps=2.0, netUocBps=net, giuGio=8.0, khoaVonDenGio=0.0,
         vonToiThieuKinhTeUsd=vmin,
         ruiRo=RuiRo(0.2, 0.2, 0.1, 0.2, 0.2, 0.0), tinCay=0.9,
         moHinhPhiDuChua=True, sucChuaConThieu=("x",))
@@ -571,7 +571,7 @@ def _ly_do_deu_mang_ma():
         # (cấu hình Rủi Ro Tổng, tờ trình)
         ({"ruiRoToiDa": -1.0, "tinCayToiThieu": 1.1,
           "netMoiGioToiThieuBps": 1e9, "batBuocDuMoHinhPhi": True,
-          "batBuocDoDuocSucChua": True, "khoaVonToiDaGiay": -1.0,
+          "batBuocDoDuocSucChua": True, "khoaVonToiDaGio": -1.0,
           "batBuocDoDuocThanhKhoanThoat": True},
          _to_trinh_thu("BTC", 8.0)),
         ({}, hong),

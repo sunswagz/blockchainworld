@@ -527,15 +527,27 @@
         var r = el("div", "viec-1 nhe");
         r.appendChild(el("b", null, h.ho + " · " + so(h.coHoiTho)
           + " cơ hội thô → " + so(h.daCapVon) + " lần được cấp vốn"));
+        var phu = 0;
         h.lyDoTuChoi.forEach(function (x) {
-          r.appendChild(el("span", null, "× " + so(x.so) + "  " + x.lyDo));
+          phu += x.so || 0;
+          r.appendChild(el("span", null, "× " + so(x.so) + "  " + x.lyDo
+            + (x.soCauKhac > 1 ? "   (gộp " + so(x.soCauKhac) + " câu)" : "")));
         });
+        /* Mẫu số, vì không có nó thì mấy dòng trên đọc như «đây là tất
+           cả». Đo 30/08: năm mã đứng đầu của họ tín dụng phủ 1.561 trên
+           2.305 lần từ chối — hai phần ba, không phải tất cả. */
+        if (h.soTuChoi) {
+          r.appendChild(el("span", "nhat", "— mấy mã trên phủ " + so(phu)
+            + "/" + so(h.soTuChoi) + " lần từ chối"));
+        }
         kl.appendChild(r);
       });
       w.appendChild(kl);
-      w.appendChild(giai("Lý do là CÂU chứ không phải mã, nên hai lý do gần "
-        + "giống nhau nằm tách. Phần lớn chỗ tách là do tên cảng dính trong "
-        + "câu — đó là thông tin, không phải nhiễu."));
+      w.appendChild(giai("Gộp theo MÃ, không theo CÂU. Câu có SỐ nhúng bên "
+        + "trong (`khoá vốn 2455 giờ`), nên gộp theo câu thì MỘT nguyên nhân "
+        + "vỡ thành hàng chục dòng đếm 2–3 lần, và cái đang chặn 90% số cơ "
+        + "hội biến mất khỏi bảng. Đo 30/08: 2.527 lần từ chối, 306 câu, "
+        + "đúng 5 mã."));
     }
     return w;
   }

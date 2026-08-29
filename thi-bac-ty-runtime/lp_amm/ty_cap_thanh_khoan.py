@@ -628,7 +628,7 @@ def xuat_to_trinh(co: CoHoiLp) -> ToTrinh:
         netUocBps=(co.netBps or 0.0),
         giuGio=co.giuGio,
         # Rút được bất cứ lúc nào — vị thế LP không có kỳ hạn.
-        khoaVonDenGiay=0.0,
+        khoaVonDenGio=0.0,
         thanhKhoanThoatUsd=co.sucChuaToiDaUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=p.tuoi_giay(),

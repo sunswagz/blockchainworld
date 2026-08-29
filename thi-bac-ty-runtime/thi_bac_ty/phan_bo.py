@@ -181,7 +181,7 @@ class PhanBo:
 
         # ── §14 · khoá vốn ──────────────────────────────────────────────
         tc = float(self.c["thamChieuKhoaGio"])
-        if tt.khoaVonDenGiay is None:
+        if tt.khoaVonDenGio is None:
             hs_khoa = float(self.c["phatChuaDoKhoaVon"])
         elif tc <= 0:
             hs_khoa = 1.0
@@ -189,8 +189,8 @@ class PhanBo:
             # 1/(1+x): khoá 0 giờ ra 1,00 · khoá đúng tham chiếu ra 0,50 ·
             # khoá gấp mười ra 0,09. Giảm dần, không bao giờ chạm 0 — khoá
             # lâu là bất lợi chứ không phải phạm luật; phạm luật thì
-            # `rui_ro_tong.khoaVonToiDaGiay` đã chặn từ trước.
-            hs_khoa = 1.0 / (1.0 + tt.khoaVonDenGiay / tc)
+            # `rui_ro_tong.khoaVonToiDaGio` đã chặn từ trước.
+            hs_khoa = 1.0 / (1.0 + tt.khoaVonDenGio / tc)
 
         d = net * rot * tin * (1.0 - rr) * hs_khoa
         return {"diem": d, "netMoiGioBps": net, "rotDuocUsd": rot,
@@ -289,7 +289,7 @@ class PhanBo:
                 "choToiDaUsd": pq.choToiDaUsd, "capUsd": cap,
                 "diemXep": diem, "diemXepChiTiet": chiTiet,
                 "diemRuiRo": pq.diemRuiRo,
-                "khoaVonDenGiay": tt.khoaVonDenGiay,
+                "khoaVonDenGio": tt.khoaVonDenGio,
                 "thanhKhoanThoatUsd": tt.thanhKhoanThoatUsd,
                 "biCat": pq.biCat, "lyDoCat": list(pq.lyDoCat),
                 "netMoiGioBps": tt.net_moi_gio_bps})

@@ -364,7 +364,7 @@ def xuat_to_trinh(co: dict) -> ToTrinh:
         # Bán lại trước kết toán được, nên KHÔNG khoá theo hợp đồng — nhưng
         # bán lại là chịu trượt trên một sổ lệnh mỏng, và điều đó nằm ở
         # `thanhKhoanThoatUsd` chứ không ở đây.
-        khoaVonDenGiay=0.0,
+        khoaVonDenGio=0.0,
         thanhKhoanThoatUsd=(float(co["sucChua"])
                             if co.get("sucChua") is not None else None),
         ruiRo=_rui_ro(co),

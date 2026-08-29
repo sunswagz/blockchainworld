@@ -439,7 +439,7 @@ def xuat_to_trinh(co: CoHoiChenh) -> ToTrinh:
         # đảo chiều, và chuyện ấy đã nằm trong `giuGio` (chu kỳ vốn).
         # Không khoá theo hợp đồng — nhưng nếu phải dời tồn kho thì vốn
         # KẸT suốt chặng ấy, và đó là khoá thật dù không ai ký gì.
-        khoaVonDenGiay=(co.giayChuyen or 0.0),
+        khoaVonDenGio=(co.giayChuyen or 0.0),
         thanhKhoanThoatUsd=co.sauSoLenhUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=max(co.mua.tuoi_giay(), co.ban.tuoi_giay()),

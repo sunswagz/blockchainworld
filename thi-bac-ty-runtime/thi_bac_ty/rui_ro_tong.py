@@ -72,7 +72,7 @@ MAC_DINH = {
     #: ngày sẽ bị chặn ở đây, và đó là chủ ý: khoá vốn ba tháng là từ chối
     #: mọi cơ hội tốt hơn xuất hiện trong ba tháng ấy, và chi phí đó không
     #: nằm trong APR của chính nó.
-    "khoaVonToiDaGiay": 720.0,
+    "khoaVonToiDaGio": 720.0,
     #: Chưa đo được thanh khoản thoát thì có rót không. Mặc định CÓ, vì bắt
     #: buộc ngay sẽ chặn mọi ty v0.1 — nhưng `phan_bo.diem()` phạt nó, nên
     #: cơ hội mù thanh khoản luôn xếp sau cơ hội đã đo.
@@ -137,9 +137,35 @@ class PhanQuyet:
                 "lyDoCat": list(self.lyDoCat)}
 
 
+#: Khoá CŨ → khoá MỚI. Hai trường này mang đuôi `Giay` từ ngày đầu trong
+#: khi mọi chỗ dùng chúng đều tính bằng GIỜ — docstring viết «720 giờ = 30
+#: ngày», câu từ chối in «khoá vốn 2119 giờ > trần 720 giờ», và phép kiểm
+#: khuôn cũng nói «giờ». Cái tên nói dối về ĐƠN VỊ.
+#:
+#: Chưa cắn vì cả cây mã đọc nó thống nhất là giờ. Sẽ cắn vào đúng ngày
+#: một người đọc `khoaVonToiDaGiay: 720` là «720 giây = 12 phút» rồi sửa
+#: thành 2.592.000 cho đủ 30 ngày — trần ấy khi đó chặn đúng con số 0 cơ
+#: hội, mãi mãi, và không dòng nào kêu.
+#:
+#: Bản tham số ĐANG CHẠY trên đĩa còn mang khoá cũ, và nó là bản người
+#: chủ đã duyệt. Bỏ qua nó là âm thầm trả một tham số đã duyệt về mặc
+#: định — nên đọc thì nhận cả hai, ghi thì chỉ ghi tên mới.
+KHOA_CU = {"khoaVonToiDaGiay": "khoaVonToiDaGio"}
+
+
+def doi_khoa_cu(cau_hinh: dict | None) -> dict:
+    """Nhận khoá cũ, trả về bản mang khoá mới. Khoá mới THẮNG nếu có cả hai."""
+    c = dict(cau_hinh or {})
+    for cu, moi in KHOA_CU.items():
+        if cu in c:
+            v = c.pop(cu)
+            c.setdefault(moi, v)
+    return c
+
+
 class RuiRoTong:
     def __init__(self, cau_hinh: dict | None = None) -> None:
-        self.c = {**MAC_DINH, **(cau_hinh or {})}
+        self.c = {**MAC_DINH, **doi_khoa_cu(cau_hinh)}
 
     # ── điểm rủi ro gộp ───────────────────────────────────────────────────
     def diem(self, tt) -> tuple[float, tuple[str, ...]]:
@@ -207,10 +233,10 @@ class RuiRoTong:
 
         # Khoá vốn quá lâu là TỪ CHỐI, không phải cắt bớt: cắt trần không rút
         # ngắn thời gian khoá, nên rót ít hơn vẫn kẹt đúng ngần ấy tháng.
-        tran_khoa = float(c["khoaVonToiDaGiay"])
-        if tt.khoaVonDenGiay is not None and tt.khoaVonDenGiay > tran_khoa:
+        tran_khoa = float(c["khoaVonToiDaGio"])
+        if tt.khoaVonDenGio is not None and tt.khoaVonDenGio > tran_khoa:
             ly.append(_ly("khoa-von-lau",
-                          f"khoá vốn {tt.khoaVonDenGiay:.0f} giờ > trần "
+                          f"khoá vốn {tt.khoaVonDenGio:.0f} giờ > trần "
                           f"{tran_khoa:.0f} giờ — khoá lâu là từ chối mọi cơ "
                           f"hội tốt hơn xuất hiện trong ngần ấy thời gian"))
 

@@ -191,7 +191,7 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
             tongApr += von * apr
         daGiu = max(0.0, (gioHienTai - float(
             getattr(so, "moLucGiay", gioHienTai))) / 3600.0)
-        khoa = t.get("khoaVonDenGiay")
+        khoa = t.get("khoaVonDenGio")
         if khoa is not None and daGiu < float(khoa):
             lat.soBiKhoa += 1
             continue

@@ -323,7 +323,7 @@ class DinhTuyen:
         """(bps, tuyến). `None` nghĩa là ty PHẢI giữ khai báo `phiConThieu`.
 
         Trả về cả tuyến chứ không chỉ con số: ty cần `khongDoDuoc` để biết
-        mình còn thiếu gì, và cần `giayCho` để cộng vào `khoaVonDenGiay`.
+        mình còn thiếu gì, và cần `giayCho` để cộng vào `khoaVonDenGio`.
         """
         t = self.tuyen(tu, den, taiSan, vonUsd)
         return t.phi_bps(vonUsd), t

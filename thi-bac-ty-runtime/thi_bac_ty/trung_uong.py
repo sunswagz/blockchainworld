@@ -1267,10 +1267,15 @@ class TrungUong:
         # hệt nhau nếu chỉ nhìn con số 0 — mà hai cái ấy sửa bằng hai việc
         # khác hẳn.
         ly = self.so_dang_ky.ly_do_tu_choi(tuLuc=tu)
+        # Mẫu số cho bảng lý do. Không có nó thì «năm mã đứng đầu»
+        # đọc như «đây là tất cả», và người đọc không biết năm dòng
+        # ấy phủ 15 lần từ chối hay 140.
+        tuChoi = self.so_dang_ky.so_tu_choi(tuLuc=tu)
         return [{"ho": h, "coHoiTho": tho.get(h, 0), "quaCongTy": qua.get(h, 0),
                  "quaRuiRoTong": int(rr.get(h, 0)),
                  "daCapVon": int(cv.get(h, 0)),
                  "vonDangGiuUsd": round(von_ho.get(h, 0.0), 2),
+                 "soTuChoi": int(tuChoi.get(h, 0)),
                  "lyDoTuChoi": ly.get(h, [])}
                 for h in sorted(tho)]
 

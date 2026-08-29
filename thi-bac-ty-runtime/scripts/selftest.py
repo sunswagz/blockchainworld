@@ -1687,7 +1687,7 @@ def _mau(ma="perpetual.funding_spread.v1", ho="phai-sinh", taiSan="BTC",
         grossBps=net + 2.0, phiUocBps=2.0, netUocBps=net, giuGio=giu,
         ruiRo=rr if rr is not None else _R(0.2, 0.2, 0.1, 0.2, 0.2, 0.0),
         tinCay=tin, moHinhPhiDuChua=True,
-        khoaVonDenGiay=khoa, thanhKhoanThoatUsd=thoat,
+        khoaVonDenGio=khoa, thanhKhoanThoatUsd=thoat,
         moHinhSucChuaDuChua=False, sucChuaConThieu=("do-sau-so-lenh",),
         cang=tuple(c.cang for c in chan), **kw)
 
@@ -1934,7 +1934,7 @@ def kiem_phan_bo() -> None:
     kiem("hệ số khoá không bao giờ chạm 0",
          pb.diem_chi_tiet(_mau(chua=5000.0, khoa=99999.0), 0.0)["heSoKhoaVon"] > 0.0,
          "khoá lâu là bất lợi, không phải phạm luật — phạm luật thì "
-         "rui_ro_tong.khoaVonToiDaGiay đã chặn")
+         "rui_ro_tong.khoaVonToiDaGio đã chặn")
 
     # ── điểm phải MỔ RA ĐƯỢC, không phải một con số câm ─────────────────
     kiem("điểm chi tiết khai đủ năm thừa số",
@@ -3152,7 +3152,7 @@ def kiem_pheu_theo_ho() -> None:
                 vonCanUsd=200.0, sucChuaToiDaUsd=9000.0, grossBps=14.0,
                 vonToiThieuKinhTeUsd=1.0,
                 phiUocBps=3.0, netUocBps=11.0, giuGio=24.0,
-                khoaVonDenGiay=0.0, thanhKhoanThoatUsd=5000.0,
+                khoaVonDenGio=0.0, thanhKhoanThoatUsd=5000.0,
                 ruiRo=RuiRo(.05, .15, .30, .20, .10, 0.), tinCay=.75,
                 moHinhPhiDuChua=True, moHinhSucChuaDuChua=False,
                 sucChuaConThieu=("do-sau-pool",), cang=("aave", "compound"),
@@ -3309,6 +3309,62 @@ def kiem_pheu_theo_ho() -> None:
          and len(tu.so_dang_ky.ly_do_tu_choi(2)["phai-sinh"]) == 2,
          f"{len(ly['phai-sinh'])} — một họ chạy vài ngày là có hàng trăm câu "
          f"lý do khác nhau")
+
+    # ── GOM THEO MÃ, KHÔNG THEO CÂU ─────────────────────────────────────
+    # Câu có SỐ nhúng bên trong. Đo 30/08 trên máy sống: 2.527 lần từ chối
+    # vỡ thành 306 CÂU, trong khi chỉ có 5 MÃ. `khoa-von-lau` một mình
+    # chiếm 160 lần, nhưng mỗi lần ghi số giờ khác nhau (2455, 2119,
+    # 1278…) nên bảng «năm lý do đứng đầu» hiện năm dòng gần giống hệt
+    # nhau, mỗi dòng đếm 2–3 lần — và cái đang chặn phần lớn cơ hội biến
+    # mất khỏi bảng.
+    #
+    # Điều 32 đã bắt bên GHI mang mã. Bên ĐỌC thì chưa, nên nửa kia của
+    # cùng một luật vẫn hở.
+    _gom = TrungUong(_tam("gom-ma"), {"vonBanDauUsd": 500.0})
+    for _i, _cau in enumerate(
+            [f"khoa-von-lau: khoá vốn {900 + 7 * _i} giờ > trần 720 giờ"
+             for _i in range(9)]
+            + ["duoi-von-toi-thieu: chỉ cấp được 0.00 USD",
+               "duoi-von-toi-thieu: chỉ cấp được 150.00 USD",
+               "câu CŨ không mang mã nào cả"]):
+        _t = _mau(taiSan=f"G{_i}", ho="tin-dung", von=10.0,
+                  chua=99.0)
+        _gom.so_dang_ky.ghi_nhan(_t)
+        _gom.so_dang_ky.chuyen(_t.ma, "TU_CHOI", _cau)
+    _lg = _gom.so_dang_ky.ly_do_tu_choi()["tin-dung"]
+    _theoMa = {x["ma"]: x for x in _lg}
+    kiem("chín câu KHÁC NHAU cùng mã gom thành MỘT dòng",
+         "khoa-von-lau" in _theoMa
+         and _theoMa["khoa-von-lau"]["so"] == 9
+         and _theoMa["khoa-von-lau"]["soCauKhac"] == 9,
+         f"{_lg} — số giờ nhúng trong câu làm một nguyên nhân vỡ thành "
+         f"chín nguyên nhân, và cái chặn nhiều nhất rơi khỏi bảng")
+    kiem("và nó ĐỨNG ĐẦU, đúng thủ phạm chính",
+         _lg[0]["ma"] == "khoa-von-lau",
+         f"{[x['ma'] for x in _lg]} — gom theo câu thì dòng đầu là một "
+         f"nguyên nhân đếm 2, không phải nguyên nhân đếm 9")
+    kiem("hai câu cùng mã duoi-von-toi-thieu cũng gom",
+         _theoMa.get("duoi-von-toi-thieu", {}).get("so") == 2,
+         str(_lg))
+    # Dòng CŨ không mã (1.984 dòng ghi trước điều 32) giữ nguyên câu làm
+    # khoá và khai `ma: None`. Gộp chúng vào một rổ «không mã» là trộn
+    # những nguyên nhân khác hẳn nhau.
+    kiem("câu CŨ không mang mã thì đứng riêng và KHAI là không có mã",
+         any(x["ma"] is None and "không mang mã" in x["lyDo"] for x in _lg),
+         f"{_lg} — gộp mọi câu không mã vào một rổ là trộn những nguyên "
+         f"nhân khác hẳn nhau")
+    kiem("và MẪU SỐ đếm được, không để bảng đọc thành «đây là tất cả»",
+         _gom.so_dang_ky.so_tu_choi().get("tin-dung") == 12,
+         "năm mã đứng đầu phủ 1.561/2.305 lần từ chối trên máy sống — hai "
+         "phần ba, không phải tất cả, và bảng không nói ra điều đó")
+    # Và mẫu số ấy phải ĐI THEO phễu, không nằm lại trong sổ: bảng lý do
+    # vẽ từ hàng phễu chứ không gọi thẳng sổ đăng ký.
+    _hangPS = {x["ho"]: x for x in tu.pheu_day_du()["theoHo"]}["phai-sinh"]
+    kiem("phễu mang mẫu số ấy theo, và nó ≥ tổng của mấy mã đứng đầu",
+         _hangPS["soTuChoi"] >= sum(x["so"] for x in _hangPS["lyDoTuChoi"])
+         and _hangPS["soTuChoi"] > 0,
+         f"{_hangPS['soTuChoi']} vs "
+         f"{sum(x['so'] for x in _hangPS['lyDoTuChoi'])}")
 
 
 
@@ -3530,7 +3586,7 @@ def kiem_van_tay_co_chuoi() -> None:
             chan=(Chan("CHO_VAY", cang, "USDC", 100.0, "lending", chuoi),),
             vonCanUsd=100.0, sucChuaToiDaUsd=9000.0, grossBps=30.0,
             phiUocBps=5.0, netUocBps=25.0, giuGio=720.0,
-            khoaVonDenGiay=0.0, thanhKhoanThoatUsd=1e6,
+            khoaVonDenGio=0.0, thanhKhoanThoatUsd=1e6,
             ruiRo=RuiRo(.1, .1, .2, .2, .1, 0.), tinCay=.8,
             moHinhPhiDuChua=True, sucChuaConThieu=("x",))
 
@@ -4002,15 +4058,15 @@ def kiem_lai_suat() -> None:
     t = xuat_to_trinh(co)
     kiem("tờ trình hợp lệ", t.hop_le, str(t.kiem()))
     kiem("khai KHOÁ VỐN thật, khác 0",
-         t.khoaVonDenGiay is not None and t.khoaVonDenGiay > 1000.0,
-         f"{t.khoaVonDenGiay} — đây là ty đầu tiên dùng trường này với một "
+         t.khoaVonDenGio is not None and t.khoaVonDenGio > 1000.0,
+         f"{t.khoaVonDenGio} — đây là ty đầu tiên dùng trường này với một "
          f"con số thật; trước nó, trường ấy chưa ai chứng minh có tác dụng")
     kiem("giữ tới đáo hạn: giuGio = khoá vốn",
-         gan(t.giuGio, t.khoaVonDenGiay, 1e-6),
+         gan(t.giuGio, t.khoaVonDenGio, 1e-6),
          "PT trả lãi cố định tới đáo hạn; giữ ngắn hơn thì phải bán trên "
          "AMM ở một giá ta không biết")
     kiem("giờ vốn bị giữ = chính con số ấy",
-         gan(t.gio_von_bi_giu, t.khoaVonDenGiay, 1e-6))
+         gan(t.gio_von_bi_giu, t.khoaVonDenGio, 1e-6))
     kiem("thanh khoản thoát là None — bán được nhưng ta KHÔNG BIẾT giá",
          t.thanhKhoanThoatUsd is None and t.raDuocKhong is None)
     kiem("không đọc được hạn thì độ tin TỤT",
@@ -4087,7 +4143,7 @@ def kiem_lai_suat() -> None:
          "tốt hơn xuất hiện trong 57 ngày ấy — chi phí đó không nằm trong "
          "con số 8%")
     kiem("nới trần khoá thì nó qua",
-         RuiRoTong({"khoaVonToiDaGiay": 24 * 365.0}).xet(t, DanhMuc(100000.0)).duyet,
+         RuiRoTong({"khoaVonToiDaGio": 24 * 365.0}).xet(t, DanhMuc(100000.0)).duyet,
          "người vận hành thấy đúng đánh đổi ấy và tự quyết — việc của người")
 
 
@@ -5630,7 +5686,7 @@ def kiem_ngang_gia() -> None:
          "ngang giá bù trừ trong một tài khoản; ba chân ba sàn là ba khoản "
          "ký quỹ riêng và không có bù trừ nào")
     kiem("khoá vốn = thời gian tới đáo hạn",
-         gan(t0.khoaVonDenGiay, hep.conLaiGio * 3600.0, 1e-6),
+         gan(t0.khoaVonDenGio, hep.conLaiGio * 3600.0, 1e-6),
          "đóng sớm là bán lại ba chân trên ba sổ mỏng — ngang giá chỉ đóng "
          "CHẮC CHẮN tại kết toán")
     kiem("rủi ro THỊ TRƯỜNG thấp vì kết quả đã khoá",
@@ -5874,7 +5930,7 @@ def kiem_lp_amm() -> None:
     kiem("một chân, và nó là CAP_THANH_KHOAN",
          len(t.chan) == 1 and t.chan[0].ben == "CAP_THANH_KHOAN")
     kiem("KHÔNG khoá vốn — vị thế LP rút được bất cứ lúc nào",
-         gan(t.khoaVonDenGiay, 0.0))
+         gan(t.khoaVonDenGio, 0.0))
     kiem("đủ sáu mặt rủi ro", t.ruiRo.chua_do() == ())
     kiem("khai IL là khoản CHƯA trừ, kể cả với cặp NEO",
          "ton-that-vo-thuong-du-neo" in t.phiConThieu,
@@ -7277,7 +7333,7 @@ def kiem_ke_toan_vi_the() -> None:
     def _so40(ma, apr, giu=720.0, von=500.0, phi=0.6, khoa=None,
               thoat=9e9, moGio=0.0):
         t = {"taiSan": ma, "netMoiGioBps": apr * 100.0 / (365.0 * 24.0),
-             "giuGio": giu, "phiUocBps": phi, "khoaVonDenGiay": khoa,
+             "giuGio": giu, "phiUocBps": phi, "khoaVonDenGio": khoa,
              "thanhKhoanThoatUsd": thoat}
         return SoViThe(ma=ma, chienLuoc="cu.v1", toTrinh=t, vonUsd=von,
                        moLucGiay=_G40 - moGio * 3600.0, keToanLucGiay=_G40)
@@ -7404,7 +7460,7 @@ def kiem_ke_toan_vi_the() -> None:
         t = {"chienLuoc": "cu.v1", "taiSan": "CU",
              "chan": [{"ben": "CHO_VAY", "cang": "aave", "chuoi": None}],
              "netMoiGioBps": 2.0 * 100 / (365 * 24),
-             "giuGio": 720.0, "phiUocBps": 0.6, "khoaVonDenGiay": None,
+             "giuGio": 720.0, "phiUocBps": 0.6, "khoaVonDenGio": None,
              "thanhKhoanThoatUsd": 9e9}
         tu.soViThe["m1"] = SoViThe(ma="m1", chienLuoc="cu.v1", toTrinh=t,
                                    vonUsd=500.0, moLucGiay=_G50 and time.time(),
@@ -8284,6 +8340,46 @@ def kiem_hien_phap() -> None:
              f"không chạy, và nó vẫn nằm đó cho người đọc yên tâm")
 
 
+def kiem_khoa_cu_doi_ten() -> None:
+    print("\n-- Doi ten khoa: ban tham so DA DUYET khong duoc mat --")
+    from thi_bac_ty.rui_ro_tong import KHOA_CU, MAC_DINH, RuiRoTong
+
+    # `khoaVonToiDaGiay` mang đuôi «Giay» từ ngày đầu trong khi mọi chỗ
+    # dùng nó đều tính bằng GIỜ: docstring viết «720 giờ = 30 ngày», câu
+    # từ chối in «khoá vốn 2119 giờ > trần 720 giờ». Cái tên nói dối về
+    # ĐƠN VỊ, và nó sẽ cắn vào đúng ngày ai đó đọc 720 là «12 phút» rồi
+    # sửa thành 2.592.000 — trần ấy khi đó chặn đúng 0 cơ hội, mãi mãi.
+    kiem("không khoá CŨ nào còn nằm trong bảng mặc định",
+         not (set(KHOA_CU) & set(MAC_DINH)),
+         f"{set(KHOA_CU) & set(MAC_DINH)} — giữ cả hai tên trong mặc định "
+         f"là để hai nguồn sự thật cùng sống")
+    for cu, moi in KHOA_CU.items():
+        r = RuiRoTong({cu: 999.0})
+        kiem(f"bản tham số cũ mang `{cu}` vẫn được đọc",
+             r.c.get(moi) == 999.0 and cu not in r.c,
+             f"{r.c.get(moi)} — bản đang chạy trên đĩa còn mang khoá cũ, và "
+             f"đó là bản NGƯỜI CHỦ đã duyệt; bỏ qua nó là âm thầm trả một "
+             f"tham số đã duyệt về mặc định")
+        r2 = RuiRoTong({cu: 999.0, moi: 111.0})
+        kiem(f"có cả hai thì `{moi}` THẮNG",
+             r2.c.get(moi) == 111.0,
+             f"{r2.c.get(moi)} — tên mới là tên đang được ghi, nên nó phải "
+             f"là tên quyết định")
+
+    # Và đơn vị phải là GIỜ, chứng minh bằng hành vi chứ không bằng tên.
+    from thi_bac_ty.to_trinh import ToTrinh
+    import inspect
+    kiem("`khoaVonDenGio` được so THẲNG với trần, cùng một đơn vị",
+         "khoaVonDenGio" in inspect.getsource(RuiRoTong.xet)
+         and "khoaVonToiDaGio" in inspect.getsource(RuiRoTong.xet)
+         and "3600" not in inspect.getsource(RuiRoTong.xet),
+         "không có phép đổi đơn vị nào ở giữa, nên hai con số phải cùng "
+         "đơn vị — và cả hai đều là GIỜ")
+    kiem("và ToTrinh khai đúng tên mới",
+         "khoaVonDenGio" in {f for f in ToTrinh.__dataclass_fields__},
+         str([f for f in ToTrinh.__dataclass_fields__ if "khoaVon" in f]))
+
+
 def kiem_hai_lan() -> None:
     print("\n-- HAI LAN: khac nhau cho nao thi phai KHAI cho ay --")
     import json as _js
@@ -8452,6 +8548,7 @@ def main() -> int:
     kiem_hieu_nang()
     kiem_lop_boc_khai_bao()
     kiem_hien_phap()
+    kiem_khoa_cu_doi_ten()
     kiem_hai_lan()
     kiem_khong_trung_ten()
 

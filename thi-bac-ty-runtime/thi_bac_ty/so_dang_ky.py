@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+import re
 import sqlite3
 import threading
 from pathlib import Path
@@ -72,6 +73,13 @@ CREATE INDEX IF NOT EXISTS idx_tt_tt   ON to_trinh(trangThai);
 CREATE INDEX IF NOT EXISTS idx_tt_ty   ON to_trinh(chienLuoc, trangThai);
 CREATE INDEX IF NOT EXISTS idx_ct_ma   ON chuyen_trang_thai(ma, id);
 """
+
+
+#: Mã đứng đầu câu lý do: `"khoa-von-lau: khoá vốn 2455 giờ > …"`. Dấu
+#: hai chấm là ranh giới, và mọi thứ sau nó là câu cho NGƯỜI đọc — kể cả
+#: những con số làm hai lần từ chối cùng nguyên nhân trông như hai nguyên
+#: nhân.
+_MA_LY_DO = re.compile(r"^([a-z][a-z0-9-]*):")
 
 
 def _bay_gio() -> str:
@@ -240,11 +248,23 @@ class SoDangKy:
         cắn thật: phễu hiện «đã đủ 12 vị thế» hàng chục lần trong khi trần
         đang là 120, vì những lần từ chối ấy xảy ra trước một lần nạp vốn.
 
-        Lý do là CÂU chứ không phải MÃ, nên hai lý do gần giống nhau sẽ
-        nằm tách. Phần lớn chỗ tách là do tên cảng dính trong câu («hết
-        chỗ ở trần cảng pendle») — mà đó là thông tin, không phải nhiễu.
-        Chỗ nào tách thật sự vô ích thì phải đổi bên GHI thành mã, không
-        phải đoán ở bên ĐỌC.
+        **Gom theo MÃ, không gom theo CÂU.** Bên GHI đã mang mã từ điều
+        `ly-do-tu-choi-phai-mang-ma`; bên ĐỌC thì không, nên nó vẫn gom
+        theo cả câu — và câu có SỐ nhúng bên trong. Đo 30/08 trên máy
+        sống: 2.527 lần từ chối vỡ thành **306 câu khác nhau**, trong khi
+        chỉ có **5 mã**. `khoa-von-lau` một mình chiếm 60/105 lần từ chối
+        của giờ gần nhất, nhưng vì mỗi lần nó ghi số giờ khác nhau (2455,
+        2118, 1278, 1110…) nên bảng «năm lý do đứng đầu» hiện năm dòng
+        gần giống hệt nhau, mỗi dòng đếm 2–3 lần.
+
+        Người đọc bảng ấy thấy năm nguyên nhân lặt vặt và không thấy cái
+        nguyên nhân đang chặn 90% số cơ hội. Đúng thứ điều 32 sinh ra để
+        chặn — chỉ là nó mới chặn được nửa bên ghi.
+
+        Dòng CŨ không có mã (1.984 dòng, ghi trước khi điều ấy ra đời)
+        giữ nguyên câu làm khoá và khai `ma: None`. Gộp chúng vào một rổ
+        «không mã» là trộn những nguyên nhân khác hẳn nhau; để riêng thì
+        người đọc thấy đúng cái mình đang thấy.
         """
         try:
             with self._mo() as con:
@@ -257,12 +277,37 @@ class SoDangKy:
                     (tuLuc, tuLuc)).fetchall()
         except (sqlite3.Error, OSError):
             return {}
-        ra: dict[str, list[dict]] = {}
+        gom: dict[str, dict[str, dict]] = {}
         for ho, ly, dem in h:
-            ds = ra.setdefault(ho, [])
-            if len(ds) < int(dinh):
-                ds.append({"lyDo": ly, "so": int(dem)})
+            m = _MA_LY_DO.match(ly or "")
+            khoa = m.group(1) if m else (ly or "")
+            o = gom.setdefault(ho, {}).setdefault(
+                khoa, {"ma": m.group(1) if m else None, "lyDo": ly,
+                       "so": 0, "soCauKhac": 0})
+            o["so"] += int(dem)
+            o["soCauKhac"] += 1
+        ra: dict[str, list[dict]] = {}
+        for ho, theoMa in gom.items():
+            ds = sorted(theoMa.values(), key=lambda x: -x["so"])
+            ra[ho] = ds[:int(dinh)]
         return ra
+
+    def so_tu_choi(self, tuLuc: str | None = None) -> dict[str, int]:
+        """TỔNG số lần từ chối mỗi họ — mẫu số cho bảng lý do.
+
+        Không có nó thì bảng «năm mã đứng đầu» đọc như «đây là tất cả»,
+        và người đọc không biết năm dòng ấy phủ 15 lần hay 140 lần.
+        """
+        try:
+            with self._mo() as con:
+                return {r[0]: int(r[1]) for r in con.execute(
+                    "SELECT t.ho, COUNT(*) FROM chuyen_trang_thai c "
+                    "JOIN to_trinh t ON t.ma = c.ma "
+                    "WHERE c.den = 'TU_CHOI' AND c.lyDo != '' "
+                    "AND (? IS NULL OR c.luc >= ?) GROUP BY t.ho",
+                    (tuLuc, tuLuc)).fetchall()}
+        except (sqlite3.Error, OSError):
+            return {}
 
     def theo_trang_thai(self, tt: str, n: int = 50) -> list[dict]:
         try:

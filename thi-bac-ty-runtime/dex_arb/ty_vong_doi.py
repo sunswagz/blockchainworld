@@ -282,7 +282,7 @@ def xuat_to_trinh(co: CoHoiVongDoi) -> ToTrinh:
         # Không khoá: hai giao dịch xong là vốn về. Nhưng nếu lượt thứ hai
         # hỏng thì vốn KẸT ở tài sản trung gian — và đó là rủi ro thực thi,
         # đã nằm ở `ruiRo.thucThi = 0,75`.
-        khoaVonDenGiay=0.0,
+        khoaVonDenGio=0.0,
         thanhKhoanThoatUsd=float(CONFIG["sucChua"]["tranUsd"]),
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=co.tuoiGiay,

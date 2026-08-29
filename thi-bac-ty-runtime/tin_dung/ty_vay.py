@@ -334,7 +334,7 @@ def xuat_to_trinh(co) -> ToTrinh:
         # `thanhKhoanThoatUsd` chứ không ở thời gian.
         # Cho vay rút được bất cứ lúc nào — nhưng nếu phải bắc cầu
         # thì vốn KẸT trên cầu, và chuyện ấy là khoá thật.
-        khoaVonDenGiay=(co.giayCauNoi or 0.0),
+        khoaVonDenGio=(co.giayCauNoi or 0.0),
         thanhKhoanThoatUsd=co.thanhKhoanThoatUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=t.tuoi_giay(),

@@ -430,7 +430,7 @@ def xuat_to_trinh(co: CoHoiCoSo) -> ToTrinh:
         sucChuaToiDaUsd=co.sucChuaToiDaUsd,
         grossBps=co.grossBps, phiUocBps=co.phiBps, netUocBps=co.netBps,
         giuGio=co.giuGio,
-        khoaVonDenGiay=0.0,          # thoát được bất cứ lúc nào
+        khoaVonDenGio=0.0,          # thoát được bất cứ lúc nào
         thanhKhoanThoatUsd=co.sucChuaToiDaUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=co.tuoiGiay,

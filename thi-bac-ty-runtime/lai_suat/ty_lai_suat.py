@@ -6,13 +6,13 @@ kể nhất:
     tin_dung   lãi THẢ NỔI, rút được bất cứ lúc nào (còn thanh khoản)
     lai_suat   lãi CỐ ĐỊNH, khoá tới ngày đáo hạn
 
-Đó là lý do ty này đáng dựng: nó là ty đầu tiên dùng `khoaVonDenGiay` với
+Đó là lý do ty này đáng dựng: nó là ty đầu tiên dùng `khoaVonDenGio` với
 một con số THẬT khác 0. Trước nó, trường ấy tồn tại trong hợp đồng mà chưa
 ai chứng minh nó có tác dụng.
 
 ## Hệ quả thấy ngay, và nó ĐÚNG
 
-Một PT đáo hạn sau 57 ngày sẽ bị `rui_ro_tong.khoaVonToiDaGiay` (mặc định
+Một PT đáo hạn sau 57 ngày sẽ bị `rui_ro_tong.khoaVonToiDaGio` (mặc định
 720 giờ = 30 ngày) **TỪ CHỐI**, dù lãi 8%/năm nghe rất ổn. Không phải vì
 8% là xấu, mà vì khoá vốn 57 ngày là từ chối mọi cơ hội tốt hơn xuất hiện
 trong 57 ngày ấy — và chi phí đó không nằm trong con số 8%.
@@ -361,7 +361,7 @@ def mot_co_hoi(t: ThiTruongPT, von: float, sucChuaC: dict,
 
     PT trả lãi cố định tới ngày đáo hạn; giữ ngắn hơn thì phải bán trên AMM
     ở một giá ta không biết. Nên `giuGio` ở đây là thời gian còn lại, và nó
-    bằng đúng `khoaVonDenGiay` — hai con số trùng nhau, và đó là sự thật của
+    bằng đúng `khoaVonDenGio` — hai con số trùng nhau, và đó là sự thật của
     công cụ này chứ không phải một sự trùng lặp cần gỡ.
     """
     con = t.conLaiGio if (t.conLaiGio or 0) > 0 else 1.0
@@ -540,7 +540,7 @@ def xuat_to_trinh(co: CoHoiPT) -> ToTrinh:
         grossBps=co.grossBps, phiUocBps=0.0, netUocBps=co.netBps,
         giuGio=co.giuGio,
         # ĐÂY là ty đầu tiên khai một con số khoá vốn THẬT khác 0.
-        khoaVonDenGiay=(t.conLaiGio if (t.conLaiGio or 0) > 0 else None),
+        khoaVonDenGio=(t.conLaiGio if (t.conLaiGio or 0) > 0 else None),
         # Bán lại được trên AMM Pendle, nhưng ở giá nào thì nguồn không nói.
         # `None` = chưa đo, không phải 0 và cũng không phải TVL.
         thanhKhoanThoatUsd=None,

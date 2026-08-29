@@ -581,7 +581,7 @@ def xuat_to_trinh(co) -> ToTrinh:
         giuGio=co.giuGio,
         # Đóng sớm được, nhưng là bán lại BA chân trên ba sổ mỏng. Ngang giá
         # chỉ đóng CHẮC CHẮN tại kết toán, nên khoá vốn = thời gian còn lại.
-        khoaVonDenGiay=co.conLaiGio * 3600.0,
+        khoaVonDenGio=co.conLaiGio * 3600.0,
         thanhKhoanThoatUsd=co.sucChuaToiDaUsd,
         ruiRo=_rui_ro(co),
         tuoiDuLieuGiay=co.tuoiGiay,
