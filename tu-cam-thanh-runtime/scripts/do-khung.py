@@ -164,6 +164,26 @@ def main() -> int:
             if not k:
                 print(f"   {tf:7}   (không đủ nến)")
                 continue
+            # QUÃNG THỜI GIAN của chính khung này.
+            #
+            # Bảng này so các KHUNG với nhau, mà các khung phủ những quãng hoàn
+            # toàn khác nhau: 5m có 41 ngày (07–08/2026) còn 1d có 1499 ngày
+            # (2022–2026). Kết luận "khung càng dài càng gần hoà vốn" vì thế có
+            # thể là kết luận về BỐN NĂM so với BỐN MƯƠI NGÀY, không phải về
+            # khung — và chính bảng này đã dẫn tới quyết định đổi 1h sang 4h.
+            #
+            # Không sửa được bằng cách tải thêm: 5m phủ 1499 ngày là 431.000
+            # nến. Cái sửa được là NÓI RA, để không ai đọc bảng như thể cùng kỳ.
+            _t = [x.get("t") for x in nen if x.get("t")]
+            if _t:
+                import datetime as _d
+                k["quang"] = {
+                    "tu": _d.datetime.fromtimestamp(
+                        min(_t) / 1000, _d.timezone.utc).strftime("%Y-%m-%d"),
+                    "den": _d.datetime.fromtimestamp(
+                        max(_t) / 1000, _d.timezone.utc).strftime("%Y-%m-%d"),
+                    "soNgay": round((max(_t) - min(_t)) / 86_400_000),
+                }
             ra.setdefault(sym, {})[tf] = k
             cot = ""
             for m in MUC:

@@ -536,6 +536,35 @@ def _tu_mau_gia(bo: list) -> list[dict]:
     return ra
 
 
+def _quang_khung(ket: dict) -> str:
+    """Cảnh báo khi các khung trong bảng phủ những QUÃNG khác nhau.
+
+    Bảng hình học so các khung với nhau, mà chúng phủ những quãng hoàn toàn
+    khác: 5m có 42 ngày (07–08/2026) còn 1d có 1499 ngày (2022–2026). Kết luận
+    "khung càng dài càng gần hoà vốn" vì thế có thể là kết luận về BỐN NĂM so
+    với BỐN MƯƠI HAI NGÀY.
+
+    Không sửa được bằng cách tải thêm — 5m phủ 1499 ngày là 431.000 nến. Cái
+    sửa được là nói ra, để không ai đọc bảng như thể cùng kỳ. Chính bảng này đã
+    dẫn tới quyết định đổi khung chạy thật từ 1h sang 4h.
+    """
+    ng = {}
+    for _sym, theo_tf in ket.items():
+        for tf, k in (theo_tf or {}).items():
+            q = (k or {}).get("quang") or {}
+            if q.get("soNgay"):
+                ng[tf] = max(ng.get(tf, 0), q["soNgay"])
+    if len(ng) < 2:
+        return ""
+    it, nhieu = min(ng.values()), max(ng.values())
+    if nhieu < it * 3:
+        return ""
+    ds = " · ".join(f"{tf} {n}ng" for tf, n in sorted(ng.items(), key=lambda x: x[1]))
+    return (f"CÁC KHUNG KHÔNG PHỦ CÙNG QUÃNG ({ds}), nên bảng này so BỐN NĂM với "
+            f"BỐN MƯƠI NGÀY chứ không chỉ so khung với khung. Dùng nó để LOẠI "
+            f"khung ngắn — chỗ chi phí ăn hết thì đúng ở mọi quãng — chứ đừng "
+            f"xếp hạng mấy khung còn lại. ")
+
 # ── Nguồn 6 · hình học của từng khung thời gian ───────────────────────────
 def _tu_do_khung(bo: list) -> list[dict]:
     """Khung nào ĐỠ NỔI mức RR đang đòi — đo bằng hình học, không bằng chiến lược.
@@ -585,6 +614,7 @@ def _tu_do_khung(bo: list) -> list[dict]:
                   f"khoảng cách đó không điểm vào nào lấp nổi. Đây là TRẦN TRÊN lạc quan "
                   f"(khi mục tiêu và stop cùng nằm trong một nến, phần thắng tính cho mục "
                   f"tiêu), nên thực tế còn thấp hơn. "
+                  + _quang_khung(ket) +
                   f"ĐỪNG DÙNG CON SỐ NÀY ĐỂ ĐOÁN MỘT BỘ LUẬT SẼ KHÁ LÊN BAO NHIÊU. "
                   f"Nó đo bằng cách vào NGẪU NHIÊN, tức đo cái NỀN của thị trường — "
                   f"không đo phân bố điểm vào của một bộ luật có hướng. Hai thứ khác "

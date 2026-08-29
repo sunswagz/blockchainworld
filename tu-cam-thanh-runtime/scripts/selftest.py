@@ -1452,6 +1452,27 @@ async def main() -> int:
           "dau-nhieu-cho.json khai trường `quang`")
     check("quang" in (ROOT / "trader" / "chung_cat.py").read_text(encoding="utf-8"),
           "và lò chưng cất đưa quãng đó VÀO CÂU, không chỉ cất trong file")
+
+    # ── Bảng hình học: các khung KHÔNG phủ cùng quãng ──
+    #
+    # 5m có 42 ngày (07–08/2026), 1d có 1499 ngày (2022–2026). Kết luận "khung
+    # càng dài càng gần hoà vốn" vì thế có thể là kết luận về BỐN NĂM so với
+    # BỐN MƯƠI HAI NGÀY. Và chính bảng này đã dẫn tới quyết định đổi khung chạy
+    # thật từ 1h sang 4h — phép đo ảnh hưởng nhất hệ này.
+    #
+    # Không sửa được bằng cách tải thêm: 5m phủ 1499 ngày là 431.000 nến. Cái
+    # sửa được là NÓI RA.
+    from trader import chung_cat as _C33
+    _q33 = {"BTC": {"5m": {"quang": {"soNgay": 42}},
+                    "1d": {"quang": {"soNgay": 1499}}}}
+    check("KHÔNG PHỦ CÙNG QUÃNG" in _C33._quang_khung(_q33),
+          "42 ngày so với 1499 ngày → cảnh báo")
+    _q_deu = {"BTC": {"4h": {"quang": {"soNgay": 1500}},
+                      "1d": {"quang": {"soNgay": 1499}}}}
+    check(_C33._quang_khung(_q_deu) == "",
+          "hai khung phủ cùng quãng → IM, không doạ suông")
+    check(_C33._quang_khung({"BTC": {"1d": {"quang": {"soNgay": 1499}}}}) == "",
+          "một khung thì không có gì để so → im")
     print("\n[32] CẮT MỐC THỜI GIAN PHẢI CẮT MỌI KHUNG CÙNG MỘT MỐC")
     import importlib.util as _il32
     import datetime as _dt32
