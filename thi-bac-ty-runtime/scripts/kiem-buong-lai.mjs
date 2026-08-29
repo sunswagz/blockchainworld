@@ -265,10 +265,18 @@ globalThis._datS(T);
     .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ")
     .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
     .replace(/'(?:[^'\\\n]|\\.)*'/g, "''");
-  const khoi = sach.split(/\bfunction\b/);
+  // Cắt theo `var t =`, KHÔNG theo `function`. Bản đầu cắt theo `function`
+  // và mỗi callback `.map(function (x) {…})` lại cắt khối làm đôi, nên mọi
+  // `t.X` nằm sau một callback rơi vào khối không có `S.trungUong` và bị
+  // bỏ qua. Nó không báo oan — nó soi ÍT hơn mình tưởng, mà một bộ kiểm
+  // soi ít hơn mình tưởng thì cũng xanh y hệt một bộ kiểm soi đủ. Đo lúc
+  // phát hiện: 18 khoá thay vì 22.
+  const khoi = sach.split(/\bvar\s+t\s*=/);
   const doc = new Set();
   for (const k of khoi) {
-    if (!k.includes("S.trungUong")) continue;
+    // `S.trungUong` phải nằm ở ĐẦU khối — đó là chính dòng gán. Gặp nó ở
+    // giữa khối là một lần đọc khác, không phải chỗ `t` được đặt.
+    if (!k.slice(0, 120).includes("S.trungUong")) continue;
     for (const m of k.matchAll(/\bt\.([A-Za-z][A-Za-z0-9]*)/g)) {
       doc.add(m[1]);
     }
@@ -278,14 +286,56 @@ globalThis._datS(T);
   // nghĩa, đúng kiểu báo động giả làm người ta thôi tin bộ kiểm.
   const tu = T.trungUong || {};
   const thieu = [...doc].filter((k) => !(k in tu)).sort();
-  const ok = doc.size >= 10 && !thieu.length;
+  const ok = doc.size >= 28 && !thieu.length;
   console.log("  " + (ok ? "OK   " : "LỖI  ") + " " + "khoá-đọc".padEnd(11)
     + " " + doc.size + " khoá trang đọc"
     + (thieu.length ? " · KHÔNG CÓ trong ảnh chụp: " + thieu.join(", ")
                     : " · đều có thật")
-    + (doc.size < 10 ? " · dò được quá ít, phép kiểm này đang canh cái rỗng"
+    + (doc.size < 28 ? " · dò được quá ít, phép kiểm này đang canh cái rỗng"
                      : ""));
   ok ? xong++ : loi++;
+
+  // ── CHIỀU NGƯỢC: trường nào SINH RA mà KHÔNG AI ĐỌC ──────────────────
+  //
+  // Sáu lần trong cùng cây mã này, cùng một cách hỏng: có mã, có phép
+  // kiểm, có dữ liệu đi ra tận API — và tầng cần nó thì không gọi.
+  // `duDoanVaThuc` hiện trên buồng lái mà vòng tiến hoá không đọc;
+  // `hoc` (máy tự chẩn mình mỗi 15 phút) không hiện ở ĐÂU cả, chỉ lấy
+  // được bằng `curl`; `luuDanhMuc.loiGhi` — ghi danh mục hỏng — cũng thế,
+  // và hỏng ở đó nghĩa là mất sạch vị thế ở lần bật máy kế tiếp.
+  //
+  // Một trường không ai đọc là một trường không tồn tại, chỉ khác ở chỗ
+  // nó tốn công tính mỗi vòng và làm người viết yên tâm.
+  {
+    const pyCd = readFileSync(join(GOC, "thi_bac_ty/chan_doan_he.py"), "utf8");
+    const docPy = new Set(
+      [...pyCd.matchAll(/anh\.get\("([A-Za-z][A-Za-z0-9]*)"/g)].map((m) => m[1]));
+    // Trường chỉ dùng để LƯU hoặc để một cỗ máy khác đọc, không phải để
+    // hiện — khai ở đây kèm lý do, đừng để nó lẫn vào đám không ai đọc.
+    const NGOAI_LE = new Map([
+      ["vong", "trang đọc `S.vong` ở TẦNG NGOÀI — cùng một con số, đếm ở "
+             + "hai chỗ. Phép so ngay dưới canh chúng không rời nhau."],
+    ]);
+    const khongAiDoc = Object.keys(tu)
+      .filter((k) => !doc.has(k) && !docPy.has(k) && !NGOAI_LE.has(k))
+      .sort();
+    const ok2 = !khongAiDoc.length;
+    console.log("  " + (ok2 ? "OK   " : "LỖI  ") + " " + "khoá-sinh".padEnd(11)
+      + " " + Object.keys(tu).length + " trường ảnh chụp"
+      + (ok2 ? " · trường nào cũng có người đọc"
+             : " · KHÔNG AI ĐỌC: " + khongAiDoc.join(", ")));
+    ok2 ? xong++ : loi++;
+
+    // Hai bộ đếm vòng, hai chỗ tăng, một cái tên. Hôm nay chúng bằng
+    // nhau; ngày chúng rời nhau thì buồng lái hiện một con số và sổ ghi
+    // một con số khác, và không ai biết tin cái nào. Rẻ hơn nhiều so với
+    // đi tìm về sau.
+    const ok3 = tu.vong === T.vong;
+    console.log("  " + (ok3 ? "OK   " : "LỖI  ") + " " + "vòng-khớp".padEnd(11)
+      + " ngoài " + T.vong + " · Trung Ương " + tu.vong
+      + (ok3 ? " · khớp" : " · LỆCH, hai chỗ đếm rời nhau"));
+    ok3 ? xong++ : loi++;
+  }
 }
 
 // Phép kiểm cuối: một hàm vẽ NÉM thì `ve()` phải dựng Ô BÁO LỖI vào

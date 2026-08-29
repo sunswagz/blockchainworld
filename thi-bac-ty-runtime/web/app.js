@@ -1101,10 +1101,13 @@
         th.thu ? "không vặn tham số nào" : "đã ghi vào config",
         th.thu ? "nhat" : "am", true));
       kth.appendChild(dth);
-      (th.trieuChung || []).forEach(function (t) {
+      /* Tham số tên `tc`, không phải `t`: trong cả file này `t` là
+         `S.trungUong`, và một callback che mất nó làm người đọc — lẫn bộ
+         kiểm «khoá trang đọc» — hiểu `t.ma` là một trường của Trung Ương. */
+      (th.trieuChung || []).forEach(function (tc) {
         var b = el("div", "viec-1");
-        b.appendChild(el("b", null, "TRIỆU CHỨNG · " + t.ma));
-        b.appendChild(el("span", null, t.moTa || ""));
+        b.appendChild(el("b", null, "TRIỆU CHỨNG · " + tc.ma));
+        b.appendChild(el("span", null, tc.moTa || ""));
         kth.appendChild(b);
       });
       if (th.ghiChu) kth.appendChild(giai(th.ghiChu));
@@ -1732,6 +1735,115 @@
         })));
     }
     f.appendChild(k3);
+
+    /* VÒNG HỌC — máy tự chẩn mình mỗi 15 phút, và cho tới lượt này kết
+       quả ấy KHÔNG hiện ở đâu cả. Nó nằm trong ảnh chụp, đi qua API, và
+       chỉ đọc được bằng `curl`. Cỗ máy tự học mà không ai xem nó học được
+       gì là cỗ máy học cho chính nó nghe. Lần thứ sáu trong cùng cây mã:
+       có mã, có phép kiểm, có dữ liệu ra, và không ai gọi. */
+    var hc = t.hoc || {};
+    var k4 = khoi("Vòng học — máy tự chẩn mình",
+      "Chẩn xong thì đề xuất MỘT núm, chạy lại A/B trên chính tờ trình đã "
+      + "có, rồi nhận hay trả lại. Đứng yên là một kết quả hợp lệ, và là "
+      + "kết quả thường gặp nhất.");
+    if (t.loiHoc) {
+      var bl = el("div", "viec-1");
+      bl.appendChild(el("b", null, "Vòng học LỖI"));
+      bl.appendChild(el("span", null, String(t.loiHoc)));
+      k4.appendChild(bl);
+    }
+    if (!(hc.trieuChung || []).length) {
+      k4.appendChild(giai("chưa chẩn lượt nào — nhịp học đọc từ "
+        + "`trungUong.nhipHocGiay`, và lượt đầu chạy ngay khi máy lên"));
+    } else {
+      k4.appendChild(bang(
+        [{ t: "Triệu chứng" }, { t: "Nặng" }, { t: "Mô tả" }],
+        hc.trieuChung.map(function (x) {
+          return [{ t: x.ma },
+                  { t: so(x.nang), c: (x.nang >= 3 ? "am" : "nhat") },
+                  { t: x.moTa }];
+        })));
+    }
+    if ((hc.deXuat || []).length) {
+      k4.appendChild(bang(
+        [{ t: "Núm đề xuất" }, { t: "Từ" }, { t: "Sang" }, { t: "Vì bệnh" }],
+        hc.deXuat.map(function (x) {
+          return [{ t: x.nut }, { t: so(x.tu, 3), c: "n" },
+                  { t: so(x.den, 3), c: "n" }, { t: x.vi }];
+        })));
+    } else if ((hc.trieuChung || []).length) {
+      k4.appendChild(giai("Có triệu chứng nhưng KHÔNG đề xuất vặn gì — "
+        + "nghĩa là bệnh này không có núm nào chữa được. Đó là một câu trả "
+        + "lời, không phải một chỗ trống."));
+    }
+    var dd = hc.doDuoc || {};
+    if (dd.ketLuan) {
+      k4.appendChild(giai("A/B: " + dd.ketLuan + " — " + (dd.vi || "")));
+    }
+    if (hc.luc) k4.appendChild(giai("chẩn lúc " + hc.luc));
+    f.appendChild(k4);
+
+    /* GHI DANH MỤC. `loiGhi` im lặng là kiểu hỏng đắt nhất ở đây: máy vẫn
+       chạy, vẫn kế toán, vẫn đúng — cho tới lần khởi động lại kế tiếp, và
+       lúc ấy mọi vị thế biến mất cùng với đường NAV. */
+    var lu = t.luuDanhMuc || {};
+    var k5 = khoi("Ghi danh mục xuống đĩa",
+      "Vị thế mô phỏng sống qua khởi động lại nhờ file này. Ghi hỏng thì "
+      + "máy vẫn chạy đúng — cho tới lần bật lại kế tiếp.");
+    var d5 = el("div", "day-so");
+    d5.appendChild(oSo("Đã nạp lại", lu.nap ? "có" : "chưa",
+      so(lu.soViThe) + " vị thế · " + so(lu.soDiemNav) + " điểm NAV",
+      lu.nap ? "duong" : "nhat", !lu.co));
+    d5.appendChild(oSo("Máy tắt bao lâu",
+      lu.giayTatMay == null ? "—" : gio(lu.giayTatMay),
+      "quãng ấy KHÔNG được cộng lãi cho vị thế nào", "nhat"));
+    d5.appendChild(oSo("Lỗi ghi", lu.loiGhi ? "CÓ" : "không",
+      lu.loiGhi || "ghi được mỗi vòng", lu.loiGhi ? "am" : "duong",
+      !!lu.loiGhi));
+    k5.appendChild(d5);
+    if (lu.vi) k5.appendChild(giai(lu.vi));
+    f.appendChild(k5);
+
+    /* THÔNG CHÍNH TY — cửa nhận tờ trình. `tongSaiKhuon` là số tờ bị trả
+       vì sai khuôn, và một ty đột nhiên sai khuôn hàng loạt là một ty vừa
+       hỏng chứ không phải một ty vừa nghiêm khắc. */
+    /* THAM SỐ ĐANG CHẠY. Đây là những con số quyết định mọi thứ, và cho
+       tới lượt này chúng không hiện ở đâu — buồng lái chỉ nói bản tham số
+       SỐ MẤY chứ không nói bản ấy CHỨA GÌ. Hệ quả đo được hôm nay: họ tín
+       dụng chạm trần `tranMotTy` 0,5 và đứng đó nhiều giờ, trong khi
+       người xem không có cách nào thấy cái trần ấy đang là bao nhiêu. */
+    var ts = t.thamSo || {}, pb2 = t.phanBo || {};
+    var k7 = khoi("Tham số ĐANG CHẠY",
+      "Không phải `config.json` — đây là bản tham số kho đang giữ, và nó "
+      + "thắng config. Trần nào đang bó thì đọc cạnh phễu ở trang Cơ hội.");
+    ["ruiRoTong", "phanBo"].forEach(function (nhom) {
+      var o = nhom === "phanBo" ? pb2 : (ts[nhom] || {});
+      var ds = Object.keys(o).sort();
+      if (!ds.length) return;
+      k7.appendChild(el("h4", null, nhom));
+      k7.appendChild(bang([{ t: "Núm" }, { t: "Giá trị", n: true }],
+        ds.map(function (x) {
+          var v = o[x];
+          return [{ t: x }, { t: typeof v === "number" ? so(v, 4)
+                                : String(v), c: "n" }];
+        })));
+    });
+    f.appendChild(k7);
+
+    var tc = t.thongChinh || {};
+    var k6 = khoi("Thông Chính Ty — cửa nhận tờ trình");
+    var d6 = el("div", "day-so");
+    d6.appendChild(oSo("Đã nhận", so(tc.tongNhan),
+      "đang chờ " + so(tc.dangCho) + " · trần " + so(tc.tran)));
+    d6.appendChild(oSo("Trả vì SAI KHUÔN", so(tc.tongSaiKhuon),
+      "một ty sai khuôn hàng loạt là một ty vừa hỏng",
+      (tc.tongSaiKhuon || 0) ? "am" : "duong"));
+    d6.appendChild(oSo("Trả vì ĐẦY", so(tc.tongTran),
+      "cửa đầy thì tờ đến sau bị trả, không xếp hàng vô hạn",
+      (tc.tongTran || 0) ? "nhat" : "duong"));
+    k6.appendChild(d6);
+    f.appendChild(k6);
+
     return f;
   }
 
