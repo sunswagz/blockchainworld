@@ -1,73 +1,28 @@
 /* ═══════════════════════════════════════════════════════
-   VỎ PWA — thông báo có bản mới, và nút cài ứng dụng.
+   TỆP NÀY CỐ Ý KHÔNG CÓ LUẬT NÀO — và đã hai lần bị hiểu nhầm.
 
-   ── TỆP NÀY TRƯỚC ĐÂY LÀ 6 KB CHẾT ────────────────────
-   Nó từng style một cây "Cổng Thành" gồm `.halls-nav`, `.halls-head`,
-   `.halls-tree`, `.hall-link`. Bốn lớp đó KHÔNG còn tồn tại: từ khi
-   `scripts/build-halls.mjs` sinh `halls.js`, cây cung dựng bằng
-   `.cung-cay` · `.cung-hang` · `.cung-goc` … và CSS của chúng nằm
-   NGAY TRONG halls.js, cố ý — mười hai cung đặt tên biến màu khác
-   nhau nên một khối dùng chung không gọi tên biến nào được.
+   Tên nó nói về cây "Cổng Thành" ở chân thanh bên. Nhưng từ khi
+   `scripts/build-halls.mjs` sinh `halls.js`, CSS của cây ấy nằm
+   NGAY TRONG halls.js — cố ý: mười hai cung đặt tên biến màu khác
+   nhau nên một khối dùng chung không gọi tên nào được.
 
-   Nên tệp này thành 6 KB nằm trong SHELL, tải về mỗi lượt, không
-   style một phần tử nào. Không lỗi nào báo, vì CSS thừa thì im lặng.
+   ── LẦN NHẦM THỨ NHẤT ─────────────────────────────────
+   Tệp giữ 6 KB style cho `.halls-nav` · `.halls-head` · `.halls-tree`
+   · `.hall-link` — bốn lớp không còn tồn tại. 6 KB nằm trong SHELL,
+   tải mỗi lượt, không style một phần tử nào. CSS thừa thì im lặng.
 
-   ── VÀ CHỖ NGƯỢC LẠI: HAI LỚP CÓ THẬT MÀ KHÔNG AI STYLE ──
-   `pwa.js` dựng `.sw-toast` (báo có bản mới) và `.install-dqt` (nút
-   cài). Cả hai KHÔNG có một luật nào trong app.css lẫn halls.css.
+   ── LẦN NHẦM THỨ HAI, của chính tôi ───────────────────
+   Dọn xong 6 KB ấy, tôi thấy `pwa.js` dựng `.sw-toast` và
+   `.install-dqt` mà app.css lẫn halls.css đều không style, nên viết
+   hai khối mới vào đây. Sai: `app-shell.css` đã style cả hai từ
+   12/08. Tôi soi hai tệp mà quên tệp thứ ba.
 
-   Hậu quả người dùng thấy được: mỗi lần deploy một bản mới, thanh
-   thông báo hiện ra dưới dạng chữ trần trôi ở cuối trang — không nền,
-   không viền, không vị trí. Nút cài cũng vậy. Chín cung kia đều có
-   hai khối này trong chính halls.css của chúng; cung này thiếu vì
-   halls.css ở đây bị kẹt lại ở thiết kế cũ.
+   Và vì halls.css nạp SAU app-shell.css, khối của tôi thắng ở mọi
+   thuộc tính nó đặt — thanh thông báo đổi từ viên thuốc bo tròn
+   999px sang góc 10px, nút đổi nền. Một lần đổi giao diện không ai
+   định làm, không lỗi nào báo. `npm run de-im-lang` không bắt được
+   vì nó soi TỪNG TỆP, mà chỗ đè này bắc qua hai tệp.
 
-   Nay tệp làm đúng việc mà nó làm ở mọi cung khác.
+   Nay vỏ PWA ở một nhà duy nhất: `app-shell.css`. Tệp này để trống,
+   và để trống là trạng thái ĐÚNG của nó — đừng lấp.
    ═══════════════════════════════════════════════════════ */
-
-/* ── THÔNG BÁO CÓ BẢN MỚI ────────────────────────────────
-   pwa.js gắn `data-open="1"` ở khung hình kế tiếp, nên phải có trạng
-   thái ĐÓNG trước rồi mới trượt lên — gán thẳng vị trí cuối thì nó
-   hiện ra đột ngột, không ai kịp thấy nó từ đâu tới.
-
-   Chỉ chuyển tiếp `transform`: đúng luật đã áp cho cả cung — không
-   hiệu ứng nào được chạm bố cục. */
-.sw-toast{
-  position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));
-  z-index:var(--z-banh);
-  transform:translate(-50%,140%);
-  transition:transform .18s cubic-bezier(.2,.8,.2,1);
-  display:flex;align-items:center;gap:12px;
-  max-width:calc(100vw - 34px);
-  padding:10px 14px;
-  border:1px solid var(--line2);border-radius:var(--r2);
-  background:var(--raise);
-  box-shadow:0 14px 40px -16px #000000e6;
-  font-size:12.5px;line-height:1.5;color:var(--fg)}
-.sw-toast[data-open="1"]{transform:translate(-50%,0)}
-.sw-toast button{
-  flex:0 0 auto;padding:5px 12px;
-  border:1px solid var(--acc-mo);border-radius:var(--r);
-  background:#58a6ff1f;color:var(--acc);
-  font-size:12.5px;font-weight:600;white-space:nowrap}
-.sw-toast button:hover{background:#58a6ff2e}
-
-/* ── NÚT CÀI ỨNG DỤNG ────────────────────────────────────
-   pwa.js chèn nó NGAY TRƯỚC `.nav-foot` trong thanh bên, và tắt bằng
-   `data-show="0"` sau khi người dùng đã chọn. Không có luật ẩn ấy thì
-   nút vẫn nằm đó sau khi cài xong. */
-.install-dqt{
-  display:flex;align-items:center;gap:8px;width:100%;
-  margin:0 0 8px;padding:7px 9px;
-  border:1px dashed var(--line3);border-radius:var(--r);
-  background:transparent;color:var(--fg2);
-  font-size:12.5px;text-align:left;
-  transition:color .14s,border-color .14s,background .14s}
-.install-dqt:hover{color:var(--fg);border-color:var(--acc-mo);background:#58a6ff14}
-.install-dqt svg{flex:0 0 auto;width:15px;height:15px}
-.install-dqt[data-show="0"]{display:none}
-
-/* Thanh bên thu gọn còn 62px: giữ nút nhưng bỏ chữ, cùng lối mà
-   `.nav-collapsed` đã dùng cho mọi mục khác. */
-#app.nav-collapsed .install-dqt{justify-content:center;padding:7px 0}
-#app.nav-collapsed .install-dqt span{display:none}
