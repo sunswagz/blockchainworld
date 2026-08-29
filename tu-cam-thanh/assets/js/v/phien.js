@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-29T18:36:45.586Z",
- "chayTu": "2026-08-29T17:33:35+00:00",
- "vong": 177,
+ "generatedAt": "2026-08-29T19:48:46.462Z",
+ "chayTu": "2026-08-29T19:48:44+00:00",
+ "vong": 1,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "4h",
   "context": "1d"
  },
- "gia": 78121.13,
+ "gia": 78252.3,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "01:36:45",
+  "lastOk": "02:48:45",
   "lastError": null
  },
  "cheDo": {
@@ -31,34 +31,34 @@ window.TU_CAM_THANH = {
   "flags": [],
   "quality": "HIGH",
   "reasons": [
-   "ADX 24.0 ≥ 22, EMA xếp tăng, cấu trúc TRANSITION"
+   "ADX 24.2 ≥ 22, EMA xếp tăng, cấu trúc TRANSITION"
   ],
   "contextTrend": "MIXED",
-  "adx": 24.0,
+  "adx": 24.2,
   "volatility": "NORMAL",
   "key": "TREND_UP|none"
  },
  "thiTruong": {
   "4h": {
-   "price": 78121.13,
-   "ema20": 78401.538,
-   "ema50": 76965.442,
-   "ema200": 70049.593,
+   "price": 78252.3,
+   "ema20": 78414.031,
+   "ema50": 76970.586,
+   "ema200": 70050.898,
    "emaStack": "BULLISH_ALIGNED",
-   "rsi14": 48.5,
-   "rsiSlope": 1.61,
-   "macdHist": -271.03,
-   "macdHistSlope": 38.952,
-   "atr": 877.58629,
-   "atrPct": 1.123,
-   "atrRatioVsMedian": 0.83,
+   "rsi14": 49.7,
+   "rsiSlope": 2.0,
+   "macdHist": -262.66,
+   "macdHistSlope": 41.743,
+   "atr": 889.872,
+   "atrPct": 1.137,
+   "atrRatioVsMedian": 0.84,
    "volatility": "NORMAL",
-   "adx": 24.0,
-   "plusDI": 22.4,
-   "minusDI": 21.0,
-   "bbWidthPct": 4.7832534,
-   "bbPosition": 0.33,
-   "volumeRatio": 0.27,
+   "adx": 24.2,
+   "plusDI": 23.5,
+   "minusDI": 20.7,
+   "bbWidthPct": 4.7629482,
+   "bbPosition": 0.37,
+   "volumeRatio": 0.39,
    "structure": "TRANSITION",
    "swingHighs": [
     80000.0,
@@ -108,29 +108,29 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 76888.0,
-   "distToRange20HighPct": 4.3,
-   "distToRange20LowPct": 1.58
+   "distToRange20HighPct": 4.12,
+   "distToRange20LowPct": 1.74
   },
   "1d": {
-   "price": 78121.13,
-   "ema20": 73125.136,
-   "ema50": 69001.998,
-   "ema200": 73008.42,
+   "price": 78252.3,
+   "ema20": 73137.628,
+   "ema50": 69007.141,
+   "ema200": 73009.725,
    "emaStack": "MIXED",
-   "rsi14": 71.3,
-   "rsiSlope": -3.09,
-   "macdHist": 731.12,
-   "macdHistSlope": -227.707,
-   "atr": 2328.1827,
-   "atrPct": 2.98,
+   "rsi14": 71.5,
+   "rsiSlope": -3.02,
+   "macdHist": 739.49,
+   "macdHistSlope": -224.916,
+   "atr": 2340.4684,
+   "atrPct": 2.991,
    "atrRatioVsMedian": 1.04,
    "volatility": "NORMAL",
    "adx": 42.0,
-   "plusDI": 38.9,
-   "minusDI": 11.9,
-   "bbWidthPct": 39.826149,
+   "plusDI": 38.7,
+   "minusDI": 11.8,
+   "bbWidthPct": 39.859652,
    "bbPosition": 0.75,
-   "volumeRatio": 0.33,
+   "volumeRatio": 0.34,
    "structure": "UPTREND",
    "swingHighs": [
     65409.56,
@@ -176,7 +176,7 @@ window.TU_CAM_THANH = {
       "ten": "HAI_ĐÁY",
       "loai": "ĐẢO_CHIỀU",
       "huong": "LONG",
-      "rr": 0.6,
+      "rr": 0.61,
       "doTin": 0.86
      },
      {
@@ -190,7 +190,7 @@ window.TU_CAM_THANH = {
       "ten": "NẾN_TRONG_GIẢM",
       "loai": "NÉN",
       "huong": "SHORT",
-      "rr": 1.37,
+      "rr": 1.42,
       "doTin": 0.45
      }
     ],
@@ -198,20 +198,20 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 4.3,
-   "distToRange20LowPct": 19.95
+   "distToRange20HighPct": 4.12,
+   "distToRange20LowPct": 20.09
   }
  },
  "luanDiem": null,
  "phanQuyet": null,
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 9504.97,
-  "vonThucHien": 9504.97,
-  "dinhVon": 9505.97,
-  "laiLoMo": 4.79,
+  "von": 9519.97,
+  "vonThucHien": 9519.97,
+  "dinhVon": 9519.97,
+  "laiLoMo": 19.8,
   "laiLoHomNay": -51.5,
-  "drawdownPct": 0.01,
+  "drawdownPct": 0.0,
   "soLenhDaDong": 43,
   "viThe": [
    {
@@ -250,8 +250,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9718582,
     "ocoOrderListId": 303067,
     "ocoError": null,
-    "unrealizedPnl": 3.32,
-    "unrealizedR": 0.08
+    "unrealizedPnl": 7.68,
+    "unrealizedR": 0.18
    },
    {
     "id": "t_d3d64675eb",
@@ -289,8 +289,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 1382525,
     "ocoOrderListId": 303090,
     "ocoError": null,
-    "unrealizedPnl": -0.68,
-    "unrealizedR": -0.02
+    "unrealizedPnl": 4.27,
+    "unrealizedR": 0.13
    },
    {
     "id": "t_9fa9a550c3",
@@ -328,8 +328,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 3024893,
     "ocoOrderListId": 304336,
     "ocoError": null,
-    "unrealizedPnl": 0.49,
-    "unrealizedR": 0.02
+    "unrealizedPnl": 4.23,
+    "unrealizedR": 0.15
    },
    {
     "id": "t_f41ef0b355",
@@ -367,8 +367,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9726581,
     "ocoOrderListId": 304408,
     "ocoError": null,
-    "unrealizedPnl": 1.66,
-    "unrealizedR": 0.08
+    "unrealizedPnl": 3.62,
+    "unrealizedR": 0.18
    }
   ]
  },
@@ -1514,155 +1514,213 @@ window.TU_CAM_THANH = {
    "soatLaiLuc": null
   }
  ],
- "theGioi": {
-  "luc": 1788028440.8966112,
-  "phaiSinh": {
-   "fundingNamHoa": 10.93,
-   "openInterestUsd": 8425201341.565,
-   "oiDoi24hPct": 1.15,
-   "topTrader": {
-    "tyLe": 2.0925,
-    "long": 0.6766,
-    "short": 0.3234,
-    "doi12h": 0.02
+ "theGioi": null,
+ "huanLuyen": null,
+ "phatHien": [
+  {
+   "ma": "khung-nao-do-noi",
+   "nguon": "do-khung",
+   "mau": 40953,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "theoKhung": {
+     "5m": -21.6,
+     "15m": -12.5,
+     "30m": -10.1,
+     "1h": -6.3,
+     "4h": -3.4,
+     "1d": -1.7
+    },
+    "totNhat": "1d",
+    "teNhat": "5m"
    },
-   "toanSan": {
-    "tyLe": 1.1988,
-    "long": 0.5452,
-    "short": 0.4548,
-    "doi12h": 0.028
-   },
-   "nguon": "Binance Futures"
+   "cau": "Khoảng cách tới hoà vốn ở mục tiêu 2R, đo bằng CÁCH VÀO NGẪU NHIÊN trên 3 coin (40,953 điểm vào): 1d -1.7đ · 4h -3.4đ · 1h -6.3đ · 30m -10.1đ · 15m -12.5đ · 5m -21.6đ. Khung càng dài càng gần hoà vốn. Ở 1d chỉ cần bộ chọn điểm vào thêm 1.7 điểm phần trăm là dương; ở 5m cần thêm 21.6 điểm — khoảng cách đó không điểm vào nào lấp nổi. Đây là TRẦN TRÊN lạc quan (khi mục tiêu và stop cùng nằm trong một nến, phần thắng tính cho mục tiêu), nên thực tế còn thấp hơn. ĐỪNG DÙNG CON SỐ NÀY ĐỂ ĐOÁN MỘT BỘ LUẬT SẼ KHÁ LÊN BAO NHIÊU. Nó đo bằng cách vào NGẪU NHIÊN, tức đo cái NỀN của thị trường — không đo p"
   },
-  "viMo": {
-   "muc": {
-    "DXY": {
-     "ten": "chỉ số đô la",
-     "gia": 99.16,
-     "doiPct": -0.01
-    },
-    "US10Y": {
-     "ten": "lợi suất trái phiếu 10 năm",
-     "gia": 4.672,
-     "doiPct": 0.17
-    },
-    "DAU": {
-     "ten": "dầu WTI",
-     "gia": 83.4,
-     "doiPct": -0.16
-    },
-    "SP500": {
-     "ten": "S&P 500",
-     "gia": 7730.99,
-     "doiPct": 0.72
-    },
-    "VANG": {
-     "ten": "vàng",
-     "gia": 4478.1,
-     "doiPct": -2.85
+  {
+   "ma": "khung-ngan-chet-vi-phi",
+   "nguon": "do-khung",
+   "mau": 40953,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "khung": [
+     "5m"
+    ]
+   },
+   "cau": "Khung 5m kém hoà vốn tới -22 điểm phần trăm ở 2R. Nguyên nhân là chi phí: phí và trượt giá tính theo % GIÁ nên không đổi, còn biên độ mỗi nến thì nhỏ dần theo khung — cùng một khoản phí ăn phần R ngày càng lớn. Không chiến lược nào bù được chỗ đó."
+  },
+  {
+   "ma": "mau-gia-tong",
+   "nguon": "mau-gia",
+   "mau": 22997,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "soMau": 14,
+    "soAm": 13,
+    "soCho": 15
+   },
+   "cau": "14 mẫu giá kinh điển đã đem đo trên 135000 nến khung 4h trên 15 chợ độc lập (22997 lần xuất hiện, đã gộp trùng): 13/14 có kỳ vọng ÂM sau phí, dùng đúng điểm vào/stop/mục tiêu mà chính mẫu khai. Mẫu giá ở đây là BỐI CẢNH để đọc, không phải tín hiệu để bấm."
+  },
+  {
+   "ma": "mau-gia-xau",
+   "nguon": "mau-gia",
+   "mau": 5126,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "ten": "NẾN_TRONG_TĂNG",
+    "kyVongR": -0.184
+   },
+   "cau": "NẾN_TRONG_TĂNG: kỳ vọng -0.184R qua 5126 lần, thắng 32.4%, MFE trung vị chỉ 0.79R — một nửa số lần nó còn không đi nổi 0.79R về phía mình trước khi kết thúc. Thấy mẫu này thì đừng coi là lý do vào lệnh."
+  },
+  {
+   "ma": "huong",
+   "nguon": "do-huong",
+   "mau": 2069,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "kyVongR": -0.1459250535331906,
+    "caHaiR": -0.01672885451909135,
+    "chenhDoShort": 0.12919619901409926,
+    "soCho": 48
+   },
+   "cau": "Chiến lược có HAI NỬA và bot chạy thật chỉ chạy được một. Trên 48 chợ, dữ liệu 2022-07-13 → 2026-08-29: cả hai chiều -0.0167R qua 2069 lệnh · CHỈ LONG -0.1459R qua 934 lệnh · riêng LONG -0.1474R/935 · riêng SHORT +0.0911R/1134. Nửa SHORT đóng góp +0.1292R mỗi lệnh, và sàn SPOT không đánh được nửa đó — nên mọi con số «cả hai chiều» ở các phát hiện khác nói về một chiến lược bot không chạy nổi. Đọc chúng bằng cột CHỈ LONG. Con số short đến từ CHẠY LẠI: khớp đúng giá đặt, không phí vay, không rủi ro bị ép đóng — thực tế sẽ xấu hơn."
+  },
+  {
+   "ma": "mau-gia-rr-thap",
+   "nguon": "mau-gia",
+   "mau": 2029,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "ten": "HAI_ĐỈNH",
+    "rr": 0.53,
+    "tyLeThang": 55.9
+   },
+   "cau": "HAI_ĐỈNH: thắng 55.9% và chạm đích 71.8% — nghe rất tốt — nhưng kỳ vọng vẫn -0.040R qua 2029 lần, vì luật đặt mục tiêu kinh điển của nó cho RR chỉ 0.53. Đích gần hơn cả stop thì thắng bao nhiêu cũng không đủ."
+  },
+  {
+   "ma": "lo-luyen-champion",
+   "nguon": "lo-luyen",
+   "mau": 946,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "kyVongR": -0.1517,
+    "soLatDuong": 0,
+    "soLat": 4
+   },
+   "cau": "Champion đo trên 48 chợ × 4 lát thời gian (CHỈ LONG — đúng không gian sàn spot cho phép): dương 0/4 lát, gộp -0.1517R qua 946 lệnh. Từng lát: -0.49 -0.06 -0.10 -0.42. Lát là quãng thời gian LIÊN TIẾP — dương ở một lát và âm ở lát khác nghĩa là kết quả phụ thuộc chế độ thị trường, không phải lợi thế."
+  },
+  {
+   "ma": "bo-pha",
+   "nguon": "bo-pha",
+   "mau": 256,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "tat": [
+     "phi-x2",
+     "phi-x3",
+     "lo",
+     "bien"
+    ],
+    "thua": []
+   },
+   "cau": "MOCK_RULES_V1 trên BTCUSDT:4h: gốc -0.070R qua 256 lệnh. TẮT TIẾNG khi phi-x2, phi-x3, lo, bien — không phải thua, mà là không còn lệnh nào qua nổi cửa RR khi chi phí đội lên. Lợi thế (nếu có) nằm GỌN trong giả định chi phí, nên mọi con số dương chỉ đúng chừng nào phí đúng bằng mức đã giả định. "
+  },
+  {
+   "ma": "bac-bo:1d-song-o-cua-so-khac",
+   "nguon": "gia-thuyet",
+   "mau": 166,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "phanQuyet": "BÁC_BỎ"
+   },
+   "cau": "BÁC BỎ — Champion trên 1d được +0,117R gộp qua 230 lệnh, dương 11/15 chợ. Nhưng 15 chợ ấy dùng CHUNG một cửa sổ ngoài mẫu (khoảng 06/2025–08/2026), mà crypto tương quan cao — nên con số đó có thể chỉ là «450 ngày vừa rồi thuận» nói mười lăm lần. Nó có sống ở một cửa sổ thời gian KHÁC không? Dự đoán lúc chưa biết: CÓ, sẽ sống. Lần trước tôi đoán sai theo hướng bi quan nên lần này phải nói rõ vì sao đổi ý: đã có sẵn một phép ĐỐI CHỨNG mạnh. Cùng 15 chợ, cùng đúng khoảng thời gian đó, khung 4h cho −0,047R còn 1d cho +0,117R. Nếu nguyên nhân là cửa sổ thuận thì 4h cũng phải đẹp lên — nó không. Vậy"
+  },
+  {
+   "ma": "dong-thuan-lech",
+   "nguon": "dai-quan-sat",
+   "mau": 122,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "phanTramLongDauNguoi": 90.2,
+    "phanTramLongVon": 17.5
+   },
+   "cau": "BTC: 90.2% số ĐẦU NGƯỜI đang LONG nhưng chỉ 17.5% số VỐN đang LONG, trên 122 vị thế. Đám đông và tiền lớn đang đứng hai phía. Đây là BỐI CẢNH, không phải lệnh: nó nói chỗ đông người ở đâu, không nói ai đúng."
+  },
+  {
+   "ma": "champion",
+   "nguon": "chien-luoc",
+   "mau": 85,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "kyVongR": -0.05,
+    "tyLeThang": 34.1,
+    "heSoLoiNhuan": 0.93,
+    "cho": "BTCUSDT:4h",
+    "sutGiamToiDaPct": 6.68,
+    "tham": {}
+   },
+   "cau": "Chiến lược đang cầm quyền (MOCK_RULES_V1 · Thuận xu hướng): kỳ vọng -0.050R qua 85 lệnh chạy lại, thắng 34.1%, hệ số lợi nhuận 0.93, sụt giảm tối đa 6.68%. KỲ VỌNG ÂM: chính bản chiến lược đang chạy đã lỗ trên lịch sử. Mọi lệnh nó đề xuất đều xuất phát từ đây — kết quả tốt lẻ tẻ là phương sai, không phải bằng chứng ngược lại. (đo trên BTCUSDT:4h)"
+  },
+  {
+   "ma": "chuoi-thua",
+   "nguon": "chien-luoc",
+   "mau": 85,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "chuoiThuaDaiNhat": 8
+   },
+   "cau": "Chuỗi thua dài nhất đo được: 8 lệnh liên tiếp qua 85 lệnh chạy lại. Đây mới là con số quyết định mức rủi ro mỗi lệnh — không phải kỳ vọng. Sống sót qua chuỗi thua là điều kiện để kỳ vọng có cơ hội hiện ra."
+  },
+  {
+   "ma": "khop-troi",
+   "nguon": "chien-luoc",
+   "mau": 85,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "khopTroi": -0.029
+   },
+   "cau": "Khớp trội -0.029: chênh lệch giữa điểm TRONG mẫu và điểm NGOÀI mẫu của bộ tham số cầm quyền. Càng lớn thì nó càng học thuộc quá khứ thay vì học quy luật — và phần học thuộc sẽ không lặp lại."
+  },
+  {
+   "ma": "cua-thoat",
+   "nguon": "chien-luoc",
+   "mau": 85,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "theoLyDoThoat": {
+     "TP": 26,
+     "SL": 53,
+     "HET_HAN": 6
     }
    },
-   "khauVi": {
-    "diem": 1.01,
-    "soChiSo": 3,
-    "nhan": "RISK_ON",
-    "ghiChu": "suy ra từ chiều đổi của DXY, lợi suất và S&P — không phải một chỉ số có sẵn"
-   },
-   "nguon": "Yahoo Finance"
-  },
-  "tamLy": {
-   "gt": 68,
-   "nhan": "Greed",
-   "chuoi": [
-    71,
-    66,
-    73,
-    74,
-    65,
-    71,
-    73,
-    68
-   ]
-  },
-  "tin": [
-   {
-    "ma": "FED",
-    "soBai": 6,
-    "bai": [
-     {
-      "tieuDe": "Minutes of the Board's discount rate meetings on July 20 and July 29, 2026",
-      "nguon": "Fed",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260825a.htm"
-     },
-     {
-      "tieuDe": "Minutes of the Federal Open Market Committee, July 28–29, 2026",
-      "nguon": "Fed",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260819a.htm"
-     }
-    ]
-   },
-   {
-    "ma": "LAM_PHAT",
-    "soBai": 5,
-    "bai": [
-     {
-      "tieuDe": "Fed Chair Kevin Warsh at Jackson Hole: 'We have work to do' on inflation",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/markets/2026/08/28/warsh-at-jackson-hole-we-have-work-to-do-on-inflaiton"
-     },
-     {
-      "tieuDe": "Bitcoin dips to $78.4K as Fed’s Warsh downplays softer inflation prints",
-      "nguon": "Cointelegraph",
-      "url": "https://cointelegraph.com/markets/bitcoin-dips-fed-warsh-dismisses-recent-low-inflation-prints?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
-     }
-    ]
-   },
-   {
-    "ma": "QUY_DINH",
-    "soBai": 1,
-    "bai": [
-     {
-      "tieuDe": "SEC Proposes New Regulation Crypto Assets",
-      "nguon": "SEC",
-      "url": "https://www.sec.gov/newsroom/press-releases/2026-76-sec-proposes-new-regulation-crypto-assets"
-     }
-    ]
-   },
-   {
-    "ma": "ETF",
-    "soBai": 3,
-    "bai": [
-     {
-      "tieuDe": "Bitcoin ETFs end 9-day inflow streak as BTC dips below $78K",
-      "nguon": "Cointelegraph",
-      "url": "https://cointelegraph.com/markets/bitcoin-etf-end-9-day-inflow-streak-btc-below-78k?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
-     },
-     {
-      "tieuDe": "Grayscale says Zcash can challenge Bitcoin’s network effects as privacy demand grows",
-      "nguon": "Cointelegraph",
-      "url": "https://cointelegraph.com/markets/zcash-bitcoin-network-effects-grayscale-privacy?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound"
-     }
-    ]
-   },
-   {
-    "ma": "VI_MO",
-    "soBai": 6,
-    "bai": [
-     {
-      "tieuDe": "Ditching 'digital gold': BPI study suggests everyday Americans prefer control and micro-investing",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/business/2026/08/28/ditch-digital-gold-bpi-study-suggests-everyday-americans-prefer-control-and-micro-investing"
-     },
-     {
-      "tieuDe": "Bitcoin is outperforming stocks and correlating with gold just when it matters most",
-      "nguon": "CoinDesk",
-      "url": "https://www.coindesk.com/daybook-us/2026/08/28/bitcoin-is-outperforming-stocks-and-correlating-with-gold-just-when-it-matters-most"
-     }
-    ]
-   }
-  ],
-  "soFeed": 9,
-  "soBai": 186
- },
- "huanLuyen": null
+   "cau": "53/85 lệnh chạy lại thoát bằng STOP LOSS (62%), chỉ 26 lệnh chạm mục tiêu. Tỉ lệ này nói vấn đề nằm ở điểm VÀO hoặc ở chỗ đặt stop, không nằm ở mục tiêu."
+  }
+ ]
 };
