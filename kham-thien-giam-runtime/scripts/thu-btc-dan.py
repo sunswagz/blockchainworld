@@ -165,7 +165,7 @@ def main() -> int:
                         / (sig * math.sqrt(troi)))
                 gc = dinh_gia(MA, float(S), float(K), tau, sig)
                 if gc is not None:
-                    ra.append((gc.pUp, lech, thang))
+                    ra.append((gc.pUp, lech, thang, T))
         return ra
 
     hoc, chon, chot = dung(mocs[:a]), dung(mocs[a:b]), dung(mocs[b:])
@@ -183,7 +183,7 @@ def main() -> int:
 
     def khop(cap_, dungDan):
         b_: dict = {}
-        for p, lc, t in cap_:
+        for p, lc, t, *_ in cap_:
             k = (_o(p, canhP), _o(lc, canhD) if dungDan else 0)
             d = b_.setdefault(k, [0, 0])
             d[0] += 1 if t else 0
@@ -192,7 +192,7 @@ def main() -> int:
 
     def cham(cap_, b_, dungDan):
         ra = []
-        for p, lc, t in cap_:
+        for p, lc, t, *_ in cap_:
             k = (_o(p, canhP), _o(lc, canhD) if dungDan else 0)
             d = b_.get(k)
             if d is None or d[1] < 30:
@@ -214,13 +214,17 @@ def main() -> int:
     r = kq["`p` + lệch dẫn"]
     hieu = [_brier1(*x) - _brier1(*y) for x, y in zip(g[2], r[2])]
     n = len(hieu)
-    rd = random.Random(20260829)
-    lan = sorted(sum(hieu[rd.randrange(n)] for _ in range(n)) / n
-                 for _ in range(2000))
-    thap, cao = lan[int(0.025 * len(lan))], lan[int(0.975 * len(lan))]
+    # Lấy lại theo KHUNG, không theo cặp: bốn lát cắt của một khung
+    # chia chung MỘT kết quả. Bootstrap theo cặp cho khoảng tin hẹp hơn
+    # 2,18 lần — và trên một kết luận biên, đó là khác biệt giữa "nằm
+    # hẳn một bên" với "chứa 0".
+    from kham.hoc_offline import khoang_tin_theo_khoi
+    mocChot = [x[-1] for x in chot]
+    thap, cao, soK = khoang_tin_theo_khoi(hieu, mocChot)
     print()
     print(f"    chênh CHỌN {g[0]-r[0]:+.6f} · CHỐT {g[1]-r[1]:+.6f}")
-    print(f"    khoảng tin 95% có cặp trên CHỐT: [{thap:+.6f}, {cao:+.6f}]")
+    print(f"    khoảng tin 95% theo KHUNG trên CHỐT: "
+          f"[{thap:+.6f}, {cao:+.6f}]  ({soK} khung)")
     print()
     if thap > 0:
         print(f"  {DAN} CÓ DẪN — và nó nói thứ `p` không nói. Đây là thông")

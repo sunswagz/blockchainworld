@@ -582,8 +582,9 @@ Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
     cửa sổ σ 300s → 900s                   −1,9%   ĐÃ NHẬN, đưa gần hết đường
     bộ ước σ: parkinson thay close-close    −0,13%  trả lại (dưới biên 0,5%)
     nắn RIÊNG theo τ thay vì gộp            −0,08%  trả lại
-    dòng lệnh nhịp 1 phút (taker buy)       TỆ HƠN  khoảng tin hẳn bên âm
-    BTC dẫn ETH/SOL/XRP                     không / TỆ HƠN
+    dòng lệnh nhịp 1 phút (taker buy)       KHÔNG đủ bằng chứng
+    BTC dẫn ETH · XRP                       KHÔNG đủ bằng chứng
+    BTC dẫn SOL                             TỆ HƠN, khoảng tin hẳn bên âm
     cửa sổ σ riêng từng market              cả ba đều chọn 900s
     (`ewma` thì TỆ HƠN close-close rõ rệt)
 
@@ -593,6 +594,12 @@ lệnh, hàng chờ, độ trễ tới sàn. Tất cả sau đúng một cánh c
 
 Những kết quả ÂM ở trên đáng giữ đúng bằng kết quả dương: chúng ngăn một
 phiên sau làm lại toàn bộ chuỗi thí nghiệm này.
+
+⚠ Hai dòng đầu TỪNG được ghi là "TỆ HƠN, khoảng tin hẳn bên âm". Sai:
+khoảng tin ấy dựng bằng bootstrap theo CẶP, trong khi bốn lát cắt của
+một khung chia chung một kết quả. Lấy lại theo KHUNG thì khoảng tin rộng
+ra và chứa 0 — "không đủ bằng chứng", không phải "tệ hơn". Kết luận của
+SOL sống sót qua phép sửa; hai cái kia thì không.
 
 Công cụ, tất cả chỉ cần Binance — không cần chợ, không cần giả định:
 
