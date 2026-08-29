@@ -42,7 +42,7 @@ import json
 import re
 from pathlib import Path
 
-from .config import DATA_DIR
+from .config import CONFIG, DATA_DIR
 
 DUONG = DATA_DIR / "ket-qua.jsonl"
 
@@ -148,3 +148,35 @@ class SoKetQua:
 
 
 so_ket_qua = SoKetQua()
+
+
+def thi_truong_doi_chieu_duoc() -> list[dict]:
+    """Những market mà sổ kết quả đối chiếu lại được, theo thứ tự config.
+
+    Không phải market nào cũng đối chiếu được, và biết TẠI SAO thì quan
+    trọng ngang biết cái nào:
+
+        · không `tienTo`  → họ CHẠM MỐC. Market sống hàng tháng, không
+          có slug mang mốc thời gian, nên không sinh dòng nào trong sổ.
+        · `theo: false`   → không theo dõi, sổ đương nhiên rỗng.
+
+    Ra đời vì `doi-chieu-ket-qua.py` từng lọc bằng `if tienTo and ...`:
+    không có tiền tố thì bộ lọc lặng lẽ tắt, và công cụ đem MỌI dòng
+    trong sổ so với nến của market đang xét. `--ma=BTC_150K` báo "430
+    LỆCH" và thoát mã HỎNG — bốn trăm ba mươi kết quả ETH/SOL/XRP đem
+    so với giá BTC, không dòng nào sai cả.
+
+    Một cái thước tự bịa ra lỗi thì tệ hơn không có thước: nó gửi người
+    đọc đi tìm một con ma, và lần nó kêu thật thì không ai tin nữa.
+
+    Để ở đây chứ không trong script vì luật này phải KIỂM được — trong
+    script thì phép kiểm chỉ còn cách dò chuỗi mã nguồn.
+    """
+    ra = []
+    for t in (CONFIG.get("thiTruong") or []):
+        if not (t.get("tienTo") or "").strip():
+            continue
+        if not t.get("theo", True):
+            continue
+        ra.append(t)
+    return ra

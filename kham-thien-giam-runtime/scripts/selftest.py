@@ -3758,6 +3758,25 @@ def kiem_phi_khong_bien_mat() -> None:
              (GOC_MA / "kham" / "phat_lai.py").read_text(encoding="utf-8")
          ).split("def _tra_ton_kho")[-1][:400])
 
+    # Chợ nào đối chiếu được — luật này phải KIỂM được, nên nó nằm ở
+    # `kham/`, không nằm trong script.
+    #
+    # `doi-chieu-ket-qua.py` từng lọc bằng `if tienTo and ...`: market
+    # không có tiền tố thì bộ lọc lặng lẽ TẮT, và công cụ đem mọi dòng
+    # trong sổ so với nến của market đang xét. `--ma=BTC_150K` báo "430
+    # LỆCH" và thoát mã HỎNG — 430 kết quả ETH/SOL/XRP so với giá BTC,
+    # không dòng nào sai cả. Thước tự bịa ra lỗi thì tệ hơn không thước.
+    from kham.ket_qua import thi_truong_doi_chieu_duoc as _tdc
+    _ma = [x.get("ma") for x in _tdc()]
+    kiem("họ CHẠM MỐC (không `tienTo`) KHÔNG nằm trong danh sách đối chiếu",
+         "BTC_150K" not in _ma, _ma)
+    kiem("market `theo: false` cũng không", "BTC_15M" not in _ma, _ma)
+    kiem("bốn chợ LÊN/XUỐNG đang theo thì CÓ",
+         all(x in _ma for x in ("BTC_5M", "ETH_5M", "SOL_5M", "XRP_5M")),
+         _ma)
+    kiem("và mỗi mục trả về đều có `nen` để lấy nến",
+         all(x.get("nen") for x in _tdc()))
+
     # Phiên phát lại KHÔNG được ghi vào sổ thật, kể cả khi ai đó quên
     # truyền `thuMucSo`. Docstring đã viết "bắt buộc tách khỏi sổ thật"
     # từ lâu trong khi mặc định làm ngược lại, và nó cắn thật: 14 dòng

@@ -46,7 +46,8 @@ CO = tham_so.doc({
 }, ten='doi-chieu-ket-qua.py')
 
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
-from kham.ket_qua import moc_tu_slug  # noqa: E402
+from kham.ket_qua import (moc_tu_slug,  # noqa: E402
+                          thi_truong_doi_chieu_duoc)
 from kham.nguon import nguon  # noqa: E402
 
 PHUT = 60_000.0
@@ -88,6 +89,30 @@ def main() -> int:
     tienTo = (tt.get("tienTo") or "").rstrip("-")
     song = float(tt.get("phutSong", 5)) * 60.0
 
+    # Không có tiền tố thì KHÔNG có gì để lọc, và bộ lọc `if tienTo and
+    # ...` lặng lẽ bỏ qua — nên công cụ đem MỌI dòng trong sổ so với nến
+    # của market này.
+    #
+    # Đã đo: `--ma=BTC_150K` (họ CHẠM MỐC, cố ý không có `tienTo`) báo
+    # "430 LỆCH" và thoát mã 2, tức HỎNG. Bốn trăm ba mươi dòng ấy là
+    # kết quả ETH/SOL/XRP đem so với giá BTC. Không dòng nào sai cả.
+    #
+    # Một cái thước tự bịa ra lỗi thì tệ hơn không có thước: nó gửi
+    # người đọc đi tìm một con ma, và lần sau nó kêu thật thì không ai
+    # tin nữa.
+    duoc = {x.get("ma") for x in thi_truong_doi_chieu_duoc()}
+    if MA not in duoc and not tienTo:
+        print(N + "  `" + MA + "` không có `tienTo` — phép này chỉ áp cho"
+              " họ LÊN/XUỐNG,")
+        print("  nơi mỗi khung có một slug mang mốc thời gian. Họ CHẠM MỐC"
+              " sống")
+        print("  hàng tháng và không sinh dòng nào trong sổ kết quả." + N)
+        return 1
+    if not tt.get("theo", True):
+        print(N + "  `" + MA + "` đang `theo: false` — không theo dõi, nên"
+              " sổ không có dòng nào." + N)
+        return 1
+
     f = DATA_DIR / "ket-qua.jsonl"
     if not f.exists():
         print(N + "  Chưa có sổ kết quả." + N)
@@ -110,7 +135,7 @@ def main() -> int:
         except ValueError:
             continue
         s = d.get("slug") or ""
-        if tienTo and not s.startswith(tienTo):
+        if not s.startswith(tienTo):     # `tienTo` chắc chắn khác rỗng
             continue
         m = moc_tu_slug(s)
         if m is None or m < han:
