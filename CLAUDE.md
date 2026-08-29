@@ -543,10 +543,52 @@ lượt liên tiếp không ghi được gì.
 trước; mọi câu dưới đây áp dụng y nguyên cho hai runtime kia, chỉ đổi tên
 thư mục, cổng, và lệnh sinh lát cắt:
 
+### Khâm Thiên Giám — CỬA NÀO là cửa làm việc (đọc trước khi sửa)
+
+Slug `<coin>-updown-5m-T` có HAI cửa và chúng không thay nhau được:
+
+    [T−300, T]   cửa ĐẶT CƯỢC   strike CHƯA TỒN TẠI
+    [T,   T+300] khung ĂN THUA  strike = giá lúc T, đã biết
+
+Kết quả là `giá(T+300) > giá(T)` — đo bằng cách chấm điểm chính chợ trên
+ba giả thuyết, mẫu ngẫu nhiên trải cả băng, đối chứng bằng TỈ LỆ NỀN
+(`scripts/do-strike.py`, 489 slug): điểm kỹ năng +6,6% cho định nghĩa
+này, −38,7% cho "giá(T+300) > giá(T−300)" mà runtime từng dùng.
+
+Hệ quả không phải một tham số sai. Trong cửa đặt cược, số gia từ T tới
+T+300 độc lập với mọi thứ quan sát được ⇒ **giá trị thật đúng 0,5**, bất
+kể giá đang ở đâu. Công thức `z = [ln(S/K) − σ²τ/2]/(σ√τ)` chỉ có nghĩa
+khi K đã biết. Đo thẳng, cùng mô hình, cùng τ=60s, cùng tỉ lệ nền
+(`scripts/do-cua-nao.py`):
+
+    đứng ở cửa đặt cược,      K = giá(T−300)   kỹ năng  −74,3%
+    đứng trong khung ăn thua, K = giá(T)       kỹ năng  +43,5%
+
+Suốt tám ngày đầu bot làm việc ở cửa đầu và tắt máy đúng lúc cửa sau bắt
+đầu. **Mọi con số hậu kiểm trước 29/08/2026 là ảo** — sổ kết quả, bảng
+hiệu chỉnh, đường nắn và phép kiểm ngoài mẫu của nó, kỳ vọng cổng tiến
+hoá. Sổ cũ cất ở `data/*-dinh-nghia-A.*`, không xoá. Dựng lại sổ kết quả
+thì 25,7% kết quả lật ngược.
+
+**Băng nay có HAI loại dòng và KHÔNG cùng nghĩa.** Mọi chỗ tiêu thụ băng
+phải lọc qua `bang.giai_doan_cua(tt)`; thiếu trường thì đọc là
+`"dat-cuoc"`. Trộn hai loại là dựng một con số không nói về thứ gì.
+
+**Hai bẫy đo lường đã cắn trong chính việc chốt chuyện này:**
+
+1. **Điểm Brier THÔ đo lẫn tỉ lệ nền với kỹ năng.** Bản đầu lấy 300 slug
+   đầu bảng chữ cái — một khối thời gian liền — và ra "đúng hướng 69,3%"
+   trong khi đó chỉ là tỉ lệ nền của một quãng chợ đi xuống. Luôn lấy
+   mẫu ngẫu nhiên trải cả băng và chấm bằng ĐIỂM KỸ NĂNG.
+2. **Mô hình sai + đáp án đúng trông thuyết phục hơn cả hai đều sai.**
+   Sau khi dựng lại sổ kết quả mà vẫn định giá bằng strike cũ, phiên
+   phát lại ra +191% với tỉ lệ thắng 26%. `kham/phat_lai.py` nay TỪ CHỐI
+   dòng cửa đặt cược và trả về 0 kèm lý do — thà không có số.
+
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
-    python scripts/selftest.py    336 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    375 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không
