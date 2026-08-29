@@ -707,6 +707,49 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── phép: cổng chặn nạp dữ liệu tự sinh ──────────
+   Cổng nằm ở .claude/hooks/, ngoài tầm mắt của phép kiểm khác vì
+   .claude bị BO_QUA. Nhưng nó là thứ giữ cho phiên không bị 16 MB
+   dữ liệu tự sinh làm nghẽn, nên phải có người canh nó. */
+{
+  const NL = String.fromCharCode(10);
+  const CAN = [
+    ".claude/hooks/chan-doc-du-lieu.mjs",
+    ".claude/hooks/du-lieu-cam.json",
+    ".claude/hooks/thu-chan-doc.mjs",
+    ".claude/settings.json",
+  ];
+  const thieu = CAN.filter((f) => !existsSync(join(ROOT, f)));
+  if (thieu.length) {
+    bao(
+      "cổng chặn nạp dữ liệu tự sinh thiếu mảnh: " + thieu.join(", ") +
+        " — không còn gì chặn `cat` đổ 16 MB dữ liệu vào ngữ cảnh",
+    );
+  } else {
+    const t = await doc(".claude/settings.json");
+    if (!t.includes("chan-doc-du-lieu.mjs")) {
+      bao(".claude/settings.json không còn gọi hook chan-doc-du-lieu.mjs");
+    }
+    if (!t.includes("permissions")) {
+      bao(".claude/settings.json không còn khối permissions.deny");
+    }
+    const { spawnSync } = await import("node:child_process");
+    const r = spawnSync(
+      process.execPath,
+      [join(ROOT, ".claude/hooks/thu-chan-doc.mjs")],
+      { encoding: "utf8" },
+    );
+    if (r.status !== 0) {
+      const dong = (r.stdout || "").trim().split(NL).filter(Boolean);
+      bao(
+        "bộ kiểm cổng chặn dữ liệu KHÔNG qua — chạy: " +
+          "node .claude/hooks/thu-chan-doc.mjs" + NL +
+          dong.slice(0, 8).map((x) => "        · " + x.trim()).join(NL),
+      );
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 

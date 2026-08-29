@@ -1,0 +1,49 @@
+{
+  "ghi_chu": [
+    "Khai báo những file dữ liệu TỰ SINH bị cấm nạp vào ngữ cảnh phiên.",
+    "chan-doc-du-lieu.mjs đọc đúng file này; sửa ở đây là đủ, đừng sửa mã.",
+    "Mỗi mục: cung (tên cung), duong (mảng đường dẫn, khớp kiểu chứa-chuỗi,",
+    "dùng gạch xuôi kể cả trên Windows), sinh_boi (script sinh ra chúng —",
+    "câu chặn sẽ chỉ người đọc sang đó thay vì đọc dữ liệu).",
+    "Cấm ở đây KHÔNG cấm script sinh chạy: script không nhắc tên đường dẫn.",
+    "Ngưỡng để khai vào đây: file tự sinh đủ nặng để làm nghẽn ngữ cảnh (mốc đang dùng: có file trên 200 KB). Cung có dữ liệu tự sinh nhưng file đều nhỏ thì không khai, để khỏi vướng chân vô ích.",
+    "Đừng chỉ tin dấu TỰ SINH ở đầu file: tang-thu-cac/assets/js/data.js (2 MB) không có dấu đó. Đối chiếu thêm đích writeFile trong scripts/."
+  ],
+  "cam": [
+    {
+      "cung": "tang-thu-cac",
+      "duong": [
+        "tang-thu-cac/assets/data",
+        "tang-thu-cac/assets/js/data.js"
+      ],
+      "sinh_boi": "scripts/build-tangthu.mjs"
+    },
+    {
+      "cung": "hoang-thanh",
+      "duong": [
+        "hoang-thanh/assets/js/data.js",
+        "hoang-thanh/assets/js/v/"
+      ],
+      "sinh_boi": "scripts/build-hoangthanh.mjs",
+      "co": "16.2 MB / 18 file, nang nhat 1.6 MB"
+    },
+    {
+      "cung": "do-sat-vien",
+      "duong": [
+        "do-sat-vien/assets/js/data.js",
+        "do-sat-vien/assets/js/v/"
+      ],
+      "sinh_boi": "scripts/build-l2beat.mjs",
+      "co": "0.83 MB / 23 file"
+    },
+    {
+      "cung": "cong-bo",
+      "duong": [
+        "cong-bo/assets/js/data.js",
+        "cong-bo/assets/js/v/nhat-ky.js"
+      ],
+      "sinh_boi": "scripts/build-congbo.mjs",
+      "co": "0.73 MB / 2 file"
+    }
+  ]
+}
