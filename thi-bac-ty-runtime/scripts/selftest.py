@@ -2608,9 +2608,12 @@ def kiem_chan_doan_he() -> None:
         def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
             from thi_bac_ty.ke_toan import KetToanVong
             # 8.760 lần mức đúng — đúng cái lỗi quên chia cho số giờ/năm.
+            # Kèm một khoản phí TRONG KỲ, để phép kiểm cửa sổ ở dưới có
+            # bút toán PHI thật mà soi — dựng riêng một ty nữa cho việc ấy
+            # là dựng thêm một chỗ có thể lệch.
             return KetToanVong(thuUsd=100.0 * 0.20 * 8760.0 / (365 * 24)
                                * (denGiay - tuGiay) / 3600.0,
-                               vi="thu bịa")
+                               phiUsd=1e-9, vi="thu bịa")
 
     _tuIn = TrungUong(_tam("thu-vuot"), {"vonBanDauUsd": 5000.0})
     _tuIn.dang_ky(_TyIn())
@@ -2658,6 +2661,19 @@ def kiem_chan_doan_he() -> None:
          all(float(x["denGiay"]) > float(x["tuGiay"]) for x in _co),
          f"{[(x['tuGiay'], x['denGiay']) for x in _co[:2]]} — sổ ghi «thu "
          f"ngần này trong không giây» thì không ai dựng lại được tỉ suất")
+
+    # Phí TRONG KỲ cũng phải mang cửa sổ: một cuốn sổ tua lại được nửa
+    # dòng tiền là một cuốn sổ không tua lại được. Phí VÀO LỆNH thì không
+    # có cửa sổ — nó là một khoảnh khắc, không phải một quãng — nên chỉ
+    # soi những dòng CÓ khai cửa sổ.
+    _ph = [_js0.loads(x[0] or "{}") for x in _tuIn.so_cai._mo().execute(
+        "SELECT chiTiet FROM but_toan WHERE loai='PHI'").fetchall()]
+    _phCua = [x for x in _ph if "tuGiay" in x and "denGiay" in x]
+    kiem("phí TRONG KỲ cũng khai cửa sổ, và cửa sổ có độ dài",
+         bool(_phCua) and all(float(x["denGiay"]) > float(x["tuGiay"])
+                              for x in _phCua),
+         f"{_ph[:2]} — nửa dòng tiền dựng lại được theo thời gian, nửa kia "
+         f"không, thì cả cuốn sổ không tua lại được")
 
     kiem("ty kế toán ĐÚNG thì không bị kêu oan",
          _tuNg.latCatKeToan.tom_tat()["soThuVuotTran"] == 0,

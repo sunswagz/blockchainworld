@@ -848,11 +848,17 @@ class TrungUong:
                     if phi:
                         so.phiCongDonUsd += phi
                         l.phiUsd += phi
+                        # Phí TRONG KỲ cũng phải mang cửa sổ, cùng lý do
+                        # khoản thu: không có nó thì nửa dòng tiền của một
+                        # vị thế dựng lại được theo thời gian, nửa kia thì
+                        # không — và một cuốn sổ tua lại được một nửa là
+                        # một cuốn sổ không tua lại được.
                         self._ghi_tien(
                             -phi, "PHI",
                             (getattr(kq, "vi", "") or
                              f"phí trong kỳ · {so.chienLuoc}"),
-                            so.chienLuoc, ma)
+                            so.chienLuoc, ma,
+                            {"tuGiay": tu0, "denGiay": now})
 
             # ── đóng: hết hạn giữ, hoặc ty đòi đóng ──────────────────────
             lyDo = ""
