@@ -183,6 +183,16 @@ main { padding: 22px 20px 96px; max-width: 1320px; margin: 0 auto; }
 .viec-khong { color: var(--chu-mo); font-size: 13px; display: flex; align-items: center; gap: 8px; }
 .viec-khong::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--live); }
 
+/* Vì sao mỗi họ bị từ chối. Số đếm phải đọc được thành cột, nên `× 520`
+   dùng chữ đều — lý do dài ngắn khác nhau mà số nhảy cột thì mắt không so
+   được hai họ với nhau. */
+.vi-sao-tu-choi { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.vi-sao-tu-choi h4 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--chu-mo); margin: 0;
+}
+.vi-sao-tu-choi .viec-1 span { font-variant-numeric: tabular-nums; }
+
 /* ── thẻ động cơ ────────────────────────────────────────────────── */
 .luoi-dc { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); }
 .the-dc {

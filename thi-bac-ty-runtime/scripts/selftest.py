@@ -2432,6 +2432,66 @@ def kiem_pheu_theo_ho() -> None:
     kiem("và ảnh chụp mang nó ra ngoài",
          "theoHo" in (tu.anh_chup()["pheuDayDu"] or {}))
 
+    # ── VÌ SAO, không chỉ BAO NHIÊU ─────────────────────────────────────
+    # Trên máy sống, họ phái-sinh có 2115 cơ hội thô và KHÔNG được đồng nào.
+    # Nhìn con số 0 ấy thì «cổng ty quá chặt» và «hết chỗ vì trần vị thế»
+    # giống hệt nhau — mà cái đầu sửa bằng vặn ngưỡng, cái sau bằng nhường
+    # chỗ. Đọc lý do ra mới thấy thủ phạm thật: «chưa đo được sức chứa».
+    tu.danh_muc.tienMatUsd = 0.0        # ép mọi tờ sau đây bị từ chối
+    for _ in range(2):
+        tu.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    # Dựng SÁU lý do khác nhau, một lý do RỖNG, và một lần từ chối ở CỬA
+    # KHÁC — đủ nghèo nàn thì phép kiểm không phân biệt nổi đọc đúng cửa
+    # với đọc bừa cửa, và ba đột biến đã sống sót đúng vì thế.
+    for i in range(6):
+        _tt = _mau(taiSan=f"Z{i}", von=10.0, chua=99.0)
+        tu.so_dang_ky.ghi_nhan(_tt)
+        tu.so_dang_ky.chuyen(_tt.ma, "DUYET_TY", "qua cổng ty")
+        # Lý do thứ 0 lặp BA lần: đỉnh phải là nó, không phải cái ngẫu nhiên.
+        tu.so_dang_ky.chuyen(_tt.ma, "TU_CHOI", f"lý do số {min(i, 3)}")
+    _rong = _mau(taiSan="ZR", von=10.0, chua=99.0)
+    tu.so_dang_ky.ghi_nhan(_rong)
+    tu.so_dang_ky.chuyen(_rong.ma, "TU_CHOI", "")
+    _mo = _mau(taiSan="ZM", von=10.0, chua=99.0)
+    tu.so_dang_ky.ghi_nhan(_mo)
+    for _b, _l in (("DUYET_TY", "qua cổng ty"), ("DUYET_RUI_RO", "qua"),
+                   ("DA_CAP_VON", "cấp"), ("DA_MO", "CÂU Ở CỬA KHÁC")):
+        tu.so_dang_ky.chuyen(_mo.ma, _b, _l)
+
+    ly = tu.so_dang_ky.ly_do_tu_choi()
+    _ps = [x["lyDo"] for x in ly.get("phai-sinh", [])]
+    kiem("sổ đăng ký kể được VÌ SAO từng họ bị từ chối",
+         "lý do số 0" in _ps,
+         f"{ly} — một con số 0 không nói được cổng nào đã chặn")
+    kiem("và đọc đúng CỬA TỪ CHỐI, không vơ cả câu ở cửa khác",
+         not any("CỬA KHÁC" in x for ds in ly.values() for x in
+                 [y["lyDo"] for y in ds]),
+         "câu ghi lúc MỞ vị thế mà lọt vào bảng «vì sao bị từ chối» thì bảng "
+         "ấy nói ngược hẳn sự thật")
+    # `dinh` cao để KHÔNG cắt: lý do rỗng chỉ có một dòng, mà cắt đỉnh 5 thì
+    # nó rơi khỏi bảng và phép kiểm không nhìn thấy nó nữa — đúng lý do phép
+    # kiểm bản đầu để lọt đột biến bỏ mất bộ lọc.
+    _het = tu.so_dang_ky.ly_do_tu_choi(999)
+    kiem("mỗi lý do có số đếm, và lý do RỖNG bị loại",
+         all(isinstance(x["so"], int) and x["lyDo"]
+             for ds in _het.values() for x in ds), str(_het))
+    _dem = [x["so"] for x in ly["phai-sinh"]]
+    kiem("đỉnh là lý do ĐẾM NHIỀU NHẤT, không phải cái gặp đầu tiên",
+         _ps[:1] == ["lý do số 3"] and _dem[0] == 3
+         and _dem == sorted(_dem, reverse=True),
+         f"{ly.get('phai-sinh')} — thủ phạm chính phải nằm trên cùng, "
+         f"không thì người đọc sửa nhầm cái thứ yếu")
+    _theo2 = {x["ho"]: x for x in tu.pheu_day_du()["theoHo"]}
+    kiem("và phễu theo họ mang ĐÚNG lý do ấy theo",
+         _theo2["phai-sinh"]["lyDoTuChoi"] == ly["phai-sinh"],
+         "khoá có mặt mà danh sách rỗng thì phép kiểm «có khoá không» vẫn "
+         "xanh — đúng đột biến đã sống sót một lượt")
+    kiem("cắt ĐỈNH, không đổ cả sổ ra buồng lái",
+         len(ly["phai-sinh"]) == 5
+         and len(tu.so_dang_ky.ly_do_tu_choi(2)["phai-sinh"]) == 2,
+         f"{len(ly['phai-sinh'])} — một họ chạy vài ngày là có hàng trăm câu "
+         f"lý do khác nhau")
+
 
 
 class ThongChinhGia:

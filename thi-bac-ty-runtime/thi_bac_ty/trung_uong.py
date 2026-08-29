@@ -940,10 +940,16 @@ class TrungUong:
         for t in self.ty.values():
             h = getattr(t, "ho", "?") or "?"
             von_ho[h] = von_ho.get(h, 0.0) + von.get(getattr(t, "ma", ""), 0.0)
+        # VÌ SAO, không chỉ BAO NHIÊU. Một họ có 2115 cơ hội mà không được
+        # đồng nào: cổng ty quá chặt và hết chỗ vì trần vị thế trông giống
+        # hệt nhau nếu chỉ nhìn con số 0 — mà hai cái ấy sửa bằng hai việc
+        # khác hẳn.
+        ly = self.so_dang_ky.ly_do_tu_choi()
         return [{"ho": h, "coHoiTho": tho.get(h, 0), "quaCongTy": qua.get(h, 0),
                  "quaRuiRoTong": int(rr.get(h, 0)),
                  "daCapVon": int(cv.get(h, 0)),
-                 "vonDangGiuUsd": round(von_ho.get(h, 0.0), 2)}
+                 "vonDangGiuUsd": round(von_ho.get(h, 0.0), 2),
+                 "lyDoTuChoi": ly.get(h, [])}
                 for h in sorted(tho)]
 
     # ── ảnh chụp ──────────────────────────────────────────────────────────

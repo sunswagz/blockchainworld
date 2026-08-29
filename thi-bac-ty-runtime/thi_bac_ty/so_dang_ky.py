@@ -224,6 +224,37 @@ class SoDangKy:
         ra["phatHien"] = pd
         return ra
 
+    def ly_do_tu_choi(self, dinh: int = 5) -> dict[str, list[dict]]:
+        """VÌ SAO mỗi họ bị từ chối — không chỉ BAO NHIÊU.
+
+        Phễu theo họ nói được «họ phái-sinh có 2115 cơ hội và không được
+        đồng nào». Nó KHÔNG nói được vì sao, mà đó mới là câu quyết định:
+        cổng ty quá chặt là một việc, hết chỗ vì trần vị thế lại là việc
+        hoàn toàn khác — cái đầu sửa bằng vặn ngưỡng, cái sau sửa bằng
+        nhường chỗ, và nhìn vào một con số 0 thì hai cái ấy giống hệt nhau.
+
+        Lý do là CÂU chứ không phải MÃ, nên hai lý do gần giống nhau sẽ
+        nằm tách. Phần lớn chỗ tách là do tên cảng dính trong câu («hết
+        chỗ ở trần cảng pendle») — mà đó là thông tin, không phải nhiễu.
+        Chỗ nào tách thật sự vô ích thì phải đổi bên GHI thành mã, không
+        phải đoán ở bên ĐỌC.
+        """
+        try:
+            with self._mo() as con:
+                h = con.execute(
+                    "SELECT t.ho, c.lyDo, COUNT(*) AS n "
+                    "FROM chuyen_trang_thai c JOIN to_trinh t ON t.ma = c.ma "
+                    "WHERE c.den = 'TU_CHOI' AND c.lyDo != '' "
+                    "GROUP BY t.ho, c.lyDo ORDER BY t.ho, n DESC").fetchall()
+        except (sqlite3.Error, OSError):
+            return {}
+        ra: dict[str, list[dict]] = {}
+        for ho, ly, dem in h:
+            ds = ra.setdefault(ho, [])
+            if len(ds) < int(dinh):
+                ds.append({"lyDo": ly, "so": int(dem)})
+        return ra
+
     def theo_trang_thai(self, tt: str, n: int = 50) -> list[dict]:
         try:
             with self._mo() as con:

@@ -513,6 +513,30 @@
     w.appendChild(giai("Thang LOGARIT. Đọc từ PHẢI sang TRÁI: cột đầu trừ cột "
       + "cuối là số cơ hội bị TỪ CHỐI — và từ chối giỏi quan trọng hơn phát "
       + "hiện nhiều."));
+    /* VÌ SAO, không chỉ BAO NHIÊU. Một họ có 2115 cơ hội mà không được đồng
+       nào: «cổng ty quá chặt» và «hết chỗ vì trần vị thế» trông giống hệt
+       nhau nếu chỉ nhìn con số 0 — mà hai cái ấy sửa bằng hai việc khác
+       hẳn. */
+    var ho = (p.theoHo || []).filter(function (h) {
+      return (h.lyDoTuChoi || []).length;
+    });
+    if (ho.length) {
+      var kl = el("div", "vi-sao-tu-choi");
+      kl.appendChild(el("h4", null, "Vì sao bị từ chối — theo họ"));
+      ho.forEach(function (h) {
+        var r = el("div", "viec-1 nhe");
+        r.appendChild(el("b", null, h.ho + " · " + so(h.coHoiTho)
+          + " cơ hội thô → " + so(h.daCapVon) + " lần được cấp vốn"));
+        h.lyDoTuChoi.forEach(function (x) {
+          r.appendChild(el("span", null, "× " + so(x.so) + "  " + x.lyDo));
+        });
+        kl.appendChild(r);
+      });
+      w.appendChild(kl);
+      w.appendChild(giai("Lý do là CÂU chứ không phải mã, nên hai lý do gần "
+        + "giống nhau nằm tách. Phần lớn chỗ tách là do tên cảng dính trong "
+        + "câu — đó là thông tin, không phải nhiễu."));
+    }
     return w;
   }
   function nhanNac(t) {
