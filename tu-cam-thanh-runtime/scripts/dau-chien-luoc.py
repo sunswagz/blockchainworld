@@ -4,6 +4,7 @@
     python scripts/dau-chien-luoc.py --tat-ca      đấu mọi bộ luật chưa phải champion
     python scripts/dau-chien-luoc.py --tat-ca --cho BTCUSDT:1h,ETHUSDT:1h,SOLUSDT:1h
     python scripts/dau-chien-luoc.py --tat-ca --cho BTCUSDT:4h,BTCUSDT:1d
+    python scripts/dau-chien-luoc.py --tat-ca --cho <ds> --truoc 2025-06-01
 
 Đi đúng đường mà buồng lái đi: `chien_luoc.de_xuat` → `chien_luoc.danh_gia` →
 cửa duyệt `phan_quyet`. Không có đường tắt nào ở đây, và cố ý không có tham số
@@ -83,6 +84,24 @@ def _nap_cho(sym: str, chinh: str, ctx: str):
         if not f.exists():
             return None
         nen[tf] = _json.loads(f.read_text(encoding="utf-8"))
+
+    # `--truoc <YYYY-MM-DD>`: chỉ giữ nến ĐÓNG TRƯỚC mốc đó.
+    #
+    # Vì sao cần: bộ máy chỉ có MỘT cửa sổ ngoài mẫu — 30% cuối của chuỗi — và
+    # 15 chợ đều dùng chung đúng khoảng thời gian ấy. Crypto tương quan cao,
+    # nên "dương ở 11/15 chợ" có thể chỉ là "450 ngày vừa rồi thuận xu hướng"
+    # nói mười lăm lần. Cắt mốc là cách dựng một cửa sổ ngoài mẫu KHÁC, ở một
+    # quãng thị trường khác, mà không cần tải lại gì.
+    #
+    # Cắt theo THỜI GIAN chứ không theo số nến: khung chính và khung ngữ cảnh
+    # có mật độ khác nhau, nên cắt 70% số nến của mỗi bên là lệch nhau, và
+    # khung ngữ cảnh sẽ nhìn thấy tương lai của khung chính.
+    if TRUOC is not None:
+        for tf in list(nen):
+            nen[tf] = [x for x in nen[tf] if (x.get("t") or 0) < TRUOC]
+            if len(nen[tf]) < 300:
+                return None
+
     CONFIG["timeframes"]["primary"] = chinh
     CONFIG["timeframes"]["context"] = ctx
     return nen
@@ -90,6 +109,19 @@ def _nap_cho(sym: str, chinh: str, ctx: str):
 
 # Khung ngữ cảnh mặc định cho mỗi khung chính — luôn là khung dài hơn một bậc.
 NGU_CANH = {"5m": "30m", "15m": "1h", "30m": "4h", "1h": "4h", "4h": "1d", "1d": "1d"}
+
+# Mốc cắt (ms). None = dùng cả chuỗi.
+def _moc_truoc():
+    if "--truoc" not in sys.argv:
+        return None
+    import datetime as _d
+    x = sys.argv[sys.argv.index("--truoc") + 1]
+    return int(_d.datetime.fromisoformat(x)
+               .replace(tzinfo=_d.timezone.utc).timestamp() * 1000)
+
+
+TRUOC = _moc_truoc()
+
 
 
 def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:

@@ -1048,6 +1048,41 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[32] CẮT MỐC THỜI GIAN PHẢI CẮT MỌI KHUNG CÙNG MỘT MỐC")
+    import importlib.util as _il32
+    import datetime as _dt32
+
+    # Bộ máy chỉ có MỘT cửa sổ ngoài mẫu — 30% cuối chuỗi — và 15 chợ đều dùng
+    # chung đúng khoảng thời gian ấy. Crypto tương quan cao, nên "dương ở 11/15
+    # chợ" có thể chỉ là "450 ngày vừa rồi thuận" nói mười lăm lần. `--truoc`
+    # dựng một cửa sổ khác mà không phải tải lại gì.
+    #
+    # Chỗ chết người: cắt theo SỐ NẾN thì khung chính và khung ngữ cảnh có mật
+    # độ khác nhau (4h so với 1d là 6 lần), nên cắt 70% mỗi bên là lệch nhau —
+    # và khung ngữ cảnh sẽ nhìn thấy tương lai của khung chính. Kết quả đẹp lên,
+    # im lặng, không cách nào nhận ra từ bảng số.
+    _sp32 = _il32.spec_from_file_location(
+        "dcl32", str(ROOT / "scripts" / "dau-chien-luoc.py"))
+    _src32 = (ROOT / "scripts" / "dau-chien-luoc.py").read_text(encoding="utf-8")
+    check("x.get(" + chr(34) + "t" + chr(34) + ")" in _src32,
+          "cắt dựa trên mốc `t` của từng nến, không dựa trên chỉ số")
+    check("for tf in list(nen)" in _src32,
+          "và lặp qua MỌI khung — ngữ cảnh bị cắt cùng mốc với khung chính")
+
+    # Phép cắt tự nó: cùng một mốc, hai chuỗi mật độ khác nhau, không chuỗi nào
+    # được giữ nến sau mốc.
+    _moc = int(_dt32.datetime(2025, 6, 1, tzinfo=_dt32.timezone.utc).timestamp() * 1000)
+    _ngay = 86_400_000
+    _nen32 = {"4h": [{"t": _moc - 100 * _ngay + i * (_ngay // 6)} for i in range(900)],
+              "1d": [{"t": _moc - 100 * _ngay + i * _ngay} for i in range(200)]}
+    _cat = {tf: [x for x in xs if x["t"] < _moc] for tf, xs in _nen32.items()}
+    check(all(x["t"] < _moc for xs in _cat.values() for x in xs),
+          "không khung nào giữ lại nến sau mốc")
+    check(max(x["t"] for x in _cat["1d"]) < _moc
+          and max(x["t"] for x in _cat["4h"]) < _moc,
+          "nến CUỐI của cả hai khung đều trước mốc — ngữ cảnh không thấy tương lai")
+    check(len(_cat["4h"]) != len(_nen32["4h"]) and len(_cat["1d"]) != len(_nen32["1d"]),
+          "cả hai khung ĐỀU bị cắt, không phải chỉ khung chính")
     print("\n[31] LỖI BỘ NÃO KHÔNG ĐƯỢC THÀNH MỘT LỆNH")
     import trader.brain as _B31
 
