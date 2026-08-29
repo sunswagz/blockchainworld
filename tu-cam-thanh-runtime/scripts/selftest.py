@@ -1412,6 +1412,12 @@ async def main() -> int:
               "và ghi rõ là chế độ suy giảm, không phải suy luận đầy đủ")
         check("EP_NO_TRADE_VI_BRAIN_LOI" not in _o_tran["reason_codes"],
               "KHÔNG dán nhãn lỗi lên một chuyện có chủ ý")
+        check(_o_tran["confidence"] == 0.7,
+              f"và GIỮ nguyên tin cậy của luật thuần (được {_o_tran['confidence']}) — "
+              f"đặt về 0 là chặn bằng cửa sau, risk từ chối vì CONFIDENCE_THẤP và "
+              f"nhìn từ ngoài trông y hệt bot tự thấy không chắc")
+        check("FALLBACK_SAU_LOI_BRAIN" not in _o_tran["reason_codes"],
+              "và không mang mã «rơi về sau LỖI» — không có lỗi nào cả")
         # Cửa ngược lại: bộ não CHẠY ĐƯỢC thì không ép gì cả.
         _o31b = await _Nao31(hong=False).thesis(_st31, _rg31, {}, _acc31, "4h")
         check(_o31b["action"] == "LONG", "bộ não chạy được → giữ nguyên quyết định")

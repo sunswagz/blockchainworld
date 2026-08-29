@@ -1302,20 +1302,26 @@ class Brain:
                 # Chế độ suy giảm có chủ ý (hết trần) đi qua ĐÚNG chỗ này vì
                 # `_structured` trả None cho cả hai — phân biệt bằng `bo_vi_tran`.
                 out = mock_thesis(state, regime, primary_tf)
-                out["reason_codes"].append("FALLBACK_SAU_LOI_BRAIN")
                 # HẾT TRẦN không phải lỗi. `_structured` trả None cho cả hai
                 # trường hợp, nên phân biệt bằng cờ `bo_vi_tran` — thiếu nó thì
                 # ngày nào tiêu hết 8 lượt là bot ngừng vào lệnh hẳn tới nửa đêm,
                 # trong khi thiết kế là rơi về luật thuần và chạy tiếp.
                 if self.bo_vi_tran:
+                    # Giữ NGUYÊN luận điểm của luật thuần, kể cả `confidence`.
+                    # Đặt tin cậy về 0 ở đây là chặn bằng cửa sau: risk từ chối
+                    # vì CONFIDENCE_THẤP, và nhìn từ ngoài trông y hệt bot tự
+                    # thấy không chắc — trong khi thật ra nó chưa được hỏi.
                     out["reason_codes"].append("HET_TRAN_DUNG_LUAT_THUAN")
-                elif out.get("action") != "NO_TRADE":
-                    bus.log("brain", "chan-vao-lenh",
-                            f"bộ não lỗi → luật thuần đề nghị {out['action']}, "
-                            f"đã ép NO_TRADE: lỗi tiến trình không phải lý do vào lệnh")
-                    out["action"] = "NO_TRADE"
-                    out["reason_codes"].append("EP_NO_TRADE_VI_BRAIN_LOI")
-                out["confidence"] = 0.0
+                else:
+                    out["reason_codes"].append("FALLBACK_SAU_LOI_BRAIN")
+                    if out.get("action") != "NO_TRADE":
+                        bus.log("brain", "chan-vao-lenh",
+                                f"bộ não lỗi → luật thuần đề nghị {out['action']}, "
+                                f"đã ép NO_TRADE: lỗi tiến trình không phải lý do "
+                                f"vào lệnh")
+                        out["action"] = "NO_TRADE"
+                        out["reason_codes"].append("EP_NO_TRADE_VI_BRAIN_LOI")
+                    out["confidence"] = 0.0
 
         out["symbol"] = state["symbol"]
         # `source` phải nói THẬT ai đã nghĩ ra luận điểm này.
