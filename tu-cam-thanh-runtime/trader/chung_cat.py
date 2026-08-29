@@ -65,6 +65,10 @@ MAU_TOI_THIEU = {
     "nhieu-cho-san": 3,
     "gia-thuyet": 1,     # một hướng đã hỏng là một hướng đã hỏng, không cần lặp lại
     "bo-pha": 20,        # lệnh ở lượt phá gốc
+    # Lệnh của phép đo hướng. Thấp vì nó không kết luận về lợi thế — nó chỉ
+    # nói ra rằng phép đo và bản chạy thật đang đo hai thứ khác nhau, và câu
+    # đó đúng ngay cả với ít lệnh.
+    "do-huong": 20,
 }
 
 
@@ -816,6 +820,58 @@ def _tu_bo_pha(bo: list) -> list[dict]:
 
 
 # ── Lò ────────────────────────────────────────────────────────────────────
+# ── Nguồn 10 · HƯỚNG: nửa LONG và nửa SHORT ──────────────────────────────
+def _tu_do_huong(bo: list) -> list[dict]:
+    """Bot chạy thật có đánh được thứ mà phép đo đang đo không.
+
+    Sổ lệnh THẬT: 41 LONG, 0 SHORT. Bản chạy lại thì có cả hai. Nghĩa là mọi
+    con số về champion đều nói về một chiến lược mà bot không chạy nổi — sàn
+    spot chỉ bán được thứ đang giữ.
+
+    Nguồn này tồn tại để bộ não ĐỌC ĐƯỢC khoảng cách đó ở mỗi lượt gọi, chứ
+    không phải để đóng nó lại. Con số short đến từ chạy lại: khớp đúng giá đặt,
+    không có phí vay, không có rủi ro bị ép đóng.
+    """
+    f = DATA_DIR / "do-huong.json"
+    if not f.exists():
+        bo.append({"ma": "huong", "nguon": "do-huong",
+                   "viSao": "chưa chạy scripts/do-huong.py --ghi lần nào"})
+        return []
+    try:
+        d = json.loads(f.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as e:
+        bo.append({"ma": "huong", "nguon": "do-huong", "viSao": f"đọc hỏng: {e}"})
+        return []
+
+    hai, mot = d.get("caHai") or {}, d.get("chiLong") or {}
+    rl, rs = d.get("riengLong") or {}, d.get("riengShort") or {}
+    if hai.get("kyVongR") is None or mot.get("kyVongR") is None:
+        bo.append({"ma": "huong", "nguon": "do-huong",
+                   "viSao": "chưa đủ lệnh để tách hai nửa"})
+        return []
+    q = d.get("quang") or {}
+    doan = (f", dữ liệu {q['tu']} → {q['den']}" if q.get("tu") else "")
+    cau = (f"Chiến lược có HAI NỬA và bot chạy thật chỉ chạy được một. Trên "
+           f"{d.get('soCho')} chợ{doan}: cả hai chiều {hai['kyVongR']:+.4f}R qua "
+           f"{hai['so']} lệnh · CHỈ LONG {mot['kyVongR']:+.4f}R qua {mot['so']} lệnh")
+    if rs.get("kyVongR") is not None and rl.get("kyVongR") is not None:
+        cau += (f" · riêng LONG {rl['kyVongR']:+.4f}R/{rl['so']} · riêng SHORT "
+                f"{rs['kyVongR']:+.4f}R/{rs['so']}")
+    chenh = d.get("chenhDoShort")
+    if chenh is not None and chenh > 0:
+        cau += (f". Nửa SHORT đóng góp {chenh:+.4f}R mỗi lệnh, và sàn SPOT không "
+                f"đánh được nửa đó — nên mọi con số «cả hai chiều» ở các phát hiện "
+                f"khác nói về một chiến lược bot không chạy nổi. Đọc chúng bằng "
+                f"cột CHỈ LONG.")
+    elif chenh is not None:
+        cau += (f". Nửa SHORT làm kỳ vọng {chenh:+.4f}R mỗi lệnh — bị chặn ở sàn "
+                f"spot lại là may.")
+    cau += (" Con số short đến từ CHẠY LẠI: khớp đúng giá đặt, không phí vay, "
+            "không rủi ro bị ép đóng — thực tế sẽ xấu hơn.")
+    return [_pd("huong", "do-huong", cau, hai["so"],
+                {"kyVongR": mot["kyVongR"], "caHaiR": hai["kyVongR"],
+                 "chenhDoShort": chenh, "soCho": d.get("soCho")})]
+
 def chung_cat() -> dict:
     """Chưng lại toàn bộ phát hiện. Ghi đè sạch kho, không cộng dồn."""
     bo: list[dict] = []
@@ -824,7 +880,7 @@ def chung_cat() -> dict:
                      ("dai-quan-sat", _tu_dai_quan_sat), ("chien-luoc", _tu_chien_luoc),
                      ("mau-gia", _tu_mau_gia), ("do-khung", _tu_do_khung),
                      ("nhieu-cho", _tu_nhieu_cho), ("gia-thuyet", _tu_gia_thuyet),
-                     ("bo-pha", _tu_bo_pha)):
+                     ("bo-pha", _tu_bo_pha), ("do-huong", _tu_do_huong)):
         try:
             ra.extend(ham(bo))
         except Exception as e:  # một nguồn hỏng không được kéo sập cả lò

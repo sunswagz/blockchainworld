@@ -46,7 +46,14 @@ from .config import DATA_DIR, ROOT
 
 # 6 tiếng: nguồn của hai phép đo này là nến lịch sử và sổ chiến lược — thứ đổi
 # theo ngày chứ không theo giờ. Chạy dày hơn chỉ tốn nhân mà ra cùng một số.
-MOI_GIAY = 6 * 3600
+# Chu kỳ nghi thức. Nâng 6 → 8 tiếng khi thêm việc «đo hướng»: tổng hạn xấu
+# nhất chạm 5,00h, tức 83% của chu kỳ 6 tiếng. Không vỡ, nhưng chật — và chật
+# thì một lượt chậm bất thường sẽ ăn sang lượt sau, `dangChay` bỏ nhịp, rồi chu
+# kỳ lặng lẽ thành gấp đôi mà không dòng nhật ký nào nói ra.
+#
+# 8 tiếng vẫn dày hơn mức cần rất nhiều: ngưỡng "kho đo đã cũ" của bàn giao là
+# 48 giờ, nên chạy mỗi 8 tiếng là sáu lần dày hơn ngưỡng.
+MOI_GIAY = 8 * 3600
 
 # Đài quan sát gọi sàn ngoài và tự giới hạn tần suất, nên nó CHẬM: đo thật là
 # ~3 hồ sơ trong 4 phút, tức 48 hồ sơ mất hơn một giờ.
@@ -123,6 +130,12 @@ VIEC = (
     # lúc đó là bằng chứng, không được xoá.
     ("soát lại bài học", [sys.executable, "scripts/soat-lai-bai-hoc.py", "--ghi"], 300,
      "lessons-soat-lai.jsonl"),
+    # ĐO HƯỚNG. Phải chạy đều, không phải một lần: nó trả lời "bot chạy thật có
+    # đánh được thứ phép đo đang đo không", và câu trả lời đổi mỗi khi chiến
+    # lược hoặc sàn đổi. Đo một lần rồi tin mãi là đúng cách đã sai bốn lần ở đây.
+    ("đo hướng", [sys.executable, "scripts/do-huong.py", "--ghi",
+                  "--cho", CHO_1D], 2400,
+     "do-huong.json"),
     # Đấu NHIỀU CHỢ. Nghi thức trước chỉ chạy `--tat-ca` trên một chợ, nên
     # `dau-nhieu-cho.json` đứng im 9 ngày và phát hiện "dương ở mấy chợ" nói về
     # một cấu hình đã đổi từ lâu. Ba coin cùng khung đang chạy: chuỗi tín hiệu
