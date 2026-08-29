@@ -9739,8 +9739,8 @@ def kiem_hien_phap() -> None:
          "một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì tệ "
          "hơn không có: người đọc tưởng mình được che nhiều hơn thực tế")
     kiem("và phần lớn điều PHẢI canh được",
-         r["soCanhDuoc"] >= r["soDieu"] * 0.8,
-         f"{r['soCanhDuoc']}/{r['soDieu']} — dưới 80% thì hiến pháp đang "
+         r["soCanhDuoc"] >= r["soDieu"] * 0.85,
+         f"{r['soCanhDuoc']}/{r['soDieu']} — dưới 85% thì hiến pháp đang "
          f"nghiêng về văn xuôi, đúng thứ nó sinh ra để thay")
     kiem("tóm tắt gọn dùng được cho buồng lái",
          set(["soDieu", "soViPham", "soKhongCanhDuoc"])

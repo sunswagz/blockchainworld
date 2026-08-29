@@ -421,6 +421,42 @@ def _tu_choi_phai_co_ly_do():
                          "có lý do")
 
 
+def _khong_to_trinh_nao_bien_mat():
+    """Mọi tờ trình vào bàn chia đều PHẢI ra ở một trong hai cột.
+
+    Điều này là dạng CHẠY ĐƯỢC của «từ chối giỏi hơn phát hiện nhiều».
+    Tỉ lệ 95/100 thì không canh được — nó phụ thuộc thị trường hôm ấy, và
+    một phép canh theo tỉ lệ sẽ kêu vào đúng ngày chợ tốt. Nhưng cái làm
+    câu ấy có nghĩa thì canh được: chỉ đo được «từ chối giỏi» khi MỌI lần
+    từ chối đều nằm trên sổ.
+
+    Một tờ trình không được cấp mà cũng không vào cột từ chối là một tờ
+    BIẾN MẤT — và mỗi tờ biến mất làm con số «từ chối 95» nhỏ đi đúng
+    một, trong im lặng. Mẫu số không cộng lại được thì cả câu «hệ này
+    từ chối giỏi» không kiểm chứng được nữa.
+    """
+    from .danh_muc import DanhMuc
+    from .phan_bo import PhanBo
+    from .rui_ro_tong import RuiRoTong
+    # Lô trộn: đủ thứ bị chặn ở đủ cửa khác nhau — NET âm, quá sức chứa
+    # của cả túi, và những tờ lành để bàn chia còn có cái mà cấp.
+    lo = [_to_trinh_thu("T" + str(i), 8.0) for i in range(6)]
+    lo += [_to_trinh_thu("AM" + str(i), -1.0) for i in range(3)]
+    lo += [_to_trinh_thu("TO" + str(i), 8.0, von=90_000.0, chua=90_000.0,
+                         vmin=90_000.0) for i in range(3)]
+    lat = PhanBo().chia(lo, RuiRoTong(), DanhMuc(1000.0), None, "hien-phap")
+    ra = len(lat.daCap) + len(lat.tuChoi)
+    if ra != len(lo):
+        return False, (f"vào {len(lo)} tờ, ra {len(lat.daCap)} cấp + "
+                       f"{len(lat.tuChoi)} từ chối = {ra} — "
+                       f"{len(lo) - ra} tờ BIẾN MẤT")
+    if not lat.tuChoi:
+        return False, "dựng được một lô mà không tờ nào bị từ chối"
+    return True, (f"{len(lo)} tờ vào · {len(lat.daCap)} cấp · "
+                  f"{len(lat.tuChoi)} từ chối · cộng lại đủ, không tờ nào "
+                  f"biến mất")
+
+
 def _cap_du_hoac_khong_cap():
     from .danh_muc import DanhMuc
     from .rui_ro_tong import RuiRoTong
@@ -1018,8 +1054,14 @@ DIEU: tuple[Dieu, ...] = (
     Dieu("tu-choi-gioi-hon-phat-hien-nhieu",
          "Đích đúng: quét 13 họ → phát hiện 100 → TỪ CHỐI 95 → rót vào 5.",
          "Mục tiêu KHÔNG phải '13 chiến lược đều kiếm tiền'. Một hệ thống từ "
-         "chối giỏi quan trọng hơn một hệ thống phát hiện nhiều.",
-         "bản đồ §21", None),
+         "chối giỏi quan trọng hơn một hệ thống phát hiện nhiều. "
+         "Tỉ lệ 95/100 KHÔNG canh được — nó phụ thuộc chợ hôm ấy, và một "
+         "phép canh theo tỉ lệ sẽ kêu vào đúng ngày chợ tốt. Nhưng cái "
+         "làm câu ấy có nghĩa thì canh được: chỉ đo được «từ chối giỏi» "
+         "khi MỌI lần từ chối đều nằm trên sổ. Một tờ không được cấp mà "
+         "cũng không vào cột từ chối là một tờ BIẾN MẤT, và mỗi tờ biến "
+         "mất làm con số «từ chối 95» nhỏ đi đúng một, trong im lặng.",
+         "bản đồ §21", _khong_to_trinh_nao_bien_mat),
 
     Dieu("chi-tay-phai-chi-vao-cho-co-that",
          "Điều nào khai «tôi được canh ở chỗ khác» thì cái tên ấy phải là "
