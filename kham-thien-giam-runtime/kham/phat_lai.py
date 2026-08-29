@@ -133,6 +133,13 @@ class KetQuaPhien:
     # vì nó là phần lãi lỗ mà con số cuối cùng KHÔNG bao gồm.
     soTreo: int = 0
     tienTreoUsd: float = 0.0
+    soNgay: int = 0
+    soLanMoLai: int = 0
+    # Cầu dao ngắt lúc nào, và còn bao nhiêu băng chưa chạy khi ấy. Không
+    # có hai con số này thì một phiên đứng im từ ngày thứ hai đọc y hệt
+    # một phiên "không có cơ hội nào".
+    ngatLucKhung: int = 0
+    ngatLyDo: str = ""
     duongVon: list = field(default_factory=list)
     lyDoTuChoi: dict = field(default_factory=dict)
     boQua: dict = field(default_factory=dict)
@@ -162,6 +169,8 @@ class KetQuaPhien:
             "tongPhi": self.tongPhi, "tongLaiLo": self.tongLaiLo,
             "thuaLonNhat": self.thuaLonNhat,
             "soTreo": self.soTreo, "tienTreoUsd": self.tienTreoUsd,
+            "soNgay": self.soNgay, "soLanMoLai": self.soLanMoLai,
+            "ngatLucKhung": self.ngatLucKhung, "ngatLyDo": self.ngatLyDo,
             "lyDoTuChoi": dict(self.lyDoTuChoi), "boQua": dict(self.boQua),
         }
 
@@ -177,7 +186,8 @@ class PhienPhatLai:
 
     def __init__(self, von: float | None = None,
                  batTat: dict | None = None,
-                 thuMucSo=None) -> None:
+                 thuMucSo=None,
+                 moLaiMoiNgay: bool = False) -> None:
         """`thuMucSo`: nơi ghi sổ kết toán và sổ hiệu chỉnh của PHIÊN NÀY.
 
         Bắt buộc tách khỏi sổ thật. Một dòng mô phỏng lẫn vào sổ thật là
@@ -193,7 +203,14 @@ class PhienPhatLai:
         if tm is not None:
             tm.mkdir(parents=True, exist_ok=True)
         self.kho = Kho()
-        self.risk = RiskEngine(self.kho)
+        # ĐỒNG HỒ CỦA BĂNG, không phải đồng hồ tường. Trần lỗ NGÀY cần một
+        # ranh giới ngày; chạy lại tám ngày bằng đồng hồ tường thì với nó
+        # mãi mãi là một ngày, `loNgayUsd` cộng dồn suốt, chạm trần, và
+        # cầu dao dính luôn. Đo được: khớp đứng hẳn ở 397 lệnh trong khi
+        # băng còn hơn một trăm nghìn khung phía sau.
+        self.lucMs = 0.0
+        self.risk = RiskEngine(self.kho, dongHo=lambda: self.lucMs / 1000.0)
+        self.moLaiMoiNgay = bool(moLaiMoiNgay)
         if von is not None:
             # Tiền ảo, tự thêm bao nhiêu tuỳ ý — nhưng phải đặt CẢ BA mốc.
             # `sutVonPct` đo từ `dinhVon`, cầu dao ngày đo từ `vonBanDau`;
@@ -361,7 +378,11 @@ class PhienPhatLai:
         else:
             self.kq.soThua += 1
             self.kq.thuaLonNhat = min(self.kq.thuaLonNhat, lai)
+        truocNgat = self.risk.ngatKhanCap
         self.risk.ghi_lai_lo(lai)
+        if self.risk.ngatKhanCap and not truocNgat:
+            self.kq.ngatLucKhung = self.kq.soKhungHinh
+            self.kq.ngatLyDo = self.risk.lyDoNgat
         self.kq.von = self.risk.von
         self.kq.dinhVon = max(self.kq.dinhVon, self.risk.von)
         self.kq.duongVon.append({"luc": v.lucCuoiMs, "slug": slug,
@@ -404,12 +425,34 @@ class PhienPhatLai:
             return
         self.phepNan = khop_nan(self.hieuChinh)
 
+    # ── ranh giới ngày ────────────────────────────────────────────────
+    def _nhip_ngay(self) -> None:
+        """Sang ngày mới thì bộ đếm lỗ ngày về 0.
+
+        Phải gọi mỗi khung, không phải chỉ khi có lệnh kết toán: ranh
+        giới ngày trôi qua kể cả trong một đêm không giao dịch gì, và
+        `ghi_lai_lo` thì chỉ chạy khi có kết toán.
+        """
+        if not self.risk.sang_ngay_moi():
+            return
+        self.kq.soNgay += 1
+        if self.moLaiMoiNgay and self.risk.ngatKhanCap:
+            # Mô phỏng một người vận hành sáng nào cũng nhìn bảng rồi mở
+            # lại cầu dao. KHÔNG bật mặc định: cầu dao không tự phục hồi
+            # là chủ ý của bản chạy thật, và một phiên tự mở lại mỗi ngày
+            # đo một cỗ máy có người trực chứ không phải cỗ máy để không.
+            self.kq.soLanMoLai += 1
+            self.risk.mo_lai()
+
     # ── chạy cả băng ──────────────────────────────────────────────────
     def chay(self, nguonKhung, moiBuoc=None) -> KetQuaPhien:
         """Quét băng theo thứ tự thời gian. `moiBuoc(kq)` gọi mỗi 5.000 khung."""
         for k in nguonKhung:
             self.kq.soKhungHinh += 1
             luc = float(k.get("luc") or 0.0)
+            if luc > 0:
+                self.lucMs = luc
+                self._nhip_ngay()
             dangSong = set()
             for tt in (k.get("thiTruong") or []):
                 slug = tt.get("slug") or tt.get("ma") or "?"

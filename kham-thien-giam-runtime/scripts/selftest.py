@@ -935,6 +935,84 @@ def kiem_do_tre() -> None:
          "chưa đủ mẫu" in d.ketLuan, d.ketLuan)
 
 
+def kiem_lo_ngay_rong() -> None:
+    """Trần "lỗ ngày" phải nhảy vì THUA, không vì BẬN.
+
+    Bản đầu cộng dồn mỗi lần lỗ và không bao giờ trừ đi lần lãi. Với một
+    cỗ máy đặt hàng chục lệnh một ngày thì tổng các lần lỗ luôn lớn bất
+    kể ngày tốt hay xấu — nên cái trần mang tên "lỗ ngày" thực ra chặn
+    theo ĐỘ BẬN.
+
+    Đo được trên phiên phát lại: ngắt ở khung 5.000 vì "chạm trần lỗ ngày
+    $500" trong khi vốn đang $12.896 trên $10.000 — chặn một ngày LÃI
+    29%, rồi bảy ngày băng còn lại không đặt nổi một lệnh.
+    """
+    print("\n-- Tran lo ngay: do THUA rong, khong do do ban -----------")
+
+    from kham.kho_doi import Kho as _Kho
+    from kham.rui_ro import RiskEngine as _RE
+
+    r = _RE(_Kho())
+    r.vonBanDau = r.von = r.dinhVon = 10_000.0
+
+    # Ngày rất BẬN nhưng có lãi: thua 400, lãi 900 → ròng +500.
+    for _ in range(8):
+        r.ghi_lai_lo(-50.0)
+        r.ghi_lai_lo(+112.5)
+    kiem("ngày bận mà LÃI thì không ngắt", not r.ngatKhanCap,
+         f"lỗ gộp ${r.loGopNgayUsd:.0f} vượt trần ${r.tranLoNgayUsd:.0f} "
+         "nhưng ròng đang dương — ngắt ở đây là chặn theo độ bận")
+    kiem("vẫn thấy được độ chao qua lỗ GỘP", r.loGopNgayUsd == 400.0,
+         r.loGopNgayUsd)
+    kiem("mức thua ròng bằng 0 khi ngày đang lãi", r.loNgayUsd == 0.0)
+    kiem("lãi ròng ngày cộng đúng", abs(r.laiRongNgayUsd - 500.0) < 1e-9,
+         r.laiRongNgayUsd)
+
+    # Ngày THUA thật thì phải ngắt.
+    r2 = _RE(_Kho())
+    r2.vonBanDau = r2.von = r2.dinhVon = 10_000.0
+    r2.ghi_lai_lo(-499.0)
+    kiem("thua 499 trên trần 500 thì chưa ngắt", not r2.ngatKhanCap)
+    r2.ghi_lai_lo(-2.0)
+    kiem("thua 501 thì NGẮT", r2.ngatKhanCap, r2.lyDoNgat)
+
+
+def kiem_dong_ho_rui_ro() -> None:
+    """`RiskEngine` phải nhận đồng hồ từ ngoài, không lấy từ tường.
+
+    Trần lỗ NGÀY cần một ranh giới ngày. Chạy lại băng tám ngày bằng đồng
+    hồ tường thì với nó mãi mãi là một ngày: bộ đếm cộng dồn suốt, chạm
+    trần, cờ ngắt bật, và cờ ấy dính. Một cỗ máy rủi ro lấy ngày từ đồng
+    hồ tường thì KHÔNG hậu kiểm được.
+    """
+    print("\n-- Dong ho rui ro phai nhan tu ngoai ---------------------")
+
+    from kham.kho_doi import Kho as _Kho
+    from kham.rui_ro import RiskEngine as _RE
+
+    moc = [1787000000.0]
+    r = _RE(_Kho(), dongHo=lambda: moc[0])
+    r.vonBanDau = r.von = r.dinhVon = 10_000.0
+    ngay1 = r.ngay
+
+    r.ghi_lai_lo(-300.0)
+    kiem("lỗ 300 chưa chạm trần 500", not r.ngatKhanCap)
+    kiem("ghi đúng mức thua ròng", r.loNgayUsd == 300.0, r.loNgayUsd)
+
+    moc[0] += 86_400.0          # sang ngày mới
+    kiem("đồng hồ nhích một ngày thì đổi ngày",
+         r.sang_ngay_moi() and r.ngay != ngay1, f"{ngay1} → {r.ngay}")
+    kiem("bộ đếm ngày về 0", r.loNgayUsd == 0.0 and r.loGopNgayUsd == 0.0)
+
+    r.ghi_lai_lo(-300.0)
+    kiem("lỗ 300 của NGÀY MỚI vẫn chưa ngắt", not r.ngatKhanCap,
+         "cộng dồn qua ngày là biến trần ngày thành trần cả đời")
+
+    # Và ranh giới ngày phải trôi kể cả khi KHÔNG có lệnh nào kết toán.
+    moc[0] += 86_400.0
+    kiem("sang ngày được cả khi không kết toán gì", r.sang_ngay_moi())
+
+
 def kiem_treo_tra_han_muc() -> None:
     """Khung không ra kết quả thì phải TRẢ LẠI hạn mức, không giữ mãi.
 
@@ -2112,6 +2190,8 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_lo_ngay_rong()
+    kiem_dong_ho_rui_ro()
     kiem_treo_tra_han_muc()
     kiem_tran_theo_von()
     kiem_phien_phat_lai()

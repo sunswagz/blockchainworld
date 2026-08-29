@@ -36,6 +36,7 @@ def _tham_so(ten: str, mac_dinh=None):
 
 
 VON = _tham_so("von")
+MO_LAI = "--mo-lai-moi-ngay" in sys.argv
 TU_NGAY = _tham_so("tu")
 
 # Sổ sách của phiên ghi vào thư mục RIÊNG. Tách bằng ĐƯỜNG DẪN, không
@@ -65,7 +66,7 @@ def main() -> int:
     print(f"  sổ ghi vào  : {RIENG}")
     print()
 
-    p = PhienPhatLai(von=von, thuMucSo=RIENG)
+    p = PhienPhatLai(von=von, thuMucSo=RIENG, moLaiMoiNgay=MO_LAI)
     print(f"  phép nắn    : {p.phepNan.tongMau} mẫu · "
           f"dùng được {p.phepNan.dung_duoc}")
     print()
@@ -105,6 +106,7 @@ def main() -> int:
               f"tiêu, KHÔNG nằm trong con số lãi lỗ trên)")
     if kq.soKetToan:
         print(f"    lãi lỗ mỗi cửa sổ  {_tien(kq.tongLaiLo/kq.soKetToan):>10}")
+    print(f"    số ngày băng       {kq.soNgay+1:>10,}")
     print()
 
     if kq.boQua:
@@ -118,8 +120,15 @@ def main() -> int:
             print(f"    {n:>9,} × {ly}")
         print()
 
-    if p.risk.ngatKhanCap:
-        print(f"  ⚠ CẦU DAO ĐÃ NGẮT: {p.risk.lyDoNgat}")
+    if kq.ngatLucKhung:
+        con = kq.soKhungHinh - kq.ngatLucKhung
+        print(f"  ⚠ CẦU DAO NGẮT ở khung {kq.ngatLucKhung:,} — {kq.ngatLyDo}")
+        print(f"    còn {con:,} khung ({con/max(1,kq.soKhungHinh):.0%} băng) chạy "
+              f"sau đó mà KHÔNG đặt lệnh nào.")
+        if not MO_LAI:
+            print("    Cầu dao không tự phục hồi — đó là chủ ý. Muốn mô phỏng")
+            print("    một người sáng nào cũng mở lại: --mo-lai-moi-ngay")
+        print(f"    số lần ngắt {p.risk.soLanNgat} · số lần mở lại {kq.soLanMoLai}")
         print()
 
     print("  Đọc con số này như một CẬN TRÊN. Ba thứ phiên giấy không có:")

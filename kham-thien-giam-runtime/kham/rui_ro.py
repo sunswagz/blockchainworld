@@ -70,15 +70,34 @@ class SucKhoeNguon:
 
 
 class RiskEngine:
-    def __init__(self, kho: Kho) -> None:
+    def __init__(self, kho: Kho, dongHo=None) -> None:
+        """`dongHo`: hàm trả về epoch giây. Mặc định là đồng hồ tường.
+
+        Phải nhận được từ ngoài, vì trần lỗ NGÀY cần một ranh giới ngày —
+        và chạy lại băng tám ngày bằng đồng hồ tường thì với nó mãi mãi
+        là một ngày. Hậu quả không phải "số hơi lệch": `loNgayUsd` cộng
+        dồn suốt tám ngày, chạm trần, `ngat()` bật cờ, và cờ ấy dính —
+        nên cả phiên đứng im từ đó. Đo được: khớp đứng hẳn ở 397 lệnh
+        trong khi băng còn hơn một trăm nghìn khung phía sau.
+
+        Nói cách khác: một cỗ máy rủi ro lấy ngày từ đồng hồ tường thì
+        KHÔNG hậu kiểm được. Nó không sai lúc chạy thật, nhưng nó làm
+        mọi phép đo về chính nó thành vô nghĩa.
+        """
         self.kho = kho
+        self.dongHo = dongHo or time.time
         self.vonBanDau = float(_RR["vonBanDau"])
         self.von = self.vonBanDau
         self.dinhVon = self.vonBanDau
-        self.loNgayUsd = 0.0
-        self.ngay = time.strftime("%Y-%m-%d")
+        self.laiRongNgayUsd = 0.0
+        self.loGopNgayUsd = 0.0
+        self.ngay = self._ngay_hien_tai()
         self.ngatKhanCap = False
         self.lyDoNgat = ""
+        self.soLanNgat = 0
+
+    def _ngay_hien_tai(self) -> str:
+        return time.strftime("%Y-%m-%d", time.gmtime(self.dongHo()))
 
     # ── TRẦN THEO PHẦN TRĂM VỐN, không phải đô-la cứng ───────────────────
     #
@@ -120,15 +139,37 @@ class RiskEngine:
 
     # ── kế toán ───────────────────────────────────────────────────────────
     def ghi_lai_lo(self, usd: float) -> None:
-        hom_nay = time.strftime("%Y-%m-%d")
-        if hom_nay != self.ngay:
-            self.ngay = hom_nay
-            self.loNgayUsd = 0.0
+        """Ghi một lần kết toán vào vốn và vào sổ ngày.
+
+        ## `loNgayUsd` là lãi lỗ RÒNG của ngày, không phải tổng các lần lỗ
+
+        Bản đầu cộng dồn `-usd` mỗi lần lỗ và không bao giờ trừ đi lần
+        lãi. Với một cỗ máy đặt hàng chục lệnh một ngày thì tổng các lần
+        lỗ luôn lớn, bất kể ngày ấy tốt hay xấu — nên cái trần mang tên
+        "lỗ ngày" thực ra chặn theo ĐỘ BẬN, không theo mức thua.
+
+        Đo được trên phiên phát lại: cầu dao ngắt ở khung 5.000 với lý do
+        "chạm trần lỗ ngày $500" trong khi vốn đang là $12.896 trên
+        $10.000 — tức là nó chặn một ngày **lãi 29%**. Rồi cả bảy ngày
+        băng còn lại chạy mà không đặt nổi một lệnh.
+
+        Một cái trần nói "lỗ" mà nhảy lúc đang lãi thì không đo thứ tên
+        nó nói. Nay `loNgayUsd` là mức thua RÒNG (0 nếu ngày đang lãi),
+        còn tổng gộp các lần lỗ vẫn giữ ở `loGopNgayUsd` — nó là số đo
+        độ chao, đáng đọc, chỉ không đáng dùng làm cầu dao.
+        """
+        self.sang_ngay_moi()
         self.von += usd
         self.dinhVon = max(self.dinhVon, self.von)
+        self.laiRongNgayUsd += usd
         if usd < 0:
-            self.loNgayUsd += -usd
+            self.loGopNgayUsd += -usd
         self._soat_ngat()
+
+    @property
+    def loNgayUsd(self) -> float:
+        """Mức THUA ròng hôm nay. Ngày đang lãi thì bằng 0."""
+        return max(0.0, -self.laiRongNgayUsd)
 
     @property
     def sutVonPct(self) -> float:
@@ -143,6 +184,21 @@ class RiskEngine:
             self.ngat("sụt vốn %.1f%% (trần %.1f%%)"
                       % (self.sutVonPct, _RR["tranSutVonPct"]))
 
+    def sang_ngay_moi(self) -> bool:
+        """Ngày mới thì bộ đếm lỗ ngày về 0. Trả True nếu vừa sang ngày.
+
+        Tách khỏi `ghi_lai_lo` vì ranh giới ngày trôi qua kể cả khi không
+        có lệnh nào kết toán — và khi đó `ghi_lai_lo` không được gọi, nên
+        bộ đếm không bao giờ reset.
+        """
+        hom_nay = self._ngay_hien_tai()
+        if hom_nay == self.ngay:
+            return False
+        self.ngay = hom_nay
+        self.laiRongNgayUsd = 0.0
+        self.loGopNgayUsd = 0.0
+        return True
+
     def ngat(self, lyDo: str) -> None:
         """Cầu dao. Đã ngắt thì chỉ người mở lại được, không tự phục hồi.
 
@@ -152,6 +208,7 @@ class RiskEngine:
         if not self.ngatKhanCap:
             self.ngatKhanCap = True
             self.lyDoNgat = lyDo
+            self.soLanNgat += 1
 
     def mo_lai(self) -> None:
         self.ngatKhanCap = False
@@ -303,6 +360,12 @@ class RiskEngine:
             "dinhVon": self.dinhVon,
             "sutVonPct": self.sutVonPct,
             "loNgayUsd": self.loNgayUsd,
+            # Lãi lỗ RÒNG hôm nay, và tổng gộp các lần lỗ. Cầu dao đọc
+            # con số ròng; con số gộp là thước ĐỘ CHAO — đáng đọc, chỉ
+            # không đáng dùng làm cầu dao, vì nó lớn theo độ bận chứ
+            # không theo mức thua.
+            "laiRongNgayUsd": self.laiRongNgayUsd,
+            "loGopNgayUsd": self.loGopNgayUsd,
             "tranLoNgayUsd": self.tranLoNgayUsd,
             "tranMoiThiTruongUsd": self.tranMoiThiTruongUsd,
             "tranMoiTaiSanUsd": self.tranMoiTaiSanUsd,
