@@ -949,6 +949,21 @@ async def main() -> int:
     check(bool({"kho-khong-ai-canh.json"} - _canh),
           "phép so BẮT ĐƯỢC một kho lạ — không tự chấm mù")
 
+
+    # ── Tổng hạn của nghi thức phải nằm trong chu kỳ ──
+    #
+    # `dangChay` chặn hai lượt chồng nhau, nên vượt chu kỳ không gây hỏng — nó
+    # gây chuyện tệ hơn: nghi thức lặng lẽ TỰ GIẢM TẦN SUẤT. Lượt sau tới hạn
+    # trong khi lượt trước còn chạy, bị bỏ qua, và chu kỳ 6 tiếng thành 12 mà
+    # không dòng nhật ký nào nói ra.
+    #
+    # Thêm việc vào nghi thức là chuyện thường xuyên (hôm nay thêm hai). Phép
+    # canh này bắt phải nhìn vào tổng, chứ không phải nhớ.
+    _han = (sum(x[2] for x in _NT19.VIEC) + sum(x[2] for x in _NT19.VIEC_CUOI)
+            + _NT19.QUAN_SAT_HET_GIAY)
+    check(_han < _NT19.MOI_GIAY,
+          f"tổng hạn xấu nhất {_han / 3600:.2f}h < chu kỳ "
+          f"{_NT19.MOI_GIAY / 3600:.0f}h ({_han / _NT19.MOI_GIAY:.0%} chu kỳ)")
     # ── Kho phải tự đóng dấu LÚC ĐO ──
     #
     # Bàn giao đo tuổi kho bằng mtime. mtime nói "file bị chạm", không nói "số

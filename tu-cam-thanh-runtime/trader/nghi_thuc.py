@@ -74,6 +74,15 @@ CHO_4H = (
     "NEARUSDT:4h,FILUSDT:4h,UNIUSDT:4h,LTCUSDT:4h"
 )
 
+
+# Cùng 15 coin, khung 1d. Đo được: cùng champion không sửa dòng nào, khung 4h
+# cho −0,047R gộp 193 lệnh (dương 2/8 chợ) còn 1d cho +0,117R gộp 230 lệnh
+# (dương 11/15). Khung không chỉ đổi độ lớn — nó đổi cả kết luận về từng bộ
+# luật: MOCK_KEO_LUI_V1 bị bác bỏ trên 4h (−0,248R) mà trên 1d là +0,164R.
+#
+# Nên hai khung phải đo SONG SONG và đều đặn. Đo một khung rồi suy ra khung kia
+# là chỗ đã sai một lần hôm nay.
+CHO_1D = CHO_4H.replace(":4h", ":1d")
 # Phần tử thứ tư là KHO việc đó sinh ra. Không phải để chạy — để CANH.
 #
 # `lessons-soat-lai.jsonl` đứng im 9 ngày: việc soát lại chưa từng nằm trong
@@ -120,6 +129,14 @@ VIEC = (
     # đã có cache nên lượt sau chỉ mất ~1 phút.
     ("đấu nhiều chợ", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca",
                        "--cho", CHO_4H], 3600,
+     "dau-nhieu-cho.json"),
+    # Khung 1d chạy SAU và ghi đè `dau-nhieu-cho.json`, nên kho đó luôn giữ kết
+    # quả 1d. Cố ý: đó là khung có bằng chứng dương duy nhất, và lò chưng cất
+    # chỉ đọc một file. Bảng 4h vẫn in ra nhật ký nghi thức để so.
+    #
+    # 1d rẻ hơn hẳn (1500 nến so với 3000) nên hạn 1800s là đủ rộng.
+    ("đấu nhiều chợ 1d", [sys.executable, "scripts/dau-chien-luoc.py", "--tat-ca",
+                          "--cho", CHO_1D], 1800,
      "dau-nhieu-cho.json"),
 )
 
