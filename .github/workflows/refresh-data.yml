@@ -952,12 +952,40 @@ jobs:
           KET: ${{ (steps.n-th-de.outputs.yeu == '0' || steps.n-th-cong.outcome == 'success') && 'ok' || 'loi' }}
           YEU: ${{ steps.n-th-de.outputs.yeu }}
           T_DAU: ${{ steps.n-th-de.outputs.t0 }}
+          # Ba mã kết cục, để sổ nói ĐÚNG CHỖ ngã. Bản cũ ghi cứng
+          # "cổng chặn quyết định" cho mọi lượt lỗi — kể cả lượt chưa
+          # bao giờ tới được cổng. Và nó đã lừa đúng như thế: chín lượt
+          # liền sổ đổ cho cổng, trong khi thứ hỏng là một dòng echo ở
+          # bước RA ĐỀ, ngã sau hai giây. Hai phiên đi tìm nhầm chỗ vì
+          # tin vào dòng chữ đó.
+          #
+          # `continue-on-error` trên bước ra đề còn phủ thêm một lớp:
+          # API báo conclusion=success trong khi outcome=failure, nên
+          # nhìn từ ngoài bước ấy trông như đã chạy xong.
+          KC_DE: ${{ steps.n-th-de.outcome }}
+          KC_VA: ${{ steps.n-th-va.outcome }}
+          KC_CONG: ${{ steps.n-th-cong.outcome }}
         run: |
           TONG=""
           [ -n "$T_DAU" ] && TONG=$(( $(date +%s) - T_DAU ))
+          # Tên bước ngã đứng TRƯỚC trong chuThich: thấy "loi" thì đó
+          # là thứ người đọc sổ cần biết đầu tiên.
+          NGA=""
+          if [ "$KC_DE" != "success" ]; then
+            NGA="ngã ở RA ĐỀ ($KC_DE) — model chưa hề chạy"
+          elif [ "$KC_VA" = "failure" ]; then
+            NGA="ngã ở MODEL"
+          elif [ "$KC_CONG" = "failure" ]; then
+            NGA="cổng chặn TRẢ LẠI"
+          fi
+          # Điểm phiếu moi từ log cổng chặn, y như các node tiến hoá
+          # khác. Không có nó thì "có tiến hoá thật không" là câu không
+          # ai trả lời được sau ba tháng chạy.
+          DIEM=$(grep -oE "phiếu đo [0-9]+/[0-9]+ → [0-9]+/[0-9]+" \
+            "$RUNNER_TEMP/tien-hoa-dqt.log" 2>/dev/null | tail -1)
           node scripts/nha-may.mjs ghi tien-hoa-dqt "$KET" \
             ${TONG:+--giay $TONG} \
-            --ghi "${YEU:-?} điểm yếu · haiku-4-5 · cổng chặn quyết định" \
+            --ghi "${NGA:+$NGA · }${DIEM:-${YEU:-?} điểm yếu} · haiku-4-5" \
             --log "$RUNNER_TEMP/tien-hoa-dqt.log"
 
       # ── M15 · Máy kiểm ─────────────────────────────────────────
