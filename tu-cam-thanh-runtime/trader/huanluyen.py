@@ -507,8 +507,18 @@ def _van_tay_ma() -> str:
     import hashlib
 
     h = hashlib.sha256()
+    # CHỈ những file thật sự quyết định NỘI DUNG chuỗi.
+    #
+    # `sinh_luan_diem` dựng chuỗi từ nến → `features_for` → `classify`. Nó KHÔNG
+    # gọi bộ luật nào: `suy_luan` chỉ xuất hiện ở `chay_lai`, tức tầng dùng chuỗi
+    # chứ không phải tầng sinh ra nó.
+    #
+    # Bản đầu băm cả `brain.py`, nên MỖI lần sửa bộ não là toàn bộ chuỗi hết hạn
+    # — 48 file, 35 MB, hàng giờ dựng lại, cho một thay đổi không đụng tới một
+    # con số nào trong chuỗi. Rộng quá thì cache thành vô dụng theo cách khác:
+    # không sai, chỉ là không bao giờ trúng.
     for ten in ("features.py", "indicators.py", "regime.py", "mau_gia.py",
-                "brain.py", "huanluyen.py"):
+                "huanluyen.py"):
         f = ROOT / "trader" / ten
         if f.exists():
             h.update(f.read_bytes())

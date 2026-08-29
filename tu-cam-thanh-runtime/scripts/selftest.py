@@ -1361,6 +1361,21 @@ async def main() -> int:
     #
     # "Đọc được số dư" và "đủ giá" là hai chuyện. File này đã sửa vế thứ nhất
     # một lần; nhiều chợ làm nó tái phát ở vế thứ hai.
+    # VÂN TAY CACHE chỉ băm file quyết định NỘI DUNG chuỗi. `sinh_luan_diem`
+    # dựng chuỗi từ nến → features → regime; nó KHÔNG gọi bộ luật nào (`suy_luan`
+    # chỉ có ở `chay_lai`, tầng DÙNG chuỗi).
+    #
+    # Băm cả `brain.py` thì mỗi lần sửa bộ não là 48 file / 35 MB chuỗi hết hạn,
+    # hàng giờ dựng lại, cho một thay đổi không đụng con số nào trong chuỗi.
+    # Rộng quá làm cache vô dụng theo cách khác: không sai, chỉ là không trúng.
+    _src_hl = ma_khong_chu_thich(ROOT / "trader" / "huanluyen.py")
+    _i_vt = _src_hl.index("def _van_tay_ma")
+    _than_vt = _src_hl[_i_vt:_src_hl.index("VAN_TAY_MA =", _i_vt)]
+    check("brain.py" not in _than_vt,
+          "vân tay cache KHÔNG băm brain.py — chuỗi không phụ thuộc bộ luật")
+    for _f in ("features.py", "indicators.py", "regime.py", "mau_gia.py"):
+        check(_f in _than_vt, f"vân tay CÓ băm {_f} — nó đổi thì chuỗi đổi")
+
     check("_thieu" in _src39 and "da_doc = True" in _src39,
           "chỉ đặt cờ đọc-được-vốn khi KHÔNG thiếu giá vị thế nào")
     _i_thieu = _src39.index("_thieu = [")
