@@ -670,6 +670,7 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
                                      f"{MAU_TOI_THIEU['nhieu-cho-gop']}")})
                 continue
             kv_g = sum(x["kyVongR"] * x["so"] for x in gop) / n_gop
+            _ktg = _khoang_tin([x["kyVongR"] for x in gop])
             d_g = sum(1 for x in gop if x["kyVongR"] > 0)
             ra.append(_pd(
                 f"cho-gop:{ma}", "nhieu-cho",
@@ -678,8 +679,12 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
                 f"{kv_g:+.3f}R, dương ở {d_g}/{len(gop)} chợ. Đọc đây là câu về BỘ "
                 f"LUẬT chạy khắp nơi, không phải câu về chợ nào cả — và setup thưa "
                 f"tới mức này thì mỗi chợ chỉ ~{n_gop // len(gop)} lệnh, nên đừng "
-                f"đọc con số của bất kỳ chợ đơn lẻ nào.",
-                n_gop, {"kyVongR": round(kv_g, 3), "duong": d_g, "soCho": len(gop)}))
+                f"đọc con số của bất kỳ chợ đơn lẻ nào."
+                + (f" Khoảng tin 95% theo chợ [{_ktg[0]:+.3f}; {_ktg[1]:+.3f}]"
+                   + (" — CHỨA 0." if _ktg[0] <= 0 <= _ktg[1] else ".")
+                   if _ktg else ""),
+                n_gop, {"kyVongR": round(kv_g, 3), "duong": d_g, "soCho": len(gop),
+                        "khoangTin": ([round(v, 3) for v in _ktg] if _ktg else None)}))
             continue
         duong = sum(1 for x in du if x["kyVongR"] > 0)
         tong_lenh = sum(x["so"] for x in du)
@@ -696,8 +701,13 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
         # Gộp R được vì R đã chuẩn hoá theo rủi ro mỗi lệnh nên so được giữa
         # các chợ. Cái KHÔNG gộp được là tiền — mỗi chợ một cỡ vị thế.
         kv_gop = sum(x["kyVongR"] * x["so"] for x in du) / tong_lenh
+        _kt = _khoang_tin([x["kyVongR"] for x in du])
         cau = (f"{ma} trên {len(du)} chợ đủ mẫu{doan}: {chi} — dương ở {duong}/{len(du)}, "
                f"kỳ vọng GỘP {kv_gop:+.3f}R qua {tong_lenh} lệnh ngoài mẫu.")
+        if _kt:
+            cau += (f" Khoảng tin 95% theo chợ [{_kt[0]:+.3f}; {_kt[1]:+.3f}]"
+                    + (" — CHỨA 0, chưa phân biệt được với «không có gì»."
+                       if _kt[0] <= 0 <= _kt[1] else "."))
         if duong == len(du):
             cau += (" Dương ở MỌI chợ đo được: đây là dấu hiệu của lợi thế thật, "
                     "không phải khớp với lịch sử của một chợ.")
@@ -721,6 +731,7 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
         # sang âm mà không ai được báo.
         ra.append(_pd(f"cho:{ma}", "nhieu-cho", cau, tong_lenh,
                       {"kyVongR": round(kv_gop, 3), "duong": duong,
+                       "khoangTin": ([round(v, 3) for v in _kt] if _kt else None),
                        "soCho": len(du)}))
     return ra
 
@@ -823,6 +834,20 @@ def _tu_bo_pha(bo: list) -> list[dict]:
 
 
 # ── Lò ────────────────────────────────────────────────────────────────────
+def _khoang_tin(xs: list[float]) -> tuple[float, float] | None:
+    """Khoảng tin 95% của trung bình, mỗi CHỢ là một quan sát.
+
+    Không tính theo lệnh: 193 lệnh của 8 chợ tương quan cao không phải 193 quan
+    sát độc lập, và khoảng tin theo lệnh sẽ hẹp giả. Câu hỏi ở đây là "bộ luật
+    này có chạy được ở chợ khác không" — đơn vị quan sát là một chợ.
+    """
+    if len(xs) < 3:
+        return None
+    tb = sum(xs) / len(xs)
+    var = sum((x - tb) ** 2 for x in xs) / (len(xs) - 1)
+    se = (var / len(xs)) ** 0.5
+    return (tb - 1.96 * se, tb + 1.96 * se)
+
 # ── Nguồn 10 · HƯỚNG: nửa LONG và nửa SHORT ──────────────────────────────
 def _tu_do_huong(bo: list) -> list[dict]:
     """Bot chạy thật có đánh được thứ mà phép đo đang đo không.
