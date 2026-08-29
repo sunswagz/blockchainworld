@@ -21,11 +21,29 @@ Và nó không tự hết. Trong cả hệ **không có đường nào chuyển 
 `DA_DONG`** (`grep -rn DA_DONG` chỉ ra bảng trạng thái và phép kiểm, không
 ra một lời gọi nào). Vị thế mở ra thì ở lại `DA_MO` vĩnh viễn.
 
+## CẬP NHẬT 29/08: danh mục nay SỐNG QUA lần khởi động lại
+
+Câu "danh mục dựng trong RAM nên mỗi lần khởi động lại là một lần vốn đã
+cam kết bốc hơi" **không còn đúng**. `luu_danh_muc.py` ghi danh mục ra
+đĩa sau mỗi vòng và nạp lại lúc khởi động, nên đường bình thường không
+sinh ra tờ mồ côi nào nữa.
+
+Điều đó KHÔNG làm file này thừa — nó đổi ý nghĩa của một tờ mồ côi, và
+đổi theo hướng nặng hơn. Trước đây mồ côi là chuyện thường tình sau mỗi
+lần restart; **nay mồ côi nghĩa là bản lưu đã mất hoặc hỏng**, tức là
+danh mục thật sự không còn biết mình đang giữ gì. Chính vì thế mà phép
+đối soát này phải ở lại: nó là thứ duy nhất phát hiện ra chuyện ấy.
+
+Con số đã đo, giữ lại làm chứng cứ cho vì sao bản lưu tồn tại: trước khi
+có nó, sổ ghi **51 lần vào lệnh cho 7 vị thế** trong một buổi chiều, và
+3,43 USD phí vào lệnh ấy đội lốt lỗ của chiến lược.
+
 ## Hai nhánh, và ranh giới giữa chúng là `moPhong`
 
-**Mô phỏng.** Vị thế chưa bao giờ tồn tại ở đâu ngoài RAM — không sàn nào
-giữ nó, không đồng nào đã đi. Khởi động lại là nó biến mất thật. Đóng
-chúng ở sổ, kèm bút toán ghi rõ vì sao, là ghi lại đúng cái đã xảy ra.
+**Mô phỏng.** Vị thế không tồn tại ở đâu ngoài máy này — không sàn nào
+giữ nó, không đồng nào đã đi. Nên khi danh mục KHÔNG còn giữ nó (bản lưu
+mất hoặc hỏng) thì nó thật sự không còn ở đâu cả, và đóng ở sổ kèm bút
+toán là ghi lại đúng cái đã xảy ra. Không có gì để đối soát với ai.
 
 **Tiền thật.** Ngược hẳn: vị thế VẪN Ở ĐÓ trên sàn sau khi runtime chết.
 Tự đóng ở sổ lúc ấy là bịa ra một lần đóng chưa từng xảy ra, và bỏ quên
@@ -144,9 +162,9 @@ class BaoCao:
 def _vi(b: BaoCao) -> str:
     if b.daDong and not b.lech:
         return (f"Đã đối soát: đóng {len(b.daDong)} tờ mồ côi ở sổ, kèm bút "
-                f"toán. Chúng là vị thế MÔ PHỎNG — chưa từng tồn tại ngoài "
-                f"RAM, nên khởi động lại là chúng biến mất thật. Hai sổ giờ "
-                f"khớp nhau.")
+                f"toán. Danh mục không giữ chân nào cho chúng — bản lưu "
+                f"danh mục đã mất hoặc hỏng, vì đường bình thường nay giữ "
+                f"được vị thế qua lần khởi động lại. Hai sổ giờ khớp nhau.")
     if not b.lech:
         return ("Sổ đăng ký và danh mục khớp nhau: không tờ nào đứng DA_MO "
                 "mà danh mục không giữ.")
@@ -255,8 +273,9 @@ def doi_soat(so_dang_ky, danh_muc, thuc_thi, so_cai, cau_dao=None,
         return b
 
     for x in b.moCoi:
-        ly_do = ("runtime khởi động lại — vị thế MÔ PHỎNG không mang qua "
-                 "được, danh mục dựng lại rỗng nên chân này không còn ai giữ")
+        ly_do = ("danh mục KHÔNG giữ chân nào cho tờ này — bản lưu danh "
+                 "mục đã mất hoặc hỏng, vì đường bình thường nay giữ được "
+                 "vị thế qua lần khởi động lại (xem luu_danh_muc.py)")
         if not so_dang_ky.chuyen(x.ma, "DA_DONG", ly_do):
             b.loi.append(f"{x.ma}: sổ từ chối chuyển DA_MO → DA_DONG")
             continue

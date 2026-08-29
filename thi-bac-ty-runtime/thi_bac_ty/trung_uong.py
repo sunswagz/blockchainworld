@@ -80,6 +80,7 @@ from .danh_muc import DanhMuc
 from .doi_soat_vi_the import canh as canh_vi_the, doi_soat as doi_soat_vi_the
 from .ke_toan import (LatCatKeToan, SoViThe, phi_vao_thieu,
                       phi_vao_usd)
+from .luu_danh_muc import luu as luu_danh_muc, nap as nap_danh_muc
 from .hieu_nang import DuongNav, doi_chieu_giay_that
 from .phan_bo import PhanBo
 from .rui_ro_tong import RuiRoTong
@@ -202,8 +203,20 @@ class TrungUong:
         else:
             self.rui_ro_tong = RuiRoTong(ban.thamSo.get("ruiRoTong") or {})
             self.phan_bo = PhanBo(ban.thamSo.get("phanBo") or {})
+        self.duongNav = DuongNav()
         self.cau_dao = CauDao()
         self.thuc_thi = DieuPhoiThucThi()
+
+        #: Danh mục SỐNG QUA lần khởi động lại — xem `luu_danh_muc.py`.
+        #:
+        #: Nạp TRƯỚC `doi_soat_vi_the`: đối soát so sổ đăng ký với danh
+        #: mục, nên phải để danh mục đầy đủ rồi mới so. Đảo thứ tự là đối
+        #: soát thấy danh mục rỗng, đóng sạch vị thế ở sổ, rồi bản nạp
+        #: mới về sau lại dựng lên những vị thế vừa bị đóng.
+        self.duongLuu = d / f"{ten}-danh-muc.json"
+        self.napLuu = nap_danh_muc(self.duongLuu, self.danh_muc,
+                                   self.duongNav)
+        self.soViThe = self.napLuu.pop("_soViThe", {})
 
         #: Đối soát NGAY lúc khởi động, trước khi vòng nào chạy. Sổ đăng ký
         #: sống trên đĩa còn danh mục dựng lại rỗng, nên đúng lúc này là
@@ -240,7 +253,6 @@ class TrungUong:
         #: bao nhiêu", còn sổ này trả lời "đã sống bao lâu, đã cộng dồn
         #: được gì". Chỉ sống trong RAM — vị thế mô phỏng không mang qua
         #: được lần khởi động lại, và `doi_soat_vi_the` dọn phần sót ở sổ.
-        self.soViThe: dict[str, SoViThe] = {}
         self.latCatKeToan = LatCatKeToan()
         #: Tổng mọi đồng ĐÃ đi qua `_ghi_tien`. Đối chiếu với
         #: `danh_muc.laiLoDaThucHienUsd` mỗi vòng — xem `lech_tien()`.
@@ -250,7 +262,6 @@ class TrungUong:
         self.soBoTrung = 0
         self.hocCuoi: dict | None = None
         self._deXuatChoDuyet = None
-        self.duongNav = DuongNav()
         self._soXet = d / f"{ten}-xet-tham-so.jsonl"
         self._ngayDon = ""
 
@@ -420,7 +431,17 @@ class TrungUong:
 
         self.latCatCuoi = lat
         self._don_dinh_ky()
+        self._luu_danh_muc()
         return lat
+
+    def _luu_danh_muc(self) -> None:
+        """Ghi danh mục sau MỖI vòng. Hỏng thì khai ra, đừng giết vòng."""
+        try:
+            luu_danh_muc(self.duongLuu, self.danh_muc, self.soViThe,
+                         self.duongNav)
+            self.loiLuu = ""
+        except OSError as e:                              # noqa: BLE001
+            self.loiLuu = f"{type(e).__name__}: {e}"
 
     # ── CỬA DUY NHẤT cho mọi đồng tiền ────────────────────────────────────
     def _ghi_tien(self, soTienUsd: float, loai: str, lyDo: str,
@@ -849,6 +870,8 @@ class TrungUong:
             "doiSoatKhoiDong": self.doiSoatKhoiDong.tom_tat(),
             "keToan": self.latCatKeToan.tom_tat(),
             "lechTien": self.lech_tien(),
+            "luuDanhMuc": {**self.napLuu,
+                           "loiGhi": getattr(self, "loiLuu", "")},
             # Lãi lỗ TÁCH KHOẢN. Con số gộp nói dối theo một cách khó
             # thấy: phí vào lệnh phần lớn do runtime bị khởi động lại chứ
             # không do quyết định của ty, mà gộp vào thì một chiến lược

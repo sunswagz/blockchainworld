@@ -5006,6 +5006,126 @@ def kiem_lp_amm() -> None:
     kiem("và in ra mức phí SUY RA để người đọc đối chiếu",
          any("SUY RA" in b for b in t.bangChung))
 
+def kiem_luu_danh_muc() -> None:
+    print(chr(10) + "-- LUU DANH MUC: song qua lan khoi dong lai --")
+    import time as _t17
+
+    from thi_bac_ty.danh_muc import DanhMuc, ViThe
+    from thi_bac_ty.hieu_nang import DuongNav
+    from thi_bac_ty.ke_toan import SoViThe
+    from thi_bac_ty.luu_danh_muc import BAN, luu, nap
+
+    d17 = _tam("luu-dm")
+    tep17 = d17 / "dm.json"
+
+    dm = DanhMuc(10_000.0)
+    dm.cam_ket("m1", [ViThe("m1", "x.y.v1", "CHO_VAY", "aave-v3", "USDC",
+                            500.0, loai="lending")])
+    dm.ghi_dong_tien(1.25)
+    dn = DuongNav()
+    dn.ghi(10_001.25, lucMs=_t17.time() * 1000.0 - 7_200_000.0)
+    dn.ghi(10_001.30)
+    sv = {"m1": SoViThe(ma="m1", chienLuoc="x.y.v1",
+                        toTrinh={"giuGio": 720.0}, vonUsd=500.0,
+                        moLucGiay=_t17.time() - 3600.0,
+                        keToanLucGiay=_t17.time() - 60.0,
+                        thuCongDonUsd=1.25, phiCongDonUsd=0.5,
+                        soVongKeToan=7, coKeToan=True)}
+    n = luu(tep17, dm, sv, dn)
+    kiem("ghi được bản lưu", n > 0 and tep17.is_file())
+    kiem("KHÔNG để lại file tạm sau khi ghi",
+         not list(d17.glob("*.dang-ghi")),
+         "ghi qua file tạm rồi đổi tên — đổi tên là nguyên tử, nên chết "
+         "giữa chừng thì file đích vẫn là bản cũ còn đọc được")
+
+    dm2, dn2 = DanhMuc(10_000.0), DuongNav()
+    r = nap(tep17, dm2, dn2)
+    sv2 = r.pop("_soViThe")
+    kiem("nạp lại: tiền mặt và lãi lỗ đúng như lúc ghi",
+         dm2.tienMatUsd == dm.tienMatUsd
+         and dm2.laiLoDaThucHienUsd == dm.laiLoDaThucHienUsd,
+         f"{dm2.tienMatUsd} vs {dm.tienMatUsd}")
+    kiem("nạp lại: vị thế còn nguyên, KHÔNG phải vào lệnh lại",
+         "m1" in dm2.viThe and dm2.viThe["m1"][0].vonUsd == 500.0,
+         "mỗi lần khởi động lại mà mở lại vị thế là một lần trả phí vào "
+         "lệnh nữa — 51 lần vào cho bảy vị thế, đo được trên sổ thật")
+    kiem("nạp lại: đường NAV nối tiếp, không bắt đầu lại từ 0",
+         len(dn2.diem) == 2 and dn2.diem[0][1] == 10_001.25,
+         f"{len(dn2.diem)} điểm — `hieuNang` đòi ≥168 giờ mới dám kết luận; "
+         f"đường NAV dài bằng một lần chạy thì con số ấy vĩnh viễn vài phút")
+    kiem("nạp lại: sổ vị thế giữ cả phần đã cộng dồn",
+         sv2["m1"].thuCongDonUsd == 1.25 and sv2["m1"].soVongKeToan == 7)
+
+    kiem("nhưng mốc kế toán ĐẶT LẠI thành bây giờ",
+         abs(sv2["m1"].keToanLucGiay - _t17.time()) < 5.0,
+         "cộng bù khoảng máy tắt là bịa ra một phép đo chưa từng chạy — "
+         "không ai biết rate trong lúc máy không chạy")
+    kiem("và khoảng máy tắt được KHAI ra",
+         "giayTatMay" in r and "KHÔNG được cộng lãi" in r["vi"], str(r))
+
+    # ── hỏng thì KHAI, không giết lượt khởi động ────────────────────────
+    xau17 = d17 / "hong.json"
+    xau17.write_text("{ khong phai json", encoding="utf-8")
+    dm3, dn3 = DanhMuc(10_000.0), DuongNav()
+    r3 = nap(xau17, dm3, dn3)
+    kiem("bản lưu hỏng thì khai lỗi rồi chạy tiếp với danh mục rỗng",
+         r3.get("nap") is False and "loi" in r3 and not dm3.viThe,
+         "chết lúc khởi động vì file trạng thái hỏng thì tệ hơn lên với "
+         "trí nhớ trống")
+
+    cu17 = d17 / "ban-cu.json"
+    cu17.write_text('{"ban": 0, "viThe": {}}', encoding="utf-8")
+    dm4, dn4 = DanhMuc(10_000.0), DuongNav()
+    r4 = nap(cu17, dm4, dn4)
+    kiem("bản lưu SAI BẢN thì BỎ chứ không đoán cấu trúc",
+         r4.get("nap") is False and r4.get("banFile") == 0)
+
+    r5 = nap(d17 / "khong-co.json", DanhMuc(10_000.0), DuongNav())
+    kiem("chưa có bản lưu thì nói ra, không nổ", r5.get("co") is False)
+
+    # ── ghi phải NGUYÊN TỬ, và vòng lặp phải GỌI nó ────────────────────
+    # Cả hai dò bằng AST: "không còn file tạm" đúng cả khi ghi thẳng, nên
+    # phép kiểm ấy KHÔNG phân biệt được hai cách ghi — lỗi cấy đi lọt ở
+    # đúng chỗ đó.
+    import ast as _ast17
+    import pathlib as _pl17
+
+    def _goi_trong(tep: str, ham: str, ten: str) -> bool:
+        goc = _pl17.Path(__file__).resolve().parent.parent
+        cay = _ast17.parse((goc / tep).read_text(encoding="utf-8"))
+        for n in _ast17.walk(cay):
+            if isinstance(n, _ast17.FunctionDef) and n.name == ham:
+                for x in _ast17.walk(n):
+                    if isinstance(x, _ast17.Call):
+                        f = x.func
+                        if isinstance(f, _ast17.Name) and f.id == ten:
+                            return True
+                        if isinstance(f, _ast17.Attribute) and f.attr == ten:
+                            return True
+        return False
+
+    kiem("ghi bản lưu đi qua `os.replace`, không ghi thẳng file đích",
+         _goi_trong("thi_bac_ty/luu_danh_muc.py", "luu", "replace"),
+         "ghi thẳng mà tiến trình chết giữa chừng thì lần sau nạp phải một "
+         "JSON cụt — và lúc ấy máy mất sạch vị thế trong khi sổ đăng ký vẫn "
+         "ghi chúng đang mở")
+    kiem("và VÒNG LẶP gọi lưu sau mỗi vòng",
+         _goi_trong("thi_bac_ty/trung_uong.py", "mot_vong", "_luu_danh_muc"),
+         "lưu mà không ai gọi thì bản trên đĩa đứng ở lần ghi đầu tiên, và "
+         "mọi thứ nạp lại được đều là của quá khứ")
+
+    # ── KHÔNG giữ vốn ngoài, và KHÔNG giữ vốn gốc ───────────────────────
+    goc17 = tep17.read_text(encoding="utf-8")
+    kiem("bản lưu KHÔNG mang vốn ngoài",
+         '"ngoai"' not in goc17,
+         "vốn ngoài đọc lại được mỗi vòng; giữ bản cũ là đúng thứ "
+         "`von-ngoai-mu` sinh ra để chặn — số cũ trông y hệt số mới")
+    kiem("và KHÔNG mang `vonBanDauUsd`",
+         '"vonBanDauUsd"' not in goc17,
+         "nó là cấu hình; giữ bản cũ thì đổi vốn ảo trong config.json sẽ "
+         "không có tác dụng, và im lặng")
+
+
 def kiem_ke_toan_vi_the() -> None:
     print("\n-- KE TOAN THEO THOI GIAN: vong doi vi the khep kin --")
     import time as _t
@@ -6203,6 +6323,7 @@ def main() -> int:
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_doi_soat_vi_the()
+    kiem_luu_danh_muc()
     kiem_ke_toan_vi_the()
     kiem_kho_bao_gia_cau()
     kiem_lat_cat()
