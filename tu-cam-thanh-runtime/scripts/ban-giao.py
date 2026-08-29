@@ -270,6 +270,47 @@ def _champion_bi_bac_bo() -> list[str]:
               "giữ là việc bấm tay ở buồng lái, không phải việc của bản bàn giao.")
     return ra
 
+def _gia_thuyet_ket() -> list[str]:
+    """Giả thuyết đang mở mà KHÔNG có lệnh thật nào kể từ lúc khai.
+
+    `doi-khung-sang-4h` đo kỳ vọng tiền trên lệnh thật mở sau khi đổi khung;
+    `bo-nao-that-hon-luat` so CLI_V1 với MOCK_RULES_V1 trên lệnh thật. Cả hai
+    chốt được chỉ khi có lệnh mới — và bot đang đứng ngoài, có căn cứ.
+
+    Không cần biết giả thuyết ĐO cái gì để nói được điều này: nếu từ lúc khai
+    tới giờ chưa có lệnh thật nào, thì mọi giả thuyết cần lệnh thật đều đứng
+    yên, và thời gian trôi thêm không đổi gì. Đếm được, nên không phải đoán.
+
+    Nối với mục «bot đứng im»: đó là cùng một thế bí nhìn từ phía sổ giả thuyết.
+    """
+    try:
+        from trader import so_gia_thuyet as G
+        # Sổ không có trường "đang mở" — mở nghĩa là CHƯA có bản ghi chốt cho mã
+        # đó, và `tom_tat()` là chỗ duy nhất tính điều ấy. Tự suy ra ở đây là dựng
+        # bản sao thứ hai của cùng một luật, rồi hai bản lệch nhau.
+        dang_mo = set(G.tom_tat().get("dangMo") or [])
+        mo = [x for x in G.doc()
+              if x.get("ma") in dang_mo and x.get("loai") == "khai"]
+    except Exception:  # noqa: BLE001
+        return []
+    if not mo:
+        return []
+    trades = [t for t in store.read_all(store.TRADES) if t.get("openedAt")]
+    ra = []
+    for x in mo:
+        luc = x.get("luc")
+        if not luc:
+            continue
+        sau = [t for t in trades if (t.get("openedAt") or "") > luc]
+        if not sau:
+            ra.append(f"`{x['ma']}` — khai lúc {luc[:16].replace('T', ' ')}, "
+                      f"CHƯA có lệnh thật nào mở kể từ đó")
+    if not ra:
+        return []
+    return ra + ["Giả thuyết nào đo trên lệnh thật thì đứng yên cùng bot. Chờ thêm "
+                 "không gỡ được — hoặc đổi thứ làm bot đứng ngoài, hoặc khai lại "
+                 "một mã MỚI đo được bằng chạy lại thay vì lệnh thật."]
+
 def _dung_im() -> list[str]:
     """Bot đứng ngoài liên tục có căn cứ — và vì thế sẽ đứng mãi.
 
@@ -482,6 +523,8 @@ def main() -> int:
         W("## Bot đang đứng im — có căn cứ, và sẽ đứng mãi")
         W("")
         for x in im:
+            W(f"- {x}")
+        for x in _gia_thuyet_ket():
             W(f"- {x}")
         W("")
 

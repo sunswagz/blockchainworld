@@ -1175,6 +1175,38 @@ async def main() -> int:
 
     _dat24([])
     check(not BG24._dung_im(), "sổ rỗng → im, không chia cho không")
+
+    # ── Giả thuyết kẹt cùng bot: cùng thế bí, nhìn từ sổ giả thuyết ──
+    #
+    # Hai giả thuyết đang mở đo trên LỆNH THẬT. Bot đứng ngoài ⇒ không lệnh mới
+    # ⇒ không chốt được. Không cần biết giả thuyết đo GÌ để nói điều đó: đếm
+    # lệnh thật mở sau lúc khai là đủ, nên không phải đoán.
+    from trader import so_gia_thuyet as _G24
+    # Kiểm giá trị TRẢ VỀ của khai(), đừng chỉ nhìn đầu ra cuối. Bản đầu gọi sai
+    # tên khoá ngưỡng («mau» thay vì «mauToiThieu»); khai() từ chối đúng, trả
+    # {"ok": false}, và phép kiểm không thấy — nó chỉ thấy "không báo kẹt", đọc
+    # y hệt "luật hỏng". Một lời gọi hỏng phải làm phép kiểm ĐỎ ngay tại chỗ gọi.
+    _k24 = _G24.khai("gt-ket", "hỏi", "đoán", "cách đo",
+                     {"truong": "kyVongR", "toanTu": ">", "giaTri": 0,
+                      "mauToiThieu": 10})
+    check(_k24.get("ok"), f"khai() nhận bản khai: {_k24.get('viSao') or 'ok'}")
+    check(any("gt-ket" in x for x in BG24._gia_thuyet_ket()),
+          "giả thuyết mở, 0 lệnh thật kể từ lúc khai → báo kẹt")
+
+    # Cửa ngược lại: có lệnh thật mở SAU lúc khai thì không kẹt vì lý do này.
+    _sau = _dt21.datetime.now(_dt21.timezone.utc) + _dt21.timedelta(hours=1)
+    (DATA_DIR / store.TRADES).write_text(
+        _json.dumps({"openedAt": _sau.isoformat(timespec="seconds")}) + NL,
+        encoding="utf-8")
+    check(not any("gt-ket" in x for x in BG24._gia_thuyet_ket()),
+          "có lệnh thật mở sau lúc khai → KHÔNG báo kẹt")
+    (DATA_DIR / store.TRADES).write_text("", encoding="utf-8")
+
+    # Và giả thuyết ĐÃ CHỐT không được đếm là kẹt.
+    _c24 = _G24.chot("gt-ket", {"kyVongR": 1, "mauToiThieu": 10})
+    check(_c24.get("ok"), f"chot() nhận bản chốt: {_c24.get('viSao') or 'ok'}")
+    check(not any("gt-ket" in x for x in BG24._gia_thuyet_ket()),
+          "giả thuyết đã chốt → không còn là chỗ kẹt")
     print("\n[23] MỌI PHÉP ĐO PHẢI TỰ KHAI CHỢ CỦA NÓ")
     from trader import chung_cat as CC23
 
