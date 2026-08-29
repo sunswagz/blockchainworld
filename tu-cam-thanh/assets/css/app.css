@@ -75,8 +75,8 @@ a{color:inherit}
   border:1px solid color-mix(in srgb,var(--son) 30%,transparent);
   padding:4px 11px;border-radius:99px;font-weight:600;
 }
-h1{font-size:clamp(26px,4vw,38px);line-height:1.15;margin:12px 0 8px;font-weight:800;letter-spacing:-.5px}
-h1 em{font-style:normal;color:var(--son)}
+h1,.dau-trang h2{font-size:clamp(26px,4vw,38px);line-height:1.15;margin:12px 0 8px;font-weight:800;letter-spacing:-.5px}
+h1 em,.dau-trang h2 em{font-style:normal;color:var(--son)}
 .dat{color:var(--fg-2);max-width:70ch;margin:0}
 
 /* ── dải trạng thái ────────────────────────────────────── */

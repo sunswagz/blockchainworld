@@ -850,6 +850,51 @@ function do_() {
      báo động vì đúng lời giải thích của mình. Dùng lại `htmlSach`
      mà thước đường-nhảy ở trên đã dựng — cùng một bản bỏ chú thích,
      không dựng lại lần hai. */
+  /* ── ĐÚNG MỘT <h1> ─────────────────────────────────────────
+     accesslint-audit (sickn33/agentic-awesome-skills) — kỹ năng do
+     vòng dò kho Tàng Thư Các mang về ngày 29/08: "validate heading
+     hierarchy". Đo cả mười hai cung: bậc tiêu đề KHÔNG cung nào
+     nhảy cóc, nên phần ấy bỏ — thêm một thước xanh sẵn khắp nơi là
+     thêm một dấu ✓ không canh gì.
+
+     Nhưng SỐ h1 thì có trượt: Tử Cấm Thành mang hai cái, một là tên
+     cung ("Tử Cấm Thành") và một là tiêu đề trang ("Một AI Trader
+     Runtime, mổ ra xem"). Trình đọc màn hình dựng mục lục trang từ
+     bậc tiêu đề; hai h1 là hai gốc, và người dùng nhảy theo tiêu đề
+     sẽ thấy trang có hai phần ngang hàng không rõ cái nào chứa cái
+     nào. */
+  const soH1 = (htmlSach.match(/<h1\b/g) || []).length;
+  cham("mot-h1", "Đúng một tiêu đề gốc", soH1 === 1,
+    soH1 === 1 ? "một <h1>, mục lục trang có đúng một gốc"
+      : soH1 === 0 ? "KHÔNG có <h1> — trang không có gốc mục lục"
+      : `${soH1} thẻ <h1> — trình đọc màn hình thấy ${soH1} gốc ngang hàng`);
+
+  /* ── Ô NHẬP CÓ NHÃN ────────────────────────────────────────
+     Cùng nguồn: "ensure form inputs have associated labels".
+
+     `placeholder` KHÔNG phải nhãn. Nó biến mất ngay khi người ta gõ
+     chữ đầu tiên, và phần lớn trình đọc màn hình không đọc nó thay
+     cho tên. Đo 29/08: Đài Quan Trắc có ô lệnh
+     `<input id="cmdin" placeholder="Đi tới mục, chiến trường…">` —
+     không aria-label, không <label for>. Người dùng bàn phím Tab
+     tới đó và nghe "vùng nhập văn bản", hết.
+
+     Cung không có ô nhập nào thì KHÔNG ĐO ĐƯỢC, không phải đạt —
+     cho một cung điểm vì nó thiếu thứ để chấm là làm mẫu số nói
+     dối. */
+  const nhanFor = new Set([...htmlSach.matchAll(/<label\b[^>]*\bfor="([^"]+)"/g)].map((m) => m[1]));
+  const oNhap = [...htmlSach.matchAll(/<(input|select|textarea)\b([^>]*)>/g)]
+    .filter((m) => !/type="(hidden|submit|button|image)"/.test(m[2]));
+  const oCam = oNhap.filter((m) => {
+    if (/aria-label|aria-labelledby|title="/.test(m[2])) return false;
+    const id = (m[2].match(/\bid="([^"]+)"/) || [])[1];
+    return !(id && nhanFor.has(id));
+  });
+  cham("o-nhap", "Ô nhập có nhãn", oNhap.length ? oCam.length === 0 : null,
+    !oNhap.length ? "cung không có ô nhập nào — không đo"
+      : oCam.length === 0 ? `${oNhap.length} ô nhập, chỗ nào cũng có nhãn`
+      : `${oCam.length}/${oNhap.length} ô nhập chỉ có placeholder — nó biến mất ngay khi gõ`);
+
   const demId = new Map();
   for (const m of htmlSach.matchAll(/\sid="([^"]+)"/g))
     demId.set(m[1], (demId.get(m[1]) || 0) + 1);
