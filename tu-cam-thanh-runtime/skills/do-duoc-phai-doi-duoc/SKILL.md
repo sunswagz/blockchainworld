@@ -7,6 +7,11 @@ một cái đồng hồ đắt tiền.
 
 14.751 vòng. Ba cỗ máy đo chạy tốt và đo ra những điều rất đáng biết:
 
+*(Số dưới đây đo trên **BTCUSDT khung 1h, tháng 8/2026** — khung bot chạy lúc
+ấy. Nó đã đổi sang 4h, và cùng bộ luật đó trên 48 chợ khung 1d là −0,1517R. Giữ
+số cũ vì bài học nằm ở CHUYỆN, không ở con số; nhưng một con số không kèm khung
+thì đọc như thể đúng ở mọi khung.)*
+
 ```
 phòng huấn luyện   TREND_UP|none lỗ đều −0,422R qua 36 lệnh chạy lại
                    chiến lược cầm quyền kỳ vọng −0,666R qua 44 lệnh
