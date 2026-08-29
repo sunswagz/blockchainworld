@@ -28,6 +28,17 @@ rỉ ngược vào quá khứ.
     sai số phần đuôi GIẢM → học được quy luật, có cớ bỏ bớt giảm chấn
     sai số phần đuôi TĂNG → học thuộc bảng, giữ giảm chấn hoặc bỏ hẳn
     xấp xỉ nhau           → chưa đủ bằng chứng, đừng đổi gì
+
+**Phép đo này KHÔNG đủ để vặn nút.** Nó chấm SAI SỐ HIỆU CHỈNH (điểm),
+không chấm Brier cuối đường ống — và cái quyết định là cái sau. "Đường
+nắn tổng quát hoá được" với "bỏ giảm chấn thì lãi hơn" là hai câu khác
+nhau. Câu thứ hai đo bằng `scripts/tu-nang-cap.py`, ba tập tách theo
+thời gian và có hiệu chỉnh đa so sánh; nó đã thử đúng nút ấy và TRẢ LẠI.
+
+Mỗi cửa sổ ở đây đóng góp ĐÚNG MỘT quan sát (bản ghi đầu tiên của mỗi
+slug), nên 789 là 789 khung chứ không phải 789 dòng băng — không dính
+bẫy đếm dòng. Đổi lại, "bản ghi đầu tiên" là lúc τ lớn nhất, tức bài
+KHÓ NHẤT; con số ở đây vì thế là cận dưới của chất lượng phép nắn.
 """
 from __future__ import annotations
 
@@ -129,6 +140,18 @@ def main() -> int:
     if b < a * 0.9:
         print("  → Phần đuôi KHÁ HƠN rõ rệt. Phép nắn học được quy luật")
         print("    chứ không thuộc bảng. Có cơ sở bỏ bớt giảm chấn.")
+        # Nói nốt phần còn lại, không thì câu trên thành một mệnh lệnh.
+        # Phép đo này chấm SAI SỐ HIỆU CHỈNH (điểm), không chấm Brier
+        # cuối đường ống. Hai thứ khác nhau, và cái quyết định là cái sau.
+        print()
+        print("    NHƯNG: đây là bằng chứng cho việc đường nắn TỔNG QUÁT")
+        print("    HOÁ được, không phải bằng chứng rằng bỏ giảm chấn thì")
+        print("    LÃI HƠN. Hai câu khác nhau, và câu thứ hai đã được đo")
+        print("    riêng: `scripts/tu-nang-cap.py` thử đúng nút ấy")
+        print("    (heSoGiamChan 0,7 → 0,35) trên ba tập tách theo thời")
+        print("    gian và TRẢ LẠI — Brier tập CHỌN 0,15636 → 0,15625,")
+        print("    trong khi cổng đòi ≤ 0,15617 sau hiệu chỉnh 53 ứng viên.")
+        print("    Đừng vặn nút theo mình phép đo này. Chạy tu-nang-cap.py.")
     elif b > a:
         print("  → Phần đuôi TỆ ĐI. Đó là thuộc bảng. Giữ giảm chấn,")
         print("    hoặc bỏ hẳn phép nắn.")
