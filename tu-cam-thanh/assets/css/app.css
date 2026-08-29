@@ -20,6 +20,18 @@
      đúng trên nước rửa của chính chúng — tức là ngay chỗ chúng được
      dùng để nói "nhìn đây". */
   --son:#D0615A; --son-t:#2A1414;
+
+  /* halls.css của cung này gọi --am và --am-t (nút cài ứng dụng, báo
+     bản mới) nhưng KHÔNG cung nào khai chúng — file ấy chép từ Tạo
+     Biện Xứ mà quên mang theo hai dòng khai ở :root.
+     Hỏng câm hoàn toàn: `color:var(--am)` với --am chưa khai là khai
+     báo không hợp lệ lúc tính giá trị, nên trình duyệt trả thuộc
+     tính về giá trị KẾ THỪA — chữ nút đổi sang màu chữ thường và
+     trông vẫn như một lựa chọn thiết kế. Không có gì đỏ ở đâu cả.
+     Trỏ vào màu nhấn sẵn có của cung chứ không chép mã màu của Tạo
+     Biện Xứ: chép số là hai chỗ phải nhớ đổi cùng lúc, mà chỗ thứ
+     hai nằm trong một cung khác. */
+  --am:var(--son); --am-t:var(--son-t);
   --vang:#C9A227; --vang-t:#26200F;
   --luc:#3F9D6D; --luc-t:#12241B;
   --lam:#5A8DD6; --lam-t:#141F2E;
