@@ -496,6 +496,85 @@ def _ngat_roi_van_quan_sat():
     return True, "hai vòng liền, cầu dao ngắt: vẫn quét, vẫn ghi nhận, KHÔNG cam kết vốn"
 
 
+def _ly_do_deu_mang_ma():
+    """Chạy THẬT mọi cửa từ chối, rồi soát mã trên câu chúng ĐẺ RA.
+
+    Không đọc mã nguồn: một phép canh đọc `MA_TU_CHOI` chỉ chứng minh cái
+    bảng ấy tồn tại, không chứng minh cửa nào cũng đi qua nó. Cách duy nhất
+    biết chắc là ép từng cửa nhả ra một câu rồi soát chính câu đó.
+    """
+    from .chan_doan_he import _ma_ly_do
+    from .danh_muc import DanhMuc
+    from .phan_bo import MA_TU_CHOI as MA_PB
+    from .phan_bo import ly_do as ly_pb
+    from .rui_ro_tong import MA_TU_CHOI as MA_RR
+    from .rui_ro_tong import RuiRoTong
+
+    thieu = []
+    for ma in MA_PB:
+        kw = {"n": 12, "cap": 1.0, "san": 2.0}
+        cau = ly_pb(ma, **{k: v for k, v in kw.items()
+                           if "{" + k in MA_PB[ma]})
+        if _ma_ly_do(cau) != ma:
+            thieu.append("phan_bo:" + ma)
+
+    # Rủi Ro Tổng: ép TỪNG cửa nhả câu. Đòi thấy ĐỦ mọi mã trong bảng —
+    # "vài cửa có mã" không chứng minh được gì về cửa thứ sáu, và cửa thứ
+    # sáu mới là cửa người sau thêm vào mà quên mã.
+    thay = set()
+    def _sua(**kw):
+        """Tờ trình thử với vài trường bị ép — `ToTrinh` đông cứng nên phải
+        đi cửa `object.__setattr__`, và đó là chuyện chỉ phép canh được làm."""
+        t = _to_trinh_thu("BTC", 8.0)
+        for k, v in kw.items():
+            object.__setattr__(t, k, v)
+        return t
+
+    hong = _sua(vonCanUsd=-1.0)                      # ép SAI KHUÔN
+    canh = [
+        # (cấu hình Rủi Ro Tổng, tờ trình)
+        ({"ruiRoToiDa": -1.0, "tinCayToiThieu": 1.1,
+          "netMoiGioToiThieuBps": 1e9, "batBuocDuMoHinhPhi": True,
+          "batBuocDoDuocSucChua": True, "khoaVonToiDaGiay": -1.0,
+          "batBuocDoDuocThanhKhoanThoat": True},
+         _to_trinh_thu("BTC", 8.0)),
+        ({}, hong),
+        ({"batBuocKhaiVonToiThieu": True},
+         _to_trinh_thu("BTC", 8.0, vmin=None)),
+        # Xin 100 mà sức chứa 200 là HỢP KHUÔN; trần một cơ hội siết xuống
+        # 50, dưới mức tối thiểu 90 → «dưới vốn tối thiểu». Dựng bằng cách
+        # cho `sucChuaToiDaUsd` nhỏ hơn `vonCanUsd` thì `hop_le` bắt trước
+        # và cửa cần ép không bao giờ tới lượt.
+        ({"tranMotCoHoi": 0.05},
+         _to_trinh_thu("BTC", 8.0, von=100.0, chua=200.0, vmin=90.0)),
+        ({"batBuocDuMoHinhPhi": True},
+         _sua(moHinhPhiDuChua=False, phiConThieu=("truot-gia",))),
+        ({"batBuocDoDuocSucChua": True}, _sua(sucChuaToiDaUsd=None)),
+        # `vonToiThieuKinhTeUsd = None` (không phải 0 — khai 0 là SAI KHUÔN)
+        # để trần siết về 0 rơi vào nhánh «hết chỗ» chứ không bị nhánh
+        # «dưới vốn tối thiểu» chặn trước.
+        ({"tranMotCoHoi": 0.0, "batBuocKhaiVonToiThieu": False},
+         _sua(vonToiThieuKinhTeUsd=None)),
+    ]
+    for c, t in canh:
+        for x in RuiRoTong(c).xet(t, DanhMuc(1000.0)).lyDo:
+            m = _ma_ly_do(x)
+            if m is None:
+                thieu.append("rui_ro_tong:KHÔNG-MÃ:" + x[:40])
+            else:
+                thay.add(m)
+    sot = set(MA_RR) - thay
+    if sot:
+        thieu.append("rui_ro_tong:cửa-CHƯA-ÉP-NỔ:" + ",".join(sorted(sot)))
+    la = thay - set(MA_RR)
+    if la:
+        thieu.append("rui_ro_tong:mã-ngoài-bảng:" + ",".join(sorted(la)))
+    if thieu:
+        return False, "; ".join(thieu)
+    return True, (f"{len(MA_PB)} mã ở Phân Bổ và ĐỦ {len(thay)} cửa của Rủi "
+                  f"Ro Tổng đều nhả câu MANG MÃ")
+
+
 def _chua_du_mau_thi_noi_chua_du():
     from .chan_doan_he import TOI_THIEU_TO_TRINH, chan_doan_he
     from .chay_lai_he import TOI_THIEU_MAU, doi_chieu
@@ -830,6 +909,17 @@ DIEU: tuple[Dieu, ...] = (
          # `kiem_co_so()` nới rộng basis rồi đòi NET không đổi, và phép
          # cấy lỗi ngược (cộng basis vào NET) làm nó đỏ.
          "co_so/ty_co_so.py", None),
+
+    Dieu("ly-do-tu-choi-phai-mang-ma",
+         "Mọi lý do TỪ CHỐI phải mở đầu bằng một MÃ máy đọc được.",
+         "Câu để NGƯỜI đọc, mã để MÁY đếm. Chẩn đoán muốn biết «cái gì đang "
+         "chặn nhiều nhất» thì nó phải nhận ra từng lý do — mà nhận bằng "
+         "cách dò chuỗi trong một câu có số nhúng bên trong (`đã đủ 12 vị "
+         "thế`) là dựng một mối nối gãy ngay lần đầu ai đó sửa câu chữ. Gãy "
+         "IM LẶNG, vì mối nối hỏng chỉ làm con số đếm nhỏ đi. Đã cắn thật: "
+         "«CẦU DAO NGẮT» có dấu cách và chữ hoa nên 520 lần từ chối lớn "
+         "nhất của cỗ máy rơi vào ô «không phân loại được».",
+         "thi_bac_ty/phan_bo.py · rui_ro_tong.py", _ly_do_deu_mang_ma),
 
     Dieu("tu-choi-gioi-hon-phat-hien-nhieu",
          "Đích đúng: quét 13 họ → phát hiện 100 → TỪ CHỐI 95 → rót vào 5.",

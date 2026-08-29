@@ -84,6 +84,32 @@ MAC_DINH = {
 }
 
 
+#: MÃ đứng đầu mỗi câu từ chối của tầng này. Xem `phan_bo.MA_TU_CHOI` — cùng
+#: một kỷ luật, và lý do thì cùng một: câu để NGƯỜI đọc, mã để MÁY đếm.
+#:
+#: Chẩn đoán muốn biết «cái gì đang chặn nhiều nhất» thì nó phải nhận ra được
+#: từng lý do. Dò chuỗi trong một câu có số nhúng bên trong (`điểm rủi ro 0.69
+#: > trần 0.60`) là dựng một mối nối gãy ngay lần đầu ai đó sửa câu chữ — và
+#: gãy im lặng, vì một mối nối không khớp chỉ làm con số đếm nhỏ đi.
+MA_TU_CHOI = (
+    "sai-khuon", "diem-rui-ro-cao", "tin-cay-thap", "net-thap",
+    "mo-hinh-phi-thieu", "suc-chua-chua-do", "khoa-von-lau",
+    "thanh-khoan-thoat-chua-do", "chua-khai-von-toi-thieu",
+    "duoi-von-toi-thieu", "het-cho-o-tran",
+)
+
+
+def _ly(ma: str, cau: str) -> str:
+    """`"diem-rui-ro-cao: điểm rủi ro 0.69 > trần 0.60"`. Mã trước, câu sau.
+
+    Mã lạ thì NÉM: một lý do từ chối không tên là một lý do không đếm được,
+    và bảng «vì sao bị từ chối» sẽ có một cột không ai biết từ đâu ra.
+    """
+    if ma not in MA_TU_CHOI:
+        raise KeyError(f"mã từ chối lạ: {ma!r}")
+    return f"{ma}: {cau}"
+
+
 @dataclass
 class PhanQuyet:
     """Kết quả xét một tờ trình. `choToiDaUsd` là thứ Phân Bổ phải tôn trọng."""
@@ -149,40 +175,49 @@ class RuiRoTong:
         # ── loại thẳng: tờ trình sai khuôn ───────────────────────────────
         if not tt.hop_le:
             return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, None,
-                             ("tờ trình SAI KHUÔN: " + "; ".join(tt.kiem()),))
+                             (_ly("sai-khuon", "tờ trình SAI KHUÔN: "
+                                  + "; ".join(tt.kiem())),))
 
         d, chua_do = self.diem(tt)
         if d > float(c["ruiRoToiDa"]):
-            ly.append(f"điểm rủi ro {d:.2f} > trần {float(c['ruiRoToiDa']):.2f}"
-                      + (f" (chưa đo: {', '.join(chua_do)})" if chua_do else ""))
+            ly.append(_ly("diem-rui-ro-cao",
+                          f"điểm rủi ro {d:.2f} > trần "
+                          f"{float(c['ruiRoToiDa']):.2f}"
+                          + (f" (chưa đo: {', '.join(chua_do)})"
+                             if chua_do else "")))
 
         if tt.tinCay is not None and tt.tinCay < float(c["tinCayToiThieu"]):
-            ly.append(f"độ tin {tt.tinCay:.2f} < ngưỡng "
-                      f"{float(c['tinCayToiThieu']):.2f}")
+            ly.append(_ly("tin-cay-thap",
+                          f"độ tin {tt.tinCay:.2f} < ngưỡng "
+                          f"{float(c['tinCayToiThieu']):.2f}"))
 
         if tt.net_moi_gio_bps < float(c["netMoiGioToiThieuBps"]):
-            ly.append(f"NET {tt.net_moi_gio_bps:.3f} bps/giờ < ngưỡng "
-                      f"{float(c['netMoiGioToiThieuBps']):.3f}")
+            ly.append(_ly("net-thap",
+                          f"NET {tt.net_moi_gio_bps:.3f} bps/giờ < ngưỡng "
+                          f"{float(c['netMoiGioToiThieuBps']):.3f}"))
 
         if c["batBuocDuMoHinhPhi"] and not tt.moHinhPhiDuChua:
-            ly.append("mô hình phí chưa đủ: thiếu "
-                      + ", ".join(tt.phiConThieu))
+            ly.append(_ly("mo-hinh-phi-thieu", "mô hình phí chưa đủ: thiếu "
+                          + ", ".join(tt.phiConThieu)))
 
         if c["batBuocDoDuocSucChua"] and tt.sucChuaToiDaUsd is None:
-            ly.append("chưa đo được sức chứa — không biết rót bao nhiêu thì "
-                      "chính cơ hội tự giết mình")
+            ly.append(_ly("suc-chua-chua-do",
+                          "chưa đo được sức chứa — không biết rót bao nhiêu "
+                          "thì chính cơ hội tự giết mình"))
 
         # Khoá vốn quá lâu là TỪ CHỐI, không phải cắt bớt: cắt trần không rút
         # ngắn thời gian khoá, nên rót ít hơn vẫn kẹt đúng ngần ấy tháng.
         tran_khoa = float(c["khoaVonToiDaGiay"])
         if tt.khoaVonDenGiay is not None and tt.khoaVonDenGiay > tran_khoa:
-            ly.append(f"khoá vốn {tt.khoaVonDenGiay:.0f} giờ > trần "
-                      f"{tran_khoa:.0f} giờ — khoá lâu là từ chối mọi cơ hội "
-                      f"tốt hơn xuất hiện trong ngần ấy thời gian")
+            ly.append(_ly("khoa-von-lau",
+                          f"khoá vốn {tt.khoaVonDenGiay:.0f} giờ > trần "
+                          f"{tran_khoa:.0f} giờ — khoá lâu là từ chối mọi cơ "
+                          f"hội tốt hơn xuất hiện trong ngần ấy thời gian"))
 
         if c["batBuocDoDuocThanhKhoanThoat"] and tt.thanhKhoanThoatUsd is None:
-            ly.append("chưa đo được thanh khoản thoát — vào được không có "
-                      "nghĩa là ra được")
+            ly.append(_ly("thanh-khoan-thoat-chua-do",
+                          "chưa đo được thanh khoản thoát — vào được không "
+                          "có nghĩa là ra được"))
 
         if ly:
             return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
@@ -269,15 +304,17 @@ class RuiRoTong:
         if v_min is None:
             if c["batBuocKhaiVonToiThieu"]:
                 return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
-                                 ("ty chưa khai vốn tối thiểu kinh tế",),
+                                 (_ly("chua-khai-von-toi-thieu",
+                                      "ty chưa khai vốn tối thiểu kinh tế"),),
                                  tuple(cat))
         elif tran < float(v_min) - 1e-9:
             return PhanQuyet(
                 tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
-                (f"chỉ cấp được {tran:.2f} USD nhưng engine này cần tối thiểu "
-                 f"{float(v_min):.2f} USD mới kinh tế có nghĩa — QUAN SÁT, "
-                 f"không ép vào lệnh"
-                 + (" (" + "; ".join(cat[-1:]) + ")" if cat else ""),),
+                (_ly("duoi-von-toi-thieu",
+                     f"chỉ cấp được {tran:.2f} USD nhưng engine này cần tối "
+                     f"thiểu {float(v_min):.2f} USD mới kinh tế có nghĩa — "
+                     f"QUAN SÁT, không ép vào lệnh"
+                     + (" (" + "; ".join(cat[-1:]) + ")" if cat else "")),),
                 tuple(cat))
 
         tran = round(max(0.0, tran), 2)
@@ -288,8 +325,9 @@ class RuiRoTong:
             # một tờ bị từ chối với ô lý do trống — và ô trống thì không ai
             # đọc thành "trần cảng đã hết chỗ".
             return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, d,
-                             (f"hết chỗ ở {chat_nhat}"
-                              if chat_nhat else "hết chỗ, không rõ ở đâu",),
+                             (_ly("het-cho-o-tran",
+                                  f"hết chỗ ở {chat_nhat}" if chat_nhat
+                                  else "hết chỗ, không rõ ở đâu"),),
                              tuple(cat))
         return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, tran, d, (),
                          tuple(cat))

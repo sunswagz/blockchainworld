@@ -396,7 +396,13 @@ class TrungUong:
             # Dừng cả việc quan sát là tự làm mình mù đúng lúc cần nhìn nhất.
             for tt in song:
                 self.so_dang_ky.chuyen(tt.ma, "TU_CHOI",
-                                       "CẦU DAO NGẮT: " + "; ".join(ly))
+                                       # Mã trước, câu sau — cùng kỷ luật
+                                       # `phan_bo.ly_do()`. "CẦU DAO NGẮT"
+                                       # có dấu cách và chữ hoa nên chẩn
+                                       # đoán không nhận ra được nó là mã,
+                                       # và 520 lần từ chối lớn nhất của cỗ
+                                       # máy rơi vào ô «không phân loại».
+                                       "cau-dao-ngat: " + "; ".join(ly))
             return self._cuoi_vong(lat)
 
         # ── 4. rủi ro tổng + phân bổ (cấp TUẦN TỰ, xem phan_bo.py) ───────

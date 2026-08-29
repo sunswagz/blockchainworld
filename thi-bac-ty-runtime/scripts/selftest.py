@@ -1842,10 +1842,17 @@ def kiem_trung_uong_vong() -> None:
          gan(tu.danh_muc.tienMatUsd, tien_truoc) and lat2.phanBo is None)
     kiem("nhưng VẪN quét và VẪN ghi nhận", lat2.soGhiNhan == 1,
          "dừng quan sát là tự làm mình mù đúng lúc cần nhìn nhất")
+    from thi_bac_ty.chan_doan_he import _ma_ly_do as _ma_ly
+    _duong = tu.so_dang_ky.phieu(
+        tu.so_dang_ky.theo_trang_thai("TU_CHOI")[0]["ma"])["duongDi"]
+    _lyTC = [b["lyDo"] for b in _duong if b["den"] == "TU_CHOI"]
     kiem("tờ trình bị từ chối có ghi rõ là do cầu dao",
-         any("CẦU DAO" in b["lyDo"]
-             for b in tu.so_dang_ky.phieu(
-                 tu.so_dang_ky.theo_trang_thai("TU_CHOI")[0]["ma"])["duongDi"]))
+         any("cau-dao-ngat" in x for x in _lyTC), str(_lyTC))
+    kiem("và lý do ấy MÁY đọc được, không chỉ người đọc được",
+         any(_ma_ly(x) == "cau-dao-ngat" for x in _lyTC),
+         "«CẦU DAO NGẮT» có dấu cách và chữ hoa nên chẩn đoán không nhận ra "
+         "được nó là mã — và 520 lần từ chối lớn nhất của cỗ máy rơi vào ô "
+         "«không phân loại được»")
 
     anh = tu.anh_chup()
     kiem("ảnh chụp đủ chín tầng",
@@ -2010,6 +2017,75 @@ def kiem_chan_doan_he() -> None:
     dx5 = de_xuat(tr3, {"ruiRoTong": {"tranMotCang": 0.60}})
     kiem("núm đã chạm biên trên thì bỏ qua, không đề xuất bừa",
          all(d.nut != "ruiRoTong.tranMotCang" for d in dx5))
+
+    # ── TRẦN VỊ THẾ: bệnh núp dưới một con số dùng vốn rất khoẻ ─────────
+    from thi_bac_ty.chan_doan_he import _ma_ly_do
+    from thi_bac_ty.phan_bo import ly_do as _ly_do_pb
+
+    kiem("mã đọc ra được từ câu có mã", _ma_ly_do(_ly_do_pb("tran-vi-the",
+                                                            n=12))
+         == "tran-vi-the")
+    for _cau in ("đã đủ 12 vị thế — quá nhiều thì không theo dõi nổi",
+                 # NGẮN, nên bẫy độ dài không cứu: chỉ HÌNH DẠNG mới loại
+                 # được nó. Đột biến bỏ phép soát hình dạng đã sống sót
+                 # đúng vì phép kiểm bản đầu chỉ có câu dài.
+                 "Danh Mục từ chối",
+                 "CẦU DAO NGẮT: von-ngoai-mu: x",
+                 "Rủi Ro Tổng: trần cảng"):
+        kiem(f"câu TRẦN «{_cau[:22]}…» không được nhận bừa làm mã",
+             _ma_ly_do(_cau) is None,
+             "để một câu lọt vào bảng đếm là để một câu dài thành «thủ phạm "
+             "chính» chỉ vì nó lặp lại nguyên văn")
+    kiem("và cầu dao cũng phải mang mã",
+         _ma_ly_do("cau-dao-ngat: von-ngoai-mu: NAV thiếu") == "cau-dao-ngat")
+
+    def _anh_ly(dsLy, dungVon=0.62):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": dungVon},
+                "pheuDayDu": {"theoHo": [{"ho": "phai-sinh",
+                                          "lyDoTuChoi": dsLy}]}}
+
+    tr7 = chan_doan_he(_anh_ly([
+        {"lyDo": _ly_do_pb("tran-vi-the", n=12), "so": 40},
+        {"lyDo": _ly_do_pb("net-am"), "so": 30},
+        {"lyDo": "cau-dao-ngat: von-ngoai-mu: x", "so": 30}]))
+    ma7 = {t.ma for t in tr7}
+    kiem("trần vị thế chặn 40% số lần từ chối → thành TRIỆU CHỨNG",
+         "tran-vi-the-chan" in ma7, str(ma7))
+    kiem("và nó nổ được kể cả khi DÙNG VỐN CAO",
+         "tran-dat-sai-cho" not in ma7,
+         "12 vị thế ăn hết tiền thì tỉ lệ dùng vốn cao — bệnh này núp ngay "
+         "dưới một con số trông rất khoẻ, nên `tran-dat-sai-cho` không thấy")
+    dx7 = de_xuat(tr7, {"phanBo": {"toiDaSoViThe": 12}})
+    kiem("đề xuất NỚI trần vị thế, và là số NGUYÊN",
+         dx7 and dx7[0].nut == "phanBo.toiDaSoViThe"
+         and dx7[0].den > dx7[0].tu and isinstance(dx7[0].den, int),
+         str([d.tom_tat() for d in dx7]))
+
+    tr8 = chan_doan_he(_anh_ly([
+        {"lyDo": _ly_do_pb("tran-vi-the", n=12), "so": 5},
+        {"lyDo": _ly_do_pb("net-am"), "so": 95}]))
+    kiem("mã khác áp đảo thì KHÔNG đổ lỗi cho trần vị thế",
+         "tran-vi-the-chan" not in {t.ma for t in tr8})
+
+    tr9 = chan_doan_he(_anh_ly([
+        {"lyDo": _ly_do_pb("tran-vi-the", n=12), "so": 5}]))
+    kiem("quá ít lần từ chối thì chưa kết luận gì",
+         "tran-vi-the-chan" not in {t.ma for t in tr9},
+         "ba lần trên tổng bốn lần là 75% mà chẳng nói lên gì")
+
+    tr10 = chan_doan_he(_anh_ly([
+        {"lyDo": "đã đủ 12 vị thế — quá nhiều thì không theo dõi nổi",
+         "so": 900},
+        {"lyDo": _ly_do_pb("tran-vi-the", n=12), "so": 70},
+        {"lyDo": _ly_do_pb("net-am"), "so": 30}]))
+    _bc = [t.bangChung for t in tr10 if t.ma == "tran-vi-the-chan"]
+    kiem("câu CŨ không mã bị loại khỏi MẪU SỐ, không pha loãng",
+         _bc and _bc[0]["tongTuChoi"] == 100 and _bc[0]["soKhongMa"] == 900,
+         f"{_bc} — chia cho một mẫu số có cả thứ mình không phân loại nổi là "
+         f"tự pha loãng, và cái loãng ấy giấu đúng thủ phạm đang tìm")
 
     # Khoẻ là một kết luận hợp lệ.
     tr6 = chan_doan_he({"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,

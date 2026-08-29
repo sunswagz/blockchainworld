@@ -47,6 +47,16 @@ NGUONG_DUNG_VON_THAP = 0.15
 #: Hỏng chân B quá tỉ lệ này trên số lần thực thi là legging có hệ thống.
 NGUONG_PHANG_GAP = 0.10
 
+#: Một MÃ từ chối chiếm quá phần này của mọi lần từ chối thì nó là thủ phạm
+#: chính, không phải một trong nhiều nguyên nhân. Đặt ở 0,25 chứ không phải
+#: 0,5: với năm sáu mã từ chối cùng hoạt động, một mã chiếm một phần tư đã
+#: là áp đảo — đợi nó chiếm quá nửa là đợi một tình huống hiếm.
+NGUONG_MA_AP_DAO = 0.25
+
+#: Số lần từ chối tối thiểu để một mã được coi là thủ phạm. Ba lần trên tổng
+#: bốn lần là 75% mà chẳng nói lên gì.
+TOI_THIEU_TU_CHOI = 20
+
 #: Núm Trung Ương được phép ĐỀ XUẤT vặn. So với `bac/tien_hoa.NUT_VAN`, đây
 #: là tầng phân bổ chứ không phải tầng phát hiện.
 NUT_TRUNG_UONG = {
@@ -160,6 +170,45 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy",
              "ruiRoTong.tranMotCoHoi"]))
 
+    # ── 3b. TRẦN VỊ THẾ là thủ phạm chính ───────────────────────────────
+    # Đọc MÃ, không dò chuỗi: `phan_bo.ly_do()` đặt mã đứng đầu mỗi câu đúng
+    # để tầng này nhận ra được. Dò `"vị thế"` trong một câu có số nhúng bên
+    # trong là dựng một mối nối gãy ngay lần đầu ai đó sửa câu chữ.
+    #
+    # Vì sao đáng có riêng một triệu chứng: `tran-dat-sai-cho` chỉ nổ khi
+    # dùng vốn THẤP, mà trần vị thế chặn ở lúc vốn đã dùng gần hết — 12 vị
+    # thế ăn hết tiền rồi thì tỉ lệ dùng vốn cao, và bệnh này núp ngay dưới
+    # một con số trông rất khoẻ.
+    dem: dict[str, int] = {}
+    khong_ma = 0
+    for h in ((anh.get("pheuDayDu") or {}).get("theoHo") or []):
+        for x in (h.get("lyDoTuChoi") or []):
+            so_x = int(x.get("so") or 0)
+            ma_ly = _ma_ly_do(str(x.get("lyDo") or ""))
+            if ma_ly is None:
+                # Câu KHÔNG mang mã: hoặc là bản ghi cũ (trước 29/08 mọi lý
+                # do đều là câu trần), hoặc một tầng khác chưa mang kỷ luật
+                # mã sang. Không đếm vào mẫu số — chia cho một mẫu số có cả
+                # thứ mình không phân loại nổi là tự pha loãng chính mình,
+                # và cái loãng ấy giấu đúng thủ phạm ta đang tìm.
+                khong_ma += so_x
+                continue
+            dem[ma_ly] = dem.get(ma_ly, 0) + so_x
+    tong_tc = sum(dem.values())
+    if tong_tc >= TOI_THIEU_TU_CHOI:
+        ma_top, so_top = max(dem.items(), key=lambda kv: kv[1])
+        phan = so_top / tong_tc
+        if ma_top == "tran-vi-the" and phan >= NGUONG_MA_AP_DAO:
+            ra.append(TrieuChungHe(
+                "tran-vi-the-chan", 2,
+                f"{so_top}/{tong_tc} lần từ chối ({phan:.0%}) là vì ĐỦ SỐ VỊ "
+                f"THẾ, không phải vì hết tiền hay vì rủi ro. Trần ấy đặt ra "
+                f"khi người phải tự theo dõi từng chân; nay mỗi vòng đều có "
+                f"kế toán tự chạy, nên nó đang chặn nhiều hơn nó bảo vệ.",
+                {"maTuChoi": ma_top, "so": so_top, "tongTuChoi": tong_tc,
+                 "phan": phan, "dem": dem, "soKhongMa": khong_ma},
+                ["phanBo.toiDaSoViThe"]))
+
     # ── 4. cấp vốn xong mà không mở được ─────────────────────────────────
     da_mo = int(pheu.get("DA_MO") or 0)
     if da_cap >= 10 and da_mo / da_cap < 0.5:
@@ -217,6 +266,29 @@ class DeXuatHe:
         return {"nut": self.nut, "tu": self.tu, "den": self.den, "vi": self.vi}
 
 
+def _ma_ly_do(cau: str) -> str | None:
+    """`"tran-vi-the: đã đủ 12…"` → `"tran-vi-the"`. Không có mã → `None`.
+
+    Nhận mã bằng HÌNH DẠNG, không bằng danh sách: chữ thường, số, gạch nối,
+    không dấu cách. Danh sách thì mỗi lần thêm một mã lại phải nhớ sửa hai
+    chỗ, và chỗ quên sửa sẽ im lặng biến mã mới thành «không phân loại
+    được».
+
+    Câu trần trả `None` chứ không trả chính nó: một câu không phải một mã,
+    và để nó lọt vào bảng đếm là để một câu dài trở thành «thủ phạm chính»
+    chỉ vì nó lặp lại nguyên văn.
+    """
+    dau = cau.split(":", 1)[0].strip()
+    # Không có bẫy ĐỘ DÀI ở đây, dù bản đầu có: mọi câu trần đều mang dấu
+    # cách hoặc chữ hoa nên phép soát hình dạng đã loại chúng rồi, và đột
+    # biến gỡ bẫy độ dài KHÔNG phép kiểm nào giết được. Một nhánh không phép
+    # kiểm nào giết được thì hoặc thiếu phép kiểm, hoặc thừa nhánh — ở đây
+    # là thừa, nên gỡ.
+    if not all(k.islower() or k.isdigit() or k == "-" for k in dau):
+        return None
+    return dau if any(k.isalpha() for k in dau) else None
+
+
 def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
     """Từ triệu chứng ra đề xuất vặn — **chỉ đề xuất, không vặn**.
 
@@ -235,7 +307,8 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
                 continue
             # Hướng: bệnh "chặn quá nhiều" thì nới ra, bệnh "legging" thì
             # siết vào. Bước có trần, và không bao giờ ra ngoài khuôn.
-            noi = t.ma in ("tong-chan-het", "tran-dat-sai-cho")
+            noi = t.ma in ("tong-chan-het", "tran-dat-sai-cho",
+                           "tran-vi-the-chan")
             buoc = abs(hien) * BUOC_TOI_DA or (khuon["max"] - khuon["min"]) * 0.1
             moi = hien + buoc if noi else hien - buoc
             moi = max(khuon["min"], min(khuon["max"], moi))

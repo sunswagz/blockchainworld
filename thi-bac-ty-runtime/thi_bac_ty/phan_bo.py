@@ -76,6 +76,33 @@ MAC_DINH = {
     "phatChuaDoKhoaVon": 0.70,
 }
 
+#: MÃ đứng đầu mỗi câu từ chối của tầng này.
+#:
+#: Câu thì để người đọc; mã để MÁY đọc. Chẩn đoán muốn biết «lý do chặn
+#: nhiều nhất là gì» thì nó phải nhận ra được lý do, mà nhận bằng cách dò
+#: chuỗi trong một câu có số nhúng bên trong (`đã đủ 12 vị thế…`) là dựng
+#: một mối nối gãy ngay lần đầu ai đó sửa câu chữ.
+#:
+#: Cầu dao đã làm đúng thế từ trước (`CẦU DAO NGẮT: von-ngoai-mu: …`) —
+#: đây chỉ là mang cùng kỷ luật ấy xuống tầng phân bổ.
+MA_TU_CHOI = {
+    "net-am":          "NET mỗi giờ ≤ 0 — lỗ ít vẫn là lỗ",
+    "tran-vi-the":     "đã đủ {n} vị thế — quá nhiều thì không theo dõi nổi",
+    "duoi-san-mot-lan": ("chỉ còn cấp được {cap:.2f} USD, dưới sàn {san} — "
+                         "phí cố định ăn hết"),
+    "het-tien-mat":    "Danh Mục từ chối — không đủ tiền mặt",
+}
+
+
+def ly_do(ma: str, **kw) -> str:
+    """`"tran-vi-the: đã đủ 12 vị thế — …"`. Mã trước, câu sau.
+
+    Mã lạ thì NÉM, không trả về một câu trống: một lý do từ chối không tên
+    là một lý do không đếm được, và bảng «vì sao bị từ chối» sẽ có một cột
+    rỗng mà không ai biết nó từ đâu ra.
+    """
+    return f"{ma}: {MA_TU_CHOI[ma].format(**kw)}"
+
 
 @dataclass
 class LatCatPhanBo:
@@ -216,12 +243,13 @@ class PhanBo:
         for diem, chiTiet, tt in xep:
             if diem == float("-inf"):
                 lat.tuChoi.append({"maToTrinh": tt.ma, "chienLuoc": tt.chienLuoc,
-                                   "lyDo": "NET mỗi giờ ≤ 0 — lỗ ít vẫn là lỗ"})
+                                   "lyDo": ly_do("net-am")})
                 continue
             if len(danh_muc.viThe) >= int(self.c["toiDaSoViThe"]):
                 lat.tuChoi.append({"maToTrinh": tt.ma, "chienLuoc": tt.chienLuoc,
-                                   "lyDo": f"đã đủ {self.c['toiDaSoViThe']} vị "
-                                           f"thế — quá nhiều thì không theo dõi nổi"})
+                                   "lyDo": ly_do(
+                                       "tran-vi-the",
+                                       n=self.c["toiDaSoViThe"])})
                 continue
 
             # XÉT LẠI trên danh mục ĐÃ CẬP NHẬT — xem docstring đầu file.
@@ -240,8 +268,8 @@ class PhanBo:
             if cap < float(self.c["toiThieuMotLanUsd"]):
                 lat.tuChoi.append({
                     "maToTrinh": tt.ma, "chienLuoc": tt.chienLuoc,
-                    "lyDo": f"chỉ còn cấp được {cap:.2f} USD, dưới sàn "
-                            f"{self.c['toiThieuMotLanUsd']} — phí cố định ăn hết",
+                    "lyDo": ly_do("duoi-san-mot-lan", cap=cap,
+                                  san=self.c["toiThieuMotLanUsd"]),
                     "choToiDaUsd": pq.choToiDaUsd})
                 continue
 
@@ -252,7 +280,7 @@ class PhanBo:
                     for c in tt.chan]
             if not danh_muc.cam_ket(tt.ma, chan):
                 lat.tuChoi.append({"maToTrinh": tt.ma, "chienLuoc": tt.chienLuoc,
-                                   "lyDo": "Danh Mục từ chối — không đủ tiền mặt"})
+                                   "lyDo": ly_do("het-tien-mat")})
                 continue
 
             lat.daCap.append({
