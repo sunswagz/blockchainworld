@@ -125,6 +125,7 @@ def nhat_ky(n: int = 200) -> JSONResponse:
 @app.post("/api/tam-dung")
 def tam_dung() -> JSONResponse:
     runtime.tamDung = not runtime.tamDung
+    runtime.ghi_dieu_khien()          # quyết định của NGƯỜI phải sống sót
     bus.ghi("tạm dừng" if runtime.tamDung else "chạy tiếp", loai="he")
     return JSONResponse({"tamDung": runtime.tamDung})
 
@@ -134,6 +135,7 @@ def bat_tat(ma: str) -> JSONResponse:
     if ma not in runtime.batTat:
         return JSONResponse({"loi": "không có chiến thuật này"}, status_code=404)
     runtime.batTat[ma] = not runtime.batTat[ma]
+    runtime.ghi_dieu_khien()          # quyết định của NGƯỜI phải sống sót
     bus.ghi(f"chiến thuật {ma}: {'bật' if runtime.batTat[ma] else 'tắt'}", loai="he")
     return JSONResponse({"ma": ma, "bat": runtime.batTat[ma]})
 

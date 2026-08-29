@@ -4920,6 +4920,80 @@ def kiem_tien_hoa_mot_luot_moi_ngay() -> None:
         else:
             SO_TIEN_HOA.write_text(cu, encoding="utf-8")
 
+def kiem_quyet_dinh_cua_nguoi_song_sot() -> None:
+    """Người bấm TẠM DỪNG hay TẮT một chiến thuật — quyết định ấy phải sống.
+
+    `tamDung` và `batTat` chỉ nằm trong bộ nhớ. Một lần khởi động lại là
+    bot chạy tiếp và mọi chiến thuật bật lại, IM LẶNG.
+
+    Chiều hỏng là chiều NGUY HIỂM: thứ người ta tắt đi thì bật lên, chứ
+    không phải ngược lại. Mà người ta tắt một chiến thuật thường là vì vừa
+    thấy nó làm gì đó không ổn — đúng lúc KHÔNG được quên.
+
+    Và khởi động lại xảy ra vì đủ thứ lý do chẳng liên quan: cập nhật,
+    sập, người bấm nhầm. Riêng hôm nay runtime này khởi động lại hơn mười
+    lăm lần.
+    """
+    print("\n── Quyết định của NGƯỜI phải sống qua khởi động lại ────────")
+
+    import json as _js
+    import tempfile
+
+    import kham.vong as V
+
+    with tempfile.TemporaryDirectory() as d:
+        r = V.Runtime.__new__(V.Runtime)
+        r.batTat = {"a": True, "b": True}
+        r.tamDung = False
+        r._duongThu = Path(d) / "dieu-khien.json"
+        # ép `_duong_dieu_khien` trỏ vào thư mục thử
+        V.Runtime._duong_dieu_khien = property(lambda self: self._duongThu)
+
+        r._nap_dieu_khien()
+        kiem("chưa có sổ ⇒ mặc định chạy tiếp, mọi chiến thuật bật",
+             r.tamDung is False and all(r.batTat.values()))
+
+        r.tamDung = True
+        r.batTat["b"] = False
+        r.ghi_dieu_khien()
+        kiem("ghi ra file thật", r._duongThu.exists())
+
+        r2 = V.Runtime.__new__(V.Runtime)
+        r2.batTat = {"a": True, "b": True}
+        r2.tamDung = False
+        r2._duongThu = r._duongThu
+        r2._nap_dieu_khien()
+        kiem("khởi động lại: VẪN tạm dừng", r2.tamDung is True)
+        kiem("và chiến thuật đã tắt VẪN tắt", r2.batTat["b"] is False)
+        kiem("chiến thuật không ai đụng thì vẫn bật", r2.batTat["a"] is True)
+
+        # Sổ hỏng ⇒ chạy bằng mặc định và KÊU, không sập.
+        r._duongThu.write_text("{khong-phai-json", encoding="utf-8")
+        r3 = V.Runtime.__new__(V.Runtime)
+        r3.batTat = {"a": True, "b": True}
+        r3.tamDung = False
+        r3._duongThu = r._duongThu
+        r3._nap_dieu_khien()
+        kiem("sổ hỏng thì chạy bằng mặc định, không ném",
+             r3.tamDung is False and all(r3.batTat.values()))
+
+        # Chiến thuật lạ trong sổ KHÔNG được đẻ ra khoá mới.
+        r._duongThu.write_text(
+            _js.dumps({"tamDung": False, "batTat": {"khong-ton-tai": False}}),
+            encoding="utf-8")
+        r4 = V.Runtime.__new__(V.Runtime)
+        r4.batTat = {"a": True, "b": True}
+        r4.tamDung = False
+        r4._duongThu = r._duongThu
+        r4._nap_dieu_khien()
+        kiem("tên chiến thuật lạ trong sổ bị bỏ qua",
+             set(r4.batTat) == {"a", "b"}, sorted(r4.batTat))
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    sv = (GOC_MA / "kham" / "server.py").read_text(encoding="utf-8")
+    kiem("nút tạm dừng GHI NGAY khi bấm",
+         sv.count("runtime.ghi_dieu_khien()") >= 2)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -5006,6 +5080,7 @@ def main() -> int:
     kiem_cau_dao_chan_that()
     kiem_lenh_that_khong_thoat_duoc()
     kiem_tien_hoa_mot_luot_moi_ngay()
+    kiem_quyet_dinh_cua_nguoi_song_sot()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

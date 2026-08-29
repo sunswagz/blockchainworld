@@ -121,6 +121,7 @@ class Runtime:
         self._thanPhien: dict[str, str] = {}
         self.batTat = {ct.ma: True for ct in SO_DANG_KY}
         self.tamDung = False
+        self._nap_dieu_khien()
         self.vong = 0
         self.batDauLuc = time.time()
         self._chay = False
@@ -242,6 +243,63 @@ class Runtime:
                     "các làn sau vẫn chạy", loai="loi")
             return False
 
+    #: Nơi giữ hai quyết định của NGƯỜI: tạm dừng, và bật/tắt chiến thuật.
+    @property
+    def _duong_dieu_khien(self):
+        from .config import DATA_DIR
+        return DATA_DIR / "dieu-khien.json"
+
+    def _nap_dieu_khien(self) -> None:
+        """Đọc lại hai quyết định của NGƯỜI sau khi khởi động lại.
+
+        `tamDung` và `batTat` là những thứ một người CỐ Ý bấm — thường là
+        vì vừa thấy cái gì đó không ổn. Chúng chỉ nằm trong bộ nhớ, nên
+        một lần khởi động lại là bot chạy tiếp và mọi chiến thuật bật lại,
+        im lặng.
+
+        Chiều hỏng là chiều NGUY HIỂM: thứ người ta tắt đi thì bật lên,
+        chứ không phải ngược lại. Và khởi động lại xảy ra vì đủ thứ lý do
+        chẳng liên quan gì tới quyết định ấy — cập nhật, sập, người bấm.
+
+        Cùng họ với `RiskEngine.nap_tu_so` và cờ ngày tiến hoá: trạng
+        thái sống trong bộ nhớ mà sự thật phải nằm trên đĩa.
+        """
+        import json as _js
+        try:
+            f = self._duong_dieu_khien
+            if not f.exists():
+                return
+            d = _js.loads(f.read_text(encoding="utf-8"))
+        except Exception as e:      # noqa: BLE001
+            bus.ghi(f"không đọc được sổ điều khiển: {type(e).__name__}: {e}"
+                    " — chạy bằng mặc định (chạy tiếp, mọi chiến thuật bật)",
+                    loai="canh")
+            return
+        if d.get("tamDung"):
+            self.tamDung = True
+        bt = d.get("batTat") or {}
+        tat = [m for m in self.batTat if bt.get(m) is False]
+        for m in tat:
+            self.batTat[m] = False
+        if self.tamDung or tat:
+            bus.ghi("khôi phục quyết định của người: "
+                    + ("ĐANG TẠM DỪNG" if self.tamDung else "chạy tiếp")
+                    + (f" · tắt {len(tat)} chiến thuật: {chr(44).join(tat)}"
+                       if tat else ""), loai="he")
+
+    def ghi_dieu_khien(self) -> None:
+        """Ghi ngay khi người bấm. Không đợi, không gom."""
+        import json as _js
+        try:
+            f = self._duong_dieu_khien
+            f.parent.mkdir(parents=True, exist_ok=True)
+            f.write_text(_js.dumps(
+                {"tamDung": bool(self.tamDung),
+                 "batTat": dict(self.batTat)},
+                ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception as e:      # noqa: BLE001
+            bus.ghi(f"KHÔNG ghi được sổ điều khiển: {type(e).__name__}: {e}"
+                    " — quyết định này sẽ MẤT khi khởi động lại", loai="loi")
     def _mot_vong(self) -> None:
         self.vong += 1
         now = time.time() * 1000.0
