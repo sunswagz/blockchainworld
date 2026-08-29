@@ -966,6 +966,43 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_cong_tien_ngan_mach() -> None:
+    """Băng không có dòng khung ăn thua thì cổng tiền BỎ QUA phần chạy lại.
+
+    `chay_lai` chỉ chấm được dòng `quan-sat`. Không có dòng nào thì ba
+    lượt quét băng phía sau CHẮC CHẮN trả về 0 khớp — mỗi lượt vài chục
+    giây trên băng thật, mỗi ngày, để tới đúng cái chỗ đã biết trước.
+
+    Ngắn mạch phải kèm LỜI KHAI: một vòng bỏ qua việc mà không nói vì
+    sao thì đọc y hệt một vòng hỏng.
+    """
+    print("\n-- Cong tien ngan mach khi khong co gi de cham -----------")
+
+    from kham.tien_hoa import _dem_bo_qua
+
+    dc = [{"thiTruong": [{"ma": "BTC_5M", "giaiDoan": "dat-cuoc",
+                          "so": {"UP": {"thangCho": True}}}]} for _ in range(5)]
+    qs = [{"thiTruong": [{"ma": "BTC_5M", "giaiDoan": "quan-sat",
+                          "so": {"UP": {}}}]} for _ in range(3)]
+
+    d = _dem_bo_qua(dc)
+    kiem("băng toàn cửa đặt cược → đếm 0 dòng ăn thua",
+         d.get("_soQuanSat") == 0, d)
+    kiem("vẫn đếm được lý do đứng ngoài", d.get("thang-cho") == 5, d)
+
+    d2 = _dem_bo_qua(dc + qs)
+    kiem("có dòng ăn thua thì đếm đúng", d2.get("_soQuanSat") == 3, d2)
+
+    # Và khoá đếm ấy KHÔNG được rơi vào bảng triệu chứng: nó là số liệu
+    # nội bộ, không phải một lý do đứng ngoài.
+    from kham.chan_doan import chan_doan
+    t = chan_doan([{"laiLo": -1.0} for _ in range(40)],
+                  {"saiSoTB": 0.01, "tongMau": 500, "bang": []},
+                  {k: v for k, v in d2.items() if not k.startswith("_")})
+    ma = [x.ma for x in t]
+    kiem("chẩn đoán vẫn chạy bình thường với bảng đã lọc", bool(ma), ma)
+
+
 def kiem_tu_nang_cap() -> None:
     """Vòng tự nâng cấp: ba tập tách rời, và biên siết theo số ứng viên.
 
@@ -2630,6 +2667,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_cong_tien_ngan_mach()
     kiem_tu_nang_cap()
     kiem_ghi_config_tai_cho()
     kiem_chan_mo_hinh_khong_can_lenh()

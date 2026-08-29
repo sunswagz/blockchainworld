@@ -519,6 +519,7 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
 
     # Lượt quét đầu; sau nó `khung.soKhung` mới có số.
     bo_qua = _dem_bo_qua(khung)
+    soQuanSat = bo_qua.pop("_soQuanSat", 0)
     kq.soKhungBang = khung.soKhung
     _buoc(2, f"đo: {kq.soKhungBang} khung, sổ thật {len(ket)} lệnh")
 
@@ -535,6 +536,25 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
     # lọc bất lợi), nên nó đi kèm nhãn `nguonMau` và nhãn ấy theo xuống
     # tận từng triệu chứng.
     nguonMau = "that"
+    if len(ket) < TOI_THIEU_MAU and kq.soKhungBang and not soQuanSat:
+        # Băng không có DÒNG NÀO thuộc khung ăn thua, mà đó là loại duy
+        # nhất `chay_lai` chấm được. Ba lượt quét băng phía sau chắc chắn
+        # trả về 0 khớp — bỏ chúng đi và NÓI RA, thay vì đốt vài phút mỗi
+        # ngày để tới cùng một chỗ.
+        _buoc(3, "băng không có dòng khung ăn thua — bỏ qua phần chạy lại")
+        kq.ghiChu = (
+            f"băng {kq.soKhungBang:,} khung nhưng KHÔNG dòng nào thuộc khung "
+            "ăn thua, nên cổng tiền không có gì để chấm. Đường tới chợ đứt "
+            "thì đây là trạng thái đúng — nửa vòng học từ Binance vẫn chạy.")
+        kq.trieuChung = [{"ma": "thieu-mau", "nang": 1,
+                          "moTa": kq.ghiChu,
+                          "bangChung": {"soKhungBang": kq.soKhungBang,
+                                        "soDongQuanSat": 0},
+                          "nutGoiY": []}]
+        if not thu:
+            _ghi_so(kq)
+        return kq
+
     if len(ket) < TOI_THIEU_MAU and kq.soKhungBang:
         cl = CONFIG["canLoi"]
         _buoc(2, "sổ thật còn mỏng — dựng mẫu bằng CHẠY LẠI trên băng")
@@ -606,11 +626,18 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
 
 
 def _dem_bo_qua(khung: list[dict]) -> dict[str, int]:
-    """Đếm lý do bỏ qua trong băng — nguyên liệu cho triệu chứng `dung-ngoai`."""
-    ra: dict[str, int] = {}
+    """Đếm lý do bỏ qua trong băng — nguyên liệu cho triệu chứng `dung-ngoai`.
+
+    Đếm luôn số dòng KHUNG ĂN THUA vào khoá `_soQuanSat`. Cổng tiền chỉ
+    chấm được dòng ấy; bằng 0 thì mọi lượt chạy lại phía sau chắc chắn
+    trả về 0 khớp, và ba lượt quét băng ấy là công cốc — mỗi ngày.
+    """
+    ra: dict[str, int] = {"_soQuanSat": 0}
     for k in khung:
         for tt in (k.get("thiTruong") or []):
             if giai_doan_cua(tt) != "dat-cuoc":
+                if giai_doan_cua(tt) == "quan-sat":
+                    ra["_soQuanSat"] += 1
                 continue
             so = tt.get("so") or {}
             up = so.get("UP") or {}
