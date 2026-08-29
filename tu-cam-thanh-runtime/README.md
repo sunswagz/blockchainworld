@@ -69,9 +69,31 @@ python scripts/dau-chien-luoc.py --tat-ca # đấu mọi bộ luật với champ
 python scripts/dau-chien-luoc.py --tat-ca --cho BTCUSDT:4h,ETHUSDT:4h  # nhiều chợ
 python scripts/tai-lich-su.py --so 6000 --coin BTCUSDT,ETHUSDT,SOLUSDT --khung 5m,15m,30m,1h,4h,1d
 python scripts/kiem-nguon.py --offline    # kiểm phân loại tin, không chạm mạng
+python scripts/do-huong.py --ghi --cho <ds>  # nửa LONG và nửa SHORT đáng bao nhiêu
+python scripts/lo-luyen.py --cho <ds> --bien 20 --lat 4 --chi-long --ghi
+python scripts/an-toan-dung-lai.py        # CÓ AN TOÀN để giết run.py không (mã thoát 0/1)
 node scripts/kiem-giao-dien.mjs           # mọi trường app.js đọc phải có thật (runtime đang chạy)
 ```
 
+
+## Nhiều chợ, và nửa chiến lược bot không chạy được
+
+`config.symbols` liệt kê các chợ được QUÉT mỗi lượt ra quyết định; `symbol` là
+chợ chính, luôn đứng đầu. Luật thuần chấm cả 15 chợ (miễn phí, chạy tại máy),
+bộ não chỉ suy luận cho ứng viên được chọn — trần `brain.cli` là 8 lượt/ngày,
+không phủ nổi 15 chợ mỗi vòng.
+
+Hai hàng rào đi cùng nhau: `maxOpenPositions` 4 và `maxTongRuiRoPct` 2,0%.
+15 lệnh crypto KHÔNG phải 15 cược độc lập — chúng thua cùng nhau.
+
+Và một chỗ phải nhớ khi đọc MỌI con số ở đây: sàn spot chỉ bán được thứ đang
+giữ, nên bot chạy thật **không đánh được SHORT**. Đo trên 48 chợ, 2.069 lệnh:
+
+    riêng SHORT  1134 lệnh  +0,0911R   ← nửa có lãi
+    riêng LONG    935 lệnh  −0,1474R   ← nửa bot chạy được
+
+Nên mọi bảng "cả hai chiều" nói về một chiến lược bot không chạy nổi. Dùng
+`--chi-long` khi dò tham số, và đọc `do-huong.json` để thấy khoảng cách.
 ## Phòng huấn luyện
 
 Chạy lại chiến lược trên nến lịch sử, dò tham số, đúc bài học. Vào từ buồng lái
