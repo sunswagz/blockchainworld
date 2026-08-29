@@ -566,16 +566,27 @@ và `scripts/chay-phat-lai.py` chạy lại được mỗi khi băng dày thêm.
 
 Đo được (`scripts/do-tran-mo-hinh.py`, 20 ngày BTC, 9.220 cặp ngoài mẫu):
 
-    SÀN   đoán bừa tỉ lệ nền (49,0%)      0.24990
-    NAY   mô hình + nắn, ngoài mẫu        0.15774
-    TRẦN  biến đổi đơn điệu tốt nhất      0.15669   ← khớp TRONG mẫu, cố ý
+    SÀN   đoán bừa tỉ lệ nền (49,2%)      0.24994
+    NAY   mô hình + nắn, ngoài mẫu        0.15743
+    TRẦN  đơn điệu, khớp TRONG mẫu        0.15642   ← thiên vị THẤP
+    TRẦN  đơn điệu, khớp CHÉO 4 phần      0.15760   ← đọc cái này
 
-    đã vắt 98,9% khoảng cách SÀN→TRẦN · CÒN LẠI 1,1%
+    NAY đã NGANG/VƯỢT trần khớp chéo — không còn chỗ cho phép nắn nào
 
 Mọi phép nắn đều là biến đổi đơn điệu của `p`, nên không phép nắn nào
-vượt được cái trần ấy — và nó khớp gian lận ngay trên tập chấm nên 1,1%
-kia còn rộng rãi. **Vặn thêm tham số mô hình là phí công.** Muốn khá hơn
-phải thêm THÔNG TIN MỚI vào `p`: sổ lệnh, dòng lệnh, độ trễ liên sàn.
+vượt được cái trần ấy. **Vặn thêm tham số mô hình là phí công.** Muốn
+khá hơn phải thêm THÔNG TIN MỚI vào `p`: sổ lệnh, dòng lệnh, độ trễ
+liên sàn.
+
+> Dòng này từng ghi *"đã vắt 98,9%, còn lại 1,1%"*, đọc từ cái trần khớp
+> NGAY TRÊN tập chấm. Trần khớp trong mẫu bị kéo xuống thấp hơn sự thật,
+> nên nó làm khoảng cách NAY→TRẦN trông HẸP hơn — tức là thiên vị về
+> phía kết luận *"thôi vặn"*, đúng cái kết luận đang rút ra từ nó. Khớp
+> chéo bốn phần thì đường nắn không bao giờ thấy điểm nó đang chấm; và
+> lần này nó làm kết luận MẠNH thêm chứ không mềm đi: 1,1% kia không có
+> thật. Chênh 0.00118 giữa hai trần là phần khớp quá của chính phép đo
+> trần. Nhắc lại luật chung: **cái thước tự khớp trên tập nó chấm thì
+> phải khai ra nó thiên vị chiều nào.**
 
 Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
 

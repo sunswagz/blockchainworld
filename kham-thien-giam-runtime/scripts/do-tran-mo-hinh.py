@@ -157,6 +157,79 @@ def tran_don_dieu(cap, soO: int = 40) -> float:
     return _brier(ra)
 
 
+def tran_cheo(cap: list, soO: int = 40, soPhan: int = 4) -> float:
+    """TRẦN khớp CHÉO: khớp trên các phần khác, chấm trên phần đang xét.
+
+    `tran_don_dieu` khớp NGAY TRÊN tập đang chấm. Đó là một cận đúng cho
+    "thông tin nằm trong `p`", nhưng nó thiên vị theo hướng nguy hiểm:
+    trần bị kéo XUỐNG thấp hơn sự thật, nên khoảng cách NAY→TRẦN trông
+    HẸP hơn, và kết luận "đã vắt gần hết, thôi vặn" được nói ra mạnh hơn
+    mức bằng chứng cho phép.
+
+    Khớp chéo bốn phần thì đường nắn không bao giờ thấy điểm nó đang
+    chấm. Chênh giữa hai trần chính là phần khớp quá của chính phép đo
+    trần — và nó phải được khai ra, vì kết luận rút từ nó là kết luận
+    "ngừng làm việc".
+    """
+    n = len(cap)
+    if n < 400:
+        return tran_don_dieu(cap, soO)
+    canh = [int(round(i * n / soPhan)) for i in range(soPhan + 1)]
+    ra = []
+    for i in range(soPhan):
+        lo, hi = canh[i], canh[i + 1]
+        cham_ = cap[lo:hi]
+        khop_ = cap[:lo] + cap[hi:]
+        if len(cham_) < 50 or len(khop_) < 200:
+            continue
+        moc_ = _moc_don_dieu(khop_, soO)
+        ra.extend((_ap(moc_, p), t) for p, t in cham_)
+    return _brier(ra) if ra else tran_don_dieu(cap, soO)
+
+
+def _moc_don_dieu(cap: list, soO: int) -> list:
+    """Trả các mốc (p trung bình ô, tần suất thắng sau PAVA)."""
+    xep = sorted(cap, key=lambda x: x[0])
+    n = len(xep)
+    soO = max(4, min(soO, n // 10))
+    canh = [int(round(i * n / soO)) for i in range(soO + 1)]
+    khoi = []
+    for i in range(soO):
+        lo, hi = canh[i], canh[i + 1]
+        if hi <= lo:
+            continue
+        o = xep[lo:hi]
+        khoi.append([sum(1 for _p, t in o if t), len(o),
+                     sum(p for p, _t in o) / len(o)])
+    i = 0
+    while i < len(khoi) - 1:
+        a, b = khoi[i], khoi[i + 1]
+        if a[0] / a[1] <= b[0] / b[1] + 1e-12:
+            i += 1
+            continue
+        khoi[i] = [a[0] + b[0], a[1] + b[1],
+                   (a[2] * a[1] + b[2] * b[1]) / (a[1] + b[1])]
+        del khoi[i + 1]
+        i = max(0, i - 1)
+    return [(k[2], k[0] / k[1]) for k in khoi]
+
+
+def _ap(moc: list, p: float) -> float:
+    """Nội suy tuyến tính giữa các mốc, kẹp ở hai đầu."""
+    if not moc:
+        return p
+    if p <= moc[0][0]:
+        return moc[0][1]
+    if p >= moc[-1][0]:
+        return moc[-1][1]
+    for i in range(len(moc) - 1):
+        a, b = moc[i], moc[i + 1]
+        if a[0] <= p <= b[0]:
+            t = 0.0 if b[0] == a[0] else (p - a[0]) / (b[0] - a[0])
+            return a[1] + t * (b[1] - a[1])
+    return moc[-1][1]
+
+
 def main() -> int:
     cap = next((t.get("nen") for t in CONFIG["thiTruong"]
                 if t.get("ma") == MA), None)
@@ -221,13 +294,16 @@ def main() -> int:
     nay_tho = _brier(c2)
     nay_nan = _brier([(pn.nan(p) if pn.dung_duoc else p, t) for p, t in c2])
     tran = tran_don_dieu(c2)
+    tranC = tran_cheo(c2)
 
     print()
     print(f"    SÀN   đoán bừa tỉ lệ nền ({nen_ti:.1%})      {san:.5f}")
     print(f"    NAY   mô hình thô                       {nay_tho:.5f}")
     print(f"    NAY   sau phép nắn (khớp ngoài mẫu)     {nay_nan:.5f}")
-    print(f"    TRẦN  biến đổi đơn điệu tốt nhất        {tran:.5f}"
-          "   (khớp TRONG mẫu, cố ý)")
+    print(f"    TRẦN  đơn điệu, khớp TRONG mẫu          {tran:.5f}"
+          "   (thiên vị THẤP)")
+    print(f"    TRẦN  đơn điệu, khớp CHÉO 4 phần        {tranC:.5f}"
+          "   ← đọc cái này")
     if tran > min(nay_tho, nay_nan) + 1e-9:
         print()
         print("  ⚠⚠ TRẦN CAO HƠN MÔ HÌNH. Một cái trần thấp hơn thứ nó chặn")
@@ -235,11 +311,22 @@ def main() -> int:
         print("     dưới đây không dùng được cho tới khi sửa.")
         return 1
     print()
+    # Đọc theo trần KHỚP CHÉO. Trần khớp trong mẫu bị kéo xuống thấp hơn
+    # sự thật, nên nó làm khoảng cách NAY→TRẦN trông hẹp hơn và đẩy kết
+    # luận về phía "thôi vặn" mạnh hơn mức bằng chứng cho phép.
+    print(f"    (chênh giữa hai trần {abs(tran - tranC):.5f} là phần khớp "
+          "quá của chính phép đo trần)")
+    tran = tranC
     dat = san - nay_nan
     con = nay_nan - tran
-    print(f"    đã lấy được {dat:.5f} trên tổng {san - tran:.5f} khoảng cách"
-          f" SÀN→TRẦN  =  {dat/max(1e-9, san-tran):.1%}")
-    print(f"    còn lại    {con:.5f}  ({con/max(1e-9, san-tran):.1%})")
+    if con <= 0:
+        print(f"    NAY ({nay_nan:.5f}) đã NGANG HOẶC VƯỢT trần khớp chéo "
+              f"({tran:.5f}).")
+        print("    Không còn chỗ nào cho một phép biến đổi đơn điệu của `p`.")
+    else:
+        print(f"    đã lấy được {dat:.5f} trên tổng {san - tran:.5f} khoảng "
+              f"cách SÀN→TRẦN  =  {dat/max(1e-9, san-tran):.1%}")
+        print(f"    còn lại    {con:.5f}  ({con/max(1e-9, san-tran):.1%})")
     print()
     if con < 0.002:
         print("  ĐỌC: NAY gần như chạm TRẦN. Mọi phép nắn, mọi cách vặn tham")
