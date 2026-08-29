@@ -2126,6 +2126,90 @@ def kiem_phan_bo() -> None:
          and any("sàn" in str(x.get("lyDo")) for x in lat2.tuChoi),
          f"daCap={lat2.daCap} tuChoi={lat2.tuChoi}")
 
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ──────────────────────
+    #
+    # Quét đột biến trên `phan_bo.py` cho 6/9 con SỐNG SÓT. Đây là bàn
+    # chia tiền: mỗi con sống là một dòng có thể sửa sai mà không phép
+    # kiểm nào kêu.
+    _V = __import__("thi_bac_ty.danh_muc", fromlist=["ViThe"]).ViThe
+
+    # Sàn ĐÓNG: cấp đúng bằng sàn thì vẫn cấp. Trên kia đã có vế «dưới
+    # sàn thì thôi» ($15), nhưng chỉ vế ấy thì `<` và `<=` là một — và
+    # đổi sang `<=` là ném đúng những lần rót nằm sát sàn.
+    _dmS = DanhMuc(1000.0)
+    _dmS.cam_ket("X", [_V("X", "x.y.v1", "LONG", "kraken", "SOL", 775.0)])
+    _latS = pb.chia([_mau(taiSan="DOT", von=100.0, chua=1000.0,
+                          chan=(Chan("LONG", "okx", "DOT"),
+                                Chan("SHORT", "bybit", "DOT")))],
+                    rrt, _dmS, luc="T")
+    kiem("cấp ĐÚNG BẰNG sàn tối thiểu thì vẫn cấp",
+         len(_latS.daCap) == 1 and gan(_latS.daCap[0]["capUsd"], 25.0),
+         f"tiền mặt 225, dự trữ 200, còn đúng 25 = sàn; "
+         f"daCap={_latS.daCap} tuChoi={_latS.tuChoi}")
+
+    # Trần SỐ vị thế cũng đóng: đang ôm đúng trần thì tờ sau không vào
+    # nữa. `>=` đổi thành `>` là cho lọt thêm đúng một vị thế quá trần,
+    # và trần «12» im lặng thành «13».
+    _dmN = DanhMuc(10_000.0)
+    _dmN.cam_ket("X", [_V("X", "x.y.v1", "LONG", "kraken", "SOL", 100.0)])
+    _pbN = PhanBo({"toiDaSoViThe": 1})
+    _latN = _pbN.chia([_mau(taiSan="DOT", von=100.0, chua=1000.0,
+                            chan=(Chan("LONG", "okx", "DOT"),))],
+                      rrt, _dmN, luc="T")
+    kiem("đang ôm ĐÚNG trần số vị thế thì tờ sau bị chặn",
+         len(_latN.daCap) == 0
+         and any("tran-vi-the" in str(x.get("lyDo")) for x in _latN.tuChoi),
+         f"trần 1, đang ôm 1; daCap={_latN.daCap} tuChoi={_latN.tuChoi}")
+    _dmN2 = DanhMuc(10_000.0)
+    _dmN2.cam_ket("X", [_V("X", "x.y.v1", "LONG", "kraken", "SOL", 100.0)])
+    _latN2 = PhanBo({"toiDaSoViThe": 2}).chia(
+        [_mau(taiSan="DOT", von=100.0, chua=1000.0,
+              chan=(Chan("LONG", "okx", "DOT"),))], rrt, _dmN2, luc="T")
+    kiem("còn dưới trần một chỗ thì vào được",
+         len(_latN2.daCap) == 1,
+         "không có vế này thì phép kiểm trên cũng xanh khi bàn chia luôn "
+         "từ chối")
+
+    # `thamChieuKhoaGio = 0` nghĩa là KHÔNG phạt khoá vốn. Đổi `<=` thành
+    # `<` là rơi thẳng vào phép chia cho 0.
+    kiem("tham chiếu khoá = 0 thì không phạt, và không nổ",
+         gan(PhanBo({"thamChieuKhoaGio": 0.0}).diem_chi_tiet(
+                 _mau(net=8.0, giu=8.0, von=100.0, chua=100.0, khoa=99.0),
+                 0.0, None)["heSoKhoaVon"], 1.0),
+         "tắt một hình phạt phải là TẮT, không phải chia cho 0")
+
+    # `luc` truyền vào phải được GIỮ. `or` đổi thành `and` thì mọi lát cắt
+    # mang nhãn thời gian của máy thay vì của vòng — và lúc đối chiếu thì
+    # không ghép lại được với sổ.
+    kiem("nhãn thời gian truyền vào được giữ nguyên", _latS.luc == "T",
+         f"đang là {_latS.luc!r}")
+    kiem("không truyền thì tự điền, không để trống",
+         bool(pb.chia([], rrt, DanhMuc(1000.0)).luc))
+
+    # Từ chối mà ô lý do TRỐNG thì vẫn phải ghi vào sổ một câu đọc được.
+    # `or` đổi thành `and` là ghi một bút toán TU_CHOI với lý do rỗng —
+    # đúng cái bẫy «ô trống thì không ai đọc thành gì».
+    class _RrtCam:
+        c = {"tranMotCoHoi": 0.15}
+
+        def diem(self, tt):
+            return 0.2, ()
+
+        def xet(self, tt, dm):
+            from thi_bac_ty.rui_ro_tong import PhanQuyet
+            return PhanQuyet(tt.ma, tt.chienLuoc, tt.vonCanUsd, 0.0, 0.2,
+                             (), ())
+
+    from thi_bac_ty.so_cai import SoCai as _SoCai
+    _sc = _SoCai(_tam("phanbo-lydo") / "so.sqlite3")
+    PhanBo().chia([_mau(taiSan="DOT", von=100.0, chua=1000.0)],
+                  _RrtCam(), DanhMuc(10_000.0), so_cai=_sc, luc="T")
+    _bt = _sc.gan_day(50, loai="TU_CHOI")
+    kiem("từ chối KHÔNG lý do vẫn ghi sổ một câu đọc được",
+         len(_bt) == 1 and bool(str(_bt[0].get("lyDo", "")).strip()),
+         f"{_bt} — bút toán TU_CHOI với ô lý do rỗng là một dòng sổ không "
+         f"ai đọc lại được")
+
 
 def kiem_so_dang_ky() -> None:
     print("\n── Sổ Đăng Ký: một chiều, một bước, và cái PHỄU ───────────────")
@@ -8814,6 +8898,115 @@ def kiem_doi_soat_vi_the() -> None:
     kiem("danh mục giữ thứ sổ KHÔNG ghi là DA_MO cũng bị nêu ra",
          b9.laTrongDanhMuc == ["khong-co-trong-so"] and b9.lech,
          "chiều này tệ hơn: vốn đang bị giữ cho một thứ sổ không biết tới")
+
+    # ── 10. các chỗ quét đột biến chỉ ra đang trống ─────────────────────
+    #
+    # Quét đột biến trên `doi_soat_vi_the.py` cho 8/17 con SỐNG SÓT. Mấy
+    # con ấy nằm đúng ở những chỗ tầng này tồn tại để canh: «chưa đo
+    # được» so với «bằng 0», và «máy tự đóng» so với «phải có người».
+
+    # `vonDaDongUsd`: chưa đóng tờ nào thì là None, KHÔNG phải 0. Một
+    # cỗ máy chưa dọn gì mà báo «vừa dọn $0» thì đọc như đã dọn xong.
+    kiem("chưa đóng tờ nào thì «vốn đã dọn» là None, không phải 0",
+         do(sdk, dm, sc).vonDaDongUsd is None,
+         "None là «chưa có gì để nói», 0 là «có, và bằng không» — hai câu "
+         "khác nhau")
+
+    # Và một tờ đóng được mà không đọc được vốn thì CẢ TỔNG mù, đúng
+    # luật của `vonMoCoiUsd` ở trên.
+    sdk10, sc10, dm10 = _dung("ds10")
+    _mo(sdk10, sc10, "BTC", None)
+    _mo(sdk10, sc10, "ETH", 150.0)
+    b10 = doi_soat(sdk10, dm10, _Gia(), sc10, CauDao())
+    kiem("dọn được 2 tờ mà một tờ mù vốn thì «vốn đã dọn» cũng mù",
+         len(b10.daDong) == 2 and b10.vonDaDongUsd is None,
+         f"{b10.vonDaDongUsd} — cộng vòng qua chỗ mù là báo $150 như thể "
+         f"đã đo hết")
+
+    # `canNguoi` = CÓ MỒ CÔI **và** KHÔNG mô phỏng. Đổi `and` thành `or`
+    # thì mô phỏng cũng đòi người — và một cảnh báo đòi người ở chỗ máy
+    # tự dọn được là cảnh báo người ta học cách bỏ qua.
+    sdk11, sc11, dm11 = _dung("ds11")
+    _mo(sdk11, sc11, "BTC", 100.0)
+    kiem("mô phỏng CÓ mồ côi vẫn KHÔNG đòi người",
+         not canh(sdk11, dm11, _Gia(), sc11, CauDao()).canNguoi,
+         "máy tự đóng được trên giấy; đòi người ở đây là dạy người bỏ qua")
+    sdk12, sc12, dm12 = _dung("ds12")
+    _mo(sdk12, sc12, "BTC", 100.0)
+    kiem("tiền thật CÓ mồ côi thì ĐÒI người",
+         canh(sdk12, dm12, _That(), sc12, CauDao()).canNguoi)
+    sdk13, sc13, dm13 = _dung("ds13")
+    kiem("tiền thật mà KHÔNG mồ côi thì không đòi ai cả",
+         not canh(sdk13, dm13, _That(), sc13, CauDao()).canNguoi,
+         "«phải có người» phải nghĩa là có việc cho người làm")
+
+    # Câu tóm tắt: «đã đối soát xong» chỉ đúng khi ĐÃ ĐÓNG được gì VÀ hết
+    # lệch. Đổi `and` thành `or` là một cỗ máy chưa từng dọn gì cũng khoe
+    # «đã đóng 0 tờ mồ côi».
+    kiem("chưa dọn gì và không lệch → câu «hai sổ khớp nhau»",
+         "khớp nhau" in do(sdk13, dm13, sc13).tom_tat()["vi"]
+         and "Đã đối soát" not in do(sdk13, dm13, sc13).tom_tat()["vi"],
+         do(sdk13, dm13, sc13).tom_tat()["vi"])
+    kiem("dọn xong và hết lệch → câu «đã đối soát»",
+         "Đã đối soát" in b5.tom_tat()["vi"], b5.tom_tat()["vi"])
+
+    # Số USD trong lời ngắt cầu dao phải là số THẬT. `or 0.0` đổi thành
+    # `and 0.0` là mọi lời ngắt đều ghi «0 USD», và con số 0 ấy đọc thành
+    # «lệch nhưng không mất gì».
+    sdk14, sc14, dm14 = _dung("ds14")
+    _mo(sdk14, sc14, "BTC", 100.0)
+    _mo(sdk14, sc14, "ETH", 150.0)
+    cd14 = CauDao()
+    canh(sdk14, dm14, _Gia(), sc14, cd14)
+    _loi14 = " ".join(str(x) for x in cd14.tom_tat().get("lyDo", []))
+    kiem("lời ngắt cầu dao ghi ĐÚNG số USD đang lệch",
+         "250 USD" in _loi14,
+         f"{_loi14!r} — 100+150; ghi 0 USD thì đọc thành «lệch nhưng không "
+         f"mất gì»")
+    sdk15, sc15, dm15 = _dung("ds15")
+    _mo(sdk15, sc15, "BTC", None)
+    cd15 = CauDao()
+    canh(sdk15, dm15, _Gia(), sc15, cd15)
+    kiem("và không đo được vốn thì NÓI THẲNG là không đo được",
+         "KHÔNG đo được vốn" in " ".join(
+             str(x) for x in cd15.tom_tat().get("lyDo", [])),
+         "một con số 0 ở chỗ này là nói dối bằng số")
+
+    # Thiếu trường thì điền «—», không để `None` chui ra buồng lái.
+    _sdk16, _sc16, _dm16 = _dung("ds16")
+    _mo(_sdk16, _sc16, "BTC", 100.0)
+    b16 = do(_sdk16, _dm16, _sc16)
+    kiem("tờ mồ côi luôn khai được chiến lược và tài sản",
+         all(x.chienLuoc and x.taiSan for x in b16.moCoi),
+         f"{[x.tom_tat() for x in b16.moCoi]} — «None» hiện ra buồng lái "
+         f"đọc thành một ô hỏng, không đọc thành «không biết»")
+
+    # Và khi hàng trong sổ THIẾU trường — sổ cũ, hoặc một ty ghi thiếu —
+    # thì phải lùi về tờ trình, rồi lùi về «—». Chuỗi lùi ấy chưa từng
+    # được đi vào: sổ thật luôn ghi đủ, nên `or` đổi thành `and` vẫn xanh
+    # cho tới ngày gặp một hàng thiếu, và hôm ấy buồng lái hiện «None».
+    class _SdkTho:
+        def __init__(self, hang):
+            self._h = hang
+
+        def theo_trang_thai(self, tt, n=200):
+            return list(self._h)
+
+    b17 = do(_SdkTho([
+        {"ma": "chi-co-to-trinh",
+         "toTrinh": {"chienLuoc": "a.b.v1", "taiSan": "SOL",
+                     "vonCanUsd": 300.0}},
+        {"ma": "khong-co-gi-ca"},
+    ]), DanhMuc(1000.0))
+    _m1, _m2 = b17.moCoi
+    kiem("thiếu trường ở hàng sổ thì LÙI VỀ tờ trình",
+         (_m1.chienLuoc, _m1.taiSan, _m1.vonXinUsd) == ("a.b.v1", "SOL",
+                                                        300.0),
+         f"{_m1.tom_tat()}")
+    kiem("thiếu cả tờ trình thì điền «—», không để «None» chui ra",
+         (_m2.chienLuoc, _m2.taiSan, _m2.moLuc) == ("—", "—", ""),
+         f"{_m2.tom_tat()} — chữ «None» trong một ô buồng lái đọc thành ô "
+         f"hỏng, không đọc thành «không biết»")
 
 
 def kiem_buong_lai() -> None:

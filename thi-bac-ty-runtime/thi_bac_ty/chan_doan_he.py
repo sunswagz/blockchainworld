@@ -533,7 +533,7 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
     for t in sorted(trieu, key=lambda x: -x.nang):
         if t.ma in ("thieu-to-trinh", "khoe", "di-tat", "phi-vao-an-het",
                     "thu-vuot-tran"):
-            # Bốn cái này không vặn được bằng núm. `phi-vao-an-het` là
+            # NĂM cái này không vặn được bằng núm. `phi-vao-an-het` là
             # chuyện của người vận hành: siết trần vốn ở đây là rút vốn
             # khỏi một ty ĐANG làm ra tiền vì một buổi chiều deploy nhiều
             # lần.
