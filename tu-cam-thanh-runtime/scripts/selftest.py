@@ -1392,7 +1392,7 @@ async def main() -> int:
     (DATA_DIR / store.TRADES).write_text("", encoding="utf-8")
 
     # Và giả thuyết ĐÃ CHỐT không được đếm là kẹt.
-    _c24 = _G24.chot("gt-ket", {"kyVongR": 1, "mauToiThieu": 10})
+    _c24 = _G24.chot("gt-ket", {"kyVongR": 1, "mau": 10})
     check(_c24.get("ok"), f"chot() nhận bản chốt: {_c24.get('viSao') or 'ok'}")
     check(not any("gt-ket" in x for x in BG24._gia_thuyet_ket()),
           "giả thuyết đã chốt → không còn là chỗ kẹt")
