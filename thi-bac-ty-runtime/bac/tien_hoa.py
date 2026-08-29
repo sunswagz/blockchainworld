@@ -386,20 +386,61 @@ def doc_so(n: int = 60) -> list[dict]:
 
 
 def duong_tien_hoa() -> dict:
-    """Sổ tiến hoá gộp — có mạnh hơn thật không, bằng số."""
+    """Sổ tiến hoá gộp — có mạnh hơn thật không, bằng số.
+
+    ## Hai chỗ bản đầu nói dối, và cả hai đều theo hướng khoe
+
+    **Một: lượt THỬ đếm như lượt đã áp.** Vòng chạy tự động mặc định là
+    thử (`tuVanTienHoa` tắt), nên nó ĐO và KẾT LUẬN "sẽ nhận" mà không vặn
+    gì. Bản đầu đếm mọi dòng có `nhan` là một lần nhận. Đo thật 29/08: sổ
+    khoe «nhận 7» trong khi `config.json` chưa đổi một chữ và bản tham số
+    vẫn đứng ở #1.
+
+    **Hai: cộng dồn cùng MỘT phép đo.** Lượt thử không đổi tham số, nên
+    lượt sau chẩn lại trên cùng dữ liệu, ra cùng đề xuất, cùng con số. Bản
+    đầu cộng chúng lại thành «tổng cải thiện 1,105 bps» — thực chất là
+    0,158 bps đếm bảy lần.
+
+    Nên tách hẳn hai cột. `soLanNhan` chỉ đếm lượt ÁP THẬT; ý định thì nằm
+    ở `soLanThuNhan` và nó KHÔNG cộng vào tổng cải thiện. Một cỗ máy khoe
+    mình mạnh lên trong khi chưa đổi gì là kiểu nói dối khó thấy nhất, vì
+    mọi dòng trong sổ đều thật.
+    """
     ds = doc_so(500)
-    nhan = [x for x in ds if x.get("nhan")]
+    co_nhan = [x for x in ds if x.get("nhan")]
+    # BA rổ, không phải hai. Dòng THIẾU cờ `thu` là dòng ghi trước khi cờ ấy
+    # tồn tại — nó không phải thử, cũng không phải thật, nó là KHÔNG BIẾT.
+    # Nhét nó vào một trong hai rổ là chọn một hướng nói sai: coi là thử thì
+    # giấu mất một lần vặn có thật, coi là thật thì khoe một lần vặn chưa
+    # xảy ra. Cùng luật «None khác 0» của cả cỗ máy này.
+    that = [x for x in co_nhan if x.get("thu") is False]
+    thu = [x for x in co_nhan if x.get("thu") is True]
+    mu = [x for x in co_nhan if not isinstance(x.get("thu"), bool)]
     tra = [x for x in ds if x.get("traLai")]
-    cai = [x["nhan"].get("caiThienBps") for x in nhan
+    cai = [x["nhan"].get("caiThienBps") for x in that
            if isinstance(x.get("nhan"), dict)
            and x["nhan"].get("caiThienBps") is not None]
     return {
         "soLuot": len(ds),
-        "soLanNhan": len(nhan),
+        "soLanNhan": len(that),
+        "soLanThuNhan": len(thu),
+        "soLanKhongRo": len(mu),
         "soLanTraLai": len(tra),
-        "soLanDungYen": len(ds) - len(nhan) - len(tra),
+        "soLanDungYen": len(ds) - len(co_nhan) - len(tra),
+        # `None` khi chưa áp lượt nào — không phải 0. "Chưa vặn gì" khác
+        # hẳn "vặn rồi mà huề".
         "tongCaiThien": sum(cai) if cai else None,
+        "vi": ((f"{len(that)} lượt ÁP THẬT"
+                + (f" · {len(mu)} dòng cũ KHÔNG rõ thử hay thật"
+                   if mu else "")) if that else
+               (f"CHƯA áp lượt nào — {len(thu)} lượt THỬ kết luận «sẽ nhận», "
+                f"nhưng thử thì không vặn gì. Bật `tuVanTienHoa` để cho phép "
+                f"tự áp, và người bật là người chịu trách nhiệm."
+                if thu else "chưa lượt nào kết luận nhận")
+               + (f" · {len(mu)} dòng cũ KHÔNG rõ thử hay thật"
+                  if mu and not that else "")),
         "chuoi": [{"luc": x.get("luc"), "nhan": x.get("nhan"),
+                   "thu": x.get("thu", True),
                    "ghiChu": x.get("ghiChu")} for x in ds[-12:]],
         "ganNhat": ds[-1] if ds else None,
     }

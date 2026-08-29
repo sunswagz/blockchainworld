@@ -1248,6 +1248,67 @@ def kiem_tien_hoa_hoc() -> None:
          f"{len(_ghiSo)} lời gọi `_ghi_so`, {len(_duoiThu)} nằm dưới một "
          f"nhánh xét `thu` — một cơ chế chạy mà không ghi thì với người đọc "
          f"nó bằng một cơ chế không chạy")
+    # ── SỔ GỘP không được đếm lượt THỬ như lượt ĐÃ ÁP ───────────────────
+    # Đo thật 29/08 trên máy sống: sổ khoe «nhận 7 · tổng cải thiện 1,105
+    # bps» trong khi `config.json` chưa đổi một chữ và bản tham số vẫn #1.
+    # Hai lời nói dối chồng nhau, cả hai đều theo hướng khoe: lượt THỬ đếm
+    # như lượt đã áp, và cùng MỘT phép đo 0,158 bps cộng lại bảy lần (lượt
+    # thử không vặn gì nên lượt sau chẩn lại ra y hệt).
+    import bac.tien_hoa as _th37
+    _cu37 = _th37.SO_TIEN_HOA
+    _th37.SO_TIEN_HOA = _tam("so-tien-hoa") / "tien-hoa.jsonl"
+    try:
+        for _ in range(3):
+            _th37._ghi_so(_th37.KetQuaTienHoa(
+                luc="x", thu=True,
+                nhan={"nut": "netToiThieuBps", "tu": 0.5, "den": 2.75,
+                      "caiThienBps": 0.158}))
+        _d37 = _th37.duong_tien_hoa()
+        kiem("lượt THỬ kết luận «sẽ nhận» KHÔNG đếm là đã nhận",
+             _d37["soLanNhan"] == 0 and _d37["soLanThuNhan"] == 3,
+             f"{_d37} — một cỗ máy khoe mình mạnh lên trong khi chưa đổi gì "
+             f"là kiểu nói dối khó thấy nhất, vì mọi dòng trong sổ đều thật")
+        kiem("và KHÔNG cộng cải thiện của lượt thử vào tổng",
+             _d37["tongCaiThien"] is None,
+             "lượt thử không vặn gì nên lượt sau ra y hệt; cộng lại là đếm "
+             "một phép đo bảy lần")
+        kiem("sổ NÓI RÕ là chưa áp lượt nào",
+             "CHƯA áp lượt nào" in _d37["vi"], _d37["vi"])
+        _th37._ghi_so(_th37.KetQuaTienHoa(
+            luc="y", thu=False,
+            nhan={"nut": "giuGio", "tu": 8.0, "den": 6.0,
+                  "caiThienBps": 0.4}))
+        import json as _js22
+        _d38 = _th37.duong_tien_hoa()
+        kiem("lượt ÁP THẬT thì đếm, và chỉ nó vào tổng cải thiện",
+             _d38["soLanNhan"] == 1 and gan(_d38["tongCaiThien"], 0.4)
+             and "1 lượt ÁP THẬT" in _d38["vi"], str(_d38))
+        # Dòng CŨ, ghi trước khi cờ `thu` tồn tại: không phải thử, không
+        # phải thật — KHÔNG BIẾT. Nhét vào một trong hai rổ là chọn một
+        # hướng nói sai.
+        with _th37.SO_TIEN_HOA.open("a", encoding="utf-8") as _f37:
+            _f37.write(_js22.dumps(
+                {"luc": "z", "nhan": {"nut": "x", "caiThienBps": 9.0}},
+                ensure_ascii=False) + chr(10))
+        _d39 = _th37.duong_tien_hoa()
+        kiem("dòng CŨ thiếu cờ `thu` vào rổ KHÔNG RÕ, không vào hai rổ kia",
+             _d39["soLanKhongRo"] == 1 and _d39["soLanNhan"] == 1
+             and _d39["soLanThuNhan"] == 3,
+             f"{_d39} — coi là thử thì giấu mất một lần vặn có thật, coi là "
+             f"thật thì khoe một lần vặn chưa xảy ra")
+        kiem("và cải thiện của dòng KHÔNG RÕ không cộng vào tổng",
+             gan(_d39["tongCaiThien"], 0.4),
+             f"{_d39['tongCaiThien']} — 9,0 của dòng mù không được lẫn vào")
+        kiem("sổ KHAI ra là có dòng không rõ",
+             "KHÔNG rõ thử hay thật" in _d39["vi"], _d39["vi"])
+
+        kiem("và mỗi dòng trong chuỗi mang cờ `thu`",
+             all("thu" in x for x in _d38["chuoi"]),
+             "đọc lại một dòng «NHẬN giuGio 8→6» mà không biết nó đã áp hay "
+             "chỉ là diễn tập thì hai thứ ấy lẫn vào nhau")
+    finally:
+        _th37.SO_TIEN_HOA = _cu37
+
     kiem("và sổ phân biệt được lượt THỬ với lượt ÁP THẬT",
          '"thu": self.thu' in _th30,
          "đọc lại một dòng «NHẬN giuGio 8→6» mà không biết nó đã được áp "
