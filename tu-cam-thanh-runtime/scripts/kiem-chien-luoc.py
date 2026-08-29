@@ -16,7 +16,19 @@ import sys
 import tempfile
 from pathlib import Path
 
-os.environ.setdefault("TCT_DATA_DIR", tempfile.mkdtemp(prefix="tct-cl-"))
+# GHI ĐÈ, không `setdefault`. Đúng cùng một lỗi đã sập hai lần với
+# `selftest.py`, và vừa sập lần thứ ba ở ĐÂY: một dòng `export TCT_DATA_DIR=`
+# trong shell là đủ để `setdefault` không làm gì, và phép kiểm chạy thẳng vào
+# SỔ THẬT.
+#
+# Hậu quả lần này nặng hơn hai lần trước: bộ kiểm cửa duyệt ĐƯA MỘT CHAMPION
+# GIẢ lên ngôi. Sổ chiến lược ghi "MOCK_RULES_V1 → MOCK_RANGE_V1" với kết quả
+# 50 lệnh / +0,2R — toàn số tròn của phép kiểm — và bản bàn giao kế tiếp báo
+# champion mới như thật.
+#
+# Không có lý do nào để bộ kiểm này tôn trọng biến môi trường bên ngoài: nó
+# KHÔNG BAO GIỜ được chạm sổ thật.
+os.environ["TCT_DATA_DIR"] = tempfile.mkdtemp(prefix="tct-cl-")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import bai_hoc_lich_su as B, chien_luoc as CL, store  # noqa: E402

@@ -59,6 +59,46 @@ from trader import store  # noqa: E402
 FAILS: list[str] = []
 
 
+def ma_khong_chu_thich(f) -> str:
+    """Đọc một file Python, bỏ CHÚ THÍCH và DOCSTRING, giữ nguyên phần còn lại.
+
+    Mọi phép quét mã nguồn trong bộ kiểm này phải đi qua đây. Bẫy "văn bản giải
+    thích một lỗi bị tính là chính lỗi đó" đã cắn bốn lần trong một buổi, và cả
+    bốn đều ở những phép kiểm vừa viết ra để canh chính lỗi ấy.
+
+    Hai bản trước đều sai theo hai hướng ngược nhau, và cả hai đều đáng ghi:
+
+    · cắt trên dấu thăng — KHÔNG ĐỦ: lần thứ tư, cái bị bắt nhầm nằm trong
+      docstring, mà docstring là chuỗi chứ không phải chú thích;
+    · bỏ MỌI token STRING — QUÁ TAY: phần lớn phép quét ở đây tìm đúng một chuỗi
+      hằng trong mã, nên bỏ hết chuỗi là bỏ hết thứ cần tìm.
+
+    Ranh giới đúng nằm ở giữa: docstring là chuỗi đứng LÀM CÂU LỆNH ĐẦU của
+    module/hàm/lớp — `ast` biết chính xác chúng ở dòng nào, nên xoá đúng những
+    dòng đó rồi cắt chú thích là xong.
+    """
+    import ast as _a
+
+    src = f.read_text(encoding="utf-8")
+    dong = src.splitlines()
+    try:
+        cay = _a.parse(src)
+    except SyntaxError:
+        return NL.join(d.split(chr(35))[0] for d in dong)
+    xoa: set[int] = set()
+    for n in [cay] + [x for x in _a.walk(cay)
+                      if isinstance(x, (_a.FunctionDef, _a.AsyncFunctionDef,
+                                        _a.ClassDef))]:
+        than = getattr(n, "body", None)
+        if not than:
+            continue
+        d0 = than[0]
+        if (isinstance(d0, _a.Expr) and isinstance(d0.value, _a.Constant)
+                and isinstance(d0.value.value, str)):
+            xoa |= set(range(d0.lineno, (d0.end_lineno or d0.lineno) + 1))
+    return NL.join("" if i + 1 in xoa else d.split(chr(35))[0]
+                   for i, d in enumerate(dong))
+
 def check(cond: bool, label: str) -> None:
     print(("  OK   " if cond else "  SAI  ") + label)
     if not cond:
@@ -1067,6 +1107,35 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[40] KHÔNG BỘ KIỂM NÀO ĐƯỢC CHẠM SỔ THẬT")
+
+    # Đã sập BA lần. Hai lần đầu là `selftest.py` ghi lệnh giả vào sổ giao dịch.
+    # Lần thứ ba nặng hơn hẳn: `kiem-chien-luoc.py` ĐƯA MỘT CHAMPION GIẢ lên
+    # ngôi trong sổ chiến lược thật — "MOCK_RULES_V1 → MOCK_RANGE_V1", kết quả
+    # 50 lệnh / +0,2R / khớp trội 0,1, toàn số tròn của phép kiểm — và bản bàn
+    # giao kế tiếp báo champion mới như thật.
+    #
+    # Nguyên nhân cả ba lần giống hệt nhau: `os.environ.setdefault`. Một dòng
+    # `export TCT_DATA_DIR=` trong shell là đủ để nó không làm gì.
+    #
+    # Không bộ kiểm nào có lý do tôn trọng biến môi trường bên ngoài. Phép canh
+    # này quét MÃ NGUỒN vì chạy thử từng bộ kiểm ở đây là quá đắt.
+    _thieu, _mem = [], []
+    for _f40 in sorted((ROOT / "scripts").glob("kiem-*.py")) + [ROOT / "scripts" / "selftest.py"]:
+        _s40 = ma_khong_chu_thich(_f40)
+        if "TCT_DATA_DIR" not in _s40:
+            _thieu.append(_f40.name)
+        # Dò CHÍNH XÁC chuỗi `setdefault("TCT_DATA_DIR`, không phải "có chữ
+        # setdefault ở đâu đó rồi có chữ TCT_DATA_DIR ở đâu đó" — bản đầu làm
+        # thế và báo đỏ năm file dùng `setdefault` cho việc hoàn toàn khác.
+        elif any(f"setdefault({q}TCT_DATA_DIR" in _s40 for q in (chr(34), chr(39))):
+            _mem.append(_f40.name)
+    check(not _thieu,
+          "mọi bộ kiểm đều ép TCT_DATA_DIR sang thư mục tạm"
+          + (f" — THIẾU: {_thieu}" if _thieu else ""))
+    check(not _mem,
+          "và không bộ kiểm nào dùng `setdefault` (nó nhường cho biến môi trường)"
+          + (f" — CÒN setdefault: {_mem}" if _mem else ""))
     print("\n[39] VỐN CỦA BOT KHÔNG PHẢI TỔNG SỐ DƯ VÍ")
     import trader.broker_testnet as _BT39
 
@@ -1092,9 +1161,7 @@ async def main() -> int:
     # CẮT CHÚ THÍCH trước khi dò. Chú thích giải thích một lỗi bị tính là chính
     # lỗi đó — bẫy này đã cắn nhiều lần ở repo này, kể cả ngay trong phép kiểm
     # vừa viết ra để canh nó.
-    _src_lp = NL.join(
-        d.split("#")[0] for d in
-        (ROOT / "trader" / "loop.py").read_text(encoding="utf-8").splitlines())
+    _src_lp = ma_khong_chu_thich(ROOT / "trader" / "loop.py")
     _xau = [d for d in ("snapshot(market[" + chr(34) + "price" + chr(34) + "])",
                         "mark(market[" + chr(34) + "price" + chr(34) + "])")
             if d in _src_lp]
@@ -1193,8 +1260,7 @@ async def main() -> int:
     # coin đang giữ": `_chon_cho` loại chợ đang giữ khỏi ứng viên, nhưng khi nó
     # trả None thì vòng lặp giữ nguyên chợ chính và vẫn quyết định trên đó.
     # Đã xảy ra: bảng hiện 4 vị thế mà HAI trong đó là BTCUSDT.
-    _src_lp2 = NL.join(d.split("#")[0] for d in
-                       (ROOT / "trader" / "loop.py").read_text(encoding="utf-8").splitlines())
+    _src_lp2 = ma_khong_chu_thich(ROOT / "trader" / "loop.py")
     check("if not _chon and any(" in _src_lp2,
           "có cửa chặn đường rơi-về khi chợ chính đang giữ vị thế")
     _i_chan = _src_lp2.index("if not _chon and any(")
@@ -1846,8 +1912,7 @@ async def main() -> int:
     # tham số của cỗ chạy lại, không phải của bộ luật. Để lại thì `mock_thesis`
     # nhận một khoá lạ và bỏ qua im lặng — trục mới trông như đã dò mà thật ra
     # mọi biến thể vẫn chạy cùng một mức giữ 48 nến.
-    _src_lo = NL.join(d.split("#")[0] for d in
-                      (ROOT / "scripts" / "lo-luyen.py").read_text(encoding="utf-8").splitlines())
+    _src_lo = ma_khong_chu_thich(ROOT / "scripts" / "lo-luyen.py")
     check("soNenGiu" in LO.LUOI, "lưới có trục thời gian giữ lệnh")
     check('_t.pop("soNenGiu"' in _src_lo,
           "và nó được RÚT khỏi tham trước khi gọi chay_lai")

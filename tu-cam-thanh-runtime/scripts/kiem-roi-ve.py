@@ -17,6 +17,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# KHÔNG BAO GIỜ chạm sổ thật. GHI ĐÈ, không `setdefault`: một dòng
+# `export TCT_DATA_DIR=` trong shell là đủ để setdefault không làm gì, và
+# chuyện đó đã sập BA lần ở repo này — lần nặng nhất là bộ kiểm cửa duyệt đưa
+# một champion GIẢ lên ngôi trong sổ chiến lược thật.
+import os
+import tempfile
+
+os.environ["TCT_DATA_DIR"] = tempfile.mkdtemp(prefix="tct-kiem-")
+
 from trader import bus as bus_mod  # noqa: E402
 from trader.config import CONFIG  # noqa: E402
 

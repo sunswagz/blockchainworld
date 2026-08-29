@@ -17,6 +17,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+# KHÔNG BAO GIỜ chạm sổ thật. GHI ĐÈ, không `setdefault`: một dòng
+# `export TCT_DATA_DIR=` trong shell là đủ để setdefault không làm gì, và
+# chuyện đó đã sập BA lần ở repo này — lần nặng nhất là bộ kiểm cửa duyệt đưa
+# một champion GIẢ lên ngôi trong sổ chiến lược thật.
+import os
+import tempfile
+
+os.environ["TCT_DATA_DIR"] = tempfile.mkdtemp(prefix="tct-kiem-")
+
 FAILS: list[str] = []
 WARNS: list[str] = []
 
