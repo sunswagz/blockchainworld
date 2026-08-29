@@ -133,6 +133,12 @@ NGUONG_DONG_DO_XOAY = 0.5
 #: suất mất ở đó, không cảnh báo nào kêu.
 NGUONG_RANH_TREN_KHA_DUNG = 0.25
 
+#: Bao nhiêu VỐN-GIỜ mà thu ròng vẫn ĐÚNG BẰNG 0 thì mới gọi là «engine
+#: chưa kiếm được đồng nào». Mười nghìn USD-giờ — cỡ 200 USD chạy hai
+#: ngày, hoặc 1.000 USD chạy mười giờ. Dưới ngần ấy thì «chưa thu được»
+#: chỉ nghĩa là chưa tới kỳ trả.
+TOI_THIEU_VON_GIO_THU_KHONG = 10_000.0
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -454,6 +460,47 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"lỗi mã: NAV đang phồng lên, và sổ vẫn cân vì nó ghi đúng con "
             f"số bịa ấy.",
             {"soThuVuotTran": vuot, "nangNhat": x0}))
+
+    # ── 7b0. TY chưa thu được ĐỒNG NÀO, và nó ĐO ĐƯỢC điều đó ──────────
+    #
+    # Khác `ty-lo` ở chỗ: lỗ là số ÂM, còn đây là số KHÔNG. Điều
+    # `khong-do-bang-so-do` cấm đọc số 0 thành «chưa đo», nhưng cũng cấm
+    # đọc nó thành «huề vốn» — số 0 ở đây có nghĩa riêng của nó, và nó
+    # rơi lọt qua mọi lưới hiện có: `ty-lo` đòi âm, `hua-qua-dang-mo` đòi
+    # có lời hứa để so, `phi-vao-an-het` đòi gộp âm VÀ chiến lược dương.
+    #
+    # Đo làn thật 30/08: `basis.cash_carry.v1` chạy 5.222 vòng kế toán,
+    # KHÔNG vòng nào mù, 23.042 vốn-giờ — và thu ròng đúng 0,0000 USD,
+    # trong khi đã trả 25,60 USD phí vào lệnh. Nguyên nhân đo được: thu
+    # nhập của nó tới theo MỐC funding 8 giờ một lần, mà 29/29 vị thế của
+    # nó bị xoay chỗ đóng sau chừng ba mươi giây — không cái nào sống tới
+    # mốc đầu tiên. Cả một engine bị chính cỗ máy chặn không cho kiếm.
+    #
+    # Phân biệt hai câu, và bằng chứng để phân biệt nằm sẵn trong ảnh
+    # chụp: `soVongKhongDoDuoc`. Bằng 0 nghĩa là kế toán CHẠY ĐƯỢC và nó
+    # nói không có gì; khác hẳn một engine mù.
+    _vdd0 = ((anh.get("vonDangDung") or {}).get("theoTy")) or {}
+    for ma, o in sorted(_vdd0.items()):
+        try:
+            thu = o.get("thuRongUsd")
+            vg = float(o.get("vonGioUsd") or 0.0)
+        except (TypeError, ValueError, AttributeError):
+            continue
+        if thu is None or float(thu) != 0.0:
+            continue
+        if vg < TOI_THIEU_VON_GIO_THU_KHONG:
+            continue
+        ra.append(TrieuChungHe(
+            "ty-thu-bang-khong", 2,
+            f"ty {ma} chạy {vg:,.0f} vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây "
+            f"KHÔNG phải «chưa đo được» — kế toán của nó chạy được và nói "
+            f"không có gì. Hai cách đọc: hoặc engine này không kiếm được "
+            f"trong điều kiện hiện tại, hoặc thu nhập của nó tới theo MỐC "
+            f"(funding 8 giờ, đáo hạn) mà vị thế không sống tới mốc nào. "
+            f"Xem `daGiuGio` của chính nó so với nhịp trả — nếu vị thế bị "
+            f"đóng sớm hơn nhịp ấy thì đây là một engine bị chặn không cho "
+            f"kiếm, chứ không phải một engine dở.",
+            {"chienLuoc": ma, "vonGioUsd": vg, "thuRongUsd": thu}))
 
     # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────
     #

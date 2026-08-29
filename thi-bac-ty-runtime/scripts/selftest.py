@@ -3898,6 +3898,58 @@ def kiem_chan_doan_he() -> None:
              for x in _dxh(_cdh(_anhTL), {"ruiRoTong": {"tranMotTy": 0.5}})),
          "hai lớp chặn, vì lớp trong nằm ở file khác")
 
+    # ── TY chưa thu được ĐỒNG NÀO, và nó ĐO ĐƯỢC điều đó ────────────────
+    #
+    # Số KHÔNG có nghĩa riêng, và nó rơi lọt qua mọi lưới hiện có:
+    # `ty-lo` đòi ÂM, `hua-qua-dang-mo` đòi có lời hứa để so,
+    # `phi-vao-an-het` đòi gộp âm VÀ chiến lược dương.
+    #
+    # Đo làn thật 30/08: `basis.cash_carry.v1` chạy 5.222 vòng kế toán,
+    # KHÔNG vòng nào mù, 23.042 vốn-giờ — thu ròng đúng 0,0000 USD, đã
+    # trả 25,60 USD phí vào lệnh. Nguyên nhân đo được: thu nhập của nó
+    # tới theo MỐC funding 8 giờ, mà 29/29 vị thế bị xoay chỗ đóng sau
+    # chừng ba mươi giây. Cả một engine bị chính cỗ máy chặn không cho
+    # kiếm.
+    from thi_bac_ty.chan_doan_he import TOI_THIEU_VON_GIO_THU_KHONG
+
+    def _anhThu0(**kw):
+        o = {"basis.v1": {"thuRongUsd": 0.0, "vonGioUsd": 23042.0},
+             "amm.v1": {"thuRongUsd": 4.5, "vonGioUsd": 182771.0},
+             "moi.v1": {"thuRongUsd": 0.0, "vonGioUsd": 50.0}}
+        o.update(kw)
+        return {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                      "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+                "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+                "vonDangDung": {"theoTy": o}}
+
+    _t0 = [x for x in _cdh(_anhThu0()) if x.ma == "ty-thu-bang-khong"]
+    kiem("ty chạy nhiều vốn-giờ mà thu ĐÚNG BẰNG 0 thì bị nêu ra",
+         (len(_t0) == 1 and _t0[0].bangChung["chienLuoc"] == "basis.v1"),
+         f"{[x.bangChung.get('chienLuoc') for x in _t0]} — số KHÔNG rơi "
+         f"lọt qua mọi lưới: `ty-lo` đòi ÂM, `hua-qua-dang-mo` đòi có lời "
+         f"hứa, `phi-vao-an-het` đòi gộp âm VÀ chiến lược dương")
+    kiem("ty ĐANG thu được thì không bị nêu",
+         all(x.bangChung["chienLuoc"] != "amm.v1" for x in _t0))
+    kiem("ty còn ít vốn-giờ thì CHƯA kết luận — chưa tới kỳ trả",
+         all(x.bangChung["chienLuoc"] != "moi.v1" for x in _t0),
+         f"ngưỡng {TOI_THIEU_VON_GIO_THU_KHONG:,.0f} vốn-giờ")
+    kiem("đúng bằng ngưỡng vốn-giờ thì đã nêu",
+         any(x.bangChung["chienLuoc"] == "moi.v1" for x in
+             _cdh(_anhThu0(**{"moi.v1": {
+                 "thuRongUsd": 0.0,
+                 "vonGioUsd": TOI_THIEU_VON_GIO_THU_KHONG}}))
+             if x.ma == "ty-thu-bang-khong"))
+    kiem("CHƯA ĐO được (None) thì KHÔNG gọi là thu bằng 0",
+         all(x.bangChung["chienLuoc"] != "mu.v1" for x in
+             _cdh(_anhThu0(**{"mu.v1": {"thuRongUsd": None,
+                                        "vonGioUsd": 99999.0}}))
+             if x.ma == "ty-thu-bang-khong"),
+         "«chưa đo được» và «đo rồi, bằng không» là hai câu — trộn chúng "
+         "là quay lại đúng lỗi `none-khac-khong` cấm")
+    kiem("và câu chẩn NÓI RA hai cách đọc, không phán một cách",
+         ("không kiếm được" in _t0[0].moTa and "MỐC" in _t0[0].moTa),
+         _t0[0].moTa[:200])
+
     # ── VỐN KHẢ DỤNG nằm không ──────────────────────────────────────────
     #
     # Khác `tran-dat-sai-cho` ở MẪU SỐ, và mẫu số là cả vấn đề. Cái kia
