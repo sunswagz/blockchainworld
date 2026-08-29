@@ -1013,10 +1013,43 @@ phải lọc qua `bang.giai_doan_cua(tt)`; thiếu trường thì đọc là
    phát lại ra +191% với tỉ lệ thắng 26%. `kham/phat_lai.py` nay TỪ CHỐI
    dòng cửa đặt cược và trả về 0 kèm lý do — thà không có số.
 
+### MỌI BUỒNG LÁI LOCALHOST — kiểm chỗ này, nó là lỗ hổng thật
+
+Tìm ra ở Khâm Thiên Giám 30/08/2026, và **các cung khác nhiều khả năng
+cũng có** — Thị Bạc Ty (5188), Thái Bộc Tự (5184), Hộ Bộ (5183), Tử Cấm
+Thành (5182) đều có buồng lái localhost kèm nút điều khiển.
+
+Buồng lái nghe ở `127.0.0.1` và không lên site. Nghe thì kín. Nhưng nếu
+các lối POST không thân, không xác thực thì **bất kỳ trang web nào người
+vận hành mở trong cùng trình duyệt đều gọi được**:
+
+    fetch("http://localhost:5186/api/tam-dung",
+          {method: "POST", mode: "no-cors"})
+
+Đây là "simple request" nên trình duyệt KHÔNG hỏi preflight. Trang kia
+không đọc được phản hồi, nhưng **tác dụng phụ đã xảy ra**: bot dừng, cầu
+dao lật, chiến thuật tắt, lệnh bị huỷ, một lượt chạy lại tốn kém chạy.
+
+Nghe ở 127.0.0.1 KHÔNG cứu được — chính trình duyệt trên máy ấy là kẻ
+gửi. Thử thật trước khi vá: `Origin: http://evil.example` → HTTP 200.
+
+Vá bằng một middleware, chừng mười dòng:
+
+    có Origin, không nằm trong danh sách  → 403
+    có Origin đúng (buồng lái tự gọi)     → cho qua
+    KHÔNG có Origin (curl, script)        → cho qua
+
+Ca thứ ba nghe như một lỗ nhưng không phải: thứ đang chặn là TRÌNH DUYỆT
+BỊ LỪA. Một chương trình chạy trên máy này vốn đã làm được mọi thứ nó
+muốn mà chẳng cần hỏi buồng lái. Xem `kham/server.py`.
+
+Dựng danh sách Origin TỪ cổng trong config, đừng chép số — ca "đúng host
+mà sai cổng" rất dễ sót.
+
     cd kham-thien-giam-runtime
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
-    python scripts/selftest.py    447 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    698 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không
