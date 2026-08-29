@@ -103,6 +103,14 @@ function dungDomGia() {
     createElement: Nut,
     createElementNS: (ns, t) => Nut(t),
     createDocumentFragment: () => Nut("#frag"),
+    // `ty-perp.js` dùng nó cho nhật ký. DOM giả thiếu một hàm là trang
+    // "vẽ hỏng" ở đây trong khi trên trình duyệt nó chạy tốt — báo động
+    // giả, và báo động giả thì người ta ngừng tin cả bộ kiểm.
+    createTextNode: (v) => {
+      const n = Nut("#text");
+      n._txt = String(v == null ? "" : v);
+      return n;
+    },
     getElementById: lay,
     querySelector: lay,
     querySelectorAll: () => [],
@@ -174,6 +182,13 @@ if (co("--ghi-mau")) {
   process.exit(0);
 }
 dungDomGia();
+// `ty-perp.js` TRƯỚC `app.js`: `index.html` nạp nó trước, và `app.js` hỏi
+// `window.TYPERP` khi vẽ trang mổ máy. Bảy khối tầng ba của nó — bps thô,
+// mốc L+S, lệch mark — chưa từng có phép kiểm nào, dù đó đúng là chỗ
+// người vận hành mở ra khi máy có chuyện.
+const maTy = readFileSync(join(GOC, "web/ty-perp.js"), "utf8");
+new Function(maTy)();
+globalThis._TYPERP = globalThis.window.TYPERP;
 new Function(ma.replace("})();", NAP))();
 
 const MAU = [
@@ -213,6 +228,64 @@ for (const [nhan, du] of MAU) {
       loi++;
     }
   }
+}
+
+// Hàm TRÙNG TÊN ở tầng mô-đun. JS lấy bản CUỐI, nên bản đầu biến mất mà
+// không một lời cảnh báo nào — cùng lớp lỗi mà `kiem_khong_trung_ten()`
+// canh cho `selftest.py`, chỉ khác là phía web chưa ai canh. `ty-perp.js`
+// đang có đúng một cái: `function $(s)` viết hai lần liền nhau. Hai bản
+// ấy giống hệt nhau nên vô hại — cho tới ngày ai đó sửa một bản.
+{
+  const sai = [];
+  for (const [ten, src] of [["app.js", ma], ["ty-perp.js", maTy]]) {
+    const sach = src
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+    const dem = new Map();
+    for (const m of sach.matchAll(/^  function ([A-Za-z_$][\w$]*)/gm)) {
+      dem.set(m[1], (dem.get(m[1]) || 0) + 1);
+    }
+    for (const [k, n] of dem) if (n > 1) sai.push(ten + ":" + k + "×" + n);
+  }
+  const ok = !sai.length;
+  console.log("  " + (ok ? "OK   " : "LỖI  ") + " " + "trùng-tên".padEnd(11)
+    + " " + (ok ? "không hàm nào định nghĩa hai lần"
+                : "ĐỊNH NGHĨA HAI LẦN: " + sai.join(", ")));
+  ok ? xong++ : loi++;
+}
+
+// TẦNG BA — bảy khối của `ty-perp.js`, trang người vận hành mở ra khi máy
+// có chuyện. Chưa từng có phép kiểm nào, và nó là 580 dòng đọc thẳng ảnh
+// chụp thô: bps, mốc kết toán, lệch mark, phễu chín tầng.
+//
+// Chạy trên CẢ BA mẫu như mọi trang khác. Mẫu NULL đặc biệt đáng ở đây:
+// tầng ba là tầng in số thô, tức tầng gọi `.toFixed()` nhiều nhất.
+{
+  const TP = globalThis._TYPERP || {};
+  const oTy = Object.keys(TP).filter((k) => k !== "dat");
+  for (const [nhan, du] of MAU) {
+    TP.dat(du);
+    for (const ten of oTy) {
+      try {
+        const r = TP[ten]();
+        const n = dem(r);
+        tongNut += n;
+        const t = chu(r);
+        const ban = /\bNaN\b|\bundefined\b|\[object Object\]/.exec(t);
+        const ok = n > 1 && !ban;
+        console.log("  " + (ok ? "OK   " : n <= 1 ? "TRỐNG" : "BẨN  ")
+          + " " + ("perp:" + ten).padEnd(16) + " " + String(n).padStart(4)
+          + " nút · mẫu " + nhan
+          + (ban ? "  ← in ra «" + ban[0] + "»" : ""));
+        ok ? xong++ : loi++;
+      } catch (e) {
+        console.log("  NÉM   " + ("perp:" + ten).padEnd(16) + " mẫu " + nhan
+          + " · " + e.message);
+        loi++;
+      }
+    }
+  }
+  TP.dat(T);
 }
 
 // Trang mổ máy `/dong-co/<ma>` nhận mã từ URL. Mã LẠ phải ra một trang

@@ -18,8 +18,6 @@ window.TYPERP = (function () {
   var S = null;
   function dat(x) { S = x; }
   function $(s) { return document.querySelector(s); }
-
-  function $(s) { return document.querySelector(s); }
   function el(t, c, x) {
     var e = document.createElement(t);
     if (c) e.className = c;
@@ -521,8 +519,13 @@ window.TYPERP = (function () {
         return [
           { t: t.taiSan, c: "trai" },
           { t: t.chienLuoc, c: "trai" },
+          /* `String(...)` chứ không `c.ben.charAt(0)`: một tờ trình thiếu
+             `ben` làm cả bảng NÉM, và `ve()` bắt lỗi rồi thay THÂN TRANG
+             bằng ô báo lỗi — mất luôn sáu khối kia. Một trường thiếu là
+             một ô «?», không phải một trang trắng. */
           { t: (t.chan || []).map(function (c) {
-              return c.ben.charAt(0) + " " + c.cang; }).join(" / "), c: "trai" },
+              return String((c && c.ben) || "?").charAt(0) + " "
+                + ((c && c.cang) || "?"); }).join(" / "), c: "trai" },
           { t: "$" + so(t.vonCanUsd, 0) },
           { t: t.sucChuaToiDaUsd == null ? "—"
               : "$" + so(t.sucChuaToiDaUsd, 0),
