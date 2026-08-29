@@ -666,7 +666,7 @@ phải lọc qua `bang.giai_doan_cua(tt)`; thiếu trường thì đọc là
     cd thi-bac-ty-runtime
     python run.py                 buồng lái ở localhost:5188
     python -m bac.snapshot        quét một lượt, ghi, rồi thoát
-    python scripts/selftest.py    1368 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1375 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-buong-lai.mjs   10 trang buồng lái có vẽ được không
     pythonw dichvu/chay-nen.py    chạy nền 24/7 để tích băng đào tạo
 
