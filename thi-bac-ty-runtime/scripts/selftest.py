@@ -2772,19 +2772,20 @@ def kiem_chan_doan_he() -> None:
     # ba giờ gần nhất có 48 lần MỞ và 0 lần đóng. Nguồn khác, cùng câu
     # hỏi: lợi suất THỰC trên vốn-giờ so với lời hứa của chính những vị
     # thế đang mở — cùng một tập, cùng một quãng.
-    def _vt(ma, von, aprHua):
-        net = (None if aprHua is None
-               else aprHua / 100.0 * (24.0 / (365 * 24)) * 10_000.0)
-        return {"chienLuoc": ma, "vonUsd": von, "netUocBps": net,
-                "giuGioHua": 24.0}
+    def _hua(von, aprHua, soVt=1, khongKhai=0):
+        return {"vonUsd": von, "aprHuaPhanTram": aprHua,
+                "soViThe": soVt, "soKhongKhai": khongKhai}
 
     _anhMo = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
                                     "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
               "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 4},
-              "soViThe": [_vt("hua.qua.v1", 1000.0, 20.0),
-                          _vt("hua.dung.v1", 1000.0, 2.5),
-                          _vt("khong.khai.v1", 1000.0, None),
-                          _vt("it.von.v1", 1000.0, 20.0)],
+              "huaTheoTy": {
+                  "hua.qua.v1": _hua(1000.0, 20.0),
+                  "hua.dung.v1": _hua(1000.0, 2.5),
+                  # KHÔNG khai: `vonUsd` 0 và apr None — ra khỏi cả tử số
+                  # lẫn mẫu số, không phải «hứa 0%».
+                  "khong.khai.v1": _hua(0.0, None, 1, 1),
+                  "it.von.v1": _hua(1000.0, 20.0)},
               "vonDangDung": {"theoTy": {
                   "hua.qua.v1": {"vonGioUsd": 5000.0,
                                  "loiSuatNamPhanTram": 2.0},
@@ -2819,8 +2820,11 @@ def kiem_chan_doan_he() -> None:
     _anhTron = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
                                       "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
                 "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 2},
-                "soViThe": [_vt("tron.v1", 1000.0, 20.0),
-                            _vt("tron.v1", 9000.0, None)],
+                # 1.000 USD hứa 20% + 9.000 USD KHÔNG khai. Trung Ương
+                # gộp: vốn 1.000, apr 20% — phần không khai ra khỏi mẫu
+                # số. Đọc nó thành «hứa 0%» thì bình quân còn 2%, đúng
+                # bằng thực nhận, và ty hứa quá lọt lưới.
+                "huaTheoTy": {"tron.v1": _hua(1000.0, 20.0, 2, 1)},
                 "vonDangDung": {"theoTy": {
                     "tron.v1": {"vonGioUsd": 5000.0,
                                 "loiSuatNamPhanTram": 2.0}}}}
@@ -2832,6 +2836,56 @@ def kiem_chan_doan_he() -> None:
          f"{_tron and _tron['tron.v1'].bangChung} — đọc «không khai» thành "
          f"«hứa 0%» thì chín phần mười vốn kéo bình quân xuống 2%, và một "
          f"ty hứa 20% mà chạy 2% lọt lưới")
+
+    # Và bản gộp phải làm ở TRUNG ƯƠNG, vì ảnh chụp CẮT danh sách vị thế
+    # ở 40 cái. Máy sống 30/08 giữ 101 vị thế: gộp từ 40 cái rồi đem so
+    # với lợi suất thực của 101 cái là so hai tập khác nhau — và 40 cái ấy
+    # chọn theo thứ tự từ điển, tức một mẫu thiên lệch không ai khai.
+    # Ty mở BỐN vị thế — bốn, vì phép cấy lỗi «gộp từ danh sách đã cắt»
+    # phải có gì để mà cắt.
+    class _TyBon(_TyNgoan):
+        ma = "bon.vithe.v1"
+
+        def quet(self):
+            return ["A", "B", "C", "D"] if self.soLuotQuet <= 1 else []
+
+        def trinh(self, co):
+            return _mau(ma=self.ma, ho=self.ho, taiSan=co, von=100.0,
+                        chua=9000.0, net=_t20["netUocBps"], giu=24.0)
+
+    _tuHua = TrungUong(_tam("hua-gop"), {"vonBanDauUsd": 200_000.0})
+    _tuHua.dang_ky(_TyBon())
+    for _ in range(3):
+        _tuHua.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    _ah = _tuHua.anh_chup()
+    kiem("ảnh chụp KHAI số vị thế THẬT, không chỉ số đã cắt",
+         _ah["soViTheDayDu"] == len(_tuHua.soViThe)
+         and _ah["soViTheDayDu"] >= len(_ah["soViThe"]),
+         f"{_ah['soViTheDayDu']} vs {len(_ah['soViThe'])} — cắt mà không "
+         f"khai thì bên đọc tưởng mình thấy hết")
+    _hg = _ah.get("huaTheoTy") or {}
+    kiem("lời hứa gộp ở Trung Ương, trên TOÀN BỘ vị thế",
+         bool(_hg) and sum(v["soViThe"] for v in _hg.values())
+         == len(_tuHua.soViThe) >= 3,
+         f"{_hg} vs {len(_tuHua.soViThe)} vị thế — gộp từ danh sách đã cắt "
+         f"là gộp một mẫu thiên lệch")
+    # Vị thế KHÔNG khai lời hứa: `ToTrinh.kiem()` chặn ngay ở cửa nên
+    # đường VÀO không tạo ra được ca này. Đường KHÔI PHỤC thì có: tờ trình
+    # nằm trên đĩa từ một bản lưu cũ hơn trường ấy — máy sống 30/08 vẫn
+    # còn vị thế mang khoá `khoaVonDenGiay` của thời trước lần đổi tên.
+    # Dựng thẳng ca ấy, không đi vòng qua cổng.
+    _maBo = sorted(_tuHua.soViThe)[0]
+    _tt0 = dict(_tuHua.soViThe[_maBo].toTrinh)
+    _tt0.pop("netUocBps", None)
+    _tuHua.soViThe[_maBo].toTrinh = _tt0
+    _hb = (_tuHua.hua_theo_ty() or {}).get("bon.vithe.v1") or {}
+    kiem("vị thế KHÔNG khai hứa ra khỏi CẢ mẫu số, và được ĐẾM riêng",
+         _hb.get("soKhongKhai") == 1
+         and gan(_hb.get("vonUsd") or 0.0,
+                 (_hb["soViThe"] - 1) * 100.0, 1.0)
+         and gan(_hb.get("aprHuaPhanTram") or 0.0, 20.0, 1e-6),
+         f"{_hb} — đọc «không khai» thành «hứa 0%» thì bình quân tụt theo "
+         f"đúng tỉ lệ số vị thế cũ, và một ty hứa quá lọt lưới")
 
     # ── HỨA QUÁ: tín hiệu duy nhất của tám ty KHÔNG có băng ─────────────
     # Bảng hứa-vs-thực đã có, đã hiện trên buồng lái, và vòng tiến hoá

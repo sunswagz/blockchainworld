@@ -414,27 +414,22 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     # giây) so với LỜI HỨA của chính những vị thế đang mở, có trọng số
     # theo vốn. Cùng một tập vị thế, cùng một quãng — không trộn cửa sổ.
     vdd = ((anh.get("vonDangDung") or {}).get("theoTy")) or {}
-    hua: dict = {}
-    for v in (anh.get("soViThe") or []):
-        try:
-            net, giu = v.get("netUocBps"), v.get("giuGioHua")
-            von = abs(float(v.get("vonUsd") or 0.0))
-        except (TypeError, ValueError, AttributeError):
-            continue
-        # `None` là ty không khai, KHÔNG phải hứa 0 — bỏ ra khỏi cả tử số
-        # lẫn mẫu số, chứ đừng kéo bình quân xuống bằng một số bịa.
-        if net is None or not giu or von <= 0:
-            continue
-        apr = float(net) / 10_000.0 * (24.0 / float(giu)) * 365.0 * 100.0
-        o = hua.setdefault(v.get("chienLuoc") or "?", {"von": 0.0, "x": 0.0})
-        o["von"] += von
-        o["x"] += von * apr
+    # Đọc bản GỘP của Trung Ương, KHÔNG tự gộp từ `soViThe` — danh sách ấy
+    # bị CẮT ở 40 cái cho payload khỏi phình, trong khi lợi suất thực tính
+    # trên toàn bộ. Máy sống 30/08 giữ 101 vị thế; gộp từ 40 cái rồi đem so
+    # với thực nhận của 101 cái là so hai tập khác nhau — đúng cái bẫy
+    # chính triệu chứng này sinh ra để tránh, và 40 cái ấy lại còn chọn
+    # theo thứ tự từ điển nên là một mẫu thiên lệch không ai khai.
+    hua = anh.get("huaTheoTy") or {}
     for ma, o in sorted(hua.items()):
         thuc = (vdd.get(ma) or {}).get("loiSuatNamPhanTram")
         vg = float((vdd.get(ma) or {}).get("vonGioUsd") or 0.0)
-        if thuc is None or o["von"] <= 0 or vg < TOI_THIEU_VON_GIO:
+        aprHua = o.get("aprHuaPhanTram")
+        if (thuc is None or aprHua is None
+                or float(o.get("vonUsd") or 0.0) <= 0
+                or vg < TOI_THIEU_VON_GIO):
             continue
-        aprHua = o["x"] / o["von"]
+        aprHua = float(aprHua)
         if aprHua - float(thuc) <= NGUONG_HUA_QUA_DIEM:
             continue
         ra.append(TrieuChungHe(
@@ -445,7 +440,9 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"{aprHua - float(thuc):+.2f} điểm. Đây là cùng một tập vị "
             f"thế và cùng một quãng — không phải hai cửa sổ khác nhau.",
             {"chienLuoc": ma, "aprHuaPhanTram": aprHua,
-             "aprThucPhanTram": float(thuc), "vonGioUsd": vg},
+             "aprThucPhanTram": float(thuc), "vonGioUsd": vg,
+             "soViThe": o.get("soViThe"),
+             "soKhongKhai": o.get("soKhongKhai")},
             ["ruiRoTong.netMoiGioToiThieuBps"]))
 
     # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──

@@ -1027,6 +1027,43 @@ class TrungUong:
         from .duong_suc_chua import do_duong_suc_chua
         return do_duong_suc_chua(self.toTrinhVongNay).tom_tat()
 
+    def hua_theo_ty(self) -> dict:
+        """Lời hứa BÌNH QUÂN THEO VỐN của mọi vị thế đang mở, theo ty.
+
+        Vì sao phải gộp Ở ĐÂY chứ không để bên đọc tự gộp từ `soViThe`:
+        ảnh chụp CẮT danh sách vị thế ở 40 cái, để payload khỏi phình.
+        Máy sống 30/08 giữ 101 vị thế, tức bên đọc chỉ thấy 40 — mà lợi
+        suất THỰC thì tính trên cả 101.
+
+        Đem một lời hứa lấy từ 40 cái đi so với thực nhận của 101 cái là
+        so hai tập khác nhau, đúng cái bẫy mà chính triệu chứng
+        `hua-qua-dang-mo` sinh ra để tránh. Tệ hơn: 40 cái ấy chọn theo
+        thứ tự từ điển, tức là một mẫu thiên lệch mà không ai khai.
+
+        `soKhongKhai` đếm vị thế không khai `netUocBps` — chúng ra khỏi
+        CẢ tử số lẫn mẫu số, chứ không bị đọc thành «hứa 0%».
+        """
+        ra: dict = {}
+        for so in self.soViThe.values():
+            t = so.toTrinh if isinstance(so.toTrinh, dict) else {}
+            o = ra.setdefault(so.chienLuoc or "?",
+                              {"vonUsd": 0.0, "_x": 0.0, "soViThe": 0,
+                               "soKhongKhai": 0})
+            o["soViThe"] += 1
+            net, giu = t.get("netUocBps"), t.get("giuGio")
+            von = abs(float(so.vonUsd or 0.0))
+            if net is None or not giu or von <= 0:
+                o["soKhongKhai"] += 1
+                continue
+            o["vonUsd"] += von
+            o["_x"] += von * (float(net) / 10_000.0
+                              * (24.0 / float(giu)) * 365.0 * 100.0)
+        for o in ra.values():
+            o["aprHuaPhanTram"] = (o["_x"] / o["vonUsd"]
+                                   if o["vonUsd"] > 0 else None)
+            o.pop("_x", None)
+        return ra
+
     def duong_khoa_von(self) -> dict:
         """Trần khoá vốn đang chặn mất bao nhiêu lợi suất — ĐO, không đề xuất.
 
@@ -1401,8 +1438,13 @@ class TrungUong:
             # không do quyết định của ty, mà gộp vào thì một chiến lược
             # đang lãi trông như đang lỗ. Xem `SoCai.lai_lo_tach_khoan`.
             "laiLoTachKhoan": self.so_cai.lai_lo_tach_khoan(),
+            # CẮT ở 40 để payload khỏi phình — nên MỌI phép tính gộp
+            # phải làm ở Trung Ương, không để bên đọc gộp từ danh sách
+            # đã cắt. Xem `hua_theo_ty()`.
             "soViThe": [v.tom_tat(_gio_he()) for v in
                         list(self.soViThe.values())[:40]],
+            "soViTheDayDu": len(self.soViThe),
+            "huaTheoTy": self.hua_theo_ty(),
             "thucThi": self.thuc_thi.tom_tat(),
             "soCai": self.so_cai.tom_tat(),
             "pheuDayDu": self.pheu_day_du(),
