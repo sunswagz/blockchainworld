@@ -830,6 +830,38 @@ từ `phiUocBps` của chính tờ trình — đúng con số ty đã dùng đ�
 rồi đóng ngay hiện ra một khoản **LỖ đúng bằng phí**. Cỗ máy nào cũng dễ
 trông có lãi khi phí được hoãn tới cuối.
 
+### CHÍN trên chín ty trả lời được câu hỏi kế toán
+
+Ba hình dạng khác nhau, và ép chúng vào một khuôn là làm hỏng ít nhất
+hai trong ba:
+
+| ty | hình dạng | cộng gì, lúc nào |
+|---|---|---|
+| xoay lãi cho vay | **chảy liên tục** | `apyGocPhanTram` × thời gian; KHÔNG cộng token thưởng |
+| cấp thanh khoản AMM | **chảy liên tục** | `apyBase` × thời gian; khai rõ là số QUÁ KHỨ, và tổn thất tạm thời CHƯA đo |
+| Pendle PT | **chảy liên tục** | lãi ĐÃ KHOÁ lúc mở, không đọc apy mới |
+| chênh funding perp | **chảy tại MỐC** | `thu_cap()` đếm mốc kết toán, không nhân giờ |
+| cash-and-carry | **chảy tại MỐC** | chỉ chân perp; chân giao ngay không sinh gì; hội tụ basis CHƯA đo |
+| chênh stablecoin | **hội tụ** | 0 lúc giữ; lãi lỗ thật lúc gỡ hai chân, đo bằng bid/ask |
+| ngang giá quyền chọn | **hội tụ** | 0 lúc giữ; giữ tới ĐÁO HẠN, không đóng sớm |
+| vòng đổi DEX | **xong ngay** | NET ở mức CÓ BẢO ĐẢM, đóng ở lượt kế toán đầu |
+| tiên đoán Polymarket | **chưa đo được** | `doDuoc=False` kèm lý do — đường mạng chặn nguồn |
+
+Hàng cuối là chỗ đáng đọc kỹ nhất. Ty ấy trả `doDuoc=False` chứ **không**
+trả `None`, và khác biệt ấy là cả nội dung:
+
+    None            ty CHƯA BIẾT tự kế toán     — một món nợ kỹ thuật
+    doDuoc=False    biết cách, vòng này KHÔNG   — một sự thật về thế giới
+                    đo được
+
+Trộn hai vế là biến một chuyện của đường mạng thành một chuyện của mã.
+
+**Và thiếu kế toán không phải "không biết lãi lỗ".** Ty vòng đổi DEX lộ
+ra điều đó: phí vào lệnh bị trừ lúc mở, `giuGio` trôi qua, vị thế đóng
+với `thuUsd` chưa bao giờ được đặt. Sổ ghi lại đúng phần chi phí và bỏ
+mất toàn bộ phần thu — một cách chắc chắn để một chiến lược có lãi hiện
+ra như một chiến lược lỗ.
+
 ### Đóng vị thế — ba đường
 
     hết `giuGio`        Trung Ương đóng, ghi lãi lỗ cộng dồn

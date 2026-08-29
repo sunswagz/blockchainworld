@@ -5815,6 +5815,29 @@ def kiem_ke_toan_vi_the() -> None:
          "không thấy hợp đồng KHÔNG phải bằng chứng đã đáo hạn — đóng vì "
          "mất nguồn là bịa ra một lần kết toán chưa xảy ra")
 
+    # ── 21. TIÊN ĐOÁN: `doDuoc=False` khác `None`, và khác biệt là nội dung
+    from kham_ngoai.ty_tien_doan import TyTienDoan
+
+    td21 = TyTienDoan.__new__(TyTienDoan)
+    Ty.__init__(td21)
+    k = td21.ke_toan([], {"taiSan": "BTC-UP"}, now9 - 60.0, now9)
+    kiem("tiên đoán: khai `doDuoc=False`, KHÔNG trả None",
+         k is not None and k.doDuoc is False,
+         "`None` là «ty chưa biết tự kế toán» — một món nợ kỹ thuật. "
+         "`doDuoc=False` là «biết cách, vòng này không đo được» — một sự "
+         "thật về thế giới. Trộn hai vế là biến chuyện của đường mạng "
+         "thành chuyện của mã")
+    kiem("và NÓI RA lý do thật: đường mạng chặn Polymarket",
+         k is not None and "CHẶN" in k.vi and "TLS" in k.vi, k and k.vi)
+    kiem("KHÔNG lấy kết toán của cỗ máy kia để lấp",
+         k is not None and "hai tập vị thế rời nhau" in k.vi,
+         "sổ ngoài mang kết toán của vị thế CỖ MÁY KIA giữ; đây là vị thế "
+         "Thị Bạc Ty mở trên những cơ hội cỗ máy kia BỎ QUA")
+    kiem("chín trên chín ty nay đều trả lời được câu hỏi kế toán",
+         TyTienDoan.co_ke_toan(),
+         "trả lời «không đo được» vẫn là trả lời; im lặng thì không")
+
+
 
 
 

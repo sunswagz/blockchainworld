@@ -239,6 +239,40 @@ class TyTienDoan(Ty):
     def trinh(self, co) -> ToTrinh:
         return xuat_to_trinh(co)
 
+    # ── kế toán: BIẾT cách, nhưng chưa đo được từ đây ────────────────────
+    def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+        """Ty này khai `doDuoc=False` chứ KHÔNG trả `None`, và khác biệt
+        ấy là cả nội dung của hàm.
+
+        `None` nghĩa là *"ty chưa biết tự kế toán"* — một món nợ kỹ thuật.
+        `doDuoc=False` nghĩa là *"biết cách, nhưng vòng này không đo
+        được"* — một sự thật về thế giới. Ở đây là vế thứ hai, và trộn hai
+        vế lại là biến một chuyện của đường mạng thành một chuyện của mã.
+
+        Vì sao chưa đo được: thị trường tiên đoán kết toán một lần, ăn
+        thua tại thời điểm ấy, và **con số kết toán nằm ở Polymarket**.
+        Máy này không với tới được — đường mạng chặn `*.polymarket.com` ở
+        tầng TLS (bắt tay TCP xong mới bị giết, 5/5 lần; Binance vẫn 200).
+        Đó là *không làm được từ đây*, khác hẳn *chưa làm*.
+
+        Và **không được lấy kết toán từ `nhap_so_ngoai`** để lấp chỗ này:
+        sổ ngoài mang kết toán của những vị thế CỖ MÁY KIA đang giữ, còn
+        đây là vị thế Thị Bạc Ty tự mở trên những cơ hội cỗ máy kia BỎ
+        QUA (`dangLam=False` — xem ranh giới đếm ở `quet()`). Hai tập rời
+        nhau; ghép chúng là gán kết quả của người khác cho mình.
+
+        Ngày đường mạng mở lại, chỗ cần sửa là ở đây: đọc trạng thái kết
+        toán của chính `conditionId` mà tờ trình đã ghi.
+        """
+        from thi_bac_ty.ke_toan import KetToanVong
+
+        return KetToanVong(
+            doDuoc=False,
+            vi="tiên đoán Polymarket: kết toán nằm ở Polymarket, và đường "
+               "mạng máy này CHẶN `*.polymarket.com` ở tầng TLS. Không đo "
+               "được từ đây — khác hẳn thu bằng 0. Không lấy kết toán của "
+               "cỗ máy kia để lấp: hai tập vị thế rời nhau.")
+
     def tom_tat(self) -> dict:
         return {"doc": self.doc.tom_tat(), "cua": self.cong.tom_tat(),
                 "soCoHoi": len(self.coHoi), "boQua": dict(self.boQua),
