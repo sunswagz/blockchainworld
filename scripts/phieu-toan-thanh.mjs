@@ -63,10 +63,20 @@ for (const c of cung) {
       [join(ROOT, "scripts", "tien-hoa.mjs"), "do", c, "--ghi", tam],
       { cwd: ROOT, encoding: "utf8", timeout: HAN_MS, stdio: "ignore" });
     const p = JSON.parse(readFileSync(tam, "utf8"));
-    const truot = (p.diem || []).filter((d) => d.dat === false).map((d) => d.ma);
-    bang.push({ cung: c, dat: p.dat, tong: p.tong, khongDo: p.khongDo, truot });
+    const xau = (p.diem || []).filter((d) => d.dat === false);
+    const truot = xau.map((d) => d.ma);
+    /* CHÉP CẢ LỜI GIẢI THÍCH, không chỉ mã thước.
+
+       Bản đầu chỉ ghi mã, và lượt bot 29/08 03:47 ghi "ve" cho 11 trên
+       12 cung — trong khi ở máy cả 12 đều đạt. Có một khác biệt thật
+       giữa Actions và máy, mà phiếu không mang theo một chữ nào để lần
+       ra nó. Một bảng điểm nói "hỏng" mà không nói "hỏng thế nào" thì
+       chỉ chuyển được nỗi lo, không chuyển được việc. */
+    const truotVi = xau.map((d) => ({ thuoc: d.ma, vi: String(d.y || "").slice(0, 200) }));
+    bang.push({ cung: c, dat: p.dat, tong: p.tong, khongDo: p.khongDo, truot, truotVi });
     console.log("  " + (truot.length ? "·" : "✓") + " " + c.padEnd(17) + " " + p.dat + "/" + p.tong +
       (truot.length ? "  trượt: " + truot.join(" ") : "  đủ"));
+    for (const t of truotVi) console.log("        " + t.thuoc.padEnd(12) + t.vi.slice(0, 88));
   } catch (e) {
     const vi = String(e.message || e).slice(0, 120);
     bang.push({ cung: c, loi: vi });
