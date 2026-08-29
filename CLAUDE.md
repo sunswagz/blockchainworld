@@ -940,6 +940,36 @@ Máy **chỉ báo, không tự sửa**, và đó là chủ ý: `.drawer` rộng 
 hay 400px là quyết định thiết kế, chỉ người dựng cung ấy biết. Thứ máy
 nói chắc chắn là hôm nay một trong hai đang chết.
 
+### Ảnh khai mà không có trên đĩa
+
+    npm run kiem-anh      thoát 1 nếu có đường khai mà thiếu
+
+`npm run kiem` gọi nó ở đầu mỗi phiên và **nhắc** chứ không chặn — ảnh
+do bot ghi, phiên đang mở không phải người gây ra.
+
+Nó canh đúng lớp lỗi mục "File do workflow tự sinh" đã mô tả bằng văn
+xuôi, kèm cả câu *"sẽ nổ đúng lần L2BEAT thêm dự án mới"*:
+`build-l2beat.mjs` và `build-congbo.mjs` **tải** ảnh về
+`assets/logos/` rồi ghi `logos.js` trỏ tới chúng; `git add` không phủ
+thư mục ảnh thì bảng tra được commit còn ảnh thì không. Trang hiện ô
+vỡ, và **không lỗi nào báo** — không 404 trong log build, không phép
+kiểm nào đỏ, Actions xanh.
+
+Lời cảnh báo nằm trong văn xuôi chỉ cứu được người vừa đọc đúng đoạn
+ấy. Đây là bản chạy được của nó. Soi 387 đường: mọi `src`/`href` cục
+bộ trong `index.html` của Cổng Thành + 12 cung, và cả hai bảng tra
+logo.
+
+**Đọc bảng bằng cách NẠP, không bằng regex.** Bản nháp bóc bảng bằng
+regex rồi báo 93/93 ảnh thiếu — báo oan sạch, vì có **hai** bảng trỏ
+vào **hai** thư mục khác nhau và regex ghép nhầm:
+
+    DSV_LOGO_MAP → do-sat-vien/assets/logos/   (dùng chung)
+    CB_LOGO_BU   → cong-bo/assets/logos/       (ảnh bù, dự án đã ngừng)
+
+`logos.js` là JS hợp lệ gán vào `window`, nên `new Function` đọc đúng
+thứ trình duyệt đọc chứ không phải một bản phỏng đoán về nó.
+
 ### Cổng dev
 
 Mỗi cung có một cổng cố định. Phiên lo cung nào thì dùng đúng cổng của
