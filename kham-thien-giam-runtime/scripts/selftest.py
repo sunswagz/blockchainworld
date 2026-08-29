@@ -4298,6 +4298,15 @@ def kiem_don_bang_qua_han() -> None:
             kiem("KHÔNG xoá file đang mở", gia_moi.exists())
             kiem("KHÔNG đụng file không phải băng", khac.exists())
 
+            # File 0 byte: ngoại lệ của luật "không chắc thì giữ". Mỗi lần
+            # khởi động lại đẻ một file rỗng — giữ hết thì dồn vô hạn.
+            rong = tm / "bang-2018-06-06.jsonl.gz"
+            rong.write_bytes(b"")
+            os.utime(rong, (gio - 400 * 86400, gio - 400 * 86400))
+            n5 = B.MayGhi.don_cu(mg)
+            kiem("file RỖNG quá hạn thì XOÁ — không có gì để mất",
+                 n5 == 1 and not rong.exists(), (n5, rong.exists()))
+
             n2 = B.MayGhi.don_cu(mg)
             kiem("gọi lại khi đã sạch thì xoá 0, không ném", n2 == 0)
         finally:

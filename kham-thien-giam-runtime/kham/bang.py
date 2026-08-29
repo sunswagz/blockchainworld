@@ -229,8 +229,14 @@ class MayGhi:
         được. Hai cái giá ấy không cùng hạng.
         """
         try:
+            tho = p.read_bytes()
+            if not tho:
+                # File RỖNG là ca duy nhất chắc chắn không mất gì: không có
+                # byte nào để mà đọc sót. Mỗi lần khởi động lại đẻ ra một
+                # file như vậy, nên nếu cũng giữ thì chúng dồn mãi.
+                return False
             bao = BaoCaoDoc()
-            doan = _giai_nen(p.read_bytes(), bao, p.name)
+            doan = _giai_nen(tho, bao, p.name)
             for d in doan:
                 if b'"quan-sat"' in d:
                     return True
