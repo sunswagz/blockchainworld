@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_DO = {
- "generatedAt": "2026-08-29T16:59:18.409Z",
+ "generatedAt": "2026-08-29T23:35:02.176Z",
  "tuDo": [
   "nangluong",
   "laisuat",
@@ -94,7 +94,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột."
    },
-   "luc": "2026-08-29T16:59:17.755Z"
+   "luc": "2026-08-29T23:35:01.208Z"
   },
   "laisuat": {
    "nhan": "Lợi suất TPCP Mỹ 10 năm",
@@ -178,7 +178,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi."
    },
-   "luc": "2026-08-29T16:59:17.806Z"
+   "luc": "2026-08-29T23:35:01.306Z"
   },
   "tygia": {
    "nhan": "USD/VND",
@@ -212,7 +212,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ."
    },
-   "luc": "2026-08-29T16:59:17.894Z"
+   "luc": "2026-08-29T23:35:01.438Z"
   },
   "tq": {
    "nhan": "Giá đồng",
@@ -294,7 +294,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70. Đỏ đặt sát đỉnh năm."
    },
-   "luc": "2026-08-29T16:59:17.946Z"
+   "luc": "2026-08-29T23:35:01.551Z"
   },
   "doanhnghiep": {
    "nhan": "Quỹ ETF Việt Nam (VNM)",
@@ -377,7 +377,7 @@ window.DQT_DO = {
     "nghich": true,
     "can": "ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80. Đỏ đặt sát đáy năm."
    },
-   "luc": "2026-08-29T16:59:18.008Z"
+   "luc": "2026-08-29T23:35:01.660Z"
   },
   "xuatxu": {
    "nhan": "Văn bản liên bang Mỹ nhắc VN",
@@ -407,7 +407,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Nền quan sát được khoảng 37–43 văn bản/30 ngày. NGƯỠNG YẾU NHẤT BẢNG — đọc như nhịp độ, không phải mức độ."
    },
-   "luc": "2026-08-29T16:59:18.221Z"
+   "luc": "2026-08-29T23:35:01.794Z"
   },
   "caphe": {
    "nhan": "Cà phê Arabica",
@@ -489,7 +489,7 @@ window.DQT_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 244–364. Xanh khi ≥280, đỏ khi ≤250."
    },
-   "luc": "2026-08-29T16:59:18.272Z"
+   "luc": "2026-08-29T23:35:01.886Z"
   },
   "gao": {
    "nhan": "Gạo",
@@ -571,7 +571,7 @@ window.DQT_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 11,8–14,6. Xanh khi ≥13, đỏ khi ≤12."
    },
-   "luc": "2026-08-29T16:59:18.315Z"
+   "luc": "2026-08-29T23:35:01.979Z"
   },
   "usd": {
    "nhan": "Chỉ số USD",
@@ -654,7 +654,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Biên độ 3 tháng quan sát được: 98,9–101,6. Đỏ đặt ở 103, tức trên hẳn vùng đang giao dịch."
    },
-   "luc": "2026-08-29T16:59:18.366Z"
+   "luc": "2026-08-29T23:35:02.074Z"
   },
   "vang": {
    "nhan": "Vàng",
@@ -736,7 +736,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Biên độ 3 tháng quan sát được: 3.986–4.561. Vàng lập đỉnh liên tục nên ngưỡng này sẽ phải chỉnh lại; hiện neo vào biên trên quan sát được."
    },
-   "luc": "2026-08-29T16:59:18.409Z"
+   "luc": "2026-08-29T23:35:02.176Z"
   }
  }
 };
