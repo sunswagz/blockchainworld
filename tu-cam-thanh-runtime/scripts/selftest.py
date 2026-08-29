@@ -1207,6 +1207,22 @@ async def main() -> int:
     check(_c24.get("ok"), f"chot() nhận bản chốt: {_c24.get('viSao') or 'ok'}")
     check(not any("gt-ket" in x for x in BG24._gia_thuyet_ket()),
           "giả thuyết đã chốt → không còn là chỗ kẹt")
+
+    # ── Ba chỗ cùng nói một ngưỡng phải cùng một số ──
+    #
+    # `web/app.js`, `Runtime` và `ban-giao` đều quyết định "bao nhiêu lượt đứng
+    # ngoài thì gọi là kẹt". Ba bản sao viết tay ở ba ngôn ngữ; lệch nhau thì
+    # buồng lái nói "bình thường" trong khi bản bàn giao nói "kẹt", và người
+    # đọc tin cái nào tuỳ chỗ họ nhìn.
+    import re as _re24
+    _lay = lambda f, pat: int(_re24.search(pat, (ROOT / f).read_text(encoding="utf-8")).group(1))
+    _nguong = {
+        "web/app.js": _lay("web/app.js", r"const DUNG_IM = (\d+)"),
+        "trader/loop.py": _lay("trader/loop.py", r"DUNG_IM_LIEN_TIEP = (\d+)"),
+        "scripts/ban-giao.py": _lay("scripts/ban-giao.py", r"DUNG_IM_LIEN_TIEP = (\d+)"),
+    }
+    check(len(set(_nguong.values())) == 1,
+          f"ngưỡng đứng-im khớp ở cả ba chỗ: {_nguong}")
     print("\n[23] MỌI PHÉP ĐO PHẢI TỰ KHAI CHỢ CỦA NÓ")
     from trader import chung_cat as CC23
 

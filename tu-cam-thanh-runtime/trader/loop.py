@@ -310,6 +310,7 @@ class Runtime:
             "regime": self.regime,
             "thesis": self.last_thesis,
             "decision": self.last_decision,
+            "chuoiDungNgoai": self._chuoi_dung_ngoai(),
             "account": acct,
             "risk": {
                 "halted": self.risk.halted_reason,
@@ -320,6 +321,34 @@ class Runtime:
             "nextThesisIn": self._next_in(),
         }
 
+    # Bao nhiêu lượt NO_TRADE liên tiếp thì gọi là ĐỨNG IM chứ không phải thận
+    # trọng. Cùng ngưỡng với `scripts/ban-giao.py` — hai chỗ nói cùng một chuyện.
+    DUNG_IM_LIEN_TIEP = 12
+
+    def _chuoi_dung_ngoai(self) -> int:
+        """Số luận điểm NO_TRADE liên tiếp gần nhất.
+
+        Buồng lái nói "Bộ não chủ động đứng ngoài — đây là một quyết định" ở lượt
+        thứ nhất, và nói y hệt câu đó ở lượt thứ 18. Câu ấy đúng cho một lượt và
+        sai cho mười tám: đứng ngoài liên tục vì bằng chứng ÂM về chính chế độ
+        đang chạy là một thế bí tự khoá — không vào lệnh thì không có dữ liệu mới,
+        nên bằng chứng âm đứng nguyên.
+
+        Đọc từ SỔ chứ không đếm trong bộ nhớ: runtime dựng lại thì bộ đếm trong
+        bộ nhớ về 0, và chuỗi 18 lượt biến mất đúng lúc cần nhìn thấy nó nhất.
+        """
+        try:
+            from . import store
+
+            ds = store.read_all(store.THESES)
+        except Exception:  # noqa: BLE001
+            return 0
+        n = 0
+        for t in reversed(ds):
+            if t.get("action") != "NO_TRADE":
+                break
+            n += 1
+        return n
     def _next_in(self) -> int | None:
         if not self.last_thesis_at:
             return 0

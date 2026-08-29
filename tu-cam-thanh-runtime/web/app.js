@@ -299,12 +299,37 @@ function vePhai() {
       ? hang(d.position.riskBaseIsCash ? "…% của tiền mua được" : "…% của vốn",
              `${num(d.position.riskPct, 2)}% × ${tien(d.position.riskBase)}`)
       : "");
-  else if (d.action === "NO_TRADE") pq += '<div class="nhac" style="font-size:12px">Bộ não chủ động đứng ngoài — đây là một quyết định.</div>';
+  else if (d.action === "NO_TRADE") pq += dungNgoai();
   else pq += `<div class="xuong" style="font-size:12px;font-weight:600;margin-bottom:6px">CHẶN</div>` +
     (d.rejections || []).map((r) => `<div style="font-size:11.5px;color:var(--fg-3);padding:2px 0">× ${esc(r)}</div>`).join("");
   el("aiPhanQuyet").innerHTML = pq;
 }
 
+/* Đứng ngoài MỘT lượt và đứng ngoài MƯỜI TÁM lượt là hai chuyện khác nhau, và
+   bảng cũ nói đúng một câu cho cả hai: "đây là một quyết định". Câu ấy đúng ở
+   lượt thứ nhất và ru ngủ ở lượt thứ mười tám.
+
+   Đứng ngoài liên tục vì bằng chứng ÂM về chính chế độ đang chạy là một thế bí
+   tự khoá: không vào lệnh ⇒ không có dữ liệu mới ⇒ bằng chứng âm đứng nguyên ⇒
+   không vào lệnh. Nó không tự kết thúc, và bảng phải nói ra chỗ đó thay vì để
+   người xem chờ một thứ sẽ không tới.
+
+   Ngưỡng 12 khớp `Runtime.DUNG_IM_LIEN_TIEP` và `ban-giao.DUNG_IM_LIEN_TIEP`. */
+const DUNG_IM = 12;
+
+function dungNgoai() {
+  const n = S?.chuoiDungNgoai || 0;
+  if (n < DUNG_IM)
+    return '<div class="nhac" style="font-size:12px">Bộ não chủ động đứng ngoài — '
+         + (n > 1 ? `lượt thứ ${n} liên tiếp. ` : "")
+         + "đây là một quyết định.</div>";
+  return `<div class="xuong" style="font-size:12px;font-weight:600;margin-bottom:6px">ĐỨNG IM ${n} LƯỢT LIÊN TIẾP</div>`
+       + '<div class="nhac" style="font-size:11.5px;line-height:1.5">Đứng ngoài vẫn là '
+       + "quyết định đúng nếu bằng chứng âm. Nhưng nó đã đúng lâu tới mức tự khoá: "
+       + "không vào lệnh nghĩa là không có dữ liệu mới, nên bằng chứng âm đứng "
+       + "nguyên. <b>Cái chờ này không tự kết thúc</b> — thứ phải đổi là chiến lược "
+       + 'hoặc chợ, không phải thời gian.</div>';
+}
 /* ── TẦNG 1 · TỔNG QUAN ────────────────────────────────────────── */
 function veTongQuan() {
   if (!S) return;

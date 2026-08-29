@@ -55,6 +55,26 @@ function lay(obj, duong) {
   return cho.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
 }
 
+/* Nguồn ngoài TỰ KHAI hỏng thì không soát trường của nó.
+
+   `alternative.me` timeout, `tamLy` trả {co:false, loi:"ConnectTimeout"} — đúng
+   như thiết kế. Nhưng phép soát vẫn đòi đủ gt/nhan/chuoi và báo "3 chỗ lệch
+   giữa app.js và API". Đó là một câu SAI: không có gì lệch, chỉ có mạng hỏng.
+
+   Báo động sai không rẻ hơn im lặng — nó dạy người ta bỏ qua báo động, mà bộ
+   kiểm này tồn tại đúng để người ta ĐỪNG bỏ qua. Nên nguồn khai hỏng thì nói
+   rõ đã BỎ QUA và vì sao, chứ không im và cũng không kêu nhầm.
+
+   Chỉ bỏ qua khi nguồn TỰ KHAI `co === false`. Thiếu hẳn trường `co` vẫn soát
+   như thường — im lặng không phải là lời khai. */
+function soatNguon(obj, ds, ten) {
+  if (obj && obj.co === false) {
+    console.log(`  —    ${ten}: nguồn tự khai hỏng (${obj.loi || obj.nguon || "?"})`
+                + " — bỏ qua phần soát trường, KHÔNG tính là lệch");
+    return;
+  }
+  soat(obj, ds, ten);
+}
 function soat(obj, ds, ten) {
   const thieu = [];
   for (const d of ds) {
@@ -145,17 +165,17 @@ if (!W.co) {
   console.log("  —    nguồn ngoài chưa lấy xong (luồng nền chạy vài giây sau khi khởi động)");
 } else {
   soat(W, ["phaiSinh.co", "viMo.co", "tamLy.co", "suKien.co", "luc"], "thế giới");
-  soat(W.phaiSinh, ["funding", "fundingNamHoa", "openInterestUsd", "oiDoi24hPct",
+  soatNguon(W.phaiSinh, ["funding", "fundingNamHoa", "openInterestUsd", "oiDoi24hPct",
                     "topTrader", "toanSan", "taker", "nguon"], "phái sinh");
   for (const nh of ["topTrader", "toanSan", "taker"]) {
     const g = W.phaiSinh[nh];
     g && g.tyLe != null ? ok(`phái sinh.${nh} có tyLe`) : bao(`phái sinh.${nh} thiếu tyLe`);
   }
-  soat(W.viMo, ["muc", "khauVi.nhan", "khauVi.diem", "khauVi.soChiSo", "khauVi.ghiChu"], "vĩ mô");
+  soatNguon(W.viMo, ["muc", "khauVi.nhan", "khauVi.diem", "khauVi.soChiSo", "khauVi.ghiChu"], "vĩ mô");
   const thieuMa = ["DXY", "US10Y", "DAU", "SP500", "VANG"].filter((m) => !W.viMo.muc[m]);
   thieuMa.length ? bao(`vĩ mô thiếu mã: ${thieuMa.join(", ")}`) : ok("vĩ mô đủ 5 mã");
-  soat(W.tamLy, ["gt", "nhan", "chuoi"], "tâm lý");
-  soat(W.suKien, ["chuDe", "khac", "soFeed", "tongFeed", "soBai", "nguon"], "sự kiện");
+  soatNguon(W.tamLy, ["gt", "nhan", "chuoi"], "tâm lý");
+  soatNguon(W.suKien, ["chuDe", "khac", "soFeed", "tongFeed", "soBai", "nguon"], "sự kiện");
   const b = W.suKien.chuDe?.flatMap((c) => c.bai)[0];
   if (!b) console.log("  —    chưa có bài nào để kiểm trường");
   else {
