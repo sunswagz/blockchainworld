@@ -746,6 +746,7 @@ Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
     cửa sổ σ riêng từng market              cả ba đều chọn 900s
     mùa vụ theo GIỜ trong ngày              trả lại — khoảng tin chứa 0
     KHỐI LƯỢNG báo σ                        trả lại — suy giảm ĐƠN ĐIỆU
+    σ CHỐNG NHẢY GIÁ (bipower, medRV)       TỆ HƠN, khoảng tin hẳn bên dương
     (`ewma` thì TỆ HƠN close-close rõ rệt)
 
 Hướng thứ bảy (`scripts/thu-mua-vu-gio.py`, 30/08/2026) đáng ghi riêng vì
@@ -783,6 +784,31 @@ nhiễu vào một con số đã đủ.
 
 (Đừng nhầm với hướng "dòng lệnh taker buy" đã đóng: cái đó đo HƯỚNG,
 cái này đo ĐỘ LỚN. Hai câu hỏi khác nhau, và cả hai đều trả lời không.)
+
+Hướng thứ chín (`scripts/thu-nhay-gia.py`) là hướng đầu tiên trả về một
+kết luận CÓ CHIỀU chứ không phải một con số không. Biến động thực hiện =
+phần khuếch tán + phần NHẢY. Mô hình `Φ(z)` giả định khuếch tán liên
+tục, nên nghe rất hợp lý rằng phần nhảy là tạp chất thổi σ lên:
+
+    dong-dong  ← đương nhiệm   CHỌN 0.15607   CHỐT 0.15787
+    pha-nua  (½RV + ½BV)            0.15618        0.15822
+    bipower  (bỏ nhảy)              0.15646        0.15902
+    med-rv   (bỏ nhảy mạnh nhất)    0.15679        0.15856
+    khoảng tin 95% chênh CHỐT (1.440 KHUNG): [+0,000006, +0,000704]
+
+**Càng bỏ nhảy giá càng TỆ, và khoảng tin nằm hẳn bên dương** — tức ứng
+viên tốt nhất kém hơn một cách có ý nghĩa. Thứ tự `pha-nua` < `bipower`
+< `med-rv` là thứ tự mức độ bỏ nhảy.
+
+Đọc ra một điều về THẾ GIỚI, không phải về phép đo: với khung 5 phút,
+phần nhảy trong σ **không phải tạp chất — nó là dự báo thật cho 5 phút
+tới**. Biến động cụm lại; một cú nhảy vừa xảy ra là dấu hiệu mạnh rằng
+năm phút tới còn động. Bỏ nó ra là vứt tin đi.
+
+Chú ý khi đọc lại: các phép thử này lấy nến MỚI mỗi lần chạy nên cửa sổ
+20 ngày trượt, và Brier của cùng một đương nhiệm xê dịch chừng 0,0002
+giữa hai lần. So sánh trong CÙNG một bảng thì có nghĩa; so chéo giữa hai
+bảng chạy khác ngày thì không.
 
 **Dữ liệu giá Binance đã cạn.** Sáu hướng, sáu kết quả, cùng một kết
 luận. Alpha còn lại — nếu có — nằm ở vi cấu trúc của chính cái chợ: sổ
