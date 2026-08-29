@@ -53,6 +53,17 @@ WSS = "wss://stream.binance.com:9443/stream"
 SAU_VONG_DEM = 4096
 
 
+class _DoiMa(Exception):
+    """Danh sách mã đổi — phải đăng ký lại. KHÔNG phải đứt kết nối.
+
+    Giống hệt `_DoiToken` bên `dong_song`. Ở đây danh sách mã lấy từ
+    config nên gần như không bao giờ đổi — nhưng để hai lớp dòng chảy
+    cư xử khác nhau ở cùng một tình huống là một chỗ lệch chờ ngày ai đó
+    thêm một market rồi tự hỏi vì sao buồng lái báo "nối lại" mà mạng
+    vẫn tốt.
+    """
+
+
 class _ChuaCoMa(Exception):
     """Chưa đăng ký mã nào — không phải đứt kết nối, đừng đếm."""
 
@@ -100,6 +111,10 @@ class DongSongNen:
                 cho = 1.0
             except _ChuaCoMa:
                 continue
+            except _DoiMa:
+                # Đăng ký lại NGAY, không chờ và không đếm — xem `_DoiMa`.
+                cho = 1.0
+                continue
             except Exception as e:                      # noqa: BLE001
                 self.loiCuoi = f"{type(e).__name__}: {e}"
                 bus.ghi(f"dòng nền đứt: {self.loiCuoi}", loai="canh")
@@ -134,7 +149,7 @@ class DongSongNen:
             bus.ghi(f"dòng nền đã nối — {len(ds)} mã (bookTicker)", loai="he")
             while self._chay:
                 if set(self.danh_sach()) != set(ds):
-                    return
+                    raise _DoiMa()
                 try:
                     tho = ws.recv(timeout=20)
                 except TimeoutError:

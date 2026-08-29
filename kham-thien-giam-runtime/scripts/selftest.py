@@ -4683,6 +4683,15 @@ def kiem_doi_token_khong_phai_dut() -> None:
     xu2 = [h for n in _a.walk(vong) if isinstance(n, _a.Try)
            for h in n.handlers
            if isinstance(h.type, _a.Name) and h.type.id == "_ChuaCoToken"]
+    # HAI lớp dòng chảy phải cư xử GIỐNG NHAU ở cùng tình huống. Danh
+    # sách mã Binance lấy từ config nên gần như không đổi — nhưng để hai
+    # lớp khác nhau là một chỗ lệch chờ ngày ai đó thêm một market.
+    src2 = (GOC_MA / "kham" / "dong_song_nen.py").read_text(encoding="utf-8")
+    ma2 = chr(10).join(x.split("#", 1)[0] for x in src2.splitlines())
+    kiem("dòng NỀN cũng tách riêng ca đổi danh sách",
+         "class _DoiMa" in ma2 and "raise _DoiMa()" in ma2
+         and "except _DoiMa" in ma2)
+
     kiem("`_ChuaCoToken` vẫn không đếm nối lại",
          xu2 and "soLanNoiLai" not in _a.unparse(
              _a.Module(body=xu2[0].body, type_ignores=[])))
