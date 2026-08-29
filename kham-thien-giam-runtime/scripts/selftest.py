@@ -335,9 +335,15 @@ def kiem_rui_ro() -> None:
     kiem("lỗ gần trần ngày → SIẾT cỡ lệnh, không phải chờ cầu dao",
          hep.cho and hep.soCoChoPhep < sach.soCoChoPhep,
          f"{hep.soCoChoPhep:.1f} vs {sach.soCoChoPhep:.1f}")
-    kiem("cỡ còn lại không vượt ngân sách ngày còn lại",
-         hep.soCoChoPhep * ch.vwap <= 5.0 + 1e-6,
-         f"${hep.soCoChoPhep * ch.vwap:.4f} > $5.00")
+    # PHÍ tính vào, vì phí cũng là tiền mất — và nó mất kể cả khi cược
+    # thắng. Phiên phát lại từng ghi `laiLo −50,95` trên khoản vào
+    # $49,95 với trần ngày $50,00: vượt trần đúng bằng khoản phí.
+    kiem("cỡ còn lại không vượt ngân sách ngày còn lại — KỂ CẢ PHÍ",
+         hep.soCoChoPhep * (ch.vwap + ch.phi) <= 5.0 + 1e-6,
+         f"${hep.soCoChoPhep * (ch.vwap + ch.phi):.4f} > $5.00")
+    kiem("và phí thật sự siết chặt hơn: bỏ phí thì cỡ lớn hơn",
+         ch.phi > 0 and 5.0 / (ch.vwap + ch.phi) < 5.0 / ch.vwap,
+         f"phí/cổ ${ch.phi:.5f}")
 
     # Chân PHÒNG HỘ phải đi qua kể cả khi ngân sách cạn: chặn nó là để
     # lại một chân trần trụi — làm rủi ro TO RA nhân danh giảm rủi ro.

@@ -431,7 +431,15 @@ class RiskEngine:
                     canh.append(f"hết ngân sách lỗ ngày, chỉ cho phòng hộ "
                                 f"{phong_ho:.0f} cổ")
             else:
-                max_ngay = (du + phong_ho) / max(1e-9, ch.vwap)
+                # Chia cho `vwap + phi`, KHÔNG phải `vwap`. Phí cũng là
+                # tiền mất, và nó mất KỂ CẢ khi cược thắng.
+                #
+                # Đo được: phiên phát lại ghi `laiLo −50,95` trên khoản
+                # vào $49,95 với trần ngày $50,00 — vượt trần đúng bằng
+                # khoản phí $1,00. Cái cổng chiếu theo `vwap` nên nó cho
+                # qua một cỡ lệnh mà chính nó vừa cấm.
+                gia_that = ch.vwap + max(0.0, float(ch.phi or 0.0))
+                max_ngay = (du + phong_ho) / max(1e-9, gia_that)
                 if max_ngay < cho_phep:
                     cho_phep = max_ngay
                     canh.append(
