@@ -74,6 +74,14 @@ NUT_VAN: list[NutVan] = [
            "cửa sổ ước lượng σ; ngắn thì nhạy, dài thì mượt"),
     NutVan("dinhGia.batDinhToiThieu", 0.005, 0.050, 0.005,
            "sàn bất định; cao là bảo thủ hơn"),
+    # Hai nút dưới đây CHẠM THẲNG vào `pUp`, nên chúng chấm được bằng độ
+    # chuẩn của dự báo trên kết quả thật, không cần giá chợ. Trước đây
+    # chúng không có trong bảng vặn — tức là hai tham số đi thẳng vào
+    # công thức mà không ai từng đo xem chúng đặt đúng chưa.
+    NutVan("dinhGia.sanNenGiay", 1.0, 15.0, 1.0,
+           "sàn cho τ; giây chót thì một tick vẫn lật được kết quả"),
+    NutVan("dinhGia.matPhangCanKetQua", 0.005, 0.060, 0.005,
+           "kéo p về trong [eps, 1−eps]; không outcome nào đáng giá đúng 0"),
     # Giảm chấn của phép nắn. Thêm vào bảng này thay vì tự chọn một con
     # số mới, vì đã có bằng chứng NGOÀI MẪU và bằng chứng ấy nói "nới
     # được" chứ không nói "nới bao nhiêu":

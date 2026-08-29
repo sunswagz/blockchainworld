@@ -966,6 +966,51 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_tu_nang_cap() -> None:
+    """Vòng tự nâng cấp: ba tập tách rời, và biên siết theo số ứng viên.
+
+    Chỗ nguy hiểm nhất của mọi vòng tự tối ưu: lặp N lần trên CÙNG một
+    tập kiểm thì tập ấy thôi còn là ngoài mẫu — mỗi vòng lại dùng nó để
+    CHỌN. Không lộ ra ở đâu, mọi con số vẫn đẹp dần.
+
+    Chốt là chia BA tập theo THỜI GIAN: HỌC khớp nắn, CHỌN xếp hạng ứng
+    viên, CHỐT chỉ GẬT hay LẮC về đúng ứng viên đã chọn. Đã thấy nó cứu
+    một bàn thua: cùng một ứng viên, chạy lại vài phút sau với dữ liệu
+    mới hơn thì tập CHỐT lắc — thay đổi ấy mỏng tới mức vài phút dữ liệu
+    là lật.
+    """
+    print("\n-- Tu nang cap: ba tap tach roi, bien siet ---------------")
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    f = GOC_MA / "scripts" / "tu-nang-cap.py"
+    kiem("có file tự nâng cấp", f.exists())
+    if not f.exists():
+        return
+    # Nạp module thay vì bóc bằng AST: `CHIA_HOC, CHIA_CHON = 0.50, 0.75`
+    # là gán BỘ ĐÔI, và một phép bóc chỉ nhận `Name = Constant` sẽ không
+    # thấy nó rồi báo `None` — báo oan, đúng lớp lỗi đã cắn nhiều lần.
+    import importlib.util as _iu
+    sp = _iu.spec_from_file_location("_tnc", f)
+    m = _iu.module_from_spec(sp)
+    sp.loader.exec_module(m)
+
+    kiem("ba tập chia theo thời gian, không chồng lấn",
+         0.0 < m.CHIA_HOC < m.CHIA_CHON < 1.0,
+         f"{m.CHIA_HOC} / {m.CHIA_CHON}")
+    kiem("tập CHỐT không rỗng", (1.0 - m.CHIA_CHON) >= 0.15,
+         f"CHỐT chiếm {(1.0-m.CHIA_CHON):.0%} — nhỏ quá thì nó gật bừa")
+    b2, b60 = m._bien(2), m._bien(60)
+    kiem("biên SIẾT theo số ứng viên", b60 > b2,
+         f"2 ứng viên → {b2:.5f} · 60 ứng viên → {b60:.5f}")
+    kiem("biên luôn dưới 1 (vẫn đòi khá hơn)", b60 < 1.0, b60)
+
+    kiem("nút `batDinhToiThieu` KHÔNG nằm trong danh sách nút mô hình",
+         "dinhGia.batDinhToiThieu" not in m.NUT_MO_HINH,
+         "nó chạm `batDinh` chứ không chạm `pUp` — vặn nó ở đây là vặn mù")
+    kiem("bốn nút mô hình đều có trong bảng vặn",
+         all(d in NUT_THEO_DUONG for d in m.NUT_MO_HINH), m.NUT_MO_HINH)
+
+
 def kiem_ghi_config_tai_cho() -> None:
     """`ghi_config` sửa ĐÚNG MỘT SỐ, không viết lại cả file.
 
@@ -2574,6 +2619,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_tu_nang_cap()
     kiem_ghi_config_tai_cho()
     kiem_chan_mo_hinh_khong_can_lenh()
     kiem_hoc_khong_nhin_trom()
