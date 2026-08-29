@@ -271,19 +271,71 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
              "dangNgat": bool(cd.get("dangNgat")),
              "lyDo": cd.get("lyDo")}))
 
-    # ── 6. lỗ có hệ thống ở một ty ───────────────────────────────────────
+    # ── 6. lỗ có hệ thống ở một ty — đọc CỘT CHIẾN LƯỢC, không đọc gộp ──
+    #
+    # Con số gộp trộn hai thứ khác hẳn nhau, và trộn theo hướng nguy hiểm.
+    # Đo 30/08 trên máy sống:
+    #
+    #     lending.rate_rotation.v1   gộp −82,26   CHIẾN LƯỢC  +2,03
+    #     amm.fee_farming.v1         gộp  −1,32   CHIẾN LƯỢC  +1,88
+    #
+    # Hai ty ấy đang KIẾM được tiền bằng chính việc của mình. Cái kéo con
+    # số gộp xuống là phí VÀO LỆNH trả 289 lần và 50 lần — mà phần lớn
+    # những lần vào lệnh ấy không do chiến lược sinh ra: vị thế mô phỏng
+    # phải mở lại sau mỗi lần runtime khởi động lại. Đó là chi phí VẬN
+    # HÀNH, chuyện của người vận hành.
+    #
+    # Đọc con số gộp thì vòng tiến hoá kết luận «bốn ty đang lỗ» và đề
+    # xuất duy nhất của nó là siết `tranMotTy` 0,5 → 0,375: rút vốn khỏi
+    # đúng những ty đang làm ra tiền, vì một buổi chiều deploy nhiều lần.
+    # `lai_lo_tach_khoan()` sinh ra để chặn đúng cái đọc nhầm này, và
+    # người đọc nhầm hoá ra là chính vòng tiến hoá.
+    tach = anh.get("laiLoTachKhoan") or {}
     for ma, so in (sc.get("laiLoTheoTy") or {}).items():
         try:
-            v = float((so or {}).get("laiLoUsd"))
+            gop = float((so or {}).get("laiLoUsd"))
         except (TypeError, ValueError):
             continue
-        if v < 0:
+        t6 = tach.get(ma) or {}
+        cl = t6.get("laiLoChienLuocUsd")
+        # Chưa tách được thì đọc gộp, và NÓI RA là đang đọc gộp — im lặng
+        # rơi về số gộp là quay lại đúng lỗi vừa sửa.
+        if cl is None:
+            if gop < 0:
+                ra.append(TrieuChungHe(
+                    "ty-lo", 2,
+                    f"ty {ma} đang âm {abs(gop):.2f} USD trên sổ cái. CHƯA "
+                    f"tách được phí vào lệnh ra khỏi con số này, nên nó có "
+                    f"thể đang đổ lỗi cho chiến lược vì một chuyện của "
+                    f"người vận hành.",
+                    {"chienLuoc": ma, "laiLoUsd": gop,
+                     "laiLoChienLuocUsd": None},
+                    ["ruiRoTong.tranMotTy"]))
+            continue
+        cl = float(cl)
+        if cl < 0:
             ra.append(TrieuChungHe(
                 "ty-lo", 2,
-                f"ty {ma} đang âm {abs(v):.2f} USD trên sổ cái. Đây là số đã "
-                f"ghi sổ, không phải ước tính.",
-                {"chienLuoc": ma, "laiLoUsd": v},
+                f"ty {ma} âm {abs(cl):.2f} USD Ở CỘT CHIẾN LƯỢC — đã trừ "
+                f"riêng phí vào lệnh. Đây là số đã ghi sổ, không phải ước "
+                f"tính, và nó nói về chính chiến lược.",
+                {"chienLuoc": ma, "laiLoUsd": gop, "laiLoChienLuocUsd": cl},
                 ["ruiRoTong.tranMotTy"]))
+        elif gop < 0:
+            # Chiến lược dương mà gộp âm: phí vào lệnh ăn hết. KHÔNG có
+            # núm nào chữa — vặn trần vốn ở đây là phạt nhầm người.
+            n = int(t6.get("soLanVaoLenh") or 0)
+            ra.append(TrieuChungHe(
+                "phi-vao-an-het", 2,
+                f"ty {ma} lãi {cl:+.2f} USD bằng chiến lược nhưng gộp lại "
+                f"vẫn âm {abs(gop):.2f} USD: phí vào lệnh {n} lần đã ăn hết. "
+                f"Phần lớn số lần ấy là mở lại sau khi runtime khởi động "
+                f"lại — chi phí VẬN HÀNH, không phải chi phí chiến lược. "
+                f"Không núm nào chữa được: giữ vị thế lâu hơn, hoặc khởi "
+                f"động lại ít đi.",
+                {"chienLuoc": ma, "laiLoUsd": gop, "laiLoChienLuocUsd": cl,
+                 "soLanVaoLenh": n,
+                 "phiMoiLanVaoUsd": t6.get("phiMoiLanVaoUsd")}))
 
     # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──
     #
@@ -371,8 +423,12 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
     tầng ty: vặn hai núm rồi thấy khá lên thì không biết núm nào có công.
     """
     for t in sorted(trieu, key=lambda x: -x.nang):
-        if t.ma in ("thieu-to-trinh", "khoe", "di-tat"):
-            continue             # ba cái này không vặn được bằng núm
+        if t.ma in ("thieu-to-trinh", "khoe", "di-tat", "phi-vao-an-het"):
+            # Bốn cái này không vặn được bằng núm. `phi-vao-an-het` là
+            # chuyện của người vận hành: siết trần vốn ở đây là rút vốn
+            # khỏi một ty ĐANG làm ra tiền vì một buổi chiều deploy nhiều
+            # lần.
+            continue
         for nut in t.nutGoiY:
             khuon = NUT_TRUNG_UONG.get(nut)
             if khuon is None:

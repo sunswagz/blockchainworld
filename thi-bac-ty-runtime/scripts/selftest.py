@@ -2637,6 +2637,59 @@ def kiem_chan_doan_he() -> None:
          "None là chưa đo được, không phải hứa đúng — đọc nó thành 0 là "
          "bịa ra một lời khen chưa ai nói")
 
+    # ── TY LỖ đọc CỘT CHIẾN LƯỢC, không đọc con số gộp ──────────────────
+    # Đo 30/08 trên máy sống: lending.rate_rotation gộp −82,26 nhưng CHIẾN
+    # LƯỢC +2,03; amm.fee_farming gộp −1,32 nhưng chiến lược +1,88. Cái
+    # kéo con số gộp xuống là phí VÀO LỆNH trả 289 lần và 50 lần, mà phần
+    # lớn những lần ấy là mở lại sau khi runtime khởi động lại — chi phí
+    # VẬN HÀNH.
+    #
+    # Đọc gộp thì vòng tiến hoá kết luận «bốn ty đang lỗ» và đề xuất duy
+    # nhất của nó là siết `tranMotTy` 0,5 → 0,375: rút vốn khỏi đúng
+    # những ty đang làm ra tiền, vì một buổi chiều deploy nhiều lần.
+    _anhTL = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                     "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+              "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 40},
+              "soCai": {"laiLoTheoTy": {
+                  "lai_that.v1": {"laiLoUsd": -82.26},
+                  "lo_that.v1": {"laiLoUsd": -5.0},
+                  "chua_tach.v1": {"laiLoUsd": -9.0}}},
+              "laiLoTachKhoan": {
+                  "lai_that.v1": {"laiLoChienLuocUsd": 2.03,
+                                  "soLanVaoLenh": 289,
+                                  "phiMoiLanVaoUsd": -0.29},
+                  "lo_that.v1": {"laiLoChienLuocUsd": -5.0,
+                                 "soLanVaoLenh": 3}}}
+    _tTL = {x.ma: x for x in _cdh(_anhTL)}
+    _maTL = [x.ma for x in _cdh(_anhTL)]
+    kiem("ty LÃI bằng chiến lược mà gộp âm KHÔNG bị gọi là ty lỗ",
+         "phi-vao-an-het" in _tTL
+         and _tTL["phi-vao-an-het"].bangChung["chienLuoc"] == "lai_that.v1",
+         f"{_maTL} — phí vào lệnh phần lớn là chi phí VẬN HÀNH; đổ nó lên "
+         f"chiến lược là phạt nhầm người")
+    kiem("ty âm Ở CỘT CHIẾN LƯỢC thì vẫn bị gọi là ty lỗ",
+         any(x.ma == "ty-lo"
+             and x.bangChung["chienLuoc"] == "lo_that.v1" for x in _cdh(_anhTL)),
+         "tách khoản không được thành cái cớ tha cho mọi ty")
+    kiem("ty CHƯA tách được thì đọc gộp, và NÓI RA là đang đọc gộp",
+         any(x.ma == "ty-lo" and x.bangChung["chienLuoc"] == "chua_tach.v1"
+             and x.bangChung.get("laiLoChienLuocUsd") is None
+             and "CHƯA tách" in x.moTa for x in _cdh(_anhTL)),
+         "im lặng rơi về số gộp là quay lại đúng lỗi vừa sửa")
+    # Chặn ở HAI lớp, và lớp thứ nhất mới là lớp có răng: triệu chứng này
+    # KHÔNG khai núm nào. Chỉ dựa vào danh sách bỏ qua trong `de_xuat` thì
+    # ngày ai đó thêm một núm gợi ý, danh sách ấy là thứ duy nhất còn
+    # chặn — mà nó nằm ở file khác, cách đó 200 dòng.
+    kiem("phí-vào-ăn-hết KHÔNG khai núm nào — không có núm nào chữa được",
+         _tTL["phi-vao-an-het"].nutGoiY == [],
+         f"{_tTL['phi-vao-an-het'].nutGoiY} — siết trần vốn ở đây là rút "
+         f"vốn khỏi một ty ĐANG làm ra tiền vì một buổi chiều deploy nhiều "
+         f"lần; đây là việc của người vận hành, không phải của một tham số")
+    kiem("và `de_xuat` cũng bỏ qua nó, kể cả khi có ai đó thêm núm",
+         all(x.vi != "phi-vao-an-het"
+             for x in _dxh(_cdh(_anhTL), {"ruiRoTong": {"tranMotTy": 0.5}})),
+         "hai lớp chặn, vì lớp trong nằm ở file khác")
+
 
 def kiem_chong_trung() -> None:
     print("\n── Chống trùng: cùng một cơ hội KHÔNG vào sổ 120 lần mỗi giờ ──")
