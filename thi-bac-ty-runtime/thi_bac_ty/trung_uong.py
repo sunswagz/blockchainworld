@@ -923,6 +923,11 @@ class TrungUong:
                        f"dấu dòng vốn này, nên lợi suất KHÔNG tính nó là "
                        f"lãi.")}
 
+    def duong_suc_chua(self) -> dict:
+        """Lợi suất ở từng mức vốn, dựng từ cơ hội của ĐÚNG vòng này."""
+        from .duong_suc_chua import do_duong_suc_chua
+        return do_duong_suc_chua(self.toTrinhVongNay).tom_tat()
+
     def xoay_cho(self):
         """Chỗ nào đang ngồi mà đáng nhường cho cơ hội tốt hơn — ĐO thôi.
 
@@ -1290,6 +1295,9 @@ class TrungUong:
             # Lát cắt của CHÍNH vòng vừa chạy, không đo lại: đo lại ở đây
             # là chạy phép tính hai lần trên hai bức tranh khác nhau, và
             # buồng lái sẽ hiện một bản kê không khớp việc máy đã làm.
+            # Lợi suất TỤT theo quy mô — một con số APR không kèm mức vốn
+            # là một con số bỏ bớt. Xem `duong_suc_chua.py`.
+            "duongSucChua": self.duong_suc_chua(),
             "xoayCho": (self.latCatXoayCho.tom_tat()
                         if self.latCatXoayCho is not None
                         else self.xoay_cho().tom_tat()),

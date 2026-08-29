@@ -1107,6 +1107,37 @@
         { t: "≥ 1" }]]));
     f.appendChild(k2);
 
+    /* ĐƯỜNG SỨC CHỨA. Lợi suất TỤT theo quy mô, và một con số APR không
+       kèm mức vốn là một con số bỏ bớt: 10 nghìn thì 20%/năm, một triệu
+       thì 5,5%, năm triệu thì 1,1% vì hết chỗ chứa. Cùng một cỗ máy. */
+    var dsc = t.duongSucChua || {};
+    var ksc = khoi("Đường sức chứa — bỏ vào bao nhiêu thì lãi mấy phần trăm",
+      "Xếp mọi cơ hội đang thấy theo lãi giảm dần rồi rót lần lượt, mỗi cơ "
+      + "hội nhận nhiều nhất bằng sức chứa của nó. Đây là ẢNH CHỤP của "
+      + "vòng này, không phải một lời hứa.");
+    if ((dsc.muc || []).length) {
+      ksc.appendChild(bang(
+        [{ t: "Vốn" }, { t: "Rót được" }, { t: "Cơ hội" },
+         { t: "APR phần đã rót" }, { t: "APR cả túi" }],
+        dsc.muc.map(function (m) {
+          var het = m.rotDuocUsd < m.vonUsd - 1;
+          return [{ t: tien(m.vonUsd, 0) }, { t: tien(m.rotDuocUsd, 0),
+                    c: het ? "am" : "n" },
+                  { t: so(m.soCoHoi), c: "nhat" },
+                  { t: m.aprTrenVonRot.toFixed(2) + "%", c: "n" },
+                  { t: m.aprTrenCaTui.toFixed(2) + "%",
+                    c: m.aprTrenCaTui >= 5 ? "duong" : "nhat" }];
+        })));
+    }
+    if (dsc.vi) ksc.appendChild(giai(dsc.vi));
+    if ((dsc.soBoViThieuLai || 0) + (dsc.soBoViThieuSucChua || 0)) {
+      ksc.appendChild(giai("BỎ ngoài đường cong: "
+        + so(dsc.soBoViThieuLai) + " cơ hội không khai lãi, "
+        + so(dsc.soBoViThieuSucChua) + " không khai sức chứa. Không biết "
+        + "thì không xếp vào, chứ không coi là 0."));
+    }
+    f.appendChild(ksc);
+
     /* XOAY CHỖ. Chỗ ngồi có hạn (trần vị thế), nên câu hỏi không phải
        "có cơ hội nào không" mà là "ai đang ngồi". Đo trên máy sống: 8 chỗ
        khoá 30 ngày ở 1,9–3,0 %/năm trong khi 9–16 % đi qua mỗi vòng rồi bị
@@ -1126,6 +1157,10 @@
       (xc.soXoayDuoc || 0) ? "duong" : "nhat"));
     dxc.appendChild(oSo("Lợi ròng đã trừ phí", tien(xc.loiRongUsd, 3),
       "trong quãng hai bên cùng còn hiệu lực"));
+    if (xc.viConGhe) {
+      kxc.appendChild(giai("CÒN GHẾ TRỐNG nên không đuổi ai — cơ hội tốt "
+        + "hơn cứ ngồi vào chỗ trống. Xoay chỗ chỉ có nghĩa khi hết ghế."));
+    }
     dxc.appendChild(oSo("Không xoay được",
       so((xc.soBiKhoa || 0) + (xc.soKhongDoDuocThoat || 0)),
       (xc.soBiKhoa || 0) + " khoá vốn · "

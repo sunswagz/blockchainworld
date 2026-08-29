@@ -6723,6 +6723,55 @@ def kiem_ke_toan_vi_the() -> None:
          f"{tu28.napLuu.get('coSoVonGio')} — đoán ra một mẫu số cho quãng "
          f"chưa từng đo là bịa ra một tỉ suất")
 
+    # ── ĐƯỜNG SỨC CHỨA: lợi suất TỤT theo quy mô ────────────────────────
+    # Đo trên máy sống: 10.000 USD → 20,15 %/năm; một triệu → 5,52 %; năm
+    # triệu → 1,11 % vì hết sức chứa ở 1,07 triệu. Cùng một cỗ máy, cùng
+    # một phút. Một con số APR không kèm mức vốn là một con số bỏ bớt.
+    from thi_bac_ty.duong_suc_chua import do_duong_suc_chua as _dsc
+
+    def _tt55(apr, sc):
+        return {"netMoiGioBps": apr * 100.0 / (365.0 * 24.0),
+                "giuGio": 720.0, "sucChuaToiDaUsd": sc}
+
+    # Đưa vào theo thứ tự TĂNG dần để phép kiểm phân biệt được «có xếp
+    # hạng» với «may mà đầu vào đã xếp sẵn». Đột biến bỏ `sort` sống sót
+    # đúng vì bản đầu đưa vào sẵn theo thứ tự giảm.
+    _d55 = _dsc([_tt55(3.0, 100_000.0), _tt55(30.0, 1_000.0)],
+                muc=(1_000.0, 2_000.0, 101_000.0, 200_000.0))
+    _m55 = {m.vonUsd: m for m in _d55.muc}
+    kiem("vốn nhỏ thì rót TOÀN chỗ tốt nhất",
+         gan(_m55[1_000.0].aprTrenCaTuiUsd, 30.0),
+         str(_m55[1_000.0].tom_tat()))
+    kiem("vốn lớn hơn thì TRÀN xuống chỗ tệ hơn, lợi suất tụt",
+         gan(_m55[2_000.0].aprTrenCaTuiUsd, 16.5)
+         and _m55[101_000.0].aprTrenCaTuiUsd < 4.0,
+         f"{_m55[2_000.0].tom_tat()} — 1.000 ở 30% + 1.000 ở 3% = 16,5%")
+    kiem("hết sức chứa thì phần DƯ ăn lãi 0, không bị bỏ qua",
+         gan(_m55[200_000.0].rotDuocUsd, 101_000.0)
+         and _m55[200_000.0].aprTrenCaTuiUsd
+         < _m55[200_000.0].aprTrenVonRotUsd,
+         f"{_m55[200_000.0].tom_tat()} — bỏ qua phần dư là khoe lợi suất "
+         f"của phần đã rót rồi gọi đó là lợi suất của cả túi tiền")
+    kiem("và hai con số ấy giữ RIÊNG, không trộn",
+         gan(_m55[200_000.0].aprTrenVonRotUsd,
+             _m55[101_000.0].aprTrenCaTuiUsd, 1e-9),
+         "«phần đã rót lãi bao nhiêu» và «cả túi lãi bao nhiêu» là hai câu")
+
+    _d56 = _dsc([{"sucChuaToiDaUsd": 1_000.0},          # thiếu lãi
+                 _tt55(30.0, None),                     # thiếu sức chứa
+                 _tt55(10.0, 5_000.0)])
+    kiem("cơ hội thiếu lãi hoặc thiếu sức chứa thì BỎ, và ĐẾM RIÊNG",
+         _d56.soBoViThieuLai == 1 and _d56.soBoViThieuSucChua == 1
+         and _d56.soCoHoiDung == 1,
+         f"{_d56.tom_tat()} — không biết thì không xếp vào một phép tính "
+         f"về sức nuốt, chứ không coi là 0")
+    kiem("không dựng được thì NÓI, không trả một đường cong rỗng im lặng",
+         "chưa dựng được" in _dsc([]).vi, _dsc([]).vi)
+    tu57 = TrungUong(_tam("duong-suc-chua"), {"vonBanDauUsd": 10_000.0})
+    kiem("ảnh chụp mang đường sức chứa ra buồng lái",
+         "muc" in (tu57.anh_chup().get("duongSucChua") or {}),
+         "đo được mà không ra tới buồng lái thì vẫn là im lặng")
+
     # ── XIN THEO SỨC CHỨA, không xin một con số cứng ────────────────────
     # Đo sau khi nâng vốn ảo lên một triệu: máy vẫn chỉ rót 6.200 USD, dùng
     # vốn 0,62%. Không phải hết tiền (còn 797.000 khả dụng), không phải
