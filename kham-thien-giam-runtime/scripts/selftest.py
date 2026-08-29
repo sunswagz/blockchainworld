@@ -4205,6 +4205,59 @@ def kiem_hai_so_phai_nhat_quan() -> None:
     kiem("và KHÔNG còn tự viết phép kiểm riêng",
          "su.dung_duoc or sd.dung_duoc" not in ma)
 
+def kiem_don_bang_qua_han() -> None:
+    """Hạn giữ băng phải THẬT SỰ CHẠY, không chỉ nằm trong config.
+
+    `MayGhi.don_cu` có từ đầu, thực thi đúng `bang.ngayGiuLai` khai trong
+    config — và KHÔNG AI GỌI NÓ. Một chính sách nằm trong config và trong
+    mã mà không bao giờ chạy là một lời hứa hệ thống không giữ.
+
+    Hệ quả đo được: 29 MB băng sau mười ngày, lớn mãi không dừng, trong
+    khi `doc_bang` trên TÁM ngày băng đã là 77 giây và 3,4 GB thường trú.
+    """
+    print("\n── Hạn giữ băng phải thật sự chạy ───────────────────────────")
+
+    import os
+    import tempfile
+    import time as _t
+
+    import kham.bang as B
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    vg = (GOC_MA / "kham" / "vong.py").read_text(encoding="utf-8")
+    ma = chr(10).join(d.split("#", 1)[0] for d in vg.splitlines())
+    kiem("vòng chạy CÓ gọi dọn băng", "may_ghi.don_cu()" in ma)
+    kiem("và chỉ mỗi ngày một lần, không mỗi vòng",
+         "_ngayDonBang" in ma)
+    kiem("gọi trong làn có bảo vệ — một lần dọn hỏng không giết vòng lặp",
+         'self._lan("dọn băng"' in ma)
+
+    with tempfile.TemporaryDirectory() as d:
+        tm = Path(d)
+        cu = B._thu_muc
+        try:
+            B._thu_muc = lambda: tm
+            gia_cu = tm / "bang-2020-01-01.jsonl.gz"
+            gia_moi = tm / "bang-2099-01-01.jsonl.gz"
+            khac = tm / "khong-phai-bang.txt"
+            for f in (gia_cu, gia_moi, khac):
+                f.write_bytes(b"x")
+            gio = _t.time()
+            os.utime(gia_cu, (gio - 400 * 86400, gio - 400 * 86400))
+
+            mg = B.MayGhi.__new__(B.MayGhi)
+            mg.duong = gia_moi          # file ĐANG MỞ
+            n = B.MayGhi.don_cu(mg)
+
+            kiem("xoá đúng file quá hạn", n == 1 and not gia_cu.exists())
+            kiem("KHÔNG xoá file đang mở", gia_moi.exists())
+            kiem("KHÔNG đụng file không phải băng", khac.exists())
+
+            n2 = B.MayGhi.don_cu(mg)
+            kiem("gọi lại khi đã sạch thì xoá 0, không ném", n2 == 0)
+        finally:
+            B._thu_muc = cu
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -4278,6 +4331,7 @@ def main() -> int:
     kiem_cham_moc_tu_choi_sigma_ngan()
     kiem_nut_van_khong_bi_dong_bang()
     kiem_hai_so_phai_nhat_quan()
+    kiem_don_bang_qua_han()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()

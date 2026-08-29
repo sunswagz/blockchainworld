@@ -27,6 +27,7 @@ lựa chọn khung ở đây đi qua `khung.chon_dat_cuoc()`, không tự tính 
 from __future__ import annotations
 
 import threading
+import datetime as _dt
 import time
 
 from .bang import bao_cao_doc_cuoi, may_ghi
@@ -101,6 +102,8 @@ class Runtime:
         self.doTre = DoTre(dongSongNen, dong_song)
         self.phepNan = nan_lai.khop(self.hieuChinh)
         self._nanLucMs = 0.0
+        #: Ngày UTC đã dọn băng. Rỗng = chưa dọn lần nào phiên này.
+        self._ngayDonBang = ""
 
         self.bienDong: dict[str, DoBienDong] = {}
         self.khungHienTai: dict[str, Khung] = {}
@@ -224,6 +227,28 @@ class Runtime:
                     dong_ho.hieu_chinh(*moc)
             self._lan("đồng hồ", _dong_ho)
             self._lanHieuChinhDongHo = now
+
+        # ── dọn băng quá hạn, MỖI NGÀY một lần ───────────────────────────
+        #
+        # `MayGhi.don_cu` có từ đầu, thực thi đúng hạn giữ `bang.ngayGiuLai`
+        # khai trong config, và KHÔNG AI GỌI NÓ. Một chính sách nằm trong
+        # config và trong mã mà không bao giờ chạy là một lời hứa hệ thống
+        # không giữ: băng lớn mãi (29 MB sau mười ngày), trong khi `doc_bang`
+        # trên tám ngày băng đã là 77 giây và 3,4 GB thường trú.
+        #
+        # Mỗi ngày một lần chứ không mỗi vòng: nó quét cả thư mục, và không
+        # có gì đáng quét lại sau hai giây.
+        ngay = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+        if ngay != self._ngayDonBang:
+            self._ngayDonBang = ngay
+
+            def _don() -> None:
+                n = may_ghi.don_cu()
+                if n:
+                    bus.ghi(f"dọn băng quá hạn: xoá {n} file "
+                            f"(giữ {(CONFIG.get('bang') or {}).get('ngayGiuLai', 30)}"
+                            " ngày)", loai="he")
+            self._lan("dọn băng", _don)
 
         # ── tìm khung mới, mỗi 20 giây (khung 5 phút nên không cần dày) ──
         if now - self._lanTimKhung > 20_000:
