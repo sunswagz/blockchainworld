@@ -4994,6 +4994,58 @@ def kiem_quyet_dinh_cua_nguoi_song_sot() -> None:
     kiem("nút tạm dừng GHI NGAY khi bấm",
          sv.count("runtime.ghi_dieu_khien()") >= 2)
 
+def kiem_trang_kham_biet_keu() -> None:
+    """Trang khám sức khoẻ phải BIẾT KÊU, và không được tự tính gì.
+
+    Một trang khám lúc nào cũng "ĐẠT" chính là cái bệnh cả bộ kiểm này đi
+    sửa: một đèn xanh vĩnh viễn làm người ta thôi nhìn nó.
+
+    Đã thử THẬT: cắm một phép kiểm cố ý hỏng vào `selftest`, chạy trang
+    khám — nó in "bộ kiểm số học HỎNG", kể tên dòng hỏng, liệt kê vào mục
+    CÓ HỎNG, và trả mã thoát 1. Bỏ phép kiểm hỏng ra thì mã thoát về 0.
+    """
+    print("\n── Trang khám phải biết kêu, và không tự tính gì ───────────")
+
+    import ast as _a
+
+    GOC_MA = Path(__file__).resolve().parent.parent
+    f = GOC_MA / "scripts" / "kham-suc-khoe.py"
+    kiem("có trang khám sức khoẻ", f.exists())
+    if not f.exists():
+        return
+    src = f.read_text(encoding="utf-8")
+    ma = chr(10).join(x.split("#", 1)[0] for x in src.splitlines())
+
+    kiem("trả mã thoát 1 khi có cái hỏng", "return 1 if hong else 0" in ma)
+    kiem("gọi lại selftest chứ không chép", "scripts/selftest.py" in ma)
+    kiem("gọi lại cả hai bộ kiểm giao diện",
+         "kiem-giao-dien.mjs" in ma and "kiem-buong-lai.mjs" in ma)
+    kiem("gọi lại phép đối chiếu sổ kết quả",
+         "doi-chieu-ket-qua.py" in ma)
+    kiem("đọc trạng thái runtime qua API", "/api/trang-thai" in ma)
+
+    # KHÔNG được tự tính: không import module đo, không dựng lại phép nào.
+    cay = _a.parse(src)
+    nhap = set()
+    for n in _a.walk(cay):
+        if isinstance(n, _a.ImportFrom) and (n.module or "").startswith("kham"):
+            nhap.add(n.module)
+    cam = {"kham.ban_thu", "kham.hoc_offline", "kham.phat_lai",
+           "kham.chay_lai", "kham.tien_hoa"}
+    kiem("KHÔNG nhập module đo — trang khám không tự tính gì",
+         not (nhap & cam), sorted(nhap & cam))
+
+    # Nó phải nói rõ nó KHÔNG trả lời được gì.
+    kiem("nói rõ sức khoẻ KHÁC hiệu quả", "KHÁC hiệu quả" in src)
+    kiem("và chỉ sang chỗ trả lời câu có lãi không",
+         "chay-phat-lai" in src)
+
+    # Đọc DÒNG MÁY, không dò văn xuôi.
+    kiem("đọc dòng máy `KETLUAN` thay vì dò văn xuôi", "KETLUAN" in ma)
+    dc = (GOC_MA / "scripts" / "doi-chieu-ket-qua.py").read_text(
+        encoding="utf-8")
+    kiem("và công cụ kia CÓ in dòng ấy ra", "KETLUAN khop=" in dc)
+
 def main() -> int:
     print("=" * 70)
     print("  KHÂM THIÊN GIÁM — phép kiểm số học (không cần mạng)")
@@ -5081,6 +5133,7 @@ def main() -> int:
     kiem_lenh_that_khong_thoat_duoc()
     kiem_tien_hoa_mot_luot_moi_ngay()
     kiem_quyet_dinh_cua_nguoi_song_sot()
+    kiem_trang_kham_biet_keu()
     kiem_lui_nguon()
     kiem_nan_lai()
     kiem_khung_dai()
