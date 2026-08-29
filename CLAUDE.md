@@ -779,6 +779,7 @@ Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
     BTC dẫn ETH · XRP                       KHÔNG đủ bằng chứng
     BTC dẫn SOL                             TỆ HƠN, khoảng tin hẳn bên âm
     cửa sổ σ riêng từng market              cả ba đều chọn 900s
+    nới MÉP cửa sổ σ 900 → 3600             đường cong PHẲNG sau ~960s
     mùa vụ theo GIỜ trong ngày              trả lại — khoảng tin chứa 0
     KHỐI LƯỢNG báo σ                        trả lại — suy giảm ĐƠN ĐIỆU
     σ CHỐNG NHẢY GIÁ (bipower, medRV)       TỆ HƠN, khoảng tin hẳn bên dương
@@ -879,6 +880,33 @@ Chú ý khi đọc lại: các phép thử này lấy nến MỚI mỗi lần ch
 20 ngày trượt, và Brier của cùng một đương nhiệm xê dịch chừng 0,0002
 giữa hai lần. So sánh trong CÙNG một bảng thì có nghĩa; so chéo giữa hai
 bảng chạy khác ngày thì không.
+
+Một hướng nữa đáng ghi vì nó là chuyện về CÁCH ĐI TÌM, không phải về mô
+hình. `tien-hoa-mo-hinh` tự dò ngoài dải rồi khai: *"quán quân nằm ở MÉP
+dải cho phép ([60, 900]) — trần đang quyết định, không phải dữ liệu"*, và
+ước tính tối ưu thật quanh 2.700–3.600s, khá hơn chừng 0,05%.
+
+Mép trên của nút BẰNG ĐÚNG giá trị đang dùng. Một cái nút như thế thì
+không bao giờ tăng được — nên nới mép ra là việc phải làm, bất kể kết
+quả. **Nới MÉP chứ không đặt GIÁ TRỊ**: quyền quyết vẫn ở cổng tiến hoá.
+
+Nới rồi thì câu trả lời ngược với dự đoán:
+
+     960s  Brier đuôi 0.16164     2160s  0.16164
+    1260s        0.16163          2760s  0.16169
+    1560s        0.16161  ← đáy   3360s  0.16166
+
+**Đường cong PHẲNG sau ~960 giây.** Đáy ở 1560s chỉ hơn 960s đúng
+0,00003 — cổng từ chối, đúng như phải thế. Con số "0,05%" trước đó là
+một phép ngoại suy TRONG dải, và nó không sống nổi khi đo thật ngoài dải.
+
+Đo độc lập bằng `thu-uoc-sigma` trên 20 ngày thì mọi khoảng tin 95% của
+chênh Brier CHỐT đều CHỨA 0 (±0,001 quanh một hiệu 0,0008). Hai phép đo
+không khớp nhau về độ dốc, và cả hai đều không đủ để vặn.
+
+Bài học: **một quán quân nằm ở mép dải là một câu hỏi, không phải một
+kết quả.** Phải nới mép rồi đo lại — có thể ra vàng, cũng có thể ra một
+mặt phẳng như lần này. Cái không được làm là đọc con số ở mép rồi tin nó.
 
 **Dữ liệu giá Binance đã cạn.** Sáu hướng, sáu kết quả, cùng một kết
 luận. Alpha còn lại — nếu có — nằm ở vi cấu trúc của chính cái chợ: sổ

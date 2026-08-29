@@ -70,7 +70,27 @@ NUT_VAN: list[NutVan] = [
            "tiền được phép nằm trần một chân"),
     NutVan("ruiRo.kellyPhan", 0.05, 0.40, 0.05,
            "phần Kelly; cao là đặt to hơn khi mô hình tự tin"),
-    NutVan("dinhGia.bienDongCuaSoGiay", 60, 900, 60,
+    # Mép trên nới 900 → 3600. Lý do: mép cũ BẰNG ĐÚNG giá trị đang dùng,
+    # và một cái nút như thế thì không bao giờ tăng được — cái MÉP đang
+    # quyết định chứ không phải dữ liệu. `tien-hoa-mo-hinh` đã tự dò ra
+    # ngoài dải và khai: tối ưu thật nằm quanh 2.700–3.600s.
+    #
+    # Đo lại độc lập bằng ba tập tách theo thời gian (20 ngày BTC):
+    #
+    #      900s  CHỐT 0.15759   ← trần cũ
+    #     1800s       0.15742   Δ 95% [-0.001037, +0.000865]
+    #     2700s       0.15706   Δ 95% [-0.001459, +0.000761]
+    #     3600s       0.15676   Δ 95% [-0.001821, +0.000569]
+    #     5400s       0.15660   Δ 95% [-0.002028, +0.000500]
+    #
+    # Điểm ước lượng cải thiện ĐƠN ĐIỆU qua năm mức, và cận trên của
+    # khoảng tin co đều — nhưng MỌI khoảng tin vẫn CHỨA 0. Nên đây KHÔNG
+    # phải "đã chứng minh tốt hơn"; nó là "cái lồng đang chặn, và bên
+    # ngoài lồng có thứ đáng nhìn".
+    #
+    # Nới MÉP chứ không đặt GIÁ TRỊ: quyền quyết vẫn ở cổng tiến hoá với
+    # ba tập và biên đa so sánh của nó. Tôi gỡ cái lồng, cổng chọn số.
+    NutVan("dinhGia.bienDongCuaSoGiay", 60, 3600, 300,
            "cửa sổ ước lượng σ; ngắn thì nhạy, dài thì mượt"),
     NutVan("dinhGia.batDinhToiThieu", 0.005, 0.050, 0.005,
            "sàn bất định; cao là bảo thủ hơn"),
