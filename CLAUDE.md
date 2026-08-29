@@ -728,6 +728,7 @@ Ba phép thử đã đóng lại ba hướng, mỗi hướng một con số:
     BTC dẫn SOL                             TỆ HƠN, khoảng tin hẳn bên âm
     cửa sổ σ riêng từng market              cả ba đều chọn 900s
     mùa vụ theo GIỜ trong ngày              trả lại — khoảng tin chứa 0
+    KHỐI LƯỢNG báo σ                        trả lại — suy giảm ĐƠN ĐIỆU
     (`ewma` thì TỆ HƠN close-close rõ rệt)
 
 Hướng thứ bảy (`scripts/thu-mua-vu-gio.py`, 30/08/2026) đáng ghi riêng vì
@@ -744,6 +745,27 @@ Cả hai biến thể TỆ HƠN ở tập CHỌN, và chia mịn hơn không c�
 đáng đọc nhất là chính các hệ số học ra: **0,87–1,06**. Bộ ước 900 giây
 đã gần như không thiên vị theo giờ — nên không có mùa vụ nào để ăn, chứ
 không phải có mà đo không ra.
+
+Hướng thứ tám (`scripts/thu-khoi-luong.py`) hỏi thứ nằm sẵn trong mọi
+lời gọi kline mà chưa ai đọc: **cột khối lượng**. σ nhân
+`(V/V_thường)^β`, β dò trên lưới năm điểm có cả β = 0 làm đối chứng:
+
+    β     Brier CHỌN   Brier CHỐT
+    0,00     0.15591      0.15809   ← đương nhiệm
+    0,10     0.15624      0.15822
+    0,20     0.15697      0.15855
+    0,30     0.15762      0.15894
+    0,50     0.15831      0.15954
+
+**Suy giảm ĐƠN ĐIỆU trên cả hai tập chấm.** Đây là kết luận mạnh hơn
+"chưa đủ bằng chứng": nếu khối lượng có tin, phải có một β > 0 thắng
+được β = 0. Không có. Lý do gần như chắc chắn là σ đo trên ĐÚNG cửa sổ
+ấy đã nuốt hết phần khối lượng nói được — biến động thực hiện và khối
+lượng đo cùng lúc thì tương quan rất cao, nên nhân thêm chỉ là cộng
+nhiễu vào một con số đã đủ.
+
+(Đừng nhầm với hướng "dòng lệnh taker buy" đã đóng: cái đó đo HƯỚNG,
+cái này đo ĐỘ LỚN. Hai câu hỏi khác nhau, và cả hai đều trả lời không.)
 
 **Dữ liệu giá Binance đã cạn.** Sáu hướng, sáu kết quả, cùng một kết
 luận. Alpha còn lại — nếu có — nằm ở vi cấu trúc của chính cái chợ: sổ
