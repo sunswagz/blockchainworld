@@ -593,6 +593,43 @@ một khoảng tin do chính script in ra — [[luat-phai-chay-duoc]].)
 `scripts/do-cho-that.py` và `scripts/chay-phat-lai.py` chạy lại được mỗi
 khi băng dày thêm.
 
+### Khâm Thiên Giám — PHẢI ĐÚNG TRƯỚC KHI MỞ BA CỔNG
+
+Danh sách này chỉ gồm những điều **đã kiểm được bằng chứng**, không gồm
+phỏng đoán. Ba cổng là `che:"that"` + `toiXacNhanDaDocRuiRo` +
+`POLYMARKET_PRIVATE_KEY`; cả ba đang đóng, và `sdk_polymarket.dat_lenh`
+còn dừng ở `NotImplementedError`.
+
+**1. Vị thế KHÔNG sống qua khởi động lại — và đây là món nặng nhất.**
+`Kho` và `KetToan.cho` chỉ nằm trong bộ nhớ. `VoDich`, `HieuChinh`,
+`nan_lai`, `so_ket_qua` đều đọc đĩa; hai cái này thì không. Khởi động
+lại giữa một khung là bot QUÊN mình đang cầm cổ phiếu — trong khi sàn
+thì không quên. Hệ quả: hạn mức phơi nhiễm tính sai, và lần kết toán ấy
+không bao giờ vào sổ, nên cả `nap_tu_so` cũng không thấy.
+
+Lối chữa ĐÚNG là **đối soát với SÀN lúc khởi động**, không phải ghi thêm
+một file vị thế cục bộ. Sàn là nguồn sự thật về việc mình đang cầm gì;
+một file cục bộ chỉ tạo ra nguồn sự thật thứ hai để lệch nhau.
+
+**2. `phi.takerHeSo` là THAM SỐ, chưa phải sự thật đã kiểm.** Đối chiếu
+docs.polymarket.com/trading/fees. Đặt sai thì mọi phép tính edge lệch
+cùng một chiều, và lệch im lặng. (Phí nay ĐÃ được trừ khỏi lãi lỗ — xem
+mục PHÍ bên dưới — nên đặt sai hệ số bây giờ đắt hơn trước.)
+
+**3. Ca khó của chân lệch không có lối thoát tự động.** `quyet_chan` chỉ
+là LỜI KHUYÊN; không ai huỷ lệnh, vượt spread hay đóng chân theo nó. Ba
+lớp che phần lớn (trần `capChuaKhopToiDaUsd`, chiến thuật bù chân, khung
+5 phút tự tất toán), nhưng ca "không ai bán bên thiếu" thì bỏ ngỏ.
+
+**4. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
+6 cửa sổ, +$23,59, **khoảng tin 95% [−$132,46, +$169,04] — chứa 0**. Con
+số dương ấy chưa nói được gì. Cần nhiều cửa sổ hơn, và cửa sổ chỉ dày
+thêm khi đường tới Polymarket thông.
+
+Hai món đã sửa trong ngày 30/08/2026 và nay có phép canh giữ — ghi lại
+để đừng kiểm lại: **phí đã được trừ** khỏi lãi lỗ ở cả hai đường, và
+**trạng thái rủi ro dựng lại từ sổ** lúc khởi động.
+
 ### Khâm Thiên Giám — RỦI RO từng quên sạch mỗi lần khởi động lại
 
 Buồng lái khai `von 1.000` và `sutVonPct 0,0%` trong khi sổ kết toán ghi
