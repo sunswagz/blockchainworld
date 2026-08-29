@@ -621,7 +621,21 @@ là LỜI KHUYÊN; không ai huỷ lệnh, vượt spread hay đóng chân theo 
 lớp che phần lớn (trần `capChuaKhopToiDaUsd`, chiến thuật bù chân, khung
 5 phút tự tất toán), nhưng ca "không ai bán bên thiếu" thì bỏ ngỏ.
 
-**4. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
+**4. Hai động cơ đang đứng trên HAI ĐỘ ĐO khác nhau.** `dinh_gia`
+(Lên/Xuống) dùng `z = [ln(S/K) − σ²τ/2]/(σ√τ)` — có hiệu chỉnh martingale.
+`cham_moc` (BTC_150K) cố ý bỏ số hạng ấy. Ở khung 5 phút nó nhỏ tới mức
+không ai thấy; ở khung bốn tháng, đo được:
+
+    σ/năm 0,35 → 0,45 → 0,55 → 0,70
+    P(chạm) bỏ trôi CAO HƠN có trôi  +39,3% · +39,6% · +40,0% · +40,6%
+
+Cao hơn nghĩa là động cơ chạm mốc định giá vế YES hào phóng hơn thực —
+chiều nguy hiểm. Số hạng bỏ đi không phải một "giả định xu hướng" mà là
+hiệu chỉnh bắt buộc để chính GIÁ là martingale, nên đây là chuyện nhất
+quán nội bộ chứ không phải chuyện khẩu vị. Quyết trước khi mở cổng, và
+quyết có chủ ý — đừng sửa tiện tay.
+
+**5. Chưa có bằng chứng cỗ máy này có lãi.** Phiên giấy trên băng thật:
 6 cửa sổ, +$23,59, **khoảng tin 95% [−$132,46, +$169,04] — chứa 0**. Con
 số dương ấy chưa nói được gì. Cần nhiều cửa sổ hơn, và cửa sổ chỉ dày
 thêm khi đường tới Polymarket thông.

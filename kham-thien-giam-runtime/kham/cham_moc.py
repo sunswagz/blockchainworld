@@ -50,6 +50,40 @@ Không giả định giá có xu hướng. Với chân trời dài, một giả 
 nhỏ cũng đổi kết quả rất nhiều, và ta không có cách nào kiểm nó bằng số
 trong khung thời gian của market. Bỏ trôi là chấp nhận sai lệch có hướng
 đã biết — an toàn hơn là đưa vào một con số không ai kiểm được.
+
+### Nhưng "hướng đã biết" thì phải BIẾT LÀ BAO NHIÊU
+
+Câu trên đúng về nguyên tắc và rỗng về thực hành: nó nói có sai lệch mà
+không nói chiều nào, lớn cỡ nào. Đo (S = 78.016, K = 150.000, τ = 124
+ngày — đúng market `BTC_150K` đang khai trong config):
+
+    σ/năm    P bỏ trôi   P có trôi   chênh       tương đối
+    0,35       0,136%      0,098%    +0,038 pp    +39,3%
+    0,45       1,274%      0,912%    +0,361 pp    +39,6%
+    0,55       4,154%      2,967%    +1,187 pp    +40,0%
+    0,70      10,929%      7,771%    +3,158 pp    +40,6%
+
+**Bỏ trôi làm P(chạm) CAO HƠN chừng 40% tương đối**, và tỉ lệ ấy gần như
+không đổi theo σ. Cao hơn nghĩa là động cơ định giá "có chạm" hào phóng
+hơn thực — tức nó sẵn sàng MUA vế YES đắt hơn mức đáng. Đó là chiều
+nguy hiểm, không phải chiều an toàn.
+
+### Và nó KHÔNG nhất quán với động cơ Lên/Xuống
+
+Số hạng bỏ đi ở đây — `−σ²τ/2` trong log-giá — chính là số hạng mà
+`dinh_gia` ĐANG DÙNG cho Lên/Xuống: `z = [ln(S/K) − σ²τ/2]/(σ√τ)`. Nó
+không phải một "giả định xu hướng" ai đó thêm vào; nó là hiệu chỉnh bắt
+buộc để chính GIÁ là martingale. Hai động cơ trong cùng một cỗ máy đang
+đứng trên hai độ đo khác nhau cho cùng một tài sản.
+
+Ở khung 5 phút số hạng ấy nhỏ tới mức không ai thấy. Ở khung bốn tháng
+nó là 40%.
+
+**KHÔNG sửa ở đây.** Đổi công thức định giá của một market có thể giao
+dịch thật là một quyết định phải có chủ ý, và người viết trước đã cân
+nhắc rồi chọn — cái thiếu chỉ là con số. Nay có con số. Việc phải làm
+nằm trong danh sách "PHẢI ĐÚNG TRƯỚC KHI MỞ BA CỔNG" ở CLAUDE.md, không
+nằm trong một lần sửa tiện tay.
 """
 from __future__ import annotations
 
