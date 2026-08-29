@@ -2404,6 +2404,7 @@ def kiem_hai_ty_khac_nganh() -> None:
 
 
 def kiem_chan_doan_he() -> None:
+    import json as _js0
     print("\n── Chẩn đoán hệ: vặn tham số phân bổ, KHÔNG vặn đèn báo ───────")
     from thi_bac_ty.chan_doan_he import (BUOC_TOI_DA, CUA_AN_TOAN_HE,
                                          NUT_TRUNG_UONG, chan_doan_he,
@@ -2567,6 +2568,101 @@ def kiem_chan_doan_he() -> None:
          "tranMotCang" in tu.tham_so()["ruiRoTong"],
          "đọc self.c thì thấy {} và kết luận là không có núm nào")
     kiem("nhật ký xét tham số được ghi ra đĩa", tu._soXet.exists())
+
+    # ── THU VƯỢT TRẦN: lớp lỗi IN RA TIỀN, và không gì bắt được nó ─────
+    #
+    # Trung Ương nhận `thuUsd` từ ty rồi ghi thẳng vào Sổ Cái — đúng phân
+    # tầng, ty biết việc của ty. Nhưng nó để hở đúng một lớp lỗi: một ty
+    # quên chia cho 8.760 (giờ trong năm) sẽ in ra tiền, NAV phồng lên, và
+    # `lechTien` VẪN KHỚP vì sổ ghi đúng con số bịa ấy. Cả 1.400 phép kiểm
+    # trước lượt này không có cái nào bắt được chuyện đó.
+    from thi_bac_ty.trung_uong import (BIEN_THU_VUOT_TRAN as _BIEN,
+                                       _tran_thu_mot_vong as _tranThu)
+    _t20 = {"netUocBps": 20.0 / 100 * (24.0 / (365 * 24)) * 10_000.0,
+            "giuGio": 24.0}          # 20%/năm
+    _tr = _tranThu(_t20, 1000.0, 0.0, 3600.0)
+    kiem("trần thu một vòng dựng từ chính lời hứa của tờ trình",
+         gan(_tr, 1000.0 * 0.20 / (365 * 24) * _BIEN, 1e-6),
+         f"{_tr} — 1000 USD, 20%/năm, một giờ, nhân biên {_BIEN}")
+    kiem("tờ trình KHÔNG khai lãi thì KHÔNG có trần, không dựng trần bịa",
+         _tranThu({}, 1000.0, 0.0, 3600.0) is None,
+         "không có gì để so thì không kết luận — đúng luật `none-khac-khong`")
+    kiem("chưa qua giây nào thì cũng không có trần",
+         _tranThu(_t20, 1000.0, 100.0, 100.0) is None)
+
+    # Ty in ra tiền: cùng tờ trình 20%/năm mà thu như thể 20%/GIỜ.
+    class _TyIn(Ty):
+        ma, ho, moTa = "in.tien.v1", "tin-dung", "quên chia 8760"
+        vonToiThieuKinhTeUsd = 10.0
+
+        def quet(self):
+            return ["X"] if self.soLuotQuet <= 1 else []
+
+        def xet(self, co):
+            return True, []
+
+        def trinh(self, co):
+            return _mau(ma=self.ma, ho=self.ho, taiSan="X", von=100.0,
+                        chua=9000.0, net=_t20["netUocBps"], giu=24.0)
+
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+            from thi_bac_ty.ke_toan import KetToanVong
+            # 8.760 lần mức đúng — đúng cái lỗi quên chia cho số giờ/năm.
+            return KetToanVong(thuUsd=100.0 * 0.20 * 8760.0 / (365 * 24)
+                               * (denGiay - tuGiay) / 3600.0,
+                               vi="thu bịa")
+
+    _tuIn = TrungUong(_tam("thu-vuot"), {"vonBanDauUsd": 5000.0})
+    _tuIn.dang_ky(_TyIn())
+    for _ in range(3):
+        _tuIn.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    _k = _tuIn.latCatKeToan.tom_tat()
+    kiem("ty IN RA TIỀN bị bắt, và bắt được ngay lần đầu",
+         _k["soThuVuotTran"] >= 1,
+         f"{_k} — NAV phồng lên mà `lechTien` vẫn khớp, vì sổ ghi đúng con "
+         f"số bịa; không có phép soát này thì không gì đỏ")
+    kiem("và bằng chứng nói rõ thu bao nhiêu trên trần bao nhiêu",
+         _k["thuVuotTran"] and _k["thuVuotTran"][0]["thuUsd"]
+         > _k["thuVuotTran"][0]["tranUsd"] > 0,
+         str(_k["thuVuotTran"][:1]))
+    # KHÔNG cắt con số — cắt là bịa ra một con số thứ ba mà không ai đo.
+    kiem("nhưng con số ấy VẪN được ghi, Trung Ương không tự sửa của ty",
+         _k["thuUsd"] > 0,
+         "ty biết việc của ty; Trung Ương ĐẾM và KHAI, không cắt")
+
+    # Ty tử tế thì KHÔNG bị kêu oan — một phép soát báo nhầm là một phép
+    # soát người ta dạy nó im.
+    class _TyNgoan(_TyIn):
+        ma = "ngoan.v1"
+
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+            from thi_bac_ty.ke_toan import KetToanVong
+            return KetToanVong(thuUsd=100.0 * 0.20 / (365 * 24)
+                               * (denGiay - tuGiay) / 3600.0, vi="thu đúng")
+
+    _tuNg = TrungUong(_tam("thu-ngoan"), {"vonBanDauUsd": 5000.0})
+    _tuNg.dang_ky(_TyNgoan())
+    for _ in range(3):
+        _tuNg.mot_vong(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+    # ── CỬA SỔ trong sổ cái phải có ĐỘ DÀI ─────────────────────────────
+    # `so.keToanLucGiay = now` chạy TRƯỚC chỗ ghi sổ, nên bút toán FUNDING
+    # ghi `tuGiay == denGiay`: sổ nói «khoản thu này kiếm được trong không
+    # giây». Đo trên sổ thật 30/08: 400/400 dòng gần nhất đều thế. Không
+    # ai dựng lại được tỉ suất từ một cuốn sổ như vậy — cùng lớp với lỗi
+    # `nguonTsMs` của băng.
+    _cs = [_js0.loads(x[0] or "{}") for x in _tuIn.so_cai._mo().execute(
+        "SELECT chiTiet FROM but_toan WHERE loai='FUNDING'").fetchall()]
+    _co = [x for x in _cs if "tuGiay" in x and "denGiay" in x]
+    kiem("bút toán FUNDING khai CẢ HAI đầu cửa sổ", bool(_co), str(_cs[:1]))
+    kiem("và cửa sổ ấy có ĐỘ DÀI, không phải không giây",
+         all(float(x["denGiay"]) > float(x["tuGiay"]) for x in _co),
+         f"{[(x['tuGiay'], x['denGiay']) for x in _co[:2]]} — sổ ghi «thu "
+         f"ngần này trong không giây» thì không ai dựng lại được tỉ suất")
+
+    kiem("ty kế toán ĐÚNG thì không bị kêu oan",
+         _tuNg.latCatKeToan.tom_tat()["soThuVuotTran"] == 0,
+         f"{_tuNg.latCatKeToan.tom_tat()} — báo nhầm thì người ta dạy phép "
+         f"soát im, và lần nó đúng cũng bị bỏ qua")
 
     # ── CỰC của núm, không phải tên bệnh, quyết hướng vặn ───────────────
     # `tong-chan-het` gợi ý HAI núm. Khi `ruiRoToiDa` đã chạm biên trên —

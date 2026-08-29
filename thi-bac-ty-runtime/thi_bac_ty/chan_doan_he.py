@@ -370,6 +370,29 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                  "soLanVaoLenh": n, "soLanDong": dg, "tiLeDongTrenVao": ti,
                  "phiMoiLanVaoUsd": t6.get("phiMoiLanVaoUsd")}))
 
+    # ── 7b. THU VƯỢT TRẦN — không cần đủ mẫu, vì mỗi lần là NAV sai ─────
+    #
+    # Trung Ương nhận `thuUsd` từ ty và ghi thẳng vào Sổ Cái. Một ty quên
+    # chia cho 8.760 giờ sẽ IN RA TIỀN: NAV phồng lên, và `lechTien` vẫn
+    # khớp vì sổ ghi đúng con số bịa ấy. Không núm nào chữa được — đây là
+    # lỗi mã, không phải tham số.
+    kt = anh.get("keToan") or {}
+    vuot = int(kt.get("soThuVuotTran") or 0)
+    if vuot:
+        ds = kt.get("thuVuotTran") or []
+        x0 = ds[0] if ds else {}
+        ra.append(TrieuChungHe(
+            "thu-vuot-tran", 3,
+            f"{vuot} vòng kế toán thu VƯỢT XA mức chính tờ trình của nó "
+            f"hứa — nặng nhất là {x0.get('chienLuoc', '?')} thu "
+            f"{float(x0.get('thuUsd') or 0):.6f} USD trên trần "
+            f"{float(x0.get('tranUsd') or 0):.6f}. Trần đã nhân biên rộng "
+            f"gấp mười, nên vượt nó thường là lỗi ĐƠN VỊ (quên chia 8.760 "
+            f"giờ, 365 ngày, 24 giờ) chứ không phải chợ biến động. Đây là "
+            f"lỗi mã: NAV đang phồng lên, và sổ vẫn cân vì nó ghi đúng con "
+            f"số bịa ấy.",
+            {"soThuVuotTran": vuot, "nangNhat": x0}))
+
     # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──
     #
     # Chỉ ty chênh funding ghi băng, nên chỉ nó chạy lại được. Tám ty còn
@@ -456,7 +479,8 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
     tầng ty: vặn hai núm rồi thấy khá lên thì không biết núm nào có công.
     """
     for t in sorted(trieu, key=lambda x: -x.nang):
-        if t.ma in ("thieu-to-trinh", "khoe", "di-tat", "phi-vao-an-het"):
+        if t.ma in ("thieu-to-trinh", "khoe", "di-tat", "phi-vao-an-het",
+                    "thu-vuot-tran"):
             # Bốn cái này không vặn được bằng núm. `phi-vao-an-het` là
             # chuyện của người vận hành: siết trần vốn ở đây là rút vốn
             # khỏi một ty ĐANG làm ra tiền vì một buổi chiều deploy nhiều

@@ -800,6 +800,18 @@ class TrungUong:
                 l.vonKhongDuocKeToanUsd += abs(so.vonUsd)
             else:
                 so.coKeToan = True
+                # MỐC ĐẦU cửa sổ, giữ TRƯỚC khi ghi đè. Dòng dưới đẩy
+                # `keToanLucGiay` lên `now`, nên mọi chỗ sau đó đọc nó sẽ
+                # thấy đầu cửa sổ TRÙNG cuối cửa sổ.
+                #
+                # Đã cắn im lặng: bút toán FUNDING ghi
+                # `{"tuGiay": …, "denGiay": …}` với hai con số BẰNG NHAU —
+                # đo trên sổ thật 30/08 thì 400/400 dòng gần nhất đều thế.
+                # Sổ nói «khoản thu này kiếm được trong không giây», nên
+                # không ai dựng lại được tỉ suất từ nó. Cùng lớp với lỗi
+                # `nguonTsMs` của băng: ghi một con số đã dẫn thay cho
+                # nguyên liệu là ghi một cuốn sổ không tua lại được.
+                tu0 = so.keToanLucGiay
                 so.keToanLucGiay = now
                 so.soVongKeToan += 1
                 if not getattr(kq, "doDuoc", True):
@@ -809,6 +821,20 @@ class TrungUong:
                     l.soKeToanDuoc += 1
                     thu = float(getattr(kq, "thuUsd", 0.0) or 0.0)
                     phi = float(getattr(kq, "phiUsd", 0.0) or 0.0)
+                    # SOÁT TRẦN, không sửa số. Ty là người biết việc của
+                    # ty, nên Trung Ương KHÔNG cắt con số ấy — cắt là bịa
+                    # ra một con số thứ ba mà không ai đo. Nhưng nó ĐẾM và
+                    # KHAI, vì lớp lỗi ở đây in ra tiền: một ty quên chia
+                    # cho 8.760 làm NAV phồng lên, và `lechTien` vẫn khớp
+                    # vì sổ ghi đúng con số bịa ấy.
+                    tran = _tran_thu_mot_vong(so.toTrinh, so.vonUsd,
+                                              tu0, now)
+                    if tran is not None and thu > tran:
+                        l.soThuVuotTran += 1
+                        l.thuVuotTran.append(
+                            {"ma": ma, "chienLuoc": so.chienLuoc,
+                             "thuUsd": thu, "tranUsd": tran,
+                             "lanVuot": (thu / tran) if tran > 0 else None})
                     self.soVonGio.thuRongUsd += thu - phi
                     if thu:
                         so.thuCongDonUsd += thu
@@ -818,7 +844,7 @@ class TrungUong:
                             (getattr(kq, "vi", "") or
                              f"thu theo thời gian · {so.chienLuoc}"),
                             so.chienLuoc, ma,
-                            {"tuGiay": so.keToanLucGiay, "denGiay": now})
+                            {"tuGiay": tu0, "denGiay": now})
                     if phi:
                         so.phiCongDonUsd += phi
                         l.phiUsd += phi
@@ -1537,6 +1563,34 @@ def _hien_phap() -> dict:
     if not ra.get("long"):
         _HP = (gio, ra)
     return dict(ra, tuoiGiay=0.0)
+
+
+#: Thu một vòng được vượt lời hứa bao nhiêu LẦN trước khi bị kêu.
+#:
+#: Rộng, và cố ý rộng: funding đảo chiều, phí AMM bùng lên khi có biến —
+#: thu gấp mấy lần mức hứa là chuyện thật của thị trường. Cái phép soát
+#: này săn là lỗi ĐƠN VỊ (quên chia 8.760 giờ, 365 ngày, 24 giờ), và
+#: những lỗi ấy sai gấp hàng trăm lần chứ không phải gấp mười.
+BIEN_THU_VUOT_TRAN = 10.0
+
+
+def _tran_thu_mot_vong(toTrinh, vonUsd, tuGiay, denGiay):
+    """Vòng này thu nhiều nhất bao nhiêu thì còn hợp lý. `None` = không đo.
+
+    Dựng từ chính lời hứa của tờ trình. Thiếu lời hứa thì trả `None` —
+    không có gì để so thì không kết luận, chứ không dựng một trần bịa.
+    """
+    from .xoay_cho import apr_tu_to_trinh
+    t = toTrinh if isinstance(toTrinh, dict) else (
+        toTrinh.tom_tat() if hasattr(toTrinh, "tom_tat") else {})
+    apr = apr_tu_to_trinh(t)
+    if apr is None or apr <= 0:
+        return None
+    dt = (float(denGiay) - float(tuGiay)) / 3600.0
+    if dt <= 0:
+        return None
+    return (abs(float(vonUsd)) * (apr / 100.0) * (dt / (365.0 * 24.0))
+            * BIEN_THU_VUOT_TRAN)
 
 
 def _gio_iso() -> str:

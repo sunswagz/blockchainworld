@@ -1874,6 +1874,30 @@
     });
     f.appendChild(k7);
 
+    /* THU VƯỢT TRẦN — lớp lỗi IN RA TIỀN. Trung Ương ghi thẳng con số
+       ty đưa, nên một ty quên chia cho 8.760 giờ làm NAV phồng lên mà
+       `lechTien` vẫn khớp: sổ ghi đúng con số bịa ấy. */
+    var kts = t.keToan || {};
+    if (kts.soThuVuotTran) {
+      var kvt = khoi("THU VƯỢT TRẦN — NAV có thể đang phồng",
+        "Trần dựng từ chính lời hứa của tờ trình, đã nhân biên rộng gấp "
+        + "mười. Vượt nó thường là lỗi ĐƠN VỊ, không phải chợ biến động.");
+      kvt.appendChild(bang(
+        [{ t: "Ty" }, { t: "Thu", n: true }, { t: "Trần", n: true },
+         { t: "Vượt", n: true }],
+        (kts.thuVuotTran || []).map(function (x) {
+          return [{ t: x.chienLuoc },
+                  { t: tien(x.thuUsd, 6), c: "am" },
+                  { t: tien(x.tranUsd, 6), c: "nhat" },
+                  { t: x.lanVuot == null ? "—" : so(x.lanVuot, 0) + "×",
+                    c: "am" }];
+        })));
+      kvt.appendChild(giai("Trung Ương KHÔNG cắt con số ấy — ty biết việc "
+        + "của ty, và cắt là bịa ra một con số thứ ba mà không ai đo. Nó "
+        + "đếm và khai; sửa là sửa MÃ của ty, không phải vặn tham số."));
+      f.appendChild(kvt);
+    }
+
     var tc = t.thongChinh || {};
     var k6 = khoi("Thông Chính Ty — cửa nhận tờ trình");
     var d6 = el("div", "day-so");

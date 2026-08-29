@@ -228,6 +228,19 @@ class LatCatKeToan:
     vonKhongDuocKeToanUsd: float = 0.0
     thuUsd: float = 0.0
     phiUsd: float = 0.0
+    #: Vòng kế toán nào thu VƯỢT XA mức mà chính tờ trình của nó hứa.
+    #:
+    #: Trung Ương nhận `thuUsd` từ ty và ghi thẳng vào Sổ Cái, không hỏi
+    #: lại. Đó là đúng phân tầng — ty biết việc của ty — nhưng nó để hở
+    #: đúng một lớp lỗi: một ty quên chia cho 8.760 (giờ trong năm) sẽ in
+    #: ra tiền, NAV phồng lên, và `lechTien` VẪN KHỚP vì sổ ghi đúng con
+    #: số bịa ấy. Không phép kiểm nào của cây mã này bắt được chuyện đó.
+    #:
+    #: Trần dựng từ chính lời hứa của tờ trình (`netUocBps`, `giuGio`)
+    #: nhân một biên RỘNG: funding đảo chiều, phí AMM bùng lên — thu cao
+    #: hơn hứa vài lần là chuyện thật. Nhân 8.760 lần thì không.
+    soThuVuotTran: int = 0
+    thuVuotTran: list = field(default_factory=list)
     daDong: list = field(default_factory=list)
     loi: list = field(default_factory=list)
 
@@ -236,6 +249,8 @@ class LatCatKeToan:
             "soViThe": self.soViThe,
             "soKeToanDuoc": self.soKeToanDuoc,
             "soKhongCoKeToan": self.soKhongCoKeToan,
+            "soThuVuotTran": self.soThuVuotTran,
+            "thuVuotTran": list(self.thuVuotTran)[:5],
             "soVongMu": self.soVongMu,
             "vonKhongDuocKeToanUsd": self.vonKhongDuocKeToanUsd,
             "thuUsd": self.thuUsd,
