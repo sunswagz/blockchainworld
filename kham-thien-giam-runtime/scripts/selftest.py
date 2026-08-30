@@ -1462,14 +1462,26 @@ def kiem_tu_nang_cap() -> None:
     #     0,85  [-0,000247, -0,000073]   TỐT HƠN có ý nghĩa
     #     1,00  [-0,000426, -0,000075]   TỐT HƠN có ý nghĩa
     #
-    # Nên hạ nút này xuống dưới 0,85 là quay về một giá trị ĐÃ ĐO LÀ TỆ
-    # HƠN. Muốn hạ thì phải đo lại trước, và sửa cả phép kiểm này —
-    # đúng như thế, vì đổi một con số đã có bằng chứng thì phải đi kèm
-    # bằng chứng mới, không phải một lần "chỉnh cho an toàn".
+    # Canh cái DẢI TÌM, không canh con số.
+    #
+    # Trị hiện tại là thứ vòng tiến hoá được phép vặn — đó là việc của
+    # nó. Chốt cứng một con số trong phép kiểm là biến một nút sống
+    # thành nút chết theo đường vòng, và lượt tiến hoá đầu tiên vặn nó
+    # sẽ làm đỏ bộ kiểm mà chẳng có gì hỏng.
+    #
+    # Thứ ĐÁNG canh là dải tìm không được chứa lại vùng đã đo là tệ
+    # hơn (0,30 và 0,50 đều TỆ HƠN 0,70 có ý nghĩa). Để ngỏ vùng ấy
+    # không phải "để ngỏ khả năng" — nó là mời cỗ máy lặp lại một sai
+    # lầm đã có bằng chứng, và nó ĐÃ lặp nhiều lượt liền.
     from kham.nan_lai import he_so_giam_chan as _hsgc
+    _nutGC = NUT_THEO_DUONG["nanLai.heSoGiamChan"]
+    kiem("dải tìm giảm chấn KHÔNG chứa lại vùng đã đo là tệ hơn",
+         _nutGC.thap >= 0.75 - 1e-9, (_nutGC.thap, _nutGC.cao))
+    kiem("nhưng vẫn với tới được 1,00 — mép trên là giới hạn thật",
+         abs(_nutGC.cao - 1.0) < 1e-9, _nutGC.cao)
     _hs = _hsgc()
-    kiem("hệ số giảm chấn nằm trong dải ĐÃ ĐO là không tệ hơn",
-         0.85 - 1e-9 <= _hs <= 1.0 + 1e-9, _hs)
+    kiem("và trị đang dùng nằm TRONG dải, không nằm trên mép",
+         _nutGC.thap + 1e-9 < _hs <= _nutGC.cao + 1e-9, _hs)
     kiem("và config có ghi phép đo biện minh cho nó",
          "do-giam-chan.py" in (GOC_MA / "config.json")
          .read_text(encoding="utf-8"))
@@ -2662,8 +2674,14 @@ def kiem_giam_chan_dong() -> None:
 
     kiem("giảm chấn nằm trong bảng vặn",
          "nanLai.heSoGiamChan" in NUT_THEO_DUONG)
-    kiem("vượt trần thì bị kẹp", kep("nanLai.heSoGiamChan", 1.5) == 1.0)
-    kiem("dưới sàn thì bị kẹp", kep("nanLai.heSoGiamChan", 0.1) == 0.30)
+    # Đọc mép TỪ BẢNG, đừng chép số vào đây: mép dưới đã đổi 0,30 →
+    # 0,80 theo một phép đo, và một phép kiểm chép số thì đỏ lên vì
+    # chính cái thay đổi có bằng chứng — báo oan đúng lúc không nên báo.
+    _nGC = NUT_THEO_DUONG["nanLai.heSoGiamChan"]
+    kiem("vượt trần thì bị kẹp",
+         kep("nanLai.heSoGiamChan", _nGC.cao + 0.5) == _nGC.cao)
+    kiem("dưới sàn thì bị kẹp",
+         kep("nanLai.heSoGiamChan", _nGC.thap - 0.5) == _nGC.thap)
 
     # Bẫy: hằng số đọc CONFIG lúc nạp module thì cổng sẽ thử giá trị mới,
     # đo ra "không khác gì" — vì phép nắn vẫn dùng giá trị cũ — rồi trả

@@ -115,7 +115,24 @@ NUT_VAN: list[NutVan] = [
     # Khoảng cách 51% với 28% chính là phần khớp quá — đo được. Chọn tay
     # một hệ số từ một lần chia đôi là thay một phỏng đoán bằng một phỏng
     # đoán khác. Để cổng chạy lại quyết, đó là việc nó sinh ra để làm.
-    NutVan("nanLai.heSoGiamChan", 0.30, 1.00, 0.05,
+    # Mép dưới 0,30 → 0,80 ngày 30/08/2026, vì vùng bị cắt đã được ĐO
+    # LÀ TỆ HƠN, không phải vì nghi ngờ.
+    #
+    # `scripts/do-giam-chan.py` quét cả trục trên 4 chợ × 20 ngày, chấm
+    # trên tập CHỐT, khoảng tin bootstrap chia khối theo KHUNG (1.440
+    # khối). So với 0,70: 0,30 cho [+0,000539, +0,001005] và 0,50 cho
+    # [+0,000207, +0,000440] — TỆ HƠN có ý nghĩa; 0,85 và 1,00 TỐT HƠN
+    # có ý nghĩa.
+    #
+    # Để nguyên dải cũ thì vòng tiến hoá được phép đi lại đúng vùng ấy,
+    # và nó ĐÃ đi: quán quân nhiều lượt liền là 0,7 → 0,3. Một dải tìm
+    # chứa vùng đã biết là xấu không phải "để ngỏ khả năng" — nó là mời
+    # cỗ máy lặp lại một sai lầm đã có bằng chứng.
+    #
+    # Mép dưới 0,80 chứ không 0,85 để trị đang dùng (0,85) nằm TRONG
+    # dải chứ không nằm trên mép: nút ở mép là nút mà cái mép quyết
+    # định, và `nut_o_mep()` sẽ kêu mãi.
+    NutVan("nanLai.heSoGiamChan", 0.80, 1.00, 0.05,
            "đi bao nhiêu phần đường mà bảng hiệu chỉnh chỉ ra"),
 ]
 
