@@ -13079,6 +13079,123 @@ def kiem_vong_nhip() -> None:
          f"kiểm này đang canh một cái vỏ")
 
 
+def kiem_phan_bo_so_hoc() -> None:
+    """«0 con sống» nghĩa là gì — và ở đây nó nghĩa là thước có 8 chỗ.
+
+    `thi_bac_ty/phan_bo.py` là mô-đun DUY NHẤT đạt **0/8** với bảng lật
+    chỉ có toán tử so sánh. Đọc con số ấy thành «phủ kín» là đúng cái
+    lỗi mà cả bộ quét sinh ra để chữa: 8 là TỔNG SỐ chỗ cái thước lật
+    được, không phải tổng số chỗ có thể sai.
+
+    Bật `--so-hoc`: 17 chỗ, **4 con sống**. Và cả bốn đều đứng trên
+    đường tiền:
+
+        "motTruRuiRo": 1.0 - rr           hệ số PHẠT rủi ro trong điểm
+        vonKhaDungUsd = tienMat - du_tru  vốn được phép rót
+        nav * tranMotCoHoi                trần xếp hạng
+        con = tienMat - du_tru            vốn còn lại ở TỪNG BƯỚC cấp
+
+    Hai chỗ tính «tiền mặt TRỪ dự trữ» ở hai nơi độc lập, và không chỗ
+    nào có phép canh. Đổi trừ thành cộng thì cỗ máy rót **cả phần dự
+    trữ** — 1.200 trên một cuốn sổ 1.000 có 200 để dành — và nó rót
+    trong im lặng, vì mọi con số khác vẫn khớp.
+
+    Còn `1.0 - rr` đổi thành cộng thì cơ hội RỦI RO CAO được điểm CAO
+    hơn. Xếp hạng lộn ngược, mà bảng vẫn đầy số và vẫn có thứ tự.
+    """
+    print(chr(10) + "-- PHAN BO: tru du tru, va phat rui ro --")
+    from thi_bac_ty.danh_muc import DanhMuc
+    from thi_bac_ty.phan_bo import PhanBo
+    from thi_bac_ty.rui_ro_tong import RuiRoTong
+
+    pb = PhanBo({"tiLeDuTru": 0.2, "toiThieuMotLanUsd": 1.0,
+                 "toiDaSoViThe": 100.0})
+
+    # ── hệ số PHẠT rủi ro: rủi ro cao thì điểm THẤP ───────────────────
+    ct_lanh = pb.diem_chi_tiet(_mau(von=100.0), 0.1, 1_000.0)
+    ct_du = pb.diem_chi_tiet(_mau(von=100.0), 0.9, 1_000.0)
+    kiem("hệ số rủi ro là 1 TRỪ điểm rủi ro",
+         gan(ct_lanh["motTruRuiRo"], 0.9) and gan(ct_du["motTruRuiRo"], 0.1),
+         f"{ct_lanh['motTruRuiRo']} · {ct_du['motTruRuiRo']}")
+    kiem("nên cơ hội RỦI RO CAO phải được điểm THẤP hơn",
+         ct_du["diem"] < ct_lanh["diem"],
+         f"{ct_du['diem']} vs {ct_lanh['diem']} — cộng thay vì trừ làm "
+         f"xếp hạng lộn ngược, mà bảng vẫn đầy số và vẫn có thứ tự")
+
+    # ── vốn khả dụng = tiền mặt TRỪ dự trữ ────────────────────────────
+    dm = DanhMuc(1_000.0)
+    lat = pb.chia([], RuiRoTong(), dm)
+    kiem("vốn khả dụng = tiền mặt TRỪ dự trữ",
+         gan(lat.vonKhaDungUsd, 800.0) and gan(lat.duTruUsd, 200.0),
+         f"{lat.vonKhaDungUsd} — cộng thay vì trừ cho 1.200 trên một "
+         f"cuốn sổ 1.000 chỉ có 800 được phép rót")
+
+    # ── và KHÔNG bao giờ rót quá chỗ ấy, kể cả khi cơ hội thừa mứa ────
+    #
+    # Trần một cơ hội nới hết ra để chính «tiền mặt trừ dự trữ» là cái
+    # chặn — xem `kiem_rui_ro_tong_so_hoc`: trần nào không quyết thì đổi
+    # nó không đổi kết quả.
+    rrt = RuiRoTong({"tranMotCoHoi": 1.0, "tranTongDungVon": 1.0,
+                     "tranMotCang": 1.0, "tranMotTaiSanTho": 1.0,
+                     "tranMotTaiSanRong": 1.0, "tranMotTy": 1.0})
+    dm2 = DanhMuc(1_000.0)
+    lo = [_mau(von=10_000.0, chua=10_000.0, thoat=10_000.0)
+          for _ in range(4)]
+    for i, t in enumerate(lo):
+        object.__setattr__(t, "ma", f"m{i}")
+    lat2 = pb.chia(lo, rrt, dm2)
+    kiem("tổng đã cấp KHÔNG vượt tiền mặt trừ dự trữ",
+         lat2.tongCapUsd <= 800.0 + 1e-9,
+         f"{lat2.tongCapUsd} — dự trữ là lựa chọn có chủ ý; rót vào nó "
+         f"là tiêu đúng khoản để dành, và không dòng nào kêu")
+    kiem("và dự trữ vẫn còn nguyên trong tiền mặt",
+         dm2.tienMatUsd >= 200.0 - 1e-9,
+         f"{dm2.tienMatUsd}")
+
+    # ── trần XẾP HẠNG = NAV NHÂN phần trăm ────────────────────────────
+    dm3 = DanhMuc(1_000.0)
+    lat3 = pb.chia([_mau(von=10_000.0, chua=10_000.0, thoat=10_000.0)],
+                   RuiRoTong({"tranMotCoHoi": 0.05, "tranTongDungVon": 1.0,
+                              "tranMotCang": 1.0, "tranMotTaiSanTho": 1.0,
+                              "tranMotTaiSanRong": 1.0, "tranMotTy": 1.0}),
+                   dm3)
+    kiem("trần một cơ hội 5% của 1.000 là 50, không phải 20.000",
+         gan(lat3.tongCapUsd, 50.0),
+         f"{lat3.tongCapUsd} — chia thay vì nhân biến một trần 5% thành "
+         f"một trần hai mươi lần NAV, tức không còn là trần nào cả")
+
+    # ── trần XẾP HẠNG quyết THỨ TỰ, và docstring đã hứa đúng chuyện ấy ─
+    #
+    # «Cùng một trần khả dụng, cơ hội chứa được nhiều hơn xếp trên; nhưng
+    # khi trần khả dụng NHỎ HƠN CẢ HAI thì hai cơ hội quay về so bằng
+    # LỢI SUẤT — vì lúc ấy phần sức chứa thừa không dùng tới được, và
+    # một thước tính công cho phần thừa ấy là thước nói dối.»
+    #
+    # Câu ấy nằm trong `diem_chi_tiet` từ lâu, dưới dạng văn xuôi. Đây là
+    # bản chạy được của nó — và nó là phép kiểm DUY NHẤT chạm tới
+    # `tran_xep`, vì trần ấy chỉ đổi THỨ TỰ chứ không đổi số tiền cấp
+    # (số tiền do `rui_ro_tong.xet()` quyết ở từng bước).
+    # `von` KHÔNG được lớn hơn `chua`: xin nhiều hơn chỗ chứa là tờ trình
+    # SAI KHUÔN, và nó bị loại trước khi tới bước xếp hạng.
+    _hep = _mau(von=100.0, chua=100.0, thoat=10_000.0, net=16.0, giu=8.0)
+    _rong = _mau(von=10_000.0, chua=10_000.0, thoat=10_000.0, net=8.0,
+                 giu=8.0)
+    object.__setattr__(_hep, "ma", "HEP-net-cao")
+    object.__setattr__(_rong, "ma", "RONG-net-thap")
+    lat4 = pb.chia([_rong, _hep],
+                   RuiRoTong({"tranMotCoHoi": 0.05, "tranTongDungVon": 1.0,
+                              "tranMotCang": 1.0, "tranMotTaiSanTho": 1.0,
+                              "tranMotTaiSanRong": 1.0, "tranMotTy": 1.0}),
+                   DanhMuc(1_000.0))
+    kiem("trần xếp hạng NHỎ hơn cả hai sức chứa ⇒ so bằng LỢI SUẤT",
+         (len(lat4.daCap) == 2
+          and lat4.daCap[0]["maToTrinh"] == "HEP-net-cao"),
+         f"{[x['maToTrinh'] for x in lat4.daCap]} — chia thay vì nhân nới "
+         f"trần xếp hạng từ 50 lên 800, và cơ hội SỨC CHỨA RỘNG mà lợi "
+         f"suất thấp sẽ leo lên đầu bảng nhờ phần sức chứa không dùng "
+         f"tới được")
+
+
 def kiem_rui_ro_tong_so_hoc() -> None:
     """Mỗi cái TRẦN là `NAV × phần trăm`, và bốn cái chưa ai canh phép nhân.
 
@@ -14005,6 +14122,7 @@ def main() -> int:
     kiem_dong_ho_so_hoc()
     kiem_hieu_nang_so_hoc()
     kiem_rui_ro_tong_so_hoc()
+    kiem_phan_bo_so_hoc()
     kiem_cua_so_mu()
     kiem_vong_nhip()
     kiem_loc_bao_gia()
