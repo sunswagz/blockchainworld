@@ -1183,13 +1183,26 @@ def kiem_bien_cua_chien_thuat() -> None:
     "một lần sai xoá ~9 lần thắng". Ba cửa của nó phải chốt chặt:
     mô hình ≥ 90%, chợ chưa hết hàng (< 99,5c), và chợ ĐỒNG Ý (≥ 80c).
 
-    ## Sau khi viết xong: 22 con → 7 CHẾT, 15 CÒN NỢ
+    ## Sau khi viết xong: 22 con → 12 CHẾT, 10 TƯƠNG ĐƯƠNG/nhẹ
 
-    Đã canh trọn `can-ket-qua` (ba cửa trong, hai cửa ngoài, và ghi chú
-    đuôi lệch) và hai cửa của `tao-lap`. Mười lăm con còn lại nằm ở
-    `cap_theo_thoi`, `cap_tuc_thi` và `dinh_huong_phong_ho` — ba ngón
-    cần dựng một `CapSo` hai sổ kèm tồn kho lệch sẵn. Làm được, chưa
-    làm, và ghi ra đây để nó là một món nợ có tên.
+    Đã canh trọn cả năm ngón. Mười con còn lại:
+
+        103 106 120 123 190  bốn cửa "còn chỗ không" và "lô có đủ một
+                             cổ không". Ở đúng biên (`tran = 0`,
+                             `lo = 1`) hai nhánh cho cùng kết quả: lô 0
+                             cổ thì `can()` trả None, và trần 0 thì
+                             `suc_chua` trả 0.
+        108 147 178          ba biên GIÁ CẶP (`giaCapToiDa = 0,995`,
+                             `netEdgeToiThieu = 0,015`). Không có cặp
+                             giá thực tế nào cho tổng ĐÚNG bằng chúng
+                             tới từng bit — cùng lớp với biên 0,005 ở
+                             `tao-lap`, nhưng ở đây tổng là tổng của
+                             HAI vwap nên còn khó nhắm hơn.
+        181                  `pUp > pDown` ở đúng 0,5 — mà lúc ấy
+                             `ro_rang` đã chặn từ dòng trên (bất định
+                             luôn > 0). Không tới được.
+        259                  `CONFIG.get("taoLap") or {}` — khoá có
+                             khai đúng bằng mặc định nên hai lối trùng.
 
     Một chi tiết đáng nhớ: điều kiện `sp < 0,005` nghĩa là spread ĐÚNG
     BẰNG 0,005 thì VẪN yết — "hẹp quá thì thôi", mà đúng bằng mức tối
@@ -1301,6 +1314,113 @@ def kiem_bien_cua_chien_thuat() -> None:
     kiem("hẹp hơn một hạt → CÂM, không còn gì để ăn",
          not _tl8(_bcTL2(0.0078124, 0.0028125)))
     kiem("spread 0,006 quanh 0,50 → có yết", _tl8(_bcTL(spread=0.006)))
+
+    # ── `cap-theo-thoi`: cửa THỜI GIAN và trần GIÁ CẶP ───────────────
+    from kham.chien_thuat import cap_theo_thoi as _ctt
+    from kham.chien_thuat import cap_tuc_thi as _cti
+    from kham.chien_thuat import dinh_huong_phong_ho as _dhph
+    from kham.kho_doi import ViThe as _VT9
+
+    tranCap9 = float(CONFIG["khoDoi"]["giaCapToiDa"])
+    hanCho9 = float(CONFIG["khoDoi"]["giayChoChanHai"])
+
+    def _bcCap(conLai=200.0, askUp=0.45, askDown=0.45, viThe=None,
+               pUp=0.55):
+        gc = _GC8(ma="X", pUp=pUp, pDown=1.0 - pUp, batDinh=0.02,
+                  batDinhThamSo=0.02, ruiRoNhay=0.0, z=0.0,
+                  sigmaGiay=1e-5, tauGiay=conLai, tauDungSan=False,
+                  daMatPhang=False, giaHienTai=1.0, giaMo=1.0,
+                  oHieuChinh="50-60")
+        su = _S8(ma="X", ben="UP", bid=[_M8(askUp - 0.01, 800.0)],
+                 ask=[_M8(askUp, 800.0)], nhanLucMs=0.0)
+        sd = _S8(ma="X", ben="DOWN", bid=[_M8(askDown - 0.01, 800.0)],
+                 ask=[_M8(askDown, 800.0)], nhanLucMs=0.0)
+        lc = _LC8(conLaiGiay=conLai, tongGiay=300.0, giaiDoan=_GK8,
+                  troiQuaPct=40.0, lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
+        return _BC8(ma="X", gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                    viThe=viThe if viThe is not None else _K8().lay("X"))
+
+    kiem("còn ĐÚNG hai lần hạn chờ chân hai → cặp theo thời CHẠY",
+         _ctt(_bcCap(conLai=hanCho9 * 2)),
+         len(_ctt(_bcCap(conLai=hanCho9 * 2))))
+    kiem("kém một giây → CÂM, không kịp bù chân hai",
+         not _ctt(_bcCap(conLai=hanCho9 * 2 - 1.0)))
+
+    # Chưa có chân nào → mở CẢ HAI chân.
+    ds = _ctt(_bcCap())
+    kiem("chưa có chân nào → đề xuất cả hai chân",
+         {c.ben for c in ds} == {"UP", "DOWN"}, [c.ben for c in ds])
+    kiem("và nhãn là `cap-theo-thoi/mở`",
+         all(c.chienThuat.endswith("/mở") for c in ds),
+         [c.chienThuat for c in ds])
+    # Giá bên kia quá đắt → không còn chỗ thở, CÂM.
+    kiem("bên kia bán ở ĐÚNG trần cặp → không còn chỗ, CÂM",
+         not _ctt(_bcCap(askUp=tranCap9, askDown=tranCap9)))
+
+    # Đang lệch chân → ƯU TIÊN BÙ, và chỉ bù chân THIẾU.
+    vLech = _VT9(ma="X")
+    vLech.ghi_khop("UP", 100.0, 0.40)
+    ds = _ctt(_bcCap(viThe=vLech))
+    kiem("đang thừa UP → chỉ đề xuất bù DOWN, không mở thêm UP",
+         [c.ben for c in ds] == ["DOWN"], [c.ben for c in ds])
+    kiem("và nhãn là `cap-theo-thoi/bù`",
+         ds and ds[0].chienThuat.endswith("/bù"), ds[0].chienThuat)
+    kiem("số cổ bù không vượt phần đang lệch",
+         ds[0].soCo <= 100.0 + 1e-9, ds[0].soCo)
+    # Giá vốn chân đã có quá cao → bù bằng mọi giá là tự khoá lỗ.
+    vDat = _VT9(ma="X")
+    vDat.ghi_khop("UP", 100.0, tranCap9)
+    kiem("giá vốn chân đã có ĐÚNG BẰNG trần cặp → KHÔNG bù nữa",
+         not _ctt(_bcCap(viThe=vDat)))
+
+    # ── `cap-tuc-thi`: chỉ khi net cặp VƯỢT ngưỡng ──────────────────
+    nguong9 = float(CONFIG["canLoi"]["netEdgeToiThieu"])
+    kiem("cặp quá đắt (tổng > 1,00) → CÂM",
+         not _cti(_bcCap(askUp=0.55, askDown=0.55)))
+    ds = _cti(_bcCap(askUp=0.40, askDown=0.40))
+    kiem("cặp rẻ hẳn → đề xuất CẢ HAI chân cùng nhãn",
+         {c.ben for c in ds} == {"UP", "DOWN"}
+         and all(c.chienThuat == "cap-tuc-thi" for c in ds),
+         [(c.ben, c.chienThuat) for c in ds])
+    kiem("và hai chân cùng SỐ CỔ — lệch là bịa ra cặp không tồn tại",
+         gan(ds[0].soCo, ds[1].soCo), [c.soCo for c in ds])
+
+    # ── `phong-ho`: cặp đang khoá lỗ thì ĐỪNG đắp thêm ──────────────
+    vKhoa = _VT9(ma="X")
+    vKhoa.ghi_khop("UP", 100.0, tranCap9 / 2.0 + 0.01)
+    vKhoa.ghi_khop("DOWN", 100.0, tranCap9 / 2.0 + 0.01)
+    kiem("giá cặp ĐÚNG BẰNG trần → không đắp thêm định hướng",
+         not _dhph(_bcCap(viThe=vKhoa)), vKhoa.giaCap)
+    kiem("cặp còn rẻ → có đề xuất định hướng", _dhph(_bcCap()))
+    kiem("mô hình KHÔNG rõ ràng → CÂM",
+         not _dhph(_bcCap(pUp=0.51)))
+    d1 = _dhph(_bcCap(pUp=0.55))
+    d2 = _dhph(_bcCap(pUp=0.75))
+    kiem("mô hình càng rõ, phần thiên lệch càng lớn",
+         (not d1) or (d2 and d2[0].soCo > d1[0].soCo),
+         (d1 and d1[0].soCo, d2 and d2[0].soCo))
+    kiem("và nó chọn ĐÚNG bên mô hình nghiêng về",
+         d2 and d2[0].ben == "UP", d2 and d2[0].ben)
+    # Và nó phải cân trên ĐÚNG SỔ của bên ấy. Chọn nhầm sổ thì `ben`
+    # vẫn in ra đúng — chỉ có giá và cỡ là của một thứ khác. Dựng sổ
+    # bên kia RỖNG để chỗ nhầm ấy lộ ra thành "không đề xuất gì".
+    gcR = _GC8(ma="X", pUp=0.75, pDown=0.25, batDinh=0.02,
+               batDinhThamSo=0.02, ruiRoNhay=0.0, z=0.0, sigmaGiay=1e-5,
+               tauGiay=200.0, tauDungSan=False, daMatPhang=False,
+               giaHienTai=1.0, giaMo=1.0, oHieuChinh="70-80")
+    bcR = _BC8(ma="X", gia=gcR,
+               soUp=_S8(ma="X", ben="UP", bid=[_M8(0.44, 800.0)],
+                        ask=[_M8(0.45, 800.0)], nhanLucMs=0.0),
+               soDown=_S8(ma="X", ben="DOWN", bid=[], ask=[],
+                          nhanLucMs=0.0),
+               dongHo=_LC8(conLaiGiay=200.0, tongGiay=300.0,
+                           giaiDoan=_GK8, troiQuaPct=40.0,
+                           lechDongHoMs=0.0, tuoiDuLieuMs=0.0),
+               viThe=_K8().lay("X"))
+    dR = _dhph(bcR)
+    kiem("cân trên ĐÚNG sổ của bên đã chọn, không phải sổ bên kia",
+         dR and dR[0].ben == "UP" and dR[0].vwap > 0,
+         dR and (dR[0].ben, dR[0].vwap))
 
 
 def kiem_bien_cua_do_tre() -> None:
