@@ -1172,6 +1172,427 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_cong_rui_ro() -> None:
+    """ĐÚNG BẰNG trần thì sao? — biên của từng cổng, pin lại từng cái.
+
+    Bộ quét đột biến (`scripts/quet-dot-bien.py`) đổi từng toán tử so
+    sánh trong `kham/rui_ro.py` rồi chạy cả bộ kiểm. Lượt đầu: **36
+    trên 44 con SỐNG SÓT** — tức 847 phép kiểm chạm được ĐƯỜNG ĐI của
+    cổng nhưng gần như không chạm BIÊN của nó. Đổi `<` thành `<=` ở
+    cầu dao lỗ ngày, ở trần vốn mỗi market, ở ngưỡng net edge — không
+    phép kiểm nào kêu.
+
+    "Đúng bằng trần" là ca hay xảy ra nhất trong đời thật, vì cỗ máy
+    tự siết cỡ lệnh cho VỪA KHÍT trần. Mỗi phép kiểm dưới đây pin một
+    biên và nói rõ vì sao nó nằm ở phía ấy.
+
+    ## Sau khi viết xong: 44 con → 30 CHẾT, 14 TƯƠNG ĐƯƠNG, 0 còn ngỏ
+
+    Phân loại 14 con còn sống, để phiên sau đừng đuổi con ma. Mỗi dòng
+    dưới đây đã kiểm bằng tay, không phải đoán:
+
+        417 425 438 488 502 520 551 579
+            `if X < cho_phep: cho_phep = X` — ở điểm BẰNG NHAU, phép
+            gán trả về đúng giá trị cũ. Đổi `<` thành `<=` không đổi gì.
+
+        251 293
+            `if lai < 0: gop += -lai` — ở 0 thì cộng thêm −0,0. Không
+            đổi gì. (Phép kiểm "kết toán HOÀ không tính là lỗ" vẫn
+            đáng có: nó pin Ý ĐỊNH, dù không giết được con nào.)
+
+        559 `dang_tran + them_tran > tranTran` — ở điểm bằng nhau,
+            nhánh siết tính ra `con/vwap` đúng bằng `cho_phep` cũ.
+
+        591 `daSiet=cho_phep < ch.soCo - 1e-9` — cờ này chỉ để BÁO
+            CÁO, không đổi lệnh; và epsilon đã nuốt điểm bằng nhau.
+
+        604 `if b <= 0` với `b = (1−giá)/giá`, giá bị kẹp ≤ 0,999 nên
+            `b ≥ 0,001 > 0` LUÔN. Không tới được.
+
+        586 `cho_phep × netEdge < 0,01` — nhánh chết ở ngưỡng hiện
+            tại; xem phép kiểm pin `netEdgeToiThieu >= 0,01`.
+
+    Chạy lại: `python scripts/quet-dot-bien.py --file=kham/rui_ro.py`.
+    Con số 14 mà LỚN LÊN nghĩa là có phép kiểm vừa bị gỡ hoặc làm yếu
+    đi; nhỏ đi nghĩa là ai đó vừa đơn giản hoá được mã.
+    """
+    print()
+    print("-- Bien cua tung cong: dung BANG tran thi sao? -------------")
+    from kham.can_loi import CoHoi as _CH
+
+    lanh = SucKhoeNguon(200, 150, 80)
+    _CLc = CONFIG["canLoi"]
+
+    def co_hoi(**k) -> _CH:
+        """Một cơ hội dựng THẲNG, để đặt được đúng con số ở biên.
+
+        `can()` tính netEdge từ sổ lệnh nên không nhắm trúng biên được.
+        """
+        d = dict(ma="BTC_5M", ben="UP", chienThuat="thử", fairValue=0.55,
+                 giaCho=0.50, vwap=0.50, soCo=40.0,
+                 grossEdge=0.05, phi=0.01, truotGia=0.0008,
+                 batDinhMoHinh=0.02, bienAnToan=0.008, netEdge=0.05,
+                 sucChua=400.0, xacSuatKhop=0.9, nuaDoiMs=5000.0,
+                 laMaker=False, dayDu=True)
+        d.update(k)
+        return _CH(**d)
+
+    def moi():
+        kk = Kho()
+        return kk, RiskEngine(kk)
+
+    # ── sức khoẻ nguồn: ĐÚNG BẰNG trần thì CÒN LÀNH ──────────────────
+    #
+    # `>` chứ không `>=`. Trần khai là "tối đa", nên đúng bằng tối đa là
+    # vẫn trong hạn. Ba mục đo ba thứ khác nhau nên phải soi riêng —
+    # bộ quét đột biến coi chúng là ba con, và chúng đúng là ba chỗ sửa
+    # được độc lập.
+    _RRc = CONFIG["ruiRo"]
+    for ten, khoa, dung in (
+            ("sổ lệnh", "tuoiSoLenhToiDaMs",
+             lambda x: SucKhoeNguon(x, 150, 80)),
+            ("giá nền", "tuoiGiaNenToiDaMs",
+             lambda x: SucKhoeNguon(200, x, 80)),
+            ("đồng hồ", "lechDongHoToiDaMs",
+             lambda x: SucKhoeNguon(200, 150, x)),
+    ):
+        tran = float(_RRc[khoa])
+        kiem(f"{ten} cũ ĐÚNG BẰNG trần → vẫn LÀNH",
+             not dung(tran).van_de(), (khoa, tran, dung(tran).van_de()))
+        kiem(f"{ten} quá trần một mili giây → KÊU",
+             dung(tran + 1.0).van_de(), (khoa, tran))
+    kiem("đồng hồ lệch ÂM cũng bị soi, không chỉ lệch dương",
+         SucKhoeNguon(200, 150,
+                      -float(_RRc["lechDongHoToiDaMs"]) - 1.0).van_de())
+
+    # ── dấu của lãi lỗ: ĐÚNG BẰNG 0 không phải LỖ ────────────────────
+    #
+    # `lỗ gộp` chỉ cộng những lần ÂM. Một lần kết toán hoà (0 đô) không
+    # phải một lần lỗ, và đếm nó vào là thổi phồng thước ĐỘ CHAO.
+    k, re = moi()
+    re.ghi_lai_lo(0.0)
+    kiem("kết toán HOÀ không được tính là một lần lỗ",
+         gan(re.loGopNgayUsd, 0.0), re.loGopNgayUsd)
+    re.ghi_lai_lo(-1.0)
+    kiem("còn lỗ thật thì có", gan(re.loGopNgayUsd, 1.0), re.loGopNgayUsd)
+
+    # Cùng luật ấy ở đường DỰNG LẠI TỪ SỔ — hai đường phải nói giống nhau.
+    k, re = moi()
+    _homNay = re._ngay_hien_tai()
+    re.nap_tu_so([{"luc": _homNay + "T00:00:00Z", "laiLo": 0.0},
+                  {"luc": _homNay + "T00:01:00Z", "laiLo": -2.0}])
+    kiem("dựng lại từ sổ cũng không tính dòng HOÀ là lỗ",
+         gan(re.loGopNgayUsd, 2.0), re.loGopNgayUsd)
+
+    # ── đỉnh vốn 0 thì sụt vốn là 0, không phải chia cho 0 ────────────
+    k, re = moi()
+    re.dinhVon = 0.0
+    kiem("đỉnh vốn 0 → sụt vốn 0%, không nổ", gan(re.sutVonPct, 0.0),
+         re.sutVonPct)
+
+    # ── cầu dao: ĐÚNG BẰNG trần thì NGẮT ──────────────────────────────
+    #
+    # `>=` chứ không `>`. Một cái trần mà phải VƯỢT mới ngắt thì nó
+    # không phải trần, nó là "trần cộng một xu".
+    k, re = moi()
+    re.ghi_lai_lo(-re.tranLoNgayUsd)
+    kiem("lỗ ngày ĐÚNG BẰNG trần → cầu dao NGẮT", re.ngatKhanCap,
+         (re.loNgayUsd, re.tranLoNgayUsd))
+    k, re = moi()
+    re.ghi_lai_lo(-(re.tranLoNgayUsd - 0.01))
+    kiem("kém trần một xu thì CHƯA ngắt", not re.ngatKhanCap)
+
+    k, re = moi()
+    re.dinhVon = 1000.0
+    re.von = 1000.0 * (1.0 - float(CONFIG["ruiRo"]["tranSutVonPct"]) / 100.0)
+    re._soat_ngat()
+    kiem("sụt vốn ĐÚNG BẰNG trần → cầu dao NGẮT", re.ngatKhanCap,
+         re.sutVonPct)
+
+    # ── sàng cơ hội: ĐÚNG BẰNG ngưỡng thì ĐỦ ──────────────────────────
+    #
+    # `<` chứ không `<=`. Ngưỡng khai là "tối thiểu", nên đạt đúng mức
+    # tối thiểu là ĐẠT — nếu không thì con số trong config không còn là
+    # thứ nó tự nhận.
+    for ten, khoa, dat in (
+            ("net edge", "netEdgeToiThieu", "netEdge"),
+            ("sức chứa", "sucChuaToiThieu", "sucChua"),
+            ("xác suất khớp", "xacSuatKhopToiThieu", "xacSuatKhop"),
+    ):
+        nguong = float(_CLc[khoa])
+        k, re = moi()
+        q = re.duyet(co_hoi(**{dat: nguong}), lanh, 200, False)
+        kiem(f"{ten} ĐÚNG BẰNG ngưỡng → vẫn qua sàng", q.cho, (khoa, nguong))
+        k, re = moi()
+        q = re.duyet(co_hoi(**{dat: nguong * 0.999 - 1e-9}), lanh, 200, False)
+        kiem(f"{ten} kém ngưỡng một hạt → TỪ CHỐI", q.tu_choi)
+
+    # ── sắp hết giờ: ĐÚNG BẰNG hạn chờ chân hai thì TỪ CHỐI ───────────
+    #
+    # `<=` chứ không `<`. Còn đúng bằng thời gian tối thiểu để phòng hộ
+    # chân hai là KHÔNG đủ — phòng hộ cần THÊM thời gian sau đó.
+    han = float(CONFIG["khoDoi"]["giayChoChanHai"])
+    k, re = moi()
+    kiem("còn ĐÚNG BẰNG hạn chờ chân hai → TỪ CHỐI mở mới",
+         re.duyet(co_hoi(), lanh, han, False).tu_choi, han)
+    k, re = moi()
+    kiem("còn hơn hạn ấy một giây → cho qua",
+         re.duyet(co_hoi(), lanh, han + 1.0, False).cho)
+
+    # ── trần vốn mỗi market: ĐÚNG BẰNG trần thì HẾT chỗ ───────────────
+    #
+    # `con_duoc <= 0` chứ không `< 0`. Đã dùng hết đúng bằng trần thì
+    # không còn gì để mở thêm; cho qua ở đây là cho vượt trần.
+    k, re = moi()
+    k.lay("BTC_5M").ghi_khop("UP", re.tranMoiThiTruongUsd / 0.5, 0.5)
+    q = re.duyet(co_hoi(), lanh, 200, False)
+    kiem("market đã dùng ĐÚNG BẰNG trần → TỪ CHỐI", q.tu_choi,
+         (k.lay("BTC_5M").tienUp, re.tranMoiThiTruongUsd))
+    kiem("và nói rõ chạm trần nào", any("trần" in x for x in q.lyDo), q.lyDo)
+
+    # ── sau khi siết: ĐÚNG 1 cổ thì vẫn làm ───────────────────────────
+    #
+    # `cho_phep < 1` chứ không `<= 1`. Một cổ là một cổ.
+    k, re = moi()
+    q = re.duyet(co_hoi(soCo=1.0, sucChua=float(_CLc["sucChuaToiThieu"])),
+                 lanh, 200, False)
+    kiem("siết còn ĐÚNG 1 cổ thì vẫn cho làm", q.cho, q.soCoChoPhep)
+
+    # ── ngân sách lỗ ngày (cổng 6b): ĐÚNG BẰNG 0 thì hết ──────────────
+    k, re = moi()
+    re.ghi_lai_lo(-re.tranLoNgayUsd + 1e-9)
+    q = re.duyet(co_hoi(), lanh, 200, False)
+    kiem("ngân sách ngày còn ĐÚNG BẰNG 0 → chỉ còn nhận phòng hộ",
+         q.tu_choi, q.lyDo)
+
+    # ── cổng 3 chỉ đổi LỜI GIẢI THÍCH, không đổi quyết định ───────────
+    #
+    # `CoHoi.dang_lam` dùng ĐÚNG bốn ngưỡng ấy với `>=`, còn cổng 3 dùng
+    # `<`. Hai vế là đối ngẫu: cổng 3 chỉ chạy khi `dang_lam` False, tức
+    # khi ÍT NHẤT MỘT mục đã tụt dưới ngưỡng. Nên một mục nằm ĐÚNG BẰNG
+    # ngưỡng không bao giờ tự nó làm cơ hội bị loại — nó chỉ có thể bị
+    # kể oan trong danh sách lý do.
+    #
+    # Bộ quét đột biến bắt được chính chỗ này: phép kiểm "đúng bằng
+    # ngưỡng thì qua" ở trên ĐẠT MỘT CÁCH RỖNG, vì `dang_lam` True nên
+    # cổng 3 không hề chạy. Nên phải canh LỜI GIẢI THÍCH.
+    k, re = moi()
+    q = re.duyet(co_hoi(netEdge=float(_CLc["netEdgeToiThieu"]),
+                        sucChua=float(_CLc["sucChuaToiThieu"]) - 1.0),
+                 lanh, 200, False)
+    kiem("mục ĐÚNG BẰNG ngưỡng KHÔNG bị kể vào lý do loại",
+         q.tu_choi and not any("net edge" in x for x in q.lyDo), q.lyDo)
+    kiem("còn mục THẬT SỰ thiếu thì PHẢI được kể tên",
+         any("sức chứa" in x for x in q.lyDo), q.lyDo)
+    kiem("và lý do không bao giờ rỗng khi bị sàng loại", q.lyDo)
+
+    # Ba mục còn lại của cổng 3, cùng một luật: đúng bằng ngưỡng thì
+    # KHÔNG bị kể tên. Viết đủ cả bốn vì bộ quét đột biến đối xử với
+    # bốn dòng ấy như bốn con riêng — và chúng đúng là bốn chỗ sửa
+    # được độc lập.
+    for ten, khoa, dat in (("sức chứa", "sucChuaToiThieu", "sucChua"),
+                           ("xác suất khớp", "xacSuatKhopToiThieu",
+                            "xacSuatKhop"),
+                           ("cơ hội chỉ sống", "nuaDoiToiThieuMs",
+                            "nuaDoiMs")):
+        k, re = moi()
+        qq = re.duyet(co_hoi(**{dat: float(_CLc[khoa]),
+                                "netEdge": float(_CLc["netEdgeToiThieu"])
+                                - 0.001}),
+                      lanh, 200, False)
+        kiem(f"`{ten}` đúng bằng ngưỡng → KHÔNG bị kể vào lý do",
+             qq.tu_choi and not any(ten in x for x in qq.lyDo), qq.lyDo)
+
+    # ── ngân sách ngày ĐÚNG BẰNG 0 và sức phòng hộ ĐÚNG BẰNG 1 cổ ─────
+    k, re = moi()
+    re.ghi_lai_lo(-re.tranLoNgayUsd)
+    re.ngatKhanCap = False          # tách khỏi cầu dao để soi riêng cổng 6b
+    re.lyDoNgat = ""
+    v = k.lay("BTC_5M")
+    v.ghi_khop("DOWN", 1.0, 0.5)    # phòng hộ đúng 1 cổ cho lệnh UP
+    q = re.duyet(co_hoi(), lanh, 200, False)
+    kiem("hết sạch ngân sách + sức phòng hộ ĐÚNG 1 cổ → vẫn cho phòng hộ",
+         q.cho and q.soCoChoPhep <= 1.0 + 1e-9, (q.cho, q.soCoChoPhep))
+    k, re = moi()
+    re.ghi_lai_lo(-re.tranLoNgayUsd)
+    re.ngatKhanCap = False
+    re.lyDoNgat = ""
+    q = re.duyet(co_hoi(), lanh, 200, False)
+    # Canh LỜI TỪ CHỐI, không chỉ canh việc bị từ chối. Chỗ trống đúng
+    # bằng 0 là ranh giới `du <= 0`: đổi thành `du < 0` thì vẫn từ chối,
+    # nhưng bằng một lý do KHÁC ("sau khi siết còn dưới 1 cổ") — người
+    # đọc buồng lái sẽ đi tìm nhầm chỗ.
+    kiem("hết sạch ngân sách mà KHÔNG có gì để phòng hộ → TỪ CHỐI",
+         q.tu_choi, q.lyDo)
+    kiem("và nói ĐÚNG lý do: hết ngân sách, không phải 'dưới 1 cổ'",
+         any("ngân sách lỗ ngày" in x for x in q.lyDo), q.lyDo)
+
+    # ── hai cổng còn lại, cùng ranh giới "chỗ trống ĐÚNG BẰNG 0" ──────
+    #
+    # Cả hai đều phải nới MỌI cổng khác ra trước, không thì cổng khác
+    # từ chối hộ và phép kiểm đạt vì lý do chẳng liên quan.
+    _cu2 = {("ruiRo", x): CONFIG["ruiRo"].get(x)
+            for x in ("phanTramLoNgay", "phanTramMoiThiTruong",
+                      "phanTramMoiTaiSan", "phanTramPhoiNhiemGop")}
+    _cu2[("khoDoi", "phanTramChuaPhongHo")] = CONFIG["khoDoi"].get(
+        "phanTramChuaPhongHo")
+    try:
+        # (a) PHƠI NHIỄM GỘP đúng bằng trần
+        CONFIG["ruiRo"]["phanTramLoNgay"] = 1000
+        CONFIG["ruiRo"]["phanTramMoiThiTruong"] = 1000
+        CONFIG["ruiRo"]["phanTramMoiTaiSan"] = 1000
+        CONFIG["khoDoi"]["phanTramChuaPhongHo"] = 1000
+        k, re = moi()
+        re.von = 100_000.0
+        tranGop = re.tranPhoiNhiemGopUsd
+        k.lay("BTC_5M").ghi_khop("UP", tranGop / 0.5, 0.5)
+        kiem("dựng được phơi nhiễm gộp ĐÚNG BẰNG trần",
+             gan(k.phoi_nhiem_gop(), tranGop, 1e-6), k.phoi_nhiem_gop())
+        q = re.duyet(co_hoi(phi=0.0), lanh, 200, True)
+        kiem("phơi nhiễm gộp ĐÚNG BẰNG trần → TỪ CHỐI",
+             q.tu_choi, q.lyDo)
+        kiem("và nói ĐÚNG tên cổng: phơi nhiễm GỘP",
+             any("GỘP" in x for x in q.lyDo), q.lyDo)
+
+        # (b) CHÂN TRẦN đúng bằng trần
+        CONFIG["khoDoi"]["phanTramChuaPhongHo"] = 5
+        CONFIG["ruiRo"]["phanTramPhoiNhiemGop"] = 1000
+        k, re = moi()
+        re.von = 100_000.0
+        tranT2 = re.tranChuaPhongHoUsd
+        k.lay("SOL_5M").ghi_khop("UP", tranT2 / 0.5, 0.5)
+        q = re.duyet(co_hoi(phi=0.0), lanh, 200, True)
+        kiem("chân trần ĐÚNG BẰNG trần → TỪ CHỐI", q.tu_choi, q.lyDo)
+        kiem("và nói ĐÚNG tên cổng: nằm trần một chân",
+             any("nằm trần một chân" in x for x in q.lyDo), q.lyDo)
+    finally:
+        for (khoi, x), gt in _cu2.items():
+            if gt is None:
+                CONFIG[khoi].pop(x, None)
+            else:
+                CONFIG[khoi][x] = gt
+
+    # ── trần phơi nhiễm gộp = 0 nghĩa là TẮT cổng ─────────────────────
+    _cuG = CONFIG["ruiRo"].get("phanTramPhoiNhiemGop")
+    try:
+        CONFIG["ruiRo"]["phanTramPhoiNhiemGop"] = 0
+        k, re = moi()
+        kiem("trần phơi nhiễm gộp = 0 là TẮT cổng, không phải cấm hết",
+             re.duyet(co_hoi(), lanh, 200, False).cho)
+    finally:
+        if _cuG is None:
+            CONFIG["ruiRo"].pop("phanTramPhoiNhiemGop", None)
+        else:
+            CONFIG["ruiRo"]["phanTramPhoiNhiemGop"] = _cuG
+
+    # ── trần 0 nghĩa là KHÔNG KHAI, không phải trần bằng không ────────
+    _cu = CONFIG["ruiRo"].get("phanTramLoNgay")
+    try:
+        CONFIG["ruiRo"]["phanTramLoNgay"] = 0
+        k, re = moi()
+        kiem("trần lỗ ngày = 0 nghĩa là TẮT cổng, không phải cấm hết",
+             re.duyet(co_hoi(), lanh, 200, False).cho)
+    finally:
+        if _cu is None:
+            CONFIG["ruiRo"].pop("phanTramLoNgay", None)
+        else:
+            CONFIG["ruiRo"]["phanTramLoNgay"] = _cu
+
+    # ── trần NHÓM tài sản, soi RIÊNG ─────────────────────────────────
+    #
+    # Ba trần chồng lên nhau ở tài khoản $1.000: mỗi market $100, mỗi
+    # nhóm $200, ngân sách ngày $50. Nên trần nhóm gần như không bao giờ
+    # là cái chặn cuối, và một phép kiểm ngây thơ sẽ "đạt" nhờ một cổng
+    # khác — bộ quét đột biến bắt được đúng chuyện đó.
+    #
+    # Cô lập bằng hai việc: nới tạm ngân sách ngày, và dùng vị thế ĐÃ
+    # GHÉP KÍN (lỗ xấu nhất bằng 0 nhưng vẫn chiếm chỗ trong trần nhóm).
+    _cuN = CONFIG["ruiRo"].get("phanTramLoNgay")
+    _cuP = CONFIG["khoDoi"].get("phanTramChuaPhongHo")
+
+    def _rong():
+        """Engine đã nới MỌI cổng khác, để chỉ còn trần nhóm nói.
+
+        `von` nâng riêng cho Kelly (Kelly đọc `von`, còn ba trần đọc
+        `vonDauNgay`), nên gốc phần trăm không đổi. Không có bước này
+        thì Kelly chặn ở 40 cổ và mọi phép kiểm dưới đây "đạt" vì một
+        lý do chẳng liên quan.
+        """
+        kk = Kho()
+        rr = RiskEngine(kk)
+        rr.von = 100_000.0
+        return kk, rr
+
+    try:
+        CONFIG["ruiRo"]["phanTramLoNgay"] = 100
+        CONFIG["khoDoi"]["phanTramChuaPhongHo"] = 100
+        # BTC_15M ghép kín $150 → nhóm BTC còn $50, tức 100 cổ ở giá 0,50.
+        k, re = _rong()
+        v15 = k.lay("BTC_15M")
+        v15.ghi_khop("UP", 150.0, 0.5)
+        v15.ghi_khop("DOWN", 150.0, 0.5)
+        kiem("vị thế ghép kín KHÔNG gánh lỗ xấu nhất",
+             gan(v15.lo_xau_nhat_usd(), 0.0), v15.lo_xau_nhat_usd())
+        q = re.duyet(co_hoi(soCo=400.0, phi=0.0, sucChua=10_000.0),
+                     lanh, 200, True)
+        kiem("cùng NHÓM thì chiếm chỗ của nhau — siết còn 100 cổ",
+             q.cho and gan(q.soCoChoPhep, 100.0, 1e-6), q.soCoChoPhep)
+
+        # Cùng cỡ ấy nhưng ở nhóm KHÁC thì KHÔNG được tính vào.
+        k, re = _rong()
+        vE = k.lay("ETH_5M")
+        vE.ghi_khop("UP", 300.0, 0.5)
+        vE.ghi_khop("DOWN", 300.0, 0.5)
+        q = re.duyet(co_hoi(soCo=400.0, phi=0.0, sucChua=10_000.0),
+                     lanh, 200, True)
+        kiem("nhóm KHÁC thì không — lệnh BTC được rộng hơn hẳn",
+             q.cho and q.soCoChoPhep > 150.0, q.soCoChoPhep)
+
+        # Và dùng ĐÚNG BẰNG trần nhóm thì hết chỗ.
+        k, re = _rong()
+        v15 = k.lay("BTC_15M")
+        v15.ghi_khop("UP", re.tranMoiTaiSanUsd, 0.5)
+        v15.ghi_khop("DOWN", re.tranMoiTaiSanUsd, 0.5)
+        q = re.duyet(co_hoi(phi=0.0), lanh, 200, True)
+        kiem("nhóm BTC dùng ĐÚNG BẰNG trần nhóm → TỪ CHỐI",
+             q.tu_choi and any("nhóm" in x for x in q.lyDo), q.lyDo)
+    finally:
+        if _cuN is None:
+            CONFIG["ruiRo"].pop("phanTramLoNgay", None)
+        else:
+            CONFIG["ruiRo"]["phanTramLoNgay"] = _cuN
+        if _cuP is None:
+            CONFIG["khoDoi"].pop("phanTramChuaPhongHo", None)
+        else:
+            CONFIG["khoDoi"]["phanTramChuaPhongHo"] = _cuP
+
+    # ── chân trần đã dùng ĐÚNG BẰNG trần → hết chỗ ───────────────────
+    k, re = moi()
+    tranT = re.tranChuaPhongHoUsd
+    k.lay("SOL_5M").ghi_khop("UP", tranT / 0.5, 0.5)
+    kiem("chân trần đã dùng ĐÚNG BẰNG trần thì đo được đúng con số ấy",
+         gan(k.tong_chua_phong_ho_usd(), tranT, 1e-6),
+         k.tong_chua_phong_ho_usd())
+    q = re.duyet(co_hoi(), lanh, 200, False)
+    kiem("và lệnh mới bị TỪ CHỐI", q.tu_choi, q.lyDo)
+
+    # ── "lợi kỳ vọng quá mỏng" là NHÁNH CHẾT, và nói ra thì hơn ───────
+    #
+    # Cổng 11 có hai vế: `cho_phep < 1` rồi `cho_phep × netEdge < 0.01`.
+    # Vế sau chỉ chạy khi vế trước không bắn, tức `cho_phep >= 1`. Mà
+    # cơ hội nào tới được đây cũng đã qua sàng, tức `netEdge >=
+    # netEdgeToiThieu = 0,015`. Nên `cho_phep × netEdge >= 0,015 > 0,01`
+    # LUÔN LUÔN — vế sau không bao giờ đúng.
+    #
+    # Không xoá: `netEdgeToiThieu` là nút vặn được, và dải của nó xuống
+    # tới 0,005. Ở đó vế sau sống lại. Nhưng phải KHAI ra, vì một nhánh
+    # chết trông y hệt một lớp bảo vệ đang làm việc.
+    _nguongNE = float(_CLc["netEdgeToiThieu"])
+    kiem("vế `lợi kỳ vọng quá mỏng` là nhánh CHẾT ở ngưỡng hiện tại",
+         _nguongNE >= 0.01,
+         f"netEdgeToiThieu {_nguongNE:g} — dưới 0,01 thì vế ấy sống lại")
+
+
 def kiem_doi_soat_truoc_khi_dat_that() -> None:
     """Chưa hỏi sàn đang cầm gì thì KHÔNG được đặt lệnh thật.
 
@@ -5853,6 +6274,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_cong_rui_ro()
     kiem_doi_soat_truoc_khi_dat_that()
     kiem_tran_chan_tran_khong_vuot()
     kiem_phat_ton_kho()
