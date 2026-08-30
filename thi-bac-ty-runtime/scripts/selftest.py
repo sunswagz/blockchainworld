@@ -12581,6 +12581,19 @@ def kiem_bang_chung_song() -> None:
          f"{r} — nhánh không-mẫu là nhánh cho qua một lời hứa 167 giờ mà "
          f"không ai đối chiếu; ba mẫu vẫn hơn không mẫu")
 
+    d0 = _tam("bc-song0")
+    sc0 = SoCai(d0 / "so.sqlite3")
+    for _ in range(TOI_THIEU_MAU_SONG):
+        sc0.ghi(ButToan("DONG_VI_THE", "phép kiểm", 0.0, "x.y.v1", "m",
+                        {"daGiuGio": 0.01, "xoayCho": True}))
+    r0 = sc0.gio_song_trung_vi()
+    kiem("ĐÚNG BẰNG ngưỡng mẫu thì đã đủ — dừng ở cửa sổ hẹp nhất",
+         r0["cuaSoGio"] == CUA_SO_SONG_GIO[0]
+         and r0["soMau"] == TOI_THIEU_MAU_SONG,
+         f"{r0} — số mẫu là số nguyên do ta đếm, nên «đúng bằng ngưỡng» "
+         f"tới được; `>` thay cho `>=` ở đó đẩy phép đo sang một cửa sổ "
+         f"rộng hơn cần, và bằng chứng cũ hơn cần")
+
     _dong(0.01, n=TOI_THIEU_MAU_SONG)
     r = sc.gio_song_trung_vi()
     kiem("đủ mẫu thì dừng ở cửa sổ HẸP nhất, và nói cửa sổ nào",
@@ -12677,6 +12690,95 @@ def kiem_bang_chung_song() -> None:
          f"{r4} — một trần dựng từ mẫu ba ngày trước vẫn dùng được, nhưng "
          f"«trần bằng chứng» mà không kèm tuổi thì nghe như phép đo của "
          f"lúc này")
+
+
+def kiem_loc_bao_gia() -> None:
+    """Hai bộ lọc đứng NGAY TRƯỚC đường tiền, và chúng chưa từng được kiểm.
+
+    Quét đột biến `bac/vong.py` toàn suite: **29 trên 30 chỗ sống sót** —
+    file ít được canh nhất trong cả cây mã. Phần lớn nằm trong
+    `mot_vong()`, một coroutine gọi bốn sàn, nên không phép kiểm nào chạm
+    tới mà không dựng cả một cái sàn giả.
+
+    Hai chỗ trong đó thuần tuý và đứng ngay trên đường tiền, nên chúng
+    được TÁCH ra thành hàm mức mô-đun. Tách chứ không viết lại: cùng một
+    thân, chỉ chuyển chỗ, để phép kiểm gọi được.
+
+      · `loc_bao_gia_cu` — bỏ báo giá quá hạn TRƯỚC khi ghép cặp. Một
+        `>` viết nhầm thành `>=` vứt đúng những báo giá nằm SÁT MÉP, mà
+        đó là chỗ phần lớn báo giá thật nằm khi mạng chậm.
+      · `cang_dang_hong` — hai vế phải cùng đúng: có lỗi, VÀ lỗi ấy còn
+        mới. Bỏ vế thứ hai thì danh sách cảng hỏng chỉ dài thêm, không
+        bao giờ ngắn lại — một cảnh báo không bao giờ tắt được.
+    """
+    print("\n-- LOC BAO GIA & CANG HONG: hai cua ngay truoc duong tien --")
+    from bac.vong import cang_dang_hong, loc_bao_gia_cu
+    from phai_sinh_chung.models import BaoGia
+
+    now = 1_800_000_000_000.0
+
+    def _bg(tenSan, tuoiGiay):
+        return BaoGia(san=tenSan, ma="BTC", rate=0.0001, intervalGio=8.0,
+                      markPx=60_000.0, mocKeMs=int(now + 3_600_000),
+                      nhanTsMs=(None if tuoiGiay is None
+                                else int(now - tuoiGiay * 1000.0)),
+                      nguonTsMs=(None if tuoiGiay is None
+                                 else int(now - tuoiGiay * 1000.0)))
+
+    giu, bo = loc_bao_gia_cu([_bg("a", 1.0), _bg("b", 100.0)], now, 30.0)
+    kiem("báo giá cũ hơn trần bị bỏ, báo giá mới thì giữ",
+         bo == 1 and len(giu) == 1 and giu[0].san == "a",
+         f"giữ {[b.san for b in giu]} · bỏ {bo}")
+
+    giu, bo = loc_bao_gia_cu([_bg("a", 30.0)], now, 30.0)
+    kiem("ĐÚNG BẰNG trần tuổi thì GIỮ, không bỏ",
+         bo == 0 and len(giu) == 1,
+         "«đúng bằng trần» và «vượt trần» là hai chuyện; gộp chúng là "
+         "vứt đúng những báo giá nằm sát mép — chỗ phần lớn báo giá thật "
+         "nằm khi mạng chậm")
+
+    giu, bo = loc_bao_gia_cu([_bg("a", None)], now, 30.0)
+    kiem("sàn KHÔNG đóng dấu thời gian thì GIỮ, không đoán là cũ",
+         bo == 0 and len(giu) == 1,
+         "không biết tuổi thì không kết luận là cũ; bỏ ở đây là cả một "
+         "sàn biến khỏi mọi phép ghép cặp mà không dòng nào kêu")
+
+    kiem("danh sách rỗng thì trả rỗng, không nổ",
+         loc_bao_gia_cu([], now, 30.0) == ([], 0))
+
+    # ── cảng hỏng: hai vế phải CÙNG đúng ──────────────────────────────
+    class _SK:
+        def __init__(self, loi, tuoi):
+            self.loiCuoi = loi
+            self._tuoi = tuoi
+
+        def tuoi_giay(self):
+            return self._tuoi
+
+    class _C:
+        def __init__(self, ten, loi, tuoi):
+            self.ten = ten
+            self.suc_khoe = _SK(loi, tuoi)
+
+    cang = [_C("khoe", None, 1.0),
+            _C("hong-moi", "rớt", 999.0),
+            _C("hong-cu", "rớt", 1.0),
+            _C("hong-chua-hoi-phuc", "rớt", None)]
+    ra = cang_dang_hong(cang, 30.0)
+    kiem("cảng KHOẺ không bị kể, dù đứng cạnh cảng hỏng",
+         "khoe" not in ra, str(ra))
+    kiem("cảng lỗi mà lỗi CÒN MỚI thì bị kể",
+         "hong-moi" in ra, str(ra))
+    kiem("cảng từng lỗi nhưng ĐÃ hồi phục thì THÔI kể",
+         "hong-cu" not in ra,
+         f"{ra} — chỉ hỏi `loiCuoi` là dựng một danh sách chỉ dài thêm, "
+         f"không bao giờ ngắn lại; và một cảnh báo không bao giờ tắt "
+         f"được là một cảnh báo người ta học cách bỏ qua")
+    kiem("chưa có lượt nào thành công kể từ lỗi là ca XẤU NHẤT, không "
+         "phải ca chưa biết",
+         "hong-chua-hoi-phuc" in ra,
+         f"{ra} — `tuoi_giay()` trả None ở đó, và đọc nó thành «chưa "
+         f"biết nên bỏ qua» là giấu đúng cái cảng đang chết")
 
 
 def kiem_vong_nhip() -> None:
@@ -13436,6 +13538,7 @@ def main() -> int:
     kiem_moc_qua()
     kiem_cua_so_mu()
     kiem_vong_nhip()
+    kiem_loc_bao_gia()
     kiem_bang_chung_song()
     kiem_ghe_va_von()
     kiem_xoay_cho_dem_dung()

@@ -543,6 +543,13 @@ class SoCai:
         tuoi = max(0.0, (now - max(m for m, _ in mau)) / 1000.0)
         for cs in CUA_SO_SONG_GIO:
             moc = now - cs * 3_600_000.0
+            # `m >= moc` và `m > moc` cho cùng kết quả trên mọi cuốn sổ
+            # thật: `moc` dựng từ `bay_gio()` ngay lúc gọi, nên không dấu
+            # thời gian nào bằng đúng nó tới mili giây. Con đột biến ở vế
+            # ấy TƯƠNG ĐƯƠNG — ghi lại để lượt quét sau khỏi đi tìm một
+            # phép kiểm không tồn tại. Vế `>=` ở dòng dưới thì KHÁC hẳn:
+            # số mẫu là số nguyên do ta đếm, nên «đúng bằng ngưỡng» tới
+            # được, và nó có phép kiểm riêng.
             trong = [g for m, g in mau if m >= moc]
             if len(trong) >= TOI_THIEU_MAU_SONG:
                 return {"gio": _trung_vi(trong), "soMau": len(trong),

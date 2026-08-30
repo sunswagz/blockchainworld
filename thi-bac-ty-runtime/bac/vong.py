@@ -193,6 +193,52 @@ def _tom_dong_co() -> dict:
         return {"loi": f"{type(e).__name__}: {e}"}
 
 
+def loc_bao_gia_cu(tho, nowMs: float, tranGiay: float):
+    """Bỏ báo giá quá cũ. Trả `(giữ lại, số bị bỏ)`.
+
+    **Lọc TRƯỚC khi ghép cặp.** Lọc sau thì một báo giá chết vẫn kịp sinh
+    ra ba cặp, và cả ba mang lý do từ chối giống hệt nhau — nhật ký ngập
+    ba dòng nói cùng một chuyện.
+
+    `tuoi_giay()` trả `None` khi sàn không đóng dấu thời gian. **Giữ**, và
+    đó là lựa chọn có ý: không biết tuổi thì không kết luận là cũ. Cửa
+    rủi ro phía sau còn hỏi lại, còn ở đây mà bỏ thì cả một sàn không
+    đóng dấu sẽ biến mất khỏi mọi phép ghép cặp mà không dòng nào kêu.
+
+    Tách khỏi `mot_vong()` để KIỂM ĐƯỢC mà không cần mạng — bản trước nằm
+    trong thân một coroutine gọi bốn sàn, nên phép cấy lỗi ngược đi lọt:
+    không phép kiểm nào chạm tới cửa `t > tran`, và một `>=` viết nhầm ở
+    đó vứt đúng những báo giá nằm sát mép — chỗ phần lớn báo giá thật nằm
+    khi mạng chậm.
+    """
+    giu = []
+    bo = 0
+    for b in tho:
+        t = b.tuoi_giay(nowMs)
+        if t is not None and t > tranGiay:
+            bo += 1
+            continue
+        giu.append(b)
+    return giu, bo
+
+
+def cang_dang_hong(cang, nhipGiay: float):
+    """Tên những cảng có lỗi và lỗi ấy còn MỚI. Trả list tên.
+
+    Hai vế phải cùng đúng, và vế thứ hai mới là vế khó: một cảng từng lỗi
+    rồi hồi phục vẫn giữ `loiCuoi` mãi, nên chỉ hỏi `loiCuoi` là dựng một
+    danh sách hỏng chỉ dài thêm, không bao giờ ngắn lại — đúng dạng cảnh
+    báo mà người ta học cách bỏ qua.
+
+    `tuoi_giay()` trả `None` nghĩa là chưa có lượt nào thành công kể từ
+    lỗi ấy, và đó là ca XẤU NHẤT chứ không phải ca chưa biết — nên nó
+    được đọc thành `1e9` giây, tức chắc chắn quá hạn.
+    """
+    return [c.ten for c in cang
+            if c.suc_khoe.loiCuoi
+            and (c.suc_khoe.tuoi_giay() or 1e9) > float(nhipGiay) * 2]
+
+
 class Runtime:
     def __init__(self) -> None:
         self.cang = {}
@@ -572,14 +618,7 @@ class Runtime:
         # vẫn kịp sinh ra ba cặp, và cả ba đều mang lý do từ chối giống hệt
         # nhau — nhật ký ngập ba dòng nói cùng một chuyện.
         tran = float(CONFIG["ruiRo"]["tuoiToiDaGiay"])
-        self.baoGia = []
-        bo_cu = 0
-        for b in tho:
-            t = b.tuoi_giay(now)
-            if t is not None and t > tran:
-                bo_cu += 1
-                continue
-            self.baoGia.append(b)
+        self.baoGia, bo_cu = loc_bao_gia_cu(tho, now, tran)
         if bo_cu:
             bus.ghi(f"bỏ {bo_cu} báo giá cũ hơn {tran:.0f}s", loai="canh")
 
@@ -588,8 +627,7 @@ class Runtime:
 
         await self._nap_router(bus)
 
-        loi = [c.ten for c in self.cang.values() if c.suc_khoe.loiCuoi
-               and (c.suc_khoe.tuoi_giay() or 1e9) > float(CONFIG["nhipGiay"]) * 2]
+        loi = cang_dang_hong(self.cang.values(), CONFIG["nhipGiay"])
         self.so.ghi_luot(self.coHoi, len(self.baoGia), loi)
 
         # Băng ghi NGUYÊN LIỆU, sổ ghi KẾT LUẬN. Thiếu băng thì không chạy
