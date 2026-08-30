@@ -1181,6 +1181,7 @@ DA_QUET_DOT_BIEN = {
     "dat_lenh.py", "chan_rui_ro.py", "dongho.py", "cap_token.py",
     "do_tre.py", "chien_thuat.py", "phat_lai.py", "chan_doan.py",
     "tien_hoa.py", "vo_dich.py", "ket_qua.py", "so.py",
+    "hoc_offline.py", "ban_thu.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -1198,9 +1199,136 @@ CHUA_QUET_DOT_BIEN = {
     "bang.py", "khung.py", "dong_co.py", "cho_gia_dinh.py",
     "sdk_polymarket.py",
     # CÓ nhánh quyết định, đáng quét, chưa quét
-    "hoc_offline.py", "vong.py", "chay_lai.py", "ban_thu.py",
-    "do_thi.py", "vi.py",
+    "vong.py", "chay_lai.py", "do_thi.py", "vi.py",
 }
+
+
+def kiem_bien_cua_ban_thu() -> None:
+    """Biên của BÀN CHẤM dùng chung — 11/11 con sống sót lượt đầu.
+
+    `ban_thu.py` là THƯỚC của mọi phép thử mô hình (`thu-*`,
+    `do-mot-nut`, `do-giam-chan`). Thước gãy thì mọi con số đo bằng nó
+    đều gãy theo, và không con số nào tự khai chuyện ấy.
+
+    Ba tính chất phải giữ:
+
+    · KHÔNG NHÌN TRỘM. Chỉ nhận τ rơi đúng mốc phút — làm tròn lên là
+      lấy giá của tương lai. Và σ ước từ nến TRƯỚC mốc T, không gồm T.
+    · HOÀ TUYỆT ĐỐI bị BỎ, không đoán bừa một chiều.
+    · MỖI KHUNG bốn lát cắt chia CHUNG một kết quả, và `mocChot` phải
+      kéo theo MỐC KHUNG để bootstrap gộp đúng.
+
+    ## Sau khi viết xong: 11 con → 4 CHẾT, 7 CÒN NỢ
+
+        50 56 66   trong `nen_ohlc` — vòng lấy nến qua MẠNG. Cần một
+                   nguồn giả, chưa dựng.
+        84         `c[i][3] > 0` — `_lay_nen` đã chặn `min(x) <= 0` từ
+                   trên, nên không tới được.
+        103 108    `abs(het − K) < 1e-12` rồi `het > K`. Epsilon nuốt
+                   điểm bằng nhau, và dòng sau chỉ chạy khi hai giá đã
+                   khác nhau.
+        125        `len(hoc) < 1500` — cần một fixture đủ lớn để vượt
+                   ngưỡng ấy, tức quãng 400 khung.
+    """
+    print()
+    print("-- Bien cua BAN CHAM dung chung ----------------------------")
+    import math as _mB
+
+    from kham.ban_thu import LAT_CAT as _LC_B
+    from kham.ban_thu import PHUT as _PH_B
+    from kham.ban_thu import _brier as _brB
+    from kham.ban_thu import _lay_nen as _lnB
+    from kham.ban_thu import cap_du_doan as _cddB
+    from kham.ban_thu import uoc_tron as _utB
+
+    def _oh(n=80, goc=100.0, nhieu=True, tu=None):
+        """{mốc ms: (o, h, l, c)} trên lưới phút."""
+        base = tu if tu is not None else (
+            1_700_000_000_000 - 1_700_000_000_000 % 300_000)
+        d = {}
+        for i in range(n):
+            g = goc * (1.0 + (0.002 * _mB.sin(i * 1.3) if nhieu else 0.0)
+                       + 0.0005 * i)
+            d[base + i * int(_PH_B)] = (g, g, g, g)
+        return d, base
+
+    oh, base = _oh()
+
+    # ── lấy nến: từ chối khi thiếu hoặc có giá ≤ 0 ──────────────────
+    kiem("đủ nến → lấy được", _lnB(oh, base + 10 * int(_PH_B), 6)
+         is not None)
+    kiem("thiếu nến (lùi quá đầu chuỗi) → None, không bịa",
+         _lnB(oh, base, 6) is None)
+    ohXau = dict(oh)
+    ohXau[base + 8 * int(_PH_B)] = (0.0, 0.0, 0.0, 0.0)
+    kiem("có nến giá 0 → None, không lấy log của 0",
+         _lnB(ohXau, base + 10 * int(_PH_B), 6) is None)
+    # Thứ tự phải là CŨ → MỚI. Đảo nó là mọi log-return đảo dấu, mà
+    # `pstdev` không đổi — nên σ vẫn đúng và không gì kêu, trong khi
+    # mọi chỗ khác đọc chuỗi ấy theo chiều thời gian thì đọc ngược.
+    _ns3 = _lnB(oh, base + 10 * int(_PH_B), 3)
+    _tho3 = [oh[base + (10 - i) * int(_PH_B)] for i in range(3)][::-1]
+    kiem("thứ tự trả về là CŨ → MỚI, không đảo",
+         _ns3 == _tho3, (_ns3, _tho3))
+
+    # ── σ: phẳng thì None, không phải 0 ────────────────────────────
+    ohPhang, b2 = _oh(nhieu=False, goc=100.0)
+    ohPhang = {k: (100.0, 100.0, 100.0, 100.0) for k in ohPhang}
+    kiem("giá đứng yên → σ là None, không phải 0",
+         _utB(ohPhang, b2 + 20 * int(_PH_B), 16) is None,
+         _utB(ohPhang, b2 + 20 * int(_PH_B), 16))
+    v = _utB(oh, base + 20 * int(_PH_B), 16)
+    kiem("giá nhấp nhô → σ dương", v is not None and v > 0, v)
+    kiem("dưới 6 nến → không đủ 5 log-return, trả None",
+         _utB(oh, base + 20 * int(_PH_B), 5) is None,
+         _utB(oh, base + 20 * int(_PH_B), 5))
+    kiem("ĐÚNG 6 nến → đúng 5 log-return, đủ để nói",
+         _utB(oh, base + 20 * int(_PH_B), 6) is not None,
+         _utB(oh, base + 20 * int(_PH_B), 6))
+
+    # Thiếu MỘT trong hai đầu khung là bỏ khung, không lấy nửa còn lại.
+    ohThieu = dict(oh)
+    _mT = [T for T in sorted(oh) if T % 300_000 == 0][3]
+    del ohThieu[_mT + 5 * int(_PH_B)]
+    kiem("thiếu nến CUỐI khung → bỏ khung, không lấy `None[3]`",
+         not _cddB(ohThieu, [_mT], _utB, 16, "BTC_5M"))
+    ohThieu2 = dict(oh)
+    del ohThieu2[_mT]
+    kiem("thiếu nến ĐẦU khung → cũng bỏ",
+         not _cddB(ohThieu2, [_mT], _utB, 16, "BTC_5M"))
+
+    # ── Brier ──────────────────────────────────────────────────────
+    kiem("đoán chắc và ĐÚNG → Brier 0",
+         gan(_brB([(1.0, True), (0.0, False)]), 0.0))
+    kiem("đoán chắc và SAI → Brier 1",
+         gan(_brB([(0.0, True), (1.0, False)]), 1.0))
+    kiem("đoán 50% → Brier 0,25", gan(_brB([(0.5, True)]), 0.25))
+    kiem("danh sách rỗng → 0, không chia cho 0",
+         gan(_brB([]), 0.0))
+
+    # ── cặp dự đoán: KHÔNG nhìn trộm, và HOÀ bị bỏ ─────────────────
+    mocs = [T for T in sorted(oh) if T % 300_000 == 0][2:-2]
+    ds = _cddB(oh, mocs, _utB, 16, "BTC_5M")
+    kiem("sinh được cặp dự đoán", ds, len(ds))
+    kiem("mỗi cặp kéo theo MỐC KHUNG, không phải mốc lát cắt",
+         all(x[2] % 300_000 == 0 for x in ds), ds[:2])
+    kiem("bốn lát cắt của một khung chia CHUNG một kết quả",
+         all(len({x[1] for x in ds if x[2] == m}) <= 1
+             for m in {y[2] for y in ds}))
+    kiem("số lát cắt mỗi khung không quá bốn",
+         max(sum(1 for x in ds if x[2] == m)
+             for m in {y[2] for y in ds}) <= len(_LC_B),
+         max(sum(1 for x in ds if x[2] == m)
+             for m in {y[2] for y in ds}))
+
+    # HOÀ tuyệt đối: giá đóng T và T+5 bằng nhau → khung bị BỎ.
+    ohHoa = dict(oh)
+    m0 = mocs[3]
+    g0 = ohHoa[m0][3]
+    ohHoa[m0 + 5 * int(_PH_B)] = (g0, g0, g0, g0)
+    dsH = _cddB(ohHoa, [m0], _utB, 16, "BTC_5M")
+    kiem("khung HOÀ TUYỆT ĐỐI bị BỎ, không đoán bừa một chiều",
+         not dsH, dsH)
 
 
 def kiem_bien_cua_vo_dich() -> None:
@@ -1716,8 +1844,8 @@ def kiem_phu_quet_dot_bien() -> None:
         thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
                  if ("--file=kham/" + x) not in vb]
         kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
-    kiem("đã quét ít nhất 20 module lõi",
-         len(DA_QUET_DOT_BIEN) >= 20, len(DA_QUET_DOT_BIEN))
+    kiem("đã quét ít nhất 22 module lõi",
+         len(DA_QUET_DOT_BIEN) >= 22, len(DA_QUET_DOT_BIEN))
 
 
 def kiem_bien_cua_phat_lai() -> None:
@@ -9327,6 +9455,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_ban_thu()
     kiem_bien_cua_vo_dich()
     kiem_bien_cua_hoc_offline()
     kiem_bien_cua_cong_tien_hoa()
