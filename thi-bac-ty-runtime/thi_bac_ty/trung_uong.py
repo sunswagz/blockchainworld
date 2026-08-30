@@ -1288,6 +1288,76 @@ class TrungUong:
             "soChuyenSai": self.so_dang_ky.soChuyenSai,
         }
 
+    def ghe_va_von(self) -> dict:
+        """GHẾ có phải thứ đang khan hiếm không, và ghế đang giữ bao nhiêu.
+
+        `von_ranh()` nói CÓ BAO NHIÊU tiền nằm không. Hàm này trả lời câu
+        kế tiếp — VÌ SAO — bằng cách đếm chỗ ngồi thay vì đếm tiền.
+
+        Đo làn thật 30/08:
+
+            120/120 ghế đầy · 222.757 USD nằm ngoài dự trữ, ăn 0%
+            trung vị một ghế giữ  1.136 USD
+            99 ghế giữ dưới 1.667 USD — cộng lại 77.194 USD (13,4% vốn)
+            99 ghế ấy: 64 của `amm.fee_farming.v1`, 35 của basis
+
+        Đọc ra một câu mà không bảng nào khác nói được: **thứ khan hiếm
+        không phải TIỀN, mà là CHỖ NGỒI** — và chỗ ngồi đang bị chiếm bởi
+        những vị thế nhỏ tới mức không dời được kim nào. Ty giữ nhiều ghế
+        bé nhất lại chính là ty có lợi suất cao nhất (19,3%/năm so với
+        bình quân 4,2%), nên trần ghế đang chặn đúng chỗ đáng mở.
+
+        **KHÔNG kết luận «hãy nâng trần ghế».** Vị thế AMM nhỏ vì sức
+        chứa của pool nhỏ — đó là sự thật của thị trường, không phải lỗi
+        cấu hình. Trần ghế cũng có lý của nó: một trăm hai mươi vị thế đã
+        là nhiều hơn mức người ta theo dõi nổi. Hai câu ấy cùng đúng, và
+        chỗ cân giữa chúng là quyết định của CHỦ. Việc của cỗ máy là bày
+        ra con số để câu hỏi ấy hỏi được.
+
+        `nguongGheBeUsd` lấy theo PHẦN CHIA công bằng (`vốn khả dụng /
+        số ghế`) chứ không phải một con số cố định: ngưỡng cố định sẽ sai
+        ngay lần đầu đổi vốn hay đổi số ghế, và sai im lặng.
+        """
+        c = dict(self.phan_bo.c)
+        try:
+            tran = int(float(c.get("toiDaSoViThe") or 0))
+        except (TypeError, ValueError):
+            tran = 0
+        von = sorted(abs(float(v.vonUsd)) for v in self.soViThe.values())
+        n = len(von)
+        tong = sum(von)
+        nav = float(self.danh_muc.navUsd)
+        kha_dung = nav * (1.0 - float(c.get("tiLeDuTru") or 0.0))
+        # `None` chứ không 0 ở mọi chỗ chưa có mẫu số: chia cho một trần
+        # bằng 0 thì không phải là «ghế rỗng», mà là «chưa khai trần».
+        phan_chia = (kha_dung / tran) if tran > 0 else None
+        nguong = (phan_chia * NGUONG_GHE_BE) if phan_chia is not None else None
+
+        be: list[float] = []
+        beTheoTy: dict = {}
+        if nguong is not None:
+            for v in self.soViThe.values():
+                if abs(float(v.vonUsd)) < nguong:
+                    be.append(abs(float(v.vonUsd)))
+                    beTheoTy[v.chienLuoc] = beTheoTy.get(v.chienLuoc, 0) + 1
+        return {
+            "soGhe": tran or None,
+            "soDangDung": n,
+            "conGhe": (tran - n) if tran > 0 else None,
+            "tiLeGheDay": (n / tran) if tran > 0 else None,
+            "vonTrongGheUsd": tong,
+            "vonTrungViMotGheUsd": (von[n // 2] if n else None),
+            "vonBinhQuanMotGheUsd": (tong / n) if n else None,
+            "phanChiaMoiGheUsd": phan_chia,
+            "nguongGheBeUsd": nguong,
+            "soGheBe": (len(be) if nguong is not None else None),
+            "vonTrongGheBeUsd": (sum(be) if nguong is not None else None),
+            "tiLeVonTrongGheBe": ((sum(be) / tong)
+                                  if (nguong is not None and tong > 0)
+                                  else None),
+            "gheBeTheoTy": beTheoTy,
+        }
+
     def von_ranh(self) -> dict:
         """Bao nhiêu vốn ĐƯỢC PHÉP làm việc mà đang không làm gì.
 
@@ -1619,6 +1689,7 @@ class TrungUong:
             "lechCauHinh": self.lech_cau_hinh(),
             "vonDangDung": self.soVonGio.tom_tat(),
             "vonRanh": self.von_ranh(),
+            "gheVaVon": self.ghe_va_von(),
             # Hậu kiểm cho TÁM ty không có băng: lời hứa lúc mở vs thực
             # nhận lúc đóng. Ty duy nhất có băng thì hậu kiểm bằng chạy
             # lại, và nó nằm ở `trangThai.tienHoa`.
@@ -1782,6 +1853,16 @@ def _hien_phap() -> dict:
 #: này săn là lỗi ĐƠN VỊ (quên chia 8.760 giờ, 365 ngày, 24 giờ), và
 #: những lỗi ấy sai gấp hàng trăm lần chứ không phải gấp mười.
 BIEN_THU_VUOT_TRAN = 10.0
+
+#: Một ghế giữ dưới ngần này PHẦN CHIA công bằng thì gọi là ghế BÉ.
+#:
+#: Phần chia công bằng = vốn khả dụng / số ghế. Một phần tư của nó là chỗ
+#: cân giữa hai câu sai: lấy 10% thì chỉ bắt được những vị thế 200 USD và
+#: bỏ sót cả một dải 1.100 USD cũng bé y như thế; lấy 50% thì gần như mọi
+#: ghế đều «bé», và một phép đếm đúng cho mọi trường hợp là một phép đếm
+#: không nói gì. Đo làn thật 30/08: 10% bắt 40 ghế, 25% bắt 99, 50% bắt
+#: 100 — đường cong phẳng sau 25%, nên mép ấy không nhạy.
+NGUONG_GHE_BE = 0.25
 
 
 def _tran_thu_mot_vong(toTrinh, vonUsd, tuGiay, denGiay):

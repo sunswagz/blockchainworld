@@ -12240,6 +12240,133 @@ def kiem_moi_module_nhap_duoc() -> None:
          "đang canh một thư mục rỗng")
 
 
+def kiem_ghe_khan_hon_tien() -> None:
+    """Khi GHẾ hết trước TIỀN, cỗ máy phải nói được câu ấy bằng số.
+
+    `von_ranh()` nói CÓ BAO NHIÊU tiền nằm không, và câu cuối của
+    `von-ranh-an-khong` là «hoặc vì một trần đang chặn» — đúng, mà không
+    nói trần nào. Cái trần ấy đo được, và nó nằm sẵn trong cùng ảnh chụp.
+
+    Đo làn thật 30/08:
+
+        120/120 ghế đầy · 222.757 USD ngoài dự trữ, ăn 0%
+        trung vị một ghế giữ 1.136 USD · phần chia công bằng 6.666 USD
+        99 ghế giữ dưới 1.667 USD — cộng lại 77.194 USD (13,4% vốn)
+        99 ghế ấy: 64 của `amm.fee_farming.v1`, 35 của basis
+
+    Ty giữ nhiều ghế bé nhất lại là ty lợi suất CAO nhất (19,3%/năm so
+    với bình quân 4,2%), nên trần ghế đang chặn đúng chỗ đáng mở.
+
+    Câu chẩn KHÔNG khuyên nâng trần, và khai núm RỖNG: vị thế AMM nhỏ vì
+    sức chứa pool nhỏ — sự thật của thị trường; trần ghế cũng có lý của
+    nó. Có ít nhất ba đường đi (nâng trần ghế · nới sức chứa mỗi cơ hội ·
+    chấp nhận ít ghế mà nặng hơn), và khai một núm là chọn hộ chủ một
+    đường bằng cách làm hai đường kia vô hình.
+    """
+    print("\n-- GHE KHAN HON TIEN: cho ngoi het truoc khi tien het --")
+    from thi_bac_ty.chan_doan_he import (NGUONG_GHE_DAY, NGUONG_PHAN_GHE_BE,
+                                         chan_doan_he)
+    from thi_bac_ty.trung_uong import NGUONG_GHE_BE
+    from thi_bac_ty.danh_muc import ViThe
+    from thi_bac_ty.trung_uong import TrungUong
+
+    d = _tam("ghe")
+    tu = TrungUong(d, {"vonBanDauUsd": 100_000.0})
+    tu.phan_bo.c["toiDaSoViThe"] = 10.0
+    # khả dụng = 100.000 × (1 − 0,2) = 80.000 ⇒ phần chia 8.000/ghế
+    # ⇒ ngưỡng ghế bé = 8.000 × 0,25 = 2.000
+    kiem("phần chia mỗi ghế = vốn KHẢ DỤNG chia số ghế, không phải NAV",
+         gan(tu.ghe_va_von()["phanChiaMoiGheUsd"], 8_000.0),
+         f"{tu.ghe_va_von()} — dự trữ là lựa chọn có chủ ý, chia cả nó "
+         f"vào là dựng một phần chia không ai định cấp")
+    kiem("và ngưỡng ghế bé lấy THEO phần chia ấy, không phải số cố định",
+         gan(tu.ghe_va_von()["nguongGheBeUsd"], 8_000.0 * NGUONG_GHE_BE),
+         "ngưỡng cố định sai ngay lần đầu đổi vốn hay đổi số ghế, và sai "
+         "im lặng")
+    kiem("chưa có ghế nào thì trung vị là `None`, không phải 0",
+         tu.ghe_va_von()["vonTrungViMotGheUsd"] is None
+         and tu.ghe_va_von()["soGheBe"] == 0,
+         str(tu.ghe_va_von()))
+
+    from thi_bac_ty.ke_toan import SoViThe
+    import time as _tg
+
+    def _ghe(ma, von, ty="amm.fee_farming.v1"):
+        tu.soViThe[ma] = SoViThe(ma=ma, chienLuoc=ty, toTrinh={},
+                                 vonUsd=float(von), moLucGiay=_tg.time(),
+                                 keToanLucGiay=_tg.time())
+        tu.danh_muc.cam_ket(ma, [ViThe(ma, ty, "CAP_TK", "uniswap-v3",
+                                       "USDC", float(von))])
+
+    for i in range(8):
+        _ghe(f"be{i}", 500.0)
+    _ghe("to1", 20_000.0, "lending.rate_rotation.v1")
+    _ghe("to2", 20_000.0, "lending.rate_rotation.v1")
+    g = tu.ghe_va_von()
+    kiem("đếm đúng ghế BÉ và tổng vốn chúng giữ",
+         (g["soGheBe"] == 8 and gan(g["vonTrongGheBeUsd"], 4_000.0)
+          and gan(g["tiLeVonTrongGheBe"], 4_000.0 / 44_000.0)),
+         f"{g} — 8 ghế × 500 USD trên tổng 44.000")
+    kiem("và tách được ghế bé THEO TY",
+         g["gheBeTheoTy"] == {"amm.fee_farming.v1": 8},
+         f"{g['gheBeTheoTy']} — biết ty nào đang giữ ghế bé là biết trần "
+         f"ghế đang chặn chiến lược nào")
+    kiem("ghế đầy đo theo TRẦN, không theo số ghế đang có",
+         gan(g["tiLeGheDay"], 10 / 10.0) and g["conGhe"] == 0,
+         str(g))
+
+    # ── câu chẩn: ba cửa phải cùng mở ──────────────────────────────────
+    def _anh(**kw):
+        o = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
+                                   "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+             "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 10},
+             "vonRanh": {"tiLeRanhTrenKhaDung": 0.3,
+                         "ranhNgoaiDuTruUsd": 30_000.0,
+                         "tiLeDuTru": 0.2},
+             "gheVaVon": dict(g)}
+        o["gheVaVon"].update(kw)
+        return o
+
+    t = [x for x in chan_doan_he(_anh()) if x.ma == "ghe-khan-hon-tien"]
+    kiem("ghế đầy + tiền nằm không + phần lớn ghế bé ⇒ NÊU RA",
+         len(t) == 1 and t[0].bangChung["soGheBe"] == 8,
+         f"{[x.ma for x in chan_doan_he(_anh())]}")
+    kiem("và câu chẩn nói cả TRUNG VỊ lẫn PHẦN CHIA — thiếu một là vô nghĩa",
+         ("1,000" in t[0].moTa or "500" in t[0].moTa)
+         and "8,000" in t[0].moTa,
+         f"{t[0].moTa[:300]} — «ghế giữ 500 USD» không nói gì nếu không "
+         f"biết một ghế đáng bao nhiêu")
+    kiem("núm khai RỖNG — ba đường đi, máy không chọn hộ chủ đường nào",
+         t[0].nutGoiY == [],
+         f"{t[0].nutGoiY} — nới sức chứa mỗi cơ hội, hay chấp nhận ít ghế "
+         f"nặng hơn, cũng là lối ra; khai một núm là làm hai lối kia "
+         f"vô hình")
+
+    kiem("ghế CHƯA đầy thì im — còn chỗ thì tiền nằm không là chuyện khác",
+         not [x for x in chan_doan_he(_anh(tiLeGheDay=0.5))
+              if x.ma == "ghe-khan-hon-tien"],
+         f"ngưỡng {NGUONG_GHE_DAY:.0%}")
+    kiem("tiền KHÔNG nằm không thì im — ghế đầy mà tiền hết là đúng việc",
+         not [x for x in chan_doan_he(
+                 {**_anh(), "vonRanh": {"tiLeRanhTrenKhaDung": 0.01,
+                                        "ranhNgoaiDuTruUsd": 100.0}})
+              if x.ma == "ghe-khan-hon-tien"],
+         "ghế đầy vì tiền đã vào hết là cỗ máy chạy đúng")
+    kiem("ghế đầy bằng vị thế TO thì im — chỗ ngồi đang được dùng đáng giá",
+         not [x for x in chan_doan_he(_anh(soGheBe=1))
+              if x.ma == "ghe-khan-hon-tien"],
+         f"ngưỡng {NGUONG_PHAN_GHE_BE:.0%} số ghế phải là ghế bé; vài ghế "
+         f"bé là chuyện bình thường — pool nhỏ thì vị thế nhỏ")
+    kiem("chưa khai trần ghế thì KHÔNG kết luận, không đọc thành ghế rỗng",
+         not [x for x in chan_doan_he(
+                 {**_anh(), "gheVaVon": {"soDangDung": 10, "soGhe": None,
+                                         "tiLeGheDay": None,
+                                         "soGheBe": None}})
+              if x.ma == "ghe-khan-hon-tien"],
+         "chia cho một trần bằng 0 không phải «ghế rỗng» mà là «chưa khai "
+         "trần»")
+
+
 def kiem_bang_chung_song() -> None:
     """Trần bằng chứng KHÔNG được tự phá chính nó sau 24 giờ.
 
@@ -13099,6 +13226,7 @@ def main() -> int:
     kiem_cua_so_mu()
     kiem_vong_nhip()
     kiem_bang_chung_song()
+    kiem_ghe_khan_hon_tien()
 
     print("\n" + "=" * 70)
     if _loi:
