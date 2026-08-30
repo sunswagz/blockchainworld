@@ -128,6 +128,14 @@ def dung(runtime) -> dict:
         "tienHoa": a.get("tienHoa") or {},
         "quyetChan": a.get("quyetChan") or {},
         "bang": a.get("bang") or {},
+        # SỐ KẾT QUẢ — sự thật nền mà mọi điểm số của cung này đứng lên.
+        #
+        # Thiếu nó, trang tĩnh nói về một máy dự báo mà không nói máy ấy
+        # đã được chấm trên bao nhiêu kết quả THẬT. Và nó mang sẵn
+        # `soTheoSan` với `soTuTinh`: 100% `tu-tinh` nghĩa là chưa một
+        # dòng nào được SÀN xác nhận — điều phải đọc được từ ngoài, chứ
+        # không nằm trong một ghi chú nội bộ.
+        "soKetQua": a.get("soKetQua") or {},
 
         # Nói thẳng cho người xem trang tĩnh biết họ đang nhìn gì.
         "loiNhac": (

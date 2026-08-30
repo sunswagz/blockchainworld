@@ -14,11 +14,11 @@
 window.DAI_CHIEM = {
   "date": "30/08/2026",
   "tomTat": "1 market đã kết toán · kỳ vọng -49.9483$/lệnh",
-  "generatedAt": "2026-08-30T09:39:47.814Z",
+  "generatedAt": "2026-08-30T11:07:34.062Z",
   "che": "giay",
   "cheKhai": "giay",
-  "vong": 1,
-  "chayDuocGiay": 1.1641249656677246,
+  "vong": 780,
+  "chayDuocGiay": 1560.2455661296844,
   "thiTruong": [
     {
       "ma": "BTC_5M",
@@ -264,20 +264,20 @@ window.DAI_CHIEM = {
   "vi": {
     "soVi": 0,
     "nga": {},
-    "quetLucMs": 1788082787808.9692,
+    "quetLucMs": 1788086494941.4963,
     "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP. Không dựng lại được vòng đời báo giá, và vì vậy không kết luận được ai là market maker.",
     "vi": []
   },
   "nguon": {
     "gamma-slug": {
       "tuoiMs": null,
-      "soLoi": 3,
+      "soLoi": 26,
       "tongLuot": 0,
       "loiCuoi": "ConnectError: [WinError 10054] An existing connection was forcibly closed by the remote host"
     },
     "gamma": {
       "tuoiMs": null,
-      "soLoi": 3,
+      "soLoi": 26,
       "tongLuot": 0,
       "loiCuoi": "ConnectError: [WinError 10054] An existing connection was forcibly closed by the remote host"
     }
@@ -324,7 +324,7 @@ window.DAI_CHIEM = {
         "tiLeThang": 0.0,
         "thuaLonNhat": -49.94825026510855,
         "duoi5pct": -49.94825026510855,
-        "capNhatLuc": 1788082787.8089693
+        "capNhatLuc": 1788087694.5203693
       }
     ]
   },
@@ -376,11 +376,11 @@ window.DAI_CHIEM = {
   },
   "quyetChan": {},
   "bang": {
-    "soKhung": 1,
+    "soKhung": 780,
     "bat": true,
     "soLoiGhi": 0,
     "loiCuoi": null,
-    "duong": "bang-2026-08-30-093947-5672.jsonl.gz",
+    "duong": "bang-2026-08-30-104134-43360.jsonl.gz",
     "doc": null
   },
   "loiNhac": "Đây là LÁT CẮT tĩnh do runtime ở máy ghi ra, không phải số liệu sống. Trang này không gọi API nào và không đặt được lệnh nào."
