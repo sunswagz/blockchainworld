@@ -113,14 +113,20 @@ def _nhip(thu_muc: Path, ten_tk: str) -> str:
 
     tk = store.read_json(ten_tk, None) or {}
     ds = [t for t in store.read_all(store.TRADES) if t.get("closedAt")]
-    tao = tk.get("createdAt")
+    # `createdAt` chỉ có sau khi sàn ghi tài khoản lần đầu, mà sàn giấy chỉ ghi
+    # khi có gì đó ĐỔI. Làn vừa bật thì chưa có file nào — và "chưa rõ tuổi sổ"
+    # đọc như một lỗi trong khi đó là trạng thái đúng và bình thường.
+    tao = tk.get("createdAt") or min(
+        (t.get("openedAt") for t in ds if t.get("openedAt")), default=None)
+    if not tao:
+        return "chưa có lệnh nào — nhịp tính được sau lệnh đầu tiên"
     try:
         t0 = _dt.datetime.fromisoformat(str(tao))
         if t0.tzinfo is None:
             t0 = t0.replace(tzinfo=_dt.timezone.utc)
         ngay = (_dt.datetime.now(_dt.timezone.utc) - t0).total_seconds() / 86400
     except (ValueError, TypeError):
-        return "chưa rõ tuổi sổ"
+        return f"mốc mở sổ không đọc được ({tao!r})"
     if ngay < 0.5:
         return f"sổ mới {ngay * 24:.1f} giờ — chưa đủ để nói nhịp"
     n_s = sum(1 for t in ds if t.get("side") == "SHORT")

@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-30T01:59:07.305Z",
+ "generatedAt": "2026-08-30T02:25:03.791Z",
  "chayTu": "2026-08-30T00:22:31+00:00",
- "vong": 269,
+ "vong": 341,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "4h",
   "context": "1d"
  },
- "gia": 78081.49,
+ "gia": 78048.38,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "08:59:06",
+  "lastOk": "09:25:03",
   "lastError": null
  },
  "cheDo": {
@@ -40,25 +40,25 @@ window.TU_CAM_THANH = {
  },
  "thiTruong": {
   "4h": {
-   "price": 78081.49,
-   "ema20": 78361.022,
-   "ema50": 77059.058,
-   "ema200": 70208.682,
+   "price": 78048.38,
+   "ema20": 78357.869,
+   "ema50": 77057.759,
+   "ema200": 70208.353,
    "emaStack": "BULLISH_ALIGNED",
-   "rsi14": 48.1,
-   "rsiSlope": 0.67,
-   "macdHist": -179.05,
-   "macdHistSlope": 50.085,
+   "rsi14": 47.8,
+   "rsiSlope": 0.56,
+   "macdHist": -181.16,
+   "macdHistSlope": 49.381,
    "atr": 806.93923,
-   "atrPct": 1.033,
+   "atrPct": 1.034,
    "atrRatioVsMedian": 0.77,
    "volatility": "NORMAL",
    "adx": 21.7,
    "plusDI": 22.3,
    "minusDI": 20.3,
-   "bbWidthPct": 4.786585,
-   "bbPosition": 0.33,
-   "volumeRatio": 0.19,
+   "bbWidthPct": 4.7926932,
+   "bbPosition": 0.32,
+   "volumeRatio": 0.21,
    "structure": "TRANSITION",
    "swingHighs": [
     80000.0,
@@ -74,29 +74,29 @@ window.TU_CAM_THANH = {
    ],
    "support": [
     {
-     "price": 78052.85,
-     "touches": 1
-    },
-    {
      "price": 77677.18,
      "touches": 3
     },
     {
      "price": 76888.0,
      "touches": 1
+    },
+    {
+     "price": 76585.005,
+     "touches": 2
     }
    ],
    "resistance": [
+    {
+     "price": 78052.85,
+     "touches": 1
+    },
     {
      "price": 78828.15,
      "touches": 1
     },
     {
      "price": 79174.12,
-     "touches": 1
-    },
-    {
-     "price": 79500.0,
      "touches": 1
     }
    ],
@@ -108,27 +108,27 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 76888.0,
-   "distToRange20HighPct": 4.35,
-   "distToRange20LowPct": 1.53
+   "distToRange20HighPct": 4.4,
+   "distToRange20LowPct": 1.49
   },
   "1d": {
-   "price": 78081.5,
-   "ema20": 73606.552,
-   "ema50": 69362.158,
-   "ema200": 73072.356,
+   "price": 78048.37,
+   "ema20": 73603.396,
+   "ema50": 69360.859,
+   "ema200": 73072.027,
    "emaStack": "MIXED",
-   "rsi14": 70.8,
-   "rsiSlope": -3.74,
-   "macdHist": 501.45,
-   "macdHistSlope": -268.349,
+   "rsi14": 70.7,
+   "rsiSlope": -3.79,
+   "macdHist": 499.33,
+   "macdHistSlope": -269.054,
    "atr": 2197.2907,
-   "atrPct": 2.814,
+   "atrPct": 2.815,
    "atrRatioVsMedian": 0.98,
    "volatility": "NORMAL",
    "adx": 42.8,
    "plusDI": 38.3,
    "minusDI": 11.7,
-   "bbWidthPct": 39.246079,
+   "bbWidthPct": 39.238724,
    "bbPosition": 0.72,
    "volumeRatio": 0.03,
    "structure": "UPTREND",
@@ -176,20 +176,20 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 4.35,
-   "distToRange20LowPct": 19.91
+   "distToRange20HighPct": 4.4,
+   "distToRange20LowPct": 19.88
   }
  },
  "luanDiem": null,
  "phanQuyet": null,
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 9711.68,
-  "vonThucHien": 9711.68,
+  "von": 9716.3,
+  "vonThucHien": 9716.3,
   "dinhVon": 9723.79,
-  "laiLoMo": 1.46,
+  "laiLoMo": 6.07,
   "laiLoHomNay": 0.0,
-  "drawdownPct": 0.12,
+  "drawdownPct": 0.08,
   "soLenhDaDong": 46,
   "viThe": [
    {
@@ -228,8 +228,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 1382525,
     "ocoOrderListId": 303090,
     "ocoError": null,
-    "unrealizedPnl": 1.85,
-    "unrealizedR": 0.06
+    "unrealizedPnl": 3.11,
+    "unrealizedR": 0.09
    },
    {
     "id": "t_9fa9a550c3",
@@ -267,8 +267,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 3024893,
     "ocoOrderListId": 304336,
     "ocoError": null,
-    "unrealizedPnl": 0.85,
-    "unrealizedR": 0.03
+    "unrealizedPnl": 5.05,
+    "unrealizedR": 0.18
    },
    {
     "id": "t_ca4aa0c3d2",
@@ -306,8 +306,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9772656,
     "ocoOrderListId": 309125,
     "ocoError": null,
-    "unrealizedPnl": -1.24,
-    "unrealizedR": -0.04
+    "unrealizedPnl": -2.09,
+    "unrealizedR": -0.06
    }
   ]
  },
@@ -1466,22 +1466,22 @@ window.TU_CAM_THANH = {
   }
  ],
  "theGioi": {
-  "luc": 1788054784.585571,
+  "luc": 1788056594.5034509,
   "phaiSinh": {
-   "fundingNamHoa": 9.78,
-   "openInterestUsd": 8419533696.58,
-   "oiDoi24hPct": 2.21,
+   "fundingNamHoa": 10.2,
+   "openInterestUsd": 8442423944.5064,
+   "oiDoi24hPct": 2.48,
    "topTrader": {
-    "tyLe": 2.0715,
-    "long": 0.6744,
-    "short": 0.3256,
-    "doi12h": -0.009
+    "tyLe": 2.0625,
+    "long": 0.6735,
+    "short": 0.3265,
+    "doi12h": -0.031
    },
    "toanSan": {
-    "tyLe": 1.1805,
-    "long": 0.5414,
-    "short": 0.4586,
-    "doi12h": 0.009
+    "tyLe": 1.1478,
+    "long": 0.5344,
+    "short": 0.4656,
+    "doi12h": -0.06
    },
    "nguon": "Binance Futures"
   },
@@ -1489,13 +1489,13 @@ window.TU_CAM_THANH = {
    "muc": {
     "DXY": {
      "ten": "chỉ số đô la",
-     "gia": 99.16,
-     "doiPct": -0.01
+     "gia": 99.7,
+     "doiPct": 0.54
     },
     "US10Y": {
      "ten": "lợi suất trái phiếu 10 năm",
-     "gia": 4.672,
-     "doiPct": 0.17
+     "gia": 4.72,
+     "doiPct": 1.03
     },
     "DAU": {
      "ten": "dầu WTI",
@@ -1504,8 +1504,8 @@ window.TU_CAM_THANH = {
     },
     "SP500": {
      "ten": "S&P 500",
-     "gia": 7730.99,
-     "doiPct": 0.72
+     "gia": 7711.76,
+     "doiPct": -0.25
     },
     "VANG": {
      "ten": "vàng",
@@ -1514,9 +1514,9 @@ window.TU_CAM_THANH = {
     }
    },
    "khauVi": {
-    "diem": 1.01,
+    "diem": -1.43,
     "soChiSo": 3,
-    "nhan": "RISK_ON",
+    "nhan": "RISK_OFF",
     "ghiChu": "suy ra từ chiều đổi của DXY, lợi suất và S&P — không phải một chỉ số có sẵn"
    },
    "nguon": "Yahoo Finance"
@@ -1694,16 +1694,30 @@ window.TU_CAM_THANH = {
   {
    "ma": "lo-luyen-champion",
    "nguon": "lo-luyen",
-   "mau": 946,
+   "mau": 715,
    "doTin": "CAO",
    "khung": null,
    "cheDo": null,
    "so": {
-    "kyVongR": -0.1517,
-    "soLatDuong": 0,
+    "kyVongR": 0.0122,
+    "soLatDuong": 2,
     "soLat": 4
    },
-   "cau": "Champion đo trên 48 chợ × 4 lát thời gian (CHỈ LONG — đúng không gian sàn spot cho phép): dương 0/4 lát, gộp -0.1517R qua 946 lệnh. Từng lát: -0.49 -0.06 -0.10 -0.42. Lát là quãng thời gian LIÊN TIẾP — dương ở một lát và âm ở lát khác nghĩa là kết quả phụ thuộc chế độ thị trường, không phải lợi thế."
+   "cau": "Champion đo trên 15 chợ × 4 lát thời gian (cả hai chiều — gồm cả SHORT mà sàn spot KHÔNG đánh được): dương 2/4 lát, gộp +0.0122R qua 715 lệnh. Từng lát: -0.48 +0.06 -0.05 +0.27. Lát là quãng thời gian LIÊN TIẾP — dương ở một lát và âm ở lát khác nghĩa là kết quả phụ thuộc chế độ thị trường, không phải lợi thế. Khoảng tin 95% [-0.1468; +0.0484] — CHỨA 0, tức chưa phân biệt được với «không có gì»."
+  },
+  {
+   "ma": "lo-luyen-dan-dau",
+   "nguon": "lo-luyen",
+   "mau": 441,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "kyVongR": 0.1736,
+    "soLanThu": 20,
+    "soVuot": 11
+   },
+   "cau": "11/20 biến thể tham số (cả hai chiều — gồm cả SHORT mà sàn spot KHÔNG đánh được) vừa vượt champion vừa dương ≥3/4 lát. Dẫn đầu: {\"stopAtr\": 2.0, \"demTp\": 2.2, \"boiTp2\": 1.3, \"adxToiThieu\": 0, \"chanBienDongCao\": false, \"chanXungDot\": true, \"soNenGiu\": 48} — +0.1736R qua 441 lệnh, dương 3/4 lát. ĐÃ THỬ 20 BIẾN THỂ: cái tốt nhất trong ngần ấy lần thử đẹp lên một phần chỉ vì đã thử ngần ấy lần. Đây là ỨNG VIÊN để đo lại trên chợ chưa dùng, KHÔNG phải một bộ tham số đáng đổi sang."
   },
   {
    "ma": "bo-pha",
@@ -1722,6 +1736,18 @@ window.TU_CAM_THANH = {
     "thua": []
    },
    "cau": "MOCK_RULES_V1 trên BTCUSDT:4h: gốc -0.074R qua 254 lệnh. TẮT TIẾNG khi phi-x2, phi-x3, lo, bien — không phải thua, mà là không còn lệnh nào qua nổi cửa RR khi chi phí đội lên. Lợi thế (nếu có) nằm GỌN trong giả định chi phí, nên mọi con số dương chỉ đúng chừng nào phí đúng bằng mức đã giả định. "
+  },
+  {
+   "ma": "bac-bo:keo-lui-cua-so-som",
+   "nguon": "gia-thuyet",
+   "mau": 208,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "phanQuyet": "BÁC_BỎ"
+   },
+   "cau": "BÁC BỎ —  Dự đoán lúc chưa biết:  Đo được: kyVongR=-0.2539 > 0.03 · mẫu 208. "
   },
   {
    "ma": "bac-bo:1d-song-o-cua-so-khac",
@@ -1788,36 +1814,6 @@ window.TU_CAM_THANH = {
     "khopTroi": -0.029
    },
    "cau": "Khớp trội -0.029: chênh lệch giữa điểm TRONG mẫu và điểm NGOÀI mẫu của bộ tham số cầm quyền. Càng lớn thì nó càng học thuộc quá khứ thay vì học quy luật — và phần học thuộc sẽ không lặp lại."
-  },
-  {
-   "ma": "cua-thoat",
-   "nguon": "chien-luoc",
-   "mau": 85,
-   "doTin": "CAO",
-   "khung": "4h",
-   "cheDo": null,
-   "so": {
-    "theoLyDoThoat": {
-     "TP": 26,
-     "SL": 53,
-     "HET_HAN": 6
-    }
-   },
-   "cau": "53/85 lệnh chạy lại thoát bằng STOP LOSS (62%), chỉ 26 lệnh chạm mục tiêu. Tỉ lệ này nói vấn đề nằm ở điểm VÀO hoặc ở chỗ đặt stop, không nằm ở mục tiêu."
-  },
-  {
-   "ma": "rui-ro-deu",
-   "nguon": "so-that",
-   "mau": 43,
-   "doTin": "CAO",
-   "khung": null,
-   "cheDo": null,
-   "so": {
-    "riskCv": 0.365,
-    "expectancyUsd": -13.6,
-    "expectancyR": -0.313
-   },
-   "cau": "Rủi ro mỗi lệnh KHÔNG đều (hệ số biến thiên 0.365) qua 43 lệnh thật. Khi rủi ro trôi, R không so sánh được giữa các lệnh — đọc con số TIỀN (kỳ vọng -13.60/lệnh) chứ đừng đọc R (-0.313R). Và 20 lệnh gần nhất vẫn lệch (0.866) — đây là chuyện ĐANG XẢY RA, có một chỗ hỏng phải tìm."
   }
  ]
 };
