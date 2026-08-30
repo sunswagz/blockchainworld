@@ -133,20 +133,6 @@ NGUONG_DONG_DO_XOAY = 0.5
 #: suất mất ở đó, không cảnh báo nào kêu.
 NGUONG_RANH_TREN_KHA_DUNG = 0.25
 
-#: Ghế đầy tới mức nào thì gọi là GHẾ đang khan hiếm, không phải tiền.
-#:
-#: 0,95 chứ không 1,00: đúng bằng trần thì chỉ là ảnh chụp của một khoảnh
-#: khắc — một vị thế vừa đóng là 119/120 và câu chẩn tắt, rồi bật lại
-#: vòng sau. Một cảnh báo nhấp nháy theo vòng quét là một cảnh báo người
-#: ta tắt đi.
-NGUONG_GHE_DAY = 0.95
-
-#: Bao nhiêu phần ghế phải là ghế BÉ thì mới đáng nói.
-#:
-#: Vài ghế bé là chuyện bình thường — pool AMM nhỏ thì vị thế nhỏ, đó là
-#: sự thật của thị trường. Chỉ khi PHẦN LỚN ghế bé mà tiền vẫn nằm ngoài
-#: thì mới có một câu đáng hỏi: thứ khan hiếm ở đây là chỗ ngồi.
-NGUONG_PHAN_GHE_BE = 0.5
 
 #: Bao nhiêu VỐN-GIỜ mà thu ròng vẫn ĐÚNG BẰNG 0 thì mới gọi là «engine
 #: chưa kiếm được đồng nào». Mười nghìn USD-giờ — cỡ 200 USD chạy hai
@@ -308,14 +294,70 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
         ma_top, so_top = max(dem.items(), key=lambda kv: kv[1])
         phan = so_top / tong_tc
         if ma_top == "tran-vi-the" and phan >= NGUONG_MA_AP_DAO:
+            # GHẾ ĐANG GIỮ BAO NHIÊU, và cổng của chính ty ấy còn thả ra
+            # được mấy cơ hội. Hai con số này quyết cả hướng đọc, và
+            # trước lượt này không có cái nào.
+            #
+            # Câu chẩn cũ kết luận thẳng «trần đang chặn nhiều hơn nó bảo
+            # vệ». Đó là một phán xét, không phải một phép đo, và nó bỏ
+            # sót đúng nửa còn lại: đo làn thật 30/08 thì 99 trên 120 ghế
+            # giữ dưới 1.667 USD — cộng lại chỉ 13,4% vốn đang dùng,
+            # trong khi 222.757 USD nằm ngoài dự trữ ăn 0%. **Ghế đầy
+            # KHÔNG có nghĩa vốn đã vào việc.**
+            #
+            # Và nó không nói được «nâng trần thì tiền sẽ vào». Ty giữ
+            # nhiều ghế bé nhất là `amm.fee_farming.v1`: 78.120 cơ hội
+            # thô, **16** qua nổi cổng của chính nó. Thêm ghế chỉ giúp
+            # tới mức ấy. Nên chỗ này khai đủ ba con số rồi dừng — nâng
+            # trần, nới sức chứa mỗi cơ hội, hay nới cổng ty, đều là
+            # quyết định của chủ, và cả ba đều cần biết ba con số này.
+            _gv = anh.get("gheVaVon") or {}
+            _soBe = _gv.get("soGheBe")
+            _nBe = _gv.get("soDangDung") or 0
+            _viGhe = ""
+            if _soBe is not None and _nBe:
+                _tv = _gv.get("vonTrungViMotGheUsd")
+                _pc = _gv.get("phanChiaMoiGheUsd")
+                _tiVon = _gv.get("tiLeVonTrongGheBe")
+                _viGhe = (
+                    f" Nhưng ghế đầy KHÔNG có nghĩa vốn đã vào việc: "
+                    f"{_soBe}/{_nBe} ghế giữ dưới "
+                    f"{float(_gv.get('nguongGheBeUsd') or 0):,.0f} USD, cộng "
+                    f"lại {float(_gv.get('vonTrongGheBeUsd') or 0):,.0f} USD"
+                    + ("" if _tiVon is None else f" ({_tiVon:.1%} vốn đang "
+                                                 f"dùng)")
+                    + (f"; trung vị một ghế {float(_tv):,.0f} USD trên phần "
+                       f"chia công bằng {float(_pc):,.0f} USD."
+                       if (_tv is not None and _pc) else "."))
+                # Ty giữ nhiều ghế bé nhất còn THẢ RA được mấy cơ hội.
+                _bt = sorted((_gv.get("gheBeTheoTy") or {}).items(),
+                             key=lambda kv: -kv[1])
+                if _bt:
+                    _maTy = _bt[0][0]
+                    _oTy = next((x for x in (anh.get("ty") or [])
+                                 if x.get("ma") == _maTy), None)
+                    if _oTy is not None:
+                        _viGhe += (
+                            f" Ty giữ nhiều ghế bé nhất là {_maTy} "
+                            f"({_bt[0][1]} ghế); vòng này nó thấy "
+                            f"{int(_oTy.get('soCoHoi') or 0):,} cơ hội thô và "
+                            f"{int(_oTy.get('soQuaCongTy') or 0):,} qua nổi "
+                            f"cổng của CHÍNH NÓ — thêm ghế chỉ giúp được tới "
+                            f"mức ấy, phần còn lại là chuyện của cổng ty và "
+                            f"của sức chứa từng cơ hội.")
             ra.append(TrieuChungHe(
                 "tran-vi-the-chan", 2,
                 f"{so_top}/{tong_tc} lần từ chối ({phan:.0%}) là vì ĐỦ SỐ VỊ "
                 f"THẾ, không phải vì hết tiền hay vì rủi ro. Trần ấy đặt ra "
                 f"khi người phải tự theo dõi từng chân; nay mỗi vòng đều có "
-                f"kế toán tự chạy, nên nó đang chặn nhiều hơn nó bảo vệ.",
+                f"kế toán tự chạy." + _viGhe,
                 {"maTuChoi": ma_top, "so": so_top, "tongTuChoi": tong_tc,
-                 "phan": phan, "dem": dem, "soKhongMa": khong_ma},
+                 "phan": phan, "dem": dem, "soKhongMa": khong_ma,
+                 "soGheBe": _soBe, "soDangDung": _gv.get("soDangDung"),
+                 "vonTrongGheBeUsd": _gv.get("vonTrongGheBeUsd"),
+                 "tiLeVonTrongGheBe": _gv.get("tiLeVonTrongGheBe"),
+                 "vonTrungViMotGheUsd": _gv.get("vonTrungViMotGheUsd"),
+                 "phanChiaMoiGheUsd": _gv.get("phanChiaMoiGheUsd")},
                 ["phanBo.toiDaSoViThe"]))
 
     # ── 4. cấp vốn xong mà không mở được ─────────────────────────────────
@@ -610,67 +652,6 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             # có chủ ý, và người vặn sẽ tưởng mình vừa chữa được gì đó.
             [] if _cdN.get("dangNgat")
             else ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy"]))
-
-    # ── 7bc. GHẾ mới là thứ khan hiếm, không phải tiền ─────────────────
-    #
-    # `von-ranh-an-khong` nói CÓ BAO NHIÊU tiền nằm không, và câu cuối của
-    # nó là «hoặc vì một trần đang chặn» — đúng, nhưng không nói trần nào.
-    # Cái trần ấy đo được, và nó nằm sẵn trong cùng một ảnh chụp.
-    #
-    # Đo làn thật 30/08: 120/120 ghế đầy, 222.757 USD nằm ngoài dự trữ ăn
-    # 0%, trung vị một ghế giữ 1.136 USD, và 99 ghế giữ dưới 1.667 USD —
-    # cộng lại 77.194 USD, tức 13,4% vốn đang dùng. Ty giữ nhiều ghế bé
-    # nhất (`amm.fee_farming.v1`, 64 ghế) lại chính là ty lợi suất cao
-    # nhất: 19,3%/năm so với bình quân 4,2%.
-    #
-    # KHÔNG khuyên «nâng trần ghế». Vị thế AMM nhỏ vì sức chứa pool nhỏ —
-    # sự thật của thị trường, không phải lỗi cấu hình; còn trần ghế cũng
-    # có lý của nó, vì một trăm hai mươi vị thế đã nhiều hơn mức theo dõi
-    # nổi. Hai câu cùng đúng, và chỗ cân giữa chúng là quyết định của CHỦ.
-    # Việc ở đây là bày con số ra để câu hỏi ấy hỏi được.
-    gv = anh.get("gheVaVon") or {}
-    ti_day = gv.get("tiLeGheDay")
-    so_be = gv.get("soGheBe")
-    n_ghe = gv.get("soDangDung") or 0
-    if (ti_day is not None and ti_day >= NGUONG_GHE_DAY
-            and ti_ranh is not None and ti_ranh >= NGUONG_RANH_TREN_KHA_DUNG
-            and so_be is not None and n_ghe > 0
-            and so_be / n_ghe >= NGUONG_PHAN_GHE_BE):
-        _tv = gv.get("vonTrungViMotGheUsd")
-        _tiVon = gv.get("tiLeVonTrongGheBe")
-        _theoTy = gv.get("gheBeTheoTy") or {}
-        _top = sorted(_theoTy.items(), key=lambda kv: -kv[1])[:2]
-        _viTy = ("; ".join(f"{k} giữ {v} ghế" for k, v in _top)
-                 if _top else "không tách được theo ty")
-        ra.append(TrieuChungHe(
-            "ghe-khan-hon-tien", 2,
-            f"{gv.get('soDangDung')}/{gv.get('soGhe')} ghế đã đầy trong khi "
-            f"{float(vr.get('ranhNgoaiDuTruUsd') or 0):,.0f} USD nằm ngoài "
-            f"dự trữ ăn 0% — nên thứ khan hiếm ở đây là CHỖ NGỒI, không "
-            f"phải tiền. Trung vị một ghế giữ "
-            f"{float(_tv or 0):,.0f} USD, trong khi phần chia công bằng là "
-            f"{float(gv.get('phanChiaMoiGheUsd') or 0):,.0f} USD. "
-            f"{so_be} ghế giữ dưới "
-            f"{float(gv.get('nguongGheBeUsd') or 0):,.0f} USD, cộng lại chỉ "
-            f"{float(gv.get('vonTrongGheBeUsd') or 0):,.0f} USD"
-            + ("" if _tiVon is None else f" ({_tiVon:.1%} vốn đang dùng)")
-            + f" — {_viTy}. Vị thế nhỏ vì SỨC CHỨA nhỏ là sự thật của thị "
-              f"trường, không phải lỗi cấu hình; còn trần ghế có lý của "
-              f"nó. Chỗ cân giữa hai điều ấy là quyết định của chủ, không "
-              f"phải của máy.",
-            {"soGhe": gv.get("soGhe"), "soDangDung": gv.get("soDangDung"),
-             "soGheBe": so_be, "vonTrongGheBeUsd": gv.get("vonTrongGheBeUsd"),
-             "tiLeVonTrongGheBe": _tiVon,
-             "vonTrungViMotGheUsd": _tv,
-             "phanChiaMoiGheUsd": gv.get("phanChiaMoiGheUsd"),
-             "ranhNgoaiDuTruUsd": vr.get("ranhNgoaiDuTruUsd"),
-             "gheBeTheoTy": _theoTy},
-            # Núm RỖNG, cố ý. `phanBo.toiDaSoViThe` là núm ĐÒI TÊN NGƯỜI,
-            # và nó không phải cái núm duy nhất đúng: nới sức chứa mỗi cơ
-            # hội, hay chấp nhận ít ghế mà mỗi ghế nặng hơn, đều là những
-            # lối khác. Máy khai một núm ở đây là chọn hộ chủ một trong ba
-            # đường, bằng cách làm cho hai đường kia vô hình.
-            []))
 
     # ── 7bb. XOAY CHỖ hứa dài hơn đời thật của vị thế ──────────────────
     #

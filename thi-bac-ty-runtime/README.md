@@ -675,7 +675,7 @@ sang (hai bản sao sẽ lệch nhau đúng vào ngày ai đó hiệu chỉnh m�
 
 ## HIẾN PHÁP — luật vận hành, viết dưới dạng CHẠY ĐƯỢC
 
-`thi_bac_ty/hien_phap.py` giữ **31 điều** luật vận hành của cả bộ máy. Mỗi
+`thi_bac_ty/hien_phap.py` giữ **34 điều** luật vận hành của cả bộ máy. Mỗi
 điều mang bốn thứ: câu luật, **chuyện đã xảy ra dạy ra nó**, nguồn, và một
 phép canh.
 
@@ -700,19 +700,27 @@ sinh ra để bắt: hệ thống nói về chính mình một điều không đ
 Đây là phần quan trọng nhất, và là thứ một tệp nguyên tắc không làm được.
 
 Một hiến pháp mà điều nào cũng trông như đang có hiệu lực thì **tệ hơn không
-có**: người đọc tưởng mình được che ba mươi mốt điều trong khi thật ra
-được che hai mươi lăm. `soat()` tách rõ hai nhóm và in cả
-`soKhongCanhDuoc`.
+có**: người đọc tưởng mình được che ba mươi bốn điều trong khi thật ra
+được che hai mươi chín. `soat()` tách rõ và in cả `soKhongCanhDuoc`.
 
-    31 điều · canh được 25 · KHÔNG canh được 6 · vi phạm 0
+    34 điều · canh được 29 · KHÔNG canh được 5 · vi phạm 0
 
-Sáu điều không canh được phần lớn là **quan điểm đánh giá**, không phải bất
-biến cơ học: *"đừng đo bộ máy bằng số đô ở giai đoạn vốn nhỏ"*, *"từ chối
-giỏi quan trọng hơn phát hiện nhiều"*, *"basis không phải thu nhập"*. Không
-hàm nào canh được chúng, và giả vờ canh được sẽ tệ hơn. Ba điều còn lại
-(`von-ngoai-bat-san`, `khong-dem-hai-lan`, `bi-danh-khong-phai-ban-sao`) cần
-`thi_bac_ty/` nạp một ty để canh — mà điều `trung-uong-khong-biet-ty` cấm
-đúng chuyện đó, nên chúng được canh ở tầng dưới, trong `scripts/selftest.py`.
+**Và năm điều ấy KHÔNG cùng một loại — nên chúng tách làm hai con số.**
+Gộp chung là nói rằng cả năm đều bỏ ngỏ như nhau, trong khi bốn trong số
+đó có người canh, chỉ là không canh từ đây:
+
+    soCanhOTangKhac  4   von-ngoai-bat-san · khong-dem-hai-lan
+                         bi-danh-khong-phai-ban-sao · basis-khong-phai-thu-nhap
+    soHoanToanTrong  1   khong-do-bang-so-do
+
+Bốn điều nhóm đầu cần `thi_bac_ty/` nạp một ty để canh — mà điều
+`trung-uong-khong-biet-ty` cấm đúng chuyện đó — nên chúng được canh ở tầng
+dưới, trong `scripts/selftest.py`, và `canhODau` chỉ thẳng tên hàm.
+
+Điều duy nhất **thật sự chưa ai canh** là `khong-do-bang-so-do`: *"đừng đo
+bộ máy bằng số đô ở giai đoạn vốn nhỏ"*. Đó là một **quan điểm đánh giá**,
+không phải bất biến cơ học; không hàm nào canh được nó, và giả vờ canh được
+sẽ tệ hơn hẳn.
 
 ### Viết hiến pháp lộ ra tám luật chưa ai canh
 
@@ -1174,7 +1182,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 1909 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 1915 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 node scripts/kiem-buong-lai.mjs  # 58 phép: 10 trang + 7 khối tầng ba,
                                  #   × 3 mẫu; khoá đọc/sinh có khớp

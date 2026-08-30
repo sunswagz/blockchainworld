@@ -12240,12 +12240,138 @@ def kiem_moi_module_nhap_duoc() -> None:
          "đang canh một thư mục rỗng")
 
 
-def kiem_ghe_khan_hon_tien() -> None:
-    """Khi GHẾ hết trước TIỀN, cỗ máy phải nói được câu ấy bằng số.
+def kiem_xoay_cho_dem_dung() -> None:
+    """Bộ đếm của TRẦN BẰNG CHỨNG chỉ được đếm khi trần THẬT SỰ chặn.
 
-    `von_ranh()` nói CÓ BAO NHIÊU tiền nằm không, và câu cuối của
-    `von-ranh-an-khong` là «hoặc vì một trần đang chặn» — đúng, mà không
-    nói trần nào. Cái trần ấy đo được, và nó nằm sẵn trong cùng ảnh chụp.
+    Quét đột biến `xoay_cho.py` toàn suite: 5/18 sống sót. Hai con đã ghi
+    sẵn trong mã là TƯƠNG ĐƯƠNG (`aprMoi <= aprCu` — bằng nhau thì `lai`
+    bằng 0 và cửa `lai <= phi` chặn nốt; `tongVon > 0` — `aprHienTai` chỉ
+    khác None khi tổng vốn dương). Ba con còn lại nằm trong đúng cái bộ
+    đếm dùng để BIẾT trần ấy có làm gì không:
+
+      · `laiKhai > phi` — công thức CŨ có nhận không. Bằng nhau nghĩa là
+        công thức cũ cũng huề vốn; đếm nó là cộng một lời hứa 0 USD vào
+        con số «đã chặn được bao nhiêu».
+      · `soBiChanBoiBangChung and gioSongTrungVi is not None` — đổi thành
+        `or` thì câu `vi` khoe «0 chỗ bị TRẦN BẰNG CHỨNG chặn» mỗi lần có
+        trần mà không chặn ai. Một cái trần khoe thành tích 0 là một cái
+        trần dạy người đọc bỏ qua chính nó.
+      · `chung < chungKhai` — **hoá ra cũng TƯƠNG ĐƯƠNG**, và tôi tưởng
+        không phải. Cấy `<=` vào thì bộ kiểm vẫn xanh: khi hai vế bằng
+        nhau thì `laiKhai == lai`, mà nhánh này chỉ chạy khi `lai <= phi`,
+        nên cửa `laiKhai > phi` ngay dưới chặn nốt. Cửa trong che cửa
+        ngoài. Ghi ra đây vì đó là một lớp con đột biến dễ đọc nhầm: một
+        con SỐNG không phải lúc nào cũng là một lỗ hổng — đôi khi nó chỉ
+        nói rằng có hai cửa cùng canh một chuyện, và bỏ cửa ngoài đi thì
+        mã gọn hơn mà không mất gì.
+
+    Cả ba đều chỉ chạm BỘ ĐẾM, không chạm quyết định — nên chúng không
+    làm mất tiền. Nhưng bộ đếm này là thứ DUY NHẤT cho biết trần bằng
+    chứng đang chặn thật hay chỉ ngồi đó, và một bộ đếm nói quá là một
+    lớp bảo vệ không ai kiểm lại được.
+    """
+    print("\n-- XOAY CHO: bo dem cua tran bang chung --")
+    from thi_bac_ty.ke_toan import SoViThe
+    from thi_bac_ty.xoay_cho import NAM_GIO, do_xoay_cho
+
+    now = 1_800_000_000.0
+
+    def _tt(apr, giu, phiBps):
+        # `netMoiGioBps` → APR = bps/giờ × 8.760 / 100
+        # `thanhKhoanThoatUsd` phải có: thiếu nó là vị thế bị xếp vào
+        # «chưa đo được thanh khoản thoát» và không bao giờ tới được
+        # phần tính toán — phép kiểm sẽ xanh vì một lý do khác hẳn.
+        return {"netMoiGioBps": apr * 100.0 / NAM_GIO, "giuGio": giu,
+                "phiUocBps": phiBps, "taiSan": "USDC",
+                "thanhKhoanThoatUsd": 1_000_000.0,
+                "chienLuoc": "lending.rate_rotation.v1"}
+
+    def _so(apr, giu, phiBps, von=10_000.0, tuoi=0.0):
+        return {"m": SoViThe(ma="m", chienLuoc="lending.rate_rotation.v1",
+                             toTrinh=_tt(apr, giu, phiBps), vonUsd=von,
+                             moLucGiay=now - tuoi * 3600.0,
+                             keToanLucGiay=now)}
+
+    # Cơ hội mới hơn hẳn, phí bé: không trần thì XOAY được.
+    moi = [_tt(20.0, 100.0, 1.0)]
+    l = do_xoay_cho(_so(1.0, 100.0, 1.0), moi, now, bienAnToan=1.0)
+    kiem("không có trần thì chỗ đáng đổi vẫn đổi được",
+         l.soXoayDuoc == 1 and l.soBiChanBoiBangChung == 0,
+         f"{l.tom_tat()} — nếu ca nền này không xoay được thì mọi phép "
+         f"kiểm dưới đây đang đo một thứ khác")
+
+    # ── trần RỘNG HƠN cửa sổ: nó KHÔNG kẹp gì ──────────────────────────
+    #
+    # `chung` = min(còn lại, giữ mới, trần). Trần 500h trên cửa sổ 100h
+    # thì `chung == chungKhai`. Cho phí lớn để lần này bị chặn — bị chặn
+    # VÌ PHÍ, không vì trần.
+    l = do_xoay_cho(_so(1.0, 100.0, 5000.0), [_tt(1.05, 100.0, 5000.0)],
+                    now, bienAnToan=1.0, gioSongTrungVi=500.0)
+    # Phép kiểm này KHÔNG giết được con `<=` ở dòng 350 — cửa
+    # `laiKhai > phi` ngay dưới đã chặn thay. Giữ nó vì nó canh HÀNH VI
+    # (không ghi công cho trần khi phí mới là thứ chặn), không vì nó phá
+    # được một con đột biến.
+    kiem("trần rộng hơn cửa sổ thì KHÔNG được ghi công một lần chặn",
+         l.soXoayDuoc == 0 and l.soBiChanBoiBangChung == 0
+         and l.loiRongBiChanUsd == 0.0,
+         f"{l.tom_tat()} — lần này phí chặn, không phải trần; ghi công "
+         f"cho trần là nói nó đang làm việc trong khi nó ngồi không")
+    kiem("và câu `vi` KHÔNG khoe con số 0 chỗ bị trần chặn",
+         "TRẦN BẰNG CHỨNG" not in l.vi,
+         f"{l.vi} — một cái trần khoe thành tích 0 là một cái trần dạy "
+         f"người đọc bỏ qua chính nó")
+
+    # ── trần KẸP THẬT: đếm, và nói ra ──────────────────────────────────
+    l = do_xoay_cho(_so(1.0, 100.0, 1.0), [_tt(20.0, 100.0, 1.0)], now,
+                    bienAnToan=1.0, gioSongTrungVi=0.01)
+    kiem("trần kẹp cửa sổ 100h xuống 0,01h thì chặn HẲN, và ĐẾM",
+         (l.soXoayDuoc == 0 and l.soBiChanBoiBangChung == 1
+          and l.loiRongBiChanUsd > 0.0),
+         f"{l.tom_tat()}")
+    kiem("và câu `vi` nói ra cả số chỗ lẫn số giờ",
+         "TRẦN BẰNG CHỨNG" in l.vi and "0.010h" in l.vi,
+         f"{l.vi} — chặn lặng lẽ thì «không chỗ nào đáng đổi» đọc thành "
+         f"«chợ hôm nay chán», trong khi ta vừa thôi tin một giả định")
+
+    # ── trần kẹp, NHƯNG công thức cũ cũng không nhận ───────────────────
+    #
+    # Phí lớn tới mức cả `laiKhai` (tính trên cửa sổ ĐẦY) cũng không vượt
+    # nổi. Trần có kẹp thật, nhưng nó không chặn được gì mà công thức cũ
+    # sẽ nhận — nên không có «lời hứa đã chặn» nào để cộng.
+    l = do_xoay_cho(_so(1.0, 100.0, 9000.0), [_tt(1.02, 100.0, 9000.0)],
+                    now, bienAnToan=1.0, gioSongTrungVi=0.01)
+    kiem("trần kẹp mà công thức CŨ cũng từ chối thì KHÔNG cộng công",
+         l.soXoayDuoc == 0 and l.soBiChanBoiBangChung == 0
+         and l.loiRongBiChanUsd == 0.0,
+         f"{l.tom_tat()} — cộng lần này vào là khai rằng trần đã chặn "
+         f"được một lời hứa mà công thức cũ vốn đã không nhận")
+
+    # ── ĐÚNG ĐIỂM HUỀ VỐN của công thức cũ ─────────────────────────────
+    #
+    # Ca trên chỉ nói `laiKhai < phi` — cả `>` lẫn `>=` đều từ chối, nên
+    # nó KHÔNG phân biệt được hai cách viết. Muốn phân biệt thì phải dựng
+    # đúng điểm BẰNG NHAU, và ở đây dựng được chính xác tới từng bit vì
+    # mọi số đều chọn cho tròn nhị phân:
+    #
+    #     laiKhai = 8.192 × (100/100) × (1.095/8.760) = 1.024,00 USD
+    #     phí     = 2 × 8.192 × 625/10.000            = 1.024,00 USD
+    #
+    # Huề vốn thì công thức cũ CŨNG không nhận, nên trần không chặn được
+    # gì. Đây là cách duy nhất chạm tới ranh giới ấy: đồng hồ tường không
+    # bao giờ rơi trúng điểm bằng nhau, còn số thì chọn được.
+    l = do_xoay_cho(_so(0.0, 2000.0, 625.0, von=8192.0),
+                    [_tt(100.0, 1095.0, 625.0)], now,
+                    bienAnToan=1.0, gioSongTrungVi=1.0)
+    kiem("công thức cũ HUỀ VỐN đúng tới từng xu thì cũng KHÔNG cộng công",
+         l.soBiChanBoiBangChung == 0 and l.loiRongBiChanUsd == 0.0,
+         f"{l.tom_tat()} — «đã chặn được +0,00 USD» là một dòng khoe "
+         f"không có nội dung, và nó làm loãng đúng con số đang dùng để "
+         f"chứng minh trần này có ích")
+
+
+def kiem_ghe_va_von() -> None:
+    """GHẾ đang giữ bao nhiêu — và vì sao câu ấy phải nằm CÙNG một chỗ
+    với «trần vị thế đang chặn».
 
     Đo làn thật 30/08:
 
@@ -12254,18 +12380,20 @@ def kiem_ghe_khan_hon_tien() -> None:
         99 ghế giữ dưới 1.667 USD — cộng lại 77.194 USD (13,4% vốn)
         99 ghế ấy: 64 của `amm.fee_farming.v1`, 35 của basis
 
-    Ty giữ nhiều ghế bé nhất lại là ty lợi suất CAO nhất (19,3%/năm so
-    với bình quân 4,2%), nên trần ghế đang chặn đúng chỗ đáng mở.
+    **Ghế đầy KHÔNG có nghĩa vốn đã vào việc**, và câu chẩn
+    `tran-vi-the-chan` trước lượt này kết luận thẳng «trần đang chặn
+    nhiều hơn nó bảo vệ» mà không có con số nào để nói thế.
 
-    Câu chẩn KHÔNG khuyên nâng trần, và khai núm RỖNG: vị thế AMM nhỏ vì
-    sức chứa pool nhỏ — sự thật của thị trường; trần ghế cũng có lý của
-    nó. Có ít nhất ba đường đi (nâng trần ghế · nới sức chứa mỗi cơ hội ·
-    chấp nhận ít ghế mà nặng hơn), và khai một núm là chọn hộ chủ một
-    đường bằng cách làm hai đường kia vô hình.
+    ⚠ Lượt đầu tôi dựng chuyện này thành một triệu chứng RIÊNG
+    (`ghe-khan-hon-tien`) mà không đọc danh sách triệu chứng có sẵn.
+    `tran-vi-the-chan` đã tồn tại, nổ cùng lúc, và khai cùng một núm —
+    hai cảnh báo cho một chuyện, đúng thứ làm người ta thôi đọc cảnh
+    báo. Đã gộp. Bài học: trước khi thêm một triệu chứng, đọc hết danh
+    sách đang có — chẩn đoán từ ảnh chụp làn thật không thay được việc
+    ấy, vì ảnh chụp cho biết bệnh, không cho biết ai đã nói về bệnh.
     """
-    print("\n-- GHE KHAN HON TIEN: cho ngoi het truoc khi tien het --")
-    from thi_bac_ty.chan_doan_he import (NGUONG_GHE_DAY, NGUONG_PHAN_GHE_BE,
-                                         chan_doan_he)
+    print("\n-- GHE VA VON: ghe day KHONG nghia la von da vao viec --")
+    from thi_bac_ty.chan_doan_he import chan_doan_he
     from thi_bac_ty.trung_uong import NGUONG_GHE_BE
     from thi_bac_ty.danh_muc import ViThe
     from thi_bac_ty.trung_uong import TrungUong
@@ -12315,56 +12443,63 @@ def kiem_ghe_khan_hon_tien() -> None:
          gan(g["tiLeGheDay"], 10 / 10.0) and g["conGhe"] == 0,
          str(g))
 
-    # ── câu chẩn: ba cửa phải cùng mở ──────────────────────────────────
-    def _anh(**kw):
+    # ── câu chẩn `tran-vi-the-chan` phải MANG con số ghế ───────────────
+    def _anh(gv=None, ty=None):
+        _p = [{"ho": "thanh-khoan", "lyDoTuChoi": [
+            {"ma": "tran-vi-the",
+             "lyDo": "tran-vi-the: đã đủ 10.0 vị thế", "so": 25}]}]
         o = {"soDangKy": {"pheu": {"phatHien": 400, "DUYET_TY": 80,
-                                   "DUYET_RUI_RO": 40, "DA_CAP_VON": 40}},
+                                   "DUYET_RUI_RO": 40, "DA_CAP_VON": 40,
+                                   "DA_MO": 40}},
              "danhMuc": {"tiLeDungVon": 0.5, "soViThe": 10},
+             "pheuDayDu": {"theoHo": _p},
              "vonRanh": {"tiLeRanhTrenKhaDung": 0.3,
                          "ranhNgoaiDuTruUsd": 30_000.0,
-                         "tiLeDuTru": 0.2},
-             "gheVaVon": dict(g)}
-        o["gheVaVon"].update(kw)
+                         "tiLeDuTru": 0.2}}
+        if gv is not None:
+            o["gheVaVon"] = gv
+        if ty is not None:
+            o["ty"] = ty
         return o
 
-    t = [x for x in chan_doan_he(_anh()) if x.ma == "ghe-khan-hon-tien"]
-    kiem("ghế đầy + tiền nằm không + phần lớn ghế bé ⇒ NÊU RA",
-         len(t) == 1 and t[0].bangChung["soGheBe"] == 8,
-         f"{[x.ma for x in chan_doan_he(_anh())]}")
-    kiem("và câu chẩn nói cả TRUNG VỊ lẫn PHẦN CHIA — thiếu một là vô nghĩa",
-         ("1,000" in t[0].moTa or "500" in t[0].moTa)
-         and "8,000" in t[0].moTa,
-         f"{t[0].moTa[:300]} — «ghế giữ 500 USD» không nói gì nếu không "
-         f"biết một ghế đáng bao nhiêu")
-    kiem("núm khai RỖNG — ba đường đi, máy không chọn hộ chủ đường nào",
-         t[0].nutGoiY == [],
-         f"{t[0].nutGoiY} — nới sức chứa mỗi cơ hội, hay chấp nhận ít ghế "
-         f"nặng hơn, cũng là lối ra; khai một núm là làm hai lối kia "
-         f"vô hình")
+    t = [x for x in chan_doan_he(_anh(gv=dict(g)))
+         if x.ma == "tran-vi-the-chan"]
+    kiem("trần vị thế chặn ⇒ câu chẩn MANG theo con số ghế",
+         len(t) == 1 and t[0].bangChung.get("soGheBe") == 8
+         and "8/10 ghế giữ dưới" in t[0].moTa,
+         f"{t[0].moTa if t else [x.ma for x in chan_doan_he(_anh(gv=g))]}")
+    kiem("và nói cả TRUNG VỊ lẫn PHẦN CHIA — thiếu một là vô nghĩa",
+         "500" in t[0].moTa and "8,000" in t[0].moTa,
+         f"{t[0].moTa} — «ghế giữ 500 USD» không nói gì nếu không biết "
+         f"một ghế đáng bao nhiêu")
+    kiem("và nói thẳng: ghế đầy KHÔNG có nghĩa vốn đã vào việc",
+         "KHÔNG có nghĩa vốn đã vào việc" in t[0].moTa,
+         f"{t[0].moTa} — đó là nửa bức tranh mà câu chẩn cũ bỏ sót")
 
-    kiem("ghế CHƯA đầy thì im — còn chỗ thì tiền nằm không là chuyện khác",
-         not [x for x in chan_doan_he(_anh(tiLeGheDay=0.5))
-              if x.ma == "ghe-khan-hon-tien"],
-         f"ngưỡng {NGUONG_GHE_DAY:.0%}")
-    kiem("tiền KHÔNG nằm không thì im — ghế đầy mà tiền hết là đúng việc",
-         not [x for x in chan_doan_he(
-                 {**_anh(), "vonRanh": {"tiLeRanhTrenKhaDung": 0.01,
-                                        "ranhNgoaiDuTruUsd": 100.0}})
-              if x.ma == "ghe-khan-hon-tien"],
-         "ghế đầy vì tiền đã vào hết là cỗ máy chạy đúng")
-    kiem("ghế đầy bằng vị thế TO thì im — chỗ ngồi đang được dùng đáng giá",
-         not [x for x in chan_doan_he(_anh(soGheBe=1))
-              if x.ma == "ghe-khan-hon-tien"],
-         f"ngưỡng {NGUONG_PHAN_GHE_BE:.0%} số ghế phải là ghế bé; vài ghế "
-         f"bé là chuyện bình thường — pool nhỏ thì vị thế nhỏ")
-    kiem("chưa khai trần ghế thì KHÔNG kết luận, không đọc thành ghế rỗng",
-         not [x for x in chan_doan_he(
-                 {**_anh(), "gheVaVon": {"soDangDung": 10, "soGhe": None,
-                                         "tiLeGheDay": None,
-                                         "soGheBe": None}})
-              if x.ma == "ghe-khan-hon-tien"],
-         "chia cho một trần bằng 0 không phải «ghế rỗng» mà là «chưa khai "
-         "trần»")
+    # Ty giữ nhiều ghế bé nhất còn THẢ RA được mấy cơ hội — con số quyết
+    # định «nâng trần có giúp được không», và nó không suy ra được từ
+    # phần trên.
+    t2 = [x for x in chan_doan_he(_anh(
+        gv=dict(g),
+        ty=[{"ma": "amm.fee_farming.v1", "ho": "thanh-khoan",
+             "soCoHoi": 78_120, "soQuaCongTy": 16}]))
+        if x.ma == "tran-vi-the-chan"]
+    kiem("và khai luôn cổng của CHÍNH TY ấy còn thả ra được mấy cơ hội",
+         ("78,120" in t2[0].moTa and "16 qua nổi" in t2[0].moTa),
+         f"{t2[0].moTa[-320:]} — thêm ghế chỉ giúp tới mức cổng ty còn "
+         f"thả ra; không có con số này thì «nâng trần» nghe như một lối "
+         f"ra chắc chắn")
+
+    # KHÔNG có bảng ghế thì IM về ghế, chứ không bịa
+    t3 = [x for x in chan_doan_he(_anh()) if x.ma == "tran-vi-the-chan"]
+    kiem("ảnh chụp KHÔNG có bảng ghế thì câu chẩn im về ghế, không bịa",
+         (len(t3) == 1 and "ghế giữ dưới" not in t3[0].moTa
+          and t3[0].bangChung.get("soGheBe") is None),
+         f"{t3[0].moTa if t3 else t3}")
+    kiem("nhưng vẫn nêu ĐÚNG chuyện trần vị thế đang chặn",
+         t3[0].bangChung.get("maTuChoi") == "tran-vi-the"
+         and t3[0].nutGoiY == ["phanBo.toiDaSoViThe"],
+         str(t3[0].bangChung))
 
 
 def kiem_bang_chung_song() -> None:
@@ -13226,7 +13361,8 @@ def main() -> int:
     kiem_cua_so_mu()
     kiem_vong_nhip()
     kiem_bang_chung_song()
-    kiem_ghe_khan_hon_tien()
+    kiem_ghe_va_von()
+    kiem_xoay_cho_dem_dung()
 
     print("\n" + "=" * 70)
     if _loi:

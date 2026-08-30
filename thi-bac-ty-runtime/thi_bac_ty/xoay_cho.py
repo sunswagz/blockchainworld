@@ -347,6 +347,12 @@ def do_xoay_cho(soViThe: dict, toTrinhMoi: list, gioHienTai: float,
                 # hứa bị cắt» — đọc đúng thành «trần này chẳng làm gì»,
                 # trong khi nó vừa chặn tất cả. Một cửa chặn lặng lẽ là
                 # một cửa không ai biết mà xem lại.
+                # `<` hay `<=` ở đây cho cùng kết quả — con đột biến ấy
+                # TƯƠNG ĐƯƠNG. Bằng nhau nghĩa là trần không kẹp gì, nên
+                # `laiKhai == lai`, mà nhánh này chỉ chạy khi `lai <= phi`
+                # — cửa `laiKhai > phi` ngay dưới chặn nốt. Giữ `<` vì nó
+                # nói đúng ý định; ghi lại để lượt quét sau khỏi đi tìm
+                # một phép kiểm không tồn tại.
                 if chung < chungKhai:
                     laiKhai = (von * (aprMoi - aprCu) / 100.0
                                * (chungKhai / NAM_GIO))
