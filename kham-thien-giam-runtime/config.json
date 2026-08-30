@@ -133,6 +133,7 @@
   },
 
   "nguon": {
+  "//proxyChanDoan": "DO 30/08/2026, chi tiet hon ghi chu tren — bo loc nham theo TEN MAY, khong phai theo mien cung khong phai theo IP. DNS phan giai BINH THUONG. `docs.polymarket.com` (IP 66.33.60.67 / 76.76.21.98, Vercel) THONG, va `poly.market` (64.239.109.65) cung THONG — no tra 301 ve `polymarket.com`. Con `polymarket.com`, `gamma-api`, `clob`, `data-api`, `ws-subscriptions-clob`, `neg-risk-api` deu chet o BAT TAY TLS (tls=0.000000s, tuc handshake chua tung xong). Dang chu y: `polymarket.com` va `gamma-api.polymarket.com` phan giai ve CUNG cap IP Cloudflare 104.18.34.205 / 172.64.153.51 — chan ca dai IP ay se lam hong pha nua Internet, nen gan nhu chac chan bo loc doc SNI va khop dung mot danh sach ten may. He qua thuc te: doi DNS khong giup, doi IP khong giup; chi mot loi ra khac (khai o `proxy` ben duoi) moi di duoc. Day la chuyen cua duong mang, khong phai cua ma.",
     "//proxy": "Lối ra cho mọi lời gọi HTTP. Để rỗng thì dùng đường mạng thẳng, và runtime vẫn tôn trọng biến môi trường HTTPS_PROXY. Khai ở đây khi đường thẳng tới sàn không đi được — 21-28/08/2026 cả ba host polymarket.com đều bị đóng ở tầng TLS từ máy này (TCP 443 bắt tay xong mới bị giết, chỉ nhắm đúng tên miền ấy; Binance bình thường). Lối đang dùng hiện ngay trên bảng Sức khoẻ nguồn, để không ai phải đoán runtime đi đường nào.",
     "proxy": "",
     "polymarketGamma": "https://gamma-api.polymarket.com",
