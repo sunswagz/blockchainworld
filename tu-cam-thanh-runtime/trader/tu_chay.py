@@ -23,7 +23,9 @@ from pathlib import Path
 from .bus import bus
 from .config import ROOT
 
-TEN_LNK = "Tu Cam Thanh - runtime.lnk"   # ASCII: COM WScript.Shell không tạo
+_LAN_LNK = (os.environ.get("TCT_LAN") or "chinh").strip() or "chinh"
+TEN_LNK = ("Tu Cam Thanh - runtime.lnk" if _LAN_LNK == "chinh"
+           else f"Tu Cam Thanh - {_LAN_LNK}.lnk")   # ASCII: COM WScript.Shell không tạo
                                           # nổi file tên có dấu (ép về ANSI rồi
                                           # ném FileNotFoundException)
 # Cờ báo bộ giám sát: đừng dựng lại. Tên mang HẬU TỐ LÀN đúng như
@@ -94,7 +96,11 @@ def dat(bat: bool) -> dict:
         "$s = New-Object -ComObject WScript.Shell; "
         f"$k = $s.CreateShortcut('{lnk}'); "
         f"$k.TargetPath = '{_pythonw()}'; "
-        "$k.Arguments = 'dichvu\\chay-nen.py'; "
+        # Lối tắt của LÀN nào thì gọi đúng làn ấy. .lnk không đặt được biến
+        # môi trường, nên cờ dòng lệnh là đường duy nhất.
+        "$k.Arguments = 'dichvu\\chay-nen.py"
+        + ("" if _LAN_LNK == "chinh" else f" --lan {_LAN_LNK}")
+        + "'; "
         f"$k.WorkingDirectory = '{ROOT}'; "
         "$k.WindowStyle = 7; "
         "$k.Description = 'Runtime giao dich Tu Cam Thanh'; "

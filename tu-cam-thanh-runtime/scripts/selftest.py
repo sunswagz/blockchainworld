@@ -1188,6 +1188,18 @@ async def main() -> int:
                  "trang-thai-demo.json", "dung-lai-demo"):
         check(_c53 in _cn53, f"cập nhật giữ lại `{_c53}`")
 
+    # TỰ CHẠY LÚC ĐĂNG NHẬP. Lối tắt .lnk không đặt được biến môi trường, nên
+    # `chay-nen.py --lan demo` phải tự đặt chúng — nếu không, làn demo không
+    # sống qua một lần khởi động lại máy, và phép đo 6 tuần chết ở tuần đầu.
+    check('if "--lan" in sys.argv' in _gs53,
+          "bộ giám sát nhận cờ --lan (lối tắt Startup không đặt được biến)")
+    check('os.environ["TCT_DATA_DIR"] = str(GOC / "data-hai-chieu")' in _gs53,
+          "cờ --lan demo GÁN THẲNG biến, không setdefault — cờ phải thắng "
+          "biến kế thừa, đúng chỗ đã ba lần đưa dữ liệu giả vào sổ thật")
+    _lnk53 = ma_khong_chu_thich(ROOT / "trader" / "tu_chay.py")
+    check("_LAN_LNK" in _lnk53 and "--lan {_LAN_LNK}" in _lnk53,
+          "lối tắt tự chạy mang tên VÀ cờ của làn — hai làn không đè .lnk nhau")
+
 
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.

@@ -45,6 +45,24 @@ GOC = Path(__file__).resolve().parent.parent      # tu-cam-thanh-runtime/
 #
 # Giữ NGUYÊN tên file cũ cho làn chính: `dung.ps1`, `trang-thai.ps1`,
 # `cap-nhat.ps1` và `chuyen-nha.ps1` đều trỏ thẳng vào `dichvu/trang-thai.json`.
+# `--lan demo` phải dựng được LÀN DEMO mà không cần ai đặt biến môi trường —
+# lối tắt .lnk trong thư mục Startup không đặt được biến, và tự chạy lúc đăng
+# nhập là thứ duy nhất giúp phép đo sống qua một lần khởi động lại máy.
+#
+# GÁN THẲNG, không `setdefault`. Cờ dòng lệnh phải THẮNG biến kế thừa: dùng
+# `setdefault` ở đây là lặp lại đúng lỗi đã ba lần đưa dữ liệu giả vào sổ thật —
+# một biến sót trong môi trường lặng lẽ đè lên thứ người gọi vừa yêu cầu.
+if "--lan" in sys.argv:
+    _l = sys.argv[sys.argv.index("--lan") + 1].strip()
+    if _l == "demo":
+        os.environ["TCT_LAN"] = "demo"
+        os.environ["TCT_CONFIG"] = "config-hai-chieu.json"
+        os.environ["TCT_DATA_DIR"] = str(GOC / "data-hai-chieu")
+        os.environ["TCT_LAN_DEMO"] = "1"
+        os.environ["BRAIN"] = "mock"
+    elif _l != "chinh":
+        raise SystemExit(f"--lan chỉ nhận 'chinh' hoặc 'demo', không phải {_l!r}")
+
 LAN = (os.environ.get("TCT_LAN") or "chinh").strip() or "chinh"
 _HAU = "" if LAN == "chinh" else f"-{LAN}"
 
