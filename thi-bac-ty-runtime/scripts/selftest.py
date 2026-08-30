@@ -13079,6 +13079,96 @@ def kiem_vong_nhip() -> None:
          f"kiểm này đang canh một cái vỏ")
 
 
+def kiem_rui_ro_tong_so_hoc() -> None:
+    """Mỗi cái TRẦN là `NAV × phần trăm`, và bốn cái chưa ai canh phép nhân.
+
+    Lượt quét `--so-hoc` trên `thi_bac_ty/rui_ro_tong.py` — cổng quyết
+    định tiền có được cam kết hay không — để sống **8/28**. Bốn con là
+    cùng một hình dạng, và là hình dạng đắt nhất ở lớp này:
+
+        hep(nav * c["tranTongDungVon"] - danh_muc.daCamKetUsd, …)
+        hep(nav * c["tranMotCang"]     - pn_cang[ch.cang],     …)
+        hep(nav * c["tranMotTaiSanTho"] - pn_tho[ch.taiSan],   …)
+        hep(nav * c["tranMotChuoi"]    - pn_chuoi[ch.chuoi],   …)
+
+    Mọi phần trăm ở đây đều **nhỏ hơn 1**, nên chia thay vì nhân làm trần
+    RỘNG RA — 20% của 1.000 là 200, còn `1.000 / 0,2` là 5.000. Cổng an
+    toàn hoá thành cổng mở, và nó mở đúng theo hệ số mà người vận hành
+    tưởng mình đang siết.
+
+    Vì sao chúng sống sót cả một bộ kiểm: trong mọi ca có sẵn, cái trần
+    CHẶT NHẤT là một cái khác (`tranMotCoHoi`, hoặc tiền mặt). Trần nào
+    không quyết thì đổi nó không đổi kết quả. Nên mỗi phép kiểm dưới đây
+    nới hết các trần khác ra và để ĐÚNG MỘT cái quyết định.
+
+    Con thứ năm là `hep(con / abs(hs), …)` — chia cho hệ số lệch. Mọi ca
+    có sẵn dùng vị thế một chiều, tức `hs = 1`, và `chia 1` bằng `nhân
+    1`. Cùng cái bẫy «giá trị vô hại» với `giuGio = 24` và `bienAnToan =
+    1,0`: phải dựng một tờ trình HAI CHÂN CÙNG CHIỀU để `hs = 2`.
+    """
+    print(chr(10) + "-- RUI RO TONG: tran = NAV NHAN phan tram --")
+    from thi_bac_ty.danh_muc import DanhMuc, ViThe
+    from thi_bac_ty.rui_ro_tong import RuiRoTong
+    from thi_bac_ty.to_trinh import Chan
+
+    #: Nới HẾT mọi trần trừ cái đang đo. `tranMotCoHoi = 1,0` là chỗ then
+    #: chốt — mặc định 0,15 của nó chặn trước mọi trần khác, và đó chính
+    #: là lý do bốn con kia sống sót.
+    def _rrt(**tran):
+        return RuiRoTong({"tranMotCoHoi": 1.0, "tranTongDungVon": 1.0,
+                          "tranMotCang": 1.0, "tranMotTaiSanTho": 1.0,
+                          "tranMotTaiSanRong": 1.0, "tranMotChuoi": 1.0,
+                          "tranMotTy": 1.0, **tran})
+
+    def _tt(chan=None, chuoi=None):
+        c = chan or (Chan("LONG", "hyperliquid", "BTC", loai="perp",
+                          chuoi=chuoi),
+                     Chan("SHORT", "binance", "BTC", loai="perp",
+                          chuoi=chuoi))
+        return _mau(von=10_000.0, chua=10_000.0, thoat=10_000.0, chan=c)
+
+    # ── trần TỔNG DÙNG VỐN: 30% của 1.000 là 300, không phải 3.333 ────
+    dm = DanhMuc(1_000.0)
+    pq = _rrt(tranTongDungVon=0.3).xet(_tt(), dm)
+    kiem("trần tổng dùng vốn = NAV NHÂN phần trăm",
+         pq.duyet and gan(pq.choToiDaUsd, 300.0),
+         f"{pq.choToiDaUsd} — chia thay vì nhân cho 3.333, và tiền mặt "
+         f"1.000 sẽ thành cái trần duy nhất còn chặn")
+
+    # ── trần MỘT CẢNG ────────────────────────────────────────────────
+    pq = _rrt(tranMotCang=0.2).xet(_tt(), DanhMuc(1_000.0))
+    kiem("trần một cảng = NAV NHÂN phần trăm",
+         pq.duyet and gan(pq.choToiDaUsd, 200.0), f"{pq.choToiDaUsd}")
+
+    # ── trần TÀI SẢN THÔ, và nó TRỪ phần đang giữ ────────────────────
+    dm2 = DanhMuc(1_000.0)
+    dm2.cam_ket("CU", [ViThe("CU", "x.y.v1", "LONG", "okx", "BTC", 100.0)])
+    pq = _rrt(tranMotTaiSanTho=0.25).xet(_tt(), dm2)
+    kiem("trần tài sản thô = NAV × phần trăm TRỪ phần đang giữ",
+         pq.duyet and gan(pq.choToiDaUsd, 150.0),
+         f"{pq.choToiDaUsd} — 25% của 1.000 là 250, đã giữ 100, còn 150")
+
+    # ── trần MỘT CHUỖI ───────────────────────────────────────────────
+    pq = _rrt(tranMotChuoi=0.1).xet(_tt(chuoi="arbitrum"), DanhMuc(1_000.0))
+    kiem("trần một chuỗi = NAV NHÂN phần trăm",
+         pq.duyet and gan(pq.choToiDaUsd, 100.0), f"{pq.choToiDaUsd}")
+
+    # ── trần RÒNG chia cho HỆ SỐ LỆCH, và hệ số ấy phải khác 1 ───────
+    #
+    # Hai chân CÙNG CHIỀU trên cùng tài sản: mỗi đô rót vào làm lệch
+    # danh mục HAI đô. Trần ròng 40% của 1.000 là 400, nên chỉ được rót
+    # 200 — chia cho hệ số, không nhân.
+    hai_long = (Chan("LONG", "binance", "BTC", loai="perp"),
+                Chan("LONG", "okx", "BTC", loai="perp"))
+    pq = _rrt(tranMotTaiSanRong=0.4).xet(_tt(chan=hai_long),
+                                         DanhMuc(1_000.0))
+    kiem("trần ròng CHIA cho hệ số lệch, không nhân",
+         pq.duyet and gan(pq.choToiDaUsd, 200.0),
+         f"{pq.choToiDaUsd} — hai chân cùng chiều thì mỗi đô rót vào làm "
+         f"lệch hai đô; nhân thay vì chia cho 800, tức gấp bốn lần chỗ "
+         f"thật sự còn")
+
+
 def kiem_hieu_nang_so_hoc() -> None:
     """Đường NAV: đơn vị THỜI GIAN, và cái đồng hồ khi không ai truyền mốc.
 
@@ -13914,6 +14004,7 @@ def main() -> int:
     kiem_moc_qua()
     kiem_dong_ho_so_hoc()
     kiem_hieu_nang_so_hoc()
+    kiem_rui_ro_tong_so_hoc()
     kiem_cua_so_mu()
     kiem_vong_nhip()
     kiem_loc_bao_gia()
