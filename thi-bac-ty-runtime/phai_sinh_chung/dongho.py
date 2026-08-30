@@ -113,6 +113,11 @@ def dem_moc(nowMs: float, giuGio: float, mocKeMs: int | None,
         dau = float(mocKeMs)
         # Sàn có thể trả về một mốc đã trôi qua (đồng hồ lệch, hoặc dữ liệu
         # cũ). Kéo nó về mốc kế tiếp còn ở phía trước thay vì đếm âm.
+        #
+        # `<` hay `<=` cho cùng kết quả — con đột biến ấy TƯƠNG ĐƯƠNG.
+        # Bằng nhau thì `thieu = ceil(0 / bước) = 0`, nên `dau` không
+        # nhích đi đâu. Ghi lại để lượt quét sau khỏi đi tìm một phép
+        # kiểm không tồn tại.
         if dau < nowMs:
             thieu = math.ceil((nowMs - dau) / buocMs)
             dau += thieu * buocMs

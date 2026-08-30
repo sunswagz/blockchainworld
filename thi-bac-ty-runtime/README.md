@@ -1182,7 +1182,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 1954 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 1966 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 node scripts/kiem-buong-lai.mjs  # 58 phép: 10 trang + 7 khối tầng ba,
                                  #   × 3 mẫu; khoá đọc/sinh có khớp

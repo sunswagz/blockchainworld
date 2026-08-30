@@ -13046,6 +13046,95 @@ def kiem_vong_nhip() -> None:
          f"kiểm này đang canh một cái vỏ")
 
 
+def kiem_dong_ho_so_hoc() -> None:
+    """Phép ĐẾM MỐC: các con SỐ, không chỉ các cửa.
+
+    Lượt quét đột biến có cờ `--so-hoc` (lật cả `+ - * /`) trên
+    `phai_sinh_chung/dongho.py` — mô-đun quyết định bao nhiêu funding
+    được tính — cho **9/31 sống sót**, và phần lớn là số học:
+
+        dau = nowMs + buocMs / 2.0          ước mốc nằm GIỮA chu kỳ
+        cuoi = dau + (so - 1) * buocMs      mốc CUỐI của cửa sổ
+        (dau - nowMs) / 1000.0              còn bao lâu tới đồng xu đầu
+        dau = cuoi - (so - 1) * buocMs      mốc ĐẦU, bản nhìn về quá khứ
+        (lich.choMocDauGiay or 0.0) / 3600  giờ giữ tối thiểu
+
+    Bảng lật chỉ có toán tử SO SÁNH thì không con nào trong số ấy tồn
+    tại, và tờ phiếu của mô-đun này trông sạch. Đây đúng là chỗ mù mà
+    `--so-hoc` sinh ra để soi: một mô-đun toàn phép TÍNH thì phép so
+    sánh không nói gì về nó.
+    """
+    print("\n-- DONG HO: cac con SO cua phep dem moc --")
+    from phai_sinh_chung.dongho import (GIO_MS, dem_moc, dem_moc_qua,
+                                        gio_giu_toi_thieu)
+
+    T = 1_800_000_000_000.0
+    H = GIO_MS
+    IV = 8.0
+
+    # ── ƯỚC mốc: giữa chu kỳ, không phải hai chu kỳ nữa ────────────────
+    l = dem_moc(T, 5.0, None, IV)
+    kiem("sàn không cho mốc kế thì ĐOÁN nó nằm GIỮA chu kỳ",
+         l.uocLuong is True and l.soMoc == 1
+         and gan(l.choMocDauGiay, IV / 2.0 * 3600.0, 1e-6),
+         f"{l} — giữa chu kỳ 8 giờ là 4 giờ nữa; nhân thay vì chia ở đó "
+         f"đẩy mốc ra 16 giờ và mọi cửa sổ ngắn hoá thành «không mốc "
+         f"nào», tức mọi cơ hội funding tụt về 0 trong im lặng")
+    kiem("giữ chưa tới nửa chu kỳ thì bản ĐOÁN nói KHÔNG chạm mốc nào",
+         dem_moc(T, 3.0, None, IV).soMoc == 0,
+         "4 giờ nữa mới tới mốc, mà chỉ giữ 3 giờ")
+
+    # ── MỐC CUỐI và MỐC ĐẦU: nhân, không phải chia ────────────────────
+    l = dem_moc(T, 24.0, int(T), IV)
+    kiem("cửa sổ 24 giờ trên chu kỳ 8 giờ: 4 mốc, mốc cuối ở đúng +24h",
+         (l.soMoc == 4 and l.mocDauMs == int(T)
+          and l.mocCuoiMs == int(T + 24.0 * H)),
+         f"{l} — mốc cuối = đầu + (số mốc − 1) × bước; chia thay vì nhân "
+         f"đặt nó cách đầu vài phần nghìn giây")
+
+    lq = dem_moc_qua(T - 24.0 * H, T, int(T + 2.0 * H), IV)
+    kiem("nhìn LÙI 24 giờ: 3 mốc, và mốc ĐẦU cách mốc cuối đúng 2 bước",
+         (lq.soMoc == 3 and lq.mocCuoiMs == int(T - 6.0 * H)
+          and lq.mocDauMs == int(T - 22.0 * H)),
+         f"{lq} — lưới mốc là …, T−22h, T−14h, T−6h, T+2h")
+
+    # ── CÒN BAO LÂU tới đồng xu đầu tiên: giây, không phải mili giây ──
+    l = dem_moc(T, 2.0, int(T + H), IV)
+    kiem("chờ mốc đầu tính bằng GIÂY, không phải mili giây",
+         gan(l.choMocDauGiay, 3600.0),
+         f"{l.choMocDauGiay} — nhân 1.000 thay vì chia làm con số ấy "
+         f"thành 3,6 tỉ, và buồng lái nói «chờ một triệu giờ»")
+    kiem("và `gio_giu_toi_thieu` quy nó ra GIỜ",
+         gan(gio_giu_toi_thieu(T, int(T + H), IV), 1.0),
+         f"{gio_giu_toi_thieu(T, int(T + H), IV)}")
+    kiem("mốc ĐANG ở đây thì giờ giữ tối thiểu là 0, không phải None",
+         gio_giu_toi_thieu(T, int(T), IV) == 0.0,
+         "`or 0.0` giữ số 0 lại; đổi thành `and` là trả về `None` rồi "
+         "chia — và buồng lái mất hẳn dòng «giữ dưới N giờ thì thu 0»")
+
+    # ── ĐẦU VÀO Ở MÉP: giữ 0 giờ là hợp lệ, chu kỳ 0 thì không ────────
+    kiem("giữ ĐÚNG 0 giờ vẫn hợp lệ, và mốc ĐANG ở đây thì vẫn tính",
+         dem_moc(T, 0.0, int(T), IV).soMoc == 1,
+         "«giữ 0 giờ» là câu hỏi thật của `gio_giu_toi_thieu`; ném ở đó "
+         "là giết luôn con số buồng lái đang hiện")
+    for ten, f in (("giữ ÂM", lambda: dem_moc(T, -1.0, int(T), IV)),
+                   ("chu kỳ 0", lambda: dem_moc(T, 1.0, int(T), 0.0)),
+                   ("chu kỳ ÂM", lambda: dem_moc(T, 1.0, int(T), -8.0))):
+        try:
+            f()
+            _n = False
+        except ValueError:
+            _n = True
+        kiem(f"{ten} thì ném ValueError", _n,
+             "trả 0 ở đây là để một cấu hình hỏng chảy vào sổ cái dưới "
+             "dạng «ty này không thu được gì»")
+
+    kiem("cửa sổ DÀI 0 giây khi nhìn lùi là hợp lệ, và chứa 0 mốc",
+         dem_moc_qua(T, T, int(T + IV * H), IV).soMoc == 0,
+         "hai vòng kế toán sát nhau cho `tu == den`; ném ở đó là giết "
+         "cả vòng vì một chuyện bình thường")
+
+
 def kiem_moc_qua() -> None:
     """Kế toán funding phải đếm mốc ĐÃ RƠI, không mốc SẮP TỚI.
 
@@ -13708,6 +13797,7 @@ def main() -> int:
     kiem_khong_trung_ten()
     kiem_ranh_gioi_ke_toan()
     kiem_moc_qua()
+    kiem_dong_ho_so_hoc()
     kiem_cua_so_mu()
     kiem_vong_nhip()
     kiem_loc_bao_gia()
