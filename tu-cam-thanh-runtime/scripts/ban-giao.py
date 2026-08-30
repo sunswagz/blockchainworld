@@ -176,9 +176,21 @@ def _so(nay: dict, truoc: dict) -> list[str]:
     return ra or ["Không có gì đổi kể từ lần bàn giao trước."]
 
 
-# Ngưỡng "im lặng đáng báo động", tính bằng giờ. Vòng lặp chạy 20 giây một lượt,
-# nên hơn một giờ không ghi gì là đã có chuyện.
+# Ngưỡng "im lặng đáng báo động", tính bằng giờ.
+#
+# Tiền đề cũ SAI: "vòng lặp chạy 20 giây một lượt nên hơn một giờ không ghi gì
+# là đã có chuyện". Chỉ `bus.log` mới in ra stdout — `bus.emit` thì không — nên
+# nhật ký chỉ nhận SỰ KIỆN ĐÁNG GHI: đổi chế độ, vào lệnh, bị chặn, lỗi. Bot giữ
+# ba vị thế trong một phiên yên ắng thì im hàng giờ là bình thường.
+#
+# Đã báo động nhầm lúc 08:59 ngày 30/08: bàn giao in "⚠ BOT KHÔNG CHẠY — NHẬT KÝ
+# IM 1,3 GIỜ" trong khi cả bộ giám sát lẫn runtime đều sống và cổng vẫn trả lời.
+# Một ⚠ cho thứ không gãy là cách nhanh nhất dạy người ta bỏ qua ⚠.
+#
+# Nên nhật ký im KHÔNG còn là bằng chứng chết khi CỔNG CÒN TRẢ LỜI — lúc ấy nó
+# chỉ là một dòng ghi chú, và ngưỡng rộng hơn hẳn.
 IM_LANG_GIO = 1.0
+IM_LANG_DU_SONG_GIO = 6.0
 
 
 # Kho đo + số giờ sau đó coi là CŨ. Ngưỡng khác nhau vì nhịp đổi khác nhau:
@@ -521,20 +533,29 @@ def _con_song() -> list[str]:
     import time as _t
 
     ra = []
-    nk = DATA_DIR / "nhat-ky" / "runtime.log"
-    if nk.exists():
-        gio = (_t.time() - nk.stat().st_mtime) / 3600
-        if gio > IM_LANG_GIO:
-            ngay = int(gio // 24)
-            ra.append(f"**NHẬT KÝ IM {gio:.1f} GIỜ" + (f" ({ngay} ngày)" if ngay else "")
-                      + f".** Dòng cuối lúc "
-                      + _dt.datetime.fromtimestamp(nk.stat().st_mtime).isoformat(timespec="minutes")
-                      + ". Vòng lặp chạy 20 giây một lượt, nên im quá một giờ là đã dừng.")
-    else:
-        ra.append("**KHÔNG CÓ NHẬT KÝ** — runtime chưa từng chạy trên máy này.")
-
     cong = 5182
-    if not _cong_tra_loi(cong):
+    song = _cong_tra_loi(cong)
+    nk = DATA_DIR / "nhat-ky" / "runtime.log"
+    if not nk.exists():
+        ra.append("**KHÔNG CÓ NHẬT KÝ** — runtime chưa từng chạy trên máy này.")
+    else:
+        gio = (_t.time() - nk.stat().st_mtime) / 3600
+        ngay = int(gio // 24)
+        _luc = _dt.datetime.fromtimestamp(
+            nk.stat().st_mtime).isoformat(timespec="minutes")
+        if not song and gio > IM_LANG_GIO:
+            ra.append(f"**NHẬT KÝ IM {gio:.1f} GIỜ"
+                      + (f" ({ngay} ngày)" if ngay else "")
+                      + f".** Dòng cuối lúc {_luc}.")
+        elif song and gio > IM_LANG_DU_SONG_GIO:
+            ra.append(f"Nhật ký im {gio:.1f} giờ"
+                      + (f" ({ngay} ngày)" if ngay else "")
+                      + f" (dòng cuối {_luc}) NHƯNG cổng "
+                      f"{cong} vẫn trả lời — bot đang chạy. Chỉ `bus.log` mới ra "
+                      f"nhật ký, nên im lâu nghĩa là không có sự kiện đáng ghi, "
+                      f"không phải đã dừng. Đáng ngó qua, không đáng báo động.")
+
+    if not song:
         ra.append(f"**CỔNG {cong} KHÔNG TRẢ LỜI.** Bot đang TẮT. Bật lại: "
                   f"`powershell -File dichvu/bat.ps1` hoặc bấm icon Tử Cấm Thành.")
 

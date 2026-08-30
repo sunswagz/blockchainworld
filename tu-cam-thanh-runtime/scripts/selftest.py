@@ -714,9 +714,25 @@ async def main() -> int:
     _f.write_text("x", encoding="utf-8")
     _cu = _tg.time() - 3 * 86400
     os.utime(_f, (_cu, _cu))
+    # HAI NHÁNH, và chúng nói hai chuyện khác nhau.
+    #
+    # Cổng CHẾT + nhật ký cũ ⇒ bằng chứng bot đã dừng, báo động thật.
+    # Cổng SỐNG + nhật ký cũ ⇒ chỉ là không có sự kiện đáng ghi: `bus.emit`
+    # không in ra stdout, chỉ `bus.log` in. Bản trước gộp hai ca và in "⚠ BOT
+    # KHÔNG CHẠY" lúc 08:59 ngày 30/08 trong khi mọi thứ đều sống.
+    BG._cong_tra_loi = lambda cong: False
     canh2 = BG._con_song()
     check(any("IM" in x and "ngày" in x for x in canh2),
-          f"nhật ký cũ 3 ngày → báo im lặng kèm số ngày")
+          "cổng CHẾT + nhật ký cũ 3 ngày → báo im lặng kèm số ngày")
+    check(any("KHÔNG TRẢ LỜI" in x for x in canh2),
+          "và nói luôn cổng không trả lời")
+
+    BG._cong_tra_loi = lambda cong: True
+    canh3 = BG._con_song()
+    check(not any(x.startswith("**") for x in canh3),
+          f"cổng SỐNG + nhật ký cũ → KHÔNG báo động ({canh3})")
+    check(any("vẫn trả lời" in x and "ngày" in x for x in canh3),
+          "mà chỉ ghi chú, có nói rõ cổng vẫn trả lời")
 
     # Và cửa ngược lại: nhật ký vừa ghi xong thì KHÔNG được kêu.
     os.utime(_f, None)
@@ -1181,6 +1197,22 @@ async def main() -> int:
           "bàn giao có mục làn demo và canh cổng của nó")
     check("keo-lui-short-tien-tuong" in _bg53,
           "bàn giao gọi thẳng tên giả thuyết đang chờ, không nói chung chung")
+
+    # NHẬT KÝ IM ≠ BOT CHẾT. Chỉ `bus.log` mới ra stdout — `bus.emit` thì không
+    # — nên nhật ký chỉ nhận sự kiện ĐÁNG GHI. Bot giữ ba vị thế trong phiên yên
+    # ắng thì im hàng giờ là bình thường.
+    #
+    # Đã báo động nhầm 08:59 ngày 30/08: bàn giao in "⚠ BOT KHÔNG CHẠY — NHẬT KÝ
+    # IM 1,3 GIỜ" trong khi giám sát, runtime và cổng đều sống.
+    check("IM_LANG_DU_SONG_GIO" in _bg53,
+          "bàn giao có ngưỡng riêng cho ca «im nhưng cổng còn trả lời»")
+    check("if not song and gio > IM_LANG_GIO" in _bg53,
+          "nhật ký im chỉ tính là BẰNG CHỨNG CHẾT khi cổng cũng không trả lời")
+    _bus53 = ma_khong_chu_thich(ROOT / "trader" / "bus.py")
+    _i53b = _bus53.find("def emit")
+    _j53b = _bus53.find("def log")
+    check(_i53b >= 0 and _j53b >= 0 and "print(" not in _bus53[_i53b:_j53b],
+          "tiền đề vẫn đúng: bus.emit KHÔNG in ra stdout, chỉ bus.log in")
 
     # LÒ LUYỆN sinh ra CHALLENGER, và challenger sẽ được bot CHẠY THẬT trên sàn
     # spot. Dò trong không gian hai chiều là tối ưu cho một cỗ máy khác — một
