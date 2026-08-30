@@ -1172,6 +1172,96 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_cham_moc() -> None:
+    """Biên của động cơ CHẠM MỐC — nặng nhất là "đỉnh ĐÚNG BẰNG mốc".
+
+    Bộ quét đột biến: 9 trên 12 con sống sót ở lượt đầu, trên một file
+    chỉ có 12 chỗ so sánh. Tỉ lệ ấy nói rằng phép kiểm cũ chạm được
+    công thức nhưng không chạm biên nào cả.
+
+    Con nặng nhất ở dòng `dinhDaQua >= moc`: giá đã CHẠM ĐÚNG mốc thì
+    market ĐÃ ngã ngũ. Đổi thành `>` là trả về một xác suất nhỏ xinh
+    cho một chuyện đã xảy ra chắc chắn — và đó đúng là "bẫy chết người
+    của họ này" mà docstring của chính module ấy nêu.
+
+    ## Sau khi viết xong: 12 con → 7 CHẾT, 5 TƯƠNG ĐƯƠNG
+
+        147 245  `if mau <= 0` với `mau = σ × √τ`. σ đã bị chặn > 0 ở
+                 trên và τ có sàn, nên `mau > 0` LUÔN. Không tới được.
+        239      `(CONFIG.get("dinhGia") or {})` — `nhipQuanSatGiay`
+                 không khai trong config, nên cả hai lối cùng rơi về
+                 mặc định 60,0.
+        281 283  `p > 0.995` — khác biệt DUY NHẤT là cờ `daMatPhang`
+                 khi p rơi ĐÚNG vào 0,995 tới từng bit. Dựng được một
+                 ca như thế bằng số thực là chuyện của may rủi, không
+                 phải của phép kiểm.
+    """
+    print()
+    print("-- Bien cua dong co CHAM MOC -------------------------------")
+    import math as _m
+
+    from kham.cham_moc import TAU_SAN_GIAY as _TSAN
+    from kham.cham_moc import cham_moc as _cm
+
+    NGAY = 86400.0
+    sig = 1.2e-4
+    goc = dict(ma="X", giaHienTai=72_000.0, moc=150_000.0,
+               tauGiay=133 * NGAY, sigmaGiay=sig)
+
+    # ── đỉnh ĐÚNG BẰNG mốc → ĐÃ CHẠM ─────────────────────────────────
+    g = _cm(dinhDaQua=150_000.0, **goc)
+    kiem("đỉnh ĐÚNG BẰNG mốc → coi là ĐÃ CHẠM, P = 1",
+         g is not None and gan(g.pUp, 1.0), g and g.pUp)
+    g = _cm(dinhDaQua=149_999.99, **goc)
+    kiem("kém mốc một xu thì CHƯA chạm", g is not None and g.pUp < 0.5,
+         g and g.pUp)
+    # Chiều XUỐNG cũng vậy — hai nhánh của cùng một dòng.
+    gx = dict(goc)
+    gx.update(giaHienTai=150_000.0, moc=72_000.0)
+    g = _cm(dinhDaQua=72_000.0, lenTren=False, **gx)
+    kiem("chiều XUỐNG: đáy ĐÚNG BẰNG mốc → ĐÃ CHẠM",
+         g is not None and gan(g.pUp, 1.0), g and g.pUp)
+
+    # ── từ chối khi thiếu nguyên liệu, không đoán ─────────────────────
+    kiem("thiếu giá hiện tại → TỪ CHỐI",
+         _cm(ma="X", moc=150_000.0, tauGiay=NGAY, dinhDaQua=1.0,
+             sigmaGiay=sig) is None)
+    kiem("thiếu mốc → TỪ CHỐI",
+         _cm(ma="X", giaHienTai=72_000.0, tauGiay=NGAY, dinhDaQua=1.0,
+             sigmaGiay=sig) is None)
+    kiem("thiếu τ → TỪ CHỐI",
+         _cm(ma="X", giaHienTai=72_000.0, moc=150_000.0, dinhDaQua=1.0,
+             sigmaGiay=sig) is None)
+    kiem("giá bằng 0 → TỪ CHỐI, không lấy log của 0",
+         _cm(dinhDaQua=1.0, **{**goc, "giaHienTai": 0.0}) is None)
+    kiem("mốc bằng 0 → TỪ CHỐI", _cm(dinhDaQua=1.0,
+                                     **{**goc, "moc": 0.0}) is None)
+    kiem("σ bằng 0 → TỪ CHỐI, không chia cho 0",
+         _cm(dinhDaQua=1.0, **{**goc, "sigmaGiay": 0.0}) is None)
+
+    # ── sàn τ: ĐÚNG BẰNG sàn thì KHÔNG phải đang dùng sàn ─────────────
+    g = _cm(dinhDaQua=1.0, **{**goc, "tauGiay": _TSAN})
+    kiem("τ ĐÚNG BẰNG sàn → chưa phải đang dùng sàn",
+         g is not None and not g.tauDungSan, g and g.tauDungSan)
+    g = _cm(dinhDaQua=1.0, **{**goc, "tauGiay": _TSAN - 0.001})
+    kiem("τ dưới sàn một chút → CÓ dùng sàn",
+         g is not None and g.tauDungSan)
+
+    # ── làm phẳng hai đầu: ĐÚNG BẰNG mép thì CHƯA phẳng ───────────────
+    #
+    # `p > 0.995` chứ không `>=`. Đúng bằng mép là đúng giá trị mép,
+    # nên không có gì để kéo — và cờ `daMatPhang` phải nói THẬT, vì
+    # buồng lái đọc nó để biết con số hiển thị có bị can thiệp không.
+    g = _cm(dinhDaQua=1.0, **{**goc, "moc": 72_000.5, "tauGiay": 30 * NGAY})
+    kiem("gần chạm chắc chắn → P bị làm phẳng ở 0,995",
+         g is not None and gan(g.pUp, 0.995) and g.daMatPhang,
+         g and (g.pUp, g.daMatPhang))
+    g = _cm(dinhDaQua=1.0, **{**goc, "tauGiay": 60.0 * 60.0})
+    kiem("xa tít mù → P bị làm phẳng ở 0,005",
+         g is not None and gan(g.pUp, 0.005) and g.daMatPhang,
+         g and (g.pUp, g.daMatPhang))
+
+
 def kiem_bien_cua_ton_kho() -> None:
     """Biên số học của tồn kho — chỗ chia cho 0 và chỗ giá cặp bằng $1,00.
 
@@ -6394,6 +6484,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_cham_moc()
     kiem_bien_cua_ton_kho()
     kiem_bien_cua_cong_rui_ro()
     kiem_doi_soat_truoc_khi_dat_that()
