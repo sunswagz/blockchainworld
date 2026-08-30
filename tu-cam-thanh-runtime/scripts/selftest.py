@@ -1225,6 +1225,19 @@ async def main() -> int:
         else:
             _NT51._tha_khoa()
 
+    # Làn demo KHÔNG chạy nghi thức: khoá nằm trong DATA_DIR mà mỗi làn có
+    # DATA_DIR riêng, nên hai làn không thấy khoá của nhau — trong khi chúng
+    # dùng chung `data/lich-su` và `data/chuoi`. Xảy ra 07:32 ngày 30/08: bốn
+    # việc nghi thức chạy song song ngay khi bật làn demo.
+    _cu51d = CONFIG.get("lanDemo")
+    try:
+        CONFIG["lanDemo"] = True
+        _r51d = _NT51.khoi_dong(ep=True)
+        check(_r51d["ok"] is False and "làn demo" in _r51d["viSao"],
+              "làn demo không chạy nghi thức, kể cả khi ÉP")
+    finally:
+        CONFIG["lanDemo"] = _cu51d
+
     _src51 = ma_khong_chu_thich(ROOT / "trader" / "nghi_thuc.py")
     check("_tha_khoa()" in _src51.split("finally:")[-1] or "_tha_khoa()" in _src51,
           "khoá được thả trong finally, kể cả khi nghi thức nổ")

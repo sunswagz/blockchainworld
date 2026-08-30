@@ -42,7 +42,7 @@ import time
 from typing import Any
 
 from .bus import bus
-from .config import DATA_DIR, ROOT
+from .config import CONFIG, DATA_DIR, ROOT
 
 # 6 tiếng: nguồn của hai phép đo này là nến lịch sử và sổ chiến lược — thứ đổi
 # theo ngày chứ không theo giờ. Chạy dày hơn chỉ tốn nhân mà ra cùng một số.
@@ -408,6 +408,17 @@ def _chay() -> None:
 
 def khoi_dong(ep: bool = False) -> dict:
     """Chạy nghi thức ở luồng nền. `ep=True` để bỏ qua hạn 6 tiếng."""
+    # LÀN DEMO không chạy nghi thức. Khoá liên tiến trình nằm trong DATA_DIR, mà
+    # mỗi làn có DATA_DIR riêng — nên hai làn KHÔNG thấy khoá của nhau và cùng
+    # mở nghi thức. Chúng lại dùng chung `data/lich-su` và `data/chuoi`, tức hai
+    # bộ việc nặng giẫm lên đúng một kho chuỗi.
+    #
+    # Xảy ra 07:32 ngày 30/08: làn demo vừa bật là bốn việc nghi thức chạy song
+    # song với việc của làn chính. Làn demo tồn tại để GIAO DỊCH tiến tướng, còn
+    # đo đạc là việc của làn chính — chạy hai lần cùng một phép đo không cho
+    # thêm thông tin nào.
+    if CONFIG.get("lanDemo"):
+        return {"ok": False, "viSao": "làn demo không chạy nghi thức"}
     with _khoa:
         if _trang_thai["dangChay"]:
             return {"ok": False, "viSao": "đang chạy rồi"}
