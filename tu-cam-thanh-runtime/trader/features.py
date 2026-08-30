@@ -120,9 +120,46 @@ def features_for(candles: list[dict]) -> dict:
     }
 
 
+def _da_dong(c: list[dict]) -> list[dict]:
+    """Bỏ nến CUỐI nếu nó chưa đóng. Chỉ bỏ một nến, và chỉ khi được khai rõ.
+
+    `data._parse` đánh dấu `closed: i < n-1`, tức nến cuối luôn là nến ĐANG
+    CHẠY. Nguồn tổng hợp dự phòng có thể không đánh dấu gì — khi ấy giữ nguyên,
+    vì đoán "nến cuối chưa đóng" ở một nguồn không khai là tự bịa ra một luật.
+    """
+    return c[:-1] if c and c[-1].get("closed") is False else c
+
+
 def build_market_state(market: dict) -> dict:
-    """Gộp feature của mọi khung thành một MARKET STATE duy nhất."""
-    tfs = {tf: features_for(c) for tf, c in market["timeframes"].items()}
+    """Gộp feature của mọi khung thành một MARKET STATE duy nhất.
+
+    ĐẶC TRƯNG TÍNH TỪ NẾN ĐÃ ĐÓNG. Giá thì vẫn là giá SỐNG — hai thứ khác nhau
+    và cả hai đều đúng: quyết định dựa trên thứ đã xong, còn khớp lệnh thì ở giá
+    hiện tại.
+
+    Vì sao đây là bản vá quan trọng nhất của vòng chạy thật:
+
+    Bản chạy lại tính đặc trưng trên `nen[dau : i+1]` với `i ≤ len-2`, tức KHÔNG
+    BAO GIỜ chạm nến đang chạy. Vòng chạy thật thì đưa cả danh sách vào
+    `features_for`, gồm cả nến cuối chưa đóng. Nên EMA, ADX, RSI, ATR của bot
+    ĐỔI LIÊN TỤC trong lòng một nến, còn của bản đo thì đứng yên suốt bốn tiếng.
+
+    Hậu quả đo được trên 44 lệnh thật BTCUSDT khung 4h:
+
+        giữ lệnh trung vị     0,74 giờ = 0,19 NẾN · 36/44 đóng trong một nến
+        khoảng cách vào lệnh  trung vị 1,0 GIỜ · 14/43 vào lại dưới một giờ
+        ngày 21/08            vào lúc 16:53, 17:53, 18:53, 19:59, 21:22 —
+                              năm lần, đều −1,17R
+        cùng cửa sổ 11 ngày   chạy lại 5 lệnh · chạy thật 43 lệnh
+
+    Cơ chế: `_nen_moi()` chặn phân tích lại khi chưa có nến mới, NHƯNG có cửa
+    `regime_changed` đi vòng — và regime tính từ nến đang chạy nên nó đổi trong
+    lòng nến. Bot lấy cùng một tín hiệu 4-6 lần.
+
+    Stop thì đặt đúng: `stopAtrMultiple` = 1,5 ở cả 44 lệnh, trượt giá vào 0 bps.
+    Cái sai chưa bao giờ là chỗ đặt stop; nó là chỗ VÀO.
+    """
+    tfs = {tf: features_for(_da_dong(c)) for tf, c in market["timeframes"].items()}
     return {
         "symbol": market["symbol"],
         "price": market["price"],

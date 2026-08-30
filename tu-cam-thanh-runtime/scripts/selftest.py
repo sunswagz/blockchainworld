@@ -1376,6 +1376,45 @@ async def main() -> int:
     else:
         check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
 
+    print("\n[57] MỘT LỆNH MỖI NẾN, VÀ ĐẶC TRƯNG TÍNH TỪ NẾN ĐÃ ĐÓNG")
+    # Nguyên nhân GỐC của khoảng cách 5-lệnh-so-với-43: vòng chạy thật đưa cả
+    # nến ĐANG CHẠY vào `features_for`, nên EMA/ADX/RSI/ATR đổi liên tục trong
+    # lòng một nến, regime đổi theo, và cửa `regime_changed` cho phân tích lại —
+    # bot lấy cùng một tín hiệu 4-6 lần. Bản chạy lại tính trên `nen[dau:i+1]`
+    # với `i ≤ len-2`, tức không bao giờ chạm nến đang chạy.
+    from trader import features as _F57
+    from trader.features import _da_dong as _dd57
+
+    check(len(_dd57([{"closed": True}, {"closed": False}])) == 1,
+          "nến cuối khai chưa đóng ⇒ bỏ")
+    check(len(_dd57([{"closed": True}, {"closed": True}])) == 2,
+          "nến cuối đã đóng ⇒ giữ (cửa ngược lại)")
+    check(len(_dd57([{}, {}])) == 2,
+          "nguồn KHÔNG khai `closed` ⇒ giữ nguyên, không đoán bừa")
+    check(_dd57([]) == [], "danh sách rỗng ⇒ không nổ")
+
+    # Đặc trưng phải ĐỔI khi bỏ nến đang chạy — nếu không thì bản vá vô nghĩa.
+    _n57 = [{"t": i * 1000, "o": 100.0 + i, "h": 101.0 + i, "l": 99.0 + i,
+             "c": 100.0 + i, "v": 10.0, "closed": True} for i in range(300)]
+    _n57.append({"t": 300_000, "o": 400.0, "h": 900.0, "l": 400.0, "c": 900.0,
+                 "v": 10.0, "closed": False})
+    _m57 = {"symbol": "X", "price": 900.0, "source": {"name": "t", "live": False},
+            "timeframes": {"4h": _n57}}
+    _a57 = build_market_state(_m57)["timeframes"]["4h"]
+    _b57 = _F57.features_for(_n57)
+    check(_a57["price"] != _b57["price"],
+          f"bỏ nến đang chạy LÀM ĐỔI đặc trưng ({_a57['price']} vs {_b57['price']})")
+    check(_a57["price"] == 399.0,
+          f"và giá đặc trưng lấy từ nến ĐÃ ĐÓNG cuối cùng (được {_a57['price']})")
+
+    # Luật một-lệnh-mỗi-nến phải có trong vòng chạy, và nhớ theo MỐC NẾN.
+    _lp57 = ma_khong_chu_thich(ROOT / "trader" / "loop.py")
+    check("self.nen_da_vao" in _lp57 and "lastClosedCandleTime" in _lp57,
+          "vòng chạy nhớ nến đã vào lệnh, theo mốc nến chứ không theo đồng hồ")
+    check("ĐÃ VÀO LỆNH TRÊN NẾN NÀY" in (ROOT / "trader" / "loop.py").read_text(
+              encoding="utf-8"),
+          "và nói rõ lý do khi chặn, không im lặng bỏ qua")
+
     print("\n[56] NHỊP GIỮ LỆNH THẬT PHẢI SO ĐƯỢC VỚI BẢN CHẠY LẠI")
     # Khoảng cách «đo một thứ, chạy một thứ khác» LỚN NHẤT hệ này từng tìm ra —
     # lớn hơn cả chuyện nửa SHORT. Cùng BTCUSDT, cùng cửa sổ 11 ngày, cùng bộ

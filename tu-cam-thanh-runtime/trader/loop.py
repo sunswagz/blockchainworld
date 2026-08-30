@@ -78,6 +78,8 @@ class Runtime:
         self.force_analyze = False
         self.last_thesis_at: _dt.datetime | None = None
         self.last_candle_seen: int | None = None
+        # Chợ → mốc nến đã dùng để vào lệnh. Xem luật "một lệnh mỗi nến" dưới.
+        self.nen_da_vao: dict[str, int] = {}
         self.last_regime_key: str | None = None
         self.ticks = 0
         self.started_at = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
@@ -404,11 +406,36 @@ class Runtime:
         self.last_decision = decision
 
         if decision["approved"]:
+            # MỘT LỆNH MỖI NẾN, mỗi chợ.
+            #
+            # `_nen_moi()` chặn phân tích lại khi chưa có nến mới, nhưng có cửa
+            # `regime_changed` đi vòng. Với đặc trưng tính từ nến đang chạy,
+            # regime đổi ngay trong lòng nến — nên bot lấy CÙNG một tín hiệu
+            # nhiều lần. Đo được trên 44 lệnh thật BTCUSDT khung 4h: ngày 21/08
+            # vào lúc 16:53, 17:53, 18:53, 19:59, 21:22 — năm lần, đều −1,17R.
+            #
+            # Bản chạy lại không thể làm vậy: nó bước theo NẾN. Nên mọi con số
+            # đo được nói về một hệ vào tối đa một lệnh mỗi nến.
+            #
+            # Nhớ theo MỐC NẾN chứ không theo thời gian: mốc nến đến từ dữ liệu
+            # nên nó đúng cả khi runtime dựng lại giữa chừng, còn một bộ đếm
+            # thời gian thì mất theo tiến trình.
+            _sym = decision["position"].get("symbol") or self.cfg["symbol"]
+            _moc = (self.last_market or {}).get("lastClosedCandleTime")
+            if _moc is not None and self.nen_da_vao.get(_sym) == _moc:
+                bus.log("risk", "tu-choi",
+                        f"CHẶN {thesis['action']}: ĐÃ VÀO LỆNH TRÊN NẾN NÀY rồi "
+                        f"({_sym}, nến {_moc}). Bản chạy lại vào tối đa một lệnh "
+                        f"mỗi nến; vào thêm là chạy một chiến lược khác thứ đã đo.",
+                        decision=decision)
+                return
             bus.log("risk", "chap-nhan",
                     f"cho qua · RR {decision['rr']:.2f} · risk ${decision['position']['riskAmount']} "
                     f"({decision['position']['riskPct']}%) · {decision['note']}",
                     decision=decision)
             self.broker.open(decision["position"], thesis, self.regime)
+            if _moc is not None:
+                self.nen_da_vao[_sym] = _moc
         elif thesis["action"] == "NO_TRADE":
             bus.emit("risk", "khong-vao-lenh", "brain chọn NO_TRADE — đây là một quyết định, không phải bỏ lỡ",
                      decision=decision)
