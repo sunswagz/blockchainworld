@@ -1139,6 +1139,16 @@ async def main() -> int:
               "rủi ro mỗi lệnh KHÔNG bị nới ở làn demo — nới nó là đo một hệ khác")
         check(str(_d53.get("_viSao", "")).strip() != "",
               "cấu hình riêng tự khai VÌ SAO nó khác")
+        # KHUNG phải khớp khung của phép đo làm nên làn này. Con số +0,205R
+        # (khoảng tin không chứa 0) đo trên 1d; cùng bộ luật trên 4h là −0,248R,
+        # đã bị bác bỏ. Làn demo kế thừa `timeframes` của làn chính nên hai giờ
+        # đầu nó đo đúng cái khung đã biết là âm.
+        check((_d53.get("timeframes") or {}).get("primary") == "1d",
+              "làn demo chạy khung 1d — khung của phép đo làm nên nó")
+        check(((_d53.get("timeframes") or {}).get("primary")
+               != (_chinh53.get("timeframes") or {}).get("primary")),
+              "và KHÁC khung làn chính — nếu bằng nhau thì nó chỉ đang kế thừa, "
+              "không phải đang chọn")
     check(hasattr(_C53, "CONFIG_FILE") and _C53.CONFIG_FILE.exists(),
           "config.py khai rõ nó đang đọc file nào")
 

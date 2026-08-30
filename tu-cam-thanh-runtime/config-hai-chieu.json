@@ -50,7 +50,7 @@
   "ZILUSDT"
  ],
  "timeframes": {
-  "primary": "4h",
+  "primary": "1d",
   "context": "1d"
  },
  "port": 5282,
@@ -99,5 +99,5 @@
    "https://api.binance.com/api/v3/klines"
   ]
  },
- "_viSao": "CẤU HÌNH RIÊNG CỦA LÀN DEMO HAI CHIỀU. Đừng dùng cho làn chính.\n· symbols 15 → 48: rút phép đo tiến tướng từ ~4 tháng xuống ~6 tuần bằng cách thêm CHỢ, không phải thêm lệnh mỗi chợ — nhịp luật nổ đo được là 0,015 lệnh/chợ/ngày, nên 30 lệnh SHORT cần 15 chợ × 130 ngày hoặc 48 chợ × 41 ngày. Thêm chợ là thêm quan sát ĐỘC LẬP; ép mỗi chợ vào lệnh nhiều hơn thì chỉ là nới ngưỡng.\n· maxOpenPositions 4 → 12: với 48 chợ mà chỉ 4 chỗ thì tín hiệu bị VỨT khi hết chỗ, và mẫu nghiêng về thứ bộ chấm xếp hạng cao — một thiên lệch im lặng ngay giữa phép đo.\n· loopSeconds 20 → 60: 48 chợ × 2 khung mỗi vòng. Ở 20 giây là ~576 đơn vị trọng số/phút cho riêng làn này, cộng làn chính và nghi thức thì sát trần 1200 của Binance. Chậm hơn không mất gì: khung 4h thì một vòng 60 giây vẫn là 240 lần nhìn mỗi nến."
+ "_viSao": "CẤU HÌNH RIÊNG CỦA LÀN DEMO HAI CHIỀU. Đừng dùng cho làn chính.\n· symbols 15 → 48: rút phép đo tiến tướng từ ~4 tháng xuống ~6 tuần bằng cách thêm CHỢ, không phải thêm lệnh mỗi chợ — nhịp luật nổ đo được là 0,015 lệnh/chợ/ngày, nên 30 lệnh SHORT cần 15 chợ × 130 ngày hoặc 48 chợ × 41 ngày. Thêm chợ là thêm quan sát ĐỘC LẬP; ép mỗi chợ vào lệnh nhiều hơn thì chỉ là nới ngưỡng.\n· maxOpenPositions 4 → 12: với 48 chợ mà chỉ 4 chỗ thì tín hiệu bị VỨT khi hết chỗ, và mẫu nghiêng về thứ bộ chấm xếp hạng cao — một thiên lệch im lặng ngay giữa phép đo.\n· loopSeconds 20 → 60: 48 chợ × 2 khung mỗi vòng. Ở 20 giây là ~576 đơn vị trọng số/phút cho riêng làn này, cộng làn chính và nghi thức thì sát trần 1200 của Binance. Chậm hơn không mất gì: khung 4h thì một vòng 60 giây vẫn là 240 lần nhìn mỗi nến.\n· timeframes 4h → 1d: ĐÂY LÀ CHỖ SUÝT HỎNG CẢ PHÉP ĐO. Con số làm nên làn này (+0,205R, khoảng tin không chứa 0) đo trên khung 1D. Cùng bộ luật ấy trên 4h là −0,248R — đã bị bác bỏ. Làn demo kế thừa `timeframes` của làn chính (4h) nên trong hai giờ đầu nó đo đúng cái khung đã biết là âm. Bắt được lúc chưa có lệnh nào đóng, nên sổ không nhiễm.\n· Bản khai «keo-lui-short-tien-tuong» không ghi khung — đó là thiếu sót của bản khai, và bản khai thì không sửa được. Ghi ở đây: phép đo ấy nói về khung 1D.\n· Hệ quả: lệnh sẽ THƯA hơn nhiều (một nến mỗi ngày). Đọc dòng «nhịp» của `so-hai-lan.py` để biết thật sự bao lâu, đừng đoán."
 }
