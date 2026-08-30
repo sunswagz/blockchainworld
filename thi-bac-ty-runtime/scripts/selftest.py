@@ -2782,6 +2782,24 @@ def kiem_cau_dao() -> None:
     kiem("sụt vốn CHƯA đo được thì cũng không ngắt vì sụt vốn",
          not _soat(sutVonPct=None).dang_ngat)
 
+    # NGƯỠNG khai `null`: rơi về mặc định, KHÔNG ném. Cấu hình thật do
+    # người sửa tay, và `"nguongCauDao": null` là chuyện thường khi ai đó
+    # xoá nội dung một mục mà giữ lại cái tên. Ném ở đây là chết MỌI vòng
+    # ngay tại LỚP AN TOÀN CUỐI — chỗ tệ nhất để có một chỗ ném.
+    _cdN = CauDao()
+    _cdN.tu_soat(lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0,
+                 sutVonPct=0.0, nguong=None)
+    kiem("ngưỡng khai `null` thì rơi về mặc định, KHÔNG ném",
+         not _cdN.dang_ngat,
+         "chết ở lớp an toàn cuối là chết ở chỗ tệ nhất")
+    _cdN2 = CauDao()
+    _cdN2.tu_soat(lechDongHoGiay=999.0, cangChet=[], tuoiXauNhatGiay=1.0,
+                  sutVonPct=0.0, nguong=None)
+    kiem("và mặc định ấy VẪN CÓ RĂNG: lệch 999s thì ngắt",
+         _cdN2.dang_ngat,
+         "rơi về mặc định mà mặc định không chặn gì thì là tắt cầu dao "
+         "bằng một mục cấu hình trống")
+
 
 def kiem_thuc_thi() -> None:
     print("\n── Thực Thi: máy trạng thái hai chân, và legging risk ─────────")
@@ -3080,6 +3098,41 @@ def kiem_trung_uong_vong() -> None:
     print("\n── Trung Ương: cả vòng, và cầu dao đứng trên tất cả ───────────")
     from thi_bac_ty.khuon_ty import Ty
     from thi_bac_ty.trung_uong import TrungUong
+
+    # ── CẤU HÌNH TỐI THIỂU và cấu hình khai `None` ──────────────────────
+    #
+    # Quét đột biến trên `trung_uong.py` với CẢ suite cho 49/83 con sống
+    # sót, và quá nửa là những chữ `or {}` che cho một mục cấu hình
+    # thiếu. Chúng chưa bao giờ được đi vào, vì mọi `TrungUong` trong
+    # phép kiểm đều dựng từ một `dict` đủ mục.
+    #
+    # `config.json` thật thì do người sửa tay. Một mục bị xoá, hoặc khai
+    # `null`, không làm sai một con số — nó ném giữa lúc dựng cỗ máy, và
+    # cỗ máy KHÔNG LÊN. Cùng hình dạng với lỗi `luu_danh_muc` và
+    # `chay_lai_he` đã vá cùng phiên này.
+    _tuToi = TrungUong(_tam("tu-toi-thieu"), {})
+    kiem("cấu hình RỖNG vẫn dựng được cỗ máy",
+         _tuToi.danh_muc.vonBanDauUsd > 0
+         and _tuToi.docVonNgoai == [] and _tuToi.nhapSoNgoai == [],
+         "một mục cấu hình thiếu không làm sai một con số — nó làm cỗ "
+         "máy KHÔNG LÊN")
+    _tuNull = TrungUong(_tam("tu-null"), {
+        "vonNgoai": None, "soNgoai": None, "ruiRoTong": None,
+        "phanBo": None, "nguongCauDao": None})
+    kiem("mọi mục khai `null` cũng dựng được, và rơi về mặc định",
+         (_tuNull.docVonNgoai == [] and _tuNull.nhapSoNgoai == []
+          and _tuNull.rui_ro_tong.c.get("tranMotCoHoi") is not None
+          and _tuNull.phan_bo.c.get("tiLeDuTru") is not None),
+         "`null` trong JSON là chuyện thường khi người xoá nội dung một "
+         "mục mà giữ lại cái tên")
+    kiem("và nó chạy trọn một vòng",
+         _tuNull.mot_vong(lechDongHoGiay=1.0, cangChet=[],
+                          tuoiXauNhatGiay=1.0) is not None)
+    kiem("vốn ban đầu bằng 0 thì KHÔNG chia cho không",
+         TrungUong(_tam("tu-von0"), {"vonBanDauUsd": 0.0}).hieu_nang()
+         is not None,
+         "mẫu số bằng 0 ở đây làm chết cả ảnh chụp, và ảnh chụp là thứ "
+         "duy nhất buồng lái đọc")
 
     class TyThu(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "thử"
@@ -9805,6 +9858,17 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("rút quá tiền mặt thì TỪ CHỐI, không âm quỹ",
          _nem(lambda: tu50.nap_von(-9e9, "chủ"), ValueError),
          "vốn đang nằm trong vị thế thì phải đóng trước")
+    # RÚT ĐÚNG BẰNG số tiền mặt còn lại thì ĐƯỢC — quỹ về 0 chứ không âm.
+    # `< 0` đổi thành `<= 0` là chặn đúng lần rút hết, và người vận hành
+    # sẽ không bao giờ lấy được đồng cuối cùng ra.
+    _mat50 = tu50.danh_muc.tienMatUsd
+    kiem("rút ĐÚNG BẰNG số tiền mặt còn lại thì ĐƯỢC, quỹ về 0",
+         (tu50.nap_von(-_mat50, "chủ", "rút hết")
+          and gan(tu50.danh_muc.tienMatUsd, 0.0)),
+         f"tiền mặt {_mat50} — chặn ở đây là giam đồng cuối cùng lại mãi")
+    kiem("và rút thêm một xu nữa thì mới TỪ CHỐI",
+         _nem(lambda: tu50.nap_von(-0.01, "chủ"), ValueError))
+    tu50.nap_von(_mat50, "chủ", "trả lại cho phép kiểm sau")
     tu50._luu_danh_muc()
     tu51 = TrungUong(tu50.duongLuu.parent, {"vonBanDauUsd": 10_000.0})
     kiem("vốn đã nạp SỐNG QUA lần khởi động lại",

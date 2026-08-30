@@ -144,6 +144,13 @@ class CauDao:
         Gọi mỗi lượt. Đây là chỗ ba thứ runtime đã đo được nối vào cầu dao.
         """
         moi = []
+        # `or {}` chứ không tin `nguong` là một `dict`. Cấu hình thật do
+        # người sửa tay, và `"nguongCauDao": null` là chuyện thường khi
+        # ai đó xoá nội dung một mục mà giữ lại cái tên. Không có nó thì
+        # MỌI vòng chết ngay tại đây — ở LỚP AN TOÀN CUỐI, chỗ tệ nhất
+        # để có một chỗ ném. Ngưỡng thiếu thì rơi về mặc định, và mặc
+        # định ấy đã khai ngay dưới đây.
+        nguong = nguong or {}
 
         # 1. đồng hồ — tự mở lại được vì đo trực tiếp và không mơ hồ
         tran_dh = float(nguong.get("lechDongHoToiDaGiay", 60.0))
