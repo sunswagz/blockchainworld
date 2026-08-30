@@ -1172,6 +1172,320 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_dat_lenh() -> None:
+    """Biên của CỔNG ĐẶT LỆNH — đường mà lệnh THẬT sẽ đi qua.
+
+    Bộ quét đột biến: 20 trên 21 con sống sót. Đây là chỗ duy nhất một
+    lệnh rời khỏi hệ thống, nên mọi nhánh ở đây đều đáng canh — kể cả
+    những nhánh hôm nay chỉ chạy ở chế độ giấy, vì chính chúng là thứ
+    sẽ được sao chép sang đường thật.
+
+    Bốn nhóm:
+
+    · MAKER KHÔNG KHỚP NGAY. Sổ giấy nào cho maker khớp tức thì là tặng
+      không cả phí lẫn spread cho `tao-lap`.
+    · QUY ƯỚC KHỚP CỦA SỔ GIẤY. Lệnh mua ở giá G khớp khi best ask TỤT
+      XUỐNG CHẠM G — mép phải tính là khớp.
+    · HẾT HẠN CHỜ thì HUỶ, đừng treo mãi.
+    · CHÂN CHỜ của cặp: bên nào đang thừa thì bên ấy là chân chờ.
+
+    ## Sau khi viết xong: 21 con → 13 CHẾT, 8 TƯƠNG ĐƯƠNG
+
+        158 248      so với epsilon (1e-9) — epsilon đã nuốt điểm bằng
+                     nhau.
+        187 249      `soCoKhop <= 0` / `> 0`. Ở 0 thì `ghi_khop` cũng
+                     trả về ngay, nên hai lối cùng không ghi gì.
+        197 202      chỉ chạy khi `abs(dinhHuong) > 0` (dòng 196 chặn),
+                     nên `> 0` và `>= 0` không phân biệt được.
+        207          `abs(x) <= 1e-9` so với `<` — ở đúng 0 thì
+                     `0 < 1e-9` cũng đúng.
+        151          `time.time()` gọi THẲNG trong hàm, nên không nhắm
+                     được đúng biên. Đây là giới hạn về TÍNH KIỂM ĐƯỢC
+                     của mã, không phải của phép kiểm: muốn canh biên
+                     ấy thì `soat_cho` phải nhận `bayGioMs` như
+                     `KetToan.soat` đã làm.
+
+    Khối ĐỌC KẾT QUẢ TỪ SÀN (dòng 243–249) hôm nay không lượt chạy nào
+    chạm tới, vì adapter chưa nối. Mà nó chính là chỗ diễn giải câu trả
+    lời của sàn về TIỀN THẬT — đọc sai một khoá là ghi sai tồn kho và
+    sai sổ lãi lỗ, trên tiền có thật. Nên nó được kiểm bằng một adapter
+    giả: khớp trọn, khớp một phần, sàn tự khai trạng thái, sàn trả rỗng,
+    và sàn NÉM.
+    """
+    print()
+    print("-- Bien cua DAT LENH ---------------------------------------")
+    from kham.can_loi import CoHoi as _CH5
+    from kham.dat_lenh import CongLenh as _CL5
+    from kham.so_lenh import Muc as _M5
+    from kham.so_lenh import SoLenh as _S5
+
+    def _so(ask):
+        return _S5(ma="BTC_5M", ben="UP", bid=[_M5(0.44, 500.0)],
+                   ask=[_M5(g, l) for g, l in ask], nhanLucMs=0.0)
+
+    def _ch(**k):
+        d = dict(ma="BTC_5M", ben="UP", chienThuat="thử", fairValue=0.55,
+                 giaCho=0.46, vwap=0.46, soCo=50.0, grossEdge=0.09,
+                 phi=0.017, truotGia=0.0008, batDinhMoHinh=0.02,
+                 bienAnToan=0.008, netEdge=0.05, sucChua=400.0,
+                 xacSuatKhop=0.9, nuaDoiMs=5000.0, laMaker=False,
+                 dayDu=True)
+        d.update(k)
+        return _CH5(**d)
+
+    # ── taker: khớp ngay, có PHÍ, và vào tồn kho ─────────────────────
+    k = Kho()
+    c = _CL5(k)
+    l = c.dat(_ch(), 50.0, _so(((0.46, 500.0),)))
+    kiem("taker khớp NGAY", l.trangThai == "khop", l.trangThai)
+    kiem("và phí taker được ghi, không phải 0", l.phiUsd > 0, l.phiUsd)
+    kiem("và tồn kho nhận đủ số cổ",
+         gan(k.lay("BTC_5M").coUp, 50.0), k.lay("BTC_5M").coUp)
+
+    # sổ mỏng → khớp một phần, và phải NÓI RA
+    k2 = Kho()
+    c2 = _CL5(k2)
+    l2 = c2.dat(_ch(), 50.0, _so(((0.46, 20.0),)))
+    kiem("sổ chỉ đủ một phần → `khop-mot-phan`",
+         l2.trangThai == "khop-mot-phan", l2.trangThai)
+    kiem("và ghi chú nói rõ thiếu bao nhiêu", "20" in (l2.ghiChu or ""),
+         l2.ghiChu)
+    # sổ RỖNG → từ chối, không im lặng khớp 0
+    l3 = _CL5(Kho()).dat(_ch(), 50.0, _S5(ma="BTC_5M", ben="UP", bid=[],
+                                          ask=[], nhanLucMs=0.0))
+    kiem("sổ rỗng → TỪ CHỐI, không khớp 0 cổ",
+         l3.trangThai == "tu-choi", l3.trangThai)
+
+    # ── maker: KHÔNG khớp ngay ───────────────────────────────────────
+    k4 = Kho()
+    c4 = _CL5(k4)
+    l4 = c4.dat(_ch(laMaker=True), 50.0, _so(((0.46, 500.0),)))
+    kiem("maker KHÔNG khớp ngay — nó phải ĐỢI", l4.trangThai == "cho",
+         l4.trangThai)
+    kiem("và chưa vào tồn kho", gan(k4.lay("BTC_5M").coUp, 0.0))
+    kiem("nó nằm trong hàng chờ", len(c4.dangCho) == 1, len(c4.dangCho))
+
+    # ask còn CAO hơn giá yết → chưa khớp
+    c4.soat_cho({"BTC_5M": {"UP": _so(((l4.giaDat + 0.01, 500.0),))}})
+    kiem("ask còn cao hơn giá yết → vẫn chờ", l4.trangThai == "cho",
+         l4.trangThai)
+    # ask TỤT XUỐNG ĐÚNG BẰNG giá yết → KHỚP
+    xong = c4.soat_cho({"BTC_5M": {"UP": _so(((l4.giaDat, 500.0),))}})
+    kiem("ask tụt xuống ĐÚNG BẰNG giá yết → KHỚP", l4.trangThai == "khop",
+         l4.trangThai)
+    kiem("khớp đúng ở GIÁ YẾT, không phải giá sổ",
+         gan(l4.giaKhop, l4.giaDat), (l4.giaKhop, l4.giaDat))
+    kiem("maker KHÔNG bị thu phí", gan(l4.phiUsd, 0.0), l4.phiUsd)
+    kiem("và nó rời hàng chờ", not c4.dangCho and len(xong) == 1,
+         (len(c4.dangCho), len(xong)))
+
+    # ── hết hạn chờ thì HUỶ ──────────────────────────────────────────
+    import time as _t5
+    k5 = Kho()
+    c5 = _CL5(k5)
+    l5 = c5.dat(_ch(laMaker=True), 50.0, _so(((0.60, 500.0),)))
+    l5.datLucMs = _t5.time() * 1000.0 - (
+        float(CONFIG["khoDoi"]["giayChoChanHai"]) * 1000.0 + 10.0)
+    c5.soat_cho({"BTC_5M": {"UP": _so(((0.60, 500.0),))}})
+    kiem("quá hạn chờ → HUỶ, không treo mãi", l5.trangThai == "huy",
+         l5.trangThai)
+    kiem("và nói rõ vì sao", "hạn" in (l5.ghiChu or ""), l5.ghiChu)
+
+    # ── huỷ tay: đúng MỘT lệnh, theo id ──────────────────────────────
+    k6 = Kho()
+    c6 = _CL5(k6)
+    a6 = c6.dat(_ch(laMaker=True), 10.0, _so(((0.60, 500.0),)))
+    b6 = c6.dat(_ch(laMaker=True), 10.0, _so(((0.60, 500.0),)))
+    kiem("huỷ đúng id thì trả True", c6.huy(a6.id))
+    kiem("và CHỈ lệnh ấy bị huỷ",
+         a6.trangThai == "huy" and b6.trangThai == "cho",
+         (a6.trangThai, b6.trangThai))
+    kiem("huỷ một id không có thì trả False", not c6.huy("khong-co"))
+
+    # ── giá yết maker phải đứng TRONG spread ─────────────────────────
+    from kham.dat_lenh import _gia_yet_maker as _gym
+    soRong = _S5(ma="BTC_5M", ben="UP", bid=[_M5(0.40, 100.0)],
+                 ask=[_M5(0.60, 100.0)], nhanLucMs=0.0)
+    y = _gym(soRong, _ch(fairValue=0.55, laMaker=True))
+    kiem("yết maker nhích hơn best bid, KHÔNG bằng nó", y > 0.40, y)
+    kiem("và KHÔNG vượt best ask — vượt là hoá thành taker", y < 0.60, y)
+    soHep = _S5(ma="BTC_5M", ben="UP", bid=[_M5(0.4999, 100.0)],
+                ask=[_M5(0.5000, 100.0)], nhanLucMs=0.0)
+    y2 = _gym(soHep, _ch(fairValue=0.99, laMaker=True))
+    kiem("spread hẹp hơn một lê chọn → vẫn KHÔNG vượt best ask",
+         y2 < 0.5000 + 1e-12, y2)
+    soMotBen = _S5(ma="BTC_5M", ben="UP", bid=[], ask=[], nhanLucMs=0.0)
+    kiem("sổ rỗng → yết rơi về fair value, không nổ",
+         gan(_gym(soMotBen, _ch(fairValue=0.55, laMaker=True)), 0.55),
+         _gym(soMotBen, _ch(fairValue=0.55, laMaker=True)))
+    # Sổ MỘT BÊN cũng phải rơi về fair value. Ca này khác sổ rỗng: có
+    # `bb` mà không có `ba` thì `bb + le` vẫn tính được, rồi so với
+    # `None` là nổ ngay giữa vòng chạy.
+    chiCoBid = _S5(ma="BTC_5M", ben="UP", bid=[_M5(0.40, 100.0)],
+                   ask=[], nhanLucMs=0.0)
+    kiem("sổ CHỈ CÓ BID → yết rơi về fair value, không so với None",
+         gan(_gym(chiCoBid, _ch(fairValue=0.55, laMaker=True)), 0.55),
+         _gym(chiCoBid, _ch(fairValue=0.55, laMaker=True)))
+    # Yết rơi ĐÚNG BẰNG best ask thì phải LÙI: bằng ask là thành taker,
+    # tức mất luôn ưu đãi phí — đúng thứ khiến chiến thuật này có lãi.
+    _le5 = float(CONFIG["phi"]["leChonNhoNhat"])
+    soVuaKhit = _S5(ma="BTC_5M", ben="UP",
+                    bid=[_M5(0.500 - _le5, 100.0)],
+                    ask=[_M5(0.500, 100.0)], nhanLucMs=0.0)
+    y3 = _gym(soVuaKhit, _ch(fairValue=0.99, laMaker=True))
+    kiem("yết rơi ĐÚNG BẰNG best ask → LÙI một lê, không thành taker",
+         y3 < 0.500 - 1e-12, y3)
+
+    # ── chân CHỜ của cặp: bên nào THỪA thì bên ấy là chân chờ ────────
+    from kham.dat_lenh import Lenh as _L5
+    k7 = Kho()
+    c7 = _CL5(k7)
+    v7 = k7.lay("BTC_5M")
+    c7._ghi_kho(_L5(id="a", ma="BTC_5M", ben="UP", chienThuat="cap-thu",
+                    soCo=100.0, giaDat=0.5, laMaker=False, datLucMs=0.0,
+                    soCoKhop=100.0, giaKhop=0.5))
+    kiem("khớp một chân UP → chân chờ là UP",
+         len(v7.choCap) == 1 and v7.choCap[0].ben == "UP",
+         [(x.ben, x.soCo) for x in v7.choCap])
+    kiem("và số cổ chờ đúng bằng phần LỆCH",
+         gan(v7.choCap[0].soCo, 100.0), v7.choCap[0].soCo)
+    c7._ghi_kho(_L5(id="b", ma="BTC_5M", ben="DOWN", chienThuat="cap-thu",
+                    soCo=100.0, giaDat=0.4, laMaker=False, datLucMs=0.0,
+                    soCoKhop=100.0, giaKhop=0.4))
+    kiem("khớp nốt chân kia → hết chân chờ", not v7.choCap,
+         [(x.ben, x.soCo) for x in v7.choCap])
+    c7._ghi_kho(_L5(id="c", ma="BTC_5M", ben="DOWN", chienThuat="cap-thu",
+                    soCo=30.0, giaDat=0.4, laMaker=False, datLucMs=0.0,
+                    soCoKhop=30.0, giaKhop=0.4))
+    kiem("thừa DOWN → chân chờ đổi sang DOWN",
+         len(v7.choCap) == 1 and v7.choCap[0].ben == "DOWN"
+         and gan(v7.choCap[0].soCo, 30.0),
+         [(x.ben, x.soCo) for x in v7.choCap])
+    # Tồn kho ĐỔI BÊN: chân chờ phải đổi theo, không giữ bên cũ.
+    k7b = Kho()
+    c7b = _CL5(k7b)
+    v7b = k7b.lay("BTC_5M")
+    c7b._ghi_kho(_L5(id="e", ma="BTC_5M", ben="UP", chienThuat="cap-thu",
+                     soCo=100.0, giaDat=0.5, laMaker=False, datLucMs=0.0,
+                     soCoKhop=100.0, giaKhop=0.5))
+    c7b._ghi_kho(_L5(id="f", ma="BTC_5M", ben="DOWN", chienThuat="cap-thu",
+                     soCo=130.0, giaDat=0.4, laMaker=False, datLucMs=0.0,
+                     soCoKhop=130.0, giaKhop=0.4))
+    kiem("tồn kho lật sang DOWN → chân chờ ĐỔI BÊN, không giữ UP cũ",
+         len(v7b.choCap) == 1 and v7b.choCap[0].ben == "DOWN"
+         and gan(v7b.choCap[0].soCo, 30.0),
+         [(x.ben, x.soCo) for x in v7b.choCap])
+
+    # Lệnh KHÔNG phải của cặp thì không sinh chân chờ.
+    k8 = Kho()
+    c8 = _CL5(k8)
+    c8._ghi_kho(_L5(id="d", ma="BTC_5M", ben="UP", chienThuat="lech-gia",
+                    soCo=100.0, giaDat=0.5, laMaker=False, datLucMs=0.0,
+                    soCoKhop=100.0, giaKhop=0.5))
+    kiem("lệnh KHÔNG phải của cặp → không sinh chân chờ",
+         not k8.lay("BTC_5M").choCap, k8.lay("BTC_5M").choCap)
+
+    # ── chế độ THẬT phải đi ĐƯỜNG THẬT, không lặng lẽ rơi về giấy ───
+    from kham import dat_lenh as _DLM
+    _cuChe = _DLM.che_hieu_luc
+    try:
+        _DLM.che_hieu_luc = lambda: "that"
+        k9 = Kho()
+        c9 = _CL5(k9)
+        l9 = c9.dat(_ch(), 50.0, _so(((0.46, 500.0),)))
+        # Thiết kế ở đây có chủ ý: chế độ thật mà cửa còn đóng thì RƠI
+        # VỀ GIẤY, nhưng "không im lặng rơi về giấy — nói rõ cửa nào
+        # đóng, rồi mới rơi". Thứ đáng canh chính là cái NÓI RÕ ấy.
+        kiem("chế độ THẬT mà cửa còn đóng → rơi về giấy",
+             l9.duong == "giay", l9.duong)
+        kiem("nhưng KHÔNG im lặng: ghi chú nêu tên cửa đang đóng",
+             "cửa lệnh thật" in (l9.ghiChu or ""), l9.ghiChu)
+        kiem("và ghi chú kể ĐỦ cả bốn cửa cấu hình",
+             all(x in (l9.ghiChu or "")
+                 for x in ("che", "choPhepLenhThat", "toiXacNhanDaDocRuiRo",
+                           "PRIVATE_KEY")), l9.ghiChu)
+        # Chế độ GIẤY thì KHÔNG có ghi chú ấy — nếu không thì mọi lệnh
+        # giấy đều đeo một lời cảnh báo vô nghĩa và không ai đọc nữa.
+        _DLM.che_hieu_luc = lambda: "giay"
+        l10 = _CL5(Kho()).dat(_ch(), 50.0, _so(((0.46, 500.0),)))
+        kiem("chế độ GIẤY thì KHÔNG đeo ghi chú cửa lệnh thật",
+             "cửa lệnh thật" not in (l10.ghiChu or ""), l10.ghiChu)
+        # Chế độ QUAN SÁT: từ chối hẳn, và KHÔNG đụng tồn kho.
+        _DLM.che_hieu_luc = lambda: "quan-sat"
+        k11 = Kho()
+        l11 = _CL5(k11).dat(_ch(), 50.0, _so(((0.46, 500.0),)))
+        kiem("chế độ QUAN SÁT → TỪ CHỐI hẳn",
+             l11.trangThai == "tu-choi", l11.trangThai)
+        kiem("và tồn kho KHÔNG bị đụng",
+             gan(k11.lay("BTC_5M").coUp, 0.0), k11.lay("BTC_5M").coUp)
+        # ── ĐỌC KẾT QUẢ TỪ SÀN — đường tiền thật ────────────────────
+        #
+        # Khối này chỉ chạy khi adapter đã nối, nên hôm nay không lượt
+        # chạy nào chạm tới nó. Mà nó chính là chỗ diễn giải câu trả
+        # lời của sàn về TIỀN THẬT: đọc sai một khoá là ghi sai tồn kho
+        # và sai sổ lãi lỗ, trên tiền có thật.
+        _cuLd = _DLM.ly_do_khong_that
+        try:
+            _DLM.che_hieu_luc = lambda: "that"
+            _DLM.ly_do_khong_that = lambda *a, **k: []
+
+            class _San:
+                def __init__(self, tra):
+                    self.tra = tra
+                    self.goi = 0
+
+                def dat_lenh(self, **k):
+                    self.goi += 1
+                    if isinstance(self.tra, Exception):
+                        raise self.tra
+                    return self.tra
+
+            def _chay_that(tra, soCo=50.0):
+                kk = Kho()
+                cc = _CL5(kk)
+                cc._sdk = _San(tra)
+                cc._nap_sdk = lambda: cc._sdk
+                return kk, cc.dat(_ch(), soCo, _so(((0.46, 500.0),)))
+
+            kk, lt = _chay_that({"soCoKhop": 50.0, "giaKhop": 0.47,
+                                 "phiUsd": 0.9})
+            kiem("sàn trả khớp TRỌN → `khop`", lt.trangThai == "khop",
+                 lt.trangThai)
+            kiem("và tồn kho ghi theo GIÁ KHỚP của sàn, không phải giá đặt",
+                 gan(kk.lay("BTC_5M").tienUp, 50.0 * 0.47),
+                 kk.lay("BTC_5M").tienUp)
+            kiem("phí của SÀN được ghi, không tính lại",
+                 gan(kk.lay("BTC_5M").phiUsd, 0.9),
+                 kk.lay("BTC_5M").phiUsd)
+
+            kk, lt = _chay_that({"soCoKhop": 20.0, "giaKhop": 0.47})
+            kiem("sàn trả khớp MỘT PHẦN → `khop-mot-phan`",
+                 lt.trangThai == "khop-mot-phan", lt.trangThai)
+            kiem("thiếu khoá phí → 0, không nổ", gan(lt.phiUsd, 0.0),
+                 lt.phiUsd)
+
+            kk, lt = _chay_that({"soCoKhop": 50.0, "giaKhop": 0.47,
+                                 "trangThai": "huy"})
+            kiem("sàn TỰ khai trạng thái thì lời sàn thắng",
+                 lt.trangThai == "huy", lt.trangThai)
+
+            kk, lt = _chay_that({})
+            kiem("sàn trả rỗng → khớp 0, và KHÔNG đụng tồn kho",
+                 gan(lt.soCoKhop, 0.0) and gan(kk.lay("BTC_5M").coUp, 0.0),
+                 (lt.soCoKhop, kk.lay("BTC_5M").coUp))
+
+            kk, lt = _chay_that(RuntimeError("sàn sập"))
+            kiem("sàn NÉM → từ chối, nêu tên lỗi",
+                 lt.trangThai == "tu-choi" and "sàn sập" in (lt.ghiChu or ""),
+                 (lt.trangThai, lt.ghiChu))
+            kiem("và tồn kho KHÔNG bị đụng khi sàn ném",
+                 gan(kk.lay("BTC_5M").coUp, 0.0), kk.lay("BTC_5M").coUp)
+        finally:
+            _DLM.ly_do_khong_that = _cuLd
+    finally:
+        _DLM.che_hieu_luc = _cuChe
+
+
 def kiem_bien_cua_nan_lai() -> None:
     """Biên của PHÉP NẮN — nơi một xác suất bị sửa trước khi tiêu tiền.
 
@@ -7323,6 +7637,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_dat_lenh()
     kiem_bien_cua_nan_lai()
     kiem_bien_cua_so_lenh()
     kiem_bien_cua_can_loi()
