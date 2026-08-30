@@ -26,7 +26,7 @@ Xem cung tĩnh (từ gốc repo): `node server.js 5185`
 | `python run.py` | buồng lái + vòng lặp, chế độ theo `config.json` |
 | `python run.py --che=quan-sat` | chỉ đo, không mở vị thế nào kể cả trên sổ giấy |
 | `python -m kham.snapshot` | ghi một lát cắt ra cung tĩnh rồi thoát |
-| `python scripts/selftest.py` | 277 phép kiểm số học, không cần mạng |
+| `python scripts/selftest.py` | 1.586 phép kiểm số học, không cần mạng |
 | `node scripts/kiem-giao-dien.mjs` | 10 phép kiểm giao diện: tương phản, z-index, ô trống |
 | `python scripts/dung-ket-qua.py` | dựng lại KẾT QUẢ cho băng đã ghi — chỉ cần Binance |
 | `python scripts/thu-nan-lai.py` | A/B phép nắn trên băng thật: thô so với đã nắn |
@@ -34,6 +34,45 @@ Xem cung tĩnh (từ gốc repo): `node server.js 5185`
 | `node scripts/kiem-buong-lai.mjs` | vẽ thật 11 ô buồng lái, KHÔNG cần mạng |
 | `python -m kham.tien_hoa --thu` | xem vòng tiến hoá sẽ làm gì, không ghi gì |
 | `python -m kham.tien_hoa` | chạy một lượt tiến hoá THẬT |
+| `python scripts/chay-phat-lai.py --von=100000 --moi-nan=7` | PHIÊN GIẤY trọn vẹn trên băng thật: tiền ảo, kế toán thật |
+| `python scripts/do-mot-nut.py --nut=... --ngay=20` | quét CẢ TRỤC một nút, tự đo lại trên cửa sổ gấp đôi |
+| `python scripts/quet-dot-bien.py --file=kham/....py` | đổi từng toán tử so sánh, tìm chỗ phép kiểm không với tới |
+
+## Phiên giấy — tiền ảo bao nhiêu tuỳ ý, kế toán thật
+
+    python scripts/chay-phat-lai.py --von=100000 --moi-nan=7
+
+Dữ liệu THẬT (sổ lệnh Polymarket đã ghi từng khung hình, giá nền Binance,
+σ đo được lúc đó, kết quả từng cửa sổ dựng từ nến Binance), tiền ẢO, kế
+toán như một hệ thật: giá vốn, phí, lãi lỗ từng cửa sổ, đường vốn, sụt
+vốn đỉnh-đáy, và cầu dao rủi ro có quyền ngắt giữa chừng.
+
+**`--moi-nan=N` không phải tuỳ chọn cho vui.** Không có nó, phiên khai
+sinh với sổ hiệu chỉnh RỖNG, `du_de_dung_kelly()` trả False suốt phiên,
+cỡ lệnh ghim ở lô sàn — và `--von` KHÔNG đổi một lệnh nào: $1.000 với
+$100.000 cho đúng cùng một chuỗi lệnh. `--moi-nan=N` dựng sổ nắn từ N
+ngày nến Binance TRƯỚC khung đầu của băng, đúng bằng thứ máy chạy thật
+đã có sẵn. Mồi lấn sang tương lai của băng là nhìn trộm, nên phiên TỪ
+CHỐI chạy nếu khung đầu nằm trước mốc cuối của mồi.
+
+Đo được 30/08/2026 (152.729 khung, mồi 7 ngày):
+
+| vốn | khớp | kết toán | lãi lỗ | phí | sụt vốn | lỗ nặng nhất |
+|---|---|---|---|---|---|---|
+| $5.000 | 38 | 12 | +8,01% | $38 | 0,00% | −$215 |
+| $100.000 | 417 | 14 | +1,32% | $514 | 4,09% | −$3.341 |
+
+Lợi suất GIẢM khi vốn tăng — lô to ăn sâu vào sổ và phí nhân lên. Đó là
+SỨC CHỨA, và nó chỉ hiện ra khi cỡ lệnh thật sự theo vốn.
+
+Cả hai khoảng tin đều CHỨA 0. Con số lãi ở trên **chưa nói được** rằng cỗ
+máy này có lãi, và phiên tự in ra điều đó. Đọc nó như một CẬN TRÊN: phiên
+giấy không có tác động thị trường, không có trượt giá theo thời gian,
+không có chọn lọc bất lợi.
+
+Mỗi lượt còn in ra **cửa rủi ro nào CHƯA CHẶN AI LẦN NÀO** — 30/08 là 3
+trong 13, và mười cửa im lặng gần như là trọn phần giữ vốn. Một cửa không
+bao giờ chạy thì không phân biệt được với một cửa hỏng.
 
 ## Sổ kết quả — mảnh khiến chạy lại chấm được điểm
 

@@ -12,13 +12,13 @@
    đổi.
 */
 window.DAI_CHIEM = {
-  "date": "29/08/2026",
+  "date": "30/08/2026",
   "tomTat": "1 market đã kết toán · kỳ vọng -49.9483$/lệnh",
-  "generatedAt": "2026-08-29T20:42:42.830Z",
+  "generatedAt": "2026-08-30T09:39:47.814Z",
   "che": "giay",
   "cheKhai": "giay",
   "vong": 1,
-  "chayDuocGiay": 0.8890748023986816,
+  "chayDuocGiay": 1.1641249656677246,
   "thiTruong": [
     {
       "ma": "BTC_5M",
@@ -100,15 +100,18 @@ window.DAI_CHIEM = {
   "risk": {
     "von": 950.0517497348915,
     "vonBanDau": 1000.0,
-    "vonDauNgay": 1000.0,
+    "vonDauNgay": 950.0517497348915,
     "dinhVon": 1000.0,
     "sutVonPct": 4.994825026510853,
-    "loNgayUsd": 49.94825026510855,
-    "laiRongNgayUsd": -49.94825026510855,
-    "loGopNgayUsd": 49.94825026510855,
-    "tranLoNgayUsd": 50.0,
-    "tranMoiThiTruongUsd": 100.0,
-    "tranMoiTaiSanUsd": 200.0,
+    "loNgayUsd": 0.0,
+    "laiRongNgayUsd": 0.0,
+    "loGopNgayUsd": 0.0,
+    "tranLoNgayUsd": 47.50258748674458,
+    "loXauNhatGopUsd": 0,
+    "conNganSachNgayUsd": 47.50258748674458,
+    "tranPhoiNhiemGopUsd": 190.01034994697832,
+    "tranMoiThiTruongUsd": 95.00517497348916,
+    "tranMoiTaiSanUsd": 190.01034994697832,
     "ngatKhanCap": false,
     "lyDoNgat": ""
   },
@@ -119,6 +122,7 @@ window.DAI_CHIEM = {
     "tongPhiUsd": 0,
     "duong": "giay",
     "cuaDangDong": [
+      "chưa đối soát vị thế với SÀN sau khi khởi động",
       "che ≠ 'that' (đang: 'giay')",
       "datLenh.choPhepLenhThat = false",
       "datLenh.toiXacNhanDaDocRuiRo = false",
@@ -129,78 +133,78 @@ window.DAI_CHIEM = {
     "bang": [
       {
         "o": "0-10",
-        "n": 5222,
-        "duDoan": 0.038940755698483445,
-        "thucTe": 0.0534278054385293,
-        "lech": 0.014487049740045853
+        "n": 20131,
+        "duDoan": 0.03929466320191271,
+        "thucTe": 0.051760965674829865,
+        "lech": 0.012466302472917155
       },
       {
         "o": "10-20",
-        "n": 2829,
-        "duDoan": 0.15060746974278225,
-        "thucTe": 0.15129020855425945,
-        "lech": 0.000682738811477207
+        "n": 11579,
+        "duDoan": 0.1504763290638771,
+        "thucTe": 0.1525174885568702,
+        "lech": 0.0020411594929931054
       },
       {
         "o": "20-30",
-        "n": 3330,
-        "duDoan": 0.25157190837641763,
-        "thucTe": 0.23153153153153153,
-        "lech": -0.020040376844886104
+        "n": 13270,
+        "duDoan": 0.25154157195982924,
+        "thucTe": 0.23556895252449134,
+        "lech": -0.015972619435337898
       },
       {
         "o": "30-40",
-        "n": 3965,
-        "duDoan": 0.35136791339957857,
-        "thucTe": 0.32686002522068097,
-        "lech": -0.024507888178897597
+        "n": 16222,
+        "duDoan": 0.351505226541548,
+        "thucTe": 0.32647022561952904,
+        "lech": -0.025035000922018935
       },
       {
         "o": "40-50",
-        "n": 4969,
-        "duDoan": 0.454847024929898,
-        "thucTe": 0.4342926142080902,
-        "lech": -0.020554410721807803
+        "n": 20362,
+        "duDoan": 0.45642286652088215,
+        "thucTe": 0.43325802966309795,
+        "lech": -0.0231648368577842
       },
       {
         "o": "50-60",
-        "n": 4631,
-        "duDoan": 0.5486320115135455,
-        "thucTe": 0.5545238609371625,
-        "lech": 0.00589184942361709
+        "n": 17030,
+        "duDoan": 0.5518268391619328,
+        "thucTe": 0.5587199060481504,
+        "lech": 0.0068930668862176026
       },
       {
         "o": "60-70",
-        "n": 3967,
-        "duDoan": 0.6480837871467847,
-        "thucTe": 0.6617091000756239,
-        "lech": 0.013625312928839173
+        "n": 15451,
+        "duDoan": 0.648297865496475,
+        "thucTe": 0.6582098246068215,
+        "lech": 0.009911959110346591
       },
       {
         "o": "70-80",
-        "n": 3358,
-        "duDoan": 0.7489704072232416,
-        "thucTe": 0.7608695652173914,
-        "lech": 0.011899157994149756
+        "n": 13051,
+        "duDoan": 0.748835990185104,
+        "thucTe": 0.7584859397747299,
+        "lech": 0.00964994958962584
       },
       {
         "o": "80-90",
-        "n": 2883,
-        "duDoan": 0.8492937110032727,
-        "thucTe": 0.8449531737773153,
-        "lech": -0.004340537225957397
+        "n": 11709,
+        "duDoan": 0.8493416225101021,
+        "thucTe": 0.8440515842514306,
+        "lech": -0.005290038258671581
       },
       {
         "o": "90-100",
-        "n": 5186,
-        "duDoan": 0.9611990387453453,
-        "thucTe": 0.9541072117238719,
-        "lech": -0.007091827021473374
+        "n": 20947,
+        "duDoan": 0.9609994352436009,
+        "thucTe": 0.9506373227669833,
+        "lech": -0.010362112476617558
       }
     ],
-    "tongMau": 40340,
+    "tongMau": 159752,
     "duDeDungKelly": true,
-    "saiSoTB": 0.012746952593189831
+    "saiSoTB": 0.012768709645029424
   },
   "thongKe": {
     "n": 1,
@@ -216,7 +220,8 @@ window.DAI_CHIEM = {
     "thuaLonNhat": -49.94825026510855,
     "xoaBaoNhieuLanThang": null,
     "duoi5pct": -49.94825026510855,
-    "canhBaoDuoi": false
+    "canhBaoDuoi": false,
+    "canhBao": null
   },
   "chienThuat": [
     {
@@ -259,7 +264,7 @@ window.DAI_CHIEM = {
   "vi": {
     "soVi": 0,
     "nga": {},
-    "quetLucMs": 1788036162824.8176,
+    "quetLucMs": 1788082787808.9692,
     "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP. Không dựng lại được vòng đời báo giá, và vì vậy không kết luận được ai là market maker.",
     "vi": []
   },
@@ -275,12 +280,6 @@ window.DAI_CHIEM = {
       "soLoi": 3,
       "tongLuot": 0,
       "loiCuoi": "ConnectError: [WinError 10054] An existing connection was forcibly closed by the remote host"
-    },
-    "binance-kline": {
-      "tuoiMs": null,
-      "soLoi": 0,
-      "tongLuot": 0,
-      "loiCuoi": ""
     }
   },
   "dongSong": {
@@ -325,34 +324,33 @@ window.DAI_CHIEM = {
         "tiLeThang": 0.0,
         "thuaLonNhat": -49.94825026510855,
         "duoi5pct": -49.94825026510855,
-        "capNhatLuc": 1788036162.8257363
+        "capNhatLuc": 1788082787.8089693
       }
     ]
   },
   "tienHoa": {
     "ganNhat": null,
     "duong": {
-      "soLuot": 37,
+      "soLuot": 48,
       "soLanNhan": 0,
       "soLanTraLai": 1,
-      "soLanDungYen": 36,
+      "soLanDungYen": 47,
       "chuoi": [],
       "tongCaiThien": null,
       "ganNhat": {
-        "luc": "2026-08-29T20:23:48Z",
-        "soKhungBang": 89964,
-        "soLenhKetToan": 19,
+        "luc": "2026-08-30T02:05:06Z",
+        "soKhungBang": 55276,
+        "soLenhKetToan": 22,
         "nguonMau": "chay-lai",
         "daThu": 0,
         "trieuChung": [
           {
-            "ma": "thieu-mau",
-            "nang": 1,
-            "moTa": "mới 19 lệnh đã kết toán — chưa đủ để chẩn gì. Chạy thêm, đừng vặn.",
+            "ma": "khoe",
+            "nang": 0,
+            "moTa": "không triệu chứng nào vượt ngưỡng: kỳ vọng +18.07652, 22 lệnh, đuôi trong hạn",
             "bangChung": {
-              "n": 19,
-              "canToiThieu": 20,
-              "nguonMau": "chay-lai"
+              "kyVong": 18.076521363636363,
+              "n": 22
             },
             "nutGoiY": []
           }
@@ -360,17 +358,17 @@ window.DAI_CHIEM = {
         "deXuat": [],
         "nhan": null,
         "traLai": [],
-        "kyVongTruoc": 22.231841999999993,
+        "kyVongTruoc": 18.076521363636363,
         "kyVongSau": null,
         "ghiChu": "không có bệnh nào vượt ngưỡng — không vặn gì. Vòng tiến hoá đứng yên là một kết quả hợp lệ."
       }
     },
-    "ngayDaXet": "2026-08-29",
-    "ngayDaChay": "",
-    "xong": false,
-    "dangChay": true,
+    "ngayDaXet": "2026-08-30",
+    "ngayDaChay": "2026-08-30",
+    "xong": true,
+    "dangChay": false,
     "loi": null,
-    "soLanThu": 1,
+    "soLanThu": 0,
     "toiDaThu": 4,
     "thuLaiSauGiay": null,
     "bat": true,
@@ -382,7 +380,7 @@ window.DAI_CHIEM = {
     "bat": true,
     "soLoiGhi": 0,
     "loiCuoi": null,
-    "duong": "bang-2026-08-29-204242-3968.jsonl.gz",
+    "duong": "bang-2026-08-30-093947-5672.jsonl.gz",
     "doc": null
   },
   "loiNhac": "Đây là LÁT CẮT tĩnh do runtime ở máy ghi ra, không phải số liệu sống. Trang này không gọi API nào và không đặt được lệnh nào."
