@@ -493,15 +493,31 @@ def _lan_demo() -> list[str]:
     if not so.exists():
         return []
     ra = []
+    # Cùng một luật với `_con_song`, và cùng một cái bẫy: nhật ký chỉ nhận sự
+    # kiện ĐÁNG GHI (`bus.log`), không nhận mỗi vòng. Bản đầu của hàm này chép
+    # lại logic cũ và báo "**LÀN DEMO IM 1,5 GIỜ**" ngay TRÊN dòng in ra khung,
+    # bộ luật và chế độ nó đang chạy — hai dòng liền nhau, một dòng nói dối.
+    #
+    # Làn demo còn im hơn làn chính: khung 1d, một nến mỗi ngày, và bộ luật
+    # kéo-lùi rất kén. Im vài giờ ở đây là chuyện thường ngày.
+    #
+    # Gọi cổng ĐÚNG MỘT LẦN: mỗi lần là một lần chờ timeout, và bản trước gọi
+    # tới ba lần cho cùng một câu hỏi.
+    song = _cong_tra_loi(5282)
     nk = so / "nhat-ky" / "runtime.log"
-    if nk.exists():
+    if not nk.exists():
+        if not song:
+            ra.append("**LÀN DEMO CHƯA TỪNG CHẠY** trên máy này.")
+    else:
         gio = (_t.time() - nk.stat().st_mtime) / 3600
-        if gio > IM_LANG_GIO:
+        if not song and gio > IM_LANG_GIO:
             ra.append(f"**LÀN DEMO IM {gio:.1f} GIỜ.** Bật lại: "
                       f"`powershell -File dichvu/bat.ps1 -Demo`.")
-    elif not _cong_tra_loi(5282):
-        ra.append("**LÀN DEMO CHƯA TỪNG CHẠY** trên máy này.")
-    if nk.exists() and not _cong_tra_loi(5282):
+        elif song and gio > IM_LANG_DU_SONG_GIO:
+            ra.append(f"Làn demo im {gio:.1f} giờ nhưng cổng 5282 vẫn trả lời — "
+                      f"đang chạy, chỉ là không có sự kiện đáng ghi. Khung 1d thì "
+                      f"một nến mỗi ngày, im lâu là bình thường.")
+    if not song:
         ra.append("**CỔNG 5282 KHÔNG TRẢ LỜI** — làn demo đang TẮT. Bật lại: "
                   "`powershell -File dichvu/bat.ps1 -Demo`.")
 

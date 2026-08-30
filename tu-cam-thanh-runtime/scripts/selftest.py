@@ -1221,6 +1221,12 @@ async def main() -> int:
     # IM 1,3 GIỜ" trong khi giám sát, runtime và cổng đều sống.
     check("IM_LANG_DU_SONG_GIO" in _bg53,
           "bàn giao có ngưỡng riêng cho ca «im nhưng cổng còn trả lời»")
+    # HAI chỗ, không phải một. `_con_song` (làn chính) và `_lan_demo` (làn demo)
+    # đều canh nhật ký, và bản đầu của `_lan_demo` chép lại logic CŨ — nó báo
+    # "LÀN DEMO IM 1,5 GIỜ" ngay TRÊN dòng in ra khung và bộ luật đang chạy.
+    # Hai dòng liền nhau, một dòng nói dối.
+    check(_bg53.count("IM_LANG_DU_SONG_GIO") >= 2,
+          "CẢ HAI làn dùng ngưỡng ấy — sửa một chỗ là để lại một bản sao nói dối")
     check("if not song and gio > IM_LANG_GIO" in _bg53,
           "nhật ký im chỉ tính là BẰNG CHỨNG CHẾT khi cổng cũng không trả lời")
     _bus53 = ma_khong_chu_thich(ROOT / "trader" / "bus.py")
