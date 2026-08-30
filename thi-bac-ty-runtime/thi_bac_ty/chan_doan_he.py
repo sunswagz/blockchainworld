@@ -490,25 +490,25 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             continue
         if vg < TOI_THIEU_VON_GIO_THU_KHONG:
             continue
-        # CÁCH ĐỌC THỨ BA, và nó là cách đọc chỉ về phía NGƯỜI VẬN HÀNH:
-        # mỗi lần khởi động lại vứt một cửa sổ kế toán, và với engine thu
-        # theo MỐC thì vứt đúng cửa sổ chứa mốc là mất trọn một kỳ. Không
-        # nói ra con số ấy thì cả ba cách đọc trông giống nhau, và cái dễ
-        # kết luận nhất — «engine dở» — là cái sai nhất.
+        # CÁCH ĐỌC THỨ BA — «mốc rơi vào một cửa sổ bị vứt» — nay ĐO
+        # ĐƯỢC, và nó là cách đọc DUY NHẤT chỉ về phía cỗ máy chứ không
+        # về phía thị trường. Cả hai đường vứt cửa sổ đều đã được đếm:
+        # ty mù quá `TRAN_CUA_SO_MU_GIAY`, và khởi động lại mà quãng tắt
+        # dài quá cùng cái trần ấy. Quãng ngắn hơn thì NỐI LẠI, không
+        # vứt.
+        #
+        # Một câu KHÔNG được nói: «đã loại hẳn». `soCuaSoMuBoQuaTong` gộp
+        # từ những vị thế ĐANG MỞ; vị thế đã đóng mang lịch sử của nó đi
+        # theo. Nên câu đúng là «không vị thế đang mở nào», và cái khác
+        # nhau ấy đáng một mệnh đề chứ không đáng bỏ đi.
         ld = anh.get("luuDanhMuc") or {}
         n_kd = int(ld.get("soLanKhoiDong") or 0)
         g_tat = float(ld.get("tongGiayTatMay") or 0.0)
-        vi_kd = (f" Và cỗ máy đã khởi động lại {n_kd} lần (tổng "
-                 f"{g_tat / 60.0:.1f} phút tắt): mỗi lần vứt một cửa sổ "
-                 f"kế toán, nên nếu thu nhập tới theo mốc thì một lần "
-                 f"khởi động không may cũng đủ đánh rơi trọn một kỳ."
+        vi_kd = (f" Cỗ máy đã khởi động lại {n_kd} lần (tổng "
+                 f"{g_tat / 60.0:.1f} phút tắt) — quãng tắt NGẮN thì cửa "
+                 f"sổ kế toán nối lại được, nên nó chỉ vứt cửa sổ khi tắt "
+                 f"lâu, và những lần ấy đã nằm trong con số trên."
                  if n_kd > 1 else "")
-        # BẰNG CHỨNG cho cách đọc thứ ba, nay ĐO ĐƯỢC. Trước 30/08 câu
-        # «rơi vào một cửa sổ bị vứt» là một giả thuyết không kiểm được,
-        # nên nó nằm ngang hàng với hai cách đọc kia và không ai chọn
-        # được. Nay vòng mù GIỮ LẠI cửa sổ cho vòng sau đo bù, và chỗ bị
-        # bỏ hẳn thì được đếm — nên con số ấy bằng 0 gạch được cách đọc
-        # thứ ba, NHƯNG chỉ khi máy chạy liền một mạch: xem nhánh dưới.
         _kt0 = anh.get("keToan") or {}
         _mbq = _kt0.get("soCuaSoMuBoQuaTong")
         _gbq = _kt0.get("gioMuBoQuaTong")
@@ -516,21 +516,12 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             vi_mu = ""
         elif _mbq:
             vi_mu = (f" Cỗ máy ĐÃ bỏ hẳn {_mbq} cửa sổ kế toán "
-                     f"({_gbq:.2f} giờ) vì mù quá lâu — cách đọc thứ ba "
-                     f"có bằng chứng, hãy xem trước.")
-        elif n_kd > 1:
-            # KHÔNG được nói «đã LOẠI» ở đây, dù con số bằng 0.
-            # `soCuaSoMuBoQua` chỉ đếm cửa sổ bỏ vì TY MÙ. Cửa sổ mất vì
-            # KHỞI ĐỘNG LẠI đi đường khác — `nap()` đặt `keToanLucGiay`
-            # thẳng về bây giờ — nên nó không được đếm ở đâu cả. Một bằng
-            # chứng phủ được NỬA câu mà tuyên là phủ cả câu thì tệ hơn
-            # không có bằng chứng nào: nó đóng đúng hướng còn đang mở.
-            vi_mu = (f" KHÔNG cửa sổ nào bị bỏ vì ty mù — nhưng con số ấy "
-                     f"KHÔNG phủ được cửa sổ mất vì khởi động lại, và ở "
-                     f"đây có {n_kd} lần. Cách đọc thứ ba vẫn còn mở.")
+                     f"({_gbq:.2f} giờ) — cách đọc thứ ba có bằng chứng, "
+                     f"hãy xem trước.")
         else:
-            vi_mu = (" KHÔNG cửa sổ kế toán nào bị bỏ, và máy chạy liền "
-                     "một mạch, nên cách đọc thứ ba đã LOẠI.")
+            vi_mu = (" KHÔNG vị thế ĐANG MỞ nào có cửa sổ kế toán bị bỏ, "
+                     "nên với chúng cách đọc thứ ba đã LOẠI (vị thế đã "
+                     "đóng thì mang lịch sử ấy đi theo).")
         ra.append(TrieuChungHe(
             "ty-thu-bang-khong", 2,
             f"ty {ma} chạy {vg:,.0f} vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây "

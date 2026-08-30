@@ -122,15 +122,22 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
         "tienDaGhiUsd": float(tienDaGhiUsd),
         # QUÃNG MÁY TẮT, cộng dồn — và vì sao nó đáng một chỗ trên đĩa.
         #
-        # Mỗi lần khởi động, `keToanLucGiay` của mọi vị thế được đặt lại
-        # thành BÂY GIỜ: khoảng máy tắt KHÔNG được cộng bù, vì không ai
-        # đo được rate trong lúc mình không chạy. Đó là quyết định đúng.
+        # Luật cũ ở đây là «mỗi lần khởi động, `keToanLucGiay` của mọi
+        # vị thế đặt lại thành BÂY GIỜ», với lý lẽ «không ai đo được rate
+        # trong lúc mình không chạy». Nay KHÔNG còn thế: quãng tắt ngắn
+        # hơn `TRAN_CUA_SO_MU_GIAY` được NỐI LẠI, dài hơn thì bỏ và ĐẾM —
+        # xem `nap()` bên dưới.
         #
-        # Nhưng cái GIÁ của nó thì trước lượt này không ai đếm. Với một
-        # engine mà thu nhập chỉ tới ở MỐC — funding 8 giờ một lần —
-        # đánh rơi đúng cái cửa sổ 30 giây chứa mốc là đánh rơi TÁM GIỜ
-        # thu nhập, và sổ chỉ ghi «thu 0», y hệt một engine không kiếm
-        # được gì.
+        # Lý lẽ cũ đúng cho một quãng dài và sai cho một lần deploy ba
+        # giây; và cùng lúc ấy, vòng MÙ lại được phép gộp cửa sổ tới trọn
+        # một giờ bằng đúng phép xấp xỉ ấy. Hai quãng cùng loại — «có
+        # chuyện xảy ra mà ta không nhìn» — mà hai luật khác nhau.
+        #
+        # Cái giá thì không đối xứng, và đó là chỗ quyết: với engine thu
+        # theo MỐC (funding 8 giờ một lần), vứt đúng cửa sổ 30 giây chứa
+        # mốc là mất trọn TÁM GIỜ thu nhập, và sổ chỉ ghi «thu 0» — y hệt
+        # một engine không kiếm được gì. Còn nối lại thì sai nhiều nhất
+        # là dùng rate hôm nay cho một quãng dưới một giờ.
         #
         # ⚠ SỬA LẠI MỘT CÂU ĐÃ VIẾT SAI Ở ĐÂY. Chỗ này từng dùng con số
         # «`basis.cash_carry.v1` chạy 5.222 vòng, không vòng nào mù, chưa
@@ -140,8 +147,10 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
         # vòng dù máy có chạy liên tục bao lâu — xem `dem_moc_qua` trong
         # `phai_sinh_chung/dongho.py`. Đã vá 30/08/2026.
         #
-        # Giữ lại hai con số dưới đây, vì mối nguy thì vẫn thật: đánh rơi
-        # cửa sổ chứa mốc là đánh rơi tám giờ thu nhập. Nhưng đừng đọc
+        # Giữ lại hai con số dưới đây. Chúng không còn là bằng chứng cho
+        # một cửa sổ bị vứt — cửa sổ vứt thật thì nay có bộ đếm riêng
+        # (`soCuaSoMuBoQua`) — nhưng chúng vẫn là thứ duy nhất nói được
+        # cỗ máy có thực sự chạy liên tục hay không. Đừng đọc
         # chúng như lời giải thích cho một con số 0 nào đó — một bằng
         # chứng gán nhầm nguyên nhân là thứ ngăn người sau đi tìm nguyên
         # nhân thật, và ở đây nó đã ngăn đúng một ngày.
@@ -186,7 +195,7 @@ def nap(duong, danh_muc, duongNav) -> dict:
     tệ hơn một cỗ máy lên với trí nhớ trống.
     """
     from .danh_muc import ViThe
-    from .ke_toan import SoViThe
+    from .ke_toan import TRAN_CUA_SO_MU_GIAY, SoViThe
 
     p = Path(duong)
     if not p.is_file():
@@ -218,20 +227,56 @@ def nap(duong, danh_muc, duongNav) -> dict:
         for k, v in (d.get("viThe") or {}).items()}
 
     soViThe: dict = {}
+    soBoQuaNap = 0
+    gioBoQuaNap = 0.0
     for s in (d.get("soViThe") or []):
-        # Mốc kế toán đặt lại thành BÂY GIỜ: khoảng máy tắt KHÔNG được
-        # cộng bù. Ta không biết rate trong lúc mình đang tắt, và cộng bù
-        # là bịa ra một phép đo chưa từng chạy.
+        # QUÃNG MÁY TẮT: nối lại nếu NGẮN, bỏ và ĐẾM nếu dài.
+        #
+        # Trước 30/08 chỗ này luôn đặt mốc về BÂY GIỜ, với lý lẽ «không
+        # ai đo được rate trong lúc mình không chạy». Lý lẽ ấy đúng cho
+        # một quãng dài, và SAI cho một lần deploy ba giây — mà chính
+        # cùng lúc ấy, vòng MÙ lại được phép gộp cửa sổ tới trọn một giờ
+        # bằng đúng phép xấp xỉ ấy (`TRAN_CUA_SO_MU_GIAY`). Hai quãng
+        # cùng loại — «có chuyện xảy ra mà ta không nhìn» — mà một cái
+        # được nối, một cái bị vứt: đó là hai luật cho một câu hỏi.
+        #
+        # Với engine thu theo MỐC, cái giá không đối xứng: vứt đúng cửa
+        # sổ chứa mốc là mất trọn tám giờ funding, còn nối lại thì sai
+        # nhiều nhất là dùng rate hôm nay cho một quãng dưới một giờ.
+        # Nên nay cùng một trần, cùng một cách đếm.
+        #
+        # Đồng hồ máy lùi (`now` nhỏ hơn mốc đã lưu) thì KHÔNG nối: một
+        # cửa sổ âm không có nghĩa gì, và nó chảy thẳng vào sổ cái.
+        _ktCu = s.get("keToanLucGiay")
+        _kt = now
+        try:
+            _cach = now - float(_ktCu)
+        except (TypeError, ValueError):
+            _cach = None
+        if _cach is not None and 0.0 <= _cach <= TRAN_CUA_SO_MU_GIAY:
+            _kt = float(_ktCu)
+        elif _cach is not None and _cach > TRAN_CUA_SO_MU_GIAY:
+            soBoQuaNap += 1
+            gioBoQuaNap += _cach / 3600.0
         soViThe[s["ma"]] = SoViThe(
             ma=s["ma"], chienLuoc=s["chienLuoc"], toTrinh=s["toTrinh"],
             vonUsd=float(s["vonUsd"]), moLucGiay=float(s["moLucGiay"]),
-            keToanLucGiay=now,
+            keToanLucGiay=_kt,
+            # Cùng mốc với kế toán, không phải `now`. Lệch hai mốc là
+            # cộng thu nhập của quãng tắt vào TỬ SỐ mà bỏ quãng ấy khỏi
+            # MẪU SỐ vốn-giờ — tỉ suất phồng lên đúng một lần mỗi lần
+            # khởi động lại, và không dòng nào kêu.
+            vonGioLucGiay=_kt,
+            gioMuBoQua=(float(s.get("gioMuBoQua") or 0.0)
+                        + (_cach / 3600.0
+                           if (_cach or 0.0) > TRAN_CUA_SO_MU_GIAY else 0.0)),
+            soCuaSoMuBoQua=(int(s.get("soCuaSoMuBoQua") or 0)
+                            + (1 if (_cach or 0.0) > TRAN_CUA_SO_MU_GIAY
+                               else 0)),
             thuCongDonUsd=float(s.get("thuCongDonUsd") or 0.0),
             phiCongDonUsd=float(s.get("phiCongDonUsd") or 0.0),
             soVongKeToan=int(s.get("soVongKeToan") or 0),
             soVongKhongDoDuoc=int(s.get("soVongKhongDoDuoc") or 0),
-            gioMuBoQua=float(s.get("gioMuBoQua") or 0.0),
-            soCuaSoMuBoQua=int(s.get("soCuaSoMuBoQua") or 0),
             coKeToan=s.get("coKeToan"))
 
     duongNav.diem = [(float(x[0]), float(x[1]),
@@ -268,8 +313,14 @@ def nap(duong, danh_muc, duongNav) -> dict:
         "laiLoDaThucHienUsd": danh_muc.laiLoDaThucHienUsd,
         "giayTatMay": tat,
         "_soViThe": soViThe,
+        "soBoQuaNap": soBoQuaNap,
+        "gioBoQuaNap": round(gioBoQuaNap, 4),
         "vi": (f"nạp lại {len(soViThe)} vị thế và {len(duongNav.diem)} điểm "
-               f"NAV. Máy tắt {tat / 60:.1f} phút — khoảng ấy KHÔNG được "
-               f"cộng lãi cho vị thế nào, vì không ai đo được rate trong "
-               f"lúc máy không chạy."),
+               f"NAV. Máy tắt {tat / 60:.1f} phút. "
+               + (f"{soBoQuaNap} vị thế có cửa sổ kế toán dài quá "
+                  f"{TRAN_CUA_SO_MU_GIAY / 60:.0f} phút ({gioBoQuaNap:.2f} "
+                  f"giờ) nên BỎ và đếm — khoảng ấy không ai đo được rate. "
+                  if soBoQuaNap else
+                  "Cửa sổ kế toán của mọi vị thế đều NỐI LẠI được, nên "
+                  "không mốc funding nào rơi vào chỗ không ai nhìn. ")),
     }

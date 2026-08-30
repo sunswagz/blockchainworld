@@ -4218,6 +4218,7 @@ def kiem_chan_doan_he() -> None:
             if x.ma == "ty-thu-bang-khong"]
     kiem("khởi động lại NHIỀU lần thì nói thẳng con số ấy ra",
          ("18 lần" in _tKd[0].moTa
+          and "nối lại được" in _tKd[0].moTa
           and _tKd[0].bangChung.get("soLanKhoiDong") == 18),
          f"{_tKd[0].moTa[-180:]} — không nói ra thì cả ba cách đọc trông "
          f"giống nhau, và cái dễ kết luận nhất («engine dở») là cái sai "
@@ -4250,7 +4251,7 @@ def kiem_chan_doan_he() -> None:
                               "keToan": {"soCuaSoMuBoQuaTong": 0,
                                          "gioMuBoQuaTong": 0.0}})
              if x.ma == "ty-thu-bang-khong"]
-    kiem("không cửa sổ nào bị bỏ VÀ chạy liền mạch thì LOẠI cách đọc ấy",
+    kiem("không cửa sổ nào bị bỏ thì LOẠI cách đọc ấy đi",
          "đã LOẠI" in _tMu0[0].moTa,
          f"{_tMu0[0].moTa[-200:]} — gạch bớt một khả năng là thứ giúp "
          f"người đọc quyết định; liệt kê ba khả năng mãi thì không")
@@ -4258,18 +4259,27 @@ def kiem_chan_doan_he() -> None:
     # vì TY MÙ; cửa sổ mất vì KHỞI ĐỘNG LẠI đi đường khác — `nap()` đặt
     # `keToanLucGiay` thẳng về bây giờ — nên không được đếm ở đâu. Tuyên
     # «đã LOẠI» khi có khởi động lại là đóng đúng hướng điều tra còn mở.
+    # Bằng chứng ấy nay phủ CẢ HAI đường vứt cửa sổ — ty mù, và khởi
+    # động lại mà tắt lâu — nên có khởi động lại vẫn loại được. Nhưng nó
+    # chỉ gộp từ vị thế ĐANG MỞ, và câu chẩn phải nói đúng chừng ấy: vị
+    # thế đã đóng mang lịch sử của nó đi theo.
     _tMuKd = [x for x in _cdh({**_anhThu0(),
                                "keToan": {"soCuaSoMuBoQuaTong": 0,
                                           "gioMuBoQuaTong": 0.0},
                                "luuDanhMuc": {"soLanKhoiDong": 8,
                                               "tongGiayTatMay": 174.0}})
               if x.ma == "ty-thu-bang-khong"]
-    kiem("0 cửa sổ mù NHƯNG có khởi động lại thì KHÔNG được nói «đã LOẠI»",
-         ("đã LOẠI" not in _tMuKd[0].moTa
-          and "vẫn còn mở" in _tMuKd[0].moTa
-          and "8 lần" in _tMuKd[0].moTa),
-         f"{_tMuKd[0].moTa[-260:]} — một bằng chứng phủ được nửa câu mà "
-         f"tuyên là phủ cả câu thì tệ hơn không có bằng chứng nào")
+    kiem("có khởi động lại mà 0 cửa sổ bị bỏ thì VẪN loại được",
+         ("đã LOẠI" in _tMuKd[0].moTa and "8 lần" in _tMuKd[0].moTa
+          and "nối lại được" in _tMuKd[0].moTa),
+         f"{_tMuKd[0].moTa[-300:]} — quãng tắt ngắn nay nối lại chứ không "
+         f"vứt, nên khởi động lại thôi KHÔNG còn là bằng chứng cho cách "
+         f"đọc thứ ba")
+    kiem("nhưng câu ấy KHÔNG tuyên loại hẳn — nó nói rõ chỉ vị thế ĐANG MỞ",
+         "ĐANG MỞ" in _tMuKd[0].moTa and "đã đóng" in _tMuKd[0].moTa,
+         f"{_tMuKd[0].moTa[-300:]} — con số gộp từ vị thế còn mở; vị thế "
+         f"đã đóng mang lịch sử ấy đi theo, và nói quá đúng một mệnh đề "
+         f"là đóng đúng hướng còn mở")
     kiem("ảnh chụp CŨ không có trường ấy thì im, không nói bừa cả hai chiều",
          ("ĐÃ bỏ hẳn" not in _t0[0].moTa and "đã LOẠI" not in _t0[0].moTa),
          f"{_t0[0].moTa[-200:]} — thiếu số thì chưa loại được gì, và "
@@ -8543,12 +8553,56 @@ def kiem_luu_danh_muc() -> None:
     kiem("nạp lại: sổ vị thế giữ cả phần đã cộng dồn",
          sv2["m1"].thuCongDonUsd == 1.25 and sv2["m1"].soVongKeToan == 7)
 
-    kiem("nhưng mốc kế toán ĐẶT LẠI thành bây giờ",
-         abs(sv2["m1"].keToanLucGiay - _t17.time()) < 5.0,
-         "cộng bù khoảng máy tắt là bịa ra một phép đo chưa từng chạy — "
-         "không ai biết rate trong lúc máy không chạy")
-    kiem("và khoảng máy tắt được KHAI ra",
-         "giayTatMay" in r and "KHÔNG được cộng lãi" in r["vi"], str(r))
+    # ── QUÃNG MÁY TẮT: nối lại nếu NGẮN, bỏ và ĐẾM nếu dài ─────────────
+    #
+    # Luật cũ ở đây là «luôn đặt mốc về bây giờ», với lý lẽ «không ai đo
+    # được rate trong lúc mình không chạy». Lý lẽ ấy đúng cho một quãng
+    # dài và SAI cho một lần deploy ba giây — mà cùng lúc ấy, vòng MÙ lại
+    # được phép gộp cửa sổ tới trọn một giờ bằng đúng phép xấp xỉ ấy. Hai
+    # quãng cùng loại, hai luật khác nhau.
+    #
+    # Cái giá không đối xứng: với engine thu theo MỐC, vứt đúng cửa sổ
+    # chứa mốc là mất trọn tám giờ funding; còn nối lại thì sai nhiều
+    # nhất là dùng rate hôm nay cho một quãng dưới một giờ.
+    from thi_bac_ty.ke_toan import TRAN_CUA_SO_MU_GIAY as _TRAN17
+
+    kiem("máy tắt NGẮN thì mốc kế toán NỐI LẠI, không nhảy về bây giờ",
+         gan(sv2["m1"].keToanLucGiay, sv["m1"].keToanLucGiay),
+         f"{_t17.time() - sv2['m1'].keToanLucGiay:.1f}s — mốc phải là "
+         f"mốc CŨ; nhảy về bây giờ là vứt cửa sổ, và vứt đúng cửa sổ "
+         f"chứa mốc funding là mất trọn một kỳ")
+    kiem("và VỐN-GIỜ đi cùng mốc ấy, không đi riêng",
+         gan(sv2["m1"].vonGioLucGiay, sv2["m1"].keToanLucGiay),
+         f"{sv2['m1'].vonGioLucGiay} vs {sv2['m1'].keToanLucGiay} — lệch "
+         f"hai mốc là cộng thu nhập của quãng tắt vào TỬ SỐ mà bỏ quãng "
+         f"ấy khỏi MẪU SỐ: tỉ suất phồng lên mỗi lần khởi động lại")
+    kiem("nối được thì KHÔNG đếm là quãng bỏ",
+         sv2["m1"].soCuaSoMuBoQua == 0 and r.get("soBoQuaNap") == 0
+         and "NỐI LẠI được" in r["vi"], str(r.get("vi")))
+    kiem("và khoảng máy tắt vẫn được KHAI ra",
+         "giayTatMay" in r and "Máy tắt" in r["vi"], str(r))
+
+    # máy tắt LÂU: bỏ, và đếm — không nối bằng rate hôm nay
+    lau17 = d17 / "dm-lau.json"
+    svLau = {"m1": SoViThe(ma="m1", chienLuoc="x.y.v1",
+                           toTrinh={"giuGio": 720.0}, vonUsd=500.0,
+                           moLucGiay=_t17.time() - 99_999.0,
+                           keToanLucGiay=_t17.time() - _TRAN17 - 600.0,
+                           coKeToan=True)}
+    luu(lau17, dm, svLau, dn)
+    dm4, dn4 = DanhMuc(10_000.0), DuongNav()
+    r4 = nap(lau17, dm4, dn4)
+    sv4 = r4["_soViThe"]
+    kiem("máy tắt LÂU thì cửa sổ bị BỎ, mốc về bây giờ",
+         abs(sv4["m1"].keToanLucGiay - _t17.time()) < 5.0,
+         f"{_t17.time() - sv4['m1'].keToanLucGiay:.0f}s — nối một quãng "
+         f"dài bằng rate hôm nay là bịa ra một phép đo chưa từng chạy")
+    kiem("và quãng bỏ ấy được ĐẾM, cả trên vị thế lẫn tóm tắt nạp",
+         sv4["m1"].soCuaSoMuBoQua == 1 and r4.get("soBoQuaNap") == 1
+         and (r4.get("gioBoQuaNap") or 0) > _TRAN17 / 3600.0
+         and "BỎ và đếm" in r4["vi"],
+         f"{r4.get('vi')} — bỏ im lặng chính là cái lỗi mà cả lớp này "
+         f"sinh ra để chặn")
 
     # ── hỏng thì KHAI, không giết lượt khởi động ────────────────────────
     xau17 = d17 / "hong.json"
