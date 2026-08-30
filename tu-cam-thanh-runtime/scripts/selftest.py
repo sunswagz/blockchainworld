@@ -1111,6 +1111,36 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
+    # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
+    # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:
+    #   · đọc `t["R"]` — sổ ghi `rMultiple`, nên mọi hướng in "—", nhìn y hệt
+    #     "chưa có lệnh nào";
+    #   · đếm vị thế đang mở bằng sổ lệnh — sổ chỉ nhận bản ghi khi lệnh ĐÃ
+    #     đóng, nên luôn ra 0 dù buồng lái báo 3;
+    #   · đọc `account.json` cho cả hai làn — sàn testnet ghi
+    #     `account_testnet.json`, nên vốn làn chính lấy nhầm số của sàn giấy.
+    _src52 = ma_khong_chu_thich(ROOT / "scripts" / "so-hai-lan.py")
+    check('t["rMultiple"]' in _src52 and 't["R"]' not in _src52,
+          "đọc rMultiple, không phải R")
+    check("account_testnet.json" in _src52,
+          "làn chạy sàn testnet đọc đúng file tài khoản của sàn ấy")
+    check("tk.get(\"positions\")" in _src52,
+          "đếm vị thế đang mở từ FILE TÀI KHOẢN, không phải từ sổ lệnh")
+    # Và những tên ấy phải KHỚP với nguồn thật, không chỉ khớp với nhau.
+    from trader import broker_testnet as _BT52
+    from trader import store as _S52
+
+    check(_BT52.ACCOUNT_FILE == "account_testnet.json",
+          "tên file tài khoản testnet vẫn đúng như bảng đang giả định")
+    check(_S52.ACCOUNT == "account.json", "tên file tài khoản sàn giấy vẫn đúng")
+    _mau52 = [t for t in store.read_all(store.TRADES) if t.get("closedAt")]
+    if _mau52:
+        check("rMultiple" in _mau52[-1],
+              "sổ lệnh THẬT vẫn dùng tên trường rMultiple")
+    else:
+        check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
+
     print("\n[51] HAI NGHI THỨC KHÔNG ĐƯỢC CHẠY CHỒNG NHAU")
     # Cọc 6 tiếng chỉ ghi khi nghi thức CHẠY XONG, còn khoá chống trùng nằm
     # trong `_trang_thai` của MỘT tiến trình. Runtime khởi động lại giữa chừng —
