@@ -4960,7 +4960,11 @@
    "rongUsd": 0.0004104932361153258,
    "daDong": [],
    "loi": [],
-   "vi": "7 vị thế: thu +0.0004 USD, phí 0.0000."
+   "vi": "7 vị thế: thu +0.0004 USD, phí 0.0000.",
+   "viTheoTy": {
+    "basis.cash_carry.v1": "cash-and-carry BTC trên binance: 0 mốc funding trong 0.0083h trên 200.00 USD chân perp (chân giao ngay không sinh dòng tiền; phần HỘI TỤ BASIS chưa đo)",
+    "amm.fee_farming.v1": "phí AMM 0.0083h trên 500.00 USD ở apyBase 12% — apyBase là số QUÁ KHỨ, và tổn thất tạm thời chưa đo"
+   }
   },
   "lechTien": {
    "tienDaGhiUsd": -0.766172728985298,

@@ -8484,6 +8484,16 @@ def kiem_ke_toan_vi_the() -> None:
     # ── 4. ty KHÔNG có kế toán: đếm ra, không ngầm bằng 0 ───────────────
     b = _mo(tyB, 2000.0, giuGio=24.0)
     l = tu._ke_toan_vi_the()
+    # Câu `vi` của ty được GIỮ LẠI, một câu cho mỗi ty. Nó là lời khai
+    # duy nhất về VÌ SAO một ty thu được hoặc không thu được gì — bảng
+    # lợi suất chỉ nói BAO NHIÊU. Trước lượt này câu ấy bị vứt ngay sau
+    # khi đọc, nên «ty này chạy 23.042 vốn-giờ mà thu đúng 0» là một
+    # phỏng đoán chứ không phải một câu đọc được.
+    kiem("câu kế toán của TỪNG TY được giữ lại",
+         bool((l.tom_tat().get("viTheoTy") or {})),
+         f"{l.tom_tat().get('viTheoTy')} — bảng lợi suất nói BAO NHIÊU, "
+         f"câu này mới nói VÌ SAO")
+
     kiem("vị thế của ty chưa có kế toán bị ĐẾM RA",
          l.soKhongCoKeToan == 1 and abs(l.vonKhongDuocKeToanUsd - 2000.0) < 1e-9,
          f"{l.tom_tat()} — chúng nằm trong NAV nhưng không ai cộng lãi lỗ "

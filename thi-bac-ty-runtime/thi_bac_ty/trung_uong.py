@@ -853,6 +853,12 @@ class TrungUong:
                 tu0 = so.keToanLucGiay
                 so.keToanLucGiay = now
                 so.soVongKeToan += 1
+                # GIỮ câu của ty. Nó là lời khai duy nhất về VÌ SAO một
+                # ty thu được hoặc không thu được gì, và trước lượt này
+                # nó bị vứt ngay sau khi đọc.
+                _viTy = str(getattr(kq, "vi", "") or "")[:300]
+                if _viTy:
+                    l.viTheoTy[so.chienLuoc] = _viTy
                 if not getattr(kq, "doDuoc", True):
                     so.soVongKhongDoDuoc += 1
                     l.soVongMu += 1

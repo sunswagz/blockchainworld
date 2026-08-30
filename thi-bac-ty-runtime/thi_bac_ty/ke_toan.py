@@ -309,6 +309,15 @@ class LatCatKeToan:
     thuVuotTran: list = field(default_factory=list)
     daDong: list = field(default_factory=list)
     loi: list = field(default_factory=list)
+    #: Câu `vi` của LẦN KẾ TOÁN GẦN NHẤT, theo ty.
+    #:
+    #: Bảng lợi suất nói ty nào thu bao nhiêu; nó KHÔNG nói vì sao. Ty
+    #: `basis.cash_carry.v1` chạy 5.222 vòng, không vòng nào mù, và thu
+    #: đúng 0,0000 USD — câu trả lời nằm trong chính câu ty ấy viết mỗi
+    #: vòng («N mốc funding trong Xh»), nhưng nó bị vứt ngay sau khi
+    #: đọc. Giữ lại một câu cho mỗi ty là rẻ, và nó biến «engine này
+    #: không kiếm được» từ một phỏng đoán thành một câu đọc được.
+    viTheoTy: dict = field(default_factory=dict)
 
     def tom_tat(self) -> dict:
         return {
@@ -324,6 +333,7 @@ class LatCatKeToan:
             "rongUsd": self.thuUsd - self.phiUsd,
             "daDong": list(self.daDong),
             "loi": list(self.loi),
+            "viTheoTy": dict(self.viTheoTy),
             "vi": _vi(self),
         }
 

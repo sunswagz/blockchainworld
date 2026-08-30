@@ -869,6 +869,21 @@
           + "riêng của nó, đừng cộng từ bảng này."));
       }
     }
+    /* VÌ SAO, không chỉ BAO NHIÊU. Mỗi ty viết một câu mỗi vòng kế toán
+       («N mốc funding trong Xh», «apyBase là số quá khứ và IL chưa đo»),
+       và trước đây câu ấy bị vứt ngay sau khi đọc. Đo 30/08:
+       `basis.cash_carry.v1` chạy 5.222 vòng, không vòng nào mù, thu đúng
+       0,0000 USD — bảng lợi suất nói được BAO NHIÊU nhưng không nói nổi
+       vì sao, và câu trả lời nằm sẵn trong câu ty ấy viết. */
+    var vty = kt.viTheoTy || {};
+    var mvty = Object.keys(vty);
+    if (mvty.length) {
+      kk.appendChild(bang(
+        [{ t: "Ty" }, { t: "Kế toán vòng gần nhất nói gì" }],
+        mvty.sort().map(function (k) {
+          return [{ t: (TEN_DEP[k] || [k])[0] }, { t: vty[k] }];
+        })));
+    }
     (kt.daDong || []).forEach(function (x) {
       var b = el("div", "viec-1 nhe");
       b.appendChild(el("b", null, "Vừa đóng · "
