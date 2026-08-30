@@ -1,5 +1,8 @@
 .env
 data/
+# Sổ của LÀN DEMO hai chiều (cổng 5282, chế độ paper). Chú thích phải nằm
+# RIÊNG một dòng: gitignore không có chú thích cuối dòng, cả dòng thành mẫu.
+data-hai-chieu/
 __pycache__/
 *.pyc
 .venv/

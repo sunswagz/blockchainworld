@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-29T23:45:25.680Z",
+ "generatedAt": "2026-08-30T00:02:03.585Z",
  "chayTu": "2026-08-29T21:12:23+00:00",
- "vong": 428,
+ "vong": 474,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,52 +19,52 @@ window.TU_CAM_THANH = {
   "primary": "4h",
   "context": "1d"
  },
- "gia": 78229.93,
+ "gia": 78212.29,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "06:45:25",
+  "lastOk": "07:02:02",
   "lastError": null
  },
  "cheDo": {
-  "primary": "TREND_UP",
+  "primary": "UNKNOWN",
   "flags": [],
-  "quality": "HIGH",
+  "quality": "LOW",
   "reasons": [
-   "ADX 23.0 ≥ 22, EMA xếp tăng, cấu trúc TRANSITION"
+   "ADX 21.8 ở vùng lưng chừng, EMA BULLISH_ALIGNED"
   ],
   "contextTrend": "MIXED",
-  "adx": 23.0,
+  "adx": 21.8,
   "volatility": "NORMAL",
-  "key": "TREND_UP|none"
+  "key": "UNKNOWN|none"
  },
  "thiTruong": {
   "4h": {
-   "price": 78229.93,
-   "ema20": 78390.44,
-   "ema50": 77017.323,
-   "ema200": 70130.806,
+   "price": 78212.29,
+   "ema20": 78373.479,
+   "ema50": 77064.187,
+   "ema200": 70209.984,
    "emaStack": "BULLISH_ALIGNED",
-   "rsi14": 49.5,
-   "rsiSlope": 2.05,
-   "macdHist": -213.11,
-   "macdHistSlope": 53.243,
-   "atr": 843.16686,
-   "atrPct": 1.078,
-   "atrRatioVsMedian": 0.8,
+   "rsi14": 49.3,
+   "rsiSlope": 1.08,
+   "macdHist": -170.7,
+   "macdHistSlope": 52.867,
+   "atr": 784.20637,
+   "atrPct": 1.003,
+   "atrRatioVsMedian": 0.74,
    "volatility": "NORMAL",
-   "adx": 23.0,
+   "adx": 21.8,
    "plusDI": 23.0,
    "minusDI": 20.3,
-   "bbWidthPct": 4.7351634,
+   "bbWidthPct": 4.7651411,
    "bbPosition": 0.36,
-   "volumeRatio": 0.34,
-   "structure": "TRANSITION",
+   "volumeRatio": 0.0,
+   "structure": "DOWNTREND",
    "swingHighs": [
-    80000.0,
     81272.62,
     79174.12,
-    81478.87
+    81478.87,
+    78330.0
    ],
    "swingLows": [
     76670.01,
@@ -88,15 +88,15 @@ window.TU_CAM_THANH = {
    ],
    "resistance": [
     {
+     "price": 78330.0,
+     "touches": 1
+    },
+    {
      "price": 78828.15,
      "touches": 1
     },
     {
      "price": 79174.12,
-     "touches": 1
-    },
-    {
-     "price": 79500.0,
      "touches": 1
     }
    ],
@@ -108,43 +108,47 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 76888.0,
-   "distToRange20HighPct": 4.15,
-   "distToRange20LowPct": 1.72
+   "distToRange20HighPct": 4.18,
+   "distToRange20LowPct": 1.69
   },
   "1d": {
-   "price": 78229.93,
-   "ema20": 73135.498,
-   "ema50": 69006.264,
-   "ema200": 73009.503,
+   "price": 78212.29,
+   "ema20": 73619.008,
+   "ema50": 69367.287,
+   "ema200": 73073.658,
    "emaStack": "MIXED",
-   "rsi14": 71.5,
-   "rsiSlope": -3.03,
-   "macdHist": 738.07,
-   "macdHistSlope": -225.392,
-   "atr": 2340.4684,
-   "atrPct": 2.992,
-   "atrRatioVsMedian": 1.04,
+   "rsi14": 71.4,
+   "rsiSlope": -3.54,
+   "macdHist": 509.79,
+   "macdHistSlope": -265.567,
+   "atr": 2174.5578,
+   "atrPct": 2.78,
+   "atrRatioVsMedian": 0.97,
    "volatility": "NORMAL",
-   "adx": 42.0,
+   "adx": 42.8,
    "plusDI": 38.7,
    "minusDI": 11.8,
-   "bbWidthPct": 39.853896,
-   "bbPosition": 0.75,
-   "volumeRatio": 0.39,
+   "bbWidthPct": 39.275497,
+   "bbPosition": 0.73,
+   "volumeRatio": 0.0,
    "structure": "UPTREND",
    "swingHighs": [
-    65409.56,
     65474.46,
     79500.0,
-    81272.62
+    81272.62,
+    81478.87
    ],
    "swingLows": [
-    63739.75,
     62742.47,
     62275.0,
-    62535.24
+    62535.24,
+    76888.0
    ],
    "support": [
+    {
+     "price": 76888.0,
+     "touches": 1
+    },
     {
      "price": 67292.15,
      "touches": 1
@@ -152,10 +156,6 @@ window.TU_CAM_THANH = {
     {
      "price": 66956.15,
      "touches": 1
-    },
-    {
-     "price": 65570.29,
-     "touches": 5
     }
    ],
    "resistance": [
@@ -164,54 +164,32 @@ window.TU_CAM_THANH = {
      "touches": 1
     },
     {
-     "price": 81272.62,
-     "touches": 1
+     "price": 81375.745,
+     "touches": 2
     }
    ],
    "mauGia": {
-    "co": true,
-    "so": 3,
-    "mau": [
-     {
-      "ten": "HAI_ĐÁY",
-      "loai": "ĐẢO_CHIỀU",
-      "huong": "LONG",
-      "rr": 0.61,
-      "doTin": 0.86
-     },
-     {
-      "ten": "VAI_ĐẦU_VAI_NGƯỢC",
-      "loai": "ĐẢO_CHIỀU",
-      "huong": "LONG",
-      "rr": 0.61,
-      "doTin": 0.91
-     },
-     {
-      "ten": "NẾN_TRONG_GIẢM",
-      "loai": "NÉN",
-      "huong": "SHORT",
-      "rr": 1.41,
-      "doTin": 0.45
-     }
-    ],
-    "mauThuan": true
+    "co": false,
+    "so": 0,
+    "mau": [],
+    "mauThuan": false
    },
    "range20High": 81478.87,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 4.15,
-   "distToRange20LowPct": 20.06
+   "distToRange20HighPct": 4.18,
+   "distToRange20LowPct": 20.04
   }
  },
  "luanDiem": null,
  "phanQuyet": null,
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 9720.05,
-  "vonThucHien": 9720.05,
+  "von": 9719.05,
+  "vonThucHien": 9719.05,
   "dinhVon": 9724.67,
-  "laiLoMo": 9.81,
-  "laiLoHomNay": 158.73,
-  "drawdownPct": 0.05,
+  "laiLoMo": 8.82,
+  "laiLoHomNay": 0.0,
+  "drawdownPct": 0.06,
   "soLenhDaDong": 46,
   "viThe": [
    {
@@ -250,8 +228,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 1382525,
     "ocoOrderListId": 303090,
     "ocoError": null,
-    "unrealizedPnl": 5.15,
-    "unrealizedR": 0.16
+    "unrealizedPnl": 4.37,
+    "unrealizedR": 0.13
    },
    {
     "id": "t_9fa9a550c3",
@@ -289,8 +267,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 3024893,
     "ocoOrderListId": 304336,
     "ocoError": null,
-    "unrealizedPnl": 2.11,
-    "unrealizedR": 0.08
+    "unrealizedPnl": 2.35,
+    "unrealizedR": 0.09
    },
    {
     "id": "t_ca4aa0c3d2",
@@ -328,8 +306,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9772656,
     "ocoOrderListId": 309125,
     "ocoError": null,
-    "unrealizedPnl": 2.55,
-    "unrealizedR": 0.08
+    "unrealizedPnl": 2.1,
+    "unrealizedR": 0.06
    }
   ]
  },
@@ -358,12 +336,12 @@ window.TU_CAM_THANH = {
   "cheDo": "cli",
   "model": "claude-sonnet-4-6",
   "homNay": {
-   "usd": 3.727755,
-   "calls": 8,
-   "inputTokens": 24,
-   "outputTokens": 78783,
-   "cacheReadTokens": 113294,
-   "cacheWriteTokens": 272226
+   "usd": 0.0,
+   "calls": 0,
+   "inputTokens": 0,
+   "outputTokens": 0,
+   "cacheReadTokens": 0,
+   "cacheWriteTokens": 0
   },
   "hanMucUsd": 5.0,
   "soKyNang": 13
@@ -1486,9 +1464,9 @@ window.TU_CAM_THANH = {
   }
  ],
  "theGioi": {
-  "luc": 1788046992.3813245,
+  "luc": 1788047895.9153678,
   "phaiSinh": {
-   "fundingNamHoa": 9.18,
+   "fundingNamHoa": 9.1,
    "openInterestUsd": 8424053324.202,
    "oiDoi24hPct": 2.52,
    "topTrader": {
@@ -1773,24 +1751,6 @@ window.TU_CAM_THANH = {
    "cau": "BÁC BỎ — Champion trên 1d được +0,117R gộp qua 230 lệnh, dương 11/15 chợ. Nhưng 15 chợ ấy dùng CHUNG một cửa sổ ngoài mẫu (khoảng 06/2025–08/2026), mà crypto tương quan cao — nên con số đó có thể chỉ là «450 ngày vừa rồi thuận» nói mười lăm lần. Nó có sống ở một cửa sổ thời gian KHÁC không? Dự đoán lúc chưa biết: CÓ, sẽ sống. Lần trước tôi đoán sai theo hướng bi quan nên lần này phải nói rõ vì sao đổi ý: đã có sẵn một phép ĐỐI CHỨNG mạnh. Cùng 15 chợ, cùng đúng khoảng thời gian đó, khung 4h cho −0,047R còn 1d cho +0,117R. Nếu nguyên nhân là cửa sổ thuận thì 4h cũng phải đẹp lên — nó không. Vậy"
   },
   {
-   "ma": "cho-gop:MOCK_KEO_LUI_V1",
-   "nguon": "nhieu-cho",
-   "mau": 161,
-   "doTin": "CAO",
-   "khung": null,
-   "cheDo": null,
-   "so": {
-    "kyVongR": 0.167,
-    "duong": 12,
-    "soCho": 15,
-    "khoangTin": [
-     0.029,
-     0.364
-    ]
-   },
-   "cau": "MOCK_KEO_LUI_V1 (dữ liệu 2022-07-13 → 2026-08-29; ngoài mẫu là ~30% cuối quãng đó): KHÔNG chợ nào đủ 20 lệnh ngoài mẫu để nói riêng, nhưng GỘP 15 chợ được 161 lệnh: kỳ vọng +0.167R, dương ở 12/15 chợ. Đọc đây là câu về BỘ LUẬT chạy khắp nơi, không phải câu về chợ nào cả — và setup thưa tới mức này thì mỗi chợ chỉ ~10 lệnh, nên đừng đọc con số của bất kỳ chợ đơn lẻ nào. Khoảng tin 95% theo chợ [+0.029; +0.364]."
-  },
-  {
    "ma": "dong-thuan-lech",
    "nguon": "dai-quan-sat",
    "mau": 122,
@@ -1843,6 +1803,22 @@ window.TU_CAM_THANH = {
     "khopTroi": -0.029
    },
    "cau": "Khớp trội -0.029: chênh lệch giữa điểm TRONG mẫu và điểm NGOÀI mẫu của bộ tham số cầm quyền. Càng lớn thì nó càng học thuộc quá khứ thay vì học quy luật — và phần học thuộc sẽ không lặp lại."
+  },
+  {
+   "ma": "cua-thoat",
+   "nguon": "chien-luoc",
+   "mau": 85,
+   "doTin": "CAO",
+   "khung": "4h",
+   "cheDo": null,
+   "so": {
+    "theoLyDoThoat": {
+     "TP": 26,
+     "SL": 53,
+     "HET_HAN": 6
+    }
+   },
+   "cau": "53/85 lệnh chạy lại thoát bằng STOP LOSS (62%), chỉ 26 lệnh chạm mục tiêu. Tỉ lệ này nói vấn đề nằm ở điểm VÀO hoặc ở chỗ đặt stop, không nằm ở mục tiêu."
   }
  ]
 };

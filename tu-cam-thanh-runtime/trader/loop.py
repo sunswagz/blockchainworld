@@ -20,7 +20,7 @@ import traceback
 
 import httpx
 
-from .brain import get_brain, mock_thesis
+from .brain import get_brain, luat_dang_chay, suy_luan
 from .broker import PaperBroker
 from .broker_testnet import TestnetBroker
 from .bus import bus
@@ -245,7 +245,11 @@ class Runtime:
             try:
                 st = build_market_state(m)
                 rg = classify(st, self.primary, self.context)
-                ld = mock_thesis(st, rg, self.primary)
+                # CÙNG bộ luật mà bộ não luật-thuần sẽ chạy. Chấm chợ bằng
+                # MOCK_RULES_V1 rồi vào lệnh bằng champion khác là xếp hạng chợ
+                # theo một chiến lược và đánh bằng một chiến lược khác.
+                _ma, _th = luat_dang_chay()
+                ld = suy_luan(_ma, st, rg, self.primary, _th)
             except Exception as e:  # noqa: BLE001
                 bus.log("data", "cham-cho-loi", f"{sym}: {type(e).__name__}: {e}")
                 continue

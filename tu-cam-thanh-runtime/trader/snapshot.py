@@ -217,6 +217,17 @@ def write(runtime) -> Path | None:
     """
     global _da_nhac
 
+    # LÀN DEMO không được chạm cung tĩnh. Cung là bản ghi CÔNG KHAI của làn
+    # chính — vốn thật của sàn testnet, vị thế thật của nó. Để làn demo ghi đè
+    # thì trang web nói về một bot khác mà không có gì trên trang lộ ra điều đó,
+    # và ngày sinh ở thẻ Cổng Thành vẫn tươi rói.
+    if CONFIG.get("lanDemo"):
+        if not _da_nhac:
+            _da_nhac = True
+            bus.emit("system", "snapshot-lan-demo",
+                     "làn demo: KHÔNG ghi cung tĩnh (cung thuộc về làn chính)")
+        return None
+
     cung = _cung_tinh()
     if cung is None:
         if not _da_nhac:

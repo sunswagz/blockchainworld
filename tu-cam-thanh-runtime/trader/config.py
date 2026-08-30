@@ -92,6 +92,22 @@ for _arg in sys.argv[1:]:
 if os.environ.get("MODE") and not any(a.startswith("--mode=") for a in sys.argv[1:]):
     CONFIG["mode"] = os.environ["MODE"]
 
+# LÀN DEMO — bản chạy THỨ HAI của cùng runtime này, vốn ảo riêng, sổ riêng.
+#
+# Lý do nó tồn tại là một con số: mọi lợi thế đo được ở hệ này nằm ở nửa SHORT
+# (33 chợ 1d chưa từng dùng: SHORT +0,303R/226 lệnh, LONG −0,306R/44 lệnh), mà
+# làn chính chạy sàn spot testnet nên `risk.py` chặn SHORT. Làn demo chạy chế độ
+# `paper`, ở đó `spot_only` tắt và bot đánh được cả hai chiều trên GIÁ THẬT.
+#
+# Khác làn chính đúng ba chỗ, và cả ba đều phải khác, nếu không hai làn giẫm nhau:
+#   TCT_DATA_DIR   sổ riêng      (nếu không: hai bot ghi chung một sổ lệnh)
+#   --port         cổng riêng    (nếu không: uvicorn chết vì cổng bận)
+#   TCT_LAN_DEMO   KHÔNG ghi cung tĩnh — cung là bản ghi công khai của làn CHÍNH
+#
+# Quy ước cổng theo tiền lệ Thị Bạc Ty: 5282 = 5182 + 100, không lấy 5183 vì dãy
+# 518x là dãy cấp cho CUNG và làn demo không phải một cung.
+CONFIG["lanDemo"] = bool(os.environ.get("TCT_LAN_DEMO"))
+
 if CONFIG.get("mode") not in ("paper", "testnet"):
     raise SystemExit(f"mode không hợp lệ: {CONFIG.get('mode')!r} — chỉ có 'paper' hoặc 'testnet'")
 

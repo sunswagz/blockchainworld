@@ -897,6 +897,33 @@ BO_LUAT = {
 }
 
 
+def luat_dang_chay() -> tuple[str, dict]:
+    """Bộ luật CHAMPION và tham số của nó — thứ đường luật-thuần phải chạy.
+
+    Trước bản này, đường luật-thuần gọi thẳng `mock_thesis`, tức MOCK_RULES_V1,
+    bất kể sổ chiến lược đang ghi champion nào. Cả cỗ máy đo đạc — lò luyện, đấu
+    nhiều chợ, cửa duyệt, sổ giả thuyết — dùng để chọn ra một bộ luật rồi KHÔNG
+    AI CHẠY NÓ. Đúng loại lỗi "đo một thứ, chạy một thứ khác" mà `do-huong.py`
+    dựng ra để soi, chỉ lần này ở trục bộ luật thay vì trục hướng lệnh.
+
+    Hỏng sổ thì lui về MOCK_RULES_V1 chứ không nổ: bot đang giữ vị thế thật, và
+    một lỗi đọc JSON không được phép làm nó ngừng quản lý vị thế ấy.
+    """
+    try:
+        from . import chien_luoc
+
+        c = (chien_luoc.doc() or {}).get("champion") or {}
+        ma = c.get("ma")
+        if ma in BO_LUAT:
+            return ma, (c.get("tham") or {})
+        if ma:
+            bus.log("brain", "champion-la",
+                    f"sổ ghi champion «{ma}» không có trong BO_LUAT — chạy MOCK_RULES_V1")
+    except Exception as e:  # noqa: BLE001 — sổ hỏng thì lui, không dừng bot
+        bus.log("brain", "champion-doc-loi", f"{type(e).__name__}: {e}")
+    return "MOCK_RULES_V1", {}
+
+
 def suy_luan(ma: str, state: dict, regime: dict, primary_tf: str,
              tham: dict | None = None) -> dict:
     ham, _ = BO_LUAT.get(ma, BO_LUAT["MOCK_RULES_V1"])
@@ -1278,7 +1305,12 @@ class Brain:
 
         self.bo_vi_tran = False
         if not self._goi_duoc():
-            out = mock_thesis(state, regime, primary_tf)
+            # Chế độ luật-thuần THẬT (brain=mock, hoặc không gọi được model).
+            # Bản đầu của bản vá này chỉ sửa nhánh «gọi model rồi lỗi» ở dưới,
+            # nên làn demo vẫn chạy MOCK_RULES_V1 dù sổ ghi champion khác — và
+            # nhìn từ ngoài không có gì lộ ra, chỉ có tên bộ luật trên dashboard.
+            _ma, _th = luat_dang_chay()
+            out = suy_luan(_ma, state, regime, primary_tf, _th)
         else:
             out = await self._structured(user=user, schema=THESIS_SCHEMA,
                                          effort=self.cfg.get("effort", "high"), label="thesis")
@@ -1301,7 +1333,8 @@ class Brain:
                 #
                 # Chế độ suy giảm có chủ ý (hết trần) đi qua ĐÚNG chỗ này vì
                 # `_structured` trả None cho cả hai — phân biệt bằng `bo_vi_tran`.
-                out = mock_thesis(state, regime, primary_tf)
+                _ma, _th = luat_dang_chay()
+                out = suy_luan(_ma, state, regime, primary_tf, _th)
                 # HẾT TRẦN không phải lỗi. `_structured` trả None cho cả hai
                 # trường hợp, nên phân biệt bằng cờ `bo_vi_tran` — thiếu nó thì
                 # ngày nào tiêu hết 8 lượt là bot ngừng vào lệnh hẳn tới nửa đêm,

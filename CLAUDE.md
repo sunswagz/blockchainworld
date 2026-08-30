@@ -1140,8 +1140,22 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
     cd tu-cam-thanh-runtime
     python run.py                 buồng lái ở localhost:5182, ghi mỗi vòng lặp
     python -m trader.snapshot     ghi một lần rồi thoát
-    python scripts/selftest.py    335 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    365 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   giao diện có đọc được mọi trường nó cần không
+
+**Làn demo HAI CHIỀU ở `:5282`** (= 5182 + 100, theo tiền lệ Thị Bạc Ty). Làn
+chính chạy sàn spot testnet nên `risk.py` chặn SHORT — mà mọi lợi thế đo được
+của hệ này nằm ở nửa SHORT: MOCK_KEO_LUI_V1 trên 33 chợ 1d chưa từng dùng cho
+SHORT +0,303R/226 lệnh và LONG −0,306R/44 lệnh. Làn demo chạy chế độ `paper`,
+ở đó `spot_only` tắt, nên nó đánh được cả hai chiều trên giá THẬT:
+
+    $env:MODE="paper"; $env:BRAIN="mock"; $env:TCT_LAN_DEMO="1"
+    $env:TCT_DATA_DIR="$PWD\data-hai-chieu"
+    python run.py --port=5282
+
+Ba biến đó phải có ĐỦ: thiếu `TCT_DATA_DIR` là hai bot ghi chung một sổ lệnh,
+thiếu `TCT_LAN_DEMO` là làn demo ghi đè cung tĩnh của làn chính. `BRAIN=mock`
+để nó không ăn vào trần 8 lượt/ngày của làn chính.
 
 **Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một
 bước xanh vĩnh viễn không sinh ra gì.
@@ -1607,6 +1621,7 @@ cung đó — tự tra bảng này, không cần ai giao số:
     5186  kham-thien-giam-runtime  ← KHÔNG phải cung; runtime Python thứ hai
     5187  thi-bac-ty
     5188  thi-bac-ty-runtime  ← KHÔNG phải cung; runtime Python thứ ba
+    5282  tu-cam-thanh-runtime LÀN DEMO  ← làn hai chiều (paper, short được)
     5288  thi-bac-ty-runtime BẢN DEMO  ← làn thứ hai của cùng runtime ấy
 
 `5288 = 5188 + 100` chứ KHÔNG phải 5189: dãy `518x` là dãy cấp cho

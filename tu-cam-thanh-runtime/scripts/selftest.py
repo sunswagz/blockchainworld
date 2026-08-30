@@ -1111,6 +1111,84 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[50] BỘ LUẬT ĐƯỢC ĐO PHẢI LÀ BỘ LUẬT ĐƯỢC CHẠY")
+    # Cả cỗ máy đo đạc — lò luyện, đấu nhiều chợ, cửa duyệt, sổ giả thuyết —
+    # tồn tại để chọn ra MỘT bộ luật. Đường luật-thuần thì gọi thẳng
+    # `mock_thesis`, tức MOCK_RULES_V1, bất kể sổ ghi champion nào. Chọn xong
+    # rồi không ai chạy: cùng loại lỗi "đo một thứ, chạy một thứ khác" mà
+    # `do-huong.py` dựng ra để soi, chỉ đổi trục từ HƯỚNG sang BỘ LUẬT.
+    from trader import brain as _B50
+    from trader import chien_luoc as _CL50
+
+    _so50 = _CL50.doc()
+    try:
+        check(_B50.luat_dang_chay()[0] == _so50["champion"]["ma"],
+              "luật đang chạy = champion trong sổ")
+        _CL50.ghi({**_so50, "champion": {**_so50["champion"],
+                                         "ma": "MOCK_KEO_LUI_V1",
+                                         "tham": {"keoLuiToiDa": 0.7}}})
+        check(_B50.luat_dang_chay() == ("MOCK_KEO_LUI_V1", {"keoLuiToiDa": 0.7}),
+              "đổi champion trong sổ → luật đang chạy đổi theo, kèm tham số")
+        _CL50.ghi({**_so50, "champion": {**_so50["champion"], "ma": "KHONG_CO_THAT"}})
+        check(_B50.luat_dang_chay() == ("MOCK_RULES_V1", {}),
+              "sổ ghi bộ luật không tồn tại → LUI về MOCK_RULES_V1, không nổ")
+    finally:
+        _CL50.ghi(_so50)
+    check(_B50.luat_dang_chay()[0] == _so50["champion"]["ma"], "sổ đã trả về như cũ")
+
+    # Và cả hai chỗ dùng trong vòng chạy đều phải đi qua đó — chấm chợ bằng một
+    # bộ luật rồi vào lệnh bằng bộ luật khác là xếp hạng chợ cho một chiến lược
+    # không phải chiến lược sắp đánh.
+    _src50 = ma_khong_chu_thich(ROOT / "trader" / "loop.py")
+    check("mock_thesis" not in _src50,
+          "loop.py không còn gọi thẳng mock_thesis ở đâu")
+    check(_src50.count("luat_dang_chay()") >= 1, "loop.py hỏi champion trước khi chấm chợ")
+    _src50b = ma_khong_chu_thich(ROOT / "trader" / "brain.py")
+    check("mock_thesis(state, regime, primary_tf)" not in _src50b,
+          "brain.py không còn chỗ nào gọi thẳng mock_thesis trong đường chạy")
+    check(_src50b.count("out = suy_luan(_ma, state, regime, primary_tf, _th)") == 2,
+          "CẢ HAI nhánh luật-thuần (không gọi được model / gọi rồi lỗi) đều "
+          "chạy champion — bản đầu chỉ sửa một nhánh và làn demo vẫn chạy "
+          "MOCK_RULES_V1 mà không gì lộ ra")
+
+    print("\n[49] LÀN DEMO KHÔNG ĐƯỢC CHẠM CUNG TĨNH")
+    # Làn demo (`TCT_LAN_DEMO`) chạy chế độ `paper` để đánh được CẢ HAI CHIỀU —
+    # nửa SHORT là nửa duy nhất đo ra dương ngoài mẫu, và sàn spot testnet của
+    # làn chính không đánh được nó.
+    #
+    # Nhưng cung tĩnh là bản ghi CÔNG KHAI của làn chính: vốn thật, vị thế thật.
+    # Làn demo ghi đè lên đó thì trang web nói về một bot khác, ngày sinh ở thẻ
+    # Cổng Thành vẫn tươi rói, và không gì trên trang lộ ra điều ấy.
+    from trader import snapshot as _S49
+
+    # Đo bằng cách ĐẾM số lần `_cung_tinh()` được gọi. Bản đầu của phép kiểm này
+    # đặt `_di49 = True` ở cả hai nhánh try/except — tức luôn xanh, đúng loại
+    # phép kiểm mà cả bộ này sinh ra để chặn.
+    _cu49 = CONFIG.get("lanDemo")
+    _nhac49, _that49 = _S49._da_nhac, _S49._cung_tinh
+    _dem49 = []
+    try:
+        _S49._cung_tinh = lambda: (_dem49.append(1), None)[1]
+        CONFIG["lanDemo"] = True
+        _S49._da_nhac = False
+        check(_S49.write(None) is None, "làn demo → write() trả None")
+        check(not _dem49, "làn demo → KHÔNG hỏi tới cung tĩnh lần nào")
+
+        CONFIG["lanDemo"] = False
+        _S49._da_nhac = False
+        _S49.write(None)
+        check(len(_dem49) == 1,
+              f"làn chính → CÓ đi tìm cung tĩnh (cửa ngược lại; gọi {len(_dem49)} lần)")
+    finally:
+        CONFIG["lanDemo"] = _cu49
+        _S49._da_nhac = _nhac49
+        _S49._cung_tinh = _that49
+
+    check("spot_only=(self.mode == " in ma_khong_chu_thich(ROOT / "trader" / "loop.py"),
+          "SHORT mở/chặn theo CHẾ ĐỘ chứ không phải theo một cờ rời")
+    _r49 = RiskEngine(CONFIG["risk"], spot_only=False)
+    check(_r49.spot_only is False, "chế độ paper: SHORT không bị chặn ở tầng rủi ro")
+
     print("\n[48] CỬA DUYỆT PHẢI ĐỌC NỬA BOT ĐÁNH ĐƯỢC")
     # Đo được 30/08 trên 33 chợ 1d chưa từng dùng để tìm ra luật:
     #   MOCK_KEO_LUI_V1  cả hai chiều  269 lệnh  +0,205R  KT [+0,063; +0,354]
@@ -1876,8 +1954,12 @@ async def main() -> int:
 
     _acc31 = {"equity": 10000.0, "positions": [], "cash": 10000.0,
               "realizedPnl": 0.0, "unrealizedPnl": 0.0}
-    _cu31 = _B31.mock_thesis
-    _B31.mock_thesis = lambda *a, **k: {
+    # Vá `suy_luan` chứ không phải `mock_thesis`: đường luật-thuần nay chạy BỘ
+    # LUẬT CHAMPION qua `suy_luan`, và `BO_LUAT` giữ tham chiếu tới hàm gốc từ
+    # lúc nạp module — vá tên `mock_thesis` không còn chặn được gì. Phép kiểm
+    # này đã đỏ đúng lúc đường chạy đổi, nên nó vẫn đang canh đúng chỗ.
+    _cu31 = _B31.suy_luan
+    _B31.suy_luan = lambda *a, **k: {
         "action": "LONG", "confidence": 0.7, "regime_read": "TREND_UP",
         "strategy": "MOCK_RULES_V1", "reason_codes": ["MOCK"], "entry": 1.0,
         "stop_loss": 0.9, "targets": [1.2], "invalidation": "x",
@@ -1924,7 +2006,7 @@ async def main() -> int:
         check("EP_NO_TRADE_VI_BRAIN_LOI" not in _o31b["reason_codes"],
               "và không dán nhãn bị ép lên một luận điểm bình thường")
     finally:
-        _B31.mock_thesis = _cu31
+        _B31.suy_luan = _cu31
     print("\n[30] THIẾU KHOÁ LÀ LỖI NGƯỜI GỌI, KHÔNG PHẢI PHÁN QUYẾT")
     from trader import so_gia_thuyet as _G30
 
