@@ -1575,6 +1575,11 @@ async def main() -> int:
     _src48c = ma_khong_chu_thich(ROOT / "trader" / "chung_cat.py")
     check("KHO ĐO ĐÃ" in _src48c and "_gio_tu(d.get(" in _src48c,
           "câu phát hiện nhiều-chợ có cảnh báo kho cũ")
+    # Câu phát hiện đi thẳng vào lời nhắc của bộ não. Nó phải nói rằng N chợ
+    # KHÔNG phải N bằng chứng độc lập — đo 30/08: cùng 33 chợ, chỉ đổi cửa sổ
+    # thì kết quả đổi DẤU.
+    check("KHÔNG " in _src48c and "bằng chứng độc lập" in _src48c,
+          "và nói rõ «dương ở N chợ» không phải N bằng chứng độc lập")
     _src48 = ma_khong_chu_thich(ROOT / "trader" / "chung_cat.py")
     check(_src48.count('"chayDuoc": "LONG"') == 2,
           "cả HAI nhánh phát hiện nhiều-chợ đều khai nửa chạy được"

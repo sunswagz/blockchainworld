@@ -731,7 +731,13 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
     # nên cửa sổ ngoài mẫu là 150 ngày, trong khi cùng bảng ấy trên 1d là 450
     # ngày. Hai con số trông so được với nhau và không phải.
     q = d.get("quang") or {}
-    doan = (f" (dữ liệu {q['tu']} → {q['den']}; ngoài mẫu là ~30% cuối quãng đó)"
+    # MỘT quãng lịch, dù bao nhiêu chợ. Câu này đi thẳng vào lời nhắc của bộ não
+    # và vào bản bàn giao, nên nó phải nói được điều quan trọng nhất về cách đọc
+    # con số: đo 30/08 trên ĐÚNG 33 chợ ấy, chỉ đổi cửa sổ thì MOCK_KEO_LUI_V1
+    # đi từ +0,205R sang −0,254R và champion từ +0,160R sang −0,075R.
+    doan = (f" (dữ liệu {q['tu']} → {q['den']}; ngoài mẫu là ~30% cuối quãng đó "
+            f"— MỘT quãng lịch chung cho MỌI chợ, nên «dương ở N chợ» KHÔNG "
+            f"phải N bằng chứng độc lập)"
             if q.get("tu") else " (QUÃNG THỜI GIAN không rõ — kho đo cũ)")
     # TUỔI KHO vào câu khi kho đã cũ. Việc đấu 4h có hạn giờ, và quá giờ thì
     # `dau-nhieu-cho.json` GIỮ NGUYÊN bản cũ — không lỗi, không file cụt, chỉ là
