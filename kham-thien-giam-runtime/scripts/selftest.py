@@ -1179,7 +1179,7 @@ DA_QUET_DOT_BIEN = {
     "rui_ro.py", "kho_doi.py", "cham_moc.py", "ket_toan.py",
     "dinh_gia.py", "can_loi.py", "so_lenh.py", "nan_lai.py",
     "dat_lenh.py", "chan_rui_ro.py", "dongho.py", "cap_token.py",
-    "do_tre.py", "chien_thuat.py", "phat_lai.py",
+    "do_tre.py", "chien_thuat.py", "phat_lai.py", "chan_doan.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -1197,10 +1197,153 @@ CHUA_QUET_DOT_BIEN = {
     "bang.py", "khung.py", "dong_co.py", "cho_gia_dinh.py",
     "sdk_polymarket.py",
     # CÓ nhánh quyết định, đáng quét, chưa quét
-    "chan_doan.py", "hoc_offline.py", "ket_qua.py", "so.py",
+    "hoc_offline.py", "ket_qua.py", "so.py",
     "tien_hoa.py", "vong.py", "chay_lai.py", "ban_thu.py",
     "do_thi.py", "vi.py", "vo_dich.py",
 }
+
+
+def kiem_bien_cua_chan_doan() -> None:
+    """Biên của BẢNG NÚT và LUẬT CHẨN ĐOÁN — 18/18 con sống sót lượt đầu.
+
+    Không một biên nào của module này từng được chạm, mà nó là chỗ:
+
+    · KẸP đề nghị của model vào trần cứng — chốt chặn cuối trước khi
+      một con số đi vào `config.json`.
+    · nhận ra nút đang nằm Ở MÉP dải vặn (mép quyết định, không phải
+      dữ liệu).
+    · đọc CHIỀU lệch của mô hình (tự tin quá / rụt rè quá), thứ nuôi
+      mọi đề xuất vặn nút.
+
+    ## Sau khi viết xong: 18 con → 7 CHẾT, 11 CÒN NỢ
+
+    Bảy con chết ở ba chỗ hệ trọng: KẸP (kể cả tính ỔN ĐỊNH — kẹp hai
+    lần ra đúng một kết quả, và mọi nấc ra số sạch không đuôi
+    0,00999...), NÚT Ở MÉP (cả hai mép và trường hợp nằm giữa), và
+    CHIỀU LỆCH (bốn tổ hợp, cộng ba biên: lệch đúng 0 và `duDoan` đúng
+    0,50).
+
+    Mười một con còn nợ nằm ở các LUẬT TRIỆU CHỨNG (dòng 246–340) —
+    "sai số hiệu chỉnh > 6%", "dưới 20 lệnh thì chưa nói gì", "hơn 25%
+    cặp đang khoá lỗ", "tỉ lệ thắng chờ dưới một nửa". Mỗi luật cần
+    dựng một bản tóm tắt trạng thái đúng hình dạng. Chúng KHÔNG đặt
+    lệnh — chúng đề xuất vặn nút, và cổng tiến hoá còn chặn phía sau —
+    nhưng một luật sai chiều thì cỗ máy tự vặn mình đi sai chỗ.
+    """
+    print()
+    print("-- Bien cua BANG NUT va CHAN DOAN --------------------------")
+    from kham.chan_doan import NUT_THEO_DUONG as _NTD
+    from kham.chan_doan import _chieu_lech as _cl
+    from kham.chan_doan import doc_tham_so as _dts
+    from kham.chan_doan import kep as _kep
+    from kham.chan_doan import nut_o_mep as _nom
+
+    # ── đọc tham số theo đường có dấu chấm ───────────────────────────
+    kiem("đường có thật → đọc được số",
+         _dts("ruiRo.kellyPhan") is not None)
+    kiem("đường KHÔNG có thật → None, không ném",
+         _dts("khong.co.that") is None)
+    kiem("đường trỏ vào một DICT, không phải số → None",
+         _dts("ruiRo") is None, _dts("ruiRo"))
+    kiem("đường rỗng → None", _dts("") is None)
+
+    # ── KẸP: chốt chặn cuối trước khi vào config ─────────────────────
+    nk = _NTD["ruiRo.kellyPhan"]
+    kiem("model đề nghị 5,0 → kẹp về trần, không thành 5,0",
+         gan(_kep("ruiRo.kellyPhan", 5.0), nk.cao),
+         _kep("ruiRo.kellyPhan", 5.0))
+    kiem("đề nghị âm → kẹp về sàn",
+         gan(_kep("ruiRo.kellyPhan", -3.0), nk.thap),
+         _kep("ruiRo.kellyPhan", -3.0))
+    kiem("đường KHÔNG có trong bảng → BỎ HẲN, không kẹp",
+         _kep("khong.co.that", 0.5) is None)
+
+    # Bám LƯỚI BƯỚC: giá trị giữa hai nấc phải về nấc gần nhất.
+    ne = _NTD["canLoi.netEdgeToiThieu"]
+    giua = ne.thap + ne.buoc * 1.4
+    kiem("giá trị giữa hai nấc → về nấc GẦN NHẤT",
+         gan(_kep("canLoi.netEdgeToiThieu", giua), ne.thap + ne.buoc),
+         _kep("canLoi.netEdgeToiThieu", giua))
+    # Và KHÔNG để lại đuôi dấu phẩy động — hai lượt "cùng một chỗ" phải
+    # ra cùng một chuỗi, không thì phép nhớ-đã-thử-gì không nhận ra.
+    for d, n2 in _NTD.items():
+        for k in range(0, 6):
+            gt = _kep(d, float(n2.thap) + float(n2.buoc) * k)
+            if gt is None:
+                continue
+            kiem_lang = repr(gt) == repr(round(gt, 10))
+            if not kiem_lang:
+                break
+        else:
+            continue
+        break
+    kiem("mọi nấc của mọi nút đều ra số SẠCH, không đuôi 0,00999...",
+         kiem_lang, (d, gt))
+    kiem("kẹp là ỔN ĐỊNH: kẹp hai lần ra đúng một kết quả",
+         all(_kep(d2, _kep(d2, float(n3.thap) + float(n3.buoc) * 2))
+             == _kep(d2, float(n3.thap) + float(n3.buoc) * 2)
+             for d2, n3 in _NTD.items()))
+
+    # ── nút nằm Ở MÉP: mép quyết định, không phải dữ liệu ────────────
+    _cuK = CONFIG["ruiRo"].get("kellyPhan")
+    try:
+        CONFIG["ruiRo"]["kellyPhan"] = nk.cao
+        mep = {x["duong"]: x["ben"] for x in _nom()}
+        kiem("trị ĐÚNG BẰNG mép trên → bị kêu, phía `trên`",
+             mep.get("ruiRo.kellyPhan") == "trên", mep)
+        CONFIG["ruiRo"]["kellyPhan"] = nk.thap
+        mep = {x["duong"]: x["ben"] for x in _nom()}
+        kiem("trị ĐÚNG BẰNG mép dưới → bị kêu, phía `dưới`",
+             mep.get("ruiRo.kellyPhan") == "dưới", mep)
+        CONFIG["ruiRo"]["kellyPhan"] = (nk.thap + nk.cao) / 2.0
+        mep = {x["duong"] for x in _nom()}
+        kiem("trị nằm GIỮA dải → không bị kêu",
+             "ruiRo.kellyPhan" not in mep, mep)
+    finally:
+        if _cuK is None:
+            CONFIG["ruiRo"].pop("kellyPhan", None)
+        else:
+            CONFIG["ruiRo"]["kellyPhan"] = _cuK
+
+    # ── CHIỀU lệch của mô hình ───────────────────────────────────────
+    #
+    # Ô xác suất CAO mà thực tế THẤP hơn ⇒ tự tin quá. Ô xác suất THẤP
+    # mà thực tế CAO hơn ⇒ cũng tự tin quá. Viết ngược một trong hai vế
+    # là mọi đề xuất vặn nút đi sai chiều, và không lỗi nào ném ra.
+    kiem("ô cao đoán quá tay → TỰ TIN QUÁ",
+         _cl([{"n": 100, "duDoan": 0.9, "lech": -0.1}]) == "TỰ TIN QUÁ")
+    kiem("ô thấp đoán quá tay (thực tế CAO hơn) → cũng TỰ TIN QUÁ",
+         _cl([{"n": 100, "duDoan": 0.1, "lech": +0.1}]) == "TỰ TIN QUÁ")
+    kiem("ô cao mà thực tế còn cao hơn → RỤT RÈ QUÁ",
+         _cl([{"n": 100, "duDoan": 0.9, "lech": +0.1}]) == "RỤT RÈ QUÁ")
+    kiem("ô thấp mà thực tế còn thấp hơn → RỤT RÈ QUÁ",
+         _cl([{"n": 100, "duDoan": 0.1, "lech": -0.1}]) == "RỤT RÈ QUÁ")
+    kiem("hai chiều cân nhau → nói LẪN LỘN, không chọn bừa",
+         _cl([{"n": 100, "duDoan": 0.9, "lech": -0.1},
+              {"n": 100, "duDoan": 0.9, "lech": +0.1}])
+         == "hai chiều lẫn lộn")
+    kiem("lệch 1,3 lần là chưa đủ để kết luận",
+         _cl([{"n": 130, "duDoan": 0.9, "lech": -0.1},
+              {"n": 100, "duDoan": 0.9, "lech": +0.1}])
+         == "hai chiều lẫn lộn")
+    kiem("ô rỗng hoặc thiếu `lech` bị BỎ, không kéo kết luận",
+         _cl([{"n": 0, "duDoan": 0.9, "lech": -0.9},
+              {"n": 100, "duDoan": 0.9, "lech": None}])
+         == "hai chiều lẫn lộn")
+    # Ba biên của chính phép này. Lệch ĐÚNG BẰNG 0 là không lệch — nó
+    # phải rơi về phía RỤT RÈ (mô hình chưa đi đủ xa), không phải phía
+    # tự tin quá.
+    kiem("lệch ĐÚNG BẰNG 0 ở ô cao → tính về phía RỤT RÈ",
+         _cl([{"n": 100, "duDoan": 0.9, "lech": 0.0}]) == "RỤT RÈ QUÁ",
+         _cl([{"n": 100, "duDoan": 0.9, "lech": 0.0}]))
+    kiem("lệch ĐÚNG BẰNG 0 ở ô thấp → tính về phía RỤT RÈ",
+         _cl([{"n": 100, "duDoan": 0.1, "lech": 0.0}]) == "RỤT RÈ QUÁ",
+         _cl([{"n": 100, "duDoan": 0.1, "lech": 0.0}]))
+    # `duDoan` ĐÚNG BẰNG 0,5 thuộc nửa DƯỚI — nó không phải "ô xác suất
+    # cao". Xếp nhầm nửa là đảo chiều kết luận cho cả một ô.
+    kiem("`duDoan` ĐÚNG BẰNG 0,50 thuộc nửa DƯỚI",
+         _cl([{"n": 100, "duDoan": 0.5, "lech": +0.1}]) == "TỰ TIN QUÁ",
+         _cl([{"n": 100, "duDoan": 0.5, "lech": +0.1}]))
 
 
 def kiem_phu_quet_dot_bien() -> None:
@@ -1231,8 +1374,8 @@ def kiem_phu_quet_dot_bien() -> None:
         thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
                  if ("--file=kham/" + x) not in vb]
         kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
-    kiem("đã quét ít nhất 15 module lõi",
-         len(DA_QUET_DOT_BIEN) >= 15, len(DA_QUET_DOT_BIEN))
+    kiem("đã quét ít nhất 16 module lõi",
+         len(DA_QUET_DOT_BIEN) >= 16, len(DA_QUET_DOT_BIEN))
 
 
 def kiem_bien_cua_phat_lai() -> None:
@@ -8842,6 +8985,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_chan_doan()
     kiem_phu_quet_dot_bien()
     kiem_bien_cua_phat_lai()
     kiem_bien_cua_chien_thuat()
