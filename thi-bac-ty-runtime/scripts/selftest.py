@@ -11744,6 +11744,55 @@ def kiem_khong_trung_ten() -> None:
          f"{sorted(dinh - goi)} — một phép kiểm không ai gọi thì xanh vĩnh "
          f"viễn, và nó xanh vì không chạy chứ không vì đúng")
 
+def kiem_moi_module_nhap_duoc() -> None:
+    """MỌI module trong cây mã phải NHẬP ĐƯỢC. Chạy đầu tiên, luôn.
+
+    Ngày 30/08 tôi thêm một chú thích vào `duong_suc_chua.py` bằng phép
+    thay chuỗi không neo thụt lề. Nó khớp vào GIỮA dòng và để lại một
+    khối `for` không có thân — `IndentationError`. Làn thật trả 500 ở
+    MỌI đường API cho tới lúc sửa.
+
+    Suite vẫn **1773/1773 đạt**.
+
+    Lý do: mọi phép nhập trong suite đều nằm TRONG hàm, gọi khi cần, và
+    module ấy chỉ được nhập ở một nhánh không chạy tới. Một bộ kiểm
+    không phát hiện nổi «file không nhập được» thì con số nó in ra nói
+    về những gì nó chạm tới, chứ không nói về cây mã.
+
+    Phép kiểm này rẻ và bắt được cả một họ lỗi: cú pháp, thụt lề, nhập
+    vòng, tên không tồn tại ở mức module. Nó KHÔNG thay được các phép
+    kiểm khác — nó chỉ đảm bảo chúng có cái để chạy.
+    """
+    import importlib
+    import pkgutil
+    print(chr(10) + "-- MOI MODULE PHAI NHAP DUOC (cu phap, thut le, "
+          "vong nhap) --")
+
+    goi = ["thi_bac_ty", "bac", "tin_dung", "lp_amm", "co_so", "lai_suat",
+           "ngang_gia", "vong_doi", "tien_doan", "chuoi_chung",
+           "phai_sinh_chung", "san_chung", "chuyen_von", "dong_co_chua_co",
+           "kham_ngoai", "dex_arb"]
+    goc = Path(__file__).resolve().parent.parent
+    tim = 0
+    for ten in goi:
+        d = goc / ten
+        if not d.is_dir():
+            continue
+        for m in pkgutil.iter_modules([str(d)]):
+            duong = f"{ten}.{m.name}"
+            tim += 1
+            try:
+                importlib.import_module(duong)
+                ok, vi = True, ""
+            except Exception as e:                        # noqa: BLE001
+                ok, vi = False, f"{type(e).__name__}: {e}"
+            if not ok:
+                kiem(f"nhập được `{duong}`", False, vi)
+    kiem(f"cả {tim} module trong cây mã đều nhập được", tim > 0,
+         "không tìm thấy module nào — đường gói sai, và phép kiểm này "
+         "đang canh một thư mục rỗng")
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -11751,6 +11800,7 @@ def main() -> int:
     print(f"  cửa sổ giữ mặc định: {CONFIG['quet']['giuGio']:g} giờ")
     print("  NET sau phí mới là alpha. Funding thô thì không.")
 
+    kiem_moi_module_nhap_duoc()
     kiem_chuan_hoa()
     kiem_dem_moc()
     kiem_dau_funding()
