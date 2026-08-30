@@ -2861,9 +2861,45 @@ def kiem_cham_moc() -> None:
                  dinhDaQua=74_000, sigmaGiay=sig)
     tho = g.giaiTrinh["pChamTho"]
     ket = g.giaiTrinh["pKetThuc"]
-    kiem("P(chạm) = 2 × P(kết thúc bên kia)", gan(tho / ket, 2.0, 1e-9),
-         f"{tho:.6f} / {ket:.6f} = {tho/ket:.6f}")
+    khongTroi = g.giaiTrinh["pChamKhongTroi"]
+    # Đẳng thức phản xạ chỉ đúng cho chuyển động Brown KHÔNG trôi, nên
+    # nay nó canh `pChamKhongTroi`, không canh `pChamTho`. Bản có trôi
+    # KHÔNG được thoả nó — và đó chính là chỗ khác nhau.
+    kiem("P(chạm) không trôi = 2 × P(kết thúc bên kia)",
+         gan(khongTroi / ket, 2.0, 1e-9),
+         f"{khongTroi:.6f} / {ket:.6f} = {khongTroi/ket:.6f}")
     kiem("P(chạm) > P(kết thúc) luôn luôn", tho > ket)
+    kiem("bản CÓ trôi thấp hơn bản không trôi — chiều an toàn",
+         tho < khongTroi, (tho, khongTroi))
+
+    # Hai giới hạn — thứ khoá chặt công thức, không cho ai đổi tiện tay.
+    #
+    # Với μ = −σ²/2 thì chính GIÁ là martingale, nên phép dừng tuỳ ý cho
+    # hai con số biết trước:
+    #
+    #     τ → ∞, rào TRÊN  →  S/K   (xác suất từng chạm mốc trên)
+    #     τ → ∞, rào DƯỚI  →  1     (martingale dương chạm mọi mức dưới)
+    #
+    # Bản phản xạ cũ KHÔNG thoả cả hai: nó cho 2Φ(0) = 1 ở rào trên.
+    from kham.cham_moc import _p_cham
+    _b = math.log(150_000 / 72_000)
+    _lau = 500 * 365 * 86400.0
+    kiem("τ → ∞, rào TRÊN → S/K (giá là martingale)",
+         gan(_p_cham(_b, sig, _lau, True), 72_000 / 150_000, 1e-4),
+         _p_cham(_b, sig, _lau, True))
+    kiem("τ → ∞, rào DƯỚI → 1", gan(_p_cham(_b, sig, _lau, False), 1.0, 1e-6),
+         _p_cham(_b, sig, _lau, False))
+    kiem("rào ngay tại giá hiện tại → P = 1 ở cả hai chiều",
+         gan(_p_cham(0.0, sig, 60.0, True), 1.0, 1e-9)
+         and gan(_p_cham(0.0, sig, 60.0, False), 1.0, 1e-9))
+
+    # Bất định lấy đạo hàm bằng SỐ, nên nó phải theo đúng công thức đang
+    # dùng. Kiểm bằng cách so với sai phân thô ngay tại đây.
+    _s2 = sig * 1.0001
+    _dp = abs(_p_cham(_b, _s2, 133 * NGAY, True)
+              - _p_cham(_b, sig, 133 * NGAY, True))
+    kiem("bất định > 0 khi P chưa dính hai đầu",
+         g.batDinhThamSo > 0 and _dp > 0, (g.batDinhThamSo, _dp))
 
     # BẪY 1 — đã chạm rồi. Đây là bẫy chết người của họ này: chỉ nhìn giá
     # hiện tại thì một market đã ngã ngũ vẫn ra một xác suất nhỏ xinh.
@@ -4409,9 +4445,24 @@ def kiem_cham_moc_tu_choi_sigma_ngan() -> None:
     kiem("và nói rõ LÝ DO chứ không để `None` câm",
          "Từ chối định giá" in vg and "lệch" in vg)
 
-    cm = (GOC_MA / "kham" / "cham_moc.py").read_text(encoding="utf-8")
-    kiem("`cham_moc` khai luôn CHIỀU và CỠ của sai lệch bỏ trôi",
-         "+40,6%" in cm and "CAO HƠN" in cm)
+    # Bản trước dò CHỮ trong docstring ("+40,6%" và "CAO HƠN"). Nó đỏ
+    # ngay khi ai đó viết lại đoạn văn — kể cả khi viết lại để nói rằng
+    # sai lệch ĐÃ ĐƯỢC SỬA. Đo hành vi thì bền, và nó canh đúng thứ
+    # đáng canh: số hạng trôi có THẬT SỰ nằm trong công thức không.
+    from kham.cham_moc import _p_cham as _pc
+    from kham.dinh_gia import phi as PHI
+    _sig = 0.55 / math.sqrt(365 * 24 * 3600.0)
+    _tau = 124 * 86400.0
+    _b = math.log(150_000 / 78_016)
+    _coTroi = _pc(_b, _sig, _tau, True)
+    _khong = 2.0 * PHI(-_b / (_sig * math.sqrt(_tau)))
+    kiem("số hạng trôi CÓ trong công thức chạm mốc",
+         _coTroi < _khong * 0.95, (_coTroi, _khong))
+    # Cỡ của nó cũng phải đúng: quãng 40% tương đối ở chân trời này.
+    # Lệch xa con số ấy nghĩa là công thức đã đổi mà không ai đo lại.
+    kiem("và cỡ của nó đúng quãng 40% tương đối ở chân trời 124 ngày",
+         0.35 < (_khong / _coTroi - 1.0) < 0.45,
+         f"{(_khong / _coTroi - 1.0) * 100:.1f}%")
 
 def kiem_nut_van_khong_bi_dong_bang() -> None:
     """Nút trong bảng vặn phải đọc CONFIG lúc GỌI, không chốt lúc nạp.

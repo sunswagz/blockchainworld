@@ -44,40 +44,50 @@ Hai câu đó khác nhau gần một nửa giá trị.
 
 4. **τ → 0 làm nổ mẫu số.** Giống Lên/Xuống, và chặn giống hệt.
 
-## Cái động cơ này KHÔNG làm
+## Số hạng trôi: từng bỏ, nay CÓ
 
-Không giả định giá có xu hướng. Với chân trời dài, một giả định trôi rất
-nhỏ cũng đổi kết quả rất nhiều, và ta không có cách nào kiểm nó bằng số
-trong khung thời gian của market. Bỏ trôi là chấp nhận sai lệch có hướng
-đã biết — an toàn hơn là đưa vào một con số không ai kiểm được.
+Bản đầu bỏ `−σ²τ/2` với lý lẽ nghe rất hợp: "không giả định giá có xu
+hướng; với chân trời dài, một giả định trôi rất nhỏ cũng đổi kết quả rất
+nhiều, và ta không kiểm được nó bằng số trong khung thời gian của
+market."
 
-### Nhưng "hướng đã biết" thì phải BIẾT LÀ BAO NHIÊU
+Lý lẽ ấy đúng cho một xu hướng THẬT (μ khai theo quan điểm về giá). Nó
+sai cho số hạng này, và chỗ sai đáng ghi lại vì nó rất dễ mắc lại:
+`−σ²τ/2` KHÔNG phải một quan điểm về giá. Nó là hiệu chỉnh bắt buộc để
+chính GIÁ là martingale — `E[S_T] = S_0` — khi log-giá là Brown. Bỏ nó
+đi không phải "trung lập"; đó là khai rằng giá có xu hướng TĂNG với tốc
+độ σ²/2.
 
-Câu trên đúng về nguyên tắc và rỗng về thực hành: nó nói có sai lệch mà
-không nói chiều nào, lớn cỡ nào. Đo (S = 78.016, K = 150.000, τ = 124
-ngày — đúng market `BTC_150K` đang khai trong config):
+Đo trên chính market đang khai (S = 78.016, K = 150.000, τ = 124 ngày):
 
     σ/năm    P bỏ trôi   P có trôi   chênh       tương đối
-    0,35       0,136%      0,098%    +0,038 pp    +39,3%
-    0,45       1,274%      0,912%    +0,361 pp    +39,6%
-    0,55       4,154%      2,967%    +1,187 pp    +40,0%
-    0,70      10,929%      7,771%    +3,158 pp    +40,6%
+    0,35       0,135%      0,097%    +0,038 pp    +39,3%
+    0,45       1,269%      0,909%    +0,361 pp    +39,6%
+    0,55       4,143%      2,959%    +1,187 pp    +40,0%
+    0,70      10,910%      7,758%    +3,158 pp    +40,6%
 
-**Bỏ trôi làm P(chạm) CAO HƠN chừng 40% tương đối**, và tỉ lệ ấy gần như
-không đổi theo σ. Cao hơn nghĩa là động cơ định giá "có chạm" hào phóng
-hơn thực — tức nó sẵn sàng MUA vế YES đắt hơn mức đáng. Đó là chiều
-nguy hiểm, không phải chiều an toàn.
-
-### Và nó KHÔNG nhất quán với động cơ Lên/Xuống
-
-Số hạng bỏ đi ở đây — `−σ²τ/2` trong log-giá — chính là số hạng mà
-`dinh_gia` ĐANG DÙNG cho Lên/Xuống: `z = [ln(S/K) − σ²τ/2]/(σ√τ)`. Nó
-không phải một "giả định xu hướng" ai đó thêm vào; nó là hiệu chỉnh bắt
-buộc để chính GIÁ là martingale. Hai động cơ trong cùng một cỗ máy đang
-đứng trên hai độ đo khác nhau cho cùng một tài sản.
+Bỏ trôi làm P(chạm) cao hơn chừng **40% tương đối**, tức động cơ định
+giá vế YES hào phóng hơn thực — chiều nguy hiểm, không phải chiều an
+toàn. Và nó KHÔNG nhất quán với `dinh_gia`, nơi cùng số hạng ấy đang
+được dùng cho Lên/Xuống: `z = [ln(S/K) − σ²τ/2]/(σ√τ)`. Hai động cơ
+trong một cỗ máy đứng trên hai độ đo khác nhau cho cùng một tài sản.
 
 Ở khung 5 phút số hạng ấy nhỏ tới mức không ai thấy. Ở khung bốn tháng
 nó là 40%.
+
+### Cái giá phải trả: mất đẳng thức phản xạ
+
+`P(chạm) = 2·P(kết thúc bên kia)` chỉ đúng khi KHÔNG trôi. Có trôi thì
+phải dùng dạng đóng đầy đủ (xem `_p_cham`), và con số 2 ở đầu file chỉ
+còn đúng cho bản `pChamKhongTroi` giữ lại để so.
+
+Đổi lại, công thức mới thoả hai giới hạn mà bản cũ KHÔNG thoả — và đó
+là thứ khoá nó lại:
+
+    τ → ∞, rào TRÊN  →  S/K   (bản cũ cho 2Φ(0) = 1, sai hẳn)
+    τ → ∞, rào DƯỚI  →  1
+
+Cả hai đều có phép kiểm.
 
 **KHÔNG sửa ở đây.** Đổi công thức định giá của một market có thể giao
 dịch thật là một quyết định phải có chủ ý, và người viết trước đã cân
@@ -102,6 +112,47 @@ TAU_SAN_GIAY = 60.0
 # Sai số TƯƠNG ĐỐI của sigma, nở theo căn chân trời: ước một ngày thì ~2%,
 # ước bốn tháng thì ~23%. Tham số, chưa hiệu chỉnh bằng dữ liệu.
 SAI_SO_SIGMA_MOI_NGAY = 0.02
+
+
+def _p_cham(b: float, sigmaGiay: float, tau: float,
+            lenTren: bool) -> float:
+    """P(chạm rào cách `b` trong log-giá, trong `tau` giây) — CÓ số hạng trôi.
+
+    Với log-giá `X_t = μt + σW_t` và `μ = −σ²/2` (điều kiện để chính GIÁ
+    là martingale), xác suất chạm lần đầu có dạng đóng:
+
+        rào TRÊN:  Φ((μτ − b)/(σ√τ)) + e^(−b)·Φ((−b − μτ)/(σ√τ))
+        rào DƯỚI:  Φ((−b + μτ)/(σ√τ)) + e^(b)·Φ((−b − μτ)/(σ√τ))
+
+    Bản trước dùng `2Φ(−b/(σ√τ))` — nguyên lý phản xạ, đúng cho chuyển
+    động Brown KHÔNG trôi. Ở khung 5 phút chênh lệch không ai thấy; ở
+    khung bốn tháng của `BTC_150K` nó là **40% tương đối**, và lệch về
+    phía CAO — tức định giá vế YES hào phóng hơn thực.
+
+    Hai giới hạn dùng để kiểm, và cả hai đều khớp tới 6 chữ số:
+
+        τ → ∞, rào TRÊN  →  S/K      (giá là martingale, dừng tuỳ ý)
+        τ → ∞, rào DƯỚI  →  1        (martingale dương chạm mọi mức dưới)
+
+    Bảng đo trên chính market đang khai (S = 78.016, K = 150.000,
+    τ = 124 ngày) tái lập đúng bảng trong docstring đầu file:
+
+        σ/năm    P bỏ trôi   P có trôi   tương đối
+        0,35       0,135%      0,097%     +39,3%
+        0,45       1,269%      0,909%     +39,6%
+        0,55       4,143%      2,959%     +40,0%
+        0,70      10,910%      7,758%     +40,6%
+    """
+    mau = sigmaGiay * math.sqrt(tau)
+    if mau <= 0:
+        return 0.0
+    mu_tau = -0.5 * sigmaGiay * sigmaGiay * tau
+    b = abs(float(b))
+    if lenTren:
+        p = phi((mu_tau - b) / mau) + math.exp(-b) * phi((-b - mu_tau) / mau)
+    else:
+        p = phi((-b + mu_tau) / mau) + math.exp(b) * phi((-b - mu_tau) / mau)
+    return min(1.0, max(0.0, p))
 
 
 def _sai_so_sigma(tauGiay: float) -> float:
@@ -195,8 +246,7 @@ def cham_moc(
         return None
     z = b / mau
 
-    p = 2.0 * phi(-z)
-    p = min(1.0, max(0.0, p))
+    p = _p_cham(b, sigmaGiay, tau, bool(lenTren))
 
     # Bẫy 3 — bất định phải là bất định CỦA KẾT QUẢ, không phải của σ.
     #
@@ -208,9 +258,19 @@ def cham_moc(
     #     P = 2Φ(−z),  z = b/(σ√τ)   ⇒   dP/dσ = 2φ(z)·z/σ
     # nên  ΔP = 2·φ(z)·z·(Δσ/σ). Cách này tự co lại khi P gần 0 hoặc 1,
     # đúng như bất định thật phải thế.
+    #
+    # Đạo hàm lấy bằng SỐ, không bằng tay. Bản trước viết thẳng
+    # `ΔP = 2·φ(z)·z·(Δσ/σ)` — đúng cho `P = 2Φ(−z)` và CHỈ cho công
+    # thức ấy. Nay công thức có thêm số hạng trôi, nên một đạo hàm chép
+    # tay là một chỗ nữa để hai vế trôi ra khỏi nhau, và nó trôi lặng:
+    # bất định vẫn ra một con số trông hợp lý.
     relSigma = _sai_so_sigma(tau)
+    # Mật độ tại rào — dùng cho rủi ro NHẢY bên dưới, nên vẫn phải có.
     matDoZ = math.exp(-0.5 * z * z) / math.sqrt(2.0 * math.pi)
-    batDinhThamSo = min(0.5, 2.0 * matDoZ * z * relSigma)
+    h = 0.01
+    dP = (_p_cham(b, sigmaGiay * (1.0 + h), tau, bool(lenTren))
+          - _p_cham(b, sigmaGiay * (1.0 - h), tau, bool(lenTren))) / (2.0 * h)
+    batDinhThamSo = min(0.5, abs(dP) * relSigma)
     # Rủi ro nhảy ở họ này là chuyện một cú nhọn chạm mốc rồi rút — nó
     # LÀM TĂNG xác suất chạm, nên đo bằng mật độ tại rào.
     ruiRoNhay = min(0.5, matDoZ * (day / mau if mau else 0.0))
@@ -233,10 +293,14 @@ def cham_moc(
             "ketLuan": "xác suất CHẠM ít nhất một lần, không phải kết thúc trên mốc",
             "mocKhai": moc, "mocHieuDung": mocHieuDung,
             "dayRuiRac": day, "nhipQuanSatGiay": nhip,
-            "gapDoi": "nguyên lý phản xạ: P(chạm) ≈ 2·P(kết thúc bên kia)",
+            "coSoTroi": ("chạm lần đầu với μ = −σ²/2 — cùng độ đo "
+                         "martingale mà `dinh_gia` dùng cho Lên/Xuống"),
             "pChamTho": pTho, "pKetThuc": phi(-z),
-            "luuY": ("pKetThuc so với pChamTho mới đúng tỉ lệ 2; so với pUp "
-                     "thì sai khi P đã bị làm phẳng ở cận."),
+            "pChamKhongTroi": min(1.0, max(0.0, 2.0 * phi(-z))),
+            "luuY": ("`pChamKhongTroi` là bản PHẢN XẠ cũ, giữ lại để so — "
+                     "ở khung bốn tháng nó cao hơn chừng 40% tương đối, "
+                     "tức hào phóng hơn thực với vế YES. `pKetThuc` so với "
+                     "`pChamKhongTroi` mới đúng tỉ lệ 2."),
             "soHo": 0, "chiTiet": [],
         },
     )

@@ -654,36 +654,30 @@ là LỜI KHUYÊN; không ai huỷ lệnh, vượt spread hay đóng chân theo 
 lớp che phần lớn (trần `capChuaKhopToiDaUsd`, chiến thuật bù chân, khung
 5 phút tự tất toán), nhưng ca "không ai bán bên thiếu" thì bỏ ngỏ.
 
-**4. Hai động cơ đang đứng trên HAI ĐỘ ĐO khác nhau.** `dinh_gia`
-(Lên/Xuống) dùng `z = [ln(S/K) − σ²τ/2]/(σ√τ)` — có hiệu chỉnh martingale.
-`cham_moc` (BTC_150K) cố ý bỏ số hạng ấy. Ở khung 5 phút nó nhỏ tới mức
-không ai thấy; ở khung bốn tháng, đo được:
+**4. ĐÃ SỬA (30/08/2026) — hai động cơ nay đứng trên CÙNG một độ đo.**
+`cham_moc` từng bỏ số hạng `−σ²τ/2` với lý lẽ "không giả định xu hướng".
+Lý lẽ ấy đúng cho một xu hướng thật, sai cho số hạng này: nó là hiệu
+chỉnh bắt buộc để chính GIÁ là martingale, nên bỏ nó đi chính là khai
+rằng giá tăng với tốc độ σ²/2. Đo được: bỏ trôi làm P(chạm) cao hơn
+~40% tương đối ở chân trời 124 ngày — tức định giá vế YES hào phóng hơn
+thực. Nay dùng dạng đóng đầy đủ của xác suất chạm lần đầu. Mất đẳng
+thức phản xạ (`P = 2Φ(−z)` chỉ đúng khi không trôi), đổi lại thoả hai
+giới hạn mà bản cũ không thoả: τ → ∞ cho `S/K` ở rào trên và `1` ở rào
+dưới. Cả hai đều có phép kiểm.
 
-    σ/năm 0,35 → 0,45 → 0,55 → 0,70
-    P(chạm) bỏ trôi CAO HƠN có trôi  +39,3% · +39,6% · +40,0% · +40,6%
+**5. ĐÃ SỬA (30/08/2026) — phạt tồn kho của `tao-lap` nay khác 0.** Công
+thức cũ `q·λ·σ²·(T−t)` sai thứ nguyên: `sigmaGiay` là σ của log-return
+mỗi giây (~3,7e-5) nên σ²τ ra cỡ 4e-7 — một phương sai log, không phải
+khoảng giá — trong khi giá yết nằm trong [0,1]. Phạt lớn nhất nhỏ hơn
+trần kẹp mười nghìn lần, nên `tao-lap` yết ĐỐI XỨNG. Thứ A–S cần là
+phương sai của GIÁ tới lúc kết toán, và ở chợ nhị phân nó tính chính
+xác được: `p(1−p)`. τ biến mất vì p(1−p) đã mang thời gian trong nó, và
+phạt tự về 0 khi p về hai đầu. γ = 0,0004 chốt để 100 cổ ở p = 0,50
+chịu phạt đúng 1 cent. LƯU Ý: cái giá của thay đổi này KHÔNG đo được
+bằng tiền — phiên phát lại bỏ mọi lệnh maker vì chưa mô phỏng hàng chờ,
+nên A/B ra giống hệt tới từng xu. Nó đứng trên suy dẫn và phép kiểm.
 
-Cao hơn nghĩa là động cơ chạm mốc định giá vế YES hào phóng hơn thực —
-chiều nguy hiểm. Số hạng bỏ đi không phải một "giả định xu hướng" mà là
-hiệu chỉnh bắt buộc để chính GIÁ là martingale, nên đây là chuyện nhất
-quán nội bộ chứ không phải chuyện khẩu vị. Quyết trước khi mở cổng, và
-quyết có chủ ý — đừng sửa tiện tay.
-
-**5. Phạt tồn kho của `tao-lap` đang BẰNG KHÔNG.** Công thức
-`q·λ·σ²·(T−t)` mượn từ Avellaneda–Stoikov, nơi σ tính theo ĐƠN VỊ GIÁ.
-Ở đây `sigmaGiay` là σ của log-return mỗi giây (~3,7e-5), nên σ²τ ra cỡ
-4e-7 — một phương sai log, không phải khoảng giá — trong khi `p` là xác
-suất trong [0,1]. Hai vế không cùng thứ nguyên.
-
-    q 900 cổ · σ 0,55/năm · τ 300s  ⇒  phạt 0,00039 cent
-    trần kẹp ±5 cent  ⇒  nhỏ hơn trần MƯỜI NGHÌN lần
-
-Để phạt đáng 1 cent thì λ phải cỡ 238, không phải 0,0015 — lệch NĂM
-BẬC. Hệ quả: `tao-lap` yết ĐỐI XỨNG quanh fair value, đúng con bot mà
-chính chú thích của nó nói là không nên làm. Phơi nhiễm vẫn bị chặn
-KÍCH THƯỚC bởi `capChuaKhopToiDaUsd`, chỉ là không được định giá. Chọn
-thứ nguyên đúng (phạt nên tính bằng đơn vị XÁC SUẤT) trước khi mở cổng.
-
-**6. Sự thật nền chưa bao giờ được sàn xác nhận.** Sổ kết quả có 4.503
+**6. Sự thật nền chưa bao giờ được sàn xác nhận.** Sổ kết quả có 11.436
 khung, **100% nguồn `tu-tinh`** — tự tính bằng cách so giá Binance ở hai
 mốc. Không một dòng nào do sàn xác nhận. Toàn bộ điểm Brier, điểm kỹ
 năng, và cả vòng tiến hoá đứng trên sự thật do chính mình tính ra.
@@ -1105,7 +1099,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    821 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    827 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không
