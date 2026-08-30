@@ -289,5 +289,30 @@ def main() -> int:
         time.sleep(nghi)
 
 
+def _chay_va_ghi_loi() -> int:
+    """Chạy `main()`, và NGOẠI LỆ NÀO CŨNG PHẢI ĐỂ LẠI MỘT DÒNG.
+
+    Bộ giám sát chạy bằng `pythonw.exe` — không console, stderr không đi đâu cả.
+    Một ngoại lệ không ai bắt ở đây làm tiến trình biến mất KHÔNG dấu vết: nhật
+    ký ngừng giữa câu, tiến trình con vẫn chạy mồ côi, và không có gì để đọc.
+
+    Xảy ra 30/08: cả hai bộ giám sát mất lúc 12:56, mọi đường thoát bình thường
+    đều có ghi lý do nhưng nhật ký không có dòng nào. Không cách nào biết vì sao.
+    Sau bản này thì biết — hoặc nếu vẫn không có dòng nào, ta biết chắc nó bị
+    GIẾT từ bên ngoài chứ không phải tự chết.
+    """
+    try:
+        return main()
+    except BaseException as e:      # noqa: BLE001 — kể cả KeyboardInterrupt/SystemExit
+        try:
+            _log().exception(f"[giám sát] CHẾT VÌ NGOẠI LỆ: {type(e).__name__}: {e}")
+            _ghi_trang_thai(giamSatPid=os.getpid(), conPid=None, cong=_cong(),
+                            dungHan=True, lyDo=f"ngoại lệ {type(e).__name__}: {e}",
+                            luc=time.time(), goc=str(GOC))
+        except Exception:  # noqa: BLE001 — ghi log hỏng thì cũng đừng nuốt gốc
+            pass
+        raise
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_chay_va_ghi_loi())

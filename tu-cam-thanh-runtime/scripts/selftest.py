@@ -1195,6 +1195,13 @@ async def main() -> int:
     # cap-nhat.ps1, chuyen-nha.ps1 đều trỏ thẳng vào dichvu/trang-thai.json.
     check('"" if LAN == "chinh"' in _gs53,
           "làn chính giữ nguyên tên trang-thai.json / dung-lai")
+    # Bộ giám sát chạy bằng `pythonw.exe` — không console, stderr không đi đâu.
+    # Một ngoại lệ không ai bắt làm nó biến mất KHÔNG dấu vết: nhật ký ngừng
+    # giữa câu, tiến trình con chạy mồ côi. Xảy ra 12:56 ngày 30/08, cả hai làn.
+    check("_chay_va_ghi_loi" in _gs53 and "except BaseException" in _gs53,
+          "bộ giám sát ghi lại MỌI ngoại lệ trước khi chết")
+    check("sys.exit(_chay_va_ghi_loi())" in _gs53,
+          "và đường vào chính đi qua đó, không gọi thẳng main()")
 
     # BÀN GIAO phải nhắc tới làn demo. Bản bàn giao là thứ phiên sau ĐỌC; một
     # phép đo kéo ~6 tuần mà không có dòng nào ở đó thì nó chết lặng lẽ, và
