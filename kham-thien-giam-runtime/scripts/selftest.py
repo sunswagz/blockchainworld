@@ -1122,6 +1122,71 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_doi_soat_truoc_khi_dat_that() -> None:
+    """Chưa hỏi sàn đang cầm gì thì KHÔNG được đặt lệnh thật.
+
+    Đây là mục 1 — mục nặng nhất — của danh sách trước cổng. `Kho` chỉ
+    nằm trong bộ nhớ, nên khởi động lại giữa một khung là bot quên mình
+    đang cầm cổ phiếu trong khi sàn thì không quên.
+
+    Chưa nối được sàn thì không cách nào BIẾT. Nhưng từ chối thì làm
+    được ngay, và từ chối là việc đúng: giả định im lặng rằng tài khoản
+    đang trống sẽ sai đúng vào lúc nó đắt nhất.
+
+    Phép kiểm này canh cả hai chiều — chặn ở chế độ THẬT, và KHÔNG chặn
+    ở chế độ giấy. Chặn nhầm chế độ giấy thì cỗ máy đứng im mà không ai
+    hiểu vì sao.
+    """
+    print()
+    print("-- Doi soat voi san truoc khi dat lenh THAT ----------------")
+    from kham import config as _cf
+    from kham.can_loi import can as _can2
+    from kham.so_lenh import Muc as _M2
+    from kham.so_lenh import SoLenh as _S2
+
+    so = _S2(ma="BTC_5M", ben="UP",
+             bid=[_M2(0.44, 900.0)], ask=[_M2(0.46, 900.0)], nhanLucMs=0.0)
+    ch = _can2("BTC_5M", "UP", "t", 0.55, 0.02, so, 300)
+    lanh = SucKhoeNguon(200, 150, 80)
+
+    k = Kho()
+    re = RiskEngine(k)
+    kiem("mặc định là CHƯA đối soát", k.daDoiSoatVoiSan is False)
+    kiem("chế độ GIẤY thì KHÔNG chặn — vị thế giấy là của riêng ta",
+         re.duyet(ch, lanh, 200, True).cho)
+
+    cu = _cf.che_hieu_luc
+    try:
+        _cf.che_hieu_luc = lambda: "that"
+        import kham.rui_ro as _RR2
+        _RR2.che_hieu_luc = lambda: "that"
+        q = re.duyet(ch, lanh, 200, True)
+        kiem("chế độ THẬT mà chưa đối soát → TỪ CHỐI", q.tu_choi)
+        kiem("và nói rõ VÌ SAO, không im lặng",
+             any("ĐỐI SOÁT" in x for x in q.lyDo), q.lyDo)
+
+        # Sàn trả lời "tài khoản trống" KHÁC HẲN "chưa hỏi" — đó là cả
+        # lý do `danh_dau_da_doi_soat` tồn tại.
+        k.danh_dau_da_doi_soat(None)
+        kiem("sàn xác nhận TRỐNG (khác với chưa hỏi) → cho qua",
+             re.duyet(ch, lanh, 200, True).cho)
+
+        # Và đối soát phải NẠP được thứ sàn nói là đang cầm.
+        k2 = Kho()
+        re2 = RiskEngine(k2)
+        k2.danh_dau_da_doi_soat({"BTC_5M": (120.0, 0.0, 54.0, 0.0)})
+        v2 = k2.lay("BTC_5M")
+        kiem("đối soát nạp đúng thứ sàn nói đang cầm",
+             gan(v2.coUp, 120.0) and gan(v2.tienUp, 54.0),
+             (v2.coUp, v2.tienUp))
+        kiem("và tồn kho ấy ĐI VÀO hạn mức ngay",
+             re2.lo_xau_nhat_gop_usd() > 0, re2.lo_xau_nhat_gop_usd())
+    finally:
+        _cf.che_hieu_luc = cu
+        import kham.rui_ro as _RR3
+        _RR3.che_hieu_luc = cu
+
+
 def kiem_tran_chan_tran_khong_vuot() -> None:
     """Chân TRẦN không bao giờ vượt trần — chứng minh, không trấn an.
 
@@ -5724,6 +5789,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_doi_soat_truoc_khi_dat_that()
     kiem_tran_chan_tran_khong_vuot()
     kiem_phat_ton_kho()
     kiem_bootstrap_theo_khoi()

@@ -19,7 +19,7 @@ import time
 from dataclasses import dataclass, field
 
 from .can_loi import CoHoi
-from .config import CONFIG
+from .config import CONFIG, che_hieu_luc
 from .kho_doi import Kho, nhom_tai_san
 
 _RR = CONFIG["ruiRo"]
@@ -351,6 +351,32 @@ class RiskEngine:
         """Cửa duy nhất. Mọi lệnh phải đi qua đây, kể cả lệnh phòng hộ."""
         ly_do: list[str] = []
         canh: list[str] = []
+
+        # 0. CHƯA ĐỐI SOÁT VỊ THẾ VỚI SÀN — chỉ chặn đường THẬT
+        #
+        # `Kho` chỉ nằm trong bộ nhớ. Khởi động lại giữa một khung là bot
+        # quên mình đang cầm cổ phiếu, trong khi sàn thì không quên. Ở
+        # chế độ GIẤY chuyện đó vô hại: vị thế giấy là của riêng ta.
+        #
+        # Ở chế độ THẬT nó là mối nguy nặng nhất trong cả cỗ máy. Bot mở
+        # thêm trên một tài khoản đã có sẵn hàng; hạn mức phơi nhiễm
+        # tính trên một tồn kho trống rỗng không có thật; và lần kết
+        # toán ấy không vào sổ nên `nap_tu_so` cũng không thấy.
+        #
+        # Chưa nối được sàn thì không cách nào biết đang cầm gì. Nhưng
+        # có một việc làm được ngay, và nó là việc đúng: TỪ CHỐI, có nêu
+        # tên. Một lời từ chối đứng đúng chỗ mối nguy còn hơn một giả
+        # định im lặng rằng tài khoản đang trống — giả định ấy sai đúng
+        # vào lúc nó đắt nhất.
+        #
+        # Đặt TRƯỚC cầu dao vì nó không phụ thuộc gì cả: chưa biết mình
+        # cầm gì thì mọi phép tính phía sau đều tính trên số bịa.
+        if che_hieu_luc() == "that" and not getattr(
+                self.kho, "daDoiSoatVoiSan", False):
+            return PhanQuyet(False, 0.0, [
+                "CHƯA ĐỐI SOÁT VỊ THẾ VỚI SÀN sau khi khởi động — không "
+                "biết đang cầm gì thì mọi hạn mức phía sau đều tính trên "
+                "một tồn kho không có thật"])
 
         # 1. cầu dao
         if self.ngatKhanCap:

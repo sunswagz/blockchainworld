@@ -644,6 +644,21 @@ Lối chữa ĐÚNG là **đối soát với SÀN lúc khởi động**, không 
 một file vị thế cục bộ. Sàn là nguồn sự thật về việc mình đang cầm gì;
 một file cục bộ chỉ tạo ra nguồn sự thật thứ hai để lệch nhau.
 
+**Từ 30/08 mối nguy này không còn IM LẶNG.** Chưa nối được sàn thì không
+cách nào BIẾT đang cầm gì — nhưng từ chối thì làm được ngay, và từ chối
+là việc đúng: giả định ngầm rằng tài khoản đang trống sẽ sai đúng vào
+lúc nó đắt nhất. `Kho.daDoiSoatVoiSan` mặc định `False` và cổng 0 của
+`RiskEngine.duyet` chặn MỌI lệnh ở chế độ THẬT khi nó còn `False`, có
+nêu tên lý do. Chế độ giấy không bị chặn — vị thế giấy là của riêng ta,
+quên là hết.
+
+`Kho.danh_dau_da_doi_soat(viThe)` là chỗ duy nhất bật cờ, và nó nạp
+luôn thứ sàn nói là đang cầm. Truyền `None` nghĩa là sàn xác nhận tài
+khoản TRỐNG — khác hẳn "chưa hỏi", và đó là cả lý do hàm này tồn tại.
+Chưa ai gọi nó; adapter sàn sẽ gọi khi có. Nên việc còn lại KHÔNG phải
+"nhớ đối soát" mà là "nối được sàn" — một việc rõ ràng thay cho một
+điều phải nhớ.
+
 **2. `phi.takerHeSo` là THAM SỐ, chưa phải sự thật đã kiểm.** Đối chiếu
 docs.polymarket.com/trading/fees. Đặt sai thì mọi phép tính edge lệch
 cùng một chiều, và lệch im lặng. (Phí nay ĐÃ được trừ khỏi lãi lỗ — xem
@@ -1110,7 +1125,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    831 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    838 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không

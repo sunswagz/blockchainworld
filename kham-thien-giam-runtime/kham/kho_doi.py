@@ -343,6 +343,42 @@ class Kho:
 
     def __init__(self) -> None:
         self.viThe: dict[str, ViThe] = {}
+        #: Đã ĐỐI SOÁT tồn kho với SÀN kể từ lần khởi động này chưa.
+        #:
+        #: `Kho` chỉ nằm trong bộ nhớ. Khởi động lại giữa một khung là
+        #: bot QUÊN mình đang cầm cổ phiếu — trong khi sàn thì không
+        #: quên. Ở chế độ GIẤY chuyện đó vô hại (vị thế giấy là của
+        #: riêng ta, quên là hết). Ở chế độ THẬT nó là mối nguy nặng
+        #: nhất trong cả cỗ máy: bot mở thêm vị thế trên một tài khoản
+        #: đã có sẵn hàng, hạn mức phơi nhiễm tính sai, và lần kết toán
+        #: ấy không bao giờ vào sổ nên `nap_tu_so` cũng không thấy.
+        #:
+        #: Lối chữa ĐÚNG là hỏi sàn lúc khởi động — sàn là nguồn sự thật
+        #: về việc mình đang cầm gì, còn một file vị thế cục bộ chỉ tạo
+        #: ra nguồn sự thật thứ hai để lệch nhau.
+        #:
+        #: Chưa nối được sàn thì cờ này KHÔNG BAO GIỜ bật, và cổng rủi
+        #: ro từ chối mọi lệnh THẬT. Đó là chủ ý: một lời từ chối rõ
+        #: ràng đứng đúng chỗ mối nguy còn hơn một giả định im lặng
+        #: rằng tài khoản đang trống.
+        self.daDoiSoatVoiSan: bool = False
+
+    def danh_dau_da_doi_soat(self, viThe: dict | None = None) -> None:
+        """Sàn đã trả lời: đây là thứ ta đang cầm. Chỉ đường THẬT gọi.
+
+        `viThe` là {mã: (số cổ UP, số cổ DOWN, tiền UP, tiền DOWN)} lấy
+        TỪ SÀN. Truyền `None` nghĩa là sàn xác nhận tài khoản TRỐNG —
+        khác hẳn với "chưa hỏi", và đó là cả lý do hàm này tồn tại.
+        """
+        for ma, x in (viThe or {}).items():
+            v = self.lay(str(ma))
+            v.don()
+            try:
+                v.coUp, v.coDown, v.tienUp, v.tienDown = (
+                    float(x[0]), float(x[1]), float(x[2]), float(x[3]))
+            except (TypeError, ValueError, IndexError):
+                continue
+        self.daDoiSoatVoiSan = True
 
     def lay(self, ma: str) -> ViThe:
         return self.viThe.setdefault(ma, ViThe(ma=ma))
