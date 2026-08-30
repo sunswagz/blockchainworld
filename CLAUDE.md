@@ -649,10 +649,21 @@ docs.polymarket.com/trading/fees. Đặt sai thì mọi phép tính edge lệch
 cùng một chiều, và lệch im lặng. (Phí nay ĐÃ được trừ khỏi lãi lỗ — xem
 mục PHÍ bên dưới — nên đặt sai hệ số bây giờ đắt hơn trước.)
 
-**3. Ca khó của chân lệch không có lối thoát tự động.** `quyet_chan` chỉ
-là LỜI KHUYÊN; không ai huỷ lệnh, vượt spread hay đóng chân theo nó. Ba
-lớp che phần lớn (trần `capChuaKhopToiDaUsd`, chiến thuật bù chân, khung
-5 phút tự tất toán), nhưng ca "không ai bán bên thiếu" thì bỏ ngỏ.
+**3. Chân lệch không có LỐI THOÁT tự động — nhưng CỠ thì có trần, và
+đã chứng minh.** `quyet_chan` chỉ là LỜI KHUYÊN; không ai huỷ lệnh, vượt
+spread hay đóng chân theo nó. Ca "không ai bán bên thiếu" vẫn bỏ ngỏ.
+
+Hai chuyện ấy hay bị nói lẫn vào nhau, và phân biệt được thì mới quyết
+được: bỏ ngỏ LỐI THOÁT thì đúng, bỏ ngỏ CỠ thì không. Cỡ bị chặn ở
+`khoDoi.phanTramChuaPhongHo` = 5% vốn đầu ngày, và từ 30/08 còn bị chặn
+lần nữa bởi cổng 6b (ngân sách lỗ ngày còn lại). `kiem_tran_chan_tran_
+khong_vuot` lùa 400 lệnh ngẫu nhiên qua đúng cửa duyệt thật, khớp TRỌN
+mọi thứ được duyệt, và đòi trần không bao giờ bị vượt — đo bất biến ở
+đầu ra chứ không tin một cổng đơn lẻ.
+
+Nên rủi ro còn lại là: mất tối đa 5% vốn trong tối đa một khung, khi
+không ai bán bên thiếu. Một rủi ro CÓ CHẶN và một rủi ro không chặn là
+hai thứ khác hẳn nhau khi quyết có mở cổng hay không.
 
 **4. ĐÃ SỬA (30/08/2026) — hai động cơ nay đứng trên CÙNG một độ đo.**
 `cham_moc` từng bỏ số hạng `−σ²τ/2` với lý lẽ "không giả định xu hướng".
@@ -1099,7 +1110,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    827 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    831 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không

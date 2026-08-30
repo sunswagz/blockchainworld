@@ -1122,6 +1122,74 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_tran_chan_tran_khong_vuot() -> None:
+    """Chân TRẦN không bao giờ vượt trần — chứng minh, không trấn an.
+
+    Danh sách "PHẢI ĐÚNG TRƯỚC KHI MỞ BA CỔNG" ghi mục 3 là "ca khó của
+    chân lệch không có lối thoát tự động": `quyet_chan` chỉ khuyên, không
+    ai huỷ lệnh hay vượt spread theo nó, nên ca "không ai bán bên thiếu"
+    bị bỏ ngỏ.
+
+    Bỏ ngỏ về LỐI THOÁT thì đúng. Nhưng bỏ ngỏ về CỠ thì không — và hai
+    chuyện ấy hay bị nói lẫn vào nhau. Cỡ có trần: cổng 8 chặn theo
+    `tranChuaPhongHoUsd`. Một rủi ro có chặn và một rủi ro không chặn là
+    hai thứ khác hẳn nhau khi quyết có mở cổng hay không.
+
+    Nên phép kiểm này lùa NHIỀU lệnh qua đúng cửa duyệt thật, khớp trọn
+    mọi thứ được duyệt, rồi đòi trần không bao giờ bị vượt. Không dò
+    chuỗi, không tin một cổng đơn lẻ — đo bất biến ở đầu ra.
+    """
+    print()
+    print("-- Chan tran co TRAN, du khong co loi thoat tu dong ---------")
+    import random as _rd
+
+    from kham.can_loi import can as _can
+    from kham.so_lenh import Muc as _M
+    from kham.so_lenh import SoLenh as _S
+
+    rd = _rd.Random(20260830)
+    k = Kho()
+    re = RiskEngine(k)
+    lanh = SucKhoeNguon(200, 150, 80)
+    tran = re.tranChuaPhongHoUsd
+    dinh = 0.0
+    soCho = 0
+    for _i in range(400):
+        # Khung 5 phút ĐÓNG theo chu kỳ: tồn kho về 0 rồi mở khung mới.
+        # Không có bước này thì trần bão hoà ngay sau lệnh thứ hai và
+        # phép kiểm chỉ chạm tới đúng hai lệnh — xanh mà rỗng.
+        if _i % 12 == 11:
+            for _v in list(k.viThe.values()):
+                _v.don()
+        ma = rd.choice(("BTC_5M", "ETH_5M", "SOL_5M", "XRP_5M"))
+        ben = rd.choice(("UP", "DOWN"))
+        gia = rd.choice((0.08, 0.25, 0.45, 0.62, 0.88))
+        so = _S(ma=ma, ben=ben,
+                bid=[_M(max(0.01, gia - 0.02), 5000.0)],
+                ask=[_M(gia, 5000.0)], nhanLucMs=0.0)
+        ch = _can(ma, ben, "thử", min(0.99, gia + 0.06), 0.02, so, 400)
+        if ch is None:
+            continue
+        q = re.duyet(ch, lanh, 200, True)
+        if not q.cho:
+            continue
+        soCho += 1
+        # Khớp TRỌN phần được duyệt — ca xấu nhất cho trần này.
+        k.lay(ma).ghi_khop(ben, q.soCoChoPhep, ch.vwap)
+        dinh = max(dinh, k.tong_chua_phong_ho_usd())
+
+    kiem("có duyệt được ít nhất vài chục lệnh (phép kiểm CÓ chạm tới)",
+         soCho >= 20, soCho)
+    kiem("tiền nằm TRẦN một chân không bao giờ vượt trần",
+         dinh <= tran + 1e-6, f"đỉnh ${dinh:.2f} vs trần ${tran:.2f}")
+    kiem("và trần ấy co giãn theo vốn, không phải số đô cứng",
+         abs(tran - re.vonBanDau * 0.05) < 1e-6, tran)
+    # Lỗ xấu nhất gộp cũng phải nằm trong ngân sách ngày — cổng 6b.
+    kiem("lỗ xấu nhất gộp không vượt ngân sách lỗ ngày",
+         re.lo_xau_nhat_gop_usd() <= re.tranLoNgayUsd + 1e-6,
+         (re.lo_xau_nhat_gop_usd(), re.tranLoNgayUsd))
+
+
 def kiem_phat_ton_kho() -> None:
     print()
     print("-- Phat ton kho phai THAT SU lech gia yet -------------------")
@@ -5656,6 +5724,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_tran_chan_tran_khong_vuot()
     kiem_phat_ton_kho()
     kiem_bootstrap_theo_khoi()
     kiem_cong_cu_van_dung_bo_uoc_chung()
