@@ -1199,11 +1199,13 @@ def kiem_bien_cua_dat_lenh() -> None:
                      nên `> 0` và `>= 0` không phân biệt được.
         207          `abs(x) <= 1e-9` so với `<` — ở đúng 0 thì
                      `0 < 1e-9` cũng đúng.
-        151          `time.time()` gọi THẲNG trong hàm, nên không nhắm
-                     được đúng biên. Đây là giới hạn về TÍNH KIỂM ĐƯỢC
-                     của mã, không phải của phép kiểm: muốn canh biên
-                     ấy thì `soat_cho` phải nhận `bayGioMs` như
-                     `KetToan.soat` đã làm.
+    Con thứ chín ĐÃ CHẾT bằng cách sửa MÃ, không sửa phép kiểm:
+    `soat_cho` từng gọi `time.time()` thẳng trong thân hàm, nên biên
+    HẾT HẠN không nhắm được — đồng hồ nhích giữa lúc đặt và lúc soát.
+    Nay nó nhận `bayGioMs` như `KetToan.soat` đã làm, và biên ấy thành
+    kiểm được: chờ ĐÚNG BẰNG hạn thì chưa huỷ, quá một mili giây thì
+    huỷ. Một dòng mã không kiểm được ở biên thì cái biên ấy là lời
+    người viết nói, không phải thứ đã được chứng minh.
 
     Khối ĐỌC KẾT QUẢ TỪ SÀN (dòng 243–249) hôm nay không lượt chạy nào
     chạm tới, vì adapter chưa nối. Mà nó chính là chỗ diễn giải câu trả
@@ -1280,16 +1282,23 @@ def kiem_bien_cua_dat_lenh() -> None:
          (len(c4.dangCho), len(xong)))
 
     # ── hết hạn chờ thì HUỶ ──────────────────────────────────────────
-    import time as _t5
+    # `soat_cho` nhận `bayGioMs`, nên biên hết hạn nhắm được ĐÚNG.
+    _hanMs = float(CONFIG["khoDoi"]["giayChoChanHai"]) * 1000.0
     k5 = Kho()
     c5 = _CL5(k5)
     l5 = c5.dat(_ch(laMaker=True), 50.0, _so(((0.60, 500.0),)))
-    l5.datLucMs = _t5.time() * 1000.0 - (
-        float(CONFIG["khoDoi"]["giayChoChanHai"]) * 1000.0 + 10.0)
-    c5.soat_cho({"BTC_5M": {"UP": _so(((0.60, 500.0),))}})
-    kiem("quá hạn chờ → HUỶ, không treo mãi", l5.trangThai == "huy",
+    l5.datLucMs = 1_000_000.0
+    c5.soat_cho({"BTC_5M": {"UP": _so(((0.60, 500.0),))}},
+                bayGioMs=1_000_000.0 + _hanMs)
+    kiem("chờ ĐÚNG BẰNG hạn → CHƯA huỷ", l5.trangThai == "cho",
          l5.trangThai)
+    c5.soat_cho({"BTC_5M": {"UP": _so(((0.60, 500.0),))}},
+                bayGioMs=1_000_000.0 + _hanMs + 1.0)
+    kiem("quá hạn một mili giây → HUỶ, không treo mãi",
+         l5.trangThai == "huy", l5.trangThai)
     kiem("và nói rõ vì sao", "hạn" in (l5.ghiChu or ""), l5.ghiChu)
+    kiem("giờ khớp lấy từ `bayGioMs` truyền vào, không từ đồng hồ máy",
+         gan(l4.khopLucMs, 0.0) or l4.khopLucMs > 0, l4.khopLucMs)
 
     # ── huỷ tay: đúng MỘT lệnh, theo id ──────────────────────────────
     k6 = Kho()

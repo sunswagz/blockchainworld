@@ -134,7 +134,8 @@ class CongLenh:
                 f"phí ${l.phiUsd:.4f} {l.ma}", loai="khop")
         return l
 
-    def soat_cho(self, soTheoMa: dict[str, dict[str, SoLenh]]) -> list[Lenh]:
+    def soat_cho(self, soTheoMa: dict[str, dict[str, SoLenh]],
+                 bayGioMs: float | None = None) -> list[Lenh]:
         """Soát các lệnh maker đang chờ xem có ai tới ăn chưa.
 
         Quy ước khớp của sổ giấy: lệnh mua ở giá G khớp khi best ask tụt
@@ -142,13 +143,21 @@ class CongLenh:
         sau các lệnh cùng giá đã nằm trước, nên sổ giấy này vẫn LẠC QUAN hơn
         đời thật. Ghi rõ ở đây để không ai đọc kết quả sổ giấy như kết quả thật.
         """
+        # `bayGioMs` truyền vào được, như `KetToan.soat`. Gọi
+        # `time.time()` thẳng trong thân hàm làm biên HẾT HẠN không nhắm
+        # được: bộ quét đột biến đổi `>` thành `>=` ở đó mà không phép
+        # kiểm nào giết nổi, vì đồng hồ nhích giữa lúc đặt và lúc soát.
+        #
+        # Một dòng mã không kiểm được ở biên thì cái biên ấy là lời
+        # người viết nói, không phải thứ đã được chứng minh.
+        now = bayGioMs if bayGioMs is not None else time.time() * 1000.0
         xong: list[Lenh] = []
         for l in list(self.dangCho):
             so = (soTheoMa.get(l.ma) or {}).get(l.ben)
             if so is None:
                 continue
             # quá hạn chờ thì huỷ, đừng để treo mãi
-            if (time.time() * 1000.0 - l.datLucMs) > float(_KD["giayChoChanHai"]) * 1000.0:
+            if (now - l.datLucMs) > float(_KD["giayChoChanHai"]) * 1000.0:
                 l.trangThai = "huy"
                 l.ghiChu = "hết hạn chờ khớp"
                 self.dangCho.remove(l)
@@ -159,7 +168,7 @@ class CongLenh:
                 l.soCoKhop = l.soCo
                 l.giaKhop = l.giaDat
                 l.phiUsd = phi_maker(l.giaDat, l.soCo)
-                l.khopLucMs = time.time() * 1000.0
+                l.khopLucMs = now
                 l.trangThai = "khop"
                 self.dangCho.remove(l)
                 self._ghi_kho(l)
