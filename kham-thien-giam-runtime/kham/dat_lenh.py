@@ -273,7 +273,7 @@ class CongLenh:
             "dangCho": len(self.dangCho),
             "tongPhiUsd": sum(l.phiUsd for l in khop),
             "duong": che_hieu_luc(),
-            "cuaDangDong": ly_do_khong_that(),
+            "cuaDangDong": ly_do_khong_that(self.kho),
             "ganDay": [l.tom_tat() for l in self.lenh[-25:]],
         }
 

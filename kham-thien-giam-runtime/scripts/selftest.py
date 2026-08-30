@@ -1152,6 +1152,20 @@ def kiem_doi_soat_truoc_khi_dat_that() -> None:
     k = Kho()
     re = RiskEngine(k)
     kiem("mặc định là CHƯA đối soát", k.daDoiSoatVoiSan is False)
+
+    # Buồng lái phải ĐẾM đủ cửa. Thiếu một cửa thì ai đó mở hết số cửa
+    # nhìn thấy, đọc "0 cửa đang đóng", rồi ngạc nhiên vì lệnh vẫn
+    # không đi. Một bảng đếm thiếu tệ hơn không có bảng đếm.
+    from kham.config import dat_lenh_that as _dlt
+    from kham.config import ly_do_khong_that as _ldkt
+    kiem("danh sách cửa CÓ kể cửa đối soát khi được truyền kho",
+         any("đối soát" in x for x in _ldkt(k)), _ldkt(k))
+    kiem("và KHÔNG kể khi không truyền — `che_hieu_luc` phải sạch",
+         not any("đối soát" in x for x in _ldkt()), _ldkt())
+    # Vòng tròn: nếu `dat_lenh_that()` cũng xét đối soát thì chưa đối
+    # soát ⇒ chế độ thành `giay` ⇒ cổng đối soát không bao giờ chạy.
+    kiem("`dat_lenh_that` KHÔNG xét đối soát — nếu không là vòng tròn",
+         _dlt() == (not _ldkt()))
     kiem("chế độ GIẤY thì KHÔNG chặn — vị thế giấy là của riêng ta",
          re.duyet(ch, lanh, 200, True).cho)
 

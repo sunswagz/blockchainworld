@@ -94,10 +94,21 @@ def _co_khoa_vi() -> bool:
     return bool((os.environ.get("POLYMARKET_PRIVATE_KEY") or "").strip())
 
 
-def ly_do_khong_that() -> list[str]:
-    """Danh sách cửa đang đóng. Rỗng = đủ điều kiện đặt lệnh thật."""
+def ly_do_khong_that(kho=None) -> list[str]:
+    """Danh sách cửa đang đóng. Rỗng = đủ điều kiện đặt lệnh thật.
+
+    `kho` là tuỳ chọn, và nó thêm một cửa KHÔNG nằm trong config: chưa
+    đối soát vị thế với sàn thì cổng rủi ro chặn mọi lệnh thật.
+
+    Vì sao phải thêm vào ĐÂY chứ không để riêng: buồng lái đọc danh sách
+    này để nói "còn mấy cửa đang đóng". Thiếu một cửa thì ai đó mở đủ số
+    cửa nhìn thấy, đọc "0 cửa đang đóng", rồi ngạc nhiên vì lệnh vẫn
+    không đi. Một bảng đếm thiếu tệ hơn không có bảng đếm.
+    """
     dl = CONFIG.get("datLenh") or {}
     thieu: list[str] = []
+    if kho is not None and not getattr(kho, "daDoiSoatVoiSan", False):
+        thieu.append("chưa đối soát vị thế với SÀN sau khi khởi động")
     if CONFIG.get("che") != "that":
         thieu.append("che ≠ 'that' (đang: %r)" % CONFIG.get("che"))
     if not dl.get("choPhepLenhThat"):
@@ -110,7 +121,15 @@ def ly_do_khong_that() -> list[str]:
 
 
 def dat_lenh_that() -> bool:
-    """True chỉ khi cả ba cửa cùng mở."""
+    """True chỉ khi cả ba cửa CẤU HÌNH cùng mở.
+
+    KHÔNG truyền `kho` vào đây, dù trông có vẻ nhất quán hơn. `che_hieu_
+    luc()` gọi hàm này, và cổng đối soát nằm trong `RiskEngine.duyet` —
+    cổng ấy chỉ chạy khi `che_hieu_luc() == "that"`. Cho chuyện đối soát
+    ảnh hưởng ngược lên chế độ hiệu lực là dựng một vòng tròn: chưa đối
+    soát ⇒ chế độ thành `giay` ⇒ cổng đối soát không bao giờ chạy ⇒ nó
+    không chặn gì cả. Cửa thứ năm phải nằm NGOÀI vòng ấy.
+    """
     return not ly_do_khong_that()
 
 
