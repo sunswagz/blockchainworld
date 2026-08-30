@@ -13079,6 +13079,57 @@ def kiem_vong_nhip() -> None:
          f"kiểm này đang canh một cái vỏ")
 
 
+def kiem_hieu_nang_so_hoc() -> None:
+    """Đường NAV: đơn vị THỜI GIAN, và cái đồng hồ khi không ai truyền mốc.
+
+    Lượt quét `--so-hoc` trên `thi_bac_ty/hieu_nang.py` để sống 6/23; ba
+    con đã ghi sẵn trong mã là tương đương. Ba con còn lại đều là ĐỔI
+    ĐƠN VỊ, và đổi đơn vị là lớp lỗi không bao giờ trông giống lỗi —
+    con số vẫn ra, vẫn dương, chỉ sai vài triệu lần.
+
+        time.time() * 1000.0            giây → mili giây
+        (t - dang_duoi_tu) / 3_600_000  mili giây → GIỜ  (hai chỗ)
+
+    Chỗ thứ hai là «đã ở dưới đỉnh liên tục bao lâu» — con số buồng lái
+    dùng để nói cỗ máy có đang hồi phục hay không. Nhân thay vì chia
+    biến ba giờ thành bốn nghìn năm, và một con số như thế đọc thành
+    «bảng hỏng» chứ không thành «hãy xem lại».
+    """
+    print(chr(10) + "-- DUONG NAV: don vi thoi gian --")
+    import time as _thn
+
+    from thi_bac_ty.hieu_nang import DuongNav, do_hieu_nang
+
+    dn = DuongNav()
+    dn.ghi(100.0)
+    kiem("không truyền mốc thì lấy giờ máy theo MILI GIÂY",
+         abs(dn.diem[0][0] - _thn.time() * 1000.0) < 5_000.0,
+         f"{dn.diem[0][0]} — chia thay vì nhân cho một mốc năm 1970, và "
+         f"mọi phép trừ thời gian sau đó ra số âm khổng lồ")
+
+    T = 1_800_000_000_000.0
+    H = 3_600_000.0
+
+    # xuống dưới đỉnh ở +2h, lên lại đỉnh mới ở +5h ⇒ dưới đáy 3 giờ
+    r = do_hieu_nang([(T, 100.0, 0.0), (T + 2 * H, 90.0, 0.0),
+                      (T + 5 * H, 110.0, 0.0)], 100.0)
+    kiem("«dưới đỉnh liên tục bao lâu» tính bằng GIỜ",
+         gan(r["gioDuoiDayLauNhat"], 3.0),
+         f"{r['gioDuoiDayLauNhat']} — nhân thay vì chia biến ba giờ "
+         f"thành bốn nghìn năm, và con số ấy đọc thành «bảng hỏng» chứ "
+         f"không thành «hãy xem lại»")
+    kiem("và khi đã lên lại đỉnh thì KHÔNG còn ở dưới đáy",
+         r["dangDuoiDay"] is False, str(r["dangDuoiDay"]))
+
+    # vẫn còn dưới đỉnh lúc điểm cuối ⇒ đếm tới ĐIỂM CUỐI
+    r = do_hieu_nang([(T, 100.0, 0.0), (T + 1 * H, 90.0, 0.0),
+                      (T + 4 * H, 95.0, 0.0)], 100.0)
+    kiem("còn dưới đỉnh lúc điểm cuối thì đếm tới ĐIỂM CUỐI, cũng bằng giờ",
+         gan(r["gioDuoiDayLauNhat"], 3.0) and r["dangDuoiDay"] is True,
+         f"{r['gioDuoiDayLauNhat']} · {r['dangDuoiDay']} — nhánh này "
+         f"riêng khỏi nhánh trên, và nó là nhánh ĐANG chạy trên làn thật")
+
+
 def kiem_dong_ho_so_hoc() -> None:
     """Phép ĐẾM MỐC: các con SỐ, không chỉ các cửa.
 
@@ -13862,6 +13913,7 @@ def main() -> int:
     kiem_ranh_gioi_ke_toan()
     kiem_moc_qua()
     kiem_dong_ho_so_hoc()
+    kiem_hieu_nang_so_hoc()
     kiem_cua_so_mu()
     kiem_vong_nhip()
     kiem_loc_bao_gia()
