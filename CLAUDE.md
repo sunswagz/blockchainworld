@@ -1144,7 +1144,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    1382 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1395 phép kiểm số học, KHÔNG cần mạng
     python scripts/quet-dot-bien.py --file=kham/phat_lai.py  30 con: 16 chết, 14 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chan_rui_ro.py 12 con: 4 chết, 8 tương đương
     python scripts/quet-dot-bien.py --file=kham/chan_doan.py 18 con: 7 chết, 11 CÒN NỢ
@@ -1154,6 +1154,7 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/so.py        8 con: 5 chết, 3 tương đương
     python scripts/quet-dot-bien.py --file=kham/ban_thu.py   11 con: 4 chết, 7 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/hoc_offline.py 23 con: 1 chết, 22 CÒN NỢ
+    python scripts/quet-dot-bien.py --file=kham/chay_lai.py  21 con: 8 chết, 13 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chien_thuat.py 22 con: 12 chết, 10 tương đương
     python scripts/quet-dot-bien.py --file=kham/do_tre.py   26 con: 13 chết, 13 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/dongho.py    7 con: 7 chết, 0 sống

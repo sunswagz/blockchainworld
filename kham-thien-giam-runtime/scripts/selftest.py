@@ -1181,7 +1181,7 @@ DA_QUET_DOT_BIEN = {
     "dat_lenh.py", "chan_rui_ro.py", "dongho.py", "cap_token.py",
     "do_tre.py", "chien_thuat.py", "phat_lai.py", "chan_doan.py",
     "tien_hoa.py", "vo_dich.py", "ket_qua.py", "so.py",
-    "hoc_offline.py", "ban_thu.py",
+    "hoc_offline.py", "ban_thu.py", "chay_lai.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -1199,8 +1199,93 @@ CHUA_QUET_DOT_BIEN = {
     "bang.py", "khung.py", "dong_co.py", "cho_gia_dinh.py",
     "sdk_polymarket.py",
     # CÓ nhánh quyết định, đáng quét, chưa quét
-    "vong.py", "chay_lai.py", "do_thi.py", "vi.py",
+    "vong.py", "do_thi.py", "vi.py",
 }
+
+
+def kiem_bien_cua_chay_lai() -> None:
+    """Biên của CHẠY LẠI LỊCH SỬ — 15/21 con sống sót lượt đầu.
+
+    `chay_lai` nuôi thẳng cổng A/B của `tien_hoa`, nên một biên sai ở
+    đây là cổng ấy phán quyết trên số sai. Module này còn mang một lỗi
+    lịch sử đắt: từng đếm mỗi cửa sổ 44 lần và ra lãi 2,9 triệu đô.
+
+    Ba chỗ hệ trọng:
+
+    · LÃI LỖ MỘT LỆNH. `(trả − vwap − phí) × soCo`, với `trả` = 1 khi
+      đoán đúng chiều. Nhầm chiều là đảo dấu toàn bộ backtest.
+    · HOÀ đếm vào THUA — cùng quy ước với `phat_lai`.
+    · KẾT LUẬN không được nói "tốt hơn" khi ĐUÔI xấu hơn.
+
+    ## Sau khi viết xong: 21 con → 8 CHẾT, 13 CÒN NỢ
+
+        268 270 290 292  bốn phép so quanh hai chỗ đã có epsilon chặn
+                         từ dòng trên (`abs(x−y) < 1e-12` rồi mới so
+                         `x > y`). Ở đúng điểm bằng nhau, dòng trên đã
+                         trả về.
+        98 189–245       trong `mot_luot` — cần một BĂNG giả có khung
+                         hình đúng hình dạng (thị trường, hai sổ, kết
+                         quả). Đó là fixture nặng nhất còn lại của cả
+                         cung, và nó dùng chung được cho 14 con còn nợ
+                         ở `phat_lai` nữa.
+    """
+    print()
+    print("-- Bien cua CHAY LAI lich su -------------------------------")
+    from kham.chay_lai import KetQua as _KQ_CL
+    from kham.chay_lai import _ket_luan as _klCL
+    from kham.chay_lai import gop_doi_chieu as _gopCL
+
+    def _kq(ten, khop=30, laiLo=0.0, thua=0.0, thang=0):
+        k = _KQ_CL(ten=ten)
+        k.soKhop = khop
+        k.tongLaiLo = laiLo
+        k.thuaLonNhat = thua
+        k.soThang = thang
+        k.soCoHoi = khop
+        return k
+
+    # ── kỳ vọng: chia cho SỐ KHỚP, và 0 khớp thì 0 ──────────────────
+    kiem("chưa khớp lệnh nào → kỳ vọng 0, không chia cho 0",
+         gan(_kq("a", khop=0, laiLo=5.0).kyVong, 0.0))
+    kiem("kỳ vọng = tổng lãi lỗ / SỐ KHỚP",
+         gan(_kq("a", khop=10, laiLo=5.0).kyVong, 0.5))
+    kiem("net edge trung bình chia cho SỐ CƠ HỘI, không phải số khớp",
+         gan(_KQ_CL(ten="a").netEdgeTrungBinh, 0.0))
+
+    # ── đủ mẫu: ĐÚNG BẰNG 30 mỗi bên là đủ ─────────────────────────
+    kiem("cả hai bên đúng 30 khớp → ĐỦ mẫu",
+         _gopCL(_kq("A", 30), _kq("B", 30))["duMau"])
+    kiem("một bên 29 → CHƯA đủ",
+         not _gopCL(_kq("A", 29), _kq("B", 30))["duMau"])
+    kiem("chưa đủ mẫu → kết luận nói thẳng, không so bừa",
+         "CHƯA ĐỦ MẪU" in _gopCL(_kq("A", 29), _kq("B", 30))["ketLuan"])
+
+    # ── so sánh: BẰNG NHAU phải nói bằng, không chọn bừa ───────────
+    r = _gopCL(_kq("A", 30, laiLo=3.0), _kq("B", 30, laiLo=3.0))
+    kiem("hai bên bằng nhau → nói `bằng`, không chọn A",
+         r["soSanh"]["kyVong"] == "bằng", r["soSanh"])
+    kiem("và kết luận nói thay đổi KHÔNG có tác dụng",
+         "không có tác dụng" in r["ketLuan"], r["ketLuan"])
+    r = _gopCL(_kq("A", 30, laiLo=6.0), _kq("B", 30, laiLo=3.0))
+    kiem("A hơn → chỉ đúng A", r["soSanh"]["kyVong"] == "A",
+         r["soSanh"])
+    r = _gopCL(_kq("A", 30, laiLo=3.0), _kq("B", 30, laiLo=6.0))
+    kiem("B hơn → chỉ đúng B", r["soSanh"]["kyVong"] == "B",
+         r["soSanh"])
+
+    # ── kỳ vọng cao hơn mà ĐUÔI xấu hơn → KHÔNG gọi là tốt hơn ─────
+    kl = _klCL(_kq("A", 30, laiLo=6.0, thua=-100.0),
+               _kq("B", 30, laiLo=3.0, thua=-10.0), True)
+    kiem("kỳ vọng cao hơn nhưng đuôi tệ hơn → `chưa chắc tốt hơn`",
+         "chưa chắc tốt hơn" in kl, kl)
+    kl = _klCL(_kq("A", 30, laiLo=6.0, thua=-10.0 * 1.25),
+               _kq("B", 30, laiLo=3.0, thua=-10.0), True)
+    kiem("đuôi ĐÚNG BẰNG 1,25× → vẫn được gọi là tốt hơn",
+         "tốt hơn" in kl and "chưa chắc" not in kl, kl)
+    kl = _klCL(_kq("A", 30, laiLo=6.0, thua=-10.0 * 1.25 - 0.01),
+               _kq("B", 30, laiLo=3.0, thua=-10.0), True)
+    kiem("vượt một xu → quay lại `chưa chắc tốt hơn`",
+         "chưa chắc tốt hơn" in kl, kl)
 
 
 def kiem_bien_cua_ban_thu() -> None:
@@ -1844,8 +1929,8 @@ def kiem_phu_quet_dot_bien() -> None:
         thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
                  if ("--file=kham/" + x) not in vb]
         kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
-    kiem("đã quét ít nhất 22 module lõi",
-         len(DA_QUET_DOT_BIEN) >= 22, len(DA_QUET_DOT_BIEN))
+    kiem("đã quét ít nhất 23 module lõi",
+         len(DA_QUET_DOT_BIEN) >= 23, len(DA_QUET_DOT_BIEN))
 
 
 def kiem_bien_cua_phat_lai() -> None:
@@ -9455,6 +9540,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_chay_lai()
     kiem_bien_cua_ban_thu()
     kiem_bien_cua_vo_dich()
     kiem_bien_cua_hoc_offline()
