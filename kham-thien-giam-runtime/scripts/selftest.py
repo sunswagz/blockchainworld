@@ -1172,6 +1172,126 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_ton_kho() -> None:
+    """Biên số học của tồn kho — chỗ chia cho 0 và chỗ giá cặp bằng $1,00.
+
+    Bộ quét đột biến trên `kham/kho_doi.py`: 17 trên 27 con sống sót ở
+    lượt đầu. Đây là file làm SỐ HỌC TIỀN — giá vốn, giá cặp, lỗ khoá,
+    phơi nhiễm — nên một biên sai ở đây chảy vào mọi thứ phía sau mà
+    không lỗi nào ném ra.
+
+    Hai nhóm biên đáng nhất:
+
+    · chia cho 0: `giaVonUp` khi chưa có cổ nào, `giaCap` khi chưa ghép
+      cặp. Đổi `> 0` thành `>= 0` là `ZeroDivisionError` giữa vòng chạy.
+    · giá cặp ĐÚNG BẰNG $1,00: cặp mua trọn hai chân hết đúng một đô
+      thì hoà, không lỗ. Lệch một bên là bịa ra một khoản lỗ không có,
+      hoặc giấu một khoản lỗ có thật.
+
+    ## Sau khi viết xong: 27 con → 19 CHẾT, 8 TƯƠNG ĐƯƠNG
+
+    Phân loại 8 con còn sống, đã kiểm tay:
+
+        123 136 138 394 395 418
+            Tất cả đều là "ở điểm BẰNG 0 thì hai nhánh cho cùng một
+            số". `(1,00 − 1,00) × n = 0`; `du × giá = 0` khi du = 0;
+            `sqrt(0) = 0`. Dòng 138 còn không tới được, vì 136 đã trả
+            về trước khi du = 0.
+
+        306 309
+            `CONFIG.get("thiTruong") or []` → `and` khiến vòng lặp
+            không chạy, và hàm rơi về `ma.split("_")[0]`. Với config
+            HIỆN TẠI, đường rơi về cho ĐÚNG cùng đáp án ("XRP_5M" →
+            "XRP" cả hai lối), nên không giết được. Nó sẽ giết được
+            ngay khi có một market mà tên nhóm khác phần trước dấu
+            gạch — và lúc ấy phép kiểm nhóm ở dưới sẽ đỏ trước.
+
+    Chạy lại: `python scripts/quet-dot-bien.py --file=kham/kho_doi.py`.
+    """
+    print()
+    print("-- Bien so hoc cua ton kho ---------------------------------")
+    from kham.kho_doi import ChanCho as _CC
+    from kham.kho_doi import ViThe as _VT
+
+    # ── chia cho 0 ────────────────────────────────────────────────────
+    v = _VT(ma="X")
+    kiem("chưa có cổ nào thì giá vốn là 0, không nổ",
+         gan(v.giaVonUp, 0.0) and gan(v.giaVonDown, 0.0))
+    kiem("chưa ghép cặp thì giá cặp là None, không nổ",
+         v.giaCap is None, v.giaCap)
+    kiem("và lỗ khoá là 0", gan(v.loKhoaUsd, 0.0))
+
+    # ── giá cặp ĐÚNG BẰNG $1,00 là HOÀ, không phải lỗ ─────────────────
+    v = _VT(ma="X")
+    v.ghi_khop("UP", 100.0, 0.40)
+    v.ghi_khop("DOWN", 100.0, 0.60)
+    kiem("cặp mua hết đúng $1,00 → giá cặp 1,00",
+         gan(v.giaCap, 1.0, 1e-9), v.giaCap)
+    kiem("cặp đúng $1,00 KHÔNG phải cặp khoá lỗ", not v.capKhoaLo)
+    kiem("và lỗ khoá bằng 0, không phải một xu", gan(v.loKhoaUsd, 0.0),
+         v.loKhoaUsd)
+    v2 = _VT(ma="X")
+    v2.ghi_khop("UP", 100.0, 0.41)
+    v2.ghi_khop("DOWN", 100.0, 0.60)
+    kiem("nhích lên $1,01 thì LÀ cặp khoá lỗ", v2.capKhoaLo, v2.giaCap)
+    kiem("và lỗ khoá đúng $1,00 cho 100 cặp",
+         gan(v2.loKhoaUsd, 1.0, 1e-9), v2.loKhoaUsd)
+
+    # ── tồn kho lệch ĐÚNG BẰNG 0 → không có chân trần ─────────────────
+    v3 = _VT(ma="X")
+    v3.ghi_khop("UP", 50.0, 0.5)
+    v3.ghi_khop("DOWN", 50.0, 0.5)
+    kiem("lệch đúng 0 cổ → chân trần bằng 0",
+         gan(v3.chuaPhongHoUsd, 0.0), v3.chuaPhongHoUsd)
+    v3.ghi_khop("UP", 10.0, 0.5)
+    kiem("lệch 10 cổ → chân trần đo bằng ĐÔ theo giá vốn",
+         gan(v3.chuaPhongHoUsd, 5.0, 1e-9), v3.chuaPhongHoUsd)
+
+    # ── ghi khớp 0 cổ là KHÔNG ghi gì, kể cả phí ──────────────────────
+    #
+    # `if soCo <= 0: return` — không phải "cộng thêm 0". Một lần khớp 0
+    # cổ vẫn kèm phí thì phí ấy phải bị bỏ, không thì tồn kho gánh một
+    # khoản phí không tương ứng với cổ nào.
+    v4 = _VT(ma="X")
+    v4.ghi_khop("UP", 0.0, 0.5, 1.23, 0.6)
+    kiem("khớp 0 cổ thì KHÔNG ghi phí", gan(v4.phiUsd, 0.0), v4.phiUsd)
+    kiem("và không ghi niềm tin mô hình", v4.pVaoTb is None, v4.pVaoTb)
+
+    # ── mua chân ĐỐI DIỆN làm lỗ xấu nhất GIẢM, cả hai chiều ──────────
+    v5 = _VT(ma="X")
+    v5.ghi_khop("UP", 100.0, 0.5)
+    kiem("thêm DOWN thì lỗ xấu nhất giảm",
+         v5.lo_xau_nhat_khi_mua("DOWN", 100.0, 0.4) < v5.lo_xau_nhat_usd(),
+         (v5.lo_xau_nhat_khi_mua("DOWN", 100.0, 0.4), v5.lo_xau_nhat_usd()))
+    kiem("thêm UP thì lỗ xấu nhất TĂNG",
+         v5.lo_xau_nhat_khi_mua("UP", 100.0, 0.4) > v5.lo_xau_nhat_usd())
+
+    # ── NHÓM tài sản suy từ mã nến, có ba đường và cả ba phải đúng ───
+    #
+    # Cả cổng 7 (trần mỗi nhóm) dựa trên hàm này, nên suy sai nhóm là
+    # hai market khác nhau cùng ăn một hạn mức, hoặc hai market cùng rổ
+    # được tính là hai rổ riêng. Không lỗi nào ném ra.
+    from kham.kho_doi import nhom_tai_san as _nts
+    kiem("bảng cứng đè trước", _nts("BTC_5M") == "BTC", _nts("BTC_5M"))
+    kiem("market NGOÀI bảng cứng thì suy từ mã nến trong config",
+         _nts("XRP_5M") == "XRP", _nts("XRP_5M"))
+    kiem("hậu tố tiền tệ bị cắt, không dính vào tên nhóm",
+         "USDT" not in _nts("XRP_5M"), _nts("XRP_5M"))
+    kiem("market KHÔNG có trong config thì rơi về phần trước dấu gạch",
+         _nts("DOGE_5M") == "DOGE", _nts("DOGE_5M"))
+    kiem("mã không có dấu gạch cũng ra chính nó, không ra rỗng",
+         _nts("LAMOT") == "LAMOT", _nts("LAMOT"))
+
+    # ── chân chờ: ĐÚNG BẰNG hạn thì CHƯA quá hạn ──────────────────────
+    han = float(CONFIG["khoDoi"]["giayChoChanHai"]) * 1000.0
+    c = _CC(ben="UP", soCo=1.0, giaTrungBinh=0.5, moLucMs=0.0,
+            capMongMuon=0.98)
+    kiem("chân chờ ĐÚNG BẰNG hạn → CHƯA quá hạn", not c.qua_han(han), han)
+    kiem("quá hạn một mili giây → quá hạn", c.qua_han(han + 1.0))
+    kiem("`bayGioMs` bỏ trống thì lấy đồng hồ máy, không nổ",
+         c.tuoi_ms() > 0)
+
+
 def kiem_bien_cua_cong_rui_ro() -> None:
     """ĐÚNG BẰNG trần thì sao? — biên của từng cổng, pin lại từng cái.
 
@@ -6274,6 +6394,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_ton_kho()
     kiem_bien_cua_cong_rui_ro()
     kiem_doi_soat_truoc_khi_dat_that()
     kiem_tran_chan_tran_khong_vuot()
