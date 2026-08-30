@@ -13539,6 +13539,37 @@ def kiem_ranh_gioi_ke_toan() -> None:
     from thi_bac_ty.trung_uong import (BIEN_THU_VUOT_TRAN, TrungUong,
                                        _lay_nut, _tran_thu_mot_vong)
 
+    # ── 0. LÃI LỖ là thu TRỪ phí — ở CẢ HAI chỗ khai nó ────────────────
+    #
+    # Lượt quét `--so-hoc` để sống đúng hai con, và cả hai cùng một hình
+    # dạng: `thu - phi` đổi thành `thu + phi`. Không phép kiểm nào kêu.
+    #
+    # Cái giá thì không nhỏ: mọi vị thế và mọi vòng trông có lãi hơn sự
+    # thật đúng HAI LẦN PHÍ, và nó sai theo hướng đẹp lên — hướng không
+    # ai đi kiểm. Ty `basis.cash_carry.v1` trên làn thật đang âm 25,60
+    # USD toàn phí; với dấu cộng nó sẽ khoe +25,60.
+    from thi_bac_ty.ke_toan import LatCatKeToan as _L0
+    from thi_bac_ty.ke_toan import SoViThe as _S0
+
+    _s0 = _S0(ma="m", chienLuoc="c", toTrinh={"giuGio": 24.0}, vonUsd=100.0,
+              moLucGiay=1_800_000_000.0, keToanLucGiay=1_800_000_000.0,
+              thuCongDonUsd=10.0, phiCongDonUsd=3.0)
+    kiem("lãi lỗ của MỘT vị thế = thu TRỪ phí",
+         gan(_s0.tom_tat(1_800_000_000.0)["laiLoUsd"], 7.0),
+         f"{_s0.tom_tat(1_800_000_000.0)['laiLoUsd']} — cộng thay vì trừ "
+         f"làm mọi vị thế trông có lãi hơn sự thật đúng hai lần phí")
+    _s1 = _S0(ma="m", chienLuoc="c", toTrinh={}, vonUsd=100.0,
+              moLucGiay=1_800_000_000.0, keToanLucGiay=1_800_000_000.0,
+              thuCongDonUsd=0.0, phiCongDonUsd=3.0)
+    kiem("vị thế chỉ mới TRẢ PHÍ thì lãi lỗ ÂM, không phải dương",
+         _s1.tom_tat(1_800_000_000.0)["laiLoUsd"] < 0,
+         "mở rồi chưa thu được gì là một khoản LỖ đúng bằng phí, và đó "
+         "là sự thật — `basis.cash_carry.v1` đang ở đúng chỗ ấy")
+    kiem("ròng của MỘT VÒNG cũng là thu TRỪ phí",
+         gan(_L0(thuUsd=10.0, phiUsd=3.0).tom_tat()["rongUsd"], 7.0),
+         f"{_L0(thuUsd=10.0, phiUsd=3.0).tom_tat()['rongUsd']} — buồng "
+         f"lái đọc thẳng con số này vào ô «Ròng vòng này»")
+
     # ── 1. TRẦN THU MỘT VÒNG: đơn vị, và cái ngưỡng 0 ──────────────────
     tt = {"netMoiGioBps": 1.0}
     # 1 bps/giờ = 8.760 bps/năm = 87,6 %/năm. Trên 1.000 USD trong 1 giờ
