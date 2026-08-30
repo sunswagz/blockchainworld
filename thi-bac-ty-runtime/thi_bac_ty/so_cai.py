@@ -504,6 +504,13 @@ class SoCai:
         Trả về cả `cuaSoGio`, `soMau` và `tuoiMauMoiNhatGiay` để bên đọc
         nói được bằng chứng này CŨ tới đâu. Một trung vị dựng từ mẫu ba
         ngày trước vẫn dùng được, nhưng người đọc phải biết là ba ngày.
+        `cuaSoGio` bằng `None` nghĩa là không cửa sổ nào đủ mẫu, và con
+        số dựng từ N lần đóng GẦN NHẤT bất kể tuổi.
+
+        **Lối về cuối cùng lấy N lần đóng gần nhất, KHÔNG lấy tất cả.**
+        Lấy tất cả thì một đợt bệnh cũ — 267 lần xoay chỗ sống ba mươi
+        giây — nằm lại trong mẫu mãi mãi, và trần dựng trên nó không bao
+        giờ nới ra nữa: cơ chế tự gỡ biến thành cơ chế tự khoá, im lặng.
         """
         try:
             with self._mo() as con:
@@ -542,15 +549,25 @@ class SoCai:
                         "cuaSoGio": cs, "tuoiMauMoiNhatGiay": tuoi,
                         "vi": (f"trung vị {len(trong)} lần đóng trong "
                                f"{cs:.0f} giờ qua")}
-        # Chưa đủ mẫu ở cửa sổ nào: dùng TẤT CẢ những gì có, và nói ra là
-        # ít. Ít mẫu vẫn hơn không mẫu — nhánh không-mẫu là nhánh cho qua
-        # một lời hứa 167 giờ mà không ai đối chiếu.
-        g = [x for _, x in mau]
+        # Chưa đủ mẫu ở cửa sổ nào: lấy N lần đóng GẦN NHẤT, bất kể tuổi.
+        #
+        # `mau` đã xếp mới-trước (sổ đọc theo `id DESC`), nên cắt đầu là
+        # cắt phần mới nhất. Lấy TẤT CẢ thì sai theo một hướng rất khó
+        # thấy: một đợt bệnh cũ — 267 lần xoay chỗ sống ba mươi giây —
+        # nằm lại trong mẫu MÃI MÃI, và trần dựng trên nó không bao giờ
+        # nới ra nữa. Cơ chế tự gỡ biến thành cơ chế tự khoá, im lặng.
+        #
+        # Cắt ở N mẫu gần nhất thì đợt bệnh cũ tự trôi đi khi có N lần
+        # đóng mới hơn — và những lần đóng mới ấy, nếu xoay chỗ đã dừng,
+        # là những lần chết vì HẾT HẠN GIỮ với `daGiuGio` lớn.
+        g = [x for _, x in mau[:TOI_THIEU_MAU_SONG]]
         return {"gio": _trung_vi(g), "soMau": len(g),
-                "cuaSoGio": CUA_SO_SONG_GIO[-1],
+                "cuaSoGio": None,
                 "tuoiMauMoiNhatGiay": tuoi,
-                "vi": (f"chỉ có {len(g)} lần đóng ghi được số giờ giữ — "
-                       f"dưới mức {TOI_THIEU_MAU_SONG} mẫu, đọc dè chừng")}
+                "vi": (f"{len(g)} lần đóng GẦN NHẤT (không đủ "
+                       f"{TOI_THIEU_MAU_SONG} mẫu trong "
+                       f"{CUA_SO_SONG_GIO[-1] / 24.0:.0f} ngày) — đọc dè "
+                       f"chừng, và xem tuổi mẫu")}
 
     def xoay_cho_hua_va_thuc(self, gioGanDay: float = 24.0) -> dict:
         """Mỗi lần XOAY CHỖ hứa bao nhiêu, và vị thế mới sống được bao lâu.

@@ -12479,16 +12479,46 @@ def kiem_ghe_va_von() -> None:
     # Ty giữ nhiều ghế bé nhất còn THẢ RA được mấy cơ hội — con số quyết
     # định «nâng trần có giúp được không», và nó không suy ra được từ
     # phần trên.
-    t2 = [x for x in chan_doan_he(_anh(
-        gv=dict(g),
-        ty=[{"ma": "amm.fee_farming.v1", "ho": "thanh-khoan",
-             "soCoHoi": 78_120, "soQuaCongTy": 16}]))
-        if x.ma == "tran-vi-the-chan"]
-    kiem("và khai luôn cổng của CHÍNH TY ấy còn thả ra được mấy cơ hội",
-         ("78,120" in t2[0].moTa and "16 qua nổi" in t2[0].moTa),
-         f"{t2[0].moTa[-320:]} — thêm ghế chỉ giúp tới mức cổng ty còn "
-         f"thả ra; không có con số này thì «nâng trần» nghe như một lối "
-         f"ra chắc chắn")
+    # THÊM GHẾ SẼ NHẬN VÀO THỨ GÌ. Câu hỏi ấy KHÔNG trả lời được bằng
+    # «ty nào giữ nhiều ghế bé nhất» — nó trả lời bằng «họ nào có tờ đã
+    # QUA CỔNG TY mà chưa được cấp đồng nào». Đo làn thật: `tin-dung`
+    # 160 tờ qua cổng, 0 cấp; `thanh-khoan` 16 tờ. Chỉ sang AMM (ty giữ
+    # nhiều ghế bé nhất) là chỉ sang chỗ HẸP trong khi chỗ RỘNG mở ngay
+    # cạnh.
+    _p2 = [{"ho": "thanh-khoan", "quaCongTy": 16, "daCapVon": 0,
+            "lyDoTuChoi": [{"ma": "tran-vi-the", "lyDo": "tran-vi-the: đủ",
+                            "so": 25}]},
+           {"ho": "tin-dung", "quaCongTy": 160, "daCapVon": 0,
+            "lyDoTuChoi": []},
+           {"ho": "phai-sinh", "quaCongTy": 900, "daCapVon": 3,
+            "lyDoTuChoi": []}]
+    _a2 = _anh(gv=dict(g))
+    _a2["pheuDayDu"] = {"theoHo": _p2}
+    t2 = [x for x in chan_doan_he(_a2) if x.ma == "tran-vi-the-chan"]
+    kiem("và chỉ đúng chỗ HÀNG ĐANG CHỜ GHẾ, không phải chỗ ghế bé nhất",
+         ("`tin-dung` có 160 tờ" in t2[0].moTa
+          and "thanh-khoan" in t2[0].moTa),
+         f"{t2[0].moTa[-320:]} — họ có tờ ĐÃ QUA cổng ty mà chưa được cấp "
+         f"đồng nào là đúng thứ một cái ghế trống sẽ nhận")
+    kiem("và KHÔNG kể họ đã được cấp vốn — họ ấy không chờ ghế",
+         "phai-sinh" not in t2[0].moTa,
+         f"{t2[0].moTa[-320:]} — họ đã có tiền vào thì trần ghế không "
+         f"phải thứ đang chặn nó")
+    # Họ KHÔNG có tờ nào qua cổng cũng không được kể. Nó thoả «chưa được
+    # cấp đồng nào» nhưng chẳng có gì để chờ ghế cả, và nêu tên nó là
+    # dựng ra một hàng chờ không tồn tại.
+    _a3 = _anh(gv=dict(g))
+    _a3["pheuDayDu"] = {"theoHo": [
+        {"ho": "tin-dung", "quaCongTy": 160, "daCapVon": 0,
+         "lyDoTuChoi": [{"ma": "tran-vi-the", "lyDo": "tran-vi-the: đủ",
+                         "so": 25}]},
+        {"ho": "tien-doan", "quaCongTy": 0, "daCapVon": 0,
+         "lyDoTuChoi": []}]}
+    t3b = [x for x in chan_doan_he(_a3) if x.ma == "tran-vi-the-chan"]
+    kiem("họ KHÔNG có tờ nào qua cổng thì cũng không được kể tên",
+         "tien-doan" not in t3b[0].moTa and "tin-dung" in t3b[0].moTa,
+         f"{t3b[0].moTa[-260:]} — không có gì để chờ ghế thì nêu tên nó "
+         f"là dựng ra một hàng chờ không tồn tại")
 
     # KHÔNG có bảng ghế thì IM về ghế, chứ không bịa
     t3 = [x for x in chan_doan_he(_anh()) if x.ma == "tran-vi-the-chan"]
@@ -12593,6 +12623,52 @@ def kiem_bang_chung_song() -> None:
     r4 = sc3.gio_song_trung_vi()
     kiem("chỉ đọc DONG_VI_THE, không đọc loại khác",
          r4["soMau"] == 1 and gan(r4["gio"], 5.0), str(r4))
+
+    # ── LỐI VỀ CUỐI CÙNG: N lần đóng GẦN NHẤT, không phải TẤT CẢ ──────
+    #
+    # Đây là chỗ cơ chế «tự gỡ» sống hay chết. Một đợt bệnh cũ — 267 lần
+    # xoay chỗ sống ba mươi giây — nếu nằm lại trong mẫu mãi mãi thì trần
+    # dựng trên nó KHÔNG BAO GIỜ nới ra: cơ chế tự gỡ biến thành cơ chế
+    # tự khoá, và nó khoá trong im lặng.
+    import datetime as _dbc
+    import sqlite3 as _sbc
+
+    d4 = _tam("bc-song4")
+    sc4 = SoCai(d4 / "so.sqlite3")
+
+    def _dongCu(gio, songNgayTruoc, n):
+        luc = (_dbc.datetime.now(_dbc.timezone.utc)
+               - _dbc.timedelta(days=songNgayTruoc))
+        iso = luc.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+        ms = int(luc.timestamp() * 1000)
+        with _sbc.connect(sc4.duong) as con:
+            con.executemany(
+                "INSERT INTO but_toan(lucMs,luc,loai,chienLuoc,maToTrinh,"
+                "soTienUsd,lyDo,chiTiet) VALUES(?,?,?,?,?,?,?,?)",
+                [(ms, iso, "DONG_VI_THE", "x.y.v1", "m", 0.0, "cũ",
+                  '{"daGiuGio": %r}' % gio)] * n)
+
+    # 40 lần xoay chỗ sống 30 giây, từ 60 ngày trước — ngoài MỌI cửa sổ.
+    _dongCu(0.008, 60, 40)
+    r5 = sc4.gio_song_trung_vi()
+    kiem("không cửa sổ nào đủ mẫu thì vẫn đo, và KHAI cửa sổ là None",
+         (r5["gio"] is not None and gan(r5["gio"], 0.008)
+          and r5["cuaSoGio"] is None
+          and r5["soMau"] == TOI_THIEU_MAU_SONG),
+         f"{r5} — bằng chứng cũ vẫn hơn KHÔNG bằng chứng; nhánh không-mẫu "
+         f"là nhánh cho qua một lời hứa 167 giờ")
+    kiem("và tuổi mẫu nói thẳng nó đã 60 ngày",
+         r5["tuoiMauMoiNhatGiay"] > 59 * 86400.0,
+         f"{r5['tuoiMauMoiNhatGiay']}")
+
+    # Rồi 20 lần đóng vì HẾT HẠN GIỮ, cũng từ lâu nhưng MỚI HƠN.
+    _dongCu(168.0, 30, TOI_THIEU_MAU_SONG)
+    r6 = sc4.gio_song_trung_vi()
+    kiem("đủ N lần đóng MỚI HƠN thì đợt cũ trôi đi, trần tự nới",
+         gan(r6["gio"], 168.0) and r6["soMau"] == TOI_THIEU_MAU_SONG,
+         f"{r6} — lấy TẤT CẢ thay vì N cái gần nhất thì 40 mẫu cũ vẫn "
+         f"chiếm đa số, trung vị đứng nguyên ở 0,008h, và cơ chế tự gỡ "
+         f"biến thành cơ chế tự khoá")
 
     # ── TUỔI của bằng chứng phải nói ra ────────────────────────────────
     kiem("tuổi mẫu mới nhất được khai, để người đọc biết trần này CŨ chưa",

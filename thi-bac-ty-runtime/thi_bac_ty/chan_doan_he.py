@@ -329,22 +329,42 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                     + (f"; trung vị một ghế {float(_tv):,.0f} USD trên phần "
                        f"chia công bằng {float(_pc):,.0f} USD."
                        if (_tv is not None and _pc) else "."))
-                # Ty giữ nhiều ghế bé nhất còn THẢ RA được mấy cơ hội.
-                _bt = sorted((_gv.get("gheBeTheoTy") or {}).items(),
-                             key=lambda kv: -kv[1])
-                if _bt:
-                    _maTy = _bt[0][0]
-                    _oTy = next((x for x in (anh.get("ty") or [])
-                                 if x.get("ma") == _maTy), None)
-                    if _oTy is not None:
-                        _viGhe += (
-                            f" Ty giữ nhiều ghế bé nhất là {_maTy} "
-                            f"({_bt[0][1]} ghế); vòng này nó thấy "
-                            f"{int(_oTy.get('soCoHoi') or 0):,} cơ hội thô và "
-                            f"{int(_oTy.get('soQuaCongTy') or 0):,} qua nổi "
-                            f"cổng của CHÍNH NÓ — thêm ghế chỉ giúp được tới "
-                            f"mức ấy, phần còn lại là chuyện của cổng ty và "
-                            f"của sức chứa từng cơ hội.")
+                # THÊM GHẾ SẼ NHẬN VÀO THỨ GÌ — câu hỏi đúng, và nó
+                # KHÔNG phải câu «ty nào giữ nhiều ghế bé nhất».
+                #
+                # Bản đầu tôi chỉ sang ty giữ nhiều ghế bé nhất
+                # (`amm.fee_farming.v1`) rồi khai cổng của nó. Sai chỗ:
+                # cái quyết định là họ nào có tờ trình ĐÃ QUA CỔNG TY mà
+                # KHÔNG được cấp đồng nào — đó đúng là thứ một cái ghế
+                # trống sẽ nhận. Đo làn thật 30/08: họ `tin-dung` có 160
+                # tờ qua cổng ty và 0 được cấp vốn, trong khi họ
+                # `thanh-khoan` chỉ có 16. Chỉ sang AMM là chỉ sang chỗ
+                # HẸP nhất trong khi chỗ RỘNG đang mở ngay cạnh.
+                #
+                # Và nó lật cả cách đọc «ghế bé». Dưới ràng buộc GHẾ, mỗi
+                # cơ hội chiếm đúng một chỗ, nên xếp hạng theo ĐÔ-LA MỖI
+                # GIỜ là xếp đúng: một vị thế cho vay 25.000 USD ở
+                # 2,4%/năm sinh ~0,068 USD/giờ, còn một vị thế AMM 1.100
+                # USD ở 19,3%/năm chỉ sinh ~0,024. Máy đang chọn ĐÚNG.
+                # Ghế bé không phải lỗi phân bổ — nó là dấu hiệu rằng
+                # phần lớn ghế đang bị chiếm bởi những cơ hội nhỏ, và
+                # thêm ghế sẽ đi vào họ có sức chứa.
+                _ho = sorted(
+                    ((h.get("ho"), int(h.get("quaCongTy") or 0))
+                     for h in ((anh.get("pheuDayDu") or {}).get("theoHo")
+                               or [])
+                     if int(h.get("quaCongTy") or 0) > 0
+                     and int(h.get("daCapVon") or 0) == 0),
+                    key=lambda kv: -kv[1])
+                if _ho:
+                    _viGhe += (
+                        f" Thêm ghế sẽ nhận vào thứ gì thì phễu nói: họ "
+                        f"`{_ho[0][0]}` có {_ho[0][1]:,} tờ ĐÃ QUA cổng ty "
+                        f"mà KHÔNG được cấp đồng nào"
+                        + (f" (kế đó `{_ho[1][0]}`: {_ho[1][1]:,})"
+                           if len(_ho) > 1 else "")
+                        + ". Đó là hàng đang chờ ghế, không phải hàng đang "
+                          "chờ tiền.")
             ra.append(TrieuChungHe(
                 "tran-vi-the-chan", 2,
                 f"{so_top}/{tong_tc} lần từ chối ({phan:.0%}) là vì ĐỦ SỐ VỊ "
