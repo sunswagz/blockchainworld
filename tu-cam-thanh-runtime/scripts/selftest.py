@@ -2750,6 +2750,31 @@ async def main() -> int:
     # tham số của cỗ chạy lại, không phải của bộ luật. Để lại thì `mock_thesis`
     # nhận một khoá lạ và bỏ qua im lặng — trục mới trông như đã dò mà thật ra
     # mọi biến thể vẫn chạy cùng một mức giữ 48 nến.
+    # CÙNG HÌNH DẠNG THEO LÁT. Bảng 20 biến thể trên 33 chợ (30/08): MỌI biến
+    # thể đều âm ở lát 1 và 3, dương ở lát 2 và 4. Tham số đổi ĐỘ LỚN, không đổi
+    # DẤU — lát thời gian đổi dấu. Khi bảng có hình dạng ấy thì xếp hạng biến
+    # thể là xếp hạng nhiễu, và lò phải NÓI RA chứ không im.
+    import importlib.util as _iu53
+
+    _sp53 = _iu53.spec_from_file_location("lo53", ROOT / "scripts" / "lo-luyen.py")
+    _lo53 = _iu53.module_from_spec(_sp53)
+    _argv53 = sys.argv
+    sys.argv = ["lo-luyen.py"]
+    try:
+        _sp53.loader.exec_module(_lo53)
+    finally:
+        sys.argv = _argv53
+    _b53 = [{"theoLat": [-0.25, 0.09, -0.12, 0.31]},
+            {"theoLat": [-0.19, 0.06, -0.08, 0.18]},
+            {"theoLat": [-0.33, 0.04, -0.15, 0.38]},
+            {"theoLat": [-0.21, 0.02, -0.11, 0.22]},
+            {"theoLat": [0.10, 0.10, 0.10, 0.10]}]
+    check(_lo53.cung_hinh_dang(_b53) == (4, 5, "-+-+"),
+          "đếm đúng số biến thể cùng hình dạng dấu theo lát")
+    check(_lo53.cung_hinh_dang([{"theoLat": [None, 0.1]}]) == (0, 0, None),
+          "lát thiếu số ⇒ bỏ qua, không đoán dấu")
+    check(_lo53.cung_hinh_dang([]) == (0, 0, None), "bảng rỗng ⇒ không nói gì")
+
     _src_lo = ma_khong_chu_thich(ROOT / "scripts" / "lo-luyen.py")
     check("soNenGiu" in LO.LUOI, "lưới có trục thời gian giữ lệnh")
     check('_t.pop("soNenGiu"' in _src_lo,

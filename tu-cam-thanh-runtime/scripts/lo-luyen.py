@@ -137,6 +137,37 @@ def _nap(sym: str, tf: str):
     return nen
 
 
+def cung_hinh_dang(bang: list[dict]) -> tuple[int, int, str | None]:
+    """Bao nhiêu biến thể có CÙNG hình dạng DẤU theo lát. Hàm thuần.
+
+    Phát hiện 30/08: trong bảng 20 biến thể trên 33 chợ, MỌI biến thể đều âm ở
+    lát 1 và 3, dương ở lát 2 và 4:
+
+        #1   −0,25  +0,09  −0,12  +0,31
+        #6   −0,19  +0,06  −0,08  +0,18
+        #17  −0,33  +0,04  −0,15  +0,38
+
+    Tham số đổi độ lớn; nó KHÔNG đổi dấu. Lát thời gian đổi dấu. Khi bảng có
+    hình dạng ấy thì việc xếp hạng biến thể là xếp hạng nhiễu — và con số "tốt
+    nhất trong 20 lần thử" nói về một quãng thị trường, không về một tham số.
+
+    Trả (số biến thể theo hình dạng phổ biến nhất, tổng số có đủ lát, hình dạng).
+    """
+    dem: dict[str, int] = {}
+    tong = 0
+    for r in bang:
+        lat = r.get("theoLat") or []
+        if any(x is None for x in lat) or not lat:
+            continue
+        tong += 1
+        k = "".join("+" if x > 0 else "-" for x in lat)
+        dem[k] = dem.get(k, 0) + 1
+    if not dem:
+        return 0, 0, None
+    hd = max(dem, key=lambda k: dem[k])
+    return dem[hd], tong, hd
+
+
 def bien_the(n: int, hat: int) -> list[dict]:
     """Champion trước, rồi n biến thể lấy mẫu ngẫu nhiên nhưng CÓ HẠT GIỐNG.
 
@@ -292,6 +323,16 @@ def main() -> int:
         lat = " ".join(f"{x:+.2f}" if x is not None else "  —  " for x in r["theoLat"])
         print(f"{ten:>9}  {r['soLatDuong']:>4}/{r['soLatCo']:<5} "
               f"{(r['kyVongGop'] or 0):+13.4f} {r['soLenh']:>6}   {lat}")
+
+    _giong, _tong, _hd = cung_hinh_dang(bang)
+    if _tong >= 5 and _giong * 5 >= _tong * 4:
+        print()
+        print(f"  ⚠ {_giong}/{_tong} BIẾN THỂ CÙNG MỘT HÌNH DẠNG DẤU THEO LÁT "
+              f"({_hd}).")
+        print("    Tham số đổi ĐỘ LỚN, không đổi DẤU — lát thời gian đổi dấu.")
+        print("    Xếp hạng biến thể ở đây là xếp hạng nhiễu, và «tốt nhất trong")
+        print("    ngần ấy lần thử» nói về một quãng thị trường chứ không về một")
+        print("    bộ tham số. Thứ đáng đo tiếp là THỜI GIAN, không phải tham số.")
 
     cha = next(r for r in bang if r["i"] == 0)
     can = so_lat // 2 + 1
