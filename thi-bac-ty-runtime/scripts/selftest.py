@@ -12367,6 +12367,39 @@ def kiem_xoay_cho_dem_dung() -> None:
          f"{l.tom_tat()} — cộng lần này vào là khai rằng trần đã chặn "
          f"được một lời hứa mà công thức cũ vốn đã không nhận")
 
+    # ── BIÊN AN TOÀN ≠ 1, và phép TRỪ phải là phép trừ ─────────────────
+    #
+    # Mọi ca trên dùng `bienAnToan = 1.0` — đúng giá trị mà nhân và chia
+    # cho CÙNG một kết quả. Cùng cái bẫy với `net_apr_pct(10, 24)`: con
+    # số vô hại nhất là con số che kín nhất. Lượt quét `--so-hoc` bắt
+    # được cả hai, và ở đây nó bắt thêm ba phép TRỪ.
+    _lai = 10_000.0 * 20.0 / 100.0 * (100.0 / NAM_GIO)
+    _phi = (1.0 + 1.0) * 2.0            # hai chân × 1 bps trên 10.000, ×2
+    l = do_xoay_cho(_so(1.0, 100.0, 1.0, von=10_000.0),
+                    [_tt(21.0, 100.0, 1.0)], now, bienAnToan=2.0)
+    kiem("biên an toàn NHÂN vào phí, không chia",
+         l.soXoayDuoc == 1 and gan(l.xoay[0].phiDoiUsd, _phi),
+         f"{l.tom_tat()} — biên 2,0 trên phí 2 USD là 4 USD; chia thay "
+         f"vì nhân biến một cửa THẬN TRỌNG thành một cửa DỄ DÃI, và nó "
+         f"dễ dãi đúng theo hệ số người vận hành tưởng là đang siết")
+    kiem("lợi ròng = lãi TRỪ phí, ở cả lát cắt lẫn từng dòng xoay",
+         (gan(l.loiRongUsd, _lai - _phi)
+          and gan(l.xoay[0].loiRongUsd, _lai - _phi)
+          and gan(l.xoay[0].laiThemUsd, _lai)),
+         f"{l.tom_tat()} — cộng thay vì trừ ở đây làm mọi lần xoay trông "
+         f"lãi gấp đôi phí, và cỗ máy sẽ xoay đúng những chỗ nó nên đứng "
+         f"yên")
+
+    l = do_xoay_cho(_so(1.0, 100.0, 1.0, von=10_000.0),
+                    [_tt(21.0, 100.0, 1.0)], now, bienAnToan=2.0,
+                    gioSongTrungVi=1.0)
+    kiem("lời hứa BỊ CHẶN cũng là lãi TRỪ phí, không phải cộng",
+         (l.soBiChanBoiBangChung == 1
+          and gan(l.loiRongBiChanUsd, _lai - _phi)),
+         f"{l.tom_tat()} — con số này là thứ duy nhất chứng minh trần "
+         f"bằng chứng có ích; cộng thay vì trừ làm nó phồng lên đúng hai "
+         f"lần phí, và lời khoe ấy không ai đối chiếu")
+
     # ── ĐÚNG ĐIỂM HUỀ VỐN của công thức cũ ─────────────────────────────
     #
     # Ca trên chỉ nói `laiKhai < phi` — cả `>` lẫn `>=` đều từ chối, nên

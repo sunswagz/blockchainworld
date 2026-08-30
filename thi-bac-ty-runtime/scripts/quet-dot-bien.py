@@ -15,13 +15,16 @@ cam kết hay không — cho 10/15 con sống sót, và phần lớn nằm đún
 BIÊN: không phép kiểm nào phân biệt được «đúng bằng trần» với «vượt
 trần». Sau khi vá: 3/15, cả ba đều tương đương.
 
-BA CÁI BẪY đã cắn, đều đã vá trong file này:
+BỐN CÁI BẪY đã cắn, đều đã vá trong file này:
 
 1. Đột biến trong CHUỖI. `f"... {x:.2f} > trần ..."` bị đếm là một phép
    so; đổi nó chỉ đổi CHỮ nên con ấy luôn sống sót và luôn vô nghĩa.
 2. Đột biến trong DOCSTRING nhiều dòng. Cùng loại, nhưng `_bo_chuoi`
    không thấy vì nháy mở và nháy đóng nằm khác dòng.
-3. Tên hàm kiểm GÕ SAI cho ra «SỐNG SÓT 0/15» — một tờ phiếu hoàn hảo,
+3. Đột biến trong CHÚ THÍCH cuối dòng. `# phí ra + phí vào` bị đếm là
+   một phép cộng. Cùng họ với hai cái trên, và nó chỉ lộ ra khi bảng lật
+   có thêm toán tử SỐ HỌC — chú thích thì đầy `+` và `-`.
+4. Tên hàm kiểm GÕ SAI cho ra «SỐNG SÓT 0/15» — một tờ phiếu hoàn hảo,
    vì mọi con đột biến đều chết bằng cùng một `AttributeError` chưa
    từng chạm tới file đang quét. Nay có bước CHỨNG: chạy bản gốc
    trước, bản gốc trượt thì dừng và nói ra.
@@ -109,7 +112,16 @@ for i, d in enumerate(dong):
         continue
     if not t or t.startswith("#") or t.startswith('"""') or t.startswith("'''"):
         continue
-    sach = _bo_chuoi(d)
+    # CẮT CHÚ THÍCH sau khi đã bỏ chuỗi. Thứ tự bắt buộc: `#` nằm trong
+    # một chuỗi không phải chú thích, và `_bo_chuoi` đã dọn chuỗi rồi nên
+    # dấu `#` còn lại là chú thích thật.
+    #
+    # Không có bước này thì `phiDoiUsd: float   # phí ra + phí vào` bị
+    # đếm là một phép CỘNG — đổi nó chỉ đổi CHỮ, nên con ấy luôn sống
+    # sót và luôn vô nghĩa, y hệt hai cái bẫy chuỗi đã vá ở trên. Nó lộ
+    # ra ngay lượt đầu chạy `--so-hoc`, và nó nằm ở dòng ĐẦU danh sách
+    # phải đọc.
+    sach = _bo_chuoi(d).split("#", 1)[0]
     for a, b in DOI:
         if a in sach:
             # Đổi trong bản GỐC, nhưng chỉ khi bản đã bỏ chuỗi cũng có nó.
