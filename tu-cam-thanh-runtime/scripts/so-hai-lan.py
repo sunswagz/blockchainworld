@@ -92,6 +92,47 @@ def _doc(thu_muc: Path, ten_tk: str) -> dict | None:
             "taiKhoan": tk}
 
 
+def _nhip(thu_muc: Path, ten_tk: str) -> str:
+    """Nhịp lệnh THẬT của làn, và bao lâu nữa đủ 30 lệnh SHORT.
+
+    Ước lượng ban đầu — ~6 tuần trên 46 chợ — suy từ nhịp luật nổ trong bản chạy
+    lại (0,015 lệnh/chợ/ngày). Một ước lượng suy từ chạy lại có thể sai vài lần:
+    bản chạy lại không có `maxOpenPositions`, không bỏ lỡ tín hiệu vì hết chỗ,
+    và không có vòng lặp 60 giây bỏ sót nến.
+
+    Nên in nhịp ĐO ĐƯỢC cạnh nó. Nếu hai con số lệch nhau nhiều thì cái sai là
+    ước lượng, và ghi chú trong bản khai giả thuyết phải được đọc lại — chứ
+    không phải im lặng chờ thêm ba tháng.
+    """
+    import datetime as _dt
+
+    os.environ["TCT_DATA_DIR"] = str(thu_muc)
+    for ten in [k for k in list(sys.modules) if k.startswith("trader")]:
+        del sys.modules[ten]
+    from trader import store                       # noqa: PLC0415
+
+    tk = store.read_json(ten_tk, None) or {}
+    ds = [t for t in store.read_all(store.TRADES) if t.get("closedAt")]
+    tao = tk.get("createdAt")
+    try:
+        t0 = _dt.datetime.fromisoformat(str(tao))
+        if t0.tzinfo is None:
+            t0 = t0.replace(tzinfo=_dt.timezone.utc)
+        ngay = (_dt.datetime.now(_dt.timezone.utc) - t0).total_seconds() / 86400
+    except (ValueError, TypeError):
+        return "chưa rõ tuổi sổ"
+    if ngay < 0.5:
+        return f"sổ mới {ngay * 24:.1f} giờ — chưa đủ để nói nhịp"
+    n_s = sum(1 for t in ds if t.get("side") == "SHORT")
+    nhip = len(ds) / ngay
+    if not n_s:
+        return (f"{len(ds)} lệnh trong {ngay:.1f} ngày = {nhip:.2f} lệnh/ngày · "
+                f"chưa lệnh SHORT nào")
+    con = max(0, 30 - n_s) / (n_s / ngay)
+    return (f"{len(ds)} lệnh trong {ngay:.1f} ngày = {nhip:.2f} lệnh/ngày · "
+            f"SHORT {n_s / ngay:.2f}/ngày ⇒ còn ~{con:.0f} ngày cho đủ 30")
+
+
 def _huong_r(thu_muc: Path, huong: str) -> tuple[float | None, int]:
     """Kỳ vọng R của MỘT hướng, chỉ lệnh đóng tự nhiên."""
     os.environ["TCT_DATA_DIR"] = str(thu_muc)
@@ -133,12 +174,17 @@ def main() -> int:
             r, n = _huong_r(tm, h)
             print(f"      {h:<6} {n:>4} lệnh · "
                   + (f"{r:+.4f}R" if r is not None else "—"))
+        print(f"    nhịp        {_nhip(tm, ten_tk)}")
 
     print(NL + "  " + "─" * 62)
     print("  Hai làn KHÔNG so trực tiếp được: khác sàn, khác bộ luật, khác")
     print("  hướng. Cột đáng đọc là NHỊP lệnh và kỳ vọng của TỪNG hướng.")
-    print("  Giả thuyết đang chờ: keo-lui-short-tien-tuong (cần 30 lệnh SHORT,")
-    print("  ước ~5 tháng theo nhịp đo được).")
+    print("  Giả thuyết đang chờ: keo-lui-short-tien-tuong — cần 30 lệnh SHORT.")
+    print("  Ước lượng lúc khai (~6 tuần) suy từ nhịp trong bản CHẠY LẠI. Nhịp")
+    print("  THẬT của làn chính đo được 3,04 lệnh/ngày, tức nhanh hơn ước lượng")
+    print("  ấy hơn mười lần — bản chạy lại không bỏ lỡ tín hiệu vì hết chỗ và")
+    print("  không có vòng lặp 60 giây. Đọc dòng «nhịp» ở trên, đừng đọc ước")
+    print("  lượng cũ.")
     return 0
 
 
