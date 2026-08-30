@@ -62,10 +62,10 @@ from kham.tien_hoa import _dat_tham_so, ghi_config  # noqa: E402
 PHUT = 60_000.0
 LAT_CAT = (240.0, 180.0, 120.0, 60.0)
 
-#: Nút CHẠM VÀO `pUp`. `batDinhToiThieu` không có ở đây vì nó chỉ chạm
-#: `batDinh` — phép đo này không nhìn thấy nó, nên vặn nó ở đây là vặn mù.
-NUT_MO_HINH = ("dinhGia.bienDongCuaSoGiay", "dinhGia.sanNenGiay",
-               "dinhGia.matPhangCanKetQua", "nanLai.heSoGiamChan")
+#: Nút mà bàn thử Brier nhìn thấy. NHẬP từ `kham.hoc_offline` —
+#: ba bản sao của cùng một danh sách là ba chỗ để chúng lệch nhau,
+#: và ở đây lệch nghĩa là hai công cụ vặn hai bộ nút khác nhau.
+from kham.hoc_offline import NUT_MO_HINH  # noqa: E402,F401
 
 CHIA_HOC, CHIA_CHON = 0.50, 0.75
 BIEN_CHON = 0.995          # siết thêm theo số ứng viên, xem `_bien`

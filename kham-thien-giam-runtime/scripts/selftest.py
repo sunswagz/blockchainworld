@@ -1446,6 +1446,7 @@ def kiem_tu_nang_cap() -> None:
          f"{m.CHIA_HOC} / {m.CHIA_CHON}")
     kiem("tập CHỐT không rỗng", (1.0 - m.CHIA_CHON) >= 0.15,
          f"CHỐT chiếm {(1.0-m.CHIA_CHON):.0%} — nhỏ quá thì nó gật bừa")
+    from kham import hoc_offline as _HO
     b2, b60 = m._bien(2), m._bien(60)
     kiem("biên SIẾT theo số ứng viên", b60 > b2,
          f"2 ứng viên → {b2:.5f} · 60 ứng viên → {b60:.5f}")
@@ -1524,6 +1525,26 @@ def kiem_tu_nang_cap() -> None:
          _mocBon == _mocMot, (len(_mocMot), len(_mocBon)))
     kiem("và mọi mốc kéo theo đều là số nguyên mốc thời gian",
          all(isinstance(x[-1], int) for x in _bon))
+
+    # ── nút mà THƯỚC không nhìn thấy thì đừng để trong danh sách ──────
+    #
+    # `dinhGia.sanNenGiay` CÓ đi vào `pUp` (`tau = max(san, tau_that)`)
+    # nhưng bàn thử Brier không bao giờ chạm tới: lát cắt nhỏ nhất là 60
+    # giây, mép trên của nút là 15 giây, nên `max` luôn trả `tau_that`.
+    # Quét cả trục 1→15 cho Brier GIỐNG HỆT tới 5 chữ số, khoảng tin
+    # đúng bằng [0, 0] trên 1.440 khối.
+    #
+    # Canh cả LÝ DO chứ không chỉ canh kết luận: nếu ai đó thêm được lát
+    # cắt nhỏ hơn 15 giây thì bàn thử NHÌN THẤY nút, và lúc ấy phép kiểm
+    # này phải đỏ để bắt người ta nghĩ lại.
+    kiem("`sanNenGiay` không nằm trong danh sách nút bàn thử Brier",
+         "dinhGia.sanNenGiay" not in m.NUT_MO_HINH, m.NUT_MO_HINH)
+    _nSan = NUT_THEO_DUONG["dinhGia.sanNenGiay"]
+    kiem("và LÝ DO vẫn đúng: lát cắt nhỏ nhất > mép trên của sàn τ",
+         min(m.LAT_CAT) > _nSan.cao,
+         f"lát nhỏ nhất {min(m.LAT_CAT):g}s vs mép sàn {_nSan.cao:g}s")
+    kiem("danh sách nút mô hình chỉ có MỘT nguồn, không ba bản sao",
+         m.NUT_MO_HINH is _HO.NUT_MO_HINH)
 
     kiem("nút `batDinhToiThieu` KHÔNG nằm trong danh sách nút mô hình",
          "dinhGia.batDinhToiThieu" not in m.NUT_MO_HINH,

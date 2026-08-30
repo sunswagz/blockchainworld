@@ -47,9 +47,29 @@ PHUT = 60_000.0
 LAT_CAT = (240.0, 180.0, 120.0, 60.0)
 
 #: Nút CHẠM VÀO `pUp`, nên chấm được bằng độ chuẩn dự báo.
-#: `dinhGia.batDinhToiThieu` KHÔNG ở đây: nó chạm `batDinh` chứ không
-#: chạm `pUp` — vặn nó bằng phép đo này là vặn mù.
-NUT_MO_HINH = ("dinhGia.bienDongCuaSoGiay", "dinhGia.sanNenGiay",
+#: Nút mà BÀN THỬ BRIER nhìn thấy được. NGUỒN DUY NHẤT — `tu-nang-cap.py`
+#: và `tien-hoa-mo-hinh.py` nhập từ đây, không giữ bản sao.
+#:
+#: Hai nút KHÔNG ở đây, mỗi cái một lý do khác nhau:
+#:
+#: `dinhGia.batDinhToiThieu` chạm `batDinh` chứ không chạm `pUp`. Bàn
+#: thử chấm bằng Brier trên `pUp`, nên vặn nó ở đây là vặn mù.
+#:
+#: `dinhGia.sanNenGiay` thì chạm `pUp` thật — `tau = max(san, tau_that)`
+#: — nhưng bàn thử KHÔNG BAO GIỜ chạm tới nó. Lát cắt nhỏ nhất là 60
+#: giây (nến 1 phút không cho lát nào nhỏ hơn rơi đúng mốc phút), còn
+#: mép trên của nút là 15 giây. `tau_that` không bao giờ xuống dưới sàn,
+#: nên `max` luôn trả `tau_that` và nút không đổi một con số nào.
+#:
+#: Đo được: quét cả trục 1 → 15 cho Brier GIỐNG HỆT tới 5 chữ số, khoảng
+#: tin đúng bằng [0,000000, 0,000000] trên 1.440 khối. Để nó trong danh
+#: sách là mỗi lượt tiến hoá tốn ứng viên cho một nút mà thước không
+#: nhìn thấy, rồi kết luận "không cải thiện" — nghe như dữ liệu đã nói,
+#: thật ra là cái thước đã nói.
+#:
+#: Nó VẪN đo được, bằng thước khác: vòng tiến hoá ngày chấm bằng LÃI LỖ
+#: trên băng, và băng có khung ở mọi τ kể cả sát 0.
+NUT_MO_HINH = ("dinhGia.bienDongCuaSoGiay",
                "dinhGia.matPhangCanKetQua", "nanLai.heSoGiamChan")
 
 CHIA_HOC, CHIA_CHON = 0.50, 0.75

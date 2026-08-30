@@ -33,6 +33,7 @@
   ],
 
   "//dinhGia": "Mô hình fair value. bienDongCuaSo = số giây lấy mẫu để ước lượng σ. sanNenGiay = τ không bao giờ nhỏ hơn ngần này giây — chống chia cho 0 lúc sắp hết hạn.",
+  "//vungMuCuaBanThuBrier": "ĐỌC TRƯỚC KHI VẶN `sanNenGiay` HAY `matPhangCanKetQua`. Bàn thử Brier (scripts/tu-nang-cap.py, do-mot-nut.py) lấy lát cắt τ ∈ {240, 180, 120, 60} giây — nến 1 phút không cho lát nào nhỏ hơn rơi đúng mốc phút. Mà CẢ HAI nút này sinh ra để giữ vùng τ→0. `sanNenGiay` (mép trên 15 giây) thì bàn thử không bao giờ chạm tới: quét cả trục 1→15 cho Brier giống hệt tới 5 chữ số, khoảng tin [0,000000, 0,000000] trên 1.440 khối — nên nó đã bị bỏ khỏi `NUT_MO_HINH`. `matPhangCanKetQua` thì bàn thử CÓ chạm, nhưng chỉ ở rìa ngoài của vùng nó bảo vệ: tỉ lệ bị kẹp là 1,39% ở τ=240s · 7,05% ở 180s · 17,50% ở 120s · 36,94% ở 60s — tăng vọt khi τ nhỏ, và ngoại suy thì gần 100% ở những giây cuối. Ở τ lớn phép kẹp gần như chỉ tốn điểm, nên bàn thử ĐƠN ĐIỆU khuyên hạ: quét 20 ngày × 4 chợ cho 0,005 [-0,000110, -0,000066] và 0,015 [-0,000039, -0,000023], đều TỐT HƠN 0,02 có ý nghĩa, còn mọi trị trên 0,02 đều TỆ HƠN có ý nghĩa. ĐỪNG nghe: lời khuyên ấy là hạ lớp bảo vệ đúng ở chỗ cái thước không nhìn được. Muốn vặn nút này thì phải đo bằng nến giây (chưa có) hoặc bằng LÃI LỖ trên băng, nơi có khung ở mọi τ kể cả sát 0. Giữ 0,02.",
   "dinhGia": {
     "bienDongCuaSoGiay": 900,
     "sanNenGiay": 3.0,
