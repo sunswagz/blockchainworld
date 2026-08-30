@@ -106,6 +106,28 @@ class RiskEngine:
             return {"approved": False, "action": "NO_TRADE",
                     "rejections": [], "note": "brain chủ động không vào lệnh", "position": None}
 
+        # NẾN TỔNG HỢP KHÔNG ĐƯỢC VÀO LỆNH.
+        #
+        # `data.py` có ba nguồn, và nguồn thứ ba là nến TỰ SINH để cả hệ vẫn chạy
+        # kín vòng khi mạng chặn Binance. Chú thích ở đó nói rõ: "nguồn thứ ba
+        # KHÔNG phải để giao dịch". Nhưng không có gì THỰC THI câu ấy — trạng
+        # thái mang sẵn `source.live`, và tầng rủi ro chưa từng đọc nó.
+        #
+        # Nhật ký 30/08 có ít nhất ba lượt rơi về nến tổng hợp (09:49, 11:30,
+        # 12:21) và một lệnh mở với giá vào 66.574 trong khi stop ở 76.988 —
+        # stop nằm TRÊN giá vào của một lệnh LONG, tức hai con số đến từ hai bộ
+        # dữ liệu khác nhau. Lệnh ấy phải đóng tay và ghi +284,32 vào sổ.
+        #
+        # Chặn ở đây chứ không ở vòng lặp: đây là hàng rào, và hàng rào thì phải
+        # nằm cùng chỗ với mọi hàng rào khác để không ai gỡ nhầm.
+        _ng = (state.get("source") or {})
+        if _ng.get("live") is False:
+            return {"approved": False, "action": action,
+                    "rejections": [f"NGUON_KHONG_SONG: {_ng.get('name') or 'không rõ'} "
+                                   f"— nến TỔNG HỢP, không được vào lệnh"],
+                    "rr": None, "position": None,
+                    "note": "dữ liệu không phải giá thật; chờ nguồn sống trở lại"}
+
         if self.spot_only and action == "SHORT":
             return {"approved": False, "action": action,
                     "rejections": ["SPOT_KHONG_SHORT: sàn spot chỉ bán được thứ đang giữ"],

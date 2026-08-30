@@ -1417,6 +1417,42 @@ async def main() -> int:
     else:
         check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
 
+    print("\n[58] NẾN TỔNG HỢP KHÔNG ĐƯỢC VÀO LỆNH")
+    # `data.py` có ba nguồn, nguồn thứ ba là nến TỰ SINH để hệ vẫn chạy kín vòng
+    # khi mạng chặn Binance. Chú thích ở đó nói rõ "KHÔNG phải để giao dịch" —
+    # nhưng không có gì THỰC THI câu ấy. Trạng thái mang sẵn `source.live`, và
+    # tầng rủi ro chưa từng đọc nó.
+    #
+    # Nhật ký 30/08: ba lượt rơi về nến tổng hợp, và một lệnh LONG mở ở 66.574
+    # trong khi stop ở 76.988 — stop nằm TRÊN giá vào, tức hai con số đến từ hai
+    # bộ dữ liệu khác nhau. Phải đóng tay.
+    _th58 = {"action": "LONG", "confidence": 0.9, "targets": [110.0],
+             #  LÀ điểm dừng lỗ ở tầng rủi ro — không phải
+             # . Đặt nhầm một chuỗi vào đó thì nó nổ ở phép so.
+             "suggested_risk_pct": 0.5, "entry_zone": None,
+             "invalidation": 95.0}
+    _acc58 = {"equity": 10_000.0, "availableQuote": 10_000.0, "positions": [],
+              "equityKnown": True, "drawdownPct": 0.0, "todayPnl": 0.0}
+    _st58 = {"price": 100.0, "symbol": "X",
+             "timeframes": {CONFIG["timeframes"]["primary"]: {"price": 100.0}}}
+    _r58 = RiskEngine(CONFIG["risk"])
+
+    _d58 = _r58.evaluate({**_th58},
+                         {**_st58, "source": {"name": "nến tổng hợp", "live": False}},
+                         _acc58, 2.0)
+    check(not _d58["approved"]
+          and any("NGUON_KHONG_SONG" in x for x in _d58["rejections"]),
+          "nguồn KHÔNG sống ⇒ chặn vào lệnh, nêu đúng mã lý do")
+    _d58b = _r58.evaluate({**_th58},
+                          {**_st58, "source": {"name": "binance", "live": True}},
+                          _acc58, 2.0)
+    check(not any("NGUON_KHONG_SONG" in x for x in (_d58b.get("rejections") or [])),
+          "nguồn sống ⇒ luật này IM (cửa ngược lại)")
+    _d58c = _r58.evaluate({**_th58}, {**_st58}, _acc58, 2.0)
+    check(not any("NGUON_KHONG_SONG" in x for x in (_d58c.get("rejections") or [])),
+          "trạng thái KHÔNG khai nguồn ⇒ không chặn — chỉ `live is False` mới chặn, "
+          "vì `None` nghĩa là chưa biết chứ không phải đã hỏng")
+
     print("\n[57] MỘT LỆNH MỖI NẾN, VÀ ĐẶC TRƯNG TÍNH TỪ NẾN ĐÃ ĐÓNG")
     # Nguyên nhân GỐC của khoảng cách 5-lệnh-so-với-43: vòng chạy thật đưa cả
     # nến ĐANG CHẠY vào `features_for`, nên EMA/ADX/RSI/ATR đổi liên tục trong
