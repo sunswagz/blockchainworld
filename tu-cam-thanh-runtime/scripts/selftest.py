@@ -1227,6 +1227,24 @@ async def main() -> int:
     # Hai dòng liền nhau, một dòng nói dối.
     check(_bg53.count("IM_LANG_DU_SONG_GIO") >= 2,
           "CẢ HAI làn dùng ngưỡng ấy — sửa một chỗ là để lại một bản sao nói dối")
+    check("_giam_sat_chet" in _bg53 and _bg53.count("_giam_sat_chet(") >= 3,
+          "bàn giao canh BỘ GIÁM SÁT của cả hai làn, không chỉ canh cổng")
+    check("giamSatPid" in _bg53,
+          "và đọc pid giám sát từ file trạng thái")
+    # Bàn giao KHÔNG tự viết phép kiểm sống/chết — nó gọi `nghi_thuc._con_song`,
+    # thứ đã có phép kiểm riêng ở mục [51] và có nhánh Windows. Viết bản thứ hai
+    # ở đây là mời đúng cái bẫy `os.kill(pid, 0)` quay lại.
+    check("_NT._con_song(pid)" in _bg53,
+          "bàn giao mượn phép kiểm sống/chết của nghi thức, không tự viết lại")
+
+    # CỔNG TRẢ LỜI KHÔNG ĐỦ. Ngày 30/08 cả hai bộ giám sát chết lúc 12:56 trong
+    # khi tiến trình con vẫn chạy: cổng vẫn trả lời, vốn vẫn cập nhật, nhật ký
+    # IM HẲN (chính bộ giám sát là thứ đọc stdout của con). Hai giờ sau tôi giết
+    # con để nạp mã mới và KHÔNG AI dựng lại — cả hai làn nằm im.
+    #
+    # Và bản vá buổi sáng của chính tôi đọc ca ấy thành "im nhưng cổng còn trả
+    # lời, không đáng báo động". Đúng về con, mù về thứ đang bảo vệ con.
+
     check("if not song and gio > IM_LANG_GIO" in _bg53,
           "nhật ký im chỉ tính là BẰNG CHỨNG CHẾT khi cổng cũng không trả lời")
     _bus53 = ma_khong_chu_thich(ROOT / "trader" / "bus.py")

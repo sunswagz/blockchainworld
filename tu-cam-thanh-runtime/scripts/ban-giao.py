@@ -476,6 +476,40 @@ def _cong_tra_loi(cong: int) -> bool:
     finally:
         s.close()
 
+def _giam_sat_chet(ten_trang_thai: str, nhan: str, bat_lai: str) -> list[str]:
+    """Bộ giám sát của làn ấy còn sống không.
+
+    CỔNG TRẢ LỜI KHÔNG ĐỦ. Ngày 30/08 cả hai bộ giám sát chết lúc 12:56 trong
+    khi tiến trình con vẫn chạy: cổng vẫn trả lời, vốn vẫn cập nhật, và nhật ký
+    IM HẲN — vì chính bộ giám sát là thứ đọc stdout của con và ghi log.
+
+    Hai giờ sau tôi giết tiến trình con để nạp mã mới, và KHÔNG CÓ AI dựng nó
+    lại. Cả hai làn nằm im.
+
+    Tệ hơn: bản vá buổi sáng của chính tôi đọc ca ấy thành "im nhưng cổng còn
+    trả lời — đang chạy, không đáng báo động". Đúng về tiến trình con, và mù
+    hoàn toàn về thứ đang bảo vệ nó.
+    """
+    f = ROOT / "dichvu" / ten_trang_thai
+    try:
+        tt = json.loads(f.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    pid = tt.get("giamSatPid")
+    if not pid or _con_song_pid(pid):
+        return []
+    return [f"**BỘ GIÁM SÁT {nhan} ĐÃ CHẾT** (pid {pid} không còn). Tiến trình "
+            f"con có thể vẫn chạy và cổng vẫn trả lời, nhưng KHÔNG AI dựng lại "
+            f"nữa, và nhật ký ngừng được ghi. Bật lại: `{bat_lai}`."]
+
+
+def _con_song_pid(pid: int) -> bool:
+    """PID còn sống không. KHÔNG dùng os.kill(pid, 0) — trên Windows nó GIẾT."""
+    from trader import nghi_thuc as _NT
+
+    return _NT._con_song(pid)
+
+
 def _lan_demo() -> list[str]:
     """Làn demo hai chiều còn sống không, và nó đã đi được bao xa.
 
@@ -520,6 +554,8 @@ def _lan_demo() -> list[str]:
     if not song:
         ra.append("**CỔNG 5282 KHÔNG TRẢ LỜI** — làn demo đang TẮT. Bật lại: "
                   "`powershell -File dichvu/bat.ps1 -Demo`.")
+    ra += _giam_sat_chet("trang-thai-demo.json", "LÀN DEMO",
+                         "powershell -File dichvu/bat.ps1 -Demo")
 
     # Đi được bao xa: đếm lệnh SHORT đã đóng, so với 30 lệnh mà giả thuyết cần.
     try:
@@ -600,6 +636,8 @@ def _con_song() -> list[str]:
     if not song:
         ra.append(f"**CỔNG {cong} KHÔNG TRẢ LỜI.** Bot đang TẮT. Bật lại: "
                   f"`powershell -File dichvu/bat.ps1` hoặc bấm icon Tử Cấm Thành.")
+    ra += _giam_sat_chet("trang-thai.json", "LÀN CHÍNH",
+                         "powershell -File dichvu/bat.ps1")
 
     try:
         tt = json.loads((ROOT / "dichvu" / "trang-thai.json").read_text(encoding="utf-8"))
