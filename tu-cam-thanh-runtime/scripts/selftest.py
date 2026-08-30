@@ -1250,7 +1250,8 @@ async def main() -> int:
     # bảng tiến độ 33 chợ chỉ ~2 KB — nên một lượt chạy 45 phút không in chữ nào
     # cho tới lúc thoát, và "đang dựng chuỗi chợ thứ 30" nhìn y hệt "đã treo".
     for _f53, _neo53 in (("dau-chien-luoc.py", "chuỗi {len(chuoi)} điểm"),
-                         ("do-huong.py", "chỉ LONG {_f(tl[")):
+                         ("do-huong.py", "chỉ LONG {_f(tl["),
+                         ("lo-luyen.py", "chuỗi {len(chuoi)} điểm")):
         _s53 = ma_khong_chu_thich(ROOT / "scripts" / _f53)
         _i53 = _s53.find(_neo53)
         check(_i53 >= 0 and "flush=True" in _s53[_i53:_i53 + 200],

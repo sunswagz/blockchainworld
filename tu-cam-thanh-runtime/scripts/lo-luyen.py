@@ -291,8 +291,11 @@ def main() -> int:
         so_cho_that += 1
         chuoi = huanluyen.lay_chuoi(nen, sym)[0]
         lats = chia_lat(len(nc), so_lat)
+        # flush: stdout đệm khối 8 KB khi chuyển hướng ra file, mà cả bảng tiến
+        # độ 33 chợ chỉ ~2 KB — không có nó thì lượt chạy 35 phút không in chữ
+        # nào cho tới lúc thoát. Xem chú thích cùng chỗ ở `dau-chien-luoc.py`.
         print(f"  {ten} · {len(nc)} nến · chuỗi {len(chuoi)} điểm "
-              f"({time.time() - t0:.0f}s)")
+              f"({time.time() - t0:.0f}s)", flush=True)
 
         for i, tham in enumerate(bien):
             for j, (a, b) in enumerate(lats):
