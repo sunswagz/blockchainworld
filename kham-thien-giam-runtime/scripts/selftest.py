@@ -5296,6 +5296,78 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_co_thu_khong_duoc_dao_nghia() -> None:
+    """Lượt THỬ không chạm config; lượt THẬT thì phải GHI.
+
+    `tien_hoa.mot_luot` là cổng ghi config chạy trên BĂNG, mỗi đêm.
+    Dòng quyết định của nó từng là một biểu thức:
+
+        if not thu and ghi_config(d.nut, d.denGiaTri):
+
+    Đúng — và không có gì canh. Quét đột biến cho `and → or` SỐNG SÓT ở
+    đúng dòng ấy, và con ấy ĐẢO NGHĨA cờ chạy thử: với `or` thì
+    `thu=False` (chạy thật) làm `not thu` đúng nên NGẮN MẠCH —
+    `ghi_config` không được gọi mà vẫn ghi "NHẬN"; còn `--thu` thì đi
+    GHI config thật.
+
+    Một cỗ máy báo "đã vặn" mà không vặn, và "chỉ thử thôi" mà vặn
+    thật. Không con số nào lộ ra chuyện đó — nên phép kiểm phải đếm
+    LỜI GỌI, không đọc câu chữ.
+    """
+    print()
+    print("-- Co --thu khong duoc dao nghia --------------------------")
+
+    from kham import tien_hoa as TH
+
+    class _KQ:
+        nhan = None
+        kyVongSau = None
+        ghiChu = ""
+
+    class _DX:
+        nut, tuGiaTri, denGiaTri = "nanLai.heSoGiamChan", 0.85, 0.9
+
+    R = {"cho": True, "B": {"kyVong": 1.23}, "ketLuan": "xong"}
+
+    def _chay(thu, ketQuaGhi=True):
+        goi = []
+        cu = TH.ghi_config
+        try:
+            TH.ghi_config = lambda n, v: (goi.append((n, v)) or ketQuaGhi)
+            kq = _KQ()
+            TH.ghi_nhan(kq, _DX(), R, thu)
+            return kq, goi
+        finally:
+            TH.ghi_config = cu
+
+    kqT, goiT = _chay(thu=True)
+    kiem("lượt THỬ: KHÔNG gọi ghi_config lần nào", not goiT, goiT)
+    kiem("lượt THỬ: câu chữ nói rõ là thử",
+         "(thử)" in kqT.ghiChu, kqT.ghiChu)
+    kiem("lượt THỬ vẫn ghi lại phán quyết",
+         kqT.nhan is R and kqT.kyVongSau == 1.23)
+
+    kqF, goiF = _chay(thu=False)
+    kiem("lượt THẬT: CÓ gọi ghi_config đúng một lần",
+         goiF == [("nanLai.heSoGiamChan", 0.9)], goiF)
+    kiem("lượt THẬT: câu chữ là NHẬN",
+         kqF.ghiChu.startswith("NHẬN:"), kqF.ghiChu)
+
+    # Ghi HỎNG là ca thứ ba, không được lẫn vào "(thử)": một lần ghi
+    # hỏng mà đọc như một lượt chạy thử thì tham số không đổi và không
+    # ai biết.
+    kqH, goiH = _chay(thu=False, ketQuaGhi=False)
+    kiem("ghi HỎNG: vẫn có gọi", len(goiH) == 1, goiH)
+    kiem("ghi HỎNG: nói thẳng tham số KHÔNG đổi",
+         "HỎNG" in kqH.ghiChu and "(thử)" not in kqH.ghiChu, kqH.ghiChu)
+
+    # Và `mot_luot` phải gọi đúng hàm này, chứ không dựng lại biểu thức.
+    import inspect as _in
+    src = _in.getsource(TH.mot_luot)
+    kiem("`mot_luot` gọi `ghi_nhan`", "ghi_nhan(kq, d, r, thu)" in src)
+    kiem("và KHÔNG còn tự gọi `ghi_config`", "ghi_config(" not in src, src.count("ghi_config("))
+
+
 def kiem_tra_dung_cho_va_dung_nhiem() -> None:
     """Tra ĐÚNG cặp Binance của chợ, và đọc ĐÚNG trị đương nhiệm.
 
@@ -10768,6 +10840,7 @@ def main() -> int:
     kiem_bien_cua_cong_mo_hinh()
     kiem_luoi_va_truc_hoc_offline()
     kiem_tra_dung_cho_va_dung_nhiem()
+    kiem_co_thu_khong_duoc_dao_nghia()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

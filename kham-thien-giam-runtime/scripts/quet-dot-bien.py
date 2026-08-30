@@ -183,6 +183,31 @@ def _tra_lai():
     return False
 
 
+# ── BẢN SAO LƯU CÒN SÓT = LƯỢT TRƯỚC CHẾT GIỮA CHỪNG ─────────────────
+#
+# `_tra_lai()` chạy trong `finally` sau mỗi con, nên lượt quét bình
+# thường luôn dọn sạch. Nhưng `finally` KHÔNG chạy khi tiến trình bị
+# giết — hết giờ, Ctrl-C đúng lúc, máy tắt. Khi ấy `F` nằm lại trên đĩa
+# MANG MỘT CON ĐỘT BIẾN, và `<file>.goc-quet` còn đó.
+#
+# Chạy tiếp trong tình trạng ấy là hỏng vĩnh viễn: dòng dưới sẽ ghi đè
+# bản sao lưu bằng nội dung HIỆN TẠI của `F` — tức bằng chính con đột
+# biến — và đường lùi biến mất. Sau đó mọi con đều được so với một bản
+# "gốc" đã sai, nên bộ quét sẽ báo rất nhiều con CHẾT: mã hỏng sẵn nên
+# phép kiểm đỏ sẵn. Một phiếu điểm đẹp dựng trên một file hỏng.
+#
+# Chú thích cuối file đã nói đúng chuyện này ("File ấy còn nằm đó nghĩa
+# là lần quét trước chết giữa chừng") nhưng không có gì hành động theo.
+if os.path.exists(SAO_LUU):
+    print()
+    print(f"  DỪNG: {SAO_LUU} còn nằm đó — lượt quét TRƯỚC chết giữa")
+    print(f"  chừng, nên {F} rất có thể đang mang một con đột biến.")
+    print("  Khôi phục rồi hãy quét lại:")
+    print(f"      cp '{SAO_LUU}' '{F}' && rm '{SAO_LUU}'")
+    print(f"  hoặc `git checkout -- {F}` rồi xoá bản sao lưu.")
+    print()
+    sys.exit(6)
+
 if not _ghi(SAO_LUU, goc):
     print(f"  DỪNG: không ghi nổi bản sao lưu {SAO_LUU} — không quét khi "
           f"chưa có đường lùi.")
@@ -206,8 +231,20 @@ for i, moi, nhan in ca:
     if not bat:
         song.append((i + 1, nhan, dong[i].strip()[:78]))
 
-# Dọn bản sao lưu CHỈ khi đã trả lại xong xuôi. File ấy còn nằm đó nghĩa
-# là lần quét trước chết giữa chừng.
+# Dọn bản sao lưu CHỈ khi file đã TRỞ LẠI ĐÚNG TỪNG BYTE. Xoá theo niềm
+# tin là bỏ mất đường lùi đúng lúc cần nó nhất — và một con đột biến sót
+# lại trong mã thì lần chạy sau không phân biệt được với mã thật.
+try:
+    lai = io.open(F, encoding="utf-8").read()
+except OSError:
+    lai = None
+if lai != goc:
+    print()
+    print(f"  !! {F} KHÔNG trở lại đúng bản gốc sau lượt quét.")
+    print(f"  !! GIỮ bản sao lưu {SAO_LUU}. Khôi phục bằng:")
+    print(f"  !!     cp '{SAO_LUU}' '{F}'")
+    print()
+    sys.exit(7)
 try:
     os.remove(SAO_LUU)
 except OSError:

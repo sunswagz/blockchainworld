@@ -530,6 +530,42 @@ def _buoc(so: int, ten: str) -> None:
         pass
 
 
+def ghi_nhan(kq, d, r: dict, thu: bool) -> None:
+    """Cổng đã GẬT: ghi phán quyết, và ghi CONFIG nếu đây không phải lượt thử.
+
+    Tách ra khỏi `mot_luot` để KIỂM ĐƯỢC. Bản trước là một dòng:
+
+        if not thu and ghi_config(d.nut, d.denGiaTri):
+
+    Đúng, nhưng không có gì canh. Quét đột biến 30/08/2026 cho `and →
+    or` SỐNG SÓT ở đúng dòng ấy, và con đột biến ấy đảo nghĩa cờ chạy
+    thử: `thu=False` (chạy thật) làm `not thu` đúng nên ngắn mạch —
+    `ghi_config` KHÔNG được gọi mà vẫn ghi "NHẬN"; còn `--thu` thì lại
+    ĐI GHI config thật.
+
+    Một cỗ máy báo "đã vặn" mà không vặn, và "chỉ thử thôi" mà vặn
+    thật. Không con số nào lộ ra chuyện đó.
+
+    Ba ca, tách hẳn, không gộp vào một biểu thức:
+      · lượt THỬ            → nói sẽ nhận, KHÔNG chạm config
+      · ghi được            → NHẬN
+      · ghi HỎNG            → nói thẳng là tham số KHÔNG đổi
+    Ca thứ ba trước đây lẫn vào câu "(thử) sẽ nhận" — tức một lần ghi
+    hỏng đọc y hệt một lượt chạy thử.
+    """
+    kq.nhan = r
+    kq.kyVongSau = r["B"]["kyVong"]
+    if thu:
+        kq.ghiChu = f"(thử) sẽ nhận: {d.nut} → {d.denGiaTri}"
+        return
+    if ghi_config(d.nut, d.denGiaTri):
+        kq.ghiChu = (f"NHẬN: {d.nut} {d.tuGiaTri} → {d.denGiaTri}. "
+                     f"{r['ketLuan']}")
+    else:
+        kq.ghiChu = (f"cổng GẬT nhưng GHI CONFIG HỎNG: {d.nut} → "
+                     f"{d.denGiaTri} — tham số KHÔNG đổi")
+
+
 def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
     global _MOC
     _MOC = time.time()
@@ -643,13 +679,7 @@ def mot_luot(thu: bool = False, tuNgay: str | None = None) -> KetQuaTienHoa:
     for d in dx:
         r = thu_mot_de_xuat(khung, d)
         if r["cho"]:
-            kq.nhan = r
-            kq.kyVongSau = r["B"]["kyVong"]
-            if not thu and ghi_config(d.nut, d.denGiaTri):
-                kq.ghiChu = (f"NHẬN: {d.nut} {d.tuGiaTri} → {d.denGiaTri}. "
-                             f"{r['ketLuan']}")
-            else:
-                kq.ghiChu = f"(thử) sẽ nhận: {d.nut} → {d.denGiaTri}"
+            ghi_nhan(kq, d, r, thu)
             break
         kq.traLai.append(r)
     else:
