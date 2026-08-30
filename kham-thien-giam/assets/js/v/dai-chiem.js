@@ -14,11 +14,11 @@
 window.DAI_CHIEM = {
   "date": "30/08/2026",
   "tomTat": "1 market đã kết toán · kỳ vọng -49.9483$/lệnh",
-  "generatedAt": "2026-08-30T11:07:34.062Z",
+  "generatedAt": "2026-08-30T11:10:21.040Z",
   "che": "giay",
   "cheKhai": "giay",
-  "vong": 780,
-  "chayDuocGiay": 1560.2455661296844,
+  "vong": 30,
+  "chayDuocGiay": 59.10966610908508,
   "thiTruong": [
     {
       "ma": "BTC_5M",
@@ -133,78 +133,78 @@ window.DAI_CHIEM = {
     "bang": [
       {
         "o": "0-10",
-        "n": 20131,
-        "duDoan": 0.03929466320191271,
-        "thucTe": 0.051760965674829865,
-        "lech": 0.012466302472917155
+        "n": 20287,
+        "duDoan": 0.03922328160517784,
+        "thucTe": 0.052398087445161924,
+        "lech": 0.013174805839984087
       },
       {
         "o": "10-20",
-        "n": 11579,
-        "duDoan": 0.1504763290638771,
-        "thucTe": 0.1525174885568702,
-        "lech": 0.0020411594929931054
+        "n": 11560,
+        "duDoan": 0.1504928947451278,
+        "thucTe": 0.1504325259515571,
+        "lech": -6.036879357071423e-05
       },
       {
         "o": "20-30",
-        "n": 13270,
-        "duDoan": 0.25154157195982924,
-        "thucTe": 0.23556895252449134,
-        "lech": -0.015972619435337898
+        "n": 13237,
+        "duDoan": 0.25149064327342113,
+        "thucTe": 0.2332099418297197,
+        "lech": -0.01828070144370142
       },
       {
         "o": "30-40",
-        "n": 16222,
-        "duDoan": 0.351505226541548,
-        "thucTe": 0.32647022561952904,
-        "lech": -0.025035000922018935
+        "n": 16152,
+        "duDoan": 0.3515547551001282,
+        "thucTe": 0.32708023774145617,
+        "lech": -0.02447451735867201
       },
       {
         "o": "40-50",
-        "n": 20362,
-        "duDoan": 0.45642286652088215,
-        "thucTe": 0.43325802966309795,
-        "lech": -0.0231648368577842
+        "n": 20513,
+        "duDoan": 0.45679019292890627,
+        "thucTe": 0.4332374591722322,
+        "lech": -0.02355273375667405
       },
       {
         "o": "50-60",
-        "n": 17030,
-        "duDoan": 0.5518268391619328,
-        "thucTe": 0.5587199060481504,
-        "lech": 0.0068930668862176026
+        "n": 17040,
+        "duDoan": 0.5517072016354378,
+        "thucTe": 0.5591549295774648,
+        "lech": 0.0074477279420269715
       },
       {
         "o": "60-70",
-        "n": 15451,
-        "duDoan": 0.648297865496475,
-        "thucTe": 0.6582098246068215,
-        "lech": 0.009911959110346591
+        "n": 15417,
+        "duDoan": 0.6482806600736916,
+        "thucTe": 0.657131737692158,
+        "lech": 0.008851077618466485
       },
       {
         "o": "70-80",
-        "n": 13051,
-        "duDoan": 0.748835990185104,
-        "thucTe": 0.7584859397747299,
-        "lech": 0.00964994958962584
+        "n": 13013,
+        "duDoan": 0.7488992443992981,
+        "thucTe": 0.7566279873972181,
+        "lech": 0.007728742997920035
       },
       {
         "o": "80-90",
-        "n": 11709,
-        "duDoan": 0.8493416225101021,
-        "thucTe": 0.8440515842514306,
-        "lech": -0.005290038258671581
+        "n": 11649,
+        "duDoan": 0.849298795722468,
+        "thucTe": 0.8416173062065413,
+        "lech": -0.007681489515926732
       },
       {
         "o": "90-100",
-        "n": 20947,
-        "duDoan": 0.9609994352436009,
-        "thucTe": 0.9506373227669833,
-        "lech": -0.010362112476617558
+        "n": 20844,
+        "duDoan": 0.9608754805800979,
+        "thucTe": 0.948570331990021,
+        "lech": -0.012305148590076809
       }
     ],
-    "tongMau": 159752,
+    "tongMau": 159712,
     "duDeDungKelly": true,
-    "saiSoTB": 0.012768709645029424
+    "saiSoTB": 0.013138130480228147
   },
   "thongKe": {
     "n": 1,
@@ -264,20 +264,20 @@ window.DAI_CHIEM = {
   "vi": {
     "soVi": 0,
     "nga": {},
-    "quetLucMs": 1788086494941.4963,
+    "quetLucMs": 1788088163013.8035,
     "gioiHan": "Đặt/huỷ lệnh diễn ra off-chain, nên chỉ thấy được các lần KHỚP. Không dựng lại được vòng đời báo giá, và vì vậy không kết luận được ai là market maker.",
     "vi": []
   },
   "nguon": {
     "gamma-slug": {
       "tuoiMs": null,
-      "soLoi": 26,
+      "soLoi": 5,
       "tongLuot": 0,
       "loiCuoi": "ConnectError: [WinError 10054] An existing connection was forcibly closed by the remote host"
     },
     "gamma": {
       "tuoiMs": null,
-      "soLoi": 26,
+      "soLoi": 5,
       "tongLuot": 0,
       "loiCuoi": "ConnectError: [WinError 10054] An existing connection was forcibly closed by the remote host"
     }
@@ -324,7 +324,7 @@ window.DAI_CHIEM = {
         "tiLeThang": 0.0,
         "thuaLonNhat": -49.94825026510855,
         "duoi5pct": -49.94825026510855,
-        "capNhatLuc": 1788087694.5203693
+        "capNhatLuc": 1788088163.0148
       }
     ]
   },
@@ -376,12 +376,20 @@ window.DAI_CHIEM = {
   },
   "quyetChan": {},
   "bang": {
-    "soKhung": 780,
+    "soKhung": 30,
     "bat": true,
     "soLoiGhi": 0,
     "loiCuoi": null,
-    "duong": "bang-2026-08-30-104134-43360.jsonl.gz",
+    "duong": "bang-2026-08-30-110923-30976.jsonl.gz",
     "doc": null
+  },
+  "soKetQua": {
+    "soSlug": 11436,
+    "soUp": 5739,
+    "soDown": 5697,
+    "soBatDong": 0,
+    "soTheoSan": 0,
+    "soTuTinh": 11436
   },
   "loiNhac": "Đây là LÁT CẮT tĩnh do runtime ở máy ghi ra, không phải số liệu sống. Trang này không gọi API nào và không đặt được lệnh nào."
 };
