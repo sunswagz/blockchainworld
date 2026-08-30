@@ -5296,6 +5296,63 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_quet_truc_phai_do_lai_cua_so_dai() -> None:
+    """Thấy trị tốt hơn thì `do-mot-nut.py` PHẢI đo lại trên cửa sổ dài hơn.
+
+    Ngày 30/08/2026, nút `dinhGia.heSoSigma` ra đời từ một suy luận có
+    lý và được xác nhận rất đẹp trên 20 ngày: trục ĐƠN ĐIỆU, bốn trị
+    liền nhau đều TỐT HƠN có ý nghĩa, hai tập CHỌN và CHỐT cùng chiều,
+    và có hẳn một cơ chế vật lý để tin.
+
+    Quét lại trên 40 ngày: hiệu ứng biến mất sạch, mọi khoảng tin chứa
+    0, trên tập CHỌN chiều còn ĐẢO.
+
+    Chính `do-mot-nut.py` in câu "đơn điệu là thứ khó giả". Câu ấy đúng
+    và KHÔNG đủ: một cửa sổ 20 ngày đủ ngắn để dựng ra cả một trục
+    trông như quy luật. Để câu ấy đứng một mình là mời người đọc vặn
+    theo ảo ảnh.
+
+    Nên bước đo lại là BẮT BUỘC, không phải tuỳ chọn — và phép kiểm này
+    canh đúng chuyện đó, vì một bước tự nguyện thì sớm muộn ai đó bỏ
+    qua cho nhanh.
+    """
+    print()
+    print("-- Quet truc phai tu do lai tren cua so dai hon -----------")
+
+    import ast as _ast
+    _goc = Path(__file__).resolve().parent.parent
+    f = _goc / "scripts" / "do-mot-nut.py"
+    kiem("`do-mot-nut.py` có mặt", f.exists())
+    if not f.exists():
+        return
+    cay = _ast.parse(f.read_text(encoding="utf-8"))
+
+    ten = {n.name for n in cay.body if isinstance(n, _ast.FunctionDef)}
+    kiem("có hàm `_kiem_lai`", "_kiem_lai" in ten, sorted(ten))
+
+    goi = [n for n in _ast.walk(cay)
+           if isinstance(n, _ast.Call) and isinstance(n.func, _ast.Name)
+           and n.func.id == "_kiem_lai"]
+    kiem("và nó ĐƯỢC GỌI", len(goi) == 1, len(goi))
+
+    # Phải nằm trong nhánh "có trị tốt hơn", chứ không phải chạy vô điều
+    # kiện hay nằm trong nhánh chết.
+    trong_if = False
+    for n in _ast.walk(cay):
+        if isinstance(n, _ast.If):
+            for con in _ast.walk(n):
+                if (isinstance(con, _ast.Call)
+                        and isinstance(con.func, _ast.Name)
+                        and con.func.id == "_kiem_lai"):
+                    trong_if = True
+    kiem("gọi trong nhánh điều kiện (chỉ khi có trị tốt hơn)", trong_if)
+
+    src = f.read_text(encoding="utf-8")
+    kiem("đo lại trên GẤP ĐÔI số nến", "soNen * 2" in src)
+    kiem("và khai thẳng khi không sống sót",
+         "KHÔNG SỐNG SÓT" in src and "ĐỪNG vặn" in src)
+
+
 def kiem_moi_sigma_rieng_trung_bo_uoc_chung() -> None:
     """MỌI `_sigma` riêng trong `scripts/` phải ra ĐÚNG số của bộ ước chung.
 
@@ -10066,6 +10123,7 @@ def main() -> int:
     kiem_so_hieu_chinh_gom_moi_cho()
     kiem_khoa_mot_ban_chay_nen()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
+    kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

@@ -270,6 +270,38 @@ def dinh_gia(
     if giaHienTai <= 0 or giaMo <= 0 or sigmaGiay is None or sigmaGiay <= 0:
         return None
 
+    # ── hiệu chỉnh MỨC σ, không phải cửa sổ σ ─────────────────────────────
+    #
+    # `bienDongCuaSoGiay` chỉnh σ đo TRÊN BAO NHIÊU phút. Nút này chỉnh
+    # chính con số σ. Hai thứ khác nhau, và cái thứ hai trước nay không
+    # có nút nào cả.
+    #
+    # Lý do có nó là một dấu hiệu đọc được thẳng từ bảng hiệu chỉnh
+    # (159.752 mẫu, 4 chợ, 30/08/2026): ở dải giữa, thực tế LUÔN xa 0,5
+    # hơn mô hình nói —
+    #
+    #     p 0,25 → thật 0,2356      p 0,55 → thật 0,5587
+    #     p 0,35 → thật 0,3265      p 0,65 → thật 0,6582
+    #     p 0,45 → thật 0,4333      p 0,75 → thật 0,7585
+    #
+    # Mô hình THIẾU tự tin, không phải thừa. Với khuếch tán log-chuẩn thì
+    # thiếu tự tin ở giữa nghĩa là σ bị ước CAO: z = ln(S/K)/(σ√τ) nhỏ đi
+    # thì p bị kéo về 0,5.
+    #
+    # Bảng hiệu chỉnh đã vá chuyện này rồi — nhưng vá ở KHÔNG GIAN p,
+    # bằng một bảng mười ô khớp ngoại tuyến rồi giảm chấn 0,85. Sửa ở
+    # nguồn thì khác: nó mượt, nó áp cho cả những ô ít mẫu, và nó cộng
+    # đúng theo τ (z tỉ lệ 1/(σ√τ), nên MỘT hệ số σ chỉnh đúng cả bốn
+    # lát; một bảng trong không gian p thì không).
+    #
+    # Mặc định 1,0 — KHÔNG đổi gì. Trị khác 1 chỉ được đặt bằng phép đo:
+    # `scripts/do-mot-nut.py --nut=dinhGia.heSoSigma`.
+    _hsSig = float(_DG.get("heSoSigma", 1.0) or 1.0)
+    if _hsSig != 1.0:
+        sigmaGiay = sigmaGiay * _hsSig
+        if sigmaGiay <= 0:
+            return None
+
     # ── bẫy 1, lớp một: sàn cho tau ───────────────────────────────────────
     san = float(_DG["sanNenGiay"])
     tau_that = max(0.0, float(tauGiay))

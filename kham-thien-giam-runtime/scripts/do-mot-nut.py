@@ -102,6 +102,82 @@ def _truc(nut) -> list[float]:
     return ra
 
 
+def _kiem_lai(m, nut, cu, ungVien, soNen, het, laCuaSo, cs0) -> None:
+    """Đo LẠI ứng viên thắng trên GẤP ĐÔI số ngày. Bắt buộc, không phải tuỳ chọn.
+
+    Ngày 30/08/2026 nút `dinhGia.heSoSigma` ra đời từ một suy luận có lý
+    và được xác nhận rất đẹp trên 20 ngày: trục ĐƠN ĐIỆU, bốn trị liền
+    nhau (1,05 / 1,10 / 1,15 / 1,20) đều TỐT HƠN có ý nghĩa, hai tập
+    CHỌN và CHỐT cùng chiều, và có hẳn một cơ chế vật lý để tin (lợi
+    suất đóng-đến-đóng của nến 1 phút bỏ qua biên độ trong phút nên ước
+    THẤP σ thật).
+
+    Quét lại trên 40 ngày: hiệu ứng biến mất sạch. Mọi khoảng tin chứa
+    0, và trên tập CHỌN chiều còn ĐẢO.
+
+    Nghĩa là **hình dạng đơn điệu không thay thế được việc đo trên dữ
+    liệu khác**. Một cửa sổ 20 ngày đủ ngắn để dựng ra cả một trục trông
+    như quy luật. Chính file này in câu "đơn điệu là thứ khó giả" ngay
+    phía trên — câu ấy đúng, nhưng nó KHÔNG đủ, và để nó đứng một mình
+    là mời người đọc vặn theo một ảo ảnh.
+
+    Nên: thấy trị nào tốt hơn có ý nghĩa thì TỰ ĐỘNG đo lại trên gấp đôi
+    số ngày, ngay tại đây, và in ra cả hai kết quả. Không sống sót thì
+    nói thẳng là không sống sót.
+    """
+    print()
+    print("  ── ĐO LẠI trên GẤP ĐÔI số ngày ───────────────────────────")
+    print("  (một trục đơn điệu trên cửa sổ ngắn có thể là ảo ảnh của"
+          " đúng quãng ấy)")
+    soNen2 = soNen * 2
+    chos2 = {}
+    for t in thi_truong_doi_chieu_duoc():
+        tm = m.nen_1p(str(t["nen"]), het - soNen2 * PHUT, soNen2)
+        if len(tm) >= 1200:
+            chos2[str(t["ma"])] = tm
+    if not chos2:
+        print("  không lấy đủ nến cho lượt đo lại.")
+        return
+    mocs2 = sorted({T for tm in chos2.values() for T in tm
+                    if T % 300_000 == 0})
+    a2, b2 = int(len(mocs2) * m.CHIA_HOC), int(len(mocs2) * m.CHIA_CHON)
+    ba2 = (mocs2[:a2], mocs2[a2:b2], mocs2[b2:])
+    print("  " + str(len(chos2)) + " chợ · CHỐT " + format(len(ba2[2]), ",")
+          + " khung", flush=True)
+
+    def _cham(v):
+        if laCuaSo:
+            return m.cham(chos2, ba2, v)
+        _dat(DUONG, v)
+        return m.cham(chos2, ba2, cs0)
+
+    try:
+        rGoc = _cham(cu)
+        rMoi = _cham(ungVien)
+    finally:
+        if cu is not None:
+            _dat(DUONG, cu)
+    if rGoc is None or rMoi is None:
+        print("  chưa đủ cặp ở lượt đo lại.")
+        return
+    n = min(len(rMoi["_saiChot"]), len(rGoc["_saiChot"]))
+    hieu = [rMoi["_saiChot"][i] - rGoc["_saiChot"][i] for i in range(n)]
+    thap, cao, soK = khoang_tin_theo_khoi(hieu, rGoc["_mocChot"][:n])
+    print("    " + format(cu, ">8g") + "   CHỌN " + format(rGoc["chon"], ".5f")
+          + "   CHỐT " + format(rGoc["chot"], ".5f") + "   ← đương nhiệm")
+    print("    " + format(ungVien, ">8g") + "   CHỌN "
+          + format(rMoi["chon"], ".5f") + "   CHỐT "
+          + format(rMoi["chot"], ".5f"))
+    print("    khoảng tin [" + format(thap, "+.6f") + ", "
+          + format(cao, "+.6f") + "]  (" + str(soK) + " khối)")
+    print()
+    if cao < 0:
+        print("  SỐNG SÓT: khá hơn có ý nghĩa trên CẢ HAI cửa sổ thời gian.")
+    else:
+        print("  KHÔNG SỐNG SÓT: trên cửa sổ dài hơn thì khoảng tin chứa 0.")
+        print("  Kết quả cửa sổ ngắn là ảo ảnh của đúng quãng ấy — ĐỪNG vặn.")
+
+
 def main() -> int:
     nut = NUT_THEO_DUONG.get(DUONG)
     if nut is None:
@@ -287,6 +363,7 @@ def main() -> int:
               + ", ".join(format(v, "g") for v, _ in tot))
         print("  Đọc HÌNH DẠNG cả trục trước khi vặn: đơn điệu là thứ khó")
         print("  giả, một đỉnh nhọn giữa trục thường là nhiễu.")
+        _kiem_lai(m, nut, cu, tot[0][0], soNen, het, laCuaSo, cs0)
     else:
         print("  Không trị nào tốt hơn có ý nghĩa. Giữ nguyên là kết quả")
         print("  hợp lệ, và nó đáng tin hơn một lần vặn theo khoảng chứa 0.")

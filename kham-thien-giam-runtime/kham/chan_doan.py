@@ -140,6 +140,18 @@ NUT_VAN: list[NutVan] = [
     # Trục phẳng nghĩa là nút này không đáng vặn nữa cho tới khi có
     # THƯỚC KHÁC — thước ở đây là Brier, mà giảm chấn chỉ hiện ra ở chỗ
     # bảng hiệu chỉnh lệch nhiều.
+    # ── MỨC σ, không phải cửa sổ σ ────────────────────────────────
+    #
+    # `bienDongCuaSoGiay` chỉnh σ đo trên bao nhiêu phút; nút này chỉnh
+    # chính con số σ. Trước nay mức σ không có nút nào cả, dù bảng hiệu
+    # chỉnh chỉ thẳng vào nó: ở dải giữa, thực tế luôn xa 0,5 hơn mô
+    # hình nói (p 0,45 → thật 0,4333; p 0,65 → thật 0,6582), tức mô
+    # hình THIẾU tự tin, tức σ bị ước CAO.
+    #
+    # Dải [0,7, 1,3] quanh 1,0: đủ rộng để thấy hình dạng, đủ hẹp để
+    # không cho phép một trị vô nghĩa. 1,0 nằm GIỮA dải, không ở mép.
+    NutVan("dinhGia.heSoSigma", 0.70, 1.30, 0.05,
+           "nhân vào σ trước khi tính z; 1,0 là không đổi"),
     NutVan("nanLai.heSoGiamChan", 0.30, 1.00, 0.05,
            "đi bao nhiêu phần đường mà bảng hiệu chỉnh chỉ ra"),
 ]

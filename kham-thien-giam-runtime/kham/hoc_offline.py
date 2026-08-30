@@ -71,6 +71,7 @@ LAT_CAT = (240.0, 180.0, 120.0, 60.0)
 #: Nó VẪN đo được, bằng thước khác: vòng tiến hoá ngày chấm bằng LÃI LỖ
 #: trên băng, và băng có khung ở mọi τ kể cả sát 0.
 NUT_MO_HINH = ("dinhGia.bienDongCuaSoGiay",
+                "dinhGia.heSoSigma",
                "dinhGia.matPhangCanKetQua", "nanLai.heSoGiamChan")
 
 CHIA_HOC, CHIA_CHON = 0.50, 0.75
