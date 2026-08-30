@@ -218,10 +218,35 @@ song = []
 for i, moi, nhan in ca:
     ds = list(dong)
     ds[i] = moi
-    if not _ghi(F, "".join(ds)):
+    moi_tho = "".join(ds)
+    if not _ghi(F, moi_tho):
         print(f"  DỪNG ở dòng {i + 1}: không ghi nổi bản đột biến.")
         _tra_lai()
         sys.exit(4)
+
+    # ── CHỨNG rằng con đột biến THẬT SỰ nằm trên đĩa ─────────────────
+    #
+    # Ai đó khác đụng vào file giữa lúc quét thì kết quả thành RÁC, và
+    # rác theo chiều nguy nhất: nếu file bị trả về bản GỐC thì bài kiểm
+    # xanh và con đột biến bị đếm là SỐNG; nếu bị để lại bản đột biến
+    # của lượt trước thì bài kiểm đỏ và con này bị đếm là CHẾT.
+    #
+    # Đã xảy ra thật 30/08/2026: một lượt quét `vong.py` chạy trong khi
+    # tôi `git rebase --autostash` để commit việc khác. Autostash cất
+    # rồi trả lại file giữa chừng, và lượt quét ấy báo 16/50 sống.
+    # Quét lại khi cây yên tĩnh: 41/50. Con số đầu KHÔNG phải một phép
+    # đo, nó là một tai nạn — và nó lệch về phía TRÔNG ĐẸP HƠN.
+    try:
+        tren_dia = io.open(F, encoding="utf-8").read()
+    except OSError:
+        tren_dia = None
+    if tren_dia != moi_tho:
+        print()
+        print(f"  DỪNG ở dòng {i + 1}: file trên đĩa KHÔNG phải bản")
+        print("  đột biến vừa ghi — có thứ khác đang đụng vào nó (git,")
+        print("  trình soạn, một phiên khác). Mọi con số từ đây sẽ là rác.")
+        _tra_lai()
+        sys.exit(8)
     try:
         r, out = _chay()
     finally:

@@ -1159,6 +1159,7 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/hoc_offline.py 22 con: 15 chết, 7 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chay_lai.py  21 con: 9 chết, 12 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/do_thi.py   9 con: 9 chết, 0 sống
+    python scripts/quet-dot-bien.py --file=kham/vong.py    50 con: 9 chết, 41 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chien_thuat.py 22 con: 12 chết, 10 tương đương
     python scripts/quet-dot-bien.py --file=kham/do_tre.py   26 con: 13 chết, 13 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/dongho.py    7 con: 7 chết, 0 sống
@@ -1173,7 +1174,20 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/kho_doi.py   26 con: 18 chết, 8 tương đương
     # ── QUÉT ĐỘT BIẾN ────────────────────────────────────────────────
     #
-    # 24 module · 443 con · 275 chết (62%) · 168 còn sống.
+    # 25 module · 493 con · 284 chết (58%) · 209 còn sống.
+    #
+    # ⚠ Con số của `vong.py` TỪNG được ghi là 16 sống. SAI: lượt quét ấy
+    # chạy trong khi một lệnh `git rebase --autostash` cất rồi trả lại
+    # file giữa chừng, nên nhiều lượt chấm chạy trên một file KHÔNG phải
+    # file bộ quét tưởng. Chiều lệch là chiều NGUY: file mang đột biến
+    # của lượt trước thì bài kiểm đỏ, và con đang xét bị đếm là CHẾT —
+    # tức tai nạn ấy làm phiếu điểm ĐẸP LÊN. Quét lại khi cây yên tĩnh:
+    # 41 sống, và danh sách 41 con chứa TRỌN danh sách 16 con cũ.
+    #
+    # Bộ quét nay tự chứng: ghi con đột biến xong thì ĐỌC LẠI đĩa và đối
+    # chiếu từng byte; khác thì dừng với mã 8. Lời dặn trong văn xuôi
+    # (`ĐỪNG chạy git trong lúc quét`) đã có sẵn ở đầu file ấy và không
+    # giữ được gì.
     #
     # Lượt 30/08 trên  (1 chết/22 sống → 15/7) tìm ra
     # HAI lỗi thật, không chỉ hạ con số: mép trên của dải tìm không bao
