@@ -5,6 +5,7 @@
     python scripts/gia-thuyet.py --khai <mã> --hoi "..." --doan "..." \\
         --do "..." --truong kyVongR --toan ">" --gia 0 --mau 20
     python scripts/gia-thuyet.py --chot <mã> --so '{"kyVongR":0.11,"mau":26}'
+    python scripts/gia-thuyet.py --chu-thich <mã> --chu "bối cảnh phát sinh sau"
 
 Ba lệnh, và thứ tự của chúng là cả điểm của công cụ. `--tra` chạy TRƯỚC khi dựng
 một phép đo mới; `--khai` chạy TRƯỚC khi đo; `--chot` chạy SAU. Đảo thứ tự thì
@@ -15,6 +16,12 @@ VÌ SAO KHÔNG CÓ `--sua`
 Sửa một bản khai sau khi đã thấy số là toàn bộ thứ sổ này sinh ra để chặn. Cần
 đổi dự đoán thì khai một mã MỚI và nói rõ trong `--hoi` là nó thay cho mã cũ —
 để cả hai cùng nằm trong sổ, và người đọc sau thấy được là đã có một lần đổi ý.
+
+`--chu-thich` KHÔNG phải cửa sau của `--sua`. Nó nối thêm BỐI CẢNH — thứ phát
+sinh sau lúc khai và không phải dự đoán. Ca thật: bản khai
+«keo-lui-short-tien-tuong» quên ghi KHUNG, và làn demo chạy hai giờ đầu trên
+khung đã bị bác bỏ. Không sửa được bản khai, mà im thì người đọc sổ về sau chỉ
+thấy một phép đo sạch sẽ.
 """
 from __future__ import annotations
 
@@ -82,6 +89,16 @@ def main() -> int:
         if r["phanQuyet"] == "BÁC_BỎ":
             print("Kết quả ÂM đã được cất. Đây là thứ đắt nhất vừa mua được — "
                   "lượt sau tra ra nó là tiết kiệm nguyên một phép đo.")
+        return 0
+
+    if "--chu-thich" in sys.argv:
+        ma = _co("--chu-thich")
+        r = G.chu_thich(ma, _co("--chu", ""))
+        if not r["ok"]:
+            print("KHÔNG GHI ĐƯỢC:", r["viSao"])
+            return 1
+        print(f"đã nối ghi chú vào «{ma}» lúc {r['banGhi']['luc']}.")
+        print("Bản khai KHÔNG đổi — ghi chú là bản ghi riêng, nằm cạnh nó.")
         return 0
 
     if "--tra" in sys.argv:

@@ -2860,6 +2860,27 @@ async def main() -> int:
     check(not any("gt-ket" in x for x in BG24._gia_thuyet_ket()),
           "giả thuyết đã chốt → không còn là chỗ kẹt")
 
+    # GHI CHÚ THÊM: bản khai bất biến, nhưng BỐI CẢNH thì tích tụ sau lúc khai.
+    # Ca thật 30/08: bản khai «keo-lui-short-tien-tuong» quên ghi KHUNG và làn
+    # demo chạy hai giờ đầu trên khung đã bị bác bỏ. Không sửa được bản khai, mà
+    # im thì người đọc sổ về sau chỉ thấy một phép đo sạch sẽ.
+    _ct24 = _G24.chu_thich("gt-ket", "bối cảnh phát sinh sau")
+    check(_ct24.get("ok"), f"chu_thich() nhận ghi chú: {_ct24.get('viSao') or 'ok'}")
+    check(_ct24["banGhi"]["loai"] == "chu-thich"
+          and _ct24["banGhi"].get("dauBanKhai"),
+          "ghi chú là bản ghi RIÊNG, có neo tới vân tay bản khai")
+    _sau24 = next(x for x in _G24.doc() if x.get("ma") == "gt-ket")
+    check(_sau24.get("duDoan") == _k24["banKhai"].get("duDoan")
+          and _sau24.get("dau") == _k24["banKhai"].get("dau"),
+          "bản khai KHÔNG đổi sau khi ghi chú — dự đoán và vân tay giữ nguyên")
+    check(not _G24.chu_thich("khong-co-that", "x")["ok"],
+          "ghi chú cho mã không tồn tại ⇒ từ chối")
+    check(not _G24.chu_thich("gt-ket", "   ")["ok"],
+          "ghi chú rỗng ⇒ từ chối, không ghi một bản trống vào sổ")
+    _src24 = ma_khong_chu_thich(ROOT / "trader" / "so_gia_thuyet.py")
+    check("def sua(" not in _src24,
+          "vẫn KHÔNG có --sua: ghi chú là cửa nối thêm, không phải cửa sau")
+
     # ── Ba chỗ cùng nói một ngưỡng phải cùng một số ──
     #
     # `web/app.js`, `Runtime` và `ban-giao` đều quyết định "bao nhiêu lượt đứng

@@ -207,6 +207,33 @@ def chot(ma: str, do_duoc: dict, ghi_chu: str = "") -> dict:
     return {"ok": True, "phanQuyet": pq, "moTa": mo_ta, "banChot": b}
 
 
+def chu_thich(ma: str, chu: str) -> dict:
+    """GHI CHÚ THÊM vào một bản khai — không sửa nó, chỉ nối vào sau.
+
+    Bản khai bất biến là đúng: sửa dự đoán sau khi thấy số là toàn bộ thứ sổ này
+    sinh ra để chặn. Nhưng BỐI CẢNH thì vẫn tích tụ sau lúc khai, và nó không
+    phải dự đoán.
+
+    Ca thật, 30/08: bản khai «keo-lui-short-tien-tuong» không ghi KHUNG, và làn
+    demo chạy hai giờ đầu trên khung 4h — đúng cái khung mà chính bộ luật ấy đã
+    bị bác bỏ. Không sửa được bản khai, mà cũng không được im: người đọc sổ về
+    sau phải thấy chuyện đó nằm cạnh bản khai chứ không nằm trong một lời commit.
+
+    Ghi chú KHÔNG đổi phán quyết và không đổi vân tay bản khai. Nó là một bản
+    ghi riêng, có mốc thời gian riêng, nối vào sổ append-only như mọi bản khác.
+    """
+    ds = doc()
+    b_khai = next((x for x in ds if x.get("ma") == ma and x.get("loai") == "khai"), None)
+    if not b_khai:
+        return {"ok": False, "viSao": f"chưa có bản khai «{ma}»"}
+    if not (chu or "").strip():
+        return {"ok": False, "viSao": "ghi chú rỗng"}
+    b = {"loai": "chu-thich", "ma": ma, "luc": _gio(),
+         "dauBanKhai": b_khai.get("dau"), "chuThich": chu.strip()}
+    store.append(store.GIA_THUYET, b)
+    return {"ok": True, "banGhi": b}
+
+
 def doc() -> list[dict]:
     """Ghép khai với chốt thành từng giả thuyết trọn vẹn."""
     ds = store.read_all(store.GIA_THUYET)
