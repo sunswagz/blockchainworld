@@ -4250,10 +4250,26 @@ def kiem_chan_doan_he() -> None:
                               "keToan": {"soCuaSoMuBoQuaTong": 0,
                                          "gioMuBoQuaTong": 0.0}})
              if x.ma == "ty-thu-bang-khong"]
-    kiem("không cửa sổ nào bị bỏ thì câu chẩn LOẠI cách đọc ấy đi",
+    kiem("không cửa sổ nào bị bỏ VÀ chạy liền mạch thì LOẠI cách đọc ấy",
          "đã LOẠI" in _tMu0[0].moTa,
          f"{_tMu0[0].moTa[-200:]} — gạch bớt một khả năng là thứ giúp "
          f"người đọc quyết định; liệt kê ba khả năng mãi thì không")
+    # Nhưng bằng chứng ấy chỉ phủ NỬA câu. `soCuaSoMuBoQua` đếm cửa sổ bỏ
+    # vì TY MÙ; cửa sổ mất vì KHỞI ĐỘNG LẠI đi đường khác — `nap()` đặt
+    # `keToanLucGiay` thẳng về bây giờ — nên không được đếm ở đâu. Tuyên
+    # «đã LOẠI» khi có khởi động lại là đóng đúng hướng điều tra còn mở.
+    _tMuKd = [x for x in _cdh({**_anhThu0(),
+                               "keToan": {"soCuaSoMuBoQuaTong": 0,
+                                          "gioMuBoQuaTong": 0.0},
+                               "luuDanhMuc": {"soLanKhoiDong": 8,
+                                              "tongGiayTatMay": 174.0}})
+              if x.ma == "ty-thu-bang-khong"]
+    kiem("0 cửa sổ mù NHƯNG có khởi động lại thì KHÔNG được nói «đã LOẠI»",
+         ("đã LOẠI" not in _tMuKd[0].moTa
+          and "vẫn còn mở" in _tMuKd[0].moTa
+          and "8 lần" in _tMuKd[0].moTa),
+         f"{_tMuKd[0].moTa[-260:]} — một bằng chứng phủ được nửa câu mà "
+         f"tuyên là phủ cả câu thì tệ hơn không có bằng chứng nào")
     kiem("ảnh chụp CŨ không có trường ấy thì im, không nói bừa cả hai chiều",
          ("ĐÃ bỏ hẳn" not in _t0[0].moTa and "đã LOẠI" not in _t0[0].moTa),
          f"{_t0[0].moTa[-200:]} — thiếu số thì chưa loại được gì, và "
@@ -12170,6 +12186,118 @@ def kiem_moi_module_nhap_duoc() -> None:
          "đang canh một thư mục rỗng")
 
 
+def kiem_vong_nhip() -> None:
+    """Nhịp của vòng chạy: chỗ QUÉT LẠI, và hai bảng nhịp đọc từ nguồn.
+
+    Quét toàn bộ `bac/vong.py` bằng phép đột biến: **29 trên 30 chỗ sống
+    sót**. Phần lớn nằm trong `mot_vong()` — một coroutine gọi mạng thật,
+    khó chạm mà không dựng cả một sàn giả. Nhưng ba chỗ dưới đây thì
+    thuần tuý, và chúng đứng ngay trên đường tiền:
+
+      · lớp bọc nhịp có phép kiểm cho nhánh BỎ QUA, không có cho nhánh
+        QUÉT LẠI — nên một `<` đổi thành `<=`, hay tệ hơn, một nhịp
+        không bao giờ hết hạn, vẫn qua sạch bộ kiểm. Ty ngừng quét mà
+        mọi bảng vẫn xanh, đúng thứ lớp bọc này sinh ra để tránh;
+      · `_hen_do_dong_ho` quyết khi nào thử đo lệch đồng hồ lại. Đo hỏng
+        mà vẫn khoá trọn năm phút thì runtime chạy trên giờ MÁY chưa bù,
+        và mọi phép ĐẾM MỐC funding lệch theo;
+      · `_co_von_cac_ty` đọc cỡ vốn THẲNG từ config của các ty. Chép tay
+        thì nó lệch đúng vào ngày ai đó đổi `moiCoHoiUsd`, và lệch im
+        lặng — trượt kho báo giá cầu chỉ hiện ra dưới dạng «tuyến không
+        đo được».
+
+    Cấy lỗi ngược để đo chính bốn phép kiểm này: nhịp không bao giờ hết
+    hạn — CHẾT; `or (500.0,)` thành `and` — CHẾT; bỏ `sorted` — CHẾT; bỏ
+    nhánh «đo hỏng thì hẹn sớm» — CHẾT.
+
+    Còn `(now - _lanCuoi) < _nhip` đổi thành `<=` thì SỐNG, và nó là đột
+    biến TƯƠNG ĐƯƠNG: hai vế chỉ khác nhau tại đúng điểm bằng nhau, mà
+    `now` đọc từ `time.monotonic()` ngay tại đó nên không lượt chạy nào
+    rơi trúng. Ghi ra đây để lượt quét sau không đi săn một phép kiểm
+    không tồn tại.
+    """
+    print("\n-- VONG CHAY: nhip quet lai, hen do dong ho, co von ------")
+    import time as _tv
+
+    from bac.vong import NHIP_DO_DONG_HO_GIAY, Runtime, _NhipRieng
+    from thi_bac_ty.khuon_ty import Ty
+
+    class _TyDem(Ty):
+        ma, ho = "lending.rate_rotation.v1", "tin-dung"
+        moTa = "ty đếm số lần bị hỏi, dùng cho phép kiểm nhịp"
+        vonToiThieuKinhTeUsd = 1.0
+
+        def __init__(self):
+            super().__init__()
+            self.lan = 0
+
+        def quet(self):
+            self.lan += 1
+            return [{"lan": self.lan}]
+
+        def xet(self, co):
+            return True, []
+
+        def trinh(self, co):
+            return co
+
+    # ── nhánh QUÉT LẠI: hết nhịp thì hỏi ty lần nữa ────────────────────
+    g = _TyDem()
+    b = _NhipRieng(g, 60.0)
+    b.quet()
+    kiem("lượt đầu luôn quét thật, dù nhịp có dài bao nhiêu",
+         g.lan == 1 and b.soLuotBoQua == 0,
+         f"lan={g.lan} — `_lanCuoi` khởi tạo 0.0; đọc nó như một mốc "
+         f"thật thì lượt đầu rơi vào nhánh bỏ qua và ty không bao giờ "
+         f"quét được lần nào")
+    b.quet()
+    kiem("chưa hết nhịp thì KHÔNG hỏi lại", g.lan == 1 and b.soLuotBoQua == 1)
+    b._lanCuoi = _tv.monotonic() - 61.0
+    ra = b.quet()
+    kiem("HẾT nhịp thì hỏi lại, và trả kết quả MỚI",
+         g.lan == 2 and b.soLuotBoQua == 1 and ra == [{"lan": 2}],
+         f"lan={g.lan} boQua={b.soLuotBoQua} ra={ra} — không có phép kiểm "
+         f"cho nhánh này thì một nhịp không bao giờ hết hạn vẫn qua sạch, "
+         f"và ty ngừng quét trong khi mọi bảng vẫn xanh")
+    kiem("và mốc được đẩy lên, không quét lại ngay lượt sau",
+         b.quet() == [{"lan": 2}] and g.lan == 2)
+
+    # ── hẹn đo đồng hồ: hỏng thì thử lại SỚM ───────────────────────────
+    class _RtGia(Runtime):
+        def __init__(self):
+            self._doDongHoHong = False
+
+    r = _RtGia()
+    kiem("đo được thì giữ nhịp thường",
+         r._hen_do_dong_ho() == NHIP_DO_DONG_HO_GIAY,
+         f"{r._hen_do_dong_ho()} vs {NHIP_DO_DONG_HO_GIAY}")
+    r._doDongHoHong = True
+    kiem("đo HỎNG thì hẹn lại sau 30 giây, không khoá trọn nhịp thường",
+         r._hen_do_dong_ho() == 30.0 and 30.0 < NHIP_DO_DONG_HO_GIAY,
+         f"{r._hen_do_dong_ho()} — khoá trọn nhịp thì lỗi báo đúng một "
+         f"lần rồi im, và runtime chạy tiếp trên giờ MÁY chưa bù trong "
+         f"khi bảng không nói gì")
+
+    # ── cỡ vốn đọc THẲNG từ config các ty ──────────────────────────────
+    cv = Runtime._co_von_cac_ty()
+    that = set()
+    for m in ("tin_dung.config", "lai_suat.ty_lai_suat",
+              "on_dinh.ty_on_dinh", "lp_amm.ty_cap_thanh_khoan"):
+        that.add(float(__import__(m, fromlist=["CONFIG"])
+                       .CONFIG["von"]["moiCoHoiUsd"]))
+    kiem("cỡ vốn hỏi kho báo giá cầu KHỚP config các ty, không chép tay",
+         set(cv) == that and len(cv) == len(that),
+         f"{cv} vs {sorted(that)} — lệch thì kho trượt, và trượt kho chỉ "
+         f"hiện ra dưới dạng «tuyến không đo được»")
+    kiem("và nó đã SẮP XẾP, để kho tra được bằng khoá ổn định",
+         list(cv) == sorted(cv), str(cv))
+    kiem("bốn mô-đun ấy đều nhập được, nên đây KHÔNG phải giá trị lùi",
+         len(cv) >= 2 and cv != (500.0,),
+         f"{cv} — `(500.0,)` là lối lùi khi không đọc được config nào; "
+         f"nhận nó ở đây nghĩa là bốn phép nhập trên đã hỏng và phép "
+         f"kiểm này đang canh một cái vỏ")
+
+
 def kiem_moc_qua() -> None:
     """Kế toán funding phải đếm mốc ĐÃ RƠI, không mốc SẮP TỚI.
 
@@ -12814,6 +12942,7 @@ def main() -> int:
     kiem_ranh_gioi_ke_toan()
     kiem_moc_qua()
     kiem_cua_so_mu()
+    kiem_vong_nhip()
 
     print("\n" + "=" * 70)
     if _loi:

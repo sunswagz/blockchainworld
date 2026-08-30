@@ -507,8 +507,8 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
         # «rơi vào một cửa sổ bị vứt» là một giả thuyết không kiểm được,
         # nên nó nằm ngang hàng với hai cách đọc kia và không ai chọn
         # được. Nay vòng mù GIỮ LẠI cửa sổ cho vòng sau đo bù, và chỗ bị
-        # bỏ hẳn thì được đếm — nên nếu con số ấy bằng 0, cách đọc thứ
-        # ba đã bị LOẠI, không còn phải cân nhắc.
+        # bỏ hẳn thì được đếm — nên con số ấy bằng 0 gạch được cách đọc
+        # thứ ba, NHƯNG chỉ khi máy chạy liền một mạch: xem nhánh dưới.
         _kt0 = anh.get("keToan") or {}
         _mbq = _kt0.get("soCuaSoMuBoQuaTong")
         _gbq = _kt0.get("gioMuBoQuaTong")
@@ -518,9 +518,19 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             vi_mu = (f" Cỗ máy ĐÃ bỏ hẳn {_mbq} cửa sổ kế toán "
                      f"({_gbq:.2f} giờ) vì mù quá lâu — cách đọc thứ ba "
                      f"có bằng chứng, hãy xem trước.")
+        elif n_kd > 1:
+            # KHÔNG được nói «đã LOẠI» ở đây, dù con số bằng 0.
+            # `soCuaSoMuBoQua` chỉ đếm cửa sổ bỏ vì TY MÙ. Cửa sổ mất vì
+            # KHỞI ĐỘNG LẠI đi đường khác — `nap()` đặt `keToanLucGiay`
+            # thẳng về bây giờ — nên nó không được đếm ở đâu cả. Một bằng
+            # chứng phủ được NỬA câu mà tuyên là phủ cả câu thì tệ hơn
+            # không có bằng chứng nào: nó đóng đúng hướng còn đang mở.
+            vi_mu = (f" KHÔNG cửa sổ nào bị bỏ vì ty mù — nhưng con số ấy "
+                     f"KHÔNG phủ được cửa sổ mất vì khởi động lại, và ở "
+                     f"đây có {n_kd} lần. Cách đọc thứ ba vẫn còn mở.")
         else:
-            vi_mu = (" KHÔNG cửa sổ kế toán nào bị bỏ, nên cách đọc thứ "
-                     "ba đã LOẠI: quãng mù đều được vòng sau đo bù.")
+            vi_mu = (" KHÔNG cửa sổ kế toán nào bị bỏ, và máy chạy liền "
+                     "một mạch, nên cách đọc thứ ba đã LOẠI.")
         ra.append(TrieuChungHe(
             "ty-thu-bang-khong", 2,
             f"ty {ma} chạy {vg:,.0f} vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây "
