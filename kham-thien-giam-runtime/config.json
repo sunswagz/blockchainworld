@@ -48,6 +48,7 @@
   "phi": {
     "makerBps": 0,
     "takerHeSo": 0.07,
+    "takerSoMu": 1,
     "truotGiaBps": 8,
     "leChonNhoNhat": 0.001
   },

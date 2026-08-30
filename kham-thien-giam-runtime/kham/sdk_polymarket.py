@@ -71,6 +71,38 @@ class AdapterPolymarket:
         giải market sang token id và chọn loại lệnh (GTC/FOK/GTD) tuỳ luật
         của từng market — thay vì đoán một mặc định rồi gửi tiền thật đi theo
         phỏng đoán đó.
+
+        ## BA SỰ THẬT VẬN HÀNH — đọc trước khi viết một dòng nào ở đây
+
+        Đối chiếu docs.polymarket.com ngày 30/08/2026 (trang tài liệu vào
+        được trong khi API bị chặn TLS). Ba thứ dưới đây KHÔNG suy ra
+        được từ mã hiện có, và mỗi thứ đều làm hỏng lệnh thật theo một
+        kiểu im lặng khác nhau:
+
+        **1. HTTP 425 (Too Early) không phải lỗi.** Trong lúc sàn khởi
+        động lại, MỌI endpoint liên quan tới lệnh trả 425. Coi nó là lỗi
+        vĩnh viễn thì bot tự tắt giữa phiên; coi nó là thất bại của lệnh
+        thì bot đặt lại một lệnh có thể đã vào. Phải lùi theo cấp số
+        nhân, bắt đầu 1–2 giây.
+
+        **2. Sau MỖI lần khởi động lại, sàn chỉ nhận POST-ONLY trong 2
+        phút.** Lệnh không `postOnly` bị TỪ CHỐI. Với khung 5 phút thì
+        hai phút ấy là 40% một cửa sổ — mọi chiến thuật vượt spread
+        (`lech-gia`, `cap-tuc-thi`) đứng hình trong quãng đó, và chỉ
+        `tao-lap` còn đặt được. Bot phải BIẾT mình đang ở trong quãng ấy
+        chứ không phải đoán qua chuỗi lệnh bị từ chối.
+
+        **3. `orderMinSize` là của TỪNG market**, đọc từ
+        `market.trading` chứ không phải một hằng số. Cổng 11 hiện chặn
+        ở "dưới 1 cổ" — một con số ta tự nghĩ ra, không phải luật của
+        sàn. Lệnh dưới ngưỡng thật bị CLOB từ chối.
+
+        Và một thứ nữa, không phải bẫy mà là tiền bỏ quên: biểu phí có
+        `rebateRate` (crypto 20% phí taker trả lại cho maker). Ta đang
+        tính phí maker bằng 0 và KHÔNG tính khoản hoàn — tức là ước
+        THIẾU thu nhập của chiến thuật `tao-lap`. Lệch chiều an toàn,
+        nhưng nó làm `tao-lap` trông tệ hơn thực khi so với các ngón
+        khác.
         """
         raise NotImplementedError(
             "Đường đặt lệnh thật cố ý dừng ở đây cho tới khi băng ghi đủ dài "

@@ -242,6 +242,16 @@ def kiem_can_loi() -> None:
                if abs(round(phi_taker(g, 100.0), 2) - m) > 0.005]
     kiem("khớp TOÀN BỘ bảng phí chính thức (Crypto, 100 cổ)",
          not lechPhi, lechPhi)
+    # Ba sự thật vận hành đối chiếu từ tài liệu phải nằm ĐÚNG CHỖ người
+    # sẽ nối sàn đọc. Đây là chỗ duy nhất phép kiểm dò chữ là đúng việc:
+    # thứ đang canh CHÍNH LÀ một đoạn văn phải có mặt.
+    _goc = Path(__file__).resolve().parent.parent
+    _sdk = (_goc / "kham" / "sdk_polymarket.py").read_text(encoding="utf-8")
+    _thieu = [x for x in ("425", "postOnly", "orderMinSize", "rebateRate")
+              if x not in _sdk]
+    kiem("adapter sàn ghi đủ ba bẫy vận hành + khoản hoàn maker",
+         not _thieu, _thieu)
+
     kiem("và maker KHÔNG bị thu phí — tài liệu nói thẳng",
          gan(phi_maker(0.5, 1000.0), 0.0), phi_maker(0.5, 1000.0))
     # Độ chính xác: làm tròn 5 chữ số, dưới 0,00001 USDC thì về 0.

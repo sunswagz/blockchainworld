@@ -97,7 +97,16 @@ def phi_taker(gia: float, soCo: float) -> float:
     if soCo <= 0:
         return 0.0
     p = min(max(gia, 0.0), 1.0)
-    ph = float(_PHI["takerHeSo"]) * p * (1.0 - p) * soCo
+    # `exponent` là một trường THẬT của biểu phí (`market.trading.
+    # feeSchedule`), không phải thứ ta thêm vào cho đẹp. Tài liệu ghi
+    # "exponent applied to the price component". Mọi hạng mục đang khai
+    # đều dùng 1, nên mặc định 1 và giữ nguyên hành vi — nhưng có nó thì
+    # ngày sàn đổi mũ, chỗ phải sửa là CONFIG chứ không phải công thức.
+    mu = float(_PHI.get("takerSoMu", 1.0))
+    canGia = p * (1.0 - p)
+    if mu != 1.0:
+        canGia = canGia ** mu
+    ph = float(_PHI["takerHeSo"]) * canGia * soCo
     ph = round(ph, 5)
     return ph if ph >= 1e-5 else 0.0
 
