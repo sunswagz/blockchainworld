@@ -1172,6 +1172,137 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_chien_thuat() -> None:
+    """Biên của NĂM NGÓN NGHỀ — 19 trên 22 con sống sót lượt đầu.
+
+    Mỗi ngón có một cửa riêng, và cửa ấy quyết nó có nói gì trong một
+    khung hay câm suốt. Một biên sai ở đây không báo lỗi: ngón nghề chỉ
+    im, và không ai biết nó im vì đúng hay vì hỏng.
+
+    Ngón `can-ket-qua` là ngón nguy hiểm nhất — nó mua ở 80–99c, nơi
+    "một lần sai xoá ~9 lần thắng". Ba cửa của nó phải chốt chặt:
+    mô hình ≥ 90%, chợ chưa hết hàng (< 99,5c), và chợ ĐỒNG Ý (≥ 80c).
+
+    ## Sau khi viết xong: 22 con → 7 CHẾT, 15 CÒN NỢ
+
+    Đã canh trọn `can-ket-qua` (ba cửa trong, hai cửa ngoài, và ghi chú
+    đuôi lệch) và hai cửa của `tao-lap`. Mười lăm con còn lại nằm ở
+    `cap_theo_thoi`, `cap_tuc_thi` và `dinh_huong_phong_ho` — ba ngón
+    cần dựng một `CapSo` hai sổ kèm tồn kho lệch sẵn. Làm được, chưa
+    làm, và ghi ra đây để nó là một món nợ có tên.
+
+    Một chi tiết đáng nhớ: điều kiện `sp < 0,005` nghĩa là spread ĐÚNG
+    BẰNG 0,005 thì VẪN yết — "hẹp quá thì thôi", mà đúng bằng mức tối
+    thiểu chưa phải là hẹp quá. Bản đầu của phép kiểm này đọc ngược, và
+    nó đỏ lên đúng lúc.
+
+    Và lần thứ tư phải đi tìm số nhị phân chính xác: quanh 0,50 KHÔNG
+    có cặp giá nào cho hiệu đúng bằng `float(0.005)` — `0,50 − 0,495`
+    ra 0,005000000000000004. Dò ra được ở 0,0078125 / 0,0028125.
+    """
+    print()
+    print("-- Bien cua NAM NGON NGHE ----------------------------------")
+    from kham.chien_thuat import BoiCanh as _BC8
+    from kham.chien_thuat import can_ket_qua as _ckq
+    from kham.chien_thuat import tao_lap as _tl8
+    from kham.dinh_gia import GiaChuan as _GC8
+    from kham.dongho import CAN_KET_QUA as _CKQ8
+    from kham.dongho import GIUA_KHUNG as _GK8
+    from kham.dongho import LatCat as _LC8
+    from kham.kho_doi import Kho as _K8
+    from kham.so_lenh import Muc as _M8
+    from kham.so_lenh import SoLenh as _S8
+
+    def _bc(pUp=0.95, askUp=0.90, giaiDoan=_CKQ8, batDinh=0.02,
+            conLai=10.0):
+        gc = _GC8(ma="X", pUp=pUp, pDown=1.0 - pUp, batDinh=batDinh,
+                  batDinhThamSo=batDinh, ruiRoNhay=0.0, z=0.0,
+                  sigmaGiay=1e-5, tauGiay=conLai, tauDungSan=False,
+                  daMatPhang=False, giaHienTai=1.0, giaMo=1.0,
+                  oHieuChinh="90-100")
+        su = _S8(ma="X", ben="UP", bid=[_M8(askUp - 0.01, 500.0)],
+                 ask=[_M8(askUp, 500.0)], nhanLucMs=0.0)
+        sd = _S8(ma="X", ben="DOWN", bid=[_M8(0.05, 500.0)],
+                 ask=[_M8(0.08, 500.0)], nhanLucMs=0.0)
+        lc = _LC8(conLaiGiay=conLai, tongGiay=300.0, giaiDoan=giaiDoan,
+                  troiQuaPct=90.0, lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
+        return _BC8(ma="X", gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                    viThe=_K8().lay("X"))
+
+    # ── ba cửa của `can-ket-qua` ─────────────────────────────────────
+    kiem("mô hình ĐÚNG 90% → cửa mở", _ckq(_bc(pUp=0.90)),
+         len(_ckq(_bc(pUp=0.90))))
+    kiem("mô hình 89,9% → CÂM", not _ckq(_bc(pUp=0.899)))
+    kiem("chợ bán ở ĐÚNG 99,5c → CÂM, không còn gì để ăn",
+         not _ckq(_bc(askUp=0.995)))
+    kiem("chợ bán ở 99,4c → còn ăn được", _ckq(_bc(askUp=0.994)))
+    kiem("chợ bán ở ĐÚNG 80c → chợ ĐỒNG Ý, cửa mở",
+         _ckq(_bc(askUp=0.80)))
+    kiem("chợ bán ở 79,9c → CÂM: chênh quá lớn để là sai giá",
+         not _ckq(_bc(askUp=0.799)))
+
+    # ── và hai cửa vòng ngoài ────────────────────────────────────────
+    kiem("giai đoạn GIỮA KHUNG → ngón này CÂM",
+         not _ckq(_bc(giaiDoan=_GK8)))
+    kiem("mô hình KHÔNG rõ ràng (bất định lớn) → CÂM",
+         not _ckq(_bc(batDinh=0.50)))
+
+    # ── ghi chú ĐUÔI LỆCH phải có, vì đó là cả rủi ro của ngón này ──
+    ds = _ckq(_bc(pUp=0.95, askUp=0.90))
+    kiem("mỗi đề xuất mang ghi chú ĐUÔI LỆCH",
+         ds and any("đuôi lệch" in x for x in ds[0].ghiChu), ds[0].ghiChu)
+
+    # ── `tao-lap`: cửa giai đoạn và cửa spread ──────────────────────
+    def _bcTL(spread=0.02, giaiDoan=_GK8):
+        gc = _GC8(ma="X", pUp=0.5, pDown=0.5, batDinh=0.02,
+                  batDinhThamSo=0.02, ruiRoNhay=0.0, z=0.0,
+                  sigmaGiay=1e-5, tauGiay=180.0, tauDungSan=False,
+                  daMatPhang=False, giaHienTai=1.0, giaMo=1.0,
+                  oHieuChinh="50-60")
+        su = _S8(ma="X", ben="UP", bid=[_M8(0.50 - spread, 500.0)],
+                 ask=[_M8(0.50, 500.0)], nhanLucMs=0.0)
+        sd = _S8(ma="X", ben="DOWN", bid=[_M8(0.50 - spread, 500.0)],
+                 ask=[_M8(0.50, 500.0)], nhanLucMs=0.0)
+        lc = _LC8(conLaiGiay=180.0, tongGiay=300.0, giaiDoan=giaiDoan,
+                  troiQuaPct=40.0, lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
+        return _BC8(ma="X", gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                    viThe=_K8().lay("X"))
+
+    kiem("`tao-lap` chạy ở GIỮA KHUNG", _tl8(_bcTL()))
+    kiem("nhưng CÂM ở CẬN KẾT QUẢ — sổ quá loạn lúc cuối",
+         not _tl8(_bcTL(giaiDoan=_CKQ8)))
+    # Chạm biên 0,005 tới TỪNG BIT. Quanh 0,50 không có cặp giá nào cho
+    # hiệu ĐÚNG bằng `float(0.005)` — `0,50 − 0,495` ra
+    # 0,005000000000000004. Dò ra được ở 0,0078125 / 0,0028125.
+    def _bcTL2(ask, bid, giaiDoan=_GK8):
+        gc = _GC8(ma="X", pUp=0.5, pDown=0.5, batDinh=0.02,
+                  batDinhThamSo=0.02, ruiRoNhay=0.0, z=0.0,
+                  sigmaGiay=1e-5, tauGiay=180.0, tauDungSan=False,
+                  daMatPhang=False, giaHienTai=1.0, giaMo=1.0,
+                  oHieuChinh="50-60")
+        su = _S8(ma="X", ben="UP", bid=[_M8(bid, 500.0)],
+                 ask=[_M8(ask, 500.0)], nhanLucMs=0.0)
+        sd = _S8(ma="X", ben="DOWN", bid=[_M8(bid, 500.0)],
+                 ask=[_M8(ask, 500.0)], nhanLucMs=0.0)
+        lc = _LC8(conLaiGiay=180.0, tongGiay=300.0, giaiDoan=giaiDoan,
+                  troiQuaPct=40.0, lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
+        return _BC8(ma="X", gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                    viThe=_K8().lay("X"))
+
+    kiem("dựng được spread ĐÚNG BẰNG 0,005 tới từng bit",
+         (0.0078125 - 0.0028125) == 0.005,
+         repr(0.0078125 - 0.0028125))
+    # Điều kiện là `sp < 0,005` thì CÂM — nên đúng bằng 0,005 là VẪN
+    # yết. Ngưỡng khai là "hẹp quá thì thôi", và đúng bằng mức tối
+    # thiểu chưa phải là hẹp quá.
+    kiem("spread ĐÚNG BẰNG 0,005 → VẪN yết, chưa phải hẹp quá",
+         _tl8(_bcTL2(0.0078125, 0.0028125)),
+         len(_tl8(_bcTL2(0.0078125, 0.0028125))))
+    kiem("hẹp hơn một hạt → CÂM, không còn gì để ăn",
+         not _tl8(_bcTL2(0.0078124, 0.0028125)))
+    kiem("spread 0,006 quanh 0,50 → có yết", _tl8(_bcTL(spread=0.006)))
+
+
 def kiem_bien_cua_do_tre() -> None:
     """Biên của THƯỚC ĐỘ TRỄ — 25 trên 26 con sống sót lượt đầu.
 
@@ -8335,6 +8466,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_chien_thuat()
     kiem_bien_cua_do_tre()
     kiem_bien_cua_cap_token()
     kiem_bien_cua_dong_ho()
