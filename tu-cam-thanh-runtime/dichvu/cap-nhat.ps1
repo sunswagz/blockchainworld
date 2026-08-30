@@ -28,7 +28,12 @@ $GOC = Split-Path -Parent $PSScriptRoot
 # được đẩy — dễ nhận ra. Còn "chép tất rồi trừ" mà quên trừ thì nó ĐÈ MẤT dữ
 # liệu, và không lấy lại được.
 $MA = @("trader", "scripts", "skills", "web", "dichvu", "run.py", "requirements.txt", "README.md")
-$GIU = @(".env", "data", "config.json", "dichvu\trang-thai.json", "dichvu\dung-lai")
+# LÀN DEMO cũng phải được giữ. `data-hai-chieu` là sổ của một phép đo kéo hàng
+# TUẦN; một lượt cập nhật quên nó là xoá cả phép đo, và không có gì báo — sổ chỉ
+# đơn giản bắt đầu lại từ 0 lệnh, đọc y hệt "chưa tới lúc".
+$GIU = @(".env", "data", "data-hai-chieu", "config.json", "config-hai-chieu.json",
+         "dichvu\trang-thai.json", "dichvu\trang-thai-demo.json",
+         "dichvu\dung-lai", "dichvu\dung-lai-demo")
 
 function Ok($m)  { Write-Host "  OK   $m" }
 function Loi($m) { Write-Host "  LỖI  $m"; exit 1 }
@@ -72,7 +77,8 @@ if ($Thu) { Write-Host "`n  (chế độ thử — chưa ghi gì)`n"; exit 0 }
 
 # Trạng thái chạy của bản cũ đi theo `dichvu/` là sai — nó chứa PID của tiến
 # trình khác.
-foreach ($f in @("dichvu\trang-thai.json", "dichvu\dung-lai")) {
+foreach ($f in @("dichvu\trang-thai.json", "dichvu\trang-thai-demo.json",
+                 "dichvu\dung-lai", "dichvu\dung-lai-demo")) {
   $p = Join-Path $Den $f
   if ([System.IO.File]::Exists($p)) { [System.IO.File]::Delete($p) }
 }

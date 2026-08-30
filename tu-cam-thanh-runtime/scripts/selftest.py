@@ -1179,6 +1179,15 @@ async def main() -> int:
     check('"scripts/lo-luyen.py", "--ghi", "--chi-long"' in _nt53,
           "nghi thức chạy lò luyện trong không gian CHẠY ĐƯỢC (--chi-long)")
 
+    # CẬP NHẬT phải GIỮ sổ của làn demo. Danh sách `$GIU` trong `cap-nhat.ps1`
+    # là tường minh — thêm thư mục mới mà quên sửa nó là xoá cả một phép đo kéo
+    # hàng tuần, và không có gì báo: sổ chỉ bắt đầu lại từ 0 lệnh, đọc y hệt
+    # "chưa tới lúc".
+    _cn53 = (ROOT / "dichvu" / "cap-nhat.ps1").read_text(encoding="utf-8-sig")
+    for _c53 in ("data-hai-chieu", "config-hai-chieu.json",
+                 "trang-thai-demo.json", "dung-lai-demo"):
+        check(_c53 in _cn53, f"cập nhật giữ lại `{_c53}`")
+
 
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
