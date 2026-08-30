@@ -1028,7 +1028,10 @@ SOL sống sót qua phép sửa; hai cái kia thì không.
 
 Công cụ, tất cả chỉ cần Binance — không cần chợ, không cần giả định:
 
-    scripts/hoc-tu-binance.py     dựng sổ hiệu chỉnh (7 ngày ≈ 40.000 mẫu)
+    scripts/hoc-tu-binance.py     dựng sổ hiệu chỉnh (7 ngày, BỐN chợ ≈ 160.000 mẫu)
+    scripts/thu-sigma-bien-do.py  σ pha biên độ so với σ giá đóng, hai quãng
+    scripts/thu-nan-them-coin.py  thêm coin vào phần khớp có giúp không
+    scripts/thu-dong-lenh-giay.py dòng lệnh nhịp GIÂY có thêm tin không
     scripts/tien-hoa-mo-hinh.py   vặn MỘT nút, chấm bằng Brier ngoài mẫu
     scripts/tu-nang-cap.py        lặp tới khi hết cải thiện, tự dừng
     scripts/do-tran-mo-hinh.py    còn bao nhiêu chỗ để cải thiện
@@ -1144,7 +1147,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    1594 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1602 phép kiểm số học, KHÔNG cần mạng
     python scripts/quet-dot-bien.py --file=kham/phat_lai.py  33 con: 17 chết, 16 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chan_rui_ro.py 12 con: 4 chết, 8 tương đương
     python scripts/quet-dot-bien.py --file=kham/chan_doan.py 23 con: 7 chết, 16 CÒN NỢ
@@ -1154,7 +1157,7 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/so.py        8 con: 5 chết, 3 tương đương
     python scripts/quet-dot-bien.py --file=kham/ban_thu.py   11 con: 4 chết, 7 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/hoc_offline.py 22 con: 15 chết, 7 CÒN NỢ
-    python scripts/quet-dot-bien.py --file=kham/chay_lai.py  21 con: 8 chết, 13 CÒN NỢ
+    python scripts/quet-dot-bien.py --file=kham/chay_lai.py  21 con: 9 chết, 12 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chien_thuat.py 22 con: 12 chết, 10 tương đương
     python scripts/quet-dot-bien.py --file=kham/do_tre.py   26 con: 13 chết, 13 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/dongho.py    7 con: 7 chết, 0 sống

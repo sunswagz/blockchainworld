@@ -5322,6 +5322,98 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_dong_tien_cua_thuoc_chay_lai() -> None:
+    """Đoán ĐÚNG thì được trả 1, đoán SAI thì được trả 0. Dòng tiền của cả thước.
+
+    `chay_lai.mot_luot` là THƯỚC mà cổng tiến hoá băng dùng để phán một
+    bộ tham số tốt hơn hay chỉ khác đi. Một dòng duy nhất quyết mọi con
+    số tiền của nó:
+
+        tra = 1.0 if (bool(that) == (ben == "UP")) else 0.0
+        lai = (tra - ch.vwap - ch.phi) * ch.soCo
+
+    Quét đột biến: `== → !=` SỐNG SÓT. Con ấy ĐẢO DẤU mọi khoản lãi lỗ —
+    mọi lệnh thắng thành thua và ngược lại — và không phép kiểm nào kêu.
+    Một cái thước lộn ngược vẫn cho ra hai con số để so, nên cổng vẫn
+    phán, chỉ là phán ngược.
+
+    Nên phép kiểm phải chấm CHIỀU và ĐỘ LỚN, không chỉ "có chạy được".
+
+    ## Con còn sống trong `kham/chay_lai.py`, đã phân loại
+
+    Quét 30/08/2026: 21 chỗ, 8 chết → 9 chết. Mười hai con còn lại:
+
+        dòng 268/270  và  290/292 — TƯƠNG ĐƯƠNG. Dòng ngay TRÊN mỗi cặp
+                      đã loại ca hoà bằng `abs(x − y) < 1e-12`, nên tới
+                      dòng so thì `x != y` chắc chắn và `>` với `>=`
+                      không phân biệt được.
+        dòng 245      `lai > 0` — cần lãi ĐÚNG BẰNG 0 tới từng bit, tức
+                      `1 − vwap − phi == 0`. Dựng được nhưng vô nghĩa.
+        dòng 218      `netEdge < ngưỡng` — biên bằng đúng ngưỡng; cùng
+                      hình dạng với cổng `dang_lam`, dễ thành phép kiểm
+                      RỖNG nếu hai vế là đối ngẫu (đã cắn một lần).
+        dòng 98/189/193/195/206/237 — `or`/`and` trên trị mặc định và
+                      lối vào; NỢ, cần một băng dị dạng để chạm tới.
+    """
+    print()
+    print("-- Dong tien cua thuoc chay_lai ---------------------------")
+
+    from kham.chay_lai import ThamSo, mot_luot
+
+    # TÁCH đầu vào mô hình khỏi KẾT QUẢ. Đây là chỗ mấu chốt: nếu để
+    # `giaNen` quyết cả hai thì mô hình luôn đoán trúng và cả hai băng
+    # đều lãi — phép kiểm xanh mà không phân biệt được gì.
+    #
+    # Nên giữ `giaNen` LUÔN trên strike (mô hình luôn nghiêng UP, luôn
+    # mua UP) và chỉ lật `upThang`. Sổ đặt cân ở 0,49/0,51 hai bên để
+    # không bên nào rẻ sẵn.
+    def _bang(ketQua: bool, n=6, slugChung=False):
+        sig = 0.55 / math.sqrt(365 * 24 * 3600)
+        so = {"luc": 1, "thangCho": False, "dungDuoc": True,
+              "bid": [{"gia": 0.49, "luong": 900}],
+              "ask": [{"gia": 0.51, "luong": 900}]}
+        ra = []
+        for i in range(n):
+            ra.append({"luc": 1_700_000_000_000 + i * 2000, "thiTruong": [{
+                "ma": "BTC_5M", "giaiDoan": "quan-sat",
+                "slug": ("btc-updown-5m-CHUNG" if slugChung
+                         else f"btc-updown-5m-{1000 + i}"),
+                "giaNen": 100_060, "giaMo": 100_000, "sigmaGiay": sig,
+                "conLaiGiay": 120.0, "upThang": ketQua,
+                "so": {"UP": dict(so), "DOWN": dict(so)},
+            }]})
+        return ra
+
+    ts = ThamSo("thu", 0.005, 0.005)
+    kTrung = mot_luot(_bang(True), ts)
+    kSai = mot_luot(_bang(False), ts)
+
+    kiem("cả hai băng đều khớp lệnh (đề bài đúng)",
+         kTrung.soKhop == kSai.soKhop > 0, (kTrung.soKhop, kSai.soKhop))
+    kiem("đoán TRÚNG ⇒ tổng lãi DƯƠNG", kTrung.tongLaiLo > 0,
+         kTrung.tongLaiLo)
+    kiem("đoán SAI ⇒ tổng lãi ÂM", kSai.tongLaiLo < 0, kSai.tongLaiLo)
+    kiem("đoán TRÚNG ⇒ mọi lệnh đều thắng",
+         (kTrung.soThang, kTrung.soThua) == (kTrung.soKhop, 0),
+         (kTrung.soThang, kTrung.soThua))
+    kiem("đoán SAI ⇒ mọi lệnh đều thua",
+         (kSai.soThang, kSai.soThua) == (0, kSai.soKhop),
+         (kSai.soThang, kSai.soThua))
+
+    # ĐỘ LỚN: ở chợ nhị phân, mỗi CỔ lãi tối đa +1 và lỗ tối đa −1.
+    # Không chốt con số tuyệt đối — phí và cỡ lô đều là nút vặn được.
+    for ten_, k in (("trúng", kTrung), ("sai", kSai)):
+        xau = [l for l in k.laiLoTungLenh if abs(l) > ts.loCo + 1e-9]
+        kiem(f"băng đoán {ten_}: mỗi lệnh không quá ±1 mỗi cổ",
+             not xau, xau[:3])
+
+    # Mỗi CỬA SỔ chỉ vào một lần — băng thật ghi nhịp 2 giây nên một cửa
+    # sổ 5 phút xuất hiện ~44 lần. Đây là con bọ đã cho "lãi" 2,9 triệu.
+    kMot = mot_luot(_bang(True, n=6, slugChung=True), ts)
+    kiem("sáu khung hình CÙNG một cửa sổ ⇒ vào tối đa 2 lần (UP+DOWN)",
+         kMot.soKhop <= 2, kMot.soKhop)
+
+
 def kiem_co_thu_khong_duoc_dao_nghia() -> None:
     """Lượt THỬ không chạm config; lượt THẬT thì phải GHI.
 
@@ -10902,6 +10994,7 @@ def main() -> int:
     kiem_luoi_va_truc_hoc_offline()
     kiem_tra_dung_cho_va_dung_nhiem()
     kiem_co_thu_khong_duoc_dao_nghia()
+    kiem_dong_tien_cua_thuoc_chay_lai()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
