@@ -660,16 +660,105 @@ def kiem_do_thi() -> None:
     # 4 chợ một khung phải lệch 1,33σ so với phần còn lại mới được báo
     # là 1,0σ — cả vùng [1,0 · 1,33) bị bỏ sót, LẶNG. Docstring nói
     # "PHẦN CÒN LẠI" từ đầu; chỉ có phép tính là không làm thế.
+    # Số phải CHÍNH XÁC tới từng bit, không "gần bằng". Với 0,51 −
+    # 0,50 chia 0,01 thì z ra 1,0000000000000009 — LỚN HƠN 1, nên cả
+    # `>=` lẫn `>` đều cho qua và phép kiểm không phân biệt được gì.
+    # Bộ quét đột biến chỉ ra đúng chỗ đó. Dùng luỹ thừa của 2:
+    # 0,5625 − 0,5 = 0,0625 và 0,0625 / 0,0625 = 1,0 chẵn.
     g3 = DoThi()
-    # ba nút z = 0, một nút z = +1,0 so với chúng. batDinh = 0,01 nên
-    # lech 0,01 là đúng 1σ.
     for i, ma in enumerate(("ETH_5M", "SOL_5M", "XRP_5M")):
-        g3.dat(Nut(ma, f"t{i}", ma.split("_")[0], 100, 0.50, 0.50, 0.01))
-    g3.dat(Nut("BTC_5M", "t9", "BTC", 100, 0.51, 0.50, 0.01))
-    kiem("z của nút lệch đúng bằng 1,0", gan(g3.nut["BTC_5M"].z, 1.0, 1e-9))
+        g3.dat(Nut(ma, f"t{i}", ma.split("_")[0], 100, 0.5, 0.5, 0.0625))
+    g3.dat(Nut("BTC_5M", "t9", "BTC", 100, 0.5625, 0.5, 0.0625))
+    kiem("z của nút lệch bằng ĐÚNG 1,0 tới từng bit",
+         g3.nut["BTC_5M"].z == 1.0, repr(g3.nut["BTC_5M"].z))
     nb = g3.noi_bat(1.0)
-    kiem("lệch ĐÚNG 1σ so với PHẦN CÒN LẠI thì ĐƯỢC báo",
+    kiem("lệch ĐÚNG 1σ so với PHẦN CÒN LẠI thì ĐƯỢC báo (>= chứ không >)",
          [n.ma for n in nb] == ["BTC_5M"], [n.ma for n in nb])
+    kiem("và nhích ngưỡng lên một hạt thì KHÔNG còn báo",
+         g3.noi_bat(1.0 + 1e-9) == [],
+         [n.ma for n in g3.noi_bat(1.0 + 1e-9)])
+
+    # ── bất định BẰNG 0 thì không có z ────────────────────────────────
+    #
+    # `z = lech / batDinh`. batDinh = 0 là chia cho 0. Nó KHÔNG phải
+    # "chắc chắn tuyệt đối" — nó là dữ liệu hỏng, và trả một con số ở
+    # đây là để một khung hỏng đứng đầu bảng nổi bật.
+    g5 = DoThi()
+    g5.dat(Nut("BTC_5M", "v0", "BTC", 100, 0.60, 0.50, 0.0))
+    kiem("bất định BẰNG 0 ⇒ z là None, không ném",
+         g5.nut["BTC_5M"].z is None, g5.nut["BTC_5M"].z)
+    kiem("và nút ấy không lọt vào bảng nổi bật", g5.noi_bat(0.0) == [])
+
+    # ── hai nút là ĐỦ để có "phần còn lại" ────────────────────────────
+    g6 = DoThi()
+    g6.dat(Nut("BTC_5M", "w0", "BTC", 100, 0.5625, 0.5, 0.0625))
+    g6.dat(Nut("ETH_5M", "w1", "ETH", 100, 0.5, 0.5, 0.0625))
+    kiem("HAI nút vẫn xếp hạng được (mỗi nút là phần còn lại của nút kia)",
+         len(g6.noi_bat(0.5)) == 2, [n.ma for n in g6.noi_bat(0.5)])
+
+    # ── tương quan BẰNG 0 = bù trừ hoàn toàn ⇒ KHÔNG có cạnh ──────────
+    #
+    # Số 0 ở đây là một khẳng định mạnh ("hai khung này bù trừ hoàn
+    # toàn"), nên mọi lệch giá đọc giữa chúng đều vô nghĩa. Bỏ qua,
+    # đừng vẽ một cạnh rồi để người đọc tưởng có quan hệ.
+    class _G0(DoThi):
+        pass
+    from kham import do_thi as _dt
+    _cu_tq = _dt.he_so_tuong_quan
+    try:
+        _dt.he_so_tuong_quan = lambda a, b: 0.0
+        g7 = DoThi()
+        g7.dat(Nut("BTC_5M", "x0", "BTC", 100, 0.5625, 0.5, 0.0625))
+        g7.dat(Nut("ETH_5M", "x1", "ETH", 100, 0.5, 0.5, 0.0625))
+        kiem("tương quan BẰNG 0 ⇒ không sinh cạnh nào", g7.canh() == [],
+             g7.canh())
+        _dt.he_so_tuong_quan = lambda a, b: 0.75
+        kiem("tương quan 0,75 thì CÓ cạnh", len(g7.canh()) == 1)
+        c = g7.canh()[0]
+        kiem("và cạnh ấy ĐÁNG CHÚ Ý khi lệch z đúng bằng 1,5",
+             c.tuongQuan == 0.75 and c.lechZ == 1.0 and not c.dang_chu_y,
+             (c.tuongQuan, c.lechZ, c.dang_chu_y))
+        kiem("hai nhóm khác nhau ⇒ cungNhom False", c.cungNhom is False)
+
+        # ĐÚNG BẰNG cả hai ngưỡng ⇒ ĐÁNG CHÚ Ý. Đây là ca duy nhất phân
+        # biệt `>=` với `>`, và cả hai ngưỡng phải chạm cùng lúc.
+        g8 = DoThi()
+        g8.dat(Nut("BTC_5M", "y0", "BTC", 100, 0.59375, 0.5, 0.0625))
+        g8.dat(Nut("ETH_5M", "y1", "ETH", 100, 0.5, 0.5, 0.0625))
+        c8 = g8.canh()[0]
+        kiem("lệch z đúng bằng 1,5 tới từng bit", c8.lechZ == 1.5,
+             repr(c8.lechZ))
+        kiem("tương quan ĐÚNG 0,75 và lệch ĐÚNG 1,5 ⇒ ĐÁNG CHÚ Ý",
+             c8.dang_chu_y is True, (c8.tuongQuan, c8.lechZ))
+    finally:
+        _dt.he_so_tuong_quan = _cu_tq
+
+    # ── cảnh báo ĐỒNG PHA: hai biên, cả hai đều đúng-bằng ─────────────
+    #
+    # `cung_dau` đòi MỌI z cùng dấu, và một nút z = 0 KHÔNG cùng dấu với
+    # ai — nó là "mô hình không nói gì", không phải "cùng nghiêng". Đọc
+    # nó thành dương là biến một rổ chia rẽ thành một cảnh báo giả.
+    g9 = DoThi()
+    for i, (ma, lech) in enumerate((("BTC_5M", 0.0), ("ETH_5M", 0.125),
+                                    ("SOL_5M", 0.1875))):
+        g9.dat(Nut(ma, f"z{i}", ma.split("_")[0], 100, 0.5 + lech, 0.5,
+                   0.0625))
+    kiem("z = 0,0 / 2,0 / 3,0 — trung bình 1,667 nhưng CÓ nút bằng 0",
+         [n.z for n in g9.nut.values()] == [0.0, 2.0, 3.0],
+         [n.z for n in g9.nut.values()])
+    kiem("một nút z = 0 ⇒ KHÔNG phải đồng pha, không cảnh báo",
+         g9.canh_bao_dong_pha() is None, g9.canh_bao_dong_pha())
+
+    # Trung bình ĐÚNG BẰNG 1,5 và mọi z cùng dấu ⇒ PHẢI cảnh báo.
+    g10 = DoThi()
+    for i, (ma, lech) in enumerate((("BTC_5M", 0.0625), ("ETH_5M", 0.09375),
+                                    ("SOL_5M", 0.125))):
+        g10.dat(Nut(ma, f"q{i}", ma.split("_")[0], 100, 0.5 + lech, 0.5,
+                    0.0625))
+    _tb = sum(n.z for n in g10.nut.values()) / 3
+    kiem("trung bình z đúng bằng 1,5 tới từng bit", _tb == 1.5, repr(_tb))
+    kiem("đồng pha và trung bình ĐÚNG 1,5 ⇒ CÓ cảnh báo (>= chứ không >)",
+         g10.canh_bao_dong_pha() is not None)
 
     # Một nút duy nhất: "phần còn lại" không tồn tại. Trả rỗng, chứ đừng
     # trả 0 rồi coi như nó bình thường.
@@ -1238,6 +1327,7 @@ DA_QUET_DOT_BIEN = {
     "do_tre.py", "chien_thuat.py", "phat_lai.py", "chan_doan.py",
     "tien_hoa.py", "vo_dich.py", "ket_qua.py", "so.py",
     "hoc_offline.py", "ban_thu.py", "chay_lai.py",
+    "do_thi.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -1255,7 +1345,7 @@ CHUA_QUET_DOT_BIEN = {
     "bang.py", "khung.py", "dong_co.py", "cho_gia_dinh.py",
     "sdk_polymarket.py",
     # CÓ nhánh quyết định, đáng quét, chưa quét
-    "vong.py", "do_thi.py", "vi.py",
+    "vong.py", "vi.py",
 }
 
 
