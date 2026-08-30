@@ -1263,6 +1263,16 @@ async def main() -> int:
     check("CỬA SỔ SỚM" in _dc54,
           "và in ra bảng, không chỉ nằm trong file JSON")
 
+    # `tham` RỖNG phải khớp hàng NỀN của lò (`i == 0`). `dau-chien-luoc.py` tự
+    # đề xuất challenger với `tham={}`, mà `_ky({})` = "mặc-định" thì không bao
+    # giờ trúng — lò ghi cả bộ tham số đầy đủ vào từng hàng. Thiếu nhánh ấy là
+    # đường TỰ ĐỘNG bị từ chối vĩnh viễn vì một lý do sai.
+    check('x.get("i") == 0' in _src54 and 'if _th:' in _src54,
+          "tham rỗng khớp hàng nền của lò, tham có giá trị khớp theo _ky")
+    check('chien_luoc.de_xuat(ma, ten, {}, "đấu tự động")' in _dc54,
+          "và đường tự động ĐÚNG LÀ đề xuất với tham rỗng — nếu nó đổi, "
+          "nhánh trên phải xem lại")
+
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
     # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:

@@ -278,10 +278,24 @@ def danh_gia(khoa: str, chay: Any) -> dict:
 
         _b = _json.loads((DATA_DIR / "lo-luyen.json").read_text(
             encoding="utf-8")).get("bang") or []
-        _khoa_thu = _ky(c.get("tham") or {})
-        nl = next(({"soLatDuong": x.get("soLatDuong"), "soLatCo": x.get("soLatCo"),
-                    "kyVongGop": x.get("kyVongGop"), "soLenh": x.get("soLenh")}
-                   for x in _b if _ky(x.get("tham") or {}) == _khoa_thu), None)
+        _th = c.get("tham") or {}
+        _lay = lambda x: {"soLatDuong": x.get("soLatDuong"),
+                          "soLatCo": x.get("soLatCo"),
+                          "kyVongGop": x.get("kyVongGop"),
+                          "soLenh": x.get("soLenh")}
+        if _th:
+            nl = next((_lay(x) for x in _b
+                       if _ky(x.get("tham") or {}) == _ky(_th)), None)
+        else:
+            # `tham` RỖNG nghĩa là "bộ luật ở tham số mặc định" — đúng bằng hàng
+            # NỀN của lò (`i == 0`), thứ mọi biến thể được so vào. Khớp bằng
+            # `_ky({})` = "mặc-định" thì không bao giờ trúng, vì lò ghi cả bộ
+            # tham số đầy đủ vào từng hàng.
+            #
+            # `dau-chien-luoc.py` tự đề xuất challenger với `tham={}`, nên nếu
+            # thiếu nhánh này thì đường TỰ ĐỘNG không bao giờ có bằng chứng lát
+            # và cửa duyệt từ chối mọi thứ vì một lý do sai.
+            nl = next((_lay(x) for x in _b if x.get("i") == 0), None)
     except Exception:  # noqa: BLE001 — thiếu kho thì cửa duyệt tự từ chối
         nl = None
     pq = phan_quyet(cha_tk, thu_tk, nc, nl)
