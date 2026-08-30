@@ -1122,6 +1122,89 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_phat_ton_kho() -> None:
+    print()
+    print("-- Phat ton kho phai THAT SU lech gia yet -------------------")
+    import math as _m
+
+    from kham.chien_thuat import BoiCanh as _BC
+    from kham.chien_thuat import tao_lap as _tl
+    from kham.dinh_gia import GiaChuan as _GC
+    from kham.dongho import GIUA_KHUNG as _GIUA
+    from kham.dongho import LatCat as _LC
+    from kham.kho_doi import Kho as _K
+    from kham.so_lenh import Muc as _M
+    from kham.so_lenh import SoLenh as _S
+
+    def yet(coUp: float, coDown: float, pUp: float,
+            sigmaGiay: float = 0.55 / _m.sqrt(365 * 24 * 3600)) -> dict:
+        """{bên: giá yết} của ngón tạo lập, với tồn kho cho trước."""
+        gc = _GC(ma="BTC_5M", pUp=pUp, pDown=1.0 - pUp, batDinh=0.02,
+                 batDinhThamSo=0.02, ruiRoNhay=0.0, z=0.0,
+                 sigmaGiay=sigmaGiay, tauGiay=180.0, tauDungSan=False,
+                 daMatPhang=False, giaHienTai=100_000.0, giaMo=100_000.0,
+                 oHieuChinh="50-60")
+        su = _S(ma="BTC_5M", ben="UP", bid=[_M(0.40, 900.0)],
+                ask=[_M(0.60, 900.0)], nhanLucMs=0.0)
+        sd = _S(ma="BTC_5M", ben="DOWN", bid=[_M(0.40, 900.0)],
+                ask=[_M(0.60, 900.0)], nhanLucMs=0.0)
+        v = _K().lay("BTC_5M")
+        if coUp:
+            v.ghi_khop("UP", coUp, 0.5)
+        if coDown:
+            v.ghi_khop("DOWN", coDown, 0.5)
+        lc = _LC(conLaiGiay=180.0, tongGiay=300.0, giaiDoan=_GIUA,
+                 troiQuaPct=40.0, lechDongHoMs=0.0, tuoiDuLieuMs=0.0)
+        ra = _tl(_BC(ma="BTC_5M", gia=gc, soUp=su, soDown=sd, dongHo=lc,
+                     viThe=v)) or []
+        return {c.ben: c.fairValue for c in ra}
+
+    can = yet(0, 0, 0.5)
+    kiem("tồn kho cân thì yết ĐỐI XỨNG",
+         can and gan(can.get("UP", 0), can.get("DOWN", 0)), can)
+
+    # q = 100 cổ ở p = 0,50 phải chịu phạt đúng 1 cent — đó là chỗ γ
+    # được chốt, nên nếu ai đổi γ mà quên chỗ này thì phép kiểm đỏ.
+    lech = yet(100, 0, 0.5)
+    kiem("thừa 100 cổ UP thì yết UP THẤP đi 1 cent",
+         lech and gan(can["UP"] - lech["UP"], 0.01, 1e-6),
+         can["UP"] - lech.get("UP", 0))
+    kiem("và yết DOWN CAO lên đúng chừng ấy",
+         gan(lech["DOWN"] - can["DOWN"], 0.01, 1e-6),
+         lech.get("DOWN", 0) - can["DOWN"])
+
+    # Phạt phải TỰ VỀ 0 ở hai đầu: sát lúc kết toán, ôm tồn kho không
+    # còn rủi ro nữa. Đây là thứ công thức cũ (`σ²τ`) không có.
+    for pX in (0.02, 0.98):
+        a = yet(0, 0, pX)
+        b = yet(300, 0, pX)
+        kiem(f"p = {pX:g}: phạt gần như biến mất dù thừa 300 cổ",
+             abs(a["UP"] - b["UP"]) < 0.0025,
+             abs(a["UP"] - b.get("UP", 0)))
+    giua = yet(300, 0, 0.5)
+    kiem("còn ở giữa thì phạt LỚN — hình dạng đúng chiều",
+         (can["UP"] - giua["UP"]) > 10 * abs(a["UP"] - b["UP"]),
+         (can["UP"] - giua["UP"]))
+
+    # ── canh đúng CÁI BỆNH CŨ ─────────────────────────────────────────
+    #
+    # Công thức cũ `q × 0,0015 × σ_giây² × τ` sai THỨ NGUYÊN: σ_giây là
+    # độ lệch log-return mỗi giây (cỡ 3,7e-5) nên σ²τ ra cỡ 4e-7, trong
+    # khi giá yết nằm trong [0, 1]. Phạt lớn nhất đo được là 0,00039
+    # cent, nhỏ hơn trần kẹp 5 cent tới mười nghìn lần.
+    #
+    # Bệnh ấy quay lại được bằng cách ai đó kéo `sigmaGiay` vào lại công
+    # thức. Nên canh thẳng: đổi RIÊNG `sigmaGiay` mà giá yết đổi là dấu
+    # hiệu thứ nguyên lại lẫn lộn.
+    m1 = yet(200, 0, 0.5, sigmaGiay=0.21 / _m.sqrt(365 * 24 * 3600))
+    m2 = yet(200, 0, 0.5, sigmaGiay=2.00 / _m.sqrt(365 * 24 * 3600))
+    kiem("phạt KHÔNG phụ thuộc `sigmaGiay` — nó không cùng thứ nguyên "
+         "với giá yết",
+         gan(m1["UP"], m2["UP"]), (m1.get("UP"), m2.get("UP")))
+    kiem("và phạt đủ lớn để nhìn thấy: 200 cổ lệch ít nhất 1 cent",
+         (can["UP"] - m1["UP"]) >= 0.01 - 1e-9, can["UP"] - m1["UP"])
+
+
 def kiem_bootstrap_theo_khoi() -> None:
     """Bốn lát cắt của MỘT khung không phải bốn quan sát độc lập.
 
@@ -5522,6 +5605,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_phat_ton_kho()
     kiem_bootstrap_theo_khoi()
     kiem_cong_cu_van_dung_bo_uoc_chung()
     kiem_mot_bo_uoc_sigma()

@@ -72,6 +72,9 @@
     "phanTramLechHuong": 10
   },
 
+  "//taoLap": "Chiến thuật TẠO LẬP yết hai chiều và LỆCH theo tồn kho. `ngaiRuiRoTonKho` là hệ số γ của phạt tồn kho, theo Avellaneda–Stoikov: phạt = q × γ × (phương sai giá cho tới lúc kết toán). Ở chợ NHỊ PHÂN phương sai ấy tính CHÍNH XÁC được — nó đúng bằng p(1−p), vì giá là một martingale kết thúc ở 0 hoặc 1. Không cần xấp xỉ, và nó tự về 0 khi p về hai đầu: sát lúc kết toán thì ôm tồn kho không còn rủi ro nữa. Công thức CŨ dùng `q × 0,0015 × σ_giây² × τ` và nó bằng KHÔNG về mặt số học — σ_giây là độ lệch log-return mỗi giây (cỡ 3,7e-5) nên σ²τ ra cỡ 4e-7, trong khi giá yết nằm trong [0,1]: hai vế khác thứ nguyên, lệch NĂM BẬC, và phạt lớn nhất còn nhỏ hơn trần kẹp mười nghìn lần. γ = 0,0004 chốt để q = 100 cổ ở p = 0,50 chịu phạt đúng 1 cent, và q = 900 (ca cực đoan đo được) chạm trần kẹp 5 cent.",
+  "taoLap": { "ngaiRuiRoTonKho": 0.0004 },
+
   "//ruiRo": "Risk Engine — Python thuần, không gọi model, có quyền phủ quyết. Mọi số ở đây là TRẦN CỨNG.",
   "ruiRo": {
     "//vonBanDau": "Vốn ảo ở chế độ `giay`, dùng khi chưa có sổ kết toán nào. Có sổ rồi thì runtime DỰNG LẠI vốn thật từ sổ lúc khởi động (`RiskEngine.nap_tu_so`) — không có bước ấy thì mỗi lần khởi động lại là quên sạch lỗ, và cầu dao ngày được cấp ngân sách mới. Phiên phát lại đè được bằng `--von=`.",
