@@ -195,6 +195,97 @@ def _doc_coc() -> dict:
         return {}
 
 
+KHOA_FILE = DATA_DIR / "nghi-thuc-khoa.json"
+
+# Nghi thức chạy tối đa ngần này thì coi khoá là RÁC dù tiến trình còn sống.
+# Tổng hạn giờ của mọi việc cộng lại ~5,5 tiếng; 8 tiếng là biên an toàn.
+KHOA_QUA_HAN_GIAY = 8 * 3600
+
+
+def _con_song(pid: int | None) -> bool:
+    """Tiến trình ấy còn sống không? KHÔNG được dùng `os.kill(pid, 0)`.
+
+    Trên Windows `os.kill` gọi thẳng `TerminateProcess`, kể cả với tín hiệu 0 —
+    tức phép "hỏi xem còn sống không" sẽ GIẾT chính tiến trình đang hỏi thăm.
+    Đây là cái bẫy kinh điển của mã viết cho POSIX rồi chạy trên Windows.
+    """
+    if not pid:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+
+        SYNCHRONIZE = 0x00100000
+        h = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, int(pid))
+        if not h:
+            return False
+        # 0 = WAIT_OBJECT_0, tức tiến trình đã kết thúc (handle đã báo hiệu).
+        con = ctypes.windll.kernel32.WaitForSingleObject(h, 0) != 0
+        ctypes.windll.kernel32.CloseHandle(h)
+        return con
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except (OSError, ValueError):
+        return False
+
+
+def _doc_khoa() -> dict:
+    try:
+        return json.loads(KHOA_FILE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def _ai_giu_khoa() -> dict | None:
+    """Trả bản khoá nếu MỘT nghi thức khác đang thật sự chạy, None nếu không.
+
+    VÌ SAO PHẢI LÀ KHOÁ LIÊN TIẾN TRÌNH
+
+    Cọc 6 tiếng chỉ được ghi khi nghi thức CHẠY XONG, còn khoá chống trùng thì
+    nằm trong `_trang_thai` của một tiến trình. Runtime khởi động lại giữa chừng
+    — 31 lượt trong một ngày, đo được — là tiến trình mới thấy cọc vẫn cũ và mở
+    một nghi thức nữa, trong khi việc con của lượt trước còn sống mồ côi.
+
+    Bắt được lúc 07:05 ngày 30/08: HAI `dau-chien-luoc.py --tat-ca` chạy song
+    song, cách nhau 4 phút, cùng ghi vào kho chính thức. Và nó tự nuôi nó: càng
+    nhiều việc chạy chồng thì máy càng chậm, nghi thức càng lâu, càng dễ dính
+    thêm một lượt khởi động lại nữa.
+
+    Đếm cả TIẾN TRÌNH CON: khi runtime bị giết, việc con thành mồ côi và vẫn
+    ghi vào kho. Chủ khoá chết mà con còn sống thì vẫn là "đang chạy".
+    """
+    k = _doc_khoa()
+    if not k:
+        return None
+    if time.time() - (k.get("mocGiay") or 0) > KHOA_QUA_HAN_GIAY:
+        return None
+    if _con_song(k.get("pid")) or _con_song(k.get("conPid")):
+        return k
+    return None
+
+
+def _giu_khoa(**them) -> None:
+    """Ghi/cập nhật khoá. Gọi lúc bắt đầu và mỗi lần đổi việc con."""
+    k = {**_doc_khoa(), **them}
+    k.setdefault("pid", os.getpid())
+    k.setdefault("mocGiay", time.time())
+    k["luc"] = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
+    try:
+        KHOA_FILE.parent.mkdir(parents=True, exist_ok=True)
+        tam = KHOA_FILE.with_suffix(f".{os.getpid()}.tmp")
+        tam.write_text(json.dumps(k, ensure_ascii=False, indent=1), encoding="utf-8")
+        os.replace(tam, KHOA_FILE)
+    except OSError:
+        pass          # không ghi được khoá thì vẫn chạy, chỉ mất lớp chống trùng
+
+
+def _tha_khoa() -> None:
+    try:
+        KHOA_FILE.unlink()
+    except OSError:
+        pass
+
+
 def _ghi_coc(kq: dict) -> None:
     COC.write_text(json.dumps({
         "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
@@ -220,9 +311,23 @@ def _chay() -> None:
             bus.emit("hoc", "nghi-thuc", f"đang chạy: {ten}…")
             t0 = time.time()
             try:
-                r = subprocess.run(lenh, cwd=str(ROOT), env=moi, timeout=han,
-                                   capture_output=True, text=True, encoding="utf-8",
-                                   errors="replace")
+                # Popen chứ không `subprocess.run`: cần biết PID của việc con để
+                # ghi vào khoá. Runtime bị giết giữa chừng thì việc con thành mồ
+                # côi và vẫn ghi vào kho chính thức — lượt nghi thức sau phải
+                # thấy nó còn sống mà đứng lại, chứ không mở thêm một bản nữa.
+                with subprocess.Popen(
+                        lenh, cwd=str(ROOT), env=moi, stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE, text=True, encoding="utf-8",
+                        errors="replace") as pr:
+                    _giu_khoa(viec=ten, conPid=pr.pid)
+                    try:
+                        _out, _err = pr.communicate(timeout=han)
+                    except subprocess.TimeoutExpired:
+                        pr.kill()
+                        pr.communicate()
+                        raise
+                r = subprocess.CompletedProcess(lenh, pr.returncode, _out, _err)
+                _giu_khoa(conPid=None)
                 dong = [x for x in (r.stdout or "").strip().splitlines() if x.strip()]
                 kq[ten] = {"ma": r.returncode, "giay": round(time.time() - t0, 1),
                            "cuoi": dong[-1] if dong else "(không có đầu ra)"}
@@ -296,6 +401,7 @@ def _chay() -> None:
         _trang_thai.update(loi=f"{type(e).__name__}: {e}")
         bus.log("hoc", "nghi-thuc-loi", f"{type(e).__name__}: {e}")
     finally:
+        _tha_khoa()
         _trang_thai.update(dangChay=False, viec=None,
                            xong=_dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"))
 
@@ -305,8 +411,21 @@ def khoi_dong(ep: bool = False) -> dict:
     with _khoa:
         if _trang_thai["dangChay"]:
             return {"ok": False, "viSao": "đang chạy rồi"}
+        # Khoá LIÊN TIẾN TRÌNH. `_trang_thai` chỉ biết tiến trình này; một
+        # runtime vừa khởi động lại thì `dangChay` luôn False, còn nghi thức của
+        # lượt trước có thể vẫn đang chạy dở với việc con mồ côi.
+        #
+        # Kiểm cả khi `ep=True`: ép là "bỏ qua hạn 6 tiếng", không phải "chạy
+        # thêm một bản song song".
+        ai = _ai_giu_khoa()
+        if ai:
+            return {"ok": False,
+                    "viSao": (f"một nghi thức khác đang chạy (pid {ai.get('pid')}"
+                              f"{', việc ' + ai['viec'] if ai.get('viec') else ''}"
+                              f", từ {ai.get('luc')})")}
         if not ep and not den_han():
             return {"ok": False, "viSao": f"chưa tới hạn, còn {trang_thai()['conBaoLau']}s"}
+        _giu_khoa(pid=os.getpid(), mocGiay=time.time(), viec=None, conPid=None)
         _trang_thai.update(dangChay=True, batDau=_dt.datetime.now(
             _dt.timezone.utc).isoformat(timespec="seconds"), xong=None, loi=None)
     threading.Thread(target=_chay, daemon=True, name="nghi-thuc").start()

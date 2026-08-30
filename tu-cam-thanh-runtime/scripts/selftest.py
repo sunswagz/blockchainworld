@@ -1111,6 +1111,68 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[51] HAI NGHI THỨC KHÔNG ĐƯỢC CHẠY CHỒNG NHAU")
+    # Cọc 6 tiếng chỉ ghi khi nghi thức CHẠY XONG, còn khoá chống trùng nằm
+    # trong `_trang_thai` của MỘT tiến trình. Runtime khởi động lại giữa chừng —
+    # 31 lượt trong một ngày — là tiến trình mới thấy cọc vẫn cũ và mở thêm một
+    # nghi thức, trong khi việc con của lượt trước còn sống mồ côi.
+    #
+    # Bắt được 07:05 ngày 30/08: HAI `dau-chien-luoc.py --tat-ca` chạy song song
+    # cách nhau 4 phút, cùng ghi vào kho chính thức.
+    import os as _os51
+
+    from trader import nghi_thuc as _NT51
+
+    check(_NT51._con_song(_os51.getpid()) is True, "nhận ra tiến trình đang sống")
+    check(_NT51._con_song(999_999) is False, "nhận ra PID không tồn tại")
+    check(_NT51._con_song(None) is False and _NT51._con_song(0) is False,
+          "PID rỗng không bị đoán là đang sống")
+    # Trên Windows `os.kill(pid, 0)` GIẾT tiến trình chứ không hỏi thăm nó —
+    # phép "kiểm tra còn sống" viết theo lối POSIX là một cú tự sát im lặng.
+    _ns51 = ma_khong_chu_thich(ROOT / "trader" / "nghi_thuc.py")
+    _hs51 = _ns51[_ns51.index("def _con_song"):_ns51.index("def _doc_khoa")]
+    check("OpenProcess" in _hs51 and 'sys.platform == "win32"' in _hs51,
+          "phép kiểm sống/chết dùng OpenProcess trên Windows")
+    check(_hs51.index('sys.platform == "win32"') < _hs51.index("os.kill"),
+          "os.kill chỉ nằm SAU cửa rẽ nhánh — trên Windows nó GIẾT tiến trình "
+          "chứ không hỏi thăm, kể cả với tín hiệu 0")
+
+    _khoa51 = _NT51.KHOA_FILE
+    _luu51 = _khoa51.read_text(encoding="utf-8") if _khoa51.exists() else None
+    try:
+        _NT51._tha_khoa()
+        check(_NT51._ai_giu_khoa() is None, "không có khoá ⇒ không ai đang giữ")
+        _time51 = __import__("time").time()
+        _NT51._giu_khoa(pid=_os51.getpid(), mocGiay=_time51, viec="thử", conPid=None)
+        check((_NT51._ai_giu_khoa() or {}).get("viec") == "thử",
+              "khoá của một tiến trình ĐANG SỐNG ⇒ chặn, và nói rõ việc gì")
+        _NT51._giu_khoa(pid=999_999, conPid=None)
+        check(_NT51._ai_giu_khoa() is None,
+              "chủ khoá đã chết ⇒ khoá bỏ đi, nghi thức sau chạy được")
+        _NT51._giu_khoa(pid=999_999, conPid=_os51.getpid())
+        check(_NT51._ai_giu_khoa() is not None,
+              "chủ chết mà VIỆC CON còn sống ⇒ vẫn chặn (con mồ côi vẫn ghi kho)")
+        _NT51._giu_khoa(pid=_os51.getpid(), conPid=None,
+                        mocGiay=_time51 - _NT51.KHOA_QUA_HAN_GIAY - 60)
+        check(_NT51._ai_giu_khoa() is None,
+              "khoá quá hạn 8 tiếng ⇒ bỏ, dù tiến trình còn sống")
+        _NT51._tha_khoa()
+        check(not _khoa51.exists(), "thả khoá thì file biến mất")
+    finally:
+        if _luu51 is not None:
+            _khoa51.write_text(_luu51, encoding="utf-8")
+        else:
+            _NT51._tha_khoa()
+
+    _src51 = ma_khong_chu_thich(ROOT / "trader" / "nghi_thuc.py")
+    check("_tha_khoa()" in _src51.split("finally:")[-1] or "_tha_khoa()" in _src51,
+          "khoá được thả trong finally, kể cả khi nghi thức nổ")
+    check("_giu_khoa(viec=ten, conPid=pr.pid)" in _src51,
+          "mỗi việc con ghi PID của nó vào khoá")
+    check("ai = _ai_giu_khoa()" in _src51 and _src51.index("ai = _ai_giu_khoa()")
+          < _src51.index("if not ep and not den_han()"),
+          "kiểm khoá TRƯỚC cả cửa «ép» — ép là bỏ qua hạn giờ, không phải chạy song song")
+
     print("\n[50] BỘ LUẬT ĐƯỢC ĐO PHẢI LÀ BỘ LUẬT ĐƯỢC CHẠY")
     # Cả cỗ máy đo đạc — lò luyện, đấu nhiều chợ, cửa duyệt, sổ giả thuyết —
     # tồn tại để chọn ra MỘT bộ luật. Đường luật-thuần thì gọi thẳng
