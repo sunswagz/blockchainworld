@@ -1289,6 +1289,23 @@ async def main() -> int:
         _la47 = {"1h": _mk47(9_000, 9_000 + _n47), "4h": _mk47(9_000, 9_000 + _n47)}
         _g2, _ = _H47._diem_dung_lai(_diem47, _q47, _xet47, _la47)
         check(not _g2, "bộ nến không giao nhau ⇒ không dùng lại điểm nào")
+
+        # Cache của HAI KHUNG phải sống cạnh nhau. Bản đầu đặt tên gói là
+        # {chợ}-{vân tay}-goi.json rồi dọn bằng glob `{chợ}-*.json`, nên dựng
+        # chuỗi 4h XOÁ chuỗi 1d của chính chợ đó. Nghi thức chạy việc 1d rồi
+        # việc 4h liên tiếp, tức hai việc phá cache của nhau và cả bản vá "bồi
+        # thêm" thành vô nghĩa — không lỗi nào hiện ra, chỉ là mỗi lượt lại
+        # "tính mới".
+        _src47 = ma_khong_chu_thich(ROOT / "trader" / "huanluyen.py")
+        check('glob(f"{symbol}-*.json")' not in _src47,
+              "bước dọn KHÔNG quét cả chợ — nó sẽ xoá chuỗi của khung kia")
+        check('f"{symbol}-{_tf}-{_ctx}-"' in _src47,
+              "tên gói chuỗi mang cả KHUNG và NGỮ CẢNH")
+        _v4 = _H47._van_tay_hinh("BTCUSDT")
+        CONFIG["timeframes"]["primary"] = "1h"
+        CONFIG["timeframes"]["context"] = "1d"
+        check(_H47._van_tay_hinh("BTCUSDT") != _v4,
+              "đổi khung ngữ cảnh ⇒ vân tay đổi (cửa ngược lại)")
     finally:
         CONFIG["timeframes"]["primary"], CONFIG["timeframes"]["context"] = _tf47
 

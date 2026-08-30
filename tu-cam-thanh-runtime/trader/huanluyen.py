@@ -684,7 +684,7 @@ def _doi_chieu(giu: list[dict], nen: dict[str, list[dict]], symbol: str,
 _bo_nho: dict[str, list[dict]] = {}
 
 
-def _ghi_goi(f, chuoi: list[dict], quang: dict, xet: list[int], symbol: str) -> None:
+def _ghi_goi(f, chuoi: list[dict], quang: dict, xet: list[int], dau: str) -> None:
     """Ghi gói chuỗi ra đĩa, nguyên tử, rồi dọn gói cũ của CHÍNH chợ này.
 
     Ghi qua file tạm rồi ĐỔI TÊN. `write_text` không nguyên tử: hai tiến trình
@@ -695,9 +695,10 @@ def _ghi_goi(f, chuoi: list[dict], quang: dict, xet: list[int], symbol: str) -> 
     lặng thành vô dụng, mà bảng nào cũng xanh.
 
     Dọn gói CŨ vì vân tay gồm cả mã nguồn: mỗi lần sửa `features.py` là toàn bộ
-    cache thành rác không ai với tới — 74 file, 86 MB sau đúng một bản vá. Chỉ
-    xoá file của chợ vừa ghi: tiến trình khác có thể đang dùng cache của chợ
-    khác với vân tay khác.
+    cache thành rác không ai với tới — 74 file, 86 MB sau đúng một bản vá.
+
+    `dau` là tiền tố `{chợ}-{khung}-{ngữ cảnh}-`, KHÔNG phải chỉ tên chợ: dọn
+    theo tên chợ thì chuỗi 4h xoá chuỗi 1d của chính chợ đó.
     """
     import json
     import os
@@ -707,7 +708,7 @@ def _ghi_goi(f, chuoi: list[dict], quang: dict, xet: list[int], symbol: str) -> 
     tam.write_text(json.dumps({"quang": quang, "xet": xet, "chuoi": chuoi}),
                    encoding="utf-8")
     os.replace(tam, f)
-    for cu_f in f.parent.glob(f"{symbol}-*.json"):
+    for cu_f in f.parent.glob(f"{dau}*.json"):
         if cu_f.name != f.name:
             try:
                 cu_f.unlink()
@@ -727,7 +728,15 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
 
     # Tên file theo vân tay MÃ+CẤU HÌNH, không theo quãng nến: một chợ có đúng
     # một gói chuỗi, và gói ấy được BỒI THÊM mỗi lần nến mới về.
-    f = ROOT / "data" / "chuoi" / f"{symbol}-{_van_tay_hinh(symbol)}-goi.json"
+    # Tên mang cả KHUNG: chuỗi 4h và chuỗi 1d của cùng một chợ phải sống cạnh
+    # nhau. Bản đầu chỉ có {chợ}-{vân tay}-goi.json, mà bước dọn lại quét
+    # `{chợ}-*.json` — nên dựng chuỗi 4h XOÁ chuỗi 1d của chính chợ đó và ngược
+    # lại. Nghi thức chạy việc 1d rồi việc 4h, tức hai việc liên tiếp phá cache
+    # của nhau và cả bản vá "bồi thêm" thành vô nghĩa. Không có lỗi nào hiện ra,
+    # chỉ có mỗi lượt lại "tính mới".
+    _tf, _ctx = CONFIG["timeframes"]["primary"], CONFIG["timeframes"]["context"]
+    _dau = f"{symbol}-{_tf}-{_ctx}-"
+    f = ROOT / "data" / "chuoi" / f"{_dau}{_van_tay_hinh(symbol)}-goi.json"
     quang_nay = _quang(nen)
     if dung_dia and f.exists():
         try:
@@ -744,7 +753,7 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
                 c = sorted(giu + them, key=lambda d: d["i"])
                 _bo_nho[vt] = c
                 if dung_dia:
-                    _ghi_goi(f, c, quang_nay, _moc_day(nen), symbol)
+                    _ghi_goi(f, c, quang_nay, _moc_day(nen), _dau)
                 return c, (f"đĩa+{len(them)} điểm mới trong "
                            f"{time.time() - t0:.0f}s (dùng lại {len(giu)})")
             if giu:
@@ -761,7 +770,7 @@ def lay_chuoi(nen: dict[str, list[dict]], symbol: str,
     c = sinh_luan_diem(nen, symbol=symbol, bao_tien_do=bao_tien_do)
     _bo_nho[vt] = c
     if dung_dia:
-        _ghi_goi(f, c, quang_nay, _moc_day(nen), symbol)
+        _ghi_goi(f, c, quang_nay, _moc_day(nen), _dau)
     bus.emit("hoc", "sinh-chuoi",
              f"sinh {len(c)} điểm vào lệnh từ lịch sử trong {time.time() - t0:.0f}s")
     return c, "tính mới"
