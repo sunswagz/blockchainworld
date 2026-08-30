@@ -5296,6 +5296,71 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_cong_mo_hinh_khong_van_theo_tieng_on() -> None:
+    """Khoảng tin CHỨA 0 thì cổng mô hình KHÔNG được ghi config.
+
+    `mot_luot_mo_hinh` chạy MỖI ĐÊM 02:00 UTC trong `_hoc_offline`, và
+    nó `ghi_config` được. Bản trước tính `trongTiengOn`, in nó ra, rồi
+    ghi BẤT KỂ nó — buồng lái hiện "⚠ nằm trong tiếng ồn" ngay dưới
+    dòng "tiến hoá MÔ HÌNH NHẬN", tức cảnh báo dán lên một thay đổi đã
+    xảy ra rồi.
+
+    Đo được 30/08/2026 trên lượt chấm THẬT (BTC_5M, 10 ngày, 49 ứng
+    viên): cổng NHẬN `nanLai.heSoGiamChan 0,85 → 0,3` — nhảy trọn cả
+    dải — với `tin95 = [-0,000403, +0,000816]`, chứa 0. Hai cổng
+    CHỌN/CHỐT gật được vì trục ấy PHẲNG, mà trên trục phẳng thì mọi ứng
+    viên đều gật được và cỗ máy đi bộ ngẫu nhiên.
+
+    Và nó KHÔNG để lại dòng nhật ký nào: `tien-hoa.jsonl` ghi vòng chạy
+    trên BĂNG, không ghi cổng này. Một tham số đổi lúc nửa đêm mà sáng
+    ra không biết đổi lúc nào, vì sao, trên bằng chứng nào.
+    """
+    print()
+    print("-- Cong mo hinh khong duoc van theo tieng on --------------")
+
+    import inspect as _in
+    from kham import hoc_offline as HO
+
+    src = _in.getsource(HO.mot_luot_mo_hinh)
+
+    # Thứ tự QUAN TRỌNG: chỗ chặn phải nằm TRƯỚC `ghi_config`, không
+    # phải sau. Sau thì cờ chỉ là một dòng in.
+    i_chan = src.find('if ban["trongTiengOn"]')
+    i_ghi = src.find("ghi_config(")
+    kiem("có nhánh chặn theo `trongTiengOn`", i_chan >= 0)
+    kiem("và nó nằm TRƯỚC `ghi_config`", 0 <= i_chan < i_ghi,
+         (i_chan, i_ghi))
+    kiem("nhánh ấy `return` chứ không đi tiếp",
+         "return ban" in src[i_chan:i_ghi] if 0 <= i_chan < i_ghi else False)
+
+    # Và phán quyết phải được GHI LẠI, nhận hay không.
+    kiem("mọi phán quyết đều vào nhật ký riêng",
+         src.count("_ghi_nhat_ky_mo_hinh(ban)") >= 2,
+         src.count("_ghi_nhat_ky_mo_hinh(ban)"))
+    kiem("nhật ký ấy có đường dẫn khai rõ",
+         hasattr(HO, "DUONG_NHAT_KY_MO_HINH")
+         and HO.DUONG_NHAT_KY_MO_HINH.name.endswith(".jsonl"))
+
+    # Hành vi, không chỉ hình dạng mã: dựng một phán quyết giả có khoảng
+    # tin chứa 0 và đòi hàm ghi nhật ký phân biệt được nguồn.
+    import json as _js
+    import tempfile
+    cu = HO.DUONG_NHAT_KY_MO_HINH
+    tmp = Path(tempfile.mkdtemp()) / "nk.jsonl"
+    try:
+        HO.DUONG_NHAT_KY_MO_HINH = tmp
+        HO._ghi_nhat_ky_mo_hinh({"nut": "x", "trongTiengOn": True,
+                                 "tin95": [-1.0, 1.0]})
+    finally:
+        HO.DUONG_NHAT_KY_MO_HINH = cu
+    dong = [_js.loads(x) for x in tmp.read_text(encoding="utf-8").splitlines()
+            if x.strip()]
+    kiem("ghi được một dòng", len(dong) == 1, len(dong))
+    kiem("dòng có `luc` và `nguon` để phân biệt với bản chạy tay",
+         bool(dong) and dong[0].get("nguon") == "vong-ngay"
+         and "luc" in dong[0], dong[:1])
+
+
 def kiem_quet_truc_phai_do_lai_cua_so_dai() -> None:
     """Thấy trị tốt hơn thì `do-mot-nut.py` PHẢI đo lại trên cửa sổ dài hơn.
 
@@ -10124,6 +10189,7 @@ def main() -> int:
     kiem_khoa_mot_ban_chay_nen()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
+    kiem_cong_mo_hinh_khong_van_theo_tieng_on()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

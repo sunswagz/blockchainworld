@@ -504,12 +504,24 @@ class Runtime:
         if v.get("loi"):
             bus.ghi(f"tiến hoá mô hình: {v['loi']}", loai="canh")
         elif v.get("nhan"):
+            # Không còn hậu tố "⚠ nằm trong tiếng ồn" ở đây: nhánh NHẬN
+            # nay không thể mang cờ ấy nữa, vì cổng đã chặn trước khi
+            # ghi. Một cảnh báo dán lên thay đổi ĐÃ xảy ra không phải
+            # cảnh báo — nó là lời thú nhận.
             n = v["nhan"]
             bus.ghi(f"tiến hoá MÔ HÌNH NHẬN: {n['nut']} {n['tu']:g} → "
                     f"{n['den']:g} · Brier CHỐT {v['chotGoc']:.5f} → "
-                    f"{v['chotMoi']:.5f}"
-                    + (" · ⚠ nằm trong tiếng ồn"
-                       if v.get("trongTiengOn") else ""), loai="he")
+                    f"{v['chotMoi']:.5f}", loai="he")
+        elif v.get("trongTiengOn"):
+            # Lượt SUÝT vặn là tin đáng thấy nhất trong cả vòng ngày:
+            # hai cổng CHỌN/CHỐT đều gật mà khoảng tin vẫn chứa 0 nghĩa
+            # là trục ấy đang PHẲNG quanh trị đang dùng. Đừng để nó lẫn
+            # vào đống "giữ nguyên".
+            t = v.get("tin95") or [0.0, 0.0]
+            bus.ghi(f"tiến hoá mô hình CHẶN theo tiếng ồn: "
+                    f"{v.get('nut')} {v.get('tu'):g} → {v.get('den'):g} — "
+                    f"khoảng tin [{t[0]:+.6f}, {t[1]:+.6f}] chứa 0 "
+                    f"({v.get('soKhoiChot')} khối)", loai="canh")
         else:
             bus.ghi(f"tiến hoá mô hình: giữ nguyên — {v.get('lyDo','')}",
                     loai="tin")

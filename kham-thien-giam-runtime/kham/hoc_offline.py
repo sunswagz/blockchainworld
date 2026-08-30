@@ -416,6 +416,37 @@ def _cham(theoMoc, ba, ma, cuaSo) -> dict | None:
             "mocChot": [x[-1] for x in chot]}
 
 
+DUONG_NHAT_KY_MO_HINH = DATA_DIR / "tien-hoa-mo-hinh.jsonl"
+
+
+def _ghi_nhat_ky_mo_hinh(ban: dict) -> None:
+    """Ghi lại MỌI phán quyết của cổng mô hình, nhận hay không.
+
+    `tien-hoa.jsonl` ghi vòng chạy trên BĂNG. Cổng mô hình là một vòng
+    KHÁC, chạy mỗi đêm trong `_hoc_offline`, và nó GHI ĐƯỢC vào
+    `config.json` — mà trước nay không để lại một dòng nào. Nghĩa là
+    một tham số của mô hình có thể đổi lúc 02:00 UTC và sáng ra không
+    có cách nào biết nó đổi lúc nào, vì sao, trên bằng chứng nào.
+
+    Ghi cả lượt TRẢ LẠI, không chỉ lượt nhận: chuỗi những lần suýt vặn
+    mới là thứ nói cho biết cổng đang đứng ở đâu so với ngưỡng.
+    """
+    try:
+        import json as _json
+        DUONG_NHAT_KY_MO_HINH.parent.mkdir(parents=True, exist_ok=True)
+        d = dict(ban)
+        d["luc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        # Cùng file với `scripts/tien-hoa-mo-hinh.py` vì cùng một việc —
+        # phán quyết của cổng mô hình. Hai đường có hai hình dạng dòng
+        # khác nhau, nên phải phân biệt được nguồn chứ đừng bắt người
+        # đọc suy từ việc thiếu trường nào.
+        d["nguon"] = "vong-ngay"
+        with DUONG_NHAT_KY_MO_HINH.open("a", encoding="utf-8") as f:
+            f.write(_json.dumps(d, ensure_ascii=False, default=str) + chr(10))
+    except OSError:
+        pass
+
+
 def mot_luot_mo_hinh(soNgay: int = 10, ma: str = "BTC_5M",
                      thu: bool = False) -> dict:
     """Một lượt vặn nút mô hình. Trả về phán quyết, có ghi config nếu nhận.
@@ -494,8 +525,31 @@ def mot_luot_mo_hinh(soNgay: int = 10, ma: str = "BTC_5M",
     ban["tin95"] = [thap, cao]
     ban["trongTiengOn"] = ban["tin95"][0] <= 0 <= ban["tin95"][1]
 
+    # ── KHOẢNG TIN CHỨA 0 THÌ KHÔNG VẶN ───────────────────────────────
+    #
+    # Bản trước tính `trongTiengOn`, in nó ra, rồi `ghi_config` BẤT KỂ
+    # nó. Cảnh báo dán lên một thay đổi đã xảy ra rồi thì không phải
+    # cảnh báo — buồng lái hiện "⚠ nằm trong tiếng ồn" ngay dưới dòng
+    # "tiến hoá MÔ HÌNH NHẬN", và config đã đổi.
+    #
+    # Đo được 30/08/2026: lượt chấm thật trên BTC_5M, 10 ngày, 49 ứng
+    # viên, cổng NHẬN `nanLai.heSoGiamChan 0,85 → 0,3` với
+    # `tin95 = [-0,000403, +0,000816]` — chứa 0, và nhảy trọn cả dải.
+    # Hai cổng CHỌN/CHỐT gật được vì trục ấy PHẲNG: trên một trục phẳng
+    # thì mọi ứng viên đều "gật" được, và cỗ máy đi bộ ngẫu nhiên.
+    #
+    # Chính chỗ này đã viết ra lý do phải có khoảng tin — "qua ngưỡng
+    # bằng 0,00001 và qua bằng 0,01 đọc y hệt nhau nếu chỉ ghi chữ
+    # NHẬN". Nay dùng nó để QUYẾT, chứ không chỉ để in.
+    if ban["trongTiengOn"]:
+        ban["lyDo"] = ("hai tập gật nhưng khoảng tin CHỨA 0 — "
+                       "không đủ để vặn")
+        _ghi_nhat_ky_mo_hinh(ban)
+        return ban
+
     if not thu:
         ghi_config(duong, v)
     ban["nhan"] = {"nut": duong, "tu": hienTai[duong], "den": v}
     ban["lyDo"] = "cả hai tập gật"
+    _ghi_nhat_ky_mo_hinh(ban)
     return ban
