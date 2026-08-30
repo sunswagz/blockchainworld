@@ -242,6 +242,27 @@ def kiem_can_loi() -> None:
     kiem("giá 0 cũng là không biết", lech_mark_bps(0.0, 100.0) is None)
 
     kiem("APR ngoại suy đúng hệ số", gan(net_apr_pct(10.0, 24.0), 0.001 * 365 * 100))
+    # `giuGio = 24` là ĐÚNG giá trị mà phép nhân và phép chia cho cùng
+    # một kết quả — `24/24 = 1`. Nên phép kiểm trên một mình KHÔNG phân
+    # biệt được `× (24/giuGio)` với `÷ (24/giuGio)`, và lượt quét số học
+    # bắt được đúng chuyện đó: con `[* -> /]` ở dòng ấy sống sót cả bộ
+    # kiểm. Mẫu số 24 là mẫu số vô hại nhất có thể chọn, và đó chính là
+    # lý do nó che.
+    kiem("giữ 8 giờ thì hệ số nhân là 3, không phải 1/3",
+         gan(net_apr_pct(10.0, 8.0), 0.001 * 3.0 * 365 * 100),
+         f"{net_apr_pct(10.0, 8.0)} — chia thay vì nhân ở đây làm mọi cơ "
+         f"hội giữ NGẮN tụt hạng thay vì lên hạng, và bảng xếp hạng vẫn "
+         f"trông hợp lý")
+    kiem("và cửa sổ càng NGẮN thì hệ số càng LỚN — đúng như văn xuôi hứa",
+         (net_apr_pct(10.0, 0.5) > net_apr_pct(10.0, 8.0)
+          > net_apr_pct(10.0, 24.0)),
+         f"{net_apr_pct(10.0, 0.5)} · {net_apr_pct(10.0, 8.0)} · "
+         f"{net_apr_pct(10.0, 24.0)} — câu «giữ 15 phút khoe APR gấp 32 "
+         f"lần giữ 8 giờ» nằm trong docstring; đây là bản chạy được của "
+         f"nó")
+    kiem("và tỉ lệ ấy đúng bằng tỉ lệ NGƯỢC của số giờ giữ",
+         gan(net_apr_pct(10.0, 0.5) / net_apr_pct(10.0, 8.0), 16.0),
+         f"{net_apr_pct(10.0, 0.5) / net_apr_pct(10.0, 8.0)} — 8/0,5 = 16")
     kiem("cửa sổ giữ quá ngắn → None chứ không phải số khổng lồ",
          net_apr_pct(10.0, 0.1) is None)
 

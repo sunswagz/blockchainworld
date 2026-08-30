@@ -3,6 +3,7 @@ kiểm, xem con nào SỐNG SÓT.
 
     python scripts/quet-dot-bien.py thi_bac_ty/rui_ro_tong.py kiem_rui_ro_tong
     python scripts/quet-dot-bien.py thi_bac_ty/phan_bo.py            # cả suite
+    python scripts/quet-dot-bien.py bac/can_loi.py --so-hoc          # lật cả + - * /
 
 Con SỐNG SÓT = một dòng mã sửa sai mà không phép kiểm nào kêu. Không
 phải lỗi, nhưng là chỗ mã có thể sai mà không ai biết — và trong một cỗ
@@ -46,8 +47,10 @@ import re
 import subprocess
 import sys
 
-F = sys.argv[1]
-HAM = sys.argv[2] if len(sys.argv) > 2 else None
+_doi = [x for x in sys.argv[1:] if x != "--so-hoc"]
+SO_HOC = "--so-hoc" in sys.argv[1:]
+F = _doi[0]
+HAM = _doi[1] if len(_doi) > 1 else None
 
 goc = io.open(F, encoding="utf-8").read()
 dong = goc.splitlines(keepends=True)
@@ -55,6 +58,23 @@ dong = goc.splitlines(keepends=True)
 DOI = [(" >= ", " > "), (" <= ", " < "), (" > ", " >= "), (" < ", " <= "),
        (" == ", " != "), (" != ", " == "),
        (" and ", " or "), (" or ", " and ")]
+
+#: Lật cả toán tử SỐ HỌC — bật bằng `--so-hoc`, KHÔNG bật mặc định.
+#:
+#: Vì sao cần: bảng trên chỉ lật phép SO SÁNH, nên trên một mô-đun toàn
+#: phép TÍNH nó gần như không với tới. `bac/can_loi.py` — chỗ tính NET
+#: APR, tức phép toán tiền của cả hệ — có đúng **ba** chỗ để lật, và
+#: «1/3 sống sót» ở đó không phải bằng chứng về độ phủ: nó là bằng chứng
+#: rằng cái thước không có gì để đo. Cùng một bệnh với «phiếu N/N đạt»
+#: mà chính bộ quét này sinh ra để chữa, chỉ là ở tầng công cụ.
+#:
+#: Vì sao KHÔNG bật mặc định: lật số học đẻ ra nhiều con chết vì
+#: `ZeroDivisionError` hay `TypeError` — chúng «chết» mà không nói gì về
+#: phép kiểm, và chúng làm chậm lượt quét lên nhiều lần. Dùng nó cho
+#: những mô-đun TÍNH TIỀN, đừng rải khắp cây.
+DOI_SO_HOC = [(" * ", " / "), (" / ", " * "), (" + ", " - "), (" - ", " + ")]
+if SO_HOC:
+    DOI = DOI + DOI_SO_HOC
 
 def _bo_chuoi(d):
     """Xoá phần nằm trong nháy, để không đột biến chữ in ra.
