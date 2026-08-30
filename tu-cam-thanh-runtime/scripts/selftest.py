@@ -1162,6 +1162,17 @@ async def main() -> int:
     check('"" if LAN == "chinh"' in _gs53,
           "làn chính giữ nguyên tên trang-thai.json / dung-lai")
 
+    # BÀN GIAO phải nhắc tới làn demo. Bản bàn giao là thứ phiên sau ĐỌC; một
+    # phép đo kéo ~6 tuần mà không có dòng nào ở đó thì nó chết lặng lẽ, và
+    # "chưa có lệnh SHORT nào" đọc y hệt "chưa tới lúc". Cùng bài học với
+    # `_con_song`: runtime từng chết 5 ngày rưỡi mà bàn giao vẫn đẹp.
+    _bg53 = ma_khong_chu_thich(ROOT / "scripts" / "ban-giao.py")
+    check("_lan_demo" in _bg53 and "5282" in _bg53,
+          "bàn giao có mục làn demo và canh cổng của nó")
+    check("keo-lui-short-tien-tuong" in _bg53,
+          "bàn giao gọi thẳng tên giả thuyết đang chờ, không nói chung chung")
+
+
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
     # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:

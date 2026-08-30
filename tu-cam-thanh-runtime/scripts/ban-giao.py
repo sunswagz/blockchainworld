@@ -464,6 +464,49 @@ def _cong_tra_loi(cong: int) -> bool:
     finally:
         s.close()
 
+def _lan_demo() -> list[str]:
+    """Làn demo hai chiều còn sống không, và nó đã đi được bao xa.
+
+    Bản bàn giao là thứ phiên sau ĐỌC. Một phép đo tiến tướng kéo ~6 tuần mà
+    không có dòng nào trong bàn giao thì nó sẽ chết lặng lẽ: sổ ngừng lớn, và
+    "chưa có lệnh SHORT nào" đọc y hệt "chưa tới lúc".
+
+    Cùng bài học với `_con_song`: runtime từng chết 5 ngày rưỡi mà bản bàn giao
+    vẫn đẹp. Ở đây rủi ro còn dễ sót hơn, vì làn demo KHÔNG có vị thế thật nào
+    để ai đó tình cờ nhận ra.
+    """
+    import time as _t
+
+    so = ROOT / "data-hai-chieu"
+    if not so.exists():
+        return []
+    ra = []
+    nk = so / "nhat-ky" / "runtime.log"
+    if nk.exists():
+        gio = (_t.time() - nk.stat().st_mtime) / 3600
+        if gio > IM_LANG_GIO:
+            ra.append(f"**LÀN DEMO IM {gio:.1f} GIỜ.** Bật lại: "
+                      f"`powershell -File dichvu/bat.ps1 -Demo`.")
+    elif not _cong_tra_loi(5282):
+        ra.append("**LÀN DEMO CHƯA TỪNG CHẠY** trên máy này.")
+    if nk.exists() and not _cong_tra_loi(5282):
+        ra.append("**CỔNG 5282 KHÔNG TRẢ LỜI** — làn demo đang TẮT. Bật lại: "
+                  "`powershell -File dichvu/bat.ps1 -Demo`.")
+
+    # Đi được bao xa: đếm lệnh SHORT đã đóng, so với 30 lệnh mà giả thuyết cần.
+    try:
+        ds = [json.loads(x) for x in (so / "trades.jsonl").read_text(
+            encoding="utf-8").splitlines() if x.strip()]
+    except (OSError, ValueError):
+        ds = []
+    n_s = sum(1 for t in ds if t.get("side") == "SHORT" and t.get("closedAt"))
+    n_l = sum(1 for t in ds if t.get("side") == "LONG" and t.get("closedAt"))
+    ra.append(f"Làn demo (hai chiều, sàn giấy, cổng 5282): {n_s} lệnh SHORT đã "
+              f"đóng / 30 cần cho «keo-lui-short-tien-tuong» · {n_l} lệnh LONG. "
+              f"Xem cả hai làn: `python scripts/so-hai-lan.py`.")
+    return ra
+
+
 def _con_song() -> list[str]:
     """Bot có đang chạy không — câu hỏi phải trả lời TRƯỚC mọi câu khác.
 
@@ -532,6 +575,14 @@ def main() -> int:
             W(f"- {x}")
         W("")
         W("Mọi con số bên dưới là ảnh chụp lúc nó còn chạy, không phải hiện tại.")
+        W("")
+
+    demo = _lan_demo()
+    if demo:
+        W("## Làn demo hai chiều")
+        W("")
+        for x in demo:
+            W(f"- {x}")
         W("")
 
     moc = (f"so với ảnh chụp cách đây {cach_gio:.1f} giờ" if cach_gio is not None
