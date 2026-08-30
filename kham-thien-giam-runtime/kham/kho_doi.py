@@ -39,7 +39,21 @@ class ChanCho:
     capMongMuon: float
 
     def tuoi_ms(self, bayGioMs: float | None = None) -> float:
-        return (bayGioMs or time.time() * 1000.0) - self.moLucMs
+        """Tuổi của chân chờ, tính bằng mili giây.
+
+        `is not None` chứ KHÔNG phải `or`. `bayGioMs or time.time()`
+        nuốt mốc 0,0 vì 0 là falsy, rồi lặng lẽ lấy đồng hồ máy — và
+        con số ra trông hoàn toàn hợp lý.
+
+        Đã cắn: một phép kiểm truyền `bayGioMs=0.0` với `moLucMs=0.0`
+        (tuổi phải là 0) nhận về 1.788.060.175 giây, và nó không kêu —
+        nó chỉ làm cây quyết định của `chan_rui_ro` rẽ sang nhánh "quá
+        hạn chờ" cho MỌI ca, nên ba phép kiểm khác đạt vì lý do sai.
+
+        Cùng họ với `0.0 or 9 == 9`, cái bẫy đã ghi trong bộ kiểm.
+        """
+        gio = bayGioMs if bayGioMs is not None else time.time() * 1000.0
+        return gio - self.moLucMs
 
     def qua_han(self, bayGioMs: float | None = None) -> bool:
         return self.tuoi_ms(bayGioMs) > float(_KD["giayChoChanHai"]) * 1000.0

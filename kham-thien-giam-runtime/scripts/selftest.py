@@ -1172,6 +1172,145 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_chan_rui_ro() -> None:
+    """Biên của LỜI KHUYÊN CHÂN LỆCH — 12 trên 12 con sống sót lượt đầu.
+
+    Không một biên nào của module này từng được chạm. Nó không đặt lệnh
+    (chỉ khuyên), nhưng buồng lái hiện lời khuyên ấy và người vận hành
+    đọc nó để quyết — một lời khuyên sai chiều ở đây dẫn tay người đi
+    sai chỗ, và đó là dạng hỏng không phép kiểm nào bắt được sau này.
+
+    Cây quyết định có bốn cửa, xếp theo thứ tự ƯU TIÊN:
+
+        1. cửa sắp đóng   → không được chờ nữa
+        2. quá hạn chờ    → phải dứt điểm
+        3. tiền trần nhiều→ siết ngay dù còn giờ
+        4. bình thường    → đợi khớp thụ động
+
+    Thứ tự ấy là cả thiết kế: đảo hai cửa đầu là để một chân trần trụi
+    đi qua tiếng chuông.
+
+    ## Sau khi viết xong: 12 con → 4 CHẾT, 8 TƯƠNG ĐƯƠNG/nhẹ
+
+        105 108 110 128  `abs(du) < 1e-9` rồi `du > 0`. Epsilon nuốt
+                         điểm bằng nhau, và ba dòng sau chỉ chạy khi
+                         `du != 0` nên `>` và `>=` không phân biệt.
+        138 144 156 173  bốn phép so ở BIÊN của giá cặp (1,00 và trần
+                         cặp) và của tỉ lệ 0,35. Ở đúng biên, hai nhánh
+                         cho cùng một HÀNH ĐỘNG và chỉ khác LỜI GIẢI
+                         THÍCH — còn ngỏ, nhưng cái giá của việc bỏ sót
+                         chúng là một dòng chữ, không phải một quyết
+                         định.
+
+    ## Và nó tìm ra một LỖI THẬT, không phải chỗ hở phép kiểm
+
+    `ChanCho.tuoi_ms(0.0)` trả về 1.788.060.175 giây thay vì 0, vì
+    `bayGioMs or time.time() * 1000` nuốt mốc 0,0 (0 là falsy). Hậu quả
+    không phải một con số xấu mà là một CÂY QUYẾT ĐỊNH rẽ nhầm: mọi ca
+    đều rơi vào nhánh "quá hạn chờ", nên ba phép kiểm khác đạt vì lý do
+    sai. Đã sửa ở `kho_doi.tuoi_ms` và `ket_toan.soat` — hai chỗ duy
+    nhất còn dùng lối `or` ấy.
+    """
+    print()
+    print("-- Bien cua LOI KHUYEN CHAN LECH ---------------------------")
+    from kham import chan_rui_ro as _CRR
+    from kham.cap_token import CapSo as _CS
+    from kham.kho_doi import ViThe as _VT2
+    from kham.so_lenh import Muc as _M6
+    from kham.so_lenh import SoLenh as _S6
+
+    han = float(CONFIG["khoDoi"]["giayChoChanHai"])
+    tranCap = float(CONFIG["khoDoi"]["giaCapToiDa"])
+
+    def _cap(giaDownAsk=None):
+        """Cặp sổ. `giaDownAsk=None` nghĩa là KHÔNG AI bán DOWN.
+
+        Phải rỗng CẢ HAI lối: mua DOWN có thể đi thẳng qua ask của DOWN,
+        hoặc đi vòng qua bid của UP (bán UP = mua DOWN, hiện ra sau khi
+        API soi gương). Chỉ rỗng một lối thì `gia_mua` vẫn trả ra giá,
+        và phép kiểm "không ai bán" hoá ra kiểm một chuyện khác.
+        """
+        co = giaDownAsk is not None
+        return _CS(ma="X",
+                   up=_S6(ma="X", ben="UP",
+                          bid=[_M6(0.50, 500.0)] if co else [],
+                          ask=[_M6(0.52, 500.0)], nhanLucMs=0.0),
+                   down=_S6(ma="X", ben="DOWN", bid=[_M6(0.40, 500.0)],
+                            ask=[_M6(giaDownAsk, 500.0)] if co else [],
+                            nhanLucMs=0.0))
+
+    def _vt(coUp=100.0, giaUp=0.50, coDown=0.0, tuoiMs=0.0):
+        v = _VT2(ma="X")
+        if coUp:
+            v.ghi_khop("UP", coUp, giaUp)
+        if coDown:
+            v.ghi_khop("DOWN", coDown, 0.40)
+        if abs(v.dinhHuong) > 0:
+            from kham.kho_doi import ChanCho as _CC2
+            v.choCap.append(_CC2(ben="UP" if v.dinhHuong > 0 else "DOWN",
+                                 soCo=abs(v.dinhHuong),
+                                 giaTrungBinh=giaUp, moLucMs=0.0,
+                                 capMongMuon=0.98))
+        return v
+
+    # ── cân bằng thì KHÔNG khuyên gì ─────────────────────────────────
+    kiem("tồn kho cân → không có lời khuyên nào",
+         _CRR.quyet(_vt(100.0, 0.50, 100.0), _cap(0.45), 200.0, 0.0)
+         is None)
+
+    # ── không ai bán bên thiếu ───────────────────────────────────────
+    q = _CRR.quyet(_vt(), _cap(None), 200.0, 0.0)
+    kiem("không ai bán bên thiếu, còn giờ → CHỜ",
+         q is not None and q.loi == _CRR.CHO, q and q.loi)
+    kiem("và nói rõ không có bên bán",
+         any("không có bên bán" in x for x in (q.lyDo or [])), q.lyDo)
+    q = _CRR.quyet(_vt(), _cap(None), han, 0.0)
+    kiem("không ai bán mà cửa sắp đóng → ĐÓNG CHÂN, không chờ nữa",
+         q.loi == _CRR.DONG_CHAN, q.loi)
+    kiem("và bên phải đóng là bên ĐANG THỪA",
+         q.ben == "UP", q.ben)
+    q = _CRR.quyet(_vt(), _cap(None), han + 1.0, 0.0)
+    kiem("còn hơn hạn một giây thì vẫn CHỜ", q.loi == _CRR.CHO, q.loi)
+
+    # ── cửa sắp đóng, bù vẫn có lãi → ăn thẳng ───────────────────────
+    q = _CRR.quyet(_vt(100.0, 0.40), _cap(0.45), han, 0.0)
+    kiem("cửa sắp đóng, giá cặp nếu bù < 1,00 → VƯỢT SPREAD",
+         q.loi == _CRR.VUOT_SPREAD, (q.loi, q.lyDo))
+    kiem("và khoá lỗ khai bằng 0 vì không lỗ",
+         gan(q.khoaLoUsd, 0.0), q.khoaLoUsd)
+    # Giá cặp ĐÚNG BẰNG 1,00 thì KHÔNG còn là "vẫn có lãi".
+    q = _CRR.quyet(_vt(100.0, 0.50), _cap(0.50), han, 0.0)
+    kiem("giá cặp ĐÚNG BẰNG 1,00 → không còn tính là có lãi",
+         q.loi in (_CRR.VUOT_SPREAD, _CRR.CHIU), q.loi)
+    kiem("và khoá lỗ khai bằng 0 (đúng $1,00 là hoà)",
+         gan(q.khoaLoUsd, 0.0), q.khoaLoUsd)
+
+    # ── quá hạn chờ: dứt điểm, nhưng KHÔNG đuổi giá ──────────────────
+    q = _CRR.quyet(_vt(100.0, 0.40, tuoiMs=0.0), _cap(0.45), 200.0,
+                   (han + 1.0) * 1000.0)
+    kiem("quá hạn chờ, giá còn trong trần → VƯỢT SPREAD",
+         q.loi == _CRR.VUOT_SPREAD, (q.loi, q.lyDo))
+    q = _CRR.quyet(_vt(100.0, 0.60), _cap(0.60), 200.0,
+                   (han + 1.0) * 1000.0)
+    kiem("quá hạn chờ nhưng giá VƯỢT trần cặp → NHÍCH YẾT, đừng đuổi",
+         q.loi == _CRR.NANG_GIA, (q.loi, q.lyDo))
+    kiem("và trần giá được phép trả = trần cặp trừ giá vốn đã có",
+         gan(q.giaToiDa, tranCap - 0.60, 1e-9), q.giaToiDa)
+    q = _CRR.quyet(_vt(100.0, 0.40), _cap(0.45), 200.0, han * 1000.0)
+    kiem("chờ ĐÚNG BẰNG hạn thì CHƯA phải dứt điểm",
+         q.loi == _CRR.CHO, q.loi)
+
+    # ── tiền trần vượt trần → siết ngay dù còn giờ ───────────────────
+    q = _CRR.quyet(_vt(100.0, 0.40), _cap(0.45), 200.0, 0.0,
+                   tranTranUsd=39.9)
+    kiem("tiền trần VƯỢT trần → siết ngay dù còn giờ",
+         q.loi == _CRR.VUOT_SPREAD, (q.loi, q.lyDo))
+    q = _CRR.quyet(_vt(100.0, 0.40), _cap(0.45), 200.0, 0.0,
+                   tranTranUsd=40.0)
+    kiem("tiền trần ĐÚNG BẰNG trần thì CHƯA siết", q.loi == _CRR.CHO,
+         q.loi)
+
+
 def kiem_bien_cua_dat_lenh() -> None:
     """Biên của CỔNG ĐẶT LỆNH — đường mà lệnh THẬT sẽ đi qua.
 
@@ -2542,6 +2681,15 @@ def kiem_bien_cua_ton_kho() -> None:
     kiem("quá hạn một mili giây → quá hạn", c.qua_han(han + 1.0))
     kiem("`bayGioMs` bỏ trống thì lấy đồng hồ máy, không nổ",
          c.tuoi_ms() > 0)
+    # Mốc 0,0 phải được TÔN TRỌNG. `bayGioMs or time.time()` nuốt nó vì
+    # 0 là falsy, rồi trả về một con số trông hoàn toàn hợp lý — và nó
+    # làm cây quyết định của `chan_rui_ro` rẽ sang nhánh "quá hạn chờ"
+    # cho MỌI ca.
+    c0 = _CC(ben="UP", soCo=1.0, giaTrungBinh=0.5, moLucMs=0.0,
+             capMongMuon=0.98)
+    kiem("mốc 0,0 được TÔN TRỌNG, không rơi về đồng hồ máy",
+         gan(c0.tuoi_ms(0.0), 0.0), c0.tuoi_ms(0.0))
+    kiem("và chân mới mở thì CHƯA quá hạn", not c0.qua_han(0.0))
 
 
 def kiem_bien_cua_cong_rui_ro() -> None:
@@ -7646,6 +7794,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_chan_rui_ro()
     kiem_bien_cua_dat_lenh()
     kiem_bien_cua_nan_lai()
     kiem_bien_cua_so_lenh()

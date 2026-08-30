@@ -109,7 +109,10 @@ class KetToan:
     # ── vòng soát ─────────────────────────────────────────────────────────
     def soat(self, bayGioMs: float | None = None) -> int:
         """Soát các khung đã đóng, lấy kết quả. Trả số khung vừa kết toán."""
-        now = bayGioMs or time.time() * 1000.0
+        # `is not None`, không phải `or`: mốc 0,0 là falsy nên
+        # `or` nuốt nó rồi lặng lẽ lấy đồng hồ máy.
+        now = (bayGioMs if bayGioMs is not None
+               else time.time() * 1000.0)
         xong = 0
         for slug, c in list(self.cho.items()):
             if now < c.ketThucMs + self.CHO_TRUOC_KHI_HOI_GIAY * 1000.0:

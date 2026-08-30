@@ -1144,15 +1144,15 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    1121 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1139 phép kiểm số học, KHÔNG cần mạng
     python scripts/quet-dot-bien.py --file=kham/dat_lenh.py  21 con: 14 chết, 7 tương đương
     python scripts/quet-dot-bien.py --file=kham/nan_lai.py   13 con: 7 chết, 6 tương đương
     python scripts/quet-dot-bien.py --file=kham/so_lenh.py   24 con: 17 chết, 7 tương đương
     python scripts/quet-dot-bien.py --file=kham/can_loi.py   18 con: 12 chết, 6 tương đương
     python scripts/quet-dot-bien.py --file=kham/dinh_gia.py  22 con: 15 chết, 7 tương đương
-    python scripts/quet-dot-bien.py --file=kham/ket_toan.py  16 con: 10 chết, 6 tương đương
+    python scripts/quet-dot-bien.py --file=kham/ket_toan.py  15 con: 9 chết, 6 tương đương
     python scripts/quet-dot-bien.py --file=kham/cham_moc.py  12 con: 7 chết, 5 tương đương
-    python scripts/quet-dot-bien.py --file=kham/kho_doi.py   27 con: 19 chết, 8 tương đương
+    python scripts/quet-dot-bien.py --file=kham/kho_doi.py   26 con: 18 chết, 8 tương đương
     python scripts/quet-dot-bien.py --file=kham/rui_ro.py   44 con: 30 chết, 14 tương đương
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
