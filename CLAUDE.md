@@ -659,10 +659,29 @@ Chưa ai gọi nó; adapter sàn sẽ gọi khi có. Nên việc còn lại KHÔ
 "nhớ đối soát" mà là "nối được sàn" — một việc rõ ràng thay cho một
 điều phải nhớ.
 
-**2. `phi.takerHeSo` là THAM SỐ, chưa phải sự thật đã kiểm.** Đối chiếu
-docs.polymarket.com/trading/fees. Đặt sai thì mọi phép tính edge lệch
-cùng một chiều, và lệch im lặng. (Phí nay ĐÃ được trừ khỏi lãi lỗ — xem
-mục PHÍ bên dưới — nên đặt sai hệ số bây giờ đắt hơn trước.)
+**2. ĐÃ ĐỐI CHIẾU (30/08/2026) — và nó SAI, sai cả hai vế.**
+`docs.polymarket.com` vào được (HTTP 200) trong khi `gamma-api` và
+`clob` vẫn bị chặn ở tầng TLS. Công thức chính thức:
+
+    fee = C × feeRate × p × (1 − p),   Crypto: feeRate = 0,07
+
+Mã dùng `heSo × min(p, 1−p)` với `heSo = 0,02`. Hình dạng cũng đạt đỉnh
+ở 50c và về 0 ở hai đầu nên nó TRÔNG đúng, nhưng thiếu 43–71% ở mọi mức
+giá — luôn thiếu, không bao giờ thừa. Nghĩa là mọi `netEdge` từ trước
+tới nay đều lạc quan đúng chừng ấy.
+
+Đo cái giá trên phiên phát lại: phí tổng $3,68 → $7,26, lãi +5,33% →
+**+4,94%**. Số cũ đẹp hơn sự thật đúng bằng khoản phí bị bỏ quên.
+
+Bảng phí chính thức (Crypto, 100 cổ, 21 dòng) nay nằm trong bộ kiểm,
+khớp tới từng xu — chỉ kiểm hình dạng thì công thức sai cũ cũng qua.
+Maker = 0 (tài liệu nói thẳng), phí làm tròn 5 chữ số, dưới 0,00001
+USDC thì về 0.
+
+CÒN LẠI: hạng mục của TỪNG market nằm trong `Market Details` của API —
+thứ đang bị chặn. Năm market đang theo đều là crypto nên 0,07 đúng cho
+chúng; thêm market ngoài crypto thì phải đọc lại hệ số (Sports 0,05 ·
+Finance 0,04 · Politics 0,04 · Geopolitics 0).
 
 **3. Chân lệch không có LỐI THOÁT tự động — nhưng CỠ thì có trần, và
 đã chứng minh.** `quyet_chan` chỉ là LỜI KHUYÊN; không ai huỷ lệnh, vượt
@@ -1125,7 +1144,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    841 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    846 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-giao-dien.mjs   10 phép kiểm giao diện (tương phản WCAG, z-index, ô trống)
     node scripts/kiem-buong-lai.mjs   13 ô của buồng lái có vẽ được không
     node scripts/kiem-lat-cat.mjs     lát cắt có khớp thứ cung tĩnh đọc không

@@ -213,7 +213,47 @@ def kiem_can_loi() -> None:
          phi_taker(0.50, 1) > phi_taker(0.90, 1))
     kiem("phí taker đối xứng quanh 50c",
          gan(phi_taker(0.30, 1), phi_taker(0.70, 1)))
-    kiem("phí taker gần 0 ở 98,7c", phi_taker(0.987, 1) < 0.0005)
+    # Ngưỡng cũ (0,0005) chốt cho công thức CŨ. Số thật ở 98,7c cho 1 cổ
+    # là 0,07 × 0,987 × 0,013 = $0,0009 — vẫn rất nhỏ, chỉ không nhỏ
+    # bằng thứ công thức cũ hứa. Ghi số thật ra đây thay vì nới ngưỡng
+    # cho vừa.
+    kiem("phí taker rất nhỏ ở 98,7c — nhưng là $0,0009, không phải 0",
+         gan(phi_taker(0.987, 1), round(0.07 * 0.987 * 0.013, 5), 1e-9),
+         phi_taker(0.987, 1))
+
+    # ── BẢNG PHÍ CHÍNH THỨC, chép từ docs.polymarket.com/trading/fees ──
+    #
+    # Đối chiếu ngày 30/08/2026. API Polymarket bị chặn ở tầng TLS nhưng
+    # trang tài liệu thì vào được, nên đây là con số THẬT chứ không phải
+    # tham số phỏng đoán — và nó đóng mục 2 của danh sách trước cổng.
+    #
+    # Khớp cả bảng tới từng xu là cách duy nhất chắc rằng CẢ dạng hàm
+    # LẪN hệ số đều đúng. Chỉ kiểm hình dạng (đỉnh ở 50c, đối xứng, về 0
+    # ở hai đầu) thì `min(p, 1−p) × 0,02` cũng qua — và nó thiếu 43–71%.
+    BANG_PHI_CRYPTO_100_CO = {
+        0.01: 0.07, 0.05: 0.33, 0.10: 0.63, 0.15: 0.89, 0.20: 1.12,
+        0.25: 1.31, 0.30: 1.47, 0.35: 1.59, 0.40: 1.68, 0.45: 1.73,
+        0.50: 1.75, 0.55: 1.73, 0.60: 1.68, 0.65: 1.59, 0.70: 1.47,
+        0.75: 1.31, 0.80: 1.12, 0.85: 0.89, 0.90: 0.63, 0.95: 0.33,
+        0.99: 0.07,
+    }
+    lechPhi = [(g, round(phi_taker(g, 100.0), 2), m)
+               for g, m in sorted(BANG_PHI_CRYPTO_100_CO.items())
+               if abs(round(phi_taker(g, 100.0), 2) - m) > 0.005]
+    kiem("khớp TOÀN BỘ bảng phí chính thức (Crypto, 100 cổ)",
+         not lechPhi, lechPhi)
+    kiem("và maker KHÔNG bị thu phí — tài liệu nói thẳng",
+         gan(phi_maker(0.5, 1000.0), 0.0), phi_maker(0.5, 1000.0))
+    # Độ chính xác: làm tròn 5 chữ số, dưới 0,00001 USDC thì về 0.
+    # "Anything smaller rounds to zero" — nhưng LÀM TRÒN trước đã. Phí
+    # 8,75e-6 làm tròn 5 chữ số thành 0,00001, tức đúng mức nhỏ nhất
+    # được thu; phải nhỏ hơn nữa mới về 0.
+    kiem("phí dưới nửa đơn vị cuối thì về 0",
+         phi_taker(0.5, 0.00005) == 0.0, phi_taker(0.5, 0.00005))
+    kiem("còn ngay tại mức nhỏ nhất thì vẫn thu",
+         gan(phi_taker(0.5, 0.0005), 1e-5, 1e-12), phi_taker(0.5, 0.0005))
+    kiem("phí lớn hơn ngưỡng thì KHÔNG bị nuốt",
+         phi_taker(0.5, 0.01) > 0, phi_taker(0.5, 0.01))
     kiem("phí maker bằng 0", gan(phi_maker(0.5, 1000), 0.0))
 
     c80 = can("X", "UP", "t", 0.55, 0.02, SO_MAU, 80)

@@ -54,28 +54,52 @@ _CL = CONFIG["canLoi"]
 def phi_taker(gia: float, soCo: float) -> float:
     """Phí taker Polymarket, tính bằng ĐÔ-LA cho cả lô.
 
-    Polymarket không thu phí maker và có chương trình maker rebate; phí taker
-    trên crypto market phụ thuộc giá và đạt đỉnh quanh mức xác suất 50%. Dạng
-    hàm dùng ở đây:
+    ĐÃ ĐỐI CHIẾU tài liệu chính thức ngày 30/08/2026 —
+    docs.polymarket.com/trading/fees (API bị chặn ở tầng TLS, nhưng
+    trang tài liệu thì vào được):
 
-        phi = heSo * min(p, 1-p) * soCo
+        fee = C × feeRate × p × (1 − p)
 
-    `min(p, 1-p)` cho đúng cái hình mà tài liệu Polymarket mô tả: bằng 0 ở hai
-    đầu 0c/100c và cao nhất ở giữa. Điều đó có hệ quả rất thực tế cho chiến
-    thuật `can_ket_qua` — mua ở 98,7c thì phí gần như bằng 0, nhưng đó cũng
-    đúng chỗ rủi ro đuôi lớn nhất.
+    `C` là số cổ, `p` là giá cổ. Hạng mục Crypto: **feeRate = 0,07**.
+    Maker không bao giờ bị thu phí. Phí làm tròn 5 chữ số thập phân, và
+    dưới 0,00001 USDC thì về 0.
 
-    ══ PHẢI ĐỐI CHIẾU TRƯỚC KHI CHẠY TIỀN THẬT ══
-    `heSo` trong config.json là THAM SỐ, không phải sự thật đã kiểm. Con số
-    thật nằm ở docs.polymarket.com/trading/fees và Polymarket có đổi. Đặt sai
-    hệ số này thì mọi phép tính edge lệch theo cùng một chiều, và lệch im lặng
-    — bảng điều khiển vẫn xanh, chỉ có tiền là đi. `scripts/kiem-so-hoc.py`
-    in ra hệ số đang dùng mỗi lượt chạy chính vì vậy.
+    ## Bản cũ sai CẢ HAI vế, và sai cùng một chiều
+
+    Bản trước viết `heSo × min(p, 1−p) × soCo` với `heSo = 0,02`. Hình
+    dạng `min(p, 1−p)` cũng đạt đỉnh ở 50% và về 0 ở hai đầu, nên nó
+    trông đúng — nhưng nó KHÔNG phải hàm của Polymarket, và hệ số cũng
+    lệch. Đo trên 100 cổ:
+
+           p    ta tính   Polymarket   thiếu
+        0,01     $0,020      $0,069    71,1%
+        0,10     $0,200      $0,630    68,3%
+        0,25     $0,500      $1,313    61,9%
+        0,50     $1,000      $1,750    42,9%
+
+    Thiếu 43–71% ở MỌI mức giá, và luôn thiếu chứ không bao giờ thừa.
+    Nghĩa là mọi `netEdge` từ trước tới nay đều lạc quan đúng chừng ấy —
+    đúng cái "lệch im lặng" mà danh sách trước cổng cảnh báo, và nay đo
+    được thay vì phỏng đoán.
+
+    Bảng phí chính thức (Crypto, 100 cổ) nằm trong bộ kiểm làm phép canh:
+    khớp tới từng xu là cách duy nhất chắc rằng cả DẠNG HÀM lẫn hệ số
+    đều đúng, chứ không phải một trong hai.
+
+    ## Chưa đối chiếu được: hạng mục của TỪNG market
+
+    Bảng phí đổi theo hạng mục (Crypto 0,07 · Sports 0,05 · Finance
+    0,04 · Geopolitics 0). Cả năm market đang theo đều là crypto nên
+    0,07 đúng cho chúng. Nhưng hạng mục THẬT nằm trong `Market Details`
+    của API — thứ đang bị chặn. Thêm market ngoài crypto thì phải đọc
+    lại hệ số từ đó, đừng dùng lại con số này.
     """
     if soCo <= 0:
         return 0.0
     p = min(max(gia, 0.0), 1.0)
-    return float(_PHI["takerHeSo"]) * min(p, 1.0 - p) * soCo
+    ph = float(_PHI["takerHeSo"]) * p * (1.0 - p) * soCo
+    ph = round(ph, 5)
+    return ph if ph >= 1e-5 else 0.0
 
 
 def phi_maker(gia: float, soCo: float) -> float:

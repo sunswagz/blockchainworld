@@ -44,10 +44,10 @@
     "toiThieuMauHieuChinh": 200
   },
 
-  "//phi": "Mô hình phí Polymarket. maker = 0. Taker theo công thức phụ thuộc giá, cao nhất quanh 50¢. HAI SỐ NÀY PHẢI ĐỐI CHIẾU LẠI docs.polymarket.com/trading/fees TRƯỚC KHI CHẠY TIỀN THẬT — chúng là tham số, không phải sự thật đã kiểm.",
+  "//phi": "Mô hình phí Polymarket. ĐÃ ĐỐI CHIẾU tài liệu chính thức ngày 30/08/2026 — docs.polymarket.com/trading/fees (API bị chặn ở tầng TLS nhưng trang tài liệu vào được). Công thức THẬT: `fee = C × feeRate × p × (1 − p)`, hạng mục Crypto feeRate = 0,07, maker không bao giờ bị thu phí, phí làm tròn 5 chữ số và dưới 0,00001 USDC thì về 0. Bản trước dùng `heSo × min(p, 1−p)` với heSo 0,02 — sai CẢ dạng hàm lẫn hệ số, và sai cùng một chiều: thiếu 43–71% ở mọi mức giá, nghĩa là mọi netEdge từ trước đều lạc quan đúng chừng ấy. Bảng phí chính thức (Crypto, 100 cổ) nằm trong bộ kiểm làm phép canh, khớp tới từng xu. CÒN LẠI CHƯA ĐỐI CHIẾU ĐƯỢC: hạng mục của TỪNG market nằm trong `Market Details` của API, thứ đang bị chặn. Năm market đang theo đều là crypto nên 0,07 đúng cho chúng; thêm market ngoài crypto thì phải đọc lại hệ số từ đó (Sports 0,05 · Finance 0,04 · Politics 0,04 · Geopolitics 0).",
   "phi": {
     "makerBps": 0,
-    "takerHeSo": 0.02,
+    "takerHeSo": 0.07,
     "truotGiaBps": 8,
     "leChonNhoNhat": 0.001
   },
