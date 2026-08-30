@@ -48,24 +48,32 @@ print(f"  {len(chos)} chợ · {NGAY} ngày · HỌC {len(ba[0]):,} · "
 print()
 
 cu = (CONFIG.get("nanLai") or {}).get("heSoGiamChan")
+
+# Trị ĐANG DÙNG là mốc so, đọc từ CONFIG — không đóng cứng.
+#
+# Bản trước đóng cứng 0,70 vào cả nhãn lẫn mốc so. Config đổi sang 0,85
+# ngày 30/08 mà script vẫn in "0,70 ← đương nhiệm" và vẫn so mọi thứ với
+# 0,70. Một thước đo mà nhãn nói sai về chính cấu hình đang chạy thì mọi
+# kết luận đọc từ nó đều lệch một bậc, và không có gì đỏ.
+GOC = float(cu) if cu is not None else 0.7
 ket = {}
 try:
-    for hs in (0.3, 0.5, 0.7, 0.85, 1.0):
+    for hs in sorted({0.3, 0.5, 0.7, 0.85, 1.0, GOC}):
         CONFIG.setdefault("nanLai", {})["heSoGiamChan"] = hs
         r = m.cham(chos, ba, cs0)
         ket[hs] = r
         print(f"    {hs:4.2f}   CHỌN {r['chon']:.5f}   CHỐT {r['chot']:.5f}"
-              + ("   ← đương nhiệm" if abs(hs - 0.7) < 1e-9 else ""))
+              + ("   ← đương nhiệm" if abs(hs - GOC) < 1e-9 else ""))
     print()
-    goc = ket[0.7]
+    goc = ket[GOC]
     for hs, r in ket.items():
-        if abs(hs - 0.7) < 1e-9:
+        if abs(hs - GOC) < 1e-9:
             continue
         n = min(len(r["_saiChot"]), len(goc["_saiChot"]))
         hieu = [r["_saiChot"][i] - goc["_saiChot"][i] for i in range(n)]
         thap, cao, soK = khoang_tin_theo_khoi(hieu, goc["_mocChot"][:n])
         dau = ("TỐT HƠN" if cao < 0 else "TỆ HƠN" if thap > 0 else "chứa 0")
-        print(f"    {hs:4.2f} vs 0,70 trên CHỐT: [{thap:+.6f}, {cao:+.6f}]"
+        print(f"    {hs:4.2f} vs {GOC:.2f} trên CHỐT: [{thap:+.6f}, {cao:+.6f}]"
               f"  ({soK} khối) → {dau}")
 finally:
     if cu is None:

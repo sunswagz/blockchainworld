@@ -115,24 +115,32 @@ NUT_VAN: list[NutVan] = [
     # Khoảng cách 51% với 28% chính là phần khớp quá — đo được. Chọn tay
     # một hệ số từ một lần chia đôi là thay một phỏng đoán bằng một phỏng
     # đoán khác. Để cổng chạy lại quyết, đó là việc nó sinh ra để làm.
-    # Mép dưới 0,30 → 0,80 ngày 30/08/2026, vì vùng bị cắt đã được ĐO
-    # LÀ TỆ HƠN, không phải vì nghi ngờ.
+    # ── HÀNG RÀO DỰNG RỒI HẠ, cùng ngày 30/08/2026 ────────────────
     #
-    # `scripts/do-giam-chan.py` quét cả trục trên 4 chợ × 20 ngày, chấm
-    # trên tập CHỐT, khoảng tin bootstrap chia khối theo KHUNG (1.440
-    # khối). So với 0,70: 0,30 cho [+0,000539, +0,001005] và 0,50 cho
-    # [+0,000207, +0,000440] — TỆ HƠN có ý nghĩa; 0,85 và 1,00 TỐT HƠN
-    # có ý nghĩa.
+    # Sáng 30/08 mép dưới bị siết 0,30 → 0,80, vì `do-giam-chan.py` đo
+    # được (4 chợ × 20 ngày, tập CHỐT, bootstrap chia khối theo KHUNG,
+    # 1.440 khối) rằng so với 0,70 thì 0,30 cho [+0,000539, +0,001005]
+    # và 0,50 cho [+0,000207, +0,000440] — TỆ HƠN có ý nghĩa.
     #
-    # Để nguyên dải cũ thì vòng tiến hoá được phép đi lại đúng vùng ấy,
-    # và nó ĐÃ đi: quán quân nhiều lượt liền là 0,7 → 0,3. Một dải tìm
-    # chứa vùng đã biết là xấu không phải "để ngỏ khả năng" — nó là mời
-    # cỗ máy lặp lại một sai lầm đã có bằng chứng.
+    # Chiều 30/08 phép đo ấy HỎNG. `hoc_offline.sigma_tai` nhớ lại theo
+    # khoá thiếu MÃ CHỢ, nên trong `tu-nang-cap.cap_du_doan` — thước mà
+    # cả hai script kia dùng — ba chợ sau nhận σ của chợ đầu. Đo trên
+    # dữ liệu thật: SOL và XRP nhận σ bằng ~40% σ thật của chúng, và
+    # 85,5% số mốc lệch quá ±25%.
     #
-    # Mép dưới 0,80 chứ không 0,85 để trị đang dùng (0,85) nằm TRONG
-    # dải chứ không nằm trên mép: nút ở mép là nút mà cái mép quyết
-    # định, và `nut_o_mep()` sẽ kêu mãi.
-    NutVan("nanLai.heSoGiamChan", 0.80, 1.00, 0.05,
+    # Đo lại sau khi vá, CÙNG script CÙNG tham số: mọi trị 0,30 → 1,00
+    # đều cho khoảng tin CHỨA 0. Trục PHẲNG. Kết luận cũ không sống sót.
+    #
+    # Nên hạ mép về 0,30. Giữ hàng rào là giữ một cái lồng dựng bằng
+    # bằng chứng đã rút — và một cái lồng thì im lặng: vòng tiến hoá cứ
+    # kết luận "giữ nguyên", nghe như dữ liệu đã nói.
+    #
+    # KHÔNG trả trị về 0,70: không có bằng chứng nào nói 0,85 tệ hơn,
+    # và đổi đi đổi lại theo một trục đã đo là phẳng chỉ thêm nhiễu.
+    # Trục phẳng nghĩa là nút này không đáng vặn nữa cho tới khi có
+    # THƯỚC KHÁC — thước ở đây là Brier, mà giảm chấn chỉ hiện ra ở chỗ
+    # bảng hiệu chỉnh lệch nhiều.
+    NutVan("nanLai.heSoGiamChan", 0.30, 1.00, 0.05,
            "đi bao nhiêu phần đường mà bảng hiệu chỉnh chỉ ra"),
 ]
 

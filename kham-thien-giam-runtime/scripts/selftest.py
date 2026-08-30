@@ -5624,34 +5624,36 @@ def kiem_tu_nang_cap() -> None:
          f"2 ứng viên → {b2:.5f} · 60 ứng viên → {b60:.5f}")
     kiem("biên luôn dưới 1 (vẫn đòi khá hơn)", b60 < 1.0, b60)
 
-    # ── giảm chấn phải nằm trong dải ĐÃ ĐO ────────────────────────────
+    # ── giảm chấn: một HÀNG RÀO dựng rồi hạ, và vì sao ────────────────
     #
-    # `scripts/do-giam-chan.py` quét cả trục trên 4 chợ × 20 ngày, khớp
-    # trên HỌC, chấm trên CHỐT, khoảng tin bootstrap chia khối theo KHUNG
-    # (1.440 khối). Brier CHỐT đơn điệu giảm suốt trục, và so với 0,70:
+    # Sáng 30/08/2026 dải tìm bị siết 0,30 → 0,80, vì `do-giam-chan.py`
+    # đo được rằng 0,30 và 0,50 TỆ HƠN 0,70 có ý nghĩa. Phép kiểm này
+    # khi ấy canh đúng cái mép 0,80 ấy.
     #
-    #     0,30  [+0,000539, +0,001005]   TỆ HƠN có ý nghĩa
-    #     0,50  [+0,000207, +0,000440]   TỆ HƠN có ý nghĩa
-    #     0,85  [-0,000247, -0,000073]   TỐT HƠN có ý nghĩa
-    #     1,00  [-0,000426, -0,000075]   TỐT HƠN có ý nghĩa
+    # Chiều 30/08 phép đo bị bác. Thước của nó (`tu-nang-cap.cap_du_doan`)
+    # chạy trên `hoc_offline.sigma_tai`, mà bộ nhớ của hàm ấy khoá thiếu
+    # MÃ CHỢ: ba chợ sau nhận σ của chợ đầu. Trên dữ liệu thật, SOL và
+    # XRP nhận σ bằng ~40% σ thật, 85,5% số mốc lệch quá ±25%.
     #
-    # Canh cái DẢI TÌM, không canh con số.
+    # Đo lại sau khi vá, cùng script cùng tham số: mọi trị 0,30 → 1,00
+    # đều CHỨA 0. Trục phẳng. Nên mép hạ về 0,30.
     #
-    # Trị hiện tại là thứ vòng tiến hoá được phép vặn — đó là việc của
-    # nó. Chốt cứng một con số trong phép kiểm là biến một nút sống
-    # thành nút chết theo đường vòng, và lượt tiến hoá đầu tiên vặn nó
-    # sẽ làm đỏ bộ kiểm mà chẳng có gì hỏng.
+    # Bài học nằm ở đây, không ở con số: **một phép kiểm canh cái mép
+    # cũng chỉ vững bằng phép đo dựng ra cái mép ấy.** Phép kiểm cũ
+    # xanh suốt thời gian con bọ σ còn sống, và nó xanh đúng vì nó canh
+    # trung thành một kết luận sai.
     #
-    # Thứ ĐÁNG canh là dải tìm không được chứa lại vùng đã đo là tệ
-    # hơn (0,30 và 0,50 đều TỆ HƠN 0,70 có ý nghĩa). Để ngỏ vùng ấy
-    # không phải "để ngỏ khả năng" — nó là mời cỗ máy lặp lại một sai
-    # lầm đã có bằng chứng, và nó ĐÃ lặp nhiều lượt liền.
+    # Nên nay KHÔNG canh một con số mép nữa. Chỉ canh hai thứ còn đúng
+    # bất kể phép đo nào: dải phải với tới cả hai đầu có nghĩa vật lý
+    # (0 = không nắn, 1 = nắn trọn phần đường bảng hiệu chỉnh chỉ ra),
+    # và trị đang dùng không được nằm ĐÚNG trên mép — nút ở mép là nút
+    # mà cái mép quyết định chứ không phải dữ liệu.
     from kham.nan_lai import he_so_giam_chan as _hsgc
     _nutGC = NUT_THEO_DUONG["nanLai.heSoGiamChan"]
-    kiem("dải tìm giảm chấn KHÔNG chứa lại vùng đã đo là tệ hơn",
-         _nutGC.thap >= 0.75 - 1e-9, (_nutGC.thap, _nutGC.cao))
-    kiem("nhưng vẫn với tới được 1,00 — mép trên là giới hạn thật",
+    kiem("dải tìm giảm chấn với tới được 1,00 — mép trên là giới hạn thật",
          abs(_nutGC.cao - 1.0) < 1e-9, _nutGC.cao)
+    kiem("và mép dưới không tự siết lại khi chưa có phép đo mới",
+         _nutGC.thap <= 0.30 + 1e-9, (_nutGC.thap, _nutGC.cao))
     _hs = _hsgc()
     kiem("và trị đang dùng nằm TRONG dải, không nằm trên mép",
          _nutGC.thap + 1e-9 < _hs <= _nutGC.cao + 1e-9, _hs)
