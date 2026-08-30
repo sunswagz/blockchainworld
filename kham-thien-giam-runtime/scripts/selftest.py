@@ -1180,6 +1180,7 @@ DA_QUET_DOT_BIEN = {
     "dinh_gia.py", "can_loi.py", "so_lenh.py", "nan_lai.py",
     "dat_lenh.py", "chan_rui_ro.py", "dongho.py", "cap_token.py",
     "do_tre.py", "chien_thuat.py", "phat_lai.py", "chan_doan.py",
+    "tien_hoa.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -1198,9 +1199,143 @@ CHUA_QUET_DOT_BIEN = {
     "sdk_polymarket.py",
     # CÓ nhánh quyết định, đáng quét, chưa quét
     "hoc_offline.py", "ket_qua.py", "so.py",
-    "tien_hoa.py", "vong.py", "chay_lai.py", "ban_thu.py",
+    "vong.py", "chay_lai.py", "ban_thu.py",
     "do_thi.py", "vi.py", "vo_dich.py",
 }
+
+
+def kiem_bien_cua_cong_tien_hoa() -> None:
+    """Biên của CỔNG TIẾN HOÁ — thứ quyết một thay đổi có VÀO MÁY không.
+
+    `tien_hoa.py` là module duy nhất GHI vào `config.json`. Cổng của nó
+    có ba điều kiện, và cả ba đều là biên:
+
+    · ĐỦ MẪU — dưới ngần này lệnh mỗi bên thì không kết luận gì.
+    · BIÊN VƯỢT — ứng viên phải hơn đương nhiệm 10% ĐỘ LỚN. Chỗ này có
+      một cái bẫy DẤU đã ghi sẵn trong mã: `B < A × 1,1` lật ngược khi
+      A âm, và nó lật đúng vào lúc cần cổng nhất — khi cỗ máy đang lỗ.
+    · ĐUÔI — thua lớn nhất không được quá 1,15 lần đương nhiệm.
+
+    Che `doi_chieu` để điều khiển trọn kết quả A/B: phần đáng canh là
+    PHÁN QUYẾT, không phải phép chạy lại.
+    """
+    print()
+    print("-- Bien cua CONG TIEN HOA ----------------------------------")
+    from kham import tien_hoa as _TH
+
+    def _kq(aKy, bKy, aThua=-10.0, bThua=-10.0, soKhop=None, duMau=True):
+        n = soKhop if soKhop is not None else _TH.TOI_THIEU_MAU
+        return {"duMau": duMau,
+                "A": {"kyVong": aKy, "soKhop": n, "thuaLonNhat": aThua},
+                "B": {"kyVong": bKy, "soKhop": n, "thuaLonNhat": bThua},
+                "ketLuan": "thử"}
+
+    def _thu(kq):
+        cu = _TH.doi_chieu
+        try:
+            _TH.doi_chieu = lambda *a, **k: kq
+            dx = _TH.DeXuat("canLoi.netEdgeToiThieu",
+                            float(CONFIG["canLoi"]["netEdgeToiThieu"]),
+                            float(CONFIG["canLoi"]["netEdgeToiThieu"]) + 0.0025,
+                            "thử", "thử")
+            return _TH.thu_mot_de_xuat([], dx)
+        finally:
+            _TH.doi_chieu = cu
+
+    bien = _TH.BIEN_VUOT
+    duoi = _TH.DUOI_TOI_DA
+
+    # ── đủ mẫu ───────────────────────────────────────────────────────
+    r = _thu(_kq(1.0, 10.0, soKhop=_TH.TOI_THIEU_MAU - 1))
+    kiem("kém số lệnh tối thiểu một lệnh → TỪ CHỐI", not r["cho"], r["lyDo"])
+    kiem("và nói rõ là chưa đủ mẫu",
+         any("chưa đủ mẫu" in x for x in r["lyDo"]), r["lyDo"])
+    kiem("ĐÚNG BẰNG số lệnh tối thiểu → qua cửa mẫu",
+         _thu(_kq(1.0, 10.0))["cho"], _thu(_kq(1.0, 10.0))["lyDo"])
+    kiem("`duMau` False → TỪ CHỐI dù số lệnh đủ",
+         not _thu(_kq(1.0, 10.0, duMau=False))["cho"])
+
+    # ── biên vượt, phía A DƯƠNG ─────────────────────────────────────
+    kiem("A dương: B đúng bằng ngưỡng A×1,1 → TỪ CHỐI (phải VƯỢT)",
+         not _thu(_kq(10.0, 10.0 * bien))["cho"])
+    kiem("A dương: B nhích hơn ngưỡng → NHẬN",
+         _thu(_kq(10.0, 10.0 * bien + 1e-6))["cho"])
+    kiem("A dương: B hơn A nhưng chưa đủ biên → TỪ CHỐI",
+         not _thu(_kq(10.0, 10.5))["cho"])
+
+    # ── biên vượt, phía A ÂM — chỗ cái bẫy DẤU nằm ──────────────────
+    #
+    # Cổng cũ viết `B <= A × 1,1`. Với A = −10 thì A×1,1 = −11, nên một
+    # ứng viên −10,5 (TỆ HƠN đương nhiệm) lọt qua. Biên "phải hơn 10%"
+    # biến thành "được phép kém tới 10%".
+    r = _thu(_kq(-10.0, -10.5))
+    kiem("A âm: ứng viên TỆ HƠN đương nhiệm → TỪ CHỐI (bẫy dấu)",
+         not r["cho"], r["lyDo"])
+    kiem("A âm: ứng viên khá hơn nhưng chưa đủ biên → TỪ CHỐI",
+         not _thu(_kq(-10.0, -9.5))["cho"])
+    kiem("A âm: khá hơn đủ biên → NHẬN",
+         _thu(_kq(-10.0, -10.0 + 10.0 * (bien - 1.0) + 1e-6))["cho"],
+         _thu(_kq(-10.0, -10.0 + 10.0 * (bien - 1.0) + 1e-6))["lyDo"])
+
+    # ── A = 0: cổng vẫn phải ĐÓNG được ở mép ────────────────────────
+    kiem("A = 0 và B = 0 → TỪ CHỐI, không cho đi qua với biên bằng 0",
+         not _thu(_kq(0.0, 0.0))["cho"])
+    kiem("A = 0 và B dương → NHẬN", _thu(_kq(0.0, 0.001))["cho"])
+
+    # ── đuôi: thua lớn nhất ─────────────────────────────────────────
+    tot = 10.0 * bien + 1.0
+    kiem("thua lớn nhất ĐÚNG BẰNG 1,15× đương nhiệm → còn NHẬN",
+         _thu(_kq(10.0, tot, aThua=-10.0, bThua=-10.0 * duoi))["cho"],
+         _thu(_kq(10.0, tot, aThua=-10.0,
+                  bThua=-10.0 * duoi))["lyDo"])
+    r = _thu(_kq(10.0, tot, aThua=-10.0, bThua=-10.0 * duoi - 0.01))
+    kiem("vượt một xu → TỪ CHỐI", not r["cho"], r["lyDo"])
+    kiem("và nói rõ là vì ĐUÔI, không phải vì kỳ vọng",
+         any("thua lớn nhất" in x for x in r["lyDo"]), r["lyDo"])
+
+    # ── lời từ chối phải ĐỌC ĐƯỢC ───────────────────────────────────
+    r = _thu(_kq(10.0, 10.5))
+    kiem("lời từ chối nói rõ ứng viên HƠN hay KÉM đương nhiệm",
+         any("hơn đương nhiệm" in x or "kém đương nhiệm" in x
+             for x in r["lyDo"]), r["lyDo"])
+    kiem("và nêu ĐÚNG ngưỡng cổng đòi, không chỉ nêu A",
+         any("cổng đòi" in x for x in r["lyDo"]), r["lyDo"])
+
+    # ── GHI CONFIG: sửa ĐÚNG một dòng, và ĐỌC LẠI để chắc ───────────
+    #
+    # Ghi lại cả file bằng `json.dump` là mất hết chú thích `//...`, mà
+    # chú thích ấy là chỗ giữ lý lẽ của từng con số. Nên nó sửa VĂN BẢN
+    # tại chỗ — và sửa văn bản có đường thất bại mà JSON không có: khớp
+    # nhầm một khoá cùng tên ở nhánh khác, hoặc không khớp gì cả.
+    import json as _js2
+
+    from kham.tien_hoa import _thay_tai_cho as _ttc
+    NL2 = chr(10)
+    mau = ('{' + NL2
+           + '  "//a": "ghi chú của A",' + NL2
+           + '  "a": { "x": 1.5, "y": 2 },' + NL2
+           + '  "//b": "ghi chú của B",' + NL2
+           + '  "b": { "x": 9.5 }' + NL2
+           + '}' + NL2)
+    ra = _ttc(mau, ["a", "x"], 0.25)
+    kiem("thay ĐÚNG nhánh a.x, không đụng b.x",
+         ra is not None and _js2.loads(ra)["a"]["x"] == 0.25
+         and _js2.loads(ra)["b"]["x"] == 9.5,
+         ra and _js2.loads(ra))
+    kiem("và GIỮ NGUYÊN chú thích — chúng là lý lẽ của từng con số",
+         ra is not None and '"//a"' in ra and '"//b"' in ra)
+    kiem("thay được nhánh SAU cùng tên khoá",
+         _js2.loads(_ttc(mau, ["b", "x"], 0.75))["b"]["x"] == 0.75
+         and _js2.loads(_ttc(mau, ["b", "x"], 0.75))["a"]["x"] == 1.5)
+    kiem("khoá không có → None, không ghi bừa",
+         _ttc(mau, ["a", "khongco"], 1.0) is None)
+    kiem("nhánh cha không có → None",
+         _ttc(mau, ["khongco", "x"], 1.0) is None)
+    kiem("số NGUYÊN ghi không có đuôi `.0` — config phải đọc được bằng mắt",
+         '"x": 3,' in (_ttc(mau, ["a", "x"], 3.0) or ""),
+         _ttc(mau, ["a", "x"], 3.0))
+    kiem("số lẻ giữ nguyên độ chính xác",
+         _js2.loads(_ttc(mau, ["a", "x"], 0.0025))["a"]["x"] == 0.0025)
 
 
 def kiem_bien_cua_chan_doan() -> None:
@@ -1374,8 +1509,8 @@ def kiem_phu_quet_dot_bien() -> None:
         thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
                  if ("--file=kham/" + x) not in vb]
         kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
-    kiem("đã quét ít nhất 16 module lõi",
-         len(DA_QUET_DOT_BIEN) >= 16, len(DA_QUET_DOT_BIEN))
+    kiem("đã quét ít nhất 17 module lõi",
+         len(DA_QUET_DOT_BIEN) >= 17, len(DA_QUET_DOT_BIEN))
 
 
 def kiem_bien_cua_phat_lai() -> None:
@@ -8985,6 +9120,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_cong_tien_hoa()
     kiem_bien_cua_chan_doan()
     kiem_phu_quet_dot_bien()
     kiem_bien_cua_phat_lai()
