@@ -126,11 +126,19 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
         # thu nhập, và sổ chỉ ghi «thu 0», y hệt một engine không kiếm
         # được gì.
         #
-        # Đo thật 30/08: `basis.cash_carry.v1` chạy 5.222 vòng kế toán,
-        # KHÔNG vòng nào mù, và CHƯA TỪNG ghi một dòng FUNDING nào —
-        # trong khi hai ty kia ghi hơn 40.000 dòng mỗi ty. Hai con số
-        # dưới đây là thứ duy nhất phân biệt được «engine không kiếm
-        # được» với «người vận hành khởi động lại quá nhiều».
+        # ⚠ SỬA LẠI MỘT CÂU ĐÃ VIẾT SAI Ở ĐÂY. Chỗ này từng dùng con số
+        # «`basis.cash_carry.v1` chạy 5.222 vòng, không vòng nào mù, chưa
+        # từng ghi một dòng FUNDING» làm BẰNG CHỨNG cho mối nguy khởi
+        # động lại. Nguyên nhân thật hoá ra khác hẳn: `ke_toan` của ty ấy
+        # đếm mốc SẮP TỚI trong một cửa sổ đã QUA, nên nó trả 0 ở mọi
+        # vòng dù máy có chạy liên tục bao lâu — xem `dem_moc_qua` trong
+        # `phai_sinh_chung/dongho.py`. Đã vá 30/08/2026.
+        #
+        # Giữ lại hai con số dưới đây, vì mối nguy thì vẫn thật: đánh rơi
+        # cửa sổ chứa mốc là đánh rơi tám giờ thu nhập. Nhưng đừng đọc
+        # chúng như lời giải thích cho một con số 0 nào đó — một bằng
+        # chứng gán nhầm nguyên nhân là thứ ngăn người sau đi tìm nguyên
+        # nhân thật, và ở đây nó đã ngăn đúng một ngày.
         "soLanKhoiDong": int(soLanKhoiDong),
         "tongGiayTatMay": float(tongGiayTatMay),
         # Trường THÊM, không đổi cấu trúc cũ — nên KHÔNG tăng `BAN`. Bản đọc

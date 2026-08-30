@@ -804,10 +804,14 @@ class TrungUong:
         `thi_bac_ty/ke_toan.py` để biết vì sao nó không được nằm ở Trung
         Ương và vì sao ty trả `None` phải được ĐẾM chứ không ngầm là 0.
         """
-        import time as _time
         from .ke_toan import LatCatKeToan as _L
 
-        now = _time.time()
+        # `_gio_he()` chứ không `time.time()` thẳng: đó là chỗ DUY NHẤT
+        # đọc giờ hệ trong mô-đun này, nên phép kiểm có một mối nối để
+        # đóng băng đồng hồ. Không có mối nối ấy thì mọi ranh giới `>=`
+        # ở đây không kiểm được — đồng hồ tường không bao giờ rơi đúng
+        # vào điểm bằng nhau, nên một `>` viết nhầm chạy im vĩnh viễn.
+        now = _gio_he()
         l = _L()
         # Đẩy mốc TRƯỚC lối thoát sớm: vòng không có vị thế nào vẫn là một
         # vòng nằm trong cửa sổ đo. Bỏ nó là làm mẫu số nhỏ lại đúng bằng
@@ -967,8 +971,7 @@ class TrungUong:
         được hoãn tới cuối. Hệ quả cố ý: mở rồi đóng ngay là hiện ra một
         khoản LỖ đúng bằng phí, và đó là sự thật.
         """
-        import time as _time
-        now = _time.time()
+        now = _gio_he()
         d = tt.tom_tat() if hasattr(tt, "tom_tat") else dict(tt)
         self.soViThe[tt.ma] = SoViThe(
             ma=tt.ma, chienLuoc=tt.chienLuoc, toTrinh=d, vonUsd=float(vonUsd),

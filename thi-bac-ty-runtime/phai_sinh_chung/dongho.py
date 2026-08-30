@@ -165,6 +165,95 @@ def _som_hon(a: float | None, b: float | None) -> float | None:
     return min(a, b)
 
 
+def dem_moc_qua(tuMs: float, denMs: float, mocKeMs: int | None,
+                intervalGio: float) -> LichMoc:
+    """Số mốc kết toán ĐÃ RƠI trong khoảng `(tu, den]`. Nhìn về QUÁ KHỨ.
+
+    `dem_moc()` ở trên trả lời "giữ tiếp `giuGio` nữa thì chạm mấy mốc" —
+    câu của lúc QUYẾT ĐỊNH. Hàm này trả lời "khoảng vừa qua đã chạm mấy
+    mốc" — câu của lúc GHI SỔ. Hai câu khác nhau, và dùng nhầm cái này
+    cho việc kia là một lỗi KHÔNG hiện ra như lỗi.
+
+    **Chuyện đã xảy ra, 30/08/2026.** Cả hai ty đếm funding —
+    `basis.cash_carry.v1` và `perpetual.funding_spread.v1` — kế toán bằng
+    `dem_moc(tuGiay, dt)`, tức đếm TỚI trong một cửa sổ đã QUA. Mà
+    `mocKeMs` sàn công bố luôn nằm ở phía trước `den`, nên điều kiện
+    `dau > hetMs` đúng ở **mọi** vòng: số mốc bằng 0, mãi mãi. Đo trên
+    làn thật: `basis.cash_carry.v1` giữ **36.256 vốn-giờ** và thu đúng
+    **0,0000 USD**, trong khi vẫn trả phí vào lệnh. Sáu vị thế, mỗi vị
+    thế 0,40 USD phí, đã giữ hơn chín giờ — dài hơn một chu kỳ funding
+    tám giờ của Binance.
+
+    Không phép kiểm nào đỏ, không dòng nhật ký nào kêu, và buồng lái khai
+    `0,0 %/năm` — một con số trông như một sự thật về thị trường, trong
+    khi nó là một sự thật về phép cộng.
+
+    **Sàn không công bố `mocKeMs` thì trả 0 và KHAI ước lượng — không
+    đoán.** `dem_moc()` được phép đoán "mốc kế nằm giữa chu kỳ" vì đó là
+    kỳ vọng của một lần vào lệnh ngẫu nhiên, một con số dùng để xếp hạng.
+    Ở đây thì khác hẳn: đoán một mốc trong QUÁ KHỨ là bịa ra một khoản
+    tiền ĐÃ NHẬN, và nó đi thẳng vào sổ cái.
+
+    Biên: `(tu, den]` — hở trái, kín phải. Hai cửa sổ liền nhau là
+    `(t0, t1]` rồi `(t1, t2]`, nên một mốc rơi đúng `t1` được đếm ĐÚNG
+    MỘT lần. Đổi sang kín trái là đếm đôi mỗi lần mốc rơi trúng ranh giới
+    vòng, và số tiền bịa thêm ấy trông y hệt tiền thật.
+    """
+    if not (intervalGio > 0):
+        raise ValueError(f"intervalGio phải > 0, nhận {intervalGio!r}")
+    if denMs < tuMs:
+        raise ValueError(f"cửa sổ đi lùi: {tuMs!r} → {denMs!r}")
+
+    if mocKeMs is None:
+        return LichMoc(0, None, None, None, True)
+
+    buocMs = intervalGio * GIO_MS
+    # Mốc lớn nhất còn ≤ den. `mocKeMs` thường ở phía trước `den`, nên k âm.
+    k = math.floor((denMs - float(mocKeMs)) / buocMs)
+    cuoi = float(mocKeMs) + k * buocMs
+    if cuoi <= tuMs:
+        return LichMoc(0, None, None, None, False)
+
+    # Số k ≥ 0 thoả `cuoi − k·bước > tu`, tức `k < (cuoi − tu)/bước`.
+    # `ceil` chứ không `floor(...)+1`: cửa sổ dài đúng một chu kỳ chứa MỘT
+    # mốc, không phải hai — mốc ở đầu kia thuộc cửa sổ trước.
+    so = int(math.ceil((cuoi - tuMs) / buocMs - 1e-9)) or 1
+    dau = cuoi - (so - 1) * buocMs
+    return LichMoc(so, int(dau), int(cuoi), None, False)
+
+
+def thu_thuc_qua(tuMs: float, denMs: float, rate: float,
+                 mocKeMs: int | None,
+                 intervalGio: float) -> tuple[float, LichMoc]:
+    """Funding ĐÃ NHẬN trên MỘT chân trong `(tu, den]`. Dấu: xem đầu file."""
+    lich = dem_moc_qua(tuMs, denMs, mocKeMs, intervalGio)
+    return lich.soMoc * rate, lich
+
+
+def thu_cap_qua(tuMs: float, denMs: float,
+                rateLong: float, mocLongMs: int | None, intervalLongGio: float,
+                rateShort: float, mocShortMs: int | None,
+                intervalShortGio: float) -> dict:
+    """Funding ĐÃ NHẬN của cả cặp delta-neutral trong `(tu, den]`.
+
+    Bản quá khứ của `thu_cap()`. Cùng quy ước dấu, cùng khoá trả về — trừ
+    `choMocDauGiay`, thứ không có nghĩa cho một cửa sổ đã qua.
+    """
+    tShort, lichShort = thu_thuc_qua(tuMs, denMs, rateShort, mocShortMs,
+                                     intervalShortGio)
+    tLong, lichLong = thu_thuc_qua(tuMs, denMs, rateLong, mocLongMs,
+                                   intervalLongGio)
+    return {
+        "thu": tShort - tLong,
+        "thuShort": tShort,
+        "traLong": tLong,
+        "soMocShort": lichShort.soMoc,
+        "soMocLong": lichLong.soMoc,
+        "choMocDauGiay": None,
+        "uocLuong": lichShort.uocLuong or lichLong.uocLuong,
+    }
+
+
 def gio_giu_toi_thieu(nowMs: float, mocKeMs: int | None, intervalGio: float) -> float:
     """Phải giữ ít nhất bao nhiêu giờ mới chạm được MỘT mốc kết toán.
 

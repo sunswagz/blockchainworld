@@ -12142,6 +12142,411 @@ def kiem_moi_module_nhap_duoc() -> None:
          "đang canh một thư mục rỗng")
 
 
+def kiem_moc_qua() -> None:
+    """Kế toán funding phải đếm mốc ĐÃ RƠI, không mốc SẮP TỚI.
+
+    Hai ty đếm funding — `basis.cash_carry.v1` và
+    `perpetual.funding_spread.v1` — ghi sổ bằng `dem_moc(tuGiay, dt)`,
+    tức hỏi "giữ thêm `dt` nữa thì chạm mấy mốc" cho một cửa sổ đã QUA.
+    Sàn công bố `mocKeMs` là mốc KẾ TIẾP, luôn nằm sau `den`, nên câu trả
+    lời là 0 ở **mọi** vòng. Đo làn thật 30/08/2026:
+
+        basis.cash_carry.v1   36.256 vốn-giờ   thu 0,0000 USD   0,0 %/năm
+
+    Sáu vị thế đã giữ hơn chín giờ — dài hơn chu kỳ funding tám giờ của
+    Binance — mỗi cái trả 0,40 USD phí vào lệnh và không nhận lại gì.
+    Buồng lái khai `0,0 %/năm`, một câu nghe như sự thật về thị trường
+    trong khi nó là sự thật về phép cộng.
+
+    **Vì sao bộ kiểm cũ xanh: mẫu không giống sản xuất.** Mọi ca "mốc đi
+    qua" trong `kiem_hai_ty_that` dựng `mocKeMs` ở QUÁ KHỨ (`-0.5` giờ) —
+    một báo giá sàn không bao giờ trông như thế. Mọi ca `mocKeMs` ở tương
+    lai (`+5`, `+6` giờ) đều là ca "không mốc nào đi qua", và chúng đạt.
+    Hai nhánh đều có phép kiểm, cả hai đều đúng, và cái luôn xảy ra
+    ngoài đời thì không ai hỏi. Nên ở đây mẫu dựng theo ĐÚNG hình dạng
+    sản xuất: `mocKeMs` luôn ở phía trước `den`.
+    """
+    print("\n-- MOC DA ROI: ke toan funding nhin ve QUA KHU --")
+    from phai_sinh_chung.dongho import (GIO_MS, dem_moc, dem_moc_qua,
+                                        thu_cap_qua, thu_thuc_qua)
+
+    T = 1_800_000_000_000.0            # mốc ms cố định
+    H = GIO_MS
+    IV = 8.0
+
+    # ── 1. HÌNH DẠNG SẢN XUẤT: mốc kế ở TƯƠNG LAI, mốc trước đã rơi ────
+    # Cửa sổ (T−1h, T]. Mốc vừa rơi cách đây nửa giờ ⇒ mốc kế ở T+7,5h.
+    mocKe = int(T + 7.5 * H)
+    l = dem_moc_qua(T - H, T, mocKe, IV)
+    kiem("mốc rơi TRONG cửa sổ đã qua thì ĐẾM ĐƯỢC, dù mốc kế ở tương lai",
+         l.soMoc == 1 and l.mocCuoiMs == int(T - 0.5 * H),
+         f"{l} — đây là hình dạng của MỌI báo giá sàn thật, và nó là ca "
+         f"mà bản nhìn-tới trả 0 ở mọi vòng")
+    cu = dem_moc(T - H, 1.0, mocKe, IV)
+    kiem("còn bản nhìn-TỚI trả 0 trên đúng cửa sổ ấy — đó là con bọ",
+         cu.soMoc == 0,
+         f"{cu} — giữ lại phép kiểm này để lần sau ai đổi ngược lại thì "
+         f"thấy ngay hai hàm nói hai chuyện khác nhau")
+
+    kiem("chưa mốc nào rơi thì 0, và là 0 ĐO ĐƯỢC",
+         dem_moc_qua(T - 60_000.0, T, int(T + 7.5 * H), IV).soMoc == 0
+         and dem_moc_qua(T - 60_000.0, T, int(T + 7.5 * H),
+                         IV).uocLuong is False)
+
+    # ── 2. BIÊN: hở trái, kín phải — mỗi mốc đúng một lần ──────────────
+    kiem("mốc rơi ĐÚNG mép phải được đếm",
+         dem_moc_qua(T - 10_000.0, T, int(T + IV * H), IV).soMoc == 1,
+         "thoát lệnh lúc 08:00:00 thì khoản funding 08:00 đã ghi vào vị "
+         "thế — cùng quy ước lạc quan với `dem_moc`")
+    kiem("mốc rơi ĐÚNG mép trái KHÔNG được đếm",
+         dem_moc_qua(T, T + 10_000.0, int(T + IV * H), IV).soMoc == 0,
+         "nó thuộc cửa sổ trước; đếm cả hai bên là bịa thêm một khoản "
+         "funding mỗi lần mốc rơi trúng ranh giới vòng")
+
+    # ── 3. BẤT BIẾN: chia nhỏ cửa sổ KHÔNG đổi tổng số mốc ─────────────
+    mocKe3 = int(T + 30.0 * H)          # lưới: …, T+6h, T+14h, T+22h, T+30h
+    #                                     lùi: T−2h, T−10h, T−18h …
+    tong = dem_moc_qua(T - 24.0 * H, T, mocKe3, IV).soMoc
+    n, buoc = 0, (24.0 * H) / 144.0      # 144 cửa sổ 10 phút
+    for i in range(144):
+        n += dem_moc_qua(T - 24.0 * H + i * buoc,
+                         T - 24.0 * H + (i + 1) * buoc, mocKe3, IV).soMoc
+    kiem("cắt 24 giờ thành 144 cửa sổ thì TỔNG số mốc không đổi",
+         tong == n == 3,
+         f"một lượt {tong} mốc · cắt nhỏ {n} mốc — lệch là đếm đôi hoặc "
+         f"đánh rơi ở ranh giới vòng, và cả hai đều đi thẳng vào sổ cái")
+
+    # ── 4. KHÔNG ĐOÁN VỀ QUÁ KHỨ ───────────────────────────────────────
+    l4 = dem_moc_qua(T - H, T, None, IV)
+    kiem("sàn không công bố mốc kế thì trả 0 và KHAI là ước lượng",
+         l4.soMoc == 0 and l4.uocLuong is True,
+         "`dem_moc` được phép đoán mốc kế nằm giữa chu kỳ vì đó là kỳ "
+         "vọng dùng để XẾP HẠNG; đoán một mốc trong quá khứ thì khác — "
+         "nó là bịa ra một khoản tiền ĐÃ NHẬN, và nó vào thẳng sổ cái")
+
+    # ── 5. Cửa sổ dài hơn một chu kỳ ───────────────────────────────────
+    kiem("cửa sổ 24 giờ trên chu kỳ 8 giờ chứa đúng 3 mốc",
+         dem_moc_qua(T - 24.0 * H, T, int(T + 2.0 * H), IV).soMoc == 3,
+         str(dem_moc_qua(T - 24.0 * H, T, int(T + 2.0 * H), IV)))
+    kiem("cửa sổ dài ĐÚNG một chu kỳ chứa đúng 1 mốc, không phải 2",
+         dem_moc_qua(T - IV * H, T, int(T + IV * H), IV).soMoc == 1,
+         str(dem_moc_qua(T - IV * H, T, int(T + IV * H), IV)))
+
+    # ── 6. Đầu vào hỏng thì NÉM, không trả một con số ──────────────────
+    for ten, f in (("cửa sổ đi lùi",
+                    lambda: dem_moc_qua(T, T - 1000.0, int(T), IV)),
+                   ("chu kỳ 0 giờ",
+                    lambda: dem_moc_qua(T - H, T, int(T), 0.0))):
+        try:
+            f()
+            _n = False
+        except ValueError:
+            _n = True
+        kiem(f"{ten} thì ném ValueError", _n,
+             "trả 0 ở đây là để một cấu hình hỏng chảy vào sổ cái dưới "
+             "dạng «ty này không thu được gì»")
+
+    # ── 7. DẤU: SHORT nhận, LONG trả ───────────────────────────────────
+    t7, _ = thu_thuc_qua(T - H, T, 0.0003, int(T + 7.5 * H), IV)
+    kiem("một chân: thu = số mốc × rate, giữ nguyên dấu",
+         gan(t7, 0.0003), str(t7))
+    r7 = thu_cap_qua(T - H, T,
+                     0.0002, int(T + 7.5 * H), IV,     # LONG
+                     0.0003, int(T + 7.5 * H), IV)     # SHORT
+    kiem("cặp: thu = mốc SHORT × rate_S − mốc LONG × rate_L",
+         gan(r7["thu"], 0.0001) and r7["soMocLong"] == 1
+         and r7["soMocShort"] == 1, str(r7))
+
+    # ── 8. HAI TY THẬT, với báo giá đúng hình dạng sản xuất ────────────
+    from bac.ty_perp import TyPerp
+    from co_so.ty_co_so import TyCoSo
+    from phai_sinh_chung.models import BaoGia
+    from thi_bac_ty.danh_muc import ViThe
+
+    now8 = T / 1000.0
+
+    class _Rt:
+        def __init__(self, bg):
+            self.baoGia = list(bg)
+
+    def _bg8(san, rate, mocSauGio):
+        return BaoGia(san=san, ma="BTC", rate=rate, intervalGio=IV,
+                      markPx=60_000.0,
+                      mocKeMs=int(T + mocSauGio * H),
+                      nhanTsMs=int(T))
+
+    # cash-and-carry: 500 USD chân perp, mốc rơi cách đây nửa giờ
+    chan = [ViThe("m", TyCoSo.ma, "LONG", "binance", "BTC", 500.0,
+                  loai="spot"),
+            ViThe("m", TyCoSo.ma, "SHORT", "binance", "BTC", 500.0,
+                  loai="perp")]
+    k = TyCoSo(_Rt([_bg8("binance", 0.0003, 7.5)])).ke_toan(
+        chan, {"taiSan": "BTC"}, now8 - 3600.0, now8)
+    kiem("cash-carry THU ĐƯỢC khi mốc vừa rơi, dù mốc kế ở tương lai",
+         k is not None and gan(k.thuUsd, 500.0 * 0.0003),
+         f"{k and k.thuUsd} — trước bản vá con số này là 0,0 ở mọi vòng, "
+         f"và 36.256 vốn-giờ trên làn thật đã đi qua nó")
+
+    # cùng ty, cùng báo giá, cửa sổ MƯỜI GIÂY như vòng quét thật
+    k = TyCoSo(_Rt([_bg8("binance", 0.0003, 7.5)])).ke_toan(
+        chan, {"taiSan": "BTC"}, now8 - 10.0, now8)
+    kiem("mà cửa sổ mười giây KHÔNG chứa mốc thì vẫn đúng 0",
+         k is not None and k.thuUsd == 0.0 and k.doDuoc,
+         f"{k and k.thuUsd} — tiền funding chảy thành cục, không thành "
+         f"dòng; một cỗ máy trả số dương ở mọi vòng là cỗ máy đang nhân "
+         f"rate với giờ")
+
+    # chênh funding perp: mốc SHORT vừa rơi, mốc LONG chưa
+    chanP = [ViThe("p", TyPerp.ma, "LONG", "binance", "BTC", 500.0),
+             ViThe("p", TyPerp.ma, "SHORT", "okx", "BTC", 500.0)]
+    k = TyPerp(_Rt([_bg8("binance", 0.0001, 5.0),
+                    _bg8("okx", 0.0003, 7.5)])).ke_toan(
+        chanP, {"taiSan": "BTC"}, now8 - 3600.0, now8)
+    kiem("chênh funding: mốc SHORT vừa rơi thì THU vào",
+         k is not None and gan(k.thuUsd, 500.0 * 0.0003),
+         f"{k and k.thuUsd} — notional MỘT chân là tổng vốn hai chân chia "
+         f"đôi: 1.000 / 2 = 500. Nhân cả 1.000 là đếm đôi cùng một khoản "
+         f"tiền, và nó cộng dồn mỗi mốc")
+    k = TyPerp(_Rt([_bg8("binance", 0.0002, 7.5),
+                    _bg8("okx", 0.0003, 5.0)])).ke_toan(
+        chanP, {"taiSan": "BTC"}, now8 - 3600.0, now8)
+    kiem("mốc LONG vừa rơi thì TRẢ ra, dấu âm",
+         k is not None and gan(k.thuUsd, -500.0 * 0.0002),
+         f"{k and k.thuUsd} — funding dương nghĩa là LONG trả cho SHORT")
+
+
+def kiem_ranh_gioi_ke_toan() -> None:
+    """Ranh giới BẰNG ĐÚNG của lớp kế toán, và cái đồng hồ đóng băng được.
+
+    Phép quét đột biến toàn bộ `trung_uong.py` để sống sót một nhóm dòng
+    có cùng một hình dạng: `>=` đổi thành `>`, `>` đổi thành `>=`. Không
+    phép kiểm nào chạm tới chúng, và lý do không phải là quên — mà là
+    **không chạm tới được**: cả lớp kế toán đọc `time.time()` thẳng, nên
+    không có lượt chạy nào rơi đúng vào điểm hai vế bằng nhau. Một `>`
+    viết nhầm ở đó chạy im vĩnh viễn.
+
+    Nên lượt này mở một mối nối trước: `_ke_toan_vi_the` và
+    `_mo_so_vi_the` nay đọc giờ qua `_gio_he()` — hàm mức mô-đun, thay
+    được. Rồi mới kiểm được ĐÚNG điểm bằng nhau.
+
+    Hai chỗ ở đây cố ý KHÔNG có phép kiểm, vì chúng là đột biến TƯƠNG
+    ĐƯƠNG chứ không phải lỗ hổng:
+
+      · `(thu / tran) if tran > 0` — `_tran_thu_mot_vong` đã trả `None`
+        khi `apr <= 0` hoặc `dt <= 0`, nên `tran` khác `None` thì luôn
+        dương. `>=` ở đó không bao giờ chia cho 0 được.
+      · `PhanBo(ban.thamSo.get("phanBo") or {})` (bốn chỗ) — `PhanBo`
+        nhận `None` không sao, nên `or {}` và `and {}` cùng dựng được
+        một PhanBo mặc định. Khác nhau về kiểu, giống nhau về hành vi.
+      · `{k: v for k, v in self._dauVet.items() if v > han}` — `han`
+        dựng từ một `monotonic()` đọc ngay tại đó, nên không dấu vết nào
+        bằng đúng nó. `>=` chỉ khác `>` tại điểm bằng nhau ấy.
+    """
+    print("\n-- RANH GIOI KE TOAN: bang dung thi xu the nao --")
+    import thi_bac_ty.trung_uong as _TU
+    from thi_bac_ty.danh_muc import ViThe
+    from thi_bac_ty.ke_toan import KetToanVong
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.trung_uong import (BIEN_THU_VUOT_TRAN, TrungUong,
+                                       _lay_nut, _tran_thu_mot_vong)
+
+    # ── 1. TRẦN THU MỘT VÒNG: đơn vị, và cái ngưỡng 0 ──────────────────
+    tt = {"netMoiGioBps": 1.0}
+    # 1 bps/giờ = 8.760 bps/năm = 87,6 %/năm. Trên 1.000 USD trong 1 giờ
+    # thì lời hứa là 0,1 USD, và trần là 10 lần lời hứa.
+    c = _tran_thu_mot_vong(tt, 1000.0, 0.0, 3600.0)
+    kiem("trần thu một vòng = 10 lần chính lời hứa của tờ trình",
+         c is not None and gan(c, 1.0, 1e-9),
+         f"{c} — 1 bps/giờ trên 1.000 USD trong 1 giờ là 0,1 USD hứa, "
+         f"nhân {BIEN_THU_VUOT_TRAN:g} là 1,0")
+    kiem("tờ trình hứa ĐÚNG 0 thì KHÔNG dựng trần",
+         _tran_thu_mot_vong({"netMoiGioBps": 0.0}, 1000.0, 0.0, 3600.0)
+         is None,
+         "trần 0 biến mọi khoản thu dương thành «vượt trần» — một ty hứa "
+         "huề vốn mà thu được 1 xu sẽ bị kêu là in tiền")
+    kiem("hứa ÂM cũng không dựng trần",
+         _tran_thu_mot_vong({"netMoiGioBps": -1.0}, 1000.0, 0.0, 3600.0)
+         is None)
+    kiem("quãng thời gian 0 thì không dựng trần",
+         _tran_thu_mot_vong(tt, 1000.0, 100.0, 100.0) is None)
+    kiem("tờ trình không phải dict và không có `tom_tat` thì chịu",
+         _tran_thu_mot_vong(None, 1000.0, 0.0, 3600.0) is None
+         and _tran_thu_mot_vong({}, 1000.0, 0.0, 3600.0) is None)
+
+    # ── 2. `_lay_nut`: đường gãy GIỮA CHỪNG cũng phải trả None ──────────
+    ts = {"phanBo": {"toiDaSoViThe": 12}, "ruiRoTong": 5}
+    kiem("`_lay_nut` đọc được núm có thật",
+         _lay_nut(ts, "phanBo.toiDaSoViThe") == 12)
+    kiem("núm không có thì `None`, không bịa",
+         _lay_nut(ts, "phanBo.toiDaSoVite") is None,
+         "gõ nhầm mà máy vẫn ghi thành công là đổi trúng hư không")
+    kiem("đường gãy GIỮA CHỪNG (`ruiRoTong` là số, không phải dict)",
+         _lay_nut(ts, "ruiRoTong.tranMotCoHoi") is None,
+         "`k not in 5` ném TypeError — cửa `isinstance` phải chặn TRƯỚC, "
+         "nên hai vế ấy là `or` chứ không phải `and`")
+
+    # ── 3. VÒNG KẾ TOÁN với ĐỒNG HỒ ĐÓNG BĂNG ──────────────────────────
+    d = _tam("ranh-gioi")
+    tu = TrungUong(d, {"vonBanDauUsd": 100_000.0})
+
+    class _TyDatThu(Ty):
+        ma = "lending.rate_rotation.v1"
+        ho = "tin-dung"
+        moTa = "ty giả: thu và cờ đóng đặt tay, dùng cho phép kiểm ranh giới"
+        vonToiThieuKinhTeUsd = 1.0
+
+        def __init__(self):
+            super().__init__()
+            self.thu = 0.0
+            self.dong = False
+            self.lyDo = ""
+
+        def quet(self):
+            return []
+
+        def xet(self, co):
+            return True, []
+
+        def trinh(self, co):
+            return co
+
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+            return KetToanVong(thuUsd=self.thu, vi="phép kiểm ranh giới",
+                               dongLai=self.dong, lyDoDong=self.lyDo)
+
+    ty = _TyDatThu()
+    tu.dang_ky(ty)
+
+    MOC = 1_800_000_000.0                  # mốc cố định, không phải giờ máy
+    _that = _TU._gio_he
+    _TU._gio_he = lambda: MOC
+    try:
+        def _mo(von, giuGio, phiBps=10.0, hau=""):
+            tt = _mau(ma=ty.ma, ho=ty.ho, taiSan="USDC", von=von,
+                      giu=giuGio)
+            object.__setattr__(tt, "ma", tt.ma + hau)
+            object.__setattr__(tt, "phiUocBps", phiBps)
+            tu.so_dang_ky.ghi_nhan(tt)
+            for b in ("DUYET_TY", "DUYET_RUI_RO", "DA_CAP_VON", "DA_MO"):
+                tu.so_dang_ky.chuyen(tt.ma, b, "dựng phép kiểm")
+            tu.danh_muc.cam_ket(tt.ma, [ViThe(tt.ma, ty.ma, "CHO_VAY",
+                                              "aave-v3", "USDC", von)])
+            tu._mo_so_vi_the(tt, von)
+            tu.soViThe[tt.ma].toTrinh["netMoiGioBps"] = 1.0
+            return tt
+
+        # 3a. PHÍ VÀO BẰNG 0: không được ghi một bút toán phí 0 đồng
+        truoc = (tu.so_cai.tong_theo_loai().get("PHI") or {}).get("so", 0)
+        _mo(1000.0, giuGio=999.0, phiBps=0.0, hau="#phi0")
+        giua = (tu.so_cai.tong_theo_loai().get("PHI") or {}).get("so", 0)
+        kiem("phí vào ĐÚNG 0 thì KHÔNG có bút toán phí nào",
+             giua == truoc,
+             f"{truoc} → {giua} — một dòng «−0,00 USD» trong sổ phí làm "
+             f"bộ đếm phí nói có N lần thu phí trong khi chỉ có N−1")
+        _mo(1000.0, giuGio=999.0, phiBps=10.0, hau="#phi10")
+        sau = (tu.so_cai.tong_theo_loai().get("PHI") or {}).get("so", 0)
+        kiem("mà phí vào KHÁC 0 thì có, đúng một dòng", sau == giua + 1,
+             f"{giua} → {sau}")
+        # Tờ trình KHÔNG KHAI phí là chuyện thứ ba, khác hẳn khai 0. Nó
+        # phải để lại một dấu trong sổ, và dấu ấy đi qua nhánh `elif` —
+        # nhánh chỉ tới được khi cửa trên là `phi > 0` chứ không `>= 0`.
+        # Không có phép kiểm này thì `>=` là một đột biến sống: `_ghi_tien`
+        # đã tự bỏ qua số 0 nên nhánh trên trông vô hại, trong khi nó nuốt
+        # mất lời khai «vị thế này vào sổ mà không mất đồng phí nào».
+        _mo(1000.0, giuGio=999.0, phiBps=None, hau="#khongkhai")
+        cuoi = (tu.so_cai.tong_theo_loai().get("PHI") or {}).get("so", 0)
+        thieu = [b for b in tu.so_cai.gan_day(500, "PHI")
+                 if (b.get("chiTiet") or {}).get("phiThieu")]
+        kiem("tờ trình KHÔNG KHAI phí thì sổ vẫn có một dòng ĐÁNH DẤU",
+             cuoi == sau + 1 and len(thieu) == 1,
+             f"{sau} → {cuoi}, dấu={len(thieu)} — vị thế vào sổ mà không "
+             f"mất đồng nào thì trông có lãi hơn sự thật; im chuyện đó là "
+             f"đúng cái lỗi mà cả lớp kế toán này sinh ra để chặn")
+
+        # 3b. THU ĐÚNG BẰNG TRẦN: chưa vượt
+        a = _mo(1000.0, giuGio=999.0, hau="#tran")
+        so = tu.soViThe[a.ma]
+        so.keToanLucGiay = MOC - 3600.0
+        tran = _tran_thu_mot_vong(so.toTrinh, so.vonUsd, so.keToanLucGiay,
+                                  MOC)
+        ty.thu = tran
+        l = tu._ke_toan_vi_the()
+        kiem("thu ĐÚNG BẰNG trần thì KHÔNG bị kêu là in tiền",
+             l.soKeToanDuoc >= 1 and l.soThuVuotTran == 0,
+             f"vượt={l.soThuVuotTran} trần={tran} thu={ty.thu} — trần đã "
+             f"rộng gấp {BIEN_THU_VUOT_TRAN:g} lần lời hứa rồi; kêu ngay "
+             f"tại mép là một cảnh báo không bao giờ tắt được")
+
+        # 3c. NHÍCH QUA TRẦN: phải kêu, và kêu kèm SỐ LẦN
+        so.keToanLucGiay = MOC - 3600.0
+        ty.thu = tran * 1.000001
+        l = tu._ke_toan_vi_the()
+        kiem("nhích qua trần một chút là bị kêu ngay",
+             l.soThuVuotTran == 1 and len(l.thuVuotTran) == 1,
+             f"{l.soThuVuotTran} — lớp lỗi này in ra tiền: một ty quên "
+             f"chia cho 8.760 làm NAV phồng lên mà `lechTien` vẫn khớp")
+        kiem("và lời khai mang SỐ LẦN vượt, không chỉ một lá cờ",
+             gan(l.thuVuotTran[0]["lanVuot"], 1.000001, 1e-6),
+             str(l.thuVuotTran[0]))
+        ty.thu = 0.0
+
+        # 3d. ĐÚNG HẠN GIỮ: giữ đủ `giuGio` là đóng, không phải "quá"
+        b = _mo(500.0, giuGio=2.0, hau="#han")
+        tu.soViThe[b.ma].moLucGiay = MOC - 2.0 * 3600.0
+        l = tu._ke_toan_vi_the()
+        kiem("giữ ĐÚNG BẰNG `giuGio` thì ĐÓNG",
+             any(x["ma"] == b.ma for x in l.daDong),
+             f"{[x['ma'] for x in l.daDong]} — `>` thay cho `>=` ở đây "
+             f"giữ thêm trọn một vòng, và cái giá của vòng thừa ấy là "
+             f"phí ra trả muộn hơn lời hứa đã tính")
+        c2 = _mo(500.0, giuGio=2.0, hau="#chua")
+        tu.soViThe[c2.ma].moLucGiay = MOC - 1.99 * 3600.0
+        l = tu._ke_toan_vi_the()
+        kiem("mà CHƯA đủ hạn thì KHÔNG đóng",
+             not any(x["ma"] == c2.ma for x in l.daDong),
+             f"{[x['ma'] for x in l.daDong]}")
+
+        # 3e. TY ĐÒI ĐÓNG mà KHÔNG nói lý do: sổ vẫn phải có một câu
+        e = _mo(500.0, giuGio=999.0, hau="#imlang")
+        ty.dong, ty.lyDo = True, ""
+        l = tu._ke_toan_vi_the()
+        cai = [x for x in l.daDong if x["ma"] == e.ma]
+        kiem("ty đòi đóng mà im lặng thì sổ ghi một câu MẶC ĐỊNH",
+             len(cai) == 1 and cai[0]["lyDo"] == "ty yêu cầu đóng sớm",
+             f"{cai} — một dòng đóng vị thế có `lyDo` rỗng là một dòng "
+             f"không tua lại được: sau này không ai biết nó đóng vì hết "
+             f"hạn, vì ty đòi, hay vì một nhánh thứ ba")
+        ty.dong, ty.lyDo = False, ""
+    finally:
+        _TU._gio_he = _that
+
+    # ── 4. DỌN ĐỊNH KỲ: một ngày một lần, và dọn ĐÚNG cái cũ ───────────
+    import time as _t
+    nhip = float(tu.c["nhipGhiNhanGiay"])
+    # Gọi một lượt cho nó chốt ngày trước: máy vừa dựng thì 
+    # còn rỗng, nên lượt ĐẦU luôn là lượt dọn thật. Không chốt trước thì
+    # phép kiểm «cùng ngày không chạy lại» đo nhầm lượt đầu tiên.
+    tu._don_dinh_ky()
+    hom_nay = tu._ngayDon
+    moi, cu = _t.monotonic(), _t.monotonic() - nhip * 10.0
+    tu._dauVet = {"moi": moi, "cu": cu}
+    tu._don_dinh_ky()
+    kiem("cùng một ngày thì dọn định kỳ KHÔNG chạy lại",
+         tu._dauVet == {"moi": moi, "cu": cu},
+         f"{tu._dauVet} — nó gọi `don_cu` trên sổ đăng ký, và gọi mỗi "
+         f"vòng là một lượt ghi đĩa mỗi vòng cho một việc mỗi ngày")
+    tu._ngayDon = "1999-01-01"
+    tu._don_dinh_ky()
+    kiem("sang ngày mới thì dọn, và dấu vết CŨ bị xoá",
+         "cu" not in tu._dauVet, str(tu._dauVet))
+    kiem("còn dấu vết MỚI thì giữ — nó vẫn đang chặn trùng",
+         "moi" in tu._dauVet,
+         f"{tu._dauVet} — xoá nhầm nó là mở toang cửa chống trùng đúng "
+         f"một lần mỗi ngày, và lần ấy không có gì báo")
+    kiem("và mốc ngày được cập nhật, không dọn lại lượt sau",
+         tu._ngayDon == hom_nay, tu._ngayDon)
+
+
 def main() -> int:
     print("=" * 70)
     print("  THỊ BẠC TY — phép kiểm số học (không cần mạng)")
@@ -12234,6 +12639,8 @@ def main() -> int:
     kiem_khoa_cu_doi_ten()
     kiem_hai_lan()
     kiem_khong_trung_ten()
+    kiem_ranh_gioi_ke_toan()
+    kiem_moc_qua()
 
     print("\n" + "=" * 70)
     if _loi:

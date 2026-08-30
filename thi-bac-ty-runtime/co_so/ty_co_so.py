@@ -330,11 +330,12 @@ class TyCoSo(Ty):
         thứ vòng quét không giữ. Nên con số trả về là phần ĐO ĐƯỢC, và câu
         `vi` khai phần chưa đo — gộp hai thứ ấy vào một số 0 là nói dối.
 
-        Dùng `thu_thuc()` cho MỘT chân chứ không `thu_cap()`: cặp ở đây
+        Dùng `thu_thuc_qua()` cho MỘT chân chứ không
+        `thu_cap_qua()`: cặp ở đây
         không phải hai perp đối nhau mà là giao ngay + perp, nên công thức
         hai chân của chênh funding không áp được.
         """
-        from phai_sinh_chung.dongho import thu_thuc
+        from phai_sinh_chung.dongho import thu_thuc_qua
 
         from thi_bac_ty.ke_toan import KetToanVong
 
@@ -358,8 +359,15 @@ class TyCoSo(Ty):
                 vi=f"KHÔNG có báo giá perp {ma} trên {chanPerp.cang} trong "
                    f"lượt quét gần nhất — sàn rớt khác hẳn funding bằng 0")
 
-        thu1, lich = thu_thuc(float(tuGiay) * 1000.0, dt / 3600.0,
-                              bg.rate, bg.mocKeMs, bg.intervalGio)
+        # `thu_thuc_qua` chứ không `thu_thuc`: đây là lúc GHI SỔ cho một
+        # cửa sổ ĐÃ QUA, không phải lúc quyết định. Bản nhìn TỚI đếm mốc
+        # trong `[tu, tu+dt]`, mà `mocKeMs` sàn công bố thì luôn nằm ở
+        # phía trước `den` — nên nó trả 0 ở MỌI vòng. Ty này giữ 36.256
+        # vốn-giờ trên làn thật và thu đúng 0,0000 USD, trong khi vẫn trả
+        # phí vào lệnh. Xem `dem_moc_qua`.
+        thu1, lich = thu_thuc_qua(float(tuGiay) * 1000.0,
+                                  float(denGiay) * 1000.0,
+                                  bg.rate, bg.mocKeMs, bg.intervalGio)
         if lich.uocLuong:
             return KetToanVong(
                 doDuoc=False,

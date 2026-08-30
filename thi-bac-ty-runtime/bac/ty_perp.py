@@ -93,7 +93,8 @@ class TyPerp(Ty):
         cái sự thật ấy: nó sẽ trả về một dòng tiền mượt trong khi tiền thật
         chảy thành từng cục, và mọi phép đo sụt vốn sẽ mượt theo.
 
-        Dùng `phai_sinh_chung.dongho.thu_cap()` — cùng hàm `can_loi.py` dùng
+        Dùng `phai_sinh_chung.dongho.thu_cap_qua()` — bản QUÁ KHỨ của
+        cùng hàm `can_loi.py` dùng
         lúc quyết định, nên hai chỗ không thể lệch dấu. Quy ước dấu nằm
         trong đó: số trả về là phần một vị thế SHORT nhận được, chân LONG
         lấy số âm.
@@ -108,7 +109,7 @@ class TyPerp(Ty):
            mốc (`uocLuong=True`), và một khoản tiền đoán ra thì không được
            ghi vào sổ cái như tiền đã nhận.
         """
-        from phai_sinh_chung.dongho import thu_cap
+        from phai_sinh_chung.dongho import thu_cap_qua
 
         from thi_bac_ty.ke_toan import KetToanVong
 
@@ -145,9 +146,13 @@ class TyPerp(Ty):
                 vi=f"báo giá {ma} trên {', '.join(cu)} cũ hơn "
                    f"{TUOI_KE_TOAN_TOI_DA_GIAY:.0f}s")
 
-        r = thu_cap(float(tuGiay) * 1000.0, dt / 3600.0,
-                    bL.rate, bL.mocKeMs, bL.intervalGio,
-                    bS.rate, bS.mocKeMs, bS.intervalGio)
+        # Bản QUÁ KHỨ. Docstring trên nói "đếm mốc ĐÃ ĐI QUA" và đó
+        # đúng là ý định, nhưng `thu_cap` đếm mốc SẮP TỚI — nên nó trả 0
+        # ở mọi vòng kế toán, mãi mãi. Cùng lỗi với `ty_co_so`; ty này
+        # chưa lộ ra vì chưa có vị thế nào mở trên làn thật.
+        r = thu_cap_qua(float(tuGiay) * 1000.0, float(denGiay) * 1000.0,
+                        bL.rate, bL.mocKeMs, bL.intervalGio,
+                        bS.rate, bS.mocKeMs, bS.intervalGio)
         # MỘT cửa duy nhất cho "lịch mốc phải đoán", không hai.
         #
         # Bản đầu kiểm `mocKeMs is None` ở đây RỒI kiểm `uocLuong` sau. Hai
