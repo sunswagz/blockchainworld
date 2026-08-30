@@ -3133,6 +3133,91 @@ def kiem_trung_uong_vong() -> None:
          is not None,
          "mẫu số bằng 0 ở đây làm chết cả ảnh chụp, và ảnh chụp là thứ "
          "duy nhất buồng lái đọc")
+    kiem("và vòng cũng chạy được, sụt vốn đọc là 0 chứ không nổ",
+         TrungUong(_tam("tu-von0b"), {"vonBanDauUsd": 0.0}).mot_vong(
+             lechDongHoGiay=1.0, cangChet=[], tuoiXauNhatGiay=1.0)
+         is not None,
+         "`sut` chia cho `vonBanDauUsd` ngay trước khi gọi cầu dao — nổ "
+         "ở đó là chết TRƯỚC cả lớp an toàn")
+
+    # ── HAI hàm phụ, mỗi hàm một câu KHÔNG được để trống ─────────────────
+    from thi_bac_ty.trung_uong import _ly_do as _lyDoTU
+
+    kiem("lý do từ chối rỗng thì rơi về một câu ĐỌC ĐƯỢC",
+         (_lyDoTU({}) and _lyDoTU({"lyDo": None})
+          and _lyDoTU({"lyDo": []}) and _lyDoTU({"lyDo": ""})),
+         "ô lý do trống trong phễu hiện thành một tờ bị đánh rớt mà không "
+         "ai biết vì sao — cùng cái bẫy đã vá ở Phân Bổ và Rủi Ro Tổng")
+    kiem("có lý do thì giữ nguyên, và danh sách thì nối lại",
+         (_lyDoTU({"lyDo": "hết chỗ"}) == "hết chỗ"
+          and _lyDoTU({"lyDo": ["a", "b"]}) == "a; b"),
+         "không có vế này thì phép kiểm trên chỉ chứng minh hàm luôn trả "
+         "về một câu mặc định")
+
+    # `hua_theo_ty` gộp lời hứa theo VỐN. Vốn bằng 0 hoặc thiếu vế thì
+    # KHÔNG vào tử số — chia cho một mẫu số có cả thứ không khai được là
+    # pha loãng chính lời hứa đang đo.
+    _tuH = TrungUong(_tam("tu-hua"), {"vonBanDauUsd": 10_000.0})
+    from thi_bac_ty.ke_toan import SoViThe as _SVTh
+    _tuH.soViThe["a"] = _SVTh(ma="a", chienLuoc="h.v1",
+                              toTrinh={"netUocBps": 8.0, "giuGio": 24.0},
+                              vonUsd=1000.0, moLucGiay=0.0,
+                              keToanLucGiay=0.0)
+    _tuH.soViThe["b"] = _SVTh(ma="b", chienLuoc="h.v1",
+                              toTrinh={"netUocBps": 8.0, "giuGio": 24.0},
+                              vonUsd=0.0, moLucGiay=0.0, keToanLucGiay=0.0)
+    _tuH.soViThe["c"] = _SVTh(ma="c", chienLuoc="h.v1",
+                              toTrinh={"giuGio": 24.0},
+                              vonUsd=1000.0, moLucGiay=0.0,
+                              keToanLucGiay=0.0)
+    _hh = _tuH.hua_theo_ty()["h.v1"]
+    kiem("vị thế vốn 0 và vị thế thiếu vế đều KHÔNG vào lời hứa gộp",
+         (_hh["soKhongKhai"] == 2 and gan(_hh["vonUsd"], 1000.0)),
+         f"{_hh} — chia cho một mẫu số có cả thứ không khai được là pha "
+         f"loãng chính lời hứa đang đo")
+    kiem("và lời hứa gộp vẫn tính ra được từ phần khai đủ",
+         _hh["aprHuaPhanTram"] is not None and _hh["aprHuaPhanTram"] > 0)
+    _tuH2 = TrungUong(_tam("tu-hua0"), {"vonBanDauUsd": 10_000.0})
+    _tuH2.soViThe["z"] = _SVTh(ma="z", chienLuoc="z.v1",
+                               toTrinh={"netUocBps": 8.0, "giuGio": 24.0},
+                               vonUsd=0.0, moLucGiay=0.0,
+                               keToanLucGiay=0.0)
+    kiem("mọi vị thế vốn 0 thì lời hứa là None, không chia cho không",
+         _tuH2.hua_theo_ty()["z.v1"]["aprHuaPhanTram"] is None,
+         "«chưa đo được» chứ không phải «hứa 0%»")
+
+    # ── VỐN RẢNH: ba mẫu số, ba chỗ chia ────────────────────────────────
+    _tuR = TrungUong(_tam("tu-ranh0"), {"vonBanDauUsd": 0.0})
+    _vr0 = _tuR.von_ranh()
+    kiem("NAV bằng 0 thì mọi tỉ lệ là None, và KHÔNG nổ",
+         (_vr0["tiLeRanhTrenKhaDung"] is None
+          and _vr0["loiSuatQuyVeNavPhanTram"] is None
+          and _vr0["loiSuatNeuLapDayPhanTram"] is None),
+         f"{_vr0} — ba mẫu số cùng bằng 0 ở đây, và ảnh chụp là thứ duy "
+         f"nhất buồng lái đọc")
+    _tuR2 = TrungUong(_tam("tu-ranh1"), {"vonBanDauUsd": 1000.0})
+    _vr1 = _tuR2.von_ranh()
+    kiem("chưa có vốn-giờ nào thì lợi suất là None, không phải 0",
+         (_vr1["loiSuatTrenVonDungPhanTram"] is None
+          and _vr1["tiLeRanhTrenKhaDung"] is not None),
+         f"{_vr1} — «chưa đồng nào làm việc» khác «đã chạy và huề vốn», "
+         f"nhưng tỉ lệ RẢNH thì vẫn đo được ngay")
+
+    # ── ĐẶT THAM SỐ: hai cửa đòi chữ, và chúng đòi CHỮ THẬT ─────────────
+    _tuT = TrungUong(_tam("tu-dat"), {"vonBanDauUsd": 1000.0})
+    for _n, _v in ((" ", "vì sao"), ("admin", "  "), ("", "")):
+        _r = _tuT.dat_tham_so(_n, "ruiRoTong.tranMotCang", 0.5, _v)
+        kiem(f"đặt tham số với người={_n!r} lý do={_v!r} → TỪ CHỐI",
+             _r.get("xong") is False,
+             f"{_r} — khoảng trắng KHÔNG phải một cái tên, và một bản "
+             f"không giải thích được thì không kiểm toán được")
+    _rOk = _tuT.dat_tham_so("admin", "ruiRoTong.tranMotCang", 0.5,
+                            "thử phép kiểm")
+    kiem("có đủ tên VÀ lý do thì mới đặt được",
+         _rOk.get("xong") is True and gan(
+             _tuT.rui_ro_tong.c["tranMotCang"], 0.5),
+         f"{_rOk} — không có vế này thì bốn phép kiểm trên chỉ chứng minh "
+         f"cửa luôn đóng")
 
     class TyThu(Ty):
         ma, ho, moTa = "perpetual.funding_spread.v1", "phai-sinh", "thử"
