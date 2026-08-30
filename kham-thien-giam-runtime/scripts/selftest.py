@@ -5417,16 +5417,41 @@ def kiem_so_hieu_chinh_gom_moi_cho() -> None:
     kiem("khai đủ 4 chợ trong kết quả", r.get("soCho") == 4, r.get("soCho"))
 
     thay = {}
+    _taus, _mocs, _thieu = set(), set(), 0
     for dong in tmp.read_text(encoding="utf-8").splitlines():
         if dong.strip():
-            _m = _js.loads(dong).get("ma")
+            _d = _js.loads(dong)
+            _m = _d.get("ma")
             thay[_m] = thay.get(_m, 0) + 1
+            if _d.get("tau") is None or _d.get("moc") is None:
+                _thieu += 1
+            else:
+                _taus.add(_d["tau"])
+                _mocs.add(_d["moc"])
     kiem("sổ THÔ chứa CẢ BỐN chợ, không riêng chợ đầu",
          sorted(thay) == sorted(DS), sorted(thay))
     kiem("và không chợ nào bị xoá mất (mỗi chợ đều có dòng)",
          all(thay.get(m, 0) > 0 for m in DS), thay)
     kiem("tổng mẫu gộp lớn hơn hẳn một chợ đơn lẻ",
          r["tongMau"] > 1.5 * max(thay.values()), (r["tongMau"], thay))
+
+    # ── sổ thô phải mang τ và MỐC KHUNG ───────────────────────────────
+    #
+    # Thiếu τ thì không kiểm được "một đường nắn cho cả bốn lát τ có
+    # đúng không" — `do-nan-chung-hay-rieng.py` đã hỏi câu ấy cho chiều
+    # CHỢ và trả lời "chung"; chiều τ thì chưa ai hỏi, và τ=60 với
+    # τ=240 là hai bài toán khác hẳn (điểm kỹ năng +57,2% so với +8,5%).
+    #
+    # Thiếu MỐC thì mọi khoảng tin dựng từ sổ này đều hẹp hơn sự thật:
+    # bốn lát của một khung chia chung MỘT kết quả, nên đếm chúng như
+    # bốn quan sát độc lập là tự bịa ra gấp bốn bằng chứng. Đúng cái bẫy
+    # đã gây "lãi" 2,9 triệu đô.
+    kiem("mọi dòng sổ thô đều có τ và mốc khung", _thieu == 0, _thieu)
+    kiem("và có ĐỦ bốn lát τ", sorted(_taus) == [60.0, 120.0, 180.0, 240.0],
+         sorted(_taus))
+    kiem("số MỐC ít hơn hẳn số dòng — bốn lát chung một khung",
+         0 < len(_mocs) * 3 < sum(thay.values()),
+         (len(_mocs), sum(thay.values())))
 
     # Một chợ duy nhất vẫn phải chạy — `ma` nhận cả chuỗi lẫn danh sách.
     tmp2 = tmp.parent / "tho2.jsonl"

@@ -325,11 +325,17 @@ def dung_so_hieu_chinh(soNgay: int = 7, ma: str | list | None = None,
         # Quét MỌI mốc phút cho hiệu chỉnh: khung [T, T+300] nào cũng
         # hợp lệ, không cần trùng lưới Polymarket. (Sổ KẾT QUẢ thì ngược
         # lại — chỉ nhận mốc 5 phút, vì nó là danh sách market CÓ THẬT.)
-        cap_ = cap_du_doan(theoMoc, sorted(theoMoc), m, cuaSo)
-        for p, t in cap_:
-            hc.them(p, t)
+        # `keoTau`/`keoMoc`: sổ thô phải mang τ và MỐC KHUNG, không chỉ
+        # `(p, thắng)`. Thiếu τ thì không kiểm được "một đường nắn cho cả
+        # bốn lát" — câu chưa ai hỏi; thiếu mốc thì mọi khoảng tin dựng
+        # từ sổ này đều hẹp hơn sự thật, vì bốn lát của một khung chia
+        # chung MỘT kết quả.
+        cap_ = cap_du_doan(theoMoc, sorted(theoMoc), m, cuaSo,
+                           keoTau=True, keoMoc=True)
+        for pp, t, tau, T in cap_:
+            hc.them(pp, t)
             if ghiTho:
-                ghi_tho(p, t, m)
+                ghi_tho(pp, t, m, tau=tau, moc=T)
         theoCho[m] = {"soCap": len(cap_)}
 
     if not hc.tong_mau:

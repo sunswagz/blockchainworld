@@ -185,20 +185,42 @@ def khop(hieuChinh) -> PhepNan:
     return tam
 
 
-def ghi_tho(pDuDoan: float, thangThat: bool, ma: str = "") -> None:
+def ghi_tho(pDuDoan: float, thangThat: bool, ma: str = "",
+            tau: float | None = None, moc: int | None = None) -> None:
     """Ghi TỪNG CẶP thô, để lượt sau kiểm được ngoài mẫu.
 
     Sổ hiệu chỉnh chỉ lưu tổng theo ô. Từ tổng thì khớp được một đường
     nhưng KHÔNG kiểm được nó trên dữ liệu chưa từng thấy — mà đó mới là
     phép kiểm duy nhất phân biệt "học được quy luật" với "học thuộc bảng".
     File này là để lần sau không còn phải giảm chấn vì thiếu bằng chứng.
+
+    ## Vì sao có `tau` và `moc`
+
+    Hai câu hỏi KHÔNG trả lời được nếu sổ thô chỉ có `(p, thắng, mã)`:
+
+    1. **Một đường nắn cho cả bốn lát τ có đúng không?** τ = 60 và
+       τ = 240 là hai bài toán khác hẳn — đo được (nến Binance, 197
+       khung, 4 chợ) rằng điểm kỹ năng đi từ +8,5% ở τ=240 tới
+       +57,2% ở τ=60, đơn điệu. `do-nan-chung-hay-rieng.py` đã hỏi
+       câu này cho chiều CHỢ và trả lời "chung"; chiều τ chưa ai hỏi.
+
+    2. **Chia khối cho bootstrap.** Bốn lát τ của một khung chia
+       chung MỘT kết quả, nên không có `moc` thì mọi khoảng tin dựng
+       từ sổ này đều hẹp hơn sự thật — đúng cái bẫy đã gây lãi ảo
+       2,9 triệu đô.
+
+    Hai trường này GHI KHI CÓ. Dòng cũ thiếu chúng vẫn đọc được, và
+    người đọc phải xử lý `None` chứ không được coi thiếu là 0.
     """
     try:
         DUONG_THO.parent.mkdir(parents=True, exist_ok=True)
+        d = {"p": round(pDuDoan, 6), "thang": bool(thangThat), "ma": ma}
+        if tau is not None:
+            d["tau"] = float(tau)
+        if moc is not None:
+            d["moc"] = int(moc)
         with DUONG_THO.open("a", encoding="utf-8") as f:
-            f.write(json.dumps({"p": round(pDuDoan, 6),
-                                "thang": bool(thangThat), "ma": ma},
-                               ensure_ascii=False) + "\n")
+            f.write(json.dumps(d, ensure_ascii=False) + "\n")
     except OSError:
         pass
 
