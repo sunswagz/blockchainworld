@@ -12804,6 +12804,34 @@ def kiem_loc_bao_gia() -> None:
     kiem("danh sách rỗng thì trả rỗng, không nổ",
          loc_bao_gia_cu([], now, 30.0) == ([], 0))
 
+    # ── KÊU LỆCH ĐỒNG HỒ: một lần mỗi ĐỢT, không phải một lần cả đời ──
+    from bac.dong_ho import NGUONG_KEU_MS as _NG
+    from bac.vong import xet_keu_lech
+
+    kiem("lệch quá ngưỡng lần đầu thì KÊU, và cài chốt",
+         xet_keu_lech(_NG + 1.0, False) == (True, True))
+    kiem("còn lệch mà đã kêu rồi thì THÔI, không kêu mỗi vòng",
+         xet_keu_lech(_NG + 1.0, True) == (False, True),
+         "nhịp quét 30 giây; kêu mỗi vòng là một dòng cảnh báo mỗi 30 "
+         "giây cho một chuyện đã bù xong")
+    kiem("ĐÚNG BẰNG ngưỡng thì chưa kêu",
+         xet_keu_lech(_NG, False) == (False, False), f"ngưỡng {_NG}")
+    kiem("lệch ÂM cũng kêu — đồng hồ chạy trước cũng là lệch",
+         xet_keu_lech(-(_NG + 1.0), False) == (True, True),
+         "so bằng `abs`, không so bằng dấu")
+    kiem("VỀ TRONG ngưỡng thì GỠ chốt, để đợt sau còn kêu được",
+         xet_keu_lech(0.0, True) == (False, False),
+         "bản trước cài chốt rồi không bao giờ gỡ, nên đợt lệch thứ hai "
+         "— kể cả lớn hơn hẳn — đi qua trong im lặng; runtime này chạy "
+         "nhiều ngày liền và lệch đồng hồ là thứ quay lại")
+    kiem("và sau khi gỡ chốt, đợt lệch MỚI kêu lại được",
+         xet_keu_lech(_NG + 1.0, xet_keu_lech(0.0, True)[1]) == (True, True))
+    kiem("CHƯA ĐO ĐƯỢC thì giữ nguyên chốt, không gỡ",
+         (xet_keu_lech(None, True) == (False, True)
+          and xet_keu_lech(None, False) == (False, False)),
+         "«không đo được» khác hẳn «đã về bình thường»; gỡ chốt ở đây là "
+         "mở đường cho một chuỗi kêu đi kêu lại mỗi lần mất mạng")
+
     # ── NHỊP nạp Router: hai nguồn, hai nhịp riêng ────────────────────
     from bac.vong import (NHIP_NAP_CAU_GIAY, NHIP_NAP_GAS_GIAY,
                           can_nap_router, cap_can_bao_gia)

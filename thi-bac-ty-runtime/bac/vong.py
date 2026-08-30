@@ -204,6 +204,35 @@ NHIP_NAP_GAS_GIAY = 300.0
 NHIP_NAP_CAU_GIAY = 1800.0
 
 
+def xet_keu_lech(lechMs, daKeu: bool, nguongMs: float = NGUONG_KEU_MS):
+    """Có nên kêu ĐỒNG HỒ LỆCH không. Trả `(nênKêu, chốt mới)`.
+
+    Kêu một lần cho MỖI ĐỢT lệch, không phải một lần cho cả đời tiến
+    trình. Bản trước đặt `_daKeuLech = True` rồi **không bao giờ gỡ**,
+    nên đợt lệch thứ hai — kể cả một đợt lớn hơn hẳn — đi qua trong im
+    lặng. Runtime này chạy nhiều ngày liền, và lệch đồng hồ là thứ quay
+    lại: máy ngủ, VPN đổi, NTP trượt.
+
+    Lệch đã bù khi đếm mốc nên đây là cảnh báo KHUYÊN, không phải cảnh
+    báo chặn — càng đúng lý do để nó đừng câm: thứ duy nhất nó làm là
+    nói cho người vận hành biết nên chỉnh NTP, và nói một lần rồi thôi
+    thì lần thứ hai không ai biết.
+
+    Ba nhánh, và nhánh giữa mới là nhánh dễ viết sai:
+
+      · CHƯA ĐO ĐƯỢC (`None`) — giữ nguyên chốt. «Không đo được» khác
+        hẳn «đã về bình thường»; gỡ chốt ở đây là mở đường cho một
+        chuỗi kêu đi kêu lại mỗi lần mất mạng.
+      · TRONG ngưỡng — GỠ chốt, để đợt sau còn kêu được.
+      · QUÁ ngưỡng — kêu nếu chưa kêu, và cài chốt.
+    """
+    if lechMs is None:
+        return False, daKeu
+    if abs(lechMs) <= nguongMs:
+        return False, False
+    return (not daKeu), True
+
+
 def can_nap_router(gio: float, lanNapGas: float, lanNapCau: float):
     """Tới lúc nạp lại gas / báo giá cầu chưa. Trả `(canGas, canCau)`.
 
@@ -638,8 +667,8 @@ class Runtime:
         now = dong_ho.bay_gio_ms()
 
         lech = dong_ho.lech_ms()
-        if lech is not None and abs(lech) > NGUONG_KEU_MS and not self._daKeuLech:
-            self._daKeuLech = True
+        _keu, self._daKeuLech = xet_keu_lech(lech, self._daKeuLech)
+        if _keu:
             bus.ghi(f"ĐỒNG HỒ MÁY lệch {lech / 1000:+.0f}s so với sàn — đã bù "
                     f"khi đếm mốc, nhưng nên chỉnh lại NTP", loai="canh")
 
