@@ -79,7 +79,32 @@ class CongLenh:
 
     # ── cửa chính ─────────────────────────────────────────────────────────
     def dat(self, ch: CoHoi, soCo: float, so: SoLenh) -> Lenh:
-        """Đặt một lệnh. Đường đi do `che_hieu_luc()` quyết, không do ai gọi."""
+        """Đặt một lệnh. Đường đi do `che_hieu_luc()` quyết, không do ai gọi.
+
+        ## Sổ phải ĐÚNG BÊN của cơ hội — kiểm, đừng tin chỗ gọi
+
+        Chỗ gọi chọn sổ bằng một biểu thức một dòng:
+
+            self.cong.dat(ch, n, su if ch.ben == "UP" else sd)
+
+        Lật `==` thành `!=` ở đó là đặt lệnh UP mà tính giá trên sổ
+        DOWN. Quét đột biến cho con ấy SỐNG SÓT: không phép kiểm nào
+        thấy, và lúc chạy cũng không gì kêu — `_gia_yet_maker(so, ch)`
+        vẫn ra một con số, chỉ là con số của bên kia.
+
+        Đây là LỖI LẬP TRÌNH, không phải một trạng thái chợ. Nên NÉM,
+        đừng trả một `Lenh` bị từ chối: từ chối lặng lẽ trông y hệt "chợ
+        không có hàng", và `_lan` sẽ bắt cú ném này, gọi đúng tên làn,
+        rồi các làn sau vẫn chạy.
+        """
+        if so is not None and so.ben and ch.ben and so.ben != ch.ben:
+            raise ValueError(
+                f"sổ lệnh SAI BÊN: cơ hội {ch.ma}/{ch.ben} nhưng sổ là "
+                f"{so.ma}/{so.ben} — mọi giá tính từ đây là giá bên kia")
+        if so is not None and so.ma and ch.ma and so.ma != ch.ma:
+            raise ValueError(
+                f"sổ lệnh SAI MARKET: cơ hội {ch.ma} nhưng sổ là {so.ma}")
+
         l = Lenh(
             id=uuid.uuid4().hex[:12], ma=ch.ma, ben=ch.ben,
             chienThuat=ch.chienThuat, soCo=soCo,

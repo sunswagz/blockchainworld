@@ -5412,6 +5412,71 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_dat_lenh_dung_so_dung_ben() -> None:
+    """`CongLenh.dat` phải TỪ CHỐI sổ lệnh sai bên — và kêu, đừng im.
+
+    Chỗ gọi trong `vong.py` chọn sổ bằng một biểu thức một dòng:
+
+        self.cong.dat(ch, n, su if ch.ben == "UP" else sd)
+
+    Lật `==` thành `!=` là đặt lệnh UP mà tính giá trên sổ DOWN. Quét
+    đột biến `vong.py` cho con ấy SỐNG SÓT: không phép kiểm nào thấy, và
+    lúc chạy cũng không gì kêu — `_gia_yet_maker(so, ch)` vẫn ra một con
+    số, chỉ là con số của bên kia. Ở một chợ nhị phân soi gương qua 0,5
+    thì con số ấy còn TRÔNG hợp lý.
+
+    Đây là lỗi LẬP TRÌNH chứ không phải trạng thái chợ, nên `dat` NÉM.
+    Trả một `Lenh` bị từ chối thì lặng lẽ trông y hệt "chợ không có
+    hàng"; còn cú ném thì `_lan` bắt, gọi đúng tên làn, và các làn sau
+    vẫn chạy.
+    """
+    print()
+    print("-- dat_lenh: so phai DUNG BEN va DUNG MARKET --------------")
+
+    from kham.can_loi import CoHoi
+    from kham.dat_lenh import CongLenh
+    from kham.so_lenh import Muc, SoLenh
+
+    def _so(ma, ben):
+        return SoLenh(ma=ma, ben=ben,
+                      bid=[Muc(0.49, 900)], ask=[Muc(0.51, 900)])
+
+    ch = CoHoi(ma="BTC_5M", ben="UP", chienThuat="thử", fairValue=0.60,
+               giaCho=0.51, vwap=0.51, soCo=10.0, grossEdge=0.09,
+               phi=0.001, truotGia=0.0005, batDinhMoHinh=0.015,
+               bienAnToan=0.008, netEdge=0.08, sucChua=900.0,
+               xacSuatKhop=0.9, nuaDoiMs=60_000.0, laMaker=False,
+               dayDu=True, ghiChu=[])
+    from kham.kho_doi import Kho
+    cong = CongLenh(Kho())
+
+    l = cong.dat(ch, 10.0, _so("BTC_5M", "UP"))
+    kiem("sổ ĐÚNG bên thì đặt được", l is not None and l.ben == "UP")
+
+    _loi = None
+    try:
+        cong.dat(ch, 10.0, _so("BTC_5M", "DOWN"))
+    except ValueError as e:
+        _loi = str(e)
+    kiem("sổ SAI BÊN ⇒ NÉM, không trả lệnh im lặng",
+         _loi is not None and "SAI BÊN" in _loi, _loi)
+
+    _loi2 = None
+    try:
+        cong.dat(ch, 10.0, _so("ETH_5M", "UP"))
+    except ValueError as e:
+        _loi2 = str(e)
+    kiem("sổ SAI MARKET ⇒ cũng NÉM",
+         _loi2 is not None and "SAI MARKET" in _loi2, _loi2)
+
+    # Và chỗ gọi trong `vong.py` phải CÒN chọn theo `ch.ben` — nếu ai đó
+    # gỡ biểu thức ấy đi thì cửa canh trên không còn gì để canh.
+    _goc = Path(__file__).resolve().parent.parent
+    _v = (_goc / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("`vong.py` vẫn chọn sổ theo `ch.ben`",
+         'su if ch.ben == "UP" else sd' in _v)
+
+
 def kiem_ghi_config_doc_lai_tu_dia() -> None:
     """`ghi_config` phải ĐỌC LẠI TỪ ĐĨA, không chỉ chấm văn bản sắp ghi.
 
@@ -11203,6 +11268,7 @@ def main() -> int:
     kiem_co_thu_khong_duoc_dao_nghia()
     kiem_dong_tien_cua_thuoc_chay_lai()
     kiem_ghi_config_doc_lai_tu_dia()
+    kiem_dat_lenh_dung_so_dung_ben()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
