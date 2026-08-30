@@ -185,7 +185,20 @@ body[data-nav="mini"] .nav-label{height:1px; padding:9px 0 0; margin:0 6px; back
 .notes p{margin:0; font-size:var(--t-4); color:var(--ink-2)}
 .notes b{color:var(--ink); font-weight:600}
 .credit{margin-top:18px; font-size:var(--t-2); color:var(--ink-3); text-align:center}
-.empty{padding:22px 4px; text-align:center; color:var(--ink-3); font-size:var(--t-4)}
+/* TRẠNG THÁI TRỐNG — màn hình duy nhất không có gì khác để đọc, nên
+   dòng chính phải là dòng SÁNG nhất. Bản cũ đặt cả khối ở bậc chữ mờ
+   --ink-3: câu quan trọng nhất trên một trang trắng lại là câu mờ nhất,
+   và khi tìm không ra thì nó chỉ nói KHÔNG CÓ chứ không nói làm gì
+   tiếp. Ba bậc thay cho một: dòng chính (--ink), dòng chỉ đường
+   (--ink-2), nhãn nhóm (--ink-3). Mọi cỡ lấy từ thang, mọi khoảng cách
+   là con số đã có trong cung — không thêm nấc mới cho hai thước đang
+   được canh. */
+.empty{padding:22px 4px; text-align:center; max-width:52ch; margin:0 auto}
+.empty-t{margin:0; font-family:Archivo,"Be Vietnam Pro",sans-serif; font-size:var(--t-6);
+  font-weight:700; letter-spacing:-.01em; color:var(--ink)}
+.empty-s{margin:6px 0 0; font-size:var(--t-4); color:var(--ink-2); line-height:1.5}
+.empty-lab{margin:16px 0 0; font-family:"IBM Plex Mono",monospace; font-size:var(--t-0);
+  font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3)}
 .elsewhere{margin-top:8px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap}
 .elsewhere button{padding:5px 11px; border:1px solid var(--line); background:var(--paper);
   border-radius:999px; font-size:var(--t-3); cursor:pointer}

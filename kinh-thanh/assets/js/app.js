@@ -371,24 +371,38 @@ function apply(){
 
   var old=document.querySelector(".empty"); if(old) old.remove();
   if(shown===0){
-    var e=el("p","empty");
-    e.textContent = q ? ("Không có mục nào khớp “"+$("q").value.trim()+"” trong "+current.name+".")
-                      : "Mọi tầng đang bị ẩn. Bật lại một tầng ở thanh lọc phía trên.";
+    /* Hai dòng, không một dòng: dòng đầu nói CHUYỆN GÌ XẢY RA, dòng sau
+       nói LÀM GÌ TIẾP. Bản cũ chỉ có dòng đầu cho ca tìm không ra, nên
+       người dùng đứng trước một trang trắng mà không có lối đi nào. */
+    var e=el("div","empty"), tu=$("q").value.trim();
+    var t=el("p","empty-t"), s=el("p","empty-s");
+    if(q){
+      t.textContent="Không tìm thấy “"+tu+"”";
+      s.textContent="Không mục nào trong "+current.name+" khớp chữ này. "+
+        "Thử một chữ ngắn hơn, hoặc xoá ô tìm để xem lại toàn bản đồ.";
+    }else{
+      t.textContent="Mọi tầng đang bị ẩn";
+      s.textContent="Bật lại một tầng ở thanh lọc phía trên để thấy các mục của "+current.name+".";
+    }
+    e.appendChild(t); e.appendChild(s);
     if(q){
       var tally={};
       CORPUS.forEach(function(r){ if(r.c!==current.id && r.s.indexOf(q)!==-1) tally[r.c]=(tally[r.c]||0)+1; });
       var ks=Object.keys(tally);
       if(ks.length){
-        var row=el("span"); row.className="elsewhere";
+        var row=el("div","elsewhere");
         ks.slice(0,6).forEach(function(k){
           var b=el("button"); b.type="button";
           b.textContent=byId(k).name+" ("+tally[k]+")";
+          /* Đọc bằng trình đọc màn hình thì "Ethereum 3" không nói lên
+             gì — con số trong ngoặc chỉ có nghĩa nhờ nhãn nhóm ở trên,
+             mà nhãn ấy không đi cùng nút. Nói đủ câu ngay trên nút. */
+          b.setAttribute("aria-label","Xem "+tally[k]+" kết quả khớp ở "+byId(k).name);
           b.addEventListener("click",function(){ go(k,true); });
           row.appendChild(b);
         });
-        e.appendChild(document.createElement("br"));
-        var hint=el("span"); hint.style.fontSize="12.5px";
-        hint.textContent="Có kết quả ở nước khác:";
+        var hint=el("p","empty-lab");
+        hint.textContent="Có kết quả ở nước khác";
         e.appendChild(hint); e.appendChild(row);
       }
     }
