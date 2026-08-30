@@ -1179,6 +1179,14 @@ async def main() -> int:
           "chính, thấy bận, và im lặng thoát")
     check("TCT_DATA_DIR" in _gs53,
           "nhật ký đi theo SỔ của làn, không chung một runtime.log")
+    # BA lệnh dịch vụ phải cùng biết `-Demo`. Bật và dừng được một làn mà không
+    # xem được nó thì làn ấy chạy hàng tuần trong bóng tối.
+    for _ps53 in ("bat.ps1", "dung.ps1", "trang-thai.ps1"):
+        _t53 = (ROOT / "dichvu" / _ps53).read_text(encoding="utf-8-sig")
+        check("param([switch]$Demo)" in _t53, f"{_ps53} nhận cờ -Demo")
+        check("config-hai-chieu.json" in _t53,
+              f"{_ps53} đọc cấu hình của làn demo, không đoán cổng")
+
     _tc53 = ma_khong_chu_thich(ROOT / "trader" / "tu_chay.py")
     check("TCT_LAN" in _tc53,
           "cờ «dừng hẳn» cũng theo làn — buồng lái làn demo mà ghi vào cờ làn "

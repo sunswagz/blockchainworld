@@ -1,12 +1,22 @@
 ﻿# Tử Cấm Thành đang thế nào.
 #
 #     powershell -ExecutionPolicy Bypass -File dichvu\trang-thai.ps1
+#     powershell -ExecutionPolicy Bypass -File dichvu\trang-thai.ps1 -Demo
+#
+# `-Demo` xem LÀN HAI CHIỀU ở cổng 5282. Bật và dừng đã có `-Demo` từ trước; ai
+# bật được một làn thì phải xem được nó, nếu không thì làn ấy chạy hàng tuần mà
+# không có cách nào ngó ngoài việc mở trình duyệt.
+param([switch]$Demo)
 
 $GOC = Split-Path -Parent $PSScriptRoot
-$cong = (Get-Content "$GOC\config.json" -Raw | ConvertFrom-Json).port
-$KHOI_DONG = Join-Path ([Environment]::GetFolderPath("Startup")) "Tu Cam Thanh - runtime.lnk"
+$cauHinh   = Join-Path $GOC $(if ($Demo) { "config-hai-chieu.json" } else { "config.json" })
+$tenTrangThai = if ($Demo) { "trang-thai-demo.json" } else { "trang-thai.json" }
+$tenLnk    = if ($Demo) { "Tu Cam Thanh - demo.lnk" } else { "Tu Cam Thanh - runtime.lnk" }
+$thuMucSo  = if ($Demo) { "data-hai-chieu" } else { "data" }
+$cong = (Get-Content $cauHinh -Raw | ConvertFrom-Json).port
+$KHOI_DONG = Join-Path ([Environment]::GetFolderPath("Startup")) $tenLnk
 
-Write-Host "`n=== Tử Cấm Thành ===`n"
+Write-Host "`n=== Tử Cấm Thành$(if ($Demo) { " — LÀN DEMO hai chiều" }) ===`n"
 
 # ── tự chạy lúc đăng nhập ────────────────────────────────────────────────
 if (-not (Test-Path $KHOI_DONG)) {
@@ -21,12 +31,12 @@ if (-not (Test-Path $KHOI_DONG)) {
 }
 
 # ── tiến trình ───────────────────────────────────────────────────────────
-$tt = Join-Path $PSScriptRoot "trang-thai.json"
+$tt = Join-Path $PSScriptRoot $tenTrangThai
 if (Test-Path $tt) {
   $s = Get-Content $tt -Raw | ConvertFrom-Json
   if ($s.dungHan) {
     Write-Host "  giám sát   : ĐÃ DỪNG HẲN — $($s.lyDo)"
-    Write-Host "               sửa xong chạy: powershell -File dichvu\bat.ps1"
+    Write-Host "               sửa xong chạy: powershell -File dichvu\bat.ps1$(if ($Demo) { " -Demo" })"
   } else {
     $gs = if ($s.giamSatPid -and (Get-Process -Id $s.giamSatPid -ErrorAction SilentlyContinue)) { "sống" } else { "chết" }
     $rt = if ($s.conPid -and (Get-Process -Id $s.conPid -ErrorAction SilentlyContinue)) { "sống" } else { "chết" }
@@ -52,7 +62,7 @@ try {
 }
 
 # ── log ──────────────────────────────────────────────────────────────────
-$log = Join-Path $GOC "data\nhat-ky\runtime.log"
+$log = Join-Path $GOC "$thuMucSo\nhat-ky\runtime.log"
 if (Test-Path $log) {
   $f = Get-Item $log
   Write-Host "`n  nhật ký    : $log  ($([math]::Round($f.Length/1KB,1)) KB)"
