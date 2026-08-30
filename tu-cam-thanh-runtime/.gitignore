@@ -8,6 +8,10 @@ __pycache__/
 .venv/
 *.log
 
+# Trạng thái CHẠY của bộ giám sát — chứa PID, không đi theo mã.
+# Mỗi làn một file: xem hậu tố LÀN ở dichvu/chay-nen.py.
 dichvu/trang-thai.json
+dichvu/trang-thai-demo.json
 dichvu/dung-lai
+dichvu/dung-lai-demo
 skills/traders/

@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-30T01:23:54.201Z",
+ "generatedAt": "2026-08-30T01:59:07.305Z",
  "chayTu": "2026-08-30T00:22:31+00:00",
- "vong": 171,
+ "vong": 269,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "4h",
   "context": "1d"
  },
- "gia": 78059.4,
+ "gia": 78081.49,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "08:23:53",
+  "lastOk": "08:59:06",
   "lastError": null
  },
  "cheDo": {
@@ -40,25 +40,25 @@ window.TU_CAM_THANH = {
  },
  "thiTruong": {
   "4h": {
-   "price": 78059.4,
-   "ema20": 78358.918,
-   "ema50": 77058.191,
-   "ema200": 70208.462,
+   "price": 78081.49,
+   "ema20": 78361.022,
+   "ema50": 77059.058,
+   "ema200": 70208.682,
    "emaStack": "BULLISH_ALIGNED",
-   "rsi14": 47.9,
-   "rsiSlope": 0.6,
-   "macdHist": -180.46,
-   "macdHistSlope": 49.615,
-   "atr": 806.81137,
-   "atrPct": 1.034,
+   "rsi14": 48.1,
+   "rsiSlope": 0.67,
+   "macdHist": -179.05,
+   "macdHistSlope": 50.085,
+   "atr": 806.93923,
+   "atrPct": 1.033,
    "atrRatioVsMedian": 0.77,
    "volatility": "NORMAL",
    "adx": 21.7,
    "plusDI": 22.3,
    "minusDI": 20.3,
-   "bbWidthPct": 4.7906298,
-   "bbPosition": 0.32,
-   "volumeRatio": 0.14,
+   "bbWidthPct": 4.786585,
+   "bbPosition": 0.33,
+   "volumeRatio": 0.19,
    "structure": "TRANSITION",
    "swingHighs": [
     80000.0,
@@ -108,29 +108,29 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 76888.0,
-   "distToRange20HighPct": 4.38,
-   "distToRange20LowPct": 1.5
+   "distToRange20HighPct": 4.35,
+   "distToRange20LowPct": 1.53
   },
   "1d": {
-   "price": 78059.41,
-   "ema20": 73604.448,
-   "ema50": 69361.292,
-   "ema200": 73072.136,
+   "price": 78081.5,
+   "ema20": 73606.552,
+   "ema50": 69362.158,
+   "ema200": 73072.356,
    "emaStack": "MIXED",
-   "rsi14": 70.7,
-   "rsiSlope": -3.77,
-   "macdHist": 500.04,
-   "macdHistSlope": -268.819,
-   "atr": 2197.1628,
-   "atrPct": 2.815,
+   "rsi14": 70.8,
+   "rsiSlope": -3.74,
+   "macdHist": 501.45,
+   "macdHistSlope": -268.349,
+   "atr": 2197.2907,
+   "atrPct": 2.814,
    "atrRatioVsMedian": 0.98,
    "volatility": "NORMAL",
    "adx": 42.8,
    "plusDI": 38.3,
    "minusDI": 11.7,
-   "bbWidthPct": 39.241171,
+   "bbWidthPct": 39.246079,
    "bbPosition": 0.72,
-   "volumeRatio": 0.02,
+   "volumeRatio": 0.03,
    "structure": "UPTREND",
    "swingHighs": [
     65474.46,
@@ -176,20 +176,20 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 4.38,
-   "distToRange20LowPct": 19.89
+   "distToRange20HighPct": 4.35,
+   "distToRange20LowPct": 19.91
   }
  },
  "luanDiem": null,
  "phanQuyet": null,
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 9710.68,
-  "vonThucHien": 9710.68,
+  "von": 9711.68,
+  "vonThucHien": 9711.68,
   "dinhVon": 9723.79,
-  "laiLoMo": 0.46,
+  "laiLoMo": 1.46,
   "laiLoHomNay": 0.0,
-  "drawdownPct": 0.13,
+  "drawdownPct": 0.12,
   "soLenhDaDong": 46,
   "viThe": [
    {
@@ -228,8 +228,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 1382525,
     "ocoOrderListId": 303090,
     "ocoError": null,
-    "unrealizedPnl": 2.82,
-    "unrealizedR": 0.09
+    "unrealizedPnl": 1.85,
+    "unrealizedR": 0.06
    },
    {
     "id": "t_9fa9a550c3",
@@ -267,8 +267,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 3024893,
     "ocoOrderListId": 304336,
     "ocoError": null,
-    "unrealizedPnl": -0.56,
-    "unrealizedR": -0.02
+    "unrealizedPnl": 0.85,
+    "unrealizedR": 0.03
    },
    {
     "id": "t_ca4aa0c3d2",
@@ -306,8 +306,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9772656,
     "ocoOrderListId": 309125,
     "ocoError": null,
-    "unrealizedPnl": -1.8,
-    "unrealizedR": -0.06
+    "unrealizedPnl": -1.24,
+    "unrealizedR": -0.04
    }
   ]
  },
@@ -1466,9 +1466,9 @@ window.TU_CAM_THANH = {
   }
  ],
  "theGioi": {
-  "luc": 1788052976.8464596,
+  "luc": 1788054784.585571,
   "phaiSinh": {
-   "fundingNamHoa": 8.91,
+   "fundingNamHoa": 9.78,
    "openInterestUsd": 8419533696.58,
    "oiDoi24hPct": 2.21,
    "topTrader": {
@@ -1554,7 +1554,7 @@ window.TU_CAM_THANH = {
    },
    {
     "ma": "LAM_PHAT",
-    "soBai": 6,
+    "soBai": 5,
     "bai": [
      {
       "tieuDe": "Fed Chair Kevin Warsh at Jackson Hole: 'We have work to do' on inflation",
@@ -1581,7 +1581,7 @@ window.TU_CAM_THANH = {
    },
    {
     "ma": "ETF",
-    "soBai": 2,
+    "soBai": 3,
     "bai": [
      {
       "tieuDe": "Bitcoin ETFs end 9-day inflow streak as BTC dips below $78K",

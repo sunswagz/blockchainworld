@@ -1220,6 +1220,15 @@ async def main() -> int:
     check("_LAN_LNK" in _lnk53 and "--lan {_LAN_LNK}" in _lnk53,
           "lối tắt tự chạy mang tên VÀ cờ của làn — hai làn không đè .lnk nhau")
 
+    # File TRẠNG THÁI CHẠY chứa PID, không được đi theo mã. Làn chính đã bỏ qua
+    # từ lâu; thêm làn là thêm file, và một file trạng thái lọt vào commit thì
+    # bản cập nhật kế tiếp sẽ mang PID của máy khác sang máy này.
+    _gi53 = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    for _x53 in ("dichvu/trang-thai.json", "dichvu/trang-thai-demo.json",
+                 "dichvu/dung-lai", "dichvu/dung-lai-demo", "data-hai-chieu/"):
+        check(any(l.strip() == _x53 for l in _gi53.splitlines()),
+              f".gitignore bỏ qua `{_x53}` (đứng riêng một dòng)")
+
 
     print("\n[54] CỬA DUYỆT PHẢI ĐÒI NHIỀU CỬA SỔ THỜI GIAN")
     # Đo 30/08 trên ĐÚNG 33 chợ, chỉ đổi cửa sổ (cắt lịch sử ở 2025-01-01):
