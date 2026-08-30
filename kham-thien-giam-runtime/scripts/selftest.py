@@ -5322,6 +5322,94 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_ghi_config_doc_lai_tu_dia() -> None:
+    """`ghi_config` phải ĐỌC LẠI TỪ ĐĨA, không chỉ chấm văn bản sắp ghi.
+
+    Đây là hàm DUY NHẤT tự sửa `config.json` của cỗ máy đang chạy, và nó
+    chạy mỗi đêm. Bản trước đối chiếu VĂN BẢN SẮP GHI rồi mới `write_text`
+    — nên một lần ghi cụt (đầy đĩa, tiến trình bị giết giữa chừng, khoá
+    file trên Windows) để lại một `config.json` hỏng mà hàm vẫn trả True,
+    và cái True ấy đi thẳng vào dòng nhật ký "NHẬN".
+
+    Docstring của chính nó đã hứa "nạp lại và đối chiếu; không khớp thì
+    trả file về như cũ" từ đầu. Phép kiểm này canh lời hứa ấy.
+    """
+    print()
+    print("-- ghi_config phai doc lai tu dia -------------------------")
+
+    import json as _js
+    import shutil
+    import tempfile
+    from kham import tien_hoa as TH
+
+    _goc = Path(__file__).resolve().parent.parent
+    tmp = Path(tempfile.mkdtemp())
+    shutil.copy2(_goc / "config.json", tmp / "config.json")
+
+    cuRoot = TH.ROOT
+    try:
+        TH.ROOT = tmp
+        goc_tho = (tmp / "config.json").read_text(encoding="utf-8")
+        cu = TH.doc_tham_so("nanLai.heSoGiamChan")
+
+        # 1. ca thường: ghi được, đọc lại khớp
+        ok = TH.ghi_config("nanLai.heSoGiamChan", 0.55)
+        lai = _js.loads((tmp / "config.json").read_text(encoding="utf-8"))
+        kiem("ghi được thì trả True", ok is True, ok)
+        kiem("và ĐĨA mang đúng trị mới",
+             abs(lai["nanLai"]["heSoGiamChan"] - 0.55) < 1e-12,
+             lai["nanLai"]["heSoGiamChan"])
+
+        # 2. ĐƯỜNG không có thật ⇒ False, và KHÔNG đụng file
+        truoc = (tmp / "config.json").read_text(encoding="utf-8")
+        kiem("đường không có thật ⇒ False",
+             TH.ghi_config("khongCo.nutNay", 1.0) is False)
+        kiem("và file KHÔNG bị đụng",
+             (tmp / "config.json").read_text(encoding="utf-8") == truoc)
+
+        # 3. Ghi HỎNG ⇒ False VÀ hoàn nguyên. Giả lập bằng cách để
+        #    `write_text` ném ở lần đầu.
+        that = Path.write_text
+        lan = {"n": 0}
+
+        def _gia(self, *a, **k_):
+            lan["n"] += 1
+            if lan["n"] == 1:
+                raise OSError("đĩa đầy (giả lập)")
+            return that(self, *a, **k_)
+
+        truoc2 = (tmp / "config.json").read_text(encoding="utf-8")
+        try:
+            Path.write_text = _gia
+            ra = TH.ghi_config("nanLai.heSoGiamChan", 0.75)
+        finally:
+            Path.write_text = that
+        kiem("ghi hỏng ⇒ trả False", ra is False, ra)
+        kiem("và file được HOÀN NGUYÊN nguyên văn",
+             (tmp / "config.json").read_text(encoding="utf-8") == truoc2)
+
+        # 4. Đọc-lại phải là đọc TỪ ĐĨA. Canh bằng AST: `read_text` phải
+        #    xuất hiện SAU `write_text` trong thân hàm — chấm văn bản
+        #    sắp ghi rồi ghi là một giao thức KHÁC, yếu hơn, và đúng là
+        #    giao thức cũ.
+        import inspect as _in
+        src = _in.getsource(TH.ghi_config)
+        i_ghi = src.find("p.write_text(moi_tho")
+        i_doc = src.find("p.read_text", i_ghi if i_ghi >= 0 else 0)
+        kiem("có đọc lại SAU khi ghi", 0 <= i_ghi < i_doc, (i_ghi, i_doc))
+        kiem("và có đường hoàn nguyên", "_hoan_nguyen" in src)
+    finally:
+        TH.ROOT = cuRoot
+        # Trị trong BỘ NHỚ đã bị `_dat_tham_so` đổi — trả lại, không thì
+        # mọi phép kiểm sau chạy trên một CONFIG khác.
+        if cu is not None:
+            TH._dat_tham_so("nanLai.heSoGiamChan", cu)
+
+    kiem("CONFIG trong bộ nhớ đã được trả về trị cũ",
+         TH.doc_tham_so("nanLai.heSoGiamChan") == cu,
+         (TH.doc_tham_so("nanLai.heSoGiamChan"), cu))
+
+
 def kiem_dong_tien_cua_thuoc_chay_lai() -> None:
     """Đoán ĐÚNG thì được trả 1, đoán SAI thì được trả 0. Dòng tiền của cả thước.
 
@@ -10995,6 +11083,7 @@ def main() -> int:
     kiem_tra_dung_cho_va_dung_nhiem()
     kiem_co_thu_khong_duoc_dao_nghia()
     kiem_dong_tien_cua_thuoc_chay_lai()
+    kiem_ghi_config_doc_lai_tu_dia()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

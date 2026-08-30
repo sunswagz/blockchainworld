@@ -463,9 +463,51 @@ def ghi_config(duong: str, gt: float) -> bool:
     if abs(float(doc.get(k[-1], 0)) - float(gt)) > 1e-12:
         return False
 
-    p.write_text(moi_tho, encoding="utf-8")
+    # ── GHI rồi ĐỌC LẠI TỪ ĐĨA ────────────────────────────────────────
+    #
+    # Phép đối chiếu ở trên chấm VĂN BẢN SẮP GHI, không chấm thứ nằm
+    # trên đĩa sau khi ghi. Hai chuyện khác nhau: một lần ghi cụt (đầy
+    # đĩa, tiến trình bị giết giữa `write_text`, khoá file trên Windows)
+    # để lại một `config.json` hỏng mà hàm này vẫn trả True — và cái
+    # True ấy đi thẳng vào dòng nhật ký "NHẬN".
+    #
+    # Docstring đã hứa "nạp lại và đối chiếu; không khớp thì trả file về
+    # như cũ" từ đầu. Nay mã làm đúng điều nó hứa.
+    try:
+        p.write_text(moi_tho, encoding="utf-8")
+        lai = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        _hoan_nguyen(p, tho)
+        return False
+    d2 = lai
+    for x in k[:-1]:
+        d2 = d2.get(x) if isinstance(d2, dict) else None
+        if not isinstance(d2, dict):
+            _hoan_nguyen(p, tho)
+            return False
+    if abs(float(d2.get(k[-1], 0)) - float(gt)) > 1e-12:
+        _hoan_nguyen(p, tho)
+        return False
+
     _dat_tham_so(duong, gt)
     return True
+
+
+def _hoan_nguyen(p, tho: str) -> None:
+    """Trả `config.json` về nguyên văn bản cũ. Im lặng thất bại là ca xấu nhất.
+
+    Nếu cả lần trả về cũng hỏng thì file đang ở trạng thái không ai
+    lường được — phải KÊU, vì mọi thứ chạy sau đó đọc chính file ấy.
+    """
+    try:
+        p.write_text(tho, encoding="utf-8")
+    except OSError as e:                            # noqa: BLE001
+        try:
+            from .bus import bus
+            bus.ghi(f"KHÔNG hoàn nguyên được config.json sau một lần ghi "
+                    f"hỏng: {type(e).__name__}: {e}", loai="canh")
+        except Exception:                           # noqa: BLE001
+            pass
 
 
 def _thay_tai_cho(tho: str, k: list[str], gt) -> str | None:
