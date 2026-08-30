@@ -516,6 +516,32 @@ def _lan_demo() -> list[str]:
     ra.append(f"Làn demo (hai chiều, sàn giấy, cổng 5282): {n_s} lệnh SHORT đã "
               f"đóng / 30 cần cho «keo-lui-short-tien-tuong» · {n_l} lệnh LONG. "
               f"Xem cả hai làn: `python scripts/so-hai-lan.py`.")
+
+    # CẤU HÌNH ĐANG CHẠY, hỏi thẳng buồng lái chứ không đọc file. Phép đo này
+    # kéo hàng tuần; trong ngần ấy thời gian cấu hình có thể trôi mà không ai
+    # thấy — và đã trôi một lần: hai giờ đầu làn demo chạy khung 4h vì kế thừa
+    # làn chính, tức đo đúng cái khung đã bị bác bỏ.
+    #
+    # Đọc file thì chỉ biết file nói gì. Tiến trình đang chạy có thể đã nạp một
+    # bản khác từ lâu.
+    try:
+        import urllib.request
+
+        with urllib.request.urlopen("http://localhost:5282/api/state",
+                                    timeout=4) as r:
+            st = json.loads(r.read().decode("utf-8"))
+        tf = (st.get("timeframes") or {}).get("primary")
+        luat = (st.get("thesis") or {}).get("strategy")
+        canh = ""
+        if tf != "1d":
+            canh = ("  ⚠ SAI KHUNG — phép đo làm nên làn này đo trên 1d; cùng bộ "
+                    "luật trên 4h là −0,248R và đã bị bác bỏ.")
+        if st.get("spotOnly"):
+            canh += "  ⚠ spotOnly BẬT — làn demo sẽ không short được."
+        ra.append(f"Đang chạy: khung `{tf}` · bộ luật `{luat or 'chưa có luận điểm'}`"
+                  f" · chế độ `{st.get('mode')}`.{canh}")
+    except Exception:  # noqa: BLE001 — không gọi được thì đã có dòng cổng ở trên
+        pass
     return ra
 
 

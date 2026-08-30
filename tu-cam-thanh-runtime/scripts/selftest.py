@@ -1205,6 +1205,13 @@ async def main() -> int:
           "bàn giao có mục làn demo và canh cổng của nó")
     check("keo-lui-short-tien-tuong" in _bg53,
           "bàn giao gọi thẳng tên giả thuyết đang chờ, không nói chung chung")
+    # Cấu hình có thể TRÔI trong nhiều tuần chạy — và đã trôi một lần (hai giờ
+    # đầu làn demo chạy khung 4h vì kế thừa làn chính). Bàn giao phải hỏi thẳng
+    # buồng lái, không đọc file: file nói file, tiến trình nói tiến trình.
+    check("api/state" in _bg53 and "SAI KHUNG" in _bg53,
+          "bàn giao hỏi buồng lái làn demo và kêu nếu khung không phải 1d")
+    check("spotOnly" in _bg53,
+          "và kêu nếu spotOnly bật — làn demo mà spotOnly bật thì không short được")
 
     # NHẬT KÝ IM ≠ BOT CHẾT. Chỉ `bus.log` mới ra stdout — `bus.emit` thì không
     # — nên nhật ký chỉ nhận sự kiện ĐÁNG GHI. Bot giữ ba vị thế trong phiên yên
