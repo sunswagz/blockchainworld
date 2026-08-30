@@ -149,6 +149,7 @@ class KetQuaPhien:
     laiLoTungCuaSo: list = field(default_factory=list)
     duongVon: list = field(default_factory=list)
     lyDoTuChoi: dict = field(default_factory=dict)
+    cuaDaChan: dict = field(default_factory=dict)
     boQua: dict = field(default_factory=dict)
 
     @property
@@ -179,6 +180,7 @@ class KetQuaPhien:
             "soNgay": self.soNgay, "soLanMoLai": self.soLanMoLai,
             "ngatLucKhung": self.ngatLucKhung, "ngatLyDo": self.ngatLyDo,
             "lyDoTuChoi": dict(self.lyDoTuChoi), "boQua": dict(self.boQua),
+            "cuaDaChan": dict(self.cuaDaChan),
         }
 
 
@@ -430,6 +432,13 @@ class PhienPhatLai:
             pq = self.risk.duyet(ch, sk, tau, duKelly)
             if not pq.cho or pq.soCoChoPhep < 1:
                 self.kq.soTuChoiRuiRo += 1
+                # Đếm theo MÃ CỬA, không chỉ theo câu chữ. Câu chữ mang
+                # số tiền nên mỗi lần một khác, và một cửa chặn 500 lần
+                # trông như 500 lý do riêng lẻ. Mã thì đếm được, và quan
+                # trọng hơn: nó cho biết cửa nào KHÔNG chặn lần nào.
+                if pq.ma:
+                    d = self.kq.cuaDaChan
+                    d[pq.ma] = d.get(pq.ma, 0) + 1
                 for l in (pq.lyDo or ["không rõ"]):
                     self.kq.lyDoTuChoi[_dau_cau(l)] = \
                         self.kq.lyDoTuChoi.get(_dau_cau(l), 0) + 1

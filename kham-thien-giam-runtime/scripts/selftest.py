@@ -5296,6 +5296,65 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_danh_muc_cua_rui_ro() -> None:
+    """Mỗi cửa rủi ro có MỘT mã, khai một chỗ, dùng đúng một lần.
+
+    Ra đời vì một câu không trả lời được nếu không có danh mục: **cửa
+    nào chưa bao giờ chặn ai?** Một cửa không bao giờ chạy thì không
+    phân biệt được với một cửa hỏng.
+
+    Đo ngày 30/08/2026: phiên phát lại 152.329 khung hình trên băng
+    thật chỉ chạm tới 2 trong 13 cửa. Mười một cửa im lặng, và chúng là
+    gần trọn phần GIỮ VỐN — trần mỗi thị trường, trần nhóm tài sản,
+    trần phơi nhiễm gộp, ngân sách lỗ ngày. Hạ vốn xuống $60 cũng không
+    đánh thức được chúng: chúng chỉ chặn khi tồn kho đã tích tới trần,
+    mà băng ấy có 22 cửa sổ trong 9 ngày nên vị thế đóng trước khi
+    chồng lên nhau.
+
+    Đây là GIỚI HẠN của phiên giấy chứ không phải lỗi — nhưng phải nhìn
+    thấy được, nên `chay-phat-lai.py` in nó ra mỗi lượt.
+
+    Phép kiểm này canh cái làm chuyện đó khả thi: danh mục và mã phải
+    khớp nhau đúng một-một. Thêm một cửa mà quên khai thì nó biến mất
+    khỏi báo cáo — im lặng, và im lặng ở đây đọc y hệt "cửa này ổn".
+    """
+    print()
+    print("-- Danh muc cua rui ro -----------------------------------")
+
+    import re as _re
+    from kham.rui_ro import CUA_RUI_RO, PhanQuyet
+
+    _goc = Path(__file__).resolve().parent.parent
+    src = (_goc / "kham" / "rui_ro.py").read_text(encoding="utf-8")
+    dung = _re.findall(r'ma="([a-z0-9-]+)"', src)
+
+    kiem("có danh mục CUA_RUI_RO", isinstance(CUA_RUI_RO, dict)
+         and len(CUA_RUI_RO) >= 10, len(CUA_RUI_RO))
+    kiem("PhanQuyet mang trường `ma`", hasattr(PhanQuyet(False, 0.0), "ma"))
+
+    thua = sorted(set(dung) - set(CUA_RUI_RO))
+    thieu = sorted(set(CUA_RUI_RO) - set(dung))
+    kiem("mọi mã dùng trong mã nguồn đều ĐÃ KHAI", not thua, thua)
+    kiem("mọi cửa đã khai đều CÓ chỗ dùng", not thieu, thieu)
+
+    lap = sorted(m for m in set(dung) if dung.count(m) > 1)
+    kiem("không mã nào dùng hai lần", not lap, lap)
+
+    # Mọi nhánh TỪ CHỐI phải mang mã. Một nhánh không mã thì nó chặn
+    # được người ta mà không hiện ra ở bất kỳ bảng đếm nào.
+    tu_choi = src.count("PhanQuyet(False, 0.0,")
+    kiem("mọi nhánh từ chối đều gắn mã",
+         tu_choi == len(dung), (tu_choi, len(dung)))
+
+    # Và phiên phát lại phải ĐẾM theo mã, chứ không chỉ theo câu chữ —
+    # câu chữ mang số tiền nên mỗi lần một khác.
+    pl = (_goc / "kham" / "phat_lai.py").read_text(encoding="utf-8")
+    kiem("phiên phát lại đếm theo mã cửa", "cuaDaChan" in pl)
+    cpl = (_goc / "scripts" / "chay-phat-lai.py").read_text(encoding="utf-8")
+    kiem("và báo cáo khai ra cửa CHƯA CHẶN LẦN NÀO",
+         "CHƯA CHẶN LẦN NÀO" in cpl and "CUA_RUI_RO" in cpl)
+
+
 def kiem_cong_mo_hinh_khong_van_theo_tieng_on() -> None:
     """Khoảng tin CHỨA 0 thì cổng mô hình KHÔNG được ghi config.
 
@@ -10190,6 +10249,7 @@ def main() -> int:
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
+    kiem_danh_muc_cua_rui_ro()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

@@ -197,6 +197,29 @@ def main() -> int:
             print(f"    {n:>9,} × {ly}")
         print()
 
+    # ── CỬA NÀO CHƯA CHẶN LẦN NÀO ─────────────────────────────────────
+    #
+    # Một cửa không bao giờ chạy thì không phân biệt được với một cửa
+    # hỏng. Đo ngày 30/08/2026: phiên 152.329 khung hình chỉ chạm 5
+    # trong 13 cửa, và tám cửa im lặng là gần như trọn phần GIỮ VỐN —
+    # trần mỗi thị trường, trần nhóm, trần phơi nhiễm gộp, ngân sách lỗ
+    # ngày. Hạ vốn xuống $60 cũng không đánh thức được chúng: chúng chỉ
+    # chặn khi tồn kho đã tích tới trần, mà băng này chỉ có 22 cửa sổ
+    # trong 9 ngày nên vị thế đóng trước khi chồng lên nhau.
+    #
+    # In ra mỗi lượt, chứ không để ai phải đi hỏi. Đây là một GIỚI HẠN
+    # của phiên giấy, không phải một lỗi — nhưng nó phải nhìn thấy được.
+    from kham.rui_ro import CUA_RUI_RO
+    im = [m for m in CUA_RUI_RO if not kq.cuaDaChan.get(m)]
+    print(f"  CỬA RỦI RO: {len(CUA_RUI_RO) - len(im)}/{len(CUA_RUI_RO)}"
+          f" cửa đã chặn ít nhất một lần")
+    if im:
+        print("    CHƯA CHẶN LẦN NÀO trong phiên này — chưa được chạy thật:")
+        for m in im:
+            print(f"      · {m:<20} {CUA_RUI_RO[m]}")
+        print("    (chúng có phép kiểm đơn vị; đây là khoảng trống ĐẦU-CUỐI)")
+    print()
+
     if kq.ngatLucKhung:
         con = kq.soKhungHinh - kq.ngatLucKhung
         print(f"  ⚠ CẦU DAO NGẮT ở khung {kq.ngatLucKhung:,} — {kq.ngatLyDo}")

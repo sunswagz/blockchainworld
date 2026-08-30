@@ -27,6 +27,33 @@ _KD = CONFIG["khoDoi"]
 _CL = CONFIG["canLoi"]
 
 
+#: Mọi CỬA của bộ máy rủi ro, khai MỘT chỗ.
+#:
+#: Có danh mục này thì trả lời được một câu mà trước nay phải đi đọc mã:
+#: **cửa nào chưa bao giờ chặn ai?** Ngày 30/08/2026, một phiên phát lại
+#: 152.329 khung hình chỉ chạm tới 5 trong 12 cửa; bảy cửa còn lại —
+#: gần như toàn bộ phần GIỮ VỐN — không chặn một lần nào, ở mọi mức vốn
+#: từ $60 tới $100.000. Chúng có phép kiểm đơn vị, nhưng chưa từng chạy
+#: thật một lần.
+#:
+#: Một cửa không bao giờ chạy thì không phân biệt được với một cửa hỏng.
+CUA_RUI_RO = {
+    "doi-soat": "chưa đối soát vị thế với sàn sau khi khởi động",
+    "cau-dao": "cầu dao đang ngắt",
+    "nguon": "nguồn dữ liệu không lành",
+    "sang": "cơ hội không qua sàng (net edge / sức chứa / xác suất / cơ hội)",
+    "cho-chan-hai": "không đủ thời gian phòng hộ chân hai",
+    "tran-thi-truong": "chạm trần mỗi thị trường",
+    "ngan-sach-lo-ngay": "hết ngân sách lỗ trong ngày",
+    "tran-nhom": "chạm trần mỗi nhóm tài sản",
+    "tran-gop": "chạm trần phơi nhiễm GỘP (bốn coin là một cược)",
+    "tran-mot-chan": "chạm trần phần nằm trần một chân",
+    "chan-qua-han": "còn chân chờ phòng hộ quá hạn",
+    "duoi-mot-co": "sau khi siết còn dưới 1 cổ",
+    "loi-qua-nho": "sau khi siết lợi kỳ vọng không đáng một lượt khớp",
+}
+
+
 @dataclass
 class PhanQuyet:
     cho: bool
@@ -34,6 +61,8 @@ class PhanQuyet:
     lyDo: list[str] = field(default_factory=list)
     canhBao: list[str] = field(default_factory=list)
     daSiet: bool = False          # có bị cắt bớt so với đề xuất không
+    ma: str = ""                  # MÃ CỬA đã chặn — xem `CUA_RUI_RO`
+
 
     @property
     def tu_choi(self) -> bool:
@@ -376,16 +405,16 @@ class RiskEngine:
             return PhanQuyet(False, 0.0, [
                 "CHƯA ĐỐI SOÁT VỊ THẾ VỚI SÀN sau khi khởi động — không "
                 "biết đang cầm gì thì mọi hạn mức phía sau đều tính trên "
-                "một tồn kho không có thật"])
+                "một tồn kho không có thật"], ma="doi-soat")
 
         # 1. cầu dao
         if self.ngatKhanCap:
-            return PhanQuyet(False, 0.0, [f"CẦU DAO ĐANG NGẮT: {self.lyDoNgat}"])
+            return PhanQuyet(False, 0.0, [f"CẦU DAO ĐANG NGẮT: {self.lyDoNgat}"], ma="cau-dao")
 
         # 2. sức khoẻ nguồn — trước mọi phép tính, vì tính trên số cũ là vô nghĩa
         van_de = sucKhoe.van_de()
         if van_de:
-            return PhanQuyet(False, 0.0, ["nguồn không lành: " + "; ".join(van_de)])
+            return PhanQuyet(False, 0.0, ["nguồn không lành: " + "; ".join(van_de)], ma="nguon")
 
         # 3. cơ hội có qua sàng không
         if not ch.dang_lam:
@@ -399,14 +428,14 @@ class RiskEngine:
                 ly_do.append(f"xác suất khớp {ch.xacSuatKhop:.0%} quá thấp")
             if ch.nuaDoiMs < float(_CL["nuaDoiToiThieuMs"]):
                 ly_do.append(f"cơ hội chỉ sống {ch.nuaDoiMs:.0f}ms")
-            return PhanQuyet(False, 0.0, ly_do or ["không qua sàng"])
+            return PhanQuyet(False, 0.0, ly_do or ["không qua sàng"], ma="sang")
 
         # 4. market sắp khoá thì không mở vị thế MỚI
         #    Chân chưa phòng hộ lúc chuông reo là rủi ro trần trụi không gỡ được.
         if conLaiGiay <= float(_KD["giayChoChanHai"]):
             return PhanQuyet(False, 0.0, [
                 f"còn {conLaiGiay:.0f}s, không đủ thời gian phòng hộ chân hai "
-                f"(cần {_KD['giayChoChanHai']}s)"])
+                f"(cần {_KD['giayChoChanHai']}s)"], ma="cho-chan-hai")
 
         # ── từ đây là SIẾT chứ không từ chối ─────────────────────────────
         cho_phep = ch.soCo
@@ -433,7 +462,7 @@ class RiskEngine:
         if con_duoc <= 0:
             return PhanQuyet(False, 0.0, [
                 f"market {ch.ma} đã dùng ${dang_co:.2f}, chạm trần "
-                f"${self.tranMoiThiTruongUsd:.2f}"])
+                f"${self.tranMoiThiTruongUsd:.2f}"], ma="tran-thi-truong")
         max_co = con_duoc / max(1e-9, ch.vwap)
         if max_co < cho_phep:
             cho_phep = max_co
@@ -484,7 +513,7 @@ class RiskEngine:
                     return PhanQuyet(False, 0.0, [
                         f"lỗ xấu nhất đang gánh ${dang_ganh:.2f} đã hết "
                         f"ngân sách lỗ ngày ${con_ngay:.2f} — chỉ còn nhận "
-                        "lệnh PHÒNG HỘ"])
+                        "lệnh PHÒNG HỘ"], ma="ngan-sach-lo-ngay")
                 if phong_ho < cho_phep:
                     cho_phep = phong_ho
                     canh.append(f"hết ngân sách lỗ ngày, chỉ cho phòng hộ "
@@ -515,7 +544,7 @@ class RiskEngine:
         if con_nhom <= 0:
             return PhanQuyet(False, 0.0, [
                 f"nhóm {nhom} đã dùng ${dang_nhom:.2f}, chạm trần "
-                f"${self.tranMoiTaiSanUsd:.2f}"])
+                f"${self.tranMoiTaiSanUsd:.2f}"], ma="tran-nhom")
         max_nhom = con_nhom / max(1e-9, ch.vwap)
         if max_nhom < cho_phep:
             cho_phep = max_nhom
@@ -546,7 +575,7 @@ class RiskEngine:
                 return PhanQuyet(False, 0.0, [
                     f"phơi nhiễm crypto GỘP ${gop:.2f} chạm trần "
                     f"${tranGop:.2f} — bốn market tương quan là MỘT cược, "
-                    "trần mỗi market không chặn được chuyện này"])
+                    "trần mỗi market không chặn được chuyện này"], ma="tran-gop")
             max_gop = con_gop / max(1e-9, ch.vwap)
             if max_gop < cho_phep:
                 cho_phep = max_gop
@@ -561,7 +590,7 @@ class RiskEngine:
             if con <= 0:
                 return PhanQuyet(False, 0.0, [
                     f"đang có ${dang_tran:.2f} nằm trần một chân, chạm trần "
-                    f"${tranTran:.2f}"])
+                    f"${tranTran:.2f}"], ma="tran-mot-chan")
             cho_phep = con / max(1e-9, ch.vwap)
             canh.append(f"trần chưa phòng hộ cắt còn {cho_phep:.0f} cổ")
 
@@ -570,7 +599,7 @@ class RiskEngine:
         if qua_han:
             return PhanQuyet(False, 0.0, [
                 f"{len(qua_han)} chân đã chờ quá {_KD['giayChoChanHai']}s "
-                f"chưa phòng hộ xong — dọn trước khi mở thêm"])
+                f"chưa phòng hộ xong — dọn trước khi mở thêm"], ma="chan-qua-han")
 
         # 10. trần lệnh thật
         if CONFIG.get("che") == "that":
@@ -582,11 +611,11 @@ class RiskEngine:
 
         # 11. sau khi siết, cơ hội còn đáng làm không
         if cho_phep < 1:
-            return PhanQuyet(False, 0.0, ["sau khi siết còn dưới 1 cổ"])
+            return PhanQuyet(False, 0.0, ["sau khi siết còn dưới 1 cổ"], ma="duoi-mot-co")
         if cho_phep * ch.netEdge < 0.01:
             return PhanQuyet(False, 0.0, [
                 f"sau khi siết lợi kỳ vọng chỉ ${cho_phep * ch.netEdge:.4f} — "
-                f"không đáng một lượt khớp"])
+                f"không đáng một lượt khớp"], ma="loi-qua-nho")
 
         return PhanQuyet(True, cho_phep, ly_do, canh, daSiet=cho_phep < ch.soCo - 1e-9)
 
