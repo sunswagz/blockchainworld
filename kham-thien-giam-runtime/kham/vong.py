@@ -469,7 +469,19 @@ class Runtime:
         ma = next((t["ma"] for t in CONFIG["thiTruong"] if t.get("theo")),
                   "BTC_5M")
 
-        r = HO.dung_so_hieu_chinh(soNgay=soNgay, ma=ma)
+        # Sổ hiệu chỉnh dựng trên MỌI chợ, không phải chợ đầu tiên.
+        #
+        # `ma` (một chợ) vẫn dùng cho phần VẶN NÚT bên dưới — vặn một
+        # nút thì chấm trên một chợ là đủ và nhanh hơn nhiều. Nhưng sổ
+        # hiệu chỉnh thì được áp cho CẢ BỐN chợ khi chạy, nên khớp nó
+        # trên riêng BTC là lấy đường cong của một chợ đi nắn ba chợ
+        # khác — mà σ của SOL và XRP cỡ 2,4 lần BTC.
+        #
+        # Đã cắn: `dung_so_hieu_chinh` xoá sổ thô trước khi ghi, nên mỗi
+        # vòng ngày thu sổ từ 228.156 dòng bốn chợ về 40.336 dòng một
+        # chợ. Không có gì đỏ — sai số trung bình vẫn đẹp, vì nó là sai
+        # số của BTC chấm trên BTC.
+        r = HO.dung_so_hieu_chinh(soNgay=soNgay)
         if r.get("loi"):
             bus.ghi(f"học từ Binance: {r['loi']}", loai="canh")
             return
@@ -477,9 +489,15 @@ class Runtime:
         self.phepNan = nan_lai.khop(self.hieuChinh)
         self._nanLucMs = time.time() * 1000.0
         self.hocGanNhat = r
-        bus.ghi(f"sổ hiệu chỉnh dựng lại: {r['tongMau']:,} mẫu · sai "
+        bus.ghi(f"sổ hiệu chỉnh dựng lại: {r['tongMau']:,} mẫu · "
+                f"{r.get('soCho', 1)} chợ · sai "
                 f"{(r['saiSoTB'] or 0)*100:.2f} điểm · Kelly "
                 f"{'mở' if r['duKelly'] else 'khoá'}", loai="he")
+        _hut = [m for m, v in (r.get("theoCho") or {}).items() if "loi" in v]
+        if _hut:
+            bus.ghi(f"sổ hiệu chỉnh: {len(_hut)} chợ hụt nến — "
+                    + "; ".join(f"{m}: {r['theoCho'][m]['loi']}"
+                               for m in _hut[:3]), loai="canh")
 
         v = HO.mot_luot_mo_hinh(soNgay=max(soNgay, 10), ma=ma)
         self.tienHoaMoHinh = v

@@ -34,6 +34,7 @@ import time
 from .chan_doan import NUT_THEO_DUONG, doc_tham_so
 from .config import CONFIG, DATA_DIR
 from .dinh_gia import DoBienDong, HieuChinh, dinh_gia
+from . import nan_lai
 from .nan_lai import ghi_tho, khop
 from .nguon import nguon
 
@@ -247,46 +248,98 @@ def bien_theo_ung_vien(so: int) -> float:
 #  VIỆC 1 — DỰNG LẠI SỔ HIỆU CHỈNH
 # ══════════════════════════════════════════════════════════════════════
 
-def dung_so_hieu_chinh(soNgay: int = 7, ma: str = "BTC_5M",
+def dung_so_hieu_chinh(soNgay: int = 7, ma: str | list | None = None,
                        ghiTho: bool = True) -> dict:
     """Dựng lại `hieu-chinh.json` từ Binance. KHÔNG cộng dồn lên sổ cũ.
 
     `HieuChinh()` đọc sổ cũ rồi cộng tiếp; chạy hai lần là mọi ô nhân
     đôi. Sai số trung bình không đổi nên nó không lộ ra ở đâu — chỉ `n`
     phình lên, mà `n` là thứ quyết định Kelly có được mở hay không.
+
+    ## MỘT đường nắn, khớp trên MỌI chợ — không phải trên chợ đầu tiên
+
+    `dinh_gia` áp một sổ hiệu chỉnh duy nhất cho cả bốn chợ, và
+    `scripts/do-nan-chung-hay-rieng.py` đã đo ngoài mẫu rằng như thế là
+    đúng: đường CHUNG 1,590c so với bốn đường RIÊNG 1,640c, thắng 2/4
+    chợ — không có cớ để tách, vì tách là chia mẫu cho bốn.
+
+    Nhưng "một đường chung" không có nghĩa là "khớp trên một chợ".
+    `vong._hoc_offline` truyền `ma` bằng chợ ĐẦU TIÊN đang theo, tức
+    luôn là BTC_5M; mà hàm này lại `unlink()` sổ thô trước khi ghi. Nên
+    mỗi vòng ngày lặng lẽ thu sổ thô từ bốn chợ về một chợ: đo được
+    30/08/2026, file còn đúng 40.336 dòng và 100% là BTC_5M, sau khi
+    từng có 228.156 dòng bốn chợ.
+
+    Hậu quả không nằm ở số dòng mà ở chỗ đường nắn ấy được áp cho
+    ETH/SOL/XRP — ba chợ có σ khác hẳn BTC (SOL và XRP cỡ 2,4 lần) và
+    có sai số hiệu chỉnh riêng (3,0c tới 3,8c thô, tuỳ chợ).
+
+    Nay `ma` nhận cả DANH SÁCH, xoá sổ thô đúng MỘT lần, và mặc định là
+    mọi chợ đối chiếu được. Một `HieuChinh` duy nhất gom cả bốn.
     """
-    cap = next((t.get("nen") for t in CONFIG["thiTruong"]
-                if t.get("ma") == ma), None)
-    if not cap:
-        return {"loi": f"không có market `{ma}`"}
+    from .ket_qua import thi_truong_doi_chieu_duoc
+
+    if ma is None:
+        ds = [str(t["ma"]) for t in thi_truong_doi_chieu_duoc()]
+    elif isinstance(ma, str):
+        ds = [ma]
+    else:
+        ds = [str(x) for x in ma]
+    if not ds:
+        return {"loi": "không có market nào đối chiếu được"}
+
+    capTheoMa = {}
+    for m in ds:
+        c = next((t.get("nen") for t in CONFIG["thiTruong"]
+                  if t.get("ma") == m), None)
+        if not c:
+            return {"loi": f"không có market `{m}`"}
+        capTheoMa[m] = c
+
     cuaSo = cua_so_sigma()
     soNen = soNgay * 24 * 60 + int(cuaSo / 60.0) + 20
     hetMs = int(time.time() * 1000.0 // PHUT * PHUT) - PHUT
-    quen_sigma()
-    theoMoc = nen_1p(cap, hetMs - soNen * PHUT, soNen)
-    if len(theoMoc) < 400:
-        return {"loi": f"chỉ lấy được {len(theoMoc)} nến"}
 
     if ghiTho:
-        tho = DATA_DIR / "hieu-chinh-tho.jsonl"
+        # ĐÚNG file mà `ghi_tho` ghi vào, đọc từ `nan_lai` chứ không dựng
+        # lại đường dẫn. Hai lối viết cho một file là hai chỗ để chúng
+        # trôi khỏi nhau, và lúc trôi thì phần xoá im lặng trượt mục
+        # tiêu: sổ cũ ở lại, `ghi_tho` nối tiếp, mọi ô nhân đôi.
+        tho = nan_lai.DUONG_THO
         if tho.exists():
             tho.unlink()      # `ghi_tho` NỐI THÊM — không xoá thì nhân đôi
+            # XOÁ ĐÚNG MỘT LẦN, ngoài vòng lặp chợ. Trong vòng lặp thì
+            # chợ sau xoá mất chợ trước, và sổ còn lại đúng một chợ.
 
     hc = HieuChinh()
     hc.o = {}
-    # Quét MỌI mốc phút cho hiệu chỉnh: khung [T, T+300] nào cũng hợp lệ,
-    # không cần trùng lưới Polymarket. (Sổ KẾT QUẢ thì ngược lại — chỉ
-    # nhận mốc 5 phút, vì nó là danh sách market CÓ THẬT.)
-    cap_ = cap_du_doan(theoMoc, sorted(theoMoc), ma, cuaSo)
-    for p, t in cap_:
-        hc.them(p, t)
-        if ghiTho:
-            ghi_tho(p, t, ma)
+    theoCho: dict = {}
+    for m in ds:
+        quen_sigma()
+        theoMoc = nen_1p(capTheoMa[m], hetMs - soNen * PHUT, soNen)
+        if len(theoMoc) < 400:
+            # Một chợ hụt nến KHÔNG được giết cả lượt — nhưng phải khai
+            # ra, chứ không lặng lẽ khớp trên ba chợ và báo như bốn.
+            theoCho[m] = {"loi": f"chỉ lấy được {len(theoMoc)} nến"}
+            continue
+        # Quét MỌI mốc phút cho hiệu chỉnh: khung [T, T+300] nào cũng
+        # hợp lệ, không cần trùng lưới Polymarket. (Sổ KẾT QUẢ thì ngược
+        # lại — chỉ nhận mốc 5 phút, vì nó là danh sách market CÓ THẬT.)
+        cap_ = cap_du_doan(theoMoc, sorted(theoMoc), m, cuaSo)
+        for p, t in cap_:
+            hc.them(p, t)
+            if ghiTho:
+                ghi_tho(p, t, m)
+        theoCho[m] = {"soCap": len(cap_)}
+
     if not hc.tong_mau:
-        return {"loi": "không dựng được cặp nào"}
+        return {"loi": "không dựng được cặp nào", "theoCho": theoCho}
     hc.ghi()
     pn = khop(hc)
-    return {"soCap": len(cap_), "tongMau": hc.tong_mau,
+    soCap = sum(v.get("soCap", 0) for v in theoCho.values())
+    return {"soCap": soCap, "tongMau": hc.tong_mau,
+            "soCho": sum(1 for v in theoCho.values() if "soCap" in v),
+            "theoCho": theoCho,
             "saiSoTB": hc.sai_so_tuyet_doi_tb(),
             "duKelly": hc.du_de_dung_kelly(),
             "nanDungDuoc": pn.dung_duoc,

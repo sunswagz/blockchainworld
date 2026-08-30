@@ -5296,6 +5296,117 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_so_hieu_chinh_gom_moi_cho() -> None:
+    """Sổ hiệu chỉnh phải khớp trên MỌI chợ, không phải chợ đầu tiên.
+
+    `dinh_gia` áp MỘT sổ hiệu chỉnh cho cả bốn chợ, và
+    `do-nan-chung-hay-rieng.py` đã đo ngoài mẫu rằng một đường chung là
+    đúng (1,590c so với bốn đường riêng 1,640c). Nhưng "một đường
+    chung" không có nghĩa là "khớp trên một chợ".
+
+    `vong._hoc_offline` truyền chợ ĐẦU TIÊN đang theo — luôn là BTC_5M
+    — còn `dung_so_hieu_chinh` thì `unlink()` sổ thô trước khi ghi. Nên
+    mỗi vòng ngày thu sổ thô từ bốn chợ về một chợ. Đo được 30/08/2026:
+    file còn đúng 40.336 dòng, 100% BTC_5M, sau khi từng có 228.156
+    dòng bốn chợ. Đường nắn ấy vẫn được áp cho ETH/SOL/XRP.
+
+    KHÔNG có gì đỏ, vì sai số trung bình vẫn đẹp — nó là sai số của BTC
+    chấm trên BTC.
+
+    Phép kiểm không cần mạng: thay `nen_1p` bằng lưới giá dựng sẵn, và
+    trỏ sổ thô sang file tạm.
+    """
+    print()
+    print("-- So hieu chinh gom MOI cho ------------------------------")
+
+    import json as _js
+    import tempfile
+    from kham import hoc_offline as HO
+    from kham import nan_lai as NL
+
+    DS = ["BTC_5M", "ETH_5M", "SOL_5M", "XRP_5M"]
+    GOC = {"BTC_5M": 60_000.0, "ETH_5M": 3_000.0,
+           "SOL_5M": 105.0, "XRP_5M": 1.4}
+    CAP = {"BTCUSDT": "BTC_5M", "ETHUSDT": "ETH_5M",
+           "SOLUSDT": "SOL_5M", "XRPUSDT": "XRP_5M"}
+
+    def _gia(cap, tuMs, soNen):
+        g = GOC[CAP[cap]]
+        b = 0.002 + 0.001 * list(CAP).index(cap)
+        t0 = int(tuMs // 60_000) * 60_000
+        return {t0 + i * 60_000:
+                g * (1 + b * math.sin(i * 0.7) + 0.3 * b * math.sin(i * 0.13))
+                for i in range(int(soNen))}
+
+    cu_nen, cu_duong = HO.nen_1p, NL.DUONG_THO
+    tmp = Path(tempfile.mkdtemp()) / "tho.jsonl"
+    try:
+        HO.nen_1p = _gia
+        NL.DUONG_THO = tmp
+        r = HO.dung_so_hieu_chinh(soNgay=2, ma=DS)
+    finally:
+        HO.nen_1p, NL.DUONG_THO = cu_nen, cu_duong
+
+    kiem("dựng được sổ (không lỗi)", not r.get("loi"), r.get("loi"))
+    kiem("khai đủ 4 chợ trong kết quả", r.get("soCho") == 4, r.get("soCho"))
+
+    thay = {}
+    for dong in tmp.read_text(encoding="utf-8").splitlines():
+        if dong.strip():
+            _m = _js.loads(dong).get("ma")
+            thay[_m] = thay.get(_m, 0) + 1
+    kiem("sổ THÔ chứa CẢ BỐN chợ, không riêng chợ đầu",
+         sorted(thay) == sorted(DS), sorted(thay))
+    kiem("và không chợ nào bị xoá mất (mỗi chợ đều có dòng)",
+         all(thay.get(m, 0) > 0 for m in DS), thay)
+    kiem("tổng mẫu gộp lớn hơn hẳn một chợ đơn lẻ",
+         r["tongMau"] > 1.5 * max(thay.values()), (r["tongMau"], thay))
+
+    # Một chợ duy nhất vẫn phải chạy — `ma` nhận cả chuỗi lẫn danh sách.
+    tmp2 = tmp.parent / "tho2.jsonl"
+    cu_nen, cu_duong = HO.nen_1p, NL.DUONG_THO
+    try:
+        HO.nen_1p = _gia
+        NL.DUONG_THO = tmp2
+        r1 = HO.dung_so_hieu_chinh(soNgay=2, ma="BTC_5M")
+    finally:
+        HO.nen_1p, NL.DUONG_THO = cu_nen, cu_duong
+    kiem("`ma` là một chuỗi thì vẫn chạy (một chợ)",
+         not r1.get("loi") and r1.get("soCho") == 1, r1.get("soCho"))
+    kiem("và gộp bốn chợ cho nhiều mẫu hơn một chợ",
+         r["tongMau"] > r1["tongMau"], (r["tongMau"], r1["tongMau"]))
+
+    # Phần XOÁ phải trỏ đúng file mà `ghi_tho` ghi vào. Hai lối viết cho
+    # một đường dẫn là hai chỗ để chúng trôi khỏi nhau, và lúc trôi thì
+    # sổ cũ ở lại còn `ghi_tho` nối tiếp — mọi ô nhân đôi, `n` phình,
+    # Kelly mở nhầm.
+    import inspect as _in
+    _src = _in.getsource(HO.dung_so_hieu_chinh)
+    kiem("phần xoá đọc đường dẫn từ `nan_lai`, không dựng lại",
+         "nan_lai.DUONG_THO" in _src and "hieu-chinh-tho.jsonl" not in _src)
+
+    # ── và CHỖ GỌI, vì con bọ sống ở đó ───────────────────────────────
+    #
+    # `dung_so_hieu_chinh` một mình thì không sai bao giờ: nó dựng đúng
+    # cái nó được bảo. Cái sai nằm ở `vong._hoc_offline` bảo nó dựng
+    # trên MỘT chợ. Canh hàm mà không canh chỗ gọi là canh nửa vời —
+    # chính đó là cách con bọ này sống sót suốt.
+    import ast as _ast
+    _goc = Path(__file__).resolve().parent.parent
+    _vsrc = (_goc / "kham" / "vong.py").read_text(encoding="utf-8")
+    _goi = [n for n in _ast.walk(_ast.parse(_vsrc))
+            if isinstance(n, _ast.Call)
+            and isinstance(n.func, _ast.Attribute)
+            and n.func.attr == "dung_so_hieu_chinh"]
+    kiem("`vong.py` gọi dung_so_hieu_chinh đúng một chỗ", len(_goi) == 1,
+         len(_goi))
+    if _goi:
+        _kw = {k.arg for k in _goi[0].keywords}
+        kiem("và KHÔNG ghim `ma` vào một chợ — để mặc định gom cả bốn",
+             "ma" not in _kw and not _goi[0].args,
+             sorted(_kw))
+
+
 def kiem_nho_sigma_theo_cho() -> None:
     """Bộ nhớ σ phải khoá theo CHỢ. Đây là phép canh cho một con bọ THẬT.
 
@@ -9777,6 +9888,7 @@ def main() -> int:
     kiem_cong_cu_van_dung_bo_uoc_chung()
     kiem_mot_bo_uoc_sigma()
     kiem_nho_sigma_theo_cho()
+    kiem_so_hieu_chinh_gom_moi_cho()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
