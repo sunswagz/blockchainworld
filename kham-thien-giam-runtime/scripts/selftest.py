@@ -5296,6 +5296,90 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_moi_sigma_rieng_trung_bo_uoc_chung() -> None:
+    """MỌI `_sigma` riêng trong `scripts/` phải ra ĐÚNG số của bộ ước chung.
+
+    `kiem_mot_bo_uoc_sigma` chỉ canh hai script (`tu-nang-cap.py`,
+    `tien-hoa-mo-hinh.py`) — hai script GHI config. Nhưng còn cả một
+    họ script khác vừa `dinh_gia` vừa tự viết `_sigma` của riêng nó:
+    `thu-nan-theo-tau.py`, `do-tran-mo-hinh.py`, và mấy cái nữa.
+
+    Hôm nay chúng trùng khớp — cùng lấy `soNen+1` giá trên lưới phút,
+    log-return, `pstdev`, chia `sqrt(60)`. Nhưng KHÔNG có gì canh, và
+    đây đúng là chỗ đã cắn một lần: `tu-nang-cap.py` từng vặn cửa sổ σ
+    trên lưới phút trong khi runtime chạy bộ ước mẫu thô, và σ chạy
+    thật chỉ bằng 0,875 lần σ đã tuning. Cái trôi ấy LẶNG.
+
+    Một script kết luận về mô hình bằng một σ khác σ của mô hình thì
+    kết luận ấy nói về một cỗ máy không tồn tại.
+
+    Dò bằng AST và exec RIÊNG hàm ấy — không nạp cả module, vì nhiều
+    script chạm mạng ngay lúc nạp.
+    """
+    print()
+    print("-- Moi _sigma rieng phai trung bo uoc chung ----------------")
+
+    import ast as _ast
+    import math as _m
+    import statistics as _st
+    from kham.hoc_offline import quen_sigma, sigma_tai
+
+    _goc = Path(__file__).resolve().parent.parent
+    T = 1_787_243_400_000
+    luoi = {int(T - i * 60_000):
+            70_000.0 * (1 + 0.0006 * _m.sin(i * 1.3) + 0.0002 * _m.cos(i * 0.4))
+            for i in range(40)}
+    quen_sigma()
+    chuan = sigma_tai(luoi, T, 900.0, "X")
+    kiem("bộ ước chung cho ra một con số (đề bài đúng)", chuan is not None)
+
+    thay = 0
+    for f in sorted(_goc.glob("scripts/*.py")):
+        if f.name == "selftest.py":
+            continue
+        try:
+            cay = _ast.parse(f.read_text(encoding="utf-8"))
+        except SyntaxError:
+            continue
+        for nut in cay.body:
+            if not isinstance(nut, _ast.FunctionDef):
+                continue
+            if nut.name not in ("_sigma", "sigma"):
+                continue
+            # `thu-uoc-sigma.py` là script SO SÁNH các bộ ước với nhau —
+            # nó phải được viết bộ ước riêng, đó là đề bài của nó.
+            if f.name == "thu-uoc-sigma.py":
+                continue
+            thay += 1
+            ns = {"math": _m, "statistics": _st, "PHUT": 60_000.0}
+            exec(compile(_ast.Module(body=[nut], type_ignores=[]),
+                         f.name, "exec"), ns)
+            ham = ns[nut.name]
+            # HAI dạng lưới, cả hai đều hợp lệ: `{mốc: giá}` và
+            # `{mốc: nến}` với giá ở ô 0 (`thu-dong-lenh.py` cần cả khối
+            # lượng nên giữ nguyên nến). Thử dạng trần trước, TypeError
+            # thì thử dạng nến — nhưng vẫn PHẢI trùng, chứ không phải
+            # gặp lỗi là tha.
+            ra = _loi = None
+            for _luoi in (luoi, {k: (v, 1.0, 1.0) for k, v in luoi.items()}):
+                try:
+                    ra = ham(_luoi, T, 15)
+                    _loi = None
+                    break
+                except (TypeError, IndexError, AttributeError) as e:
+                    _loi = f"{type(e).__name__}: {e}"
+            if _loi is not None:
+                kiem(f"{f.name}:{nut.name} gọi được với lưới phút", False,
+                     f"{_loi} — chữ ký khác, đọc lại xem nó đo cái gì")
+                continue
+            kiem(f"{f.name}:{nut.name} trùng bộ ước chung",
+                 ra is not None and chuan is not None
+                 and abs(ra - chuan) < 1e-15,
+                 f"{ra} vs {chuan}")
+
+    kiem("có tìm thấy ít nhất một `_sigma` riêng để canh", thay >= 3, thay)
+
+
 def kiem_khoa_mot_ban_chay_nen() -> None:
     """Bật bản thứ hai phải TỰ KHAI rồi thoát, không treo im lặng.
 
@@ -9981,6 +10065,7 @@ def main() -> int:
     kiem_nho_sigma_theo_cho()
     kiem_so_hieu_chinh_gom_moi_cho()
     kiem_khoa_mot_ban_chay_nen()
+    kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
