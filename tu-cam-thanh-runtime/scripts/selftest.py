@@ -1172,6 +1172,13 @@ async def main() -> int:
     check("keo-lui-short-tien-tuong" in _bg53,
           "bàn giao gọi thẳng tên giả thuyết đang chờ, không nói chung chung")
 
+    # LÒ LUYỆN sinh ra CHALLENGER, và challenger sẽ được bot CHẠY THẬT trên sàn
+    # spot. Dò trong không gian hai chiều là tối ưu cho một cỗ máy khác — một
+    # biến thể có thể thắng hoàn toàn nhờ nửa short mà bot không đánh được.
+    _nt53 = ma_khong_chu_thich(ROOT / "trader" / "nghi_thuc.py")
+    check('"scripts/lo-luyen.py", "--ghi", "--chi-long"' in _nt53,
+          "nghi thức chạy lò luyện trong không gian CHẠY ĐƯỢC (--chi-long)")
+
 
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.

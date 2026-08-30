@@ -142,7 +142,19 @@ VIEC = (
     #
     # Đặt SAU «đo hướng»: hai việc dùng chung cache chuỗi, nên chạy sau là chạy
     # trên cache nóng.
-    ("lò luyện", [sys.executable, "scripts/lo-luyen.py", "--ghi",
+    # `--chi-long`: lò dò trong không gian bot CHẠY ĐƯỢC.
+    #
+    # Lò sinh ra CHALLENGER, và challenger đi qua cửa duyệt rồi lên champion rồi
+    # được bot chạy thật. Mà bot chạy sàn spot, nơi `risk.py` chặn SHORT. Dò
+    # trong không gian hai chiều là tối ưu một chiến lược cho một cỗ máy khác.
+    #
+    # Không phải chuyện nhỏ: trên 33 chợ 1d chưa từng dùng, MOCK_KEO_LUI_V1 cho
+    # SHORT +0,303R/226 lệnh và LONG −0,306R/44 lệnh. Một biến thể thắng ở bảng
+    # gộp có thể thắng HOÀN TOÀN nhờ nửa short.
+    #
+    # Nửa hai chiều vẫn được đo, chỉ là ở chỗ khác: `do-huong.py` chạy ngay
+    # trước việc này, và bảng đấu nhiều chợ nay có cột `chiLong` cạnh cột gộp.
+    ("lò luyện", [sys.executable, "scripts/lo-luyen.py", "--ghi", "--chi-long",
                   "--cho", CHO_1D, "--bien", "20", "--lat", "4"], 1800,
      "lo-luyen.json"),
     # Đấu NHIỀU CHỢ. Nghi thức trước chỉ chạy `--tat-ca` trên một chợ, nên
