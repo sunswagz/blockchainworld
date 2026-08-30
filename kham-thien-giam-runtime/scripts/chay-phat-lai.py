@@ -34,12 +34,14 @@ CO = tham_so.doc({
     "mo-lai-moi-ngay": tham_so.BAT,
     "tu": "chỉ chạy băng từ ngày này (YYYY-MM-DD)",
     "von": "vốn ảo ban đầu, USD",
+    "moi-nan": "số ngày Binance TRƯỚC băng để mồi sổ hiệu chỉnh",
 }, ten='chay-phat-lai.py')
 
 
 VON = CO.lay("von")
 MO_LAI = CO.co("mo-lai-moi-ngay")
 TU_NGAY = CO.lay("tu")
+MOI_NAN = float(CO.lay("moi-nan") or 0)
 
 # Sổ sách của phiên ghi vào thư mục RIÊNG. Tách bằng ĐƯỜNG DẪN, không
 # bằng `KTG_DATA_DIR`: băng và sổ kết quả vẫn phải đọc từ chỗ thật, nên
@@ -90,6 +92,45 @@ def _tien(x: float) -> str:
     return f"{'-' if x < 0 else ''}${abs(x):,.2f}"
 
 
+def _dung_moi(denMs: float, soNgay: float):
+    """Sổ hiệu chỉnh dựng từ Binance, KẾT THÚC TRƯỚC `denMs`.
+
+    Đây là thứ máy chạy thật đã có sẵn mà phiên giấy thì không: một
+    bảng nắn tích từ trước. Thiếu nó, `du_de_dung_kelly()` trả False
+    suốt phiên, cỡ lệnh ghim ở lô sàn, và `--von` không đổi một lệnh
+    nào — $1.000 với $100.000 cho đúng cùng một chuỗi lệnh.
+
+    Không nhìn trộm: mọi nến dùng ở đây đều nằm TRƯỚC khung đầu của
+    băng, và `PhienPhatLai` từ chối chạy nếu điều đó không đúng.
+    """
+    from kham.dinh_gia import HieuChinh
+    from kham.hoc_offline import (cap_du_doan, cua_so_sigma, nen_1p,
+                                  quen_sigma)
+    from kham.ket_qua import thi_truong_doi_chieu_duoc
+
+    PHUT = 60_000.0
+    cuaSo = cua_so_sigma()
+    soNen = int(soNgay * 24 * 60 + cuaSo / 60.0 + 20)
+    # Lùi thêm một phút cho chắc: nến cuối phải ĐÓNG trước `denMs`.
+    het = int((denMs - PHUT) // PHUT * PHUT)
+
+    hc = HieuChinh(RIENG / "moi-hieu-chinh.json")
+    hc.o = {}
+    theoCho = {}
+    for t in thi_truong_doi_chieu_duoc():
+        ma, cap = str(t["ma"]), str(t["nen"])
+        quen_sigma()
+        tm = nen_1p(cap, het - soNen * PHUT, soNen)
+        if len(tm) < 400:
+            theoCho[ma] = 0
+            continue
+        c = cap_du_doan(tm, sorted(tm), ma, cuaSo)
+        for pp, thang in c:
+            hc.them(pp, thang)
+        theoCho[ma] = len(c)
+    return hc.o, het, theoCho
+
+
 def main() -> int:
     von = float(VON) if VON else float(CONFIG["ruiRo"]["vonBanDau"])
     print()
@@ -101,7 +142,23 @@ def main() -> int:
     print(f"  sổ ghi vào  : {RIENG}")
     print()
 
-    p = PhienPhatLai(von=von, thuMucSo=RIENG, moLaiMoiNgay=MO_LAI)
+    moi, moiHet, theoCho = None, 0.0, {}
+    if MOI_NAN > 0:
+        dau = NguonKhung(TU_NGAY).khung_dau_ms()
+        if not dau:
+            print("  không đọc được khung đầu của băng — bỏ mồi.")
+        else:
+            print(f"  mồi nắn     : {MOI_NAN:g} ngày Binance TRƯỚC băng…",
+                  flush=True)
+            moi, moiHet, theoCho = _dung_moi(dau, MOI_NAN)
+            print(f"                mồi tới {time.strftime('%Y-%m-%d %H:%M', time.gmtime(moiHet/1000))}Z"
+                  f" · khung đầu băng {time.strftime('%Y-%m-%d %H:%M', time.gmtime(dau/1000))}Z")
+            print(f"                {sum(theoCho.values()):,} cặp · "
+                  + " · ".join(f"{k} {v:,}" for k, v in theoCho.items()))
+            print()
+
+    p = PhienPhatLai(von=von, thuMucSo=RIENG, moLaiMoiNgay=MO_LAI,
+                     moiHieuChinh=moi, moiHetMs=moiHet)
     print(f"  phép nắn    : {p.phepNan.tongMau} mẫu · "
           f"dùng được {p.phepNan.dung_duoc}")
     print()

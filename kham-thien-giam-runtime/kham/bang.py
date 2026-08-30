@@ -533,6 +533,30 @@ class NguonKhung:
         """Số khung của lượt quét gần nhất. 0 nếu chưa quét lượt nào."""
         return self.bao.soKhung
 
+    def khung_dau_ms(self) -> float:
+        """Mốc thời gian của khung ĐẦU TIÊN, không nạp cả băng.
+
+        Dùng để biết băng bắt đầu từ đâu — thứ bắt buộc phải biết khi
+        mồi sổ hiệu chỉnh bằng dữ liệu TRƯỚC băng: mồi lấn sang tương
+        lai của băng là nhìn trộm, và nó không lộ ra ở con số nào.
+
+        Mở một lượt quét rồi DỪNG ở khung đầu có `luc`. Không dùng
+        `next(iter(self))` trần: khung đầu tiên có thể thiếu `luc`, và
+        khi ấy phải đi tiếp chứ không được trả 0 — 0 nghĩa là "không
+        biết", mà chỗ gọi lại đọc nó thành "không cần canh".
+        """
+        it = iter(self)
+        try:
+            for k in it:
+                luc = float(k.get("luc") or 0.0)
+                if luc > 0:
+                    return luc
+        finally:
+            close = getattr(it, "close", None)
+            if close:
+                close()
+        return 0.0
+
 
 def dem_bang(tuNgay: str | None = None) -> BaoCaoDoc:
     """Đếm khung hình mà KHÔNG giữ khung nào lại.

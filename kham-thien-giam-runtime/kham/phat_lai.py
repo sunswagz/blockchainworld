@@ -232,7 +232,9 @@ class PhienPhatLai:
     def __init__(self, von: float | None = None,
                  batTat: dict | None = None,
                  thuMucSo=None,
-                 moLaiMoiNgay: bool = False) -> None:
+                 moLaiMoiNgay: bool = False,
+                 moiHieuChinh: dict | None = None,
+                 moiHetMs: float = 0.0) -> None:
         """`thuMucSo`: nơi ghi sổ kết toán và sổ hiệu chỉnh của PHIÊN NÀY.
 
         Bắt buộc tách khỏi sổ thật. Một dòng mô phỏng lẫn vào sổ thật là
@@ -294,6 +296,34 @@ class PhienPhatLai:
         # `tm` không bao giờ còn là None, nên không còn nhánh nào rơi
         # về sổ thật nữa.
         self.hieuChinh = HieuChinh(tm / "hieu-chinh.json")
+
+        # ── MỒI sổ hiệu chỉnh, và vì sao nó KHÔNG phải gian lận ───────
+        #
+        # Phiên giấy khai sinh với sổ hiệu chỉnh RỖNG. Cố ý — nhưng cái
+        # giá của nó lớn hơn người viết tưởng: `du_de_dung_kelly()` trả
+        # False suốt phiên ngắn, nên cỡ lệnh ghim ở LÔ SÀN, nên `--von`
+        # KHÔNG đổi một lệnh nào. Đo được: $1.000 và $100.000 cho đúng
+        # cùng một chuỗi lệnh và cùng số đô lãi lỗ.
+        #
+        # Tức phiên giấy đang đo một cỗ máy KHÁC với cỗ máy chạy thật:
+        # máy thật có sổ hiệu chỉnh tích sẵn từ trước, Kelly mở, cỡ lệnh
+        # theo vốn, và do đó CHẠM tới những trần vốn mà phiên giấy không
+        # bao giờ chạm (đo được: 2/13 cửa rủi ro từng chặn ai).
+        #
+        # Mồi bằng dữ liệu TRƯỚC băng thì đúng bằng thứ máy thật có, và
+        # không nhìn trộm gì cả. Nhưng "trước" phải được CANH chứ không
+        # phải hứa: `moiHetMs` là mốc cuối của dữ liệu mồi, và khung đầu
+        # tiên của băng phải nằm SAU nó. Sai một chiều là mọi con số lãi
+        # lỗ của phiên thành rác, im lặng.
+        self.moiHetMs = float(moiHetMs or 0.0)
+        self._daSoatMoi = False
+        if moiHieuChinh:
+            if not self.moiHetMs:
+                raise ValueError(
+                    "mồi hiệu chỉnh phải kèm `moiHetMs` — không có mốc "
+                    "cuối thì không canh được chuyện nhìn trộm tương lai")
+            self.hieuChinh.o = {k: dict(v) if isinstance(v, dict) else v
+                                for k, v in moiHieuChinh.items()}
         self.so = So(tm / "ket-toan.jsonl")
         self.thuMucSo = tm
         self.phepNan = khop_nan(self.hieuChinh)
@@ -599,6 +629,16 @@ class PhienPhatLai:
             self.kq.soKhungHinh += 1
             luc = float(k.get("luc") or 0.0)
             if luc > 0:
+                # CANH mồi ngay ở khung ĐẦU TIÊN có thời gian. Mồi lấn
+                # sang tương lai của băng là nhìn trộm, và nó không lộ
+                # ra ở bất kỳ con số nào — chỉ làm mọi thứ đẹp lên.
+                if self.moiHetMs and not self._daSoatMoi:
+                    self._daSoatMoi = True
+                    if luc < self.moiHetMs:
+                        raise RuntimeError(
+                            "mồi hiệu chỉnh kết thúc SAU khung đầu của "
+                            f"băng ({self.moiHetMs:.0f} > {luc:.0f}) — "
+                            "đó là nhìn trộm tương lai, từ chối chạy")
                 self.lucMs = luc
                 self._nhip_ngay()
             dangSong = set()

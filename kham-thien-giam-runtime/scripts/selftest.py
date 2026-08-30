@@ -5296,6 +5296,92 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_moi_nan_khong_nhin_trom() -> None:
+    """Mồi sổ hiệu chỉnh phải KẾT THÚC TRƯỚC khung đầu của băng.
+
+    Phiên giấy khai sinh với sổ hiệu chỉnh rỗng, và cái giá lớn hơn
+    người viết tưởng: `du_de_dung_kelly()` trả False suốt phiên, cỡ lệnh
+    ghim ở lô sàn, nên `--von` KHÔNG đổi một lệnh nào — $1.000 và
+    $100.000 cho đúng cùng một chuỗi lệnh. Tức phiên giấy đang đo một
+    cỗ máy KHÁC với cỗ máy chạy thật, vốn có bảng nắn tích sẵn.
+
+    Mồi bằng dữ liệu TRƯỚC băng vá đúng chỗ đó. Đo được sau khi mồi
+    (băng thật, 152.729 khung): $5.000 cho 38 lượt khớp và +8,01%;
+    $100.000 cho 417 lượt khớp và +1,32%, phí $38 → $514, sụt vốn
+    0,00% → 4,09%. Sức chứa hiện ra, và trước đó nó vô hình.
+
+    Nhưng mồi lấn sang tương lai của băng là NHÌN TRỘM, và nó không lộ
+    ra ở bất kỳ con số nào — nó chỉ làm mọi thứ đẹp lên. Nên "trước"
+    phải được CANH lúc chạy chứ không phải hứa trong chú thích.
+    """
+    print()
+    print("-- Moi nan khong duoc nhin trom tuong lai -----------------")
+
+    import tempfile
+    from kham.phat_lai import PhienPhatLai
+
+    tm = Path(tempfile.mkdtemp())
+    MOI = {"40-50": {"n": 500, "thang": 220, "tongP": 225.0}}
+
+    # 1. mồi mà THIẾU mốc cuối ⇒ phải ném, không được chạy mù
+    _loi = None
+    try:
+        PhienPhatLai(von=1000.0, thuMucSo=tm, moiHieuChinh=MOI)
+    except ValueError as e:
+        _loi = str(e)
+    kiem("mồi thiếu `moiHetMs` thì TỪ CHỐI",
+         _loi is not None and "moiHetMs" in _loi, _loi)
+
+    # 2. mồi kết thúc SAU khung đầu ⇒ phải ném lúc chạy
+    p2 = PhienPhatLai(von=1000.0, thuMucSo=tm, moiHieuChinh=MOI,
+                      moiHetMs=2_000_000_000_000.0)
+    kiem("mồi được nạp vào sổ hiệu chỉnh", bool(p2.hieuChinh.o))
+    try:
+        p2.chay([{"luc": 1_000_000_000_000.0}])
+        kiem("băng bắt đầu TRƯỚC mồi thì TỪ CHỐI chạy", False, "không ném")
+    except RuntimeError as e:
+        kiem("băng bắt đầu TRƯỚC mồi thì TỪ CHỐI chạy",
+             "nhìn trộm" in str(e), str(e)[:60])
+
+    # 3. mồi kết thúc TRƯỚC khung đầu ⇒ chạy bình thường
+    p3 = PhienPhatLai(von=1000.0, thuMucSo=tm, moiHieuChinh=MOI,
+                      moiHetMs=1_000_000_000_000.0)
+    _loi3 = None
+    try:
+        _kq3 = p3.chay([{"luc": 2_000_000_000_000.0}])
+    except RuntimeError as e:
+        _kq3, _loi3 = None, str(e)
+    kiem("mồi nằm TRƯỚC băng thì chạy được (không ném)",
+         _loi3 is None, _loi3)
+    kiem("và lượt ấy có đi qua khung ĐẦU của băng",
+         _kq3 is not None and _kq3.soKhungHinh == 1,
+         getattr(_kq3, "soKhungHinh", None))
+    kiem("và cửa canh mồi đã ĐƯỢC CHẠM (không bị bỏ qua lặng lẽ)",
+         p3._daSoatMoi)
+
+    # 4. không mồi ⇒ không canh gì, và sổ vẫn rỗng như cũ
+    p4 = PhienPhatLai(von=1000.0, thuMucSo=tm)
+    kiem("không mồi thì sổ hiệu chỉnh vẫn RỖNG", not p4.hieuChinh.o)
+
+    # 5. `khung_dau_ms` phải bỏ qua khung THIẾU `luc` chứ không trả 0 —
+    #    0 nghĩa "không biết", mà chỗ gọi đọc nó thành "không cần canh".
+    from kham.bang import NguonKhung
+
+    # Vá trên THỂ HIỆN, không trên LỚP. Vá lớp rồi `del` là xoá luôn
+    # `__iter__` gốc — lớp mất hẳn khả năng lặp, và mọi phép kiểm sau
+    # đó đổ với "object is not iterable". Một phép kiểm phá thứ nó
+    # đang kiểm thì tệ hơn không có.
+    class _NgGia(NguonKhung):
+        def __iter__(self):
+            return iter([{"ma": "X"}, {"luc": 0}, {"luc": 1234.0}])
+
+    kiem("`khung_dau_ms` bỏ qua khung thiếu `luc`",
+         _NgGia().khung_dau_ms() == 1234.0, _NgGia().khung_dau_ms())
+    kiem("và `NguonKhung` thật vẫn lặp được sau phép kiểm này",
+         hasattr(NguonKhung, "__iter__")
+         and NguonKhung.__iter__ is not _NgGia.__iter__)
+
+
 def kiem_danh_muc_cua_rui_ro() -> None:
     """Mỗi cửa rủi ro có MỘT mã, khai một chỗ, dùng đúng một lần.
 
@@ -10250,6 +10336,7 @@ def main() -> int:
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
     kiem_danh_muc_cua_rui_ro()
+    kiem_moi_nan_khong_nhin_trom()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
