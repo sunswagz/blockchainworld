@@ -12557,6 +12557,38 @@ def kiem_ghe_va_von() -> None:
          and t3[0].nutGoiY == ["phanBo.toiDaSoViThe"],
          str(t3[0].bangChung))
 
+    # BẢNG GHẾ CÓ MẶT nhưng KHÔNG đo được — hình dạng thật khi chưa khai
+    # `toiDaSoViThe`: `soDangDung` có số, mọi tỉ lệ là `None`. Cửa ở đây
+    # phải đòi CẢ HAI, không phải một trong hai: thiếu `soGheBe` mà vẫn
+    # vào thì câu chẩn in ra «None/11 ghế giữ dưới 0 USD».
+    t4 = [x for x in chan_doan_he(_anh(gv={
+        "soGhe": None, "soDangDung": 11, "conGhe": None,
+        "tiLeGheDay": None, "vonTrongGheUsd": 46_000.0,
+        "vonTrungViMotGheUsd": 500.0, "phanChiaMoiGheUsd": None,
+        "nguongGheBeUsd": None, "soGheBe": None,
+        "vonTrongGheBeUsd": None, "tiLeVonTrongGheBe": None,
+        "gheBeTheoTy": {}})) if x.ma == "tran-vi-the-chan"]
+    kiem("bảng ghế có mặt mà chưa đo được thì câu chẩn vẫn IM về ghế",
+         "ghế giữ dưới" not in t4[0].moTa and "None" not in t4[0].moTa,
+         f"{t4[0].moTa[-260:]} — đây là hình dạng THẬT khi chưa khai "
+         f"trần ghế, không phải một ảnh chụp bịa ra")
+
+    # CÓ ghế bé nhưng CHƯA có trung vị (chưa vị thế nào) — nửa bảng đo
+    # được, nửa kia không. Câu về trung vị phải tự tắt, chứ đừng
+    # `float(None)`.
+    t5 = [x for x in chan_doan_he(_anh(gv={
+        "soGhe": 10, "soDangDung": 5, "conGhe": 5, "tiLeGheDay": 0.5,
+        "vonTrongGheUsd": 0.0, "vonTrungViMotGheUsd": None,
+        "phanChiaMoiGheUsd": 8_000.0, "nguongGheBeUsd": 2_000.0,
+        "soGheBe": 4, "vonTrongGheBeUsd": 0.0,
+        "tiLeVonTrongGheBe": None, "gheBeTheoTy": {}}))
+        if x.ma == "tran-vi-the-chan"]
+    kiem("có ghế bé mà CHƯA có trung vị thì bỏ câu trung vị, không nổ",
+         ("4/5 ghế giữ dưới" in t5[0].moTa
+          and "trung vị một ghế" not in t5[0].moTa),
+         f"{t5[0].moTa[-260:]} — nửa bảng đo được thì nói nửa ấy; "
+         f"`float(None)` ở đây giết cả lượt chẩn")
+
 
 def kiem_bang_chung_song() -> None:
     """Trần bằng chứng KHÔNG được tự phá chính nó sau 24 giờ.
