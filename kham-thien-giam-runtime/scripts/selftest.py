@@ -7822,6 +7822,7 @@ def kiem_lan_nga_khong_giet_vong() -> None:
 
     rt = V.Runtime.__new__(V.Runtime)
     rt.lanNga = {}
+    rt.lanNgaTong = {}
     daChay = []
 
     def nga():
@@ -7834,6 +7835,34 @@ def kiem_lan_nga_khong_giet_vong() -> None:
          V.Runtime._lan(rt, "sau", lambda: daChay.append(1)) is True
          and daChay == [1])
     kiem("làn chạy trót lọt thì KHÔNG ghi vào sổ ngã", "sau" not in rt.lanNga)
+
+    # ── ĐẾM DỒN: hỏng THỈNH THOẢNG là kiểu khó thấy nhất ──────────────
+    #
+    # `lanNga` xoá đầu mỗi vòng, nên nó chỉ trả lời "ngay bây giờ có gì
+    # hỏng không". Một làn ngã 20% số vòng thì chỉ đỏ 20% số lần nhìn —
+    # mà buồng lái hỏi mỗi 2 giây và người trực chỉ liếc một cái. Bốn
+    # trong năm lần liếc ấy thấy xanh.
+    #
+    # Hỏng thỉnh thoảng không giết cỗ máy; nó lặng lẽ ăn mất một phần
+    # công việc, mãi mãi. Con số cộng dồn làm nó hiện ra.
+    for _ in range(4):
+        rt.lanNga = {}                       # như đầu mỗi vòng
+        V.Runtime._lan(rt, "chap-chon", nga)
+    # Một vòng nữa, lần này làn ấy chạy trót lọt — đúng hình dạng của
+    # hỏng thỉnh thoảng: vòng sau nó lại ổn.
+    rt.lanNga = {}
+    V.Runtime._lan(rt, "chap-chon", lambda: None)
+    kiem("vòng SAU chạy trót lọt ⇒ `lanNga` sạch trơn",
+         rt.lanNga == {}, rt.lanNga)
+    kiem("nhưng ĐẾM DỒN vẫn giữ đủ 4 lần ngã",
+         rt.lanNgaTong.get("chap-chon") == 4, rt.lanNgaTong)
+    kiem("và làn chưa ngã lần nào thì KHÔNG có mặt trong sổ dồn",
+         "sau" not in rt.lanNgaTong, rt.lanNgaTong)
+
+    # Và nó phải LÊN được buồng lái, nếu không thì đếm cho ai đọc.
+    import inspect as _in
+    kiem("`anh_chup` khai `lanNgaTong`",
+         "lanNgaTong" in _in.getsource(V.Runtime.anh_chup))
 
 
 def kiem_lui_nguon() -> None:

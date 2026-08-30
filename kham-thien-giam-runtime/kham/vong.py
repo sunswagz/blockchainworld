@@ -132,6 +132,18 @@ class Runtime:
         self._ngayTienHoa = ""      # ngày đã XÉT vòng tiến hoá gần nhất
         # Làn nào ngã trong vòng vừa rồi, và ngã vì gì. Rỗng = trọn vẹn.
         self.lanNga: dict[str, str] = {}
+        #: ĐẾM DỒN số lần mỗi làn ngã, không xoá mỗi vòng.
+        #:
+        #: `lanNga` xoá đầu mỗi vòng — đúng, vì nó trả lời "ngay bây giờ
+        #: có gì hỏng không". Nhưng nó mù với kiểu hỏng THỈNH THOẢNG: một
+        #: làn ngã 20% số vòng chỉ đỏ 20% số lần nhìn, mà buồng lái hỏi
+        #: mỗi 2 giây và người trực thì liếc một cái. Bốn trong năm lần
+        #: liếc ấy thấy xanh.
+        #:
+        #: Hỏng thỉnh thoảng là kiểu khó thấy nhất và cũng đắt nhất —
+        #: nó không giết cỗ máy, nó chỉ lặng lẽ ăn mất một phần công
+        #: việc. Con số cộng dồn làm nó hiện ra.
+        self.lanNgaTong: dict[str, int] = {}
         # Lượt học/tiến hoá MÔ HÌNH gần nhất — nửa vòng ngày
         # chạy được cả khi đường tới chợ đứt.
         self.hocGanNhat: dict | None = None
@@ -239,6 +251,7 @@ class Runtime:
             return True
         except Exception as e:                      # noqa: BLE001
             self.lanNga[ten] = f"{type(e).__name__}: {e}"
+            self.lanNgaTong[ten] = self.lanNgaTong.get(ten, 0) + 1
             bus.ghi(f"làn `{ten}` ngã: {type(e).__name__}: {e} — "
                     "các làn sau vẫn chạy", loai="loi")
             return False
@@ -1017,6 +1030,8 @@ class Runtime:
             # đếm `vòng` tăng đều mà mọi làn đều ngã là một cỗ máy chết
             # trông y hệt một cỗ máy đang chạy.
             "lanNga": dict(self.lanNga),
+            # Cộng dồn từ lúc khởi động — `lanNga` chỉ nói VÒNG NÀY.
+            "lanNgaTong": dict(self.lanNgaTong),
             "quyetChan": dict(self.quyetChan),
             "hieuChinh": {
                 "bang": self.hieuChinh.bang(),
