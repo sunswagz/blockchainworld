@@ -1229,6 +1229,24 @@ async def main() -> int:
           "gộp nửa LONG theo TRỌNG SỐ số lệnh, không phải trung bình đầu chợ")
     check(_gcl48({"A:1d": {}}, ["A:1d"]) == {},
           "kho cũ chưa có trường chiLong ⇒ trả rỗng, không bịa số 0")
+
+    # TUỔI KHO. Việc đấu 4h có hạn giờ; quá giờ thì kho GIỮ NGUYÊN bản cũ — không
+    # lỗi, không file cụt, chỉ là một kho trông y hệt kho tươi.
+    from trader.chung_cat import _gio_tu as _gt48
+    import datetime as _dt48
+
+    _cu48h = (_dt48.datetime.now(_dt48.timezone.utc)
+              - _dt48.timedelta(hours=30)).isoformat(timespec="seconds")
+    check(29 < (_gt48(_cu48h) or 0) < 31, "đọc đúng tuổi kho từ mốc ISO")
+    check(_gt48(None) is None and _gt48("khong-phai-ngay") is None,
+          "mốc thiếu hoặc hỏng ⇒ None, không đoán là 0 giờ")
+    _khong_mui = (_dt48.datetime.now(_dt48.timezone.utc)
+                  .replace(tzinfo=None) - _dt48.timedelta(hours=20)).isoformat()
+    check(19 < (_gt48(_khong_mui) or 0) < 21,
+          "mốc KHÔNG có múi giờ vẫn đọc được là UTC, không lệch 7 tiếng")
+    _src48c = ma_khong_chu_thich(ROOT / "trader" / "chung_cat.py")
+    check("KHO ĐO ĐÃ" in _src48c and "_gio_tu(d.get(" in _src48c,
+          "câu phát hiện nhiều-chợ có cảnh báo kho cũ")
     _src48 = ma_khong_chu_thich(ROOT / "trader" / "chung_cat.py")
     check(_src48.count('"chayDuoc": "LONG"') == 2,
           "cả HAI nhánh phát hiện nhiều-chợ đều khai nửa chạy được"

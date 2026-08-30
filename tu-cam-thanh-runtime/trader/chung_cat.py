@@ -671,6 +671,19 @@ def _tu_do_khung(bo: list) -> list[dict]:
 
 
 # ── Nguồn 7 · đấu nhiều chợ ───────────────────────────────────────────────
+def _gio_tu(luc: str | None) -> float | None:
+    """Bao nhiêu GIỜ kể từ mốc ISO ấy. None nếu không đọc được."""
+    if not luc:
+        return None
+    try:
+        t = _dt.datetime.fromisoformat(luc)
+        if t.tzinfo is None:
+            t = t.replace(tzinfo=_dt.timezone.utc)
+        return (_dt.datetime.now(_dt.timezone.utc) - t).total_seconds() / 3600
+    except (ValueError, TypeError):
+        return None
+
+
 def _gop_chi_long(v: dict, cho: list[str]) -> dict:
     """Gộp nửa CHẠY ĐƯỢC (chỉ LONG) của một bộ luật qua các chợ.
 
@@ -720,6 +733,16 @@ def _tu_nhieu_cho(bo: list) -> list[dict]:
     q = d.get("quang") or {}
     doan = (f" (dữ liệu {q['tu']} → {q['den']}; ngoài mẫu là ~30% cuối quãng đó)"
             if q.get("tu") else " (QUÃNG THỜI GIAN không rõ — kho đo cũ)")
+    # TUỔI KHO vào câu khi kho đã cũ. Việc đấu 4h có hạn giờ, và quá giờ thì
+    # `dau-nhieu-cho.json` GIỮ NGUYÊN bản cũ — không lỗi, không file cụt, chỉ là
+    # một kho trông y hệt kho tươi. Lò chưng cất đọc nó như số liệu hiện hành và
+    # cửa duyệt tra vào đó. Bàn giao có canh tuổi kho, nhưng bàn giao là thứ
+    # người đọc, còn phát hiện là thứ MÁY dùng.
+    _tuoi = _gio_tu(d.get("luc"))
+    if _tuoi is not None and _tuoi > 12:
+        doan += (f" ⚠ KHO ĐO ĐÃ {_tuoi:.0f} GIỜ TUỔI — nghi thức chạy mỗi 6 giờ, "
+                 f"nên quá hai lượt nghĩa là việc đấu đang hỏng hoặc quá giờ; "
+                 f"đọc số dưới đây như số CŨ")
 
     if len(cho) < 2 or not ket:
         bo.append({"ma": "nhieu-cho", "nguon": "nhieu-cho",
