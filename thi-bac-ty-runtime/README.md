@@ -1174,9 +1174,12 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 1328 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 1823 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
-node scripts/kiem-buong-lai.mjs  # 10 trang buồng lái có vẽ được không
+node scripts/kiem-buong-lai.mjs  # 58 phép: 10 trang + 7 khối tầng ba,
+                                 #   × 3 mẫu; khoá đọc/sinh có khớp
+& $py scripts/quet-dot-bien.py thi_bac_ty/rui_ro_tong.py kiem_rui_ro_tong
+                               # quét ĐỘT BIẾN: chỗ nào phép kiểm chưa với tới
 ```
 
 | lệnh | làm gì |
@@ -1185,6 +1188,7 @@ node scripts/kiem-buong-lai.mjs  # 10 trang buồng lái có vẽ được khôn
 | `python -m bac.snapshot` | một lượt rồi ghi `thi-bac-ty/assets/js/v/cang-phi.js` |
 | `python scripts/selftest.py` | toán, không mạng, không chạm sổ thật |
 | `node scripts/kiem-buong-lai.mjs` | vẽ thật 10 trang trên ba mẫu: đầy đủ, RỖNG, NULL |
+| `python scripts/quet-dot-bien.py <file> [hàm]` | đổi từng toán tử so sánh, xem con nào SỐNG SÓT — chỗ mã sửa sai mà không phép kiểm nào kêu |
 | `pythonw dichvu/chay-nen.py` | chạy nền 24/7, log xoay vòng, ghi PID |
 | `dichvu\bat.ps1` · `dung.ps1` · `trang-thai.ps1` | bật / tắt / xem bản chạy nền |
 
@@ -1768,6 +1772,55 @@ bị coi là một ty, và điều `ty-khong-goi-ty` báo `bac` đang gọi ty k
 trong khi `bac` chỉ đang dùng hạ tầng của họ mình. Nay nhận diện theo
 **cấu trúc** — có lớp nào kế thừa `khuon_ty.Ty` không — nên gói mới tự
 phân loại đúng, không đòi ai nhớ cập nhật danh sách.
+
+## Quét ĐỘT BIẾN — phiếu "N/N đạt" không nói phép kiểm chạm tới đâu
+
+    python scripts/quet-dot-bien.py thi_bac_ty/rui_ro_tong.py kiem_rui_ro_tong
+    python scripts/quet-dot-bien.py thi_bac_ty/phan_bo.py     # cả suite
+
+Đổi từng toán tử so sánh trong một file, chạy phép kiểm, xem con nào
+**SỐNG SÓT** — tức một dòng mã sửa sai mà không phép kiểm nào kêu.
+
+Lượt quét ngày 30/08/2026 trên mọi tầng đường tiền. Cột trái là số con
+sống sót lúc bắt đầu, cột phải là sau khi vá:
+
+    rui_ro_tong    10/15 → 3      phan_bo         6/9  → 0
+    doi_soat        8/17 → 0      xoay_cho       10/15 → 4
+    duong_khoa_von  5/9  → 1      to_trinh       10/15 → 3
+    danh_muc        1/2  → 1      so_dang_ky      5/6  → 0
+    cau_dao         3/6  → 0      ke_toan         5/9  → 1
+    so_cai         18/25 → 4      chan_doan_he   27/71 → 4
+    hieu_nang      11/11 → 3      luu_danh_muc   11/23 → 0
+    thuc_thi        4/8  → 0      khuon_ty        6/8  → 0
+    chay_lai_he    18/29 → 5      bac/rui_ro      5/8  → 0
+    bac/suc_chua    2/3  → 0      duong_suc_chua  3/6  → 1
+
+Con còn lại phần lớn **TƯƠNG ĐƯƠNG** — dải `1e-9`, hoặc một nhánh đã bị
+`continue`/short-circuit chặn trước. Gặp một con như thế thì **ghi chú
+thẳng vào mã**, để lượt quét sau khỏi đi tìm phép kiểm không tồn tại.
+
+Hai lớp lỗi mà nó lôi ra nhiều nhất:
+
+- **BIÊN.** Gần như mọi ngưỡng đều chưa ai kiểm ở đúng mép: «đúng bằng
+  trần» và «vượt trần» là một. Sai ở đó thì hoặc loại đúng những cơ hội
+  nằm sát mép — chỗ phần lớn cơ hội thật nằm — hoặc nhận đúng những cơ
+  hội vừa quá mép.
+- **Chữ `or` che cho trường THIẾU.** Chúng chưa bao giờ được đi vào, vì
+  mọi dữ liệu trong phép kiểm đều do chính mã này sinh ra, tức luôn đủ
+  trường. Dữ liệu THẬT trên đĩa thì do một phiên bản mã CŨ ghi. Cách vá
+  rẻ nhất là MỘT phép kiểm nạp một bản lưu **tối thiểu** — nó giết cả
+  chùm cùng lúc.
+
+Ba cái bẫy của chính bộ quét, đã vá và ghi trong docstring của nó: đột
+biến trong CHUỖI, đột biến trong DOCSTRING nhiều dòng, và **tên hàm gõ
+sai cho ra «SỐNG SÓT 0/15»** — một tờ phiếu hoàn hảo dựng trên
+`AttributeError`. Nay nó chạy bản GỐC trước và dừng nếu bản gốc đã
+trượt.
+
+Và một luật rút ra từ việc dùng nó: **luôn viết cả vế DƯƠNG.** Nhiều
+lần một phép kiểm phủ định xanh vì trường bị gõ sai tên, tập so sai
+kiểu, hoặc triệu chứng không bao giờ bật — chỉ có vế dương đi kèm mới
+lộ ra.
 
 ## Câu treo trên tường
 
