@@ -95,6 +95,12 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
             "phiCongDonUsd": s.phiCongDonUsd,
             "soVongKeToan": s.soVongKeToan,
             "soVongKhongDoDuoc": s.soVongKhongDoDuoc,
+            # Giờ đã BỎ HẲN vì mù quá lâu. Trường THÊM, `BAN` không đổi:
+            # bản lưu cũ thiếu nó thì đọc là 0, và 0 đúng là điều bản cũ
+            # biết. `vonGioLucGiay` thì KHÔNG lưu — nó đặt lại thành bây
+            # giờ như `keToanLucGiay`, cùng một lý do.
+            "gioMuBoQua": s.gioMuBoQua,
+            "soCuaSoMuBoQua": s.soCuaSoMuBoQua,
             "coKeToan": s.coKeToan,
         } for s in soViThe.values()],
         # Ba phần tử: thời điểm, NAV, DÒNG VỐN ngoài. Thiếu phần tử thứ ba
@@ -224,6 +230,8 @@ def nap(duong, danh_muc, duongNav) -> dict:
             phiCongDonUsd=float(s.get("phiCongDonUsd") or 0.0),
             soVongKeToan=int(s.get("soVongKeToan") or 0),
             soVongKhongDoDuoc=int(s.get("soVongKhongDoDuoc") or 0),
+            gioMuBoQua=float(s.get("gioMuBoQua") or 0.0),
+            soCuaSoMuBoQua=int(s.get("soCuaSoMuBoQua") or 0),
             coKeToan=s.get("coKeToan"))
 
     duongNav.diem = [(float(x[0]), float(x[1]),

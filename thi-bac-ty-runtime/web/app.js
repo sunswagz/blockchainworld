@@ -835,6 +835,24 @@
         ? tien(kt.vonKhongDuocKeToanUsd, 0) + " không ai cộng lãi lỗ"
         : "mọi ty đang giữ vốn đều kế toán được",
       (kt.soKhongCoKeToan || 0) ? "am" : "duong"));
+    /* «Không đo được» KHÁC «thu 0», và cỗ máy này phải nói ra cái khác
+       ấy bằng số. Vòng mù nay GIỮ LẠI cửa sổ cho vòng sau đo bù — với
+       thu nhập tới theo MỐC (funding 8 giờ một lần), nuốt đúng cửa sổ
+       mười giây chứa mốc là nuốt tám giờ thu nhập, và sổ ghi «thu 0» y
+       hệt một engine không kiếm được gì. Quá một giờ thì bỏ, và chỗ bỏ
+       ấy là con số dưới đây — nó đo THU NHẬP ĐÃ MẤT, không đo lỗi. */
+    dk.appendChild(oSo("Vòng MÙ · giữ lại",
+      so(kt.soMuGiuLai || 0),
+      (kt.soMuGiuLai || 0)
+        ? "cửa sổ chưa ghi sổ, dồn cho vòng sau đo bù"
+        : "không vòng nào khai «không đo được»",
+      (kt.soMuGiuLai || 0) ? "cho" : "duong"));
+    if (kt.soMuBoQua || kt.gioMuBoQua) {
+      dk.appendChild(oSo("Quãng ĐÃ BỎ HẲN",
+        (kt.gioMuBoQua || 0).toFixed(2) + "h",
+        so(kt.soMuBoQua || 0) + " cửa sổ mù quá một giờ — thu nhập trong "
+        + "quãng ấy sẽ KHÔNG bao giờ vào sổ", "am"));
+    }
     kk.appendChild(dk);
     if (kt.vi) kk.appendChild(giai(kt.vi));
     if (sv.length) {

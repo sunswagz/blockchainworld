@@ -4231,6 +4231,34 @@ def kiem_chan_doan_he() -> None:
          "đổ lỗi cho một chuyện không xảy ra là chỉ người đọc đi sai "
          "đường, y như lời khuyên cũ của `phi-vao-an-het`")
 
+    # Cách đọc thứ ba — «mốc rơi vào một cửa sổ bị vứt» — trước 30/08 là
+    # một giả thuyết KHÔNG kiểm được, nên nó nằm ngang hàng với hai cách
+    # đọc kia và người đọc không chọn được cái nào. Nay nó có bằng chứng,
+    # và bằng chứng phải nói được cả HAI chiều: có thì chỉ vào, không có
+    # thì LOẠI nó đi. Một câu chẩn liệt kê ba khả năng mà không bao giờ
+    # gạch bớt khả năng nào thì không giúp ai quyết định gì.
+    _tMu = [x for x in _cdh({**_anhThu0(),
+                             "keToan": {"soCuaSoMuBoQuaTong": 3,
+                                        "gioMuBoQuaTong": 4.25}})
+            if x.ma == "ty-thu-bang-khong"]
+    kiem("có cửa sổ kế toán bị bỏ thì câu chẩn CHỈ THẲNG vào nó",
+         ("ĐÃ bỏ hẳn 3 cửa sổ" in _tMu[0].moTa
+          and "4.25 giờ" in _tMu[0].moTa
+          and _tMu[0].bangChung.get("soCuaSoMuBoQua") == 3),
+         f"{_tMu[0].moTa[-200:]}")
+    _tMu0 = [x for x in _cdh({**_anhThu0(),
+                              "keToan": {"soCuaSoMuBoQuaTong": 0,
+                                         "gioMuBoQuaTong": 0.0}})
+             if x.ma == "ty-thu-bang-khong"]
+    kiem("không cửa sổ nào bị bỏ thì câu chẩn LOẠI cách đọc ấy đi",
+         "đã LOẠI" in _tMu0[0].moTa,
+         f"{_tMu0[0].moTa[-200:]} — gạch bớt một khả năng là thứ giúp "
+         f"người đọc quyết định; liệt kê ba khả năng mãi thì không")
+    kiem("ảnh chụp CŨ không có trường ấy thì im, không nói bừa cả hai chiều",
+         ("ĐÃ bỏ hẳn" not in _t0[0].moTa and "đã LOẠI" not in _t0[0].moTa),
+         f"{_t0[0].moTa[-200:]} — thiếu số thì chưa loại được gì, và "
+         f"«không có cửa sổ nào bị bỏ» là một câu KHÁC «tôi không biết»")
+
     # ── VỐN KHẢ DỤNG nằm không ──────────────────────────────────────────
     #
     # Khác `tran-dat-sai-cho` ở MẪU SỐ, và mẫu số là cả vấn đề. Cái kia
@@ -12315,6 +12343,150 @@ def kiem_moc_qua() -> None:
          f"{k and k.thuUsd} — funding dương nghĩa là LONG trả cho SHORT")
 
 
+def kiem_cua_so_mu() -> None:
+    """Vòng mù KHÔNG được nuốt cửa sổ, và vốn-giờ KHÔNG được đếm đôi.
+
+    Ty khai `doDuoc=False` nghĩa là «vòng này tôi không đo được», khác
+    hẳn «vòng này thu 0». Nhưng trước lượt này mốc kế toán vẫn bị đẩy lên
+    `now` ngay trước khi đọc cờ ấy, nên quãng mù biến mất khỏi mọi phép
+    cộng về sau — hai câu khác nhau cùng ra một con số.
+
+    Với một engine mà thu nhập tới ở MỐC (funding 8 giờ một lần), đánh
+    rơi đúng cửa sổ mười giây chứa mốc là đánh rơi TÁM GIỜ thu nhập, và
+    sổ ghi «thu 0» y hệt một engine không kiếm được gì.
+
+    Nay mốc kế toán ĐỨNG LẠI khi ty mù, tới `TRAN_CUA_SO_MU_GIAY` thì bỏ
+    và ĐẾM. Còn vốn-giờ đi trên MỐC RIÊNG (`vonGioLucGiay`) và luôn tiến
+    — vốn thì vẫn nằm trong vị thế dù ai đo được hay không. Không tách
+    hai mốc thì hoặc vốn-giờ đếm đôi mỗi vòng mù, hoặc quãng mù bị nuốt.
+    """
+    print("\n-- CUA SO MU: giu lai, den tran thi BO va DEM --")
+    import thi_bac_ty.trung_uong as _TU
+    from thi_bac_ty.danh_muc import ViThe
+    from thi_bac_ty.ke_toan import (TRAN_CUA_SO_MU_GIAY, KetToanVong,
+                                    SoViThe)
+    from thi_bac_ty.khuon_ty import Ty
+    from thi_bac_ty.trung_uong import TrungUong
+
+    kiem("`vonGioLucGiay` mặc định bám theo `keToanLucGiay`",
+         SoViThe(ma="m", chienLuoc="c", toTrinh={}, vonUsd=1.0,
+                 moLucGiay=5.0, keToanLucGiay=7.0).vonGioLucGiay == 7.0,
+         "bản lưu cũ không có trường này; đọc `None` rồi đem trừ là "
+         "TypeError giữa vòng kế toán")
+
+    d = _tam("cua-so-mu")
+    tu = TrungUong(d, {"vonBanDauUsd": 100_000.0})
+
+    class _TyMuDuoc(Ty):
+        ma = "lending.rate_rotation.v1"
+        ho = "tin-dung"
+        moTa = "ty giả bật/tắt được cờ đo-được, dùng cho phép kiểm cửa sổ mù"
+        vonToiThieuKinhTeUsd = 1.0
+
+        def __init__(self):
+            super().__init__()
+            self.mu = False
+            self.tuCuoi = None
+            self.denCuoi = None
+
+        def quet(self):
+            return []
+
+        def xet(self, co):
+            return True, []
+
+        def trinh(self, co):
+            return co
+
+        def ke_toan(self, viThe, toTrinh, tuGiay, denGiay):
+            self.tuCuoi, self.denCuoi = tuGiay, denGiay
+            if self.mu:
+                return KetToanVong(doDuoc=False, vi="phép kiểm: mất nguồn")
+            return KetToanVong(thuUsd=0.0, vi="phép kiểm: đo được")
+
+    ty = _TyMuDuoc()
+    tu.dang_ky(ty)
+
+    MOC = [1_800_000_000.0]
+    _that = _TU._gio_he
+    _TU._gio_he = lambda: MOC[0]
+    try:
+        tt = _mau(ma=ty.ma, ho=ty.ho, taiSan="USDC", von=1000.0, giu=999.0)
+        tu.so_dang_ky.ghi_nhan(tt)
+        for b in ("DUYET_TY", "DUYET_RUI_RO", "DA_CAP_VON", "DA_MO"):
+            tu.so_dang_ky.chuyen(tt.ma, b, "dựng phép kiểm")
+        tu.danh_muc.cam_ket(tt.ma, [ViThe(tt.ma, ty.ma, "CHO_VAY", "aave-v3",
+                                          "USDC", 1000.0)])
+        tu._mo_so_vi_the(tt, 1000.0)
+        so = tu.soViThe[tt.ma]
+
+        # ── ba vòng MÙ, mỗi vòng 10 phút ───────────────────────────────
+        ty.mu = True
+        vg0 = tu.soVonGio.tom_tat().get("vonGioUsd") or 0.0
+        for _ in range(3):
+            MOC[0] += 600.0
+            l = tu._ke_toan_vi_the()
+        kiem("vòng mù thì mốc kế toán ĐỨNG LẠI, không nhảy lên bây giờ",
+             gan(so.keToanLucGiay, MOC[0] - 1800.0),
+             f"{MOC[0] - so.keToanLucGiay:.0f}s — đẩy mốc ở đây là biến "
+             f"«không biết» thành «bằng không», im lặng")
+        kiem("và lát cắt ĐẾM số vòng mù được giữ lại", l.soMuGiuLai == 1
+             and l.soMuBoQua == 0, str(l.tom_tat()))
+
+        vg1 = tu.soVonGio.tom_tat().get("vonGioUsd") or 0.0
+        kiem("nhưng VỐN-GIỜ vẫn cộng đủ ba vòng, không đếm đôi",
+             gan(vg1 - vg0, 1000.0 * 0.5, 1e-6),
+             f"{vg1 - vg0} — 1.000 USD × 30 phút = 500 vốn-giờ. Cộng theo "
+             f"mốc kế toán đang đứng thì nó thành 500+1000+1500 = 3.000, "
+             f"và mọi tỉ suất chia cho nó sẽ nhỏ đi ba lần")
+
+        # ── vòng ĐO ĐƯỢC: cửa sổ trao cho ty là CẢ QUÃNG mù ────────────
+        ty.mu = False
+        MOC[0] += 600.0
+        l = tu._ke_toan_vi_the()
+        kiem("vòng đo được nhận CẢ quãng mù, không chỉ mười phút cuối",
+             gan(ty.denCuoi - ty.tuCuoi, 2400.0),
+             f"{ty.denCuoi - ty.tuCuoi:.0f}s — bốn vòng 10 phút; ty chỉ "
+             f"thấy 600s nghĩa là ba mốc funding có thể đã rơi vào chỗ "
+             f"không ai nhìn")
+        kiem("rồi mốc mới được đẩy lên", gan(so.keToanLucGiay, MOC[0]))
+
+        # ── mù QUÁ TRẦN: bỏ hẳn, và ĐẾM ra ─────────────────────────────
+        ty.mu = True
+        MOC[0] += TRAN_CUA_SO_MU_GIAY + 60.0
+        l = tu._ke_toan_vi_the()
+        kiem("mù quá trần thì cửa sổ bị BỎ, mốc nhảy lên bây giờ",
+             gan(so.keToanLucGiay, MOC[0]),
+             "giữ mãi thì vòng cứu được sẽ nhân rate HÔM NAY với cả quãng "
+             "mù, và rate hôm nay không phải rate lúc ấy")
+        kiem("và quãng bỏ ấy được ĐẾM, cả trên sổ vị thế lẫn lát cắt",
+             l.soMuBoQua == 1 and so.soCuaSoMuBoQua == 1
+             and gan(so.gioMuBoQua, (TRAN_CUA_SO_MU_GIAY + 60.0) / 3600.0)
+             and gan(l.gioMuBoQua, so.gioMuBoQua),
+             f"{l.tom_tat()} — bỏ im lặng chính là cái lỗi mà cả lớp này "
+             f"sinh ra để chặn")
+        kiem("lát cắt tóm tắt bày cả ba con số ra buồng lái",
+             {"soMuGiuLai", "soMuBoQua", "gioMuBoQua"} <= set(l.tom_tat()),
+             str(sorted(l.tom_tat())))
+    finally:
+        _TU._gio_he = _that
+
+    # ── bản lưu mang theo hai bộ đếm, và bản lưu CŨ đọc thành 0 ────────
+    from thi_bac_ty.danh_muc import DanhMuc
+    from thi_bac_ty.hieu_nang import DuongNav
+    from thi_bac_ty.luu_danh_muc import luu, nap
+    so.gioMuBoQua, so.soCuaSoMuBoQua = 2.5, 4
+    luu(d / "dm.json", tu.danh_muc, tu.soViThe, DuongNav())
+    lai = (nap(d / "dm.json", DanhMuc(100_000.0),
+               DuongNav()).get("_soViThe") or {}).get(so.ma)
+    kiem("giờ mù đã bỏ SỐNG QUA khởi động lại",
+         lai is not None and gan(lai.gioMuBoQua, 2.5)
+         and lai.soCuaSoMuBoQua == 4,
+         f"{lai and (lai.gioMuBoQua, lai.soCuaSoMuBoQua)} — nó là khoản "
+         f"thu nhập cỗ máy sẽ không bao giờ thấy; đặt lại về 0 mỗi lần "
+         f"deploy là xoá đúng bằng chứng ấy")
+
+
 def kiem_ranh_gioi_ke_toan() -> None:
     """Ranh giới BẰNG ĐÚNG của lớp kế toán, và cái đồng hồ đóng băng được.
 
@@ -12641,6 +12813,7 @@ def main() -> int:
     kiem_khong_trung_ten()
     kiem_ranh_gioi_ke_toan()
     kiem_moc_qua()
+    kiem_cua_so_mu()
 
     print("\n" + "=" * 70)
     if _loi:

@@ -78,8 +78,8 @@ from .chay_lai_he import doi_chieu, thu_hoach
 from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
 from .doi_soat_vi_the import canh as canh_vi_the, doi_soat as doi_soat_vi_the
-from .ke_toan import (LatCatKeToan, SoViThe, SoVonGio, phi_vao_thieu,
-                      phi_vao_usd)
+from .ke_toan import (TRAN_CUA_SO_MU_GIAY, LatCatKeToan, SoViThe,
+                      SoVonGio, phi_vao_thieu, phi_vao_usd)
 from .luu_danh_muc import luu as luu_danh_muc, nap as nap_danh_muc
 from .hieu_nang import DuongNav, doi_chieu_giay_that
 from .phan_bo import PhanBo
@@ -836,8 +836,9 @@ class TrungUong:
             # nằm trong vị thế, bất kể ty có kế toán nổi hay không. Cộng
             # sau nhánh `kq is None` là bỏ mất mẫu số của đúng những vị
             # thế mù — và tỉ suất sẽ đẹp lên nhờ giấu bớt mẫu số.
-            self.soVonGio.cong(abs(so.vonUsd), so.keToanLucGiay, now,
+            self.soVonGio.cong(abs(so.vonUsd), so.vonGioLucGiay, now,
                                ty=so.chienLuoc)
+            so.vonGioLucGiay = now
             ty = self.ty.get(so.chienLuoc)
             kq = None
             if ty is not None:
@@ -866,7 +867,6 @@ class TrungUong:
                 # `nguonTsMs` của băng: ghi một con số đã dẫn thay cho
                 # nguyên liệu là ghi một cuốn sổ không tua lại được.
                 tu0 = so.keToanLucGiay
-                so.keToanLucGiay = now
                 so.soVongKeToan += 1
                 # GIỮ câu của ty. Nó là lời khai duy nhất về VÌ SAO một
                 # ty thu được hoặc không thu được gì, và trước lượt này
@@ -877,7 +877,21 @@ class TrungUong:
                 if not getattr(kq, "doDuoc", True):
                     so.soVongKhongDoDuoc += 1
                     l.soVongMu += 1
+                    # KHÔNG đẩy mốc: ty vừa nói «không biết», và đẩy mốc
+                    # là biến câu ấy thành «bằng không». Với thu nhập tới
+                    # theo MỐC, một cửa sổ mười giây bị nuốt có thể là
+                    # tám giờ funding không bao giờ vào sổ.
+                    if now - tu0 > TRAN_CUA_SO_MU_GIAY:
+                        bo = (now - tu0) / 3600.0
+                        so.gioMuBoQua += bo
+                        so.soCuaSoMuBoQua += 1
+                        so.keToanLucGiay = now
+                        l.soMuBoQua += 1
+                        l.gioMuBoQua += bo
+                    else:
+                        l.soMuGiuLai += 1
                 else:
+                    so.keToanLucGiay = now
                     l.soKeToanDuoc += 1
                     thu = float(getattr(kq, "thuUsd", 0.0) or 0.0)
                     phi = float(getattr(kq, "phiUsd", 0.0) or 0.0)
@@ -1550,7 +1564,15 @@ class TrungUong:
             "cauDao": self.cau_dao.tom_tat(),
             "doiSoatViThe": self.doiSoatViThe.tom_tat(),
             "doiSoatKhoiDong": self.doiSoatKhoiDong.tom_tat(),
-            "keToan": self.latCatKeToan.tom_tat(),
+            # Lát cắt là MỘT VÒNG; hai con số dưới là CẢ ĐỜI những vị
+            # thế còn mở. Không gộp ở đây thì buồng lái thấy «0 vòng mù
+            # vòng này» và đọc thành «chưa bao giờ mất quãng nào».
+            "keToan": dict(self.latCatKeToan.tom_tat(), **{
+                "soCuaSoMuBoQuaTong": sum(
+                    int(v.soCuaSoMuBoQua) for v in self.soViThe.values()),
+                "gioMuBoQuaTong": round(sum(
+                    float(v.gioMuBoQua) for v in self.soViThe.values()), 4),
+            }),
             "lechTien": self.lech_tien(),
             "luuDanhMuc": {**self.napLuu,
                            "loiGhi": getattr(self, "loiLuu", ""),

@@ -503,6 +503,24 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                  f"kế toán, nên nếu thu nhập tới theo mốc thì một lần "
                  f"khởi động không may cũng đủ đánh rơi trọn một kỳ."
                  if n_kd > 1 else "")
+        # BẰNG CHỨNG cho cách đọc thứ ba, nay ĐO ĐƯỢC. Trước 30/08 câu
+        # «rơi vào một cửa sổ bị vứt» là một giả thuyết không kiểm được,
+        # nên nó nằm ngang hàng với hai cách đọc kia và không ai chọn
+        # được. Nay vòng mù GIỮ LẠI cửa sổ cho vòng sau đo bù, và chỗ bị
+        # bỏ hẳn thì được đếm — nên nếu con số ấy bằng 0, cách đọc thứ
+        # ba đã bị LOẠI, không còn phải cân nhắc.
+        _kt0 = anh.get("keToan") or {}
+        _mbq = _kt0.get("soCuaSoMuBoQuaTong")
+        _gbq = _kt0.get("gioMuBoQuaTong")
+        if _mbq is None:
+            vi_mu = ""
+        elif _mbq:
+            vi_mu = (f" Cỗ máy ĐÃ bỏ hẳn {_mbq} cửa sổ kế toán "
+                     f"({_gbq:.2f} giờ) vì mù quá lâu — cách đọc thứ ba "
+                     f"có bằng chứng, hãy xem trước.")
+        else:
+            vi_mu = (" KHÔNG cửa sổ kế toán nào bị bỏ, nên cách đọc thứ "
+                     "ba đã LOẠI: quãng mù đều được vòng sau đo bù.")
         ra.append(TrieuChungHe(
             "ty-thu-bang-khong", 2,
             f"ty {ma} chạy {vg:,.0f} vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây "
@@ -511,8 +529,9 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"điều kiện hiện tại; hoặc thu nhập của nó tới theo MỐC "
             f"(funding 8 giờ, đáo hạn) mà vị thế không sống tới mốc nào; "
             f"hoặc mốc có đi qua nhưng rơi vào một cửa sổ bị vứt. Xem "
-            f"`daGiuGio` của chính nó so với nhịp trả." + vi_kd,
+            f"`daGiuGio` của chính nó so với nhịp trả." + vi_mu + vi_kd,
             {"chienLuoc": ma, "vonGioUsd": vg, "thuRongUsd": thu,
+             "soCuaSoMuBoQua": _mbq, "gioMuBoQua": _gbq,
              "soLanKhoiDong": n_kd, "tongGiayTatMay": g_tat}))
 
     # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────

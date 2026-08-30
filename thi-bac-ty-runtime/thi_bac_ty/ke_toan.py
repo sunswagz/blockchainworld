@@ -83,6 +83,24 @@ class KetToanVong:
                 "doDuoc": self.doDuoc}
 
 
+#: Cửa sổ CHƯA kế toán được phép dài bao nhiêu giây trước khi bỏ hẳn.
+#:
+#: Khi ty khai `doDuoc=False`, cửa sổ ấy KHÔNG được đẩy mốc — nó gộp vào
+#: vòng sau, để vòng nào đo được thì đo cho cả quãng. Không có luật đó
+#: thì với một engine mà thu nhập chỉ tới ở MỐC, đánh rơi đúng cửa sổ
+#: mười giây chứa mốc là đánh rơi TÁM GIỜ thu nhập, và sổ ghi «thu 0» —
+#: y hệt một engine không kiếm được gì.
+#:
+#: Nhưng gộp mãi thì sai theo hướng ngược: vòng cứu được sẽ nhân RATE
+#: HÔM NAY với cả quãng mù, và rate hôm nay không phải rate lúc ấy. Một
+#: giờ là chỗ cân: đủ dài để nuốt trọn mọi đợt rớt sàn ngắn, đủ ngắn để
+#: rate hiện tại còn là một đại diện tử tế cho cả quãng.
+#:
+#: Quá hạn thì BỎ, và ĐẾM ra — `soCuaSoMuBoQua`. Bỏ im lặng chính là
+#: cái lỗi mà hằng số này sinh ra để chặn.
+TRAN_CUA_SO_MU_GIAY = 3600.0
+
+
 @dataclass
 class SoViThe:
     """Sổ theo dõi MỘT vị thế đang mở, giữ trong bộ nhớ Trung Ương.
@@ -97,13 +115,29 @@ class SoViThe:
     toTrinh: dict
     vonUsd: float
     moLucGiay: float
+    #: Đầu cửa sổ CHƯA được kế toán. Chỉ tiến khi ty đo được — xem
+    #: `TRAN_CUA_SO_MU_GIAY`.
     keToanLucGiay: float
+    #: Đầu cửa sổ chưa cộng VỐN-GIỜ. Tách khỏi `keToanLucGiay` vì hai mốc
+    #: trả lời hai câu khác nhau: vốn-giờ hỏi «vốn nằm trong vị thế bao
+    #: lâu» — luôn tiến, kể cả vòng mù, vì vốn thì vẫn nằm đó; còn mốc
+    #: kia hỏi «quãng nào chưa ai ghi sổ». Gộp chung thì hoặc vốn-giờ
+    #: đếm đôi mỗi vòng mù, hoặc quãng mù bị nuốt — và cả hai đều lặng.
+    #: `None` = lấy theo `keToanLucGiay` (bản lưu cũ không có trường này).
+    vonGioLucGiay: float | None = None
+    #: Giờ đã BỎ HẲN vì mù quá `TRAN_CUA_SO_MU_GIAY`, cộng dồn.
+    gioMuBoQua: float = 0.0
+    soCuaSoMuBoQua: int = 0
     thuCongDonUsd: float = 0.0
     phiCongDonUsd: float = 0.0
     soVongKeToan: int = 0
     soVongKhongDoDuoc: int = 0
     #: `None` = ty của vị thế này chưa cài `ke_toan()`. Không phải 0.
     coKeToan: bool | None = None
+
+    def __post_init__(self) -> None:
+        if self.vonGioLucGiay is None:
+            self.vonGioLucGiay = self.keToanLucGiay
 
     @property
     def giuGio(self) -> float:
@@ -317,13 +351,27 @@ class LatCatKeToan:
     #: vòng («N mốc funding trong Xh»), nhưng nó bị vứt ngay sau khi
     #: đọc. Giữ lại một câu cho mỗi ty là rẻ, và nó biến «engine này
     #: không kiếm được» từ một phỏng đoán thành một câu đọc được.
+    #:
+    #: Nó đã trả lời thật. Câu ấy đọc «0 mốc funding trong 0,0079h», và
+    #: chính chữ «0 mốc» dẫn tới con bọ: `ke_toan` đếm mốc SẮP TỚI trong
+    #: một cửa sổ đã QUA, nên nó trả 0 ở mọi vòng — xem `dem_moc_qua`.
     viTheoTy: dict = field(default_factory=dict)
+    #: Vòng mù mà cửa sổ được GIỮ LẠI cho vòng sau đo bù.
+    soMuGiuLai: int = 0
+    #: Vòng mù mà cửa sổ bị BỎ HẲN vì đã dài quá `TRAN_CUA_SO_MU_GIAY`.
+    #: Đây là khoản thu nhập cỗ máy sẽ không bao giờ thấy, và nó phải
+    #: được đếm chứ không được lặng.
+    soMuBoQua: int = 0
+    gioMuBoQua: float = 0.0
 
     def tom_tat(self) -> dict:
         return {
             "soViThe": self.soViThe,
             "soKeToanDuoc": self.soKeToanDuoc,
             "soKhongCoKeToan": self.soKhongCoKeToan,
+            "soMuGiuLai": self.soMuGiuLai,
+            "soMuBoQua": self.soMuBoQua,
+            "gioMuBoQua": round(self.gioMuBoQua, 4),
             "soThuVuotTran": self.soThuVuotTran,
             "thuVuotTran": list(self.thuVuotTran)[:5],
             "soVongMu": self.soVongMu,
