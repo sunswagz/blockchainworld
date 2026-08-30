@@ -94,6 +94,29 @@ giữ, nên bot chạy thật **không đánh được SHORT**. Đo trên 48 ch�
 
 Nên mọi bảng "cả hai chiều" nói về một chiến lược bot không chạy nổi. Dùng
 `--chi-long` khi dò tham số, và đọc `do-huong.json` để thấy khoảng cách.
+
+### Làn demo hai chiều — cổng 5282
+
+Con số trên nói nửa SHORT là nửa có lãi, và bản chạy lại thì nói mạnh hơn nữa:
+MOCK_KEO_LUI_V1 trên 33 chợ 1d **chưa từng dùng** để tìm ra nó cho +0,205R qua
+269 lệnh, khoảng tin [+0,063; +0,354] không chứa 0 — kết quả dương ngoài mẫu
+duy nhất của cả hệ. Tách hướng: SHORT +0,303R/226 lệnh, LONG −0,306R/44 lệnh.
+
+Chạy lại nói được đến đó rồi hết. Nên có làn thứ hai đo TIẾN TƯỚNG trên giá
+thật: chế độ `paper` (ở đó `spot_only` tắt nên short được), vốn ảo riêng, sổ
+riêng, 46 chợ, và KHÔNG ghi cung tĩnh.
+
+    powershell -File dichvu\bat.ps1 -Demo      # bật, chạy nền, sống qua đăng xuất
+    powershell -File dichvu\dung.ps1 -Demo     # dừng
+    python scripts/so-hai-lan.py                 # đọc hai làn cạnh nhau
+
+Nó KHÔNG chạy nghi thức: hai làn dùng chung `data/lich-su` và `data/chuoi`, nên
+hai bộ việc đo nặng sẽ giẫm lên nhau. Đo đạc là việc của làn chính.
+
+Giả thuyết đang chờ: `keo-lui-short-tien-tuong` — cần 30 lệnh SHORT đã đóng.
+Chạy lại KHÔNG mô phỏng phí vay và rủi ro bị ép đóng của short thật, và làn demo
+cũng không. Con số nó cho là cận TRÊN, không phải con số của một tài khoản
+short thật.
 ## Phòng huấn luyện
 
 Chạy lại chiến lược trên nến lịch sử, dò tham số, đúc bài học. Vào từ buồng lái
