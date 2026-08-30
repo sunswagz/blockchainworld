@@ -625,6 +625,20 @@ def _diem_dung_lai(cu: list[dict], quang_cu: dict, xet_cu: list[int],
 
     Điều 3 là chỗ dễ bỏ sót nhất: hai điều đầu nhìn có vẻ đủ, nhưng phần đuôi
     chuỗi lại đúng là phần được dùng nhiều nhất trong cửa sổ ngoài mẫu.
+
+    ĐO TRÊN CA THẬT CỦA SẢN XUẤT (ROSEUSDT 1d, 1500 nến). `tai-lich-su.py` luôn
+    lấy N nến CUỐI, nên bộ mới rụng ở đầu đúng bằng số nến thêm ở đuôi — cửa sổ
+    trượt tới, độ dài không đổi:
+
+        cuốn tới 3 nến   dùng lại 702/836 điểm · 17s  (tính lại từ đầu ~120s)
+        cuốn tới 1 nến   dùng lại 704/836 điểm · 15s
+
+    Cả hai ra chuỗi GIỐNG TỪNG CHỮ bản tính lại từ đầu. ~134 điểm phải tính lại
+    là phần đầu chuỗi (chỉ số 210–399, nơi cửa sổ chính chưa đầy) cộng vùng đuôi
+    bị điều 3 loại — một chi phí CỐ ĐỊNH, không lớn theo độ dài mảng.
+
+    Ca "bộ mới có NHIỀU lịch sử hơn ở đầu" thì rơi về tính mới toàn bộ; đó là
+    lựa chọn có chủ ý, không phải thiếu sót — xem `_cung_lat`.
     """
     from .data import TF_MS
 
