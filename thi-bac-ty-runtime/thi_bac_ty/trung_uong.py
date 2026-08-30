@@ -296,6 +296,16 @@ class TrungUong:
         if self.napThemUsd:
             self.danh_muc.vonBanDauUsd += self.napThemUsd
 
+        # QUÃNG MÁY TẮT, cộng dồn qua mọi lần khởi động. Xem chú thích
+        # trong `luu_danh_muc.luu`: mỗi lần khởi động là một cửa sổ kế
+        # toán bị vứt, và với engine thu theo MỐC thì vứt đúng cửa sổ
+        # chứa mốc là mất tám giờ thu nhập — sổ chỉ ghi «thu 0».
+        self.soLanKhoiDong = int(
+            self.napLuu.pop("_soLanKhoiDong", 0) or 0) + 1
+        self.tongGiayTatMay = float(
+            self.napLuu.pop("_tongGiayTatMay", 0.0) or 0.0) + float(
+            self.napLuu.get("giayTatMay") or 0.0)
+
         #: Đối soát NGAY lúc khởi động, trước khi vòng nào chạy. Sổ đăng ký
         #: sống trên đĩa còn danh mục dựng lại rỗng, nên đúng lúc này là
         #: lúc lệch lớn nhất — và cũng là lúc duy nhất sửa được mà không
@@ -731,7 +741,8 @@ class TrungUong:
         try:
             luu_danh_muc(self.duongLuu, self.danh_muc, self.soViThe,
                          self.duongNav, self.soVonGio, self.napThemUsd,
-                         self.tienDaGhiUsd)
+                         self.tienDaGhiUsd, self.soLanKhoiDong,
+                         self.tongGiayTatMay)
             self.loiLuu = ""
         except OSError as e:                              # noqa: BLE001
             self.loiLuu = f"{type(e).__name__}: {e}"
@@ -1539,7 +1550,13 @@ class TrungUong:
             "keToan": self.latCatKeToan.tom_tat(),
             "lechTien": self.lech_tien(),
             "luuDanhMuc": {**self.napLuu,
-                           "loiGhi": getattr(self, "loiLuu", "")},
+                           "loiGhi": getattr(self, "loiLuu", ""),
+                           # Cộng dồn qua MỌI lần khởi động, không chỉ
+                           # lần này. Một cửa sổ kế toán bị vứt mỗi lần,
+                           # và engine thu theo MỐC mất trọn một kỳ nếu
+                           # cửa sổ ấy chứa mốc.
+                           "soLanKhoiDong": self.soLanKhoiDong,
+                           "tongGiayTatMay": self.tongGiayTatMay},
             # Lãi lỗ TÁCH KHOẢN. Con số gộp nói dối theo một cách khó
             # thấy: phí vào lệnh phần lớn do runtime bị khởi động lại chứ
             # không do quyết định của ty, mà gộp vào thì một chiến lược

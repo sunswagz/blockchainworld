@@ -4100,9 +4100,30 @@ def kiem_chan_doan_he() -> None:
              if x.ma == "ty-thu-bang-khong"),
          "«chưa đo được» và «đo rồi, bằng không» là hai câu — trộn chúng "
          "là quay lại đúng lỗi `none-khac-khong` cấm")
-    kiem("và câu chẩn NÓI RA hai cách đọc, không phán một cách",
-         ("không kiếm được" in _t0[0].moTa and "MỐC" in _t0[0].moTa),
-         _t0[0].moTa[:200])
+    kiem("và câu chẩn NÓI RA ba cách đọc, không phán một cách",
+         ("không kiếm được" in _t0[0].moTa and "MỐC" in _t0[0].moTa
+          and "cửa sổ bị vứt" in _t0[0].moTa),
+         _t0[0].moTa[:260])
+    # Cách đọc thứ ba chỉ về phía NGƯỜI VẬN HÀNH, nên nó chỉ hiện khi có
+    # số để chỉ. Một lần khởi động thì không có gì để nói.
+    _tKd = [x for x in _cdh({**_anhThu0(),
+                             "luuDanhMuc": {"soLanKhoiDong": 18,
+                                            "tongGiayTatMay": 240.0}})
+            if x.ma == "ty-thu-bang-khong"]
+    kiem("khởi động lại NHIỀU lần thì nói thẳng con số ấy ra",
+         ("18 lần" in _tKd[0].moTa
+          and _tKd[0].bangChung.get("soLanKhoiDong") == 18),
+         f"{_tKd[0].moTa[-180:]} — không nói ra thì cả ba cách đọc trông "
+         f"giống nhau, và cái dễ kết luận nhất («engine dở») là cái sai "
+         f"nhất")
+    _tKd1 = [x for x in _cdh({**_anhThu0(),
+                              "luuDanhMuc": {"soLanKhoiDong": 1,
+                                             "tongGiayTatMay": 0.0}})
+             if x.ma == "ty-thu-bang-khong"]
+    kiem("chạy liền một mạch thì KHÔNG đổ cho khởi động lại",
+         "khởi động lại" not in _tKd1[0].moTa,
+         "đổ lỗi cho một chuyện không xảy ra là chỉ người đọc đi sai "
+         "đường, y như lời khuyên cũ của `phi-vao-an-het`")
 
     # ── VỐN KHẢ DỤNG nằm không ──────────────────────────────────────────
     #
@@ -9684,6 +9705,46 @@ def kiem_ke_toan_vi_the() -> None:
     tu59.duongLuu.write_text(_js58.dumps(_f58, ensure_ascii=False),
                              encoding="utf-8")
     tu60 = TrungUong(_d58, {"vonBanDauUsd": 10_000.0})
+    # ── QUÃNG MÁY TẮT: đếm CỘNG DỒN, và vì sao nó đáng một chỗ ─────────
+    #
+    # Mỗi lần khởi động, `keToanLucGiay` của mọi vị thế đặt lại thành BÂY
+    # GIỜ — khoảng máy tắt KHÔNG cộng bù, vì không ai đo được rate lúc
+    # mình không chạy. Đúng. Nhưng CÁI GIÁ của nó thì trước lượt này
+    # không ai đếm.
+    #
+    # Với engine thu theo MỐC (funding 8 giờ một lần), đánh rơi đúng cửa
+    # sổ 30 giây chứa mốc là đánh rơi TÁM GIỜ thu nhập — và sổ chỉ ghi
+    # «thu 0», y hệt một engine không kiếm được gì.
+    #
+    # Đo thật 30/08: `basis.cash_carry.v1` chạy 5.222 vòng kế toán, KHÔNG
+    # vòng nào mù, và CHƯA TỪNG ghi một dòng FUNDING nào — trong khi hai
+    # ty kia ghi hơn 40.000 dòng mỗi ty. Hai con số này là thứ duy nhất
+    # phân biệt «engine không kiếm được» với «khởi động lại quá nhiều».
+    _dTat = _tam("tat-may")
+    _tepTat = _dTat / "dm.json"
+    _tuTat1 = TrungUong(_dTat, {"vonBanDauUsd": 1000.0})
+    kiem("lần chạy ĐẦU đếm là một lần khởi động, quãng tắt 0",
+         (_tuTat1.soLanKhoiDong == 1
+          and gan(_tuTat1.tongGiayTatMay, 0.0)),
+         f"{_tuTat1.soLanKhoiDong} / {_tuTat1.tongGiayTatMay}")
+    _tuTat1._luu_danh_muc()
+    _tuTat2 = TrungUong(_dTat, {"vonBanDauUsd": 1000.0})
+    kiem("khởi động lại thì bộ đếm TĂNG, không đặt lại về 1",
+         _tuTat2.soLanKhoiDong == 2,
+         f"{_tuTat2.soLanKhoiDong} — đặt lại mỗi lần là xoá đúng con số "
+         f"đang cần để giải thích một engine thu bằng 0")
+    _tuTat2._luu_danh_muc()
+    kiem("và nó SỐNG QUA lần khởi động thứ ba",
+         TrungUong(_dTat, {"vonBanDauUsd": 1000.0}).soLanKhoiDong == 3)
+    kiem("ảnh chụp mang hai con số ấy ra buồng lái",
+         {"soLanKhoiDong", "tongGiayTatMay"}
+         <= set((_tuTat2.anh_chup().get("luuDanhMuc") or {})),
+         "đo được mà không ra tới buồng lái thì vẫn là im lặng")
+    kiem("quãng tắt cộng dồn KHÔNG âm",
+         _tuTat2.tongGiayTatMay >= 0.0,
+         "đồng hồ máy lùi thì `giayTatMay` có thể âm, và một quãng tắt âm "
+         "đọc thành cỗ máy chạy nhiều hơn thời gian đã trôi")
+
     kiem("bản lưu CŨ (chưa có bộ đếm) cũng không kêu lệch oan",
          tu60.lech_tien()["khop"],
          f"{tu60.lech_tien()} — mọi đồng trong lãi lỗ đã thực hiện đều ĐÃ "

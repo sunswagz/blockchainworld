@@ -73,7 +73,8 @@ BAN = 1
 
 
 def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
-        napThemUsd: float = 0.0, tienDaGhiUsd: float = 0.0) -> int:
+        napThemUsd: float = 0.0, tienDaGhiUsd: float = 0.0,
+        soLanKhoiDong: int = 0, tongGiayTatMay: float = 0.0) -> int:
     """Ghi danh mục ra đĩa. Trả về số byte đã ghi.
 
     Ghi qua file tạm rồi đổi tên: chết giữa chừng thì file đích vẫn là
@@ -113,6 +114,25 @@ def luu(duong, danh_muc, soViThe: dict, duongNav, soVonGio=None,
         # deploy một lần, và nó dạy người vận hành ngó lơ đúng cái phép
         # canh sinh ra để bắt chuyện thật.
         "tienDaGhiUsd": float(tienDaGhiUsd),
+        # QUÃNG MÁY TẮT, cộng dồn — và vì sao nó đáng một chỗ trên đĩa.
+        #
+        # Mỗi lần khởi động, `keToanLucGiay` của mọi vị thế được đặt lại
+        # thành BÂY GIỜ: khoảng máy tắt KHÔNG được cộng bù, vì không ai
+        # đo được rate trong lúc mình không chạy. Đó là quyết định đúng.
+        #
+        # Nhưng cái GIÁ của nó thì trước lượt này không ai đếm. Với một
+        # engine mà thu nhập chỉ tới ở MỐC — funding 8 giờ một lần —
+        # đánh rơi đúng cái cửa sổ 30 giây chứa mốc là đánh rơi TÁM GIỜ
+        # thu nhập, và sổ chỉ ghi «thu 0», y hệt một engine không kiếm
+        # được gì.
+        #
+        # Đo thật 30/08: `basis.cash_carry.v1` chạy 5.222 vòng kế toán,
+        # KHÔNG vòng nào mù, và CHƯA TỪNG ghi một dòng FUNDING nào —
+        # trong khi hai ty kia ghi hơn 40.000 dòng mỗi ty. Hai con số
+        # dưới đây là thứ duy nhất phân biệt được «engine không kiếm
+        # được» với «người vận hành khởi động lại quá nhiều».
+        "soLanKhoiDong": int(soLanKhoiDong),
+        "tongGiayTatMay": float(tongGiayTatMay),
         # Trường THÊM, không đổi cấu trúc cũ — nên KHÔNG tăng `BAN`. Bản đọc
         # cũ bỏ qua khoá lạ; bản đọc mới gặp bản lưu thiếu khoá này thì cộng
         # lại từ 0 và KHAI ra là mới bắt đầu. Tăng `BAN` ở đây sẽ vứt cả danh
@@ -225,6 +245,8 @@ def nap(duong, danh_muc, duongNav) -> dict:
         "_soVonGio": soVonGio, "coSoVonGio": vg is not None,
         "_napThemUsd": float(d.get("napThemUsd") or 0.0),
         "_tienDaGhiUsd": float(d.get("tienDaGhiUsd") or 0.0),
+        "_soLanKhoiDong": int(d.get("soLanKhoiDong") or 0),
+        "_tongGiayTatMay": float(d.get("tongGiayTatMay") or 0.0),
         "coTienDaGhi": "tienDaGhiUsd" in d,
         "tienMatUsd": danh_muc.tienMatUsd,
         "laiLoDaThucHienUsd": danh_muc.laiLoDaThucHienUsd,

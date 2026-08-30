@@ -2076,6 +2076,17 @@
     d5.appendChild(oSo("Máy tắt bao lâu",
       lu.giayTatMay == null ? "—" : gio(lu.giayTatMay),
       "quãng ấy KHÔNG được cộng lãi cho vị thế nào", "nhat"));
+    /* CỘNG DỒN qua mọi lần khởi động, không chỉ lần này. Mỗi lần bật lại
+       vứt một cửa sổ kế toán — với engine thu theo MỐC (funding 8 giờ),
+       vứt đúng cửa sổ chứa mốc là mất trọn một kỳ, và sổ chỉ ghi «thu
+       0», y hệt một engine không kiếm được gì. Đo 30/08:
+       `basis.cash_carry.v1` chạy 5.222 vòng, không vòng nào mù, và CHƯA
+       TỪNG ghi một dòng FUNDING nào. */
+    d5.appendChild(oSo("Đã bật lại", so(lu.soLanKhoiDong) + " lần",
+      lu.tongGiayTatMay == null ? "—"
+        : "tổng " + gio(lu.tongGiayTatMay) + " tắt · mỗi lần vứt một cửa "
+          + "sổ kế toán",
+      (lu.soLanKhoiDong || 0) > 1 ? "nhat" : "duong"));
     d5.appendChild(oSo("Lỗi ghi", lu.loiGhi ? "CÓ" : "không",
       lu.loiGhi || "ghi được mỗi vòng", lu.loiGhi ? "am" : "duong",
       !!lu.loiGhi));

@@ -490,17 +490,30 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             continue
         if vg < TOI_THIEU_VON_GIO_THU_KHONG:
             continue
+        # CÁCH ĐỌC THỨ BA, và nó là cách đọc chỉ về phía NGƯỜI VẬN HÀNH:
+        # mỗi lần khởi động lại vứt một cửa sổ kế toán, và với engine thu
+        # theo MỐC thì vứt đúng cửa sổ chứa mốc là mất trọn một kỳ. Không
+        # nói ra con số ấy thì cả ba cách đọc trông giống nhau, và cái dễ
+        # kết luận nhất — «engine dở» — là cái sai nhất.
+        ld = anh.get("luuDanhMuc") or {}
+        n_kd = int(ld.get("soLanKhoiDong") or 0)
+        g_tat = float(ld.get("tongGiayTatMay") or 0.0)
+        vi_kd = (f" Và cỗ máy đã khởi động lại {n_kd} lần (tổng "
+                 f"{g_tat / 60.0:.1f} phút tắt): mỗi lần vứt một cửa sổ "
+                 f"kế toán, nên nếu thu nhập tới theo mốc thì một lần "
+                 f"khởi động không may cũng đủ đánh rơi trọn một kỳ."
+                 if n_kd > 1 else "")
         ra.append(TrieuChungHe(
             "ty-thu-bang-khong", 2,
             f"ty {ma} chạy {vg:,.0f} vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây "
             f"KHÔNG phải «chưa đo được» — kế toán của nó chạy được và nói "
-            f"không có gì. Hai cách đọc: hoặc engine này không kiếm được "
-            f"trong điều kiện hiện tại, hoặc thu nhập của nó tới theo MỐC "
-            f"(funding 8 giờ, đáo hạn) mà vị thế không sống tới mốc nào. "
-            f"Xem `daGiuGio` của chính nó so với nhịp trả — nếu vị thế bị "
-            f"đóng sớm hơn nhịp ấy thì đây là một engine bị chặn không cho "
-            f"kiếm, chứ không phải một engine dở.",
-            {"chienLuoc": ma, "vonGioUsd": vg, "thuRongUsd": thu}))
+            f"không có gì. Ba cách đọc: engine này không kiếm được trong "
+            f"điều kiện hiện tại; hoặc thu nhập của nó tới theo MỐC "
+            f"(funding 8 giờ, đáo hạn) mà vị thế không sống tới mốc nào; "
+            f"hoặc mốc có đi qua nhưng rơi vào một cửa sổ bị vứt. Xem "
+            f"`daGiuGio` của chính nó so với nhịp trả." + vi_kd,
+            {"chienLuoc": ma, "vonGioUsd": vg, "thuRongUsd": thu,
+             "soLanKhoiDong": n_kd, "tongGiayTatMay": g_tat}))
 
     # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────
     #
