@@ -12804,6 +12804,52 @@ def kiem_loc_bao_gia() -> None:
     kiem("danh sách rỗng thì trả rỗng, không nổ",
          loc_bao_gia_cu([], now, 30.0) == ([], 0))
 
+    # ── NHỊP nạp Router: hai nguồn, hai nhịp riêng ────────────────────
+    from bac.vong import (NHIP_NAP_CAU_GIAY, NHIP_NAP_GAS_GIAY,
+                          can_nap_router, cap_can_bao_gia)
+
+    T = 1_800_000_000.0
+    kiem("vừa nạp xong thì chưa cần nạp lại gì",
+         can_nap_router(T, T, T) == (False, False))
+    kiem("quá nhịp GAS thì nạp gas, chưa động tới cầu",
+         can_nap_router(T + NHIP_NAP_GAS_GIAY + 1.0, T, T) == (True, False),
+         "hai nguồn đổi ở hai tốc độ; hỏi cả hai theo nhịp của cái nhanh "
+         "hơn là bất lịch sự với một API có hạn mức")
+    kiem("ĐÚNG BẰNG nhịp thì CHƯA nạp — mép đóng",
+         can_nap_router(T + NHIP_NAP_GAS_GIAY, T, T) == (False, False),
+         f"nhịp gas {NHIP_NAP_GAS_GIAY:.0f}s")
+    kiem("quá nhịp CẦU thì nạp cả hai, vì cầu chậm hơn gas nhiều",
+         can_nap_router(T + NHIP_NAP_CAU_GIAY + 1.0, T, T) == (True, True),
+         f"cầu {NHIP_NAP_CAU_GIAY:.0f}s > gas {NHIP_NAP_GAS_GIAY:.0f}s")
+    kiem("và hai mốc đi RIÊNG: gas vừa nạp, cầu thì quá hạn",
+         can_nap_router(T + NHIP_NAP_CAU_GIAY + 1.0,
+                        T + NHIP_NAP_CAU_GIAY, T) == (False, True),
+         "gộp một mốc là mỗi lần nạp gas lại kéo theo một lượt hỏi cầu")
+
+    # ── chặng cầu cần hỏi giá: CHỈ USDC, và nhà phải CÓ USDC ───────────
+    _TOK = [("USDC", "arbitrum"), ("USDC", "base"), ("USDT", "base"),
+            ("USDC", "polygon")]
+    ra = cap_can_bao_gia((500.0, 1000.0), _TOK, "arbitrum")
+    kiem("chỉ hỏi USDC, và không hỏi chặng về CHÍNH nhà xuất phát",
+         (len(ra) == 4
+          and all(x[0] == "USDC" and x[1] == "arbitrum" for x in ra)
+          and {x[2] for x in ra} == {"base", "polygon"}),
+         f"{ra} — nạp cả ba tài sản × ba cỡ vốn là 27 lời gọi mỗi lượt, "
+         f"và LI.FI chặn ở 429 kèm «retry in 2 hours»")
+    kiem("cỡ vốn nào cũng được hỏi, vì kho khoá THEO cỡ vốn",
+         {x[3] for x in ra} == {500.0, 1000.0},
+         f"{ra} — hỏi cỡ khác cỡ đã nạp là trượt kho, và tuyến thành MÙ "
+         f"trong im lặng; đã cắn thật với `lai_suat` hỏi $1.000 trong khi "
+         f"kho chỉ có $500")
+    kiem("nhà xuất phát KHÔNG có USDC thì không hỏi chặng nào",
+         cap_can_bao_gia((500.0,), [("USDT", "base"), ("USDC", "base")],
+                         "arbitrum") == [],
+         "hỏi giá một chặng mà chính nhà xuất phát không có đồng ấy thì "
+         "mọi lời gọi trong lượt trả về rỗng — kho trống, tuyến mù, "
+         "không dòng nào kêu")
+    kiem("không có cỡ vốn nào thì trả rỗng, không nổ",
+         cap_can_bao_gia((), _TOK, "arbitrum") == [])
+
     # ── cảng hỏng: hai vế phải CÙNG đúng ──────────────────────────────
     class _SK:
         def __init__(self, loi, tuoi):

@@ -193,6 +193,47 @@ def _tom_dong_co() -> dict:
         return {"loi": f"{type(e).__name__}: {e}"}
 
 
+#: Nạp lại giá gas sau bao nhiêu giây. Đổi theo block, nhưng ta chỉ cần BẬC.
+NHIP_NAP_GAS_GIAY = 300.0
+
+#: Nạp lại báo giá cầu sau bao nhiêu giây.
+#:
+#: 30 phút, không phải 15: chín lời gọi mỗi lượt ở nhịp 15 phút là 36 lời
+#: gọi mỗi giờ, và phí cầu không đổi nhanh tới mức ấy. LI.FI có hạn mức,
+#: và nó chặn ở 429 kèm «retry in 2 hours» — bản trước đã ăn đúng lệnh ấy.
+NHIP_NAP_CAU_GIAY = 1800.0
+
+
+def can_nap_router(gio: float, lanNapGas: float, lanNapCau: float):
+    """Tới lúc nạp lại gas / báo giá cầu chưa. Trả `(canGas, canCau)`.
+
+    Hai nhịp RIÊNG vì hai nguồn đổi ở hai tốc độ, và hỏi cả hai theo nhịp
+    của cái nhanh hơn là vừa lãng phí vừa bất lịch sự với một API có hạn
+    mức. Tách khỏi `_nap_router()` để kiểm được không cần mạng.
+    """
+    return (gio - lanNapGas > NHIP_NAP_GAS_GIAY,
+            gio - lanNapCau > NHIP_NAP_CAU_GIAY)
+
+
+def cap_can_bao_gia(coVon, token, nha: str):
+    """Những chặng cầu cần hỏi giá: `(tài sản, từ, tới, vốn)`.
+
+    **CHỈ USDC, và chỉ khi CHÍNH `nha` cũng có USDC.** Nạp cả ba tài sản
+    × ba cỡ vốn là 27 lời gọi mỗi lượt, và LI.FI chặn ở 429 kèm «retry in
+    2 hours». USDC là tài sản `lai_suat` thật sự bắc cầu, và là đồng phổ
+    biến nhất; tài sản khác thì tuyến MÙ, ty giữ nguyên khai báo
+    `phiConThieu` — đó là hệ thống chạy ĐÚNG, không phải hỏng.
+
+    Cửa `("USDC", nha) in token` không thừa: thiếu nó thì ta đi hỏi giá
+    một chặng mà chính nhà xuất phát không có đồng ấy, và mọi lời gọi
+    trong lượt đều trả về rỗng — kho trống, tuyến mù, không dòng nào kêu.
+    """
+    return [(ts, nha, ch, von)
+            for von in coVon
+            for (ts, ch) in token
+            if ts == "USDC" and ch != nha and ("USDC", nha) in token]
+
+
 def loc_bao_gia_cu(tho, nowMs: float, tranGiay: float):
     """Bỏ báo giá quá cũ. Trả `(giữ lại, số bị bỏ)`.
 
@@ -475,10 +516,8 @@ class Runtime:
         if self.dinhTuyen is None:
             return
         gio = time.time()
-        canGas = gio - self._lanNapGas > 300.0
-        # 30 phút, không phải 15: chín lời gọi mỗi lượt ở nhịp 15 phút là
-        # 36 lời gọi mỗi giờ, và phí cầu không đổi nhanh tới mức ấy.
-        canCau = gio - self._lanNapCau > 1800.0
+        canGas, canCau = can_nap_router(gio, self._lanNapGas,
+                                        self._lanNapCau)
         if not (canGas or canCau):
             return
         try:
@@ -507,19 +546,9 @@ class Runtime:
                     # Đã cắn: `lai_suat` hỏi $1.000 trong khi kho chỉ có
                     # $500, nên tích hợp Router của nó KHÔNG chạy trong sản
                     # xuất — dù chạy đúng trong mọi thử nghiệm rời.
-                    # CHỈ USDC. Nạp cả ba tài sản × ba cỡ vốn là 27 lời
-                    # gọi mỗi lượt, và LI.FI chặn ở 429 kèm "retry in 2
-                    # hours" — bản trước đã ăn đúng lệnh ấy.
-                    #
-                    # USDC là tài sản `lai_suat` thật sự bắc cầu, và là
-                    # đồng phổ biến nhất. Tài sản khác thì tuyến MÙ, ty giữ
-                    # nguyên khai báo `phiConThieu`, và đó là hệ thống chạy
-                    # đúng chứ không phải hỏng.
-                    can = [("USDC", NHA, ch, von)
-                           for von in self._co_von_cac_ty()
-                           for (ts, ch) in TOKEN
-                           if ts == "USDC" and ch != NHA
-                           and ("USDC", NHA) in TOKEN]
+                    # Vì sao CHỈ USDC, và vì sao cửa `("USDC", NHA) in
+                    # TOKEN` không thừa: xem `cap_can_bao_gia`.
+                    can = cap_can_bao_gia(self._co_von_cac_ty(), TOKEN, NHA)
                     await self.dinhTuyen.nap(c, self.nguonCau, can)
                     self._lanNapCau = gio
                     try:
