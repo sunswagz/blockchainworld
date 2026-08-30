@@ -1180,7 +1180,7 @@ DA_QUET_DOT_BIEN = {
     "dinh_gia.py", "can_loi.py", "so_lenh.py", "nan_lai.py",
     "dat_lenh.py", "chan_rui_ro.py", "dongho.py", "cap_token.py",
     "do_tre.py", "chien_thuat.py", "phat_lai.py", "chan_doan.py",
-    "tien_hoa.py",
+    "tien_hoa.py", "vo_dich.py", "ket_qua.py", "so.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -1198,10 +1198,129 @@ CHUA_QUET_DOT_BIEN = {
     "bang.py", "khung.py", "dong_co.py", "cho_gia_dinh.py",
     "sdk_polymarket.py",
     # CÓ nhánh quyết định, đáng quét, chưa quét
-    "hoc_offline.py", "ket_qua.py", "so.py",
-    "vong.py", "chay_lai.py", "ban_thu.py",
-    "do_thi.py", "vi.py", "vo_dich.py",
+    "hoc_offline.py", "vong.py", "chay_lai.py", "ban_thu.py",
+    "do_thi.py", "vi.py",
 }
+
+
+def kiem_bien_cua_vo_dich() -> None:
+    """Biên của CỬA VÔ ĐỊCH — cửa duy nhất để một chiến thuật chạy thật.
+
+    Risk Engine chặn theo TỪNG LỆNH. Cửa này trả lời câu khác hẳn: chiến
+    thuật này, xét trên hàng trăm lệnh, có thật sự tốt hơn cái đang chạy
+    không? Không có nó thì cách một chiến thuật tồi bị loại là MẤT TIỀN
+    cho tới khi ai đó để ý — và với khung 5 phút, "cho tới khi ai đó để
+    ý" là rất nhiều tiền.
+
+    Bốn cửa, và cửa 3 mang ĐÚNG cái bẫy dấu đã sửa ở `tien_hoa`: biên
+    phải tính trên ĐỘ LỚN, không nhân thẳng. Hai chỗ, một khuôn.
+
+    ## Sau khi viết xong: 10 con → 7 CHẾT, 3 tương đương
+
+        80 81   `d.get(...) or {}` khi đọc sổ — với sổ RỖNG (ca duy
+                nhất phép kiểm dựng ra) cả hai lối cùng cho `{}`.
+        175     `duoi5pct < dk × 1,15` ở đúng biên. Đây là chỗ NHÂN
+                THẲNG là ĐÚNG, khác cửa 3: `duoi5pct` là phân vị 5% của
+                lãi lỗ nên gần như luôn ÂM, và `dk × 1,15` âm hơn chính
+                là "cho phép đuôi xấu thêm 15%". Chốt `td < 0` chặn nốt
+                phần còn lại — và cái kẽ khi `dk.duoi5pct` DƯƠNG đã
+                được ghi trong mã là lựa chọn cố ý, nên phép kiểm ở đây
+                canh nó như một lựa chọn chứ không như một lỗi.
+    """
+    print()
+    print("-- Bien cua CUA VO DICH ------------------------------------")
+    import tempfile as _tfV
+
+    from kham.vo_dich import BIEN_VUOT as _BV
+    from kham.vo_dich import DUOI_TOI_DA as _DTD2
+    from kham.vo_dich import TOI_THIEU_MAU as _TTMV
+    from kham.vo_dich import HoSo as _HS
+    from kham.vo_dich import SoVoDich as _SVD
+
+    def _so(hoSo, duongKim=None):
+        d = Path(_tfV.mkdtemp()) / "vd.json"
+        sv = _SVD(duong=d)
+        sv.hoSo = {h.ma: h for h in hoSo}
+        sv.duongKim = dict(duongKim or {})
+        return sv
+
+    def _hs(ma, n=_TTMV, kyVong=1.0, thua=-10.0, duoi5=-5.0):
+        return _HS(ma=ma, n=n, kyVong=kyVong, thuaLonNhat=thua,
+                   duoi5pct=duoi5)
+
+    kiem("chưa có hồ sơ → TỪ CHỐI, không đoán",
+         _so([]).xet("khongco").cho is False)
+
+    # ── cửa 1: đủ mẫu ───────────────────────────────────────────────
+    kiem("kém số mẫu tối thiểu một lệnh → TỪ CHỐI",
+         not _so([_hs("a", n=_TTMV - 1)]).xet("a").cho)
+    kiem("ĐÚNG BẰNG số mẫu tối thiểu → qua cửa 1",
+         _so([_hs("a")]).xet("a").cho)
+
+    # ── cửa 2: kỳ vọng phải DƯƠNG, hoà là chưa đủ ───────────────────
+    kiem("kỳ vọng ĐÚNG BẰNG 0 → TỪ CHỐI, hoà chưa phải hơn",
+         not _so([_hs("a", kyVong=0.0)]).xet("a").cho)
+    kiem("kỳ vọng âm → TỪ CHỐI",
+         not _so([_hs("a", kyVong=-0.1)]).xet("a").cho)
+
+    # ── chưa có đương kim: qua hai cửa đầu là LÊN ───────────────────
+    sv = _so([_hs("a")])
+    px = sv.xet("a", "nhom")
+    kiem("chưa có đương kim + qua hai cửa → LÊN NGÔI", px.cho, px.lyDo)
+    kiem("và sổ ghi lại ngôi ấy", sv.duongKim.get("nhom") == "a",
+         sv.duongKim)
+    kiem("chưa có đương kim mà THIẾU mẫu → vẫn TỪ CHỐI",
+         not _so([_hs("b", n=1)]).xet("b", "nhom").cho)
+
+    # ── cửa 3: biên tính trên ĐỘ LỚN — cái bẫy dấu ──────────────────
+    dk = _hs("dk", kyVong=10.0)
+    kiem("thách đấu đúng bằng ngưỡng dk×1,15 → TỪ CHỐI (phải VƯỢT)",
+         not _so([dk, _hs("td", kyVong=10.0 * _BV)],
+                 {"g": "dk"}).xet("td", "g").cho)
+    kiem("nhích hơn ngưỡng → LÊN",
+         _so([dk, _hs("td", kyVong=10.0 * _BV + 1e-6)],
+             {"g": "dk"}).xet("td", "g").cho)
+    # Đương kim ÂM: đây là chỗ nhân thẳng lật ngược.
+    dkAm = _hs("dk", kyVong=-10.0)
+    kiem("đương kim ÂM: thách đấu TỆ HƠN vẫn bị TỪ CHỐI (bẫy dấu)",
+         not _so([dkAm, _hs("td", kyVong=-11.0)],
+                 {"g": "dk"}).xet("td", "g").cho)
+    kiem("đương kim ÂM: thách đấu DƯƠNG đủ biên → LÊN",
+         _so([dkAm, _hs("td", kyVong=1.0)], {"g": "dk"}).xet("td", "g").cho)
+
+    # ── cửa 4: đuôi không được tệ hơn ───────────────────────────────
+    dkT = _hs("dk", kyVong=1.0, thua=-10.0)
+    tot = 1.0 * _BV + 1.0
+    kiem("thua lớn nhất ĐÚNG BẰNG 1,15× đương kim → còn LÊN",
+         _so([dkT, _hs("td", kyVong=tot, thua=-10.0 * _DTD2)],
+             {"g": "dk"}).xet("td", "g").cho)
+    px = _so([dkT, _hs("td", kyVong=tot, thua=-10.0 * _DTD2 - 0.01)],
+             {"g": "dk"}).xet("td", "g")
+    kiem("vượt một xu → TỪ CHỐI", not px.cho, px.lyDo)
+    kiem("và nói rõ là vì THUA LỚN NHẤT",
+         any("thua lớn nhất" in x for x in px.lyDo), px.lyDo)
+
+    # đuôi 5%: chốt `td < 0` chặn phần còn lại
+    px = _so([_hs("dk", kyVong=1.0, duoi5=-5.0),
+              _hs("td", kyVong=tot, duoi5=-100.0)],
+             {"g": "dk"}).xet("td", "g")
+    kiem("đuôi 5% xấu hơn hẳn → TỪ CHỐI",
+         not px.cho and any("đuôi 5%" in x for x in px.lyDo), px.lyDo)
+    kiem("đuôi 5% DƯƠNG thì không bị cửa ấy chặn (kẽ đã biết, cố ý)",
+         _so([_hs("dk", kyVong=1.0, duoi5=-5.0),
+              _hs("td", kyVong=tot, duoi5=0.5)],
+             {"g": "dk"}).xet("td", "g").cho)
+
+    # ── mọi lời TỪ CHỐI đều phải có lý do ───────────────────────────
+    svTC = _so([_hs("dk", kyVong=10.0), _hs("td", kyVong=1.0)],
+               {"g": "dk"})
+    px = svTC.xet("td", "g")
+    kiem("từ chối thì LUÔN kèm lý do, không im lặng",
+         not px.cho and px.lyDo, px.lyDo)
+    # `xet` ghi sổ khi NHẬN. Từ chối mà vẫn đổi ngôi là chiến thuật tồi
+    # lên ngôi qua một đường không ai nhìn.
+    kiem("và đương kim KHÔNG bị đổi khi từ chối",
+         svTC.duongKim.get("g") == "dk", svTC.duongKim)
 
 
 def kiem_bien_cua_hoc_offline() -> None:
@@ -1597,8 +1716,8 @@ def kiem_phu_quet_dot_bien() -> None:
         thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
                  if ("--file=kham/" + x) not in vb]
         kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
-    kiem("đã quét ít nhất 17 module lõi",
-         len(DA_QUET_DOT_BIEN) >= 17, len(DA_QUET_DOT_BIEN))
+    kiem("đã quét ít nhất 20 module lõi",
+         len(DA_QUET_DOT_BIEN) >= 20, len(DA_QUET_DOT_BIEN))
 
 
 def kiem_bien_cua_phat_lai() -> None:
@@ -9208,6 +9327,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_vo_dich()
     kiem_bien_cua_hoc_offline()
     kiem_bien_cua_cong_tien_hoa()
     kiem_bien_cua_chan_doan()
