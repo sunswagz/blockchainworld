@@ -1196,6 +1196,16 @@ async def main() -> int:
     check('os.environ["TCT_DATA_DIR"] = str(GOC / "data-hai-chieu")' in _gs53,
           "cờ --lan demo GÁN THẲNG biến, không setdefault — cờ phải thắng "
           "biến kế thừa, đúng chỗ đã ba lần đưa dữ liệu giả vào sổ thật")
+    # TIẾN ĐỘ phải CHẢY RA. stdout đệm khối 8 KB khi chuyển hướng ra file, mà
+    # bảng tiến độ 33 chợ chỉ ~2 KB — nên một lượt chạy 45 phút không in chữ nào
+    # cho tới lúc thoát, và "đang dựng chuỗi chợ thứ 30" nhìn y hệt "đã treo".
+    for _f53, _neo53 in (("dau-chien-luoc.py", "chuỗi {len(chuoi)} điểm"),
+                         ("do-huong.py", "chỉ LONG {_f(tl[")):
+        _s53 = ma_khong_chu_thich(ROOT / "scripts" / _f53)
+        _i53 = _s53.find(_neo53)
+        check(_i53 >= 0 and "flush=True" in _s53[_i53:_i53 + 200],
+              f"{_f53}: dòng tiến độ mỗi chợ có flush=True")
+
     _lnk53 = ma_khong_chu_thich(ROOT / "trader" / "tu_chay.py")
     check("_LAN_LNK" in _lnk53 and "--lan {_LAN_LNK}" in _lnk53,
           "lối tắt tự chạy mang tên VÀ cờ của làn — hai làn không đè .lnk nhau")

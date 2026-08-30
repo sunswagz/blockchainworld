@@ -193,8 +193,12 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
             continue
         moc = int(len(nen[chinh]) * 0.7)
         chuoi, tu_dau = HL.lay_chuoi(nen, sym)
+        # `flush=True`: stdout bị ĐỆM KHỐI khi chuyển hướng ra file (8 KB), mà
+        # cả bảng tiến độ 33 chợ chỉ ~2 KB. Không có nó thì một lượt chạy 45
+        # phút không in ra chữ nào cho tới lúc thoát — người xem không phân biệt
+        # được "đang dựng chuỗi chợ thứ 30" với "đã treo từ đầu".
         print(f"  {ten_cho} (ngữ cảnh {ctx}) · {len(nen[chinh])} nến · "
-              f"chuỗi {len(chuoi)} điểm ({tu_dau})")
+              f"chuỗi {len(chuoi)} điểm ({tu_dau})", flush=True)
         # Quãng THỜI GIAN của chợ này, gom lại để bảng tự khai.
         _t = [x.get("t") for x in nen[chinh] if x.get("t")]
         if _t:

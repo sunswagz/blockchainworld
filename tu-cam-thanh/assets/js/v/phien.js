@@ -7,9 +7,9 @@
        python -m trader.snapshot   ghi một lần rồi thoát
 */
 window.TU_CAM_THANH = {
- "generatedAt": "2026-08-30T00:02:03.585Z",
- "chayTu": "2026-08-29T21:12:23+00:00",
- "vong": 474,
+ "generatedAt": "2026-08-30T01:23:54.201Z",
+ "chayTu": "2026-08-30T00:22:31+00:00",
+ "vong": 171,
  "tamDung": false,
  "san": "testnet",
  "cheDoSan": "testnet",
@@ -19,11 +19,11 @@ window.TU_CAM_THANH = {
   "primary": "4h",
   "context": "1d"
  },
- "gia": 78212.29,
+ "gia": 78059.4,
  "nguon": {
   "name": "data-api.binance.vision",
   "live": true,
-  "lastOk": "07:02:02",
+  "lastOk": "08:23:53",
   "lastError": null
  },
  "cheDo": {
@@ -31,40 +31,40 @@ window.TU_CAM_THANH = {
   "flags": [],
   "quality": "LOW",
   "reasons": [
-   "ADX 21.8 ở vùng lưng chừng, EMA BULLISH_ALIGNED"
+   "ADX 21.7 ở vùng lưng chừng, EMA BULLISH_ALIGNED"
   ],
   "contextTrend": "MIXED",
-  "adx": 21.8,
+  "adx": 21.7,
   "volatility": "NORMAL",
   "key": "UNKNOWN|none"
  },
  "thiTruong": {
   "4h": {
-   "price": 78212.29,
-   "ema20": 78373.479,
-   "ema50": 77064.187,
-   "ema200": 70209.984,
+   "price": 78059.4,
+   "ema20": 78358.918,
+   "ema50": 77058.191,
+   "ema200": 70208.462,
    "emaStack": "BULLISH_ALIGNED",
-   "rsi14": 49.3,
-   "rsiSlope": 1.08,
-   "macdHist": -170.7,
-   "macdHistSlope": 52.867,
-   "atr": 784.20637,
-   "atrPct": 1.003,
-   "atrRatioVsMedian": 0.74,
+   "rsi14": 47.9,
+   "rsiSlope": 0.6,
+   "macdHist": -180.46,
+   "macdHistSlope": 49.615,
+   "atr": 806.81137,
+   "atrPct": 1.034,
+   "atrRatioVsMedian": 0.77,
    "volatility": "NORMAL",
-   "adx": 21.8,
-   "plusDI": 23.0,
+   "adx": 21.7,
+   "plusDI": 22.3,
    "minusDI": 20.3,
-   "bbWidthPct": 4.7651411,
-   "bbPosition": 0.36,
-   "volumeRatio": 0.0,
-   "structure": "DOWNTREND",
+   "bbWidthPct": 4.7906298,
+   "bbPosition": 0.32,
+   "volumeRatio": 0.14,
+   "structure": "TRANSITION",
    "swingHighs": [
+    80000.0,
     81272.62,
     79174.12,
-    81478.87,
-    78330.0
+    81478.87
    ],
    "swingLows": [
     76670.01,
@@ -88,15 +88,15 @@ window.TU_CAM_THANH = {
    ],
    "resistance": [
     {
-     "price": 78330.0,
-     "touches": 1
-    },
-    {
      "price": 78828.15,
      "touches": 1
     },
     {
      "price": 79174.12,
+     "touches": 1
+    },
+    {
+     "price": 79500.0,
      "touches": 1
     }
    ],
@@ -108,29 +108,29 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 76888.0,
-   "distToRange20HighPct": 4.18,
-   "distToRange20LowPct": 1.69
+   "distToRange20HighPct": 4.38,
+   "distToRange20LowPct": 1.5
   },
   "1d": {
-   "price": 78212.29,
-   "ema20": 73619.008,
-   "ema50": 69367.287,
-   "ema200": 73073.658,
+   "price": 78059.41,
+   "ema20": 73604.448,
+   "ema50": 69361.292,
+   "ema200": 73072.136,
    "emaStack": "MIXED",
-   "rsi14": 71.4,
-   "rsiSlope": -3.54,
-   "macdHist": 509.79,
-   "macdHistSlope": -265.567,
-   "atr": 2174.5578,
-   "atrPct": 2.78,
-   "atrRatioVsMedian": 0.97,
+   "rsi14": 70.7,
+   "rsiSlope": -3.77,
+   "macdHist": 500.04,
+   "macdHistSlope": -268.819,
+   "atr": 2197.1628,
+   "atrPct": 2.815,
+   "atrRatioVsMedian": 0.98,
    "volatility": "NORMAL",
    "adx": 42.8,
-   "plusDI": 38.7,
-   "minusDI": 11.8,
-   "bbWidthPct": 39.275497,
-   "bbPosition": 0.73,
-   "volumeRatio": 0.0,
+   "plusDI": 38.3,
+   "minusDI": 11.7,
+   "bbWidthPct": 39.241171,
+   "bbPosition": 0.72,
+   "volumeRatio": 0.02,
    "structure": "UPTREND",
    "swingHighs": [
     65474.46,
@@ -176,20 +176,20 @@ window.TU_CAM_THANH = {
    },
    "range20High": 81478.87,
    "range20Low": 62535.24,
-   "distToRange20HighPct": 4.18,
-   "distToRange20LowPct": 20.04
+   "distToRange20HighPct": 4.38,
+   "distToRange20LowPct": 19.89
   }
  },
  "luanDiem": null,
  "phanQuyet": null,
  "taiKhoan": {
   "vonBanDau": 10000,
-  "von": 9719.05,
-  "vonThucHien": 9719.05,
-  "dinhVon": 9724.67,
-  "laiLoMo": 8.82,
+  "von": 9710.68,
+  "vonThucHien": 9710.68,
+  "dinhVon": 9723.79,
+  "laiLoMo": 0.46,
   "laiLoHomNay": 0.0,
-  "drawdownPct": 0.06,
+  "drawdownPct": 0.13,
   "soLenhDaDong": 46,
   "viThe": [
    {
@@ -228,8 +228,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 1382525,
     "ocoOrderListId": 303090,
     "ocoError": null,
-    "unrealizedPnl": 4.37,
-    "unrealizedR": 0.13
+    "unrealizedPnl": 2.82,
+    "unrealizedR": 0.09
    },
    {
     "id": "t_9fa9a550c3",
@@ -267,8 +267,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 3024893,
     "ocoOrderListId": 304336,
     "ocoError": null,
-    "unrealizedPnl": 2.35,
-    "unrealizedR": 0.09
+    "unrealizedPnl": -0.56,
+    "unrealizedR": -0.02
    },
    {
     "id": "t_ca4aa0c3d2",
@@ -306,8 +306,8 @@ window.TU_CAM_THANH = {
     "entryOrderId": 9772656,
     "ocoOrderListId": 309125,
     "ocoError": null,
-    "unrealizedPnl": 2.1,
-    "unrealizedR": 0.06
+    "unrealizedPnl": -1.8,
+    "unrealizedR": -0.06
    }
   ]
  },
@@ -1235,7 +1235,7 @@ window.TU_CAM_THANH = {
  ],
  "baiHoc": [
   {
-   "soatLai": null,
+   "soatLai": true,
    "at": "2026-08-29T20:10:15+00:00",
    "tradeId": "t_f41ef0b355",
    "symbol": "BTCUSDT",
@@ -1246,18 +1246,19 @@ window.TU_CAM_THANH = {
    "rMultiple": -1.17,
    "exitReason": "STOP_LOSS",
    "strategy": "MOCK_RULES_V1",
-   "regime_appropriate": false,
+   "regime_appropriate": true,
    "entry_valid": true,
    "size_valid": false,
    "stop_placement_valid": true,
    "thesis_was_wrong": true,
    "classification": "BAD_TRADE_BAD_OUTCOME",
-   "lesson": "[luật] Rủi ro 20 lệch 0.4× so với trung bình sổ (51) — R của lệnh này không so được với các lệnh khác. KHÔNG PHẢI LỆNH NÀY XUI: 4/43 lệnh trong sổ cược lệch quá 1,6× so với mức thường. Rủi ro đang bị quyết định bởi khoảng cách stop và trần tiền mua được, không bởi mức rủi ro đã chọn — đó là tật của cách tính kích thước, sửa ở đó chứ không sửa ở tín hiệu vào lệnh. KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|none đã lỗ -46 qua 11 lệnh (8 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
+   "lesson": "[luật] Rủi ro 20 lệch 0.4× so với trung bình sổ (56) — R của lệnh này không so được với các lệnh khác. KHÔNG PHẢI LỆNH NÀY XUI: 5/44 lệnh trong sổ cược lệch quá 1,6× so với mức thường. Rủi ro đang bị quyết định bởi khoảng cách stop và trần tiền mua được, không bởi mức rủi ro đã chọn — đó là tật của cách tính kích thước, sửa ở đó chứ không sửa ở tín hiệu vào lệnh.",
    "change_strategy": true,
-   "confidence_in_lesson": 0.7
+   "confidence_in_lesson": 0.7,
+   "soatLaiLuc": null
   },
   {
-   "soatLai": null,
+   "soatLai": true,
    "at": "2026-08-29T20:10:15+00:00",
    "tradeId": "t_f2c3d12fc2",
    "symbol": "BTCUSDT",
@@ -1268,15 +1269,16 @@ window.TU_CAM_THANH = {
    "rMultiple": -1.18,
    "exitReason": "STOP_LOSS",
    "strategy": "MOCK_RULES_V1",
-   "regime_appropriate": false,
+   "regime_appropriate": true,
    "entry_valid": true,
    "size_valid": true,
    "stop_placement_valid": true,
    "thesis_was_wrong": true,
    "classification": "GOOD_TRADE_BAD_OUTCOME",
-   "lesson": "[luật] KHÔNG PHẢI LỆNH NÀY XUI: chế độ TREND_UP|none đã lỗ -46 qua 11 lệnh (8 thua) — chiến lược này không ăn được trong chế độ đó, hãy ngừng vào lệnh ở đây thay vì chỉnh tham số.",
-   "change_strategy": true,
-   "confidence_in_lesson": 0.6
+   "lesson": "[luật] Dính stop trong biên độ bình thường — một lệnh thua không đồng nghĩa một quyết định sai.",
+   "change_strategy": false,
+   "confidence_in_lesson": 0.3,
+   "soatLaiLuc": null
   },
   {
    "soatLai": true,
@@ -1464,22 +1466,22 @@ window.TU_CAM_THANH = {
   }
  ],
  "theGioi": {
-  "luc": 1788047895.9153678,
+  "luc": 1788052976.8464596,
   "phaiSinh": {
-   "fundingNamHoa": 9.1,
-   "openInterestUsd": 8424053324.202,
-   "oiDoi24hPct": 2.52,
+   "fundingNamHoa": 8.91,
+   "openInterestUsd": 8419533696.58,
+   "oiDoi24hPct": 2.21,
    "topTrader": {
-    "tyLe": 2.0855,
-    "long": 0.6759,
-    "short": 0.3241,
-    "doi12h": 0.028
+    "tyLe": 2.0715,
+    "long": 0.6744,
+    "short": 0.3256,
+    "doi12h": -0.009
    },
    "toanSan": {
-    "tyLe": 1.1906,
-    "long": 0.5435,
-    "short": 0.4565,
-    "doi12h": 0.02
+    "tyLe": 1.1805,
+    "long": 0.5414,
+    "short": 0.4586,
+    "doi12h": 0.009
    },
    "nguon": "Binance Futures"
   },
@@ -1520,17 +1522,17 @@ window.TU_CAM_THANH = {
    "nguon": "Yahoo Finance"
   },
   "tamLy": {
-   "gt": 68,
+   "gt": 69,
    "nhan": "Greed",
    "chuoi": [
-    71,
     66,
     73,
     74,
     65,
     71,
     73,
-    68
+    68,
+    69
    ]
   },
   "tin": [
@@ -1552,7 +1554,7 @@ window.TU_CAM_THANH = {
    },
    {
     "ma": "LAM_PHAT",
-    "soBai": 5,
+    "soBai": 6,
     "bai": [
      {
       "tieuDe": "Fed Chair Kevin Warsh at Jackson Hole: 'We have work to do' on inflation",
@@ -1616,41 +1618,6 @@ window.TU_CAM_THANH = {
  "huanLuyen": null,
  "phatHien": [
   {
-   "ma": "khung-nao-do-noi",
-   "nguon": "do-khung",
-   "mau": 40953,
-   "doTin": "CAO",
-   "khung": null,
-   "cheDo": null,
-   "so": {
-    "theoKhung": {
-     "5m": -21.6,
-     "15m": -12.5,
-     "30m": -10.1,
-     "1h": -6.3,
-     "4h": -3.4,
-     "1d": -1.7
-    },
-    "totNhat": "1d",
-    "teNhat": "5m"
-   },
-   "cau": "Khoảng cách tới hoà vốn ở mục tiêu 2R, đo bằng CÁCH VÀO NGẪU NHIÊN trên 3 coin (40,953 điểm vào): 1d -1.7đ · 4h -3.4đ · 1h -6.3đ · 30m -10.1đ · 15m -12.5đ · 5m -21.6đ. Khung càng dài càng gần hoà vốn. Ở 1d chỉ cần bộ chọn điểm vào thêm 1.7 điểm phần trăm là dương; ở 5m cần thêm 21.6 điểm — khoảng cách đó không điểm vào nào lấp nổi. Đây là TRẦN TRÊN lạc quan (khi mục tiêu và stop cùng nằm trong một nến, phần thắng tính cho mục tiêu), nên thực tế còn thấp hơn. CÁC KHUNG KHÔNG PHỦ CÙNG QUÃNG (5m 42ng · 15m 83ng · 30m 125ng · 1h 250ng · 1d 1499ng · 4h 1500ng), nên bảng này so BỐN NĂM với BỐN MƯƠI "
-  },
-  {
-   "ma": "khung-ngan-chet-vi-phi",
-   "nguon": "do-khung",
-   "mau": 40953,
-   "doTin": "CAO",
-   "khung": null,
-   "cheDo": null,
-   "so": {
-    "khung": [
-     "5m"
-    ]
-   },
-   "cau": "Khung 5m kém hoà vốn tới -22 điểm phần trăm ở 2R. Nguyên nhân là chi phí: phí và trượt giá tính theo % GIÁ nên không đổi, còn biên độ mỗi nến thì nhỏ dần theo khung — cùng một khoản phí ăn phần R ngày càng lớn. Không chiến lược nào bù được chỗ đó."
-  },
-  {
    "ma": "mau-gia-tong",
    "nguon": "mau-gia",
    "mau": 22997,
@@ -1663,6 +1630,24 @@ window.TU_CAM_THANH = {
     "soCho": 15
    },
    "cau": "14 mẫu giá kinh điển đã đem đo trên 135000 nến khung 4h trên 15 chợ độc lập (22997 lần xuất hiện, đã gộp trùng): 13/14 có kỳ vọng ÂM sau phí, dùng đúng điểm vào/stop/mục tiêu mà chính mẫu khai. Mẫu giá ở đây là BỐI CẢNH để đọc, không phải tín hiệu để bấm."
+  },
+  {
+   "ma": "khung-nao-do-noi",
+   "nguon": "do-khung",
+   "mau": 15726,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "theoKhung": {
+     "30m": -10.1,
+     "4h": -3.4,
+     "1d": -1.6
+    },
+    "totNhat": "1d",
+    "teNhat": "30m"
+   },
+   "cau": "Khoảng cách tới hoà vốn ở mục tiêu 2R, đo bằng CÁCH VÀO NGẪU NHIÊN trên 3 coin (15,726 điểm vào): 1d -1.6đ · 4h -3.4đ · 30m -10.1đ. Khung càng dài càng gần hoà vốn. Ở 1d chỉ cần bộ chọn điểm vào thêm 1.6 điểm phần trăm là dương; ở 30m cần thêm 10.1 điểm — khoảng cách đó không điểm vào nào lấp nổi. Đây là TRẦN TRÊN lạc quan (khi mục tiêu và stop cùng nằm trong một nến, phần thắng tính cho mục tiêu), nên thực tế còn thấp hơn. CÁC KHUNG KHÔNG PHỦ CÙNG QUÃNG (30m 125ng · 1d 1499ng · 4h 1500ng), nên bảng này so BỐN NĂM với BỐN MƯƠI NGÀY chứ không chỉ so khung với khung. Dùng nó để LOẠI khung ngắn —"
   },
   {
    "ma": "mau-gia-xau",
@@ -1723,7 +1708,7 @@ window.TU_CAM_THANH = {
   {
    "ma": "bo-pha",
    "nguon": "bo-pha",
-   "mau": 256,
+   "mau": 254,
    "doTin": "CAO",
    "khung": null,
    "cheDo": null,
@@ -1736,7 +1721,7 @@ window.TU_CAM_THANH = {
     ],
     "thua": []
    },
-   "cau": "MOCK_RULES_V1 trên BTCUSDT:4h: gốc -0.070R qua 256 lệnh. TẮT TIẾNG khi phi-x2, phi-x3, lo, bien — không phải thua, mà là không còn lệnh nào qua nổi cửa RR khi chi phí đội lên. Lợi thế (nếu có) nằm GỌN trong giả định chi phí, nên mọi con số dương chỉ đúng chừng nào phí đúng bằng mức đã giả định. "
+   "cau": "MOCK_RULES_V1 trên BTCUSDT:4h: gốc -0.074R qua 254 lệnh. TẮT TIẾNG khi phi-x2, phi-x3, lo, bien — không phải thua, mà là không còn lệnh nào qua nổi cửa RR khi chi phí đội lên. Lợi thế (nếu có) nằm GỌN trong giả định chi phí, nên mọi con số dương chỉ đúng chừng nào phí đúng bằng mức đã giả định. "
   },
   {
    "ma": "bac-bo:1d-song-o-cua-so-khac",
@@ -1819,6 +1804,20 @@ window.TU_CAM_THANH = {
     }
    },
    "cau": "53/85 lệnh chạy lại thoát bằng STOP LOSS (62%), chỉ 26 lệnh chạm mục tiêu. Tỉ lệ này nói vấn đề nằm ở điểm VÀO hoặc ở chỗ đặt stop, không nằm ở mục tiêu."
+  },
+  {
+   "ma": "rui-ro-deu",
+   "nguon": "so-that",
+   "mau": 43,
+   "doTin": "CAO",
+   "khung": null,
+   "cheDo": null,
+   "so": {
+    "riskCv": 0.365,
+    "expectancyUsd": -13.6,
+    "expectancyR": -0.313
+   },
+   "cau": "Rủi ro mỗi lệnh KHÔNG đều (hệ số biến thiên 0.365) qua 43 lệnh thật. Khi rủi ro trôi, R không so sánh được giữa các lệnh — đọc con số TIỀN (kỳ vọng -13.60/lệnh) chứ đừng đọc R (-0.313R). Và 20 lệnh gần nhất vẫn lệch (0.866) — đây là chuyện ĐANG XẢY RA, có một chỗ hỏng phải tìm."
   }
  ]
 };

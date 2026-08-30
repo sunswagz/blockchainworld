@@ -116,8 +116,10 @@ def main() -> int:
         # Chợ không sinh lệnh nào trả `kyVongR` là None — chuyện bình thường với
         # coin ít biến động hoặc bộ lọc chặt. In thẳng None thì nổ format.
         _f = lambda v: f"{v:+.4f}" if v is not None else "   —   "
+        # flush: xem chú thích cùng chỗ trong `dau-chien-luoc.py` — stdout đệm
+        # khối 8 KB khi chuyển hướng ra file, và cả bảng này nhỏ hơn thế.
         print(f"  {ten:16} cả hai {_f(tk['kyVongR'])}/{tk['so']:<4} · "
-              f"chỉ LONG {_f(tl['kyVongR'])}/{tl['so']}")
+              f"chỉ LONG {_f(tl['kyVongR'])}/{tl['so']}", flush=True)
 
     if not theo_cho:
         print("Không chợ nào dùng được.")
