@@ -1172,6 +1172,165 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_dinh_gia() -> None:
+    """Biên của ĐỊNH GIÁ — nơi sinh ra mọi xác suất.
+
+    Bộ quét đột biến: 16 trên 22 con sống sót ở lượt đầu. Ba biên đáng
+    nhất, mỗi cái quyết một chuyện khác nhau:
+
+    · ĐỦ MẪU MỞ KELLY. `tong_mau >= toiThieuMauHieuChinh`. Đúng bằng
+      ngưỡng là ĐỦ — nếu không thì con số trong config không còn là
+      thứ nó tự nhận ("tối thiểu"). Và đây là cửa cho phép nhân một xác
+      suất với vốn thật.
+    · MÔ HÌNH CÓ ĐANG NÓI GÌ KHÔNG. `|p − 0,5| > batDinh`. Bằng nhau là
+      KHÔNG rõ ràng: bất định vừa đúng bằng khoảng cách tới 50% nghĩa
+      là mô hình đang nói "tôi không biết" bằng một con số trông như
+      đang biết.
+    · Ô HIỆU CHỈNH. `lo <= p < hi` — nửa đóng nửa mở. Một điểm rơi vào
+      hai ô là đếm đôi; rơi vào không ô nào là mất mẫu.
+
+    ## Sau khi viết xong: 22 con → 15 CHẾT, 7 TƯƠNG ĐƯƠNG
+
+        193 214 280  guard trên những giá trị mà `them()` đã lọc dương
+                     từ trước, hoặc trên σ đã bị chặn > 0. Không tới
+                     được — và phép kiểm "giá 0 / âm / NaN không lọt
+                     vào lưới σ" chính là thứ chứng minh chuyện đó.
+        367          `if tauThat < tau: phat = san × min(2, (tau −
+                     tauThat)/tau)`. Ở điểm bằng nhau, phạt ra 0 —
+                     đúng bằng nhánh kia.
+        450          `h["n"] and h["lech"] is not None` — `bang()` chỉ
+                     đặt `lech = None` khi `n = 0`, nên trạng thái phân
+                     biệt được hai lối không tồn tại.
+        187 300      hai con còn ngỏ nhưng biên hẹp: một là lệch ĐÚNG
+                     MỘT nến ở mép cửa sổ σ, một là cờ `daMatPhang`
+                     khi p rơi đúng vào `eps` tới từng bit.
+
+    Và một lỗi của chính phép kiểm này, bắt được vì một vế đỏ lên:
+    `du_de_dung_kelly` là PHƯƠNG THỨC, không phải property. Bản đầu
+    quên cặp ngoặc, nên vế "Kelly MỞ" đạt một cách RỖNG — một bound
+    method thì luôn truthy.
+    """
+    print()
+    print("-- Bien cua DINH GIA ---------------------------------------")
+    from kham.dinh_gia import DoBienDong as _DBD
+    from kham.dinh_gia import GiaChuan as _GC2
+    from kham.dinh_gia import HieuChinh as _HC3
+    from kham.dinh_gia import dinh_gia as _dg2
+    from kham.dinh_gia import o_hieu_chinh as _o
+
+    # ── ô hiệu chỉnh: nửa đóng nửa mở, không hở không chồng ───────────
+    kiem("mép DƯỚI thuộc về ô ấy", _o(0.10) == "10-20", _o(0.10))
+    kiem("mép TRÊN thuộc ô SAU", _o(0.20) == "20-30", _o(0.20))
+    kiem("0 rơi vào ô đầu", _o(0.0) == "0-10", _o(0.0))
+    kiem("1,0 rơi vào ô cuối, không rơi ra ngoài", _o(1.0) == "90-100",
+         _o(1.0))
+    _dsO = [_o(x / 1000.0) for x in range(0, 1001)]
+    kiem("mọi p trong [0,1] đều có đúng MỘT ô, không hở",
+         all(x for x in _dsO), None)
+
+    # ── đủ mẫu mở Kelly: ĐÚNG BẰNG ngưỡng là ĐỦ ───────────────────────
+    nguong = int(CONFIG["dinhGia"]["toiThieuMauHieuChinh"])
+    import tempfile as _tf3
+    _d3 = Path(_tf3.mkdtemp())
+    hc = _HC3(duong=_d3 / "hc.json")
+    hc.o = {}
+    for i in range(nguong - 1):
+        hc.them(0.5, i % 2 == 0)
+    # `du_de_dung_kelly` là PHƯƠNG THỨC, không phải property. Quên cặp
+    # ngoặc thì phép kiểm đạt một cách RỖNG — một bound method luôn
+    # truthy. Bản đầu của chính phép kiểm này mắc đúng lỗi ấy, và chỉ
+    # lộ ra vì vế "còn KHOÁ" đỏ lên.
+    kiem("kém ngưỡng một mẫu → Kelly còn KHOÁ",
+         not hc.du_de_dung_kelly(), hc.tong_mau)
+    hc.them(0.5, True)
+    kiem("ĐÚNG BẰNG ngưỡng → Kelly MỞ", hc.du_de_dung_kelly(),
+         hc.tong_mau)
+
+    # ── ô rỗng phải khai là rỗng, không chia cho 0 ────────────────────
+    hc2 = _HC3(duong=_d3 / "hc2.json")
+    hc2.o = {}
+    b = hc2.bang()
+    kiem("sổ rỗng thì mọi ô khai n = 0, không nổ",
+         all(x["n"] == 0 and x["duDoan"] is None for x in b), b[:1])
+
+    # ── mô hình có đang nói gì không ──────────────────────────────────
+    def _gc(p, bd):
+        return _GC2(ma="X", pUp=p, pDown=1.0 - p, batDinh=bd,
+                    batDinhThamSo=bd, ruiRoNhay=0.0, z=0.0,
+                    sigmaGiay=1e-5, tauGiay=100.0, tauDungSan=False,
+                    daMatPhang=False, giaHienTai=1.0, giaMo=1.0,
+                    oHieuChinh=_o(p))
+    # Dùng số biểu diễn ĐÚNG trong nhị phân: `abs(0,60 − 0,50)` ra
+    # 0,09999999999999998 chứ không phải 0,10, nên nó không kiểm biên
+    # mà kiểm số dấu phẩy động. 0,75 và 0,25 thì đúng tới từng bit.
+    kiem("bất định ĐÚNG BẰNG khoảng cách tới 50% → KHÔNG rõ ràng",
+         not _gc(0.75, 0.25).ro_rang)
+    kiem("bất định nhỏ hơn một hạt → RÕ RÀNG",
+         _gc(0.75, 0.249).ro_rang)
+
+    # ── định giá: từ chối thay vì đoán ───────────────────────────────
+    sg = 1.2e-4
+    kiem("giá hiện tại bằng 0 → TỪ CHỐI", _dg2("X", 0.0, 100.0, 60.0, sg)
+         is None)
+    kiem("giá mở bằng 0 → TỪ CHỐI", _dg2("X", 100.0, 0.0, 60.0, sg) is None)
+    kiem("σ bằng 0 → TỪ CHỐI", _dg2("X", 100.0, 100.0, 60.0, 0.0) is None)
+    kiem("σ None → TỪ CHỐI", _dg2("X", 100.0, 100.0, 60.0, None) is None)
+    kiem("τ vô cực → TỪ CHỐI, không tính trên số vô hạn",
+         _dg2("X", 100.0, 100.0, float("inf"), sg) is None)
+
+    # ── sàn τ: ĐÚNG BẰNG sàn thì chưa dùng sàn ───────────────────────
+    san = float(CONFIG["dinhGia"]["sanNenGiay"])
+    g = _dg2("X", 100.0, 100.0, san, sg)
+    kiem("τ ĐÚNG BẰNG sàn → chưa phải đang dùng sàn",
+         g is not None and not g.tauDungSan, g and g.tauDungSan)
+    g = _dg2("X", 100.0, 100.0, san / 2.0, sg)
+    kiem("τ dưới sàn → CÓ dùng sàn, và bất định bị PHẠT thêm",
+         g is not None and g.tauDungSan, g and g.tauDungSan)
+
+    # ── bộ ước σ: giá xấu không được lọt vào lưới ────────────────────
+    bd = _DBD()
+    bd.them(0.0, 1_000_000.0)
+    bd.them(-5.0, 1_000_000.0)
+    bd.them(float("nan"), 1_000_000.0)
+    kiem("giá 0 / âm / NaN không lọt vào lưới σ", not bd._luoi, bd._luoi)
+    bd.them(100.0, 1_000_000.0)
+    kiem("giá tử tế thì vào", len(bd._luoi) == 1, bd._luoi)
+    kiem("chưa đủ nến thì σ là None, không bịa", bd.sigma_giay() is None)
+
+    # ── σ bằng 0 phải là None, KHÔNG phải 0 ──────────────────────────
+    #
+    # Giá đứng yên hoàn toàn cho phương sai 0. Trả về 0 thì mọi chỗ
+    # dùng σ chia cho 0; trả None thì chúng từ chối định giá. Đây là
+    # khác biệt giữa "không biết" và "biết chắc là không dao động".
+    bd2 = _DBD()
+    for i in range(20):
+        bd2.them(100.0, i * 60_000.0)
+    kiem("giá đứng yên hoàn toàn → σ là None, không phải 0",
+         bd2.sigma_giay() is None, bd2.sigma_giay())
+    bd3 = _DBD()
+    for i in range(20):
+        bd3.them(100.0 + (i % 3) * 0.5, i * 60_000.0)
+    _s3 = bd3.sigma_giay()
+    kiem("giá có nhấp nhô → σ dương", _s3 is not None and _s3 > 0, _s3)
+
+    # ── ô CÓ TÊN nhưng n = 0 vẫn phải khai rỗng ──────────────────────
+    hc3 = _HC3(duong=_d3 / "hc3.json")
+    hc3.o = {"0-10": {"n": 0, "tongP": 0.0, "thang": 0}}
+    b3 = hc3.bang()
+    kiem("ô có tên mà n = 0 → khai rỗng, không chia cho 0",
+         b3[0]["n"] == 0 and b3[0]["duDoan"] is None, b3[0])
+    kiem("và sai số trung bình là None khi chưa có mẫu nào",
+         hc3.sai_so_tuyet_doi_tb() is None, hc3.sai_so_tuyet_doi_tb())
+
+    # ── phạt ngoại suy: τ thật ĐÚNG BẰNG τ dùng thì KHÔNG phạt ───────
+    from kham.dinh_gia import _bat_dinh as _bd
+    kiem("τ thật bằng τ dùng → không phạt ngoại suy",
+         gan(_bd(0.5, 1e-4, 100.0, 100.0), _bd(0.5, 1e-4, 100.0, 100.0)))
+    kiem("τ thật NHỎ HƠN → bất định lớn hơn",
+         _bd(0.5, 1e-4, 100.0, 50.0) > _bd(0.5, 1e-4, 100.0, 100.0),
+         (_bd(0.5, 1e-4, 100.0, 50.0), _bd(0.5, 1e-4, 100.0, 100.0)))
+
+
 def kiem_bien_cua_ket_toan() -> None:
     """Biên của KẾT TOÁN — module quyết định AI THẮNG.
 
@@ -6673,6 +6832,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_dinh_gia()
     kiem_bien_cua_ket_toan()
     kiem_bien_cua_cham_moc()
     kiem_bien_cua_ton_kho()
