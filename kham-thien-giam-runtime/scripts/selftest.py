@@ -652,6 +652,32 @@ def kiem_do_thi() -> None:
          "MÔ HÌNH" in (g2.canh_bao_dong_pha() or ""))
     kiem("lệch đồng pha thì không nút nào nổi bật", not g2.noi_bat())
 
+    # ── "PHẦN CÒN LẠI" nghĩa là BỎ CHÍNH NÓ RA ────────────────────────
+    #
+    # `noi_bat` từng trừ đi trung bình có tính CẢ nút đang xét. Chính nút
+    # ấy kéo trung bình về phía mình, nên độ lệch bị co đúng hệ số
+    # (n−1)/n: 0,750 với 4 chợ, 0,667 với 3. Ngưỡng thì cố định, nên với
+    # 4 chợ một khung phải lệch 1,33σ so với phần còn lại mới được báo
+    # là 1,0σ — cả vùng [1,0 · 1,33) bị bỏ sót, LẶNG. Docstring nói
+    # "PHẦN CÒN LẠI" từ đầu; chỉ có phép tính là không làm thế.
+    g3 = DoThi()
+    # ba nút z = 0, một nút z = +1,0 so với chúng. batDinh = 0,01 nên
+    # lech 0,01 là đúng 1σ.
+    for i, ma in enumerate(("ETH_5M", "SOL_5M", "XRP_5M")):
+        g3.dat(Nut(ma, f"t{i}", ma.split("_")[0], 100, 0.50, 0.50, 0.01))
+    g3.dat(Nut("BTC_5M", "t9", "BTC", 100, 0.51, 0.50, 0.01))
+    kiem("z của nút lệch đúng bằng 1,0", gan(g3.nut["BTC_5M"].z, 1.0, 1e-9))
+    nb = g3.noi_bat(1.0)
+    kiem("lệch ĐÚNG 1σ so với PHẦN CÒN LẠI thì ĐƯỢC báo",
+         [n.ma for n in nb] == ["BTC_5M"], [n.ma for n in nb])
+
+    # Một nút duy nhất: "phần còn lại" không tồn tại. Trả rỗng, chứ đừng
+    # trả 0 rồi coi như nó bình thường.
+    g4 = DoThi()
+    g4.dat(Nut("BTC_5M", "u0", "BTC", 100, 0.90, 0.50, 0.01))
+    kiem("một nút duy nhất thì KHÔNG có phần còn lại để so",
+         g4.noi_bat(1.0) == [], [n.ma for n in g4.noi_bat(1.0)])
+
 
 def kiem_vo_dich() -> None:
     print("\n── Champion/Challenger: không có đường tắt ───────────────────")
@@ -5859,9 +5885,28 @@ def kiem_moi_nan_khong_nhin_trom() -> None:
     kiem("và cửa canh mồi đã ĐƯỢC CHẠM (không bị bỏ qua lặng lẽ)",
          p3._daSoatMoi)
 
+    # 3b. khung ĐÚNG BẰNG mốc cuối của mồi ⇒ vẫn TỪ CHỐI.
+    #
+    # Cùng một thời điểm với nến cuối đã dùng để khớp bảng nắn. Cho qua
+    # là mở một khe bằng đúng một khoảnh khắc — và một cửa canh thì nên
+    # nghiêng về phía từ chối, vì khe ấy chỉ làm số đẹp lên chứ không
+    # lộ ra ở đâu.
+    p3b = PhienPhatLai(von=1000.0, thuMucSo=tm, moiHieuChinh=MOI,
+                       moiHetMs=1_500_000_000_000.0)
+    _loi3b = None
+    try:
+        p3b.chay([{"luc": 1_500_000_000_000.0}])
+    except RuntimeError as e:
+        _loi3b = str(e)
+    kiem("khung ĐÚNG BẰNG mốc cuối của mồi ⇒ vẫn TỪ CHỐI",
+         _loi3b is not None and "nhìn trộm" in _loi3b, _loi3b)
+
     # 4. không mồi ⇒ không canh gì, và sổ vẫn rỗng như cũ
     p4 = PhienPhatLai(von=1000.0, thuMucSo=tm)
     kiem("không mồi thì sổ hiệu chỉnh vẫn RỖNG", not p4.hieuChinh.o)
+    p4.chay([{"luc": 2_000_000_000_000.0}])
+    kiem("và KHÔNG mồi thì cửa canh không hề bật",
+         p4._daSoatMoi is False, p4._daSoatMoi)
 
     # 5. `khung_dau_ms` phải bỏ qua khung THIẾU `luc` chứ không trả 0 —
     #    0 nghĩa "không biết", mà chỗ gọi đọc nó thành "không cần canh".

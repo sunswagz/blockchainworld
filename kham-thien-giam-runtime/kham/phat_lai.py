@@ -634,7 +634,13 @@ class PhienPhatLai:
                 # ra ở bất kỳ con số nào — chỉ làm mọi thứ đẹp lên.
                 if self.moiHetMs and not self._daSoatMoi:
                     self._daSoatMoi = True
-                    if luc < self.moiHetMs:
+                    # `<=`, không phải `<`: khung ĐÚNG BẰNG mốc cuối
+                    # của mồi là cùng một thời điểm với nến cuối đã dùng
+                    # để khớp bảng nắn. Cho qua là mở một khe bằng đúng
+                    # một khoảnh khắc, và khe ấy không lộ ra ở con số
+                    # nào — chỉ làm mọi thứ đẹp lên. Cửa canh thì nên
+                    # nghiêng về phía TỪ CHỐI.
+                    if luc <= self.moiHetMs:
                         raise RuntimeError(
                             "mồi hiệu chỉnh kết thúc SAU khung đầu của "
                             f"băng ({self.moiHetMs:.0f} > {luc:.0f}) — "

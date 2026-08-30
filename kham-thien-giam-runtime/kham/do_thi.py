@@ -118,11 +118,34 @@ class DoThi:
         Trừ đi z trung bình trước khi xếp hạng: nếu cả rổ cùng lệch +2 thì
         đó là mô hình đang lệch hệ thống, không phải một cơ hội. Chỉ phần
         lệch RIÊNG của một khung mới đáng gọi là tín hiệu.
+
+        ## "PHẦN CÒN LẠI" nghĩa là BỎ CHÍNH NÓ RA
+
+        Bản trước trừ đi `z_trung_binh()` — trung bình có tính CẢ nút đang
+        xét. Chính nút ấy kéo trung bình về phía mình, nên độ lệch đo được
+        bị co lại đúng hệ số (n−1)/n:
+
+            n = 3 → 0,667      n = 5 → 0,800
+            n = 4 → 0,750      n = 8 → 0,875
+
+        Cung này theo 4–5 chợ, nên mọi điểm nổi bật bị hạ 20–25% trong khi
+        ngưỡng `toiThieuZ` thì cố định. Với 4 chợ, một khung phải lệch
+        1,33σ so với phần còn lại mới được báo là 1,0σ — cả vùng
+        [1,0 · 1,33) bị bỏ sót, LẶNG.
+
+        Docstring nói "PHẦN CÒN LẠI" từ đầu; chỉ có phép tính là không
+        làm thế.
+
+        Một nút DUY NHẤT thì "phần còn lại" không tồn tại — trả rỗng, chứ
+        không phải trả 0 rồi coi như nó bình thường.
         """
-        tb = self.z_trung_binh()
-        if tb is None:
+        zs = [n.z for n in self.nut.values() if n.z is not None]
+        if len(zs) < 2:
             return []
-        ds = [(abs(n.z - tb), n) for n in self.nut.values() if n.z is not None]
+        tong = sum(zs)
+        con = len(zs) - 1
+        ds = [(abs(n.z - (tong - n.z) / con), n)
+              for n in self.nut.values() if n.z is not None]
         ds.sort(key=lambda x: -x[0])
         return [n for d, n in ds if d >= toiThieuZ]
 
