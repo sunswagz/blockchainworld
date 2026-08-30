@@ -508,6 +508,20 @@ code,.mono,.ma{font-family:var(--mono)}
 .vwap-so .tt{display:block;margin-top:var(--k-5);font-size:var(--t-2);line-height:1.45;
   color:var(--fg-3)}
 
+/* Mức thứ TƯ: sổ không đủ hàng. Ba mức trên là ba câu trả lời cho "lợi
+   thế thô bao nhiêu"; mức này là chỗ câu hỏi ấy không có câu trả lời —
+   xem nhánh !dayDu trong veMayVwap.
+
+   Dùng lại đúng quy ước của .o-so .to.mo chứ không bịa kiểu mới: chữ
+   thường thay chữ máy, nhỏ hơn một bậc, gạch đứt dưới chân. Cả cung đã
+   đọc "gạch đứt = đây không phải một số đo" ở lưới lát cắt, nên mắt
+   xuống tới đây không phải học lần thứ hai. Không màu mới, không nấc
+   thang mới: --fg-3 trên --card-2 là 4.86, trên sàn 4.5. */
+.vwap-so .v.mo{display:inline-block;max-width:100%;
+  font-family:inherit;font-size:var(--t-4);font-weight:600;letter-spacing:0;
+  line-height:1.5;color:var(--fg-3);
+  border-bottom:1px dashed var(--card-3);padding-bottom:var(--k-1)}
+
 /* thác trừ năm khoản */
 .thac{margin:0}
 .thac .hang{display:flex;align-items:center;gap:var(--k-10);padding:var(--k-5) 0;

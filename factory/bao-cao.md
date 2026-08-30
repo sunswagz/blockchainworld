@@ -1,11 +1,13 @@
-# Sức khoẻ xưởng — 29/08/2026 03:47Z · lượt 376
+# Báo cáo sức khoẻ xưởng — 30/08/2026 06:07 UTC · lượt 433
 
-**Xưởng đang khoẻ.** Cả 23 node có mặt trong sổ đều `ket: ok` và `chuoiLoi` bằng 0; 21 node vừa chạy gọn trong khoảng 03:11–03:47.
+**Xưởng đang khoẻ.** Cả 26 node có mặt trong sổ đều `ket: ok` và `chuoiLoi: 0` — không node nào ngã, kể cả một lượt.
 
-**Không node nào đáng lo theo hai phép đo.** Không có `chuoiLoi >= 2`, và không node nào trễ quá gấp đôi `nhip`. Sát nhất là `bao-cao` (nhịp 24 giờ, lượt trước 27/08 22:52 — khoảng 29 giờ), vẫn dưới một nhịp rưỡi. Đáng để mắt chứ chưa đáng lo: `tien-hoa-dqt` ngã năm lượt liền từ 23/08 tới 27/08 (cổng chặn trả lại), lượt 29/08 03:30 mới nhận được bản vá nên chuỗi vừa về 0.
+**Đáng lo: không có.** Không node nào `chuoiLoi >= 2`, và không node nào trễ quá gấp đôi `nhip` của nó. Hai node vừa chạm hạn là `tri-thuc` và `tri-thuc-tien-hoa` (26,3 giờ / nhịp 24) — cả hai nằm SAU bước này trong cùng một lượt nên sổ tôi đọc chưa có chúng, không phải chúng đứng. `tien-hoa-xoay` còn ~4 giờ nữa mới tới hạn.
 
-**Chạy đều nhưng nguồn có thể đã đứng:** `hoang-thanh` báo ok lúc 28/08 15:37 mà `lucDoi` vẫn là 14/08 09:16 — mười lăm ngày không đổi nội dung. Node này `che: tay`, `nhip: 0`, nguồn nằm ngoài repo, nên "ok mà không đổi" ở đây chưa chắc là hỏng; chỉ là chỗ duy nhất trong sổ có khoảng cách đó. (`dong-dau` có `lucDoi: null` nhưng đúng thiết kế: bỏ qua khi sha256 trùng bản trước.)
+**Chạy đều mà đầu ra đứng yên:**
+- `hoang-thanh` — lượt 28/08 khai `ok`, nhưng `lucDoi` vẫn là **14/08**: mười sáu ngày mà đầu ra không đổi lấy một lần. Đây là nghi vấn nguồn rõ nhất trong cả sổ, và ghi chú của lượt `tien-hoa-xoay` gần nhất cũng chỉ đúng cung ấy: "hoang-thanh: ngã ở MODEL".
+- `tri-thuc`, `tri-thuc-tien-hoa`, `tien-hoa-xoay` có `lucDoi: null` — từ khi vào sổ chưa lượt nào ghi được thay đổi. Với hai node tri thức thì sổ đăng ký nói đó là hình dạng bình thường (bỏ qua cung không đổi nội dung để khỏi sinh commit rỗng), nên đây là điều cần theo dõi chứ chưa phải hỏng. `dong-dau` cũng `lucDoi: null` nhưng nó khai `ra: []` và tự bỏ qua khi sha256 trùng — trường này không kết luận được gì.
 
-**Một chỗ lệch giữa hai file:** `tri-thuc` và `tri-thuc-tien-hoa` khai `nhip: 24` trong sổ đăng ký nhưng KHÔNG có dòng nào trong `state.json` — không ở bảng `node`, không ở nhật ký `nk`. Bốn node vắng mặt còn lại (`kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh`, `giao-hang`) đều `nhip: 0` nên vắng là đúng.
+**Cần kiểm, không phải báo động:** ba node lát cắt chạy tay — `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh` — không có dòng nào trong `state.json`. Cả ba khai `nhip: 0` nên không có hạn để mà trễ; chỉ là sổ chưa từng ghi lượt nào của chúng.
 
-**Việc nên làm trước:** truy xem `tri-thuc` và `tri-thuc-tien-hoa` có thật sự được gọi không — hai node khai nhịp 24 giờ mà chưa ghi được lượt nào vào sổ.
+**Việc nên làm trước:** chạy `npm run hoangthanh` ở máy có nguồn `sunswagz-hub/08_world_culture_forest` và xem đầu ra có đổi không. Không đổi nữa thì vấn đề nằm ở nguồn ngoài repo chứ không ở node — và đó là chỗ duy nhất trong sổ hôm nay có bằng chứng bằng số cho một câu hỏi thật.

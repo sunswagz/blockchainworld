@@ -1002,7 +1002,10 @@
     tieu = document.getElementById("tieu"),
     ben = document.getElementById("ben");
 
-  function ve() {
+  /* `doiPhong` chỉ bật khi lượt vẽ này đến TỪ MỘT CÚ ĐIỀU HƯỚNG
+     (hashchange), không bật ở lượt vẽ đầu tiên lúc nạp trang — xem cú
+     đưa tiêu điểm ở cuối hàm. */
+  function ve(doiPhong) {
     var h = location.hash || "";
     /* Hash KHÔNG mở đầu bằng "#/" là một CÁI NEO trong trang — đường
        nhảy tới nội dung dùng "#than" — chứ không phải một tuyến. Đổi
@@ -1055,6 +1058,32 @@
 
     if (window.innerWidth <= 940) ben.dataset.mo = "0";
     window.scrollTo(0, 0);
+
+    /* ── Đổi phòng thì ĐƯA TIÊU ĐIỂM THEO ────────────────────────
+       Tuyến hash thay trọn nội dung phòng, nhưng tiêu điểm thì đứng
+       nguyên ở mục vừa bấm trong thanh bên. Với chuột thì không sao —
+       mắt thấy trang đổi. Với bàn phím và trình đọc màn hình thì cú
+       bấm ấy KHÔNG NÓI GÌ: không có gì được đọc lên, và đường duy
+       nhất tới nội dung mới là Tab tiếp qua 7 mục phòng còn lại rồi
+       12 mục cung — đúng khối mà `.bo-qua` ở đầu trang dựng ra để bỏ
+       qua, chỉ khác là lần này người dùng đã đi qua nó rồi nên nó
+       không còn ở phía trước nữa.
+
+       Đưa tiêu điểm vào chính vùng vừa vẽ lại là lời giải cho cả hai
+       vế cùng lúc: trình đọc màn hình đọc tên phòng rồi vào nội dung,
+       còn phím Tab kế tiếp rơi đúng vào thứ đầu tiên bấm được TRONG
+       phòng. Vùng đã có sẵn `tabindex="-1"` — nó là bến của đường
+       nhảy `.bo-qua`, nên đây là dùng lại cái bến đó chứ không dựng
+       thêm bến thứ hai.
+
+       CHỈ khi đổi phòng, KHÔNG ở lượt vẽ đầu: cướp tiêu điểm ngay lúc
+       trang vừa nạp là ném người dùng qua khỏi chính đường nhảy và cả
+       thanh bên, trước khi họ kịp nghe trang này là trang gì.
+
+       `preventScroll` vì `scrollTo` ngay trên đã đưa trang về đầu rồi;
+       để trình duyệt tự cuộn thêm một lần nữa là một cú giật thừa.
+       Trình duyệt cũ bỏ qua tuỳ chọn này chứ không lỗi. */
+    if (doiPhong && than.focus) than.focus({ preventScroll: true });
   }
 
   /* ═══════════════ GẮN ═══════════════ */
@@ -1100,7 +1129,10 @@
     }
 
     dungBen();
-    window.addEventListener("hashchange", ve);
+    /* Bọc trong một hàm chứ không truyền thẳng `ve`: làm listener thì
+       tham số đầu là đối tượng Event, và một Event thì luôn thật —
+       cờ `doiPhong` sẽ bật cả ở những chỗ không ai định bật. */
+    window.addEventListener("hashchange", function () { ve(true); });
     ve();
   }
 

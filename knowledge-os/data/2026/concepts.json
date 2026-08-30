@@ -82,5 +82,17 @@
     "source_ref": "tu-cam-thanh-runtime (Risk Engine phủ quyết) · thai-boc-tu toa t12",
     "observed": "2026-08",
     "tags": ["2026", "ai"]
+  },
+  {
+    "id": "venue_fragmented_depth",
+    "label_en": "Venue-fragmented depth",
+    "label_vi": "Độ sâu phân mảnh theo cảng",
+    "kind": "market_structure",
+    "definition_vi": "Cùng một tài sản có độ sâu khác nhau ở từng cảng và từng cỡ vốn, nên câu «rót vào bao nhiêu mà không đội giá» chỉ trả lời được cho một cặp (cảng, cỡ) chứ không trả lời được cho chính tài sản đó.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "thi-bac-ty-runtime/bac/suc_chua.py · thi-bac-ty phòng bao-gia",
+    "observed": "2026-08",
+    "tags": ["2026", "thanh-khoan"]
   }
 ]

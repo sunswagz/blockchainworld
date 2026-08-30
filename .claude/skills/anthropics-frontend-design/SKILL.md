@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/skills (172.303 sao)
+     Kho    : anthropics/skills (172.502 sao)
      Đường  : skills/frontend-design
      Giấy phép: Complete terms in LICENSE.txt
      Nguồn  : https://raw.githubusercontent.com/anthropics/skills/main/skills/frontend-design/SKILL.md
-     sha256 : 1608ea77fbb6fc30 · nhập 2026-08-29T03:24:40.900Z
+     sha256 : 1608ea77fbb6fc30 · nhập 2026-08-30T05:40:38.761Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

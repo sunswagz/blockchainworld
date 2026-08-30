@@ -179,6 +179,10 @@
     { gia: 0.53, luong: 1000 }
   ];
   var FAIR = 0.55;
+  /* Cả sổ có bao nhiêu cổ — tính ra chứ không chép. Con số 1.680 từng
+     nằm chép tay ở hai chỗ (trần thanh trượt và câu văn dưới máy tính),
+     nên thêm một mức vào SO_MAU là hai chỗ ấy cùng nói sai. */
+  var TONG_SO = SO_MAU.reduce(function (t, m) { return t + m.luong; }, 0);
 
   function tinhVwap(q) {
     var con = q, tien = 0, khop = 0, muc = 0, cham = SO_MAU[0].gia;
@@ -218,7 +222,15 @@
     var dieu = el("div", "vwap-dieu");
     var lab = el("label", null, "Muốn mua: 280 cổ");
     var rng = document.createElement("input");
-    rng.type = "range"; rng.min = "20"; rng.max = "1680"; rng.step = "20"; rng.value = "280";
+    /* Trần thanh trượt phải VƯỢT sổ, không bằng sổ.
+       Trần cũ là 1.680 — đúng bằng TONG_SO — nên `tinhVwap` không bao giờ
+       trả `dayDu:false`, và nhánh "không đủ hàng" ở `cap()` cùng câu văn
+       dài giải thích nó chưa từng vẽ ra một lần nào. Một bài học viết
+       xong rồi khoá lại sau một con số: người kéo hết thanh trượt vẫn
+       tưởng sổ nào cũng khớp hết, mà đó đúng là điều cả phòng này phản
+       bác. 2.400 để quãng thiếu hàng chiếm gần một phần ba đường kéo —
+       đủ rộng để gặp phải, không phải rình ở pixel cuối. */
+    rng.type = "range"; rng.min = "20"; rng.max = "2400"; rng.step = "20"; rng.value = "280";
     dieu.appendChild(lab); dieu.appendChild(rng);
     phai.appendChild(dieu);
 
@@ -264,15 +276,41 @@
       oBest._v.textContent = "46,0¢";
       oVwap._v.textContent = (r.vwap * 100).toFixed(2) + "¢";
       var e = FAIR - r.vwap;
-      oEdge._v.textContent = cent(e);
-      /* Màu nằm ở CSS theo data-muc, không rắc inline nữa: một chỗ đặt
-         màu thì một chỗ đó cũng là chỗ ghi được vì sao có ba mức. */
-      var muc = e > 0.02 ? "day" : (e > 0 ? "mong" : "am");
-      oEdge.dataset.muc = muc;
-      oTt.textContent = muc === "day" ? "dày hơn ngưỡng 2¢"
-        : muc === "mong" ? "mỏng, dưới ngưỡng 2¢"
-        : "âm, không đáng vào";
-      oMuc._v.textContent = r.muc + " mức";
+      if (!r.dayDu) {
+        /* SỔ KHÔNG ĐỦ HÀNG — và ở đây luật 1 hiện ra ở dạng thứ hai của
+           nó. Luật viết là "chưa có số thì đừng vẽ số 0"; cái nó thật sự
+           cấm là vẽ một con số vào chỗ câu trả lời không phải một con số.
+           Đúng chuyện đang xảy ra: khớp hết cả sổ cho ra lợi thế thô
+           +3,64¢, tức ô này khoe "dày hơn ngưỡng 2¢" cho một lệnh KHÔNG
+           đặt được. Lợi thế ăn được của một lệnh không khớp nổi thì không
+           mỏng cũng không âm — nó không tồn tại, và đó là chỗ nguy hơn cả
+           một con số xấu, vì con số xấu ít ra còn cản người ta lại.
+
+           Ba dấu hiệu, không dấu nào là màu (luật 3): chữ thay số, kiểu
+           chữ đổi sang chữ thường có gạch đứt — đúng quy ước "đây không
+           phải một số đo" mà .o-so .to.mo đã dựng cho cả cung — và một
+           dòng nói thẳng thiếu bao nhiêu. data-muc="thieu" cắt luôn cả ba
+           luật màu xanh/hổ phách/đỏ, nên không còn màu nào để đọc nhầm
+           thành một lời khen. */
+        oEdge._v.textContent = "không khớp hết";
+        oEdge._v.className = "v mo";
+        oEdge.dataset.muc = "thieu";
+        oTt.textContent = "cả sổ chỉ có " + TONG_SO.toLocaleString("vi-VN") +
+          " cổ — thiếu " + (q - TONG_SO).toLocaleString("vi-VN") + " cổ";
+      } else {
+        oEdge._v.textContent = cent(e);
+        oEdge._v.className = "v";
+        /* Màu nằm ở CSS theo data-muc, không rắc inline nữa: một chỗ đặt
+           màu thì một chỗ đó cũng là chỗ ghi được vì sao có ba mức. */
+        var muc = e > 0.02 ? "day" : (e > 0 ? "mong" : "am");
+        oEdge.dataset.muc = muc;
+        oTt.textContent = muc === "day" ? "dày hơn ngưỡng 2¢"
+          : muc === "mong" ? "mỏng, dưới ngưỡng 2¢"
+          : "âm, không đáng vào";
+      }
+      /* "Đi qua" đếm mức đã ăn tới, nên khi thiếu hàng nó phải nói là ăn
+         HẾT sổ — "4 mức" một mình đọc ra như một lệnh đã khớp xong. */
+      oMuc._v.textContent = r.dayDu ? (r.muc + " mức") : ("hết " + r.muc + " mức");
       hangs.forEach(function (h) { h.dataset.an = h._gia <= r.cham + 1e-9 ? "1" : "0"; });
       ghi.innerHTML = r.dayDu
         ? ("Mô hình định giá <b>55,0¢</b>. Phép trừ ai cũng làm là " +
@@ -280,7 +318,8 @@
            " cổ là <b>" + (r.vwap * 100).toFixed(2) + "¢</b>, nên lợi thế thô còn <b>" +
            (e * 100).toFixed(2) + "¢</b> — và đó vẫn là <i>trước</i> phí, trượt giá, " +
            "bất định mô hình và biên an toàn.")
-        : ("Cả sổ chỉ có 1.680 cổ. Muốn " + q.toLocaleString("vi-VN") +
+        : ("Cả sổ chỉ có " + TONG_SO.toLocaleString("vi-VN") + " cổ. Muốn " +
+           q.toLocaleString("vi-VN") +
            " cổ thì <b>không đủ hàng</b> — sổ mỏng là một trạng thái có thật, " +
            "và Risk Engine cần thấy nó chứ không phải một con số làm tròn.");
     }

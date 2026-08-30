@@ -189,7 +189,29 @@ code,.mono{font-family:var(--mono)}
        cung dài như "Rừng văn hoá Hoàng Thành" vỡ dòng trên điện thoại. */
 .khoi-dinh{display:flex;align-items:baseline;gap:10px;padding:14px 18px;
   border-bottom:1px solid var(--line-2)}
-.khoi-dinh h2{font-size:var(--co7);flex:1;min-width:0;
+/* ── NẤC GIỮA: h2 phải ĐỨNG TRÊN h3 ────────────────────────
+   h2 từng là --co7, mà MỌI h3 trong cung cũng --co7: .tm h3 ·
+   .vh-o h3 · .tang-dinh h3 · .dc-dinh h3 · .oto-dinh h3 ·
+   .mucd-noi h3 · .chang-noi h3 — bảy chỗ, cùng 14,5px. Tệ hơn,
+   luật gốc `h1,h2,h3` cho 700 còn dòng này hạ h2 xuống 600, nên
+   tiêu đề khối vừa BẰNG CỠ vừa NHẸ HƠN thẻ nằm trong nó.
+
+   Hệ quả là thang chữ của cung chỉ còn HAI nấc thật: 22px cho
+   tên phòng, rồi tất cả còn lại 14,5 trở xuống. Trang "18 máy"
+   bày bốn khối, mỗi khối một lưới thẻ; "Khu tiếp nhận" chìm hẳn
+   vào 18 tên máy quanh nó, và mắt không còn mốc nào để biết một
+   khối bắt đầu ở đâu. Ở Bảng vận hành cũng vậy: "Node" và
+   "Nhật ký lượt chạy" là hai khối khác hẳn nhau về nghĩa mà
+   trông ngang hàng với từng thẻ node.
+
+   --co8 là nấc ĐÃ CÓ (.hieu b, .dinh h1 hẹp, .tang-so), không
+   thêm cỡ mới — thang vẫn mười nấc. Nay ladder đủ ba bậc:
+   22 tên phòng · 16 tiêu đề khối · 14,5 tên thẻ.
+
+   Giữ nguyên 600 và giữ nguyên mono: cỡ đã gánh thứ bậc rồi,
+   còn giọng chữ máy là thứ phân biệt "bảng ghi trên thân máy"
+   với tên thẻ viết bằng chữ thân — xem khối chú thích ngay trên. */
+.khoi-dinh h2{font-size:var(--co8);flex:1;min-width:0;
   font-family:var(--mono);font-weight:600;letter-spacing:.02em;line-height:1.35}
 .khoi-n{font-size:var(--co3);color:var(--fg-3);font-family:var(--mono)}
 

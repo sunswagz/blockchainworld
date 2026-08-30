@@ -1,121 +1,106 @@
 {
-  "generatedAt": "2026-08-29T03:47:28.181Z",
+  "generatedAt": "2026-08-30T06:07:55.755Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
-  "tongDat": 145,
-  "tongThuoc": 156,
+  "tongDat": 198,
+  "tongThuoc": 198,
   "soCung": 12,
-  "truotNhieuNhat": [
-    {
-      "thuoc": "ve",
-      "soCung": 11
-    }
-  ],
+  "truotNhieuNhat": [],
   "cung": [
     {
       "cung": "cong-bo",
-      "dat": 12,
-      "tong": 13,
+      "dat": 17,
+      "tong": 17,
       "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "dai-quan-trac",
-      "dat": 13,
-      "tong": 13,
+      "dat": 17,
+      "tong": 17,
       "khongDo": 0,
-      "truot": []
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "do-sat-vien",
-      "dat": 12,
-      "tong": 13,
+      "dat": 17,
+      "tong": 17,
       "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "ho-bo",
-      "dat": 12,
-      "tong": 13,
-      "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "dat": 16,
+      "tong": 16,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "hoang-thanh",
-      "dat": 12,
-      "tong": 13,
+      "dat": 17,
+      "tong": 17,
       "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "kham-thien-giam",
-      "dat": 12,
-      "tong": 13,
-      "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "dat": 16,
+      "tong": 16,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "kinh-thanh",
-      "dat": 12,
-      "tong": 13,
+      "dat": 17,
+      "tong": 17,
       "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "tang-thu-cac",
-      "dat": 12,
-      "tong": 13,
+      "dat": 17,
+      "tong": 17,
       "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "tao-bien-xu",
-      "dat": 12,
-      "tong": 13,
-      "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "dat": 16,
+      "tong": 16,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "thai-boc-tu",
-      "dat": 12,
-      "tong": 13,
-      "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "dat": 16,
+      "tong": 16,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "thi-bac-ty",
-      "dat": 12,
-      "tong": 13,
-      "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "dat": 16,
+      "tong": 16,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "tu-cam-thanh",
-      "dat": 12,
-      "tong": 13,
-      "khongDo": 0,
-      "truot": [
-        "ve"
-      ]
+      "dat": 16,
+      "tong": 16,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     }
   ]
 }

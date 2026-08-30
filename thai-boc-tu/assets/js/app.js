@@ -947,14 +947,63 @@
      focus on close". */
   var oCu = null;
 
+  /* ═══ TIÊU ĐIỂM PHẢI ĐI THEO NGĂN, CẢ HAI CHIỀU ═══
+     `oCu` ở trên trả tiêu điểm về lúc ĐÓNG, và nửa việc đó viết từ
+     đầu. Nhưng chưa có gì đưa tiêu điểm VÀO lúc mở, nên nửa kia
+     chưa dùng được: bấm Enter trên một toa thì ngăn trượt ra, còn
+     con trỏ bàn phím đứng nguyên trên cái nút vừa bị tấm che phủ
+     lên. Muốn đọc hồ sơ — thứ cả cung tồn tại để bày, và là chỗ
+     duy nhất truy ngược được con số về nhóm nguồn — phải Tab tiếp
+     qua 17 toa còn lại, qua khối tin, qua cả chân trang khai nguồn,
+     vì ngăn nằm cuối <body>. Trình đọc màn hình còn không được báo
+     gì: đổi `aria-hidden` của một khối không chứa tiêu điểm là một
+     chuyện xảy ra hoàn toàn im lặng.
+
+     Chiều ngược lại có sẵn từ đầu và tệ hơn. Ngăn ĐÓNG chỉ bị đẩy
+     ra ngoài màn hình bằng `transform` (xem .hoso trong app.css),
+     nên nút đóng cùng mọi liên kết của hồ sơ vừa xem — cửa sang
+     cung khác, link GitHub — vẫn nằm trong thứ tự Tab. Người dùng
+     bàn phím đang đọc trang bỗng rơi vào một cụm nút VÔ HÌNH, đúng
+     thứ `aria-hidden="true"` trông như đã giấu đi: nó giấu khỏi
+     trình đọc, không gỡ khỏi Tab.
+
+     Không thước nào bắt được cả hai. `tieu-diem` chỉ hỏi CSS có
+     `:focus-visible` không — có, và vẫn có suốt; nó không hỏi tiêu
+     điểm đi đâu, mà ở ngăn này thì viền ấy chưa từng hiện ra lần
+     nào vì chưa từng có gì nhận được tiêu điểm.
+
+     `inert` làm ba việc bằng một thuộc tính: ngoài Tab, không bấm
+     được, trình đọc bỏ qua. Trình duyệt chưa hiểu nó thì rơi về
+     đúng hành vi hôm nay, không hỏng thêm gì.
+
+     Đóng băng cả NỀN khi ngăn mở thì khỏi cần bẫy tiêu điểm viết
+     tay: không còn gì ngoài ngăn để Tab tới. Bẫy viết tay phải tự
+     dò nút đầu/nút cuối trên một thân vừa được vẽ lại và phải bắt
+     đúng Shift+Tab — sai một nhánh là khoá bàn phím người dùng
+     lại, hỏng nặng hơn hẳn cái nó đi sửa. */
+  function nen(tat) {
+    Array.prototype.forEach.call(document.body.children, function (el) {
+      if (el === hoso || el === scrim) return;
+      if (tat) el.setAttribute("inert", "");
+      else el.removeAttribute("inert");
+    });
+  }
+
   function dongHoso() {
     hoso.dataset.open = "0";
     scrim.dataset.open = "0";
     hoso.setAttribute("aria-hidden", "true");
+    hoso.setAttribute("inert", "");
+    /* Thả nền TRƯỚC khi trả tiêu điểm: `oCu` là một nút trong nền,
+       và focus() vào một thẻ còn inert thì không có tác dụng — trả
+       tiêu điểm sẽ hỏng im lặng đúng kiểu đang đi sửa. */
+    nen(false);
     if (oCu && oCu.focus) { try { oCu.focus(); } catch (e) {} }
     oCu = null;
   }
   function moHoso(tren, ten, than) {
+    /* Nhớ chỗ vừa bấm TRƯỚC khi đóng băng nền — một giây sau nó là
+       thẻ inert, và trình duyệt đã bỏ tiêu điểm khỏi nó rồi. */
     oCu = document.activeElement;
     hosoTren.textContent = tren;
     hosoTen.textContent = ten;
@@ -962,7 +1011,15 @@
     hoso.dataset.open = "1";
     scrim.dataset.open = "1";
     hoso.setAttribute("aria-hidden", "false");
+    hoso.removeAttribute("inert");
+    nen(true);
     hosoBody.scrollTop = 0;
+    /* Đưa tiêu điểm vào chính NGĂN, không vào nút đóng: trình đọc
+       màn hình bắt đầu từ đỉnh ngăn nên nó đọc "Toa 05 · Kết sổ"
+       rồi mới tới nội dung. Nhảy thẳng vào nút đóng thì câu đầu
+       tiên người mù nghe được là "Đóng hồ sơ" — đúng ngữ pháp, và
+       không nói được họ vừa mở hồ sơ của cái gì. */
+    hoso.focus();
   }
 
   function dong(dt, dd) {

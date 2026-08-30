@@ -146,8 +146,28 @@
 </div>
 
 <!-- hồ sơ chi tiết: một toa, hoặc một khớp nối -->
+<!-- Ngăn này là một HỘP THOẠI, và bốn thuộc tính dưới đây nói ra
+     đúng điều đó — trước chúng, ngăn chỉ là một khối chữ nằm cuối
+     <body> mà tình cờ bị đẩy ra ngoài màn hình bằng `transform`.
+
+     tabindex="-1"  ngăn không phải nút nên không tự nhận được tiêu
+                    điểm; thiếu dòng này thì `hoso.focus()` trong
+                    moHoso() im lặng không làm gì, và bấm Enter trên
+                    một toa là mở ra một hồ sơ bàn phím không tới nổi.
+     inert          ĐÓNG thì cả cụm ra khỏi thứ tự Tab. `aria-hidden`
+                    ngay bên cạnh chỉ giấu khỏi trình đọc màn hình,
+                    KHÔNG gỡ khỏi Tab — nên nút đóng và mọi liên kết
+                    của hồ sơ vừa xem vẫn đứng chờ trong Tab dù ngăn
+                    đã trượt đi. app.js gỡ/gắn lại thuộc tính này.
+     role+aria-modal  cho trình đọc màn hình biết phần còn lại của
+                    trang đang bị che, khớp với việc app.js đóng băng
+                    nền bằng `inert` khi ngăn mở.
+
+     GIỮ NGUYÊN aria-label và aria-hidden — chúng đã đúng, chỗ thiếu
+     là tiêu điểm chứ không phải nhãn. -->
 <div class="scrim" id="scrim" data-open="0"></div>
-<aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ" aria-hidden="true">
+<aside class="hoso" id="hoso" data-open="0" aria-label="Hồ sơ" aria-hidden="true"
+       role="dialog" aria-modal="true" tabindex="-1" inert>
   <div class="hoso-top">
     <div class="hoso-tren" id="hosoTren"></div>
     <h2 id="hosoTen"></h2>

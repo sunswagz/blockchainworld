@@ -360,6 +360,15 @@ code,.mono{font-family:var(--mono)}
   transform:translateX(101%);transition:transform var(--dur) ease;
   padding-bottom:env(safe-area-inset-bottom)}
 .hoso[data-open="1"]{transform:none}
+/* Ngăn tự nhận tiêu điểm khi mở — xem `moHoso` trong app.js. Nó là
+   một VÙNG, không phải một nút: viền tiêu điểm vòng quanh cả 560px
+   không chỉ ra chỗ nào bấm được, nó chỉ nói "bạn đang ở đây", mà
+   điều đó thì tấm che tối và cả ngăn vừa trượt vào đã nói rồi.
+   Bó vào đúng `.hoso` chứ không nới ra: mọi nút và liên kết BÊN
+   TRONG ngăn giữ nguyên viền của luật :focus-visible chung ở đầu
+   file, và giờ mới thật sự dùng tới nó — trước đây không thẻ nào
+   trong ngăn nhận được tiêu điểm nên viền ấy chưa hiện lần nào. */
+.hoso:focus{outline:none}
 @media (max-width:900px){
   .hoso{left:0;right:0;top:auto;bottom:0;width:auto;height:90dvh;border-left:0;
     border-top:1px solid var(--line);border-radius:15px 15px 0 0;transform:translateY(101%)}

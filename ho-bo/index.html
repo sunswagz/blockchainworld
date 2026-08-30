@@ -77,8 +77,15 @@
 
     <p class="canhbao" id="canhBao" hidden></p>
 
-    <!-- app.js vẽ vào đây theo tuyến hash -->
-    <div id="than" tabindex="-1"></div>
+    <!-- app.js vẽ vào đây theo tuyến hash.
+
+         `role="region"` + `aria-labelledby="tieu"` để vùng này có TÊN, và
+         tên đó là chính <h1> mà app.js ghi lại mỗi lần đổi phòng. Nhờ vậy
+         cú đưa tiêu điểm sau mỗi lần đổi phòng (xem cuối `ve()` trong
+         app.js) mở màn bằng đúng một tiếng "Kho Bạc" thay vì đọc thẳng
+         vào giữa một bảng số. Không phải chép tên ra đây: chép là tạo bản
+         sao thứ hai của cùng một sự thật, và nó lệch ngay phòng thứ hai. -->
+    <div id="than" tabindex="-1" role="region" aria-labelledby="tieu"></div>
 
     <footer class="chan">
       <p><b>Nguồn:</b> DefiLlama — TVL theo chuỗi và giao thức, phí, doanh thu, khối lượng DEX,

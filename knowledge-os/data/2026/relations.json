@@ -142,5 +142,14 @@
     "source_type": "repo",
     "source_ref": "tu-cam-thanh-runtime (Risk Engine phủ quyết)",
     "confidence": "medium"
+  },
+  {
+    "from": "venue_fragmented_depth",
+    "relation": "extends",
+    "to": "salability",
+    "reason_vi": "Sách 2018 xếp tính thanh khoản thành ba trục — quy mô, không gian, thời gian — và coi nó là thuộc tính của chính đồng tiền. Từ đó tới nay chỗ trao đổi vỡ thành hàng chục cảng, và khi phải biến trục QUY MÔ thành một con số để rót vốn thì nó thôi là thuộc tính của tài sản: bốn cảng báo bốn giá cho cùng một rủi ro, vị thế hai chân bị chân MỎNG hơn chặn (`min` chứ không phải trung bình), và độ sâu thật thì không cảng nào công bố — `suc_chua.py` phải lấy 0,05% open interest làm thay và khai `do-sau-so-lenh` là thiếu ở MỌI lần ước lượng, không ngoại lệ. Đây là extends chứ không phải challenges: trục quy mô của sách vẫn đúng, nhưng 2026 cho thấy nó chỉ có nghĩa khi đi kèm một cảng và một cỡ vốn, và trong ba trục thì đúng nó là trục chưa đo được bằng dữ liệu công khai.",
+    "source_type": "repo",
+    "source_ref": "thi-bac-ty-runtime/bac/suc_chua.py · thi-bac-ty phòng trung-uong",
+    "confidence": "high"
   }
 ]
