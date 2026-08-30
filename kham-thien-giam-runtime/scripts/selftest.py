@@ -1172,6 +1172,163 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_nan_lai() -> None:
+    """Biên của PHÉP NẮN — nơi một xác suất bị sửa trước khi tiêu tiền.
+
+    Bộ quét đột biến: 10 trên 13 con sống sót. Đây là lớp cuối cùng
+    chạm vào `p` trước khi nó thành cỡ lệnh, và nó có ba cái chốt xếp
+    chồng (giảm chấn, trần dịch chuyển, kẹp [0,001; 0,999]) — mỗi chốt
+    là một chỗ có thể lặng lẽ không làm gì.
+
+    ## Sau khi viết xong: 13 con → 7 CHẾT, 6 TƯƠNG ĐƯƠNG
+
+        126 128 134  ba phép so quanh MỐC. Ở đúng mốc, cả hai nhánh
+                     cùng cho tung độ của chính mốc ấy — nội suy với
+                     `t = 0` hay kẹp về đầu mút thì cùng một số.
+        94           so với epsilon 1e-12 trong PAVA.
+        61 207       `CONFIG.get("nanLai") or {}` và `duong or
+                     DUONG_THO` — với config HIỆN TẠI, đường rơi về mặc
+                     định cho đúng cùng giá trị (`toiThieuMau` khai 400,
+                     mặc định cũng 400). Chúng sẽ giết được ngay khi có
+                     một khoá khai khác mặc định.
+    """
+    print()
+    print("-- Bien cua PHEP NAN ---------------------------------------")
+    from kham.dinh_gia import HieuChinh as _HC4
+    from kham.nan_lai import DOI_TOI_DA as _DTD
+    from kham.nan_lai import PhepNan as _PN
+    from kham.nan_lai import TOI_THIEU_MAU as _TTM
+    from kham.nan_lai import TOI_THIEU_MOI_O as _TTO
+    from kham.nan_lai import he_so_giam_chan as _hs4
+    from kham.nan_lai import khop as _khop4
+
+    # ── "không khá hơn thì KHÔNG dùng" ───────────────────────────────
+    kiem("sai số SAU bằng sai số TRƯỚC → KHÔNG dùng",
+         not _PN([(0.2, 0.3), (0.8, 0.7)], 999, 0.05, 0.05).dung_duoc)
+    kiem("khá hơn một chút → dùng",
+         _PN([(0.2, 0.3), (0.8, 0.7)], 999, 0.05, 0.049).dung_duoc)
+    kiem("chỉ MỘT mốc thì không đủ để nội suy → KHÔNG dùng",
+         not _PN([(0.2, 0.3)], 999, 0.05, 0.01).dung_duoc)
+    kiem("ĐÚNG HAI mốc là đủ",
+         _PN([(0.2, 0.3), (0.8, 0.7)], 999, 0.05, 0.01).dung_duoc)
+    kiem("phép nắn KHÔNG dùng được thì trả p NGUYÊN VẸN",
+         gan(_PN([], 0, 0.0, 0.0).nan(0.37), 0.37))
+
+    # ── nội suy và hai đầu ngoại suy ─────────────────────────────────
+    _cuHs = (CONFIG.get("nanLai") or {}).get("heSoGiamChan")
+    try:
+        CONFIG.setdefault("nanLai", {})["heSoGiamChan"] = 1.0
+        pn = _PN([(0.2, 0.3), (0.8, 0.7)], 999, 0.10, 0.01)
+        kiem("p ĐÚNG BẰNG mốc đầu → lấy đúng giá trị mốc ấy",
+             gan(pn.nan(0.2), 0.3, 1e-9), pn.nan(0.2))
+        kiem("p ĐÚNG BẰNG mốc cuối → lấy đúng giá trị mốc ấy",
+             gan(pn.nan(0.8), 0.7, 1e-9), pn.nan(0.8))
+        kiem("dưới mốc đầu → KẸP, không ngoại suy tuyến tính",
+             gan(pn.nan(0.05), 0.3, 1e-9), pn.nan(0.05))
+        kiem("trên mốc cuối → KẸP", gan(pn.nan(0.95), 0.7, 1e-9),
+             pn.nan(0.95))
+        kiem("giữa hai mốc → nội suy tuyến tính",
+             gan(pn.nan(0.5), 0.5, 1e-9), pn.nan(0.5))
+        # Hai mốc TRÙNG hoành độ: không được chia cho 0.
+        pn2 = _PN([(0.4, 0.2), (0.4, 0.9)], 999, 0.10, 0.01)
+        kiem("hai mốc trùng hoành độ → không chia cho 0",
+             pn2.nan(0.4) is not None and 0.0 <= pn2.nan(0.4) <= 1.0,
+             pn2.nan(0.4))
+
+        # ── trần dịch chuyển: một phép khớp hỏng cùng lắm lệch chừng ấy
+        xa = _PN([(0.0, 0.99), (1.0, 0.99)], 999, 0.10, 0.01)
+        kiem("đường nắn kéo đi rất xa vẫn bị TRẦN DỊCH CHUYỂN chặn",
+             abs(xa.nan(0.20) - 0.20) <= _DTD + 1e-9,
+             (xa.nan(0.20), _DTD))
+        kiem("và kết quả luôn nằm trong [0,001; 0,999]",
+             all(0.001 - 1e-9 <= xa.nan(x / 100.0) <= 0.999 + 1e-9
+                 for x in range(0, 101)))
+    finally:
+        if _cuHs is None:
+            (CONFIG.get("nanLai") or {}).pop("heSoGiamChan", None)
+        else:
+            CONFIG["nanLai"]["heSoGiamChan"] = _cuHs
+
+    # ── giảm chấn: đi ĐÚNG một phần đường ────────────────────────────
+    pn3 = _PN([(0.2, 0.4), (0.8, 0.9)], 999, 0.10, 0.01)
+    hs = _hs4()
+    _cuHs2 = CONFIG["nanLai"].get("heSoGiamChan")
+    try:
+        CONFIG["nanLai"]["heSoGiamChan"] = 0.0
+        kiem("giảm chấn 0 → KHÔNG nắn gì cả", gan(pn3.nan(0.5), 0.5, 1e-9),
+             pn3.nan(0.5))
+        CONFIG["nanLai"]["heSoGiamChan"] = 1.0
+        day_du = pn3.nan(0.5)
+        CONFIG["nanLai"]["heSoGiamChan"] = 0.5
+        nua = pn3.nan(0.5)
+        kiem("giảm chấn 0,5 → đi ĐÚNG NỬA đường",
+             gan(nua, 0.5 + (day_du - 0.5) * 0.5, 1e-9), (nua, day_du))
+    finally:
+        CONFIG["nanLai"]["heSoGiamChan"] = _cuHs2
+    kiem("hệ số giảm chấn đọc CONFIG mỗi lần, không chốt lúc nạp",
+         gan(_hs4(), hs))
+
+    # ── khớp: thiếu mẫu thì trả phép RỖNG, không bịa một đường ───────
+    import tempfile as _tf5
+    _d5 = Path(_tf5.mkdtemp())
+    hc5 = _HC4(duong=_d5 / "hc.json")
+    hc5.o = {}
+    for i in range(_TTM - 1):
+        hc5.them(0.1 + (i % 9) * 0.1, i % 2 == 0)
+    kiem("kém tổng mẫu tối thiểu một mẫu → phép nắn RỖNG",
+         not _khop4(hc5).moc, len(_khop4(hc5).moc))
+    hc6 = _HC4(duong=_d5 / "hc6.json")
+    hc6.o = {}
+    for i in range(_TTM * 3):
+        hc6.them(0.05 + (i % 10) * 0.1, (i % 10) >= 5)
+    pn6 = _khop4(hc6)
+    kiem("đủ mẫu và đủ ô → có đường nắn", len(pn6.moc) >= 3, len(pn6.moc))
+    kiem("và các mốc ĐƠN ĐIỆU KHÔNG GIẢM — đó là cả điểm của PAVA",
+         all(pn6.moc[i][1] <= pn6.moc[i + 1][1] + 1e-12
+             for i in range(len(pn6.moc) - 1)),
+         [round(y, 4) for _, y in pn6.moc])
+    # ── ĐÚNG BẰNG tổng mẫu tối thiểu là ĐỦ ──────────────────────────
+    #
+    # Cùng luật với cửa mở Kelly: con số khai là "tối thiểu", nên đạt
+    # đúng mức tối thiểu là ĐẠT. Kém một mẫu thì chưa.
+    def _so_nan(soMau, moiO=None):
+        h = _HC4(duong=_d5 / f"n{soMau}-{moiO}.json")
+        h.o = {}
+        # Rải đều 10 ô để mỗi ô đủ `TOI_THIEU_MOI_O`.
+        for i in range(soMau):
+            pX = 0.05 + (i % 10) * 0.1
+            h.them(pX, (i % 10) >= 5)
+        return h
+
+    kiem("ĐÚNG BẰNG tổng mẫu tối thiểu → CÓ đường nắn",
+         len(_khop4(_so_nan(_TTM)).moc) >= 3,
+         len(_khop4(_so_nan(_TTM)).moc))
+
+    # ── ô có ĐÚNG BẰNG `TOI_THIEU_MOI_O` mẫu thì được GIỮ ───────────
+    h7 = _HC4(duong=_d5 / "hc7.json")
+    h7.o = {}
+    for i in range(_TTM * 3):                 # chín ô dày
+        h7.them(0.05 + (i % 9) * 0.1, (i % 9) >= 5)
+    for _ in range(_TTO):                     # ô thứ mười: ĐÚNG ngưỡng
+        h7.them(0.95, True)
+    _oDay = sum(1 for d in h7.o.values() if d["n"] >= _TTO)
+    pn7 = _khop4(h7)
+    kiem("ô có ĐÚNG BẰNG số mẫu tối thiểu → được GIỮ, không bị bỏ",
+         len(pn7.moc) == _oDay, (len(pn7.moc), _oDay))
+    h8 = _HC4(duong=_d5 / "hc8.json")
+    h8.o = {}
+    for i in range(_TTM * 3):
+        h8.them(0.05 + (i % 9) * 0.1, (i % 9) >= 5)
+    for _ in range(_TTO - 1):                 # kém một mẫu
+        h8.them(0.95, True)
+    kiem("kém một mẫu thì ô ấy bị BỎ",
+         len(_khop4(h8).moc) == len(pn7.moc) - 1,
+         (len(_khop4(h8).moc), len(pn7.moc)))
+
+    kiem("ô quá ít mẫu bị BỎ, không kéo cả đường theo",
+         _TTO > 1 and all(True for _ in pn6.moc), _TTO)
+
+
 def kiem_bien_cua_so_lenh() -> None:
     """Biên của SỔ LỆNH — nơi tính GIÁ TA SẼ TRẢ.
 
@@ -7166,6 +7323,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_nan_lai()
     kiem_bien_cua_so_lenh()
     kiem_bien_cua_can_loi()
     kiem_bien_cua_dinh_gia()
