@@ -1252,6 +1252,17 @@ async def main() -> int:
     check("phan_quyet(cha_tk, thu_tk, nc, nl)" in _src54,
           "và truyền nó vào cửa duyệt")
 
+    # BẢNG ĐẤU phải tự khai CỬA SỔ SỚM. Không có nó thì trục gãy chỉ nhìn thấy
+    # được bằng một lượt đo đặc biệt, mà lượt đặc biệt là lượt không ai chạy.
+    _dc54 = ma_khong_chu_thich(ROOT / "scripts" / "dau-chien-luoc.py")
+    check('tk["cuaSoSom"]' in _dc54 and '"cuaSoSom": v[c].get("cuaSoSom")' in _dc54,
+          "bảng đấu đo VÀ ghi cửa sổ sớm vào kho")
+    check("tu_nen=int(_n * 0.4), den_nen=moc" in _dc54,
+          "cửa sổ sớm cắt theo CHỈ SỐ NẾN trên cùng chuỗi — không cắt file nến, "
+          "nếu không vân tay đổi và 33 chuỗi phải dựng lại mất 40 phút")
+    check("CỬA SỔ SỚM" in _dc54,
+          "và in ra bảng, không chỉ nằm trong file JSON")
+
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
     # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:

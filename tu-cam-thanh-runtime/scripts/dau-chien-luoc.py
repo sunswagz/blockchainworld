@@ -76,6 +76,23 @@ def _chay_factory(nen, chuoi, moc, symbol):
                                tham={**th, "cheDoVao": ["TREND_UP"]},
                                tu_nen=moc, bo_qua_kill=True)["thongKe"]
         tk["chiLong"] = {"kyVongR": chi_long["kyVongR"], "so": chi_long["so"]}
+        # CỬA SỔ SỚM. Đo được 30/08: cùng 33 chợ, chỉ đổi cửa sổ thì
+        # MOCK_KEO_LUI_V1 đi từ +0,205R sang −0,254R và champion từ +0,160R sang
+        # −0,075R — đổi DẤU, khoảng tin không chứa 0. Còn đổi CHỢ thì kết quả
+        # giữ nguyên. Nên trục gãy là THỜI GIAN, và bảng này chỉ nhìn trục kia.
+        #
+        # Rẻ gần như miễn phí: cùng CHUỖI, chỉ cắt theo chỉ số nến. Lượt đo hôm
+        # 30/08 phải cắt hẳn file nến (`--truoc`) nên vân tay đổi và 33 chuỗi
+        # phải dựng lại mất 40 phút; ở đây không cần.
+        #
+        # [0,4; 0,7) nằm TRONG đoạn dùng để dò tham số, nên với một biến thể đã
+        # tinh chỉnh nó KHÔNG phải ngoài mẫu. Với các bộ luật cố định ở bảng này
+        # thì không có gì được tinh chỉnh trên đó, nên nó là một cửa sổ thứ hai
+        # đọc được. Ghi rõ để lượt sau không đọc nó rộng hơn thực tế.
+        _n = len(nen[CONFIG["timeframes"]["primary"]])
+        som = HL.chay_lai(nen, symbol=symbol, chuoi=chuoi, bo_luat=ma, tham=th,
+                          tu_nen=int(_n * 0.4), den_nen=moc, bo_qua_kill=True)["thongKe"]
+        tk["cuaSoSom"] = {"kyVongR": som["kyVongR"], "so": som["so"]}
         return tk
     return chay
 
@@ -229,6 +246,22 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
             dong += f"{tk['kyVongR']:>+13.3f}/{tk['so']:<6}"
         print(f"{ma:20}{dong}{f'{duong}/{len(cot)}':>16}")
     print()
+    print(f"{'CỬA SỔ SỚM [0,4;0,7)':20}" + "".join(f"{'—':>20}" for _ in cot)
+          + f"{'gộp':>16}")
+    for ma, v in bang.items():
+        dong, ds = "", []
+        for c in cot:
+            cs = (v.get(c) or {}).get("cuaSoSom") or {}
+            if cs.get("kyVongR") is None or not cs.get("so"):
+                dong += f"{'—':>20}"
+                continue
+            ds.append((cs["kyVongR"], cs["so"]))
+            dong += f"{cs['kyVongR']:>+13.3f}/{cs['so']:<6}"
+        _n2 = sum(n for _, n in ds)
+        _g2 = f"{sum(r * n for r, n in ds) / _n2:+.3f}" if _n2 else "—"
+        print(f"{ma:20}{dong}{_g2:>16}")
+
+    print()
     print(f"{'nửa CHẠY ĐƯỢC (chỉ LONG)':20}" + "".join(
         f"{'—':>20}" for _ in cot) + f"{'gộp':>16}")
     for ma, v in bang.items():
@@ -247,6 +280,11 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
     print("Mỗi ô: kỳ vọng R ngoài mẫu / số lệnh ngoài mẫu.")
     print("Một bộ luật chỉ đáng tin khi DƯƠNG ở nhiều chợ — dương ở đúng một chợ")
     print("là dấu hiệu khớp với lịch sử của riêng chợ đó.")
+    print()
+    print("Nhưng nhiều CHỢ là bằng chứng YẾU: 48 chợ chia chung một quãng thị")
+    print("trường. Đo 30/08, cùng 33 chợ, chỉ đổi cửa sổ: keo-lui +0,205R →")
+    print("−0,254R, champion +0,160R → −0,075R. Đọc hàng CỬA SỔ SỚM trước khi")
+    print("tin hàng gộp.")
 
     # Ghi ra đĩa để lò chưng cất đọc được. Không ghi thì bảng này chỉ tồn tại
     # trong terminal của lượt chạy đó — đúng chỗ đứt mà cả hệ đã sửa một lần.
@@ -306,7 +344,9 @@ def dau_nhieu_cho(cho: list[str], ma_ds: list[tuple]) -> None:
                          "tyLeThang": v[c].get("tyLeThang"),
                          "khopTroi": v[c].get("khopTroi"),
                          # nửa bot THẬT SỰ đánh được trên sàn spot
-                         "chiLong": v[c].get("chiLong")}
+                         "chiLong": v[c].get("chiLong"),
+                         # cửa sổ thứ hai — trục mà kết quả đã đổi DẤU
+                         "cuaSoSom": v[c].get("cuaSoSom")}
                      for c in cot if c in v}
                 for ma, v in bang.items()},
     }, ensure_ascii=False, indent=1), encoding="utf-8")
