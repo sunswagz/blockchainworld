@@ -93,7 +93,20 @@ NUT_VAN: list[NutVan] = [
     #
     # Nới MÉP chứ không đặt GIÁ TRỊ: quyền quyết vẫn ở cổng tiến hoá với
     # ba tập và biên đa so sánh của nó. Tôi gỡ cái lồng, cổng chọn số.
-    NutVan("dinhGia.bienDongCuaSoGiay", 60, 3600, 300,
+        # Mép dưới 60 → 300 ngày 30/08/2026, vì LƯỚI chứ không vì dữ liệu.
+    #
+    # Với [60, 3600] bước 300 thì lưới là 60, 360, 660, 960 … — và trị
+    # đang dùng 900 KHÔNG nằm trên đó. Hệ quả im lặng: cổng tiến hoá
+    # không bao giờ đề xuất được 900, `kep()` kéo 900 về 960, nên một
+    # khi máy rời khỏi 900 thì nó không có đường quay lại. Con số 900 ấy
+    # là con số ĐÃ ĐO (`//bienDongCuaSoGiay` trong config.json ghi cả
+    # bằng chứng), nên để nó nằm ngoài lưới là vứt bỏ kết quả đo.
+    #
+    # Mép dưới 300 thay vì 60 cũng có bằng chứng: quét cả trục cho 360
+    # TỆ HƠN có ý nghĩa ([+0,001358, +0,003083] so với 900), tức vùng
+    # dưới 300 giây đã đo là xấu. Lưới mới 300, 600, 900 … 3600 chứa cả
+    # trị đang dùng lẫn mép trên.
+NutVan("dinhGia.bienDongCuaSoGiay", 300, 3600, 300,
            "cửa sổ ước lượng σ; ngắn thì nhạy, dài thì mượt"),
     NutVan("dinhGia.batDinhToiThieu", 0.005, 0.050, 0.005,
            "sàn bất định; cao là bảo thủ hơn"),
@@ -215,6 +228,50 @@ class TrieuChung:
     def tom_tat(self) -> dict:
         return {"ma": self.ma, "nang": self.nang, "moTa": self.mo_ta,
                 "bangChung": self.bangChung, "nutGoiY": self.nutGoiY}
+
+
+def truc_nut(n, bo: float | None = None) -> list[float]:
+    """Mọi trị cần thử của một nút. MỘT bản, dùng chung.
+
+    ## Vì sao phải có hàm này
+
+    Bốn chỗ tự dựng trục theo cùng một vòng `while v <= cao: v += buoc`:
+    `hoc_offline.mot_luot_mo_hinh`, `do-mot-nut.py`,
+    `tien-hoa-mo-hinh.py`, `tu-nang-cap.py`. Bốn bản sao của một công
+    thức là bốn chỗ để chúng lệch nhau, và lệch ở đây thì im lặng.
+
+    ## Và nó VÁ một lỗi thật
+
+    `dinhGia.bienDongCuaSoGiay` khai dải [60, 3600] bước 300. Đi từ 60
+    theo bước 300 thì được 60, 360, …, 3360 — rồi 3660 vượt trần nên
+    dừng. **Mép trên 3600 KHÔNG BAO GIỜ được thử.** Dải khai một đằng,
+    trục chạy một nẻo, và không có gì kêu.
+
+    Nặng hơn con số: `nut_o_mep()` cảnh báo khi trị đang dùng nằm ĐÚNG
+    ở mép. Với trục dừng ở 3360, nút có thể đứng mãi ở 3360 mà không
+    bao giờ bị coi là "ở mép" — cái trần vẫn quyết định kết quả, chỉ là
+    nó không còn hiện ra nữa. Cùng họ với chuyện đã cắn: mép trên bằng
+    đúng trị đang dùng, nên mọi lượt tiến hoá đều kết luận "giữ nguyên",
+    nghe như dữ liệu đã nói.
+
+    Nên: luôn KẸP THÊM `cao` vào cuối nếu bước không chia hết dải.
+
+    `bo` là trị cần loại (thường là đương nhiệm) — loại ở đây chứ không
+    để mỗi chỗ gọi tự nhớ.
+    """
+    thap, cao, buoc = float(n.thap), float(n.cao), float(n.buoc)
+    if buoc <= 0:
+        return [thap] if bo is None or abs(thap - bo) > 1e-12 else []
+    ra: list[float] = []
+    v = thap
+    while v <= cao + 1e-9:
+        ra.append(round(v, 6))
+        v += buoc
+    if not ra or abs(ra[-1] - cao) > 1e-9:
+        ra.append(round(cao, 6))
+    if bo is not None:
+        ra = [x for x in ra if abs(x - float(bo)) > 1e-12]
+    return ra
 
 
 def nut_o_mep() -> list[dict]:

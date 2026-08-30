@@ -63,7 +63,8 @@ CO = tham_so.doc({
     "gia-tri": "danh sách trị cần thử, cách nhau bởi dấu phẩy",
 }, ten='do-mot-nut.py')
 
-from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so  # noqa: E402
+from kham.chan_doan import (NUT_THEO_DUONG, doc_tham_so,  # noqa: E402
+                            truc_nut)
 from kham.config import CONFIG  # noqa: E402
 from kham.hoc_offline import khoang_tin_theo_khoi  # noqa: E402
 from kham.ket_qua import thi_truong_doi_chieu_duoc  # noqa: E402
@@ -87,11 +88,10 @@ def _truc(nut) -> list[float]:
     tay = CO.lay("gia-tri", "")
     if tay:
         return [float(x) for x in tay.split(",") if x.strip()]
-    ra = []
-    v = float(nut.thap)
-    while v <= float(nut.cao) + 1e-9:
-        ra.append(round(v, 6))
-        v += float(nut.buoc)
+    # Bản DÙNG CHUNG — nó kẹp thêm mép trên khi bước không chia hết
+    # dải. Tự dựng lại ở đây thì `--nut=dinhGia.bienDongCuaSoGiay` quét
+    # tới 3360 rồi dừng, trong khi dải khai là [60, 3600].
+    ra = truc_nut(nut)
     # Trục quá dày thì mỗi lượt chấm là một lượt quét băng — giữ ~9 mốc,
     # đủ thấy HÌNH DẠNG mà không phải chờ nửa tiếng.
     if len(ra) > 9:

@@ -31,7 +31,7 @@ import random
 import statistics
 import time
 
-from .chan_doan import NUT_THEO_DUONG, doc_tham_so
+from .chan_doan import NUT_THEO_DUONG, doc_tham_so, truc_nut
 from .config import CONFIG, DATA_DIR
 from .dinh_gia import DoBienDong, HieuChinh, dinh_gia
 from . import nan_lai
@@ -479,11 +479,11 @@ def mot_luot_mo_hinh(soNgay: int = 10, ma: str = "BTC_5M",
         n = NUT_THEO_DUONG.get(duong)
         if n is None:
             continue
-        v = float(n.thap)
-        while v <= n.cao + 1e-9:
-            if abs(v - hienTai[duong]) > 1e-12:
-                ungVien.append((duong, round(v, 6)))
-            v += n.buoc
+        # `truc_nut` là bản DÙNG CHUNG: nó kẹp thêm mép trên khi bước
+        # không chia hết dải, và loại đương nhiệm. Bốn chỗ từng tự dựng
+        # trục, và hai nút có mép trên không bao giờ được thử vì thế.
+        for v in truc_nut(n, bo=hienTai[duong]):
+            ungVien.append((duong, v))
 
     tot = None
     for duong, v in ungVien:

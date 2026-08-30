@@ -1144,7 +1144,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    1472 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1577 phép kiểm số học, KHÔNG cần mạng
     python scripts/quet-dot-bien.py --file=kham/phat_lai.py  30 con: 16 chết, 14 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chan_rui_ro.py 12 con: 4 chết, 8 tương đương
     python scripts/quet-dot-bien.py --file=kham/chan_doan.py 18 con: 7 chết, 11 CÒN NỢ
@@ -1153,7 +1153,7 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/ket_qua.py   7 con: 6 chết, 1 tương đương
     python scripts/quet-dot-bien.py --file=kham/so.py        8 con: 5 chết, 3 tương đương
     python scripts/quet-dot-bien.py --file=kham/ban_thu.py   11 con: 4 chết, 7 CÒN NỢ
-    python scripts/quet-dot-bien.py --file=kham/hoc_offline.py 23 con: 1 chết, 22 CÒN NỢ
+    python scripts/quet-dot-bien.py --file=kham/hoc_offline.py 22 con: 15 chết, 7 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chay_lai.py  21 con: 8 chết, 13 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chien_thuat.py 22 con: 12 chết, 10 tương đương
     python scripts/quet-dot-bien.py --file=kham/do_tre.py   26 con: 13 chết, 13 CÒN NỢ
@@ -1169,7 +1169,12 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/kho_doi.py   26 con: 18 chết, 8 tương đương
     # ── QUÉT ĐỘT BIẾN ────────────────────────────────────────────────
     #
-    # 23 module · 435 con · 244 chết (56%) · 191 còn sống.
+    # 23 module · 434 con · 258 chết (59%) · 176 còn sống.
+    #
+    # Lượt 30/08 trên  (1 chết/22 sống → 15/7) tìm ra
+    # HAI lỗi thật, không chỉ hạ con số: mép trên của dải tìm không bao
+    # giờ chạm tới được (bước 300 từ 60 dừng ở 3360, dải khai 3600), và
+    # trị đang dùng 900 nằm NGOÀI lưới của chính nó.
     #
     # Con SỐNG SÓT = một dòng mã sửa sai mà không phép kiểm nào kêu.
     # Phần lớn số còn sống đã kiểm TAY là tương đương (epsilon nuốt

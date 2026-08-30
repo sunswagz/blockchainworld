@@ -54,7 +54,8 @@ sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
 from kham import tham_so  # noqa: E402
-from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so, kep  # noqa: E402
+from kham.chan_doan import (NUT_THEO_DUONG, doc_tham_so, kep,  # noqa: E402
+                            truc_nut)
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
 from kham.nan_lai import khop  # noqa: E402
@@ -221,11 +222,9 @@ def main() -> int:
     # ── quét cửa sổ σ ────────────────────────────────────────────────
     n = NUT_THEO_DUONG["dinhGia.bienDongCuaSoGiay"]
     ungVien = []
-    v = n.thap
-    while v <= n.cao + 1e-9:
-        if abs(v - cs0) > 1e-9:
-            ungVien.append(v)
-        v += n.buoc
+    # Bản DÙNG CHUNG, có kẹp mép trên. Dải cửa sổ σ là [60, 3600] mà
+    # bước 300 chỉ đi tới 3360 — mép trên chưa bao giờ được thử.
+    ungVien.extend(truc_nut(n, bo=cs0))
     print()
     print("  QUÉT cửa sổ ước σ  (Brier ĐUÔI, thấp hơn là tốt hơn)")
     print("     cửa sổ    cặp     Brier thô   Brier nắn")

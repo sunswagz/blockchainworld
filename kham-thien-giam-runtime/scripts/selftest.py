@@ -5296,6 +5296,434 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_tra_dung_cho_va_dung_nhiem() -> None:
+    """Tra ĐÚNG cặp Binance của chợ, và đọc ĐÚNG trị đương nhiệm.
+
+    Hai dòng nhìn thì tầm thường, hỏng thì im lặng và đắt:
+
+        `next(t.get("nen") for t in thiTruong if t.get("ma") == ma)`
+        `hienTai = {d: float(doc_tham_so(d) or 0.0) for d in NUT_MO_HINH}`
+
+    Lật dấu dòng đầu (`!=`) thì `dung_so_hieu_chinh(ma="ETH_5M")` đi lấy
+    nến BTCUSDT — sổ hiệu chỉnh vẫn dựng được, vẫn ra số đẹp, và nó là
+    bảng nắn của chợ khác. Đúng cùng họ với con bọ bộ nhớ σ hôm nay:
+    ETH nhận σ của BTC, lệch 28 lần.
+
+    Lật `or` ở dòng sau thì `hienTai` toàn 0.0, nên trị đương nhiệm
+    không bị loại khỏi danh sách ứng viên — cổng có thể "nhận" chính
+    trị đang dùng, ghi một lần vặn RỖNG vào config, và biên siết thêm
+    vì đếm cả ứng viên thừa.
+
+    ## Con còn sống trong `kham/hoc_offline.py`, đã phân loại
+
+    Quét đột biến 30/08/2026: 22 chỗ, từ 1 chết / 22 sống xuống còn
+    **15 chết / 7 sống**. Bảy con còn lại, để lượt sau khỏi đuổi ma:
+
+        dòng  91/97/106   `nen_1p` — phân trang HTTP. NỢ THẬT: cần một
+                          tầng mạng giả mới chạm tới.
+        dòng 204          `abs(het - K) < 1e-12` — khác nhau đúng tại
+                          |het−K| == 1e-12. Dựng được nhưng vô nghĩa.
+        dòng 209          `thang = het > K` — TƯƠNG ĐƯƠNG: dòng 204
+                          ngay trên đã loại ca het == K.
+        dòng 215          `S <= 0` — TƯƠNG ĐƯƠNG: `dinh_gia` tự chặn
+                          `giaHienTai <= 0` y hệt, nên hai nhánh cho
+                          cùng kết quả.
+        dòng 401          sàn mẫu trong `_cham` (1500/500/500). NỢ
+                          THẬT: cần một lưới sinh ra ĐÚNG chừng ấy cặp.
+
+    Hai lần quét này tìm ra HAI lỗi thật chứ không chỉ hạ con số: mép
+    trên của dải tìm không bao giờ chạm tới được, và trị đang dùng nằm
+    ngoài lưới của chính nó.
+    """
+    print()
+    print("-- Tra dung cho, doc dung tri duong nhiem ------------------")
+
+    from kham import hoc_offline as HO
+    from kham import tien_hoa as TH
+    from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so
+    from kham.chan_doan import truc_nut as _tn
+    from kham.hoc_offline import NUT_MO_HINH
+
+    # 1. đúng cặp Binance của chợ được hỏi
+    daHoi = []
+    cu = HO.nen_1p
+    try:
+        HO.nen_1p = lambda cap, tu, so: (daHoi.append(cap) or {})
+        HO.dung_so_hieu_chinh(soNgay=1, ma="ETH_5M", ghiTho=False)
+    finally:
+        HO.nen_1p = cu
+    kiem("`ma=ETH_5M` thì hỏi ĐÚNG cặp ETHUSDT",
+         daHoi == ["ETHUSDT"], daHoi)
+
+    daHoi2 = []
+    cu = HO.nen_1p
+    try:
+        HO.nen_1p = lambda cap, tu, so: (daHoi2.append(cap) or {})
+        HO.dung_so_hieu_chinh(soNgay=1, ma=["SOL_5M", "XRP_5M"],
+                              ghiTho=False)
+    finally:
+        HO.nen_1p = cu
+    kiem("danh sách chợ thì hỏi ĐÚNG từng cặp, đúng thứ tự",
+         daHoi2 == ["SOLUSDT", "XRPUSDT"], daHoi2)
+
+    kiem("chợ không có thật thì báo lỗi, không lặng lẽ lấy chợ khác",
+         "loi" in HO.dung_so_hieu_chinh(soNgay=1, ma="KHONG_CO_THAT",
+                                        ghiTho=False))
+
+    # 2. trị đương nhiệm đọc từ CONFIG, không phải 0.0
+    LUOI = {int(i * 60_000.0): 100.0 for i in range(1300)}
+    capDaHoi = []
+    cu2 = (HO.nen_1p, HO._cham, HO.khoang_tin_theo_khoi, TH.ghi_config)
+    try:
+        HO.nen_1p = lambda cap, tu, so: (capDaHoi.append(cap) or dict(LUOI))
+        HO.khoang_tin_theo_khoi = lambda h, m, **k: (-0.4, -0.1, 7)
+        TH.ghi_config = lambda d, v: None
+        HO._cham = lambda tm, ba, ma, cs: {
+            "chon": 0.5, "chot": 0.4,
+            "saiChot": [0.5] * 8, "mocChot": list(range(8))}
+        ban = HO.mot_luot_mo_hinh(soNgay=1, ma="BTC_5M")
+    finally:
+        (HO.nen_1p, HO._cham, HO.khoang_tin_theo_khoi,
+         TH.ghi_config) = cu2
+
+    kiem("cổng mô hình cũng hỏi ĐÚNG cặp của chợ được truyền",
+         capDaHoi == ["BTCUSDT"], capDaHoi)
+    kiem("cổng khai `tu` = trị ĐANG DÙNG trong config",
+         ban.get("nut") in NUT_MO_HINH
+         and abs(float(ban["tu"]) - float(doc_tham_so(ban["nut"]))) < 1e-12,
+         (ban.get("nut"), ban.get("tu"),
+          doc_tham_so(ban.get("nut") or "")))
+    kiem("và ứng viên được chọn KHÁC trị đang dùng",
+         abs(float(ban["den"]) - float(ban["tu"])) > 1e-12,
+         (ban.get("tu"), ban.get("den")))
+    # ── cửa sổ σ đọc CONFIG ĐỘNG, không đóng cứng 900 ─────────────────
+    #
+    # `cua_so_sigma()` là `float(doc_tham_so(...) or 900.0)`. Nếu vế `or`
+    # hỏng thì nó trả 900 mãi mãi, và vòng tiến hoá "thử" cửa sổ σ mà bộ
+    # ước vẫn chạy 900 — đúng cái bẫy đã ghi trong `DoBienDong`: vặn nút
+    # của cỗ máy A rồi lắp vào cỗ máy B.
+    from kham.config import CONFIG as _CFG
+    _cuCs = _CFG["dinhGia"]["bienDongCuaSoGiay"]
+    try:
+        _CFG["dinhGia"]["bienDongCuaSoGiay"] = 1500
+        kiem("`cua_so_sigma` theo CONFIG chứ không đóng cứng 900",
+             HO.cua_so_sigma() == 1500.0, HO.cua_so_sigma())
+    finally:
+        _CFG["dinhGia"]["bienDongCuaSoGiay"] = _cuCs
+    kiem("và trả lại đúng trị cũ sau phép kiểm",
+         HO.cua_so_sigma() == float(_cuCs), HO.cua_so_sigma())
+
+    # ── SÀN SỐ NẾN: đúng bằng ngưỡng thì vẫn TỪ CHỐI ──────────────────
+    #
+    # `len(theoMoc) < 400` và `< 1200`. Đúng bằng sàn là ca duy nhất
+    # phân biệt `<` với `<=`, và lệch một mẫu ở đây nghĩa là dựng bảng
+    # nắn trên ít dữ liệu hơn mức chính mình khai là đủ.
+    def _luoi(n):
+        return {int(i * 60_000.0): 100.0 for i in range(n)}
+
+    for so, mong in ((399, True), (400, False)):
+        cu3 = HO.nen_1p
+        try:
+            HO.nen_1p = lambda cap, tu, s_: _luoi(so)
+            r_ = HO.dung_so_hieu_chinh(soNgay=1, ma="BTC_5M", ghiTho=False)
+        finally:
+            HO.nen_1p = cu3
+        # Lỗi thiếu nến của MỘT chợ nằm trong `theoCho`, không ở cấp
+        # trên: một chợ hụt nến không được giết cả lượt, nhưng cũng
+        # không được biến mất — đó là điểm của trường ấy.
+        cho = (r_.get("theoCho") or {}).get("BTC_5M") or {}
+        co_loi = "chỉ lấy được" in str(cho.get("loi") or "")
+        kiem(f"sổ hiệu chỉnh với {so} nến ⇒ "
+             + ("chợ ấy BỊ BỎ và KHAI ra" if mong
+                else "chợ ấy dựng được cặp"),
+             co_loi is mong, (r_.get("loi"), cho))
+
+    for so, mong in ((1199, True), (1200, False)):
+        cu4 = HO.nen_1p
+        try:
+            HO.nen_1p = lambda cap, tu, s_: _luoi(so)
+            r_ = HO.mot_luot_mo_hinh(soNgay=1, ma="BTC_5M", thu=True)
+        finally:
+            HO.nen_1p = cu4
+        co_loi = "chỉ lấy được" in str(r_.get("loi") or "")
+        kiem(f"cổng mô hình với {so} nến ⇒ "
+             + ("TỪ CHỐI" if mong else "đi tiếp"),
+             co_loi is mong, r_.get("loi"))
+
+    kiem("số ứng viên khớp tổng các trục, TRỪ đương nhiệm mỗi nút",
+         ban.get("soUngVien") == sum(
+             len(_tn(NUT_THEO_DUONG[d], bo=float(doc_tham_so(d))))
+             for d in NUT_MO_HINH if d in NUT_THEO_DUONG),
+         ban.get("soUngVien"))
+
+
+def kiem_luoi_va_truc_hoc_offline() -> None:
+    """Lưới khung, giá không hợp lệ, và TRỤC ứng viên của cổng mô hình.
+
+    Bốn tính chất, mỗi cái là một dòng mà nếu lật dấu thì cả cỗ máy học
+    vẫn chạy và vẫn cho ra số:
+
+    1. **Khung là mốc 5 phút.** `moc_khung` lấy `T % 300_000 == 0`. Lật
+       thành `!=` là chấm trên những "khung" không tồn tại trên chợ.
+    2. **Giá phải DƯƠNG.** `g <= 0` — giá 0 là dữ liệu hỏng, không phải
+       một mức giá. Lọt qua thì `log(S/K)` ném hoặc ra vô nghĩa.
+    3. **Trục ứng viên chạm được MÉP TRÊN.** `while v <= n.cao + 1e-9`.
+       Lật thành `<` là mép trên không bao giờ được thử, và nút nằm sát
+       mép sẽ mãi mãi "không có gì khá hơn".
+    4. **Đương nhiệm KHÔNG nằm trong danh sách ứng viên.** Nếu nó nằm
+       trong, cổng có thể "nhận" chính trị đang dùng — một lần vặn rỗng
+       ghi vào config, và biên thì siết thêm vì có ứng viên thừa.
+    """
+    print()
+    print("-- Luoi khung, gia duong, truc ung vien -------------------")
+
+    from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so
+    from kham.hoc_offline import (NUT_MO_HINH, cap_du_doan, moc_khung,
+                                  quen_sigma)
+
+    PHUT, KHUNG = 60_000, 300_000
+
+    # 1. chỉ mốc 5 phút
+    luoi = {int(i * PHUT): 100.0 for i in range(20)}
+    mocs = moc_khung(luoi)
+    kiem("`moc_khung` chỉ trả mốc 5 phút",
+         mocs and all(T % KHUNG == 0 for T in mocs), mocs[:4])
+    kiem("và trả ĐỦ số mốc 5 phút có trong lưới",
+         len(mocs) == len([T for T in luoi if T % KHUNG == 0]),
+         (len(mocs), len(luoi)))
+
+    # 2. giá 0 là dữ liệu hỏng, không phải một mức giá
+    def _day(bien=0.004):
+        g = {}
+        for i in range(-20, 40):
+            g[int(i * PHUT)] = 100.0 * (1 + bien * math.sin(i * 0.9))
+        return g
+
+    quen_sigma()
+    sach = cap_du_doan(_day(), [0], "BTC_5M", 900.0)
+    kiem("lưới lành thì dựng được cặp", len(sach) > 0, len(sach))
+
+    hong = _day()
+    hong[int(2 * PHUT)] = 0.0          # đúng lát τ=180s của khung T=0
+    quen_sigma()
+    it = cap_du_doan(hong, [0], "BTC_5M", 900.0)
+    kiem("giá BẰNG 0 ở một lát ⇒ lát ấy bị bỏ, không lọt vào",
+         len(it) == len(sach) - 1, (len(it), len(sach)))
+
+    hong2 = _day()
+    hong2[int(-1 * PHUT)] = 0.0        # nến trong cửa sổ σ
+    quen_sigma()
+    it2 = cap_du_doan(hong2, [0], "BTC_5M", 900.0)
+    kiem("giá BẰNG 0 trong cửa sổ σ ⇒ cả khung bị bỏ", not it2, len(it2))
+
+    # 3+4. trục ứng viên: chạm mép trên, và KHÔNG chứa đương nhiệm
+    from kham.chan_doan import NUT_VAN, truc_nut
+
+    for n in NUT_VAN:
+        truc = truc_nut(n)
+        kiem(f"trục `{n.duong}` chạm được mép trên {n.cao:g}",
+             truc and abs(truc[-1] - float(n.cao)) < 1e-9, truc[-2:])
+        kiem(f"và không trị nào vượt mép trên",
+             all(x <= float(n.cao) + 1e-9 for x in truc), truc[-2:])
+        cu = doc_tham_so(n.duong)
+        if cu is None:
+            continue
+        ung = truc_nut(n, bo=float(cu))
+        kiem(f"và đương nhiệm {float(cu):g} bị loại khỏi ứng viên",
+             all(abs(x - float(cu)) > 1e-12 for x in ung)
+             and len(ung) < len(truc), (len(truc), len(ung)))
+
+    # Không ai được dựng LẠI trục. Bốn bản sao là bốn chỗ để chúng lệch
+    # nhau, và chính chỗ lệch ấy đã giấu mất mép trên của hai nút.
+    import re as _re
+    _goc = Path(__file__).resolve().parent.parent
+    lac = []
+    for f in list(_goc.glob("kham/*.py")) + list(_goc.glob("scripts/*.py")):
+        if f.name == "chan_doan.py" or f.name == "selftest.py":
+            continue
+        t = f.read_text(encoding="utf-8")
+        if _re.search("while" + chr(92) + "s+v" + chr(92) + "s*<=", t) and ".cao" in t:
+            lac.append(f.name)
+    kiem("không file nào tự dựng lại trục nút", not lac, lac)
+
+    # ── TRỊ ĐANG DÙNG phải nằm TRÊN lưới của chính nó ─────────────────
+    #
+    # `dinhGia.bienDongCuaSoGiay` từng khai [60, 3600] bước 300, nên
+    # lưới là 60, 360, 660, 960 … và trị đang dùng 900 KHÔNG nằm trên
+    # đó. Hệ quả im lặng: cổng tiến hoá không bao giờ đề xuất được 900,
+    # `kep()` kéo 900 về 960, nên một khi máy rời khỏi 900 thì nó không
+    # có đường quay lại — mà 900 là con số ĐÃ ĐO, có bằng chứng ghi
+    # trong config.
+    #
+    # Một trị nằm ngoài lưới của chính nó là một kết quả đo bị vứt bỏ
+    # mà không ai kêu.
+    from kham.chan_doan import kep as _kep
+    for n in NUT_VAN:
+        cu_ = doc_tham_so(n.duong)
+        if cu_ is None:
+            continue
+        t_ = truc_nut(n)
+        kiem(f"trị đang dùng của `{n.duong}` nằm trên lưới",
+             any(abs(x - float(cu_)) < 1e-9 for x in t_),
+             (float(cu_), t_[:4]))
+        kiem(f"và `kep` giữ nguyên nó",
+             abs(float(_kep(n.duong, float(cu_)) or -1) - float(cu_)) < 1e-9,
+             (float(cu_), _kep(n.duong, float(cu_))))
+
+
+def kiem_bien_cua_cong_mo_hinh() -> None:
+    """BIÊN của cổng ghi config: đúng bằng ngưỡng thì KHÔNG vặn.
+
+    `mot_luot_mo_hinh` là hàm duy nhất trong cung tự ghi `config.json`
+    mà không có người bấm nút. Quét đột biến `kham/hoc_offline.py`:
+    22/24 con sống sót, và bốn con nằm ĐÚNG trong bốn dòng quyết định
+    của nó —
+
+        `r["chon"] >= goc["chon"] * bien`      biên tập CHỌN
+        `r["chot"] >= goc["chot"] * BIEN_CHOT` xác nhận tập CHỐT
+        `tin95[0] <= 0 <= tin95[1]`            cờ tiếng ồn
+        `r["chon"] < tot[2]["chon"]`           chọn quán quân
+
+    Đổi bất kỳ dấu nào trong bốn dòng ấy đều làm cổng vặn config trong
+    một ca mà đúng ra phải đứng yên, và không phép kiểm nào kêu.
+
+    Bàn thử KHÔNG cần mạng: thay `nen_1p` bằng một lưới giả đủ dài, và
+    `_cham` bằng một hàm trả điểm do phép kiểm đặt. Nhờ vậy đặt được
+    ứng viên ĐÚNG BẰNG ngưỡng — chỗ duy nhất phân biệt `>=` với `>`.
+    """
+    print()
+    print("-- Bien cua cong ghi config -------------------------------")
+
+    from kham import hoc_offline as HO
+    from kham import tien_hoa as TH
+    from kham.hoc_offline import NUT_MO_HINH
+
+    PHUT = 60_000.0
+    LUOI = {int(i * PHUT): 100.0 for i in range(1300)}
+
+    def _chay(diem, tin95=(-1.0, -0.5)):
+        """`diem(duong, v)` → chon; `None` nghĩa 'đương nhiệm'."""
+        daGhi = []
+        cu = (HO.nen_1p, HO._cham, HO.khoang_tin_theo_khoi, TH.ghi_config)
+        try:
+            HO.nen_1p = lambda cap, tu, so: dict(LUOI)
+            HO.khoang_tin_theo_khoi = lambda h, m, **k: (tin95[0], tin95[1], 7)
+            TH.ghi_config = lambda d, v: daGhi.append((d, v))
+
+            def _c(theoMoc, ba, ma, cuaSo):
+                d = _c.dang
+                ch = diem(d[0], d[1]) if d else None
+                if ch is None:
+                    return {"chon": 1.0, "chot": 1.0,
+                            "saiChot": [0.5] * 8, "mocChot": list(range(8))}
+                return {"chon": ch[0], "chot": ch[1],
+                        "saiChot": [0.5] * 8, "mocChot": list(range(8))}
+            _c.dang = None
+            HO._cham = _c
+
+            # `_dat_tham_so` được gọi quanh mỗi ứng viên; bám vào đó để
+            # biết `_cham` đang chấm ứng viên NÀO.
+            cuDat = TH._dat_tham_so
+
+            def _dat(duong, v):
+                _c.dang = (duong, v)
+                return cuDat(duong, v)
+            TH._dat_tham_so = _dat
+            try:
+                return HO.mot_luot_mo_hinh(soNgay=1, ma="BTC_5M"), daGhi
+            finally:
+                TH._dat_tham_so = cuDat
+        finally:
+            (HO.nen_1p, HO._cham, HO.khoang_tin_theo_khoi,
+             TH.ghi_config) = cu
+
+    # ĐÚNG BẰNG biên ở tập CHỌN ⇒ phải TRẢ LẠI. Đương nhiệm chấm
+    # `chon = 1.0`, nên ứng viên chấm đúng 1.0 là đúng bằng ngưỡng
+    # `goc["chon"] * bien` chỉ khi bien = 1; với bien < 1 thì 1.0 nằm
+    # TRÊN ngưỡng — vẫn phải trả lại, và đó chính là ca cần canh.
+    r0, ghi0 = _chay(lambda d, v: (1.0, 0.5))
+    kiem("ứng viên ĐÚNG BẰNG biên CHỌN ⇒ trả lại",
+         r0.get("nhan") is None and "CHỌN" in str(r0.get("lyDo", "")),
+         (r0.get("lyDo"), r0.get("nhan")))
+    kiem("và KHÔNG ghi config", not ghi0, ghi0)
+
+    # Qua biên CHỌN nhưng CHỐT đúng bằng ngưỡng ⇒ vẫn trả lại.
+    r1, ghi1 = _chay(lambda d, v: (0.5, 1.0 * 0.999))
+    kiem("CHỐT đúng bằng ngưỡng ⇒ trả lại",
+         r1.get("nhan") is None and "CHỐT" in str(r1.get("lyDo", "")),
+         (r1.get("lyDo"), r1.get("nhan")))
+    kiem("và KHÔNG ghi config", not ghi1, ghi1)
+
+    # Qua cả hai, nhưng khoảng tin CHẠM 0 ⇒ chặn theo tiếng ồn.
+    r2, ghi2 = _chay(lambda d, v: (0.5, 0.5), tin95=(0.0, 0.4))
+    kiem("khoảng tin CHẠM 0 ở mép dưới ⇒ chặn",
+         r2.get("nhan") is None and r2.get("trongTiengOn") is True,
+         (r2.get("lyDo"), r2.get("trongTiengOn")))
+    kiem("và KHÔNG ghi config", not ghi2, ghi2)
+
+    r3, ghi3 = _chay(lambda d, v: (0.5, 0.5), tin95=(-0.4, 0.0))
+    kiem("khoảng tin CHẠM 0 ở mép trên ⇒ chặn",
+         r3.get("nhan") is None and r3.get("trongTiengOn") is True,
+         (r3.get("lyDo"), r3.get("trongTiengOn")))
+
+    # Khoảng tin nằm HẲN dưới 0 ⇒ mới được vặn.
+    r4, ghi4 = _chay(lambda d, v: (0.5, 0.5), tin95=(-0.4, -0.1))
+    kiem("khoảng tin nằm HẲN dưới 0 ⇒ NHẬN", r4.get("nhan") is not None,
+         (r4.get("lyDo"), r4.get("tin95")))
+    kiem("và CÓ ghi config đúng một lần", len(ghi4) == 1, ghi4)
+
+    # ── ĐÚNG BẰNG ngưỡng CHỌN, tới từng bit ───────────────────────────
+    #
+    # Đây là chỗ DUY NHẤT phân biệt `>=` với `>`. Biên siết theo số ứng
+    # viên nên phải hỏi chính cổng nó là bao nhiêu, rồi chấm lại đúng
+    # con số ấy — đoán một trị "gần bằng" thì cả hai dấu đều cho cùng
+    # kết quả và phép kiểm rỗng.
+    _bien = r4.get("bien")
+    kiem("cổng khai ra biên đang dùng", isinstance(_bien, float) and 0 < _bien < 1,
+         _bien)
+    if isinstance(_bien, float):
+        r5, ghi5 = _chay(lambda d, v: (1.0 * _bien, 0.4), tin95=(-0.4, -0.1))
+        kiem("chấm ĐÚNG BẰNG `goc*bien` ⇒ TRẢ LẠI (>= chứ không >)",
+             r5.get("nhan") is None and "CHỌN" in str(r5.get("lyDo", "")),
+             (r5.get("chonMoi"), r5.get("lyDo")))
+        kiem("và KHÔNG ghi config", not ghi5, ghi5)
+        # nhích xuống một chút thì phải NHẬN — chứng minh ca trên trượt
+        # vì đúng bằng ngưỡng, không phải vì một lý do khác.
+        r6, ghi6 = _chay(lambda d, v: (1.0 * _bien * 0.999, 0.4),
+                         tin95=(-0.4, -0.1))
+        kiem("nhích DƯỚI ngưỡng một chút ⇒ NHẬN", r6.get("nhan") is not None,
+             (r6.get("chonMoi"), r6.get("lyDo")))
+
+    # ── HOÀ điểm thì giữ ứng viên ĐẦU ─────────────────────────────────
+    #
+    # `r["chon"] < tot[2]["chon"]` — với `<=` thì ứng viên SAU cùng
+    # thắng, và quán quân đổi theo thứ tự duyệt chứ không theo dữ liệu.
+    _thay = []
+
+    def _hoa(d, v):
+        _thay.append((d, v))
+        return (0.5, 0.4)          # MỌI ứng viên hoà nhau
+    r7, _ = _chay(_hoa, tin95=(-0.4, -0.1))
+    kiem("mọi ứng viên hoà điểm ⇒ quán quân là ứng viên ĐẦU",
+         bool(_thay) and (r7.get("nut"), r7.get("den")) == _thay[0],
+         (r7.get("nut"), r7.get("den"), _thay[0] if _thay else None))
+
+    # ── nhánh RIÊNG của nút cửa sổ σ ──────────────────────────────────
+    #
+    # `duong == "dinhGia.bienDongCuaSoGiay"` truyền trị THẲNG vào `_cham`
+    # vì nó là tham số của chính phép chấm; mọi nút khác đi qua
+    # `_dat_tham_so`. Lật dấu thì hai nhánh đổi chỗ, và nút cửa sổ σ sẽ
+    # được "thử" bằng cách ghi vào CONFIG — không có tác dụng gì, nên
+    # trục của nó phẳng lì mà không ai biết vì sao.
+    _dat_cho = {d for d, _ in _thay}
+    kiem("nút KHÁC cửa sổ σ đều đi qua `_dat_tham_so`",
+         _dat_cho and all(d != "dinhGia.bienDongCuaSoGiay" for d in _dat_cho),
+         sorted(_dat_cho))
+    kiem("và nút cửa sổ σ KHÔNG đi qua đó (nó truyền thẳng)",
+         "dinhGia.bienDongCuaSoGiay" in NUT_MO_HINH
+         and "dinhGia.bienDongCuaSoGiay" not in _dat_cho)
+
+
 def kiem_moi_nan_khong_nhin_trom() -> None:
     """Mồi sổ hiệu chỉnh phải KẾT THÚC TRƯỚC khung đầu của băng.
 
@@ -10337,6 +10765,9 @@ def main() -> int:
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
     kiem_danh_muc_cua_rui_ro()
     kiem_moi_nan_khong_nhin_trom()
+    kiem_bien_cua_cong_mo_hinh()
+    kiem_luoi_va_truc_hoc_offline()
+    kiem_tra_dung_cho_va_dung_nhiem()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()

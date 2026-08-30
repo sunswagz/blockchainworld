@@ -50,7 +50,8 @@ sys.path.insert(0, str(GOC))
 
 import kham  # noqa: F401,E402
 from kham import tham_so  # noqa: E402
-from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so  # noqa: E402
+from kham.chan_doan import (NUT_THEO_DUONG, doc_tham_so,  # noqa: E402
+                            truc_nut)
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
 from kham.ket_qua import (  # noqa: E402
@@ -242,11 +243,8 @@ def mot_vong(chos: dict, ba: tuple, vong: int) -> dict | None:
         n = NUT_THEO_DUONG.get(duong)
         if n is None:
             continue
-        v = float(n.thap)
-        while v <= n.cao + 1e-9:
-            if abs(v - hienTai[duong]) > 1e-12:
-                ungVien.append((duong, round(v, 6)))
-            v += n.buoc
+        for v in truc_nut(n, bo=hienTai[duong]):
+            ungVien.append((duong, v))
 
     tot = None
     for duong, v in ungVien:
