@@ -1144,7 +1144,8 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    1170 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1203 phép kiểm số học, KHÔNG cần mạng
+    python scripts/quet-dot-bien.py --file=kham/do_tre.py   26 con: 8 chết, 18 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/dongho.py    7 con: 7 chết, 0 sống
     python scripts/quet-dot-bien.py --file=kham/cap_token.py 9 con: 9 chết, 0 sống
     python scripts/quet-dot-bien.py --file=kham/dat_lenh.py  21 con: 14 chết, 7 tương đương

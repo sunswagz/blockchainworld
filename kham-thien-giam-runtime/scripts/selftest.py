@@ -1172,6 +1172,237 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_do_tre() -> None:
+    """Biên của THƯỚC ĐỘ TRỄ — 25 trên 26 con sống sót lượt đầu.
+
+    Con số này là thứ cả một dòng bot được dựng quanh nó, và nó được kể
+    lại rất khác nhau: một bài lan truyền nói 2.700 ms, nghiên cứu
+    OpenMarket nói 347 ms. Tám lần. Nên module này ĐO thay vì tin.
+
+    Mà một cái thước không được canh thì nó chỉ là một cách kể khác.
+
+    Hai chỗ hệ trọng nhất:
+
+    · SAI HƯỚNG KHÔNG TÍNH. Nền tăng thì P(UP) phải TĂNG. Một cú dịch
+      ngược hướng không phải "phản ứng chậm" — nó là bằng chứng CHỐNG
+      lại giả thuyết.
+    · NHÓM ĐỐI CHỨNG phải cùng MẪU SỐ. Đếm mọi cú động, kể cả cú không
+      đánh giá được — nhánh thật tính chúng vào rồi gọi là "không phản
+      ứng kịp", nên đối chứng bỏ chúng ra là hai tỉ lệ không so được.
+
+    ## Sau khi viết xong: 26 con → 8 CHẾT, 18 CÒN SỐNG
+
+    Đây là module DUY NHẤT trong cung mà tôi dừng lại với một con số
+    lớn, nên phải nói rõ vì sao thay vì để nó trông như đã xong:
+
+    · **10 con ở `_soat_cu_dong`** (dò cú động phía nền). Muốn chạm tới
+      chúng phải giả lập cả một dòng nến có thật — 40 mẫu trong cửa sổ
+      σ, một mốc "gần nhất trước", và một bước log-return vượt đúng
+      `K_NGUONG` lần độ lệch chuẩn của chính nó. Làm được, chỉ là chưa
+      làm.
+    · **5 con ở `_doi_chung`.** Mốc so sánh RÚT NGẪU NHIÊN
+      (`rng.uniform`), nên không có cách nào đặt nó rơi đúng vào biên.
+      Đây là giới hạn của thiết kế chứ không phải của phép kiểm — và
+      thiết kế ấy đúng, vì ngẫu nhiên chính là điều làm nhóm đối chứng
+      có nghĩa.
+    · **3 con còn lại** so với epsilon hoặc trên trạng thái không tồn
+      tại (khoá lưới trùng nhau trong một `dict`).
+
+    Module này KHÔNG nằm trên đường tiền: nó không đặt lệnh, không tính
+    lãi lỗ. Nó là một cái THƯỚC. Nhưng nó là thước cho con số mà cả một
+    dòng bot dựng quanh, nên 18 con còn sống là một món nợ có tên, không
+    phải một chỗ đã xong.
+    """
+    print()
+    print("-- Bien cua THUOC DO TRE -----------------------------------")
+    from kham import do_tre as _DT
+
+    def _may(suKien, poly):
+        d = _DT.DoTre.__new__(_DT.DoTre)
+        import threading as _th
+        d._khoa = _th.RLock()
+        d._suKien = list(suKien)
+        d._poly = dict(poly)
+        d._nghiToi = {}
+        return d
+
+    def _sk(t, huong, tre=None):
+        return _DT.SuKien(tMs=t, ma="X", huong=huong, doLon=4.0, treMs=tre)
+
+    # ── chấm điểm: chỉ tính cú dịch ĐÚNG HƯỚNG và ĐỦ NGƯỠNG ──────────
+    nguong = _DT.NGUONG_POLY
+    han = _DT.TRE_TOI_DA_MS
+
+    def _cham(buoc, huong=1, tSau=500.0):
+        d = _may([_sk(1000.0, huong)],
+                 {"X": [(0.0, 0.50), (1000.0, 0.50),
+                        (1000.0 + tSau, 0.50 + buoc)]})
+        d._cham_diem(1000.0 + tSau + 1.0)
+        return d._suKien[0].treMs
+
+    kiem("dịch ĐÚNG BẰNG ngưỡng, đúng hướng → TÍNH là phản ứng",
+         _cham(nguong) == 500.0, _cham(nguong))
+    kiem("dịch kém ngưỡng một hạt → chưa tính",
+         _cham(nguong * 0.9) != 500.0, _cham(nguong * 0.9))
+    kiem("dịch NGƯỢC hướng → KHÔNG tính, dù to gấp mười",
+         _cham(-nguong * 10.0) != 500.0, _cham(-nguong * 10.0))
+    kiem("nền GIẢM thì P(UP) phải giảm mới tính",
+         _cham(-nguong, huong=-1) == 500.0, _cham(-nguong, huong=-1))
+
+    # ── quá hạn thì khai KHÔNG PHẢN ỨNG (−1), không bỏ lửng ─────────
+    kiem("phản ứng sau khi quá hạn → khai −1, không tính là kịp",
+         _cham(nguong, tSau=han + 1000.0) == -1.0,
+         _cham(nguong, tSau=han + 1000.0))
+    d = _may([_sk(1000.0, 1)], {"X": [(0.0, 0.5), (1000.0, 0.5)]})
+    d._cham_diem(1000.0 + han + 1.0)
+    kiem("im lặng quá hạn → cũng khai −1", d._suKien[0].treMs == -1.0,
+         d._suKien[0].treMs)
+    d2 = _may([_sk(1000.0, 1)], {"X": [(0.0, 0.5), (1000.0, 0.5)]})
+    d2._cham_diem(1000.0 + han - 1.0)
+    kiem("chưa quá hạn thì để NGỎ, không vội kết luận",
+         d2._suKien[0].treMs is None, d2._suKien[0].treMs)
+
+    # ── kết quả: tỉ lệ phản ứng lấy MỌI cú động làm mẫu số ──────────
+    d3 = _may([_sk(1.0, 1, 300.0), _sk(2.0, 1, 700.0),
+               _sk(3.0, 1, -1.0), _sk(4.0, 1, -1.0)], {})
+    k = d3.ket_qua(toiThieu=1)
+    kiem("mẫu số là MỌI cú động, kể cả cú không phản ứng",
+         k.n == 4 and k.soPhanUng == 2 and gan(k.tyLePhanUng, 0.5),
+         (k.n, k.soPhanUng, k.tyLePhanUng))
+    kiem("trung vị chỉ tính trên cú CÓ phản ứng",
+         gan(k.trungVi, 500.0), k.trungVi)
+
+    # ── kết luận phải NÓI RA khi không phân biệt được với tiếng ồn ──
+    kq = _DT.KetQua(n=50)
+    kq.trungVi, kq.trungViDoiChung = 700.0, 1000.0
+    kiem("thật CHƯA nhanh hơn đối chứng 30% → nói thẳng là TIẾNG ỒN",
+         "tiếng ồn" in _DT.DoTre._ket_luan(kq, 20), _DT.DoTre._ket_luan(kq, 20))
+    kq.trungVi = 699.0
+    kiem("nhanh hơn rõ rệt → mới gọi là độ trễ thật",
+         "độ trễ thật" in _DT.DoTre._ket_luan(kq, 20),
+         _DT.DoTre._ket_luan(kq, 20))
+    kq2 = _DT.KetQua(n=19)
+    kiem("chưa đủ mẫu → nói chưa đủ mẫu, không kết luận gì",
+         "chưa đủ mẫu" in _DT.DoTre._ket_luan(kq2, 20),
+         _DT.DoTre._ket_luan(kq2, 20))
+    kq3 = _DT.KetQua(n=50)
+    kiem("đủ mẫu mà không phản ứng nào → nói thẳng",
+         "không phản ứng" in _DT.DoTre._ket_luan(kq3, 20),
+         _DT.DoTre._ket_luan(kq3, 20))
+    kq4 = _DT.KetQua(n=50)
+    kq4.trungVi, kq4.trungViDoiChung = 400.0, None
+    kiem("đối chứng KHÔNG tìm được gì → đó là dấu hiệu TỐT, nói ra",
+         "TỐT" in _DT.DoTre._ket_luan(kq4, 20), _DT.DoTre._ket_luan(kq4, 20))
+    kq5 = _DT.KetQua(n=20)
+    kq5.trungVi, kq5.trungViDoiChung = 400.0, 1000.0
+    kiem("mẫu ĐÚNG BẰNG tối thiểu → đã kết luận được",
+         "chưa đủ mẫu" not in _DT.DoTre._ket_luan(kq5, 20),
+         _DT.DoTre._ket_luan(kq5, 20))
+
+    # ── chạm biên tới TỪNG BIT ───────────────────────────────────────
+    #
+    # `NGUONG_POLY = 0,004` không biểu diễn chính xác được, và
+    # `0,50 + 0,004 − 0,50` ra 0,0040000000000000036 — lớn hơn ngưỡng,
+    # nên `>` và `>=` cho cùng kết quả và phép kiểm biên không kiểm gì.
+    # Đặt tạm ngưỡng 0,0625 (chính xác từng bit) rồi dựng đúng nó.
+    _cuNg, _cuHan = _DT.NGUONG_POLY, _DT.TRE_TOI_DA_MS
+    try:
+        _DT.NGUONG_POLY = 0.0625
+        _DT.TRE_TOI_DA_MS = 8192.0
+        d = _may([_sk(1000.0, 1)],
+                 {"X": [(1000.0, 0.5), (1500.0, 0.5625)]})
+        d._cham_diem(2000.0)
+        kiem("dịch ĐÚNG BẰNG ngưỡng tới từng bit → TÍNH",
+             d._suKien[0].treMs == 500.0, d._suKien[0].treMs)
+        d = _may([_sk(1000.0, 1)],
+                 {"X": [(1000.0, 0.5), (1500.0, 0.5624)]})
+        d._cham_diem(2000.0)
+        kiem("kém ngưỡng một hạt → KHÔNG tính",
+             d._suKien[0].treMs != 500.0, d._suKien[0].treMs)
+        # Phản ứng ĐÚNG BẰNG hạn trễ tối đa thì vẫn TÍNH, chưa phải muộn.
+        d = _may([_sk(1000.0, 1)],
+                 {"X": [(1000.0, 0.5), (1000.0 + 8192.0, 0.5625)]})
+        d._cham_diem(1000.0 + 8192.0 + 1.0)
+        kiem("phản ứng ĐÚNG BẰNG hạn trễ → vẫn tính là kịp",
+             d._suKien[0].treMs == 8192.0, d._suKien[0].treMs)
+        d = _may([_sk(1000.0, 1)],
+                 {"X": [(1000.0, 0.5), (1000.0 + 8193.0, 0.5625)]})
+        d._cham_diem(1000.0 + 8193.0 + 1.0)
+        kiem("quá hạn một mili giây → KHÔNG kịp",
+             d._suKien[0].treMs == -1.0, d._suKien[0].treMs)
+        # Mốc gốc lấy mẫu ĐÚNG TẠI thời điểm sự kiện, không lấy mẫu sau.
+        d = _may([_sk(1000.0, 1)],
+                 {"X": [(500.0, 0.9), (1000.0, 0.5), (1500.0, 0.5625)]})
+        d._cham_diem(2000.0)
+        kiem("gốc so sánh lấy mẫu ĐÚNG TẠI mốc sự kiện",
+             d._suKien[0].treMs == 500.0, d._suKien[0].treMs)
+    finally:
+        _DT.NGUONG_POLY, _DT.TRE_TOI_DA_MS = _cuNg, _cuHan
+
+    # Phản ứng TỨC THÌ (trễ 0 ms) vẫn phải được đếm là có phản ứng.
+    d = _may([_sk(1.0, 1, 0.0), _sk(2.0, 1, -1.0)], {})
+    k0 = d.ket_qua(toiThieu=1)
+    kiem("trễ ĐÚNG 0 ms vẫn là một phản ứng, không bị loại",
+         k0.soPhanUng == 1 and gan(k0.trungVi, 0.0),
+         (k0.soPhanUng, k0.trungVi))
+
+    # ── bộ ước σ trên lưới: từ chối khi thiếu ô, không bịa ───────────
+    _sg = _DT._sigma_luoi
+    kiem("mẫu rỗng → σ là None", _sg([]) is None)
+    kiem("giá âm/0 bị loại khỏi lưới, không lọt vào log",
+         _sg([(i * 300.0, -1.0) for i in range(40)]) is None)
+    thang = [(i * 300.0, 100.0 * (1.0 + 0.001 * (i % 5))) for i in range(60)]
+    v = _sg(thang)
+    kiem("đủ ô và có nhấp nhô → σ dương", v is not None and v > 0, v)
+    kiem("chỉ 11 ô → chưa đủ, trả None",
+         _sg([(i * 300.0, 100.0 + i) for i in range(11)]) is None)
+    kiem("ĐÚNG 12 ô → đủ, trả một số",
+         _sg([(i * 300.0, 100.0 + i) for i in range(12)]) is not None,
+         _sg([(i * 300.0, 100.0 + i) for i in range(12)]))
+    # Giá 0 lọt vào lưới là `log(0)` — nổ giữa vòng chạy. Trộn một mẫu 0
+    # vào giữa một chuỗi tử tế: lọc đúng thì kết quả không đổi.
+    lanhLan = [(i * 300.0, 100.0 + i) for i in range(20)]
+    banLan = list(lanhLan)
+    banLan.insert(10, (10 * 300.0 + 1.0, 0.0))
+    kiem("một mẫu giá 0 lẫn vào giữa → bị loại, không làm nổ log",
+         _sg(banLan) is not None, _sg(banLan))
+
+    # ── NHÓM ĐỐI CHỨNG: thứ quyết "tiếng ồn hay độ trễ thật" ─────────
+    #
+    # Không có nó thì mọi con số phía trên vô nghĩa: chọn bất kỳ mốc nào
+    # rồi chờ giá dịch 0,4 xu thì bao giờ cũng chờ được.
+    def _dc(suKien, poly):
+        return _DT.DoTre._doi_chung(_may(suKien, poly), suKien, poly)
+
+    sk4 = [_sk(1.0, 1, 100.0), _sk(2.0, 1, 200.0)]
+    # Chuỗi giá đi lên đều: đối chứng LUÔN tìm được phản ứng — và đó
+    # đúng là điều phải thấy, vì nó chứng minh phép đo thật cần đối
+    # chứng để có nghĩa.
+    lenDeu = [(i * 100.0, 0.30 + i * 0.01) for i in range(200)]
+    n, tv, tyLe = _dc(sk4, {"X": lenDeu})
+    kiem("chuỗi giá đi lên đều → đối chứng CŨNG tìm được phản ứng",
+         n == 2 and tv is not None and tyLe > 0, (n, tv, tyLe))
+    # Chuỗi PHẲNG: đối chứng không tìm được gì — dấu hiệu tốt.
+    phang = [(i * 100.0, 0.30) for i in range(200)]
+    n, tv, tyLe = _dc(sk4, {"X": phang})
+    kiem("chuỗi phẳng → đối chứng KHÔNG tìm được phản ứng nào",
+         n == 2 and tv is None and gan(tyLe, 0.0), (n, tv, tyLe))
+    # MẪU SỐ phải đếm MỌI cú động, kể cả cú có đệm sổ quá mỏng.
+    n, tv, tyLe = _dc(sk4, {"X": [(0.0, 0.30), (100.0, 0.30)]})
+    kiem("đệm sổ quá mỏng vẫn ĐẾM vào mẫu số — hai nhánh phải cùng mẫu số",
+         n == 2, n)
+    kiem("và tỉ lệ đối chứng khi ấy là 0, không phải chia cho 0",
+         gan(tyLe, 0.0), tyLe)
+    n, tv, tyLe = _dc([], {})
+    kiem("không cú động nào → (0, None, 0), không nổ",
+         n == 0 and tv is None and gan(tyLe, 0.0), (n, tv, tyLe))
+    # Quãng quan sát ngắn hơn hạn trễ → không rút được mốc nào.
+    ngan = [(i * 100.0, 0.30 + i * 0.01) for i in range(12)]
+    n, tv, tyLe = _dc(sk4, {"X": ngan})
+    kiem("quãng quan sát ngắn hơn hạn trễ → bỏ qua, nhưng VẪN đếm mẫu số",
+         n == 2 and tv is None, (n, tv))
+
+
 def kiem_bien_cua_cap_token() -> None:
     """Biên của CẶP TOKEN — hai sổ có nói về CÙNG MỘT lúc không.
 
@@ -7979,6 +8210,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_do_tre()
     kiem_bien_cua_cap_token()
     kiem_bien_cua_dong_ho()
     kiem_bien_cua_chan_rui_ro()
