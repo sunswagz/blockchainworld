@@ -538,12 +538,29 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                 + ". Con số sau là TRẦN TRÊN của phần đang bỏ lỡ, không "
                   "phải số sẽ thu được: phần rảnh nằm im thường vì những "
                   "cơ hội còn lại tệ hơn, hoặc vì một trần đang chặn.")
+        # CẦU DAO ĐANG NGẮT thì tiền nằm không LÀ ĐÚNG, và chỉ sang trần
+        # vốn là chỉ sai chỗ. Đo làn thật 30/08: cầu dao ngắt vì
+        # `von-ngoai-mu` (runtime Khâm Thiên Giám không chạy), nên KHÔNG
+        # tờ trình nào qua nổi Rủi Ro Tổng — 27,8% vốn khả dụng nằm im vì
+        # một lớp an toàn đang làm đúng việc của nó, không vì một cái
+        # trần đặt sai. Cùng lỗi mà lời khuyên cũ của `phi-vao-an-het` đã
+        # mắc: chỉ người vận hành sang cái nút họ không hề chạm vào.
+        _cdN = anh.get("cauDao") or {}
+        _viCd = ""
+        if _cdN.get("dangNgat"):
+            _ma = ", ".join(str(x.get("ma")) for x in (_cdN.get("lyDo") or [])
+                            if x.get("ma")) or "không rõ mã"
+            _viCd = (f" NHƯNG CẦU DAO ĐANG NGẮT ({_ma}) — nên tiền nằm "
+                     f"không ở đây là ĐÚNG, và trần vốn KHÔNG phải chỗ "
+                     f"đáng nhìn. Gỡ lý do ngắt trước; đo lại sau đó mới "
+                     f"nói được gì về trần.")
         ra.append(TrieuChungHe(
             "von-ranh-an-khong", 2,
             f"{float(vr.get('ranhNgoaiDuTruUsd') or 0):,.0f} USD nằm NGOÀI "
             f"dự trữ mà không làm gì — {ti_ranh:.0%} phần vốn khả dụng, ăn "
             f"0%. Dự trữ {float(vr.get('tiLeDuTru') or 0):.0%} đã trừ ra "
-            f"rồi, nên đây không phải chỗ tiền được cố ý để yên." + them,
+            f"rồi, nên đây không phải chỗ tiền được cố ý để yên."
+            + them + _viCd,
             {"ranhNgoaiDuTruUsd": vr.get("ranhNgoaiDuTruUsd"),
              "tiLeRanhTrenKhaDung": ti_ranh,
              "khaDungUsd": vr.get("khaDungUsd"),
@@ -553,7 +570,11 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
              "loiSuatNeuLapDayPhanTram": ls_l},
             # Cùng bộ núm với `tran-dat-sai-cho`: tiền nằm không mà cơ hội
             # vẫn đi qua nghĩa là một cái trần chặn trước khi tiền cạn.
-            ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy"]))
+            # NHƯNG khi cầu dao đang ngắt thì KHÔNG khai núm nào — vặn
+            # trần lúc ấy là nới một cái cửa trong khi cửa khác đang khoá
+            # có chủ ý, và người vặn sẽ tưởng mình vừa chữa được gì đó.
+            [] if _cdN.get("dangNgat")
+            else ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy"]))
 
     # ── 7bb. XOAY CHỖ hứa dài hơn đời thật của vị thế ──────────────────
     #

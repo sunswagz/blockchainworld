@@ -4185,6 +4185,29 @@ def kiem_chan_doan_he() -> None:
                                               "ruiRoTong.tranMotTy"],
          str(_vr["von-ranh-an-khong"].nutGoiY))
 
+    # CẦU DAO ĐANG NGẮT thì tiền nằm không LÀ ĐÚNG. Đo làn thật 30/08:
+    # cầu dao ngắt vì `von-ngoai-mu` (runtime Khâm Thiên Giám không
+    # chạy), nên KHÔNG tờ trình nào qua nổi Rủi Ro Tổng — 27,8% vốn khả
+    # dụng nằm im vì một lớp an toàn đang làm đúng việc, không vì một
+    # cái trần đặt sai.
+    _anhCd = {**_anhVR(),
+              "cauDao": {"dangNgat": True, "soLanNgat": 1,
+                         "lyDo": [{"ma": "von-ngoai-mu", "moTa": "x",
+                                   "tuMo": True}]}}
+    _vrCd = {x.ma: x for x in _cdh(_anhCd)}["von-ranh-an-khong"]
+    kiem("cầu dao NGẮT thì nói thẳng ra, và nêu đúng mã ngắt",
+         ("CẦU DAO ĐANG NGẮT" in _vrCd.moTa
+          and "von-ngoai-mu" in _vrCd.moTa),
+         f"{_vrCd.moTa[-200:]} — chỉ người vận hành sang trần vốn lúc "
+         f"cầu dao đang khoá là chỉ sai chỗ")
+    kiem("và lúc ấy KHÔNG khai núm nào",
+         _vrCd.nutGoiY == [],
+         "vặn trần lúc cầu dao ngắt là nới một cửa trong khi cửa khác "
+         "đang khoá có chủ ý, và người vặn tưởng mình vừa chữa được gì")
+    kiem("cầu dao ĐÓNG thì không nhắc tới nó",
+         "CẦU DAO" not in _vr["von-ranh-an-khong"].moTa,
+         "nhắc một chuyện không xảy ra cũng là chỉ sai đường")
+
     # ── XOAY CHỖ hứa dài hơn đời thật của vị thế ────────────────────────
     #
     # Đo làn thật 30/08: 267 lần xoay trong 39 phút, tổng lời hứa
