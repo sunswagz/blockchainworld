@@ -41,7 +41,7 @@ import json
 from collections import defaultdict
 
 from . import store
-from .config import DATA_DIR
+from .config import CONFIG, DATA_DIR
 
 # — Ngưỡng mẫu tối thiểu, theo NGUỒN —
 # Không dùng chung một ngưỡng: lệnh chạy lại rẻ và nhiều nên đòi hỏi cao hơn;
@@ -163,6 +163,37 @@ def _tu_chay_lai(bo: list) -> list[dict]:
 
 
 # ── Nguồn 2 · sổ lệnh THẬT ────────────────────────────────────────────────
+def _nhip_giu(tf: str) -> tuple[float, int, int] | None:
+    """Thời gian giữ lệnh THẬT, quy ra số NẾN của khung đang chạy. Trả
+    (trung vị nến, số lệnh, số lệnh đóng trong ĐÚNG một nến).
+
+    Vì sao đo bằng NẾN chứ không bằng giờ: bản chạy lại xét từng NẾN và chặn vào
+    lệnh mới khi còn giữ vị thế. Nếu bot thật giữ 0,19 nến rồi vào lại thì hai
+    bên không cùng một chiến lược, dù dùng chung một bộ luật và chung một khung.
+    """
+    from . import store
+    from .data import TF_MS
+
+    ms = TF_MS.get(tf) or TF_MS["1d"]
+    gio = []
+    for t in store.read_all(store.TRADES):
+        a, b = t.get("openedAt"), t.get("closedAt")
+        if not (a and b):
+            continue
+        try:
+            ta = _dt.datetime.fromisoformat(str(a))
+            tb = _dt.datetime.fromisoformat(str(b))
+        except (ValueError, TypeError):
+            continue
+        gio.append((tb - ta).total_seconds() * 1000 / ms)
+    if len(gio) < 5:
+        return None
+    gio.sort()
+    n = len(gio)
+    tv = gio[n // 2] if n % 2 else (gio[n // 2 - 1] + gio[n // 2]) / 2
+    return tv, n, sum(1 for g in gio if g < 1)
+
+
 def _tu_so_that(bo: list) -> list[dict]:
     from . import journal
 
@@ -173,6 +204,33 @@ def _tu_so_that(bo: list) -> list[dict]:
     # về chiến lược nhưng có làm đổi số dư, và người đọc cần biết chênh lệch ấy
     # từ đâu ra. Một lệnh kỹ thuật vừa làm kỳ vọng biểu kiến đi từ −13,60 lên
     # −6,83 mỗi lệnh.
+    # NHỊP GIỮ LỆNH. Đo được 30/08 và đây là khoảng cách «đo một thứ, chạy một
+    # thứ khác» LỚN NHẤT hệ này từng tìm ra — lớn hơn cả chuyện nửa SHORT:
+    #
+    #   cùng BTCUSDT, cùng cửa sổ 11 ngày, cùng bộ luật, cùng khung 4h
+    #     chạy lại   5 lệnh  +0,959R
+    #     chạy thật 43 lệnh  −0,314R
+    #
+    # Vì bot thật giữ lệnh trung vị 0,19 NẾN rồi vào lại, còn bản chạy lại xét
+    # từng nến và chặn vào lệnh mới khi còn giữ vị thế. Bot tính đặc trưng trên
+    # nến 4h rồi giao dịch ở nhịp PHÚT.
+    _ng = _nhip_giu(CONFIG["timeframes"]["primary"])
+    if _ng:
+        _tv, _n, _mot_nen = _ng
+        if _tv < 0.5 or _mot_nen * 2 > _n:
+            ra.append(_pd(
+                "nhip-giu-lech", "so-that",
+                f"Bot giữ lệnh trung vị {_tv:.2f} NẾN khung "
+                f"{CONFIG['timeframes']['primary']} — {_mot_nen}/{_n} lệnh đóng "
+                f"trong ĐÚNG một nến. Bản chạy lại xét từng nến và chặn vào lệnh "
+                f"mới khi còn giữ vị thế, nên nó vào ít hơn hẳn: đo trên cùng "
+                f"BTCUSDT, cùng cửa sổ 11 ngày, cùng bộ luật — chạy lại 5 lệnh "
+                f"+0,959R so với chạy thật 43 lệnh −0,314R. MỌI con số chạy lại "
+                f"ở khung này nói về một hệ giữ lệnh hàng NGÀY; hệ đang chạy giữ "
+                f"lệnh hàng GIỜ. Đừng trừ hai con số cho nhau — chúng khác loại.",
+                _n, {"giuTrungViNen": round(_tv, 3), "soLenh": _n,
+                     "dongTrongMotNen": _mot_nen}))
+
     kt = perf.get("kyThuat") or {}
     if kt.get("so"):
         ra.append(_pd("lenh-ky-thuat", "so-that",

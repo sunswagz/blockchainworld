@@ -1376,6 +1376,58 @@ async def main() -> int:
     else:
         check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
 
+    print("\n[56] NHỊP GIỮ LỆNH THẬT PHẢI SO ĐƯỢC VỚI BẢN CHẠY LẠI")
+    # Khoảng cách «đo một thứ, chạy một thứ khác» LỚN NHẤT hệ này từng tìm ra —
+    # lớn hơn cả chuyện nửa SHORT. Cùng BTCUSDT, cùng cửa sổ 11 ngày, cùng bộ
+    # luật, cùng khung 4h: chạy lại 5 lệnh +0,959R, chạy thật 43 lệnh −0,314R.
+    #
+    # Vì bot thật giữ lệnh trung vị 0,19 NẾN rồi vào lại, còn bản chạy lại xét
+    # từng nến và chặn vào lệnh mới khi còn giữ vị thế. Bot tính đặc trưng trên
+    # nến 4h rồi giao dịch ở nhịp PHÚT.
+    import datetime as _dt23
+    import json as _json23
+
+    from trader import chung_cat as _CC23
+    from trader.chung_cat import _nhip_giu as _ng56
+
+    _t56 = _dt23.datetime(2026, 8, 18, 9, 0, tzinfo=_dt23.timezone.utc)
+    def _l56(gio):
+        return {"openedAt": _t56.isoformat(),
+                "closedAt": (_t56 + _dt23.timedelta(hours=gio)).isoformat(),
+                "id": "x", "status": "CLOSED"}
+
+    _luu56 = (DATA_DIR / store.TRADES)
+    _cu56 = _luu56.read_text(encoding="utf-8") if _luu56.exists() else None
+    try:
+        # Giữ 12 giờ trên khung 4h = 3 nến ⇒ nhịp khớp, KHÔNG kêu.
+        _luu56.write_text(NL.join(_json23.dumps(_l56(12)) for _ in range(8)) + NL,
+                          encoding="utf-8")
+        _r56 = _ng56("4h")
+        check(_r56 is not None and abs(_r56[0] - 3.0) < 1e-6 and _r56[2] == 0,
+              f"giữ 12 giờ trên khung 4h = 3 nến, không lệnh nào dưới một nến ({_r56})")
+        check(not any(x["ma"] == "nhip-giu-lech" for x in _CC23._tu_so_that([])),
+              "nhịp giữ khớp bản chạy lại ⇒ IM (cửa ngược lại)")
+
+        # Giữ 45 phút trên khung 4h = 0,19 nến ⇒ đúng ca thật, PHẢI kêu.
+        _luu56.write_text(NL.join(_json23.dumps(_l56(0.75)) for _ in range(8)) + NL,
+                          encoding="utf-8")
+        _r56b = _ng56("4h")
+        check(_r56b is not None and _r56b[0] < 0.5 and _r56b[2] == 8,
+              f"giữ 45 phút trên khung 4h ⇒ dưới nửa nến, cả 8 lệnh trong một nến ({_r56b})")
+        _pd56 = [x for x in _CC23._tu_so_that([]) if x["ma"] == "nhip-giu-lech"]
+        check(bool(_pd56), "nhịp giữ lệch ⇒ có phát hiện")
+        check(_pd56 and "khác loại" in _pd56[0]["cau"],
+              "và nói rõ hai bên KHÁC LOẠI, đừng trừ cho nhau")
+
+        # Dưới 5 lệnh thì không nói gì — cỡ mẫu ấy chưa phải một nhịp.
+        _luu56.write_text(_json23.dumps(_l56(0.75)) + NL, encoding="utf-8")
+        check(_ng56("4h") is None, "dưới 5 lệnh ⇒ không kết luận về nhịp")
+    finally:
+        if _cu56 is not None:
+            _luu56.write_text(_cu56, encoding="utf-8")
+        else:
+            _luu56.unlink(missing_ok=True)
+
     print("\n[55] DỌN VIỆC MỒ CÔI PHẢI DỰA VÀO KHOÁ, KHÔNG DỰA VÀO TÊN LỆNH")
     # Ngày 30/08 tôi dọn hai nghi thức chạy chồng bằng PowerShell khớp theo MẪU
     # DÒNG LỆNH (`-like '*do-huong*'`). Nó giết đúng việc mồ côi — và giết luôn
