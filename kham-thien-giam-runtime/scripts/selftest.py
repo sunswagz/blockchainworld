@@ -5644,6 +5644,22 @@ def kiem_luoi_va_truc_hoc_offline() -> None:
             lac.append(f.name)
     kiem("không file nào tự dựng lại trục nút", not lac, lac)
 
+    # Đầu vào SUY BIẾN: bước 0 thì không có lưới nào cả. Trả `[thap]`
+    # chứ đừng lặp vô hạn — `while v <= cao: v += 0` không bao giờ dừng,
+    # và một vòng lặp treo trong cổng tiến hoá đêm thì sáng ra chỉ thấy
+    # "runtime không phản hồi", không thấy nguyên nhân.
+    class _NutGia:
+        def __init__(s_, thap, cao, buoc):
+            s_.thap, s_.cao, s_.buoc = thap, cao, buoc
+    kiem("bước 0 ⇒ trả đúng một trị, KHÔNG lặp vô hạn",
+         truc_nut(_NutGia(1.0, 5.0, 0.0)) == [1.0],
+         truc_nut(_NutGia(1.0, 5.0, 0.0)))
+    kiem("bước 0 và trị ấy CHÍNH LÀ đương nhiệm ⇒ rỗng",
+         truc_nut(_NutGia(1.0, 5.0, 0.0), bo=1.0) == [],
+         truc_nut(_NutGia(1.0, 5.0, 0.0), bo=1.0))
+    kiem("bước ÂM cũng không lặp vô hạn",
+         truc_nut(_NutGia(1.0, 5.0, -0.5)) == [1.0])
+
     # ── TRỊ ĐANG DÙNG phải nằm TRÊN lưới của chính nó ─────────────────
     #
     # `dinhGia.bienDongCuaSoGiay` từng khai [60, 3600] bước 300, nên
