@@ -93,6 +93,8 @@ class NhapSoNgoai:
             return None
 
     def den_han(self) -> bool:
+        # `>=` và `>` chỉ khác nhau khi quãng trôi qua BẰNG ĐÚNG nhịp
+        # tính theo `time.time()` — TƯƠNG ĐƯƠNG trên mọi lần chạy thật.
         return time.time() - self._lanHoi >= NHIP_GIAY
 
     # ── nhập ────────────────────────────────────────────────────────────

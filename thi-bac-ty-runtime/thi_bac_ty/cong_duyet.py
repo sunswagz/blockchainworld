@@ -116,6 +116,9 @@ def xet_duyet(deXuat, doDuoc: dict | None) -> PhanQuyetDuyet:
         tran = abs(tu) * BUOC_TOI_DA
         if tran <= 0:
             tran = (khuon["max"] - khuon["min"]) * BUOC_TOI_DA
+        # Dải 1e-9 nuốt trọn chỗ `>` khác `>=` — con đột biến TƯƠNG
+        # ĐƯƠNG. Cái đáng kiểm là «bước ĐÚNG BẰNG trần thì vẫn qua», và
+        # phép kiểm ấy đã có.
         if buoc > tran + 1e-9:
             ly.append(f"bước {buoc:g} vượt trần {tran:g} "
                       f"({BUOC_TOI_DA:.0%} giá trị hiện tại)")
