@@ -1204,6 +1204,94 @@ CHUA_QUET_DOT_BIEN = {
 }
 
 
+def kiem_bien_cua_hoc_offline() -> None:
+    """Biên của BOOTSTRAP KHỐI và cổng vặn ngoại tuyến — 22/23 sống sót.
+
+    `khoang_tin_theo_khoi` là thứ MỌI kết luận "có ý nghĩa" hôm nay dựa
+    vào. Nếu nó sai thì con số 0,85 của giảm chấn, bảng phí, và mọi lần
+    "TỐT HƠN có ý nghĩa" đều phải đọc lại.
+
+    Và `trongTiengOn` — `tin95[0] <= 0 <= tin95[1]` — là phép quyết
+    "khoảng tin có chứa 0 không". Đổi một dấu ở đó là lật mọi phán
+    quyết về tính có nghĩa, mà con số in ra vẫn y nguyên.
+
+    ## Số con đột biến KHÔNG nhúc nhích, và đó là một bài học
+
+    Mười hai phép kiểm ở đây không giết được con nào: 22/23 trước, 22/23
+    sau. Không phải vì chúng vô dụng — mà vì `khoang_tin_theo_khoi` gần
+    như KHÔNG CÓ phép so sánh nào để đem đột biến. Nó là vòng lặp, phép
+    cộng, và một lần sắp xếp.
+
+    Bộ quét chỉ đổi toán tử so sánh. Nó không nhìn thấy: chia khối sai
+    (theo cặp thay vì theo mốc), hạt giống không cố định, hay một
+    khoảng tin sụp về 0 khi chỉ có một khối. Cả ba đều là chỗ hỏng
+    THẬT, và cả ba nay có canh.
+
+    Bài học: **số con còn sống là một thước, không phải THƯỚC.** Đuổi
+    theo nó thì sẽ bỏ qua đúng những chỗ nó mù — và ở đây chỗ nó mù là
+    thứ mọi kết luận "có ý nghĩa" của cả cung dựa vào.
+    """
+    print()
+    print("-- Bien cua BOOTSTRAP KHOI ---------------------------------")
+    from kham.hoc_offline import bien_theo_ung_vien as _btuv
+    from kham.hoc_offline import khoang_tin_theo_khoi as _ktk
+
+    # ── chia khối theo MỐC, không theo cặp ──────────────────────────
+    #
+    # Bốn lát cắt của một khung chia chung MỘT kết quả. Lấy lại theo
+    # từng cặp là giả vờ có gấp bốn quan sát thực, và khoảng tin hẹp
+    # đi theo căn của cái giả vờ ấy.
+    hieu = [0.01, 0.01, 0.01, 0.01, -0.01, -0.01, -0.01, -0.01]
+    moc = [1, 1, 1, 1, 2, 2, 2, 2]
+    t1, c1, k1 = _ktk(hieu, moc)
+    t2, c2, k2 = _ktk(hieu, None)
+    kiem("chia theo MỐC → đúng 2 khối, không phải 8", k1 == 2, k1)
+    kiem("thiếu mốc → mỗi cặp một khối (và khoảng tin HẸP hơn sự thật)",
+         k2 == 8, k2)
+    kiem("gộp khối cho khoảng tin RỘNG hơn — đó là cả điểm của nó",
+         (c1 - t1) > (c2 - t2), (c1 - t1, c2 - t2))
+
+    # ── mẫu rỗng → (0, 0, 0), không nổ ──────────────────────────────
+    kiem("mẫu rỗng → (0, 0, 0)", _ktk([], None) == (0.0, 0.0, 0))
+
+    # ── một khối duy nhất: khoảng tin phải sụp về chính nó ──────────
+    t3, c3, k3 = _ktk([0.5, 0.5, 0.5], [7, 7, 7])
+    kiem("một khối duy nhất → 1 khối, và khoảng tin sụp về giá trị ấy",
+         k3 == 1 and gan(t3, 0.5, 1e-9) and gan(c3, 0.5, 1e-9),
+         (t3, c3, k3))
+
+    # ── hiệu toàn DƯƠNG rõ rệt → khoảng tin KHÔNG chứa 0 ────────────
+    duong = [0.5] * 40
+    mocD = list(range(40))
+    td, cd, _ = _ktk(duong, mocD)
+    kiem("mọi hiệu đều dương → khoảng tin nằm hẳn bên phải 0", td > 0,
+         (td, cd))
+    am = [-0.5] * 40
+    ta, ca, _ = _ktk(am, mocD)
+    kiem("mọi hiệu đều âm → nằm hẳn bên trái 0", ca < 0, (ta, ca))
+    lan = [0.5 if i % 2 else -0.5 for i in range(40)]
+    tl, cl2, _ = _ktk(lan, mocD)
+    kiem("hiệu lẫn lộn quanh 0 → khoảng tin CHỨA 0",
+         tl <= 0 <= cl2, (tl, cl2))
+
+    # ── ỔN ĐỊNH: cùng đầu vào phải ra cùng khoảng tin ───────────────
+    #
+    # Bootstrap dùng hạt giống cố định. Không cố định thì hai lượt chạy
+    # cùng một dữ liệu cho hai phán quyết khác nhau, và không ai lần
+    # được vì sao.
+    kiem("bootstrap ỔN ĐỊNH — cùng đầu vào, cùng khoảng tin",
+         _ktk(duong, mocD) == _ktk(duong, mocD))
+
+    # ── biên siết theo SỐ ỨNG VIÊN — chống so sánh bội ──────────────
+    kiem("càng nhiều ứng viên, biên càng SIẾT",
+         _btuv(60) > _btuv(2), (_btuv(2), _btuv(60)))
+    kiem("biên luôn dưới 1 — vẫn phải khá hơn mới nhận",
+         _btuv(2) < 1.0 and _btuv(600) < 1.0,
+         (_btuv(2), _btuv(600)))
+    kiem("một ứng viên cũng không được nới thành 1,0",
+         _btuv(1) < 1.0, _btuv(1))
+
+
 def kiem_bien_cua_cong_tien_hoa() -> None:
     """Biên của CỔNG TIẾN HOÁ — thứ quyết một thay đổi có VÀO MÁY không.
 
@@ -9120,6 +9208,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_hoc_offline()
     kiem_bien_cua_cong_tien_hoa()
     kiem_bien_cua_chan_doan()
     kiem_phu_quet_dot_bien()
