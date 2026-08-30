@@ -48,6 +48,9 @@ def lech_mark_bps(a: float | None, b: float | None) -> float | None:
     thì ta không biết hai sàn có đang nhìn cùng một thế giới hay không, và
     "không biết" phải chặn lệnh chứ không được lặng lẽ thành "không lệch".
     """
+    # `a <= 0` không với tới được bằng đột biến: `not a` ở vế trước đã
+    # bắt trọn số 0 (0.0 là giá trị sai). Giữ nó làm lớp thứ hai cho số
+    # ÂM thì đúng, nhưng đừng đi tìm phép kiểm cho vế `== 0`.
     if not a or not b or a <= 0 or b <= 0:
         return None
     giua = (a + b) / 2.0

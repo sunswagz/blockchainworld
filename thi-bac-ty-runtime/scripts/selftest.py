@@ -213,6 +213,28 @@ def kiem_can_loi() -> None:
     kiem("sàn chưa khai phí thì tính 0, không nổ",
          gan(phi_khu_hoi_bps("a", "la", phi), 14.0))
 
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    from bac.can_loi import lech_mark_bps, net_apr_pct
+
+    # Giá bằng ĐÚNG 0 là «không có giá», không phải một mức giá. Đọc nó
+    # thành 0 là dựng ra một phép chia cho trung điểm bằng 0.
+    kiem("giá bằng ĐÚNG 0 ở một bên thì lệch mark là None",
+         (lech_mark_bps(0.0, 100.0) is None
+          and lech_mark_bps(100.0, 0.0) is None
+          and lech_mark_bps(None, 100.0) is None),
+         "«không biết» phải chặn lệnh, không được lặng lẽ thành «không "
+         "lệch»")
+    kiem("hai giá dương thì đo được", lech_mark_bps(100.0, 101.0) is not None)
+
+    # Cửa sổ giữ ĐÚNG BẰNG ngưỡng thì quy ra năm được. Ngưỡng 0,25 giờ —
+    # dưới nữa thì hệ số nhân phóng đại một con số vô nghĩa.
+    kiem("giữ ĐÚNG 0,25 giờ thì quy ra năm ĐƯỢC",
+         net_apr_pct(10.0, 0.25) is not None,
+         "ngưỡng là ngưỡng; chặn ở đúng nó là ném một cửa sổ hợp lệ")
+    kiem("ngắn hơn thì trả None, không phải một số lớn vô nghĩa",
+         net_apr_pct(10.0, 0.2499) is None,
+         "cửa sổ 15 phút khoe APR gấp 32 lần cùng NET ở 8 giờ")
+
     kiem("lệch mark 100 trên 10.000 = 100 bps",
          gan(lech_mark_bps(10_000.0, 10_100.0), 99.5024875621890, 1e-6))
     kiem("thiếu một mark → None, KHÔNG phải 0", lech_mark_bps(100.0, None) is None,
@@ -381,6 +403,65 @@ def kiem_cong_rui_ro() -> None:
     kiem("gộp theo mã → 1 nhóm; gộp theo câu → 2 nhóm",
          len(theo_ma) == 1 and len(theo_cau) == 2,
          f"mã={len(theo_ma)} câu={len(theo_cau)}")
+
+    # ── BIÊN của TỪNG CỬA ───────────────────────────────────────────────
+    #
+    # Quét đột biến trên `bac/rui_ro.py` cho 5/8 con sống sót, và cả năm
+    # là ngưỡng. Đây là cổng của ty ĐẦU TIÊN — cùng lớp lỗi đã vá ở Rủi
+    # Ro Tổng, và cùng cái giá: ngưỡng lệch một hạt thì hoặc loại đúng
+    # những cơ hội nằm sát mép, hoặc nhận đúng những cơ hội vừa quá mép.
+    from bac.models import CoHoi as _CH
+    from bac.rui_ro import CongRuiRo as _CRR
+
+    def _co(**kw):
+        o = dict(ma="BTC", sanLong="a", sanShort="b", rateLong=0.0,
+                 rateShort=0.0, intervalLongGio=8.0, intervalShortGio=8.0,
+                 grossBpsNgay=10.0, giuGio=8.0, soMocLong=1, soMocShort=1,
+                 thuBps=5.0, phiBps=1.0, netBps=4.0, netAprPct=None,
+                 lechMarkBps=1.0, choMocDauGiay=None, tuoiXauNhatGiay=1.0,
+                 uocLuongMoc=False)
+        o.update(kw)
+        return _CH(**o)
+
+    _cg = _CRR({"grossToiThieuBpsNgay": 3.0, "netToiThieuBps": 0.5,
+                "lechMarkToiDaBps": 40.0, "tuoiToiDaGiay": 90.0,
+                "lechDongHoToiDaGiay": 60.0})
+
+    def _ma(**kw):
+        # `xet` trả `(duyệt, [(mã, câu)])` — lấy MÃ, không lấy cả cặp.
+        # Lấy cả cặp thì mọi phép `"gross-mong" in ...` là False vĩnh
+        # viễn, và bốn phép kiểm phủ định xanh mà chưa nhìn vào gì.
+        return {m for m, _ in _cg.xet(_co(**kw))[1]}
+
+    kiem("gross ĐÚNG BẰNG sàn thì QUA", "gross-mong" not in _ma(grossBpsNgay=3.0),
+         "sàn là sàn — loại đúng cái biên hợp lệ là loại chỗ phần lớn cơ "
+         "hội thật nằm")
+    kiem("dưới sàn một hạt thì bị chặn",
+         "gross-mong" in _ma(grossBpsNgay=2.99))
+
+    kiem("NET ĐÚNG BẰNG sàn thì QUA", "net-am" not in _ma(netBps=0.5))
+    kiem("dưới sàn thì bị chặn", "net-am" in _ma(netBps=0.49))
+
+    kiem("lệch mark ĐÚNG BẰNG trần thì QUA",
+         "lech-mark" not in _ma(lechMarkBps=40.0))
+    kiem("quá trần thì bị chặn", "lech-mark" in _ma(lechMarkBps=40.01))
+
+    kiem("tuổi dữ liệu ĐÚNG BẰNG trần thì QUA",
+         "du-lieu-cu" not in _ma(tuoiXauNhatGiay=90.0))
+    kiem("già hơn trần thì bị chặn",
+         "du-lieu-cu" in _ma(tuoiXauNhatGiay=90.01))
+
+    # Tuổi ÂM = dấu thời gian sàn nằm ở TƯƠNG LAI so với đồng hồ ta dùng.
+    # Trong biên lệch đồng hồ thì bỏ qua; quá biên thì phải kêu.
+    kiem("tuổi âm ĐÚNG BẰNG biên lệch đồng hồ thì chưa kêu",
+         "dau-thoi-gian-tuong-lai" not in _ma(tuoiXauNhatGiay=-60.0)
+         and "du-lieu-cu" not in _ma(tuoiXauNhatGiay=-60.0),
+         f"{_ma(tuoiXauNhatGiay=-60.0)} — biên ấy sinh ra để nuốt đúng "
+         f"chừng này")
+    kiem("âm quá biên thì có một mã kêu lên",
+         _ma(tuoiXauNhatGiay=-60.01) - _ma(tuoiXauNhatGiay=-60.0) != set(),
+         f"{_ma(tuoiXauNhatGiay=-60.01)} — dấu thời gian ở tương lai mà im "
+         f"lặng là biến một đồng hồ lệch thành «vừa mới tinh»")
 
 
 def kiem_dong_ho() -> None:
@@ -1622,6 +1703,31 @@ def kiem_suc_chua() -> None:
     kiem("lấy MIN của hai chân, không lấy trung bình",
          gan(s, 1_000_000.0 * PHAN_OI),
          "chân mỏng hơn quyết — vị thế phải vào được CẢ HAI")
+
+    # ── BIÊN, chỗ quét đột biến chỉ ra đang trống ───────────────────────
+    #
+    # OI bằng ĐÚNG 0 là «sàn báo không có gì mở», không phải một con số
+    # để suy. Nhận nó vào thì `min` ra 0, sức chứa ra 0, và cơ hội ấy
+    # trông như «chứa được 0 đồng» thay vì «không đoán nổi».
+    _s0, _t0sc = uoc_luong(0.0, 4_000_000.0)
+    kiem("OI bằng ĐÚNG 0 ở một chân thì bỏ chân ấy, dùng chân kia",
+         (_s0 is not None and gan(_s0, min(4_000_000.0 * PHAN_OI, TRAN_USD))
+          and "chi-mot-cang-bao-oi" in _t0sc),
+         f"{_s0} / {_t0sc} — và phải KHAI ra là đang suy từ một phía")
+    kiem("cả hai chân bằng 0 thì None, không phải 0",
+         uoc_luong(0.0, 0.0)[0] is None,
+         "«không đoán nổi» khác «đoán ra số không»")
+
+    # Sức chứa ĐÚNG BẰNG sàn thì NHẬN. Ngưỡng đóng — ném đúng cái biên
+    # hợp lệ là ném những cơ hội nhỏ nhất mà vẫn kinh tế.
+    _oiSan = SAN_USD / PHAN_OI
+    kiem("sức chứa ĐÚNG BẰNG sàn thì NHẬN",
+         uoc_luong(_oiSan, _oiSan)[0] is not None,
+         f"sàn {SAN_USD} USD")
+    kiem("dưới sàn một chút thì trả None kèm mã riêng",
+         (uoc_luong(_oiSan * 0.99, _oiSan * 0.99)[0] is None
+          and "suc-chua-duoi-san" in uoc_luong(_oiSan * 0.99,
+                                               _oiSan * 0.99)[1]))
     kiem("luôn khai là mô hình chưa đủ", "do-sau-so-lenh" in thieu)
 
     s2, t2 = uoc_luong(1e12, 1e12)
