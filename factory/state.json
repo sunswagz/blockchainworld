@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-30T21:24:37.788Z",
-  "lan": 462,
+  "generatedAt": "2026-08-30T23:37:42.469Z",
+  "lan": 463,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-30T21:11:25.101Z",
@@ -47,15 +47,15 @@
       "lucDoi": "2026-08-30T21:18:48.904Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-08-30T21:24:37.788Z",
-      "ket": "loi",
-      "giay": null,
-      "doi": false,
-      "chuThich": "kiểm không qua: dai-quan-trac/assets/js/scan.js — teo đột ngột: 3805 byte, bản cũ 8871 byte",
-      "chuoiLoi": 1,
+      "luc": "2026-08-30T23:37:42.469Z",
+      "ket": "ok",
+      "giay": 241,
+      "doi": true,
+      "chuThich": "quét 241s · dựng 0s · haiku-4-5",
+      "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-08-30T21:21:32.671Z",
-      "lucDoi": "2026-08-30T21:21:32.671Z"
+      "lucOk": "2026-08-30T23:37:42.469Z",
+      "lucDoi": "2026-08-30T23:37:42.469Z"
     },
     "hoang-thanh": {
       "luc": "2026-08-28T15:37:29.979Z",
@@ -290,6 +290,15 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-30T23:37:42.469Z",
+      "ma": "dai-quan-trac",
+      "ket": "ok",
+      "giay": 241,
+      "doi": true,
+      "chuThich": "quét 241s · dựng 0s · haiku-4-5",
+      "vi": null
+    },
     {
       "luc": "2026-08-30T21:24:37.788Z",
       "ma": "dai-quan-trac",
@@ -2079,15 +2088,6 @@
       "giay": 58,
       "doi": false,
       "chuThich": "quét 58s · dựng 0s · haiku-4-5",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-25T18:59:39.281Z",
-      "ma": "nhap-skill",
-      "ket": "ok",
-      "giay": 2,
-      "doi": true,
-      "chuThich": "",
       "vi": null
     }
   ]

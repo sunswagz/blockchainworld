@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-30T21:24:37.788Z",
- "lan": 462,
+ "generatedAt": "2026-08-30T23:37:42.469Z",
+ "lan": 463,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -73,15 +73,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-08-30T21:24:37.788Z",
-   "ket": "loi",
-   "giay": null,
-   "doi": false,
-   "chuThich": "kiểm không qua: dai-quan-trac/assets/js/scan.js — teo đột ngột: 3805 byte, bản cũ 8871 byte",
+   "luc": "2026-08-30T23:37:42.469Z",
+   "ket": "ok",
+   "giay": 241,
+   "doi": true,
+   "chuThich": "quét 241s · dựng 0s · haiku-4-5",
    "vi": null,
-   "chuoiLoi": 1,
-   "lucOk": "2026-08-30T21:21:32.671Z",
-   "lucDoi": "2026-08-30T21:21:32.671Z"
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-30T23:37:42.469Z",
+   "lucDoi": "2026-08-30T23:37:42.469Z"
   },
   {
    "ma": "dong-tin",
@@ -796,6 +796,15 @@ window.VAN_HANH = {
  ],
  "nk": [
   {
+   "luc": "2026-08-30T23:37:42.469Z",
+   "ma": "dai-quan-trac",
+   "ket": "ok",
+   "giay": 241,
+   "doi": true,
+   "chuThich": "quét 241s · dựng 0s · haiku-4-5",
+   "vi": null
+  },
+  {
    "luc": "2026-08-30T21:24:37.788Z",
    "ma": "dai-quan-trac",
    "ket": "loi",
@@ -1324,15 +1333,6 @@ window.VAN_HANH = {
    "giay": 2,
    "doi": true,
    "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-29T17:05:59.329Z",
-   "ma": "thai-boc-tu-tin-pt",
-   "ket": "ok",
-   "giay": 130,
-   "doi": true,
-   "chuThich": "nhận 16 · loại 0 · phủ 30/30 bài · haiku-4.5",
    "vi": null
   }
  ]
