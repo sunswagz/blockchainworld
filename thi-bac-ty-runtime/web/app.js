@@ -2118,6 +2118,23 @@
                                 : String(v), c: "n" }];
         })));
     });
+    /* NÚM NÀO ĐANG CHẠM — không bắt người đọc so hai bảng bằng mắt.
+       Đo 30/08: danh mục đầy 120/120 ghế và 100% lần từ chối là
+       `tran-vi-the`, trong khi 27,8% vốn khả dụng nằm không. Bảng núm
+       ở trên có con số 120, bảng danh mục ở trang khác có con số 120,
+       và chỉ khi đặt cạnh nhau mới thấy cái trần đang bó. */
+    var _dmS = t.danhMuc || {};
+    if (_dmS.soViThe != null && pb2.toiDaSoViThe) {
+      var _cham = _dmS.soViThe >= pb2.toiDaSoViThe;
+      k7.appendChild(giai((_cham ? "⚠ ĐANG CHẠM TRẦN SỐ VỊ THẾ: "
+                                 : "Số vị thế: ")
+        + so(_dmS.soViThe) + "/" + so(pb2.toiDaSoViThe)
+        + (_cham
+           ? " — mọi cơ hội mới đều bị từ chối vì HẾT CHỖ, không phải vì "
+             + "hết tiền hay vì rủi ro. Đổi con số ấy là `dat_tham_so`, "
+             + "và nó đòi TÊN NGƯỜI."
+           : " — còn " + so(pb2.toiDaSoViThe - _dmS.soViThe) + " chỗ.")));
+    }
     f.appendChild(k7);
 
     /* THU VƯỢT TRẦN — lớp lỗi IN RA TIỀN. Trung Ương ghi thẳng con số
