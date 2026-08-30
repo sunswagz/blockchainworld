@@ -12440,8 +12440,34 @@ def kiem_ghe_va_von() -> None:
          f"{g['gheBeTheoTy']} — biết ty nào đang giữ ghế bé là biết trần "
          f"ghế đang chặn chiến lược nào")
     kiem("ghế đầy đo theo TRẦN, không theo số ghế đang có",
-         gan(g["tiLeGheDay"], 10 / 10.0) and g["conGhe"] == 0,
+         gan(g["tiLeGheDay"], 10 / 10.0) and g["conGhe"] == 0
+         and g["soGhe"] == 10,
          str(g))
+
+    # Ghế giữ ĐÚNG BẰNG ngưỡng thì KHÔNG phải ghế bé. Ngưỡng ở đây là
+    # 2.000 USD (8.000 phần chia × 25%), và mọi số đều tròn nhị phân nên
+    # điểm bằng nhau chạm tới được chính xác.
+    _ghe("mep", 2_000.0)
+    g2 = tu.ghe_va_von()
+    kiem("ghế giữ ĐÚNG BẰNG ngưỡng thì KHÔNG bị đếm là ghế bé",
+         g2["soGheBe"] == 8 and gan(g2["nguongGheBeUsd"], 2_000.0),
+         f"{g2} — «dưới ngưỡng» và «không quá ngưỡng» là hai chuyện, và "
+         f"chỗ này đang đếm xem có bao nhiêu ghế đáng gọi là bé")
+
+    # TRẦN GHẾ = 0 nghĩa là CHƯA KHAI, không phải «không có ghế nào».
+    tu.phan_bo.c["toiDaSoViThe"] = 0.0
+    g3 = tu.ghe_va_von()
+    kiem("chưa khai trần ghế thì mọi tỉ lệ là `None`, và KHÔNG chia cho 0",
+         (g3["soGhe"] is None and g3["tiLeGheDay"] is None
+          and g3["conGhe"] is None and g3["phanChiaMoiGheUsd"] is None
+          and g3["nguongGheBeUsd"] is None and g3["soGheBe"] is None),
+         f"{g3} — chia cho một trần bằng 0 không phải «ghế rỗng» mà là "
+         f"«chưa khai trần», và một `ZeroDivisionError` ở đây giết cả "
+         f"ảnh chụp chứ không riêng bảng ghế")
+    kiem("nhưng số ghế ĐANG DÙNG và vốn trong ghế vẫn đo được",
+         g3["soDangDung"] == 11 and gan(g3["vonTrongGheUsd"], 46_000.0),
+         f"{g3} — thiếu mẫu số không làm mất tử số")
+    tu.phan_bo.c["toiDaSoViThe"] = 10.0
 
     # ── câu chẩn `tran-vi-the-chan` phải MANG con số ghế ───────────────
     def _anh(gv=None, ty=None):
@@ -13173,6 +13199,25 @@ def kiem_cua_so_mu() -> None:
              f"thấy 600s nghĩa là ba mốc funding có thể đã rơi vào chỗ "
              f"không ai nhìn")
         kiem("rồi mốc mới được đẩy lên", gan(so.keToanLucGiay, MOC[0]))
+
+        # ── mù ĐÚNG BẰNG trần: vẫn GIỮ, chưa bỏ ────────────────────────
+        #
+        # Ranh giới này chỉ chạm tới được vì đồng hồ đang bị đóng băng —
+        # giờ tường không bao giờ rơi trúng điểm bằng nhau. Và nó đáng
+        # chạm: `>=` thay cho `>` vứt cửa sổ SỚM HƠN một vòng, mà với
+        # thu nhập tới theo MỐC thì một vòng cũng đủ mất trọn một kỳ.
+        ty.mu = True
+        MOC[0] += TRAN_CUA_SO_MU_GIAY
+        l = tu._ke_toan_vi_the()
+        kiem("mù ĐÚNG BẰNG trần thì vẫn GIỮ cửa sổ, chưa bỏ",
+             l.soMuGiuLai == 1 and l.soMuBoQua == 0
+             and so.soCuaSoMuBoQua == 0,
+             f"{l.tom_tat()} — «đúng bằng trần» và «quá trần» là hai "
+             f"chuyện; gộp chúng là vứt cửa sổ sớm hơn một vòng")
+        # đưa mốc về lại để ca dưới đo đúng thứ nó định đo
+        ty.mu = False
+        MOC[0] += 1.0
+        tu._ke_toan_vi_the()
 
         # ── mù QUÁ TRẦN: bỏ hẳn, và ĐẾM ra ─────────────────────────────
         ty.mu = True

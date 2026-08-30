@@ -1182,7 +1182,7 @@ $py = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
 
 & $py run.py                   # buồng lái ở http://localhost:5188
 & $py -m bac.snapshot          # quét một lượt, ghi lát cắt, rồi thoát
-& $py scripts/selftest.py      # 1929 phép kiểm số học, KHÔNG cần mạng
+& $py scripts/selftest.py      # 1933 phép kiểm số học, KHÔNG cần mạng
 & $py scripts/sinh-icon.py     # vẽ lại 5 icon cho cung tĩnh
 node scripts/kiem-buong-lai.mjs  # 58 phép: 10 trang + 7 khối tầng ba,
                                  #   × 3 mẫu; khoá đọc/sinh có khớp
@@ -1793,7 +1793,7 @@ Lượt quét ngày 30/08/2026 trên mọi tầng đường tiền. Cột trái 
 sống sót lúc bắt đầu, cột phải là sau khi vá:
 
     rui_ro_tong    10/15 → 3      phan_bo         6/9  → 0
-    doi_soat        8/17 → 0      xoay_cho       10/15 → 4
+    doi_soat        8/17 → 0      xoay_cho       10/15 → 3
     duong_khoa_von  5/9  → 1      to_trinh       10/15 → 3
     danh_muc        1/2  → 1      so_dang_ky      5/6  → 0
     cau_dao         3/6  → 0      ke_toan         5/9  → 1
@@ -1802,6 +1802,29 @@ sống sót lúc bắt đầu, cột phải là sau khi vá:
     thuc_thi        4/8  → 0      khuon_ty        6/8  → 0
     chay_lai_he    18/29 → 5      bac/rui_ro      5/8  → 0
     bac/suc_chua    2/3  → 0      duong_suc_chua  3/6  → 1
+
+**Hai tệp lớn nhất bị bỏ lại tới lượt sau, và chúng là hai bài toán
+khác nhau.**
+
+`thi_bac_ty/trung_uong.py` — **36/84** lượt đầu; quét lại sau khi vá
+**38/97** ĐO ĐƯỢC (tệp dài thêm vì lớp bảng ghế và lớp cửa sổ mù, nên
+mẫu số lớn hơn). Năm con trong số ấy bị giết ngay sau lượt quét — trần
+cửa sổ mù, và bốn chỗ chia cho số ghế — nên **còn 33; con số 33 là SUY
+RA, chưa quét lại**. Con sống sót ở đây gần như toàn bộ là **`or {}`
+đọc cấu hình** và **mép cửa sổ theo giờ tường**:
+`PhanBo(ban.thamSo.get("phanBo") or {})` bốn chỗ, `gio - truoc < nhip`
+ba chỗ. `PhanBo` nhận `None` không sao nên `or` và `and`
+cùng dựng được một PhanBo mặc định; còn mép giờ tường thì không lượt
+chạy nào rơi trúng điểm bằng nhau. Cả hai nhóm đều TƯƠNG ĐƯƠNG, và
+chỗ nào đã soi ra thì ghi luôn vào mã.
+
+`bac/vong.py` — **29/30**, và đây là con số thật đáng ngại nhất trong
+cả bảng. Nó không hở vì ai quên: thân `mot_vong()` là một coroutine gọi
+bốn sàn, nên không phép kiểm nào chạm tới mà không dựng cả một cái sàn
+giả. Cách gỡ là **tách từng mẩu thuần tuý ra khỏi nó** — `loc_bao_gia_
+cu` và `cang_dang_hong` là hai mẩu đầu, cả hai đứng ngay trước chỗ ghép
+cặp sinh ra cơ hội. Tách chứ không viết lại: cùng một thân, chỉ chuyển
+chỗ.
 
 Con còn lại phần lớn **TƯƠNG ĐƯƠNG** — dải `1e-9`, hoặc một nhánh đã bị
 `continue`/short-circuit chặn trước. Gặp một con như thế thì **ghi chú
