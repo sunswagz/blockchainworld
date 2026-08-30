@@ -50,7 +50,30 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
-CONFIG: dict = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
+def _duong_config() -> Path:
+    """File cấu hình. `TCT_CONFIG` cho phép mỗi LÀN có cấu hình riêng.
+
+    Làn demo hai chiều cần danh sách chợ dài hơn và trần vị thế cao hơn làn
+    chính, mà hai làn dùng chung một cây mã. Sửa `config.json` là sửa cho cả
+    hai — tức đổi cả bot đang giữ vị thế thật vì một phép đo.
+
+    Cùng quy ước với Thị Bạc Ty (`TBT_CONFIG`), nên ai đã đọc cung ấy thì không
+    phải học lại. Đường tương đối tính từ gốc runtime, không phải từ thư mục
+    đang đứng: nghi thức chạy tiến trình con với `cwd` khác.
+    """
+    tay = (os.environ.get("TCT_CONFIG") or "").strip()
+    if not tay:
+        return ROOT / "config.json"
+    f = Path(tay)
+    if not f.is_absolute():
+        f = ROOT / f
+    if not f.exists():
+        raise SystemExit(f"TCT_CONFIG trỏ tới file không có: {f}")
+    return f
+
+
+CONFIG_FILE = _duong_config()
+CONFIG: dict = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
 
 
 def _chong_tran_cli() -> None:

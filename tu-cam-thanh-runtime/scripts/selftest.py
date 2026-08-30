@@ -1111,6 +1111,37 @@ async def main() -> int:
         _o._d = {"usd": 0.0, "calls": 8}
         check(_o.blocked("thesis") is not None,
               "8/8 lượt: luận điểm cũng dừng — trần cứng vẫn là trần cứng")
+    print("\n[53] MỖI LÀN MỘT CẤU HÌNH, KHÔNG SỬA CHUNG")
+    # Làn demo cần 46 chợ và trần 12 vị thế; làn chính giữ 15 chợ và trần 4.
+    # Hai làn dùng chung một cây mã, nên sửa `config.json` là sửa cả cho bot
+    # đang giữ vị thế THẬT vì một phép đo.
+    import json as _js53
+
+    from trader import config as _C53
+
+    _f53 = ROOT / "config-hai-chieu.json"
+    check(_f53.exists(), "có config riêng cho làn demo")
+    if _f53.exists():
+        _d53 = _js53.loads(_f53.read_text(encoding="utf-8"))
+        _chinh53 = _js53.loads((ROOT / "config.json").read_text(encoding="utf-8"))
+        check(_d53.get("mode") == "paper",
+              "làn demo chạy chế độ paper — chỗ duy nhất SHORT không bị chặn")
+        check(_d53.get("port") != _chinh53.get("port"),
+              "hai làn KHÔNG dùng chung cổng")
+        check(len(_d53.get("symbols") or []) > len(_chinh53.get("symbols") or []),
+              "làn demo quét nhiều chợ hơn — thêm QUAN SÁT, không phải thêm lệnh/chợ")
+        _mo53 = (_d53.get("risk") or {}).get("maxOpenPositions") or 0
+        check(_mo53 >= len(_d53["symbols"]) / 6,
+              f"trần vị thế ({_mo53}) đủ rộng so với {len(_d53['symbols'])} chợ — "
+              f"hết chỗ là tín hiệu bị VỨT, và mẫu nghiêng theo bộ chấm")
+        check((_d53.get("risk") or {}).get("riskPerTradePct")
+              == (_chinh53.get("risk") or {}).get("riskPerTradePct"),
+              "rủi ro mỗi lệnh KHÔNG bị nới ở làn demo — nới nó là đo một hệ khác")
+        check(str(_d53.get("_viSao", "")).strip() != "",
+              "cấu hình riêng tự khai VÌ SAO nó khác")
+    check(hasattr(_C53, "CONFIG_FILE") and _C53.CONFIG_FILE.exists(),
+          "config.py khai rõ nó đang đọc file nào")
+
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
     # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:

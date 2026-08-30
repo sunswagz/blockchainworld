@@ -1140,7 +1140,7 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
     cd tu-cam-thanh-runtime
     python run.py                 buồng lái ở localhost:5182, ghi mỗi vòng lặp
     python -m trader.snapshot     ghi một lần rồi thoát
-    python scripts/selftest.py    392 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    400 phép kiểm số học, KHÔNG cần mạng
     python scripts/so-hai-lan.py  hai làn cạnh nhau (vốn, nhịp lệnh, R từng hướng)
     node scripts/kiem-giao-dien.mjs   giao diện có đọc được mọi trường nó cần không
 
@@ -1150,13 +1150,25 @@ của hệ này nằm ở nửa SHORT: MOCK_KEO_LUI_V1 trên 33 chợ 1d chưa t
 SHORT +0,303R/226 lệnh và LONG −0,306R/44 lệnh. Làn demo chạy chế độ `paper`,
 ở đó `spot_only` tắt, nên nó đánh được cả hai chiều trên giá THẬT:
 
-    $env:MODE="paper"; $env:BRAIN="mock"; $env:TCT_LAN_DEMO="1"
+    $env:BRAIN="mock"; $env:TCT_LAN_DEMO="1"
+    $env:TCT_CONFIG="config-hai-chieu.json"
     $env:TCT_DATA_DIR="$PWD\data-hai-chieu"
-    python run.py --port=5282
+    python run.py
 
 Ba biến đó phải có ĐỦ: thiếu `TCT_DATA_DIR` là hai bot ghi chung một sổ lệnh,
-thiếu `TCT_LAN_DEMO` là làn demo ghi đè cung tĩnh của làn chính. `BRAIN=mock`
-để nó không ăn vào trần 8 lượt/ngày của làn chính.
+thiếu `TCT_LAN_DEMO` là làn demo ghi đè cung tĩnh của làn chính, thiếu
+`TCT_CONFIG` là nó chạy cấu hình của làn chính (15 chợ, cổng 5182 — cổng bận,
+uvicorn chết). `BRAIN=mock` để nó không ăn vào trần 8 lượt/ngày của làn chính.
+
+`config-hai-chieu.json` khác `config.json` bốn chỗ, và tự khai vì sao ngay
+trong file: 46 chợ thay vì 15 (rút phép đo tiến tướng từ ~4 tháng xuống ~6 tuần
+bằng cách thêm QUAN SÁT chứ không nới ngưỡng), trần vị thế 12 thay vì 4 (48 chợ
+mà 4 chỗ thì tín hiệu bị vứt khi hết chỗ, và mẫu nghiêng theo bộ chấm), vòng 60
+giây thay vì 20 (46 chợ × 2 khung, ở 20 giây là sát trần trọng số của Binance
+khi cộng cả làn chính), và `mode: paper`. Rủi ro mỗi lệnh GIỮ NGUYÊN — nới nó
+là đo một hệ khác.
+
+Đọc hai làn bằng `python scripts/so-hai-lan.py`.
 
 **Đừng thêm bước này vào `refresh-data.yml`** — cùng lý do Hoàng Thành: một
 bước xanh vĩnh viễn không sinh ra gì.
