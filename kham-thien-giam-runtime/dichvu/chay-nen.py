@@ -87,8 +87,73 @@ def _dat_nhat_ky() -> None:
     sys.stderr = _Ong(logging.ERROR)
 
 
+def dang_chay() -> int | None:
+    """PID của bản ĐANG chạy, hoặc None. Đọc `pid.txt` rồi KIỂM LẠI.
+
+    `pid.txt` một mình không đủ: tiến trình bị `Stop-Process` thì khối
+    `finally` không chạy, nên file ở lại trỏ vào một PID đã chết. Tin nó
+    là từ chối khởi động mãi mãi.
+
+    Nên kiểm cả hai vế — PID còn sống, VÀ nó đúng là bản này chứ không
+    phải một tiến trình khác vô tình trùng số. Trên Windows số PID được
+    dùng lại rất nhanh.
+    """
+    try:
+        so = int(PID.read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return None
+    if so == os.getpid():
+        return None
+    try:
+        import psutil                                    # noqa: F401
+    except ImportError:
+        psutil = None
+    if psutil is not None:
+        try:
+            tt = psutil.Process(so)
+            if "chay-nen" in " ".join(tt.cmdline()):
+                return so
+        except Exception:                                # noqa: BLE001
+            return None
+        return None
+    # Không có psutil thì hỏi hệ điều hành. Thà bỏ sót còn hơn chặn nhầm:
+    # không chắc chắn thì cho chạy, vì chặn nhầm là runtime không lên.
+    try:
+        import subprocess
+        r = subprocess.run(
+            ["tasklist", "/FI", f"PID eq {so}", "/FO", "CSV", "/NH"],
+            capture_output=True, text=True, timeout=10)
+        dong = (r.stdout or "").strip()
+        return so if dong and "pythonw" in dong.lower() else None
+    except Exception:                                    # noqa: BLE001
+        return None
+
+
 def main() -> int:
     _dat_nhat_ky()
+
+    # ── MỘT bản, không hơn ────────────────────────────────────────────
+    #
+    # `pid.txt` đã có từ đầu nhưng chưa ai ĐỌC nó. Hệ quả đo được ngày
+    # 30/08/2026: ba tiến trình `chay-nen.py` cùng sống, một từ 28/08.
+    # Hai bản thừa nằm ở đúng một luồng, 2,4 MB, 0,2–0,6 giây CPU trong
+    # hai ngày — chúng in xong biểu ngữ khởi động rồi treo, không phục
+    # vụ gì, không giữ cổng, không ghi gì.
+    #
+    # Cái giá không phải là tài nguyên mà là NHẬT KÝ: mỗi lần bật thừa
+    # để lại đúng ba dòng "chạy nền, PID x / chế độ / vòng tiến hoá" rồi
+    # im. Đọc log thấy 55 lượt khởi động trong một ngày và không một
+    # dòng lỗi nào — trông y hệt một cỗ máy đang sập rồi tự dậy liên
+    # tục. Mất hơn một tiếng mới lần ra rằng nó không hề sập.
+    #
+    # Một chế độ hỏng mà TRÔNG như chế độ hỏng khác thì đắt hơn nhiều so
+    # với chính nó.
+    cu = dang_chay()
+    if cu is not None:
+        logging.warning("đã có một bản đang chạy (PID %d) — bản này thoát. "
+                        "Muốn thay thì dừng bản kia trước.", cu)
+        return 3
+
     PID.write_text(str(os.getpid()), encoding="utf-8")
     logging.info("=" * 70)
     logging.info("Khâm Thiên Giám — chạy nền, PID %d", os.getpid())
@@ -106,6 +171,13 @@ def main() -> int:
         # phần xoay vòng — file log lớn dần tới lúc không mở nổi.
         uvicorn.run("kham.server:app", host="127.0.0.1",
                     port=CONFIG["port"], log_level="warning", log_config=None)
+    except OSError as e:
+        # Cổng bận là ca RIÊNG, và phải đọc ra được ngay từ dòng đầu.
+        # Gộp nó vào "runtime chết" là giấu nguyên nhân duy nhất mà
+        # người vận hành sửa được trong một câu lệnh.
+        logging.error("KHÔNG chiếm được cổng %s: %s. Nhiều khả năng đã có "
+                      "một bản khác đang nghe ở đó.", CONFIG.get("port"), e)
+        return 2
     except Exception:                                   # noqa: BLE001
         logging.exception("runtime chết")
         return 1

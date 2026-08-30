@@ -5296,6 +5296,72 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_khoa_mot_ban_chay_nen() -> None:
+    """Bật bản thứ hai phải TỰ KHAI rồi thoát, không treo im lặng.
+
+    `dichvu/chay-nen.py` ghi `pid.txt` từ đầu nhưng chưa ai ĐỌC nó. Đo
+    được 30/08/2026: ba tiến trình cùng sống, một từ 28/08. Hai bản thừa
+    nằm ở đúng MỘT luồng, 2,4 MB, 0,2–0,6 giây CPU trong hai ngày —
+    in xong biểu ngữ khởi động rồi treo, không phục vụ, không giữ cổng.
+
+    Cái giá là NHẬT KÝ: mỗi lần bật thừa để lại ba dòng "chạy nền, PID
+    x / chế độ / vòng tiến hoá" rồi im. Log ghi 55 lượt khởi động trong
+    một ngày, không một dòng lỗi — trông y hệt một cỗ máy đang sập rồi
+    tự dậy liên tục, mà nó không hề sập.
+
+    Thứ ĐÁNG canh nhất ở đây không phải "có chặn được không" mà là
+    **KHÔNG ĐƯỢC CHẶN NHẦM**: `pid.txt` ở lại sau `Stop-Process` (khối
+    `finally` không chạy), nên một cái khoá tin file quá mức sẽ từ chối
+    khởi động vĩnh viễn — hỏng nặng hơn hẳn thứ nó vá.
+    """
+    print()
+    print("-- Khoa MOT ban cho chay-nen ------------------------------")
+
+    import importlib.util as _iu
+    import os as _os
+    import tempfile
+
+    _goc = Path(__file__).resolve().parent.parent
+    f = _goc / "dichvu" / "chay-nen.py"
+    kiem("`dichvu/chay-nen.py` có mặt", f.exists())
+    if not f.exists():
+        return
+    sp = _iu.spec_from_file_location("_x_chaynen", f)
+    m = _iu.module_from_spec(sp)
+    sp.loader.exec_module(m)
+
+    tmp = Path(tempfile.mkdtemp()) / "pid.txt"
+    cu = m.PID
+    try:
+        m.PID = tmp
+        kiem("không có pid.txt ⇒ cho chạy", m.dang_chay() is None)
+
+        tmp.write_text("khong-phai-so", encoding="utf-8")
+        kiem("pid.txt rác ⇒ cho chạy, không ném", m.dang_chay() is None)
+
+        tmp.write_text(str(_os.getpid()), encoding="utf-8")
+        kiem("pid.txt trỏ vào CHÍNH mình ⇒ cho chạy",
+             m.dang_chay() is None, "tự chặn mình là kẹt vĩnh viễn")
+
+        # PID gần như chắc chắn không tồn tại. Đây là ca ĐẮT NHẤT: file
+        # ở lại sau khi tiến trình bị giết.
+        tmp.write_text("999999", encoding="utf-8")
+        kiem("pid.txt CŨ (tiến trình đã chết) ⇒ vẫn cho chạy",
+             m.dang_chay() is None,
+             "chặn ở đây là runtime không bao giờ lên lại được")
+    finally:
+        m.PID = cu
+
+    # Và phần khai báo: cổng bận phải là một câu RIÊNG, không lẫn vào
+    # "runtime chết" — đó là nguyên nhân duy nhất người vận hành sửa
+    # được bằng một câu lệnh.
+    _src = f.read_text(encoding="utf-8")
+    kiem("cổng bận được tách thành nhánh lỗi riêng",
+         "except OSError" in _src and "KHÔNG chiếm được cổng" in _src)
+    kiem("và bản thứ hai KHAI ra rồi thoát chứ không đi tiếp",
+         "đã có một bản đang chạy" in _src and "return 3" in _src)
+
+
 def kiem_so_hieu_chinh_gom_moi_cho() -> None:
     """Sổ hiệu chỉnh phải khớp trên MỌI chợ, không phải chợ đầu tiên.
 
@@ -9889,6 +9955,7 @@ def main() -> int:
     kiem_mot_bo_uoc_sigma()
     kiem_nho_sigma_theo_cho()
     kiem_so_hieu_chinh_gom_moi_cho()
+    kiem_khoa_mot_ban_chay_nen()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
