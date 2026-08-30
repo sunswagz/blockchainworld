@@ -1172,6 +1172,197 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_so_lenh() -> None:
+    """Biên của SỔ LỆNH — nơi tính GIÁ TA SẼ TRẢ.
+
+    Bộ quét đột biến: **23 trên 24 con sống sót**, phủ kém nhất cả cung.
+    Mà mọi lợi thế, mọi cỡ lệnh, mọi mô phỏng khớp đều đi qua đây: sai
+    một biên là sai giá, và sai giá thì mọi con số phía sau sai theo mà
+    vẫn đúng cú pháp.
+
+    Bốn nhóm:
+
+    · SỔ MỘT CHIỀU. Chỉ có bid, hoặc chỉ có ask — mọi phép đo phải trả
+      `None`, không phải một con số dựng trên một nửa sổ.
+    · THANG CHỜ. 20 mức trải hơn 0,90 đô là thang chờ trước giờ mở,
+      không phải báo giá. Nhận nhầm nó là "chợ tin UP 99,9%".
+    · ĐI DỌC SỔ. Khớp một phần phải khai `dayDu=False`; xin nhiều hơn
+      cả sổ phải khớp đúng phần có; tác động giá không bao giờ âm.
+    · SỨC CHỨA THEO HẠN GIÁ. Ngay mức đầu đã vượt hạn thì sức chứa
+      bằng 0, không phải "một ít".
+
+    ## Sau khi viết xong: 24 con → 17 CHẾT, 7 TƯƠNG ĐƯƠNG
+
+        228 248 269  cả ba so với một epsilon (1e-12, 1e-9). Epsilon
+                     đã nuốt trọn điểm bằng nhau, nên đổi `<` thành
+                     `<=` không đổi được gì.
+        202 216      `tong <= 0` và `giua <= 0` trong `suc_chua`. Ở 0
+                     thì nhánh kia vẫn chạy tới cùng một câu trả lời 0:
+                     `_di_qua` với `muon = 0` trả `khop = 0`, phép chia
+                     đôi có `lo = hi = 0` nên `giua = 0` và thoát ngay.
+        207 219      `het.khop > 0` / `r.khop > 0` — `khop` chỉ bằng 0
+                     khi sổ rỗng, và dòng 202 đã chặn ca ấy.
+
+    Fixture đắt nhất ở đây là **sổ có mức khối lượng 0** — nó một mình
+    giết bốn con. Sổ thật có ca ấy (mức vừa bị ăn sạch nhưng chưa gỡ),
+    và mức 0 nhìn từ ngoài giống hệt một mức bình thường.
+    """
+    print()
+    print("-- Bien cua SO LENH ----------------------------------------")
+    from kham.so_lenh import Muc as _M4
+    from kham.so_lenh import SoLenh as _S4
+
+    def so(bid=(), ask=()):
+        return _S4(ma="X", ben="UP",
+                   bid=[_M4(g, l) for g, l in bid],
+                   ask=[_M4(g, l) for g, l in ask], nhanLucMs=0.0)
+
+    day = so(bid=((0.44, 100.0), (0.42, 200.0)),
+             ask=((0.46, 100.0), (0.50, 200.0)))
+
+    # ── sổ MỘT CHIỀU: mọi phép đo phải câm, không bịa ─────────────────
+    chiBid = so(bid=((0.44, 100.0),))
+    chiAsk = so(ask=((0.46, 100.0),))
+    for ten, x in (("chỉ có BID", chiBid), ("chỉ có ASK", chiAsk)):
+        kiem(f"{ten} → spread None", x.spread is None, x.spread)
+        kiem(f"{ten} → giữa None", x.giua is None, x.giua)
+        kiem(f"{ten} → vi giá None", x.vi_gia is None, x.vi_gia)
+        kiem(f"{ten} → KHÔNG hai chiều", not x.hai_chieu)
+        kiem(f"{ten} → KHÔNG dùng được", not x.dung_duoc)
+    kiem("sổ hai chiều tử tế thì DÙNG ĐƯỢC", day.dung_duoc)
+
+    # ── độ sâu: chỉ đếm mức TRONG khoảng, mép tính vào ────────────────
+    b, a = day.do_sau(0.02)
+    kiem("độ sâu quanh 2c: mép ĐÚNG BẰNG khoảng được TÍNH VÀO",
+         gan(b, 300.0) and gan(a, 100.0), (b, a))
+    b2, a2 = day.do_sau(0.0)
+    kiem("quanh 0 thì chỉ còn đúng mức tốt nhất",
+         gan(b2, 100.0) and gan(a2, 100.0), (b2, a2))
+    kiem("sổ rỗng thì độ sâu (0, 0), không nổ", so().do_sau() == (0.0, 0.0))
+    kiem("và lệch là None chứ không phải 0", so().lech() is None)
+
+    # ── THANG CHỜ: 20 mức trải hơn 0,90 đô ───────────────────────────
+    thang = so(bid=tuple((0.001 + i * 0.05, 100.0) for i in range(20)),
+               ask=((0.999, 100.0),))
+    kiem("20 mức trải hơn 0,90 → nhận ra là THANG CHỜ",
+         thang.trai_ca_bang, [m.gia for m in thang.bid][:3])
+    kiem("và sổ ấy KHÔNG dùng được, dù trông đầy hàng",
+         not thang.dung_duoc)
+    hep = so(bid=tuple((0.40 + i * 0.001, 100.0) for i in range(20)),
+             ask=((0.46, 100.0),))
+    kiem("20 mức nhưng trải hẹp → KHÔNG phải thang chờ",
+         not hep.trai_ca_bang)
+    it = so(bid=tuple((0.001 + i * 0.06, 100.0) for i in range(19)),
+            ask=((0.999, 100.0),))
+    kiem("19 mức thì chưa đủ để kết luận thang chờ",
+         not it.trai_ca_bang)
+
+    # ── đi dọc sổ ────────────────────────────────────────────────────
+    r = day.vwap_mua(50.0)
+    kiem("mua trong MỘT mức → vwap đúng bằng mức ấy",
+         gan(r.vwap, 0.46) and r.dayDu and r.soMuc == 1, (r.vwap, r.soMuc))
+    kiem("và tác động giá bằng 0", gan(r.tacDong, 0.0), r.tacDong)
+    r = day.vwap_mua(200.0)
+    kiem("mua qua HAI mức → vwap là bình quân theo lượng",
+         gan(r.vwap, (100 * 0.46 + 100 * 0.50) / 200.0), r.vwap)
+    kiem("tác động giá DƯƠNG khi phải ăn sâu", r.tacDong > 0, r.tacDong)
+    r = day.vwap_mua(300.0)
+    kiem("xin ĐÚNG BẰNG cả sổ → đầy đủ", r.dayDu and gan(r.khop, 300.0),
+         (r.khop, r.dayDu))
+    r = day.vwap_mua(301.0)
+    kiem("xin hơn cả sổ → khớp phần có, và khai dayDu FALSE",
+         gan(r.khop, 300.0) and not r.dayDu, (r.khop, r.dayDu))
+    r = day.vwap_mua(0.0)
+    kiem("xin 0 cổ → khớp 0", gan(r.khop, 0.0), r.khop)
+    # `dayDu` phải là TRUE: xin 0 và nhận 0 là ĐỦ. Khai False ở đây là
+    # báo một lần khớp hụt chưa từng xảy ra, và Risk Engine đọc cờ ấy.
+    kiem("và `dayDu` là TRUE — xin 0 nhận 0 là ĐỦ", r.dayDu, r.dayDu)
+
+    # ── sổ có mức KHỐI LƯỢNG 0: có mức mà không có hàng ───────────────
+    #
+    # Sổ thật có ca này (mức vừa bị ăn sạch nhưng chưa bị gỡ). Mọi phép
+    # chia ở đây phải chịu được nó, không thì `ZeroDivisionError` giữa
+    # vòng chạy — và mức 0 nhìn từ ngoài giống hệt một mức bình thường.
+    khong = so(bid=((0.44, 0.0),), ask=((0.46, 0.0),))
+    kiem("mức 0 hàng: vi giá rơi về GIỮA, không chia cho 0",
+         khong.vi_gia is not None and gan(khong.vi_gia, khong.giua),
+         khong.vi_gia)
+    kiem("mức 0 hàng: sức chứa 0, không nổ",
+         gan(khong.suc_chua(0.99), 0.0), khong.suc_chua(0.99))
+    rk = khong.vwap_mua(10.0)
+    kiem("mức 0 hàng: khớp 0 và KHÔNG đầy đủ",
+         gan(rk.khop, 0.0) and not rk.dayDu, (rk.khop, rk.dayDu))
+    kiem("và vwap là 0 chứ không phải một số bịa", gan(rk.vwap, 0.0),
+         rk.vwap)
+    tron = so(bid=((0.44, 100.0),),
+              ask=((0.46, 0.0), (0.50, 100.0)))
+    rt = tron.vwap_mua(50.0)
+    kiem("mức 0 hàng nằm GIỮA sổ thì bị bỏ qua, không dừng cả phép đi",
+         gan(rt.khop, 50.0) and gan(rt.vwap, 0.50), (rt.khop, rt.vwap))
+    # Và nó KHÔNG được đếm vào `soMuc`. Con số ấy là "phải ăn qua mấy
+    # mức" — một thước về độ sâu phải đi. Đếm cả mức rỗng là thổi
+    # phồng nó, và không phép tính nào kêu.
+    kiem("mức 0 hàng KHÔNG được đếm vào `soMuc`", rt.soMuc == 1, rt.soMuc)
+    r = so().vwap_mua(10.0)
+    kiem("sổ rỗng → khớp 0, không nổ", gan(r.khop, 0.0) and not r.dayDu)
+
+    # ── SỨC CHỨA theo hạn giá: "cơ hội này to bằng nào" ──────────────
+    #
+    # Một con số edge trần trụi không nói được điều này: edge 10c mà chỉ
+    # khớp được 4 đô thì kém hơn edge 1,2c khớp được 20.000 đô. Hàm này
+    # trả lời bằng phép chia đôi, và phép chia đôi chỉ đúng nhờ tính
+    # ĐƠN ĐIỆU — mua thêm bao giờ cũng làm vwap tệ đi hoặc giữ nguyên.
+    kiem("hạn RỘNG hơn cả sổ → sức chứa là CẢ sổ",
+         gan(day.suc_chua(0.99), 300.0), day.suc_chua(0.99))
+    kiem("hạn ĐÚNG BẰNG mức đầu → chứa trọn mức đầu",
+         gan(day.suc_chua(0.46), 100.0, 0.5), day.suc_chua(0.46))
+    kiem("hạn DƯỚI mức đầu → sức chứa 0, không phải 'một ít'",
+         gan(day.suc_chua(0.45), 0.0), day.suc_chua(0.45))
+    # Giữa hai mức: vwap = 0,48 khi lấy trọn 200 cổ, nên hạn 0,48 phải
+    # chứa được quãng 200 — chứ không phải chỉ 100.
+    kiem("hạn giữa hai mức → chia đôi tìm đúng chỗ vwap chạm hạn",
+         190.0 < day.suc_chua(0.48) <= 200.5, day.suc_chua(0.48))
+    kiem("sổ rỗng → sức chứa 0", gan(so().suc_chua(0.99), 0.0))
+    # Chiều BÁN: hạn là SÀN chứ không phải trần.
+    kiem("bán: hạn thấp hơn mọi mức bid → chứa cả sổ",
+         gan(day.suc_chua(0.01, mua=False), 300.0),
+         day.suc_chua(0.01, mua=False))
+    kiem("bán: hạn cao hơn best bid → sức chứa 0",
+         gan(day.suc_chua(0.50, mua=False), 0.0),
+         day.suc_chua(0.50, mua=False))
+
+    # ── lý do KHÔNG dùng được phải nêu ĐÚNG tên ──────────────────────
+    kiem("sổ rỗng → nói 'sổ rỗng'", so().ly_do_khong_dung() == "sổ rỗng",
+         so().ly_do_khong_dung())
+    kiem("chỉ có BID → nói thiếu bên ASK, không nói 'sổ rỗng'",
+         chiBid.ly_do_khong_dung() not in (None, "sổ rỗng"),
+         chiBid.ly_do_khong_dung())
+    kiem("thang chờ → nêu đúng tên nó",
+         "thang chờ" in (thang.ly_do_khong_dung() or ""),
+         thang.ly_do_khong_dung())
+    kiem("sổ tử tế → không có lý do nào", day.ly_do_khong_dung() is None,
+         day.ly_do_khong_dung())
+
+    # ── biên đúng 0,90 của thang chờ ─────────────────────────────────
+    dung90 = so(bid=tuple((0.05 + i * (0.90 / 19.0), 100.0)
+                          for i in range(20)),
+                ask=((0.999, 100.0),))
+    kiem("trải ĐÚNG BẰNG 0,90 thì CHƯA phải thang chờ",
+         not dung90.trai_ca_bang,
+         max(m.gia for m in dung90.bid) - min(m.gia for m in dung90.bid))
+
+    # ── microprice chạy ĐÚNG HƯỚNG ───────────────────────────────────
+    #
+    # Nhiều hàng ở BID nghĩa là giá bị đẩy về phía ASK. Viết ngược thì
+    # mọi tín hiệu dựa trên nó đảo chiều mà không lỗi nào ném ra.
+    nangBid = so(bid=((0.44, 900.0),), ask=((0.46, 100.0),))
+    kiem("bid dày → vi giá lệch về phía ASK",
+         nangBid.vi_gia > nangBid.giua, (nangBid.vi_gia, nangBid.giua))
+    nangAsk = so(bid=((0.44, 100.0),), ask=((0.46, 900.0),))
+    kiem("ask dày → vi giá lệch về phía BID",
+         nangAsk.vi_gia < nangAsk.giua, (nangAsk.vi_gia, nangAsk.giua))
+
+
 def kiem_bien_cua_can_loi() -> None:
     """Biên của CÂN LỢI — nơi quyết một cơ hội có đáng làm không.
 
@@ -6975,6 +7166,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_so_lenh()
     kiem_bien_cua_can_loi()
     kiem_bien_cua_dinh_gia()
     kiem_bien_cua_ket_toan()
