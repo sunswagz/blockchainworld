@@ -1190,28 +1190,34 @@ def kiem_bien_cua_do_tre() -> None:
       đánh giá được — nhánh thật tính chúng vào rồi gọi là "không phản
       ứng kịp", nên đối chứng bỏ chúng ra là hai tỉ lệ không so được.
 
-    ## Sau khi viết xong: 26 con → 8 CHẾT, 18 CÒN SỐNG
+    ## Sau khi viết xong: 26 con → 13 CHẾT, 13 CÒN SỐNG
 
-    Đây là module DUY NHẤT trong cung mà tôi dừng lại với một con số
-    lớn, nên phải nói rõ vì sao thay vì để nó trông như đã xong:
+    Đã dựng được giả lập dòng nến (240 mẫu cách 250 ms, nhiễu nhỏ, rồi
+    một cú nhảy ở giây cuối), nên phần DÒ CÚ ĐỘNG nay có canh: ngưỡng
+    tự co giãn theo σ của chính chuỗi (cùng cú nhảy 0,05% là cú động
+    trên nền yên và KHÔNG phải cú động trên nền ồn), hướng ghi đúng
+    chiều, quãng nghỉ chặn đếm một cú thành nhiều, và ba lối từ chối
+    (thiếu mẫu, nền phẳng σ = 0, giá gốc bằng 0).
 
-    · **10 con ở `_soat_cu_dong`** (dò cú động phía nền). Muốn chạm tới
-      chúng phải giả lập cả một dòng nến có thật — 40 mẫu trong cửa sổ
-      σ, một mốc "gần nhất trước", và một bước log-return vượt đúng
-      `K_NGUONG` lần độ lệch chuẩn của chính nó. Làm được, chỉ là chưa
-      làm.
+    Mười ba con còn sống, phân loại:
+
     · **5 con ở `_doi_chung`.** Mốc so sánh RÚT NGẪU NHIÊN
-      (`rng.uniform`), nên không có cách nào đặt nó rơi đúng vào biên.
-      Đây là giới hạn của thiết kế chứ không phải của phép kiểm — và
-      thiết kế ấy đúng, vì ngẫu nhiên chính là điều làm nhóm đối chứng
-      có nghĩa.
-    · **3 con còn lại** so với epsilon hoặc trên trạng thái không tồn
-      tại (khoá lưới trùng nhau trong một `dict`).
+      (`rng.uniform`), nên không đặt được nó rơi đúng vào biên. Đây là
+      giới hạn của THIẾT KẾ, không phải của phép kiểm — và thiết kế ấy
+      đúng, vì ngẫu nhiên chính là điều làm nhóm đối chứng có nghĩa.
+    · **362 367** không tới được: `len(o) < 12` ở trên đã bảo đảm ít
+      nhất 11 hiệu số, nên `len(r) < 8` không bao giờ đúng; và khoá lưới
+      lấy từ một `dict` đã sắp nên hiệu luôn ≥ 1.
+    · **170 176** cần `chuan` rơi ĐÚNG vào `K_NGUONG` tới từng bit, và
+      `buoc` đúng bằng 0 (mà lúc ấy `chuan = 0 < K` nên đã trả về từ
+      dòng trên).
+    · **149 197 209** so với epsilon hoặc với mốc thời gian đúng bằng
+      nhau trong một chuỗi mẫu — nhắm được nhưng phải dựng thêm ba
+      fixture nữa.
 
     Module này KHÔNG nằm trên đường tiền: nó không đặt lệnh, không tính
-    lãi lỗ. Nó là một cái THƯỚC. Nhưng nó là thước cho con số mà cả một
-    dòng bot dựng quanh, nên 18 con còn sống là một món nợ có tên, không
-    phải một chỗ đã xong.
+    lãi lỗ. Nhưng nó là thước cho con số mà cả một dòng bot dựng quanh,
+    nên phần còn lại vẫn là một món nợ có tên.
     """
     print()
     print("-- Bien cua THUOC DO TRE -----------------------------------")
@@ -1362,10 +1368,129 @@ def kiem_bien_cua_do_tre() -> None:
     # Giá 0 lọt vào lưới là `log(0)` — nổ giữa vòng chạy. Trộn một mẫu 0
     # vào giữa một chuỗi tử tế: lọc đúng thì kết quả không đổi.
     lanhLan = [(i * 300.0, 100.0 + i) for i in range(20)]
-    banLan = list(lanhLan)
-    banLan.insert(10, (10 * 300.0 + 1.0, 0.0))
-    kiem("một mẫu giá 0 lẫn vào giữa → bị loại, không làm nổ log",
+    # Mẫu 0 phải nằm ở Ô RIÊNG và là mẫu CUỐI của ô ấy — nếu không thì
+    # một mẫu tử tế cùng ô ghi đè lên nó và phép kiểm không kiểm gì.
+    banLan = lanhLan + [(20 * 300.0, 0.0)]
+    kiem("một mẫu giá 0 ở ô riêng → bị loại, không làm nổ log",
          _sg(banLan) is not None, _sg(banLan))
+    kiem("và nó cho ĐÚNG cùng σ với chuỗi không có mẫu hỏng",
+         gan(_sg(banLan), _sg(lanhLan), 1e-15),
+         (_sg(banLan), _sg(lanhLan)))
+
+    # ── DÒ CÚ ĐỘNG phía nền — trái tim của thước ─────────────────────
+    #
+    # Ngưỡng là "vượt K lần độ lệch chuẩn CỦA CHÍNH NÓ", không phải một
+    # phần trăm cố định. Ngưỡng cố định biến một phiên yên ả thành
+    # "không có gì xảy ra" và một phiên sôi động thành "cái gì cũng là
+    # cú động" — nên phải canh rằng nó thật sự tự co giãn.
+    class _NenGia:
+        def __init__(self, mau):
+            self.mau = mau
+
+        def lat(self, cap, t0, t1):
+            return [x for x in self.mau if t0 <= x[0] <= t1]
+
+        def gan_nhat_truoc(self, cap, t):
+            ds = [x for x in self.mau if x[0] <= t]
+            return ds[-1] if ds else None
+
+    _now = 1_000_000.0
+
+    def _chuoiNen(nhay=0.0, soMau=241, gocGia=100.0):
+        """240 mẫu cách 250 ms, nhiễu nhỏ, rồi một cú nhảy ở giây cuối."""
+        ra = []
+        for i in range(soMau):
+            t = _now - _DT.CUA_SO_SIGMA_MS + i * 250.0
+            g = gocGia * (1.0 + 0.00002 * ((i % 7) - 3))
+            if t > _now - _DT.CUA_SO_MS:
+                g *= (1.0 + nhay)
+            ra.append((t, g))
+        return ra
+
+    def _do(nhay=0.0, soMau=241, nghiToi=0.0, gocGia=100.0):
+        d = _may([], {})
+        d.nen = _NenGia(_chuoiNen(nhay, soMau, gocGia))
+        d._nghiToi = {"X": nghiToi}
+        d._soat_cu_dong("X", "BTCUSDT", _now)
+        return d
+
+    kiem("phiên yên ả (chuẩn hoá 0,61 < 3) → KHÔNG có cú động",
+         not _do(0.0)._suKien)
+    d = _do(0.0005)
+    kiem("nhảy 0,05% trên nền yên (chuẩn hoá 3,72 > 3) → CÓ cú động",
+         len(d._suKien) == 1, len(d._suKien))
+    kiem("và hướng ghi đúng chiều nền TĂNG",
+         d._suKien[0].huong == 1, d._suKien[0].huong)
+    kiem("độ lớn ghi lại là số ĐÃ CHUẨN HOÁ, không phải log-return thô",
+         d._suKien[0].doLon > 3.0, d._suKien[0].doLon)
+    d = _do(-0.002)
+    kiem("nền GIẢM → hướng −1", d._suKien[0].huong == -1,
+         d._suKien[0].huong)
+
+    # Ngưỡng TỰ CO GIÃN: cùng cú nhảy 0,05% nhưng nền ồn hơn thì không
+    # còn là cú động. Đây là cả lý do dùng σ thay vì phần trăm cố định.
+    def _chuoiOn(nhay):
+        ra = []
+        for i in range(241):
+            t = _now - _DT.CUA_SO_SIGMA_MS + i * 250.0
+            g = 100.0 * (1.0 + 0.002 * ((i % 7) - 3))
+            if t > _now - _DT.CUA_SO_MS:
+                g *= (1.0 + nhay)
+            ra.append((t, g))
+        return ra
+    dOn = _may([], {})
+    dOn.nen = _NenGia(_chuoiOn(0.0005))
+    dOn._nghiToi = {}
+    dOn._soat_cu_dong("X", "BTCUSDT", _now)
+    kiem("cùng cú nhảy ấy trên nền ỒN → KHÔNG còn là cú động",
+         not dOn._suKien, len(dOn._suKien))
+
+    # ── từ chối thay vì đoán ─────────────────────────────────────────
+    kiem("chưa đủ 40 mẫu → không dò, không bịa",
+         not _do(0.002, soMau=39)._suKien)
+    # ĐÚNG 40 mẫu, nhưng phải TRẢI HẾT cửa sổ σ — 40 mẫu cách nhau
+    # 250 ms chỉ phủ 10 giây đầu, nên cú nhảy ở giây cuối không nằm
+    # trong mẫu và phép kiểm hoá ra kiểm một chuyện khác.
+    _bon0 = []
+    for i in range(40):
+        t = _now - _DT.CUA_SO_SIGMA_MS + i * (_DT.CUA_SO_SIGMA_MS / 39.0)
+        g = 100.0 * (1.0 + 0.00002 * ((i % 7) - 3))
+        if t > _now - _DT.CUA_SO_MS:
+            g *= 1.002
+        _bon0.append((t, g))
+    d40 = _may([], {})
+    d40.nen = _NenGia(_bon0)
+    d40._nghiToi = {}
+    d40._soat_cu_dong("X", "BTCUSDT", _now)
+    kiem("ĐÚNG 40 mẫu (trải hết cửa sổ) → đã dò được", d40._suKien,
+         len(d40._suKien))
+    # Giá gốc ≤ 0 thì `log(cuoi/dau)` vô nghĩa — phải từ chối, không nổ.
+    dXau = _may([], {})
+    _mauXau = _chuoiNen(0.002)
+    _mauXau = [(t, (0.0 if _now - _DT.CUA_SO_SIGMA_MS + 100 * 250.0
+                    <= t <= _now - _DT.CUA_SO_MS else g))
+               for t, g in _mauXau]
+    dXau.nen = _NenGia(_mauXau)
+    dXau._nghiToi = {}
+    dXau._soat_cu_dong("X", "BTCUSDT", _now)
+    kiem("giá gốc bằng 0 → TỪ CHỐI dò, không lấy log của 0",
+         not dXau._suKien, len(dXau._suKien))
+    d = _may([], {})
+    d.nen = _NenGia([(_now - _DT.CUA_SO_SIGMA_MS + i * 250.0, 100.0)
+                     for i in range(241)])
+    d._nghiToi = {}
+    d._soat_cu_dong("X", "BTCUSDT", _now)
+    kiem("nền phẳng hoàn toàn (σ = 0) → không dò, không chia cho 0",
+         not d._suKien)
+    kiem("đang trong quãng NGHỈ → bỏ qua, không đếm một cú thành nhiều",
+         not _do(0.002, nghiToi=_now + 1.0)._suKien)
+    kiem("nghỉ ĐÚNG BẰNG `now` thì hết nghỉ, được dò lại",
+         _do(0.002, nghiToi=_now)._suKien)
+    # Sau khi ghi một cú động, quãng nghỉ phải được ĐẶT.
+    d = _do(0.002)
+    kiem("ghi cú động xong thì ĐẶT quãng nghỉ",
+         d._nghiToi["X"] == _now + _DT.NGHI_SAU_SU_KIEN_MS,
+         d._nghiToi.get("X"))
 
     # ── NHÓM ĐỐI CHỨNG: thứ quyết "tiếng ồn hay độ trễ thật" ─────────
     #
