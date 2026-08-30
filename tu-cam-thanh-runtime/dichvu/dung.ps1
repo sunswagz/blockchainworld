@@ -5,10 +5,13 @@
 # Thứ tự quan trọng: GIẾT GIÁM SÁT TRƯỚC. Giết runtime trước thì giám sát thấy
 # con chết và lập tức dựng con mới — trông như lệnh dừng không có tác dụng.
 
-$GOC = Split-Path -Parent $PSScriptRoot
-$tt  = Join-Path $PSScriptRoot "trang-thai.json"
+param([switch]$Demo)
 
-Write-Host "`n=== Dừng Tử Cấm Thành ===`n"
+$GOC = Split-Path -Parent $PSScriptRoot
+$tt  = Join-Path $PSScriptRoot $(if ($Demo) { "trang-thai-demo.json" } else { "trang-thai.json" })
+$cauHinh = Join-Path $GOC $(if ($Demo) { "config-hai-chieu.json" } else { "config.json" })
+
+Write-Host "`n=== Dừng Tử Cấm Thành$(if ($Demo) { " — LÀN DEMO" }) ===`n"
 
 if (Test-Path $tt) {
   $s = Get-Content $tt -Raw | ConvertFrom-Json
@@ -24,7 +27,7 @@ if (Test-Path $tt) {
 
 # Quét lần cuối theo cổng: giám sát có thể đã bị giết trước đó mà bỏ lại con
 # mồ côi, và một tiến trình mồ côi giữ cổng sẽ chặn lần bật kế tiếp — im lặng.
-$cong = (Get-Content "$GOC\config.json" -Raw | ConvertFrom-Json).port
+$cong = (Get-Content $cauHinh -Raw | ConvertFrom-Json).port
 $conn = Get-NetTCPConnection -LocalPort $cong -State Listen -ErrorAction SilentlyContinue
 foreach ($c in $conn) {
   Stop-Process -Id $c.OwningProcess -Force -ErrorAction SilentlyContinue
@@ -34,4 +37,4 @@ foreach ($c in $conn) {
 Start-Sleep -Milliseconds 600
 $con = Get-NetTCPConnection -LocalPort $cong -State Listen -ErrorAction SilentlyContinue
 if ($con) { Write-Host "  ⚠    cổng $cong vẫn còn bị giữ" }
-else      { Write-Host "  OK   cổng $cong đã nhả`n`n  Bật lại: powershell -File dichvu\bat.ps1`n" }
+else      { Write-Host "  OK   cổng $cong đã nhả`n`n  Bật lại: powershell -File dichvu\bat.ps1$(if ($Demo) { " -Demo" })`n" }

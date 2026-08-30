@@ -1140,7 +1140,7 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
     cd tu-cam-thanh-runtime
     python run.py                 buồng lái ở localhost:5182, ghi mỗi vòng lặp
     python -m trader.snapshot     ghi một lần rồi thoát
-    python scripts/selftest.py    401 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    406 phép kiểm số học, KHÔNG cần mạng
     python scripts/so-hai-lan.py  hai làn cạnh nhau (vốn, nhịp lệnh, R từng hướng)
     node scripts/kiem-giao-dien.mjs   giao diện có đọc được mọi trường nó cần không
 
@@ -1149,6 +1149,11 @@ chính chạy sàn spot testnet nên `risk.py` chặn SHORT — mà mọi lợi 
 của hệ này nằm ở nửa SHORT: MOCK_KEO_LUI_V1 trên 33 chợ 1d chưa từng dùng cho
 SHORT +0,303R/226 lệnh và LONG −0,306R/44 lệnh. Làn demo chạy chế độ `paper`,
 ở đó `spot_only` tắt, nên nó đánh được cả hai chiều trên giá THẬT:
+
+    powershell -File dichvuat.ps1 -Demo          ← cách BẬT, chạy nền, sống qua đăng xuất
+    powershell -File dichvu\dung.ps1 -Demo         ← cách DỪNG
+
+Chạy tay (chỉ để gỡ lỗi — chết theo cửa sổ terminal):
 
     $env:BRAIN="mock"; $env:TCT_LAN_DEMO="1"
     $env:TCT_CONFIG="config-hai-chieu.json"

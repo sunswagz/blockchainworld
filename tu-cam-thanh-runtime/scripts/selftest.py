@@ -1142,6 +1142,26 @@ async def main() -> int:
     check(hasattr(_C53, "CONFIG_FILE") and _C53.CONFIG_FILE.exists(),
           "config.py khai rõ nó đang đọc file nào")
 
+    # BỘ GIÁM SÁT phải theo làn. Làn demo cần sống nhiều TUẦN; chạy nó bằng một
+    # cửa sổ terminal là hẹn trước cái chết của phép đo — máy khởi động lại một
+    # lần là mất, và không ai biết mất lúc nào.
+    _gs53 = ma_khong_chu_thich(ROOT / "dichvu" / "chay-nen.py")
+    check("TCT_LAN" in _gs53 and "_HAU" in _gs53,
+          "bộ giám sát đặt tên file trạng thái theo LÀN")
+    check("TCT_CONFIG" in _gs53,
+          "bộ giám sát đọc cổng từ config của LÀN — không thì nó đo cổng làn "
+          "chính, thấy bận, và im lặng thoát")
+    check("TCT_DATA_DIR" in _gs53,
+          "nhật ký đi theo SỔ của làn, không chung một runtime.log")
+    _tc53 = ma_khong_chu_thich(ROOT / "trader" / "tu_chay.py")
+    check("TCT_LAN" in _tc53,
+          "cờ «dừng hẳn» cũng theo làn — buồng lái làn demo mà ghi vào cờ làn "
+          "chính thì nó dừng nhầm bot đang giữ vị thế thật")
+    # Làn chính phải giữ NGUYÊN tên file cũ: dung.ps1, trang-thai.ps1,
+    # cap-nhat.ps1, chuyen-nha.ps1 đều trỏ thẳng vào dichvu/trang-thai.json.
+    check('"" if LAN == "chinh"' in _gs53,
+          "làn chính giữ nguyên tên trang-thai.json / dung-lai")
+
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
     # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:

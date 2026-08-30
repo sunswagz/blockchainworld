@@ -34,9 +34,25 @@ import time
 from pathlib import Path
 
 GOC = Path(__file__).resolve().parent.parent      # tu-cam-thanh-runtime/
-NHAT_KY = GOC / "data" / "nhat-ky"
-TRANG_THAI = GOC / "dichvu" / "trang-thai.json"
-CO_DUNG = GOC / "dichvu" / "dung-lai"             # buồng lái xin dừng hẳn
+
+# HAI LÀN. `TCT_LAN` đặt tên làn; mọi file trạng thái của bộ giám sát mang hậu
+# tố ấy, để hai làn không giẫm lên nhau.
+#
+# Làn demo hai chiều cần sống qua nhiều TUẦN — giả thuyết
+# «keo-lui-short-tien-tuong» cần 30 lệnh SHORT, ước ~6 tuần trên 46 chợ. Chạy
+# nó bằng một cửa sổ terminal là hẹn trước cái chết của phép đo: máy khởi động
+# lại một lần là mất, và không ai biết nó mất lúc nào.
+#
+# Giữ NGUYÊN tên file cũ cho làn chính: `dung.ps1`, `trang-thai.ps1`,
+# `cap-nhat.ps1` và `chuyen-nha.ps1` đều trỏ thẳng vào `dichvu/trang-thai.json`.
+LAN = (os.environ.get("TCT_LAN") or "chinh").strip() or "chinh"
+_HAU = "" if LAN == "chinh" else f"-{LAN}"
+
+# Nhật ký đi theo SỔ của làn, không theo gốc runtime: hai làn ghi chung một
+# `runtime.log` thì hai dòng đời trộn vào nhau đúng lúc cần đọc nhất.
+NHAT_KY = Path(os.environ.get("TCT_DATA_DIR") or (GOC / "data")) / "nhat-ky"
+TRANG_THAI = GOC / "dichvu" / f"trang-thai{_HAU}.json"
+CO_DUNG = GOC / "dichvu" / f"dung-lai{_HAU}"      # buồng lái xin dừng hẳn
 
 CHET_NHANH_GIAY = 30          # sống ngắn hơn ngần này thì coi là chết nhanh
 NGHI = [5, 10, 30, 60, 120, 300]
@@ -108,8 +124,17 @@ def _log() -> logging.Logger:
 
 
 def _cong() -> int:
+    """Cổng của LÀN NÀY. Đọc `TCT_CONFIG` như `trader/config.py` đọc.
+
+    Bỏ qua nó thì bộ giám sát đo cổng 5182 của làn chính, thấy bận, và im lặng
+    thoát — làn demo trông như "đã có bản đang chạy" trong khi chưa hề lên.
+    """
+    tay = (os.environ.get("TCT_CONFIG") or "").strip()
+    f = Path(tay) if tay else (GOC / "config.json")
+    if not f.is_absolute():
+        f = GOC / f
     try:
-        return json.loads((GOC / "config.json").read_text(encoding="utf-8-sig"))["port"]
+        return json.loads(f.read_text(encoding="utf-8-sig"))["port"]
     except Exception:  # noqa: BLE001
         return 5182
 
@@ -151,7 +176,8 @@ def main() -> int:
     CO_DUNG.unlink(missing_ok=True)
 
     lg.info("=" * 62)
-    lg.info(f"[giám sát] bắt đầu · {GOC} · cổng {cong} · pid {os.getpid()}")
+    lg.info(f"[giám sát] bắt đầu · làn {LAN} · {GOC} · cổng {cong} · "
+            f"pid {os.getpid()}")
 
     chet_nhanh = 0
     lan = 0

@@ -26,7 +26,12 @@ from .config import ROOT
 TEN_LNK = "Tu Cam Thanh - runtime.lnk"   # ASCII: COM WScript.Shell không tạo
                                           # nổi file tên có dấu (ép về ANSI rồi
                                           # ném FileNotFoundException)
-CO_DUNG = ROOT / "dichvu" / "dung-lai"    # cờ báo bộ giám sát: đừng dựng lại
+# Cờ báo bộ giám sát: đừng dựng lại. Tên mang HẬU TỐ LÀN đúng như
+# `dichvu/chay-nen.py` đặt — nút "dừng hẳn" ở buồng lái làn demo mà ghi vào cờ
+# của làn chính thì nó dừng nhầm bot đang giữ vị thế thật, và buồng lái vừa bấm
+# thì vẫn chạy tiếp. Làn chính giữ nguyên tên cũ.
+_LAN = (os.environ.get("TCT_LAN") or "chinh").strip() or "chinh"
+CO_DUNG = ROOT / "dichvu" / ("dung-lai" if _LAN == "chinh" else f"dung-lai-{_LAN}")
 
 
 def _startup() -> Path | None:
