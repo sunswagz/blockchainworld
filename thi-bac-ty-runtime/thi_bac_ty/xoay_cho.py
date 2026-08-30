@@ -154,6 +154,12 @@ class LatCatXoayCho:
     #: Trần theo bằng chứng đang là bao nhiêu giờ. `None` = chưa có bằng
     #: chứng, nên không kẹp gì.
     gioSongTrungVi: float | None = None
+    #: Bằng chứng ấy lấy từ đâu, và CŨ tới đâu. Một trần dựng từ mẫu ba
+    #: ngày trước vẫn dùng được — nhưng người đọc phải biết là ba ngày,
+    #: không thì «trần bằng chứng» nghe như một phép đo của lúc này.
+    nguonBangChung: str = ""
+    soMauBangChung: int = 0
+    tuoiBangChungGiay: float | None = None
     xoay: list = field(default_factory=list)
     vi: str = ""
 
@@ -170,6 +176,9 @@ class LatCatXoayCho:
             "soBiChanBoiBangChung": self.soBiChanBoiBangChung,
             "loiRongBiChanUsd": self.loiRongBiChanUsd,
             "gioSongTrungVi": self.gioSongTrungVi,
+            "nguonBangChung": self.nguonBangChung,
+            "soMauBangChung": self.soMauBangChung,
+            "tuoiBangChungGiay": self.tuoiBangChungGiay,
             "viConGhe": self.viConGhe,
             "soVongGheTrongKhongLap": self.soVongGheTrongKhongLap,
             "xoay": [x.tom_tat() for x in self.xoay],

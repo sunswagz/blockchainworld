@@ -12240,6 +12240,107 @@ def kiem_moi_module_nhap_duoc() -> None:
          "đang canh một thư mục rỗng")
 
 
+def kiem_bang_chung_song() -> None:
+    """Trần bằng chứng KHÔNG được tự phá chính nó sau 24 giờ.
+
+    Trần của `xoay_cho` kẹp `giờChung` xuống số giờ vị thế THẬT SỰ sống.
+    Bản đầu lấy bằng chứng từ trung vị `daGiuGio` của các lần đóng DO
+    XOAY trong 24 giờ — và nó đúng lúc bệnh đang diễn ra, rồi tự phá
+    chính nó ngay khi bệnh khỏi:
+
+        trần chặn xoay ⇒ hết lần xoay mới ⇒ sau 24 giờ cửa sổ RỖNG
+        ⇒ trần biến mất ⇒ một loạt xoay nổ ra ⇒ cửa sổ đầy lại
+        ⇒ trần quay về
+
+    Một cái máy dao động chu kỳ 24 giờ, mỗi vòng trả một nắm phí vào
+    lệnh, và mỗi vòng lại tự tạo ra đúng cái bằng chứng dùng để chặn
+    chính nó. Đo làn thật 30/08 lúc 02:40: 268 mẫu, nhưng mẫu MỚI NHẤT
+    đã 9,5 giờ tuổi — còn 14,5 giờ nữa là cửa sổ rỗng.
+
+    Gốc rễ là một lỗi đọc: **thiếu bằng chứng bị hiểu thành GIẤY PHÉP.**
+    `None` không có nghĩa «vị thế sống lâu», nó có nghĩa «không ai biết»
+    — mà nhánh không-biết lại cho qua một lời hứa 167 giờ.
+    """
+    print("\n-- BANG CHUNG SONG: cua so noi dan, khong tu pha --")
+    from thi_bac_ty.so_cai import (CUA_SO_SONG_GIO, TOI_THIEU_MAU_SONG,
+                                   ButToan, SoCai)
+
+    d = _tam("bc-song")
+    sc = SoCai(d / "so.sqlite3")
+
+    kiem("chưa lần đóng nào thì `None`, và NÓI ra là chưa biết",
+         (sc.gio_song_trung_vi()["gio"] is None
+          and sc.gio_song_trung_vi()["soMau"] == 0
+          and "chưa biết" in sc.gio_song_trung_vi()["vi"]),
+         str(sc.gio_song_trung_vi()))
+
+    def _dong(gio, xoay=True, n=1):
+        for _ in range(n):
+            sc.ghi(ButToan("DONG_VI_THE", "phép kiểm", 0.0,
+                           "lending.rate_rotation.v1", "m",
+                           {"daGiuGio": gio, "xoayCho": xoay}))
+
+    # ── ít mẫu: vẫn dùng, nhưng KHAI là ít ─────────────────────────────
+    _dong(0.01, n=3)
+    r = sc.gio_song_trung_vi()
+    kiem("ít hơn ngưỡng mẫu thì VẪN đo, và khai là ít",
+         (gan(r["gio"], 0.01) and r["soMau"] == 3
+          and str(TOI_THIEU_MAU_SONG) in r["vi"]),
+         f"{r} — nhánh không-mẫu là nhánh cho qua một lời hứa 167 giờ mà "
+         f"không ai đối chiếu; ba mẫu vẫn hơn không mẫu")
+
+    _dong(0.01, n=TOI_THIEU_MAU_SONG)
+    r = sc.gio_song_trung_vi()
+    kiem("đủ mẫu thì dừng ở cửa sổ HẸP nhất, và nói cửa sổ nào",
+         (r["cuaSoGio"] == CUA_SO_SONG_GIO[0]
+          and r["soMau"] == TOI_THIEU_MAU_SONG + 3
+          and f"{CUA_SO_SONG_GIO[0]:.0f} giờ" in r["vi"]),
+         f"{r} — bằng chứng mới luôn hơn bằng chứng cũ")
+
+    # ── ĐẾM CẢ lần đóng KHÔNG do xoay ──────────────────────────────────
+    #
+    # Đây là chỗ cơ chế tự gỡ được: xoay dừng ⇒ vị thế chết vì HẾT HẠN
+    # GIỮ ⇒ `daGiuGio` của những lần ấy lớn ⇒ trung vị dâng ⇒ trần nới.
+    # Chỉ đếm lần xoay thì đường tự gỡ ấy không tồn tại.
+    d2 = _tam("bc-song2")
+    sc2 = SoCai(d2 / "so.sqlite3")
+    for _ in range(TOI_THIEU_MAU_SONG + 1):
+        sc2.ghi(ButToan("DONG_VI_THE", "hết hạn giữ", 0.0, "x.y.v1", "m",
+                        {"daGiuGio": 168.0, "xoayCho": False}))
+    r2 = sc2.gio_song_trung_vi()
+    kiem("lần đóng VÌ HẾT HẠN GIỮ cũng là bằng chứng, không bỏ",
+         gan(r2["gio"], 168.0) and r2["soMau"] == TOI_THIEU_MAU_SONG + 1,
+         f"{r2} — «vị thế sống bao lâu» không hỏi nó chết vì đâu, và hết "
+         f"hạn giữ chính là đường mà trần tự nới ra khi xoay đã dừng")
+
+    # ── bút toán KHÔNG ghi `daGiuGio` thì bỏ, không đọc thành 0 ────────
+    d3 = _tam("bc-song3")
+    sc3 = SoCai(d3 / "so.sqlite3")
+    sc3.ghi(ButToan("DONG_VI_THE", "sổ cũ", 0.0, "x.y.v1", "m", {}))
+    sc3.ghi(ButToan("DONG_VI_THE", "có số", 0.0, "x.y.v1", "m",
+                    {"daGiuGio": 5.0}))
+    r3 = sc3.gio_song_trung_vi()
+    kiem("bút toán CŨ không có `daGiuGio` thì bỏ, không đếm thành 0 giờ",
+         r3["soMau"] == 1 and gan(r3["gio"], 5.0),
+         f"{r3} — đếm nó thành 0 giờ là bịa ra một vị thế chết ngay lúc "
+         f"mở, và trần sẽ kẹp mọi lời hứa xuống 0")
+
+    # ── loại khác KHÔNG được lẫn vào ───────────────────────────────────
+    sc3.ghi(ButToan("PHI", "phí vào", -1.0, "x.y.v1", "m",
+                    {"daGiuGio": 999.0}))
+    r4 = sc3.gio_song_trung_vi()
+    kiem("chỉ đọc DONG_VI_THE, không đọc loại khác",
+         r4["soMau"] == 1 and gan(r4["gio"], 5.0), str(r4))
+
+    # ── TUỔI của bằng chứng phải nói ra ────────────────────────────────
+    kiem("tuổi mẫu mới nhất được khai, để người đọc biết trần này CŨ chưa",
+         (r4["tuoiMauMoiNhatGiay"] is not None
+          and 0.0 <= r4["tuoiMauMoiNhatGiay"] < 120.0),
+         f"{r4} — một trần dựng từ mẫu ba ngày trước vẫn dùng được, nhưng "
+         f"«trần bằng chứng» mà không kèm tuổi thì nghe như phép đo của "
+         f"lúc này")
+
+
 def kiem_vong_nhip() -> None:
     """Nhịp của vòng chạy: chỗ QUÉT LẠI, và hai bảng nhịp đọc từ nguồn.
 
@@ -12997,6 +13098,7 @@ def main() -> int:
     kiem_moc_qua()
     kiem_cua_so_mu()
     kiem_vong_nhip()
+    kiem_bang_chung_song()
 
     print("\n" + "=" * 70)
     if _loi:

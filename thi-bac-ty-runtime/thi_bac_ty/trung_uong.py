@@ -631,14 +631,24 @@ class TrungUong:
         # Hỏng thì KHÔNG kẹp, chứ không kẹp bằng 0: một lỗi đọc sổ mà làm
         # đứng hẳn cơ chế xoay chỗ là để một chuyện của lớp lưu trữ quyết
         # thay cho một chuyện của danh mục.
+        #
+        # `gio_song_trung_vi()` chứ không phải cửa sổ XOAY 24 giờ. Cửa sổ
+        # kia tự phá chính nó: trần chặn xoay ⇒ hết lần xoay mới ⇒ sau 24
+        # giờ cửa sổ rỗng ⇒ trần biến mất ⇒ một loạt xoay nổ ra ⇒ cửa sổ
+        # đầy lại ⇒ trần quay về. Một cái máy dao động chu kỳ 24 giờ, mỗi
+        # vòng trả một nắm phí vào lệnh. Đo làn thật 30/08 lúc 02:40: mẫu
+        # mới nhất đã 9,5 giờ tuổi — còn 14,5 giờ nữa là cửa sổ rỗng.
         try:
-            gsong = ((self.so_cai.xoay_cho_hua_va_thuc().get("ganDay") or {})
-                     .get("gioGiuTrungVi"))
+            _bc = self.so_cai.gio_song_trung_vi()
         except Exception:                                # noqa: BLE001
-            gsong = None
+            _bc = {}
+        gsong = _bc.get("gio")
         lat = do_xoay_cho(self.soViThe, duoc, gio,
                           bienAnToan=float(self.c.get("bienXoayCho") or 1.5),
                           gioSongTrungVi=gsong)
+        lat.nguonBangChung = str(_bc.get("vi") or "")
+        lat.soMauBangChung = int(_bc.get("soMau") or 0)
+        lat.tuoiBangChungGiay = _bc.get("tuoiMauMoiNhatGiay")
         lat.soDichBiChan = chan
         if not self.c.get("tuXoayCho"):
             return lat

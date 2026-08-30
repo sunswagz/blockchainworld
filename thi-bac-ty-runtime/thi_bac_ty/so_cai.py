@@ -474,6 +474,84 @@ class SoCai:
                 if o["soLanDong"] else None)
         return ra
 
+    def gio_song_trung_vi(self) -> dict:
+        """Vị thế THẬT SỰ sống được bao lâu. Nới cửa sổ tới khi đủ mẫu.
+
+        Đây là bằng chứng cho TRẦN của `xoay_cho`: lời hứa xoay chỗ cộng
+        trước phần lãi hơn của cả `giờChung` (tới 167 giờ) rồi trừ phí một
+        lần, nên nó chỉ đúng nếu vị thế mới sống hết chừng ấy.
+
+        **Vì sao KHÔNG phải cửa sổ 24 giờ cố định, và vì sao không chỉ
+        đếm lần XOAY.** Bản đầu lấy trung vị `daGiuGio` của các lần đóng
+        DO XOAY trong 24 giờ. Nó đúng lúc bệnh đang diễn ra, và tự phá
+        chính nó ngay khi bệnh khỏi: trần chặn xoay ⇒ hết lần xoay mới ⇒
+        sau 24 giờ cửa sổ RỖNG ⇒ trần biến mất ⇒ một loạt xoay nổ ra ⇒
+        cửa sổ đầy lại ⇒ trần quay về. Một cái máy dao động chu kỳ 24
+        giờ, mỗi vòng trả một nắm phí vào lệnh, và mỗi vòng lại tự tạo ra
+        đúng cái bằng chứng dùng để chặn chính nó.
+
+        Gốc rễ: **thiếu bằng chứng bị đọc thành GIẤY PHÉP.** `None` ở đây
+        không có nghĩa «vị thế sống lâu», nó có nghĩa «không ai biết» —
+        mà nhánh không-biết lại cho qua một lời hứa 167 giờ.
+
+        Nên hai chỗ đổi. Một, đếm MỌI lần đóng chứ không riêng lần xoay:
+        câu hỏi là «vị thế của cỗ máy này sống bao lâu», và hết hạn giữ
+        cũng là một cách chết. Hai, cửa sổ NỚI DẦN cho tới khi đủ mẫu.
+        Nhờ đó nó vẫn tự gỡ được — xoay dừng ⇒ vị thế chết vì hết hạn giữ
+        ⇒ `daGiuGio` của những lần ấy lớn ⇒ trung vị dâng ⇒ trần nới — mà
+        không phải đi qua một quãng KHÔNG CÓ TRẦN nào cả.
+
+        Trả về cả `cuaSoGio`, `soMau` và `tuoiMauMoiNhatGiay` để bên đọc
+        nói được bằng chứng này CŨ tới đâu. Một trung vị dựng từ mẫu ba
+        ngày trước vẫn dùng được, nhưng người đọc phải biết là ba ngày.
+        """
+        try:
+            with self._mo() as con:
+                h = con.execute(
+                    "SELECT chiTiet, luc FROM but_toan "
+                    "WHERE loai = 'DONG_VI_THE' ORDER BY id DESC "
+                    "LIMIT 5000").fetchall()
+        except (sqlite3.Error, OSError):
+            return {"gio": None, "soMau": 0, "cuaSoGio": None,
+                    "tuoiMauMoiNhatGiay": None,
+                    "vi": "không đọc được sổ cái"}
+
+        now = _ms(bay_gio())
+        mau: list[tuple[float, float]] = []       # (mốc ms, giờ đã giữ)
+        for ct, luc in h:
+            d = _json(ct) or {}
+            g = d.get("daGiuGio")
+            if g is None:
+                continue
+            try:
+                mau.append((float(_ms(luc)), float(g)))
+            except (TypeError, ValueError):
+                continue
+        if not mau:
+            return {"gio": None, "soMau": 0, "cuaSoGio": None,
+                    "tuoiMauMoiNhatGiay": None,
+                    "vi": "chưa lần đóng nào ghi `daGiuGio` — chưa biết vị "
+                          "thế sống bao lâu"}
+
+        tuoi = max(0.0, (now - max(m for m, _ in mau)) / 1000.0)
+        for cs in CUA_SO_SONG_GIO:
+            moc = now - cs * 3_600_000.0
+            trong = [g for m, g in mau if m >= moc]
+            if len(trong) >= TOI_THIEU_MAU_SONG:
+                return {"gio": _trung_vi(trong), "soMau": len(trong),
+                        "cuaSoGio": cs, "tuoiMauMoiNhatGiay": tuoi,
+                        "vi": (f"trung vị {len(trong)} lần đóng trong "
+                               f"{cs:.0f} giờ qua")}
+        # Chưa đủ mẫu ở cửa sổ nào: dùng TẤT CẢ những gì có, và nói ra là
+        # ít. Ít mẫu vẫn hơn không mẫu — nhánh không-mẫu là nhánh cho qua
+        # một lời hứa 167 giờ mà không ai đối chiếu.
+        g = [x for _, x in mau]
+        return {"gio": _trung_vi(g), "soMau": len(g),
+                "cuaSoGio": CUA_SO_SONG_GIO[-1],
+                "tuoiMauMoiNhatGiay": tuoi,
+                "vi": (f"chỉ có {len(g)} lần đóng ghi được số giờ giữ — "
+                       f"dưới mức {TOI_THIEU_MAU_SONG} mẫu, đọc dè chừng")}
+
     def xoay_cho_hua_va_thuc(self, gioGanDay: float = 24.0) -> dict:
         """Mỗi lần XOAY CHỖ hứa bao nhiêu, và vị thế mới sống được bao lâu.
 
@@ -613,6 +691,18 @@ class SoCai:
                 "xoayChoHuaVaThuc": self.xoay_cho_hua_va_thuc(),
                 "soLoiGhi": self.soLoiGhi, "loiCuoi": self.loiCuoi,
                 "duong": self.duong.name, "chuaCo": not int(n or 0)}
+
+
+#: Cửa sổ dò bằng chứng «vị thế sống bao lâu», NỚI DẦN theo thứ tự này.
+#: Ngày · tuần · tháng. Cửa sổ đầu đủ mẫu thì dừng ở đó — bằng chứng mới
+#: luôn hơn bằng chứng cũ, nhưng bằng chứng cũ luôn hơn KHÔNG bằng chứng,
+#: và nhánh không-bằng-chứng là nhánh cho qua một lời hứa 167 giờ.
+CUA_SO_SONG_GIO = (24.0, 168.0, 720.0)
+
+#: Bao nhiêu lần đóng thì đủ để lấy trung vị. Dưới mức này vẫn dùng, chỉ
+#: là phải KHAI ra — trung vị của ba mẫu là một con số, không phải một
+#: phép đo, và nó chỉ có ích khi người đọc biết nó dựng từ ba mẫu.
+TOI_THIEU_MAU_SONG = 20
 
 
 def _trung_vi(ds: list) -> float | None:

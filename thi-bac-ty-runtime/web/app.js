@@ -1384,6 +1384,22 @@
           "công thức cũ sẽ nhận từng ấy — trên quãng vị thế không sống tới",
           "nhat"));
       }
+      /* TUỔI của bằng chứng. Một trần dựng từ mẫu ba ngày trước vẫn dùng
+         được, nhưng «trần bằng chứng» không kèm tuổi thì đọc như một
+         phép đo của lúc này. Và tuổi là thứ duy nhất cho biết cỗ máy có
+         đang tự nới trần ra hay không: xoay dừng ⇒ vị thế chết vì hết
+         hạn giữ ⇒ mẫu mới có giờ giữ lớn ⇒ trung vị dâng. */
+      if (xc.nguonBangChung) {
+        var _t = xc.tuoiBangChungGiay;
+        dxc.appendChild(oSo("Bằng chứng lấy từ đâu",
+          so(xc.soMauBangChung || 0) + " mẫu",
+          xc.nguonBangChung
+            + (_t == null ? ""
+               : " · mẫu mới nhất " + (_t < 3600
+                   ? Math.round(_t / 60) + " phút"
+                   : (_t / 3600).toFixed(1) + " giờ") + " trước"),
+          (_t != null && _t > 86400) ? "cho" : "nhat"));
+      }
     }
     if (xc.viConGhe) {
       kxc.appendChild(giai("CÒN GHẾ TRỐNG nên không đuổi ai — cơ hội tốt "
