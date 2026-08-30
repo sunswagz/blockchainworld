@@ -103,7 +103,7 @@ def _p_tinh_lai(dong: list) -> dict:
             soNen = int((muon - som) / 60_000.0) + int(cuaSo / 60.0) + 20
             nenTheoCap[cap] = nen_1p(cap, som - cuaSo * 1000.0 - 600_000.0,
                                      max(60, soNen))
-        sig = sigma_tai(nenTheoCap[cap], int(T), cuaSo)
+        sig = sigma_tai(nenTheoCap[cap], int(T), cuaSo, cap)
         if sig is None:
             continue
         gc = dinh_gia(ma, float(S), float(K), float(tau), sig)

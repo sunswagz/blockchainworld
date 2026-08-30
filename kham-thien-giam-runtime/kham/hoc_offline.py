@@ -130,7 +130,8 @@ def cua_so_sigma() -> float:
     return float(doc_tham_so("dinhGia.bienDongCuaSoGiay") or 900.0)
 
 
-def sigma_tai(theoMoc: dict, T: int, cuaSoGiay: float) -> float | None:
+def sigma_tai(theoMoc: dict, T: int, cuaSoGiay: float,
+              ma: str | None = None) -> float | None:
     """σ mỗi giây tại mốc T. Có nhớ lại.
 
     DÙNG LẠI `DoBienDong` chứ không tự tính. Hai bản sao của một bộ ước
@@ -141,23 +142,44 @@ def sigma_tai(theoMoc: dict, T: int, cuaSoGiay: float) -> float | None:
     0,875 lần σ đã tuning.
 
     Quét hàng chục ứng viên mà chỉ một nút đụng tới σ, nên nhớ theo
-    (mốc, số nến) làm một lượt chấm nhanh gấp 3,4 lần.
+    (CHỢ, mốc, số nến) làm một lượt chấm nhanh gấp 3,4 lần.
+
+    ## Khoá nhớ phải mang MÃ CHỢ, và thiếu mã thì KHÔNG nhớ
+
+    Bản trước nhớ theo `(mốc, số nến)` — không có chợ. `theoMoc` là
+    tham số, nên hàm trông như thuần tuý; nhưng bộ nhớ thì chung, và
+    `tu-nang-cap.py` chấm BỐN chợ tại CÙNG một mốc trong một tiến
+    trình. Chợ đầu tiên ghi khoá, ba chợ sau đọc lại đúng σ của nó.
+
+    Đo được: ETH nhận σ của BTC, lệch **28 lần** (0,00126 so với
+    0,0000443). σ là mẫu số của z, nên đó không phải sai số — đó là một
+    mô hình khác hẳn. Và `tu-nang-cap.py` là script GHI `config.json`,
+    nên mọi nút nó từng vặn đều chấm trên ba phần tư dữ liệu hỏng.
+
+    Không phép kiểm nào đỏ, vì mỗi lời gọi lẻ vẫn trả đúng.
+
+    Nay: `ma` là None thì **không đụng bộ nhớ** — tính lại mỗi lần.
+    Đường mặc định luôn ĐÚNG; nhanh là thứ người gọi phải tự khai bằng
+    cách nói mình đang hỏi cho chợ nào. Ngược lại (mặc định nhanh, đúng
+    phải khai) thì chỗ gọi mới nào cũng là một cái bẫy nữa.
     """
     soNen = max(2, int(round(cuaSoGiay / 60.0)))
-    khoa = (T, soNen)
-    if khoa in _NHO_SIGMA:
+    khoa = (ma, T, soNen) if ma else None
+    if khoa is not None and khoa in _NHO_SIGMA:
         return _NHO_SIGMA[khoa]
     nen = []
     for i in range(soNen + 1):
         g = theoMoc.get(T - i * int(PHUT))
         if g is None or g <= 0:
-            _NHO_SIGMA[khoa] = None
+            if khoa is not None:
+                _NHO_SIGMA[khoa] = None
             return None
         nen.append((float(T - i * int(PHUT)), float(g)))
     bd = DoBienDong()
     bd.mo_dau(nen)
     ra = bd.sigma_giay()
-    _NHO_SIGMA[khoa] = ra
+    if khoa is not None:
+        _NHO_SIGMA[khoa] = ra
     return ra
 
 
@@ -179,7 +201,7 @@ def cap_du_doan(theoMoc: dict, mocs, ma: str, cuaSoGiay: float,
         het = theoMoc.get(T + 5 * int(PHUT))
         if K is None or het is None or abs(het - K) < 1e-12:
             continue
-        sig = sigma_tai(theoMoc, T, cuaSoGiay)
+        sig = sigma_tai(theoMoc, T, cuaSoGiay, ma)
         if sig is None:
             continue
         thang = het > K

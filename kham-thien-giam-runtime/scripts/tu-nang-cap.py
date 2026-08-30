@@ -128,9 +128,15 @@ from kham.hoc_offline import quen_sigma  # noqa: E402
 from kham.hoc_offline import sigma_tai as _sigma_chung  # noqa: E402
 
 
-def sigma_tai(theoMoc, T, cuaSoGiay):
-    """σ mỗi giây tại mốc T. Gọi thẳng bộ ước chung."""
-    return _sigma_chung(theoMoc, int(T), float(cuaSoGiay))
+def sigma_tai(theoMoc, T, cuaSoGiay, ma=None):
+    """σ mỗi giây tại mốc T. Gọi thẳng bộ ước chung.
+
+    `ma` KHÔNG phải trang trí: bộ nhớ của bộ ước chung khoá theo
+    chợ, và thiếu mã thì nó tính lại thay vì trả nhầm σ của chợ
+    khác. Bỏ tham số này đi là dựng lại đúng con bọ đã đo được:
+    ETH nhận σ của BTC, lệch 28 lần.
+    """
+    return _sigma_chung(theoMoc, int(T), float(cuaSoGiay), ma)
 def cap_du_doan(chos: dict, mocs: list, cuaSoGiay: float,
                 keoMoc: bool = False) -> list:
     """(p, thắng[, mốc khung]) theo THỨ TỰ THỜI GIAN, gộp mọi chợ.
@@ -163,7 +169,7 @@ def cap_du_doan(chos: dict, mocs: list, cuaSoGiay: float,
             het = theoMoc.get(T + 5 * int(PHUT))
             if K is None or het is None or abs(het - K) < 1e-12:
                 continue
-            sig = sigma_tai(theoMoc, T, cuaSoGiay)
+            sig = sigma_tai(theoMoc, T, cuaSoGiay, ma)
             if sig is None:
                 continue
             thang = het > K

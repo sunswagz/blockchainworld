@@ -5296,6 +5296,104 @@ def kiem_cong_cu_van_dung_bo_uoc_chung() -> None:
              f"{a} vs {b}")
 
 
+def kiem_nho_sigma_theo_cho() -> None:
+    """Bộ nhớ σ phải khoá theo CHỢ. Đây là phép canh cho một con bọ THẬT.
+
+    `hoc_offline.sigma_tai` nhớ lại để chấm nhanh gấp 3,4 lần. Bản trước
+    khoá theo `(mốc, số nến)` — không có chợ. Vì `theoMoc` là tham số,
+    hàm TRÔNG như thuần tuý; nhưng bộ nhớ thì chung cả module.
+
+    `tu-nang-cap.py` — script GHI `config.json` — chấm BỐN chợ tại CÙNG
+    một mốc trong một tiến trình, và không gọi `quen_sigma()` lần nào.
+    Chợ đầu ghi khoá, ba chợ sau đọc lại σ của nó. Đo được: ETH nhận σ
+    của BTC, 0,00126 thay vì 0,0000443 — lệch 28 LẦN. σ là mẫu số của
+    z, nên ba phần tư dữ liệu không phải sai số mà là mô hình khác hẳn.
+
+    Không phép kiểm nào đỏ, vì mỗi lời gọi lẻ vẫn đúng. Chỉ chuỗi hai
+    lời gọi mới sai — nên phép kiểm phải gọi HAI LẦN, và đó là lý do
+    những phép kiểm σ đã có (mỗi cái một lời gọi) không bắt được nó.
+    """
+    print()
+    print("-- Bo nho sigma phai khoa theo CHO ------------------------")
+
+    from kham.hoc_offline import quen_sigma, sigma_tai
+
+    T = 1_787_243_400_000
+    # Hai dãy giá KHÁC HẲN nhau: biên độ lệch hai bậc.
+    btc = {int(T - i * 60_000): 60_000.0 * (1 + 0.004 * math.sin(i * 1.1))
+           for i in range(21)}
+    eth = {int(T - i * 60_000): 3_000.0 * (1 + 0.00004 * math.sin(i * 1.1))
+           for i in range(21)}
+
+    quen_sigma()
+    s_eth_sach = sigma_tai(eth, T, 900.0, "ETH_5M")
+    quen_sigma()
+    s_btc = sigma_tai(btc, T, 900.0, "BTC_5M")
+    s_eth = sigma_tai(eth, T, 900.0, "ETH_5M")      # CÙNG mốc, khác chợ
+
+    kiem("hai dãy giá cho hai σ khác nhau (đề bài đúng)",
+         s_btc is not None and s_eth_sach is not None
+         and abs(s_btc - s_eth_sach) > 1e-9,
+         f"{s_btc} vs {s_eth_sach}")
+    kiem("cùng mốc, KHÁC chợ ⇒ KHÔNG dùng lại σ của chợ trước",
+         s_eth is not None and abs(s_eth - s_eth_sach) < 1e-15,
+         f"ETH nhận {s_eth}, đúng ra phải là {s_eth_sach}")
+
+    # Thiếu mã chợ thì KHÔNG được nhớ — đường mặc định phải luôn đúng,
+    # kể cả khi chỗ gọi quên khai mình đang hỏi cho chợ nào.
+    quen_sigma()
+    a = sigma_tai(btc, T, 900.0)
+    b = sigma_tai(eth, T, 900.0)
+    kiem("không khai mã chợ ⇒ tính lại, không nhớ",
+         b is not None and abs(b - s_eth_sach) < 1e-15,
+         f"{b} vs {s_eth_sach}")
+    kiem("và hai chợ vẫn ra hai số khác nhau",
+         a is not None and b is not None and abs(a - b) > 1e-9)
+
+    # Bộ nhớ vẫn phải CÒN TÁC DỤNG: cùng chợ, cùng mốc ⇒ không tính lại.
+    quen_sigma()
+    sigma_tai(btc, T, 900.0, "BTC_5M")
+    doi = dict(btc)
+    doi[T] = 1.0                       # đổi dữ liệu; nhớ rồi thì không thấy
+    kiem("cùng chợ + cùng mốc ⇒ vẫn nhớ lại (nhớ chưa bị vô hiệu)",
+         sigma_tai(doi, T, 900.0, "BTC_5M") == s_btc)
+
+    # ── và ĐƯỜNG THẬT: `tu-nang-cap.cap_du_doan` gộp nhiều chợ ────────
+    #
+    # Phép kiểm trên chấm bộ ước. Phép kiểm này chấm CHỖ GỌI — nơi con
+    # bọ thật sự sống. Hai chợ, cùng dải mốc: nếu σ rò rỉ thì chợ thứ
+    # hai cho ra đúng dãy xác suất của chợ thứ nhất.
+    import importlib.util as _iu
+    f = Path(__file__).resolve().parent / "tu-nang-cap.py"
+    sp = _iu.spec_from_file_location("_x_tunangcap", f)
+    m = _iu.module_from_spec(sp)
+    sp.loader.exec_module(m)
+
+    T0 = 1_787_200_000_000 // 300_000 * 300_000
+    def _day(goc, bien):
+        return {int(T0 + i * 60_000): goc * (1 + bien * math.sin(i * 0.9))
+                for i in range(-25, 60)}
+    chos = {"BTC_5M": _day(60_000.0, 0.004), "ETH_5M": _day(3_000.0, 0.00004)}
+    mocs = [T0 + i * 300_000 for i in range(8)]
+
+    m.quen_sigma() if hasattr(m, "quen_sigma") else None
+    from kham.hoc_offline import quen_sigma as _qs
+    _qs()
+    gop = m.cap_du_doan(chos, mocs, 900.0)
+    _qs()
+    rieng = []
+    for ten, d in chos.items():
+        _qs()
+        rieng.extend(m.cap_du_doan({ten: d}, mocs, 900.0))
+
+    kiem("cap_du_doan gộp chợ ra ĐỦ cặp", len(gop) > 0 and len(gop) == len(rieng),
+         f"gộp {len(gop)} vs riêng {len(rieng)}")
+    kiem("chấm GỘP nhiều chợ = chấm RIÊNG từng chợ",
+         sorted(round(p, 12) for p, *_ in gop)
+         == sorted(round(p, 12) for p, *_ in rieng),
+         "σ của chợ này đang rò sang chợ kia")
+
+
 def kiem_mot_bo_uoc_sigma() -> None:
     """CHỈ MỘT bộ ước σ. Hai bản sao là hai chỗ để chúng trôi ra khỏi nhau.
 
@@ -9676,6 +9774,7 @@ def main() -> int:
     kiem_bootstrap_theo_khoi()
     kiem_cong_cu_van_dung_bo_uoc_chung()
     kiem_mot_bo_uoc_sigma()
+    kiem_nho_sigma_theo_cho()
     kiem_sigma_luoi_phut()
     kiem_nho_gia_mo_khung()
     kiem_cong_tien_ngan_mach()
