@@ -1172,6 +1172,69 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+#: Module ĐÃ đem quét đột biến, kèm số con còn sống đã kiểm tay.
+#: Con số ở đây phải khớp với bảng trong CLAUDE.md — hai chỗ ghi cùng
+#: một sự thật thì sớm muộn lệch, nên có phép kiểm nối chúng lại.
+DA_QUET_DOT_BIEN = {
+    "rui_ro.py", "kho_doi.py", "cham_moc.py", "ket_toan.py",
+    "dinh_gia.py", "can_loi.py", "so_lenh.py", "nan_lai.py",
+    "dat_lenh.py", "chan_rui_ro.py", "dongho.py", "cap_token.py",
+    "do_tre.py", "chien_thuat.py", "phat_lai.py",
+}
+
+#: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
+#: miễn trừ — không dòng nào ở đây nghĩa là "chỗ này không cần canh".
+#:
+#: Vì sao phải khai ra thay vì để trống: thêm một module mới rồi quên
+#: quét thì không có gì kêu, và cả chiến dịch mục dần đúng theo cách
+#: mọi chiến dịch chất lượng đều mục — không phải bằng một quyết định,
+#: mà bằng việc không ai để ý.
+CHUA_QUET_DOT_BIEN = {
+    "__init__.py",
+    # hạ tầng / vào ra, gần như không có nhánh quyết định
+    "bus.py", "config.py", "sach.py", "tham_so.py", "snapshot.py",
+    "server.py", "nguon.py", "dong_song.py", "dong_song_nen.py",
+    "bang.py", "khung.py", "dong_co.py", "cho_gia_dinh.py",
+    "sdk_polymarket.py",
+    # CÓ nhánh quyết định, đáng quét, chưa quét
+    "chan_doan.py", "hoc_offline.py", "ket_qua.py", "so.py",
+    "tien_hoa.py", "vong.py", "chay_lai.py", "ban_thu.py",
+    "do_thi.py", "vi.py", "vo_dich.py",
+}
+
+
+def kiem_phu_quet_dot_bien() -> None:
+    """Module mới thêm vào phải được PHÂN LOẠI, không nằm ngoài lặng lẽ.
+
+    Chiến dịch quét đột biến phủ 15 module lõi. Nó sẽ mục dần đúng theo
+    cách mọi chiến dịch chất lượng đều mục — không bằng một quyết định,
+    mà bằng việc không ai để ý. Phép kiểm này là chỗ để ý ấy.
+    """
+    print()
+    print("-- Phu quet dot bien: khong module nao nam ngoai -----------")
+    goc = Path(__file__).resolve().parent.parent
+    co = {f.name for f in (goc / "kham").glob("*.py")}
+    khai = DA_QUET_DOT_BIEN | CHUA_QUET_DOT_BIEN
+    kiem("hai danh sách KHÔNG chồng nhau",
+         not (DA_QUET_DOT_BIEN & CHUA_QUET_DOT_BIEN),
+         DA_QUET_DOT_BIEN & CHUA_QUET_DOT_BIEN)
+    kiem("mọi module trong `kham/` đều đã được PHÂN LOẠI",
+         not (co - khai), sorted(co - khai))
+    kiem("và không khai một module không tồn tại",
+         not (khai - co), sorted(khai - co))
+
+    # Bảng trong CLAUDE.md phải kể ĐỦ những module đã quét. Hai chỗ ghi
+    # cùng một sự thật thì sớm muộn lệch nhau.
+    cm = goc.parent / "CLAUDE.md"
+    if cm.exists():
+        vb = cm.read_text(encoding="utf-8")
+        thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
+                 if ("--file=kham/" + x) not in vb]
+        kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
+    kiem("đã quét ít nhất 15 module lõi",
+         len(DA_QUET_DOT_BIEN) >= 15, len(DA_QUET_DOT_BIEN))
+
+
 def kiem_bien_cua_phat_lai() -> None:
     """Biên của BÀN THỬ TIỀN — nơi sinh ra mọi con số lãi lỗ.
 
@@ -8779,6 +8842,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_phu_quet_dot_bien()
     kiem_bien_cua_phat_lai()
     kiem_bien_cua_chien_thuat()
     kiem_bien_cua_do_tre()
