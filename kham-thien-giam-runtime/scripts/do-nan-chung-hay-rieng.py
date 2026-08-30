@@ -38,8 +38,15 @@ import collections
 import json
 import sys
 
-sys.argv = ["do-nan-chung-hay-rieng.py"]
 sys.path.insert(0, ".")
+
+import kham  # noqa: F401,E402
+from kham import tham_so  # noqa: E402
+
+# Không nhận cờ nào, nhưng vẫn khai qua `tham_so.doc`: đó là chỗ DUY
+# NHẤT biết một cờ có thật hay không, nên script nào bỏ qua nó thì gõ
+# sai cờ sẽ bị NUỐT LẶNG thay vì báo lỗi. Và nó cho `--help` miễn phí.
+tham_so.doc({}, ten='do-nan-chung-hay-rieng.py')
 from kham.dinh_gia import HieuChinh
 from kham.nan_lai import DUONG_THO, khop
 

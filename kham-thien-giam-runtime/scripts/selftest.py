@@ -1451,6 +1451,45 @@ def kiem_tu_nang_cap() -> None:
          f"2 ứng viên → {b2:.5f} · 60 ứng viên → {b60:.5f}")
     kiem("biên luôn dưới 1 (vẫn đòi khá hơn)", b60 < 1.0, b60)
 
+    # ── GỘP CHỢ: thêm THÔNG TIN, không phải thêm CON SỐ ───────────────
+    #
+    # Bốn coin tương quan gần 1 — `kho_doi` có ma trận nói thế, và cổng
+    # 7b dựng lên vì chuyện đó. BTC/ETH/SOL/XRP tại CÙNG một mốc không
+    # phải bốn bằng chứng độc lập; chúng gần như một quan sát nhìn từ
+    # bốn phía.
+    #
+    # Nên mốc kéo theo phải là `T` TRẦN TRỤI: bootstrap khối gom cả bốn
+    # chợ vào MỘT khối và khoảng tin trung thực. Kéo theo `(mã, T)` thì
+    # mẫu trông to gấp bốn, khoảng tin hẹp lại quãng một nửa, và cổng
+    # CHỐT sẽ gật cho tiếng ồn — đúng thứ cả cỗ máy này dựng lên để
+    # tránh.
+    # Giá phải NHẤP NHÔ: đường thẳng cho σ = 0, `sigma_tai` trả None,
+    # và cả hai bên đều ra 0 cặp — phép kiểm xanh mà chẳng kiểm gì.
+    import math as _m
+    _gia = {}
+    # Gốc phải NẰM TRÊN LƯỚI 5 phút, không thì không khung nào tồn tại
+    # và cả hai vế đều ra 0 cặp — phép kiểm xanh mà chẳng kiểm gì.
+    _goc = 1_700_000_000_000 - 1_700_000_000_000 % 300_000
+    for _k in range(0, 60):
+        _t = _goc + _k * 60_000
+        _gia[_t] = 100.0 * (1.0 + 0.004 * _m.sin(_k * 1.3)
+                            + 0.0006 * _k)
+    _hai = {"BTC_5M": dict(_gia),
+            "ETH_5M": {k: v * 2.0 for k, v in _gia.items()}}
+    _mocs = [T for T in sorted(_gia) if T % 300_000 == 0]
+    _mot = m.cap_du_doan({"BTC_5M": _hai["BTC_5M"]}, _mocs, 300.0,
+                         keoMoc=True)
+    _bon = m.cap_du_doan(_hai, _mocs, 300.0, keoMoc=True)
+    kiem("gộp hai chợ thì SỐ CẶP tăng", len(_bon) > len(_mot),
+         (len(_mot), len(_bon)))
+    _mocMot = {x[-1] for x in _mot}
+    _mocBon = {x[-1] for x in _bon}
+    kiem("nhưng SỐ KHỐI bootstrap thì KHÔNG — mốc là thời gian, "
+         "không phải (chợ, thời gian)",
+         _mocBon == _mocMot, (len(_mocMot), len(_mocBon)))
+    kiem("và mọi mốc kéo theo đều là số nguyên mốc thời gian",
+         all(isinstance(x[-1], int) for x in _bon))
+
     kiem("nút `batDinhToiThieu` KHÔNG nằm trong danh sách nút mô hình",
          "dinhGia.batDinhToiThieu" not in m.NUT_MO_HINH,
          "nó chạm `batDinh` chứ không chạm `pUp` — vặn nó ở đây là vặn mù")
@@ -1613,9 +1652,44 @@ def kiem_hoc_khong_nhin_trom() -> None:
     # Và nó phải dựng lại từ đầu, không cộng dồn lên sổ cũ.
     kiem("dựng lại sổ từ đầu, không cộng dồn", "hc.o = {}" in ma,
          "chạy hai lần mà cộng dồn thì `n` phình lên, và `n` mở Kelly")
-    kiem("xoá sổ thô trước khi dựng lại", "tho.unlink()" in ma,
-         "`ghi_tho` nối thêm; không xoá thì phần đuôi ngoài mẫu chứa "
-         "đúng thứ phần đầu đã thấy")
+    # Xoá sổ thô THEO CHỢ, không xoá sạch.
+    #
+    # `ghi_tho` nối thêm, nên không xoá thì mỗi lượt nhân đôi số cặp và
+    # phép kiểm ngoài mẫu 70/30 tự chấm bài mình. Nhưng xoá SẠCH thì
+    # chạy cho ETH là mất trắng mẫu BTC — đo được: sau ba lượt ETH,
+    # SOL, XRP, sổ thô còn đúng 56.836 dòng và tất cả đều là XRP.
+    #
+    # Kiểm bằng HÀNH VI trên file tạm, không dò chuỗi mã nguồn.
+    import importlib.util as _iu2
+    _sp2 = _iu2.spec_from_file_location("_htb", GOC_MA / "scripts"
+                                        / "hoc-tu-binance.py")
+    _htb = _iu2.module_from_spec(_sp2)
+    import sys as _sys2
+    _cu_argv = _sys2.argv
+    _sys2.argv = ["hoc-tu-binance.py"]
+    try:
+        _sp2.loader.exec_module(_htb)
+    finally:
+        _sys2.argv = _cu_argv
+    from kham import nan_lai as _nl
+    _cu_duong = _nl.DUONG_THO
+    with tempfile.TemporaryDirectory() as _td:
+        _nl.DUONG_THO = Path(_td) / "tho.jsonl"
+        _nl.ghi_tho(0.6, True, "BTC_5M")
+        _nl.ghi_tho(0.4, False, "ETH_5M")
+        _nl.ghi_tho(0.7, True, "BTC_5M")
+        _giu = _htb._giu_lai_cho_khac("BTC_5M")
+        _con = list(_htb._doc_tho())
+        _ma_con = {x[2] for x in _con}
+        _nl.DUONG_THO = _cu_duong
+    kiem("xoá sổ thô của chợ đang dựng lại", "BTC_5M" not in _ma_con,
+         _ma_con)
+    kiem("nhưng GIỮ NGUYÊN mẫu của chợ khác",
+         _ma_con == {"ETH_5M"} and _giu == 1, (_ma_con, _giu))
+    kiem("và sổ TỔNG dựng lại từ sổ THÔ, nơi mọi chợ cùng nằm",
+         "for pMoi, thangMoi, maMoi in _doc_tho():" in ma,
+         "ghi thẳng `hc` là để lại sổ nói về đúng MỘT chợ "
+         "trong khi cỗ máy chạy bốn")
 
 
 def kiem_duong_quyet_dinh() -> None:

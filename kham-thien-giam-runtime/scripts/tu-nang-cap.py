@@ -53,6 +53,8 @@ from kham import tham_so  # noqa: E402
 from kham.chan_doan import NUT_THEO_DUONG, doc_tham_so  # noqa: E402
 from kham.config import CONFIG, DATA_DIR  # noqa: E402
 from kham.dinh_gia import HieuChinh, dinh_gia  # noqa: E402
+from kham.ket_qua import (  # noqa: E402
+    thi_truong_doi_chieu_duoc)
 from kham.nan_lai import khop  # noqa: E402
 from kham.nguon import nguon  # noqa: E402
 from kham.tien_hoa import _dat_tham_so, ghi_config  # noqa: E402
@@ -75,6 +77,7 @@ CO = tham_so.doc({
     "ngay": "số ngày băng/nến lấy về",
     "thu": tham_so.BAT,
     "vong": "số vòng tối đa",
+    "gop": tham_so.BAT,
 }, ten='tu-nang-cap.py')
 
 
@@ -82,6 +85,7 @@ THU = CO.co("thu")
 SO_NGAY = int(CO.lay("ngay", "10"))
 TOI_DA_VONG = int(CO.lay("vong", "6"))
 MA = CO.lay("ma", "BTC_5M")
+GOP = CO.co("gop")
 SO = DATA_DIR / "tu-nang-cap.jsonl"
 
 
@@ -127,35 +131,53 @@ from kham.hoc_offline import sigma_tai as _sigma_chung  # noqa: E402
 def sigma_tai(theoMoc, T, cuaSoGiay):
     """σ mỗi giây tại mốc T. Gọi thẳng bộ ước chung."""
     return _sigma_chung(theoMoc, int(T), float(cuaSoGiay))
-def cap_du_doan(theoMoc: dict, mocs: list, cuaSoGiay: float,
+def cap_du_doan(chos: dict, mocs: list, cuaSoGiay: float,
                 keoMoc: bool = False) -> list:
-    """(p, thắng[, mốc khung]) theo THỨ TỰ THỜI GIAN.
+    """(p, thắng[, mốc khung]) theo THỨ TỰ THỜI GIAN, gộp mọi chợ.
+
+    `chos` là `{mã: {mốc ms: giá}}`. Một chợ chỉ là trường hợp riêng
+    `{MA: theoMoc}` — MỘT đường mã cho cả hai, vì hai đường thì sớm
+    muộn lệch nhau và chỗ lệch sẽ nằm trong phép chấm.
 
     `keoMoc` để bootstrap gộp được theo KHUNG: bốn lát cắt của một
     khung chia chung MỘT kết quả, nên chúng không phải bốn quan sát
     độc lập.
+
+    ## Mốc kéo theo là mốc THỜI GIAN, không phải (chợ, thời gian)
+
+    Bốn coin tương quan gần 1 — `kho_doi` có sẵn ma trận nói thế, và
+    cả cổng 7b dựng lên vì chuyện đó. Nên BTC, ETH, SOL, XRP tại cùng
+    một mốc KHÔNG phải bốn bằng chứng độc lập; chúng gần như là một
+    quan sát nhìn từ bốn phía.
+
+    Kéo theo `T` trần trụi khiến bootstrap gom cả bốn chợ vào MỘT khối,
+    và khoảng tin thu được trung thực. Kéo theo `(ma, T)` thì mẫu trông
+    to gấp bốn, khoảng tin hẹp lại quãng một nửa, và cổng CHỐT sẽ gật
+    cho tiếng ồn. Gộp chợ là để có thêm THÔNG TIN, không phải để có
+    thêm CON SỐ.
     """
     ra = []
     for T in mocs:
-        K = theoMoc.get(T)
-        het = theoMoc.get(T + 5 * int(PHUT))
-        if K is None or het is None or abs(het - K) < 1e-12:
-            continue
-        sig = sigma_tai(theoMoc, T, cuaSoGiay)
-        if sig is None:
-            continue
-        thang = het > K
-        for tau in LAT_CAT:
-            t = T + int((300.0 - tau) * 1000.0)
-            if t % int(PHUT):
+        for ma, theoMoc in chos.items():
+            K = theoMoc.get(T)
+            het = theoMoc.get(T + 5 * int(PHUT))
+            if K is None or het is None or abs(het - K) < 1e-12:
                 continue
-            S = theoMoc.get(t)
-            if S is None or S <= 0:
+            sig = sigma_tai(theoMoc, T, cuaSoGiay)
+            if sig is None:
                 continue
-            gc = dinh_gia(MA, float(S), float(K), tau, sig)
-            if gc is not None:
-                ra.append((gc.pUp, thang, T) if keoMoc
-                          else (gc.pUp, thang))
+            thang = het > K
+            for tau in LAT_CAT:
+                t = T + int((300.0 - tau) * 1000.0)
+                if t % int(PHUT):
+                    continue
+                S = theoMoc.get(t)
+                if S is None or S <= 0:
+                    continue
+                gc = dinh_gia(ma, float(S), float(K), tau, sig)
+                if gc is not None:
+                    ra.append((gc.pUp, thang, T) if keoMoc
+                              else (gc.pUp, thang))
     return ra
 
 
@@ -163,10 +185,10 @@ def _brier(cap) -> float:
     return sum((p - (1.0 if t else 0.0)) ** 2 for p, t, *_ in cap) / max(1, len(cap))
 
 
-def cham(theoMoc: dict, ba: tuple, cuaSoGiay: float) -> dict | None:
+def cham(chos: dict, ba: tuple, cuaSoGiay: float) -> dict | None:
     """Khớp nắn trên HỌC, chấm trên CHỌN và CHỐT. Ba tập tách theo thời gian."""
-    hoc, chon = (cap_du_doan(theoMoc, m, cuaSoGiay) for m in ba[:2])
-    chot = cap_du_doan(theoMoc, ba[2], cuaSoGiay, keoMoc=True)
+    hoc, chon = (cap_du_doan(chos, m, cuaSoGiay) for m in ba[:2])
+    chot = cap_du_doan(chos, ba[2], cuaSoGiay, keoMoc=True)
     if len(hoc) < 1500 or len(chon) < 500 or len(chot) < 500:
         return None
     hc = HieuChinh(duong=DATA_DIR / "_tam-tu-nang.json")
@@ -199,10 +221,10 @@ def _bien(soUngVien: int) -> float:
     return 1.0 - (1.0 - BIEN_CHON) / max(1.0, math.log(max(2, soUngVien)))
 
 
-def mot_vong(theoMoc: dict, ba: tuple, vong: int) -> dict | None:
+def mot_vong(chos: dict, ba: tuple, vong: int) -> dict | None:
     hienTai = {d: float(doc_tham_so(d) or 0.0) for d in NUT_MO_HINH}
     cs0 = hienTai["dinhGia.bienDongCuaSoGiay"]
-    goc = cham(theoMoc, ba, cs0)
+    goc = cham(chos, ba, cs0)
     if goc is None:
         print("    chưa đủ cặp để chấm.")
         return None
@@ -223,11 +245,11 @@ def mot_vong(theoMoc: dict, ba: tuple, vong: int) -> dict | None:
     tot = None
     for duong, v in ungVien:
         if duong == "dinhGia.bienDongCuaSoGiay":
-            r = cham(theoMoc, ba, v)
+            r = cham(chos, ba, v)
         else:
             cu = _dat_tham_so(duong, v)
             try:
-                r = cham(theoMoc, ba, cs0)
+                r = cham(chos, ba, cs0)
             finally:
                 _dat_tham_so(duong, cu)
         if r is None:
@@ -313,11 +335,20 @@ def mot_vong(theoMoc: dict, ba: tuple, vong: int) -> dict | None:
             "soUngVien": len(ungVien), "bien": bien, "lyDo": "cả hai gật"}
 
 
+def _cho_can_lay() -> list:
+    """(mã, cặp nến) sẽ chấm. `--gop` thì lấy mọi chợ LÊN/XUỐNG đang theo."""
+    if GOP:
+        return [(str(t.get("ma")), str(t.get("nen")))
+                for t in thi_truong_doi_chieu_duoc()]
+    c = next((t.get("nen") for t in CONFIG["thiTruong"]
+              if t.get("ma") == MA), None)
+    return [(MA, str(c))] if c else []
+
+
 def main() -> int:
-    cap = next((t.get("nen") for t in CONFIG["thiTruong"]
-                if t.get("ma") == MA), None)
-    if not cap:
-        print(f"\n  Không có market `{MA}`.\n")
+    dsCho = _cho_can_lay()
+    if not dsCho:
+        print(chr(10) + "  Không có market `" + MA + "`." + chr(10))
         return 1
 
     hetMs = int(time.time() * 1000.0 // PHUT * PHUT) - PHUT
@@ -326,17 +357,31 @@ def main() -> int:
     print("=" * 78)
     print("  TỰ NÂNG CẤP — lặp tới khi không nút nào cải thiện được nữa")
     print("=" * 78)
-    print(f"  {MA} ({cap}) · {SO_NGAY} ngày · tối đa {TOI_DA_VONG} vòng")
-    print(f"  lấy {soNen:,} nến…", flush=True)
-    theoMoc = nen_1p(cap, hetMs - soNen * PHUT, soNen)
-    if len(theoMoc) < 1200:
-        print(f"  chỉ lấy được {len(theoMoc)} nến. Không đủ.\n")
+    print("  " + ", ".join(m for m, _ in dsCho) + " · " + str(SO_NGAY)
+          + " ngày · tối đa " + str(TOI_DA_VONG) + " vòng")
+    print("  lấy " + format(soNen, ",") + " nến mỗi chợ…", flush=True)
+    chos: dict = {}
+    for maX, capX in dsCho:
+        tm = nen_1p(capX, hetMs - soNen * PHUT, soNen)
+        if len(tm) < 1200:
+            print("    " + maX + ": chỉ lấy được " + str(len(tm))
+                  + " nến — BỎ QUA")
+            continue
+        chos[maX] = tm
+    if not chos:
+        print("  không chợ nào đủ nến. Dừng." + chr(10))
         return 1
 
-    mocs = [T for T in sorted(theoMoc) if T % 300_000 == 0]
+    # Lưới mốc lấy HỢP của mọi chợ: một chợ thiếu nến ở mốc T thì
+    # `cap_du_doan` tự bỏ qua chợ ấy ở mốc ấy, chứ không được làm cả
+    # mốc biến mất với ba chợ còn lại.
+    mocs = sorted({T for tm in chos.values() for T in tm
+                   if T % 300_000 == 0})
     a, b = int(len(mocs) * CHIA_HOC), int(len(mocs) * CHIA_CHON)
     ba = (mocs[:a], mocs[a:b], mocs[b:])
-    print(f"  {len(theoMoc):,} nến · {len(mocs):,} khung 5 phút")
+    print("  " + str(len(chos)) + " chợ · "
+          + " · ".join(m + " " + format(len(tm), ",") + " nến"
+                       for m, tm in chos.items()))
     print(f"  HỌC {len(ba[0]):,} khung · CHỌN {len(ba[1]):,} · CHỐT {len(ba[2]):,}"
           "   (tách theo THỜI GIAN)")
 
@@ -344,7 +389,7 @@ def main() -> int:
     for vong in range(1, TOI_DA_VONG + 1):
         print()
         print(f"  ── VÒNG {vong} " + "─" * 58)
-        kq = mot_vong(theoMoc, ba, vong)
+        kq = mot_vong(chos, ba, vong)
         if kq is None or not kq.get("nhan"):
             print("    dừng: không nút nào còn cải thiện được.")
             break
@@ -355,7 +400,9 @@ def main() -> int:
         else:
             ghi_config(nhan["nut"], nhan["den"])
         ban = {"luc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-               "vong": vong, "ma": MA, "soNgay": SO_NGAY,
+               "vong": vong,
+               "ma": ("+".join(chos) if GOP else MA),
+               "soNgay": SO_NGAY,
                "nguonMau": "binance-that", "thu": THU, **kq}
         if not THU:
             SO.parent.mkdir(parents=True, exist_ok=True)
