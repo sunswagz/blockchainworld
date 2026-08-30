@@ -1104,13 +1104,34 @@
       + ((kt2.soKhongCoKeToan || 0) ? kt2.soKhongCoKeToan + " CHƯA kế toán"
                                     : "đều kế toán được"),
       (kt2.soKhongCoKeToan || 0) ? "am" : null, true));
-    d.appendChild(oSo("Sổ giấy · lãi lỗ",
-      hn.duDeKetLuan ? phan(hn.laiLoPhanTram) : "chưa kết luận",
-      hn.duDeKetLuan ? "" : "cần ≥ 168 giờ dữ liệu", hn.duDeKetLuan
-        ? ((hn.laiLoPhanTram || 0) >= 0 ? "duong" : "am") : "nhat",
+    /* `laiLoPhanTram` ĐO ĐƯỢC từ điểm NAV thứ hai; `duDeKetLuan` là cửa
+       của CAGR (đòi ≥168 giờ). Gộp hai thứ ấy vào một ô thì một con số đã
+       đo được bị giấu sau cửa của một con số KHÁC — người đọc thấy «chưa
+       kết luận» và tưởng máy chưa biết gì, trong khi nó biết −0,0080%. */
+    d.appendChild(oSo("Sổ giấy · lãi lỗ TAY LÁI",
+      hn.laiLoPhanTram == null ? "chưa đo được" : phan(hn.laiLoPhanTram),
+      hn.laiLoPhanTram == null
+        ? "có đoạn NAV không dương — phép nhân chuỗi không nói được gì"
+        : "đã trừ mọi đồng chủ bỏ thêm vào",
+      hn.laiLoPhanTram == null ? "nhat"
+        : (hn.laiLoPhanTram >= 0 ? "duong" : "am"),
+      hn.laiLoPhanTram == null));
+    d.appendChild(oSo("Quy ra NĂM (CAGR)",
+      hn.duDeKetLuan ? phan(hn.cagrPhanTram) : "chưa kết luận",
+      hn.duDeKetLuan ? "gộp từ TÍCH CHUỖI, không từ NAV cuối / NAV đầu"
+                     : "cần ≥ 168 giờ dữ liệu · đang có "
+                       + so(hn.soGio, 1) + "h",
+      hn.duDeKetLuan ? ((hn.cagrPhanTram || 0) >= 0 ? "duong" : "am")
+                     : "nhat",
       !hn.duDeKetLuan));
+    /* Một con số ĐÔ-LA trần trụi là đúng thứ điều `khong-do-bang-so-do`
+       cấm đọc thành điểm số. Nên nó đi kèm MẪU SỐ ngay dưới. */
+    var _vdd0 = t.vonDangDung || {};
     d.appendChild(oSo("Đã thực hiện", tien(t.danhMuc && t.danhMuc.laiLoDaThucHienUsd),
-      "ghi vào sổ cái khi đóng vị thế"));
+      _vdd0.vonGioUsd
+        ? "trên " + so(Math.round(_vdd0.vonGioUsd)) + " vốn-giờ — đọc con "
+          + "số đô một mình là đọc sai thứ"
+        : "ghi vào sổ cái khi đóng vị thế"));
     d.appendChild(oSo("Sụt vốn tối đa", phan(hn.sutVonToiDaPhanTram),
       hn.dangDuoiDay ? "đang dưới đỉnh" : "chưa từng xuống dưới đỉnh"));
     k.appendChild(d);
