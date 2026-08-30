@@ -1370,6 +1370,46 @@ async def main() -> int:
     else:
         check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
 
+    print("\n[55] DỌN VIỆC MỒ CÔI PHẢI DỰA VÀO KHOÁ, KHÔNG DỰA VÀO TÊN LỆNH")
+    # Ngày 30/08 tôi dọn hai nghi thức chạy chồng bằng PowerShell khớp theo MẪU
+    # DÒNG LỆNH (`-like '*do-huong*'`). Nó giết đúng việc mồ côi — và giết luôn
+    # việc «đo hướng» của nghi thức ĐANG chạy hợp lệ ở làn chính. Nghi thức ấy
+    # báo `ma=4294967295` và `do-huong.json` đứng im một ngày; không lỗi nào chỉ
+    # ra rằng chính tôi đã giết nó.
+    #
+    # Mẫu dòng lệnh không phân biệt được hai làn, cũng không phân biệt được việc
+    # hợp lệ với việc mồ côi. Khoá `nghi-thuc-khoa.json` thì có.
+    import importlib.util as _iu55
+
+    _f55 = ROOT / "dichvu" / "don-viec-mo-coi.py"
+    check(_f55.exists(), "có công cụ dọn việc mồ côi")
+    _sp55 = _iu55.spec_from_file_location("dvmc55", _f55)
+    _m55 = _iu55.module_from_spec(_sp55)
+    _av55 = sys.argv
+    sys.argv = ["don-viec-mo-coi.py"]
+    try:
+        _sp55.loader.exec_module(_m55)
+    finally:
+        sys.argv = _av55
+    check(_m55.GIET is False,
+          "không có --giet thì chỉ XEM TRƯỚC — dọn nhầm ở đây là giết một phép đo")
+
+    # Danh sách việc của công cụ phải PHỦ mọi việc nghi thức sinh ra. Thiếu một
+    # tên là một việc mồ côi không ai dọn; thừa một tên là dọn nhầm thứ khác.
+    from trader import nghi_thuc as _NT55
+
+    _ten55 = set()
+    for _v55 in _NT55.VIEC + _NT55.VIEC_CUOI:
+        for _x55 in _v55[1]:
+            if str(_x55).endswith(".py") and "/" in str(_x55):
+                _ten55.add(str(_x55).rsplit("/", 1)[-1])
+    _thieu55 = sorted(_ten55 - set(_m55.VIEC))
+    check(not _thieu55,
+          "công cụ dọn biết MỌI việc nghi thức sinh ra"
+          + (f" — THIẾU: {_thieu55}" if _thieu55 else ""))
+    check("run.py" not in _m55.VIEC and "chay-nen.py" not in _m55.VIEC,
+          "và KHÔNG đụng runtime hay bộ giám sát")
+
     print("\n[51] HAI NGHI THỨC KHÔNG ĐƯỢC CHẠY CHỒNG NHAU")
     # Cọc 6 tiếng chỉ ghi khi nghi thức CHẠY XONG, còn khoá chống trùng nằm
     # trong `_trang_thai` của MỘT tiến trình. Runtime khởi động lại giữa chừng —
