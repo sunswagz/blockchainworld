@@ -95,11 +95,12 @@
     "tranMoiLenhUsd": 5
   },
 
-  "//nanLai": "Nắn lại xác suất theo sổ hiệu chỉnh — chỗ hở cuối của vòng học. Bảng hiệu chỉnh đo được mô hình bị NÉN VỀ 50% (nói 34% thì thật 13,5%; nói 75% thì thật 93%) nhưng không dòng nào đọc nó lại vào mô hình. `heSoGiamChan` < 1 vì sổ chỉ lưu tổng theo ô nên CHƯA kiểm được ngoài mẫu; từ nay ghi thêm `hieu-chinh-tho.jsonl` để lượt sau kiểm đàng hoàng rồi mới nói chuyện bỏ giảm chấn. `doiToiDa` là trần dịch chuyển: một phép khớp hỏng thì cùng lắm lệch chừng ấy.",
+  "//nanLai": "Nắn lại xác suất theo sổ hiệu chỉnh — chỗ hở cuối của vòng học. Bảng hiệu chỉnh đo được mô hình bị NÉN VỀ 50% (nói 34% thì thật 13,5%; nói 75% thì thật 93%). `doiToiDa` là trần dịch chuyển: một phép khớp hỏng thì cùng lắm lệch chừng ấy.",
+  "//heSoGiamChan": "0,70 → 0,85 ngày 30/08/2026, và ghi chú cũ ở đây chính là điều kiện để đổi: `< 1 vì CHƯA kiểm được ngoài mẫu; từ nay ghi thêm hieu-chinh-tho.jsonl để lượt sau kiểm đàng hoàng rồi mới nói chuyện bỏ giảm chấn`. Nay sổ thô có 228.156 mẫu bốn chợ. `scripts/do-giam-chan.py` quét cả trục trên 4 chợ × 20 ngày, khớp trên HỌC, chấm trên CHỐT, khoảng tin bootstrap chia khối theo KHUNG (1.440 khối) — Brier CHỐT đơn điệu giảm suốt trục: 0,30 → 0,15916 · 0,50 → 0,15871 · 0,70 → 0,15839 · 0,85 → 0,15823 · 1,00 → 0,15815. So với 0,70: 0,85 cho [-0,000247, -0,000073] và 1,00 cho [-0,000426, -0,000075] — cả hai TỐT HƠN có ý nghĩa; 0,30 và 0,50 TỆ HƠN có ý nghĩa. Chọn 0,85 chứ không 1,00 vì hai giá trị ấy KHÔNG phân biệt được (khoảng tin chồng nhau) mà 0,85 còn giữ một phần hãm cho đúng RỦI RO PHÉP ĐO NÀY KHÔNG THẤY: đường nắn khớp trên quá khứ, chợ đổi chế độ thì nó thành cũ, và áp một đường cũ ở lực tối đa tệ hơn áp nó có hãm. Ba lớp chắn khác đã có sẵn (toiThieuMau, toiThieuMoiO, và dung_duoc — không khá hơn thì không áp), nên đây là lớp thứ tư chứ không phải lớp duy nhất. LƯU Ý: vòng tự nâng cấp TỪ CHỐI chính thay đổi này, vì nó quét 51 ứng viên nên phải siết biên theo so-sánh-bội; phép đo ở đây kiểm ĐÚNG MỘT giả thuyết định trước và cho khoảng tin, nên nó mạnh hơn ở đúng câu hỏi này. Hai công cụ không mâu thuẫn — chúng trả lời hai câu khác nhau.",
   "nanLai": {
     "toiThieuMau": 400,
     "toiThieuMoiO": 20,
-    "heSoGiamChan": 0.7,
+    "heSoGiamChan": 0.85,
     "doiToiDa": 0.25
   },
   "//tienHoa": "Vòng tiến hoá ngày. Chạy TRONG runtime, mỗi ngày UTC một lượt sau `gioUTC`. Nhịp 24 giờ chứ không ngắn hơn: cổng chặn bắt được 'tệ hơn' nhưng không bắt được 'khác đi mà rối hơn', nên tốc độ tiến hoá phải chậm hơn tốc độ một người kịp nhìn.",

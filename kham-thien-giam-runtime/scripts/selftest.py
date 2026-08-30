@@ -1451,6 +1451,29 @@ def kiem_tu_nang_cap() -> None:
          f"2 ứng viên → {b2:.5f} · 60 ứng viên → {b60:.5f}")
     kiem("biên luôn dưới 1 (vẫn đòi khá hơn)", b60 < 1.0, b60)
 
+    # ── giảm chấn phải nằm trong dải ĐÃ ĐO ────────────────────────────
+    #
+    # `scripts/do-giam-chan.py` quét cả trục trên 4 chợ × 20 ngày, khớp
+    # trên HỌC, chấm trên CHỐT, khoảng tin bootstrap chia khối theo KHUNG
+    # (1.440 khối). Brier CHỐT đơn điệu giảm suốt trục, và so với 0,70:
+    #
+    #     0,30  [+0,000539, +0,001005]   TỆ HƠN có ý nghĩa
+    #     0,50  [+0,000207, +0,000440]   TỆ HƠN có ý nghĩa
+    #     0,85  [-0,000247, -0,000073]   TỐT HƠN có ý nghĩa
+    #     1,00  [-0,000426, -0,000075]   TỐT HƠN có ý nghĩa
+    #
+    # Nên hạ nút này xuống dưới 0,85 là quay về một giá trị ĐÃ ĐO LÀ TỆ
+    # HƠN. Muốn hạ thì phải đo lại trước, và sửa cả phép kiểm này —
+    # đúng như thế, vì đổi một con số đã có bằng chứng thì phải đi kèm
+    # bằng chứng mới, không phải một lần "chỉnh cho an toàn".
+    from kham.nan_lai import he_so_giam_chan as _hsgc
+    _hs = _hsgc()
+    kiem("hệ số giảm chấn nằm trong dải ĐÃ ĐO là không tệ hơn",
+         0.85 - 1e-9 <= _hs <= 1.0 + 1e-9, _hs)
+    kiem("và config có ghi phép đo biện minh cho nó",
+         "do-giam-chan.py" in (GOC_MA / "config.json")
+         .read_text(encoding="utf-8"))
+
     # ── GỘP CHỢ: thêm THÔNG TIN, không phải thêm CON SỐ ───────────────
     #
     # Bốn coin tương quan gần 1 — `kho_doi` có ma trận nói thế, và cổng
