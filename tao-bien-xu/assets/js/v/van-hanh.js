@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-08-30T12:13:38.742Z",
- "lan": 447,
+ "generatedAt": "2026-08-30T16:49:56.675Z",
+ "lan": 448,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -737,15 +737,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-08-30T12:13:38.742Z",
-   "ket": "loi",
-   "giay": 192,
-   "doi": false,
-   "chuThich": "kinh-thanh: ngã ở MODEL · phiếu đo 17/17 → 17/17 · opus-5",
-   "vi": "chua-ro",
-   "chuoiLoi": 1,
-   "lucOk": "2026-08-29T10:22:20.385Z",
-   "lucDoi": null
+   "luc": "2026-08-30T16:49:56.675Z",
+   "ket": "ok",
+   "giay": 305,
+   "doi": true,
+   "chuThich": "kinh-thanh: phiếu đo 17/17 → 17/17 · opus-5",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": "2026-08-30T16:49:56.675Z",
+   "lucDoi": "2026-08-30T16:49:56.675Z"
   },
   {
    "ma": "phieu",
@@ -795,6 +795,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-08-30T16:49:56.675Z",
+   "ma": "tien-hoa-xoay",
+   "ket": "ok",
+   "giay": 305,
+   "doi": true,
+   "chuThich": "kinh-thanh: phiếu đo 17/17 → 17/17 · opus-5",
+   "vi": null
+  },
   {
    "luc": "2026-08-30T12:13:38.742Z",
    "ma": "tien-hoa-xoay",
@@ -1323,15 +1332,6 @@ window.VAN_HANH = {
    "ket": "ok",
    "giay": 0,
    "doi": false,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-08-29T10:22:00.993Z",
-   "ma": "quan-trac-do",
-   "ket": "ok",
-   "giay": 2,
-   "doi": true,
    "chuThich": "",
    "vi": null
   }

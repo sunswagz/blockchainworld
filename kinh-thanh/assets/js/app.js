@@ -351,14 +351,29 @@ function go(id, keepQuery){
 }
 
 /* ══ filter ═══════════════════════════════════════════ */
+function boLoc(){
+  $("q").value="";
+  for(var k in active) active[k]=true;
+  [].slice.call($("chips").children).forEach(function(b){
+    if(b.dataset.id) b.setAttribute("aria-pressed","true");
+  });
+  apply();
+  /* Dải vừa bấm biến mất khỏi DOM, nên tiêu điểm bàn phím sẽ rơi về
+     <body> nếu không dời đi đâu. Dời về đúng cái mốc mà đường nhảy
+     qua thanh bên đang dùng — người dùng vừa yêu cầu "cho tôi xem
+     lại toàn bản đồ", và đó chính là đầu bản đồ. */
+  var m=$("than"); if(m) m.focus();
+}
+
 function apply(){
-  var q=norm($("q").value.trim()), shown=0;
+  var q=norm($("q").value.trim()), tu=$("q").value.trim(), shown=0, tong=0;
   var cards=[].slice.call(document.querySelectorAll(".card"));
   cards.forEach(function(c){
     var sec=c.closest("[data-layer]");
     var on=sec && active[sec.dataset.layer]!==false;
     var vis=on && (!q || c.dataset.search.indexOf(q)!==-1);
     c.hidden=!vis;
+    if(!c.dataset.more) tong++;
     if(vis && !c.dataset.more) shown++;
   });
   document.querySelectorAll("[data-group]").forEach(function(g){
@@ -374,7 +389,7 @@ function apply(){
     /* Hai dòng, không một dòng: dòng đầu nói CHUYỆN GÌ XẢY RA, dòng sau
        nói LÀM GÌ TIẾP. Bản cũ chỉ có dòng đầu cho ca tìm không ra, nên
        người dùng đứng trước một trang trắng mà không có lối đi nào. */
-    var e=el("div","empty"), tu=$("q").value.trim();
+    var e=el("div","empty");
     var t=el("p","empty-t"), s=el("p","empty-s");
     if(q){
       t.textContent="Không tìm thấy “"+tu+"”";
@@ -408,7 +423,36 @@ function apply(){
     }
     $("layers").parentNode.insertBefore(e,$("layers"));
   }
-  $("hits").textContent=shown+" mục";
+  /* ── DẢI LỌC ĐANG BẬT ──────────────────────────────────
+     Dựng vào #chips chứ không vào thanh trên, và đó là điểm mấu
+     chốt: #chips đã được ẩn/hiện sẵn ở SÁU chỗ chuyển màn (thành
+     phố, bảng xếp hạng, và các lối quay lại). Đặt nhờ vào đó thì
+     dải không bao giờ nổi lên trên một màn không có bản đồ nào để
+     lọc — không phải nhớ thêm một chỗ nào. */
+  var oldPill=$("chips").querySelector(".filter-pill"); if(oldPill) oldPill.remove();
+  var an=0; for(var k in active) if(active[k]===false) an++;
+  var dangLoc = !!q || an>0;
+  if(dangLoc){
+    var mo = q ? ("“"+tu+"”") : "";
+    mo = an ? (mo ? (mo+" · ẩn "+an+" tầng") : ("ẩn "+an+" tầng")) : mo;
+    var pill=el("button","filter-pill"); pill.type="button";
+    var pl=el("span"); pl.textContent="Đang lọc: "+mo;
+    var px=el("span","fx");
+    px.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+      'stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    pill.appendChild(pl); pill.appendChild(px);
+    /* Đọc bằng trình đọc màn hình thì “Đang lọc: “swap” ✕” là một
+       lời mô tả, không phải một lời hứa — nó không nói bấm vào thì
+       ra cái gì. Nói đủ hành động ngay trên nút. */
+    pill.setAttribute("aria-label","Bỏ lọc "+mo+", xem lại toàn bộ "+current.name);
+    pill.addEventListener("click",boLoc);
+    $("chips").insertBefore(pill,$("chips").firstChild);
+  }
+  /* Có MỐC thì con số mới đọc được. "3 mục" một mình đọc như một
+     bản đồ nhỏ; "3 / 142 mục" đọc ra ngay rằng 139 mục đang bị
+     giấu. Chỉ ghép mốc khi đang lọc — lúc không lọc thì shown và
+     tong bằng nhau, in cả hai chỉ là nhiễu. */
+  $("hits").textContent = dangLoc ? (shown+" / "+tong+" mục") : (tong+" mục");
   onScroll();
 }
 $("q").addEventListener("input",function(){ if(inCity) closeCity(); if(inRank) closeRanking(); apply(); });

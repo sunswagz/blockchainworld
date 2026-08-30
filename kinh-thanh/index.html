@@ -88,7 +88,11 @@
       </button>
       <span class="flag" aria-hidden="true"></span>
       <h1 id="barTitle"></h1>
-      <span class="hits" id="hits"></span>
+      <!-- Bộ đếm là thứ DUY NHẤT báo cho người dùng trình đọc màn hình
+           biết vừa lọc còn lại bao nhiêu: dải .filter-pill dựng ở #chips
+           thì thấy được bằng mắt, nhưng không ai đọc nó lên khi con số
+           đổi. aria-live đọc "3 / 142 mục" ngay sau mỗi lần gõ. -->
+      <span class="hits" id="hits" aria-live="polite"></span>
       <button class="icon-btn burger" id="openSearch" aria-label="Tìm kiếm">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </button>

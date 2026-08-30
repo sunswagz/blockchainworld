@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-30T12:13:38.742Z",
-  "lan": 447,
+  "generatedAt": "2026-08-30T16:49:56.675Z",
+  "lan": 448,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-30T11:58:50.789Z",
@@ -278,18 +278,27 @@
       "lucDoi": "2026-08-30T06:12:10.246Z"
     },
     "tien-hoa-xoay": {
-      "luc": "2026-08-30T12:13:38.742Z",
-      "ket": "loi",
-      "giay": 192,
-      "doi": false,
-      "chuThich": "kinh-thanh: ngã ở MODEL · phiếu đo 17/17 → 17/17 · opus-5",
-      "chuoiLoi": 1,
-      "vi": "chua-ro",
-      "lucOk": "2026-08-29T10:22:20.385Z",
-      "lucDoi": null
+      "luc": "2026-08-30T16:49:56.675Z",
+      "ket": "ok",
+      "giay": 305,
+      "doi": true,
+      "chuThich": "kinh-thanh: phiếu đo 17/17 → 17/17 · opus-5",
+      "chuoiLoi": 0,
+      "vi": null,
+      "lucOk": "2026-08-30T16:49:56.675Z",
+      "lucDoi": "2026-08-30T16:49:56.675Z"
     }
   },
   "nk": [
+    {
+      "luc": "2026-08-30T16:49:56.675Z",
+      "ma": "tien-hoa-xoay",
+      "ket": "ok",
+      "giay": 305,
+      "doi": true,
+      "chuThich": "kinh-thanh: phiếu đo 17/17 → 17/17 · opus-5",
+      "vi": null
+    },
     {
       "luc": "2026-08-30T12:13:38.742Z",
       "ma": "tien-hoa-xoay",
@@ -2079,15 +2088,6 @@
       "giay": 2,
       "doi": true,
       "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-25T07:12:47.963Z",
-      "ma": "thai-boc-tu-tin-pt",
-      "ket": "ok",
-      "giay": 109,
-      "doi": true,
-      "chuThich": "nhận 12 · loại 0 · phủ 20/30 bài · haiku-4.5",
       "vi": null
     }
   ]

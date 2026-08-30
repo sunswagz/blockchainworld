@@ -203,6 +203,25 @@ body[data-nav="mini"] .nav-label{height:1px; padding:9px 0 0; margin:0 6px; back
 .elsewhere button{padding:5px 11px; border:1px solid var(--line); background:var(--paper);
   border-radius:999px; font-size:var(--t-3); cursor:pointer}
 .elsewhere button:hover{border-color:var(--acc)}
+/* DẢI LỌC ĐANG BẬT — bộ lọc của cung này VÔ HÌNH đúng lúc nó quan
+   trọng nhất. Ô tìm nằm trong thanh bên, mà dưới 900px thanh bên là
+   ngăn kéo: gõ xong, chạm ra ngoài, ngăn kéo đóng — và người đọc còn
+   lại một bản đồ thiếu quá nửa số mục, không một chữ nào nói vì sao.
+   Tắt bớt tầng bằng chip cũng thế: chip tắt chỉ nhạt đi, mà nó nằm
+   trong một hàng cuộn ngang nên chip đang tắt có thể đã trôi khỏi màn.
+
+   Mượn đúng bộ màu cảnh giác sẵn có của cung (#FBF6E4 + --gold, xem
+   .layer-note.warn · .genericnote · .caveat) chứ không bịa màu thứ
+   bảy: trong cung này nền kem viền vàng đã có nghĩa "đọc kỹ chỗ này".
+   Đệm và cỡ chữ chép NGUYÊN của .chip — dải đứng cùng hàng với chip
+   nên phải cùng chiều cao, và chép lại thì không thêm nấc nào cho hai
+   thước thang-chu/thang-cach đang được canh. */
+.filter-pill{flex:0 0 auto; display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:999px; border:1px solid var(--gold);
+  background:#FBF6E4; font-size:var(--t-2); font-weight:600; color:var(--ink);
+  cursor:pointer; transition:background var(--dur), border-color var(--dur)}
+.filter-pill:hover{background:#F4EAC8; border-color:var(--ink-2)}
+.filter-pill .fx{display:grid; place-items:center; color:var(--ink-2)}
 
 
 /* ── thành phố: sơ đồ dòng chảy ───────────────────────── */
