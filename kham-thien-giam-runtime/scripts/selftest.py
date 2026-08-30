@@ -1172,6 +1172,199 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_phat_lai() -> None:
+    """Biên của BÀN THỬ TIỀN — nơi sinh ra mọi con số lãi lỗ.
+
+    21 trên 30 con sống sót. Đây là module mà mọi câu "cỗ máy này có
+    lãi không" đều đi qua, nên một biên sai ở đây không cho một lỗi —
+    nó cho một CON SỐ, và con số ấy trông y hệt một con số đúng.
+
+    Ba chỗ đắt nhất:
+
+    · CHỌN BÊN. `ch.ben == "UP"` xuất hiện hai lần: một lần chọn SỔ để
+      khớp, một lần chọn CHÂN để ghi tồn kho. Nhầm bất kỳ lần nào là
+      mua UP mà ghi vào DOWN, và lãi lỗ đảo dấu.
+    · KHÔNG CÓ VỊ THẾ thì không ghi dòng lãi lỗ nào.
+    · HOÀ thuộc về ai. `lai > 0` là thắng — nên hoà đếm vào THUA, có
+      chủ ý: một khung hoà đã tốn phí, và phí đã nằm trong `lai`.
+
+    ## Sau khi viết xong: 30 con → 16 CHẾT, 14 CÒN NỢ
+
+    Đã canh trọn phần KẾ TOÁN — khớp, chọn bên, kết toán, đếm thắng
+    thua, cầu dao, và ca "khung không ra kết quả" (nơi một lỗi từng
+    khoá chết cả bốn market: khớp đứng ở 398 lệnh trong khi cửa sổ vẫn
+    mở thêm hàng nghìn).
+
+    Mười bốn con còn lại nằm trong VÒNG CHẠY (`_mot_khung`, `chay`,
+    `_nen_lai`) — chúng cần một băng giả có khung hình đúng hình dạng,
+    chứ không gọi thẳng được như các hàm kế toán. Đó là món nợ có tên,
+    và nó KHÔNG nằm trên đường tính tiền: mọi phép cộng trừ đô đã có
+    canh, phần còn lại là đường đi tới chúng.
+    """
+    print()
+    print("-- Bien cua BAN THU TIEN -----------------------------------")
+    from kham import phat_lai as _PL9
+    from kham.can_loi import CoHoi as _CH9
+    from kham.so_lenh import Muc as _M9
+    from kham.so_lenh import SoLenh as _S9
+
+    # ── phần trăm báo cáo: mẫu số 0 thì trả 0, không chia cho 0 ─────
+    kq = _PL9.KetQuaPhien(von0=0.0, von=0.0, dinhVon=0.0)
+    kiem("đỉnh vốn 0 → sụt vốn 0%, không nổ", gan(kq.sutVonPct, 0.0))
+    kiem("vốn đầu 0 → lợi nhuận 0%, không nổ", gan(kq.loiNhuanPct, 0.0))
+    kq2 = _PL9.KetQuaPhien(von0=1000.0, von=900.0, dinhVon=1200.0)
+    kiem("sụt vốn đo từ ĐỈNH, không từ vốn đầu",
+         gan(kq2.sutVonPct, 25.0), kq2.sutVonPct)
+    kiem("lợi nhuận đo từ VỐN ĐẦU, không từ đỉnh",
+         gan(kq2.loiNhuanPct, -10.0), kq2.loiNhuanPct)
+
+    # ── khớp: chọn ĐÚNG sổ và ĐÚNG chân ─────────────────────────────
+    def _phien():
+        import tempfile as _tf9
+        d = Path(_tf9.mkdtemp())
+        return _PL9.PhienPhatLai(von=1000.0, thuMucSo=d)
+
+    def _ch9(ben="UP", vwap=0.40):
+        return _CH9(ma="X", ben=ben, chienThuat="thử", fairValue=0.6,
+                    giaCho=vwap, vwap=vwap, soCo=50.0, grossEdge=0.2,
+                    phi=0.01, truotGia=0.0008, batDinhMoHinh=0.02,
+                    bienAnToan=0.008, netEdge=0.15, sucChua=500.0,
+                    xacSuatKhop=0.9, nuaDoiMs=5000.0, laMaker=False,
+                    dayDu=True)
+
+    suRe = _S9(ma="X", ben="UP", bid=[_M9(0.39, 800.0)],
+               ask=[_M9(0.40, 800.0)], nhanLucMs=0.0)
+    sdDat = _S9(ma="X", ben="DOWN", bid=[_M9(0.79, 800.0)],
+                ask=[_M9(0.80, 800.0)], nhanLucMs=0.0)
+
+    ph = _phien()
+    v = _PL9.ViKhung(slug="s", ma="X")
+    ph._khop(_ch9("UP"), 50.0, suRe, v)
+    kiem("mua UP → ghi vào chân UP, không phải DOWN",
+         gan(v.coUp, 50.0) and gan(v.coDown, 0.0), (v.coUp, v.coDown))
+    kiem("và giá ghi là giá của SỔ UP (0,40), không phải sổ DOWN",
+         gan(v.tienUp, 50.0 * 0.40), v.tienUp)
+    ph2 = _phien()
+    v2 = _PL9.ViKhung(slug="s", ma="X")
+    ph2._khop(_ch9("DOWN"), 50.0, sdDat, v2)
+    kiem("mua DOWN → ghi vào chân DOWN",
+         gan(v2.coDown, 50.0) and gan(v2.coUp, 0.0),
+         (v2.coUp, v2.coDown))
+    kiem("và giá ghi là giá của SỔ DOWN (0,80)",
+         gan(v2.tienDown, 50.0 * 0.80), v2.tienDown)
+    kiem("phí được cộng vào cả vị thế lẫn tổng phiên",
+         v2.phi > 0 and gan(ph2.kq.tongPhi, v2.phi),
+         (v2.phi, ph2.kq.tongPhi))
+    kiem("tồn kho CHUNG cũng nhận, để phơi nhiễm nhóm nhìn thấy",
+         gan(ph2.kho.lay("X").coDown, 50.0), ph2.kho.lay("X").coDown)
+
+    # sổ rỗng → không khớp, và NÓI RA lý do
+    ph3 = _phien()
+    v3 = _PL9.ViKhung(slug="s", ma="X")
+    ph3._khop(_ch9("UP"), 50.0, _S9(ma="X", ben="UP", bid=[], ask=[],
+                                    nhanLucMs=0.0), v3)
+    kiem("sổ rỗng → không khớp gì", gan(v3.coUp, 0.0) and ph3.kq.soKhop == 0,
+         (v3.coUp, ph3.kq.soKhop))
+    kiem("và lý do được ĐẾM, không nuốt lặng",
+         any("không có hàng" in x for x in ph3.kq.boQua), ph3.kq.boQua)
+
+    # lệnh maker KHÔNG được khớp — phiên này chưa mô phỏng hàng chờ
+    ph4 = _phien()
+    v4 = _PL9.ViKhung(slug="s", ma="X")
+    chM = _ch9("UP")
+    chM.laMaker = True
+    ph4._khop(chM, 50.0, suRe, v4)
+    kiem("lệnh maker KHÔNG khớp — không tặng không phí lẫn spread",
+         gan(v4.coUp, 0.0) and ph4.kq.soKhop == 0, (v4.coUp, ph4.kq.soKhop))
+
+    # ── giá trị khi kết quả ra ──────────────────────────────────────
+    v5 = _PL9.ViKhung(slug="s", ma="X", coUp=100.0, coDown=40.0,
+                      tienUp=40.0, tienDown=20.0, phi=1.0)
+    kiem("UP thắng → nhận đúng số cổ UP", gan(v5.gia_tri(True), 100.0))
+    kiem("UP thua → nhận đúng số cổ DOWN", gan(v5.gia_tri(False), 40.0))
+    kiem("tiền vào là TỔNG hai chân", gan(v5.tienVao, 60.0))
+    kiem("giá cặp tính trên phần ĐÃ GHÉP, và trên $1 là khoá lỗ",
+         v5.gia_cap is not None and v5.gia_cap > 0, v5.gia_cap)
+    kiem("chưa ghép cặp thì giá cặp là None",
+         _PL9.ViKhung(slug="s", ma="X", coUp=10.0, tienUp=4.0).gia_cap
+         is None)
+
+    # ── KẾT TOÁN một khung: đếm thắng thua, và HOÀ thuộc về ai ───────
+    def _ketToan(v, that, phien=None):
+        ph = phien or _phien()
+        ph.mo[v.slug] = v
+        ph._kqThat.lay = lambda s, _t=that: _t
+        ph._ket_toan(v.slug)
+        return ph
+
+    # Thắng: 100 cổ UP mua hết $40, UP thắng → +60 trừ phí.
+    ph = _ketToan(_PL9.ViKhung(slug="s", ma="X", coUp=100.0, tienUp=40.0,
+                               phi=1.0), True)
+    kiem("UP thắng → một dòng kết toán, đếm vào THẮNG",
+         ph.kq.soKetToan == 1 and ph.kq.soThang == 1 and ph.kq.soThua == 0,
+         (ph.kq.soKetToan, ph.kq.soThang, ph.kq.soThua))
+    kiem("và lãi đã TRỪ phí", gan(ph.kq.tongLaiLo, 100.0 - 40.0 - 1.0),
+         ph.kq.tongLaiLo)
+
+    ph = _ketToan(_PL9.ViKhung(slug="s", ma="X", coUp=100.0, tienUp=40.0,
+                               phi=1.0), False)
+    kiem("UP thua → đếm vào THUA và ghi khoản thua lớn nhất",
+         ph.kq.soThua == 1 and ph.kq.thuaLonNhat < 0,
+         (ph.kq.soThua, ph.kq.thuaLonNhat))
+
+    # HOÀ TUYỆT ĐỐI: nhận về đúng bằng tiền vào cộng phí ⇒ lai = 0.
+    ph = _ketToan(_PL9.ViKhung(slug="s", ma="X", coUp=100.0, tienUp=99.0,
+                               phi=1.0), True)
+    kiem("lãi lỗ ĐÚNG BẰNG 0 → đếm vào THUA, không phải THẮNG",
+         gan(ph.kq.tongLaiLo, 0.0) and ph.kq.soThua == 1
+         and ph.kq.soThang == 0,
+         (ph.kq.tongLaiLo, ph.kq.soThang, ph.kq.soThua))
+
+    # KHÔNG có vị thế → không dòng lãi lỗ nào, nhưng sổ hiệu chỉnh VẪN nhận.
+    ph = _phien()
+    truoc = ph.hieuChinh.tong_mau
+    ph = _ketToan(_PL9.ViKhung(slug="s", ma="X", pDuDoanUp=0.7), True,
+                  phien=ph)
+    kiem("đứng ngoài khung → KHÔNG có dòng kết toán",
+         ph.kq.soKetToan == 0, ph.kq.soKetToan)
+    kiem("nhưng sổ hiệu chỉnh VẪN nhận — không thì mô hình tự thiên lệch",
+         ph.hieuChinh.tong_mau == truoc + 1,
+         (truoc, ph.hieuChinh.tong_mau))
+
+    # Khung KHÔNG có kết quả: phải TRẢ LẠI hạn mức, không khoá market.
+    ph = _phien()
+    ph.kho.lay("X").ghi_khop("UP", 100.0, 0.40)
+    ph.mo["s"] = _PL9.ViKhung(slug="s", ma="X", coUp=100.0, tienUp=40.0)
+    ph._kqThat.lay = lambda s: None
+    ph._ket_toan("s")
+    kiem("khung không ra kết quả → ĐẾM treo, không nuốt lặng",
+         ph.kq.soTreo == 1 and gan(ph.kq.tienTreoUsd, 40.0),
+         (ph.kq.soTreo, ph.kq.tienTreoUsd))
+    kiem("và TRẢ LẠI hạn mức — không thì market ấy CHẾT cả phiên",
+         gan(ph.kho.lay("X").coUp, 0.0), ph.kho.lay("X").coUp)
+
+    # ── cầu dao NGẮT: ghi lại đúng khung ngắt, và chỉ ghi MỘT lần ────
+    #
+    # `if ngatKhanCap and not truocNgat` — vế thứ hai là thứ giữ cho
+    # "khung nào làm nó ngắt" đúng. Bỏ nó thì mọi khung sau đều ghi đè,
+    # và con số cuối cùng là khung CUỐI chứ không phải khung gây ra.
+    ph = _phien()
+    ph.kq.soKhungHinh = 111
+    ph.mo["s"] = _PL9.ViKhung(slug="s", ma="X", coUp=100.0,
+                              tienUp=ph.risk.tranLoNgayUsd + 5.0)
+    ph._kqThat.lay = lambda s: False
+    ph._ket_toan("s")
+    kiem("lỗ vượt trần ngày → cầu dao NGẮT", ph.risk.ngatKhanCap)
+    kiem("và ghi ĐÚNG khung đã làm nó ngắt",
+         ph.kq.ngatLucKhung == 111, ph.kq.ngatLucKhung)
+    kiem("lý do ngắt được chép lại", bool(ph.kq.ngatLyDo), ph.kq.ngatLyDo)
+    ph.kq.soKhungHinh = 999
+    ph.mo["s2"] = _PL9.ViKhung(slug="s2", ma="X", coUp=10.0, tienUp=4.0)
+    ph._ket_toan("s2")
+    kiem("khung SAU không được ghi đè khung đã ngắt",
+         ph.kq.ngatLucKhung == 111, ph.kq.ngatLucKhung)
+
+
 def kiem_bien_cua_chien_thuat() -> None:
     """Biên của NĂM NGÓN NGHỀ — 19 trên 22 con sống sót lượt đầu.
 
@@ -8586,6 +8779,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_phat_lai()
     kiem_bien_cua_chien_thuat()
     kiem_bien_cua_do_tre()
     kiem_bien_cua_cap_token()
