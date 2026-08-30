@@ -1220,7 +1220,7 @@ không chạy được thứ đó, nên chạy tay ở máy rồi commit lát c�
     cd tu-cam-thanh-runtime
     python run.py                 buồng lái ở localhost:5182, ghi mỗi vòng lặp
     python -m trader.snapshot     ghi một lần rồi thoát
-    python scripts/selftest.py    486 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    490 phép kiểm số học, KHÔNG cần mạng
     python scripts/so-hai-lan.py  hai làn cạnh nhau (vốn, nhịp lệnh, R từng hướng)
     node scripts/kiem-giao-dien.mjs   giao diện có đọc được mọi trường nó cần không
 

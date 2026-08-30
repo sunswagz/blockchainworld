@@ -1203,6 +1203,22 @@ async def main() -> int:
     check("sys.exit(_chay_va_ghi_loi())" in _gs53,
           "và đường vào chính đi qua đó, không gọi thẳng main()")
 
+    # CỬA AN TOÀN phải hỏi ĐỦ HAI VẾ. Ngày 30/08 nó báo "AN TOÀN — 3 vị thế mở
+    # nhưng OCO đã ở SÀN", tôi giết tiến trình con, và KHÔNG AI dựng lại: bộ
+    # giám sát đã chết từ hai tiếng trước. Vế "vị thế được canh" đúng; vế "có ai
+    # dựng lại" thì chưa từng được hỏi.
+    _at53 = ma_khong_chu_thich(ROOT / "scripts" / "an-toan-dung-lai.py")
+    check("_giam_sat()" in _at53 and "giamSatPid" in _at53,
+          "cửa an toàn hỏi bộ giám sát còn sống không")
+    check("_NT._con_song(pid)" in _at53,
+          "và mượn phép kiểm sống/chết của nghi thức, không tự viết lại")
+    # Sàn giấy KHÔNG có OCO và không cần — áp luật OCO cho nó là báo động giả
+    # ngay lệnh đầu tiên của phép đo tiến tướng.
+    check('d.get("mode") == "paper"' in _at53,
+          "cửa an toàn tách chế độ paper — sàn giấy không có OCO ở sàn nào")
+    check("--demo" in _at53 and "5282" in _at53,
+          "và hỏi được đúng làn demo, không hỏi nhầm bot khác")
+
     # BÀN GIAO phải nhắc tới làn demo. Bản bàn giao là thứ phiên sau ĐỌC; một
     # phép đo kéo ~6 tuần mà không có dòng nào ở đó thì nó chết lặng lẽ, và
     # "chưa có lệnh SHORT nào" đọc y hệt "chưa tới lúc". Cùng bài học với
