@@ -1172,6 +1172,195 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_ket_toan() -> None:
+    """Biên của KẾT TOÁN — module quyết định AI THẮNG.
+
+    Bộ quét đột biến: **15 trên 16 con sống sót** ở lượt đầu, tệ nhất
+    trong cả cung. Mà đây là chỗ hệ trọng nhất: nó quyết kết quả từng
+    khung, và mọi thứ phía sau — Brier, điểm kỹ năng, đường nắn, cổng
+    tiến hoá, lãi lỗ — đều tra kết quả ấy.
+
+    Ba nhóm biên:
+
+    · ĐỊNH NGHĨA THẮNG THUA. `dong > giaMo` và `up > down`. Hoà thì
+      thuộc về ai? Ở đây: hoà tuyệt đối thì TỪ CHỐI đoán, chứ không
+      gán bừa cho DOWN.
+    · SÀN ĐÃ CHỐT CHƯA. `abs(up − down) < 0.9` — giá còn ở giữa nghĩa
+      là chưa chốt. Nhận sớm một khung chưa chốt là ghi một kết quả
+      bịa vào sổ nền.
+    · NHỊP HỎI. Hỏi quá sớm thì sàn chưa có; hỏi quá dày thì phí; hỏi
+      quá nhiều lần thì treo mãi.
+
+    ## Sau khi viết xong: 16 con → 10 CHẾT, 6 TƯƠNG ĐƯƠNG
+
+        201 `up > down` — dòng trên đã từ chối khi `abs(up − down) <
+            0,9`, nên up == down không bao giờ tới được đây.
+        210 `dong > giaMo` — dòng trên đã trả None khi hai giá bằng
+            nhau. Cùng một kiểu chắn.
+        208 `abs(dong − giaMo) < 1e-9` — khác biệt chỉ ở chênh lệch
+            ĐÚNG BẰNG 1e-9 tới từng bit; dựng ca ấy bằng số thực là
+            chuyện may rủi.
+        149 217 `coUp > 0 or coDown > 0` — với tồn kho rỗng, nhánh kia
+            cộng thêm 0. (217 ĐÃ chết nhờ phép kiểm "đứng ngoài khung
+            thì không có dòng lãi lỗ"; 149 nằm ở đường BỎ THEO DÕI,
+            nơi `treo` mặc định đã là 0.)
+        158 chỉ đổi CHỮ trong một dòng nhật ký.
+    """
+    print()
+    print("-- Bien cua KET TOAN: ai thang, va khi nao biet -------------")
+    from kham.ket_toan import ChoKetToan as _CKT
+    from kham.ket_toan import KetToan as _KT
+
+    # ── định nghĩa thắng thua, đo THẲNG trên hai hàm quyết ────────────
+    kt = _KT.__new__(_KT)
+    c = _CKT(ma="BTC_5M", slug="s", ketThucMs=1_000_000.0, giaMo=100.0,
+             capNen="BTCUSDT", tokenUp="u", tokenDown="d")
+
+    from kham import ket_toan as _KTM
+    _cuGia = _KTM.nguon.gia_dong_khung
+    _cuMk = _KTM.nguon.market_theo_slug
+    try:
+        for dong, mong, nhan in ((100.5, True, "cao hơn giá mở → UP thắng"),
+                                 (99.5, False, "thấp hơn → UP thua"),
+                                 (100.0, None, "HOÀ TUYỆT ĐỐI → từ chối "
+                                               "đoán, không gán cho DOWN")):
+            _KTM.nguon.gia_dong_khung = lambda *a, _d=dong, **k: _d
+            kiem(nhan, kt._tu_tinh(c) is mong, kt._tu_tinh(c))
+        _KTM.nguon.gia_dong_khung = lambda *a, **k: None
+        kiem("không lấy được giá đóng → từ chối, không đoán",
+             kt._tu_tinh(c) is None)
+
+        # ── sàn đã chốt chưa: khoảng cách hai giá phải ĐỦ RÕ ──────────
+        def _mk(up, down):
+            return lambda *a, **k: {"outcomePrices": [str(up), str(down)]}
+
+        for up, down, mong, nhan in (
+                (1.0, 0.0, True, "sàn trả 1/0 → UP thắng"),
+                (0.0, 1.0, False, "sàn trả 0/1 → UP thua"),
+                # Chọn cặp số biểu diễn được ĐÚNG trong nhị phân:
+                # `abs(0.95 − 0.05)` ra 0,8999999999999999 chứ không
+                # phải 0,9, nên nó KHÔNG phải phép kiểm biên — nó là
+                # phép kiểm về số dấu phẩy động.
+                (0.9, 0.0, True, "cách nhau ĐÚNG BẰNG ngưỡng 0,90 → NHẬN"),
+                (0.875, 0.0, None, "cách nhau 0,875 → CHƯA chốt, từ chối"),
+                (0.5, 0.5, None, "còn ở giữa → CHƯA chốt")):
+            _KTM.nguon.market_theo_slug = _mk(up, down)
+            kiem(nhan, kt._hoi_san(c) is mong, kt._hoi_san(c))
+        _KTM.nguon.market_theo_slug = lambda *a, **k: {
+            "outcomePrices": ["1.0"]}
+        kiem("thiếu vế thứ hai → từ chối", kt._hoi_san(c) is None)
+        _KTM.nguon.market_theo_slug = lambda *a, **k: None
+        kiem("không có market → từ chối", kt._hoi_san(c) is None)
+    finally:
+        _KTM.nguon.gia_dong_khung = _cuGia
+        _KTM.nguon.market_theo_slug = _cuMk
+
+    # ── nhịp hỏi: ba biên, ba ý nghĩa khác nhau ───────────────────────
+    def _moi_kt():
+        k = Kho()
+        from kham.dinh_gia import HieuChinh as _HC
+        from kham.so import So as _So
+        import tempfile as _tf
+        d = Path(_tf.mkdtemp())
+        return _KT(k, _HC(duong=d / "hc.json"), _So(d / "so.jsonl"))
+
+    # CHE cả hai nguồn suốt khối này. Không che thì `_hoi_san` gọi
+    # Gamma và `_tu_tinh` gọi Binance THẬT — bộ kiểm phải chạy được khi
+    # không có mạng, và một phép kiểm phụ thuộc mạng thì lúc xanh lúc đỏ
+    # vì lý do chẳng liên quan gì tới mã.
+    _cuGia2 = _KTM.nguon.gia_dong_khung
+    _cuMk2 = _KTM.nguon.market_theo_slug
+    try:
+        _KTM.nguon.gia_dong_khung = lambda *a, **k: None
+        _KTM.nguon.market_theo_slug = lambda *a, **k: None
+
+        kt2 = _moi_kt()
+        kt2.ghi_danh("BTC_5M", "s", 1_000_000.0, 100.0, "BTCUSDT",
+                     "u", "d")
+        cho = kt2.cho["s"]
+        som = 1_000_000.0 + _KT.CHO_TRUOC_KHI_HOI_GIAY * 1000.0
+        kt2.soat(som - 1.0)
+        kiem("chưa tới hạn chờ thì KHÔNG hỏi", cho.soLanHoi == 0,
+             cho.soLanHoi)
+        kt2.soat(som)
+        kiem("ĐÚNG BẰNG hạn chờ thì HỎI", cho.soLanHoi == 1, cho.soLanHoi)
+        kt2.soat(som + _KT.CACH_HAI_LAN_HOI_GIAY * 1000.0 - 1.0)
+        kiem("hỏi lại quá dày thì bỏ qua", cho.soLanHoi == 1, cho.soLanHoi)
+        kt2.soat(som + _KT.CACH_HAI_LAN_HOI_GIAY * 1000.0)
+        kiem("cách ĐÚNG BẰNG nhịp thì hỏi tiếp", cho.soLanHoi == 2,
+             cho.soLanHoi)
+
+        # `soat` TĂNG bộ đếm rồi mới so, nên đặt ở `TOI_DA_HOI − 1` để
+        # lần hỏi kế tiếp rơi ĐÚNG vào `TOI_DA_HOI`.
+        cho.soLanHoi = _KT.TOI_DA_HOI - 1
+        kt2.soat(som + 10_000_000.0)
+        kiem("hỏi ĐÚNG BẰNG số lần tối đa thì vẫn còn theo dõi",
+             "s" in kt2.cho and cho.soLanHoi == _KT.TOI_DA_HOI,
+             (list(kt2.cho), cho.soLanHoi))
+        kt2.soat(som + 20_000_000.0)
+        kiem("quá số lần tối đa thì BỎ theo dõi, không treo mãi",
+             "s" not in kt2.cho, list(kt2.cho))
+        # ── một nguồn có, một nguồn không → VẪN kết toán ─────────────
+        #
+        # `if san is None and tu_tinh is None: return False`. Đổi `and`
+        # thành `or` là bỏ mọi khung mà chỉ một nguồn trả lời — tức
+        # gần như MỌI khung, vì Gamma đang bị chặn.
+        def _dung(san=None, tuTinh=None, coViThe=True):
+            kk = Kho()
+            from kham.dinh_gia import HieuChinh as _HC2
+            from kham.so import So as _So2
+            import tempfile as _tf2
+            dd = Path(_tf2.mkdtemp())
+            ktx = _KT(kk, _HC2(duong=dd / "hc.json"), _So2(dd / "so.jsonl"))
+            if coViThe:
+                kk.lay("BTC_5M").ghi_khop("UP", 10.0, 0.5)
+            ktx.ghi_danh("BTC_5M", "s", 1_000_000.0, 100.0, "BTCUSDT",
+                         "u", "d")
+            _KTM.nguon.market_theo_slug = (
+                None if san is None
+                else (lambda *a, **k: {"outcomePrices":
+                                       ["1.0" if san else "0.0",
+                                        "0.0" if san else "1.0"]}))
+            if san is None:
+                _KTM.nguon.market_theo_slug = lambda *a, **k: None
+            _KTM.nguon.gia_dong_khung = (
+                (lambda *a, **k: None) if tuTinh is None
+                else (lambda *a, **k: 100.5 if tuTinh else 99.5))
+            xong = ktx._thu_ket_toan(ktx.cho["s"])
+            dong = [x for x in (dd / "so.jsonl").read_text(
+                encoding="utf-8").splitlines() if x.strip()]                 if (dd / "so.jsonl").exists() else []
+            return ktx, xong, dong
+
+        _, xong, _ = _dung(san=None, tuTinh=True)
+        kiem("chỉ TỰ TÍNH trả lời → vẫn kết toán", xong)
+        _, xong, _ = _dung(san=True, tuTinh=None)
+        kiem("chỉ SÀN trả lời → vẫn kết toán", xong)
+        _, xong, _ = _dung(san=None, tuTinh=None)
+        kiem("không nguồn nào trả lời → KHÔNG kết toán", not xong)
+
+        # ── cờ BẤT ĐỒNG phải đúng chiều ──────────────────────────────
+        ktx, _, _ = _dung(san=True, tuTinh=True)
+        kiem("hai nguồn NÓI GIỐNG nhau → không bất đồng",
+             ktx.soBatDong == 0, ktx.soBatDong)
+        ktx, _, _ = _dung(san=True, tuTinh=False)
+        kiem("hai nguồn NÓI NGƯỢC nhau → đếm bất đồng",
+             ktx.soBatDong == 1, ktx.soBatDong)
+
+        # ── không có vị thế thì KHÔNG ghi dòng lãi lỗ ────────────────
+        #
+        # `if v is not None and (v.coUp > 0 or v.coDown > 0)`. Đổi `>`
+        # thành `>=` là ghi một dòng kết toán $0 cho MỌI khung mình
+        # đứng ngoài — sổ lãi lỗ phình lên bằng những dòng không tương
+        # ứng với đồng nào.
+        _, _, dong = _dung(san=None, tuTinh=True, coViThe=False)
+        kiem("đứng ngoài khung thì KHÔNG có dòng lãi lỗ", not dong, dong)
+        _, _, dong = _dung(san=None, tuTinh=True, coViThe=True)
+        kiem("có vị thế thì CÓ đúng một dòng", len(dong) == 1, len(dong))
+    finally:
+        _KTM.nguon.gia_dong_khung = _cuGia2
+        _KTM.nguon.market_theo_slug = _cuMk2
+
+
 def kiem_bien_cua_cham_moc() -> None:
     """Biên của động cơ CHẠM MỐC — nặng nhất là "đỉnh ĐÚNG BẰNG mốc".
 
@@ -6484,6 +6673,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_ket_toan()
     kiem_bien_cua_cham_moc()
     kiem_bien_cua_ton_kho()
     kiem_bien_cua_cong_rui_ro()
