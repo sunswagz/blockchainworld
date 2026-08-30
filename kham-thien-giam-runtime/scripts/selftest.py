@@ -1172,6 +1172,149 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_can_loi() -> None:
+    """Biên của CÂN LỢI — nơi quyết một cơ hội có đáng làm không.
+
+    Bộ quét đột biến: 14 trên 18 con sống sót. Ba nhóm:
+
+    · TỪ CHỐI THAY VÌ BỊA. Sổ rỗng, xin 0 cổ, thiếu một bên sổ — mọi
+      ca ấy phải trả `None`, không phải một cơ hội với số 0 trong đó.
+    · GIÁ CẶP ĐÚNG $1,00 là HOÀ. Cùng luật với `kho_doi`, nhưng đây là
+      lớp khác và nó có bản sao riêng của phép so.
+    · SỐ MŨ BIỂU PHÍ phải thật sự được áp. Nó mặc định 1 nên không đổi
+      gì hôm nay — mà đúng vì thế nó dễ mục ra mà không ai biết.
+
+    ## Sau khi viết xong: 18 con → 12 CHẾT, 6 TƯƠNG ĐƯƠNG
+
+        97 185 339 343  `soCo <= 0` / `soCap <= 0`. Ở 0 thì nhánh kia
+                        vẫn ra cùng kết quả: `phi_taker` nhân với 0,
+                        còn `can`/`gia_cap` gặp `khop = 0` ở dòng ngay
+                        sau và trả None. Chắn HAI LỚP nên lớp ngoài
+                        không giết được.
+        204             `thuc > 0` — dòng trên đã bảo đảm `thuc > 0`.
+        279             `day <= 0` trong nhánh maker — sổ rỗng có
+                        `spread is None` nên đã trả 0,5 từ dòng trước;
+                        sổ có spread thì chắc chắn có độ sâu.
+
+    HAI cái bẫy của chính phép kiểm, cả hai đều bị bộ quét bắt:
+
+    · `_xac_suat_khop(so, laMaker, soCo)` — tôi gọi nhầm thứ tự thành
+      `(so, soCo, laMaker)`, và nó vẫn "đạt" vì 10.0 là truthy nên rơi
+      đúng nhánh maker.
+    · `giaCho` so với `vwap` trên một sổ MỘT TẦNG thì hai số bằng nhau,
+      nên phép kiểm không phân biệt được gì. Phải dựng sổ nhiều tầng,
+      và có một phép kiểm riêng canh rằng chúng thật sự khác nhau.
+    """
+    print()
+    print("-- Bien cua CAN LOI ----------------------------------------")
+    from kham.can_loi import can as _can3
+    from kham.can_loi import gia_cap as _gc3
+    from kham.can_loi import phi_taker as _pt3
+    from kham.so_lenh import Muc as _M3
+    from kham.so_lenh import SoLenh as _S3
+
+    su = _S3(ma="X", ben="UP", bid=[_M3(0.44, 500.0)],
+             ask=[_M3(0.46, 500.0)], nhanLucMs=0.0)
+    sd = _S3(ma="X", ben="DOWN", bid=[_M3(0.52, 500.0)],
+             ask=[_M3(0.54, 500.0)], nhanLucMs=0.0)
+    rong = _S3(ma="X", ben="UP", bid=[], ask=[], nhanLucMs=0.0)
+
+    # ── từ chối thay vì bịa ──────────────────────────────────────────
+    kiem("xin 0 cổ → None, không phải cơ hội cỡ 0",
+         _can3("X", "UP", "t", 0.6, 0.02, su, 0.0) is None)
+    kiem("sổ rỗng → None", _can3("X", "UP", "t", 0.6, 0.02, rong, 10.0)
+         is None)
+    kiem("cặp: xin 0 cặp → None", _gc3("X", su, sd, 0.0) is None)
+    kiem("cặp: thiếu một bên sổ → None", _gc3("X", su, None, 10.0) is None)
+    kiem("cặp: một bên sổ rỗng → None", _gc3("X", su, rong, 10.0) is None)
+
+    # ── giá cặp ĐÚNG $1,00 là HOÀ, không phải khoá lỗ ────────────────
+    _bang = _S3(ma="X", ben="UP", bid=[_M3(0.40, 500.0)],
+                ask=[_M3(0.40, 500.0)], nhanLucMs=0.0)
+    _bang2 = _S3(ma="X", ben="DOWN", bid=[_M3(0.60, 500.0)],
+                 ask=[_M3(0.60, 500.0)], nhanLucMs=0.0)
+    g = _gc3("X", _bang, _bang2, 100.0)
+    kiem("cặp gom hết đúng $1,00 → giá cặp 1,00",
+         g is not None and gan(g.giaCap, 1.0, 1e-9), g and g.giaCap)
+    kiem("và KHÔNG phải cặp khoá lỗ", g is not None and not g.khoa_lo)
+    _t2 = _S3(ma="X", ben="DOWN", bid=[_M3(0.61, 500.0)],
+              ask=[_M3(0.61, 500.0)], nhanLucMs=0.0)
+    g2 = _gc3("X", _bang, _t2, 100.0)
+    kiem("nhích lên $1,01 thì LÀ khoá lỗ", g2 is not None and g2.khoa_lo,
+         g2 and g2.giaCap)
+
+    # ── số cặp THẬT là phần nhỏ hơn, không phải trung bình ───────────
+    _mong = _S3(ma="X", ben="DOWN", bid=[_M3(0.60, 30.0)],
+                ask=[_M3(0.60, 30.0)], nhanLucMs=0.0)
+    g3 = _gc3("X", _bang, _mong, 100.0)
+    kiem("một chân chỉ đủ 30 → số cặp THẬT là 30, không phải 65",
+         g3 is not None and gan(g3.soCap, 30.0, 1e-9), g3 and g3.soCap)
+    kiem("và `dayDu` phải FALSE khi một chân không đủ",
+         g3 is not None and not g3.dayDu, g3 and g3.dayDu)
+
+    # ── số mũ biểu phí phải THẬT SỰ được áp ──────────────────────────
+    _cuMu = CONFIG["phi"].get("takerSoMu")
+    try:
+        CONFIG["phi"]["takerSoMu"] = 2.0
+        kiem("đổi số mũ biểu phí thì phí ĐỔI THEO",
+             gan(_pt3(0.5, 100.0),
+                 round(float(CONFIG["phi"]["takerHeSo"]) * (0.25 ** 2)
+                       * 100.0, 5), 1e-9),
+             _pt3(0.5, 100.0))
+    finally:
+        if _cuMu is None:
+            CONFIG["phi"].pop("takerSoMu", None)
+        else:
+            CONFIG["phi"]["takerSoMu"] = _cuMu
+    kiem("trả lại số mũ 1 thì phí về đúng bảng chính thức",
+         gan(round(_pt3(0.5, 100.0), 2), 1.75, 1e-9), _pt3(0.5, 100.0))
+
+    # ── giá HIỂN THỊ phải là best ask, không phải vwap ───────────────
+    #
+    # `giaCho` chỉ để hiện lên buồng lái, nên sai nó không mất tiền —
+    # nhưng nó là con số người đọc dùng để đối chiếu với sổ lệnh thật.
+    # Thay lặng bằng vwap là làm mọi lần đối chiếu ấy lệch đi mà không
+    # ai biết vì sao.
+    # Sổ phải có NHIỀU TẦNG, không thì vwap trùng best ask và phép kiểm
+    # không phân biệt được hai con số — nó đạt mà chẳng chứng minh gì.
+    suNhieuTang = _S3(ma="X", ben="UP", bid=[_M3(0.44, 500.0)],
+                      ask=[_M3(0.46, 50.0), _M3(0.50, 500.0)],
+                      nhanLucMs=0.0)
+    chx = _can3("X", "UP", "t", 0.60, 0.02, suNhieuTang, 100.0)
+    kiem("sổ nhiều tầng: vwap KHÁC best ask (nếu không thì kiểm vô nghĩa)",
+         chx is not None and abs(chx.vwap - suNhieuTang.best_ask) > 1e-6,
+         chx and (chx.vwap, suNhieuTang.best_ask))
+    kiem("`giaCho` là BEST ASK, không phải vwap",
+         chx is not None and gan(chx.giaCho, suNhieuTang.best_ask),
+         chx and (chx.giaCho, suNhieuTang.best_ask, chx.vwap))
+
+    # ── sổ KHOÁ (bid = ask) và sổ RỖNG: hai ca biên của maker ────────
+    from kham.can_loi import _nua_doi as _nd3
+    from kham.can_loi import _xac_suat_khop as _xk3
+    khoa = _S3(ma="X", ben="UP", bid=[_M3(0.50, 100.0)],
+               ask=[_M3(0.50, 100.0)], nhanLucMs=0.0)
+    kiem("spread ĐÚNG BẰNG 0 → xác suất khớp về mức 'không biết' 0,50",
+         gan(_xk3(khoa, True, 10.0), 0.5), _xk3(khoa, True, 10.0))
+    kiem("sổ rỗng thì maker cũng 0,50, không bịa một con số đẹp",
+         gan(_xk3(rong, True, 10.0), 0.5), _xk3(rong, True, 10.0))
+    kiem("taker thì không phụ thuộc spread",
+         gan(_xk3(khoa, False, 10.0), 0.94), _xk3(khoa, False, 10.0))
+    kiem("sổ rỗng → nửa đời bằng 0, không phải một con số sống",
+         gan(_nd3(rong, 0.02), 0.0), _nd3(rong, 0.02))
+    kiem("sổ có hàng → nửa đời dương", _nd3(su, 0.02) > 0, _nd3(su, 0.02))
+
+    # ── nửa đời ĐÚNG BẰNG ngưỡng vẫn là ĐANG LÀM ĐƯỢC ────────────────
+    ch = _can3("X", "UP", "t", 0.60, 0.02, su, 100.0)
+    if ch is not None:
+        nd = float(CONFIG["canLoi"]["nuaDoiToiThieuMs"])
+        import dataclasses as _dc2
+        kiem("nửa đời ĐÚNG BẰNG ngưỡng → vẫn đang làm được",
+             _dc2.replace(ch, nuaDoiMs=nd).dang_lam,
+             (nd, ch.nuaDoiMs))
+        kiem("kém một mili giây → KHÔNG",
+             not _dc2.replace(ch, nuaDoiMs=nd - 1.0).dang_lam)
+
+
 def kiem_bien_cua_dinh_gia() -> None:
     """Biên của ĐỊNH GIÁ — nơi sinh ra mọi xác suất.
 
@@ -6832,6 +6975,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_can_loi()
     kiem_bien_cua_dinh_gia()
     kiem_bien_cua_ket_toan()
     kiem_bien_cua_cham_moc()
