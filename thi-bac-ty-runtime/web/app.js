@@ -673,6 +673,46 @@
         + "lỡ, không phải số sẽ thu được: phần nằm không thường nằm không "
         + "vì những cơ hội còn lại tệ hơn, hoặc vì một trần đang chặn "
         + "trước khi tiền cạn. Xem phễu để biết trần nào."));
+      /* GHẾ, chứ không TIỀN. Câu trên nói «hoặc vì một trần đang chặn» mà
+         không nói trần nào — và trần ấy đo được. Đo làn thật 30/08: ghế
+         đầy 120/120 trong khi 222.757 USD nằm ngoài dự trữ ăn 0%, trung
+         vị một ghế giữ 1.136 USD trên phần chia công bằng 6.666. Thứ khan
+         hiếm là CHỖ NGỒI. Ba ô này để câu hỏi ấy hỏi được — chúng KHÔNG
+         khuyên nâng trần: vị thế nhỏ vì sức chứa pool nhỏ là sự thật của
+         thị trường, và chỗ cân là quyết định của chủ. */
+      var gv = t.gheVaVon || {};
+      if (gv.soGhe && gv.soDangDung != null) {
+        var dgv = el("div", "day-so");
+        dgv.appendChild(oSo("Ghế đã dùng",
+          so(gv.soDangDung) + " / " + so(gv.soGhe),
+          gv.tiLeGheDay == null ? "—"
+            : so(gv.tiLeGheDay * 100, 0) + "% · `phanBo.toiDaSoViThe`",
+          (gv.tiLeGheDay || 0) >= 0.95 ? "am" : "nhat"));
+        dgv.appendChild(oSo("Một ghế giữ (trung vị)",
+          gv.vonTrungViMotGheUsd == null ? "—"
+            : tien(gv.vonTrungViMotGheUsd, 0),
+          gv.phanChiaMoiGheUsd == null ? "—"
+            : "phần chia công bằng " + tien(gv.phanChiaMoiGheUsd, 0)));
+        if (gv.soGheBe != null) {
+          dgv.appendChild(oSo("Ghế BÉ",
+            so(gv.soGheBe) + " ghế",
+            "dưới " + tien(gv.nguongGheBeUsd, 0) + " · cộng lại "
+              + tien(gv.vonTrongGheBeUsd, 0)
+              + (gv.tiLeVonTrongGheBe == null ? ""
+                 : " (" + so(gv.tiLeVonTrongGheBe * 100, 1) + "% vốn dùng)"),
+            (gv.soDangDung && gv.soGheBe / gv.soDangDung >= 0.5)
+              ? "am" : "nhat"));
+        }
+        kvr.appendChild(dgv);
+        var _bt = Object.keys(gv.gheBeTheoTy || {});
+        if (_bt.length) {
+          kvr.appendChild(giai("Ghế bé thuộc về: " + _bt.map(function (k) {
+            return (TEN_DEP[k] || [k])[0] + " " + gv.gheBeTheoTy[k];
+          }).join(" · ") + ". Vị thế nhỏ vì SỨC CHỨA nhỏ là sự thật của "
+            + "thị trường, không phải lỗi cấu hình — và trần ghế cũng có "
+            + "lý của nó. Chỗ cân giữa hai điều ấy là quyết định của chủ."));
+        }
+      }
       f.appendChild(kvr);
     }
 

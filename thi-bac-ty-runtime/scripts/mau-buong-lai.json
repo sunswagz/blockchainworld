@@ -1,8 +1,8 @@
 {
  "maChienLuoc": "perpetual.funding_spread.v1",
  "vong": 3,
- "batDauLuc": 1788056901.8697965,
- "chayDuocGiay": 62.72171425819397,
+ "batDauLuc": 1788057698.8372722,
+ "chayDuocGiay": 68.07580065727234,
  "tamDung": false,
  "che": "quan-sat",
  "cheKhai": "quan-sat",
@@ -16,10 +16,64 @@
   "DOGE",
   "POL"
  ],
- "quetCuoiMs": 1872.3341999866534,
- "quetLauNhatMs": 27942.47360000736,
+ "quetCuoiMs": 3098.024999984773,
+ "quetLauNhatMs": 13934.2622999975,
  "loiVongCuoi": null,
- "tienHoa": null,
+ "tienHoa": {
+  "luc": "2026-08-30T02:41:53Z",
+  "soKhungBang": 15965,
+  "soDoDuoc": 127,
+  "kyVongTruoc": -17.8897287086614,
+  "kyVongSau": null,
+  "trieuChung": [
+   {
+    "ma": "du-doan-lac-quan",
+    "nang": 3,
+    "moTa": "dự đoán thu cao hơn thực nhận trung bình 29.36 bps mỗi cơ hội — funding tụt trước khi tới mốc, không phải xui.",
+    "bangChung": {
+     "saiSoBps": 29.35963396850395,
+     "soDoDuoc": 127,
+     "tongDuDoanBps": 4923.677968000001,
+     "tongThucBps": 1195.0044539999994
+    },
+    "nutGoiY": [
+     "giuGio",
+     "netToiThieuBps"
+    ]
+   },
+   {
+    "ma": "ky-vong-am",
+    "nang": 3,
+    "moTa": "kỳ vọng -17.89 bps mỗi cơ hội — bộ tham số này LỖ, không phải lãi ít.",
+    "bangChung": {
+     "kyVongBps": -17.8897287086614,
+     "soLai": 0,
+     "soLo": 127,
+     "tiLeLai": 0,
+     "tệNhấtBps": -19.400305000000003
+    },
+    "nutGoiY": [
+     "netToiThieuBps",
+     "grossToiThieuBpsNgay",
+     "giuGio"
+    ]
+   },
+   {
+    "ma": "dong-ho-lech",
+    "nang": 3,
+    "moTa": "25 lần bị chặn vì đồng hồ máy lệch giờ sàn. Đây KHÔNG phải bệnh vặn tham số chữa được — chỉnh NTP.",
+    "bangChung": {
+     "soLan": 25
+    },
+    "nutGoiY": []
+   }
+  ],
+  "deXuat": [],
+  "nhan": null,
+  "traLai": [],
+  "ghiChu": "có triệu chứng nhưng không núm nào hợp lệ để vặn.",
+  "thu": false
+ },
  "loiTienHoa": "",
  "cang": [
   {
@@ -27,8 +81,8 @@
    "tongLuot": 3,
    "soLoi": 0,
    "loiCuoi": null,
-   "tuoiGiay": 1.6272646484375,
-   "treTrungBinhMs": 469.676595988858,
+   "tuoiGiay": 6.997265380859375,
+   "treTrungBinhMs": 539.4205630061333,
    "songSot": true
   },
   {
@@ -36,8 +90,8 @@
    "tongLuot": 3,
    "soLoi": 0,
    "loiCuoi": null,
-   "tuoiGiay": 1.325908447265625,
-   "treTrungBinhMs": 577.015862003027,
+   "tuoiGiay": 6.833195556640625,
+   "treTrungBinhMs": 511.5447280049557,
    "songSot": true
   },
   {
@@ -45,8 +99,8 @@
    "tongLuot": 3,
    "soLoi": 0,
    "loiCuoi": null,
-   "tuoiGiay": 1.283318115234375,
-   "treTrungBinhMs": 566.8738119921181,
+   "tuoiGiay": 6.9010146484375,
+   "treTrungBinhMs": 482.2938139960752,
    "songSot": true
   },
   {
@@ -54,21 +108,21 @@
    "tongLuot": 3,
    "soLoi": 0,
    "loiCuoi": null,
-   "tuoiGiay": 1.6362412109375,
-   "treTrungBinhMs": 316.9263829893316,
+   "tuoiGiay": 6.980800537109375,
+   "treTrungBinhMs": 365.16606399585726,
    "songSot": true
   }
  ],
  "dongHo": {
-  "lechMs": -106.3955078125,
-  "lechGiay": -0.1063955078125,
+  "lechMs": -115.812255859375,
+  "lechGiay": -0.115812255859375,
   "daDo": true,
   "dangKeu": false,
   "nguongKeuMs": 5000,
   "theoSan": {
-   "bybit": -110.144287109375,
-   "binance": -106.3955078125,
-   "okx": -95.18408203125
+   "bybit": -122.829345703125,
+   "binance": -115.812255859375,
+   "okx": -98.5029296875
   },
   "soMau": 3
  },
@@ -76,49 +130,49 @@
   {
    "san": "binance",
    "ma": "BTC",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "binance",
    "ma": "ETH",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "binance",
    "ma": "SOL",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "binance",
    "ma": "XRP",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "binance",
    "ma": "DOGE",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "okx",
    "ma": "BTC",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "okx",
    "ma": "ETH",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   },
   {
    "san": "okx",
    "ma": "SOL",
-   "gio": 5.5098652457682284,
+   "gio": 5.287000760972765,
    "chuKyGio": 8
   }
  ],
@@ -168,12 +222,12 @@
    "intervalGio": 1,
    "moiGio": 0.0000125,
    "moiNgayBps": 3.0000000000000004,
-   "markPx": 78035,
+   "markPx": 78068.6,
    "mocKeMs": 1788058800000,
-   "oiUsd": 2905602418.3427,
-   "tuoiGiay": 1.628115234375,
-   "nguonTsMs": 1788056962857,
-   "nhanTsMs": 1788056962857,
+   "oiUsd": 2907334873.627064,
+   "tuoiGiay": 6.998260498046875,
+   "nguonTsMs": 1788057759799,
+   "nhanTsMs": 1788057759799,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -185,12 +239,12 @@
    "intervalGio": 1,
    "moiGio": 0.0000125,
    "moiNgayBps": 3.0000000000000004,
-   "markPx": 2456.4,
+   "markPx": 2455.43,
    "mocKeMs": 1788058800000,
-   "oiUsd": 1928718627.5599196,
-   "tuoiGiay": 1.628115234375,
-   "nguonTsMs": 1788056962857,
-   "nhanTsMs": 1788056962857,
+   "oiUsd": 1928910744.5227275,
+   "tuoiGiay": 6.998260498046875,
+   "nguonTsMs": 1788057759799,
+   "nhanTsMs": 1788057759799,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -198,16 +252,16 @@
   {
    "san": "hyperliquid",
    "ma": "SOL",
-   "rate": 0.0000100551,
+   "rate": 0.0000100078,
    "intervalGio": 1,
-   "moiGio": 0.0000100551,
-   "moiNgayBps": 2.413224,
-   "markPx": 105.38,
+   "moiGio": 0.0000100078,
+   "moiNgayBps": 2.401872,
+   "markPx": 105.2763,
    "mocKeMs": 1788058800000,
-   "oiUsd": 641847488.1367999,
-   "tuoiGiay": 1.628115234375,
-   "nguonTsMs": 1788056962857,
-   "nhanTsMs": 1788056962857,
+   "oiUsd": 641045963.544846,
+   "tuoiGiay": 6.998260498046875,
+   "nguonTsMs": 1788057759799,
+   "nhanTsMs": 1788057759799,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -219,12 +273,12 @@
    "intervalGio": 1,
    "moiGio": 0.0000125,
    "moiNgayBps": 3.0000000000000004,
-   "markPx": 0.085002,
+   "markPx": 0.084993,
    "mocKeMs": 1788058800000,
-   "oiUsd": 54021223.817711994,
-   "tuoiGiay": 1.628115234375,
-   "nguonTsMs": 1788056962857,
-   "nhanTsMs": 1788056962857,
+   "oiUsd": 54019482.750323996,
+   "tuoiGiay": 6.998260498046875,
+   "nguonTsMs": 1788057759799,
+   "nhanTsMs": 1788057759799,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -236,12 +290,12 @@
    "intervalGio": 1,
    "moiGio": 0.0000125,
    "moiNgayBps": 3.0000000000000004,
-   "markPx": 1.3933,
+   "markPx": 1.3948,
    "mocKeMs": 1788058800000,
-   "oiUsd": 221539520.818,
-   "tuoiGiay": 1.628115234375,
-   "nguonTsMs": 1788056962857,
-   "nhanTsMs": 1788056962857,
+   "oiUsd": 222582702.86560002,
+   "tuoiGiay": 6.998260498046875,
+   "nguonTsMs": 1788057759799,
+   "nhanTsMs": 1788057759799,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -253,12 +307,12 @@
    "intervalGio": 1,
    "moiGio": 0.0000125,
    "moiNgayBps": 3.0000000000000004,
-   "markPx": 0.10447,
+   "markPx": 0.104356,
    "mocKeMs": 1788058800000,
-   "oiUsd": 3849661.2057399997,
-   "tuoiGiay": 1.628115234375,
-   "nguonTsMs": 1788056962857,
-   "nhanTsMs": 1788056962857,
+   "oiUsd": 3845425.931872,
+   "tuoiGiay": 6.998260498046875,
+   "nguonTsMs": 1788057759799,
+   "nhanTsMs": 1788057759799,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế suy từ quy ước kết toán hàng giờ"
@@ -266,16 +320,16 @@
   {
    "san": "binance",
    "ma": "BTC",
-   "rate": 0.00009214,
+   "rate": 0.00009361,
    "intervalGio": 8,
-   "moiGio": 0.0000115175,
-   "moiNgayBps": 2.7641999999999998,
-   "markPx": 78036,
+   "moiGio": 0.00001170125,
+   "moiNgayBps": 2.8083000000000005,
+   "markPx": 78071.05381884,
    "mocKeMs": 1788076800000,
-   "oiUsd": 8444939412.252,
-   "tuoiGiay": 2.480115234375,
-   "nguonTsMs": 1788056962005,
-   "nhanTsMs": 1788056963158,
+   "oiUsd": 8452674145.201449,
+   "tuoiGiay": 7.797260498046875,
+   "nguonTsMs": 1788057759000,
+   "nhanTsMs": 1788057759901,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -283,16 +337,16 @@
   {
    "san": "binance",
    "ma": "ETH",
-   "rate": 0.00005273,
+   "rate": 0.00005383,
    "intervalGio": 8,
-   "moiGio": 0.00000659125,
-   "moiNgayBps": 1.5819,
-   "markPx": 2455.8,
+   "moiGio": 0.00000672875,
+   "moiNgayBps": 1.6149,
+   "markPx": 2454.71,
    "mocKeMs": 1788076800000,
-   "oiUsd": 5778671643.9216,
-   "tuoiGiay": 2.480115234375,
-   "nguonTsMs": 1788056962005,
-   "nhanTsMs": 1788056963072,
+   "oiUsd": 5786097991.591861,
+   "tuoiGiay": 7.797260498046875,
+   "nguonTsMs": 1788057759000,
+   "nhanTsMs": 1788057759918,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -300,16 +354,16 @@
   {
    "san": "binance",
    "ma": "SOL",
-   "rate": -0.0000369,
+   "rate": -0.00003081,
    "intervalGio": 8,
-   "moiGio": -0.0000046125,
-   "moiNgayBps": -1.107,
-   "markPx": 105.38,
+   "moiGio": -0.00000385125,
+   "moiNgayBps": -0.9242999999999999,
+   "markPx": 105.28,
    "mocKeMs": 1788076800000,
-   "oiUsd": 897225523.4536,
-   "tuoiGiay": 2.480115234375,
-   "nguonTsMs": 1788056962005,
-   "nhanTsMs": 1788056963092,
+   "oiUsd": 896553184.5088001,
+   "tuoiGiay": 7.797260498046875,
+   "nguonTsMs": 1788057759000,
+   "nhanTsMs": 1788057759921,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -317,16 +371,16 @@
   {
    "san": "binance",
    "ma": "XRP",
-   "rate": 0.00000388,
+   "rate": 0.00000934,
    "intervalGio": 8,
-   "moiGio": 4.85e-7,
-   "moiNgayBps": 0.1164,
-   "markPx": 1.3928,
+   "moiGio": 0.0000011675,
+   "moiNgayBps": 0.2802,
+   "markPx": 1.39434897,
    "mocKeMs": 1788076800000,
-   "oiUsd": 434061841.87552,
-   "tuoiGiay": 2.480115234375,
-   "nguonTsMs": 1788056962005,
-   "nhanTsMs": 1788056963109,
+   "oiUsd": 434377939.71358556,
+   "tuoiGiay": 7.797260498046875,
+   "nguonTsMs": 1788057759000,
+   "nhanTsMs": 1788057759964,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -334,16 +388,16 @@
   {
    "san": "binance",
    "ma": "DOGE",
-   "rate": 0.00001743,
+   "rate": 0.00001899,
    "intervalGio": 8,
-   "moiGio": 0.00000217875,
-   "moiNgayBps": 0.5229,
-   "markPx": 0.085,
+   "moiGio": 0.00000237375,
+   "moiNgayBps": 0.5697,
+   "markPx": 0.08498,
    "mocKeMs": 1788076800000,
-   "oiUsd": 223852646.92000002,
-   "tuoiGiay": 2.480115234375,
-   "nguonTsMs": 1788056962005,
-   "nhanTsMs": 1788056963153,
+   "oiUsd": 223969163.41072,
+   "tuoiGiay": 7.797260498046875,
+   "nguonTsMs": 1788057759000,
+   "nhanTsMs": 1788057759961,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -351,16 +405,16 @@
   {
    "san": "binance",
    "ma": "POL",
-   "rate": 0.00002855,
+   "rate": 0.0000339,
    "intervalGio": 4,
-   "moiGio": 0.0000071375,
-   "moiNgayBps": 1.7129999999999999,
-   "markPx": 0.1044,
+   "moiGio": 0.000008475,
+   "moiNgayBps": 2.034,
+   "markPx": 0.10428,
    "mocKeMs": 1788062400000,
-   "oiUsd": 23237069.702400003,
-   "tuoiGiay": 2.480115234375,
-   "nguonTsMs": 1788056962005,
-   "nhanTsMs": 1788056963086,
+   "oiUsd": 23193549.03096,
+   "tuoiGiay": 7.797260498046875,
+   "nguonTsMs": 1788057759000,
+   "nhanTsMs": 1788057759962,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": "mốc kế gợi ý 2h, lệch bản khai 4h"
@@ -368,16 +422,16 @@
   {
    "san": "okx",
    "ma": "BTC",
-   "rate": 0.0000289940499401,
+   "rate": 0.0000295101676204,
    "intervalGio": 8,
-   "moiGio": 0.0000036242562425125,
-   "moiNgayBps": 0.8698214982029999,
-   "markPx": 78009.3,
+   "moiGio": 0.00000368877095255,
+   "moiNgayBps": 0.8853050286119999,
+   "markPx": 78065.6,
    "mocKeMs": 1788076800000,
-   "oiUsd": 2218843941.2836595,
-   "tuoiGiay": 11.703115234375,
-   "nguonTsMs": 1788056952782,
-   "nhanTsMs": 1788056963089,
+   "oiUsd": 2221997191.8611298,
+   "tuoiGiay": 24.027260498046875,
+   "nguonTsMs": 1788057742770,
+   "nhanTsMs": 1788057759887,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -385,16 +439,16 @@
   {
    "san": "okx",
    "ma": "ETH",
-   "rate": 0.0000290976579626,
+   "rate": 0.0000320685023447,
    "intervalGio": 8,
-   "moiGio": 0.000003637207245325,
-   "moiNgayBps": 0.8729297388780001,
-   "markPx": 2455.02,
+   "moiGio": 0.0000040085627930875,
+   "moiNgayBps": 0.9620550703410001,
+   "markPx": 2454.74,
    "mocKeMs": 1788076800000,
-   "oiUsd": 1525144205.1757843,
-   "tuoiGiay": 11.615115234375,
-   "nguonTsMs": 1788056952870,
-   "nhanTsMs": 1788056963102,
+   "oiUsd": 1526581608.234184,
+   "tuoiGiay": 23.944260498046877,
+   "nguonTsMs": 1788057742853,
+   "nhanTsMs": 1788057759885,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -402,16 +456,16 @@
   {
    "san": "okx",
    "ma": "SOL",
-   "rate": -0.0000493576268736,
+   "rate": -0.0000474473585038,
    "intervalGio": 8,
-   "moiGio": -0.0000061697033592,
-   "moiNgayBps": -1.4807288062080002,
-   "markPx": 105.31,
+   "moiGio": -0.000005930919812975,
+   "moiNgayBps": -1.4234207551140001,
+   "markPx": 105.27,
    "mocKeMs": 1788076800000,
-   "oiUsd": 335254893.10800016,
-   "tuoiGiay": 10.374115234375,
-   "nguonTsMs": 1788056954111,
-   "nhanTsMs": 1788056963086,
+   "oiUsd": 335145387.4420002,
+   "tuoiGiay": 22.684260498046875,
+   "nguonTsMs": 1788057744113,
+   "nhanTsMs": 1788057759894,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -419,16 +473,16 @@
   {
    "san": "okx",
    "ma": "XRP",
-   "rate": 0.0000578475549312,
+   "rate": 0.0000622748845775,
    "intervalGio": 8,
-   "moiGio": 0.0000072309443664,
-   "moiNgayBps": 1.7354266479359999,
-   "markPx": 1.3918,
+   "moiGio": 0.0000077843605721875,
+   "moiNgayBps": 1.8682465373250001,
+   "markPx": 1.3943,
    "mocKeMs": 1788076800000,
-   "oiUsd": 104464890.42079991,
-   "tuoiGiay": 11.346115234375,
-   "nguonTsMs": 1788056953139,
-   "nhanTsMs": 1788056963200,
+   "oiUsd": 104707155.33599992,
+   "tuoiGiay": 23.661260498046875,
+   "nguonTsMs": 1788057743136,
+   "nhanTsMs": 1788057759886,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -436,16 +490,16 @@
   {
    "san": "okx",
    "ma": "DOGE",
-   "rate": 0.0000731839965938,
+   "rate": 0.0000737051695152,
    "intervalGio": 8,
-   "moiGio": 0.000009147999574225,
-   "moiNgayBps": 2.1955198978140005,
-   "markPx": 0.08493,
+   "moiGio": 0.0000092131461894,
+   "moiNgayBps": 2.211155085456,
+   "markPx": 0.08497,
    "mocKeMs": 1788076800000,
-   "oiUsd": 89694143.18499997,
-   "tuoiGiay": 10.853115234375,
-   "nguonTsMs": 1788056953632,
-   "nhanTsMs": 1788056963068,
+   "oiUsd": 89454666.93939997,
+   "tuoiGiay": 23.170260498046876,
+   "nguonTsMs": 1788057743627,
+   "nhanTsMs": 1788057759894,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -453,16 +507,16 @@
   {
    "san": "okx",
    "ma": "POL",
-   "rate": -0.000110360523808,
+   "rate": -0.0001109919932858,
    "intervalGio": 4,
-   "moiGio": -0.000027590130952,
-   "moiNgayBps": -6.621631428480001,
-   "markPx": 0.10439,
+   "moiGio": -0.00002774799832145,
+   "moiNgayBps": -6.659519597148,
+   "markPx": 0.10427,
    "mocKeMs": 1788062400000,
-   "oiUsd": 4410128.3975,
-   "tuoiGiay": 10.804115234375,
-   "nguonTsMs": 1788056953681,
-   "nhanTsMs": 1788056963086,
+   "oiUsd": 4403247.7056,
+   "tuoiGiay": 23.091260498046875,
+   "nguonTsMs": 1788057743706,
+   "nhanTsMs": 1788057759896,
    "nguonTuSan": true,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -470,16 +524,16 @@
   {
    "san": "bybit",
    "ma": "BTC",
-   "rate": 0.0000571,
+   "rate": 0.00006143,
    "intervalGio": 8,
-   "moiGio": 0.0000071375,
-   "moiNgayBps": 1.7129999999999999,
-   "markPx": 78019.46,
+   "moiGio": 0.00000767875,
+   "moiNgayBps": 1.8428999999999998,
+   "markPx": 78069.95,
    "mocKeMs": 1788076800000,
-   "oiUsd": 3889433375.73,
-   "tuoiGiay": 1.647115234375,
-   "nguonTsMs": 1788056962838,
-   "nhanTsMs": 1788056962838,
+   "oiUsd": 3891974999.94,
+   "tuoiGiay": 6.991260498046875,
+   "nguonTsMs": 1788057759806,
+   "nhanTsMs": 1788057759806,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -491,12 +545,12 @@
    "intervalGio": 8,
    "moiGio": 0.0000125,
    "moiNgayBps": 3.0000000000000004,
-   "markPx": 0.08495,
+   "markPx": 0.08499,
    "mocKeMs": 1788076800000,
-   "oiUsd": 130931616.73,
-   "tuoiGiay": 1.647115234375,
-   "nguonTsMs": 1788056962838,
-   "nhanTsMs": 1788056962838,
+   "oiUsd": 130937018.26,
+   "tuoiGiay": 6.991260498046875,
+   "nguonTsMs": 1788057759806,
+   "nhanTsMs": 1788057759806,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -504,16 +558,16 @@
   {
    "san": "bybit",
    "ma": "ETH",
-   "rate": 0.00002278,
+   "rate": 0.00002177,
    "intervalGio": 8,
-   "moiGio": 0.0000028475,
-   "moiNgayBps": 0.6834,
-   "markPx": 2454.84,
+   "moiGio": 0.00000272125,
+   "moiNgayBps": 0.6531,
+   "markPx": 2454.55,
    "mocKeMs": 1788076800000,
-   "oiUsd": 1855288927.96,
-   "tuoiGiay": 1.647115234375,
-   "nguonTsMs": 1788056962838,
-   "nhanTsMs": 1788056962838,
+   "oiUsd": 1857828988.6,
+   "tuoiGiay": 6.991260498046875,
+   "nguonTsMs": 1788057759806,
+   "nhanTsMs": 1788057759806,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -521,16 +575,16 @@
   {
    "san": "bybit",
    "ma": "POL",
-   "rate": -0.00003827,
+   "rate": -0.00000799,
    "intervalGio": 4,
-   "moiGio": -0.0000095675,
-   "moiNgayBps": -2.2962,
-   "markPx": 0.10439,
+   "moiGio": -0.0000019975,
+   "moiNgayBps": -0.4794,
+   "markPx": 0.10429,
    "mocKeMs": 1788062400000,
-   "oiUsd": 17101757.52,
-   "tuoiGiay": 1.647115234375,
-   "nguonTsMs": 1788056962838,
-   "nhanTsMs": 1788056962838,
+   "oiUsd": 17079222.26,
+   "tuoiGiay": 6.991260498046875,
+   "nguonTsMs": 1788057759806,
+   "nhanTsMs": 1788057759806,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -538,16 +592,16 @@
   {
    "san": "bybit",
    "ma": "SOL",
-   "rate": -0.00002631,
+   "rate": -0.00001497,
    "intervalGio": 8,
-   "moiGio": -0.00000328875,
-   "moiNgayBps": -0.7893,
-   "markPx": 105.33,
+   "moiGio": -0.00000187125,
+   "moiNgayBps": -0.4491,
+   "markPx": 105.272,
    "mocKeMs": 1788076800000,
-   "oiUsd": 774643344.26,
-   "tuoiGiay": 1.647115234375,
-   "nguonTsMs": 1788056962838,
-   "nhanTsMs": 1788056962838,
+   "oiUsd": 774282171.08,
+   "tuoiGiay": 6.991260498046875,
+   "nguonTsMs": 1788057759806,
+   "nhanTsMs": 1788057759806,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -555,16 +609,16 @@
   {
    "san": "bybit",
    "ma": "XRP",
-   "rate": 0.00007003,
+   "rate": 0.00007783,
    "intervalGio": 8,
-   "moiGio": 0.00000875375,
-   "moiNgayBps": 2.1009,
-   "markPx": 1.3921,
+   "moiGio": 0.00000972875,
+   "moiNgayBps": 2.3349,
+   "markPx": 1.3943,
    "mocKeMs": 1788076800000,
-   "oiUsd": 307882486.53,
-   "tuoiGiay": 1.647115234375,
-   "nguonTsMs": 1788056962838,
-   "nhanTsMs": 1788056962838,
+   "oiUsd": 308489696.38,
+   "tuoiGiay": 6.991260498046875,
+   "nguonTsMs": 1788057759806,
+   "nhanTsMs": 1788057759806,
    "nguonTuSan": false,
    "intervalSuyRa": false,
    "ghiChu": ""
@@ -575,21 +629,21 @@
    "ma": "POL",
    "sanLong": "okx",
    "sanShort": "hyperliquid",
-   "rateLong": -0.000110360523808,
+   "rateLong": -0.0001109919932858,
    "rateShort": 0.0000125,
    "intervalLongGio": 4,
    "intervalShortGio": 1,
-   "grossBpsNgay": 9.621631428479999,
+   "grossBpsNgay": 9.659519597148,
    "giuGio": 8,
    "soMocLong": 2,
    "soMocShort": 8,
-   "thuBps": 3.20721047616,
+   "thuBps": 3.219839865716,
    "phiBps": 27,
-   "netBps": -23.79278952384,
-   "netAprPct": -260.531045286048,
-   "lechMarkBps": 7.660633917456358,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 9.521794189453125,
+   "netBps": -23.780160134284,
+   "netAprPct": -260.3927534704098,
+   "lechMarkBps": 8.244418241254948,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 16.26105712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -600,32 +654,32 @@
    ],
    "duyet": false,
    "lyDo": [
-    "NET sau phí -23.79 bps < ngưỡng 2.75"
+    "NET sau phí -23.78 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "POL",
    "sanLong": "okx",
    "sanShort": "binance",
-   "rateLong": -0.000110360523808,
-   "rateShort": 0.00002855,
+   "rateLong": -0.0001109919932858,
+   "rateShort": 0.0000339,
    "intervalLongGio": 4,
    "intervalShortGio": 4,
-   "grossBpsNgay": 8.33463142848,
+   "grossBpsNgay": 8.693519597147999,
    "giuGio": 8,
    "soMocLong": 2,
    "soMocShort": 2,
-   "thuBps": 2.77821047616,
+   "thuBps": 2.8978398657159996,
    "phiBps": 28,
-   "netBps": -25.221789523840002,
-   "netAprPct": -276.17859528604805,
-   "lechMarkBps": 0.9579002825815414,
-   "choMocDauGiay": 5436.797205810547,
-   "tuoiXauNhatGiay": 9.521794189453125,
+   "netBps": -25.102160134284,
+   "netAprPct": -274.8686534704098,
+   "lechMarkBps": 0.9590026372568806,
+   "choMocDauGiay": 4640.032942871094,
+   "tuoiXauNhatGiay": 16.26105712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -636,32 +690,32 @@
    ],
    "duyet": false,
    "lyDo": [
-    "NET sau phí -25.22 bps < ngưỡng 2.75"
+    "NET sau phí -25.10 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "SOL",
    "sanLong": "okx",
    "sanShort": "hyperliquid",
-   "rateLong": -0.0000493576268736,
-   "rateShort": 0.0000100551,
+   "rateLong": -0.0000474473585038,
+   "rateShort": 0.0000100078,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 3.893952806208,
+   "grossBpsNgay": 3.825292755114,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 1.2979842687360001,
+   "thuBps": 1.275097585038,
    "phiBps": 27,
-   "netBps": -25.702015731263998,
-   "netAprPct": -281.4370722573408,
-   "lechMarkBps": 6.644833641842819,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 9.091794189453125,
+   "netBps": -25.724902414962,
+   "netAprPct": -281.6876814438339,
+   "lechMarkBps": 0.598443192780893,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 15.85405712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -672,32 +726,32 @@
    ],
    "duyet": false,
    "lyDo": [
-    "NET sau phí -25.70 bps < ngưỡng 2.75"
+    "NET sau phí -25.72 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "SOL",
    "sanLong": "binance",
    "sanShort": "hyperliquid",
-   "rateLong": -0.0000369,
-   "rateShort": 0.0000100551,
+   "rateLong": -0.00003081,
+   "rateShort": 0.0000100078,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 3.520224,
+   "grossBpsNgay": 3.3261719999999997,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 1.173408,
+   "thuBps": 1.1087239999999998,
    "phiBps": 27,
-   "netBps": -25.826592,
-   "netAprPct": -282.8011824,
-   "lechMarkBps": 0,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -25.891276,
+   "netAprPct": -283.50947220000006,
+   "lechMarkBps": 0.3514499447411385,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -708,32 +762,32 @@
    ],
    "duyet": false,
    "lyDo": [
-    "NET sau phí -25.83 bps < ngưỡng 2.75"
+    "NET sau phí -25.89 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "XRP",
    "sanLong": "binance",
    "sanShort": "hyperliquid",
-   "rateLong": 0.00000388,
+   "rateLong": 0.00000934,
    "rateShort": 0.0000125,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 2.8836000000000004,
+   "grossBpsNgay": 2.7198,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 0.9612,
+   "thuBps": 0.9066000000000001,
    "phiBps": 27,
-   "netBps": -26.0388,
-   "netAprPct": -285.12486,
-   "lechMarkBps": 3.589246617134668,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -26.0934,
+   "netAprPct": -285.72273,
+   "lechMarkBps": 3.2341764807207047,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -744,34 +798,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 2.88 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.04 bps < ngưỡng 2.75"
+    "chênh lệch thô 2.72 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.09 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "DOGE",
    "sanLong": "binance",
    "sanShort": "hyperliquid",
-   "rateLong": 0.00001743,
+   "rateLong": 0.00001899,
    "rateShort": 0.0000125,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 2.4771,
+   "grossBpsNgay": 2.4303000000000003,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 0.8257,
+   "thuBps": 0.8101000000000002,
    "phiBps": 27,
-   "netBps": -26.1743,
-   "netAprPct": -286.60858499999995,
-   "lechMarkBps": 0.2352913495121378,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -26.1899,
+   "netAprPct": -286.77940500000005,
+   "lechMarkBps": 1.5296547098655815,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -782,34 +836,262 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 2.48 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.17 bps < ngưỡng 2.75"
+    "chênh lệch thô 2.43 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.19 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "BTC",
+   "sanLong": "okx",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.0000295101676204,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 2.114694971388,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.704898323796,
+   "phiBps": 27,
+   "netBps": -26.295101676204,
+   "netAprPct": -287.9313633544338,
+   "lechMarkBps": 0.3842848011518296,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 17.19705712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 2.11 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.30 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "ETH",
+   "sanLong": "okx",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.0000320685023447,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 2.037944929659,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.679314976553,
+   "phiBps": 27,
+   "netBps": -26.320685023447,
+   "netAprPct": -288.21150100674464,
+   "lechMarkBps": 2.810493323041991,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 17.11405712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 2.04 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.32 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "ETH",
+   "sanLong": "binance",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.00005383,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 1.3851000000000002,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.46170000000000005,
+   "phiBps": 27,
+   "netBps": -26.5383,
+   "netAprPct": -290.594385,
+   "lechMarkBps": 2.9327066030695663,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.96705712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 1.39 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.54 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "XRP",
+   "sanLong": "okx",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.0000622748845775,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 1.131753462675,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.37725115422500005,
+   "phiBps": 27,
+   "netBps": -26.622748845775,
+   "netAprPct": -291.5190998612362,
+   "lechMarkBps": 3.5853859667989303,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 16.83105712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 1.13 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.62 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "POL",
+   "sanLong": "binance",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.0000339,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 4,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 0.9660000000000003,
+   "giuGio": 8,
+   "soMocLong": 2,
+   "soMocShort": 8,
+   "thuBps": 0.3220000000000001,
+   "phiBps": 27,
+   "netBps": -26.678,
+   "netAprPct": -292.1241,
+   "lechMarkBps": 7.285415748001938,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.96705712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 0.97 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.68 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "DOGE",
+   "sanLong": "okx",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.0000737051695152,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 0.7888449145440002,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.262948304848,
+   "phiBps": 27,
+   "netBps": -26.737051695152,
+   "netAprPct": -292.7707160619144,
+   "lechMarkBps": 2.706471408482463,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 16.34005712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 0.79 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.74 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "POL",
    "sanLong": "bybit",
    "sanShort": "hyperliquid",
-   "rateLong": -0.00003827,
+   "rateLong": -0.00000799,
    "rateShort": 0.0000125,
    "intervalLongGio": 4,
    "intervalShortGio": 1,
-   "grossBpsNgay": 5.2962,
+   "grossBpsNgay": 3.4794000000000005,
    "giuGio": 8,
    "soMocLong": 2,
    "soMocShort": 8,
-   "thuBps": 1.7653999999999999,
+   "thuBps": 1.1598000000000002,
    "phiBps": 28,
-   "netBps": -26.2346,
-   "netAprPct": -287.26887,
-   "lechMarkBps": 7.660633917456358,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 0.364794189453125,
+   "netBps": -26.8402,
+   "netAprPct": -293.90019,
+   "lechMarkBps": 6.3265051810253246,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.16805712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -820,260 +1102,32 @@
    ],
    "duyet": false,
    "lyDo": [
-    "NET sau phí -26.23 bps < ngưỡng 2.75"
+    "NET sau phí -26.84 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "BTC",
-   "sanLong": "okx",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.0000289940499401,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 2.130178501797,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 0.710059500599,
-   "phiBps": 27,
-   "netBps": -26.289940499401,
-   "netAprPct": -287.8748484684409,
-   "lechMarkBps": 3.293936401393334,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 10.420794189453124,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 2.13 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.29 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "ETH",
-   "sanLong": "okx",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.0000290976579626,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 2.127070261122,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 0.709023420374,
-   "phiBps": 27,
-   "netBps": -26.290976579626,
-   "netAprPct": -287.88619354690474,
-   "lechMarkBps": 5.619556055072094,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 10.332794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 2.13 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.29 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "ETH",
-   "sanLong": "binance",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.00005273,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 1.4181000000000004,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 0.47270000000000006,
-   "phiBps": 27,
-   "netBps": -26.5273,
-   "netAprPct": -290.47393500000004,
-   "lechMarkBps": 2.4428972761691665,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 1.42 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.53 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "POL",
-   "sanLong": "binance",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.00002855,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 4,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 1.2870000000000001,
-   "giuGio": 8,
-   "soMocLong": 2,
-   "soMocShort": 8,
-   "thuBps": 0.42900000000000005,
-   "phiBps": 27,
-   "netBps": -26.571,
-   "netAprPct": -290.95245000000006,
-   "lechMarkBps": 6.702733757838534,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 1.29 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.57 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "XRP",
-   "sanLong": "okx",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.0000578475549312,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 1.2645733520640001,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 0.42152445068800004,
-   "phiBps": 27,
-   "netBps": -26.578475549312,
-   "netAprPct": -291.0343072649664,
-   "lechMarkBps": 10.771606046461935,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 10.063794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 1.26 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.58 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "DOGE",
-   "sanLong": "okx",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.0000731839965938,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 0.804480102186,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 0.268160034062,
-   "phiBps": 27,
-   "netBps": -26.731839965938,
-   "netAprPct": -292.71364762702115,
-   "lechMarkBps": 8.473977826423361,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 9.570794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 0.80 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.73 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "BTC",
    "sanLong": "binance",
    "sanShort": "hyperliquid",
-   "rateLong": 0.00009214,
+   "rateLong": 0.00009361,
    "rateShort": 0.0000125,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 0.2358000000000003,
+   "grossBpsNgay": 0.19169999999999995,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 0.0786000000000001,
+   "thuBps": 0.06389999999999998,
    "phiBps": 27,
-   "netBps": -26.9214,
-   "netAprPct": -294.78933000000006,
-   "lechMarkBps": 0.12814680497978484,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -26.9361,
+   "netAprPct": -294.95029500000004,
+   "lechMarkBps": 0.3143107826838505,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1084,222 +1138,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.24 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -26.92 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.19 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -26.94 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "SOL",
-   "sanLong": "bybit",
-   "sanShort": "hyperliquid",
-   "rateLong": -0.00002631,
-   "rateShort": 0.0000100551,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 3.2025239999999995,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 1.067508,
-   "phiBps": 28,
-   "netBps": -26.932492,
-   "netAprPct": -294.91078739999995,
-   "lechMarkBps": 4.745859237814737,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 0.364794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "NET sau phí -26.93 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "ETH",
-   "sanLong": "bybit",
-   "sanShort": "hyperliquid",
-   "rateLong": 0.00002278,
-   "rateShort": 0.0000125,
-   "intervalLongGio": 8,
-   "intervalShortGio": 1,
-   "grossBpsNgay": 2.3166,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 8,
-   "thuBps": 0.7722000000000001,
-   "phiBps": 28,
-   "netBps": -27.2278,
-   "netAprPct": -298.14441,
-   "lechMarkBps": 6.352774452072982,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 0.364794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 2.32 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.23 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "BTC",
-   "sanLong": "okx",
-   "sanShort": "binance",
-   "rateLong": 0.0000289940499401,
-   "rateShort": 0.00009214,
-   "intervalLongGio": 8,
-   "intervalShortGio": 8,
-   "grossBpsNgay": 1.8943785017969998,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 1,
-   "thuBps": 0.6314595005989999,
-   "phiBps": 28,
-   "netBps": -27.368540499401,
-   "netAprPct": -299.68551846844093,
-   "lechMarkBps": 3.422083202761902,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 10.420794189453124,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 1.89 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.37 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "DOGE",
-   "sanLong": "binance",
-   "sanShort": "okx",
-   "rateLong": 0.00001743,
-   "rateShort": 0.0000731839965938,
-   "intervalLongGio": 8,
-   "intervalShortGio": 8,
-   "grossBpsNgay": 1.672619897814,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 1,
-   "thuBps": 0.557539965938,
-   "phiBps": 28,
-   "netBps": -27.442460034062,
-   "netAprPct": -300.49493737297894,
-   "lechMarkBps": 8.238686517978062,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 9.570794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 1.67 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.44 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "XRP",
-   "sanLong": "binance",
-   "sanShort": "okx",
-   "rateLong": 0.00000388,
-   "rateShort": 0.0000578475549312,
-   "intervalLongGio": 8,
-   "intervalShortGio": 8,
-   "grossBpsNgay": 1.619026647936,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 1,
-   "thuBps": 0.539675549312,
-   "phiBps": 28,
-   "netBps": -27.460324450688,
-   "netAprPct": -300.6905527350336,
-   "lechMarkBps": 7.182360123537397,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 10.063794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 1.62 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.46 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "POL",
    "sanLong": "okx",
    "sanShort": "bybit",
-   "rateLong": -0.000110360523808,
-   "rateShort": -0.00003827,
+   "rateLong": -0.0001109919932858,
+   "rateShort": -0.00000799,
    "intervalLongGio": 4,
    "intervalShortGio": 4,
-   "grossBpsNgay": 4.325431428480001,
+   "grossBpsNgay": 6.180119597148001,
    "giuGio": 8,
    "soMocLong": 2,
    "soMocShort": 2,
-   "thuBps": 1.4418104761600001,
+   "thuBps": 2.060039865716,
    "phiBps": 29,
-   "netBps": -27.55818952384,
-   "netAprPct": -301.762175286048,
-   "lechMarkBps": 0,
-   "choMocDauGiay": 5436.797205810547,
-   "tuoiXauNhatGiay": 9.521794189453125,
+   "netBps": -26.939960134284,
+   "netAprPct": -294.99256347040983,
+   "lechMarkBps": 1.91791331031763,
+   "choMocDauGiay": 4640.032942871094,
+   "tuoiXauNhatGiay": 16.26105712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1310,32 +1176,222 @@
    ],
    "duyet": false,
    "lyDo": [
-    "NET sau phí -27.56 bps < ngưỡng 2.75"
+    "NET sau phí -26.94 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "SOL",
+   "sanLong": "bybit",
+   "sanShort": "hyperliquid",
+   "rateLong": -0.00001497,
+   "rateShort": 0.0000100078,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 2.8509719999999996,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.950324,
+   "phiBps": 28,
+   "netBps": -27.049676,
+   "netAprPct": -296.1939522,
+   "lechMarkBps": 0.4084573468416165,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.16805712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 2.85 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.05 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "ETH",
+   "sanLong": "bybit",
+   "sanShort": "hyperliquid",
+   "rateLong": 0.00002177,
+   "rateShort": 0.0000125,
+   "intervalLongGio": 8,
+   "intervalShortGio": 1,
+   "grossBpsNgay": 2.3469,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 8,
+   "thuBps": 0.7823,
+   "phiBps": 28,
+   "netBps": -27.2177,
+   "netAprPct": -298.033815,
+   "lechMarkBps": 3.584535985888555,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.16805712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 2.35 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.22 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "BTC",
+   "sanLong": "okx",
+   "sanShort": "binance",
+   "rateLong": 0.0000295101676204,
+   "rateShort": 0.00009361,
+   "intervalLongGio": 8,
+   "intervalShortGio": 8,
+   "grossBpsNgay": 1.9229949713880001,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 1,
+   "thuBps": 0.6409983237960001,
+   "phiBps": 28,
+   "netBps": -27.359001676204,
+   "netAprPct": -299.5810683544338,
+   "lechMarkBps": 0.6985955836247307,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 17.19705712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 1.92 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.36 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "DOGE",
+   "sanLong": "binance",
+   "sanShort": "okx",
+   "rateLong": 0.00001899,
+   "rateShort": 0.0000737051695152,
+   "intervalLongGio": 8,
+   "intervalShortGio": 8,
+   "grossBpsNgay": 1.6414550854560002,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 1,
+   "thuBps": 0.547151695152,
+   "phiBps": 28,
+   "netBps": -27.452848304848,
+   "netAprPct": -300.6086889380856,
+   "lechMarkBps": 1.176816710796837,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 16.34005712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 1.64 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.45 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "XRP",
+   "sanLong": "binance",
+   "sanShort": "okx",
+   "rateLong": 0.00000934,
+   "rateShort": 0.0000622748845775,
+   "intervalLongGio": 8,
+   "intervalShortGio": 8,
+   "grossBpsNgay": 1.5880465373250001,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 1,
+   "thuBps": 0.529348845775,
+   "phiBps": 28,
+   "netBps": -27.470651154225,
+   "netAprPct": -300.80363013876376,
+   "lechMarkBps": 0.3512094962595885,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 16.83105712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 1.59 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.47 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "BTC",
    "sanLong": "bybit",
    "sanShort": "hyperliquid",
-   "rateLong": 0.0000571,
+   "rateLong": 0.00006143,
    "rateShort": 0.0000125,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 1.2870000000000001,
+   "grossBpsNgay": 1.1571000000000002,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 0.42900000000000005,
+   "thuBps": 0.38570000000000004,
    "phiBps": 28,
-   "netBps": -27.571,
-   "netAprPct": -301.90245,
-   "lechMarkBps": 1.9916124153059893,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 0.364794189453125,
+   "netBps": -27.6143,
+   "netAprPct": -302.376585,
+   "lechMarkBps": 0.17292334276080687,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.16805712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1346,70 +1402,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 1.29 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.57 bps < ngưỡng 2.75"
+    "chênh lệch thô 1.16 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.61 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "POL",
-   "sanLong": "bybit",
-   "sanShort": "binance",
-   "rateLong": -0.00003827,
-   "rateShort": 0.00002855,
-   "intervalLongGio": 4,
-   "intervalShortGio": 4,
-   "grossBpsNgay": 4.0092,
-   "giuGio": 8,
-   "soMocLong": 2,
-   "soMocShort": 2,
-   "thuBps": 1.3364,
-   "phiBps": 29,
-   "netBps": -27.6636,
-   "netAprPct": -302.91642,
-   "lechMarkBps": 0.9579002825815414,
-   "choMocDauGiay": 5436.797205810547,
-   "tuoiXauNhatGiay": 1.197794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "NET sau phí -27.66 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "XRP",
    "sanLong": "bybit",
    "sanShort": "hyperliquid",
-   "rateLong": 0.00007003,
+   "rateLong": 0.00007783,
    "rateShort": 0.0000125,
    "intervalLongGio": 8,
    "intervalShortGio": 1,
-   "grossBpsNgay": 0.8991,
+   "grossBpsNgay": 0.6651,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 8,
-   "thuBps": 0.29969999999999997,
+   "thuBps": 0.2217,
    "phiBps": 28,
-   "netBps": -27.7003,
-   "netAprPct": -303.318285,
-   "lechMarkBps": 8.616356717168735,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 0.364794189453125,
+   "netBps": -27.7783,
+   "netAprPct": -304.172385,
+   "lechMarkBps": 3.5853859667989303,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.16805712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1420,34 +1440,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.90 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.70 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.67 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.78 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "ETH",
    "sanLong": "okx",
    "sanShort": "binance",
-   "rateLong": 0.0000290976579626,
-   "rateShort": 0.00005273,
+   "rateLong": 0.0000320685023447,
+   "rateShort": 0.00005383,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.7089702611219999,
+   "grossBpsNgay": 0.6528449296589999,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.23632342037399998,
+   "thuBps": 0.21761497655299997,
    "phiBps": 28,
-   "netBps": -27.763676579626,
-   "netAprPct": -304.0122585469048,
-   "lechMarkBps": 3.176658887925846,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 10.332794189453125,
+   "netBps": -27.782385023447,
+   "netAprPct": -304.2171160067447,
+   "lechMarkBps": 0.12221328254588738,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 17.11405712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1458,34 +1478,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.71 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.76 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.65 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.78 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "SOL",
    "sanLong": "okx",
    "sanShort": "binance",
-   "rateLong": -0.0000493576268736,
-   "rateShort": -0.0000369,
+   "rateLong": -0.0000474473585038,
+   "rateShort": -0.00003081,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.373728806208,
+   "grossBpsNgay": 0.499120755114,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.12457626873599999,
+   "thuBps": 0.166373585038,
    "phiBps": 28,
-   "netBps": -27.875423731264,
-   "netAprPct": -305.2358898573408,
-   "lechMarkBps": 6.644833641842819,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 9.091794189453125,
+   "netBps": -27.833626414962,
+   "netAprPct": -304.7782092438339,
+   "lechMarkBps": 0.9498931370225709,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 15.85405712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1496,14 +1516,14 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.37 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -27.88 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.50 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -27.83 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "DOGE",
@@ -1521,9 +1541,9 @@
    "phiBps": 28,
    "netBps": -28,
    "netAprPct": -306.59999999999997,
-   "lechMarkBps": 6.119374882319302,
-   "choMocDauGiay": 1836.797205810547,
-   "tuoiXauNhatGiay": 0.364794189453125,
+   "lechMarkBps": 0.3529764741183531,
+   "choMocDauGiay": 1040.0329428710938,
+   "tuoiXauNhatGiay": 0.16805712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1541,27 +1561,65 @@
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "POL",
+   "sanLong": "bybit",
+   "sanShort": "binance",
+   "rateLong": -0.00000799,
+   "rateShort": 0.0000339,
+   "intervalLongGio": 4,
+   "intervalShortGio": 4,
+   "grossBpsNgay": 2.5133999999999994,
+   "giuGio": 8,
+   "soMocLong": 2,
+   "soMocShort": 2,
+   "thuBps": 0.8377999999999999,
+   "phiBps": 29,
+   "netBps": -28.1622,
+   "netAprPct": -308.37609000000003,
+   "lechMarkBps": 0.958910677470022,
+   "choMocDauGiay": 4640.032942871094,
+   "tuoiXauNhatGiay": 0.96705712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 2.51 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.16 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "DOGE",
    "sanLong": "binance",
    "sanShort": "bybit",
-   "rateLong": 0.00001743,
+   "rateLong": 0.00001899,
    "rateShort": 0.0001,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 2.4771,
+   "grossBpsNgay": 2.4303000000000003,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.8257,
+   "thuBps": 0.8101000000000002,
    "phiBps": 29,
-   "netBps": -28.1743,
-   "netAprPct": -308.508585,
-   "lechMarkBps": 5.884083553987452,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -28.1899,
+   "netAprPct": -308.679405,
+   "lechMarkBps": 1.1766782373355442,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1572,34 +1630,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 2.48 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.17 bps < ngưỡng 2.75"
+    "chênh lệch thô 2.43 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.19 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "XRP",
    "sanLong": "binance",
    "sanShort": "bybit",
-   "rateLong": 0.00000388,
-   "rateShort": 0.00007003,
+   "rateLong": 0.00000934,
+   "rateShort": 0.00007783,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 1.9845000000000002,
+   "grossBpsNgay": 2.0547000000000004,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.6615000000000001,
+   "thuBps": 0.6849000000000001,
    "phiBps": 29,
-   "netBps": -28.3385,
-   "netAprPct": -310.306575,
-   "lechMarkBps": 5.027110488707996,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -28.3151,
+   "netAprPct": -310.050345,
+   "lechMarkBps": 0.3512094962595885,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1610,34 +1668,72 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 1.98 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.34 bps < ngưỡng 2.75"
+    "chênh lệch thô 2.05 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.32 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "SOL",
+   "sanLong": "okx",
+   "sanShort": "bybit",
+   "rateLong": -0.0000474473585038,
+   "rateShort": -0.00001497,
+   "intervalLongGio": 8,
+   "intervalShortGio": 8,
+   "grossBpsNgay": 0.974320755114,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 1,
+   "thuBps": 0.32477358503799997,
+   "phiBps": 29,
+   "netBps": -28.675226414962,
+   "netAprPct": -313.9937292438339,
+   "lechMarkBps": 0.1899858460553761,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 15.85405712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 0.97 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.68 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "BTC",
    "sanLong": "bybit",
    "sanShort": "binance",
-   "rateLong": 0.0000571,
-   "rateShort": 0.00009214,
+   "rateLong": 0.00006143,
+   "rateShort": 0.00009361,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 1.0512,
+   "grossBpsNgay": 0.9654000000000003,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.3504,
+   "thuBps": 0.3218000000000001,
    "phiBps": 29,
-   "netBps": -28.6496,
-   "netAprPct": -313.71312,
-   "lechMarkBps": 2.119759218933268,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -28.6782,
+   "netAprPct": -314.02629,
+   "lechMarkBps": 0.14138743994225528,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1648,34 +1744,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 1.05 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.65 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.97 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.68 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "ETH",
    "sanLong": "bybit",
    "sanShort": "binance",
-   "rateLong": 0.00002278,
-   "rateShort": 0.00005273,
+   "rateLong": 0.00002177,
+   "rateShort": 0.00005383,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.8985,
+   "grossBpsNgay": 0.9618,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.2995,
+   "thuBps": 0.3206,
    "phiBps": 29,
-   "netBps": -28.7005,
-   "netAprPct": -314.27047500000003,
-   "lechMarkBps": 3.9098773275989944,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -28.6794,
+   "netAprPct": -314.03943000000004,
+   "lechMarkBps": 0.6518293999497052,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1686,34 +1782,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.90 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.70 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.96 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.68 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "BTC",
    "sanLong": "okx",
    "sanShort": "bybit",
-   "rateLong": 0.0000289940499401,
-   "rateShort": 0.0000571,
+   "rateLong": 0.0000295101676204,
+   "rateShort": 0.00006143,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.8431785017969999,
+   "grossBpsNgay": 0.9575949713879999,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.281059500599,
+   "thuBps": 0.319198323796,
    "phiBps": 29,
-   "netBps": -28.718940499401,
-   "netAprPct": -314.47239846844093,
-   "lechMarkBps": 1.3023240074462543,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 10.420794189453124,
+   "netBps": -28.680801676204,
+   "netAprPct": -314.0547783544338,
+   "lechMarkBps": 0.5572081438200678,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 17.19705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1724,34 +1820,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.84 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.72 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.96 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.68 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "DOGE",
    "sanLong": "okx",
    "sanShort": "bybit",
-   "rateLong": 0.0000731839965938,
+   "rateLong": 0.0000737051695152,
    "rateShort": 0.0001,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.804480102186,
+   "grossBpsNgay": 0.7888449145440002,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.268160034062,
+   "thuBps": 0.262948304848,
    "phiBps": 29,
-   "netBps": -28.731839965938,
-   "netAprPct": -314.6136476270211,
-   "lechMarkBps": 2.3546032493515714,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 9.570794189453125,
+   "netBps": -28.737051695152,
+   "netAprPct": -314.6707160619144,
+   "lechMarkBps": 2.3534949399849667,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 16.34005712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1762,110 +1858,34 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.80 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.73 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.79 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.74 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "SOL",
-   "sanLong": "okx",
-   "sanShort": "bybit",
-   "rateLong": -0.0000493576268736,
-   "rateShort": -0.00002631,
-   "intervalLongGio": 8,
-   "intervalShortGio": 8,
-   "grossBpsNgay": 0.6914288062080001,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 1,
-   "thuBps": 0.230476268736,
-   "phiBps": 29,
-   "netBps": -28.769523731264,
-   "netAprPct": -315.02628485734084,
-   "lechMarkBps": 1.8989745537406022,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 9.091794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 0.69 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.77 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
-  },
-  {
-   "ma": "XRP",
-   "sanLong": "okx",
-   "sanShort": "bybit",
-   "rateLong": 0.0000578475549312,
-   "rateShort": 0.00007003,
-   "intervalLongGio": 8,
-   "intervalShortGio": 8,
-   "grossBpsNgay": 0.3654733520640001,
-   "giuGio": 8,
-   "soMocLong": 1,
-   "soMocShort": 1,
-   "thuBps": 0.12182445068800005,
-   "phiBps": 29,
-   "netBps": -28.878175549312,
-   "netAprPct": -316.2160222649664,
-   "lechMarkBps": 2.1552498293758178,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 10.063794189453125,
-   "uocLuongMoc": false,
-   "moHinhPhiDuChua": false,
-   "phiConThieu": [
-    "vay-coin",
-    "chuyen-von",
-    "basis-luc-thoat",
-    "von-bi-khoa"
-   ],
-   "duyet": false,
-   "lyDo": [
-    "chênh lệch thô 0.37 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.88 bps < ngưỡng 2.75"
-   ],
-   "lyDoMa": [
-    "gross-mong",
-    "net-am"
-   ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "SOL",
    "sanLong": "binance",
    "sanShort": "bybit",
-   "rateLong": -0.0000369,
-   "rateShort": -0.00002631,
+   "rateLong": -0.00003081,
+   "rateShort": -0.00001497,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.31770000000000004,
+   "grossBpsNgay": 0.4751999999999999,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.10590000000000002,
+   "thuBps": 0.15839999999999999,
    "phiBps": 29,
-   "netBps": -28.8941,
-   "netAprPct": -316.390395,
-   "lechMarkBps": 4.745859237814737,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 1.197794189453125,
+   "netBps": -28.8416,
+   "netAprPct": -315.81551999999994,
+   "lechMarkBps": 0.7599072913100389,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 0.96705712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1876,34 +1896,72 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.32 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.89 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.48 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.84 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
+  },
+  {
+   "ma": "XRP",
+   "sanLong": "okx",
+   "sanShort": "bybit",
+   "rateLong": 0.0000622748845775,
+   "rateShort": 0.00007783,
+   "intervalLongGio": 8,
+   "intervalShortGio": 8,
+   "grossBpsNgay": 0.46665346267500013,
+   "giuGio": 8,
+   "soMocLong": 1,
+   "soMocShort": 1,
+   "thuBps": 0.15555115422500004,
+   "phiBps": 29,
+   "netBps": -28.844448845775,
+   "netAprPct": -315.84671486123625,
+   "lechMarkBps": 0,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 16.83105712890625,
+   "uocLuongMoc": false,
+   "moHinhPhiDuChua": false,
+   "phiConThieu": [
+    "vay-coin",
+    "chuyen-von",
+    "basis-luc-thoat",
+    "von-bi-khoa"
+   ],
+   "duyet": false,
+   "lyDo": [
+    "chênh lệch thô 0.47 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.84 bps < ngưỡng 2.75"
+   ],
+   "lyDoMa": [
+    "gross-mong",
+    "net-am"
+   ],
+   "luc": "2026-08-30T02:42:40Z"
   },
   {
    "ma": "ETH",
    "sanLong": "bybit",
    "sanShort": "okx",
-   "rateLong": 0.00002278,
-   "rateShort": 0.0000290976579626,
+   "rateLong": 0.00002177,
+   "rateShort": 0.0000320685023447,
    "intervalLongGio": 8,
    "intervalShortGio": 8,
-   "grossBpsNgay": 0.1895297388780001,
+   "grossBpsNgay": 0.308955070341,
    "giuGio": 8,
    "soMocLong": 1,
    "soMocShort": 1,
-   "thuBps": 0.06317657962600003,
+   "thuBps": 0.10298502344700002,
    "phiBps": 29,
-   "netBps": -28.936823420374,
-   "netAprPct": -316.85821645309534,
-   "lechMarkBps": 0.7332184624402173,
-   "choMocDauGiay": 19836.797205810548,
-   "tuoiXauNhatGiay": 10.332794189453125,
+   "netBps": -28.897014976553,
+   "netAprPct": -316.42231399325533,
+   "lechMarkBps": 0.7740426823414377,
+   "choMocDauGiay": 19040.032942871094,
+   "tuoiXauNhatGiay": 17.11405712890625,
    "uocLuongMoc": false,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1914,20 +1972,20 @@
    ],
    "duyet": false,
    "lyDo": [
-    "chênh lệch thô 0.19 bps/ngày < ngưỡng 3.00",
-    "NET sau phí -28.94 bps < ngưỡng 2.75"
+    "chênh lệch thô 0.31 bps/ngày < ngưỡng 3.00",
+    "NET sau phí -28.90 bps < ngưỡng 2.75"
    ],
    "lyDoMa": [
     "gross-mong",
     "net-am"
    ],
-   "luc": "2026-08-30T02:29:23Z"
+   "luc": "2026-08-30T02:42:40Z"
   }
  ],
  "toTrinh": [
   {
-   "ma": "0a429696cba44ae6",
-   "luc": "2026-08-30T02:29:23.326Z",
+   "ma": "4f8cbc3da3f741ec",
+   "luc": "2026-08-30T02:42:40.159Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "USDT",
@@ -1956,9 +2014,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 27.616931506849312,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 27.334201449525313,
-   "netMoiGioBps": 0.03796416867989627,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 27.328895200410912,
+   "netMoiGioBps": 0.0379567988894596,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -1970,7 +2028,7 @@
     "chuaDo": [],
     "caoNhat": 0.6900479390027916
    },
-   "tuoiDuLieuGiay": 57.43492919921875,
+   "tuoiDuLieuGiay": 57.458175048828124,
    "tinCay": 0.75,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -1989,14 +2047,14 @@
     "APY gốc 3.36% (thưởng 0.00% KHÔNG tính vào NET)",
     "TVL $249.3M · dùng vốn 92%",
     "rút ra được $249.1M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 7.4 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 7.5 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "a61e8ba8508747be",
-   "luc": "2026-08-30T02:29:23.326Z",
+   "ma": "b208ea3c877f4df4",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "USDT",
@@ -2025,9 +2083,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 24.748109589041093,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 24.465379531717094,
-   "netMoiGioBps": 0.03397969379405152,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 24.460073282602693,
+   "netMoiGioBps": 0.03397232400361485,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2039,7 +2097,7 @@
     "chuaDo": [],
     "caoNhat": 0.45264896230083107
    },
-   "tuoiDuLieuGiay": 57.43492919921875,
+   "tuoiDuLieuGiay": 57.45817407226563,
    "tinCay": 0.75,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2058,14 +2116,14 @@
     "APY gốc 3.01% (thưởng 0.11% KHÔNG tính vào NET)",
     "TVL $30.0M · dùng vốn 84%",
     "rút ra được $30.0M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.2 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.4 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "f54e595caf70431e",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "6ad6d6f12a184dbc",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "DAI",
@@ -2094,9 +2152,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 24.347260273972605,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 24.064530216648606,
-   "netMoiGioBps": 0.033422958634234175,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 24.059223967534205,
+   "netMoiGioBps": 0.03341558884379751,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2108,7 +2166,7 @@
     "chuaDo": [],
     "caoNhat": 0.49740431666268514
    },
-   "tuoiDuLieuGiay": 57.43492919921875,
+   "tuoiDuLieuGiay": 57.45817407226563,
    "tinCay": 0.65,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2127,14 +2185,14 @@
     "APY gốc 2.96% (thưởng 0.00% KHÔNG tính vào NET)",
     "TVL $19.5M · dùng vốn 85%",
     "rút ra được $19.5M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.4 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.5 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "020425ee743549a6",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "d6ba9310a5c4496c",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "USDT",
@@ -2163,9 +2221,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 21.523068493150685,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 21.240338435826686,
-   "netMoiGioBps": 0.029500470049759288,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 21.235032186712285,
+   "netMoiGioBps": 0.029493100259322617,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2177,7 +2235,7 @@
     "chuaDo": [],
     "caoNhat": 0.45057975653403326
    },
-   "tuoiDuLieuGiay": 57.435927001953125,
+   "tuoiDuLieuGiay": 57.45817407226563,
    "tinCay": 0.75,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2196,14 +2254,14 @@
     "APY gốc 2.62% (thưởng 0.00% KHÔNG tính vào NET)",
     "TVL $61.8M · dùng vốn 84%",
     "rút ra được $61.8M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 9.5 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 9.6 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "f458b5f6b1104a27",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "395a851e50a94297",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "USDC",
@@ -2232,9 +2290,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 18.94627397260274,
-   "phiUocBps": 0.12766000000000002,
-   "netUocBps": 18.81861397260274,
-   "netMoiGioBps": 0.02613696385083714,
+   "phiUocBps": 0.1284655008,
+   "netUocBps": 18.81780847180274,
+   "netMoiGioBps": 0.026135845099726027,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2246,7 +2304,7 @@
     "chuaDo": [],
     "caoNhat": 0.2691194122719564
    },
-   "tuoiDuLieuGiay": 57.435927001953125,
+   "tuoiDuLieuGiay": 57.45817407226563,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2270,8 +2328,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "e86e250a67854f54",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "f4d5e4e1b224420f",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "DAI",
@@ -2300,9 +2358,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 17.823123287671233,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 17.540393230347235,
-   "netMoiGioBps": 0.02436165726437116,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 17.535086981232833,
+   "netMoiGioBps": 0.02435428747393449,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2314,7 +2372,7 @@
     "chuaDo": [],
     "caoNhat": 0.15
    },
-   "tuoiDuLieuGiay": 57.435927001953125,
+   "tuoiDuLieuGiay": 57.45817407226563,
    "tinCay": 0.75,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2333,14 +2391,14 @@
     "APY gốc 2.17% (thưởng 0.00% KHÔNG tính vào NET)",
     "TVL $117.3M · dùng vốn 64%",
     "rút ra được $117.0M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 11.4 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 11.6 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "5a17a8aacd5e46c2",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "d6382313418b45c9",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "USDS",
@@ -2369,9 +2427,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 16.72635616438356,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 16.44362610705956,
-   "netMoiGioBps": 0.02283836959313828,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 16.43831985794516,
+   "netMoiGioBps": 0.02283099980270161,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2383,7 +2441,7 @@
     "chuaDo": [],
     "caoNhat": 0.15
    },
-   "tuoiDuLieuGiay": 57.435927001953125,
+   "tuoiDuLieuGiay": 57.45917138671875,
    "tinCay": 0.75,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2402,14 +2460,14 @@
     "APY gốc 2.04% (thưởng 0.00% KHÔNG tính vào NET)",
     "TVL $268.5M · dùng vốn 62%",
     "rút ra được $268.4M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 12.2 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 12.4 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "d247bf5be1ab4199",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "bb7cadb7b38d42ef",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "lending.rate_rotation.v1",
    "ho": "tin-dung",
    "taiSan": "USDE",
@@ -2438,9 +2496,9 @@
    "gioVonBiGiu": 720,
    "raDuocKhong": true,
    "grossBps": 15.80745205479452,
-   "phiUocBps": 0.282730057324,
-   "netUocBps": 15.52472199747052,
-   "netMoiGioBps": 0.02156211388537572,
+   "phiUocBps": 0.2880363064384,
+   "netUocBps": 15.51941574835612,
+   "netMoiGioBps": 0.021554744094939057,
    "giuGio": 720,
    "ruiRo": {
     "thiTruong": 0.1,
@@ -2452,7 +2510,7 @@
     "chuaDo": [],
     "caoNhat": 0.15
    },
-   "tuoiDuLieuGiay": 57.435927001953125,
+   "tuoiDuLieuGiay": 57.45817407226563,
    "tinCay": 0.6,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2471,14 +2529,14 @@
     "APY gốc 1.92% (thưởng 1.52% KHÔNG tính vào NET)",
     "TVL $231.7M · dùng vốn 66%",
     "rút ra được $231.6M",
-    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 12.9 giờ"
+    "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 13.1 giờ"
    ],
    "hopLe": true,
    "loiKhuon": []
   },
   {
-   "ma": "6f7bb4e823d94296",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "10500a5ec4054f44",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "REUSDE",
@@ -2501,16 +2559,16 @@
    ],
    "vonCanUsd": 22934.260000000002,
    "sucChuaToiDaUsd": 45868.520000000004,
-   "khoaVonDenGio": 2445.510186905,
+   "khoaVonDenGio": 2445.288844212222,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 2445.5255896758335,
+   "gioVonBiGiu": 2445.3042687991665,
    "raDuocKhong": null,
-   "grossBps": 505.4865101813526,
+   "grossBps": 505.4407634845897,
    "phiUocBps": 0,
-   "netUocBps": 454.1133138731726,
-   "netMoiGioBps": 0.1856914995247985,
-   "giuGio": 2445.5255896758335,
+   "netUocBps": 454.0532811211017,
+   "netMoiGioBps": 0.18568375597040812,
+   "giuGio": 2445.3042687991665,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2521,7 +2579,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47690380859375,
+   "tuoiDuLieuGiay": 55.54734033203125,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2545,8 +2603,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "9d64b872edd54fb4",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "09bf58474fcb4357",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "USD3",
@@ -2569,16 +2627,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 2613.510186905,
+   "khoaVonDenGio": 2613.288844212222,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 2613.5255896758335,
+   "gioVonBiGiu": 2613.3042687991665,
    "raDuocKhong": null,
-   "grossBps": 411.48617844930754,
+   "grossBps": 411.4513326141987,
    "phiUocBps": 0,
-   "netUocBps": 360.11298214112753,
-   "netMoiGioBps": 0.13778819827273772,
-   "giuGio": 2613.5255896758335,
+   "netUocBps": 360.0638502507107,
+   "netMoiGioBps": 0.1377810668851671,
+   "giuGio": 2613.3042687991665,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2589,7 +2647,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47690380859375,
+   "tuoiDuLieuGiay": 55.54833740234375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2613,8 +2671,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "3137721e8ac645e7",
-   "luc": "2026-08-30T02:29:23.327Z",
+   "ma": "3070fa9a563f44b5",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "APYUSD",
@@ -2637,16 +2695,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 1605.510186905,
+   "khoaVonDenGio": 1605.2888442122223,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 1605.5255896758333,
+   "gioVonBiGiu": 1605.3042687991667,
    "raDuocKhong": null,
-   "grossBps": 256.88097860212594,
+   "grossBps": 256.84556769136327,
    "phiUocBps": 0,
-   "netUocBps": 205.50778229394592,
-   "netMoiGioBps": 0.128000315669487,
-   "giuGio": 1605.5255896758333,
+   "netUocBps": 205.45808532787527,
+   "netMoiGioBps": 0.12798700490690548,
+   "giuGio": 1605.3042687991667,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2657,7 +2715,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47690380859375,
+   "tuoiDuLieuGiay": 55.54833740234375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2681,8 +2739,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "bf4729dded504120",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "844baa055d7841ec",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "SUSDAI",
@@ -2705,16 +2763,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 1101.510186905,
+   "khoaVonDenGio": 1101.2888442122223,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 1101.5255896758333,
+   "gioVonBiGiu": 1101.3042687991667,
    "raDuocKhong": null,
-   "grossBps": 132.42399804760902,
+   "grossBps": 132.39739113478348,
    "phiUocBps": 0,
-   "netUocBps": 132.080298047609,
-   "netMoiGioBps": 0.11990669965867862,
-   "giuGio": 1101.5255896758333,
+   "netUocBps": 132.05152247878348,
+   "netMoiGioBps": 0.11990466778338106,
+   "giuGio": 1101.3042687991667,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2725,7 +2783,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47690380859375,
+   "tuoiDuLieuGiay": 55.54833740234375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2748,8 +2806,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "a746c23e9a3647f5",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "a80d38b5b0384190",
+   "luc": "2026-08-30T02:42:40.160Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "STRUSD",
@@ -2772,16 +2830,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 2109.510186627778,
+   "khoaVonDenGio": 2109.288844212222,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 2109.525589675833,
+   "gioVonBiGiu": 2109.304268799167,
    "raDuocKhong": null,
-   "grossBps": 281.7974600208634,
+   "grossBps": 281.76789524042204,
    "phiUocBps": 0,
-   "netUocBps": 230.4242637126834,
-   "netMoiGioBps": 0.10923037143535778,
-   "giuGio": 2109.525589675833,
+   "netUocBps": 230.38041287693403,
+   "netMoiGioBps": 0.10922104330073265,
+   "giuGio": 2109.304268799167,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2792,7 +2850,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.54833740234375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2816,8 +2874,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "86a3182659cd455f",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "b23d8a39883b4bfc",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "REUSD",
@@ -2840,16 +2898,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 2445.510186627778,
+   "khoaVonDenGio": 2445.288844212222,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 2445.5255896758335,
+   "gioVonBiGiu": 2445.3042687991665,
    "raDuocKhong": null,
-   "grossBps": 308.4391233019859,
+   "grossBps": 308.4112094590656,
    "phiUocBps": 0,
-   "netUocBps": 257.0659269938059,
-   "netMoiGioBps": 0.1051168419905519,
-   "giuGio": 2445.5255896758335,
+   "netUocBps": 257.0237270955776,
+   "netMoiGioBps": 0.10510909843616154,
+   "giuGio": 2445.3042687991665,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2860,7 +2918,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.54833740234375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2884,8 +2942,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "3ad2bb12ba1743ea",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "23fce875bbe94272",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "USDAI",
@@ -2908,16 +2966,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 1101.5101866277778,
+   "khoaVonDenGio": 1101.288843935,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 1101.5255896758333,
+   "gioVonBiGiu": 1101.3042690766665,
    "raDuocKhong": null,
-   "grossBps": 99.67838350602764,
+   "grossBps": 99.65835593720101,
    "phiUocBps": 0,
-   "netUocBps": 99.33468350602764,
-   "netMoiGioBps": 0.0901791882431535,
-   "giuGio": 1101.5255896758333,
+   "netUocBps": 99.31248728120102,
+   "netMoiGioBps": 0.0901771563679351,
+   "giuGio": 1101.3042690766665,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2928,7 +2986,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47889794921875,
+   "tuoiDuLieuGiay": 55.5493359375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -2951,8 +3009,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "d67f71f263be4237",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "a7a12c38ccb840e8",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "USDAT",
@@ -2975,16 +3033,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 3285.510186627778,
+   "khoaVonDenGio": 3285.288843935,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 3285.5255896758335,
+   "gioVonBiGiu": 3285.3042687991665,
    "raDuocKhong": null,
-   "grossBps": 228.65157768150402,
+   "grossBps": 228.63617516332465,
    "phiUocBps": 0,
-   "netUocBps": 177.278381373324,
-   "netMoiGioBps": 0.05395738871442337,
-   "giuGio": 3285.5255896758335,
+   "netUocBps": 177.24869279983665,
+   "netMoiGioBps": 0.053951986877801124,
+   "giuGio": 3285.3042687991665,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -2995,7 +3053,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.5493359375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3019,8 +3077,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "b70aaa062b6348c5",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "4e29ea0de8f04091",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "SIERRA",
@@ -3043,16 +3101,16 @@
    ],
    "vonCanUsd": 25000,
    "sucChuaToiDaUsd": 50000,
-   "khoaVonDenGio": 1269.5101866277778,
+   "khoaVonDenGio": 1269.2888439350002,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 1269.5255896758333,
+   "gioVonBiGiu": 1269.3042687991667,
    "raDuocKhong": null,
-   "grossBps": 103.89124983128929,
+   "grossBps": 103.87313810303611,
    "phiUocBps": 0,
-   "netUocBps": 52.51805352310929,
-   "netMoiGioBps": 0.0413682512193547,
-   "giuGio": 1269.5255896758333,
+   "netUocBps": 52.4856557395481,
+   "netMoiGioBps": 0.04134994030170755,
+   "giuGio": 1269.3042687991667,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -3063,7 +3121,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.5493359375,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3087,8 +3145,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "76a088342a934ba5",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "a639cf0cbd1a40a2",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "SUSDS",
@@ -3111,16 +3169,16 @@
    ],
    "vonCanUsd": 17352.65,
    "sucChuaToiDaUsd": 34705.3,
-   "khoaVonDenGio": 2109.510186627778,
+   "khoaVonDenGio": 2109.288843935,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 2109.5255893988888,
+   "gioVonBiGiu": 2109.304268799167,
    "raDuocKhong": null,
-   "grossBps": 115.93095343548819,
+   "grossBps": 115.91879055475823,
    "phiUocBps": 0,
-   "netUocBps": 64.5577571273082,
-   "netMoiGioBps": 0.030602974171886666,
-   "giuGio": 2109.5255893988888,
+   "netUocBps": 64.53130819127023,
+   "netMoiGioBps": 0.03059364604045868,
+   "giuGio": 2109.304268799167,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -3131,7 +3189,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.5483388671875,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3155,8 +3213,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "621d68a209d345c8",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "23a1fe098f734285",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "SUSDE",
@@ -3179,16 +3237,16 @@
    ],
    "vonCanUsd": 17854.72,
    "sucChuaToiDaUsd": 35709.44,
-   "khoaVonDenGio": 2109.510186627778,
+   "khoaVonDenGio": 2109.288843935,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 2109.5255893988888,
+   "gioVonBiGiu": 2109.304268799167,
    "raDuocKhong": null,
-   "grossBps": 112.7098330834563,
+   "grossBps": 112.69800814614436,
    "phiUocBps": 0,
-   "netUocBps": 61.336636775276304,
-   "netMoiGioBps": 0.02907603353261727,
-   "giuGio": 2109.5255893988888,
+   "netUocBps": 61.31052578265635,
+   "netMoiGioBps": 0.029066705401189278,
+   "giuGio": 2109.304268799167,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -3199,7 +3257,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.5483388671875,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3223,8 +3281,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "eec73b8b7bfc4e84",
-   "luc": "2026-08-30T02:29:23.328Z",
+   "ma": "5a0b49d4a7cc4535",
+   "luc": "2026-08-30T02:42:40.161Z",
    "chienLuoc": "yield.pendle_pt.v1",
    "ho": "tin-dung",
    "taiSan": "SRUSDE",
@@ -3247,16 +3305,16 @@
    ],
    "vonCanUsd": 22514.595,
    "sucChuaToiDaUsd": 45029.19,
-   "khoaVonDenGio": 1269.5101866277778,
+   "khoaVonDenGio": 1269.2888439350002,
    "vonToiThieuKinhTeUsd": 1000,
    "thanhKhoanThoatUsd": null,
-   "gioVonBiGiu": 1269.5255896758333,
+   "gioVonBiGiu": 1269.3042687991667,
    "raDuocKhong": null,
-   "grossBps": 68.33047578815149,
+   "grossBps": 68.31856349514419,
    "phiUocBps": 0,
-   "netUocBps": 16.95727947997149,
-   "netMoiGioBps": 0.013357178159993956,
-   "giuGio": 1269.5255896758333,
+   "netUocBps": 16.93108113165618,
+   "netMoiGioBps": 0.013338867242346812,
+   "giuGio": 1269.3042687991667,
    "ruiRo": {
     "thiTruong": 0.15,
     "thanhKhoan": 0.45,
@@ -3267,7 +3325,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 55.47790112304688,
+   "tuoiDuLieuGiay": 55.5483388671875,
    "tinCay": 1,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3291,8 +3349,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "a5eb7e0769ad420b",
-   "luc": "2026-08-30T02:29:23.331Z",
+   "ma": "002290702db4440a",
+   "luc": "2026-08-30T02:42:40.164Z",
    "chienLuoc": "amm.fee_farming.v1",
    "ho": "thanh-khoan",
    "taiSan": "SUSDE-USDT",
@@ -3321,9 +3379,9 @@
    "gioVonBiGiu": 168,
    "raDuocKhong": true,
    "grossBps": 43.548112328767125,
-   "phiUocBps": 1.52239261636,
-   "netUocBps": 42.025719712407124,
-   "netMoiGioBps": 0.2501530935262329,
+   "phiUocBps": 1.5509647269759999,
+   "netUocBps": 41.99714760179113,
+   "netMoiGioBps": 0.2499830214392329,
    "giuGio": 168,
    "ruiRo": {
     "thiTruong": 0.35,
@@ -3335,7 +3393,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 37.676877197265625,
+   "tuoiDuLieuGiay": 51.33897998046875,
    "tinCay": 0.9,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3362,8 +3420,8 @@
    "loiKhuon": []
   },
   {
-   "ma": "595ed244292845f8",
-   "luc": "2026-08-30T02:29:23.332Z",
+   "ma": "0e80a19bfe3a4b26",
+   "luc": "2026-08-30T02:42:40.165Z",
    "chienLuoc": "amm.fee_farming.v1",
    "ho": "thanh-khoan",
    "taiSan": "USDC-USDT",
@@ -3392,9 +3450,9 @@
    "gioVonBiGiu": 168,
    "raDuocKhong": true,
    "grossBps": 31.171517808219182,
-   "phiUocBps": 0.4058917738470993,
-   "netUocBps": 30.765626034372083,
-   "netMoiGioBps": 0.1831287263950719,
+   "phiUocBps": 0.4043503701148642,
+   "netUocBps": 30.767167438104316,
+   "netMoiGioBps": 0.18313790141728759,
    "giuGio": 168,
    "ruiRo": {
     "thiTruong": 0.35,
@@ -3406,7 +3464,7 @@
     "chuaDo": [],
     "caoNhat": 0.45
    },
-   "tuoiDuLieuGiay": 37.67787084960938,
+   "tuoiDuLieuGiay": 51.33997680664063,
    "tinCay": 0.9,
    "moHinhPhiDuChua": false,
    "phiConThieu": [
@@ -3436,13 +3494,13 @@
  "soDuyet": 0,
  "viSaoTuChoi": {
   "NET sau phí dưới ngưỡng": 36,
-  "chênh lệch thô quá mỏng": 28
+  "chênh lệch thô quá mỏng": 30
  },
  "so": {
-  "soLuot": 16088,
+  "soLuot": 16115,
   "luotDauMs": 1787329908021,
-  "luotCuoiMs": 1788056963312,
-  "soCoHoi": 519525,
+  "luotCuoiMs": 1788057760084,
+  "soCoHoi": 520497,
   "soDuyet": 156,
   "soLoiGhi": 0,
   "loiCuoi": null,
@@ -3454,12 +3512,12 @@
   "bat": true,
   "soLoiGhi": 0,
   "loiCuoi": null,
-  "duong": "bang-2026-08-30-022824-14864.jsonl.gz"
+  "duong": "bang-2026-08-30-024141-33204.jsonl.gz"
  },
  "doDai": [
   {
-   "soMau": 2497,
-   "netTrungBinh": -25.033790990690076,
+   "soMau": 2498,
+   "netTrungBinh": -25.00932189170207,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3468,8 +3526,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 1680,
-   "netTrungBinh": -26.68260124654325,
+   "soMau": 1707,
+   "netTrungBinh": -26.658292367446993,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3478,8 +3536,8 @@
    "sanShort": "binance"
   },
   {
-   "soMau": 2592,
-   "netTrungBinh": -25.898717911906513,
+   "soMau": 2593,
+   "netTrungBinh": -25.89069192445015,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3488,8 +3546,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 2600,
-   "netTrungBinh": -25.729334726153844,
+   "soMau": 2601,
+   "netTrungBinh": -25.724721707035755,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3498,8 +3556,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 2850,
-   "netTrungBinh": -26.15513168,
+   "soMau": 2851,
+   "netTrungBinh": -26.151550574535253,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3508,8 +3566,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 2854,
-   "netTrungBinh": -26.54470070357393,
+   "soMau": 2855,
+   "netTrungBinh": -26.540537410858143,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3518,18 +3576,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 834,
-   "netTrungBinh": -26.730784172661867,
-   "tiLeDuong": 0,
-   "soGio": 24,
-   "duMau": true,
-   "ma": "POL",
-   "sanLong": "bybit",
-   "sanShort": "hyperliquid"
-  },
-  {
-   "soMau": 2704,
-   "netTrungBinh": -26.410443832610024,
+   "soMau": 2731,
+   "netTrungBinh": -26.409260984604384,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3538,8 +3586,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 1939,
-   "netTrungBinh": -26.505155127760244,
+   "soMau": 1966,
+   "netTrungBinh": -26.50243267134511,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3548,8 +3596,8 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 2855,
-   "netTrungBinh": -26.36197765043783,
+   "soMau": 2856,
+   "netTrungBinh": -26.36380020728291,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3558,8 +3606,18 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 2819,
-   "netTrungBinh": -25.780584893934016,
+   "soMau": 1799,
+   "netTrungBinh": -26.4982839531354,
+   "tiLeDuong": 0,
+   "soGio": 24,
+   "duMau": true,
+   "ma": "XRP",
+   "sanLong": "okx",
+   "sanShort": "hyperliquid"
+  },
+  {
+   "soMau": 2820,
+   "netTrungBinh": -25.789245963120567,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
@@ -3568,12 +3626,12 @@
    "sanShort": "hyperliquid"
   },
   {
-   "soMau": 1772,
-   "netTrungBinh": -26.496846516507706,
+   "soMau": 2485,
+   "netTrungBinh": -26.5416172831534,
    "tiLeDuong": 0,
    "soGio": 24,
    "duMau": true,
-   "ma": "XRP",
+   "ma": "DOGE",
    "sanLong": "okx",
    "sanShort": "hyperliquid"
   }
@@ -3641,33 +3699,33 @@
   "tongLuot": 1,
   "soLoi": 0,
   "loiCuoi": null,
-  "tuoiGiay": 61.1945400390625,
-  "treTrungBinhMs": 410.8082999882754,
+  "tuoiGiay": 67.78363940429688,
+  "treTrungBinhMs": 194.68570000026375,
   "songSot": true,
   "soGiuLai": 0,
   "theoChuoi": {
    "ethereum": {
     "chuoi": "ethereum",
-    "gwei": 0.044294228,
-    "tuoiGiay": 61.605199951171876,
+    "gwei": 0.045107164,
+    "tuoiGiay": 67.97763061523438,
     "loi": ""
    },
    "arbitrum": {
     "chuoi": "arbitrum",
-    "gwei": 0.02,
-    "tuoiGiay": 61.605199951171876,
+    "gwei": 0.020118,
+    "tuoiGiay": 67.97763061523438,
     "loi": ""
    },
    "base": {
     "chuoi": "base",
     "gwei": 0.006,
-    "tuoiGiay": 61.605199951171876,
+    "tuoiGiay": 67.97763061523438,
     "loi": ""
    },
    "polygon": {
     "chuoi": "polygon",
-    "gwei": 277.663837193,
-    "tuoiGiay": 61.605199951171876,
+    "gwei": 276.725999501,
+    "tuoiGiay": 67.97763061523438,
     "loi": ""
    }
   }
@@ -3712,12 +3770,12 @@
      {
       "ma": "net-am",
       "so": 108,
-      "cau": "NET sau phí -23.77 bps < ngưỡng 2.75"
+      "cau": "NET sau phí -23.79 bps < ngưỡng 2.75"
      },
      {
       "ma": "gross-mong",
-      "so": 84,
-      "cau": "chênh lệch thô 2.89 bps/ngày < ngưỡng 3.00"
+      "so": 90,
+      "cau": "chênh lệch thô 2.72 bps/ngày < ngưỡng 3.00"
      }
     ],
     "loiCuoi": null
@@ -3856,12 +3914,12 @@
      {
       "ma": "net-duoi-nguong",
       "so": 18,
-      "cau": "NET -0.54 bps < 0.50"
+      "cau": "NET -0.34 bps < 0.50"
      },
      {
       "ma": "du-lieu-cu",
       "so": 6,
-      "cau": "dữ liệu 21s > 20s"
+      "cau": "dữ liệu 32s > 20s"
      }
     ],
     "loiCuoi": null,
@@ -3903,7 +3961,7 @@
      {
       "ma": "net-duoi-nguong",
       "so": 1959,
-      "cau": "NET -26.6 bps < 25"
+      "cau": "NET -29.1 bps < 25"
      },
      {
       "ma": "oi-qua-mong",
@@ -3912,13 +3970,13 @@
      },
      {
       "ma": "chenh-gia-qua-rong",
-      "so": 135,
+      "so": 141,
       "cau": "bid/ask rộng 67% > 40%"
      },
      {
       "ma": "sap-dao-han",
       "so": 132,
-      "cau": "còn 30h < 48h"
+      "cau": "còn 29h < 48h"
      }
     ],
     "loiCuoi": null,
@@ -3940,9 +3998,9 @@
     "soMaThieuCau": 0,
     "lyDoTuChoi": [
      {
-      "ma": "net-duoi-nguong",
+      "ma": "thieu-so",
       "so": 18,
-      "cau": "NET -67.8 bps < 30 — và ngưỡng cao vì khoản chen-giữa-hai-giao-dịch KHÔNG nằm trong con số này"
+      "cau": "một trong hai lượt đổi không báo giá được — thiếu, không phải bằng 0"
      }
     ],
     "loiCuoi": null,
@@ -4008,41 +4066,41 @@
    "saiKhuonTheoTy": {}
   },
   "soDangKy": {
-   "soToTrinh": 4246,
+   "soToTrinh": 4268,
    "theoTrangThai": {
     "DA_DONG": 346,
     "DA_MO": 120,
-    "TU_CHOI": 3780
+    "TU_CHOI": 3802
    },
    "theoTy": {
-    "amm.fee_farming.v1": 276,
+    "amm.fee_farming.v1": 278,
     "basis.cash_carry.v1": 180,
     "dex.round_trip.v1": 1,
-    "lending.rate_rotation.v1": 1652,
+    "lending.rate_rotation.v1": 1660,
     "prediction.polymarket.v1": 1,
-    "yield.pendle_pt.v1": 2136
+    "yield.pendle_pt.v1": 2148
    },
    "pheu": {
-    "PHAT_HIEN": 4246,
-    "DUYET_TY": 4246,
+    "PHAT_HIEN": 4268,
+    "DUYET_TY": 4268,
     "DUYET_RUI_RO": 466,
     "DA_CAP_VON": 466,
     "DA_MO": 466,
     "DA_DONG": 346,
-    "TU_CHOI": 3780,
+    "TU_CHOI": 3802,
     "HET_HAN": 0,
     "HONG": 0,
     "tiLe": {
      "DUYET_TY": 1,
-     "DUYET_RUI_RO": 0.10975035327366933,
-     "DA_CAP_VON": 0.10975035327366933,
-     "DA_MO": 0.10975035327366933,
-     "DA_DONG": 0.0814884597268017,
-     "TU_CHOI": 0.8902496467263307,
+     "DUYET_RUI_RO": 0.10918462980318651,
+     "DA_CAP_VON": 0.10918462980318651,
+     "DA_MO": 0.10918462980318651,
+     "DA_DONG": 0.08106841611996252,
+     "TU_CHOI": 0.8908153701968134,
      "HET_HAN": 0,
      "HONG": 0
     },
-    "phatHien": 4246
+    "phatHien": 4268
    },
    "soChuyenSai": 0,
    "chuyenSaiCuoi": null,
@@ -4052,9 +4110,9 @@
   "danhMuc": {
    "nguonThat": false,
    "loiNhac": "MÔ PHỎNG — không đọc số dư từ sàn nào. Chưa có lớp đặt lệnh nên chưa có vị thế thật để mà đọc.",
-   "navUsd": 999905.2463220537,
+   "navUsd": 999905.8446890344,
    "navLaVonGoc": true,
-   "tuQuanUsd": 999905.2463220537,
+   "tuQuanUsd": 999905.8446890344,
    "ngoaiUsd": 0,
    "ngoaiDayDu": true,
    "ngoai": [
@@ -4068,15 +4126,15 @@
      "chuaPhongHoUsd": 0,
      "soViThe": 0,
      "che": "giay",
-     "tuoiGiay": 36.93373779296875
+     "tuoiGiay": 50.7472177734375
     }
    ],
    "loiNhacNgoai": null,
-   "tienMatUsd": 422738.10632205376,
+   "tienMatUsd": 422738.7046890344,
    "daCamKetUsd": 577167.14,
-   "tiLeDungVon": 0.5772218338917522,
+   "tiLeDungVon": 0.5772214884687428,
    "vonBanDauUsd": 1000000,
-   "laiLoDaThucHienUsd": -94.75367795911782,
+   "laiLoDaThucHienUsd": -94.15531097918966,
    "soViThe": 120,
    "phoiNhiemRong": {
     "USDC-USDT": 67745.36000000006,
@@ -4716,7 +4774,7 @@
     "chuaPhongHoUsd": 0,
     "soViThe": 0,
     "che": "giay",
-    "tuoiGiay": 38.9278369140625,
+    "tuoiGiay": 59.38906591796875,
     "url": "http://127.0.0.1:5186/api/trang-thai",
     "nhipGiay": 60,
     "soLoi": 0
@@ -4810,23 +4868,23 @@
    "thuVuotTran": [],
    "soVongMu": 0,
    "vonKhongDuocKeToanUsd": 0,
-   "thuUsd": 0.022727917157062485,
+   "thuUsd": 0.020859294197957595,
    "phiUsd": 0,
-   "rongUsd": 0.022727917157062485,
+   "rongUsd": 0.020859294197957595,
    "daDong": [],
    "loi": [],
    "viTheoTy": {
-    "amm.fee_farming.v1": "phí AMM uniswap-v3 USDC-USDT: apyBase 16.25% × 0.0084h trên 1165.99 USD (số của QUÁ KHỨ; thưởng KHÔNG tính; tổn thất tạm thời CHƯA đo)",
-    "lending.rate_rotation.v1": "lãi cho vay aave-v3 USDC: APY gốc 2.31% × 0.0084h trên 2457.66 USD (thưởng 0.00% KHÔNG tính)",
-    "basis.cash_carry.v1": "cash-and-carry BTC trên binance: 0 mốc funding trong 0.0084h trên 100.00 USD chân perp (chân giao ngay không sinh dòng tiền; phần HỘI TỤ BASIS chưa đo)"
+    "amm.fee_farming.v1": "phí AMM uniswap-v3 USDC-USDT: apyBase 16.25% × 0.0077h trên 1165.99 USD (số của QUÁ KHỨ; thưởng KHÔNG tính; tổn thất tạm thời CHƯA đo)",
+    "lending.rate_rotation.v1": "lãi cho vay aave-v3 USDC: APY gốc 2.31% × 0.0077h trên 2457.66 USD (thưởng 0.00% KHÔNG tính)",
+    "basis.cash_carry.v1": "cash-and-carry BTC trên binance: 0 mốc funding trong 0.0077h trên 100.00 USD chân perp (chân giao ngay không sinh dòng tiền; phần HỘI TỤ BASIS chưa đo)"
    },
-   "vi": "120 vị thế: thu +0.0227 USD, phí 0.0000.",
+   "vi": "120 vị thế: thu +0.0209 USD, phí 0.0000.",
    "soCuaSoMuBoQuaTong": 0,
    "gioMuBoQuaTong": 0
   },
   "lechTien": {
-   "tienDaGhiUsd": -94.75367795911782,
-   "laiLoDanhMucUsd": -94.75367795911782,
+   "tienDaGhiUsd": -94.15531097918966,
+   "laiLoDanhMucUsd": -94.15531097918966,
    "lechUsd": 0,
    "khop": true,
    "vi": "sổ tiền Trung Ương khớp Danh Mục"
@@ -4835,18 +4893,18 @@
    "co": true,
    "nap": true,
    "soViThe": 120,
-   "soDiemNav": 2173,
+   "soDiemNav": 2200,
    "coSoVonGio": true,
    "coTienDaGhi": true,
-   "tienMatUsd": 422738.0464144909,
-   "laiLoDaThucHienUsd": -94.81358552301008,
-   "giayTatMay": 16.558107137680054,
+   "tienMatUsd": 422738.64699500316,
+   "laiLoDaThucHienUsd": -94.21300501110383,
+   "giayTatMay": 14.63459324836731,
    "soBoQuaNap": 0,
    "gioBoQuaNap": 0,
-   "vi": "nạp lại 120 vị thế và 2173 điểm NAV. Máy tắt 0.3 phút. Cửa sổ kế toán của mọi vị thế đều NỐI LẠI được, nên không mốc funding nào rơi vào chỗ không ai nhìn. ",
+   "vi": "nạp lại 120 vị thế và 2200 điểm NAV. Máy tắt 0.2 phút. Cửa sổ kế toán của mọi vị thế đều NỐI LẠI được, nên không mốc funding nào rơi vào chỗ không ai nhìn. ",
    "loiGhi": "",
-   "soLanKhoiDong": 11,
-   "tongGiayTatMay": 227.7552080154419
+   "soLanKhoiDong": 12,
+   "tongGiayTatMay": 242.3898012638092
   },
   "laiLoTachKhoan": {
    "?": {
@@ -4882,7 +4940,7 @@
     "phanDongDoXoayCho": 0
    },
    "lending.rate_rotation.v1": {
-    "thuUsd": 13.765002715923499,
+    "thuUsd": 14.07109936070371,
     "phiVaoUsd": -84.28730061021771,
     "phiKhacUsd": 0,
     "truotGiaUsd": 0,
@@ -4890,15 +4948,15 @@
     "soLanVaoLenh": 289,
     "soLanDong": 282,
     "soLanDongXoayCho": 217,
-    "soButToan": 46875,
-    "laiLoUsd": -70.52229789429421,
-    "laiLoChienLuocUsd": 13.765002715923499,
+    "soButToan": 47442,
+    "laiLoUsd": -70.216201249514,
+    "laiLoChienLuocUsd": 14.07109936070371,
     "phiMoiLanVaoUsd": -0.2916515592049056,
     "tiLeDongTrenVao": 0.9757785467128027,
     "phanDongDoXoayCho": 0.7695035460992907
    },
    "amm.fee_farming.v1": {
-    "thuUsd": 12.079635495973553,
+    "thuUsd": 12.371905831121778,
     "phiVaoUsd": -5.298597784748449,
     "phiKhacUsd": 0,
     "truotGiaUsd": 0,
@@ -4906,9 +4964,9 @@
     "soLanVaoLenh": 96,
     "soLanDong": 34,
     "soLanDongXoayCho": 21,
-    "soButToan": 62044,
-    "laiLoUsd": 6.781037711225104,
-    "laiLoChienLuocUsd": 12.079635495973553,
+    "soButToan": 63772,
+    "laiLoUsd": 7.073308046373328,
+    "laiLoChienLuocUsd": 12.371905831121778,
     "phiMoiLanVaoUsd": -0.05519372692446301,
     "tiLeDongTrenVao": 0.3541666666666667,
     "phanDongDoXoayCho": 0.6176470588235294
@@ -4935,12 +4993,12 @@
     "ma": "81520a9ba5f1492e",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 500,
-    "daGiuGio": 18.069,
+    "daGiuGio": 18.292,
     "giuGio": 168,
-    "thuCongDonUsd": 0.27777606403351235,
+    "thuCongDonUsd": 0.27982949985974254,
     "phiCongDonUsd": 0.02056132370036802,
-    "laiLoUsd": 0.25721474033314434,
-    "soVongKeToan": 2175,
+    "laiLoUsd": 0.25926817615937453,
+    "soVongKeToan": 2202,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 75.1564392794173,
@@ -4950,12 +5008,12 @@
     "ma": "0daf558996d64744",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 500,
-    "daGiuGio": 17.969,
+    "daGiuGio": 18.192,
     "giuGio": 168,
-    "thuCongDonUsd": 0.27570344329601504,
+    "thuCongDonUsd": 0.2777568791222452,
     "phiCongDonUsd": 0.020435908306659395,
-    "laiLoUsd": 0.2552675349893556,
-    "soVongKeToan": 2163,
+    "laiLoUsd": 0.2573209708155858,
+    "soVongKeToan": 2190,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 75.15894758729148,
@@ -4965,12 +5023,12 @@
     "ma": "2f0c55c610a64966",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 500,
-    "daGiuGio": 17.897,
+    "daGiuGio": 18.12,
     "giuGio": 168,
-    "thuCongDonUsd": 0.2742754748864416,
+    "thuCongDonUsd": 0.2763289107126718,
     "phiCongDonUsd": 0.020271882240158835,
-    "laiLoUsd": 0.25400359264628275,
-    "soVongKeToan": 2155,
+    "laiLoUsd": 0.25605702847251294,
+    "soVongKeToan": 2182,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 75.16222810862149,
@@ -4980,12 +5038,12 @@
     "ma": "1a9ba50c256241e1",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 500,
-    "daGiuGio": 10.879,
+    "daGiuGio": 11.103,
     "giuGio": 168,
-    "thuCongDonUsd": 0.13345531392439156,
+    "thuCongDonUsd": 0.13550874975062166,
     "phiCongDonUsd": 0.020244533952317727,
-    "laiLoUsd": 0.11321077997207382,
-    "soVongKeToan": 1319,
+    "laiLoUsd": 0.11526421579830393,
+    "soVongKeToan": 1346,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 54.134506581227626,
@@ -4995,12 +5053,12 @@
     "ma": "cbbf3a45697d45df",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 500,
-    "daGiuGio": 10.64,
+    "daGiuGio": 10.863,
     "giuGio": 168,
-    "thuCongDonUsd": 0.12967601714505658,
+    "thuCongDonUsd": 0.1317294529712867,
     "phiCongDonUsd": 0.02039149795448549,
-    "laiLoUsd": 0.1092845191905711,
-    "soVongKeToan": 1290,
+    "laiLoUsd": 0.1113379550168012,
+    "soVongKeToan": 1317,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 54.13156730118427,
@@ -5010,12 +5068,12 @@
     "ma": "56a16c2dd84d4305",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 1135.84,
-    "daGiuGio": 10.309,
+    "daGiuGio": 10.532,
     "giuGio": 168,
-    "thuCongDonUsd": 0.28275649107841605,
+    "thuCongDonUsd": 0.2874212401761467,
     "phiCongDonUsd": 0.046955275116993295,
-    "laiLoUsd": 0.23580121596142276,
-    "soVongKeToan": 1251,
+    "laiLoUsd": 0.24046596505915338,
+    "soVongKeToan": 1278,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 54.126000345946316,
@@ -5025,12 +5083,12 @@
     "ma": "3343c7f82bba4b53",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 1224.3,
-    "daGiuGio": 10.309,
+    "daGiuGio": 10.532,
     "giuGio": 168,
-    "thuCongDonUsd": 0.3138477410381647,
+    "thuCongDonUsd": 0.32087215932738483,
     "phiCongDonUsd": 0.28123303452494897,
-    "laiLoUsd": 0.03261470651321574,
-    "soVongKeToan": 1251,
+    "laiLoUsd": 0.039639124802435866,
+    "soVongKeToan": 1278,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 41.251019830809526,
@@ -5040,12 +5098,12 @@
     "ma": "a2db8fe62ab14a57",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.6428551873706956,
+    "thuCongDonUsd": 0.657416274082285,
     "phiCongDonUsd": 0.3183384672,
-    "laiLoUsd": 0.3245167201706956,
-    "soVongKeToan": 1242,
+    "laiLoUsd": 0.339077806882285,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 18.6579248870926,
@@ -5055,12 +5113,12 @@
     "ma": "be0da9de36d846f4",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.6077449972232186,
+    "thuCongDonUsd": 0.6214428907530183,
     "phiCongDonUsd": 1.0665072311946002,
-    "laiLoUsd": -0.4587622339713816,
-    "soVongKeToan": 1242,
+    "laiLoUsd": -0.44506434044158194,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 17.39643820341257,
@@ -5070,12 +5128,12 @@
     "ma": "f898216392874d72",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.5703467753650896,
+    "thuCongDonUsd": 0.5832017526989288,
     "phiCongDonUsd": 1.0665072311946002,
-    "laiLoUsd": -0.4961604558295106,
-    "soVongKeToan": 1242,
+    "laiLoUsd": -0.4833054784956714,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 16.299671080124895,
@@ -5085,12 +5143,12 @@
     "ma": "50e1051fd4314d66",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.8456061353772277,
+    "thuCongDonUsd": 0.8646262007576314,
     "phiCongDonUsd": 1.0665072311946002,
-    "laiLoUsd": -0.2209010958173725,
-    "soVongKeToan": 1242,
+    "laiLoUsd": -0.2018810304369688,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 24.37410943628928,
@@ -5100,12 +5158,12 @@
     "ma": "dac775ca0816426f",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.733912755835316,
+    "thuCongDonUsd": 0.7504542281628797,
     "phiCongDonUsd": 1.0665072311946002,
-    "laiLoUsd": -0.3325944753592842,
-    "soVongKeToan": 1242,
+    "laiLoUsd": -0.31605300303172057,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 21.09638340889202,
@@ -5115,12 +5173,12 @@
     "ma": "e194f7d343914c0b",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.8298726538178116,
+    "thuCongDonUsd": 0.8485846479836094,
     "phiCongDonUsd": 1.0665072311946002,
-    "laiLoUsd": -0.2366345773767886,
-    "soVongKeToan": 1242,
+    "laiLoUsd": -0.21792258321099078,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 23.90150669656325,
@@ -5130,12 +5188,12 @@
     "ma": "6fe0e656adde40b8",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 720,
-    "thuCongDonUsd": 0.5402223727201697,
+    "thuCongDonUsd": 0.5523711297998994,
     "phiCongDonUsd": 1.0665072311946002,
-    "laiLoUsd": -0.5262848584744305,
-    "soVongKeToan": 1242,
+    "laiLoUsd": -0.5141361013947008,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 15.202903956837227,
@@ -5145,12 +5203,12 @@
     "ma": "d699c0565ccc4646",
     "chienLuoc": "basis.cash_carry.v1",
     "vonUsd": 200,
-    "daGiuGio": 10.24,
+    "daGiuGio": 10.463,
     "giuGio": 168,
     "thuCongDonUsd": 0,
     "phiCongDonUsd": 0.4,
     "laiLoUsd": -0.4,
-    "soVongKeToan": 1242,
+    "soVongKeToan": 1269,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 1.0000000000000036,
@@ -5160,12 +5218,12 @@
     "ma": "d940fa9265ed4438",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.6425485525976591,
+    "thuCongDonUsd": 0.6571096393092485,
     "phiCongDonUsd": 0.3191195592,
-    "laiLoUsd": 0.32342899339765907,
-    "soVongKeToan": 1241,
+    "laiLoUsd": 0.33799008010924847,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 18.6576124502926,
@@ -5175,12 +5233,12 @@
     "ma": "4e4b48f45eb94ece",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.6074538288106132,
+    "thuCongDonUsd": 0.6211517223404128,
     "phiCongDonUsd": 1.021572974578,
-    "laiLoUsd": -0.41411914576738684,
-    "soVongKeToan": 1241,
+    "laiLoUsd": -0.4004212522375872,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 17.41441190605921,
@@ -5190,12 +5248,12 @@
     "ma": "c18b99e988454583",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.5700732992364619,
+    "thuCongDonUsd": 0.5829282765703011,
     "phiCongDonUsd": 1.021572974578,
-    "laiLoUsd": -0.4514996753415381,
-    "soVongKeToan": 1241,
+    "laiLoUsd": -0.4386446980076989,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 16.317644782771538,
@@ -5205,12 +5263,12 @@
     "ma": "cef07dc437ed451f",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.8452001881530402,
+    "thuCongDonUsd": 0.8642202535334439,
     "phiCongDonUsd": 1.021572974578,
-    "laiLoUsd": -0.1763727864249598,
-    "soVongKeToan": 1241,
+    "laiLoUsd": -0.1573527210445561,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 24.392083138935924,
@@ -5220,12 +5278,12 @@
     "ma": "5ac296ebe65a42ab",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.7335599834705551,
+    "thuCongDonUsd": 0.7501014557981187,
     "phiCongDonUsd": 1.021572974578,
-    "laiLoUsd": -0.28801299110744494,
-    "soVongKeToan": 1241,
+    "laiLoUsd": -0.2714715187798813,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 21.114357111538663,
@@ -5235,12 +5293,12 @@
     "ma": "4f4fb721816d42ba",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.8294735177267369,
+    "thuCongDonUsd": 0.8481855118925348,
     "phiCongDonUsd": 1.021572974578,
-    "laiLoUsd": -0.19209945685126306,
-    "soVongKeToan": 1241,
+    "laiLoUsd": -0.17338746268546523,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 23.919480399209892,
@@ -5250,12 +5308,12 @@
     "ma": "981206d0db004642",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 720,
-    "thuCongDonUsd": 0.5399657236241069,
+    "thuCongDonUsd": 0.5521144807038366,
     "phiCongDonUsd": 1.021572974578,
-    "laiLoUsd": -0.4816072509538931,
-    "soVongKeToan": 1241,
+    "laiLoUsd": -0.4694584938741634,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 15.220877659483868,
@@ -5265,12 +5323,12 @@
     "ma": "2450019a71194631",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 1135.84,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 168,
-    "thuCongDonUsd": 0.28003884725596595,
+    "thuCongDonUsd": 0.2847035963536966,
     "phiCongDonUsd": 0.04670351587650834,
-    "laiLoUsd": 0.2333353313794576,
-    "soVongKeToan": 1241,
+    "laiLoUsd": 0.23800008047718824,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 54.12821684862702,
@@ -5280,12 +5338,12 @@
     "ma": "3844bfe6ec7c4f59",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 1224.3,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 168,
-    "thuCongDonUsd": 0.3115087885688365,
+    "thuCongDonUsd": 0.31853320685805664,
     "phiCongDonUsd": 0.26938407844402823,
-    "laiLoUsd": 0.042124710124808284,
-    "soVongKeToan": 1241,
+    "laiLoUsd": 0.04914912841402841,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 41.34780130659912,
@@ -5295,12 +5353,12 @@
     "ma": "f3c661ef16a74ab4",
     "chienLuoc": "basis.cash_carry.v1",
     "vonUsd": 200,
-    "daGiuGio": 10.23,
+    "daGiuGio": 10.453,
     "giuGio": 168,
     "thuCongDonUsd": 0,
     "phiCongDonUsd": 0.4,
     "laiLoUsd": -0.4,
-    "soVongKeToan": 1241,
+    "soVongKeToan": 1268,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 1.0000000000000036,
@@ -5310,12 +5368,12 @@
     "ma": "7706da28c22b4595",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
     "giuGio": 720,
-    "thuCongDonUsd": 0.6328442661282483,
+    "thuCongDonUsd": 0.6474053528398377,
     "phiCongDonUsd": 0.3185741455,
-    "laiLoUsd": 0.3142701206282483,
-    "soVongKeToan": 1222,
+    "laiLoUsd": 0.3288312073398377,
+    "soVongKeToan": 1249,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 18.715364862347943,
@@ -5325,12 +5383,12 @@
     "ma": "24f1af9662e349d0",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
     "giuGio": 720,
-    "thuCongDonUsd": 0.5982472360053133,
+    "thuCongDonUsd": 0.6119451295351129,
     "phiCongDonUsd": 1.1409973184317497,
-    "laiLoUsd": -0.5427500824264364,
-    "soVongKeToan": 1222,
+    "laiLoUsd": -0.5290521888966367,
+    "soVongKeToan": 1249,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 17.36664216851771,
@@ -5340,12 +5398,12 @@
     "ma": "716a64a76d6e48df",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
     "giuGio": 720,
-    "thuCongDonUsd": 0.5614333120058627,
+    "thuCongDonUsd": 0.5742882893397019,
     "phiCongDonUsd": 1.1409973184317497,
-    "laiLoUsd": -0.579564006425887,
-    "soVongKeToan": 1222,
+    "laiLoUsd": -0.5667090290920478,
+    "soVongKeToan": 1249,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 16.269875045230037,
@@ -5355,12 +5413,12 @@
     "ma": "1da2df97ad75460d",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 25000,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
     "giuGio": 720,
-    "thuCongDonUsd": 0.8323894805949335,
+    "thuCongDonUsd": 0.8514095459753371,
     "phiCongDonUsd": 1.1409973184317497,
-    "laiLoUsd": -0.3086078378368162,
-    "soVongKeToan": 1222,
+    "laiLoUsd": -0.28958777245641254,
+    "soVongKeToan": 1249,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 24.34636819591497,
@@ -5370,12 +5428,12 @@
     "ma": "523cce7467a34885",
     "chienLuoc": "lending.rate_rotation.v1",
     "vonUsd": 22515.52,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
     "giuGio": 720,
-    "thuCongDonUsd": 0.6506468668012771,
+    "thuCongDonUsd": 0.6655444608421054,
     "phiCongDonUsd": 1.0276059177238572,
-    "laiLoUsd": -0.3769590509225801,
-    "soVongKeToan": 1222,
+    "laiLoUsd": -0.36206145688175184,
+    "soVongKeToan": 1249,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 21.066669565777985,
@@ -5385,12 +5443,12 @@
     "ma": "d54e18f6a09a47f5",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 1135.91,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
     "giuGio": 168,
-    "thuCongDonUsd": 0.27457416588182165,
+    "thuCongDonUsd": 0.27923920246056794,
     "phiCongDonUsd": 0.04664459161496774,
-    "laiLoUsd": 0.2279295742668539,
-    "soVongKeToan": 1222,
+    "laiLoUsd": 0.23259461084560018,
+    "soVongKeToan": 1249,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 52.41957188694254,
@@ -5400,7 +5458,97 @@
     "ma": "fc9f7a9a7d014334",
     "chienLuoc": "basis.cash_carry.v1",
     "vonUsd": 200,
-    "daGiuGio": 10.077,
+    "daGiuGio": 10.301,
+    "giuGio": 168,
+    "thuCongDonUsd": 0,
+    "phiCongDonUsd": 0.4,
+    "laiLoUsd": -0.4,
+    "soVongKeToan": 1249,
+    "soVongKhongDoDuoc": 0,
+    "coKeToan": true,
+    "netUocBps": 1.0000000000000036,
+    "giuGioHua": 168
+   },
+   {
+    "ma": "cd75c986aa6d411a",
+    "chienLuoc": "lending.rate_rotation.v1",
+    "vonUsd": 25000,
+    "daGiuGio": 10.178,
+    "giuGio": 720,
+    "thuCongDonUsd": 0.6397352603859553,
+    "phiCongDonUsd": 0.31888880022999994,
+    "laiLoUsd": 0.32084646015595536,
+    "soVongKeToan": 1234,
+    "soVongKhongDoDuoc": 0,
+    "coKeToan": true,
+    "netUocBps": 18.715239000455945,
+    "giuGioHua": 720
+   },
+   {
+    "ma": "a4c162da904443fe",
+    "chienLuoc": "amm.fee_farming.v1",
+    "vonUsd": 1135.91,
+    "daGiuGio": 10.178,
+    "giuGio": 168,
+    "thuCongDonUsd": 0.2750520323269611,
+    "phiCongDonUsd": 0.04667234658136917,
+    "laiLoUsd": 0.22837968574559195,
+    "soVongKeToan": 1234,
+    "soVongKhongDoDuoc": 0,
+    "coKeToan": true,
+    "netUocBps": 52.419327545697186,
+    "giuGioHua": 168
+   },
+   {
+    "ma": "50e5a06e03904b8d",
+    "chienLuoc": "basis.cash_carry.v1",
+    "vonUsd": 200,
+    "daGiuGio": 10.178,
+    "giuGio": 168,
+    "thuCongDonUsd": 0,
+    "phiCongDonUsd": 0.4,
+    "laiLoUsd": -0.4,
+    "soVongKeToan": 1234,
+    "soVongKhongDoDuoc": 0,
+    "coKeToan": true,
+    "netUocBps": 1.0000000000000036,
+    "giuGioHua": 168
+   },
+   {
+    "ma": "3725627c3f02471c",
+    "chienLuoc": "lending.rate_rotation.v1",
+    "vonUsd": 2457.66,
+    "daGiuGio": 10.078,
+    "giuGio": 720,
+    "thuCongDonUsd": 0.062294493825165845,
+    "phiCongDonUsd": 0.031294547793865195,
+    "laiLoUsd": 0.03099994603130065,
+    "soVongKeToan": 1222,
+    "soVongKhongDoDuoc": 0,
+    "coKeToan": true,
+    "netUocBps": 18.715459788347943,
+    "giuGioHua": 720
+   },
+   {
+    "ma": "a0b6aa6af5b048e7",
+    "chienLuoc": "amm.fee_farming.v1",
+    "vonUsd": 1135.91,
+    "daGiuGio": 10.078,
+    "giuGio": 168,
+    "thuCongDonUsd": 0.2717443895842541,
+    "phiCongDonUsd": 0.04583389981474113,
+    "laiLoUsd": 0.225910489769513,
+    "soVongKeToan": 1222,
+    "soVongKhongDoDuoc": 0,
+    "coKeToan": true,
+    "netUocBps": 52.42670882384975,
+    "giuGioHua": 168
+   },
+   {
+    "ma": "3e4775466a8b4e32",
+    "chienLuoc": "basis.cash_carry.v1",
+    "vonUsd": 200,
+    "daGiuGio": 10.078,
     "giuGio": 168,
     "thuCongDonUsd": 0,
     "phiCongDonUsd": 0.4,
@@ -5412,105 +5560,15 @@
     "giuGioHua": 168
    },
    {
-    "ma": "cd75c986aa6d411a",
-    "chienLuoc": "lending.rate_rotation.v1",
-    "vonUsd": 25000,
-    "daGiuGio": 9.955,
-    "giuGio": 720,
-    "thuCongDonUsd": 0.6251741736743659,
-    "phiCongDonUsd": 0.31888880022999994,
-    "laiLoUsd": 0.30628537344436596,
-    "soVongKeToan": 1207,
-    "soVongKhongDoDuoc": 0,
-    "coKeToan": true,
-    "netUocBps": 18.715239000455945,
-    "giuGioHua": 720
-   },
-   {
-    "ma": "a4c162da904443fe",
-    "chienLuoc": "amm.fee_farming.v1",
-    "vonUsd": 1135.91,
-    "daGiuGio": 9.955,
-    "giuGio": 168,
-    "thuCongDonUsd": 0.27038699574821484,
-    "phiCongDonUsd": 0.04667234658136917,
-    "laiLoUsd": 0.22371464916684566,
-    "soVongKeToan": 1207,
-    "soVongKhongDoDuoc": 0,
-    "coKeToan": true,
-    "netUocBps": 52.419327545697186,
-    "giuGioHua": 168
-   },
-   {
-    "ma": "50e5a06e03904b8d",
-    "chienLuoc": "basis.cash_carry.v1",
-    "vonUsd": 200,
-    "daGiuGio": 9.955,
-    "giuGio": 168,
-    "thuCongDonUsd": 0,
-    "phiCongDonUsd": 0.4,
-    "laiLoUsd": -0.4,
-    "soVongKeToan": 1207,
-    "soVongKhongDoDuoc": 0,
-    "coKeToan": true,
-    "netUocBps": 1.0000000000000036,
-    "giuGioHua": 168
-   },
-   {
-    "ma": "3725627c3f02471c",
-    "chienLuoc": "lending.rate_rotation.v1",
-    "vonUsd": 2457.66,
-    "daGiuGio": 9.855,
-    "giuGio": 720,
-    "thuCongDonUsd": 0.06086304581046164,
-    "phiCongDonUsd": 0.031294547793865195,
-    "laiLoUsd": 0.029568498016596445,
-    "soVongKeToan": 1195,
-    "soVongKhongDoDuoc": 0,
-    "coKeToan": true,
-    "netUocBps": 18.715459788347943,
-    "giuGioHua": 720
-   },
-   {
-    "ma": "a0b6aa6af5b048e7",
-    "chienLuoc": "amm.fee_farming.v1",
-    "vonUsd": 1135.91,
-    "daGiuGio": 9.855,
-    "giuGio": 168,
-    "thuCongDonUsd": 0.26707935300550784,
-    "phiCongDonUsd": 0.04583389981474113,
-    "laiLoUsd": 0.22124545319076672,
-    "soVongKeToan": 1195,
-    "soVongKhongDoDuoc": 0,
-    "coKeToan": true,
-    "netUocBps": 52.42670882384975,
-    "giuGioHua": 168
-   },
-   {
-    "ma": "3e4775466a8b4e32",
-    "chienLuoc": "basis.cash_carry.v1",
-    "vonUsd": 200,
-    "daGiuGio": 9.855,
-    "giuGio": 168,
-    "thuCongDonUsd": 0,
-    "phiCongDonUsd": 0.4,
-    "laiLoUsd": -0.4,
-    "soVongKeToan": 1195,
-    "soVongKhongDoDuoc": 0,
-    "coKeToan": true,
-    "netUocBps": 1.0000000000000036,
-    "giuGioHua": 168
-   },
-   {
     "ma": "8200c40148a14fcc",
     "chienLuoc": "amm.fee_farming.v1",
     "vonUsd": 1135.91,
-    "daGiuGio": 9.774,
+    "daGiuGio": 9.998,
     "giuGio": 168,
-    "thuCongDonUsd": 0.26438185107091156,
+    "thuCongDonUsd": 0.26904688764965784,
     "phiCongDonUsd": 0.045593168082967706,
-    "laiLoUsd": 0.21878868298794385,
-    "soVongKeToan": 1185,
+    "laiLoUsd": 0.22345371956669013,
+    "soVongKeToan": 1212,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 52.42882810910803,
@@ -5520,12 +5578,12 @@
     "ma": "88002ef787ca44d2",
     "chienLuoc": "basis.cash_carry.v1",
     "vonUsd": 200,
-    "daGiuGio": 9.774,
+    "daGiuGio": 9.998,
     "giuGio": 168,
     "thuCongDonUsd": 0,
     "phiCongDonUsd": 0.4,
     "laiLoUsd": -0.4,
-    "soVongKeToan": 1185,
+    "soVongKeToan": 1212,
     "soVongKhongDoDuoc": 0,
     "coKeToan": true,
     "netUocBps": 1.0000000000000036,
@@ -5561,9 +5619,9 @@
    "loiNhac": "Lớp ký lệnh CHƯA TỒN TẠI. Không cấu hình nào biến mô phỏng thành thật ở bản này."
   },
   "soCai": {
-   "soButToan": 112290,
+   "soButToan": 114585,
    "butDau": "2026-08-25T18:27:30.113Z",
-   "butCuoi": "2026-08-30T02:29:23.833Z",
+   "butCuoi": "2026-08-30T02:42:41.965Z",
    "theoLoai": {
     "CAP_VON": {
      "so": 466,
@@ -5582,8 +5640,8 @@
      "tongUsd": 0
     },
     "FUNDING": {
-     "so": 108218,
-     "tongUsd": 25.844638211896775
+     "so": 110513,
+     "tongUsd": 26.443005191825137
     },
     "HOAN_VON": {
      "so": 78,
@@ -5612,16 +5670,16 @@
      "laiLoUsd": 0
     },
     "amm.fee_farming.v1": {
-     "soButToan": 62010,
-     "laiLoUsd": 6.7810377112248394
+     "soButToan": 63738,
+     "laiLoUsd": 7.073308046372999
     },
     "basis.cash_carry.v1": {
      "soButToan": 64,
      "laiLoUsd": -25.6
     },
     "lending.rate_rotation.v1": {
-     "soButToan": 46593,
-     "laiLoUsd": -70.5222978942942
+     "soButToan": 47160,
+     "laiLoUsd": -70.21620124951399
     },
     "prediction.polymarket.v1": {
      "soButToan": 1,
@@ -5772,14 +5830,14 @@
    ],
    "coHoiTho": 31833,
    "quaCongTy": 66,
-   "tuChoi": 3780,
+   "tuChoi": 3802,
    "hong": 0,
    "soChuyenSai": 0
   },
   "toTrinh": [
    {
-    "ma": "0a429696cba44ae6",
-    "luc": "2026-08-30T02:29:23.326Z",
+    "ma": "4f8cbc3da3f741ec",
+    "luc": "2026-08-30T02:42:40.159Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "USDT",
@@ -5808,9 +5866,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 27.616931506849312,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 27.334201449525313,
-    "netMoiGioBps": 0.03796416867989627,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 27.328895200410912,
+    "netMoiGioBps": 0.0379567988894596,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -5822,7 +5880,7 @@
      "chuaDo": [],
      "caoNhat": 0.6900479390027916
     },
-    "tuoiDuLieuGiay": 57.43492919921875,
+    "tuoiDuLieuGiay": 57.458175048828124,
     "tinCay": 0.75,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -5841,14 +5899,14 @@
      "APY gốc 3.36% (thưởng 0.00% KHÔNG tính vào NET)",
      "TVL $249.3M · dùng vốn 92%",
      "rút ra được $249.1M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 7.4 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 7.5 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "a61e8ba8508747be",
-    "luc": "2026-08-30T02:29:23.326Z",
+    "ma": "b208ea3c877f4df4",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "USDT",
@@ -5877,9 +5935,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 24.748109589041093,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 24.465379531717094,
-    "netMoiGioBps": 0.03397969379405152,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 24.460073282602693,
+    "netMoiGioBps": 0.03397232400361485,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -5891,7 +5949,7 @@
      "chuaDo": [],
      "caoNhat": 0.45264896230083107
     },
-    "tuoiDuLieuGiay": 57.43492919921875,
+    "tuoiDuLieuGiay": 57.45817407226563,
     "tinCay": 0.75,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -5910,14 +5968,14 @@
      "APY gốc 3.01% (thưởng 0.11% KHÔNG tính vào NET)",
      "TVL $30.0M · dùng vốn 84%",
      "rút ra được $30.0M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.2 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.4 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "f54e595caf70431e",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "6ad6d6f12a184dbc",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "DAI",
@@ -5946,9 +6004,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 24.347260273972605,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 24.064530216648606,
-    "netMoiGioBps": 0.033422958634234175,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 24.059223967534205,
+    "netMoiGioBps": 0.03341558884379751,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -5960,7 +6018,7 @@
      "chuaDo": [],
      "caoNhat": 0.49740431666268514
     },
-    "tuoiDuLieuGiay": 57.43492919921875,
+    "tuoiDuLieuGiay": 57.45817407226563,
     "tinCay": 0.65,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -5979,14 +6037,14 @@
      "APY gốc 2.96% (thưởng 0.00% KHÔNG tính vào NET)",
      "TVL $19.5M · dùng vốn 85%",
      "rút ra được $19.5M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.4 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 8.5 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "020425ee743549a6",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "d6ba9310a5c4496c",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "USDT",
@@ -6015,9 +6073,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 21.523068493150685,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 21.240338435826686,
-    "netMoiGioBps": 0.029500470049759288,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 21.235032186712285,
+    "netMoiGioBps": 0.029493100259322617,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -6029,7 +6087,7 @@
      "chuaDo": [],
      "caoNhat": 0.45057975653403326
     },
-    "tuoiDuLieuGiay": 57.435927001953125,
+    "tuoiDuLieuGiay": 57.45817407226563,
     "tinCay": 0.75,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6048,14 +6106,14 @@
      "APY gốc 2.62% (thưởng 0.00% KHÔNG tính vào NET)",
      "TVL $61.8M · dùng vốn 84%",
      "rút ra được $61.8M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 9.5 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 9.6 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "f458b5f6b1104a27",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "395a851e50a94297",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "USDC",
@@ -6084,9 +6142,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 18.94627397260274,
-    "phiUocBps": 0.12766000000000002,
-    "netUocBps": 18.81861397260274,
-    "netMoiGioBps": 0.02613696385083714,
+    "phiUocBps": 0.1284655008,
+    "netUocBps": 18.81780847180274,
+    "netMoiGioBps": 0.026135845099726027,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -6098,7 +6156,7 @@
      "chuaDo": [],
      "caoNhat": 0.2691194122719564
     },
-    "tuoiDuLieuGiay": 57.435927001953125,
+    "tuoiDuLieuGiay": 57.45817407226563,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6122,8 +6180,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "e86e250a67854f54",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "f4d5e4e1b224420f",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "DAI",
@@ -6152,9 +6210,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 17.823123287671233,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 17.540393230347235,
-    "netMoiGioBps": 0.02436165726437116,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 17.535086981232833,
+    "netMoiGioBps": 0.02435428747393449,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -6166,7 +6224,7 @@
      "chuaDo": [],
      "caoNhat": 0.15
     },
-    "tuoiDuLieuGiay": 57.435927001953125,
+    "tuoiDuLieuGiay": 57.45817407226563,
     "tinCay": 0.75,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6185,14 +6243,14 @@
      "APY gốc 2.17% (thưởng 0.00% KHÔNG tính vào NET)",
      "TVL $117.3M · dùng vốn 64%",
      "rút ra được $117.0M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 11.4 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 11.6 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "5a17a8aacd5e46c2",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "d6382313418b45c9",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "USDS",
@@ -6221,9 +6279,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 16.72635616438356,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 16.44362610705956,
-    "netMoiGioBps": 0.02283836959313828,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 16.43831985794516,
+    "netMoiGioBps": 0.02283099980270161,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -6235,7 +6293,7 @@
      "chuaDo": [],
      "caoNhat": 0.15
     },
-    "tuoiDuLieuGiay": 57.435927001953125,
+    "tuoiDuLieuGiay": 57.45917138671875,
     "tinCay": 0.75,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6254,14 +6312,14 @@
      "APY gốc 2.04% (thưởng 0.00% KHÔNG tính vào NET)",
      "TVL $268.5M · dùng vốn 62%",
      "rút ra được $268.4M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 12.2 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 12.4 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "d247bf5be1ab4199",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "bb7cadb7b38d42ef",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "lending.rate_rotation.v1",
     "ho": "tin-dung",
     "taiSan": "USDE",
@@ -6290,9 +6348,9 @@
     "gioVonBiGiu": 720,
     "raDuocKhong": true,
     "grossBps": 15.80745205479452,
-    "phiUocBps": 0.282730057324,
-    "netUocBps": 15.52472199747052,
-    "netMoiGioBps": 0.02156211388537572,
+    "phiUocBps": 0.2880363064384,
+    "netUocBps": 15.51941574835612,
+    "netMoiGioBps": 0.021554744094939057,
     "giuGio": 720,
     "ruiRo": {
      "thiTruong": 0.1,
@@ -6304,7 +6362,7 @@
      "chuaDo": [],
      "caoNhat": 0.15
     },
-    "tuoiDuLieuGiay": 57.435927001953125,
+    "tuoiDuLieuGiay": 57.45817407226563,
     "tinCay": 0.6,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6323,14 +6381,14 @@
      "APY gốc 1.92% (thưởng 1.52% KHÔNG tính vào NET)",
      "TVL $231.7M · dùng vốn 66%",
      "rút ra được $231.6M",
-     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 12.9 giờ"
+     "gas khứ hồi 0.3 bps trên $500 · hoà gas sau 13.1 giờ"
     ],
     "hopLe": true,
     "loiKhuon": []
    },
    {
-    "ma": "6f7bb4e823d94296",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "10500a5ec4054f44",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "REUSDE",
@@ -6353,16 +6411,16 @@
     ],
     "vonCanUsd": 22934.260000000002,
     "sucChuaToiDaUsd": 45868.520000000004,
-    "khoaVonDenGio": 2445.510186905,
+    "khoaVonDenGio": 2445.288844212222,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 2445.5255896758335,
+    "gioVonBiGiu": 2445.3042687991665,
     "raDuocKhong": null,
-    "grossBps": 505.4865101813526,
+    "grossBps": 505.4407634845897,
     "phiUocBps": 0,
-    "netUocBps": 454.1133138731726,
-    "netMoiGioBps": 0.1856914995247985,
-    "giuGio": 2445.5255896758335,
+    "netUocBps": 454.0532811211017,
+    "netMoiGioBps": 0.18568375597040812,
+    "giuGio": 2445.3042687991665,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6373,7 +6431,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47690380859375,
+    "tuoiDuLieuGiay": 55.54734033203125,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6397,8 +6455,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "9d64b872edd54fb4",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "09bf58474fcb4357",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "USD3",
@@ -6421,16 +6479,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 2613.510186905,
+    "khoaVonDenGio": 2613.288844212222,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 2613.5255896758335,
+    "gioVonBiGiu": 2613.3042687991665,
     "raDuocKhong": null,
-    "grossBps": 411.48617844930754,
+    "grossBps": 411.4513326141987,
     "phiUocBps": 0,
-    "netUocBps": 360.11298214112753,
-    "netMoiGioBps": 0.13778819827273772,
-    "giuGio": 2613.5255896758335,
+    "netUocBps": 360.0638502507107,
+    "netMoiGioBps": 0.1377810668851671,
+    "giuGio": 2613.3042687991665,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6441,7 +6499,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47690380859375,
+    "tuoiDuLieuGiay": 55.54833740234375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6465,8 +6523,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "3137721e8ac645e7",
-    "luc": "2026-08-30T02:29:23.327Z",
+    "ma": "3070fa9a563f44b5",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "APYUSD",
@@ -6489,16 +6547,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 1605.510186905,
+    "khoaVonDenGio": 1605.2888442122223,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 1605.5255896758333,
+    "gioVonBiGiu": 1605.3042687991667,
     "raDuocKhong": null,
-    "grossBps": 256.88097860212594,
+    "grossBps": 256.84556769136327,
     "phiUocBps": 0,
-    "netUocBps": 205.50778229394592,
-    "netMoiGioBps": 0.128000315669487,
-    "giuGio": 1605.5255896758333,
+    "netUocBps": 205.45808532787527,
+    "netMoiGioBps": 0.12798700490690548,
+    "giuGio": 1605.3042687991667,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6509,7 +6567,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47690380859375,
+    "tuoiDuLieuGiay": 55.54833740234375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6533,8 +6591,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "bf4729dded504120",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "844baa055d7841ec",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "SUSDAI",
@@ -6557,16 +6615,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 1101.510186905,
+    "khoaVonDenGio": 1101.2888442122223,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 1101.5255896758333,
+    "gioVonBiGiu": 1101.3042687991667,
     "raDuocKhong": null,
-    "grossBps": 132.42399804760902,
+    "grossBps": 132.39739113478348,
     "phiUocBps": 0,
-    "netUocBps": 132.080298047609,
-    "netMoiGioBps": 0.11990669965867862,
-    "giuGio": 1101.5255896758333,
+    "netUocBps": 132.05152247878348,
+    "netMoiGioBps": 0.11990466778338106,
+    "giuGio": 1101.3042687991667,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6577,7 +6635,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47690380859375,
+    "tuoiDuLieuGiay": 55.54833740234375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6600,8 +6658,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "a746c23e9a3647f5",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "a80d38b5b0384190",
+    "luc": "2026-08-30T02:42:40.160Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "STRUSD",
@@ -6624,16 +6682,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 2109.510186627778,
+    "khoaVonDenGio": 2109.288844212222,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 2109.525589675833,
+    "gioVonBiGiu": 2109.304268799167,
     "raDuocKhong": null,
-    "grossBps": 281.7974600208634,
+    "grossBps": 281.76789524042204,
     "phiUocBps": 0,
-    "netUocBps": 230.4242637126834,
-    "netMoiGioBps": 0.10923037143535778,
-    "giuGio": 2109.525589675833,
+    "netUocBps": 230.38041287693403,
+    "netMoiGioBps": 0.10922104330073265,
+    "giuGio": 2109.304268799167,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6644,7 +6702,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.54833740234375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6668,8 +6726,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "86a3182659cd455f",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "b23d8a39883b4bfc",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "REUSD",
@@ -6692,16 +6750,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 2445.510186627778,
+    "khoaVonDenGio": 2445.288844212222,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 2445.5255896758335,
+    "gioVonBiGiu": 2445.3042687991665,
     "raDuocKhong": null,
-    "grossBps": 308.4391233019859,
+    "grossBps": 308.4112094590656,
     "phiUocBps": 0,
-    "netUocBps": 257.0659269938059,
-    "netMoiGioBps": 0.1051168419905519,
-    "giuGio": 2445.5255896758335,
+    "netUocBps": 257.0237270955776,
+    "netMoiGioBps": 0.10510909843616154,
+    "giuGio": 2445.3042687991665,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6712,7 +6770,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.54833740234375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6736,8 +6794,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "3ad2bb12ba1743ea",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "23fce875bbe94272",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "USDAI",
@@ -6760,16 +6818,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 1101.5101866277778,
+    "khoaVonDenGio": 1101.288843935,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 1101.5255896758333,
+    "gioVonBiGiu": 1101.3042690766665,
     "raDuocKhong": null,
-    "grossBps": 99.67838350602764,
+    "grossBps": 99.65835593720101,
     "phiUocBps": 0,
-    "netUocBps": 99.33468350602764,
-    "netMoiGioBps": 0.0901791882431535,
-    "giuGio": 1101.5255896758333,
+    "netUocBps": 99.31248728120102,
+    "netMoiGioBps": 0.0901771563679351,
+    "giuGio": 1101.3042690766665,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6780,7 +6838,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47889794921875,
+    "tuoiDuLieuGiay": 55.5493359375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6803,8 +6861,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "d67f71f263be4237",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "a7a12c38ccb840e8",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "USDAT",
@@ -6827,16 +6885,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 3285.510186627778,
+    "khoaVonDenGio": 3285.288843935,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 3285.5255896758335,
+    "gioVonBiGiu": 3285.3042687991665,
     "raDuocKhong": null,
-    "grossBps": 228.65157768150402,
+    "grossBps": 228.63617516332465,
     "phiUocBps": 0,
-    "netUocBps": 177.278381373324,
-    "netMoiGioBps": 0.05395738871442337,
-    "giuGio": 3285.5255896758335,
+    "netUocBps": 177.24869279983665,
+    "netMoiGioBps": 0.053951986877801124,
+    "giuGio": 3285.3042687991665,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6847,7 +6905,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.5493359375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6871,8 +6929,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "b70aaa062b6348c5",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "4e29ea0de8f04091",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "SIERRA",
@@ -6895,16 +6953,16 @@
     ],
     "vonCanUsd": 25000,
     "sucChuaToiDaUsd": 50000,
-    "khoaVonDenGio": 1269.5101866277778,
+    "khoaVonDenGio": 1269.2888439350002,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 1269.5255896758333,
+    "gioVonBiGiu": 1269.3042687991667,
     "raDuocKhong": null,
-    "grossBps": 103.89124983128929,
+    "grossBps": 103.87313810303611,
     "phiUocBps": 0,
-    "netUocBps": 52.51805352310929,
-    "netMoiGioBps": 0.0413682512193547,
-    "giuGio": 1269.5255896758333,
+    "netUocBps": 52.4856557395481,
+    "netMoiGioBps": 0.04134994030170755,
+    "giuGio": 1269.3042687991667,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6915,7 +6973,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.5493359375,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -6939,8 +6997,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "76a088342a934ba5",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "a639cf0cbd1a40a2",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "SUSDS",
@@ -6963,16 +7021,16 @@
     ],
     "vonCanUsd": 17352.65,
     "sucChuaToiDaUsd": 34705.3,
-    "khoaVonDenGio": 2109.510186627778,
+    "khoaVonDenGio": 2109.288843935,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 2109.5255893988888,
+    "gioVonBiGiu": 2109.304268799167,
     "raDuocKhong": null,
-    "grossBps": 115.93095343548819,
+    "grossBps": 115.91879055475823,
     "phiUocBps": 0,
-    "netUocBps": 64.5577571273082,
-    "netMoiGioBps": 0.030602974171886666,
-    "giuGio": 2109.5255893988888,
+    "netUocBps": 64.53130819127023,
+    "netMoiGioBps": 0.03059364604045868,
+    "giuGio": 2109.304268799167,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -6983,7 +7041,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.5483388671875,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -7007,8 +7065,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "621d68a209d345c8",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "23a1fe098f734285",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "SUSDE",
@@ -7031,16 +7089,16 @@
     ],
     "vonCanUsd": 17854.72,
     "sucChuaToiDaUsd": 35709.44,
-    "khoaVonDenGio": 2109.510186627778,
+    "khoaVonDenGio": 2109.288843935,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 2109.5255893988888,
+    "gioVonBiGiu": 2109.304268799167,
     "raDuocKhong": null,
-    "grossBps": 112.7098330834563,
+    "grossBps": 112.69800814614436,
     "phiUocBps": 0,
-    "netUocBps": 61.336636775276304,
-    "netMoiGioBps": 0.02907603353261727,
-    "giuGio": 2109.5255893988888,
+    "netUocBps": 61.31052578265635,
+    "netMoiGioBps": 0.029066705401189278,
+    "giuGio": 2109.304268799167,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -7051,7 +7109,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.5483388671875,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -7075,8 +7133,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "eec73b8b7bfc4e84",
-    "luc": "2026-08-30T02:29:23.328Z",
+    "ma": "5a0b49d4a7cc4535",
+    "luc": "2026-08-30T02:42:40.161Z",
     "chienLuoc": "yield.pendle_pt.v1",
     "ho": "tin-dung",
     "taiSan": "SRUSDE",
@@ -7099,16 +7157,16 @@
     ],
     "vonCanUsd": 22514.595,
     "sucChuaToiDaUsd": 45029.19,
-    "khoaVonDenGio": 1269.5101866277778,
+    "khoaVonDenGio": 1269.2888439350002,
     "vonToiThieuKinhTeUsd": 1000,
     "thanhKhoanThoatUsd": null,
-    "gioVonBiGiu": 1269.5255896758333,
+    "gioVonBiGiu": 1269.3042687991667,
     "raDuocKhong": null,
-    "grossBps": 68.33047578815149,
+    "grossBps": 68.31856349514419,
     "phiUocBps": 0,
-    "netUocBps": 16.95727947997149,
-    "netMoiGioBps": 0.013357178159993956,
-    "giuGio": 1269.5255896758333,
+    "netUocBps": 16.93108113165618,
+    "netMoiGioBps": 0.013338867242346812,
+    "giuGio": 1269.3042687991667,
     "ruiRo": {
      "thiTruong": 0.15,
      "thanhKhoan": 0.45,
@@ -7119,7 +7177,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 55.47790112304688,
+    "tuoiDuLieuGiay": 55.5483388671875,
     "tinCay": 1,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -7143,8 +7201,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "a5eb7e0769ad420b",
-    "luc": "2026-08-30T02:29:23.331Z",
+    "ma": "002290702db4440a",
+    "luc": "2026-08-30T02:42:40.164Z",
     "chienLuoc": "amm.fee_farming.v1",
     "ho": "thanh-khoan",
     "taiSan": "SUSDE-USDT",
@@ -7173,9 +7231,9 @@
     "gioVonBiGiu": 168,
     "raDuocKhong": true,
     "grossBps": 43.548112328767125,
-    "phiUocBps": 1.52239261636,
-    "netUocBps": 42.025719712407124,
-    "netMoiGioBps": 0.2501530935262329,
+    "phiUocBps": 1.5509647269759999,
+    "netUocBps": 41.99714760179113,
+    "netMoiGioBps": 0.2499830214392329,
     "giuGio": 168,
     "ruiRo": {
      "thiTruong": 0.35,
@@ -7187,7 +7245,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 37.676877197265625,
+    "tuoiDuLieuGiay": 51.33897998046875,
     "tinCay": 0.9,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -7214,8 +7272,8 @@
     "loiKhuon": []
    },
    {
-    "ma": "595ed244292845f8",
-    "luc": "2026-08-30T02:29:23.332Z",
+    "ma": "0e80a19bfe3a4b26",
+    "luc": "2026-08-30T02:42:40.165Z",
     "chienLuoc": "amm.fee_farming.v1",
     "ho": "thanh-khoan",
     "taiSan": "USDC-USDT",
@@ -7244,9 +7302,9 @@
     "gioVonBiGiu": 168,
     "raDuocKhong": true,
     "grossBps": 31.171517808219182,
-    "phiUocBps": 0.4058917738470993,
-    "netUocBps": 30.765626034372083,
-    "netMoiGioBps": 0.1831287263950719,
+    "phiUocBps": 0.4043503701148642,
+    "netUocBps": 30.767167438104316,
+    "netMoiGioBps": 0.18313790141728759,
     "giuGio": 168,
     "ruiRo": {
      "thiTruong": 0.35,
@@ -7258,7 +7316,7 @@
      "chuaDo": [],
      "caoNhat": 0.45
     },
-    "tuoiDuLieuGiay": 37.67787084960938,
+    "tuoiDuLieuGiay": 51.33997680664063,
     "tinCay": 0.9,
     "moHinhPhiDuChua": false,
     "phiConThieu": [
@@ -7286,7 +7344,7 @@
    }
   ],
   "latCatVong": {
-   "luc": "2026-08-30T02:29:23.326Z",
+   "luc": "2026-08-30T02:42:40.159Z",
    "soTyChay": 9,
    "soToTrinhNhan": 22,
    "soGhiNhan": 0,
@@ -7294,9 +7352,9 @@
    "cauDaoNgat": false,
    "lyDoNgat": [],
    "phanBo": {
-    "luc": "2026-08-30T02:29:23.326Z",
-    "vonKhaDungUsd": 222757.05705764302,
-    "duTruUsd": 199981.04926441074,
+    "luc": "2026-08-30T02:42:40.159Z",
+    "vonKhaDungUsd": 222757.5357512275,
+    "duTruUsd": 199981.16893780688,
     "tongCapUsd": 0,
     "soCap": 0,
     "soTuChoi": 0,
@@ -7307,7 +7365,7 @@
    "soPhangGap": 0
   },
   "hoc": {
-   "luc": "2026-08-30T02:28:49.383Z",
+   "luc": "2026-08-30T02:41:52.357Z",
    "vong": 1,
    "trieuChung": [
     {
@@ -7348,11 +7406,11 @@
     {
      "ma": "phi-vao-an-het",
      "nang": 2,
-     "moTa": "ty lending.rate_rotation.v1 lãi +13.75 USD bằng chiến lược nhưng gộp lại vẫn âm 70.54 USD: phí vào lệnh 289 lần đã ăn hết. Vào 289 · đóng 282 (gần như mọi vị thế đã đóng rồi mở lại — CHURN). Phí vào lệnh do mở lại là chi phí VẬN HÀNH, không phải chi phí chiến lược. 217/282 lần đóng là do XOAY CHỖ, không phải do khởi động lại — xem `xoay-cho-hua-qua`: mỗi lần xoay cộng trước phần lãi hơn của cả trăm giờ rồi trừ phí một lần, còn vị thế mới thì sống vài phút.",
+     "moTa": "ty lending.rate_rotation.v1 lãi +14.05 USD bằng chiến lược nhưng gộp lại vẫn âm 70.24 USD: phí vào lệnh 289 lần đã ăn hết. Vào 289 · đóng 282 (gần như mọi vị thế đã đóng rồi mở lại — CHURN). Phí vào lệnh do mở lại là chi phí VẬN HÀNH, không phải chi phí chiến lược. 217/282 lần đóng là do XOAY CHỖ, không phải do khởi động lại — xem `xoay-cho-hua-qua`: mỗi lần xoay cộng trước phần lãi hơn của cả trăm giờ rồi trừ phí một lần, còn vị thế mới thì sống vài phút.",
      "bangChung": {
       "chienLuoc": "lending.rate_rotation.v1",
-      "laiLoUsd": -70.53648230542068,
-      "laiLoChienLuocUsd": 13.750818304797031,
+      "laiLoUsd": -70.23569226228031,
+      "laiLoChienLuocUsd": 14.051608347937389,
       "soLanVaoLenh": 289,
       "soLanDong": 282,
       "tiLeDongTrenVao": 0.9757785467128027,
@@ -7382,35 +7440,55 @@
     {
      "ma": "ty-thu-bang-khong",
      "nang": 2,
-     "moTa": "ty basis.cash_carry.v1 chạy 42,286 vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây KHÔNG phải «chưa đo được» — kế toán của nó chạy được và nói không có gì. Ba cách đọc: engine này không kiếm được trong điều kiện hiện tại; hoặc thu nhập của nó tới theo MỐC (funding 8 giờ, đáo hạn) mà vị thế không sống tới mốc nào; hoặc mốc có đi qua nhưng rơi vào một cửa sổ bị vứt. Xem `daGiuGio` của chính nó so với nhịp trả. KHÔNG vị thế ĐANG MỞ nào có cửa sổ kế toán bị bỏ, nên với chúng cách đọc thứ ba đã LOẠI (vị thế đã đóng thì mang lịch sử ấy đi theo). Cỗ máy đã khởi động lại 11 lần (tổng 3.8 phút tắt) — quãng tắt NGẮN thì cửa sổ kế toán nối lại được, nên nó chỉ vứt cửa sổ khi tắt lâu, và những lần ấy đã nằm trong con số trên.",
+     "moTa": "ty basis.cash_carry.v1 chạy 43,808 vốn-giờ mà thu ròng ĐÚNG BẰNG 0. Đây KHÔNG phải «chưa đo được» — kế toán của nó chạy được và nói không có gì. Ba cách đọc: engine này không kiếm được trong điều kiện hiện tại; hoặc thu nhập của nó tới theo MỐC (funding 8 giờ, đáo hạn) mà vị thế không sống tới mốc nào; hoặc mốc có đi qua nhưng rơi vào một cửa sổ bị vứt. Xem `daGiuGio` của chính nó so với nhịp trả. KHÔNG vị thế ĐANG MỞ nào có cửa sổ kế toán bị bỏ, nên với chúng cách đọc thứ ba đã LOẠI (vị thế đã đóng thì mang lịch sử ấy đi theo). Cỗ máy đã khởi động lại 12 lần (tổng 4.0 phút tắt) — quãng tắt NGẮN thì cửa sổ kế toán nối lại được, nên nó chỉ vứt cửa sổ khi tắt lâu, và những lần ấy đã nằm trong con số trên.",
      "bangChung": {
       "chienLuoc": "basis.cash_carry.v1",
-      "vonGioUsd": 42285.52217953542,
+      "vonGioUsd": 43808.050534656526,
       "thuRongUsd": 0,
       "soCuaSoMuBoQua": 0,
       "gioMuBoQua": 0,
-      "soLanKhoiDong": 11,
-      "tongGiayTatMay": 227.7552080154419
+      "soLanKhoiDong": 12,
+      "tongGiayTatMay": 242.3898012638092
      },
      "nutGoiY": []
     },
     {
      "ma": "von-ranh-an-khong",
      "nang": 2,
-     "moTa": "222,757 USD nằm NGOÀI dự trữ mà không làm gì — 28% phần vốn khả dụng, ăn 0%. Dự trữ 20% đã trừ ra rồi, nên đây không phải chỗ tiền được cố ý để yên. Lợi suất trên vốn ĐANG DÙNG là 4.23%/năm, quy về NAV còn 2.44%; nếu phần rảnh chạy được như phần đang chạy thì NAV sẽ là 3.38%. Con số sau là TRẦN TRÊN của phần đang bỏ lỡ, không phải số sẽ thu được: phần rảnh nằm im thường vì những cơ hội còn lại tệ hơn, hoặc vì một trần đang chặn.",
+     "moTa": "222,758 USD nằm NGOÀI dự trữ mà không làm gì — 28% phần vốn khả dụng, ăn 0%. Dự trữ 20% đã trừ ra rồi, nên đây không phải chỗ tiền được cố ý để yên. Lợi suất trên vốn ĐANG DÙNG là 4.22%/năm, quy về NAV còn 2.44%; nếu phần rảnh chạy được như phần đang chạy thì NAV sẽ là 3.38%. Con số sau là TRẦN TRÊN của phần đang bỏ lỡ, không phải số sẽ thu được: phần rảnh nằm im thường vì những cơ hội còn lại tệ hơn, hoặc vì một trần đang chặn.",
      "bangChung": {
-      "ranhNgoaiDuTruUsd": 222757.0348751511,
-      "tiLeRanhTrenKhaDung": 0.2784726876268217,
-      "khaDungUsd": 799924.1748751512,
-      "dangDungUsd": 577167.1400000001,
-      "loiSuatTrenVonDungPhanTram": 4.22918985613739,
-      "loiSuatQuyVeNavPhanTram": 2.441180792331776,
-      "loiSuatNeuLapDayPhanTram": 3.3833518849099122
+      "ranhNgoaiDuTruUsd": 222757.50526993076,
+      "tiLeRanhTrenKhaDung": 0.2784731119201388,
+      "khaDungUsd": 799924.6452699308,
+      "dangDungUsd": 577167.1399999999,
+      "loiSuatTrenVonDungPhanTram": 4.224744324014055,
+      "loiSuatQuyVeNavPhanTram": 2.438613300031134,
+      "loiSuatNeuLapDayPhanTram": 3.3797954592112442
      },
      "nutGoiY": [
       "ruiRoTong.tranMotCang",
       "ruiRoTong.tranMotTy"
      ]
+    },
+    {
+     "ma": "ghe-khan-hon-tien",
+     "nang": 2,
+     "moTa": "120/120 ghế đã đầy trong khi 222,758 USD nằm ngoài dự trữ ăn 0% — nên thứ khan hiếm ở đây là CHỖ NGỒI, không phải tiền. Trung vị một ghế giữ 1,136 USD, trong khi phần chia công bằng là 6,666 USD. 99 ghế giữ dưới 1,667 USD, cộng lại chỉ 77,194 USD (13.4% vốn đang dùng) — amm.fee_farming.v1 giữ 64 ghế; basis.cash_carry.v1 giữ 35 ghế. Vị thế nhỏ vì SỨC CHỨA nhỏ là sự thật của thị trường, không phải lỗi cấu hình; còn trần ghế có lý của nó. Chỗ cân giữa hai điều ấy là quyết định của chủ, không phải của máy.",
+     "bangChung": {
+      "soGhe": 120,
+      "soDangDung": 120,
+      "soGheBe": 99,
+      "vonTrongGheBeUsd": 77193.96,
+      "tiLeVonTrongGheBe": 0.13374628361552254,
+      "vonTrungViMotGheUsd": 1136,
+      "phanChiaMoiGheUsd": 6666.038710582757,
+      "ranhNgoaiDuTruUsd": 222757.50526993076,
+      "gheBeTheoTy": {
+       "amm.fee_farming.v1": 64,
+       "basis.cash_carry.v1": 35
+      }
+     },
+     "nutGoiY": []
     },
     {
      "ma": "xoay-cho-chua-doi-chieu",
@@ -7426,12 +7504,12 @@
     {
      "ma": "hua-qua-dang-mo",
      "nang": 2,
-     "moTa": "ty amm.fee_farming.v1 đang chạy THỰC +19.32%/năm trên 373,695 vốn-giờ, trong khi chính những vị thế đang mở của nó HỨA +23.94%/năm (bình quân theo vốn). Lệch +4.62 điểm. Đây là cùng một tập vị thế và cùng một quãng — không phải hai cửa sổ khác nhau.",
+     "moTa": "ty amm.fee_farming.v1 đang chạy THỰC +19.21%/năm trên 388,962 vốn-giờ, trong khi chính những vị thế đang mở của nó HỨA +23.94%/năm (bình quân theo vốn). Lệch +4.73 điểm. Đây là cùng một tập vị thế và cùng một quãng — không phải hai cửa sổ khác nhau.",
      "bangChung": {
       "chienLuoc": "amm.fee_farming.v1",
       "aprHuaPhanTram": 23.937897509552393,
-      "aprThucPhanTram": 19.3175515239846,
-      "vonGioUsd": 373694.5722109809,
+      "aprThucPhanTram": 19.206126911819055,
+      "vonGioUsd": 388962.04284787603,
       "soViThe": 64,
       "soKhongKhai": 0
      },
@@ -7452,24 +7530,24 @@
     "duDeKetLuan": true,
     "ketLuan": "hoa",
     "vi": "chênh -0.0105 bps/giờ chưa vượt biên nhiễu 0.02 — đứng yên là kết quả hợp lệ",
-    "lechNetMoiGioBps": -0.010540109434488576,
+    "lechNetMoiGioBps": -0.010522014817895942,
     "damHon": false,
     "A": {
      "nhan": "A",
      "soToTrinh": 2000,
      "soCap": 120,
-     "tongCapUsd": 738280.9599999994,
-     "vonNamKhongUsd": 261719.0399999998,
-     "netMoiGioBinhQuanBps": 1.3134195090200607,
+     "tongCapUsd": 738946.9699999994,
+     "vonNamKhongUsd": 261053.0299999998,
+     "netMoiGioBinhQuanBps": 1.3123428904334835,
      "dayNhatCang": "pendle",
      "dayNhatCangUsd": 350000,
      "dayNhatTyUsd": 350000,
-     "tiTrongCang": 0.4740742602924506,
-     "tiTrongTy": 0.4740742602924506,
+     "tiTrongCang": 0.47364697902476044,
+     "tiTrongTy": 0.47364697902476044,
      "tranChanNhieuNhat": {
-      "het-cho-o-tran": 1742,
+      "het-cho-o-tran": 1744,
       "diem-rui-ro-cao": 78,
-      "tran-vi-the": 60,
+      "tran-vi-the": 58,
       "trần phơi nhiễm ròng REUSDE": 1
      },
      "soDongHong": 0,
@@ -7483,18 +7561,18 @@
      "nhan": "B",
      "soToTrinh": 2000,
      "soCap": 150,
-     "tongCapUsd": 744280.9599999994,
-     "vonNamKhongUsd": 255719.0399999998,
-     "netMoiGioBinhQuanBps": 1.302879399585572,
+     "tongCapUsd": 744946.9699999994,
+     "vonNamKhongUsd": 255053.0299999998,
+     "netMoiGioBinhQuanBps": 1.3018208756155876,
      "dayNhatCang": "pendle",
      "dayNhatCangUsd": 350000,
      "dayNhatTyUsd": 350000,
-     "tiTrongCang": 0.4702525239930903,
-     "tiTrongTy": 0.4702525239930903,
+     "tiTrongCang": 0.4698321009346481,
+     "tiTrongTy": 0.4698321009346481,
      "tranChanNhieuNhat": {
-      "het-cho-o-tran": 1742,
+      "het-cho-o-tran": 1744,
       "diem-rui-ro-cao": 78,
-      "tran-vi-the": 30,
+      "tran-vi-the": 28,
       "trần phơi nhiễm ròng REUSDE": 1
      },
      "soDongHong": 0,
@@ -7603,7 +7681,7 @@
     "ho": "phai-sinh",
     "che": "GIAY",
     "vonToiThieuUsd": 100,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7612,7 +7690,7 @@
     "ho": "tin-dung",
     "che": "GIAY",
     "vonToiThieuUsd": 500,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7621,7 +7699,7 @@
     "ho": "chenh-lech",
     "che": "GIAY",
     "vonToiThieuUsd": 200,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7630,7 +7708,7 @@
     "ho": "tin-dung",
     "che": "GIAY",
     "vonToiThieuUsd": 1000,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7639,7 +7717,7 @@
     "ho": "phai-sinh",
     "che": "GIAY",
     "vonToiThieuUsd": 200,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7648,7 +7726,7 @@
     "ho": "tien-doan",
     "che": "GIAY",
     "vonToiThieuUsd": 50,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7657,7 +7735,7 @@
     "ho": "phai-sinh",
     "che": "GIAY",
     "vonToiThieuUsd": 300,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7666,7 +7744,7 @@
     "ho": "chenh-lech",
     "che": "GIAY",
     "vonToiThieuUsd": 500,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    },
@@ -7675,27 +7753,27 @@
     "ho": "thanh-khoan",
     "che": "GIAY",
     "vonToiThieuUsd": 500,
-    "tranMotCoHoiUsd": 149985.79,
+    "tranMotCoHoiUsd": 149985.88,
     "duocCapVon": true,
     "vi": "đủ vốn để cấp — trên SỔ GIẤY. Lớp ký lệnh chưa tồn tại, nên THẬT chưa với tới được"
    }
   ],
   "hieuNang": {
-   "soDiem": 2176,
-   "soGio": 18.068480515814887,
+   "soDiem": 2203,
+   "soGio": 18.29018605088976,
    "navDau": 10000,
-   "navCuoi": 999905.2463220537,
+   "navCuoi": 999905.8446890344,
    "vonBanDauUsd": 1000000,
    "dongVonNgoaiUsd": 990000,
-   "laiLoPhanTram": -0.007718631815067933,
-   "laiLoGomNapVonPhanTram": -0.009475367794631318,
+   "laiLoPhanTram": -0.00765879406571246,
+   "laiLoGomNapVonPhanTram": -0.009415531096557128,
    "sutVonToiDaPhanTram": 0.011069710450780161,
    "sutVonLuc": "2026-08-29T20:13:39+00:00",
-   "gioDuoiDayLauNhat": 10.87368797132704,
+   "gioDuoiDayLauNhat": 11.09539350640191,
    "dangDuoiDay": true,
    "duDeKetLuan": false,
    "cagrPhanTram": null,
-   "vi": "mới 18.1 giờ dữ liệu, cần ≥ 168 — quy một con số nửa ngày ra năm cho một tỉ suất vô nghĩa mà trông rất thuyết phục",
+   "vi": "mới 18.3 giờ dữ liệu, cần ≥ 168 — quy một con số nửa ngày ra năm cho một tỉ suất vô nghĩa mà trông rất thuyết phục",
    "haTang": {
     "chiPhiThangUsd": 10,
     "chiPhiNamUsd": 120,
@@ -7709,36 +7787,36 @@
    "vonCanDeCoMotEngineChay": 333.33333333333337,
    "giayVaThat": {
     "doiChieuDuoc": false,
-    "soButToanGiay": 112290,
+    "soButToanGiay": 114585,
     "soButToanThat": 0,
     "vi": "chưa có lệnh thật nào — `thuc_thi.moPhong` là True CỨNG và không cấu hình nào tắt được. Đối chiếu giấy ↔ thật chỉ có nghĩa khi cả hai vế cùng tồn tại.",
     "khiNaoDoDuoc": "khi lớp ký lệnh tồn tại và đã có đủ lệnh thật để so — trước đó, mọi con số 'sai lệch' đều là bịa."
    },
    "vonDangDung": {
-    "vonGioUsd": 5425066.339226584,
-    "thuRongUsd": 24.46983495937006,
-    "soGio": 13.243287763529354,
-    "vonBinhQuanUsd": 409646.4893080898,
-    "loiSuatNamPhanTram": 3.951209825659773,
-    "vonGioChuaTachUsd": 1982881.444469274,
+    "vonGioUsd": 5552817.266190591,
+    "thuRongUsd": 25.06820193929853,
+    "soGio": 13.464629066785177,
+    "vonBinhQuanUsd": 412400.3148284563,
+    "loiSuatNamPhanTram": 3.954703323758138,
+    "vonGioChuaTachUsd": 1982881.4444692298,
     "theoTy": {
      "amm.fee_farming.v1": {
-      "vonGioUsd": 374414.5431186419,
-      "thuRongUsd": 8.2542562081212,
-      "loiSuatNamPhanTram": 19.312092895982804
+      "vonGioUsd": 389951.3657057289,
+      "thuRongUsd": 8.546526543269424,
+      "loiSuatNamPhanTram": 19.1992076713325
      },
      "basis.cash_carry.v1": {
-      "vonGioUsd": 42357.32032788923,
+      "vonGioUsd": 43906.70945067954,
       "thuRongUsd": 0,
       "loiSuatNamPhanTram": 0
      },
      "lending.rate_rotation.v1": {
-      "vonGioUsd": 3025413.0313107786,
-      "thuRongUsd": 8.363217248770043,
-      "loiSuatNamPhanTram": 2.4215464910417364
+      "vonGioUsd": 3136077.746564953,
+      "thuRongUsd": 8.669313893550255,
+      "loiSuatNamPhanTram": 2.4215977996936857
      }
     },
-    "vi": "vốn đang dùng bình quân 409,646 USD suốt 13.2 giờ, thu ròng +24.4698 USD → +3.95%/năm TRÊN PHẦN VỐN ẤY. Đây KHÔNG phải lợi suất của cả gia sản."
+    "vi": "vốn đang dùng bình quân 412,400 USD suốt 13.5 giờ, thu ròng +25.0682 USD → +3.95%/năm TRÊN PHẦN VỐN ẤY. Đây KHÔNG phải lợi suất của cả gia sản."
    }
   },
   "banThamSo": {
@@ -7785,44 +7863,62 @@
   },
   "lechCauHinh": [],
   "vonDangDung": {
-   "vonGioUsd": 5425066.339226584,
-   "thuRongUsd": 24.46983495937006,
-   "soGio": 13.243287763529354,
-   "vonBinhQuanUsd": 409646.4893080898,
-   "loiSuatNamPhanTram": 3.951209825659773,
-   "vonGioChuaTachUsd": 1982881.444469274,
+   "vonGioUsd": 5552817.266190591,
+   "thuRongUsd": 25.06820193929853,
+   "soGio": 13.464629066785177,
+   "vonBinhQuanUsd": 412400.3148284563,
+   "loiSuatNamPhanTram": 3.954703323758138,
+   "vonGioChuaTachUsd": 1982881.4444692298,
    "theoTy": {
     "amm.fee_farming.v1": {
-     "vonGioUsd": 374414.5431186419,
-     "thuRongUsd": 8.2542562081212,
-     "loiSuatNamPhanTram": 19.312092895982804
+     "vonGioUsd": 389951.3657057289,
+     "thuRongUsd": 8.546526543269424,
+     "loiSuatNamPhanTram": 19.1992076713325
     },
     "basis.cash_carry.v1": {
-     "vonGioUsd": 42357.32032788923,
+     "vonGioUsd": 43906.70945067954,
      "thuRongUsd": 0,
      "loiSuatNamPhanTram": 0
     },
     "lending.rate_rotation.v1": {
-     "vonGioUsd": 3025413.0313107786,
-     "thuRongUsd": 8.363217248770043,
-     "loiSuatNamPhanTram": 2.4215464910417364
+     "vonGioUsd": 3136077.746564953,
+     "thuRongUsd": 8.669313893550255,
+     "loiSuatNamPhanTram": 2.4215977996936857
     }
    },
-   "vi": "vốn đang dùng bình quân 409,646 USD suốt 13.2 giờ, thu ròng +24.4698 USD → +3.95%/năm TRÊN PHẦN VỐN ẤY. Đây KHÔNG phải lợi suất của cả gia sản."
+   "vi": "vốn đang dùng bình quân 412,400 USD suốt 13.5 giờ, thu ròng +25.0682 USD → +3.95%/năm TRÊN PHẦN VỐN ẤY. Đây KHÔNG phải lợi suất của cả gia sản."
   },
   "vonRanh": {
-   "navUsd": 999905.2463220537,
-   "tienMatUsd": 422738.10632205376,
+   "navUsd": 999905.8446890344,
+   "tienMatUsd": 422738.7046890344,
    "tiLeDuTru": 0.2,
-   "duTruUsd": 199981.04926441074,
-   "khaDungUsd": 799924.197057643,
-   "dangDungUsd": 577167.1399999999,
-   "ranhNgoaiDuTruUsd": 222757.05705764302,
-   "tiLeRanhTrenKhaDung": 0.2784727076353099,
-   "loiSuatTrenVonDungPhanTram": 4.228972932397654,
-   "loiSuatQuyVeNavPhanTram": 2.441055511517154,
-   "loiSuatNeuLapDayPhanTram": 3.3831783459181235,
+   "duTruUsd": 199981.16893780688,
+   "khaDungUsd": 799924.6757512275,
+   "dangDungUsd": 577167.14,
+   "ranhNgoaiDuTruUsd": 222757.5357512275,
+   "tiLeRanhTrenKhaDung": 0.2784731394140715,
+   "loiSuatTrenVonDungPhanTram": 4.224467042486552,
+   "loiSuatQuyVeNavPhanTram": 2.4384531542512353,
+   "loiSuatNeuLapDayPhanTram": 3.3795736339892417,
    "soTyChuaDoDuocLoiSuat": 0
+  },
+  "gheVaVon": {
+   "soGhe": 120,
+   "soDangDung": 120,
+   "conGhe": 0,
+   "tiLeGheDay": 1,
+   "vonTrongGheUsd": 577167.14,
+   "vonTrungViMotGheUsd": 1136,
+   "vonBinhQuanMotGheUsd": 4809.726166666666,
+   "phanChiaMoiGheUsd": 6666.038964593563,
+   "nguongGheBeUsd": 1666.5097411483907,
+   "soGheBe": 99,
+   "vonTrongGheBeUsd": 77193.96,
+   "tiLeVonTrongGheBe": 0.13374628361552254,
+   "gheBeTheoTy": {
+    "amm.fee_farming.v1": 64,
+    "basis.cash_carry.v1": 35
+   }
   },
   "duDoanVaThuc": {
    "prediction.polymarket.v1": {
@@ -7880,50 +7976,50 @@
      "vonUsd": 10000,
      "rotDuocUsd": 10000,
      "soCoHoi": 2,
-     "aprTrenVonRot": 17.64926404931081,
-     "aprTrenCaTui": 17.64926404931081
+     "aprTrenVonRot": 17.645103798400484,
+     "aprTrenCaTui": 17.645103798400484
     },
     {
      "vonUsd": 50000,
      "rotDuocUsd": 50000,
      "soCoHoi": 3,
-     "aprTrenVonRot": 16.535557037422606,
-     "aprTrenCaTui": 16.535557037422606
+     "aprTrenVonRot": 16.534232201540455,
+     "aprTrenCaTui": 16.534232201540455
     },
     {
      "vonUsd": 100000,
      "rotDuocUsd": 100000,
      "soCoHoi": 4,
-     "aprTrenVonRot": 14.328684739212832,
-     "aprTrenCaTui": 14.328684739212832
+     "aprTrenVonRot": 14.327719239224145,
+     "aprTrenCaTui": 14.327719239224145
     },
     {
      "vonUsd": 500000,
      "rotDuocUsd": 500000,
      "soCoHoi": 12,
-     "aprTrenVonRot": 8.884025498889622,
-     "aprTrenCaTui": 8.884025498889622
+     "aprTrenVonRot": 8.883258394183567,
+     "aprTrenCaTui": 8.883258394183567
     },
     {
      "vonUsd": 1000000,
      "rotDuocUsd": 966093.0800000001,
      "soCoHoi": 22,
-     "aprTrenVonRot": 5.714714667667493,
-     "aprTrenCaTui": 5.5209462946080645
+     "aprTrenVonRot": 5.713977350383101,
+     "aprTrenCaTui": 5.520233977481849
     },
     {
      "vonUsd": 5000000,
      "rotDuocUsd": 966093.0800000001,
      "soCoHoi": 22,
-     "aprTrenVonRot": 5.714714667667493,
-     "aprTrenCaTui": 1.104189258921613
+     "aprTrenVonRot": 5.713977350383101,
+     "aprTrenCaTui": 1.10404679549637
     },
     {
      "vonUsd": 10000000,
      "rotDuocUsd": 966093.0800000001,
      "soCoHoi": 22,
-     "aprTrenVonRot": 5.714714667667493,
-     "aprTrenCaTui": 0.5520946294608065
+     "aprTrenVonRot": 5.713977350383101,
+     "aprTrenCaTui": 0.552023397748185
     }
    ],
    "soCoHoiDung": 22,
@@ -7933,7 +8029,7 @@
    "vi": "tổng sức chứa đang thấy 966,093 USD trên 22 cơ hội. Ở 10,000 USD thì lãi 17.65%/năm; ở 10,000,000 thì còn 0.55%. Lợi suất TỤT theo quy mô, và một con số APR không kèm mức vốn là một con số bỏ bớt."
   },
   "duongKhoaVon": {
-   "vonUsd": 422738.10632205376,
+   "vonUsd": 422738.7046890344,
    "tranDangChayGio": 720,
    "muc": [
     {
@@ -7941,45 +8037,45 @@
      "soCoHoi": 10,
      "sucChuaUsd": 404780.63,
      "rotDuocUsd": 404780.63,
-     "aprTrenCaTui": 2.596039073861753,
+     "aprTrenCaTui": 2.5954074375861222,
      "khoaBinhQuanGio": 0
     },
     {
      "tranGio": 1440,
      "soCoHoi": 14,
      "sucChuaUsd": 599809.8200000001,
-     "rotDuocUsd": 422738.10632205376,
-     "aprTrenCaTui": 4.579568953356373,
-     "khoaBinhQuanGio": 410.7188952484786
+     "rotDuocUsd": 422738.7046890344,
+     "aprTrenCaTui": 4.578907356412373,
+     "khoaBinhQuanGio": 410.6397750634307
     },
     {
      "tranGio": 2160,
      "soCoHoi": 18,
      "sucChuaUsd": 770224.56,
-     "rotDuocUsd": 422738.10632205376,
-     "aprTrenCaTui": 6.484286072830917,
-     "khoaBinhQuanGio": 939.7284511879872
+     "rotDuocUsd": 422738.7046890344,
+     "aprTrenCaTui": 6.483468654227188,
+     "khoaBinhQuanGio": 939.589806231831
     },
     {
      "tranGio": 4320,
      "soCoHoi": 22,
      "sucChuaUsd": 966093.0800000001,
-     "rotDuocUsd": 422738.10632205376,
-     "aprTrenCaTui": 9.880213776985135,
-     "khoaBinhQuanGio": 2018.6083075564618
+     "rotDuocUsd": 422738.7046890344,
+     "aprTrenCaTui": 9.879478888078607,
+     "khoaBinhQuanGio": 2018.3884077163307
     },
     {
      "tranGio": null,
      "soCoHoi": 22,
      "sucChuaUsd": 966093.0800000001,
-     "rotDuocUsd": 422738.10632205376,
-     "aprTrenCaTui": 9.880213776985135,
-     "khoaBinhQuanGio": 2018.6083075564618
+     "rotDuocUsd": 422738.7046890344,
+     "aprTrenCaTui": 9.879478888078607,
+     "khoaBinhQuanGio": 2018.3884077163307
     }
    ],
    "soBoViThieuLai": 0,
    "soBoViThieuSucChua": 0,
-   "vi": "cùng 422,738 USD tiền mặt: trần khoá đang chạy 720 giờ cho 10 cơ hội và 2.60%/năm; BỎ trần thì 22 cơ hội và 9.88%/năm — hơn +7.28 điểm phần trăm, đổi lại vốn bị khoá bình quân 2,019 giờ. Sức chứa cũng nới từ 404,781 lên 966,093 USD, nên ở mức vốn lớn hơn thì trần này còn chặn nhiều hơn nữa. Đây là phép ĐO, KHÔNG phải đề xuất: nới trần là cửa `dat_tham_so`, đòi tên người — và cái giá của khoá lâu, tức bỏ lỡ cơ hội tốt hơn xuất hiện trong ngần ấy giờ, thì bảng Xoay Chỗ đo chứ bảng này không đo."
+   "vi": "cùng 422,739 USD tiền mặt: trần khoá đang chạy 720 giờ cho 10 cơ hội và 2.60%/năm; BỎ trần thì 22 cơ hội và 9.88%/năm — hơn +7.28 điểm phần trăm, đổi lại vốn bị khoá bình quân 2,018 giờ. Sức chứa cũng nới từ 404,781 lên 966,093 USD, nên ở mức vốn lớn hơn thì trần này còn chặn nhiều hơn nữa. Đây là phép ĐO, KHÔNG phải đề xuất: nới trần là cửa `dat_tham_so`, đòi tên người — và cái giá của khoá lâu, tức bỏ lỡ cơ hội tốt hơn xuất hiện trong ngần ấy giờ, thì bảng Xoay Chỗ đo chứ bảng này không đo."
   },
   "xoayCho": {
    "soViThe": 120,
@@ -7993,24 +8089,30 @@
    "soDichBiChan": 21,
    "soBiKepTheoBangChung": 0,
    "soBiChanBoiBangChung": 21,
-   "loiRongBiChanUsd": 1252.718698511751,
+   "loiRongBiChanUsd": 1252.9113636431682,
    "gioSongTrungVi": 0.008241344061162736,
    "nguonBangChung": "trung vị 268 lần đóng trong 24 giờ qua",
    "soMauBangChung": 268,
-   "tuoiBangChungGiay": 34625.601,
+   "tuoiBangChungGiay": 35423.74,
    "viConGhe": false,
    "soVongGheTrongKhongLap": 0,
    "xoay": [],
-   "vi": "KHÔNG chỗ nào đáng đổi sau khi trừ phí — 0 vị thế còn khoá vốn, 0 chưa đo được thanh khoản thoát, và 21 chỗ bị TRẦN BẰNG CHỨNG chặn (0.008h — công thức cũ sẽ nhận, và sẽ hứa +1252.72 USD trên một quãng mà sổ nói vị thế không sống tới). Ngồi yên là một kết quả hợp lệ."
+   "vi": "KHÔNG chỗ nào đáng đổi sau khi trừ phí — 0 vị thế còn khoá vốn, 0 chưa đo được thanh khoản thoát, và 21 chỗ bị TRẦN BẰNG CHỨNG chặn (0.008h — công thức cũ sẽ nhận, và sẽ hứa +1252.91 USD trên một quãng mà sổ nói vị thế không sống tới). Ngồi yên là một kết quả hợp lệ."
   }
  },
  "duongSo": "D:\\SUNSWaGz 2027\\SUNSWaGz\\kinh-thanh-app\\thi-bac-ty-runtime\\data",
  "nhatKy": [
   {
    "stt": 1,
-   "luc": "2026-08-30T02:28:22.005Z",
+   "luc": "2026-08-30T02:41:38.979Z",
    "loai": "he",
    "muc": "Thị Bạc Ty chạy — 4 cảng, 6 mã, chế độ quan-sat"
+  },
+  {
+   "stt": 2,
+   "luc": "2026-08-30T02:42:46.695Z",
+   "loai": "he",
+   "muc": "tiến hoá: 127 cơ hội hậu kiểm được · có triệu chứng nhưng không núm nào hợp lệ để vặn."
   }
  ]
 }
