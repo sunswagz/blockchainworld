@@ -24,7 +24,7 @@ import datetime as _dt
 from typing import Any
 
 from . import store
-from .config import CONFIG
+from .config import CONFIG, DATA_DIR
 from .brain import BO_LUAT
 from .bus import bus
 
@@ -90,7 +90,8 @@ def _ky(tham: dict) -> str:
     return ",".join(f"{k}={tham[k]}" for k in sorted(tham)) or "mặc-định"
 
 
-def phan_quyet(cha: dict | None, thu: dict, nhieu_cho: dict | None = None) -> dict:
+def phan_quyet(cha: dict | None, thu: dict, nhieu_cho: dict | None = None,
+               nhieu_lat: dict | None = None) -> dict:
     """Cửa duyệt. Hàm THUẦN — đưa vào hai bộ thống kê ngoài mẫu, trả phán quyết.
 
     Thuần để kiểm được bằng số bịa, không cần chạy cả cỗ máy. Cửa duyệt là chỗ
@@ -177,6 +178,41 @@ def phan_quyet(cha: dict | None, thu: dict, nhieu_cho: dict | None = None) -> di
                              f"{kv_l:+.3f}R trên {so_l} lệnh — lợi thế nằm ở nửa "
                              f"SHORT mà bot không đánh được")
 
+    # NHIỀU CỬA SỔ THỜI GIAN. Đây là hàng rào mới nhất, và nó đến từ một phép đo
+    # lật ngược cách đọc mọi con số cũ.
+    #
+    # Đo ngày 30/08 trên ĐÚNG 33 chợ, chỉ đổi cửa sổ (cắt lịch sử ở 2025-01-01):
+    #
+    #   MOCK_KEO_LUI_V1  cửa sổ muộn  +0,205R/269 lệnh  KT [+0,063; +0,354]
+    #                    cửa sổ sớm   −0,254R/208 lệnh  KT [−0,417; −0,127]
+    #   MOCK_RULES_V1    cửa sổ muộn  +0,160R/352 lệnh
+    #                    cửa sổ sớm   −0,075R/348 lệnh
+    #
+    # Đổi DẤU, cả hai bộ luật cùng hướng, và khoảng tin cửa sổ sớm không chứa 0.
+    # Trong khi đổi CHỢ thì kết quả giữ nguyên (+0,167 → +0,205; +0,117 → +0,160).
+    #
+    # Nghĩa là 48 chợ KHÔNG phải 48 quan sát độc lập: chúng chia chung một quãng
+    # thị trường. "Dương ở 22/30 chợ" đo độ rộng theo trục CHỢ, còn trục gãy là
+    # trục THỜI GIAN. Cửa duyệt cũ chỉ nhìn trục kia.
+    #
+    # `lo-luyen.py` đã đo theo lát thời gian từ lâu — cái thiếu là không ai bắt
+    # cửa duyệt tra vào đó. Thiếu số cũng là lý do TỪ CHỐI: duyệt một chiến lược
+    # chưa từng bị đổi cửa sổ là duyệt bằng thứ bằng chứng vừa được chứng minh
+    # là yếu nhất.
+    if not nhieu_lat:
+        ly_do.append("chưa đo qua nhiều CỬA SỔ THỜI GIAN — chạy lo-luyen.py để "
+                     "có số theo lát; đổi chợ thì kết quả giữ, đổi cửa sổ thì "
+                     "nó đã đổi DẤU (đo 30/08, cùng 33 chợ)")
+    else:
+        _co = nhieu_lat.get("soLatCo") or 0
+        _duong = nhieu_lat.get("soLatDuong") or 0
+        if _co < 3:
+            ly_do.append(f"chỉ {_co} lát thời gian — cần ≥3 mới nói được gì về "
+                         f"độ bền qua thời gian")
+        elif _duong * 2 <= _co:
+            ly_do.append(f"dương ở {_duong}/{_co} lát thời gian — quá nửa số lát "
+                         f"là âm, tức con số đẹp thuộc về MỘT quãng thị trường")
+
     kt = thu.get("khopTroi")
     if kt is not None and kt > CUA["khopTroiToiDa"]:
         ly_do.append(f"khớp trội {kt:.3f}R > {CUA['khopTroiToiDa']}R — "
@@ -231,7 +267,24 @@ def danh_gia(khoa: str, chay: Any) -> dict:
                    if x.get("ma") in (f"cho:{c['ma']}", f"cho-gop:{c['ma']}")), None)
     except Exception:  # noqa: BLE001
         nc = None
-    pq = phan_quyet(cha_tk, thu_tk, nc)
+    # BẰNG CHỨNG NHIỀU LÁT THỜI GIAN, lấy từ kho lò luyện theo BỘ THAM SỐ.
+    #
+    # Khớp bằng `_ky(tham)` chứ không bằng mã bộ luật: lò dò biến thể tham số
+    # của cùng một bộ luật, nên mã giống nhau mà tham số khác là hai thứ khác
+    # hẳn. Khớp theo mã là gán bằng chứng của biến thể này cho biến thể kia.
+    nl = None
+    try:
+        import json as _json
+
+        _b = _json.loads((DATA_DIR / "lo-luyen.json").read_text(
+            encoding="utf-8")).get("bang") or []
+        _khoa_thu = _ky(c.get("tham") or {})
+        nl = next(({"soLatDuong": x.get("soLatDuong"), "soLatCo": x.get("soLatCo"),
+                    "kyVongGop": x.get("kyVongGop"), "soLenh": x.get("soLenh")}
+                   for x in _b if _ky(x.get("tham") or {}) == _khoa_thu), None)
+    except Exception:  # noqa: BLE001 — thiếu kho thì cửa duyệt tự từ chối
+        nl = None
+    pq = phan_quyet(cha_tk, thu_tk, nc, nl)
     c.update({"trangThai": "đã đo", "ketQua": thu_tk, "phanQuyet": pq,
               "doLuc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")})
     d["champion"]["ketQua"] = cha_tk

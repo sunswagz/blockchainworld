@@ -1211,6 +1211,47 @@ async def main() -> int:
           "lối tắt tự chạy mang tên VÀ cờ của làn — hai làn không đè .lnk nhau")
 
 
+    print("\n[54] CỬA DUYỆT PHẢI ĐÒI NHIỀU CỬA SỔ THỜI GIAN")
+    # Đo 30/08 trên ĐÚNG 33 chợ, chỉ đổi cửa sổ (cắt lịch sử ở 2025-01-01):
+    #   MOCK_KEO_LUI_V1  muộn +0,205R/269  KT [+0,063; +0,354]
+    #                    sớm  −0,254R/208  KT [−0,417; −0,127]
+    #   MOCK_RULES_V1    muộn +0,160R/352 · sớm −0,075R/348
+    # Đổi DẤU, hai bộ luật cùng hướng. Còn đổi CHỢ thì kết quả GIỮ NGUYÊN.
+    #
+    # Nên 48 chợ không phải 48 quan sát độc lập — chúng chia chung một quãng thị
+    # trường, và trục gãy là trục THỜI GIAN chứ không phải trục chợ.
+    from trader import chien_luoc as _CL54
+
+    _tot54 = {"so": 60, "kyVongR": 0.25, "khopTroi": 0.05, "sutGiamToiDaPct": 8.0}
+    _cha54 = {"so": 60, "kyVongR": 0.05, "sutGiamToiDaPct": 8.0}
+    _mc54 = {"chayDuoc": "LONG", "chiLong": {"kyVongR": 0.18, "so": 44},
+             "kyVongR": 0.2, "soCho": 7, "khoangTin": [0.05, 0.35]}
+
+    _r54 = _CL54.phan_quyet(_cha54, _tot54, _mc54)
+    check(not _r54["qua"] and any("CỬA SỔ THỜI GIAN" in x for x in _r54["lyDo"]),
+          "không có bằng chứng theo lát thời gian ⇒ TỪ CHỐI, nêu đúng lý do")
+    check(not _CL54.phan_quyet(_cha54, _tot54, _mc54,
+                               {"soLatCo": 4, "soLatDuong": 2})["qua"],
+          "dương 2/4 lát (đúng nửa) ⇒ chưa đủ")
+    check(not _CL54.phan_quyet(_cha54, _tot54, _mc54,
+                               {"soLatCo": 4, "soLatDuong": 1})["qua"],
+          "dương 1/4 lát ⇒ TỪ CHỐI")
+    check(_CL54.phan_quyet(_cha54, _tot54, _mc54,
+                           {"soLatCo": 4, "soLatDuong": 3})["qua"],
+          "dương 3/4 lát ⇒ cửa mở (cửa ngược lại — luật không chặn tất)")
+    check(not _CL54.phan_quyet(_cha54, _tot54, _mc54,
+                               {"soLatCo": 2, "soLatDuong": 2})["qua"],
+          "chỉ 2 lát ⇒ chưa nói được gì, dù dương cả hai")
+
+    # Đường ống: `danh_gia` phải khớp bằng BỘ THAM SỐ, không phải mã bộ luật —
+    # lò dò biến thể tham số của CÙNG một bộ luật, nên khớp theo mã là gán bằng
+    # chứng của biến thể này cho biến thể kia.
+    _src54 = ma_khong_chu_thich(ROOT / "trader" / "chien_luoc.py")
+    check("_ky(x.get(" in _src54 and "lo-luyen.json" in _src54,
+          "danh_gia lấy bằng chứng lát từ lo-luyen.json, khớp theo _ky(tham)")
+    check("phan_quyet(cha_tk, thu_tk, nc, nl)" in _src54,
+          "và truyền nó vào cửa duyệt")
+
     print("\n[52] BẢNG SO HAI LÀN PHẢI ĐỌC ĐÚNG TÊN TRƯỜNG")
     # `scripts/so-hai-lan.py` là thứ sẽ đọc phép đo tiến tướng kéo hàng tháng.
     # Bản đầu của nó sai ba chỗ, và cả ba đều KHÔNG nổ:
@@ -1419,11 +1460,13 @@ async def main() -> int:
                                               "chiLong": {"kyVongR": -0.306, "so": 44}})
     check(not _am48["qua"] and any("nửa chạy được" in x for x in _am48["lyDo"]),
           "gộp +0,205R mà nửa LONG −0,306R ⇒ TỪ CHỐI, nêu đúng lý do")
+    _lat48 = {"soLatCo": 4, "soLatDuong": 3}      # xem [54]
     _duong48 = _CL48.phan_quyet(_cha48, _tot48, {**_nc48, "chayDuoc": "LONG",
-                                                 "chiLong": {"kyVongR": 0.18, "so": 44}})
+                                                 "chiLong": {"kyVongR": 0.18, "so": 44}},
+                                _lat48)
     check(_duong48["qua"],
           "nửa LONG cũng dương ⇒ cửa mở (cửa ngược lại — luật không chặn tất)")
-    check(_CL48.phan_quyet(_cha48, _tot48, None)["qua"],
+    check(_CL48.phan_quyet(_cha48, _tot48, None, _lat48)["qua"],
           "không có bằng chứng nhiều chợ nào thì luật này im, như trước")
 
     # Đường ống: lò chưng cất phải THẬT SỰ gắn trường ấy vào phát hiện, nếu không
@@ -1590,7 +1633,10 @@ async def main() -> int:
     # thứ khá ở chợ nhà đều chết ở chợ lạ; cửa này biến ba lần ấy thành một luật.
     _tot45 = {"so": 37, "kyVongR": 0.109, "khopTroi": -0.228, "sutGiamToiDaPct": 5.23}
     _cha45 = {"so": 85, "kyVongR": -0.05, "sutGiamToiDaPct": 6.68}
-    check(_pq45(_cha45, _tot45)["qua"],
+    # `_lat45`: bằng chứng NHIỀU LÁT THỜI GIAN, hàng rào thêm ở mục [54]. Mọi
+    # phép "cửa MỞ" từ đây phải cấp nó — bỏ khoá này ra thì chúng trượt lại.
+    _lat45 = {"soLatCo": 4, "soLatDuong": 3}
+    check(_pq45(_cha45, _tot45, None, _lat45)["qua"],
           "không có bằng chứng nhiều chợ → cửa cũ vẫn cho qua (hành vi không đổi)")
     _r45 = _pq45(_cha45, _tot45, {"kyVongR": -0.165, "soCho": 7})
     check(not _r45["qua"], "gộp 7 chợ ra ÂM → CHẶN dù chợ nhà dương")
@@ -1604,9 +1650,11 @@ async def main() -> int:
     # thì chúng lại trượt.
     _lg45 = {"chayDuoc": "LONG", "chiLong": {"kyVongR": 0.15, "so": 40}}
     check(_pq45(_cha45, _tot45,
-                {"kyVongR": 0.2, "soCho": 7, "khoangTin": [0.05, 0.35], **_lg45})["qua"],
+                {"kyVongR": 0.2, "soCho": 7, "khoangTin": [0.05, 0.35], **_lg45},
+                _lat45)["qua"],
           "gộp dương và khoảng tin KHÔNG chứa 0 → cho qua (cửa ngược lại)")
-    check(_pq45(_cha45, _tot45, {"kyVongR": -0.9, "soCho": 2, **_lg45})["qua"],
+    check(_pq45(_cha45, _tot45, {"kyVongR": -0.9, "soCho": 2, **_lg45},
+                _lat45)["qua"],
           "dưới 3 chợ → KHÔNG chặn; «âm ở 2 chợ» chưa nói được gì")
 
     # Và hàm phải còn THUẦN: bằng chứng truyền VÀO, không tự đọc kho. Cửa duyệt
