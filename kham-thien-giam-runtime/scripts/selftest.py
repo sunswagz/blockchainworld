@@ -746,8 +746,24 @@ def kiem_chay_lai() -> None:
 
 
 
-def _bang_gia(n=80, thang_xen_ke=True):
-    """Dựng băng giả đủ để chạy lại — sổ hai chiều, có kết quả."""
+def _bang_gia(n=80, thang_xen_ke=True, giaiDoan="quan-sat",
+              slug=None, thieuSo=False, thangCho=False,
+              khongSigma=False, motCuaSo=False):
+    """Dựng băng giả đủ để chạy lại — sổ hai chiều, có kết quả.
+
+    MỘT fixture cho cả `chay_lai` lẫn `phat_lai`. Mọi biến thể là một
+    CỜ ở đây, không phải một bản sao mới — hai fixture cùng hình dạng
+    là hai chỗ để chúng lệch nhau, và lệch ở fixture thì phép kiểm
+    dựng trên nó chứng minh được rất ít.
+
+        giaiDoan    "dat-cuoc" để kiểm rằng loại dòng ấy bị TỪ CHỐI
+        motCuaSo    mọi khung hình dùng CHUNG một slug — băng thật ghi
+                    nhịp 2 giây nên một cửa sổ 5 phút xuất hiện ~44
+                    lần, và cỗ máy phải vào MỘT lần thôi
+        thieuSo     bỏ hẳn hai sổ
+        thangCho    sổ UP thành thang chờ trải cả dải
+        khongSigma  bỏ `sigmaGiay`
+    """
     sig = 0.55 / math.sqrt(365 * 24 * 3600)
     ra = []
     for i in range(n):
@@ -755,13 +771,20 @@ def _bang_gia(n=80, thang_xen_ke=True):
         # `quan-sat`: đây là loại dòng DUY NHẤT chấm điểm được. Dòng
         # cửa đặt cược mang `giaMo` không phải strike, và `chay_lai`
         # cố ý từ chối chúng.
-        ra.append({"thiTruong": [{
-            "ma": "BTC_5M", "giaiDoan": "quan-sat",
+        soUp = {"luc": 1, "thangCho": False, "dungDuoc": True,
+                "bid": [{"gia": 0.40, "luong": 900}],
+                "ask": [{"gia": 0.42, "luong": 900}]}
+        if thangCho:
+            soUp = {"luc": 1, "bid": [{"gia": 0.001 + q * 0.05,
+                                       "luong": 100}
+                                      for q in range(20)],
+                    "ask": [{"gia": 0.999, "luong": 100}]}
+        tt = {
+            "ma": "BTC_5M", "giaiDoan": giaiDoan,
             "giaNen": 100_000 + d * 60, "giaMo": 100_000,
-            "sigmaGiay": sig, "conLaiGiay": 120.0, "upThang": d > 0,
-            "so": {"UP": {"luc": 1, "thangCho": False, "dungDuoc": True,
-                          "bid": [{"gia": 0.40, "luong": 900}],
-                          "ask": [{"gia": 0.42, "luong": 900}]},
+            "sigmaGiay": None if khongSigma else sig,
+            "conLaiGiay": 120.0, "upThang": d > 0,
+            "so": {"UP": soUp,
                    "DOWN": {"luc": 1, "thangCho": False, "dungDuoc": True,
                             # Sổ DOWN phải là ẢNH SOI GƯƠNG của sổ UP:
                             # mua UP ≡ bán DOWN, nên UP_ask + DOWN_bid = 1.
@@ -770,7 +793,14 @@ def _bang_gia(n=80, thang_xen_ke=True):
                             # và một fixture không thể tồn tại thì phép
                             # kiểm dựng trên nó chứng minh được rất ít.
                             "bid": [{"gia": 0.58, "luong": 900}],
-                            "ask": [{"gia": 0.60, "luong": 900}]}}}]})
+                            "ask": [{"gia": 0.60, "luong": 900}]}}}
+        if thieuSo:
+            tt["so"] = {}
+        if slug is not None:
+            tt["slug"] = slug if motCuaSo else f"{slug}-{i}"
+        elif motCuaSo:
+            tt["slug"] = "btc-updown-5m-1700000000"
+        ra.append({"thiTruong": [tt]})
     return ra
 
 
@@ -1201,6 +1231,83 @@ CHUA_QUET_DOT_BIEN = {
     # CÓ nhánh quyết định, đáng quét, chưa quét
     "vong.py", "do_thi.py", "vi.py",
 }
+
+
+def kiem_bang_gia_chay_lai() -> None:
+    """Chạy lại trên BĂNG GIẢ — một cửa sổ chỉ được vào MỘT lần.
+
+    Lỗi lịch sử đắt nhất của module này: băng ghi nhịp 2 giây nên một
+    khung 5 phút xuất hiện trong ~44 khung hình, và bản đầu chấm từng
+    khung hình một — đếm cùng một cửa sổ thành 44 lệnh độc lập, ra lãi
+    2,9 TRIỆU đô trên tài khoản 1.000 đô mà không ai chớp mắt.
+
+    Sai ấy không chỉ phóng đại: nó làm lệch cả phép SO SÁNH, vì hai bộ
+    tham số vào lệnh ở những khung hình khác nhau thì bị đếm lặp khác
+    nhau. Một phép chạy lại đếm lặp thì không bác bỏ được gì.
+    """
+    print()
+    print("-- Chay lai tren BANG GIA ----------------------------------")
+    from kham.chay_lai import ThamSo as _TS
+    from kham.chay_lai import mot_luot as _ml
+
+    ts = _TS("thử", 0.0, 0.008, loCo=50.0)
+
+    # 20 khung hình của CÙNG một cửa sổ.
+    kq = _ml(_bang_gia(20, motCuaSo=True), ts)
+    kiem("đọc đủ 20 khung hình", kq.soKhung == 20, kq.soKhung)
+    kiem("nhưng CÙNG một cửa sổ chỉ vào MỘT lần mỗi bên — tối đa 2 lệnh",
+         kq.soKhop <= 2, kq.soKhop)
+    kiem("và số lần bỏ vì `đã vào rồi` được ĐẾM, không nuốt lặng",
+         any("đã vào rồi" in x for x in kq.boQua), kq.boQua)
+
+    # Mỗi khung hình một cửa sổ RIÊNG → vào nhiều lần là ĐÚNG.
+    kqR = _ml(_bang_gia(20, slug="s"), ts)
+    kiem("cửa sổ RIÊNG thì vào nhiều lần mới đúng",
+         kqR.soKhop > kq.soKhop, (kqR.soKhop, kq.soKhop))
+    kiem("mọi lệnh đều được chấm — thắng + thua = số khớp",
+         kqR.soThang + kqR.soThua == kqR.soKhop,
+         (kqR.soThang, kqR.soThua, kqR.soKhop))
+    kiem("thua lớn nhất KHÔNG dương", kqR.thuaLonNhat <= 0,
+         kqR.thuaLonNhat)
+
+    # ── dòng CỬA ĐẶT CƯỢC bị bỏ, và nói rõ vì sao ───────────────────
+    kq2 = _ml(_bang_gia(20, giaiDoan="dat-cuoc", slug="s"), ts)
+    kiem("dòng cửa ĐẶT CƯỢC bị BỎ — `giaMo` ở đó không phải strike",
+         kq2.soKhop == 0, kq2.soKhop)
+    kiem("và lý do nêu đúng tên",
+         any("đặt cược" in x for x in kq2.boQua), kq2.boQua)
+    b3 = _bang_gia(20, slug="s")
+    for k in b3:
+        k["thiTruong"][0].pop("giaiDoan")
+    kiem("thiếu trường giai đoạn → đọc là ĐẶT CƯỢC, không đoán",
+         _ml(b3, ts).soKhop == 0)
+
+    # ── thiếu nguyên liệu → bỏ, mỗi ca một lý do riêng ──────────────
+    kiem("thiếu SỔ → bỏ",
+         _ml(_bang_gia(20, slug="s", thieuSo=True), ts).soKhop == 0)
+    kqT = _ml(_bang_gia(20, slug="s", thangCho=True), ts)
+    kiem("sổ UP là THANG CHỜ → không lệnh UP nào",
+         kqT.soKhop <= kqR.soKhop, (kqT.soKhop, kqR.soKhop))
+    kq4 = _ml(_bang_gia(20, slug="s", khongSigma=True), ts)
+    kiem("thiếu σ → bỏ, và nêu `thiếu nguyên liệu`",
+         kq4.soKhop == 0 and any("nguyên liệu" in x for x in kq4.boQua),
+         kq4.boQua)
+
+    # ── ngưỡng net edge THẬT SỰ siết ───────────────────────────────
+    chat = _TS("chặt", 0.9, 0.008, loCo=50.0)
+    kiem("ngưỡng net edge rất cao → không lệnh nào qua sàng",
+         _ml(_bang_gia(20, slug="s"), chat).soQuaSang == 0)
+
+    # ── HAI LƯỢT trên CÙNG băng phải ra CÙNG kết quả ───────────────
+    #
+    # Cả cổng A/B dựng trên giả định ấy: nếu chạy lại cùng một băng với
+    # cùng tham số mà ra hai số, thì mọi so sánh A/B là so tiếng ồn.
+    m1 = _ml(_bang_gia(20, slug="s"), ts)
+    m2 = _ml(_bang_gia(20, slug="s"), ts)
+    kiem("chạy lại CÙNG băng, CÙNG tham số → CÙNG kết quả",
+         (m1.soKhop, m1.tongLaiLo, m1.thuaLonNhat)
+         == (m2.soKhop, m2.tongLaiLo, m2.thuaLonNhat),
+         ((m1.soKhop, m1.tongLaiLo), (m2.soKhop, m2.tongLaiLo)))
 
 
 def kiem_bien_cua_chay_lai() -> None:
@@ -9540,6 +9647,7 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bang_gia_chay_lai()
     kiem_bien_cua_chay_lai()
     kiem_bien_cua_ban_thu()
     kiem_bien_cua_vo_dich()
