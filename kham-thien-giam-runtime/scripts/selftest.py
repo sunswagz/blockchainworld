@@ -1172,6 +1172,191 @@ def _tao_lap_thu(lc) -> list:
                    viThe=_K().lay("BTC_5M"))) or []
 
 
+def kiem_bien_cua_cap_token() -> None:
+    """Biên của CẶP TOKEN — hai sổ có nói về CÙNG MỘT lúc không.
+
+    `nhat_quan` là cổng chặn "lợi thế MA": hai sổ chụp ở hai thời điểm
+    khác nhau thì mọi lệch giá đọc từ đó là ảo. Đo trên 1.018 dòng khung
+    ăn thua: nhóm lệch > 2c có chênh MỐC THỜI GIAN trung vị 114 giây,
+    trên một khung sống năm phút.
+
+    Ngưỡng 0,10 đứng trên đúng một chân — "10 cent lệch giữa hai sổ
+    không phải một mức giá" — nên biên của nó phải được chốt, không để
+    ai vặn tiện tay.
+    """
+    print()
+    print("-- Bien cua CAP TOKEN --------------------------------------")
+    from kham.cap_token import CapSo as _CS2
+    from kham.so_lenh import Muc as _M7
+    from kham.so_lenh import SoLenh as _S7
+
+    def _c2(upBid, upAsk, downBid, downAsk):
+        def _mk(ben, b, a):
+            return _S7(ma="X", ben=ben,
+                       bid=[_M7(b, 500.0)] if b is not None else [],
+                       ask=[_M7(a, 500.0)] if a is not None else [],
+                       nhanLucMs=0.0)
+        return _CS2(ma="X", up=_mk("UP", upBid, upAsk),
+                    down=_mk("DOWN", downBid, downAsk))
+
+    tran = float(CONFIG["capToken"]["lechSoiGuongToiDa"])
+
+    # Hai sổ soi gương HOÀN HẢO: up bid 0,40 ↔ down ask 0,60.
+    kin = _c2(0.40, 0.42, 0.58, 0.60)
+    kiem("hai sổ soi gương khớp → NHẤT QUÁN", kin.nhat_quan,
+         kin.lech_soi_guong())
+    kiem("và dùng được", kin.dung_duoc)
+    kiem("không có lý do từ chối", kin.ly_do_khong_dung() is None,
+         kin.ly_do_khong_dung())
+
+    # Chạm biên ĐÚNG tới từng bit. `0,10` không biểu diễn chính xác
+    # được trong nhị phân, nên `0,58 − 0,10` ra 0,48000000000000004 và
+    # phép so ở biên hoá ra phép so về số dấu phẩy động. Đặt tạm ngưỡng
+    # bằng 0,125 — số nhị phân CHÍNH XÁC — rồi dựng lệch đúng bằng nó.
+    _cuLech = (CONFIG.get("capToken") or {}).get("lechSoiGuongToiDa")
+    try:
+        CONFIG.setdefault("capToken", {})["lechSoiGuongToiDa"] = 0.125
+        # ảnh soi gương của UP cho ask = 1 − upBid = 0,5; down ask
+        # = 0,375 ⇒ lệch = 0,125 ĐÚNG tới từng bit.
+        lechDung = _c2(0.5, 0.75, 0.25, 0.375)
+        kiem("dựng được lệch ĐÚNG BẰNG ngưỡng tới từng bit",
+             lechDung.lech_soi_guong() == 0.125,
+             lechDung.lech_soi_guong())
+        kiem("lệch ĐÚNG BẰNG ngưỡng → vẫn NHẤT QUÁN", lechDung.nhat_quan)
+        lechQua = _c2(0.5, 0.75, 0.25, 0.25)
+        kiem("lệch quá ngưỡng → KHÔNG nhất quán", not lechQua.nhat_quan,
+             lechQua.lech_soi_guong())
+    finally:
+        if _cuLech is None:
+            (CONFIG.get("capToken") or {}).pop("lechSoiGuongToiDa", None)
+        else:
+            CONFIG["capToken"]["lechSoiGuongToiDa"] = _cuLech
+    lechQua = _c2(0.40, 0.42, 0.58 - tran * 1.5, 0.60 - tran * 1.5)
+    kiem("và KHÔNG dùng được, dù cả hai sổ đều hai chiều",
+         not lechQua.dung_duoc)
+    kiem("lý do nêu đúng tên: lệch soi gương",
+         "soi gương" in (lechQua.ly_do_khong_dung() or ""),
+         lechQua.ly_do_khong_dung())
+
+    # Không đo được lệch (thiếu một bên) → coi là nhất quán, không cấm.
+    thieu = _c2(None, None, 0.58, 0.60)
+    kiem("không đo được lệch → KHÔNG kết tội, coi là nhất quán",
+         thieu.nhat_quan, thieu.lech_soi_guong())
+
+    # ── lý do khi CẢ HAI sổ cùng hỏng một kiểu ───────────────────────
+    rong = _c2(None, None, None, None)
+    ly = rong.ly_do_khong_dung()
+    kiem("cả hai sổ cùng hỏng một kiểu → gộp thành MỘT câu",
+         ly is not None and ly.startswith("cả hai token:"), ly)
+    motBen = _c2(0.40, 0.42, None, None)
+    ly2 = motBen.ly_do_khong_dung()
+    kiem("hai sổ hỏng KHÁC kiểu → kể riêng từng bên",
+         ly2 is None or ly2.startswith("UP:"), ly2)
+
+    # ── tổng giá mua một cặp ─────────────────────────────────────────
+    # Phải rỗng CẢ HAI lối mua UP: ask của UP, và bid của DOWN (bán
+    # DOWN = mua UP sau khi soi gương). Chỉ rỗng một lối thì `gia_mua`
+    # vẫn trả ra giá, và phép kiểm hoá ra kiểm một chuyện khác.
+    kiem("thiếu HẲN một bên → tổng giá mua là None, không cộng nửa vời",
+         _c2(None, None, None, 0.60).tong_gia_mua is None,
+         _c2(None, None, None, 0.60).tong_gia_mua)
+    t = kin.tong_gia_mua
+    kiem("đủ hai bên → tổng giá mua có giá trị", t is not None and t > 0,
+         t)
+
+    # ── cờ THANG CHỜ phải bật khi BẤT KỲ bên nào là thang chờ ───────
+    thang = _CS2(ma="X",
+                 up=_S7(ma="X", ben="UP",
+                        bid=[_M7(0.001 + i * 0.05, 100.0)
+                             for i in range(20)],
+                        ask=[_M7(0.999, 100.0)], nhanLucMs=0.0),
+                 down=_S7(ma="X", ben="DOWN", bid=[_M7(0.40, 500.0)],
+                          ask=[_M7(0.42, 500.0)], nhanLucMs=0.0))
+    kiem("một bên là thang chờ → cờ `thangCho` BẬT",
+         thang.tom_tat()["thangCho"], thang.tom_tat()["thangCho"])
+    kiem("không bên nào là thang chờ → cờ TẮT",
+         not kin.tom_tat()["thangCho"])
+
+
+def kiem_bien_cua_dong_ho() -> None:
+    """Biên của GIAI ĐOẠN khung — hai lối đo, và cái KHẨN HƠN thắng.
+
+    Giai đoạn quyết chiến thuật nào được chạy: `tao-lap` chỉ chạy ở
+    `gom` và `giua`, `can-ket-qua` chỉ ở `can-ket-qua`. Sai một biên là
+    một ngón nghề câm suốt phiên mà không báo lỗi — đã xảy ra một lần
+    với `giaiDoan="dat-cuoc"`, một chuỗi không nằm trong sáu giai đoạn
+    hợp lệ.
+
+    Năm biên: hai theo GIÂY TUYỆT ĐỐI (15s, 45s), ba theo TỈ LỆ (85%,
+    60%, 25%). Ở mỗi biên, "đúng bằng" thuộc về phía NÀO là chuyện phải
+    chốt, không phải chuyện tuỳ.
+    """
+    print()
+    print("-- Bien cua GIAI DOAN khung --------------------------------")
+    from kham.dongho import CAN_KET_QUA as _CKQ
+    from kham.dongho import CUOI_KHUNG as _CK
+    from kham.dongho import DA_KHOA as _DK
+    from kham.dongho import GIUA_KHUNG as _GK
+    from kham.dongho import GOM_THANH_KHOAN as _GTK
+    from kham.dongho import MO_MAN as _MM
+    from kham.dongho import giai_doan_theo_thoi_gian as _gd
+
+    # ── hết giờ ──────────────────────────────────────────────────────
+    kiem("còn 0 giây → ĐÃ KHOÁ", _gd(0.0, 300.0) == _DK, _gd(0.0, 300.0))
+    kiem("còn âm → vẫn ĐÃ KHOÁ", _gd(-1.0, 300.0) == _DK)
+
+    # ── biên TUYỆT ĐỐI, soi trên khung DÀI để tỉ lệ không lấn ────────
+    #
+    # Khung 1 giờ: 15 giây còn lại là 0,4% — tỉ lệ nói `cuoi`, tuyệt
+    # đối nói `can-ket-qua`, và cái KHẨN HƠN phải thắng.
+    # Chọn TỔNG khung sao cho lối TỈ LỆ nói một thứ KHÁC, không thì
+    # hai lối trùng nhau và phép kiểm không chạm được lối tuyệt đối.
+    # Khung 60 giây: 15 giây còn lại là 25% → tỉ lệ nói `giua`.
+    kiem("còn ĐÚNG 15 giây → CẬN KẾT QUẢ (lối tuyệt đối thắng `giua`)",
+         _gd(15.0, 60.0) == _CKQ, _gd(15.0, 60.0))
+    kiem("còn 15,001 giây → CHƯA cận kết quả",
+         _gd(15.001, 60.0) != _CKQ, _gd(15.001, 60.0))
+    # Khung 180 giây: 45 giây còn lại là 25% → tỉ lệ nói `giua`.
+    kiem("còn ĐÚNG 45 giây → CUỐI KHUNG (lối tuyệt đối thắng `giua`)",
+         _gd(45.0, 180.0) == _CK, _gd(45.0, 180.0))
+    kiem("còn 45,001 giây → lối tuyệt đối lùi về `mo-man`, tỉ lệ thắng",
+         _gd(45.001, 180.0) == _GK, _gd(45.001, 180.0))
+
+    # ── biên TỈ LỆ, soi trên khung 5 phút ────────────────────────────
+    nam = 300.0
+    kiem("còn ĐÚNG 85% → MỞ MÀN", _gd(nam * 0.85, nam) == _MM,
+         _gd(nam * 0.85, nam))
+    kiem("còn 84,9% → GOM THANH KHOẢN",
+         _gd(nam * 0.849, nam) == _GTK, _gd(nam * 0.849, nam))
+    kiem("còn ĐÚNG 60% → vẫn GOM", _gd(nam * 0.60, nam) == _GTK,
+         _gd(nam * 0.60, nam))
+    kiem("còn 59,9% → GIỮA KHUNG", _gd(nam * 0.599, nam) == _GK,
+         _gd(nam * 0.599, nam))
+    kiem("còn ĐÚNG 25% → vẫn GIỮA KHUNG", _gd(nam * 0.25, nam) == _GK,
+         _gd(nam * 0.25, nam))
+    kiem("còn 24,9% → CUỐI KHUNG", _gd(nam * 0.249, nam) == _CK,
+         _gd(nam * 0.249, nam))
+
+    # ── cái KHẨN HƠN thắng, không phải cái nào cũng được ─────────────
+    #
+    # Khung 15 phút còn 60 giây: tỉ lệ nói 6,7% → `cuoi`; tuyệt đối
+    # cũng nói `cuoi`. Nhưng khung 15 phút còn 30 giây: tỉ lệ vẫn
+    # `cuoi`, tuyệt đối nói `cuoi` — phải xuống 15 giây mới `can`.
+    muoiLam = 900.0
+    kiem("khung 15 phút còn 60 giây → CUỐI KHUNG",
+         _gd(60.0, muoiLam) == _CK, _gd(60.0, muoiLam))
+    kiem("khung 15 phút còn 10 giây → CẬN KẾT QUẢ, do lối TUYỆT ĐỐI",
+         _gd(10.0, muoiLam) == _CKQ, _gd(10.0, muoiLam))
+    # Khung RẤT NGẮN: 20 giây tổng, còn 18 giây = 90% → tỉ lệ nói
+    # `mo-man`, tuyệt đối nói `mo-man`. Còn 14 giây = 70% → tỉ lệ nói
+    # `gom`, tuyệt đối nói `can-ket-qua`. Khẩn hơn phải thắng.
+    ngan = 20.0
+    kiem("khung 20 giây còn 14 giây → CẬN KẾT QUẢ, không phải GOM",
+         _gd(14.0, ngan) == _CKQ, _gd(14.0, ngan))
+    kiem("tổng khung 0 → không chia cho 0", _gd(10.0, 0.0) in
+         (_MM, _GTK, _GK, _CK, _CKQ, _DK), _gd(10.0, 0.0))
+
+
 def kiem_bien_cua_chan_rui_ro() -> None:
     """Biên của LỜI KHUYÊN CHÂN LỆCH — 12 trên 12 con sống sót lượt đầu.
 
@@ -7794,6 +7979,8 @@ def main() -> int:
     kiem_cham_moc()
     kiem_nhom_tai_san()
     kiem_do_tre()
+    kiem_bien_cua_cap_token()
+    kiem_bien_cua_dong_ho()
     kiem_bien_cua_chan_rui_ro()
     kiem_bien_cua_dat_lenh()
     kiem_bien_cua_nan_lai()
