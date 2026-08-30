@@ -114,6 +114,27 @@ PHUT = {"1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60, "2h": 120,
 # (`dau-nhieu-cho.json` → trường `quang`).
 #
 # Giá: 15 coin × 9000 nến 4h ≈ 20 MB. Đã đo, chấp nhận được.
+#
+# VIỆC ĐÁNG LÀM TIẾP, và vì sao nó CHƯA làm (30/08/2026)
+#
+# Đo được hôm nay: đổi CHỢ thì kết quả giữ nguyên, đổi CỬA SỔ THỜI GIAN thì nó
+# đổi DẤU (MOCK_KEO_LUI_V1 +0,205R → −0,254R trên đúng 33 chợ ấy). Nghĩa là 48
+# chợ không phải 48 quan sát độc lập — chúng chia chung một quãng thị trường.
+#
+# Suy ra: khoản đầu tư DỮ LIỆU đáng giá nhất không phải thêm coin, mà là thêm
+# THỜI GIAN. `1d` đang lấy 1500 nến (từ 2022-07); trần đã là 2500, tức thêm
+# được ~2,7 năm nữa, phủ cả đoạn gấu 2019–2022 mà hệ này chưa từng nhìn thấy.
+#
+# Chưa làm vì nó kéo theo hai thứ, và cả hai phải nhúc nhích CÙNG LÚC:
+#
+#   1. Bất biến ở trên: "hai khung ĐANG ĐƯỢC ĐEM SO phải cùng quãng". 1d lên
+#      2500 ngày thì 4h phải lên 15000 nến, tức vượt TRẦN 12000 hiện tại.
+#   2. Nâng 4h lên 15000 nến làm việc «đấu nhiều chợ 4h» đắt thêm ~65%, mà nó
+#      ĐANG quá hạn 9000s với cache lạnh (đo được: 4 chuỗi trong 53 phút).
+#
+# Thứ tự đúng khi làm: chờ cache chuỗi 4h ấm (một lượt nghi thức chạy trọn), đo
+# lại thời gian thật của việc ấy, RỒI mới nâng cả hai trần. Nâng 1d một mình là
+# phá đúng cái bất biến mà đoạn chú thích này được viết ra để giữ.
 SAN = {"5m": 12000, "15m": 8000, "30m": 6000, "1h": 2000, "4h": 9000, "1d": 1500}
 TRAN = {"5m": 12000, "15m": 8000, "30m": 6000, "1h": 8000, "4h": 12000, "1d": 2500}
 
