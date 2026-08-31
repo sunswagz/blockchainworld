@@ -231,6 +231,23 @@ code,.mono{font-family:var(--mono)}
 .dk-so{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:var(--co4)}
 .dk-so span{color:var(--fg-3)}
 .dk-so b{color:var(--fg);font-weight:600}
+/* Ô đếm mang thêm CHẤM MÀU khi nó đếm một mức sức khoẻ. Chấm lấy
+   đúng màu vạch cạnh thẻ node bên dưới, nên dải đếm hoá thành khoá
+   đọc của lưới — xem khối "Bảng vận hành". Chỉ ô có data-sk mới
+   được chấm; dải đếm của Sàn máy không khai thuộc tính đó nên
+   không đổi gì.
+
+   Chấm là thứ THÊM VÀO, không phải thứ mang nghĩa một mình: tên
+   mức viết ngay cạnh nó ("khoẻ 25"), nên người mù màu đọc được
+   trọn vẹn mà không cần phân biệt lục với vàng. Cùng luật với
+   vạch cạnh thẻ node.
+
+   6px · 8px · nowrap đều là giá trị ĐÃ CÓ trong cung — thêm một
+   con số mới ở đây là thêm một nấc vào thang khoảng cách đang
+   được canh. */
+.dk-so span[data-sk]{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.dk-so span[data-sk]::before{content:"";width:8px;height:8px;border-radius:50%;
+  background:var(--sk);flex:0 0 auto}
 
 .san{padding:16px 18px;overflow-x:auto}
 .day{display:flex;align-items:stretch;gap:0;min-width:940px}
@@ -493,11 +510,17 @@ a.sd-o:hover{border-color:var(--am);background:var(--card-2);transform:translate
 .vh-o::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sk)}
 .vh-o:hover{transform:translateY(-2px);background:var(--card-2);
   border-color:var(--sk);text-decoration:none}
-.vh-o[data-sk="khoe"]{--sk:var(--luc)}
-.vh-o[data-sk="om"]{--sk:var(--vang)}
-.vh-o[data-sk="nang"]{--sk:var(--do);border-color:var(--do)}
-.vh-o[data-sk="chua"]{--sk:var(--fg-3)}
-.vh-o[data-sk="thuong"]{--sk:var(--lam)}
+/* Năm mức → năm màu, khai ĐÚNG MỘT LẦN cho cả hai chỗ đọc nó: vạch
+   cạnh thẻ node, và chấm trên dải đếm ngay phía trên lưới. Chép
+   bảng này thành hai bản là mở cửa cho đúng loại lệch tệ nhất —
+   khoá đọc chỉ sang một màu khác thứ nó đang giải thích, và không
+   phép kiểm nào bắt được vì cả hai bên đều là CSS hợp lệ. */
+.vh-o[data-sk="khoe"],.dk-so span[data-sk="khoe"]{--sk:var(--luc)}
+.vh-o[data-sk="om"],.dk-so span[data-sk="om"]{--sk:var(--vang)}
+.vh-o[data-sk="nang"],.dk-so span[data-sk="nang"]{--sk:var(--do)}
+.vh-o[data-sk="chua"],.dk-so span[data-sk="chua"]{--sk:var(--fg-3)}
+.vh-o[data-sk="thuong"],.dk-so span[data-sk="thuong"]{--sk:var(--lam)}
+.vh-o[data-sk="nang"]{border-color:var(--do)}
 .vh-den{position:absolute;top:13px;right:14px;width:8px;height:8px;border-radius:50%;
   background:var(--sk)}
 .vh-o[data-sk="nang"] .vh-den{animation:nhay 1s infinite}

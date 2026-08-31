@@ -218,6 +218,26 @@ code,.mono,.ma{font-family:var(--mono)}
 .khoi-y b{color:var(--fg)}
 .khoi-than{padding:var(--k-14) var(--k-16)}
 
+/* ĐỀ TỪ CỦA PHÒNG — luận đầy đủ ở vePhong trong app.js.
+
+   Bậc thứ hai giữa <h1> (22px, đậm 700) và thân bài (15px): 17px,
+   KHÔNG đậm. Đủ khác h1 để không tranh chỗ với tên phòng, đủ khác
+   thân bài để đọc ra là một dòng đề chứ không phải câu đầu của bài.
+
+   Chữ THƯỜNG chứ không phải chữ máy — luật 2. Đây là lời người viết
+   nói phòng này để làm gì, không phải một số đo; dán chữ máy lên nó
+   là mượn dáng của số đo cho một câu luận.
+
+   Không màu mới: --fg-2 trên --bg là cặp đã dùng khắp cung, và nó
+   sáng hơn --fg-3 (6.47 trên nền ấy) nên dư sàn 4.5.
+
+   66ch là bề rộng ĐỌC, không phải bề rộng khối: một dòng đề chạy hết
+   1.100px màn hình rộng thì mắt mất chỗ xuống dòng. Các khối số bên
+   dưới vẫn full width — chúng là bảng, không phải văn. */
+.detu{margin:0 0 var(--k-13);max-width:66ch;
+  font-size:var(--t-8);font-weight:400;line-height:1.5;letter-spacing:-.01em;
+  color:var(--fg-2)}
+
 .giaithich{padding:var(--k-13) var(--k-16);border:1px solid var(--line);border-radius:var(--r);
   background:var(--card);font-size:var(--t-4);color:var(--fg-2);line-height:1.72;margin:0 0 var(--k-14);
   box-shadow:var(--bong)}

@@ -151,5 +151,14 @@
     "source_type": "repo",
     "source_ref": "thi-bac-ty-runtime/bac/suc_chua.py · thi-bac-ty phòng trung-uong",
     "confidence": "high"
+  },
+  {
+    "from": "rollup_settlement",
+    "relation": "challenges",
+    "to": "trusted_third_party",
+    "reason_vi": "Sách 2018 coi bên thứ ba đáng tin là ĐÚNG thứ chuỗi khối xoá đi: không còn ai đứng giữa ghi sổ thì cũng không còn ai phải tin. Từ đó tới nay thực thi phần lớn dời sang rollup, và bảng rủi ro mà Đô Sát Viên chép về cho thấy bên phải tin không biến mất — nó đổi hình thành quyền NÂNG CẤP HỢP ĐỒNG. Ô «cửa thoát» của Base ghi `None` và xếp hạng xấu, kèm nguyên văn lý do: hợp đồng nâng cấp được tức thì nên người dùng không có cửa sổ nào để rút ra trước một lần nâng cấp mình không muốn, và mỗi lần nâng cấp chỉ cần hai bên ký — Base Coordinator Multisig và Base Security Council. Đây là challenges chứ không phải carries: sách không dừng ở chỗ nói bên thứ ba là một rủi ro, sách nói công nghệ đã GIẢI QUYẾT nó; ô ấy nói ở lớp hai thì chưa. Phần tiến bộ thật của 2026 hẹp hơn lời sách nhiều: lòng tin ấy nay ĐO ĐƯỢC thành một ô có xếp hạng trong bảng, thay vì nằm trong điều khoản dịch vụ không ai đọc.",
+    "source_type": "repo",
+    "source_ref": "do-sat-vien/assets/js/v/rui-ro.js (cột cuaThoat, mục base) · do-sat-vien phòng rui-ro",
+    "confidence": "high"
   }
 ]

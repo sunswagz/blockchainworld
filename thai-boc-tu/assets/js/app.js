@@ -1034,7 +1034,12 @@
     var doDuoc = s.thuoc !== "khong-do-duoc" && s.tvl != null;
 
     var h = "";
-    h += '<p style="margin:0 0 14px;color:var(--fg-2);font-size:13px">' + esc(c.lat) + "</p>";
+    /* Khuôn chữ của ngăn nằm HẾT trong app.css (`.hs-muc`, `.hs-lat`,
+       `.hs-van`, `.hs-phu`, `.hs-ghi`) — xem chú thích "THỨ BẬC TRONG
+       NGĂN HỒ SƠ" ở đó. Đừng gõ `style="font-size:…"` lại vào đây: cỡ
+       chữ nằm trong chuỗi HTML thì thang chín bậc không với tới, và
+       thước `thang-chu` cũng không — nó đọc CSS. */
+    h += '<p class="hs-lat">' + esc(c.lat) + "</p>";
 
     h += '<dl class="hs-d">' +
       dong("Thước đo", esc(TEN_THUOC[s.thuoc])) +
@@ -1045,31 +1050,31 @@
             esc(s.tapTrungTen || "cái lớn nhất") + " — tính trên cùng thước với con số trên")
         : "") +
       dong("Hạng trụ lại", '<span class="mono">' + c.songSot + "/18</span> " +
-        '<span class="luan" style="margin-left:2px">LUẬN</span>') +
+        '<span class="luan">LUẬN</span>') +
       "</dl>";
 
-    h += '<h3 style="font-size:13px;margin:16px 0 6px">Trách nhiệm</h3>' +
-      '<p style="margin:0;font-size:12.5px;line-height:1.65">' + esc(c.lam) + "</p>";
+    h += '<h3 class="hs-muc">Trách nhiệm</h3>' +
+      '<p class="hs-van">' + esc(c.lam) + "</p>";
 
-    h += '<dl class="hs-d" style="margin-top:12px">' +
+    h += '<dl class="hs-d">' +
       dong("Cần gì để sống", esc(c.vao)) +
       dong("Cung cấp gì", esc(c.ra)) +
       dong("Dựa vào", esc(c.dua.join(" · "))) +
       dong("Ai gãy theo", esc(c.nuoi.join(" · "))) +
       "</dl>";
 
-    h += '<h3 style="font-size:13px;margin:16px 0 6px">Vì sao xếp ở hạng này</h3>' +
-      '<p style="margin:0;font-size:12.5px;line-height:1.65;color:var(--fg-2)">' + esc(c.y) + "</p>";
+    h += '<h3 class="hs-muc">Vì sao xếp ở hạng này</h3>' +
+      '<p class="hs-phu">' + esc(c.y) + "</p>";
 
     /* Lớp tri thức nền: khuôn HTML sinh ra từ knowledge-os/sinh.mjs, một
        nguồn cho mọi cung. Toa chưa ánh xạ thì trả "" chứ không vẽ khung rỗng. */
     h += (TT && TT.ve ? TT.ve(ma) : "");
 
-    h += '<h3 style="font-size:13px;margin:16px 0 6px">Vài cái tên tiêu biểu</h3>' +
+    h += '<h3 class="hs-muc">Vài cái tên tiêu biểu</h3>' +
       '<div class="hs-ng">' + c.nguoi.map(function (n) {
         return "<span>" + esc(n) + "</span>";
       }).join("") + "</div>" +
-      '<p style="margin:6px 0 0;font-size:11.5px;color:var(--fg-3);line-height:1.55">' +
+      '<p class="hs-ghi">' +
       "Danh sách gợi ý, không phải danh sách đầy đủ và không phải khuyến nghị. " +
       "Một tài sản có thể mang trách nhiệm ở nhiều toa cùng lúc.</p>";
 
@@ -1079,7 +1084,7 @@
     if (s.top && s.top.length) {
       var nhan = s.topNhan || "Giao thức";
       var coChuoi = nhan === "Giao thức";
-      h += '<h3 style="font-size:13px;margin:16px 0 6px">Lớn nhất trong toa</h3>' +
+      h += '<h3 class="hs-muc">Lớn nhất trong toa</h3>' +
         bang(coChuoi ? [{ t: nhan }, { t: "TVL" }, { t: "Chuỗi" }]
                      : [{ t: nhan }, { t: "Giá trị" }],
           s.top.map(function (p) {
@@ -1090,18 +1095,18 @@
     }
 
     if (s.catGoc && s.catGoc.length) {
-      h += '<h3 style="font-size:13px;margin:16px 0 6px">Cộng từ những nhóm nguồn nào</h3>' +
+      h += '<h3 class="hs-muc">Cộng từ những nhóm nguồn nào</h3>' +
         '<div class="hs-ng">' + s.catGoc.map(function (x) {
           return "<span>" + esc(x) + "</span>";
         }).join("") + "</div>" +
-        '<p style="margin:6px 0 0;font-size:11.5px;color:var(--fg-3);line-height:1.55">' +
+        '<p class="hs-ghi">' +
         "Đây là cách truy ngược con số ở trên. Không đồng ý với cách xếp thì vẫn " +
         "thấy được thành phần mà tự xếp lại.</p>";
     }
 
     var cua = (c.cung || []).filter(function (k) { return S.CUNG[k]; });
     if (cua.length) {
-      h += '<h3 style="font-size:13px;margin:16px 0 6px">Đọc tiếp ở cung khác</h3>' +
+      h += '<h3 class="hs-muc">Đọc tiếp ở cung khác</h3>' +
         '<div class="cua-l">' + cua.map(function (k) {
           return '<a class="cua" href="' + esc(S.CUNG[k].duong) + '">' +
             '<div class="cua-t">' + esc(S.CUNG[k].ten) + IC_DI + "</div></a>";
@@ -1123,13 +1128,13 @@
         o.soRieng + " giao thức") +
       dong("Còn nguồn khác", '<span class="mono">' + tien(lui) + "</span>") +
       "</dl>" +
-      '<p style="margin:0 0 14px;font-size:12.5px;line-height:1.65;color:var(--fg-2)">' +
+      '<p class="hs-phu">' +
       "“Không có đường lui” nghĩa là giao thức đó khai đúng một nguồn giá và không " +
       "khai nguồn nào khác. Không phải mọi giao thức đều khai đầy đủ, nên con số " +
       "này là <b>sàn dưới</b> chứ không phải con số chính xác — thực tế có thể cao hơn.</p>";
 
     if (o.top && o.top.length) {
-      h += '<h3 style="font-size:13px;margin:0 0 6px">Giao thức lớn nhất đang dựa vào</h3>' +
+      h += '<h3 class="hs-muc">Giao thức lớn nhất đang dựa vào</h3>' +
         bang([{ t: "Giao thức" }, { t: "TVL" }, { t: "Đường lui" }],
           o.top.map(function (p) {
             return "<tr><td>" + esc(p.ten) + '</td><td class="mono">' + tien(p.tvl) +

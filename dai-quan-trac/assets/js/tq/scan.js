@@ -1,182 +1,137 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-08-30T23:37:42.401Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-08-31T14:17:16.988Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-08-30T23:37:42.401Z",
-  "date": "30/08/2026",
+  "generatedAt": "2026-08-31T14:17:16.988Z",
+  "date": "31/08/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "nangluong",
-      "tieu_de": "Nhập khẩu dầu TQ 49.49 triệu tấn tháng 8, tăng 4.9% so với tháng 7",
+      "tieu_de": "Nhập khẩu dầu Iran của Trung Quốc giảm gần một nửa kể từ chiến sự Hormuz, chỉ ~530k bbl/d tháng 7-8",
       "ngay": "2026-08-31",
-      "nguon": "U.S. Energy Information Administration",
-      "tac_dong": "Gián đoạn Hormuz chưa gây thiệt hại năng lượng lớn do đa dạng hoá nguồn cung, ổn định công suất sản xuất",
-      "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "nguon": "The National (citing Kpler data)",
+      "tac_dong": "Giảm cung dầu từ Iran => giảm thu ngân sách nếu Trung Quốc phải thanh toán giá cao, rủi ro chi phí năng lượng tăng",
+      "muc": "r",
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "nangluong",
-      "tieu_de": "Nga cung cấp 50% dầu nhập khẩu TQ, Ấn độ 37%, Thổ Nhĩ Kỳ 5%, EU 5%",
-      "ngay": "2026-08-15",
-      "nguon": "Centre for Research on Energy and Clean Air",
-      "tac_dong": "Đa dạng hoá nguồn cung giảm rủi ro phụ thuộc một nước, ổn định thu ngân sách từ dầu",
-      "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "tieu_de": "Nhập khẩu dầu Trung Quốc Q2 giảm 32% QoQ xuống 8.1 mbd do giá cao từ Hormuz disruption",
+      "ngay": "2026-06-30",
+      "nguon": "US Energy Information Administration (EIA)",
+      "tac_dong": "Chi phí nhập khẩu tăng dù volume giảm, giảm thu ngân sách nếu chi phí năng lượng không được chuyển sang giá sản phẩm",
+      "muc": "r",
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "nangluong",
-      "tieu_de": "Sản xuất lọc dầu TQ tăng 2.8% lên 40.37 triệu tấn tháng 8",
+      "tieu_de": "Trung Quốc có 1.39B barrels stored (120 days at 2025 import rate), nhưng Russian seaborne crude tăng từ 1.2 mbd (2025) lên ~1.8 mbd",
+      "ngay": "2026-03-02",
+      "nguon": "Vortexa",
+      "tac_dong": "Dự trữ dầu lớn giảm áp lực ngắn hạn nhưng chi phí vận chuyển từ Siberia cao, phục thuộc Nga kéo dài",
+      "muc": "r",
+      "at": "2026-08-31T14:17:16.988Z"
+    },
+    {
+      "th": "congnghe",
+      "tieu_de": "USTR cấm bán EUV photolithography tools và advanced DUV tools cho Trung Quốc, cản việc sản xuất chip tiên tiến",
       "ngay": "2026-08-31",
-      "nguon": "U.S. Energy Information Administration",
-      "tac_dong": "Công suất lọc dầu ổn định hỗ trợ sản xuất công nghiệp, ổn định job, thu ngân sách",
-      "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "nguon": "CNAS (Center for a New American Security)",
+      "tac_dong": "Không thể sản xuất 3nm chip, giảm khả năng phát triển AI chip tự lực, ảnh hưởng thu từ chip export cao cấp",
+      "muc": "y",
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "MATCH Act Mỹ đề xuất cắt off loophole DUV lithography của Trung Quốc",
-      "ngay": "2026-08-15",
-      "nguon": "TechWireAsia",
-      "tac_dong": "Export control nặng ảnh hưởng tới năng lực tự chủ bán dẫn, giảm thu ngân sách công nghệ cao",
-      "muc": "r",
-      "at": "2026-08-30T23:37:42.401Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "TQ đã làm chủ multipatterning trên thiết bị DUV, tạo chip nhỏ hơn giảm phụ thuộc EUV",
-      "ngay": "2026-08-10",
-      "nguon": "CSIS",
-      "tac_dong": "Tiến bộ công nghệ giảm hiệu quả export control, nhưng vẫn tốn chi phí R&D cao",
-      "muc": "r",
-      "at": "2026-08-30T23:37:42.401Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "TQ lên kế hoạch 80% tự cấp bán dẫn 2030, dựng dây chuyền 7nm bằng thiết bị nội địa",
-      "ngay": "2026-08-01",
-      "nguon": "CNAS",
-      "tac_dong": "Chiến lược dài hạn làm giảm phụ thuộc nước ngoài, nhưng cần đầu tư lớn R&D mất lợi nhuận",
-      "muc": "r",
-      "at": "2026-08-30T23:37:42.401Z"
+      "tieu_de": "Năm 2025 USTR cho phép bán EDA software (Synopsys, Cadence), nhưng photolithography vẫn là chokepoint không giải quyết được",
+      "ngay": "2026-07-01",
+      "nguon": "The Substrate",
+      "tac_dong": "Thiếu photolithography khiến EDA software mất hiệu lực, Trung Quốc không thể thiết kế chip tiên tiến",
+      "muc": "y",
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "USTR tăng thuế lên 12.5% lên tất cả hàng TQ từ ngày 23 tháng 7 năm 2026",
-      "ngay": "2026-07-23",
-      "nguon": "United States Trade Representative",
-      "tac_dong": "Thuế cao giảm cạnh tranh xuất khẩu, cắt giảm lợi nhuận công ty TQ bán vào Mỹ",
-      "muc": "r",
-      "at": "2026-08-30T23:37:42.401Z"
+      "tieu_de": "USTR áp dụng tariff 12.5% trên tất cả hàng Trung Quốc từ 7/24/2026 do 'failure to prohibit forced labor imports'",
+      "ngay": "2026-07-24",
+      "nguon": "USTR (US Trade Representative)",
+      "tac_dong": "Tariff cao làm hàng Trung Quốc bị cạnh tranh trên thị trường Mỹ, giảm doanh thu xuất khẩu => giảm thu ngân sách trung ương",
+      "muc": "y",
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "TQ tightening export controls trên drone và công nghệ liên quan từ 5 tháng 8 năm 2026",
+      "tieu_de": "Trung Quốc công bố countermeasures 8/5/2026 bao gồm export controls drones, sanctions Mỹ companies",
       "ngay": "2026-08-05",
-      "nguon": "United States Trade Representative",
-      "tac_dong": "Biện pháp trả đũa cắt giảm xuất khẩu, giảm lợi nhuận công ty TQ bán vào Mỹ",
-      "muc": "r",
-      "at": "2026-08-30T23:37:42.401Z"
-    },
-    {
-      "th": "thuongmai",
-      "tieu_de": "Một số danh mục hàng hoá bị tích tụ thuế lên trên 75%",
-      "ngay": "2026-08-15",
-      "nguon": "China-Briefing",
-      "tac_dong": "Thuế cao giảm cạnh tranh xuất khẩu hàng nhạy cảm, mất doanh số công ty TQ",
-      "muc": "r",
-      "at": "2026-08-30T23:37:42.401Z"
+      "nguon": "USTR Trade Restrictions Report",
+      "tac_dong": "Chiến tranh thương mại escalating, rủi ro tariff cao hơn nữa, giảm thêm doanh số xuất khẩu của Trung Quốc",
+      "muc": "y",
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "75% dầu nhập khẩu đường biển TQ qua Malacca Strait",
-      "ngay": "2026-08-15",
+      "tieu_de": "Malacca Strait chuyên chở ~24M bbl/day, 80% nhập khẩu dầu Trung Quốc đi qua đây, là 'Malacca dilemma' của Bắc Kinh",
+      "ngay": "2026-07-15",
       "nguon": "The Diplomat",
-      "tac_dong": "Chokepoint chiến lược làm TQ dễ tổn thương với sốc địa chính trị, mất bảo đảm năng lượng",
+      "tac_dong": "Malacca là dependency chiến lược, disruption ở Hormuz tạo spillover lên Malacca (longer routes, higher costs), chi phí vận chuyển tăng",
       "muc": "y",
-      "at": "2026-08-30T23:37:42.401Z"
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "Malacca Strait là tuyến vận tải bận nhất thế giới, $2.4 tỷ hàng/năm, chỗ hẹp 2.7km",
-      "ngay": "2026-08-20",
-      "nguon": "Global Security",
-      "tac_dong": "Chokepoint hẹp có rủi ro va chạm, chìm tàu, dầu loang ảnh hưởng sự cấp năng lượng",
+      "tieu_de": "Spillover từ Hormuz làm thời gian transit tăng, bảo hiểm premium tăng, logistics volatility cao ở Malacca-Panama",
+      "ngay": "2026-04-30",
+      "nguon": "S&P Global Market Intelligence",
+      "tac_dong": "Chi phí vận chuyển và bảo hiểm tăng làm hàng Trung Quốc nhập khẩu đắt hơn, ảnh hưởng chi phí sản xuất",
       "muc": "y",
-      "at": "2026-08-30T23:37:42.401Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "Malacca Strait nằm dưới quyền kiểm soát nước ngoài, Malaysia, Singapor, Indonesia",
-      "ngay": "2026-08-10",
-      "nguon": "CSIS",
-      "tac_dong": "Phụ thuộc nước thứ ba làm TQ dễ bị áp lực địa chính trị, mất khả năng bảo đảm năng lượng",
-      "muc": "y",
-      "at": "2026-08-30T23:37:42.401Z"
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "nga",
-      "tieu_de": "TQ mua 50% xuất khẩu dầu Nga, Ấn độ 37%, Thổ Nhĩ Kỳ 5%, EU 5%",
+      "tieu_de": "Trung Quốc mua 2.1 mbd dầu Nga tháng 8/2026 (tăng 28% YoY), energy trade $85B Q1, crude annual 30M tonnes",
       "ngay": "2026-08-31",
-      "nguon": "Centre for Research on Energy and Clean Air",
-      "tac_dong": "Hợp tác năng lượng RU-TQ ổn định bảo đảm năng lượng dù Mỹ tăng thuế TQ",
+      "nguon": "Global Times",
+      "tac_dong": "Năng lượng Nga ổn định cấp, giảm phụ thuộc Hormuz, nhưng phụ thuộc Nga tăng => rủi ro nếu Nga bị trừng phạt thêm",
       "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "nga",
-      "tieu_de": "ESPO pipeline và đường Kazakhstan cung cấp dầu Nga bình thường qua 8 tháng",
-      "ngay": "2026-08-15",
-      "nguon": "Columbia University CGEP",
-      "tac_dong": "Đường cung ứng mặt đất bỏ qua Malacca, ổn định bảo đảm năng lượng TQ",
+      "tieu_de": "Power of Siberia 1&2 pipelines near full capacity, final contracts 3/2026 for PS3 delivering 50 Bcm/year starting 2028",
+      "ngay": "2026-03-15",
+      "nguon": "ECNS (China news)",
+      "tac_dong": "Cơ sở hạ tầng năng lượng Nga-Trung ổn định, nhưng không thể scaled up nhanh nếu phát sinh sự cố, chi phí vẫn cao",
       "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Giao dịch năng lượng RU-TQ tăng 100% cho than, LNG tăng 100% từ 2022 sau xâm lược Ukraina",
-      "ngay": "2026-08-01",
-      "nguon": "Centre for Research on Energy and Clean Air",
-      "tac_dong": "Hợp tác chiến lược RU-TQ mở rộng giảm ảnh hưởng của Mỹ-EU lên TQ",
-      "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "Ngoại hối dự trữ TQ tăng lên $3.428 tỷ tháng 2 năm 2026, cao nhất kể từ tháng 11 năm 2015",
-      "ngay": "2026-02-28",
-      "nguon": "State Administration of Foreign Exchange",
-      "tac_dong": "Dự trữ cao ổn định tỷ giá, ổn định khả năng trả nợ nước ngoài, tăng uy tín tài chính",
+      "tieu_de": "Trung Quốc forex reserves $3.399T tháng 1/2026, tăng 6 tháng liên tiếp, lớn nhất thế giới",
+      "ngay": "2026-01-31",
+      "nguon": "Federal Reserve",
+      "tac_dong": "Forex reserves cao giúp ổn định tỉ giá RMB, ngăn chặn speculative attacks, nhưng chưa tạo đủ sức nặng để thay thế USD",
       "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "at": "2026-08-31T14:17:16.988Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "RMB settlement đạt 40% thương mại ngoại hối TQ quý 4 năm 2024, tăng từ 2020",
-      "ngay": "2026-08-15",
-      "nguon": "BBVA Research",
-      "tac_dong": "De-dollarization giảm phụ thuộc Mỹ, tăng tự chủ tài chính giảm rủi ro sơ cấp ngoại hối",
+      "tieu_de": "CIPS (Cross-Border Interbank Payment System) mở rộng nhanh, mBridge project $55B transactions sau 5 năm, HK gold clearing hub launch 7/2026",
+      "ngay": "2026-07-31",
+      "nguon": "Global Times",
+      "tac_dong": "CIPS tăng độc lập tài chính, nhưng vẫn nhỏ so với SWIFT (trillions USD/day), tiến độ RMB internationalization chậm",
       "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
-    },
-    {
-      "th": "taichinh",
-      "tieu_de": "CIPS dự tính giao dịch $330 tỷ cuối năm 2026, tăng 40% năm trên năm",
-      "ngay": "2026-08-31",
-      "nguon": "China Investors Club",
-      "tac_dong": "Thay thế SWIFT mở rộng khả năng tài chính độc lập, giảm phụ thuộc Mỹ",
-      "muc": "g",
-      "at": "2026-08-30T23:37:42.401Z"
+      "at": "2026-08-31T14:17:16.988Z"
     }
   ],
   "levels": {
-    "nangluong": "g",
-    "congnghe": "r",
-    "thuongmai": "r",
+    "nangluong": "r",
+    "congnghe": "y",
+    "thuongmai": "y",
     "hanghai": "y",
     "nga": "g",
     "taichinh": "g"
@@ -185,38 +140,38 @@ window.DQT_TQ_SCAN = {
     {
       "ok": true,
       "t": "Năng lượng",
-      "at": "2026-08-30T23:37:42.401Z",
-      "d": "3 tín hiệu · mức g · Nhập khẩu dầu TQ tăng 4.9% tháng 8 bất chấp căng thẳng Hormuz, nguồn cung đa dạng từ Nga và các nước khác ổn định"
+      "at": "2026-08-31T14:17:16.988Z",
+      "d": "3 tín hiệu · mức r · Hormuz đóng cửa: nhập khẩu dầu Iran của Trung Quốc giảm gần 50%, nhập khẩu Q2 giảm 32%; dự trữ dầu 120 ngày nhưng chi phí vận chuyển tăng, sự không chắc chắn về cơ sở hạ tầng"
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-08-30T23:37:42.401Z",
-      "d": "3 tín hiệu · mức r · Mỹ thắt chặt export control bán dẫn qua MATCH Act, TQ đối phó qua multipatterning DUV, kỳ vọng 80% tự cấp 2030"
+      "at": "2026-08-31T14:17:16.988Z",
+      "d": "2 tín hiệu · mức y · USTR cấm bán EUV/DUV lithography tools và EDA software cho Trung Quốc; Trung Quốc tự tăng sản xuất chip mature nodes nhưng vẫn gap công nghệ tiên tiến, giảm khả năng phát triển AI/công nghệ cao"
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-08-30T23:37:42.401Z",
-      "d": "3 tín hiệu · mức r · Mỹ tăng thuế tổng quát 12.5% từ 23 tháng 7, TQ phản ứng export control drone, hạn chế thị trường công ty Mỹ"
+      "at": "2026-08-31T14:17:16.988Z",
+      "d": "2 tín hiệu · mức y · USTR áp tariff 12.5% trên toàn bộ hàng Trung Quốc 7/24/2026 do forced labor, Trung Quốc công bố countermeasures 8/5; escalation tác động xuất khẩu và thu ngân sách"
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-08-30T23:37:42.401Z",
-      "d": "3 tín hiệu · mức y · Malacca là đường sống TQ với 75% dầu nhập khẩu, chỗ hẹp nhất 2.7km, phụ thuộc nước thứ ba kiểm soát"
+      "at": "2026-08-31T14:17:16.988Z",
+      "d": "2 tín hiệu · mức y · 80% nhập khẩu dầu Trung Quốc qua Malacca; Hormuz disruption spillover làm thời gian vận chuyển tăng, chi phí bảo hiểm tăng, rủi ro logistics cao"
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-08-30T23:37:42.401Z",
-      "d": "3 tín hiệu · mức g · Mỹ-EU tăng thuế TQ nhưng RU-TQ vẫn mở, ESPO và Kazakhstan pipeline bình thường, chiến lược ổn định"
+      "at": "2026-08-31T14:17:16.988Z",
+      "d": "2 tín hiệu · mức g · Trung Quốc mua 2.1 mbd dầu Nga (tăng 28%), Energy trade $85B Q1, Power of Siberia 1&2 gần full capacity, pipeline thế chế; ổn định cơ sở hạ tầng nhưng phụ thuộc Nga tăng"
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-08-30T23:37:42.401Z",
-      "d": "3 tín hiệu · mức g · Ngoại hối dự trữ tăng $3.428 tỷ (cao nhất kể từ 2015), RMB settlement tăng 40% năm nay, CIPS $330 tỷ cuối năm"
+      "at": "2026-08-31T14:17:16.988Z",
+      "d": "2 tín hiệu · mức g · Forex reserves $3.399T (tăng 6 tháng liên tiếp), CIPS mở rộng giảm SWIFT dependency, mBridge $55B transactions, HK gold hub 7/2026; tạo độc lập tài chính nhưng tiến độ chậm"
     }
   ]
 };

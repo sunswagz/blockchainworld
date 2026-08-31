@@ -1379,14 +1379,48 @@
       than.appendChild(dk);
     }
 
+    /* ── Dải đếm này là KHOÁ ĐỌC của lưới node, không chỉ là mấy con số.
+       Mỗi thẻ bên dưới mang một vạch màu ở cạnh trái — lục, vàng, đỏ,
+       xám, lam — và đó là chỗ DUY NHẤT thẻ nói nó khoẻ hay ngã: bốn ô
+       số trong thẻ ghi lượt cuối · kết quả · nhịp · lượt sau, không ô
+       nào ghi mức sức khoẻ. Trước bản này không chỗ nào trên trang phát
+       nghĩa của vạch ấy ra. `SK_CHU` có đủ năm chữ, nhưng nó chỉ được
+       in trong BĂNG BÁO ĐỘNG — mà băng ấy chỉ hiện khi có node không
+       khoẻ. Tức là đúng lúc mọi thứ chạy êm, người xem gặp 30 ô năm màu
+       và không có gì để tra. Chấm màu ở đây gắn từng con số vào đúng
+       vạch nó đếm, nên lưới tự giải thích chính nó.
+
+       ── Và nó đếm ĐỦ NĂM MỨC, không phải ba.
+       `sucKhoe()` trả về năm mức; bản trước in ba. Năm node "chạy tay"
+       và "theo sau" rơi hẳn ra ngoài, nên đầu khối ghi "30 node" còn
+       dải ngay dưới nó cộng lại được 25. Một bảng điều khiển mà số
+       không khớp số thì người đọc mất lòng tin vào CẢ HAI con số, và
+       không thước nào bắt được — cả hai đều là số thật, chỉ là không
+       cùng nói về một tập.
+
+       Ba mức nhịp luôn hiện, kể cả bằng 0: "đang hỏng 0" là một tin,
+       không phải một ô trống. Hai mức cấu trúc chỉ hiện khi khác 0 —
+       chúng nói "node này vốn không có nhịp", không phải một chuông
+       báo, và in "chưa chạy 0" mãi là thêm tiếng ồn vào chỗ cần đọc
+       nhanh. Bỏ chúng lúc bằng 0 vẫn giữ được phép cộng: ba mức còn
+       lại khi ấy đã đúng bằng tổng số node.
+
+       Tách làm HAI nhóm: bên trái là khoá đọc (cộng lại ra số node),
+       bên phải là chuyện của lượt chạy. Nhét "lượt đã ghi" và "báo
+       cáo" vào cùng hàng với năm mức là mời người ta cộng chúng vào. */
+    var MUC_SK = ["khoe", "om", "nang", "chua", "thuong"];
+    var chip = "";
+    MUC_SK.forEach(function (s) {
+      if (!dem[s] && (s === "chua" || s === "thuong")) return;
+      chip += '<span data-sk="' + s + '">' + esc(SK_CHU[s]) + " <b>" + dem[s] + "</b></span>";
+    });
+
     var thanh = el("div", "dieukhien");
     thanh.innerHTML =
-      '<div class="dk-so" style="margin-left:0">' +
-      '<span>khoẻ <b>' + dem.khoe + "</b></span>" +
-      '<span>trễ nhịp <b>' + dem.om + "</b></span>" +
-      '<span>đang hỏng <b>' + dem.nang + "</b></span>" +
+      '<div class="dk-so" style="margin-left:0">' + chip + "</div>" +
+      '<div class="dk-so">' +
       '<span>lượt đã ghi <b>' + (VH.lan || 0) + "</b></span>" +
-      '<span>báo cáo <b>' + truoc(VH.generatedAt) + "</b></span></div>";
+      '<span>báo cáo <b>' + esc(truoc(VH.generatedAt)) + "</b></span></div>";
     kh.appendChild(thanh);
 
     var luoi = el("div", "vh-luoi");

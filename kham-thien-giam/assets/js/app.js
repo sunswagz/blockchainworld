@@ -647,6 +647,19 @@
   function vePhong(p) {
     var g = [];
 
+    /* ĐỀ TỪ — dòng `phu` của phòng, thứ sổ PHONG đã viết từ đầu mà
+       chưa bản nào vẽ ra tới màn hình. Tám phòng là tám cái tên chữ
+       Hán ("Kho Đối", "Trường Thi", "Đài Chiêm"); người đọc đứng ở
+       <h1> không có gì để đoán phòng này bàn chuyện gì, trong khi câu
+       trả lời đã nằm sẵn trong sổ và chỉ thiếu một dòng để hiện ra.
+
+       Đặt TRƯỚC `tom` để ba bậc đọc thành một thang: tên phòng (h1)
+       → phòng này là gì (đề từ) → luận điểm mở đầu (.giaithich). Hai
+       câu ấy khác vai chứ không lặp nhau: `phu` nói phòng này ĐỂ LÀM
+       GÌ, `tom` mở luận điểm đầu tiên. Kiểu chữ ở .detu trong app.css
+       tách hai bậc đó ra bằng cỡ, không bằng màu. */
+    if (p.phu) g.push(el("p", "detu", p.phu));
+
     if (p.tom) {
       g.push(html("p", "giaithich", p.tom));
     }

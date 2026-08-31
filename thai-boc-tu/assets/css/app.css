@@ -616,6 +616,48 @@ code,.mono{font-family:var(--mono)}
 .hs-ng span{font-family:var(--mono);font-size:var(--fs-sm);padding:2px 7px;border-radius:5px;
   background:var(--card-3);color:var(--fg-2)}
 
+/* ── THỨ BẬC TRONG NGĂN HỒ SƠ ──────────────────────────
+   Ngăn này là chỗ luật 3 của cung sống — "mọi con số truy ngược được
+   về nguồn". Một hồ sơ toa có SÁU mục, và mục quan trọng nhất trong
+   sáu ("Cộng từ những nhóm nguồn nào") nằm gần cuối.
+
+   Trước đây cả sáu tiêu đề gõ `style="font-size:13px"` thẳng vào thẻ,
+   còn đoạn văn ngay dưới chúng là 12.5px. Nửa pixel chênh, cùng màu,
+   cùng mép trái — nên ngăn đọc ra MỘT khối chữ liền, và muốn tìm chỗ
+   truy ngược nguồn thì phải đọc hết. Thứ bậc chỉ tồn tại trên giấy
+   khai: có <h3>, mà mắt không thấy cái nào.
+
+   13px cũng KHÔNG có trong thang chín bậc ở đầu file. Nó lọt qua
+   thước `thang-chu` vì thước ấy đọc CSS, còn con số này nằm trong
+   chuỗi HTML của app.js — một giá trị đứng ngoài chỗ có người canh
+   thì không ai thấy nó trôi.
+
+   Nay tiêu đề mục mượn ĐÚNG khuôn nhãn của `.tt-26 h4`. Khối tri thức
+   do máy sinh chen vào giữa sáu mục này (xem `TT.ve` trong app.js),
+   nên hai bên phải cùng một kiểu nhãn — không thì một ngăn bày hai hệ
+   chữ chồng lên nhau, và chỗ nối đọc ra như trang bị lỗi.
+
+   Khoảng trống do TIÊU ĐỀ mang (18px trên, 7px dưới), không rải vào
+   từng đoạn văn: một chỗ khai thì cả ngăn cùng nhịp, thay vì mỗi mục
+   một con số gõ tay. Không màu nào mới — --fg-2 và --fg-3 trên nền
+   --bg-2 của ngăn đo được 7.99 và 5.42, đều qua AA. */
+.hs-muc{font-size:var(--fs-xs);font-weight:700;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--fg-2);margin:18px 0 7px}
+/* Lát cắt một dòng ngay dưới tên toa: câu dẫn của cả ngăn, nên nó
+   sáng hơn chú thích và đứng trước mọi tiêu đề mục. */
+.hs-lat{margin:0 0 14px;font-size:var(--fs-base);line-height:1.6;color:var(--fg-2)}
+.hs-van{margin:0;font-size:var(--fs-md);line-height:1.65;color:var(--fg)}
+.hs-phu{margin:0;font-size:var(--fs-md);line-height:1.65;color:var(--fg-2)}
+.hs-ghi{margin:7px 0 0;font-size:var(--fs-sm);line-height:1.55;color:var(--fg-3)}
+/* Đoạn văn rồi tới một bảng định nghĩa — khoảng cách do CẶP quy định,
+   không do đoạn văn: `.hs-van` đứng cuối một mục thì không cần lề. */
+.hs-van+.hs-d{margin-top:12px}
+/* Cùng lối với `.khoi-dinh .luan` ở trên. `.luan` mang sẵn 8px cho lối
+   dùng đứng riêng, nhưng trong một <dd> nó theo ngay sau con số hạng,
+   và 8px ở đó đọc thành một khoảng hở giữa hai thứ vốn là một. Cởi ở
+   chỗ dùng, đừng sửa `.luan`. */
+.hs-d .luan{margin-left:2px}
+
 @media (max-width:940px){
   .tau{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));
     gap:9px;overflow-x:visible}

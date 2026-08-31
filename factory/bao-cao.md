@@ -1,13 +1,12 @@
-# Báo cáo sức khoẻ xưởng — 30/08/2026 06:07 UTC · lượt 433
+# Sức khoẻ xưởng — 31/08/2026 14:36 UTC · lượt 493
 
-**Xưởng đang khoẻ.** Cả 26 node có mặt trong sổ đều `ket: ok` và `chuoiLoi: 0` — không node nào ngã, kể cả một lượt.
+**Xưởng đang khoẻ.** Mọi node có mặt trong sổ đều `ket: ok`, `chuoiLoi` = 0 ở tất cả, và không node nào trễ quá gấp đôi `nhip` của nó.
 
-**Đáng lo: không có.** Không node nào `chuoiLoi >= 2`, và không node nào trễ quá gấp đôi `nhip` của nó. Hai node vừa chạm hạn là `tri-thuc` và `tri-thuc-tien-hoa` (26,3 giờ / nhịp 24) — cả hai nằm SAU bước này trong cùng một lượt nên sổ tôi đọc chưa có chúng, không phải chúng đứng. `tien-hoa-xoay` còn ~4 giờ nữa mới tới hạn.
+**Đáng lo: không có.** Đáng ghi mà chưa thành bệnh: `dai-quan-trac` ngã đúng một lượt 30/08 21:24 (`scan.js` teo còn 3805 byte, bản cũ 8871) — cổng chặn giữ bản cũ, lượt 23:37 đã ok lại. Cùng lỗi ấy từng nổ 26/08. Hai lần cách nhau bốn ngày, chưa thành chuỗi.
 
-**Chạy đều mà đầu ra đứng yên:**
-- `hoang-thanh` — lượt 28/08 khai `ok`, nhưng `lucDoi` vẫn là **14/08**: mười sáu ngày mà đầu ra không đổi lấy một lần. Đây là nghi vấn nguồn rõ nhất trong cả sổ, và ghi chú của lượt `tien-hoa-xoay` gần nhất cũng chỉ đúng cung ấy: "hoang-thanh: ngã ở MODEL".
-- `tri-thuc`, `tri-thuc-tien-hoa`, `tien-hoa-xoay` có `lucDoi: null` — từ khi vào sổ chưa lượt nào ghi được thay đổi. Với hai node tri thức thì sổ đăng ký nói đó là hình dạng bình thường (bỏ qua cung không đổi nội dung để khỏi sinh commit rỗng), nên đây là điều cần theo dõi chứ chưa phải hỏng. `dong-dau` cũng `lucDoi: null` nhưng nó khai `ra: []` và tự bỏ qua khi sha256 trùng — trường này không kết luận được gì.
+**Chạy được mà đầu ra đứng yên:**
+- `hoang-thanh` — lượt 28/08 báo ok nhưng `lucDoi` vẫn là 14/08: 17 ngày không đổi một byte. Node chạy tay (`nhip` 0), nguồn nằm ngoài repo.
+- `tri-thuc` — `lucDoi` = null, tức chưa lượt nào ghi ra thay đổi, dù lượt gần nhất (30/08 06:09) ok. Sổ đăng ký nói nó cố ý bỏ qua cung nào nội dung không đổi, nên chưa kết luận được đây là hỏng hay là đúng thiết kế.
+- `dong-dau` cũng `lucDoi` = null nhưng `ra` rỗng — không tính.
 
-**Cần kiểm, không phải báo động:** ba node lát cắt chạy tay — `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh` — không có dòng nào trong `state.json`. Cả ba khai `nhip: 0` nên không có hạn để mà trễ; chỉ là sổ chưa từng ghi lượt nào của chúng.
-
-**Việc nên làm trước:** chạy `npm run hoangthanh` ở máy có nguồn `sunswagz-hub/08_world_culture_forest` và xem đầu ra có đổi không. Không đổi nữa thì vấn đề nằm ở nguồn ngoài repo chứ không ở node — và đó là chỗ duy nhất trong sổ hôm nay có bằng chứng bằng số cho một câu hỏi thật.
+**Việc nên làm trước:** chạy `npm run hoangthanh` rồi xem `hoang-thanh/assets/js/data.js` có đổi không. Đổi thì 17 ngày kia chỉ là do lâu không ai chạy tay; không đổi thì nguồn ngoài repo đã đứng, và cung đang phục vụ số liệu từ 14/08 mà không dấu hiệu nào báo.
