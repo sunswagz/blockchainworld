@@ -504,19 +504,28 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 
 /* ── linh tinh ────────────────────────────────────────── */
 .trong{padding:var(--k-20);text-align:center;color:var(--fg-3);font-size:var(--t-4)}
-/* Trạng thái trống có LÝ DO: câu đầu nói chuyện gì xảy ra, dòng thứ
-   hai nói bộ lọc nào đang bật, rồi đúng một nút để thoát ra. Ba thứ
-   đó là ba bậc chữ khác nhau — trộn về cùng một cỡ thì mắt không
-   biết đọc dòng nào trước. */
-.trong-loc{display:grid;justify-items:center;gap:var(--k-7);padding:var(--k-21) var(--k-17)}
-.trong-loc p{margin:0}
-.trong-loc b{color:var(--fg)}
-.trong-dk{font-size:var(--t-3);color:var(--fg-3)}
-.trong-dk b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:var(--t-2);color:var(--fg-2)}
-.trong-xoa{margin-top:var(--k-3);padding:var(--k-6) var(--k-15);border-radius:999px;
-  background:var(--tien);color:#06120F;font-size:var(--t-3);font-weight:650;
-  transition:filter var(--dur)}
-.trong-xoa:hover{filter:brightness(1.1)}
+/* ── dòng đếm của sổ bộ nguồn ──────────────────────────
+   Trạng thái trống đã có LÝ DO từ lâu; trạng thái ĐẦY thì không. Ba
+   trục lọc (nhóm, tầng, chữ tìm) nằm ở cụm nút phía trên, và khi đã
+   cuộn xuống thì "lưới 3 thẻ" với "lưới 47 thẻ" trông y như nhau —
+   người đọc phải tự nhớ mình đã bấm những gì. Nên dòng này nói cả ba
+   trạng thái, ngay trên lưới, và giữ luôn nút thoát.
+
+   Ba bậc chữ, không phải một: con số ở bậc cao nhất (chữ máy, đứng
+   cột), điều kiện lọc chìm xuống một bậc, nút thoát nằm sát mép phải
+   ngoài luồng đọc. Trộn về cùng một cỡ thì mắt không biết đọc trước
+   cái nào. */
+.dem-hien{display:flex;align-items:center;flex-wrap:wrap;gap:var(--k-7);
+  padding:var(--k-8) var(--k-16);border-bottom:1px solid var(--line-2);
+  font-size:var(--t-3);color:var(--fg-2);line-height:1.6}
+.dem-hien b{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.dem-dk{color:var(--fg-3)}
+.dem-dk b{font-size:var(--t-2);color:var(--fg-2)}
+.dem-xoa{margin-left:auto;padding:var(--k-2) var(--k-11);border-radius:999px;
+  border:1px solid var(--line);background:var(--card);font-size:var(--t-2);
+  color:var(--fg-2);white-space:nowrap;
+  transition:border-color var(--dur),color var(--dur)}
+.dem-xoa:hover{border-color:var(--tien);color:var(--fg)}
 .chan{margin-top:var(--k-18);padding-top:var(--k-14);border-top:1px solid var(--line);
   font-size:var(--t-2);color:var(--fg-3);line-height:1.72}
 .chan b{color:var(--fg-2)}

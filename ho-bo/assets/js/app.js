@@ -661,7 +661,51 @@
         '<div class="loc" id="locTang">' + tangNut +
         '<span class="tim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
         '<input id="timNguon" type="search" placeholder="Tìm công cụ, việc, câu hỏi…" autocomplete="off" aria-label="Tìm trong sổ bộ nguồn" value="' + esc(locTim) + '"></span></div>' +
+        /* Dòng đếm phải nằm sẵn trong DOM từ lúc dựng phòng, RỖNG, chứ
+           không được chèn vào lúc lọc: một vùng `role="status"` xuất
+           hiện cùng lúc với chữ bên trong nó thì phần lớn trình đọc
+           màn hình không đọc gì cả — nó chỉ đọc thứ ĐỔI trong một vùng
+           đã có mặt. `locVaVe()` đổ chữ vào ngay sau lượt vẽ. */
+        '<div class="dem-hien" id="demNguon" role="status" aria-live="polite"></div>' +
         '<div class="luoi-nguon" id="luoiNguon"></div>');
+  }
+
+  /* Các điều kiện lọc đang bật, viết thành chữ. MỘT hàm cho cả dòng
+     đếm lẫn trạng thái trống: hai bản chép của cùng một câu thì sớm
+     muộn nói khác nhau, và bản ít ai thấy là bản lệch. */
+  function dieuKienLoc() {
+    var dieu = [], l = null, j;
+    if (locLop !== "tat-ca") {
+      for (j = 0; j < NG.LOP.length; j++) if (NG.LOP[j].ma === locLop) l = NG.LOP[j];
+      dieu.push("nhóm <b>" + esc(l ? l.ten : locLop) + "</b>");
+    }
+    if (locTang !== "tat-ca") dieu.push("tầng <b>" + esc(locTang) + "</b>");
+    if (locTim.trim()) dieu.push("chữ <b>“" + esc(locTim.trim()) + "”</b>");
+    return dieu;
+  }
+
+  /* Bộ lọc đổi lưới bên dưới mà KHÔNG nói gì. Người dùng chuột phải tự
+     đếm thẻ để biết bộ lọc vừa cắt đi bao nhiêu; người dùng trình đọc
+     màn hình bấm một nút rồi không nghe thấy gì đổi. Trước bản này chỉ
+     ca "không khớp gì" mới tự giải thích — ca hay gặp hơn nhiều, lọc
+     ra vài chục thẻ, thì im. Tiêu đề khối thì luôn ghi 47, kể cả khi
+     dưới nó đang hiện ba thẻ.
+
+     Một câu, ba trạng thái, và nút thoát đi cùng chỗ với lời giải
+     thích thay vì nằm rời dưới lưới. */
+  function veDemNguon(hien, dieu) {
+    var el = document.getElementById("demNguon");
+    if (!el) return;
+    var tong = NG.TOOL.length;
+    var cau = dieu.length
+      ? (hien
+        ? "Đang hiện <b>" + hien + "</b> trên <b>" + tong + "</b> công cụ."
+        : "<b>Không công cụ nào khớp.</b>") +
+        ' <span class="dem-dk">Lọc theo ' + dieu.join(" · ") + ".</span>"
+      : "Đang hiện cả <b>" + tong + "</b> công cụ." +
+        ' <span class="dem-dk">Chưa lọc gì.</span>';
+    el.innerHTML = cau + (dieu.length
+      ? '<button class="dem-xoa" type="button" id="xoaLoc">Xoá bộ lọc</button>' : "");
   }
 
   function locVaVe() {
@@ -674,25 +718,21 @@
       if (!q) return true;
       return (t.ten + " " + t.viec + " " + t.hoi + " " + (t.luu || "")).toLowerCase().indexOf(q) !== -1;
     });
+    /* Trạng thái trống phải trả lời được "vì sao trống", và bây giờ
+       TRẠNG THÁI ĐẦY cũng vậy. Bộ lọc ở đây có BA trục (nhóm, tầng,
+       chữ tìm) và hai trong ba nằm ở cụm nút phía trên, ngoài tầm mắt
+       khi đã cuộn xuống — nên "3 thẻ" và "47 thẻ" trông giống hệt nhau
+       nếu không nói ra. Dòng đếm ngay trên lưới nói cả ba trạng thái,
+       và giữ luôn nút thoát. */
+    var dieu = dieuKienLoc();
+    veDemNguon(ds.length, dieu);
+
     if (!ds.length) {
-      /* Trạng thái trống phải trả lời được "vì sao trống". Bộ lọc ở
-         đây có BA trục (nhóm, tầng, chữ tìm) và hai trong ba nằm ở
-         cụm nút phía trên, ngoài tầm mắt khi đã cuộn xuống — nên một
-         dòng "không có gì khớp" trơ trọi bắt người đọc tự nhớ họ đã
-         bấm những gì rồi tự đi gỡ từng cái. Liệt kê đúng các điều
-         kiện đang bật, rồi cho MỘT nút thoát ra. */
-      var dieu = [], l = null, j;
-      if (locLop !== "tat-ca") {
-        for (j = 0; j < NG.LOP.length; j++) if (NG.LOP[j].ma === locLop) l = NG.LOP[j];
-        dieu.push("nhóm <b>" + esc(l ? l.ten : locLop) + "</b>");
-      }
-      if (locTang !== "tat-ca") dieu.push("tầng <b>" + esc(locTang) + "</b>");
-      if (q) dieu.push("chữ <b>“" + esc(locTim.trim()) + "”</b>");
+      /* Không nhắc lại điều kiện ở đây — dòng đếm ngay phía trên vừa
+         đọc chúng lên rồi. Chỗ này chỉ thêm thứ nó chưa nói: gỡ trục
+         nào thì dễ ra kết quả nhất. */
       host.innerHTML = dieu.length
-        ? '<div class="trong trong-loc"><p><b>Không công cụ nào khớp.</b></p>' +
-          '<p class="trong-dk">Đang lọc theo ' + dieu.join(" · ") + ".</p>" +
-          '<button class="trong-xoa" type="button" id="xoaLoc">Xoá bộ lọc · xem lại cả ' +
-          NG.TOOL.length + " công cụ</button></div>"
+        ? '<p class="trong">Thử bỏ bớt một bộ lọc, hoặc gõ ít chữ hơn trong ô tìm.</p>'
         : '<p class="trong">Sổ bộ nguồn chưa có công cụ nào.</p>';
       return;
     }
@@ -1183,6 +1223,12 @@
         b.setAttribute("aria-pressed", String(b.getAttribute("data-tang") === "tat-ca"));
       });
       locVaVe();
+      /* Nút vừa bấm biến mất cùng lượt vẽ này — không còn bộ lọc thì
+         không còn nút thoát. Không dời tiêu điểm thì nó rơi về <body>
+         và phím Tab kế tiếp bắt đầu lại từ đầu trang. Đưa về nút "Tất
+         cả", tức đúng chỗ trạng thái vừa đổi tới. */
+      var veNut = document.querySelector('#locLop button[data-lop="tat-ca"]');
+      if (veNut && veNut.focus) veNut.focus();
       return;
     }
 
