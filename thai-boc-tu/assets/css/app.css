@@ -564,6 +564,21 @@ code,.mono{font-family:var(--mono)}
 .chu-thich{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 12px;font-size:var(--fs-sm);color:var(--fg-2)}
 .chu-thich span{display:inline-flex;align-items:center;gap:6px}
 .chu-thich i{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* Dải tàu dùng lại đúng chú thích này, nhưng cần thêm một CÂU DẪN mà
+   hai dải khớp nối không cần: ba màu ở đó mã hoá hạng trụ lại — một
+   con số LUẬN — trong khi mọi thứ khác trên cùng cái thẻ là số đo.
+   Câu dẫn chiếm trọn một dòng để ba ô màu xếp thành hàng riêng bên
+   dưới; để chung một dòng thì ở màn hình hẹp câu bị ngắt giữa chừng
+   rồi một ô màu trôi lên nằm lẫn vào chữ.
+
+   display:block chứ không để nguyên inline-flex thừa kế từ
+   `.chu-thich span`: huy hiệu `.luan` được dựng cho lối dùng INLINE
+   (xem chú thích ở `.luan`), nên trả nó về dòng chữ thường thì
+   `vertical-align:2px` của nó mới có tác dụng và câu dài mới ngắt
+   dòng bình thường. Cởi `margin-left:8px` ở đây vì huy hiệu đứng ĐẦU
+   dòng — cùng lối với `.khoi-dinh .luan`, và vẫn không sửa `.luan`. */
+.chu-thich .ct-dan{display:block;flex:1 0 100%;line-height:1.6}
+.chu-thich .ct-dan .luan{display:inline-block;margin:0 2px 0 0}
 
 /* ── cửa nối sang cung khác ───────────────────────────── */
 .cua-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px}

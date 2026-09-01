@@ -57,6 +57,36 @@
       'fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" ' +
       'stroke-linejoin="round">' + p + "</svg>";
   }
+
+  /* ── ĐẦU KHỐI: một khuôn duy nhất cho cả cung ──────────────
+     `.khoi-dinh` là nấc h2 — bậc giữa giữa tên phòng (22px) và tên
+     thẻ (14,5px), xem khối chú thích cùng tên trong app.css. Nấc ấy
+     được dựng ra rồi chỉ áp cho BỐN phòng: 18 máy, Tổ thợ, Bộ chọn
+     động cơ, Bảng vận hành. Sáu phòng còn lại nhảy thẳng h1 → h3.
+
+     Hai chỗ hỏng, cả hai đều im lặng:
+       · MẮT — Sàn máy, Sơ đồ, Bốn tầng, Dây chuyền, Bốn mức duyệt,
+         Lộ trình đều mở đầu bằng một khối không có mốc nào. Đúng cái
+         mà nấc h2 sinh ra để chữa, chỉ là chưa ai áp hết.
+       · MỤC LỤC — ở Lộ trình và Bộ chọn động cơ thì h2 của khối THỨ
+         HAI đứng SAU một loạt h3 của khối thứ nhất, nên cây tiêu đề
+         đọc ra thành "h1 → h3 → h2": người đi bằng phím tiêu đề gặp
+         một cây lộn bậc. `mot-h1` không bắt được — nó chỉ đếm gốc,
+         và gốc vẫn đúng một.
+
+     Tên khối KHÔNG chép lại tên phòng: h1 đã nói phòng nào rồi, nên
+     dòng này dùng để nói thứ h1 không nói được — thứ tự đọc ("xếp từ
+     tầng cao xuống"), hay chỗ đứng của khối trong phòng.
+
+     Dựng bằng `el()` chứ không `innerHTML`: tên khối là chữ, và một
+     khuôn tự thoát thì không có chỗ nào để quên `esc()`. */
+  function dinhKhoi(ten, dem) {
+    var d = el("div", "khoi-dinh");
+    d.appendChild(el("h2", null, ten));
+    if (dem) d.appendChild(el("span", "khoi-n", dem));
+    return d;
+  }
+
   var IC = {
     vh: '<path d="M3 3v18h18"/><path d="m7 15 3.5-4 3 2.5L20 7"/><circle cx="20" cy="7" r="1.6" fill="currentColor"/>',
     sodo: '<rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="10" width="6" height="4" rx="1"/>' +
@@ -465,6 +495,8 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    kh.appendChild(dinhKhoi("Mô phỏng chạy trong trình duyệt",
+      X.MAY.length + " máy · " + X.KHU.length + " khu"));
 
     // bảng điều khiển
     var dk = el("div", "dieukhien");
@@ -592,6 +624,9 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    kh.appendChild(dinhKhoi("Đường đi của một việc, từ trên xuống",
+      X.SO_DO.filter(function (b) { return b.k === "may" || b.k === "quyet"; }).length +
+      " trạm"));
     var sd = el("div", "sd");
 
     /* Mọi link ở đây trỏ vào tuyến "#/so-do/<khoá>" chứ KHÔNG sang
@@ -742,8 +777,7 @@
     X.KHU.forEach(function (k) {
       var ds = X.MAY.filter(function (m) { return m.khu === k.ma; });
       var kh = el("section", "khoi");
-      var d = el("div", "khoi-dinh");
-      d.innerHTML = "<h2>" + esc(k.ten) + '</h2><span class="khoi-n">' + ds.length + " máy</span>";
+      var d = dinhKhoi(k.ten, ds.length + " máy");
       d.style.borderTop = "3px solid " + k.mau;
       kh.appendChild(d);
       var p = el("p", "dc-y");
@@ -979,6 +1013,12 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    /* Danh sách vẽ NGƯỢC với thứ tự dữ liệu (IV ở trên, I ở đáy), và
+       trước dòng này không chỗ nào trên trang nói ra điều đó — người
+       đọc gặp "IV" đầu tiên và phải tự đoán mình đang đọc xuôi hay
+       ngược. Tên khối nói thẳng, rẻ hơn một chú giải. */
+    kh.appendChild(dinhKhoi("Xếp từ tầng cao xuống tầng thấp",
+      X.TANG.length + " tầng"));
     X.TANG.slice().reverse().forEach(function (t) {
       var o = el("div", "tang");
       o.style.setProperty("--tc", t.mau);
@@ -1007,6 +1047,7 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    kh.appendChild(dinhKhoi("Thứ tự các bước", X.DAY.length + " dây"));
     X.DAY.forEach(function (d) {
       var o = el("div", "dc");
       var h = el("div", "dc-dinh");
@@ -1117,6 +1158,8 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    kh.appendChild(dinhKhoi("Từ tự làm tới không bao giờ tự làm",
+      X.MUC.length + " mức"));
     X.MUC.forEach(function (m) {
       var o = el("div", "mucd");
       o.style.setProperty("--mc", m.mau);
@@ -1148,6 +1191,8 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    kh.appendChild(dinhKhoi("Thử một việc, xem M07 giao cho ai",
+      X.VIEC_MAU.length + " việc mẫu"));
 
     var cb = el("div", "canhbao-key");
     cb.innerHTML = svg(IC.tay, 15) +
@@ -1254,6 +1299,8 @@
     than.appendChild(gt);
 
     var kh = el("section", "khoi");
+    kh.appendChild(dinhKhoi("Dựng theo chặng, không dựng một lần",
+      X.CHANG.length + " chặng"));
     X.CHANG.forEach(function (c) {
       var o = el("div", "chang");
       o.innerHTML =

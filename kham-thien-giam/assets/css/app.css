@@ -505,8 +505,26 @@ code,.mono,.ma{font-family:var(--mono)}
 .so-muc[data-an="1"] .l{color:var(--fg)}
 
 .vwap-dieu{margin-bottom:var(--k-13)}
-.vwap-dieu label{display:block;font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--fg-3);margin-bottom:var(--k-6);font-weight:700}
+
+/* NHÃN và GIÁ TRỊ của thanh trượt — luận đầy đủ ở veMayVwap trong app.js.
+   Một hàng, hai vai khác hẳn nhau, và luật 2 bắt chúng đừng trông giống
+   nhau: bên trái là TÊN của điều khiển (chữ hoa nhỏ, cùng lối .o-so .nhan
+   và .vwap-so b, để mắt đọc ra "đây là nhãn"); bên phải là một LƯỢNG HÀNG
+   đang đổi theo tay kéo, nên nó đi chữ máy như mọi con số khác của cung.
+   Trước bản này cả hai chung một dòng và chung bộ đồ nhãn, nên con số mặc
+   dáng của tiêu đề.
+
+   Đẩy sang phải bằng margin-left:auto để nó đứng thẳng cột với mép phải
+   thanh trượt ngay dưới — con số và cái nó đo nằm trên cùng một trục.
+
+   Không màu mới, không nấc thang mới: --fg trên --card là cặp sáng nhất
+   của cung, dư sàn 4.5 ở mọi mặt nền. */
+.vwap-dieu .vwap-lab{display:flex;align-items:baseline;gap:var(--k-8);
+  margin-bottom:var(--k-6)}
+.vwap-dieu label{font-size:var(--t-1);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--fg-3);font-weight:700}
+.vwap-dieu .dv{margin-left:auto;font-family:var(--mono);font-size:var(--t-6);
+  font-weight:600;letter-spacing:-.02em;color:var(--fg);white-space:nowrap}
 .vwap-dieu input[type=range]{width:100%;accent-color:var(--tau)}
 .vwap-so{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:var(--k-8)}
 .vwap-so div{padding:var(--k-8) var(--k-10);border:1px solid var(--line);border-radius:8px;

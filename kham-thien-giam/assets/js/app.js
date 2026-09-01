@@ -220,7 +220,43 @@
     // cột phải: điều khiển + kết quả
     var phai = el("div");
     var dieu = el("div", "vwap-dieu");
-    var lab = el("label", null, "Muốn mua: 280 cổ");
+
+    /* Ô NHẬP DUY NHẤT CỦA CẢ CUNG — và tới bản này nó chưa có tên.
+       Thẻ <label> đứng đó từ đầu nhưng không mang `for`, cũng không ôm
+       lấy input, nên về mặt trình đọc màn hình nó là một dòng chữ trang
+       trí đậu cạnh một thanh trượt câm: nghe ra "slider, 280", không
+       biết 280 cái gì hay kéo nó thì đổi cái gì.
+       Thước `o-nhap` KHÔNG bắt được chuyện này và sẽ không bao giờ bắt
+       được: nó đọc index.html tĩnh, còn thanh trượt này do JS dựng — nên
+       phiếu ghi "cung không có ô nhập nào — không đo". Một ô chấm trắng,
+       không phải một ô xanh; đừng đọc nó thành đã đạt.
+
+       Tách LÀM ĐÔI thay vì gắn `for` vào câu cũ, vì câu cũ mang cả con
+       số và nó đổi theo mỗi bước kéo. Tên của một điều khiển mà đổi dưới
+       tay người đang dùng thì trình đọc màn hình đọc lại tên ấy liên
+       tục, và người ta mất luôn cái mốc để biết mình đang ở đâu:
+
+         nhãn   "Muốn mua"     đứng yên — đây là tên của thanh trượt
+         giá trị "280 cổ"      đổi theo — đây là VALUE, không phải tên
+
+       Giá trị đi đường `aria-valuetext` để chỗ nghe được có kèm ĐƠN VỊ
+       (mặc định trình duyệt đọc trần "280"), và bản in ra màn hình mang
+       aria-hidden vì nó chỉ là bản sao nhìn được của đúng con số ấy —
+       để trần là nghe hai lần cùng một thứ.
+
+       Luật 2 sửa luôn ở đây: "280 cổ" là một con số, mà nó đang mặc
+       đúng bộ đồ của nhãn hệ thống — 10,5px, chữ hoa, giãn chữ .1em,
+       chữ thường. Mọi con số khác trong cung đi chữ máy. Nay nó cũng
+       vậy, nên mắt lướt qua khối này không còn đọc một lượng hàng như
+       đọc một cái tiêu đề. */
+    var hangLab = el("div", "vwap-lab");
+    var lab = el("label", null, "Muốn mua");
+    lab.setAttribute("for", "vwapKhoiLuong");
+    var dv = el("span", "dv", "280 cổ");
+    dv.setAttribute("aria-hidden", "true");
+    hangLab.appendChild(lab);
+    hangLab.appendChild(dv);
+
     var rng = document.createElement("input");
     /* Trần thanh trượt phải VƯỢT sổ, không bằng sổ.
        Trần cũ là 1.680 — đúng bằng TONG_SO — nên `tinhVwap` không bao giờ
@@ -231,7 +267,8 @@
        bác. 2.400 để quãng thiếu hàng chiếm gần một phần ba đường kéo —
        đủ rộng để gặp phải, không phải rình ở pixel cuối. */
     rng.type = "range"; rng.min = "20"; rng.max = "2400"; rng.step = "20"; rng.value = "280";
-    dieu.appendChild(lab); dieu.appendChild(rng);
+    rng.id = "vwapKhoiLuong";
+    dieu.appendChild(hangLab); dieu.appendChild(rng);
     phai.appendChild(dieu);
 
     var oso = el("div", "vwap-so");
@@ -272,7 +309,12 @@
     function cap() {
       var q = Number(rng.value);
       var r = tinhVwap(q);
-      lab.textContent = "Muốn mua: " + q.toLocaleString("vi-VN") + " cổ";
+      /* Một chuỗi, hai lối ra: bản NHÌN (dv, aria-hidden) và bản NGHE
+         (aria-valuetext). Tính một lần để hai bản không bao giờ nói hai
+         con số khác nhau về cùng một thanh trượt. */
+      var chuQ = q.toLocaleString("vi-VN") + " cổ";
+      dv.textContent = chuQ;
+      rng.setAttribute("aria-valuetext", chuQ);
       oBest._v.textContent = "46,0¢";
       oVwap._v.textContent = (r.vwap * 100).toFixed(2) + "¢";
       var e = FAIR - r.vwap;

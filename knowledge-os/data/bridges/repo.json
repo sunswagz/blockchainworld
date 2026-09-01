@@ -438,6 +438,15 @@
             "distributed_knowledge"
           ],
           "note_vi": "Biết số từ đâu tới là điều kiện để kiểm lại được. Sơ đồ này là đường truy ngược của mọi con số trong cung."
+        },
+        {
+          "id": "phat-hien",
+          "name_vi": "Phát hiện",
+          "concepts": [
+            "economic_calculation",
+            "verification"
+          ],
+          "note_vi": "Chỗ duy nhất trong cung nói về thứ ĐÃ ĐO xong, không phải thứ đang chạy — và phần lớn kết luận ở đây là ÂM. Nó tách «tỉ lệ thắng» khỏi «kỳ vọng sau phí»: HAI_ĐỈNH thắng 55,9% mà vẫn −0,040R vì luật đặt mục tiêu của chính nó cho RR 0,53. Mỗi câu vác theo cỡ mẫu và khoảng tin của riêng nó, nên một lợi thế phải chứng minh được là khác 0 mới được gọi là lợi thế."
         }
       ],
       "rooms_skipped": [

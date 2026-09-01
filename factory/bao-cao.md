@@ -1,12 +1,13 @@
-# Sức khoẻ xưởng — 31/08/2026 14:36 UTC · lượt 493
+# Sức khoẻ xưởng — 01/09/2026 19:03 UTC · lượt 539
 
-**Xưởng đang khoẻ.** Mọi node có mặt trong sổ đều `ket: ok`, `chuoiLoi` = 0 ở tất cả, và không node nào trễ quá gấp đôi `nhip` của nó.
+**Xưởng đang khoẻ.** 27 node có dòng trong sổ đều `ket: ok`, `chuoiLoi` của tất cả bằng 0.
 
-**Đáng lo: không có.** Đáng ghi mà chưa thành bệnh: `dai-quan-trac` ngã đúng một lượt 30/08 21:24 (`scan.js` teo còn 3805 byte, bản cũ 8871) — cổng chặn giữ bản cũ, lượt 23:37 đã ok lại. Cùng lỗi ấy từng nổ 26/08. Hai lần cách nhau bốn ngày, chưa thành chuỗi.
+**Không có node nào đáng lo.** Không cái nào `chuoiLoi >= 2`, không cái nào trễ quá gấp đôi `nhip`. Bốn node khai `nhip: 0` (`hoang-thanh`, `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh`, và `giao-hang` chạy theo) nên không tính trễ. Đáng theo dõi chứ chưa đáng báo động: `tien-hoa-xoay` ngã hai lượt liên tiếp — 31/08 21:04 (tang-thu-cac) và 01/09 00:43 (thi-bac-ty), cùng ghi "ngã ở MODEL" — rồi tự đứng dậy lúc 09:10, nên chuỗi đã về 0.
 
-**Chạy được mà đầu ra đứng yên:**
-- `hoang-thanh` — lượt 28/08 báo ok nhưng `lucDoi` vẫn là 14/08: 17 ngày không đổi một byte. Node chạy tay (`nhip` 0), nguồn nằm ngoài repo.
-- `tri-thuc` — `lucDoi` = null, tức chưa lượt nào ghi ra thay đổi, dù lượt gần nhất (30/08 06:09) ok. Sổ đăng ký nói nó cố ý bỏ qua cung nào nội dung không đổi, nên chưa kết luận được đây là hỏng hay là đúng thiết kế.
-- `dong-dau` cũng `lucDoi` = null nhưng `ra` rỗng — không tính.
+**Chạy được mà số không đổi:**
 
-**Việc nên làm trước:** chạy `npm run hoangthanh` rồi xem `hoang-thanh/assets/js/data.js` có đổi không. Đổi thì 17 ngày kia chỉ là do lâu không ai chạy tay; không đổi thì nguồn ngoài repo đã đứng, và cung đang phục vụ số liệu từ 14/08 mà không dấu hiệu nào báo.
+- `hoang-thanh` — `lucDoi` đứng ở 14/08, mười tám ngày. Lượt tay gần nhất 28/08 chạy xong với `doi: false`. Đáng ngờ nhất trong sổ.
+- `tri-thuc` — `lucDoi` là `null`: chưa lượt nào ghi ra thay đổi, dù `tri-thuc-tien-hoa` đã sửa dữ liệu nguồn ở cả lượt 30/08 lẫn 31/08. CẦN KIỂM.
+- `tien-hoa-dqt` — `lucDoi` đứng từ 30/08 05:46, nhưng sổ tự khai lý do: "0 điểm yếu". Phiếu đầy thì không gọi model, nên đây không phải hỏng.
+
+**Việc nên làm trước:** chạy `npm run hoangthanh` ở máy có nguồn, rồi xem `lucDoi` có nhích khỏi 14/08 không. Nhích thì node vẫn sống và chỉ là lâu ngày không chạy tay; không nhích thì nguồn ngoài repo đã đứng, và đó là việc phải sửa ở nguồn chứ không ở xưởng.

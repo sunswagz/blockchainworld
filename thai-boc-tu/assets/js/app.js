@@ -236,7 +236,63 @@
         "năm toa còn lại TVL không đo nổi") +
       "</div>";
 
-    var tau = '<div class="tau">' + hoacTrong(G.toa.map(theToa).join(""),
+    /* Mép trên mỗi toa tô ba màu theo `vungCua(songSot)`, và cho tới
+       nay câu đó chỉ tồn tại trong một dòng chú thích CSS ("mép trên
+       tô theo hạng trụ lại" ở `.toa::before`). Trên trang thì ba màu
+       đứng trơ một mình.
+
+       Ở cung này đó là hai luật cùng gãy trong một chỗ. Luật 2 —
+       ĐO ĐƯỢC và LUẬN RA không bao giờ trông giống nhau: màu mã hoá
+       `songSot`, thứ suy ra từ thứ tự phụ thuộc, rồi vẽ lên đúng cái
+       thẻ mà mọi thứ khác (TVL, số giao thức, tập trung) đều là số
+       đo của DefiLlama — không huy hiệu nào nói ra bậc nhận thức đã
+       đổi giữa chừng. Và phòng Khớp Nối ngay bên cạnh đã tự viết ra
+       luật thứ hai rồi làm đúng nó cho hai dải của mình: "màu không
+       bao giờ được đứng một mình".
+
+       Không thước nào bắt được. `tuong-phan` đo chữ trên nền, không
+       đo màu mang nghĩa; `o-trong` đếm dấu "—", mà ở đây không thiếu
+       một ô nào — thứ thiếu là câu giải mã. Hậu quả cũng im: ba màu
+       đọc rất tự nhiên thành "tốt / vừa / xấu", tức là đúng cái câu
+       cung này từ chối nói. Đỏ ở đây KHÔNG có nghĩa toa đó tệ.
+
+       Chú thích đi CÙNG dải tàu chứ không đứng riêng, cùng lý do đã
+       ghi ở `dsKhoi` của phòng Khớp Nối: một bảng chú thích cho một
+       dải không tồn tại đọc như dải vừa bị mất, chứ không như "chưa
+       có gì để tô màu". Cùng luật đó áp cho TỪNG ô màu, nên ô nào
+       không có toa nào mang màu ấy thì không được vẽ ra.
+
+       Tên vùng lấy từ `TEN_VUNG` — đúng chữ mà phòng Thứ Tự Bị Đốt
+       in trên huy hiệu của nó, nên hai phòng không bao giờ gọi cùng
+       một vùng bằng hai tên. Dải hạng thì ĐẾM từ dữ liệu đang hiện
+       chứ không chép ngưỡng của `vungCua` vào đây: hai bản chép là
+       bảo đảm ngày nào đó ngưỡng đổi một bên mà chú thích vẫn nói
+       ngưỡng cũ — và một chú thích sai còn tệ hơn không có, vì nó
+       vẫn được tin. */
+    /* Giữ nguyên chữ `var(--x)` chứ đừng ghép từ tên biến: chỗ nào
+       trong repo đi tìm biến CSS đang được dùng ở đâu cũng tìm bằng
+       chuỗi đó, và một cái tên bị ghép lúc chạy thì không phép grep
+       nào thấy. Ba biến này đúng ba biến `.toa[data-vung]` dùng
+       trong app.css — chú thích phải tô cùng màu với thứ nó chú. */
+    var MAU_VUNG = { som: "var(--xuong)", giua: "var(--canh)", muon: "var(--len)" };
+    var ctTau = '<div class="chu-thich"><span class="ct-dan">' + HUY_LUAN +
+      "Mép trên mỗi toa tô theo <b>hạng trụ lại</b>, không theo con số bên " +
+      'dưới — đọc cả thang ở <a href="#/thu-tu">Thứ Tự Bị Đốt</a>. Đỏ không ' +
+      "có nghĩa toa đó tệ, chỉ nghĩa là nó bị bỏ trước khi nhiên liệu cạn." +
+      "</span>" +
+      ["som", "giua", "muon"].map(function (v) {
+        var h = G.toa.map(function (t) { return t.c.songSot; })
+          .filter(function (x) { return vungCua(x) === v; })
+          .sort(function (a, b) { return a - b; });
+        if (!h.length) return "";
+        var lo = h[0], hi = h[h.length - 1];
+        return '<span><i style="background:var(' + MAU_VUNG[v] + ')"></i>' +
+          esc(TEN_VUNG[v]) + " · hạng " + (lo === hi ? lo : lo + "–" + hi) + "</span>";
+      }).join("") +
+      "</div>";
+
+    var dsToa = G.toa.map(theToa).join("");
+    var tau = (dsToa ? ctTau : "") + '<div class="tau">' + hoacTrong(dsToa,
       "<b>Không toa nào ghép được.</b> Sổ toa <code>assets/js/toa.js</code> và " +
       "số liệu <code>assets/js/v/doan-tau.js</code> không khớp nhau ở mã toa nào. " +
       "Dòng báo lệch ở đầu phòng nói rõ mã nào thừa, mã nào thiếu.") + "</div>";
