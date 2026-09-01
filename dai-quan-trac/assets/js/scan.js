@@ -1,177 +1,168 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-09-01T08:55:40.554Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-09-01T23:24:47.384Z
    Chủ thể: Việt Nam
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_SCAN = {
-  "generatedAt": "2026-09-01T08:55:40.554Z",
+  "generatedAt": "2026-09-01T23:24:47.384Z",
   "date": "01/09/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "hormuz",
-      "tieu_de": "Giao thông tàu Hormuz tăng 30% tuần cuối tháng 8",
+      "tieu_de": "Tanker transits qua Hormuz tăng 30% tuần qua (08-17 đến 08-24), từ 72 lên 114 chuyến",
       "ngay": "2026-08-24",
       "nguon": "Lloyd's List Intelligence",
-      "tac_dong": "Sự phục hồi luồng tàu giảm áp lực giá dầu → giá nhập khẩu dầu mỏ của Việt Nam giảm → lợi mạnh cho chi phí sản xuất và giá cả tiêu dùng",
+      "tac_dong": "Nhu cầu dầu tăng → giá dầu tăng → chi phí nhập khẩu VN tăng → tỷ giá USD/VND áp lực tăng",
       "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "hormuz",
-      "tieu_de": "Xuất khẩu dầu thô từ vùng Vịnh giảm 47% so với trước xung đột",
-      "ngay": "2026-08-23",
-      "nguon": "USNI News",
-      "tac_dong": "Thiếu hụt dầu toàn cầu vẫn cao → áp lực lên giá dầu thế giới → tăng chi phí nhập khẩu năng lượng của Việt Nam",
+      "tieu_de": "War risk shipping insurance tăng từ 0,25% lên 3-10% giá tàu, tàu $100M phải trả $3-10M phí",
+      "ngay": "2026-08-26",
+      "nguon": "USNI News, Lloyd's",
+      "tac_dong": "Chi phí vận tải dầu tăng → giá dầu nhập tăng → lạm phát áp lực",
       "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
-    },
-    {
-      "th": "hormuz",
-      "tieu_de": "Tàu chở dầu từ Sinokor, ADNOC vẫn hoạt động ở Hormuz",
-      "ngay": "2026-08-24",
-      "nguon": "Lloyd's List Intelligence",
-      "tac_dong": "Dòng chảy dầu bắt đầu phục hồi từ từ → sẽ giảm áp lực lạm phát năng lượng → hỗ trợ tỷ giá VND",
-      "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Ukraina tấn công nhà máy lọc dầu Nga, xuất khẩu dầu thô giảm 3.46 triệu thùng/ngày",
-      "ngay": "2026-08-25",
-      "nguon": "Bloomberg",
-      "tac_dong": "Cú sốc cung dầu từ Nga → giá dầu Urals giảm mạnh → Việt Nam có cơ hội mua dầu rẻ → giảm chi phí năng lượng",
+      "tieu_de": "Ukraine drone strike vào CPC marine terminal 19/7/2026, chỉ 1 shipment trong tuần 22-26/7",
+      "ngay": "2026-07-22",
+      "nguon": "Centre for Research on Energy and Clean Air",
+      "tac_dong": "Cung dầu Nga giảm → Trung Quốc mua dầu Nga chiết khấu → giá dầu toàn cầu ổn định hơn → chi phí VN giảm nhẹ",
       "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Sản xuất dầu thô Nga ở mức thấp nhất 6 năm: 8,887 triệu thùng/ngày",
-      "ngay": "2026-08-25",
-      "nguon": "CREA",
-      "tac_dong": "Nguồn cung dầu rẻ từ Nga có thể tiếp tục → giảm áp lực giá dầu trên thế giới → ổn định chi phí nhập khẩu năng lượng Việt Nam",
-      "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Nhập khẩu dầu thô Trung Quốc tăng 4,9% tháng 8 lên 49,49 triệu tấn",
-      "ngay": "2026-08-31",
-      "nguon": "Commerzbank",
-      "tac_dong": "Nhu cầu dầu thô của Trung Quốc phục hồi → cạnh tranh tăng → áp lực lên giá dầu thế giới → tăng chi phí năng lượng nhập khẩu của Việt Nam",
-      "muc": "g",
-      "at": "2026-09-01T08:55:40.554Z"
+      "tieu_de": "China crude oil imports giảm 41,3% YoY (tháng 6/2026), xuống mức thấp nhất thập kỷ 8,1 Mbpd",
+      "ngay": "2026-06-30",
+      "nguon": "U.S. Energy Information Administration",
+      "tac_dong": "Nhu cầu nhập từ TQ giảm → đơn hàng xuất khẩu VN sang TQ giảm → việc làm, thu nhập bị ảnh hưởng",
+      "muc": "y",
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "tq",
-      "tieu_de": "Hoạt động lọc dầu Trung Quốc tăng 2,8% năm trên năm, sản lượng 40,37 triệu tấn",
-      "ngay": "2026-08-31",
-      "nguon": "Commerzbank",
-      "tac_dong": "Nhu cầu nước bạn tăng → cạnh tranh nguồn cung toàn cầu → áp lực lạm phát năng lượng Việt Nam",
-      "muc": "g",
-      "at": "2026-09-01T08:55:40.554Z"
+      "tieu_de": "Coal output Trung Quốc giảm 9,7% YoY (tháng 6/2026), H1 giảm 1,7%",
+      "ngay": "2026-06-30",
+      "nguon": "Centre for Research on Energy and Clean Air",
+      "tac_dong": "Sản xuất công nghiệp TQ yếu → nhu cầu nguyên liệu giảm → xuất khẩu VN sang TQ giảm",
+      "muc": "y",
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "vn",
-      "tieu_de": "Tăng trưởng tín dụng Việt Nam vẫn sôi nổi, nhưng có dấu hiệu rủi ro tích luỹ",
-      "ngay": "2026-08-20",
-      "nguon": "AMRO",
-      "tac_dong": "Lạm phát tín dụng → tăng lạm phát giả tạo → Ngân hàng Nhà nước phải tăng lãi suất → giảm khả năng vay của doanh nghiệp và hộ gia đình",
+      "tieu_de": "Vietnam exports sang US tăng 28% năm 2025, trade surplus đạt 4% GDP",
+      "ngay": "2026-01-15",
+      "nguon": "VinaCapital Insights",
+      "tac_dong": "Xuất khẩu sang US mạnh → tỷ giá USD/VND ổn định → kinh tế VN bền vững",
       "muc": "g",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "vn",
-      "tieu_de": "Xuất khẩu Việt Nam sang Mỹ tăng 24,2% năm trên năm trong Q1 2026",
-      "ngay": "2026-04-30",
-      "nguon": "AMRO",
-      "tac_dong": "Xuất khẩu sang Mỹ vẫn mạnh → đơn hàng ổn định → tạo việc làm cho lao động",
+      "tieu_de": "GDP forecast 6,8% năm 2026, giảm nhẹ từ 8% năm 2025 nhưng vẫn tốt",
+      "ngay": "2026-01-19",
+      "nguon": "VinaCapital, VnEconomy",
+      "tac_dong": "Tăng trưởng kinh tế phù hợp kỳ vọng → ổn định giá cả, tỷ giá",
       "muc": "g",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "my",
-      "tieu_de": "Thuế Section 301 của Mỹ 12,5% lên các hàng từ Việt Nam vì lao động ép buộc có hiệu lực từ 24/7",
-      "ngay": "2026-07-24",
-      "nguon": "USTR",
-      "tac_dong": "Thuế mới làm tăng chi phí xuất khẩu → giảm sức cạnh tranh giá → giảm đơn hàng từ Mỹ → lao động xuất khẩu bị ảnh hưởng",
-      "muc": "r",
-      "at": "2026-09-01T08:55:40.554Z"
+      "tieu_de": "USTR khởi động Section 301 investigation 29/5/2026 về IP practices của Vietnam",
+      "ngay": "2026-05-29",
+      "nguon": "Office of the United States Trade Representative",
+      "tac_dong": "Nguy hiểm tariff từ US → dòng vốn FDI, xuất khẩu sang US bị ảnh hưởng → giá cả, tỷ giá áp lực",
+      "muc": "y",
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "my",
-      "tieu_de": "Mỹ khởi động điều tra Section 301 đối với việc bảo vệ sở hữu trí tuệ của Việt Nam",
-      "ngay": "2026-05-15",
-      "nguon": "USTR",
-      "tac_dong": "Điều tra tiếp theo có thể dẫn tới thuế cao hơn → tích lũy áp lực lên xuất khẩu Việt Nam",
-      "muc": "r",
-      "at": "2026-09-01T08:55:40.554Z"
+      "tieu_de": "Vietnam xếp Priority Foreign Country trong 2026 Special 301 Report, chỉ ra lỗ hổng về transshipment",
+      "ngay": "2026-06-03",
+      "nguon": "USTR 2026 Special 301 Report",
+      "tac_dong": "Cảnh báo tiền tariff → nhà xuất khẩu VN lo sợ → dòng tiền ra nước ngoài",
+      "muc": "y",
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "san",
-      "tieu_de": "Shopee tăng phí hầu hết danh mục từ 3-4% lên 7-9%, TikTok Shop từ 6% lên 12,5% trên toàn bộ",
-      "ngay": "2026-06-01",
-      "nguon": "VietnamNet",
-      "tac_dong": "Phí nền tảng cao hơn → biên lợi nhuận bán hàng trực tuyến giảm → giảm lợi nhuận và lương thợ bán hàng",
+      "tieu_de": "Shopee tăng default commission từ 2-3% lên 12,5%, mall từ 4,5-5,8% lên 14,5% từ 3/2026",
+      "ngay": "2026-03-01",
+      "nguon": "Vietnam National Competition Commission",
+      "tac_dong": "Chi phí bán hàng tăng → giảm profit margin → giá sản phẩm tăng → lạm phát áp lực",
       "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
     },
     {
       "th": "san",
-      "tieu_de": "Luật thương mại điện tử mới có hiệu lực 1/7/2026 với quy định về khai báo thuế và nhận dạng người bán",
-      "ngay": "2026-07-01",
-      "nguon": "Bộ Công Thương",
-      "tac_dong": "Quy định mới tăng chi phí tuân thủ cho bán hàng trực tuyến → chi phí kinh doanh tăng → áp lực lên lợi suất",
+      "tieu_de": "Cả Shopee và TikTok Shop thêm platform fee 2-4% tùy danh mục từ 5/2026",
+      "ngay": "2026-05-01",
+      "nguon": "VietnamNet, Retailer Reports",
+      "tac_dong": "Chi phí bán hàng cao thêm 2-4% → sellers điều chỉnh giá → lạm phát tiếp tục",
       "muc": "y",
-      "at": "2026-09-01T08:55:40.554Z"
+      "at": "2026-09-01T23:24:47.384Z"
+    },
+    {
+      "th": "san",
+      "tieu_de": "TikTok Shop GMV tăng 83% YoY đạt $5,96B (H1 2026), market share lên 44% từ 33%",
+      "ngay": "2026-06-30",
+      "nguon": "The Investor, Vietnam Briefing",
+      "tac_dong": "Sàn TMĐT tập trung 2 nơi → người bán phụ thuộc chính sách của hai platform → giảm đàm phán giá",
+      "muc": "y",
+      "at": "2026-09-01T23:24:47.384Z"
     }
   ],
   "levels": {
     "hormuz": "y",
     "nga": "y",
-    "tq": "g",
+    "tq": "y",
     "vn": "g",
-    "my": "r",
+    "my": "y",
     "san": "y"
   },
   "log": [
     {
       "ok": true,
       "t": "Hormuz",
-      "at": "2026-09-01T08:55:40.554Z",
-      "d": "3 tín hiệu · mức y · Luồng tàu Hormuz tăng 30% cuối tháng 8 so với tuần trước nhưng vẫn 95% thấp hơn trước xung đột, tác động tới giá dầu nhập khẩu của Việt Nam."
+      "at": "2026-09-01T23:24:47.384Z",
+      "d": "2 tín hiệu · mức y · Lưu lượng tàu tanker tăng 30% nhưng giá bảo hiểm chiến tranh tăng vọt từ 0,25% lên 3-10% giá tàu"
     },
     {
       "ok": true,
       "t": "Nga–Ukraina",
-      "at": "2026-09-01T08:55:40.554Z",
-      "d": "2 tín hiệu · mức y · Những cuộc tấn công drone của Ukraina vào nhà máy lọc dầu Nga ngày 25/8 khiến sản lượng xuất khẩu dầu thô giảm xuống mức thấp 6 năm."
+      "at": "2026-09-01T23:24:47.384Z",
+      "d": "1 tín hiệu · mức y · Cuộc tấn công vào terminal dầu Nga làm loadings giảm 23%, nhưng Trung Quốc vẫn hưởng lợi từ giá dầu chiết khấu"
     },
     {
       "ok": true,
       "t": "Trung Quốc",
-      "at": "2026-09-01T08:55:40.554Z",
-      "d": "2 tín hiệu · mức g · Nhập khẩu dầu thô của Trung Quốc tăng 4,9% trong tháng 8 lên 49,49 triệu tấn, cho thấy sự phục hồi nhu cầu và tác động tới giá dầu toàn cầu."
+      "at": "2026-09-01T23:24:47.384Z",
+      "d": "2 tín hiệu · mức y · Nhu cầu năng lượng Trung Quốc suy yếu: nhập khẩu dầu giảm 41,3%, sản lượng than giảm 9,7%"
     },
     {
       "ok": true,
       "t": "Việt Nam",
-      "at": "2026-09-01T08:55:40.554Z",
-      "d": "2 tín hiệu · mức g · Tín dụng Việt Nam tiếp tục tăng nhanh với dấu hiệu rủi ro tích luỹ, ghi nhận từ lạm phát giả tạo có thể xuất hiện."
+      "at": "2026-09-01T23:24:47.384Z",
+      "d": "2 tín hiệu · mức g · Nền kinh tế VN tương đối ổn định: xuất khẩu sang US tăng 28%, dự báo tăng 6,8% năm 2026"
     },
     {
       "ok": true,
       "t": "Hoa Kỳ",
-      "at": "2026-09-01T08:55:40.554Z",
-      "d": "2 tín hiệu · mức r · Mỹ áp dụng thuế 12,5% đối với các sản phẩm từ Việt Nam theo điều 301 liên quan lao động ép buộc, bắt đầu từ 24/7/2026."
+      "at": "2026-09-01T23:24:47.384Z",
+      "d": "2 tín hiệu · mức y · USTR khởi động điều tra Section 301 về bảo vệ sở hữu trí tuệ, VN bị xếp Priority Foreign Country"
     },
     {
       "ok": true,
       "t": "Sàn TMĐT",
-      "at": "2026-09-01T08:55:40.554Z",
-      "d": "2 tín hiệu · mức y · Shopee và TikTok Shop tăng phí nền tảng, khi luật thương mại điện tử mới có hiệu lực từ 1/7/2026."
+      "at": "2026-09-01T23:24:47.384Z",
+      "d": "3 tín hiệu · mức y · Shopee, TikTok Shop liên tiếp tăng commission và platform fee, sellers bị ép lợi nhuận"
     }
   ]
 };
