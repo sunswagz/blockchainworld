@@ -63,6 +63,16 @@ code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
   font-weight:500;border:0;background:none;cursor:pointer;
   transition:background var(--dur) ease,color var(--dur) ease}
 .bmuc:hover{background:rgba(255,255,255,.04);color:var(--chu)}
+/* Mục đang đọc. Vạch vàng bên trái + nền vàng chìm: cùng ngôn ngữ với
+   viền trái của pre.vd và của khối tri thức, nên nó đọc ra là "chỗ này
+   đang được chỉ tới" chứ không phải một trạng thái hover thứ hai —
+   hover là chuột đang ở đâu, cái này là NGƯỜI ĐỌC đang ở đâu.
+   box-shadow inset chứ không border-left: border ăn vào bề rộng nội
+   dung, và mục sẽ nhích ngang mỗi lần bạn cuộn qua nó — đúng thứ
+   thước "hiệu ứng không chạm bố cục" sinh ra để chặn. */
+.bnhom .bmuc[aria-current]{background:var(--tau-t);color:var(--chu);
+  box-shadow:inset 2px 0 0 var(--tau)}
+.bnhom .bmuc[aria-current] .bic{color:var(--tau)}
 .bic{display:grid;place-items:center;width:17px;height:17px;flex:0 0 auto}
 .bic svg{width:16px;height:16px}
 .bten{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

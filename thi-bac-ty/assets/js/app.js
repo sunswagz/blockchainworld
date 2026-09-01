@@ -438,5 +438,53 @@
       ben.setAttribute("data-mo", "0");
   });
 
+  /* ── thanh bên: đang đọc mục nào ────────────────────────────────
+   *
+   * Cung này là MỘT trang dài bảy mục, thanh bên dính theo suốt. Không
+   * có dấu "đang ở đây" thì thanh bên chỉ là một danh sách liên kết,
+   * không phải bản đồ: cuộn tới giữa bảng cơ hội rồi thì phải cuộn
+   * ngược lên tìm tiêu đề mới biết mình đang đọc bảng nào — mà bảng
+   * cơ hội và bảng báo giá có cột trông rất giống nhau.
+   *
+   * `aria-current` chứ không chỉ đổi màu: người đi bằng trình đọc màn
+   * hình cũng cần câu trả lời ấy, và họ là người cần nó nhất.
+   *
+   * Chỉ lấy `.bnhom .bmuc` — halls.js cũng dựng `.bmuc` trong #cungNav
+   * cho danh sách chuyển cung, và những mục đó trỏ ra ngoài trang.
+   */
+  var mucBen = [].slice.call(document.querySelectorAll(".bnhom .bmuc[href^='#']"));
+  var dichBen = mucBen.map(function (a) {
+    return document.getElementById(a.getAttribute("href").slice(1));
+  });
+
+  function danh_dau_muc() {
+    if (!mucBen.length) return;
+    var dang = 0;
+    for (var i = 0; i < dichBen.length; i++) {
+      var d = dichBen[i];
+      if (d && d.getBoundingClientRect().top <= 96) dang = i;
+    }
+    /* Cuộn hết trang thì mục CUỐI phải sáng, dù đỉnh nó chưa qua vạch:
+       mục cuối thấp hơn màn hình thì không bao giờ chạm tới vạch ấy,
+       và thanh bên sẽ mãi chỉ vào mục áp chót. */
+    if (window.innerHeight + (window.scrollY || 0)
+        >= document.documentElement.scrollHeight - 4)
+      dang = mucBen.length - 1;
+    mucBen.forEach(function (a, k) {
+      if (k === dang) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    });
+  }
+
+  var choNhip = 0;
+  window.addEventListener("scroll", function () {
+    if (choNhip) return;
+    choNhip = 1;
+    requestAnimationFrame(function () { choNhip = 0; danh_dau_muc(); });
+  }, { passive: true });
+  window.addEventListener("resize", danh_dau_muc);
+
   ve();
+  /* Sau ve(): chiều cao mỗi mục chỉ có thật khi bảng đã dựng xong. */
+  danh_dau_muc();
 })();

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-31T21:04:20.009Z",
-  "lan": 507,
+  "generatedAt": "2026-09-01T00:43:37.001Z",
+  "lan": 508,
   "node": {
     "kinh-thanh": {
       "luc": "2026-08-31T20:51:51.777Z",
@@ -278,18 +278,27 @@
       "lucDoi": "2026-08-31T14:40:42.406Z"
     },
     "tien-hoa-xoay": {
-      "luc": "2026-08-31T21:04:20.009Z",
+      "luc": "2026-09-01T00:43:37.001Z",
       "ket": "loi",
-      "giay": 112,
+      "giay": 231,
       "doi": false,
-      "chuThich": "tang-thu-cac: ngã ở MODEL · phiếu đo 17/17 → 17/17 · opus-5",
-      "chuoiLoi": 1,
+      "chuThich": "thi-bac-ty: ngã ở MODEL · phiếu đo 16/16 → 16/16 · opus-5",
+      "chuoiLoi": 2,
       "vi": "chua-ro",
       "lucOk": "2026-08-30T16:49:56.675Z",
       "lucDoi": "2026-08-30T16:49:56.675Z"
     }
   },
   "nk": [
+    {
+      "luc": "2026-09-01T00:43:37.001Z",
+      "ma": "tien-hoa-xoay",
+      "ket": "loi",
+      "giay": 231,
+      "doi": false,
+      "chuThich": "thi-bac-ty: ngã ở MODEL · phiếu đo 16/16 → 16/16 · opus-5",
+      "vi": "chua-ro"
+    },
     {
       "luc": "2026-08-31T21:04:20.009Z",
       "ma": "tien-hoa-xoay",
@@ -2079,15 +2088,6 @@
       "giay": 64,
       "doi": true,
       "chuThich": "opus-5 · max-turns 8",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-26T20:42:00.377Z",
-      "ma": "dai-quan-trac",
-      "ket": "loi",
-      "giay": null,
-      "doi": false,
-      "chuThich": "kiểm không qua: dai-quan-trac/assets/js/scan.js — teo đột ngột: 2701 byte, bản cũ 5985 byte; dai-quan-trac/assets/js/tq/scan.js — teo đột ngột: 2479 byte, bản cũ 7896 byte",
       "vi": null
     }
   ]
