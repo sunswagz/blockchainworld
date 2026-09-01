@@ -338,22 +338,50 @@
         "<span>" + (xau.length ? xau.map(function (c) { return esc(c.ten); }).join(" · ") : "không có gì") + "</span>") +
       "</div>";
 
+    /* Sáu thành phần này LÀ toàn bộ phép tính ra con số ở kim, nên
+       chúng phải kiểm lại được. Trước bản này thì không, vì hai chỗ:
+
+       1. Thanh vẽ ĐIỂM (−1…+1) còn cột số bên phải in GIÁ TRỊ ĐO (%).
+          Hai đại lượng khác nhau, đứng sát nhau, không gì nói ra.
+          Đọc ngang thì chúng mâu thuẫn thấy rõ: "Sức khoẻ neo giá
+          0,07%" có thanh gần đầy, còn "Vốn khô 1,18%" có thanh ngắn
+          hơn hẳn — một con số lớn gấp mười bảy lần lại vẽ ngắn hơn.
+          Không ai sai; chỉ là chưa bao giờ có ai nói thanh đang vẽ
+          thứ khác. Nay cột số in ĐÚNG thứ thanh vẽ, nên cộng sáu ô
+          ấy rồi chia là ra lại con số ở kim; giá trị đo xuống dòng
+          giải nghĩa, nơi nó có nhãn đi kèm.
+
+       2. Lời giải nghĩa nằm trong `title=`. Tooltip đó không tồn tại
+          trên màn cảm ứng, không tới được bằng bàn phím (một <span>
+          không nhận tiêu điểm), và trình đọc màn hình đọc nó tuỳ máy.
+          Tức là câu quan trọng nhất của mỗi thành phần — "độ rộng"
+          nghĩa là gì, "vốn khô" đo cái gì — chỉ tới được người dùng
+          CHUỘT trên máy để bàn. Chữ thì hiện ra cho mọi người. */
     var tp = cd.thanhPhan.map(function (p) {
       var co = p.diem !== null;
       var rong = co ? Math.abs(p.diem) * 50 : 0;
       var trai = co ? (p.diem >= 0 ? 50 : 50 - rong) : 50;
-      return '<div class="tp-d"' + (co ? "" : ' data-trong="1"') + '>' +
-        '<span class="tp-t" title="' + esc(p.y) + '">' + esc(p.ten) + "</span>" +
+      return '<div class="tp-m">' +
+        '<div class="tp-d"' + (co ? "" : ' data-trong="1"') + '>' +
+        '<span class="tp-t">' + esc(p.ten) + "</span>" +
         '<span class="tp-b"><i data-h="' + (p.diem >= 0 ? "len" : "xuong") +
         '" style="left:' + trai + '%;width:' + rong + '%" data-rong="1"></i></span>' +
-        '<span class="tp-v">' + (p.gt == null ? "—" : phanTram(p.gt, 1)) + "</span></div>";
+        '<span class="tp-v">' + (co ? (p.diem > 0 ? "+" : "") + so(p.diem, 2) : "—") +
+        "</span></div>" +
+        /* Giá trị đo đi kèm NHÃN chứ không đứng trần: "1,2%" một mình
+           thì không biết là phần trăm của cái gì, trong bao lâu. */
+        '<p class="tp-y">' + esc(p.y) + ' <span class="tp-gt">' +
+        (p.gt == null ? "Chưa đo được." : "Đo được " + phanTram(p.gt, 1) + ".") +
+        "</span></p></div>";
     }).join("");
 
     var che = '<div class="che"><div class="che-kim">' + kimSvg(cd.diem) +
       '<div class="che-so"><b>' + cd.diem + '</b><span>' + esc(cd.nhan) + "</span></div></div>" +
       '<div><p class="che-y"><b>' + esc(cd.nhan) + ".</b> " + esc(cd.y) +
       " Chấm bằng " + cd.do + " thành phần đo được trên " + cd.tong +
-      ", mỗi thành phần cho một điểm từ −1 tới +1 rồi lấy trung bình.</p>" +
+      ", mỗi thành phần cho một điểm từ −1 tới +1 rồi lấy trung bình." +
+      " Cột số bên phải mỗi thanh dưới đây <b>chính là điểm đó</b>," +
+      " nên cộng chúng lại rồi chia là ra lại con số ở kim.</p>" +
       '<div class="tp">' + tp + "</div></div></div>";
 
     var dong = D.chuoi.slice().filter(function (c) { return c.d7 !== null; })

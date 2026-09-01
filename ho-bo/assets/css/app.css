@@ -223,11 +223,22 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .che-y{margin:0 0 var(--k-12);font-size:var(--t-4);color:var(--fg-2);line-height:1.7}
 .che-y b{color:var(--fg)}
 
-.tp{display:grid;gap:var(--k-6)}
+.tp{display:grid;gap:var(--k-9)}
+/* Mỗi thành phần nay là một KHỐI hai dòng — hàng số, rồi lời giải
+   nghĩa — thay vì một hàng có tooltip. Xem chú thích ở `veTongQuan`
+   để biết vì sao `title=` không đủ.
+
+   Vạch ngăn giữa các khối chứ không chỉ nới khoảng cách: hai dòng của
+   CÙNG một thành phần phải dính với nhau chặt hơn hai dòng của hai
+   thành phần khác nhau, và chỉ tăng gap thì mắt không biết dòng giải
+   nghĩa thuộc hàng nào — trên hay dưới. */
+.tp-m + .tp-m{padding-top:var(--k-9);border-top:1px solid var(--line-2)}
+.tp-y{margin:var(--k-4) 0 0;font-size:var(--t-2);color:var(--fg-3);line-height:1.55}
+.tp-gt{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--fg-2)}
 .tp-d{display:grid;grid-template-columns:132px 1fr 62px;gap:var(--k-10);align-items:center;
   font-size:var(--t-3)}
 @media (max-width:520px){ .tp-d{grid-template-columns:106px 1fr 54px;gap:var(--k-7);font-size:var(--t-2)} }
-.tp-t{color:var(--fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:help}
+.tp-t{color:var(--fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Thanh hai chiều: vạch giữa là trung tính, thanh mọc sang trái là
    âm, sang phải là dương. Vị trí mang thông tin, nên bỏ màu đi vẫn
    đọc được. */

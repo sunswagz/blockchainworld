@@ -108,8 +108,26 @@ code{font:.88em/1 var(--don);background:var(--card-2);padding:2px 5px;
 
 .o{background:var(--card);border:1px solid var(--line);border-radius:13px;
   padding:18px 20px;margin:0 0 18px}
-.o>h2{font-size:var(--t-2);letter-spacing:.08em;text-transform:uppercase;
-  color:var(--mo);margin-bottom:14px}
+/* Tên mục. Bản trước để h2 ở var(--t-2) in hoa mờ (11.5px, --mo) trong
+   khi h3 nằm BÊN TRONG nó ở var(--t-5) vàng (15.5px): tiêu đề con to
+   hơn và sáng hơn tiêu đề cha. Và h2 còn nhỏ hơn cả chữ trong bảng
+   (12.5px) — tức trên màn hình, thứ nhỏ nhất lại đúng là thứ trả lời
+   "bạn đang đọc mục nào". Cung này là MỘT trang dài bảy mục, thanh bên
+   dính theo suốt, nên tên mục là mốc định vị chính chứ không phải một
+   cái nhãn trang trí.
+
+   Chữ hoa cộng thêm một khoản nữa: tên mục ở đây là câu tiếng Việt có
+   dấu ("Cơ hội — xếp theo NET, không theo funding thô"), mà in hoa thì
+   dấu chen lên thân chữ và mất hẳn hình dáng chữ thường — đúng thứ mắt
+   bám vào khi đọc lướt.
+
+   Nay thang là 27 (h1) · 23 (h2) · 15,5 (h3), toàn nấc ĐÃ CÓ, không
+   thêm cỡ mới vào thang chữ. Bỏ luôn letter-spacing riêng để rơi về
+   -.01em của luật h1,h2,h3 — cỡ 23px không cần giãn chữ như cỡ 11,5px.
+   Vạch chân mượn đúng ngôn ngữ của .dinh (1px --line) nên mục vẫn đọc
+   ra là một mục, không phải một trang thứ hai. */
+.o>h2{font-size:var(--t-6);color:var(--chu);margin-bottom:14px;
+  padding-bottom:10px;border-bottom:1px solid var(--line)}
 .o h3{font-size:var(--t-5);margin:22px 0 8px;color:var(--tau)}
 .o h3:first-of-type{margin-top:4px}
 .o p{margin:0 0 10px;max-width:74ch;font-size:var(--t-4);color:#C9D3DC}
