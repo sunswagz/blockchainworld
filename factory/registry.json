@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-02T16:07:19.355Z",
+  "generatedAt": "2026-09-02T16:19:02.232Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -483,6 +483,19 @@
         "factory/huong.json"
       ],
       "y": "Bốn tín hiệu từ chính repo — model tự chọn gì, cung nào lệch cung nào, xưởng sinh gì không ai đọc, node nào chạy mà chưa đổi được gì. Mỗi đề xuất kèm một con số và một lệnh để BÁC nó.",
+      "khai": "scripts/node/xuong.mjs"
+    },
+    {
+      "ma": "thuoc-moi",
+      "ten": "Đề xuất thước mới",
+      "tram": "M18",
+      "che": "claude",
+      "nhip": 168,
+      "lenh": "thuoc-moi.mjs de-bai → claude-code-action → cong --ghi",
+      "ra": [
+        "factory/thuoc-de-xuat.md"
+      ],
+      "y": "Khâu sinh ĐÍCH mới. Model đọc kệ kỹ năng + điểm 12 cung rồi viết MỘT cây thước; cổng bốn cửa kiểm; kết quả là một tờ trình để người duyệt, KHÔNG phải một bản vá tự nhập.",
       "khai": "scripts/node/xuong.mjs"
     },
     {

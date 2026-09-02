@@ -153,6 +153,45 @@ export const NODE = [
        "xưởng sinh gì không ai đọc, node nào chạy mà chưa đổi được gì. Mỗi đề xuất " +
        "kèm một con số và một lệnh để BÁC nó."
   },
+  /* THƯỚC MỚI — khâu duy nhất SINH RA đích, thay vì đi về phía đích cũ.
+
+     Mọi node tiến hoá hiện có đều tối ưu về phía bộ thước đang có.
+     Không node nào làm bộ thước ấy dài ra. Hệ quả đo được 02/09/2026:
+     mười hai cung đều 16/16 hoặc 17/17, và 26 lượt tiến hoá gần nhất
+     đều là "16/16 → 16/16" — cổng chỉ còn chặn được tụt, không còn
+     chỉ được hướng. Bản ghi cuối tự khai: "mọi thước đã đạt, nên vá
+     một chỗ không thước nào đo".
+
+     `do-kho` đã lo nửa đầu (lục 3.696 kỹ năng, ghi ứng viên vào
+     kho-de-xuat.json) và `themUngVienMoi` đã nối ứng viên vào đề bài.
+     Thiếu đúng khâu cuối: biến một kỹ năng thành một CÂY THƯỚC.
+
+     `ra` là TỜ TRÌNH, không phải scripts/tien-hoa.mjs — và đó là chỗ
+     node này cố ý khác mọi vòng khác. Vòng giao diện cho model sửa CSS
+     rồi commit thẳng: sai thì thấy ngay trên trang. Đây model sửa
+     chính cây thước, tức sửa định nghĩa "thế nào là tốt hơn". Cổng
+     canh được thước mới chạy được, phân biệt được, và không làm thước
+     cũ đổi phán quyết trên bất kỳ cung nào — nhưng KHÔNG canh được nó
+     có đo đúng thứ đáng đo không. Một thước đếm dấu chấm phẩy cũng qua
+     cả bốn cửa.
+
+     Cho model tự cắm thước là cho nó tự ra đề thi cho chính nó, và
+     `knowledge-os` đã gặp đúng chuyện đó: thước thứ tám của gói ấy cố
+     ý KHÔNG có danh sách khai-bỏ-qua, vì danh sách ấy sẽ nằm trong
+     lớp model được phép sửa. Nên bot dừng ở tờ trình; người áp bản vá.
+
+     Nhịp 168 giờ vì nó ăn theo `do-kho` (cũng 168) và vì bộ thước
+     không nên đổi mỗi ngày — mỗi cây thước mới làm cả mười hai cung
+     tụt điểm, và tụt điểm là tín hiệu, không phải tiếng ồn. */
+  {
+    ma: "thuoc-moi", ten: "Đề xuất thước mới",
+    tram: "M18", che: "claude", nhip: 168,
+    lenh: "thuoc-moi.mjs de-bai → claude-code-action → cong --ghi",
+    ra: ["factory/thuoc-de-xuat.md"],
+    y: "Khâu sinh ĐÍCH mới. Model đọc kệ kỹ năng + điểm 12 cung rồi viết MỘT " +
+       "cây thước; cổng bốn cửa kiểm; kết quả là một tờ trình để người duyệt, " +
+       "KHÔNG phải một bản vá tự nhập."
+  },
   {
     ma: "giao-hang", ten: "Giao hàng lên Pages",
     tram: "M16", che: "theo", nhip: 0,
