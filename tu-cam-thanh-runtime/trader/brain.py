@@ -21,6 +21,8 @@ from typing import Any, AsyncIterator
 
 from .bus import bus
 from .config import CONFIG, SKILLS_DIR, brain_mode
+# MỘT phép làm tròn giá cho cả hệ — xem chú thích ở features._rg.
+from .features import _rg
 from . import store
 from .regime import REGIMES
 
@@ -308,10 +310,10 @@ def mock_thesis(state: dict, regime: dict, primary_tf: str,
     base.update({
         "action": "LONG" if long else "SHORT",
         "confidence": th["tinCay"],
-        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
-        "invalidation": round(stop, 2),
+        "entry_zone": [_rg(price * 0.999), _rg(price * 1.001)],
+        "invalidation": _rg(stop),
         "invalidation_logic": f"{sa}×ATR ngược hướng — mất vùng này là hết xu hướng ngắn hạn",
-        "targets": [round(tp1, 2), round(tp2, 2)],
+        "targets": [_rg(tp1), _rg(tp2)],
         "suggested_risk_pct": 0.5,
         "reason_codes": ["MOCK_BRAIN", "TREND_ALIGNED", "ADX_CONFIRMS"],
         "reasoning": f"[mock] Thuận {prim} với ADX {p.get('adx')}. SL {sa}×ATR, TP1 {k1:.1f}×ATR — "
@@ -421,10 +423,10 @@ def mock_range_thesis(state: dict, regime: dict, primary_tf: str,
 
     base.update({
         "action": "LONG", "confidence": th["tinCay"],
-        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
-        "invalidation": round(stop, 2),
+        "entry_zone": [_rg(price * 0.999), _rg(price * 1.001)],
+        "invalidation": _rg(stop),
         "invalidation_logic": f"dưới đáy biên 20 nến ({day:.2f}) — mất mức này là hết biên",
-        "targets": [round(tp1, 2), round(tp2, 2)],
+        "targets": [_rg(tp1), _rg(tp2)],
         "suggested_risk_pct": 0.5,
         "reason_codes": ["MOCK_BRAIN", "CHIEN_LUOC_BIEN", "O_DAY_BIEN", "ADX_THAP"],
         "reasoning": f"[biên] Giá ở {bb:.2f} chiều cao dải, RSI {rsi}, ADX {adx} — "
@@ -594,13 +596,13 @@ def mock_keo_lui_thesis(state: dict, regime: dict, primary_tf: str,
     base.update({
         "action": "LONG" if long else "SHORT",
         "confidence": th["tinCay"],
-        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
-        "invalidation": round(stop, 2),
+        "entry_zone": [_rg(price * 0.999), _rg(price * 1.001)],
+        "invalidation": _rg(stop),
         "invalidation_logic": (f"dưới mốc cấu trúc {moc:.2f} một khoảng đệm "
                                f"{th['demStop']}×ATR — mất mốc này là cú kéo lùi đã thành "
                                f"đảo chiều" if long else
                                f"trên mốc cấu trúc {moc:.2f} một khoảng đệm {th['demStop']}×ATR"),
-        "targets": [round(tp1, 2), round(tp2, 2)],
+        "targets": [_rg(tp1), _rg(tp2)],
         "suggested_risk_pct": 0.5,
         "reason_codes": ["KEO_LUI", "DA_KEO_LUI_VE_EMA20", "STOP_SAU_CAU_TRUC"],
         "reasoning": (f"Giá đã kéo lùi về {lech:+.2f}×ATR quanh EMA20, RSI {rsi} đã nguội "
@@ -723,11 +725,11 @@ def mock_bung_nen_thesis(state: dict, regime: dict, primary_tf: str,
     base.update({
         "action": "LONG" if long else "SHORT",
         "confidence": th["tinCay"],
-        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
-        "invalidation": round(stop, 2),
+        "entry_zone": [_rg(price * 0.999), _rg(price * 1.001)],
+        "invalidation": _rg(stop),
         "invalidation_logic": (f"bên kia mốc {moc:.2f} vừa phá — mốc đổi vai, mất lại là "
                                f"cú phá biên thành phá giả"),
-        "targets": [round(tp1, 2), round(tp2, 2)],
+        "targets": [_rg(tp1), _rg(tp2)],
         "suggested_risk_pct": 0.5,
         "reason_codes": ["BUNG_NEN", "PHA_BIEN_20_NEN", "BIEN_DONG_GIAN", "KHOI_LUONG_XAC_NHAN"],
         "reasoning": (f"Giá chạm biên 20 nến {moc:.2f} khi ATR đang gấp {ty_atr}× trung vị "
@@ -874,11 +876,11 @@ def mock_bien_kep_thesis(state: dict, regime: dict, primary_tf: str,
     base.update({
         "action": "LONG",
         "confidence": th["tinCay"],
-        "entry_zone": [round(price * 0.999, 2), round(price * 1.001, 2)],
-        "invalidation": round(stop, 2),
+        "entry_zone": [_rg(price * 0.999), _rg(price * 1.001)],
+        "invalidation": _rg(stop),
         "invalidation_logic": (f"dưới mức {muc:.2f} — mức đã đỡ {so_lan} lần; mất nó là "
                                f"luận điểm 'có người mua ở đây' sai"),
-        "targets": [round(tp1, 2), round(tp2, 2)],
+        "targets": [_rg(tp1), _rg(tp2)],
         "suggested_risk_pct": 0.5,
         "reason_codes": ["BIEN_KEP", f"MUC_DUOC_THU_{so_lan}_LAN", "STOP_DUOI_MUC"],
         "reasoning": (f"Mức {muc:.2f} đã được thử {so_lan} lần; giá đang cách {xa:.2f}×ATR. "

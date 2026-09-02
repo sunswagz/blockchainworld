@@ -1417,6 +1417,67 @@ async def main() -> int:
     else:
         check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
 
+    print("\n[59] BỘ LUẬT KHÔNG ĐƯỢC LÀM TRÒN GIÁ THEO CHỮ SỐ THẬP PHÂN")
+    # LẦN THỨ HAI cùng một lớp lỗi. Lần trước ở `features.py`, chữa bằng `_rg()`
+    # — làm tròn theo CHỮ SỐ CÓ NGHĨA — và bản chữa không bao giờ tới `brain.py`.
+    # Cả năm bộ luật vẫn `round(stop, 2)`, `round(tp1, 2)`.
+    #
+    # Đo trên 46 chợ của làn demo: 19 chợ sai > 1%, 8 chợ sai > 10%, và ba chợ
+    # làm tròn thành ĐÚNG 0,0 (GALA 0,00182 · SHIB 5,17e-06 · ZIL 0,002576).
+    #
+    # Hậu quả thật, nhật ký làn demo bốn lần liên tiếp trên CHZUSDT:
+    #   CHẶN SHORT: SL_SAI_PHÍA: short mà SL 0.01 ≤ giá tham chiếu 0.01377
+    #               | SL_QUÁ_RỘNG: 4.62×ATR > 3.0 | RR_THẤP: 1.00 < 2.0
+    # Ba lý do từ chối, cả ba là HẬU QUẢ của một phép làm tròn.
+    import json as _js59
+
+    from trader import brain as _B59
+    from trader import features as _F59
+    from trader.features import _rg as _rg59f
+
+    _srcb59 = ma_khong_chu_thich(ROOT / "trader" / "brain.py")
+    check("round(stop, 2)" not in _srcb59 and "round(tp1, 2)" not in _srcb59,
+          "brain.py không còn round(giá, 2) ở đâu cả")
+    check("_rg(stop)" in _srcb59 and "_rg(tp1)" in _srcb59,
+          "và dùng _rg — MỘT phép làm tròn giá cho cả hệ")
+
+    # Chạy THẬT trên chính chợ đã hỏng. Nến bịa không kích hoạt được luật
+    # kéo-lùi (nó đòi giá lui về EMA20 trong biên hẹp), nên phép kiểm bịa chỉ đi
+    # qua nhánh NO_TRADE và không chứng minh được gì. Dùng nến THẬT của CHZUSDT
+    # — chợ mà nhật ký ghi bốn lần SL_SAI_PHÍA liên tiếp — và bỏ qua nếu máy
+    # chưa tải dữ liệu.
+    _fz59 = ROOT / "data" / "lich-su" / "CHZUSDT-1d.json"
+    if not _fz59.exists():
+        check(True, "bỏ qua phép thử coin rẻ: chưa tải CHZUSDT-1d")
+    else:
+        _nen59 = _js59.loads(_fz59.read_text(encoding="utf-8"))[-400:]
+        _f59 = _F59.features_for(_nen59)
+        _st59 = {"symbol": "CHZUSDT", "price": _f59["price"],
+                 "source": {"name": "t", "live": True}, "timeframes": {"1d": _f59}}
+        _rg59 = {"primary": "TREND_DOWN", "quality": "HIGH", "flags": [], "key": "x"}
+        _th59 = _B59.suy_luan("MOCK_KEO_LUI_V1", _st59, _rg59, "1d")
+        check(_th59.get("action") == "SHORT",
+              f"CHZUSDT giá {_f59['price']}: luật ra SHORT (được {_th59.get('action')})")
+        if _th59.get("action") == "SHORT":
+            _sl59, _gia59 = _th59["invalidation"], _f59["price"]
+            check(_sl59 > _gia59,
+                  f"stop {_sl59} nằm TRÊN giá {_gia59} — đúng bên cho SHORT")
+            check(_sl59 != 0 and all(t not in (0, None)
+                                     for t in (_th59.get("targets") or [])),
+                  "không số nào bị làm tròn thành 0")
+            _r59e = RiskEngine(CONFIG["risk"], spot_only=False)
+            _acc59 = {"equity": 10_000.0, "availableQuote": 10_000.0,
+                      "positions": [], "equityKnown": True,
+                      "drawdownPct": 0.0, "todayPnl": 0.0}
+            _d59 = _r59e.evaluate(_th59, _st59, _acc59, _f59["_raw"]["atr"])
+            check(_d59["approved"],
+                  f"và tầng rủi ro CHO QUA — trước bản vá nó chặn ba lý do một "
+                  f"lúc ({_d59.get('rejections')})")
+
+    # Cửa ngược lại: `_rg` phải GIỮ NGUYÊN độ chính xác của coin đắt.
+    check(_rg59f(78_130.0) == 78_130.0 and _rg59f(0.00182) == 0.00182,
+          "_rg giữ nguyên coin đắt VÀ coin rẻ — không phải nới cho một phía")
+
     print("\n[58] NẾN TỔNG HỢP KHÔNG ĐƯỢC VÀO LỆNH")
     # `data.py` có ba nguồn, nguồn thứ ba là nến TỰ SINH để hệ vẫn chạy kín vòng
     # khi mạng chặn Binance. Chú thích ở đó nói rõ "KHÔNG phải để giao dịch" —
