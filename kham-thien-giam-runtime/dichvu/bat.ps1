@@ -39,7 +39,16 @@ if (-not (Test-Path $PYW)) { Loi "không thấy pythonw ở $PYW" }
 # tham số — pythonw nhận "D:\SUNSWaGz" làm tên script rồi chết ngay, không
 # kịp ghi dòng nhật ký nào. Triệu chứng: bat.ps1 báo "không lên" mà
 # runtime.log trống trơn, nên không có gì để lần.
-$kich = '"' + (Join-Path $PSScriptRoot "chay-nen.py") + '"'
+# Bật NGƯỜI CANH GÁC, không bật runtime thẳng.
+#
+# `chay-nen.py` gọi thẳng uvicorn, không có vòng nào bọc ngoài, nên
+# tiến trình chết là hết. Đo 02/09/2026: runtime chết lúc nào đó sau
+# 30/08 23:44 và nằm im BA NGÀY — máy vẫn chạy liên tục, không ai
+# dựng lại, và không một dòng lỗi nào trong nhật ký.
+#
+# Người canh gác hỏi cổng mỗi 20 giây rồi dựng lại. Nó tự bật
+# `chay-nen.py`, nên đường đi cũ vẫn nguyên — chỉ thêm một lớp ngoài.
+$kich = '"' + (Join-Path $PSScriptRoot "canh-gac.py") + '"'
 Start-Process -FilePath $PYW -ArgumentList $kich `
   -WorkingDirectory $GOC -WindowStyle Hidden
 # Chờ 12 giây chứ không 3: runtime nạp hơn 20 module rồi mới ghi PID.

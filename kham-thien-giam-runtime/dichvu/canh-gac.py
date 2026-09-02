@@ -106,11 +106,17 @@ def _con_song(cong: int) -> bool:
         return False
 
 
-def _giu_cho() -> socket.socket | None:
-    """Giữ cổng canh gác. None nghĩa là đã có người canh khác."""
+def _giu_cho(cong: int = CONG_CANH) -> socket.socket | None:
+    """Giữ cổng canh gác. None nghĩa là đã có người canh khác.
+
+    `cong` là tham số để PHÉP KIỂM dùng được một cổng khác. Đóng cứng
+    5187 ở đây thì phép kiểm đỏ mỗi khi người canh gác THẬT đang chạy —
+    một phép kiểm phụ thuộc trạng thái máy thì nó đo cái máy, không đo
+    cái mã.
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        s.bind(("127.0.0.1", CONG_CANH))
+        s.bind(("127.0.0.1", cong))
         s.listen(1)
         return s
     except OSError:

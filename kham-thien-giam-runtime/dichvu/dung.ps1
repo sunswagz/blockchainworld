@@ -26,6 +26,17 @@ function Nhac($m) { Write-Host "  ~    $m" }
 # pid cũ rơi vào tay tiến trình khác thì bản trước `Stop-Process -Force`
 # thẳng vào người vô can, không hỏi một câu. Ai đang giữ cổng thì người
 # đó đúng là runtime — không cần đoán.
+# NGƯỜI CANH GÁC trước, runtime sau. Ngược lại thì nó dựng runtime
+# dậy trong vài giây và lệnh dừng đọc thành 'hỏng'.
+$cg = Lay-CanhGac
+if ($cg) {
+  Stop-Process -Id $cg.Id -Force
+  Start-Sleep -Seconds 1
+  Ok "đã dừng người canh gác PID $($cg.Id)"
+} else {
+  Nhac "không có người canh gác nào đang chạy"
+}
+
 $tt = Lay-Runtime
 if (-not $tt) {
   Nhac "không chạy (không ai giữ cổng $(Doc-Cong))"

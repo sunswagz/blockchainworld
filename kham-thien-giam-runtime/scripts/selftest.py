@@ -6583,15 +6583,24 @@ def kiem_canh_gac() -> None:
          m._con_song(59_999) is False)
 
     # Giữ chỗ: bản đầu chiếm được, bản sau thì không.
-    a = m._giu_cho()
+    #
+    # Dùng một cổng RỖI do hệ điều hành cấp, KHÔNG dùng 5187. Cổng thật
+    # có thể đang bị chính người canh gác đang chạy giữ, và khi ấy phép
+    # kiểm đỏ vì trạng thái MÁY chứ không vì mã sai.
+    _tam = _sk.socket(_sk.AF_INET, _sk.SOCK_STREAM)
+    _tam.bind(("127.0.0.1", 0))
+    _cong = _tam.getsockname()[1]
+    _tam.close()
+
+    a = m._giu_cho(_cong)
     kiem("bản canh gác ĐẦU giữ được chỗ", a is not None)
-    b = m._giu_cho()
+    b = m._giu_cho(_cong)
     kiem("bản THỨ HAI không giữ được ⇒ nó sẽ thoát", b is None)
     if a:
         a.close()
     if b:
         b.close()
-    c = m._giu_cho()
+    c = m._giu_cho(_cong)
     kiem("thả ra rồi thì bản sau giữ được (không kẹt vĩnh viễn)",
          c is not None)
     if c:

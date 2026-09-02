@@ -62,6 +62,22 @@ function Ai-Giu-Cong {
   return (Get-Process -Id $id -ErrorAction SilentlyContinue)
 }
 
+# ── NGƯỜI CANH GÁC ────────────────────────────────────────────────
+#
+# `canh-gac.py` giữ cổng 5187 để chỉ có MỘT bản canh gác. Nhờ vậy
+# câu hỏi 'có ai đang canh không' cũng trả lời được bằng CỔNG, cùng
+# một cách với runtime — không thêm một quyển sổ pid thứ hai.
+#
+# `dung.ps1` PHẢI giết người canh trước khi giết runtime. Không thì
+# nó dựng runtime dậy trong vài giây và người vận hành đọc thành
+# 'lệnh dừng hỏng'.
+$CONG_CANH_GAC = 5187
+
+function Lay-CanhGac {
+  return (Ai-Giu-Cong -Cong $CONG_CANH_GAC)
+}
+
+
 function Lay-Runtime {
   # Trả tiến trình runtime đang sống, hoặc $null. KHÔNG sửa gì hết —
   # hàm này được gọi từ đường CHỈ ĐỌC.
