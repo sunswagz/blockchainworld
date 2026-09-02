@@ -2509,6 +2509,79 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/nha-may.mjs canh-bao
 
+      # ── THƯỚC MỚI ────────────────────────────────────────────────
+      # Khâu duy nhất SINH RA đích. Mọi vòng tiến hoá khác đi về phía
+      # bộ thước đang có; không vòng nào làm bộ thước dài ra — nên
+      # 02/09/2026 cả mười hai cung kịch trần và 26 lượt gần nhất đều
+      # là "16/16 → 16/16", với bản ghi cuối tự khai "mọi thước đã
+      # đạt, nên vá một chỗ không thước nào đo".
+      #
+      # KHÁC mọi vòng khác ở ĐẦU RA, và khác có chủ ý: bot dừng ở TỜ
+      # TRÌNH, không tự cắm thước. Vòng giao diện cho model sửa CSS
+      # rồi commit thẳng — sai thì thấy ngay trên trang. Đây model sửa
+      # chính cây thước, tức sửa định nghĩa "thế nào là tốt hơn". Cổng
+      # canh được thước mới chạy được, phân biệt được, và không làm
+      # thước cũ đổi phán quyết trên bất kỳ cung nào; nó KHÔNG canh
+      # được thước ấy có đo đúng thứ đáng đo không. Một thước đếm dấu
+      # chấm phẩy cũng qua cả bốn cửa.
+      - name: Ra đề — thước mới
+        id: n-tm-de
+        if: env.CCOT != '' && contains(steps.kehoach.outputs.han, ',thuoc-moi,')
+        continue-on-error: true
+        timeout-minutes: 5
+        run: node scripts/thuoc-moi.mjs de-bai > factory/de-bai-thuoc.md
+
+      - name: Đề xuất thước — thước mới (Claude Code)
+        id: n-tm-va
+        if: steps.n-tm-de.outcome == 'success'
+        # Cùng lý do đã ghi ở tám bước claude-code-action khác: model
+        # là phần DUY NHẤT của xưởng hỏng được vì lý do ngoài repo, nên
+        # nó không bao giờ được phép kéo theo ai.
+        continue-on-error: true
+        timeout-minutes: 15
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --model claude-opus-5
+            --max-turns 20
+            --allowedTools "Read,Write,Edit,WebFetch"
+          prompt: |
+            Đọc factory/de-bai-thuoc.md rồi làm đúng theo đề bài trong đó.
+
+            Chỉ sửa scripts/tien-hoa.mjs, thêm ĐÚNG MỘT cây thước mới.
+            Không sửa, không xoá thước nào đang có. Không đụng file khác.
+
+      - name: Cổng chặn — thước mới
+        id: n-thuoc-moi
+        if: always() && steps.n-tm-va.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          set +e
+          node scripts/thuoc-moi.mjs cong --ghi factory/thuoc-de-xuat.md 2>&1 \
+            | tee "$RUNNER_TEMP/thuoc-moi.log"
+          KQ=${PIPESTATUS[0]}
+          # Trả bộ đo về nguyên trạng dù NHẬN hay TRẢ LẠI. Thứ được
+          # commit là tờ trình, không phải bản vá — bot không đổi định
+          # nghĩa "tốt hơn" trên main. Chạy TRƯỚC exit để lần trả lại
+          # cũng không để bẩn cây.
+          git checkout -- scripts/tien-hoa.mjs || true
+          if [ "$KQ" = "0" ]; then
+            echo "::notice::Thước mới: có tờ trình ở factory/thuoc-de-xuat.md"
+          else
+            echo "::error::Thước mới: TRẢ LẠI — xem log bước này"
+            exit 1
+          fi
+
+      - name: Ghi sổ · thuoc-moi
+        if: always() && steps.n-tm-de.outcome != 'skipped'
+        env:
+          # Model ngã thì node LỖI, dù cổng có qua — cùng bài học đã
+          # ghi ở node tien-hoa-xoay.
+          KET: ${{ (steps.n-tm-va.outcome == 'success' && steps.n-thuoc-moi.outcome == 'success') && 'ok' || 'loi' }}
+        run: node scripts/nha-may.mjs ghi thuoc-moi "$KET" --log "$RUNNER_TEMP/thuoc-moi.log"
+
       - name: Commit nếu có thay đổi
         timeout-minutes: 3
         id: commit

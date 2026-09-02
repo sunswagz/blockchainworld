@@ -50,3 +50,7 @@ assets/data/de-bai-tien-hoa.json
 # thứ đáng giữ là dữ liệu đã qua cổng chặn. Cùng lý do với de-bai.json
 # của Đài Quan Trắc và de-bai-tien-hoa.json của Hộ Bộ.
 knowledge-os/data/de-bai-tien-hoa.json
+
+# Đề bài của node thuoc-moi — chỉ sống trong một lượt chạy, thứ
+# đáng giữ là tờ trình factory/thuoc-de-xuat.md đã qua cổng.
+factory/de-bai-thuoc.md
