@@ -138,7 +138,16 @@ function spark(lich, mau){
     return x.toFixed(1)+','+y.toFixed(1);
   }).join(' ');
   const cuoi = pts.split(' ').pop().split(',');
-  return '<svg class="spk" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true">'+
+  /* CỠ NỘI TẠI, không chỉ viewBox. W và H đúng bằng .spk trong
+     app.css (74×20) nên bố cục không đổi một pixel nào — nhưng nếu
+     người dùng đang kẹt bản CSS cũ trong cache, SVG chỉ có viewBox
+     sẽ phình kín trang. Đó là kiểu hỏng CLAUDE.md chép lại từ lần
+     icon Cổng Thành phình ra vì quên nâng CACHE_VERSION.
+
+     Đường spark chỉ vẽ khi có từ 4 mốc lịch sử trở lên, nên nó nằm
+     im nhiều ngày rồi mới hiện — và thước svg-co bắt được đúng lượt
+     dữ liệu đủ 4 mốc, chứ không phải lúc dòng này được viết. */
+  return '<svg class="spk" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true">'+
     '<polyline points="'+pts+'" fill="none" stroke="'+mau+'" stroke-width="1.4" '+
     'stroke-linejoin="round" stroke-linecap="round"/>'+
     '<circle cx="'+cuoi[0]+'" cy="'+cuoi[1]+'" r="1.8" fill="'+mau+'"/></svg>';
