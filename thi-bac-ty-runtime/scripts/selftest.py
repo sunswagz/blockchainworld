@@ -8146,6 +8146,48 @@ def kiem_ngang_gia() -> None:
          and doc_ky_han("rác") is None)
     kiem("tháng lạ → None, không đoán bừa",
          doc_ky_han("BTC-28XXX26-96000-C") is None)
+    # NGÀY MỘT CHỮ SỐ. Deribit KHÔNG đệm số 0: `BTC-5SEP26` là tên thật.
+    # Cửa `len(p[1]) < 7` cũ vứt SẠCH mọi kỳ hạn rơi vào ngày 1–9 — chừng
+    # ba mươi phần trăm số ngày đáo hạn — và vứt trong IM LẶNG, vì `None`
+    # chảy vào một `continue` không đếm.
+    #
+    # Vì sao nó sống lâu thế: phép kiểm bên dưới dựng kỳ hạn bằng «hôm nay
+    # + 30 ngày», nên hai mươi mốt ngày mỗi tháng nó cho ngày hai chữ số
+    # và XANH. Nó đỏ đúng ngày 02/09/2026. **Một phép kiểm phụ thuộc LỊCH
+    # thì con bọ nó canh cũng chỉ lộ ra theo lịch.**
+    kiem("ngày MỘT chữ số vẫn đọc được — Deribit không đệm số 0",
+         (doc_ky_han("BTC-5SEP26-78000-C")
+          == _dt.datetime(2026, 9, 5, 8, 0, tzinfo=_dt.timezone.utc)
+          and doc_ky_han("ETH-9JAN27-3000-P")
+          == _dt.datetime(2027, 1, 9, 8, 0, tzinfo=_dt.timezone.utc)),
+         f"{doc_ky_han('BTC-5SEP26-78000-C')} — mọi kỳ hạn ngày 1–9 bị "
+         f"vứt sạch, và không dòng nào kêu")
+    kiem("nhưng rác vẫn bị từ chối, không nới cửa quá tay",
+         doc_ky_han("BTC-1ZZZ26-1-C") is None
+         and doc_ky_han("BTC-SEP26-1-C") is None)
+
+    # ── cặp KHÔNG dựng nổi cơ hội phải được ĐẾM, không `continue` suông ──
+    #
+    # Nửa còn lại của cùng con bọ. Bộ đọc từ chối ngày 1–9, và `None` chảy
+    # vào một `continue` không đếm — nên ty thấy ít cơ hội hơn thật, mà
+    # "ít cơ hội" trông y hệt "chợ hôm nay không có gì".
+    def _cap(ma_kh):
+        return [{"instrument_name": f"BTC-{ma_kh}-78000-C", "_tienTe": "BTC",
+                 **_qc(0.045, 0.065)},
+                {"instrument_name": f"BTC-{ma_kh}-78000-P", "_tienTe": "BTC",
+                 **_qc(0.020, 0.040)}]
+
+    _bd = {}
+    _ra = tim_co_hoi(_cap("25DEC26") + _cap("28XXX26"), 300.0, CONFIG["phi"],
+                     CONFIG["sucChua"], CongRuiRo(CONFIG["ruiRo"]),
+                     now=_dt.datetime(2026, 11, 25, 8, 0,
+                                      tzinfo=_dt.timezone.utc), boDem=_bd)
+    kiem("cặp đọc được thì thành cơ hội, cặp KHÔNG đọc được thì bị ĐẾM",
+         len(_ra) == 1 and _bd["soCapBoQua"] == 1
+         and _bd["capBoQua"] == ["BTC-28XXX26-78000"],
+         f"ra={len(_ra)} boDem={_bd} — một con số 0 ở đây nói «mọi cặp đều "
+         f"đọc được», một con số lớn nói «có cả một họ mã đang rơi khỏi "
+         f"bảng»; trước nay hai câu ấy trông giống hệt nhau")
 
     # ── hệ số chiết khấu ────────────────────────────────────────────────
     kiem("lãi suất 0 → hệ số đúng bằng 1",
@@ -8173,8 +8215,11 @@ def kiem_ngang_gia() -> None:
 
     # ── giá THỰC THI, không phải giá giữa ───────────────────────────────
     F, K = 80_000.0, 78_000.0
-    sau = _dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(days=30)
-    kh = f"{sau.day}{['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][sau.month-1]}{sau.year%100:02d}"
+    # Kỳ hạn dựng từ «hôm nay + 30 ngày» thì kết quả phụ thuộc LỊCH — và
+    # chính nó đã giấu con bọ ngày-một-chữ-số ở trên, xanh hai mươi mốt
+    # ngày mỗi tháng. Nay chốt một ngày CỐ ĐỊNH.
+    sau = _dt.datetime(2026, 12, 25, 8, 0, tzinfo=_dt.timezone.utc)
+    kh = "25DEC26"
 
     # F=80.000 · K=78.000 → (F−K)/F = 0,025. Call ~0,055 · Put ~0,030, nên
     # giá GIỮA thoả ngang giá đúng bằng 0,025. Giá phải HỢP LÝ: một put yết

@@ -148,9 +148,19 @@ def doc_ky_han(ma: str) -> _dt.datetime | None:
     ấy đi thẳng vào hệ số chiết khấu của những kỳ hạn ngắn.
     """
     p = ma.split("-")
-    if len(p) != 4 or len(p[1]) < 7:
+    if len(p) != 4:
         return None
     d = p[1]
+    # `>= 6` chứ KHÔNG `>= 7`. Deribit KHÔNG đệm số 0 vào ngày: `BTC-5SEP26`
+    # là tên thật, dài đúng 6 ký tự ở phần ngày. Cửa `< 7` cũ vứt SẠCH mọi
+    # kỳ hạn rơi vào ngày 1–9 — chừng ba mươi phần trăm số ngày đáo hạn —
+    # và vứt trong im lặng, vì `None` chảy vào một `continue` không đếm.
+    #
+    # Không ai thấy suốt nhiều tháng vì phép kiểm dựng kỳ hạn bằng «hôm nay
+    # + 30 ngày»: hai mươi mốt ngày mỗi tháng nó cho ngày hai chữ số và
+    # xanh, chín ngày còn lại nó đỏ. Nó đỏ đúng hôm 02/09/2026.
+    if len(d) < 6:
+        return None
     try:
         ngay = int(d[:-5])
         thang = THANG.get(d[-5:-2].upper())
@@ -415,16 +425,34 @@ def ghep_cap(ds: list[dict]) -> dict:
 
 
 def tim_co_hoi(ds: list[dict], vonXinUsd: float, phiC: dict, sucChuaC: dict,
-               cong, now=None) -> list:
+               cong, now=None, boDem: dict | None = None) -> list:
+    """Cặp nào KHÔNG dựng nổi một cơ hội thì ĐẾM ra, đừng `continue` suông.
+
+    Bản trước bỏ qua im lặng, và cái im lặng ấy giấu một con bọ thật suốt
+    nhiều tháng: `doc_ky_han` từ chối mọi kỳ hạn ngày 1–9 (Deribit không
+    đệm số 0), nên chừng ba mươi phần trăm số ngày đáo hạn biến mất khỏi
+    danh sách cơ hội. Không lỗi nào ném, không dòng nào kêu — chỉ là ty
+    này thấy ít cơ hội hơn thật, và "ít cơ hội" trông y hệt "chợ hôm nay
+    không có gì".
+
+    `boDem` là một dict tuỳ chọn; truyền vào thì nó nhận `soCapBoQua` và
+    `capBoQua` (tối đa tám mã, đủ để lần ra khuôn chung mà không phình
+    ảnh chụp).
+    """
     ra = []
+    bo = []
     for (tt, kyHan, K), v in ghep_cap(ds).items():
         co = mot_co_hoi(tt, kyHan, K, v["C"], v["P"], vonXinUsd, phiC,
                         sucChuaC, now)
         if co is None:
+            bo.append(f"{tt}-{kyHan}-{K:.0f}")
             continue
         qua, ly = cong.xet(co)
         ra.append(replace(co, duyet=qua, lyDoMa=tuple(ly),
                           lyDo=tuple(c for _, c in ly)))
+    if boDem is not None:
+        boDem["soCapBoQua"] = len(bo)
+        boDem["capBoQua"] = sorted(bo)[:8]
     ra.sort(key=lambda c: -c.netMoiGioBps)
     return ra
 
@@ -454,12 +482,15 @@ class TyNgangGia(Ty):
         self.nguon = NguonDeribit()
         self.cong = CongRuiRo(CONFIG["ruiRo"])
         self.coHoi: list = []
+        self._boDem: dict = {}
         self._cf = client_factory
 
     def quet(self) -> list:
         ds = _chay(self._doc())
+        self._boDem = {}
         self.coHoi = tim_co_hoi(ds, float(CONFIG["von"]["moiCoHoiUsd"]),
-                                CONFIG["phi"], CONFIG["sucChua"], self.cong)
+                                CONFIG["phi"], CONFIG["sucChua"], self.cong,
+                                boDem=self._boDem)
         return list(self.coHoi)
 
     async def _doc(self):
@@ -525,9 +556,15 @@ class TyNgangGia(Ty):
         return xuat_to_trinh(co)
 
     def tom_tat(self) -> dict:
+        # `soCapBoQua` là cặp call/put ghép được nhưng KHÔNG dựng nổi một
+        # cơ hội. Nó phải lên ảnh chụp: một con số 0 ở đây nói "mọi cặp
+        # đều đọc được", còn một con số lớn nói "có cả một họ mã đang
+        # rơi khỏi bảng" — hai câu ấy trước nay trông giống hệt nhau.
         return {"nguon": self.nguon.tom_tat(), "cua": self.cong.tom_tat(),
                 "soCoHoi": len(self.coHoi),
-                "soQua": sum(1 for c in self.coHoi if c.duyet)}
+                "soQua": sum(1 for c in self.coHoi if c.duyet),
+                "soCapBoQua": self._boDem.get("soCapBoQua"),
+                "capBoQua": self._boDem.get("capBoQua")}
 
 
 def _rui_ro(co) -> RuiRo:
