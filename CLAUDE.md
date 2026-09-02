@@ -182,6 +182,7 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     factory/tien-hoa.jsonl
     factory/kho-de-xuat.json
     factory/phieu.json
+    factory/chieu-mu.json
     factory/huong.json
     factory/state.json
     factory/bao-cao.md
@@ -1815,6 +1816,49 @@ phục.
 Nên đọc `factory/huong.json` như một **bàn đã dọn**, không phải một
 quyết định. Chọn xong thì việc mới thành việc: thêm thước, thêm node,
 hay sửa tay — đó là lúc bảy vòng kia vào cuộc.
+
+### Quét đột biến giao diện — thước ĐO CHÍNH BỘ THƯỚC
+
+    node scripts/dot-bien-giao-dien.mjs <cung>          thả 18 con, in kết quả
+    node scripts/dot-bien-giao-dien.mjs <cung> --song   chỉ in con SỐNG
+    node scripts/dot-bien-giao-dien.mjs <cung> --ghi    ghi factory/chieu-mu.json
+
+Một cung 17/17 **không** có nghĩa là nó đẹp — có nghĩa là mười bảy câu
+hỏi đã trả lời hết. Câu đắt hơn là *mười bảy câu ấy phủ được bao nhiêu
+phần của cái đáng hỏi*, và cách duy nhất trả lời được là **cố ý làm
+hỏng một thứ rồi xem có thước nào kêu**.
+
+    con CHẾT = có thước bắt được → chiều ấy đang được canh
+    con SỐNG = không ai kêu      → CHIỀU MÙ, và nó có TÊN
+
+**Đo ngày 02/09 trên bốn cung: 31/64 — bộ thước bắt được 48%.** Mười
+hai cung đều 16/16 hoặc 17/17 trong khi bộ thước mù hơn một nửa những
+hỏng hóc thật. Hai con số ấy không mâu thuẫn; chúng đo hai thứ khác
+nhau, và chỉ có con số thứ hai nói được còn bao xa để đi.
+
+**Đây là thước duy nhất của vòng giao diện KHÔNG bão hoà.** Mười chín
+thước kia đều hỏi "cung có gì hỏng không" — hỏng thì sửa, sửa xong là
+xanh vĩnh viễn, và đó là lý do 12 cung đứng ở 16/16 từ 01/09. Độ phủ
+hỏi "bộ thước có mù chỗ nào không": thêm một con đột biến mới là tỉ lệ
+tụt ngay. Cùng loại với thước `phan-quyet-2026` của knowledge-os, đo
+ĐỘ PHỦ chứ không đo lỗi.
+
+**Con SỐNG mà có khai `canh` là THƯỚC HỎNG, không phải chiều mù** — và
+nó tìm ra một cái ngay lượt chạy đầu: `svg-co` dùng `/width=/` không
+ranh giới nên `stroke-width="1.7"` khớp, thước báo 0 vĩnh viễn. Sửa
+xong thì **11/12 cung tụt điểm**, lộ ra 41 svg thiếu cỡ nội tại.
+
+**Luật tự chứng, chép từ Khâm Thiên Giám:** ghi con đột biến xong thì
+đọc lại đĩa đối chiếu **từng byte**, khác thì dừng với mã 8. Bên ấy
+từng có `git rebase --autostash` chen giữa lượt quét, và chiều lệch là
+chiều NGUY — file mang đột biến của lượt trước thì bài kiểm đỏ, con
+đang xét bị đếm là CHẾT, tức tai nạn làm phiếu **đẹp lên**. Lời dặn
+trong văn xuôi ở đó đã có sẵn và không giữ được gì.
+
+`DA_DONG` trong chính file ấy giữ **hướng đã đóng** — kết quả âm đáng
+giữ đúng bằng kết quả dương, vì chúng ngăn một phiên sau làm lại trọn
+một chuỗi thí nghiệm đã thất bại. Đang ghi hai hướng, mỗi hướng kèm số
+đo chứ không chỉ kèm chữ "không được".
 
 ### Cổng dev
 
