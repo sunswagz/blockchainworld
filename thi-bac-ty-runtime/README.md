@@ -1785,9 +1785,23 @@ phân loại đúng, không đòi ai nhớ cập nhật danh sách.
 ## Cỗ máy có sống khi không ai ngồi đây không
 
 Đo 02/09/2026, và câu trả lời khi ấy là KHÔNG. Làn thật dừng lúc **30/08
-16:53 UTC** — `runtime.log` không một dòng lỗi, nó chỉ hết. Máy khởi động
-lại năm tiếng sau; Tử Cấm Thành sống dậy vì có lối tắt trong Startup, còn
-cung này thì không có gì dựng nó lên. Nằm im **70,8 giờ**.
+16:53 UTC** — `runtime.log` không một dòng lỗi, dòng cuối là biểu ngữ
+khởi động rồi hết. Nằm im **70,8 giờ**.
+
+⚠ **Bản đầu của mục này ghi "máy khởi động lại năm tiếng sau đó", và câu
+ấy SAI.** Đo lại: `LastBootUpTime` = 28/08 13:03, máy chạy liền **131,9
+giờ** — nó chưa hề khởi động lại. Chỗ sai là đọc `StartTime` của mấy
+tiến trình Python rồi coi đó là giờ máy lên. **Giờ tiến trình lên không
+phải giờ máy lên.**
+
+Và hai câu ấy dẫn tới hai kết luận KHÁC HẲN nhau: nếu máy khởi động lại
+thì bệnh là "thiếu mục tự chạy", chữa bằng một lối tắt Startup; máy chạy
+liền mà cỗ máy vẫn chết thì bệnh là **nó TỰ CHẾT**, và lối tắt Startup
+không cứu được gì. Thứ thật sự cần là bộ giám sát thường trú.
+
+Cũng đừng nhầm rằng lối tắt Startup đã cứu Tử Cấm Thành. Nó sống vì
+`chay-nen.py` của chính nó bọc sẵn một vòng giám sát bên trong — và
+cung ấy cũng chết, rồi tự dậy lúc 31/08 04:54.
 
 Lúc nạp lại, chính lớp trung thực dựng hôm 30/08 nói ra cái giá thay vì
 giấu nó: 120 vị thế đều có cửa sổ kế toán dài quá trần nên bị **BỎ và
@@ -1806,10 +1820,12 @@ bảy commit bot. Nửa trên mây tự lo được; nửa trên máy thì khôn
 Nên **đừng đi đường tác vụ định kỳ** — mất thì giờ rồi cụt. Móc khởi
 động duy nhất còn dùng được là **thư mục Startup**, đúng thứ Tử Cấm
 Thành đang dùng. Mà lối tắt Startup chỉ bắn MỘT phát lúc đăng nhập: nó
-lấp lỗ «khởi động lại máy», không lấp lỗ «sập giữa chừng».
+lấp lỗ «khởi động lại máy» — **ca chưa từng xảy ra** — chứ không lấp lỗ
+«sập giữa chừng», là ca ĐÃ xảy ra.
 
 Vì thế `dichvu/giam-sat.ps1` chạy **thường trú**, và một lối tắt Startup
-gọi nó với `-Vong`. Một cơ chế lấp cả hai lỗ.
+gọi nó với `-Vong`. Một cơ chế lấp cả hai lỗ, và cái vòng lặp mới là
+phần chữa đúng bệnh.
 
 ### Ba điều nó phải làm, và cả ba đều học từ chỗ đã sai
 
@@ -1825,11 +1841,35 @@ nên nó báo NHẦM làn thật là chết rồi ghi vào sổ một cái chế
 RA. Một cuốn sổ như thế còn tệ hơn không có sổ. Nay hỏi `/api/cau-hinh`
 (**0,061 giây**, rẻ hơn 184 lần) và đòi **hai lần trượt liên tiếp**.
 
-**3. Đếm được chính nó.** Một tiến trình thường trú thì cũng chết được,
+**3. Có ĐIỂM BỎ CUỘC.** Học từ `tu-cam-thanh-runtime/dichvu/chay-nen.py`:
+bật lại mãi biến một hỏng **vĩnh viễn** thành một chuỗi trục trặc, và
+không ai đọc ra. Sau sáu lượt phải bật lại liên tiếp — một giờ liền cứ
+mười phút chết một lần — nó THÔI bật và ghi một dòng to. Làn ấy sống lại
+do người bật tay thì nó tự nhận canh lại.
+
+**4. Đếm được chính nó.** Một tiến trình thường trú thì cũng chết được,
 và lúc ấy không còn ai canh ai. Mỗi vòng nó ghi đè `giam-sat-nhip.txt`
 bằng giờ UTC — tuổi file ấy trả lời «người gác đêm còn sống không».
 Không có nhịp này thì cái chết của nó là cái chết im lặng nhất trong cả
-hệ.
+hệ. Đã xảy ra thật ở cung khác: 30/08 lúc 12:56 cả hai bộ giám sát của
+Tử Cấm Thành cùng biến mất, nhật ký không một dòng để lần.
+
+### Con bọ mà chính điểm bỏ cuộc ấy suýt mang theo
+
+`$DEM` (hằng số đường dẫn, phạm vi script) và `$dem` (bộ đếm, biến cục
+bộ trong `MotLuot`) **là CÙNG MỘT BIẾN** — tên biến PowerShell không
+phân biệt hoa thường. Cộng với phạm vi ĐỘNG (hàm được gọi nhìn thấy biến
+cục bộ của hàm gọi nó), `GhiDem` đọc `$DEM` ra chính cái hashtable, và
+`Set-Content -Path <hashtable>` ghi ra một file tên
+**`System.Collections.Hashtable`** ở thư mục hiện hành.
+
+Không lỗi nào ném. Tệ hơn: `Get-Content $DEM` đọc lại đúng file rác ấy,
+nên một phép tự kiểm ngây thơ vẫn thấy «ghi xong, đọc lại khớp». Thứ duy
+nhất sai là bộ đếm không sống qua một lượt — tức **điểm bỏ cuộc không
+bao giờ có hiệu lực, mà vẫn trông như có**.
+
+Nay hai hàm ấy NHẬN đường dẫn qua tham số, và hằng số đổi tên thành
+`$DUONG_DEM`. Đừng "gọn hơn" bằng cách đọc biến ở ngoài.
 
 Chứng minh đầu-cuối: giết làn demo lúc 16:15, giám sát tự thấy lúc
 16:16:03, xác nhận đã lên lại lúc 16:16:36 — **33 giây, không ai chạm
