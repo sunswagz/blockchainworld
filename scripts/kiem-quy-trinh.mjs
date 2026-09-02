@@ -1007,6 +1007,54 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: ĐƯỜNG ỐNG LÀM ĐIỀU KIỆN PHẢI CÓ pipefail ────
+   GitHub chạy `run:` không khai `shell:` bằng `bash -e {0}` — KHÔNG
+   có pipefail (phải khai `shell: bash` mới có). Nên trong
+
+       if node … cong … 2>&1 | tee "$LOG"; then
+
+   mã thoát lấy của `tee`, luôn bằng 0, và nhánh THEN luôn chạy.
+   Cổng chặn in "NHẬN" kể cả khi phép đo bên trong vừa thoát 1.
+
+   Đây không phải lo xa. Lượt 02/09 11:24: factory/tien-hoa.jsonl ghi
+   `ho-bo 16/16→15/16 tra-lai`, còn chú giải của CHÍNH lượt đó ghi
+   "Vòng tiến hoá Hộ Bộ: NHẬN" — node biết nó trượt, workflow không
+   nghe thấy, bản vá lên thẳng site và không hoàn nguyên gì. Cả bảy
+   cổng chặn đều dính cùng một dòng, tức là chốt "không được xấu đi"
+   — thứ cả vòng tự tiến hoá dựa vào để dám cho model tự gộp — đã là
+   trang trí từ đầu.
+
+   Chỉ soi đường ống DÙNG LÀM ĐIỀU KIỆN. Một `| tee` đứng riêng không
+   cần pipefail, và bắt cả những chỗ ấy là kêu oan ở mười bảy chỗ vô
+   hại. */
+{
+  const wf = ".github/workflows/refresh-data.yml";
+  if (existsSync(join(ROOT, wf))) {
+    const L = (await doc(wf)).split("\n");
+    for (let i = 0; i < L.length; i++) {
+      if (!/^\s*if\s+.*\|\s*tee\b/.test(L[i]) && !/^\s*if\s+.*\\$/.test(L[i])) continue;
+      /* Dòng `if` có thể gấp bằng `\`; gom tiếp cho tới khi thấy `tee`. */
+      let cau = L[i], k = i;
+      while (/\\\s*$/.test(cau) && k + 1 < L.length) { k++; cau += " " + L[k].trim(); }
+      if (!/\|\s*tee\b/.test(cau)) continue;
+      let j = i;
+      while (j > 0 && !/^\s+run: \|/.test(L[j])) j--;
+      /* BỎ DÒNG CHÚ THÍCH trước khi tìm, và tìm đúng CÂU LỆNH chứ
+         không tìm chữ. Bản đầu của phép này dò `/pipefail/` trên
+         nguyên khối, mà chính khối chú thích giải thích lỗi có chữ
+         "pipefail" bốn lần — nên nó luôn thấy "có" và chưa bao giờ
+         kêu, kể cả khi tôi cố tình gỡ câu lệnh ra để thử. Một phép
+         canh chưa từng thấy mình đỏ thì chưa biết nó canh gì. */
+      const than = L.slice(j, i).filter((x) => !/^\s*#/.test(x)).join("\n");
+      if (!/^\s*set\s+-o\s+pipefail\b/m.test(than) &&
+          !/shell:\s*bash/.test(L.slice(Math.max(0, j - 12), j).join("\n")))
+        bao(`refresh-data.yml dòng ${i + 1}: đường ống \`| tee\` dùng làm ĐIỀU KIỆN mà khối lệnh\n` +
+            `        không có \`set -o pipefail\` — mã thoát sẽ lấy của tee (luôn 0) và nhánh\n` +
+            `        THEN luôn chạy. Đúng lỗi đã cho một bản vá tụt điểm lọt ra site 02/09.`);
+    }
+  }
+}
+
 /* ── kết quả ──────────────────────────────────────── */
 console.log(`Cung tìm thấy trên đĩa: ${cung.length} — ${cung.join(", ")}\n`);
 
