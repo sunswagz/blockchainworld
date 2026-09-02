@@ -50,6 +50,16 @@ const cung = readdirSync(ROOT, { withFileTypes: true })
   .filter((n) => existsSync(join(ROOT, n, "index.html")))
   .sort();
 
+/* Cổng Thành không lọt vào phép trên vì mã của nó ở NGAY gốc repo,
+   không trong một thư mục con. Nó là trang đầu tiên người ta thấy và
+   là trang duy nhất phiếu này bỏ sót suốt — `tien-hoa.mjs` nhận
+   `cong-thanh` làm bí danh cho gốc, nên chỉ cần gọi tên nó ra.
+
+   Thêm vào ĐÂY chứ không nới phép nhận diện ở trên: nới ra thì
+   `dist/`, `knowledge-os/` và ba runtime Python cũng có cửa lọt vào,
+   mà cả bốn đều cố ý không phải cung. */
+if (existsSync(join(ROOT, "index.html"))) cung.push("cong-thanh");
+
 /* Mỗi cung một tiến trình, và mỗi tiến trình một trần giờ. Cung nào
    treo thì mất đúng cung đó chứ không mất cả bảng — cùng lối `do` đã
    đi với DOM giả (HAN_GIAY = 45 trong tien-hoa.mjs). */

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   VÒNG XOAY — bảy cung dùng chung MỘT node tiến hoá.
+   VÒNG XOAY — tám cung dùng chung MỘT node tiến hoá.
 
    Năm cung có vòng tiến hoá riêng, chạy mỗi ngày. Bảy cung trong
    danh sách này không có gì cả; chúng chỉ tiến khi có người ngồi
@@ -36,8 +36,16 @@
    `npm run kiem` canh đúng chuyện đó.
    ═══════════════════════════════════════════════════════ */
 
+/* `cong-thanh` KHÔNG phải một thư mục — nó là trang gốc repo, và
+   `scripts/tien-hoa.mjs` nhận đúng tên ấy làm bí danh cho gốc. Trước
+   02/09 nó nằm ngoài mọi vòng: mười hai cung tiến mỗi ngày hoặc mỗi
+   tuần, còn trang ĐẦU TIÊN người ta thấy thì chỉ tiến khi có người
+   ngồi vào sửa — lần gần nhất trước đó là 29/08.
+
+   Ai sửa danh sách này thì nhớ: phép kiểm "có index.html không" ở
+   `kiem-quy-trinh.mjs` phải biết về bí danh, không thì nó báo oan. */
 export const VONG_XOAY = [
-  "cong-bo", "do-sat-vien", "hoang-thanh", "kinh-thanh",
+  "cong-bo", "cong-thanh", "do-sat-vien", "hoang-thanh", "kinh-thanh",
   "tang-thu-cac", "thi-bac-ty", "tu-cam-thanh",
 ];
 

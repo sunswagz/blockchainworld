@@ -11,7 +11,14 @@
   --line-2:  #2C3A56;
   --fg:      #E6EAF2;
   --fg-2:    #9BA8BF;
-  --dim:     #64708A;
+  /* #64708A cũ chỉ đạt 3,85 trên nền đậm nhất và 3,31 trên `--raise` —
+     dưới sàn WCAG AA 4.5 cho chữ thường, mà đây lại là màu của gần như
+     MỌI chữ nhỏ trên trang: dải `.pill`, chân thẻ, nhãn khu, chân trang,
+     ô để trống. Chữ 10,5px là chỗ cần tương phản NHIỀU hơn, không phải
+     ít hơn. #828EA6 đạt 5,80 trên `--bg` và 4,98 trên `--raise` — nền
+     sáng nhất mà nó thật sự nằm lên — và vẫn tối hơn `--fg-2` đủ để
+     giữ đúng ba bậc chữ. */
+  --dim:     #828EA6;
   --gold:    #D9A441;
   --gold-2:  #F0C368;
   --jade:    #3FB98C;
@@ -35,6 +42,13 @@ body {
   font-family: var(--sans); font-size: 15px; line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Số cùng bề ngang. Sáu mặt số trên trang này — ngày cập nhật của
+     mỗi cung, số cung đã dựng, các dải đếm — do portal.js ghi đè sau
+     khi trang đã hiện, nên chữ số đổi ngay trước mắt người đọc. Chữ số
+     tỉ lệ thì "1" hẹp hơn "8", và mỗi lượt ghi đè là cả dải `.pill`
+     nhích ngang vài pixel. Khai ở `body` là đủ: `font-variant-numeric`
+     DI TRUYỀN, nên một dòng phủ cả trang. */
+  font-variant-numeric: tabular-nums;
 }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
@@ -247,7 +261,11 @@ body::after {
 }
 .foot a { color: var(--fg-2); }
 .foot a:hover { color: var(--gold); }
-.foot .sep { color: var(--line-2); }
+/* `--line-2` là màu ĐƯỜNG KẺ, và đem nó làm màu chữ ở đây cho tỉ số
+   1,68 — thấp nhất cả trang. Dấu "·" tuy chỉ để ngăn cách nhưng vẫn là
+   chữ: trình duyệt vẫn đọc nó ra, và người nhìn kém thì thấy một khoảng
+   trống giữa hai chữ chứ không thấy dấu ngăn. */
+.foot .sep { color: var(--dim); }
 
 /* nút cài Cổng Thành */
 .install-gate {

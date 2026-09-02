@@ -68,16 +68,45 @@ if (LENH === "xoay") {
   process.exit(0);
 }
 
-if (!CUNG || !existsSync(join(ROOT, CUNG, "index.html")))
+/* ── CỔNG THÀNH LÀ CUNG THỨ MƯỜI BA ────────────────────
+   Mã của nó nằm NGAY ở gốc repo chứ không trong một thư mục con, nên
+   phép nhận diện "thư mục có index.html" bỏ sót đúng nó — trang ĐẦU
+   TIÊN người ta thấy là trang duy nhất không thước nào chạm tới.
+
+   Nhận nó bằng một tên riêng thay vì `"."`: `.` lọt vào phiếu, vào
+   `factory/tien-hoa.jsonl`, vào nhãn bước trong workflow, và ở mọi
+   chỗ đó nó đọc như một lỗi chứ không như một cái tên. `cong-thanh`
+   cũng đúng tên cache mà `sw.js` ở gốc đang dùng từ đầu. */
+const GOC = CUNG === "cong-thanh";
+
+if (!CUNG || (!GOC && !existsSync(join(ROOT, CUNG, "index.html"))))
   thoat(`"${CUNG}" không phải một cung (không có index.html ở gốc thư mục).`);
 
-const DUONG = (...p) => join(ROOT, CUNG, ...p);
+const DUONG = (...p) => (GOC ? join(ROOT, ...p) : join(ROOT, CUNG, ...p));
 const doc = (p) => readFileSync(p, "utf8");
 const co = (p) => existsSync(p);
 
 function quet(dir, ra = []) {
   for (const n of readdirSync(dir)) {
     const p = join(dir, n);
+    statSync(p).isDirectory() ? quet(p, ra) : ra.push(p);
+  }
+  return ra;
+}
+
+/* Quét từ gốc repo thì nuốt cả mười hai cung, `dist/`, `factory/`,
+   `node_modules/` — đo ra "vỏ 20 MB · nội dung 456 MB" cho một trang
+   nặng 24 KB, rồi thước "Vỏ dưới 200 KB" trượt vì thứ không phải của
+   nó. Cổng Thành chỉ có bốn thứ, đúng danh sách "một cung coi là XONG
+   khi" ở CLAUDE.md; liệt kê ra là bao trọn, và cung nào cũng vẫn quét
+   nguyên thư mục của mình như cũ. */
+const GOC_CUA_MINH = ["index.html", "sw.js", "manifest.webmanifest", "assets"];
+function quetCung() {
+  if (!GOC) return quet(DUONG());
+  const ra = [];
+  for (const n of GOC_CUA_MINH) {
+    const p = DUONG(n);
+    if (!existsSync(p)) continue;
     statSync(p).isDirectory() ? quet(p, ra) : ra.push(p);
   }
   return ra;
@@ -361,6 +390,29 @@ async function thuVeConThuc() {
   const motTrang = g.tuyen.size === 0;
   const dsTuyen = motTrang ? ["(trang chính)"] : [...g.tuyen];
 
+  /* ── TRANG VIẾT THẲNG BẰNG HTML ────────────────────────
+     `catTrang()` chỉ đọc thứ JS dựng vào DOM giả — DOM ấy khởi đầu
+     RỖNG, không ai phân giải index.html vào nó. Với mười hai cung thì
+     đúng, vì cả mười hai vẽ thân trang bằng JS. Cổng Thành thì không:
+     nội dung nằm thẳng trong HTML, không dòng JS nào dựng ra nó.
+
+     Nên nó bị chấm "1 phòng · nhỏ nhất 0 ký tự" → trượt "Mọi phòng vẽ
+     được", và cổng chặn kêu "nghi vẽ hụt" cho một trang vẽ đủ. Sai
+     hướng nguy hơn cả trượt oan: `p.ky < 400` là phép cổng chặn dựa
+     vào, nên trang tĩnh nào cũng bị chặn vĩnh viễn.
+
+     Chỉ đỡ khi JS dựng ra ĐÚNG BẰNG KHÔNG. Cung nào vẽ được một chữ
+     vẫn đi nhánh cũ, nên mười hai cung không đổi một điểm nào — đã
+     đo lại cả mười hai sau bản này.
+
+     CẮT CHÚ THÍCH TRƯỚC. Không cắt thì mười một cung có câu chú thích
+     "...onclick trả undefined và trình duyệt nhảy theo..." bị thước
+     "Không rò undefined ra HTML" chấm trượt vì đúng cái chú thích giải
+     thích nó. Cùng cái bẫy đã cắn ba lần trong repo này. */
+  const than = html.slice(Math.max(0, html.indexOf("<body")));
+  const tinh = than.replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<script\b[\s\S]*?<\/script>/g, "");
+
   const phong = [];
   for (const t of dsTuyen) {
     if (!motTrang) {
@@ -370,7 +422,7 @@ async function thuVeConThuc() {
     try {
       if (!motTrang) (g.nghe.hashchange || []).forEach((f) => f());
       await nhip();
-      const h = g.catTrang();
+      const h = g.catTrang() || tinh;
       phong.push({
         tuyen: t, ky: h.length,
         gach: (h.match(/>—</g) || []).length,
@@ -511,7 +563,7 @@ function doMau(css) {
    được thì không thuộc về đây — đưa nó vào phiếu là biến phiếu
    thành ý kiến, mà ý kiến thì không so được giữa hai lượt. */
 function do_() {
-  const file = quet(DUONG());
+  const file = quetCung();
   const html = doc(DUONG("index.html"));
   /* MỌI file .css của cung, không chỉ hai cái tên quen.
 
@@ -918,6 +970,26 @@ function do_() {
       : soH1 === 0 ? "KHÔNG có <h1> — trang không có gốc mục lục"
       : `${soH1} thẻ <h1> — trình đọc màn hình thấy ${soH1} gốc ngang hàng`);
 
+  /* ── ĐÚNG MỘT <main> ───────────────────────────────────────
+     Cùng họ với thước trên, và cùng nguồn accesslint-audit: `<main>`
+     là mốc điều hướng "nội dung chính". Người đi bằng trình đọc màn
+     hình nhảy tới mốc ấy để bỏ qua đầu trang.
+
+     Phép này từng nằm trong `scripts/kiem-quy-trinh.mjs` dưới dạng
+     bản chép tay, chỉ soi trang gốc, vì lúc đó bộ thước chưa chấm
+     được trang gốc. Nay nó chấm được, nên luật về ĐÚNG MỘT chỗ —
+     hai bản sao thì sớm muộn lệch nhau, đúng bài học mang-truoc.mjs.
+
+     Đo ngày 02/09 trên cả mười ba trang: mười hai có đúng một, riêng
+     `kinh-thanh` có KHÔNG cái nào — thiếu từ đầu, không ai báo, vì
+     chưa thước nào hỏi. Nó đang nằm trong VONG_XOAY nên lượt tới nó
+     sẽ nhận đúng việc này làm đề bài. */
+  const soMain = (htmlSach.match(/<main\b/g) || []).length;
+  cham("mot-main", "Đúng một mốc nội dung chính", soMain === 1,
+    soMain === 1 ? "một <main>, người đi bằng mốc nhảy thẳng vào nội dung"
+      : soMain === 0 ? "KHÔNG có <main> — không có mốc nào để nhảy qua đầu trang"
+      : `${soMain} thẻ <main> — ${soMain} mốc ngang hàng, không biết vào cái nào`);
+
   /* ── Ô NHẬP CÓ NHÃN ────────────────────────────────────────
      Cùng nguồn: "ensure form inputs have associated labels".
 
@@ -1113,7 +1185,7 @@ function themUngVienMoi(k) {
    bất kỳ phép nào trượt. Bước gộp trong workflow đọc mã thoát này. */
 function cong() {
   const loi = [];
-  const file = quet(DUONG());
+  const file = quetCung();
 
   for (const f of file.filter((x) => extname(x) === ".js")) {
     try { execFileSync(process.execPath, ["--check", f], { stdio: "pipe" }); }

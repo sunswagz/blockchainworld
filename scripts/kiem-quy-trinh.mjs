@@ -837,8 +837,13 @@ for (const c of ["."].concat(cung)) {
           bao(`cung "${c}" vừa nằm trong VONG_XOAY vừa có vòng tiến hoá RIÊNG trong workflow —\n` +
               `        mỗi tuần một ngày nó bị hai model sửa trong cùng một lượt.\n` +
               `        Gỡ nó khỏi VONG_XOAY ở scripts/tien-hoa.mjs.`);
-        if (!existsSync(join(ROOT, c, "index.html")))
-          bao(`VONG_XOAY khai cung "${c}" nhưng không có ${c}/index.html — node xoay sẽ ngã vào ngày tới lượt nó`);
+        /* `cong-thanh` là BÍ DANH của trang gốc, không phải thư mục —
+           xem đầu scripts/vong-xoay.mjs. Đo nó bằng ROOT/index.html
+           chứ không phải ROOT/cong-thanh/index.html, không thì phép
+           canh này báo oan đúng ngày Cổng Thành được nối vào vòng. */
+        const ten = c === "cong-thanh" ? "index.html" : `${c}/index.html`;
+        if (!existsSync(join(ROOT, ten)))
+          bao(`VONG_XOAY khai cung "${c}" nhưng không có ${ten} — node xoay sẽ ngã vào ngày tới lượt nó`);
       }
 
       /* Chiều ngược lại: cung KHÔNG thuộc vòng nào thì không bao giờ
@@ -859,56 +864,35 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
-/* ── PHÉP: CỔNG THÀNH CŨNG PHẢI CHỊU LUẬT ──────────────
-   `scripts/tien-hoa.mjs` chấm 17 thước cho MỖI CUNG, nhưng trang gốc
-   không phải cung nên không thước nào chạm tới nó — trong khi đó là
-   trang ĐẦU TIÊN người ta thấy.
+/* ── PHÉP: CỔNG THÀNH PHẢI NẰM TRONG VÒNG ──────────────
+   Trước 02/09/2026 khối này là một BẢN CHÉP TAY: `tien-hoa.mjs` dựng
+   đường theo `<cung>/…` nên không trỏ vào gốc repo được, và trang đầu
+   tiên người ta thấy là trang duy nhất không thước nào chạm tới. Nên
+   năm luật đọc-được-bằng-chuỗi bị chép lại ở đây.
 
-   Soi tay ngày 29/08 ra ba lỗi, hai trong đó đúng loại vừa vá xong ở
-   cả mười hai cung: ba thẻ <main> cùng lúc, không đường nhảy qua đầu
-   trang, một svg trần. Không có gì báo, và sẽ không bao giờ có nếu
-   không viết ra đây.
+   Nay bộ thước nhận `cong-thanh` làm bí danh cho gốc và chấm đủ 17
+   thước cho nó, kể cả những thước động mà bản chép không làm được.
+   Giữ cả hai là nuôi hai bản sao của cùng một luật, rồi chúng lệch —
+   đúng bài học `scripts/mang-truoc.mjs`. Nên phần chép đã GỠ, và việc
+   còn lại của khối này là canh chỗ NỐI: bộ thước chấm được không có
+   nghĩa là có ai gọi nó.
 
-   Không gọi thẳng bộ thước kia: nó dựng đường theo `<cung>/…` và quét
-   cả thư mục cung để tìm file — trỏ nó vào gốc repo là nó quét cả
-   mười hai cung. Nên chép LẠI đúng những luật đọc được bằng chuỗi,
-   và nói rõ đây là tập con: các thước động (vẽ phòng, tương phản
-   màu, thang chữ) vẫn KHÔNG canh trang gốc. */
+   Hai chỗ nối, hỏng chỗ nào cũng đưa Cổng Thành về đúng tình trạng
+   cũ — chấm được mà không ai chấm, và không dòng nào báo. */
 {
-  const p = join(ROOT, "index.html");
-  if (existsSync(p)) {
-    const h = (await doc("index.html")).replace(/<!--[\s\S]*?-->/g, "");
-    const dem = (re) => (h.match(re) || []).length;
+  if (existsSync(join(ROOT, "index.html"))) {
+    let VX = null;
+    try { VX = await import("./vong-xoay.mjs"); } catch { /* chưa có file */ }
+    if (VX && Array.isArray(VX.VONG_XOAY) && !VX.VONG_XOAY.includes("cong-thanh"))
+      bao(`Cổng Thành (index.html ở gốc) không nằm trong VONG_XOAY — nó chỉ tiến khi có\n` +
+          `        người ngồi vào sửa, trong khi mười hai cung tiến mỗi ngày hoặc mỗi tuần.\n` +
+          `        Thêm "cong-thanh" vào scripts/vong-xoay.mjs.`);
 
-    const soMain = dem(/<main\b/g);
-    if (soMain !== 1)
-      bao(`index.html ở gốc có ${soMain} thẻ <main> — mỗi trang chỉ được MỘT mốc "nội dung chính";\n` +
-          `        nhiều hơn là trình đọc màn hình thấy nhiều mốc ngang hàng, ít hơn là không có mốc nào`);
-
-    const soH1 = dem(/<h1\b/g);
-    if (soH1 !== 1) bao(`index.html ở gốc có ${soH1} thẻ <h1> — mục lục trang phải có đúng một gốc`);
-
-    const id = new Map();
-    for (const m of h.matchAll(/\sid="([^"]+)"/g)) id.set(m[1], (id.get(m[1]) || 0) + 1);
-    const trung = [...id].filter(([, n]) => n > 1);
-    if (trung.length)
-      bao(`index.html ở gốc có id trùng (${trung.map(([k, n]) => k + "×" + n).join(", ")}) — ` +
-          `getElementById trả thẻ ĐẦU TIÊN, phần còn lại thành vô hình với JS`);
-
-    const nhay = [...h.matchAll(/<a\b[^>]*href="#([\w-]+)"/g)].some((m) => h.includes(`id="${m[1]}"`));
-    if (!nhay) bao(`index.html ở gốc thiếu đường nhảy qua đầu trang (WCAG 2.4.1) — ` +
-                   `người dùng bàn phím phải Tab qua hiệu, tên cổng và dòng dẫn ở mỗi lần vào`);
-
-    /* Cùng phép với thước "Nút và SVG có nhãn": thẻ cha mang nhãn thì
-       icon bên trong không cần. Đếm thô ở đây báo 29/29 và suýt làm
-       tôi đi sửa 28 chỗ không cần sửa. */
-    const svgTran = [...h.matchAll(/<svg\b([^>]*)>/g)].filter((m) => {
-      if (/aria-hidden|role=|aria-label/.test(m[1])) return false;
-      const cha = [...h.slice(Math.max(0, m.index - 240), m.index)
-        .matchAll(/<(?:span|button|a|div)\b([^>]*)>/g)].pop();
-      return !(cha && /aria-hidden|aria-label/.test(cha[1]));
-    }).length;
-    if (svgTran) bao(`index.html ở gốc có ${svgTran} svg không aria-hidden và không nằm trong thẻ cha có nhãn`);
+    const pt = await doc("scripts/phieu-toan-thanh.mjs").catch(() => "");
+    if (pt && !pt.includes('"cong-thanh"'))
+      bao(`scripts/phieu-toan-thanh.mjs không chấm Cổng Thành — phiếu toàn thành liệt kê cung\n` +
+          `        bằng "thư mục có index.html", mà gốc repo không phải thư mục con nào.\n` +
+          `        factory/phieu.json sẽ khai 12 cung và im lặng bỏ trang gốc.`);
   }
 }
 
