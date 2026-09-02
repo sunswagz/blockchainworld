@@ -99,7 +99,18 @@ jobs:
     # Đừng cộng tay nữa, nó sai hai lần rồi. Đếm bằng máy:
     #   grep -E "^        timeout-minutes:" .github/workflows/refresh-data.yml \
     #     | awk '{s+=$2} END {print s}'
-    timeout-minutes: 130
+    #
+    # 130 → 180 (02/09). `npm run kiem` đòi trần job ≥ 3 lần lượt chạy
+    # THẬT xấu nhất, và lượt ấy đo được 43,8 phút — tức cần ≥ 132. Trần
+    # 130 đã hụt 2 phút TRƯỚC khi tôi chạm vào, và mở khoá vòng tiến hoá
+    # Đài Quan Trắc (bước model 15 phút, trước đây bị bỏ qua khi phiếu
+    # đầy) làm nó hụt thêm.
+    #
+    # Vì sao nâng chứ không giãn nhịp: repo công khai nên phút Actions
+    # miễn phí, và mỗi BƯỚC đã có trần riêng (cao nhất 15 phút) nên một
+    # bước treo không thể ăn hết 180 phút — trần job chỉ là lưới cuối.
+    # Giãn nhịp thì ngược lại, nó đổi thứ người dùng thấy được.
+    timeout-minutes: 180
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
 
@@ -821,11 +832,23 @@ jobs:
           # ra vì lỗi nằm ở YAML chứ không ở script.
           git diff --name-only -- dai-quan-trac > "$RUNNER_TEMP/dqt-ban-truoc.txt"
 
-      # Không còn điểm yếu thì KHÔNG gọi model. Bảy thước đã hết chỗ
-      # để đo là chuyện tốt, không phải lý do đi tìm việc cho model.
+      # Trước đây bước này khoá bằng `outputs.yeu != '0'`: hết điểm yếu
+      # thì không gọi model. Ý ban đầu đúng — không đi tìm việc cho
+      # model. Nhưng hệ quả đo được: phiếu Đài Quan Trắc đầy từ
+      # 30/08/2026, và từ đó tới 02/09 nó KHÔNG tiến thêm bước nào,
+      # trong khi mười một cung kia nâng cấp mỗi ngày.
+      #
+      # Mười một cung ấy không có khoá này, và chúng không lãng phí:
+      # tu-cam-thanh lượt 02/09 đủ 16/16 vẫn tìm ra thẻ .ph mang <h3>
+      # ở tám chỗ mà cung chỉ có luật `.the h3`, nên chúng rơi về mặc
+      # định trình duyệt — to hơn cả h2 của mục. Không thước nào đo
+      # được chuyện đó, và nó có thật.
+      #
+      # Cổng chặn vẫn là thứ quyết định: bản vá làm tụt điểm thì bị
+      # trả lại, y như lượt ho-bo 02/09 (16/16 → 15/16, `tra-lai`).
       - name: Đề xuất bản vá (Claude Code)
         id: n-th-va
-        if: steps.n-th-de.outcome == 'success' && steps.n-th-de.outputs.yeu != '0'
+        if: steps.n-th-de.outcome == 'success'
         continue-on-error: true
         timeout-minutes: 15
         uses: anthropics/claude-code-action@v1
@@ -845,8 +868,16 @@ jobs:
             · `kyNang` — skill Tàng Thư Các đã chọn sẵn cho ĐÚNG những
               điểm yếu đó, mỗi cái có `doc` là URL đọc được bằng WebFetch.
 
-            Chọn MỘT điểm yếu — cái có số đo tệ nhất — và sửa DUY NHẤT nó.
-            Đọc 1–2 skill khớp trước khi sửa nếu thấy cần.
+            Trình tự:
+            1. Với mỗi mục trong `kyNang` có trường `doc`, dùng WebFetch
+               đọc SKILL.md đó. Đấy là kinh nghiệm người khác đã viết
+               ra; đọc trước khi tự nghĩ.
+            2. Xem `phieu.diem` — thước nào `dat: false` là điểm yếu đo
+               được. Chọn MỘT cái có số đo tệ nhất và sửa DUY NHẤT nó.
+            3. Nếu mọi thước đều đạt, tìm MỘT chỗ làm trang dễ đọc hoặc
+               dễ dùng hơn mà KHÔNG thước nào đo được: nhãn khó hiểu,
+               thứ bậc thị giác lẫn lộn, khoảng cách không đều, trạng
+               thái trống không nói được gì, chữ số không đứng cột.
 
             CHỈ được sửa những file này:
               dai-quan-trac/index.html
@@ -872,7 +903,10 @@ jobs:
               trượt và cả lượt bị hoàn nguyên, tức công cốc.
             · Đường dẫn phải TƯƠNG ĐỐI. Đường tuyệt đối là trượt ngay.
 
-            Xong thì viết một dòng: đã sửa thước nào, sửa gì.
+            Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
+            vào dai-quan-trac/assets/data/de-bai-tien-hoa.json dưới khoá
+            `daLam`. Hai lượt trước để trống khoá đó, nên sổ tiến hoá
+            chỉ ghi được điểm số mà không ghi được việc.
 
       # Cổng chặn quyết định, KHÔNG phải model. `--so` bắt thêm trường
       # hợp "vẫn chạy nhưng XẤU ĐI" mà năm phép kia không thấy: đổi
@@ -960,7 +994,7 @@ jobs:
         env:
           # Phiếu đầy đủ (không gọi model) cũng là `ok`: node đã chạy,
           # đã đo, và kết luận đúng là không có gì phải sửa.
-          KET: ${{ (steps.n-th-de.outputs.yeu == '0' || steps.n-th-cong.outcome == 'success') && 'ok' || 'loi' }}
+          KET: ${{ steps.n-th-cong.outcome == 'success' && 'ok' || 'loi' }}
           YEU: ${{ steps.n-th-de.outputs.yeu }}
           T_DAU: ${{ steps.n-th-de.outputs.t0 }}
           # Ba mã kết cục, để sổ nói ĐÚNG CHỖ ngã. Bản cũ ghi cứng
