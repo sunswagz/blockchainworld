@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-02T16:07:19.355Z",
+  "generatedAt": "2026-09-02T16:19:45.410Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -431,6 +431,10 @@
         "cong-bo/assets/css/app.css",
         "cong-bo/assets/js/app.js",
         "cong-bo/sw.js",
+        "index.html",
+        "assets/css/portal.css",
+        "assets/js/portal.js",
+        "sw.js",
         "do-sat-vien/index.html",
         "do-sat-vien/assets/css/app.css",
         "do-sat-vien/assets/js/app.js",

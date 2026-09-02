@@ -57,3 +57,45 @@ export const VONG_XOAY = [
 export function cungHomNay(luc = Date.now()) {
   return VONG_XOAY[Math.floor(luc / 86400000) % VONG_XOAY.length];
 }
+
+/* ── BA FILE MODEL ĐƯỢC SỬA, VÀ FILE THỨ TƯ ĐI KÈM ─────────
+   Mười hai cung theo đúng một khuôn: `<cung>/index.html`,
+   `<cung>/assets/css/app.css`, `<cung>/assets/js/app.js`. Cổng Thành
+   thì KHÔNG — mã của nó ở gốc repo và mang tên khác: `portal.css`,
+   `portal.js`. Khuôn `${c}/assets/css/app.css` áp cho nó cho ra bốn
+   đường không tồn tại.
+
+   Vì sao chỗ này đáng có một hàm riêng thay vì bốn dòng chuỗi rải ra:
+   `duong-ra` CHỈ in đường có thật trên đĩa, nên bốn đường sai không
+   sinh lỗi nào — chúng lặng lẽ biến mất khỏi lệnh `git add`, và Cổng
+   Thành thành cung mà model sửa mỗi tám ngày rồi bị vứt, sổ vẫn ghi
+   "ok". Đó đúng là lỗi `ra: []` đã cắn một lần ở chính node xoay này,
+   chỉ khác là lần này nó chỉ cắn MỘT cung nên còn khó thấy hơn.
+
+   Nên tên file nằm ở đây, cạnh danh sách xoay, và cả `scripts/node/
+   xuong.mjs` lẫn đề bài của workflow đều hỏi hàm này. Thêm một cung
+   đặt tên file khác thì sửa đúng một chỗ.
+
+   MỘT chỗ duy nhất biết Cổng Thành là ngoại lệ, và đó là `thuMuc`.
+   Ba hàm dưới dựng trên nó; thêm hàm thứ tư thì cũng dựng trên nó,
+   đừng viết lại phép so `=== "cong-thanh"` lần nữa. */
+export const thuMuc = (cung) => (cung === "cong-thanh" ? "" : cung + "/");
+
+export function fileSua(cung) {
+  const d = thuMuc(cung);
+  const ten = cung === "cong-thanh" ? "portal" : "app";
+  return [`${d}index.html`, `${d}assets/css/${ten}.css`, `${d}assets/js/${ten}.js`];
+}
+
+/* Đề bài của lượt — `tien-hoa.mjs de-bai` ghi ra đây, model đọc nó
+   rồi ghi lại `daLam` vào chính nó. Gitignore phải phủ được đường
+   này, xem mục tương ứng trong .gitignore. */
+export const fileDeBai = (cung) => `${thuMuc(cung)}assets/data/de-bai-tien-hoa.json`;
+
+/* Thêm `sw.js`: model không được sửa nó, nhưng `nang-version.mjs` chạy
+   ngay sau cổng chặn và nâng CACHE_VERSION. Không commit nó thì người
+   đã cài app ghép HTML mới với CSS cũ — kiểu hỏng khó lần ra nhất
+   trong repo, theo đúng chữ của CLAUDE.md. */
+export function fileRa(cung) {
+  return [...fileSua(cung), `${thuMuc(cung)}sw.js`];
+}

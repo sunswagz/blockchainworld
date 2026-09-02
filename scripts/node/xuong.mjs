@@ -14,7 +14,7 @@
 /* Node của CHÍNH nhà máy — không thuộc cung nào.
    Đóng dấu bản số liệu, báo cáo sức khoẻ, giao hàng. */
 
-import { VONG_XOAY } from "../vong-xoay.mjs";
+import { VONG_XOAY, fileRa } from "../vong-xoay.mjs";
 
 /* Đường ra của node `tien-hoa-xoay`, SINH TỪ chính danh sách xoay.
 
@@ -33,13 +33,15 @@ import { VONG_XOAY } from "../vong-xoay.mjs";
    Sinh từ VONG_XOAY chứ không gõ tay 28 đường: thêm một cung vào
    vòng xoay mà quên thêm bốn đường ở đây thì đúng cung ấy im lặng
    không bao giờ được commit. `duong-ra` chỉ in đường CÓ THẬT trên
-   đĩa nên cung thiếu file nào cũng không sinh lỗi pathspec. */
-const RA_XOAY = VONG_XOAY.flatMap((c) => [
-  `${c}/index.html`,
-  `${c}/assets/css/app.css`,
-  `${c}/assets/js/app.js`,
-  `${c}/sw.js`,
-]);
+   đĩa nên cung thiếu file nào cũng không sinh lỗi pathspec.
+
+   Và ĐÚNG VÌ THẾ mà tên file phải hỏi `fileRa`, không viết thẳng
+   khuôn `${c}/assets/css/app.css` ra đây: Cổng Thành mang tên
+   `portal.css`/`portal.js` ở gốc repo, nên khuôn ấy cho nó bốn đường
+   không tồn tại — bị lọc sạch, không lỗi nào báo, và cung ấy mỗi tám
+   ngày có một lượt model bị vứt. Cùng một cách hỏng như `ra: []` ở
+   trên, chỉ nhỏ hơn tám lần nên khó thấy hơn tám lần. */
+const RA_XOAY = VONG_XOAY.flatMap(fileRa);
 
 export const NODE = [
   {

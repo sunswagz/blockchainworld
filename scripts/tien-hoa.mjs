@@ -60,10 +60,18 @@ if (!LENH) thoat("Thiếu lệnh. Xem đầu file scripts/tien-hoa.mjs.");
    riêng vì `npm run kiem` phải đọc được nó, mà import file NÀY là
    chạy luôn phần thân của nó. */
 if (LENH === "xoay") {
-  const { cungHomNay } = await import("./vong-xoay.mjs");
+  const { cungHomNay, fileSua, fileDeBai } = await import("./vong-xoay.mjs");
   const c = cungHomNay();
   const ra = co_("ra");
-  if (ra) await writeFile(ra, `cung=${c}\n`, { flag: "a" });
+  /* Khai luôn BA FILE model được sửa, ở cùng một bước với tên cung.
+     Đề bài trong workflow trước đây viết thẳng `<cung>/assets/css/
+     app.css` — đúng cho mười hai cung, sai cho Cổng Thành, và sai
+     theo lối model không cãi được: nó sẽ đi tạo một file mới đúng tên
+     ấy, cổng chặn không cấm, rồi `duong-ra` lọc file đó ra vì nó
+     không nằm trong sổ đăng ký. Hỏi `fileSua` là đề bài và lệnh
+     `git add` cùng đọc một nguồn. */
+  if (ra) await writeFile(ra,
+    `cung=${c}\nfile=${fileSua(c).join(" ")}\ndebai=${fileDeBai(c)}\n`, { flag: "a" });
   console.log(c);
   process.exit(0);
 }

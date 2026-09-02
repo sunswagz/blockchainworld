@@ -230,11 +230,22 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     knowledge-os/data/2026/concepts.json
     knowledge-os/data/2026/relations.json
 
-Bảy cung dưới đây do **một** node đồng sửa — `tien-hoa-xoay`, mỗi ngày
-một cung, bảy ngày giáp vòng (xem `scripts/vong-xoay.mjs`). Danh sách
-đường sinh thẳng từ `VONG_XOAY` nên thêm cung vào vòng là bốn đường
-này tự có; không phải chép tay ở hai chỗ:
+Tám cung dưới đây do **một** node đồng sửa — `tien-hoa-xoay`, mỗi ngày
+một cung, tám ngày giáp vòng (xem `scripts/vong-xoay.mjs`). Danh sách
+đường sinh thẳng từ `VONG_XOAY` qua `fileRa()` nên thêm cung vào vòng
+là bốn đường này tự có; không phải chép tay ở hai chỗ.
 
+**Cổng Thành là cung duy nhất không có tiền tố thư mục** — mã của nó ở
+gốc repo và mang tên `portal.css`/`portal.js`, không phải
+`app.css`/`app.js`. Khuôn `${cung}/assets/css/app.css` áp cho nó sinh ra
+bốn đường không tồn tại, mà `duong-ra` chỉ in đường CÓ THẬT nên chúng
+biến mất lặng lẽ khỏi lệnh `git add`. Vì thế tên file hỏi `fileSua()` /
+`fileRa()` trong `scripts/vong-xoay.mjs` chứ không viết thẳng khuôn.
+
+    index.html
+    assets/css/portal.css
+    assets/js/portal.js
+    sw.js
     cong-bo/index.html
     cong-bo/assets/css/app.css
     cong-bo/assets/js/app.js
@@ -1692,6 +1703,52 @@ dữ liệu (`.ng` gặp `ng:"2026-08-28"`) hay trùng chữ tiếng Việt.
 **Kiểm bằng tay trước khi xoá.** Một bộ kiểm xui người ta xoá nhầm một
 lần là mất niềm tin vĩnh viễn — thà bỏ sót một lớp chết.
 
+### Cổng Thành là cung thứ mười ba
+
+    node scripts/tien-hoa.mjs do cong-thanh      chấm trang gốc
+    node scripts/phieu-toan-thanh.mjs --in       chấm cả 13 trang
+
+Trang gốc `index.html` **không** phải thư mục con nào, nên mọi phép
+nhận diện "thư mục có index.html" đều bỏ sót nó. Hậu quả suốt từ đầu:
+`factory/phieu.json` đọc **198/198 trên 12 cung** trong khi trang ĐẦU
+TIÊN người ta thấy chưa từng bị chấm, và không vòng tiến hoá nào chạm
+tới. Nó chỉ tiến khi có người ngồi vào sửa — 14/08, rồi 29/08, hết.
+
+Từ 02/09/2026 nó mang **bí danh `cong-thanh`** và đi đúng đường mọi
+cung khác đi: `do` · `de-bai` · `cong` · `phieu-toan-thanh` ·
+`VONG_XOAY`. Không script mới, chỉ một tham số — đúng lời hứa ở đầu
+`scripts/tien-hoa.mjs`.
+
+Bí danh chứ không phải `"."`: dấu chấm lọt vào phiếu, vào
+`factory/tien-hoa.jsonl`, vào nhãn bước trong workflow, và ở mọi chỗ
+đó nó đọc như một lỗi chứ không như một cái tên.
+
+**Ba chỗ bộ đo phải biết nó là ngoại lệ**, và cả ba đều từng cho số
+sai chứ không cho lỗi:
+
+    quét file      `quet(DUONG())` từ gốc nuốt cả 12 cung + dist/ +
+                   factory/ → "vỏ 20 MB · nội dung 456 MB" cho một
+                   trang 24 KB. Nay quét đúng bốn thứ của nó.
+    thước "vẽ"     `catTrang()` chỉ đọc thứ JS dựng vào DOM giả, mà
+                   DOM ấy khởi đầu RỖNG. Cổng Thành viết thẳng bằng
+                   HTML nên bị chấm "vẽ 0 ký tự". Nguy hơn một điểm
+                   trượt oan: `p.ky < 400` là phép CỔNG CHẶN dựa vào.
+    tên file       `portal.css`/`portal.js`, không phải `app.*` —
+                   xem mục "File bot ĐỒNG SỬA" bên trên.
+
+**Cắt chú thích trước khi đọc thân HTML tĩnh.** Mười một cung có câu
+chú thích nhắc chữ "undefined", và thước "Không rò undefined ra HTML"
+sẽ chấm trượt vì đúng lời giải thích của mình. Cái bẫy ấy đã cắn ba
+lần trong repo này.
+
+Đo lần đầu sau khi nối: **15/17**, hai chỗ trượt thật — tương phản
+`--dim` 3,85 (dưới sàn AA, mà đó là màu của gần như mọi chữ nhỏ) và
+thiếu `tabular-nums`. Cả hai đã vá. Phiếu 13 trang: **224/227**.
+
+Con số tụt từ "198/198" xuống "224/227" là điều ĐÚNG phải xảy ra:
+phiếu tròn không có nghĩa là mọi thứ tốt, nó có nghĩa là thước hết
+chỗ để đo.
+
 ### Chỗ đè im lặng trong CSS
 
     npm run de-im-lang            soi Cổng Thành + 12 cung · thoát 1 khi còn chỗ đè
@@ -2056,6 +2113,11 @@ Tám chỗ phải sửa, và chỉ MỘT chỗ tự báo nếu quên (mục 8):
     6. bảng "Cổng dev" trong file này        cấp số cổng kế tiếp
     7. `npm run nang`              nâng CACHE_VERSION mọi sw.js vừa đổi
     8. scripts/vong-xoay.mjs       thêm cung vào VONG_XOAY (xem dưới)
+
+Cung nào đặt tên file khác khuôn `assets/{css,js}/app.*` thì phải khai
+thêm ở `fileSua()` cùng file — Cổng Thành là ca duy nhất hiện nay. Quên
+là `duong-ra` lọc sạch bốn đường của nó và mỗi lượt tiến hoá bị vứt mà
+sổ vẫn ghi `ok`.
 
 Mục 8 là chỗ DUY NHẤT trong danh sách này tự báo khi quên: `npm run
 kiem` nhắc tên cung nào không thuộc vòng tiến hoá nào. Cung quên khai

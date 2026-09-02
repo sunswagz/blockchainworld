@@ -2340,7 +2340,7 @@ jobs:
             Cung của lượt này là: ${{ steps.n-xv-chon.outputs.cung }}
             Dưới đây gọi nó là <cung>.
 
-            Đọc <cung>/assets/data/de-bai-tien-hoa.json.
+            Đọc ${{ steps.n-xv-chon.outputs.debai }}
 
             Trong đó có `phieu` — kết quả chấm cung theo các thước đo
             được — và `kyNang`, các kỹ năng chọn từ kho Tàng Thư Các.
@@ -2365,10 +2365,12 @@ jobs:
                không nói được gì.
 
             Chỉ sửa trong ba file này, không file nào khác:
-              <cung>/assets/css/app.css
-              <cung>/assets/js/app.js
-              <cung>/index.html
-            (thay <cung> bằng tên ở dòng đầu)
+              ${{ steps.n-xv-chon.outputs.file }}
+            Đường dẫn đã đầy đủ, đừng ghép thêm tên cung vào trước —
+            Cổng Thành nằm ngay ở gốc repo và file của nó tên
+            portal.css / portal.js, không phải app.css / app.js.
+            Sửa file ngoài ba đường trên là bước commit lọc bỏ, và cả
+            lượt của bạn mất trắng mà không lỗi nào báo.
 
             LUẬT, đọc kỹ — có cổng chặn tự động sau bạn:
             · MỘT bước thôi. Một thay đổi mạch lạc, không phải năm thứ
@@ -2386,11 +2388,11 @@ jobs:
             · Màu mới phải đạt tương phản WCAG AA (4.5) trên mọi nền.
             · KHÔNG thêm thư viện ngoài, không thêm thẻ <script> mới.
               Trang chạy offline và không có bước dựng.
-            · ĐỪNG đụng vào <cung>/assets/js/v/ và <cung>/assets/data/
+            · ĐỪNG đụng vào assets/js/v/ và assets/data/ của cung này
               — bot số liệu ghi hai chỗ đó, sửa tay là mất lúc gộp.
 
             Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
-            vào <cung>/assets/data/de-bai-tien-hoa.json dưới khoá
+            vào ${{ steps.n-xv-chon.outputs.debai }} dưới khoá
             `daLam`. Đừng để chữ "undefined" hay "NaN" lọt vào dòng đó
             — cổng chặn soi hai chữ ấy trong HTML và sẽ trả lại.
 
