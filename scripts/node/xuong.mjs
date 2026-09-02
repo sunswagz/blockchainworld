@@ -128,6 +128,31 @@ export const NODE = [
        "đang trượt ở NHIỀU cung nhất. Nhìn từng cung thì mỗi lỗi trông như chuyện " +
        "riêng của cung đó; nhìn cả bảng mới thấy cái nào là bệnh chung."
   },
+  /* HƯỚNG — node DUY NHẤT không sinh bản vá.
+
+     Bảy vòng tiến hoá đều là vòng SỬA: thước hỏi "có gì hỏng
+     không", hỏng thì vá xong là hết. Khi phiếu đầy thì model chỉ
+     còn được bảo "tìm chỗ nào không thước nào đo" — nó làm được,
+     nhưng đó là phán đoán trong phạm vi MỘT TRANG. Không cơ chế
+     nào hỏi "cả cái này nên thành cái gì tiếp".
+
+     Node này làm nửa suy ra được của câu ấy: đọc sổ tiến hoá xem
+     model tự chọn việc gì khi được tự do, dò năng lực LỆCH giữa
+     12 cung, tìm thứ xưởng sinh ra mà không trang nào đọc. Ra một
+     danh sách ĐỀ XUẤT có số đếm kèm, xếp theo số cung chịu ảnh
+     hưởng — người chọn, máy không chọn.
+
+     Nhịp 168 giờ. Hướng không đổi theo ngày; chạy nó mỗi ngày chỉ
+     đẻ ra một file giống hệt hôm qua và dạy người ta thôi đọc nó. */
+  {
+    ma: "huong", ten: "Đề xuất hướng",
+    tram: "M18", che: "script", nhip: 168,
+    lenh: "node scripts/huong.mjs",
+    ra: ["factory/huong.json"],
+    y: "Bốn tín hiệu từ chính repo — model tự chọn gì, cung nào lệch cung nào, " +
+       "xưởng sinh gì không ai đọc, node nào chạy mà chưa đổi được gì. Mỗi đề xuất " +
+       "kèm một con số và một lệnh để BÁC nó."
+  },
   {
     ma: "giao-hang", ten: "Giao hàng lên Pages",
     tram: "M16", che: "theo", nhip: 0,

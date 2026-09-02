@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T09:10:32.073Z",
+  "generatedAt": "2026-09-02T16:07:19.355Z",
   "ghiChu": "SINH TỰ ĐỘNG từ scripts/node/*.mjs — đừng sửa tay.",
   "node": [
     {
@@ -470,6 +470,19 @@
         "factory/phieu.json"
       ],
       "y": "Chấm cả 12 cung bằng đúng bộ thước của vòng tiến hoá, rồi xếp thước nào đang trượt ở NHIỀU cung nhất. Nhìn từng cung thì mỗi lỗi trông như chuyện riêng của cung đó; nhìn cả bảng mới thấy cái nào là bệnh chung.",
+      "khai": "scripts/node/xuong.mjs"
+    },
+    {
+      "ma": "huong",
+      "ten": "Đề xuất hướng",
+      "tram": "M18",
+      "che": "script",
+      "nhip": 168,
+      "lenh": "node scripts/huong.mjs",
+      "ra": [
+        "factory/huong.json"
+      ],
+      "y": "Bốn tín hiệu từ chính repo — model tự chọn gì, cung nào lệch cung nào, xưởng sinh gì không ai đọc, node nào chạy mà chưa đổi được gì. Mỗi đề xuất kèm một con số và một lệnh để BÁC nó.",
       "khai": "scripts/node/xuong.mjs"
     },
     {

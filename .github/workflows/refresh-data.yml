@@ -1845,6 +1845,30 @@ jobs:
           TT=$(grep -oE "[0-9]+/[0-9]+ thước đạt trên [0-9]+ cung" "$RUNNER_TEMP/phieu.log" 2>/dev/null | tail -1)
           node scripts/nha-may.mjs ghi phieu "$KET"             ${GIAY:+--giay $GIAY}             --ghi "${TT:-chưa chấm được}"             --log "$RUNNER_TEMP/phieu.log"
 
+      # ĐỀ XUẤT HƯỚNG. Node duy nhất không sinh bản vá — nó đọc sổ
+      # tiến hoá, dò năng lực lệch giữa 12 cung, và tìm thứ xưởng
+      # sinh ra mà không trang nào đọc. Ra factory/huong.json.
+      #
+      # Không gọi model. Nhịp 168 giờ nên phần lớn lượt sẽ bỏ qua
+      # bước này; lượt có chạy thì hết chừng 10 giây.
+      - name: Đề xuất hướng
+        id: n-huong
+        if: contains(steps.kehoach.outputs.han, ',huong,')
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          t0=$(date +%s)
+          node scripts/huong.mjs 2>&1 | tee "$RUNNER_TEMP/huong.log"
+          echo "giay=$(( $(date +%s) - t0 ))" >> "$GITHUB_OUTPUT"
+      - name: Ghi sổ · huong
+        if: always() && steps.n-huong.outcome != 'skipped'
+        env:
+          KET: ${{ steps.n-huong.outcome == 'success' && 'ok' || 'loi' }}
+          GIAY: ${{ steps.n-huong.outputs.giay }}
+        run: |
+          DX=$(grep -oE "HƯỚNG — [0-9]+ đề xuất" "$RUNNER_TEMP/huong.log" 2>/dev/null | tail -1)
+          node scripts/nha-may.mjs ghi huong "$KET"             ${GIAY:+--giay $GIAY}             --ghi "${DX:-chưa dò được}"             --log "$RUNNER_TEMP/huong.log"
+
       - name: Kiểm hàng trước khi đóng gói
         if: always()
         continue-on-error: true
