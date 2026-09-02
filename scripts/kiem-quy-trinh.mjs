@@ -711,6 +711,33 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── phép: lớp CSS không ai dùng ───────────────────
+   Cùng lối NHẮC như phép trên, và cùng lý do. Khác một điều đáng
+   nói: phép này là PHỎNG ĐOÁN, không phải phép đo — lớp CSS không
+   được ai GỌI, nó chỉ khớp hoặc không. Nên nó nới về phía an toàn
+   và vẫn có thể kêu oan ở tên lớp trùng khoá dữ liệu (`.ng` gặp
+   `ng:"2026-08-28"`) hay trùng chữ tiếng Việt (`.dem`, `.hang`).
+
+   Đo ngày 02/09: 45 ứng viên trên 12 cung, trong đó 40 được một
+   phép ĐỘC LẬP (đếm thô toàn bộ HTML+JS) xác nhận bằng 0. Nhóm
+   `hs-*` chết ở CẢ HAI cung kham-thien-giam và thai-boc-tu — một
+   khối chép qua rồi không ai dùng ở cả hai nơi. */
+{
+  const p = join(ROOT, "scripts", "lop-chet.mjs");
+  const NL = String.fromCharCode(10);
+  if (existsSync(p)) {
+    try {
+      execFileSync(process.execPath, [p], { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      const ra = String(e.stdout || "") + String(e.stderr || "");
+      const dong = ra.split(NL).filter((x) => /lớp không token nào chạm tới/.test(x));
+      if (dong.length)
+        nhac(dong.length + " cung có lớp CSS không ai dùng — chạy: npm run lop-chet" + NL +
+          dong.slice(0, 4).map((x) => "        · " + x.trim()).join(NL));
+    }
+  }
+}
+
 /* ── phép: cổng chặn nạp dữ liệu tự sinh ──────────
    Cổng nằm ở .claude/hooks/, ngoài tầm mắt của phép kiểm khác vì
    .claude bị BO_QUA. Nhưng nó là thứ giữ cho phiên không bị 16 MB

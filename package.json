@@ -27,6 +27,7 @@
     "thang": "node scripts/thang.mjs",
     "tiep-can": "node scripts/tiep-can.mjs",
     "de-im-lang": "node scripts/de-im-lang.mjs",
+    "lop-chet": "node scripts/lop-chet.mjs",
     "kiem-anh": "node scripts/kiem-anh.mjs",
     "kiem": "node scripts/kiem-quy-trinh.mjs",
     "live": "node scripts/soi-live.mjs",
