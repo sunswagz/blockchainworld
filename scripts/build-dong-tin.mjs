@@ -87,13 +87,30 @@ const NGUON = [
     feed:["https://www.channelnewsasia.com/api/v1/rss-outbound-feed?category=6511"] },
   { id:"scmp", nuoc:"cn",      ten:"SCMP",           loai:"báo Hong Kong",
     feed:["https://www.scmp.com/rss/4/feed", "https://www.scmp.com/rss/92/feed"] },
-  { id:"nikkei", nuoc:"qt",    ten:"Nikkei Asia",    loai:"báo kinh tế Nhật",
-    feed:["https://asia.nikkei.com/rss/feed/nar"] },
+  /* Nikkei Asia cho tới 02/09/2026: feed nar trả HTTP 200 và 50 mục,
+     nhưng là RSS 1.0/RDF và mỗi <item> chỉ có title với link — KHÔNG
+     thẻ ngày nào. Đường ống này xếp hạng theo độ mới, nên bài không
+     ngày luôn bị vứt: nguồn góp 0 bài suốt, và phép canh feed ôi đọc
+     ra "mới nhất 20699 ngày trước" chính là dấu của chuyện đó.
+
+     Hai feed khác của Nikkei (china-up-close, business) đều 404. Japan
+     Times giữ được góc nhìn báo Nhật, 30 mục, có ngày, mới trong ngày. */
+  { id:"japantimes", nuoc:"qt", ten:"The Japan Times", loai:"báo Nhật",
+    feed:["https://www.japantimes.co.jp/feed/"] },
   /* Nằm trong danh sách vì nó cho biết Bắc Kinh MUỐN nói gì — đó là
      dữ liệu thật về ý định, miễn là đọc đúng nó là gì. Nhãn `loai`
      hiện ngay trên thẻ để không ai đọc nhầm thành nguồn độc lập. */
-  { id:"xinhua", nuoc:"cn",    ten:"Tân Hoa Xã",     loai:"BÁO NHÀ NƯỚC Trung Quốc",
-    feed:["http://www.xinhuanet.com/english/rss/worldrss.xml"] },
+  /* Tân Hoa Xã cho tới 02/09/2026: feed worldrss.xml trả HTTP 200,
+     20 mục, KHÔNG lỗi nào — nhưng mục mới nhất là 3144 ngày trước
+     (chuyến thăm của Pence, bão Lan, Mỹ rút UNESCO — toàn 2017).
+     Bộ lọc ngày vứt sạch, nguồn góp 0 bài, và nhãn viền vàng "BÁO
+     NHÀ NƯỚC" chưa từng một lần hiện lên site.
+
+     Đã thử ba nguồn thay: english.news.cn 404, chinadaily cũng kẹt ở
+     2017, globaltimes/outbrain thưa và cũ. CGTN là đài nhà nước, 50
+     mục, đều trong ngày. */
+  { id:"cgtn",   nuoc:"cn",    ten:"CGTN",           loai:"BÁO NHÀ NƯỚC Trung Quốc",
+    feed:["https://www.cgtn.com/subscribe/rss/section/china.xml"] },
   { id:"vnexpress", nuoc:"vn", ten:"VnExpress",      loai:"báo Việt Nam",
     feed:["https://vnexpress.net/rss/kinh-doanh.rss"] },
   { id:"tuoitre", nuoc:"vn",   ten:"Tuổi Trẻ",       loai:"báo Việt Nam",
@@ -124,10 +141,27 @@ const KHOA = {
   tq: {
     manh:["china","chinese","beijing","trung quốc","bắc kinh","xi jinping","tập cận bình",
           "communist party","politburo","bộ chính trị","pboc","yuan","renminbi"],
+    /* Danh sách này từng có 26 từ trong khi Việt Nam có 34 — hẹp hơn,
+       dù Trung Quốc được sáu nguồn TIẾNG ANH đưa tin còn Việt Nam chủ
+       yếu bốn nguồn tiếng Việt. Hệ quả đo được ngày 02/09: 486 mục thô,
+       cổng địa lý loại 347 (đúng — phần lớn tin BBC/Guardian không về
+       Trung Quốc), rồi cổng cơ chế loại thêm 115, còn 9 bài và CẢ CHÍN
+       đều của SCMP — nên trần hai bài mỗi nguồn cắt xuống 2. Trang
+       Trung Quốc mỏng đi vì thiếu TỪ, không phải vì thiếu tin.
+
+       Thiếu rõ nhất là những từ trung tâm của chính mảng này mà bảng
+       Việt Nam đã có và đã chạy tốt: tariff, trade, supply chain,
+       investment, lãi suất, tỷ giá. Cùng vài từ riêng của Trung Quốc:
+       trừng phạt, đất hiếm, hải quan. */
     nhe:["property","bất động sản","evergrande","local government","lgfv","debt","nợ",
-         "export","xuất khẩu","semiconductor","chip","bán dẫn","purge","thanh lọc",
-         "pla","military","quân đội","stimulus","kích thích","deflation","giảm phát",
-         "youth unemployment","thất nghiệp","retail sales","bán lẻ","credit","tín dụng"]
+         "export","xuất khẩu","import","nhập khẩu","semiconductor","chip","bán dẫn",
+         "purge","thanh lọc","pla","military","quân đội","stimulus","kích thích",
+         "deflation","giảm phát","youth unemployment","thất nghiệp","retail sales",
+         "bán lẻ","credit","tín dụng","tariff","thuế quan","trade","thương mại",
+         "supply chain","chuỗi cung ứng","investment","đầu tư","manufacturing",
+         "sản xuất","factory","nhà máy","interest rate","lãi suất","exchange rate",
+         "tỷ giá","inflation","lạm phát","sanction","trừng phạt","rare earth",
+         "đất hiếm","customs","hải quan","port","cảng"]
   },
   /* Tổng kết đo KHỚP NỐI, nên nó chỉ nhận bài chạm tới CẢ HAI phía
      hoặc chạm tới chính cái mối nối — chuỗi cung ứng, chuyển tải,
@@ -248,7 +282,11 @@ function chua(hay, kim) {
   return false;
 }
 
-function chamDiem(b, k, nha) {
+/* `so` là cuốn sổ tuỳ chọn ghi bài rụng ở CỬA NÀO. Hai cửa có hai
+   cách chữa khác hẳn: rụng ở địa lý thì thêm từ khoá tên nước, rụng
+   ở cơ chế thì nới danh sách từ cơ chế. Không tách ra thì cả hai
+   trông giống nhau — đều là "0 điểm" — và người sửa đoán bừa. */
+function chamDiem(b, k, nha, so) {
   const t = (b.tieu || "").toLowerCase(), m = (b.mo || "").toLowerCase();
   /* Chặn trước, rẻ nhất */
   if (CAM.some((w) => t.includes(w))) return 0;
@@ -268,13 +306,13 @@ function chamDiem(b, k, nha) {
   if (k.caHai && k.caHai.every((nhom) => nhom.some((w) => chua(t, w) || chua(m, w)))) {
     d += 4; comanh = true;
   }
-  if (!comanh && !nha.includes(b.nuoc)) return 0;
+  if (!comanh && !nha.includes(b.nuoc)) { if (so) so.diaLy++; return 0; }
   if (nha.includes(b.nuoc)) d += 2;
   /* CỔNG CƠ CHẾ. Từ về cơ chế phải nằm NGAY TRONG TIÊU ĐỀ. Trong
      tóm tắt thì mọi bài PR ngân hàng cũng có chữ "tín dụng". */
   let coche = 0;
   for (const w of k.nhe) { if (chua(t, w)) { d += 2; coche++; } else if (chua(m, w)) d += 1; }
-  if (!coche) return 0;
+  if (!coche) { if (so) so.coChe++; return 0; }
   /* Độ mới CỘNG vào chứ không nhân: một tin rất liên quan của tuần
      trước vẫn nên thắng một tin hôm nay chỉ chạm hờ. Nhưng ngang
      điểm nội dung thì tin mới luôn thắng. */
@@ -302,6 +340,8 @@ const CHU_THE = [
 ];
 
 /* ── BƯỚC 1 · RA ĐỀ ──────────────────────────────────────*/
+const SUC = {};
+
 async function raDe() {
   const tho = [];
   for (const ng of NGUON) {
@@ -312,7 +352,19 @@ async function raDe() {
         if (!r.ok) { console.log("  · " + ng.id + " HTTP " + r.status + " — bỏ qua"); continue; }
         const b = docFeed(await r.text(), ng).slice(0, MOI_FEED);
         tho.push(...b);
-        console.log("  · " + ng.id.padEnd(11) + b.length + " mục");
+        /* FEED ÔI. Lớp hỏng vừa cắn: HTTP 200, đủ mục, không lỗi nào,
+           mà mục mới nhất cũ tám năm. Bộ lọc ngày vứt sạch trong im
+           lặng, nên nguồn góp 0 bài mà không dòng nào nói vì sao —
+           đúng kiểu chỉ lộ ra khi có người ngồi đọc từng feed. */
+        const ngay = b.map((x) => new Date(x.ngay)).filter((d) => !isNaN(d)).sort((x, y) => y - x);
+        const oi = ngay[0] ? Math.round((Date.now() - ngay[0]) / 86400000) : null;
+        SUC[ng.id] = { muc: b.length, oi };
+        console.log("  · " + ng.id.padEnd(11) + b.length + " mục" +
+          (oi === null ? "  ⚠ KHÔNG mục nào có ngày" : oi > 30
+            ? "  ⚠ mục mới nhất " + oi + " ngày trước — feed có thể đã chết" : ""));
+        if (oi === null || oi > 30)
+          console.log("::warning::nguồn " + ng.id + " của Đài Quan Trắc có vẻ đã chết: " +
+            (oi === null ? "không mục nào có ngày" : "mục mới nhất " + oi + " ngày trước"));
       } catch (e) {
         /* Một feed chết KHÔNG được làm hỏng cả lượt. Nguồn tin thì
            luôn có cái sập, và mất một nguồn còn hơn mất cả bảng. */
@@ -342,16 +394,30 @@ async function raDe() {
     /* Duyệt theo thứ hạng và bỏ qua nguồn đã đủ chỉ tiêu. Làm sau
        khi sắp xếp chứ không lọc trước, để bài thứ ba của một nguồn
        nhường chỗ cho bài tốt nhất của nguồn kế tiếp. */
+    /* PHỄU. Log cũ chỉ nói "TQ: 2/6 bài" — đúng mà vô dụng: nó không
+       nói bài rụng ở CỬA NÀO. Ba cửa có ba cách chữa khác hẳn nhau:
+       cổng địa lý rụng thì thêm từ khoá nước, cổng cơ chế rụng thì
+       nới danh sách từ, còn trần mỗi nguồn rụng thì phải thêm NGUỒN.
+       Không đếm thì lần sau lại ngồi đoán như hôm nay. */
+    const so = { diaLy: 0, coChe: 0 };
+    const quaCong = sach.map((b) => chamDiem(b, KHOA[c.id], NHA[c.id], so)).filter((d) => d > 0).length;
     const dem = {}, chon = [];
+    let chanNguon = 0;
     for (const b of xep) {
       if (chon.length >= MOI_CHU_THE) break;
-      if ((dem[b.nguon] || 0) >= TOI_DA_MOI_NGUON) continue;
+      if ((dem[b.nguon] || 0) >= TOI_DA_MOI_NGUON) { chanNguon++; continue; }
       dem[b.nguon] = (dem[b.nguon] || 0) + 1; chon.push(b);
     }
     de.chuThe.push({ id: c.id, ten: c.ten, hoi: c.hoi, mach: m.mach, bai: chon });
     console.log("  " + c.id.toUpperCase() + ": " + chon.length + "/" + MOI_CHU_THE +
       " bài · điểm " + chon.map((x) => x.diem).join(",") +
       " · nguồn " + [...new Set(chon.map((x) => x.nguon))].join(" "));
+    if (chon.length < MOI_CHU_THE)
+      console.log("     ⚠ thiếu " + (MOI_CHU_THE - chon.length) + " bài · phễu: " +
+        sach.length + " mục thô → " + quaCong + " qua cổng điểm → " +
+        xep.length + " còn trong hạn ngày → " + chon.length + " chọn" +
+        " · rụng: cổng địa lý " + so.diaLy + ", cổng cơ chế " + so.coChe +
+        (chanNguon ? " (trần mỗi nguồn chặn " + chanNguon + ")" : ""));
   }
 
   mkdirSync(dirname(RA_DE), { recursive: true });
