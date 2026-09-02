@@ -783,6 +783,54 @@ function do_() {
     `${nutCam} nút câm · ${svgTran} svg không aria-hidden`);
   cham("svg-co", "SVG có cỡ nội tại", svgKhongCo === 0,
     `${svgKhongCo} svg chỉ có viewBox — CSS cũ kẹt là phình kín trang`);
+
+  /* ── Ba thước dịch từ kệ kỹ năng (02/09/2026) ──────────────────
+     Vì sao thêm: mười hai cung đều đã 16/16 hoặc 17/17, và 26 lượt
+     tiến hoá gần nhất đều là "16/16 → 16/16". Cổng chỉ còn chặn
+     được tụt, không còn chỉ được hướng — bản ghi cuối tự khai
+     "mọi thước đã đạt, nên vá một chỗ không thước nào đo".
+
+     Chọn bằng ĐO chứ không bằng cảm hứng: bảy ứng viên dò trên cả
+     12 cung, loại `line-height px` (11/12 đã đạt, không mở dư địa)
+     và `!important` (2–5 ở khắp nơi, đều và nhỏ, đo không ra gì).
+     Ba cái còn lại đều có cung trượt thật. */
+
+  /* accessibility (kệ): thiếu color-scheme thì thanh cuộn, ô nhập
+     và lịch của HỆ ĐIỀU HÀNH vẫn vẽ theo tông sáng trên nền tối —
+     lỗi chỉ lộ ở phần giao diện mà CSS của cung không với tới.
+     Đo 02/09: 12/12 cung đều thiếu. */
+  const tongMau = /color-scheme\s*:/.test(cssMa)
+    || /name="color-scheme"/.test(html);
+  cham("tong-mau", "Khai color-scheme cho trình duyệt", tongMau,
+    tongMau ? "đã khai"
+      : "chưa khai — ô nhập và thanh cuộn của hệ vẫn vẽ tông sáng");
+
+  /* accessibility (kệ): người bật "giảm chuyển động" trong hệ điều
+     hành thường bật vì chuyển động gây chóng mặt hoặc buồn nôn.
+     Đo 02/09: 11/12 cung đã có, nên thước này chủ yếu là lưới đỡ
+     giữ cho 11 cung ấy không tụt lại. */
+  const giamCh = /@media[^{]*prefers-reduced-motion/.test(cssMa);
+  cham("giam-chuyen-dong", "Tôn trọng prefers-reduced-motion", giamCh,
+    giamCh ? "có nhánh @media"
+      : "không có — người bật giảm chuyển động vẫn nhận đủ hiệu ứng");
+
+  /* design-system (kệ): màu phải đi qua token. Đếm HEX ngoài mọi
+     khối :root, KHÔNG đếm rgba() — rgba dùng cho bóng đổ và lớp
+     phủ là chính đáng, gộp vào là phạt oan cung viết bóng đổ tử tế
+     (đo được: ho-bo 18 rgba nhưng chỉ 10 hex).
+
+     Ngưỡng 20 hiệu chuẩn từ số thật, không bốc: 12 cung trải từ 6
+     tới 89, và 20 tách đúng nhóm có vấn đề (dai-quan-trac 89,
+     kinh-thanh 50, do-sat-vien 30, tang-thu-cac 25) khỏi nhóm đã
+     gọn (6–19). Thước sinh ra để bắt chỗ KHÔNG có bảng màu, không
+     phải để ép mọi cung về 0. */
+  const hexNgoaiToken = [
+    ...cssMa.split(/:root[^{]*\{[\s\S]*?\}/).join(" ")
+      .matchAll(/#[0-9a-fA-F]{3,8}\b/g),
+  ].length;
+  cham("mau-token", "Màu đi qua token, không rải thẳng",
+    hexNgoaiToken <= 20,
+    `${hexNgoaiToken} mã màu hex nằm ngoài mọi khối :root`);
   const kb = (x) => (x / 1024).toFixed(0);
   cham("nang", "Vỏ ứng dụng dưới 200 KB", nang.vo + nang.css < 200 * 1024,
     `vỏ ${kb(nang.vo)} KB + css ${kb(nang.css)} KB · nội dung ${kb(nang.noi)} KB · ảnh ${kb(nang.anh)} KB`);
