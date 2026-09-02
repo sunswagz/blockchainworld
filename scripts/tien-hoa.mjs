@@ -655,9 +655,26 @@ function do_() {
   /* Thẻ `table|td|th` chỉ tính khi đứng làm THẺ, không tính khi là đầu
      một tên lớp. `th\b` bắt luôn `.th-d`, `.th-n`, `.th-vd` — mười ba
      khối bố cục của Hộ Bộ chẳng liên quan gì tới bảng số. */
-  const LA_SO = (k) => /font-family:\s*var\(--mono\)/.test(k.than) ||
-    /(^|[\s,>+~])(table|td|th)(?![-\w])/.test(k.sel) ||
-    /[.#](bang|cot|o-so)(?![-\w])/.test(k.sel);
+  /* XÉT TỪNG VẾ, không xét cả chuỗi bộ chọn. Bản trước hỏi "cả
+     chuỗi này có dính mặt số không" rồi lại đòi MỌI vế phải được
+     phủ — hai độ mịn khác nhau, và chỗ khớp giữa chúng là chỗ báo
+     oan. Đo thật ở Hộ Bộ:
+
+       .ten-mo:hover b, .bang tbody tr[data-mo]:hover .ten-mo b,
+       .ten-mo:focus-visible b { text-decoration:underline }
+
+     Luật ấy chỉ gạch chân lúc rê chuột, không dính gì tới số. Nó bị
+     cờ vì MỘT vế khác trong danh sách có chữ `.bang`, rồi hai vế
+     `.ten-mo` — vốn không phải mặt số — bị đòi phải khai tabular-nums.
+     Toàn thành 198/198 tụt xuống 197/198 vì đúng một lời vu oan.
+
+     Nay `LA_SO` nhận MỘT VẾ, và một khối chỉ thiếu khi có vế NÀO ĐÓ
+     tự nó là mặt số mà chưa được phủ. Khối dùng font mono thì mọi vế
+     đều là mặt số — điều kiện `than` lo phần ấy. */
+  const LA_SO_VE = (sel, than) => /font-family:\s*var\(--mono\)/.test(than) ||
+    /(^|[\s,>+~])(table|td|th)(?![-\w])/.test(sel) ||
+    /[.#](bang|cot|o-so)(?![-\w])/.test(sel);
+  const LA_SO = (k) => k.sel.split(",").some((s) => LA_SO_VE(s, k.than));
   const matSo = khoi2.filter(LA_SO);
 
   /* Khai ở gốc là phủ cả trang, khỏi soi tiếp. Đọc trên bản đã bỏ chú
@@ -689,7 +706,7 @@ function do_() {
 
   const thieuSo = nvGoc ? [] : matSo.filter((k) =>
     !/tabular-nums/.test(k.than) &&
-    !k.sel.split(",").every((s) => daPhu.has(gocSel(s))));
+    k.sel.split(",").some((s) => LA_SO_VE(s, k.than) && !daPhu.has(gocSel(s))));
   const monoCo = matSo.length;
   const monoThieu = thieuSo.length;
   const coBangSo = monoCo > 0 || /<table|class="bang"/.test(html);
