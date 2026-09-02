@@ -1,0 +1,199 @@
+{
+  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/dot-bien-giao-dien.mjs. Đây là ĐỀ XUẤT, không phải phép canh.",
+  "cung": {
+    "kinh-thanh": {
+      "luc": "2026-09-02T16:20:44.346Z",
+      "phieu": "17/17",
+      "apDuoc": 16,
+      "batDuoc": 8,
+      "doPhu": 0.5,
+      "thuocHong": [],
+      "chieuMu": [
+        {
+          "ten": "dòng chữ dài không giới hạn",
+          "vi": "trên màn rộng, một dòng chạy hết 2000px — mắt lạc dòng khi xuống hàng"
+        },
+        {
+          "ten": "line-height về 1",
+          "vi": "chữ dính nhau, đọc một đoạn dài thành mệt"
+        },
+        {
+          "ten": "bảng mất overflow ngang",
+          "vi": "trên điện thoại bảng tràn ra ngoài, cả TRANG cuộn ngang"
+        },
+        {
+          "ten": "vùng bấm nhỏ hơn 24px",
+          "vi": "ngón tay bấm trượt — WCAG 2.2 đặt sàn 24×24 cho đích bấm"
+        },
+        {
+          "ten": "bỏ prefers-reduced-motion",
+          "vi": "người say chuyển động không tắt được hiệu ứng"
+        },
+        {
+          "ten": "bỏ lang của trang",
+          "vi": "trình đọc màn hình đọc tiếng Việt bằng giọng tiếng Anh"
+        },
+        {
+          "ten": "bỏ thẻ title",
+          "vi": "tab trình duyệt và kết quả tìm kiếm mất tên"
+        },
+        {
+          "ten": "bỏ meta viewport",
+          "vi": "điện thoại vẽ trang ở cỡ desktop rồi thu nhỏ — chữ bé li ti"
+        }
+      ]
+    },
+    "cong-bo": {
+      "luc": "2026-09-02T16:18:34.903Z",
+      "phieu": "17/17",
+      "apDuoc": 16,
+      "batDuoc": 7,
+      "doPhu": 0.438,
+      "thuocHong": [
+        {
+          "con": "thêm một cỡ chữ lẻ",
+          "thuoc": "thang-chu"
+        }
+      ],
+      "chieuMu": [
+        {
+          "ten": "dòng chữ dài không giới hạn",
+          "vi": "trên màn rộng, một dòng chạy hết 2000px — mắt lạc dòng khi xuống hàng"
+        },
+        {
+          "ten": "line-height về 1",
+          "vi": "chữ dính nhau, đọc một đoạn dài thành mệt"
+        },
+        {
+          "ten": "bảng mất overflow ngang",
+          "vi": "trên điện thoại bảng tràn ra ngoài, cả TRANG cuộn ngang"
+        },
+        {
+          "ten": "vùng bấm nhỏ hơn 24px",
+          "vi": "ngón tay bấm trượt — WCAG 2.2 đặt sàn 24×24 cho đích bấm"
+        },
+        {
+          "ten": "bỏ prefers-reduced-motion",
+          "vi": "người say chuyển động không tắt được hiệu ứng"
+        },
+        {
+          "ten": "bỏ lang của trang",
+          "vi": "trình đọc màn hình đọc tiếng Việt bằng giọng tiếng Anh"
+        },
+        {
+          "ten": "bỏ thẻ title",
+          "vi": "tab trình duyệt và kết quả tìm kiếm mất tên"
+        },
+        {
+          "ten": "bỏ meta viewport",
+          "vi": "điện thoại vẽ trang ở cỡ desktop rồi thu nhỏ — chữ bé li ti"
+        }
+      ]
+    },
+    "do-sat-vien": {
+      "luc": "2026-09-02T16:18:46.557Z",
+      "phieu": "17/17",
+      "apDuoc": 16,
+      "batDuoc": 8,
+      "doPhu": 0.5,
+      "thuocHong": [],
+      "chieuMu": [
+        {
+          "ten": "dòng chữ dài không giới hạn",
+          "vi": "trên màn rộng, một dòng chạy hết 2000px — mắt lạc dòng khi xuống hàng"
+        },
+        {
+          "ten": "line-height về 1",
+          "vi": "chữ dính nhau, đọc một đoạn dài thành mệt"
+        },
+        {
+          "ten": "bảng mất overflow ngang",
+          "vi": "trên điện thoại bảng tràn ra ngoài, cả TRANG cuộn ngang"
+        },
+        {
+          "ten": "vùng bấm nhỏ hơn 24px",
+          "vi": "ngón tay bấm trượt — WCAG 2.2 đặt sàn 24×24 cho đích bấm"
+        },
+        {
+          "ten": "bỏ prefers-reduced-motion",
+          "vi": "người say chuyển động không tắt được hiệu ứng"
+        },
+        {
+          "ten": "bỏ lang của trang",
+          "vi": "trình đọc màn hình đọc tiếng Việt bằng giọng tiếng Anh"
+        },
+        {
+          "ten": "bỏ thẻ title",
+          "vi": "tab trình duyệt và kết quả tìm kiếm mất tên"
+        },
+        {
+          "ten": "bỏ meta viewport",
+          "vi": "điện thoại vẽ trang ở cỡ desktop rồi thu nhỏ — chữ bé li ti"
+        }
+      ]
+    },
+    "hoang-thanh": {
+      "luc": "2026-09-02T16:19:02.763Z",
+      "phieu": "17/17",
+      "apDuoc": 16,
+      "batDuoc": 8,
+      "doPhu": 0.5,
+      "thuocHong": [],
+      "chieuMu": [
+        {
+          "ten": "dòng chữ dài không giới hạn",
+          "vi": "trên màn rộng, một dòng chạy hết 2000px — mắt lạc dòng khi xuống hàng"
+        },
+        {
+          "ten": "line-height về 1",
+          "vi": "chữ dính nhau, đọc một đoạn dài thành mệt"
+        },
+        {
+          "ten": "bảng mất overflow ngang",
+          "vi": "trên điện thoại bảng tràn ra ngoài, cả TRANG cuộn ngang"
+        },
+        {
+          "ten": "vùng bấm nhỏ hơn 24px",
+          "vi": "ngón tay bấm trượt — WCAG 2.2 đặt sàn 24×24 cho đích bấm"
+        },
+        {
+          "ten": "bỏ prefers-reduced-motion",
+          "vi": "người say chuyển động không tắt được hiệu ứng"
+        },
+        {
+          "ten": "bỏ lang của trang",
+          "vi": "trình đọc màn hình đọc tiếng Việt bằng giọng tiếng Anh"
+        },
+        {
+          "ten": "bỏ thẻ title",
+          "vi": "tab trình duyệt và kết quả tìm kiếm mất tên"
+        },
+        {
+          "ten": "bỏ meta viewport",
+          "vi": "điện thoại vẽ trang ở cỡ desktop rồi thu nhỏ — chữ bé li ti"
+        }
+      ]
+    }
+  },
+  "luc": "2026-09-02T16:20:44.346Z",
+  "tong": {
+    "soCungDaQuet": 4,
+    "batDuoc": 31,
+    "apDuoc": 64,
+    "doPhu": 0.484
+  },
+  "daDong": [
+    {
+      "huong": "tìm chiều mù bằng cách đếm tần suất từ trong kho skill",
+      "luc": "02/09/2026",
+      "ketQua": "1.226 chiều trống trên 712 skill giao diện, và đọc vào thì toàn `user`, `building`, `create`, `data` — từ tiếng Anh phổ thông, không phải chiều đo được. Công cụ đã bỏ.",
+      "vaSao": "Bước từ một skill sang một phép canh là bước NGỮ NGHĨA. So chuỗi làm không nổi; phải CHỌC vào hệ thống rồi xem ai kêu, hoặc phải có model đọc hiểu skill."
+    },
+    {
+      "huong": "đột biến NGẪU NHIÊN trên CSS (đổi bừa một ký tự)",
+      "luc": "02/09/2026",
+      "ketQua": "phần lớn cho ra CSS hỏng cú pháp; trình duyệt bỏ qua rule ấy.",
+      "vaSao": "\"Trình duyệt bỏ qua một rule\" không phải hỏng hóc người dùng gặp, nên con chết hay sống đều không nói gì về bộ thước. Mỗi con ở đây phải là một hỏng hóc CÓ THẬT, tả được bằng lời."
+    }
+  ]
+}

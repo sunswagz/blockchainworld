@@ -66,6 +66,34 @@ const FS_CSS = existsSync(THU_CSS)
 const P_CSS = FS_CSS.find((p) => p.endsWith("app.css")) || FS_CSS[0];
 if (!P_CSS) { console.error(`${CUNG}: không có CSS.`); process.exit(2); }
 
+/* ── HƯỚNG ĐÃ ĐÓNG ───────────────────────────────────────────
+   Kết quả ÂM đáng giữ đúng bằng kết quả dương: chúng ngăn một phiên
+   sau làm lại trọn vẹn một chuỗi thí nghiệm đã thất bại. Lối này chép
+   từ Khâm Thiên Giám, nơi mười hai hướng đã đóng được ghi lại kèm con
+   số — và nhờ đó không ai đi lại.
+
+   Mỗi mục phải nói ĐO ĐƯỢC GÌ, không chỉ nói "không được". */
+const DA_DONG = [
+  {
+    huong: "tìm chiều mù bằng cách đếm tần suất từ trong kho skill",
+    luc: "02/09/2026",
+    ketQua: "1.226 chiều trống trên 712 skill giao diện, và đọc vào thì " +
+      "toàn `user`, `building`, `create`, `data` — từ tiếng Anh phổ " +
+      "thông, không phải chiều đo được. Công cụ đã bỏ.",
+    vaSao: "Bước từ một skill sang một phép canh là bước NGỮ NGHĨA. So " +
+      "chuỗi làm không nổi; phải CHỌC vào hệ thống rồi xem ai kêu, " +
+      "hoặc phải có model đọc hiểu skill.",
+  },
+  {
+    huong: "đột biến NGẪU NHIÊN trên CSS (đổi bừa một ký tự)",
+    luc: "02/09/2026",
+    ketQua: "phần lớn cho ra CSS hỏng cú pháp; trình duyệt bỏ qua rule ấy.",
+    vaSao: "\"Trình duyệt bỏ qua một rule\" không phải hỏng hóc người " +
+      "dùng gặp, nên con chết hay sống đều không nói gì về bộ thước. " +
+      "Mỗi con ở đây phải là một hỏng hóc CÓ THẬT, tả được bằng lời.",
+  },
+];
+
 /* ── các con ─────────────────────────────────────────────────
    `ap` nhận nội dung gốc, trả về nội dung đã đột biến — hoặc null khi
    cung này không có chỗ để áp (không phải lỗi, chỉ là không áp được).
@@ -306,5 +334,48 @@ if (hong.length) {
   console.log(`\n⚠ ${hong.length} con SỐNG mà lẽ ra phải chết — đó là THƯỚC HỎNG, không phải`);
   console.log("  chiều mù. Sửa thước trước, vì một thước hỏng làm cả phiếu nói dối.");
 }
+/* ── ghi sổ ──────────────────────────────────────────────────
+   `--ghi` đổ kết quả ra factory/chieu-mu.json. Sổ ấy là thứ NỐI bộ
+   quét này với vòng tiến hoá: tỉ lệ con bị bắt là một thước ĐỘ PHỦ
+   cho chính bộ thước.
+
+   Vì sao độ phủ là loại thước khác hẳn mười chín thước kia: chúng đều
+   hỏi "cung có gì hỏng không", nên hỏng thì sửa, sửa xong là xanh
+   VĨNH VIỄN — mười hai cung 16/16 suốt từ 01/09 là vậy. Độ phủ hỏi
+   "bộ thước có mù chỗ nào không", và nó KHÔNG bão hoà: thêm một con
+   đột biến mới là tỉ lệ tụt ngay, đúng như thêm một khái niệm sách
+   làm thước `phan-quyet-2026` của knowledge-os tụt.
+
+   Sổ giữ cả DANH SÁCH con sống, có tên và có mô tả hỏng-cái-gì. Đó là
+   đề bài cho ai đi thêm thước — khác hẳn một con số trần trụi. */
+if (process.argv.includes("--ghi")) {
+  const p = join(ROOT, "factory", "chieu-mu.json");
+  let so = { ghiChu: "SINH TỰ ĐỘNG bởi scripts/dot-bien-giao-dien.mjs. Đây là ĐỀ XUẤT, không phải phép canh.", cung: {} };
+  if (existsSync(p)) { try { so = JSON.parse(readFileSync(p, "utf8")); } catch { /* hỏng thì dựng lại */ } }
+  so.luc = new Date().toISOString();
+  so.cung[CUNG] = {
+    luc: so.luc,
+    phieu: `${nen.dat}/${nen.tong}`,
+    apDuoc: chet.length + song.length,
+    batDuoc: chet.length,
+    doPhu: chet.length + song.length ? +(chet.length / (chet.length + song.length)).toFixed(3) : null,
+    thuocHong: song.filter((x) => x.canh).map((x) => ({ con: x.ten, thuoc: x.canh })),
+    chieuMu: song.filter((x) => !x.canh).map((x) => ({ ten: x.ten, vi: x.vi })),
+  };
+  so.daDong = DA_DONG;
+  /* Tổng hợp lại từ ĐẦU mỗi lần, đừng cộng dồn: cung bị xoá khỏi sổ
+     mà con số tổng vẫn nhớ nó thì sổ nói dối. */
+  const ds = Object.values(so.cung);
+  so.tong = {
+    soCungDaQuet: ds.length,
+    batDuoc: ds.reduce((n, x) => n + x.batDuoc, 0),
+    apDuoc: ds.reduce((n, x) => n + x.apDuoc, 0),
+  };
+  so.tong.doPhu = so.tong.apDuoc ? +(so.tong.batDuoc / so.tong.apDuoc).toFixed(3) : null;
+  writeFileSync(p, JSON.stringify(so, null, 2) + "\n");
+  console.log(`\n✓ Đã ghi factory/chieu-mu.json — độ phủ toàn xưởng ` +
+    `${so.tong.batDuoc}/${so.tong.apDuoc} (${Math.round(so.tong.doPhu * 100)}%) trên ${so.tong.soCungDaQuet} cung.`);
+}
+
 console.log("\nMỗi con SỐNG là một chiều hệ thống đang mù, và nó có TÊN — khác hẳn");
 console.log("một danh sách từ khoá. Đó là bản đồ để quyết thước nào đáng thêm.");
