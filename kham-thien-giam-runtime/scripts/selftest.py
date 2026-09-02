@@ -6543,6 +6543,74 @@ def kiem_moi_sigma_rieng_trung_bo_uoc_chung() -> None:
     kiem("có tìm thấy ít nhất một `_sigma` riêng để canh", thay >= 3, thay)
 
 
+def kiem_canh_gac() -> None:
+    """Người canh gác: hỏi CỔNG, không hỏi `pid.txt`, và chỉ MỘT bản.
+
+    Đo 02/09/2026: runtime khởi động lần cuối 30/08 lúc 19:04, ghi dữ
+    liệu tới 23:44, rồi chết và nằm im BA NGÀY. Máy chạy liên tục 129
+    giờ nên nó không mất theo máy — nó tự chết, không một dòng lỗi.
+    Ba ngày ấy mất ba vòng tiến hoá, ba lượt dựng sổ hiệu chỉnh, và
+    toàn bộ băng.
+
+    `chay-nen.py` gọi thẳng `uvicorn.run()`, không có vòng nào bọc
+    ngoài. Người canh gác là vòng ấy.
+
+    Hai tính chất phải canh, vì hỏng chúng là canh gác ngủ quên:
+
+    · **Hỏi CỔNG chứ đừng hỏi `pid.txt`.** File ấy ở lại sau khi tiến
+      trình bị giết (`finally` không chạy), nên nó nói "đang chạy" về
+      một PID đã chết — và người canh sẽ ngồi im bên một cái xác.
+    · **Chỉ MỘT bản canh gác.** Hai bản cùng dựng thì bản thứ hai của
+      runtime thoát mã 3, và nhật ký thành một chuỗi vô nghĩa.
+    """
+    print()
+    print("-- Nguoi canh gac ----------------------------------------")
+
+    import importlib.util as _iu
+    import socket as _sk
+
+    _goc = Path(__file__).resolve().parent.parent
+    f = _goc / "dichvu" / "canh-gac.py"
+    kiem("`dichvu/canh-gac.py` có mặt", f.exists())
+    if not f.exists():
+        return
+    sp = _iu.spec_from_file_location("_x_canhgac", f)
+    m = _iu.module_from_spec(sp)
+    sp.loader.exec_module(m)
+
+    # Cổng chắc chắn không ai nghe ⇒ phải trả False, không được ném.
+    kiem("cổng câm ⇒ `_con_song` trả False",
+         m._con_song(59_999) is False)
+
+    # Giữ chỗ: bản đầu chiếm được, bản sau thì không.
+    a = m._giu_cho()
+    kiem("bản canh gác ĐẦU giữ được chỗ", a is not None)
+    b = m._giu_cho()
+    kiem("bản THỨ HAI không giữ được ⇒ nó sẽ thoát", b is None)
+    if a:
+        a.close()
+    if b:
+        b.close()
+    c = m._giu_cho()
+    kiem("thả ra rồi thì bản sau giữ được (không kẹt vĩnh viễn)",
+         c is not None)
+    if c:
+        c.close()
+
+    # Cổng runtime đọc từ CONFIG, không đóng cứng — hai nguồn sự thật
+    # là hai chỗ để chúng lệch nhau.
+    from kham.config import CONFIG as _CFG
+    kiem("cổng runtime đọc từ CONFIG", m._cong_runtime() == int(_CFG["port"]),
+         (m._cong_runtime(), _CFG["port"]))
+
+    src = f.read_text(encoding="utf-8")
+    kiem("KHÔNG hỏi `pid.txt` để biết còn sống hay không",
+         "pid.txt" not in src.split('"""')[2] if src.count('"""') > 2
+         else "pid.txt" not in src)
+    kiem("có lùi dần và có TRẦN lùi",
+         "NGHI_TOI_DA" in src and "min(NGHI_TOI_DA" in src)
+
+
 def kiem_khoa_mot_ban_chay_nen() -> None:
     """Bật bản thứ hai phải TỰ KHAI rồi thoát, không treo im lặng.
 
@@ -11257,6 +11325,7 @@ def main() -> int:
     kiem_nho_sigma_theo_cho()
     kiem_so_hieu_chinh_gom_moi_cho()
     kiem_khoa_mot_ban_chay_nen()
+    kiem_canh_gac()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
