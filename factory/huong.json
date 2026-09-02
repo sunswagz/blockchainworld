@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-09-02T16:38:55.705Z",
+  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/huong.mjs. ĐỀ XUẤT có bằng chứng, KHÔNG phải quyết định.",
+  "soCung": 12,
+  "deXuat": [
+    {
+      "tin": "lệch giữa các cung",
+      "huong": "ngăn chi tiết để truy ngược con số",
+      "soCung": 9,
+      "vi": "3/12 cung đã có, 9 cung chưa: cong-bo dai-quan-trac do-sat-vien hoang-thanh kham-thien-giam tang-thu-cac tao-bien-xu thi-bac-ty tu-cam-thanh",
+      "kiemBang": "node scripts/huong.mjs --in"
+    },
+    {
+      "tin": "lệch giữa các cung",
+      "huong": "sao chép hoặc xuất dữ liệu",
+      "soCung": 7,
+      "vi": "5/12 cung đã có, 7 cung chưa: dai-quan-trac ho-bo kham-thien-giam tao-bien-xu thai-boc-tu thi-bac-ty tu-cam-thanh",
+      "kiemBang": "node scripts/huong.mjs --in"
+    },
+    {
+      "tin": "lệch giữa các cung",
+      "huong": "ô tìm kiếm",
+      "soCung": 6,
+      "vi": "6/12 cung đã có, 6 cung chưa: dai-quan-trac kham-thien-giam tao-bien-xu thai-boc-tu thi-bac-ty tu-cam-thanh",
+      "kiemBang": "node scripts/huong.mjs --in"
+    },
+    {
+      "tin": "model tự chọn",
+      "huong": "thứ bậc thông tin sai",
+      "soCung": 4,
+      "vi": "4 cung khác nhau (tao-bien-xu kinh-thanh thi-bac-ty tu-cam-thanh) trên 11 lượt có ghi việc — model tự tìm ra lớp này khi mọi thước đã đạt",
+      "kiemBang": "xem factory/tien-hoa.jsonl, trường daLam"
+    },
+    {
+      "tin": "model tự chọn",
+      "huong": "bàn phím và tiêu điểm",
+      "soCung": 3,
+      "vi": "3 cung khác nhau (ho-bo thai-boc-tu kinh-thanh) trên 11 lượt có ghi việc — model tự tìm ra lớp này khi mọi thước đã đạt",
+      "kiemBang": "xem factory/tien-hoa.jsonl, trường daLam"
+    },
+    {
+      "tin": "model tự chọn",
+      "huong": "con số không tự nói nghĩa",
+      "soCung": 3,
+      "vi": "3 cung khác nhau (thai-boc-tu kham-thien-giam ho-bo) trên 11 lượt có ghi việc — model tự tìm ra lớp này khi mọi thước đã đạt",
+      "kiemBang": "xem factory/tien-hoa.jsonl, trường daLam"
+    },
+    {
+      "tin": "sinh ra mà không ai đọc",
+      "huong": "đưa phân tích của xưởng lên site",
+      "soCung": 3,
+      "vi": "3 file xưởng sinh mà không trang nào đọc: bao-cao.md phieu.json kho-de-xuat.json",
+      "kiemBang": "grep -rl bao-cao.md */assets/js/ */index.html"
+    },
+    {
+      "tin": "chạy mà chưa đổi gì",
+      "huong": "xem lại node không sinh ra thay đổi nào",
+      "soCung": 2,
+      "vi": "2 node: dong-dau tri-thuc — thừa, hay hỏng câm? Phải mở ra xem",
+      "kiemBang": "node scripts/nha-may.mjs bang"
+    }
+  ]
+}

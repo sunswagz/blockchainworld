@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-09-02T11:50:42.644Z",
- "lan": 572,
+ "generatedAt": "2026-09-02T16:38:55.773Z",
+ "lan": 573,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -772,6 +772,30 @@ window.VAN_HANH = {
    "lucDoi": "2026-09-01T19:03:54.517Z"
   },
   {
+   "ma": "huong",
+   "ten": "Đề xuất hướng",
+   "y": "Bốn tín hiệu từ chính repo — model tự chọn gì, cung nào lệch cung nào, xưởng sinh gì không ai đọc, node nào chạy mà chưa đổi được gì. Mỗi đề xuất kèm một con số và một lệnh để BÁC nó.",
+   "tram": "M18",
+   "che": "script",
+   "nhip": 168,
+   "lenh": "node scripts/huong.mjs",
+   "ra": [
+    "factory/huong.json"
+   ],
+   "cung": null,
+   "cungTen": null,
+   "wf": "refresh-data.yml",
+   "luc": "2026-09-02T16:38:55.773Z",
+   "ket": "ok",
+   "giay": 0,
+   "doi": true,
+   "chuThich": "HƯỚNG — 8 đề xuất",
+   "vi": null,
+   "chuoiLoi": 0,
+   "lucOk": "2026-09-02T16:38:55.773Z",
+   "lucDoi": "2026-09-02T16:38:55.773Z"
+  },
+  {
    "ma": "giao-hang",
    "ten": "Giao hàng lên Pages",
    "y": "Không có nhịp riêng — chạy khi có commit số liệu. 27/27 lượt thành công.",
@@ -795,6 +819,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-09-02T16:38:55.773Z",
+   "ma": "huong",
+   "ket": "ok",
+   "giay": 0,
+   "doi": true,
+   "chuThich": "HƯỚNG — 8 đề xuất",
+   "vi": null
+  },
   {
    "luc": "2026-09-02T11:50:42.644Z",
    "ma": "tien-hoa-xoay",
@@ -1322,15 +1355,6 @@ window.VAN_HANH = {
    "ma": "thai-boc-tu-cong-truong",
    "ket": "ok",
    "giay": 7,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-09-01T08:44:49.495Z",
-   "ma": "thai-boc-tu",
-   "ket": "ok",
-   "giay": 1,
    "doi": true,
    "chuThich": "",
    "vi": null
