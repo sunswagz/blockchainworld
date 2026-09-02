@@ -1458,6 +1458,42 @@ async def main() -> int:
     check(_i60 > 0 and "thesis" not in _lp60[_lp60.find("if _chon:"):_i60],
           "đánh dấu đã-xét NGAY khi chọn, trước khi gọi bộ não")
 
+    # VỊ THẾ PHẢI MANG CHỢ CỦA CHÍNH NÓ. Thiếu `symbol`, luật "một lệnh mỗi nến"
+    # đọc `position["symbol"] or cfg["symbol"]` và quy MỌI chợ về BTCUSDT — nên
+    # sau lệnh đầu tiên trong nến, cả phễu bị chặn. Nhật ký 03/09 ghi hàng chục
+    # dòng «ĐÃ VÀO LỆNH TRÊN NẾN NÀY rồi (BTCUSDT)» cho chợ chưa từng vào lệnh.
+    from trader.risk import RiskEngine as _RE60
+
+    _th60 = {"action": "SHORT", "confidence": 0.9, "targets": [90.0],
+             "suggested_risk_pct": 0.5, "entry_zone": None, "invalidation": 104.0}
+    _st60 = {"symbol": "CHOLA", "price": 100.0,
+             "source": {"name": "t", "live": True},
+             "timeframes": {CONFIG["timeframes"]["primary"]: {"price": 100.0}}}
+    _acc60 = {"equity": 10_000.0, "availableQuote": 10_000.0, "positions": [],
+              "equityKnown": True, "drawdownPct": 0.0, "todayPnl": 0.0}
+    _d60 = _RE60(CONFIG["risk"], spot_only=False).evaluate(_th60, _st60, _acc60, 2.0)
+    check(_d60["approved"] and (_d60["position"] or {}).get("symbol") == "CHOLA",
+          f"vị thế mang đúng chợ của nó (được {(_d60.get('position') or {}).get('symbol')})")
+
+    # Và tầng rủi ro cũng KHÔNG được làm tròn giá theo chữ số thập phân — đây là
+    # chỗ THỨ BA của cùng một lớp lỗi, sau features.py và brain.py.
+    _sr60 = ma_khong_chu_thich(ROOT / "trader" / "risk.py")
+    for _k60 in ('"entry": round(', '"stopLoss": round(', '"targets": [round('):
+        check(_k60 not in _sr60, f"risk.py không còn {_k60}…, 2)")
+    _st60r = {**_st60, "price": 0.00000517,
+              "timeframes": {CONFIG["timeframes"]["primary"]: {"price": 0.00000517}}}
+    _th60r = {**_th60, "invalidation": 0.00000517 * 1.04,
+              "targets": [0.00000517 * 0.9]}
+    _d60r = _RE60(CONFIG["risk"], spot_only=False).evaluate(
+        _th60r, _st60r, _acc60, 0.00000517 * 0.02)
+    _p60r = _d60r.get("position") or {}
+    if _d60r["approved"]:
+        check(_p60r.get("entry") not in (0, 0.0) and _p60r.get("stopLoss") not in (0, 0.0),
+              f"coin 5,17e-06: entry {_p60r.get('entry')} và stop "
+              f"{_p60r.get('stopLoss')} KHÔNG bị làm tròn thành 0")
+    else:
+        check(True, f"coin siêu rẻ bị chặn vì lý do khác: {_d60r['rejections']}")
+
     print("\n[59] BỘ LUẬT KHÔNG ĐƯỢC LÀM TRÒN GIÁ THEO CHỮ SỐ THẬP PHÂN")
     # LẦN THỨ HAI cùng một lớp lỗi. Lần trước ở `features.py`, chữa bằng `_rg()`
     # — làm tròn theo CHỮ SỐ CÓ NGHĨA — và bản chữa không bao giờ tới `brain.py`.

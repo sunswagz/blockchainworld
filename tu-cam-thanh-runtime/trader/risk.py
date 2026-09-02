@@ -16,6 +16,9 @@ from __future__ import annotations
 import datetime as _dt
 from typing import Any
 
+# MỘT phép làm tròn giá cho cả hệ — xem chú thích ở features._rg.
+from .features import _rg
+
 EPS = 1e-9
 
 
@@ -297,12 +300,23 @@ class RiskEngine:
             "rr": rr,
             "note": (f"đã hạ risk {suggested}% → {risk_pct}% theo trần" if capped else "trong hạn mức"),
             "position": {
+                # CHỢ phải nằm trong vị thế. Thiếu nó, mọi chỗ đọc
+                # position["symbol"] rơi về cfg["symbol"] — tức MỌI chợ đều
+                # thành BTCUSDT. Luật "một lệnh mỗi nến" vì thế chặn sạch phần
+                # còn lại của phễu sau lệnh đầu tiên: nhật ký 03/09 ghi hàng
+                # chục dòng "ĐÃ VÀO LỆNH TRÊN NẾN NÀY rồi (BTCUSDT)" cho những
+                # chợ chưa từng vào lệnh nào.
+                "symbol": state.get("symbol"),
                 "side": action,
-                "entry": round(requested, 2),
-                "expectedFill": round(entry, 2),
-                "costDragOnEntry": round(abs(entry - requested), 2),
-                "stopLoss": round(sl, 2),
-                "targets": [round(t, 2) for t in targets],
+                # GIÁ làm tròn theo CHỮ SỐ CÓ NGHĨA. Đây là chỗ THỨ BA của cùng
+                # một lớp lỗi (sau features.py và brain.py): round(x, 2) đúng cho
+                # BTC 78.000 và biến SHIB 0,00000517 thành 0,0 — stop bằng 0 và
+                # khoảng cách stop bằng cả giá.
+                "entry": _rg(requested),
+                "expectedFill": _rg(entry),
+                "costDragOnEntry": _rg(abs(entry - requested)),
+                "stopLoss": _rg(sl),
+                "targets": [_rg(t) for t in targets],
                 "qty": qty,
                 "notional": round(notional, 2),
                 "riskAmount": round(risk_amount, 2),
@@ -311,8 +325,8 @@ class RiskEngine:
                 "riskBaseIsCash": bool(avail is not None and avail < account["equity"]),
                 "riskPctOfEquity": round(risk_amount / account["equity"] * 100, 4)
                 if account.get("equity") else None,
-                "stopDistance": round(stop_dist, 2),
-                "structuralStopDistance": round(structural_dist, 2),
+                "stopDistance": _rg(stop_dist),
+                "structuralStopDistance": _rg(structural_dist),
                 "stopAtrMultiple": round(structural_dist / atr, 2) if atr else None,
                 "rr": round(rr, 2) if rr else None,
                 "suggestedRiskPct": suggested,
