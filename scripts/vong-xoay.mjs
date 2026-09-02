@@ -1,3 +1,6 @@
+import { existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
 /* ═══════════════════════════════════════════════════════
    VÒNG XOAY — tám cung dùng chung MỘT node tiến hoá.
 
@@ -91,6 +94,31 @@ export function fileSua(cung) {
    rồi ghi lại `daLam` vào chính nó. Gitignore phải phủ được đường
    này, xem mục tương ứng trong .gitignore. */
 export const fileDeBai = (cung) => `${thuMuc(cung)}assets/data/de-bai-tien-hoa.json`;
+
+/* ── MƯỜI BA TRANG ĐƯỢC CHẤM ───────────────────────────────
+   Khác với biến `cung` trong `kiem-quy-trinh.mjs`, và khác CÓ CHỦ Ý:
+   ở đó `cung` nghĩa là "thư mục cung", dùng để soi `<cung>/sw.js`,
+   `<cung>/assets/js/halls.js`… — những thứ Cổng Thành không có theo
+   cùng khuôn. Ở đây câu hỏi khác: "trang nào bị thước chấm". Trả lời
+   là mười hai cung CỘNG trang gốc.
+
+   Hai khái niệm gần nhau nhưng không trùng, nên chúng là hai hàm chứ
+   không phải một hàm dùng chung — gộp lại là mỗi lần sửa phải nhớ nó
+   đang trả lời câu nào.
+
+   Nhập `node:fs` ở đây KHÔNG phá luật "module chỉ có dữ liệu" mà file
+   này sinh ra để giữ: luật ấy cấm CHẠY gì lúc nhập, không cấm nhập
+   thư viện. `kiem-quy-trinh.mjs` vẫn import file này an toàn. */
+export function dsTrang(root) {
+  const bo = new Set(["node_modules", "dist"]);
+  const ds = readdirSync(root, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && !d.name.startsWith(".") && !bo.has(d.name))
+    .map((d) => d.name)
+    .filter((n) => existsSync(join(root, n, "index.html")))
+    .sort();
+  if (existsSync(join(root, "index.html"))) ds.push("cong-thanh");
+  return ds;
+}
 
 /* Thêm `sw.js`: model không được sửa nó, nhưng `nang-version.mjs` chạy
    ngay sau cổng chặn và nâng CACHE_VERSION. Không commit nó thì người

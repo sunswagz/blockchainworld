@@ -888,11 +888,18 @@ for (const c of ["."].concat(cung)) {
           `        người ngồi vào sửa, trong khi mười hai cung tiến mỗi ngày hoặc mỗi tuần.\n` +
           `        Thêm "cong-thanh" vào scripts/vong-xoay.mjs.`);
 
-    const pt = await doc("scripts/phieu-toan-thanh.mjs").catch(() => "");
-    if (pt && !pt.includes('"cong-thanh"'))
-      bao(`scripts/phieu-toan-thanh.mjs không chấm Cổng Thành — phiếu toàn thành liệt kê cung\n` +
-          `        bằng "thư mục có index.html", mà gốc repo không phải thư mục con nào.\n` +
-          `        factory/phieu.json sẽ khai 12 cung và im lặng bỏ trang gốc.`);
+    /* GỌI hàm thật, đừng dò chuỗi trong file gọi nó.
+       Bản đầu tìm chuỗi `"cong-thanh"` trong phieu-toan-thanh.mjs, và
+       nó báo oan ngay hôm sau: file ấy chuyển sang dùng `dsTrang()`
+       nên chuỗi biến mất trong khi hành vi vẫn đúng. Dò chuỗi là hỏi
+       "có ai gõ tên này không", không phải "trang gốc có được chấm
+       không" — hai câu khác nhau, và câu thứ hai mới là câu cần hỏi.
+       Cùng bài học với `so-cot` trong CLAUDE.md: phép nhận diện phải
+       là bản CHÉP của thước, không phải bản rút gọn. */
+    if (VX && typeof VX.dsTrang === "function" && !VX.dsTrang(ROOT).includes("cong-thanh"))
+      bao(`dsTrang() không trả về Cổng Thành — phiếu toàn thành và cổng chặn thước mới\n` +
+          `        đều đếm trang qua hàm đó, nên trang gốc sẽ im lặng ra khỏi cả hai bảng.\n` +
+          `        Xem scripts/vong-xoay.mjs.`);
   }
 }
 

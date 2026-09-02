@@ -15,9 +15,15 @@
    suốt, chỉ là không có thước nào chỉ vào.
 
    Node này KHÔNG gọi model (`che: "script"`). Nó chỉ chạy lại phép
-   đo đã có cho cả mười hai cung rồi ghi một file. Thấy được vấn đề
+   đo đã có cho cả MƯỜI BA trang rồi ghi một file. Thấy được vấn đề
    là việc rẻ; sửa mới là việc đắt, và sửa vẫn là việc của vòng tiến
    hoá hoặc của người.
+
+   Mười ba chứ không mười hai: trang gốc `index.html` — Cổng Thành —
+   không phải thư mục con nào nên phép "thư mục có index.html" bỏ sót
+   nó suốt, và phiếu đọc 198/198 trong khi trang ĐẦU TIÊN người ta
+   thấy chưa từng bị chấm. Từ 02/09 nó vào bảng dưới bí danh
+   `cong-thanh`; danh sách ở `scripts/vong-xoay.mjs`.
 
    ── KHÔNG DỰNG THÊM MỘT BỘ ĐO THỨ HAI ─────────────────
    File này gọi thẳng `tien-hoa.mjs do <cung> --ghi` qua tiến trình
@@ -34,6 +40,7 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync, readFileSync, existsSync, readdirSync, mkdirSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { dsTrang } from "./vong-xoay.mjs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
@@ -41,24 +48,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHI_IN = process.argv.includes("--in");
 const RA = join(ROOT, "factory", "phieu.json");
 
-/* Cùng phép nhận diện cung với kiem-quy-trinh.mjs: thư mục có
-   index.html NGAY tại gốc nó. Ba runtime Python chỉ có
-   web/index.html ở tầng hai nên không lọt vào. */
-const cung = readdirSync(ROOT, { withFileTypes: true })
-  .filter((d) => d.isDirectory() && !d.name.startsWith(".") && d.name !== "node_modules")
-  .map((d) => d.name)
-  .filter((n) => existsSync(join(ROOT, n, "index.html")))
-  .sort();
-
-/* Cổng Thành không lọt vào phép trên vì mã của nó ở NGAY gốc repo,
-   không trong một thư mục con. Nó là trang đầu tiên người ta thấy và
-   là trang duy nhất phiếu này bỏ sót suốt — `tien-hoa.mjs` nhận
-   `cong-thanh` làm bí danh cho gốc, nên chỉ cần gọi tên nó ra.
-
-   Thêm vào ĐÂY chứ không nới phép nhận diện ở trên: nới ra thì
-   `dist/`, `knowledge-os/` và ba runtime Python cũng có cửa lọt vào,
-   mà cả bốn đều cố ý không phải cung. */
-if (existsSync(join(ROOT, "index.html"))) cung.push("cong-thanh");
+/* Danh sách nằm ở `scripts/vong-xoay.mjs`, dùng chung với cổng chặn
+   thước mới (`scripts/thuoc-moi.mjs`). Hai chỗ cùng hỏi "trang nào bị
+   thước chấm" mà mỗi chỗ tự đếm thì sớm muộn một chỗ sót Cổng Thành —
+   đúng cách nó đã bị sót suốt từ đầu. */
+const cung = dsTrang(ROOT);
 
 /* Mỗi cung một tiến trình, và mỗi tiến trình một trần giờ. Cung nào
    treo thì mất đúng cung đó chứ không mất cả bảng — cùng lối `do` đã
