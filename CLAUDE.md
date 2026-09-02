@@ -1223,16 +1223,27 @@ mà sai cổng" rất dễ sót.
     powershell -File dichvu\giam-sat.ps1 -Vong   bộ giám sát THƯỜNG TRÚ
 
 **Cung này có bộ giám sát vì nó đã chết 70,8 giờ mà không ai hay**
-(30/08 16:53 UTC → 02/09). Và thiết kế của nó bị ép bởi một ràng buộc
-của MÁY, không phải của mã: **Task Scheduler đang TẮT** —  trả ,  trả «Cannot open Schedule
-service» vì thiếu quyền quản trị, nên  lẫn COM
- đều cụt. Đừng đi lại đường ấy.
+(30/08 16:53 UTC → 02/09, đo ngày 02/09). Thiết kế của nó bị ép bởi một
+ràng buộc của MÁY chứ không phải của mã: **Task Scheduler đang TẮT.**
 
-Móc khởi động DUY NHẤT còn dùng được là **thư mục Startup**
-(), đúng thứ
-Tử Cấm Thành đang dùng — và nó chỉ bắn MỘT phát lúc đăng nhập, nên bộ
-giám sát phải THƯỜNG TRÚ mới lấp được cả lỗ «sập giữa chừng». Gỡ bằng
-cách xoá file .
+    Get-Service Schedule    -> Stopped  (StartType: Automatic)
+    Start-Service Schedule  -> "Cannot open Schedule service"  (thiếu admin)
+    schtasks /create        -> không dùng được
+    COM Schedule.Service    -> "The Task Scheduler Service is not running"
+
+**Đừng đi lại đường tác vụ định kỳ** — mất thì giờ rồi cụt. Móc khởi
+động DUY NHẤT còn dùng được là **thư mục Startup**
+(`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`), đúng thứ
+Tử Cấm Thành đang dùng. Mà lối tắt Startup chỉ bắn MỘT phát lúc đăng
+nhập, nên bộ giám sát phải THƯỜNG TRÚ mới lấp được cả lỗ «sập giữa
+chừng». Gỡ bằng cách xoá file `.lnk` — không để lại gì.
+
+Hai chi tiết đã cắn lúc dựng nó, ghi để khỏi cắn lại: `.ps1` **phải có
+BOM** (PowerShell 5.1 đọc file không BOM theo ANSI, dấu tiếng Việt hoá
+rác, và một byte lạc cho `Missing closing '}'` ở một dòng hoàn toàn
+lành); và **đừng thăm dò bằng `/api/trang-thai`** — nó mất 11,24 giây vì
+dựng cả ảnh chụp, nên bộ giám sát báo nhầm là chết. Hỏi `/api/cau-hinh`
+(0,061 giây).
 
 Thị Bạc Ty **không cần khoá nào để chạy đủ**: nó chỉ đọc dữ liệu CÔNG KHAI
 — bốn sàn perp, ba sàn giao ngay, Deribit, LI.FI, DefiLlama, và RPC công
