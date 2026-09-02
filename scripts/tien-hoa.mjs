@@ -560,7 +560,13 @@ function do_() {
     return !(cha && /aria-hidden|aria-label/.test(cha[1]));
   }).length;
   const svgKhongCo = [...html.matchAll(/<svg\b([^>]*)>/g)]
-    .filter((m) => !/width=/.test(m[1])).length;
+    /* `(^|\s)width=` chứ KHÔNG phải `width=` trần. Không có ranh giới
+       thì `stroke-width="1.7"` KHỚP — mà icon vẽ bằng nét thì cái nào
+       cũng có stroke-width, nên thước báo 0 vĩnh viễn trong khi svg
+       chẳng hề có cỡ nội tại. Đúng lớp lỗi "nhận diện quá rộng".
+       Bộ quét `dot-bien-giao-dien.mjs` tìm ra: bỏ hẳn width/height
+       của một svg mà phiếu Kinh Thánh vẫn 17/17. */
+    .filter((m) => !/(^|\s)width=/.test(m[1])).length;
 
   const congByte = (loc) => file.filter(loc).reduce((n, f) => n + statSync(f).size, 0);
   /* VỎ là mã hành vi; mọi .js khác là NỘI DUNG. Gộp chung thì đạt hay
