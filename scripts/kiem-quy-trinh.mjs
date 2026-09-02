@@ -1058,26 +1058,46 @@ for (const c of ["."].concat(cung)) {
   const wf = ".github/workflows/refresh-data.yml";
   if (existsSync(join(ROOT, wf))) {
     const L = (await doc(wf)).split("\n");
-    for (let i = 0; i < L.length; i++) {
-      if (!/^\s*if\s+.*\|\s*tee\b/.test(L[i]) && !/^\s*if\s+.*\\$/.test(L[i])) continue;
-      /* Dòng `if` có thể gấp bằng `\`; gom tiếp cho tới khi thấy `tee`. */
-      let cau = L[i], k = i;
-      while (/\\\s*$/.test(cau) && k + 1 < L.length) { k++; cau += " " + L[k].trim(); }
-      if (!/\|\s*tee\b/.test(cau)) continue;
+    /* Khai `defaults.run.shell: bash` ở cấp workflow là đủ cho MỌI
+       bước — GitHub đổi sang `bash --noprofile --norc -eo pipefail`.
+       Có dòng ấy thì phép này im. */
+    const coDefaults = /^defaults:\s*$[\s\S]{0,120}?^\s+shell:\s*bash\s*$/m.test(L.join("\n"));
+    /* MỌI `| tee`, không chỉ cái nằm trong `if`. Bản đầu của phép này
+       chỉ soi đường ống dùng làm ĐIỀU KIỆN, và loại trừ ấy sai: bước
+       `node scripts/pin-snapshot.mjs 2>&1 | tee "$LOG"` không có `if`
+       nào, nhưng mã thoát của nó là thứ GitHub dùng để chấm bước
+       success hay failure — rồi bước ghi sổ đọc đúng cái đó. Đo hôm
+       phát hiện: 18 trên 25 bước dùng `| tee` đang nuốt mã thoát,
+       gần như toàn bộ đường lấy và dựng số liệu.
+
+       BỎ DÒNG CHÚ THÍCH trước khi tìm, và tìm đúng CÂU LỆNH chứ không
+       tìm chữ. Bản đầu dò `/pipefail/` trên nguyên khối, mà chính khối
+       chú thích giải thích lỗi có chữ ấy bốn lần — nên nó luôn thấy
+       "có" và chưa bao giờ kêu, kể cả khi tôi cố tình gỡ câu lệnh ra
+       để thử. Một phép canh chưa từng thấy mình đỏ thì chưa biết nó
+       canh gì. */
+    const daBao = new Set();
+    for (let i = 0; i < L.length && !coDefaults; i++) {
+      /* Bỏ dòng chú thích NGAY Ở KHÂU DÒ, không chỉ lúc kiểm pipefail:
+         khối chú thích giải thích lỗi này có chữ `| tee` trong đó, và
+         nó tự khớp chính mình rồi in ra một "bước" ở dòng 1. Lần thứ
+         năm trong hai ngày một phép đo bị chú thích của nó đánh lừa. */
+      if (/^\s*#/.test(L[i]) || !/\|\s*tee\b/.test(L[i])) continue;
       let j = i;
       while (j > 0 && !/^\s+run: \|/.test(L[j])) j--;
-      /* BỎ DÒNG CHÚ THÍCH trước khi tìm, và tìm đúng CÂU LỆNH chứ
-         không tìm chữ. Bản đầu của phép này dò `/pipefail/` trên
-         nguyên khối, mà chính khối chú thích giải thích lỗi có chữ
-         "pipefail" bốn lần — nên nó luôn thấy "có" và chưa bao giờ
-         kêu, kể cả khi tôi cố tình gỡ câu lệnh ra để thử. Một phép
-         canh chưa từng thấy mình đỏ thì chưa biết nó canh gì. */
-      const than = L.slice(j, i).filter((x) => !/^\s*#/.test(x)).join("\n");
-      if (!/^\s*set\s+-o\s+pipefail\b/m.test(than) &&
-          !/shell:\s*bash/.test(L.slice(Math.max(0, j - 12), j).join("\n")))
-        bao(`refresh-data.yml dòng ${i + 1}: đường ống \`| tee\` dùng làm ĐIỀU KIỆN mà khối lệnh\n` +
-            `        không có \`set -o pipefail\` — mã thoát sẽ lấy của tee (luôn 0) và nhánh\n` +
-            `        THEN luôn chạy. Đúng lỗi đã cho một bản vá tụt điểm lọt ra site 02/09.`);
+      if (daBao.has(j)) continue;
+      const than = L.slice(j, i + 1).filter((x) => !/^\s*#/.test(x)).join("\n");
+      if (/^\s*set\s+-o\s+pipefail\b/m.test(than)) continue;
+      daBao.add(j);
+      /* Tên bước cho dễ tìm: ngược lên từ `run:` tới `- name:` ở ĐÚNG
+         mức thụt của bước (6 dấu cách). Không chốt mức thì nó vớ phải
+         `name:` của cả workflow ở dòng 1 và in ra một cái tên vô nghĩa. */
+      let t = j; while (t > 0 && !/^ {6}- name:/.test(L[t])) t--;
+      const tenBuoc = t > 0 ? L[t].replace(/^\s*- name:\s*/, "").slice(0, 52) : `dòng ${j + 1}`;
+      bao(`bước "${tenBuoc}" dùng \`| tee\` mà khối lệnh\n` +
+          `        không có \`set -o pipefail\` — mã thoát lấy của tee (luôn 0), nên script ngã\n` +
+          `        mà bước vẫn "success" và sổ nhà máy vẫn ghi ket: ok. Cách gọn nhất là khai\n` +
+          `        \`defaults: run: shell: bash\` một lần ở đầu workflow.`);
     }
   }
 }

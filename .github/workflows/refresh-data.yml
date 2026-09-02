@@ -78,6 +78,35 @@ concurrency:
   group: nha-may-main
   cancel-in-progress: false
 
+# ── VÌ SAO PHẢI KHAI shell: bash ─────────────────────────────────
+# Không khai thì GitHub chạy `run:` bằng `bash -e {0}` — có `-e`
+# nhưng KHÔNG có `pipefail`. Khai `bash` thì nó dùng
+# `bash --noprofile --norc -eo pipefail {0}`.
+#
+# Khác biệt một chữ, hậu quả trải khắp xưởng. Mọi bước ở đây đều có
+# dạng `node scripts/… 2>&1 | tee "$LOG"`, và không pipefail thì mã
+# thoát lấy của `tee` — luôn 0. Script ngã, bước vẫn "success", sổ
+# nhà máy vẫn ghi `ket: ok`.
+#
+# Đo ngày 02/09: 25 bước dùng `| tee`, 18 trong đó nuốt mã thoát —
+# gần như toàn bộ đường lấy và dựng số liệu. Nghĩa là trường `ket`
+# của sổ KHÔNG đáng tin cho những bước ấy, và "xưởng đang khoẻ" trong
+# báo cáo sức khoẻ được tính từ đúng trường đó.
+#
+# Nặng hơn nữa ở bảy cổng chặn tiến hoá: `if node … cong … | tee`
+# luôn vào nhánh NHẬN, nên chốt "không được xấu đi" chưa bao giờ từ
+# chối được gì. Bằng chứng: lượt 02/09 11:24, sổ ghi
+# `ho-bo 16/16→15/16 tra-lai` còn chú giải cùng lượt ghi "NHẬN".
+#
+# Đã đếm trước khi bật: cả 18 bước đều có `continue-on-error: true`,
+# nên lỗi mới lộ ra sẽ được ghi `loi` chứ không làm đỏ job. Bảy cổng
+# vẫn giữ `set -o pipefail` riêng — thừa, nhưng nó nói tại chỗ rằng
+# cổng ấy DỰA vào pipefail, và một ngày nào đó ai gỡ dòng defaults
+# này thì bảy chỗ quan trọng nhất vẫn còn tự bảo vệ.
+defaults:
+  run:
+    shell: bash
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
