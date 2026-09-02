@@ -306,7 +306,25 @@
      một lối tắt.
 
      Cú bấm vẫn nổi bọt lên `tr[data-mo]` nên bấm đâu trong dòng cũng
-     mở như cũ; không có nhánh xử lý thứ hai để mà lệch nhau. */
+     mở như cũ; không có nhánh xử lý thứ hai để mà lệch nhau.
+
+     ── VÀ NÓ ĐÃ NẰM ĐÂY MỘT THỜI GIAN MÀ KHÔNG AI GỌI ───────────
+     Hàm này được viết ra cùng đoạn chú thích trên, rồi bốn bảng vẫn
+     dựng cột tên bằng `<b>` như cũ. Ba chú thích khác trong file —
+     ở `banDoSvg` và ở đầu mục HỒ SƠ — viết như thể việc đã xong
+     ("cánh cửa cuối cùng còn chỉ mở được bằng CHUỘT", "bốn bảng đã
+     mở được hồ sơ bằng bàn phím"), nên người đọc file này tin là
+     xong, và bộ đo cũng không cãi được: thước `nhan` chỉ hỏi nút
+     ĐANG CÓ có tên không, thước `tieu-diem` chỉ hỏi có kiểu
+     `:focus-visible` không. Không thước nào hỏi được câu "cái cửa
+     này có mở bằng bàn phím được không" — cửa không tồn tại thì
+     không có gì để mà chấm.
+
+     Bài học rộng hơn một hàm: một hàm không ai gọi thì không hỏng ở
+     đâu cả, nên nó lặng lẽ hơn cả một hàm sai. Chú thích mô tả một
+     bản vá phải nói bản vá được DÙNG ở đâu, không chỉ nói nó làm
+     gì — `grep tenMo` ra ba lần trong chú thích và một lần ở chính
+     dòng `function` là đủ để lộ chuyện này ngay. */
   function tenMo(ten, loai) {
     return '<button class="ten-mo" type="button" aria-label="Mở hồ sơ ' +
       esc(loai) + " " + esc(ten) + '"><b>' + esc(ten) + "</b></button>";
@@ -389,8 +407,8 @@
     var len = dong.slice(0, 5), xuong = dong.slice(-5).reverse();
     function hangDong(a) {
       return a.map(function (c) {
-        return "<tr data-mo=\"chuoi\" data-ten=\"" + esc(c.ten) + '"><td><div class="o-ten"><b>' +
-          esc(c.ten) + "</b></div></td><td>" + tien(c.tvl) + "</td><td>" + chip(c.d7) + "</td></tr>";
+        return "<tr data-mo=\"chuoi\" data-ten=\"" + esc(c.ten) + '"><td><div class="o-ten">' +
+          tenMo(c.ten, "chuỗi") + "</div></td><td>" + tien(c.tvl) + "</td><td>" + chip(c.d7) + "</td></tr>";
       }).join("");
     }
 
@@ -425,7 +443,7 @@
           : c.tyle >= 3 ? "nhiều tiền chờ"
             : c.tyle >= 1.2 ? "cân bằng" : "vốn đang làm việc";
       return '<tr data-mo="chuoi" data-ten="' + esc(c.ten) + '"><td><div class="o-ten">' +
-        '<span class="hang">' + (i + 1) + "</span><b>" + esc(c.ten) + "</b></div></td>" +
+        '<span class="hang">' + (i + 1) + "</span>" + tenMo(c.ten, "chuỗi") + "</div></td>" +
         "<td>" + tien(c.tvl) + "</td><td>" + chip(c.d7) + "</td>" +
         "<td>" + tien(c.stable) + "</td>" +
         "<td>" + (c.tyle == null ? "—" : so(c.tyle, 1) + "×") + "</td>" +
@@ -456,7 +474,7 @@
   function veKhoBac() {
     var hang = D.chuoi.map(function (c, i) {
       return '<tr data-mo="chuoi" data-ten="' + esc(c.ten) + '"><td><div class="o-ten">' +
-        '<span class="hang">' + (i + 1) + "</span><b>" + esc(c.ten) + "</b>" +
+        '<span class="hang">' + (i + 1) + "</span>" + tenMo(c.ten, "chuỗi") +
         (c.ma ? '<span class="ma">' + esc(c.ma) + "</span>" : "") + "</div></td>" +
         '<td data-v="' + (c.tvl || 0) + '">' + tien(c.tvl) + "</td>" +
         '<td data-v="' + (c.d1 == null ? -1e9 : c.d1) + '">' + chip(c.d1) + "</td>" +
@@ -491,7 +509,7 @@
     var hang = D.nhom.map(function (g, i) {
       var phan = tongN ? (g.tvl / tongN) * 100 : 0;
       return '<tr data-mo="nhom" data-ten="' + esc(g.ten) + '"><td><div class="o-ten">' +
-        '<span class="hang">' + (i + 1) + "</span><b>" + esc(g.ten) + "</b></div></td>" +
+        '<span class="hang">' + (i + 1) + "</span>" + tenMo(g.ten, "nhóm ngành") + "</div></td>" +
         '<td data-v="' + g.tvl + '">' + tien(g.tvl) + "</td>" +
         '<td data-v="' + phan + '">' + so(phan, 1) + "%</td>" +
         '<td data-v="' + (g.d1 == null ? -1e9 : g.d1) + '">' + chip(g.d1) + "</td>" +

@@ -22,3 +22,5 @@
 {"luc":"2026-09-01T18:55:14.356Z","cung":"thai-boc-tu","truoc":"16/16","sau":"16/16","nhan":"nhan","daLam":null}
 {"luc":"2026-09-01T18:59:09.301Z","cung":"tao-bien-xu","truoc":"16/16","sau":"16/16","nhan":"nhan","daLam":null}
 {"luc":"2026-09-01T19:03:49.825Z","cung":"kham-thien-giam","truoc":"16/16","sau":"16/16","nhan":"nhan","daLam":null}
+{"luc":"2026-09-02T11:45:02.027Z","cung":"ho-bo","truoc":"16/16","sau":"15/16","nhan":"tra-lai","daLam":null}
+{"luc":"2026-09-02T11:50:39.541Z","cung":"tu-cam-thanh","truoc":"16/16","sau":"16/16","nhan":"nhan","daLam":"Mọi thước đã đạt, nên vá một chỗ không thước nào đo: thẻ .ph mang <h3> ở tám chỗ (quyết định, mức giá, giới hạn cứng, tài khoản, phán quyết gần nhất, tổng thể, chế độ …, tên kịch bản) mà cung chỉ có luật .the h3, nên chúng rơi về mặc định trình duyệt — 1.17em đậm màu sáng nhất trang, to hơn chính h2.tieu của mục chứa nó, cộng lề trên 1em làm thẻ có tiêu đề tụt ~17px so với thẻ không có trong cùng một lưới. Gộp .ph h3 vào cùng selector với .the h3 để cung chỉ còn MỘT kiểu tiêu đề thẻ: thứ bậc thị giác trở lại đúng chiều và khoảng cách trong lưới đều lại. Chỉ đổi assets/css/app.css, một luật, kh"}

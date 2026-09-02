@@ -17,7 +17,7 @@
    thì phải nâng CACHE_VERSION" trong CLAUDE.md.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v13";
+var CACHE_VERSION = "v14";
 var SHELL_CACHE = "tu-cam-thanh-shell-" + CACHE_VERSION;
 var FONT_CACHE = "tu-cam-thanh-fonts-" + CACHE_VERSION;
 

@@ -329,6 +329,24 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
    mặc định không co dưới bề rộng nội dung, nên thiếu dòng này thì ba
    thuộc tính cắt chữ bên dưới chưa bao giờ có dịp chạy. */
 .o-ten b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Tên ở cột đầu của một dòng MỞ ĐƯỢC hồ sơ — xem `tenMo` trong app.js.
+   Nó phải TRÔNG như chữ thường: cả dòng đã bấm được rồi, nên vẽ thêm
+   một cái nút có viền trong mỗi dòng là dựng mười tám nút tranh chú ý
+   trên một bảng vốn để đọc số, và làm hỏng đúng cái cột đang neo mắt
+   người đọc. Thứ nó thật sự cần là hai việc mà `<tr>` không bao giờ
+   làm được: một điểm dừng Tab, và một dấu hiệu lúc được trỏ tới.
+
+   Gạch chân hiện ở CẢ hover dòng lẫn tiêu điểm bàn phím, cùng một
+   hình. Chuột và bàn phím thấy cùng một thứ thì không ai phải học
+   hai lần rằng cột này mở ra được cái gì.
+
+   Không màu mới: chữ thừa hưởng `--fg` từ `.bang td:first-child`, và
+   vòng tiêu điểm dùng `:focus-visible` chung ở đầu file. */
+.ten-mo{display:flex;min-width:0;padding:0;text-align:left;letter-spacing:inherit}
+.ten-mo:hover b,
+.bang tbody tr[data-mo]:hover .ten-mo b,
+.ten-mo:focus-visible b{text-decoration:underline;text-underline-offset:2px}
 .o-ten .ma{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:var(--t-1);color:var(--fg-3);
   padding:var(--k-0) var(--k-4);border:1px solid var(--line);border-radius:4px}
 

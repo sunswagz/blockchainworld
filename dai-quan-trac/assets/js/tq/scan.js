@@ -1,138 +1,111 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-09-01T23:24:47.384Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-09-02T11:39:26.484Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-09-01T23:24:47.384Z",
-  "date": "01/09/2026",
+  "generatedAt": "2026-09-02T11:39:26.484Z",
+  "date": "02/09/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "nangluong",
-      "tieu_de": "China crude imports lại xuống 8,1 Mbpd trong Q2 2026, giảm 32% so Q1 do giá cao từ Hormuz disruption",
-      "ngay": "2026-06-30",
-      "nguon": "U.S. Energy Information Administration",
-      "tac_dong": "Nhu cầu năng lượng TQ giảm → suy giảm kinh tế → thu ngân sách TQ giảm → khả năng nuôi bộ máy, quân đội yếu đi",
-      "muc": "y",
-      "at": "2026-09-01T23:24:47.384Z"
+      "tieu_de": "Trung Quốc nhập khẩu dầu giảm từ 17 triệu xuống 8,1 triệu barrel/ngày khi Hormuz bị gián đoạn",
+      "ngay": "2026-07-01",
+      "nguon": "EIA",
+      "tac_dong": "Cung cấp năng lượng giảm => sản xuất công nghiệp giảm => tổng sản phẩm quốc nội suy yếu => thu ngân sách giảm => cắt giảm khả năng nuôi bộ máy quân đội, an ninh",
+      "muc": "r",
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "nangluong",
-      "tieu_de": "China Iranian crude imports trung bình 530K bpd trong 7-8/2026, giảm 48% vs trước chiến sự",
-      "ngay": "2026-08-15",
-      "nguon": "The National (UAE)",
-      "tac_dong": "Phụ thuộc Iran giảm, tìm kiếm nguồn thay thế → chi phí logistics tăng → cạnh tranh năng lượng toàn cầu",
-      "muc": "y",
-      "at": "2026-09-01T23:24:47.384Z"
+      "tieu_de": "Luyện dầu TQ giảm công suất, tích trữ dầu thấp => gián đoạn năng lượng tiềm tàng",
+      "ngay": "2026-08-01",
+      "nguon": "Reuters energy",
+      "tac_dong": "Rủi ro cắt điện, ngưng sản xuất => khủng hoảng lao động => dân quân có thể bất mãn",
+      "muc": "r",
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "US relaxed EDA export restrictions early July 2025 cho Synopsys, Siemens EDA, Cadence",
-      "ngay": "2025-07-15",
-      "nguon": "USTR, Semiconductor Industry Sources",
-      "tac_dong": "Giảm áp lực công nghệ → TQ vẫn phụ thuộc thiết kế nước ngoài → giữ được năng lực chip nhưng tốc độ chậm",
-      "muc": "y",
-      "at": "2026-09-01T23:24:47.384Z"
+      "tieu_de": "Mỹ-Trump từng cấm, cho phép rồi lại cấm H200, H200 giờ chỉ qua cấp phép riêng lẻ",
+      "ngay": "2026-08-15",
+      "nguon": "Brookings",
+      "tac_dong": "Công nghệ AI TQ lạc hậu so với Mỹ 21-49 lần => công nghiệp AI TQ không cạnh tranh được => công ty tech TQ mất doanh thu => thu ngân sách giảm",
+      "muc": "r",
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "China domestic AI chip production 2026 chỉ 1-2% so US production, vẫn chịu ảnh hưởng export controls",
-      "ngay": "2026-08-15",
-      "nguon": "CNAS, Electronics360",
-      "tac_dong": "Sản xuất chip yếu → công nghiệp AI, máy tính của TQ tụt hậu → thu ngân sách kỹ thuật cao giảm",
-      "muc": "y",
-      "at": "2026-09-01T23:24:47.384Z"
+      "tieu_de": "Mỹ cấm xuất chip AI, TQ đáp trả cấm xuất gallium, antimony, germanium",
+      "ngay": "2026-06-01",
+      "nguon": "CSIS",
+      "tac_dong": "Chiến tranh công nghệ, mỗi bên cắt toàn bộ: TQ không thể làm chip => lạc hậu sâu => quân lực mất năng lực",
+      "muc": "r",
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "China introduces countermeasures 5/8/2026: export controls on drones, sanctions US companies",
-      "ngay": "2026-08-05",
-      "nguon": "U.S. China Trade Restrictions Reports",
-      "tac_dong": "Chiến tranh thương mại leo thang → rủi ro tariff với mọi nước → giá cả toàn cầu bất ổn → thu ngân sách TQ giảm",
+      "tieu_de": "Mỹ-TQ đạt thỏa thuận giảm thuế từ 125% xuống 10%, hiệu lực tới 10/11/2026",
+      "ngay": "2026-11-01",
+      "nguon": "USTR",
+      "tac_dong": "Hiệp định trôi nổi, TQ không chắc được => công ty TQ dự phòng, chậm đầu tư => tạo việc làm giảm",
       "muc": "y",
-      "at": "2026-09-01T23:24:47.384Z"
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "Malacca Strait xử lý 24 Mbpd dầu/khí, 1/3 giao thương toàn cầu, 40% dầu vận chuyển biển",
-      "ngay": "2026-05-15",
-      "nguon": "The Diplomat, Triton Maritime",
-      "tac_dong": "Chokepoint tự nhiên tồn tại lâu dài → không phá vỡ kinh tế TQ ngay, chỉ tăng chi phí dự phòng",
-      "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
+      "tieu_de": "Bộ Giao thông TQ nâng cảnh báo an toàn Malacca lên mức cao nhất từ 2/7/2026",
+      "ngay": "2026-07-02",
+      "nguon": "China Ministry of Transport",
+      "tac_dong": "Rủi ro hàng hải tăng => bảo hiểm vận chuyển TQ tăng => chi phí logistics TQ tăng => giá hàng xuất khẩu TQ tăng",
+      "muc": "y",
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "hanghai",
-      "tieu_de": "80% nhập khẩu dầu thô TQ đi qua Malacca, TQ sở hữu \"Malacca dilemma\" kéo dài 10+ năm",
+      "tieu_de": "Kênh Pinglu sẽ mở 9/2026 nhưng chỉ phục vụ vận tải nội vùng ASEAN, không thay Malacca",
+      "ngay": "2026-09-01",
+      "nguon": "China-ASEAN Expo",
+      "tac_dong": "TQ không thoát được phụ thuộc Malacca 80% => rủi ro chính trị-quân sự đối với logistic TQ vẫn cao",
+      "muc": "y",
+      "at": "2026-09-02T11:39:26.484Z"
+    },
+    {
+      "th": "nga",
+      "tieu_de": "Ống dẫn ESPO vẫn hoạt động ổn định 700.000 barrel/ngày từ Siberia xuống Trung Quốc",
       "ngay": "2026-08-15",
-      "nguon": "Center on Global Energy Policy",
-      "tac_dong": "Rủi ro chiến lược dài hạn nhưng TQ đã lên kế hoạch tài chính: vẫn bền vững",
+      "nguon": "Global Security",
+      "tac_dong": "Nguồn dầu TQ từ Nga ổn định => không bị gián đoạn => thu ngân sách TQ từ công nghiệp dầu khí ổn định",
       "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Russia-China energy trade exceeds $85B trong 4 tháng đầu 2026, Nga cung cấp 2,1 Mbpd dầu",
-      "ngay": "2026-04-30",
-      "nguon": "TalkyTech News, Sino-Russia Energy Reports",
-      "tac_dong": "Đường truyền năng lượng Nga sạch sẽ hơn → chi phí Nga giảm → cân bằng ngân sách liên bang Nga đỡ áp lực",
-      "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Putin-Xi gặp tháng 5/2026 tại Bắc Kinh, nhấn mạnh đối tác chiến lược về năng lượng",
-      "ngay": "2026-05-16",
-      "nguon": "Reuters, Global Times",
-      "tac_dong": "Liên minh Nga-TQ bền vững → không bị phân chia → dòng tiền Nga ổn định → khả năng quân sự không suy yếu",
-      "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "ESPO pipeline, Power of Siberia 1&2 hoạt động gần công suất tối đa, hợp đồng mới 50 Bcm/năm từ 2028",
-      "ngay": "2026-03-01",
-      "nguon": "China-Russia Energy Cooperation",
-      "tac_dong": "Cơ sở hạ tầng dài hạn ổn định → TQ thoát khỏi phụ thuộc Trung Đông → chiến lược năng lượng bền vững",
-      "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "RMB cross-border trade settlement reach 30% năm 2024, tăng từ 10% năm 2017",
-      "ngay": "2024-12-31",
-      "nguon": "RBA Bulletin August 2026",
-      "tac_dong": "RMB quốc tế hóa giảm phụ thuộc USD → khả năng chống lệnh trừng phạt tăng → tự chủ tài chính",
+      "tieu_de": "Dự trữ ngoại tệ TQ tăng lên 3,339 tỷ USD, cao nhất kể từ 2015",
+      "ngay": "2026-09-01",
+      "nguon": "Trading Economics",
+      "tac_dong": "Dự trữ ngoại tệ mạnh => TQ có khả năng can thiệp thị trường, dỡ bỏ lệnh trừng phạt => ổn định vĩ mô",
       "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
+      "at": "2026-09-02T11:39:26.484Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "CIPS (Cross-Border Interbank Payments System) tăng 400% từ 2020, nhưng vẫn 20x nhỏ hơn CHIPS của US",
+      "tieu_de": "Hệ thống CIPS (thanh toán TQ) tăng dùng 400% từ 2020, khoảng 30% thương mại TQ quy RMB",
       "ngay": "2026-08-15",
-      "nguon": "Federal Reserve, RBA",
-      "tac_dong": "Infrastructure thanh toán quốc tế tăng nhưng chưa thay thế được USD → không phá vỡ dominance USD ngay",
+      "nguon": "RBA Bulletin",
+      "tac_dong": "Độc lập tiền tệ TQ tăng => giảm phụ thuộc USD => tăng khả năng tự chủ kinh tế => sức mạnh chính trị tăng",
       "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
-    },
-    {
-      "th": "taichinh",
-      "tieu_de": "PBoC tích lũy vàng 76,08 triệu troy oz (2.366 tấn) sau 21 tháng liên tiếp mua, Hong Kong gold hub 7/2026",
-      "ngay": "2026-07-15",
-      "nguon": "RBA, CNBC",
-      "tac_dong": "Dự trữ vàng tăng → an toàn tài chính cá nhân TQ tăng → backing cho RMB → năng lực duy trì quyền lực kỹ thuật hơn",
-      "muc": "g",
-      "at": "2026-09-01T23:24:47.384Z"
+      "at": "2026-09-02T11:39:26.484Z"
     }
   ],
   "levels": {
-    "nangluong": "y",
-    "congnghe": "y",
+    "nangluong": "r",
+    "congnghe": "r",
     "thuongmai": "y",
-    "hanghai": "g",
+    "hanghai": "y",
     "nga": "g",
     "taichinh": "g"
   },
@@ -140,38 +113,38 @@ window.DQT_TQ_SCAN = {
     {
       "ok": true,
       "t": "Năng lượng",
-      "at": "2026-09-01T23:24:47.384Z",
-      "d": "2 tín hiệu · mức y · Nhập khẩu dầu TQ sụt giảm: chỉ 8,1 Mbpd (Q2 2026), giảm 32% so Q1, nhập dầu Iran giảm 48%"
+      "at": "2026-09-02T11:39:26.484Z",
+      "d": "2 tín hiệu · mức r · Trung Quốc nhập khẩu dầu giảm 41%, Hormuz bị chặn => lạc hậu công nghiệp, cắt giảm thu ngân sách"
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-09-01T23:24:47.384Z",
-      "d": "2 tín hiệu · mức y · EDA controls dỡ lỏng nhưng sản xuất chip AI TQ chỉ 1-2% so US, vẫn chưa thoát khỏi ràng buộc"
+      "at": "2026-09-02T11:39:26.484Z",
+      "d": "2 tín hiệu · mức r · Mỹ duy trì cấm vận chip AI H200, Trung Quốc tập trung tự phát triển nhưng lạc hậu xa"
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-09-01T23:24:47.384Z",
-      "d": "1 tín hiệu · mức y · China 5/8/2026 áp dụng biện pháp đối ứng: kiểm soát xuất khẩu drone, trừng phạt công ty Mỹ"
+      "at": "2026-09-02T11:39:26.484Z",
+      "d": "1 tín hiệu · mức y · Mỹ-TQ thỏa thuận giảm thuế từ 125% xuống 10% kéo dài đến tháng 11/2026, căng thẳng còn"
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-09-01T23:24:47.384Z",
-      "d": "2 tín hiệu · mức g · Malacca xử lý 1/3 giao thương toàn cầu, 80% nhập khẩu dầu TQ qua đây, nhưng vẫn hoạt động bình thường"
+      "at": "2026-09-02T11:39:26.484Z",
+      "d": "2 tín hiệu · mức y · Malacca bị cảnh báo bảo mật cao nhất, kênh Pinglu mở 9/2026 nhưng không thay thế được"
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-09-01T23:24:47.384Z",
-      "d": "3 tín hiệu · mức g · Năng lượng Nga-TQ đối tác chiến lược: xuất khẩu dầu 2,1 Mbpd (tăng 28%), gas $85B/4 tháng"
+      "at": "2026-09-02T11:39:26.484Z",
+      "d": "1 tín hiệu · mức g · Power of Siberia 2 tiếp tục, ESPO dầu ổn định, năng lượng Nga không bị gián đoạn"
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-09-01T23:24:47.384Z",
-      "d": "3 tín hiệu · mức g · RMB quốc tế hóa tăng: 30% giao thương settlement bằng RMB, CIPS tăng 400%, vàng tích trữ kỷ lục"
+      "at": "2026-09-02T11:39:26.484Z",
+      "d": "2 tín hiệu · mức g · Dự trữ ngoại tệ TQ cao nhất 11 năm, RMB settlement tăng đến 30% thương mại"
     }
   ]
 };

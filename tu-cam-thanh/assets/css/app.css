@@ -114,7 +114,27 @@ p.phu{color:var(--fg-2);font-size:var(--t-4);margin:0 0 14px;max-width:78ch}
 /* ── thẻ ───────────────────────────────────────────────── */
 .the{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
 .luoi{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:11px}
-.the h3{margin:0 0 9px;font-size:var(--t-1);letter-spacing:.7px;text-transform:uppercase;color:var(--fg-3);font-weight:700}
+/* MỘT kiểu tiêu đề thẻ cho CẢ HAI loại thẻ. `.ph` (thẻ chìm, khai ở cuối
+   file) mang <h3> ở tám chỗ — "quyết định", "mức giá", "giới hạn cứng",
+   "tài khoản", "phán quyết gần nhất", "tổng thể", "chế độ …" và tên từng
+   kịch bản — mà không luật nào chạm tới, nên chúng rơi về mặc định của
+   trình duyệt: 1.17em đậm, màu chữ thường, lề trên và dưới 1em.
+
+   Hỏng theo hai chiều cùng lúc, và cả hai đều lặng lẽ vì trang vẫn vẽ ra
+   đủ chữ:
+
+   · THỨ BẬC LẬT NGƯỢC — nhãn bên trong thẻ (≈17.5px đậm, màu sáng nhất
+     trang) to và nổi hơn chính tiêu đề mục chứa nó (h2.tieu là var(--t-3)
+     chữ hoa, màu --fg-3). Mắt đọc lướt theo độ nổi, nên "quyết định" bị
+     đọc như đầu mục còn "RỦI RO & VỊ THẾ" bị đọc như chú thích của nó.
+   · KHOẢNG CÁCH SO LE — lề trên 1em cộng thêm vào đệm 11px của thẻ, nên
+     trong cùng một lưới, thẻ có <h3> tụt xuống ~17px so với thẻ không có.
+
+   Gộp vào cùng MỘT selector chứ không viết một khối `.ph h3` riêng: hai
+   khối là hai kiểu tiêu đề thẻ trong cùng một cung, và lần sau ai sửa một
+   bên thì bên kia lệch trong im lặng — đúng lớp lỗi `npm run de-im-lang`
+   sinh ra để bắt. */
+.the h3,.ph h3{margin:0 0 9px;font-size:var(--t-1);letter-spacing:.7px;text-transform:uppercase;color:var(--fg-3);font-weight:700}
 .hang{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:var(--t-3);padding:3px 0;border-bottom:1px solid var(--line-2)}
 .hang:last-child{border-bottom:0}
 .hang span{color:var(--fg-3)}
