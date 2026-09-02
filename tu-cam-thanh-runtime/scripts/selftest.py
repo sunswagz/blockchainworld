@@ -1146,10 +1146,24 @@ async def main() -> int:
               "hai làn KHÔNG dùng chung cổng")
         check(len(_d53.get("symbols") or []) > len(_chinh53.get("symbols") or []),
               "làn demo quét nhiều chợ hơn — thêm QUAN SÁT, không phải thêm lệnh/chợ")
-        _mo53 = (_d53.get("risk") or {}).get("maxOpenPositions") or 0
-        check(_mo53 >= len(_d53["symbols"]) / 6,
-              f"trần vị thế ({_mo53}) đủ rộng so với {len(_d53['symbols'])} chợ — "
-              f"hết chỗ là tín hiệu bị VỨT, và mẫu nghiêng theo bộ chấm")
+        # TRẦN THẬT SỰ không phải `maxOpenPositions`. `circuit_breakers` chặn
+        # khi tổng rủi ro đang gánh ≥ `maxTongRuiRoPct`, nên số vị thế tối đa là
+        # maxTongRuiRoPct ÷ maxRiskPerTradePct. Với 2,0% và 0,5% thì là 4 — và
+        # `maxOpenPositions: 12` tôi đặt hôm trước KHÔNG mở thêm được gì.
+        #
+        # Phép kiểm cũ đọc `maxOpenPositions` nên nó xanh trong khi con số ấy
+        # trơ. Một phép kiểm đo nhầm biến số còn tệ hơn không có: nó cấp giấy
+        # chứng nhận cho một thứ chưa từng được kiểm.
+        _r53 = _d53.get("risk") or {}
+        _tran_that = ((_r53.get("maxTongRuiRoPct") or 0)
+                      / (_r53.get("maxRiskPerTradePct") or 1))
+        check(_tran_that >= 3,
+              f"trần vị thế THẬT (tổng {_r53.get('maxTongRuiRoPct')}% ÷ mỗi lệnh "
+              f"{_r53.get('maxRiskPerTradePct')}%) = {_tran_that:.0f} vị thế")
+        check(_r53.get("maxTongRuiRoPct")
+              == (_chinh53.get("risk") or {}).get("maxTongRuiRoPct"),
+              "trần tổng rủi ro KHÔNG bị nới ở làn demo — đó là hàng rào, "
+              "không phải tham số để chỉnh cho ra nhiều lệnh hơn")
         check((_d53.get("risk") or {}).get("riskPerTradePct")
               == (_chinh53.get("risk") or {}).get("riskPerTradePct"),
               "rủi ro mỗi lệnh KHÔNG bị nới ở làn demo — nới nó là đo một hệ khác")
