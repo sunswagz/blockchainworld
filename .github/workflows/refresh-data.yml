@@ -1357,7 +1357,17 @@ jobs:
             echo "::notice::Vòng tiến hoá Thái Bộc Tự: NHẬN"
           else
             echo "::error::Vòng tiến hoá Thái Bộc Tự: TRẢ LẠI — cổng chặn không qua"
-            git checkout -- thai-boc-tu/
+            # Trả lại đúng thứ MODEL làm bẩn, không quét cả thư mục.
+            # Node dữ liệu của cung chạy TRƯỚC bước này trong cùng lượt
+            # và ghi vào assets/js/v/ (và assets/data/), nên
+            # `git checkout -- thai-boc-tu/` là ném luôn số liệu vừa lấy
+            # về — một lượt tiến hoá trượt thành một lượt MẤT SỐ LIỆU,
+            # không dòng log nào nói ra. Model chỉ được chạm app.css ·
+            # app.js · index.html nên loại hai thư mục ấy vẫn hoàn
+            # nguyên đủ.
+            HONG=$(git diff --name-only -- thai-boc-tu \
+                   | grep -vE '^thai-boc-tu/assets/(js/v|data)/' || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
             exit 1
           fi
 
@@ -1515,7 +1525,17 @@ jobs:
             echo "::notice::Vòng tiến hoá Tạo Biện Xứ: NHẬN"
           else
             echo "::error::Vòng tiến hoá Tạo Biện Xứ: TRẢ LẠI — cổng chặn không qua"
-            git checkout -- tao-bien-xu/
+            # Trả lại đúng thứ MODEL làm bẩn, không quét cả thư mục.
+            # Node dữ liệu của cung chạy TRƯỚC bước này trong cùng lượt
+            # và ghi vào assets/js/v/ (và assets/data/), nên
+            # `git checkout -- tao-bien-xu/` là ném luôn số liệu vừa lấy
+            # về — một lượt tiến hoá trượt thành một lượt MẤT SỐ LIỆU,
+            # không dòng log nào nói ra. Model chỉ được chạm app.css ·
+            # app.js · index.html nên loại hai thư mục ấy vẫn hoàn
+            # nguyên đủ.
+            HONG=$(git diff --name-only -- tao-bien-xu \
+                   | grep -vE '^tao-bien-xu/assets/(js/v|data)/' || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
             exit 1
           fi
 
@@ -1765,7 +1785,17 @@ jobs:
             echo "::notice::Vòng tiến hoá Khâm Thiên Giám: NHẬN"
           else
             echo "::error::Vòng tiến hoá Khâm Thiên Giám: TRẢ LẠI — cổng chặn không qua"
-            git checkout -- kham-thien-giam/
+            # Trả lại đúng thứ MODEL làm bẩn, không quét cả thư mục.
+            # Node dữ liệu của cung chạy TRƯỚC bước này trong cùng lượt
+            # và ghi vào assets/js/v/ (và assets/data/), nên
+            # `git checkout -- kham-thien-giam/` là ném luôn số liệu vừa lấy
+            # về — một lượt tiến hoá trượt thành một lượt MẤT SỐ LIỆU,
+            # không dòng log nào nói ra. Model chỉ được chạm app.css ·
+            # app.js · index.html nên loại hai thư mục ấy vẫn hoàn
+            # nguyên đủ.
+            HONG=$(git diff --name-only -- kham-thien-giam \
+                   | grep -vE '^kham-thien-giam/assets/(js/v|data)/' || true)
+            if [ -n "$HONG" ]; then git checkout -- $HONG; fi
             exit 1
           fi
 
