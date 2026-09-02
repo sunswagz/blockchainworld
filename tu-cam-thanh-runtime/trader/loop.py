@@ -80,6 +80,11 @@ class Runtime:
         self.last_candle_seen: int | None = None
         # Chợ → mốc nến đã dùng để vào lệnh. Xem luật "một lệnh mỗi nến" dưới.
         self.nen_da_vao: dict[str, int] = {}
+        # Chợ → mốc nến đã ĐƯA RA QUYẾT ĐỊNH (dù vào lệnh hay không). Khác
+        # `nen_da_vao`: một chợ bị bộ não trả NO_TRADE vẫn coi là đã xét, nếu
+        # không thì vòng sau lại chọn đúng nó và phễu không nhúc nhích.
+        self.da_xet: dict[str, int] = {}
+        self.con_ung_vien = 0
         self.last_regime_key: str | None = None
         self.ticks = 0
         self.started_at = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
@@ -156,6 +161,18 @@ class Runtime:
 
         new_candle = market["lastClosedCandleTime"] != self.last_candle_seen
         regime_changed = self.regime and self.regime["key"] != self.last_regime_key
+
+        # CÒN ỨNG VIÊN CHƯA XÉT trên nến này ⇒ chạy tiếp, đừng chờ nến sau.
+        #
+        # Đây là nửa thứ hai của việc mở phễu. `_chon_cho` chỉ trả MỘT chợ mỗi
+        # lượt; không có cửa này thì chợ thứ hai phải chờ nến kế tiếp, và trên
+        # khung 1d "nến kế tiếp" nghĩa là NGÀY MAI.
+        #
+        # Có chặn: chỉ chạy tiếp khi còn CHỖ TRỐNG. Đầy chỗ thì xét thêm cũng
+        # không vào được lệnh nào, chỉ tốn lượt gọi model.
+        con_cho = len(self.broker.state["positions"]) < self.cfg["risk"]["maxOpenPositions"]
+        if self.con_ung_vien > 0 and con_cho:
+            return True, f"còn {self.con_ung_vien} chợ chưa xét trên nến này"
 
         if self.cfg["brain"]["requireNewCandle"] and not new_candle and not regime_changed:
             return False, f"chưa có nến {self.primary} mới đóng"
@@ -238,11 +255,28 @@ class Runtime:
 
         Bỏ qua chợ ĐANG có vị thế: mở thêm lệnh thứ hai trên cùng một coin là
         nhân đôi rủi ro của đúng một cược, không phải thêm một cược mới.
+
+        VÀ bỏ qua chợ ĐÃ XÉT trong nến này — đó là chỗ mở PHỄU.
+
+        Bản trước chấm mọi chợ rồi lấy `ung_vien[0]`, đúng MỘT chợ mỗi nến. Đo
+        được 02/09 trên 46 chợ khung 1d: 8 chợ có tín hiệu VÀ qua được tầng rủi
+        ro cùng lúc (TRX long · AXS, CHZ, GALA, GRT, QNT, SNX, ZIL short). Bảy
+        cơ hội bị bỏ, và nến sau chấm lại từ đầu. Ba ngày làn demo sinh 6 luận
+        điểm trên 3 chợ trong khi 138 cơ hội đã được tính điểm sẵn — 4%.
+
+        Nay mỗi vòng xét thêm MỘT chợ chưa xét, cho tới khi hết ứng viên hoặc
+        hết chỗ. Xếp hạng ổn định trong lòng một nến vì đặc trưng tính từ nến ĐÃ
+        ĐÓNG, nên "chợ tốt nhất chưa xét" không nhảy lung tung giữa các vòng.
         """
         dang_giu = {t.get("symbol") for t in self.broker.state["positions"]}
+        # getattr: hàm này được gọi cả từ phép kiểm với một Runtime giả,
+        # và nó không được đòi hỏi gì ngoài thứ nó thật sự dùng.
+        _moc = (getattr(self, "last_market", None) or {}).get("lastClosedCandleTime")
         ung_vien = []
         for sym, m in cho.items():
             if sym in dang_giu:
+                continue
+            if _moc is not None and self.da_xet.get(sym) == _moc:
                 continue
             try:
                 st = build_market_state(m)
@@ -263,13 +297,21 @@ class Runtime:
                     ld.get("confidence") or 0.0)
             ung_vien.append((diem, sym, st, rg))
         if not ung_vien:
+            # ĐẶT LẠI, không để nguyên. Cờ này mở cửa gọi bộ não; giữ giá trị cũ
+            # khi đã hết ứng viên là mở cửa vĩnh viễn — mỗi vòng một lượt gọi
+            # model cho tới khi cạn trần ngày.
+            self.con_ung_vien = 0
             return None
         ung_vien.sort(key=lambda x: x[0], reverse=True)
         _, sym, st, rg = ung_vien[0]
+        # CÒN BAO NHIÊU chợ chưa xét sau chợ này. `_nen_moi` đọc con số ấy để
+        # cho vòng sau chạy tiếp trên CÙNG một nến thay vì phải chờ nến mới.
+        self.con_ung_vien = len(ung_vien) - 1
         if len(ung_vien) > 1:
             bus.emit("brain", "chon-cho",
                      f"{len(ung_vien)} chợ có tín hiệu · chọn {sym} "
-                     f"({rg['quality']}, tin cậy {ung_vien[0][0][1]:.2f})")
+                     f"({rg['quality']}, tin cậy {ung_vien[0][0][1]:.2f}) · "
+                     f"còn {self.con_ung_vien} chợ sẽ xét ở vòng sau")
         return sym, st, rg
     async def tick(self, client: httpx.AsyncClient) -> None:
         self.ticks += 1
@@ -326,6 +368,11 @@ class Runtime:
 
         self.force_analyze = False
         self.last_thesis_at = _dt.datetime.now(_dt.timezone.utc)
+        # Nến mới ⇒ bảng "đã xét" của nến cũ hết nghĩa. Dọn ở đây chứ không để
+        # nó phình mãi, và cũng để mọi chợ được xét lại từ đầu ở nến mới.
+        if market["lastClosedCandleTime"] != self.last_candle_seen:
+            self.da_xet.clear()
+            self.con_ung_vien = 0
         self.last_candle_seen = market["lastClosedCandleTime"]
         self.last_regime_key = self.regime["key"]
 
@@ -363,6 +410,12 @@ class Runtime:
                 return
             if _chon:
                 _sym, _st, _rg = _chon
+                # Đánh dấu ĐÃ XÉT ngay khi chọn, không đợi kết quả. Chợ bị bộ
+                # não trả NO_TRADE cũng là chợ đã xét — không đánh dấu thì vòng
+                # sau lại chọn đúng nó và phễu đứng im.
+                _mc = market.get("lastClosedCandleTime")
+                if _mc is not None:
+                    self.da_xet[_sym] = _mc
                 if _sym != self.cfg["symbol"]:
                     # Đổi chợ đang xét. `self.state`/`self.regime` là thứ mọi
                     # bước sau đọc, kể cả `/api/state` — nên đổi ở đây là đổi

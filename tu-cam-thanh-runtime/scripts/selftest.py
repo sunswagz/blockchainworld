@@ -1417,6 +1417,33 @@ async def main() -> int:
     else:
         check(True, "sổ lệnh rỗng — bỏ qua phép đối chiếu tên trường")
 
+    print("\n[60] PHỄU: MỖI NẾN PHẢI XÉT ĐƯỢC NHIỀU CHỢ, KHÔNG PHẢI MỘT")
+    # Đo 02/09 trên 46 chợ khung 1d tại cùng một nến: 8 chợ vừa có tín hiệu vừa
+    # qua được tầng rủi ro (TRX long · AXS CHZ GALA GRT QNT SNX ZIL short). Bản
+    # cũ lấy `ung_vien[0]` — đúng MỘT chợ mỗi nến — nên bảy cơ hội bị bỏ và nến
+    # sau chấm lại từ đầu. Ba ngày làn demo sinh 6 luận điểm trên 3 chợ, trong
+    # khi 46 chợ × 3 nến = 138 cơ hội đã được tính điểm sẵn: 4%.
+    _lp60 = ma_khong_chu_thich(ROOT / "trader" / "loop.py")
+    check("self.da_xet" in _lp60 and "self.con_ung_vien" in _lp60,
+          "vòng chạy nhớ chợ ĐÃ XÉT trong nến và số ứng viên còn lại")
+    check("if _moc is not None and self.da_xet.get(sym) == _moc:" in _lp60,
+          "bộ chấm bỏ qua chợ đã xét trong CÙNG nến")
+    check("self.con_ung_vien > 0 and con_cho" in _lp60,
+          "còn ứng viên VÀ còn chỗ ⇒ vòng sau chạy tiếp, không chờ nến mới")
+    check("maxOpenPositions" in _lp60.split("con_cho =")[1][:120],
+          "và điều kiện «còn chỗ» đọc đúng trần vị thế")
+    # Cờ mở cửa gọi model phải ĐẶT LẠI khi hết ứng viên — giữ giá trị cũ là mở
+    # cửa vĩnh viễn, mỗi vòng một lượt gọi cho tới khi cạn trần ngày.
+    check(_lp60.count("self.con_ung_vien = 0") >= 3,
+          "cờ được đặt lại ở đủ ba chỗ: khởi tạo, hết ứng viên, và nến mới")
+    check("self.da_xet.clear()" in _lp60,
+          "bảng đã-xét được dọn khi sang nến mới, không phình mãi")
+    # Đánh dấu ĐÃ XÉT phải xảy ra khi CHỌN, không đợi kết quả: chợ bị trả
+    # NO_TRADE cũng là chợ đã xét, nếu không thì vòng sau lại chọn đúng nó.
+    _i60 = _lp60.find("self.da_xet[_sym] = _mc")
+    check(_i60 > 0 and "thesis" not in _lp60[_lp60.find("if _chon:"):_i60],
+          "đánh dấu đã-xét NGAY khi chọn, trước khi gọi bộ não")
+
     print("\n[59] BỘ LUẬT KHÔNG ĐƯỢC LÀM TRÒN GIÁ THEO CHỮ SỐ THẬP PHÂN")
     # LẦN THỨ HAI cùng một lớp lỗi. Lần trước ở `features.py`, chữa bằng `_rg()`
     # — làm tròn theo CHỮ SỐ CÓ NGHĨA — và bản chữa không bao giờ tới `brain.py`.
