@@ -1199,6 +1199,7 @@ node scripts/kiem-buong-lai.mjs  # 58 phép: 10 trang + 7 khối tầng ba,
 | `python scripts/quet-dot-bien.py <file> [hàm]` | đổi từng toán tử so sánh, xem con nào SỐNG SÓT — chỗ mã sửa sai mà không phép kiểm nào kêu |
 | `pythonw dichvu/chay-nen.py` | chạy nền 24/7, log xoay vòng, ghi PID |
 | `dichvu\bat.ps1` · `dung.ps1` · `trang-thai.ps1` | bật / tắt / xem bản chạy nền |
+| `dichvu\giam-sat.ps1 -Vong` | bộ giám sát THƯỜNG TRÚ — bật lại làn nào chết, ghi sổ mỗi lần bật |
 
 Buồng lái **chỉ sống ở localhost** và không bao giờ lên site. Cung tĩnh
 `thi-bac-ty/` (cổng 5187) là thứ lên GitHub Pages — nó **quan sát**, runtime
@@ -1780,6 +1781,63 @@ bị coi là một ty, và điều `ty-khong-goi-ty` báo `bac` đang gọi ty k
 trong khi `bac` chỉ đang dùng hạ tầng của họ mình. Nay nhận diện theo
 **cấu trúc** — có lớp nào kế thừa `khuon_ty.Ty` không — nên gói mới tự
 phân loại đúng, không đòi ai nhớ cập nhật danh sách.
+
+## Cỗ máy có sống khi không ai ngồi đây không
+
+Đo 02/09/2026, và câu trả lời khi ấy là KHÔNG. Làn thật dừng lúc **30/08
+16:53 UTC** — `runtime.log` không một dòng lỗi, nó chỉ hết. Máy khởi động
+lại năm tiếng sau; Tử Cấm Thành sống dậy vì có lối tắt trong Startup, còn
+cung này thì không có gì dựng nó lên. Nằm im **70,8 giờ**.
+
+Lúc nạp lại, chính lớp trung thực dựng hôm 30/08 nói ra cái giá thay vì
+giấu nó: 120 vị thế đều có cửa sổ kế toán dài quá trần nên bị **BỎ và
+ĐẾM** — 8.493 vốn-giờ không ai đo được. Nó từ chối bịa ba ngày thu nhập.
+
+Trong cùng ba ngày ấy **nhà máy trên GitHub Actions chạy không nghỉ**,
+bảy commit bot. Nửa trên mây tự lo được; nửa trên máy thì không.
+
+### Ràng buộc quyết định cả thiết kế: Task Scheduler ĐANG TẮT
+
+    Get-Service Schedule   -> Stopped (StartType: Automatic)
+    Start-Service Schedule -> "Cannot open Schedule service"  (thiếu admin)
+    schtasks /create       -> không dùng được
+    COM Schedule.Service   -> "The Task Scheduler Service is not running"
+
+Nên **đừng đi đường tác vụ định kỳ** — mất thì giờ rồi cụt. Móc khởi
+động duy nhất còn dùng được là **thư mục Startup**, đúng thứ Tử Cấm
+Thành đang dùng. Mà lối tắt Startup chỉ bắn MỘT phát lúc đăng nhập: nó
+lấp lỗ «khởi động lại máy», không lấp lỗ «sập giữa chừng».
+
+Vì thế `dichvu/giam-sat.ps1` chạy **thường trú**, và một lối tắt Startup
+gọi nó với `-Vong`. Một cơ chế lấp cả hai lỗ.
+
+### Ba điều nó phải làm, và cả ba đều học từ chỗ đã sai
+
+**1. Ghi sổ mỗi lần bật lại.** Một bộ giám sát im lặng biến «cỗ máy chết
+mỗi chín tiếng» thành chuyện không ai biết — nó chữa triệu chứng và giấu
+luôn bệnh. Sổ ghi lúc nào, làn nào, và **chết bao lâu rồi** (đo bằng
+tuổi file lưu danh mục). Ba dòng trong một ngày là câu khác hẳn một dòng
+trong một tháng.
+
+**2. Thăm dò bằng đường RẺ, và hỏi lại trước khi kết luận.** Lượt thử
+đầu tiên hỏi `/api/trang-thai` — **11,24 giây**, vì nó dựng cả ảnh chụp —
+nên nó báo NHẦM làn thật là chết rồi ghi vào sổ một cái chết KHÔNG XẢY
+RA. Một cuốn sổ như thế còn tệ hơn không có sổ. Nay hỏi `/api/cau-hinh`
+(**0,061 giây**, rẻ hơn 184 lần) và đòi **hai lần trượt liên tiếp**.
+
+**3. Đếm được chính nó.** Một tiến trình thường trú thì cũng chết được,
+và lúc ấy không còn ai canh ai. Mỗi vòng nó ghi đè `giam-sat-nhip.txt`
+bằng giờ UTC — tuổi file ấy trả lời «người gác đêm còn sống không».
+Không có nhịp này thì cái chết của nó là cái chết im lặng nhất trong cả
+hệ.
+
+Chứng minh đầu-cuối: giết làn demo lúc 16:15, giám sát tự thấy lúc
+16:16:03, xác nhận đã lên lại lúc 16:16:36 — **33 giây, không ai chạm
+tay**.
+
+`.ps1` **phải có BOM**: PowerShell 5.1 đọc file không BOM theo bảng mã
+ANSI, dấu tiếng Việt hoá rác, và một byte lạc cho `Missing closing '}'`
+ở một dòng hoàn toàn lành. `bat.ps1` và `dung.ps1` đều có BOM.
 
 ## Quét ĐỘT BIẾN — phiếu "N/N đạt" không nói phép kiểm chạm tới đâu
 
