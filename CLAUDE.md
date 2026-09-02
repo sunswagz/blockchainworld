@@ -1220,6 +1220,19 @@ mà sai cổng" rất dễ sót.
     python scripts/selftest.py    1988 phép kiểm số học, KHÔNG cần mạng
     node scripts/kiem-buong-lai.mjs   58 phép: 10 trang + 7 khối tầng ba, × 3 mẫu; khoá đọc/sinh có khớp
     pythonw dichvu/chay-nen.py    chạy nền 24/7 để tích băng đào tạo
+    powershell -File dichvu\giam-sat.ps1 -Vong   bộ giám sát THƯỜNG TRÚ
+
+**Cung này có bộ giám sát vì nó đã chết 70,8 giờ mà không ai hay**
+(30/08 16:53 UTC → 02/09). Và thiết kế của nó bị ép bởi một ràng buộc
+của MÁY, không phải của mã: **Task Scheduler đang TẮT** —  trả ,  trả «Cannot open Schedule
+service» vì thiếu quyền quản trị, nên  lẫn COM
+ đều cụt. Đừng đi lại đường ấy.
+
+Móc khởi động DUY NHẤT còn dùng được là **thư mục Startup**
+(), đúng thứ
+Tử Cấm Thành đang dùng — và nó chỉ bắn MỘT phát lúc đăng nhập, nên bộ
+giám sát phải THƯỜNG TRÚ mới lấp được cả lỗ «sập giữa chừng». Gỡ bằng
+cách xoá file .
 
 Thị Bạc Ty **không cần khoá nào để chạy đủ**: nó chỉ đọc dữ liệu CÔNG KHAI
 — bốn sàn perp, ba sàn giao ngay, Deribit, LI.FI, DefiLlama, và RPC công
