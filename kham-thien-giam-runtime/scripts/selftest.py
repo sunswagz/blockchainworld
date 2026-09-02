@@ -1328,6 +1328,7 @@ DA_QUET_DOT_BIEN = {
     "tien_hoa.py", "vo_dich.py", "ket_qua.py", "so.py",
     "hoc_offline.py", "ban_thu.py", "chay_lai.py",
     "do_thi.py",
+    "nhiet_do.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -6543,6 +6544,108 @@ def kiem_moi_sigma_rieng_trung_bo_uoc_chung() -> None:
     kiem("có tìm thấy ít nhất một `_sigma` riêng để canh", thay >= 3, thay)
 
 
+def kiem_dong_co_nhiet_do() -> None:
+    """Động cơ NHIỆT ĐỘ — họ market đầu tiên ngoài crypto.
+
+    Thêm một họ là thêm một PLUGIN, không phải một bot mới: `dong_co.py`
+    là mối nối duy nhất biết "market này thuộc họ nào", và mọi thứ phía
+    sau (cân lợi, rủi ro, tồn kho, kế toán, chạy lại) dùng lại nguyên.
+
+    Cửa vào của một họ KHÔNG phải "AI có phán được không" mà là hai câu:
+    giá trị đúng có tính được không, và sự thật nền có DÀY không. Nhiệt
+    độ qua được cả hai (dự báo open-meteo/NWS · thực đo NOAA từng ngày
+    hàng chục năm); bầu cử trượt cả hai.
+
+    Đo được (`scripts/do-nhiet-do.py`, 10 trạm, hai quãng 3 năm KHÔNG
+    chồng lấn): ở |z| < 0,25 — chỗ chợ thật sự không chắc và là chỗ duy
+    nhất có tiền — kỹ năng chỉ **+1,9% / +1,6%**. Những con số 84% kia
+    nằm ở nơi chợ cũng yết 0,99.
+
+    Quét đột biến `kham/nhiet_do.py`: 3 con, 1 chết, 2 TƯƠNG ĐƯƠNG —
+    hai con còn lại là biên kẹp `p < MAT_PHANG` và `p > 1 − MAT_PHANG`,
+    chỉ khác nhau khi `p` ra ĐÚNG BẰNG 0,005. Φ không cho ra con số ấy
+    đúng tới từng bit, nên không dựng được ca phân biệt.
+    """
+    print()
+    print("-- Dong co NHIET DO ---------------------------------------")
+
+    from kham.dong_co import goi, tom_tat
+    from kham.nhiet_do import MAT_PHANG, dinh_gia_nhiet_do as dg
+
+    kiem("đã khai trong sổ đăng ký động cơ",
+         any(h["ma"] == "nhiet-do-nguong" for h in tom_tat()))
+    ho = next(h for h in tom_tat() if h["ma"] == "nhiet-do-nguong")
+    kiem("nhóm phơi nhiễm RIÊNG, không lẫn vào crypto",
+         ho["nhom"] == "thoi-tiet", ho["nhom"])
+
+    # `goi` phải CHẶN khi thiếu nguyên liệu, và nói thiếu gì.
+    _, loi = goi("nhiet-do-nguong", "X", duBao=84.0)
+    kiem("thiếu nguyên liệu ⇒ nói rõ thiếu GÌ",
+         loi is not None and "nguong" in loi and "sigmaF" in loi, loi)
+
+    # ── đối xứng: P(>K) + P(<K) = 1 ───────────────────────────────────
+    a = dg("X", duBao=84.0, nguong=85.0, thienLech=-1.0, sigmaF=2.0)
+    kiem("pUp + pDown = 1", abs(a.pUp + a.pDown - 1.0) < 1e-12)
+
+    # ── ĐƠN ĐIỆU theo ngưỡng: ngưỡng cao hơn thì khó vượt hơn ─────────
+    ps = [dg("X", duBao=84.0, nguong=K, thienLech=-1.0, sigmaF=2.0).pUp
+          for K in (78, 80, 82, 84, 86, 88)]
+    kiem("ngưỡng càng cao, xác suất vượt càng THẤP",
+         all(ps[i] > ps[i + 1] for i in range(len(ps) - 1)),
+         [round(x, 4) for x in ps])
+
+    # ── ĐÚNG TÂM: ngưỡng = dự báo đã chỉnh ⇒ p = 0,5 ─────────────────
+    #
+    # Đây là tính chất mà bản ước-một-lần đã VI PHẠM ngoài thực tế: tỉ
+    # lệ nền ở ô giữa ra 0,345 chứ không 0,5, tức mô hình lệch tâm và
+    # kỹ năng tụt xuống −10,2%.
+    b = dg("X", duBao=84.0, nguong=84.0 - (-1.0), thienLech=-1.0,
+           sigmaF=2.0)
+    kiem("ngưỡng ĐÚNG BẰNG dự báo đã chỉnh ⇒ p = 0,5",
+         abs(b.pUp - 0.5) < 1e-12, b.pUp)
+
+    # ── KẸP hai đầu: sai số dự báo có đuôi dày hơn Gauss ─────────────
+    xa = dg("X", duBao=84.0, nguong=120.0, thienLech=0.0, sigmaF=2.0)
+    kiem("ngưỡng rất xa ⇒ p bị kẹp, KHÔNG về 0",
+         xa.daMatPhang and abs(xa.pUp - MAT_PHANG) < 1e-12, xa.pUp)
+    xa2 = dg("X", duBao=84.0, nguong=20.0, thienLech=0.0, sigmaF=2.0)
+    kiem("và kẹp cả đầu kia, KHÔNG về 1",
+         xa2.daMatPhang and abs(xa2.pUp - (1.0 - MAT_PHANG)) < 1e-12,
+         xa2.pUp)
+
+    # ── TỪ CHỐI thay vì bịa ──────────────────────────────────────────
+    for ten, kw in (("σ = 0", dict(sigmaF=0.0)),
+                    ("σ âm", dict(sigmaF=-1.0)),
+                    ("σ vô cực", dict(sigmaF=float("inf"))),
+                    ("dự báo NaN", dict(duBao=float("nan")))):
+        kw2 = dict(duBao=84.0, nguong=85.0, thienLech=-1.0, sigmaF=2.0)
+        kw2.update(kw)
+        kiem(f"{ten} ⇒ trả None, KHÔNG bịa 0,5", dg("X", **kw2) is None)
+
+    # ── BẤT ĐỊNH lớn nhất ở gần tâm ──────────────────────────────────
+    #
+    # Đúng chỗ một cú lệch nhỏ lật hẳn kết quả. Nếu bất định phẳng theo
+    # z thì `ro_rang` mất hết tác dụng phân biệt.
+    gan = dg("X", duBao=84.0, nguong=85.0, thienLech=-1.0, sigmaF=2.0)
+    xaHon = dg("X", duBao=84.0, nguong=91.0, thienLech=-1.0, sigmaF=2.0)
+    kiem("bất định GẦN tâm lớn hơn xa tâm",
+         gan.batDinh > xaHon.batDinh, (gan.batDinh, xaHon.batDinh))
+    kiem("gần tâm thì mô hình tự nhận KHÔNG RÕ", not gan.ro_rang)
+
+    # ── giaiTrinh mang TÊN ĐÚNG ĐƠN VỊ ───────────────────────────────
+    #
+    # `GiaChuan` sinh ra cho crypto: `sigmaGiay` và `tauGiay` ở họ này
+    # mang đơn vị °F và NGÀY. Ba trường ấy NÓI SAI, nên tên đúng phải
+    # có trong `giaiTrinh` — chỗ duy nhất đọc số của họ này mà an toàn.
+    gt = a.giaiTrinh
+    kiem("giaiTrinh khai đúng họ market", gt.get("hoMarket") == "nhiet-do")
+    for khoa in ("duBaoF", "nguongF", "thienLechF", "sigmaF",
+                 "duBaoDaChinhF"):
+        kiem(f"giaiTrinh có `{khoa}` (tên mang ĐÚNG đơn vị)", khoa in gt)
+    kiem("và dự báo đã chỉnh = dự báo − thiên lệch",
+         abs(gt["duBaoDaChinhF"] - (84.0 - (-1.0))) < 1e-12)
+
+
 def kiem_canh_gac() -> None:
     """Người canh gác: hỏi CỔNG, không hỏi `pid.txt`, và chỉ MỘT bản.
 
@@ -11335,6 +11438,7 @@ def main() -> int:
     kiem_so_hieu_chinh_gom_moi_cho()
     kiem_khoa_mot_ban_chay_nen()
     kiem_canh_gac()
+    kiem_dong_co_nhiet_do()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()

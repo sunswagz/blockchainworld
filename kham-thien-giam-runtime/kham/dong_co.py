@@ -147,5 +147,25 @@ def _khai_san() -> None:
         nhipGiay=30.0,
     ))
 
+    from .nhiet_do import dinh_gia_nhiet_do as _nhietDo
+
+    khai(HoSoDongCo(
+        ma="nhiet-do-nguong",
+        ten="Nhiệt độ cao nhất vượt mốc",
+        nhom="thoi-tiet",
+        mota=("Xác suất nhiệt độ cao nhất trong ngày VƯỢT một mốc: "
+              "P = Φ((duBao − thienLech − K)/σ). Thiên lệch và σ đo "
+              "TỪNG TRẠM trên cửa sổ trượt 45 ngày, không đặt tay — ước "
+              "một lần trên lịch sử xa thì mô hình LỆCH TÂM và tệ hơn "
+              "cả tỉ lệ nền ở đúng chỗ chợ không chắc."),
+        nguonGia="open-meteo+noaa",
+        canGi=("duBao", "nguong", "thienLech", "sigmaF"),
+        dinhGia=_nhietDo,
+        # Một market nhiệt độ sống vài ngày tới hạn, không phải cửa 300
+        # giây — cùng họ khung với market chạm mốc.
+        hoKhung="khung-dai",
+        nhipGiay=300.0,
+    ))
+
 
 _khai_san()
