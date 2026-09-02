@@ -1225,8 +1225,14 @@ mà sai cổng" rất dễ sót.
     powershell -File dichvu\giam-sat.ps1 -Vong   bộ giám sát THƯỜNG TRÚ
 
 **Cung này có bộ giám sát vì nó đã chết 70,8 giờ mà không ai hay**
-(30/08 16:53 UTC → 02/09, đo ngày 02/09). Thiết kế của nó bị ép bởi một
-ràng buộc của MÁY chứ không phải của mã: **Task Scheduler đang TẮT.**
+(30/08 16:53 UTC → 02/09). Nó **TỰ CHẾT**: `LastBootUpTime` cho thấy máy
+chạy liền 131,9 giờ, chưa hề khởi động lại. (Bản đầu của mục này ghi
+"máy khởi động lại" — sai, vì đọc `StartTime` của tiến trình rồi coi là
+giờ máy lên.) Nên lối tắt Startup lấp ca CHƯA xảy ra, còn vòng lặp
+thường trú mới lấp ca ĐÃ xảy ra.
+
+Thiết kế của nó bị ép bởi một ràng buộc của MÁY chứ không phải của mã:
+**Task Scheduler đang TẮT.**
 
     Get-Service Schedule    -> Stopped  (StartType: Automatic)
     Start-Service Schedule  -> "Cannot open Schedule service"  (thiếu admin)
