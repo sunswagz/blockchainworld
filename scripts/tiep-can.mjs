@@ -1,13 +1,13 @@
 /* ═══════════════════════════════════════════════════════
-   TIẾP CẬN — vá ba thước tiếp cận của một cung bằng máy.
+   TIẾP CẬN — vá bốn thước tiếp cận của một cung bằng máy.
 
        node scripts/tiep-can.mjs <cung>          sửa thật
        node scripts/tiep-can.mjs <cung> --thu    xem sẽ đổi gì, chưa ghi
        node scripts/tiep-can.mjs --tat-ca --thu  soi cả 12 cung một lượt
 
-   Ba thước, ba cách hỏng khác nhau, nhưng cùng một tính chất: người
-   dùng chuột trên màn hình sáng KHÔNG BAO GIỜ gặp chúng, nên chúng
-   nằm im nhiều tháng mà không ai báo.
+   Bốn thước, bốn cách hỏng khác nhau, nhưng cùng một tính chất:
+   người dùng chuột trên màn hình sáng KHÔNG BAO GIỜ gặp chúng, nên
+   chúng nằm im nhiều tháng mà không ai báo.
 
      nhan       SVG trang trí thiếu aria-hidden → trình đọc màn hình
                 đọc ra một mớ toạ độ giữa câu
@@ -15,6 +15,8 @@
                 mình đang đứng ở đâu trên trang
      so-cot     thiếu tabular-nums → mỗi lượt cập nhật là cả bảng số
                 nhảy ngang, và mắt đọc lướt theo cột bị gãy
+     svg-co     svg chỉ có viewBox → CSS cũ kẹt trong cache là icon
+                phình kín màn hình (đã xảy ra ở Cổng Thành)
 
    ── VÌ SAO LÀ MÁY ────────────────────────────────────────────
    Cùng lý do đã ghi ở đầu `thang.mjs`: repo có 2–4 phiên song song,
@@ -57,6 +59,25 @@ function svgTran(html) {
     const cha = [...truoc.matchAll(/<(?:span|button|a|div)([^>]*)>/g)].pop();
     if (cha && /aria-hidden|aria-label/.test(cha[1])) continue;
     ra.push(m.index);
+  }
+  return ra;
+}
+
+/* Thước thứ TƯ: `svg-co` — svg chỉ có viewBox thì không có cỡ nội
+   tại, và CSS cũ còn kẹt trong cache là icon phình kín màn hình. Đã
+   xảy ra thật ở Cổng Thành.
+
+   Cỡ lấy từ CHÍNH viewBox, không bịa: `viewBox="0 0 24 24"` cho
+   width=24 height=24. Thuộc tính HTML thua CSS về độ ưu tiên, nên
+   thêm nó KHÔNG đổi diện mạo lúc CSS còn chạy — nó chỉ là lưới đỡ
+   cho đúng cái ngày CSS không tới nơi. */
+function svgThieuCo(html) {
+  const ra = [];
+  for (const m of html.matchAll(/<svg\b([^>]*)>/g)) {
+    if (/(^|\s)width=/.test(m[1])) continue;
+    const vb = m[1].match(/viewBox="\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/);
+    if (!vb) continue;          /* không có viewBox thì không suy ra được */
+    ra.push({ vi: m.index + 4, w: vb[1], h: vb[2] });
   }
   return ra;
 }
@@ -113,17 +134,25 @@ function doCung(cung) {
   const app = readFileSync(pApp, "utf8");
 
   const svg = svgTran(html);
+  const svgCo = svgThieuCo(html);
   const coTieuDiem = /:focus-visible/.test(cssTat);
   const thieuSo = demThieuSo(cssTat);
   const nhan = mauNhan(app) || mauNhan(cssTat);
 
-  return { cung, pHtml, pApp, html, app, svg, coTieuDiem, thieuSo, nhan };
+  return { cung, pHtml, pApp, html, app, svg, svgCo, coTieuDiem, thieuSo, nhan };
 }
 
 function vaHtml(k) {
   let h = k.html;
-  /* Sửa từ CUỐI về ĐẦU: chèn từ đầu thì mọi vị trí sau đó lệch đi. */
-  for (const i of k.svg.slice().reverse()) h = h.slice(0, i + 4) + ' aria-hidden="true"' + h.slice(i + 4);
+  /* Trộn HAI nguồn vị trí rồi mới sắp giảm dần và chèn từ CUỐI về
+     ĐẦU. Chèn từ đầu thì mọi vị trí sau đó lệch đi; và vì có hai
+     nguồn, chạy hai vòng riêng cũng lệch — vòng sau không biết vòng
+     trước đã đẩy chuỗi ra bao nhiêu. */
+  const chen = [
+    ...k.svg.map((i) => ({ vi: i + 4, chuoi: ' aria-hidden="true"' })),
+    ...k.svgCo.map((x) => ({ vi: x.vi, chuoi: ` width="${x.w}" height="${x.h}"` })),
+  ].sort((p, q) => q.vi - p.vi);
+  for (const c of chen) h = h.slice(0, c.vi) + c.chuoi + h.slice(c.vi);
   return h;
 }
 
@@ -166,6 +195,7 @@ function chay(cung) {
 
   const viec = [];
   if (k.svg.length) viec.push(`${k.svg.length} svg thiếu aria-hidden`);
+  if (k.svgCo.length) viec.push(`${k.svgCo.length} svg thiếu cỡ nội tại`);
   if (!k.coTieuDiem) viec.push("thiếu :focus-visible");
   if (k.thieuSo > 0) viec.push(`${k.thieuSo} mặt số thiếu tabular-nums`);
   if (!viec.length) { console.log(`· ${cung.padEnd(16)} đã đủ cả ba`); return; }
@@ -176,7 +206,7 @@ function chay(cung) {
     (loi ? `\n     ✗ ${loi}` : ""));
   if (THU || loi) return;
 
-  if (k.svg.length) writeFileSync(k.pHtml, vaHtml(k));
+  if (k.svg.length || k.svgCo.length) writeFileSync(k.pHtml, vaHtml(k));
   if (t !== k.app) writeFileSync(k.pApp, t);
 }
 
