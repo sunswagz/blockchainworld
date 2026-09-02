@@ -905,7 +905,13 @@ jobs:
 
             Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
             vào dai-quan-trac/assets/data/de-bai-tien-hoa.json dưới khoá
-            `daLam`. Hai lượt trước để trống khoá đó, nên sổ tiến hoá
+            `daLam`.
+
+            Và ghi RÕ kỹ năng: nếu dòng ấy đến từ một mục trong
+            `kyNang`, mở đầu bằng tên mục đó trong ngoặc vuông —
+            ví dụ `[baseline-ui] …`. Không dùng kỹ năng nào thì mở
+            đầu bằng `[tự nghĩ]`. Đừng bịa tên: chỉ ghi mục bạn
+            THẬT SỰ đã đọc và lấy ý. Hai lượt trước để trống khoá đó, nên sổ tiến hoá
             chỉ ghi được điểm số mà không ghi được việc.
 
       # Cổng chặn quyết định, KHÔNG phải model. `--so` bắt thêm trường
@@ -1155,6 +1161,12 @@ jobs:
             Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
             vào ho-bo/assets/data/de-bai-tien-hoa.json dưới khoá `daLam`.
 
+            Và ghi RÕ kỹ năng: nếu dòng ấy đến từ một mục trong
+            `kyNang`, mở đầu bằng tên mục đó trong ngoặc vuông —
+            ví dụ `[baseline-ui] …`. Không dùng kỹ năng nào thì mở
+            đầu bằng `[tự nghĩ]`. Đừng bịa tên: chỉ ghi mục bạn
+            THẬT SỰ đã đọc và lấy ý.
+
       - name: Bấm giờ · sau khi tiến hoá
         id: gio-th-1
         if: always() && steps.gio-th-0.outcome == 'success'
@@ -1312,6 +1324,12 @@ jobs:
             vào thai-boc-tu/assets/data/de-bai-tien-hoa.json dưới khoá
             `daLam`.
 
+            Và ghi RÕ kỹ năng: nếu dòng ấy đến từ một mục trong
+            `kyNang`, mở đầu bằng tên mục đó trong ngoặc vuông —
+            ví dụ `[baseline-ui] …`. Không dùng kỹ năng nào thì mở
+            đầu bằng `[tự nghĩ]`. Đừng bịa tên: chỉ ghi mục bạn
+            THẬT SỰ đã đọc và lấy ý.
+
       - name: Cổng chặn TBT — nhận hay trả lại
         id: n-thai-boc-tu-tien-hoa
         if: always() && steps.n-tbt-lam.outcome != 'skipped'
@@ -1463,6 +1481,12 @@ jobs:
             Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
             vào tao-bien-xu/assets/data/de-bai-tien-hoa.json dưới khoá
             `daLam`.
+
+            Và ghi RÕ kỹ năng: nếu dòng ấy đến từ một mục trong
+            `kyNang`, mở đầu bằng tên mục đó trong ngoặc vuông —
+            ví dụ `[baseline-ui] …`. Không dùng kỹ năng nào thì mở
+            đầu bằng `[tự nghĩ]`. Đừng bịa tên: chỉ ghi mục bạn
+            THẬT SỰ đã đọc và lấy ý.
 
       - name: Cổng chặn TBX — nhận hay trả lại
         id: n-tao-bien-xu-tien-hoa
@@ -1707,6 +1731,12 @@ jobs:
             Cuối cùng, ghi một dòng ngắn nói bạn đã đổi gì và vì sao,
             vào kham-thien-giam/assets/data/de-bai-tien-hoa.json dưới
             khoá `daLam`.
+
+            Và ghi RÕ kỹ năng: nếu dòng ấy đến từ một mục trong
+            `kyNang`, mở đầu bằng tên mục đó trong ngoặc vuông —
+            ví dụ `[baseline-ui] …`. Không dùng kỹ năng nào thì mở
+            đầu bằng `[tự nghĩ]`. Đừng bịa tên: chỉ ghi mục bạn
+            THẬT SỰ đã đọc và lấy ý.
 
       - name: Cổng chặn KTG — nhận hay trả lại
         id: n-kham-thien-giam-tien-hoa
@@ -2280,6 +2310,12 @@ jobs:
             vào <cung>/assets/data/de-bai-tien-hoa.json dưới khoá
             `daLam`. Đừng để chữ "undefined" hay "NaN" lọt vào dòng đó
             — cổng chặn soi hai chữ ấy trong HTML và sẽ trả lại.
+
+            Và ghi RÕ kỹ năng: nếu dòng ấy đến từ một mục trong
+            `kyNang`, mở đầu bằng tên mục đó trong ngoặc vuông — ví dụ
+            `[baseline-ui] …`. Không dùng kỹ năng nào thì mở đầu bằng
+            `[tự nghĩ]`. Đừng bịa tên: chỉ ghi mục bạn THẬT SỰ đã đọc
+            và lấy ý.
 
       - name: Cổng chặn — vòng xoay
         id: n-tien-hoa-xoay
