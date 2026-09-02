@@ -466,7 +466,26 @@ def _moc_cau_truc(p: dict, price: float, long: bool) -> float | None:
     else:
         ds = [x for x in (p.get("swingHighs") or []) if x is not None and x > price]
         moc = min(ds) if ds else p.get("range20High")
-    return moc if isinstance(moc, (int, float)) and moc > 0 else None
+    if not (isinstance(moc, (int, float)) and moc > 0):
+        return None
+    # ĐƯỜNG RƠI VỀ CŨNG PHẢI ĐÚNG BÊN.
+    #
+    # Nhánh swing đã lọc theo bên (`x > price` cho short), nhưng nhánh rơi về
+    # `range20High` / `range20Low` thì không. Giá vừa phá LÊN trên biên 20 nến
+    # thì `range20High` nằm DƯỚI giá — và bộ luật trả về nó làm stop cho một
+    # lệnh SHORT.
+    #
+    # Thấy thật lúc 01:01 ngày 03/09, làn demo:
+    #   CHẶN SHORT: SL_SAI_PHÍA: short mà SL 0.0038627949 ≤ giá 0.00496
+    #               | SL_QUÁ_RỘNG: 5.28×ATR | RR_THẤP: 1.71
+    # Stop nằm dưới giá 22% trên một lệnh bán khống. Ba lý do từ chối, một gốc.
+    #
+    # Docstring ngay trên đã nói đúng việc phải làm — "không được bịa ra một con
+    # số" — nhưng luật ấy chỉ được thực thi cho nhánh swing. Trả None thì bộ
+    # luật đứng ngoài, đúng như nó tự khai.
+    if (long and moc >= price) or (not long and moc <= price):
+        return None
+    return moc
 
 
 def _tp_tu_stop(price: float, stop: float, long: bool, r: dict,

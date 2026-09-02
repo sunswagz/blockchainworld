@@ -1519,6 +1519,25 @@ async def main() -> int:
     check(_rg59f(78_130.0) == 78_130.0 and _rg59f(0.00182) == 0.00182,
           "_rg giữ nguyên coin đắt VÀ coin rẻ — không phải nới cho một phía")
 
+    # MỐC CẤU TRÚC: đường RƠI VỀ cũng phải đúng bên.
+    #
+    # Nhánh swing lọc theo bên rồi; nhánh rơi về `range20High`/`range20Low` thì
+    # không. Giá vừa phá LÊN trên biên 20 nến thì `range20High` nằm DƯỚI giá, và
+    # bộ luật trả về nó làm stop cho một lệnh SHORT. Thấy thật 01:01 ngày 03/09:
+    #   CHẶN SHORT: SL_SAI_PHÍA: short mà SL 0.0038627949 ≤ giá 0.00496
+    # Stop dưới giá 22% trên một lệnh bán khống.
+    _mct59 = _B59._moc_cau_truc
+    check(_mct59({"swingHighs": [110.0, 120.0], "range20High": 90.0}, 100.0, False) == 110.0,
+          "short: lấy swing high GẦN NHẤT trên giá")
+    check(_mct59({"swingHighs": [], "range20High": 90.0}, 100.0, False) is None,
+          "short: biên 20 nến nằm DƯỚI giá ⇒ trả None, không bịa ra stop sai bên")
+    check(_mct59({"swingHighs": [], "range20High": 105.0}, 100.0, False) == 105.0,
+          "short: biên 20 nến trên giá thì vẫn dùng (cửa ngược lại)")
+    check(_mct59({"swingLows": [], "range20Low": 110.0}, 100.0, True) is None,
+          "long: biên 20 nến nằm TRÊN giá ⇒ trả None")
+    check(_mct59({"swingLows": [], "range20Low": 95.0}, 100.0, True) == 95.0,
+          "long: biên 20 nến dưới giá thì vẫn dùng (cửa ngược lại)")
+
     print("\n[58] NẾN TỔNG HỢP KHÔNG ĐƯỢC VÀO LỆNH")
     # `data.py` có ba nguồn, nguồn thứ ba là nến TỰ SINH để hệ vẫn chạy kín vòng
     # khi mạng chặn Binance. Chú thích ở đó nói rõ "KHÔNG phải để giao dịch" —
