@@ -1634,6 +1634,31 @@ chạy lệnh cho cung ấy.
 
 `index.html` nằm trong SHELL, nên vá `nhan` xong phải `npm run nang`.
 
+### Lớp CSS không ai dùng
+
+    npm run lop-chet            soi Cổng Thành + 12 cung
+    npm run lop-chet -- <cung>  soi một cung
+
+`npm run kiem` gọi nó ở đầu mỗi phiên và **nhắc** chứ không chặn, cùng
+lý do với mục dưới: CSS của cung khác không phải việc của phiên đang mở.
+
+CSS thừa không báo lỗi. Nó nằm trong SHELL, tải về mỗi lượt, và lớn dần
+theo mỗi tính năng bị gỡ mà quên dọn kiểu. Đo ngày 02/09: **44 lớp trên
+13 cung**, trong đó nhóm `hs-*` — tám lớp giống hệt — chết ở CẢ HAI cung
+`kham-thien-giam` và `thai-boc-tu`.
+
+**Đây là PHỎNG ĐOÁN, không phải phép đo — và nó đã kêu oan bốn lần.**
+Lớp CSS không được ai *gọi*, nó chỉ khớp hoặc không, nên không có phép
+nào chắc chắn. Bốn bản nháp lần lượt: ghi cứng danh sách tệp JS · khớp
+chuỗi con (`.tang` sống vì chữ "tang" trong một bản tin) · đòi tiền tố
+dài hơn 2 ký tự (bỏ sót `'lv l'+n`) · không gỡ dấu thoát (`class=\"ts-i\"`
+trong chuỗi JS của Cộng Bố). Bản đang dùng kiểm chéo được 40/45 ứng viên
+bằng một phép độc lập, và 5 cái còn lại chỉ "ngờ" vì tên lớp trùng khoá
+dữ liệu (`.ng` gặp `ng:"2026-08-28"`) hay trùng chữ tiếng Việt.
+
+**Kiểm bằng tay trước khi xoá.** Một bộ kiểm xui người ta xoá nhầm một
+lần là mất niềm tin vĩnh viễn — thà bỏ sót một lớp chết.
+
 ### Chỗ đè im lặng trong CSS
 
     npm run de-im-lang            soi Cổng Thành + 12 cung · thoát 1 khi còn chỗ đè
