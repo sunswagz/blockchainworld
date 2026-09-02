@@ -588,7 +588,11 @@
 
   /* ═══════════════ PHÒNG · CỬA NỐI ═══════════════ */
 
-  var IC_DI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+  /* 14 khớp `.cua-t svg` trong app.css. Thước `svg-co` chỉ soi
+     index.html nên nó KHÔNG thấy icon dựng từ JS — mà cách hỏng thì y
+     hệt: không cỡ nội tại, kẹt CSS cũ là phình kín trang. Vá theo cái
+     hỏng, đừng vá theo cái thước nhìn thấy. */
+  var IC_DI = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
     'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6l6 6-6 6"/></svg>';
 
   /* Đếm CUNG phân biệt, không đếm cửa: năm cửa Hộ Bộ chỉ là năm

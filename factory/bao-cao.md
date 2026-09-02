@@ -1,13 +1,22 @@
-# Sức khoẻ xưởng — 01/09/2026 19:03 UTC · lượt 539
+# Sức khoẻ xưởng — 02/09/2026 21:32 UTC · lượt 587
 
-**Xưởng đang khoẻ.** 27 node có dòng trong sổ đều `ket: ok`, `chuoiLoi` của tất cả bằng 0.
+Xưởng chạy được: mọi node trong sổ đều `ok` ở lượt gần nhất, trừ đúng một.
 
-**Không có node nào đáng lo.** Không cái nào `chuoiLoi >= 2`, không cái nào trễ quá gấp đôi `nhip`. Bốn node khai `nhip: 0` (`hoang-thanh`, `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh`, và `giao-hang` chạy theo) nên không tính trễ. Đáng theo dõi chứ chưa đáng báo động: `tien-hoa-xoay` ngã hai lượt liên tiếp — 31/08 21:04 (tang-thu-cac) và 01/09 00:43 (thi-bac-ty), cùng ghi "ngã ở MODEL" — rồi tự đứng dậy lúc 09:10, nên chuỗi đã về 0.
+**Đáng lo — `dong-dau`.** Ngã lúc 21:19:59, `vi: khoa-sai`, `chuoiLoi` 1. Sáng
+nay 11:37:03 nó còn `ok`, nên đây là hỏng mới trong ngày. Sai khoá không tự lành
+theo lượt: nhịp 6 giờ nghĩa là nó sẽ ngã lại y như vậy.
 
-**Chạy được mà số không đổi:**
+**Ngoài nó ra, không có gì:** không node nào `chuoiLoi >= 2`, không node nào trễ
+quá gấp đôi `nhip`. Xa hạn nhất là `do-kho` (4,9 ngày / nhịp 168) và nhóm nhịp 24
+chạy 01/09 19:05 — đều còn trong hạn.
 
-- `hoang-thanh` — `lucDoi` đứng ở 14/08, mười tám ngày. Lượt tay gần nhất 28/08 chạy xong với `doi: false`. Đáng ngờ nhất trong sổ.
-- `tri-thuc` — `lucDoi` là `null`: chưa lượt nào ghi ra thay đổi, dù `tri-thuc-tien-hoa` đã sửa dữ liệu nguồn ở cả lượt 30/08 lẫn 31/08. CẦN KIỂM.
-- `tien-hoa-dqt` — `lucDoi` đứng từ 30/08 05:46, nhưng sổ tự khai lý do: "0 điểm yếu". Phiếu đầy thì không gọi model, nên đây không phải hỏng.
+**Chạy đều mà `lucDoi` đứng yên** — nguồn phía sau có thể đã đứng:
+- `tri-thuc`: `lucDoi: null`, `doi: false`, 0 giây mỗi lượt — chạy nhiều lượt, chưa từng ghi đổi lần nào.
+- `tien-hoa-dqt`: chạy 02/09, `lucDoi` 30/08; chú thích "0 điểm yếu" tự giải thích.
+- `hoang-thanh`: `lucDoi` 14/08 — nhưng `nhip: 0`, chạy tay, không phải node tự động.
 
-**Việc nên làm trước:** chạy `npm run hoangthanh` ở máy có nguồn, rồi xem `lucDoi` có nhích khỏi 14/08 không. Nhích thì node vẫn sống và chỉ là lâu ngày không chạy tay; không nhích thì nguồn ngoài repo đã đứng, và đó là việc phải sửa ở nguồn chứ không ở xưởng.
+**Cần kiểm, chưa phải báo động:** `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh`,
+`giao-hang` không có dòng nào trong `state.json` — cả bốn đều khai `nhip: 0`.
+
+**VIỆC NÊN LÀM TRƯỚC: xem khoá của `dong-dau`.** Nó là node duy nhất đang ngã, và
+`khoa-sai` là loại lỗi lượt sau không chữa hộ.

@@ -94,5 +94,17 @@
     "source_ref": "thi-bac-ty-runtime/bac/suc_chua.py · thi-bac-ty phòng bao-gia",
     "observed": "2026-08",
     "tags": ["2026", "thanh-khoan"]
+  },
+  {
+    "id": "usd_numeraire",
+    "label_en": "Dollar as on-chain numéraire",
+    "label_vi": "Đô la làm thước đo trên chuỗi",
+    "kind": "accounting_function",
+    "definition_vi": "Đơn vị mà kinh tế trên chuỗi dùng để yết giá, cộng lãi lỗ và đặt trần rủi ro là đô la — kể cả trong những cỗ máy không chạm tới một ngân hàng nào. Tài sản gốc của chuỗi xuất hiện như thứ ĐƯỢC ĐO, không phải thứ dùng để đo.",
+    "stance": "repo",
+    "source_type": "repo",
+    "source_ref": "ho-bo/assets/js/v/dong-tien.js · kham-thien-giam-runtime/kham/rui_ro.py · thi-bac-ty-runtime/bac/suc_chua.py",
+    "observed": "2026-09",
+    "tags": ["2026", "don-vi-tinh"]
   }
 ]

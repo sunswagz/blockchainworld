@@ -53,7 +53,11 @@
   <nav class="ben" id="ben" data-mo="0" aria-label="Điều hướng">
     <a class="hieu" href="#/dai-chiem">
       <span class="dau" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <!-- width/height khớp đúng `.hieu .dau svg` trong app.css. Thuộc tính
+             trình bày thua mọi luật CSS về độ đặc hiệu, nên khi CSS tới nơi thì
+             nó không đổi gì; nó chỉ có việc lúc CSS CHƯA tới — svg chỉ có
+             viewBox thì không có cỡ nội tại và nở kín khung chứa. -->
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/>
           <circle cx="12" cy="12" r="3.1"/>
         </svg>
@@ -80,7 +84,7 @@
 
     <header class="dinh">
       <button class="benmo" id="benMoNut" type="button" aria-label="Mở thanh bên">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <h1 id="tieu">Đài Chiêm</h1>
       <span class="day"></span>

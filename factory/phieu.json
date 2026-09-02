@@ -1,10 +1,19 @@
 {
-  "generatedAt": "2026-09-01T19:03:54.465Z",
+  "generatedAt": "2026-09-02T21:32:14.274Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
-  "tongDat": 198,
+  "tongDat": 192,
   "tongThuoc": 198,
   "soCung": 12,
-  "truotNhieuNhat": [],
+  "truotNhieuNhat": [
+    {
+      "thuoc": "svg-co",
+      "soCung": 4
+    },
+    {
+      "thuoc": "nhan",
+      "soCung": 2
+    }
+  ],
   "cung": [
     {
       "cung": "cong-bo",
@@ -32,11 +41,18 @@
     },
     {
       "cung": "ho-bo",
-      "dat": 16,
+      "dat": 15,
       "tong": 16,
       "khongDo": 1,
-      "truot": [],
-      "truotVi": []
+      "truot": [
+        "svg-co"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "svg-co",
+          "vi": "2 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
+        }
+      ]
     },
     {
       "cung": "hoang-thanh",
@@ -48,11 +64,18 @@
     },
     {
       "cung": "kham-thien-giam",
-      "dat": 16,
+      "dat": 15,
       "tong": 16,
       "khongDo": 1,
-      "truot": [],
-      "truotVi": []
+      "truot": [
+        "nhan"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "nhan",
+          "vi": "0 nút câm · 1 svg không aria-hidden"
+        }
+      ]
     },
     {
       "cung": "kinh-thanh",
@@ -64,11 +87,18 @@
     },
     {
       "cung": "tang-thu-cac",
-      "dat": 17,
+      "dat": 16,
       "tong": 17,
       "khongDo": 0,
-      "truot": [],
-      "truotVi": []
+      "truot": [
+        "svg-co"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "svg-co",
+          "vi": "3 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
+        }
+      ]
     },
     {
       "cung": "tao-bien-xu",
@@ -80,27 +110,48 @@
     },
     {
       "cung": "thai-boc-tu",
-      "dat": 16,
+      "dat": 15,
       "tong": 16,
       "khongDo": 1,
-      "truot": [],
-      "truotVi": []
+      "truot": [
+        "nhan"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "nhan",
+          "vi": "0 nút câm · 1 svg không aria-hidden"
+        }
+      ]
     },
     {
       "cung": "thi-bac-ty",
-      "dat": 16,
+      "dat": 15,
       "tong": 16,
       "khongDo": 1,
-      "truot": [],
-      "truotVi": []
+      "truot": [
+        "svg-co"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "svg-co",
+          "vi": "8 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
+        }
+      ]
     },
     {
       "cung": "tu-cam-thanh",
-      "dat": 16,
+      "dat": 15,
       "tong": 16,
       "khongDo": 1,
-      "truot": [],
-      "truotVi": []
+      "truot": [
+        "svg-co"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "svg-co",
+          "vi": "8 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
+        }
+      ]
     }
   ]
 }

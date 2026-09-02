@@ -1426,16 +1426,15 @@
       than.appendChild(dk);
     }
 
-    /* ── Dải đếm này là KHOÁ ĐỌC của lưới node, không chỉ là mấy con số.
-       Mỗi thẻ bên dưới mang một vạch màu ở cạnh trái — lục, vàng, đỏ,
-       xám, lam — và đó là chỗ DUY NHẤT thẻ nói nó khoẻ hay ngã: bốn ô
-       số trong thẻ ghi lượt cuối · kết quả · nhịp · lượt sau, không ô
-       nào ghi mức sức khoẻ. Trước bản này không chỗ nào trên trang phát
-       nghĩa của vạch ấy ra. `SK_CHU` có đủ năm chữ, nhưng nó chỉ được
-       in trong BĂNG BÁO ĐỘNG — mà băng ấy chỉ hiện khi có node không
-       khoẻ. Tức là đúng lúc mọi thứ chạy êm, người xem gặp 30 ô năm màu
-       và không có gì để tra. Chấm màu ở đây gắn từng con số vào đúng
-       vạch nó đếm, nên lưới tự giải thích chính nó.
+    /* ── Dải đếm này là BẢN TÓM TẮT của lưới node, không chỉ là mấy con số.
+       Nó dùng đúng khuôn [chấm màu] + chữ mà mỗi thẻ bên dưới đã dùng để
+       tự khai mức của mình, và lấy chữ từ cùng một bảng `SK_CHU` — nên
+       hai chỗ không thể nói lệch nhau, và người xem đọc dải này rồi tìm
+       xuống lưới thì gặp lại y hệt bộ chữ ấy.
+
+       (Nó TỪNG là khoá tra duy nhất, thời mà thẻ chỉ nói sức khoẻ bằng
+       một vạch màu ở cạnh trái. Chuyện đó đã chữa ở chỗ đúng hơn — trên
+       chính thẻ; xem khối chú thích ngay trên `a.innerHTML` bên dưới.)
 
        ── Và nó đếm ĐỦ NĂM MỨC, không phải ba.
        `sucKhoe()` trả về năm mức; bản trước in ba. Năm node "chạy tay"
@@ -1474,7 +1473,8 @@
     ns.forEach(function (n) {
       var a = el("a", "vh-o");
       a.href = "#/van-hanh/" + n.ma;
-      a.dataset.sk = sucKhoe(n);
+      var sk = sucKhoe(n);
+      a.dataset.sk = sk;
       a.dataset.che = n.che;
 
       var con = n.nhip && n.luc ? n.nhip - gioTu(n.luc) : null;
@@ -1491,9 +1491,20 @@
         : con < 1 ? "còn " + Math.max(0, Math.round(con * 60)) + " phút"
         : "còn " + con.toFixed(1).replace(".", ",") + " giờ";
 
+      /* Mức sức khoẻ nói bằng CHỮ ngay trên thẻ, không để riêng cho màu.
+         `SK_CHU` vốn có đủ năm chữ nhưng chỉ được in trong BĂNG BÁO ĐỘNG
+         — mà băng ấy chỉ hiện khi có node ngã. Tức là đúng lúc mọi thứ
+         êm, người xem gặp ba mươi thẻ năm màu và không một chữ nào nói
+         màu ấy nghĩa gì; còn lúc có chuyện thì phải đọc băng rồi dò
+         ngược tên node xuống lưới mới biết thẻ nào là thẻ đang hỏng.
+         Chữ nằm sẵn trên thẻ thì cả hai đường vòng đó biến mất.
+
+         Cùng khuôn [chấm màu] + chữ với dải đếm phía trên lưới, và cùng
+         lấy chữ từ `SK_CHU` — một bảng chữ, hai chỗ đọc, không có bản
+         chép nào để mà lệch. */
       a.innerHTML =
-        '<span class="vh-den"></span>' +
         '<div class="vh-dinh"><span class="vh-tram">' + esc(n.tram) + "</span>" +
+        '<span class="vh-sk"><span class="vh-den"></span>' + esc(SK_CHU[sk]) + "</span>" +
         '<span class="vh-che">' + esc(CHE_CHU[n.che] || n.che) + "</span></div>" +
         "<h3>" + esc(n.ten) + "</h3>" +
         '<p class="vh-y">' + esc(n.y) + "</p>" +

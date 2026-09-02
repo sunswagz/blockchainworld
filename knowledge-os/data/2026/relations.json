@@ -160,5 +160,14 @@
     "source_type": "repo",
     "source_ref": "do-sat-vien/assets/js/v/rui-ro.js (cột cuaThoat, mục base) · do-sat-vien phòng rui-ro",
     "confidence": "high"
+  },
+  {
+    "from": "usd_numeraire",
+    "relation": "challenges",
+    "to": "unit_of_account",
+    "reason_vi": "Sách 2018 xếp đơn vị tính toán là chức năng RƠI SAU CÙNG: thắng được tính thanh khoản rồi thắng kho lưu trữ giá trị thì cuối cùng người ta sẽ tính sổ bằng đồng tiền cứng. Tám năm sau, đo trong chính repo này, chức năng ấy đi NGƯỢC lại. Bảng Hộ Bộ ngày 02/09/2026 ghi stablecoin đang lưu hành 309 tỉ đô, gấp khoảng 3,6 lần TỔNG tài sản khoá trên cả 20 chuỗi (85,1 tỉ) — thứ lớn nhất trong kinh tế trên chuỗi là một lời hứa ghi bằng đô. Cùng file đó, BTC và ETH chỉ hiện ra dưới dạng `btc: 77315` và `eth: 2392`: chúng được YẾT bằng đô, không yết cái gì bằng chúng. Chỗ đắt nhất nằm trong mã máy chứ không nằm ở bảng số. Mọi cầu dao của Khâm Thiên Giám đều đuôi `Usd` — `tranLoNgayUsd`, `tranMoiThiTruongUsd`, `tranPhoiNhiemGopUsd` — nên một runtime không mở tài khoản ngân hàng nào vẫn cắt lỗ theo thước đo đô la. Và trong `suc_chua.py`, hằng `TRAN_USD` tồn tại CHÍNH VÌ một cảng báo open interest bằng số COIN thay vì bằng USD bị coi là LỖI phải chặn: yết bằng đồng tiền gốc không phải một đơn vị thay thế, nó là một cái bug. Đây là challenges chứ không phải «chưa tới lượt»: sách cho phép đơn vị tính toán tới sau, nên thứ bị thách thức không phải THỨ TỰ mà là LỰC KÉO — giả định rằng thắng chức năng trao đổi sẽ kéo theo chức năng tính sổ. Chức năng trao đổi ĐÃ dời lên chuỗi phần lớn, và nó dời lên đó mang theo mệnh giá đô la, tức là làm vai trò tính sổ của đồng đô CHẮC THÊM chứ không lung lay. Giới hạn của quan sát này phải nói rõ: đây là mã do chính người dựng repo chọn viết, nên nó đo lựa chọn của một nhóm người dựng, không đo cả thị trường.",
+    "source_type": "repo",
+    "source_ref": "ho-bo/assets/js/v/dong-tien.js · kham-thien-giam-runtime/kham/rui_ro.py · thi-bac-ty-runtime/bac/suc_chua.py",
+    "confidence": "high"
   }
 ]

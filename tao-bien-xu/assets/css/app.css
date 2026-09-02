@@ -478,10 +478,34 @@ a.sd-o:hover{border-color:var(--am);background:var(--card-2);transform:translate
 .hs-cu a:hover{border-color:var(--am);text-decoration:none}
 
 /* ── Bảng vận hành ────────────────────────────────────────
-   Bốn màu = bốn mức sức khoẻ, và chúng phải phân biệt được KHÔNG
-   CHỈ bằng màu: mỗi mức có thêm một dấu hiệu về hình (viền, chấm
-   nhấp nháy, dải cảnh báo). Bảng điều khiển chỉ phân biệt bằng
-   xanh/đỏ thì với người mù màu nó là một lưới ô xám như nhau. */
+   Năm màu = năm mức sức khoẻ, và chúng phải phân biệt được KHÔNG
+   CHỈ bằng màu. Bảng điều khiển chỉ phân biệt bằng xanh/đỏ thì với
+   người mù màu nó là một lưới ô xám như nhau.
+
+   Khối này TỪNG chỉ hứa điều đó chứ không làm. Đếm lại thì dấu hiệu
+   ngoài-màu chỉ phủ hai mức trên năm: `nang` có thêm viền đỏ, `om`
+   và `nang` có chấm nhấp nháy khác tốc độ. Còn `khoe`, `chua`,
+   `thuong` KHÔNG có gì ngoài sắc độ — ba mức trên năm là màu trần.
+   Mà `om` với `nang` cũng chỉ khác nhau ở NHỊP nháy 2s so với 1s,
+   thứ không ai phán được nếu không có hai thẻ đặt cạnh nhau; và khối
+   `prefers-reduced-motion` ở đầu file tắt sạch animation, nên với
+   người bật nó thì cả hai mức ấy cũng rơi về màu trần nốt.
+
+   Cái giá không phải một ô khó đọc. Đây là lưới ba mươi thẻ, và câu
+   hỏi duy nhất người ta mang tới đây là "cái nào đang không ổn" —
+   nên mức sức khoẻ là thứ ĐÁNG ĐỌC NHẤT thẻ, mà nó lại là thứ duy
+   nhất trên thẻ không được viết ra thành chữ. Bốn ô số ghi lượt cuối
+   · kết quả · nhịp · lượt sau; chế độ chạy có hẳn một chip chữ. Tức
+   là thẻ dành chữ cho thuộc tính phụ và để trạng thái chính cho màu.
+
+   Nay mỗi thẻ nói thẳng mức của nó bằng CHỮ, theo đúng khuôn dải đếm
+   phía trên lưới đã dùng: [chấm màu] + chữ. Hai chỗ cùng một hình
+   dạng và cùng một bộ chữ (`SK_CHU`), nên dải đếm thôi làm khoá tra
+   mà thành bản tóm tắt của thứ mỗi thẻ đã tự khai.
+
+   Chữ lấy bậc TRUNG TÍNH chứ không lấy sắc tín hiệu, và đó là chủ ý:
+   --luc trên --card-2 (nền thẻ lúc rê chuột) chỉ đo được 4,30 — dưới
+   AA. Sắc ở lại trên CHẤM, nơi nó là đồ hoạ chứ không phải chữ. */
 .vh-bao{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin-bottom:14px;
   border:1px solid var(--vang);border-radius:var(--r);background:var(--vang-t)}
 .vh-bao[data-muc="nang"]{border-color:var(--do);background:var(--do-t)}
@@ -521,12 +545,33 @@ a.sd-o:hover{border-color:var(--am);background:var(--card-2);transform:translate
 .vh-o[data-sk="chua"],.dk-so span[data-sk="chua"]{--sk:var(--fg-3)}
 .vh-o[data-sk="thuong"],.dk-so span[data-sk="thuong"]{--sk:var(--lam)}
 .vh-o[data-sk="nang"]{border-color:var(--do)}
-.vh-den{position:absolute;top:13px;right:14px;width:8px;height:8px;border-radius:50%;
-  background:var(--sk)}
+/* Chấm sức khoẻ. Trước đây nó nổi một mình ở góc trên phải thẻ, không
+   dính vào chữ nào — một đốm màu không nhãn, tức là đúng thứ chỉ người
+   đã thuộc bảng màu mới đọc được. Nay nó đứng ngay trước chữ mức trong
+   `.vh-sk`, nên màu và chữ nói cùng một điều ở cùng một chỗ. */
+.vh-den{width:8px;height:8px;border-radius:50%;background:var(--sk);flex:0 0 auto}
 .vh-o[data-sk="nang"] .vh-den{animation:nhay 1s infinite}
 .vh-o[data-sk="om"] .vh-den{animation:nhay 2s infinite}
-.vh-dinh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;padding-right:16px}
-.vh-tram{font-family:var(--mono);font-size:var(--co3);font-weight:600;color:var(--sk)}
+/* `align-self:center` chứ không để rơi vào `align-items:baseline` của
+   `.vh-dinh`: đường cơ sở của một hộp inline-flex lấy từ flex-item đầu
+   tiên, mà ở đây item đầu là cái chấm — một span RỖNG, không có đường
+   cơ sở chữ nào, nên trình duyệt lấy mép dưới của nó và cả chip bị
+   nhấc lệch so với mã trạm bên cạnh. */
+.vh-sk{display:inline-flex;align-items:center;align-self:center;gap:6px;white-space:nowrap;
+  font-family:var(--mono);font-size:var(--co1);font-weight:500;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--fg-3)}
+/* Hai mức đáng dừng lại đọc thì nặng chữ hơn; ba mức còn lại giữ im.
+   Đây là dấu hiệu ngoài-màu thứ hai, và là dấu hiệu duy nhất sống sót
+   qua `prefers-reduced-motion` — chỗ mà chấm nhấp nháy tắt hẳn. Một
+   lưới ba mươi thẻ cùng hô "KHOẺ" bằng chữ sáng thì cái "ĐANG HỎNG"
+   lại khó thấy hơn, nên độ nổi phải đi theo mức, không đều tay. */
+.vh-o[data-sk="om"] .vh-sk,.vh-o[data-sk="nang"] .vh-sk{color:var(--fg);font-weight:700}
+.vh-dinh{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:6px}
+/* Mã trạm là ĐỊNH DANH, không phải trạng thái. Nó từng lấy `var(--sk)`,
+   nên "M12" đổi màu theo sức khoẻ và trông như đang mang một nghĩa mà
+   nó không mang — thêm nữa, đặt cạnh chấm màu thì hai sắc tín hiệu
+   dính liền nhau. Trên bảng này sắc chỉ nói một chuyện: mức sức khoẻ. */
+.vh-tram{font-family:var(--mono);font-size:var(--co3);font-weight:600;color:var(--fg-2)}
 .vh-che{font-family:var(--mono);font-size:var(--co1);letter-spacing:.06em;text-transform:uppercase;
   color:var(--fg-3);padding:2px 6px;border:1px solid var(--line);border-radius:5px}
 .vh-o[data-che="claude"] .vh-che{color:var(--am);border-color:var(--am-t);background:var(--am-t)}

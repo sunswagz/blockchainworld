@@ -766,8 +766,14 @@
       var a = document.createElement("a");
       a.className = "bmuc";
       a.href = "#/" + p.ma;
+      /* 16×16 khớp đúng ô `.bmuc .bic` trong app.css. Thước `svg-co` chỉ
+         soi index.html nên tám icon dựng ở đây không bị nó đếm — nhưng
+         chúng hỏng y hệt hai cái kia khi CSS chưa tới: `width:100%` là
+         luật CSS, mất luật thì svg chỉ còn viewBox và không có cỡ nội tại.
+         Vá theo lớp lỗi, không vá theo phạm vi thước. */
       a.innerHTML =
-        '<span class="bic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        '<span class="bic"><svg width="16" height="16" viewBox="0 0 24 24" ' +
+        'fill="none" stroke="currentColor" ' +
         'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + p.icon +
         '</svg></span><span class="bten">' + p.ten + '</span>';
       a.dataset.ma = p.ma;
