@@ -63,6 +63,18 @@ const LENH = process.argv[2];
    nào cũng nhắc "design" hay "test" ở đâu đó, nên khớp mô tả cho ra
    1.339/3.696 — tức là không lọc gì cả. */
 const LINH_VUC = {
+  /* THÊM 02/09/2026, và đây là chỗ hở lớn nhất của bản đầu: sáu lĩnh
+     vực cũ KHÔNG có cái nào là giao diện — đúng thứ mà cả tám vòng
+     tiến hoá làm suốt ngày, và đúng thứ mà `nhap-skill.mjs` đặt lên
+     đầu bảng khi chọn skill cho kệ. Hai máy cùng đọc một kho mà bất
+     đồng về việc xưởng này cần gì.
+
+     Hệ quả đo được, lượt quét thật ngày 02/09 trước khi vá — năm đề
+     xuất đầu bảng: azure-devops-cli, api-mock, automation-audit-ops,
+     asset-audit, block-no-verify-hook. Một repo 13 trang tĩnh không
+     máy chủ, không bước dựng, không container, được mớm cho công cụ
+     Azure DevOps. Và không một skill giao diện nào. */
+  "giao diện tiếp cận": /\b(a11y|accessib|aria|wcag|contrast|typography|css|design|ui|ux|layout|colou?r|responsive|frontend|visual|spacing)\b/i,
   "lập trình công cụ": /\b(cli|tooling|build|bundler|refactor|codegen|automation|devtool|scaffold)\b/i,
   "kiểm thử rà soát": /\b(test|testing|lint|audit|review|verify|qa|coverage|regression|debug)\b/i,
   "dữ liệu phân tích": /\b(data|analytics|sql|etl|dataset|dataviz|chart|query|metric)\b/i,
@@ -84,6 +96,31 @@ const LINH_VUC = {
    không mang. Rộng tay hơn là bắt đầu loại nhầm thứ có ích, và một
    bộ lọc loại nhầm thì không ai còn tin cái nó giữ lại. */
 const LOAI_TRU = /\b(intrusion|compromise|malware|forensic|phishing|threat-hunt|incident-response|siem)\b/i;
+
+/* ── XƯỞNG NÀY LÀ GÌ, VÀ KHÔNG PHẢI GÌ ─────────────────────
+   Kho đã tự gắn nhãn `nhom` cho từng skill — tám nhóm, sinh trong
+   `scripts/build-tangthu.mjs`. Bản đầu bỏ qua hẳn trường ấy và tự dò
+   lại bằng regex trên TÊN, tức là dựng bảng phân loại thứ hai cho
+   cùng một kho. Nay dùng nhãn có sẵn làm TRỌNG SỐ, giữ regex làm tín
+   hiệu thứ hai — hai tín hiệu độc lập tốt hơn một, nhưng hai bảng
+   phân loại cạnh tranh thì không.
+
+   Trọng số theo đúng repo này chứ không theo "nhóm nào hay hơn":
+
+     giao-dien   13 trang tĩnh, tám vòng tiến hoá đều sửa giao diện
+     kiem-thu    thước là xương sống — mọi vòng đều dừng ở cổng chặn
+     ha-tang     ÂM: không máy chủ, không bước dựng, không container.
+                 Docker/k8s/terraform ở đây là chi phí thuần
+
+   Trọng số chứ KHÔNG phải loại trừ. Cả file này sinh ra để mang về
+   thứ ta chưa nghĩ tới; một bộ lọc chỉ cho qua đúng thứ ta đã biết
+   mình cần thì nó chỉ còn là cái gương. `ha-tang` bị đẩy xuống cuối
+   bảng, không bị cấm — lượt nào cạn ứng viên thì nó vẫn tới lượt. */
+const TRONG_NHOM = {
+  "giao-dien": 6, "kiem-thu": 4, "lap-trinh": 2,
+  "tai-lieu": 1, "du-lieu": 1, "nghien-cuu": 0, "giao-tiep": 0,
+  "khac": 0, "ha-tang": -3
+};
 
 /* Bao nhiêu SKILL.md tải mỗi lượt. Đây là van chi phí duy nhất:
    mỗi cái là một lượt gọi raw.githubusercontent, và tải cả kho là
@@ -185,6 +222,24 @@ for (const s of D.skills) {
   if (!lv.length) continue;
   const mo = String(s.moTa || "");
   let diem = lv.length * 2;
+  /* Nhãn kho gắn sẵn — xem TRONG_NHOM ở đầu file. Đây là tín hiệu
+     MẠNH nhất trong bốn cái, và cố ý: ba tín hiệu kia đo "skill này
+     có viết rõ luật không", chỉ tín hiệu này đo "luật ấy có dùng
+     được ở đây không". Một skill viết luật rất rõ về Kubernetes vẫn
+     vô dụng với mười ba trang tĩnh. */
+  diem += TRONG_NHOM[s.nhom] ?? 0;
+  /* "design" là từ HAI NGHĨA, và cả hai nghĩa đều có thật trong kho:
+     thiết kế thị giác, và thiết kế kiến trúc hệ thống. Lượt quét đầu
+     sau khi thêm lĩnh vực giao diện mang về `cloud-design-patterns`
+     và `deployment-pipeline-design` — hai skill kiến trúc hạ tầng,
+     lọt vào vì đúng một chữ "design", và lọt CẢ ở bảng nhóm của kho
+     vì `giao-dien` được xét trước `ha-tang` ở đó.
+
+     Trừ điểm chứ không loại: `pipeline` cũng là chữ của xưởng này
+     (dây chuyền Tạo Biện Xứ), và một skill nói về kiến trúc vẫn có
+     thể mang luật dùng được. Đẩy xuống cuối bảng là đủ. */
+  if (/\b(cloud|deployment|kubernetes|terraform|serverless|microservice|infra)\b/i.test(ten))
+    diem -= 4;
   /* Mô tả có câu mệnh lệnh thì dễ thành phép canh hơn hẳn. */
   if (/\b(MUST|NEVER|ALWAYS|REQUIRED)\b/.test(mo)) diem += 4;
   if (/\b(check|verify|validate|enforce|rule|guideline|standard)\b/i.test(mo)) diem += 2;
