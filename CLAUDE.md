@@ -182,6 +182,7 @@ tám mốc, nhưng node nào chạy thì sổ đăng ký quyết, xem mục dư�
     factory/tien-hoa.jsonl
     factory/kho-de-xuat.json
     factory/phieu.json
+    factory/huong.json
     factory/state.json
     factory/bao-cao.md
     tao-bien-xu/assets/js/v/van-hanh.js
@@ -1745,6 +1746,51 @@ vào **hai** thư mục khác nhau và regex ghép nhầm:
 
 `logos.js` là JS hợp lệ gán vào `window`, nên `new Function` đọc đúng
 thứ trình duyệt đọc chứ không phải một bản phỏng đoán về nó.
+
+### Node `huong` — thứ duy nhất KHÔNG sinh bản vá
+
+    node scripts/huong.mjs --in    xem đề xuất, không ghi
+    node scripts/huong.mjs         ghi factory/huong.json   (nhịp 168 giờ)
+
+Bảy vòng tiến hoá đang chạy **đều là vòng SỬA**. Thước hỏi "có gì
+hỏng không"; hỏng thì vá xong là hết, và khi phiếu đã đầy thì model
+chỉ còn được bảo *"tìm một chỗ không thước nào đo"*. Nó làm được —
+sổ tiến hoá chứng minh — nhưng đó là phán đoán trong **phạm vi một
+trang**. Không cơ chế nào hỏi "cả cái này nên thành cái gì tiếp".
+
+Hướng có hai nửa, và chỉ một nửa suy ra được:
+
+    "thiếu gì · lệch gì · phí gì"             SUY RA ĐƯỢC từ repo
+    "cái này ĐỂ LÀM GÌ, gì quan trọng nhất"   KHÔNG suy ra được
+
+Node này làm nửa đầu cho tử tế rồi **giao nửa sau**. Bốn tín hiệu,
+tất cả lấy từ repo, không cái nào là ý kiến:
+
+    model tự chọn gì      sổ tien-hoa.jsonl, trường daLam — lớp nào
+                          hiện lại ở ≥2 cung do các lượt độc lập
+    lệch giữa các cung    năng lực cung này có mà cung kia không —
+                          bằng chứng đường ấy ĐI ĐƯỢC, khác ý tưởng
+    sinh ra không ai đọc  file xưởng ghi mỗi ngày mà không trang nào nạp
+    chạy mà chưa đổi gì   node có `lucDoi` null
+
+**Mỗi mục kèm một con số và một lệnh để BÁC nó.** Không có luật ấy
+thì đây là máy sinh ý tưởng — mà ý tưởng thì không thiếu; thứ thiếu
+là ý tưởng có bằng chứng.
+
+**Và nó sai được, đã sai hai lần ngay lúc dựng.** Lần đầu: tín hiệu
+"không ai đọc" im lặng, vì ba file `bao-cao.md` · `phieu.json` ·
+`kho-de-xuat.json` có tên trong `van-hanh.js` — mà `van-hanh.js` là
+bản chiếu sổ đăng ký, nên **mọi** đường khai trong `ra` đều hiện ở
+đó theo cấu tạo. Nay trừ file máy sinh ra khỏi corpus. Lần hai là ở
+báo cáo Opus chứ không ở đây, nhưng cùng một bài: nó khai `tri-thuc`
+"CẦN KIỂM" vì `lucDoi` null; kiểm thật thì sinh lại 11 lát cắt ra
+**0 file đổi** — cổng chặn của `tri-thuc-tien-hoa` đã sinh lại ở lớp
+2 nên node kia không còn việc. Báo động nhầm, và nhầm rất thuyết
+phục.
+
+Nên đọc `factory/huong.json` như một **bàn đã dọn**, không phải một
+quyết định. Chọn xong thì việc mới thành việc: thêm thước, thêm node,
+hay sửa tay — đó là lúc bảy vòng kia vào cuộc.
 
 ### Cổng dev
 
