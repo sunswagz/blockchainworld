@@ -60,6 +60,18 @@
   }
   function rutGon(a) { return a ? esc(a.slice(0, 8) + "…" + a.slice(-6)) : thieu("không kèm", "Bản quét L2BEAT cho dòng đổi này không kèm địa chỉ hợp đồng."); }
 
+  /* Bộ lọc cắt hết thì bảng CŨ vẫn dựng ra: đủ hàng tiêu đề, thân rỗng —
+     trang trông như vừa hỏng chứ không như vừa lọc. Ô đếm bên trên có ghi
+     "0 / 450", nhưng đó là một con số chứ không phải một câu: nó không nói
+     bộ lọc NÀO đang cắt, cũng không nói cách gỡ. Cả ba thứ phải nằm đúng
+     chỗ đáng lẽ có dữ liệu, vì đó là chỗ người ta đang nhìn. */
+  function khongKhop(dau, dieuKien, loiRa) {
+    var ds = dieuKien.filter(Boolean);
+    var p = el("p", "trong");
+    p.innerHTML = dau + " " + (ds.length ? ds.join(" và ") : "bộ lọc hiện tại") + ". " + loiRa;
+    return p;
+  }
+
   /* Logo dùng chung với Đô Sát Viện — 200 file đã tải sẵn ở đó,
      chép sang đây là nhân đôi 1 MB trong repo mà chẳng được gì. */
   function duongLogo(id) {
@@ -273,6 +285,20 @@
     });
     t.appendChild(tb);
     $("#bang").innerHTML = "";
+    if (!hang.length) {
+      /* Lối ra phải kể đúng những bộ lọc ĐANG bật. Bảo "bấm Tất cả" khi
+         người ta chưa hề chọn dự án nào là chỉ sang một cái nút không
+         liên quan, và một câu hướng dẫn sai chỗ thì tệ hơn không có câu
+         nào — nó bắt người đọc tự kiểm chứng cả phần còn lại. */
+      var cD = state.duAn !== "all";
+      $("#bang").appendChild(khongKhop("Không dòng đổi nào khớp", [
+        cD ? "dự án <b>" + esc(state.duAn) + "</b>" : null,
+        q ? "chữ tìm <b>" + esc(state.q.trim()) + "</b>" : null
+      ], (cD && q ? "Bấm <b>Tất cả</b> ở trên và xoá ô tìm"
+        : cD ? "Bấm <b>Tất cả</b> ở trên"
+        : "Xoá ô tìm ở đỉnh trang") + " để xem lại " + NK.length + " thay đổi."));
+      return;
+    }
     $("#bang").appendChild(t);
     if (hang.length > 300) {
       var p = el("p", "trong");
@@ -391,6 +417,12 @@
     });
     t.appendChild(tb);
     $("#bang").innerHTML = "";
+    if (!hang.length) {
+      $("#bang").appendChild(khongKhop("Không dự án nào khớp", [
+        q ? "chữ tìm <b>" + esc(state.q.trim()) + "</b>" : null
+      ], "Xoá ô tìm ở đỉnh trang để xem lại " + KL.length + " dự án."));
+      return;
+    }
     $("#bang").appendChild(t);
   }
 
@@ -572,11 +604,33 @@
     "xuong-huy-hieu": mhXuong, "di-noi-khac": mhNgoai
   };
 
+  /* Ô tìm ở đỉnh trang chỉ lọc HAI phòng. Ba phòng kia không đọc state.q
+     một lần nào, nên ô ấy đứng đó ở mọi phòng mà gõ vào thì không có gì
+     xảy ra: một ô nhập câm, không lỗi, không phản hồi — người dùng chỉ có
+     thể kết luận là trang hỏng, hoặc là mình gõ sai. Nó cũng ăn một điểm
+     dừng Tab ở mỗi phòng để đổi lấy không gì cả.
+
+     Và ở hai phòng nó thật sự làm việc, hai phòng ấy tìm trong HAI BỘ
+     TRƯỜNG khác nhau — nhật ký tìm cả địa chỉ hợp đồng, kính lúp thì
+     không có địa chỉ nào để tìm. Một chữ "Tìm…" dùng chung không phân
+     biệt được, nên người ta dán một địa chỉ vào kính lúp rồi tưởng dự án
+     đó không có trong danh sách. */
+  var TIM = {
+    "nhat-ky": "Tìm dự án, hợp đồng, địa chỉ…",
+    "kinh-lup": "Tìm dự án, dạng…"
+  };
+  function veTim(ma) {
+    var g = TIM[ma] || null, o = $(".tim"), q = $("#q");
+    if (o) o.hidden = !g;
+    if (q && g) { q.placeholder = g; q.setAttribute("aria-label", g.replace(/…$/, "")); }
+  }
+
   function ve() {
     var host = $("#than"), ma = state.muc;
     var t = VI.muc[ma] || { ten: ma };
     $("#tieu").textContent = t.ten;
     document.title = "Công Bộ · " + t.ten;
+    veTim(ma);
     veBen();
     (MH[ma] || MH["giai-ma"])(host);
     if (TT && TT.them) TT.them(host, ma);

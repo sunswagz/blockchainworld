@@ -65,8 +65,14 @@
     return (n > 0 ? "+" : "") + so(n, d == null ? 2 : d) + "%";
   }
 
-  var MUI_LEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M5.5 12.5 12 6l6.5 6.5"/></svg>';
-  var MUI_XUONG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v13M5.5 11.5 12 18l6.5-6.5"/></svg>';
+  /* `width`/`height` viết thẳng vào thẻ, DÙ CSS đã định cỡ. Icon chỉ có
+     `viewBox` thì không có cỡ nội tại: lỡ luật CSS chưa tới máy người xem
+     — bản cũ còn kẹt trong cache của service worker — nó giãn kín chỗ
+     chứa thay vì hỏng nhẹ ở đúng cỡ. Đã xảy ra thật ở Cổng Thành, xem
+     mục CACHE_VERSION trong CLAUDE.md. CSS vẫn thắng thuộc tính này nên
+     `.d svg{width:10px}` vẫn là nơi quyết cỡ; số ở đây chỉ là lưới đỡ. */
+  var MUI_LEN = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M5.5 12.5 12 6l6.5 6.5"/></svg>';
+  var MUI_XUONG = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v13M5.5 11.5 12 18l6.5-6.5"/></svg>';
 
   /* Chip đổi giá. `nguong` là vùng coi như đứng yên — dưới ngưỡng
      đó thì vẽ xám và không mũi tên, vì gắn mũi tên cho một biến
@@ -705,7 +711,7 @@
       khoi("Sổ bộ nguồn", NG.TOOL.length + " công cụ",
         '<div class="loc" id="locLop">' + lopNut + "</div>" +
         '<div class="loc" id="locTang">' + tangNut +
-        '<span class="tim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+        '<span class="tim"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
         '<input id="timNguon" type="search" placeholder="Tìm công cụ, việc, câu hỏi…" autocomplete="off" aria-label="Tìm trong sổ bộ nguồn" value="' + esc(locTim) + '"></span></div>' +
         /* Dòng đếm phải nằm sẵn trong DOM từ lúc dựng phòng, RỖNG, chứ
            không được chèn vào lúc lọc: một vùng `role="status"` xuất
@@ -992,7 +998,7 @@
     if (t.loi) than += '<div class="hs"><div class="hs-h">Liên quan tới kinh đô này</div><p class="hs-loi">' + esc(t.loi) + "</p></div>";
 
     than += '<div class="hs"><a class="hs-di" href="' + esc(t.url) + '" target="_blank" rel="noopener">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
       '<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 13.5V19a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 19V8a1.5 1.5 0 0 1 1.5-1.5H11"/></svg>' +
       "Mở " + esc(t.ten) + "</a>" +
       '<p class="hs-p" style="margin-top:10px;font-size:11.8px;color:var(--fg-3)">Hộ Bộ không kiểm soát' +

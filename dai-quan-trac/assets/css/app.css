@@ -46,7 +46,7 @@ a:hover{text-decoration:underline}
    hiệu ứng nào được chạm bố cục. */
 .bo-qua{position:fixed;top:12px;left:12px;z-index:var(--z-banh);
   padding:8px 16px;
-  border:1px solid var(--acc-mo);border-radius:var(--r);
+  border:1px solid rgba(88,166,255,.4);border-radius:var(--r);
   background:var(--raise);color:var(--fg);
   font-size:12.5px;font-weight:600;text-decoration:none;
   box-shadow:0 14px 40px -16px #000000e6;
@@ -754,7 +754,7 @@ ul.tight li::marker{color:var(--dim)}
 
 .tin-bai{display:flex;flex-direction:column;color:inherit;text-decoration:none}
 .tin-bai:hover .tin-than>b{color:var(--acc)}
-.tin-bai:hover .tin-di{color:var(--acc);border-color:var(--acc-mo)}
+.tin-bai:hover .tin-di{color:var(--acc);border-color:rgba(88,166,255,.4)}
 /* Tỷ lệ cố định để lưới không nhảy khi ảnh nạp xong — và khi ảnh
    hỏng thì onerror xoá cả .tin-anh, thẻ tự khít lại. */
 .tin-anh{display:block;aspect-ratio:16/9;overflow:hidden;background:var(--inset);
@@ -766,7 +766,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-ng{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;color:var(--fg2);
   border:1px solid var(--line3);border-radius:20px;padding:2px 7px}
 /* Báo nhà nước: viền vàng. Không cấm đọc, chỉ bắt buộc biết. */
-.tin-ng.nn{color:var(--gold);border-color:var(--gold-mo);background:#d4a72c14}
+.tin-ng.nn{color:var(--gold);border-color:rgba(212,167,44,.4);background:#d4a72c14}
 .tin-meta i{font-style:normal;font-size:10.5px;color:var(--muted)}
 .tin-meta em{margin-left:auto;font-style:normal;font-family:var(--mono);
   font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -786,7 +786,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-ai.trong p{color:var(--muted);font-size:12.5px}
 .tin-mx{font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:var(--muted);
   border:1px solid var(--line2);border-radius:20px;padding:2px 7px;background:transparent;font-variant-numeric:tabular-nums}
-.tin-mx:hover{color:var(--acc);border-color:var(--acc-mo)}
+.tin-mx:hover{color:var(--acc);border-color:rgba(88,166,255,.4)}
 
 .tin-chan{margin:14px 0 0;font-size:11.5px;line-height:1.6;color:var(--muted);
   padding:10px 12px;border:1px dashed var(--line2);border-radius:var(--r)}

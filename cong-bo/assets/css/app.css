@@ -99,6 +99,11 @@ code,kbd,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monos
 .dinh h1{font-size:var(--t-9);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dinh .ngay{font-size:var(--t-2);color:var(--ink-3);white-space:nowrap}
 .tim{position:relative;flex:0 0 auto;width:min(280px,40vw)}
+/* Khai thẳng chứ không dựa vào display:none của trình duyệt: .tim đang
+   không khai `display` nên luật UA đủ dùng HÔM NAY, nhưng ngày ai đó
+   thêm `display:flex` vào .tim thì ô tìm hiện lại ở ba phòng nó không
+   làm gì, và không thước nào bắt được chuyện đó. */
+.tim[hidden]{display:none}
 .tim input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--line);
   border-radius:8px;background:var(--card);font-size:var(--t-5);color:var(--ink)}
 .tim .ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);
@@ -264,6 +269,10 @@ table.bang tbody tr:hover td{background:var(--card-2)}
 .hmlist i{font-style:normal;font-size:var(--t-2);color:var(--ink-3)}
 
 .trong{padding:34px;text-align:center;color:var(--ink-3);font-size:var(--t-5)}
+/* Trong câu "không có gì khớp", thứ đáng đọc kỹ nhất là TÊN bộ lọc đang
+   cắt — đó là thứ người ta phải gỡ. Nâng đúng nó lên một bậc chữ, phần
+   còn lại của câu giữ nguyên bậc mờ. */
+.trong b{color:var(--ink-2);font-weight:650}
 .chan{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);
   font-size:var(--t-3);color:var(--ink-3);line-height:1.6}
 .chan b{color:var(--ink-2)}
