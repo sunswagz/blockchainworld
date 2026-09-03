@@ -549,13 +549,17 @@
 
     var ds = chonLogo();
     $("#xDem").textContent = ds.length + " huy hiệu";
-    $("#xLuoi").innerHTML = ds.length
-      ? '<div class="luoi-hh" style="grid-template-columns:repeat(' + xh.cot +
+    var luoi = $("#xLuoi");
+    if (ds.length) {
+      luoi.innerHTML = '<div class="luoi-hh" style="grid-template-columns:repeat(' + xh.cot +
         ",minmax(0,1fr))\">" + ds.map(function (p) {
           return '<img src="' + esc(p.duong) + '" alt="' + esc(p.ten) + '" title="' + esc(p.ten) +
             '" width="' + xh.co + '" height="' + xh.co + '" loading="lazy">';
-        }).join("") + "</div>"
-      : '<p class="trong">Không có dự án nào khớp bộ lọc.</p>';
+        }).join("") + "</div>";
+    } else {
+      luoi.innerHTML = "";
+      luoi.appendChild(trongXuong());
+    }
   }
 
   function chonLogo() {
@@ -568,6 +572,43 @@
     }).map(function (p) {
       return { ten: p.ten, duong: duongLogo(p.id) };
     });
+  }
+
+  /* Bốn nút đầu xưởng đều CẮT được lưới xuống rỗng, và rẻ nhất là một cú
+     bấm: mặc định chỉ bật Tầng 2, nên tắt nó là hết sạch huy hiệu ngay.
+     Câu cũ ở đây — "Không có dự án nào khớp bộ lọc" — mắc đúng lỗi mà
+     `khongKhop` đã sinh ra để chữa cho hai phòng bảng: nó chỉ xác nhận
+     lại thứ người ta đang nhìn, không nói nút NÀO đang cắt, cũng không
+     nói bấm gì để quay lại. Ở đây còn dễ kẹt hơn hai phòng kia, vì bộ
+     lọc là bốn nút bật/tắt rời và KHÔNG có nút "Tất cả" để bấm về —
+     người đã tắt cả hai tầng thì trên màn hình không còn manh mối nào.
+
+     Lối ra phải kể đúng những nút ĐANG bật, cùng luật với mhNhatKy: chỉ
+     điểm sang một nút không liên quan thì tệ hơn là không nói gì. */
+  function trongXuong() {
+    var tong = (D.kinhLup || []).filter(function (p) { return !!duongLogo(p.id); }).length;
+    if (!tong) {
+      var p0 = el("p", "trong");
+      p0.textContent = "Chưa có ảnh logo nào trong repo để dựng huy hiệu.";
+      return p0;
+    }
+    if (!xh.tang.L2 && !xh.tang.L3) {
+      return khongKhop("Không huy hiệu nào khớp", ["bộ lọc tầng"],
+        "Cả <b>Tầng 2</b> lẫn <b>Tầng 3</b> đang tắt — bấm một trong hai " +
+        "để xem lại " + tong + " huy hiệu.");
+    }
+    var bo = xh.bo.split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+    var caGiup = [];
+    if (!(xh.tang.L2 && xh.tang.L3)) caGiup.push("bật thêm <b>Tầng " + (xh.tang.L2 ? "3" : "2") + "</b>");
+    if (!xh.ngung) caGiup.push("bật <b>Kể cả đã ngừng</b>");
+    if (bo.length) caGiup.push("xoá ô <b>Bỏ bớt</b>");
+    var loiRa = caGiup.length > 1
+      ? caGiup.slice(0, -1).join(", ") + " hoặc " + caGiup[caGiup.length - 1]
+      : caGiup[0] || "nới bộ lọc";
+    return khongKhop("Không huy hiệu nào khớp", [
+      "tầng <b>" + (xh.tang.L2 && xh.tang.L3 ? "2 và 3" : xh.tang.L2 ? "2" : "3") + "</b>",
+      bo.length ? "danh sách bỏ bớt <b>" + esc(bo.join(", ")) + "</b>" : null
+    ], "Thử " + loiRa + " để xem lại " + tong + " huy hiệu.");
   }
 
   /* Vẽ ra canvas rồi tải xuống. Ảnh cùng nguồn nên canvas không bị

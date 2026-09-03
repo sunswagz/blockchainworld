@@ -436,12 +436,21 @@
       if (n > 0) { d.hidden = false; d.textContent = n; } else { d.hidden = true; }
     });
 
+    /* `data-loai` là khoá đọc của NHẬT KÝ ngay bên dưới, không phải
+       thứ trang trí: mỗi ô đếm mang chấm đúng màu mà `.nk-d` tô cho
+       loại dòng cùng tên. Bốn màu ấy chạy trong nhật ký từ đầu mà
+       không chỗ nào nói chúng nghĩa gì; dải đếm đã có sẵn tên bằng
+       chữ nên nó là chỗ treo khoá rẻ nhất. Xem `.dk-so span[data-loai]`
+       trong app.css — bảng màu khai ở đó, một chỗ.
+       Tên loại phải khớp `ghiNk()` phía trên; đổi một bên thì chấm
+       mất màu và không lỗi nào báo. */
     elDem.innerHTML =
-      "<span>xong <b>" + MP.dem.xong + "</b></span>" +
-      "<span>trả về <b>" + MP.dem.tra + "</b></span>" +
-      "<span>chặn <b>" + MP.dem.chan + "</b></span>" +
-      "<span>bài học <b>" + MP.dem.hoc + "</b></span>" +
-      "<span>đang chạy <b>" + MP.job.filter(function (j) { return !j.treo; }).length + "</b></span>";
+      '<span data-loai="xong">xong <b>' + MP.dem.xong + "</b></span>" +
+      '<span data-loai="tra">trả về <b>' + MP.dem.tra + "</b></span>" +
+      '<span data-loai="chan">chặn <b>' + MP.dem.chan + "</b></span>" +
+      '<span data-loai="hoc">bài học <b>' + MP.dem.hoc + "</b></span>" +
+      '<span data-loai="chay">đang chạy <b>' +
+        MP.job.filter(function (j) { return !j.treo; }).length + "</b></span>";
 
     // hàng chờ
     elCho.hidden = MP.cho.length === 0;

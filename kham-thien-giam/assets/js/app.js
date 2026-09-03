@@ -436,6 +436,7 @@
     truc.setAttribute("stroke-width", "1.5");
     svg.appendChild(truc);
 
+    var moc = [];
     [[0, "0¢"], [0.5, "50¢"], [0.987, "98,7¢"]].forEach(function (m) {
       var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -448,10 +449,32 @@
       tx.setAttribute("fill", "#A9B6C7"); tx.setAttribute("font-size", "11");
       tx.setAttribute("text-anchor", "middle");
       tx.setAttribute("font-family", "JetBrains Mono,monospace");
-      tx.textContent = m[1] + " → " + (f * 100).toFixed(2) + "¢";
+      /* Tính MỘT lần vào biến rồi phát đi hai lối. Đừng gán vào
+         `tx.textContent` rồi đọc ngược nó ra: bộ chấm `tien-hoa.mjs` dựng
+         một DOM giả, và ở đó vài thuộc tính chỉ có đường GHI — đọc lại là
+         `undefined`, và chuỗi "undefined" ấy đi thẳng vào aria-label. */
+      var chuMoc = m[1] + " → " + (f * 100).toFixed(2) + "¢";
+      tx.textContent = chuMoc;
       g.appendChild(tx);
       svg.appendChild(g);
+      moc.push(chuMoc);
     });
+
+    /* Bốn gốc svg kia của cung là icon nên tự khai aria-hidden. Cái này thì
+       KHÔNG: nó mang thông tin, nên nó cần một cái TÊN chứ không cần bị che.
+       Bỏ trần thì trình đọc màn hình bò vào ruột và đọc ra ba mẩu rời —
+       "0¢ → 0.00¢", "50¢ → 1.00¢", "98,7¢ → 0.03¢" — không nói được hình
+       dạng, không nói được trục nào là trục nào. `role="img"` gộp cả cây
+       thành MỘT hình có tên, và tên ấy phải tự mang theo ba mốc.
+
+       Ba mốc lấy từ `moc`, tức chính chuỗi vừa vẽ ra màn hình, chứ không
+       chép tay lại — cùng lối "một chuỗi, hai lối ra" mà ô VWAP ở trên
+       đang dùng. Chép tay thì lần đổi mốc kế tiếp có hai bản nói hai
+       kiểu, và bản nghe được là bản không ai nhìn thấy để mà sửa. */
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label",
+      "Đồ thị phí taker theo giá. Đường cong hình mái nhà: cao nhất ở giữa " +
+      "bảng giá, về gần 0 ở hai đầu. Ba mốc — " + moc.join("; ") + ".");
 
     k._than.appendChild(svg);
     k._than.appendChild(html("p", null,
@@ -770,10 +793,15 @@
          soi index.html nên tám icon dựng ở đây không bị nó đếm — nhưng
          chúng hỏng y hệt hai cái kia khi CSS chưa tới: `width:100%` là
          luật CSS, mất luật thì svg chỉ còn viewBox và không có cỡ nội tại.
-         Vá theo lớp lỗi, không vá theo phạm vi thước. */
+         Vá theo lớp lỗi, không vá theo phạm vi thước.
+
+         aria-hidden cùng một lẽ: icon ở đây chỉ nhắc lại cái tên nằm ngay
+         cạnh nó trong `.bten`, nên để trình đọc màn hình chạm vào nó là
+         đọc thừa — hoặc tệ hơn, đọc ra một mớ toạ độ giữa tên phòng. Thước
+         `nhan` cũng không soi tới đây; nó chỉ đọc index.html. */
       a.innerHTML =
         '<span class="bic"><svg width="16" height="16" viewBox="0 0 24 24" ' +
-        'fill="none" stroke="currentColor" ' +
+        'aria-hidden="true" fill="none" stroke="currentColor" ' +
         'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + p.icon +
         '</svg></span><span class="bten">' + p.ten + '</span>';
       a.dataset.ma = p.ma;

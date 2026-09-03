@@ -15,7 +15,7 @@
    Đổi CACHE_VERSION mỗi lần phát hành để đẩy bản mới xuống máy.
    ═══════════════════════════════════════════════════════ */
 
-var CACHE_VERSION = "v20";
+var CACHE_VERSION = "v21";
 var SHELL_CACHE = "cong-bo-shell-" + CACHE_VERSION;
 var FONT_CACHE = "cong-bo-fonts-" + CACHE_VERSION;
 

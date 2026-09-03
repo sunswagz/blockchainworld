@@ -1,17 +1,13 @@
 {
-  "generatedAt": "2026-09-02T21:32:14.274Z",
+  "generatedAt": "2026-09-03T23:30:46.508Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
-  "tongDat": 192,
+  "tongDat": 195,
   "tongThuoc": 198,
   "soCung": 12,
   "truotNhieuNhat": [
     {
       "thuoc": "svg-co",
-      "soCung": 4
-    },
-    {
-      "thuoc": "nhan",
-      "soCung": 2
+      "soCung": 3
     }
   ],
   "cung": [
@@ -41,18 +37,11 @@
     },
     {
       "cung": "ho-bo",
-      "dat": 15,
+      "dat": 16,
       "tong": 16,
       "khongDo": 1,
-      "truot": [
-        "svg-co"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "svg-co",
-          "vi": "2 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "hoang-thanh",
@@ -64,18 +53,11 @@
     },
     {
       "cung": "kham-thien-giam",
-      "dat": 15,
+      "dat": 16,
       "tong": 16,
       "khongDo": 1,
-      "truot": [
-        "nhan"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "nhan",
-          "vi": "0 nút câm · 1 svg không aria-hidden"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "kinh-thanh",
@@ -110,18 +92,11 @@
     },
     {
       "cung": "thai-boc-tu",
-      "dat": 15,
+      "dat": 16,
       "tong": 16,
       "khongDo": 1,
-      "truot": [
-        "nhan"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "nhan",
-          "vi": "0 nút câm · 1 svg không aria-hidden"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "thi-bac-ty",

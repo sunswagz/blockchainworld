@@ -591,8 +591,15 @@
   /* 14 khớp `.cua-t svg` trong app.css. Thước `svg-co` chỉ soi
      index.html nên nó KHÔNG thấy icon dựng từ JS — mà cách hỏng thì y
      hệt: không cỡ nội tại, kẹt CSS cũ là phình kín trang. Vá theo cái
-     hỏng, đừng vá theo cái thước nhìn thấy. */
-  var IC_DI = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
+     hỏng, đừng vá theo cái thước nhìn thấy.
+
+     Cùng lý do với `aria-hidden`: thước `nhan` cũng chỉ soi index.html,
+     nên mũi tên này không nằm trong bất kỳ phép đo nào — nhưng nó đứng
+     ngay sau tên cung trong `.cua-t`, và một svg không khai gì thì
+     trình đọc màn hình có thể xen một tiếng "hình ảnh" vào giữa nhãn
+     của liên kết. Nó thuần trang trí: hướng đi đã nằm trong chữ
+     "Đọc tiếp". */
+  var IC_DI = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" ' +
     'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12.5 6l6 6-6 6"/></svg>';
 
   /* Đếm CUNG phân biệt, không đếm cửa: năm cửa Hộ Bộ chỉ là năm
@@ -1234,8 +1241,12 @@
       dem: function () { return "luận"; } }
   ];
 
+  /* Icon phòng trong thanh bên. Trang trí thuần: tên phòng nằm ngay
+     cạnh trong `.bten`, nên icon không mang thêm nghĩa nào. Không khai
+     `aria-hidden` thì mỗi mục điều hướng có thể được đọc kèm một tiếng
+     thừa trước tên phòng — sáu lần, ở mọi trang. */
   function svgIc(paths) {
-    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    return '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
       'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + paths + "</svg>";
   }
 
