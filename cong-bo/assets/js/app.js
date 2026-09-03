@@ -60,6 +60,59 @@
   }
   function rutGon(a) { return a ? esc(a.slice(0, 8) + "…" + a.slice(-6)) : thieu("không kèm", "Bản quét L2BEAT cho dòng đổi này không kèm địa chỉ hợp đồng."); }
 
+  /* ── NGĂN KÉO HỒ SƠ: mở, đóng, và trả tiêu điểm ─────────────────
+     Hai phòng mở chung một ngăn kéo, nên ba việc đi kèm mỗi lần mở phải
+     nằm MỘT chỗ — trước đây chúng được chép ở hai chỗ và đã bắt đầu
+     lệch nhau.
+
+     `nguon` là thẻ đã mở ngăn kéo, và nó phải được TRUYỀN VÀO chứ không
+     đọc từ document.activeElement: Safari không đặt tiêu điểm lên <tr>
+     khi bấm chuột, nên chỗ trả về sẽ là <body> đúng ở trình duyệt cần
+     nó nhất. Đóng xong mà tiêu điểm về <body> thì lần Tab kế tiếp bắt
+     đầu lại từ đỉnh trang — trong một bảng 300 dòng, đó là mất chỗ
+     hoàn toàn, và người dùng chuột thì không thấy gì bất thường để mà
+     báo lại. */
+  var moTu = null;
+
+  function moHoSo(nguon) {
+    moTu = nguon || null;
+    var h = $("#hoso");
+    h.removeAttribute("inert");     /* GỠ trước khi focus: thẻ inert không nhận tiêu điểm */
+    h.dataset.open = "1";
+    $("#scrim").dataset.open = "1";
+    $("#hosoDong").focus();
+  }
+
+  function dong() {
+    var h = $("#hoso");
+    if (h.dataset.open !== "1") return;
+    h.dataset.open = "0";
+    h.setAttribute("inert", "");    /* ĐẶT trước khi trả tiêu điểm: đặt inert lên cụm
+                                       đang giữ tiêu điểm làm trình duyệt thả về <body>,
+                                       nên trả trước là bị lấy lại ngay sau đó */
+    $("#scrim").dataset.open = "0";
+    var ve2 = (moTu && document.contains(moTu)) ? moTu : $("#chinh");
+    moTu = null;
+    if (ve2) ve2.focus();
+  }
+
+  /* Giữ vòng Tab trong ngăn kéo khi nó đang mở. Đây là điều kiện để
+     khai `aria-modal` ở index.html cho thật: modal nghĩa là nền sau
+     không tồn tại, mà chuột thì đã bị scrim chặn còn bàn phím thì
+     chưa — hai lối vào nói hai chuyện khác nhau về cùng một hộp thoại. */
+  function nhotTieuDiem(e) {
+    if (e.key !== "Tab") return;
+    var ds = [].slice.call($("#hoso").querySelectorAll(
+      'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+    )).filter(function (n) {
+      return !n.disabled && (n.offsetWidth || n.offsetHeight || n.getClientRects().length);
+    });
+    if (!ds.length) return;
+    var dau = ds[0], cuoi = ds[ds.length - 1];
+    if (e.shiftKey && document.activeElement === dau) { e.preventDefault(); cuoi.focus(); }
+    else if (!e.shiftKey && document.activeElement === cuoi) { e.preventDefault(); dau.focus(); }
+  }
+
   /* Bộ lọc cắt hết thì bảng CŨ vẫn dựng ra: đủ hàng tiêu đề, thân rỗng —
      trang trông như vừa hỏng chứ không như vừa lọc. Ô đếm bên trên có ghi
      "0 / 450", nhưng đó là một con số chứ không phải một câu: nó không nói
@@ -279,8 +332,8 @@
         '<td class="l dd">' + rutGon(x.diaChi) + "</td>" +
         '<td><span class="tm">+' + x.them + '</span> <span class="bt">−' + x.bot + "</span></td>" +
         '<td class="l luc">' + esc(ngay(x.luc)) + "</td>";
-      r.addEventListener("click", function () { moDiff(i); });
-      r.addEventListener("keydown", function (e) { if (e.key === "Enter") moDiff(i); });
+      r.addEventListener("click", function () { moDiff(i, r); });
+      r.addEventListener("keydown", function (e) { if (e.key === "Enter") moDiff(i, r); });
       tb.appendChild(r);
     });
     t.appendChild(tb);
@@ -320,7 +373,7 @@
     }).join("");
   }
 
-  function moDiff(i) {
+  function moDiff(i, nguon) {
     var x = (D.nhatKy || [])[i];
     if (!x) return;
     var ve2 = function () {
@@ -346,9 +399,7 @@
     $("#hosoTag").innerHTML = "<span>" + esc(ngay(x.luc)) + "</span>" +
       '<span class="tm">+' + x.them + '</span><span class="bt">−' + x.bot + "</span>";
     $("#hosoBody").innerHTML = '<p class="trong">Đang nạp diff…</p>';
-    $("#hoso").dataset.open = "1";
-    $("#scrim").dataset.open = "1";
-    $("#hosoDong").focus();
+    moHoSo(nguon);
     napDiff(function () { ve2(); });
   }
 
@@ -411,8 +462,8 @@
         '<td class="tyle"><b>' + p.co.length + "</b><i>/" + tong + "</i>" +
         '<div class="thanh"><span style="width:' + pt + '%"></span></div></td>' +
         "<td>" + usd(p.tvs) + "</td>";
-      r.addEventListener("click", function () { moKinhLup(p); });
-      r.addEventListener("keydown", function (e) { if (e.key === "Enter") moKinhLup(p); });
+      r.addEventListener("click", function () { moKinhLup(p, r); });
+      r.addEventListener("keydown", function (e) { if (e.key === "Enter") moKinhLup(p, r); });
       tb.appendChild(r);
     });
     t.appendChild(tb);
@@ -426,7 +477,7 @@
     $("#bang").appendChild(t);
   }
 
-  function moKinhLup(p) {
+  function moKinhLup(p, nguon) {
     var tong = (D.hangMuc || []).length;
     $("#hosoTen").textContent = p.ten;
     $("#hosoTag").innerHTML = "<span>" + esc(p.dang || "—") + "</span><span>" +
@@ -442,9 +493,7 @@
       '<div class="hs"><div class="hs-h">Nguồn</div><p class="hs-p">' +
       '<a href="https://l2beat.com/scaling/projects/' + encodeURIComponent(p.slug) +
       '" target="_blank" rel="noopener">Hồ sơ dự án trên L2BEAT ↗</a></p></div>';
-    $("#hoso").dataset.open = "1";
-    $("#scrim").dataset.open = "1";
-    $("#hosoDong").focus();
+    moHoSo(nguon);
   }
 
 
@@ -646,16 +695,12 @@
     window.scrollTo(0, 0);
   }
 
-  function dong() {
-    $("#hoso").dataset.open = "0";
-    $("#scrim").dataset.open = "0";
-  }
-
   function boot() {
     $("#ngay").textContent = "bản chụp " + (D.date || "—");
     $("#q").addEventListener("input", function (e) { state.q = e.target.value; ve(); });
     $("#hosoDong").addEventListener("click", dong);
     $("#scrim").addEventListener("click", dong);
+    $("#hoso").addEventListener("keydown", nhotTieuDiem);
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") dong(); });
 
     document.addEventListener("error", function (e) {

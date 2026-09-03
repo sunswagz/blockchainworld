@@ -116,7 +116,21 @@
 </div>
 
 <div class="scrim" id="scrim" data-open="0"></div>
-<aside class="hoso" id="hoso" data-open="0" aria-label="Chi tiết">
+<!-- Ngăn kéo này ĐÃ cư xử như hộp thoại chặn từ lâu — có scrim che nền,
+     Escape đóng, mở ra là ném tiêu điểm vào nút Đóng — nhưng chỉ chặn
+     được CHUỘT. Nó nấp bằng `transform`, nên khi đóng nó vẫn nằm nguyên
+     trong luồng Tab: người đi bàn phím Tab hết chân trang là rơi vào nút
+     Đóng và hai liên kết Etherscan/L2BEAT của lần mở trước, tất cả đang
+     ở ngoài màn hình. Bấm Enter thì trang "tự nhiên" đổi, không lời giải
+     thích nào.
+     `inert` (app.js bật/tắt theo data-open) gỡ đúng chuyện đó: đóng thì
+     cả cụm ra khỏi luồng Tab lẫn cây trợ năng. Trình duyệt không hiểu
+     `inert` thì rơi về đúng hành vi cũ, không tệ hơn.
+     `aria-modal` chỉ khai được sau khi app.js giữ vòng Tab lại trong
+     ngăn kéo — khai modal mà tiêu điểm vẫn đi lạc ra nền là nói dối
+     trình đọc màn hình. -->
+<aside class="hoso" id="hoso" data-open="0" aria-label="Chi tiết"
+       role="dialog" aria-modal="true" inert>
   <div class="hoso-top">
     <h2 id="hosoTen">—</h2>
     <div class="hoso-tag" id="hosoTag"></div>
