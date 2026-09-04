@@ -28,7 +28,25 @@ from __future__ import annotations
 import sys
 
 #: Đánh dấu một cờ BẬT/TẮT (`--quet`), không mang giá trị.
+#:
+#: Khai được hai kiểu: `BAT` trơ, hoặc `(BAT, "mô tả")`. Kiểu thứ hai
+#: có mặt vì kiểu thứ nhất làm `--help` in ra đúng hai chữ "bật/tắt"
+#: cho MỌI cờ bật/tắt trong cả cung — người đọc không có cách nào biết
+#: `--kho` với `--cham` khác nhau chỗ nào ngoài việc đi đọc mã.
 BAT = object()
+
+
+def _la_bat(v) -> bool:
+    """Khai này có phải cờ bật/tắt không — cả hai kiểu khai."""
+    return v is BAT or (isinstance(v, tuple) and len(v) == 2 and v[0] is BAT)
+
+
+def _mo_ta(v) -> str:
+    if v is BAT:
+        return "bật/tắt"
+    if isinstance(v, tuple) and len(v) == 2 and v[0] is BAT:
+        return str(v[1])
+    return str(v)
 
 
 class ThamSo:
@@ -61,7 +79,7 @@ class ThamSo:
 
     def co(self, ten: str) -> bool:
         """Cờ bật/tắt có mặt không."""
-        if self._khai.get(ten) is not BAT:
+        if not _la_bat(self._khai.get(ten)):
             raise KeyError(f"`{ten}` không phải cờ bật/tắt")
         return bool(self._gt.get(ten))
 
@@ -78,16 +96,17 @@ def _in_giup(khai: dict, ten: str) -> None:
         print("    (không có cờ nào)")
     for k in sorted(khai):
         v = khai[k]
-        nhan = f"--{k}" if v is BAT else f"--{k}=..."
-        mo = "bật/tắt" if v is BAT else str(v)
+        nhan = f"--{k}" if _la_bat(v) else f"--{k}=..."
+        mo = _mo_ta(v)
         print(f"    {nhan:<28} {mo}")
 
 
 def doc(khai: dict, argv: list | None = None, ten: str = "") -> ThamSo:
     """Đọc cờ theo bảng khai. Cờ lạ ⇒ dừng với mã 2.
 
-    `khai` là {tên cờ: mô tả} — hoặc `BAT` thay cho mô tả nếu là cờ
-    bật/tắt. Tên KHÔNG mang hai dấu gạch đầu.
+    `khai` là {tên cờ: mô tả}. Cờ bật/tắt khai `BAT` hoặc, tốt hơn,
+    `(BAT, "mô tả")` để `--help` nói được nó làm gì. Tên KHÔNG mang hai
+    dấu gạch đầu.
     """
     av = list(sys.argv[1:] if argv is None else argv)
     ten = ten or (sys.argv[0] if sys.argv else "script")
@@ -110,9 +129,9 @@ def doc(khai: dict, argv: list | None = None, ten: str = "") -> ThamSo:
             print(f"  LỖI: không có cờ `--{k}`.{them}")
             _in_giup(khai, ten)
             raise SystemExit(2)
-        if khai[k] is BAT and v is not True:
+        if _la_bat(khai[k]) and v is not True:
             _chet(f"`--{k}` là cờ bật/tắt, đừng gán giá trị cho nó")
-        if khai[k] is not BAT and v is True:
+        if not _la_bat(khai[k]) and v is True:
             _chet(f"`--{k}` cần một giá trị: `--{k}=...`")
         gt[k] = v
     return ThamSo(gt, khai)

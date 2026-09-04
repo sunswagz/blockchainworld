@@ -1329,6 +1329,8 @@ DA_QUET_DOT_BIEN = {
     "hoc_offline.py", "ban_thu.py", "chay_lai.py",
     "do_thi.py",
     "nhiet_do.py",
+    "so_phan_doan.py",
+    "ho_market.py",
 }
 
 #: Module CHƯA quét. Đây là một MÓN NỢ CÓ TÊN, không phải một danh sách
@@ -2153,6 +2155,41 @@ def kiem_phu_quet_dot_bien() -> None:
         thieu = [x for x in sorted(DA_QUET_DOT_BIEN)
                  if ("--file=kham/" + x) not in vb]
         kiem("CLAUDE.md kể đủ module đã quét", not thieu, thieu)
+
+        # ── TỔNG ở đầu bảng phải bằng chính BẢNG ────────────────────
+        #
+        # Dòng tổng được cộng bằng tay, và nó ĐÃ trôi: bảng nói 518 con
+        # / 293 chết trong khi dòng tổng nói 509 / 295. Một con số tổng
+        # sai không chỉ là số sai — nó là con số duy nhất người ta đọc
+        # khi hỏi "chiến dịch này phủ tới đâu rồi", nên nó sai thì cả
+        # câu trả lời sai, và không ai đi cộng lại bảng để biết.
+        import re as _re
+        dong = _re.findall(
+            r"--file=kham/(\w+\.py)\s+(\d+) con: (\d+) chết, (\d+)", vb)
+        kiem("đọc được BẢNG quét trong CLAUDE.md (mẫu còn khớp)",
+             len(dong) >= 25, len(dong))
+        if len(dong) >= 25:
+            tong = sum(int(x[1]) for x in dong)
+            chet = sum(int(x[2]) for x in dong)
+            song = sum(int(x[3]) for x in dong)
+            kiem("mỗi dòng tự khớp: chết + sống = tổng con",
+                 chet + song == tong, (chet, song, tong))
+            th = _re.search(
+                r"# (\d+) module · (\d+) con · (\d+) chết "
+                r"\((\d+)%\) · (\d+) còn sống\.", vb)
+            kiem("có dòng TỔNG ở đầu bảng", th is not None)
+            if th:
+                kiem("tổng SỐ MODULE khớp bảng",
+                     int(th.group(1)) == len(dong), (th.group(1), len(dong)))
+                kiem("tổng SỐ CON khớp bảng",
+                     int(th.group(2)) == tong, (th.group(2), tong))
+                kiem("tổng SỐ CHẾT khớp bảng",
+                     int(th.group(3)) == chet, (th.group(3), chet))
+                kiem("tổng SỐ SỐNG khớp bảng",
+                     int(th.group(5)) == song, (th.group(5), song))
+                kiem("phần trăm khớp số chết chia tổng",
+                     int(th.group(4)) == round(100 * chet / tong),
+                     (th.group(4), round(100 * chet / tong)))
     kiem("đã quét ít nhất 23 module lõi",
          len(DA_QUET_DOT_BIEN) >= 23, len(DA_QUET_DOT_BIEN))
 
@@ -6542,6 +6579,487 @@ def kiem_moi_sigma_rieng_trung_bo_uoc_chung() -> None:
                  f"{ra} vs {chuan}")
 
     kiem("có tìm thấy ít nhất một `_sigma` riêng để canh", thay >= 3, thay)
+
+
+def kiem_so_phan_doan() -> None:
+    """Sổ phán đoán: ghi TRƯỚC, chấm SAU, và cổng mở theo GIÁ CHỢ.
+
+    Cung này sắp có một nguồn phán đoán không phải công thức — một mô
+    hình ngôn ngữ đọc tin rồi nói một con số. Câu hỏi không phải nó
+    nghe có hợp lý không, mà là làm sao biết nó đúng hay chỉ nghe hay.
+
+    Bốn tính chất phải canh, mỗi cái chặn một cách tự lừa:
+
+    1. **Ghi kèm sẵn kết quả ⇒ TỪ CHỐI.** Một phán đoán mang sẵn
+       `ketQua` là phán đoán ghi SAU khi biết đáp án.
+    2. **Sửa kết quả lần hai ⇒ TỪ CHỐI.** Cách dễ nhất để một thành
+       tích tồi trông đẹp.
+    3. **Cổng mở theo GIÁ CHỢ, không theo tỉ lệ nền.** Đánh bại tỉ lệ
+       nền là chuyện dễ; đánh bại giá chợ mới là chuyện có tiền.
+    4. **Khoảng tin rộng bằng 0 ⇒ TỪ CHỐI.** Bootstrap theo khối mà mọi
+       khối cho cùng một trung bình thì khoảng tin sụp thành một điểm.
+       Đó là dữ liệu suy biến, KHÔNG phải bằng chứng hoàn hảo — và nó
+       trông thuyết phục nhất đúng lúc nó rỗng nhất.
+    """
+    print()
+    print("-- So phan doan: ghi truoc, cham sau ----------------------")
+
+    import random as _rd
+    import tempfile
+    import time as _t
+    from kham.so_phan_doan import PhanDoan, SoPhanDoan, TOI_THIEU_NGA_NGU
+
+    so = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "pd.jsonl")
+    t0 = _t.time() * 1000.0
+
+    def _pd(i, nguon, p, cho, luc=None):
+        return PhanDoan(id=f"{nguon}-{i}", nguon=nguon, ho="thu",
+                        market="m", cauHoi="?", p=p,
+                        lucMs=luc if luc is not None else t0 + i * 86400000.0,
+                        hanMs=t0, giaCho=cho)
+
+    # 1. ghi kèm sẵn kết quả ⇒ ném
+    _loi = None
+    try:
+        so.them(PhanDoan(id="x", nguon="n", ho="h", market="m", cauHoi="?",
+                         p=0.9, lucMs=t0, hanMs=t0, ketQua=True))
+    except ValueError as e:
+        _loi = str(e)
+    kiem("ghi kèm sẵn `ketQua` ⇒ TỪ CHỐI",
+         _loi is not None and "ghi trước" in _loi, _loi)
+
+    # p ngoài (0,1) cũng phải chặn — p = 0 hay 1 là "chắc chắn tuyệt
+    # đối", và Brier của một lần sai khi ấy là 1,0 trọn vẹn.
+    for xau in (0.0, 1.0, -0.1, 1.5):
+        _l2 = None
+        try:
+            so.them(_pd(0, "n", xau, 0.5))
+        except ValueError as e:
+            _l2 = str(e)
+        kiem(f"p = {xau} ⇒ TỪ CHỐI", _l2 is not None)
+
+    # 2. sửa kết quả lần hai ⇒ ném
+    so.them(_pd(0, "mot", 0.7, 0.5))
+    kiem("ghi rồi thì ngã ngũ được", so.nga_ngu("mot-0", True))
+    _l3 = None
+    try:
+        so.nga_ngu("mot-0", False)
+    except ValueError as e:
+        _l3 = str(e)
+    kiem("sửa kết quả LẦN HAI ⇒ TỪ CHỐI", _l3 is not None, _l3)
+    kiem("ngã ngũ cho id không có ⇒ False, không ném",
+         so.nga_ngu("khong-co", True) is False)
+
+    # 3. cổng: đoán bừa bị CHẶN, giỏi hơn chợ thì MỞ
+    rd = _rd.Random(11)
+    for i in range(90):
+        that = rd.random() < 0.5
+        cho = 0.65 if that else 0.35            # chợ đã khá đúng
+        so.them(_pd(i, "bua", min(max(rd.random(), 0.02), 0.98), cho))
+        so.nga_ngu(f"bua-{i}", that)
+        p = min(max((0.80 if that else 0.20) + rd.gauss(0, 0.08), 0.02), 0.98)
+        so.them(_pd(i, "gioi", p, cho))
+        so.nga_ngu(f"gioi-{i}", that)
+
+    cho_bua, ly_bua = so.du_de_dat_cuoc("bua")
+    cho_gioi, ly_gioi = so.du_de_dat_cuoc("gioi")
+    kiem("nguồn ĐOÁN BỪA ⇒ cổng ĐÓNG", cho_bua is False, ly_bua)
+    kiem("nguồn giỏi HƠN CHỢ ⇒ cổng MỞ", cho_gioi is True, ly_gioi)
+    d = so.cham("bua")
+    kiem("và lý do đóng nói về GIÁ CHỢ, không về tỉ lệ nền",
+         "GIÁ CHỢ" in ly_bua or "giá chợ" in ly_bua, ly_bua)
+    kiem("kỹ năng so với chợ của nguồn bừa là ÂM",
+         d["kyNangSoCho"] < 0, d["kyNangSoCho"])
+
+    # 4. chưa đủ số lượng ⇒ đóng, dù chấm đẹp
+    for i in range(10):
+        so.them(_pd(i, "it-mau", 0.99, 0.5))
+        so.nga_ngu(f"it-mau-{i}", True)
+    c, ly = so.du_de_dat_cuoc("it-mau")
+    kiem("chưa đủ số phán đoán ngã ngũ ⇒ ĐÓNG dù chấm đẹp",
+         c is False and str(TOI_THIEU_NGA_NGU) in ly, ly)
+
+    # 5. khoảng tin RỘNG BẰNG 0 ⇒ đóng
+    for i in range(90):
+        that = (i % 2 == 0)
+        so.them(_pd(i, "suy-bien", 0.99 if that else 0.01, 0.5))
+        so.nga_ngu(f"suy-bien-{i}", that)
+    c2, ly2 = so.du_de_dat_cuoc("suy-bien")
+    d2 = so.cham("suy-bien")
+    kiem("nguồn suy biến chấm ra kỹ năng gần HOÀN HẢO (đề bài đúng)",
+         d2["kyNangSoCho"] > 0.9, d2["kyNangSoCho"])
+    kiem("nhưng khoảng tin rộng bằng 0 ⇒ vẫn ĐÓNG", c2 is False, ly2)
+    kiem("và lý do nói thẳng là DỮ LIỆU SUY BIẾN",
+         "suy biến" in ly2, ly2)
+
+    # ── BIÊN CỦA CỔNG TIỀN, tới từng bit ─────────────────────────────
+    #
+    # `du_de_dat_cuoc` là hàm duy nhất quyết một nguồn phán đoán có được
+    # nói về tiền hay không. Bốn dòng của nó đều là biên, và biên thì
+    # chỉ phân biệt được khi chấm ĐÚNG BẰNG ngưỡng. Điều khiển phán
+    # quyết bằng cách thay `cham` — cùng cách đã dùng cho cổng mô hình.
+    goc_cham = SoPhanDoan.cham
+    try:
+        def _gia(so_, nguon=None, ho=None, _d=None):
+            return dict(_d)
+
+        for ten, d, mong in (
+            ("đúng 60 lượt + tin hẳn âm",
+             {"soNgaNgu": 60, "tin95SoCho": (-0.02, -0.01, 9)}, True),
+            ("59 lượt (thiếu MỘT)",
+             {"soNgaNgu": 59, "tin95SoCho": (-0.02, -0.01, 9)}, False),
+            ("mép trên ĐÚNG BẰNG 0",
+             {"soNgaNgu": 99, "tin95SoCho": (-0.02, 0.0, 9)}, False),
+            ("mép trên nhích dưới 0",
+             {"soNgaNgu": 99, "tin95SoCho": (-0.02, -1e-9, 9)}, True),
+            ("đúng 4 khối tuần",
+             {"soNgaNgu": 99, "tin95SoCho": (-0.02, -0.01, 4)}, True),
+            ("3 khối tuần",
+             {"soNgaNgu": 99, "tin95SoCho": (-0.02, -0.01, 3)}, False),
+            ("khoảng tin rộng ĐÚNG BẰNG 0",
+             {"soNgaNgu": 99, "tin95SoCho": (-0.02, -0.02, 9)}, False),
+            ("không có giá chợ",
+             {"soNgaNgu": 99}, False),
+        ):
+            SoPhanDoan.cham = (lambda _d: (
+                lambda self, nguon=None, ho=None: dict(_d)))(d)
+            c, ly = so.du_de_dat_cuoc("bất-kỳ")
+            kiem(f"cổng · {ten} ⇒ {'MỞ' if mong else 'ĐÓNG'}",
+                 c is mong, (c, ly))
+    finally:
+        SoPhanDoan.cham = goc_cham
+
+    # ── SÀN MẪU của `cham`: đúng 5 thì chấm được ─────────────────────
+    import tempfile as _tf
+    for so_ban, chamDuoc in ((4, False), (5, True)):
+        s3 = SoPhanDoan(duong=Path(_tf.mkdtemp()) / "p.jsonl")
+        for i in range(so_ban):
+            s3.them(_pd(i, "san", 0.7, 0.5))
+            s3.nga_ngu(f"san-{i}", i % 2 == 0)
+        d3 = s3.cham("san")
+        kiem(f"{so_ban} bản ghi ⇒ "
+             + ("CHẤM được" if chamDuoc else "chưa chấm"),
+             ("kyNangSoNen" in d3) is chamDuoc, sorted(d3))
+        kiem(f"{so_ban} bản ghi ⇒ "
+             + ("có so với GIÁ CHỢ" if chamDuoc else "chưa so giá chợ"),
+             ("kyNangSoCho" in d3) is chamDuoc, sorted(d3))
+
+    # ── SÀN MẪU: đúng bằng sàn thì PHẢI chấm được ────────────────────
+    #
+    # Dưới sàn thì `cham` nói "chưa đủ" — đúng. Nhưng ĐÚNG BẰNG sàn mà
+    # vẫn từ chối thì cái sàn lệch đi một, và không ai thấy.
+    for n, mong in ((4, False), (5, True)):
+        s2 = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "p.jsonl")
+        for i in range(n):
+            s2.them(_pd(i, "san", 0.7, 0.5))
+            s2.nga_ngu(f"san-{i}", i % 2 == 0)
+        co = "kyNangSoNen" in s2.cham("san")
+        kiem(f"{n} phán đoán ngã ngũ ⇒ "
+             + ("chấm được" if mong else "nói chưa đủ"), co is mong)
+        cocho = "kyNangSoCho" in s2.cham("san")
+        kiem(f"{n} bản có giá chợ ⇒ "
+             + ("so được với chợ" if mong else "chưa so được"),
+             cocho is mong)
+
+    # ── CHỢ ĐÚNG TUYỆT ĐỐI ⇒ không chia cho 0 ────────────────────────
+    #
+    # `bCho = 0` nghĩa là chợ đoán đúng hoàn hảo mọi lần. Điểm kỹ năng
+    # khi ấy KHÔNG xác định — trả None, đừng ném, và tuyệt đối đừng trả
+    # một con số.
+    s3 = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "p.jsonl")
+    for i in range(8):
+        that = i % 2 == 0
+        s3.them(_pd(i, "cho-than", 0.6, 1.0 if that else 0.0))
+        s3.nga_ngu(f"cho-than-{i}", that)
+    d3 = s3.cham("cho-than")
+    kiem("chợ đúng tuyệt đối ⇒ Brier chợ bằng 0", d3["brierCho"] == 0.0)
+    kiem("và kỹ năng so với chợ là None, KHÔNG phải một con số",
+         d3["kyNangSoCho"] is None, d3["kyNangSoCho"])
+    kiem("cổng vẫn ĐÓNG trong ca ấy",
+         s3.du_de_dat_cuoc("cho-than")[0] is False)
+
+    # ── lọc theo HỌ phải lọc thật ────────────────────────────────────
+    so.them(_pd(0, "hai-ho", 0.7, 0.5))
+    so.ds[-1].ho = "rieng"
+    so.nga_ngu("hai-ho-0", True)
+    kiem("lọc theo họ KHÁC ⇒ không thấy bản ghi ấy",
+         so.cham("hai-ho", ho="thu")["soNgaNgu"] == 0)
+    kiem("lọc theo ĐÚNG họ ⇒ thấy",
+         so.cham("hai-ho", ho="rieng")["soNgaNgu"] == 1)
+
+    # 6. đọc lại từ đĩa phải ra đúng chừng ấy
+    so2 = SoPhanDoan(duong=so.duong)
+    kiem("đọc lại từ đĩa giữ nguyên số bản ghi",
+         len(so2.ds) == len(so.ds), (len(so2.ds), len(so.ds)))
+    kiem("và giữ nguyên phán quyết cổng",
+         so2.du_de_dat_cuoc("gioi")[0] is True)
+
+
+def kiem_ho_market() -> None:
+    """Suy HỌ phải dò theo TỪ, không theo chuỗi con.
+
+    Bảng dấu hiệu bản đầu dò bằng `x in text`, và nó gán họ `crypto`
+    cho "Something with no family at all?" — vì "som**eth**ing" chứa
+    `eth`. Ba dấu hiệu ngắn cắn đúng kiểu ấy: `eth` (something,
+    whether, together, method), `sol` (solar, resolution, console),
+    `epl` (deploy, replace, people).
+
+    Không phải chuyện thẩm mỹ. `sang-ho-market.py` ĐẾM market theo họ
+    để quyết họ nào đáng dựng động cơ; `khao-sat-ngay.py` LỌC theo họ
+    để chỉ phán những họ có sự thật nền dày. Một market chính trị lọt
+    vào `crypto` là một phán đoán không bao giờ chấm lại được, đã nằm
+    trong sổ, kéo điểm kỹ năng đi mà không truy được vì sao.
+
+    Mỗi ca BẪY dưới đây đã ĐỎ với bản dò chuỗi con.
+    """
+    from kham.ho_market import DAU_HIEU, ho_cua, khop, tach_tu
+
+    print()
+    print("-- Suy HO market: theo TU, khong theo chuoi con ------------")
+
+    # ── ba cái bẫy chuỗi con, từng cái một ───────────────────────────
+    for slug, cauHoi, vi in (
+        ("random-thing", "Something with no family at all?", "eth"),
+        ("q-1", "Whether the two sides settle together?", "eth"),
+        ("q-2", "Will the solar credit survive?", "sol"),
+        ("q-3", "Will they replace the people in charge?", "epl"),
+        ("q-4", "What method does the council adopt?", "eth"),
+    ):
+        kiem(f"`{vi}` nam LOT trong tu thuong ⇒ vẫn là `khac`",
+             ho_cua(slug, cauHoi) == "khac", ho_cua(slug, cauHoi))
+
+    # ── và vẫn phải nhận đúng khi dấu hiệu là MỘT TỪ THẬT ────────────
+    for slug, cauHoi, mong in (
+        ("btc-updown-5m", "Will BTC go up?", "crypto"),
+        ("eth-above-4k", "Will ETH close above 4000?", "crypto"),
+        ("q", "Ethereum ends the week higher?", "crypto"),
+        ("nyc-highest-temp-oct-3", "Highest temperature in NYC?", "thoi-tiet"),
+        ("epl-arsenal-title", "Will Arsenal win the EPL?", "the-thao"),
+        ("fed-rate-cut-oct", "Will the Fed cut rates?", "kinh-te"),
+        ("us-election-2028", "Who wins the presidential election?",
+         "chinh-tri"),
+        ("oscar-best-picture", "Which movie wins Best Picture?", "van-hoa"),
+    ):
+        kiem(f"`{slug}` ⇒ {mong}", ho_cua(slug, cauHoi) == mong,
+             ho_cua(slug, cauHoi))
+
+    # ── dấu hiệu NHIỀU TỪ phải khớp DÃY LIỀN NHAU ────────────────────
+    #
+    # "rate cut" khớp "rate cut", không khớp "cut the rate" — bản dò
+    # chuỗi con làm đúng chuyện này, nên nó là chỗ dễ làm hỏng khi
+    # viết lại chứ không phải chỗ dễ bỏ sót.
+    kiem("dãy `rate cut` liền nhau ⇒ khớp",
+         khop(tach_tu("will the rate cut happen"), "rate cut"))
+    kiem("`cut ... rate` ĐẢO thứ tự ⇒ KHÔNG khớp",
+         not khop(tach_tu("will they cut the rate"), "rate cut"))
+    kiem("`rate` một mình ⇒ KHÔNG khớp `rate cut`",
+         not khop(tach_tu("what rate applies"), "rate cut"))
+
+    # ── dấu hiệu tận `-` là TIỀN TỐ, và chỉ tiền tố của MỘT TỪ ───────
+    kiem("`temp-` khớp `temperature`", khop(tach_tu("temperature high"),
+                                            "temp-"))
+    kiem("`temp-` khớp chính `temp`", khop(tach_tu("temp phoenix"), "temp-"))
+    kiem("`temp-` KHÔNG khớp `attempt` (tiền tố chứ không phải chuỗi con)",
+         not khop(tach_tu("an attempt was made"), "temp-"))
+
+    # ── slug và câu hỏi cắt CÙNG một kiểu ────────────────────────────
+    #
+    # Slug ngăn bằng gạch, câu hỏi ngăn bằng dấu cách. Nếu chỉ một
+    # trong hai được cắt thì `btc-updown-5m` sẽ là MỘT từ và không dấu
+    # hiệu nào khớp nổi.
+    kiem("slug gạch nối cắt ra đúng từ",
+         tach_tu("btc-updown-5m") == ["btc", "updown", "5m"],
+         tach_tu("btc-updown-5m"))
+    kiem("câu hỏi có dấu câu cũng cắt ra đúng từ",
+         tach_tu("Will BTC (spot) close above $70,000?")
+         == ["will", "btc", "spot", "close", "above", "70", "000"],
+         tach_tu("Will BTC (spot) close above $70,000?"))
+
+    # ── bảng phải LÀNH: không dấu hiệu nào rỗng, không họ nào trùng ──
+    ten = [ho for ho, _ in DAU_HIEU]
+    kiem("không họ nào khai HAI LẦN", len(ten) == len(set(ten)), ten)
+    rong = [x for _, ds in DAU_HIEU for x in ds if not tach_tu(x)]
+    kiem("không dấu hiệu nào cắt ra RỖNG (nó sẽ khớp mọi thứ)",
+         not rong, rong)
+
+    # ── và bộ phân họ chỉ có MỘT bản ─────────────────────────────────
+    #
+    # Bản trước sống hai nơi trong `scripts/`, canh nhau bằng một phép
+    # kiểm so hai bảng — phép kiểm ấy canh được "hai bảng giống nhau"
+    # chứ không canh được "hai bảng cùng sai", và chúng đã cùng sai.
+    goc = Path(__file__).resolve().parent.parent
+    for ten_tep in ("sang-ho-market.py", "khao-sat-ngay.py"):
+        t = (goc / "scripts" / ten_tep).read_text(encoding="utf-8")
+        kiem(f"`{ten_tep}` NHẬP bộ phân họ chứ không giữ bản sao",
+             "from kham.ho_market import" in t and "DAU_HIEU = (" not in t)
+
+
+def _nap_khao_sat():
+    """Nạp `scripts/khao-sat-ngay.py` — tên có gạch nối nên không import được.
+
+    Phải thay `sys.argv` trong lúc nạp: module đọc cờ ngay ở tầng
+    module, và `selftest.py --loc=...` sẽ bị nó coi là cờ lạ rồi
+    `SystemExit(2)` giữa suite.
+    """
+    import importlib.util
+    goc = Path(__file__).resolve().parent.parent
+    duong = goc / "scripts" / "khao-sat-ngay.py"
+    spec = importlib.util.spec_from_file_location("_ks_thu", duong)
+    mod = importlib.util.module_from_spec(spec)
+    cu = sys.argv
+    sys.argv = ["khao-sat-ngay.py"]
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.argv = cu
+    return mod
+
+
+def kiem_khao_sat_ngay() -> None:
+    """Lượt khảo sát ngày: bốn chỗ sai được mà vẫn im.
+
+    1. **Chọn mẫu theo chất lượng market.** Nếu mẫu nghiêng về những
+       cái mô hình dễ nói thì điểm kỹ năng đo được nói về sự tự tin,
+       không về sự đúng. Mẫu phải suy từ NGÀY và lặp lại được.
+    2. **Rơi về 0,5 khi mô hình trả rác.** Một bản ghi 0,5 do sự cố
+       trông y hệt một bản ghi 0,5 do thật sự không biết, và nó kéo
+       điểm kỹ năng về 0 mà không truy được vì sao.
+    3. **Chấm market đóng nhưng CHƯA trọng tài.** Giá còn lửng mà đã
+       chấm là bịa ra một sự thật nền.
+    4. **Phán ở chỗ chợ đã chắc.** Chợ yết 0,97 thì gật theo cũng được
+       Brier đẹp mà không nói thêm gì — đúng cái bẫy đã thấy ở họ nhiệt
+       độ (|z| lớn cho +84%, ô có tiền chỉ +1,9%).
+    """
+    import json
+    import tempfile
+
+    ks = _nap_khao_sat()
+
+    print()
+    print("-- Khao sat ngay: ghi truoc, cham sau ----------------------")
+
+    bay = 1_800_000_000_000.0
+    ngay_ms = 86_400_000.0
+
+    def _m(i, gia, ngayConLai, slug="btc-updown-5m", dong=False):
+        return {"id": f"m{i}", "slug": f"{slug}-{i}",
+                "question": "Will BTC go up?",
+                "closed": dong,
+                "endDate": _ngay_iso(bay + ngayConLai * ngay_ms),
+                "outcomePrices": json.dumps([f"{gia:.4f}", "0"])}
+
+    def _ngay_iso(ms):
+        import datetime as _dt
+        return _dt.datetime.fromtimestamp(
+            ms / 1000.0, _dt.timezone.utc).date().isoformat()
+
+    # ── 1. mẫu phải LẶP LẠI ĐƯỢC và không nghiêng theo giá ───────────
+    ds = [_m(i, 0.15 + (i % 70) * 0.01, 5 + i % 30) for i in range(200)]
+    a = ks.chon_mau(ds, "2026-09-04", 12, bayMs=bay)
+    b = ks.chon_mau(ds, "2026-09-04", 12, bayMs=bay)
+    kiem("cùng ngày ⇒ CÙNG mẫu (không bấm lại tới khi vừa ý)",
+         [x[0]["id"] for x in a] == [x[0]["id"] for x in b])
+    c = ks.chon_mau(ds, "2026-09-05", 12, bayMs=bay)
+    kiem("khác ngày ⇒ khác mẫu",
+         [x[0]["id"] for x in a] != [x[0]["id"] for x in c])
+    kiem("mẫu đúng bằng số yêu cầu", len(a) == 12, len(a))
+
+    # Mẫu phải MÙ với giá. Đo bằng cách ĐẢO NGƯỢC giá của cả rổ (vẫn
+    # trong dải nhận) rồi đòi đúng danh sách cũ — chặt hơn hẳn "trung
+    # vị lệch không quá bao nhiêu", vốn phập phù vì mẫu chỉ có 12 cái.
+    ds2 = [dict(m) for m in ds]
+    for m in ds2:
+        cu_gia = float(json.loads(m["outcomePrices"])[0])
+        m["outcomePrices"] = json.dumps([f"{1.0 - cu_gia:.4f}", "0"])
+    d = ks.chon_mau(ds2, "2026-09-04", 12, bayMs=bay)
+    kiem("ĐẢO giá cả rổ ⇒ mẫu KHÔNG đổi (chọn mù với giá)",
+         [x[0]["id"] for x in d] == [x[0]["id"] for x in a],
+         ([x[0]["id"] for x in d], [x[0]["id"] for x in a]))
+
+    # …và mù với thứ tự rổ, để một lần sắp lại của Gamma không đổi mẫu.
+    e = ks.chon_mau(list(reversed(ds)), "2026-09-04", 12, bayMs=bay)
+    kiem("ĐẢO thứ tự rổ ⇒ mẫu KHÔNG đổi",
+         [x[0]["id"] for x in e] == [x[0]["id"] for x in a])
+
+    # ── 2. bộ lọc phải lọc THẬT, từng cửa một ────────────────────────
+    for ten, m, qua in (
+        ("giá 0.97 (chợ đã chắc)", _m(900, 0.97, 10), False),
+        ("giá 0.03 (chợ đã chắc)", _m(901, 0.03, 10), False),
+        ("giá 0.50", _m(902, 0.50, 10), True),
+        ("ngã ngũ sau 200 ngày", _m(903, 0.50, 200), False),
+        ("ngã ngũ trong hôm nay", _m(904, 0.50, 0), False),
+        ("đã đóng", _m(905, 0.50, 10, dong=True), False),
+        # slug VÀ câu hỏi phải cùng nói một họ — bản đầu của ca này
+        # để slug chính trị mà câu hỏi vẫn là "Will BTC go up?", nên
+        # `crypto` là câu trả lời ĐÚNG và phép kiểm sai đề chứ không
+        # phải mã sai.
+        ("họ không có sự thật nền",
+         dict(_m(906, 0.50, 10, slug="us-presidential-election"),
+              question="Who wins the presidential election?"), False),
+    ):
+        ra = ks.chon_mau([m], "2026-09-04", 12, bayMs=bay)
+        kiem(f"lọc · {ten} ⇒ {'nhận' if qua else 'LOẠI'}",
+             (len(ra) == 1) is qua, ra)
+
+    # ── 3. đọc câu trả lời của mô hình: hỏng thì None, KHÔNG phải 0,5 ─
+    for ten, t, mong in (
+        ("JSON đúng", '{"p": 0.63, "lyLe": "x"}', 0.63),
+        ("JSON lẫn trong văn xuôi", 'Tôi nghĩ {"p": 0.2} vậy đó', 0.2),
+        ("không có JSON", "chắc khoảng sáu mươi phần trăm", None),
+        ("p thiếu", '{"lyLe": "không biết"}', None),
+        ("p = 0", '{"p": 0}', None),
+        ("p = 1", '{"p": 1}', None),
+        ("p ngoài khoảng", '{"p": 1.4}', None),
+        ("p là chữ", '{"p": "cao"}', None),
+        ("JSON vỡ", '{"p": 0.6', None),
+    ):
+        ra = ks.doc_phan(t)
+        kiem(f"đọc phán · {ten} ⇒ "
+             + ("None" if mong is None else f"{mong}"),
+             (ra is None) if mong is None else (ra is not None
+                                                and abs(ra[0] - mong) < 1e-12),
+             ra)
+
+    # ── 4. chấm: chỉ chấm khi chợ ĐÃ trọng tài xong ──────────────────
+    for ten, gia, mong in (
+        ("giá 1.0 ⇒ YES", "1", True),
+        ("giá 0.995 ⇒ YES", "0.995", True),
+        ("giá 0.0 ⇒ NO", "0", False),
+        ("giá 0.005 ⇒ NO", "0.005", False),
+        ("giá 0.5 (đóng mà chưa trọng tài) ⇒ CHƯA chấm", "0.5", None),
+        ("giá 0.95 (còn lửng) ⇒ CHƯA chấm", "0.95", None),
+    ):
+        m = {"outcomePrices": json.dumps([gia, "0"])}
+        kiem(f"kết quả · {ten}", ks.ket_qua(m) is mong, ks.ket_qua(m))
+
+    # ── 5. `cham_lai` không được chấm market CHƯA đóng ───────────────
+    from kham.so_phan_doan import PhanDoan, SoPhanDoan
+    so = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "p.jsonl")
+    for i, (dong, gia) in enumerate(((False, "1"), (True, "1"),
+                                     (True, "0.5"))):
+        so.them(PhanDoan(id=f"k{i}", nguon="claude", ho="crypto",
+                         market=f"m{i}", cauHoi="?", p=0.6,
+                         lucMs=bay, hanMs=bay + ngay_ms, giaCho=0.5))
+    cho = [{"id": f"m{i}", "closed": dong,
+            "outcomePrices": json.dumps([gia, "0"])}
+           for i, (dong, gia) in enumerate(((False, "1"), (True, "1"),
+                                            (True, "0.5")))]
+    n = ks.cham_lai(so, cho)
+    kiem("chỉ chấm ĐÚNG MỘT (cái đóng và đã trọng tài)", n == 1, n)
+    kiem("market chưa đóng vẫn để ngỏ",
+         next(p for p in so.ds if p.id == "k0").ketQua is None)
+    kiem("market đóng mà giá còn lửng cũng để ngỏ",
+         next(p for p in so.ds if p.id == "k2").ketQua is None)
+    kiem("và cái đã trọng tài thì chấm YES",
+         next(p for p in so.ds if p.id == "k1").ketQua is True)
+
+    # chạy lại `cham_lai` KHÔNG được ném vì bản ghi đã ngã ngũ
+    kiem("chấm lại lần hai ⇒ 0 bản ghi mới, không ném",
+         ks.cham_lai(so, cho) == 0)
+
+    # ── 6. chưa có thành tích thì cổng ĐÓNG, dù sổ đầy ───────────────
+    co, _ly = so.du_de_dat_cuoc("claude")
+    kiem("sổ mới ⇒ cổng tiền ĐÓNG", co is False)
 
 
 def kiem_dong_co_nhiet_do() -> None:
@@ -11439,6 +11957,9 @@ def main() -> int:
     kiem_khoa_mot_ban_chay_nen()
     kiem_canh_gac()
     kiem_dong_co_nhiet_do()
+    kiem_so_phan_doan()
+    kiem_ho_market()
+    kiem_khao_sat_ngay()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
