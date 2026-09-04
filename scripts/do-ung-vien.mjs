@@ -15,14 +15,15 @@
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { dsTrang, thuMuc } from "./vong-xoay.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const CUNG = readdirSync(ROOT, { withFileTypes: true })
-  .filter((t) => t.isDirectory() && !t.name.startsWith("."))
-  .map((t) => t.name)
-  .filter((n) => existsSync(join(ROOT, n, "index.html")))
-  .sort();
+/* Mười ba trang: mười hai cung CỘNG Cổng Thành. Bản đầu tự đếm
+   thư mục nên bỏ sót trang gốc — mà đây là chỗ CHỌN xem thước nào
+   đáng thêm, nên sót một trang là chọn trên mẫu thiếu. Cùng nguồn với
+   phieu-toan-thanh.mjs và thuoc-moi.mjs. */
+const CUNG = dsTrang(ROOT);
 
 /* Cắt chú thích trước khi dò chuỗi thô — cùng lý do đã ghi trong
    tien-hoa.mjs: một chú thích giải thích `!important` bị đếm thành
@@ -30,7 +31,12 @@ const CUNG = readdirSync(ROOT, { withFileTypes: true })
 const boChuThich = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ");
 
 function docCss(cung) {
-  const d = join(ROOT, cung, "assets", "css");
+  /* thuMuc() chứ không phải `cung + "/"`: Cổng Thành ở GỐC repo nên
+     đường của nó là "assets/css", không phải "cong-thanh/assets/css".
+     Đổi mỗi danh sách CUNG mà quên chỗ này thì bảng vẫn ra 12 dòng —
+     trang gốc bị `if (!cssGoc) continue` bỏ qua trong im lặng, và
+     nhìn ngoài thì y như chưa sửa gì. Đã dính đúng thế một lần. */
+  const d = join(ROOT, thuMuc(cung), "assets", "css");
   if (!existsSync(d)) return "";
   return readdirSync(d)
     .filter((f) => f.endsWith(".css"))
@@ -53,9 +59,8 @@ for (const c of CUNG) {
   const css = boChuThich(cssGoc);
   const root = boChuThich(thanRoot(cssGoc));
   const ngoaiRoot = css.split(/:root[^{]*\{[\s\S]*?\}/).join(" ");
-  const html = existsSync(join(ROOT, c, "index.html"))
-    ? readFileSync(join(ROOT, c, "index.html"), "utf8")
-    : "";
+  const fHtml = join(ROOT, thuMuc(c), "index.html");
+  const html = existsSync(fHtml) ? readFileSync(fHtml, "utf8") : "";
 
   const mau = (s) =>
     [...s.matchAll(/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/g)].length;
