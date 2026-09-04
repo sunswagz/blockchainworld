@@ -110,7 +110,7 @@ body[data-nav="mini"] .passport-btn { justify-content: center; margin: 0 8px 9px
   border-left-width: 3px; border-left-color: var(--line);
 }
 .pp-row:hover { border-color: var(--acc); }
-.pp-row[data-has="1"] { border-left-color: var(--l2); background: #FAFDFB; }
+.pp-row[data-has="1"] { border-left-color: var(--l2); background: var(--luc-nhat); }
 .pp-row[data-err="1"] { opacity: .6; }
 .pp-row[data-kind="city"] .nm::before {
   content: "└ "; color: var(--ink-3); font-family: "IBM Plex Mono", monospace;

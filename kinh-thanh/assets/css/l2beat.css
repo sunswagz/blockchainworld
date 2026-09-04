@@ -11,10 +11,10 @@
   letter-spacing: .04em; padding: 2px 5px; border-radius: 5px;
   border: 1px solid transparent; cursor: help;
 }
-.l2b-tag[data-stage="0"] { background: #FBF0DE; color: #B45309; border-color: #EFDCBB; }
-.l2b-tag[data-stage="1"] { background: #E5F4EA; color: #15803D; border-color: #C9E6D4; }
-.l2b-tag[data-stage="2"] { background: #E1EFFA; color: #0369A1; border-color: #BFDCF0; }
-.l2b-tag[data-stage="n"] { background: #F1F5FB; color: var(--ink-3); border-color: var(--line); }
+.l2b-tag[data-stage="0"] { background: var(--bac0-n); color: var(--bac0-c); border-color: var(--bac0-v); }
+.l2b-tag[data-stage="1"] { background: var(--bac1-n); color: var(--bac1-c); border-color: var(--bac1-v); }
+.l2b-tag[data-stage="2"] { background: var(--bac2-n); color: var(--bac2-c); border-color: var(--bac2-v); }
+.l2b-tag[data-stage="n"] { background: var(--xam-nhat); color: var(--ink-3); border-color: var(--line); }
 
 .l2b-tag.big {
   margin-left: 0; font-size:var(--t-2); padding: 5px 11px; border-radius: 999px;
@@ -76,7 +76,7 @@
 
 /* ── khi L2BEAT không chấm thành phố này ──────────────── */
 .l2b-none-in {
-  background: #FBF6E4; border-left: 3px solid var(--gold);
+  background: var(--vang-n); border-left: 3px solid var(--gold);
   padding: 11px 14px; border-radius: 0 8px 8px 0;
   font-size:var(--t-3); line-height: 1.6; color: var(--ink-2); max-width: 78ch;
 }

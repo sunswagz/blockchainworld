@@ -29,6 +29,24 @@
   --s1:#F5C23E; --s1-t:#FCF2D8;
   --s0:#F0703C; --s0-t:#FDE7DC;
   --na:#B4B5BC; --na-t:#EDEEF2;
+  /* Hai màu chữ dưới CỐ Ý viết thẳng chứ không thành token: chúng chỉ
+     đặt trên nền TÔ MÀU của chính chúng (--ok-t, --s1-t), nhưng thước
+     tương phản ghép MỌI màu chữ với nền body, và trên --bg chúng ra
+     4.34 / 4.35 — dưới sàn 4.5 bằng một cặp không có thật trên trang.
+     Đổi màu cho vừa thước là làm hỏng dải màu mức rủi ro; giữ nguyên.
+       #1E7A44 chữ lục đậm trên --ok-t
+       #8A6410 chữ vàng đậm trên --s1-t  */
+  --s0-d: #A83A12;   /* chữ đậm của mức 0 — cam, đặt trên --s0-t */
+  --hover-nen: #DCDDE4;   /* nền mục thanh bên khi rê chuột */
+  --tab-hover: #EAEBEF;   /* nền thẻ tab khi rê chuột */
+  --bad-t: #FDE7E7;   /* nền đỏ nhạt của ô rủi ro xấu */
+  --bad-d: #B02525;   /* chữ đỏ đậm trên --bad-t */
+  --ok-t: #E4F5EA;   /* nền lục nhạt của ô rủi ro tốt */
+  --hang-hover: #FAFAFC;   /* hàng bảng khi rê chuột */
+  --hang-bao: #FEF3F3;   /* hàng bảng có báo động */
+  --hang-bao-hover: #FDE9E9;   /* hàng báo động khi rê chuột */
+  --s0-vien: #F0B79A;   /* viền dải cảnh báo, cùng họ cam với --s0 */
+  --tim: #8B7FE8;   /* vạch tím trong thanh tỉ lệ */
   --r:8px; --dur:.16s;
 }
 /* ── THANG CHỮ ─────────────────────────────────────────
@@ -78,7 +96,7 @@ img{display:block}
 .bmuc{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
   padding:7px 9px;border-radius:6px;font-size:var(--t-4);color:var(--ink-2);
   transition:background var(--dur),color var(--dur)}
-.bmuc:hover{background:#DCDDE4;color:var(--ink);text-decoration:none}
+.bmuc:hover{background:var(--hover-nen);color:var(--ink);text-decoration:none}
 .bmuc[aria-current="page"]{background:var(--acc);color:#fff;font-weight:600}
 .bmuc[aria-current="page"] .bic{color:#fff}
 .bmuc .bic{width:16px;height:16px;flex:0 0 auto;color:var(--ink-3)}
@@ -160,7 +178,7 @@ img{display:block}
   border-radius:var(--r) var(--r) 0 0;background:var(--card-2);
   color:var(--ink-2);font-size:var(--t-5);font-weight:600;
   transition:background var(--dur),color var(--dur)}
-.tab:hover{background:#EAEBEF}
+.tab:hover{background:var(--tab-hover)}
 .tab[aria-selected="true"]{background:var(--card);color:var(--ink)}
 .tab .n{padding:1px 7px;border-radius:999px;background:var(--line);
   font-size:var(--t-2);font-weight:600;font-variant-numeric:tabular-nums}
@@ -205,9 +223,9 @@ table.bang td.l{text-align:left}
 table.bang td.c{text-align:center}
 table.bang tr:last-child td{border-bottom:0}
 table.bang tbody tr{cursor:pointer}
-table.bang tbody tr:hover td{background:#FAFAFC}
-table.bang tbody tr[data-baodong] td{background:#FEF3F3}
-table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
+table.bang tbody tr:hover td{background:var(--hang-hover)}
+table.bang tbody tr[data-baodong] td{background:var(--hang-bao)}
+table.bang tbody tr[data-baodong]:hover td{background:var(--hang-bao-hover)}
 
 .hang{font-size:var(--t-3);color:var(--ink-3)}
 
@@ -221,7 +239,7 @@ table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
   text-transform:uppercase;padding:1px 5px;border-radius:3px;white-space:nowrap}
 .ten .l3{background:var(--acc-t);color:var(--acc-2)}
 .ten .xx{background:var(--s1-t);color:#8A6410}
-.ten .bd0{background:#FDE7E7;color:#B02525}
+.ten .bd0{background:var(--bad-t);color:var(--bad-d)}
 
 /* rosette 5 cánh */
 .ros{width:24px;height:24px;display:inline-block;vertical-align:middle}
@@ -237,7 +255,7 @@ table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
   font-size:var(--t-1);font-weight:700;letter-spacing:.03em;white-space:nowrap}
 .thang[data-s="2"]{background:var(--s2-t);color:var(--s2)}
 .thang[data-s="1"]{background:var(--s1-t);color:#8A6410}
-.thang[data-s="0"]{background:var(--s0-t);color:#A83A12}
+.thang[data-s="0"]{background:var(--s0-t);color:var(--s0-d)}
 .thang[data-s="-1"]{background:var(--na-t);color:var(--ink-3)}
 
 /* tài sản + thanh tỉ lệ */
@@ -248,7 +266,7 @@ table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
 .tsbar{display:flex;height:3px;border-radius:2px;overflow:hidden;margin-top:4px;background:var(--line-2)}
 .tsbar span{display:block;height:100%}
 .tsbar .n{background:var(--acc)}
-.tsbar .c{background:#8B7FE8}
+.tsbar .c{background:var(--tim)}
 .tsbar .e{background:var(--s1)}
 .tsghi{font-size:var(--t-0);color:var(--ink-3);margin-top:2px}
 
@@ -317,7 +335,7 @@ table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
 .rr-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .rr-n{font-size:var(--t-4);font-weight:600}
 .rr-v{font-size:var(--t-2);text-align:right;font-weight:600}
-.rr-v em{font-style:normal;color:#A83A12;font-size:var(--t-1);font-weight:400}
+.rr-v em{font-style:normal;color:var(--s0-d);font-size:var(--t-1);font-weight:400}
 .rr-q{margin:5px 0 0;font-size:var(--t-3);color:var(--ink-3);line-height:1.5}
 .rr-y{margin:5px 0 0;font-size:var(--t-3);color:var(--ink-2);line-height:1.55}
 .rr-goc{margin-top:7px}
@@ -365,16 +383,16 @@ table.bang tbody tr[data-baodong]:hover td{background:#FDE9E9}
 
 /* cảnh báo đầu trang */
 .canhbao{margin:0 0 12px;padding:10px 14px;border-radius:8px;
-  background:#FDE7DC;border:1px solid #F0B79A;color:#A83A12;font-size:var(--t-3);line-height:1.55}
+  background:var(--s0-t);border:1px solid var(--s0-vien);color:var(--s0-d);font-size:var(--t-3);line-height:1.55}
 
 /* ô rủi ro trong bảng */
 .rrO{display:inline-block;padding:2px 8px;border-radius:5px;
   font-size:var(--t-2);font-weight:600;white-space:nowrap;
   background:var(--na-t);color:var(--ink-2)}
-.rrO[data-s="good"]{background:#E4F5EA;color:#1E7A44}
+.rrO[data-s="good"]{background:var(--ok-t);color:#1E7A44}
 .rrO[data-s="warning"]{background:var(--s1-t);color:#8A6410}
-.rrO[data-s="bad"]{background:#FDE7E7;color:#B02525}
-.rrO em{font-style:normal;font-size:var(--t-0);font-weight:400;color:#A83A12}
+.rrO[data-s="bad"]{background:var(--bad-t);color:var(--bad-d)}
+.rrO em{font-style:normal;font-size:var(--t-0);font-weight:400;color:var(--s0-d)}
 .rr2{display:block;font-style:normal;font-size:var(--t-1);color:var(--ink-3);margin-top:2px}
 td .mo,.khong{color:var(--ink-3);font-variant-numeric:tabular-nums}
 .ten2{font-style:normal;font-size:var(--t-1);color:var(--ink-3);margin-left:2px}
@@ -424,7 +442,7 @@ td .mo,.khong{color:var(--ink-3);font-variant-numeric:tabular-nums}
   font-size:var(--t-1);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
 .bnhom2{padding:6px 9px;margin-left:2px;
   font-size:var(--t-2);font-weight:600;color:var(--ink-2);letter-spacing:0;text-transform:none}
-.bnhom:hover,.bnhom2:hover{background:#DCDDE4;color:var(--ink)}
+.bnhom:hover,.bnhom2:hover{background:var(--hover-nen);color:var(--ink)}
 /* Nhắm .bt chứ KHÔNG nhắm span trần: .chev cũng là một span,
    nên .bnhom span có độ ưu tiên cao hơn .chev và đè mất flex:0 0 auto
    của nó — hai span chia đôi chiều ngang, mũi tên phình ra 88px. */

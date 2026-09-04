@@ -501,7 +501,18 @@ function doMau(css) {
   if (!goc.length) return { cap: [], thieu: "không tìm thấy khối :root" };
   const bien = {};
   for (const g of goc)
-    for (const m of g[1].matchAll(/(--[\w-]+)\s*:\s*(#[0-9a-fA-F]{3,6})/g)) {
+    /* {3,8} chứ không {3,6}. Mã tám số có KÊNH ALPHA, và {3,6} khớp
+       đúng sáu số đầu rồi dừng — `#ffffff08` (trắng 3% để phủ lên nền
+       tối) bị đọc thành `#ffffff` TRẮNG ĐỤC. Từ đó bộ đo ghép "--fg
+       trên --phu-3" và ra tỉ số 1.29, cho một cặp KHÔNG có thật: lớp
+       phủ trong suốt không phải là nền của chữ nào cả.
+
+       Bắt trọn tám số rồi để `raiHex` trả null: không tính được tương
+       phản với một màu trong suốt khi chưa biết nền dưới nó, nên câu
+       trả lời đúng là KHÔNG ĐO chứ không phải đo bừa trên giả định
+       đục. Lỗi này nằm im tới 04/09/2026 vì trước đó chỉ hai cung có
+       token tám số, và cả hai tình cờ không rơi vào cặp nào. */
+    for (const m of g[1].matchAll(/(--[\w-]+)\s*:\s*(#[0-9a-fA-F]{3,8})/g)) {
       const v = raiHex(m[2]);
       if (v) bien[m[1]] = v;
     }

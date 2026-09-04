@@ -8,7 +8,7 @@
   padding: 8px 8px; border-radius: 8px; cursor: pointer; text-align: left;
   transition: background var(--dur);
 }
-.nav-group-head:hover { background: #E6ECF7; }
+.nav-group-head:hover { background: var(--xanh-hover); }
 
 .nav-group-head .chev {
   flex: 0 0 auto; width: 16px; height: 16px;
@@ -42,7 +42,7 @@
   border-radius: 8px; color: var(--ink); text-decoration: none;
   transition: background var(--dur);
 }
-.nav-hall:hover { background: #E6ECF7; }
+.nav-hall:hover { background: var(--xanh-hover); }
 
 /* chừa đúng chỗ mũi tên của mục gập, để hai loại thẳng hàng nhau */
 .nav-hall .chev-space { flex: 0 0 auto; width: 16px; }
@@ -68,7 +68,7 @@
 .nav-hall .go svg { width: 13px; height: 13px; display: block; }
 .nav-hall:hover .go { color: var(--acc); }
 
-.nav-hall.to-gate .ic { background: #F1F5FB; color: var(--ink-2); }
+.nav-hall.to-gate .ic { background: var(--xam-nhat); color: var(--ink-2); }
 .nav-hall.to-gate .lbl b { font-weight: 500; color: var(--ink-2); }
 
 /* ── thanh bên thu gọn: chỉ còn icon ───────────────────── */
