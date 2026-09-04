@@ -10276,6 +10276,131 @@ def kiem_mo_lai_cau_dao() -> None:
 
 
 
+def kiem_do_co_phieu() -> None:
+    """Thước đo họ cổ phiếu: ba chỗ sai được mà vẫn ra một bảng đẹp.
+
+    Thước này in ra một kết luận ÂM — "đừng dựng động cơ cổ phiếu" —
+    và một kết luận âm sai còn đắt hơn một kết luận dương sai: nó làm
+    bỏ qua họ market đông nhất (690/1.500) mà không ai đi kiểm lại.
+
+    1. **Nhìn trộm tương lai.** σ phải ước trên cửa sổ KẾT THÚC TRƯỚC
+       phiên đang xét. Lấy thêm đúng một phiên là đủ để mọi con số đẹp
+       lên, và không có gì kêu.
+    2. **z phải là z của log-chuẩn KHÔNG TRÔI**, tức có số hạng
+       `−σ²τ/2`. Bỏ nó đi thì mô hình lệch một chiều, và ở ô |z| nhỏ —
+       đúng ô có tiền — cái lệch ấy đủ để lật dấu kết luận.
+    3. **Khối bootstrap là TUẦN**, không phải từng cặp. Hai mã trong
+       cùng một ngày chia chung một nhân tố thị trường; rút cặp rời cho
+       khoảng tin HẸP GIẢ, và cái hẹp giả nói "có ý nghĩa" về một thứ
+       không có.
+    """
+    import importlib.util
+    import math
+
+    goc = Path(__file__).resolve().parent.parent
+    spec = importlib.util.spec_from_file_location(
+        "_cp_thu", goc / "scripts" / "do-co-phieu.py")
+    mod = importlib.util.module_from_spec(spec)
+    cu = sys.argv
+    sys.argv = ["do-co-phieu.py"]
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.argv = cu
+
+    print()
+    print("-- Thuoc do ho co phieu ------------------------------------")
+
+    # ── 1. σ KHÔNG được chạm tới phiên đang xét ──────────────────────
+    #
+    # Dựng một dãy giá phẳng tuyệt đối rồi CHỈ nhảy ở đúng phiên `i`.
+    # σ ước tại `i` phải KHÔNG thấy cú nhảy ấy (dãy phẳng ⇒ σ = None vì
+    # độ lệch bằng 0). Nếu nó thấy, σ > 0 và phép kiểm đỏ.
+    gia = [(1000 + j * 86400, 100.0) for j in range(80)]
+    gia[70] = (gia[70][0], 200.0)          # cú nhảy ở phiên 70
+    kiem("σ tại phiên có cú nhảy KHÔNG nhìn thấy chính cú nhảy ấy",
+         mod.sigma_tai(gia, 70, 60) is None, mod.sigma_tai(gia, 70, 60))
+    kiem("nhưng phiên NGAY SAU thì thấy",
+         (mod.sigma_tai(gia, 72, 60) or 0) > 0, mod.sigma_tai(gia, 72, 60))
+    kiem("thiếu lịch sử ⇒ None, không đoán bừa",
+         mod.sigma_tai(gia, 5, 60) is None)
+
+    # ── 2. z có số hạng −σ²τ/2 ───────────────────────────────────────
+    #
+    # Với K = S (mốc đúng bằng giá hiện tại), log-chuẩn không trôi cho
+    # z = −σ√τ/2 < 0, tức p < 0,5: giá KỲ VỌNG đi ngang nhưng TRUNG VỊ
+    # thấp hơn. Bỏ số hạng ấy thì z = 0 và p = 0,5 chằn chặn.
+    g2 = [(1000 + j * 86400, 100.0 * (1.0 + 0.01 * ((-1) ** j)))
+          for j in range(200)]
+    cap = mod.dung_cap(g2, 60, 1)
+    kiem("dựng được cặp từ dãy giá có dao động", len(cap) > 0, len(cap))
+    if cap:
+        # Cách đo số hạng `−σ²τ/2` mà KHÔNG cần z gần 0: mốc `+b` và
+        # `−b` phải LỆCH NHAU. Không có số hạng ấy thì z(+b) = −z(−b)
+        # và tổng bằng 0; có nó thì tổng bằng −σ√τ < 0.
+        #
+        # (Đề bài đầu của phép kiểm này đòi "z gần 0 phải âm" — sai:
+        # bội mốc nhỏ nhất là 0,1 nên |z| không bao giờ xuống gần 0,
+        # và phép kiểm đỏ vì đề chứ không vì mã.)
+        theoZ = {}
+        for x in cap[:len(mod.BOI)]:
+            theoZ[round(x["z"], 9)] = x
+        zs = sorted(theoZ)
+        tong = zs[0] + zs[-1]
+        kiem("z(+b) + z(−b) < 0 — tức CÓ số hạng −σ²τ/2",
+             tong < -1e-9, (zs[0], zs[-1], tong))
+        # …và bằng ĐÚNG −σ√τ, không phải "âm một chút". Bản đầu của
+        # dòng này viết `abs(tong + X*0.0 - tong) < 1e-12` — luôn đúng,
+        # tức một phép kiểm không kiểm gì. Nay so với σ tính lại từ
+        # chính dữ liệu.
+        sg = mod.sigma_tai(g2, 62, 60)
+        kiem("và độ lệch ấy đúng bằng −σ√τ",
+             sg is not None and abs(tong + sg) < 1e-9, (tong, sg))
+        kiem("mọi p nằm trong (0, 1)",
+             all(0.0 < x["p"] < 1.0 for x in cap))
+        kiem("mỗi cặp mang nhãn TUẦN để chia khối",
+             all(x["tuan"] and "-W" in x["tuan"] for x in cap))
+        # số mốc mỗi phiên bằng đúng số bội đã khai
+        kiem("mỗi phiên sinh đúng một cặp cho mỗi mốc",
+             len(cap) % len(mod.BOI) == 0, (len(cap), len(mod.BOI)))
+
+    # ── 3. khoảng tin chia khối, và KHỐI phải có tác dụng ────────────
+    #
+    # Cùng dữ liệu: gộp tất cả vào MỘT khối thì bootstrap rút đi rút
+    # lại đúng khối ấy, nên khoảng tin co về gần một điểm. Chia thành
+    # nhiều khối thì nó rộng ra. Nếu hai ca cho cùng kết quả nghĩa là
+    # tham số `khoi` đang bị bỏ qua — đúng loại lỗi im lặng mà bộ quét
+    # đột biến không bắt được.
+    # Các khối phải có TRUNG BÌNH KHÁC NHAU, nếu không bootstrap rút
+    # kiểu gì cũng ra cùng một số và cả hai ca đều rộng 0 — phép kiểm
+    # sẽ xanh/đỏ vì dữ liệu chứ không vì mã. (Đề bài đầu dùng dãy
+    # +0,1/−0,1 chia khối 4: mọi khối trung bình đúng 0.)
+    hieu = [0.10 * ((j // 4) % 7) for j in range(400)]
+    tho = mod.khoang_tin(hieu, [f"W{j // 4}" for j in range(400)])    # 100 khối
+    min_ = mod.khoang_tin(hieu, [f"W{j}" for j in range(400)])        # 400 khối
+    kiem("khối THÔ (100) cho khoảng tin RỘNG hơn khối mịn (400)",
+         tho is not None and min_ is not None
+         and (tho[1] - tho[0]) > (min_[1] - min_[0]) > 0,
+         (tho, min_))
+    kiem("số khối báo ra đúng cho cả hai",
+         tho is not None and min_ is not None
+         and tho[2] == 100 and min_[2] == 400, (tho, min_))
+    kiem("gộp TẤT CẢ vào một khối ⇒ TỪ CHỐI (dưới 8 khối)",
+         mod.khoang_tin(hieu, ["W1"] * 400) is None)
+    kiem("dưới 8 khối ⇒ TỪ CHỐI, không trả một khoảng tin bịa",
+         mod.khoang_tin([0.1] * 20, ["W1", "W2"] * 10) is None)
+
+    # ── ô |z| phải phủ kín và không chồng nhau ───────────────────────
+    mep = [x for o in mod.O_Z for x in o]
+    kiem("các ô |z| nối liền nhau, không hở không chồng",
+         all(mod.O_Z[i][1] == mod.O_Z[i + 1][0]
+             for i in range(len(mod.O_Z) - 1)), mod.O_Z)
+    kiem("ô đầu bắt đầu từ 0", mod.O_Z[0][0] == 0.0)
+    kiem("bội mốc đối xứng quanh 0 (không lẫn kỹ năng với thiên lệch)",
+         sorted(mod.BOI) == sorted(-x for x in mod.BOI), mod.BOI)
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -12514,6 +12639,7 @@ def main() -> int:
     kiem_nhip_tim_canh_gac()
     kiem_do_cau_dao()
     kiem_mo_lai_cau_dao()
+    kiem_do_co_phieu()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
