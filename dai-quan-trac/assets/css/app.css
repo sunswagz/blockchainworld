@@ -782,6 +782,7 @@ ul.tight li::marker{color:var(--dim)}
 .tin-ai-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
 .tin-ai-h>span:first-child{font-family:var(--mono);font-size:9px;letter-spacing:.12em;
   color:var(--purple);font-variant-numeric:tabular-nums}
+.tin-ai.trong .tin-ai-h>span:first-child{color:var(--muted)}
 .tin-ai p{margin:0;font-size:12.5px;line-height:1.6;color:var(--fg2)}
 .tin-ai.trong p{color:var(--muted);font-size:12.5px}
 .tin-mx{font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:var(--muted);

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-03T16:30:10.127Z",
+  "generatedAt": "2026-09-04T16:26:14.233Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/nhap-skill.mjs — sổ xuất xứ của .claude/skills/.",
   "luat": {
     "nhom": [
@@ -19,12 +19,12 @@
       "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
       "duong": ".claude/skills/ui-ux-pro-max",
       "nhom": "giao-dien",
-      "sao": 124509,
+      "sao": 124857,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": "trí tuệ giao diện tổng hợp — web, di động, soát lẫn dựng",
       "sha": "ea087c341bfb5b23",
-      "luc": "2026-09-03T16:30:08.513Z"
+      "luc": "2026-09-04T16:26:12.721Z"
     },
     {
       "id": "nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/design-system",
@@ -32,12 +32,12 @@
       "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
       "duong": "cli/assets/skills/design-system",
       "nhom": "giao-dien",
-      "sao": 124509,
+      "sao": 124857,
       "giayPhep": "MIT",
       "nhanh": "main",
       "uuTien": "mã thông số ba tầng: nguyên thuỷ → ngữ nghĩa → component",
       "sha": "8aa5ff93320559a6",
-      "luc": "2026-09-03T16:30:08.554Z"
+      "luc": "2026-09-04T16:26:12.788Z"
     },
     {
       "id": "nextlevelbuilder/ui-ux-pro-max-skill/cli/assets/skills/ui-styling",
@@ -45,12 +45,12 @@
       "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
       "duong": "cli/assets/skills/ui-styling",
       "nhom": "giao-dien",
-      "sao": 124509,
+      "sao": 124857,
       "giayPhep": "MIT",
       "nhanh": "main",
       "uuTien": "dựng giao diện tiếp cận được — đọc lấy nguyên lý, không lấy Tailwind",
       "sha": "41f6d6a41bf82754",
-      "luc": "2026-09-03T16:30:08.636Z"
+      "luc": "2026-09-04T16:26:12.853Z"
     },
     {
       "id": "sickn33/agentic-awesome-skills/skills/anti-ui-slop",
@@ -58,12 +58,12 @@
       "kho": "sickn33/agentic-awesome-skills",
       "duong": "skills/anti-ui-slop",
       "nhom": "giao-dien",
-      "sao": 45896,
+      "sao": 45963,
       "giayPhep": "MIT",
       "nhanh": "main",
       "uuTien": "chống khuôn nhàm do AI sinh — đúng bệnh của trang do model sửa hằng ngày",
       "sha": "8ff04df7f8bcce91",
-      "luc": "2026-09-03T16:30:08.732Z"
+      "luc": "2026-09-04T16:26:12.925Z"
     },
     {
       "id": "sickn33/agentic-awesome-skills/skills/baseline-ui",
@@ -71,12 +71,12 @@
       "kho": "sickn33/agentic-awesome-skills",
       "duong": "skills/baseline-ui",
       "nhom": "giao-dien",
-      "sao": 45896,
+      "sao": 45963,
       "giayPhep": "MIT",
       "nhanh": "main",
       "uuTien": "sàn chất lượng giao diện, hợp với lối 'bảy thước đo sàn' của vòng tiến hoá",
       "sha": "8e6c70a04d4c0701",
-      "luc": "2026-09-03T16:30:08.793Z"
+      "luc": "2026-09-04T16:26:12.980Z"
     },
     {
       "id": "anthropics/skills/skills/frontend-design",
@@ -84,12 +84,12 @@
       "kho": "anthropics/skills",
       "duong": "skills/frontend-design",
       "nhom": "giao-dien",
-      "sao": 173396,
+      "sao": 173893,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "uuTien": "thiết kế thị giác có chủ đích, chính chủ — skill dùng được nhất trên kệ",
-      "sha": "1608ea77fbb6fc30",
-      "luc": "2026-09-03T16:30:08.884Z"
+      "sha": "d91970639e9f5c37",
+      "luc": "2026-09-04T16:26:13.030Z"
     },
     {
       "id": "anthropics/skills/skills/theme-factory",
@@ -97,12 +97,12 @@
       "kho": "anthropics/skills",
       "duong": "skills/theme-factory",
       "nhom": "giao-dien",
-      "sao": 173396,
+      "sao": 173893,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "uuTien": "dựng bộ chủ đề mạch lạc thay vì sửa màu lẻ từng chỗ",
       "sha": "c35893e221e28895",
-      "luc": "2026-09-03T16:30:08.924Z"
+      "luc": "2026-09-04T16:26:13.039Z"
     },
     {
       "id": "anthropics/skills/skills/brand-guidelines",
@@ -110,12 +110,12 @@
       "kho": "anthropics/skills",
       "duong": "skills/brand-guidelines",
       "nhom": "giao-dien",
-      "sao": 173396,
+      "sao": 173893,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "uuTien": "giữ nhận diện nhất quán giữa mười hai cung",
       "sha": "1120b3769e2985ce",
-      "luc": "2026-09-03T16:30:08.933Z"
+      "luc": "2026-09-04T16:26:13.093Z"
     },
     {
       "id": "nexu-io/open-design/skills/frontend-design",
@@ -123,12 +123,12 @@
       "kho": "nexu-io/open-design",
       "duong": "skills/frontend-design",
       "nhom": "giao-dien",
-      "sao": 93770,
+      "sao": 93984,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "uuTien": "bản của một kho khác — hai giọng về cùng một việc, đọc chéo được",
       "sha": "6963d8b4ae3d285b",
-      "luc": "2026-09-03T16:30:09.003Z"
+      "luc": "2026-09-04T16:26:13.142Z"
     },
     {
       "id": "nexu-io/open-design/skills/color-expert",
@@ -136,12 +136,12 @@
       "kho": "nexu-io/open-design",
       "duong": "skills/color-expert",
       "nhom": "giao-dien",
-      "sao": 93770,
+      "sao": 93984,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": "OKLCH/OKLAB và TƯƠNG PHẢN — đúng thước hay trượt nhất trong bảy thước",
       "sha": "b49392ab158a0278",
-      "luc": "2026-09-03T16:30:09.085Z"
+      "luc": "2026-09-04T16:26:13.214Z"
     },
     {
       "id": "garrytan/gstack/design-review",
@@ -149,12 +149,12 @@
       "kho": "garrytan/gstack",
       "duong": "design-review",
       "nhom": "giao-dien",
-      "sao": 131037,
+      "sao": 131245,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": "soát bằng mắt nhà thiết kế: lệch nhất quán, sai khoảng cách, thứ bậc hỏng",
       "sha": "4418b3114efe848d",
-      "luc": "2026-09-03T16:30:09.315Z"
+      "luc": "2026-09-04T16:26:13.460Z"
     },
     {
       "id": "garrytan/gstack/design-html",
@@ -162,12 +162,12 @@
       "kho": "garrytan/gstack",
       "duong": "design-html",
       "nhom": "giao-dien",
-      "sao": 131037,
+      "sao": 131245,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": "chốt thiết kế thành HTML/CSS chất lượng sản phẩm",
       "sha": "449e396d7306febf",
-      "luc": "2026-09-03T16:30:09.355Z"
+      "luc": "2026-09-04T16:26:13.659Z"
     },
     {
       "id": "JimLiu/baoyu-skills/skills/baoyu-diagram",
@@ -175,12 +175,12 @@
       "kho": "JimLiu/baoyu-skills",
       "duong": "skills/baoyu-diagram",
       "nhom": "giao-dien",
-      "sao": 25617,
+      "sao": 25650,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": "sơ đồ SVG nền TỐI — Tạo Biện Xứ có hẳn một trang Sơ đồ nhà máy",
       "sha": "55a2d050c3a2faea",
-      "luc": "2026-09-03T16:30:09.433Z"
+      "luc": "2026-09-04T16:26:13.720Z"
     },
     {
       "id": "anthropics/skills/skills/academy-guide",
@@ -188,12 +188,12 @@
       "kho": "anthropics/skills",
       "duong": "skills/academy-guide",
       "nhom": "lap-trinh",
-      "sao": 173396,
+      "sao": 173893,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "uuTien": null,
       "sha": "f27992510c051355",
-      "luc": "2026-09-03T16:30:09.447Z"
+      "luc": "2026-09-04T16:26:13.728Z"
     },
     {
       "id": "anthropics/skills/skills/algorithmic-art",
@@ -201,12 +201,12 @@
       "kho": "anthropics/skills",
       "duong": "skills/algorithmic-art",
       "nhom": "giao-dien",
-      "sao": 173396,
+      "sao": 173893,
       "giayPhep": "Complete terms in LICENSE.txt",
       "nhanh": "main",
       "uuTien": null,
       "sha": "3bc4092c09804853",
-      "luc": "2026-09-03T16:30:09.488Z"
+      "luc": "2026-09-04T16:26:13.738Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/plugin-dev/skills/agent-development",
@@ -214,12 +214,12 @@
       "kho": "anthropics/claude-plugins-official",
       "duong": "plugins/plugin-dev/skills/agent-development",
       "nhom": "lap-trinh",
-      "sao": 35857,
+      "sao": 35883,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": null,
       "sha": "6a2826571320828c",
-      "luc": "2026-09-03T16:30:09.641Z"
+      "luc": "2026-09-04T16:26:13.909Z"
     },
     {
       "id": "anthropics/claude-plugins-official/plugins/mcp-server-dev/skills/build-mcp-app",
@@ -227,12 +227,12 @@
       "kho": "anthropics/claude-plugins-official",
       "duong": "plugins/mcp-server-dev/skills/build-mcp-app",
       "nhom": "lap-trinh",
-      "sao": 35857,
+      "sao": 35883,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": null,
       "sha": "d2fd94f009650646",
-      "luc": "2026-09-03T16:30:09.713Z"
+      "luc": "2026-09-04T16:26:13.977Z"
     },
     {
       "id": "obra/superpowers/skills/brainstorming",
@@ -240,12 +240,12 @@
       "kho": "obra/superpowers",
       "duong": "skills/brainstorming",
       "nhom": "giao-dien",
-      "sao": 281078,
+      "sao": 281623,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": null,
       "sha": "74edf03ea6d24ef5",
-      "luc": "2026-09-03T16:30:09.742Z"
+      "luc": "2026-09-04T16:26:14.033Z"
     },
     {
       "id": "obra/superpowers/skills/receiving-code-review",
@@ -253,38 +253,12 @@
       "kho": "obra/superpowers",
       "duong": "skills/receiving-code-review",
       "nhom": "lap-trinh",
-      "sao": 281078,
+      "sao": 281623,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": null,
       "sha": "091df1629510af1b",
-      "luc": "2026-09-03T16:30:09.754Z"
-    },
-    {
-      "id": "affaan-m/ECC/skills/accessibility",
-      "ten": "accessibility",
-      "kho": "affaan-m/ECC",
-      "duong": "skills/accessibility",
-      "nhom": "kiem-thu",
-      "sao": 246688,
-      "giayPhep": null,
-      "nhanh": "main",
-      "uuTien": null,
-      "sha": "d8578fe750e73216",
-      "luc": "2026-09-03T16:30:09.806Z"
-    },
-    {
-      "id": "affaan-m/ECC/skills/agent-architecture-audit",
-      "ten": "agent-architecture-audit",
-      "kho": "affaan-m/ECC",
-      "duong": "skills/agent-architecture-audit",
-      "nhom": "kiem-thu",
-      "sao": 246688,
-      "giayPhep": null,
-      "nhanh": "main",
-      "uuTien": null,
-      "sha": "64f57e232c353387",
-      "luc": "2026-09-03T16:30:09.864Z"
+      "luc": "2026-09-04T16:26:14.041Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/ask-matt",
@@ -292,12 +266,12 @@
       "kho": "mattpocock/skills",
       "duong": "skills/engineering/ask-matt",
       "nhom": "lap-trinh",
-      "sao": 246025,
+      "sao": 248719,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": null,
       "sha": "b25d86fb36b1d294",
-      "luc": "2026-09-03T16:30:09.870Z"
+      "luc": "2026-09-04T16:26:14.049Z"
     },
     {
       "id": "mattpocock/skills/skills/engineering/code-review",
@@ -305,12 +279,38 @@
       "kho": "mattpocock/skills",
       "duong": "skills/engineering/code-review",
       "nhom": "lap-trinh",
-      "sao": 246025,
+      "sao": 248719,
       "giayPhep": null,
       "nhanh": "main",
       "uuTien": null,
       "sha": "47f4e52c21694def",
-      "luc": "2026-09-03T16:30:09.874Z"
+      "luc": "2026-09-04T16:26:14.083Z"
+    },
+    {
+      "id": "affaan-m/ECC/skills/accessibility",
+      "ten": "accessibility",
+      "kho": "affaan-m/ECC",
+      "duong": "skills/accessibility",
+      "nhom": "kiem-thu",
+      "sao": 247752,
+      "giayPhep": null,
+      "nhanh": "main",
+      "uuTien": null,
+      "sha": "d8578fe750e73216",
+      "luc": "2026-09-04T16:26:14.169Z"
+    },
+    {
+      "id": "affaan-m/ECC/skills/agent-architecture-audit",
+      "ten": "agent-architecture-audit",
+      "kho": "affaan-m/ECC",
+      "duong": "skills/agent-architecture-audit",
+      "nhom": "kiem-thu",
+      "sao": 247752,
+      "giayPhep": null,
+      "nhanh": "main",
+      "uuTien": null,
+      "sha": "64f57e232c353387",
+      "luc": "2026-09-04T16:26:14.221Z"
     },
     {
       "id": "multica-ai/andrej-karpathy-skills/skills/karpathy-guidelines",
@@ -318,12 +318,12 @@
       "kho": "multica-ai/andrej-karpathy-skills",
       "duong": "skills/karpathy-guidelines",
       "nhom": "lap-trinh",
-      "sao": 209798,
+      "sao": 210045,
       "giayPhep": "MIT",
       "nhanh": "main",
       "uuTien": null,
       "sha": "6e22cc54cb02a5e9",
-      "luc": "2026-09-03T16:30:10.127Z"
+      "luc": "2026-09-04T16:26:14.233Z"
     }
   ]
 }

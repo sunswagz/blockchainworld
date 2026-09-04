@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-04T11:44:31.975Z",
-  "lan": 663,
+  "generatedAt": "2026-09-04T16:32:13.062Z",
+  "lan": 666,
   "node": {
     "kinh-thanh": {
       "luc": "2026-09-04T11:24:41.426Z",
@@ -146,15 +146,15 @@
       "lucDoi": "2026-09-04T11:26:11.668Z"
     },
     "nhap-skill": {
-      "luc": "2026-09-03T16:30:10.179Z",
+      "luc": "2026-09-04T16:26:14.299Z",
       "ket": "ok",
       "giay": 2,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-03T16:30:10.179Z",
-      "lucDoi": "2026-09-03T16:30:10.179Z"
+      "lucOk": "2026-09-04T16:26:14.299Z",
+      "lucDoi": "2026-09-04T16:26:14.299Z"
     },
     "dong-tin": {
       "luc": "2026-09-04T11:42:17.308Z",
@@ -168,26 +168,26 @@
       "lucDoi": "2026-09-04T11:42:17.308Z"
     },
     "ho-bo-tien-hoa": {
-      "luc": "2026-09-03T16:34:31.261Z",
+      "luc": "2026-09-04T16:32:13.062Z",
       "ket": "ok",
-      "giay": 158,
+      "giay": 166,
       "doi": true,
-      "chuThich": "phiếu đo 15/16 → 16/16 · model 155s · opus-5",
+      "chuThich": "phiếu đo 16/16 → 16/16 · model 162s · opus-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-03T16:34:31.261Z",
-      "lucDoi": "2026-09-03T16:34:31.261Z"
+      "lucOk": "2026-09-04T16:32:13.062Z",
+      "lucDoi": "2026-09-04T16:32:13.062Z"
     },
     "tien-hoa-dqt": {
-      "luc": "2026-09-03T16:31:53.270Z",
+      "luc": "2026-09-04T16:29:27.333Z",
       "ket": "ok",
-      "giay": 103,
+      "giay": 193,
       "doi": true,
       "chuThich": "phiếu đo 17/17 → 17/17 · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-03T16:31:53.270Z",
-      "lucDoi": "2026-09-03T16:31:53.270Z"
+      "lucOk": "2026-09-04T16:29:27.333Z",
+      "lucDoi": "2026-09-04T16:29:27.333Z"
     },
     "thai-boc-tu-tien-hoa": {
       "luc": "2026-09-03T23:22:12.430Z",
@@ -301,6 +301,33 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-09-04T16:32:13.062Z",
+      "ma": "ho-bo-tien-hoa",
+      "ket": "ok",
+      "giay": 166,
+      "doi": true,
+      "chuThich": "phiếu đo 16/16 → 16/16 · model 162s · opus-5",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-04T16:29:27.333Z",
+      "ma": "tien-hoa-dqt",
+      "ket": "ok",
+      "giay": 193,
+      "doi": true,
+      "chuThich": "phiếu đo 17/17 → 17/17 · haiku-4-5",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-04T16:26:14.299Z",
+      "ma": "nhap-skill",
+      "ket": "ok",
+      "giay": 2,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-09-04T11:44:31.975Z",
       "ma": "thai-boc-tu-tin-pt",
@@ -2070,33 +2097,6 @@
       "ma": "ho-bo",
       "ket": "ok",
       "giay": 1,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-31T05:44:08.528Z",
-      "ma": "cong-bo",
-      "ket": "ok",
-      "giay": 4,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-31T05:44:04.358Z",
-      "ma": "do-sat-vien",
-      "ket": "ok",
-      "giay": 69,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-08-31T05:42:55.592Z",
-      "ma": "kinh-thanh",
-      "ket": "ok",
-      "giay": 2,
       "doi": true,
       "chuThich": "",
       "vi": null

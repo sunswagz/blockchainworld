@@ -1008,6 +1008,37 @@
   }
 
   /* ═══════════════ SẮP XẾP BẢNG ═══════════════ */
+
+  /* Số thứ tự ở cột đầu phải ĐI THEO thứ tự đang hiện, không đứng yên
+     theo thứ tự lúc dựng hàng.
+
+     Ba bảng vừa có cột số ấy vừa sắp xếp được — Kho Bạc, Nhóm Ngành,
+     Tiền Chờ. Số được viết vào lúc dựng, là vị trí trong danh sách gốc
+     (xếp theo TVL), rồi `ganSap` chỉ chuyển chỗ cả hàng và không đụng
+     tới nó. Nên bấm sắp theo "Phí 24h" xong, cột ấy đọc thành
+     7 · 2 · 11 · 1 · 4 — không còn là một dãy, và cũng không còn nói
+     đúng thứ gì.
+
+     Hại theo hai lối, lối sau nặng hơn: một dãy số lộn xộn ngay cột
+     neo mắt thì mất chỗ bám khi dò xuống bảng — nhưng đó mới là khó
+     đọc. Cái sai là con số "1" nằm ở dòng thứ tư của bảng đang sắp
+     theo phí: người đọc lướt nhận nó là "hạng nhất về phí", trong khi
+     nó nói hạng nhất về TVL. Một nhãn đúng ở sai chỗ thì không có gì
+     báo là nó sai.
+
+     Đánh lại số sau mỗi lượt sắp thì con số ấy có đúng một nghĩa —
+     "dòng thứ mấy trong bảng đang nhìn" — và nghĩa đó không bao giờ
+     lệch, kể cả khi sắp ngược lên. Về lại thứ tự TVL giảm dần thì nó
+     tự về đúng 1…N như cũ. Không đổi dữ liệu, không đổi cách sắp,
+     không thêm nhãn nào để phải nhớ. */
+  function danhLaiHang(tb) {
+    var hang = tb.rows, i, o;
+    for (i = 0; i < hang.length; i++) {
+      o = hang[i].querySelector ? hang[i].querySelector(".hang") : null;
+      if (o) o.textContent = i + 1;
+    }
+  }
+
   function ganSap(root) {
     var bangs = root.querySelectorAll("table.bang");
     Array.prototype.forEach.call(bangs, function (b) {
@@ -1035,6 +1066,7 @@
             return xuong ? c - a : a - c;
           });
           rows.forEach(function (r) { tb.appendChild(r); });
+          danhLaiHang(tb);
         });
       });
     });

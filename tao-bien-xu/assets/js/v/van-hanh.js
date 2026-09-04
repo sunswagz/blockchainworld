@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-09-04T11:44:31.975Z",
- "lan": 663,
+ "generatedAt": "2026-09-04T16:32:13.062Z",
+ "lan": 666,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -129,15 +129,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-09-03T16:31:53.270Z",
+   "luc": "2026-09-04T16:29:27.333Z",
    "ket": "ok",
-   "giay": 103,
+   "giay": 193,
    "doi": true,
    "chuThich": "phiếu đo 17/17 → 17/17 · haiku-4-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-09-03T16:31:53.270Z",
-   "lucDoi": "2026-09-03T16:31:53.270Z"
+   "lucOk": "2026-09-04T16:29:27.333Z",
+   "lucDoi": "2026-09-04T16:29:27.333Z"
   },
   {
    "ma": "do-sat-vien",
@@ -205,15 +205,15 @@ window.VAN_HANH = {
    "cung": "ho-bo",
    "cungTen": "Hộ Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-09-03T16:34:31.261Z",
+   "luc": "2026-09-04T16:32:13.062Z",
    "ket": "ok",
-   "giay": 158,
+   "giay": 166,
    "doi": true,
-   "chuThich": "phiếu đo 15/16 → 16/16 · model 155s · opus-5",
+   "chuThich": "phiếu đo 16/16 → 16/16 · model 162s · opus-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-09-03T16:34:31.261Z",
-   "lucDoi": "2026-09-03T16:34:31.261Z"
+   "lucOk": "2026-09-04T16:32:13.062Z",
+   "lucDoi": "2026-09-04T16:32:13.062Z"
   },
   {
    "ma": "hoang-thanh",
@@ -418,15 +418,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-09-03T16:30:10.179Z",
+   "luc": "2026-09-04T16:26:14.299Z",
    "ket": "ok",
    "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-09-03T16:30:10.179Z",
-   "lucDoi": "2026-09-03T16:30:10.179Z"
+   "lucOk": "2026-09-04T16:26:14.299Z",
+   "lucDoi": "2026-09-04T16:26:14.299Z"
   },
   {
    "ma": "tao-bien-xu-tien-hoa",
@@ -819,6 +819,33 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-09-04T16:32:13.062Z",
+   "ma": "ho-bo-tien-hoa",
+   "ket": "ok",
+   "giay": 166,
+   "doi": true,
+   "chuThich": "phiếu đo 16/16 → 16/16 · model 162s · opus-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-09-04T16:29:27.333Z",
+   "ma": "tien-hoa-dqt",
+   "ket": "ok",
+   "giay": 193,
+   "doi": true,
+   "chuThich": "phiếu đo 17/17 → 17/17 · haiku-4-5",
+   "vi": null
+  },
+  {
+   "luc": "2026-09-04T16:26:14.299Z",
+   "ma": "nhap-skill",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-09-04T11:44:31.975Z",
    "ma": "thai-boc-tu-tin-pt",
@@ -1330,33 +1357,6 @@ window.VAN_HANH = {
    "giay": 4,
    "doi": true,
    "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-09-03T11:22:18.560Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 63,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-09-03T11:21:14.772Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 1,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-09-03T04:53:59.207Z",
-   "ma": "thai-boc-tu-tin-pt",
-   "ket": "ok",
-   "giay": 137,
-   "doi": true,
-   "chuThich": "nhận 24 · loại 0 · phủ 24/30 bài · haiku-4.5",
    "vi": null
   }
  ]

@@ -69,11 +69,9 @@ function vTin(K){
         (mx?'<button class="tin-mx" onclick="go(\'chain\')">mắt xích: '+esc(mx.t)+' →</button>':'')+
         '</div><p>'+esc(b.ai.anh)+'</p>';
     } else {
-      /* Chưa có thì nói chưa có. Lấp bằng một câu chung chung là dạy
-         người đọc rằng khối này lúc nào cũng có chữ, và từ đó họ
-         thôi phân biệt được lúc nào là suy luận thật. */
       ai.className='tin-ai trong';
-      ai.innerHTML='<p>Chưa có phân tích cho bài này — lượt quét gần nhất chưa xử lý tới nó.</p>';
+      ai.innerHTML='<div class="tin-ai-h"><span>AI SUY LUẬN</span></div>'+
+        '<p>Chưa có phân tích cho bài này — lượt quét gần nhất chưa xử lý tới nó.</p>';
     }
     th.appendChild(ai);
     luoi.appendChild(th);
