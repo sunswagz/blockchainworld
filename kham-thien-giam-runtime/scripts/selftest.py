@@ -6968,6 +6968,58 @@ def kiem_ho_market() -> None:
          ho_cua("cs2-navi-faze-2026-09-10-navi", "") == "esport",
          ho_cua("cs2-navi-faze-2026-09-10-navi", ""))
 
+    # ── NGƯỠNG GIÁ: nhận theo NGỮ CẢNH, không theo từ trần ──────────
+    #
+    # Ba mã trong bảng là từ tiếng Anh thường: `open` (Opendoor), `mu`
+    # (Micron), `meta`. Khớp chúng như từ trần sẽ gán nhãn cổ phiếu cho
+    # hàng loạt market chẳng liên quan. Đòi ngay sau mã phải là một
+    # ĐỘNG TỪ GIÁ thì chuyện ấy không xảy ra — và đó là toàn bộ lý do
+    # luật này viết theo ngữ cảnh.
+    from kham.ho_market import ma_nguong_gia
+    for slug, mong in (
+        ("aapl-above-290-on-september-4-2026", "aapl"),
+        ("will-nvda-reach-200-by-august-31-2026", "nvda"),
+        ("will-msft-close-between-500-and-505-week", "msft"),
+        ("mu-dip-to-100-in-2026", "mu"),
+        # KHÔNG phải ngưỡng giá — mã đứng một mình hoặc theo từ khác
+        ("open-source-model-released-2026", None),
+        ("meta-verse-users-hit-1b", None),
+        ("will-israel-launch-a-major-ground-offensive", None),
+        ("cs2-navi-faze-2026-09-10", None),
+    ):
+        kiem(f"ngưỡng giá · `{slug[:38]}` ⇒ {mong}",
+             ma_nguong_gia(slug) == mong, ma_nguong_gia(slug))
+
+    for slug, mong in (
+        ("aapl-above-290-on-september-4-2026", "co-phieu"),
+        ("will-tsla-reach-500-by-december-31", "co-phieu"),
+        ("spx-above-7000-on-september-4-2026", "co-phieu"),
+        ("wti-below-60-on-september-4-2026", "co-phieu"),
+        # mã CRYPTO trong cùng khuôn phải về họ crypto — nguồn sự thật
+        # của chúng là nến Binance, không phải sàn chứng khoán, và cửa
+        # thứ ba chỉ có nghĩa khi mỗi họ khai đúng nguồn của mình.
+        ("bnb-above-900-on-september-4-2026", "crypto"),
+        ("zec-above-600-on-september-4-2026", "crypto"),
+        ("hype-dip-to-30-in-2026", "crypto"),
+        # `open` là từ thường: KHÔNG được thành cổ phiếu khi thiếu ngữ
+        # cảnh giá
+        ("open-source-model-released-2026", "khac"),
+        ("meta-verse-users-hit-1b", "khac"),
+    ):
+        kiem(f"`{slug[:38]}` ⇒ {mong}", ho_cua(slug, "") == mong,
+             ho_cua(slug, ""))
+
+    # hai bảng mã KHÔNG được chồng nhau — một mã ở cả hai thì họ của nó
+    # phụ thuộc thứ tự đọc, và không ai thấy được điều đó
+    from kham.ho_market import MA_CRYPTO, MA_TAI_CHINH
+    kiem("bảng mã crypto và mã tài chính KHÔNG chồng nhau",
+         not (MA_CRYPTO & MA_TAI_CHINH), MA_CRYPTO & MA_TAI_CHINH)
+    kiem("mọi mã đều viết thường và đủ ngắn để mẫu bắt được",
+         all(x.islower() and 1 <= len(x) <= 5
+             for x in (MA_CRYPTO | MA_TAI_CHINH)),
+         [x for x in (MA_CRYPTO | MA_TAI_CHINH)
+          if not (x.islower() and 1 <= len(x) <= 5)])
+
     # ── bảng phải LÀNH: không dấu hiệu nào rỗng, không họ nào trùng ──
     ten = [ho for ho, _ in DAU_HIEU]
     kiem("không họ nào khai HAI LẦN", len(ten) == len(set(ten)), ten)

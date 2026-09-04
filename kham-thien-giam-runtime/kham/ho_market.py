@@ -130,6 +130,49 @@ def la_tran_co_lich(slug: str) -> bool:
     return bool(_TRAN_CO_LICH.match(str(slug).lower()))
 
 
+#: Market NGƯỠNG GIÁ: `<mã>-<động từ giá>-...`
+#:
+#:     aapl-above-290-on-september-4-2026
+#:     will-nvda-reach-200-by-august-31-2026
+#:     will-msft-close-between-500-and-505-week-september-4-2026
+#:
+#: Đây là dấu hiệu theo NGỮ CẢNH, và ngữ cảnh mới là thứ làm nó an
+#: toàn. Ba mã trong danh sách dưới là từ tiếng Anh thường — `open`
+#: (Opendoor), `mu` (Micron), `meta` — nên khớp chúng như từ trần sẽ
+#: gán nhãn cổ phiếu cho hàng loạt market chẳng liên quan. Đòi ngay
+#: sau mã phải là một động từ giá thì chuyện ấy không xảy ra.
+_NGUONG_GIA = re.compile(
+    r"^(?:will-)?([a-z]{1,5})-"
+    r"(above|below|reach|close|dip|hit|up|down)(-|$)")
+
+#: Mã CRYPTO gặp trong market ngưỡng giá. Chúng phải về họ `crypto` —
+#: nguồn sự thật của chúng là nến Binance, không phải sàn chứng khoán,
+#: và cửa thứ ba của `sang-ho-market` chỉ có nghĩa khi khai đúng nguồn.
+MA_CRYPTO = frozenset((
+    "btc", "eth", "sol", "xrp", "doge", "bnb", "hype", "zec", "ltc",
+    "ada", "avax", "link", "dot", "matic", "trx", "sui", "ton"))
+
+#: Mã CỔ PHIẾU / CHỈ SỐ / HÀNG HOÁ. Rút từ chính 1.500 market đang mở
+#: (đo 05/09/2026): 719/779 market chưa phân loại khớp mẫu ngưỡng giá,
+#: và đây là toàn bộ mã xuất hiện.
+MA_TAI_CHINH = frozenset((
+    # cổ phiếu
+    "aapl", "abnb", "amzn", "coin", "googl", "hood", "meta", "msft",
+    "mstr", "mu", "nflx", "nvda", "open", "pltr", "rklb", "spcx",
+    "tsla", "amd", "intc", "baba", "uber", "sofi", "gme", "amc",
+    # chỉ số và quỹ
+    "spx", "spy", "qqq", "djia", "rut", "nya", "dxy", "ewy", "skhy",
+    "iwm", "vix",
+    # hàng hoá
+    "wti", "ng", "gold", "xau", "brent"))
+
+
+def ma_nguong_gia(slug: str) -> str | None:
+    """Mã của một market ngưỡng giá, hoặc None nếu slug không phải dạng ấy."""
+    g = _NGUONG_GIA.match(str(slug).lower())
+    return g.group(1) if g else None
+
+
 def ho_cua(slug: str, nhan: str = "") -> str:
     """Họ của một market. `khac` khi không dấu hiệu nào khớp."""
     tu = tach_tu(str(slug) + " " + str(nhan))
@@ -139,6 +182,12 @@ def ho_cua(slug: str, nhan: str = "") -> str:
     # Dấu hiệu cấu trúc xét SAU cùng: một trận `cs2-...` đã được bảng
     # trên bắt rồi, và thứ tự này giữ cho bảng vẫn là nơi quyết định
     # chính — dấu hiệu cấu trúc chỉ vét phần bảng không với tới.
+    ma = ma_nguong_gia(slug)
+    if ma is not None:
+        if ma in MA_CRYPTO:
+            return "crypto"
+        if ma in MA_TAI_CHINH:
+            return "co-phieu"
     if la_tran_co_lich(slug):
         return "the-thao"
     return "khac"

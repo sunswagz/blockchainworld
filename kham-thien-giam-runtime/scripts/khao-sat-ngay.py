@@ -104,7 +104,8 @@ NGAY_TOI_THIEU, NGAY_TOI_DA = 1.0, 45.0
 #: này chấm bằng phán quyết của chính chợ nên về nguyên tắc họ nào cũng
 #: chấm được — nhưng một họ ngã ngũ mỗi năm một lần thì phải mấy chục
 #: năm mới đủ 60 bản ghi, và trong lúc ấy không ai biết gì cả.
-HO_DUOC_PHAN = ("crypto", "thoi-tiet", "the-thao", "esport", "kinh-te")
+HO_DUOC_PHAN = ("crypto", "co-phieu", "thoi-tiet", "the-thao", "esport",
+                "kinh-te")
 
 from kham.ho_market import ho_cua  # noqa: E402,F401
 
@@ -145,6 +146,12 @@ def han_ms(m: dict) -> float | None:
         return None
     return dt.datetime(d.year, d.month, d.day,
                        tzinfo=dt.timezone.utc).timestamp() * 1000.0
+
+
+def _bay_gio_iso() -> str:
+    """Mốc `end_date_min` cho Gamma: bây giờ, theo ISO UTC."""
+    import datetime as _dt
+    return _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _tai_json(url: str, tham: dict, lanThu: int = 14):
@@ -198,7 +205,12 @@ def _tai(so: int) -> list | None:
         d = _tai_json(f"{goc}/markets",
                       {"limit": min(buoc, so - lech), "offset": lech,
                        "closed": "false", "order": "endDate",
-                       "ascending": "true"})
+                       "ascending": "true",
+                       # THIẾU `end_date_min` thì `ascending=true` moi
+                       # trúng market ĐÃ QUÁ HẠN mà cờ vẫn `active` —
+                       # đã ghi trong sổ tay, và tôi vừa đi qua nó một
+                       # lần. Bảng đếm sẽ phồng lên bằng xác market.
+                       "end_date_min": _bay_gio_iso()})
         if d is None:
             return ra or None
         if not isinstance(d, list) or not d:

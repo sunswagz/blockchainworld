@@ -112,6 +112,16 @@ NGUON_SU_THAT = {
     "esport":    ("liquipedia.net MediaWiki API", "mong",
                   "chưa dựng — nguồn mới xác nhận TRẢ LỜI, chưa xác "
                   "nhận lấy được kết quả trận"),
+    # CỔ PHIẾU / CHỈ SỐ / HÀNG HOÁ — họ lớn nhất trong rổ còn SỐNG, và
+    # là họ có hình dạng toán học GIỐNG HỆT động cơ crypto đang chạy:
+    # một giá, một mốc, một hạn, rồi Φ(z). Đổi nguồn giá là xong phần
+    # lớn việc.
+    #
+    # Đo 05/09/2026 bằng client bền: Yahoo chart API trả 200 kèm giá
+    # thật, KHÔNG cần khoá (`query1.finance.yahoo.com/v8/finance/chart/
+    # AAPL?range=5d&interval=1d`). Nasdaq và Alpha Vantage cũng 200.
+    "co-phieu":  ("Yahoo Finance chart API (không cần khoá)", "day",
+                  "chưa dựng — CÙNG hình dạng với updown-crypto"),
     "kinh-te":   ("FRED · bản công bố chính thức", "thua", "chưa dựng"),
     "chinh-tri": (None, "khong", "KHÔNG có nguồn để chấm"),
     "van-hoa":   (None, "khong", "KHÔNG có nguồn để chấm"),
@@ -119,6 +129,12 @@ NGUON_SU_THAT = {
 }
 
 from kham.ho_market import ho_cua as _ho  # noqa: E402
+
+
+def _bay_gio_iso() -> str:
+    """Mốc `end_date_min` cho Gamma: bây giờ, theo ISO UTC."""
+    import datetime as _dt
+    return _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _tai_json(url: str, tham: dict, lanThu: int = 14):
@@ -180,7 +196,12 @@ def _tai(so: int) -> list | None:
         d = _tai_json(f"{goc}/markets",
                       {"limit": min(buoc, so - lech), "offset": lech,
                        "closed": "false", "order": "endDate",
-                       "ascending": "true"})
+                       "ascending": "true",
+                       # THIẾU `end_date_min` thì `ascending=true` moi
+                       # trúng market ĐÃ QUÁ HẠN mà cờ vẫn `active` —
+                       # đã ghi trong sổ tay, và tôi vừa đi qua nó một
+                       # lần. Bảng đếm sẽ phồng lên bằng xác market.
+                       "end_date_min": _bay_gio_iso()})
         if d is None:
             return ra or None
         if not isinstance(d, list) or not d:
