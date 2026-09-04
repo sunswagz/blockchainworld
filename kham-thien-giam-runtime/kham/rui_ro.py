@@ -371,8 +371,60 @@ class RiskEngine:
             self.soLanNgat += 1
 
     def mo_lai(self) -> None:
+        """Mở lại bằng tay. HẠ LUÔN ĐỈNH VỐN về vốn hiện tại.
+
+        ## Vì sao phải hạ đỉnh, đo được chứ không suy đoán
+
+        Bản đầu chỉ xoá `ngatKhanCap` và `lyDoNgat`. Nhưng cầu dao sụt
+        vốn ngắt vì `sutVonPct = (đỉnh − vốn) / đỉnh`, và cái đó KHÔNG
+        đổi khi xoá cờ. Nên `_soat_ngat` ở lần kết toán kế tiếp ngắt lại
+        ngay — kể cả một lệnh LÃI.
+
+        Đo trên đúng số của làn giấy ngày 05/09/2026 (vốn 932,44 · đỉnh
+        1.074,71 · trần 10%):
+
+            _soat_ngat()          ⇒ ngắt, sụt 13,24%
+            mo_lai()              ⇒ cờ tắt
+            kết toán một lệnh +20 ⇒ NGẮT LẠI, sụt 11,38%
+
+        Để thoát hẳn, vốn phải lên 967,24 — nhưng mỗi lần mở tay chỉ
+        sống được tới lần kết toán kế tiếp, nên nó không bao giờ đi hết
+        được quãng ấy. Đó là một BẾ TẮC: cỗ máy không có đường tự về, và
+        cái nút duy nhất để cứu nó thì không cứu được gì. Nó chạy, tốn
+        điện, và từ chối mọi cơ hội — 120.926 lần trong một lượt chạy
+        lại 12 ngày.
+
+        ## Vì sao hạ đỉnh là ĐÚNG chứ không phải nới tay
+
+        Một cầu dao sụt vốn hỏi: "từ đỉnh gần nhất tới giờ mất bao
+        nhiêu?" Người mở lại bằng tay đang nói: "tôi đã xem, tôi CHẤP
+        NHẬN khoản sụt này, đo lại từ đây." Không hạ đỉnh thì câu trả
+        lời ấy không có chỗ diễn đạt, và cái nút thành đồ trang trí.
+
+        Đây KHÔNG phải nới trần: trần vẫn 10%, và 10% tiếp theo tính từ
+        mốc mới. Sụt thêm 10% nữa là lại ngắt.
+
+        Và nó chỉ xảy ra khi có người CỐ Ý bấm — `ngat()` vẫn không tự
+        phục hồi, `_soat_ngat` vẫn chạy mỗi lần kết toán.
+        """
         self.ngatKhanCap = False
         self.lyDoNgat = ""
+        # Thứ tự quan trọng: hạ đỉnh SAU khi xoá cờ thì `sutVonPct` về 0
+        # và lần `_soat_ngat` kế tiếp không có gì để ngắt. Hạ trước, xoá
+        # sau cũng ra cùng kết quả — nhưng chỉ xoá cờ mà KHÔNG hạ đỉnh
+        # thì đúng là con bọ nói ở trên.
+        self.dinhVon = self.von
+
+    def con_thieu_de_thoat_ngat(self) -> float:
+        """Còn thiếu bao nhiêu đô nữa thì tự thoát khỏi cầu dao sụt vốn.
+
+        0 nghĩa là không bị cầu dao sụt vốn giữ. Con số này đáng hiện ra
+        vì nếu không ai nhìn thấy nó, một cỗ máy đang bế tắc trông y hệt
+        một cỗ máy đang thận trọng.
+        """
+        tran = float(_RR["tranSutVonPct"])
+        can = self.dinhVon * (1.0 - tran / 100.0)
+        return max(0.0, can - self.von)
 
     # ── cửa duyệt ─────────────────────────────────────────────────────────
     def duyet(self, ch: CoHoi, sucKhoe: SucKhoeNguon,
@@ -678,5 +730,9 @@ class RiskEngine:
             "tranMoiThiTruongUsd": self.tranMoiThiTruongUsd,
             "tranMoiTaiSanUsd": self.tranMoiTaiSanUsd,
             "ngatKhanCap": self.ngatKhanCap,
+            # Còn thiếu bao nhiêu để tự thoát cầu dao sụt vốn. Không
+            # hiện ra thì một cỗ máy đang BẾ TẮC trông y hệt một cỗ máy
+            # đang thận trọng — xem `mo_lai`.
+            "conThieuDeThoatUsd": self.con_thieu_de_thoat_ngat(),
             "lyDoNgat": self.lyDoNgat,
         }

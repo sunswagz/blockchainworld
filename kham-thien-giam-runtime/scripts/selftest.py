@@ -16,13 +16,47 @@ from __future__ import annotations
 import gzip
 import math
 import os
+import atexit
+import shutil
 import sys
 import tempfile
 import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-os.environ["KTG_DATA_DIR"] = tempfile.mkdtemp(prefix="ktg-selftest-")
+
+
+#: ── THƯ MỤC TẠM PHẢI ĐƯỢC DỌN ────────────────────────────────────────
+#:
+#: Bộ tự kiểm gọi `tempfile.mkdtemp` hàng chục lần một lượt và không dọn.
+#: Với một cỗ máy chạy bộ kiểm liên tục thì đó là ~22.000 thư mục mỗi
+#: ngày: đo ngày 04/09/2026 được 130.837 thư mục chiếm 7,54 GB, và đó là
+#: một phần chính làm ổ C: đầy 100%.
+#:
+#: Không lỗi nào ném. Bộ kiểm vẫn xanh suốt trong lúc nó ăn hết đĩa.
+_TAM_DA_TAO: list[str] = []
+
+
+def _tam_moi(prefix: str = "ktg-") -> str:
+    """Thư mục tạm CÓ NGƯỜI DỌN. Dùng thay `tempfile.mkdtemp` trắng.
+
+    Tiền tố mặc định `ktg-` để lúc cần đếm rác thì biết nó của ai —
+    phần lớn chỗ gọi cũ không có tiền tố nên hiện ra dưới dạng `tmp*`,
+    lẫn với thư mục tạm của mọi thứ khác trên máy.
+    """
+    d = tempfile.mkdtemp(prefix=prefix)
+    _TAM_DA_TAO.append(d)
+    return d
+
+
+@atexit.register
+def _don_tam() -> None:
+    """Dọn lúc thoát. `ignore_errors`: Windows giữ khoá file khá lâu, và
+    một lượt dọn hỏng KHÔNG được làm bộ kiểm trượt."""
+    for d in _TAM_DA_TAO:
+        shutil.rmtree(d, ignore_errors=True)
+
+os.environ["KTG_DATA_DIR"] = _tam_moi(prefix="ktg-selftest-")
 
 from kham.bang import (MayGhi, _thu_muc, dem_bang,               # noqa: E402
                        doc_bang, doc_bang_day_du, NguonKhung)
@@ -771,7 +805,7 @@ def kiem_do_thi() -> None:
 def kiem_vo_dich() -> None:
     print("\n── Champion/Challenger: không có đường tắt ───────────────────")
     import tempfile
-    sv = SoVoDich(duong=Path(tempfile.mkdtemp()) / "vd.json")
+    sv = SoVoDich(duong=Path(_tam_moi()) / "vd.json")
     kiem("chưa có hồ sơ thì không duyệt", not sv.xet("moi").cho)
 
     it = [{"laiLo": 0.02, "phiUsd": 0, "chienThuat": ["it-mau"]} for _ in range(10)]
@@ -1677,7 +1711,7 @@ def kiem_bien_cua_vo_dich() -> None:
     from kham.vo_dich import SoVoDich as _SVD
 
     def _so(hoSo, duongKim=None):
-        d = Path(_tfV.mkdtemp()) / "vd.json"
+        d = Path(_tam_moi()) / "vd.json"
         sv = _SVD(duong=d)
         sv.hoSo = {h.ma: h for h in hoSo}
         sv.duongKim = dict(duongKim or {})
@@ -2243,7 +2277,7 @@ def kiem_bien_cua_phat_lai() -> None:
     # ── khớp: chọn ĐÚNG sổ và ĐÚNG chân ─────────────────────────────
     def _phien():
         import tempfile as _tf9
-        d = Path(_tf9.mkdtemp())
+        d = Path(_tam_moi())
         return _PL9.PhienPhatLai(von=1000.0, thuMucSo=d)
 
     def _ch9(ben="UP", vwap=0.40):
@@ -3739,7 +3773,7 @@ def kiem_bien_cua_nan_lai() -> None:
 
     # ── khớp: thiếu mẫu thì trả phép RỖNG, không bịa một đường ───────
     import tempfile as _tf5
-    _d5 = Path(_tf5.mkdtemp())
+    _d5 = Path(_tam_moi())
     hc5 = _HC4(duong=_d5 / "hc.json")
     hc5.o = {}
     for i in range(_TTM - 1):
@@ -4191,7 +4225,7 @@ def kiem_bien_cua_dinh_gia() -> None:
     # ── đủ mẫu mở Kelly: ĐÚNG BẰNG ngưỡng là ĐỦ ───────────────────────
     nguong = int(CONFIG["dinhGia"]["toiThieuMauHieuChinh"])
     import tempfile as _tf3
-    _d3 = Path(_tf3.mkdtemp())
+    _d3 = Path(_tam_moi())
     hc = _HC3(duong=_d3 / "hc.json")
     hc.o = {}
     for i in range(nguong - 1):
@@ -4380,7 +4414,7 @@ def kiem_bien_cua_ket_toan() -> None:
         from kham.dinh_gia import HieuChinh as _HC
         from kham.so import So as _So
         import tempfile as _tf
-        d = Path(_tf.mkdtemp())
+        d = Path(_tam_moi())
         return _KT(k, _HC(duong=d / "hc.json"), _So(d / "so.jsonl"))
 
     # CHE cả hai nguồn suốt khối này. Không che thì `_hoi_san` gọi
@@ -4429,7 +4463,7 @@ def kiem_bien_cua_ket_toan() -> None:
             from kham.dinh_gia import HieuChinh as _HC2
             from kham.so import So as _So2
             import tempfile as _tf2
-            dd = Path(_tf2.mkdtemp())
+            dd = Path(_tam_moi())
             ktx = _KT(kk, _HC2(duong=dd / "hc.json"), _So2(dd / "so.jsonl"))
             if coViThe:
                 kk.lay("BTC_5M").ghi_khop("UP", 10.0, 0.5)
@@ -5536,7 +5570,7 @@ def kiem_ghi_config_doc_lai_tu_dia() -> None:
     from kham import tien_hoa as TH
 
     _goc = Path(__file__).resolve().parent.parent
-    tmp = Path(tempfile.mkdtemp())
+    tmp = Path(_tam_moi())
     shutil.copy2(_goc / "config.json", tmp / "config.json")
 
     cuRoot = TH.ROOT
@@ -6235,7 +6269,7 @@ def kiem_moi_nan_khong_nhin_trom() -> None:
     import tempfile
     from kham.phat_lai import PhienPhatLai
 
-    tm = Path(tempfile.mkdtemp())
+    tm = Path(_tam_moi())
     MOI = {"40-50": {"n": 500, "thang": 220, "tongP": 225.0}}
 
     # 1. mồi mà THIẾU mốc cuối ⇒ phải ném, không được chạy mù
@@ -6425,7 +6459,7 @@ def kiem_cong_mo_hinh_khong_van_theo_tieng_on() -> None:
     import json as _js
     import tempfile
     cu = HO.DUONG_NHAT_KY_MO_HINH
-    tmp = Path(tempfile.mkdtemp()) / "nk.jsonl"
+    tmp = Path(_tam_moi()) / "nk.jsonl"
     try:
         HO.DUONG_NHAT_KY_MO_HINH = tmp
         HO._ghi_nhat_ky_mo_hinh({"nut": "x", "trongTiengOn": True,
@@ -6609,7 +6643,7 @@ def kiem_so_phan_doan() -> None:
     import time as _t
     from kham.so_phan_doan import PhanDoan, SoPhanDoan, TOI_THIEU_NGA_NGU
 
-    so = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "pd.jsonl")
+    so = SoPhanDoan(duong=Path(_tam_moi()) / "pd.jsonl")
     t0 = _t.time() * 1000.0
 
     def _pd(i, nguon, p, cho, luc=None):
@@ -6732,7 +6766,7 @@ def kiem_so_phan_doan() -> None:
     # ── SÀN MẪU của `cham`: đúng 5 thì chấm được ─────────────────────
     import tempfile as _tf
     for so_ban, chamDuoc in ((4, False), (5, True)):
-        s3 = SoPhanDoan(duong=Path(_tf.mkdtemp()) / "p.jsonl")
+        s3 = SoPhanDoan(duong=Path(_tam_moi()) / "p.jsonl")
         for i in range(so_ban):
             s3.them(_pd(i, "san", 0.7, 0.5))
             s3.nga_ngu(f"san-{i}", i % 2 == 0)
@@ -6749,7 +6783,7 @@ def kiem_so_phan_doan() -> None:
     # Dưới sàn thì `cham` nói "chưa đủ" — đúng. Nhưng ĐÚNG BẰNG sàn mà
     # vẫn từ chối thì cái sàn lệch đi một, và không ai thấy.
     for n, mong in ((4, False), (5, True)):
-        s2 = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "p.jsonl")
+        s2 = SoPhanDoan(duong=Path(_tam_moi()) / "p.jsonl")
         for i in range(n):
             s2.them(_pd(i, "san", 0.7, 0.5))
             s2.nga_ngu(f"san-{i}", i % 2 == 0)
@@ -6766,7 +6800,7 @@ def kiem_so_phan_doan() -> None:
     # `bCho = 0` nghĩa là chợ đoán đúng hoàn hảo mọi lần. Điểm kỹ năng
     # khi ấy KHÔNG xác định — trả None, đừng ném, và tuyệt đối đừng trả
     # một con số.
-    s3 = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "p.jsonl")
+    s3 = SoPhanDoan(duong=Path(_tam_moi()) / "p.jsonl")
     for i in range(8):
         that = i % 2 == 0
         s3.them(_pd(i, "cho-than", 0.6, 1.0 if that else 0.0))
@@ -7034,7 +7068,7 @@ def kiem_khao_sat_ngay() -> None:
 
     # ── 5. `cham_lai` không được chấm market CHƯA đóng ───────────────
     from kham.so_phan_doan import PhanDoan, SoPhanDoan
-    so = SoPhanDoan(duong=Path(tempfile.mkdtemp()) / "p.jsonl")
+    so = SoPhanDoan(duong=Path(_tam_moi()) / "p.jsonl")
     for i, (dong, gia) in enumerate(((False, "1"), (True, "1"),
                                      (True, "0.5"))):
         so.them(PhanDoan(id=f"k{i}", nguon="claude", ho="crypto",
@@ -7275,7 +7309,7 @@ def kiem_khoa_mot_ban_chay_nen() -> None:
     m = _iu.module_from_spec(sp)
     sp.loader.exec_module(m)
 
-    tmp = Path(tempfile.mkdtemp()) / "pid.txt"
+    tmp = Path(_tam_moi()) / "pid.txt"
     cu = m.PID
     try:
         m.PID = tmp
@@ -7350,7 +7384,7 @@ def kiem_so_hieu_chinh_gom_moi_cho() -> None:
                 for i in range(int(soNen))}
 
     cu_nen, cu_duong = HO.nen_1p, NL.DUONG_THO
-    tmp = Path(tempfile.mkdtemp()) / "tho.jsonl"
+    tmp = Path(_tam_moi()) / "tho.jsonl"
     try:
         HO.nen_1p = _gia
         NL.DUONG_THO = tmp
@@ -9559,7 +9593,7 @@ def kiem_lat_cat() -> None:
                     "vi": {"soDuUsdc": float("inf")},
                     "ketToan": {"laiLoUsd": float("nan")}}
 
-    d = Path(tempfile.mkdtemp(prefix="ktg-cung-gia-"))
+    d = Path(_tam_moi(prefix="ktg-cung-gia-"))
     (d / "index.html").write_text("<!doctype html>", encoding="utf-8")
     cu = _CFG.get("cungTinh")
     _CFG["cungTinh"] = str(d)
@@ -9856,7 +9890,7 @@ def kiem_nhip_tim_canh_gac() -> None:
     finally:
         sys.argv = cu_argv
 
-    tam = Path(tempfile.mkdtemp())
+    tam = Path(_tam_moi())
     nhip = tam / "data" / "nhat-ky" / "canh-gac-nhip.txt"
     nhip.parent.mkdir(parents=True)
     cu_goc, cu_cong = mod.GOC, mod.CONG_CANH_GAC
@@ -9934,6 +9968,200 @@ def kiem_nhip_tim_canh_gac() -> None:
                        (171999, "giờ"), (172800, "ngày")):
         kiem(f"tuổi {giay}s hiện theo `{mong}`", mong in mod._tuoi(giay),
              mod._tuoi(giay))
+
+
+
+def kiem_do_cau_dao() -> None:
+    """Thước đo trần rủi ro: ba chỗ sai được mà vẫn ra một bảng đẹp.
+
+    Công cụ này in ra một câu rất mạnh — "ba trên bốn trần là chữ chết"
+    — và câu ấy sẽ được đem đi quyết một tham số rủi ro. Nên nó phải
+    đọc từ CONFIG chứ không cắm số, và phải đi lại đúng đường vốn.
+
+    1. **Các trần phải suy từ config**, không cắm cứng. Cắm cứng thì đổi
+       config xong bảng vẫn nói y như cũ, và người đọc tin vào một cỗ
+       máy không tồn tại.
+    2. **Tỉ trọng mỗi lệnh phải so với VỐN TRƯỚC LỆNH ẤY**, không phải
+       vốn ban đầu. Sổ ghi số đô còn trần là phần trăm — so sai gốc thì
+       mọi kết luận lệch theo đường lãi lỗ.
+    3. **Dòng hỏng bị bỏ, không làm cả thước ném**, và thứ tự thời gian
+       phải do thước tự lo — sổ kết toán ghi theo lúc KẾT TOÁN, và một
+       lượt nạp lại có thể ghi lộn.
+    """
+    import importlib.util
+    import json
+    import tempfile
+
+    goc = Path(__file__).resolve().parent.parent
+    spec = importlib.util.spec_from_file_location(
+        "_cd_thu", goc / "scripts" / "do-cau-dao.py")
+    mod = importlib.util.module_from_spec(spec)
+    cu = sys.argv
+    sys.argv = ["do-cau-dao.py"]
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.argv = cu
+
+    print()
+    print("-- Thuoc do tran rui ro ------------------------------------")
+
+    # ── 1. các trần suy từ CONFIG ────────────────────────────────────
+    from kham.config import CONFIG
+    rr = CONFIG.get("ruiRo", {})
+    tr = mod.cac_tran(1000.0)
+    kiem("có đủ năm cái trần", len(tr) == 5, sorted(tr))
+    kiem("`lỗ NGÀY` lấy đúng `phanTramLoNgay` của config",
+         abs(tr["lỗ NGÀY"][0] - float(rr["phanTramLoNgay"])) < 1e-12,
+         (tr["lỗ NGÀY"][0], rr["phanTramLoNgay"]))
+    kiem("`mỗi thị trường` lấy đúng `phanTramMoiThiTruong`",
+         abs(tr["mỗi thị trường"][0]
+             - float(rr["phanTramMoiThiTruong"])) < 1e-12)
+    kiem("`sụt vốn` lấy đúng `tranSutVonPct`",
+         abs(tr["sụt vốn"][0] - float(rr["tranSutVonPct"])) < 1e-12)
+    kiem("quy ra đô đúng: 5% của $1.000 là $50",
+         abs(tr["lỗ NGÀY"][1] - float(rr["phanTramLoNgay"]) * 10.0) < 1e-9,
+         tr["lỗ NGÀY"][1])
+    # co giãn theo vốn — cắm cứng $50 thì phép kiểm này đỏ
+    tr2 = mod.cac_tran(10_000.0)
+    kiem("gấp mười vốn ⇒ mọi trần gấp mười (không cắm số đô)",
+         all(abs(tr2[k][1] - tr[k][1] * 10.0) < 1e-6 for k in tr),
+         {k: (tr[k][1], tr2[k][1]) for k in tr})
+
+    # ── 2. tỉ trọng so với vốn TRƯỚC lệnh ────────────────────────────
+    tam = Path(_tam_moi()) / "kt.jsonl"
+    tam.write_text("".join(json.dumps(o) + chr(10) for o in (
+        {"luc": "2026-09-02T15:00:00Z", "ma": "A", "tienVao": 100.0,
+         "laiLo": 100.0},
+        {"luc": "2026-09-02T15:05:00Z", "ma": "B", "tienVao": 110.0,
+         "laiLo": -110.0},
+    )), encoding="utf-8")
+    ra = mod.doc_so(tam, 1000.0)
+    kiem("lệnh đầu: 100 trên vốn 1000 ⇒ 10,0%",
+         abs(ra[0]["phan"] - 10.0) < 1e-12, ra[0]["phan"])
+    kiem("lệnh sau: vốn đã thành 1100 ⇒ 10,0% chứ KHÔNG phải 11,0%",
+         abs(ra[1]["phan"] - 10.0) < 1e-12, ra[1]["phan"])
+    kiem("và giữ lại mã thị trường để đọc bảng",
+         [d["ma"] for d in ra] == ["A", "B"], ra)
+
+    # ── 3. lộn thứ tự / dòng hỏng ────────────────────────────────────
+    tam2 = Path(_tam_moi()) / "kt.jsonl"
+    tam2.write_text("".join(json.dumps(o) + chr(10) for o in (
+        {"luc": "2026-09-02T15:05:00Z", "ma": "B", "tienVao": 110.0,
+         "laiLo": -110.0},
+        {"luc": "2026-09-02T15:00:00Z", "ma": "A", "tienVao": 100.0,
+         "laiLo": 100.0},
+    )), encoding="utf-8")
+    kiem("sổ ghi LỘN thứ tự vẫn ra cùng chuỗi tỉ trọng",
+         [round(d["phan"], 12) for d in mod.doc_so(tam2, 1000.0)]
+         == [round(d["phan"], 12) for d in ra])
+
+    tam3 = Path(_tam_moi()) / "kt.jsonl"
+    tam3.write_text('{khong phai json' + chr(10)
+                    + '{"luc": "x", "tienVao": 0, "laiLo": 5}' + chr(10)
+                    + '{"luc": "2026-09-02T15:00:00Z", "tienVao": 10,'
+                      ' "laiLo": 1}' + chr(10), encoding="utf-8")
+    kiem("dòng hỏng và dòng tienVao=0 bị bỏ, dòng lành vẫn đọc được",
+         len(mod.doc_so(tam3, 1000.0)) == 1)
+    kiem("file không tồn tại ⇒ danh sách rỗng, KHÔNG ném",
+         mod.doc_so(Path(_tam_moi()) / "khong-co.jsonl", 1000.0) == [])
+
+
+def kiem_mo_lai_cau_dao() -> None:
+    """Mở lại cầu dao phải mở được THẬT, không chỉ tắt cái đèn.
+
+    Bản đầu của `mo_lai()` xoá `ngatKhanCap` và `lyDoNgat` rồi thôi.
+    Nhưng cầu dao sụt vốn ngắt vì `(đỉnh − vốn) / đỉnh`, và cái đó không
+    đổi khi xoá cờ — nên `_soat_ngat` ở lần kết toán KẾ TIẾP ngắt lại
+    ngay, kể cả khi lệnh ấy LÃI.
+
+    Đo trên đúng số của làn giấy 05/09/2026 (vốn 932,44 · đỉnh 1.074,71
+    · trần 10%): mở tay xong, một lệnh +20 làm nó ngắt lại ở 11,38%.
+    Muốn thoát hẳn phải lên 967,24, mà mỗi lần mở chỉ sống được một lần
+    kết toán — nên nó KHÔNG BAO GIỜ đi hết quãng ấy. Bế tắc, và cỗ máy
+    từ chối mọi cơ hội trong khi vẫn trông như đang chạy.
+
+    Bốn điều phải đúng, và điều thứ ba là điều dễ mất nhất khi ai đó
+    "dọn dẹp" hàm này về lại cho gọn.
+    """
+    import kham.rui_ro as R
+    from kham.kho_doi import Kho
+
+    print()
+    print("-- Mo lai cau dao: phai mo duoc THAT ------------------------")
+
+    cu = R._RR
+    try:
+        R._RR = dict(cu)
+        R._RR["tranSutVonPct"] = 10.0
+
+        def _may(von, dinh):
+            r = R.RiskEngine(Kho())
+            r.von, r.dinhVon, r.vonDauNgay = von, dinh, von
+            return r
+
+        # 1. vẫn phải NGẮT khi sụt quá trần
+        r = _may(932.44, 1074.71)
+        r._soat_ngat()
+        kiem("sụt 13,24% · trần 10% ⇒ NGẮT", r.ngatKhanCap, r.lyDoNgat)
+        kiem("và nói ra còn thiếu bao nhiêu để tự thoát",
+             abs(r.con_thieu_de_thoat_ngat() - (1074.71 * 0.9 - 932.44)) < 1e-9,
+             r.con_thieu_de_thoat_ngat())
+
+        # 2. mở tay ⇒ hạ ĐỈNH về vốn hiện tại
+        r.mo_lai()
+        kiem("mở tay ⇒ cờ tắt", not r.ngatKhanCap)
+        kiem("mở tay ⇒ ĐỈNH hạ về vốn hiện tại",
+             abs(r.dinhVon - 932.44) < 1e-9, r.dinhVon)
+        kiem("nên sụt vốn về 0", abs(r.sutVonPct) < 1e-12, r.sutVonPct)
+        kiem("và không còn thiếu gì để thoát",
+             r.con_thieu_de_thoat_ngat() == 0.0)
+
+        # 3. ĐIỀU DỄ MẤT NHẤT: lần kết toán kế tiếp KHÔNG được ngắt lại
+        r.ghi_lai_lo(+20.0)
+        kiem("kết toán một lệnh LÃI sau khi mở ⇒ KHÔNG ngắt lại",
+             not r.ngatKhanCap, r.lyDoNgat)
+        r2 = _may(932.44, 1074.71)
+        r2._soat_ngat()
+        r2.mo_lai()
+        r2.ghi_lai_lo(-1.0)
+        kiem("kết toán một lệnh lỗ NHỎ sau khi mở ⇒ cũng KHÔNG ngắt lại",
+             not r2.ngatKhanCap, r2.lyDoNgat)
+
+        # 4. nhưng một khoản sụt MỚI đủ lớn thì vẫn phải ngắt — mở lại
+        #    KHÔNG phải nới trần, chỉ là dời mốc đo.
+        r3 = _may(1000.0, 1000.0)
+        r3.laiRongNgayUsd = 0.0
+        # đặt vốn đầu ngày RẤT lớn để trần LỖ NGÀY không xen vào — phép
+        # kiểm này nói về trần SỤT VỐN, hai cái trần khác nhau mà cùng
+        # gọi `ngat()` thì rất dễ đọc nhầm cái này thành cái kia.
+        r3.vonDauNgay = 10.0 ** 9
+        r3.von = 899.0
+        r3._soat_ngat()
+        kiem("sụt 10,1% từ mốc MỚI ⇒ vẫn NGẮT (mở lại không nới trần)",
+             r3.ngatKhanCap and "sụt vốn" in r3.lyDoNgat, r3.lyDoNgat)
+        r3.ngatKhanCap, r3.lyDoNgat = False, ""
+        r3.von = 901.0
+        r3._soat_ngat()
+        kiem("sụt 9,9% ⇒ chưa ngắt (biên đúng chỗ)",
+             not r3.ngatKhanCap, r3.lyDoNgat)
+
+        # 5. mở lại KHÔNG được NÂNG đỉnh — đỉnh chỉ đi xuống ở đây
+        r4 = _may(500.0, 1200.0)
+        r4.mo_lai()
+        kiem("mở lại chỉ HẠ đỉnh, không bao giờ nâng",
+             r4.dinhVon <= 1200.0 and abs(r4.dinhVon - 500.0) < 1e-9,
+             r4.dinhVon)
+
+        # 6. con số ấy phải TỚI ĐƯỢC buồng lái
+        r5 = _may(932.44, 1074.71)
+        kiem("`tom_tat` mang theo `conThieuDeThoatUsd`",
+             "conThieuDeThoatUsd" in r5.tom_tat())
+        kiem("và nó khớp với hàm tính",
+             abs(r5.tom_tat()["conThieuDeThoatUsd"]
+                 - r5.con_thieu_de_thoat_ngat()) < 1e-12)
+    finally:
+        R._RR = cu
 
 
 
@@ -11686,7 +11914,7 @@ def kiem_cau_dao_chan_that() -> None:
     from kham.phat_lai import PhienPhatLai
 
     khung = _bang_gia(120)
-    tam = Path(tempfile.mkdtemp(prefix="ktg-caudao-"))
+    tam = Path(_tam_moi(prefix="ktg-caudao-"))
 
     # 1. KHÔNG ngắt — phải có lệnh, không thì phép kiểm dưới vô nghĩa.
     a = PhienPhatLai(von=1000.0, thuMucSo=tam / "mo")
@@ -12173,6 +12401,8 @@ def main() -> int:
     kiem_ho_market()
     kiem_khao_sat_ngay()
     kiem_nhip_tim_canh_gac()
+    kiem_do_cau_dao()
+    kiem_mo_lai_cau_dao()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
