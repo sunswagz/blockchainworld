@@ -28,7 +28,7 @@
 }
 .pulse[data-state="live"] .dot { background: var(--l2); }
 .pulse[data-state="wait"] .dot { background: var(--gold); }
-.pulse[data-state="off"]  .dot { background: var(--line-2, #C9D3E6); }
+.pulse[data-state="off"]  .dot { background: var(--line); }
 
 .pulse .lab {
   font-size:var(--t-0); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3);

@@ -508,7 +508,7 @@ td .mo,.khong{color:var(--ink-3);font-variant-numeric:tabular-nums}
    mới ở đây là thêm một nấc vào thang khoảng cách, và thang ấy cũng
    đang được canh. */
 .bo-qua{position:fixed;left:12px;top:12px;z-index:9999;padding:8px 12px;
-  border-radius:8px;background:var(--card,#14161c);color:var(--fg,#e8ecf4);
-  border:1px solid var(--vien,rgba(255,255,255,.22));text-decoration:none;
+  border-radius:8px;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);text-decoration:none;
   transform:translateY(-260%);transition:transform .14s ease}
 .bo-qua:focus{transform:translateY(0)}

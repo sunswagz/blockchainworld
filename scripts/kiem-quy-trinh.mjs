@@ -864,6 +864,90 @@ for (const c of ["."].concat(cung)) {
   }
 }
 
+/* ── PHÉP: BIẾN CSS CHỈ SỐNG BẰNG DỰ PHÒNG ─────────────
+   `var(--x, duphong)` mà `--x` KHÔNG được khai ở đâu cả thì thứ hiện
+   ra LUÔN LUÔN là dự phòng — nhưng không ai đọc CSS mà nghĩ thế. Người
+   đọc thấy một cái tên token và tin rằng nó theo chủ đề của cung.
+
+   Đã hỏng thật, và hỏng đúng chỗ trớ trêu nhất. Khối `.bo-qua` —
+   đường nhảy qua đầu trang, thứ dựng ra CHO người đi bàn phím — được
+   chép sang chín cung kèm dự phòng của chủ đề TỐI:
+
+       background: var(--card, #14161c);  color: var(--fg, #e8ecf4);
+
+   Ở cung nền SÁNG, `--fg` không khai nên chữ rơi về #e8ecf4 gần
+   trắng, đặt trên nền trắng. Đo ngày 04/09/2026:
+
+       do-sat-vien    #e8ecf4 trên #FFFFFF = 1.18
+       tang-thu-cac   #e8ecf4 trên #FFFDF8 = 1.16
+
+   Sàn WCAG AA là 4.5. Đường nhảy của hai cung ấy VÔ HÌNH khi nhận
+   tiêu điểm. Không thước nào thấy: `bien-css` cố ý bỏ qua var() CÓ dự
+   phòng, còn `tuong-phan` chỉ ghép cặp token trong `:root` nên không
+   bao giờ nhìn tới một giá trị viết thẳng trong khối luật.
+
+   Đặt ở ĐÂY chứ không thành thước là có chủ ý: sau khi vá thì mọi
+   cung đều đạt, mà một thước xanh sẵn khắp nơi thì không mở dư địa
+   nào cho vòng tiến hoá — đúng luật cửa 3 của `thuoc-moi.mjs`. Cái
+   này là lưới đỡ chống tái phát, và lưới đỡ thì thuộc về bộ kiểm.
+
+   ĐỌC CẢ BA NƠI KHAI. Bản đầu chỉ đọc CSS và kêu oan `--ring` của
+   Cổng Thành — biến ấy khai trong HTML bằng `style="--ring:#7C9CF5"`
+   cho từng vòng thành, và `var(--ring, var(--line))` là khuôn đúng
+   cho "tuỳ chọn, có mặc định". Một phép canh kêu oan vài lần thì
+   người ta thôi đọc nó. */
+{
+  const boCT = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const trang = [...cung, "cong-thanh"];
+  const xau = [];
+
+  for (const c of trang) {
+    const goc = c === "cong-thanh" ? "" : c + "/";
+    const dCss = join(ROOT, goc, "assets", "css");
+    if (!existsSync(dCss)) continue;
+    const ten = (await readdir(dCss)).filter((f) => f.endsWith(".css")).sort();
+    const css = boCT((await Promise.all(ten.map((f) => doc(`${goc}assets/css/${f}`)))).join("\n"));
+
+    const khai = new Set();
+    for (const m of css.matchAll(/(--[\w-]+)\s*:/g)) khai.add(m[1]);
+
+    /* Khai trong HTML: `style="--ring:#7C9CF5"` — dùng thật ở Cổng Thành. */
+    const fHtml = `${goc}index.html`;
+    if (existsSync(join(ROOT, fHtml))) {
+      const h = await doc(fHtml);
+      for (const m of h.matchAll(/(--[\w-]+)\s*:/g)) khai.add(m[1]);
+    }
+
+    /* Khai trong JS: setProperty, hoặc chuỗi CSS dựng trong mã. */
+    const dJs = join(ROOT, goc, "assets", "js");
+    if (existsSync(dJs)) {
+      const quet = async (d, tuong) => {
+        for (const n of await readdir(d, { withFileTypes: true })) {
+          if (n.isDirectory()) await quet(join(d, n.name), `${tuong}/${n.name}`);
+          else if (n.name.endsWith(".js")) {
+            const t = await doc(`${tuong}/${n.name}`);
+            for (const m of t.matchAll(/setProperty\(\s*["'](--[\w-]+)/g)) khai.add(m[1]);
+            for (const m of t.matchAll(/(--[\w-]+)\s*:/g)) khai.add(m[1]);
+          }
+        }
+      };
+      await quet(dJs, `${goc}assets/js`);
+    }
+
+    const thieu = new Map();
+    for (const m of css.matchAll(/var\(\s*(--[\w-]+)\s*,([^()]*(?:\([^()]*\)[^()]*)*)\)/g)) {
+      if (!khai.has(m[1])) thieu.set(m[1], m[2].trim().slice(0, 40));
+    }
+    for (const [b, du] of thieu) xau.push(`${c}: ${b} → luôn hiện "${du}"`);
+  }
+
+  if (xau.length)
+    bao(`${xau.length} biến CSS chỉ sống bằng dự phòng — thứ hiện ra không phải thứ tên nó hứa:\n` +
+        xau.slice(0, 8).map((x) => "        " + x).join("\n") +
+        (xau.length > 8 ? `\n        … và ${xau.length - 8} chỗ nữa` : "") +
+        `\n        Khai token ấy trong :root, hoặc đổi sang token cung này CÓ THẬT.`);
+}
+
 /* ── PHÉP: CỔNG THÀNH PHẢI NẰM TRONG VÒNG ──────────────
    Trước 04/09/2026 khối này là một BẢN CHÉP TAY: `tien-hoa.mjs` dựng
    đường theo `<cung>/…` nên không trỏ vào gốc repo được, và trang đầu

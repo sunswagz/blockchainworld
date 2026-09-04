@@ -291,7 +291,7 @@ body::after {
    vừa thêm một giá trị vừa nói dối về việc đó. Vị trí left/top
    không bị đếm vào thang khoảng cách nên giữ 12px. */
 .bo-qua{position:fixed;left:12px;top:12px;z-index:9999;padding:8px 14px;
-  border-radius:8px;background:var(--card,#161b24);color:var(--fg,#e8edf5);
-  border:1px solid var(--line,rgba(255,255,255,.22));text-decoration:none;
+  border-radius:8px;background:var(--raise);color:var(--fg);
+  border:1px solid var(--line-2);text-decoration:none;
   transform:translateY(-260%);transition:transform .14s ease}
 .bo-qua:focus{transform:translateY(0)}
