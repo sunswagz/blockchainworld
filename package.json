@@ -43,7 +43,6 @@
     "tra": "node knowledge-os/tra.mjs",
     "tri-thuc-do": "node knowledge-os/do.mjs",
     "tri-thuc-thu": "node knowledge-os/thu-cong.mjs",
-    "thuoc-moi": "node scripts/thuoc-moi.mjs",
     "phieu": "node scripts/phieu-toan-thanh.mjs"
   },
   "engines": {

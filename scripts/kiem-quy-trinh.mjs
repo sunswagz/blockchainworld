@@ -865,7 +865,7 @@ for (const c of ["."].concat(cung)) {
 }
 
 /* ── PHÉP: CỔNG THÀNH PHẢI NẰM TRONG VÒNG ──────────────
-   Trước 02/09/2026 khối này là một BẢN CHÉP TAY: `tien-hoa.mjs` dựng
+   Trước 04/09/2026 khối này là một BẢN CHÉP TAY: `tien-hoa.mjs` dựng
    đường theo `<cung>/…` nên không trỏ vào gốc repo được, và trang đầu
    tiên người ta thấy là trang duy nhất không thước nào chạm tới. Nên
    năm luật đọc-được-bằng-chuỗi bị chép lại ở đây.

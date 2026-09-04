@@ -41,7 +41,7 @@ import { join } from "node:path";
 
 /* `cong-thanh` KHÔNG phải một thư mục — nó là trang gốc repo, và
    `scripts/tien-hoa.mjs` nhận đúng tên ấy làm bí danh cho gốc. Trước
-   02/09 nó nằm ngoài mọi vòng: mười hai cung tiến mỗi ngày hoặc mỗi
+   04/09 nó nằm ngoài mọi vòng: mười hai cung tiến mỗi ngày hoặc mỗi
    tuần, còn trang ĐẦU TIÊN người ta thấy thì chỉ tiến khi có người
    ngồi vào sửa — lần gần nhất trước đó là 29/08.
 

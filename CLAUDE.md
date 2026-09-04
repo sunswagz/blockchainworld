@@ -1714,7 +1714,7 @@ nhận diện "thư mục có index.html" đều bỏ sót nó. Hậu quả su�
 TIÊN người ta thấy chưa từng bị chấm, và không vòng tiến hoá nào chạm
 tới. Nó chỉ tiến khi có người ngồi vào sửa — 14/08, rồi 29/08, hết.
 
-Từ 02/09/2026 nó mang **bí danh `cong-thanh`** và đi đúng đường mọi
+Từ 04/09/2026 nó mang **bí danh `cong-thanh`** và đi đúng đường mọi
 cung khác đi: `do` · `de-bai` · `cong` · `phieu-toan-thanh` ·
 `VONG_XOAY`. Không script mới, chỉ một tham số — đúng lời hứa ở đầu
 `scripts/tien-hoa.mjs`.
@@ -1836,81 +1836,58 @@ vào **hai** thư mục khác nhau và regex ghép nhầm:
 `logos.js` là JS hợp lệ gán vào `window`, nên `new Function` đọc đúng
 thứ trình duyệt đọc chứ không phải một bản phỏng đoán về nó.
 
-### Cổng chặn cho THƯỚC MỚI — và vì sao nó phải có trước
+### Vòng tiến hoá không tự nới được thước của mình
 
-    npm run thuoc-moi -- tu-kiem              11 ca, không cần mạng
-    npm run thuoc-moi -- moc --ghi <file>     chụp 18 thước × 13 trang
-    npm run thuoc-moi -- cong --so <file>     xét một bản sửa bộ thước
-
-Tám vòng tiến hoá đang chạy **đều là vòng sửa TRANG**. Đề bài của chúng
-nói rõ: chỉ được sửa `index.html`, `app.css`, `app.js` của đúng một
-cung. `scripts/tien-hoa.mjs` — nơi các thước sống — không nằm trong ba
-file đó.
+Tám vòng tiến hoá đều là vòng sửa TRANG. Đề bài của chúng nói rõ: chỉ
+được sửa `index.html`, `app.css`, `app.js` của đúng một cung.
+`scripts/tien-hoa.mjs` — nơi các thước sống — không nằm trong ba file đó.
 
 Nên hệ này **tối ưu được theo một cái thước cố định, nhưng không tự nới
 được cái thước ấy**. Đó không phải giới hạn của model; đó là một ranh
-giới QUYỀN, dựng có lý do: một cái máy vừa bị chấm vừa được sửa thước
-chấm mình thì con số nó khoe không còn nghĩa gì.
+giới QUYỀN, dựng có lý do: máy vừa bị chấm vừa được sửa thước chấm mình
+thì con số nó khoe không còn nghĩa gì.
 
-Cái giá của ranh giới ấy đo được, và tới 02/09/2026 thì đã tới lúc trả:
+Cái giá đo được, ngày 04/09/2026:
 
-    22 lượt liên tiếp (30/08 → 02/09) ghi "16/16 → 16/16"
+    22 lượt liên tiếp 30/08 → 02/09 (đo lại 04/09) ghi "16/16 → 16/16"
     factory/kho-da-dung.json đứng im từ 28/08 — lần cuối có NGƯỜI
       dịch skill thành thước
     phiếu toàn thành 198/198, tròn vì thước hết chỗ đo
 
-Thêm ĐÚNG MỘT thước bằng tay (`mot-main`, 02/09) bắt ngay được
-`kinh-thanh` thiếu thẻ `<main>` — thiếu từ đầu, không ai báo. **Nút thắt
-nằm ở bộ thước, không nằm ở model.**
+Thêm ĐÚNG MỘT thước bằng tay (`mot-main`) bắt ngay `kinh-thanh` thiếu
+`<main>` — thiếu từ đầu, không ai báo. **Nút thắt ở bộ thước, không ở
+model.**
 
-**Chốt cũ không dùng được ở đây, và dùng nhầm thì nó khen đúng kẻ gian.**
-Chốt cũ là "điểm không được tụt". Thêm một thước thì điểm tụt là chuyện
-ĐÚNG; còn gỡ một thước đang trượt làm điểm ĐẸP LÊN và chốt cũ khen nó.
+**Khâu còn thiếu đang nằm ở nhánh `thuoc-moi`, chưa nhập `main`.** Nó
+có `scripts/thuoc-moi.mjs` (đề bài + cổng chặn bốn cửa),
+`scripts/do-ung-vien.mjs`, một node trong workflow, và dừng ở TỜ TRÌNH
+`factory/thuoc-de-xuat.md` chứ không tự cắm thước vào bộ đo.
 
-Sáu phép của cổng này hỏi câu khác — *bản sửa này có làm bộ thước nhìn
-được nhiều hơn không*:
+Hai phiên đã dựng trùng khâu này trong cùng một ngày, mỗi bên một nhánh.
+Bản trên nhánh `thuoc-moi` đầy đủ hơn nên bản kia đã rút. Còn ĐÚNG MỘT
+chỗ phải chỉnh lúc nhập, và nó là loại hỏng im lặng:
 
-    1. nạp được           bộ thước ngã thì mọi phiếu sau là rác
-    2. không mất thước    mọi mã cũ phải còn — chặn xoá và đổi tên
-    3. đúng một thước mới một bước, như mọi vòng khác
-    4. thước mới phải BẮT ĐƯỢC gì   trượt ở ít nhất một trang
-    5. không lật thước cũ không mã cũ nào đổi kết luận, CẢ HAI CHIỀU
-    6. tất định           đo hai lần ra một kết quả
+> `CUNG` của `scripts/thuoc-moi.mjs` đếm bằng *"thư mục có
+> index.html"* — tức **12 trang, thiếu Cổng Thành**. Đổi nó sang
+> `dsTrang(ROOT)` trong `scripts/vong-xoay.mjs` (13 trang). Không đổi
+> thì một thước mới có thể làm hỏng đúng trang gốc mà cổng không thấy —
+> đúng cái lỗ mà cả mục "Cổng Thành là cung thứ mười ba" ở trên sinh ra
+> để bịt.
 
-Phép 4 và 5 là phần đáng kể:
+**Chốt "điểm không được tụt" KHÔNG dùng được cho việc sửa thước**, và
+dùng nhầm thì nó khen đúng kẻ gian: thêm thước thì điểm tụt là chuyện
+ĐÚNG, còn gỡ một thước đang trượt thì điểm ĐẸP LÊN và chốt cũ khen nó.
+Cổng thước phải hỏi câu khác — *bản sửa này có làm bộ thước nhìn được
+nhiều hơn không* — và phải chặn được kiểu gian duy nhất mà một máy tối
+ưu điểm chắc chắn tự tìm ra: **đừng sửa trang, hãy nới thước**.
 
-- **Phép 4** — `tien-hoa.mjs` đã tự ghi: *"thêm một thước xanh sẵn khắp
-  nơi là thêm một dấu ✓ không canh gì"*. Một thước đạt ở cả 13 trang
-  ngay ngày đầu thì hoặc nó đo thứ không ai sai, hoặc regex của nó hỏng
-  — như thước SVG xanh giả ở cả 12 cung suốt nhiều tuần hồi 28/08.
+Đã thử thật cả hai chiều trên 18 thước × 13 trang trước khi rút bản
+trùng, nên con số này là đo được chứ không phải suy đoán:
 
-- **Phép 5** chặn kiểu gian tinh vi nhất, và là kiểu DUY NHẤT mà một máy
-  tối ưu điểm chắc chắn tự tìm ra: *đừng sửa trang, hãy nới thước*.
-  Không có nó thì đổi `soCo <= 12` thành `soCo <= 40` là mọi cung lên
-  điểm và cổng cũ khen "↑ tiến". Trang KHÔNG đổi trong lượt sửa thước,
-  nên mọi thay đổi kết luận đều do bộ thước — không có nhánh nào khác
-  để đổ.
-
-Đã thử thật, cả hai chiều:
-
-    nới `mot-main` từ `soMain === 1` thành `soMain <= 1`
-      → ✗ LẬT 1 kết luận · kinh-thanh/mot-main: false → true · thoát 1
-
-**Cái nó KHÔNG khoá, nói thẳng:** thước mới có ĐÁNG đo hay không. Một
-thước đếm dấu phẩy trong HTML sẽ qua sạch sáu phép. Cổng này chỉ khoá
-được *"thước này có thật và có nhìn thấy gì không"*; *"có đáng nhìn
-không"* vẫn là câu của người đọc diff.
-
-**`tu-kiem` là bắt buộc, đừng gỡ.** Cổng chặn là loại mã không bao giờ
-chạy đúng đường trong lúc mọi thứ lành — nó chỉ chạy khi có bản sửa xấu,
-tức là đúng lúc không ai ngồi xem. Cổng hỏng thì im lặng cho qua, và ta
-chỉ biết sau khi đã mất thứ nó phải giữ. Mười một ca bơm bảng giả thẳng
-vào phần so sánh, không cần 13 tiến trình con.
-
-**Chưa có node nào gọi cổng này.** Cổng có trước, máy có sau — đúng thứ
-tự mà `tien-hoa.mjs` tự đặt ra: *"Không có cổng thì đây không phải vòng
-tiến hoá, chỉ là một cái máy được cấp quyền tự làm hỏng mình."* Bật một
-node để bot sửa bộ thước là quyết định của người, không phải của phiên.
+    nới `mot-main` (soMain === 1 → soMain <= 1)
+      ✗ LẬT 1 kết luận · kinh-thanh/mot-main: false → true
+    thêm `mot-main` vào mốc chưa có nó
+      ✓ nhận · 17 → 18 thước · bắt được kinh-thanh
 
 ### Node `huong` — thứ duy nhất KHÔNG sinh bản vá
 

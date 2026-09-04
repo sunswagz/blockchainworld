@@ -22,7 +22,7 @@
    Mười ba chứ không mười hai: trang gốc `index.html` — Cổng Thành —
    không phải thư mục con nào nên phép "thư mục có index.html" bỏ sót
    nó suốt, và phiếu đọc 198/198 trong khi trang ĐẦU TIÊN người ta
-   thấy chưa từng bị chấm. Từ 02/09 nó vào bảng dưới bí danh
+   thấy chưa từng bị chấm. Từ 04/09 nó vào bảng dưới bí danh
    `cong-thanh`; danh sách ở `scripts/vong-xoay.mjs`.
 
    ── KHÔNG DỰNG THÊM MỘT BỘ ĐO THỨ HAI ─────────────────
@@ -48,10 +48,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHI_IN = process.argv.includes("--in");
 const RA = join(ROOT, "factory", "phieu.json");
 
-/* Danh sách nằm ở `scripts/vong-xoay.mjs`, dùng chung với cổng chặn
-   thước mới (`scripts/thuoc-moi.mjs`). Hai chỗ cùng hỏi "trang nào bị
-   thước chấm" mà mỗi chỗ tự đếm thì sớm muộn một chỗ sót Cổng Thành —
-   đúng cách nó đã bị sót suốt từ đầu. */
+/* Danh sách nằm ở `scripts/vong-xoay.mjs`. Chỗ nào cũng hỏi "trang nào
+   bị thước chấm" thì hỏi hàm ấy, đừng tự đếm — mỗi bản đếm riêng là
+   một cơ hội sót Cổng Thành, đúng cách nó đã bị sót suốt từ đầu.
+   (Cổng chặn thước mới trên nhánh `thuoc-moi` đang tự đếm 12 trang;
+   xem mục "Vòng tiến hoá không tự nới được thước" trong CLAUDE.md.) */
 const cung = dsTrang(ROOT);
 
 /* Mỗi cung một tiến trình, và mỗi tiến trình một trần giờ. Cung nào

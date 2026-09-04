@@ -81,7 +81,12 @@
     <div class="nav-foot"><span class="dotmark">SW</span><span>SUNSWaGz Hub · bản đồ v3</span></div>
   </nav>
 
-  <div class="main" id="than" tabindex="-1">
+  <!-- <main> chứ không phải <div>: đây là mốc điều hướng "nội dung chính",
+       thứ người đi bằng trình đọc màn hình nhảy tới để bỏ qua thanh bên và
+       đỉnh trang. Trang này thiếu nó từ đầu và không ai báo, vì tới 02/09
+       chưa thước nào hỏi. Lớp `.main` giữ nguyên nên CSS không đổi một
+       pixel — mọi luật đều bám lớp, không bám tên thẻ. -->
+  <main class="main" id="than" tabindex="-1">
     <div class="bar">
       <button class="icon-btn burger" id="openNav" aria-label="Mở thanh bên">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -138,7 +143,7 @@
       </button>
       <div id="rankBody"></div>
     </div>
-  </div>
+  </main>
 </div>
 
 <div class="scrim" id="scrim"></div>

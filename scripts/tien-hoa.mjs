@@ -988,7 +988,7 @@ function do_() {
      được trang gốc. Nay nó chấm được, nên luật về ĐÚNG MỘT chỗ —
      hai bản sao thì sớm muộn lệch nhau, đúng bài học mang-truoc.mjs.
 
-     Đo ngày 02/09 trên cả mười ba trang: mười hai có đúng một, riêng
+     Đo ngày 04/09 trên cả mười ba trang: mười hai có đúng một, riêng
      `kinh-thanh` có KHÔNG cái nào — thiếu từ đầu, không ai báo, vì
      chưa thước nào hỏi. Nó đang nằm trong VONG_XOAY nên lượt tới nó
      sẽ nhận đúng việc này làm đề bài. */

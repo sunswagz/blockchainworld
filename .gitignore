@@ -37,7 +37,7 @@ ios/
 # nhầm một file bot — mà file đó sinh lại mỗi lượt nên nó chỉ tạo xung
 # đột, không mang gì.
 #
-# Khai theo MẪU chứ không liệt kê từng cung: từ 02/09 tám cung trong
+# Khai theo MẪU chứ không liệt kê từng cung: từ 04/09 tám cung trong
 # vòng xoay cũng sinh file này, và ba cung được liệt kê tay chỉ vì
 # chúng là ba cung có vòng riêng ĐẦU TIÊN. Dòng thứ hai là cho Cổng
 # Thành — nó ở gốc repo nên `*/` không phủ tới, và nếu quên thì mỗi

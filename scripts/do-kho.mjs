@@ -63,13 +63,13 @@ const LENH = process.argv[2];
    nào cũng nhắc "design" hay "test" ở đâu đó, nên khớp mô tả cho ra
    1.339/3.696 — tức là không lọc gì cả. */
 const LINH_VUC = {
-  /* THÊM 02/09/2026, và đây là chỗ hở lớn nhất của bản đầu: sáu lĩnh
+  /* THÊM 04/09/2026, và đây là chỗ hở lớn nhất của bản đầu: sáu lĩnh
      vực cũ KHÔNG có cái nào là giao diện — đúng thứ mà cả tám vòng
      tiến hoá làm suốt ngày, và đúng thứ mà `nhap-skill.mjs` đặt lên
      đầu bảng khi chọn skill cho kệ. Hai máy cùng đọc một kho mà bất
      đồng về việc xưởng này cần gì.
 
-     Hệ quả đo được, lượt quét thật ngày 02/09 trước khi vá — năm đề
+     Hệ quả đo được, lượt quét thật ngày 04/09 trước khi vá — năm đề
      xuất đầu bảng: azure-devops-cli, api-mock, automation-audit-ops,
      asset-audit, block-no-verify-hook. Một repo 13 trang tĩnh không
      máy chủ, không bước dựng, không container, được mớm cho công cụ
