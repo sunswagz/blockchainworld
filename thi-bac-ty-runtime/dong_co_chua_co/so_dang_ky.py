@@ -226,9 +226,10 @@ DONG_CO: tuple[DongCo, ...] = (
     DongCo(
         "lp-v3", "Cấp thanh khoản AMM", "thanh-khoan",
         "phí LP trừ tổn thất vô thường trên một khoảng giá",
-        "Họ `thanh-khoan` hiện KHÔNG có ty nào. Phễu theo họ vì thế thiếu "
-        "hẳn một dòng, và Rủi Ro Tổng chưa bao giờ phải cân một cơ hội có "
-        "tổn thất vô thường.",
+        "Họ `thanh-khoan` nay có HAI ty: `lp_amm/` (cặp neo, không ước IL) "
+        "và `lp_v3/` (cặp biến động, IL tính từ σ — dải V3 thật). Dòng này "
+        "giữ tên `lp-v3` từ trước khi `lp_v3/` ra đời; gói đã dựng khai ở "
+        "`goiDaDung` là ty ĐẦU của họ.",
         (DieuKien("nguon-pool", "APY và TVL mức pool", _co_nguon_pool),
          DieuKien("gia-gas", "gas vào/ra vị thế", _co_gia_gas),
          DieuKien("ky-lenh-onchain", "ví ký được giao dịch",

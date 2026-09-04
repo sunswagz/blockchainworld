@@ -229,6 +229,22 @@ def ghi_lat_cat(runtime) -> Path | None:
     noi_dung = HEADER + "window.CANG_PHI = " + json.dumps(
         sach(dung(runtime)), ensure_ascii=False, indent=2) + ";\n"
     d.write_text(noi_dung, encoding="utf-8")
+    # Lát cắt THỨ HAI, của ty bể thanh khoản V3 — file riêng vì nó là một
+    # báo cáo khác hẳn (dải, σ, quyết định) và cung tĩnh đọc nó ở một mục
+    # riêng. Hỏng ở đây KHÔNG được làm hỏng lát cắt chính.
+    #
+    # Gọi QUA ty, không import gói ty: `bac/` cũng là một ty, và hiến pháp
+    # cấm ty gọi ty. Ty nào có `ghi_lat_cat(cung)` thì được ghi lát cắt
+    # riêng của nó — hôm nay là `lp_v3`.
+    for ten, t in (getattr(runtime, "tyPhu", None) or {}).items():
+        if not hasattr(t, "ghi_lat_cat"):
+            continue
+        try:
+            t.ghi_lat_cat(cung)
+        except Exception as e:                                # noqa: BLE001
+            from .bus import bus
+            bus.ghi(f"lát cắt riêng của {ten} hỏng: {type(e).__name__}: {e}",
+                    loai="loi")
     return d
 
 

@@ -395,6 +395,67 @@ def api_doi_soat_vi_the() -> JSONResponse:
     return JSONResponse(sach(b.tom_tat()))
 
 
+# ── BỂ THANH KHOẢN V3 — trang riêng của ty thứ mười ─────────────────────
+#
+# Ty này là ty duy nhất có VỊ THẾ NGƯỜI (đặt ở OKX, ghi vào đây), nên nó
+# cần lối POST — và mọi lối POST của buồng lái này đi qua cửa Origin ở
+# `_chan_origin_la` bên dưới (thêm 04/09/2026, cùng ngày với các lối này).
+
+def _ty_bien_do():
+    t = (getattr(runtime, "tyPhu", None) or {}).get("tyBienDo")
+    if t is None:
+        raise HTTPException(status_code=503,
+                            detail="ty bể thanh khoản chưa đăng ký — "
+                                   "Trung Ương chưa bật hoặc ty lỗi lúc nạp")
+    return t
+
+
+@app.get("/api/be-thanh-khoan")
+def be_thanh_khoan() -> JSONResponse:
+    return JSONResponse(sach(_ty_bien_do().bao_cao()))
+
+
+@app.get("/api/be-thanh-khoan/van-ban")
+def be_thanh_khoan_van_ban():
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(_ty_bien_do().bao_cao_van_ban())
+
+
+@app.post("/api/be-thanh-khoan/vi-the")
+def be_thanh_khoan_mo(than: dict) -> JSONResponse:
+    """Người vừa thêm thanh khoản ở OKX → ghi sổ. Thân: kyHieu, Pa, Pb,
+    vonUsd, giaMo, ghiChu?, maQuyetDinh?"""
+    t = _ty_bien_do()
+    try:
+        v = t.mo_vi_the(than)
+    except (KeyError, ValueError, TypeError) as e:
+        raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
+    bus.ghi(f"bể thanh khoản: mở {v.kyHieu} [{v.Pa:.4g}, {v.Pb:.4g}] {v.vonUsd:.0f} USD")
+    return JSONResponse(sach(v.tom_tat()))
+
+
+@app.post("/api/be-thanh-khoan/vi-the/{ma}/dong")
+def be_thanh_khoan_dong(ma: str, than: dict) -> JSONResponse:
+    """Người vừa rút ở OKX → ghi kết cục. Thân: giaDong, phiThuUsd?,
+    thuongThuUsd?, lyDoDong?"""
+    t = _ty_bien_do()
+    try:
+        v = t.dong_vi_the(ma, than)
+    except (KeyError, ValueError, TypeError) as e:
+        raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
+    bus.ghi(f"bể thanh khoản: đóng {v.kyHieu} ở {v.giaDong}")
+    return JSONResponse(sach(v.tom_tat()))
+
+
+@app.post("/api/be-thanh-khoan/hoc")
+def be_thanh_khoan_hoc() -> JSONResponse:
+    """Chấm điểm + gom bài học + một lượt tiến hoá NGAY, không đợi mốc tối."""
+    try:
+        return JSONResponse(sach(_ty_bien_do().hoc()))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
 @app.post("/api/lat-cat")
 def lat_cat() -> JSONResponse:
     duong = ghi_lat_cat(runtime)
@@ -404,6 +465,37 @@ def lat_cat() -> JSONResponse:
 @app.get("/")
 def trang_chu() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")
+
+
+def _origin_cho_phep() -> set:
+    """Dựng TỪ cổng trong config, không chép số — ca «đúng host mà sai
+    cổng» rất dễ sót (CLAUDE.md, mục «MỌI BUỒNG LÁI LOCALHOST»)."""
+    cong = int(CONFIG.get("port") or 5188)
+    return {f"http://{h}:{cong}" for h in ("localhost", "127.0.0.1", "[::1]")}
+
+
+@app.middleware("http")
+async def _chan_origin_la(yc, tiep):
+    """Lối POST chỉ nhận từ CHÍNH buồng lái, hoặc từ nơi KHÔNG có Origin.
+
+    Nghe ở 127.0.0.1 không cứu được: một trang web bất kỳ mở trong cùng
+    trình duyệt gọi được `fetch("http://localhost:5188/api/tam-dung",
+    {method:"POST", mode:"no-cors"})` — «simple request», không preflight,
+    không đọc được phản hồi nhưng TÁC DỤNG PHỤ đã xảy ra. Khâm Thiên Giám
+    tìm ra 30/08/2026 và CLAUDE.md dặn các cung khác kiểm; cung này tới
+    04/09 mới vá, đúng lúc thêm lối ghi vị thế.
+
+        có Origin, không nằm trong danh sách  → 403
+        có Origin đúng (buồng lái tự gọi)     → cho qua
+        KHÔNG có Origin (curl, script)        → cho qua — thứ đang chặn
+                                                là TRÌNH DUYỆT BỊ LỪA
+    """
+    if yc.method in ("POST", "PUT", "DELETE", "PATCH"):
+        og = yc.headers.get("origin")
+        if og and og not in _origin_cho_phep():
+            return JSONResponse({"loi": f"Origin {og!r} không được gọi lối ghi "
+                                        f"của buồng lái"}, status_code=403)
+    return await tiep(yc)
 
 
 @app.middleware("http")
@@ -426,7 +518,8 @@ async def _khong_giu_ban_cu(yc, tiep):
 #: Danh sách tường minh chứ không bắt-tất-cả: bắt tất cả thì một đường gõ
 #: sai cũng trả về trang chủ, và người gõ sai tưởng mình gõ đúng.
 DUONG_BUONG_LAI = ("trung-tam", "dong-co", "von", "vi-the", "co-hoi",
-                   "loi-lo", "rui-ro", "du-lieu", "so-cai", "he-thong")
+                   "loi-lo", "rui-ro", "du-lieu", "so-cai", "he-thong",
+                   "be-thanh-khoan")
 
 
 @app.get("/{muc}")

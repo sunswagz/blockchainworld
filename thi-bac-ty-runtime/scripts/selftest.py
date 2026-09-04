@@ -1197,6 +1197,9 @@ def kiem_tien_hoa_hoc() -> None:
                                  "đóng lại phải có người xem",
         "/api/lat-cat": "cung tĩnh chỉ đổi khi có người bấm — tiêu đề file "
                         "đã sửa cho khớp, xem `kiem_lat_cat`",
+        "/api/be-thanh-khoan/vi-the": "NGƯỜI vừa thêm thanh khoản ở OKX — máy "
+                                      "không đặt lệnh, nên máy không thể tự ghi",
+        "/api/be-thanh-khoan/vi-the/{ma}/dong": "NGƯỜI vừa rút ở OKX, cùng lý do",
     }
     VONG_GOI = {
         "/api/hoc": ("thi_bac_ty/trung_uong.py", "_cuoi_vong",
@@ -1204,6 +1207,7 @@ def kiem_tien_hoa_hoc() -> None:
         "/api/tien-hoa": ("bac/vong.py", "mot_vong", "_tien_hoa_dinh_ky"),
         "/api/doi-soat-vi-the": ("thi_bac_ty/trung_uong.py", "mot_vong",
                                  "canh_vi_the"),
+        "/api/be-thanh-khoan/hoc": ("lp_v3/ngay.py", "chay", "hoc"),
     }
     _sv30 = (_goc30 / "bac/server.py").read_text(encoding="utf-8")
     _duong30 = _ast30.parse(_sv30)
@@ -7551,9 +7555,9 @@ def kiem_ha_tang_ho() -> None:
     from thi_bac_ty.hien_phap import _goi_ty
 
     ten = {d.name for d in _goi_ty()}
-    kiem("hiến pháp nhận đúng CHÍN ty",
+    kiem("hiến pháp nhận đúng MƯỜI ty",
          ten == {"bac", "co_so", "dex_arb", "kham_ngoai", "lai_suat",
-                 "lp_amm", "on_dinh", "quyen_chon", "tin_dung"}, str(ten))
+                 "lp_amm", "lp_v3", "on_dinh", "quyen_chon", "tin_dung"}, str(ten))
     kiem("`kham_ngoai` LÀ một ty, không phải hạ tầng",
          "kham_ngoai" in ten,
          "nó có một lớp kế thừa `khuon_ty.Ty` và nó nộp tờ trình — đó chính "
@@ -11355,6 +11359,7 @@ def kiem_ke_toan_vi_the() -> None:
         ("quyen_chon.ty_ngang_gia", "TyNgangGia"),
         ("dex_arb.ty_vong_doi", "TyVongDoi"),
         ("lp_amm.ty_cap_thanh_khoan", "TyCapThanhKhoan"),
+        ("lp_v3.ty_bien_do", "TyBienDo"),
     ]
     co, chua = [], []
     for mod, ten in _cacTy:
@@ -11371,6 +11376,369 @@ def kiem_ke_toan_vi_the() -> None:
          f"mà không ai cộng lãi lỗ, và buồng lái phải nói đúng câu ấy")
 
 
+
+
+def kiem_lp_v3() -> None:
+    print("\n-- LP V3: IL do duoc tu mot anh chup CONG mot sigma --")
+    import datetime as _dt
+    import math as _m
+    import pathlib as _pl
+    import tempfile as _tf
+
+    from lp_v3 import bang_gia, config as _cf, lich, mo_hinh as mh
+    from lp_v3 import kinh_nghiem as kn, tien_hoa as th, quyet_dinh as qd
+    from lp_v3.nguon import (doc_csv_stooq, doc_rss, gia_tu_sqrt,
+                             giai_ma_chuoi, giai_ma_int24, giai_ma_uint)
+    from lp_v3.ty_bien_do import TyBienDo, apr_cua_pool, xuat_to_trinh
+    from lp_v3.theo_doi import SoViThe, ket_cuc
+
+    tam = _pl.Path(_tf.mkdtemp(prefix="lp-v3-"))
+
+    # ── toán V3 ─────────────────────────────────────────────────────────
+    kiem("tick ↔ giá đi vòng", abs(mh.gia_tu_tick(mh.tick_tu_gia(182.95)) / 182.95 - 1) < 1e-4)
+    Pa, Pb = mh.dai_doi_xung(100.0, 0.05)
+    kiem("dải đối xứng theo LOG: Pa·Pb = P²", gan(Pa * Pb, 100.0 ** 2, 1e-6))
+    kiem("hiệu suất ±5% ≈ 41,5×", abs(mh.hieu_suat_von(Pa, Pb) - 41.49) < 0.05,
+         f"{mh.hieu_suat_von(Pa, Pb):.2f} — công thức 1/(1 − (Pa/Pb)^¼)")
+    L = mh.thanh_khoan_tu_do_la(1000.0, 100.0, Pa, Pb)
+    kiem("L từ đô la → giá trị vị thế đúng bằng đô la rót",
+         gan(mh.gia_tri(L, 100.0, Pa, Pb), 1000.0, 1e-6))
+    kiem("ngoài dải phía trên: toàn token1, không còn token0",
+         mh.so_luong(L, 200.0, Pa, Pb)[0] == 0.0)
+    ilT, ilD = mh.il_tai_gia(L, 100, 105, Pa, Pb), mh.il_tai_gia(L, 100, 100 / 1.05, Pa, Pb)
+    kiem("IL ≤ 0 và đối xứng theo log ở hai mép", ilT < 0 and gan(ilT, ilD, 1e-9), f"{ilT} {ilD}")
+    kiem("IL tiếp tục TĂNG khi giá đi xa ngoài dải — vị thế đông cứng còn HODL thì không",
+         mh.il_tai_gia(L, 100, 150, Pa, Pb) < mh.il_tai_gia(L, 100, 105, Pa, Pb))
+    kiem("IL kỳ vọng ≤ 0, và = 0 khi σ = 0",
+         mh.il_ky_vong(100, Pa, Pb, 0.5, 2 / 252) < 0 and mh.il_ky_vong(100, Pa, Pb, 0.0, 1.0) == 0.0)
+    v = mh.xac_suat_vang_dai(100, Pa, Pb, 0.5, 2 / 252)
+    kiem("P(văng) là CẬN TRÊN: tổng ≥ max hai mép, và khai `canTren`",
+         v["tong"] >= max(v["tren"], v["duoi"]) and v["canTren"])
+    kiem("P(văng) = 0 khi τ = 0 (qua cuối tuần), = 1 khi đã ở ngoài dải",
+         mh.xac_suat_vang_dai(100, Pa, Pb, 0.5, 0.0)["tong"] == 0.0
+         and mh.xac_suat_vang_dai(120, Pa, Pb, 0.5, 0.1)["tong"] == 1.0)
+    kiem("P(văng) tăng theo τ",
+         mh.xac_suat_vang_dai(100, Pa, Pb, 0.5, 5 / 252)["tong"] > v["tong"])
+    khongTroi = 2 * mh.phi_chuan(-_m.log(Pb / 100) / (0.5 * _m.sqrt(2 / 252)))
+    kiem("trôi −σ²τ/2 KHÔNG bị bỏ: chạm mép trên ≠ đẳng thức phản xạ 2Φ(−z)",
+         abs(v["tren"] - khongTroi) > 1e-6,
+         "Khâm Thiên Giám từng bỏ số hạng này và định giá sai ~40% ở chân trời dài")
+    kiem("LVR toàn dải = σ²/8; dải hẹp nhân theo hiệu suất",
+         gan(mh.lvr_moi_nam(0.4, 1.0), 0.02) and gan(mh.lvr_moi_nam(0.4, 10.0), 0.2))
+    kiem("σ: giá đứng yên → 0; thiếu mẫu → None",
+         mh.sigma_nam([100.0] * 30) == 0.0 and mh.sigma_nam([100.0, 101.0]) is None)
+    kd = mh.can_dai(100, Pa, Pb, 0.5, 2 / 252, 72, 0.3, 2.4, 66, mh.hieu_suat_von(Pa, Pb), 0.05, 1000)
+    kiem("cân dải: NET = phí + thưởng + IL − gas",
+         gan(kd.netBps, kd.phiBps + kd.thuongBps + kd.ilKyVongBps - kd.gasBps, 1e-9))
+    kiem("thưởng hết giữa cửa sổ thì chỉ tính tới lúc hết, và khai ra",
+         any(x.startswith("thuong-het-sau-66h") for x in kd.ghiChu))
+    kdMu = mh.can_dai(100, Pa, Pb, 0.5, 2 / 252, 72, None, None, None, 1.0, None, 1000)
+    kiem("thiếu APR hoặc gas → NET là None, KHÔNG phải số",
+         kdMu.netBps is None and kdMu.phiBps is None and kdMu.tiLePhiTrenLvr is None)
+    kiem("pool «tập trung như ta» → phí KHÔNG nhân hiệu suất, và ghi chú nói thế",
+         any("KHONG-nhan" in x for x in kd.ghiChu))
+    kiem("hiệu suất khuếch đại CẢ phí lẫn LVR: tỉ lệ phí/LVR không đổi khi đổi dải "
+         "nếu pool tập trung như ta",
+         gan(mh.can_dai(100, *mh.dai_doi_xung(100, 0.02), 0.5, 2 / 252, 72, 0.3, None, None,
+                        mh.hieu_suat_von(*mh.dai_doi_xung(100, 0.02)), 0.0, 1000).tiLePhiTrenLvr
+             * mh.lvr_moi_nam(0.5, mh.hieu_suat_von(*mh.dai_doi_xung(100, 0.02))),
+             0.3, 1e-9))
+
+    # ── lịch ────────────────────────────────────────────────────────────
+    kiem("EDT bắt đầu Chủ nhật thứ hai tháng 3, EST từ Chủ nhật đầu tháng 11",
+         lich.gio_mua_he_my(_dt.date(2026, 3, 8)) and not lich.gio_mua_he_my(_dt.date(2026, 3, 7))
+         and not lich.gio_mua_he_my(_dt.date(2026, 11, 1)))
+    ph = lich.phien_my(_dt.date(2026, 9, 4))
+    kiem("04/09/2026: sàn Mỹ mở 20:30 VN, đóng 03:00 VN hôm sau",
+         ph[0].strftime("%H:%M") == "20:30" and ph[1].strftime("%d %H:%M") == "05 03:00")
+    kiem("07/09/2026 (Labor Day) KHÔNG phải ngày giao dịch — đúng ngày thưởng hết",
+         not lich.ngay_giao_dich(_dt.date(2026, 9, 7)))
+    t0 = _dt.datetime(2026, 9, 5, 4, 0, tzinfo=lich.VN)
+    kiem("τ theo NGÀY GIAO DỊCH: qua trọn cuối tuần + Labor Day = 0",
+         lich.so_ngay_giao_dich(t0, t0 + _dt.timedelta(days=3)) == 0.0)
+    kiem("và một phiên trọn = đúng 1 ngày giao dịch",
+         gan(lich.so_ngay_giao_dich(ph[0], ph[1]), 1.0, 1e-9))
+    b = lich.boi_canh(_dt.datetime(2026, 9, 4, 21, 0, tzinfo=lich.VN),
+                      hetThuong=lich.doc_gio_vn("2026-09-07 14:00"))
+    kiem("bối cảnh: 21:00 VN thứ Sáu là MO_CUA, và sự kiện hết thưởng nằm trong 7 ngày",
+         b.trangThai == lich.MO_CUA and any(s.loai == "het-thuong" for s in b.suKien))
+    kiem("19:30 là TRUOC_MO, 10:00 thứ Bảy là CUOI_TUAN",
+         lich.boi_canh(_dt.datetime(2026, 9, 4, 19, 30, tzinfo=lich.VN)).trangThai == lich.TRUOC_MO
+         and lich.boi_canh(_dt.datetime(2026, 9, 5, 10, 0, tzinfo=lich.VN)).trangThai == lich.CUOI_TUAN)
+    kiem("lịch nghỉ khai năm nay", lich.lich_con_han(_dt.date.today()),
+         "sang năm mới phải chép tiếp NGHI_NYSE — không thì ngày nghỉ bị coi là ngày thường")
+
+    # ── sổ luật ─────────────────────────────────────────────────────────
+    kiem("mọi luật có `vi` — không nhận luật phòng xa",
+         all(l.vi.strip() for l in qd.SO_LUAT))
+    kiem("mã luật không trùng, hành động hợp lệ",
+         len(set(qd.MA_LUAT)) == len(qd.MA_LUAT)
+         and all(l.hanhDong in qd.HANH_DONG for l in qd.SO_LUAT))
+    kiem("luật ĐẦU là «không σ» và CHẶN; luật CUỐI bắt mọi thứ",
+         qd.SO_LUAT[0].ma == "khong-sigma" and qd.SO_LUAT[0].chan
+         and qd.SO_LUAT[-1].ma == "chua-du-so")
+    bc = qd.BoiCanh(coSigma=True, soPhienSigma=60, trangThaiPhien=lich.MO_CUA,
+                    tiLePhiTrenLvr=3.0, netBps=200.0, xacSuatVang=0.3, tvlUsd=600_000)
+    kiem("đủ mọi thứ, phiên mở → VÀO", qd.quyet(bc).hanhDong == qd.VAO)
+    bc2 = qd.BoiCanh(**{**bc.__dict__, "trangThaiPhien": lich.CUOI_TUAN})
+    kiem("cùng bối cảnh nhưng cuối tuần → luật CHẶN thắng luật mở → CHỜ",
+         qd.quyet(bc2).hanhDong == qd.CHO and qd.quyet(bc2).biChan)
+    bc3 = qd.BoiCanh(**{**bc2.__dict__, "dangGiu": True, "trongDai": True})
+    kiem("đang giữ, cuối tuần → GIỮ (đừng động)", qd.quyet(bc3).hanhDong == qd.GIU)
+    bc4 = qd.BoiCanh(**{**bc.__dict__, "gioToiSuKien": 10.0, "tenSuKien": "FOMC"})
+    kiem("sát sự kiện, chưa giữ → CHỜ (không vào); đang giữ → NỚI DẢI",
+         qd.quyet(bc4).hanhDong == qd.CHO
+         and qd.quyet(qd.BoiCanh(**{**bc4.__dict__, "dangGiu": True, "trongDai": True})).hanhDong == qd.NOI_RONG)
+    bc5 = qd.BoiCanh(**{**bc.__dict__, "tiLePhiTrenLvr": 1.0})
+    kiem("phí/LVR dưới ngưỡng → không vào; đang giữ → RÚT",
+         qd.quyet(bc5).hanhDong == qd.CHO
+         and qd.quyet(qd.BoiCanh(**{**bc5.__dict__, "dangGiu": True, "trongDai": True})).hanhDong == qd.RUT)
+    bc6 = qd.BoiCanh(**{**bc.__dict__, "dangGiu": True, "trongDai": False})
+    kiem("giá ra ngoài dải, phí/LVR còn tốt → ĐỔI DẢI", qd.quyet(bc6).hanhDong == qd.DOI_DAI)
+    bc7 = qd.BoiCanh(**{**bc.__dict__, "xacSuatVang": 0.8})
+    kiem("P(văng) cao, chưa giữ → CHỜ chứ không «nới» một dải chưa có",
+         qd.quyet(bc7).hanhDong == qd.CHO and qd.quyet(bc7).luatQuyet == "van-dai-cao")
+    bc8 = qd.BoiCanh(**{**bc.__dict__, "thuongChiemPhanLon": True, "gioToiHetThuong": 5.0})
+    kiem("thưởng là phần lớn và còn 5 giờ → không VÀO mới",
+         qd.quyet(bc8).hanhDong != qd.VAO and qd.quyet(bc8).luatQuyet == "sap-het-thuong")
+    kiem("không σ thắng mọi thứ, kể cả khi mọi số khác đẹp",
+         qd.quyet(qd.BoiCanh(**{**bc.__dict__, "coSigma": False})).luatQuyet == "khong-sigma")
+
+    # ── config và cửa an toàn ───────────────────────────────────────────
+    kiem("cửa AN TOÀN không lọt vào NUT_VAN của vòng tiến hoá",
+         not (set(_cf.CUA_AN_TOAN) & set(th.NUT_VAN)))
+    kiem("mọi cửa an toàn có thật trong CONFIG['cua']",
+         set(_cf.CUA_AN_TOAN) == set(_cf.CONFIG["cua"]), str(set(_cf.CUA_AN_TOAN) ^ set(_cf.CONFIG["cua"])))
+    kiem("mọi núm vặn được có mặt và nằm trong khuôn",
+         all(k in _cf.CONFIG["nut"] and th.NUT_VAN[k]["min"] <= _cf.CONFIG["nut"][k] <= th.NUT_VAN[k]["max"]
+             for k in th.NUT_VAN))
+    ky = [p["kyHieu"] for p in _cf.CONFIG["pool"]]
+    kiem("pool mẫu không trùng, và mã nào cũng có dòng trong `coPhieuGoc` (kể cả None)",
+         len(set(ky)) == len(ky) and all(_cf.ma_goc(k) in _cf.CONFIG["coPhieuGoc"] for k in ky))
+    _tick = lambda p: int(round(_m.log(p) / _m.log(1.0001)))     # noqa: E731
+    kiem("dải theo tick: mép dưới xuống, mép trên lên, cả hai là tick của mức phí",
+         (lambda a, b: a <= 95.0 + 1e-9 and b >= 105.0 - 1e-9
+          and _tick(a * 1e-12) % 10 == 0 and _tick(b * 1e-12) % 10 == 0)(
+             *mh.dai_theo_tick(95.0, 105.0, 5, 18, 6)))
+    kiem("SPCXx KHÔNG có sàn gốc — khai None chứ không bịa một mã",
+         _cf.CONFIG["coPhieuGoc"]["SPCXx"] is None)
+    ch = _cf.nap(tam / "khong-co.json")
+    kiem("không có cau-hinh.json → dùng mặc định, và là BẢN SAO",
+         ch == _cf.CONFIG and ch is not _cf.CONFIG)
+    (tam / "ch.json").write_text('{"nut": {"heSoDai": 2.0}}', encoding="utf-8")
+    kiem("cau-hinh.json ĐÈ theo từng khoá, không thay cả khối",
+         _cf.nap(tam / "ch.json")["nut"]["heSoDai"] == 2.0
+         and _cf.nap(tam / "ch.json")["nut"]["giuGio"] == _cf.CONFIG["nut"]["giuGio"])
+
+    # ── nguồn: giải mã KHÔNG mạng ───────────────────────────────────────
+    kiem("CSV Stooq: bỏ tiêu đề, bỏ dòng hỏng, giữ (ngày, đóng)",
+         doc_csv_stooq("Date,Open,High,Low,Close,Volume\n2026-09-01,1,2,0.5,100,10\nbad\n"
+                       "2026-09-02,1,2,0.5,102,10\n") == [("2026-09-01", 100.0), ("2026-09-02", 102.0)])
+    kiem("ABI: uint và int24 âm", giai_ma_uint("0x" + "1".zfill(64)) == 1
+         and giai_ma_int24("0x" + "f" * 64, 0) == -1)
+    kiem("ABI string", giai_ma_chuoi("0x" + "20".zfill(64) + "5".zfill(64) + "4e56444178".ljust(64, "0")) == "NVDAx")
+    sq = int(_m.sqrt(100e-12) * 2 ** 96)
+    kiem("sqrtPriceX96 → giá đã bù thập phân (18/6): 100 USDG mỗi token",
+         abs(gia_tu_sqrt(sq, 18, 6) - 100.0) < 1e-6)
+    rss = doc_rss('<rss><channel><item><title>NVDA earnings beat</title><link>http://a</link>'
+                  '<pubDate>Fri, 04 Sep 2026 01:00:00 +0000</pubDate></item></channel></rss>')
+    kiem("RSS: đọc được item; XML hỏng → rỗng, không ném",
+         rss and rss[0]["tieuDe"] == "NVDA earnings beat" and doc_rss("<x") == [])
+
+    # ── băng giá ────────────────────────────────────────────────────────
+    bg = tam / "bang"
+    hom = _dt.date(2026, 9, 3)
+    dong = [((hom - _dt.timedelta(days=40 - i)).isoformat(), 100.0 * (1.01 ** (i % 3))) for i in range(41)]
+    kiem("băng gốc: thêm 41 ngày, ghi lại thì 0 ngày MỚI",
+         bang_gia.ghi_goc("NVDAx", dong, bg) == 41 and bang_gia.ghi_goc("NVDAx", dong, bg) == 0)
+    si = bang_gia.sigma("NVDAx", 60, 10, bg)
+    kiem("σ từ lớp gốc, kèm số phiên", si["nguon"] == "goc" and si["soPhien"] == 40 and si["sigma"] > 0)
+    kiem("mã chưa có băng → σ None kèm 0 phiên, KHÔNG phải 0",
+         bang_gia.sigma("SPCXx", 60, 10, bg) == {"sigma": None, "nguon": None, "soPhien": 0, "cuaSoNgay": 60})
+    luc = _dt.datetime(2026, 9, 4, 14, 0, tzinfo=_dt.timezone.utc)
+    bang_gia.ghi_chuoi("SPCXx", luc, 50.0, "rpc", bg)
+    g = bang_gia.gia_moi_nhat("SPCXx", bg, luc + _dt.timedelta(hours=2))
+    kiem("giá mới nhất: nguồn chuỗi, tuổi đúng 2 giờ", g["nguon"] == "chuoi" and gan(g["tuoiGiay"], 7200.0))
+    bd = bang_gia.bien_dong_lien_quan("NVDAx", bg)
+    kiem("biến động liên quan: có đổi 1/5 ngày và trạng thái nở/co",
+         "doi1NgayPct" in bd and bd.get("trangThai") in ("NO", "CO", "ON"))
+
+    # ── sổ vị thế ───────────────────────────────────────────────────────
+    sv = SoViThe(tam / "vt.jsonl")
+    vt = sv.mo("NVDAx-USDG", 95.0, 105.0, 1000.0, 100.0)
+    kiem("mở vị thế: L đúng, trong dải ở 103", gan(vt.danh_gia(103.0)["giaTriUsd"], 1010.14, 0.01)
+         and vt.danh_gia(103.0)["trongDai"])
+    sv.dong(vt.ma, 103.0, 12.0, 30.0, "thử")
+    sv2 = SoViThe(tam / "vt.jsonl")
+    kiem("sổ vị thế SỐNG qua khởi động lại — chỉ-thêm, đọc lại ra đúng trạng thái",
+         sv2.lay(vt.ma) is not None and not sv2.lay(vt.ma).dangMo and sv2.lay(vt.ma).phiThuUsd == 12.0)
+    kc = ket_cuc(sv2.lay(vt.ma))
+    kiem("kết cục: lãi lỗ = giá trị − vốn + phí + thưởng; IL tách riêng và âm",
+         gan(kc["laiLoUsd"], 1010.14 - 1000 + 42, 0.01) and kc["ilUsd"] < 0)
+    vt2 = sv2.mo("NVDAx-USDG", 95.0, 105.0, 1000.0, 100.0)
+    sv2.dong(vt2.ma, 103.0)
+    kiem("chưa ghi phí → lãi lỗ là None, không cộng 0", ket_cuc(sv2.lay(vt2.ma))["laiLoUsd"] is None)
+    kiem("đóng hai lần thì ném", _nem(lambda: sv2.dong(vt2.ma, 1.0), ValueError))
+
+    # ── sổ kinh nghiệm ──────────────────────────────────────────────────
+    sk = kn.SoKinhNghiem(tam / "kn.jsonl")
+    dai = {"Pa": 95.0, "Pb": 105.0, "phiBps": 100.0, "thuongBps": 0.0, "phanTrongDai": 1.0,
+           "ilKyVongBps": -20.0, "xacSuatVang": {"tong": 0.3}}
+    a = sk.ghi_quyet_dinh("NVDAx-USDG", "VAO", "vao-duoc", {"trangThaiPhien": "MO_CUA",
+                          "tiLePhiTrenLvr": 2.0, "xacSuatVang": 0.3}, dai, 100.0, 72.0,
+                          "2026-09-01T00:00:00Z")
+    a2 = sk.ghi_quyet_dinh("NVDAx-USDG", "VAO", "vao-duoc", {}, dai, 100.0, 72.0, "2026-09-01T00:30:00Z")
+    kiem("cùng mã, cùng hành động, cùng dải, cùng GIỜ → KHÔNG ghi lại (chống trùng)", a == a2)
+    kiem("quyết định qua hết cửa sổ mà chưa chấm thì nằm trong «chưa chấm»",
+         [q["ma"] for q in sk.chua_cham(_dt.datetime(2026, 9, 5, tzinfo=_dt.timezone.utc))] == [a])
+    t1 = _dt.datetime(2026, 9, 1, tzinfo=_dt.timezone.utc)
+    trong = kn.cham_giay(sk.quyetDinh[a], [(t1, 100.0), (t1 + _dt.timedelta(hours=24), 101.0),
+                                            (t1 + _dt.timedelta(hours=48), 99.0)])
+    kiem("chấm giấy: đường giá trong dải → không văng, phí = phí dự, IL < 0",
+         trong["vangDai"] is False and gan(trong["phiBps"], 100.0) and trong["ilBps"] < 0)
+    ngoai = kn.cham_giay(sk.quyetDinh[a], [(t1, 100.0), (t1 + _dt.timedelta(hours=24), 110.0),
+                                            (t1 + _dt.timedelta(hours=48), 100.0)])
+    kiem("văng dải thì đóng băng ở điểm văng: phí giảm theo phần trong dải",
+         ngoai["vangDai"] and ngoai["phiBps"] < 100.0)
+    kiem("không có dải thì KHÔNG chấm — trả None, không cho 0",
+         kn.cham_giay({"dai": None, "gia": 100.0}, [(t1, 1.0), (t1, 2.0)]) is None)
+    sk.ghi_ket_cuc(a, trong, "giay")
+    cap = [(sk.quyetDinh[a], dict(trong, netBps=x)) for x in (50, 60, 55, 70, 65, 58)]
+    bh = kn.bai_hoc(cap)
+    l = [d for d in bh["chieu"]["luat"] if d["nhom"] == "vao-duoc"][0]
+    kiem("bài học: 6 mẫu, trung bình dương, độ tin ≥ 2 → ĐỦ MẪU",
+         l["n"] == 6 and l["duMau"] and "ĐỦ MẪU" in l["cau"])
+    kiem("3 mẫu → hiện nhưng gắn «chưa đủ mẫu»",
+         not [d for d in kn.bai_hoc(cap[:3])["chieu"]["luat"]][0]["duMau"])
+    kiem("mô hình so thực tế: có dòng IL và dòng P(văng)",
+         "il" in bh["moHinh"] and "vang" in bh["moHinh"])
+
+    # ── vòng tiến hoá ───────────────────────────────────────────────────
+    kiem("bước vặn có SÀN theo bề rộng khuôn — núm nhỏ không đứng yên mãi",
+         th.buoc_van("xacSuatVangToiDa", 0.2) >= 0.035 and th.kep("heSoDai", 99.0) == 4.0)
+    kq = th.chay_lai(dict(_cf.CONFIG["nut"]), {"X": [100.0 + 0.01 * (i % 2) for i in range(60)]}, {"X": 0.5})
+    kiem("giá gần đứng yên: không văng, NET = phí > 0",
+         kq.soVao > 0 and kq.tiLeVang == 0.0 and kq.netMoiCoHoiBps > 0, str(kq.tom_tat()))
+    kiem("giá đứng yên TUYỆT ĐỐI → σ = 0 → không cửa sổ nào vào (σ = 0 không phải σ nhỏ)",
+         th.chay_lai(dict(_cf.CONFIG["nut"]), {"X": [100.0] * 60}, {"X": 0.5}).soVao == 0)
+    kiem("thiếu APR thì bỏ mã, không đoán", th.chay_lai(dict(_cf.CONFIG["nut"]), {"X": [100.0] * 60}, {}).soCuaSo == 0)
+    aB = th.KetQuaChayLai(net=[1.0] * 10); bB = th.KetQuaChayLai(net=[9.0] * 10)
+    kiem("A/B: 10 cửa sổ chưa đủ mẫu → không nhận dù hơn 8 bps", not th.doi_chieu(aB, bB)["hon"])
+    g2 = [100.0]
+    x = 4242
+    for _ in range(200):
+        x = (x * 1103515245 + 12345) % 2 ** 31
+        g2.append(g2[-1] * _m.exp((x / 2 ** 31 - 0.5) * 0.04))
+    ra = th.mot_luot(dict(_cf.CONFIG["nut"]), {"X": g2}, {"X": 0.4})
+    kiem("một lượt: thử mọi núm hai chiều, kết luận là NHẬN hoặc TRẢ LẠI",
+         len(ra["thu"]) >= 6 and ra["ketLuan"].startswith(("NHẬN", "TRẢ LẠI")))
+    kiem("và hai lượt trên cùng băng ra CÙNG kết luận — tất định",
+         th.mot_luot(dict(_cf.CONFIG["nut"]), {"X": g2}, {"X": 0.4})["ketLuan"] == ra["ketLuan"])
+
+    # ── ty ──────────────────────────────────────────────────────────────
+    kiem("ty khai đúng khuôn", TyBienDo.kiem_khai() == [] and TyBienDo.co_ke_toan())
+    ty = TyBienDo(khongMang=True, thuMucBang=bg, vongNgay=False)
+    ty.soViThe = SoViThe(tam / "vt2.jsonl")
+    ty.soKinhNghiem = kn.SoKinhNghiem(tam / "kn2.jsonl")
+    mo = _dt.datetime(2026, 9, 3, 21, 30, tzinfo=lich.VN)     # thứ Năm, sàn Mỹ mở
+    co = {c.kyHieu: c for c in ty.can_tat_ca(mo)}
+    kiem("NVDAx có σ, phiên mở → VÀO, và tờ trình hợp lệ",
+         co["NVDAx-USDG"].quyetDinh.hanhDong == qd.VAO and co["NVDAx-USDG"].duyet
+         and xuat_to_trinh(co["NVDAx-USDG"]).hop_le,
+         str(co["NVDAx-USDG"].quyetDinh.tom_tat()))
+    kiem("SPCXx không σ → CHỜ, và khai thiếu `sigma`",
+         co["SPCXx-USDG"].quyetDinh.luatQuyet == "khong-sigma" and "sigma" in co["SPCXx-USDG"].thieu)
+    tt = xuat_to_trinh(co["NVDAx-USDG"])
+    kiem("phí gốc tách từ APY bằng GIẢ ĐỊNH thì `phiConThieu` phải nói thế",
+         any("GIA-DINH" in x for x in tt.phiConThieu) and tt.moHinhPhiDuChua is False)
+    cu = {c.kyHieu: c for c in ty.can_tat_ca(_dt.datetime(2026, 9, 5, 10, 0, tzinfo=lich.VN))}
+    kiem("cùng NVDAx nhưng thứ Bảy → CHỜ vì ngoài giờ",
+         cu["NVDAx-USDG"].quyetDinh.luatQuyet == "ngoai-gio-khong-doi-dai")
+    aP, aT, ng, _ = apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5, "tvlUsd": 1e5}, _cf.CONFIG, 10.0)
+    kiem("APR từ APY hiển thị: tách theo giả định, nguồn khai `apy-hien-thi-gia-dinh`",
+         gan(aP, 0.2) and gan(aT, 1.8) and ng == "apy-hien-thi-gia-dinh")
+    aP2, aT2, ng2, _ = apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5, "tvlUsd": 1e5,
+                                     "khoiLuongNgayUsd": 2e5}, _cf.CONFIG, 10.0)
+    kiem("có khối lượng thì phí = vol × phí × 365 / TVL, thưởng = phần còn lại",
+         gan(aP2, 2e5 * 0.0005 * 365 / 1e5) and gan(aT2, 2.0 - aP2) and ng2 == "khoi-luong")
+    kiem("hết thưởng → APR thưởng 0", apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5,
+                                                     "tvlUsd": 1e5}, _cf.CONFIG, 0.0)[1] == 0.0)
+    ty.coHoi = list(co.values())
+    from thi_bac_ty.ke_toan import KetToanVong as _KTV
+    kt = ty.ke_toan([], {"taiSan": "KHONG-CO"}, 0.0, 3600.0)
+    kiem("kế toán mã không có trong lượt quét → doDuoc=False, không phải 0",
+         isinstance(kt, _KTV) and kt.doDuoc is False)
+
+    class _V:
+        vonUsd = 1000.0
+    kt2 = ty.ke_toan([_V()], {"taiSan": "NVDAx-USDG"}, 0.0, 3600.0)
+    kiem("kế toán trong dải: thu > 0 và câu khai IL CHƯA trừ",
+         kt2.thuUsd > 0 and "IL CHƯA" in kt2.vi)
+    vt3 = ty.soViThe.mo("NVDAx-USDG", co["NVDAx-USDG"].dai.Pa, co["NVDAx-USDG"].dai.Pb, 500.0,
+                        co["NVDAx-USDG"].gia["gia"])
+    co2 = {c.kyHieu: c for c in ty.can_tat_ca(mo)}
+    kiem("vị thế người đang giữ được cân riêng, trong dải → GIỮ",
+         len(co2["NVDAx-USDG"].viThe) == 1
+         and co2["NVDAx-USDG"].viThe[0].quyetDinh["hanhDong"] == qd.GIU)
+    ty.coHoi = list(co2.values())
+    ty._ghi_kinh_nghiem()
+    kiem("mỗi lượt cân ghi quyết định vào sổ kinh nghiệm (một dòng mỗi pool có dải)",
+         ty.soKinhNghiem.tom_tat()["soQuyetDinh"] == 1)
+    from bac.vong import _NhipRieng
+    boc = _NhipRieng(ty, 300.0)
+    kiem("bọc nhịp riêng giữ nguyên khai báo và kế toán của ty thật",
+         boc.ma == TyBienDo.ma and boc.co_ke_toan() and boc.kiem_khai() == [])
+
+    # ── hôm nay · vòng ngày · lát cắt ───────────────────────────────────
+    from lp_v3 import hom_nay, ngay
+    from lp_v3.lat_cat import dung_lat_cat
+    bcH = hom_nay.dung(ty, mo)
+    vb = hom_nay.van_ban(bcH)
+    kiem("báo cáo có đủ: phiên, thưởng, nguồn mù, giả định, hành động, bài học",
+         all(k in bcH for k in ("phien", "thuong", "nguonMu", "giaDinh", "tomTatHanhDong", "pool"))
+         and "HÀNH ĐỘNG" in vb and "GIẢ ĐỊNH" in vb and "BÀI HỌC" in vb)
+    kiem("giá là giá đóng cửa mà khuyên VÀO thì nhắc dịch dải theo giá OKX", "dịch dải" in vb)
+    kiem("kiểm chéo quỹ thưởng với APY hiển thị có mặt", "kiemCheo" in bcH["thuong"])
+    lc = dung_lat_cat(ty, mo)
+    kiem("lát cắt: `date` và `tomTat` đứng ĐẦU — Cổng Thành đọc 900 byte đầu",
+         list(lc)[:2] == ["date", "tomTat"])
+    vn = ngay.VongNgay(ty, tam / "moc.json", tam / "bao-cao")
+    kiem("mốc `truoc-mo` không tồn tại vào thứ Bảy",
+         ngay.gio_moc("truoc-mo", _dt.date(2026, 9, 5)) is None
+         and ngay.gio_moc("truoc-mo", _dt.date(2026, 9, 4)).strftime("%H:%M") == "19:30")
+    dh = vn.den_han(_dt.datetime(2026, 9, 4, 21, 0, tzinfo=lich.VN))
+    kiem("21:00 thứ Sáu: ba mốc đều tới hạn hôm nay (sang, truoc-mo, sau-dong của phiên Thứ Năm)",
+         {m for m, _, _ in dh} == {"sang", "truoc-mo", "sau-dong"}, str(dh))
+    ra = vn.chay_neu_den_han(_dt.datetime(2026, 9, 4, 21, 0, tzinfo=lich.VN))
+    kiem("chạy xong ghi báo cáo .md + .json và không tới hạn lại",
+         len(ra) == 3 and len(list((tam / "bao-cao").glob("*.md"))) == 3
+         and vn.den_han(_dt.datetime(2026, 9, 4, 21, 5, tzinfo=lich.VN)) == [])
+    kiem("mốc tối đã HỌC: có bài học ghi ra và một lượt tiến hoá",
+         ra[-1].get("hoc") is not None and (tam / "bao-cao").exists())
+
+    # ── nối dây ─────────────────────────────────────────────────────────
+    goc = _pl.Path(__file__).resolve().parent.parent
+    kiem("bac/vong.py đăng ký `tyBienDo`", '"tyBienDo"' in (goc / "bac/vong.py").read_text(encoding="utf-8"))
+    kiem("buồng lái: TEN_DEP có mã ty, và có trang riêng /be-thanh-khoan",
+         "amm.v3_range.v1" in (goc / "web/app.js").read_text(encoding="utf-8")
+         and "be-thanh-khoan" in (goc / "web/index.html").read_text(encoding="utf-8")
+         and '"be-thanh-khoan"' in (goc / "bac/server.py").read_text(encoding="utf-8"))
+    cung = goc.parent / "thi-bac-ty"
+    if cung.exists():
+        kiem("cung tĩnh nạp lát cắt thứ hai và có mục đọc nó",
+             "be-thanh-khoan.js" in (cung / "index.html").read_text(encoding="utf-8")
+             and "BE_THANH_KHOAN" in (cung / "assets/js/app.js").read_text(encoding="utf-8"))
+    try:
+        from fastapi.testclient import TestClient as _TC
+        import bac.server as _sv
+        c = _TC(_sv.app, raise_server_exceptions=True)
+        kiem("cửa Origin: trang lạ POST → 403; buồng lái tự gọi → qua; curl → qua",
+             c.post("/api/tam-dung", headers={"Origin": "http://evil.example"}).status_code == 403
+             and c.post("/api/tam-dung", headers={"Origin": f"http://localhost:{_sv.CONFIG['port']}"}).status_code == 200
+             and c.post("/api/tam-dung").status_code == 200)
+        c.post("/api/tam-dung"); c.post("/api/tam-dung")
+    except ImportError as e:
+        print(f"  (bỏ qua kiểm Origin: {e})")
 
 
 def kiem_kho_bao_gia_cau() -> None:
@@ -12714,7 +13082,7 @@ def kiem_moi_module_nhap_duoc() -> None:
     print(chr(10) + "-- MOI MODULE PHAI NHAP DUOC (cu phap, thut le, "
           "vong nhap) --")
 
-    goi = ["thi_bac_ty", "bac", "tin_dung", "lp_amm", "co_so", "lai_suat",
+    goi = ["thi_bac_ty", "bac", "tin_dung", "lp_amm", "lp_v3", "co_so", "lai_suat",
            "ngang_gia", "vong_doi", "tien_doan", "chuoi_chung",
            "phai_sinh_chung", "san_chung", "chuyen_von", "dong_co_chua_co",
            "kham_ngoai", "dex_arb"]
@@ -13541,7 +13909,7 @@ def kiem_vong_nhip() -> None:
     cv = Runtime._co_von_cac_ty()
     that = set()
     for m in ("tin_dung.config", "lai_suat.ty_lai_suat",
-              "on_dinh.ty_on_dinh", "lp_amm.ty_cap_thanh_khoan"):
+              "on_dinh.ty_on_dinh", "lp_amm.ty_cap_thanh_khoan", "lp_v3.config"):
         that.add(float(__import__(m, fromlist=["CONFIG"])
                        .CONFIG["von"]["moiCoHoiUsd"]))
     kiem("cỡ vốn hỏi kho báo giá cầu KHỚP config các ty, không chép tay",
@@ -14574,6 +14942,7 @@ def main() -> int:
     kiem_ngang_gia()
     kiem_vong_doi()
     kiem_lp_amm()
+    kiem_lp_v3()
     kiem_von_ngoai_bat_san()
     kiem_dong_co_chua_co()
     kiem_doi_soat_vi_the()

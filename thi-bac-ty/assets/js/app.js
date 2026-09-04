@@ -404,8 +404,100 @@
       + (T.loiNhac || "")));
   }
 
+  /* ── Bể thanh khoản V3 — lát cắt THỨ HAI, file riêng ────────────────
+   *
+   * Đọc `window.BE_THANH_KHOAN` do `lp_v3/lat_cat.py` ghi. Độc lập với
+   * `D`: vẽ cả khi chưa có `cang-phi.js`, và thiếu file thì NÓI RA —
+   * một ô trống ở đây đọc thành «không có pool nào đáng vào».
+   */
+  var B = window.BE_THANH_KHOAN || null;
+  var TEN_HD = { VAO: "VÀO", GIU: "GIỮ", CHO: "CHỜ", RUT: "RÚT",
+                 NOI_RONG: "NỚI DẢI", THU_HEP: "THU HẸP", DOI_DAI: "ĐỔI DẢI" };
+  function bps(v) {
+    if (v == null || !isFinite(v)) return "—";
+    return (v >= 0 ? "+" : "") + Math.round(v) + " bps";
+  }
+  function ve_be_thanh_khoan() {
+    var n = $("#oBeThanhKhoan");
+    if (!n) return;
+    if (!B) {
+      n.replaceChildren(trong(
+        "CHƯA CÓ LÁT CẮT bể thanh khoản — assets/js/v/be-thanh-khoan.js chưa "
+        + "được sinh. Sinh bằng: cd thi-bac-ty-runtime && python -m bac.snapshot"));
+      return;
+    }
+    var f = document.createDocumentFragment();
+    var ph = B.phien || {}, th = B.thuong || {}, hd = B.tomTatHanhDong || {};
+    var l = el("div", "luoi");
+    [["lát cắt", B.lucVn || B.date || "—"],
+     ["phiên Mỹ lúc chụp", ph.trangThai || "—"],
+     ["thưởng còn", th.conGio == null ? "—" : Math.round(th.conGio) + " giờ"],
+     ["pool VÀO được", (hd.VAO || []).length],
+     ["vị thế đang giữ", (B.viThe || []).length]
+    ].forEach(function (x) {
+      var d = el("div", "so");
+      d.appendChild(el("div", "n", String(x[1])));
+      d.appendChild(el("div", "t", x[0]));
+      l.appendChild(d);
+    });
+    f.appendChild(l);
+    if ((B.nguonMu || []).length)
+      f.appendChild(giai("Nguồn đang mù lúc chụp: " + B.nguonMu.join(" · ")));
+    if (th.kiemCheo) f.appendChild(giai(th.kiemCheo));
+
+    f.appendChild(bang(
+      [{ t: "Pool", trai: 1 }, { t: "hành động", trai: 1 }, { t: "luật", trai: 1 },
+       { t: "giá" }, { t: "σ" }, { t: "dải đề xuất" }, { t: "P(văng)" },
+       { t: "phí/LVR" }, { t: "NET/cửa sổ" }, { t: "vì sao", trai: 1 }],
+      (B.pool || []).map(function (p) {
+        var dd = p.dai || {};
+        return [
+          { t: p.kyHieu, c: "trai" },
+          { t: TEN_HD[p.hanhDong] || p.hanhDong || "—",
+            c: "trai " + (p.hanhDong === "VAO" ? "qua" : p.biChan ? "chan" : "") },
+          { t: p.luat || "", c: "trai nhat" },
+          { t: p.gia == null ? "—" : so(p.gia, 2) + " " + (p.nguonGia || ""),
+            c: p.gia == null ? "am" : null },
+          { t: p.sigma == null ? "—" : so(p.sigma * 100, 0, "%") + "/" + (p.soPhien || 0),
+            c: p.sigma == null ? "am" : null },
+          { t: dd.Pa == null ? "—" : so(dd.Pa, 2) + "–" + so(dd.Pb, 2)
+               + " (±" + so(dd.rongPct, 1) + "%)" },
+          { t: dd.pVang == null ? "—" : "≤ " + so(dd.pVang * 100, 0, "%") },
+          { t: dd.tiLePhiTrenLvr == null ? "—" : so(dd.tiLePhiTrenLvr, 2) },
+          { t: bps(dd.netBps), c: lop(dd.netBps) },
+          { t: p.lyDo || "", c: "vi" }
+        ];
+      })));
+    f.appendChild(giai(
+      "Ty thứ mười của Thị Bạc Ty. Khác ty AMM ở trên: nó nhận cặp BIẾN "
+      + "ĐỘNG (cổ phiếu token hoá so với USDG trên X Layer), nhưng chỉ khi "
+      + "đo được σ — có σ thì tổn thất vô thường, LVR và xác suất văng dải "
+      + "đều là phép tính. Không có σ thì nó nói KHÔNG, y như ty kia. "
+      + "Giả định đang dùng: " + (B.giaDinh || []).join(" | ")));
+
+    var bh = B.baiHoc;
+    if (bh && (bh.duMau || []).length) {
+      f.appendChild(el("h3", null, "Bài học đủ mẫu"));
+      var u = el("div", "viec-1");
+      bh.duMau.forEach(function (c) { u.appendChild(el("p", "giai", "★ " + c)); });
+      f.appendChild(u);
+    } else {
+      var kn = B.kinhNghiem || {};
+      f.appendChild(giai("Sổ kinh nghiệm: " + (kn.soQuyetDinh || 0) + " quyết định "
+        + "đã ghi, " + (kn.soKetCuc || 0) + " đã chấm — chưa có bài học đủ mẫu. "
+        + "Cầu tuyết lăn theo từng cửa sổ giữ; trang này chỉ hiện những bài đã "
+        + "vượt ngưỡng n ≥ 5 và độ tin ≥ 2."));
+    }
+    n.replaceChildren(f);
+  }
+
   function ve() {
     ve_tri_thuc();
+    try { ve_be_thanh_khoan(); }
+    catch (e) {
+      var nb = $("#oBeThanhKhoan");
+      if (nb) nb.replaceChildren(trong("Ô bể thanh khoản vẽ hỏng: " + (e && e.message || e)));
+    }
     if (!D) { chua_co(); ve_tri_thuc_chan(); return; }
     // Dựng từng ô trong try riêng: một ô hỏng không được kéo theo cả trang,
     // và chỗ hỏng phải HIỆN ra chứ không để lại một khoảng trắng.

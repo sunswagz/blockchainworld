@@ -429,7 +429,15 @@ class Runtime:
                      lambda: __import__("lp_amm.ty_cap_thanh_khoan",
                                         fromlist=["TyCapThanhKhoan"])
                      .TyCapThanhKhoan(dinhTuyen=self.dinhTuyen),
-                     1800.0)):
+                     1800.0),
+                    # Engine thứ MƯỜI — ty thứ hai của họ `thanh-khoan`, và
+                    # ty đầu tiên nhận cặp BIẾN ĐỘNG: nó có σ, nên IL là
+                    # phép tính. Nhịp 5 phút: giá gốc đổi theo phiên, băng
+                    # chuỗi cần mẫu đều, và vòng ngày đọc nhịp này.
+                    ("tyBienDo",
+                     lambda: __import__("lp_v3.ty_bien_do",
+                                        fromlist=["TyBienDo"]).TyBienDo(),
+                     300.0)):
                 cf = (tu.get(khoa) or {})
                 if not cf.get("bat", True):
                     continue
@@ -605,7 +613,8 @@ class Runtime:
         """
         ra = set()
         for m in ("tin_dung.config", "lai_suat.ty_lai_suat",
-                  "on_dinh.ty_on_dinh", "lp_amm.ty_cap_thanh_khoan"):
+                  "on_dinh.ty_on_dinh", "lp_amm.ty_cap_thanh_khoan",
+                  "lp_v3.config"):
             try:
                 c = getattr(__import__(m, fromlist=["CONFIG"]), "CONFIG")
                 ra.add(float(c["von"]["moiCoHoiUsd"]))

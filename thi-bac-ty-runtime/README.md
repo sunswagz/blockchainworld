@@ -604,7 +604,7 @@ của Khâm Thiên Giám, BẬT khoá này lên.** Xem `bac/config.py`.
 `kham/`, chuyển `ket_toan.py` sang Sổ Cái, chuyển `dat_lenh.py` — vẫn chưa
 làm, và vẫn theo đúng thứ tự ấy.
 
-## CHÍN ty, NĂM họ — và ba engine còn chặn
+## MƯỜI ty, NĂM họ — và ba engine còn chặn
 
     ho            ty                ma
     phai-sinh     bac/              perpetual.funding_spread.v1
@@ -615,6 +615,7 @@ làm, và vẫn theo đúng thứ tự ấy.
     chenh-lech    on_dinh/          stablecoin.cross_venue.v1
     chenh-lech    dex_arb/          dex.round_trip.v1
     thanh-khoan   lp_amm/           amm.fee_farming.v1
+    thanh-khoan   lp_v3/            amm.v3_range.v1
     tien-doan     kham_ngoai/       prediction.polymarket.v1
 
 Năm nguồn alpha khác hẳn nhau, và bản đồ nói đúng lúc có nhiều loại việc
@@ -628,6 +629,81 @@ và nó không xin vốn.
 Chú ý `quyen_chon/` và `dex_arb/`: chúng là hai engine đầu tiên **không dự
 báo gì cả**. Ngang giá là một đẳng thức; vòng đổi là một phép đo khứ hồi.
 Bảy ty còn lại đều phải giả định một thứ sẽ giữ nguyên.
+
+### Ty thứ mười: BỂ THANH KHOẢN V3 — «IL đo được từ một ảnh chụp CỘNG một σ»
+
+`lp_amm/` đứng trên câu *«tổn thất vô thường không đo được từ một ảnh
+chụp»* và từ chối mọi cặp biến động. Câu ấy đúng. `lp_v3/` đứng trên câu
+tiếp theo: có σ thì IL, LVR và xác suất văng dải đều là PHÉP TÍNH — và
+mọi việc của nó là lấy cho được σ (băng giá gốc từ Stooq, băng giá chuỗi
+từ RPC X Layer) rồi đưa vào `mo_hinh.py`. **Không có σ thì nó nói KHÔNG,
+y như ty kia.** Hai ty, hai câu, không cãi nhau.
+
+Đối tượng: cổ phiếu token hoá so với USDG trên X Layer (NVDAx, SPYx,
+ICEx… — ảnh chụp OKX DeFi 04/09/2026), Uniswap V3 dải tập trung, và
+chương trình thưởng $220K hết 07/09/2026 14:00 VN.
+
+    python -m lp_v3.hom_nay              một trang: giờ này nên làm gì, KHÔNG cần mạng
+    python -m lp_v3.hom_nay --moi        hỏi nguồn trước rồi mới in
+    python -m lp_v3.hom_nay --luc "2026-09-05 10:00"
+    localhost:5188/be-thanh-khoan        trang buồng lái riêng (ghi vị thế, học ngay)
+    data/lp-v3/cau-hinh.json             ĐÈ lên CONFIG: pool, địa chỉ pool, ngày kết quả
+                                         kinh doanh, giờ hết thưởng, núm
+
+**Ba lời thật đi kèm mọi con số của ty này**, và báo cáo in chúng trước
+mọi bảng:
+
+1. *Phần thưởng trong APY hiển thị là GIẢ ĐỊNH (90%)* cho tới khi khai
+   `khoiLuongNgayUsd` của pool — OKX chỉ hiện APY tổng.
+2. *Pool được coi là tập trung NHƯ TA*: phí vị thế = APR pool, không nhân
+   hiệu suất. Giả định ngược lại nhân APR lên 40–100 lần và đó là cách
+   nhanh nhất để một bảng xếp hạng nói dối. Dán `diaChi` pool để đọc
+   `liquidity()` thật và chia thật.
+3. *P(văng) là CẬN TRÊN; τ đếm theo ngày giao dịch Mỹ.* Qua cuối tuần
+   τ = 0 — đúng với phần cổ phiếu, còn phần giá trôi trên chuỗi ngoài giờ
+   thì băng chuỗi phải dày mới đo được.
+
+**Sổ luật chạy được** (`quyet_dinh.SO_LUAT`): mỗi luật có `khop(bốiCảnh)`,
+hành động, và `vi` — chuyện đã xảy ra dạy ra nó. Luật CHẶN thắng luật
+mở; thứ tự có phép kiểm. Không σ · giá cũ · sát FOMC/kết quả kinh doanh ·
+giá chuỗi lệch giá gốc lúc sắp mở · ngoài giờ · TVL mỏng · phí/LVR dưới
+ngưỡng · thưởng sắp hết → chặn. Còn lại: ngoài dải → ĐỔI DẢI, P(văng)
+cao → NỚI, phí/LVR ≥ 3 và P(văng) thấp → THU HẸP, đủ mọi thứ → VÀO, đang
+giữ → GIỮ.
+
+**Cầu tuyết** (`kinh_nghiem.py`): mọi quyết định — kể cả CHỜ — được ghi
+kèm bối cảnh và dải, rồi SAU cửa sổ giữ được chấm bằng đường giá thật
+(phiên giấy) hoặc bằng sổ vị thế (người đã làm theo, ghi phí và thưởng
+thu được ở OKX). Bài học gom theo luật · phiên · mã · khoảng phí/LVR ·
+khoảng P(văng), chỉ gọi là bài học khi n ≥ 5 và độ tin ≥ 2; và hai dòng
+quý nhất là *IL dự so IL đo* và *P(văng) dự so tần suất văng thật*.
+
+**Tiến hoá** (`tien_hoa.py`): bốn núm (`heSoDai`, `giuGio`,
+`tiLePhiTrenLvrToiThieu`, `xacSuatVangToiDa`), một lượt vặn MỘT núm, chấm
+bằng chạy lại băng gốc (cửa sổ trượt, ghép cặp A/B theo cửa sổ), nhận khi
+≥ 30 cửa sổ và cải thiện vượt cả 5 bps lẫn 2 sai số chuẩn. Bảy cửa AN
+TOÀN không phải núm (`config.CUA_AN_TOAN`), có phép kiểm canh. Thưởng
+KHÔNG đưa vào chạy lại — vặn núm theo một con số hết vào thứ Hai là học
+một bài sai ngay tuần sau. `tuVanTienHoa` tắt mặc định: qua cổng là ghi
+sổ và CHỜ NGƯỜI.
+
+**Vòng ngày** (`ngay.py`): sáng 07:00 VN · 60 phút trước sàn Mỹ mở · 30
+phút sau đóng cửa. Mốc chạy ở lượt quét kế tiếp sau giờ của nó — không có
+bộ hẹn giờ riêng, vì bộ hẹn giờ riêng là một tiến trình nữa để chết mà
+không ai hay. Máy tắt thì mốc chạy bù, báo cáo ghi rõ là chạy bù. Mốc
+tối là mốc HỌC. Báo cáo ở `data/lp-v3/bao-cao/`.
+
+**Cỗ máy này KHÔNG đặt lệnh và không có đường nào để đặt.** Thưởng đòi
+thêm thanh khoản qua trang OKX — đường ấy chỉ người đi được. Người đặt
+xong ghi vào sổ (`POST /api/be-thanh-khoan/vi-the`, hoặc nút ở trang
+buồng lái); máy theo dõi trong/ngoài dải, IL, và khuyên. Cùng ngày, mọi
+lối POST của buồng lái này được đặt sau cửa Origin (`_chan_origin_la`) —
+lỗ hổng CLAUDE.md đã nêu ở mục «MỌI BUỒNG LÁI LOCALHOST».
+
+Ba nguồn (Stooq · RPC X Layer · RSS) **chưa được thử SỐNG** từ nơi viết
+mã (sandbox chặn mọi đường ra); giải mã của chúng có phép kiểm trên mẫu
+cố định. Lượt chạy đầu ở máy thật là lượt đo, không phải lượt tin —
+báo cáo có mục «NGUỒN ĐANG MÙ» ở đầu để nói đúng con mắt nào chưa mở.
 
 ### Ty lãi suất là ty đầu tiên dùng `khoaVonDenGiay` với số THẬT
 
@@ -1134,7 +1210,7 @@ quay lại Polymarket:
     5. Basis                       XONG  (co_so/)
     6. Yield                       XONG  (lai_suat/)
     7. DEX Arb                     XONG  (dex_arb/ — vòng đổi khứ hồi)
-    8. LP                          XONG  (lp_amm/ — CHỈ cặp neo)
+    8. LP                          XONG  (lp_amm/ — CHỈ cặp neo · lp_v3/ — cặp biến động, dải V3, có σ)
     9. Liquidation                 CHẶN  — không liệt kê được người vay
     10. Options                    XONG  (quyen_chon/ — ngang giá)
     11. JIT                        CHẶN  — mempool
@@ -1655,6 +1731,17 @@ dex_arb/          TY THỨ TÁM — vòng đổi khứ hồi trên một chuỗi
 
 lp_amm/           TY THỨ CHÍN — cấp thanh khoản, HỌ THỨ NĂM
   ty_cap_thanh_khoan.py  cờ bên thứ ba là LỜI KHAI — tự đọc ký hiệu
+
+lp_v3/            TY THỨ MƯỜI — bể thanh khoản V3, cặp BIẾN ĐỘNG, chỉ khi có σ
+  mo_hinh.py      toán V3 · IL · LVR · xác suất văng dải (cận trên, có trôi)
+  lich.py         phiên Mỹ theo giờ VN · ngày nghỉ · FOMC · thưởng
+  quyet_dinh.py   sổ luật «lúc nào làm gì» — luật chặn thắng luật mở
+  bang_gia.py     băng giá tự tích: gốc (Stooq) + chuỗi (RPC)
+  theo_doi.py     vị thế NGƯỜI giữ ở OKX — máy theo dõi, không đặt lệnh
+  kinh_nghiem.py  quyết định → kết cục → bài học (cầu tuyết)
+  tien_hoa.py     một núm, chạy lại băng, A/B ghép cửa sổ, cổng nhiễu
+  ngay.py         ba mốc mỗi ngày; mốc sau đóng cửa là mốc HỌC
+  hom_nay.py      `python -m lp_v3.hom_nay` — một trang: giờ này làm gì
 
 chuyen_von/       ROUTER — hạ tầng, KHÔNG phải ty, không xin vốn
   diem.py         một chặng mù thì CẢ TUYẾN mù
