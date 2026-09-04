@@ -33,6 +33,8 @@ import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .nho_tam import NhoTam
+
 #: Các loại bút toán. Thêm loại mới thì thêm ở ĐÂY — `kiem()` soi theo bảng
 #: này, nên một loại tự bịa sẽ bị chặn ngay lúc ghi thay vì lộ ra sau ba
 #: tháng khi ai đó gộp thống kê.
@@ -116,6 +118,8 @@ class SoCai:
         self._khoa = threading.Lock()
         self.soLoiGhi = 0
         self.loiCuoi: str | None = None
+        #: `tom_tat()` cộng TOÀN BỘ sổ ba lượt. Xem `nho_tam`.
+        self._nhoTomTat = NhoTam()
         with self._mo() as con:
             con.executescript(KHUON)
 
@@ -702,6 +706,24 @@ class SoCai:
         }
 
     def tom_tat(self) -> dict:
+        """Ảnh chụp sổ. Đọc từ NHỚ TẠM, không quét sổ trong đường gọi.
+
+        Bốn phép cộng bên dưới quét toàn bảng — đo 05/09/2026 là ~40 giây
+        trên 734.899 bút toán, và chúng nằm thẳng trong `/api/trang-thai`.
+        Xem `nho_tam` để biết vì sao chỉ mục không chữa được.
+
+        `thongKeTuoiGiay` đi kèm và KHÔNG được giấu: một con số cũ trông
+        như số sống là đúng cái bẫy cả cỗ máy này dựng lên để tránh.
+        """
+        gia, tuoi = self._nhoTomTat.lay(self._tom_tat_nang)
+        return {**gia, "thongKeTuoiGiay": round(tuoi, 3),
+                "nhoTam": self._nhoTomTat.tom_tat(),
+                # Hai trường này đọc từ bộ nhớ chứ không từ sổ, nên chúng
+                # phải là số SỐNG — nhốt chúng vào bản nhớ tạm là khai một
+                # lỗi ghi vừa xảy ra bằng con số của năm phút trước.
+                "soLoiGhi": self.soLoiGhi, "loiCuoi": self.loiCuoi}
+
+    def _tom_tat_nang(self) -> dict:
         try:
             with self._mo() as con:
                 n, dau, cuoi = con.execute(
@@ -713,7 +735,6 @@ class SoCai:
                 "theoLoai": self.tong_theo_loai(),
                 "laiLoTheoTy": self.lai_lo_theo_chien_luoc(),
                 "xoayChoHuaVaThuc": self.xoay_cho_hua_va_thuc(),
-                "soLoiGhi": self.soLoiGhi, "loiCuoi": self.loiCuoi,
                 "duong": self.duong.name, "chuaCo": not int(n or 0)}
 
 

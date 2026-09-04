@@ -27,6 +27,8 @@ import sqlite3
 import time
 from pathlib import Path
 
+from thi_bac_ty.nho_tam import NhoTam
+
 from .config import DATA_DIR
 from .models import CoHoi
 
@@ -62,6 +64,8 @@ class So:
         self.duong.parent.mkdir(parents=True, exist_ok=True)
         self.soLoiGhi = 0
         self.loiCuoi: str | None = None
+        #: `SUM(duyet)` cộng toàn bảng `co_hoi`. Xem `thi_bac_ty.nho_tam`.
+        self._nhoThongKe = NhoTam()
         with self._mo() as con:
             con.executescript(KHUON)
 
@@ -141,6 +145,20 @@ class So:
         }
 
     def thong_ke(self) -> dict:
+        """Thống kê sổ. Đọc từ NHỚ TẠM, không quét sổ trong đường gọi.
+
+        `SELECT COUNT(*), SUM(duyet) FROM co_hoi` cộng toàn bảng — đo
+        05/09/2026 là **12,5 giây** trên 782.415 dòng, và nó nằm thẳng
+        trong `/api/trang-thai`. Chỉ mục không chữa được: `SUM` trên toàn
+        bảng phải đọc mọi dòng. Xem `thi_bac_ty.nho_tam`.
+        """
+        gia, tuoi = self._nhoThongKe.lay(self._thong_ke_nang)
+        return {**gia, "thongKeTuoiGiay": round(tuoi, 3),
+                "nhoTam": self._nhoThongKe.tom_tat(),
+                # Đọc từ bộ nhớ chứ không từ sổ — phải là số SỐNG.
+                "soLoiGhi": self.soLoiGhi, "loiCuoi": self.loiCuoi}
+
+    def _thong_ke_nang(self) -> dict:
         try:
             with self._mo() as con:
                 luot = con.execute("SELECT COUNT(*), MIN(lucMs), MAX(lucMs) FROM luot").fetchone()
@@ -151,7 +169,6 @@ class So:
             "soLuot": int(luot[0] or 0),
             "luotDauMs": luot[1], "luotCuoiMs": luot[2],
             "soCoHoi": int(co[0] or 0), "soDuyet": int(co[1] or 0),
-            "soLoiGhi": self.soLoiGhi, "loiCuoi": self.loiCuoi,
             "duong": self.duong.name,
             "chuaCo": not int(luot[0] or 0),
         }

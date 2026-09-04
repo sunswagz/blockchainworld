@@ -2038,6 +2038,33 @@ def kiem_so_cai() -> None:
          _tr2["soButToan"] == 1 and _tr2["chuaCo"] is False,
          f"{_tr2} — một cờ không bao giờ tắt được là một cờ không ai đọc")
 
+    # ── sổ cái đọc qua NHỚ TẠM, và khai tuổi ────────────────────────────
+    #
+    # `tom_tat()` cộng toàn bảng bốn lượt — đo làn thật 05/09/2026 là ~40
+    # giây trên 734.899 bút toán, nằm thẳng trong `/api/trang-thai`. Quét
+    # đột biến chỉ ra chỗ này từng TRỐNG: gỡ hẳn nhớ tạm ra mà không phép
+    # kiểm nào đỏ.
+    kiem("sổ cái khai TUỔI của con số nó vừa đưa",
+         "thongKeTuoiGiay" in _tr2 and "nhoTam" in _tr2,
+         "một con số cũ trông như số sống là đúng cái bẫy cỗ máy này dựng "
+         "lên để tránh")
+    kiem("sổ nhỏ thì KHÔNG đệm — số sống",
+         _tr2["nhoTam"]["dangDem"] is False, str(_tr2["nhoTam"]))
+
+    scE = SoCai(_tam("socai-dem") / "so.sqlite3")
+    scE._nhoTomTat.nguongDemGiay = -1.0      # ép vào đường ĐẮT
+    scE._nhoTomTat.hanGiay = 9_999.0
+    _e1 = scE.tom_tat()
+    scE.ghi(ButToan("FUNDING", "thu", 1.0, "a.v1", "E1"))
+    _e2 = scE.tom_tat()
+    kiem("đang đệm thì dòng vừa ghi CHƯA hiện — và đó là cái giá đã biết",
+         _e2["soButToan"] == 0 and _e2["nhoTam"]["dangDem"] is True,
+         f"{_e2} — vì thế `dangDem` phải bày ra, không giấu")
+    kiem("nhưng số lỗi GHI vẫn là số sống, không bị nhốt vào bản nhớ",
+         "soLoiGhi" in _e2 and _e2["soLoiGhi"] == scE.soLoiGhi,
+         "khai một lỗi ghi vừa xảy ra bằng con số của năm phút trước là "
+         "đúng kiểu im lặng cỗ máy này cấm")
+
     # ── XOAY CHỖ: lời hứa đặt cạnh đời thật của vị thế ──────────────────
     scX = SoCai(_tam("socai-xoay") / "so.sqlite3")
 
@@ -6269,6 +6296,107 @@ def _co_nhac(ten: str) -> bool:
                 return True
     return False
 
+
+
+def kiem_nho_tam() -> None:
+    print("")
+    print("-- Nho tam: phep dem CA SO khong nam trong duong buong lai --")
+    from thi_bac_ty.nho_tam import NhoTam
+
+    # ── rẻ thì KHÔNG đệm ────────────────────────────────────────────────
+    #
+    # Bộ đệm có giá: dòng vừa ghi bị che tới hết hạn. Bộ kiểm đã bắt đúng
+    # cái giá ấy ngay lượt lớp này vừa nối vào sổ cái — ghi một bút toán
+    # rồi hỏi ngay thì `chuaCo` vẫn báo sổ rỗng. Nên luật TỰ CHỈNH theo
+    # cái đo được: rẻ thì trả số sống, đắt mới đệm.
+    dem = [0]
+
+    def _tinh():
+        dem[0] += 1
+        return {"n": dem[0]}
+
+    re = NhoTam(hanGiay=0.0, nguongDemGiay=9_999.0)
+    kiem("lượt đầu luôn tính", re.lay(_tinh)[0] == {"n": 1})
+    kiem("rẻ thì tính lại mỗi lượt — không che dòng vừa ghi",
+         re.lay(_tinh)[0] == {"n": 2} and re.lay(_tinh)[0] == {"n": 3},
+         "đây là đường đi của mọi sổ nhỏ, kể cả sổ của bộ kiểm")
+    kiem("và khai là KHÔNG đệm", re.dang_dem() is False)
+    kiem("tuổi của số sống coi như 0", re.lay(_tinh)[1] < 0.5)
+
+    # ── đắt thì đệm ─────────────────────────────────────────────────────
+    dem[0] = 0
+    dat = NhoTam(hanGiay=9_999.0, nguongDemGiay=-1.0)
+    kiem("lượt đầu tính đồng bộ", dat.lay(_tinh)[0] == {"n": 1})
+    kiem("và khai là ĐANG đệm", dat.dang_dem() is True)
+    kiem("trong hạn thì KHÔNG tính lại",
+         dat.lay(_tinh)[0] == {"n": 1} and dem[0] == 1,
+         "45 giây mỗi lượt hỏi là cái giá lớp này sinh ra để bỏ")
+
+    # ── quá hạn: trả NGAY bản cũ, làm mới ở NỀN ─────────────────────────
+    #
+    # Luồng nền bị CHẶN bằng một cờ do phép kiểm cầm, không thả cho nó
+    # chạy đua với dòng `kiem` bên dưới. Bản đầu tin vào tốc độ và nó
+    # xanh/đỏ tuỳ lượt: `_tinh` rẻ tới mức luồng nền kịp ghi đè trước khi
+    # đọc — đúng cuộc đua mà `lay()` mắc phải và phép kiểm này sinh ra để
+    # canh, nên nó không được phép tự chớp.
+    import threading as _th
+    dem[0] = 0
+    cho = _th.Event()
+
+    def _tinh_cho():
+        cho.wait(timeout=5.0)
+        return _tinh()
+
+    het = NhoTam(hanGiay=-1.0, nguongDemGiay=-1.0)
+    cho.set()
+    het.lay(_tinh_cho)
+    cho.clear()
+    gia, _ = het.lay(_tinh_cho)
+    kiem("quá hạn thì trả ngay bản CŨ, không chờ", gia == {"n": 1},
+         "buồng lái không bao giờ được chờ lần thứ hai")
+    kiem("và có luồng nền được dựng", het.luongCuoi is not None)
+
+    # Ép lượt làm mới chạy XONG ngay trong `lay()`. Đây là đường duy nhất
+    # phân biệt "chụp giá trị trước khi dựng luồng" với "đọc sau khi
+    # dựng" — và bản đầu của `lay()` đọc sau, nên nó trả bản MỚI trong
+    # khi vẫn khai tuổi của bản CŨ. Quét đột biến cho thấy phép kiểm chặn
+    # luồng ở trên KHÔNG bắt được chuyện ấy: luồng bị chặn thì hai cách
+    # viết cho cùng một kết quả.
+    dong_bo = NhoTam(hanGiay=-1.0, nguongDemGiay=-1.0)
+    dong_bo.chay = lambda fn: fn()
+    dem[0] = 0
+    dong_bo.lay(_tinh)
+    gia2, _ = dong_bo.lay(_tinh)
+    kiem("nền xong ngay trong `lay()` thì vẫn trả bản CŨ", gia2 == {"n": 1},
+         f"{gia2} — giá trị phải được CHỤP trước khi dựng luồng, không thì "
+         f"hàm trả bản mới mà khai tuổi của bản cũ")
+    kiem("và lượt sau mới thấy bản mới",
+         (dong_bo._gia or {}).get("n") == 2, str(dong_bo.tom_tat()))
+    cho.set()
+    if het.luongCuoi:
+        het.luongCuoi.join(timeout=10.0)
+    kiem("nền chạy xong thì bản mới có mặt",
+         (het._gia or {}).get("n", 0) >= 2, str(het.tom_tat()))
+    kiem("và số lần trả bản cũ được ĐẾM, không giấu",
+         het.soLanTraCu >= 1, str(het.tom_tat()))
+
+    # ── tính hỏng thì GIỮ bản cũ ────────────────────────────────────────
+    hong = NhoTam(hanGiay=9_999.0, nguongDemGiay=-1.0)
+    hong.lay(lambda: {"n": 7})
+
+    def _no():
+        raise RuntimeError("sổ khoá")
+
+    hong.hanGiay = -1.0
+    hong.lay(_no)
+    if hong.luongCuoi:
+        hong.luongCuoi.join(timeout=10.0)
+    kiem("một lượt làm mới HỎNG không xoá bản đang có",
+         hong._gia == {"n": 7},
+         "trả None thì buồng lái hiện ô trống và người đọc kết luận «sổ "
+         "rỗng» thay vì «lượt làm mới vừa hỏng»")
+    kiem("và lỗi được KHAI ra", "sổ khoá" in (hong.loiCuoi or ""),
+         str(hong.tom_tat()))
 
 
 def kiem_von_ngoai() -> None:
@@ -14240,6 +14368,7 @@ def main() -> int:
     kiem_tin_dung_thang_rui_ro()
     kiem_van_tay_co_chuoi()
     kiem_hai_ty_that()
+    kiem_nho_tam()
     kiem_von_ngoai()
     kiem_on_dinh()
     kiem_lai_suat()
