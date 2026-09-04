@@ -7225,6 +7225,71 @@ def kiem_lop_boc_khai_bao() -> None:
              f"rỗng của lớp bọc) và `__getattr__` không bao giờ được gọi")
     kiem("và kiem_khai() soi ty thật", b.kiem_khai() == g.kiem_khai())
 
+    # ── lượt KHÔNG quét mới không được thổi phồng bộ đếm ─────────────────
+    #
+    # `mot_luot()` chạy MỖI vòng trung ương (30 giây), nên ty nhịp 1.800
+    # giây gặp lại đúng một mẻ cơ hội sáu mươi lần. Trước lượt này cả sáu
+    # mươi lần đều cộng vào `soCoHoi` và vào bảng lý do từ chối — nên con
+    # số ấy không còn là «bao nhiêu cơ hội» mà là «bao nhiêu lượt xét»,
+    # và hai ty nhịp khác nhau không so được với nhau.
+    #
+    # Đo làn thật 05/09/2026: phễu khai 51.764.931 cơ hội thô, thực chất
+    # ~1.344.207 — phóng đại 38,5 lần, và KHÔNG ĐỀU (pendle 118,0x · amm
+    # 60,5x · perp 1,0x vì nó không có nhịp riêng).
+    class _TyDem(Ty):
+        ma, ho = "lending.rate_rotation.v1", "tin-dung"
+        moTa = "ty đếm"
+        vonToiThieuKinhTeUsd = 1.0
+
+        def __init__(self):
+            super().__init__()
+            self.soLanHoiNguon = 0
+
+        def quet(self):
+            self.soLanHoiNguon += 1
+            return [{"x": 1}, {"x": 2}]
+
+        def xet(self, co):
+            return False, [("net-am", "NET âm")]
+
+        def trinh(self, co):
+            return None
+
+    class _ThongChinhGia:
+        def nop(self, tt):
+            return False
+
+    that = _TyDem()
+    bd = _NhipRieng(that, 9999.0)
+    tc = _ThongChinhGia()
+    bd.mot_luot(tc)
+    kiem("lượt đầu là quét THẬT", bd.quet_moi() is True
+         and bd.soLuotQuetThat == 1 and bd.soCoHoi == 2, str(bd.tom_tat()))
+    for _ in range(5):
+        bd.mot_luot(tc)
+    kiem("năm lượt sau chưa tới nhịp thì KHÔNG hỏi nguồn lần nào",
+         that.soLanHoiNguon == 1 and bd.soLuotBoQua == 5,
+         f"hỏi nguồn {that.soLanHoiNguon} lần")
+    kiem("và `soCoHoi` ĐỨNG YÊN — nó đếm cơ hội, không đếm lượt xét",
+         bd.soCoHoi == 2, f"{bd.soCoHoi} — trước lượt này con số ấy là 12")
+    kiem("phần gặp lại được khai riêng, không giấu",
+         bd.soCoHoiLap == 10, str(bd.tom_tat()))
+    kiem("`soLuotQuet` vẫn đếm ĐỦ sáu vòng — hai câu hỏi khác nhau",
+         bd.soLuotQuet == 6 and bd.soLuotQuetThat == 1, str(bd.tom_tat()))
+    kiem("bảng lý do từ chối cũng KHÔNG bị nhân lên",
+         bd.lyDoTuChoi.get("net-am") == 2 and bd.soBiTuChoi == 2,
+         f"{bd.lyDoTuChoi} — bảng này là thứ người vận hành đọc để tìm ty "
+         f"hỏng; nhân đều một hệ số khác nhau theo từng ty thì nó nói dối")
+
+    # Ty KHÔNG có nhịp riêng thì mọi lượt đều là quét thật — đường cũ giữ
+    # nguyên, không được lặng lẽ đổi theo.
+    tran = _TyDem()
+    for _ in range(3):
+        tran.mot_luot(tc)
+    kiem("ty không nhịp riêng: mọi lượt đều tính",
+         tran.soCoHoi == 6 and tran.soCoHoiLap == 0
+         and tran.soLuotQuetThat == 3, str(tran.tom_tat()))
+
 
 
 def _bg_cs(san="binance", ma="BTC", rate=0.0001, iv=8.0, mark=78000.0,

@@ -92,6 +92,7 @@ class _NhipRieng(Ty):
         self._lanCuoi = 0.0
         self._cu: list = []
         self.soLuotBoQua = 0
+        self._quetMoi = True
 
     # ── khai báo là của ty THẬT, không của lớp bọc ───────────────────────
     #
@@ -125,10 +126,16 @@ class _NhipRieng(Ty):
         now = time.monotonic()
         if self._lanCuoi and (now - self._lanCuoi) < self._nhip:
             self.soLuotBoQua += 1
+            self._quetMoi = False
             return list(self._cu)
+        self._quetMoi = True
         self._lanCuoi = now
         self._cu = list(self._ty.quet())
         return list(self._cu)
+
+    def quet_moi(self) -> bool:
+        """Lượt vừa rồi có hỏi nguồn không. Xem `khuon_ty.Ty.quet_moi`."""
+        return self._quetMoi
 
     def xet(self, co):
         return self._ty.xet(co)

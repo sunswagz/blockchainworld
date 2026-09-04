@@ -62,7 +62,14 @@ class Ty(ABC):
 
     def __init__(self) -> None:
         self.soLuotQuet = 0
+        #: Lượt THẬT SỰ hỏi nguồn. Khác `soLuotQuet` ở những ty có nhịp
+        #: riêng: chưa tới nhịp thì `bac.vong._NhipRieng` trả lại danh
+        #: sách CŨ, và lượt ấy không hỏi ai cả.
+        self.soLuotQuetThat = 0
         self.soCoHoi = 0
+        #: Cơ hội gặp lại trong một lượt KHÔNG quét mới. Đếm riêng chứ
+        #: không cộng vào `soCoHoi`: xem `quet_moi`.
+        self.soCoHoiLap = 0
         self.soQuaCongTy = 0
         self.soTrinh = 0
         self.soTrinhSaiKhuon = 0
@@ -92,6 +99,31 @@ class Ty(ABC):
     @abstractmethod
     def trinh(self, co) -> object:
         """Dịch một cơ hội đã qua `xet()` thành `ToTrinh`."""
+
+    # ── lượt vừa rồi có HỎI NGUỒN không ──────────────────────────────────
+    def quet_moi(self) -> bool:
+        """`quet()` vừa rồi có hỏi nguồn thật, hay trả lại bản cũ.
+
+        Mặc định `True` — một ty thường hỏi nguồn mỗi lượt. Ty có nhịp
+        riêng (`bac.vong._NhipRieng`) trả `False` ở những lượt chưa tới
+        nhịp, và nó phải trả lại danh sách CŨ chứ không trả rỗng: trả
+        rỗng thì ty coi như không quét được lần nào.
+
+        Vì sao cần khai: `mot_luot()` chạy MỖI vòng trung ương (30 giây),
+        nên một ty nhịp 1.800 giây gặp lại đúng một mẻ cơ hội sáu mươi
+        lần. Đếm cả sáu mươi lần vào `soCoHoi` thì con số ấy không còn là
+        «bao nhiêu cơ hội» mà là «bao nhiêu lượt xét», và hai ty nhịp
+        khác nhau không còn so được với nhau.
+
+        Đo làn thật 05/09/2026 — phễu khai 51,7 triệu cơ hội thô, thực
+        chất ~1,34 triệu, phóng đại 38,5 lần và KHÔNG ĐỀU:
+
+            yield.pendle_pt      118,0x
+            amm.fee_farming       60,5x
+            dex.round_trip        20,5x
+            perpetual.funding      1,0x   (không có nhịp riêng)
+        """
+        return True
 
     # ── việc THỨ TƯ, không bắt buộc nhưng phải KHAI nếu không làm ─────────
     def ke_toan(self, viThe: list, toTrinh: dict,
@@ -163,28 +195,42 @@ class Ty(ABC):
             self.loiCuoi = f"quét lỗi: {type(e).__name__}: {e}"
             return []
 
+        # Lượt KHÔNG quét mới thì mọi bộ đếm theo-cơ-hội đứng yên: chúng
+        # trả lời «bao nhiêu cơ hội», không phải «bao nhiêu lượt xét». Tờ
+        # trình vẫn nộp như cũ — hành vi không đổi, chỉ có lời khai đổi.
+        moi = self.quet_moi()
+        if moi:
+            self.soLuotQuetThat += 1
+
         ra = []
         for co in tho:
-            self.soCoHoi += 1
+            if not moi:
+                self.soCoHoiLap += 1
+            else:
+                self.soCoHoi += 1
             try:
                 qua, ly = self.xet(co)
             except Exception as e:                   # noqa: BLE001
                 self.loiCuoi = f"xét lỗi: {type(e).__name__}: {e}"
                 continue
             if not qua:
-                self._ghi_ly_do(ly)
+                if moi:
+                    self._ghi_ly_do(ly)
                 continue
-            self.soQuaCongTy += 1
+            if moi:
+                self.soQuaCongTy += 1
             try:
                 tt = self.trinh(co)
             except Exception as e:                   # noqa: BLE001
                 self.loiCuoi = f"trình lỗi: {type(e).__name__}: {e}"
                 continue
             if thong_chinh.nop(tt):
-                self.soTrinh += 1
+                if moi:
+                    self.soTrinh += 1
                 ra.append(tt)
             else:
-                self.soTrinhSaiKhuon += 1
+                if moi:
+                    self.soTrinhSaiKhuon += 1
                 self.loiCuoi = ("tờ trình sai khuôn: "
                                 + "; ".join(tt.kiem()[:3]))
         return ra
@@ -254,7 +300,9 @@ class Ty(ABC):
         thieuCau = sum(1 for k in self.lyDoTuChoi if not self.cauViDu.get(k))
         return {"ma": self.ma, "ho": self.ho, "moTa": self.moTa,
                 "vonToiThieuKinhTeUsd": self.vonToiThieuKinhTeUsd,
-                "soLuotQuet": self.soLuotQuet, "soCoHoi": self.soCoHoi,
+                "soLuotQuet": self.soLuotQuet,
+                "soLuotQuetThat": self.soLuotQuetThat,
+                "soCoHoi": self.soCoHoi, "soCoHoiLap": self.soCoHoiLap,
                 "soQuaCongTy": self.soQuaCongTy, "soTrinh": self.soTrinh,
                 "soTrinhSaiKhuon": self.soTrinhSaiKhuon,
                 "soBiTuChoi": self.soBiTuChoi,
