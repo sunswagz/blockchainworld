@@ -9797,6 +9797,146 @@ def kiem_dich_vu_hoi_cong() -> None:
          _param_dau_tien("$x = 1" + NL + "Write-Host $x") is None)
 
 
+def kiem_nhip_tim_canh_gac() -> None:
+    """Người canh gác phải để lại dấu KHI KHOẺ, không chỉ khi hỏng.
+
+    Bản đầu chỉ ghi nhật ký khi có sự cố. Hệ quả: một người canh gác
+    khoẻ mạnh im lặng hàng ngày, và một người canh gác đã chết cũng im
+    lặng hàng ngày — hai ca cho ra đúng một nhật ký.
+
+    Đã cắn thật. Dòng cuối `canh-gac.log` là 02/09/2026 22:48; tới
+    05/09 mới biết cổng 5187 trống, không cách nào biết nó chết lúc
+    nào. Runtime chạy không ai trông thêm chín tiếng rồi chết lúc 03/09
+    07:35 và nằm chết hai ngày. Đúng con bọ mà `canh-gac.py` sinh ra để
+    chữa, tái diễn ở tầng trên nó.
+
+    Bốn chỗ phải đúng, và ba chỗ đầu là chỗ dễ viết sai:
+
+    1. nhịp phải ghi ở CẢ HAI nhánh — ghi trong nhánh "runtime yên"
+       thôi thì suốt lúc runtime chết, người canh gác trông như đã chết
+       theo, đúng lúc cần nhìn thấy nó nhất;
+    2. ghi nhịp hỏng KHÔNG được giết người canh gác;
+    3. ghi phải nguyên tử (tạm rồi đổi tên), nếu không một lượt đọc rơi
+       vào giữa sẽ thấy nửa dòng và hiểu thành hỏng;
+    4. "cổng có người" một mình KHÔNG đủ — vòng lặp đứng thì cổng vẫn
+       có người giữ.
+    """
+    import importlib.util
+    import json
+    import socket
+    import tempfile
+    import time as _t
+
+    goc = Path(__file__).resolve().parent.parent
+
+    print()
+    print("-- Nhip tim cua nguoi canh gac -----------------------------")
+
+    # ── nguồn: nhịp phải ghi TRƯỚC khi rẽ nhánh ──────────────────────
+    vb = (goc / "dichvu" / "canh-gac.py").read_text(encoding="utf-8")
+    kiem("canh-gac.py có ghi nhịp", "_ghi_nhip" in vb and "DUONG_NHIP" in vb)
+    i_ghi = vb.find("_ghi_nhip(cong, song, soLanDung)")
+    i_re = vb.find("if song:", i_ghi if i_ghi > 0 else 0)
+    kiem("nhịp ghi TRƯỚC khi rẽ nhánh sống/chết",
+         0 < i_ghi < i_re, (i_ghi, i_re))
+    kiem("ghi nhịp bọc trong try — hỏng thì không giết người canh gác",
+         "except OSError" in vb[vb.find("def _ghi_nhip"):
+                                vb.find("def _dung_day")])
+    kiem("ghi nguyên tử: file tạm rồi `replace`",
+         ".tmp" in vb and "tam.replace(DUONG_NHIP)" in vb)
+
+    # ── hành vi: nạp `kham-suc-khoe.py` và điều khiển hai đầu vào ────
+    spec = importlib.util.spec_from_file_location(
+        "_ksk_thu", goc / "scripts" / "kham-suc-khoe.py")
+    mod = importlib.util.module_from_spec(spec)
+    cu_argv = sys.argv
+    sys.argv = ["kham-suc-khoe.py"]
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.argv = cu_argv
+
+    tam = Path(tempfile.mkdtemp())
+    nhip = tam / "data" / "nhat-ky" / "canh-gac-nhip.txt"
+    nhip.parent.mkdir(parents=True)
+    cu_goc, cu_cong = mod.GOC, mod.CONG_CANH_GAC
+    o = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    o.bind(("127.0.0.1", 0))
+    o.listen(128)
+    cong_that = o.getsockname()[1]
+    # một cổng CHẮC CHẮN trống: mở rồi đóng ngay, hệ điều hành vừa cấp
+    # nên không ai khác đang giữ.
+    t2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    t2.bind(("127.0.0.1", 0))
+    cong_trong = t2.getsockname()[1]
+    t2.close()
+
+    def _dat(luc=None, **them):
+        if luc is None:
+            if nhip.exists():
+                nhip.unlink()
+            return
+        d = {"luc": luc, "pid": 123, "congRuntime": 5186,
+             "runtimeSong": True, "soLanDung": 0, "nhipGiay": 20.0}
+        d.update(them)
+        nhip.write_text(json.dumps(d), encoding="utf-8")
+
+    try:
+        mod.GOC = tam
+        bay = _t.time()
+
+        mod.CONG_CANH_GAC = cong_trong
+        _dat(None)
+        kiem("cổng trống + KHÔNG nhịp ⇒ chết",
+             mod.hoi_canh_gac()[0] == "chet", mod.hoi_canh_gac())
+        _dat(bay)
+        kiem("cổng trống + nhịp MỚI TINH ⇒ vẫn chết (tiến trình đã đi)",
+             mod.hoi_canh_gac()[0] == "chet", mod.hoi_canh_gac())
+
+        mod.CONG_CANH_GAC = cong_that
+        _dat(None)
+        kiem("cổng CÓ người + không nhịp ⇒ mờ, không dám nói khoẻ",
+             mod.hoi_canh_gac()[0] == "mo", mod.hoi_canh_gac())
+        _dat(bay)
+        kiem("cổng CÓ người + nhịp mới ⇒ sống",
+             mod.hoi_canh_gac()[0] == "song", mod.hoi_canh_gac())
+        _dat(bay - 3600)
+        kiem("cổng CÓ người + nhịp CŨ MỘT TIẾNG ⇒ treo (vòng lặp đứng)",
+             mod.hoi_canh_gac()[0] == "treo", mod.hoi_canh_gac())
+
+        # biên: 3 nhịp là ngưỡng, và sàn 90 giây che một lượt lỡ vì
+        # máy bận. Với nhipGiay=60 thì ngưỡng là 180 giây.
+        _dat(bay - 179.0, nhipGiay=60.0)
+        kiem("nhịp 60s · trễ 179s (dưới 3 nhịp) ⇒ vẫn sống",
+             mod.hoi_canh_gac()[0] == "song", mod.hoi_canh_gac())
+        _dat(bay - 181.0, nhipGiay=60.0)
+        kiem("nhịp 60s · trễ 181s (quá 3 nhịp) ⇒ treo",
+             mod.hoi_canh_gac()[0] == "treo", mod.hoi_canh_gac())
+        # sàn 90 giây: nhịp 20s thì 3 nhịp = 60s, nhưng đừng kêu ở 70s
+        _dat(bay - 70.0, nhipGiay=20.0)
+        kiem("nhịp 20s · trễ 70s ⇒ vẫn sống (sàn 90 giây che lượt lỡ)",
+             mod.hoi_canh_gac()[0] == "song", mod.hoi_canh_gac())
+        _dat(bay - 95.0, nhipGiay=20.0)
+        kiem("nhịp 20s · trễ 95s ⇒ treo", mod.hoi_canh_gac()[0] == "treo",
+             mod.hoi_canh_gac())
+
+        # file nhịp HỎNG không được làm cả phép khám ném
+        nhip.write_text("{khong phai json", encoding="utf-8")
+        kiem("file nhịp hỏng ⇒ coi như không có nhịp, KHÔNG ném",
+             mod.hoi_canh_gac()[0] == "mo", mod.hoi_canh_gac())
+    finally:
+        mod.GOC, mod.CONG_CANH_GAC = cu_goc, cu_cong
+        o.close()
+
+    # ── câu chữ tuổi phải đọc được ───────────────────────────────────
+    for giay, mong in ((5, "giây"), (89, "giây"), (90, "phút"),
+                       (5399, "phút"), (5400, "giờ"),
+                       (171999, "giờ"), (172800, "ngày")):
+        kiem(f"tuổi {giay}s hiện theo `{mong}`", mong in mod._tuoi(giay),
+             mod._tuoi(giay))
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -12032,6 +12172,7 @@ def main() -> int:
     kiem_so_phan_doan()
     kiem_ho_market()
     kiem_khao_sat_ngay()
+    kiem_nhip_tim_canh_gac()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()

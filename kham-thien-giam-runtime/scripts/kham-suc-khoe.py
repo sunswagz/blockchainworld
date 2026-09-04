@@ -28,6 +28,7 @@ một khoảng tin CHỨA 0.
 from __future__ import annotations
 
 import json
+import socket
 import subprocess
 import sys
 import time
@@ -96,6 +97,82 @@ def hoi_runtime() -> dict | None:
             return json.loads(f.read().decode("utf-8"))
     except (urllib.error.URLError, OSError, ValueError):
         return None
+
+
+#: Cổng người canh gác giữ chỗ (`dichvu/canh-gac.py`).
+CONG_CANH_GAC = 5187
+
+
+def hoi_canh_gac() -> tuple[str, str]:
+    """(trạng thái, câu giải thích) của người canh gác.
+
+    Hai nguồn, và cần CẢ HAI:
+
+      · CỔNG 5187 — người canh gác giữ chỗ ở đó suốt đời nó, nên cổng
+        có người nghĩa là tiến trình còn sống;
+      · NHỊP TIM — file `canh-gac-nhip.txt` ghi đè mỗi lượt hỏi, nên
+        file cũ nghĩa là tiến trình còn đó mà vòng lặp đã đứng.
+
+    Chỉ hỏi cổng thì không bắt được ca vòng lặp treo; chỉ đọc nhịp thì
+    không phân biệt được "chưa bao giờ chạy" với "vừa mới chết".
+    """
+    # Dò bằng cách THỬ BIND, không phải bằng cách kết nối.
+    #
+    # `canh-gac.py` giữ cổng bằng `bind` + `listen(1)` và KHÔNG BAO GIỜ
+    # `accept`. Nên mỗi lần khám kết nối vào là nhét thêm một kết nối
+    # nằm mãi trong hàng đợi; vài lượt khám là hàng đầy, và từ đó lượt
+    # khám nào cũng báo "cổng trống" về một người canh gác đang khoẻ.
+    # Phép kiểm bắt được đúng chuyện này.
+    #
+    # Thử bind thì không đụng vào hàng đợi: bind hỏng nghĩa là có người
+    # giữ, bind được nghĩa là không ai giữ — và ta trả lại ngay.
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", CONG_CANH_GAC))
+        coCong = False
+    except OSError:
+        coCong = True
+    finally:
+        s.close()
+
+    duong = GOC / "data" / "nhat-ky" / "canh-gac-nhip.txt"
+    d = None
+    if duong.exists():
+        try:
+            d = json.loads(duong.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            d = None
+
+    if not coCong and d is None:
+        return ("chet", f"KHÔNG CHẠY — cổng {CONG_CANH_GAC} trống và không có nhịp tim")
+    if not coCong:
+        tuoi = time.time() - float(d.get("luc") or 0)
+        return ("chet", f"KHÔNG CHẠY — cổng {CONG_CANH_GAC} trống; nhịp cuối "
+                        f"{_tuoi(tuoi)} trước")
+    if d is None:
+        return ("mo", f"cổng {CONG_CANH_GAC} CÓ người giữ, chưa có nhịp tim "
+                      "(bản cũ chưa ghi nhịp?)")
+
+    tuoi = time.time() - float(d.get("luc") or 0)
+    nhip = float(d.get("nhipGiay") or 20.0)
+    # Ba nhịp: một lượt lỡ vì máy bận thì đừng kêu, nhưng ba lượt liền
+    # thì vòng lặp đã đứng chứ không phải chậm.
+    if tuoi > max(90.0, nhip * 3):
+        return ("treo", f"cổng {CONG_CANH_GAC} CÓ người, nhưng nhịp cuối {_tuoi(tuoi)} "
+                        f"trước (nhịp {nhip:.0f}s) — vòng lặp ĐỨNG?")
+    return ("song", f"ĐANG CANH · PID {d.get('pid')} · nhịp cuối "
+                    f"{_tuoi(tuoi)} trước · đã dựng lại "
+                    f"{d.get('soLanDung', 0)} lần")
+
+
+def _tuoi(giay: float) -> str:
+    if giay < 90:
+        return f"{giay:.0f} giây"
+    if giay < 5400:
+        return f"{giay / 60:.0f} phút"
+    if giay < 172800:
+        return f"{giay / 3600:.1f} giờ"
+    return f"{giay / 86400:.1f} ngày"
 
 
 def main() -> int:
@@ -198,6 +275,20 @@ def main() -> int:
               f"{kq.get('soTuTinh', 0):,} tự tính")
         if nga:
             hong.append(f"{len(nga)} làn ngã: {', '.join(list(nga)[:3])}")
+
+    # ── 4b. người canh gác ───────────────────────────────────────────
+    #
+    # Nó là thứ duy nhất dựng runtime dậy khi runtime chết. Bản trước
+    # chỉ ghi nhật ký khi CÓ SỰ CỐ, nên một người canh gác khoẻ và một
+    # người canh gác đã chết trông giống hệt nhau — và ngày 03/09/2026
+    # nó chết trước, runtime chết theo chín tiếng sau, rồi cả hai nằm
+    # im hai ngày.
+    tt2, ly = hoi_canh_gac()
+    print(f"  người canh gác      {ly}")
+    if tt2 == "chet":
+        hong.append("người canh gác KHÔNG chạy — runtime không ai dựng lại")
+    elif tt2 in ("treo", "mo"):
+        nhac.append(f"người canh gác: {ly}")
         if b.get("soLoiGhi"):
             hong.append(f"{b['soLoiGhi']} lỗi ghi băng")
         # Ngân sách lỗ ngày: cả phần ĐÃ MẤT lẫn phần ĐANG GÁNH.

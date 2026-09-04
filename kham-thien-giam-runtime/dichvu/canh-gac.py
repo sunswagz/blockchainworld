@@ -42,6 +42,25 @@ tìm ra nguyên nhân.
 3. **Người canh gác cũng phải MỘT bản.** Hai người canh cùng dựng thì
    bản thứ hai của runtime thoát mã 3 (khoá một-bản của `chay-nen.py`)
    — vô hại nhưng làm nhật ký khó đọc. Khoá bằng chính cổng canh gác.
+
+## Vì sao có NHỊP TIM, và vì sao thiếu nó là một lỗ hổng thật
+
+Bản đầu chỉ ghi nhật ký KHI CÓ SỰ CỐ. Nghe thì gọn, nhưng nó làm cái
+này: một người canh gác khoẻ mạnh im lặng hàng ngày, và một người canh
+gác đã chết cũng im lặng hàng ngày — nhật ký hai ca giống hệt nhau.
+
+Đo được 05/09/2026: dòng cuối của `canh-gac.log` là 02/09 22:48 "runtime
+lên lại sau 5 giây". Không thể biết nó chết lúc nào, chỉ biết tới lúc
+xem thì cổng 5187 trống. Runtime chạy không ai trông thêm chín tiếng rồi
+chết lúc 03/09 07:35, và nằm chết hai ngày.
+
+Đó chính là con bọ mà file này sinh ra để chữa, tái diễn ở một tầng cao
+hơn: người canh gác chữa cái chết im lặng của runtime, rồi tự chết im
+lặng. Nên nó phải để lại DẤU KHI KHOẺ, không chỉ khi hỏng —
+`data/nhat-ky/canh-gac-nhip.txt`, ghi đè mỗi lượt hỏi. File cũ hơn vài
+nhịp nghĩa là không còn ai canh, và `kham-suc-khoe.py` nói ra điều đó.
+
+Cùng cách Thị Bạc Ty làm với `giam-sat-nhip.txt`.
 """
 from __future__ import annotations
 
@@ -68,6 +87,10 @@ NHAT_KY.mkdir(parents=True, exist_ok=True)
 CONG_CANH = 5187
 
 NHIP_GIAY = 20.0            # bao lâu hỏi một lần
+
+#: Dấu KHI KHOẺ. Ghi đè mỗi lượt hỏi, kể cả lượt không có gì xảy ra —
+#: đó là toàn bộ điểm của nó.
+DUONG_NHIP = NHAT_KY / "canh-gac-nhip.txt"
 CHO_LEN_GIAY = 90.0         # cho runtime bao lâu để lên sau khi dựng
 NGHI_DAU = 10.0             # lùi lần đầu
 NGHI_TOI_DA = 300.0         # trần lùi — 5 phút, đủ ngắn để không mất cả đêm
@@ -124,6 +147,28 @@ def _giu_cho(cong: int = CONG_CANH) -> socket.socket | None:
         return None
 
 
+def _ghi_nhip(cong: int, song: bool, soLanDung: int) -> None:
+    """Ghi dấu sống. Hỏng thì kệ — nhịp tim không được giết người canh.
+
+    Ghi ra file tạm rồi đổi tên: một lượt đọc rơi đúng lúc đang ghi sẽ
+    thấy file cũ nguyên vẹn chứ không thấy nửa dòng, và "nửa dòng" thì
+    chỗ đọc sẽ hiểu thành hỏng.
+    """
+    try:
+        tam = DUONG_NHIP.with_suffix(".tmp")
+        tam.write_text(json.dumps({
+            "luc": time.time(),
+            "pid": os.getpid(),
+            "congRuntime": cong,
+            "runtimeSong": bool(song),
+            "soLanDung": int(soLanDung),
+            "nhipGiay": NHIP_GIAY,
+        }, ensure_ascii=False), encoding="utf-8")
+        tam.replace(DUONG_NHIP)
+    except OSError as e:
+        logging.warning("không ghi nổi nhịp tim: %s: %s", type(e).__name__, e)
+
+
 def _dung_day() -> subprocess.Popen | None:
     """Bật `chay-nen.py`. Dùng pythonw để không hiện cửa sổ."""
     py = Path(sys.executable)
@@ -158,8 +203,15 @@ def main() -> int:
     nghi = NGHI_DAU
     lanSongCuoi = time.time()
 
+    _ghi_nhip(cong, True, soLanDung)
+
     while True:
-        if _con_song(cong):
+        song = _con_song(cong)
+        # Ghi nhịp TRƯỚC mọi nhánh: nhịp tim phải đập cả lượt yên lẫn
+        # lượt đang chữa cháy. Đặt nó trong nhánh "yên" thôi thì suốt
+        # lúc runtime chết, người canh gác cũng trông như đã chết.
+        _ghi_nhip(cong, song, soLanDung)
+        if song:
             if nghi != NGHI_DAU:
                 logging.info("runtime đã sống lại — đặt lại nhịp lùi")
             nghi = NGHI_DAU
