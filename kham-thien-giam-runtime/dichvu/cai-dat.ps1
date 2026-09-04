@@ -8,27 +8,20 @@
 #   dòng chẳng liên quan gì. Sửa bằng trình soạn thảo nào lưu không BOM là hỏng
 #   lại. Cùng bẫy đã ghi ở tu-cam-thanh-runtime/dichvu/.
 
+# ⚠ `param` PHẢI là câu lệnh ĐẦU TIÊN của script (chỉ chú thích được
+#   đứng trước). Đặt nó sau một lệnh nào đó thì PowerShell không coi
+#   đây là khai tham số nữa mà coi `param` là tên một LỆNH — và với
+#   `ErrorActionPreference = "Stop"` ở trên, script CHẾT ngay tại
+#   dòng ấy. Bản trước để nó ở dòng 31: `cai-dat.ps1 -TuChay` chưa
+#   bao giờ chạy, nên cung này không có móc tự khởi động và đã nằm
+#   chết hai ngày (03–05/09/2026) mà không ai hay.
+param([switch]$TuChay)
+
 $ErrorActionPreference = "Stop"
 $GOC = Split-Path -Parent $PSScriptRoot
-$PY  = "D:\SUNSWaGz 2027\Python 3.12.10\python.exe"
-$PYW = "D:\SUNSWaGz 2027\Python 3.12.10\pythonw.exe"
-$PID_FILE = Join-Path $PSScriptRoot "pid.txt"
 
 function Ok($m)   { Write-Host "  OK   $m" }
-function Loi($m)  { Write-Host "  LỖI  $m"; exit 1 }
 function Nhac($m) { Write-Host "  ~    $m" }
-
-function Lay-Pid {
-  if (-not (Test-Path $PID_FILE)) { return $null }
-  $p = (Get-Content $PID_FILE -Raw).Trim()
-  if (-not $p) { return $null }
-  $tt = Get-Process -Id $p -ErrorAction SilentlyContinue
-  if (-not $tt) { Remove-Item $PID_FILE -Force -ErrorAction SilentlyContinue; return $null }
-  return $tt
-}
-
-
-param([switch]$TuChay)
 
 # ── Vì sao KHÔNG dùng Task Scheduler ──────────────────────────────────────
 # Trên máy này dịch vụ Task Scheduler đang tắt (Status Stopped dù StartType

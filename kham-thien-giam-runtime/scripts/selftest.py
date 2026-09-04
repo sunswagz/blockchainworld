@@ -9725,6 +9725,78 @@ def kiem_dich_vu_hoi_cong() -> None:
         kiem(f"{t} lưu UTF-8 CÓ BOM",
              (dv / t).read_bytes()[:3] == b"\xef\xbb\xbf")
 
+    # ── `param` PHẢI là câu lệnh ĐẦU TIÊN ────────────────────────────
+    #
+    # PowerShell chỉ coi `param(...)` là khai tham số khi nó đứng trước
+    # mọi câu lệnh khác (chú thích thì được phép). Đặt muộn hơn thì nó
+    # thành một LỆNH tên `param`, và câu báo lỗi — "The term 'param' is
+    # not recognized as the name of a cmdlet" — nghe như thiếu phần mềm
+    # chứ không như đặt sai chỗ.
+    #
+    # Đo được 05/09/2026: `cai-dat.ps1` để `param([switch]$TuChay)` ở
+    # dòng 31, sau `$ErrorActionPreference = "Stop"`. Nên `-TuChay`
+    # không bao giờ gắn được, và vì "Stop" nên script CHẾT ngay dòng ấy
+    # — cả lối tắt Desktop cũng không tạo nổi. Hệ quả: đây là cung DUY
+    # NHẤT không có móc tự khởi động, và nó đã nằm chết từ 03/09 tới
+    # 05/09 mà không ai hay (Task Scheduler máy này đang tắt, móc duy
+    # nhất là thư mục Startup).
+    #
+    # Phép dò không gọi PowerShell: luật đủ đơn giản để viết thẳng, và
+    # một phép kiểm phải chạy được ở nơi không có PowerShell.
+    def _param_dau_tien(vb: str):
+        """True/False khi file khai `param` tầng script; None khi không.
+
+        Chỉ chú thích (`#` và khối `<# #>`) được đứng trước. Dòng đầu
+        tiên KHÔNG phải chú thích quyết định tất cả.
+        """
+        trong = False
+        for dong in vb.splitlines():
+            t = dong.strip()
+            if trong:
+                if "#>" in t:
+                    trong = False
+                continue
+            if t.startswith("<#"):
+                trong = "#>" not in t
+                continue
+            if not t or t.startswith("#"):
+                continue
+            if t.startswith("param"):
+                return True
+            # câu lệnh đầu tiên KHÔNG phải `param`. Còn khai `param` ở
+            # tầng script nữa không? Chỉ tính khi nó ở đầu dòng — thụt
+            # vào thì đó là `param` của một HÀM, hoàn toàn hợp lệ.
+            for d2 in vb.splitlines():
+                if d2.startswith("param") and "(" in d2:
+                    return False
+            return None
+        return None
+
+    for t in sorted(x.name for x in dv.glob("*.ps1")):
+        vb = (dv / t).read_text(encoding="utf-8-sig")
+        ra = _param_dau_tien(vb)
+        if ra is not None:
+            kiem(f"{t}: `param` đứng TRƯỚC mọi câu lệnh", ra)
+
+    # Và phép dò phải PHÂN BIỆT được, chứ không phải luôn gật — một
+    # phép dò luôn trả None sẽ làm vòng lặp trên không kiểm gì cả mà
+    # vẫn không có dòng ✗ nào.
+    NL = chr(10)
+    kiem("phép dò bắt được ca ĐẶT MUỘN",
+         _param_dau_tien("$x = 1" + NL + "param([switch]$A)") is False)
+    kiem("phép dò gật ca đặt ĐÚNG",
+         _param_dau_tien("# ghi chú" + NL + "param([switch]$A)" + NL
+                         + "$x = 1") is True)
+    kiem("chú thích khối `<# #>` đứng trước cũng được",
+         _param_dau_tien("<# ghi" + NL + "chú #>" + NL
+                         + "param([switch]$A)") is True)
+    kiem("`param` thụt vào trong một HÀM KHÔNG bị tính là khai tầng script",
+         _param_dau_tien("function f {" + NL + "  param([int]$C)" + NL
+                         + "}") is None)
+    kiem("file không có `param` nào ⇒ None (không kiểm gì)",
+         _param_dau_tien("$x = 1" + NL + "Write-Host $x") is None)
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
