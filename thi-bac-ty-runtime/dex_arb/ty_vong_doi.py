@@ -319,19 +319,54 @@ class NguonDoi:
     DIA_CHI_HINH_NON = "0x0000000000000000000000000000000000000001"
     ten = "dex-doi-lifi"
 
+    #: Bị 429 thì NGHỈ tới mốc này. Cùng luật với
+    #: `chuyen_von.cau_noi.NguonCauNoi` — CÙNG một API, cùng hạn mức.
+    #: Bên kia đã học bài ấy và ghi lại thành chú thích; chỗ này thì chưa,
+    #: nên nó gọi tiếp suốt lúc đang bị chặn. Đo làn thật 05/09/2026:
+    #: 23.326 trên 29.034 cơ hội (80%) chết vì `thieu-so`, và câu lỗi cuối
+    #: của nguồn là đúng «LI.FI 429 — nghỉ 90 phút».
+    NGHI_MAC_DINH_GIAY = 7200.0
+
     def __init__(self) -> None:
         self.soLoi = 0
         self.loiCuoi = ""
         self.soLuot = 0
+        #: Mốc được phép hỏi lại. 0 = đang không bị chặn.
+        self.nghiToiMs = 0.0
+        #: `soLoi` gộp NĂM nguyên nhân đòi năm cách xử khác nhau — «chưa
+        #: khai token» là lỗ hổng cấu hình người sửa được trong một phút,
+        #: còn 429 là phải NGỪNG GỌI. Một con số gộp thì không câu nào
+        #: trong hai câu ấy trả lời được.
+        self.soChuaKhaiToken = 0
+        self.so429 = 0
+        self.soLoiHttp = 0
+        self.soThieuTruong = 0
+        self.soNem = 0
+        self.soBoQuaViNghi = 0
+
+    def dang_nghi(self, nowMs: float | None = None) -> bool:
+        now = nowMs if nowMs is not None else time.time() * 1000.0
+        return now < self.nghiToiMs
+
+    def con_nghi_giay(self, nowMs: float | None = None) -> float:
+        now = nowMs if nowMs is not None else time.time() * 1000.0
+        return max(0.0, (self.nghiToiMs - now) / 1000.0)
 
     async def doi(self, client, chuoi: str, a: str, b: str,
                   luong: float) -> dict | None:
         from chuyen_von.cau_noi import TOKEN_BANG
         from chuyen_von.gas import CHAIN_ID
+        # Hỏi tiếp trong lúc bị chặn không làm câu trả lời tới sớm hơn; nó
+        # chỉ tốn lượt của cả hai bên và kéo dài lệnh chặn.
+        if self.dang_nghi():
+            self.soBoQuaViNghi += 1
+            self.loiCuoi = f"đang NGHỈ vì 429 · còn {self.con_nghi_giay():.0f}s"
+            return None
         ta, tb = TOKEN_BANG.get((a, chuoi)), TOKEN_BANG.get((b, chuoi))
         cid = CHAIN_ID.get(chuoi)
         if ta is None or tb is None or cid is None or luong <= 0:
             self.soLoi += 1
+            self.soChuaKhaiToken += 1
             self.loiCuoi = f"chưa khai {a}/{b} trên {chuoi}"
             return None
         self.soLuot += 1
@@ -341,8 +376,21 @@ class NguonDoi:
                 "fromToken": ta.diaChi, "toToken": tb.diaChi,
                 "fromAmount": str(int(round(luong * 10 ** ta.thapPhan))),
                 "fromAddress": self.DIA_CHI_HINH_NON})
+            if r.status_code == 429:
+                # LI.FI nói rõ nghỉ bao lâu. Tôn trọng con số của họ nếu
+                # đọc được; không đọc được thì lấy mặc định.
+                giay = self.NGHI_MAC_DINH_GIAY
+                v = so_hoac_none(r.headers.get("retry-after"))
+                if v is not None and v > 0:
+                    giay = float(v)
+                self.nghiToiMs = time.time() * 1000.0 + giay * 1000.0
+                self.soLoi += 1
+                self.so429 += 1
+                self.loiCuoi = f"LI.FI 429 — nghỉ {giay / 60:.0f} phút"
+                return None
             if r.status_code >= 400:
                 self.soLoi += 1
+                self.soLoiHttp += 1
                 self.loiCuoi = f"LI.FI {r.status_code}"
                 return None
             d = r.json() or {}
@@ -351,6 +399,7 @@ class NguonDoi:
             sn = so_hoac_none(e.get("toAmountMin"))
             if ky is None or sn is None:
                 self.soLoi += 1
+                self.soThieuTruong += 1
                 self.loiCuoi = "thiếu toAmount/toAmountMin"
                 return None
             return {"kyVong": ky / 10 ** tb.thapPhan,
@@ -358,11 +407,18 @@ class NguonDoi:
                     "congCu": d.get("tool"), "tuoiGiay": 0.0}
         except Exception as e:                                # noqa: BLE001
             self.soLoi += 1
+            self.soNem += 1
             self.loiCuoi = f"{type(e).__name__}: {str(e)[:60]}"
             return None
 
     def tom_tat(self) -> dict:
         return {"ten": self.ten, "soLuot": self.soLuot, "soLoi": self.soLoi,
+                "soChuaKhaiToken": self.soChuaKhaiToken, "so429": self.so429,
+                "soLoiHttp": self.soLoiHttp,
+                "soThieuTruong": self.soThieuTruong, "soNem": self.soNem,
+                "soBoQuaViNghi": self.soBoQuaViNghi,
+                "dangNghi": self.dang_nghi(),
+                "conNghiGiay": round(self.con_nghi_giay(), 1),
                 "loiCuoi": self.loiCuoi}
 
 

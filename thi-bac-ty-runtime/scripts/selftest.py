@@ -6298,6 +6298,89 @@ def _co_nhac(ten: str) -> bool:
 
 
 
+def kiem_nguon_doi_429() -> None:
+    print("")
+    print("-- Nguon doi LI.FI: 429 thi NGHI, khong goi tiep --")
+    import asyncio
+
+    from dex_arb.ty_vong_doi import NguonDoi
+
+    # `chuyen_von.cau_noi.NguonCauNoi` đã học bài này và ghi lại thành chú
+    # thích — CÙNG một API, cùng hạn mức. `NguonDoi` thì chưa, nên nó gọi
+    # tiếp suốt lúc đang bị chặn. Đo làn thật 05/09/2026: 23.326 trên
+    # 29.034 cơ hội (80%) chết vì `thieu-so`, và câu lỗi cuối của nguồn
+    # đúng là «LI.FI 429 — nghỉ 90 phút».
+    class _Đáp:
+        def __init__(self, ma, headers=None, body=None):
+            self.status_code = ma
+            self.headers = headers or {}
+            self._body = body or {}
+            self.text = "chan nhip"
+
+        def json(self):
+            return self._body
+
+    class _Client:
+        def __init__(self, dap):
+            self.dap = dap
+            self.soGoi = 0
+
+        async def get(self, url, params=None):
+            self.soGoi += 1
+            return self.dap
+
+    n = NguonDoi()
+    c = _Client(_Đáp(429, {"retry-after": "60"}))
+    r = asyncio.run(n.doi(c, "arbitrum", "USDC", "USDT", 1000.0))
+    kiem("429 thì trả None và ĐẾM riêng", r is None and n.so429 == 1,
+         str(n.tom_tat()))
+    kiem("và nghỉ đúng số giây LI.FI dặn, không lấy mặc định",
+         55.0 <= n.con_nghi_giay() <= 60.0 and n.dang_nghi(),
+         f"{n.con_nghi_giay():.0f}s — mặc định là {n.NGHI_MAC_DINH_GIAY:.0f}s")
+
+    truoc = c.soGoi
+    for _ in range(4):
+        asyncio.run(n.doi(c, "arbitrum", "USDC", "USDT", 1000.0))
+    kiem("đang nghỉ thì KHÔNG gọi API lần nào nữa", c.soGoi == truoc,
+         f"gọi thêm {c.soGoi - truoc} lần — hỏi tiếp lúc bị chặn không làm "
+         f"câu trả lời tới sớm hơn, nó chỉ kéo dài lệnh chặn")
+    kiem("và số lượt bỏ qua vì nghỉ được KHAI", n.soBoQuaViNghi == 4,
+         str(n.tom_tat()))
+    kiem("bảng tóm tắt nói rõ đang nghỉ còn bao lâu",
+         n.tom_tat()["dangNghi"] is True and n.tom_tat()["conNghiGiay"] > 0)
+
+    # Không có `retry-after` thì lấy mặc định — chứ không nghỉ 0 giây.
+    n2 = NguonDoi()
+    asyncio.run(n2.doi(_Client(_Đáp(429)), "arbitrum", "USDC", "USDT", 1000.0))
+    kiem("thiếu `retry-after` thì nghỉ theo mặc định",
+         n2.con_nghi_giay() > n2.NGHI_MAC_DINH_GIAY - 10.0,
+         f"{n2.con_nghi_giay():.0f}s")
+
+    # Năm nguyên nhân, năm bộ đếm. `soLoi` gộp lại thì không câu hỏi nào
+    # trong năm câu ấy trả lời được.
+    n3 = NguonDoi()
+    asyncio.run(n3.doi(_Client(_Đáp(200)), "arbitrum", "KHONG_CO_TOKEN",
+                       "USDT", 1000.0))
+    kiem("token chưa khai đếm riêng, KHÔNG lẫn vào lỗi mạng",
+         n3.soChuaKhaiToken == 1 and n3.so429 == 0 and n3.soLoiHttp == 0,
+         str(n3.tom_tat()))
+    kiem("và nó KHÔNG tính vào `soLuot` — chưa hề gọi ai",
+         n3.soLuot == 0, str(n3.tom_tat()))
+
+    n4 = NguonDoi()
+    asyncio.run(n4.doi(_Client(_Đáp(500)), "arbitrum", "USDC", "USDT", 1000.0))
+    kiem("lỗi HTTP khác 429 KHÔNG làm nguồn nghỉ",
+         n4.soLoiHttp == 1 and n4.dang_nghi() is False,
+         f"{n4.tom_tat()} — nghỉ hai giờ vì một lỗi 500 thoáng qua là tự "
+         f"tắt mình")
+
+    n5 = NguonDoi()
+    asyncio.run(n5.doi(_Client(_Đáp(200, body={"estimate": {}})),
+                       "arbitrum", "USDC", "USDT", 1000.0))
+    kiem("thiếu trường trong đáp cũng đếm riêng",
+         n5.soThieuTruong == 1, str(n5.tom_tat()))
+
+
 def kiem_nho_tam() -> None:
     print("")
     print("-- Nho tam: phep dem CA SO khong nam trong duong buong lai --")
@@ -14433,6 +14516,7 @@ def main() -> int:
     kiem_tin_dung_thang_rui_ro()
     kiem_van_tay_co_chuoi()
     kiem_hai_ty_that()
+    kiem_nguon_doi_429()
     kiem_nho_tam()
     kiem_von_ngoai()
     kiem_on_dinh()
