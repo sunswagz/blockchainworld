@@ -6514,6 +6514,32 @@ def kiem_von_ngoai() -> None:
          gan(_doc_kham("k", {"kho": {"viThe": [{"loKhoaUsd": "xxx"}]}})
              .daCamKetUsd, 0.0))
 
+    # ── tên khoá TIỀN MẶT: đọc hụt mà không ai kêu ───────────────────────
+    #
+    # Bản trước đọc `risk.vonUsd or risk.soDuUsd`. Khâm Thiên Giám không
+    # có khoá nào trong hai khoá ấy — nó khai `risk.von`. Nên tiền mặt của
+    # vốn ngoài đọc ra ĐÚNG BẰNG 0 suốt, và `vi` im vì nó chỉ soi tầng
+    # ngoài cùng (`kho`, `risk` đều có mặt). Đo làn thật 05/09/2026: KTG
+    # khai `risk.von = 932,44` USD, Thị Bạc Ty đọc ra 0.
+    kiem("đọc được `risk.von` — đúng tên khoá Khâm Thiên Giám dùng thật",
+         gan(_doc_kham("k", {"che": "that", "kho": {},
+                             "risk": {"von": 932.44}}).tienMatUsd, 932.44),
+         "khoá này là khoá THẬT trên làn thật, không phải giả định")
+    kiem("và vẫn đọc `vonUsd` như cũ",
+         gan(_doc_kham("k", {"che": "that", "kho": {},
+                             "risk": {"vonUsd": 500.0}}).tienMatUsd, 500.0))
+    kiem("có cả hai thì `vonUsd` thắng — thứ tự khoá là CỐ Ý",
+         gan(_doc_kham("k", {"che": "that", "kho": {},
+                             "risk": {"vonUsd": 500.0,
+                                      "von": 1.0}}).tienMatUsd, 500.0))
+    _khong = _doc_kham("k", {"che": "that", "kho": {}, "risk": {"xyz": 1.0}})
+    kiem("không thấy khoá tiền mặt nào thì KHAI RA, không im",
+         gan(_khong.tienMatUsd, 0.0) and "risk." in _khong.vi,
+         f"vi={_khong.vi!r} — đọc hụt mà câu khai rỗng là đúng kiểu im "
+         f"lặng đã để lọt 932 USD suốt nhiều ngày")
+    kiem("`risk` vắng hẳn thì vẫn chỉ kêu thiếu `risk`, không kêu thừa",
+         "risk" in _doc_kham("k", {"che": "that"}).vi)
+
     # ── Danh Mục: vốn ngoài vào NAV nhưng KHÔNG vào viThe ────────────────
     dm = DanhMuc(1000.0)
     kiem("chưa khai vốn ngoài thì coi như đọc đủ", dm.ngoaiDayDu)

@@ -150,7 +150,23 @@ def _doc_kham(ten: str, d: dict) -> LatCatNgoai:
     # nguy hiểm: không biết nguồn đang chạy tiền thật hay tiền giấy thì
     # `laTienThat` trả False và vốn ấy KHÔNG vào NAV — đúng hướng an
     # toàn, nhưng người đọc phải được biết vì sao con số hụt.
+    # Tiền mặt: thử LẦN LƯỢT mấy tên khoá đã gặp, và khai ra nếu không
+    # thấy cái nào.
+    #
+    # Bản trước đọc `risk.vonUsd or risk.soDuUsd` — Khâm Thiên Giám không
+    # có khoá nào trong hai khoá ấy, nó khai `risk.von`. Nên phần tiền mặt
+    # của vốn ngoài đọc ra ĐÚNG BẰNG 0 suốt, và không ai thấy: `vi` chỉ
+    # soi hai khoá NGOÀI (`kho`, `risk`) — cả hai đều có mặt, nên câu khai
+    # rỗng trong khi con số đã hụt. Đo làn thật 05/09/2026: KTG khai
+    # `risk.von = 932,44` USD, Thị Bạc Ty đọc ra `tienMatUsd = 0`.
+    #
+    # Đây đúng là cái mà "đọc phòng thủ và khai chỗ vắng" sinh ra để bắt,
+    # và nó lọt vì phép soi dừng ở tầng ngoài cùng.
+    KHOA_TIEN = ("vonUsd", "soDuUsd", "von")
+    khoaTien = next((k for k in KHOA_TIEN if k in risk), None)
     thieu = [k for k in ("kho", "risk", "che") if k not in d]
+    if "risk" in d and khoaTien is None:
+        thieu.append("risk." + "/".join(KHOA_TIEN))
     return LatCatNgoai(
         ten=ten, docDuoc=True,
         vi=("thiếu khoá: " + ", ".join(thieu)) if thieu else "",
@@ -158,7 +174,7 @@ def _doc_kham(ten: str, d: dict) -> LatCatNgoai:
         # `chuaPhongHoUsd` vì một chân chưa phòng hộ VẪN là vốn đang phơi ra.
         daCamKetUsd=sum(_so(v.get("loKhoaUsd")) + _so(v.get("chuaPhongHoUsd"))
                         for v in vt),
-        tienMatUsd=_so(risk.get("vonUsd")) or _so(risk.get("soDuUsd")),
+        tienMatUsd=_so(risk.get(khoaTien)) if khoaTien else 0.0,
         chuaPhongHoUsd=sum(_so(v.get("chuaPhongHoUsd")) for v in vt),
         soViThe=int(_so(kho.get("soThiTruong"))),
         che=str(d.get("che") or ""))
