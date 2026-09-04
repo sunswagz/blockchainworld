@@ -32,6 +32,7 @@ có kết cục). Không A/B được thì không tự nhận được. Người
 """
 from __future__ import annotations
 
+import datetime as _dt
 from dataclasses import dataclass, field
 
 #: Dưới ngần này tờ trình đã phát hiện thì không chẩn gì cả.
@@ -140,6 +141,15 @@ NGUONG_RANH_TREN_KHA_DUNG = 0.25
 #: chỉ nghĩa là chưa tới kỳ trả.
 TOI_THIEU_VON_GIO_THU_KHONG = 10_000.0
 
+#: Cầu dao ngắt liên tục quá ngần này GIỜ thì tự nó là một triệu chứng.
+#:
+#: Một giờ. Mọi lý do `tuMo=True` đều tự đóng khi điều kiện hết, và điều
+#: kiện lâu nhất trong nhóm ấy là tuổi nguồn vốn ngoài — `nhipGiay` 60,
+#: `tuoiToiDaGiay` 300. Một giờ là mười hai lần cái cửa sổ ấy: đủ xa để
+#: không kêu vì một lần mạng chập, đủ gần để một cỗ máy đứng hình được
+#: khai ra trong cùng buổi làm việc chứ không phải sáng hôm sau.
+NGUONG_NGAT_LAU_GIO = 1.0
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -230,6 +240,84 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             {"soPhangGap": so_gap, "soPhien": so_phien,
              "tiLe": so_gap / so_phien},
             ["ruiRoTong.tranMotCoHoi"]))
+
+    # ── 0c. cầu dao ngắt LIÊN TỤC — cỗ máy còn thở mà không làm gì ──────
+    #
+    # Một cầu dao đúng nghĩa thì ngắt rồi ĐÓNG LẠI. Cái ngắt liên tục
+    # hàng chục giờ không còn là cầu dao nữa mà là một BỨC TƯỜNG — và
+    # bức tường ấy trước lượt này không có triệu chứng nào của riêng nó.
+    # `von-ranh-an-khong` chỉ NHẮC tới nó như một ghi chú phụ, và chỉ khi
+    # vốn rảnh vượt ngưỡng; im lặng nếu tiền đã kẹt sẵn trong vị thế cũ.
+    #
+    # Đo làn thật 04/09: ngắt lúc 03/09 01:26 vì `von-ngoai-mu`, chưa
+    # đóng lại lần nào trong suốt 39,1 giờ — trọn đời tiến trình. 4.697
+    # vòng, 50,2 triệu cơ hội thô, 98.109 tờ qua cổng ty, cấp vốn 0 đồng.
+    # Buồng lái vẫn xanh: nhịp đều, không lỗi nào ném, `chayDuocGiay`
+    # tăng đẹp.
+    #
+    # Đây là vết cũ tái diễn dưới dạng khó thấy hơn. Lần trước cỗ máy
+    # CHẾT ba ngày không ai hay; lần này nó SỐNG mà không làm gì, và mọi
+    # dấu hiệu sinh tồn đều bình thường.
+    #
+    # Triệu chứng này KHÔNG nói cầu dao ngắt đúng hay sai — nó không biết,
+    # và `von-ngoai-mu` rất có thể đang ngắt hoàn toàn đúng. Nó chỉ nói
+    # một điều ĐO ĐƯỢC: đã ngần này giờ, và chưa ai được báo. Nên nó khai
+    # núm RỖNG: vặn trần lúc tường đang dựng là nới một cửa trong khi cửa
+    # khác khoá có chủ ý.
+    if cd.get("dangNgat"):
+        _moc = []
+        for _l in (cd.get("lyDo") or []):
+            if _l.get("luc"):
+                _moc.append(str(_l["luc"]))
+        # `lichSu` cũng được soi, và lấy mốc SỚM NHẤT trong hai nguồn:
+        # bản `cau_dao.py` cũ làm mới `luc` mỗi vòng, nên ảnh chụp của một
+        # tiến trình chưa khởi động lại vẫn mang mốc sai. Thà tính thiếu
+        # giờ còn hơn khai một con số trẻ hơn sự thật.
+        _macs = {str(_l.get("ma")) for _l in (cd.get("lyDo") or [])}
+        for _h in (cd.get("lichSu") or []):
+            if _h.get("viec") == "NGAT" and str(_h.get("ma")) in _macs:
+                if _h.get("luc"):
+                    _moc.append(str(_h["luc"]))
+        _gio = None
+        if _moc:
+            try:
+                _t0 = min(_dt.datetime.fromisoformat(x.replace("Z", "+00:00"))
+                          for x in _moc)
+                _gio = ((_dt.datetime.now(_dt.timezone.utc) - _t0)
+                        .total_seconds() / 3600.0)
+            except (ValueError, TypeError):
+                _gio = None
+        if _gio is not None and _gio >= NGUONG_NGAT_LAU_GIO:
+            _ma = ", ".join(str(x.get("ma")) for x in (cd.get("lyDo") or [])
+                            if x.get("ma")) or "không rõ mã"
+            # Chỉ đúng NGUỒN đang mù, không nói chung chung. Người đọc cần
+            # biết bấm vào đâu, và `vonNgoai` có sẵn tên lẫn URL lẫn số lần
+            # lỗi — thiếu nó thì lời khuyên duy nhất rút ra được là «xem
+            # lại cầu dao», thứ không giúp được ai.
+            _mu = [d for d in (anh.get("vonNgoai") or [])
+                   if not d.get("docDuoc")]
+            _vi = ""
+            if _mu:
+                _vi = " Nguồn KHÔNG đọc được: " + "; ".join(
+                    f"{d.get('ten')} ({d.get('url')}) — {int(d.get('soLoi') or 0)} lần lỗi"
+                    for d in _mu) + "."
+            ra.append(TrieuChungHe(
+                "cau-dao-ngat-lau", 3,
+                f"cầu dao đã NGẮT LIÊN TỤC {_gio:.1f} giờ ({_ma}) — cỗ máy "
+                f"vẫn quét, vẫn xét, nhưng KHÔNG cam kết được đồng nào suốt "
+                f"quãng ấy. Một cầu dao không đóng lại được nữa thì là một "
+                f"bức tường, và nó không hiện ra ở đâu ngoài chỗ này."
+                + _vi +
+                f" Gỡ lý do ngắt, hoặc bỏ khai nguồn ấy đi nếu nó vốn không "
+                f"định chạy — đừng vặn trần nào cả.",
+                {"soGioNgat": round(_gio, 2), "ma": [
+                    str(x.get("ma")) for x in (cd.get("lyDo") or [])],
+                 "tuMo": [bool(x.get("tuMo"))
+                          for x in (cd.get("lyDo") or [])],
+                 "soLanNgat": cd.get("soLanNgat"),
+                 "nguongGio": NGUONG_NGAT_LAU_GIO,
+                 "nguonMu": [d.get("ten") for d in _mu]},
+                []))
 
     # ── 1. chưa đủ mẫu — chẩn đầu tiên, và thường là chẩn duy nhất ───────
     if pd < TOI_THIEU_TO_TRINH:

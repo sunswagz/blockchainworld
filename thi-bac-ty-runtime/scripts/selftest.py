@@ -3534,6 +3534,86 @@ def kiem_chan_doan_he() -> None:
     kiem("chưa đủ tờ trình thì chẩn đúng một câu: chạy thêm",
          len(tr2) == 1 and tr2[0].ma == "thieu-to-trinh")
 
+    # ── cầu dao ngắt LIÊN TỤC = một bức tường, không phải một cầu dao ────
+    import datetime as _dtq
+    import time as _tq
+
+    from thi_bac_ty.cau_dao import CauDao
+    from thi_bac_ty.chan_doan_he import NGUONG_NGAT_LAU_GIO
+
+    def _luc_truoc(gio):
+        return (_dtq.datetime.now(_dtq.timezone.utc)
+                - _dtq.timedelta(hours=gio)).isoformat(
+                    timespec="milliseconds").replace("+00:00", "Z")
+
+    def _anh_cd(gioLyDo, lichSuGio=None, phatHien=7, nguon=()):
+        cd = {"dangNgat": True, "soLanNgat": 1,
+              "lyDo": [{"ma": "von-ngoai-mu", "moTa": "NAV thiếu",
+                        "tuMo": True, "luc": _luc_truoc(gioLyDo)}],
+              "lichSu": ([] if lichSuGio is None else
+                         [{"luc": _luc_truoc(lichSuGio), "viec": "NGAT",
+                           "ma": "von-ngoai-mu", "moTa": "NAV thiếu"}])}
+        return {"soDangKy": {"pheu": {"phatHien": phatHien}},
+                "cauDao": cd, "vonNgoai": list(nguon)}
+
+    trA = chan_doan_he(_anh_cd(39.2, nguon=[
+        {"ten": "kham-thien-giam", "docDuoc": False, "soLoi": 1823,
+         "url": "http://127.0.0.1:5186/api/trang-thai"}]))
+    cdA = [t for t in trA if t.ma == "cau-dao-ngat-lau"]
+    kiem("cầu dao ngắt 39 giờ là triệu chứng NẶNG",
+         len(cdA) == 1 and cdA[0].nang == 3, str({t.ma for t in trA}))
+    kiem("nó nổ NGAY CẢ khi chưa đủ tờ trình",
+         {t.ma for t in trA} == {"cau-dao-ngat-lau", "thieu-to-trinh"},
+         "`thieu-to-trinh` return sớm, mà một cỗ máy bị tường chặn từ vòng "
+         "đầu thì LUÔN thiếu tờ trình — đặt sau chỗ ấy là không bao giờ kêu")
+    kiem("và nó gọi đúng tên nguồn đang mù",
+         cdA and "kham-thien-giam" in cdA[0].moTa
+         and "1823" in cdA[0].moTa
+         and cdA[0].bangChung["nguonMu"] == ["kham-thien-giam"],
+         cdA[0].moTa if cdA else "")
+    kiem("nhưng KHÔNG đề xuất vặn núm nào",
+         cdA and cdA[0].nutGoiY == []
+         and de_xuat(cdA, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
+         "vặn trần lúc tường đang dựng là nới một cửa trong khi cửa khác "
+         "khoá có chủ ý — người vặn sẽ tưởng mình vừa chữa được gì đó")
+
+    kiem("ngắt chưa quá ngưỡng thì im",
+         "cau-dao-ngat-lau" not in
+         {t.ma for t in chan_doan_he(_anh_cd(NGUONG_NGAT_LAU_GIO * 0.5))},
+         "một lần mạng chập không phải một bức tường")
+    kiem("cầu dao đang ĐÓNG thì im",
+         "cau-dao-ngat-lau" not in {t.ma for t in chan_doan_he(
+             {"soDangKy": {"pheu": {"phatHien": 7}},
+              "cauDao": {"dangNgat": False, "lyDo": [], "lichSu": []}})})
+
+    # Bẫy đã cắn trên làn thật: bản `cau_dao.py` cũ dựng `LyDoNgat` mới mỗi
+    # vòng, nên `lyDo[].luc` là lúc GẶP LẠI chứ không phải lúc NGẮT. Ảnh
+    # chụp 04/09 khai `luc` cách đó 7 giờ trong khi `lichSu` ghi NGẮT từ 39
+    # giờ trước. Lấy mốc SỚM NHẤT trong hai nguồn thì con số đúng kể cả với
+    # tiến trình chưa khởi động lại.
+    trB = chan_doan_he(_anh_cd(0.2, lichSuGio=39.2))
+    cdB = [t for t in trB if t.ma == "cau-dao-ngat-lau"]
+    kiem("`luc` bị làm mới thì lấy mốc từ `lichSu`, không tin `luc`",
+         len(cdB) == 1 and cdB[0].bangChung["soGioNgat"] > 39.0,
+         str(cdB[0].bangChung) if cdB else "không nổ — đang tin `luc`")
+
+    _cd = CauDao()
+    _cd.ngat("von-ngoai-mu", "NAV thiếu", tuMo=True)
+    _luc1 = _cd.tom_tat()["lyDo"][0]["luc"]
+    _tq.sleep(0.01)
+    _moi2 = _cd.ngat("von-ngoai-mu", "NAV thiếu", tuMo=True)
+    _t2 = _cd.tom_tat()
+    kiem("ngắt lại cùng một mã KHÔNG làm mới mốc ngắt",
+         _t2["lyDo"][0]["luc"] == _luc1,
+         f"{_t2['lyDo'][0]['luc']} != {_luc1} — mất luôn câu trả lời cho "
+         f"«ngắt bao lâu rồi», thứ `lichSu` chỉ giữ được 20 mục cuối")
+    kiem("và vẫn khai đây không phải lần ngắt mới",
+         _moi2 is False and _t2["soLanNgat"] == 1 and len(_t2["lichSu"]) == 1)
+    _cd.ngat("mot-ma-khac", "y", tuMo=True)
+    kiem("mã KHÁC vẫn ngắt được và vẫn đếm",
+         _cd.tom_tat()["soLanNgat"] == 2
+         and len(_cd.tom_tat()["lyDo"]) == 2)
+
     # Tiền nằm không mà vẫn từ chối = trần đặt sai chỗ.
     anh = {"soDangKy": {"pheu": {"phatHien": 200, "DUYET_TY": 120,
                                  "DUYET_RUI_RO": 90, "DA_CAP_VON": 20,

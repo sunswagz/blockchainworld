@@ -93,8 +93,19 @@ class CauDao:
         """Ngắt vì một lý do. Trả về True nếu đây là lý do MỚI."""
         from .so_cai import ButToan
         with self._khoa:
-            moi = ma not in self._ngat
-            self._ngat[ma] = LyDoNgat(ma, moTa, tuMo, _bay_gio())
+            cu = self._ngat.get(ma)
+            moi = cu is None
+            # `luc` là LÚC NGẮT, không phải lúc gặp lại. Dòng cũ dựng
+            # `LyDoNgat` mới mỗi vòng, nên `luc` luôn bằng giờ hiện tại:
+            # một cầu dao đã ngắt 39 giờ vẫn khai `luc` cách đây vài
+            # giây, và không ai đọc ra được nó đã ngắt bao lâu.
+            #
+            # `lichSu` có mốc đúng, nhưng `tom_tat()` chỉ gửi 20 mục
+            # cuối — nên với một tiến trình sống lâu, cái NGẮT mở đầu đợt
+            # trôi khỏi cửa sổ và thời lượng thành KHÔNG TÍNH ĐƯỢC, đúng
+            # lúc nó đáng biết nhất.
+            self._ngat[ma] = LyDoNgat(
+                ma, moTa, tuMo, cu.luc if cu is not None else _bay_gio())
             if moi:
                 self.soLanNgat += 1
                 self.lichSu.append({"luc": _bay_gio(), "viec": "NGAT",
