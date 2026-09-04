@@ -120,6 +120,10 @@ class SoCai:
         self.loiCuoi: str | None = None
         #: `tom_tat()` cộng TOÀN BỘ sổ ba lượt. Xem `nho_tam`.
         self._nhoTomTat = NhoTam()
+        #: `lai_lo_tach_khoan()` cũng quét toàn sổ — đo 05/09/2026 là
+        #: 4,097s trên 745.232 bút toán, và nó nằm trong `anh_chup()` của
+        #: Trung Ương nên đi thẳng vào `/api/trang-thai`.
+        self._nhoTachKhoan = NhoTam()
         with self._mo() as con:
             con.executescript(KHUON)
 
@@ -355,6 +359,17 @@ class SoCai:
         return ra
 
     def lai_lo_tach_khoan(self) -> dict:
+        """Lãi lỗ theo ty, tách khoản. Đọc từ NHỚ TẠM — xem `nho_tam`.
+
+        Trả về ĐÚNG bảng khoá-theo-mã-ty, không thêm khoá nào. Bản đầu
+        nhét `thongKeTuoiGiay`/`nhoTam` vào đây và bộ kiểm chặn ngay: cả
+        `chan_doan_he` lẫn `web/app.js` đều DUYỆT bảng này theo mã ty,
+        nên hai khoá ấy sẽ hiện ra thành hai «ty» ma trên bảng lãi lỗ.
+        Tuổi khai ở `tom_tat()["nhoTachKhoan"]`.
+        """
+        return self._nhoTachKhoan.lay(self._lai_lo_tach_khoan_nang)[0]
+
+    def _lai_lo_tach_khoan_nang(self) -> dict:
         """Lãi lỗ theo ty, TÁCH ra từng khoản — và đó là điểm của hàm này.
 
         Con số gộp nói dối theo một cách khó thấy. Đo trên máy đang chạy
@@ -718,6 +733,10 @@ class SoCai:
         gia, tuoi = self._nhoTomTat.lay(self._tom_tat_nang)
         return {**gia, "thongKeTuoiGiay": round(tuoi, 3),
                 "nhoTam": self._nhoTomTat.tom_tat(),
+                # `lai_lo_tach_khoan()` không tự khai tuổi được — hợp đồng
+                # của nó là bảng khoá-theo-mã-ty, thêm khoá vào là đẻ ra
+                # ty ma. Khai ở đây.
+                "nhoTachKhoan": self._nhoTachKhoan.tom_tat(),
                 # Hai trường này đọc từ bộ nhớ chứ không từ sổ, nên chúng
                 # phải là số SỐNG — nhốt chúng vào bản nhớ tạm là khai một
                 # lỗi ghi vừa xảy ra bằng con số của năm phút trước.

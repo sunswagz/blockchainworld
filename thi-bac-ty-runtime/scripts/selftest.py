@@ -9538,6 +9538,22 @@ def kiem_ke_toan_vi_the() -> None:
     tr16 = SoCai(_tam("tach-rong") / "sc.sqlite3").lai_lo_tach_khoan()
     kiem("sổ rỗng thì trả bảng rỗng, không nổ", tr16 == {})
 
+    # Bảng này khoá theo MÃ TY, và cả `chan_doan_he` lẫn `web/app.js` đều
+    # duyệt nó. Nhét khoá phụ vào là đẻ ra «ty» ma trên bảng lãi lỗ — bản
+    # đầu của lớp nhớ tạm đã làm đúng thế, và phép kiểm ngay trên bắt được.
+    from thi_bac_ty.so_cai import ButToan as _BT
+    _scT = SoCai(_tam("tach-dem") / "sc.sqlite3")
+    _scT._nhoTachKhoan.nguongDemGiay = -1.0      # ép vào đường ĐẮT
+    _scT.ghi(_BT("FUNDING", "thu", 1.5, "a.v1", "T1"))
+    _tk = _scT.lai_lo_tach_khoan()
+    kiem("bảng tách khoản KHÔNG mọc thêm khoá nào ngoài mã ty",
+         all(k.count(".") >= 1 for k in _tk),
+         f"{sorted(_tk)} — `chan_doan_he` và buồng lái duyệt bảng này theo "
+         f"mã ty; một khoá lạ ở đây hiện ra thành một ty không tồn tại")
+    kiem("và tuổi của nó khai ở `tom_tat()`, không nhét vào bảng",
+         "nhoTachKhoan" in _scT.tom_tat(),
+         "khai được tuổi mà không phá hợp đồng — hai việc phải cùng đạt")
+
     # ── LỜI HỨA vs THỰC NHẬN, cho TÁM ty không có băng ──────────────────
     # Ty chênh funding ghi băng nên hậu kiểm bằng chạy lại. Tám ty còn lại
     # không có băng, và trước lượt này KHÔNG có phép hậu kiểm nào — nghĩa
