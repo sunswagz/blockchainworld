@@ -82,6 +82,7 @@ CO = tham_so.doc({
 }, ten='khao-sat-ngay.py')
 
 from kham.config import CONFIG  # noqa: E402
+from kham.nguon import nguon  # noqa: E402
 from kham.so_phan_doan import (TOI_THIEU_NGA_NGU, PhanDoan,  # noqa: E402
                               SoPhanDoan)
 
@@ -103,7 +104,7 @@ NGAY_TOI_THIEU, NGAY_TOI_DA = 1.0, 45.0
 #: này chấm bằng phán quyết của chính chợ nên về nguyên tắc họ nào cũng
 #: chấm được — nhưng một họ ngã ngũ mỗi năm một lần thì phải mấy chục
 #: năm mới đủ 60 bản ghi, và trong lúc ấy không ai biết gì cả.
-HO_DUOC_PHAN = ("crypto", "thoi-tiet", "the-thao", "kinh-te")
+HO_DUOC_PHAN = ("crypto", "thoi-tiet", "the-thao", "esport", "kinh-te")
 
 from kham.ho_market import ho_cua  # noqa: E402,F401
 
@@ -146,23 +147,59 @@ def han_ms(m: dict) -> float | None:
                        tzinfo=dt.timezone.utc).timestamp() * 1000.0
 
 
+def _tai_json(url: str, tham: dict, lanThu: int = 14):
+    """GET qua CLIENT BỀN của runtime, thử lại khi nối hỏng. None = chịu.
+
+    ## Vì sao không gọi `curl` mỗi lượt, và vì sao chuyện này từng bị
+    ## chẩn đoán SAI thành "bị chặn"
+
+    Từ máy này, MỞ một kết nối tới `*.polymarket.com` hỏng rất thường:
+    đo 05/09/2026 bằng `httpx.get` (mỗi lượt một kết nối mới) được
+    **3/12**, `curl` được **0/4**. Nhìn con số ấy rất giống một bộ lọc
+    theo tên miền, và nó ĐÃ được ghi vào config lẫn sổ tay là "chặn theo
+    SNI, đổi DNS hay IP đều vô ích, chỉ proxy mới xong".
+
+    Sai. Đo lại bằng MỘT `httpx.Client` giữ nguyên qua cả loạt:
+    **13/15**. Runtime đạt 672/679 vì nó vẫn luôn làm vậy. Hỏng nằm ở
+    khâu THIẾT LẬP kết nối; kết nối đã dựng thì chạy bình thường.
+
+    Bài học đắt hơn con số: một tỉ lệ hỏng cao đo bằng công cụ SAI trông
+    y hệt một bức tường, và cái kết luận ấy bảo mọi phiên sau bỏ cuộc.
+
+    Nên ở đây dùng đúng `nguon.client()` của runtime — cùng client, cùng
+    proxy khai trong config, cùng User-Agent — và thử lại vài lần.
+    """
+    import time as _t
+
+    c = nguon.client()
+    if c is None:
+        return None
+    for i in range(lanThu):
+        try:
+            r = c.get(url, params=tham)
+            r.raise_for_status()
+            return r.json()
+        except Exception:                            # noqa: BLE001
+            if i == lanThu - 1:
+                return None
+            # Tỉ lệ nối được đo là ~25% mỗi lượt MỞ MỚI. Sáu lượt cho
+            # 1 − 0,75^6 = 82% — tức cứ năm lần chạy thì một lần chịu
+            # thua dù đường vẫn bình thường. Mười bốn lượt cho 98%.
+            # Trần 4 giây để cả loạt không quá một phút.
+            _t.sleep(min(4.0, 0.5 * (i + 1)))
+    return None
+
+
 def _tai(so: int) -> list | None:
     goc = CONFIG["nguon"]["polymarketGamma"]
     ra: list = []
-    buoc = 500
+    buoc = 100          # gamma chặn ở 100 và lặng lẽ cắt xuống
     for lech in range(0, so, buoc):
-        u = (f"{goc}/markets?limit={min(buoc, so - lech)}&offset={lech}"
-             f"&closed=false&order=endDate&ascending=true")
-        try:
-            r = subprocess.run(["curl", "-s", "--max-time", "40", u],
-                               capture_output=True, text=True, timeout=60)
-        except (OSError, subprocess.SubprocessError):
-            return None
-        if not r.stdout:
-            return ra or None
-        try:
-            d = json.loads(r.stdout)
-        except json.JSONDecodeError:
+        d = _tai_json(f"{goc}/markets",
+                      {"limit": min(buoc, so - lech), "offset": lech,
+                       "closed": "false", "order": "endDate",
+                       "ascending": "true"})
+        if d is None:
             return ra or None
         if not isinstance(d, list) or not d:
             break
@@ -345,8 +382,9 @@ def main() -> int:
     ds = _doc_ds()
     if ds is None:
         print()
-        print("  KHÔNG TỚI ĐƯỢC `gamma-api.polymarket.com` (chặn theo SNI).")
-        print("  Điền `nguon.proxy` rồi chạy lại, hoặc dùng --tu-tep=<file>.")
+        print("  KHÔNG TỚI ĐƯỢC `gamma-api.polymarket.com` sau 6 lượt thử.")
+        print("  Đường này CHẬP CHỜN chứ không bị chặn — thử lại sau, hoặc")
+        print("  chạy offline bằng --tu-tep=<file JSON>.")
         print()
         return 3
     print(f"  {len(ds):,} market đọc được")

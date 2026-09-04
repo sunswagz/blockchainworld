@@ -30,8 +30,27 @@ Cửa thứ ba là cửa giết nhiều họ nhất, và nó không thương lư
     crypto up/down    nến Binance                      ✓ dày, miễn phí
     nhiệt độ          NOAA NCEI, từng ngày, hàng chục năm  ✓ ĐÃ DỰNG
     thể thao          statsapi.mlb.com · thesportsdb   ✓ dày
+    esport            liquipedia.net MediaWiki API     ~ trả lời được,
+                                                         chưa kiểm kết quả
     kinh tế theo lịch FRED / bản công bố chính thức    ~ đúng lịch, THƯA
     bầu cử · địa chính trị · văn hoá                    ✗ không có
+
+## Điều lượt chạy THẬT đầu tiên nói, và nó ngược với dự đoán
+
+Đo 05/09/2026 trên 1.500 market đang mở:
+
+    thể thao ĐIỆN TỬ   843   ngã ngũ ~2 ngày
+    thể thao thường    340   ngã ngũ ~2 ngày
+    chưa phân loại     159
+    crypto              60   ngã ngũ ~1 ngày
+    chính trị           53   ngã ngũ ~51 ngày
+    nhiệt độ            45   ngã ngũ ~2 ngày
+
+Cung này đang dựng động cơ cho họ 60 market, và vừa dựng thêm một động
+cơ cho họ 45 market. Họ 843 market thì chưa có một dòng mã nào.
+
+Đó chính là câu trả lời cho "sao cứ crypto mãi" — và nó không phải câu
+trả lời tôi đoán trước khi đo (tôi đoán thời tiết).
 
 Nghịch lý phải nói thẳng: những họ MẠNH nhất lại là những họ mô hình
 ngôn ngữ đóng góp ÍT nhất (chúng có nguồn số). Những họ nó đóng góp
@@ -49,7 +68,6 @@ from __future__ import annotations
 
 import json
 import statistics
-import subprocess
 import sys
 from pathlib import Path
 
@@ -66,6 +84,7 @@ CO = tham_so.doc({
 }, ten='sang-ho-market.py')
 
 from kham.config import CONFIG  # noqa: E402
+from kham.nguon import nguon  # noqa: E402
 
 TU_TEP = CO.lay("tu-tep", "")
 GHI = CO.lay("ghi", "")
@@ -81,6 +100,18 @@ NGUON_SU_THAT = {
     "crypto":    ("nến Binance", "day", "ĐÃ DỰNG (updown-crypto)"),
     "thoi-tiet": ("NOAA NCEI daily-summaries", "day", "ĐÃ DỰNG (nhiet-do-nguong)"),
     "the-thao":  ("statsapi.mlb.com · thesportsdb", "day", "chưa dựng"),
+    # Nguồn của esport KHÁC hẳn nguồn thể thao thường, và đây là chỗ
+    # dễ khai bừa nhất: `thesportsdb` không biết gì về CS2.
+    #
+    # Đo 05/09/2026 bằng client bền: HLTV chặn bot (ConnectError),
+    # PandaScore đòi khoá (403), **Liquipedia MediaWiki API trả 200**.
+    #
+    # ⚠ CHƯA KIỂM: mới xác nhận API ấy TRẢ LỜI, chưa xác nhận lấy được
+    # KẾT QUẢ TỪNG TRẬN ở dạng dùng được. Nên ghi "mong" chứ không ghi
+    # "day" — cửa thứ ba mà khai rộng tay thì nó không còn là cửa.
+    "esport":    ("liquipedia.net MediaWiki API", "mong",
+                  "chưa dựng — nguồn mới xác nhận TRẢ LỜI, chưa xác "
+                  "nhận lấy được kết quả trận"),
     "kinh-te":   ("FRED · bản công bố chính thức", "thua", "chưa dựng"),
     "chinh-tri": (None, "khong", "KHÔNG có nguồn để chấm"),
     "van-hoa":   (None, "khong", "KHÔNG có nguồn để chấm"),
@@ -90,25 +121,68 @@ NGUON_SU_THAT = {
 from kham.ho_market import ho_cua as _ho  # noqa: E402
 
 
+def _tai_json(url: str, tham: dict, lanThu: int = 14):
+    """GET qua CLIENT BỀN của runtime, thử lại khi nối hỏng. None = chịu.
+
+    ## Vì sao không gọi `curl` mỗi lượt, và vì sao chuyện này từng bị
+    ## chẩn đoán SAI thành "bị chặn"
+
+    Từ máy này, MỞ một kết nối tới `*.polymarket.com` hỏng rất thường:
+    đo 05/09/2026 bằng `httpx.get` (mỗi lượt một kết nối mới) được
+    **3/12**, `curl` được **0/4**. Nhìn con số ấy rất giống một bộ lọc
+    theo tên miền, và nó ĐÃ được ghi vào config lẫn sổ tay là "chặn theo
+    SNI, đổi DNS hay IP đều vô ích, chỉ proxy mới xong".
+
+    Sai. Đo lại bằng MỘT `httpx.Client` giữ nguyên qua cả loạt:
+    **13/15**. Runtime đạt 672/679 vì nó vẫn luôn làm vậy. Hỏng nằm ở
+    khâu THIẾT LẬP kết nối; kết nối đã dựng thì chạy bình thường.
+
+    Bài học đắt hơn con số: một tỉ lệ hỏng cao đo bằng công cụ SAI trông
+    y hệt một bức tường, và cái kết luận ấy bảo mọi phiên sau bỏ cuộc.
+
+    Nên ở đây dùng đúng `nguon.client()` của runtime — cùng client, cùng
+    proxy khai trong config, cùng User-Agent — và thử lại vài lần.
+    """
+    import time as _t
+
+    c = nguon.client()
+    if c is None:
+        return None
+    for i in range(lanThu):
+        try:
+            r = c.get(url, params=tham)
+            r.raise_for_status()
+            return r.json()
+        except Exception:                            # noqa: BLE001
+            if i == lanThu - 1:
+                return None
+            # Tỉ lệ nối được đo là ~25% mỗi lượt MỞ MỚI. Sáu lượt cho
+            # 1 − 0,75^6 = 82% — tức cứ năm lần chạy thì một lần chịu
+            # thua dù đường vẫn bình thường. Mười bốn lượt cho 98%.
+            # Trần 4 giây để cả loạt không quá một phút.
+            _t.sleep(min(4.0, 0.5 * (i + 1)))
+    return None
+
+
 def _tai(so: int) -> list | None:
     """Lấy danh sách market từ Gamma. None nghĩa là không tới được."""
     goc = CONFIG["nguon"]["polymarketGamma"]
     ra: list = []
-    buoc = 500
+    # Gamma chặn `limit` ở 100 và LẶNG LẼ cắt xuống — khai 500 thì
+    # trang thứ hai bắt đầu ở offset 500 và bỏ mất 400 market ở giữa,
+    # mà bảng in ra vẫn trông đầy đủ.
+    buoc = 100
     for lech in range(0, so, buoc):
-        u = (f"{goc}/markets?limit={min(buoc, so - lech)}&offset={lech}"
-             f"&order=endDate&ascending=false")
-        try:
-            r = subprocess.run(["curl", "-s", "--max-time", "40", u],
-                               capture_output=True, text=True, timeout=60)
-        except (OSError, subprocess.SubprocessError):
-            return None
-        if not r.stdout:
-            return None if not ra else ra
-        try:
-            d = json.loads(r.stdout)
-        except json.JSONDecodeError:
-            return None if not ra else ra
+        # `closed=false` + endDate TĂNG DẦN: đó là rổ đang giao dịch
+        # được, đúng thứ câu hỏi này hỏi. Sắp GIẢM dần thì trang đầu
+        # toàn market bầu cử hết hạn sau ba năm, và bảng sẽ nói cung
+        # này nên dựng động cơ chính trị.
+        d = _tai_json(f"{goc}/markets",
+                      {"limit": min(buoc, so - lech), "offset": lech,
+                       "closed": "false", "order": "endDate",
+                       "ascending": "true"})
+        if d is None:
+            return ra or None
         if not isinstance(d, list) or not d:
             break
         ra.extend(d)
@@ -139,16 +213,17 @@ def main() -> int:
         ds = _tai(SO_MARKET)
         if not ds:
             print()
-            print("  KHÔNG TỚI ĐƯỢC `gamma-api.polymarket.com`.")
+            print("  KHÔNG TỚI ĐƯỢC `gamma-api.polymarket.com` sau nhiều")
+            print("  lượt thử.")
             print()
-            print("  Đây là chuyện của ĐƯỜNG MẠNG, không phải của mã. Bộ lọc")
-            print("  trên máy này khớp theo TÊN MÁY: `docs.polymarket.com`")
-            print("  cùng miền vẫn thông, còn gamma/clob/data-api thì chết ở")
-            print("  bắt tay TLS. Đổi DNS hay đổi IP đều vô ích — xem")
-            print("  `//proxyChanDoan` trong config.json.")
+            print("  Đường tới host này CHẬP CHỜN chứ không bị chặn: mở kết")
+            print("  nối mới hỏng phần lớn số lần, nhưng một kết nối đã dựng")
+            print("  thì chạy bình thường (đo 05/09/2026: kết nối mới 3/12,")
+            print("  client bền 13/15, runtime 672/679). Script này đã dùng")
+            print("  client bền của runtime và thử lại 6 lượt — hỏng cả 6 thì")
+            print("  lúc này đường thật sự tắc, thử lại sau.")
             print()
-            print("  Có lối ra rồi thì điền `nguon.proxy` và chạy lại. Muốn")
-            print("  thử script này ngay thì dùng `--tu-tep=<file JSON>`.")
+            print("  Muốn chạy ngay không cần mạng thì dùng `--tu-tep=<file>`.")
             print()
             return 3
         print(f"  lấy được {len(ds):,} market")

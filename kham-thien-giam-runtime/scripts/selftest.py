@@ -6909,6 +6909,65 @@ def kiem_ho_market() -> None:
          == ["will", "btc", "spot", "close", "above", "70", "000"],
          tach_tu("Will BTC (spot) close above $70,000?"))
 
+    # ── ESPORT là họ riêng, và nó LỚN NHẤT ──────────────────────────
+    #
+    # Đo 05/09/2026 trên 1.500 market đang mở: 926 là esport (843 riêng
+    # CS2). Bảng dấu hiệu bản trước không có một chữ nào về nó, nên 86%
+    # cả rổ nằm trong `khac` và bảng sàng họ nói cung này chỉ có crypto
+    # đáng dựng — một kết luận sai về ĐÚNG câu hỏi nó sinh ra để trả
+    # lời.
+    #
+    # Tách khỏi `the-thao` vì NGUỒN SỰ THẬT khác hẳn: `thesportsdb`
+    # không biết gì về CS2.
+    for slug, cauHoi, mong in (
+        ("cs2-navi-faze-2026-09-10", "Will NAVI beat FaZe?", "esport"),
+        ("dota2-teamliquid-og", "Dota2 match", "esport"),
+        ("lol-t1-geng-2026-09-09", "LoL match", "esport"),
+        ("valorant-sen-100t", "Valorant", "esport"),
+        ("nba-lakers-celtics", "Will the Lakers win?", "the-thao"),
+        ("atp-final-2026", "ATP final", "the-thao"),
+    ):
+        kiem(f"`{slug}` ⇒ {mong}", ho_cua(slug, cauHoi) == mong,
+             ho_cua(slug, cauHoi))
+
+    # ── DẤU HIỆU CẤU TRÚC: slug trận đấu có lịch ────────────────────
+    #
+    # Mã giải thì vô hạn (bl2, es2, rt1, inf1, lph, crint…). Không ai
+    # gõ hết vào một bảng, và mỗi mã thiếu là một market rơi vào
+    # `khac`. Nên có một luật CẤU TRÚC: mã giải + hai mã đội + ngày.
+    #
+    # Nó phải đòi ĐỦ ba phần, nếu không nó quơ bừa — và một bộ phân
+    # loại quơ bừa còn tệ hơn một bộ bỏ sót, vì nó gán nhãn tự tin.
+    from kham.ho_market import la_tran_co_lich
+    for slug, mong in (
+        ("bl2-h96-ksc-2025-11-28-h96", True),
+        ("es2-cor-cad-2025-11-30-cor", True),
+        ("rt1-abc-xyz-2026-01-02", True),
+        # thiếu ngày ⇒ KHÔNG phải trận có lịch
+        ("bl2-h96-ksc", False),
+        # ngày sai dạng
+        ("bl2-h96-ksc-25-11-28", False),
+        ("bl2-h96-ksc-2025-13-28", False),   # tháng 13
+        ("bl2-h96-ksc-2025-00-10", False),   # tháng 0
+        ("bl2-h96-ksc-2025-11-45", False),   # ngày 45
+        ("bl2-h96-ksc-2025-11-39", False),   # ngày 39 — mẫu lỏng nhận
+        ("bl2-h96-ksc-2025-11-00", False),   # ngày 0
+        # slug thường, dài, không có cấu trúc ấy
+        ("will-israel-launch-a-major-ground-offensive-in-gaza-by-december-31",
+         False),
+        ("jeffrey-epstein-foul-play-confirmed-by-december-31-2026", False),
+        ("btc-updown-5m-1788549900", False),
+    ):
+        kiem(f"trận có lịch · `{slug[:34]}` ⇒ {mong}",
+             la_tran_co_lich(slug) is mong, la_tran_co_lich(slug))
+
+    kiem("slug trận có lịch KHÔNG khớp bảng nào ⇒ vẫn ra `the-thao`",
+         ho_cua("bl2-h96-ksc-2025-11-28-h96", "") == "the-thao",
+         ho_cua("bl2-h96-ksc-2025-11-28-h96", ""))
+    kiem("nhưng BẢNG thắng trước: `cs2-...` có lịch vẫn là `esport`",
+         ho_cua("cs2-navi-faze-2026-09-10-navi", "") == "esport",
+         ho_cua("cs2-navi-faze-2026-09-10-navi", ""))
+
     # ── bảng phải LÀNH: không dấu hiệu nào rỗng, không họ nào trùng ──
     ten = [ho for ho, _ in DAU_HIEU]
     kiem("không họ nào khai HAI LẦN", len(ten) == len(set(ten)), ten)

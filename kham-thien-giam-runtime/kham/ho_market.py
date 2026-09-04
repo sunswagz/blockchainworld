@@ -54,8 +54,22 @@ DAU_HIEU: tuple[tuple[str, tuple[str, ...]], ...] = (
                    "solana", "updown 5m", "updown 15m", "crypto")),
     ("thoi-tiet", ("temperature", "temp-", "highest temp", "weather",
                    "rainfall", "snow", "snowfall", "hurricane")),
+    # THỂ THAO ĐIỆN TỬ đứng TRƯỚC thể thao thường, vì `lol` và `cs2`
+    # phải thắng trước khi dấu hiệu cấu trúc hay dấu hiệu thể thao
+    # thường với tới. Đo 05/09/2026 trên 1.500 market đang mở: 843 là
+    # CS2 — hơn NỬA toàn bộ rổ, và bảng bản trước không có một chữ nào
+    # về nó, nên nó nằm gọn trong `khac` cùng 86% còn lại.
+    #
+    # Tách riêng khỏi `the-thao` KHÔNG phải để cho đẹp: nguồn sự thật
+    # nền của hai họ khác hẳn nhau, và cửa thứ ba của `sang-ho-market`
+    # chỉ có nghĩa khi mỗi họ khai đúng nguồn của mình.
+    ("esport",    ("cs2", "csgo", "dota2", "dota", "lol", "valorant",
+                   "rocket league", "overwatch", "starcraft", "esport",
+                   "esports")),
     ("the-thao",  ("nba", "nfl", "mlb", "nhl", "epl", "ufc", "soccer",
-                   "premier league", "world cup", "olympic", "olympics")),
+                   "premier league", "world cup", "olympic", "olympics",
+                   "atp", "wta", "cricket", "tennis", "golf", "boxing",
+                   "formula 1", "nascar", "mma")),
     ("kinh-te",   ("fed", "cpi", "inflation", "unemployment", "gdp",
                    "rate cut", "rate hike", "jobs report", "recession")),
     ("chinh-tri", ("election", "president", "presidential", "senate",
@@ -90,10 +104,41 @@ def khop(tu: list[str], dau: str) -> bool:
     return any(tu[i:i + n] == c for i in range(len(tu) - n + 1))
 
 
+#: Slug của một TRẬN ĐẤU CÓ LỊCH: mã giải, hai mã đội, rồi ngày.
+#:
+#:     bl2-h96-ksc-2025-11-28-h96      es2-cor-cad-2025-11-30-cor
+#:
+#: Đây là dấu hiệu CẤU TRÚC, không phải từ khoá — và nó cần thiết vì mã
+#: giải thì vô hạn (bl2, es2, rt1, inf1, lph, crint…). Không ai gõ hết
+#: được vào một bảng, và mỗi mã thiếu là một market rơi vào "khac".
+#:
+#: Đòi ĐỦ ba phần (mã giải + hai mã đội + ngày y-m-d) nên nó không quơ
+#: bừa: một slug thường như `will-israel-launch-a-major-ground-offensive`
+#: không có ngày ở dạng ấy.
+#: Tháng và ngày phải là tháng và ngày THẬT. Bản đầu viết `[0-1][0-9]`
+#: cho tháng — nhận cả `2025-13-28`, và phép kiểm bắt được ngay. Một
+#: mẫu lỏng ở đây gán nhãn `the-thao` cho slug bất kỳ có ba đoạn chữ
+#: rồi ba đoạn số, và bộ phân loại quơ bừa còn tệ hơn bộ bỏ sót: nó
+#: gán nhãn một cách tự tin.
+_TRAN_CO_LICH = re.compile(
+    r"^[a-z]{2,5}[0-9]?-[a-z0-9]{2,5}-[a-z0-9]{2,5}-"
+    r"(19|20)[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(-|$)")
+
+
+def la_tran_co_lich(slug: str) -> bool:
+    """Slug có dạng một trận đấu đã lên lịch không."""
+    return bool(_TRAN_CO_LICH.match(str(slug).lower()))
+
+
 def ho_cua(slug: str, nhan: str = "") -> str:
     """Họ của một market. `khac` khi không dấu hiệu nào khớp."""
     tu = tach_tu(str(slug) + " " + str(nhan))
     for ho, ds in DAU_HIEU:
         if any(khop(tu, x) for x in ds):
             return ho
+    # Dấu hiệu cấu trúc xét SAU cùng: một trận `cs2-...` đã được bảng
+    # trên bắt rồi, và thứ tự này giữ cho bảng vẫn là nơi quyết định
+    # chính — dấu hiệu cấu trúc chỉ vét phần bảng không với tới.
+    if la_tran_co_lich(slug):
+        return "the-thao"
     return "khac"

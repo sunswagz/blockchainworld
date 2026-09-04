@@ -1,51 +1,80 @@
 {
   "//": "Khâm Thiên Giám — runtime prediction market. Mọi con số ở đây là TRẦN, không phải mục tiêu.",
-
   "port": 5186,
   "loopSeconds": 2,
-
   "//cungTinh": "Thư mục cung tĩnh để ghi lát cắt. Để trống thì tự tìm thư mục anh em ../kham-thien-giam. Chỉ cần đặt khi đã CHUYỂN runtime ra khỏi repo. Trỏ sai thì runtime vẫn chạy, chỉ bỏ qua việc ghi và nhắc một lần.",
   "cungTinh": "",
-
   "//che": "quan-sat = chỉ đọc, không có vị thế nào. giay = khớp trên sổ lệnh THẬT nhưng bằng tiền giả. that = tiền thật. Xem trần bảo vệ ở mục datLenh.",
   "che": "giay",
-
   "//dongCo": "Mỗi market khai nó thuộc HỌ nào; `dong_co.py` giữ sổ đăng ký. Đây là mối nối duy nhất trong cả hệ biết market là gì — sổ lệnh, cân lợi, kho, rủi ro, kết toán đều không quan tâm. Thêm một họ market là viết MỘT hàm định giá rồi khai vào sổ, không phải dựng bot khác. Cái KHÔNG được tách theo họ là vốn và rủi ro: mỗi động cơ một trần lỗ riêng thì một cú làm chạy cả hai sẽ lỗ gấp đôi trong lúc mỗi bên đều báo 'vẫn trong hạn mức'.",
   "//thiTruongVeSauNay": "Bật SOL và XRP vì chúng CÙNG HỌ MÔ HÌNH với BTC/ETH: có giá tham chiếu liên tục, có mốc, có chân trời khuếch tán — nên `dinh_gia.py` dùng lại nguyên vẹn, không thêm dòng nào. Thêm market cùng họ là đổi một cờ, không phải viết bot mới. Đổi lại: bốn khung crypto cùng nghiêng một phía là MỘT cược vào beta crypto chứ không phải bốn cược độc lập — `do_thi.canh_bao_dong_pha()` và trần phơi nhiễm nhóm ở `ruiRo` là để canh đúng chuyện đó.",
   "//thiTruong": "Market theo dõi. `tienTo` là TIỀN TỐ slug, không phải slug đầy đủ — Polymarket đặt tên mỗi khung một slug riêng kèm mốc thời gian (btc-updown-5m-1766162100), nên slug cố định KHÔNG BAO GIỜ khớp. `nen` là cặp Binance dùng làm giá tham chiếu.",
   "thiTruong": [
-    { "ma": "BTC_5M",  "tienTo": "btc-updown-5m-",  "nen": "BTCUSDT",
-      "dongCo": "updown-crypto", "phutSong": 5,  "theo": true },
-    { "ma": "ETH_5M",  "tienTo": "eth-updown-5m-",  "nen": "ETHUSDT",
-      "dongCo": "updown-crypto", "phutSong": 5,  "theo": true },
-    { "ma": "SOL_5M",  "tienTo": "sol-updown-5m-",  "nen": "SOLUSDT",
-      "dongCo": "updown-crypto", "phutSong": 5,  "theo": true },
-    { "ma": "XRP_5M",  "tienTo": "xrp-updown-5m-",  "nen": "XRPUSDT",
-      "dongCo": "updown-crypto", "phutSong": 5,  "theo": true },
-    { "//BTC_150K": "Họ CHẠM MỐC — market sống hàng THÁNG, không phải cửa 300 giây. Khai `slug` thẳng vì market là MỘT và cố định: không có gì để dựng từ mốc thời gian, và quét theo tiền tố thì Gamma chặn 100 kết quả nên một market lẻ nằm giữa hàng nghìn cái khác không có lý do gì lọt vào 100 đầu. `moc` là rào giá, `lenTren` là hướng. KHÔNG có `tienTo`/`phutSong` — hai trường đó chỉ họ Lên/Xuống mới dùng, và đó chính là dấu hiệu hai họ đi hai đường tìm khung khác nhau.",
-      "ma": "BTC_150K", "dongCo": "cham-moc-crypto",
+    {
+      "ma": "BTC_5M",
+      "tienTo": "btc-updown-5m-",
+      "nen": "BTCUSDT",
+      "dongCo": "updown-crypto",
+      "phutSong": 5,
+      "theo": true
+    },
+    {
+      "ma": "ETH_5M",
+      "tienTo": "eth-updown-5m-",
+      "nen": "ETHUSDT",
+      "dongCo": "updown-crypto",
+      "phutSong": 5,
+      "theo": true
+    },
+    {
+      "ma": "SOL_5M",
+      "tienTo": "sol-updown-5m-",
+      "nen": "SOLUSDT",
+      "dongCo": "updown-crypto",
+      "phutSong": 5,
+      "theo": true
+    },
+    {
+      "ma": "XRP_5M",
+      "tienTo": "xrp-updown-5m-",
+      "nen": "XRPUSDT",
+      "dongCo": "updown-crypto",
+      "phutSong": 5,
+      "theo": true
+    },
+    {
+      "//BTC_150K": "Họ CHẠM MỐC — market sống hàng THÁNG, không phải cửa 300 giây. Khai `slug` thẳng vì market là MỘT và cố định: không có gì để dựng từ mốc thời gian, và quét theo tiền tố thì Gamma chặn 100 kết quả nên một market lẻ nằm giữa hàng nghìn cái khác không có lý do gì lọt vào 100 đầu. `moc` là rào giá, `lenTren` là hướng. KHÔNG có `tienTo`/`phutSong` — hai trường đó chỉ họ Lên/Xuống mới dùng, và đó chính là dấu hiệu hai họ đi hai đường tìm khung khác nhau.",
+      "ma": "BTC_150K",
+      "dongCo": "cham-moc-crypto",
       "slug": "will-bitcoin-hit-150k-by-december-31-2026",
-      "nen": "BTCUSDT", "moc": 150000, "lenTren": true, "theo": true },
-
-    { "//BTC_15M": "Đo ngày dựng: 100 market gần hạn nhất mà Gamma trả về CHỈ có khung 5 phút (btc/eth/sol/xrp, mỗi loại 13-14 khung). Không thấy tiền tố nào dạng *-updown-15m-. Để `theo: false` chứ không xoá — nếu Polymarket mở lại khung 15 phút thì chỉ cần bật, và dòng này ghi lại vì sao nó đang tắt.",
-      "ma": "BTC_15M", "tienTo": "btc-updown-15m-", "nen": "BTCUSDT",
-      "dongCo": "updown-crypto", "phutSong": 15, "theo": false }
+      "nen": "BTCUSDT",
+      "moc": 150000,
+      "lenTren": true,
+      "theo": true
+    },
+    {
+      "//BTC_15M": "Đo ngày dựng: 100 market gần hạn nhất mà Gamma trả về CHỈ có khung 5 phút (btc/eth/sol/xrp, mỗi loại 13-14 khung). Không thấy tiền tố nào dạng *-updown-15m-. Để `theo: false` chứ không xoá — nếu Polymarket mở lại khung 15 phút thì chỉ cần bật, và dòng này ghi lại vì sao nó đang tắt.",
+      "ma": "BTC_15M",
+      "tienTo": "btc-updown-15m-",
+      "nen": "BTCUSDT",
+      "dongCo": "updown-crypto",
+      "phutSong": 15,
+      "theo": false
+    }
   ],
-
   "//dinhGia": "Mô hình fair value. bienDongCuaSo = số giây lấy mẫu để ước lượng σ. sanNenGiay = τ không bao giờ nhỏ hơn ngần này giây — chống chia cho 0 lúc sắp hết hạn.",
   "//vungMuCuaBanThuBrier": "ĐỌC TRƯỚC KHI VẶN `sanNenGiay` HAY `matPhangCanKetQua`. Bàn thử Brier (scripts/tu-nang-cap.py, do-mot-nut.py) lấy lát cắt τ ∈ {240, 180, 120, 60} giây — nến 1 phút không cho lát nào nhỏ hơn rơi đúng mốc phút. Mà CẢ HAI nút này sinh ra để giữ vùng τ→0. `sanNenGiay` (mép trên 15 giây) thì bàn thử không bao giờ chạm tới: quét cả trục 1→15 cho Brier giống hệt tới 5 chữ số, khoảng tin [0,000000, 0,000000] trên 1.440 khối — nên nó đã bị bỏ khỏi `NUT_MO_HINH`. `matPhangCanKetQua` thì bàn thử CÓ chạm, nhưng chỉ ở rìa ngoài của vùng nó bảo vệ: tỉ lệ bị kẹp là 1,39% ở τ=240s · 7,05% ở 180s · 17,50% ở 120s · 36,94% ở 60s — tăng vọt khi τ nhỏ, và ngoại suy thì gần 100% ở những giây cuối. Ở τ lớn phép kẹp gần như chỉ tốn điểm, nên bàn thử ĐƠN ĐIỆU khuyên hạ: quét 20 ngày × 4 chợ cho 0,005 [-0,000110, -0,000066] và 0,015 [-0,000039, -0,000023], đều TỐT HƠN 0,02 có ý nghĩa, còn mọi trị trên 0,02 đều TỆ HƠN có ý nghĩa. ĐỪNG nghe: lời khuyên ấy là hạ lớp bảo vệ đúng ở chỗ cái thước không nhìn được. Muốn vặn nút này thì phải đo bằng nến giây (chưa có) hoặc bằng LÃI LỖ trên băng, nơi có khung ở mọi τ kể cả sát 0. Giữ 0,02.",
   "dinhGia": {
-  "//bienDongCuaSoGiay": "900 giay. DO LAI ngay 30/08/2026 sau khi va con bo bo nho sigma (khoa thieu MA CHO, xem //heSoGiamChan) — phai do lai vi chinh ghi chu cu da dat dieu kien: \"dung do lai TRU KHI bo uoc sigma doi\". `scripts/do-mot-nut.py --nut=dinhGia.bienDongCuaSoGiay --ngay=20`, 4 cho, tap CHOT, bootstrap chia khoi theo KHUNG (1.440 khoi), so voi 900: 360 cho [+0,001358, +0,003083] TE HON that; 660 cho [-0,000034, +0,000814] CHUA 0 (truoc khi va thi 660 te hon co y nghia — ket luan ay KHONG song sot); 1800 chua 0; 3600 cho [-0,000024, -0,000001] tot hon CO Y NGHIA nhung bien do la 1e-6 toi 2,4e-5 tren mot Brier 0,1566, tuc 0,015% — co y nghia thong ke va khong co y nghia thuc te. Hinh dang ca truc: giam manh toi 900 roi PHANG (0,15663 / 0,15663 / 0,15662 tai 900 / 1800 / 3600). Nen giu 900: no la cho duong cong vua gay, va cua so dai gap bon lam bo uoc cham phan ung voi doi che do bien dong — mot cai gia ma thuoc Brier gop 20 ngay KHONG nhin thay. Do lai khi bo uoc sigma doi. 30/08/2026 doi DAI TIM tu [60,3600] sang [300,3600] — vi LUOI chu khong vi du lieu: buoc 300 di tu 60 cho luoi 60/360/660/960…, tuc 900 KHONG nam tren luoi cua chinh no. He qua im lang: cong tien hoa khong bao gio de xuat duoc 900, va  keo 900 ve 960, nen mot khi may roi khoi 900 thi khong co duong quay lai — trong khi 900 la con so DA DO. Luoi moi 300/600/900…/3600 chua ca tri dang dung lan mep tren. Vung duoi 300 giay cung da do la xau (360 te hon co y nghia).",
+    "//bienDongCuaSoGiay": "900 giay. DO LAI ngay 30/08/2026 sau khi va con bo bo nho sigma (khoa thieu MA CHO, xem //heSoGiamChan) — phai do lai vi chinh ghi chu cu da dat dieu kien: \"dung do lai TRU KHI bo uoc sigma doi\". `scripts/do-mot-nut.py --nut=dinhGia.bienDongCuaSoGiay --ngay=20`, 4 cho, tap CHOT, bootstrap chia khoi theo KHUNG (1.440 khoi), so voi 900: 360 cho [+0,001358, +0,003083] TE HON that; 660 cho [-0,000034, +0,000814] CHUA 0 (truoc khi va thi 660 te hon co y nghia — ket luan ay KHONG song sot); 1800 chua 0; 3600 cho [-0,000024, -0,000001] tot hon CO Y NGHIA nhung bien do la 1e-6 toi 2,4e-5 tren mot Brier 0,1566, tuc 0,015% — co y nghia thong ke va khong co y nghia thuc te. Hinh dang ca truc: giam manh toi 900 roi PHANG (0,15663 / 0,15663 / 0,15662 tai 900 / 1800 / 3600). Nen giu 900: no la cho duong cong vua gay, va cua so dai gap bon lam bo uoc cham phan ung voi doi che do bien dong — mot cai gia ma thuoc Brier gop 20 ngay KHONG nhin thay. Do lai khi bo uoc sigma doi. 30/08/2026 doi DAI TIM tu [60,3600] sang [300,3600] — vi LUOI chu khong vi du lieu: buoc 300 di tu 60 cho luoi 60/360/660/960…, tuc 900 KHONG nam tren luoi cua chinh no. He qua im lang: cong tien hoa khong bao gio de xuat duoc 900, va  keo 900 ve 960, nen mot khi may roi khoi 900 thi khong co duong quay lai — trong khi 900 la con so DA DO. Luoi moi 300/600/900…/3600 chua ca tri dang dung lan mep tren. Vung duoi 300 giay cung da do la xau (360 te hon co y nghia).",
     "bienDongCuaSoGiay": 900,
-  "//heSoSigma": "Nhan vao sigma TRUOC khi tinh z. 1,0 la khong doi gi. `bienDongCuaSoGiay` chinh sigma do tren BAO NHIEU phut; nut nay chinh chinh CON SO sigma — truoc 30/08/2026 muc sigma khong he co nut nao. GIU 1,0, va ly do dang doc ky vi no la mot bai hoc ve THUOC chu khong phai ve nut: quet ca truc tren 20 NGAY (4 cho, tap CHOT, bootstrap chia khoi theo khung, 1.440 khoi) cho mot ket qua rat thuyet phuc — don dieu, va 1,05 / 1,10 / 1,15 / 1,20 deu TOT HON co y nghia, vi du 1,10 cho [-0,000151, -0,000023]; ca hai tap CHON va CHOT cung chieu; va co han mot co che vat ly de tin (loi suat dong-den-dong cua nen 1 phut bo qua bien do trong phut, nen no uoc THAP sigma that). Quet LAI tren 40 NGAY thi hieu ung bien mat sach: moi khoang tin chua 0, va tren tap CHON chieu con DAO (1,0 tot hon 1,1). Tuc ket qua 20 ngay la ao anh cua mot quang, khong phai mot tinh chat cua mo hinh. Bai hoc: mot truc DON DIEU va CO Y NGHIA van co the la ao anh neu cua so thoi gian ngan — hinh dang khong thay the duoc viec do lai tren du lieu KHAC. Dung go nut nay: no la mot tham so that cua mo hinh, va ghi lai ket qua AM o day re hon nhieu so voi viec nguoi sau hoi lai tu dau.",
-  "heSoSigma": 1.0,
+    "//heSoSigma": "Nhan vao sigma TRUOC khi tinh z. 1,0 la khong doi gi. `bienDongCuaSoGiay` chinh sigma do tren BAO NHIEU phut; nut nay chinh chinh CON SO sigma — truoc 30/08/2026 muc sigma khong he co nut nao. GIU 1,0, va ly do dang doc ky vi no la mot bai hoc ve THUOC chu khong phai ve nut: quet ca truc tren 20 NGAY (4 cho, tap CHOT, bootstrap chia khoi theo khung, 1.440 khoi) cho mot ket qua rat thuyet phuc — don dieu, va 1,05 / 1,10 / 1,15 / 1,20 deu TOT HON co y nghia, vi du 1,10 cho [-0,000151, -0,000023]; ca hai tap CHON va CHOT cung chieu; va co han mot co che vat ly de tin (loi suat dong-den-dong cua nen 1 phut bo qua bien do trong phut, nen no uoc THAP sigma that). Quet LAI tren 40 NGAY thi hieu ung bien mat sach: moi khoang tin chua 0, va tren tap CHON chieu con DAO (1,0 tot hon 1,1). Tuc ket qua 20 ngay la ao anh cua mot quang, khong phai mot tinh chat cua mo hinh. Bai hoc: mot truc DON DIEU va CO Y NGHIA van co the la ao anh neu cua so thoi gian ngan — hinh dang khong thay the duoc viec do lai tren du lieu KHAC. Dung go nut nay: no la mot tham so that cua mo hinh, va ghi lai ket qua AM o day re hon nhieu so voi viec nguoi sau hoi lai tu dau.",
+    "heSoSigma": 1.0,
     "sanNenGiay": 3.0,
     "batDinhToiThieu": 0.015,
     "matPhangCanKetQua": 0.02,
     "buocNhayGiay": 1.0,
     "toiThieuMauHieuChinh": 200
   },
-
   "//phi": "Mô hình phí Polymarket. ĐÃ ĐỐI CHIẾU tài liệu chính thức ngày 30/08/2026 — docs.polymarket.com/trading/fees (API bị chặn ở tầng TLS nhưng trang tài liệu vào được). Công thức THẬT: `fee = C × feeRate × p × (1 − p)`, hạng mục Crypto feeRate = 0,07, maker không bao giờ bị thu phí, phí làm tròn 5 chữ số và dưới 0,00001 USDC thì về 0. Bản trước dùng `heSo × min(p, 1−p)` với heSo 0,02 — sai CẢ dạng hàm lẫn hệ số, và sai cùng một chiều: thiếu 43–71% ở mọi mức giá, nghĩa là mọi netEdge từ trước đều lạc quan đúng chừng ấy. Bảng phí chính thức (Crypto, 100 cổ) nằm trong bộ kiểm làm phép canh, khớp tới từng xu. CÒN LẠI CHƯA ĐỐI CHIẾU ĐƯỢC: hạng mục của TỪNG market nằm trong `Market Details` của API, thứ đang bị chặn. Năm market đang theo đều là crypto nên 0,07 đúng cho chúng; thêm market ngoài crypto thì phải đọc lại hệ số từ đó (Sports 0,05 · Finance 0,04 · Politics 0,04 · Geopolitics 0).",
   "phi": {
     "makerBps": 0,
@@ -54,7 +83,6 @@
     "truotGiaBps": 8,
     "leChonNhoNhat": 0.001
   },
-
   "//canLoi": "Ngưỡng để một cơ hội được coi là đáng làm. bienAnToan trừ thẳng vào net edge — nó là chỗ trả giá cho việc mô hình có thể sai.",
   "canLoi": {
     "netEdgeToiThieu": 0.015,
@@ -63,10 +91,11 @@
     "xacSuatKhopToiThieu": 0.45,
     "nuaDoiToiThieuMs": 250
   },
-
   "//khoDoi": "Tồn kho. capChuaKhopToiDaUsd là số tiền được phép nằm trần một chân trong lúc chờ chân kia khớp — đây là rủi ro thật, không phải arbitrage.",
   "//capToken": "Hai token của một market. `lechSoiGuongToiDa` là mức lệch cho phép giữa sổ DOWN thật và ảnh soi gương của sổ UP. Đo trên 1.018 dòng khung ăn thua: trung vị 0,000, nhưng 12,1% dòng vượt 2c và 6,4% vượt 10c — và nhóm lệch > 2c có chênh MỐC THỜI GIAN hai sổ trung vị 114 GIÂY (nhóm còn lại: 0,22 giây). Lệch lớn gần như luôn là dữ liệu lệch giờ. NGƯỠNG 10c chứ không phải 2c vì phép đo này lẫn hai chuyện cùng hình dạng: dữ liệu lệch giờ, và chênh lệch giá THẬT giữa hai token — thứ chiến thuật `cap-tuc-thi` sinh ra để bắt. Chặn ở 2c là chặn luôn cơ hội thật. KHÔNG chọn ngưỡng theo lãi lỗ: thử các ngưỡng cho ra 23,59/41,81/16,17/13,15/10,43 đô, không đơn điệu, vì chặn một dòng giải phóng sức chứa cho dòng sau — trên 6 cửa sổ với khoảng tin ±150 đô thì đó là nhiễu.",
-  "capToken": { "lechSoiGuongToiDa": 0.10 },
+  "capToken": {
+    "lechSoiGuongToiDa": 0.1
+  },
   "//khoDoiPhanTram": "Hai trần này cũng TỪNG khai bằng đô-la ($50 chân trần / $100 lệch hướng) và cũng đúng cho một tài khoản 1.000 đô — lần đổi ba trần `ruiRo` sang phần trăm đã bỏ sót chúng. Tài khoản 100.000 đô vẫn chỉ dám ôm 50 đô chân trần, tức cỗ máy không lớn lên được; tài khoản 200 đô thì hai trần này lớn hơn cả vốn nên chúng không chặn gì. Phần trăm giữ đúng tỉ lệ cũ (5/10) nên tài khoản 1.000 đô cư xử Y HỆT. Gốc là VỐN ĐẦU NGÀY, cùng một gốc với ba trần kia — xem `//tranTheoPhanTram`.",
   "khoDoi": {
     "phanTramChuaPhongHo": 5,
@@ -74,15 +103,14 @@
     "giaCapToiDa": 0.995,
     "phanTramLechHuong": 10
   },
-
   "//taoLap": "Chiến thuật TẠO LẬP yết hai chiều và LỆCH theo tồn kho. `ngaiRuiRoTonKho` là hệ số γ của phạt tồn kho, theo Avellaneda–Stoikov: phạt = q × γ × (phương sai giá cho tới lúc kết toán). Ở chợ NHỊ PHÂN phương sai ấy tính CHÍNH XÁC được — nó đúng bằng p(1−p), vì giá là một martingale kết thúc ở 0 hoặc 1. Không cần xấp xỉ, và nó tự về 0 khi p về hai đầu: sát lúc kết toán thì ôm tồn kho không còn rủi ro nữa. Công thức CŨ dùng `q × 0,0015 × σ_giây² × τ` và nó bằng KHÔNG về mặt số học — σ_giây là độ lệch log-return mỗi giây (cỡ 3,7e-5) nên σ²τ ra cỡ 4e-7, trong khi giá yết nằm trong [0,1]: hai vế khác thứ nguyên, lệch NĂM BẬC, và phạt lớn nhất còn nhỏ hơn trần kẹp mười nghìn lần. γ = 0,0004 chốt để q = 100 cổ ở p = 0,50 chịu phạt đúng 1 cent, và q = 900 (ca cực đoan đo được) chạm trần kẹp 5 cent.",
-  "taoLap": { "ngaiRuiRoTonKho": 0.0004 },
-
+  "taoLap": {
+    "ngaiRuiRoTonKho": 0.0004
+  },
   "//ruiRo": "Risk Engine — Python thuần, không gọi model, có quyền phủ quyết. Mọi số ở đây là TRẦN CỨNG.",
   "ruiRo": {
     "//vonBanDau": "Vốn ảo ở chế độ `giay`, dùng khi chưa có sổ kết toán nào. Có sổ rồi thì runtime DỰNG LẠI vốn thật từ sổ lúc khởi động (`RiskEngine.nap_tu_so`) — không có bước ấy thì mỗi lần khởi động lại là quên sạch lỗ, và cầu dao ngày được cấp ngân sách mới. Phiên phát lại đè được bằng `--von=`.",
     "vonBanDau": 1000,
-
     "//tranTheoPhanTram": "Ba trần này TỪNG khai bằng đô-la ($100 mỗi market / $200 mỗi nhóm / $50 lỗ ngày) và cả ba đều là con số hợp lý cho đúng MỘT tài khoản 1.000 đô. Nạp thêm vốn thì chúng đứng yên — tức là thêm tiền KHÔNG đổi hành vi cỗ máy, chỉ làm cầu dao ngày ngắt sớm hơn về tỉ lệ. Đo được: phiên giấy 10.000 đô ngắt cầu dao ở mức lỗ 0,51% sau đúng hai cửa sổ. Phần trăm dưới đây giữ nguyên tỉ lệ cũ (10/20/5) nên tài khoản 1.000 đô cư xử Y HỆT như trước, chỗ khác là nay nó biết co giãn. Khoá `...Usd` cũ vẫn còn đọc được nếu ai cố ý muốn một trần tuyệt đối, nhưng chỉ khi KHÔNG khai phần trăm. GỐC của phần trăm là VỐN ĐẦU NGÀY, không phải `vonBanDau`: neo vào hằng số config thì tài khoản mất nửa vốn mà trần 5% vẫn là 5% của số CŨ, tức 10% số còn lại — rủi ro lớn lên đúng lúc tài khoản yếu đi. Cũng không neo vào vốn HIỆN TẠI: trần lỗ ngày chạy theo vốn đang lỗ dần thì nó lùi xa mãi, một cái trần đuổi theo chính mình thì không phải trần. Vốn đầu ngày đứng yên trong ngày (nên chạm tới được) và bám theo tài khoản qua các ngày.",
     "phanTramMoiThiTruong": 10,
     "phanTramMoiTaiSan": 20,
@@ -95,14 +123,12 @@
     "tuoiGiaNenToiDaMs": 2500,
     "lechDongHoToiDaMs": 1500
   },
-
   "//datLenh": "BA cửa phải cùng mở thì mới có một lệnh thật rời khỏi máy này. Thiếu bất kỳ cửa nào là rơi về sổ giấy — im lặng thì không, nó ghi rõ vào nhật ký.",
   "datLenh": {
     "choPhepLenhThat": false,
     "toiXacNhanDaDocRuiRo": false,
     "tranMoiLenhUsd": 5
   },
-
   "//nanLai": "Nắn lại xác suất theo sổ hiệu chỉnh — chỗ hở cuối của vòng học. Bảng hiệu chỉnh đo được mô hình bị NÉN VỀ 50% (nói 34% thì thật 13,5%; nói 75% thì thật 93%). `doiToiDa` là trần dịch chuyển: một phép khớp hỏng thì cùng lắm lệch chừng ấy.",
   "//heSoGiamChan": "0,70 -> 0,85 ngay 30/08/2026 — VA PHEP DO AY DA BI BAC CUNG NGAY. Thuoc cua no (`tu-nang-cap.cap_du_doan`) chay tren `hoc_offline.sigma_tai`, ma bo nho cua ham ay khoa THIEU MA CHO: bon cho cham tai cung mot moc trong mot tien trinh, ba cho sau nhan sigma cua cho dau. Do tren du lieu that: SOL va XRP nhan sigma bang ~40% sigma that cua chung, 85,5% so moc lech qua +-25%. Do LAI sau khi va, cung script cung tham so (4 cho x 20 ngay, tap CHOT, bootstrap chia khoi theo KHUNG, 1.440 khoi): MOI tri tu 0,30 toi 1,00 deu cho khoang tin CHUA 0 — truc PHANG. Giu 0,85 vi khong co bang chung nao noi no te hon, KHONG phai vi do duoc no tot hon; va da ha lai me p duoi cua dai tim ve 0,30 (`chan_doan.py`), vi giu hang rao la giu mot cai long dung bang bang chung da rut. Nut nay khong dang van nua cho toi khi co THUOC KHAC: Brier chi thay giam chan o cho bang hieu chinh lech nhieu. Xem `scripts/do-giam-chan.py`.",
   "nanLai": {
@@ -115,26 +141,25 @@
   "tienHoa": {
     "//soNgayBang": "Vòng tiến hoá chỉ đọc băng trong ngần này ngày gần nhất. Không phải để chạy nhanh hơn (dù cả băng nạp mất ~90 giây và còn dày lên) mà vì vặn tham số theo hành vi GẦN ĐÂY mới đúng: một tham số khớp với dữ liệu một tháng trước là khớp với một cái chợ không còn tồn tại.",
     "soNgayBang": 7,
-
     "//soNgayHoc": "Bao nhiêu ngày nến Binance để DỰNG LẠI sổ hiệu chỉnh mỗi ngày. Việc này KHÔNG cần chợ — nó chỉ hỏi 'mô hình đoán chuẩn tới đâu', mà câu ấy chỉ cần (S, K, τ, σ) và kết quả, tất cả đều là giá Binance. Nhờ vậy nửa vòng ngày vẫn chạy được khi đường tới Polymarket đứt. 7 ngày ra chừng 40.000 cặp.",
-    "soNgayHoc": 7, "bat": true, "gioUTC": 2 },
-
+    "soNgayHoc": 7,
+    "bat": true,
+    "gioUTC": 2
+  },
   "//bang": "Băng ghi. Không có băng thì ba tháng nữa không có gì để chạy lại — tài liệu gọi đây là P0 và bắt làm TRƯỚC mô hình.",
   "bang": {
     "ghi": true,
     "thuMuc": "data/bang",
     "ngayGiuLai": 30
   },
-
   "//vi": "Đài Quan Ví — chỉ QUAN SÁT. Không sao chép lệnh của ai. PHẢI là địa chỉ ví 0x đầy đủ: Data API trả 400 cho tên hiển thị (đã thử `powerwinner` -> 400 required query param). Tên trên polymarket.com/@ten KHÔNG dùng được ở đây.",
   "vi": {
     "theoDoi": [],
     "phutGiuaHaiLuot": 30
   },
-
   "nguon": {
-  "//proxyChanDoan": "DO 30/08/2026, chi tiet hon ghi chu tren — bo loc nham theo TEN MAY, khong phai theo mien cung khong phai theo IP. DNS phan giai BINH THUONG. `docs.polymarket.com` (IP 66.33.60.67 / 76.76.21.98, Vercel) THONG, va `poly.market` (64.239.109.65) cung THONG — no tra 301 ve `polymarket.com`. Con `polymarket.com`, `gamma-api`, `clob`, `data-api`, `ws-subscriptions-clob`, `neg-risk-api` deu chet o BAT TAY TLS (tls=0.000000s, tuc handshake chua tung xong). Dang chu y: `polymarket.com` va `gamma-api.polymarket.com` phan giai ve CUNG cap IP Cloudflare 104.18.34.205 / 172.64.153.51 — chan ca dai IP ay se lam hong pha nua Internet, nen gan nhu chac chan bo loc doc SNI va khop dung mot danh sach ten may. He qua thuc te: doi DNS khong giup, doi IP khong giup; chi mot loi ra khac (khai o `proxy` ben duoi) moi di duoc. Day la chuyen cua duong mang, khong phai cua ma.",
-    "//proxy": "Lối ra cho mọi lời gọi HTTP. Để rỗng thì dùng đường mạng thẳng, và runtime vẫn tôn trọng biến môi trường HTTPS_PROXY. Khai ở đây khi đường thẳng tới sàn không đi được — 21-28/08/2026 cả ba host polymarket.com đều bị đóng ở tầng TLS từ máy này (TCP 443 bắt tay xong mới bị giết, chỉ nhắm đúng tên miền ấy; Binance bình thường). Lối đang dùng hiện ngay trên bảng Sức khoẻ nguồn, để không ai phải đoán runtime đi đường nào.",
+    "//proxyChanDoan": "⚠ BAN GHI CHU NAY TUNG SAI, va cai sai ay bao moi phien sau bo cuoc. Bo cu ket luan 'bo loc nham theo TEN MAY, doi DNS hay IP deu vo ich, chi proxy moi xong' — dua tren `curl` va `httpx.get`, moi luot mot KET NOI MOI. DO LAI 05/09/2026: khong phai chan, ma la CHAP CHON o khau THIET LAP ket noi. Ket noi moi: curl 0/4, httpx.get 3/12 (~25%). Cung luc ay, MOT `httpx.Client` giu nguyen qua ca loat: 13/15. Va runtime — von van dung client ben — dat 672/679 lien tuc, dong websocket `ws-subscriptions-clob` nhan 414.475 tin. Tuc host ay VAN THONG suot trong khi ghi chu nay noi no bi chan. BAI HOC: mot ti le hong cao do bang cong cu SAI trong y het mot buc tuong, va ket luan 'bi chan' thi khong ai di kiem lai. Muon do lai thi dung MOT client ben va it nhat 12 luot, dung `curl` moi lan mot lenh. Cac script trong `scripts/` nay goi qua `nguon.client()` va thu lai 14 luot — xem `_tai_json` trong `sang-ho-market.py`. Bo ghi chu cu de lai duoi day vi so lieu tho van dung, chi ket luan la sai: DO 30/08/2026, chi tiet hon ghi chu tren — bo loc nham theo TEN MAY, khong phai theo mien cung khong phai theo IP. DNS phan giai BINH THUONG. `docs.polymarket.com` (IP 66.33.60.67 / 76.76.21.98, Vercel) THONG, va `poly.market` (64.239.109.65) cung THONG — no tra 301 ve `polymarket.com`. Con `polymarket.com`, `gamma-api`, `clob`, `data-api`, `ws-subscriptions-clob`, `neg-risk-api` deu chet o BAT TAY TLS (tls=0.000000s, tuc handshake chua tung xong). Dang chu y: `polymarket.com` va `gamma-api.polymarket.com` phan giai ve CUNG cap IP Cloudflare 104.18.34.205 / 172.64.153.51 — chan ca dai IP ay se lam hong pha nua Internet, nen gan nhu chac chan bo loc doc SNI va khop dung mot danh sach ten may. He qua thuc te: doi DNS khong giup, doi IP khong giup; chi mot loi ra khac (khai o `proxy` ben duoi) moi di duoc. Day la chuyen cua duong mang, khong phai cua ma.",
+    "//proxy": "Loi ra cho moi loi goi HTTP. De rong thi dung duong mang thang, va runtime van ton trong bien moi truong HTTPS_PROXY. Khai o day khi duong thang toi san khong di duoc. ⚠ Tinh den 05/09/2026 KHONG can proxy: duong thang van thong, chi CHAP CHON o khau mo ket noi (xem `//proxyChanDoan`). Loi dang dung hien ngay tren bang Suc khoe nguon, de khong ai phai doan runtime di duong nao.",
     "proxy": "",
     "polymarketGamma": "https://gamma-api.polymarket.com",
     "polymarketClob": "https://clob.polymarket.com",
