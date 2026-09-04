@@ -154,10 +154,32 @@ class DanhMuc:
 
     @property
     def ngoaiUsd(self) -> float:
-        """Tổng vốn ngoài ĐỌC ĐƯỢC. Không đọc được thì không cộng — và
-        `ngoaiDayDu` là chỗ nói ra rằng con số này đang thiếu."""
+        """Tổng vốn ngoài ĐỌC ĐƯỢC **và là TIỀN THẬT**.
+
+        Không đọc được thì không cộng — `ngoaiDayDu` nói ra rằng con số
+        này đang thiếu. Đọc được mà nguồn chạy `quan-sat`/`giay` thì cũng
+        không cộng, và `ngoaiKhongThatUsd` nói ra phần ấy.
+
+        Cửa thứ hai sinh ra vì cửa thứ nhất chỉ canh MỘT chiều. Cầu dao
+        `von-ngoai-mu` chặn cái hại "NAV thiếu vốn đang phơi ra ⇒ trần
+        rộng hơn sự thật"; chiều ngược lại — NAV chứa khoản KHÔNG TỒN
+        TẠI — rộng trần đúng y như vậy và trước lượt này không ai canh.
+        Khâm Thiên Giám mặc định chạy `giay`: khớp trên sổ lệnh THẬT, phí
+        THẬT, tiền GIẢ. Bật nó lên để gỡ cầu dao là bơm thẳng số vốn sổ
+        sách ấy vào NAV thật.
+        """
         return sum(x.get("tongUsd") or 0.0 for t, x in self.ngoai.items()
-                   if self.ngoaiDocDuoc.get(t))
+                   if self.ngoaiDocDuoc.get(t) and x.get("laTienThat"))
+
+    @property
+    def ngoaiKhongThatUsd(self) -> float:
+        """Vốn ngoài đọc được nhưng KHÔNG phải tiền thật — phần bị trừ ra.
+
+        Khai riêng chứ không để nó biến mất: một con số bị loại lặng lẽ
+        thì lần sau có người thấy NAV hụt sẽ đi tìm ở nhầm chỗ.
+        """
+        return sum(x.get("tongUsd") or 0.0 for t, x in self.ngoai.items()
+                   if self.ngoaiDocDuoc.get(t) and not x.get("laTienThat"))
 
     @property
     def ngoaiDayDu(self) -> bool:
@@ -245,6 +267,7 @@ class DanhMuc:
             "navLaVonGoc": True,
             "tuQuanUsd": self.tuQuanUsd,
             "ngoaiUsd": self.ngoaiUsd,
+            "ngoaiKhongThatUsd": self.ngoaiKhongThatUsd,
             "ngoaiDayDu": self.ngoaiDayDu,
             "ngoai": list(self.ngoai.values()),
             "loiNhacNgoai": (None if self.ngoaiDayDu else

@@ -60,6 +60,21 @@ class LatCatNgoai:
     def tongUsd(self) -> float:
         return self.daCamKetUsd + self.tienMatUsd
 
+    @property
+    def laTienThat(self) -> bool:
+        """Nguồn này có đang chạy bằng TIỀN THẬT không.
+
+        Khâm Thiên Giám có ba chế độ: `quan-sat` (không mở gì), `giay`
+        (khớp trên sổ lệnh THẬT, phí THẬT, nhưng TIỀN GIẢ) và `that`.
+        Chỉ chế độ cuối là vốn có thật ngoài kia.
+
+        `che` rỗng — nguồn không khai, hoặc khai bằng một khoá ta chưa
+        biết — cũng trả `False`. Hướng an toàn ở đây là KHÔNG cộng: cộng
+        nhầm làm NAV phồng lên và mọi trần rộng hơn sự thật, còn bỏ sót
+        chỉ làm trần chặt hơn. Hai cái sai ấy không cùng giá.
+        """
+        return self.che == "that"
+
     def tuoi_giay(self) -> float:
         return (time.time() * 1000.0 - self.lucMs) / 1000.0
 
@@ -69,6 +84,7 @@ class LatCatNgoai:
                 "tongUsd": self.tongUsd,
                 "chuaPhongHoUsd": self.chuaPhongHoUsd,
                 "soViThe": self.soViThe, "che": self.che,
+                "laTienThat": self.laTienThat,
                 "tuoiGiay": self.tuoi_giay()}
 
 
@@ -130,7 +146,11 @@ def _doc_kham(ten: str, d: dict) -> LatCatNgoai:
     kho = d.get("kho") or {}
     vt = kho.get("viThe") or []
     risk = d.get("risk") or {}
-    thieu = [k for k in ("kho", "risk") if k not in d]
+    # `che` nằm trong danh sách này vì thiếu nó là mù đúng cái chiều
+    # nguy hiểm: không biết nguồn đang chạy tiền thật hay tiền giấy thì
+    # `laTienThat` trả False và vốn ấy KHÔNG vào NAV — đúng hướng an
+    # toàn, nhưng người đọc phải được biết vì sao con số hụt.
+    thieu = [k for k in ("kho", "risk", "che") if k not in d]
     return LatCatNgoai(
         ten=ten, docDuoc=True,
         vi=("thiếu khoá: " + ", ".join(thieu)) if thieu else "",

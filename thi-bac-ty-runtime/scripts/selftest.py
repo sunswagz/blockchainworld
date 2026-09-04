@@ -6277,7 +6277,10 @@ def kiem_von_ngoai() -> None:
     from thi_bac_ty.von_ngoai import DocVonNgoai, LatCatNgoai, _doc_kham
 
     # ── dịch ảnh chụp của cỗ máy kia ────────────────────────────────────
-    anh = {"che": "giay",
+    # `that` chứ KHÔNG phải `giay`: khối dưới đòi lát cắt này vào NAV, mà
+    # chỉ tiền thật mới được vào. Đồ gá cũ khai `giay` rồi vẫn đòi cộng —
+    # tức phép kiểm mã hoá đúng con bọ nó đáng lẽ phải chặn.
+    anh = {"che": "that",
            "kho": {"soThiTruong": 2,
                    "viThe": [{"loKhoaUsd": 120.0, "chuaPhongHoUsd": 30.0},
                              {"loKhoaUsd": 80.0, "chuaPhongHoUsd": 0.0}]},
@@ -6313,6 +6316,36 @@ def kiem_von_ngoai() -> None:
     kiem("tự quản tách riêng khỏi NAV", gan(dm.tuQuanUsd, 1000.0))
     kiem("vốn ngoài không làm lệch phơi nhiễm cảng của mình",
          dm.phoi_nhiem_cang() == {})
+
+    # ── đọc ĐƯỢC mà KHÔNG phải tiền thật ────────────────────────────────
+    #
+    # Cầu dao `von-ngoai-mu` canh chiều "NAV thiếu vốn đang phơi ra ⇒ trần
+    # rộng hơn sự thật". Chiều ngược lại rộng trần đúng y như vậy: NAV chứa
+    # một khoản KHÔNG TỒN TẠI. Khâm Thiên Giám mặc định chạy `giay` — khớp
+    # trên sổ lệnh THẬT, phí THẬT, tiền GIẢ — nên bật nó lên để gỡ cầu dao
+    # là bơm thẳng vốn sổ sách của nó vào NAV thật.
+    for _che, _ten in (("giay", "sổ giấy"), ("quan-sat", "chỉ quan sát"),
+                       ("", "không khai chế độ")):
+        _dm = DanhMuc(1000.0)
+        _dm.ghi_von_ngoai(_doc_kham("k", {**anh, "che": _che}
+                                    if _che else
+                                    {k: v for k, v in anh.items()
+                                     if k != "che"}))
+        kiem(f"đọc được nhưng «{_ten}» thì KHÔNG vào NAV",
+             gan(_dm.navUsd, 1000.0),
+             f"navUsd={_dm.navUsd} — chỉ `that` mới là vốn có thật ngoài kia")
+        kiem(f"và phần bị trừ ra được KHAI («{_ten}»)",
+             gan(_dm.ngoaiKhongThatUsd, 730.0),
+             "một con số bị loại lặng lẽ thì lần sau có người thấy NAV hụt "
+             "sẽ đi tìm ở nhầm chỗ")
+        kiem(f"cờ đọc-đủ VẪN bật («{_ten}»)", _dm.ngoaiDayDu,
+             "đọc được là đọc được — đây không phải chuyện của `von-ngoai-mu`")
+
+    kiem("không khai chế độ thì `vi` nói ra là thiếu `che`",
+         "che" in _doc_kham("k", {k: v for k, v in anh.items()
+                                  if k != "che"}).vi,
+         "mù đúng chiều nguy hiểm mà im lặng thì người đọc không biết vì "
+         "sao con số hụt")
 
     # Lát cắt hỏng MANG THEO SỐ CŨ — đây mới là ca đáng kiểm. Lát cắt hỏng
     # toàn số 0 thì cộng hay không cộng đều ra một kết quả, và phép kiểm
@@ -6362,7 +6395,8 @@ def kiem_von_ngoai() -> None:
     dm2 = DanhMuc(1000.0)
     tt = _mau(von=500.0, chua=90000.0, khoa=0.0)
     tran_khong = RuiRoTong().xet(tt, dm2).choToiDaUsd
-    dm2.ghi_von_ngoai(LatCatNgoai(ten="k", docDuoc=True, tienMatUsd=1000.0))
+    dm2.ghi_von_ngoai(LatCatNgoai(ten="k", docDuoc=True, tienMatUsd=1000.0,
+                                  che="that"))
     tran_co = RuiRoTong().xet(tt, dm2).choToiDaUsd
     kiem("NAV lớn hơn thì trần một cơ hội rộng hơn — và đó là ĐÚNG",
          tran_co > tran_khong,
@@ -7976,7 +8010,8 @@ def kiem_von_ngoai_bat_san() -> None:
          "biến thành trần giả")
     d2 = DanhMuc(1000.0)
     d2.ghi_von_ngoai(LatCatNgoai("kham-thien-giam", docDuoc=True,
-                                 daCamKetUsd=250.0, tienMatUsd=50.0))
+                                 daCamKetUsd=250.0, tienMatUsd=50.0,
+                                 che="that"))
     kiem("đọc được thì vốn ngoài vào NAV", d2.ngoaiUsd > 0 and d2.ngoaiDayDu,
          f"ngoaiUsd={d2.ngoaiUsd} dayDu={d2.ngoaiDayDu}")
 
