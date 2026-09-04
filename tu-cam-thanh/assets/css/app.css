@@ -41,6 +41,21 @@
   --bong:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,1);
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
+
+/* Người bật "giảm chuyển động" trong hệ điều hành thường bật vì
+   chuyển động gây chóng mặt hoặc buồn nôn — không phải vì thẩm mỹ.
+   Cung này là cung DUY NHẤT trong mười ba trang chưa tôn trọng cờ ấy,
+   và nó có ngăn kéo trượt ngang (`translateX(-101%)`) cùng dải cảnh
+   báo trượt dọc, đúng hai loại chuyển động gây khó chịu nhất.
+
+   `--dur:0s` tắt mọi hiệu ứng khai qua token; hai dòng `!important`
+   phủ nốt vài chỗ viết thẳng thời lượng (`transition:transform .14s`
+   ở dải cảnh báo). Cùng khuôn với mười hai trang kia, không sáng tạo
+   thêm — khác khuôn là lần sau ai đọc cũng phải kiểm lại. */
+@media (prefers-reduced-motion: reduce){
+  :root{--dur:0s}
+  *{animation:none!important;transition:none!important}
+}
 /* ── THANG CHỮ ─────────────────────────────────────
    Sinh bởi scripts/thang.mjs từ chính số của cung này: 16 giá trị
    px rời rạc gom thành 9 nấc, số dịch nhiều nhất 5.3%.

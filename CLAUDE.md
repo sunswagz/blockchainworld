@@ -1837,58 +1837,66 @@ vào **hai** thư mục khác nhau và regex ghép nhầm:
 `logos.js` là JS hợp lệ gán vào `window`, nên `new Function` đọc đúng
 thứ trình duyệt đọc chứ không phải một bản phỏng đoán về nó.
 
-### Vòng tiến hoá không tự nới được thước của mình
+### Vòng tiến hoá không tự nới được thước — và khâu vá chỗ đó
+
+    node scripts/thuoc-moi.mjs de-bai   ra đề cho model
+    node scripts/thuoc-moi.mjs cong     cổng chặn bốn cửa
+    node scripts/do-ung-vien.mjs        soi ứng viên thước từ kệ kỹ năng
 
 Tám vòng tiến hoá đều là vòng sửa TRANG. Đề bài của chúng nói rõ: chỉ
 được sửa `index.html`, `app.css`, `app.js` của đúng một cung.
 `scripts/tien-hoa.mjs` — nơi các thước sống — không nằm trong ba file đó.
 
-Nên hệ này **tối ưu được theo một cái thước cố định, nhưng không tự nới
-được cái thước ấy**. Đó không phải giới hạn của model; đó là một ranh
-giới QUYỀN, dựng có lý do: máy vừa bị chấm vừa được sửa thước chấm mình
-thì con số nó khoe không còn nghĩa gì.
+Nên vòng **tối ưu được theo một cái thước cố định, nhưng không tự nới
+được cái thước ấy**. Đó không phải giới hạn của model; đó là ranh giới
+QUYỀN, dựng có lý do: máy vừa bị chấm vừa được sửa thước chấm mình thì
+con số nó khoe không còn nghĩa gì.
 
-Cái giá đo được, ngày 04/09/2026:
+Cái giá đo được, 04/09/2026:
 
-    22 lượt liên tiếp 30/08 → 02/09 (đo lại 04/09) ghi "16/16 → 16/16"
-    factory/kho-da-dung.json đứng im từ 28/08 — lần cuối có NGƯỜI
-      dịch skill thành thước
+    22 lượt liên tiếp 30/08 → 02/09 ghi "16/16 → 16/16"
+    factory/kho-da-dung.json đứng im từ 28/08
     phiếu toàn thành 198/198, tròn vì thước hết chỗ đo
 
-Thêm ĐÚNG MỘT thước bằng tay (`mot-main`) bắt ngay `kinh-thanh` thiếu
-`<main>` — thiếu từ đầu, không ai báo. **Nút thắt ở bộ thước, không ở
-model.**
+Ba thước mới (`tong-mau`, `giam-chuyen-dong`, `mau-token`) cộng
+`mot-main` cắm vào cùng ngày đưa phiếu từ 198/198 xuống **261/266**, và
+năm chỗ trượt ấy đều là lỗi thật. Điểm tụt là TÍN HIỆU, không phải tiếng
+ồn.
 
-**Khâu còn thiếu đang nằm ở nhánh `thuoc-moi`, chưa nhập `main`.** Nó
-có `scripts/thuoc-moi.mjs` (đề bài + cổng chặn bốn cửa),
-`scripts/do-ung-vien.mjs`, một node trong workflow, và dừng ở TỜ TRÌNH
-`factory/thuoc-de-xuat.md` chứ không tự cắm thước vào bộ đo.
-
-Hai phiên đã dựng trùng khâu này trong cùng một ngày, mỗi bên một nhánh.
-Bản trên nhánh `thuoc-moi` đầy đủ hơn nên bản kia đã rút. Còn ĐÚNG MỘT
-chỗ phải chỉnh lúc nhập, và nó là loại hỏng im lặng:
-
-> `CUNG` của `scripts/thuoc-moi.mjs` đếm bằng *"thư mục có
-> index.html"* — tức **12 trang, thiếu Cổng Thành**. Đổi nó sang
-> `dsTrang(ROOT)` trong `scripts/vong-xoay.mjs` (13 trang). Không đổi
-> thì một thước mới có thể làm hỏng đúng trang gốc mà cổng không thấy —
-> đúng cái lỗ mà cả mục "Cổng Thành là cung thứ mười ba" ở trên sinh ra
-> để bịt.
+**Node `thuoc-moi` KHÔNG tự cắm thước.** Nó chạy nhịp 168 giờ, cho model
+viết MỘT cây thước, chạy cổng bốn cửa, rồi `git checkout --
+scripts/tien-hoa.mjs` **dù NHẬN hay TRẢ LẠI**. Thứ được commit là tờ
+trình `factory/thuoc-de-xuat.md`; người đọc rồi mới cắm. Bot không bao
+giờ đổi định nghĩa "tốt hơn" trên `main`.
 
 **Chốt "điểm không được tụt" KHÔNG dùng được cho việc sửa thước**, và
 dùng nhầm thì nó khen đúng kẻ gian: thêm thước thì điểm tụt là chuyện
 ĐÚNG, còn gỡ một thước đang trượt thì điểm ĐẸP LÊN và chốt cũ khen nó.
-Cổng thước phải hỏi câu khác — *bản sửa này có làm bộ thước nhìn được
-nhiều hơn không* — và phải chặn được kiểu gian duy nhất mà một máy tối
-ưu điểm chắc chắn tự tìm ra: **đừng sửa trang, hãy nới thước**.
+Bốn cửa hỏi câu khác:
 
-Đã thử thật cả hai chiều trên 18 thước × 13 trang trước khi rút bản
-trùng, nên con số này là đo được chứ không phải suy đoán:
+    1. bộ đo còn hợp cú pháp
+    2. thêm ĐÚNG MỘT thước, không xoá cái nào
+    3. thước mới phải PHÂN BIỆT được — ít nhất một trang trượt
+    4. mọi thước CŨ giữ nguyên phán quyết trên MỌI trang
 
-    nới `mot-main` (soMain === 1 → soMain <= 1)
-      ✗ LẬT 1 kết luận · kinh-thanh/mot-main: false → true
-    thêm `mot-main` vào mốc chưa có nó
-      ✓ nhận · 17 → 18 thước · bắt được kinh-thanh
+Cửa 4 chặn kiểu gian duy nhất mà một máy tối ưu điểm chắc chắn tự tìm
+ra: **đừng sửa trang, hãy nới thước**. Đã thử thật trên 13 trang:
+
+    nới `mau-token` (<=20 → <=200), không thêm thước
+      ✗ cửa 2: "không thêm thước nào"
+    thêm một thước + nới `mau-token` cùng lúc
+      ✗ cửa 4: mau-token false → true ở dai-quan-trac, do-sat-vien,
+        kinh-thanh, tang-thu-cac
+      ✗ cửa 3: thước mới đạt cả 13 trang — không mở dư địa nào
+
+**`CUNG` phải là `dsTrang(ROOT)`, 13 trang.** Bản đầu tự đếm "thư mục có
+index.html" nên bỏ sót Cổng Thành — và ở đây cái giá của việc sót là lớn
+nhất trong repo: trang không có trong `CUNG` thì cửa 4 không soi nó,
+nghĩa là một thước mới có thể làm hỏng đúng trang gốc mà cổng vẫn xanh.
+
+**Cái cổng này KHÔNG canh được:** thước mới có ĐÁNG đo hay không. Một
+thước đếm dấu chấm phẩy cũng qua sạch bốn cửa. Đó chính là lý do node
+dừng ở tờ trình chứ không tự nhập.
 
 ### Node `huong` — thứ duy nhất KHÔNG sinh bản vá
 

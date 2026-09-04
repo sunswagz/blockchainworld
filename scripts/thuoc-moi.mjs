@@ -46,11 +46,12 @@
    ═══════════════════════════════════════════════════════════════ */
 
 import {
-  readFileSync, writeFileSync, existsSync, rmSync, readdirSync,
+  readFileSync, writeFileSync, existsSync, rmSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { dsTrang } from "./vong-xoay.mjs";
 
 const NOI = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(NOI, "..");
@@ -63,16 +64,21 @@ const co_ = (t) => {
   return i > 0 ? process.argv[i + 1] : null;
 };
 
-/* Cung = thư mục có index.html NGAY tại gốc nó — cùng phép đếm mà
-   npm run kiem dùng, nên ba runtime Python và knowledge-os không bị
-   tính nhầm là cung. */
-const CUNG = co_("cung")
-  ? [co_("cung")]
-  : readdirSync(ROOT, { withFileTypes: true })
-      .filter((t) => t.isDirectory() && !t.name.startsWith("."))
-      .map((t) => t.name)
-      .filter((n) => existsSync(join(ROOT, n, "index.html")))
-      .sort();
+/* MƯỜI BA trang, không phải mười hai. Bản đầu tự đếm "thư mục có
+   index.html NGAY tại gốc nó" — đúng cho mười hai cung, nhưng Cổng
+   Thành nằm ở GỐC repo nên không thư mục nào chứa nó, và nó rơi ra
+   ngoài trong im lặng.
+
+   Ở đây cái giá của việc rơi ra là lớn nhất trong repo: đây là cổng
+   canh việc SỬA BỘ THƯỚC. Trang nào không có trong `CUNG` thì cửa
+   "không lật kết luận thước cũ" không soi nó — nghĩa là một thước mới
+   có thể làm hỏng đúng trang gốc mà cổng vẫn xanh, và trang gốc là
+   trang đầu tiên người ta thấy.
+
+   `dsTrang` trong scripts/vong-xoay.mjs là chỗ DUY NHẤT trả lời câu
+   "trang nào bị thước chấm". `phieu-toan-thanh.mjs` cũng hỏi nó. Hai
+   chỗ tự đếm riêng là hai cơ hội sót, và lần trước đã sót thật. */
+const CUNG = co_("cung") ? [co_("cung")] : dsTrang(ROOT);
 
 /* Mã của mọi thước, đọc thẳng từ mã nguồn bộ đo. Không giữ bản chép:
    bản chép sẽ lệch, và lệch ở đây nghĩa là cổng canh nhầm tập. */
@@ -128,7 +134,7 @@ if (LENH === "de-bai") {
 
   console.log(`Thêm ĐÚNG MỘT cây thước mới vào scripts/tien-hoa.mjs.
 
-Điểm hiện tại của mười hai cung:
+Điểm hiện tại của mười ba trang (mười hai cung + Cổng Thành):
   ${bang.join("\n  ")}
 
 Gần hết đã kịch trần. Thước hiện có (${daCo.length}):
@@ -147,7 +153,7 @@ LUẬT:
    ("có gì hỏng không"). Thước lỗi sửa xong là xanh vĩnh viễn rồi
    bão hoà — đúng chỗ hệ này đang mắc. Thước phủ có mẫu số lớn lên
    theo trang nên không bao giờ cạn việc.
-4. Ngưỡng phải hiệu chuẩn từ số ĐO ĐƯỢC trên 12 cung, và viết rõ
+4. Ngưỡng phải hiệu chuẩn từ số ĐO ĐƯỢC trên cả 13 trang, và viết rõ
    trong chú thích vì sao là số đó. Đừng bốc số.
 5. Cắt chú thích trước khi dò chuỗi thô (dùng biến cssMa có sẵn),
    nếu không thì một câu giải thích bị tính là chính thứ nó tả.
