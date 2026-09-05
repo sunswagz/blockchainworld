@@ -30,6 +30,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, replace
 
+from thi_bac_ty.khoang_nguong import khoang_cach, vi_tri
 from thi_bac_ty.khuon_ty import Ty
 from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh
 
@@ -295,6 +296,15 @@ class TyOnDinh(Ty):
             CONFIG["sucChua"], self.cong, self.dinhTuyen)
         return list(self.coHoi)
 
+    def tom_tat(self) -> dict:
+        # Phân bố phải LÊN ẢNH CHỤP. Ba lần trong một ngày tôi phải viết
+        # script rời để phân biệt «cổng đặt sai» với «chợ trống», và cả
+        # ba lần câu trả lời nằm trong dữ liệu ty vốn đã có trong tay.
+        return {"nguon": self.nguon.tom_tat(), "cua": self.cong.tom_tat(),
+                "soCoHoi": len(self.coHoi),
+                "soQua": sum(1 for c in self.coHoi if c.duyet),
+                "phanBoChenh": _phan_bo_chenh(self.coHoi, self.cong)}
+
     async def _doc(self):
         import httpx
         q = CONFIG["quet"]
@@ -379,6 +389,28 @@ class TyOnDinh(Ty):
                          f"{nguong:.2f} bps của chính ty — ăn xong thì gỡ",
                 vi=vi)
         return KetToanVong(thuUsd=0.0, vi=vi)
+
+
+def _phan_bo_chenh(coHoi, cong) -> dict:
+    """Chênh thô và NET nằm ở đâu so với ngưỡng — không chỉ đếm bao nhiêu
+    trượt.
+
+    Đo làn thật 05/09/2026: chênh thô ĐÚNG BẰNG 0,00 bps trên ngưỡng
+    1,00, và phí khứ hồi 9 bps. Ba sàn quote USDC/USDT ở năm chữ số và
+    khác nhau thật (binance bid 0,99979 · okx 0,9997 · bybit 0,9998) —
+    nên con số 0 kia là CHỢ PHẲNG, không phải nguồn hỏng hay dấu sai.
+
+    Câu ấy đọc được từ `cach`: muốn NET qua ngưỡng thì chênh thô phải
+    tới 9,5 bps, tức một cú depeg. Một con số ĐẾM «9 lần trượt» thì nói
+    y hệt nhau dù chợ phẳng hay chợ đang sát ngưỡng.
+    """
+    return {
+        "chenhTho": khoang_cach([c.grossBps for c in coHoi],
+                                float(cong.c["chenhThoToiThieuBps"])),
+        "net": khoang_cach([c.netBps for c in coHoi],
+                           float(cong.c["netToiThieuBps"])),
+        "phi": vi_tri([c.phiBps for c in coHoi]),
+    }
 
 
 def _chay(coro):

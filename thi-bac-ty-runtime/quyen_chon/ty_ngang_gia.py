@@ -586,13 +586,10 @@ def _phan_bo_net(coHoi, nguongBps: float) -> dict:
     Trả `None` cho mọi vị trí khi chưa có mẫu: 0 ở đây đọc thành «ngang
     giá đúng khít», một câu dữ liệu không hề nói.
     """
-    def _vitri(ds):
-        if not ds:
-            return None
-        d = sorted(ds)
-        n = len(d)
-        return {"n": n, "min": round(d[0], 2),
-                "p50": round(d[n // 2], 2), "max": round(d[-1], 2)}
+    # Phép đo này nay là MỘT chỗ dùng chung: `thi_bac_ty.khoang_nguong`.
+    # Ba ty hỏi cùng một câu «khối bị loại nằm sát ngưỡng hay xa hẳn», và
+    # ba bản chép là ba chỗ sẽ lệch.
+    from thi_bac_ty.khoang_nguong import vi_tri as _vitri
 
     net = [c.netBps for c in coHoi if c.netBps is not None]
     return {

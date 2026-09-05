@@ -7236,6 +7236,81 @@ def kiem_vong_hoc_thu_nut_ke() -> None:
          f"{daDo4} — mỗi lượt thử là một lượt chạy lại trọn lô tờ trình")
 
 
+def kiem_khoang_nguong() -> None:
+    print("")
+    print("-- Khoang cach toi nguong: dem khong noi duoc cong dat dung sai --")
+    from thi_bac_ty.khoang_nguong import khoang_cach, vi_tri
+
+    kiem("chưa có mẫu thì None, KHÔNG phải 0",
+         vi_tri([]) is None and vi_tri([None, None]) is None,
+         "một số 0 ở đây đọc thành «đo được, và bằng không»")
+    kiem("bỏ qua ô trống chứ không coi là 0",
+         vi_tri([1.0, None, 3.0]) == {"n": 2, "min": 1.0, "p50": 3.0,
+                                      "max": 3.0},
+         "None lẫn vào chùm số là kéo trung vị về 0")
+
+    # Ca `amm` 05/09/2026: 8.005 pool trượt TVL, nhưng chỉ 7,9% nằm trong
+    # khoảng NỬA ngưỡng — hạ ngưỡng chỉ thêm những pool bé nhất.
+    _xa = [50_000.0] * 92 + [600_000.0] * 8
+    _ka = khoang_cach(_xa, 1_000_000.0)
+    kiem("khối bị loại XA ngưỡng ⇒ hạ ngưỡng không mở được gì",
+         _ka["phanTrongNua"] == 0.08 and _ka["soTruot"] == 100
+         and _ka["cach"] == 400_000.0,
+         f"{_ka} — 8/100 trong khoảng nửa ngưỡng, và kẻ tốt nhất còn cách "
+         f"400k")
+    # Cùng một con số ĐẾM, nhưng khối nằm SÁT — hai câu ngược nhau.
+    _kb = khoang_cach([900_000.0] * 100, 1_000_000.0)
+    kiem("cùng 100 lần trượt mà khối nằm SÁT ⇒ câu khác hẳn",
+         _kb["phanTrongNua"] == 1.0 and _kb["soTruot"] == 100
+         and _kb["cach"] == 100_000.0,
+         f"{_kb} — phép ĐẾM nói y hệt ca trên, phép ĐO thì không")
+
+    # Nửa ngưỡng đo từ NGƯỠNG ra, không phải từ 0.
+    kiem("«trong khoảng nửa ngưỡng» đo TỪ NGƯỠNG, không từ 0",
+         khoang_cach([400_000.0], 1_000_000.0)["phanTrongNua"] == 0.0
+         and khoang_cach([600_000.0], 1_000_000.0)["phanTrongNua"] == 1.0,
+         "đo từ 0 thì 400k cũng thành «sát», và cả bảng mất nghĩa")
+
+    # Ca `stablecoin` 05/09/2026: chênh thô 0,00 trên ngưỡng 1,00.
+    _ks = khoang_cach([0.0], 1.0)
+    kiem("chợ PHẲNG: cách đúng bằng cả ngưỡng",
+         _ks["cach"] == 1.0 and _ks["soDat"] == 0,
+         f"{_ks} — và phí 9 bps nghĩa là cần một cú depeg")
+
+    kiem("có kẻ VƯỢT ngưỡng thì `cach` ÂM",
+         khoang_cach([30.0, 1.0], 25.0)["cach"] == -5.0
+         and khoang_cach([30.0, 1.0], 25.0)["soDat"] == 1,
+         "dấu phải nói được «đã có việc» khác «còn xa»")
+
+    # Chiều NGƯỢC: muốn NHỎ hơn ngưỡng (phí, tuổi dữ liệu).
+    _kd = khoang_cach([9.0, 20.0], 5.0, tren=False)
+    kiem("chiều NGƯỢC: tốt nhất là NHỎ nhất, cách đo ngược lại",
+         _kd["cach"] == 4.0 and _kd["soDat"] == 0 and _kd["soTruot"] == 2,
+         f"{_kd} — 9 là kẻ tốt nhất, còn cách ngưỡng 5 đúng 4")
+    kiem("chiều ngược: nằm ĐÚNG ngưỡng là ĐẠT, không phải trượt",
+         khoang_cach([5.0], 5.0, tren=False)["soDat"] == 1
+         and khoang_cach([5.0], 5.0, tren=True)["soDat"] == 1,
+         "cả hai chiều đều lấy mép, `>=` và `<=`")
+
+    kiem("không có mẫu thì mọi ô là None, và KHÔNG nổ",
+         khoang_cach([], 1.0) == {"nguong": 1.0, "tren": True,
+                                  "phanBo": None, "soDat": 0, "soTruot": 0,
+                                  "cach": None, "phanTrongNua": None})
+    kiem("mọi ứng viên ĐỀU đạt thì `phanTrongNua` là None, không phải 0",
+         khoang_cach([30.0], 25.0)["phanTrongNua"] is None,
+         "0 ở đây đọc thành «có kẻ trượt, và không kẻ nào sát»")
+
+    # Và nó phải LÊN ẢNH CHỤP của ty ổn định — thước tính rồi không ai
+    # đọc là đúng lỗi `co-tinh-roi-bo-qua`.
+    import on_dinh.ty_on_dinh as _od
+    _pb = _od._phan_bo_chenh([], _od.CongRuiRo(_od.CONFIG["ruiRo"]))
+    kiem("ty ổn định khai phân bố chênh/NET/phí, không chỉ đếm",
+         set(_pb) == {"chenhTho", "net", "phi"}
+         and _pb["chenhTho"]["nguong"] == float(
+             _od.CONFIG["ruiRo"]["chenhThoToiThieuBps"]),
+         f"{_pb}")
+
+
 def kiem_quet_truc() -> None:
     print("")
     print("-- Quet truc nut: hai diem khong noi duoc hinh dang --")
@@ -15991,6 +16066,7 @@ def main() -> int:
     kiem_van_tay_co_chuoi()
     kiem_hai_ty_that()
     kiem_vong_hoc_thu_nut_ke()
+    kiem_khoang_nguong()
     kiem_quet_truc()
     kiem_nguon_doi_429()
     kiem_nho_tam()
