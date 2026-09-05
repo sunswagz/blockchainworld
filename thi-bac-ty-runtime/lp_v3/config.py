@@ -134,6 +134,21 @@ CONFIG = {
     #: đọc 05/09/2026 và đã xác minh có mã trên rpc.xlayer.tech. Dùng khi
     #: người chưa khai `quanLyViThe` lẫn `txMau`; nếu OKX DeFi mint qua một
     #: hợp đồng KHÁC thì ví sẽ đọc ra 0 vị thế — lúc ấy dán `txMau`.
+    #: DANH BẠ TOKEN (Bài 6: contract registry). Địa chỉ đọc từ chuỗi
+    #: 05/09/2026 (pool #34000, symbol()=USDG, decimals()=6). Vị thế nào có
+    #: token ghi ký hiệu USDG mà địa chỉ KHÁC → «token lạ», không tin ký hiệu.
+    "danhBaToken": {
+        "USDG": {"diaChi": "0x4ae46a509f6b1d9056937ba4500cb143933d2dc8", "thapPhan": 6,
+                 "nguon": "đọc từ pool Uniswap V3 trên X Layer 05/09/2026"},
+    },
+    #: BẬC VỐN (Bài 6 §17–19: start small, progressive deployment). Cỡ xin
+    #: bị kẹp theo số KẾT CỤC đã chấm của pool ấy trong sổ kinh nghiệm — chưa
+    #: có kết cục thì chỉ được xin cỡ thử, không xin theo sức chứa.
+    "bacVon": [
+        {"toiThieuKetCuc": 0, "tranUsd": 200.0, "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)"},
+        {"toiThieuKetCuc": 3, "tranUsd": 500.0, "ten": "nhỏ — dưới 5 kết cục"},
+        {"toiThieuKetCuc": 5, "tranUsd": None, "ten": "theo sức chứa — ≥ 5 kết cục, NET trung bình dương"},
+    ],
     "uniswapXLayer": {
         "quanLyViThe": "0x315e413A11AB0df498eF83873012430ca36638Ae",
         "nhaMay": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",

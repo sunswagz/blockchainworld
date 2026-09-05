@@ -1340,6 +1340,359 @@
     "Cách nói 'displayed APR' của giao diện pool — chỉ dùng phí gốc để ra quyết định, APR hiển thị chỉ để tham chiếu.",
     "Bảng tự chấm điểm ở mục 22 của bản bóc — là nhận xét của người bóc về tác giả, không phải nội dung dạy, không có gì để đưa vào hệ thống."
    ]
+  },
+  {
+   "ma": "khoa-hoc-lp-bai-6-keep-crypto-safe",
+   "ten": "Bài 6 — Keep Your Crypto Safe",
+   "nguon": "Khoá học nền tảng crypto/DeFi (Lesson 6 trong chuỗi Lesson 1→6), bản bóc do chủ ty gửi 05/09/2026; không có mốc thời gian cụ thể trong video",
+   "ngay": "2026-09-05",
+   "bocBang": "agent riêng (claude CLI) 05/09/2026, người soát và sửa 8 chú thích, 3 quy tắc về nợ",
+   "tomTat": "Bài dạy lớp bảo mật tài sản self-custody: phân loại ví (hardware/software/exchange/multi-sig), seed phrase là root of trust không thể khôi phục nếu lộ, không bao giờ nhập seed lên web, dùng multi-sig cho vốn lớn, tránh phishing bằng bookmark site chính thức, không để unlimited approval, cảnh giác token lạ và APY quá cao, và luôn 'start small' khi thử protocol mới. Chủ ty bổ sung phần đơn giản hoá của tác giả: hardware wallet bảo vệ khoá chứ không bảo vệ quyết định ký; multi-sig chỉ mạnh khi tách key/thiết bị/địa điểm; token lạ tự nó không rút ví mà nguy hiểm nằm ở việc click-connect-sign; APY cao không tự động là scam mà phải phân rã nguồn yield. Từ đó bài được dịch thành kiến trúc hệ thống: tách ví treasury/working capital để giảm blast radius, protocol registry + contract allowlist, approval manager có revoke, capital ramp theo bậc $10→$100→$1.000→production, circuit breaker, và security boundary nằm giữa capital allocator và signer. Nguyên tắc cuối: bot không giữ seed, least privilege theo ví, và security phải trừ vào net return khi so sánh protocol. Thông điệp giữ vĩnh viễn là mục tiêu không phải yield cao nhất mà là lợi nhuận ròng cao nhất mà vẫn sống đủ lâu để lãi kép chạy.",
+   "danhGia": {
+    "kyThuatLp": 1,
+    "quanLyVon": 4,
+    "tuDuyHeThong": 5,
+    "tradeDuoc": 4,
+    "giaTriChoHeThong": 5
+   },
+   "luanDiem": [
+    {
+     "cau": "Trong self-custody, ai nắm private key/seed thì ký được như chủ ví; không có cơ chế 'quên mật khẩu → khôi phục'.",
+     "loai": "nguyen-tac",
+     "ghi": "Đúng theo thiết kế mật mã của ví HD (BIP32/39): seed sinh ra toàn bộ private key. Không cần kiểm chứng bằng dữ liệu thị trường, đây là tính chất của công cụ."
+    },
+    {
+     "cau": "Hardware wallet giữ khoá riêng bên trong thiết bị và việc ký diễn ra trong thiết bị, nhưng nó bảo vệ KHOÁ chứ không bảo vệ QUYẾT ĐỊNH KÝ.",
+     "loai": "nguyen-tac",
+     "ghi": "Bản gốc nói 'private keys never connect to the internet' là đơn giản hoá; chủ ty đã chỉnh đúng. Kiểm chứng gián tiếp được bằng lịch sử vụ mất tiền dù dùng ví cứng (fake site + approve unlimited)."
+    },
+    {
+     "cau": "Chia ví nhiều tầng (treasury / LP / lending / test) làm giảm thiệt hại tối đa khi một ví bị compromise — ví dụ NAV $100.000 chia ra thì LP wallet vỡ chỉ mất ≈ $15.000.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm chứng bằng số học trên chính sổ vốn: với mọi phân bổ, tổn thất tối đa mỗi ví = số dư ví đó + giá trị approval còn sống của ví đó. Bảng có thể tính 'value at risk theo ví' hàng ngày và so với NAV."
+    },
+    {
+     "cau": "Website hỏi seed phrase là lừa đảo 100%; dApp bình thường chỉ cần CONNECT WALLET.",
+     "loai": "nguyen-tac",
+     "ghi": "Không có ngoại lệ hợp lệ nào trong luồng dApp chuẩn: chữ ký được tạo ở ví, không cần seed gửi đi. Dùng làm luật cứng chặn, không cần thống kê."
+    },
+    {
+     "cau": "'Không bao giờ lưu seed trong password manager, chỉ giấy/kim loại' là quá tuyệt đối; vấn đề thật là thiết kế backup chống đồng thời trộm, cháy, nước, thất lạc và single point of failure.",
+     "loai": "nguyen-tac",
+     "ghi": "Đây là đánh giá thiết kế rủi ro của chủ ty, không phải khẳng định đo được. Kiểm chứng chỉ có thể làm dạng bảng liệt kê: số bản backup, vị trí, ai truy cập được — rồi soát xem một sự kiện đơn lẻ có xoá hết bản không."
+    },
+    {
+     "cau": "Multi-sig 2-of-3 an toàn hơn một seed đơn, nhưng chỉ khi tách key + tách thiết bị + tách địa điểm + có quy trình; ba seed cùng một két thì giá trị giảm mạnh.",
+     "loai": "nguyen-tac",
+     "ghi": "Bản gốc nói 'multisig extremely secure' là quá gọn. Đúng bản chất: ngưỡng ký chỉ có ý nghĩa khi các mảnh khoá độc lập về mặt lỗi. Không kiểm chứng bằng backtest được."
+    },
+    {
+     "cau": "Unlimited approval (2^256−1) cho phép hợp đồng tiêu bất kỳ lượng token nào trong tương lai, kể cả sau khi vị thế đã đóng.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Đọc thẳng allowance on-chain của từng cặp (token, spender) và so với vốn cần thiết. Bảng có thể quét và báo cáo tổng 'value at risk do approval' bất cứ lúc nào."
+    },
+    {
+     "cau": "Token lạ tự xuất hiện trong ví KHÔNG tự làm mất tiền; nguy hiểm chỉ phát sinh khi chủ ví truy cập website liên quan rồi connect/approve/sign.",
+     "loai": "nguyen-tac",
+     "ghi": "Chỉnh lại phát biểu 'fake airdrop token drains wallet' của tác giả. Đúng theo mô hình quyền hạn ERC-20: chuyển token vào ví không tạo quyền chi tiêu ngược. Cảnh báo: có token thiết kế bẫy khi bán, nên luật vẫn là IGNORE hoàn toàn."
+    },
+    {
+     "cau": "APY cao không tự động là scam; phải phân rã nguồn: phí giao dịch hữu cơ, incentives/emissions, đòn bẩy, nhu cầu vay, hay trợ cấp kiểu Ponzi.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm chứng bằng dữ liệu pool: phí 24h/TVL cho phần hữu cơ, lịch phát emission cho phần thưởng, rồi so tổng với APY hiển thị. Đây là móc nối trực tiếp với Lesson 5."
+    },
+    {
+     "cau": "'Start small' — chạy $10 kiểm tra deposit/fee tracking/withdraw trước khi đưa $10.000 — là quy tắc giá trị nhất của bài.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm chứng bằng nhật ký: mỗi protocol có bao nhiêu giao dịch thử, tỉ lệ rút thành công, sai lệch giữa phí ghi nhận và phí thực nhận. Đây chính là dữ liệu nuôi confidence score."
+    },
+    {
+     "cau": "Độ tin cậy của protocol nên tự học theo lịch sử: số giao dịch thử, tỉ lệ rút thành công, hợp đồng không đổi, thanh khoản lành mạnh → hạn mức vốn tăng dần.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Đo được toàn bộ từ nhật ký giao dịch của chính ty. Rủi ro: lịch sử tốt không loại trừ exploit tương lai, nên điểm tin cậy chỉ được dùng để NỚI hạn mức, không dùng để bỏ qua kiểm tra."
+    },
+    {
+     "cau": "Bot không được giữ seed phrase; đặt PRIVATE_KEY/SEED_PHRASE của Treasury trên VPS là điểm chết duy nhất của cả hệ thống.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc least privilege. Kiểm chứng dạng audit: liệt kê mọi tiến trình/máy có quyền ký và số vốn nó chạm được — nếu con số đó bằng NAV thì thiết kế sai."
+    },
+    {
+     "cau": "Giữa executor và blockchain phải có chuỗi chặn: simulation → contract allowlist → spend limit → slippage limit → risk engine → sign → broadcast. Không được transaction → sign ngay.",
+     "loai": "nguyen-tac",
+     "ghi": "Đây là mô tả kiến trúc, đúng/sai không đo bằng thị trường mà đo bằng việc có bao nhiêu giao dịch đi qua đủ chốt chặn (audit log)."
+    },
+    {
+     "cau": "'Revoke approvals khi ví bị compromise' chỉ đúng với trường hợp approval độc hại; nếu seed/private key đã lộ thì revoke vô nghĩa vì attacker có cùng quyền ký — phải chuyển tài sản sang seed/ví mới và bỏ ví cũ.",
+     "loai": "nguyen-tac",
+     "ghi": "Chỉnh lỗi thật của bài gốc. Suy ra trực tiếp từ mô hình quyền: revoke cũng là một giao dịch cần chữ ký, mà attacker ký được và có thể approve lại."
+    },
+    {
+     "cau": "Rủi ro bảo mật phải trừ vào lợi nhuận: protocol A net APR 25% (chưa audit, admin keys, TVL $2M) không đương nhiên hơn B 18% (đã kiểm chứng, TVL $2B).",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm chứng được một phần: TVL, tuổi hợp đồng, tình trạng audit, quyền admin đều là dữ liệu quan sát được. Phần 'trừ bao nhiêu bps cho rủi ro bảo mật' là ước lượng chủ quan, phải ghi rõ giả định."
+    },
+    {
+     "cau": "Mục tiêu không phải yield cao nhất mà là lợi nhuận ròng cao nhất mà vẫn sống sót đủ lâu để lãi kép phát huy; mất 100% vốn thì mọi APR trước đó vô nghĩa.",
+     "loai": "nguyen-tac",
+     "ghi": "Đúng về mặt toán: chuỗi lãi kép nhân với 0 thì bằng 0. Là kim chỉ nam phân bổ, không phải dự báo."
+    },
+    {
+     "cau": "Lesson 6 là nền móng bảo mật nằm dưới toàn bộ LP Operating System và phải xây ngang hàng LP Engine, Risk Engine chứ không thêm vào cuối.",
+     "loai": "narrative",
+     "ghi": "Đây là lời khung hoá vai trò bài học trong chuỗi, không có nội dung kiểm chứng được; giữ như định hướng ưu tiên xây dựng."
+    }
+   ],
+   "quyTac": [
+    {
+     "ma": "khong-ky-hop-dong-ngoai-danh-ba",
+     "cau": "KHÔNG ký bất kỳ giao dịch nào có địa chỉ đích không nằm trong danh bạ hợp đồng đã xác minh; gặp địa chỉ lạ thì chặn và báo, không tự quyết.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "hopDongDaXacMinh",
+       "danhBaToken",
+       "anToan"
+      ]
+     },
+     "ghi": "Ty KHÔNG ký giao dịch nào (không có lớp ký), nên «không ký hợp đồng lạ» đúng theo cấu tạo; danh bạ (`hopDongDaXacMinh`, `danhBaToken`) dùng để XÁC MINH khi ĐỌC: hợp đồng quản lý vị thế đã xác minh name()/factory, token ghi USDG mà địa chỉ lệch danh bạ → `tokenLa`."
+    },
+    {
+     "ma": "khong-approve-vo-han",
+     "cau": "KHÔNG approve unlimited; luôn approve đúng vốn vị thế cộng đệm nhỏ (~2%), và KHI đóng vị thế thì revoke approval trong cùng phiên.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "quyenVoHan",
+       "hopDongDaXacMinh",
+       "vonLp"
+      ]
+     },
+     "ghi": "Ty đọc được allowance(ví, hợp đồng quản lý) và gắn cờ `quyenVoHan` ≥ 2^255 → cảnh báo ở hàng chỉ số An toàn. Revoke là việc NGƯỚI làm ở ví; máy chỉ chỉ ra. Người tiêu LẠ chưa đọc được (RPC không cho quét log Approval từ khối 0) — khai `nguoiTieuLaChuaDoc`."
+    },
+    {
+     "ma": "khong-bot-giu-khoa",
+     "cau": "KHÔNG để bot hay máy chủ nào giữ seed/khoá của Treasury; bot chỉ được cấp quyền ký trên ví vận hành có vốn giới hạn.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "khongGiuKhoa",
+       "vi",
+       "sucChuaUsd"
+      ]
+     },
+     "ghi": "khongGiuKhoa là cờ đúng nghĩa cho quy tắc này; vi phân biệt ví nào, sucChuaUsd giới hạn vốn ví vận hành. Không gắn luật vì đây là ràng buộc hạ tầng, không phải điều kiện vào/ra vị thế."
+    },
+    {
+     "ma": "chia-tang-vi-gioi-han-thiet-hai",
+     "cau": "LÀM: giữ phần lớn NAV ở ví kho (multi-sig/ví cứng, không duyệt dApp, không claim airdrop) và chỉ đẩy sang ví vận hành đúng phần vốn cho vị thế đang chạy; KHÔNG để một ví chứa đồng thời kho bạc và vốn thao tác.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Chia ví kho / ví vận hành là việc của NGƯỚI và Trung Ương; ty chỉ thấy MỘT địa chỉ ví được dán và không biết NAV. «Thiệt hại tối đa theo ví» chưa tính được — nợ, cùng họ với vốn rảnh cấp hệ.",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "bac-thang-von-theo-protocol",
+     "cau": "LÀM: với mọi protocol mới, đi theo bậc chỉ-đọc → $10 → $100 → $1.000 → sản xuất, và chỉ lên bậc KHI deposit, withdraw, ghi nhận phí và giá tham chiếu đều đạt ở bậc trước.",
+     "gan": {
+      "luat": [
+       "vao-duoc"
+      ],
+      "nut": [],
+      "truong": [
+       "bacVon",
+       "tinCay",
+       "kinhNghiem",
+       "hopDongDaXacMinh",
+       "dieuKien"
+      ]
+     },
+     "ghi": "`bacVon` đã kẹp cỡ xin theo số KẾT CỤC đã chấm của chính pool: 0 → cỡ thử = ngưỡng kinh tế $200; 3 → $500; ≥ 5 và NET trung bình dương → theo sức chứa; NET âm → về cỡ thử. Tiêu chí deposit/withdraw/fee PASS của bài được thay bằng kết cục thật trong sổ kinh nghiệm — cùng tinh thần, đo được."
+    },
+    {
+     "ma": "khong-vao-pool-tvl-mong",
+     "cau": "KHÔNG vào pool có TVL mỏng hoặc chỉ số thanh khoản không lành mạnh, dù APY hiển thị cao; và KHÔNG dùng APY hiển thị làm căn cứ vào lệnh khi chưa tách được nguồn yield.",
+     "gan": {
+      "luat": [
+       "tvl-mong",
+       "chua-du-so",
+       "khong-sigma"
+      ],
+      "nut": [],
+      "truong": [
+       "apyTach",
+       "apyLaLaiKep",
+       "aprTuongDuongPct",
+       "tiLeHuuCo",
+       "thuong",
+       "tinCay"
+      ]
+     },
+     "ghi": "tvl-mong khớp thẳng phần 'TVL rất thấp + volume cao = red flag'; chua-du-so và khong-sigma chặn khi dữ liệu chưa đủ để tính. apyTach/tiLeHuuCo/thuong là nơi phân rã phí hữu cơ và phần thưởng theo đúng Lesson 5."
+    },
+    {
+     "ma": "bo-qua-token-la",
+     "cau": "KHÔNG bán, chuyển, claim hay truy cập website của token tự xuất hiện trong ví; chỉ đánh dấu và bỏ qua.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "tokenLa",
+       "danhBaToken",
+       "anToan"
+      ]
+     },
+     "ghi": "tokenLa là trường đúng để đánh dấu; danhBaToken quyết định token nào được phép chạm tới. Không gắn luật vì đây là xử lý tài sản rác trong ví, không phải điều kiện vị thế."
+    },
+    {
+     "ma": "ngat-mach-khi-bat-thuong",
+     "cau": "KHÔNG mở giao dịch mới KHI có bất kỳ dấu hiệu: hợp đồng lạ, trượt giá vượt ngưỡng, TVL sụt mạnh, lệch giá tham chiếu, thử rút thất bại, số dư ví bất thường hoặc có tin protocol bị khai thác; ưu tiên đóng/rút nếu còn làm được và báo ngay.",
+     "gan": {
+      "luat": [
+       "tvl-mong",
+       "sat-su-kien",
+       "gap-mo-cua",
+       "gia-cu"
+      ],
+      "nut": [],
+      "truong": [
+       "cheDoRuiRo",
+       "anToan",
+       "hanhDongNgay",
+       "tinAnhHuong",
+       "tinCay"
+      ]
+     },
+     "ghi": "Cầu dao cấp HỆ (ngắt tự động, đóng lại phải có người) là của Trung Ương `cau_dao.py`; ở tầng ty, các luật chặn sat-su-kien / gap-mo-cua / gia-cu / tvl-mong là phần «ngắt theo dấu hiệu thị trường». TVL sụt 30% và thử rút thất bại chưa có phép đo — ty không rút."
+    },
+    {
+     "ma": "khong-tu-quet-toan-bo-von",
+     "cau": "KHÔNG cấp cho bot quyền quét toàn bộ vốn về ví khẩn cấp; sweep khẩn phải do người vận hành duyệt, bot chỉ được đề xuất và cảnh báo.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "quyenVoHan",
+       "khongGiuKhoa",
+       "hanhDongNgay",
+       "cheDoRuiRo"
+      ]
+     },
+     "ghi": "Đúng theo cấu tạo: ty không ký, không có đường sweep. `khongGiuKhoa` và `khongKyLenh` là lời khai đọc được ở mục an toàn; `hanhDongNgay` chỉ là ĐỀ XUẤT."
+    },
+    {
+     "ma": "lo-khoa-thi-doi-vi",
+     "cau": "KHI nghi seed hoặc khoá riêng bị lộ, KHÔNG dừng ở revoke approval mà phải chuyển toàn bộ tài sản sang seed/ví mới và bỏ hẳn ví cũ.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "vi"
+      ]
+     },
+     "ghi": "Quy trình ứng cứu của NGƯỚI. Hệ thống chỉ hỗ trợ đổi địa chỉ ví theo dõi (`dat_vi`) và giữ sổ; không phép canh nào nhận ra «seed đã lộ».",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "tru-rui-ro-bao-mat-khi-so-sanh",
+     "cau": "LÀM: khi so hai cơ hội, so bằng lợi nhuận ròng đã trừ rủi ro bảo mật (tuổi hợp đồng, tình trạng audit, quyền admin, độ dày thanh khoản), KHÔNG so bằng APR thô.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr",
+       "phi-goc-duoi-lai-nen"
+      ],
+      "nut": [
+       "tiLePhiTrenLvrToiThieu"
+      ],
+      "truong": [
+       "netBps",
+       "lvrBps",
+       "tiLePhiTrenLvr",
+       "laiSuatNen",
+       "tinCay",
+       "hieuQuaVon"
+      ]
+     },
+     "ghi": "Hệ thống đã có sẵn khung so sánh theo net: phi-duoi-lvr và phi-goc-duoi-lai-nen loại cơ hội không bù nổi chi phí cơ hội. Phần trừ riêng cho rủi ro bảo mật chưa có trường số nên tạm dùng tinCay làm hệ số hạ bậc, cần ghi rõ giả định."
+    },
+    {
+     "ma": "han-muc-bao-mat-theo-chien-luoc",
+     "cau": "LÀM: mỗi chiến lược khai báo kèm trần approval, trần trượt giá, danh sách hợp đồng và chuỗi được phép, và cờ cho phép tự cân bằng / tự bắc cầu; KHÔNG chạy chiến lược thiếu các trần này.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "sucChuaUsd",
+       "bacVon",
+       "hopDongDaXacMinh"
+      ]
+     },
+     "ghi": "Có sức chứa, bậc vốn và danh bạ hợp đồng; CHƯA có trần approval và trần trượt giá dạng núm (agent chỉ đúng khoảng trống). Ty không đặt lệnh nên trượt giá chưa có chỗ áp — nợ ghi lại cho ngày có lớp thực thi.",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "khong-doi-dai-ngoai-gio-truc",
+     "cau": "KHÔNG để bot tự đổi dải hay mở vị thế ngoài giờ trực của người vận hành, vì lúc đó không ai chặn được chuỗi ký sai.",
+     "gan": {
+      "luat": [
+       "ngoai-gio-khong-doi-dai",
+       "giu"
+      ],
+      "nut": [
+       "giuGio"
+      ],
+      "truong": [
+       "cheDoRuiRo",
+       "anToan"
+      ]
+     },
+     "ghi": "Bài không nói về giờ giao dịch, nhưng luật ngoai-gio-khong-doi-dai và núm giuGio đã có sẵn và phục vụ đúng tinh thần 'giảm số quyết định ký khi không có giám sát'. Ghi rõ đây là suy diễn của ty, không phải lời tác giả."
+    },
+    {
+     "ma": "ghi-nhat-ky-thu-nghiem",
+     "cau": "LÀM: ghi lại mọi giao dịch thử (số lần, lỗi, tỉ lệ rút thành công, sai lệch phí) vào hồ sơ protocol và dùng nó làm căn cứ duy nhất để nới hạn mức vốn.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "kinhNghiem",
+       "tinCay",
+       "baiHoc",
+       "tienHoa",
+       "diem",
+       "bacVon"
+      ]
+     },
+     "ghi": "kinhNghiem/tinCay/tienHoa là bộ trường học dần đúng với ý 'security cũng tự học'; diem để chấm và bacVon để nới trần. Không có mã luật vì đây là quy trình ghi chép, không phải điều kiện vào lệnh."
+    }
+   ],
+   "cauHoiChoHeThong": [
+    "Ngay lúc này, nếu ví vận hành bị chiếm, thiệt hại tối đa là bao nhiêu USD (số dư + tổng approval còn sống), và con số đó chiếm bao nhiêu phần trăm NAV?",
+    "Danh sách approval đang sống của từng ví: spender nào, hạn mức bao nhiêu, cấp từ ngày nào, còn vị thế tương ứng không — cái nào là vô hạn, cái nào đã chết mà chưa revoke?",
+    "Mỗi protocol đang dùng đang ở bậc vốn nào, đã qua bao nhiêu giao dịch thử, tỉ lệ rút thành công bao nhiêu, hợp đồng có đổi địa chỉ kể từ lần xác minh gần nhất không?",
+    "Tiến trình/máy nào đang giữ quyền ký, mỗi cái chạm được tối đa bao nhiêu vốn, và có chỗ nào chạm tới Treasury không?",
+    "APY hiển thị của mỗi pool đang tách ra bao nhiêu phần phí hữu cơ và bao nhiêu phần thưởng phát hành, phần thưởng còn chạy được bao lâu?",
+    "Có bao nhiêu bản sao lưu seed, ở đâu, ai truy cập được — một sự kiện đơn lẻ (cháy, trộm, mất) có xoá sạch mọi bản không?",
+    "Trong 30 ngày qua có bao nhiêu giao dịch bị chốt chặn từ chối (hợp đồng lạ, vượt trần trượt giá, vượt trần chi tiêu), và mỗi lần nguyên nhân là gì?",
+    "Nếu ngắt mạch kích hoạt lúc 3 giờ sáng, hệ thống làm được gì mà không cần người, và việc gì bắt buộc chờ duyệt?",
+    "Trần approval và trần trượt giá hiện đang là hằng số cứng ở đâu trong mã, và có nên nâng thành núm chỉnh được không?"
+   ],
+   "khongLay": [
+    "Lời khẳng định 'hardware wallet private keys never connect to the internet' — sai về mặt kỹ thuật ở dạng phát biểu tuyệt đối; lấy bản đã chỉnh: khoá nằm trong thiết bị, ký diễn ra trong thiết bị, và điều đó không bảo vệ khỏi việc tự tay duyệt giao dịch độc hại.",
+    "'Multisig extremely secure' như một kết luận độc lập — không lấy, vì thiếu điều kiện tách khoá/thiết bị/địa điểm thì multi-sig chỉ đổi hình thức rủi ro và tăng độ phức tạp vận hành.",
+    "'Fake airdrop token drains wallet' — không lấy nguyên văn vì sai cơ chế; hệ thống chỉ giữ hành vi IGNORE token lạ, không giữ lời giải thích sai.",
+    "'APY > 500% với stablecoin là scam' như một ngưỡng cứng — không lấy làm luật, vì ngưỡng số tuyệt đối sẽ vừa lọt scam vừa loại nhầm pool mới có thưởng lớn; thay bằng yêu cầu phân rã nguồn yield.",
+    "'Revoke approvals khi ví bị compromise' như biện pháp ứng cứu chung — không lấy, vì với trường hợp lộ seed nó tạo cảm giác an toàn giả; chỉ giữ cho đúng ngữ cảnh approval độc hại.",
+    "'Không bao giờ lưu seed trong password manager' như luật tuyệt đối — không lấy; thay bằng yêu cầu thiết kế backup chịu được nhiều loại sự cố cùng lúc.",
+    "Toàn bộ phần phân loại ví cơ bản và 'bookmark official sites' ở dạng lời khuyên thủ công — không đưa vào hệ thống dưới dạng thói quen con người; đã thay bằng danh bạ hợp đồng và danh sách miền chính thức mà bot bắt buộc dùng.",
+    "Quyền tự động sweep toàn bộ vốn về ví khẩn cấp — không cấp cho bot; đây là quyền tương đương quyền rút sạch, chỉ giữ ở mức đề xuất và cảnh báo.",
+    "Phần đánh giá 'kiến thức LP 1/5' và các điểm tự chấm khác của bản bóc — là nhận xét về chất lượng bài giảng, không phải nội dung vận hành, nên không nạp vào hệ thống."
+   ]
   }
  ]
 }

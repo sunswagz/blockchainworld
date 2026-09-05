@@ -11793,8 +11793,8 @@ def kiem_lp_v3() -> None:
     # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
     from lp_v3 import hoc_lieu as hl
     _tt = hl.nap_tri_thuc()
-    kiem("tri_thuc.json nạp được, có ít nhất NĂM bài, đúng khuôn",
-         len(_tt) >= 5 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("tri_thuc.json nạp được, có ít nhất SÁU bài, đúng khuôn",
+         len(_tt) >= 6 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
@@ -11818,6 +11818,10 @@ def kiem_lp_v3() -> None:
          any("ways-to-earn" in (b.get("ma") or "") for b in _tt)
          and any("phi-goc-duoi-lai-nen" in ((q.get("gan") or {}).get("luat") or []) for b in _tt for q in b["quyTac"])
          and "phi-goc-duoi-lai-nen" in qd.MA_LUAT)
+    kiem("Bài 6 đã ghim: bậc vốn và quyền vô hạn đã có phép canh; chia tầng ví và trần approval khai là nợ",
+         any("crypto-safe" in (b.get("ma") or "") for b in _tt)
+         and any(q["ma"] == "bac-thang-von-theo-protocol" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "chia-tang-vi-gioi-han-thiet-hai" and q["trangThai"] == "thieu-phep-canh" for b in _tt for q in b["quyTac"]))
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
          and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
@@ -11869,6 +11873,26 @@ def kiem_lp_v3() -> None:
          and isinstance(bcH["tinAnhHuong"], list)
          and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
     kiem("báo cáo mang mục `triThuc` với số bài ≥ 1", (bcH.get("triThuc") or {}).get("soBai", 0) >= 1)
+    from lp_v3.ty_bien_do import bac_von as _bv
+    kiem("Bài 6 — bậc vốn: chưa kết cục → cỡ thử $100; 3 → $500; ≥5 NET dương → theo sức chứa; ≥5 NET âm → về cỡ thử",
+         _bv(_cf.CONFIG, 0, None)["tranUsd"] == 200.0 and _bv(_cf.CONFIG, 3, 50.0)["tranUsd"] == 500.0
+         and _bv(_cf.CONFIG, 7, 20.0)["tranUsd"] is None and _bv(_cf.CONFIG, 7, -5.0)["tranUsd"] == 200.0)
+    _pN6 = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
+    kiem("cỡ xin bị KẸP theo bậc vốn khi pool chưa có kết cục (start small, không xin theo sức chứa)",
+         _pN6["bacVon"]["soKetCuc"] == 0 and _pN6["vonXinUsd"] == 200.0
+         and _pN6["vonXinUsd"] >= 200.0)   # không dưới ngưỡng kinh tế → tờ trình vẫn hợp lệ
+    kiem("Bài 6 — mục an toàn: khai không giữ khoá / không ký / không vay theo cấu tạo; danh bạ USDG có địa chỉ",
+         bcH["anToan"]["khongGiuKhoa"] and bcH["anToan"]["khongKyLenh"] and bcH["anToan"]["khongVay"]
+         and bcH["anToan"]["danhBaToken"]["USDG"]["diaChi"].startswith("0x4ae46a50")
+         and bcH["anToan"]["nguoiTieuLaChuaDoc"] is True)
+    kiem("Bài 6 — quyền vô hạn: 2^256−1 là vô hạn, 5.100 USDC không",
+         tdc.QUYEN_VO_HAN <= (1 << 256) - 1 and 5100 * 10 ** 6 < tdc.QUYEN_VO_HAN)
+    ty.nguonVi.quyenToken = [{"token": "0xdead", "kyHieu": "USDG", "nguoiTieu": "0xq", "vaiNguoiTieu": "quan-ly-vi-the",
+                              "soLuong": None, "voHan": True, "conQuyen": True}]
+    _at6 = ty.an_toan_tom_tat()
+    kiem("token ghi USDG mà địa chỉ khác danh bạ → «token lạ»; quyền vô hạn → cảnh báo",
+         len(_at6["tokenLa"]) == 1 and _at6["soQuyenVoHan"] == 1 and len(_at6["canhBao"]) == 2)
+    ty.nguonVi.quyenToken = []
     _at5 = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
     kiem("Bài 5 — tỉ lệ hữu cơ = phí / (phí + thưởng); chưa khai lãi nền thì `soLaiNenPct` là None; vòng quay None khi thiếu khối lượng",
          gan(_at5["apyTach"]["tiLeHuuCo"], 1.0 - _cf.CONFIG["giaDinhPhanThuong"], 1e-9)

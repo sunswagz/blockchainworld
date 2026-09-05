@@ -201,6 +201,26 @@ def apr_cua_pool(pool: dict, cfg: dict, gioThuong: float | None,
     return None, None, "khong-co", tt
 
 
+def bac_von(cfg: dict, soKetCuc: int, netTbBps: float | None) -> dict:
+    """Bậc vốn theo kinh nghiệm THẬT của pool (Bài 6 §17–19: start small).
+
+    Chưa kết cục nào → cỡ thử; vài kết cục → nhỏ; đủ mẫu và NET trung bình
+    dương → theo sức chứa. Đủ mẫu mà NET âm thì quay về cỡ thử — lịch sử
+    xấu không mở khoá vốn. Trần `None` = không kẹp.
+    """
+    bacs = sorted(cfg.get("bacVon") or [], key=lambda b: int(b["toiThieuKetCuc"]))
+    if not bacs:
+        return {"ten": "không cấu hình", "tranUsd": None, "soKetCuc": soKetCuc}
+    chon = bacs[0]
+    for b in bacs:
+        if soKetCuc >= int(b["toiThieuKetCuc"]):
+            chon = b
+    if chon.get("tranUsd") is None and (netTbBps is None or netTbBps <= 0):
+        chon = dict(bacs[0], ten=bacs[0]["ten"] + " (đủ mẫu nhưng NET trung bình không dương)")
+    return {"ten": chon["ten"], "tranUsd": chon.get("tranUsd"), "soKetCuc": soKetCuc,
+            "netTbBps": netTbBps}
+
+
 def tim_dai(P: float, sigma: float, tauNam: float, nut: dict, gioGiu: float,
             aprPhi, aprThuong, gioThuong, heSoTapTrung, gasUsd, vonUsd,
             poolRpc: dict | None = None, phiBps: float = 5.0) -> KetQuaDai:
@@ -235,7 +255,8 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
              poolRpc: dict | None = None, bienDong: dict | None = None,
              tin: list | None = None, now: dt.datetime | None = None,
              coNangTin: list | None = None,
-             viTheThem: list | None = None) -> CoHoiV3:
+             viTheThem: list | None = None,
+             soKetCuc: int = 0, netTbBps: float | None = None) -> CoHoiV3:
     now = now or dt.datetime.now(dt.timezone.utc)
     nut, cua = cfg["nut"], cfg["cua"]
     ma = cfgmod.ma_goc(pool["kyHieu"])
@@ -258,6 +279,12 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
     sucChua = None if not tvl else float(tvl) * float(cua["phanTvlToiDa"])
     vonXin = xin_theo_suc_chua(vonSan, sucChua, float(cfg["von"]["phanSucChuaXin"]),
                                float(cfg["von"]["tranMotLanUsd"]))
+    # BẬC VỐN (Bài 6): kẹp cỡ xin theo số kết cục đã chấm của chính pool này.
+    bac = bac_von(cfg, soKetCuc or 0, netTbBps)
+    if bac.get("tranUsd") is not None:
+        # không kẹp xuống dưới ngưỡng kinh tế: tờ trình xin ít hơn mức ty
+        # tự khai là cần thì sai khuôn và chết ở Thông Chính Ty
+        vonXin = max(_VON_TOI_THIEU, min(vonXin, float(bac["tranUsd"])))
 
     # Hiệu suất của dải đề xuất cần cho đường RPC; ước sơ bộ từ σ.
     hsSoBo = None
@@ -333,7 +360,7 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                                  quyet(bcV).tom_tat()))
 
     co = CoHoiV3(pool=dict(pool, giuGio=giuGio, apyLaLaiKep=bool(cfg.get("apyLaLaiKep", True)),
-                           laiSuatNenPct=laiNen),
+                           laiSuatNenPct=laiNen, bacVon=bac),
                  ma=ma, kyHieu=pool["kyHieu"],
                  gia=giaInfo, sigma=sigmaInfo, phien=bcPhien.tom_tat(),
                  tauNam=tau, dai=kd, quyetDinh=qd, aprPhi=aprPhi,
@@ -594,6 +621,47 @@ class TyBienDo(Ty):
         self.cfg["laiSuatNen"] = ra
         return ra
 
+    def an_toan_tom_tat(self) -> dict:
+        """Lớp AN TOÀN (Bài 6) — mọi thứ máy đo được mà KHÔNG cầm khoá.
+
+        Ba lời khai theo cấu tạo: ty không giữ khoá riêng (không trường
+        nào nhận, `dat_vi` từ chối), không ký giao dịch (không có lớp ký),
+        không vay. Hai phép đo khi đã nối ví: quyền token vô hạn cho hợp
+        đồng quản lý vị thế; token ghi ký hiệu USDG mà địa chỉ không khớp
+        danh bạ.
+        """
+        db = self.cfg.get("danhBaToken") or {}
+        tokenLa = []
+        for xs in self.viTheChuoi.values():
+            for v in xs:
+                pass
+        for d in getattr(self, "_viTheChuoiTho", []):
+            for k in ("token0", "token1"):
+                pass
+        quyen = list(getattr(self.nguonVi, "quyenToken", []) or [])
+        for q in quyen:
+            chuan = db.get(str(q.get("kyHieu") or "").upper())
+            if chuan and str(q.get("token") or "").lower() != str(chuan["diaChi"]).lower():
+                tokenLa.append({"kyHieu": q.get("kyHieu"), "diaChi": q.get("token"),
+                                "chuan": chuan["diaChi"]})
+        voHan = [q for q in quyen if q.get("voHan")]
+        return {
+            "khongGiuKhoa": True, "khongKyLenh": True, "khongVay": True,
+            "viChiDoc": bool((self.cfg.get("vi") or {}).get("diaChi")),
+            "soQuyenDaDoc": len(quyen), "quyenVoHan": voHan, "soQuyenVoHan": len(voHan),
+            "quyenConHieuLuc": [q for q in quyen if q.get("conQuyen")],
+            "nguoiTieuLaChuaDoc": True,          # log Approval từ khối 0 RPC không cho
+            "tokenLa": tokenLa,
+            "danhBaToken": db,
+            "hopDongDaXacMinh": [{"ten": "Uniswap V3 NonfungiblePositionManager (X Layer)",
+                                  "diaChi": (self.cfg.get("uniswapXLayer") or {}).get("quanLyViThe"),
+                                  "xacMinh": "name()=Uniswap V3 Positions NFT-V1, factory khớp, 05/09/2026"}],
+            "canhBao": ([f"{len(voHan)} quyền token VÔ HẠN cho hợp đồng quản lý vị thế — thu hồi khi không còn vị thế"]
+                        if voHan else [])
+                       + ([f"{len(tokenLa)} token ghi ký hiệu chuẩn nhưng địa chỉ KHÁC danh bạ — không tin ký hiệu"]
+                          if tokenLa else []),
+        }
+
     def vi_tom_tat(self) -> dict:
         vi = self.cfg.get("vi") or {}
         ds = [v for xs in self.viTheChuoi.values() for v in xs]
@@ -656,9 +724,16 @@ class TyBienDo(Ty):
                                bang_gia.bien_dong_lien_quan(ma, self.thuMucBang),
                                self.soTin.moi_nhat(tk, 5), now,
                                self.soTin.co_nang_gan_day(tk, 24.0),
-                               self.viTheChuoi.get(pool["kyHieu"], [])))
+                               self.viTheChuoi.get(pool["kyHieu"], []),
+                               *self._kinh_nghiem_pool(pool["kyHieu"])))
         ra.sort(key=lambda c: -(c.dai.netBps if (c.dai and c.dai.netBps is not None) else -1e18))
         return ra
+
+    def _kinh_nghiem_pool(self, kyHieu: str) -> tuple:
+        """`(số kết cục đã chấm, NET trung bình bps)` của một pool — đầu vào bậc vốn."""
+        nets = [k.get("netBps") for q, k in self.soKinhNghiem.cap()
+                if q.get("kyHieu") == kyHieu and k.get("netBps") is not None]
+        return len(nets), (sum(nets) / len(nets) if nets else None)
 
     def _ghi_kinh_nghiem(self) -> None:
         for co in self.coHoi:
@@ -755,6 +830,7 @@ class TyBienDo(Ty):
                 "soVao": sum(1 for c in self.coHoi if c.quyetDinh.hanhDong == VAO),
                 "viThe": self.soViThe.tom_tat(),
                 "vi": self.vi_tom_tat(),
+                "anToan": self.an_toan_tom_tat(),
                 "kinhNghiem": self.soKinhNghiem.tom_tat(),
                 "tin": self.soTin.tom_tat(),
                 "quetCuoiLuc": self.quetCuoiLuc}

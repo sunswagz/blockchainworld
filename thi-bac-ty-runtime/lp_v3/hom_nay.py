@@ -73,6 +73,7 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
         "vonLp": _von_lp(viTheDs, cfg, ty),
         "mucTieu": cfg.get("mucTieu") or {},
         "laiSuatNen": cfg.get("laiSuatNen") or {},
+        "anToan": ty.an_toan_tom_tat() if hasattr(ty, "an_toan_tom_tat") else None,
         "chuoiPhuThuoc": cfg.get("chuoiPhuThuoc") or [],
         "cheDoRuiRo": _che_do_rui_ro(bc, thuong),
         "tinAnhHuong": _tin_anh_huong(co),
@@ -558,6 +559,7 @@ def _mot_pool(c) -> dict:
          "soLaiNenPct": (None if (c.aprPhi is None or (c.pool.get("laiSuatNenPct")) is None)
                          else (c.aprPhi + ((c.aprThuong or 0.0) if (c.gioThuongConLai or 0) > 0 else 0.0)) * 100.0
                               - float(c.pool["laiSuatNenPct"])),
+         "bacVon": c.pool.get("bacVon"),
          "thiTruongGoc": ("MO" if c.phien.get("trangThai") == lich.MO_CUA
                           else "SAP_MO" if c.phien.get("trangThai") == lich.TRUOC_MO
                           else "DONG"),

@@ -76,6 +76,8 @@ TRUONG_BAO_CAO = {
     "aprTuongDuongPct", "apyLaLaiKep", "alphaSoHoldUsd", "tachLoiNhuan", "business", "donBayUsd",
     # Bài 5: hữu cơ, vòng quay, lãi nền, Lego rủi ro
     "tiLeHuuCo", "vongQuay", "soLaiNenPct", "laiSuatNen", "chuoiPhuThuoc",
+    # Bài 6: an toàn chỉ đọc
+    "anToan", "quyenVoHan", "tokenLa", "danhBaToken", "hopDongDaXacMinh", "bacVon", "khongGiuKhoa",
 }
 
 KHUON_JSON = {

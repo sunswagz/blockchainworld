@@ -47,7 +47,11 @@ SEL = {
     "positions": "0x99fbab88", "factory": "0xc45a0155", "getPool": "0x1698ee82",
     "collect": "0xfc6f7865", "slot0": "0x3850c7bd",
     "decimals": "0x313ce567", "symbol": "0x95d89b41",
+    "allowance": "0xdd62ed3e",
 }
+#: Trên ngần này thì coi là VÔ HẠN (Bài 6 §12): 2^255 — mọi ví «approve max»
+#: đều ở đây hoặc cao hơn.
+QUYEN_VO_HAN = 1 << 255
 #: keccak("IncreaseLiquidity(uint256,uint128,uint256,uint256)")
 TOPIC_INCREASE = "0x3067048beee31b25b2f1681f88dac838c8bba36af25bfb2b7cf7473a5847e35f"
 UINT128_MAX = (1 << 128) - 1
@@ -147,6 +151,8 @@ class DocViTheChuoi(Nguon):
         self.soNftTrongVi: int | None = None
         self.soNftDaSoi = 0
         self.soNftRong = 0
+        #: quyền token của ví với hợp đồng quản lý vị thế — điền sau mỗi lượt
+        self.quyenToken: list = []
 
     async def _rpc(self, client, url, method, params):
         """Một lời gọi, thử LẦN LƯỢT mọi nút bắt đầu từ `url`; 429 thì nghỉ
@@ -296,6 +302,21 @@ class DocViTheChuoi(Nguon):
                 "L": thanh_khoan_tu_do_la(giaTri, P, Pa, Pb) if giaTri > 0 else 0.0,
                 "lucMs": time.time() * 1000.0,
             })
+        # QUYỀN TOKEN (Bài 6 §12–14): với mỗi token đã gặp trong vị thế, hỏi
+        # allowance(ví, hợp đồng quản lý). Chỉ đọc được người tiêu ta BIẾT;
+        # người tiêu lạ cần log Approval mà RPC công cộng không cho quét từ
+        # khối 0 — khai là chưa đọc được, không khai là «không có».
+        self.quyenToken = []
+        for dia, (d, s) in list(self._token.items()):
+            try:
+                raw = giai_ma_uint(await self._goi(
+                    client, url, dia, SEL["allowance"] + ma_hoa_dia_chi(vi) + ma_hoa_dia_chi(quanLy)))
+            except Exception:                                 # noqa: BLE001
+                continue
+            self.quyenToken.append({
+                "token": dia, "kyHieu": s, "nguoiTieu": quanLy, "vaiNguoiTieu": "quan-ly-vi-the",
+                "soLuong": None if raw >= QUYEN_VO_HAN else raw / 10 ** d,
+                "voHan": raw >= QUYEN_VO_HAN, "conQuyen": raw > 0})
         return ra
 
 

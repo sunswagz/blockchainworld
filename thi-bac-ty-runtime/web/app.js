@@ -2529,6 +2529,9 @@
       vrTu.khaDungUsd == null ? "Trung Ương chưa báo" : "Trung Ương: được phép mà đang không làm gì");
     met("Đã học", so(kn.soQuyetDinh) + " / " + so(kn.soKetCuc), null, "dự đoán / đã chấm");
     met("Chế độ rủi ro", rr.ten || "—", rr.ma === "THAN_TRONG" ? "am" : "duong", (rr.lyDo || []).join(", "));
+    var at0 = b.anToan || {};
+    met("An toàn", (at0.canhBao || []).length ? so(at0.canhBao.length) + " cảnh báo" : "sạch",
+      (at0.canhBao || []).length ? "am" : "duong", at0.viChiDoc ? "ví chỉ đọc · không khoá" : "chưa nối ví · không khoá");
     f.appendChild(hang);
 
     /* ── HÀNH ĐỘNG NGAY | BỐI CẢNH ─────────────────────────────────── */
@@ -2689,7 +2692,9 @@
       l.appendChild(o_nho("Phí/LVR", dd2.tiLePhiTrenLvr == null ? "—" : n2(dd2.tiLePhiTrenLvr), dd2.tiLePhiTrenLvr == null ? null : dd2.tiLePhiTrenLvr >= 1.5 ? "duong" : "am"));
       l.appendChild(o_nho("P(văng) ≤", dd2.pVang == null ? "—" : pc(dd2.pVang, 0)));
       l.appendChild(o_nho("Phí + thưởng + IL", (dd2.phiBps == null ? "—" : bps(dd2.phiBps)) + " · " + (dd2.thuongBps == null ? "—" : bps(dd2.thuongBps)) + " · " + (dd2.ilKyVongBps == null ? "—" : bps(dd2.ilKyVongBps))));
-      l.appendChild(o_nho("Vốn xin / sức chứa", tien(pm.vonXinUsd, 0) + " / " + tien(pm.sucChuaUsd, 0)));
+      l.appendChild(o_nho("Vốn xin / sức chứa", tien(pm.vonXinUsd, 0) + " / " + tien(pm.sucChuaUsd, 0)
+        + (pm.bacVon ? " · bậc: " + pm.bacVon.ten + " (" + so(pm.bacVon.soKetCuc) + " kết cục)" : ""),
+        pm.bacVon && pm.bacVon.tranUsd != null ? "nhat" : null));
       var bd = pm.bienDong || {};
       l.appendChild(o_nho("Biến động", bd.doi1NgayPct == null ? "—" : (bd.doi1NgayPct >= 0 ? "+" : "") + n2(bd.doi1NgayPct, 1) + "% ngày"
         + (bd.doi5NgayPct == null ? "" : " · " + (bd.doi5NgayPct >= 0 ? "+" : "") + n2(bd.doi5NgayPct, 1) + "% tuần")
@@ -3002,6 +3007,23 @@
     });
     oLn.appendChild(inLn); oLn.appendChild(inLnNg); oLn.appendChild(nutLn);
     f.appendChild(oLn);
+    var at6 = b.anToan || {};
+    var oAt = el("div", "viec-1" + ((at6.canhBao || []).length ? "" : " nhe"));
+    oAt.appendChild(el("b", null, "Lớp an toàn (Bài 6) — máy KHÔNG giữ khoá, KHÔNG ký lệnh, KHÔNG vay"
+      + (at6.viChiDoc ? " · ví nối chỉ đọc" : " · chưa nối ví")));
+    (at6.canhBao || []).forEach(function (x) { oAt.appendChild(el("span", "am", "⚠ " + x)); });
+    if (at6.viChiDoc) {
+      oAt.appendChild(el("span", null, "Quyền token đã đọc: " + so(at6.soQuyenDaDoc) + " · vô hạn: " + so(at6.soQuyenVoHan)
+        + " · còn hiệu lực: " + so((at6.quyenConHieuLuc || []).length)
+        + (at6.nguoiTieuLaChuaDoc ? " · người tiêu LẠ chưa đọc được (RPC không cho quét log Approval từ khối 0)" : "")));
+      (at6.quyenConHieuLuc || []).forEach(function (q) {
+        oAt.appendChild(el("span", q.voHan ? "am" : null, "• " + q.kyHieu + " → " + String(q.nguoiTieu).slice(0, 10) + "… : "
+          + (q.voHan ? "VÔ HẠN — thu hồi khi không còn vị thế" : Number(q.soLuong).toLocaleString("vi-VN"))));
+      });
+    }
+    (at6.hopDongDaXacMinh || []).forEach(function (h) { oAt.appendChild(el("span", null, "✓ " + h.ten + " " + String(h.diaChi || "").slice(0, 12) + "… — " + h.xacMinh)); });
+    Object.keys(at6.danhBaToken || {}).forEach(function (k) { oAt.appendChild(el("span", null, "✓ danh bạ " + k + " = " + String(at6.danhBaToken[k].diaChi).slice(0, 12) + "… (" + at6.danhBaToken[k].nguon + ")")); });
+    f.appendChild(oAt);
     if ((b.chuoiPhuThuoc || []).length) {
       var pt = el("div", "viec-1 nhe");
       pt.appendChild(el("b", null, "Lego rủi ro — vốn trong các pool này đi qua " + b.chuoiPhuThuoc.length + " lớp (Bài 5)"));
