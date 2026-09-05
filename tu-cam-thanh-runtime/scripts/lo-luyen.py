@@ -2,6 +2,12 @@
 
     python scripts/lo-luyen.py --cho BTCUSDT:1d,ETHUSDT:1d --bien 12
     python scripts/lo-luyen.py --cho <48 chợ> --bien 24 --lat 4 --ghi
+    python scripts/lo-luyen.py --cho <chợ> --bien 6 --lat 6 --chi-long
+    python scripts/lo-luyen.py --cho <chợ> --bien 6 --lat 6 --chi-short
+
+`--chi-long` và `--chi-short` cô lập một nửa chiến lược và LOẠI TRỪ NHAU (đưa cả
+hai thì script dừng). Không cờ nào thì đo CẢ HAI nửa — và bảng gộp khi ấy nói về
+một chiến lược mà bot chạy spot không chạy nổi. Xem `do-huong.py`.
 
 VÌ SAO KHÔNG PHẢI "CHẠY THẬT NHANH HƠN"
 
@@ -72,6 +78,26 @@ GHI = "--ghi" in sys.argv
 # bot không short được. Dò trong không gian chạy được thì tệ hơn về con số và
 # đúng hơn về việc.
 CHI_LONG = "--chi-long" in sys.argv
+
+# `--chi-short`: nửa ĐỐI XỨNG, và là nửa DUY NHẤT từng sống sót ngoài mẫu.
+#
+# `do-huong.py` đo được +0,0874R qua 931 lệnh SHORT trên 34 chợ CHƯA dùng để
+# tìm ra nó (04/09/2026, giả thuyết «short-tren-cho-la-chay-lai» → XÁC_NHẬN),
+# lặp lại ổn định qua ba tập chợ: +0,0435 (12 chợ) → +0,0845 (15) → +0,0874 (34).
+#
+# Nhưng `do-huong.py` KHÔNG cắt lát thời gian, mà trục thời gian mới là trục đã
+# lật dấu mọi con số dương khác của cung này. Cờ này tồn tại để hỏi đúng câu còn
+# thiếu: nửa SHORT có dương ở NHIỀU LÁT không, hay chỉ dương nhờ một quãng.
+#
+# Làn demo :5282 chạy sàn giấy hai chiều nên đánh được nửa này; làn chính chạy
+# spot testnet thì KHÔNG. Đo được ở đây không có nghĩa làn chính chạy được.
+CHI_SHORT = "--chi-short" in sys.argv
+
+# Đưa cả hai cờ thì KÊU, đừng lặng lẽ chọn một. Cung này đã bốn lần dính dạng
+# lỗi "một nửa việc": cờ có mà không ai truyền, chế độ có mà bảng không khai.
+if CHI_LONG and CHI_SHORT:
+    raise SystemExit("--chi-long và --chi-short loại trừ nhau: chọn MỘT nửa.")
+
 NL = chr(10)
 
 # Khung ngữ cảnh cho mỗi khung chính — luôn dài hơn một bậc.
@@ -179,6 +205,8 @@ def bien_the(n: int, hat: int) -> list[dict]:
     goc = dict(THAM_MAC_DINH)
     if CHI_LONG:
         goc["cheDoVao"] = ["TREND_UP"]
+    elif CHI_SHORT:
+        goc["cheDoVao"] = ["TREND_DOWN"]
     ra = [goc]
     thay = set()
     canh = 1
@@ -272,6 +300,9 @@ def main() -> int:
           "bản chạy thật")
     print(("CHỈ LONG — đúng không gian sàn spot cho phép"
            if CHI_LONG else
+           "CHỈ SHORT — làn demo :5282 (sàn giấy) đánh được nửa này, làn chính "
+           "chạy spot thì KHÔNG"
+           if CHI_SHORT else
            "CẢ HAI CHIỀU — lưu ý: sàn spot không short được, dùng --chi-long để "
            "dò đúng thứ bot chạy được") + NL)
 
@@ -368,6 +399,7 @@ def main() -> int:
             "luc": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
             "cho": cho_ds, "soCho": so_cho_that, "soLat": so_lat,
             "soLanThu": len(bien) - 1, "hat": hat, "chiLong": CHI_LONG,
+            "chiShort": CHI_SHORT,
             "giay": round(time.time() - t0, 1),
             "bang": bang[:20],
         }, ensure_ascii=False, indent=1), encoding="utf-8")

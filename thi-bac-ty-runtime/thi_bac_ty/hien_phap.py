@@ -39,11 +39,35 @@ canh được lên đầu.
 """
 from __future__ import annotations
 
+import atexit
 import re
+import shutil
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
 GOC = Path(__file__).resolve().parent.parent
+
+_TAM_DA_TAO: list[str] = []
+
+
+def _tam_moi(prefix: str) -> str:
+    """Thư mục tạm TỰ DỌN lúc tiến trình thoát.
+
+    Phép canh dưới đây dựng một Trung Ương thật, nên cần thư mục riêng. Gọi
+    thẳng `tempfile.mkdtemp` thì mỗi lượt canh bỏ lại một thư mục `hp-` mà
+    không ai dọn: ngày 04/09/2026 đã đếm được 4.795 thư mục `hp-` bỏ lại,
+    góp phần làm ổ C: đầy 100%.
+    """
+    d = tempfile.mkdtemp(prefix=prefix)
+    _TAM_DA_TAO.append(d)
+    return d
+
+
+@atexit.register
+def _don_tam() -> None:
+    for d in _TAM_DA_TAO:
+        shutil.rmtree(d, ignore_errors=True)
 
 
 @dataclass(frozen=True)
@@ -491,7 +515,6 @@ def _cau_dao_bat_doi_xung():
 
 def _ngat_roi_van_quan_sat():
     """Cầu dao ngắt thì vẫn ghi nhận tờ trình, chỉ KHÔNG cấp vốn."""
-    import tempfile
     from .khuon_ty import Ty
     from .trung_uong import TrungUong
 
@@ -517,7 +540,7 @@ def _ngat_roi_van_quan_sat():
         def trinh(self, co):
             return _to_trinh_thu(co, 8.0, von=100.0)
 
-    tu = TrungUong(tempfile.mkdtemp(prefix="hp-"), {"vonBanDauUsd": 1000.0})
+    tu = TrungUong(_tam_moi("hp-"), {"vonBanDauUsd": 1000.0})
     tu.dang_ky(_T())
     truoc = tu.danh_muc.tienMatUsd
 
