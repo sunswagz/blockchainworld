@@ -5148,10 +5148,33 @@ def kiem_bien_cua_cong_rui_ro() -> None:
     # Không xoá: `netEdgeToiThieu` là nút vặn được, và dải của nó xuống
     # tới 0,005. Ở đó vế sau sống lại. Nhưng phải KHAI ra, vì một nhánh
     # chết trông y hệt một lớp bảo vệ đang làm việc.
+    # …và từ 05/09/2026 ngưỡng chuyển về 0,005, tức vế ấy SỐNG. Phép
+    # kiểm nay hỏi đúng câu đáng hỏi — "vế này đang sống hay chết, và
+    # ta có BIẾT không" — thay vì đóng đinh một câu trả lời sẽ sai khi
+    # nút được vặn. Đóng đinh thì lần vặn sau bộ kiểm đỏ vì một lý do
+    # chẳng liên quan gì tới thứ nó canh.
     _nguongNE = float(_CLc["netEdgeToiThieu"])
-    kiem("vế `lợi kỳ vọng quá mỏng` là nhánh CHẾT ở ngưỡng hiện tại",
-         _nguongNE >= 0.01,
-         f"netEdgeToiThieu {_nguongNE:g} — dưới 0,01 thì vế ấy sống lại")
+    _songLai = _nguongNE < 0.01
+    kiem(f"vế `lợi kỳ vọng quá mỏng`: ở ngưỡng {_nguongNE:g} nó "
+         + ("SỐNG (loại vị thế dưới "
+            f"{0.01 / max(_nguongNE, 1e-9):.0f} cổ)" if _songLai
+            else "CHẾT (mọi cơ hội qua sàng đều vượt 0,01)"),
+         True is True)
+    # Dù sống hay chết, hai vế của cổng 11 phải còn nguyên — xoá vế nào
+    # cũng là bỏ một lớp chặn mà không ai thấy.
+    _goc11 = Path(__file__).resolve().parent.parent
+    _ma11 = (_goc11 / "kham" / "rui_ro.py").read_text(encoding="utf-8")
+    kiem("cổng 11 còn vế `dưới 1 cổ`", 'ma="duoi-mot-co"' in _ma11)
+    kiem("cổng 11 còn vế `lợi kỳ vọng quá mỏng`", 'ma="loi-qua-nho"' in _ma11)
+    if _songLai:
+        # Vế sống thì phải chặn THẬT — không thì nó là chữ trang trí.
+        k, re = moi()
+        q = re.duyet(co_hoi(soCo=1.0, netEdge=_nguongNE,
+                            sucChua=float(_CLc["sucChuaToiThieu"])),
+                     lanh, 200, False)
+        kiem("…và ở ngưỡng này nó CHẶN được một cơ hội 1 cổ",
+             q.tu_choi and q.ma in ("loi-qua-nho", "duoi-mot-co"),
+             (q.ma, q.lyDo))
 
 
 def kiem_doi_soat_truoc_khi_dat_that() -> None:

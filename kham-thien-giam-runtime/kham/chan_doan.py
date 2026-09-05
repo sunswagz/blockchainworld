@@ -54,7 +54,16 @@ class NutVan:
 
 
 NUT_VAN: list[NutVan] = [
-    NutVan("canLoi.netEdgeToiThieu", 0.005, 0.060, 0.0025,
+    # Sàn HẠ 0,005 → 0,0025 ngày 05/09/2026. Lý do không phải "cho rộng
+    # hơn cho chắc" mà là một chỗ kẹt cụ thể: trị đang dùng chuyển về
+    # 0,005, tức ĐÚNG mép dưới. Một trị nằm ở mép thì cổng tiến hoá
+    # không bao giờ đề xuất được thấp hơn, và phép chẩn đoán "đứng
+    # ngoài quá → NỚI ngưỡng" không có chỗ nào để nới. Đúng bẫy "trục
+    # nút lệch lưới" đã ghi trong sổ, chỉ ở đầu kia của trục.
+    #
+    # 0,0025 là một bước lưới dưới trị đang dùng — đủ để nới được, và
+    # không mở ra cả một vùng chưa ai đo.
+    NutVan("canLoi.netEdgeToiThieu", 0.0025, 0.060, 0.0025,
            "ngưỡng lợi thế tối thiểu để một cơ hội được coi là đáng làm"),
     NutVan("canLoi.bienAnToan", 0.002, 0.030, 0.001,
            "chỗ trả giá cho những thứ chưa nghĩ ra; nới là tự tin hơn"),
