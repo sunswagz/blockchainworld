@@ -102,6 +102,14 @@ TOI_THIEU_BUT_TOAN_PHI = 50
 #: máy xoay chỗ. Hai vai khác nhau thì được phép rời nhau.
 NET_QUY_NAM_VO_LY = 1000.0
 
+#: Bao nhiêu vòng LIÊN TIẾP còn ghế trống mà số vị thế không tăng thì lời
+#: hứa «Phân Bổ sẽ lấp chỗ» coi như KHÔNG được giữ.
+#:
+#: Ba, cùng giá trị `trung_uong.VONG_GHE_TRONG_DANG_NGO` và cùng ngưỡng
+#: buồng lái tô đỏ (`web/app.js`). Một vòng có thể là chưa có cơ hội nào,
+#: hai vòng có thể là trùng hợp; ba vòng liên tiếp là một trạng thái.
+VONG_GHE_TRONG_DANG_NGO = 3
+
 #: Lệch bao nhiêu bps mỗi giờ thì gọi là hứa quá. Không đặt 0: mọi phép đo
 #: đều có sai số, và một cỗ máy báo bệnh ở lệch 0,001 bps là một cỗ máy
 #: báo bệnh mỗi vòng.
@@ -1063,6 +1071,53 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     # buồng lái, và vòng tiến hoá không biết nó tồn tại — nên vòng ấy chỉ
     # học được về đúng cái ty mà chính nó đã tắt.
     dvt = anh.get("duDoanVaThuc") or {}
+
+    # ── 8x. GHẾ TRỐNG mà không ai ngồi vào — lời hứa không được giữ ─────
+    #
+    # `trung_uong` ĐÃ đếm chuyện này (`_vongGheTrongKhongLap`), ĐÃ đưa ra
+    # ảnh chụp (`xoayCho.soVongGheTrongKhongLap`), và buồng lái ĐÃ tô đỏ
+    # nó từ mức 3 (`web/app.js:1453`). Bảng chẩn thì đọc nó **0 lần** —
+    # nên vòng học, thứ chỉ đọc bảng chẩn, không biết nó tồn tại.
+    #
+    # Đúng vết file này đã tự ghi ở mục 8 ngay dưới: «Bảng ấy đã có, đã
+    # hiện trên buồng lái, và trước lượt này KHÔNG AI ĐỌC.» Lần thứ năm.
+    #
+    # Đo làn thật 05/09/2026: 3 ghế trống, **35 vòng liên tiếp** số vị thế
+    # không tăng.
+    #
+    # Và đây là chỗ nó nối vào một bài lớn hơn. `phan_bo.chia()` xếp hạng
+    # bằng `netMoiGioBps` — docstring của chính nó nói rõ vì sao: «20 bps
+    # giữ 24 giờ THUA 6 bps giữ 2 giờ, vì vốn quay được mười hai lượt.»
+    # Thước ấy GIẢ ĐỊNH vốn quay vòng. Con số 35 là phép đo nói giả định
+    # ấy đang sai: ghế trống suốt 35 vòng mà không ai ngồi vào.
+    _xc0 = anh.get("xoayCho") or {}
+    _gv0 = anh.get("gheVaVon") or {}
+    try:
+        _kVong = int(_xc0.get("soVongGheTrongKhongLap") or 0)
+    except (TypeError, ValueError):
+        _kVong = 0
+    _conGhe0 = _gv0.get("conGhe")
+    if _kVong >= VONG_GHE_TRONG_DANG_NGO and _conGhe0:
+        ra.append(TrieuChungHe(
+            "ghe-trong-khong-ai-ngoi", 2,
+            f"{_kVong} vòng LIÊN TIẾP còn {_conGhe0} ghế trống mà số vị thế "
+            f"KHÔNG tăng — lời hứa «Phân Bổ sẽ lấp chỗ» không được giữ. "
+            f"Đây không chỉ là mấy cái ghế: bảng xếp hạng vốn dùng "
+            f"`netMoiGioBps`, và thước ấy GIẢ ĐỊNH vốn quay vòng được "
+            f"(«20 bps giữ 24 giờ thua 6 bps giữ 2 giờ, vì vốn quay được "
+            f"mười hai lượt» — docstring `phan_bo`). {_kVong} vòng ghế "
+            f"trống là phép đo nói giả định ấy đang SAI, nên mọi thứ hạng "
+            f"dựng trên nó đang nghiêng về phía cơ hội kỳ hạn ngắn. Xem "
+            f"phễu: cơ hội tốt hơn có đang kẹt ở một trần nào không.",
+            {"soVongGheTrongKhongLap": _kVong, "conGhe": _conGhe0,
+             "soGhe": _gv0.get("soGhe"),
+             "soDangDung": _gv0.get("soDangDung"),
+             "nguong": VONG_GHE_TRONG_DANG_NGO},
+            # Núm RỖNG. Máy KHÔNG tự đuổi ai vì chuyện này — `trung_uong`
+            # đã ghi đúng lý do: «đóng một vị thế mà Phân Bổ không mở lại
+            # được là đẩy vốn về tiền mặt ăn 0%». Và nới trần ghế lúc ghế
+            # đang TRỐNG thì càng vô nghĩa.
+            []))
 
     # ── 8y. NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng xếp hạng ─────────────
     #

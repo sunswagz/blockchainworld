@@ -3669,6 +3669,49 @@ def kiem_chan_doan_he() -> None:
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
 
+    # ── GHẾ TRỐNG mà không ai ngồi vào ──────────────────────────────────
+    #
+    # `trung_uong` đã đếm, đã đưa ra ảnh chụp, buồng lái đã tô đỏ từ mức 3
+    # — và bảng chẩn đọc nó 0 lần, nên vòng học không biết nó tồn tại.
+    # Đo làn thật 05/09/2026: 3 ghế trống, 35 vòng liên tiếp không tăng.
+    from thi_bac_ty.chan_doan_he import VONG_GHE_TRONG_DANG_NGO as _VG
+
+    def _anh_ghe(k, conGhe=3):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "xoayCho": {"soVongGheTrongKhongLap": k},
+                "gheVaVon": {"soGhe": 120, "soDangDung": 120 - conGhe,
+                             "conGhe": conGhe}}
+
+    _tG = [t for t in chan_doan_he(_anh_ghe(35))
+           if t.ma == "ghe-trong-khong-ai-ngoi"]
+    kiem("35 vòng ghế trống không ai ngồi → thành triệu chứng", len(_tG) == 1,
+         str([t.ma for t in chan_doan_he(_anh_ghe(35))]))
+    kiem("bằng chứng mang đúng hai con số",
+         _tG and _tG[0].bangChung["soVongGheTrongKhongLap"] == 35
+         and _tG[0].bangChung["conGhe"] == 3, str(_tG[0].bangChung) if _tG else "")
+    kiem("và nó nối tới giả định của bảng xếp hạng, không chỉ nói về ghế",
+         _tG and "netMoiGioBps" in _tG[0].moTa and "quay vòng" in _tG[0].moTa,
+         "35 vòng ghế trống là phép đo nói giả định «vốn quay được mười "
+         "hai lượt» đang sai")
+    kiem("KHÔNG khai núm nào", _tG and _tG[0].nutGoiY == [],
+         "máy không tự đuổi ai, và nới trần ghế lúc ghế đang TRỐNG thì vô "
+         "nghĩa")
+
+    kiem("dưới ngưỡng thì im",
+         "ghe-trong-khong-ai-ngoi" not in
+         {t.ma for t in chan_doan_he(_anh_ghe(_VG - 1))},
+         "một vòng có thể là chưa có cơ hội nào, hai vòng có thể là trùng hợp")
+    kiem("ĐÚNG BẰNG ngưỡng thì nổ — biên phải chạm tới được",
+         "ghe-trong-khong-ai-ngoi" in
+         {t.ma for t in chan_doan_he(_anh_ghe(_VG))})
+    kiem("HẾT ghế thì im — chuyện khác hẳn",
+         "ghe-trong-khong-ai-ngoi" not in
+         {t.ma for t in chan_doan_he(_anh_ghe(35, conGhe=0))},
+         "ghế đầy mà vốn nằm không là `von-o-ty-loi-thap`, không phải bệnh này")
+
     # ── NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng chia tiền ────────────────
     #
     # Sổ đăng ký làn thật 05/09/2026: bảy tờ trình trên 1.000%/năm trong
