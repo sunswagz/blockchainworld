@@ -166,8 +166,36 @@ class _NhipRieng(Ty):
         return getattr(self.__dict__["_ty"], ten)
 
     def tom_tat(self) -> dict:
-        return {**super().tom_tat(), "nhipGiay": self._nhip,
-                "soLuotBoQua": self.soLuotBoQua}
+        """Bản khai của lớp bọc, KÈM bản khai riêng của ty thật.
+
+        `Ty.tom_tat` có sẵn ở lớp gốc, nên `super().tom_tat()` gọi đúng bản
+        GỐC và bản ghi đè của ty thật KHÔNG BAO GIỜ chạy — `__getattr__`
+        cũng không, vì tra thuộc tính đã thành công. Đây là lần thứ TƯ
+        cùng một kiểu hỏng, sau `kiem_khai`, `vonToiThieuKinhTeUsd` và
+        `ke_toan`; phép kiểm dựng sau lần thứ ba tự nhận là «dò bằng
+        SENTINEL chứ không liệt kê tên», nhưng bên dưới nó liệt kê đúng
+        chín cái tên và `tom_tat` không nằm trong đó.
+        
+        Hậu quả đo được 05/09/2026: BẢY ty có `tom_tat()` riêng (amm, dex,
+        ổn định, ngang giá, lãi suất, cơ sở, tiên đoán) và toàn bộ chẩn
+        đoán riêng của chúng vô hình trên buồng lái — kể cả bộ đếm 429 của
+        nguồn LI.FI vừa thêm, đúng thứ cần để biết `dex.round_trip` có
+        đang bị chặn nhịp hay không.
+
+        Đặt dưới khoá RIÊNG chứ không trộn phẳng: `TyVongDoi.tom_tat()`
+        cũng khai `soCoHoi`, và trộn phẳng thì nó ĐÈ mất bộ đếm thật của
+        `Ty` — chữa một chỗ mù bằng cách làm hỏng một con số đang đúng.
+        """
+        ra = {**super().tom_tat(), "nhipGiay": self._nhip,
+              "soLuotBoQua": self.soLuotBoQua}
+        rieng = getattr(type(self._ty), "tom_tat", None)
+        if rieng is not None and rieng is not Ty.tom_tat:
+            try:
+                ra["rieng"] = self._ty.tom_tat()
+            except Exception as e:                       # noqa: BLE001
+                # Một ty khai hỏng KHÔNG được giết cả ảnh chụp.
+                ra["rieng"] = {"loi": f"{type(e).__name__}: {e}"}
+        return ra
 
 
 def _giu_toi_thieu(baoGia, nowMs: float) -> list:

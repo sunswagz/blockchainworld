@@ -6793,6 +6793,13 @@ def kiem_hai_ty_that() -> None:
         def trinh(self, co): return "DAU-VET"
         def ke_toan(self, viThe, toTrinh, tuGiay, denGiay): return "DAU-VET"
 
+        # Ty thật KHAI THÊM số của riêng nó — bảy ty trong kho làm đúng
+        # thế. `soCoHoi` khai trùng là CỐ Ý: lớp bọc phải mang bản riêng
+        # ra mà KHÔNG đè bộ đếm thật của `Ty`.
+        def tom_tat(self):
+            return {**super().tom_tat(), "dauVet": "DAU-VET",
+                    "soCoHoi": 999}
+
     dv = _NhipRieng(_TyDauVet(), 9999.0)
     thieu = []
     if dv.quet() != ["DAU-VET"]: thieu.append("quet")
@@ -6804,9 +6811,67 @@ def kiem_hai_ty_that() -> None:
     if dv.ho != "tin-dung": thieu.append("ho")
     if dv.moTa != "ty dò dấu vết cho lớp bọc": thieu.append("moTa")
     if not dv.co_ke_toan(): thieu.append("co_ke_toan")
+    if (dv.tom_tat().get("rieng") or {}).get("dauVet") != "DAU-VET":
+        thieu.append("tom_tat")
     kiem("lớp bọc uỷ quyền MỌI thành viên ty thật ghi đè", not thieu,
          f"lớp bọc CHE MẤT {thieu} — ty thật ghi đè mà trung ương đọc ra "
          f"giá trị rỗng của lớp bọc, và không lỗi nào báo")
+
+    # ── và phép dò phải THẬT SỰ dò, không chép tên ───────────────────────
+    #
+    # Chú thích ngay trên tự nhận «dò bằng SENTINEL chứ không liệt kê
+    # tên» — nhưng đoạn mã bên dưới liệt kê đúng chín cái tên, và
+    # `tom_tat` không nằm trong đó. Nên nó lọt, và đó là lần thứ TƯ cùng
+    # một kiểu hỏng (sau `kiem_khai`, `vonToiThieuKinhTeUsd`, `ke_toan`).
+    #
+    # Hậu quả đo 05/09/2026: BẢY ty có `tom_tat()` riêng, và mọi chẩn
+    # đoán riêng của chúng vô hình — kể cả bộ đếm 429 của nguồn LI.FI.
+    #
+    # Luật nay là: MỌI thành viên công khai của `Ty` phải được lớp bọc
+    # xử lý TƯỜNG MINH, hoặc nằm trong danh sách CỐ Ý KHÔNG uỷ quyền kèm
+    # lý do. Thêm một thành viên mới vào `Ty` mà quên lớp bọc thì phép
+    # kiểm này đỏ ngay, không cần ai nhớ ra tên nó.
+    _CO_Y_KHONG_UY_QUYEN = {
+        # `mot_luot` PHẢI chạy trên lớp bọc: nó là thứ gọi `quet()` có
+        # nhịp. Uỷ quyền nó xuống ty thật là bỏ qua cả cơ chế nhịp.
+        "mot_luot",
+        # Hằng số của lớp gốc, ty không ghi đè để đổi hành vi lớp bọc.
+        "TRAN_MA_LY_DO",
+    }
+    _cong_khai = {n for n in vars(_TyGoc)
+                  if not n.startswith("__")
+                  and not n.startswith("_ghi")}
+    _quen = sorted(n for n in _cong_khai
+                   if n not in vars(_NhipRieng)
+                   and n not in _CO_Y_KHONG_UY_QUYEN)
+    kiem("lớp bọc xử lý TƯỜNG MINH mọi thành viên của `Ty`", not _quen,
+         f"lớp bọc chưa nhắc tới {_quen} — hoặc uỷ quyền nó, hoặc khai nó "
+         f"vào `_CO_Y_KHONG_UY_QUYEN` kèm lý do. Im lặng ở đây đã tốn bốn "
+         f"lần rồi.")
+    kiem("và phép dò ấy soi được kha khá thành viên",
+         len(_cong_khai) >= 8,
+         f"chỉ thấy {len(_cong_khai)} thành viên — một phép dò rỗng thì "
+         f"luôn xanh")
+    # Ty KHÔNG ghi đè thì KHÔNG có khoá `rieng`. Nhân đôi bản gốc dưới một
+    # cái tên gợi ý «riêng» là mời người đọc đi tìm khác biệt không tồn tại.
+    class _TyTron(_TyGoc):
+        ma, ho = "lending.rate_rotation.v1", "tin-dung"
+        moTa = "ty không ghi đè tom_tat"
+        vonToiThieuKinhTeUsd = 7.0
+
+        def quet(self): return []
+        def xet(self, co): return False, []
+        def trinh(self, co): return None
+
+    kiem("ty KHÔNG ghi đè `tom_tat` thì không có khoá `rieng`",
+         "rieng" not in _NhipRieng(_TyTron(), 9999.0).tom_tat(),
+         "nhân đôi bản gốc dưới tên «riêng» là mời người đọc đi tìm một "
+         "khác biệt không tồn tại")
+    kiem("bản riêng KHÔNG đè bộ đếm thật của `Ty`",
+         dv.tom_tat()["soCoHoi"] == 0
+         and dv.tom_tat()["rieng"]["soCoHoi"] == 999,
+         "trộn phẳng là chữa một chỗ mù bằng cách làm hỏng một con số "
+         "đang đúng — `TyVongDoi` khai `soCoHoi` của riêng nó thật")
     kiem("và mot_luot() không tự đệ quy",
          len(boc.mot_luot(ThongChinhGia())) >= 0 and boc.soLuotBoQua == 2,
          "bản đầu gán đè `ty.quet` rồi gọi lại chính nó, nên ty quét được "
