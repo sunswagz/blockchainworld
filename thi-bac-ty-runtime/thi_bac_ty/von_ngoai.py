@@ -36,11 +36,28 @@ from __future__ import annotations
 import json
 import time
 import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 #: Bao lâu hỏi lại một lần. Vốn ngoài không nhúc nhích theo giây.
 NHIP_GIAY = 60.0
 HET_GIO_GIAY = 4.0
+
+#: Một lượt đọc HỎNG thì giữ lát cắt TỐT gần nhất trong ngần này giây.
+#:
+#: Ba nhịp hỏi (`NHIP_GIAY` 60). Trước lượt này một lượt đọc hỏng vứt
+#: luôn bản tốt vừa có, `docDuoc` thành `False`, cầu dao `von-ngoai-mu`
+#: ngắt, và CẢ cỗ máy ngừng cấp vốn — vì đúng một lần trả lời chậm.
+#:
+#: Đo làn thật 05/09/2026: Khâm Thiên Giám trả lời trong **32,5 giây**
+#: (nó sống, chỉ chậm — có hai lượt quét đột biến chạy trên chính nó).
+#: Timeout bên này là 4 giây, nên mọi lượt đọc đều `TimeoutError`, và
+#: một hàng xóm CHẬM bị đối xử y hệt một hàng xóm CHẾT.
+#:
+#: Giữ bản cũ là ĐÚNG với chính thiết kế: `LatCatNgoai` đã mang
+#: `tuoiGiay`, và ngưỡng cầu dao cho phép dữ liệu cũ tới 300 giây. Vốn
+#: không dịch chuyển trong ba phút. Quá cửa sổ này thì `docDuoc=False`
+#: như cũ — lúc ấy ta THẬT SỰ không biết, và cầu dao ngắt là đúng.
+TRAN_GIU_GIAY = 180.0
 
 
 @dataclass
@@ -97,7 +114,13 @@ class DocVonNgoai:
         self.nhip = float(nhipGiay)
         self._lanCuoi = 0.0
         self.latCat = LatCatNgoai(ten=ten, vi="chưa đọc lần nào")
+        #: Lát cắt TỐT gần nhất. `None` = chưa đọc được lần nào, và lúc
+        #: ấy không có gì để giữ — cầu dao ngắt là đúng.
+        self.latCatTot: LatCatNgoai | None = None
         self.soLoi = 0
+        self.soLoiLienTiep = 0
+        self.soLanGiuBanCu = 0
+        self.loiCuoi = ""
 
     def doc(self, ep: bool = False) -> LatCatNgoai:
         now = time.monotonic()
@@ -116,16 +139,40 @@ class DocVonNgoai:
             d = json.load(r)
         except Exception as e:                            # noqa: BLE001
             self.soLoi += 1
+            self.soLoiLienTiep += 1
+            self.loiCuoi = f"{type(e).__name__}: {str(e)[:80]}"
+            tuoi = (self.latCatTot.tuoi_giay()
+                    if self.latCatTot is not None else None)
+            if tuoi is not None and tuoi <= TRAN_GIU_GIAY:
+                # GIỮ bản tốt, và nói thẳng là đang giữ. Không dựng lát
+                # cắt mới: `tuoiGiay` phải tiếp tục đếm từ lần đọc THẬT,
+                # không được làm mới theo lượt hỏng — đó đúng là cái bẫy
+                # `luc` của cầu dao đã cắn một lần.
+                self.soLanGiuBanCu += 1
+                self.latCat = replace(
+                    self.latCatTot,
+                    vi=(f"giữ bản cũ {tuoi:.0f}s (trần {TRAN_GIU_GIAY:.0f}s) "
+                        f"— {self.soLoiLienTiep} lượt đọc hỏng liên tiếp: "
+                        f"{self.loiCuoi}"))
+                return self.latCat
             self.latCat = LatCatNgoai(
                 ten=self.ten, docDuoc=False,
-                vi=f"{type(e).__name__}: {str(e)[:80]}")
+                vi=(f"{self.loiCuoi}"
+                    + ("" if tuoi is None else
+                       f" · bản tốt gần nhất đã {tuoi:.0f}s > trần "
+                       f"{TRAN_GIU_GIAY:.0f}s nên KHÔNG giữ nữa")))
             return self.latCat
+        self.soLoiLienTiep = 0
         self.latCat = _doc_kham(self.ten, d)
+        self.latCatTot = self.latCat
         return self.latCat
 
     def tom_tat(self) -> dict:
         return {**self.latCat.tom_tat(), "url": self.url,
-                "nhipGiay": self.nhip, "soLoi": self.soLoi}
+                "nhipGiay": self.nhip, "soLoi": self.soLoi,
+                "soLoiLienTiep": self.soLoiLienTiep,
+                "soLanGiuBanCu": self.soLanGiuBanCu,
+                "tranGiuGiay": TRAN_GIU_GIAY, "loiCuoi": self.loiCuoi}
 
 
 def _so(v, mac=0.0) -> float:

@@ -6605,6 +6605,80 @@ def kiem_von_ngoai() -> None:
          gan(_doc_kham("k", {"kho": {"viThe": [{"loKhoaUsd": "xxx"}]}})
              .daCamKetUsd, 0.0))
 
+    # ── một lượt đọc HỎNG không được vứt bản tốt vừa có ─────────────────
+    #
+    # Trước lượt này lượt hỏng dựng một `LatCatNgoai(docDuoc=False)` đè lên
+    # bản tốt, `ngoaiDayDu` tắt, cầu dao `von-ngoai-mu` ngắt, và CẢ cỗ máy
+    # ngừng cấp vốn — vì đúng một lần trả lời chậm.
+    #
+    # Đo làn thật 05/09/2026: Khâm Thiên Giám trả lời trong 32,5 giây (nó
+    # SỐNG, chỉ chậm), timeout bên này 4 giây, nên mọi lượt đều
+    # `TimeoutError` và một hàng xóm CHẬM bị xử y hệt một hàng xóm CHẾT.
+    import io as _io
+    import json as _js
+    import urllib.request as _ur
+
+    from thi_bac_ty.von_ngoai import TRAN_GIU_GIAY, DocVonNgoai
+
+    _anhTot = {"che": "that", "kho": {"soThiTruong": 1, "viThe": []},
+               "risk": {"von": 777.0}}
+    _hong = {"n": True}
+
+    def _urlopen_gia(req, timeout=None):
+        if _hong["n"]:
+            raise TimeoutError("timed out")
+        return _io.StringIO(_js.dumps(_anhTot))
+
+    _that = _ur.urlopen
+    _ur.urlopen = _urlopen_gia
+    try:
+        dv = DocVonNgoai("kham", "http://127.0.0.1:1/api/trang-thai",
+                         nhipGiay=0.0)
+        _hong["n"] = True
+        l0 = dv.doc(ep=True)
+        kiem("chưa đọc được lần nào thì KHÔNG có gì để giữ",
+             l0.docDuoc is False,
+             "cầu dao ngắt lúc ấy là đúng — ta thật sự không biết")
+
+        _hong["n"] = False
+        l1 = dv.doc(ep=True)
+        kiem("đọc được thì nhận đúng số", l1.docDuoc
+             and gan(l1.tienMatUsd, 777.0) and dv.soLoiLienTiep == 0)
+
+        _hong["n"] = True
+        l2 = dv.doc(ep=True)
+        kiem("lượt hỏng TRONG cửa sổ thì GIỮ bản tốt",
+             l2.docDuoc is True and gan(l2.tienMatUsd, 777.0),
+             f"{l2.tom_tat()} — một hàng xóm chậm không phải một hàng xóm "
+             f"chết, và vốn không dịch chuyển trong ba phút")
+        kiem("và nói thẳng là đang giữ bản cũ", "giữ bản cũ" in l2.vi, l2.vi)
+        kiem("số lần giữ được ĐẾM, không giấu",
+             dv.soLanGiuBanCu == 1 and dv.soLoiLienTiep == 1,
+             str(dv.tom_tat()))
+
+        # `tuoiGiay` phải tiếp tục đếm từ lần đọc THẬT, không làm mới theo
+        # lượt hỏng — đúng cái bẫy `luc` của cầu dao đã cắn một lần.
+        dv.latCatTot.lucMs -= 1000.0
+        l3 = dv.doc(ep=True)
+        kiem("tuổi đếm từ lần đọc THẬT, không làm mới theo lượt hỏng",
+             l3.tuoi_giay() >= 1.0,
+             f"{l3.tuoi_giay():.2f}s — làm mới tuổi ở đây là biến một bản "
+             f"cũ thành một bản trông như vừa đọc")
+
+        # Quá cửa sổ thì thôi giữ: lúc ấy ta THẬT SỰ không biết.
+        dv.latCatTot.lucMs -= (TRAN_GIU_GIAY + 5.0) * 1000.0
+        l4 = dv.doc(ep=True)
+        kiem("quá cửa sổ thì KHÔNG giữ nữa — cầu dao phải ngắt",
+             l4.docDuoc is False and "KHÔNG giữ nữa" in l4.vi,
+             f"{l4.vi} — giữ mãi là biến một lớp an toàn thành lớp trang trí")
+
+        _hong["n"] = False
+        dv.doc(ep=True)
+        kiem("đọc lại được thì bộ đếm hỏng-liên-tiếp về 0",
+             dv.soLoiLienTiep == 0, str(dv.tom_tat()))
+    finally:
+        _ur.urlopen = _that
+
     # ── tên khoá TIỀN MẶT: đọc hụt mà không ai kêu ───────────────────────
     #
     # Bản trước đọc `risk.vonUsd or risk.soDuUsd`. Khâm Thiên Giám không
