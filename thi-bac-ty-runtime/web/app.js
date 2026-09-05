@@ -2445,6 +2445,91 @@
     var b = src, ph = b.phien || {}, th = b.thuong || {}, cd = b.cheDo || {},
         tg = b.thiTruongGoc || {}, hd = b.tomTatHanhDong || {}, kn = b.kinhNghiem || {};
 
+    /* ── VỊ THẾ — đứng ĐẦU trang theo yêu cầu chủ: thứ đầu tiên cần thấy là
+       ví và vị thế của mình, rồi mới tới thế giới ─────────────────────────────────────────────────────── */
+    var k3 = khoi("Vị thế đang giữ ở OKX", "Máy không đặt lệnh và không cầm khoá. Dán ĐỊA CHỈ ví công khai để "
+      + "máy tự đọc NFT vị thế Uniswap V3 trên X Layer; hoặc ghi tay bên dưới.");
+    var vi = b.vi || {};
+    var oVi = el("div", "btk-form");
+    oVi.appendChild(el("b", null, vi.diaChi
+      ? "Ví " + String(vi.diaChi).slice(0, 8) + "…" + String(vi.diaChi).slice(-4) + " (chỉ đọc) — "
+        + (vi.loi ? "✗ " + vi.loi
+           : so(vi.soViThe) + " vị thế trên chuỗi · " + tien(vi.giaTriUsd, 0)
+             + (vi.phiChoThuUsd != null ? " · phí chưa thu " + tien(vi.phiChoThuUsd, 2) : "")
+             + (vi.quanLyViThe ? " · hợp đồng " + String(vi.quanLyViThe).slice(0, 10) + "…"
+                : vi.quanLyViTheDangDung === "mac-dinh-uniswap-chinh-thuc" ? " · hợp đồng Uniswap V3 mặc định" : ""))
+      : "Chưa nối ví — dán địa chỉ ví X Layer. Hợp đồng mặc định là Uniswap V3 chính thức trên X Layer"
+        + (vi.macDinh ? " (" + String(vi.macDinh).slice(0, 10) + "…)" : "")
+        + "; đọc ra 0 vị thế thì dán thêm hash một giao dịch thêm thanh khoản để suy đúng hợp đồng."));
+    var inVi = el("input"); inVi.placeholder = "0x… địa chỉ ví (công khai)"; inVi.value = vi.diaChi || "";
+    inVi.style.width = "340px";
+    var inTx = el("input"); inTx.placeholder = "0x… hash giao dịch thêm thanh khoản (để suy hợp đồng)";
+    inTx.value = vi.txMau || ""; inTx.style.width = "440px";
+    var nutVi = el("button", "nho", vi.diaChi ? "Cập nhật ví" : "Nối ví (chỉ đọc)"); nutVi.type = "button";
+    nutVi.addEventListener("click", function () {
+      fetch("/api/be-thanh-khoan/vi", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ diaChi: inVi.value.trim(), txMau: inTx.value.trim() }) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); }); })
+        .then(function () { nhac("đã đặt ví — lượt quét kế tiếp sẽ đọc vị thế"); BTK = null; ve(); })
+        .catch(function (e) { nhac("đặt ví hỏng: " + (e && e.message || e)); });
+    });
+    oVi.appendChild(inVi); oVi.appendChild(inTx); oVi.appendChild(nutVi);
+    if ((vi.ngoaiDanhMuc || []).length) {
+      oVi.appendChild(el("span", "am", "Ví có " + vi.ngoaiDanhMuc.length + " vị thế ở pool CHƯA theo dõi: "
+        + vi.ngoaiDanhMuc.map(function (x) { return x.kyHieu + " #" + x.tokenId; }).join(", ")
+        + " — thêm pool vào cau-hinh.json để máy cân."));
+    }
+    k3.appendChild(oVi);
+    if (!(b.viThe || []).length) {
+      k3.appendChild(el("p", "viec-khong", "Chưa ghi vị thế nào."));
+    } else {
+      k3.appendChild(bang(
+        [{ t: "Pool" }, { t: "Nguồn" }, { t: "Dải" }, { t: "Giá trị", n: true }, { t: "Trong dải" },
+         { t: "IL", n: true }, { t: "Phí chưa thu", n: true }, { t: "Giữ", n: true }, { t: "Khuyên" },
+         { t: "Vì sao" }, { t: "" }],
+        b.viThe.map(function (v) {
+          var vt = v.viThe || {}, tt = v.trangThai || {}, q = v.quyetDinh || {};
+          var o = { t: "" };
+          if (vt.nguon !== "chuoi") {
+            var nutDong = el("button", "nho", "Đã rút — ghi kết cục");
+            nutDong.type = "button"; nutDong.dataset.btkDong = vt.ma;
+            o = { el: nutDong };
+          }
+          return [
+            { t: v.kyHieu },
+            { t: vt.nguon === "chuoi" ? "chuỗi #" + (vt.tokenId || "?") : "ghi tay" },
+            { t: Number(vt.Pa).toFixed(2) + " – " + Number(vt.Pb).toFixed(2) },
+            { t: tien(vt.vonUsd, 0), c: "n" },
+            { t: tt.trongDai == null ? "?" : tt.trongDai ? "trong" : "NGOÀI", c: tt.trongDai === false ? "am" : "" },
+            { t: tt.ilPct == null ? "—" : Number(tt.ilPct).toFixed(2) + "%", c: "n" },
+            { t: vt.phiChoThuUsd == null ? "—" : tien(vt.phiChoThuUsd, 2), c: "n" },
+            { t: tt.gioGiu == null ? "—" : Math.round(tt.gioGiu) + "h", c: "n" },
+            { el: hd_badge(q.hanhDong) },
+            { t: q.lyDo || "" }, o
+          ];
+        })));
+    }
+    var form = el("div", "btk-form");
+    form.appendChild(el("b", null, "Ghi vị thế vừa mở ở OKX"));
+    var inp = {};
+    [["kyHieu", "pool (VD NVDAx-USDG)"], ["Pa", "mép dưới"], ["Pb", "mép trên"],
+     ["vonUsd", "vốn USD"], ["giaMo", "giá lúc mở"]].forEach(function (x) {
+      var i = el("input"); i.placeholder = x[1]; i.dataset.k = x[0]; inp[x[0]] = i; form.appendChild(i);
+    });
+    var nutMo = el("button", "nho", "Ghi sổ"); nutMo.type = "button";
+    nutMo.addEventListener("click", function () {
+      var than = {};
+      Object.keys(inp).forEach(function (kk) { than[kk] = kk === "kyHieu" ? inp[kk].value.trim() : Number(inp[kk].value); });
+      fetch("/api/be-thanh-khoan/vi-the", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(than) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); }); })
+        .then(function () { nhac("đã ghi vị thế"); BTK = null; ve(); })
+        .catch(function (e) { nhac("ghi hỏng: " + (e && e.message || e)); });
+    });
+    form.appendChild(nutMo);
+    k3.appendChild(form);
+    f.appendChild(k3);
+
     /* ── BÂY GIỜ: một đoạn, đọc trước mọi con số ─────────────────── */
     var bg = el("p", "bay-gio");
     bg.appendChild(el("b", null, "BÂY GIỜ · " + (cd.ten || "—")));
@@ -2616,89 +2701,6 @@
       + "và khối lượng ngày vào data/lp-v3/cau-hinh.json để đo thật."));
     f.appendChild(k2);
 
-    /* ── VỊ THẾ ─────────────────────────────────────────────────────── */
-    var k3 = khoi("Vị thế đang giữ ở OKX", "Máy không đặt lệnh và không cầm khoá. Dán ĐỊA CHỈ ví công khai để "
-      + "máy tự đọc NFT vị thế Uniswap V3 trên X Layer; hoặc ghi tay bên dưới.");
-    var vi = b.vi || {};
-    var oVi = el("div", "btk-form");
-    oVi.appendChild(el("b", null, vi.diaChi
-      ? "Ví " + String(vi.diaChi).slice(0, 8) + "…" + String(vi.diaChi).slice(-4) + " (chỉ đọc) — "
-        + (vi.loi ? "✗ " + vi.loi
-           : so(vi.soViThe) + " vị thế trên chuỗi · " + tien(vi.giaTriUsd, 0)
-             + (vi.phiChoThuUsd != null ? " · phí chưa thu " + tien(vi.phiChoThuUsd, 2) : "")
-             + (vi.quanLyViThe ? " · hợp đồng " + String(vi.quanLyViThe).slice(0, 10) + "…"
-                : vi.quanLyViTheDangDung === "mac-dinh-uniswap-chinh-thuc" ? " · hợp đồng Uniswap V3 mặc định" : ""))
-      : "Chưa nối ví — dán địa chỉ ví X Layer. Hợp đồng mặc định là Uniswap V3 chính thức trên X Layer"
-        + (vi.macDinh ? " (" + String(vi.macDinh).slice(0, 10) + "…)" : "")
-        + "; đọc ra 0 vị thế thì dán thêm hash một giao dịch thêm thanh khoản để suy đúng hợp đồng."));
-    var inVi = el("input"); inVi.placeholder = "0x… địa chỉ ví (công khai)"; inVi.value = vi.diaChi || "";
-    inVi.style.width = "340px";
-    var inTx = el("input"); inTx.placeholder = "0x… hash giao dịch thêm thanh khoản (để suy hợp đồng)";
-    inTx.value = vi.txMau || ""; inTx.style.width = "440px";
-    var nutVi = el("button", "nho", vi.diaChi ? "Cập nhật ví" : "Nối ví (chỉ đọc)"); nutVi.type = "button";
-    nutVi.addEventListener("click", function () {
-      fetch("/api/be-thanh-khoan/vi", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ diaChi: inVi.value.trim(), txMau: inTx.value.trim() }) })
-        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); }); })
-        .then(function () { nhac("đã đặt ví — lượt quét kế tiếp sẽ đọc vị thế"); BTK = null; ve(); })
-        .catch(function (e) { nhac("đặt ví hỏng: " + (e && e.message || e)); });
-    });
-    oVi.appendChild(inVi); oVi.appendChild(inTx); oVi.appendChild(nutVi);
-    if ((vi.ngoaiDanhMuc || []).length) {
-      oVi.appendChild(el("span", "am", "Ví có " + vi.ngoaiDanhMuc.length + " vị thế ở pool CHƯA theo dõi: "
-        + vi.ngoaiDanhMuc.map(function (x) { return x.kyHieu + " #" + x.tokenId; }).join(", ")
-        + " — thêm pool vào cau-hinh.json để máy cân."));
-    }
-    k3.appendChild(oVi);
-    if (!(b.viThe || []).length) {
-      k3.appendChild(el("p", "viec-khong", "Chưa ghi vị thế nào."));
-    } else {
-      k3.appendChild(bang(
-        [{ t: "Pool" }, { t: "Nguồn" }, { t: "Dải" }, { t: "Giá trị", n: true }, { t: "Trong dải" },
-         { t: "IL", n: true }, { t: "Phí chưa thu", n: true }, { t: "Giữ", n: true }, { t: "Khuyên" },
-         { t: "Vì sao" }, { t: "" }],
-        b.viThe.map(function (v) {
-          var vt = v.viThe || {}, tt = v.trangThai || {}, q = v.quyetDinh || {};
-          var o = { t: "" };
-          if (vt.nguon !== "chuoi") {
-            var nutDong = el("button", "nho", "Đã rút — ghi kết cục");
-            nutDong.type = "button"; nutDong.dataset.btkDong = vt.ma;
-            o = { el: nutDong };
-          }
-          return [
-            { t: v.kyHieu },
-            { t: vt.nguon === "chuoi" ? "chuỗi #" + (vt.tokenId || "?") : "ghi tay" },
-            { t: Number(vt.Pa).toFixed(2) + " – " + Number(vt.Pb).toFixed(2) },
-            { t: tien(vt.vonUsd, 0), c: "n" },
-            { t: tt.trongDai == null ? "?" : tt.trongDai ? "trong" : "NGOÀI", c: tt.trongDai === false ? "am" : "" },
-            { t: tt.ilPct == null ? "—" : Number(tt.ilPct).toFixed(2) + "%", c: "n" },
-            { t: vt.phiChoThuUsd == null ? "—" : tien(vt.phiChoThuUsd, 2), c: "n" },
-            { t: tt.gioGiu == null ? "—" : Math.round(tt.gioGiu) + "h", c: "n" },
-            { el: hd_badge(q.hanhDong) },
-            { t: q.lyDo || "" }, o
-          ];
-        })));
-    }
-    var form = el("div", "btk-form");
-    form.appendChild(el("b", null, "Ghi vị thế vừa mở ở OKX"));
-    var inp = {};
-    [["kyHieu", "pool (VD NVDAx-USDG)"], ["Pa", "mép dưới"], ["Pb", "mép trên"],
-     ["vonUsd", "vốn USD"], ["giaMo", "giá lúc mở"]].forEach(function (x) {
-      var i = el("input"); i.placeholder = x[1]; i.dataset.k = x[0]; inp[x[0]] = i; form.appendChild(i);
-    });
-    var nutMo = el("button", "nho", "Ghi sổ"); nutMo.type = "button";
-    nutMo.addEventListener("click", function () {
-      var than = {};
-      Object.keys(inp).forEach(function (kk) { than[kk] = kk === "kyHieu" ? inp[kk].value.trim() : Number(inp[kk].value); });
-      fetch("/api/be-thanh-khoan/vi-the", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(than) })
-        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); }); })
-        .then(function () { nhac("đã ghi vị thế"); BTK = null; ve(); })
-        .catch(function (e) { nhac("ghi hỏng: " + (e && e.message || e)); });
-    });
-    form.appendChild(nutMo);
-    k3.appendChild(form);
-    f.appendChild(k3);
 
     /* ── VÒNG HỌC: dự đoán → thực tế → bài học → tiến hoá ─────────── */
     var k4 = khoi("Vòng học — dự đoán, thực tế, bài học, tiến hoá có cổng",
