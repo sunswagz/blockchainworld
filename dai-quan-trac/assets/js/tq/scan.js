@@ -1,171 +1,126 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-scan.mjs lúc 2026-09-04T11:40:05.474Z
+   Sinh bởi scripts/build-scan.mjs lúc 2026-09-05T04:51:44.363Z
    Chủ thể: Trung Quốc
    Nguồn: bước "Quét chiến trường" của nhà máy (Claude Code Action
    + WebSearch), trả bằng quota gói. Không có khoá API nào.
    ═══════════════════════════════════════════════════════ */
 window.DQT_TQ_SCAN = {
-  "generatedAt": "2026-09-04T11:40:05.474Z",
-  "date": "04/09/2026",
+  "generatedAt": "2026-09-05T04:51:44.363Z",
+  "date": "05/09/2026",
   "model": "claude-haiku-4-5",
   "signals": [
     {
       "th": "nangluong",
-      "tieu_de": "Trước tháng 2/2026: ~130 tàu/ngày qua Hormuz; tháng 3/2026: chỉ 6 tàu (giảm 95%)",
+      "tieu_de": "Từ tháng 3 năm 2026, lưu thông tàu qua Hormuz sụt từ 130 xuống chỉ 6 tàu/ngày (giảm 95%) do xung đột Iran-Mỹ",
       "ngay": "2026-03-15",
-      "nguon": "Congress.gov, Vortexa",
-      "tac_dong": "Cú sốc chuỗi cung → thiếu hụt năng lượng → chi phí sản xuất TQ tăng mạnh → lợi nhuận công ty nhà nước sụt → tài khoá công giảm",
-      "muc": "r",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "nangluong",
-      "tieu_de": "Nhập khẩu dầu TQ tổng cộng giảm 41%; TQ tăng dầu Nga từ 1.2 thành 1.8 triệu thùng/ngày",
-      "ngay": "2026-08-31",
-      "nguon": "EIA, Atlantic Council",
-      "tac_dong": "Phụ thuộc Hormuz cao → Nga trở thành liều cứu → nhưng thế lệ chính trị gia tăng → TQ cần dịu dàng với Nga",
-      "muc": "r",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "nangluong",
-      "tieu_de": "Dự trữ dầu TQ: 1.39 tỷ thùng tháng 3/2026 (đủ 120 ngày nhập khẩu), dung lượng gần tối đa",
-      "ngay": "2026-03-02",
       "nguon": "Vortexa",
-      "tac_dong": "Dự trữ đầy → khả năng tích trữ thêm giới hạn → tái khởi động nhanh khó → cú sốc kéo dài tác động lâu dài",
-      "muc": "r",
-      "at": "2026-09-04T11:40:05.474Z"
+      "tac_dong": "Cung cấp dầu Trung Quốc bị gián đoạn 95% → doanh thu xuất khẩu dầu thô Trung Quốc giảm mạnh → thu ngân sách quốc phòng giảm",
+      "muc": "y",
+      "at": "2026-09-05T04:51:44.363Z"
+    },
+    {
+      "th": "nangluong",
+      "tieu_de": "Trung Quốc dự trữ 1,2-1,47 tỷ thùng dầu, thêm 11 kho dự trữ với sức chứa tăng 169 triệu thùng",
+      "ngay": "2026-02-28",
+      "nguon": "China Briefing",
+      "tac_dong": "Dự trữ chiến lược giúp Trung Quốc giảm nhập khẩu ngắn hạn → chi phí bảo quản tăng, khả năng chi tiêu quốc phòng bị hạn chế",
+      "muc": "y",
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "Tháng 3/2025: 42 thực thể TQ vào Entity List; tháng 9/2025: thêm 23 thực thể; Nvidia cần license bán H20",
-      "ngay": "2026-03-01",
-      "nguon": "CSIS, Congress.gov",
-      "tac_dong": "Kiểm soát siết chặt → TQ công ty chip chịu áp lực → cắt chi phí R&D → năng lực công nghiệp suy yếu",
+      "tieu_de": "Mỹ cấm xuất khẩu máy khắc EUV và hạn chế DUV có thể sản xuất chip 16nm trở lại, nhưng ASML bán 70% DUVi cho Trung Quốc năm 2024",
+      "ngay": "2026-07-15",
+      "nguon": "AEI",
+      "tac_dong": "Trung Quốc bị giới hạn công nghệ hàng đầu nhưng vẫn tiếp cận công nghệ lạc hậu để sản xuất chip → chi phí R&D cao, hiệu suất thấp",
       "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
       "th": "congnghe",
-      "tieu_de": "Tháng 7/2025: Mỹ nới lỏng EDA software cho TQ; ASML bán 70% DUV tool cho TQ 2024",
-      "ngay": "2026-07-01",
-      "nguon": "CSIS",
-      "tac_dong": "EDA mở lỏng → TQ dùng DUV multipatterning → thể làm chip tiên tiến hơn → nhưng chi phí cao → áp lực lợi nhuận",
-      "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "congnghe",
-      "tieu_de": "TQ sản xuất AI chip 2026: chỉ 1-2% so với Mỹ",
-      "ngay": "2026-09-01",
-      "nguon": "The Substrate",
-      "tac_dong": "Chênh lệch chip mở rộng → TQ phải nhập khẩu → chi phí nước ngoài cao → thu ngân sách TQ bị ảnh hưởng",
-      "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "thuongmai",
-      "tieu_de": "Xuất khẩu TQ 2025 tăng trưởng rộng rãi sang các thị trường ngoài Mỹ, thương mại lệch hướng hạn chế",
+      "tieu_de": "SMIC Trung Quốc sản xuất chip 5nm cạnh tranh được với công nghệ hàng đầu thế giới qua kỹ thuật multipatterning",
       "ngay": "2026-08-01",
-      "nguon": "ECB, Trading Economics",
-      "tac_dong": "Xuất khẩu ổn định → doanh thu công ty TQ có thể giữ → lợi nhuận tương đối ổn định",
+      "nguon": "CNAS",
+      "tac_dong": "Trung Quốc có đường tay Huawei tự chủ chip, nhưng chi phí sản xuất cao hơn → ảnh hưởng lợi nhuận công ty công nghệ",
       "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
       "th": "thuongmai",
-      "tieu_de": "5/8/2026: TQ đưa ra kiểm soát xuất khẩu drone, trừng phạt các công ty Mỹ sau lệnh hạn chế công nghệ Mỹ",
+      "tieu_de": "Mỹ và EU đe dọa tăng thuế mới đối với Trung Quốc, Trung Quốc công bố biện pháp trả đũa ngày 5 tháng 8 năm 2026",
       "ngay": "2026-08-05",
-      "nguon": "Atlantic Council",
-      "tac_dong": "Tit for tat → xung đột thương mại tăng leo thang → chi phí tuân thủ tăng → lợi nhuận khó khăn",
+      "nguon": "Trade Compliance Resource Hub",
+      "tac_dong": "Thuế quan tăng → chi phí xuất khẩu Trung Quốc tăng → doanh thu giảm → thu ngân sách quốc phòng bị cắt giảm",
       "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
-      "th": "hanghai",
-      "tieu_de": "Malacca xử lý 23.2 triệu thùng dầu/ngày (29% lưu lượng dầu toàn cầu); 40% thương mại biển toàn cầu",
-      "ngay": "2026-08-31",
-      "nguon": "S&P Global, Diplomat",
-      "tac_dong": "Malacca tắc ngoài kiểm soát TQ → rủi ro bất khả kháng → TQ phải tăng dự trữ, logistics phức tạp",
-      "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "80% nhập khẩu dầu TQ phụ thuộc Malacca; TQ tăng hiện diện hải quân",
-      "ngay": "2026-05-15",
-      "nguon": "Diplomat",
-      "tac_dong": "TQ dùng quân sự gìn gìn → chi phí quốc phòng tăng → tài khoá công căng thẳng",
-      "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "hanghai",
-      "tieu_de": "Bảo hiểm, phí vận chuyển tăng; tàu dùng đường vòng → logistics tăng chi phí",
-      "ngay": "2026-08-31",
-      "nguon": "ION Analytics, Triton Maritime",
-      "tac_dong": "Malacca rủi ro tăng → chi phí logistics TQ tăng → sản xuất TQ đắt hơn",
-      "muc": "y",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Tháng 9/2025: Xi-Putin gặp; ký bản ghi nhớ Power of Siberia 2 - 50 tỷ m3 khí/năm từ 2028",
-      "ngay": "2025-09-15",
-      "nguon": "Al Jazeera, East Asia Forum",
-      "tac_dong": "Năng lượng Nga ổn định → TQ chi phí sản xuất dự báo được → cánh cạnh tranh bằng",
-      "muc": "g",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "nga",
-      "tieu_de": "Tháng 3/2026: Hợp đồng Power of Siberia 2 chính thức ký; Power of Siberia 1 đạt công suất toàn phần 38 tỷ m3/năm",
+      "th": "thuongmai",
+      "tieu_de": "USTR khởi động điều tra Section 301 đối với Trung Quốc vào tháng 3 năm 2026, kết quả có thể là tăng thuế",
       "ngay": "2026-03-15",
-      "nguon": "East Asia Forum, ECNS",
-      "tac_dong": "Năng lượng Nga gắn chặt TQ → chính trị ngoại giao ổn định → kinh tế quốc phòng được chống đỡ",
-      "muc": "g",
-      "at": "2026-09-04T11:40:05.474Z"
+      "nguon": "Tax Foundation",
+      "tac_dong": "Căng thẳng thương mại tăng → không chắc chắn về môi trường kinh doanh → công ty Trung Quốc giãn lộ trình đầu tư",
+      "muc": "y",
+      "at": "2026-09-05T04:51:44.363Z"
+    },
+    {
+      "th": "hanghai",
+      "tieu_de": "75% dầu nhập khẩu biển Trung Quốc đi qua eo Malacca, trên 80% tổng dầu nhập khẩu Trung Quốc",
+      "ngay": "2026-08-01",
+      "nguon": "The Diplomat",
+      "tac_dong": "Chokepoint Malacca là điểm yếu chiến lược Trung Quốc → chi phí vận chuyển cao → chi phí năng lượng tăng",
+      "muc": "y",
+      "at": "2026-09-05T04:51:44.363Z"
+    },
+    {
+      "th": "hanghai",
+      "tieu_de": "Kênh Pinglu mở cửa tháng 9 năm 2026, nhưng ngay cả những người ủng hộ cũng thừa nhận nó không thay thế Malacca",
+      "ngay": "2026-09-01",
+      "nguon": "CMGM",
+      "tac_dong": "Kênh mới giảm phụ thuộc vào Malacca một phần nhưng không đáng kể → vẫn cần duy trì tính ổn định Malacca",
+      "muc": "y",
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
       "th": "nga",
-      "tieu_de": "Dầu Nga sang TQ: 2.1 triệu thùng/ngày (tăng 28% so với 2025); thương mại dầu 30 triệu tấn/năm",
-      "ngay": "2026-09-01",
-      "nguon": "East Asia Forum, ECNS",
-      "tac_dong": "Dầu dồi dào từ Nga → chi phí sản xuất TQ ổn định → lợi nhuận công ty ổn định",
+      "tieu_de": "Nga cung cấp 67 triệu tấn dầu cho Trung Quốc trong 7 tháng đầu năm 2026, chiếm kỷ lục 23% nhập khẩu dầu",
+      "ngay": "2026-09-04",
+      "nguon": "TASS",
+      "tac_dong": "Nguồn cung dầu từ Nga ổn định → Trung Quốc có năng lượng ổn định → khả năng chi tiêu quốc phòng được bảo đảm",
       "muc": "g",
-      "at": "2026-09-04T11:40:05.474Z"
+      "at": "2026-09-05T04:51:44.363Z"
+    },
+    {
+      "th": "nga",
+      "tieu_de": "Power of Siberia 2 hoạt động gần công suất tối đa, hợp đồng dài hạn ký trong tháng 3 năm 2026",
+      "ngay": "2026-03-15",
+      "nguon": "East Asia Forum",
+      "tac_dong": "Năng lượng từ Nga bền vững → chi phí năng lượng dự đoán được → Trung Quốc can dự được trong kế hoạch chi tiêu",
+      "muc": "g",
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "Tháng 1/2026: Dự trữ ngoại tệ TQ 3.3991 nghìn tỷ USD (cao nhất toàn cầu)",
-      "ngay": "2026-01-31",
-      "nguon": "Federal Reserve, Business Standard",
-      "tac_dong": "Dự trữ cao → khả năng can thiệp tỷ giá mạnh → kiểm soát tỷ suất hoán đổi → ổn định chính sách tiền tệ",
+      "tieu_de": "Dự trữ ngoại hối Trung Quốc tăng $17 tỷ lên $3,339 tỷ (tháng 9 năm 2025), mức cao nhất kể từ tháng 11 năm 2015",
+      "ngay": "2026-02-01",
+      "nguon": "Trading Economics",
+      "tac_dong": "Dự trữ ngoại hối cao → Trung Quốc có khả năng tài chính mạnh → có thể tăng chi tiêu quốc phòng nếu cần",
       "muc": "g",
-      "at": "2026-09-04T11:40:05.474Z"
+      "at": "2026-09-05T04:51:44.363Z"
     },
     {
       "th": "taichinh",
-      "tieu_de": "RMB thanh toán ~30% giao dịch xuyên biên giới 2024 (từ 10% năm 2017); CIPS mở rộng nhưng 80% vẫn dùng SWIFT",
-      "ngay": "2026-08-31",
-      "nguon": "BBVA Research, Forbes, China Investors Club",
-      "tac_dong": "RMB quốc tế hóa chậm → TQ tài chính vẫn phụ thuộc SWIFT → áp lực từ Mỹ vẫn hiệu lực",
+      "tieu_de": "Thanh toán thương mại ngoại tệ bằng RMB của Trung Quốc đạt 30% năm 2024, tăng từ 10% năm 2017",
+      "ngay": "2026-01-15",
+      "nguon": "East Asia Forum",
+      "tac_dong": "RMB quốc tế hóa tăng → Trung Quốc giảm phụ thuộc vào đô la Mỹ → tự chủ tài chính tăng",
       "muc": "g",
-      "at": "2026-09-04T11:40:05.474Z"
-    },
-    {
-      "th": "taichinh",
-      "tieu_de": "TQ kiểm soát vốn cố ý, mở tài khoản từng bước mà không toàn diện chuyển đổi RMB",
-      "ngay": "2026-04-01",
-      "nguon": "East Asia Forum, Cambridge Core",
-      "tac_dong": "Mở cẩn thận → không đủ quốc tế hóa → không thoát khỏi phụ thuộc Mỹ",
-      "muc": "g",
-      "at": "2026-09-04T11:40:05.474Z"
+      "at": "2026-09-05T04:51:44.363Z"
     }
   ],
   "levels": {
-    "nangluong": "r",
+    "nangluong": "y",
     "congnghe": "y",
     "thuongmai": "y",
     "hanghai": "y",
@@ -176,38 +131,38 @@ window.DQT_TQ_SCAN = {
     {
       "ok": true,
       "t": "Năng lượng",
-      "at": "2026-09-04T11:40:05.474Z",
-      "d": "3 tín hiệu · mức r · Hormuz gián đoạn cắt 41% nhập khẩu dầu TQ; TQ bổ sung từ Nga, nhưng cú sốc rõ rệt đến với nền kinh tế"
+      "at": "2026-09-05T04:51:44.363Z",
+      "d": "2 tín hiệu · mức y · 45-50% dầu Trung Quốc qua Hormuz, lưu thông từ 130 xuống 6 tàu/ngày, Trung Quốc có hệ thống bốn lớp phòng vệ"
     },
     {
       "ok": true,
       "t": "Công nghệ",
-      "at": "2026-09-04T11:40:05.474Z",
-      "d": "3 tín hiệu · mức y · Mỹ mở rộng kiểm soát xuất khẩu chip; TQ vượt qua bằng multipatterning nhưng sản lượng AI chip chỉ 1-2% Mỹ"
+      "at": "2026-09-05T04:51:44.363Z",
+      "d": "2 tín hiệu · mức y · Mỹ kiểm soát xuất khẩu chip EUV/DUV, nhưng SMIC Trung Quốc sản xuất chip 5nm tránh được kiểm soát"
     },
     {
       "ok": true,
       "t": "Thương mại",
-      "at": "2026-09-04T11:40:05.474Z",
-      "d": "2 tín hiệu · mức y · Xuất khẩu TQ vượt mong đợi bất chấp thuế Mỹ; TQ phản ứng 5/8/2026 với kiểm soát drone, trừng phạt công ty Mỹ"
+      "at": "2026-09-05T04:51:44.363Z",
+      "d": "2 tín hiệu · mức y · Mỹ-Trung gia tăng xung đột thương mại, Trung Quốc công bố biện pháp trả đũa ngày 5 tháng 8 năm 2026"
     },
     {
       "ok": true,
       "t": "Hàng hải",
-      "at": "2026-09-04T11:40:05.474Z",
-      "d": "3 tín hiệu · mức y · Malacca vẫn cốt yếu: 80% nhập khẩu dầu TQ phụ thuộc; TQ tăng hiện diện hải quân để bảo vệ"
+      "at": "2026-09-05T04:51:44.363Z",
+      "d": "2 tín hiệu · mức y · 75% dầu Trung Quốc qua Malacca, Kênh Pinglu mở tháng 9 năm 2026 nhưng không thay thế được Malacca"
     },
     {
       "ok": true,
       "t": "Nga",
-      "at": "2026-09-04T11:40:05.474Z",
-      "d": "3 tín hiệu · mức g · Nga-TQ liên kết năng lượng sâu; Power of Siberia 2 hợp đồng ký tháng 3/2026, dầu Nga 2.1 triệu thùng/ngày"
+      "at": "2026-09-05T04:51:44.363Z",
+      "d": "2 tín hiệu · mức g · Nga cấp 67 triệu tấn dầu cho Trung Quốc 7 tháng đầu năm 2026, chiếm 23% nhập khẩu, tăng 25%"
     },
     {
       "ok": true,
       "t": "Tài chính",
-      "at": "2026-09-04T11:40:05.474Z",
-      "d": "3 tín hiệu · mức g · TQ dự trữ ngoại tệ 3.4 nghìn tỷ USD; RMB thanh toán 30% giao dịch xuyên biên giới, CIPS mở rộng"
+      "at": "2026-09-05T04:51:44.363Z",
+      "d": "2 tín hiệu · mức g · Dự trữ ngoại hối Trung Quốc $3,339 tỷ (cao nhất từ 2015), thanh toán RMB đạt 30% (2024), tài chính ổn định"
     }
   ]
 };

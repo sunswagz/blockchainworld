@@ -1,132 +1,114 @@
 {
-  "generatedAt": "2026-09-03T23:30:46.508Z",
+  "generatedAt": "2026-09-05T05:09:14.133Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
-  "tongDat": 195,
-  "tongThuoc": 198,
-  "soCung": 12,
-  "truotNhieuNhat": [
-    {
-      "thuoc": "svg-co",
-      "soCung": 3
-    }
-  ],
+  "tongDat": 266,
+  "tongThuoc": 266,
+  "soCung": 13,
+  "truotNhieuNhat": [],
   "cung": [
     {
       "cung": "cong-bo",
-      "dat": 17,
-      "tong": 17,
+      "dat": 21,
+      "tong": 21,
       "khongDo": 0,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "dai-quan-trac",
-      "dat": 17,
-      "tong": 17,
+      "dat": 21,
+      "tong": 21,
       "khongDo": 0,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "do-sat-vien",
-      "dat": 17,
-      "tong": 17,
+      "dat": 21,
+      "tong": 21,
       "khongDo": 0,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "ho-bo",
-      "dat": 16,
-      "tong": 16,
+      "dat": 20,
+      "tong": 20,
       "khongDo": 1,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "hoang-thanh",
-      "dat": 17,
-      "tong": 17,
+      "dat": 21,
+      "tong": 21,
       "khongDo": 0,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "kham-thien-giam",
-      "dat": 16,
-      "tong": 16,
+      "dat": 20,
+      "tong": 20,
       "khongDo": 1,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "kinh-thanh",
-      "dat": 17,
-      "tong": 17,
+      "dat": 21,
+      "tong": 21,
       "khongDo": 0,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "tang-thu-cac",
-      "dat": 16,
-      "tong": 17,
+      "dat": 21,
+      "tong": 21,
       "khongDo": 0,
-      "truot": [
-        "svg-co"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "svg-co",
-          "vi": "3 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "tao-bien-xu",
-      "dat": 16,
-      "tong": 16,
+      "dat": 20,
+      "tong": 20,
       "khongDo": 1,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "thai-boc-tu",
-      "dat": 16,
-      "tong": 16,
+      "dat": 20,
+      "tong": 20,
       "khongDo": 1,
       "truot": [],
       "truotVi": []
     },
     {
       "cung": "thi-bac-ty",
-      "dat": 15,
-      "tong": 16,
+      "dat": 20,
+      "tong": 20,
       "khongDo": 1,
-      "truot": [
-        "svg-co"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "svg-co",
-          "vi": "8 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "tu-cam-thanh",
-      "dat": 15,
-      "tong": 16,
+      "dat": 20,
+      "tong": 20,
       "khongDo": 1,
-      "truot": [
-        "svg-co"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "svg-co",
-          "vi": "8 svg chỉ có viewBox — CSS cũ kẹt là phình kín trang"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
+    },
+    {
+      "cung": "cong-thanh",
+      "dat": 20,
+      "tong": 20,
+      "khongDo": 1,
+      "truot": [],
+      "truotVi": []
     }
   ]
 }

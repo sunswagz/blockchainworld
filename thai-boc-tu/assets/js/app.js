@@ -273,7 +273,22 @@
        trong repo đi tìm biến CSS đang được dùng ở đâu cũng tìm bằng
        chuỗi đó, và một cái tên bị ghép lúc chạy thì không phép grep
        nào thấy. Ba biến này đúng ba biến `.toa[data-vung]` dùng
-       trong app.css — chú thích phải tô cùng màu với thứ nó chú. */
+       trong app.css — chú thích phải tô cùng màu với thứ nó chú.
+
+       Và vì giá trị ĐÃ là một `var(--x)` trọn vẹn, nó nhả THẲNG vào
+       `background:` — đừng bọc thêm một `var(...)` nữa. `var()` chỉ
+       nhận tên biến làm đối số đầu, nên `var(var(--xuong))` sai cú
+       pháp và trình duyệt bỏ cả khai báo; `.chu-thich i` không khai
+       background nào khác, nên ba ô màu ra ba ô TRONG SUỐT.
+
+       Hỏng im lặng đúng kiểu tệ nhất: chú thích vẫn còn đủ chữ nên
+       trông như lành, mà thứ duy nhất nó tồn tại để làm — nối ba màu
+       trên mép toa với ba cái tên — thì không hiện. Tức là dải màu
+       lại đứng một mình, đúng cái mà cả khối này được viết ra để
+       chặn, và không thước nào bắt được: `tuong-phan` đọc CSS chứ
+       không đọc style dòng sinh lúc chạy, `o-trong` đếm dấu “—”.
+       Hai dải ở phòng Khớp Nối viết thẳng `background:var(--xuong)`
+       nên chưa bao giờ dính. */
     var MAU_VUNG = { som: "var(--xuong)", giua: "var(--canh)", muon: "var(--len)" };
     var ctTau = '<div class="chu-thich"><span class="ct-dan">' + HUY_LUAN +
       "Mép trên mỗi toa tô theo <b>hạng trụ lại</b>, không theo con số bên " +
@@ -286,7 +301,7 @@
           .sort(function (a, b) { return a - b; });
         if (!h.length) return "";
         var lo = h[0], hi = h[h.length - 1];
-        return '<span><i style="background:var(' + MAU_VUNG[v] + ')"></i>' +
+        return '<span><i style="background:' + MAU_VUNG[v] + '"></i>' +
           esc(TEN_VUNG[v]) + " · hạng " + (lo === hi ? lo : lo + "–" + hi) + "</span>";
       }).join("") +
       "</div>";

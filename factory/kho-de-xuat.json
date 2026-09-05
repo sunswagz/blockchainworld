@@ -1,11 +1,31 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-08-29T08:03:27.519Z",
- "khoQuetLuc": "29/08/2026",
- "tongSkill": 3697,
+ "luc": "2026-09-05T05:09:11.297Z",
+ "khoQuetLuc": "05/09/2026",
+ "tongSkill": 3706,
  "daDung": 14,
- "ungVien": 764,
+ "ungVien": 846,
  "ganDay": [
+  {
+   "ten": "academic-pipeline",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "accesslint-audit",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "ai-regression-testing",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "analyzing-linux-audit-logs-for-intrusion",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
+  {
+   "ten": "analyzing-office365-audit-logs-for-compromise",
+   "luc": "2026-08-29T08:03:27.519Z"
+  },
   {
    "ten": "pre-publish-review",
    "luc": "2026-08-29T03:47:25.628Z"
@@ -27,99 +47,117 @@
    "luc": "2026-08-29T03:47:25.628Z"
   },
   {
-   "ten": "academic-pipeline",
-   "luc": "2026-08-29T08:03:27.519Z"
+   "ten": "brooks-review",
+   "luc": "2026-09-05T05:09:11.297Z"
   },
   {
-   "ten": "accesslint-audit",
-   "luc": "2026-08-29T08:03:27.519Z"
+   "ten": "canvas-design",
+   "luc": "2026-09-05T05:09:11.297Z"
   },
   {
-   "ten": "ai-regression-testing",
-   "luc": "2026-08-29T08:03:27.519Z"
+   "ten": "design-is",
+   "luc": "2026-09-05T05:09:11.297Z"
   },
   {
-   "ten": "analyzing-linux-audit-logs-for-intrusion",
-   "luc": "2026-08-29T08:03:27.519Z"
+   "ten": "design-taste-frontend",
+   "luc": "2026-09-05T05:09:11.297Z"
   },
   {
-   "ten": "analyzing-office365-audit-logs-for-compromise",
-   "luc": "2026-08-29T08:03:27.519Z"
+   "ten": "frontend-engineer",
+   "luc": "2026-09-05T05:09:11.297Z"
+  },
+  {
+   "ten": "imagegen-frontend-web",
+   "luc": "2026-09-05T05:09:11.297Z"
   }
  ],
  "theoLinhVuc": {
+  "giao diện tiếp cận": 98,
   "lập trình công cụ": 431,
-  "kiểm thử rà soát": 170,
+  "kiểm thử rà soát": 166,
   "dữ liệu phân tích": 53,
-  "hạ tầng vận hành": 48,
+  "hạ tầng vận hành": 46,
   "giao tiếp nội dung": 40,
-  "nghiên cứu": 43
+  "nghiên cứu": 42
  },
  "deXuat": [
   {
-   "ten": "academic-pipeline",
-   "kho": "Imbad0202/academic-research-skills",
-   "duong": "academic-pipeline",
-   "lv": [
-    "hạ tầng vận hành"
-   ],
-   "diem": 5,
-   "mo": "Orchestrator for the full academic research pipeline: research -> write -> integrity check -> review -> revise -> re-review -> re-revise -> final integrity check -> finalize. Coord",
-   "byte": 51866,
-   "doc": "https://github.com/Imbad0202/academic-research-skills/blob/main/academic-pipeline/SKILL.md",
-   "trich": "# Academic Pipeline v3.21.1 — Full Academic Research Workflow Orchestrator A lightweight orchestrator that manages the complete academic pipeline from research exploration to final manuscript. It does not perform substantive work — it only detects stages, recommends modes, dispatches skills, manages transitions, and tracks state. > **Routing discipline (v3.9.2):** see `.claude/CLAUDE.md` \"Routing Discipline (v3.9.2)\" + `shared/references/intent_clarification_protocol.md` for cross-skill routing rules. This skill assumes routing has already settled — ambiguous cross-phase materials should have been clarified upstream. **v3.6.3 (opt-in):** Set `ARS_PASSPORT_RESET=1` to promote FULL checkpoints to context-reset boundaries. Use `resume_from_passport=<hash>` in a fresh session to continue from the recorded stage. See [`references/passport_as_reset_boundary.md`](references/passport_as_reset_bo"
-  },
-  {
-   "ten": "accesslint-audit",
+   "ten": "brooks-review",
    "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/accesslint-audit",
+   "duong": "skills/brooks-review",
    "lv": [
     "kiểm thử rà soát"
    ],
-   "diem": 5,
-   "mo": "Find and fix WCAG 2.2 accessibility issues. Two modes — report (sweep a codebase or page, produce a prioritized written report, no edits) and fix (audit→edit→verify loop on a targe",
-   "byte": 7170,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/accesslint-audit/SKILL.md",
-   "trich": "You audit accessibility and optionally fix what's broken. ## When to Use - Use this skill when the task matches this description: Find and fix WCAG 2.2 accessibility issues. Two modes — report (sweep a codebase or page, produce a prioritized written report, no edits) and fix (audit→edit→verify loop on a target). Prefers direct-CDP live-DOM auditing; falls back to a browser-MCP composition or HTML-string audits. ## Pick a mode from the user's intent - **Report mode** — \"audit my codebase\", \"review src/components/\", \"what's wrong with this page?\", \"give me an a11y report\". You audit + write a report. **You do not edit files.** - **Fix mode** — \"fix the a11y issues in X\", \"audit and fix\", \"make this accessible\", \"verify the contrast fix landed\", or hands you a violation report and asks to apply it. You audit → edit → verify. If unsure, ask. Don't default-to-fix when the user only asked for "
+   "diem": 11,
+   "mo": "PR code review that surfaces decay risks, design smells, and maintainability issues with concrete Symptom → Source → Consequence → Remedy findings, drawing on twelve classic engine",
+   "byte": 2195,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/brooks-review/SKILL.md",
+   "trich": "# Brooks-Lint — PR Review ## When to Use Use this skill when you need pR code review that surfaces decay risks, design smells, and maintainability issues with concrete Symptom → Source → Consequence → Remedy findings, drawing on twelve classic engineering books. Triggers when: user asks to review code, check a PR, shares a diff or pastes code asking... ## Setup 1. Read `../_shared/common.md` for the Iron Law, Project Config, Report Template, and Health Score rules 2. Read `../_shared/source-coverage.md` for book-level coverage, exceptions, and tradeoffs 3. Read `../_shared/decay-risks.md` for symptom definitions and source attributions 4. Read `pr-review-guide.md` in this directory for the analysis process ## Process **If the user has not specified files or pasted code:** apply Auto Scope Detection from `../_shared/common.md` to determine the review scope before proceeding. 1. Understand"
   },
   {
-   "ten": "ai-regression-testing",
-   "kho": "affaan-m/ECC",
-   "duong": "skills/ai-regression-testing",
+   "ten": "canvas-design",
+   "kho": "anthropics/skills",
+   "duong": "skills/canvas-design",
    "lv": [
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 5,
-   "mo": "Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spo",
-   "byte": 11509,
-   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/ai-regression-testing/SKILL.md",
-   "trich": "# AI Regression Testing Testing patterns specifically designed for AI-assisted development, where the same model writes code and reviews it — creating systematic blind spots that only automated tests can catch. ## When to Activate - AI agent (Claude Code, Cursor, Codex) has modified API routes or backend logic - A bug was found and fixed — need to prevent re-introduction - Project has a sandbox/mock mode that can be leveraged for DB-free testing - Running `/bug-check` or similar review commands after code changes - Multiple code paths exist (sandbox vs production, feature flags, etc.) ## The Core Problem When an AI writes code and then reviews its own work, it carries the same assumptions into both steps. This creates a predictable failure pattern: ``` AI writes fix → AI reviews fix → AI says \"looks correct\" → Bug still exists ``` **Real-world example** (observed in production): ``` Fix "
+   "diem": 11,
+   "mo": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other stat",
+   "byte": 11937,
+   "doc": "https://github.com/anthropics/skills/blob/main/skills/canvas-design/SKILL.md",
+   "trich": "These are instructions for creating design philosophies - aesthetic movements that are then EXPRESSED VISUALLY. Output only .md files, .pdf files, and .png files. Complete this in two steps: 1. Design Philosophy Creation (.md file) 2. Express by creating it on a canvas (.pdf file or .png file) First, undertake this task: ## DESIGN PHILOSOPHY CREATION To begin, create a VISUAL PHILOSOPHY (not layouts or templates) that will be interpreted through: - Form, space, color, composition - Images, graphics, shapes, patterns - Minimal text as visual accent ### THE CRITICAL UNDERSTANDING - What is received: Some subtle input or instructions by the user that should be taken into account, but used as a foundation; it should not constrain creative freedom. - What is created: A design philosophy/aesthetic movement. - What happens next: Then, the same version receives the philosophy and EXPRESSES IT VI"
   },
   {
-   "ten": "analyzing-linux-audit-logs-for-intrusion",
-   "kho": "mukul975/Anthropic-Cybersecurity-Skills",
-   "duong": "skills/analyzing-linux-audit-logs-for-intrusion",
+   "ten": "design-is",
+   "kho": "thedotmack/claude-mem",
+   "duong": "plugin/skills/design-is",
    "lv": [
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 5,
-   "mo": "Uses the Linux Audit framework (auditd) with ausearch and aureport utilities to detect intrusion attempts, unauthorized access, privilege escalation, and suspicious system activity",
-   "byte": 9790,
-   "doc": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills/blob/main/skills/analyzing-linux-audit-logs-for-intrusion/SKILL.md",
-   "trich": "# Analyzing Linux Audit Logs for Intrusion ## When to Use - Investigating suspected unauthorized access or privilege escalation on Linux hosts - Hunting for evidence of exploitation, backdoor installation, or persistence mechanisms - Auditing compliance with security baselines (CIS, STIG, PCI-DSS) that require system call monitoring - Reconstructing a timeline of attacker actions during incident response - Detecting file tampering on critical system files such as `/etc/passwd`, `/etc/shadow`, or SSH keys **Do not use** for network-level intrusion detection; use Suricata or Zeek for network traffic analysis. Auditd operates at the kernel level on individual hosts. ## Prerequisites - Linux system with `auditd` package installed and the audit daemon running (`systemctl status auditd`) - Root or sudo access to configure audit rules and query logs - Audit rules deployed via `/etc/audit/rules."
+   "diem": 11,
+   "mo": "Audit a design against Dieter Rams' ten \"Good design is...\" principles, then hand off a /make-plan prompt for one of three outcomes — new design, refine design, or redesign. Use wh",
+   "byte": 18593,
+   "doc": "https://github.com/thedotmack/claude-mem/blob/main/plugin/skills/design-is/SKILL.md",
+   "trich": "# Design Is ## Do not use for - Routine UI code reviews → use `/review` - Pure copy edits → use a separate copy pass - Pre-design ideation with no artifact yet → start with `/make-plan` directly You are an ORCHESTRATOR. Audit a design against Dieter Rams' ten principles, score each principle with evidence, decide the outcome verdict (NEW / REFINE / REDESIGN), and hand off to `/make-plan` with a ready-to-run prompt. You do not write implementation code. You produce: evidence-cited scores, a verdict, and a `/make-plan` handoff prompt. ## The Ten Principles (Dieter Rams) Audit each principle in this exact order. Each gets a score 0–3 and ≥1 piece of evidence (`file:line`, screenshot region, copy excerpt, or measured value). 1. **Good design is innovative** — Does it advance the form, or imitate? Innovation rides on technology; never an end in itself. 2. **Good design makes a product useful*"
   },
   {
-   "ten": "analyzing-office365-audit-logs-for-compromise",
-   "kho": "mukul975/Anthropic-Cybersecurity-Skills",
-   "duong": "skills/analyzing-office365-audit-logs-for-compromise",
+   "ten": "design-taste-frontend",
+   "kho": "nexu-io/open-design",
+   "duong": "skills/taste-skill",
    "lv": [
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 5,
-   "mo": "Parse Office 365 Unified Audit Logs via Microsoft Graph API to detect email forwarding rule creation, inbox delegation, suspicious OAuth app grants, and other indicators of account",
-   "byte": 2336,
-   "doc": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills/blob/main/skills/analyzing-office365-audit-logs-for-compromise/SKILL.md",
-   "trich": "# Analyzing Office 365 Audit Logs for Compromise ## Overview Business Email Compromise (BEC) attacks often leave traces in Office 365 audit logs: suspicious inbox rule creation, email forwarding to external addresses, mailbox delegation changes, and unauthorized OAuth application consent grants. This skill uses the Microsoft Graph API to query the Unified Audit Log, enumerate inbox rules across mailboxes, detect forwarding configurations, and identify compromised account indicators. ## When to Use - When investigating security incidents that require analyzing office365 audit logs for compromise - When building detection rules or threat hunting queries for this domain - When SOC analysts need structured procedures for this analysis type - When validating security monitoring coverage for related attack techniques ## Prerequisites - Azure AD app registration with `AuditLog.Read.All`, `Mailb"
+   "diem": 11,
+   "mo": "Anti-slop frontend skill for landing pages, portfolios, and redesigns. The agent reads the brief, infers the right design direction, and ships interfaces that do not look templated",
+   "byte": 87788,
+   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/taste-skill/SKILL.md",
+   "trich": "# tasteskill: Anti-Slop Frontend Skill > Landing pages, portfolios, and redesigns. Not dashboards, not data tables, not multi-step product UI. > Every rule below is **contextual**. None of it fires automatically. First read the brief, then pull only what fits. ## 0. BRIEF INFERENCE (Read the Room Before Anything Else) Before touching code or tweaking dials, **infer what the user actually wants**. Most LLM design output is bad because the model jumps to a default aesthetic instead of reading the room. ### 0.A Read these signals first 1. **Page kind** - landing (SaaS / consumer / agency / event), portfolio (dev / designer / creative studio), redesign (preserve vs overhaul), editorial / blog. 2. **Vibe words** the user used - \"minimalist\", \"calm\", \"Linear-style\", \"Awwwards\", \"brutalist\", \"premium consumer\", \"Apple-y\", \"playful\", \"serious B2B\", \"editorial\", \"agency-y\", \"glassy\", \"dark tech\"."
+  },
+  {
+   "ten": "frontend-engineer",
+   "kho": "nanocoai/nanoclaw",
+   "duong": "container/skills/frontend-engineer",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Pro frontend engineering discipline. Enforces build-test-verify workflow for every web project. Never declare done until the site is built, tested, responsive, accessible, and visu",
+   "byte": 6018,
+   "doc": "https://github.com/nanocoai/nanoclaw/blob/main/container/skills/frontend-engineer/SKILL.md",
+   "trich": "# Frontend Engineer You are a senior frontend engineer. You build production-quality websites and web applications. You do not cut corners. You do not declare work done until everything is tested and working. ## Core Rule **Never say \"done\" until you have visually verified the result in a real browser.** Screenshots are your proof. If you can't take a screenshot, you're not done. ## Build Workflow Every frontend task follows this sequence. Do not skip steps. ### 1. Understand Before Coding - For existing projects: read `package.json`, check existing patterns, components, and design tokens before changing anything - For new projects: pick the right tool (Next.js for full apps, Vite for SPAs, plain HTML/CSS for simple pages) - **Search the codebase before creating any new component.** If an existing component does 80% of what you need, extend it with props. If two components share the same"
+  },
+  {
+   "ten": "imagegen-frontend-web",
+   "kho": "nexu-io/open-design",
+   "duong": "skills/imagegen-frontend-web",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Elite frontend image-direction skill for generating premium, conversion-aware website design references. CRITICAL OUTPUT RULE — generate ONE separate horizontal image FOR EVERY sec",
+   "byte": 37359,
+   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/imagegen-frontend-web/SKILL.md",
+   "trich": "# HARD OUTPUT RULE — READ FIRST **Generate one separate horizontal image PER section. Always. No exceptions.** - 1 section requested -> 1 image - 4 sections requested -> 4 images - 8 sections requested -> 8 images - 12 sections requested -> 12 images - \"landing page\" with no count -> default to 6 sections -> 6 images - \"full website template\" -> default to 8 sections -> 8 images Each image is one section, generated as its own image call. Never combine multiple sections into one frame. Never return a single tall image that contains the whole page. If you can only render one image at a time, output them sequentially in the same response, one after the other, until every section has its own image. Announce each one (\"Section 1 of 8: Hero\", \"Section 2 of 8: Trust bar\", etc.). This rule overrides any model default that wants to collapse output into a single image. # HERO COMPOSITION BIAS — RE"
   }
  ]
 }

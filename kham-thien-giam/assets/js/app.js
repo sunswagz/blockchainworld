@@ -689,6 +689,56 @@
     return k;
   }
 
+  /* ── ĐƯỜNG ĐI TIẾP ────────────────────────────────────────────
+     Tám phòng của cung này là MỘT lập luận xếp theo thứ tự, không
+     phải tám bài rời nhau. Đọc chính dòng `phu` của sổ PHONG theo
+     thứ tự là thấy: tính ra bầu trời đáng lẽ phải thế nào (Đài
+     Chiêm) → chỗ lợi thế trên giấy chết trong thực chiến (Sổ Lệnh)
+     → năm khoản trừ (Cân Lợi) → sống chết sau cú khớp đầu tiên (Kho
+     Đối) → sáu chiến thuật → quan sát ví → tiến hoá → trước khi
+     tin, phải đối chiếu. Mở Cân Lợi trước Sổ Lệnh là đọc phần TRỪ
+     của một con số mà chưa ai nói vì sao đừng tin nó.
+
+     Trang chưa bao giờ NÓI ra thứ tự ấy. Thanh bên xếp tám mục như
+     một thực đơn — tám chỗ ngang hàng, vào cái nào cũng được — và
+     phòng dài nhất là 40.000 ký tự. Đọc hết một phòng như thế thì
+     trong tầm mắt không còn gì ngoài chân trang: muốn đi tiếp phải
+     cuộn ngược lên đầu, mà dưới 940px thanh bên còn nằm sau một cái
+     nút phải bấm mới mở.
+
+     Nói bằng CHỮ chứ không bằng một mũi tên suông. Nhãn ghi thẳng
+     "phòng N trên 8" nên thứ tự đọc ra được ngay tại chỗ, không phải
+     suy từ số ở thanh bên; và câu `phu` của phòng kế nói TRƯỚC nó
+     bàn chuyện gì, để người đọc quyết định đi tiếp hay dừng thay vì
+     bấm rồi mới biết mình vừa bấm vào đâu.
+
+     Phòng cuối không có phòng thứ chín, và nó nói đúng câu đó rồi
+     mới mời quay lại phòng 1. Vẽ một mũi tên "tiếp theo" ở cuối
+     đường là hứa một thứ không có — cùng lối luật 1, chỉ đổi từ một
+     con số chưa đo sang một lối đi không tồn tại.
+
+     Luật 2: nhãn đi CHỮ MÁY hoa nhỏ, đúng bộ đồ mà cung này đã dành
+     cho NHÃN HỆ THỐNG (`.ngon-o .stt` in "NGÓN 1", `.hoso-tren`,
+     `.o-so .nhan`) — khác hẳn bộ đồ của một số ĐO được, là 22px chữ
+     máy ở `.o-so .to`. "Phòng 4 trên 8" là một vị trí trong cấu
+     trúc, không phải một phép đo. Tên phòng và câu đề từ đi chữ
+     thường: đó là lời người viết. */
+  function veTiep(i) {
+    if (!(i >= 0) || PHONG.length < 2) return null;
+    var het = i >= PHONG.length - 1;
+    var ke = PHONG[het ? 0 : i + 1];
+    var a = document.createElement("a");
+    a.className = "tiep";
+    a.href = "#/" + ke.ma;
+    if (het) a.dataset.het = "1";
+    a.appendChild(el("span", "tiep-nhan", het
+      ? ("Hết " + PHONG.length + " phòng · quay lại phòng 1")
+      : ("Tiếp theo · phòng " + (i + 2) + " trên " + PHONG.length)));
+    a.appendChild(el("span", "tiep-ten", ke.ten));
+    if (ke.phu) a.appendChild(el("span", "tiep-phu", ke.phu));
+    return a;
+  }
+
   /* ── vẽ một phòng ─────────────────────────────────────────── */
   /* Trả về MẢNG nút, không phải DocumentFragment. Người gọi gắn
      từng nút — cùng kết quả trên trình duyệt, một dòng ở `tuyen`.

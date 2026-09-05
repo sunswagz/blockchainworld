@@ -1,13 +1,14 @@
-# Sức khoẻ xưởng — 03/09/2026 23:30 UTC · lượt 636
+# Báo cáo sức khoẻ xưởng — 05/09/2026 05:09 UTC (lượt 696)
 
-Xưởng chạy được nhưng có hai vết: 2 trên 31 node đang ngã, mọi node còn lại `ok` và không node nào trễ quá gấp đôi `nhip` của nó.
+**Tổng:** Xưởng chạy được nhưng có chuyện — 26/28 node ghi `ok` ở lượt gần nhất, hai node đang ngã, và một trong hai đã ngã 9 lượt liền.
 
-**Đáng lo** — `dong-dau`: chuỗi lỗi **5**, cớ `khoa-sai`, lượt `ok` cuối 02/09 11:37; nhịp 6 giờ nên nó đã ngã năm lượt liền, và mỗi lượt ngã là một bản số liệu không được đóng dấu.
-`tien-hoa-xoay`: chuỗi lỗi **2**, cả hai lượt 03/09 (16:38 và 21:32) đều "cong-bo: ngã ở MODEL", cớ `chua-ro`. Phiếu đo 17/17 → 17/17 nên không tụt điểm nào; thứ mất là hai lượt tiến hoá của cong-bo.
+**Đáng lo**
+- `dong-dau` — `chuoiLoi` 9, `vi: "khoa-sai"`. Lượt chạy được cuối cùng là 02/09 11:37 UTC, tức đã hỏng liên tục ~65 giờ ở nhịp 6 giờ. Chín lượt cùng một lý do nghĩa là nó sẽ không tự khỏi.
+- `thuoc-moi` — `chuoiLoi` 2, `vi: "chua-ro"`, và `lucOk` là `null`: node này **chưa từng có lượt nào chạy được**. Hai lượt ngã cách nhau 2 giờ (04/09 21:04 và 23:07) dù nhịp khai là 168 giờ.
+- Không node nào trễ quá gấp đôi `nhip` của nó. Bốn node `kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh`, `giao-hang` không có dòng nào trong state.json — cả bốn khai `nhip: 0` nên không có lượt tự động để ghi sổ; CẦN KIỂM chứ chưa phải lỗi.
 
-**Chạy đều mà chưa đổi được gì** — `tri-thuc`: `ok` mọi lượt nhưng `lucDoi` là `null`, chưa lượt nào ghi được file nào. Nó sinh lát cắt cho 11 cung, nên đáng hỏi nguồn `knowledge-os/data/` phía sau có còn đổi không.
-`hoang-thanh`: `ok`, nhưng `lucDoi` 14/08 — 20 ngày nội dung không đổi. `nhip: 0` (chạy tay) nên không tính là trễ.
+**Chạy được mà chưa đổi được gì**
+- `tri-thuc` — ba lượt gần nhất (01/09, 02/09, 03/09) đều `ok` mà `doi` đều `false`, và `lucDoi` vẫn là `null`: chạy trọn nhưng chưa lần nào ghi ra thay đổi.
+- `hoang-thanh` — `ket: "ok"` nhưng `lucDoi` đứng ở 14/08, tức 22 ngày, trong khi lượt chạy gần nhất là 28/08. Node khai `nhip: 0` (chạy tay), nên đây là hệ quả của việc chưa ai chạy lại, không phải nguồn dữ liệu chết.
 
-**Cần kiểm** — bốn node vắng hẳn trong `state.json` (`kham-thien-giam`, `thi-bac-ty`, `tu-cam-thanh`, `giao-hang`) đều khai `nhip: 0`, tức chạy tay hoặc chạy theo commit; vắng là đúng hình dạng của chúng, không phải hỏng.
-
-**Việc nên làm trước** — sửa khoá cho `dong-dau`. Đó là node duy nhất có chuỗi lỗi ≥ 5 kèm nguyên nhân đã có tên (`khoa-sai`), nên sửa được ngay mà không phải đoán.
+**Việc nên làm trước:** kiểm và thay khoá cho `dong-dau` — nó hỏng đúng một cách suốt 9 lượt, và `vi: "khoa-sai"` đã chỉ thẳng chỗ hỏng.

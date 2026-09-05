@@ -169,5 +169,14 @@
     "source_type": "repo",
     "source_ref": "ho-bo/assets/js/v/dong-tien.js · kham-thien-giam-runtime/kham/rui_ro.py · thi-bac-ty-runtime/bac/suc_chua.py",
     "confidence": "high"
+  },
+  {
+    "from": "stablecoin_settlement",
+    "relation": "supports",
+    "to": "network_effect",
+    "reason_vi": "Sách 2018 dùng hiệu ứng mạng để giải thích vì sao tiền HỘI TỤ về một chuẩn: càng nhiều người nhận thì càng đáng nhận, nên thị trường dồn về một thứ chứ không chia đều. Tám năm sau, chỗ kiểm được luận điểm ấy rõ nhất không phải giá coin mà là số dư stablecoin nằm ở đâu — vì stablecoin là thứ trên chuỗi được dùng để TRẢ NHAU nhiều nhất, và nó chạy được trên mọi chuỗi như nhau. Bảng Kinh Thành ngày 05/09/2026, cộng chín chuỗi nó theo dõi: stablecoin lưu hành 180,9 tỉ đô, riêng Ethereum giữ 147,3 tỉ — 81,4%. Tài sản khoá cũng vậy: 62,5 tỉ tổng, Ethereum 49,3 tỉ — 78,8%. Đến đây thì chỉ mới là 'chuỗi lớn thì lớn'. Chỗ đáng đọc nằm ở cột thứ ba trong CÙNG một bảng: đếm giao thức thì Ethereum chỉ có 1.855 trên 5.046, tức 36,8% — gần hai phần ba số phần mềm chạy ở NƠI KHÁC. Nhà phát triển đã toả ra, tiền thì không. Đó là bằng chứng mạnh cho hiệu ứng mạng hơn hẳn con số 81% đứng một mình, vì nó loại được lời giải thích cạnh tranh: nếu vốn dồn về một chỗ chỉ vì chỗ ấy có sẵn công cụ, thì 563 giao thức của Avalanche đã phải kéo về nhiều hơn 485 triệu đô. Cái kéo vốn về không phải mã nguồn — mã nguồn rẻ và chép được — mà là chỗ NGƯỜI KHÁC đang để tiền. Một quan sát ngược chiều đáng ghi vì nó tinh chỉnh chứ không bác: TON giữ 766 triệu đô stablecoin trên 50,8 triệu đô tài sản khoá, tỉ lệ 15 lần, trong khi Ethereum chỉ 3,0 lần. Nghĩa là hiệu ứng mạng của chức năng TRẢ TIỀN bám theo số người dùng sẵn có và đi trước, còn thị trường vốn tới sau — hai chức năng của sách hội tụ ở hai nơi khác nhau và theo hai nhịp khác nhau. Đây là supports chứ không phải extends: cơ chế sách mô tả đang chạy đúng như mô tả. Thứ sách không nói được, và cũng không thể trách, là hiệu ứng mạng ấy hoá ra bám vào ĐƠN VỊ ĐO (đô la) và NƠI QUYẾT TOÁN, chứ không bám vào độ cứng của đồng tiền — xem quan hệ usd_numeraire → unit_of_account. Giới hạn phải nói rõ: chín chuỗi này là tập Kinh Thành chọn theo dõi chứ không phải toàn thị trường, cả ba cột đều lấy từ một nguồn duy nhất là DefiLlama, và số dư nằm trên một chuỗi không đo được nó luân chuyển bao nhiêu vòng.",
+    "source_type": "repo",
+    "source_ref": "kinh-thanh/assets/js/data/live.js (khối chains: tvl · stab · proto) · ho-bo/assets/js/v/dong-tien.js",
+    "confidence": "high"
   }
 ]
