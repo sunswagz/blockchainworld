@@ -7388,15 +7388,22 @@ def kiem_quet_truc() -> None:
          f"chỉ cảng nhảy 30% → 80%")
 
     # Tập trung GIẢM thì thắng bình thường — luật này không được chặn bừa.
+    #
+    # NET ở mép trên nhân đôi: với số gốc thì 0,35 → 0,6 chỉ hơn 1,34
+    # USD/giờ, DƯỚI biên nhiễu 1,48 — nên đồ gá cũ đo lẫn hai chuyện, và
+    # luật HOÀ về sau bắt đúng chỗ ấy. Cái phép kiểm này muốn hỏi là
+    # «tập trung giảm có bị chặn nhầm không», nên phần hơn phải THẬT.
     def _mot_giam(tt, ts, von, nhan=""):
         g = doc_nut(ts, "ruiRoTong.tranMotCang")
         v, n, _ = CANG[g]
-        return _KQT(v, n, 0.60 if g <= 0.35 else 0.30)
+        return _KQT(v, n * (1.0 if g <= 0.35 else 2.0),
+                    0.60 if g <= 0.35 else 0.30)
 
     rg = quet_truc([], {"ruiRoTong": {"tranMotCang": 0.35}}, 1_000_000.0,
                    "ruiRoTong.tranMotCang", sorted(CANG), _mot_giam, _dat)
     kiem("TỔNG cao hơn mà tập trung GIẢM thì thắng — đây mới là cải thiện",
          rg["totNhat"]["giaTri"] == 0.6
+         and rg["totNhat"]["hoa"] is False
          and "quanQuanBiLoai" not in rg["totNhat"],
          f"chọn {rg['totNhat']['giaTri']} — chặn cả cái này là chặn bừa")
 
@@ -7454,6 +7461,87 @@ def kiem_quet_truc() -> None:
          _dh(0.40, 0.40, 0.40 + _BTT, 0.40) is False
          and _dh(0.40, 0.40, 0.40 + _BTT * 2, 0.40) is True,
          "đứng yên là kết quả hợp lệ — cùng luật với `BIEN_VUOT_BPS`")
+
+    # ── HOÀ thì ĐỨNG YÊN ────────────────────────────────────────────────
+    #
+    # `sorted` giữ thứ tự lưới khi bằng điểm, nên trên một VÙNG PHẲNG
+    # vương miện rơi vào mép trái của vùng ấy. Đo `tinCayToiThieu` làn
+    # thật 05/09/2026: 0,3 · 0,4 · 0,5 · 0,6 · 0,75 giống nhau ĐẾN TỪNG
+    # BIT, chỉ 0,9 mới cắn — nên trục KHÔNG bất động, và nó khuyên vặn
+    # 0,5 → 0,3, một thay đổi không đổi gì.
+    from thi_bac_ty.quet_truc import bien_nhieu_tong as _bnt
+
+    PHANG = {0.3: (750787.27, 5.330155), 0.4: (750787.27, 5.330155),
+             0.5: (750787.27, 5.330155), 0.6: (750787.27, 5.330155),
+             0.75: (750787.27, 5.330155), 0.9: (708489.0, 4.1872)}
+
+    def _mot_p(tt, ts, von, nhan=""):
+        return _KQT(*PHANG[doc_nut(ts, "ruiRoTong.tinCayToiThieu")], 0.46)
+
+    rp = quet_truc([], {"ruiRoTong": {"tinCayToiThieu": 0.5}}, 1_000_000.0,
+                   "ruiRoTong.tinCayToiThieu", sorted(PHANG), _mot_p, _dat)
+    kiem("trục CÓ đổi (0,9 cắn) nên KHÔNG phải bất động",
+         rp["batDong"] is False,
+         "`bat_dong` đòi CẢ trục bằng nhau — vùng phẳng lọt qua nó")
+    kiem("vùng phẳng chứa chỗ đang đứng ⇒ HOÀ, giữ nguyên 0,5",
+         rp["totNhat"]["giaTri"] == 0.5 and rp["totNhat"]["hoa"] is True,
+         f"chọn {rp['totNhat']['giaTri']} — mép trái vùng phẳng là 0,3, "
+         f"và vặn tới đó không đổi được gì")
+
+    # Biên hoà = `BIEN_VUOT_BPS` đổi sang USD/giờ, KHÔNG phải hằng số mới.
+    kiem("biên hoà suy ra từ `BIEN_VUOT_BPS`, đo ở vốn chỗ đang đứng",
+         abs(_bnt({"tongCapUsd": 750787.27}) - 1.5016) < 0.001
+         and _bnt({"tongCapUsd": None}) == 0.0
+         and _bnt({}) == 0.0,
+         "không đo được vốn thì biên 0,0 — biên bịa từ con số không có "
+         "thì tệ hơn không có biên")
+
+    # Ba ca thật, hai phía của cùng cái biên 1,50 USD/giờ.
+    def _truc(cap, net, ty=0.46):
+        def f(tt, ts, von, nhan=""):
+            return _KQT(*{k: v for k, v in zip(sorted(cap), cap.values())}
+                        [doc_nut(ts, "ruiRoTong.tranMotTaiSanRong")], ty)
+        return f
+
+    NHO = {0.25: (750787.27, 5.330155), 0.3: (797290.0, 5.023003)}
+    rn = quet_truc([], {"ruiRoTong": {"tranMotTaiSanRong": 0.25}},
+                   1_000_000.0, "ruiRoTong.tranMotTaiSanRong",
+                   sorted(NHO), _truc(NHO, None), _dat)
+    _tn = {x["giaTri"]: x["tongUsdMoiGio"] for x in rn["diem"]}
+    kiem("đồ gá đúng hình: 0,3 hơn thật, nhưng chỉ +0,07%",
+         0 < _tn[0.3] - _tn[0.25] < 0.5,
+         f"{_tn} — hơn {_tn[0.3] - _tn[0.25]:.3f} USD/giờ")
+    kiem("+0,07% là NHIỄU dưới biên 1,50 USD/giờ ⇒ HOÀ",
+         rn["totNhat"]["giaTri"] == 0.25 and rn["totNhat"]["hoa"] is True,
+         f"chọn {rn['totNhat']['giaTri']} — +0,29 USD/giờ không phải lý do "
+         f"để vặn núm rủi ro")
+
+    LON = {0.6: (750787.27, 5.330155), 0.75: (750621.0, 5.578200)}
+
+    def _mot_l(tt, ts, von, nhan=""):
+        return _KQT(*LON[doc_nut(ts, "ruiRoTong.ruiRoToiDa")], 0.46)
+
+    rl = quet_truc([], {"ruiRoTong": {"ruiRoToiDa": 0.6}}, 1_000_000.0,
+                   "ruiRoTong.ruiRoToiDa", sorted(LON), _mot_l, _dat)
+    _tl = {x["giaTri"]: x["tongUsdMoiGio"] for x in rl["diem"]}
+    kiem("+4,6% thì VƯỢT biên — luật hoà không được nuốt ca thật",
+         rl["totNhat"]["giaTri"] == 0.75 and rl["totNhat"]["hoa"] is False,
+         f"{_tl} — hơn {_tl[0.75] - _tl[0.6]:.2f} USD/giờ, gấp hơn mười "
+         f"lần biên 1,50")
+    kiem("biên nằm giữa ca nhiễu và ca thật, không sát mép nào",
+         (_tn[0.3] - _tn[0.25]) * 4 < _bnt({"tongCapUsd": 750787.27})
+         < (_tl[0.75] - _tl[0.6]) / 4,
+         "thả cả hai dự đoán vào ngưỡng TRƯỚC khi khoá")
+
+    # Kẻ bị loại vì TẬP TRUNG vẫn phải hiện ra, kể cả khi kết cục là HOÀ —
+    # hai chuyện khác nhau, và bản đầu của tôi nuốt mất một chuyện.
+    rc2 = quet_truc([], {"ruiRoTong": {"tranMotCang": 0.35}}, 1_000_000.0,
+                    "ruiRoTong.tranMotCang", sorted(CANG), _mot_c, _dat)
+    kiem("HOÀ mà vẫn khai kẻ bị loại vì tập trung — hai chuyện khác nhau",
+         rc2["totNhat"]["giaTri"] == 0.35
+         and [x["giaTri"] for x in rc2["totNhat"]["quanQuanBiLoai"]]
+         == [0.6, 0.45],
+         f"{rc2['totNhat']} — người đọc cần biết CẢ hai")
 
 
 def kiem_nguon_doi_429() -> None:

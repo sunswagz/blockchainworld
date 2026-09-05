@@ -125,6 +125,10 @@ def main() -> int:
                          else f"{bl['tiTrongTy']:.1%}",
                          "-" if bl.get("tiTrongCang") is None
                          else f"{bl['tiTrongCang']:.1%}"))
+            if tn.get("hoa"):
+                print("  = HOÀ: điểm cao nhất không hơn chỗ đang đứng "
+                      "(%s) — đứng yên là kết quả hợp lệ, đừng vặn."
+                      % r["hienTai"])
             if tn.get("thieuMoc"):
                 print("  ⚠ không có điểm ĐANG ĐỨNG trên lưới nên KHÔNG loại "
                       "được ai vì tập trung — người thắng ở đây mới chỉ "

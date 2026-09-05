@@ -163,19 +163,80 @@ def tot_nhat(diem: list, hienTai=None) -> dict | None:
         ra = dict(dan[0])
         ra["thieuMoc"] = True
         return ra
+
+    # Người thắng là kẻ cao điểm nhất KHÔNG đậm hơn chỗ đang đứng.
     loai = []
+    thang = None
     for x in dan:
         if x is moc or not dam_hon(x, moc):
-            ra = dict(x)
-            ra["thieuMoc"] = False
-            if loai:
-                ra["quanQuanBiLoai"] = loai
-            return ra
+            thang = x
+            break
         loai.append({"giaTri": x.get("giaTri"),
                      "tongUsdMoiGio": x.get("tongUsdMoiGio"),
                      "tiTrongTy": x.get("tiTrongTy"),
                      "tiTrongCang": x.get("tiTrongCang")})
-    return None
+    if thang is None:
+        return None
+
+    # HOÀ thì ĐỨNG YÊN — và «hoà» phải đo bằng BIÊN NHIỄU, không bằng sai
+    # số dấu phẩy động. Hai ca đo cùng ngày 05/09/2026 nói rõ vì sao:
+    #
+    #   tinCayToiThieu   0,3 · 0,4 · 0,5 · 0,6 · 0,75 giống nhau ĐẾN TỪNG
+    #                    BIT (750787.2699999991 · 5.33015534893272), chỉ
+    #                    0,9 mới cắn. Trục KHÔNG bất động — `bat_dong`
+    #                    đòi CẢ trục bằng nhau — nên nó vẫn trao vương
+    #                    miện, và `sorted` giữ thứ tự lưới nên vương miện
+    #                    rơi vào MÉP TRÁI của vùng phẳng: 0,3, trong khi
+    #                    đang đứng 0,5.
+    #
+    #   tranMotTaiSanRong  0,25 → 0,3 hơn +0,294 USD/giờ trên 400,18 —
+    #                    tức +0,07%. Không phải hoà theo dấu phẩy động,
+    #                    nhưng cũng không phải một lý do để vặn núm.
+    #
+    # Biên KHÔNG phải hằng số mới: nó là `BIEN_VUOT_BPS` — thứ cỗ máy này
+    # vốn dùng để gọi một chênh lệch là tiếng ồn — đổi sang đơn vị bảng
+    # này chấm điểm. `bps/giờ × vốn / 10.000` = USD/giờ. Ở mốc 750.787
+    # USD thì biên là 1,50 USD/giờ, và ba ca rơi đúng hai phía:
+    # ruiRoToiDa +18,53 (thật), tranMotTaiSanRong +0,29 và tinCay +0,00
+    # (nhiễu).
+    if _hoa(thang, moc):
+        ra = dict(moc)
+        ra["thieuMoc"] = False
+        ra["hoa"] = True
+        if loai:
+            ra["quanQuanBiLoai"] = loai
+        return ra
+    ra = dict(thang)
+    ra["thieuMoc"] = False
+    ra["hoa"] = False
+    if loai:
+        ra["quanQuanBiLoai"] = loai
+    return ra
+
+
+def bien_nhieu_tong(moc: dict) -> float:
+    """`BIEN_VUOT_BPS` đổi sang USD/giờ, đo ở vốn của chỗ đang đứng.
+
+    Không đo được vốn thì trả 0,0 — lúc ấy chỉ còn `_gan` che, và một
+    biên bịa ra từ con số không có thì tệ hơn không có biên.
+    """
+    from thi_bac_ty.chay_lai_he import BIEN_VUOT_BPS
+    try:
+        von = float(moc.get("tongCapUsd"))
+    except (TypeError, ValueError):
+        return 0.0
+    return abs(von) * BIEN_VUOT_BPS / 10_000.0
+
+
+def _hoa(thang: dict, moc: dict) -> bool:
+    if thang is moc:
+        return True
+    a, b = thang.get("tongUsdMoiGio"), moc.get("tongUsdMoiGio")
+    if a is None or b is None:
+        return False
+    if _gan(a, b):
+        return True
+    return float(a) - float(b) <= bien_nhieu_tong(moc)
 
 
 def _gan_gia_tri(a, b) -> bool:
