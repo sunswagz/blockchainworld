@@ -23,6 +23,7 @@ và cả hai làn đều chưa đủ lệnh cho việc đó.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -87,9 +88,63 @@ def _doc(thu_muc: Path, ten_tk: str) -> dict | None:
             # nhận bản ghi khi lệnh đã đóng. Đếm bằng sổ thì luôn ra 0.
             "dangMo": len(tk.get("positions") or []),
             "boLuat": (chien_luoc.doc().get("champion") or {}).get("ma"),
+            "banGhiChampion": _lech_bang_chung(chien_luoc.doc(),
+                                              _khung_cua_lan(thu_muc)),
             "huong": {h: sum(1 for t in ds if t.get("side") == h)
                       for h in ("LONG", "SHORT")},
             "taiKhoan": tk}
+
+
+def _khung_cua_lan(thu_muc: Path) -> str | None:
+    """Khung mà LÀN NÀY chạy, đọc từ file cấu hình của chính nó.
+
+    Không dùng `CONFIG` toàn cục: tiến trình này đọc cả hai làn, mà mỗi làn có
+    một file cấu hình riêng — lấy CONFIG toàn cục là gán khung của làn này cho
+    làn kia, đúng loại lỗi mà hàm dưới sinh ra để bắt.
+    """
+    ten = ("config-hai-chieu.json" if thu_muc.name == "data-hai-chieu"
+           else "config.json")
+    f = thu_muc.parent / ten
+    if not f.exists():
+        return None
+    try:
+        return (json.loads(f.read_text(encoding="utf-8"))
+                .get("timeframes", {}).get("primary"))
+    except (OSError, ValueError):
+        return None
+
+
+def _lech_bang_chung(d: dict, khung_chay: str | None) -> str | None:
+    """Bản ghi champion có đo trên ĐÚNG cấu hình mà làn này đang chạy không?
+
+    `chien_luoc` ghi `cho`/`khung` bằng `setdefault` từ CONFIG LÚC GHI. Nếu bản
+    ghi được tạo bởi một tiến trình chạy cấu hình khác — hoặc làn đổi khung sau
+    khi tôn champion — thì con số nằm đó mãi mãi mà không ai biết nó nói về thứ
+    khác. Làn demo KHÔNG chạy nghi thức nên `ketQua` của nó không bao giờ được
+    đo lại; đây là ca đúng như vậy.
+
+    Ca thật 05/09/2026: làn demo chạy `1d` trên 90 chợ, mà champion của nó ghi
+    `cho="BTCUSDT:4h"`, `khung="4h"` — tức bằng chứng của làn CHÍNH, một chợ.
+    Bản ghi nói −0,314R; chạy lại đúng bộ luật ấy trên 1d qua 35 và 39 chợ lạ
+    cho +0,139R và +0,205R. Không con số nào sai, chúng nói về hai thứ khác
+    nhau — và suýt dẫn tới một kết luận ngược.
+
+    Trả về câu cảnh báo, hoặc None nếu khớp. KHÔNG chặn gì: đây là tầng hiển
+    thị, việc của nó là làm chỗ lệch NHÌN THẤY ĐƯỢC chứ không phải quyết định
+    thay người đọc.
+    """
+    kq = ((d.get("champion") or {}).get("ketQua")) or {}
+    if not kq:
+        return None
+    khung_ghi = kq.get("khung")
+    cho_ghi = kq.get("cho")
+    if khung_ghi and khung_chay and khung_ghi != khung_chay:
+        return (f"bản ghi đo khung {khung_ghi} (chợ {cho_ghi}) nhưng làn này "
+                f"chạy khung {khung_chay} — con số dưới đây KHÔNG nói về làn này")
+    if cho_ghi and ":" in str(cho_ghi) and str(cho_ghi).count(",") == 0:
+        return (f"bản ghi đo trên MỘT chợ ({cho_ghi}) — đừng đọc nó như kết quả "
+                f"của cả làn")
+    return None
 
 
 def _nhip(thu_muc: Path, ten_tk: str) -> str:
@@ -170,6 +225,8 @@ def main() -> int:
         kv = o.get("expectancyR")
         print(f"{NL}  {nhan}")
         print(f"    bộ luật     {d['boLuat']}")
+        if d.get("banGhiChampion"):
+            print(f"    ⚠ {d['banGhiChampion']}")
         print(f"    vốn         {von:>12}    · đang mở {d['dangMo']}")
         print(f"                ({tu_dau})")
         print(f"    lệnh        {d['soLenh']} (LONG {d['huong']['LONG']} · "
