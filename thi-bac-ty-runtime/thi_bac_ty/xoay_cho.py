@@ -92,6 +92,27 @@ NAM_GIO = 365.0 * 24.0
 #: gộp, và đây là ghi chú để lượt sau gộp chứ không phải để quên.
 TOI_THIEU_GIO_TI_SUAT = 0.25
 
+#: Tỉ suất năm cao hơn ngần này thì KHÔNG phải một lợi suất — không nhận.
+#:
+#: Cửa `TOI_THIEU_GIO_TI_SUAT` ở trên bắn TRƯỢT, và đo lại mới thấy vì
+#: sao. Bảy tờ trình có APR > 1.000%/năm trong 6.000 tờ gần nhất, và
+#: `giuGio` của CẢ BẢY đều bằng ĐÚNG 0,25 — chính là ngưỡng, nên `<` cho
+#: chúng đi qua sạch:
+#:
+#:     APR %      netMoiGioBps  giuGio  netUocBps  chiến lược
+#:     544.996,7      6221,42    0,25     555,36   prediction.polymarket
+#:     212.900,1      2430,37    0,25     607,59   prediction.polymarket
+#:      16.252,0       185,52    0,25      46,38   dex.round_trip
+#:
+#: Nên chẩn đoán đúng KHÔNG phải «mẫu số gần 0». Cửa sổ 15 phút là một
+#: cửa sổ hợp lệ; cái sai là QUY NĂM nó rồi đem so với một vị thế giữ 720
+#: giờ, như thể 5,55% trong mười lăm phút sẽ lặp lại 35.040 lần một năm.
+#:
+#: 1.000%/năm là chỗ đứng, và khoảng trống trong dữ liệu rất rộng nên nó
+#: không phải một con số vặn cho vừa: lợi suất thật đo được nằm ở 2,6% –
+#: 24%, còn rác bắt đầu từ 16.252%. Ba bậc độ lớn ở giữa, không có gì.
+APR_TOI_DA = 1000.0
+
 
 @dataclass
 class CoHoiDoiCho:
@@ -244,7 +265,13 @@ def apr_tu_to_trinh(toTrinh: dict) -> float | None:
         if net is None or not gio:
             return None
         v = float(net) / float(gio)
-    return float(v) * NAM_GIO / 100.0
+    apr = float(v) * NAM_GIO / 100.0
+    # Trần đứng SAU mọi đường tính: dù con số tới từ `netMoiGioBps` khai
+    # sẵn hay từ phép chia, một tỉ suất năm ba bậc độ lớn trên mọi lợi
+    # suất từng đo được là một hiện vật, không phải một cơ hội.
+    if apr > APR_TOI_DA:
+        return None
+    return apr
 
 
 def phi_mot_chieu_usd(toTrinh: dict, vonUsd: float) -> float | None:

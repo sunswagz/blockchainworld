@@ -11472,6 +11472,33 @@ def kiem_ke_toan_vi_the() -> None:
     kiem("`giuGio` rác thì trả None, không ném",
          apr_tu_to_trinh({"netMoiGioBps": 1.0, "giuGio": "xxx"}) is None)
 
+    # ── TRẦN APR: cửa trên bắn TRƯỢT, và đây là chỗ nó trượt ────────────
+    #
+    # Bảy tờ trình có APR > 1.000%/năm trong 6.000 tờ gần nhất của sổ đăng
+    # ký, và `giuGio` của CẢ BẢY bằng ĐÚNG 0,25 — chính là ngưỡng, nên `<`
+    # cho chúng đi qua sạch. Cửa sổ 15 phút là hợp lệ; cái sai là QUY NĂM
+    # nó rồi đem so với một vị thế giữ 720 giờ.
+    from thi_bac_ty.xoay_cho import APR_TOI_DA as _AT
+    for _v, _g, _ten in ((6221.4235, 0.25, "polymarket 544.996%/năm"),
+                         (2430.3664, 0.25, "polymarket 212.900%/năm"),
+                         (185.5249, 0.25, "dex.round_trip 16.252%/năm")):
+        kiem(f"ĐÚNG số của sổ đăng ký bị chặn: {_ten}",
+             apr_tu_to_trinh({"netMoiGioBps": _v, "giuGio": _g}) is None,
+             "cửa `giuGio < 0,25` KHÔNG bắt được cái nào trong bảy cái này")
+    for _v, _g, _mong in ((0.185, 720.0, 16.21), (0.0337, 168.0, 2.95),
+                          (0.2733, 168.0, 23.94)):
+        _r = apr_tu_to_trinh({"netMoiGioBps": _v, "giuGio": _g})
+        kiem(f"lợi suất THẬT {_mong:.2f}%/năm vẫn đi qua",
+             _r is not None and abs(_r - _mong) < 0.02, str(_r))
+    kiem("ĐÚNG BẰNG trần thì vẫn qua — biên phải đi tới được",
+         apr_tu_to_trinh({"netMoiGioBps": _AT / (365.0 * 24.0) * 100.0,
+                          "giuGio": 720.0}) is not None,
+         "trần chặn cả chỗ nó không định chặn là một trần đặt sai")
+    kiem("và trần nằm GIỮA khoảng trống của dữ liệu, không vặn cho vừa",
+         23.94 < _AT < 16252.0,
+         f"trần {_AT} — lợi suất thật đo được 2,6–24%, rác bắt đầu từ "
+         f"16.252%; ba bậc độ lớn ở giữa và không có gì trong đó")
+
     # Và cửa ấy phải CHẶN ĐƯỢC một lượt xoay thật, không chỉ trả None.
     kiem("cơ hội mới giữ quá ngắn thì KHÔNG xoay sang",
          do_xoay_cho({"a": _so40("a", 2.0)},
