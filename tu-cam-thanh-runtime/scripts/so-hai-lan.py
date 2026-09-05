@@ -148,6 +148,38 @@ def _lech_bang_chung(d: dict, khung_chay: str | None) -> str | None:
     return None
 
 
+CAN_SHORT = 30  # ngưỡng đã khai trong «keo-lui-short-tien-tuong»
+
+
+def _du_mau(kv: float, sd: float, z: float = 1.96) -> float:
+    """Bao nhiêu lệnh mới phân biệt được kỳ vọng `kv` với 0 ở mức tin 95%.
+
+    VÌ SAO PHẢI IN RA. Bản khai «keo-lui-short-tien-tuong» đặt ngưỡng 30 lệnh
+    SHORT, và bảng này từng in "còn ~87 ngày cho đủ 30" như thể đó là đích. Nó
+    KHÔNG phải đích. Đo trên 643 lệnh chạy lại (39 chợ lạ, khung 1d):
+
+        kỳ vọng +0,2055R · độ lệch chuẩn 1,4199R
+
+    Với sd đó, 30 lệnh cho khoảng tin ±1,96·1,42/√30 = **±0,51R**. Quanh ước
+    lượng +0,2R là [−0,31; +0,71] — CHỨA 0. Tức kể cả sau khi chờ đủ 30 lệnh,
+    phép đo vẫn không trả lời được câu hỏi nó được khai ra để trả lời.
+
+        phân biệt +0,205R với 0   cần ~183 lệnh   ≈ 1,6 năm ở nhịp 0,32/ngày
+        phân biệt +0,100R với 0   cần ~775 lệnh   ≈ 6,6 năm
+        phân biệt +0,050R với 0   cần ~3.098 lệnh ≈ 26,5 năm
+
+    Đây là ràng buộc CẤU TRÚC, không phải chuyện kiên nhẫn: ở khung 1d, làn thật
+    không thể tích luỹ bằng chứng đủ nhanh cho những hiệu ứng cỡ này. Công cụ
+    đúng cho câu hỏi ấy là chạy lại trên các TẬP CHỢ độc lập — thứ cho hàng trăm
+    lệnh trong vài phút — còn làn thật thì để đo những thứ chạy lại không mô
+    phỏng được: trượt giá, cửa rủi ro chặn, phí thật.
+
+    Một dòng in ra đích không với tới được thì tệ hơn không in gì: nó làm người
+    đọc chờ thay vì đổi cách đo.
+    """
+    return (z * sd / kv) ** 2 if kv else float("inf")
+
+
 def _huong_hieu_luc(d: dict) -> str | None:
     """Hướng mà champion THẬT SỰ được phép đánh, đọc từ `tham.cheDoVao`.
 
@@ -256,9 +288,15 @@ def _nhip(thu_muc: Path, ten_tk: str) -> str:
     if not n_s:
         return (f"{len(ds)} lệnh trong {ngay:.1f} ngày = {nhip:.2f} lệnh/ngày · "
                 f"chưa lệnh SHORT nào")
-    con = max(0, 30 - n_s) / (n_s / ngay)
+    nhip_s = n_s / ngay
+    con = max(0, CAN_SHORT - n_s) / nhip_s
+    # Cỡ mẫu ĐỦ ĐỂ KẾT LUẬN, không phải cỡ mẫu đã khai. Xem `_DU_MAU`.
+    can = _du_mau(0.2055, 1.4199)
+    nam = (can - n_s) / nhip_s / 365.0
     return (f"{len(ds)} lệnh trong {ngay:.1f} ngày = {nhip:.2f} lệnh/ngày · "
-            f"SHORT {n_s / ngay:.2f}/ngày ⇒ còn ~{con:.0f} ngày cho đủ 30")
+            f"SHORT {nhip_s:.2f}/ngày ⇒ còn ~{con:.0f} ngày cho đủ {CAN_SHORT}"
+            f"{NL}                — nhưng {CAN_SHORT} lệnh KHÔNG đủ để kết luận: "
+            f"cần ~{can:.0f} lệnh ({nam:.1f} năm ở nhịp này)")
 
 
 def _huong_r(thu_muc: Path, huong: str) -> tuple[float | None, int]:
