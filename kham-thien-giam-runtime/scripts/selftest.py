@@ -7075,9 +7075,11 @@ def kiem_khao_sat_ngay() -> None:
        Brier đẹp mà không nói thêm gì — đúng cái bẫy đã thấy ở họ nhiệt
        độ (|z| lớn cho +84%, ô có tiền chỉ +1,9%).
     """
+    import datetime as _dt_mod
     import json
     import tempfile
 
+    goc = Path(__file__).resolve().parent.parent
     ks = _nap_khao_sat()
 
     print()
@@ -7164,6 +7166,74 @@ def kiem_khao_sat_ngay() -> None:
              (ra is None) if mong is None else (ra is not None
                                                 and abs(ra[0] - mong) < 1e-12),
              ra)
+
+    # ── 3b. HẠN phải đọc ĐỦ GIỜ, và từ ĐÚNG trường ───────────────────
+    #
+    # Trên Gamma, `endDate` mang đủ dấu thời gian
+    # (`2026-09-06T08:30:00Z`) còn `endDateIso` bị CẮT còn ngày
+    # (`2026-09-06`) — cái tên nói ngược sự thật. Đọc nhầm là mất tới
+    # 24 giờ, và với bộ lọc "ngã ngũ sau ít nhất 1 ngày" thì mất chừng
+    # ấy là loại SẠCH: đo 05/09/2026, lượt khảo sát trả về 0 market
+    # trong khi chợ có hàng nghìn.
+    for ten, m0, mong in (
+        ("endDate đủ giờ", {"endDate": "2026-09-06T08:30:00Z"},
+         "2026-09-06T08:30:00+00:00"),
+        ("endDateIso cụt KHÔNG được thắng",
+         {"endDate": "2026-09-06T08:30:00Z", "endDateIso": "2026-09-06"},
+         "2026-09-06T08:30:00+00:00"),
+        ("chỉ có ngày ⇒ nửa đêm (cận DƯỚI, thiên về loại bớt)",
+         {"endDate": "2026-09-06"}, "2026-09-06T00:00:00+00:00"),
+    ):
+        v = ks.han_ms(m0)
+        got = (None if v is None else _dt_mod.datetime.fromtimestamp(
+            v / 1000.0, _dt_mod.timezone.utc).isoformat())
+        kiem(f"hạn · {ten}", got == mong, (got, mong))
+    kiem("thiếu hẳn ngày ⇒ None", ks.han_ms({}) is None)
+    kiem("ngày rác ⇒ None, không ném",
+         ks.han_ms({"endDate": "khong-phai-ngay"}) is None)
+
+    # ── 3c. gọi mô hình: hỏng thì phải nói VÌ SAO ────────────────────
+    #
+    # Bản đầu trả `None` trơ cho mọi ca hỏng, và 6/6 market ra "không
+    # phán được" — trông y hệt một mô hình từ chối trả lời. Nguyên
+    # nhân thật: `subprocess.run(text=True)` trên Windows giải mã bằng
+    # cp1252, còn trả lời có chữ tiếng Việt; `UnicodeDecodeError` ném
+    # trong LUỒNG ĐỌC nên `except OSError` không bắt được, `stdout`
+    # thành None, và `(r.stdout or "")` biến nó thành rỗng.
+    vb = (goc / "scripts" / "khao-sat-ngay.py").read_text(encoding="utf-8")
+    than = vb[vb.index("def hoi_model"):vb.index("def ket_qua")]
+    # CẮT CHÚ THÍCH trước khi dò. Chính đoạn văn giải thích con bọ này
+    # có chữ `text=True` trong đó — và đây là lần THỨ TƯ cùng một loại
+    # bẫy cắn ở repo này.
+    import io as _io
+    import tokenize as _tk
+
+    def _khong_chu_thich(vb: str) -> str:
+        try:
+            ra = []
+            for t in _tk.generate_tokens(_io.StringIO(vb).readline):
+                if t.type in (_tk.COMMENT, _tk.STRING):
+                    continue
+                ra.append(t.string)
+            return " ".join(ra)
+        except Exception:                            # noqa: BLE001
+            return vb
+
+    NL = chr(10)
+    ma_than = _khong_chu_thich(
+        "def f():" + NL
+        + NL.join("    " + x for x in than.splitlines()[1:]))
+    kiem("gọi CLI khai encoding utf-8, KHÔNG dựa vào bảng mã hệ thống",
+         'encoding' in ma_than and 'utf-8' in than, than[:200])
+    kiem("và `text=True` KHÔNG còn trong MÃ (chú thích thì được)",
+         "text = True" not in ma_than and "text=True" not in ma_than,
+         ma_than[:200])
+    kiem("phép cắt chú thích CÓ tác dụng — nguyên văn vẫn còn `text=True`",
+         "text=True" in than)
+    kiem("`hoi_model` trả về CẶP (p, lý do) chứ không None trơ",
+         "return None, " in than and than.count("return None, ") >= 3)
+    kiem("nói rõ ca quá giờ", "TimeoutExpired" in than)
+    kiem("nói rõ ca mã thoát khác 0", "returncode" in than)
 
     # ── 4. chấm: chỉ chấm khi chợ ĐÃ trọng tài xong ──────────────────
     for ten, gia, mong in (

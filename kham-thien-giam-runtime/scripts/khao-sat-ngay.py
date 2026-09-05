@@ -137,21 +137,58 @@ def gia_cho(m: dict) -> float | None:
 
 
 def han_ms(m: dict) -> float | None:
-    s = str(m.get("endDate") or "")[:10]
-    if len(s) != 10:
+    """Mốc ngã ngũ, tính ĐỦ CẢ GIỜ.
+
+    Bản đầu cắt `endDate` còn 10 ký tự rồi dựng nửa đêm — mất tới 24
+    giờ. Với một bộ lọc "ngã ngũ sau ít nhất 1 ngày" thì sai số ấy đủ
+    để loại sạch: đo 05/09/2026, 93/300 market bị loại vì "hạn ngoài
+    dải" trong khi chúng ngã ngũ đúng 1,0–1,4 ngày sau. Lượt khảo sát
+    trả về 0 market và trông như chợ không có gì.
+    """
+    # ⚠ `endDate` TRƯỚC `endDateIso`. Cái tên nói ngược sự thật: trên
+    # Gamma, `endDate` mang đủ dấu thời gian (`2026-09-06T08:30:00Z`)
+    # còn `endDateIso` bị CẮT còn ngày (`2026-09-06`). Đọc cái sau
+    # trước là mất tới 24 giờ, và với bộ lọc "ngã ngũ sau ít nhất 1
+    # ngày" thì mất chừng ấy là loại sạch: đo 05/09/2026, 217/600
+    # market rơi vào "hạn ngoài dải" trong khi chúng ngã ngũ đúng
+    # 1,0–1,4 ngày sau, và lượt khảo sát trả về 0.
+    v = str(m.get("endDate") or m.get("endDateIso") or "").strip()
+    if not v:
         return None
     try:
-        d = dt.date.fromisoformat(s)
+        d = dt.datetime.fromisoformat(v.replace("Z", "+00:00"))
     except ValueError:
-        return None
-    return dt.datetime(d.year, d.month, d.day,
-                       tzinfo=dt.timezone.utc).timestamp() * 1000.0
+        # Chỉ có ngày, không có giờ: dựng nửa đêm — và đó là CẬN DƯỚI,
+        # tức thiên về loại bớt chứ không nhận bừa.
+        try:
+            n = dt.date.fromisoformat(v[:10])
+        except ValueError:
+            return None
+        d = dt.datetime(n.year, n.month, n.day, tzinfo=dt.timezone.utc)
+    if d.tzinfo is None:
+        d = d.replace(tzinfo=dt.timezone.utc)
+    return d.timestamp() * 1000.0
 
 
 def _bay_gio_iso() -> str:
-    """Mốc `end_date_min` cho Gamma: bây giờ, theo ISO UTC."""
+    """Mốc `end_date_min`: SỚM NHẤT mà lượt khảo sát này còn quan tâm.
+
+    KHÔNG phải "bây giờ". `ascending=true` trả về market hết hạn sớm
+    nhất trước, và Polymarket mở khung crypto 5 PHÚT liên tục — nên
+    2.000 kết quả đầu tiên đều là khung sắp đóng trong vài phút, và
+    bộ lọc "ngã ngũ sau ít nhất 1 ngày" loại sạch.
+
+    Đo 05/09/2026: 2.000 market đọc được, 0 cái qua bộ lọc. Trong 200
+    cái đầu, 87 hết hạn trong ngày và 113 có giá ngoài dải — không một
+    cái nào là market ngày/tuần.
+
+    Đẩy mốc lên đúng `NGAY_TOI_THIEU` thì `ascending=true` cho ra ĐÚNG
+    lát cần: những market ngã ngũ sớm nhất trong số còn đáng phán.
+    """
     import datetime as _dt
-    return _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    moc = (_dt.datetime.now(_dt.timezone.utc)
+           + _dt.timedelta(days=NGAY_TOI_THIEU))
+    return moc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _tai_json(url: str, tham: dict, lanThu: int = 14):
@@ -290,14 +327,63 @@ def doc_phan(t: str) -> tuple[float, str] | None:
     return p, str(d.get("lyLe") or "")[:200]
 
 
-def hoi_model(cauHoi: str, han: str) -> tuple[float, str] | None:
+def duong_claude() -> str | None:
+    """Tìm `claude` CLI. None nghĩa là không có.
+
+    Trên máy này nó nằm ở `%USERPROFILE%/.local/bin/claude.exe` và
+    KHÔNG có trong PATH của tiến trình con — nên gọi thẳng `"claude"`
+    ném `FileNotFoundError`, và với một `except OSError` trả None thì
+    lượt khảo sát im lặng báo "không phán được" cho MỌI market. Một
+    cấu hình sai trông y hệt một mô hình dở.
+    """
+    import os
+    import shutil
+
+    d = shutil.which("claude")
+    if d:
+        return d
+    for x in (Path(os.environ.get("USERPROFILE", "")) / ".local" / "bin"
+              / "claude.exe",
+              Path(os.environ.get("APPDATA", "")) / "npm" / "claude.cmd",
+              Path.home() / ".local" / "bin" / "claude"):
+        if x.exists():
+            return str(x)
+    return None
+
+
+def hoi_model(cauHoi: str, han: str) -> tuple[float, str] | tuple[None, str]:
+    """(p, lý lẽ) khi phán được; (None, VÌ SAO HỎNG) khi không.
+
+    Trả kèm LÝ DO chứ không trả `None` trơ. Bản đầu trả `None` cho mọi
+    ca hỏng, và ngày 05/09/2026 nó cho 6/6 market "không phán được" —
+    trông y hệt một mô hình từ chối trả lời. Nguyên nhân thật nằm chỗ
+    khác hẳn:
+
+    `subprocess.run(..., text=True)` trên Windows giải mã đầu ra bằng
+    **cp1252**, còn trả lời có chữ tiếng Việt. `UnicodeDecodeError` ném
+    trong LUỒNG ĐỌC — không phải trong lời gọi — nên `except OSError`
+    không bắt được, `r.stdout` thành `None`, và `(r.stdout or "")` biến
+    nó thành chuỗi rỗng. Một lỗi mã hoá đội lốt một mô hình dở.
+
+    Nay khai thẳng `encoding="utf-8", errors="replace"`.
+    """
+    exe = duong_claude()
+    if exe is None:
+        return None, "không tìm thấy `claude` CLI"
     loi = LOI_DAN.format(cauHoi=cauHoi, han=han)
     try:
-        r = subprocess.run(["claude", "-p", loi],
-                           capture_output=True, text=True, timeout=180)
-    except (OSError, subprocess.SubprocessError):
-        return None
-    return doc_phan((r.stdout or "").strip())
+        r = subprocess.run([exe, "-p", loi], capture_output=True,
+                           encoding="utf-8", errors="replace", timeout=180)
+    except subprocess.TimeoutExpired:
+        return None, "quá 180 giây"
+    except (OSError, subprocess.SubprocessError) as e:
+        return None, f"{type(e).__name__}: {e}"
+    if r.returncode != 0:
+        return None, f"mã thoát {r.returncode}: {(r.stderr or '')[:80]}"
+    ra = doc_phan((r.stdout or "").strip())
+    if ra is None:
+        return None, f"không đọc ra JSON: {(r.stdout or '')[:80]!r}"
+    return ra
 
 
 def ket_qua(m: dict) -> bool | None:
@@ -427,18 +513,29 @@ def main() -> int:
         in_bang_diem(so)
         return 0
 
+    if duong_claude() is None:
+        print()
+        print("  KHÔNG TÌM THẤY `claude` CLI — không phán được gì.")
+        print("  Đã tìm: PATH, %USERPROFILE%/.local/bin, %APPDATA%/npm.")
+        print("  Nói TO ở đây thay vì để mỗi market lặng lẽ 'không phán")
+        print("  được': một cấu hình sai trông y hệt một mô hình dở.")
+        in_bang_diem(so)
+        return 4
+
+    print(f"  dùng {duong_claude()}")
     print()
     daGhi = hong = 0
     for m, p, han, ho in mau:
         cauHoi = str(m.get("question") or m.get("slug") or "?")
         hanTen = dt.datetime.fromtimestamp(
             han / 1000.0, dt.timezone.utc).date().isoformat()
-        kq = hoi_model(cauHoi, hanTen)
-        if kq is None:
+        pm, lyLe = hoi_model(cauHoi, hanTen)
+        if pm is None:
             hong += 1
-            print(f"    ✗ không phán được: {cauHoi[:50]}")
+            # In VÌ SAO. "Không phán được" mà không nói lý do thì một
+            # lỗi cấu hình trông y hệt một mô hình từ chối.
+            print(f"    ✗ {cauHoi[:38]} — {lyLe}")
             continue
-        pm, lyLe = kq
         maMarket = str(m.get("id") or m.get("slug") or "")
         # `id` suy từ (nguồn, NGÀY, market) chứ không từ đồng hồ: chạy
         # lại cùng ngày thì `them` thấy trùng và trả False, nên không
