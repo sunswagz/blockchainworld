@@ -197,10 +197,26 @@ class TrieuChungHe:
     moTa: str
     bangChung: dict = field(default_factory=dict)
     nutGoiY: list[str] = field(default_factory=list)
+    #: Bệnh này muốn NỚI hay SIẾT — `"noi"` / `"siet"`.
+    #:
+    #: Ý định là chuyện của BỆNH, còn cộng hay trừ bước là chuyện của NÚM
+    #: (xem `cuc` trong `NUT_TRUNG_UONG`). Trước lượt này ý định nằm trong
+    #: một tuple tên bệnh chép tay bên trong `de_xuat()`, cách chỗ khai
+    #: bệnh hơn năm trăm dòng — nên một bệnh thêm sau mà không ai nhớ
+    #: thêm tên vào đó sẽ lặng lẽ nhận chiều NGƯỢC.
+    #:
+    #: Đúng chuyện ấy đã xảy ra với `von-ranh-an-khong`. Nó khai «222.905
+    #: USD nằm không, ăn 0%» rồi đề xuất SIẾT `tranMotCang` 0,35 → 0,26 —
+    #: tức làm cho ít vốn rót được hơn nữa, ngược hẳn ý định ghi ngay
+    #: trong chú thích của chính nó. Và có đường tự áp
+    #: (`/api/ap-dung-tham-so`), nên lời khuyên ấy không chỉ nằm trên
+    #: giấy.
+    yDinh: str = ""
 
     def tom_tat(self) -> dict:
         return {"ma": self.ma, "nang": self.nang, "moTa": self.moTa,
-                "bangChung": self.bangChung, "nutGoiY": list(self.nutGoiY)}
+                "bangChung": self.bangChung, "nutGoiY": list(self.nutGoiY),
+                "yDinh": self.yDinh}
 
 
 def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
@@ -239,7 +255,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"chịu được, hoặc hai cảng lệch nhau quá nhiều.",
             {"soPhangGap": so_gap, "soPhien": so_phien,
              "tiLe": so_gap / so_phien},
-            ["ruiRoTong.tranMotCoHoi"]))
+            ["ruiRoTong.tranMotCoHoi"], yDinh="siet"))
 
     # ── 0c. cầu dao ngắt LIÊN TỤC — cỗ máy còn thở mà không làm gì ──────
     #
@@ -337,7 +353,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"hoặc cổng ty quá lỏng, hoặc trần tổng quá chặt.",
             {"quaCongTy": qua_ty, "quaRuiRoTong": qua_rr,
              "tiLe": qua_rr / qua_ty},
-            ["ruiRoTong.ruiRoToiDa", "ruiRoTong.tinCayToiThieu"]))
+            ["ruiRoTong.ruiRoToiDa", "ruiRoTong.tinCayToiThieu"], yDinh="noi"))
 
     # ── 3. tiền nằm không, mà vẫn từ chối vì trần ────────────────────────
     ti_le_dung = float(dm.get("tiLeDungVon") or 0.0)
@@ -351,7 +367,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             {"tiLeDungVon": ti_le_dung, "quaRuiRoTong": qua_rr,
              "daCapVon": da_cap},
             ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy",
-             "ruiRoTong.tranMotCoHoi"]))
+             "ruiRoTong.tranMotCoHoi"], yDinh="noi"))
 
     # ── 3b. TRẦN VỊ THẾ là thủ phạm chính ───────────────────────────────
     # Đọc MÃ, không dò chuỗi: `phan_bo.ly_do()` đặt mã đứng đầu mỗi câu đúng
@@ -466,7 +482,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                  "tiLeVonTrongGheBe": _gv.get("tiLeVonTrongGheBe"),
                  "vonTrungViMotGheUsd": _gv.get("vonTrungViMotGheUsd"),
                  "phanChiaMoiGheUsd": _gv.get("phanChiaMoiGheUsd")},
-                ["phanBo.toiDaSoViThe"]))
+                ["phanBo.toiDaSoViThe"], yDinh="noi"))
 
     # ── 4. cấp vốn xong mà không mở được ─────────────────────────────────
     da_mo = int(pheu.get("DA_MO") or 0)
@@ -529,7 +545,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                     f"người vận hành.",
                     {"chienLuoc": ma, "laiLoUsd": gop,
                      "laiLoChienLuocUsd": None},
-                    ["ruiRoTong.tranMotTy"]))
+                    ["ruiRoTong.tranMotTy"], yDinh="siet"))
             continue
         cl = float(cl)
         if cl < 0:
@@ -539,7 +555,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                 f"riêng phí vào lệnh. Đây là số đã ghi sổ, không phải ước "
                 f"tính, và nó nói về chính chiến lược.",
                 {"chienLuoc": ma, "laiLoUsd": gop, "laiLoChienLuocUsd": cl},
-                ["ruiRoTong.tranMotTy"]))
+                ["ruiRoTong.tranMotTy"], yDinh="siet"))
         elif gop < 0:
             # Chiến lược dương mà gộp âm: phí vào lệnh ăn hết. KHÔNG có
             # núm nào chữa — vặn trần vốn ở đây là phạt nhầm người.
@@ -739,27 +755,65 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                      f"không ở đây là ĐÚNG, và trần vốn KHÔNG phải chỗ "
                      f"đáng nhìn. Gỡ lý do ngắt trước; đo lại sau đó mới "
                      f"nói được gì về trần.")
+
+        # GHẾ ĐÃ ĐẦY thì nới trần vốn KHÔNG rót thêm được đồng nào: một vị
+        # thế mới cần một CHỖ NGỒI trước khi cần tiền. Chỉ sang trần lúc
+        # ấy là đúng cái lỗi vừa gỡ cho cầu dao, lặp lại ở một cửa khác.
+        #
+        # Đo làn thật 05/09/2026: 120/120 ghế đầy, 222.905 USD nằm ngoài
+        # dự trữ, và lý do từ chối duy nhất còn lại là `tran-vi-the`.
+        #
+        # Và câu quan trọng hơn nằm ở PHÂN BỐ chứ không ở SỐ LƯỢNG ghế:
+        # 100 trong 120 ghế giữ đúng 14% vốn, trung vị một ghế 1.136 USD
+        # trên phần chia công bằng 6.667 USD. Nên nới thêm ghế chưa chắc
+        # là câu trả lời — có thể ghế đang ngồi sai người. Triệu chứng
+        # này KHÔNG chọn hộ; nó bày cả hai con số ra.
+        _gvR = anh.get("gheVaVon") or {}
+        _conGhe = _gvR.get("conGhe")
+        _viGhe = ""
+        _ghetDay = (_conGhe == 0 and not _cdN.get("dangNgat"))
+        if _ghetDay:
+            _soGhe = _gvR.get("soGhe")
+            _be = _gvR.get("soGheBe")
+            _tiBe = _gvR.get("tiLeVonTrongGheBe")
+            _tv = _gvR.get("vonTrungViMotGheUsd")
+            _pc = _gvR.get("phanChiaMoiGheUsd")
+            _viGhe = (f" NHƯNG GHẾ ĐÃ ĐẦY ({_soGhe}/{_soGhe}) — nới trần "
+                      f"vốn KHÔNG rót thêm được đồng nào, vì một vị thế "
+                      f"mới cần một CHỖ NGỒI trước khi cần tiền.")
+            if _be is not None and _tiBe is not None:
+                _viGhe += (f" Và {_be}/{_soGhe} ghế đang giữ "
+                           f"{float(_tiBe):.0%} vốn")
+                if _tv and _pc:
+                    _viGhe += (f" (trung vị {float(_tv):,.0f} USD một ghế "
+                               f"trên phần chia {float(_pc):,.0f})")
+                _viGhe += (". Nên câu hỏi là ghế đang ngồi ĐÚNG người "
+                           "chưa, chứ không hẳn là thiếu ghế.")
         ra.append(TrieuChungHe(
             "von-ranh-an-khong", 2,
             f"{float(vr.get('ranhNgoaiDuTruUsd') or 0):,.0f} USD nằm NGOÀI "
             f"dự trữ mà không làm gì — {ti_ranh:.0%} phần vốn khả dụng, ăn "
             f"0%. Dự trữ {float(vr.get('tiLeDuTru') or 0):.0%} đã trừ ra "
             f"rồi, nên đây không phải chỗ tiền được cố ý để yên."
-            + them + _viCd,
+            + them + _viCd + _viGhe,
             {"ranhNgoaiDuTruUsd": vr.get("ranhNgoaiDuTruUsd"),
              "tiLeRanhTrenKhaDung": ti_ranh,
              "khaDungUsd": vr.get("khaDungUsd"),
              "dangDungUsd": vr.get("dangDungUsd"),
              "loiSuatTrenVonDungPhanTram": ls_d,
              "loiSuatQuyVeNavPhanTram": ls_n,
-             "loiSuatNeuLapDayPhanTram": ls_l},
+             "loiSuatNeuLapDayPhanTram": ls_l,
+             "conGhe": _conGhe, "soGheBe": _gvR.get("soGheBe"),
+             "tiLeVonTrongGheBe": _gvR.get("tiLeVonTrongGheBe")},
             # Cùng bộ núm với `tran-dat-sai-cho`: tiền nằm không mà cơ hội
             # vẫn đi qua nghĩa là một cái trần chặn trước khi tiền cạn.
             # NHƯNG khi cầu dao đang ngắt thì KHÔNG khai núm nào — vặn
             # trần lúc ấy là nới một cái cửa trong khi cửa khác đang khoá
             # có chủ ý, và người vặn sẽ tưởng mình vừa chữa được gì đó.
             [] if _cdN.get("dangNgat")
-            else ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy"]))
+            # Ghế đầy thì núm đáng nhìn là SỐ GHẾ, không phải trần vốn.
+            else ["phanBo.toiDaSoViThe"] if _ghetDay
+            else ["ruiRoTong.tranMotCang", "ruiRoTong.tranMotTy"], yDinh="noi"))
 
     # ── 7bb. XOAY CHỖ hứa dài hơn đời thật của vị thế ──────────────────
     #
@@ -862,7 +916,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
              "aprThucPhanTram": float(thuc), "vonGioUsd": vg,
              "soViThe": o.get("soViThe"),
              "soKhongKhai": o.get("soKhongKhai")},
-            ["ruiRoTong.netMoiGioToiThieuBps"]))
+            ["ruiRoTong.netMoiGioToiThieuBps"], yDinh="siet"))
 
     # ── 8. HỨA QUÁ — tín hiệu duy nhất mà tám ty KHÔNG có băng vẫn cho ──
     #
@@ -897,7 +951,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             {"chienLuoc": ma, "soDoiChieuDuoc": k,
              "duDoanBpsGio": o.get("duDoanBpsGio"),
              "thucBpsGio": o.get("thucBpsGio"), "lechBpsGio": lech},
-            ["ruiRoTong.netMoiGioToiThieuBps"]))
+            ["ruiRoTong.netMoiGioToiThieuBps"], yDinh="siet"))
 
     if not ra:
         ra.append(TrieuChungHe(
@@ -975,8 +1029,12 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
             # Trộn hai chuyện ấy vào một cờ là chỗ đã sai: `tong-chan-het`
             # gợi ý `tinCayToiThieu`, và máy NÂNG sàn tin cậy để chữa bệnh
             # nghẽn. Bước có trần, và không bao giờ ra ngoài khuôn.
-            noi = t.ma in ("tong-chan-het", "tran-dat-sai-cho",
-                           "tran-vi-the-chan")
+            # Ý ĐỊNH do chính bệnh khai. Không khai thì KHÔNG đề xuất gì
+            # — im lặng còn hơn vặn nhầm chiều, và `kiem_chan_doan_he`
+            # bắt mọi bệnh có núm mà quên khai.
+            if t.yDinh not in ("noi", "siet"):
+                continue
+            noi = t.yDinh == "noi"
             huong = (1 if noi else -1) * int(khuon.get("cuc", 1))
             # `or` chỉ cứu đúng trường hợp `hien == 0`, mà chỗ chết không
             # nằm ở 0 — nó nằm ở MỌI giá trị nhỏ so với khuôn. `hien = 0,5`

@@ -3543,6 +3543,48 @@ def kiem_chan_doan_he() -> None:
     from thi_bac_ty.khuon_ty import Ty
     from thi_bac_ty.trung_uong import TrungUong
 
+    # ── MỌI bệnh có núm phải TỰ KHAI ý định nới/siết ────────────────────
+    #
+    # Trước lượt này ý định nằm trong một tuple tên bệnh chép tay bên
+    # trong `de_xuat()`, cách chỗ khai bệnh hơn năm trăm dòng. `von-ranh-
+    # an-khong` thêm vào sau, không ai nhớ thêm tên nó, nên nó nhận chiều
+    # NGƯỢC: khai «222.905 USD nằm không, ăn 0%» rồi đề xuất SIẾT
+    # `tranMotCang` 0,35 → 0,26 — làm cho ít vốn rót được hơn nữa. Và có
+    # đường tự áp (`/api/ap-dung-tham-so`), nên lời khuyên ấy không chỉ
+    # nằm trên giấy.
+    #
+    # Phép canh đọc thẳng MÃ NGUỒN chứ không chờ bệnh nổ: một bệnh chỉ nổ
+    # trong một tình huống hiếm thì phép kiểm dựng ảnh chụp sẽ không bao
+    # giờ chạm tới nó, mà nó vẫn vặn núm thật khi tình huống ấy tới.
+    import ast as _ast
+    import pathlib as _pl
+    _nguon = (_pl.Path(__file__).resolve().parent.parent
+              / "thi_bac_ty" / "chan_doan_he.py").read_text(encoding="utf-8")
+    _thieuY, _soCoNut = [], 0
+    for _n in _ast.walk(_ast.parse(_nguon)):
+        if not (isinstance(_n, _ast.Call)
+                and getattr(_n.func, "id", "") == "TrieuChungHe"):
+            continue
+        if len(_n.args) < 5:
+            continue
+        _a = _n.args[4]
+        if isinstance(_a, _ast.List) and not _a.elts:
+            continue          # khai núm RỖNG là một lời khai hợp lệ
+        _soCoNut += 1
+        _ma = (_n.args[0].value if isinstance(_n.args[0], _ast.Constant)
+               else "?")
+        _y = next((k.value.value for k in _n.keywords
+                   if k.arg == "yDinh" and isinstance(k.value, _ast.Constant)),
+                  None)
+        if _y not in ("noi", "siet"):
+            _thieuY.append((_ma, _y))
+    kiem("mọi bệnh CÓ NÚM đều tự khai `yDinh`",
+         not _thieuY, f"{_thieuY} — bệnh không khai ý định sẽ nhận chiều "
+                      f"ngược, và có đường tự áp nên nó vặn núm thật")
+    kiem("và phép canh này thật sự soi được vài bệnh",
+         _soCoNut >= 8,
+         f"chỉ thấy {_soCoNut} chỗ khai núm — phép canh rỗng thì luôn xanh")
+
     trung = set(NUT_TRUNG_UONG) & set(CUA_AN_TOAN_HE)
     kiem("không cửa an toàn nào lọt vào danh sách núm vặn được", not trung,
          f"{trung} — đường ngắn nhất tới điểm cao là tắt đèn báo, và nó sẽ "
@@ -3555,6 +3597,55 @@ def kiem_chan_doan_he() -> None:
     kiem("và nó không đề xuất vặn núm nào",
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
+
+    # ── tiền nằm không: đề xuất phải NỚI, và núm tuỳ GHẾ còn hay hết ────
+    def _anh_ranh(conGhe):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "gheVaVon": {"soGhe": 120, "conGhe": conGhe, "soGheBe": 99,
+                             "tiLeVonTrongGheBe": 0.13,
+                             "vonTrungViMotGheUsd": 1136.0,
+                             "phanChiaMoiGheUsd": 6667.0},
+                "vonRanh": {"ranhNgoaiDuTruUsd": 222905.0,
+                            "khaDungUsd": 800066.0, "dangDungUsd": 577161.0,
+                            "tiLeRanhTrenKhaDung": 0.2786, "tiLeDuTru": 0.2,
+                            "loiSuatTrenVonDungPhanTram": 3.96,
+                            "loiSuatQuyVeNavPhanTram": 2.29,
+                            "loiSuatNeuLapDayPhanTram": 3.17}}
+
+    _cfgR = {"ruiRoTong": {"tranMotCang": 0.35, "tranMotTy": 0.5},
+             "phanBo": {"toiDaSoViThe": 120}}
+    _trR = [t for t in chan_doan_he(_anh_ranh(40))
+            if t.ma == "von-ranh-an-khong"]
+    _dxR = de_xuat(_trR, _cfgR)
+    kiem("tiền nằm không mà CÒN GHẾ → NỚI trần vốn",
+         _dxR and _dxR[0].nut == "ruiRoTong.tranMotCang"
+         and _dxR[0].den > _dxR[0].tu,
+         f"{[d.tom_tat() for d in _dxR]} — bản trước SIẾT 0,35 → 0,26, tức "
+         f"làm cho ít vốn rót được hơn nữa")
+
+    _trG = [t for t in chan_doan_he(_anh_ranh(0))
+            if t.ma == "von-ranh-an-khong"]
+    _dxG = de_xuat(_trG, _cfgR)
+    kiem("ghế ĐẦY thì núm là SỐ GHẾ, không phải trần vốn",
+         _dxG and _dxG[0].nut == "phanBo.toiDaSoViThe"
+         and _dxG[0].den > _dxG[0].tu,
+         f"{[d.tom_tat() for d in _dxG]} — nới trần lúc ghế đã đầy không "
+         f"rót thêm được đồng nào: vị thế mới cần CHỖ NGỒI trước khi cần tiền")
+    kiem("và câu chẩn nói ra chuyện ghế đầy kèm phân bố ghế bé",
+         _trG and "GHẾ ĐÃ ĐẦY" in _trG[0].moTa
+         and "99/120" in _trG[0].moTa,
+         _trG[0].moTa[-200:] if _trG else "")
+    kiem("cầu dao ngắt vẫn THẮNG cả hai — không khai núm nào",
+         de_xuat([t for t in chan_doan_he(
+             {**_anh_ranh(0),
+              "cauDao": {"dangNgat": True, "lyDo": [{"ma": "x", "moTa": "y"}],
+                         "lichSu": []}})
+             if t.ma == "von-ranh-an-khong"], _cfgR) == [],
+         "vặn núm lúc cửa khác đang khoá có chủ ý là làm người vặn tưởng "
+         "mình vừa chữa được gì đó")
 
     # Chưa đủ mẫu thì đứng yên.
     tr2 = chan_doan_he({"soDangKy": {"pheu": {"phatHien": 7}}})
