@@ -1207,6 +1207,13 @@ class TrungUong:
                 "phanBo": dict(self.phan_bo.c),
                 "nguongCauDao": dict(self.c["nguongCauDao"])}
 
+    #: Nhiều nhất ngần này núm được thử trong MỘT vòng học.
+    #:
+    #: Ba. Mỗi lượt thử là một lượt chạy lại trọn lô tờ trình, nên không
+    #: được thử vô hạn; và ba đã đủ đi qua hai núm bất động để chạm núm
+    #: thứ ba, thứ hiếm khi cần tới.
+    TOI_DA_THU_NUT = 3
+
     def hoc(self, ghiSo: bool = True) -> dict:
         """Chẩn cả bộ máy, và ĐỀ XUẤT vặn — **không tự vặn**.
 
@@ -1219,19 +1226,49 @@ class TrungUong:
         anh = self.anh_chup()
         trieu = chan_doan_he(anh)
         goc = self.tham_so()
-        dx = de_xuat(trieu, goc)
 
         # ĐO đề xuất, đừng để nó trần. Chạy lại không nói được lãi lỗ, nhưng
         # nó nói được HÌNH DẠNG phân bổ đổi ra sao — và quan trọng hơn: nó
         # bắt được lúc một đề xuất chỉ "tốt hơn" nhờ ôm rủi ro đậm hơn.
+        #
+        # Và nếu phép đo nói núm ấy KHÔNG ĐỔI GÌ thì thử núm kế. Trước lượt
+        # này vòng học dừng ở đúng một đề xuất: một núm bất động làm cả vòng
+        # kết thúc tay trắng, trong khi một triệu chứng khác có thể đang
+        # khai một núm vặn được.
+        #
+        # Đo làn thật 05/09/2026: `ruiRoTong.tranMotCoHoi` quét 0,05 → 0,35
+        # cho ĐÚNG một con số (trần 150.000 USD, vị thế lớn nhất 25.000), và
+        # HAI triệu chứng khai đúng núm ấy.
+        #
+        # CHỈ thử lại khi phép đo nói «hoà». «Bản đang chạy tốt hơn» và «chỉ
+        # hơn nhờ ôm rủi ro đậm hơn» là câu trả lời THẬT — thử tiếp ở đó là
+        # mài cho qua cổng, và đó đúng là thứ cổng ấy sinh ra để chặn.
         do = None
         duyet = None
-        if dx:
-            tt, hong = thu_hoach(self.so_dang_ky)
-            moi = _dat_nut(goc, dx[0].nut, dx[0].den)
+        dx = []
+        daThu: list[dict] = []
+        boQua: set[str] = set()
+        tt = hong = None
+        for _ in range(self.TOI_DA_THU_NUT):
+            ung = de_xuat(trieu, goc, boQua=boQua)
+            if not ung:
+                break
+            if tt is None:
+                tt, hong = thu_hoach(self.so_dang_ky)
+            moi = _dat_nut(goc, ung[0].nut, ung[0].den)
             do = doi_chieu(tt, goc, moi, self.danh_muc.vonBanDauUsd, hong)
+            duyet = xet_duyet(ung[0], do).tom_tat()
+            dx = ung
+            daThu.append({"nut": ung[0].nut, "tu": ung[0].tu,
+                          "den": ung[0].den, "ketLuan": do.get("ketLuan"),
+                          "duDieuKien": duyet["duDieuKien"]})
+            if (duyet["duDieuKien"] or not do.get("duDeKetLuan")
+                    or do.get("ketLuan") != "hoa"):
+                break
+            # Đo ra HOÀ: núm này không đổi được gì. Ghi lại rồi thử núm kế.
+            boQua.add(ung[0].nut)
+        if dx:
             # Cổng Duyệt đứng SAU phép đo và TRƯỚC mọi đường áp dụng.
-            duyet = xet_duyet(dx[0], do).tom_tat()
             self._deXuatChoDuyet = (dx[0], do) if duyet["duDieuKien"] else None
         else:
             self._deXuatChoDuyet = None
@@ -1241,6 +1278,10 @@ class TrungUong:
               "deXuat": [d.tom_tat() for d in dx],
               "doDuoc": do,
               "congDuyet": duyet,
+              # MỌI núm đã thử trong vòng này, kèm kết luận của từng lượt
+              # đo. Giấu đi thì một vòng thử ba núm trông y hệt một vòng
+              # thử một núm, và không ai biết hai núm kia bất động.
+              "daThuNut": daThu,
               "banHienHanh": (self.kho_tham_so.hien_hanh().so
                               if self.kho_tham_so.hien_hanh() else None),
               "tuVan": False,

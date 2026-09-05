@@ -16,15 +16,47 @@ Không phép kiểm nào ở đây gọi mạng, và không phép kiểm nào gh
 """
 from __future__ import annotations
 
+import atexit
+import gc
 import gzip
 import os
+import shutil
 import sys
 import tempfile
 import time
 from pathlib import Path
 
+_TAM_DA_TAO: list[str] = []
+
+
+def _tam_moi(prefix: str) -> str:
+    """Thư mục tạm TỰ DỌN lúc tiến trình thoát.
+
+    Gọi thẳng `tempfile.mkdtemp` thì mỗi lượt tự kiểm bỏ lại một thư mục trong
+    %TEMP% mà không ai dọn, và vòng tiến hoá chạy bộ này liên tục. Ngày
+    05/09/2026 đếm được **123.703** thư mục `tbt-` còn nằm lại — chiếm 83% toàn
+    bộ rác tạm của máy, và là thủ phạm chính đợt ổ C: đầy 100% hôm 04/09 (lúc
+    ấy `node` không khởi động nổi, mọi hook PreToolUse ngã theo).
+    """
+    d = tempfile.mkdtemp(prefix=prefix)
+    _TAM_DA_TAO.append(d)
+    return d
+
+
+@atexit.register
+def _don_tam() -> None:
+    # `gc.collect()` TRƯỚC khi xoá: Windows không xoá được thư mục còn file
+    # đang mở, và phép kiểm để lại nhiều `sqlite3.Connection` mồ côi chưa đóng.
+    # Thu gom rác sẽ chạy `__del__` của chúng và nhả khoá. Thiếu dòng này thì
+    # `ignore_errors=True` NUỐT lỗi và thư mục ở lại mà không ai biết — đo được
+    # 49 thư mục sót mỗi lượt chạy trước khi thêm nó.
+    gc.collect()
+    for d in _TAM_DA_TAO:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-os.environ["TBT_DATA_DIR"] = tempfile.mkdtemp(prefix="tbt-selftest-")
+os.environ["TBT_DATA_DIR"] = _tam_moi("tbt-selftest-")
 
 from bac.can_loi import (lech_mark_bps, net_apr_pct,            # noqa: E402
                          phi_khu_hoi_bps, tim_co_hoi)
@@ -1893,9 +1925,7 @@ def _mau(ma="perpetual.funding_spread.v1", ho="phai-sinh", taiSan="BTC",
 
 
 def _tam(ten: str):
-    import tempfile as _tf
-    from pathlib import Path as _P
-    return _P(_tf.mkdtemp(prefix=f"tbt-{ten}-"))
+    return Path(_tam_moi(f"tbt-{ten}-"))
 
 
 def kiem_so_cai() -> None:
@@ -6491,6 +6521,123 @@ def _co_nhac(ten: str) -> bool:
 
 
 
+def kiem_vong_hoc_thu_nut_ke() -> None:
+    print("")
+    print("-- Vong hoc: num BAT DONG khong duoc lam dut ca vong --")
+    from thi_bac_ty import trung_uong as _tu_mod
+    from thi_bac_ty.chan_doan_he import DeXuatHe, TrieuChungHe, de_xuat
+    from thi_bac_ty.trung_uong import TrungUong
+
+    # ── `de_xuat` bỏ qua núm đã đo là bất động ───────────────────────────
+    t = TrieuChungHe("tong-chan-het", 2, "x", {},
+                     ["ruiRoTong.tranMotCoHoi", "ruiRoTong.ruiRoToiDa"],
+                     yDinh="noi")
+    cfg = {"ruiRoTong": {"tranMotCoHoi": 0.15, "ruiRoToiDa": 0.6}}
+    d0 = de_xuat([t], cfg)
+    kiem("không bỏ qua gì thì lấy núm đầu",
+         d0 and d0[0].nut == "ruiRoTong.tranMotCoHoi", str(d0))
+    d1 = de_xuat([t], cfg, boQua={"ruiRoTong.tranMotCoHoi"})
+    kiem("bỏ qua núm bất động thì lấy núm KẾ",
+         d1 and d1[0].nut == "ruiRoTong.ruiRoToiDa", str(d1))
+    kiem("bỏ qua hết thì không đề xuất gì",
+         de_xuat([t], cfg, boQua={"ruiRoTong.tranMotCoHoi",
+                                  "ruiRoTong.ruiRoToiDa"}) == [])
+
+    # ── `hoc()` thử núm kế khi phép đo nói HOÀ, và CHỈ khi ấy ────────────
+    #
+    # Đo làn thật 05/09/2026: `ruiRoTong.tranMotCoHoi` quét 0,05 → 0,35 cho
+    # ĐÚNG một con số (trần 150.000 USD, vị thế lớn nhất 25.000). Hai triệu
+    # chứng khai đúng núm ấy, nên trước lượt này vòng học kết thúc tay
+    # trắng mà không ai biết vì sao.
+    goc_cd = _tu_mod.chan_doan_he
+    goc_dx = _tu_mod.de_xuat
+    goc_th = _tu_mod.thu_hoach
+    goc_dc = _tu_mod.doi_chieu
+    goc_xd = _tu_mod.xet_duyet
+
+    def _chay(ketLuanTheoNut, duDieuKienTheoNut=None):
+        """Trả `(ket qua hoc, danh sach nut da do)`."""
+        daDo = []
+        nuts = list(ketLuanTheoNut)
+        _tu_mod.chan_doan_he = lambda anh: [
+            TrieuChungHe("tong-chan-het", 2, "x", {}, nuts, yDinh="noi")]
+
+        def _dx(trieu, cfg, boQua=()):
+            for n in nuts:
+                if n not in set(boQua or ()):
+                    return [DeXuatHe(n, 1.0, 1.1, "tong-chan-het")]
+            return []
+
+        _tu_mod.de_xuat = _dx
+        _tu_mod.thu_hoach = lambda sdk, n=2000: ([], 0)
+
+        def _dc(tt, a, b, von, hong=0):
+            nut = daDo[-1] if daDo else None
+            return {"duDeKetLuan": True, "ketLuan": ketLuanTheoNut[nut]}
+
+        def _dc_wrap(tt, a, b, von, hong=0):
+            return _dc(tt, a, b, von, hong)
+
+        class _PQ:
+            def __init__(self, ok):
+                self.ok = ok
+
+            def tom_tat(self):
+                return {"duDieuKien": self.ok, "vi": (), "ghiChu": ()}
+
+        def _xd(dx, do):
+            daDo.append(dx.nut)
+            return _PQ((duDieuKienTheoNut or {}).get(dx.nut, False))
+
+        # `doi_chieu` chạy TRƯỚC `xet_duyet`, nên phải biết núm đang đo.
+        def _dc2(tt, a, b, von, hong=0):
+            return {"duDeKetLuan": True,
+                    "ketLuan": ketLuanTheoNut[_dang[0]]}
+
+        _dang = [None]
+
+        def _dx2(trieu, cfg, boQua=()):
+            r = _dx(trieu, cfg, boQua)
+            _dang[0] = r[0].nut if r else None
+            return r
+
+        _tu_mod.de_xuat = _dx2
+        _tu_mod.doi_chieu = _dc2
+        _tu_mod.xet_duyet = _xd
+        try:
+            tu = TrungUong(_tam("hoc-thu"), {"vonBanDauUsd": 100_000.0})
+            return tu.hoc(ghiSo=False), daDo
+        finally:
+            _tu_mod.chan_doan_he = goc_cd
+            _tu_mod.de_xuat = goc_dx
+            _tu_mod.thu_hoach = goc_th
+            _tu_mod.doi_chieu = goc_dc
+            _tu_mod.xet_duyet = goc_xd
+
+    ra, daDo = _chay({"a": "hoa", "b": "hoa", "c": "b-tot-hon"},
+                     {"c": True})
+    kiem("hai núm HOÀ thì thử tới núm thứ ba", daDo == ["a", "b", "c"],
+         f"{daDo} — một núm bất động không được làm đứt cả vòng")
+    kiem("và mọi lượt thử được GHI, không giấu",
+         [x["nut"] for x in ra["daThuNut"]] == ["a", "b", "c"],
+         str(ra.get("daThuNut")))
+    kiem("núm cuối được duyệt", ra["congDuyet"]["duDieuKien"] is True)
+
+    ra2, daDo2 = _chay({"a": "a-tot-hon", "b": "hoa"})
+    kiem("«bản đang chạy tốt hơn» thì DỪNG — không đi xin núm khác",
+         daDo2 == ["a"],
+         f"{daDo2} — đó là câu trả lời thật; thử tiếp là mài cho qua cổng")
+
+    ra3, daDo3 = _chay({"a": "b-tot-hon-NHUNG-dam-hon", "b": "hoa"})
+    kiem("«chỉ hơn nhờ ôm rủi ro đậm hơn» cũng DỪNG", daDo3 == ["a"],
+         str(daDo3))
+
+    ra4, daDo4 = _chay({"a": "hoa", "b": "hoa", "c": "hoa", "d": "hoa"})
+    kiem("có TRẦN số núm thử trong một vòng",
+         len(daDo4) == TrungUong.TOI_DA_THU_NUT,
+         f"{daDo4} — mỗi lượt thử là một lượt chạy lại trọn lô tờ trình")
+
+
 def kiem_quet_truc() -> None:
     print("")
     print("-- Quet truc nut: hai diem khong noi duoc hinh dang --")
@@ -8782,7 +8929,7 @@ def kiem_nhap_so_ngoai() -> None:
             self.docDuoc = self.tra is not None
             return self.tra
 
-    d = Path(tempfile.mkdtemp(prefix="tbt-nso-"))
+    d = Path(_tam_moi("tbt-nso-"))
 
     # ── KHÔNG đếm hai lần ───────────────────────────────────────────────
     sc = SoCai(d / "a.db")
@@ -14918,6 +15065,7 @@ def main() -> int:
     kiem_tin_dung_thang_rui_ro()
     kiem_van_tay_co_chuoi()
     kiem_hai_ty_that()
+    kiem_vong_hoc_thu_nut_ke()
     kiem_quet_truc()
     kiem_nguon_doi_429()
     kiem_nho_tam()

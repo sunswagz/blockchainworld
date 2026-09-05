@@ -1109,12 +1109,30 @@ def _ma_ly_do(cau: str) -> str | None:
     return dau if any(k.isalpha() for k in dau) else None
 
 
-def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
+def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict,
+            boQua=()) -> list[DeXuatHe]:
     """Từ triệu chứng ra đề xuất vặn — **chỉ đề xuất, không vặn**.
 
     Trả về nhiều nhất MỘT đề xuất, từ triệu chứng nặng nhất. Cùng lý do với
     tầng ty: vặn hai núm rồi thấy khá lên thì không biết núm nào có công.
+
+    `boQua` là những núm ĐÃ THỬ và đo ra KHÔNG ĐỔI GÌ trong chính vòng
+    học này. Không có nó thì một núm bất động làm đứt cả vòng: `hoc()`
+    lấy đúng một đề xuất, đo, cổng duyệt trả «hoà», và vòng ấy kết thúc
+    tay trắng — trong khi một triệu chứng khác có thể đang khai một núm
+    vặn được.
+
+    Đo làn thật 05/09/2026: `ruiRoTong.tranMotCoHoi` quét 0,05 → 0,35 cho
+    ĐÚNG một con số, vì trần ấy là 150.000 USD trong khi vị thế lớn nhất
+    25.000 — cao gấp sáu lần chỗ nó đáng chặn. Hai triệu chứng khai đúng
+    núm ấy.
+
+    **`boQua` KHÔNG phải cửa để đi xin cho tới lúc được gật.** Nó chỉ
+    nhận núm mà phép đo nói là không đổi gì. Núm bị từ chối vì «bản đang
+    chạy tốt hơn» hay «chỉ hơn nhờ ôm rủi ro đậm hơn» thì KHÔNG được bỏ
+    qua — đó là câu trả lời thật, và thử tiếp là mài cho qua cổng.
     """
+    boQua = set(boQua or ())
     for t in sorted(trieu, key=lambda x: -x.nang):
         if t.ma in ("thieu-to-trinh", "khoe", "di-tat", "phi-vao-an-het",
                     "thu-vuot-tran", "xoay-cho-hua-qua",
@@ -1125,6 +1143,8 @@ def de_xuat(trieu: list[TrieuChungHe], cau_hinh: dict) -> list[DeXuatHe]:
             # lần.
             continue
         for nut in t.nutGoiY:
+            if nut in boQua:
+                continue
             khuon = NUT_TRUNG_UONG.get(nut)
             if khuon is None:
                 continue
