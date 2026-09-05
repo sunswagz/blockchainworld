@@ -3628,6 +3628,71 @@ def kiem_chan_doan_he() -> None:
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
 
+    # ── KHÔNG đối chiếu được: vòng phản hồi đói, và nó IM ───────────────
+    #
+    # `hua-qua-he` bỏ qua im lặng mọi ty dưới 20 lần đối chiếu. Đúng — dưới
+    # ngần ấy thì lệch là tiếng ồn. Nhưng im lặng ấy đọc y hệt «đã đo, và
+    # không sao cả», trong khi sự thật là KHÔNG ĐO ĐƯỢC GÌ.
+    #
+    # Đo làn thật 05/09/2026: 20/358 lần đóng (5,6%) đối chiếu được; không
+    # ty nào chạm nổi ngưỡng 20 nên `hua-qua-he` im hoàn toàn. Mà phân bổ
+    # xếp hạng bằng `netMoiGioBps` — con số ty HỨA — nên thứ tự chia tiền
+    # đang chạy trên một lời hứa chưa ai kiểm.
+    def _anh_dc(dong=289, dc=13, ngan=211, thieu=65, dong2=69, dc2=7):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "duDoanVaThuc": {
+                    "lending.rate_rotation.v1": {
+                        "soDong": dong, "soDoiChieuDuoc": dc,
+                        "soGiuQuaNgan": ngan, "soThieuVe": thieu,
+                        "lechBpsGio": None},
+                    "amm.fee_farming.v1": {
+                        "soDong": dong2, "soDoiChieuDuoc": dc2,
+                        "soGiuQuaNgan": 20, "soThieuVe": 13,
+                        "lechBpsGio": None}}}
+
+    _tD = [t for t in chan_doan_he(_anh_dc())
+           if t.ma == "khong-doi-chieu-duoc"]
+    kiem("tỉ lệ đối chiếu thấp → thành triệu chứng", len(_tD) == 1,
+         str([t.ma for t in chan_doan_he(_anh_dc())]))
+    kiem("và nó nói ra ĐÚNG hai con số",
+         _tD and _tD[0].bangChung["soDong"] == 358
+         and _tD[0].bangChung["soDoiChieuDuoc"] == 20,
+         str(_tD[0].bangChung) if _tD else "")
+    kiem("gọi tên nguyên nhân áp đảo là GIỮ QUÁ NGẮN",
+         _tD and "GIỮ QUÁ NGẮN" in _tD[0].moTa,
+         "«giữ quá ngắn» và «thiếu vế thu» đòi hai cách chữa khác hẳn nhau")
+    # Tệ nhất là TỈ LỆ thấp nhất, không phải số tuyệt đối nhỏ nhất:
+    # lending 13/289 = 4,5% tệ hơn amm 7/69 = 10,1%. Bản đầu của phép kiểm
+    # này khai nhầm amm và nó ĐỎ — mã đúng, kỳ vọng của tôi sai.
+    kiem("và gọi tên ty tệ nhất theo TỈ LỆ",
+         _tD and _tD[0].bangChung["tyTeNhat"] == "lending.rate_rotation.v1",
+         f"{_tD[0].bangChung.get('tyTeNhat') if _tD else None} — "
+         f"lending 13/289=4,5% tệ hơn amm 7/69=10,1%")
+    kiem("KHÔNG khai núm nào", _tD and _tD[0].nutGoiY == [],
+         "không đo được lời hứa KHÔNG phải bệnh của một cái trần — vặn "
+         "trần lúc này là vặn theo bảng xếp hạng mà chính nó vừa nói là "
+         "chưa ai kiểm")
+
+    # Máy mới chạy: ít lần đóng thì tỉ lệ thấp chỉ là chưa đủ mẫu.
+    kiem("chưa đủ số lần ĐÓNG thì im",
+         "khong-doi-chieu-duoc" not in
+         {t.ma for t in chan_doan_he(_anh_dc(dong=20, dc=1, dong2=10, dc2=0))},
+         "dưới ngưỡng thì một tỉ lệ thấp chỉ nói máy mới chạy")
+    kiem("tỉ lệ ĐỦ CAO thì im",
+         "khong-doi-chieu-duoc" not in
+         {t.ma for t in chan_doan_he(_anh_dc(dc=200, dong2=69, dc2=60))},
+         "đối chiếu được thì `hua-qua-he` tự nói phần của nó")
+
+    # Nguyên nhân đổi thì câu chẩn phải đổi theo.
+    _tT = [t for t in chan_doan_he(_anh_dc(ngan=5, thieu=250))
+           if t.ma == "khong-doi-chieu-duoc"]
+    kiem("thiếu vế thu áp đảo thì gọi đúng tên ĐÓ",
+         _tT and "THIẾU VẾ THU" in _tT[0].moTa and "GIỮ QUÁ NGẮN" not in _tT[0].moTa,
+         _tT[0].moTa[-160:] if _tT else "")
+
     # ── vốn dồn vào ty LÃI THẤP trong khi ty LÃI CAO hết chỗ ────────────
     #
     # Mọi triệu chứng trước đó hỏi về MỘT ty, hoặc về CẢ hệ. Không cái nào

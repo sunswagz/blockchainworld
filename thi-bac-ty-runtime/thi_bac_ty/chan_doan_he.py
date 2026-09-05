@@ -81,6 +81,14 @@ TOI_THIEU_TU_CHOI = 20
 #: cái ty — và vặn theo nó là vặn theo tiếng ồn.
 TOI_THIEU_DOI_CHIEU = 20
 
+#: Cả hệ phải có ngần này lần ĐÓNG thì mới nói được gì về tỉ lệ đối
+#: chiếu. Năm mươi — dưới mức ấy, một tỉ lệ thấp chỉ là máy mới chạy.
+TOI_THIEU_DONG_DE_CHAN = 50
+
+#: Dưới ngần này phần số lần đóng đối chiếu được thì vòng phản hồi ĐÓI.
+#: Một phần tư.
+NGUONG_DOI_CHIEU_DUOC = 0.25
+
 #: Lệch bao nhiêu bps mỗi giờ thì gọi là hứa quá. Không đặt 0: mọi phép đo
 #: đều có sai số, và một cỗ máy báo bệnh ở lệch 0,001 bps là một cỗ máy
 #: báo bệnh mỗi vòng.
@@ -1042,6 +1050,77 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     # buồng lái, và vòng tiến hoá không biết nó tồn tại — nên vòng ấy chỉ
     # học được về đúng cái ty mà chính nó đã tắt.
     dvt = anh.get("duDoanVaThuc") or {}
+
+    # ── 8a. KHÔNG ĐỐI CHIẾU ĐƯỢC — vòng phản hồi đói ────────────────────
+    #
+    # Vòng bên dưới bỏ qua IM LẶNG mọi ty có dưới `TOI_THIEU_DOI_CHIEU`
+    # lần đối chiếu. Đúng — dưới ngần ấy thì lệch là tiếng ồn. Nhưng im
+    # lặng ở đây đọc y hệt «đã đo, và không sao cả», trong khi sự thật là
+    # KHÔNG ĐO ĐƯỢC GÌ.
+    #
+    # Và chuyện ấy đắt hơn nó trông. `phan_bo.chia()` xếp hạng bằng
+    # `netMoiGioBps` — con số ty HỨA lúc trình. Không đối chiếu được thì
+    # lời hứa ấy chưa ai kiểm, tức cả thứ tự chia tiền chưa ai kiểm.
+    # Khâm Thiên Giám có `HieuChinh` đứng TRƯỚC Kelly đúng vì lý do này;
+    # Thị Bạc Ty thì chưa có lớp nào tương đương.
+    #
+    # Đo làn thật 05/09/2026:
+    #
+    #     ty                     đóng  đối chiếu  giữ quá ngắn  thiếu vế
+    #     lending.rate_rotation   289      13         211          65
+    #     amm.fee_farming          37       4          20          13
+    #     basis.cash_carry         29       0          29           0
+    #
+    # 17 quan sát dùng được trên 355 lần đóng — 4,8%. Không ty nào chạm
+    # nổi ngưỡng 20, nên `hua-qua-he` im hoàn toàn.
+    _dong = _dc = _ngan = _thieu = 0
+    _xau = None
+    for _ma, _o in dvt.items():
+        try:
+            _d = int(_o.get("soDong") or 0)
+            _k = int(_o.get("soDoiChieuDuoc") or 0)
+        except (TypeError, ValueError, AttributeError):
+            continue
+        _dong += _d
+        _dc += _k
+        _ngan += int(_o.get("soGiuQuaNgan") or 0)
+        _thieu += int(_o.get("soThieuVe") or 0)
+        if _d and (_xau is None or _k / _d < _xau[1]):
+            _xau = (_ma, _k / _d, _d, _k)
+    if _dong >= TOI_THIEU_DONG_DE_CHAN:
+        _ti = _dc / _dong
+        if _ti < NGUONG_DOI_CHIEU_DUOC:
+            # Gọi tên nguyên nhân ÁP ĐẢO, đừng nói chung chung: «giữ quá
+            # ngắn» và «thiếu vế» đòi hai cách chữa khác hẳn nhau.
+            _vi = ""
+            if _ngan > _thieu and _dong:
+                _vi = (f" Nguyên nhân áp đảo là GIỮ QUÁ NGẮN "
+                       f"({_ngan}/{_dong} lần đóng) — vị thế chết trước khi "
+                       f"tới mốc thu đầu tiên, nên không có gì để đối chiếu.")
+            elif _thieu:
+                _vi = (f" Nguyên nhân áp đảo là THIẾU VẾ THU "
+                       f"({_thieu}/{_dong} lần đóng) — đã đóng mà không ghi "
+                       f"lại thu được bao nhiêu.")
+            ra.append(TrieuChungHe(
+                "khong-doi-chieu-duoc", 2,
+                f"chỉ {_dc}/{_dong} lần đóng ({_ti:.1%}) đối chiếu được lời "
+                f"hứa với thực nhận. Phân bổ xếp hạng bằng `netMoiGioBps` — "
+                f"con số ty HỨA lúc trình — nên không đối chiếu được nghĩa "
+                f"là THỨ TỰ CHIA TIỀN chưa ai kiểm." + _vi
+                + (f" Tệ nhất: {_xau[0]} với {_xau[3]}/{_xau[2]}."
+                   if _xau else "")
+                + " Và `hua-qua-he` IM ở đây chứ không kêu, vì nó đòi "
+                  f"{TOI_THIEU_DOI_CHIEU} lần đối chiếu mới nói — im lặng ấy "
+                  "đọc y hệt «đã đo, và không sao cả».",
+                {"soDong": _dong, "soDoiChieuDuoc": _dc, "tiLe": _ti,
+                 "soGiuQuaNgan": _ngan, "soThieuVe": _thieu,
+                 "tyTeNhat": _xau[0] if _xau else None,
+                 "nguong": NGUONG_DOI_CHIEU_DUOC},
+                # Núm RỖNG. Không đo được lời hứa KHÔNG phải bệnh của một
+                # cái trần — vặn trần lúc này là vặn theo một bảng xếp
+                # hạng mà chính triệu chứng này vừa nói là chưa ai kiểm.
+                []))
+
     for ma, o in sorted(dvt.items()):
         try:
             k = int(o.get("soDoiChieuDuoc") or 0)
