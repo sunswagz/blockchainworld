@@ -979,7 +979,10 @@ class Runtime:
         suc_khoe = SucKhoeNguon(
             tuoiSoLenhMs=now - su.nhanLucMs, tuoiGiaNenMs=0.0,
             lechDongHoMs=dong_ho.lech_ms,
-            thieuNguon=[t.ten for t in nguon.trangThai.values() if t.soLoi >= 3],
+            # CHỈ những nguồn quyết định THẬT SỰ đọc. Nguồn khám phá
+            # (`gamma*`) chập chờn thì cảnh báo, không chặn — xem
+            # `nguon.NGUON_CHAN_MAC_DINH`.
+            thieuNguon=nguon.thieu_chan(),
         )
         du_kelly = self.hieuChinh.du_de_dung_kelly()
         for ch in de_xuat:

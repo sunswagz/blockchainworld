@@ -8360,6 +8360,16 @@ def kiem_duong_quyet_dinh() -> None:
 
         trangThai: dict = {}
 
+        def thieu_chan(self):
+            # Nguồn giả LÀNH. Trả rỗng chứ không thiếu hẳn phương thức:
+            # `SucKhoeNguon.thieuNguon` nay lấy từ đây, và một `_Nguon`
+            # giả thiếu phương thức sẽ ném `AttributeError` sâu trong
+            # vòng chạy — che mất đúng thứ phép kiểm đang soi.
+            return []
+
+        def thieu_canh(self):
+            return []
+
     cuSong, cuNguon = V.dong_song, V.nguon
     V.dong_song, V.nguon = _Song(), _Nguon()
     try:
@@ -10908,6 +10918,95 @@ def kiem_lan_that_dem_ly_do_chan() -> None:
 
 
 
+def kiem_nguon_nao_duoc_chan() -> None:
+    """Chỉ nguồn mà QUYẾT ĐỊNH thật sự đọc mới được chặn lệnh.
+
+    Bản trước coi MỌI nguồn không lành là "mất nguồn" và chặn. Đo
+    05/09/2026 bằng bộ đếm lý do chặn (vừa thêm): trong 65 lần từ chối
+    đầu tiên của làn thật, **25 lần là cổng NGUỒN** với lý do "mất
+    nguồn gamma-slug; mất nguồn gamma" — trong khi `binance` đạt
+    2.040/2.040 và `clob-book` đạt 3.644/3.644.
+
+    `gamma*` là nguồn KHÁM PHÁ. Khung đã tìm được thì `slug` mang sẵn
+    mốc unix, `giaMo` lấy từ Binance, pha của khung tính bằng đồng hồ —
+    một `gamma-slug` đang lùi nhịp KHÔNG làm phép định giá sai.
+
+    Cơ chế đáng nhớ: 3 lỗi LIÊN TIẾP đưa nguồn vào lùi nhịp; trong lúc
+    lùi thì `_lay` trả None mà KHÔNG hỏi, nên `dat()` không chạy và
+    `soLoi` không về 0. Nguồn ở lại trạng thái "mất" suốt cửa sổ lùi,
+    và cửa sổ ấy nhân đôi mỗi lần — một vòng tự nuôi, cùng hình dạng
+    với con bọ cầu dao.
+
+    Nới một cổng rủi ro thì phải canh chặt: bốn điều dưới đây giữ cho
+    nó không thành "không nguồn nào chặn nữa".
+    """
+    import kham.nguon as NG
+
+    print()
+    print("-- Nguon nao duoc phep CHAN lenh ---------------------------")
+
+    cu = dict(NG.CONFIG.get("ruiRo") or {})
+    try:
+        n = NG.Nguon()
+        for ten, so in (("binance", 5), ("gamma", 5), ("gamma-slug", 5),
+                        ("clob-book", 0)):
+            t = n._ts(ten)
+            t.soLoi = so
+
+        kiem("nguồn ĐỊNH GIÁ hỏng ⇒ CHẶN",
+             "binance" in n.thieu_chan(), n.thieu_chan())
+        kiem("nguồn KHÁM PHÁ hỏng ⇒ KHÔNG chặn",
+             "gamma" not in n.thieu_chan()
+             and "gamma-slug" not in n.thieu_chan(), n.thieu_chan())
+        kiem("…nhưng vẫn hiện ra để CẢNH BÁO",
+             {"gamma", "gamma-slug"} <= set(n.thieu_canh()), n.thieu_canh())
+        kiem("nguồn LÀNH không nằm ở đâu cả",
+             "clob-book" not in n.thieu_chan()
+             and "clob-book" not in n.thieu_canh())
+        kiem("hai danh sách KHÔNG chồng nhau",
+             not (set(n.thieu_chan()) & set(n.thieu_canh())))
+
+        # ba nguồn định giá phải ĐỦ MẶT trong mặc định
+        for x in ("binance", "binance-kline", "clob-book"):
+            kiem(f"`{x}` nằm trong danh sách chặn mặc định",
+                 x in NG.NGUON_CHAN_MAC_DINH, NG.NGUON_CHAN_MAC_DINH)
+        for x in ("gamma", "gamma-slug"):
+            kiem(f"`{x}` KHÔNG nằm trong danh sách chặn mặc định",
+                 x not in NG.NGUON_CHAN_MAC_DINH)
+
+        # khai được trong config, và khai rỗng phải là CỐ Ý
+        NG.CONFIG["ruiRo"] = dict(cu, nguonChanLenh=["gamma"])
+        kiem("config đổi được danh sách chặn",
+             n.thieu_chan() == ["gamma"], n.thieu_chan())
+        NG.CONFIG["ruiRo"] = dict(cu, nguonChanLenh=[])
+        kiem("khai RỖNG ⇒ không nguồn nào chặn (hợp lệ, nhưng phải cố ý)",
+             n.thieu_chan() == [])
+        NG.CONFIG["ruiRo"] = {k: v for k, v in cu.items()
+                              if k != "nguonChanLenh"}
+        kiem("không khai ⇒ rơi về mặc định, KHÔNG rơi về rỗng",
+             set(n.thieu_chan()) == {"binance"}, n.thieu_chan())
+
+        # ngưỡng 3 lỗi liên tiếp: đúng 2 thì chưa chặn
+        n2 = NG.Nguon()
+        n2._ts("binance").soLoi = 2
+        kiem("2 lỗi liên tiếp ⇒ CHƯA chặn", n2.thieu_chan() == [])
+        n2._ts("binance").soLoi = 3
+        kiem("3 lỗi liên tiếp ⇒ chặn", n2.thieu_chan() == ["binance"])
+        n2._ts("binance").dat()
+        kiem("một lần thành công ⇒ hết chặn ngay",
+             n2.thieu_chan() == [], n2.thieu_chan())
+    finally:
+        NG.CONFIG["ruiRo"] = cu
+
+    # và `vong.py` phải DÙNG nó, không dựng lại danh sách tại chỗ
+    goc = Path(__file__).resolve().parent.parent
+    vb = (goc / "kham" / "vong.py").read_text(encoding="utf-8")
+    kiem("`vong.py` gọi `nguon.thieu_chan()`", "nguon.thieu_chan()" in vb)
+    kiem("và KHÔNG còn tự lọc `soLoi >= 3` tại chỗ",
+         "t.soLoi >= 3" not in vb, "còn dòng lọc cũ")
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -13152,6 +13251,7 @@ def main() -> int:
     kiem_thu_tu_cong_quet_dot_bien()
     kiem_ngat_theo_loai()
     kiem_lan_that_dem_ly_do_chan()
+    kiem_nguon_nao_duoc_chan()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()

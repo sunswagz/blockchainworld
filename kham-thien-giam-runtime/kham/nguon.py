@@ -93,6 +93,38 @@ class TrangThaiNguon:
         return self.tuoi_ms() <= tranMs and self.soLoi < 3
 
 
+#: Những nguồn mà MỘT QUYẾT ĐỊNH ĐẶT LỆNH thật sự đọc.
+#:
+#: `binance`       giá nền lúc quyết định
+#: `binance-kline` nến nuôi bộ ước σ
+#: `clob-book`     sổ lệnh (lưới đỡ của WebSocket)
+#:
+#: Những nguồn còn lại — `gamma`, `gamma-slug`, `clob-mid`,
+#: `data-*` — phục vụ KHÁM PHÁ và ĐỐI SOÁT, không phục vụ phép định
+#: giá. Khung đã tìm được thì `slug` mang sẵn mốc unix, `giaMo` lấy từ
+#: Binance, và pha của khung tính bằng đồng hồ. Một `gamma-slug` đang
+#: lùi nhịp KHÔNG làm phép định giá sai.
+#:
+#: ## Vì sao tách ra, đo được chứ không suy đoán
+#:
+#: 05/09/2026, sau khi gỡ cầu dao, làn thật vẫn không vào lệnh. Bộ đếm
+#: lý do chặn (mới thêm) nói thẳng: trong 65 lần từ chối đầu tiên,
+#: **25 lần là cổng NGUỒN** với lý do "mất nguồn gamma-slug; mất nguồn
+#: gamma" — trong khi `binance` đạt 2.040/2.040 và `clob-book` đạt
+#: 3.644/3.644.
+#:
+#: Cơ chế: 3 lỗi LIÊN TIẾP đưa nguồn vào lùi nhịp; trong lúc lùi thì
+#: `_lay` trả None mà không hỏi, nên `dat()` không chạy và `soLoi`
+#: không về 0 — nguồn ở lại trạng thái "mất" suốt cửa sổ lùi, và cửa
+#: sổ ấy nhân đôi mỗi lần. Một nguồn KHÁM PHÁ chập chờn khoá cả cỗ máy
+#: trong khi mọi nguồn ĐỊNH GIÁ đều tươi.
+#:
+#: Khai được trong config (`ruiRo.nguonChanLenh`) để đổi mà không sửa
+#: mã. Để rỗng nghĩa là KHÔNG nguồn nào chặn — đó là một lựa chọn hợp
+#: lệ nhưng phải cố ý, nên không có đường nào rơi vào nó do sơ ý.
+NGUON_CHAN_MAC_DINH = ("binance", "binance-kline", "clob-book")
+
+
 class Nguon:
     """Gom mọi lời gọi ra ngoài vào một chỗ, kèm sổ sức khoẻ."""
 
@@ -102,6 +134,30 @@ class Nguon:
         # `gia_mo_khung`. Nhớ lại để thôi hỏi 750 lần một con số.
         self._nhoMoKhung: dict = {}
         self._client = None
+
+    def nguon_chan(self) -> tuple:
+        """Danh sách nguồn được phép CHẶN lệnh. Đọc config mỗi lần."""
+        v = (CONFIG.get("ruiRo") or {}).get("nguonChanLenh")
+        if v is None:
+            return NGUON_CHAN_MAC_DINH
+        return tuple(str(x) for x in v)
+
+    def thieu_chan(self) -> list[str]:
+        """Nguồn KHÔNG LÀNH và ĐƯỢC PHÉP chặn — thứ cổng rủi ro đọc."""
+        cc = self.nguon_chan()
+        return [t.ten for t in self.trangThai.values()
+                if t.soLoi >= 3 and t.ten in cc]
+
+    def thieu_canh(self) -> list[str]:
+        """Nguồn KHÔNG LÀNH nhưng chỉ để CẢNH BÁO, không chặn.
+
+        Vẫn phải hiện ra: một nguồn khám phá chết lâu ngày nghĩa là cỗ
+        máy đang bám những khung ngày càng cũ, và đó là chuyện đáng
+        biết dù nó không chặn lệnh nào.
+        """
+        cc = self.nguon_chan()
+        return [t.ten for t in self.trangThai.values()
+                if t.soLoi >= 3 and t.ten not in cc]
 
     def _ts(self, ten: str) -> TrangThaiNguon:
         return self.trangThai.setdefault(ten, TrangThaiNguon(ten))
