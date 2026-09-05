@@ -3656,6 +3656,74 @@ def kiem_chan_doan_he() -> None:
          _soCoNut >= 8,
          f"chỉ thấy {_soCoNut} chỗ khai núm — phép canh rỗng thì luôn xanh")
 
+    # ── GOM theo gốc: mười dòng cùng mức 2 không phải một bảng xếp hạng ──
+    #
+    # Đo làn thật 05/09/2026: bảng chẩn khai MƯỜI triệu chứng, TÁM cái
+    # cùng mức 2. Nhưng năm trong số ấy đã được ĐO là cùng một gốc, mỗi
+    # mắt xích một lượt đo riêng trong ngày.
+    from thi_bac_ty.chan_doan_he import GOC, TrieuChungHe, gom_theo_goc
+
+    # Đồ gá phải phân biệt được CẢ HAI thứ tự: nhóm ĐÔNG hơn (dù nhẹ hơn)
+    # phải lên trước, và khi BẰNG số thì nhóm NẶNG hơn lên trước. Bản đầu
+    # có hai nhóm cùng cỡ nên «đông trước» và «nặng trước» cho cùng kết
+    # quả, và quét đột biến đổi khoá sắp xếp mà không phép kiểm nào đỏ.
+    _t1 = TrieuChungHe("a", 2, "x", {}, [], goc="ghe-khan-churn")
+    _t2 = TrieuChungHe("b", 2, "x", {}, [], goc="ghe-khan-churn")
+    _t2b = TrieuChungHe("b2", 2, "x", {}, [], goc="ghe-khan-churn")
+    _t3 = TrieuChungHe("c", 3, "x", {}, [], goc="cung-co-hoi")
+    # Mức LỆCH NHAU trong cùng nhóm — không thì `min` và `max` cho cùng
+    # một kết quả và quét đột biến đổi cái này thành cái kia mà không đỏ.
+    _t3b = TrieuChungHe("c2", 1, "x", {}, [], goc="cung-co-hoi")
+    _le2 = TrieuChungHe("d", 2, "x", {}, [])
+    _le1 = TrieuChungHe("e", 1, "x", {}, [])
+    _nh = gom_theo_goc([_t1, _t3, _t3b, _t2, _le1, _t2b, _le2])
+
+    kiem("gom đúng số chuyện, không phải số triệu chứng", len(_nh) == 4,
+         str([(x["goc"], x["ma"]) for x in _nh]))
+    kiem("nhóm ĐÔNG hơn lên trước, DÙ nhóm kia nặng hơn",
+         _nh[0]["goc"] == "ghe-khan-churn" and _nh[0]["soTrieuChung"] == 3
+         and _nh[0]["nangCaoNhat"] == 2 and _nh[1]["goc"] == "cung-co-hoi",
+         f"{[(x['goc'], x['soTrieuChung'], x['nangCaoNhat']) for x in _nh]} — "
+         f"ba triệu chứng cùng một gốc là chuyện lớn hơn một nhóm hai cái, "
+         f"kể cả khi nhóm kia có một cái mức 3")
+    kiem("BẰNG số thì nặng hơn lên trước",
+         _nh[2]["ma"] == ["d"] and _nh[3]["ma"] == ["e"],
+         str([(x["ma"], x["nangCaoNhat"]) for x in _nh]))
+    kiem("triệu chứng CHƯA khai gốc đứng RIÊNG từng cái",
+         _nh[2]["goc"] == "" and _nh[3]["goc"] == "",
+         "nhét chúng vào một rổ «khác» là đọc như đã phân loại rồi, trong "
+         "khi chưa ai đo nó nối vào đâu")
+    kiem("mỗi gốc mang theo CÂU nói nó là gì",
+         all(x["cau"] == GOC[x["goc"]] for x in _nh if x["goc"]),
+         "một mã gốc trần thì người đọc vẫn phải đi tra")
+    kiem("và nhóm khai mức NẶNG NHẤT trong nhóm, không phải nhẹ nhất",
+         _nh[1]["nangCaoNhat"] == 3,
+         "nhóm `cung-co-hoi` có mức 3 và mức 1 — lấy nhẹ nhất là giấu đi "
+         "cái nặng")
+
+    # Mọi triệu chứng khai `goc` đều phải dùng mã CÓ TRONG `GOC` — đọc
+    # thẳng mã nguồn, không chờ bệnh nổ.
+    import ast as _ast2
+    import pathlib as _pl2
+    _ngGoc = (_pl2.Path(__file__).resolve().parent.parent
+              / "thi_bac_ty" / "chan_doan_he.py").read_text(encoding="utf-8")
+    _lac = []
+    for _n in _ast2.walk(_ast2.parse(_ngGoc)):
+        if not (isinstance(_n, _ast2.Call)
+                and getattr(_n.func, "id", "") == "TrieuChungHe"):
+            continue
+        for _k in _n.keywords:
+            if _k.arg == "goc" and isinstance(_k.value, _ast2.Constant):
+                if _k.value.value not in GOC:
+                    _lac.append(_k.value.value)
+    kiem("không mã gốc nào lạc khỏi bảng `GOC`", not _lac, str(_lac))
+    kiem("và phép quét ấy thấy được ít nhất vài chỗ khai gốc",
+         sum(1 for _n in _ast2.walk(_ast2.parse(_ngGoc))
+             if isinstance(_n, _ast2.Call)
+             and getattr(_n.func, "id", "") == "TrieuChungHe"
+             and any(_k.arg == "goc" for _k in _n.keywords)) >= 5,
+         "một phép quét rỗng thì luôn xanh")
+
     trung = set(NUT_TRUNG_UONG) & set(CUA_AN_TOAN_HE)
     kiem("không cửa an toàn nào lọt vào danh sách núm vặn được", not trung,
          f"{trung} — đường ngắn nhất tới điểm cao là tắt đèn báo, và nó sẽ "

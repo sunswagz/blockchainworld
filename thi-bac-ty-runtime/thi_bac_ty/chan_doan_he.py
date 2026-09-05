@@ -253,11 +253,72 @@ class TrieuChungHe:
     #: (`/api/ap-dung-tham-so`), nên lời khuyên ấy không chỉ nằm trên
     #: giấy.
     yDinh: str = ""
+    #: GỐC chung của triệu chứng này, khi đã ĐO ĐƯỢC nó nối vào đâu.
+    #:
+    #: Đo làn thật 05/09/2026: bảng chẩn khai MƯỜI triệu chứng, TÁM cái
+    #: cùng mức 2. Một bảng xếp hạng không xếp được hạng thì người đọc
+    #: phải tự đoán cái nào đáng làm trước — và phần lớn sẽ thôi đọc.
+    #:
+    #: Nhưng năm trong số ấy đã được đo là CÙNG MỘT GỐC, mỗi mắt xích một
+    #: lượt đo riêng trong ngày:
+    #:
+    #:     ghế khan (117/120, 3 ghế trống 35 vòng không ai lấp)
+    #:       → xoay chỗ churn (274 lần, lending đóng 289/296 = 97,6%)
+    #:         → vị thế chết trước mốc thu (giữ trung vị 29,7 giây)
+    #:           → 20/358 lần đóng đối chiếu được (5,6%)
+    #:             → xếp hạng vốn chạy trên lời hứa chưa ai kiểm
+    #:
+    #: Gom theo gốc thì mười dòng đọc thành HAI chuyện, không phải mười.
+    #: Rỗng = chưa đo được nó nối vào đâu; KHÔNG phải "không có gốc".
+    goc: str = ""
 
     def tom_tat(self) -> dict:
         return {"ma": self.ma, "nang": self.nang, "moTa": self.moTa,
                 "bangChung": self.bangChung, "nutGoiY": list(self.nutGoiY),
-                "yDinh": self.yDinh}
+                "yDinh": self.yDinh, "goc": self.goc}
+
+
+#: Gốc đã ĐO ĐƯỢC, kèm câu nói nó là gì. Thêm gốc mới thì thêm ở đây —
+#: một chỗ duy nhất, để hai triệu chứng không gọi cùng một gốc bằng hai
+#: cái tên.
+GOC = {
+    "ghe-khan-churn": (
+        "ghế khan → xoay chỗ churn → vị thế chết trước mốc thu → không "
+        "đối chiếu được → xếp hạng vốn chạy trên lời hứa chưa ai kiểm"),
+    "cung-co-hoi": (
+        "nguồn cung cơ hội: ty duy nhất có tờ trình đã chạm trần ty, và "
+        "các ty còn lại không có gì qua nổi cổng"),
+}
+
+
+def gom_theo_goc(trieu: list) -> list[dict]:
+    """Gom triệu chứng theo GỐC — mười dòng thành hai chuyện.
+
+    Triệu chứng chưa khai gốc đứng RIÊNG từng cái, không bị nhét vào một
+    rổ «khác»: một cái rổ như thế đọc như «đã phân loại rồi», trong khi
+    sự thật là chưa ai đo nó nối vào đâu.
+    """
+    nhom: dict = {}
+    le: list = []
+    for t in trieu:
+        g = getattr(t, "goc", "") or ""
+        if not g:
+            le.append(t)
+            continue
+        nhom.setdefault(g, []).append(t)
+    ra = []
+    for g, ds in nhom.items():
+        ra.append({"goc": g, "cau": GOC.get(g, ""),
+                   "soTrieuChung": len(ds),
+                   "ma": [t.ma for t in ds],
+                   "nangCaoNhat": max(t.nang for t in ds)})
+    for t in le:
+        ra.append({"goc": "", "cau": "", "soTrieuChung": 1,
+                   "ma": [t.ma], "nangCaoNhat": t.nang})
+    # Nhóm ĐÔNG hơn lên trước, rồi mới tới nặng hơn: năm triệu chứng cùng
+    # một gốc là một chuyện lớn hơn một triệu chứng đứng lẻ cùng mức.
+    ra.sort(key=lambda x: (-x["soTrieuChung"], -x["nangCaoNhat"]))
+    return ra
 
 
 def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
@@ -821,7 +882,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                     f"hiển nhiên đúng: nâng trần ghế · nới sức chứa mỗi cơ "
                     f"hội · ít ghế mà mỗi ghế nặng hơn." if _het else "")
             ra.append(TrieuChungHe(
-                "von-o-ty-loi-thap", 2,
+                "von-o-ty-loi-thap", 2,  # gốc: ghe-khan-churn
                 f"{_phan:.0%} vốn đang dùng nằm ở {_omNhat[0]} — ăn "
                 f"{_omNhat[2]:.2f}%/năm, trong khi {_laiNhat[0]} ăn "
                 f"{_laiNhat[2]:.2f}%/năm trên {_laiNhat[3]} vị thế. Lệch "
@@ -855,7 +916,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                 # đặt cạnh nhau. Đó là thông tin `tran-vi-the-chan` không
                 # có, và nó không cần một cái núm để đáng đọc.
                 [],
-                yDinh="noi"))
+                yDinh="noi", goc="ghe-khan-churn"))
 
     # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────
     #
@@ -1116,7 +1177,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             _cau.append(f"{_ma} — nguồn `{_ten}` KHÔNG SỐNG"
                         + (f": {_l}" if _l else ""))
         ra.append(TrieuChungHe(
-            "nguon-ty-dang-nghi", 2,
+            "nguon-ty-dang-nghi", 2,  # gốc: cung-co-hoi
             "; ".join(_cau)
             + ". Ty im vì bị khoá cửa, KHÔNG phải vì chợ trống — hai câu "
               "ấy trông giống hệt nhau trên phễu (đều là 0 qua cổng ty), "
@@ -1129,7 +1190,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                       for a, b, c in _chet]},
             # Núm RỖNG: hạn mức của bên kia không phải một cái trần ta vặn
             # được, và nghỉ là cách ĐÚNG để xử nó.
-            []))
+            [], goc="cung-co-hoi"))
 
     # ── 8x. GHẾ TRỐNG mà không ai ngồi vào — lời hứa không được giữ ─────
     #
@@ -1191,7 +1252,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                    + " · ".join(f"{_m} {_n}" for _m, _n in _top) + ".")
     if _kVong >= VONG_GHE_TRONG_DANG_NGO and _conGhe0:
         ra.append(TrieuChungHe(
-            "ghe-trong-khong-ai-ngoi", 2,
+            "ghe-trong-khong-ai-ngoi", 2,  # gốc: cung-co-hoi
             f"{_kVong} vòng LIÊN TIẾP còn {_conGhe0} ghế trống mà số vị thế "
             f"KHÔNG tăng — lời hứa «Phân Bổ sẽ lấp chỗ» không được giữ. "
             f"Đây không chỉ là mấy cái ghế: bảng xếp hạng vốn dùng "
@@ -1210,7 +1271,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             # đã ghi đúng lý do: «đóng một vị thế mà Phân Bổ không mở lại
             # được là đẩy vốn về tiền mặt ăn 0%». Và nới trần ghế lúc ghế
             # đang TRỐNG thì càng vô nghĩa.
-            []))
+            [], goc="cung-co-hoi"))
 
     # ── 8y. NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng xếp hạng ─────────────
     #
@@ -1263,7 +1324,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
         # nó. Bằng 0 nghĩa là nó đang ĐỨNG ĐẦU bảng chia tiền.
         _ten = ", ".join(sorted({c for _, c, _ in _voLy}))
         ra.append(TrieuChungHe(
-            "net-quy-nam-vo-ly", 2,
+            "net-quy-nam-vo-ly", 2,  # gốc: ghe-khan-churn
             f"{len(_voLy)}/{_tong} tờ trình vòng này khai NET quy năm trên "
             f"{NET_QUY_NAM_VO_LY:,.0f}% — cao nhất {_voLy[0][0]:,.0f}%/năm "
             f"trên cửa sổ giữ {_voLy[0][2]:g} giờ ({_ten}). Phân bổ xếp "
@@ -1277,7 +1338,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
              "nguong": NET_QUY_NAM_VO_LY},
             # Núm RỖNG. `netMoiGioToiThieuBps` là SÀN, nới nó không chạm
             # tới trần; và không núm nào trong bảng đặt được trần.
-            []))
+            [], goc="ghe-khan-churn"))
 
     # ── 8z. PHÍ VÀO LỆNH ăn phần lớn THU GỘP của CẢ HỆ ──────────────────
     #
@@ -1332,7 +1393,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                         f"— tức phần lớn phí ấy là chi phí VẬN HÀNH, không "
                         f"phải chi phí của chiến lược.")
             ra.append(TrieuChungHe(
-                "phi-an-phan-lon-thu", 2,
+                "phi-an-phan-lon-thu", 2,  # gốc: ghe-khan-churn
                 f"phí vào lệnh {_tienPhi:,.2f} USD trên thu gộp "
                 f"{_thu:,.2f} USD — {_tiPhi:.1%}, còn lại ròng "
                 f"{_thu - _tienPhi:+,.2f} USD. Đây là con số của CẢ HỆ đọc "
@@ -1346,7 +1407,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                 # sớm do xoay chỗ quyết — không trần nào trong bảng núm
                 # chạm tới nó. Khai một núm ở đây là chỉ sang chỗ không
                 # chữa được gì.
-                []))
+                [], goc="ghe-khan-churn"))
 
     # ── 8a. KHÔNG ĐỐI CHIẾU ĐƯỢC — vòng phản hồi đói ────────────────────
     #
@@ -1399,7 +1460,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                        f"({_thieu}/{_dong} lần đóng) — đã đóng mà không ghi "
                        f"lại thu được bao nhiêu.")
             ra.append(TrieuChungHe(
-                "khong-doi-chieu-duoc", 2,
+                "khong-doi-chieu-duoc", 2,  # gốc: ghe-khan-churn
                 f"chỉ {_dc}/{_dong} lần đóng ({_ti:.1%}) đối chiếu được lời "
                 f"hứa với thực nhận. Phân bổ xếp hạng bằng `netMoiGioBps` — "
                 f"con số ty HỨA lúc trình — nên không đối chiếu được nghĩa "
@@ -1416,7 +1477,7 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                 # Núm RỖNG. Không đo được lời hứa KHÔNG phải bệnh của một
                 # cái trần — vặn trần lúc này là vặn theo một bảng xếp
                 # hạng mà chính triệu chứng này vừa nói là chưa ai kiểm.
-                []))
+                [], goc="ghe-khan-churn"))
 
     for ma, o in sorted(dvt.items()):
         try:

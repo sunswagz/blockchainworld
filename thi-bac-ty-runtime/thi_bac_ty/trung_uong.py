@@ -73,7 +73,7 @@ from pathlib import Path
 from .ban_tham_so import KhoThamSo
 from .cau_dao import CauDao
 from .che_van_hanh import che_cua_ty, von_can_de_chay, von_hoa_ha_tang
-from .chan_doan_he import chan_doan_he, de_xuat
+from .chan_doan_he import chan_doan_he, de_xuat, gom_theo_goc
 from .chay_lai_he import doi_chieu, thu_hoach
 from .cong_duyet import xet_duyet
 from .danh_muc import DanhMuc
@@ -1275,6 +1275,12 @@ class TrungUong:
 
         ra = {"luc": _bay_gio(), "vong": self.vong,
               "trieuChung": [t.tom_tat() for t in trieu],
+              # GOM theo gốc. Mười triệu chứng cùng mức 2 là một bảng xếp
+              # hạng không xếp được hạng — người đọc phải tự đoán cái nào
+              # đáng làm trước, và phần lớn sẽ thôi đọc. Đo 05/09/2026:
+              # mười dòng gom lại thành hai chuỗi (3 và 2 triệu chứng) cộng
+              # năm cái đứng lẻ.
+              "nhomTheoGoc": gom_theo_goc(trieu),
               "deXuat": [d.tom_tat() for d in dx],
               "doDuoc": do,
               "congDuyet": duyet,
