@@ -321,6 +321,71 @@ def gom_theo_goc(trieu: list) -> list[dict]:
     return ra
 
 
+def gia_tran_khoa(anh: dict) -> dict | None:
+    """Cái trần khoá vốn đang chạy CHẶN MẤT bao nhiêu — bằng số, không bằng đếm.
+
+    Bảng phễu nói `khoa-von-lau 12`. Con số ấy là một phép ĐẾM, và một
+    phép đếm không nói được cổng đặt đúng hay sai: mười hai cơ hội nằm
+    sát trần thì nới một chút là mở, còn mười hai cơ hội xa hẳn thì vặn
+    trần chỉ đổi con số chứ không mở gì. Đúng bài đã học ở
+    `amm-nguon-cung-chu-khong-phai-nut`.
+
+    Ở đây câu trả lời ĐÃ ĐƯỢC ĐO SẴN — `duong_khoa_von.py` chạy mỗi vòng
+    và tính từng mức trần rót được bao nhiêu, ở lợi suất nào. Trước lượt
+    này bảng chẩn không đọc nó, nên người đọc thấy `khoa-von-lau 12` mà
+    không biết cái 12 ấy đáng 0,1 điểm hay 8 điểm phần trăm.
+
+    Trả `None` khi CHƯA ĐO ĐƯỢC, và ba trường hợp đều là chưa đo được
+    chứ không phải «giá bằng không»:
+
+    - không có đường khoá vốn trong ảnh chụp;
+    - trần đang chạy không nằm trong lưới mức đã thử — không có mốc so
+      thì mọi hiệu số đều là bịa (xem `truc-nut-lech-luoi`);
+    - trần đang chạy đã là mức CUỐI, tức đã bỏ trần rồi.
+    """
+    dkv = anh.get("duongKhoaVon") or {}
+    muc = dkv.get("muc") or []
+    if not muc:
+        return None
+    dang = dkv.get("tranDangChayGio")
+    vi = None
+    for i, m in enumerate(muc):
+        if m.get("tranGio") == dang:
+            vi = i
+            break
+    if vi is None or vi >= len(muc) - 1:
+        return None
+
+    def _apr(m):
+        try:
+            return float(m.get("aprTrenCaTui"))
+        except (TypeError, ValueError):
+            return None
+
+    nay = _apr(muc[vi])
+    ke = _apr(muc[vi + 1])
+    het = _apr(muc[-1])
+    if nay is None or ke is None or het is None:
+        return None
+    return {
+        "tranDangChayGio": dang,
+        "aprDangChay": nay,
+        "soCoHoiDangChay": muc[vi].get("soCoHoi"),
+        # BƯỚC KẾ: mức thấp nhất còn nới được. Đây là con số để cân nhắc.
+        "buocKeGio": muc[vi + 1].get("tranGio"),
+        "aprBuocKe": ke,
+        "themDiemBuocKe": ke - nay,
+        "themCoHoiBuocKe": (muc[vi + 1].get("soCoHoi", 0)
+                            - muc[vi].get("soCoHoi", 0)),
+        "khoaBinhQuanBuocKeGio": muc[vi + 1].get("khoaBinhQuanGio"),
+        # BỎ HẲN TRẦN: mép trên của trục. Nói ra để biết cái trần này
+        # đang đứng ở đâu trên cả dải, không phải để khuyên bỏ nó.
+        "aprBoTran": het,
+        "themDiemBoTran": het - nay,
+        "khoaBinhQuanBoTranGio": muc[-1].get("khoaBinhQuanGio"),
+    }
+
+
 def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     """Đọc `TrungUong.anh_chup()`, trả về bệnh ĐO ĐƯỢC của cả bộ máy."""
     ra: list[TrieuChungHe] = []
@@ -1250,6 +1315,27 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     if _top:
         _viPheu = (" Phễu vòng này nói vì sao: "
                    + " · ".join(f"{_m} {_n}" for _m, _n in _top) + ".")
+    # GIÁ của cái trần đứng đầu bảng từ chối. Chỉ gắn khi `khoa-von-lau`
+    # đứng ĐẦU: một mã xếp thứ ba mà kèm cả đoạn giá là đổi trọng tâm câu
+    # chẩn sang thứ không phải nguyên nhân chính.
+    _gia = (gia_tran_khoa(anh)
+            if _top and _top[0][0] == "khoa-von-lau" else None)
+    if _gia:
+        _viPheu += (
+            f" Và cái trần ấy đã được ĐO giá: ở {_gia['tranDangChayGio']:.0f} "
+            f"giờ có {_gia['soCoHoiDangChay']} cơ hội và "
+            f"{_gia['aprDangChay']:.2f}%/năm; nới lên "
+            f"{_gia['buocKeGio']:.0f} giờ thì thêm "
+            f"{_gia['themCoHoiBuocKe']} cơ hội và "
+            f"{_gia['themDiemBuocKe']:+.2f} điểm, đổi lại vốn khoá bình quân "
+            f"{_gia['khoaBinhQuanBuocKeGio']:.0f} giờ; bỏ hẳn trần là "
+            f"{_gia['themDiemBoTran']:+.2f} điểm. Đây là phép ĐO chứ không "
+            f"phải đề xuất — `khoaVonToiDaGio` không nằm trong bảng núm máy "
+            f"tự vặn, vì `duong_khoa_von` đo phần ĐƯỢC mà không đo phần MẤT "
+            f"(cơ hội tốt hơn xuất hiện trong ngần ấy giờ), và vặn theo nửa "
+            f"phép đo đúng là cái bẫy `xoay-cho-hua-qua`. Cửa của nó là "
+            f"`dat_tham_so`, cửa đòi TÊN NGƯỜI."
+        )
     if _kVong >= VONG_GHE_TRONG_DANG_NGO and _conGhe0:
         ra.append(TrieuChungHe(
             "ghe-trong-khong-ai-ngoi", 2,  # gốc: cung-co-hoi
@@ -1266,7 +1352,8 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
              "soGhe": _gv0.get("soGhe"),
              "soDangDung": _gv0.get("soDangDung"),
              "nguong": VONG_GHE_TRONG_DANG_NGO,
-             "lyDoPheuDauBang": _top},
+             "lyDoPheuDauBang": _top,
+             "giaTranKhoa": _gia},
             # Núm RỖNG. Máy KHÔNG tự đuổi ai vì chuyện này — `trung_uong`
             # đã ghi đúng lý do: «đóng một vị thế mà Phân Bổ không mở lại
             # được là đẩy vốn về tiền mặt ăn 0%». Và nới trần ghế lúc ghế

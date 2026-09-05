@@ -3872,6 +3872,107 @@ def kiem_chan_doan_he() -> None:
          and _tG[0].bangChung["lyDoPheuDauBang"] == [],
          "im khi không có số còn hơn khai một danh sách rỗng như thể đã tra")
 
+    # ── GIÁ của cái trần đứng đầu bảng từ chối ───────────────────────────
+    #
+    # `khoa-von-lau 12` là một phép ĐẾM, và đếm không nói được cổng đặt
+    # đúng hay sai — bài đã học ở `amm-nguon-cung-chu-khong-phai-nut`.
+    # `duong_khoa_von` ĐÃ đo sẵn giá ấy mỗi vòng, và trước lượt này bảng
+    # chẩn không đọc nó.
+    from thi_bac_ty.chan_doan_he import gia_tran_khoa as _gtk
+
+    # Lưới ba mức có APR, SỐ CƠ HỘI và KHOÁ BÌNH QUÂN đôi một khác nhau:
+    # mức kế và mức cuối phải phân biệt được, nếu không thì `vi + 1` đổi
+    # thành `vi + 2` vẫn cho cùng đáp số.
+    def _anh_khoa(dang=720.0):
+        return {"duongKhoaVon": {
+            "tranDangChayGio": dang,
+            "muc": [{"tranGio": 720.0, "soCoHoi": 6, "aprTrenCaTui": 1.87,
+                     "khoaBinhQuanGio": 0.0},
+                    {"tranGio": 1440.0, "soCoHoi": 10, "aprTrenCaTui": 4.52,
+                     "khoaBinhQuanGio": 354.0},
+                    {"tranGio": None, "soCoHoi": 18, "aprTrenCaTui": 9.78,
+                     "khoaBinhQuanGio": 1873.0}]}}
+
+    _gk = _gtk(_anh_khoa())
+    kiem("giá trần khoá: BƯỚC KẾ đo bằng mức ngay sau, không phải mức cuối",
+         _gk and abs(_gk["themDiemBuocKe"] - 2.65) < 0.01
+         and _gk["themCoHoiBuocKe"] == 4
+         and _gk["buocKeGio"] == 1440.0
+         and abs(_gk["khoaBinhQuanBuocKeGio"] - 354.0) < 0.01,
+         f"{_gk} — 4,52 − 1,87 = 2,65 điểm, 10 − 6 = 4 cơ hội")
+    kiem("và BỎ TRẦN đo bằng mức CUỐI, khác hẳn bước kế",
+         _gk and abs(_gk["themDiemBoTran"] - 7.91) < 0.01
+         and abs(_gk["khoaBinhQuanBoTranGio"] - 1873.0) < 0.01
+         and _gk["themDiemBoTran"] > _gk["themDiemBuocKe"],
+         f"{_gk} — 9,78 − 1,87 = 7,91 điểm")
+    kiem("mốc so là trần ĐANG CHẠY, không phải mức đầu lưới",
+         (lambda g: g and abs(g["themDiemBuocKe"] - 5.26) < 0.01
+          and g["soCoHoiDangChay"] == 10)(_gtk(_anh_khoa(1440.0))),
+         "đứng ở 1.440 thì bước kế là BỎ TRẦN: 9,78 − 4,52 = 5,26")
+
+    # Ba đường CHƯA ĐO ĐƯỢC. Cả ba trả `None` chứ không trả 0: một số 0 ở
+    # đây đọc thành «cái trần này không chặn gì», một câu dữ liệu không nói.
+    kiem("trần đang chạy KHÔNG nằm trong lưới ⇒ chưa đo được, không bịa",
+         _gtk(_anh_khoa(999.0)) is None,
+         "không có mốc so thì mọi hiệu số đều bịa — xem `truc-nut-lech-luoi`")
+    kiem("trần đang chạy đã là mức CUỐI ⇒ không còn bước nào để nới",
+         _gtk({"duongKhoaVon": {"tranDangChayGio": None, "muc": [
+             {"tranGio": 720.0, "soCoHoi": 6, "aprTrenCaTui": 1.87,
+              "khoaBinhQuanGio": 0.0},
+             {"tranGio": None, "soCoHoi": 18, "aprTrenCaTui": 9.78,
+              "khoaBinhQuanGio": 1873.0}]}}) is None,
+         "bỏ trần rồi thì không có gì để nới thêm")
+    kiem("không có đường khoá vốn trong ảnh ⇒ chưa đo được",
+         _gtk({}) is None and _gtk({"duongKhoaVon": {"muc": []}}) is None)
+    kiem("mức thiếu APR đọc được ⇒ chưa đo được",
+         _gtk({"duongKhoaVon": {"tranDangChayGio": 720.0, "muc": [
+             {"tranGio": 720.0, "soCoHoi": 6, "aprTrenCaTui": None},
+             {"tranGio": 1440.0, "soCoHoi": 10, "aprTrenCaTui": 4.52},
+             {"tranGio": None, "soCoHoi": 18, "aprTrenCaTui": 9.78}]}}) is None,
+         "thiếu một chân thì cả hiệu số vô nghĩa")
+
+    # Và nó phải LÊN CÂU CHẨN — một trường tính rồi không ai đọc là đúng
+    # cái lỗi `co-tinh-roi-bo-qua`.
+    _anhPG = _anh_ghe(35)
+    _anhPG["pheuDayDu"] = {"theoHo": [{"ho": "tin-dung", "lyDoTuChoi": [
+        {"ma": "khoa-von-lau", "so": 12},
+        {"ma": "duoi-von-toi-thieu", "so": 6}]}]}
+    _anhPG["duongKhoaVon"] = _anh_khoa()["duongKhoaVon"]
+    _tPG = [t for t in chan_doan_he(_anhPG)
+            if t.ma == "ghe-trong-khong-ai-ngoi"]
+    kiem("giá cái trần lên CÂU CHẨN, không chỉ nằm trong bằng chứng",
+         _tPG and "+2.65 điểm" in _tPG[0].moTa
+         and "+7.91 điểm" in _tPG[0].moTa
+         and _tPG[0].bangChung["giaTranKhoa"] is not None,
+         _tPG[0].moTa[-200:] if _tPG else "")
+    kiem("và câu ấy nói THẲNG đây là phép đo, không phải đề xuất",
+         _tPG and "không phải đề xuất" in _tPG[0].moTa
+         and "TÊN NGƯỜI" in _tPG[0].moTa,
+         "`duong_khoa_von` đo phần ĐƯỢC mà không đo phần MẤT — vặn theo "
+         "nửa phép đo đúng là bẫy `xoay-cho-hua-qua`")
+
+    # `khoa-von-lau` KHÔNG đứng đầu thì không gắn giá: một mã xếp thứ hai
+    # mà kèm cả đoạn giá là đổi trọng tâm câu chẩn sang thứ không phải
+    # nguyên nhân chính.
+    _anhPK = _anh_ghe(35)
+    _anhPK["pheuDayDu"] = {"theoHo": [{"ho": "tin-dung", "lyDoTuChoi": [
+        {"ma": "duoi-von-toi-thieu", "so": 20},
+        {"ma": "khoa-von-lau", "so": 12}]}]}
+    _anhPK["duongKhoaVon"] = _anh_khoa()["duongKhoaVon"]
+    _tPK = [t for t in chan_doan_he(_anhPK)
+            if t.ma == "ghe-trong-khong-ai-ngoi"]
+    kiem("`khoa-von-lau` KHÔNG đứng đầu ⇒ không gắn giá cái trần",
+         _tPK and "đã được ĐO giá" not in _tPK[0].moTa
+         and _tPK[0].bangChung["giaTranKhoa"] is None,
+         _tPK[0].moTa[-160:] if _tPK else "")
+    kiem("đứng đầu mà CHƯA đo được giá thì câu chẩn vẫn nguyên vẹn",
+         (lambda t: t and "đã được ĐO giá" not in t[0].moTa
+          and "khoa-von-lau 12" in t[0].moTa)(
+             [x for x in chan_doan_he(
+                 {**_anhPG, "duongKhoaVon": {"muc": []}})
+              if x.ma == "ghe-trong-khong-ai-ngoi"]),
+         "thiếu phép đo thì bớt một câu, không hỏng cả triệu chứng")
+
     # ── NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng chia tiền ────────────────
     #
     # Sổ đăng ký làn thật 05/09/2026: bảy tờ trình trên 1.000%/năm trong
