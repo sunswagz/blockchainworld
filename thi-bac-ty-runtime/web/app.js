@@ -2520,8 +2520,10 @@
     met("PnL ước", vl.pnlUocUsd == null ? "—" : (vl.pnlUocUsd >= 0 ? "+" : "") + tien(vl.pnlUocUsd, 2).replace("$", "$"),
       vl.pnlUocUsd == null ? null : vl.pnlUocUsd >= 0 ? "duong" : "am",
       vl.pnlUocUsd == null ? "chưa có vị thế" : "phí chưa thu + IL");
-    met("Điểm tự do", vl.diemTuDo == null ? "—" : pc(vl.diemTuDo, 0), vl.diemTuDo == null ? null : vl.diemTuDo >= 1 ? "duong" : null,
-      vl.chiPhiThangUsd ? "phí ĐÃ VỀ TAY 30 ngày / chi phí " + tien(vl.chiPhiThangUsd, 0) : "khai chi phí tháng ở Kết nối & dữ liệu");
+    var gd = vl.giaiDoanTuDo || {};
+    met("Điểm tự do", vl.diemTuDo == null ? "—" : pc(vl.diemTuDo, 0), vl.diemTuDo == null ? null : vl.diemTuDo >= 1.5 ? "duong" : vl.diemTuDo >= 1 ? null : "am",
+      vl.diemTuDo != null ? (gd.ten || "") + (vl.coSoTuDo === "trung-binh-truot" ? " · TB trượt 6 tháng" : " · 30 ngày, chưa đủ tháng")
+        : vl.chiPhiThangUsd ? "chưa có phí đã về tay" : "khai chi phí tháng ở Kết nối & dữ liệu");
     var vrTu = (S && S.trungUong && S.trungUong.vonRanh) || {};
     met("Vốn triển khai được", vrTu.khaDungUsd == null ? "—" : tien(vrTu.khaDungUsd, 0), null,
       vrTu.khaDungUsd == null ? "Trung Ương chưa báo" : "Trung Ương: được phép mà đang không làm gì");
@@ -2752,6 +2754,11 @@
       luoi.appendChild(the);
     });
     f.appendChild(luoi);
+    if ((vl.dongTienTheoThang || []).some(function (x) { return x.usd != null; })) {
+      f.appendChild(el("h4", null, "Dòng tiền ĐÃ VỀ TAY theo tháng (Bài 3: không lấy tháng đẹp nhất)"));
+      f.appendChild(bang([{ t: "Tháng" }, { t: "USD", n: true }],
+        vl.dongTienTheoThang.map(function (x) { return [{ t: x.thang }, { t: x.usd == null ? "— chưa có" : tien(x.usd, 2), c: "n " + (x.usd > 0 ? "duong" : x.usd < 0 ? "am" : "nhat") }]; })));
+    }
     if ((vl.hieuQuaVon || []).length) {
       f.appendChild(el("h4", null, "Hiệu quả vốn — phí trên mỗi $1, quy tháng (Bài 2)"));
       f.appendChild(bang([{ t: "Vị thế" }, { t: "Vốn", n: true }, { t: "%/tháng", n: true }],
@@ -2761,6 +2768,8 @@
     f.appendChild(giai("Tổng: " + so(vl.soViThe) + " vị thế · vốn " + tien(vl.vonUsd, 0)
       + (vl.dongTienUocThangUsd != null ? " · dòng tiền ƯỚC quy tháng " + tien(vl.dongTienUocThangUsd, 0) + " (phí chưa thu + IL, trên giấy)" : "")
       + (vl.dongTienDaVeTayThangUsd != null ? " · ĐÃ VỀ TAY 30 ngày " + tien(vl.dongTienDaVeTayThangUsd, 2) : " · chưa có phí đã claim ghi sổ")
+      + (vl.dongTienTruot6ThangUsd != null ? " · TB trượt 6 tháng " + tien(vl.dongTienTruot6ThangUsd, 0) : "")
+      + (vl.doOnDinhDongTien != null ? " · độ lệch/TB " + n2(vl.doOnDinhDongTien, 2) + (vl.doOnDinhDongTien > 1 ? " (thất thường)" : " (đều)") : "")
       + (vl.phiChoThuUsd != null ? " · phí chưa thu " + tien(vl.phiChoThuUsd, 2) : "")
       + (vl.ilUsd != null ? " · IL " + tien(vl.ilUsd, 2) : "") + ". Thưởng OKX chia off-chain — ghi tay khi claim."));
     return f;

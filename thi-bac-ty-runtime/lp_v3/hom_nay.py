@@ -222,10 +222,24 @@ def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
                 co = True
                 tong += float(v.phiThuUsd or 0.0) + float(v.thuongThuUsd or 0.0)
         daVeTay = tong if co else None
+    # THEO THÁNG (Bài 3): không lấy tháng đẹp nhất. Dãy 6 tháng gần nhất từ
+    # vị thế đã đóng; trung bình trượt là số dùng cho điểm tự do khi đã có
+    # ≥ 2 tháng; độ ổn định = độ lệch chuẩn / |trung bình| (thấp là đều).
+    theoThang = _dong_tien_theo_thang(ty)
+    coThang = [x["usd"] for x in theoThang if x["usd"] is not None]
+    truot = (sum(coThang) / len(coThang)) if coThang else None
+    onDinh = None
+    if len(coThang) >= 3 and truot:
+        tb = truot
+        onDinh = (sum((x - tb) ** 2 for x in coThang) / (len(coThang) - 1)) ** 0.5 / abs(tb)
     chiPhi = ((cfg or {}).get("mucTieu") or {}).get("chiPhiThangUsd")
     tuDo = None
-    if daVeTay is not None and chiPhi:
-        tuDo = daVeTay / float(chiPhi)
+    coSoTuDo = None
+    if chiPhi:
+        if len(coThang) >= 2 and truot is not None:
+            tuDo, coSoTuDo = truot / float(chiPhi), "trung-binh-truot"
+        elif daVeTay is not None:
+            tuDo, coSoTuDo = daVeTay / float(chiPhi), "30-ngay-gan-nhat"
     return {"soViThe": len(viThe), "vonUsd": von,
             "phiChoThuUsd": sum(coPhi) if coPhi else None,
             "ilUsd": sum(il) if il else None,
@@ -234,8 +248,52 @@ def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
             "hieuQuaVon": hq,
             "dongTienUocThangUsd": dongUoc,
             "dongTienDaVeTayThangUsd": daVeTay,
+            "dongTienTheoThang": theoThang,
+            "dongTienTruot6ThangUsd": truot,
+            "doOnDinhDongTien": onDinh,
             "chiPhiThangUsd": chiPhi,
-            "diemTuDo": tuDo}
+            "diemTuDo": tuDo, "coSoTuDo": coSoTuDo,
+            "giaiDoanTuDo": giai_doan_tu_do(tuDo)}
+
+
+#: Thang Bài 3 — «không phải luật tài chính chuẩn, là cách thiết kế quản
+#: trị»: vừa đủ sống chưa an toàn, volume tụt một tháng là rơi dưới 1.
+def giai_doan_tu_do(tuDo) -> dict | None:
+    if tuDo is None:
+        return None
+    if tuDo < 0.5:
+        return {"ma": "tich-luy", "ten": "Tích luỹ", "muc": 0}
+    if tuDo < 1.0:
+        return {"ma": "ho-tro", "ten": "Dòng tiền hỗ trợ cuộc sống", "muc": 1}
+    if tuDo < 1.5:
+        return {"ma": "gan-tu-do", "ten": "Gần tự do, biên an toàn thấp", "muc": 2}
+    if tuDo < 2.0:
+        return {"ma": "kha-khoe", "ten": "Khá khoẻ", "muc": 3}
+    return {"ma": "co-dem", "ten": "Có đệm đáng kể", "muc": 4}
+
+
+def _dong_tien_theo_thang(ty, soThang: int = 6) -> list:
+    """`[{thang: 'YYYY-MM', usd}]` — phí + thưởng ĐÃ ghi khi đóng, gom theo
+    tháng đóng; tháng không có vị thế đóng nào là None (chưa đo), không 0."""
+    if ty is None or not hasattr(ty, "soViThe"):
+        return []
+    now = dt.datetime.now(dt.timezone.utc)
+    thangs = []
+    y, m = now.year, now.month
+    for _ in range(soThang):
+        thangs.append(f"{y:04d}-{m:02d}")
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    thangs.reverse()
+    gom = {t: None for t in thangs}
+    for v in ty.soViThe.da_dong():
+        if v.phiThuUsd is None and v.thuongThuUsd is None:
+            continue
+        k = str(v.dongLuc or "")[:7]
+        if k in gom:
+            gom[k] = (gom[k] or 0.0) + float(v.phiThuUsd or 0.0) + float(v.thuongThuUsd or 0.0)
+    return [{"thang": t, "usd": gom[t]} for t in thangs]
 
 
 def _che_do_rui_ro(bc, thuong) -> dict:

@@ -11781,8 +11781,8 @@ def kiem_lp_v3() -> None:
     # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
     from lp_v3 import hoc_lieu as hl
     _tt = hl.nap_tri_thuc()
-    kiem("tri_thuc.json nạp được, có ít nhất một bài, đúng khuôn",
-         len(_tt) >= 1 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("tri_thuc.json nạp được, có ít nhất BA bài, đúng khuôn",
+         len(_tt) >= 3 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
@@ -11791,6 +11791,12 @@ def kiem_lp_v3() -> None:
          and any(q["ma"] == "chi-tinh-tien-da-ve-tay" and q["trangThai"] == "da-co"
                  for b in _tt for q in b["quyTac"])
          and any(q["ma"] == "do-uptime-truoc-khi-noi-dai" and q["trangThai"] != "da-co"
+                 for b in _tt for q in b["quyTac"]))
+    kiem("Bài 3 đã ghim: rút/tái đầu tư và đếm công vận hành KHAI là nợ, không được tính đã có",
+         any("financial-freedom" in (b.get("ma") or "") for b in _tt)
+         and any(q["ma"] == "khong-rut-song-khi-duoi-mot-ruoi" and q["trangThai"] == "thieu-phep-canh"
+                 for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "tinh-lp-freedom-ratio-moi-thang" and q["trangThai"] == "da-co"
                  for b in _tt for q in b["quyTac"]))
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
@@ -11843,6 +11849,12 @@ def kiem_lp_v3() -> None:
          and isinstance(bcH["tinAnhHuong"], list)
          and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
     kiem("báo cáo mang mục `triThuc` với số bài ≥ 1", (bcH.get("triThuc") or {}).get("soBai", 0) >= 1)
+    kiem("KPI Bài 3: sáu tháng gần nhất đều «chưa có» (None) khi chưa vị thế đóng nào; thang tự do năm bậc",
+         len(bcH["vonLp"]["dongTienTheoThang"]) == 6
+         and all(x["usd"] is None for x in bcH["vonLp"]["dongTienTheoThang"])
+         and bcH["vonLp"]["giaiDoanTuDo"] is None
+         and hom_nay.giai_doan_tu_do(0.3)["ma"] == "tich-luy" and hom_nay.giai_doan_tu_do(1.2)["ma"] == "gan-tu-do"
+         and hom_nay.giai_doan_tu_do(2.5)["muc"] == 4)
     kiem("KPI Bài 2: không vị thế → dòng tiền tháng và điểm tự do là None, không phải 0",
          bcH["vonLp"]["dongTienUocThangUsd"] is None and bcH["vonLp"]["diemTuDo"] is None
          and bcH["vonLp"]["dongTienDaVeTayThangUsd"] is None
