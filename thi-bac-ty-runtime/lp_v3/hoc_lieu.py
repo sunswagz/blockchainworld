@@ -74,6 +74,8 @@ TRUONG_BAO_CAO = {
     "giaiDoanTuDo", "dongTienTheoThang", "dongTienTruot6ThangUsd", "doOnDinhDongTien", "coSoTuDo",
     # Bài 4: kiểm toán năm hoá, mốc HOLD, ba nguồn lợi nhuận, doanh nghiệp nhỏ
     "aprTuongDuongPct", "apyLaLaiKep", "alphaSoHoldUsd", "tachLoiNhuan", "business", "donBayUsd",
+    # Bài 5: hữu cơ, vòng quay, lãi nền, Lego rủi ro
+    "tiLeHuuCo", "vongQuay", "soLaiNenPct", "laiSuatNen", "chuoiPhuThuoc",
 }
 
 KHUON_JSON = {

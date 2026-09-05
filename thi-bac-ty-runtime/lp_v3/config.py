@@ -84,6 +84,21 @@ CONFIG = {
     #: trước khi nhân với thời gian — 423% APY ≈ 165% APR. Không biết chắc
     #: thì coi là kép: số NHỎ hơn, sai theo hướng thận trọng (Bài 4).
     "apyLaLaiKep": True,
+    #: MỐC LÃI CHO VAY của đồng quote (Bài 5: lending là baseline yield, chi
+    #: phí cơ hội của LP). Khai tay kèm nguồn và ngày; None = chưa khai →
+    #: luật `phi-goc-duoi-lai-nen` không có gì để so, không kêu.
+    "laiSuatNen": {"pct": None, "taiSan": "USDG", "nguon": "", "ngay": ""},
+    #: LEGO RỦI RO (Bài 5): vốn trong các pool này đi qua những lớp nào. Một
+    #: lớp hỏng là mọi pool dưới nó hỏng — khai ra để không ai đọc «pool
+    #: ICEx-USDG» như một rủi ro đơn.
+    "chuoiPhuThuoc": [
+        {"lop": "X Layer", "vai": "chuỗi (zkEVM của OKX) — RPC công cộng, sequencer"},
+        {"lop": "Uniswap V3", "vai": "AMM giữ vốn suốt thời gian trong pool"},
+        {"lop": "USDG", "vai": "đồng neo USD (Paxos) — mất neo là IL thật"},
+        {"lop": "token cổ phiếu (xStocks)", "vai": "tổ chức phát hành bảo chứng 1:1 — rủi ro phát hành, tạm ngưng"},
+        {"lop": "OKX DeFi", "vai": "giao diện thêm/rút; chương trình thưởng chia off-chain"},
+        {"lop": "Yahoo · RPC", "vai": "nguồn giá gốc và giá pool — mù thì máy mù"},
+    ],
     "chuongTrinh": {
         "ten": "$220K Rewards for X Layer Liquidity Providers",
         "quyUsd": 220_000.0,

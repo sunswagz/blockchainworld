@@ -291,6 +291,10 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
     if giaInfo.get("giaChuoi") and giaInfo.get("giaGoc"):
         lech = abs(giaInfo["giaChuoi"] / giaInfo["giaGoc"] - 1.0) * 100.0
     thuongLon = (aprThuong or 0.0) > (aprPhi or 0.0)
+    laiNen = (cfg.get("laiSuatNen") or {}).get("pct")
+    aprTong = None
+    if aprPhi is not None:
+        aprTong = (aprPhi + ((aprThuong or 0.0) if (gioThuong or 0) > 0 else 0.0)) * 100.0
 
     bc = BoiCanh(kyHieu=pool["kyHieu"], dangGiu=False,
                  trangThaiPhien=bcPhien.trangThai, coSigma=coSigma,
@@ -302,6 +306,8 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                  netBps=None if kd is None else kd.netBps,
                  gioToiSuKien=gioSk, tenSuKien=tenSk or "",
                  gioToiHetThuong=gioThuong, thuongChiemPhanLon=thuongLon,
+                 aprTongPct=aprTong,
+                 laiSuatNenPct=None if laiNen is None else float(laiNen),
                  tvlUsd=tvl, lechGiaChuoiSoGocPct=lech, nut=nut, cua=cua)
     qd = quyet(bc)
 
@@ -326,7 +332,8 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                                  None if kdV is None else kdV.tom_tat(),
                                  quyet(bcV).tom_tat()))
 
-    co = CoHoiV3(pool=dict(pool, giuGio=giuGio, apyLaLaiKep=bool(cfg.get("apyLaLaiKep", True))),
+    co = CoHoiV3(pool=dict(pool, giuGio=giuGio, apyLaLaiKep=bool(cfg.get("apyLaLaiKep", True)),
+                           laiSuatNenPct=laiNen),
                  ma=ma, kyHieu=pool["kyHieu"],
                  gia=giaInfo, sigma=sigmaInfo, phien=bcPhien.tom_tat(),
                  tauNam=tau, dai=kd, quyetDinh=qd, aprPhi=aprPhi,
@@ -568,6 +575,23 @@ class TyBienDo(Ty):
         ch["mucTieu"] = ra
         cfgmod.ghi(ch)
         self.cfg["mucTieu"] = ra
+        return ra
+
+    def dat_lai_nen(self, than: dict) -> dict:
+        """Mốc lãi cho vay đồng quote (khai tay, có nguồn, có ngày)."""
+        ra = dict(self.cfg.get("laiSuatNen") or {})
+        v = than.get("pct")
+        if v is not None:
+            v = float(v)
+            if v < 0 or v > 200:
+                raise ValueError("lãi nền phải trong [0, 200] %/năm")
+        ra["pct"] = v
+        ra["nguon"] = str(than.get("nguon") or "")[:120]
+        ra["ngay"] = dt.date.today().isoformat() if v is not None else ""
+        ch = cfgmod.nap()
+        ch["laiSuatNen"] = ra
+        cfgmod.ghi(ch)
+        self.cfg["laiSuatNen"] = ra
         return ra
 
     def vi_tom_tat(self) -> dict:

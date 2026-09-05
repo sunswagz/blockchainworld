@@ -990,6 +990,356 @@
     "Tỉ lệ phân bổ 30% dự phòng / 20% stable / 40% LP tốt nhất / 10% quỹ cơ hội: chính người bóc ghi rõ là tỉ lệ ví dụ. Lấy cấu trúc bốn rổ, không chốt con số.",
     "So sánh \"DeFi nhanh hơn bất động sản\" về velocity: không có thước đo chung giữa hai lớp tài sản. Giữ làm minh hoạ khái niệm, không làm căn cứ phân bổ vốn."
    ]
+  },
+  {
+   "ma": "khoa-hoc-lp-bai-5-ways-to-earn",
+   "ten": "Bài 5 — Ways to Earn in DeFi",
+   "nguon": "Lesson 5, khoá DeFi cơ bản (bản bóc do chủ gửi 05/09/2026); mốc 1:24–2:03 lending · 3:11–4:38 LP · 3:50 ví dụ ETH/USDC trên Uniswap · 4:21 concentrated vs full-range",
+   "ngay": "2026-09-05",
+   "bocBang": "agent riêng (claude CLI) 05/09/2026, người soát và sửa 4 quy tắc (1 mã mồ côi do agent tự phát hiện)",
+   "tomTat": "Tác giả dựng bản đồ các cách sinh lợi trong DeFi theo tầng: HOLD → LENDING → STAKING → LIQUIDITY PROVIDING, cộng thêm RWA và airdrop. Ông nhấn rằng LP không được so với 0% mà phải so với HOLD benchmark và với lending baseline, vì có ví dụ LP thu $700 phí nhưng vẫn thua HOLD $550. Phần lõi kỹ thuật là doanh thu LP đến từ swap fee của trader, hiệu quả vốn đo bằng volume/TVL, và đánh đổi giữa dải hẹp (nhiều phí, dễ ngoài dải) với full-range (ổn định, phí loãng). Ông tách APR hiển thị thành organic fees và token incentive, cảnh báo composability (ETH → Lido → stETH → Aave → Uniswap) tạo chuỗi phụ thuộc rủi ro. Kết luận là đừng xây bot 'làm LP 24/7' mà xây bộ định tuyến vốn biết kết luận hôm nay nên HOLD, LEND hay LP.",
+   "danhGia": {
+    "kyThuatLp": 4,
+    "quanLyVon": 4,
+    "tuDuyHeThong": 5,
+    "tradeDuoc": 2,
+    "giaTriChoHeThong": 5
+   },
+   "luanDiem": [
+    {
+     "cau": "LP không so với 0% mà phải so với HOLD benchmark; có thể thu $700 phí mà vẫn thua HOLD $550.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Chạy lại từng vị thế đã đóng: giá trị cuối của giỏ token nếu không làm gì, so với (giá trị LP + phí − chi phí). Có sẵn dữ liệu vào/ra là tính được, không cần giả định."
+    },
+    {
+     "cau": "Doanh thu gốc của LP là phí swap trader trả để dùng thanh khoản của mình, không phải APY tự sinh.",
+     "loai": "nguyen-tac",
+     "ghi": "Đây là định nghĩa cơ chế, đúng theo thiết kế AMM. Không cần kiểm chứng, dùng làm tiên đề để bác mọi con số APR không truy được về luồng phí."
+    },
+    {
+     "cau": "Lending (10.000 USDC → Aave → borrowers) là tầng yield đơn giản nhất, không có impermanent loss, nên xem là baseline yield chứ không phải risk-free.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Lấy lãi suất cung USDC thực nhận theo tháng làm mốc; so với net LP cùng kỳ. Vế 'không risk-free' kiểm bằng lịch sử sự cố smart contract / bad debt của chính protocol đó."
+    },
+    {
+     "cau": "'Trader giao dịch càng nhiều thì LP càng lời' là chưa đủ — phải nhìn volume/TVL (Pool A 0,2x so với Pool B 2x).",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Tính vòng quay = volume 24h / TVL cho từng pool đang theo dõi, đối chiếu với phí thực nhận trên mỗi $1 vốn. Kiểm được trực tiếp bằng subgraph."
+    },
+    {
+     "cau": "Dải hẹp làm tăng hiệu quả vốn và mật độ phí nhưng tăng rủi ro ngoài dải, tần suất cân lại và phơi nhiễm IL/LVR.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Backtest cùng chuỗi giá với nhiều bề rộng dải: đo phí/ngày, % thời gian trong dải, số lần cân lại, chi phí gas. Đánh đổi này đo được bằng số."
+    },
+    {
+     "cau": "APR hiển thị 42% có thể là 12% phí giao dịch + 30% token emissions; phải tách organic yield khỏi incentive yield.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Tách bằng cách đọc riêng phí tích luỹ của pool và lịch phát thưởng. Tỷ lệ hữu cơ (18%+2% → 90% so với 3%+47% → 6%) là con số tính được, không phải quan điểm."
+    },
+    {
+     "cau": "Composability là sức mạnh nhưng tạo risk composability: ETH risk + Lido + stETH + Aave + oracle + borrow + LP protocol + pair risk cộng dồn.",
+     "loai": "nguyen-tac",
+     "ghi": "Rủi ro nối tiếp thì xác suất sống sót nhân vào nhau — đúng về mặt cấu trúc. Không lượng hoá được từng xác suất, nên dùng làm nguyên tắc chặn số tầng, không dùng làm công thức."
+    },
+    {
+     "cau": "Vay thế chấp Bitcoin 'there is zero taxable event there'.",
+     "loai": "narrative",
+     "ghi": "Phụ thuộc pháp luật từng nước và cách tự khai thuế; tác giả nói như quy luật chung nên không nhận. Chính bản bóc cũng đã đánh dấu ở mục CHỈNH LẠI."
+    },
+    {
+     "cau": "Vay để tạo yield trên tài sản thế chấp không phải yield thuần mà là đòn bẩy: BTC ↓ → LTV ↑ → health factor ↓ → thanh lý.",
+     "loai": "nguyen-tac",
+     "ghi": "Cơ chế thanh lý là quy tắc của protocol, kiểm được ngưỡng; nhưng câu 'không còn yield thuần' là cách phân loại rủi ro, dùng làm nguyên tắc."
+    },
+    {
+     "cau": "NUPL và 200-week MA có thể làm input cho market regime engine để điều chỉnh dải LP (extreme fear → dải rộng, đòn bẩy thấp; sideways → dải hẹp).",
+     "loai": "narrative",
+     "ghi": "Tác giả không đưa ngưỡng, không đưa bằng chứng chỉ báo BTC dài hạn cải thiện net LP edge trên khung ngày. Muốn nhận phải backtest riêng: gắn nhãn chế độ rồi so net LP theo từng nhãn."
+    },
+    {
+     "cau": "Airdrop/points chỉ là bonus khi đã dùng protocol; không tính vào kỳ vọng lợi nhuận cơ sở.",
+     "loai": "nguyen-tac",
+     "ghi": "Là nguyên tắc kế toán thận trọng: chỉ ghi nhận cái đã về ví. Kiểm bằng cách xem lại có bao nhiêu kỳ vọng airdrop từng thành tiền thật."
+    },
+    {
+     "cau": "Sau điều chỉnh rủi ro, bộ định tuyến vốn không nhất thiết chọn APR cao nhất (18,4% ETH/USDC → 4,8 điểm, thua Curve stable 7,1% → 5,0 điểm).",
+     "loai": "narrative",
+     "ghi": "Con số điều chỉnh rủi ro là do tác giả tự đặt, không nêu cách tính hệ số. Ý tưởng dùng được nhưng phải tự định nghĩa hàm phạt rủi ro rồi mới kiểm chứng."
+    },
+    {
+     "cau": "Đừng xây bot 'làm LP 24/7' mà xây hệ luôn tìm cách dùng vốn tốt nhất; LP chỉ là một trạng thái trong HOLD / LEND / LP hẹp / LP rộng.",
+     "loai": "nguyen-tac",
+     "ghi": "Là lựa chọn kiến trúc, không phải mệnh đề đúng/sai. Giá trị nằm ở chỗ nó buộc hệ thống phải trả lời được 'hôm nay không vào'."
+    }
+   ],
+   "quyTac": [
+    {
+     "ma": "khong-vao-neu-thua-hold",
+     "cau": "KHÔNG vào một pool nếu alpha ước tính so với HOLD cùng giỏ token trong kỳ nắm giữ dự kiến không dương sau khi trừ phí vào/ra và gas.",
+     "gan": {
+      "luat": [
+       "vao-duoc"
+      ],
+      "nut": [],
+      "truong": [
+       "netBps",
+       "ilKyVongBps",
+       "alphaSoHoldUsd",
+       "dieuKien"
+      ]
+     },
+     "ghi": "Có sẵn ở dạng TRƯỚC KHI VÀO: NET = phí + thưởng + IL kỳ vọng − gas chính là alpha kỳ vọng so HOLD (IL là phần thua HOLD); luật vao-duoc đòi NET > 0. Sau khi vào, `alphaSoHoldUsd` đo lại bằng số thật. Không cần mã luật mới."
+    },
+    {
+     "ma": "phi-goc-phai-vuot-lai-nen",
+     "cau": "KHÔNG vào LP khi phí gốc (hữu cơ, đã bỏ thưởng) ước tính không vượt lãi suất cho vay USDC cùng kỳ — 5% lending so với 7% LP thì phải hỏi 2% có đáng nhận thêm biến động, IL/LVR và công quản dải không.",
+     "gan": {
+      "luat": [
+       "phi-goc-duoi-lai-nen"
+      ],
+      "nut": [],
+      "truong": [
+       "laiSuatNen",
+       "soLaiNenPct",
+       "netBps",
+       "aprTuongDuongPct"
+      ]
+     },
+     "ghi": "Đây đúng là ý 'lending là baseline' của mục 4, và phi-goc-duoi-lai-nen là mã có sẵn cho đúng phép so này. Chỉ so bằng phí gốc, không so bằng APR hiển thị."
+    },
+    {
+     "ma": "phi-phai-bu-lvr",
+     "cau": "KHÔNG giữ vị thế khi tỷ lệ phí trên LVR tụt dưới ngưỡng tối thiểu; phí phải bù được chi phí bị chênh lệch giá bào mòn chứ không chỉ nhìn phí thu về.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr"
+      ],
+      "nut": [
+       "tiLePhiTrenLvrToiThieu"
+      ],
+      "truong": [
+       "tiLePhiTrenLvr",
+       "lvrBps",
+       "ilKyVongBps",
+       "ilUsd",
+       "netBps"
+      ]
+     },
+     "ghi": "Bài chỉ nói định tính 'fee có bù IL/LVR không' ở phần công thức cuối; hệ thống đã có sẵn luật và núm để biến câu hỏi đó thành ngưỡng số."
+    },
+    {
+     "ma": "tach-phi-huu-co-khoi-thuong",
+     "cau": "LUÔN tách APR hiển thị thành phí hữu cơ và thưởng token trước khi xếp hạng pool; KHÔNG xếp hạng bằng APR gộp.",
+     "gan": {
+      "luat": [
+       "sap-het-thuong"
+      ],
+      "nut": [],
+      "truong": [
+       "tiLeHuuCo",
+       "thuong",
+       "tachLoiNhuan",
+       "apyTach",
+       "apyLaLaiKep"
+      ]
+     },
+     "ghi": "Mục 15–16 (12%+30% = 42%; A 90% hữu cơ thắng B 6% hữu cơ) chính là lý do có trường tiLeHuuCo. Gắn thêm sap-het-thuong vì pool sống bằng thưởng sẽ sập yield khi lịch phát thưởng hết."
+    },
+    {
+     "ma": "uu-tien-vong-quay-nhung-chan-tvl-mong",
+     "cau": "ƯU TIÊN pool có vòng quay volume/TVL cao, NHƯNG không vào nếu TVL mỏng tới mức một lệnh lớn hoặc một người rút làm lệch hẳn phần phí của mình.",
+     "gan": {
+      "luat": [
+       "tvl-mong"
+      ],
+      "nut": [],
+      "truong": [
+       "vongQuay",
+       "sucChuaUsd",
+       "hieuQuaVon",
+       "vonLp"
+      ]
+     },
+     "ghi": "Bài khen Pool B (2x vòng quay) nhưng không nói mặt trái: TVL $5M là mỏng. Hai vế phải đi cùng nhau nên gắn tvl-mong làm phanh cho chính tiêu chí vòng quay."
+    },
+    {
+     "ma": "be-rong-dai-theo-che-do",
+     "cau": "ĐẶT bề rộng dải theo hệ số dải nhân biến động đo được, KHÔNG đặt dải theo cảm giác; biến động thấp thì hẹp lại, sợ hãi cực độ hoặc xu hướng mạnh thì nới rộng và giảm quy mô.",
+     "gan": {
+      "luat": [
+       "khong-sigma",
+       "dai-qua-rong",
+       "van-dai-cao"
+      ],
+      "nut": [
+       "heSoDai"
+      ],
+      "truong": [
+       "cheDoRuiRo",
+       "khoaVao",
+       "diem"
+      ]
+     },
+     "ghi": "Mục 12–13 ($3.950–4.050 hay $3.800–4.200 hay $3.000–5.000) là bài toán bề rộng. khong-sigma chặn khi chưa đo được biến động, dai-qua-rong chặn dải loãng vô nghĩa, van-dai-cao chặn lúc biến động vượt sức chịu của dải."
+    },
+    {
+     "ma": "khong-doi-dai-ngoai-gio",
+     "cau": "KHÔNG cân lại dải ngoài khung giờ trực; ngoài giờ chỉ được giữ hoặc đóng, không được mở dải mới.",
+     "gan": {
+      "luat": [
+       "ngoai-gio-khong-doi-dai",
+       "giu"
+      ],
+      "nut": [
+       "giuGio"
+      ],
+      "truong": [
+       "hanhDongNgay",
+       "khoaVao"
+      ]
+     },
+     "ghi": "Bài coi rebalance là việc của bot chạy liên tục (mục 14). Đây là chỗ hệ thống cố ý làm khác: tần suất cân lại là chi phí và rủi ro thao tác, nên chặn bằng khung giờ."
+    },
+    {
+     "ma": "xu-ly-khi-ngoai-dai",
+     "cau": "KHI giá ra ngoài dải thì dừng tính vị thế là đang sinh phí, và không mở lại dải nếu xác suất vắng mặt ước tính vượt ngưỡng tối đa.",
+     "gan": {
+      "luat": [
+       "ngoai-dai",
+       "van-dai-cao"
+      ],
+      "nut": [
+       "xacSuatVangToiDa"
+      ],
+      "truong": [
+       "xacSuatVang",
+       "hanhDongNgay",
+       "netBps"
+      ]
+     },
+     "ghi": "Agent gắn `xacSuatVang` làm luật — đó là TRƯỜNG, không phải mã luật (chính agent ghi chú); sửa: luật ngoai-dai (ra ngoài dải → ĐỔI DẢI/RÚT) và van-dai-cao (P(văng) vượt trần → nới), núm xacSuatVangToiDa."
+    },
+    {
+     "ma": "khong-vao-khi-thieu-so-lieu",
+     "cau": "KHÔNG mở vị thế khi chưa đủ số liệu phí và biến động của pool để ước net edge; thiếu số thì đứng ngoài chứ không ước bằng APR hiển thị.",
+     "gan": {
+      "luat": [
+       "chua-du-so",
+       "khong-sigma"
+      ],
+      "nut": [],
+      "truong": [
+       "tinCay",
+       "dieuKien",
+       "coSoTuDo"
+      ]
+     },
+     "ghi": "Bài không nói điều này nhưng cả công thức cuối của bài (real fees → trừ IL/LVR → net edge) sụp đổ nếu không có số. Đây là hàng chặn đầu vào cho mọi quy tắc còn lại."
+    },
+    {
+     "ma": "khong-tinh-airdrop-vao-ky-vong",
+     "cau": "KHÔNG cộng airdrop, points hay thưởng chưa về ví vào lợi nhuận kỳ vọng; KHÔNG mở vị thế chỉ để cày airdrop, không trả gas cho protocol rác.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "pnlUocUsd",
+       "dongTienUocThangUsd",
+       "dongTienDaVeTayThangUsd",
+       "thuong"
+      ]
+     },
+     "ghi": "Không có mã luật nào về airdrop vì hệ thống không coi đó là nguồn thu. Thi hành bằng kế toán: chỉ dongTienDaVeTayThangUsd mới được tính, airdrop vào thuong và không ảnh hưởng quyết định vào lệnh."
+    },
+    {
+     "ma": "gioi-han-tang-lego",
+     "cau": "GIỚI HẠN số tầng phụ thuộc của một đồng vốn và ghi rõ chuỗi (Ethereum → Lido → wstETH → Aave → Oracle → Uniswap) trước khi vào; KHÔNG dùng tài sản đi vay hoặc tài sản phái sinh staking làm vốn LP khi chưa liệt kê được chuỗi.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "chuoiPhuThuoc",
+       "donBayUsd"
+      ]
+     },
+     "ghi": "Chuỗi 6 lớp của các pool này đã KHAI (`chuoiPhuThuoc`), và ty không dùng tài sản đi vay theo cấu tạo. Nhưng «giới hạn số tầng» chưa là phép canh — con số tầng tối đa chưa có ai đặt, và pool mới thêm vào cau-hinh không bị buộc khai chuỗi. Tính da-co ở vế khai, nợ ở vế giới hạn."
+    },
+    {
+     "ma": "don-bay-khong-tinh-la-yield",
+     "cau": "KHÔNG ghi nhận lợi nhuận từ vốn đi vay như yield; hạch toán riêng phần đòn bẩy và ngưỡng thanh lý của khoản vay.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "donBayUsd",
+       "cheDoRuiRo",
+       "vonXinUsd",
+       "vonLp"
+      ]
+     },
+     "ghi": "Sửa lại mục 6 của bài. Không có mã luật về LTV/health factor nên chỉ tách được ở tầng kế toán: vốn xin và vốn vay không được trộn vào cùng một con số hiệu suất."
+    },
+    {
+     "ma": "von-khong-mac-dinh-nam-trong-lp",
+     "cau": "MỖI phiên phải kết luận cho từng đồng vốn: HOLD, cho vay, hay LP; và được phép kết luận 'hôm nay không vào LP' mà không coi là bỏ lỡ.",
+     "gan": {
+      "luat": [
+       "vao-duoc",
+       "giu",
+       "phi-goc-duoi-lai-nen"
+      ],
+      "nut": [],
+      "truong": [
+       "hanhDongNgay",
+       "laiSuatNen",
+       "soLaiNenPct",
+       "mucTieu"
+      ]
+     },
+     "ghi": "Điểm đáng lấy nhất của bài. Với lãi nền đã khai, luật phi-goc-duoi-lai-nen là chỗ máy kết luận «hôm nay cho vay hơn LP»; vao-duoc là trạng thái duy nhất mở lệnh; giu là mặc định. HOLD so LP đo qua NET (IL kỳ vọng)."
+    },
+    {
+     "ma": "ghi-bai-hoc-moi-vong",
+     "cau": "SAU mỗi lần đóng hoặc cân lại vị thế, ghi lại phí thực thu, LVR thực chịu và alpha so với HOLD; KHÔNG đóng lệnh mà bỏ trống phần học.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "baiHoc",
+       "kinhNghiem",
+       "tienHoa",
+       "alphaSoHoldUsd",
+       "netBps"
+      ]
+     },
+     "ghi": "Vòng 'learn ↺' ở mục 14 và ở công thức cuối chỉ có nghĩa nếu mỗi vòng để lại số. Không cần mã luật vì đây là việc sau lệnh, không phải hàng rào trước lệnh."
+    }
+   ],
+   "cauHoiChoHeThong": [
+    "Vị thế vừa đóng lãi hay lỗ so với việc chỉ nắm giữ nguyên giỏ token đó — con số alpha so với HOLD bằng bao nhiêu USD?",
+    "Phí gốc (đã bỏ thưởng token) của pool này quy ra năm là bao nhiêu, và có vượt lãi cho vay USDC cùng kỳ không?",
+    "Trong tổng APR đang hiển thị, bao nhiêu phần trăm là phí hữu cơ và bao nhiêu là thưởng phát hành? Lịch thưởng còn bao lâu?",
+    "Vòng quay volume/TVL của pool này là bao nhiêu, và mỗi $1 vốn của mình đang được dùng mấy lần một ngày?",
+    "Tỷ lệ phí trên LVR hiện tại là bao nhiêu, đang trên hay dưới ngưỡng tối thiểu?",
+    "Bao nhiêu phần trăm thời gian trong tuần qua vị thế nằm trong dải, và đã phải cân lại mấy lần, tốn bao nhiêu gas?",
+    "Với bề rộng dải hiện tại và biến động đo được, xác suất vắng mặt ước tính là bao nhiêu — có vượt ngưỡng không?",
+    "Đồng vốn này đang đi qua mấy tầng giao thức, chuỗi phụ thuộc cụ thể là gì, và nếu tầng thứ hai hỏng thì bao nhiêu USD bị ảnh hưởng?",
+    "Trong tổng vốn đang làm LP, bao nhiêu là vốn xin và bao nhiêu là vốn đi vay?",
+    "Hôm nay câu trả lời cho từng ví là HOLD, cho vay hay LP — và nếu không vào, lý do là luật nào chặn?",
+    "Dòng tiền đã thực về tay tháng này là bao nhiêu, tách khỏi phần lợi nhuận mới chỉ nằm trên giấy?"
+   ],
+   "khongLay": [
+    "'Vay thế chấp không tạo sự kiện chịu thuế' — phụ thuộc pháp luật từng nước, không thể thành quy tắc chung của hệ thống; hệ thống không tư vấn thuế.",
+    "Cụm chỉ báo BTC vĩ mô (NUPL, 200-week MA, funding, macro) làm cỗ máy chế độ thị trường — chưa có ngưỡng, chưa có bằng chứng nó cải thiện net LP edge; nhận vào lúc này chỉ thêm biến số không kiểm chứng được.",
+    "Bốn nhãn chế độ BULL/BEAR/FEAR/EUPHORIA để điều chỉnh dải — hệ thống đã đặt dải theo biến động đo được nhân hệ số dải; thêm một tầng nhãn định tính chỉ làm nhiễu và khó truy lại lý do.",
+    "Bảng điểm điều chỉnh rủi ro của tác giả (4,5 / 5,0 / 4,8 / 4,2) — hệ số phạt rủi ro không nêu cách tính, dùng lại là mượn con số không có gốc.",
+    "Chiến lược vay thế chấp BTC để tạo yield và tháp stETH → Aave → LP — là đòn bẩy có ngưỡng thanh lý, nằm ngoài phạm vi bể thanh khoản; chỉ giữ lại bài học về chuỗi phụ thuộc.",
+    "RWA (trái phiếu, bất động sản mã hoá) — tác giả tự nói là nhánh riêng, không được gộp logic vào LP; để dành cho tầng phân bổ vốn sau này.",
+    "Cày airdrop/points như một nguồn thu — chỉ nhận khi đã về ví, không bao giờ vào ước tính lợi nhuận.",
+    "Ý 'bot LP chạy 24/7 tự cân lại liên tục' — hệ thống chọn hướng ngược lại: giữ khung giờ trực, ngoài giờ không đổi dải, vì tần suất cân lại là chi phí và rủi ro thao tác chứ không phải ưu điểm.",
+    "Cách nói 'displayed APR' của giao diện pool — chỉ dùng phí gốc để ra quyết định, APR hiển thị chỉ để tham chiếu.",
+    "Bảng tự chấm điểm ở mục 22 của bản bóc — là nhận xét của người bóc về tác giả, không phải nội dung dạy, không có gì để đưa vào hệ thống."
+   ]
   }
  ]
 }

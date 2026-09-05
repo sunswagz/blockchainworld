@@ -2603,7 +2603,7 @@
     var kR = el("section", "btk-panel radar");
     var hR = el("div", "btk-radar-dau");
     hR.appendChild(el("h3", null, "Radar cơ hội"));
-    var sapDs = [["diem", "Điểm"], ["net", "NET 72h"], ["thuong", "Thưởng"], ["phi", "Phí thật"], ["ruiRo", "Rủi ro thấp"], ["tvl", "TVL"], ["tinCay", "Tin cậy"]];
+    var sapDs = [["diem", "Điểm"], ["net", "NET 72h"], ["huuCo", "Hữu cơ"], ["thuong", "Thưởng"], ["phi", "Phí thật"], ["ruiRo", "Rủi ro thấp"], ["tvl", "TVL"], ["tinCay", "Tin cậy"]];
     var sap = el("div", "btk-sap");
     sap.appendChild(el("span", "t", "Sắp theo"));
     sapDs.forEach(function (x) { var bt = el("button", BTK_SAP === x[0] ? "chon" : null, x[1]); bt.type = "button"; bt.dataset.btkSort = x[0]; sap.appendChild(bt); });
@@ -2614,6 +2614,7 @@
       switch (BTK_SAP) {
         case "net": return dd.netBps == null ? -1e18 : dd.netBps;
         case "thuong": return at.thuongPct == null ? -1e18 : at.thuongPct;
+        case "huuCo": return at.tiLeHuuCo == null ? -1e18 : at.tiLeHuuCo;
         case "phi": return at.phiPct == null ? -1e18 : at.phiPct;
         case "ruiRo": return p.diemRuiRo == null ? -1e18 : -p.diemRuiRo;
         case "tvl": return p.tvlUsd == null ? -1e18 : p.tvlUsd;
@@ -2634,6 +2635,7 @@
         { t: at.hienThiPct == null ? "—" : n2(at.hienThiPct, 0) + "%", c: "n nhat" },
         { t: at.phiPct == null ? "—" : n2(at.phiPct, 0) + "%", c: "n" },
         { t: at.thuongPct == null ? "—" : n2(at.thuongPct, 0) + "%", c: "n" },
+        { t: at.tiLeHuuCo == null ? "—" : pc(at.tiLeHuuCo, 0), c: "n " + (at.tiLeHuuCo != null && at.tiLeHuuCo < 0.3 ? "am" : at.tiLeHuuCo >= 0.7 ? "duong" : "") },
         { t: bps(dd.netBps), c: "n " + (dd.netBps > 0 ? "duong" : dd.netBps < 0 ? "am" : "") },
         { t: p.diemRuiRo == null ? "—" : n2(p.diemRuiRo, 2), c: "n" + (p.diemRuiRo >= 0.7 ? " am" : "") },
         { t: tien(p.tvlUsd, 0), c: "n" + ((p.tvlUsd || 0) < 50000 ? " am" : "") },
@@ -2643,9 +2645,12 @@
       ]);
     });
     kR.appendChild(bang(
-      [{ t: "Pool" }, { t: "APY", n: true }, { t: "Phí", n: true }, { t: "Thưởng", n: true }, { t: "NET 72h", n: true },
+      [{ t: "Pool" }, { t: "APY", n: true }, { t: "Phí", n: true }, { t: "Thưởng", n: true }, { t: "Hữu cơ", n: true }, { t: "NET 72h", n: true },
        { t: "Rủi ro", n: true }, { t: "TVL", n: true }, { t: "Tin cậy" }, { t: "Điểm", n: true }, { t: "Quyết định" }],
       hang2));
+    kR.appendChild(giai("Hữu cơ = phí gốc / (phí + thưởng): pool sống bằng phí hay bằng trợ cấp (Bài 5). "
+      + (b.laiSuatNen && b.laiSuatNen.pct != null ? "Lãi cho vay nền " + b.laiSuatNen.taiSan + " " + n2(b.laiSuatNen.pct, 1) + "% là chi phí cơ hội — LP không hơn thì luật phi-goc-duoi-lai-nen chặn. "
+         : "Chưa khai lãi cho vay nền (Kết nối & dữ liệu) — chưa đo được chi phí cơ hội. ")));
     kR.appendChild(giai("Điểm 0–100 để XẾP HẠNG, không phải dự báo lãi: phí/LVR 35 · tin cậy dữ liệu 25 · "
       + "rủi ro 25 · NET 15. Tin cậy dưới 60% thì nút VÀO bị KHOÁ dù mọi số khác đẹp. Bấm tên pool để mở hồ sơ."));
 
@@ -2674,6 +2679,10 @@
       l.appendChild(o_nho("APR đơn tương đương", at2.aprTuongDuongPct == null ? "—" : n2(at2.aprTuongDuongPct, 1) + "%"
         + (at2.apyLaLaiKep ? " · coi APY là lãi kép (Bài 4)" : " · coi là APR"), "nhat"));
       l.appendChild(o_nho("├ Phí thật", at2.phiPct == null ? "—" : n2(at2.phiPct, 2) + "%" + (at2.giaDinh ? " (giả định)" : "")));
+      l.appendChild(o_nho("Hữu cơ / vòng quay", (at2.tiLeHuuCo == null ? "—" : pc(at2.tiLeHuuCo, 0)) + " / "
+        + (pm.vongQuay == null ? "chưa có khối lượng" : n2(pm.vongQuay, 2) + "× TVL mỗi ngày")));
+      l.appendChild(o_nho("So lãi cho vay nền", pm.soLaiNenPct == null ? "chưa khai lãi nền" : (pm.soLaiNenPct >= 0 ? "+" : "") + n2(pm.soLaiNenPct, 1) + " điểm %",
+        pm.soLaiNenPct == null ? "nhat" : pm.soLaiNenPct > 0 ? "duong" : "am"));
       l.appendChild(o_nho("└ Thưởng OKX", at2.thuongPct == null ? "—" : n2(at2.thuongPct, 2) + "%"));
       l.appendChild(o_nho("σ năm", pm.sigma == null ? "chưa đo — " + so(pm.soPhien) + " phiên" : pc(pm.sigma, 0) + " / " + so(pm.soPhien) + " phiên", pm.sigma == null ? "am" : null));
       l.appendChild(o_nho("TVL", tien(pm.tvlUsd, 0)));
@@ -2976,6 +2985,30 @@
     });
     oMt.appendChild(inCp); oMt.appendChild(inTs); oMt.appendChild(inSv); oMt.appendChild(nutMt);
     f.appendChild(oMt);
+
+    var ln = b.laiSuatNen || {};
+    var oLn = el("div", "btk-form");
+    oLn.appendChild(el("b", null, "Lãi cho vay nền của " + (ln.taiSan || "USDG") + " (Bài 5: chi phí cơ hội của LP)"
+      + (ln.pct != null ? " — đang: " + n2(ln.pct, 2) + "%/năm · " + (ln.nguon || "") + " " + (ln.ngay || "") : " — chưa khai")));
+    var inLn = el("input"); inLn.placeholder = "%/năm, VD 4.5"; inLn.value = ln.pct == null ? "" : ln.pct;
+    var inLnNg = el("input"); inLnNg.placeholder = "nguồn (VD Aave USDC, OKX Earn)"; inLnNg.value = ln.nguon || ""; inLnNg.style.width = "260px";
+    var nutLn = el("button", "nho", "Lưu lãi nền"); nutLn.type = "button";
+    nutLn.addEventListener("click", function () {
+      fetch("/api/be-thanh-khoan/lai-nen", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pct: inLn.value === "" ? null : Number(inLn.value), nguon: inLnNg.value.trim() }) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); }); })
+        .then(function () { nhac("đã lưu lãi nền"); BTK = null; ve(); })
+        .catch(function (e) { nhac("lưu lãi nền hỏng: " + (e && e.message || e)); });
+    });
+    oLn.appendChild(inLn); oLn.appendChild(inLnNg); oLn.appendChild(nutLn);
+    f.appendChild(oLn);
+    if ((b.chuoiPhuThuoc || []).length) {
+      var pt = el("div", "viec-1 nhe");
+      pt.appendChild(el("b", null, "Lego rủi ro — vốn trong các pool này đi qua " + b.chuoiPhuThuoc.length + " lớp (Bài 5)"));
+      b.chuoiPhuThuoc.forEach(function (x) { pt.appendChild(el("span", null, "• " + x.lop + " — " + x.vai)); });
+      pt.appendChild(el("span", null, "Một lớp hỏng là mọi pool dưới nó hỏng. Điểm rủi ro sáu mặt của tờ trình đọc chuỗi này chứ không đọc «pool» như một rủi ro đơn."));
+      f.appendChild(pt);
+    }
 
     var ng = el("div", "viec-1" + ((b.nguonMu || []).length ? "" : " nhe"));
     ng.appendChild(el("b", null, "Nguồn dữ liệu"));

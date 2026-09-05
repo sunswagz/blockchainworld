@@ -469,6 +469,16 @@ def be_thanh_khoan_muc_tieu(than: dict) -> JSONResponse:
         raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
 
 
+@app.post("/api/be-thanh-khoan/lai-nen")
+def be_thanh_khoan_lai_nen(than: dict) -> JSONResponse:
+    """Mốc lãi cho vay nền — chi phí cơ hội của LP (Bài 5). Người khai, có nguồn."""
+    t = _ty_bien_do()
+    try:
+        return JSONResponse(sach(t.dat_lai_nen(than)))
+    except (KeyError, ValueError, TypeError) as e:
+        raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
+
+
 @app.post("/api/be-thanh-khoan/hoc-lieu")
 def be_thanh_khoan_hoc_lieu(than: dict) -> JSONResponse:
     """NGƯỚI dán một bài học (transcript / bài phân tích) → lưu nguyên văn,

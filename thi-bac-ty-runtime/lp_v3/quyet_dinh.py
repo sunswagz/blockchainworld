@@ -56,6 +56,8 @@ class BoiCanh:
     tenSuKien: str = ""
     gioToiHetThuong: float | None = None
     thuongChiemPhanLon: bool = False      # thưởng > phí gốc
+    aprTongPct: float | None = None       # phí gốc + thưởng còn hiệu lực, %/năm (APR đơn)
+    laiSuatNenPct: float | None = None    # mốc lãi cho vay đồng quote, %/năm
     tvlUsd: float | None = None
     lechGiaChuoiSoGocPct: float | None = None   # |giá chuỗi/giá đóng cửa − 1|
     nut: dict = field(default_factory=dict)
@@ -169,6 +171,18 @@ SO_LUAT = (
          chan=True,
          lyDo=lambda bc: f"phí/LVR {bc.tiLePhiTrenLvr:.2f} < "
                          f"{bc.n('tiLePhiTrenLvrToiThieu', 1.5):.2f}"),
+    Luat("phi-goc-duoi-lai-nen",
+         "phí gốc + thưởng còn hiệu lực KHÔNG hơn lãi cho vay đồng quote: không "
+         "VÀO; đang giữ thì RÚT về cho vay",
+         "Bài 5: lending là baseline yield. USDC cho vay 5% mà LP dự 7% thì 2% "
+         "thêm phải trả cho IL/LVR, văng dải và công quản dải — không đáng. Chi "
+         "phí cơ hội không nằm trong APY của pool, phải tự đưa vào",
+         RUT,
+         lambda bc: (bc.laiSuatNenPct is not None and bc.aprTongPct is not None
+                     and bc.aprTongPct <= bc.laiSuatNenPct),
+         chan=True,
+         lyDo=lambda bc: f"APR {bc.aprTongPct:.1f}% ≤ lãi cho vay nền "
+                         f"{bc.laiSuatNenPct:.1f}% — LP không đáng công"),
     Luat("sap-het-thuong",
          "thưởng chiếm phần lớn và còn dưới 24 giờ: đừng VÀO mới; đang giữ "
          "thì lên lịch RÚT đúng giờ hết nếu phí gốc không đủ",

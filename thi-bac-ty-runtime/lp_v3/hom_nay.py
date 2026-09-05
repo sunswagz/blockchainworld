@@ -72,6 +72,8 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
         "hanhDongNgay": _hanh_dong_ngay(co, pools, bc, thuong),
         "vonLp": _von_lp(viTheDs, cfg, ty),
         "mucTieu": cfg.get("mucTieu") or {},
+        "laiSuatNen": cfg.get("laiSuatNen") or {},
+        "chuoiPhuThuoc": cfg.get("chuoiPhuThuoc") or [],
         "cheDoRuiRo": _che_do_rui_ro(bc, thuong),
         "tinAnhHuong": _tin_anh_huong(co),
         "luc": now.isoformat(), "lucVn": now.strftime("%H:%M %d/%m/%Y"),
@@ -543,8 +545,19 @@ def _mot_pool(c) -> dict:
                      "apyLaLaiKep": bool(c.pool.get("apyLaLaiKep", True)),
                      "phiPct": None if c.aprPhi is None else c.aprPhi * 100.0,
                      "thuongPct": None if c.aprThuong is None else c.aprThuong * 100.0,
+                     # Bài 5: YIELD QUALITY — phí gốc trên tổng; 90% là pool sống
+                     # bằng phí, 6% là pool sống bằng trợ cấp
+                     "tiLeHuuCo": (c.aprPhi / (c.aprPhi + (c.aprThuong or 0.0))
+                                   if (c.aprPhi is not None and (c.aprPhi + (c.aprThuong or 0.0)) > 0) else None),
                      "giaDinh": c.nguonApr.startswith("apy-hien-thi"),
                      "nguon": c.nguonApr},
+         # Bài 5: vòng quay = khối lượng ngày / TVL — mỗi $1 vốn được dùng bao lần
+         "vongQuay": ((c.pool.get("khoiLuongNgayUsd") or 0) / c.pool["tvlUsd"]
+                      if (c.pool.get("khoiLuongNgayUsd") is not None and c.pool.get("tvlUsd")) else None),
+         # Bài 5: chi phí cơ hội — LP hơn lãi cho vay nền bao nhiêu điểm %
+         "soLaiNenPct": (None if (c.aprPhi is None or (c.pool.get("laiSuatNenPct")) is None)
+                         else (c.aprPhi + ((c.aprThuong or 0.0) if (c.gioThuongConLai or 0) > 0 else 0.0)) * 100.0
+                              - float(c.pool["laiSuatNenPct"])),
          "thiTruongGoc": ("MO" if c.phien.get("trangThai") == lich.MO_CUA
                           else "SAP_MO" if c.phien.get("trangThai") == lich.TRUOC_MO
                           else "DONG"),

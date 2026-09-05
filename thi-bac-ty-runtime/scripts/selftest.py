@@ -1204,6 +1204,8 @@ def kiem_tien_hoa_hoc() -> None:
                                   "ví để mà tự biết",
         "/api/be-thanh-khoan/hoc-lieu": "NGƯỚI dán bài học — máy không tự tìm khoá học",
         "/api/be-thanh-khoan/muc-tieu": "NGƯỜI khai chi phí sống và mục tiêu — máy không biết đời người",
+        "/api/be-thanh-khoan/lai-nen": "NGƯỜI khai mốc lãi cho vay nền kèm nguồn — ty không được "
+                                       "gọi ty tín dụng để tự lấy",
         "/api/be-thanh-khoan/hoc-lieu/{ma}/boc": "gọi agent (claude CLI) bóc một bài — "
                                                  "tốn quota, người bấm",
     }
@@ -11507,6 +11509,12 @@ def kiem_lp_v3() -> None:
     bc8 = qd.BoiCanh(**{**bc.__dict__, "thuongChiemPhanLon": True, "gioToiHetThuong": 5.0})
     kiem("thưởng là phần lớn và còn 5 giờ → không VÀO mới",
          qd.quyet(bc8).hanhDong != qd.VAO and qd.quyet(bc8).luatQuyet == "sap-het-thuong")
+    bc9 = qd.BoiCanh(**{**bc.__dict__, "aprTongPct": 4.0, "laiSuatNenPct": 5.0})
+    kiem("Bài 5 — LP không hơn lãi cho vay nền → chặn: chưa giữ CHỜ, đang giữ RÚT về cho vay",
+         qd.quyet(bc9).luatQuyet == "phi-goc-duoi-lai-nen" and qd.quyet(bc9).hanhDong == qd.CHO
+         and qd.quyet(qd.BoiCanh(**{**bc9.__dict__, "dangGiu": True, "trongDai": True})).hanhDong == qd.RUT)
+    kiem("chưa khai lãi nền thì luật ấy KHÔNG kêu — không có mốc thì không so",
+         qd.quyet(qd.BoiCanh(**{**bc.__dict__, "aprTongPct": 4.0, "laiSuatNenPct": None})).hanhDong == qd.VAO)
     kiem("không σ thắng mọi thứ, kể cả khi mọi số khác đẹp",
          qd.quyet(qd.BoiCanh(**{**bc.__dict__, "coSigma": False})).luatQuyet == "khong-sigma")
 
@@ -11785,8 +11793,8 @@ def kiem_lp_v3() -> None:
     # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
     from lp_v3 import hoc_lieu as hl
     _tt = hl.nap_tri_thuc()
-    kiem("tri_thuc.json nạp được, có ít nhất BỐN bài, đúng khuôn",
-         len(_tt) >= 4 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("tri_thuc.json nạp được, có ít nhất NĂM bài, đúng khuôn",
+         len(_tt) >= 5 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
@@ -11806,6 +11814,10 @@ def kiem_lp_v3() -> None:
          any("flywheel" in (b.get("ma") or "") for b in _tt)
          and any(q["ma"] == "benchmark-so-voi-hold" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
          and any(q["ma"] == "risk-checkpoint-truoc-tai-dau-tu" and q["trangThai"] == "y-tuong" for b in _tt for q in b["quyTac"]))
+    kiem("Bài 5 đã ghim: luật mới phi-goc-duoi-lai-nen có quy tắc trỏ tới; mã mồ côi agent tự phát hiện đã được sửa",
+         any("ways-to-earn" in (b.get("ma") or "") for b in _tt)
+         and any("phi-goc-duoi-lai-nen" in ((q.get("gan") or {}).get("luat") or []) for b in _tt for q in b["quyTac"])
+         and "phi-goc-duoi-lai-nen" in qd.MA_LUAT)
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
          and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
@@ -11857,6 +11869,26 @@ def kiem_lp_v3() -> None:
          and isinstance(bcH["tinAnhHuong"], list)
          and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
     kiem("báo cáo mang mục `triThuc` với số bài ≥ 1", (bcH.get("triThuc") or {}).get("soBai", 0) >= 1)
+    _at5 = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
+    kiem("Bài 5 — tỉ lệ hữu cơ = phí / (phí + thưởng); chưa khai lãi nền thì `soLaiNenPct` là None; vòng quay None khi thiếu khối lượng",
+         gan(_at5["apyTach"]["tiLeHuuCo"], 1.0 - _cf.CONFIG["giaDinhPhanThuong"], 1e-9)
+         and _at5["soLaiNenPct"] is None and _at5["vongQuay"] is None
+         and len(bcH["chuoiPhuThuoc"]) >= 5)
+    import lp_v3.config as _cfgm5
+    _duongCu5 = _cfgm5.DUONG_CAU_HINH
+    _cfgm5.DUONG_CAU_HINH = tam / "cau-hinh-ln.json"
+    try:
+        _ln = ty.dat_lai_nen({"pct": 4.5, "nguon": "thử"})
+        kiem("lãi nền ghi được kèm ngày; số âm hoặc > 200% bị từ chối",
+             _ln["pct"] == 4.5 and _ln["ngay"] and _nem(lambda: ty.dat_lai_nen({"pct": -1}), ValueError))
+        _co5 = {c.kyHieu: c for c in ty.can_tat_ca(mo)}
+        _p5 = hom_nay._mot_pool(_co5["NVDAx-USDG"])
+        kiem("có lãi nền thì so được: LP hơn/thua lãi nền bao nhiêu điểm %",
+             _p5["soLaiNenPct"] is not None and gan(_p5["soLaiNenPct"],
+                 _p5["apyTach"]["phiPct"] + _p5["apyTach"]["thuongPct"] - 4.5, 1e-6))
+    finally:
+        _cfgm5.DUONG_CAU_HINH = _duongCu5
+        ty.cfg["laiSuatNen"] = dict(_cf.CONFIG["laiSuatNen"])
     kiem("Bài 4 — kiểm toán năm hoá: ×5 trong 4 năm là CAGR 49,5%, không phải 100%; 423% APY kép ≈ 165% APR đơn",
          abs((5.0 ** 0.25 - 1.0) - 0.4953) < 1e-3 and abs((16.0 ** 0.25 - 1.0) - 1.0) < 1e-9
          and abs(mh.apr_tu_apy(4.2308) - 1.6545) < 1e-3)
