@@ -544,6 +544,27 @@ class TyBienDo(Ty):
         self.soHocLieu.ghi_boc(ma, kq, "claude-cli")
         return soat_bai(dict(kq, ma=ma))
 
+    def dat_muc_tieu(self, than: dict) -> dict:
+        """Hồ sơ mục tiêu của NGƯỜI — ghi vào cau-hinh.json. Số phải là số."""
+        ra = dict(self.cfg.get("mucTieu") or {})
+        for k in ("chiPhiThangUsd", "sutVonChiuDuocPct"):
+            if k in than:
+                v = than.get(k)
+                if v is not None:
+                    v = float(v)
+                    if v < 0:
+                        raise ValueError(f"{k} không âm được")
+                ra[k] = v
+        if "taiSanUuTien" in than:
+            ra["taiSanUuTien"] = [str(x).strip().upper() for x in (than.get("taiSanUuTien") or []) if str(x).strip()]
+        if "khongDonBay" in than:
+            ra["khongDonBay"] = bool(than["khongDonBay"])
+        ch = cfgmod.nap()
+        ch["mucTieu"] = ra
+        cfgmod.ghi(ch)
+        self.cfg["mucTieu"] = ra
+        return ra
+
     def vi_tom_tat(self) -> dict:
         vi = self.cfg.get("vi") or {}
         ds = [v for xs in self.viTheChuoi.values() for v in xs]

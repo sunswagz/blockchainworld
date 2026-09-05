@@ -459,6 +459,16 @@ def be_thanh_khoan_vi(than: dict) -> JSONResponse:
     return JSONResponse(sach(vi))
 
 
+@app.post("/api/be-thanh-khoan/muc-tieu")
+def be_thanh_khoan_muc_tieu(than: dict) -> JSONResponse:
+    """Hồ sơ mục tiêu của người: chi phí tháng, tài sản ưu tiên, sụt vốn chịu được."""
+    t = _ty_bien_do()
+    try:
+        return JSONResponse(sach(t.dat_muc_tieu(than)))
+    except (KeyError, ValueError, TypeError) as e:
+        raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
+
+
 @app.post("/api/be-thanh-khoan/hoc-lieu")
 def be_thanh_khoan_hoc_lieu(than: dict) -> JSONResponse:
     """NGƯỚI dán một bài học (transcript / bài phân tích) → lưu nguyên văn,

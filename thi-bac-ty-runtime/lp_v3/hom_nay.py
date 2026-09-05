@@ -69,7 +69,8 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
             viTheDs.append({"kyHieu": c.kyHieu, **v.tom_tat()})
     return {
         "hanhDongNgay": _hanh_dong_ngay(co, pools, bc, thuong),
-        "vonLp": _von_lp(viTheDs),
+        "vonLp": _von_lp(viTheDs, cfg, ty),
+        "mucTieu": cfg.get("mucTieu") or {},
         "cheDoRuiRo": _che_do_rui_ro(bc, thuong),
         "tinAnhHuong": _tin_anh_huong(co),
         "luc": now.isoformat(), "lucVn": now.strftime("%H:%M %d/%m/%Y"),
@@ -175,7 +176,10 @@ def _hanh_dong_ngay(co, pools, bc, thuong) -> dict:
             "soDieuKien": len(dieuKien), "viTheGap": gap[:5]}
 
 
-def _von_lp(viThe: list) -> dict:
+def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
+    """Bảng KPI vốn (Bài 2): NAV LP, phí chưa thu, IL, PnL ước, hiệu quả vốn
+    theo vị thế, dòng tiền ròng quy tháng và ĐIỂM TỰ DO = dòng tiền / chi
+    phí sống. Không có vị thế hay chưa khai chi phí thì None — không 0."""
     von = sum(float((v.get("viThe") or {}).get("vonUsd") or 0.0) for v in viThe)
     phi = [((v.get("viThe") or {}).get("phiChoThuUsd")) for v in viThe]
     il = []
@@ -185,11 +189,53 @@ def _von_lp(viThe: list) -> dict:
         if tt.get("ilPct") is not None and vt.get("vonUsd"):
             il.append(tt["ilPct"] / 100.0 * float(vt["vonUsd"]))
     coPhi = [x for x in phi if x is not None]
+    hq = [{"kyHieu": v.get("kyHieu"), "tokenId": (v.get("viThe") or {}).get("tokenId"),
+           "hieuQuaVonThangPct": (v.get("trangThai") or {}).get("hieuQuaVonThangPct"),
+           "vonUsd": (v.get("viThe") or {}).get("vonUsd")}
+          for v in viThe if (v.get("trangThai") or {}).get("hieuQuaVonThangPct") is not None]
+    hq.sort(key=lambda x: -(x["hieuQuaVonThangPct"] or 0))
+    # dòng tiền ròng quy THÁNG: từng vị thế (phí + IL) / giờ giữ × 720
+    dong = []
+    for v in viThe:
+        vt, tt = v.get("viThe") or {}, v.get("trangThai") or {}
+        g = tt.get("gioGiu")
+        if vt.get("phiChoThuUsd") is None or not g or g <= 1.0:
+            continue
+        ilv = (tt["ilPct"] / 100.0 * float(vt["vonUsd"])) if (tt.get("ilPct") is not None and vt.get("vonUsd")) else 0.0
+        dong.append((vt["phiChoThuUsd"] + ilv) * 720.0 / g)
+    dongUoc = sum(dong) if dong else None
+    # ĐÃ VỀ TAY (Bài 2: investment income ≠ cash flow): chỉ phí + thưởng
+    # người đã ghi khi ĐÓNG vị thế trong 30 ngày qua. Điểm tự do tính trên
+    # số này, KHÔNG trên phí chưa thu — phí chưa thu là lãi trên giấy.
+    daVeTay = None
+    if ty is not None and hasattr(ty, "soViThe"):
+        han = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)
+        tong, co = 0.0, False
+        for v in ty.soViThe.da_dong():
+            try:
+                t = dt.datetime.fromisoformat(str(v.dongLuc).replace("Z", "+00:00"))
+            except ValueError:
+                continue
+            if t < han:
+                continue
+            if v.phiThuUsd is not None or v.thuongThuUsd is not None:
+                co = True
+                tong += float(v.phiThuUsd or 0.0) + float(v.thuongThuUsd or 0.0)
+        daVeTay = tong if co else None
+    chiPhi = ((cfg or {}).get("mucTieu") or {}).get("chiPhiThangUsd")
+    tuDo = None
+    if daVeTay is not None and chiPhi:
+        tuDo = daVeTay / float(chiPhi)
     return {"soViThe": len(viThe), "vonUsd": von,
             "phiChoThuUsd": sum(coPhi) if coPhi else None,
             "ilUsd": sum(il) if il else None,
             "pnlUocUsd": (sum(coPhi) + sum(il)) if (coPhi or il) else None,
-            "trongDai": sum(1 for v in viThe if (v.get("trangThai") or {}).get("trongDai"))}
+            "trongDai": sum(1 for v in viThe if (v.get("trangThai") or {}).get("trongDai")),
+            "hieuQuaVon": hq,
+            "dongTienUocThangUsd": dongUoc,
+            "dongTienDaVeTayThangUsd": daVeTay,
+            "chiPhiThangUsd": chiPhi,
+            "diemTuDo": tuDo}
 
 
 def _che_do_rui_ro(bc, thuong) -> dict:

@@ -75,7 +75,15 @@ class ViThe:
                 "lechGiaPct": (giaHienTai / self.giaMo - 1.0) * 100.0 if coGiaMo else None,
                 "gioGiu": _gio_tu(self.moLuc) if self.moLuc else None,
                 "nguon": self.nguon, "tokenId": self.tokenId,
-                "phiChoThuUsd": self.phiChoThuUsd}
+                "phiChoThuUsd": self.phiChoThuUsd,
+                # HIỆU QUẢ VỐN (Bài 2): phí trên mỗi đô la vốn, quy về THÁNG.
+                # Pool $10.000 kiếm $300 thua pool $2.000 kiếm $180. Chỉ tính
+                # được khi biết phí và giờ giữ; phí chưa thu là phí từ lần
+                # thu cuối, nên đây là CẬN DƯỚI khi đã từng thu.
+                "hieuQuaVonThangPct": (
+                    self.phiChoThuUsd / self.vonUsd * (720.0 / _gio_tu(self.moLuc)) * 100.0
+                    if (self.phiChoThuUsd is not None and self.vonUsd and self.moLuc
+                        and _gio_tu(self.moLuc) > 1.0) else None)}
 
     def tom_tat(self) -> dict:
         return {k: getattr(self, k) for k in (

@@ -68,6 +68,8 @@ TRUONG_BAO_CAO = {
     "tiLePhiTrenLvr", "ilKyVongBps", "lvrBps", "xacSuatVang", "vonLp", "pnlUocUsd",
     "phiChoThuUsd", "cheDoRuiRo", "thiTruongGoc", "tinAnhHuong", "kinhNghiem",
     "baiHoc", "tienHoa", "sucChuaUsd", "vonXinUsd", "thuong", "vi",
+    # Bài 2: KPI vốn
+    "mucTieu", "hieuQuaVon", "dongTienUocThangUsd", "dongTienDaVeTayThangUsd", "diemTuDo", "ilUsd",
 }
 
 KHUON_JSON = {

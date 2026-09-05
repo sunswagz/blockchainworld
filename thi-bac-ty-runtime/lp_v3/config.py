@@ -101,6 +101,15 @@ CONFIG = {
     #:   txMau         hash một giao dịch THÊM thanh khoản của bạn — log
     #:                 IncreaseLiquidity trong biên nhận chỉ ra hợp đồng
     "vi": {"diaChi": None, "quanLyViThe": None, "txMau": None},
+    #: HỒ SƠ MỤC TIÊU của người vận hành (Bài 1: kiểm toán trước khi phân
+    #: bổ; Bài 2: điểm tự do = dòng tiền ròng / chi phí). Không khai thì
+    #: điểm tự do là None — không phải 0.
+    "mucTieu": {
+        "chiPhiThangUsd": None,          # chi phí sống mỗi tháng, USD
+        "taiSanUuTien": [],              # VD ["BTC", "ETH", "USDG"] — pool ngoài danh sách bị hạ điểm phù hợp
+        "sutVonChiuDuocPct": None,       # sụt vốn tối đa chịu được, %
+        "khongDonBay": True,
+    },
     #: Uniswap V3 CHÍNH THỨC trên X Layer (chainId 196), theo
     #: developers.uniswap.org/docs/protocols/v3/deployments/v3-xlayer-deployments,
     #: đọc 05/09/2026 và đã xác minh có mã trên rpc.xlayer.tech. Dùng khi

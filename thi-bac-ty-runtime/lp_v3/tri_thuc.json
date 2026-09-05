@@ -12,52 +12,196 @@
    "nguon": "khoá học LP, bài 1 (~7 phút); bản bóc do chủ gửi 05/09/2026; mốc 2:48 · 5:09 · 5:40",
    "ngay": "2026-09-05",
    "tomTat": "Bài mở đầu, triết lý quản lý vốn: thu nhập → vốn → tài sản → dòng tiền → tái đầu tư, thay cho thu nhập → chi tiêu → nợ. Điểm chạm LP duy nhất là ý «tài sản đang nắm (BTC) có thể tạo dòng tiền mà vẫn giữ phơi nhiễm giá». Bài KHÔNG có chiến lược LP cụ thể; giá trị nằm ở tư duy hệ thống (success is built on systems) và cách nhìn vốn như một doanh nghiệp đầu tư có phân bổ theo quy tắc.",
-   "danhGia": {"kyThuatLp": 1, "quanLyVon": 4, "tuDuyHeThong": 4, "tradeDuoc": 1, "giaTriChoHeThong": 3},
+   "danhGia": {
+    "kyThuatLp": 1,
+    "quanLyVon": 4,
+    "tuDuyHeThong": 4,
+    "tradeDuoc": 1,
+    "giaTriChoHeThong": 3
+   },
    "luanDiem": [
-    {"cau": "Người giàu đi vòng thu nhập → vốn → tài sản → dòng tiền → thêm tài sản; người còn lại đi thu nhập → chi tiêu → nợ.",
-     "loai": "nguyen-tac", "ghi": "khung tư duy, không kiểm chứng bằng số; hệ thống nhận làm mục tiêu chứ không làm dữ liệu"},
-    {"cau": "Bitcoin không nhất thiết là tài sản chết: có thể tạo dòng tiền trong khi vẫn giữ phơi nhiễm giá (2:48).",
-     "loai": "kiem-chung-duoc", "ghi": "kiểm bằng NET thật: phí + thưởng − IL − gas trên vốn BTC/ETH đã LP; sổ kinh nghiệm đang thu mẫu, chưa đủ để nói đúng/sai"},
-    {"cau": "Mỗi nguồn dòng tiền là tiền trả cho việc NHẬN một rủi ro hoặc LÀM một việc kinh tế; blockchain không tự sinh tiền.",
-     "loai": "nguyen-tac", "ghi": "LP = làm nhà tạo lập thị trường tự động; phí đổi lấy inventory risk, IL/LVR, rủi ro hợp đồng, rủi ro dải — đúng mô hình ty đang dùng"},
-    {"cau": "Success is built on systems (5:09) — thành công đứng trên hệ thống, không trên động lực nhất thời.",
-     "loai": "nguyen-tac", "ghi": "đúng với kiến trúc Thị Bạc Ty: quét → quyết → ghi → chấm → học"},
-    {"cau": "Tác giả kiếm hàng triệu đô; AI sẽ thay phần lớn cơ hội.",
-     "loai": "narrative", "ghi": "lời của người bán khoá học — không phải bằng chứng; không đưa vào hệ thống"},
-    {"cau": "Không hỏi «pool nào APY cao nhất» mà hỏi «tại sao thị trường trả tiền cho tôi».",
-     "loai": "nguyen-tac", "ghi": "đã là trục xếp hạng của radar: quyết định → NET → rủi ro → tin cậy → APY cuối cùng"}
+    {
+     "cau": "Người giàu đi vòng thu nhập → vốn → tài sản → dòng tiền → thêm tài sản; người còn lại đi thu nhập → chi tiêu → nợ.",
+     "loai": "nguyen-tac",
+     "ghi": "khung tư duy, không kiểm chứng bằng số; hệ thống nhận làm mục tiêu chứ không làm dữ liệu"
+    },
+    {
+     "cau": "Bitcoin không nhất thiết là tài sản chết: có thể tạo dòng tiền trong khi vẫn giữ phơi nhiễm giá (2:48).",
+     "loai": "kiem-chung-duoc",
+     "ghi": "kiểm bằng NET thật: phí + thưởng − IL − gas trên vốn BTC/ETH đã LP; sổ kinh nghiệm đang thu mẫu, chưa đủ để nói đúng/sai"
+    },
+    {
+     "cau": "Mỗi nguồn dòng tiền là tiền trả cho việc NHẬN một rủi ro hoặc LÀM một việc kinh tế; blockchain không tự sinh tiền.",
+     "loai": "nguyen-tac",
+     "ghi": "LP = làm nhà tạo lập thị trường tự động; phí đổi lấy inventory risk, IL/LVR, rủi ro hợp đồng, rủi ro dải — đúng mô hình ty đang dùng"
+    },
+    {
+     "cau": "Success is built on systems (5:09) — thành công đứng trên hệ thống, không trên động lực nhất thời.",
+     "loai": "nguyen-tac",
+     "ghi": "đúng với kiến trúc Thị Bạc Ty: quét → quyết → ghi → chấm → học"
+    },
+    {
+     "cau": "Tác giả kiếm hàng triệu đô; AI sẽ thay phần lớn cơ hội.",
+     "loai": "narrative",
+     "ghi": "lời của người bán khoá học — không phải bằng chứng; không đưa vào hệ thống"
+    },
+    {
+     "cau": "Không hỏi «pool nào APY cao nhất» mà hỏi «tại sao thị trường trả tiền cho tôi».",
+     "loai": "nguyen-tac",
+     "ghi": "đã là trục xếp hạng của radar: quyết định → NET → rủi ro → tin cậy → APY cuối cùng"
+    }
    ],
    "quyTac": [
-    {"ma": "khong-xep-hang-bang-apy", "cau": "Không xếp hạng hay vào pool theo APY hiển thị; xếp bằng NET sau phí, IL, LVR, gas và độ tin cậy dữ liệu.",
-     "gan": {"luat": ["phi-duoi-lvr"], "nut": [], "truong": ["diem", "netBps", "apyTach", "tinCay"]},
-     "ghi": "radar chấm điểm bằng phí/LVR · tin cậy · rủi ro · NET; APY chỉ là cột mờ. Luật phi-duoi-lvr chặn vào khi phí không trả nổi LVR."},
-    {"ma": "tach-nguon-dong-tien", "cau": "Mỗi khoản lợi suất phải khai nó là phí giao dịch, thưởng phát thêm hay lãi cho vay — và thưởng không được cộng vào lợi suất dài hạn.",
-     "gan": {"luat": ["sap-het-thuong"], "nut": [], "truong": ["apyTach", "thuong"]},
-     "ghi": "APY hiển thị tách thành phí + thưởng ở mọi thẻ; thưởng có giờ hết; sổ luật chặn vào mới khi thưởng chiếm phần lớn và sắp hết."},
-    {"ma": "gan-loi-suat-voi-rui-ro-doi-lay", "cau": "Mỗi con số lợi suất phải đứng cạnh rủi ro nó đổi lấy: IL/LVR, văng dải, hợp đồng, token, chi phí đổi dải.",
-     "gan": {"luat": ["van-dai-cao"], "nut": [], "truong": ["ilKyVongBps", "lvrBps", "xacSuatVang", "tiLePhiTrenLvr"]},
-     "ghi": "hồ sơ pool hiện IL kỳ vọng, LVR, P(văng), điểm rủi ro sáu mặt cạnh NET."},
-    {"ma": "moi-pool-mot-tran-von", "cau": "Mỗi pool có trần vốn riêng; không FOMO, không rót theo APY cao.",
-     "gan": {"luat": ["tvl-mong"], "nut": [], "truong": ["sucChuaUsd", "vonXinUsd"]},
-     "ghi": "ty xin theo sức chứa (phần TVL), Trung Ương cắt trần theo Rủi Ro Tổng; trần theo pool là việc của Phân Bổ, ty chỉ khai sức chứa."},
-    {"ma": "cat-luc-can", "cau": "Loại pool rác, thưởng giả, farm APY siêu cao thiếu thanh khoản; tính đủ gas, cầu nối, đổi token vào NET.",
-     "gan": {"luat": ["tvl-mong", "khong-sigma"], "nut": [], "truong": ["tinCay", "khoaVao"]},
-     "ghi": "TVL mỏng và không có σ bị chặn ở cửa; tin cậy dưới 60% khoá nút vào. Phí cầu nối/đổi token CHƯA có trong NET — khai ở phiConThieu."},
-    {"ma": "moi-do-la-tao-bao-nhieu-phi", "cau": "Bảng phải trả lời: mỗi $1 vốn đang tạo bao nhiêu phí, đang chịu bao nhiêu IL/LVR, pool nào hiệu quả nhất.",
-     "gan": {"luat": [], "nut": [], "truong": ["vonLp", "phiChoThuUsd", "pnlUocUsd"]},
-     "ghi": "vốn LP, phí chưa thu, IL, PnL ước đã có ở hàng chỉ số và tab Vị thế khi nối ví; «phí trên mỗi $1 theo pool» chưa tính riêng — thiếu phép đo theo pool."},
-    {"ma": "khi-nao-dung-ngoai", "cau": "Hệ thống phải nói được khi nào KHÔNG làm gì và điều gì sẽ đổi quyết định ấy.",
-     "gan": {"luat": ["ngoai-gio-khong-doi-dai", "sat-su-kien", "gia-cu"], "nut": [], "truong": ["hanhDongNgay", "dieuKien"]},
-     "ghi": "khối HÀNH ĐỘNG NGAY + sáu điều kiện mở khoá có đo."},
-    {"ma": "tai-dau-tu-theo-quy-tac", "cau": "Lợi nhuận đã chốt chia ba: dự phòng · vốn nền · cơ hội tốt nhất; thị trường xấu thì về dự phòng; sụt vốn quá trần thì tắt lãi kép.",
-     "gan": {"luat": [], "nut": [], "truong": []},
-     "ghi": "y tưởng snowball có kiểm soát — thuộc Trung Ương (Phân Bổ, Rủi Ro Tổng, cầu dao sụt vốn), không thuộc ty. Chưa có phép canh ở tầng ty.", "trangThai": "y-tuong"},
-    {"ma": "hoc-tu-ket-qua-khong-tu-loi-hua", "cau": "Học từ PnL thực và khoảng cách dự đoán–thực tế, không từ lời hứa của người dạy hay APY quảng cáo.",
-     "gan": {"luat": [], "nut": [], "truong": ["kinhNghiem", "baiHoc", "tienHoa"]},
-     "ghi": "sổ kinh nghiệm chấm mọi quyết định bằng đường giá thật; bài học chỉ khi n ≥ 5 và độ tin ≥ 2; tiến hoá qua cổng."},
-    {"ma": "kiem-toan-truoc-khi-phan-bo", "cau": "Trước khi phân bổ: biết tổng vốn, muốn giữ tài sản nào (BTC/ETH/stable), chịu được sụt vốn bao nhiêu.",
-     "gan": {"luat": [], "nut": [], "truong": []},
-     "ghi": "hồ sơ mục tiêu của NGƯỜI (tài sản muốn giữ, mức sụt vốn chịu được) chưa có chỗ khai trong ty; Trung Ương có vonBanDauUsd và trần sụt vốn.", "trangThai": "thieu-phep-canh"}
+    {
+     "ma": "khong-xep-hang-bang-apy",
+     "cau": "Không xếp hạng hay vào pool theo APY hiển thị; xếp bằng NET sau phí, IL, LVR, gas và độ tin cậy dữ liệu.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr"
+      ],
+      "nut": [],
+      "truong": [
+       "diem",
+       "netBps",
+       "apyTach",
+       "tinCay"
+      ]
+     },
+     "ghi": "radar chấm điểm bằng phí/LVR · tin cậy · rủi ro · NET; APY chỉ là cột mờ. Luật phi-duoi-lvr chặn vào khi phí không trả nổi LVR."
+    },
+    {
+     "ma": "tach-nguon-dong-tien",
+     "cau": "Mỗi khoản lợi suất phải khai nó là phí giao dịch, thưởng phát thêm hay lãi cho vay — và thưởng không được cộng vào lợi suất dài hạn.",
+     "gan": {
+      "luat": [
+       "sap-het-thuong"
+      ],
+      "nut": [],
+      "truong": [
+       "apyTach",
+       "thuong"
+      ]
+     },
+     "ghi": "APY hiển thị tách thành phí + thưởng ở mọi thẻ; thưởng có giờ hết; sổ luật chặn vào mới khi thưởng chiếm phần lớn và sắp hết."
+    },
+    {
+     "ma": "gan-loi-suat-voi-rui-ro-doi-lay",
+     "cau": "Mỗi con số lợi suất phải đứng cạnh rủi ro nó đổi lấy: IL/LVR, văng dải, hợp đồng, token, chi phí đổi dải.",
+     "gan": {
+      "luat": [
+       "van-dai-cao"
+      ],
+      "nut": [],
+      "truong": [
+       "ilKyVongBps",
+       "lvrBps",
+       "xacSuatVang",
+       "tiLePhiTrenLvr"
+      ]
+     },
+     "ghi": "hồ sơ pool hiện IL kỳ vọng, LVR, P(văng), điểm rủi ro sáu mặt cạnh NET."
+    },
+    {
+     "ma": "moi-pool-mot-tran-von",
+     "cau": "Mỗi pool có trần vốn riêng; không FOMO, không rót theo APY cao.",
+     "gan": {
+      "luat": [
+       "tvl-mong"
+      ],
+      "nut": [],
+      "truong": [
+       "sucChuaUsd",
+       "vonXinUsd"
+      ]
+     },
+     "ghi": "ty xin theo sức chứa (phần TVL), Trung Ương cắt trần theo Rủi Ro Tổng; trần theo pool là việc của Phân Bổ, ty chỉ khai sức chứa."
+    },
+    {
+     "ma": "cat-luc-can",
+     "cau": "Loại pool rác, thưởng giả, farm APY siêu cao thiếu thanh khoản; tính đủ gas, cầu nối, đổi token vào NET.",
+     "gan": {
+      "luat": [
+       "tvl-mong",
+       "khong-sigma"
+      ],
+      "nut": [],
+      "truong": [
+       "tinCay",
+       "khoaVao"
+      ]
+     },
+     "ghi": "TVL mỏng và không có σ bị chặn ở cửa; tin cậy dưới 60% khoá nút vào. Phí cầu nối/đổi token CHƯA có trong NET — khai ở phiConThieu."
+    },
+    {
+     "ma": "moi-do-la-tao-bao-nhieu-phi",
+     "cau": "Bảng phải trả lời: mỗi $1 vốn đang tạo bao nhiêu phí, đang chịu bao nhiêu IL/LVR, pool nào hiệu quả nhất.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "hieuQuaVon",
+       "phiChoThuUsd",
+       "pnlUocUsd",
+       "vonLp"
+      ]
+     },
+     "ghi": "Bài 2 bổ: `hieuQuaVon` = phí trên mỗi $1 vốn quy tháng, theo từng vị thế; pool $2.000 kiếm $180 xếp trên pool $10.000 kiếm $300."
+    },
+    {
+     "ma": "khi-nao-dung-ngoai",
+     "cau": "Hệ thống phải nói được khi nào KHÔNG làm gì và điều gì sẽ đổi quyết định ấy.",
+     "gan": {
+      "luat": [
+       "ngoai-gio-khong-doi-dai",
+       "sat-su-kien",
+       "gia-cu"
+      ],
+      "nut": [],
+      "truong": [
+       "hanhDongNgay",
+       "dieuKien"
+      ]
+     },
+     "ghi": "khối HÀNH ĐỘNG NGAY + sáu điều kiện mở khoá có đo."
+    },
+    {
+     "ma": "tai-dau-tu-theo-quy-tac",
+     "cau": "Lợi nhuận đã chốt chia ba: dự phòng · vốn nền · cơ hội tốt nhất; thị trường xấu thì về dự phòng; sụt vốn quá trần thì tắt lãi kép.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "y tưởng snowball có kiểm soát — thuộc Trung Ương (Phân Bổ, Rủi Ro Tổng, cầu dao sụt vốn), không thuộc ty. Chưa có phép canh ở tầng ty.",
+     "trangThai": "y-tuong"
+    },
+    {
+     "ma": "hoc-tu-ket-qua-khong-tu-loi-hua",
+     "cau": "Học từ PnL thực và khoảng cách dự đoán–thực tế, không từ lời hứa của người dạy hay APY quảng cáo.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "kinhNghiem",
+       "baiHoc",
+       "tienHoa"
+      ]
+     },
+     "ghi": "sổ kinh nghiệm chấm mọi quyết định bằng đường giá thật; bài học chỉ khi n ≥ 5 và độ tin ≥ 2; tiến hoá qua cổng."
+    },
+    {
+     "ma": "kiem-toan-truoc-khi-phan-bo",
+     "cau": "Trước khi phân bổ: biết tổng vốn, muốn giữ tài sản nào (BTC/ETH/stable), chịu được sụt vốn bao nhiêu.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "mucTieu",
+       "diemTuDo"
+      ]
+     },
+     "ghi": "Bài 2 mở đường: hồ sơ mục tiêu (`mucTieu`: chi phí tháng, tài sản ưu tiên, sụt vốn chịu được) khai ở tab Kết nối; điểm tự do đọc từ đó. Tổng vốn và trần sụt vốn vẫn của Trung Ương."
+    }
    ],
    "cauHoiChoHeThong": [
     "Vốn của tôi hiện đang làm việc ở đâu?",
@@ -70,6 +214,262 @@
     "Lời hứa thu nhập của tác giả — narrative bán khoá học.",
     "«Cash flow your Bitcoin» như tiền miễn phí — mỗi dòng tiền là phí trả cho một rủi ro; hệ thống chỉ nhận sau khi trừ IL, gas, trượt giá, đổi dải, rủi ro hợp đồng.",
     "Bảy bước Audit → Expand ở dạng khẩu hiệu; chỉ lấy phần đã biến được thành luật hoặc trường đo."
+   ]
+  },
+  {
+   "ma": "khoa-hoc-lp-bai-2-four-scores",
+   "ten": "Bài 2 — Four Scores (LP Scoreboard)",
+   "nguon": "Khoá học đầu tư của tác giả nước ngoài, Lesson 2 'Four Scores'; bản bóc do chủ gửi 05/09/2026, câu đáng giữ ở mốc 0:41–0:49",
+   "ngay": "2026-09-05",
+   "bocBang": "agent riêng (claude CLI) 05/09/2026, người soát và sửa 3 quy tắc",
+   "tomTat": "Bài chưa nói gì về cơ chế Liquidity Pool, mà dạy nguyên tắc đo lường: không đo được thì không biết mình đang tiến gần hay xa mục tiêu. Tác giả đưa bốn thước đo cho tài chính cá nhân — Wealth Score (net worth), Fuel Score (vốn dư để đầu tư), Alignment Score (hợp mission/values), Freedom Score (thu nhập đầu tư / chi phí sống). Người bóc dịch bốn thước đo đó sang LP thành Capital Score (TOTAL NAV), Deployable Capital, Strategy Alignment Score và LP Freedom Score (net cash flow / chi phí sống), kèm bốn KPI khoá học chưa nói: NET PnL, FEE YIELD, IL/LVR, CAPITAL EFFICIENCY. Cảnh báo trung tâm là hai cái bẫy: nhìn APR mà tưởng đang lời trong khi trừ IL, rebalance, gas, mất giá reward thì NET âm; và nhầm tăng giá tài sản là dòng tiền. Kết luận vận hành: đo → data → KPI → so sánh → quyết định → phân bổ → đo lại; activity không phải performance.",
+   "danhGia": {
+    "kyThuatLp": 1,
+    "quanLyVon": 4,
+    "tuDuyHeThong": 5,
+    "tradeDuoc": 1,
+    "giaTriChoHeThong": 4
+   },
+   "luanDiem": [
+    {
+     "cau": "Nếu không đo được thì không biết mình đang tiến gần hay xa mục tiêu.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc vận hành, không có số để bác bỏ. Giá trị nằm ở chỗ nó buộc mọi quyết định phải có trường số đi kèm."
+    },
+    {
+     "cau": "Fee earned dương không có nghĩa là đang lời: fee +120, IL −90, rebalance −15, gas −8, reward mất giá −20 → NET −13.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm chứng bằng cách chốt một vị thế đã đóng: lấy giá trị rút ra + phí đã claim − giá trị vốn nạp quy về cùng đồng tiền, so với con số phí gộp. Nếu hai số lệch nhau đúng theo hướng bài nói thì luận điểm đứng."
+    },
+    {
+     "cau": "APR/APY hiển thị không phải lợi nhuận thực; NAV tăng từ 10.420 → 11.440 mới là bằng chứng hệ thống tăng tài sản, không phải con số APR 87%.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Chạy song song hai cột trong 3 tháng: APR trung bình có trọng số vốn, và NAV thực đầu/cuối kỳ. Chênh lệch chính là phần APR nói dối."
+    },
+    {
+     "cau": "Thu nhập tăng không đồng nghĩa tài sản tăng (3.000→5.000→8.000 nhưng chi 2.500→4.500→7.500 thì net worth gần như đứng yên).",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Trong LP kiểm bằng cách đối chiếu tổng phí gộp cả kỳ với mức tăng NAV cả kỳ. Phí gộp lớn mà NAV đứng yên là bằng chứng trực tiếp."
+    },
+    {
+     "cau": "Investment income ≠ cash flow: BTC 70k→90k là giàu trên giấy, không phải dòng tiền tháng.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng thử nghiệm rút: số tiền thực sự rút ra được trong tháng mà không phải bán vốn gốc. Phần không rút được thì không tính là dòng tiền."
+    },
+    {
+     "cau": "Cơ hội có net APR 32% cũng vô nghĩa nếu deployable capital đang bằng 0; bot cần cả cỗ máy tìm cơ hội lẫn cỗ máy theo dõi vốn còn rảnh.",
+     "loai": "nguyen-tac",
+     "ghi": "Là ràng buộc thiết kế, không phải dự báo. Đây là luận điểm có giá trị nhất của bài với hệ thống của ty."
+    },
+    {
+     "cau": "Hiệu quả vốn quan trọng hơn số tiền tuyệt đối: pool A 10.000 kiếm 300 (3%) kém hơn pool B 2.000 kiếm 180 (9%).",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Số học thuần, đúng theo định nghĩa. Nhưng chỉ đúng khi đã chuẩn hoá rủi ro và khả năng hấp thụ vốn — pool B 9% có thể không nuốt nổi 10.000 mà vẫn giữ 9%. Phải kiểm bằng cách nạp thử theo bậc và đo suy giảm."
+    },
+    {
+     "cau": "Activity không phải performance: bridge, swap, farm 20 pool, claim, rebalance, compound suốt tháng mà NAV 10.000 → 9.940 thì hệ thống đã thất bại.",
+     "loai": "nguyen-tac",
+     "ghi": "Câu 0:41–0:49, đáng giữ nguyên văn. Kiểm chứng được ở dạng đối chiếu số lần hành động với NET PnL cùng kỳ."
+    },
+    {
+     "cau": "Pool APR 450% nhưng asset quality 2/10, reward sustainability 1/10, strategy fit 1/10 thì DO NOT ALLOCATE.",
+     "loai": "nguyen-tac",
+     "ghi": "Là quy ước loại trừ do người vận hành đặt ra, không phải phát hiện thị trường. Điểm 1–10 là chủ quan nên chỉ dùng làm cổng chặn, không dùng làm điểm xếp hạng."
+    },
+    {
+     "cau": "Freedom Score ≥ 1 (thu nhập đầu tư ≥ chi phí sống) là tự do tài chính.",
+     "loai": "nguyen-tac",
+     "ghi": "Định nghĩa, không phải khám phá. Hữu ích như một mốc, không phải điều kiện vào lệnh."
+    },
+    {
+     "cau": "Biến LP thành investment business có bảng KPI thì sẽ đi tới tự do tài chính.",
+     "loai": "narrative",
+     "ghi": "Lời hứa kiếm tiền, không có mẫu và không có xác suất kèm theo. Bảng KPI làm cho thất bại nhìn thấy sớm hơn, chứ không tự sinh ra lợi nhuận."
+    }
+   ],
+   "quyTac": [
+    {
+     "ma": "xep-hang-bang-net-khong-bang-apr",
+     "cau": "KHÔNG xếp hạng hay phân bổ theo APR/APY công bố; CHỈ xếp hạng theo net sau khi trừ LVR/IL, phí gas, chi phí rebalance và phần thưởng đã chiết khấu.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr"
+      ],
+      "nut": [
+       "tiLePhiTrenLvrToiThieu"
+      ],
+      "truong": [
+       "netBps",
+       "lvrBps",
+       "tiLePhiTrenLvr",
+       "apyTach",
+       "ilKyVongBps",
+       "phiChoThuUsd"
+      ]
+     },
+     "ghi": "Gắn vào phi-duoi-lvr vì đó chính là luật hiện có nói 'phí không bù nổi tổn thất thì không vào'; apyTach là chỗ tách APR gộp thành phần phí thật và phần thưởng."
+    },
+    {
+     "ma": "chan-apr-ao-truoc-khi-xep-hang",
+     "cau": "KHÔNG cho pool đi vào vòng xếp hạng nếu phần lớn APR đến từ thưởng sắp hết hạn hoặc TVL quá mỏng, dù APR hiển thị cao tới đâu.",
+     "gan": {
+      "luat": [
+       "sap-het-thuong",
+       "tvl-mong",
+       "chua-du-so"
+      ],
+      "nut": [],
+      "truong": [
+       "thuong",
+       "apyTach",
+       "tinCay",
+       "cheDoRuiRo"
+      ]
+     },
+     "ghi": "Đây là bản dịch của Strategy Alignment Score sang thứ máy chấm được. Chấm asset quality 1–10 kiểu tác giả thì chủ quan, nên chỉ giữ ba cổng chặn đã có luật. Không gắn núm vì ba luật này không có ngưỡng chỉnh tay trong bốn núm hiện có."
+    },
+    {
+     "ma": "luon-chua-von-trien-khai-duoc",
+     "cau": "LUÔN giữ một phần vốn ở trạng thái triển khai được (deployable) và KHÔNG nạp tới mức bằng 0; nếu deployable = 0 thì bảng phải báo trạng thái 'không nhận cơ hội mới' thay vì cứ xếp hạng tiếp.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Vốn rảnh là của TRUNG ƯƠNG (`von_ranh()`), ty không được biết NAV. Buồng lái hiện «Vốn triển khai được» từ Trung Ương ở hàng chỉ số; nhưng chưa có luật nào đổi HÀNH ĐỘNG NGAY sang «không nhận cơ hội mới» khi vốn rảnh = 0 — nợ, đề xuất luật cấp hệ het-von-trien-khai.",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "do-nav-thay-vi-do-phi",
+     "cau": "LÀM báo cáo chốt kỳ theo NAV đầu kỳ và cuối kỳ; KHÔNG báo cáo thành công chỉ bằng tổng phí đã thu.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "vonLp",
+       "pnlUocUsd",
+       "phiChoThuUsd",
+       "ilUsd",
+       "netBps",
+       "dongTienUocThangUsd"
+      ]
+     },
+     "ghi": "Là quy tắc báo cáo, không phải quy tắc vào/ra lệnh, nên không có luật để gắn. Toàn bộ nằm ở tầng trường báo cáo."
+    },
+    {
+     "ma": "chi-tinh-tien-da-ve-tay",
+     "cau": "CHỈ tính vào dòng tiền tháng phần phí đã claim và đã quy về đồng ổn định; KHÔNG tính phần tăng giá tài sản hay phí chưa claim là dòng tiền.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "dongTienDaVeTayThangUsd",
+       "diemTuDo"
+      ]
+     },
+     "ghi": "Đã làm đúng nghĩa: `dongTienDaVeTayThangUsd` chỉ cộng phí + thưởng người ghi khi ĐÓNG vị thế trong 30 ngày; điểm tự do tính trên số ấy. Phí chưa thu tách sang `dongTienUocThangUsd` (trên giấy)."
+    },
+    {
+     "ma": "uu-tien-hieu-qua-von",
+     "cau": "KHI so hai cơ hội, LÀM so theo lợi nhuận trên vốn chiếm dụng chứ không theo số tiền tuyệt đối; và KHÔNG dồn thêm vốn vào pool nhỏ quá sức chứa của nó.",
+     "gan": {
+      "luat": [
+       "tvl-mong"
+      ],
+      "nut": [],
+      "truong": [
+       "hieuQuaVon",
+       "sucChuaUsd",
+       "diem",
+       "vonLp"
+      ]
+     },
+     "ghi": "Vế đầu là KPI capital efficiency của bài; vế sau là điều bài thiếu — hiệu quả vốn cao trên pool mỏng sẽ tự phá khi nạp thêm, nên phải kẹp bằng tvl-mong và sucChuaUsd."
+    },
+    {
+     "ma": "do-uptime-truoc-khi-noi-dai",
+     "cau": "LÀM đo tỷ lệ thời gian giá nằm trong dải; nếu uptime thấp kéo dài thì xem lại hệ số dải, KHÔNG bù bằng cách rebalance dày hơn.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "RANGE UPTIME chưa đo: ty chưa lưu chuỗi mẫu trong/ngoài dải theo vị thế. Có `phanTrongDai` dự báo và luật ngoai-dai/van-dai-cao/dai-qua-rong, nhưng thước «tỉ lệ thời gian thật trong dải» và «sụt sâu nhất trong kỳ» chưa có — nợ.",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "khong-hanh-dong-neu-khong-bu-noi-chi-phi",
+     "cau": "KHÔNG rebalance, claim hay compound nếu lợi ích ước tính không vượt gas cộng chi phí thao tác; ngoài giờ giữ thì giữ nguyên dải.",
+     "gan": {
+      "luat": [
+       "giu",
+       "ngoai-gio-khong-doi-dai"
+      ],
+      "nut": [
+       "giuGio"
+      ],
+      "truong": [
+       "hanhDongNgay",
+       "netBps",
+       "pnlUocUsd"
+      ]
+     },
+     "ghi": "Đây là 'activity không phải performance' viết thành hành vi. Hai luật này đã sẵn có nên gắn thẳng, giuGio là núm điều chỉnh độ lì."
+    },
+    {
+     "ma": "khong-vao-sat-tin-va-mo-cua",
+     "cau": "KHÔNG mở vị thế mới ngay sát sự kiện tin hoặc lúc thị trường vừa mở cửa dù bảng KPI đang xếp hạng pool đó cao nhất.",
+     "gan": {
+      "luat": [
+       "sat-su-kien",
+       "gap-mo-cua",
+       "gia-cu"
+      ],
+      "nut": [],
+      "truong": [
+       "tinAnhHuong",
+       "tinCay",
+       "thiTruongGoc",
+       "khoaVao"
+      ]
+     },
+     "ghi": "Bài không nói điều này, nhưng nó là cái phanh cần thiết khi biến bảng KPI thành máy phân bổ tự động: điểm cao không được phép ghi đè cổng thời điểm. Gắn gia-cu vì bảng dễ chấm trên dữ liệu cũ."
+    },
+    {
+     "ma": "ghi-bai-hoc-moi-lan-chot",
+     "cau": "LÀM ghi lại lý do vào, kết quả net và bài học mỗi lần đóng vị thế, để lần xếp hạng sau có căn cứ hiệu chỉnh.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "baiHoc",
+       "kinhNghiem",
+       "tienHoa",
+       "mucTieu",
+       "diem"
+      ]
+     },
+     "ghi": "Vòng 'đo lại' cuối chu trình của bài. Không gắn luật vì đây là thao tác sau lệnh, không chặn lệnh nào."
+    }
+   ],
+   "cauHoiChoHeThong": [
+    "NAV đầu kỳ và cuối kỳ của toàn danh mục là bao nhiêu, và phần chênh lệch tách ra thành phí, IL/LVR, gas, rebalance, thưởng lần lượt bao nhiêu?",
+    "Ngay lúc này còn bao nhiêu vốn triển khai được, và nếu bằng 0 thì bảng có tự chuyển sang trạng thái từ chối cơ hội mới không?",
+    "Trong tổng APR mà bảng đang hiển thị cho mỗi pool, bao nhiêu phần là phí giao dịch thật và bao nhiêu là thưởng, thưởng đó còn bao nhiêu ngày?",
+    "Lợi nhuận trên vốn chiếm dụng của từng pool là bao nhiêu, và nếu nạp gấp đôi vốn thì con số đó tụt xuống bao nhiêu?",
+    "Tỷ lệ thời gian giá nằm trong dải của từng vị thế là bao nhiêu, và mức sụt sâu nhất trong kỳ là bao nhiêu?",
+    "Tháng vừa rồi hệ thống thực hiện bao nhiêu hành động, tốn bao nhiêu gas và chi phí thao tác, và số đó có được bù bằng phần net tăng thêm không?",
+    "Dòng tiền thực đã claim và quy về đồng ổn định trong tháng là bao nhiêu, tách hẳn khỏi phần lãi trên giấy?",
+    "Pool nào đang bị luật loại nhưng vẫn nằm trong danh mục do vào từ trước, và kế hoạch thoát là gì?"
+   ],
+   "khongLay": [
+    "Wealth Score theo nghĩa net worth cá nhân (nhà, xe, nợ tiêu dùng) — nằm ngoài phạm vi bảng LP, đưa vào chỉ làm loãng chỉ số vận hành.",
+    "Alignment Score theo mission/vision/values — định tính, không có nguồn dữ liệu, không chấm lại được nhất quán giữa hai lần chạy.",
+    "Thang chấm 1–10 cho asset quality, protocol risk, fee sustainability, strategy fit — chủ quan và dễ tự hợp lý hoá; chỉ giữ lại phần nào đã có luật chặn tương ứng.",
+    "Freedom Score gắn với chi phí sinh hoạt cá nhân (ví dụ 20 triệu/tháng) — là mục tiêu của người chủ, không phải biến điều khiển của hệ thống; nếu muốn giữ thì để ở diemTuDo như số hiển thị, không cho nó tác động tới phân bổ.",
+    "Lời hứa rằng có bảng KPI sẽ dẫn tới tự do tài chính — narrative, không có mẫu và không có xác suất.",
+    "Các con số ví dụ trong bài (NAV 10.420, freedom 0.70, capital efficiency 4.1%/tháng) — là minh hoạ của tác giả và người bóc, không phải chuẩn hiệu năng để so.",
+    "Toàn bộ phần cơ chế LP thực sự (chọn dải, chọn phí tier, cách vào/thoát) — bài này không có; đừng suy ra từ đây."
    ]
   }
  ]

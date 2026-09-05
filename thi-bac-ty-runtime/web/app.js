@@ -2520,6 +2520,11 @@
     met("PnL ước", vl.pnlUocUsd == null ? "—" : (vl.pnlUocUsd >= 0 ? "+" : "") + tien(vl.pnlUocUsd, 2).replace("$", "$"),
       vl.pnlUocUsd == null ? null : vl.pnlUocUsd >= 0 ? "duong" : "am",
       vl.pnlUocUsd == null ? "chưa có vị thế" : "phí chưa thu + IL");
+    met("Điểm tự do", vl.diemTuDo == null ? "—" : pc(vl.diemTuDo, 0), vl.diemTuDo == null ? null : vl.diemTuDo >= 1 ? "duong" : null,
+      vl.chiPhiThangUsd ? "phí ĐÃ VỀ TAY 30 ngày / chi phí " + tien(vl.chiPhiThangUsd, 0) : "khai chi phí tháng ở Kết nối & dữ liệu");
+    var vrTu = (S && S.trungUong && S.trungUong.vonRanh) || {};
+    met("Vốn triển khai được", vrTu.khaDungUsd == null ? "—" : tien(vrTu.khaDungUsd, 0), null,
+      vrTu.khaDungUsd == null ? "Trung Ương chưa báo" : "Trung Ương: được phép mà đang không làm gì");
     met("Đã học", so(kn.soQuyetDinh) + " / " + so(kn.soKetCuc), null, "dự đoán / đã chấm");
     met("Chế độ rủi ro", rr.ten || "—", rr.ma === "THAN_TRONG" ? "am" : "duong", (rr.lyDo || []).join(", "));
     f.appendChild(hang);
@@ -2747,7 +2752,15 @@
       luoi.appendChild(the);
     });
     f.appendChild(luoi);
+    if ((vl.hieuQuaVon || []).length) {
+      f.appendChild(el("h4", null, "Hiệu quả vốn — phí trên mỗi $1, quy tháng (Bài 2)"));
+      f.appendChild(bang([{ t: "Vị thế" }, { t: "Vốn", n: true }, { t: "%/tháng", n: true }],
+        vl.hieuQuaVon.map(function (h) { return [{ t: h.kyHieu + (h.tokenId ? " #" + h.tokenId : "") }, { t: tien(h.vonUsd, 0), c: "n" },
+          { t: n2(h.hieuQuaVonThangPct, 2) + "%", c: "n " + (h.hieuQuaVonThangPct > 0 ? "duong" : "") }]; })));
+    }
     f.appendChild(giai("Tổng: " + so(vl.soViThe) + " vị thế · vốn " + tien(vl.vonUsd, 0)
+      + (vl.dongTienUocThangUsd != null ? " · dòng tiền ƯỚC quy tháng " + tien(vl.dongTienUocThangUsd, 0) + " (phí chưa thu + IL, trên giấy)" : "")
+      + (vl.dongTienDaVeTayThangUsd != null ? " · ĐÃ VỀ TAY 30 ngày " + tien(vl.dongTienDaVeTayThangUsd, 2) : " · chưa có phí đã claim ghi sổ")
       + (vl.phiChoThuUsd != null ? " · phí chưa thu " + tien(vl.phiChoThuUsd, 2) : "")
       + (vl.ilUsd != null ? " · IL " + tien(vl.ilUsd, 2) : "") + ". Thưởng OKX chia off-chain — ghi tay khi claim."));
     return f;
@@ -2910,6 +2923,26 @@
     });
     form.appendChild(nutMo);
     f.appendChild(form);
+
+    var mt = b.mucTieu || {};
+    var oMt = el("div", "btk-form");
+    oMt.appendChild(el("b", null, "Hồ sơ mục tiêu (Bài 1–2): chi phí sống mỗi tháng để tính ĐIỂM TỰ DO; tài sản ưu tiên; sụt vốn chịu được"
+      + (mt.chiPhiThangUsd ? " — đang: " + tien(mt.chiPhiThangUsd, 0) + "/tháng" : " — chưa khai")));
+    var inCp = el("input"); inCp.placeholder = "chi phí sống / tháng (USD)"; inCp.value = mt.chiPhiThangUsd == null ? "" : mt.chiPhiThangUsd;
+    var inTs = el("input"); inTs.placeholder = "tài sản ưu tiên, VD BTC,ETH,USDG"; inTs.value = (mt.taiSanUuTien || []).join(","); inTs.style.width = "240px";
+    var inSv = el("input"); inSv.placeholder = "sụt vốn chịu được (%)"; inSv.value = mt.sutVonChiuDuocPct == null ? "" : mt.sutVonChiuDuocPct;
+    var nutMt = el("button", "nho", "Lưu mục tiêu"); nutMt.type = "button";
+    nutMt.addEventListener("click", function () {
+      var than = { chiPhiThangUsd: inCp.value === "" ? null : Number(inCp.value),
+                   taiSanUuTien: inTs.value.split(",").map(function (x) { return x.trim(); }).filter(Boolean),
+                   sutVonChiuDuocPct: inSv.value === "" ? null : Number(inSv.value) };
+      fetch("/api/be-thanh-khoan/muc-tieu", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(than) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); }); })
+        .then(function () { nhac("đã lưu mục tiêu"); BTK = null; ve(); })
+        .catch(function (e) { nhac("lưu mục tiêu hỏng: " + (e && e.message || e)); });
+    });
+    oMt.appendChild(inCp); oMt.appendChild(inTs); oMt.appendChild(inSv); oMt.appendChild(nutMt);
+    f.appendChild(oMt);
 
     var ng = el("div", "viec-1" + ((b.nguonMu || []).length ? "" : " nhe"));
     ng.appendChild(el("b", null, "Nguồn dữ liệu"));

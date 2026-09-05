@@ -1203,6 +1203,7 @@ def kiem_tien_hoa_hoc() -> None:
         "/api/be-thanh-khoan/vi": "NGƯỜI dán địa chỉ ví công khai — máy không có "
                                   "ví để mà tự biết",
         "/api/be-thanh-khoan/hoc-lieu": "NGƯỚI dán bài học — máy không tự tìm khoá học",
+        "/api/be-thanh-khoan/muc-tieu": "NGƯỜI khai chi phí sống và mục tiêu — máy không biết đời người",
         "/api/be-thanh-khoan/hoc-lieu/{ma}/boc": "gọi agent (claude CLI) bóc một bài — "
                                                  "tốn quota, người bấm",
     }
@@ -11785,6 +11786,12 @@ def kiem_lp_v3() -> None:
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
+    kiem("Bài 2 đã ghim: agent bóc, người soát; điểm tự do tính trên tiền ĐÃ VỀ TAY chứ không trên phí chưa thu",
+         len(_tt) >= 2 and any("four-scores" in (b.get("ma") or "") for b in _tt)
+         and any(q["ma"] == "chi-tinh-tien-da-ve-tay" and q["trangThai"] == "da-co"
+                 for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "do-uptime-truoc-khi-noi-dai" and q["trangThai"] != "da-co"
+                 for b in _tt for q in b["quyTac"]))
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
          and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
@@ -11836,6 +11843,27 @@ def kiem_lp_v3() -> None:
          and isinstance(bcH["tinAnhHuong"], list)
          and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
     kiem("báo cáo mang mục `triThuc` với số bài ≥ 1", (bcH.get("triThuc") or {}).get("soBai", 0) >= 1)
+    kiem("KPI Bài 2: không vị thế → dòng tiền tháng và điểm tự do là None, không phải 0",
+         bcH["vonLp"]["dongTienUocThangUsd"] is None and bcH["vonLp"]["diemTuDo"] is None
+         and bcH["vonLp"]["dongTienDaVeTayThangUsd"] is None
+         and "hieuQuaVon" in bcH["vonLp"] and "mucTieu" in bcH)
+    _vhq = SoViThe(tam / "vt3.jsonl").mo("NVDAx-USDG", 95.0, 105.0, 2000.0, 100.0,
+                                          moLuc=(_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(hours=360)).isoformat())
+    _vhq.phiChoThuUsd = 90.0
+    _dgq = _vhq.danh_gia(100.0)
+    kiem("hiệu quả vốn: $90 phí trên $2.000 trong 15 ngày → 9%/tháng (pool nhỏ hiệu quả hơn pool to)",
+         gan(_dgq["hieuQuaVonThangPct"], 9.0, 1e-6))
+    import lp_v3.config as _cfgm2
+    _duongCu2 = _cfgm2.DUONG_CAU_HINH
+    _cfgm2.DUONG_CAU_HINH = tam / "cau-hinh-mt.json"
+    try:
+        _mt = ty.dat_muc_tieu({"chiPhiThangUsd": 1000, "taiSanUuTien": ["btc", " eth "], "sutVonChiuDuocPct": 15})
+        kiem("hồ sơ mục tiêu ghi được, chuẩn hoá tài sản, từ chối số âm",
+             _mt["chiPhiThangUsd"] == 1000.0 and _mt["taiSanUuTien"] == ["BTC", "ETH"]
+             and _nem(lambda: ty.dat_muc_tieu({"chiPhiThangUsd": -5}), ValueError))
+    finally:
+        _cfgm2.DUONG_CAU_HINH = _duongCu2
+        ty.cfg["mucTieu"] = dict(_cf.CONFIG["mucTieu"])
     kiem("hồ sơ tình báo: chế độ, thị trường gốc, mốc kế, nhịp — và mỗi pool có APY tách + một câu kết luận",
          bcH["cheDo"]["ma"] == "CAMPAIGN_HUNTER" and bcH["thiTruongGoc"]["trangThai"] == "MO"
          and {m["moc"] for m in bcH["vongNgay"]["mocKe"]} == {"sang", "truoc-mo", "sau-dong"}
