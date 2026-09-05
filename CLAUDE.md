@@ -1161,7 +1161,7 @@ mà sai cổng" rất dễ sót.
     python run.py                 buồng lái ở localhost:5186
     python -m kham.snapshot       ghi một lần rồi thoát
     python scripts/kham-suc-khoe.py   MỘT lệnh, một trang kết luận (5 giây)
-    python scripts/selftest.py    1875 phép kiểm số học, KHÔNG cần mạng
+    python scripts/selftest.py    1905 phép kiểm số học, KHÔNG cần mạng
     python scripts/quet-dot-bien.py --file=kham/phat_lai.py  33 con: 17 chết, 16 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/chan_rui_ro.py 12 con: 4 chết, 8 tương đương
     python scripts/quet-dot-bien.py --file=kham/chan_doan.py 23 con: 7 chết, 16 CÒN NỢ
@@ -1185,13 +1185,13 @@ mà sai cổng" rất dễ sót.
     python scripts/quet-dot-bien.py --file=kham/nan_lai.py   13 con: 7 chết, 6 tương đương
     python scripts/quet-dot-bien.py --file=kham/so_lenh.py   24 con: 17 chết, 7 tương đương
     python scripts/quet-dot-bien.py --file=kham/can_loi.py   18 con: 12 chết, 6 tương đương
-    python scripts/quet-dot-bien.py --file=kham/dinh_gia.py  22 con: 15 chết, 7 tương đương
+    python scripts/quet-dot-bien.py --file=kham/dinh_gia.py  33 con: 19 chết, 14 CÒN NỢ
     python scripts/quet-dot-bien.py --file=kham/ket_toan.py  15 con: 9 chết, 6 tương đương
     python scripts/quet-dot-bien.py --file=kham/cham_moc.py  12 con: 7 chết, 5 tương đương
     python scripts/quet-dot-bien.py --file=kham/kho_doi.py   26 con: 18 chết, 8 tương đương
     # ── QUÉT ĐỘT BIẾN ────────────────────────────────────────────────
     #
-    # 28 module · 518 con · 293 chết (57%) · 225 còn sống.
+    # 28 module · 529 con · 297 chết (56%) · 232 còn sống.
     #
     # ⚠ Con số của `vong.py` TỪNG được ghi là 16 sống. SAI: lượt quét ấy
     # chạy trong khi một lệnh `git rebase --autostash` cất rồi trả lại

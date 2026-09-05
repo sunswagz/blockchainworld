@@ -57,14 +57,23 @@ trên lưới phút trong khi runtime chạy bộ ước mẫu thô, σ thật c
 
 Việc phải làm TRƯỚC, theo thứ tự:
 
-  1. nuôi `DoBienDong` bằng nến 1 phút THẬT (`nguon.nen_gan_day`) mỗi
-     phút, không phải bằng giá lấy mẫu — 4 lời gọi/phút, weight 8 trên
-     hạn mức 1.200, không đáng kể;
-  2. cho `DoBienDong` giữ được (đóng, cao, thấp) chứ không chỉ đóng;
-  3. đo lại `dinhGia.bienDongCuaSoGiay` — ghi chú của nó tự đặt điều
-     kiện "đo lại khi bộ ước σ đổi";
-  4. rồi mới bật `pha`, và vẫn phải đo lại trên hai quãng không chồng
-     lấn như ở đây.
+  1. ✅ XONG 05/09/2026 — `nguon.nen_gan_day_ohlc` lấy (đóng, cao,
+     thấp), và `vong._mot_thi_truong` nạp nến thật MỖI PHÚT (1 lời gọi
+     mỗi phút mỗi chợ, weight 2; bốn chợ là 8 trên hạn mức 1.200).
+  2. ✅ XONG — `DoBienDong._luoi` giữ (đóng, cao, thấp, THẬT). Cờ
+     `thật` là phần quan trọng nhất: cao–thấp gom từ mẫu 2 giây HẸP
+     HƠN cao–thấp thật, nên `sigma_pha()` TỪ CHỐI khi có dù một ô
+     không thật, thay vì trả một con số trông hợp lý và sai.
+  3. ⬜ CHƯA — đo lại `dinhGia.bienDongCuaSoGiay` với bộ ước mới. Ghi
+     chú của chính nút ấy đặt điều kiện "đo lại khi bộ ước σ đổi", và
+     đo trên nến thật ngày 05/09/2026 cho σ_pha = **0,767 lần**
+     σ đóng-đến-đóng — hai bộ ước KHÔNG thay thế nhau được, nên cửa sổ
+     chọn cho cái này không dùng cho cái kia.
+  4. ⬜ CHƯA — rồi mới bật `dinhGia.boUocSigma = "pha"`, và vẫn phải
+     đo lại trên hai quãng không chồng lấn như ở đây.
+
+Cờ `dinhGia.boUocSigma` đã có và mặc định `"dong"`. Bật nó trước khi
+xong bước 3 là lặp đúng lỗi `tu-nang-cap.py` đã mắc.
 
 Ghi con số ÂM này lại là để bước 1–4 có lý do, chứ không phải để ai đó
 đọc thấy "tốt hơn" rồi đổi thẳng.

@@ -8309,6 +8309,7 @@ def kiem_duong_quyet_dinh() -> None:
         rt._thanPhien = {}
         rt.batTat = None
         rt.lanNga = {}
+        rt._phutNen = {}
 
         tt = {"ma": "BTC_5M", "nen": "BTCUSDT", "dongCo": "updown-crypto"}
         ghi: list = []
@@ -10398,6 +10399,264 @@ def kiem_do_co_phieu() -> None:
     kiem("ô đầu bắt đầu từ 0", mod.O_Z[0][0] == 0.0)
     kiem("bội mốc đối xứng quanh 0 (không lẫn kỹ năng với thiên lệch)",
          sorted(mod.BOI) == sorted(-x for x in mod.BOI), mod.BOI)
+
+
+
+def kiem_runtime_dung_tay_du_truong() -> None:
+    """`Runtime` dựng bằng `__new__` trong bộ kiểm phải có ĐỦ trường.
+
+    Vài phép kiểm dựng `Runtime.__new__(Runtime)` rồi gán tay từng
+    trường, vì `__init__` thật cần mạng. Cái giá: thêm một trường vào
+    `__init__` là mọi phép kiểm ấy ném `AttributeError` ở giữa một lời
+    gọi sâu, và câu báo lỗi không nói gì về nguyên nhân.
+
+    Đã cắn 05/09/2026 khi thêm `_phutNen`. Nay phép kiểm này đọc thẳng
+    `Runtime.__init__` bằng AST và đối chiếu, nên lần sau nó kêu ngay ở
+    đây kèm tên trường còn thiếu.
+
+    Đây là họ hàng của bài học "mẫu thử không giống sản xuất": hai
+    nhánh cùng xanh mà con bọ vẫn sống, vì nhánh thử thiếu một mảnh mà
+    nhánh thật có.
+    """
+    import ast as _ast
+
+    print()
+    print("-- Runtime dung tay: du truong chua? -----------------------")
+
+    goc = Path(__file__).resolve().parent.parent
+    cay = _ast.parse((goc / "kham" / "vong.py").read_text(encoding="utf-8"))
+    ham = None
+    for n in _ast.walk(cay):
+        if isinstance(n, _ast.ClassDef) and n.name == "Runtime":
+            for m in n.body:
+                if (isinstance(m, _ast.FunctionDef)
+                        and m.name == "_mot_thi_truong"):
+                    ham = m
+    kiem("tìm được `Runtime._mot_thi_truong`", ham is not None)
+    if ham is None:
+        return
+
+    # Chỉ đòi những trường mà CHÍNH đường mã ấy đọc — không đòi cả
+    # `__init__`. Runtime dựng tay là một mẫu thử CÓ CHỦ Ý thiếu: nó
+    # chỉ cần đủ cho đoạn đang soi. Đòi cả `__init__` là bắt mọi phép
+    # kiểm phải dựng nguyên cỗ máy, và khi ấy nó hết là phép kiểm đơn
+    # vị.
+    can = set()
+    for n in _ast.walk(ham):
+        if (isinstance(n, _ast.Attribute)
+                and isinstance(n.value, _ast.Name)
+                and n.value.id == "self"
+                and not n.attr.startswith("__")):
+            can.add(n.attr)
+    # bỏ phương thức: chúng đến từ lớp, không cần gán tay
+    from kham import vong as _V
+    can = {x for x in can if not callable(getattr(_V.Runtime, x, None))}
+    kiem("đọc ra được kha khá trường (mẫu dò còn khớp)",
+         len(can) >= 5, sorted(can))
+
+    vb = Path(__file__).read_text(encoding="utf-8")
+    import re as _re
+
+    # `\b` dựng LÚC CHẠY bằng chr(92): viết thẳng vào một chuỗi thường
+    # thì `\b` là ký tự BACKSPACE, regex khớp 0 chỗ, và phép kiểm đỏ
+    # với một danh sách "thiếu tất cả" trông rất thuyết phục. Đã cắn
+    # đúng ở dòng này ngày 05/09/2026.
+    B = chr(92) + "b"
+    MAU_GAN = B + "rt" + chr(92) + ".{}" + chr(92) + "s*[,=]"
+    thieu = sorted(
+        x for x in can
+        if not _re.search(MAU_GAN.format(_re.escape(x)), vb))
+    kiem("mọi trường `_mot_thi_truong` ĐỌC đều được dựng tay",
+         not thieu, thieu)
+
+
+
+def kiem_sigma_pha() -> None:
+    """Bộ ước `pha` chỉ được chạy trên NẾN THẬT, và mặc định phải TẮT.
+
+    `scripts/thu-sigma-bien-do.py` đo trên hai quãng 20 ngày KHÔNG
+    chồng lấn: `pha` (trung bình hình học đóng-đóng × Parkinson) tốt
+    hơn CÓ Ý NGHĨA ở cả hai. Nhưng bộ ước SỐNG được nuôi bằng giá LẤY
+    MẪU mỗi ~2 giây, và cao–thấp dựng từ mẫu HẸP HƠN cao–thấp thật —
+    nên Parkinson trên mẫu dìm σ, và σ bị dìm nghĩa là mô hình tự tin
+    quá.
+
+    Đây đúng cái bẫy đã cắn một lần: `tu-nang-cap.py` vặn cửa sổ σ trên
+    lưới phút trong khi runtime chạy bộ ước mẫu thô, σ thật chỉ bằng
+    0,875 lần σ đã tuning. Vặn nút của cỗ máy A rồi lắp vào cỗ máy B.
+
+    Bốn điều phải đúng:
+
+    1. ô dựng từ MẪU không được đánh dấu thật;
+    2. `sigma_pha` TỪ CHỐI khi có dù một ô không thật;
+    3. nến thật GHI ĐÈ mẫu, mẫu KHÔNG hạ cấp được nến thật;
+    4. mặc định `boUocSigma` là `dong` — vì `bienDongCuaSoGiay = 900`
+       được chọn cho bộ ước đóng-đến-đóng, và ghi chú của chính nó đặt
+       điều kiện "đo lại khi bộ ước σ đổi".
+    """
+    import math as _m
+
+    from kham.dinh_gia import DoBienDong as _D
+
+    print()
+    print("-- Bo uoc sigma `pha`: chi tren NEN THAT -------------------")
+
+    P0 = 60_000.0
+
+    def _bd_mau(n=20):
+        d = _D()
+        for i in range(n):
+            # giá đi zig-zag để σ đóng-đóng khác 0
+            d.them(100.0 * (1.0 + 0.002 * ((-1) ** i)), i * P0 + 30_000.0)
+        return d
+
+    def _bd_nen(n=20, bien=0.004):
+        d = _D()
+        d.mo_dau_ohlc([
+            (i * P0 + P0,
+             100.0 * (1.0 + 0.002 * ((-1) ** i)),          # đóng
+             100.0 * (1.0 + bien),                          # cao
+             100.0 * (1.0 - bien))                          # thấp
+            for i in range(n)])
+        return d
+
+    # ── 1. mẫu KHÔNG phải nến thật ───────────────────────────────────
+    m = _bd_mau()
+    kiem("nuôi bằng MẪU ⇒ 0 ô thật", m.so_o_that == 0, m.so_o_that)
+    kiem("nhưng σ đóng-đến-đóng vẫn tính được",
+         (m.sigma_giay() or 0) > 0, m.sigma_giay())
+    kiem("và `pha` TỪ CHỐI", m.sigma_pha() is None, m.sigma_pha())
+
+    # ── 2. nến thật ⇒ pha chạy ───────────────────────────────────────
+    n = _bd_nen()
+    kiem("nuôi bằng NẾN THẬT ⇒ mọi ô đều thật",
+         n.so_o_that == n.so_mau and n.so_mau > 0,
+         (n.so_o_that, n.so_mau))
+    kiem("`pha` tính được", (n.sigma_pha() or 0) > 0, n.sigma_pha())
+
+    # `pha` là trung bình HÌNH HỌC — phải nằm GIỮA hai bộ ước
+    a = n.sigma_giay()
+    ds = n._cua_so()
+    v = [_D._K_PARKINSON * _m.log(x[1] / x[2]) ** 2 for x in ds]
+    b = _m.sqrt(sum(v) / len(v)) / _m.sqrt(60.0)
+    kiem("`pha` = căn(đóng-đóng × Parkinson), đúng tới 1e-12",
+         abs(n.sigma_pha() - _m.sqrt(a * b)) < 1e-12,
+         (n.sigma_pha(), _m.sqrt(a * b)))
+    kiem("và nó nằm GIỮA hai bộ ước",
+         min(a, b) <= n.sigma_pha() <= max(a, b), (a, n.sigma_pha(), b))
+
+    # ── 3. một ô bẩn là đủ để TỪ CHỐI ────────────────────────────────
+    n2 = _bd_nen()
+    n2.them(100.0, 5 * P0 + 10_000.0)        # mẫu rơi vào một ô ĐÃ thật
+    kiem("mẫu rơi vào ô THẬT ⇒ ô ấy VẪN thật (mẫu không hạ cấp được)",
+         n2.so_o_that == n2.so_mau, (n2.so_o_that, n2.so_mau))
+    n3 = _bd_nen()
+    n3.them(100.0, 99 * P0 + 10_000.0)       # mẫu mở một ô MỚI
+    kiem("mẫu mở ô MỚI ⇒ có một ô không thật",
+         n3.so_o_that == n3.so_mau - 1, (n3.so_o_that, n3.so_mau))
+    kiem("và `pha` TỪ CHỐI vì đúng một ô bẩn", n3.sigma_pha() is None)
+
+    n4 = _bd_mau()
+    truoc = n4.so_o_that
+    n4.mo_dau_ohlc([(3 * P0 + P0, 100.0, 100.4, 99.6)])
+    kiem("nến thật GHI ĐÈ được ô mẫu", n4.so_o_that == truoc + 1,
+         (truoc, n4.so_o_that))
+
+    # ── 4. mặc định phải là `dong` ───────────────────────────────────
+    from kham.config import CONFIG as _C
+    kiem("config KHÔNG bật `pha` (chưa đo lại cửa sổ σ)",
+         str((_C.get("dinhGia") or {}).get("boUocSigma", "dong")) == "dong",
+         (_C.get("dinhGia") or {}).get("boUocSigma"))
+    kiem("`sigma()` mặc định trả đúng σ đóng-đến-đóng",
+         n.sigma() == n.sigma_giay(), (n.sigma(), n.sigma_giay()))
+
+    cu = _C.get("dinhGia", {}).get("boUocSigma")
+    try:
+        _C.setdefault("dinhGia", {})["boUocSigma"] = "pha"
+        kiem("bật `pha` ⇒ `sigma()` đổi sang pha",
+             n.sigma() == n.sigma_pha(), (n.sigma(), n.sigma_pha()))
+        # …nhưng khi thiếu nến thật thì LÙI về đóng-đến-đóng chứ không
+        # ném và không trả None: một cỗ máy đang chạy không được chết
+        # vì thiếu một nến.
+        kiem("bật `pha` mà lưới toàn MẪU ⇒ lùi về đóng-đến-đóng",
+             m.sigma() == m.sigma_giay() and m.sigma() is not None,
+             (m.sigma(), m.sigma_giay()))
+    finally:
+        if cu is None:
+            _C.get("dinhGia", {}).pop("boUocSigma", None)
+        else:
+            _C["dinhGia"]["boUocSigma"] = cu
+
+    # ── nến hỏng phải bị BỎ, không được vá ───────────────────────────
+    n5 = _D()
+    kiem("nến cao < thấp bị BỎ",
+         n5.mo_dau_ohlc([(P0, 100.0, 99.0, 101.0)]) == 0)
+    kiem("nến giá âm bị BỎ",
+         n5.mo_dau_ohlc([(P0, -1.0, 1.0, 1.0)]) == 0)
+    kiem("nến thiếu trường bị BỎ, không ném",
+         n5.mo_dau_ohlc([(P0, 100.0)]) == 0)
+    kiem("và sau tất cả lưới vẫn rỗng", n5.so_mau == 0)
+
+
+
+def kiem_thu_tu_cong_quet_dot_bien() -> None:
+    """Cổng `.goc-quet` phải đứng TRƯỚC phép chạy bản gốc.
+
+    Cả hai cổng đều tồn tại và đều đúng. Cái sai là THỨ TỰ, và thứ tự
+    sai không làm hỏng gì — nó chỉ làm câu báo lỗi trỏ sai chỗ.
+
+    Đo 05/09/2026: một lượt quét bị giết để lại `dinh_gia.py` mang con
+    đột biến `k <= han`. Lượt sau chạy bản gốc TRƯỚC, thấy đỏ, rồi in
+    "DỪNG: bản GỐC đã TRƯỢT" — đúng về mặt chữ và vô dụng về mặt chẩn
+    đoán, vì bản gốc trượt là HỆ QUẢ chứ không phải nguyên nhân. Mất
+    một lúc mới lần ra, và trong lúc ấy bộ kiểm chạy vài lượt trên một
+    file đột biến.
+
+    Cổng `.goc-quet` biết chính xác chuyện gì xảy ra và in ra được lệnh
+    khôi phục. Nên nó phải nói trước. Nó cũng RẺ hơn — không phải chạy
+    cả bộ kiểm mới biết.
+
+    Canh bằng VỊ TRÍ TRONG NGUỒN vì đây là thứ tự thực thi ở tầng
+    module: không có hàm nào để gọi mà thử.
+    """
+    goc = Path(__file__).resolve().parent.parent
+    vb = (goc / "scripts" / "quet-dot-bien.py").read_text(encoding="utf-8")
+
+    print()
+    print("-- Thu tu hai cong cua bo quet dot bien --------------------")
+
+    i_cong = vb.find("os.path.exists(SAO_LUU)")
+    i_goc = vb.find("_r0, _o0 = _chay()")
+    kiem("tìm được cổng `.goc-quet`", i_cong > 0, i_cong)
+    kiem("tìm được phép chạy bản gốc", i_goc > 0, i_goc)
+    kiem("cổng `.goc-quet` đứng TRƯỚC phép chạy bản gốc",
+         0 < i_cong < i_goc, (i_cong, i_goc))
+
+    # và cổng ấy phải THOÁT chứ không chỉ cảnh báo rồi chạy tiếp
+    duoi = vb[i_cong:i_goc]
+    kiem("cổng ấy THOÁT hẳn, không cảnh báo rồi chạy tiếp",
+         "sys.exit(6)" in duoi, duoi[:120])
+    kiem("và nói ra lệnh khôi phục cụ thể",
+         "cp '" in duoi and "git checkout" in duoi)
+
+    # cả hai cổng phải đứng TRƯỚC con đột biến đầu tiên được ghi ra
+    i_ghi = vb.find("_ghi(F,")
+    kiem("cả hai cổng đứng trước lần GHI đầu tiên vào file gốc",
+         i_ghi > i_goc > i_cong, (i_cong, i_goc, i_ghi))
+
+    # ── và cổng phải nhìn CẢ THƯ MỤC ─────────────────────────────────
+    #
+    # Đo 05/09/2026: hai lượt quét chạy chồng nhau (một con mồ côi quét
+    # `vong.py`, một lượt mới quét `nguon.py`). Mỗi lượt chấm con của
+    # mình bằng BỘ KIỂM, mà bộ kiểm đọc CẢ HAI file — nên cả hai tờ
+    # phiếu đều là rác, và cả hai trông hoàn toàn bình thường.
+    #
+    # Cổng chỉ nhìn file của chính nó thì không thấy gì cả.
+    i_thumuc = vb.find('glob("*.goc-quet")')
+    kiem("cổng có quét CẢ THƯ MỤC tìm bản sao lưu của file khác",
+         i_thumuc > 0, i_thumuc)
+    kiem("và nó cũng đứng trước phép chạy bản gốc",
+         0 < i_thumuc < i_goc, (i_thumuc, i_goc))
 
 
 
@@ -12640,6 +12899,9 @@ def main() -> int:
     kiem_do_cau_dao()
     kiem_mo_lai_cau_dao()
     kiem_do_co_phieu()
+    kiem_runtime_dung_tay_du_truong()
+    kiem_sigma_pha()
+    kiem_thu_tu_cong_quet_dot_bien()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()

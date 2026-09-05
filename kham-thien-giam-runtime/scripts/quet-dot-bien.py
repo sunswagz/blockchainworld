@@ -46,6 +46,7 @@ File đang quét bị GHI ĐÈ rồi trả lại sau mỗi con. Ba điều phả
 """
 import io
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -144,6 +145,70 @@ def _chay():
 # `xoay_cho.py` với `kiem_xoay_cho`, một hàm không tồn tại.
 #
 # Thước đo hỏng thì điểm đẹp. Điểm đẹp là lúc phải nghi thước.
+SAO_LUU = F + ".goc-quet"
+
+# ── THỨ TỰ HAI CỔNG NÀY CÓ NGHĨA ─────────────────────────────────────
+#
+# Cổng `.goc-quet` phải đứng TRƯỚC phép chạy bản gốc.
+#
+# Bản trước đặt ngược lại, và ngày 05/09/2026 nó cắn: một lượt quét bị
+# giết để lại `dinh_gia.py` mang con đột biến `k <= han`. Lượt sau chạy
+# bản gốc, thấy đỏ, rồi in "DỪNG: bản GỐC đã TRƯỢT" — đúng về mặt chữ
+# và vô dụng về mặt chẩn đoán. Mất một lúc mới lần ra, và trong lúc ấy
+# bộ kiểm được chạy vài lượt trên một file đột biến; suýt kết luận về
+# một con bọ không tồn tại.
+#
+# Cổng `.goc-quet` biết CHÍNH XÁC chuyện gì đã xảy ra và nói ra được
+# lệnh khôi phục. Nên nó phải nói trước.
+
+# ── BẢN SAO LƯU CÒN SÓT = LƯỢT TRƯỚC CHẾT GIỮA CHỪNG ─────────────────
+#
+# `_tra_lai()` chạy trong `finally` sau mỗi con, nên lượt quét bình
+# thường luôn dọn sạch. Nhưng `finally` KHÔNG chạy khi tiến trình bị
+# giết — hết giờ, Ctrl-C đúng lúc, máy tắt. Khi ấy `F` nằm lại trên đĩa
+# MANG MỘT CON ĐỘT BIẾN, và `<file>.goc-quet` còn đó.
+#
+# Chạy tiếp trong tình trạng ấy là hỏng vĩnh viễn: dòng dưới sẽ ghi đè
+# bản sao lưu bằng nội dung HIỆN TẠI của `F` — tức bằng chính con đột
+# biến — và đường lùi biến mất. Sau đó mọi con đều được so với một bản
+# "gốc" đã sai, nên bộ quét sẽ báo rất nhiều con CHẾT: mã hỏng sẵn nên
+# phép kiểm đỏ sẵn. Một phiếu điểm đẹp dựng trên một file hỏng.
+#
+# Chú thích cuối file đã nói đúng chuyện này ("File ấy còn nằm đó nghĩa
+# là lần quét trước chết giữa chừng") nhưng không có gì hành động theo.
+# Và cổng ấy phải nhìn CẢ THƯ MỤC, không chỉ file của mình.
+#
+# Đo 05/09/2026: hai lượt quét chạy chồng nhau — một con mồ côi quét
+# `vong.py` sót lại từ một vòng `for` bị giết, một lượt mới quét
+# `nguon.py`. Mỗi lượt chấm con của mình bằng BỘ KIỂM, mà bộ kiểm đọc
+# CẢ HAI file. Nên lượt A chấm trên một `vong.py` đột biến và lượt B
+# chấm trên một `nguon.py` đột biến: hai tờ phiếu, cả hai là rác, và
+# cả hai trông hoàn toàn bình thường.
+#
+# Không có gì kêu lên. Đó là lý do cổng này quét cả thư mục.
+_con_sot = sorted(
+    str(x) for x in pathlib.Path(F).resolve().parent.glob("*.goc-quet"))
+if _con_sot and _con_sot != [str(pathlib.Path(SAO_LUU).resolve())]:
+    print()
+    print("  DỪNG: có lượt quét KHÁC đang chạy (hoặc vừa chết) trong")
+    print("  cùng thư mục:")
+    for _x in _con_sot:
+        print(f"      {_x}")
+    print("  Hai lượt quét chồng nhau thì CẢ HAI tờ phiếu đều là rác —")
+    print("  bộ kiểm đọc mọi file, nên mỗi lượt chấm trên một file mà")
+    print("  lượt kia đang làm hỏng. Đợi nó xong, hoặc khôi phục.")
+    sys.exit(6)
+
+if os.path.exists(SAO_LUU):
+    print()
+    print(f"  DỪNG: {SAO_LUU} còn nằm đó — lượt quét TRƯỚC chết giữa")
+    print(f"  chừng, nên {F} rất có thể đang mang một con đột biến.")
+    print("  Khôi phục rồi hãy quét lại:")
+    print(f"      cp '{SAO_LUU}' '{F}' && rm '{SAO_LUU}'")
+    print(f"  hoặc `git checkout -- {F}` rồi xoá bản sao lưu.")
+    print()
+    sys.exit(6)
+
 _r0, _o0 = _chay()
 if "✗" in _o0 or _r0.returncode != 0:
     print(f"  DỪNG: bản GỐC đã TRƯỢT, nên mọi con đột biến sẽ 'chết' vì lý "
@@ -151,7 +216,6 @@ if "✗" in _o0 or _r0.returncode != 0:
     print("  " + (_o0.strip().splitlines() or ["(không có gì in ra)"])[-1])
     sys.exit(2)
 
-SAO_LUU = F + ".goc-quet"
 
 
 def _ghi(duong, noi_dung, lan=6):
@@ -183,30 +247,6 @@ def _tra_lai():
     return False
 
 
-# ── BẢN SAO LƯU CÒN SÓT = LƯỢT TRƯỚC CHẾT GIỮA CHỪNG ─────────────────
-#
-# `_tra_lai()` chạy trong `finally` sau mỗi con, nên lượt quét bình
-# thường luôn dọn sạch. Nhưng `finally` KHÔNG chạy khi tiến trình bị
-# giết — hết giờ, Ctrl-C đúng lúc, máy tắt. Khi ấy `F` nằm lại trên đĩa
-# MANG MỘT CON ĐỘT BIẾN, và `<file>.goc-quet` còn đó.
-#
-# Chạy tiếp trong tình trạng ấy là hỏng vĩnh viễn: dòng dưới sẽ ghi đè
-# bản sao lưu bằng nội dung HIỆN TẠI của `F` — tức bằng chính con đột
-# biến — và đường lùi biến mất. Sau đó mọi con đều được so với một bản
-# "gốc" đã sai, nên bộ quét sẽ báo rất nhiều con CHẾT: mã hỏng sẵn nên
-# phép kiểm đỏ sẵn. Một phiếu điểm đẹp dựng trên một file hỏng.
-#
-# Chú thích cuối file đã nói đúng chuyện này ("File ấy còn nằm đó nghĩa
-# là lần quét trước chết giữa chừng") nhưng không có gì hành động theo.
-if os.path.exists(SAO_LUU):
-    print()
-    print(f"  DỪNG: {SAO_LUU} còn nằm đó — lượt quét TRƯỚC chết giữa")
-    print(f"  chừng, nên {F} rất có thể đang mang một con đột biến.")
-    print("  Khôi phục rồi hãy quét lại:")
-    print(f"      cp '{SAO_LUU}' '{F}' && rm '{SAO_LUU}'")
-    print(f"  hoặc `git checkout -- {F}` rồi xoá bản sao lưu.")
-    print()
-    sys.exit(6)
 
 if not _ghi(SAO_LUU, goc):
     print(f"  DỪNG: không ghi nổi bản sao lưu {SAO_LUU} — không quét khi "

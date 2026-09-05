@@ -164,7 +164,14 @@ class DoBienDong:
     #: bộ ước vừa bị bác, và không ai biết.
     TOI_THIEU_PHUT = 6
 
-    _luoi: dict = field(default_factory=dict)     # mốc phút -> giá cuối
+    #: mốc phút -> (đóng, cao, thấp, thật)
+    #:
+    #: `thật` nói ô ấy dựng từ NẾN THẬT hay từ giá lấy mẫu. Cao–thấp
+    #: dựng từ mẫu 2 giây HẸP HƠN cao–thấp thật, nên mọi phép ước dùng
+    #: biên độ phải từ chối khi có dù một ô không thật. Không có cờ này
+    #: thì Parkinson tính trên mẫu ra một con số trông hợp lý và sai —
+    #: đúng kiểu lỗi cung này đã ăn một lần với `tu-nang-cap.py`.
+    _luoi: dict = field(default_factory=dict)
     _moMoc: float = 0.0
 
     @property
@@ -180,22 +187,151 @@ class DoBienDong:
             "bienDongCuaSoGiay", 900.0))
 
     def them(self, gia: float, lucMs: float) -> None:
+        """Một GIÁ LẤY MẪU. Cập nhật giá đóng của phút ấy.
+
+        Cao–thấp gom theo mẫu, nhưng ô được đánh dấu KHÔNG THẬT: mẫu 2
+        giây bỏ sót phần lớn biên độ trong phút, và một biên độ hụt đi
+        vào Parkinson sẽ dìm σ mà không ai thấy.
+
+        Ô đã dựng từ NẾN THẬT thì mẫu KHÔNG được hạ cấp nó xuống —
+        ngược lại mới đúng: nến thật ghi đè mẫu.
+        """
         if gia is None or gia <= 0 or not math.isfinite(gia):
             return
-        self._luoi[int(lucMs // 60_000)] = float(gia)
+        k = int(lucMs // 60_000)
+        g = float(gia)
+        cu = self._luoi.get(k)
+        if cu is None:
+            self._luoi[k] = (g, g, g, False)
+        elif cu[3]:
+            # ô THẬT: chỉ nhích giá đóng, giữ nguyên biên độ và cờ thật.
+            # Giá lấy mẫu tới SAU khi nến đóng thì nó thuộc phút sau;
+            # tới TRƯỚC thì nến sẽ ghi đè. Cả hai lối đều không được
+            # làm hỏng biên độ đã có.
+            self._luoi[k] = (g, cu[1], cu[2], True)
+        else:
+            self._luoi[k] = (g, max(cu[1], g), min(cu[2], g), False)
+        self._don(lucMs)
+
+    def _don(self, lucMs: float) -> None:
         han = int((lucMs - self.cuaSoGiay * 1000.0) // 60_000)
         for k in [k for k in self._luoi if k < han]:
             del self._luoi[k]
 
     def mo_dau(self, nen: list[tuple[float, float]]) -> None:
-        """Nạp mồi từ nến 1 phút: [(mốc đóng ms, giá đóng)]."""
+        """Nạp mồi từ nến 1 phút CHỈ CÓ GIÁ ĐÓNG: [(mốc đóng ms, đóng)].
+
+        Giữ lại cho chỗ gọi cũ và cho phép kiểm. Ô nạp bằng đường này
+        KHÔNG được đánh dấu thật — không có cao–thấp thì không có biên
+        độ, và một ô biên độ bằng 0 làm Parkinson ra σ = 0.
+        """
         for t, g in nen:
             if g and g > 0:
-                self._luoi[int(float(t) // 60_000)] = float(g)
+                k = int(float(t) // 60_000)
+                if not (self._luoi.get(k) or (0, 0, 0, False))[3]:
+                    self._luoi[k] = (float(g), float(g), float(g), False)
+
+    def mo_dau_ohlc(self, nen: list) -> int:
+        """Nạp NẾN THẬT: [(mốc đóng ms, đóng, cao, thấp)]. Trả số ô đã ghi.
+
+        Đây là đường duy nhất đánh dấu một ô là THẬT.
+        """
+        n = 0
+        for x in nen:
+            try:
+                t, dong, cao, thap = x[0], float(x[1]), float(x[2]), float(x[3])
+            except (TypeError, ValueError, IndexError):
+                continue
+            if not (dong > 0 and cao >= thap > 0):
+                continue
+            self._luoi[int(float(t) // 60_000)] = (dong, cao, thap, True)
+            n += 1
+        return n
 
     @property
     def so_mau(self) -> int:
         return len(self._luoi)
+
+    @property
+    def so_o_that(self) -> int:
+        """Bao nhiêu ô trong lưới dựng từ NẾN THẬT."""
+        return sum(1 for v in self._luoi.values() if v[3])
+
+    #: 1 / (4 ln 2) — hằng số Parkinson (1980).
+    _K_PARKINSON = 0.36067376022224085
+
+    def _cua_so(self) -> list:
+        toiDa = max(self.TOI_THIEU_PHUT, int(self.cuaSoGiay / 60.0) + 1)
+        return [self._luoi[k] for k in sorted(self._luoi)[-toiDa:]]
+
+    def sigma_pha(self) -> float | None:
+        """σ mỗi giây theo `pha` — trung bình HÌNH HỌC của hai bộ ước.
+
+        Đóng-đến-đóng vứt đi biên độ trong phút: một phút chạy lên 0,3%
+        rồi về chỗ cũ bị tính là "không biến động". Parkinson (1980)
+        dùng đúng biên độ ấy —
+
+            σ²_phút = (ln(H/L))² / (4 ln 2)
+
+        — và với chuyển động Brown, ước lượng ấy có phương sai nhỏ hơn
+        đóng-đến-đóng chừng 5 lần. Nhưng nó giả định không có nhảy giá
+        qua đêm và không có khe mở cửa, nên trộn hai cái là cách rẻ để
+        giữ phần đúng của cả hai.
+
+        Đo 30/08/2026 (`scripts/thu-sigma-bien-do.py`), hai quãng 20
+        ngày KHÔNG chồng lấn, bốn chợ, bootstrap chia khối theo khung:
+        `pha` tốt hơn CÓ Ý NGHĨA ở cả hai, còn Parkinson thuần thì chứa
+        0 ở cả hai.
+
+        **Trả None khi có dù MỘT ô không dựng từ nến thật.** Cao–thấp
+        gom từ mẫu 2 giây hẹp hơn cao–thấp thật, nên Parkinson trên mẫu
+        dìm σ — và σ bị dìm nghĩa là mô hình tự tin quá. Thà không có
+        số còn hơn có một số sai không ai thấy.
+        """
+        ds = self._cua_so()
+        if len(ds) < self.TOI_THIEU_PHUT:
+            return None
+        if not all(x[3] for x in ds):
+            return None
+        a = self.sigma_giay()
+        if a is None or a <= 0:
+            return None
+        v = []
+        for _dong, cao, thap in ((x[0], x[1], x[2]) for x in ds):
+            if cao <= 0 or thap <= 0 or cao < thap:
+                return None
+            v.append(self._K_PARKINSON * math.log(cao / thap) ** 2)
+        if not v:
+            return None
+        b = math.sqrt(sum(v) / len(v)) / math.sqrt(60.0)
+        if b < 0:
+            return None
+        return math.sqrt(a * b)
+
+    def sigma(self) -> float | None:
+        """σ theo bộ ước ĐANG KHAI trong config.
+
+        Đọc config MỖI LẦN, cùng lý do như `cuaSoGiay`: chốt lúc import
+        thì cổng tự nâng cấp thử một giá trị mới, đo ra "không khác gì",
+        rồi trả lại — vì bộ ước vẫn chạy giá trị cũ.
+
+        Mặc định `dong` chứ KHÔNG phải `pha`, dù `pha` đã đo là tốt
+        hơn. Lý do nằm ở bước 3 trong `scripts/thu-sigma-bien-do.py`:
+        `dinhGia.bienDongCuaSoGiay = 900` được chọn cho bộ ước
+        đóng-đến-đóng, và ghi chú của chính nó đặt điều kiện "đo lại
+        khi bộ ước σ đổi". Bật `pha` trước khi đo lại là lặp đúng cái
+        lỗi `tu-nang-cap.py` đã mắc.
+        """
+        ten = str((CONFIG.get("dinhGia") or {}).get("boUocSigma", "dong"))
+        if ten == "pha":
+            p = self.sigma_pha()
+            if p is not None:
+                return p
+            # Không có đủ nến thật thì LÙI về đóng-đến-đóng — nhưng đó
+            # là một sự kiện đáng biết, nên `so_o_that` hiện trên bảng
+            # sức khoẻ để không ai tưởng `pha` đang chạy trong khi nó
+            # chưa bao giờ chạy.
+        return self.sigma_giay()
 
     def sigma_giay(self) -> float | None:
         """Độ lệch chuẩn log-return trên lưới phút, quy về mỗi giây.
@@ -209,7 +345,7 @@ class DoBienDong:
             return None
         toiDa = max(self.TOI_THIEU_PHUT, int(self.cuaSoGiay / 60.0) + 1)
         ks = sorted(self._luoi)[-toiDa:]
-        c = [self._luoi[k] for k in ks]
+        c = [self._luoi[k][0] for k in ks]
         r = [math.log(c[i + 1] / c[i]) for i in range(len(c) - 1)
              if c[i] > 0 and c[i + 1] > 0]
         if len(r) < self.TOI_THIEU_PHUT - 1:

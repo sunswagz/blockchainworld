@@ -259,6 +259,50 @@ class Nguon:
                     return ra
         return []
 
+    def nen_gan_day_ohlc(self, cap: str, soNen: int = 20) -> list:
+        """`soNen` nến 1 phút gần nhất: [(mốc đóng ms, đóng, cao, thấp)].
+
+        `nen_gan_day` chỉ trả giá ĐÓNG, và cái thiếu ấy chặn nguyên một
+        cải tiến đã đo được. `scripts/thu-sigma-bien-do.py` chấm ngoài
+        mẫu trên hai quãng 20 ngày KHÔNG chồng lấn, bốn chợ, bootstrap
+        chia khối theo khung:
+
+            bộ ước `pha` (trung bình hình học đóng-đóng × Parkinson)
+            TỐT HƠN có ý nghĩa ở CẢ HAI quãng
+            [−0,000485, −0,000026] và [−0,000472, −0,000041]
+
+        Nhưng bộ ước SỐNG không có cao–thấp: nó được nuôi bằng GIÁ LẤY
+        MẪU (`bd.them(gia, now)`), mỗi phút một điểm. Cao–thấp dựng từ
+        mẫu 2 giây thì HẸP HƠN cao–thấp thật, nên Parkinson tính trên
+        mẫu ra một con số khác hẳn con số đã đo — và vặn bộ ước A rồi
+        lắp vào cỗ máy B là chuyện đã cắn cung này một lần
+        (`tu-nang-cap.py` vặn cửa sổ σ trên lưới phút trong khi runtime
+        chạy bộ ước mẫu thô; σ thật chỉ bằng 0,875 lần σ đã tuning).
+
+        Hàm này là bước 1 của bốn bước ghi trong `thu-sigma-bien-do.py`.
+        Giá phải trả: 4 lời gọi mỗi phút, weight 2 mỗi lời — 8 trên hạn
+        mức 1.200 của Binance.
+        """
+        for goc in (_NG["binanceSpot"], _NG["binanceDuPhong"]):
+            d = self._lay("binance-kline", f"{goc}/api/v3/klines",
+                          {"symbol": cap, "interval": "1m",
+                           "limit": max(2, int(soNen))})
+            if isinstance(d, list) and d:
+                ra = []
+                for n in d:
+                    try:
+                        dong, cao, thap = float(n[4]), float(n[2]), float(n[3])
+                        # Nến hỏng thì BỎ, đừng vá: cao < thấp nghĩa là
+                        # dòng ấy không phải một nến, và một nến bịa sẽ
+                        # đi thẳng vào σ mà không ai thấy.
+                        if dong > 0 and cao >= thap > 0 and cao >= dong >= thap:
+                            ra.append((float(n[0]) + 60_000.0, dong, cao, thap))
+                    except (TypeError, ValueError, IndexError):
+                        pass
+                if ra:
+                    return ra
+        return []
+
     def moc_thoi_gian_binance(self) -> tuple[float, float, float] | None:
         """(mốc sàn ms, gửi ms, nhận ms) — nguyên liệu hiệu chỉnh đồng hồ."""
         c = self.client()

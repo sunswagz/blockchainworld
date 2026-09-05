@@ -107,6 +107,9 @@ class Runtime:
         self._ngayDonBang = ""
 
         self.bienDong: dict[str, DoBienDong] = {}
+        #: mã -> mốc PHÚT đã nạp nến thật. Không có nó thì vòng chạy
+        #: hỏi Binance mỗi ~2 giây thay vì mỗi phút.
+        self._phutNen: dict[str, int] = {}
         self.khungHienTai: dict[str, Khung] = {}
         # Khung ĐANG ăn thua [T, T+300]. Chỉ để ghi băng —
         # chưa ai đo được có tiền trong cửa ấy không.
@@ -793,8 +796,29 @@ class Runtime:
                 bus.ghi(f"{ma}: nạp mồi σ hỏng: {type(e).__name__}: {e}",
                         loai="canh")
             self.bienDong[ma] = bd
+
+        # NẾN THẬT mỗi phút một lần.
+        #
+        # Vòng chạy mỗi ~2 giây, nên nếu hỏi Binance mỗi lượt thì đó là
+        # 120 lời gọi/phút cho mỗi chợ. Hỏi khi mốc PHÚT đổi: 1 lời gọi
+        # mỗi phút mỗi chợ, weight 2 — bốn chợ là 8 trên hạn mức 1.200.
+        #
+        # Vì sao cần: `bd.them()` chỉ có giá LẤY MẪU, không có cao–thấp
+        # thật của phút. Bộ ước `pha` (đã đo là tốt hơn có ý nghĩa trên
+        # hai quãng không chồng lấn) cần biên độ THẬT, và biên độ dựng
+        # từ mẫu 2 giây thì hẹp hơn — dùng nó là dìm σ mà không ai thấy.
+        phut = int(now // 60_000)
+        if self._phutNen.get(ma) != phut:
+            self._phutNen[ma] = phut
+            try:
+                bd.mo_dau_ohlc(nguon.nen_gan_day_ohlc(
+                    tt["nen"], int(bd.cuaSoGiay / 60.0) + 2))
+            except Exception as e:                  # noqa: BLE001
+                bus.ghi(f"{ma}: nạp nến thật hỏng: {type(e).__name__}: {e}",
+                        loai="canh")
+
         bd.them(gia, now)
-        sigma = bd.sigma_giay()
+        sigma = bd.sigma()
         if sigma is None:
             self._than_phien(
                 ma, f"chưa đủ mẫu ước lượng σ ({bd.so_mau}/"
