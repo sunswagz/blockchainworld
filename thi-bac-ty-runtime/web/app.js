@@ -2494,7 +2494,7 @@
     var tb = el("div", "tab-con");
     tabs.forEach(function (x) { var bt = el("button", BTK_TAB === x[0] ? "chon" : null, x[1]); bt.type = "button"; bt.dataset.btkTab = x[0]; tb.appendChild(bt); });
     f.appendChild(tb);
-    var noi = el("section", "btk-panel tab dau");
+    var noi = el("section", "btk-panel tab tren");
     if (BTK_TAB === "vi-the") noi.appendChild(tab_vi_the(b));
     else if (BTK_TAB === "tin") noi.appendChild(tab_tin(b));
     else if (BTK_TAB === "su-kien") noi.appendChild(tab_su_kien(b));

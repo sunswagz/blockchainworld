@@ -520,4 +520,5 @@ details.chi-tiet > div { margin-top: 8px; }
 .tab-con { margin-bottom: 12px; }
 .btk-panel.tab h4:first-child { margin-top: 0; }
 
-.btk-panel.tab.dau { margin-bottom: 18px; }
+/* KHÔNG dùng tên `dau` — đó là ô logo 40×40 ở header; trùng tên là khối bị bóp thành một ô vuông (đã cắn 05/09). */
+.btk-panel.tab.tren { margin-bottom: 18px; }
