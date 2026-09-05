@@ -89,6 +89,13 @@ TOI_THIEU_DONG_DE_CHAN = 50
 #: Một phần tư.
 NGUONG_DOI_CHIEU_DUOC = 0.25
 
+#: Phí vào lệnh ăn quá ngần này phần THU GỘP thì thành triệu chứng.
+#: Một phần ba — dưới mức ấy còn là chi phí vận hành bình thường.
+NGUONG_PHI_TREN_THU = 0.35
+
+#: Phải có ngần này bút toán PHÍ thì tỉ lệ mới nói được gì. Năm mươi.
+TOI_THIEU_BUT_TOAN_PHI = 50
+
 #: Lệch bao nhiêu bps mỗi giờ thì gọi là hứa quá. Không đặt 0: mọi phép đo
 #: đều có sai số, và một cỗ máy báo bệnh ở lệch 0,001 bps là một cỗ máy
 #: báo bệnh mỗi vòng.
@@ -1050,6 +1057,75 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     # buồng lái, và vòng tiến hoá không biết nó tồn tại — nên vòng ấy chỉ
     # học được về đúng cái ty mà chính nó đã tắt.
     dvt = anh.get("duDoanVaThuc") or {}
+
+    # ── 8z. PHÍ VÀO LỆNH ăn phần lớn THU GỘP của CẢ HỆ ──────────────────
+    #
+    # Khác `phi-vao-an-het` ở HAI chỗ, và cả hai đều quan trọng:
+    #
+    #   · cái kia đo TỪNG TY và đòi ty ấy LỖ GỘP mới nổi. Một hệ mà mọi ty
+    #     đều lãi vẫn có thể đốt phần lớn thu nhập vào phí, và lúc ấy không
+    #     câu nào được nói ra;
+    #   · cái kia đọc `laiLoTachKhoan`; cái này đọc thẳng SỔ CÁI, nên nó là
+    #     con số của cả cỗ máy chứ không phải tổng của mấy con số theo ty.
+    #
+    # Đo làn thật 05/09/2026 (`soCai.theoLoai`):
+    #
+    #     FUNDING  887.506 bút toán   +223,88 USD   ← toàn bộ thu
+    #     PHÍ          457 bút toán   −136,54 USD   ← 61,0% thu gộp
+    #     ròng                          +87,34 USD
+    #
+    # Nguyên nhân đo được nằm ngay cạnh: `lending.rate_rotation` vào 296 ·
+    # đóng 289 (97,6%), và 224 trong 289 lần đóng là do XOAY CHỖ. Ty ấy
+    # lãi +120,61 nên `phi-vao-an-het` không nổ, còn `NGUONG_CHURN` thì
+    # chỉ đổi một chữ trong câu chẩn của bệnh khác — không có triệu chứng
+    # nào của riêng nó.
+    _sc0 = anh.get("soCai") or {}
+    _tl = _sc0.get("theoLoai") or {}
+    _phi = _tl.get("PHI") or {}
+    _fun = _tl.get("FUNDING") or {}
+    try:
+        _soPhi = int(_phi.get("so") or 0)
+        _tienPhi = abs(float(_phi.get("tongUsd") or 0.0))
+        _thu = float(_fun.get("tongUsd") or 0.0)
+    except (TypeError, ValueError):
+        _soPhi = _tienPhi = _thu = 0
+    # Thu ÂM hoặc bằng 0 thì tỉ lệ vô nghĩa — chia cho nó là bịa ra một
+    # phần trăm. Ca ấy thuộc `ty-lo`, không thuộc đây.
+    if _soPhi >= TOI_THIEU_BUT_TOAN_PHI and _thu > 0:
+        _tiPhi = _tienPhi / _thu
+        if _tiPhi >= NGUONG_PHI_TREN_THU:
+            _tk0 = anh.get("laiLoTachKhoan") or {}
+            _xau0 = None
+            for _m, _o in _tk0.items():
+                if not isinstance(_o, dict):
+                    continue
+                _v = int(_o.get("soLanVaoLenh") or 0)
+                _dg = int(_o.get("soLanDong") or 0)
+                _dx = int(_o.get("soLanDongXoayCho") or 0)
+                if _v >= TOI_THIEU_LAN_VAO and (_xau0 is None or _dx > _xau0[3]):
+                    _xau0 = (_m, _v, _dg, _dx)
+            _viX = ""
+            if _xau0 and _xau0[2]:
+                _viX = (f" Nhiều lần đóng nhất là {_xau0[0]}: vào {_xau0[1]} · "
+                        f"đóng {_xau0[2]}, trong đó {_xau0[3]} lần do XOAY CHỖ "
+                        f"— tức phần lớn phí ấy là chi phí VẬN HÀNH, không "
+                        f"phải chi phí của chiến lược.")
+            ra.append(TrieuChungHe(
+                "phi-an-phan-lon-thu", 2,
+                f"phí vào lệnh {_tienPhi:,.2f} USD trên thu gộp "
+                f"{_thu:,.2f} USD — {_tiPhi:.1%}, còn lại ròng "
+                f"{_thu - _tienPhi:+,.2f} USD. Đây là con số của CẢ HỆ đọc "
+                f"thẳng từ sổ cái, nên nó nói được cả khi mọi ty đều đang "
+                f"lãi và `phi-vao-an-het` im." + _viX,
+                {"phiUsd": _tienPhi, "thuGopUsd": _thu, "tiLe": _tiPhi,
+                 "soButToanPhi": _soPhi, "rongUsd": _thu - _tienPhi,
+                 "tyDongNhieuNhat": _xau0[0] if _xau0 else None,
+                 "soLanDongXoayCho": _xau0[3] if _xau0 else None},
+                # Núm RỖNG. Phí cao vì vị thế bị ĐÓNG SỚM, mà chuyện đóng
+                # sớm do xoay chỗ quyết — không trần nào trong bảng núm
+                # chạm tới nó. Khai một núm ở đây là chỉ sang chỗ không
+                # chữa được gì.
+                []))
 
     # ── 8a. KHÔNG ĐỐI CHIẾU ĐƯỢC — vòng phản hồi đói ────────────────────
     #

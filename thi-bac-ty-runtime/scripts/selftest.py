@@ -3628,6 +3628,84 @@ def kiem_chan_doan_he() -> None:
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
 
+    # ── PHÍ ăn phần lớn THU GỘP của cả hệ ───────────────────────────────
+    #
+    # Khác `phi-vao-an-het`: cái kia đo TỪNG TY và đòi ty ấy LỖ GỘP mới
+    # nổi. Một hệ mà mọi ty đều lãi vẫn có thể đốt phần lớn thu nhập vào
+    # phí, và lúc ấy không câu nào được nói ra.
+    #
+    # Đo làn thật 05/09/2026: FUNDING +223,88 · PHÍ −136,54 = 61,0% thu
+    # gộp. `lending.rate_rotation` vào 296 · đóng 289 (97,6%), 224 lần do
+    # XOAY CHỖ — nhưng ty ấy LÃI +120,61 nên `phi-vao-an-het` không nổ, và
+    # `NGUONG_CHURN` thì chỉ đổi một chữ trong câu chẩn của bệnh khác.
+    def _anh_phi(soPhi=457, phi=-136.5427, thu=223.8795):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "soCai": {"theoLoai": {
+                    "PHI": {"so": soPhi, "tongUsd": phi},
+                    "FUNDING": {"so": 887506, "tongUsd": thu}}},
+                "laiLoTachKhoan": {
+                    "lending.rate_rotation.v1": {
+                        "soLanVaoLenh": 296, "soLanDong": 289,
+                        "soLanDongXoayCho": 224},
+                    "amm.fee_farming.v1": {
+                        "soLanVaoLenh": 96, "soLanDong": 37,
+                        "soLanDongXoayCho": 21}}}
+
+    _tP = [t for t in chan_doan_he(_anh_phi())
+           if t.ma == "phi-an-phan-lon-thu"]
+    kiem("phí ăn 61% thu gộp → thành triệu chứng", len(_tP) == 1,
+         str([t.ma for t in chan_doan_he(_anh_phi())]))
+    kiem("và nó tính đúng tỉ lệ lẫn phần ròng",
+         _tP and abs(_tP[0].bangChung["tiLe"] - 0.6099) < 0.001
+         and abs(_tP[0].bangChung["rongUsd"] - 87.3368) < 0.01,
+         str(_tP[0].bangChung) if _tP else "")
+    kiem("gọi tên ty đóng do XOAY CHỖ nhiều nhất",
+         _tP and _tP[0].bangChung["tyDongNhieuNhat"] == "lending.rate_rotation.v1"
+         and _tP[0].bangChung["soLanDongXoayCho"] == 224,
+         "phần lớn phí ấy là chi phí VẬN HÀNH, không phải của chiến lược")
+    kiem("KHÔNG khai núm nào", _tP and _tP[0].nutGoiY == [],
+         "phí cao vì vị thế bị ĐÓNG SỚM, mà không trần nào trong bảng núm "
+         "chạm tới chuyện xoay chỗ")
+
+    # Tách hai thước ra: trong đồ gá trên, lending vừa đóng nhiều nhất VỪA
+    # xoay nhiều nhất, nên «chọn theo số lần đóng» và «chọn theo số lần
+    # xoay» cho cùng đáp án — quét đột biến đổi thước mà không phép kiểm
+    # nào đỏ. Ở đây A đóng nhiều hơn nhưng B xoay nhiều hơn.
+    _anhX = _anh_phi()
+    _anhX["laiLoTachKhoan"] = {
+        "a.dong_nhieu.v1": {"soLanVaoLenh": 300, "soLanDong": 289,
+                            "soLanDongXoayCho": 10},
+        "b.xoay_nhieu.v1": {"soLanVaoLenh": 100, "soLanDong": 50,
+                            "soLanDongXoayCho": 45}}
+    _tX = [t for t in chan_doan_he(_anhX) if t.ma == "phi-an-phan-lon-thu"]
+    kiem("chọn ty theo số lần XOAY CHỖ, không theo số lần ĐÓNG",
+         _tX and _tX[0].bangChung["tyDongNhieuNhat"] == "b.xoay_nhieu.v1",
+         f"{_tX[0].bangChung.get('tyDongNhieuNhat') if _tX else None} — "
+         f"a đóng 289 nhưng chỉ xoay 10; b đóng 50 mà xoay 45, và XOAY mới "
+         f"là thứ biến phí thành chi phí vận hành")
+
+    kiem("ít bút toán phí thì im",
+         "phi-an-phan-lon-thu" not in
+         {t.ma for t in chan_doan_he(_anh_phi(soPhi=10, phi=-9.0, thu=10.0))},
+         "một tỉ lệ dựng trên vài bút toán không nói gì")
+    kiem("tỉ lệ phí THẤP thì im",
+         "phi-an-phan-lon-thu" not in
+         {t.ma for t in chan_doan_he(_anh_phi(phi=-10.0))},
+         "dưới ngưỡng còn là chi phí vận hành bình thường")
+
+    # Thu ÂM thì tỉ lệ vô nghĩa — chia cho nó là bịa ra một phần trăm.
+    kiem("thu gộp ÂM thì im, không bịa ra phần trăm",
+         "phi-an-phan-lon-thu" not in
+         {t.ma for t in chan_doan_he(_anh_phi(thu=-50.0))},
+         "ca ấy thuộc `ty-lo`, không thuộc đây")
+    kiem("thu gộp BẰNG 0 cũng im",
+         "phi-an-phan-lon-thu" not in
+         {t.ma for t in chan_doan_he(_anh_phi(thu=0.0))},
+         "chia cho 0 thì không có tỉ lệ nào cả")
+
     # ── KHÔNG đối chiếu được: vòng phản hồi đói, và nó IM ───────────────
     #
     # `hua-qua-he` bỏ qua im lặng mọi ty dưới 20 lần đối chiếu. Đúng — dưới
