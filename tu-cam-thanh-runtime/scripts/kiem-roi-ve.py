@@ -22,9 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 # chuyện đó đã sập BA lần ở repo này — lần nặng nhất là bộ kiểm cửa duyệt đưa
 # một champion GIẢ lên ngôi trong sổ chiến lược thật.
 import os
-import tempfile
+from _tam_tu_don import tam_moi
 
-os.environ["TCT_DATA_DIR"] = tempfile.mkdtemp(prefix="tct-kiem-")
+os.environ["TCT_DATA_DIR"] = tam_moi("tct-kiem-")
 
 from trader import bus as bus_mod  # noqa: E402
 from trader.config import CONFIG  # noqa: E402

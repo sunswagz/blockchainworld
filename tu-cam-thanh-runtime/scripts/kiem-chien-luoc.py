@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import os
 import sys
-import tempfile
+from _tam_tu_don import tam_moi
 from pathlib import Path
 
 # GHI ĐÈ, không `setdefault`. Đúng cùng một lỗi đã sập hai lần với
@@ -28,7 +28,7 @@ from pathlib import Path
 #
 # Không có lý do nào để bộ kiểm này tôn trọng biến môi trường bên ngoài: nó
 # KHÔNG BAO GIỜ được chạm sổ thật.
-os.environ["TCT_DATA_DIR"] = tempfile.mkdtemp(prefix="tct-cl-")
+os.environ["TCT_DATA_DIR"] = tam_moi("tct-cl-")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from trader import bai_hoc_lich_su as B, chien_luoc as CL, store  # noqa: E402
