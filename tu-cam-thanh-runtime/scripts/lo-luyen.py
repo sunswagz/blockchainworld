@@ -221,14 +221,27 @@ def bien_the(n: int, hat: int) -> list[dict]:
     return ra
 
 
-def chia_lat(tong: int, so: int) -> list[tuple[int, int]]:
-    """Chia dãy nến thành `so` lát LIÊN TIẾP, không chồng nhau.
+def chia_lat(tong: int, so: int, dau: int = 0) -> list[tuple[int, int]]:
+    """Chia [dau, tong) thành `so` lát LIÊN TIẾP, không chồng nhau.
 
     Không xáo trộn: thị trường có trí nhớ, và trộn lát là cho phép một biến thể
     nhìn thấy tương lai của chính đoạn đang chấm nó.
+
+    `dau` là nến ĐẦU TIÊN có tín hiệu, và bỏ qua nó là một lỗi thước im lặng đã
+    làm lệch mọi phép chấm của lò cho tới 05/09/2026. Chuỗi tín hiệu cần ~210
+    nến khởi động chỉ báo, nên cắt từ nến 0 thì lát đầu chỉ nhận được cái đuôi
+    của quãng khởi động: đo trên 15 chợ khung 1d, lát 1 có TRUNG BÌNH 19 điểm
+    chuỗi còn năm lát kia 154 điểm — ít hơn tám lần, và ATOMUSDT có đúng 0.
+
+    Hậu quả không phải sai số nhỏ mà là cổng duyệt sai mục tiêu: "dương ≥4/6
+    lát" hoá ra đòi thắng 4 trong 5 lát thật, còn lát thứ sáu thì đóng góp một
+    con số ồn từ mẫu đói — và nó ồn theo hướng ÂM (−0,49 đến −0,84 với mọi biến
+    thể ở mọi lượt chạy, một hằng số đáng ngờ mà không ai hỏi).
     """
-    b = tong // so
-    return [(i * b, (i + 1) * b if i < so - 1 else tong) for i in range(so)]
+    n = tong - dau
+    b = n // so
+    return [(dau + i * b, dau + (i + 1) * b if i < so - 1 else tong)
+            for i in range(so)]
 
 
 def khoang_tin(o: list[tuple[float, int]]) -> tuple[float, float] | None:
@@ -319,9 +332,15 @@ def main() -> int:
         if len(nc) < 400:
             print(f"    bỏ qua {ten} — chỉ {len(nc)} nến")
             continue
-        so_cho_that += 1
         chuoi = huanluyen.lay_chuoi(nen, sym)[0]
-        lats = chia_lat(len(nc), so_lat)
+        if not chuoi:
+            # Đếm SAU khi biết chợ dùng được: cộng trước rồi `continue` là chợ
+            # bỏ qua vẫn nằm trong "trên N chợ" của mọi dòng kết quả.
+            print(f"    bỏ qua {ten} — không có điểm tín hiệu nào")
+            continue
+        so_cho_that += 1
+        # Cắt lát từ nến ĐẦU TIÊN có tín hiệu, không từ nến 0 — xem `chia_lat`.
+        lats = chia_lat(len(nc), so_lat, min(c["i"] for c in chuoi))
         # flush: stdout đệm khối 8 KB khi chuyển hướng ra file, mà cả bảng tiến
         # độ 33 chợ chỉ ~2 KB — không có nó thì lượt chạy 35 phút không in chữ
         # nào cho tới lúc thoát. Xem chú thích cùng chỗ ở `dau-chien-luoc.py`.
