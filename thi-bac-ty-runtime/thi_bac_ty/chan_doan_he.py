@@ -1072,6 +1072,65 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     # học được về đúng cái ty mà chính nó đã tắt.
     dvt = anh.get("duDoanVaThuc") or {}
 
+    # ── 8w. NGUỒN của một ty đang NGHỈ hoặc CHẾT — im có lý do ──────────
+    #
+    # Một ty đang bị chặn nhịp trông Y HỆT một ty không tìm thấy gì: cả
+    # hai đều khai 0 cơ hội qua cổng. Phân biệt được hai câu ấy là phân
+    # biệt «chợ hôm nay trống» với «ta đang bị khoá cửa».
+    #
+    # Đo làn thật 05/09/2026, ngay sau khi lớp bọc thôi che `tom_tat()`:
+    #
+    #     dex-doi-lifi  so429=1 · soBoQuaViNghi=5 · dangNghi=true
+    #                   conNghiGiay=5.560  («đang NGHỈ vì 429 · còn 5945s»)
+    #
+    # `dex.round_trip` khai `thieu-so` 24/24 suốt quãng ấy, và không ai
+    # đọc ra được vì sao — con số nằm trong `rieng.nguon`, thứ vừa mới
+    # nhìn thấy được từ commit `64263d2d`.
+    _nghi, _chet = [], []
+    for _t in (anh.get("ty") or []):
+        if not isinstance(_t, dict):
+            continue
+        _ng = ((_t.get("rieng") or {}).get("nguon") or {})
+        if not isinstance(_ng, dict):
+            continue
+        _ma = str(_t.get("ma") or "?")
+        if _ng.get("dangNghi"):
+            try:
+                _con = float(_ng.get("conNghiGiay") or 0.0)
+            except (TypeError, ValueError):
+                _con = 0.0
+            _nghi.append((_ma, str(_ng.get("ten") or "?"), _con,
+                          int(_ng.get("so429") or 0)))
+        # `songSot` là False MỚI là chết; thiếu khoá thì nguồn không khai
+        # sức khoẻ, và im ở đây khác hẳn «đã đo và nó chết».
+        elif _ng.get("songSot") is False:
+            _chet.append((_ma, str(_ng.get("ten") or "?"),
+                          str(_ng.get("loiCuoi") or "")[:60]))
+    if _nghi or _chet:
+        _cau = []
+        for _ma, _ten, _con, _s4 in _nghi:
+            _cau.append(f"{_ma} — nguồn `{_ten}` đang NGHỈ, còn "
+                        f"{_con / 60.0:.0f} phút"
+                        + (f" (bị 429 {_s4} lần)" if _s4 else ""))
+        for _ma, _ten, _l in _chet:
+            _cau.append(f"{_ma} — nguồn `{_ten}` KHÔNG SỐNG"
+                        + (f": {_l}" if _l else ""))
+        ra.append(TrieuChungHe(
+            "nguon-ty-dang-nghi", 2,
+            "; ".join(_cau)
+            + ". Ty im vì bị khoá cửa, KHÔNG phải vì chợ trống — hai câu "
+              "ấy trông giống hệt nhau trên phễu (đều là 0 qua cổng ty), "
+              "và chỉ khác nhau ở chỗ một cái sẽ tự hết còn một cái thì "
+              "không. Đừng đọc 0 của những ty này thành «không có cơ hội».",
+            {"soNghi": len(_nghi), "soChet": len(_chet),
+             "nghi": [{"ty": a, "nguon": b, "conNghiGiay": c, "so429": d}
+                      for a, b, c, d in _nghi],
+             "chet": [{"ty": a, "nguon": b, "loiCuoi": c}
+                      for a, b, c in _chet]},
+            # Núm RỖNG: hạn mức của bên kia không phải một cái trần ta vặn
+            # được, và nghỉ là cách ĐÚNG để xử nó.
+            []))
+
     # ── 8x. GHẾ TRỐNG mà không ai ngồi vào — lời hứa không được giữ ─────
     #
     # `trung_uong` ĐÃ đếm chuyện này (`_vongGheTrongKhongLap`), ĐÃ đưa ra

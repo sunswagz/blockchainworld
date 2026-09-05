@@ -3669,6 +3669,61 @@ def kiem_chan_doan_he() -> None:
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
 
+    # ── NGUỒN của một ty đang NGHỈ hoặc CHẾT ────────────────────────────
+    #
+    # Một ty bị chặn nhịp trông Y HỆT một ty không tìm thấy gì — cả hai
+    # đều 0 qua cổng. Đo làn thật 05/09/2026: `dex-doi-lifi` dangNghi vì
+    # 429, còn 5.560 giây, và `dex.round_trip` khai `thieu-so` 24/24 suốt
+    # quãng ấy mà không ai đọc ra vì sao.
+    def _anh_ng(*ty):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "ty": list(ty)}
+
+    _NGHI = {"ma": "dex.round_trip.v1", "soCoHoi": 24, "soQuaCongTy": 0,
+             "rieng": {"nguon": {"ten": "dex-doi-lifi", "dangNghi": True,
+                                 "conNghiGiay": 5560.8, "so429": 1}}}
+    _LANH = {"ma": "amm.fee_farming.v1", "soCoHoi": 9725, "soQuaCongTy": 0,
+             "rieng": {"nguon": {"ten": "defillama-pool-lp", "soLoi": 0,
+                                 "songSot": True}}}
+    _tN = [t for t in chan_doan_he(_anh_ng(_NGHI, _LANH))
+           if t.ma == "nguon-ty-dang-nghi"]
+    kiem("nguồn đang NGHỈ → thành triệu chứng", len(_tN) == 1,
+         str([t.ma for t in chan_doan_he(_anh_ng(_NGHI, _LANH))]))
+    kiem("gọi tên ĐÚNG ty và ĐÚNG nguồn, kèm còn bao lâu",
+         _tN and "dex.round_trip.v1" in _tN[0].moTa
+         and "dex-doi-lifi" in _tN[0].moTa and "93 phút" in _tN[0].moTa,
+         _tN[0].moTa[:120] if _tN else "")
+    kiem("và KHÔNG lôi ty đang lành vào",
+         _tN and "amm.fee_farming" not in _tN[0].moTa,
+         "amm 0 qua cổng vì CHỢ, không vì bị khoá cửa — trộn hai chuyện "
+         "ấy là xoá đúng cái phân biệt mà bệnh này sinh ra để giữ")
+    kiem("KHÔNG khai núm nào", _tN and _tN[0].nutGoiY == [],
+         "hạn mức của bên kia không phải cái trần ta vặn được")
+    kiem("mọi ty lành thì im",
+         "nguon-ty-dang-nghi" not in {t.ma for t in chan_doan_he(_anh_ng(_LANH))})
+
+    # `songSot` THIẾU khác hẳn `songSot=False`: thiếu là nguồn không khai
+    # sức khoẻ, không phải «đã đo và nó chết».
+    _CHET = {"ma": "x.y.v1", "rieng": {"nguon": {"ten": "n", "songSot": False,
+                                                 "loiCuoi": "timeout"}}}
+    _KHONGKHAI = {"ma": "z.z.v1", "rieng": {"nguon": {"ten": "n"}}}
+    _tC = [t for t in chan_doan_he(_anh_ng(_CHET))
+           if t.ma == "nguon-ty-dang-nghi"]
+    kiem("nguồn khai KHÔNG SỐNG thì cũng kêu",
+         _tC and _tC[0].bangChung["soChet"] == 1
+         and "timeout" in _tC[0].moTa, str(_tC[0].bangChung) if _tC else "")
+    kiem("nguồn KHÔNG KHAI sức khoẻ thì im — thiếu khác với chết",
+         "nguon-ty-dang-nghi" not in
+         {t.ma for t in chan_doan_he(_anh_ng(_KHONGKHAI))},
+         "đọc «chưa khai» thành «đã chết» là bịa ra một chẩn đoán")
+    # Ty không có khoá `rieng` (không ghi đè `tom_tat`) cũng phải im.
+    kiem("ty không có `rieng` thì im",
+         "nguon-ty-dang-nghi" not in
+         {t.ma for t in chan_doan_he(_anh_ng({"ma": "a.b.v1"}))})
+
     # ── GHẾ TRỐNG mà không ai ngồi vào ──────────────────────────────────
     #
     # `trung_uong` đã đếm, đã đưa ra ảnh chụp, buồng lái đã tô đỏ từ mức 3
