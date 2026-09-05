@@ -8380,6 +8380,9 @@ def kiem_duong_quyet_dinh() -> None:
         rt.batTat = None
         rt.lanNga = {}
         rt._phutNen = {}
+        rt.cuaDaChan = {}
+        rt.soTuChoiRuiRo = 0
+        rt.lyDoChanGanDay = []
 
         tt = {"ma": "BTC_5M", "nen": "BTCUSDT", "dongCo": "updown-crypto"}
         ghi: list = []
@@ -10849,6 +10852,62 @@ def kiem_ngat_theo_loai() -> None:
 
 
 
+def kiem_lan_that_dem_ly_do_chan() -> None:
+    """Làn THẬT phải đếm lý do từ chối, như lượt chạy lại vẫn làm.
+
+    Lượt chạy lại đếm `cuaDaChan` theo MÃ CỬA từ lâu, và đó là thứ duy
+    nhất trả lời được câu "vì sao máy không vào lệnh". Làn thật thì vứt
+    phán quyết đi: nhét cơ hội vào `coHoi` rồi đặt-hoặc-không.
+
+    Đo 05/09/2026: sau khi gỡ cầu dao, làn thật đặt 15 lệnh trong 7
+    phút rồi ĐỨNG YÊN 44 phút, trong khi buồng lái vẫn hiện 3–17 cơ hội
+    mỗi nhịp. Không có cách nào biết cửa nào chặn — phải đọc mã rồi
+    đoán. Một cỗ máy bị một cửa chặn trông y hệt một cỗ máy không thấy
+    cơ hội, mà hai ca ấy cần hai cách chữa khác hẳn.
+
+    Đếm theo MÃ chứ không theo câu chữ: câu chữ mang số tiền nên mỗi
+    lần một khác, và một cửa chặn 500 lần trông như 500 lý do riêng lẻ.
+    """
+    goc = Path(__file__).resolve().parent.parent
+    vb = (goc / "kham" / "vong.py").read_text(encoding="utf-8")
+
+    print()
+    print("-- Lan that dem ly do chan ---------------------------------")
+
+    kiem("`Runtime` có bộ đếm theo MÃ CỬA", "self.cuaDaChan" in vb)
+    kiem("và bộ đếm tổng", "self.soTuChoiRuiRo" in vb)
+    kiem("và vài lý do gần đây kèm câu chữ", "self.lyDoChanGanDay" in vb)
+
+    # phải đếm NGAY chỗ duyệt, không phải chỗ khác
+    i = vb.index("pq = self.risk.duyet(")
+    j = vb.index("# 9. băng ghi", i)
+    khoi = vb[i:j]
+    kiem("đếm NGAY trong vòng duyệt cơ hội",
+         "self.cuaDaChan[" in khoi and "self.soTuChoiRuiRo += 1" in khoi,
+         khoi[:200])
+    kiem("dùng `pq.ma` chứ không dùng câu chữ làm khoá",
+         "pq.ma or" in khoi, khoi[:200])
+    kiem("lệnh ĐẶT ĐƯỢC thì KHÔNG bị đếm là chặn",
+         khoi.index("self.cong.dat(") < khoi.index("self.soTuChoiRuiRo"),
+         khoi[:240])
+
+    # phải TỚI ĐƯỢC buồng lái
+    k = vb.index("def anh_chup")
+    kiem("`anh_chup` mang theo `chanRuiRo`", '"chanRuiRo"' in vb[k:])
+    for x in ("soTuChoi", "cuaDaChan", "lyDoGanDay"):
+        kiem(f"…kèm `{x}`", f'"{x}"' in vb[k:])
+
+    # danh sách lý do phải CÓ TRẦN, nếu không nó lớn mãi
+    kiem("danh sách lý do gần đây bị CẮT, không lớn mãi",
+         "del self.lyDoChanGanDay[:-" in vb)
+
+    # và mã cửa phải là mã ĐÃ KHAI trong `rui_ro.CUA_RUI_RO`
+    from kham.rui_ro import CUA_RUI_RO
+    kiem("bảng mã cửa vẫn còn và không rỗng", len(CUA_RUI_RO) >= 10,
+         len(CUA_RUI_RO))
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -13092,6 +13151,7 @@ def main() -> int:
     kiem_sigma_pha()
     kiem_thu_tu_cong_quet_dot_bien()
     kiem_ngat_theo_loai()
+    kiem_lan_that_dem_ly_do_chan()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()

@@ -26,7 +26,7 @@ Xem cung tĩnh (từ gốc repo): `node server.js 5185`
 | `python run.py` | buồng lái + vòng lặp, chế độ theo `config.json` |
 | `python run.py --che=quan-sat` | chỉ đo, không mở vị thế nào kể cả trên sổ giấy |
 | `python -m kham.snapshot` | ghi một lát cắt ra cung tĩnh rồi thoát |
-| `python scripts/selftest.py` | 1.930 phép kiểm số học, không cần mạng |
+| `python scripts/selftest.py` | 1.942 phép kiểm số học, không cần mạng |
 | `node scripts/kiem-giao-dien.mjs` | 10 phép kiểm giao diện: tương phản, z-index, ô trống |
 | `python scripts/dung-ket-qua.py` | dựng lại KẾT QUẢ cho băng đã ghi — chỉ cần Binance |
 | `python scripts/thu-nan-lai.py` | A/B phép nắn trên băng thật: thô so với đã nắn |

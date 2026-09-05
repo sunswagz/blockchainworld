@@ -110,6 +110,26 @@ class Runtime:
         #: mã -> mốc PHÚT đã nạp nến thật. Không có nó thì vòng chạy
         #: hỏi Binance mỗi ~2 giây thay vì mỗi phút.
         self._phutNen: dict[str, int] = {}
+        #: MÃ CỬA -> số lần chặn, cộng dồn từ lúc khởi động.
+        #:
+        #: Lượt chạy lại đã đếm cái này từ lâu (`PhienPhatLai.cuaDaChan`)
+        #: và nó là thứ duy nhất trả lời được câu "vì sao máy không vào
+        #: lệnh". Làn THẬT thì vứt phán quyết đi: nó chỉ nhét cơ hội vào
+        #: `coHoi` rồi đặt-hoặc-không.
+        #:
+        #: Đo 05/09/2026: sau khi gỡ cầu dao, làn thật đặt 15 lệnh trong
+        #: 7 phút rồi ĐỨNG YÊN 44 phút, trong khi buồng lái vẫn hiện
+        #: 3–17 cơ hội mỗi nhịp. Không có cách nào biết cửa nào chặn —
+        #: phải đọc mã nguồn rồi đoán.
+        #:
+        #: Đếm theo MÃ chứ không theo câu chữ: câu chữ mang số tiền nên
+        #: mỗi lần một khác, và một cửa chặn 500 lần trông như 500 lý do
+        #: riêng lẻ. Mã thì cộng được, và quan trọng hơn — nó cho biết
+        #: cửa nào KHÔNG chặn lần nào.
+        self.cuaDaChan: dict[str, int] = {}
+        self.soTuChoiRuiRo = 0
+        #: Vài lý do GẦN NHẤT kèm câu chữ, để đọc được con số cụ thể.
+        self.lyDoChanGanDay: list[str] = []
         self.khungHienTai: dict[str, Khung] = {}
         # Khung ĐANG ăn thua [T, T+300]. Chỉ để ghi băng —
         # chưa ai đo được có tiền trong cửa ấy không.
@@ -967,6 +987,14 @@ class Runtime:
             self.coHoi.append(ch)
             if pq.cho and pq.soCoChoPhep >= 1:
                 self.cong.dat(ch, pq.soCoChoPhep, su if ch.ben == "UP" else sd)
+                continue
+            # BỊ CHẶN — ghi lại, đừng vứt đi.
+            self.soTuChoiRuiRo += 1
+            ma_cua = pq.ma or "khong-ro"
+            self.cuaDaChan[ma_cua] = self.cuaDaChan.get(ma_cua, 0) + 1
+            if pq.lyDo:
+                self.lyDoChanGanDay.append(f"{ch.ma} {ch.ben}: {pq.lyDo[0]}")
+                del self.lyDoChanGanDay[:-12]
 
         # 9. băng ghi — đủ để CHẠY LẠI, không chỉ để nhìn
         ghi.append({
@@ -1113,6 +1141,15 @@ class Runtime:
                  "dangLam": c.dang_lam, "ghiChu": c.ghiChu}
                 for c in self.coHoi[:40]],
             "boQua": dict(self.boQua),
+            # VÌ SAO KHÔNG VÀO LỆNH. Không có mục này thì một cỗ
+            # máy bị một cửa chặn trông y hệt một cỗ máy không
+            # thấy cơ hội — và hai ca ấy cần hai cách chữa khác
+            # hẳn nhau.
+            "chanRuiRo": {
+                "soTuChoi": self.soTuChoiRuiRo,
+                "cuaDaChan": dict(self.cuaDaChan),
+                "lyDoGanDay": list(self.lyDoChanGanDay),
+            },
             # Thống kê GHI và báo cáo ĐỌC là hai chuyện. Bản trước chỉ hiện
             # cái đầu, nên hai file băng hỏng nằm trên đĩa suốt mà buồng lái
             # vẫn xanh — `BaoCaoDoc` được tính rất kỹ rồi vứt đi.
