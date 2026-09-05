@@ -2487,6 +2487,21 @@
     dau.appendChild(t2);
     f.appendChild(dau);
 
+    /* ── TAB: vị thế và kết nối ĐỨNG ĐẦU theo yêu cầu chủ — tiền của mình
+       trước, rồi mới tới thế giới ───────────────────────────────────────────────────────── */
+    var tabs = [["vi-the", "Vị thế" + (vl.soViThe ? " · " + vl.soViThe : "")], ["ket-noi", "Kết nối & dữ liệu"],
+                ["tin", "Tin tức"], ["su-kien", "Sự kiện"], ["hoc", "Học & tiến hoá"]];
+    var tb = el("div", "tab-con");
+    tabs.forEach(function (x) { var bt = el("button", BTK_TAB === x[0] ? "chon" : null, x[1]); bt.type = "button"; bt.dataset.btkTab = x[0]; tb.appendChild(bt); });
+    f.appendChild(tb);
+    var noi = el("section", "btk-panel tab dau");
+    if (BTK_TAB === "vi-the") noi.appendChild(tab_vi_the(b));
+    else if (BTK_TAB === "tin") noi.appendChild(tab_tin(b));
+    else if (BTK_TAB === "su-kien") noi.appendChild(tab_su_kien(b));
+    else if (BTK_TAB === "hoc") noi.appendChild(tab_hoc(b));
+    else noi.appendChild(tab_ket_noi(b));
+    f.appendChild(noi);
+
     /* ── chỉ số điều hành: một hàng ────────────────────────────────── */
     var hang = el("div", "btk-metrics");
     function met(ten, gt, lop, duoi) {
@@ -2687,19 +2702,6 @@
     }
     f.appendChild(kR);
 
-    /* ── TAB ───────────────────────────────────────────────────────── */
-    var tabs = [["vi-the", "Vị thế" + (vl.soViThe ? " · " + vl.soViThe : "")], ["tin", "Tin tức"], ["su-kien", "Sự kiện"],
-                ["hoc", "Học & tiến hoá"], ["ket-noi", "Kết nối & dữ liệu"]];
-    var tb = el("div", "tab-con");
-    tabs.forEach(function (x) { var bt = el("button", BTK_TAB === x[0] ? "chon" : null, x[1]); bt.type = "button"; bt.dataset.btkTab = x[0]; tb.appendChild(bt); });
-    f.appendChild(tb);
-    var noi = el("section", "btk-panel tab");
-    if (BTK_TAB === "vi-the") noi.appendChild(tab_vi_the(b));
-    else if (BTK_TAB === "tin") noi.appendChild(tab_tin(b));
-    else if (BTK_TAB === "su-kien") noi.appendChild(tab_su_kien(b));
-    else if (BTK_TAB === "hoc") noi.appendChild(tab_hoc(b));
-    else noi.appendChild(tab_ket_noi(b));
-    f.appendChild(noi);
     return f;
   }
 
