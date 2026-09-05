@@ -91,12 +91,12 @@ CONFIG = {
         "nguon": "ảnh chụp OKX DeFi 04/09/2026",
     },
     "ketQuaKinhDoanh": {},
-    #: Ký hiệu Stooq của cổ phiếu gốc. `None` = không có sàn gốc công khai
+    #: Ký hiệu Yahoo của cổ phiếu gốc. `None` = không có sàn gốc công khai
     #: (SpaceX chưa niêm yết) → σ chỉ tích được từ băng giá chuỗi.
     "coPhieuGoc": {
-        "SPCXx": None, "NVDAx": "nvda.us", "SPYx": "spy.us",
-        "ICEx": "ice.us", "MRNAx": "mrna.us", "SMCIx": "smci.us",
-        "RDDTx": "rddt.us", "IRENx": "iren.us", "CRWVx": "crwv.us",
+        "SPCXx": None, "NVDAx": "NVDA", "SPYx": "SPY",
+        "ICEx": "ICE", "MRNAx": "MRNA", "SMCIx": "SMCI",
+        "RDDTx": "RDDT", "IRENx": "IREN", "CRWVx": "CRWV",
     },
     "pool": [
         # kyHieu · phí bps · TVL · APY hiển thị · khối lượng ngày (None = chưa

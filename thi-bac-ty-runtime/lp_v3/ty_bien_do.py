@@ -35,7 +35,7 @@ from .mo_hinh import (GIO_NAM, NGAY_GIAO_DICH_NAM, KetQuaDai,
                       apr_phi_tu_khoi_luong, can_dai, dai_doi_xung,
                       dai_theo_tick, hieu_suat_von, phan_chia_thanh_khoan,
                       rong_theo_sigma, thanh_khoan_tu_do_la)
-from .nguon import NguonRpcPool, NguonRss, NguonStooq
+from .nguon import UA_TRINH_DUYET, NguonGiaGoc, NguonRpcPool, NguonRss
 from .quyet_dinh import CHO, GIU, VAO, BoiCanh, QuyetDinh, quyet
 from .tin_tuc import SoTin
 from .theo_doi import SoViThe
@@ -63,6 +63,7 @@ NHAN = {
 }
 
 NHIP_GIA_GOC_GIAY = 6 * 3600.0
+NHIP_GIA_GOC_TRONG_PHIEN_GIAY = 300.0
 NHIP_TIN_GIAY = 3600.0
 
 
@@ -364,7 +365,7 @@ class TyBienDo(Ty):
         self.thuMucBang = thuMucBang
         self.khongMang = khongMang
         self._cf = client_factory
-        self.nguonGoc = NguonStooq()
+        self.nguonGoc = NguonGiaGoc()
         self.nguonRpc = NguonRpcPool(self.cfg.get("rpc") or [])
         self.nguonTin = NguonRss()
         self.soViThe = SoViThe()
@@ -402,27 +403,36 @@ class TyBienDo(Ty):
         import httpx
         lam = self._cf or (lambda: httpx.AsyncClient(
             timeout=float(self.cfg.get("hetGioHoiGiay") or 20.0),
-            headers={"User-Agent": "thi-bac-ty/lp-v3 (+public data only)"}))
+            headers={"User-Agent": UA_TRINH_DUYET}))
         goc = self.cfg.get("coPhieuGoc") or {}
         now = dt.datetime.now(dt.timezone.utc)
+        # Trong phiên Mỹ giá đổi theo phút → hỏi mỗi 5 phút để có giá tức
+        # thời; ngoài phiên chỉ có giá đóng cửa → 6 giờ là thừa.
+        nhipGoc = (NHIP_GIA_GOC_TRONG_PHIEN_GIAY
+                   if lich.boi_canh(now).trangThai == lich.MO_CUA
+                   else NHIP_GIA_GOC_GIAY)
         async with lam() as c:
             for pool in self.cfg.get("pool") or []:
                 ma = cfgmod.ma_goc(pool["kyHieu"])
                 ky = goc.get(ma)
-                if ky and self._den_han(f"goc:{ma}", NHIP_GIA_GOC_GIAY):
+                if ky and self._den_han(f"goc:{ma}", nhipGoc):
                     ds = await self.nguonGoc.doc(c, ky)
                     if ds:
                         bang_gia.ghi_goc(ma, ds, self.thuMucBang)
+                        tuc = self.nguonGoc.tucThoi.get(ky)
+                        if tuc is not None:
+                            bang_gia.ghi_goc_tuc_thoi(ma, tuc[0], tuc[1], self.thuMucBang)
                         self.lanMoi[f"goc:{ma}"] = time.time()
                 if pool.get("diaChi"):
                     ds = await self.nguonRpc.doc(c, pool["diaChi"], ma)
                     if ds:
+                        self.lanMoi[f"rpc:{ma}"] = time.time()
                         self.poolRpc[pool["kyHieu"]] = ds[0]
                         if ds[0].get("gia"):
                             bang_gia.ghi_chuoi(ma, now, ds[0]["gia"], "rpc",
                                                self.thuMucBang)
                 if ky and self._den_han(f"tin:{ma}", NHIP_TIN_GIAY):
-                    tk = ky.split(".")[0].upper()
+                    tk = ky.upper()
                     for mau in (self.cfg.get("tin") or {}).get("rss") or []:
                         ds = await self.nguonTin.doc(c, mau.format(ma=tk), ma)
                         if ds:
@@ -468,7 +478,7 @@ class TyBienDo(Ty):
             gi["giaGoc"] = d["goc"][-1]["dong"] if d["goc"] else None
             gi["giaChuoi"] = d["chuoi"][-1]["gia"] if d["chuoi"] else None
             ky = (self.cfg.get("coPhieuGoc") or {}).get(ma)
-            tk = ky.split(".")[0].upper() if ky else ma.upper()
+            tk = ky.upper() if ky else ma.upper()
             ra.append(can_pool(pool, self.cfg, bc, si, gi, self.soViThe,
                                self.poolRpc.get(pool["kyHieu"]),
                                bang_gia.bien_dong_lien_quan(ma, self.thuMucBang),
@@ -593,8 +603,8 @@ def _tin_cay(co: CoHoiV3) -> float:
         d -= 0.15
     if co.sigma.get("nguon") == "chuoi":
         d -= 0.10
-    if co.gia.get("nguon") == "goc":
-        d -= 0.10      # giá đóng cửa, không phải giá pool
+    if co.gia.get("nguon") in ("goc", "goc-tuc-thoi"):
+        d -= 0.10      # giá sàn gốc, không phải giá pool
     return max(0.0, min(1.0, d))
 
 

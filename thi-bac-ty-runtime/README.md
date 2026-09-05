@@ -635,7 +635,7 @@ Bảy ty còn lại đều phải giả định một thứ sẽ giữ nguyên.
 `lp_amm/` đứng trên câu *«tổn thất vô thường không đo được từ một ảnh
 chụp»* và từ chối mọi cặp biến động. Câu ấy đúng. `lp_v3/` đứng trên câu
 tiếp theo: có σ thì IL, LVR và xác suất văng dải đều là PHÉP TÍNH — và
-mọi việc của nó là lấy cho được σ (băng giá gốc từ Stooq, băng giá chuỗi
+mọi việc của nó là lấy cho được σ (băng giá gốc từ Yahoo, băng giá chuỗi
 từ RPC X Layer) rồi đưa vào `mo_hinh.py`. **Không có σ thì nó nói KHÔNG,
 y như ty kia.** Hai ty, hai câu, không cãi nhau.
 
@@ -700,10 +700,12 @@ buồng lái); máy theo dõi trong/ngoài dải, IL, và khuyên. Cùng ngày, 
 lối POST của buồng lái này được đặt sau cửa Origin (`_chan_origin_la`) —
 lỗ hổng CLAUDE.md đã nêu ở mục «MỌI BUỒNG LÁI LOCALHOST».
 
-Ba nguồn (Stooq · RPC X Layer · RSS) **chưa được thử SỐNG** từ nơi viết
-mã (sandbox chặn mọi đường ra); giải mã của chúng có phép kiểm trên mẫu
-cố định. Lượt chạy đầu ở máy thật là lượt đo, không phải lượt tin —
-báo cáo có mục «NGUỒN ĐANG MÙ» ở đầu để nói đúng con mắt nào chưa mở.
+Ba nguồn (Yahoo chart · RPC X Layer · RSS) đã thử SỐNG từ máy vận hành
+05/09/2026. Nguồn đầu tiên là Stooq và nó chết ngay lượt thử ấy (trang chắn
+JavaScript, CSV rỗng 8/8) — đúng lý do báo cáo có mục «NGUỒN ĐANG MÙ» ở đầu
+để nói con mắt nào chưa mở. Yahoo cho thêm giá ĐANG giao dịch
+(`goc-tuc-thoi`), nên trong phiên dải đặt quanh giá tuổi vài phút, không
+phải giá đóng cửa hôm qua.
 
 ### Ty lãi suất là ty đầu tiên dùng `khoaVonDenGiay` với số THẬT
 
@@ -1736,7 +1738,7 @@ lp_v3/            TY THỨ MƯỜI — bể thanh khoản V3, cặp BIẾN ĐỘ
   mo_hinh.py      toán V3 · IL · LVR · xác suất văng dải (cận trên, có trôi)
   lich.py         phiên Mỹ theo giờ VN · ngày nghỉ · FOMC · thưởng
   quyet_dinh.py   sổ luật «lúc nào làm gì» — luật chặn thắng luật mở
-  bang_gia.py     băng giá tự tích: gốc (Stooq) + chuỗi (RPC)
+  bang_gia.py     băng giá tự tích: gốc (Yahoo, kèm giá tức thời) + chuỗi (RPC)
   theo_doi.py     vị thế NGƯỜI giữ ở OKX — máy theo dõi, không đặt lệnh
   kinh_nghiem.py  quyết định → kết cục → bài học (cầu tuyết)
   tien_hoa.py     một núm, chạy lại băng, A/B ghép cửa sổ, cổng nhiễu

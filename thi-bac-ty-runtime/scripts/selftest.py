@@ -11387,7 +11387,7 @@ def kiem_lp_v3() -> None:
 
     from lp_v3 import bang_gia, config as _cf, lich, mo_hinh as mh
     from lp_v3 import kinh_nghiem as kn, tien_hoa as th, quyet_dinh as qd
-    from lp_v3.nguon import (doc_csv_stooq, doc_rss, gia_tu_sqrt,
+    from lp_v3.nguon import (doc_rss, doc_yahoo_chart, gia_tu_sqrt,
                              giai_ma_chuoi, giai_ma_int24, giai_ma_uint)
     from lp_v3.ty_bien_do import TyBienDo, apr_cua_pool, xuat_to_trinh
     from lp_v3.theo_doi import SoViThe, ket_cuc
@@ -11531,9 +11531,18 @@ def kiem_lp_v3() -> None:
          and _cf.nap(tam / "ch.json")["nut"]["giuGio"] == _cf.CONFIG["nut"]["giuGio"])
 
     # ── nguồn: giải mã KHÔNG mạng ───────────────────────────────────────
-    kiem("CSV Stooq: bỏ tiêu đề, bỏ dòng hỏng, giữ (ngày, đóng)",
-         doc_csv_stooq("Date,Open,High,Low,Close,Volume\n2026-09-01,1,2,0.5,100,10\nbad\n"
-                       "2026-09-02,1,2,0.5,102,10\n") == [("2026-09-01", 100.0), ("2026-09-02", 102.0)])
+    _yj = {"chart": {"result": [{"meta": {"gmtoffset": -14400, "regularMarketPrice": 183.2,
+                                          "regularMarketTime": 1788552000},
+                                 "timestamp": [1788442200, 1788528600, 1788615000],
+                                 "indicators": {"quote": [{"close": [100.0, None, 102.0]}]}}]}}
+    _yd, _yt = doc_yahoo_chart(_yj)
+    kiem("Yahoo chart: ngày theo giờ SÀN, bỏ ngày thiếu giá, kèm giá tức thời",
+         _yd == [("2026-09-03", 100.0), ("2026-09-05", 102.0)]
+         and _yt is not None and gan(_yt[1], 183.2)
+         and _yt[0].isoformat() == "2026-09-04T20:00:00+00:00", str((_yd, _yt)))
+    kiem("Yahoo chart hỏng khuôn → rỗng, không ném",
+         doc_yahoo_chart({"chart": {"result": []}}) == ([], None)
+         and doc_yahoo_chart({}) == ([], None))
     kiem("ABI: uint và int24 âm", giai_ma_uint("0x" + "1".zfill(64)) == 1
          and giai_ma_int24("0x" + "f" * 64, 0) == -1)
     kiem("ABI string", giai_ma_chuoi("0x" + "20".zfill(64) + "5".zfill(64) + "4e56444178".ljust(64, "0")) == "NVDAx")
@@ -11559,6 +11568,10 @@ def kiem_lp_v3() -> None:
     bang_gia.ghi_chuoi("SPCXx", luc, 50.0, "rpc", bg)
     g = bang_gia.gia_moi_nhat("SPCXx", bg, luc + _dt.timedelta(hours=2))
     kiem("giá mới nhất: nguồn chuỗi, tuổi đúng 2 giờ", g["nguon"] == "chuoi" and gan(g["tuoiGiay"], 7200.0))
+    bang_gia.ghi_goc_tuc_thoi("SPCXx", luc + _dt.timedelta(hours=1), 51.0, bg)
+    g2 = bang_gia.gia_moi_nhat("SPCXx", bg, luc + _dt.timedelta(hours=2))
+    kiem("giá tức thời sàn gốc MỚI HƠN thì thắng, nguồn khai `goc-tuc-thoi`",
+         g2["nguon"] == "goc-tuc-thoi" and g2["gia"] == 51.0 and gan(g2["tuoiGiay"], 3600.0))
     bd = bang_gia.bien_dong_lien_quan("NVDAx", bg)
     kiem("biến động liên quan: có đổi 1/5 ngày và trạng thái nở/co",
          "doi1NgayPct" in bd and bd.get("trangThai") in ("NO", "CO", "ON"))

@@ -2,8 +2,9 @@
 
 Hai lớp giá cho mỗi mã, ghi ở `data/lp-v3/bang/<mã>.json`:
 
-    goc     giá đóng cửa hằng ngày của cổ phiếu GỐC (Stooq) — σ đáng tin
-            nhất, nhưng chỉ có với mã có sàn gốc công khai
+    goc     giá đóng cửa hằng ngày của cổ phiếu GỐC (Yahoo) — σ đáng tin
+            nhất, nhưng chỉ có với mã có sàn gốc công khai; kèm MỘT điểm
+            `gocTucThoi` là giá đang giao dịch, tuổi tính bằng phút
     chuoi   giá pool trên chuỗi, lấy mẫu mỗi lượt quét (RPC) — thứ duy nhất
             có với SPCXx, và thứ duy nhất nói được giá NGOÀI GIỜ trôi ra sao
 
@@ -80,6 +81,19 @@ def ghi_chuoi(ma: str, luc: dt.datetime, gia: float, nguon: str = "rpc",
         timespec="seconds").replace("+00:00", "Z"), "gia": float(gia),
         "nguon": nguon})
     d["chuoi"] = d["chuoi"][-GIU_MAU_CHUOI:]
+    _ghi(d, thuMuc)
+
+
+def ghi_goc_tuc_thoi(ma: str, luc: dt.datetime, gia: float,
+                     thuMuc: Path | None = None) -> None:
+    """Giá ĐANG giao dịch của sàn gốc (Yahoo `regularMarketPrice`) — một
+    điểm duy nhất, ghi đè: nó là «giá bây giờ», không phải lịch sử. Lịch
+    sử vẫn là lớp `goc` (đóng cửa) và `chuoi` (mẫu pool)."""
+    if gia is None or not (float(gia) > 0):
+        return
+    d = nap(ma, thuMuc)
+    d["gocTucThoi"] = {"luc": luc.astimezone(dt.timezone.utc).isoformat(
+        timespec="seconds").replace("+00:00", "Z"), "gia": float(gia)}
     _ghi(d, thuMuc)
 
 
@@ -162,6 +176,13 @@ def gia_moi_nhat(ma: str, thuMuc: Path | None = None,
             t = dt.datetime.fromisoformat(x["ngay"]).replace(
                 hour=21, tzinfo=dt.timezone.utc)
             ung.append((t, x["dong"], "goc"))
+        except ValueError:
+            pass
+    if d.get("gocTucThoi"):
+        x = d["gocTucThoi"]
+        try:
+            t = dt.datetime.fromisoformat(x["luc"].replace("Z", "+00:00"))
+            ung.append((t, x["gia"], "goc-tuc-thoi"))
         except ValueError:
             pass
     if not ung:

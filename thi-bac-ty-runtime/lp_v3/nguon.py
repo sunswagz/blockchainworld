@@ -1,6 +1,6 @@
 """Ba nguồn CÔNG KHAI, không khoá — và mỗi nguồn để lại dấu khi hỏng.
 
-    NguonStooq    giá đóng cửa hằng ngày cổ phiếu gốc (CSV, không khoá)
+    NguonGiaGoc   giá đóng cửa hằng ngày + giá đang giao dịch (Yahoo chart)
     NguonRpcPool  slot0 · liquidity · fee · decimals · symbol của pool V3
                   qua JSON-RPC thô — không web3, không ABI ngoài, năm
                   selector viết tay
@@ -10,10 +10,10 @@ Không nguồn nào được ném: hỏng thì `suc_khoe.ghi_loi` và trả rỗ
 quét vẫn đi tiếp trên những gì còn đọc được, và buồng lái hiện đúng con mắt
 nào đang mù.
 
-Chưa nguồn nào trong ba được thử SỐNG từ nơi viết file này (sandbox chặn
-mọi đường ra). Hình dạng đầu vào — cột CSV Stooq, mã hoá ABI của slot0,
-thẻ `item` RSS — đều là chuẩn công khai và có phép kiểm trên mẫu cố định;
-nhưng lượt chạy đầu ở máy thật là lượt đo, không phải lượt tin.
+Cả ba đã thử SỐNG từ máy vận hành ngày 05/09/2026: Yahoo chart 200/JSON,
+RSS 200/XML, RPC X Layer trả số khối. Stooq (nguồn đầu) chết ở lượt thử
+ấy — trang chắn JavaScript — và bị thay. Hình dạng đầu vào có phép kiểm
+trên mẫu cố định; sức khoẻ sống đọc ở `suc_khoe` từng nguồn.
 """
 from __future__ import annotations
 
@@ -23,47 +23,80 @@ import xml.etree.ElementTree as ET
 
 from thi_bac_ty.nguon import Nguon, so_hoac_none
 
-# ── Stooq ────────────────────────────────────────────────────────────────
+# ── Yahoo chart: giá đóng cửa hằng ngày + giá ĐANG giao dịch ───────────
+#
+# Stooq từng là nguồn đầu tiên; thử SỐNG ngày 05/09/2026 thì nó trả một
+# trang «This site requires JavaScript to verify your browser» — CSV rỗng
+# 8/8 lượt. Yahoo chart trả JSON không cần khoá, và cho thêm một thứ Stooq
+# không có: `regularMarketPrice` + `regularMarketTime` — giá của phiên ĐANG
+# diễn ra, tuổi tính bằng phút. Không có nó thì trong phiên ty chỉ có giá
+# đóng cửa hôm qua, và mọi dải đều đặt quanh một con số đã cũ nửa ngày.
 
-STOOQ = "https://stooq.com/q/d/l/?s={ma}&i=d"
+YAHOO_CHART = ("https://query1.finance.yahoo.com/v8/finance/chart/{ma}"
+               "?range=1y&interval=1d")
+#: Yahoo từ chối UA lạ; UA trình duyệt là điều kiện để nguồn này sống.
+UA_TRINH_DUYET = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "thi-bac-ty/lp-v3 (+public data only)")
 
 
-def doc_csv_stooq(vanBan: str) -> list:
-    """`Date,Open,High,Low,Close,Volume` → `[(ngày, đóng)]`. Bỏ dòng hỏng."""
+def doc_yahoo_chart(j: dict) -> tuple[list, tuple | None]:
+    """`(dãy (ngày, đóng), (giờ, giá) tức thời hoặc None)` từ JSON chart.
+
+    Ngày lấy theo giờ SÀN (`meta.gmtoffset`), không theo UTC: phiên Mỹ mở
+    13:30 UTC, đóng 20:00 UTC — vẫn cùng ngày, nhưng lệch một giờ ở mốc
+    nửa đêm là lệch một ngày trong băng. Dòng nào thiếu giá đóng (ngày
+    nghỉ giữa chuỗi) thì bỏ, không điền 0.
+    """
+    try:
+        r = (j.get("chart") or {}).get("result") or []
+        r = r[0]
+        meta = r.get("meta") or {}
+        ts = r.get("timestamp") or []
+        dong = ((r.get("indicators") or {}).get("quote") or [{}])[0].get("close") or []
+    except (AttributeError, IndexError, TypeError):
+        return [], None
+    lech = int(so_hoac_none(meta.get("gmtoffset")) or 0)
     ra = []
-    for i, dong in enumerate(str(vanBan).splitlines()):
-        o = [x.strip() for x in dong.split(",")]
-        if i == 0 and o and o[0].lower() == "date":
+    for t, g in zip(ts, dong):
+        g = so_hoac_none(g)
+        if g is None or g <= 0:
             continue
-        if len(o) < 5:
-            continue
-        gia = so_hoac_none(o[4])
-        if gia is None or gia <= 0:
-            continue
-        try:
-            dt.date.fromisoformat(o[0])
-        except ValueError:
-            continue
-        ra.append((o[0], gia))
-    return ra
+        ngay = dt.datetime.fromtimestamp(int(t) + lech, dt.timezone.utc).date()
+        ra.append((ngay.isoformat(), g))
+    tuc = None
+    gia = so_hoac_none(meta.get("regularMarketPrice"))
+    luc = so_hoac_none(meta.get("regularMarketTime"))
+    if gia is not None and gia > 0 and luc:
+        tuc = (dt.datetime.fromtimestamp(int(luc), dt.timezone.utc), gia)
+    return ra, tuc
 
 
-class NguonStooq(Nguon):
-    ten = "stooq-gia-goc"
+class NguonGiaGoc(Nguon):
+    """Giá cổ phiếu gốc — Yahoo chart. Trả `[(ngày, đóng)]`; giá tức thời
+    nằm ở `self.tucThoi[ma]` sau mỗi lượt đọc thành công."""
+
+    ten = "yahoo-gia-goc"
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.tucThoi: dict = {}
 
     async def doc(self, client, ma: str = "") -> list:
         if not ma:
             return []
         t0 = time.perf_counter()
         try:
-            r = await client.get(STOOQ.format(ma=ma))
+            r = await client.get(YAHOO_CHART.format(ma=ma),
+                                 headers={"User-Agent": UA_TRINH_DUYET})
             r.raise_for_status()
-            ra = doc_csv_stooq(r.text)
+            ra, tuc = doc_yahoo_chart(r.json())
             if not ra:
-                raise ValueError("CSV rỗng hoặc không đúng cột")
+                raise ValueError("JSON không có dãy giá đóng")
         except Exception as e:                                # noqa: BLE001
             self.suc_khoe.ghi_loi(e)
             return []
+        if tuc is not None:
+            self.tucThoi[ma] = tuc
         self.suc_khoe.ghi_ok((time.perf_counter() - t0) * 1000.0)
         return ra
 

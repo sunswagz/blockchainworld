@@ -31,14 +31,24 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
     bc = lich.boi_canh(now, ketQuaKinhDoanh=cfg.get("ketQuaKinhDoanh") or {},
                        hetThuong=_het_thuong(cfg))
     mu = []
-    for ten, ng in (("giá gốc Stooq", ty.nguonGoc), ("RPC X Layer", ty.nguonRpc),
-                    ("tin RSS", ty.nguonTin)):
+    for ten, ng, tien in (("giá gốc Yahoo", ty.nguonGoc, "goc:"),
+                          ("RPC X Layer", ty.nguonRpc, "rpc:"),
+                          ("tin RSS", ty.nguonTin, "tin:")):
         sk = ng.suc_khoe
         if sk.tongLuot and not sk.songSot:
             mu.append(f"{ten}: {sk.soLoi}/{sk.tongLuot} lượt lỗi — {sk.loiCuoi}")
         elif not sk.tongLuot:
-            mu.append(f"{ten}: chưa hỏi lần nào (chạy `python run.py` hoặc "
-                      f"`python -m lp_v3.hom_nay --moi`)")
+            # Nhịp làm mới ghi trên ĐĨA (`lam-moi.json`) nên tiến trình
+            # khác — runtime nền — có thể vừa hỏi xong; tiến trình này
+            # thấy đủ nhịp mà không hỏi. Nói đúng câu ấy, đừng nói «mù».
+            gan = max((float(v) for k, v in (ty.lanMoi or {}).items()
+                       if k.startswith(tien)), default=0.0)
+            if gan:
+                mu.append(f"{ten}: tiến trình này chưa hỏi; tiến trình khác hỏi "
+                          f"lần cuối {dt.datetime.fromtimestamp(gan, lich.VN).strftime('%H:%M %d/%m')}")
+            else:
+                mu.append(f"{ten}: chưa hỏi lần nào (chạy `python run.py` hoặc "
+                          f"`python -m lp_v3.hom_nay --moi`)")
     thieuDiaChi = [p["kyHieu"] for p in cfg.get("pool") or [] if not p.get("diaChi")]
     thieuVol = [p["kyHieu"] for p in cfg.get("pool") or []
                 if p.get("khoiLuongNgayUsd") is None]
@@ -231,6 +241,9 @@ def van_ban(bc: dict) -> str:
             o.append(f"    tin: {t['tieuDe'][:80]}" + (f"  [{', '.join(t['co'])}]" if t.get("co") else ""))
         if p["nguonGia"] == "goc" and p["hanhDong"] == VAO:
             o.append("    ⚠ giá là giá ĐÓNG CỬA — lúc vào, dịch dải theo giá đang hiện ở OKX")
+        elif p["nguonGia"] == "goc-tuc-thoi" and p["hanhDong"] == VAO:
+            o.append("    ⚠ giá là giá sàn GỐC đang giao dịch — pool trên chuỗi có thể lệch, "
+                     "so với giá OKX trước khi đặt")
     if bc["viThe"]:
         o.append("-" * 72)
         o.append("VỊ THẾ ĐANG GIỮ:")
