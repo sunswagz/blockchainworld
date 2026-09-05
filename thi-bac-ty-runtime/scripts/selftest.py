@@ -3598,6 +3598,97 @@ def kiem_chan_doan_he() -> None:
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
 
+    # ── vốn dồn vào ty LÃI THẤP trong khi ty LÃI CAO hết chỗ ────────────
+    #
+    # Mọi triệu chứng trước đó hỏi về MỘT ty, hoặc về CẢ hệ. Không cái nào
+    # hỏi câu đắt nhất: vốn có đang nằm ĐÚNG CHỖ không.
+    #
+    # Đo làn thật 05/09/2026: lending giữ 86,6% vốn ăn 2,63%/năm, amm ăn
+    # 13,61% trên 64 vị thế — lệch 10,98 điểm, bình quân danh mục 3,97%.
+    def _anh_von(lsThap=2.63, lsCao=13.61, vonThap=499967.0, vonCao=70194.0,
+                 conGhe=0, boThieuSucChua=0):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "huaTheoTy": {
+                    "lending.rate_rotation.v1": {"vonUsd": vonThap,
+                                                 "soViThe": 21},
+                    "amm.fee_farming.v1": {"vonUsd": vonCao, "soViThe": 64}},
+                "vonDangDung": {"theoTy": {
+                    "lending.rate_rotation.v1": {
+                        "loiSuatNamPhanTram": lsThap, "vonGioUsd": 40_247_152.0},
+                    "amm.fee_farming.v1": {
+                        "loiSuatNamPhanTram": lsCao, "vonGioUsd": 5_607_257.0}}},
+                "duongSucChua": {"tongSucChuaUsd": 1_010_428.0,
+                                 "soBoViThieuSucChua": boThieuSucChua},
+                "gheVaVon": {"soGhe": 120, "soDangDung": 120 - conGhe,
+                             "conGhe": conGhe}}
+
+    _trV = [t for t in chan_doan_he(_anh_von()) if t.ma == "von-o-ty-loi-thap"]
+    kiem("vốn dồn ở ty lãi THẤP → thành triệu chứng", len(_trV) == 1,
+         str([t.ma for t in chan_doan_he(_anh_von())]))
+    kiem("và nó gọi tên CẢ HAI ty kèm hai con số lợi suất",
+         _trV and "lending.rate_rotation.v1" in _trV[0].moTa
+         and "amm.fee_farming.v1" in _trV[0].moTa
+         and "2.63" in _trV[0].moTa and "13.61" in _trV[0].moTa,
+         _trV[0].moTa if _trV else "")
+    kiem("bằng chứng mang lệch điểm và bình quân theo vốn",
+         _trV and abs(_trV[0].bangChung["lechDiem"] - 10.98) < 0.01
+         and abs(_trV[0].bangChung["loiSuatBinhQuanPhanTram"] - 3.97) < 0.05,
+         str(_trV[0].bangChung) if _trV else "")
+    _dxV = de_xuat(_trV, {"phanBo": {"toiDaSoViThe": 120}})
+    kiem("ghế đầy → NỚI số ghế (ty lãi cao mở vị thế NHỎ, cần CHỖ NGỒI)",
+         _dxV and _dxV[0].nut == "phanBo.toiDaSoViThe"
+         and _dxV[0].den > _dxV[0].tu, str([d.tom_tat() for d in _dxV]))
+
+    kiem("CÒN GHẾ thì không khai núm nào — vốn tự đi được",
+         [t for t in chan_doan_he(_anh_von(conGhe=30))
+          if t.ma == "von-o-ty-loi-thap"][0].nutGoiY == [],
+         "còn ghế mà vốn vẫn dồn một chỗ là việc của tầng phân bổ, không "
+         "của một cái trần")
+
+    # Chợ HẾT CHỖ thì im: «dồn vốn sang ty lãi cao» lúc ấy là một lời
+    # khuyên không thực hiện được.
+    kiem("chợ hết sức chứa thì IM",
+         "von-o-ty-loi-thap" not in
+         {t.ma for t in chan_doan_he(_anh_von(boThieuSucChua=7))},
+         "khuyên dồn vốn sang chỗ không còn chỗ là chỉ người vận hành sang "
+         "một cái nút không tồn tại")
+    kiem("lệch lợi suất NHỎ thì im",
+         "von-o-ty-loi-thap" not in
+         {t.ma for t in chan_doan_he(_anh_von(lsCao=4.0))},
+         "dưới ngưỡng thì chênh nằm trong sai số, mà đổi chỗ vốn tốn phí")
+    # Ba ty, ty ôm nhiều nhất chỉ 40% — dưới ngưỡng «dồn một chỗ». Phải
+    # có ty THỨ BA mới kiểm được điều này: với hai ty thì ty ôm nhiều nhất
+    # luôn ≥ 50%, nên ngưỡng không bao giờ bị chạm và quét đột biến gỡ nó
+    # ra mà không phép kiểm nào đỏ.
+    _anhBa = _anh_von(vonThap=400000.0, vonCao=350000.0)
+    _anhBa["huaTheoTy"]["basis.cash_carry.v1"] = {"vonUsd": 250000.0,
+                                                  "soViThe": 35}
+    _anhBa["vonDangDung"]["theoTy"]["basis.cash_carry.v1"] = {
+        "loiSuatNamPhanTram": 3.05, "vonGioUsd": 564_196.0}
+    _omBa = 400000.0 / (400000.0 + 350000.0 + 250000.0)
+    kiem("vốn KHÔNG dồn một chỗ thì im",
+         "von-o-ty-loi-thap" not in {t.ma for t in chan_doan_he(_anhBa)},
+         f"ty ôm nhiều nhất chỉ {_omBa:.0%} — dưới ngưỡng, nên chưa gọi "
+         f"được là «dồn»")
+    # Và cùng bộ ba ấy, đẩy ty lãi thấp lên quá ngưỡng thì PHẢI nổ — nếu
+    # không thì phép kiểm trên xanh vì một lý do khác, không vì ngưỡng.
+    _anhBa2 = dict(_anhBa)
+    _anhBa2["huaTheoTy"] = dict(_anhBa["huaTheoTy"])
+    _anhBa2["huaTheoTy"]["lending.rate_rotation.v1"] = {"vonUsd": 900000.0,
+                                                        "soViThe": 21}
+    kiem("cùng bộ ba, đẩy quá ngưỡng thì NỔ — ngưỡng là thứ quyết định",
+         "von-o-ty-loi-thap" in {t.ma for t in chan_doan_he(_anhBa2)},
+         "không có vế này thì phép kiểm trên có thể xanh vì lý do khác")
+
+    _anhTh = _anh_von()
+    _anhTh["vonDangDung"]["theoTy"]["amm.fee_farming.v1"]["vonGioUsd"] = 1.0
+    kiem("ty chưa đủ vốn-giờ thì KHÔNG được dùng làm mốc so",
+         "von-o-ty-loi-thap" not in {t.ma for t in chan_doan_he(_anhTh)},
+         "một lợi suất tính trên vài vốn-giờ là một con số chưa nói được gì")
+
     # ── tiền nằm không: đề xuất phải NỚI, và núm tuỳ GHẾ còn hay hết ────
     def _anh_ranh(conGhe):
         return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,

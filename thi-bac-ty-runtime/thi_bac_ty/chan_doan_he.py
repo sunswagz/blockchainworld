@@ -150,6 +150,18 @@ TOI_THIEU_VON_GIO_THU_KHONG = 10_000.0
 #: khai ra trong cùng buổi làm việc chứ không phải sáng hôm sau.
 NGUONG_NGAT_LAU_GIO = 1.0
 
+#: Lệch lợi suất giữa ty ÔM NHIỀU VỐN NHẤT và ty LÃI CAO NHẤT, tính bằng
+#: ĐIỂM phần trăm, quá ngần này thì thành triệu chứng.
+#:
+#: Ba điểm. Dưới mức ấy thì chênh lệch nằm trong sai số của một cửa sổ kế
+#: toán ngắn, và đổi chỗ vốn tốn phí vào lệnh — thứ đã có tiền lệ ăn sạch
+#: phần lãi (xem `phi-vao-an-het`).
+NGUONG_LECH_LOI_SUAT_DIEM = 3.0
+
+#: Ty ôm nhiều vốn nhất phải giữ ít nhất ngần này phần vốn đang dùng thì
+#: mới đáng gọi là «vốn dồn một chỗ». Một nửa.
+NGUONG_VON_DON_MOT_CHO = 0.5
+
 NUT_TRUNG_UONG = {
     "ruiRoTong.tranMotCang":       {"min": 0.10, "max": 0.60, "cuc": +1},
     "ruiRoTong.tranMotTy":         {"min": 0.15, "max": 0.80, "cuc": +1},
@@ -715,6 +727,90 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             {"chienLuoc": ma, "vonGioUsd": vg, "thuRongUsd": thu,
              "soCuaSoMuBoQua": _mbq, "gioMuBoQua": _gbq,
              "soLanKhoiDong": n_kd, "tongGiayTatMay": g_tat}))
+
+    # ── 7b1. VỐN dồn vào ty LÃI THẤP, trong khi ty LÃI CAO hết chỗ ──────
+    #
+    # Mọi triệu chứng trước đây hỏi về MỘT ty (`ty-lo`, `ty-thu-bang-khong`,
+    # `hua-qua-dang-mo`) hoặc về CẢ hệ (`von-ranh-an-khong`). Không cái nào
+    # hỏi câu đắt nhất: **vốn có đang nằm đúng chỗ không.**
+    #
+    # Đo làn thật 05/09/2026:
+    #
+    #     ty                      vốn USD   %vốn  ghế  APR thực
+    #     lending.rate_rotation   499.967  86,6%   21     2,63%
+    #     amm.fee_farming          70.194  12,2%   64    13,61%
+    #     basis.cash_carry          7.000   1,2%   35     3,05%
+    #     ─ bình quân theo vốn                            3,97%
+    #
+    # Ty lãi cao gấp 5,2 lần giữ một phần tám số vốn. Và hai cửa chặn đúng
+    # hai đầu: `lending` đang ở 499.967/1.000.085 = **49,99% NAV**, tức
+    # chạm đúng `ruiRoTong.tranMotTy` = 0,5; còn `amm` hết GHẾ (64 trong
+    # 120, và cả 64 đều là ghế bé). Nên đồng vốn tiếp theo không đi được
+    # đâu và nằm không ở 0% — 222.905 USD.
+    #
+    # Sức chứa KHÔNG phải chỗ nghẽn: `duongSucChua.tongSucChuaUsd` =
+    # 1.010.428 USD và `soBoViThieuSucChua` = 0. Phải kiểm điều đó trước
+    # khi mở miệng, vì nếu chợ hết chỗ thì «dồn vốn sang ty lãi cao» là
+    # một lời khuyên không thực hiện được.
+    _vdd1 = ((anh.get("vonDangDung") or {}).get("theoTy")) or {}
+    _hua1 = anh.get("huaTheoTy") or {}
+    _co = []
+    for _ma, _o in _hua1.items():
+        _e = _vdd1.get(_ma) or {}
+        _ls = _e.get("loiSuatNamPhanTram")
+        if _ls is None:
+            continue
+        if float(_e.get("vonGioUsd") or 0.0) < TOI_THIEU_VON_GIO:
+            continue
+        _von = float(_o.get("vonUsd") or 0.0)
+        if _von <= 0:
+            continue
+        _co.append((_ma, _von, float(_ls), int(_o.get("soViThe") or 0)))
+    _tong = sum(x[1] for x in _co)
+    if len(_co) >= 2 and _tong > 0:
+        _omNhat = max(_co, key=lambda x: x[1])
+        _laiNhat = max(_co, key=lambda x: x[2])
+        _lech = _laiNhat[2] - _omNhat[2]
+        _phan = _omNhat[1] / _tong
+        _sc = anh.get("duongSucChua") or {}
+        _conCho = int(_sc.get("soBoViThieuSucChua") or 0) == 0
+        if (_omNhat[0] != _laiNhat[0]
+                and _lech >= NGUONG_LECH_LOI_SUAT_DIEM
+                and _phan >= NGUONG_VON_DON_MOT_CHO
+                and _conCho):
+            _bq = sum(x[1] * x[2] for x in _co) / _tong
+            _gv1 = anh.get("gheVaVon") or {}
+            _het = _gv1.get("conGhe") == 0
+            _viG = (f" Và {_laiNhat[0]} HẾT GHẾ ({_gv1.get('soDangDung')}/"
+                    f"{_gv1.get('soGhe')} ghế đã đầy), nên đồng vốn tiếp "
+                    f"theo không đi được đâu." if _het else "")
+            ra.append(TrieuChungHe(
+                "von-o-ty-loi-thap", 2,
+                f"{_phan:.0%} vốn đang dùng nằm ở {_omNhat[0]} — ăn "
+                f"{_omNhat[2]:.2f}%/năm, trong khi {_laiNhat[0]} ăn "
+                f"{_laiNhat[2]:.2f}%/năm trên {_laiNhat[3]} vị thế. Lệch "
+                f"{_lech:.2f} điểm; bình quân theo vốn của cả danh mục là "
+                f"{_bq:.2f}%/năm. Chợ KHÔNG hết chỗ: sức chứa đang có "
+                f"{float(_sc.get('tongSucChuaUsd') or 0):,.0f} USD và "
+                f"không cơ hội nào bị bỏ vì thiếu sức chứa." + _viG
+                + " Đây là câu hỏi vốn NẰM ĐÚNG CHỖ chưa — không phải câu "
+                  "hỏi ty nào hỏng.",
+                {"tyOmNhieuNhat": _omNhat[0], "vonUsd": _omNhat[1],
+                 "phanVon": _phan, "loiSuatOmNhatPhanTram": _omNhat[2],
+                 "tyLaiCaoNhat": _laiNhat[0],
+                 "loiSuatCaoNhatPhanTram": _laiNhat[2],
+                 "soViTheLaiCaoNhat": _laiNhat[3],
+                 "lechDiem": _lech, "loiSuatBinhQuanPhanTram": _bq,
+                 "tongSucChuaUsd": _sc.get("tongSucChuaUsd"),
+                 "conGhe": _gv1.get("conGhe")},
+                # Ghế đầy thì núm là SỐ GHẾ: ty lãi cao ở đây mở vị thế
+                # NHỎ (sức chứa mỗi pool có hạn), nên nó cần nhiều CHỖ
+                # NGỒI chứ không cần trần rộng hơn.
+                #
+                # Còn ghế thì KHÔNG khai núm nào: lúc ấy vốn tự đi được và
+                # chuyện này là việc của tầng phân bổ, không của một trần.
+                ["phanBo.toiDaSoViThe"] if _het else [],
+                yDinh="noi"))
 
     # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────
     #
