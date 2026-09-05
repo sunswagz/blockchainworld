@@ -65,6 +65,33 @@ from dataclasses import dataclass, field
 
 NAM_GIO = 365.0 * 24.0
 
+#: Cửa sổ giữ ngắn hơn ngần này giờ thì KHÔNG quy ra tỉ suất năm.
+#:
+#: Luật này đã có ở HAI chỗ khác — `trung_uong.TOI_THIEU_GIO_DOI_CHIEU` và
+#: `SoCai.TOI_THIEU_GIO_TI_SUAT`, cùng bằng 0,25 — và chú thích ở `so_cai`
+#: còn ghi rõ nó «phải áp ở CẢ HAI phía». Chỗ này, nơi con số ấy QUYẾT
+#: ĐỊNH TIỀN, thì chưa có.
+#:
+#: Hậu quả đo được trên sổ cái làn thật 05/09/2026:
+#:
+#:     von=0  aprCu=1,98  aprMoi=  96.710,41 %/năm  loiRong=+21,17 USD
+#:     von=0  aprCu=1,48  aprMoi= 212.900,10 %/năm  loiRong=+45,27 USD
+#:
+#: 212.900%/năm không phải một lợi suất — nó là `netUocBps` chia cho một
+#: cửa sổ giữ gần bằng 0 rồi nhân 8.760. Trần-theo-bằng-chứng kẹp QUÃNG
+#: THỜI GIAN xuống 29,7 giây nhưng không ai kẹp con số APR, nên mỗi lần
+#: xoay vẫn hứa 21–45 USD; 274 lần xoay hứa tổng +11.383,73 USD trong khi
+#: cả đời cỗ máy thu ròng +87,34.
+#:
+#: Nguyên văn lời giải thích đã có sẵn ở `trung_uong.py`: «Một tỉ suất
+#: chia cho gần-không thì không phải một tỉ suất — nó là hình chiếu của
+#: mẫu số.» Nó đúng ở đây y như ở đó.
+#:
+#: KHÔNG import từ hai chỗ kia: `trung_uong` đã import file này, nên
+#: import ngược là vòng tròn. Ba bản sao của một hằng số là một chỗ đáng
+#: gộp, và đây là ghi chú để lượt sau gộp chứ không phải để quên.
+TOI_THIEU_GIO_TI_SUAT = 0.25
+
 
 @dataclass
 class CoHoiDoiCho:
@@ -195,6 +222,21 @@ def apr_tu_to_trinh(toTrinh: dict) -> float | None:
     tệ, trong khi ta chỉ đơn giản là chưa hỏi.
     """
     if not isinstance(toTrinh, dict):
+        return None
+    # Cửa sổ giữ quá ngắn thì KHÔNG quy ra tỉ suất năm — dù `netMoiGioBps`
+    # đã được tính sẵn ở đâu đó. Phép chia hỏng ở chỗ nào không quan
+    # trọng; con số ra vẫn là hình chiếu của mẫu số. Xem
+    # `TOI_THIEU_GIO_TI_SUAT`.
+    # `0` ở đây nghĩa là KHÔNG KHAI, không phải «không giờ nào» — luật ấy
+    # đã có sẵn trong file này (bên mới không khai thì lấy quãng của bên
+    # cũ) và bộ kiểm canh nó. Bản đầu của cửa này chặn luôn cả `0` và làm
+    # đỏ đúng phép kiểm ấy; nên chỉ chặn khi CÓ khai mà khai một cửa sổ
+    # ngắn hơn ngưỡng.
+    gioGiu = toTrinh.get("giuGio")
+    try:
+        if gioGiu is not None and 0.0 < float(gioGiu) < TOI_THIEU_GIO_TI_SUAT:
+            return None
+    except (TypeError, ValueError):
         return None
     v = toTrinh.get("netMoiGioBps")
     if v is None:

@@ -11436,6 +11436,54 @@ def kiem_ke_toan_vi_the() -> None:
          "coi phí là 0 là dựng ra một phép đổi miễn phí — đúng cách để xoay "
          "liên tục rồi thua sạch vì phí")
 
+    # ── cửa sổ giữ QUÁ NGẮN thì KHÔNG quy ra tỉ suất năm ─────────────────
+    #
+    # Luật này đã có ở `trung_uong.TOI_THIEU_GIO_DOI_CHIEU` và
+    # `SoCai.TOI_THIEU_GIO_TI_SUAT`, và chú thích ở `so_cai` còn ghi rõ nó
+    # «phải áp ở CẢ HAI phía». Chỗ này — nơi con số ấy QUYẾT ĐỊNH TIỀN —
+    # thì chưa có, và sổ cái làn thật 05/09/2026 ghi lại hậu quả:
+    #
+    #     aprCu=1,98  aprMoi= 96.710,41 %/năm  loiRong=+21,17 USD
+    #     aprCu=1,48  aprMoi=212.900,10 %/năm  loiRong=+45,27 USD
+    #
+    # 212.900%/năm không phải lợi suất — nó là `netUocBps` chia cho một cửa
+    # sổ gần bằng 0 rồi nhân 8.760. Trần-theo-bằng-chứng kẹp QUÃNG THỜI
+    # GIAN xuống 29,7 giây nhưng không ai kẹp APR.
+    from thi_bac_ty.xoay_cho import TOI_THIEU_GIO_TI_SUAT as _NG
+    kiem("ĐÚNG con số của làn thật: giữ 29,7 giây thì trả None",
+         apr_tu_to_trinh({"netUocBps": 20.0, "giuGio": 0.00825}) is None,
+         "công thức cũ cho ra 212.900%/năm từ đúng bộ số này")
+    kiem("và chặn cả khi `netMoiGioBps` đã tính sẵn ở đâu đó",
+         apr_tu_to_trinh({"netMoiGioBps": 2430.0, "giuGio": 0.00825}) is None,
+         "phép chia hỏng ở chỗ nào không quan trọng — con số ra vẫn là "
+         "hình chiếu của mẫu số")
+    kiem("giữ ĐÚNG BẰNG ngưỡng thì vẫn quy ra được",
+         apr_tu_to_trinh({"netMoiGioBps": 1.0, "giuGio": _NG}) is not None,
+         "biên phải đi qua được, không thì ngưỡng chặn cả chỗ nó không "
+         "định chặn")
+    kiem("giữ dài thì không đụng tới",
+         gan(apr_tu_to_trinh({"netMoiGioBps": 1.0, "giuGio": 720.0}), 87.6))
+    # `0` là KHÔNG KHAI, không phải «không giờ nào» — luật có sẵn trong
+    # `xoay_cho`, và bản đầu của cửa này chặn luôn cả 0 nên làm đỏ phép
+    # kiểm «bên mới không khai giữ bao lâu thì lấy quãng của bên cũ».
+    kiem("`giuGio` = 0 là KHÔNG KHAI, cửa này không được đụng vào",
+         gan(apr_tu_to_trinh({"netMoiGioBps": 1.0, "giuGio": 0.0}), 87.6),
+         "chặn cả 0 là phá luật «lấy quãng của bên cũ» đã có sẵn")
+    kiem("`giuGio` rác thì trả None, không ném",
+         apr_tu_to_trinh({"netMoiGioBps": 1.0, "giuGio": "xxx"}) is None)
+
+    # Và cửa ấy phải CHẶN ĐƯỢC một lượt xoay thật, không chỉ trả None.
+    kiem("cơ hội mới giữ quá ngắn thì KHÔNG xoay sang",
+         do_xoay_cho({"a": _so40("a", 2.0)},
+                     [_tt40("b", 99999.0, giu=0.008)], _G40).soXoayDuoc == 0,
+         "đây đúng là hình dạng của 274 lần xoay đã hứa +11.383,73 USD "
+         "trong khi cả đời cỗ máy thu ròng +87,34")
+    kiem("không khai PHÍ thì None, không phải 0",
+         phi_mot_chieu_usd({}, 500.0) is None
+         and gan(phi_mot_chieu_usd({"phiUocBps": 10.0}, 500.0), 0.5),
+         "coi phí là 0 là dựng ra một phép đổi miễn phí — đúng cách để xoay "
+         "liên tục rồi thua sạch vì phí")
+
     _x40 = do_xoay_cho({"a": _so40("a", 2.0)}, [_tt40("b", 16.0)], _G40)
     kiem("lãi hơn nhiều, phí bé → ĐÁNG đổi",
          _x40.soXoayDuoc == 1 and _x40.loiRongUsd > 0, _x40.vi)
