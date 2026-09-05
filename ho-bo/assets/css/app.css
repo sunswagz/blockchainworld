@@ -210,6 +210,28 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .d[data-h="phang"]{background:var(--card-2);color:var(--fg-3)}
 .d[data-h="trong"]{background:transparent;color:var(--fg-3)}
 .d svg{width:10px;height:10px}
+/* ── ĐỪNG LÀM MỜ CHỮ BẰNG `opacity` ────────────────────
+   Nhãn kỳ hạn trong chip ("7 ngày", "tuần/tuần") phải CHÌM hơn con
+   số bên cạnh — nhưng nó từng chìm bằng `style="opacity:.7"` viết
+   thẳng trong app.js, và opacity thì pha màu chữ với nền ở lúc VẼ:
+
+     --len   trên --len-t     8,0  →  4,16
+     --fg-3  trên --card-2    5,44 →  3,43
+
+   Cả hai rơi xuống dưới sàn AA 4.5, ở đúng những chữ nói con số
+   thuộc về kỳ hạn nào — bỏ chúng thì "+1,2%" mất nghĩa. Mười chip
+   trên Đại Sảnh và Kho Bạc đang mang nhãn kiểu này.
+
+   Không thước nào bắt được, và đó là phần đáng ghi lại: bộ đo tương
+   phản đọc CẶP MÀU khai trong CSS, mà opacity không phải một màu.
+   Nó không nằm trong bảng token, không hiện ra ở `:root`, và tác
+   dụng của nó chỉ có thật sau khi mọi phép đo đã xong. Phiếu vẫn in
+   "0/31 cặp dưới 4.5" trong khi mười chỗ đang trượt.
+
+   Thứ bậc lấy từ CỠ và ĐỘ ĐẬM thay cho độ mờ: mắt vẫn đọc nhãn là
+   thứ yếu, còn màu giữ nguyên đúng cặp đã đo. Nấc chữ lấy từ thang
+   sẵn có, không thêm cỡ mới. */
+.d-n{font-size:var(--t-1);font-weight:400}
 
 /* ── kim chỉ chế độ ───────────────────────────────────── */
 .che{display:grid;gap:var(--k-15);grid-template-columns:230px 1fr;align-items:center;padding:var(--k-16)}
@@ -411,7 +433,16 @@ code,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .loc button:hover{border-color:var(--tien);color:var(--fg)}
 .loc button[aria-pressed="true"]{background:var(--tien);border-color:var(--tien);
   color:#06120F;font-weight:650}
-.loc .dem{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:var(--t-1);opacity:.7;margin-left:var(--k-4)}
+/* Cùng bệnh, cùng thuốc như `.d-n` ở trên: con số đếm trong mỗi nút
+   lọc từng mờ đi bằng `opacity:.7`, kéo --fg-2 trên --card từ 8,6
+   xuống 4,39 — dưới sàn, ở chính con số nói bộ lọc này còn bao nhiêu
+   công cụ. Nay chìm bằng MÀU khai tường minh, nên bộ đo thấy được. */
+.loc .dem{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:var(--t-1);
+  color:var(--fg-3);margin-left:var(--k-4)}
+/* Nút đang bật có nền ngọc, chữ gần đen — ở đó `--fg-3` là chữ nhạt
+   trên nền sáng, tức lật ngược. Thừa hưởng màu của nút thì đúng cả
+   hai trạng thái; thứ bậc do độ đậm giữ. */
+.loc button[aria-pressed="true"] .dem{color:inherit;font-weight:400}
 
 .tim{display:flex;align-items:center;gap:var(--k-7);flex:1;min-width:150px;
   padding:0 var(--k-10);border-radius:8px;border:1px solid var(--line);background:var(--card)}

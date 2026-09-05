@@ -76,16 +76,22 @@
 
   /* Chip đổi giá. `nguong` là vùng coi như đứng yên — dưới ngưỡng
      đó thì vẽ xám và không mũi tên, vì gắn mũi tên cho một biến
-     động 0,04% là mời người đọc tìm ý nghĩa ở chỗ không có. */
+     động 0,04% là mời người đọc tìm ý nghĩa ở chỗ không có.
+
+     Nhãn kỳ hạn ("7 ngày", "tuần/tuần") đi qua `.d-n` chứ không qua
+     `style="opacity:.7"` như trước. Xem chú thích ở `.d-n` trong
+     app.css: mờ chữ bằng opacity là hạ tương phản xuống dưới sàn AA
+     ở một chỗ không bộ đo nào nhìn thấy. Thứ bậc vẫn còn, chỉ đổi
+     sang cỡ và độ đậm. */
   function chip(n, nhan, nguong) {
     var ng = nguong == null ? 0.15 : nguong;
+    var nh = nhan ? ' <span class="d-n">' + esc(nhan) + "</span>" : "";
     if (n == null || !isFinite(n)) {
-      return '<span class="d" data-h="trong">—' + (nhan ? " " + esc(nhan) : "") + "</span>";
+      return '<span class="d" data-h="trong">—' + nh + "</span>";
     }
     var h = Math.abs(n) < ng ? "phang" : n > 0 ? "len" : "xuong";
     var mui = h === "len" ? MUI_LEN : h === "xuong" ? MUI_XUONG : "";
-    return '<span class="d" data-h="' + h + '">' + mui + phanTram(n) +
-      (nhan ? ' <span style="opacity:.7">' + esc(nhan) + "</span>" : "") + "</span>";
+    return '<span class="d" data-h="' + h + '">' + mui + phanTram(n) + nh + "</span>";
   }
 
   /* ═══════════════ ĐƯỜNG NẾN ═══════════════

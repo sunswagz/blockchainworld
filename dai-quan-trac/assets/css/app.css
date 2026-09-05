@@ -1,7 +1,7 @@
 :root{
   --canvas:#0a0c10; --surface:#11151c; --inset:#0d1117; --raise:#161b22;
   --line:#1e252f; --line2:#2c3542; --line3:#3d4757;
-  --fg:#dde3ea; --fg2:#aab4c0; --muted:#8b9aac; --dim:#748499;
+  --fg:#dde3ea; --fg2:#aab4c0; --muted:#8b9aac; --dim:#80909f;
   --ok:#2ea043; --ok-d:#0f2a17; --warn:#d29922; --warn-d:#2b2109;
   --dgr:#f0503f; --dgr-d:#2d1210; --info:#58a6ff; --info-d:#0d2137;
   --purple:#a371f7; --gold:#d4a72c; --lac:#e5484d;
