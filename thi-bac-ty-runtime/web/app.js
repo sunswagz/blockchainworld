@@ -2530,15 +2530,28 @@
       the.appendChild(dau);
       the.appendChild(el("p", "ket-luan", p.tomTat || p.lyDo || ""));
 
-      /* thanh APY: phí | thưởng */
+      /* APY tách: một số lớn, rồi mỗi thành phần một dòng — như
+         «25,43% = 6,38% iFARM + 19,66% Uniswap» */
       var tong = at.hienThiPct, phi = at.phiPct, thuong = at.thuongPct;
       var thanh = el("div", "btk-apy");
-      var nhan = el("div", "nhan");
-      nhan.appendChild(el("span", null, "APY hiển thị " + (tong == null ? "—" : Number(tong).toFixed(0) + "%")));
-      nhan.appendChild(el("span", "nhat", (at.giaDinh ? "tách bằng GIẢ ĐỊNH" : "tách từ khối lượng")
-        + " · phí " + (phi == null ? "—" : Number(phi).toFixed(1) + "%")
-        + " · thưởng " + (thuong == null ? "—" : Number(thuong).toFixed(1) + "%")));
-      thanh.appendChild(nhan);
+      var tg = el("div", "tong");
+      tg.appendChild(el("span", "nhan-nho", "APY hiển thị ở OKX"));
+      tg.appendChild(el("b", null, tong == null ? "—" : Number(tong).toFixed(2) + "%"));
+      thanh.appendChild(tg);
+      [["phi", "Phí giao dịch", phi, "phí 0,05% của pool trả cho LP"
+          + (at.giaDinh ? " · tách bằng GIẢ ĐỊNH, chưa đo" : " · tách từ khối lượng")],
+       ["thuong", "Thưởng OKX", thuong, (th.ketThuc ? "hết " + th.ketThuc + " VN" : "không có chương trình")
+          + " · chia theo phí, chụp ngẫu nhiên"]
+      ].forEach(function (r) {
+        var h = el("div", "apy-hang " + r[0]);
+        h.appendChild(el("i"));
+        h.appendChild(el("b", null, r[2] == null ? "—" : Number(r[2]).toFixed(2) + "%"));
+        var c = el("div");
+        c.appendChild(el("span", "ten", r[1]));
+        c.appendChild(el("span", "mo", r[3]));
+        h.appendChild(c);
+        thanh.appendChild(h);
+      });
       var bar = el("div", "bar");
       var tongPct = (phi || 0) + (thuong || 0);
       if (tongPct > 0) {
