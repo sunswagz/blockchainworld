@@ -748,7 +748,21 @@ class RiskEngine:
 
         # 11. sau khi siết, cơ hội còn đáng làm không
         if cho_phep < 1:
-            return PhanQuyet(False, 0.0, ["sau khi siết còn dưới 1 cổ"], ma="duoi-mot-co")
+            # NÓI RÕ CÒN BAO NHIÊU, VÀ CÁI GÌ CẮT.
+            #
+            # "dưới 1 cổ" là một câu đúng và vô dụng: 0,02 cổ và 0,97 cổ
+            # là hai vấn đề khác hẳn nhau — cái đầu nghĩa là một ràng
+            # buộc nào đó đang bóp nát cỡ lệnh, cái sau nghĩa là cơ hội
+            # vốn đã bé. Và `canh` đã ghi sẵn từng lần siết kèm tên
+            # ràng buộc, nên chỉ việc kể ra cái CUỐI CÙNG.
+            #
+            # Đo 05/09/2026: cửa này chặn 1.405 lần (11,1%) trên làn
+            # thật — lớn nhất ngoài cửa sàng — mà không ai biết vì sao.
+            return PhanQuyet(False, 0.0, [
+                f"sau khi siết còn {cho_phep:.3f} cổ (dưới 1)"
+                + (f" — cắt cuối: {canh[-1]}" if canh else
+                   " — không ràng buộc nào cắt, cơ hội vốn đã bé")],
+                ma="duoi-mot-co")
         if cho_phep * ch.netEdge < 0.01:
             return PhanQuyet(False, 0.0, [
                 f"sau khi siết lợi kỳ vọng chỉ ${cho_phep * ch.netEdge:.4f} — "

@@ -5165,6 +5165,13 @@ def kiem_bien_cua_cong_rui_ro() -> None:
     _goc11 = Path(__file__).resolve().parent.parent
     _ma11 = (_goc11 / "kham" / "rui_ro.py").read_text(encoding="utf-8")
     kiem("cổng 11 còn vế `dưới 1 cổ`", 'ma="duoi-mot-co"' in _ma11)
+    # …và nó phải NÓI RÕ còn bao nhiêu, cắt bởi cái gì. "dưới 1 cổ" là
+    # một câu đúng và vô dụng: 0,02 cổ và 0,97 cổ là hai vấn đề khác
+    # hẳn nhau. Cửa này chặn 11,1% trên làn thật 05/09/2026.
+    _v11 = _ma11[_ma11.index('ma="duoi-mot-co"') - 700:
+                 _ma11.index('ma="duoi-mot-co"') + 40]
+    kiem("…và nói ra CÒN BAO NHIÊU cổ", "cho_phep:.3f" in _v11, _v11[-260:])
+    kiem("…và kể tên ràng buộc CẮT CUỐI", "canh[-1]" in _v11, _v11[-260:])
     kiem("cổng 11 còn vế `lợi kỳ vọng quá mỏng`", 'ma="loi-qua-nho"' in _ma11)
     if _songLai:
         # Vế sống thì phải chặn THẬT — không thì nó là chữ trang trí.
