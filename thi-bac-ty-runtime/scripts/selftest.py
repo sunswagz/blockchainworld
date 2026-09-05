@@ -3712,6 +3712,43 @@ def kiem_chan_doan_he() -> None:
          {t.ma for t in chan_doan_he(_anh_ghe(35, conGhe=0))},
          "ghế đầy mà vốn nằm không là `von-o-ty-loi-thap`, không phải bệnh này")
 
+    # Nó phải TRẢ LỜI câu «xem phễu có trần nào kẹt không», không chỉ HỎI.
+    # Đo làn thật 05/09/2026 với 3 ghế trống suốt 35 vòng: 18 tờ trình
+    # toàn là `lending`, chết vì `khoa-von-lau` (khoá 1.956h > trần 720h)
+    # và `duoi-von-toi-thieu` (cấp được 81,13 USD, cần 500 — vì lending
+    # đang ở ĐÚNG 50,0% NAV = `tranMotTy`).
+    _anhP = _anh_ghe(35)
+    _anhP["pheuDayDu"] = {"theoHo": [
+        {"ho": "tin-dung", "lyDoTuChoi": [
+            {"ma": "khoa-von-lau", "so": 12},
+            {"ma": "duoi-von-toi-thieu", "so": 6}]},
+        {"ho": "thanh-khoan", "lyDoTuChoi": [
+            {"ma": "khoa-von-lau", "so": 3},
+            {"ma": "net-am", "so": 1}]}]}
+    _tP2 = [t for t in chan_doan_he(_anhP)
+            if t.ma == "ghe-trong-khong-ai-ngoi"]
+    kiem("câu chẩn TRẢ LỜI bằng lý do phễu, không chỉ bảo đi tra",
+         _tP2 and "Phễu vòng này nói vì sao" in _tP2[0].moTa
+         and "khoa-von-lau" in _tP2[0].moTa,
+         _tP2[0].moTa[-140:] if _tP2 else "")
+    kiem("và CỘNG lý do qua mọi họ, không chỉ lấy một họ",
+         _tP2 and _tP2[0].bangChung["lyDoPheuDauBang"][0] == ("khoa-von-lau", 15),
+         f"{_tP2[0].bangChung.get('lyDoPheuDauBang') if _tP2 else None} — "
+         f"12 của tín dụng + 3 của thanh khoản = 15")
+    kiem("và CÂU CHẨN cũng nêu lý do LỚN NHẤT trước",
+         _tP2 and _tP2[0].moTa.index("khoa-von-lau 15")
+         < _tP2[0].moTa.index("duoi-von-toi-thieu 6"),
+         "bằng chứng xếp đúng mà câu xếp sai thì người đọc vẫn bị dẫn nhầm "
+         "— và hai lần gọi `sorted` là hai chỗ có thể lệch")
+    kiem("xếp theo SỐ LẦN giảm dần",
+         _tP2 and [n for _, n in _tP2[0].bangChung["lyDoPheuDauBang"]]
+         == sorted([n for _, n in _tP2[0].bangChung["lyDoPheuDauBang"]],
+                   reverse=True))
+    kiem("KHÔNG có phễu thì không bịa ra câu nào",
+         _tG and "Phễu vòng này" not in _tG[0].moTa
+         and _tG[0].bangChung["lyDoPheuDauBang"] == [],
+         "im khi không có số còn hơn khai một danh sách rỗng như thể đã tra")
+
     # ── NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng chia tiền ────────────────
     #
     # Sổ đăng ký làn thật 05/09/2026: bảy tờ trình trên 1.000%/năm trong

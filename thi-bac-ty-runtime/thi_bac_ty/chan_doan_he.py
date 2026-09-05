@@ -1097,6 +1097,39 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     except (TypeError, ValueError):
         _kVong = 0
     _conGhe0 = _gv0.get("conGhe")
+    # TRẢ LỜI câu «xem phễu có trần nào kẹt không», đừng bắt người đọc đi
+    # tra. Bản đầu của triệu chứng này chỉ HỎI, và câu trả lời nằm ngay
+    # trong cùng một ảnh chụp.
+    #
+    # Đo làn thật 05/09/2026 với 3 ghế trống suốt 35 vòng: 18 tờ trình
+    # vòng ấy TOÀN LÀ `lending`, và chúng chết vì
+    #
+    #     khoa-von-lau        khoá 1.956 giờ > trần 720 giờ      12 lần
+    #     duoi-von-toi-thieu  chỉ cấp được 81,13 USD, cần 500     6 lần
+    #
+    # Con số 81,13 là vì `lending` đang ở ĐÚNG 50,0% NAV = `tranMotTy`.
+    # Nên ghế trống KHÔNG phải lỗi phân bổ: nguồn cung chỉ có một ty, và
+    # ty ấy đã chạm trần. Câu ấy đáng nói ra, vì nó chỉ sang chỗ khác
+    # hẳn — cung cơ hội — thay vì sang một cái núm.
+    _demLy: dict = {}
+    for _h in ((anh.get("pheuDayDu") or {}).get("theoHo") or []):
+        for _l in (_h.get("lyDoTuChoi") or []):
+            _m = str(_l.get("ma") or "")
+            if not _m:
+                continue
+            try:
+                _demLy[_m] = _demLy.get(_m, 0) + int(_l.get("so") or 0)
+            except (TypeError, ValueError):
+                continue
+    # Sắp xếp MỘT lần rồi dùng cho cả câu chẩn lẫn bằng chứng. Bản đầu gọi
+    # `sorted` hai chỗ với hai khoá khác nhau được — quét đột biến đổi khoá
+    # ở một chỗ mà không phép kiểm nào đỏ, vì chỗ kia vẫn đúng. Hai chân lý
+    # cho một sự thật là một chỗ sẽ lệch.
+    _top = sorted(_demLy.items(), key=lambda kv: -kv[1])[:3]
+    _viPheu = ""
+    if _top:
+        _viPheu = (" Phễu vòng này nói vì sao: "
+                   + " · ".join(f"{_m} {_n}" for _m, _n in _top) + ".")
     if _kVong >= VONG_GHE_TRONG_DANG_NGO and _conGhe0:
         ra.append(TrieuChungHe(
             "ghe-trong-khong-ai-ngoi", 2,
@@ -1107,12 +1140,13 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             f"(«20 bps giữ 24 giờ thua 6 bps giữ 2 giờ, vì vốn quay được "
             f"mười hai lượt» — docstring `phan_bo`). {_kVong} vòng ghế "
             f"trống là phép đo nói giả định ấy đang SAI, nên mọi thứ hạng "
-            f"dựng trên nó đang nghiêng về phía cơ hội kỳ hạn ngắn. Xem "
-            f"phễu: cơ hội tốt hơn có đang kẹt ở một trần nào không.",
+            f"dựng trên nó đang nghiêng về phía cơ hội kỳ hạn ngắn."
+            + _viPheu,
             {"soVongGheTrongKhongLap": _kVong, "conGhe": _conGhe0,
              "soGhe": _gv0.get("soGhe"),
              "soDangDung": _gv0.get("soDangDung"),
-             "nguong": VONG_GHE_TRONG_DANG_NGO},
+             "nguong": VONG_GHE_TRONG_DANG_NGO,
+             "lyDoPheuDauBang": _top},
             # Núm RỖNG. Máy KHÔNG tự đuổi ai vì chuyện này — `trung_uong`
             # đã ghi đúng lý do: «đóng một vị thế mà Phân Bổ không mở lại
             # được là đẩy vốn về tiền mặt ăn 0%». Và nới trần ghế lúc ghế
