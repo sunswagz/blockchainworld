@@ -72,6 +72,8 @@ TRUONG_BAO_CAO = {
     "mucTieu", "hieuQuaVon", "dongTienUocThangUsd", "dongTienDaVeTayThangUsd", "diemTuDo", "ilUsd",
     # Bài 3: đích đến
     "giaiDoanTuDo", "dongTienTheoThang", "dongTienTruot6ThangUsd", "doOnDinhDongTien", "coSoTuDo",
+    # Bài 4: kiểm toán năm hoá, mốc HOLD, ba nguồn lợi nhuận, doanh nghiệp nhỏ
+    "aprTuongDuongPct", "apyLaLaiKep", "alphaSoHoldUsd", "tachLoiNhuan", "business", "donBayUsd",
 }
 
 KHUON_JSON = {

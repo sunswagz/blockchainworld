@@ -18,6 +18,7 @@ import json
 import sys
 
 from . import bang_gia, config as cfgmod, lich
+from .mo_hinh import apr_tu_apy
 from .kinh_nghiem import nap_bai_hoc
 from .quyet_dinh import CHO, GIU, VAO
 
@@ -88,6 +89,9 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
             f"(GIẢ ĐỊNH; khai `khoiLuongNgayUsd` để tách thật)",
             "pool tập trung NHƯ TA: phí vị thế = APR pool, không nhân hiệu "
             "suất (thận trọng; dán địa chỉ pool để đọc L thật)",
+            ("APY OKX coi là lãi KÉP → đổi về APR đơn ln(1+APY) trước khi nhân thời gian "
+             "(423% APY ≈ 165% APR); đặt apyLaLaiKep=false nếu OKX xác nhận là APR"
+             if cfg.get("apyLaLaiKep", True) else "APY OKX coi là APR đơn (apyLaLaiKep=false)"),
             "P(văng) là CẬN TRÊN; τ đếm theo ngày giao dịch Mỹ, phần trôi "
             "ngoài giờ trên chuỗi CHƯA đo",
         ],
@@ -189,6 +193,26 @@ def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
         if tt.get("ilPct") is not None and vt.get("vonUsd"):
             il.append(tt["ilPct"] / 100.0 * float(vt["vonUsd"]))
     coPhi = [x for x in phi if x is not None]
+    # Bài 4: mỗi vị thế là một DOANH NGHIỆP NHỎ — doanh thu, IL, gas ước,
+    # lợi nhuận ròng, ROI tháng, alpha so HOLD. Gas là ước lượng cấu hình
+    # (hai giao dịch), khai là ước.
+    gasUoc = float(((cfg or {}).get("gasVaoRaUsd") or {}).get("gia") or 0.0)
+    business = []
+    for v in viThe:
+        vt, tt = v.get("viThe") or {}, v.get("trangThai") or {}
+        tach = tt.get("tachLoiNhuan") or {}
+        phi = vt.get("phiChoThuUsd")
+        ilv = tach.get("ilUsd") if tach else (
+            (tt["ilPct"] / 100.0 * float(vt["vonUsd"])) if (tt.get("ilPct") is not None and vt.get("vonUsd")) else None)
+        rong = None if (phi is None and ilv is None) else (phi or 0.0) + (ilv or 0.0) - gasUoc
+        business.append({
+            "kyHieu": v.get("kyHieu"), "tokenId": vt.get("tokenId"), "nguon": vt.get("nguon"),
+            "vonUsd": vt.get("vonUsd"), "doanhThuUsd": phi, "ilUsd": ilv, "gasUocUsd": gasUoc,
+            "loiNhuanRongUsd": rong,
+            "roiThangPct": tt.get("hieuQuaVonThangPct"),
+            "alphaSoHoldUsd": tt.get("alphaSoHoldUsd"),
+            "tangGiaTaiSanUsd": tach.get("tangGiaTaiSanUsd") if tach else None,
+            "donBayUsd": 0.0})
     hq = [{"kyHieu": v.get("kyHieu"), "tokenId": (v.get("viThe") or {}).get("tokenId"),
            "hieuQuaVonThangPct": (v.get("trangThai") or {}).get("hieuQuaVonThangPct"),
            "vonUsd": (v.get("viThe") or {}).get("vonUsd")}
@@ -246,6 +270,9 @@ def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
             "pnlUocUsd": (sum(coPhi) + sum(il)) if (coPhi or il) else None,
             "trongDai": sum(1 for v in viThe if (v.get("trangThai") or {}).get("trongDai")),
             "hieuQuaVon": hq,
+            "business": business,
+            "alphaSoHoldUsd": (sum(b["alphaSoHoldUsd"] for b in business if b["alphaSoHoldUsd"] is not None)
+                               if any(b["alphaSoHoldUsd"] is not None for b in business) else None),
             "dongTienUocThangUsd": dongUoc,
             "dongTienDaVeTayThangUsd": daVeTay,
             "dongTienTheoThang": theoThang,
@@ -509,6 +536,11 @@ def _mot_pool(c) -> dict:
          "thieuGi": list(c.thieu),
          "diemRuiRo": rr.cao_nhat(), "ruiRo": rr.tom_tat(),
          "apyTach": {"hienThiPct": apy,
+                     # Bài 4: kiểm toán năm hoá — APY kép → APR đơn tương đương
+                     "aprTuongDuongPct": (None if apy is None else
+                                          (apr_tu_apy(float(apy) / 100.0) * 100.0
+                                           if c.pool.get("apyLaLaiKep", True) is not False else float(apy))),
+                     "apyLaLaiKep": bool(c.pool.get("apyLaLaiKep", True)),
                      "phiPct": None if c.aprPhi is None else c.aprPhi * 100.0,
                      "thuongPct": None if c.aprThuong is None else c.aprThuong * 100.0,
                      "giaDinh": c.nguonApr.startswith("apy-hien-thi"),

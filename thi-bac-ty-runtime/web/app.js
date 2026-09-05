@@ -2671,6 +2671,8 @@
       var l = el("div", "btk-so");
       l.appendChild(o_nho("Giá", pm.gia == null ? "—" : n2(pm.gia) + " · " + (pm.nguonGia === "goc-tuc-thoi" ? "đang giao dịch" : pm.nguonGia === "goc" ? "đóng cửa" : pm.nguonGia || "?")
         + (pm.tuoiGiaGio == null ? "" : ", " + (pm.tuoiGiaGio < 1 ? Math.round(pm.tuoiGiaGio * 60) + " phút" : Math.round(pm.tuoiGiaGio) + "h")), pm.gia == null ? "am" : null));
+      l.appendChild(o_nho("APR đơn tương đương", at2.aprTuongDuongPct == null ? "—" : n2(at2.aprTuongDuongPct, 1) + "%"
+        + (at2.apyLaLaiKep ? " · coi APY là lãi kép (Bài 4)" : " · coi là APR"), "nhat"));
       l.appendChild(o_nho("├ Phí thật", at2.phiPct == null ? "—" : n2(at2.phiPct, 2) + "%" + (at2.giaDinh ? " (giả định)" : "")));
       l.appendChild(o_nho("└ Thưởng OKX", at2.thuongPct == null ? "—" : n2(at2.thuongPct, 2) + "%"));
       l.appendChild(o_nho("σ năm", pm.sigma == null ? "chưa đo — " + so(pm.soPhien) + " phiên" : pc(pm.sigma, 0) + " / " + so(pm.soPhien) + " phiên", pm.sigma == null ? "am" : null));
@@ -2743,6 +2745,13 @@
       l.appendChild(o_nho("IL so HODL", tt.ilPct == null ? "chưa biết giá vào" : n2(tt.ilPct) + "%", tt.ilPct == null ? "nhat" : tt.ilPct < 0 ? "am" : "duong"));
       l.appendChild(o_nho("Giữ", tt.gioGiu == null ? "—" : gioPhut(tt.gioGiu)));
       l.appendChild(o_nho("P(văng) còn lại", dd.xacSuatVang && dd.xacSuatVang.tong != null ? "≤ " + pc(dd.xacSuatVang.tong, 0) : "—"));
+      var tl = tt.tachLoiNhuan;
+      if (tl) {
+        l.appendChild(o_nho("Alpha LP so HOLD", (tl.alphaLpUsd >= 0 ? "+" : "") + tien(tl.alphaLpUsd, 2)
+          + " (phí " + tien(tl.phiUsd, 2) + " + IL " + tien(tl.ilUsd, 2) + ")", tl.alphaLpUsd >= 0 ? "duong" : "am"));
+        l.appendChild(o_nho("Tăng giá tài sản (HOLD)", (tl.tangGiaTaiSanUsd >= 0 ? "+" : "") + tien(tl.tangGiaTaiSanUsd, 2)
+          + " · đòn bẩy $0 (không vay)", "nhat"));
+      }
       the.appendChild(l);
       var dn = el("div", "btk-de-nghi"); dn.appendChild(el("span", "t", "Máy đề nghị"));
       dn.appendChild(el("b", null, (TEN_HD[q.hanhDong] || q.hanhDong || "—") + (q.hanhDong === "GIU" ? " · KHÔNG ĐỔI DẢI" : "")));
@@ -2758,6 +2767,21 @@
       f.appendChild(el("h4", null, "Dòng tiền ĐÃ VỀ TAY theo tháng (Bài 3: không lấy tháng đẹp nhất)"));
       f.appendChild(bang([{ t: "Tháng" }, { t: "USD", n: true }],
         vl.dongTienTheoThang.map(function (x) { return [{ t: x.thang }, { t: x.usd == null ? "— chưa có" : tien(x.usd, 2), c: "n " + (x.usd > 0 ? "duong" : x.usd < 0 ? "am" : "nhat") }]; })));
+    }
+    if ((vl.business || []).length) {
+      f.appendChild(el("h4", null, "Mỗi vị thế là một doanh nghiệp nhỏ (Bài 4)"));
+      f.appendChild(bang([{ t: "Doanh nghiệp" }, { t: "Vốn", n: true }, { t: "Doanh thu (phí)", n: true }, { t: "IL", n: true },
+                          { t: "Gas ước", n: true }, { t: "Lợi nhuận ròng", n: true }, { t: "ROI/tháng", n: true }, { t: "Alpha so HOLD", n: true }],
+        vl.business.map(function (x) {
+          function usd(v) { return v == null ? "—" : (v >= 0 ? "+" : "") + tien(v, 2); }
+          return [{ t: x.kyHieu + (x.tokenId ? " #" + x.tokenId : "") }, { t: tien(x.vonUsd, 0), c: "n" },
+                  { t: usd(x.doanhThuUsd), c: "n" }, { t: usd(x.ilUsd), c: "n " + (x.ilUsd < 0 ? "am" : "") },
+                  { t: x.gasUocUsd == null ? "—" : "−" + tien(x.gasUocUsd, 2), c: "n nhat" },
+                  { t: usd(x.loiNhuanRongUsd), c: "n " + (x.loiNhuanRongUsd > 0 ? "duong" : x.loiNhuanRongUsd < 0 ? "am" : "") },
+                  { t: x.roiThangPct == null ? "—" : n2(x.roiThangPct, 2) + "%", c: "n" },
+                  { t: usd(x.alphaSoHoldUsd), c: "n " + (x.alphaSoHoldUsd > 0 ? "duong" : x.alphaSoHoldUsd < 0 ? "am" : "") }];
+        })));
+      f.appendChild(giai("Alpha so HOLD = (giá trị LP + phí) − giá trị nếu chỉ cầm hai token. Tăng giá tài sản là phần HOLD cũng có; đòn bẩy bằng 0 theo cấu tạo vì ty không vay. Ba nguồn tách riêng — không gộp thành «lãi 70% từ DeFi»."));
     }
     if ((vl.hieuQuaVon || []).length) {
       f.appendChild(el("h4", null, "Hiệu quả vốn — phí trên mỗi $1, quy tháng (Bài 2)"));

@@ -67,8 +67,24 @@ class ViThe:
         RPC không cho `eth_getLogs`): IL và lệch giá là None, không phải 0."""
         x, y = so_luong(self.L, giaHienTai, self.Pa, self.Pb)
         coGiaMo = self.giaMo is not None and self.giaMo > 0
+        giaTri = gia_tri(self.L, giaHienTai, self.Pa, self.Pb)
+        # Bài 4: BA nguồn lợi nhuận tách riêng, so với mốc HOLD.
+        #   tăng giá tài sản  = HODL(giá nay) − vốn
+        #   alpha LP so HOLD  = (giá trị LP + phí chưa thu) − HODL(giá nay)
+        #   đòn bẩy           = 0 theo cấu tạo — ty không vay
+        tach = None
+        alpha = None
+        if coGiaMo:
+            x0, y0 = so_luong(self.L, self.giaMo, self.Pa, self.Pb)
+            hodl = x0 * giaHienTai + y0
+            phi = self.phiChoThuUsd or 0.0
+            alpha = giaTri + phi - hodl
+            tach = {"tangGiaTaiSanUsd": hodl - self.vonUsd, "alphaLpUsd": alpha,
+                    "phiUsd": phi, "ilUsd": giaTri - hodl, "donBayUsd": 0.0,
+                    "tongUsd": giaTri + phi - self.vonUsd}
         return {"trongDai": self.Pa < giaHienTai < self.Pb,
-                "giaTriUsd": gia_tri(self.L, giaHienTai, self.Pa, self.Pb),
+                "alphaSoHoldUsd": alpha, "tachLoiNhuan": tach,
+                "giaTriUsd": giaTri,
                 "ilPct": (il_tai_gia(self.L, self.giaMo, giaHienTai, self.Pa, self.Pb) * 100.0
                           if coGiaMo else None),
                 "x": x, "y": y,

@@ -32,7 +32,7 @@ from thi_bac_ty.to_trinh import Chan, RuiRo, ToTrinh, xin_theo_suc_chua
 from . import bang_gia, config as cfgmod, lich
 from .kinh_nghiem import SoKinhNghiem
 from .mo_hinh import (GIO_NAM, NGAY_GIAO_DICH_NAM, KetQuaDai,
-                      apr_phi_tu_khoi_luong, can_dai, dai_doi_xung,
+                      apr_phi_tu_khoi_luong, apr_tu_apy, can_dai, dai_doi_xung,
                       dai_theo_tick, hieu_suat_von, phan_chia_thanh_khoan,
                       rong_theo_sigma, thanh_khoan_tu_do_la)
 from .nguon import UA_TRINH_DUYET, NguonGiaGoc, NguonRpcPool, NguonRss
@@ -151,6 +151,10 @@ def apr_cua_pool(pool: dict, cfg: dict, gioThuong: float | None,
     phiBps = float(pool.get("phiBps") or 5.0)
     vol = pool.get("khoiLuongNgayUsd")
     apy = pool.get("apyHienThiPhanTram")
+    # APY hiển thị là lãi KÉP (cờ `apyLaLaiKep`) → APR đơn tương đương để
+    # mọi phép nhân theo thời gian phía dưới không lạc quan (Bài 4).
+    if apy is not None and cfg.get("apyLaLaiKep", True):
+        apy = apr_tu_apy(float(apy) / 100.0) * 100.0
     dangThuong = gioThuong is not None and gioThuong > 0
     gd = float(cfg.get("giaDinhPhanThuong") or 0.0)
     if poolRpc and poolRpc.get("thanhKhoan") and vol and hs and poolRpc.get("gia"):
@@ -322,7 +326,8 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                                  None if kdV is None else kdV.tom_tat(),
                                  quyet(bcV).tom_tat()))
 
-    co = CoHoiV3(pool=dict(pool, giuGio=giuGio), ma=ma, kyHieu=pool["kyHieu"],
+    co = CoHoiV3(pool=dict(pool, giuGio=giuGio, apyLaLaiKep=bool(cfg.get("apyLaLaiKep", True))),
+                 ma=ma, kyHieu=pool["kyHieu"],
                  gia=giaInfo, sigma=sigmaInfo, phien=bcPhien.tom_tat(),
                  tauNam=tau, dai=kd, quyetDinh=qd, aprPhi=aprPhi,
                  aprThuong=aprThuong, nguonApr=nguonApr,

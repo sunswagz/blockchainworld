@@ -294,6 +294,24 @@ def lvr_moi_nam(sigma: float, hieuSuat: float) -> float:
     return sigma * sigma / 8.0 * hieuSuat
 
 
+# ── kiểm toán năm hoá (Bài 4) ───────────────────────────────────────────
+#
+# «Tăng 400% trong 4 năm» là ×5 → CAGR = 5^(1/4) − 1 ≈ 49,5%/năm, KHÔNG phải
+# 100%/năm (100%/năm ×4 là ×16). Khoá học nói sai ở mốc 2:20 — phép kiểm
+# `kiem_lp_v3` giữ phép tính ấy; ở đây chỉ giữ phép quy đổi máy đang DÙNG.
+
+def apr_tu_apy(apy: float) -> float:
+    """APR (cộng đơn, liên tục) tương đương với một APY lãi kép: `ln(1 + APY)`.
+
+    OKX ghi chữ «APY». Nếu đó thật là lãi kép thì 423% APY chỉ tương đương
+    APR 165% — phí và thưởng tính theo APR đơn 423% là lạc quan 2,5 lần.
+    Không biết OKX kép hay đơn thì coi là KÉP (số nhỏ hơn) và khai ra.
+    """
+    if apy <= -1.0:
+        raise ValueError("APY phải > −100%")
+    return math.log(1.0 + apy)
+
+
 # ── phí và thưởng ────────────────────────────────────────────────────────
 
 def phan_chia_thanh_khoan(Lta: float, LhoatDongPool: float | None) -> float | None:

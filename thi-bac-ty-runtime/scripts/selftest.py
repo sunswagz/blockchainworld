@@ -11781,8 +11781,8 @@ def kiem_lp_v3() -> None:
     # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
     from lp_v3 import hoc_lieu as hl
     _tt = hl.nap_tri_thuc()
-    kiem("tri_thuc.json nạp được, có ít nhất BA bài, đúng khuôn",
-         len(_tt) >= 3 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("tri_thuc.json nạp được, có ít nhất BỐN bài, đúng khuôn",
+         len(_tt) >= 4 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
@@ -11798,6 +11798,10 @@ def kiem_lp_v3() -> None:
                  for b in _tt for q in b["quyTac"])
          and any(q["ma"] == "tinh-lp-freedom-ratio-moi-thang" and q["trangThai"] == "da-co"
                  for b in _tt for q in b["quyTac"]))
+    kiem("Bài 4 đã ghim: benchmark so HOLD và tách ba nguồn đã có phép canh; tái đầu tư qua risk checkpoint là ý tưởng cấp Trung Ương",
+         any("flywheel" in (b.get("ma") or "") for b in _tt)
+         and any(q["ma"] == "benchmark-so-voi-hold" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "risk-checkpoint-truoc-tai-dau-tu" and q["trangThai"] == "y-tuong" for b in _tt for q in b["quyTac"]))
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
          and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
@@ -11849,6 +11853,22 @@ def kiem_lp_v3() -> None:
          and isinstance(bcH["tinAnhHuong"], list)
          and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
     kiem("báo cáo mang mục `triThuc` với số bài ≥ 1", (bcH.get("triThuc") or {}).get("soBai", 0) >= 1)
+    kiem("Bài 4 — kiểm toán năm hoá: ×5 trong 4 năm là CAGR 49,5%, không phải 100%; 423% APY kép ≈ 165% APR đơn",
+         abs((5.0 ** 0.25 - 1.0) - 0.4953) < 1e-3 and abs((16.0 ** 0.25 - 1.0) - 1.0) < 1e-9
+         and abs(mh.apr_tu_apy(4.2308) - 1.6545) < 1e-3)
+    _atN = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]["apyTach"]
+    kiem("APY OKX coi là lãi kép: phí + thưởng cộng lại bằng APR đơn tương đương, KHÔNG bằng APY hiển thị",
+         _atN["apyLaLaiKep"] is True and gan(_atN["phiPct"] + _atN["thuongPct"], _atN["aprTuongDuongPct"], 1e-6)
+         and _atN["aprTuongDuongPct"] < _atN["hienThiPct"])
+    _vb4 = SoViThe(tam / "vt4.jsonl").mo("NVDAx-USDG", 95.0, 105.0, 1000.0, 100.0)
+    _vb4.phiChoThuUsd = 5.0
+    _tl = _vb4.danh_gia(103.0)["tachLoiNhuan"]
+    kiem("Bài 4 — ba nguồn tách riêng: tăng giá tài sản (HOLD), alpha LP = giá trị + phí − HOLD, đòn bẩy 0",
+         _tl is not None and _tl["donBayUsd"] == 0.0 and _tl["tangGiaTaiSanUsd"] > 0
+         and gan(_tl["alphaLpUsd"], _tl["phiUsd"] + _tl["ilUsd"], 1e-9) and _tl["ilUsd"] < 0
+         and gan(_tl["tongUsd"], _tl["tangGiaTaiSanUsd"] + _tl["alphaLpUsd"], 1e-9))
+    kiem("Bài 4 — báo cáo có `business` theo vị thế và alpha tổng là None khi không có vị thế",
+         "business" in bcH["vonLp"] and bcH["vonLp"]["alphaSoHoldUsd"] is None)
     kiem("KPI Bài 3: sáu tháng gần nhất đều «chưa có» (None) khi chưa vị thế đóng nào; thang tự do năm bậc",
          len(bcH["vonLp"]["dongTienTheoThang"]) == 6
          and all(x["usd"] is None for x in bcH["vonLp"]["dongTienTheoThang"])

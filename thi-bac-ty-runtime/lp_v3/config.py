@@ -80,6 +80,10 @@ CONFIG = {
     #: khối lượng để tách phí gốc, GIẢ ĐỊNH phần này của APY hiển thị là
     #: thưởng. Ghi rõ là giả định, và mọi câu in ra đều nhắc.
     "giaDinhPhanThuong": 0.90,
+    #: OKX ghi «APY». Nếu là lãi KÉP thì phải đổi về APR đơn (ln(1+APY))
+    #: trước khi nhân với thời gian — 423% APY ≈ 165% APR. Không biết chắc
+    #: thì coi là kép: số NHỎ hơn, sai theo hướng thận trọng (Bài 4).
+    "apyLaLaiKep": True,
     "chuongTrinh": {
         "ten": "$220K Rewards for X Layer Liquidity Providers",
         "quyUsd": 220_000.0,
