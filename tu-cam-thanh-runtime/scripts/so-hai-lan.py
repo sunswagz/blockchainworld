@@ -88,6 +88,7 @@ def _doc(thu_muc: Path, ten_tk: str) -> dict | None:
             # nhận bản ghi khi lệnh đã đóng. Đếm bằng sổ thì luôn ra 0.
             "dangMo": len(tk.get("positions") or []),
             "boLuat": (chien_luoc.doc().get("champion") or {}).get("ma"),
+            "huongHieuLuc": _huong_hieu_luc(chien_luoc.doc()),
             "banGhiChampion": _lech_bang_chung(chien_luoc.doc(),
                                               _khung_cua_lan(thu_muc)),
             "huong": {h: sum(1 for t in ds if t.get("side") == h)
@@ -145,6 +146,72 @@ def _lech_bang_chung(d: dict, khung_chay: str | None) -> str | None:
         return (f"bản ghi đo trên MỘT chợ ({cho_ghi}) — đừng đọc nó như kết quả "
                 f"của cả làn")
     return None
+
+
+def _huong_hieu_luc(d: dict) -> str | None:
+    """Hướng mà champion THẬT SỰ được phép đánh, đọc từ `tham.cheDoVao`.
+
+    Nhãn của làn trong `LAN` nói về SÀN cho phép gì; nó không đổi khi ai đó khoá
+    hướng ở tầng bộ luật. Ngày 05/09/2026 làn demo bị đặt `cheDoVao:
+    ["TREND_DOWN"]` (bỏ nửa LONG vì nó âm −0,157 và −0,170 trên hai tập chợ lạ)
+    mà nhãn vẫn ghi "hai chiều" — bảng nói một đằng, hệ chạy một nẻo, đúng họ
+    lỗi mà `_lech_bang_chung` ở trên dựng ra để bắt.
+    """
+    ch = (d.get("champion") or {}).get("tham") or {}
+    che = ch.get("cheDoVao")
+    if not che:
+        return None
+    ten = {"TREND_UP": "LONG", "TREND_DOWN": "SHORT"}
+    co = [ten.get(x, x) for x in che]
+    if len(co) == 1:
+        return f"bộ luật KHOÁ hướng: chỉ {co[0]} (cheDoVao={che})"
+    return f"bộ luật cho phép: {', '.join(co)}"
+
+
+def _pheu(thu_muc: Path) -> str | None:
+    """Bao nhiêu luận điểm thành lệnh, bao nhiêu bị tầng rủi ro chặn.
+
+    VÌ SAO IN RA: bản chạy lại khớp đúng giá mà luận điểm đọc, nên nó KHÔNG BAO
+    GIỜ gặp cửa `GIA_DA_CHAY` (`maxTroiGiaAtr`). Nó tính vào thống kê những lệnh
+    mà bản thật từ chối. Đo 05/09/2026 bằng biến thay thế
+    `|close(i+1) − close(i)| / ATR(i)`: **~30% lệnh trong bản chạy lại bị cửa
+    này chặn ở bản thật** — 33,1% và 30,2% trên hai tập chợ độc lập. Và 30% là
+    SÀN, vì biến thay thế ấy đánh giá thấp độ trôi thật (bot có thể hành động
+    nhiều giờ sau khi nến đóng; ca TUSDT 03/09 trôi +46% trong ngày).
+
+    Hệ quả: **đừng suy nhịp lệnh thật từ số lệnh trong bản chạy lại.** Nhịp chạy
+    lại dự đoán 1,15 lệnh/ngày cho làn demo, nhịp thật đo được 0,36.
+
+    Còn CHƯA xác lập, đừng đọc rộng hơn: nhóm bị chặn có kỳ vọng khác nhóm qua
+    được hay không. Hai tập bất đồng hẳn (−0,0021R và +0,1859R), nên chỗ lệch
+    này mới chỉ chắc về SỐ LƯỢNG, chưa chắc về GIÁ TRỊ.
+
+    Đọc từ nhật ký chứ không từ sổ: sổ chỉ ghi lệnh ĐÃ VÀO, nên tự nó không bao
+    giờ kể được phần bị chặn.
+    """
+    f = thu_muc / "nhat-ky" / "runtime.log"
+    if not f.exists():
+        return None
+    try:
+        dong = f.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+    mo = sum(1 for d in dong if "mo-vi-the" in d)
+    tu_choi = [d for d in dong if "tu-choi" in d]
+    if not mo and not tu_choi:
+        return None
+    ly_do: dict[str, int] = {}
+    for d in tu_choi:
+        for ma in ("GIA_DA_CHAY", "SL_SAI_PHÍA", "SL_QUÁ_RỘNG", "SL_QUÁ_HẸP",
+                   "SPOT_KHONG_SHORT", "RR_THẤP", "CONFIDENCE_THẤP"):
+            if ma in d:
+                ly_do[ma] = ly_do.get(ma, 0) + 1
+                break
+    dau = ""
+    if ly_do:
+        ten, so = max(ly_do.items(), key=lambda x: x[1])
+        dau = f" · đầu bảng {ten} ×{so}"
+    return f"mở {mo} · tầng rủi ro CHẶN {len(tu_choi)}{dau}"
 
 
 def _nhip(thu_muc: Path, ten_tk: str) -> str:
@@ -238,6 +305,11 @@ def main() -> int:
             print(f"      {h:<6} {n:>4} lệnh · "
                   + (f"{r:+.4f}R" if r is not None else "—"))
         print(f"    nhịp        {_nhip(tm, ten_tk)}")
+        if d.get("huongHieuLuc"):
+            print(f"    ⚠ {d['huongHieuLuc']}")
+        _ph = _pheu(tm)
+        if _ph:
+            print(f"    phễu        {_ph}")
 
     print(NL + "  " + "─" * 62)
     print("  Hai làn KHÔNG so trực tiếp được: khác sàn, khác bộ luật, khác")
