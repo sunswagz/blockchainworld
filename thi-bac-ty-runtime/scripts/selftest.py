@@ -3628,6 +3628,51 @@ def kiem_chan_doan_he() -> None:
          de_xuat(dt, {"ruiRoTong": {"tranMotCang": 0.4}}) == [],
          "đi tắt là lỗi kiến trúc, vặn tham số không chữa được")
 
+    # ── NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng chia tiền ────────────────
+    #
+    # Sổ đăng ký làn thật 05/09/2026: bảy tờ trình trên 1.000%/năm trong
+    # 6.000 tờ gần nhất, và NĂM trong đó đã CẤP VỐN và MỞ VỊ THẾ. Kết cục
+    # đo được của chính chúng: hứa 1.889,78 bps/giờ, thực nhận −261,06.
+    from thi_bac_ty.chan_doan_he import NET_QUY_NAM_VO_LY as _NV
+
+    def _anh_vl(*tt):
+        return {"soDangKy": {"pheu": {"phatHien": 300, "DUYET_TY": 200,
+                                      "DUYET_RUI_RO": 150,
+                                      "DA_CAP_VON": 100, "DA_MO": 95}},
+                "danhMuc": {"tiLeDungVon": 0.62},
+                "toTrinh": list(tt)}
+
+    _RAC = {"chienLuoc": "prediction.polymarket.v1",
+            "netUocBps": 555.36, "giuGio": 0.25}
+    _THAT = {"chienLuoc": "amm.fee_farming.v1",
+             "netUocBps": 46.0, "giuGio": 168.0}
+    _tV = [t for t in chan_doan_he(_anh_vl(_RAC, _THAT))
+           if t.ma == "net-quy-nam-vo-ly"]
+    kiem("NET quy năm vô lý → thành triệu chứng", len(_tV) == 1,
+         str([t.ma for t in chan_doan_he(_anh_vl(_RAC, _THAT))]))
+    kiem("đếm đúng bao nhiêu trên tổng bao nhiêu",
+         _tV and _tV[0].bangChung["soVoLy"] == 1
+         and _tV[0].bangChung["soToTrinh"] == 2, str(_tV[0].bangChung) if _tV else "")
+    kiem("và gọi tên ty khai nó",
+         _tV and _tV[0].bangChung["chienLuoc"] == ["prediction.polymarket.v1"])
+    kiem("KHÔNG khai núm nào", _tV and _tV[0].nutGoiY == [],
+         "`netMoiGioToiThieuBps` là SÀN — nới nó không chạm tới trần")
+    kiem("chỉ toàn tờ trình THẬT thì im",
+         "net-quy-nam-vo-ly" not in {t.ma for t in chan_doan_he(_anh_vl(_THAT))},
+         "24%/năm giữ 168 giờ là một lợi suất bình thường")
+    # `netMoiGioBps` khai sẵn cũng phải bắt được — không chỉ đường chia.
+    kiem("bắt cả khi `netMoiGioBps` đã khai sẵn",
+         "net-quy-nam-vo-ly" in {t.ma for t in chan_doan_he(_anh_vl(
+             {"chienLuoc": "x.y.v1", "netMoiGioBps": 6221.42,
+              "giuGio": 0.25}))})
+    # Cơ hội NGẮN nhưng lợi suất quy năm bình thường thì KHÔNG đụng tới —
+    # đây đúng là chỗ bản đầu của tôi chặn nhầm ở `ToTrinh.kiem()`.
+    kiem("cơ hội ngắn mà quy năm bình thường thì KHÔNG kêu",
+         "net-quy-nam-vo-ly" not in {t.ma for t in chan_doan_he(_anh_vl(
+             {"chienLuoc": "z.z.v1", "netUocBps": 0.02, "giuGio": 0.25}))},
+         "lẫn «con số quy năm vô nghĩa» với «cơ hội không hợp lệ» là chặn "
+         "nhầm — bộ kiểm đã bác đúng chuyện đó một lần")
+
     # ── PHÍ ăn phần lớn THU GỘP của cả hệ ───────────────────────────────
     #
     # Khác `phi-vao-an-het`: cái kia đo TỪNG TY và đòi ty ấy LỖ GỘP mới

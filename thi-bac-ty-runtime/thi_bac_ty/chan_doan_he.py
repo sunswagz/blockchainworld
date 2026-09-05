@@ -96,6 +96,12 @@ NGUONG_PHI_TREN_THU = 0.35
 #: Phải có ngần này bút toán PHÍ thì tỉ lệ mới nói được gì. Năm mươi.
 TOI_THIEU_BUT_TOAN_PHI = 50
 
+#: NET quy năm cao hơn ngần này (%/năm) thì con số ấy không còn là lợi
+#: suất. Cùng giá trị với `xoay_cho.APR_TOI_DA`, và cố ý không import:
+#: đây là NGƯỠNG ĐỌC của bảng chẩn, còn bên kia là ngưỡng HÀNH ĐỘNG của
+#: máy xoay chỗ. Hai vai khác nhau thì được phép rời nhau.
+NET_QUY_NAM_VO_LY = 1000.0
+
 #: Lệch bao nhiêu bps mỗi giờ thì gọi là hứa quá. Không đặt 0: mọi phép đo
 #: đều có sai số, và một cỗ máy báo bệnh ở lệch 0,001 bps là một cỗ máy
 #: báo bệnh mỗi vòng.
@@ -1057,6 +1063,73 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
     # buồng lái, và vòng tiến hoá không biết nó tồn tại — nên vòng ấy chỉ
     # học được về đúng cái ty mà chính nó đã tắt.
     dvt = anh.get("duDoanVaThuc") or {}
+
+    # ── 8y. NET quy năm VÔ LÝ, và nó đứng ĐẦU bảng xếp hạng ─────────────
+    #
+    # `phan_bo.chia()` xếp hạng bằng `netMoiGioBps` — `netUocBps / giuGio`.
+    # Với một cửa sổ 15 phút, 555 bps thành 194.598%/năm, và tờ trình ấy
+    # KHÔNG lọt qua: nó được ƯU TIÊN, vì bảng xếp theo đúng con số đó.
+    #
+    # Đo sổ đăng ký làn thật 05/09/2026 — bảy tờ trình trên 1.000%/năm
+    # trong 6.000 tờ gần nhất, và NĂM trong đó đã CẤP VỐN và MỞ VỊ THẾ:
+    #
+    #     544.997 %/năm  prediction.polymarket.v1  DA_DONG
+    #     212.900 %/năm  prediction.polymarket.v1  DA_DONG
+    #      96.710 %/năm  prediction.polymarket.v1  DA_DONG
+    #      16.252 %/năm  dex.round_trip.v1         TU_CHOI
+    #
+    # Kết cục đo được của chính chúng: hứa 1.889,78 bps/giờ, thực nhận
+    # **−261,06**. `CAP_VON` cho ty ấy: 5 lần, 1.426 USD.
+    #
+    # Đây là TRIỆU CHỨNG, không phải cổng chặn — và đó là một lựa chọn.
+    # Bản đầu tôi chặn thẳng ở `ToTrinh.kiem()`, và bộ kiểm bác ngay: đồ
+    # gá dùng 100 bps giữ 2 giờ, một cơ hội chênh lệch ngắn hạn HỢP LỆ mà
+    # trần cũng chặn luôn. Lẫn «con số quy năm này vô nghĩa» với «cơ hội
+    # này không hợp lệ» là chặn nhầm. Nên chỗ này chỉ NÓI RA.
+    #
+    # Cửa duy nhất từng canh chuyện này là `apy-cao-bat-thuong` của RIÊNG
+    # ty Pendle. `rui_ro_tong` chỉ có SÀN (`netMoiGioToiThieuBps`), không
+    # có trần; `phan_bo` không có gì.
+    _tts = anh.get("toTrinh") or []
+    _voLy = []
+    for _t in _tts:
+        if not isinstance(_t, dict):
+            continue
+        try:
+            _g = float(_t.get("giuGio") or 0.0)
+            _n = _t.get("netMoiGioBps")
+            if _n is None:
+                _nu = _t.get("netUocBps")
+                if _nu is None or _g <= 0:
+                    continue
+                _n = float(_nu) / _g
+            _apr = float(_n) * 8760.0 / 100.0
+        except (TypeError, ValueError):
+            continue
+        if _apr > NET_QUY_NAM_VO_LY:
+            _voLy.append((_apr, str(_t.get("chienLuoc") or "?"), _g))
+    if _voLy:
+        _voLy.sort(reverse=True)
+        _tong = len(_tts)
+        # Hạng của cái cao nhất: đếm xem có bao nhiêu tờ trình khác vượt
+        # nó. Bằng 0 nghĩa là nó đang ĐỨNG ĐẦU bảng chia tiền.
+        _ten = ", ".join(sorted({c for _, c, _ in _voLy}))
+        ra.append(TrieuChungHe(
+            "net-quy-nam-vo-ly", 2,
+            f"{len(_voLy)}/{_tong} tờ trình vòng này khai NET quy năm trên "
+            f"{NET_QUY_NAM_VO_LY:,.0f}% — cao nhất {_voLy[0][0]:,.0f}%/năm "
+            f"trên cửa sổ giữ {_voLy[0][2]:g} giờ ({_ten}). Phân bổ xếp "
+            f"hạng bằng `netMoiGioBps`, nên những tờ này KHÔNG lọt qua — "
+            f"chúng được ƯU TIÊN. Một con số quy năm từ một quãng mười lăm "
+            f"phút không phải lợi suất; nó giả định vốn quay lại được ngần "
+            f"ấy lượt, mà không ai kiểm điều đó.",
+            {"soVoLy": len(_voLy), "soToTrinh": _tong,
+             "aprCaoNhat": _voLy[0][0], "giuGioCaoNhat": _voLy[0][2],
+             "chienLuoc": sorted({c for _, c, _ in _voLy}),
+             "nguong": NET_QUY_NAM_VO_LY},
+            # Núm RỖNG. `netMoiGioToiThieuBps` là SÀN, nới nó không chạm
+            # tới trần; và không núm nào trong bảng đặt được trần.
+            []))
 
     # ── 8z. PHÍ VÀO LỆNH ăn phần lớn THU GỘP của CẢ HỆ ──────────────────
     #
