@@ -94,7 +94,7 @@ def quet_truc(toTrinh: list, thamSo: dict, vonBanDauUsd: float,
         "hienTaiTrenLuoi": hienTai in luoi,
         "diem": diem,
         "batDong": bat_dong(diem),
-        "totNhat": tot_nhat(diem),
+        "totNhat": tot_nhat(diem, hienTai),
     }
 
 
@@ -112,17 +112,79 @@ def bat_dong(diem: list) -> bool:
                for x in diem[1:])
 
 
-def tot_nhat(diem: list) -> dict | None:
-    """Điểm có TỔNG cao nhất, kèm mức hơn điểm đang dùng.
+def dam_hon(x: dict, moc: dict) -> bool:
+    """`x` TẬP TRUNG hơn `moc` — cùng luật, cùng dải với `chay_lai_he`.
+
+    Chép luật ra hai chỗ là hai chỗ sẽ lệch, nên chỗ này gọi thẳng
+    `chay_lai_he.dam_hon_hai_ben` chứ không viết lại phép so.
+    """
+    from thi_bac_ty.chay_lai_he import dam_hon_hai_ben
+    return dam_hon_hai_ben(
+        moc.get("tiTrongCang"), moc.get("tiTrongTy"),
+        x.get("tiTrongCang"), x.get("tiTrongTy"))
+
+
+def tot_nhat(diem: list, hienTai=None) -> dict | None:
+    """Điểm có TỔNG cao nhất mà KHÔNG tập trung hơn chỗ đang đứng.
 
     KHÔNG tuyên bố người thắng nếu trục bất động — cùng luật với
     `chay_lai_he.doi_chieu()`: một cỗ máy tự chấm điểm mình phải bị cấm
     cái thang điểm nó leo được bằng cách tự tháo phanh.
+
+    Và chấm bằng TỔNG một mình cũng là một lối tháo phanh. Đo làn thật
+    05/09/2026 trên `ruiRoTong.tranMotCang`:
+
+        0.35 (đang dùng)   311,19 USD/giờ   tỉ trọng ty 47,4%
+        0.45               312,41 USD/giờ   tỉ trọng ty 57,1%   ← thắng
+                                              theo TỔNG
+
+    Hơn **0,39%** thu, đổi lấy **gần mười điểm** tập trung. Chính cỗ máy
+    này gọi thế là `b-tot-hon-NHUNG-dam-hon`, và `cong_duyet` LOẠI nó
+    (`KET_LUAN_QUA = ("b-tot-hon",)`). Nên bảng quét trục trước lượt này
+    đội vương miện cho đúng thứ cổng duyệt sẽ từ chối — hai cái thước
+    trong cùng một cỗ máy nói hai câu khác nhau.
+
+    `hienTai` là điểm ĐANG ĐỨNG. Không có nó — hoặc giá trị đang dùng
+    không nằm trên lưới — thì không có mốc so, nên KHÔNG loại ai: bịa ra
+    một cái mốc còn tệ hơn không có mốc (xem `truc-nut-lech-luoi`). Chỗ
+    ấy khai bằng `thieuMoc`.
     """
     co = [x for x in diem if x.get("tongUsdMoiGio") is not None]
     if not co or bat_dong(diem):
         return None
-    return max(co, key=lambda x: x["tongUsdMoiGio"])
+    dan = sorted(co, key=lambda x: -x["tongUsdMoiGio"])
+    moc = None
+    if hienTai is not None:
+        for x in diem:
+            if _gan_gia_tri(x.get("giaTri"), hienTai):
+                moc = x
+                break
+    if moc is None:
+        ra = dict(dan[0])
+        ra["thieuMoc"] = True
+        return ra
+    loai = []
+    for x in dan:
+        if x is moc or not dam_hon(x, moc):
+            ra = dict(x)
+            ra["thieuMoc"] = False
+            if loai:
+                ra["quanQuanBiLoai"] = loai
+            return ra
+        loai.append({"giaTri": x.get("giaTri"),
+                     "tongUsdMoiGio": x.get("tongUsdMoiGio"),
+                     "tiTrongTy": x.get("tiTrongTy"),
+                     "tiTrongCang": x.get("tiTrongCang")})
+    return None
+
+
+def _gan_gia_tri(a, b) -> bool:
+    if a is None or b is None:
+        return a is b
+    try:
+        return abs(float(a) - float(b)) < 1e-9
+    except (TypeError, ValueError):
+        return a == b
 
 
 def doi_chieu_hai_cua_so(a: dict, b: dict) -> dict:

@@ -236,6 +236,19 @@ def mot_luot(toTrinh: list, thamSo: dict, vonBanDauUsd: float,
     return kq
 
 
+def dam_hon_hai_ben(aCang, aTy, bCang, bTy) -> bool:
+    """B TẬP TRUNG hơn A — một chỗ duy nhất giữ luật này.
+
+    `quet_truc.tot_nhat` cũng phải hỏi đúng câu ấy, và chép phép so ra
+    hai nơi là hai nơi sẽ lệch. Dải 1e-9 nuốt trọn chỗ `>` khác `>=`,
+    nên con đột biến ở đó TƯƠNG ĐƯƠNG; cái đáng kiểm là hai vế
+    `is not None`.
+    """
+    def _hon(x, y):
+        return x is not None and y is not None and x > y + 1e-9
+    return _hon(bCang, aCang) or _hon(bTy, aTy)
+
+
 def doi_chieu(toTrinh: list, thamSoA: dict, thamSoB: dict,
               vonBanDauUsd: float, soDongHong: int = 0) -> dict:
     """Chạy A và B trên CÙNG một lô, rồi nói ra chênh lệch — không phán."""
@@ -253,13 +266,8 @@ def doi_chieu(toTrinh: list, thamSoA: dict, thamSoB: dict,
     na, nb = a.netMoiGioBinhQuanBps, b.netMoiGioBinhQuanBps
     lech = None if (na is None or nb is None) else nb - na
     # Tập trung so bằng TỈ TRỌNG vốn đã rót — xem `KetQua.tiTrongCang`.
-    def _hon(x, y):
-        # Dải 1e-9 nuốt trọn chỗ `>` khác `>=` — con đột biến ở đó TƯƠNG
-        # ĐƯƠNG. Cái đáng kiểm là hai vế `is not None`, và chúng đã có
-        # phép kiểm.
-        return x is not None and y is not None and x > y + 1e-9
-    dam_hon = (_hon(b.tiTrongCang, a.tiTrongCang)
-               or _hon(b.tiTrongTy, a.tiTrongTy))
+    dam_hon = dam_hon_hai_ben(a.tiTrongCang, a.tiTrongTy,
+                              b.tiTrongCang, b.tiTrongTy)
 
     if lech is None:
         ket, vi = "khong-ket-luan", "một bên không rót được đồng nào"

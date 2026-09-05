@@ -7328,6 +7328,102 @@ def kiem_quet_truc() -> None:
                                           "vi": "cả hai cửa sổ đều nói núm "
                                                 "này KHÔNG ràng buộc"})
 
+    # ── TỔNG cao nhất mà TẬP TRUNG hơn thì KHÔNG được đội vương miện ────
+    #
+    # Đo làn thật 05/09/2026, `ruiRoTong.tranMotCang`:
+    #
+    #     0.35 (đang dùng)   311,19 USD/giờ   tỉ trọng ty 47,4%
+    #     0.45               312,41 USD/giờ   tỉ trọng ty 57,1%  ← thắng
+    #     0.6                312,53 USD/giờ   tỉ trọng ty 62,5%  ← thắng
+    #
+    # Hơn 0,39% thu, đổi gần MƯỜI điểm tập trung. Chính cỗ máy này gọi
+    # thế là `b-tot-hon-NHUNG-dam-hon`, và `cong_duyet` LOẠI nó. Bảng
+    # quét trục thì đội vương miện — hai cái thước, hai câu.
+    class _KQT:
+        def __init__(self, von, net, ty, cang=None):
+            self._d = {"tongCapUsd": von, "netMoiGioBinhQuanBps": net,
+                       "tiTrongTy": ty,
+                       "tiTrongCang": cang if cang is not None else ty}
+
+        def tom_tat(self):
+            return dict(self._d)
+
+    CANG = {0.1:  (537073.0, 5.7301, 0.605),
+            0.2:  (689087.0, 4.4860, 0.580),
+            0.35: (738687.0, 4.2128, 0.474),
+            0.45: (788287.0, 3.9631, 0.571),
+            0.6:  (800000.0, 3.9066, 0.625)}
+
+    def _mot_c(tt, ts, von, nhan=""):
+        return _KQT(*CANG[doc_nut(ts, "ruiRoTong.tranMotCang")])
+
+    rc = quet_truc([], {"ruiRoTong": {"tranMotCang": 0.35}}, 1_000_000.0,
+                   "ruiRoTong.tranMotCang", sorted(CANG), _mot_c, _dat)
+    _tc = {x["giaTri"]: x["tongUsdMoiGio"] for x in rc["diem"]}
+    kiem("đồ gá đúng hình: có điểm TỔNG cao hơn chỗ đang đứng",
+         _tc[0.6] > _tc[0.45] > _tc[0.35],
+         f"{_tc} — không có nó thì phép kiểm dưới đây canh một cái rỗng")
+    kiem("quán quân theo TỔNG bị LOẠI vì tập trung hơn chỗ đang đứng",
+         rc["totNhat"]["giaTri"] == 0.35,
+         f"chọn {rc['totNhat']['giaTri']} — 0,39% thu không mua nổi mười "
+         f"điểm tập trung, và `cong_duyet` cũng nghĩ thế")
+    kiem("và những kẻ BỊ LOẠI phải hiện ra, xếp theo TỔNG giảm dần",
+         [x["giaTri"] for x in rc["totNhat"]["quanQuanBiLoai"]] == [0.6, 0.45],
+         f"{rc['totNhat'].get('quanQuanBiLoai')} — tính rồi giấu thì người "
+         f"đọc thấy người thắng khiêm tốn mà không biết vì sao")
+    kiem("chỗ ĐANG ĐỨNG không bao giờ tự loại chính nó",
+         rc["totNhat"]["thieuMoc"] is False)
+
+    # Chỉ TỈ TRỌNG CẢNG tăng — luật là HOẶC, không phải VÀ.
+    def _mot_cang(tt, ts, von, nhan=""):
+        g = doc_nut(ts, "ruiRoTong.tranMotCang")
+        v, n, ty = CANG[g]
+        return _KQT(v, n, 0.40, cang=0.30 if g <= 0.35 else 0.80)
+
+    rcc = quet_truc([], {"ruiRoTong": {"tranMotCang": 0.35}}, 1_000_000.0,
+                    "ruiRoTong.tranMotCang", sorted(CANG), _mot_cang, _dat)
+    kiem("chỉ CẢNG đậm hơn cũng đủ loại — luật là HOẶC",
+         rcc["totNhat"]["giaTri"] == 0.35,
+         f"chọn {rcc['totNhat']['giaTri']} — ty đứng yên 40% suốt trục, "
+         f"chỉ cảng nhảy 30% → 80%")
+
+    # Tập trung GIẢM thì thắng bình thường — luật này không được chặn bừa.
+    def _mot_giam(tt, ts, von, nhan=""):
+        g = doc_nut(ts, "ruiRoTong.tranMotCang")
+        v, n, _ = CANG[g]
+        return _KQT(v, n, 0.60 if g <= 0.35 else 0.30)
+
+    rg = quet_truc([], {"ruiRoTong": {"tranMotCang": 0.35}}, 1_000_000.0,
+                   "ruiRoTong.tranMotCang", sorted(CANG), _mot_giam, _dat)
+    kiem("TỔNG cao hơn mà tập trung GIẢM thì thắng — đây mới là cải thiện",
+         rg["totNhat"]["giaTri"] == 0.6
+         and "quanQuanBiLoai" not in rg["totNhat"],
+         f"chọn {rg['totNhat']['giaTri']} — chặn cả cái này là chặn bừa")
+
+    # KHÔNG có mốc trên lưới ⇒ không loại được ai, và phải KHAI ra.
+    rm = quet_truc([], {"ruiRoTong": {"tranMotCang": 0.4}}, 1_000_000.0,
+                   "ruiRoTong.tranMotCang", sorted(CANG), _mot_c, _dat)
+    kiem("lưới không chứa chỗ đang đứng ⇒ không loại ai, nhưng KHAI ra",
+         rm["totNhat"]["giaTri"] == 0.6 and rm["totNhat"]["thieuMoc"] is True,
+         f"{rm['totNhat']} — bịa ra một cái mốc còn tệ hơn không có mốc")
+
+    # Không đo được tập trung ⇒ không loại ai. Các phép kiểm cũ ở trên
+    # chạy đúng đường này, nên nói thẳng ra chứ đừng để nó là ngẫu nhiên.
+    kiem("không có số tập trung thì không loại ai, cũng không nổ",
+         r["totNhat"] is not None and "quanQuanBiLoai" not in r["totNhat"],
+         "thiếu phép đo là chưa biết, không phải là an toàn")
+
+    # Và phép so phải là MỘT chỗ dùng chung với `chay_lai_he`.
+    from thi_bac_ty.chay_lai_he import dam_hon_hai_ben as _dh
+    kiem("phép so tập trung dùng CHUNG một chỗ với `chay_lai_he`",
+         _dh(0.3, 0.4, 0.31, 0.4) is True
+         and _dh(0.3, 0.4, 0.3, 0.41) is True
+         and _dh(0.3, 0.4, 0.3, 0.4) is False
+         and _dh(None, 0.4, 0.9, 0.4) is False
+         and _dh(0.3, None, 0.3, 0.9) is False,
+         "chép luật ra hai nơi là hai nơi sẽ lệch; thiếu số thì KHÔNG kết "
+         "luận là đậm hơn")
+
 
 def kiem_nguon_doi_429() -> None:
     print("")

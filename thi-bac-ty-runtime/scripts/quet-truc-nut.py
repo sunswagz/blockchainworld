@@ -112,6 +112,23 @@ def main() -> int:
             if r["batDong"]:
                 print("  → TRỤC BẤT ĐỘNG: núm này không ràng buộc gì trong "
                       "chế độ hiện tại. Đừng đề xuất vặn nó.")
+            # Quán quân theo TỔNG mà bị loại vì TẬP TRUNG phải hiện ra.
+            # Tính rồi giấu thì người đọc thấy một người thắng khiêm tốn
+            # và không biết vì sao kẻ cao điểm hơn không được gọi tên.
+            tn = r.get("totNhat") or {}
+            for bl in tn.get("quanQuanBiLoai", []):
+                print("  ✗ %s có TỔNG cao hơn (%.3f) nhưng TẬP TRUNG hơn "
+                      "chỗ đang đứng (ty %s · cảng %s) — cỗ máy này gọi thế "
+                      "là `b-tot-hon-NHUNG-dam-hon`, và `cong_duyet` LOẠI."
+                      % (bl["giaTri"], bl["tongUsdMoiGio"],
+                         "-" if bl.get("tiTrongTy") is None
+                         else f"{bl['tiTrongTy']:.1%}",
+                         "-" if bl.get("tiTrongCang") is None
+                         else f"{bl['tiTrongCang']:.1%}"))
+            if tn.get("thieuMoc"):
+                print("  ⚠ không có điểm ĐANG ĐỨNG trên lưới nên KHÔNG loại "
+                      "được ai vì tập trung — người thắng ở đây mới chỉ "
+                      "thắng theo TỔNG")
 
         if len(ket) >= 2:
             dc = doi_chieu_hai_cua_so(ket[0], ket[-1])
