@@ -11673,13 +11673,17 @@ def kiem_lp_v3() -> None:
     cu = {c.kyHieu: c for c in ty.can_tat_ca(_dt.datetime(2026, 9, 5, 10, 0, tzinfo=lich.VN))}
     kiem("cùng NVDAx nhưng thứ Bảy → CHỜ vì ngoài giờ",
          cu["NVDAx-USDG"].quyetDinh.luatQuyet == "ngoai-gio-khong-doi-dai")
+    _aprTd = mh.apr_tu_apy(2.0)          # 200% APY lãi kép → ln 3 ≈ 109,9% APR đơn
     aP, aT, ng, _ = apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5, "tvlUsd": 1e5}, _cf.CONFIG, 10.0)
-    kiem("APR từ APY hiển thị: tách theo giả định, nguồn khai `apy-hien-thi-gia-dinh`",
-         gan(aP, 0.2) and gan(aT, 1.8) and ng == "apy-hien-thi-gia-dinh")
+    kiem("APR từ APY hiển thị: đổi lãi kép → APR đơn TRƯỚC, rồi tách theo giả định (Bài 4)",
+         gan(aP, 0.1 * _aprTd) and gan(aT, 0.9 * _aprTd) and ng == "apy-hien-thi-gia-dinh")
     aP2, aT2, ng2, _ = apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5, "tvlUsd": 1e5,
                                      "khoiLuongNgayUsd": 2e5}, _cf.CONFIG, 10.0)
-    kiem("có khối lượng thì phí = vol × phí × 365 / TVL, thưởng = phần còn lại",
-         gan(aP2, 2e5 * 0.0005 * 365 / 1e5) and gan(aT2, 2.0 - aP2) and ng2 == "khoi-luong")
+    kiem("có khối lượng thì phí = vol × phí × 365 / TVL, thưởng = APR đơn tương đương − phí",
+         gan(aP2, 2e5 * 0.0005 * 365 / 1e5) and gan(aT2, _aprTd - aP2) and ng2 == "khoi-luong")
+    _cfgApr = dict(_cf.CONFIG, apyLaLaiKep=False)
+    kiem("đặt apyLaLaiKep=false thì APY được coi là APR đơn, không đổi",
+         gan(apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5, "tvlUsd": 1e5}, _cfgApr, 10.0)[0], 0.2))
     kiem("hết thưởng → APR thưởng 0", apr_cua_pool({"apyHienThiPhanTram": 200.0, "phiBps": 5,
                                                      "tvlUsd": 1e5}, _cf.CONFIG, 0.0)[1] == 0.0)
     ty.coHoi = list(co.values())
@@ -11867,8 +11871,11 @@ def kiem_lp_v3() -> None:
          _tl is not None and _tl["donBayUsd"] == 0.0 and _tl["tangGiaTaiSanUsd"] > 0
          and gan(_tl["alphaLpUsd"], _tl["phiUsd"] + _tl["ilUsd"], 1e-9) and _tl["ilUsd"] < 0
          and gan(_tl["tongUsd"], _tl["tangGiaTaiSanUsd"] + _tl["alphaLpUsd"], 1e-9))
-    kiem("Bài 4 — báo cáo có `business` theo vị thế và alpha tổng là None khi không có vị thế",
-         "business" in bcH["vonLp"] and bcH["vonLp"]["alphaSoHoldUsd"] is None)
+    kiem("Bài 4 — báo cáo có một dòng «doanh nghiệp nhỏ» cho MỖI vị thế, và alpha tổng chỉ có khi biết giá vào",
+         len(bcH["vonLp"]["business"]) == bcH["vonLp"]["soViThe"]
+         and all("loiNhuanRongUsd" in x and x["donBayUsd"] == 0.0 for x in bcH["vonLp"]["business"])
+         and ((bcH["vonLp"]["alphaSoHoldUsd"] is None) == (not bcH["vonLp"]["business"])
+              or bcH["vonLp"]["alphaSoHoldUsd"] is not None))
     kiem("KPI Bài 3: sáu tháng gần nhất đều «chưa có» (None) khi chưa vị thế đóng nào; thang tự do năm bậc",
          len(bcH["vonLp"]["dongTienTheoThang"]) == 6
          and all(x["usd"] is None for x in bcH["vonLp"]["dongTienTheoThang"])
@@ -11903,9 +11910,9 @@ def kiem_lp_v3() -> None:
          and all(("apyTach" in p and "tomTat" in p and "diemRuiRo" in p) for p in bcH["pool"]),
          str([m["moc"] for m in bcH["vongNgay"]["mocKe"]]))
     _pN = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
-    kiem("câu kết luận của pool VÀO mang dải, phí/LVR và NET; APY tách khai là GIẢ ĐỊNH",
+    kiem("câu kết luận của pool VÀO mang dải, phí/LVR và NET; APY tách khai là GIẢ ĐỊNH và cộng bằng APR đơn tương đương",
          _pN["tomTat"].startswith("CÓ THỂ VÀO") and _pN["apyTach"]["giaDinh"] is True
-         and gan(_pN["apyTach"]["phiPct"] + _pN["apyTach"]["thuongPct"], _pN["apyTach"]["hienThiPct"], 1e-6))
+         and gan(_pN["apyTach"]["phiPct"] + _pN["apyTach"]["thuongPct"], _pN["apyTach"]["aprTuongDuongPct"], 1e-6))
     _cu = hom_nay.dung(ty, _dt.datetime(2026, 9, 5, 10, 0, tzinfo=lich.VN))
     kiem("thứ Bảy: thị trường gốc ĐÓNG kèm rủi ro khoảng trống; pool nói «KHÔNG khuyến nghị»",
          _cu["thiTruongGoc"]["trangThai"] == "DONG" and "khoang-trong-mo-cua" in _cu["thiTruongGoc"]["ruiRo"]
