@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : sickn33/agentic-awesome-skills (45.963 sao)
+     Kho    : sickn33/agentic-awesome-skills (46.023 sao)
      Đường  : skills/baseline-ui
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/sickn33/agentic-awesome-skills/main/skills/baseline-ui/SKILL.md
-     sha256 : 8e6c70a04d4c0701 · nhập 2026-09-04T16:26:12.979Z
+     sha256 : 26e2af44f82ce6be · nhập 2026-09-05T20:39:12.414Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -103,6 +103,12 @@ Enforces an opinionated UI baseline to prevent AI-generated interface slop.
 - MUST give empty states one clear next action
 - SHOULD limit accent color usage to one per view
 - SHOULD use existing theme or Tailwind CSS color tokens before introducing new ones
+
+## Example
+
+**User request:**
+
+> Review this interface with @baseline-ui, identify the highest-impact design problems, and propose an implementation-ready improvement.
 
 ## Limitations
 

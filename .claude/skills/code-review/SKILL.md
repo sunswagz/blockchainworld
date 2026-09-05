@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : mattpocock/skills (248.719 sao)
+     Kho    : mattpocock/skills (252.322 sao)
      Đường  : skills/engineering/code-review
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/mattpocock/skills/main/skills/engineering/code-review/SKILL.md
-     sha256 : 47f4e52c21694def · nhập 2026-09-04T16:26:14.082Z
+     sha256 : 47f4e52c21694def · nhập 2026-09-05T20:39:14.328Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

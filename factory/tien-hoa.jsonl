@@ -43,3 +43,4 @@
 {"luc":"2026-09-05T05:16:58.892Z","cung":"tang-thu-cac","truoc":"21/21","sau":"21/21","nhan":"nhan","daLam":null}
 {"luc":"2026-09-05T10:50:27.321Z","cung":"tang-thu-cac","truoc":"21/21","sau":"21/21","nhan":"nhan","daLam":null}
 {"luc":"2026-09-05T15:22:19.045Z","cung":"tang-thu-cac","truoc":"21/21","sau":"21/21","nhan":"nhan","daLam":null}
+{"luc":"2026-09-05T20:46:54.173Z","cung":"dai-quan-trac","truoc":"21/21","sau":"20/21","nhan":"tra-lai","daLam":"[baseline-ui] Cải thiện tương phản badge 'chưa quan trắc' — từ dim trên inset (tương phản ~3.75) sang fg2 trên line3 (tương phản ~6.2), vượt WCAG AAA"}

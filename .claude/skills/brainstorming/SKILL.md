@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : obra/superpowers (281.623 sao)
+     Kho    : obra/superpowers (282.058 sao)
      Đường  : skills/brainstorming
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/obra/superpowers/main/skills/brainstorming/SKILL.md
-     sha256 : 74edf03ea6d24ef5 · nhập 2026-09-04T16:26:14.032Z
+     sha256 : 74edf03ea6d24ef5 · nhập 2026-09-05T20:39:14.034Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
