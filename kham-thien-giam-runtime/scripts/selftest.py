@@ -11037,6 +11037,81 @@ def kiem_nguon_nao_duoc_chan() -> None:
 
 
 
+def kiem_nhan_chien_thuat_toi_ket_toan() -> None:
+    """Kết toán của làn THẬT phải mang nhãn chiến thuật.
+
+    `vo_dich.cap_nhat` gom kết toán theo `chienThuat`, rơi về
+    `["khong-nhan"]` khi trống. `vong._mot_thi_truong` gọi `ghi_danh` ở
+    bước 4 — TRƯỚC cổng rủi ro — nên lúc ấy chưa biết chiến thuật nào
+    thật sự vào được lệnh, và nó không truyền nhãn.
+
+    Hậu quả im lặng: mọi bản ghi `ket-toan.jsonl` của làn thật có
+    `"chienThuat": []`, nên sổ vô địch có ĐÚNG MỘT hồ sơ và nó so một
+    thứ với CHÍNH NÓ. Đo 05/09/2026 lúc chạm mốc 120 mẫu — ngưỡng để
+    cổng được phép soán ngôi — buồng lái hiện `duongKim: {}` và
+    `hoSo: [khong-nhan n=120]`. Cổng mở ra và không có gì để chọn.
+
+    Lượt CHẠY LẠI thì gắn đúng (`phat_lai` truyền `ch.chienThuat`), nên
+    bảng vô địch của nó có nghĩa — và chính chỗ lệch giữa hai đường ấy
+    làm con bọ khó thấy. Cùng họ với "mẫu thử không giống sản xuất".
+    """
+    goc = Path(__file__).resolve().parent.parent
+    vb = (goc / "kham" / "vong.py").read_text(encoding="utf-8")
+
+    print()
+    print("-- Nhan chien thuat toi duoc ket toan ----------------------")
+
+    i = vb.index("for ch in de_xuat:")
+    j = vb.index("# BỊ CHẶN", i)
+    khoi = vb[i:j]
+    kiem("nhánh ĐẶT ĐƯỢC lệnh có gọi `ghi_danh`",
+         "ghi_danh(" in khoi, khoi[:160])
+    kiem("…và truyền `chienThuat` của chính cơ hội ấy",
+         "ch.chienThuat" in khoi, khoi[:160])
+    kiem("nhãn chỉ gắn khi ĐẶT ĐƯỢC, không gắn cho cơ hội bị chặn",
+         "ghi_danh(" not in vb[j:vb.index("# 9. băng ghi", j)],
+         "nhãn rò sang nhánh bị chặn")
+
+    # `ghi_danh` phải CỘNG DỒN nhãn, không ghi đè — một khung có thể có
+    # nhiều chiến thuật vào lệnh, và giữ mỗi cái cuối là mất phần lớn.
+    from kham.ket_toan import KetToan
+    from kham.kho_doi import Kho
+    from kham.dinh_gia import HieuChinh
+    from kham.so import So
+    import kham.rui_ro as R
+    import tempfile
+
+    kho = Kho()
+    kt = KetToan(kho, HieuChinh(duong=Path(_tam_moi()) / "hc.json"),
+                 So(duong=Path(_tam_moi()) / "so.jsonl"), R.RiskEngine(kho))
+    for x in ("lech-gia", "cap-theo-thoi", "lech-gia"):
+        kt.ghi_danh("BTC_5M", "s1", 1.0, 100.0, "BTCUSDT", "tu", "td",
+                    chienThuat=[x])
+    c = kt.cho["s1"]
+    kiem("hai chiến thuật khác nhau ⇒ giữ CẢ HAI",
+         sorted(c.chienThuat) == ["cap-theo-thoi", "lech-gia"], c.chienThuat)
+    kiem("nhãn trùng KHÔNG bị đếm hai lần", len(c.chienThuat) == 2)
+    kt.ghi_danh("BTC_5M", "s1", 1.0, 100.0, "BTCUSDT", "tu", "td")
+    kiem("gọi lại KHÔNG nhãn thì không xoá nhãn đã có",
+         len(c.chienThuat) == 2, c.chienThuat)
+
+    # và `vo_dich` phải tách được hồ sơ theo nhãn
+    from kham.vo_dich import SoVoDich
+    sv = SoVoDich(duong=Path(_tam_moi()) / "vd.json")
+    sv.cap_nhat([{"laiLo": 1.0, "phiUsd": 0, "chienThuat": ["a"]}] * 3
+                + [{"laiLo": -1.0, "phiUsd": 0, "chienThuat": ["b"]}] * 3)
+    ten = {h.ma for h in sv.hoSo.values()} if isinstance(sv.hoSo, dict) \
+        else {h["ma"] for h in sv.tom_tat()["hoSo"]}
+    kiem("hai nhãn ⇒ HAI hồ sơ riêng", {"a", "b"} <= ten, ten)
+    sv2 = SoVoDich(duong=Path(_tam_moi()) / "vd2.json")
+    sv2.cap_nhat([{"laiLo": 1.0, "phiUsd": 0, "chienThuat": []}] * 3)
+    ten2 = {h.ma for h in sv2.hoSo.values()} if isinstance(sv2.hoSo, dict) \
+        else {h["ma"] for h in sv2.tom_tat()["hoSo"]}
+    kiem("nhãn RỖNG ⇒ dồn vào `khong-nhan` (đúng cái đã xảy ra)",
+         ten2 == {"khong-nhan"}, ten2)
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -13282,6 +13357,7 @@ def main() -> int:
     kiem_ngat_theo_loai()
     kiem_lan_that_dem_ly_do_chan()
     kiem_nguon_nao_duoc_chan()
+    kiem_nhan_chien_thuat_toi_ket_toan()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()

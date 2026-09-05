@@ -990,7 +990,28 @@ class Runtime:
             self.coHoi.append(ch)
             if pq.cho and pq.soCoChoPhep >= 1:
                 self.cong.dat(ch, pq.soCoChoPhep, su if ch.ben == "UP" else sd)
+                # NHÃN CHIẾN THUẬT — thứ làm cổng vô địch có nghĩa.
+                #
+                # `ghi_danh` ở bước 4 chạy TRƯỚC cổng rủi ro, nên lúc ấy
+                # chưa biết chiến thuật nào thật sự vào được lệnh. Không
+                # gắn lại ở đây thì mọi kết toán của làn THẬT có
+                # `chienThuat: []`, và `vo_dich.cap_nhat` dồn tất vào rổ
+                # mặc định `khong-nhan`.
+                #
+                # Hậu quả im lặng suốt từ đầu: sổ vô địch có ĐÚNG MỘT hồ
+                # sơ, nên nó so một thứ với chính nó. Đo 05/09/2026 lúc
+                # chạm mốc 120 mẫu: `duongKim: {}`, `hoSo: [khong-nhan
+                # n=120]`. Cổng mở ra và không có gì để chọn.
+                #
+                # Lượt chạy lại thì vẫn gắn đúng (`phat_lai.py` truyền
+                # `ch.chienThuat`), nên bảng vô địch của nó có nghĩa —
+                # và chính chỗ lệch ấy làm con bọ khó thấy.
+                self.ketToan.ghi_danh(
+                    ma, k.slug, k.endMs, mo, tt["nen"],
+                    k.tokenUp, k.tokenDown,
+                    chienThuat=[ch.chienThuat] if ch.chienThuat else None)
                 continue
+
             # BỊ CHẶN — ghi lại, đừng vứt đi.
             self.soTuChoiRuiRo += 1
             ma_cua = pq.ma or "khong-ro"
