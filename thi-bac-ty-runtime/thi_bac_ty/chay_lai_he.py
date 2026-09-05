@@ -58,6 +58,33 @@ TOI_THIEU_MAU = 20
 #: Chênh lệch NET/giờ bình quân phải vượt ngần này (bps) mới coi là thật.
 BIEN_VUOT_BPS = 0.02
 
+#: Tỉ trọng phải dày thêm ngần này mới gọi là ĐẬM HƠN. Một phần mười của
+#: một điểm phần trăm.
+#:
+#: Vế NET của cùng một phán quyết đã có biên nhiễu từ đầu
+#: (`BIEN_VUOT_BPS`), vế TẬP TRUNG thì so ở 1e-9 — và cái lệch ấy nằm im
+#: cho tới khi `quet_truc` bắt đầu hỏi cùng câu. Quét
+#: `ruiRoTong.ruiRoToiDa` làn thật 05/09/2026:
+#:
+#:     0.6  (đang dùng)   400,18 USD/giờ   tỉ trọng ty 0,4661773
+#:     0.75              418,71 USD/giờ   tỉ trọng ty 0,4662804
+#:
+#: Thu hơn **4,6%**, tập trung dày thêm **0,0103 điểm phần trăm** — và
+#: luật 1e-9 loại nó. Bảng còn in cả hai dòng là «46.6%», nên người đọc
+#: thấy một kẻ bị loại vì một khác biệt không hiện ra ở đâu.
+#:
+#: Con số 0,001 chọn TRƯỚC khi xem nó cho ra đáp án nào, theo
+#: `nguong-tu-mau-thuan-voi-du-doan`: nó là độ phân giải cỗ máy này DÙNG
+#: để báo tỉ trọng (một chữ số thập phân của phần trăm). Hai cấu hình
+#: chênh nhau ít hơn thế thì in ra giống hệt nhau. Thả hai dự đoán vào:
+#: «0,01 điểm là nhiễu» phải QUA, «gần mười điểm là thật» phải BỊ LOẠI —
+#: ca `tranMotCang` 47,4% → 57,1% dày gấp **chín trăm lần** biên này.
+#:
+#: Đây là NỚI cổng duyệt, nói thẳng ra thế. Nó không lật đề xuất đang
+#: chờ chữ ký: đường `hoc` vốn đã khai `damHon=False` cho đúng cặp ấy
+#: trên cửa sổ của nó, nên phép sửa này không phải sửa để lấy đáp án.
+BIEN_TAP_TRUNG = 0.001
+
 
 def _pt(v) -> str:
     return "—" if v is None else f"{v * 100:.0f}%"
@@ -240,12 +267,12 @@ def dam_hon_hai_ben(aCang, aTy, bCang, bTy) -> bool:
     """B TẬP TRUNG hơn A — một chỗ duy nhất giữ luật này.
 
     `quet_truc.tot_nhat` cũng phải hỏi đúng câu ấy, và chép phép so ra
-    hai nơi là hai nơi sẽ lệch. Dải 1e-9 nuốt trọn chỗ `>` khác `>=`,
-    nên con đột biến ở đó TƯƠNG ĐƯƠNG; cái đáng kiểm là hai vế
-    `is not None`.
+    hai nơi là hai nơi sẽ lệch. Biên `BIEN_TAP_TRUNG` nuốt trọn chỗ `>`
+    khác `>=`, nên con đột biến ở đó TƯƠNG ĐƯƠNG; cái đáng kiểm là hai
+    vế `is not None` và chính cái biên.
     """
     def _hon(x, y):
-        return x is not None and y is not None and x > y + 1e-9
+        return x is not None and y is not None and x > y + BIEN_TAP_TRUNG
     return _hon(bCang, aCang) or _hon(bTy, aTy)
 
 

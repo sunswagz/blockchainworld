@@ -7424,6 +7424,37 @@ def kiem_quet_truc() -> None:
          "chép luật ra hai nơi là hai nơi sẽ lệch; thiếu số thì KHÔNG kết "
          "luận là đậm hơn")
 
+    # ── BIÊN NHIỄU của vế tập trung ─────────────────────────────────────
+    #
+    # Vế NET của cùng phán quyết có biên nhiễu từ đầu (`BIEN_VUOT_BPS`),
+    # vế TẬP TRUNG thì so ở 1e-9. Lệch ấy nằm im tới khi `quet_truc` hỏi
+    # cùng câu. Quét `ruiRoTong.ruiRoToiDa` làn thật 05/09/2026:
+    #
+    #     0.6  (đang dùng)   400,18 USD/giờ   tỉ trọng ty 0,4661773
+    #     0.75              418,71 USD/giờ   tỉ trọng ty 0,4662804
+    #
+    # Thu hơn 4,6%, tập trung dày thêm 0,0103 ĐIỂM phần trăm — và luật
+    # 1e-9 loại nó, trong khi bảng in cả hai dòng là «46.6%».
+    from thi_bac_ty.chay_lai_he import BIEN_TAP_TRUNG as _BTT
+
+    kiem("0,0103 điểm phần trăm là NHIỄU — đúng cặp số làn thật",
+         _dh(0.4661773234381031, 0.4661773234381031,
+             0.46628035649984284, 0.46628035649984284) is False,
+         f"biên {_BTT} — người đọc thấy hai dòng «46.6%» giống hệt nhau "
+         f"mà một dòng bị loại")
+    kiem("nhưng gần MƯỜI điểm thì vẫn là thật — ca `tranMotCang`",
+         _dh(0.474, 0.474, 0.571, 0.571) is True,
+         "47,4% → 57,1% dày gấp chín trăm lần biên — nới biên không được "
+         "phép nuốt ca này")
+    kiem("biên nằm ĐÚNG giữa hai dự đoán, không sát mép nào",
+         0.0002 < _BTT < 0.09,
+         f"{_BTT} — thả cả hai dự đoán vào NGƯỠNG trước khi khoá: nếu "
+         f"«sẽ bị loại» mà vẫn qua thì ngưỡng sai")
+    kiem("đúng bằng biên thì CHƯA đậm hơn, quá biên mới đậm",
+         _dh(0.40, 0.40, 0.40 + _BTT, 0.40) is False
+         and _dh(0.40, 0.40, 0.40 + _BTT * 2, 0.40) is True,
+         "đứng yên là kết quả hợp lệ — cùng luật với `BIEN_VUOT_BPS`")
+
 
 def kiem_nguon_doi_429() -> None:
     print("")
