@@ -69,6 +69,19 @@ MAC_DINH = {
     #: là của `rui_ro_tong`, không phải của bảng xếp hạng).
     "phatChuaDoSucChua": 0.35,
 
+    #: Trần `netMoiGioBps` dùng ĐỂ XẾP HẠNG. 0 = tắt.
+    #:
+    #: 0,1142 bps/giờ = 1.000%/năm — cùng ngưỡng với `xoay_cho.APR_TOI_DA`
+    #: và `chan_doan_he.NET_QUY_NAM_VO_LY`. Trần này KHÔNG loại cơ hội: nó
+    #: chỉ thôi cho một con số quy từ cửa sổ mười lăm phút đứng trên mọi
+    #: thứ khác bằng ba bậc độ lớn.
+    #:
+    #: Lợi suất thật đo được trên máy này nằm ở 2,6%–24%/năm, tức 0,0003 –
+    #: 0,0027 bps/giờ — cách trần này bốn mươi lần. Rác bắt đầu từ
+    #: 16.252%/năm. Trần nằm giữa một khoảng trống rất rộng, không vặn cho
+    #: vừa dữ liệu.
+    "netMoiGioTranXepHangBps": 1000.0 * 100.0 / (365.0 * 24.0),
+
     # Vốn khoá 90 ngày ở 10%/năm THUA vốn rút được ngay ở 7%/năm, vì trong 90
     # ngày ấy có thể xuất hiện thứ tốt hơn mà ta không vào được. Chi phí đó
     # KHÔNG nằm trong APR của chính nó, nên phải trừ ở đây.
@@ -160,6 +173,29 @@ class PhanBo:
         dối.
         """
         net = tt.net_moi_gio_bps
+        # ── KẸP TRẦN cho việc XẾP HẠNG, không loại cơ hội ────────────────
+        #
+        # `net_moi_gio_bps` = `netUocBps / giuGio`. Với một cửa sổ mười lăm
+        # phút, 555 bps thành 2.220 bps/giờ — 194.598%/năm — và tờ trình ấy
+        # KHÔNG lọt qua bảng này: nó đứng ĐẦU.
+        #
+        # `kham_ngoai/ty_tien_doan.py` biết trước chuyện này và đã khai:
+        # «`giuGio` là nửa đời, và đó là PROXY… khai
+        # `giu-gio-la-nua-doi-khong-phai-ky-han` trong `phiConThieu` để
+        # không ai đọc `netMoiGioBps` của ty này như đọc của ty funding.»
+        # Lời khai có, bộ kiểm canh rằng nó ĐƯỢC KHAI — và file này chưa
+        # bao giờ đọc `phiConThieu`. Cờ tính rồi bỏ qua.
+        #
+        # Đo sổ đăng ký làn thật 05/09/2026: bảy tờ trình trên 1.000%/năm,
+        # NĂM trong đó đã cấp vốn và mở vị thế; kết cục thực nhận −261,06
+        # bps/giờ trên lời hứa 1.889,78.
+        #
+        # KẸP chứ không LOẠI, và đó là chỗ bản trước của tôi sai: chặn ở
+        # `ToTrinh.kiem()` cũng chặn luôn 100 bps giữ 2 giờ — một cơ hội
+        # chênh lệch ngắn hạn hợp lệ. Kẹp thì cơ hội vẫn được xét, chỉ
+        # thôi đứng trên mọi thứ khác bằng ba bậc độ lớn.
+        _tran = float(self.c.get("netMoiGioTranXepHangBps") or 0.0)
+        netXep = min(net, _tran) if _tran > 0 else net
         if net <= 0:
             # Lỗ ít vẫn là lỗ. Loại thẳng, không để các thừa số kia cứu.
             return {"diem": float("-inf"), "netMoiGioBps": net,
@@ -192,8 +228,14 @@ class PhanBo:
             # `rui_ro_tong.khoaVonToiDaGio` đã chặn từ trước.
             hs_khoa = 1.0 / (1.0 + tt.khoaVonDenGio / tc)
 
-        d = net * rot * tin * (1.0 - rr) * hs_khoa
-        return {"diem": d, "netMoiGioBps": net, "rotDuocUsd": rot,
+        d = netXep * rot * tin * (1.0 - rr) * hs_khoa
+        return {"diem": d, "netMoiGioBps": net,
+                # Khai cả con số ĐÃ KẸP: giấu nó đi thì một tờ trình bị
+                # kẹp trông y hệt một tờ không bị, và không ai biết thứ tự
+                # vừa đổi vì cái gì.
+                "netMoiGioXepBps": netXep,
+                "biKepXepHang": netXep < net,
+                "rotDuocUsd": rot,
                 "tinCay": tin, "motTruRuiRo": 1.0 - rr,
                 "heSoKhoaVon": hs_khoa, "tranXepHangUsd": tranUsd,
                 "gioVonBiGiu": tt.gio_von_bi_giu}

@@ -2551,6 +2551,47 @@ def kiem_phan_bo() -> None:
          "một thước tính công cho phần sức chứa không dùng tới là thước "
          "nói dối")
 
+    # ── TRẦN xếp hạng: kẹp điểm, KHÔNG loại cơ hội ──────────────────────
+    #
+    # `net_moi_gio_bps` = `netUocBps / giuGio`. Cửa sổ 15 phút biến 555 bps
+    # thành 2.221 bps/giờ = 194.598%/năm, và tờ trình ấy KHÔNG lọt qua bảng
+    # xếp hạng — nó đứng ĐẦU. `kham_ngoai/ty_tien_doan.py` đã khai
+    # `giu-gio-la-nua-doi-khong-phai-ky-han` trong `phiConThieu` đúng để
+    # cảnh báo chuyện này; `phan_bo.py` chưa bao giờ đọc `phiConThieu`.
+    _pbT = PhanBo({})
+    _pb0 = PhanBo({"netMoiGioTranXepHangBps": 0.0})
+    _rac = _mau(von=1000.0, chua=5000.0, khoa=0.0, net=555.36, giu=0.25)
+    _that = _mau(von=1000.0, chua=5000.0, khoa=0.0, net=46.0, giu=168.0)
+    _a1 = _pbT.diem_chi_tiet(_rac, 0.5)
+    _a0 = _pb0.diem_chi_tiet(_rac, 0.5)
+    _b1 = _pbT.diem_chi_tiet(_that, 0.5)
+    kiem("tờ trình 15 phút bị KẸP khi xếp hạng",
+         _a1["biKepXepHang"] is True and _a1["netMoiGioXepBps"] < _a1["netMoiGioBps"],
+         str({k: _a1[k] for k in ("netMoiGioBps", "netMoiGioXepBps", "biKepXepHang")}))
+    kiem("và `netMoiGioBps` GỐC vẫn được khai nguyên",
+         gan(_a1["netMoiGioBps"], _a0["netMoiGioBps"]),
+         "giấu con số gốc thì không ai đối chiếu được vì sao thứ tự đổi")
+    kiem("kẹp làm điểm TỤT thật, không chỉ đổi nhãn",
+         _a1["diem"] < _a0["diem"] / 100.0,
+         f"{_a0['diem']:.0f} → {_a1['diem']:.0f}")
+    kiem("tờ trình lợi suất THẬT không bị đụng",
+         _b1["biKepXepHang"] is False
+         and gan(_b1["netMoiGioXepBps"], _b1["netMoiGioBps"]))
+    kiem("trần = 0 thì TẮT hẳn",
+         _a0["biKepXepHang"] is False
+         and gan(_a0["netMoiGioXepBps"], _a0["netMoiGioBps"]))
+    kiem("KẸP chứ không LOẠI — cơ hội vẫn có điểm hữu hạn",
+         _a1["diem"] > 0 and _a1["diem"] != float("-inf"),
+         "chặn thẳng ở `ToTrinh.kiem()` cũng chặn luôn 100 bps giữ 2 giờ, "
+         "một cơ hội chênh lệch ngắn hạn HỢP LỆ — bộ kiểm đã bác đúng "
+         "chuyện đó một lần")
+    # Nói thẳng chỗ trần này KHÔNG chữa được, để lượt sau khỏi tưởng đã xong.
+    kiem("trần thu hẹp khoảng cách nhưng KHÔNG lật được thứ tự",
+         _a1["diem"] > _b1["diem"],
+         f"{_a1['diem']:.0f} vs {_b1['diem']:.0f} — 1.000%/năm vẫn trên "
+         f"24%/năm. Trần chặn cái VÔ LÝ; so sánh hai kỳ hạn khác nhau vẫn "
+         f"là bài chưa giải")
+
     ct = pb.diem_chi_tiet(_mau(von=1000.0, chua=80.0, khoa=0.0), 0.0)
     kiem("rót được = chỗ CHẬT NHẤT giữa xin và sức chứa",
          gan(ct["rotDuocUsd"], 80.0), str(ct["rotDuocUsd"]))
