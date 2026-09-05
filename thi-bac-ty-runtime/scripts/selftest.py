@@ -11509,12 +11509,16 @@ def kiem_lp_v3() -> None:
     bc8 = qd.BoiCanh(**{**bc.__dict__, "thuongChiemPhanLon": True, "gioToiHetThuong": 5.0})
     kiem("thưởng là phần lớn và còn 5 giờ → không VÀO mới",
          qd.quyet(bc8).hanhDong != qd.VAO and qd.quyet(bc8).luatQuyet == "sap-het-thuong")
-    bc9 = qd.BoiCanh(**{**bc.__dict__, "aprTongPct": 4.0, "laiSuatNenPct": 5.0})
-    kiem("Bài 5 — LP không hơn lãi cho vay nền → chặn: chưa giữ CHỜ, đang giữ RÚT về cho vay",
+    bc9 = qd.BoiCanh(**{**bc.__dict__, "netNamPct": 7.0, "laiSuatNenPct": 5.0})
+    kiem("Bài 7 — hurdle: NET năm hoá 7% ≤ lãi nền 5% + bù 3% → chặn: chưa giữ CHỜ, đang giữ RÚT về cho vay",
          qd.quyet(bc9).luatQuyet == "phi-goc-duoi-lai-nen" and qd.quyet(bc9).hanhDong == qd.CHO
          and qd.quyet(qd.BoiCanh(**{**bc9.__dict__, "dangGiu": True, "trongDai": True})).hanhDong == qd.RUT)
+    kiem("NET 9% vượt 5% + 3% → không chặn; so bằng NET đã trừ IL/LVR/gas, không bằng APR thô",
+         qd.quyet(qd.BoiCanh(**{**bc9.__dict__, "netNamPct": 9.0, "aprTongPct": 400.0})).hanhDong == qd.VAO)
+    kiem("mốc so sánh là HOLD token (tích luỹ) → luật lãi nền IM dù NET thấp",
+         qd.quyet(qd.BoiCanh(**{**bc9.__dict__, "mocSoSanh": "giu-tai-san"})).hanhDong == qd.VAO)
     kiem("chưa khai lãi nền thì luật ấy KHÔNG kêu — không có mốc thì không so",
-         qd.quyet(qd.BoiCanh(**{**bc.__dict__, "aprTongPct": 4.0, "laiSuatNenPct": None})).hanhDong == qd.VAO)
+         qd.quyet(qd.BoiCanh(**{**bc.__dict__, "netNamPct": 4.0, "laiSuatNenPct": None})).hanhDong == qd.VAO)
     kiem("không σ thắng mọi thứ, kể cả khi mọi số khác đẹp",
          qd.quyet(qd.BoiCanh(**{**bc.__dict__, "coSigma": False})).luatQuyet == "khong-sigma")
 
@@ -11793,8 +11797,8 @@ def kiem_lp_v3() -> None:
     # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
     from lp_v3 import hoc_lieu as hl
     _tt = hl.nap_tri_thuc()
-    kiem("tri_thuc.json nạp được, có ít nhất SÁU bài, đúng khuôn",
-         len(_tt) >= 6 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("tri_thuc.json nạp được, có ít nhất BẢY bài, đúng khuôn",
+         len(_tt) >= 7 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
@@ -11822,6 +11826,10 @@ def kiem_lp_v3() -> None:
          any("crypto-safe" in (b.get("ma") or "") for b in _tt)
          and any(q["ma"] == "bac-thang-von-theo-protocol" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
          and any(q["ma"] == "chia-tang-vi-gioi-han-thiet-hai" and q["trangThai"] == "thieu-phep-canh" for b in _tt for q in b["quyTac"]))
+    kiem("Bài 7 đã ghim: hurdle lending + phần bù có phép canh; việc của ty tín dụng (available liquidity, LST) là ý tưởng",
+         any("lending-staking" in (b.get("ma") or "") for b in _tt)
+         and any(q["ma"] == "lp-phai-vuot-muc-nen-cong-phan-bu" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "sieu-than-trong-khi-lst-lam-the-chap" and q["trangThai"] == "y-tuong" for b in _tt for q in b["quyTac"]))
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
          and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
@@ -11893,6 +11901,20 @@ def kiem_lp_v3() -> None:
     kiem("token ghi USDG mà địa chỉ khác danh bạ → «token lạ»; quyền vô hạn → cảnh báo",
          len(_at6["tokenLa"]) == 1 and _at6["soQuyenVoHan"] == 1 and len(_at6["canhBao"]) == 2)
     ty.nguonVi.quyenToken = []
+    _p7 = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
+    kiem("Bài 7 — hồ sơ có NET năm hoá, mốc so sánh mặc định bảo toàn USD, và HÀNH ĐỘNG NGAY nói vốn chờ nằm đâu",
+         _p7["netNamPct"] is not None and _p7["mocSoSanh"] == "bao-toan-usd"
+         and bool(bcH["hanhDongNgay"].get("noiDauVon")))
+    _cu7 = hom_nay.dung(ty, _dt.datetime(2026, 9, 5, 10, 0, tzinfo=lich.VN))
+    kiem("khi CHỜ mà chưa khai lãi nền, câu «vốn chờ» nói thẳng là chưa biết bãi đỗ trả bao nhiêu",
+         _cu7["hanhDongNgay"]["hanhDong"] == "CHO" and "chưa khai" in _cu7["hanhDongNgay"]["noiDauVon"])
+    ty.cfg["mucTieu"] = dict(_cf.CONFIG["mucTieu"], taiSanUuTien=["NVDAX"])
+    try:
+        _co7 = {c.kyHieu: c for c in ty.can_tat_ca(mo)}
+        kiem("khai NVDAx là tài sản muốn tích luỹ → mốc so sánh pool đổi sang HOLD token",
+             hom_nay._mot_pool(_co7["NVDAx-USDG"])["mocSoSanh"] == "giu-tai-san")
+    finally:
+        ty.cfg["mucTieu"] = dict(_cf.CONFIG["mucTieu"])
     _at5 = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
     kiem("Bài 5 — tỉ lệ hữu cơ = phí / (phí + thưởng); chưa khai lãi nền thì `soLaiNenPct` là None; vòng quay None khi thiếu khối lượng",
          gan(_at5["apyTach"]["tiLeHuuCo"], 1.0 - _cf.CONFIG["giaDinhPhanThuong"], 1e-9)

@@ -78,6 +78,8 @@ TRUONG_BAO_CAO = {
     "tiLeHuuCo", "vongQuay", "soLaiNenPct", "laiSuatNen", "chuoiPhuThuoc",
     # Bài 6: an toàn chỉ đọc
     "anToan", "quyenVoHan", "tokenLa", "danhBaToken", "hopDongDaXacMinh", "bacVon", "khongGiuKhoa",
+    # Bài 7: hurdle, mốc theo mục tiêu, bãi đỗ vốn
+    "netNamPct", "mocSoSanh", "sanLpPct", "noiDauVon", "phanBuRuiRoPct",
 }
 
 KHUON_JSON = {

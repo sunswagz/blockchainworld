@@ -2543,6 +2543,7 @@
     lon.appendChild(el("span", null, hn.tieuDe || ""));
     kHd.appendChild(lon);
     kHd.appendChild(el("p", "cau", hn.cau || ""));
+    if (hn.noiDauVon) kHd.appendChild(el("p", "giai", "Vốn chờ: " + hn.noiDauVon));
     if ((hn.lyDo || []).length) {
       var ly = el("div", "btk-ly");
       ly.appendChild(el("span", "t", "Vì"));
@@ -2684,8 +2685,11 @@
       l.appendChild(o_nho("├ Phí thật", at2.phiPct == null ? "—" : n2(at2.phiPct, 2) + "%" + (at2.giaDinh ? " (giả định)" : "")));
       l.appendChild(o_nho("Hữu cơ / vòng quay", (at2.tiLeHuuCo == null ? "—" : pc(at2.tiLeHuuCo, 0)) + " / "
         + (pm.vongQuay == null ? "chưa có khối lượng" : n2(pm.vongQuay, 2) + "× TVL mỗi ngày")));
-      l.appendChild(o_nho("So lãi cho vay nền", pm.soLaiNenPct == null ? "chưa khai lãi nền" : (pm.soLaiNenPct >= 0 ? "+" : "") + n2(pm.soLaiNenPct, 1) + " điểm %",
-        pm.soLaiNenPct == null ? "nhat" : pm.soLaiNenPct > 0 ? "duong" : "am"));
+      l.appendChild(o_nho("NET năm hoá / sàn phải vượt", (pm.netNamPct == null ? "—" : n2(pm.netNamPct, 1) + "%")
+        + " / " + (pm.sanLpPct == null ? "chưa khai lãi nền" : n2(pm.sanLpPct, 1) + "% (lãi nền + bù rủi ro)"),
+        pm.netNamPct == null || pm.sanLpPct == null ? "nhat" : pm.netNamPct > pm.sanLpPct ? "duong" : "am"));
+      l.appendChild(o_nho("Mốc so sánh", pm.mocSoSanh === "giu-tai-san" ? "HOLD token (bạn muốn tích luỹ) — đo bằng NET/alpha so HOLD"
+        : "bảo toàn USD — so lãi cho vay đồng quote", "nhat"));
       l.appendChild(o_nho("└ Thưởng OKX", at2.thuongPct == null ? "—" : n2(at2.thuongPct, 2) + "%"));
       l.appendChild(o_nho("σ năm", pm.sigma == null ? "chưa đo — " + so(pm.soPhien) + " phiên" : pc(pm.sigma, 0) + " / " + so(pm.soPhien) + " phiên", pm.sigma == null ? "am" : null));
       l.appendChild(o_nho("TVL", tien(pm.tvlUsd, 0)));

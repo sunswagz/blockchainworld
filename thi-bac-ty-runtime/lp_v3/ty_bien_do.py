@@ -322,6 +322,15 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
     aprTong = None
     if aprPhi is not None:
         aprTong = (aprPhi + ((aprThuong or 0.0) if (gioThuong or 0) > 0 else 0.0)) * 100.0
+    # Bài 7: NET kỳ vọng NĂM HOÁ từ cửa sổ giữ — cái đem so với lãi nền + bù
+    netNam = None
+    if kd is not None and kd.netBps is not None and giuGio > 0:
+        netNam = kd.netBps / 10_000.0 * (GIO_NAM / giuGio) * 100.0
+    # Bài 7 §29: mốc so sánh theo MỤC TIÊU. Token cổ nằm trong tài sản người
+    # muốn tích luỹ → mốc là HOLD token (đo bằng NET/alpha so HOLD), luật lãi
+    # nền im; còn lại → bảo toàn USD → so lãi cho vay đồng quote.
+    uuTien = {str(x).upper() for x in ((cfg.get("mucTieu") or {}).get("taiSanUuTien") or [])}
+    mocSoSanh = "giu-tai-san" if ma.upper() in uuTien else "bao-toan-usd"
 
     bc = BoiCanh(kyHieu=pool["kyHieu"], dangGiu=False,
                  trangThaiPhien=bcPhien.trangThai, coSigma=coSigma,
@@ -333,7 +342,7 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                  netBps=None if kd is None else kd.netBps,
                  gioToiSuKien=gioSk, tenSuKien=tenSk or "",
                  gioToiHetThuong=gioThuong, thuongChiemPhanLon=thuongLon,
-                 aprTongPct=aprTong,
+                 aprTongPct=aprTong, netNamPct=netNam, mocSoSanh=mocSoSanh,
                  laiSuatNenPct=None if laiNen is None else float(laiNen),
                  tvlUsd=tvl, lechGiaChuoiSoGocPct=lech, nut=nut, cua=cua)
     qd = quyet(bc)
@@ -360,7 +369,8 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                                  quyet(bcV).tom_tat()))
 
     co = CoHoiV3(pool=dict(pool, giuGio=giuGio, apyLaLaiKep=bool(cfg.get("apyLaLaiKep", True)),
-                           laiSuatNenPct=laiNen, bacVon=bac),
+                           laiSuatNenPct=laiNen, bacVon=bac, netNamPct=netNam, mocSoSanh=mocSoSanh,
+                           phanBuRuiRoPct=float(nut.get("phanBuRuiRoPct", 3.0))),
                  ma=ma, kyHieu=pool["kyHieu"],
                  gia=giaInfo, sigma=sigmaInfo, phien=bcPhien.tom_tat(),
                  tauNam=tau, dai=kd, quyetDinh=qd, aprPhi=aprPhi,

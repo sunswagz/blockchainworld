@@ -58,6 +58,8 @@ class BoiCanh:
     thuongChiemPhanLon: bool = False      # thưởng > phí gốc
     aprTongPct: float | None = None       # phí gốc + thưởng còn hiệu lực, %/năm (APR đơn)
     laiSuatNenPct: float | None = None    # mốc lãi cho vay đồng quote, %/năm
+    netNamPct: float | None = None        # NET kỳ vọng (phí + thưởng + IL − gas) năm hoá, %/năm
+    mocSoSanh: str = "bao-toan-usd"       # bao-toan-usd → so lãi cho vay · giu-tai-san → so HOLD token
     tvlUsd: float | None = None
     lechGiaChuoiSoGocPct: float | None = None   # |giá chuỗi/giá đóng cửa − 1|
     nut: dict = field(default_factory=dict)
@@ -172,17 +174,24 @@ SO_LUAT = (
          lyDo=lambda bc: f"phí/LVR {bc.tiLePhiTrenLvr:.2f} < "
                          f"{bc.n('tiLePhiTrenLvrToiThieu', 1.5):.2f}"),
     Luat("phi-goc-duoi-lai-nen",
-         "phí gốc + thưởng còn hiệu lực KHÔNG hơn lãi cho vay đồng quote: không "
-         "VÀO; đang giữ thì RÚT về cho vay",
-         "Bài 5: lending là baseline yield. USDC cho vay 5% mà LP dự 7% thì 2% "
-         "thêm phải trả cho IL/LVR, văng dải và công quản dải — không đáng. Chi "
-         "phí cơ hội không nằm trong APY của pool, phải tự đưa vào",
+         "NET kỳ vọng năm hoá (đã trừ IL, LVR, gas) KHÔNG vượt lãi cho vay đồng "
+         "quote + PHẦN BÙ rủi ro: không VÀO; đang giữ thì RÚT về cho vay. Chỉ "
+         "áp khi mốc so sánh là BẢO TOÀN USD — pool có token người muốn tích luỹ "
+         "thì mốc là HOLD token, luật này im",
+         "Bài 5 §4 rồi Bài 7 §26 nâng cấp: hurdle = lending + required premium. "
+         "USDC cho vay 5% + bù 3% → LP dưới 8% NET không đáng công IL/LVR/dải. "
+         "So bằng NET đã trừ chi phí chứ không bằng APR thô (Bài 7 §6–7); và "
+         "muốn tích luỹ ETH thì so với HOLD ETH, không so với USDC (Bài 7 §28–29)",
          RUT,
-         lambda bc: (bc.laiSuatNenPct is not None and bc.aprTongPct is not None
-                     and bc.aprTongPct <= bc.laiSuatNenPct),
+         lambda bc: (bc.mocSoSanh == "bao-toan-usd"
+                     and bc.laiSuatNenPct is not None
+                     and (bc.netNamPct if bc.netNamPct is not None else bc.aprTongPct) is not None
+                     and (bc.netNamPct if bc.netNamPct is not None else bc.aprTongPct)
+                         <= bc.laiSuatNenPct + bc.n("phanBuRuiRoPct", 3.0)),
          chan=True,
-         lyDo=lambda bc: f"APR {bc.aprTongPct:.1f}% ≤ lãi cho vay nền "
-                         f"{bc.laiSuatNenPct:.1f}% — LP không đáng công"),
+         lyDo=lambda bc: f"NET năm hoá {(bc.netNamPct if bc.netNamPct is not None else bc.aprTongPct):.1f}% ≤ "
+                         f"lãi cho vay nền {bc.laiSuatNenPct:.1f}% + bù rủi ro "
+                         f"{bc.n('phanBuRuiRoPct', 3.0):.1f}% — vốn nên ở cho vay"),
     Luat("sap-het-thuong",
          "thưởng chiếm phần lớn và còn dưới 24 giờ: đừng VÀO mới; đang giữ "
          "thì lên lịch RÚT đúng giờ hết nếu phí gốc không đủ",

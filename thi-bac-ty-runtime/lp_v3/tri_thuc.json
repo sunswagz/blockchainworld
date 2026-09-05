@@ -1693,6 +1693,422 @@
     "Quyền tự động sweep toàn bộ vốn về ví khẩn cấp — không cấp cho bot; đây là quyền tương đương quyền rút sạch, chỉ giữ ở mức đề xuất và cảnh báo.",
     "Phần đánh giá 'kiến thức LP 1/5' và các điểm tự chấm khác của bản bóc — là nhận xét về chất lượng bài giảng, không phải nội dung vận hành, nên không nạp vào hệ thống."
    ]
+  },
+  {
+   "ma": "khoa-hoc-lp-bai-7-lending-staking",
+   "ten": "Bài 7 — Lending & Staking",
+   "nguon": "Khoá học DeFi/LP (Lesson 7 trong chuỗi Lesson 1–7); bản bóc do chủ gửi 05/09/2026; không có mốc thời gian video cụ thể",
+   "ngay": "2026-09-05",
+   "bocBang": "agent riêng (claude CLI) 05/09/2026, người soát: 9 chú thích sửa, 2 quy tắc ra ngoài phạm vi ty, 1 nợ",
+   "tomTat": "Bài dựng Lending và Staking thành hai mức nền (baseline yield) để so sánh với LP, đổi câu hỏi từ 'LP kiếm bao nhiêu' sang 'cùng $1 vốn thì HOLD/LEND/STAKE/LP cách nào cho lợi nhuận ròng trên rủi ro tốt nhất'. Lending là money market với nguồn tiền hữu cơ từ lãi người vay và lãi suất chạy theo utilization; staking là phần thưởng mạng PoS, nguồn kinh tế khác hẳn. Tác giả sửa lại nhiều câu marketing của khoá gốc: APY hiển thị lẫn incentive token, stablecoin không đồng nghĩa an toàn, 'không khoá vốn' không đồng nghĩa rút được, và yield chồng yield (LST → collateral → LP) là cộng thêm cả một chuỗi rủi ro chứ không phải cộng thêm lãi miễn phí. Phần giá trị nhất cho hệ thống là kiến trúc opportunity cost: lending/staking là giá sàn của vốn, LP chỉ được nhận vốn khi lợi nhuận kỳ vọng ròng vượt mức nền cộng phần bù rủi ro. Kết luận nền: bot không có nghĩa vụ luôn giữ vốn trong LP; HOLD/LENDING/STAKING là các trạng thái dự phòng hợp lệ.",
+   "danhGia": {
+    "kyThuatLp": 2,
+    "quanLyVon": 5,
+    "tuDuyHeThong": 5,
+    "tradeDuoc": 4,
+    "giaTriChoHeThong": 5
+   },
+   "luanDiem": [
+    {
+     "cau": "Lending có nguồn kinh tế thật: người vay trả lãi cho quyền dùng vốn, khác với farm phát token dụ TVL.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Đọc dữ liệu on-chain của money market: tổng lãi vay trả bằng tài sản gốc so với phần thưởng trả bằng token quản trị. Nếu supply APY vẫn dương khi trừ hết phần token incentive thì là hữu cơ."
+    },
+    {
+     "cau": "APY hiển thị 10% có thể là base supply 4% (nhu cầu vay thật) cộng 6% incentive token, phải tách hai phần.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "So sánh supply APY gốc với tổng APY hiển thị trên chính giao diện protocol hoặc API; phần chênh chính là incentive. Kiểm được từng thời điểm."
+    },
+    {
+     "cau": "Lãi suất lending là hàm của utilization: utilization tăng → borrow rate tăng → supply rate tăng.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Lấy chuỗi thời gian utilization và supply rate của cùng một thị trường, kiểm tương quan và so với đường cong lãi suất công bố của protocol."
+    },
+    {
+     "cau": "Stablecoin lending không đồng nghĩa an toàn: biến động giá thấp không phải rủi ro tổng thấp (depeg, issuer, collateral, protocol, liquidity risk).",
+     "loai": "nguyen-tac",
+     "ghi": "Là nguyên tắc phân loại rủi ro. Có phần kiểm được (lịch sử depeg USDC 03/2023, DAI theo sau) nhưng phát biểu tổng quát thì thuộc nguyên tắc thiết kế danh mục."
+    },
+    {
+     "cau": "'Không có kỳ hạn khoá' không đồng nghĩa với thanh khoản rút vô hạn: deposit 100M mà borrowed 99M thì available liquidity gần cạn.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Đo trực tiếp available cash = total supply − total borrow tại thời điểm rút. Có ngưỡng số, kiểm được trước mỗi lệnh rút."
+    },
+    {
+     "cau": "Số lượng token tăng không đồng nghĩa giá trị danh mục tăng: 1 ETH → 1,04 ETH nhưng $4.000 → ~$2.080 khi giá giảm nửa.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Số học thuần, kiểm bằng cách định giá vị thế theo đơn vị mục tiêu (USD hoặc ETH) ở hai mốc thời gian."
+    },
+    {
+     "cau": "'Kiếm yield chồng lên staking yield' không phải 4% + 8% = 12% miễn phí; mỗi lớp thêm là thêm LP risk, protocol risk, borrow risk, LST depeg, smart-contract, oracle risk.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc: không có đồng vốn nào được nhân bản mà không phát sinh nghĩa vụ hoặc rủi ro. Phần rủi ro cộng dồn không quy ra một con số kiểm chứng trực tiếp được, chỉ liệt kê được danh sách phụ thuộc."
+    },
+    {
+     "cau": "Stack ETH → Lido → wstETH → Aave collateral → borrow USDC → LP có YIELD STACK nhìn thấy và RISK STACK ẩn; phải tính cả hai chứ không chỉ TOTAL APY.",
+     "loai": "nguyen-tac",
+     "ghi": "Kiểm được phần chuỗi phụ thuộc (đếm được bao nhiêu hợp đồng/oracle trong đường đi), nhưng việc 'phải tính cả hai' là nguyên tắc vận hành."
+    },
+    {
+     "cau": "LST depeg nhỏ trở nên nghiêm trọng khi có đòn bẩy: giá LST giảm → collateral giảm → health factor giảm → rủi ro thanh lý tăng.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Mô phỏng được: lấy health factor hiện tại, hạ giá LST theo các mức 1/3/5/10% và tính lại ngưỡng thanh lý. Có công thức rõ ràng của từng protocol."
+    },
+    {
+     "cau": "Slashing là rủi ro validator/protocol, không phải rủi ro giá; với LST thì phụ thuộc vào nhà cung cấp staking và cách phân bổ tổn thất.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng tài liệu và lịch sử slashing của nhà cung cấp, cùng điều khoản phân bổ tổn thất. Kiểm được trước khi vào, không kiểm được theo thời gian thực."
+    },
+    {
+     "cau": "Yield phải được phân loại theo nguồn trả tiền: NETWORK (validator/mạng trả), CREDIT (người vay trả), TRADING (trader trả phí), sau đó INCENTIVE, RWA, BASIS, FUNDING.",
+     "loai": "nguyen-tac",
+     "ghi": "Là khung phân loại. Không đúng/sai theo dữ liệu, nhưng dùng làm chuẩn bắt buộc khi ghi nhận mỗi đồng lợi nhuận."
+    },
+    {
+     "cau": "LP EDGE = lợi nhuận ròng kỳ vọng của LP trừ đi phương án thay thế tốt nhất; và phải là edge sau khi điều chỉnh rủi ro.",
+     "loai": "nguyen-tac",
+     "ghi": "Định nghĩa vận hành do tác giả đặt ra. Kiểm được từng phần (lợi nhuận thực tế so với lending thực tế) nhưng phần 'risk premium yêu cầu' là tham số chủ quan của người vận hành."
+    },
+    {
+     "cau": "IF LP_EXPECTED_NET_RETURN ≤ BEST_PASSIVE_ALTERNATIVE + REQUIRED_RISK_PREMIUM THEN DO NOT LP.",
+     "loai": "nguyen-tac",
+     "ghi": "Luật quyết định, không phải dự báo. Kiểm chứng chỉ có ý nghĩa qua thống kê hồi tố xem các lần bị luật chặn có thực sự kém hơn không."
+    },
+    {
+     "cau": "Khi mục tiêu là giữ ETH thì benchmark đổi: phải so HOLD ETH vs STAKE ETH vs ETH/USDC LP, vì exposure khác nhau; trong xu hướng tăng mạnh LP rất có thể thua hold do tự bán dần ETH.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Backtest được: mô phỏng cùng số ETH ban đầu qua ba trạng thái trên một đoạn giá tăng mạnh, tính giá trị cuối theo cả USD và ETH."
+    },
+    {
+     "cau": "Lending và staking gần như không cần trading intelligence nên bot khó tạo lợi thế lớn; LP có không gian quyết định lớn (range, fee tier, inventory, LVR, MEV, rebalance timing) nên là nơi bot tạo giá trị rõ nhất.",
+     "loai": "narrative",
+     "ghi": "Là lập luận định vị sản phẩm, mức 'lợi thế RẤT CAO' của bot ở LP chưa có bằng chứng số trong bài. Chỉ kiểm được sau khi hệ thống chạy đủ dài và so PnL với baseline lending."
+    },
+    {
+     "cau": "Vốn nằm im là lỗi: $10.000 stablecoin để không trong khi có lending phù hợp chính sách rủi ro là chi phí cơ hội.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc phân bổ vốn, và tác giả tự giới hạn ngay sau đó (không ép 100% sinh yield)."
+    },
+    {
+     "cau": "Không phải lúc nào cũng ép 100% vốn sinh yield: cần gas reserve, emergency capital, withdrawal buffer, opportunity fund — cố tình hy sinh yield để đổi lấy thanh khoản, an toàn và quyền chọn.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc quản trị vốn. Tỷ lệ cụ thể là tham số của người vận hành, không có trong bài."
+    },
+    {
+     "cau": "Với protocol mới: đọc → mô phỏng → test rất nhỏ → nạp → rút → đối chiếu sổ sách → tăng dần; yield không được đứng trước bảo mật.",
+     "loai": "nguyen-tac",
+     "ghi": "Quy trình an toàn. 'Bắt đầu $50–100' tác giả chỉ nhận nguyên tắc, không nhận con số cố định."
+    },
+    {
+     "cau": "Lending và staking đúng ra là LOWER COMPLEXITY và thường LOWER RISK THAN ADVANCED DEFI, không phải 'safe'; vẫn có exploit, oracle, depeg, liquidity stress, governance risk.",
+     "loai": "nguyen-tac",
+     "ghi": "Sửa cách dùng từ của khoá gốc, là chuẩn ngôn ngữ nội bộ chứ không phải mệnh đề đo được."
+    },
+    {
+     "cau": "Lending là bãi đỗ vốn (capital parking) khi LP không hấp dẫn: volume thấp, volatility cao, phí không bù LVR thì đưa vốn về lending ăn baseline và chờ cơ hội.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc trạng thái vốn. Điều kiện kích hoạt (phí không bù LVR) thì kiểm được bằng số, nhưng bản thân việc chọn lending làm nơi trú là quyết định thiết kế."
+    },
+    {
+     "cau": "Regime quyết định phân bổ: trend tăng mạnh + volatility cao → giảm LP tăng HOLD/STAKE; sideways + volume cao → tăng LP tập trung; volume thấp + bất định → về lending.",
+     "loai": "narrative",
+     "ghi": "Bảng ánh xạ regime → phân bổ nghe hợp lý nhưng bài không đưa dữ liệu chứng minh từng ô. Chỉ thành kiểm-chứng-được sau khi định nghĩa cứng ngưỡng của 'volume cao/thấp', 'volatility cao/vừa' và backtest."
+    },
+    {
+     "cau": "Điểm đáng giữ của bài không phải các con số lending 3–12% hay staking 4–12% (đổi liên tục) mà là kiến trúc phân bổ mỗi $1 vốn.",
+     "loai": "nguyen-tac",
+     "ghi": "Nguyên tắc chắt lọc kiến thức: giữ cấu trúc, bỏ tham số hết hạn."
+    }
+   ],
+   "quyTac": [
+    {
+     "ma": "lp-phai-vuot-muc-nen-cong-phan-bu",
+     "cau": "KHÔNG mở vị thế LP khi lợi nhuận ròng kỳ vọng của pool ≤ lợi nhuận tốt nhất của phương án thụ động (lending/staking) cộng phần bù rủi ro yêu cầu; chỉ vào khi vượt.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr",
+       "phi-goc-duoi-lai-nen",
+       "vao-duoc"
+      ],
+      "nut": [
+       "tiLePhiTrenLvrToiThieu"
+      ],
+      "truong": [
+       "netNamPct",
+       "laiSuatNen",
+       "soLaiNenPct",
+       "phanBuRuiRoPct",
+       "mocSoSanh",
+       "netBps",
+       "dieuKien"
+      ]
+     },
+     "ghi": "Luật trung tâm — và Bài 7 đã NÂNG luật `phi-goc-duoi-lai-nen`: so NET kỳ vọng NĂM HOÁ (sau IL, LVR, gas) với lãi nền + `phanBuRuiRoPct` (3%/năm mặc định), không so APR thô; chỉ áp khi mốc so sánh là bảo toàn USD."
+    },
+    {
+     "ma": "tach-yield-huu-co-khoi-incentive",
+     "cau": "LÀM: khi đọc APY của bất kỳ nơi trú vốn nào, tách phần hữu cơ (lãi người vay / phần thưởng mạng / phí trader) khỏi phần incentive token, và CHỈ dùng phần hữu cơ làm mức nền để so với LP.",
+     "gan": {
+      "luat": [
+       "phi-goc-duoi-lai-nen"
+      ],
+      "nut": [],
+      "truong": [
+       "laiSuatNen",
+       "soLaiNenPct",
+       "aprTuongDuongPct",
+       "apyTach",
+       "apyLaLaiKep",
+       "tachLoiNhuan",
+       "thiTruongGoc"
+      ]
+     },
+     "ghi": "`apyTach` và `tachLoiNhuan` là chỗ ghi phần tách; `laiSuatNen`/`soLaiNenPct` giữ con số hữu cơ dùng làm sàn. Không có núm nào điều khiển việc tách nên để rỗng."
+    },
+    {
+     "ma": "ghi-nguon-tra-tien-cho-moi-dong-yield",
+     "cau": "LÀM: mỗi khoản lợi nhuận ghi nhận phải kèm phân loại nguồn (NETWORK / CREDIT / TRADING / INCENTIVE) và ai là người trả; KHÔNG ghi nhận một dòng yield không xác định được người trả.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "thiTruongGoc",
+       "business",
+       "tachLoiNhuan",
+       "danhBaToken",
+       "tokenLa",
+       "pnlUocUsd",
+       "dongTienDaVeTayThangUsd"
+      ]
+     },
+     "ghi": "Chưa có mã luật nào trong SO_LUAT nói về phân loại nguồn yield — đây là quy tắc ghi sổ, không phải cổng chặn vào lệnh, nên `luat` để rỗng. `thiTruongGoc` và `business` là chỗ mô tả nguồn; `tokenLa`/`danhBaToken` bắt trường hợp trả bằng token lạ (dấu hiệu incentive)."
+    },
+    {
+     "ma": "kiem-thanh-khoan-rut-truoc-khi-tru-von",
+     "cau": "LÀM: trước khi đưa vốn vào lending, đo available liquidity (tổng nạp trừ tổng vay) và KHÔNG trú vốn ở thị trường mà utilization cao tới mức không rút hết được phần dự định trong một lần.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Ty này không trú vốn ở lending — đó là ty tín dụng (`tin_dung/`) và Trung Ương; available liquidity của thị trường cho vay là số của ty ấy. Agent gắn tvl-mong/khongGiuKhoa là gượng — bỏ.",
+     "trangThai": "y-tuong"
+    },
+    {
+     "ma": "khong-coi-stablecoin-la-khong-rui-ro",
+     "cau": "KHÔNG gán rủi ro bằng 0 cho vị thế stablecoin; LÀM: chấm điểm depeg/issuer/collateral/protocol cho từng stablecoin và trừ vào lợi nhuận kỳ vọng của nhánh lending trước khi so với LP.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "chuoiPhuThuoc",
+       "anToan",
+       "danhBaToken"
+      ]
+     },
+     "ghi": "USDG đứng trong `chuoiPhuThuoc` với vai «đồng neo USD — mất neo là IL thật»; tờ trình khai rủi ro thanhKhoan/giaoThuc ≠ 0 và phiConThieu `ton-that-vo-thuong-du-neo`; danh bạ token bắt USDG giả. Chấm điểm depeg theo tổ chức phát hành thì chưa có — khai."
+    },
+    {
+     "ma": "khong-chong-tang-yield-khi-chua-liet-ke-chuoi-phu-thuoc",
+     "cau": "KHÔNG mở vị thế yield chồng lớp (LST → collateral → vay → LP) khi chưa liệt kê đủ chuỗi phụ thuộc và chưa xác minh từng hợp đồng trong chuỗi.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "chuoiPhuThuoc",
+       "donBayUsd",
+       "hopDongDaXacMinh"
+      ]
+     },
+     "ghi": "Ty không chồng tầng theo cấu tạo (một chân CAP_THANH_KHOAN, donBayUsd = 0) và chuỗi 6 lớp đã khai. Bỏ gắn chua-du-so/tvl-mong — không liên quan."
+    },
+    {
+     "ma": "sieu-than-trong-khi-lst-lam-the-chap",
+     "cau": "KHÔNG dùng LST làm tài sản thế chấp để vay rồi vào LP khi chưa mô phỏng health factor ở các mức depeg 1/3/5/10%; nếu mô phỏng cho ra thanh lý trong dải đó thì giảm đòn bẩy hoặc không vào.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Ngoài phạm vi ty: không LST, không vay, không health factor. Giữ làm ranh giới cho ngày Trung Ương có ty tín dụng làm việc này.",
+     "trangThai": "y-tuong"
+    },
+    {
+     "ma": "von-nhan-roi-ve-mac-dinh-lending",
+     "cau": "LÀM: khi không có vị thế LP nào vượt ngưỡng, chuyển stablecoin nhàn rỗi về lending hữu cơ thay vì để nằm im; KHÔNG để vốn nhàn rỗi bằng 0 lợi nhuận khi có nơi trú hợp chính sách rủi ro.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr",
+       "phi-goc-duoi-lai-nen",
+       "khong-sigma"
+      ],
+      "nut": [],
+      "truong": [
+       "noiDauVon",
+       "hanhDongNgay",
+       "laiSuatNen"
+      ]
+     },
+     "ghi": "Ty chỉ ĐỀ XUẤT (`noiDauVon` trong HÀNH ĐỘNG NGAY: «vốn chờ nên nằm ở cho vay X%/năm»); chuyển vốn là việc của Trung Ương và người. Chưa khai lãi nền thì câu ấy nói thẳng là chưa biết bãi đỗ trả bao nhiêu."
+    },
+    {
+     "ma": "giu-dem-thanh-khoan-khong-ep-toi-uu-yield",
+     "cau": "LÀM: luôn giữ phần vốn không sinh lời gồm gas reserve, vốn khẩn cấp, đệm rút và quỹ cơ hội; KHÔNG phân bổ 100% vốn vào các nhánh sinh yield dù chi phí cơ hội dương.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Dự phòng gas / khẩn cấp / đệm rút / quỹ cơ hội là cấp danh mục — Trung Ương (`von_ranh`, cầu dao); ty không biết NAV. Cùng nợ với «vốn rảnh cấp hệ» (Bài 2).",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "doi-moc-so-sanh-theo-muc-tieu-tai-san",
+     "cau": "LÀM: chọn mốc so sánh theo mục tiêu tài sản trước khi tính edge — mục tiêu tích luỹ ETH thì so với staked ETH, mục tiêu giữ USD thì so với stablecoin lending; KHÔNG dùng một mốc so sánh chung cho mọi mục tiêu.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "mocSoSanh",
+       "mucTieu",
+       "business",
+       "netNamPct",
+       "laiSuatNen",
+       "giaiDoanTuDo",
+       "diemTuDo"
+      ]
+     },
+     "ghi": "Đây là quy tắc cấu hình mốc đo, chạy trước mọi cổng vào lệnh nên không gắn mã luật nào; `mocSoSanh` và `mucTieu` là hai trường trực tiếp."
+    },
+    {
+     "ma": "khong-so-lp-voi-hold-bang-usd-khi-muc-tieu-la-eth",
+     "cau": "KHÔNG kết luận LP thắng khi mới chỉ so bằng USD trong lúc mục tiêu là tích luỹ ETH; LÀM: tính lại kết quả theo đơn vị ETH và so với HOLD ETH và STAKE ETH trên cùng đoạn giá.",
+     "gan": {
+      "luat": [
+       "ngoai-dai"
+      ],
+      "nut": [
+       "heSoDai"
+      ],
+      "truong": [
+       "mocSoSanh",
+       "mucTieu",
+       "alphaSoHoldUsd",
+       "ilKyVongBps"
+      ]
+     },
+     "ghi": "Khi `mucTieu.taiSanUuTien` có token cổ, `mocSoSanh` = giu-tai-san và luật lãi nền im; alpha so HOLD là hiệu USD nhưng chia cho giá hiện tại là ra đơn vị token — cùng dấu, cùng kết luận. Ngoài dải là lúc LP đã bán hết token cho người mua, đúng cơ chế thua HOLD trong xu hướng tăng."
+    },
+    {
+     "ma": "quy-trinh-thu-nho-truoc-khi-mo-rong",
+     "cau": "LÀM: với mọi protocol trú vốn mới, chạy đủ chuỗi đọc tài liệu → mô phỏng → nạp thử số rất nhỏ → rút thử → đối chiếu sổ sách → mới tăng dần quy mô; KHÔNG nạp theo quy mô mục tiêu ở lần tương tác đầu tiên.",
+     "gan": {
+      "luat": [
+       "chua-du-so",
+       "tvl-mong"
+      ],
+      "nut": [],
+      "truong": [
+       "hopDongDaXacMinh",
+       "bacVon",
+       "tinCay",
+       "kinhNghiem",
+       "anToan",
+       "diem",
+       "hanhDongNgay"
+      ]
+     },
+     "ghi": "`chua-du-so` khớp trạng thái 'chưa đủ dữ liệu để cấp vốn lớn'; `bacVon` là trường ghi bậc quy mô đang được phép. Không cố định con số $50–100 vì tác giả cũng chỉ nhận nguyên tắc."
+    },
+    {
+     "ma": "khong-bat-buoc-giu-von-trong-lp",
+     "cau": "KHÔNG coi việc rút khỏi LP về HOLD/LENDING/STAKING là thất bại của bot; LÀM: cho phép trạng thái ngoài LP là kết quả hợp lệ khi không pool nào vượt ngưỡng.",
+     "gan": {
+      "luat": [
+       "giu",
+       "phi-duoi-lvr",
+       "phi-goc-duoi-lai-nen"
+      ],
+      "nut": [],
+      "truong": [
+       "hieuQuaVon",
+       "vonLp",
+       "bacVon",
+       "baiHoc",
+       "diem",
+       "tienHoa"
+      ]
+     },
+     "ghi": "Luật nền của bài. `giu` cho trạng thái đứng ngoài; hai mã còn lại là lý do hợp lệ để đứng ngoài. Cần bảo đảm hệ thống chấm điểm (`diem`, `tienHoa`) không phạt bot vì không ở trong LP."
+    },
+    {
+     "ma": "theo-doi-utilization-lam-tin-hieu-lai-nen",
+     "cau": "LÀM: cập nhật lãi nền theo utilization hiện tại của thị trường lending thay vì dùng con số APY cũ; KHÔNG so LP với một mức nền đã lỗi thời.",
+     "gan": {
+      "luat": [
+       "gia-cu",
+       "chua-du-so"
+      ],
+      "nut": [],
+      "truong": [
+       "laiSuatNen",
+       "soLaiNenPct",
+       "mocSoSanh",
+       "doOnDinhDongTien",
+       "dongTienUocThangUsd"
+      ]
+     },
+     "ghi": "`laiSuatNen` mang `ngay` khai để người thấy tuổi; nhưng chưa có núm «tuổi tối đa của lãi nền» và ty không tự đọc utilization (việc của ty tín dụng). Đã có ở vế ghi ngày, nợ ở vế tự cập nhật."
+    },
+    {
+     "ma": "khong-mo-lop-yield-moi-sat-su-kien",
+     "cau": "KHÔNG mở thêm lớp yield (vào LP từ vốn vay, hoặc đổi nơi trú vốn) trong cửa sổ sát sự kiện lớn hoặc ngoài giờ trực; LÀM: giữ nguyên trạng thái và đợi qua cửa sổ.",
+     "gan": {
+      "luat": [
+       "sat-su-kien",
+       "gap-mo-cua",
+       "ngoai-gio-khong-doi-dai",
+       "giu"
+      ],
+      "nut": [
+       "giuGio"
+      ],
+      "truong": [
+       "hanhDongNgay",
+       "cheDoRuiRo",
+       "tinAnhHuong",
+       "chuoiPhuThuoc"
+      ]
+     },
+     "ghi": "Bài không nói riêng về cửa sổ sự kiện, nhưng chuỗi LST→collateral→LP là nơi depeg và gap mở cửa gây thiệt hại nặng nhất, nên các mã cửa sổ thời gian và núm `giuGio` áp vào đúng chỗ."
+    }
+   ],
+   "cauHoiChoHeThong": [
+    "Ngay lúc này lãi nền hữu cơ tốt nhất cho stablecoin và cho ETH là bao nhiêu, sau khi đã trừ hết phần incentive token?",
+    "Phần bù rủi ro yêu cầu cho một vị thế LP là bao nhiêu điểm phần trăm, và con số đó được đặt theo cặp, theo độ rộng dải, hay một mức chung?",
+    "Với pool đang xét, lợi nhuận ròng kỳ vọng sau phí, gas, rebalance, IL/LVR là bao nhiêu — và nó vượt lãi nền cộng phần bù bao nhiêu?",
+    "Mục tiêu tài sản hiện tại là tích luỹ ETH, giữ USD, hay dòng tiền trung tính? Mốc so sánh đang dùng có khớp mục tiêu đó không?",
+    "Nếu tính bằng đơn vị ETH thay vì USD, vị thế LP đang thắng hay thua HOLD/STAKE trên cùng đoạn giá?",
+    "Available liquidity của thị trường lending đang trú vốn còn bao nhiêu, và rút hết phần của mình có được trong một lần không?",
+    "Bao nhiêu phần trăm APY hiển thị ở nơi trú vốn hiện tại là incentive token có thời hạn, và hết incentive thì mức nền còn lại là bao nhiêu?",
+    "Chuỗi phụ thuộc của vị thế hiện tại gồm những lớp nào, và lớp nào chưa được xác minh hợp đồng?",
+    "Nếu LST trong chuỗi giảm 5% so với tài sản gốc thì health factor còn bao nhiêu, cách ngưỡng thanh lý bao xa?",
+    "Đang có bao nhiêu vốn nhàn rỗi không sinh lời, phần nào là đệm cố ý (gas/khẩn cấp/rút/cơ hội) và phần nào là bỏ quên?",
+    "Regime thị trường hiện tại được phân loại là gì, và ngưỡng số cụ thể nào định nghĩa 'volume cao', 'volatility cao' trong bảng phân bổ?",
+    "Trong 90 ngày qua, các lần bot chọn đứng ngoài LP có thực sự cho kết quả tốt hơn so với vào LP không?",
+    "Mỗi đồng lợi nhuận đã vào tay tháng này thuộc loại nào: NETWORK, CREDIT, TRADING hay INCENTIVE?",
+    "Protocol trú vốn nào đang ở bậc vốn nào, và bậc đó đã qua đủ chu trình nạp–rút–đối chiếu chưa?"
+   ],
+   "khongLay": [
+    "Các con số lợi suất cụ thể (lending 3–12%, staking 4–12%, ví dụ 4%+6%=10%): tham số thị trường thay đổi liên tục, hard-code vào hệ thống sẽ sai ngay tuần sau. Chỉ lấy cách đọc và cách tách, số thì đọc trực tiếp từ nguồn tại thời điểm quyết định.",
+    "Con số 'bắt đầu $50–100': chính tác giả chỉ nhận nguyên tắc chứ không nhận con số. Hệ thống dùng bậc vốn theo mức độ đã xác minh, không dùng ngưỡng đô-la cố định.",
+    "Các ví dụ tính opportunity cost (LP 16% − penalty 6% = 10%, LP 9% − 5% = 4%): là minh hoạ số học, không phải tham số. Lấy công thức, không lấy giá trị.",
+    "Tên protocol cụ thể (Aave, Compound, Lido) như lựa chọn mặc định: bài dùng để giải thích cơ chế, không phải khuyến nghị nơi trú vốn. Danh sách protocol phải qua quy trình xác minh riêng của hệ thống.",
+    "Bảng ánh xạ regime → phân bổ (trend mạnh thì giảm LP, sideways thì tăng LP tập trung): chưa có ngưỡng số và chưa được backtest, đưa thẳng vào bot là biến phỏng đoán thành luật. Giữ dưới dạng giả thuyết cần kiểm.",
+    "Khẳng định 'bot có lợi thế RẤT CAO ở LP, thấp ở lending/staking': là lập luận định vị, chưa có bằng chứng PnL. Không dùng làm lý do ưu tiên LP; ưu tiên vẫn phải do phép so lợi nhuận ròng trên rủi ro quyết định.",
+    "Cách gọi lending/staking là 'safe' và 'double win' của khoá gốc: chính tác giả đã bác. Từ vựng nội bộ dùng 'độ phức tạp thấp hơn', 'thường rủi ro thấp hơn', không dùng 'an toàn'.",
+    "Phần mô tả cơ chế PoS, validator, money market ở mức giáo trình: là kiến thức nền để hiểu, không sinh ra luật hay trường dữ liệu nào cho bảng vận hành."
+   ]
   }
  ]
 }

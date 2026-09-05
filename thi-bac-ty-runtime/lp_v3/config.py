@@ -52,6 +52,11 @@ CONFIG = {
         "xacSuatVangToiDa": 0.60,
         #: không VÀO hay ĐỔI DẢI trong ngần này giờ trước sự kiện
         "gioTruocSuKien": 24.0,
+        #: PHẦN BÙ RỦI RO (Bài 7 §26): LP phải hơn lãi cho vay nền ít nhất ngần
+        #: này điểm %/năm để trả cho IL, LVR, công quản dải. Lending 5% + bù
+        #: 3% → LP dưới 8% NET năm hoá thì không đáng. Chưa vào NUT_VAN vì
+        #: chạy lại băng chưa đo được lãi nền theo lịch sử.
+        "phanBuRuiRoPct": 3.0,
     },
     "cua": {
         #: Không có σ thì không xét. Đây là cả lý do ty này tồn tại bên

@@ -178,9 +178,21 @@ def _hanh_dong_ngay(co, pools, bc, thuong) -> dict:
         {"ten": "Không sự kiện FOMC / kết quả kinh doanh trong 24 giờ", "dat": suKienOk,
          "ghi": "" if suKienOk else sk[0].ten},
     ]
+    # Bài 7 §5, §23: vốn CHỜ nên nằm đâu — lending là bãi đỗ sinh lợi; chưa
+    # khai lãi nền thì máy không biết bãi đỗ trả bao nhiêu, nói thẳng.
+    laiNen = (co[0].pool.get("laiSuatNenPct") if co else None)
+    if hd == VAO:
+        noiDauVon = "vào LP cỡ thử ở pool đủ điều kiện; phần còn lại giữ ở bãi đỗ"
+    elif laiNen is not None:
+        noiDauVon = (f"vốn chờ nên nằm ở CHO VAY đồng quote ({float(laiNen):.1f}%/năm), không nằm chết; "
+                     f"LP phải vượt {float(laiNen):.1f}% + bù rủi ro mới đáng chuyển")
+    else:
+        noiDauVon = ("vốn chờ: chưa khai lãi cho vay nền nên máy không biết bãi đỗ trả bao nhiêu — "
+                     "khai ở Kết nối & dữ liệu để LP có giá sàn phải vượt")
     return {"hanhDong": hd, "tieuDe": tieu, "cau": cau, "lyDo": lyDo,
             "dieuKien": dieuKien, "soDat": sum(1 for d in dieuKien if d["dat"]),
-            "soDieuKien": len(dieuKien), "viTheGap": gap[:5]}
+            "soDieuKien": len(dieuKien), "viTheGap": gap[:5],
+            "noiDauVon": noiDauVon}
 
 
 def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
@@ -560,6 +572,11 @@ def _mot_pool(c) -> dict:
                          else (c.aprPhi + ((c.aprThuong or 0.0) if (c.gioThuongConLai or 0) > 0 else 0.0)) * 100.0
                               - float(c.pool["laiSuatNenPct"])),
          "bacVon": c.pool.get("bacVon"),
+         # Bài 7: NET năm hoá, mốc so sánh theo mục tiêu, giá sàn LP phải vượt
+         "netNamPct": c.pool.get("netNamPct"),
+         "mocSoSanh": c.pool.get("mocSoSanh"),
+         "sanLpPct": (None if c.pool.get("laiSuatNenPct") is None
+                      else float(c.pool["laiSuatNenPct"]) + float(c.pool.get("phanBuRuiRoPct") or 0.0)),
          "thiTruongGoc": ("MO" if c.phien.get("trangThai") == lich.MO_CUA
                           else "SAP_MO" if c.phien.get("trangThai") == lich.TRUOC_MO
                           else "DONG"),
