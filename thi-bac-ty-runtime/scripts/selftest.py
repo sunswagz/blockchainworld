@@ -6491,6 +6491,99 @@ def _co_nhac(ten: str) -> bool:
 
 
 
+def kiem_quet_truc() -> None:
+    print("")
+    print("-- Quet truc nut: hai diem khong noi duoc hinh dang --")
+    from thi_bac_ty.quet_truc import (bat_dong, doi_chieu_hai_cua_so,
+                                      doc_nut, quet_truc, tot_nhat)
+
+    # Hai hàm giả: file luật đọc phải kiểm được mà không dựng Trung Ương.
+    def _dat(ts, nut, g):
+        o = ts
+        k = nut.split(".")
+        for x in k[:-1]:
+            o = o.setdefault(x, {})
+        o[k[-1]] = g
+        return ts
+
+    class _KQ:
+        def __init__(self, von, net):
+            self._d = {"tongCapUsd": von, "netMoiGioBinhQuanBps": net}
+
+        def tom_tat(self):
+            return dict(self._d)
+
+    # Trục THẬT đo được 05/09/2026: bình quân TỤT trong khi vốn rót TĂNG,
+    # và tổng thì ĐỨNG YÊN. Nhìn riêng cột nào cũng ra một kết luận sai.
+    THAT = {30: (651279.0, 0.8475), 60: (684186.0, 0.8180),
+            90: (717884.0, 0.7879), 120: (749644.0, 0.7606),
+            150: (755644.0, 0.7546), 180: (761644.0, 0.7487)}
+
+    def _mot(tt, ts, von, nhan=""):
+        return _KQ(*THAT[doc_nut(ts, "phanBo.toiDaSoViThe")])
+
+    r = quet_truc([], {"phanBo": {"toiDaSoViThe": 120}}, 1_000_000.0,
+                  "phanBo.toiDaSoViThe", sorted(THAT), _mot, _dat)
+    kiem("điểm đang dùng phải NẰM TRÊN lưới", r["hienTaiTrenLuoi"] is True)
+    kiem("có cột TỔNG, không chỉ bình quân",
+         all(x["tongUsdMoiGio"] is not None for x in r["diem"]))
+    _t = {x["giaTri"]: x["tongUsdMoiGio"] for x in r["diem"]}
+    kiem("bình quân TỤT mà vốn rót TĂNG — hai cột nói ngược nhau",
+         THAT[180][1] < THAT[30][1] and THAT[180][0] > THAT[30][0])
+    # Câu ĐÚNG là: tổng phẳng TỪ ĐIỂM ĐANG DÙNG TRỞ LÊN, không phải phẳng
+    # suốt trục. Bản đầu của phép kiểm này khai "phẳng suốt trục" và nó
+    # ĐỎ — 30 → 180 thật ra tăng 3,3%. Cái đáng kết luận nằm ở nửa trên:
+    # nới quá 120 không mua thêm được gì.
+    kiem("TỔNG phẳng từ điểm đang dùng trở lên — nới thêm không mua gì",
+         abs(_t[180] - _t[120]) / _t[120] < 0.001,
+         f"{_t} — 120→180 chỉ đổi {(_t[180]-_t[120])/_t[120]:.4%}")
+    kiem("nhưng SIẾT xuống dưới thì có mất — trục không phẳng cả hai phía",
+         (_t[120] - _t[30]) / _t[30] > 0.01,
+         f"{_t} — nói 'phẳng suốt trục' là nói quá, và bộ kiểm đã bắt "
+         f"đúng câu ấy khi tôi viết nó")
+
+    # Lưới lệch: điểm đang dùng không có trên lưới.
+    r2 = quet_truc([], {"phanBo": {"toiDaSoViThe": 125}}, 1_000_000.0,
+                   "phanBo.toiDaSoViThe", sorted(THAT), _mot, _dat)
+    kiem("lưới KHÔNG chứa điểm đang dùng thì phải KHAI ra",
+         r2["hienTaiTrenLuoi"] is False,
+         "so với một điểm chưa từng đo là so với một con số bịa")
+
+    # Trục BẤT ĐỘNG — `ruiRoTong.tranMotCoHoi` đo thật: 12 lần đổi, không
+    # một con số nhúc nhích, vì trần cao gấp SÁU lần chỗ nó đáng chặn.
+    def _mot_bd(tt, ts, von, nhan=""):
+        return _KQ(752382.0, 1.9380)
+
+    rb = quet_truc([], {"ruiRoTong": {"tranMotCoHoi": 0.15}}, 1_000_000.0,
+                   "ruiRoTong.tranMotCoHoi",
+                   [0.05, 0.1, 0.15, 0.2, 0.3, 0.45, 0.6], _mot_bd, _dat)
+    kiem("trục không đổi gì → khai là BẤT ĐỘNG", rb["batDong"] is True)
+    kiem("và KHÔNG tuyên bố người thắng trên một trục bất động",
+         rb["totNhat"] is None,
+         "chọn bừa một điểm trên trục phẳng là đẻ ra một lời khuyên vặn "
+         "một cái nút không thể đổi được gì")
+    kiem("trục có đổi thì VẪN chọn được", r["totNhat"] is not None)
+
+    # Hai cửa sổ bất đồng thì CẢ HAI chưa dùng được.
+    def _mot_khac(tt, ts, von, nhan=""):
+        g = doc_nut(ts, "phanBo.toiDaSoViThe")
+        return _KQ(700000.0, 1.0 + (1.0 if g == 30 else 0.0))
+
+    rk = quet_truc([], {"phanBo": {"toiDaSoViThe": 120}}, 1_000_000.0,
+                   "phanBo.toiDaSoViThe", sorted(THAT), _mot_khac, _dat)
+    dc = doi_chieu_hai_cua_so(r, rk)
+    kiem("hai cửa sổ chọn hai giá trị khác nhau → KHÔNG đồng ý",
+         dc["dongY"] is False and dc["giaTri"] is None,
+         f"{dc} — một trục đơn điệu trên một cửa sổ vẫn có thể là ảo")
+    kiem("cùng một kết quả thì đồng ý",
+         doi_chieu_hai_cua_so(r, r)["dongY"] is True)
+    kiem("cả hai bất động thì đồng ý, và khai rõ là bất động",
+         doi_chieu_hai_cua_so(rb, rb) == {"dongY": True, "batDong": True,
+                                          "giaTri": None,
+                                          "vi": "cả hai cửa sổ đều nói núm "
+                                                "này KHÔNG ràng buộc"})
+
+
 def kiem_nguon_doi_429() -> None:
     print("")
     print("-- Nguon doi LI.FI: 429 thi NGHI, khong goi tiep --")
@@ -14825,6 +14918,7 @@ def main() -> int:
     kiem_tin_dung_thang_rui_ro()
     kiem_van_tay_co_chuoi()
     kiem_hai_ty_that()
+    kiem_quet_truc()
     kiem_nguon_doi_429()
     kiem_nho_tam()
     kiem_von_ngoai()
