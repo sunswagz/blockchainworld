@@ -377,6 +377,8 @@ class TyBienDo(Ty):
         self.soViThe = SoViThe()
         self.soTin = SoTin(giuNgay=int((self.cfg.get("tin") or {}).get("giuNgay") or 14))
         self.soKinhNghiem = SoKinhNghiem()
+        from .hoc_lieu import SoHocLieu
+        self.soHocLieu = SoHocLieu()
         self.poolRpc: dict = {}
         self.coHoi: list = []
         self.lanMoi: dict = self._nap_lan_moi()
@@ -521,6 +523,26 @@ class TyBienDo(Ty):
         for k in [k for k in self.lanMoi if k.startswith("vi:")]:
             self.lanMoi.pop(k, None)
         return dict(self.cfg["vi"])
+
+    def tri_thuc_tom_tat(self) -> dict:
+        from .hoc_lieu import nap_tri_thuc, tom_tat_tri_thuc
+        return tom_tat_tri_thuc(nap_tri_thuc(), self.soHocLieu)
+
+    def them_hoc_lieu(self, than: dict) -> dict:
+        return self.soHocLieu.them(str(than.get("ten") or "bài"), str(than.get("noiDung") or ""),
+                                   str(than.get("nguon") or ""))
+
+    def boc_hoc_lieu(self, ma: str) -> dict:
+        from pathlib import Path
+        from .hoc_lieu import boc_bang_cli, soat_bai
+        b = self.soHocLieu.bai.get(ma)
+        if not b:
+            raise KeyError(ma)
+        kq, loi = boc_bang_cli(Path(b["duong"]).read_text(encoding="utf-8"), b.get("ten") or ma)
+        if kq is None:
+            raise RuntimeError(loi)
+        self.soHocLieu.ghi_boc(ma, kq, "claude-cli")
+        return soat_bai(dict(kq, ma=ma))
 
     def vi_tom_tat(self) -> dict:
         vi = self.cfg.get("vi") or {}

@@ -442,7 +442,9 @@ details.chi-tiet > div { margin-top: 8px; }
 .btk-form b { font-size: 13.5px; width: 100%; }
 .btk-form input { background: var(--the-2); color: var(--chu); border: 1px solid transparent; border-radius: var(--r2);
   padding: 10px 12px; font-size: 13px; width: 160px; font-variant-numeric: tabular-nums; }
-.btk-form input:focus { outline: 0; border-color: var(--nhan); background: var(--the); }
+.btk-form input:focus, .btk-form textarea:focus { outline: 0; border-color: var(--nhan); background: var(--the); }
+.btk-form textarea { background: var(--the-2); color: var(--chu); border: 1px solid transparent; border-radius: var(--r2);
+  padding: 10px 12px; font: inherit; font-size: 13px; resize: vertical; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 

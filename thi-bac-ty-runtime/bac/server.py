@@ -459,6 +459,31 @@ def be_thanh_khoan_vi(than: dict) -> JSONResponse:
     return JSONResponse(sach(vi))
 
 
+@app.post("/api/be-thanh-khoan/hoc-lieu")
+def be_thanh_khoan_hoc_lieu(than: dict) -> JSONResponse:
+    """NGƯỚI dán một bài học (transcript / bài phân tích) → lưu nguyên văn,
+    chờ agent bóc. Thân: ten, noiDung, nguon?"""
+    t = _ty_bien_do()
+    try:
+        b = t.them_hoc_lieu(than)
+    except (KeyError, ValueError, TypeError) as e:
+        raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
+    bus.ghi(f"bể thanh khoản: thêm học liệu «{b.get('ten')}»")
+    return JSONResponse(sach(b))
+
+
+@app.post("/api/be-thanh-khoan/hoc-lieu/{ma}/boc")
+def be_thanh_khoan_boc(ma: str) -> JSONResponse:
+    """Agent riêng của ty (claude CLI, quota gói) bóc bài thành khuôn."""
+    t = _ty_bien_do()
+    try:
+        return JSONResponse(sach(t.boc_hoc_lieu(ma)))
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"không có học liệu {ma!r}")
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
 @app.post("/api/be-thanh-khoan/hoc")
 def be_thanh_khoan_hoc() -> JSONResponse:
     """Chấm điểm + gom bài học + một lượt tiến hoá NGAY, không đợi mốc tối."""

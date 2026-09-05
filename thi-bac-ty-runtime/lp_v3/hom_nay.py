@@ -79,6 +79,7 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
         "thiTruongGoc": _thi_truong_goc(bc),
         "vongNgay": _vong_ngay(ty, now),
         "vi": ty.vi_tom_tat() if hasattr(ty, "vi_tom_tat") else None,
+        "triThuc": ty.tri_thuc_tom_tat() if hasattr(ty, "tri_thuc_tom_tat") else None,
         "nhip": _nhip(cfg),
         "nguonMu": mu, "thieuDiaChi": thieuDiaChi, "thieuKhoiLuong": thieuVol,
         "giaDinh": [

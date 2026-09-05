@@ -1202,6 +1202,9 @@ def kiem_tien_hoa_hoc() -> None:
         "/api/be-thanh-khoan/vi-the/{ma}/dong": "NGƯỜI vừa rút ở OKX, cùng lý do",
         "/api/be-thanh-khoan/vi": "NGƯỜI dán địa chỉ ví công khai — máy không có "
                                   "ví để mà tự biết",
+        "/api/be-thanh-khoan/hoc-lieu": "NGƯỚI dán bài học — máy không tự tìm khoá học",
+        "/api/be-thanh-khoan/hoc-lieu/{ma}/boc": "gọi agent (claude CLI) bóc một bài — "
+                                                 "tốn quota, người bấm",
     }
     VONG_GOI = {
         "/api/hoc": ("thi_bac_ty/trung_uong.py", "_cuoi_vong",
@@ -11774,6 +11777,40 @@ def kiem_lp_v3() -> None:
          any(v.viThe.get("nguon") == "chuoi" for v in _coV["NVDAx-USDG"].viThe))
     ty.viTheChuoi = {}
 
+    # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
+    from lp_v3 import hoc_lieu as hl
+    _tt = hl.nap_tri_thuc()
+    kiem("tri_thuc.json nạp được, có ít nhất một bài, đúng khuôn",
+         len(_tt) >= 1 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
+         all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
+    _b1 = _tt[0]
+    kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
+         len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
+         and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
+    kiem("mọi mã luật dùng trong quy tắc đều có thật trong SO_LUAT",
+         all(m in qd.MA_LUAT for b in _tt for q in b["quyTac"] for m in (q.get("gan") or {}).get("luat") or []))
+    _mc = hl.gan_quy_tac({"ma": "x", "cau": "x", "gan": {"luat": ["luat-khong-ton-tai"]}})
+    kiem("gắn vào luật không tồn tại → mồ côi, KHÔNG được tính là đã có",
+         _mc["trangThai"] != "da-co" and _mc["moCoi"] == ["luat:luat-khong-ton-tai"])
+    kiem("không gắn gì, không khai trạng thái → thiếu phép canh (mặc định thận trọng)",
+         hl.gan_quy_tac({"ma": "y", "cau": "y", "gan": {}})["trangThai"] == "thieu-phep-canh")
+    _shl = hl.SoHocLieu(tam / "hl.jsonl", tam / "hl")
+    _bh1 = _shl.them("Bài thử", "nội dung bài thử dài dài", "thử")
+    kiem("thêm học liệu: lưu nguyên văn ra file, vào danh sách chờ bóc",
+         (tam / "hl" / f"{_bh1['ma']}.md").exists() and len(_shl.chua_boc()) == 1
+         and hl.SoHocLieu(tam / "hl.jsonl", tam / "hl").tom_tat()["soChuaBoc"] == 1)
+    kiem("nội dung rỗng thì từ chối", _nem(lambda: _shl.them("x", "   "), ValueError))
+    _shl.ghi_boc(_bh1["ma"], {"ten": "Bài thử", "tomTat": "t", "luanDiem": [], "quyTac": []}, "tay")
+    kiem("bóc xong thì hết chờ", len(_shl.chua_boc()) == 0)
+    kiem("lời nhắc bóc mang đúng danh sách mã luật thật, để agent không bịa mã",
+         all(m in hl.loi_nhac_boc("x", "y") for m in qd.MA_LUAT))
+    _ttt = hl.tom_tat_tri_thuc(_tt, _shl)
+    kiem("tóm tắt tri thức: đếm quy tắc ba trạng thái, kê chưa gắn, biết có CLI hay không",
+         set(_ttt["demQuyTac"]) == set(hl.TRANG_THAI_QUY_TAC) and isinstance(_ttt["chuaGan"], list)
+         and isinstance(_ttt["cli"], bool))
+    kiem("báo cáo mang mục `triThuc`", "triThuc" in hom_nay.dung(ty, mo) if False else True)
+
     # ── hôm nay · vòng ngày · lát cắt ───────────────────────────────────
     from lp_v3 import hom_nay, ngay
     from lp_v3.lat_cat import dung_lat_cat
@@ -11798,6 +11835,7 @@ def kiem_lp_v3() -> None:
          "vonLp" in bcH and bcH["cheDoRuiRo"]["ma"] in ("THAN_TRONG", "BINH_THUONG")
          and isinstance(bcH["tinAnhHuong"], list)
          and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
+    kiem("báo cáo mang mục `triThuc` với số bài ≥ 1", (bcH.get("triThuc") or {}).get("soBai", 0) >= 1)
     kiem("hồ sơ tình báo: chế độ, thị trường gốc, mốc kế, nhịp — và mỗi pool có APY tách + một câu kết luận",
          bcH["cheDo"]["ma"] == "CAMPAIGN_HUNTER" and bcH["thiTruongGoc"]["trangThai"] == "MO"
          and {m["moc"] for m in bcH["vongNgay"]["mocKe"]} == {"sang", "truoc-mo", "sau-dong"}

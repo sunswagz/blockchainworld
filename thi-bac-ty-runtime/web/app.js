@@ -2808,6 +2808,59 @@
     f.appendChild(nutHoc);
     f.appendChild(giai("Núm hiện tại: " + Object.keys(b.nut || {}).map(function (k) { return k + " = " + b.nut[k]; }).join(" · ")
       + ". Giả định: " + (b.giaDinh || []).join(" | ")));
+
+    /* học liệu: bài giảng → luận điểm + quy tắc gắn vào phép canh */
+    var tt = b.triThuc || {}, dq = tt.demQuyTac || {};
+    f.appendChild(el("h4", null, "Học liệu — " + so(tt.soBai) + " bài đã ghim · quy tắc: "
+      + so(dq["da-co"]) + " đã có phép canh · " + so(dq["thieu-phep-canh"]) + " thiếu phép canh · " + so(dq["y-tuong"]) + " ý tưởng"
+      + ((tt.moCoi || []).length ? " · " + tt.moCoi.length + " MỒ CÔI" : "")));
+    if ((tt.bai || []).length) {
+      f.appendChild(bang([{ t: "Bài" }, { t: "Nguồn" }, { t: "Kỹ thuật LP", n: true }, { t: "Quản lý vốn", n: true },
+                          { t: "Hệ thống", n: true }, { t: "Trade được", n: true }, { t: "Giá trị", n: true }, { t: "Luận điểm", n: true }, { t: "Quy tắc" }],
+        tt.bai.map(function (x) {
+          var d = x.danhGia || {}, q = x.demQuyTac || {};
+          function sao(n) { return n == null ? "—" : "★".repeat(Math.max(0, Math.min(5, n))) + "☆".repeat(Math.max(0, 5 - Math.min(5, n))); }
+          return [{ t: x.ten || x.ma }, { t: (x.nguon || "").slice(0, 60) }, { t: sao(d.kyThuatLp), c: "n" }, { t: sao(d.quanLyVon), c: "n" },
+                  { t: sao(d.tuDuyHeThong), c: "n" }, { t: sao(d.tradeDuoc), c: "n" }, { t: sao(d.giaTriChoHeThong), c: "n" },
+                  { t: so(x.soLuanDiem), c: "n" }, { t: so(q["da-co"]) + " có · " + so((q["thieu-phep-canh"] || 0) + (q["y-tuong"] || 0)) + " chưa" }];
+        })));
+    }
+    if ((tt.chuaGan || []).length) {
+      var cg = el("div", "viec-1 nhe"); cg.appendChild(el("b", null, "Quy tắc đã học nhưng CHƯA có phép canh — việc còn nợ"));
+      tt.chuaGan.forEach(function (q) { cg.appendChild(el("span", null, "• [" + q.ma + "] " + q.cau + (q.ghi ? " — " + q.ghi : ""))); });
+      f.appendChild(cg);
+    }
+    var hlf = el("div", "btk-form");
+    var hlo = tt.hocLieu || {};
+    hlf.appendChild(el("b", null, "Dán bài học mới (transcript, bài phân tích) — agent riêng của ty sẽ bóc"
+      + (hlo.soBai ? " · đã có " + so(hlo.soBai) + " bài ở máy, " + so(hlo.soChuaBoc) + " chờ bóc" : "")
+      + (tt.cli === false ? " · ✗ chưa thấy claude CLI trên máy (bóc tay theo khuôn)" : "")));
+    var inTen = el("input"); inTen.placeholder = "tên bài (VD Bài 2 — Uniswap V3 range)"; inTen.style.width = "300px";
+    var inNguon = el("input"); inNguon.placeholder = "nguồn (khoá học, mốc phút)"; inNguon.style.width = "260px";
+    var ta = el("textarea"); ta.placeholder = "dán nội dung bài ở đây…"; ta.rows = 6; ta.style.width = "100%";
+    var nutHl = el("button", "nho", "Lưu bài & bóc"); nutHl.type = "button";
+    nutHl.addEventListener("click", function () {
+      var than = { ten: inTen.value.trim(), nguon: inNguon.value.trim(), noiDung: ta.value };
+      nhac("đang lưu bài…");
+      fetch("/api/be-thanh-khoan/hoc-lieu", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(than) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.detail || r.status); return j; }); })
+        .then(function (j) {
+          nhac("đã lưu «" + j.ten + "» — agent đang bóc (có thể mất 1–3 phút)…");
+          return fetch("/api/be-thanh-khoan/hoc-lieu/" + j.ma + "/boc", { method: "POST" })
+            .then(function (r) { return r.json().then(function (k) { if (!r.ok) throw new Error(k.detail || r.status); return k; }); });
+        })
+        .then(function (k) {
+          var d = k.demQuyTac || {};
+          nhac("bóc xong: " + so(d["da-co"]) + " quy tắc đã có phép canh, " + so((d["thieu-phep-canh"] || 0) + (d["y-tuong"] || 0))
+            + " chưa" + ((k.moCoi || []).length ? ", " + k.moCoi.length + " mã mồ côi" : "") + " — soát rồi ghim vào lp_v3/tri_thuc.json");
+          BTK = null; ve();
+        })
+        .catch(function (e) { nhac("học liệu: " + (e && e.message || e)); BTK = null; ve(); });
+    });
+    hlf.appendChild(inTen); hlf.appendChild(inNguon); hlf.appendChild(ta); hlf.appendChild(nutHl);
+    f.appendChild(hlf);
+    f.appendChild(giai("Bài bóc xong nằm ở data/lp-v3/hoc-lieu/ chờ người soát; ghim vào lp_v3/tri_thuc.json thì mọi máy dùng chung. "
+      + "Quy tắc chỉ được tính «đã có» khi trỏ vào một luật, núm, cửa hay trường THẬT — luật đổi tên là quy tắc thành mồ côi và phép kiểm đỏ."));
     return f;
   }
 

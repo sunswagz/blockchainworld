@@ -1,0 +1,76 @@
+{
+ "_doc": [
+  "TRI THỨC ĐÃ GHIM của ty Bể Thanh Khoản — bài học đã bóc theo khuôn `hoc_lieu.KHUON_JSON`, đã người soát.",
+  "Mỗi quy tắc GẮN vào luật (quyet_dinh.SO_LUAT), núm (tien_hoa.NUT_VAN), cửa (config.CUA_AN_TOAN) hoặc trường báo cáo;",
+  "không gắn được thì trạng thái là thieu-phep-canh hoặc y-tuong — hiện ra ở tab Học, không giấu.",
+  "Thêm bài: python -m lp_v3.hoc_lieu them <file.md> → boc <mã> → soát → chép vào đây → commit."
+ ],
+ "bai": [
+  {
+   "ma": "khoa-hoc-lp-bai-1-triet-ly-von",
+   "ten": "Bài 1 — Từ thu nhập tới tài sản tạo dòng tiền (mở đầu khoá học LP)",
+   "nguon": "khoá học LP, bài 1 (~7 phút); bản bóc do chủ gửi 05/09/2026; mốc 2:48 · 5:09 · 5:40",
+   "ngay": "2026-09-05",
+   "tomTat": "Bài mở đầu, triết lý quản lý vốn: thu nhập → vốn → tài sản → dòng tiền → tái đầu tư, thay cho thu nhập → chi tiêu → nợ. Điểm chạm LP duy nhất là ý «tài sản đang nắm (BTC) có thể tạo dòng tiền mà vẫn giữ phơi nhiễm giá». Bài KHÔNG có chiến lược LP cụ thể; giá trị nằm ở tư duy hệ thống (success is built on systems) và cách nhìn vốn như một doanh nghiệp đầu tư có phân bổ theo quy tắc.",
+   "danhGia": {"kyThuatLp": 1, "quanLyVon": 4, "tuDuyHeThong": 4, "tradeDuoc": 1, "giaTriChoHeThong": 3},
+   "luanDiem": [
+    {"cau": "Người giàu đi vòng thu nhập → vốn → tài sản → dòng tiền → thêm tài sản; người còn lại đi thu nhập → chi tiêu → nợ.",
+     "loai": "nguyen-tac", "ghi": "khung tư duy, không kiểm chứng bằng số; hệ thống nhận làm mục tiêu chứ không làm dữ liệu"},
+    {"cau": "Bitcoin không nhất thiết là tài sản chết: có thể tạo dòng tiền trong khi vẫn giữ phơi nhiễm giá (2:48).",
+     "loai": "kiem-chung-duoc", "ghi": "kiểm bằng NET thật: phí + thưởng − IL − gas trên vốn BTC/ETH đã LP; sổ kinh nghiệm đang thu mẫu, chưa đủ để nói đúng/sai"},
+    {"cau": "Mỗi nguồn dòng tiền là tiền trả cho việc NHẬN một rủi ro hoặc LÀM một việc kinh tế; blockchain không tự sinh tiền.",
+     "loai": "nguyen-tac", "ghi": "LP = làm nhà tạo lập thị trường tự động; phí đổi lấy inventory risk, IL/LVR, rủi ro hợp đồng, rủi ro dải — đúng mô hình ty đang dùng"},
+    {"cau": "Success is built on systems (5:09) — thành công đứng trên hệ thống, không trên động lực nhất thời.",
+     "loai": "nguyen-tac", "ghi": "đúng với kiến trúc Thị Bạc Ty: quét → quyết → ghi → chấm → học"},
+    {"cau": "Tác giả kiếm hàng triệu đô; AI sẽ thay phần lớn cơ hội.",
+     "loai": "narrative", "ghi": "lời của người bán khoá học — không phải bằng chứng; không đưa vào hệ thống"},
+    {"cau": "Không hỏi «pool nào APY cao nhất» mà hỏi «tại sao thị trường trả tiền cho tôi».",
+     "loai": "nguyen-tac", "ghi": "đã là trục xếp hạng của radar: quyết định → NET → rủi ro → tin cậy → APY cuối cùng"}
+   ],
+   "quyTac": [
+    {"ma": "khong-xep-hang-bang-apy", "cau": "Không xếp hạng hay vào pool theo APY hiển thị; xếp bằng NET sau phí, IL, LVR, gas và độ tin cậy dữ liệu.",
+     "gan": {"luat": ["phi-duoi-lvr"], "nut": [], "truong": ["diem", "netBps", "apyTach", "tinCay"]},
+     "ghi": "radar chấm điểm bằng phí/LVR · tin cậy · rủi ro · NET; APY chỉ là cột mờ. Luật phi-duoi-lvr chặn vào khi phí không trả nổi LVR."},
+    {"ma": "tach-nguon-dong-tien", "cau": "Mỗi khoản lợi suất phải khai nó là phí giao dịch, thưởng phát thêm hay lãi cho vay — và thưởng không được cộng vào lợi suất dài hạn.",
+     "gan": {"luat": ["sap-het-thuong"], "nut": [], "truong": ["apyTach", "thuong"]},
+     "ghi": "APY hiển thị tách thành phí + thưởng ở mọi thẻ; thưởng có giờ hết; sổ luật chặn vào mới khi thưởng chiếm phần lớn và sắp hết."},
+    {"ma": "gan-loi-suat-voi-rui-ro-doi-lay", "cau": "Mỗi con số lợi suất phải đứng cạnh rủi ro nó đổi lấy: IL/LVR, văng dải, hợp đồng, token, chi phí đổi dải.",
+     "gan": {"luat": ["van-dai-cao"], "nut": [], "truong": ["ilKyVongBps", "lvrBps", "xacSuatVang", "tiLePhiTrenLvr"]},
+     "ghi": "hồ sơ pool hiện IL kỳ vọng, LVR, P(văng), điểm rủi ro sáu mặt cạnh NET."},
+    {"ma": "moi-pool-mot-tran-von", "cau": "Mỗi pool có trần vốn riêng; không FOMO, không rót theo APY cao.",
+     "gan": {"luat": ["tvl-mong"], "nut": [], "truong": ["sucChuaUsd", "vonXinUsd"]},
+     "ghi": "ty xin theo sức chứa (phần TVL), Trung Ương cắt trần theo Rủi Ro Tổng; trần theo pool là việc của Phân Bổ, ty chỉ khai sức chứa."},
+    {"ma": "cat-luc-can", "cau": "Loại pool rác, thưởng giả, farm APY siêu cao thiếu thanh khoản; tính đủ gas, cầu nối, đổi token vào NET.",
+     "gan": {"luat": ["tvl-mong", "khong-sigma"], "nut": [], "truong": ["tinCay", "khoaVao"]},
+     "ghi": "TVL mỏng và không có σ bị chặn ở cửa; tin cậy dưới 60% khoá nút vào. Phí cầu nối/đổi token CHƯA có trong NET — khai ở phiConThieu."},
+    {"ma": "moi-do-la-tao-bao-nhieu-phi", "cau": "Bảng phải trả lời: mỗi $1 vốn đang tạo bao nhiêu phí, đang chịu bao nhiêu IL/LVR, pool nào hiệu quả nhất.",
+     "gan": {"luat": [], "nut": [], "truong": ["vonLp", "phiChoThuUsd", "pnlUocUsd"]},
+     "ghi": "vốn LP, phí chưa thu, IL, PnL ước đã có ở hàng chỉ số và tab Vị thế khi nối ví; «phí trên mỗi $1 theo pool» chưa tính riêng — thiếu phép đo theo pool."},
+    {"ma": "khi-nao-dung-ngoai", "cau": "Hệ thống phải nói được khi nào KHÔNG làm gì và điều gì sẽ đổi quyết định ấy.",
+     "gan": {"luat": ["ngoai-gio-khong-doi-dai", "sat-su-kien", "gia-cu"], "nut": [], "truong": ["hanhDongNgay", "dieuKien"]},
+     "ghi": "khối HÀNH ĐỘNG NGAY + sáu điều kiện mở khoá có đo."},
+    {"ma": "tai-dau-tu-theo-quy-tac", "cau": "Lợi nhuận đã chốt chia ba: dự phòng · vốn nền · cơ hội tốt nhất; thị trường xấu thì về dự phòng; sụt vốn quá trần thì tắt lãi kép.",
+     "gan": {"luat": [], "nut": [], "truong": []},
+     "ghi": "y tưởng snowball có kiểm soát — thuộc Trung Ương (Phân Bổ, Rủi Ro Tổng, cầu dao sụt vốn), không thuộc ty. Chưa có phép canh ở tầng ty.", "trangThai": "y-tuong"},
+    {"ma": "hoc-tu-ket-qua-khong-tu-loi-hua", "cau": "Học từ PnL thực và khoảng cách dự đoán–thực tế, không từ lời hứa của người dạy hay APY quảng cáo.",
+     "gan": {"luat": [], "nut": [], "truong": ["kinhNghiem", "baiHoc", "tienHoa"]},
+     "ghi": "sổ kinh nghiệm chấm mọi quyết định bằng đường giá thật; bài học chỉ khi n ≥ 5 và độ tin ≥ 2; tiến hoá qua cổng."},
+    {"ma": "kiem-toan-truoc-khi-phan-bo", "cau": "Trước khi phân bổ: biết tổng vốn, muốn giữ tài sản nào (BTC/ETH/stable), chịu được sụt vốn bao nhiêu.",
+     "gan": {"luat": [], "nut": [], "truong": []},
+     "ghi": "hồ sơ mục tiêu của NGƯỜI (tài sản muốn giữ, mức sụt vốn chịu được) chưa có chỗ khai trong ty; Trung Ương có vonBanDauUsd và trần sụt vốn.", "trangThai": "thieu-phep-canh"}
+   ],
+   "cauHoiChoHeThong": [
+    "Vốn của tôi hiện đang làm việc ở đâu?",
+    "Mỗi $1 vốn tạo bao nhiêu phí?",
+    "Tôi đang chịu bao nhiêu biến động, bao nhiêu IL/LVR?",
+    "Pool nào hiệu quả nhất, pool nào nên giảm, pool nào nên tăng vốn?",
+    "Khi nào nên đứng ngoài?"
+   ],
+   "khongLay": [
+    "Lời hứa thu nhập của tác giả — narrative bán khoá học.",
+    "«Cash flow your Bitcoin» như tiền miễn phí — mỗi dòng tiền là phí trả cho một rủi ro; hệ thống chỉ nhận sau khi trừ IL, gas, trượt giá, đổi dải, rủi ro hợp đồng.",
+    "Bảy bước Audit → Expand ở dạng khẩu hiệu; chỉ lấy phần đã biến được thành luật hoặc trường đo."
+   ]
+  }
+ ]
+}

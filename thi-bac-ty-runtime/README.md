@@ -693,6 +693,19 @@ bộ hẹn giờ riêng, vì bộ hẹn giờ riêng là một tiến trình n�
 không ai hay. Máy tắt thì mốc chạy bù, báo cáo ghi rõ là chạy bù. Mốc
 tối là mốc HỌC. Báo cáo ở `data/lp-v3/bao-cao/`.
 
+**Học liệu** (`hoc_lieu.py`, `tri_thuc.json`): ty học từ bài giảng theo
+hai lớp — *ông ấy dạy gì* (luận điểm, gắn nhãn kiểm-chứng-được / narrative
+/ nguyên tắc, đánh giá sao) và *thứ nào đưa được vào hệ thống* (quy tắc,
+GẮN vào luật trong `SO_LUAT`, núm, cửa hay trường báo cáo có thật; không
+gắn được thì khai `thieu-phep-canh` hoặc `y-tuong`, hiện ở tab Học như
+việc còn nợ). Dán bài ở tab Học hoặc `python -m lp_v3.hoc_lieu them
+<file.md>`; agent riêng của ty bóc bằng `claude` CLI (quota gói, không
+khoá API): `python -m lp_v3.hoc_lieu boc <mã>`. Bài đã soát thì ghim vào
+`tri_thuc.json` — phép kiểm canh KHÔNG quy tắc nào mồ côi (trỏ vào luật đã
+đổi tên). Bài 1 của khoá học LP đã ghim: 6 luận điểm, 10 quy tắc, 8 đã có
+phép canh, 2 khai nợ (hồ sơ mục tiêu của người; tái đầu tư theo quy tắc —
+việc của Trung Ương).
+
 **Nối ví CHỈ ĐỌC** (`theo_doi_chuoi.py`, 05/09/2026): dán địa chỉ ví X
 Layer công khai và hash MỘT giao dịch thêm thanh khoản vào ô ở trang
 `/be-thanh-khoan` (hoặc `vi` trong `cau-hinh.json`). Không có tx thì máy dùng
