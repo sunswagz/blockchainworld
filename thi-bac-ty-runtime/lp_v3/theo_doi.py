@@ -45,6 +45,11 @@ class ViThe:
     L: float
     ghiChu: str = ""
     maQuyetDinh: str = ""          # quyết định nào của máy dẫn tới lần mở này
+    #: `tay` = người ghi ở buồng lái · `chuoi` = đọc từ NFT trong ví
+    nguon: str = "tay"
+    tokenId: str | None = None
+    phiChoThuUsd: float | None = None      # phí chưa thu, đo bằng collect mô phỏng
+    giaTriChuoiUsd: float | None = None    # giá trị đọc thẳng từ chuỗi
     dongLuc: str | None = None
     giaDong: float | None = None
     phiThuUsd: float | None = None
@@ -56,21 +61,28 @@ class ViThe:
         return self.dongLuc is None
 
     def danh_gia(self, giaHienTai: float) -> dict:
-        """Trạng thái ở giá này: trong dải?, giá trị, IL so HODL, hai lượng."""
+        """Trạng thái ở giá này: trong dải?, giá trị, IL so HODL, hai lượng.
+
+        Vị thế đọc từ chuỗi có thể KHÔNG biết giá mở (mint ngoài dải, hoặc
+        RPC không cho `eth_getLogs`): IL và lệch giá là None, không phải 0."""
         x, y = so_luong(self.L, giaHienTai, self.Pa, self.Pb)
+        coGiaMo = self.giaMo is not None and self.giaMo > 0
         return {"trongDai": self.Pa < giaHienTai < self.Pb,
                 "giaTriUsd": gia_tri(self.L, giaHienTai, self.Pa, self.Pb),
-                "ilPct": il_tai_gia(self.L, self.giaMo, giaHienTai,
-                                    self.Pa, self.Pb) * 100.0,
+                "ilPct": (il_tai_gia(self.L, self.giaMo, giaHienTai, self.Pa, self.Pb) * 100.0
+                          if coGiaMo else None),
                 "x": x, "y": y,
-                "lechGiaPct": (giaHienTai / self.giaMo - 1.0) * 100.0,
-                "gioGiu": _gio_tu(self.moLuc)}
+                "lechGiaPct": (giaHienTai / self.giaMo - 1.0) * 100.0 if coGiaMo else None,
+                "gioGiu": _gio_tu(self.moLuc) if self.moLuc else None,
+                "nguon": self.nguon, "tokenId": self.tokenId,
+                "phiChoThuUsd": self.phiChoThuUsd}
 
     def tom_tat(self) -> dict:
         return {k: getattr(self, k) for k in (
             "ma", "kyHieu", "Pa", "Pb", "vonUsd", "giaMo", "moLuc", "L",
             "ghiChu", "maQuyetDinh", "dongLuc", "giaDong", "phiThuUsd",
-            "thuongThuUsd", "lyDoDong")} | {"dangMo": self.dangMo}
+            "thuongThuUsd", "lyDoDong", "nguon", "tokenId", "phiChoThuUsd",
+            "giaTriChuoiUsd")} | {"dangMo": self.dangMo}
 
 
 def _gio_tu(iso: str) -> float:
@@ -96,7 +108,7 @@ class SoViThe:
             except ValueError:
                 continue
             if d.get("loai") == "mo":
-                v = {k: d[k] for k in d if k != "loai"}
+                v = {k: d[k] for k in d if k != "loai" and k in ViThe.__dataclass_fields__}
                 self._vt[d["ma"]] = ViThe(**v)
             elif d.get("loai") == "dong" and d.get("ma") in self._vt:
                 x = self._vt[d["ma"]]

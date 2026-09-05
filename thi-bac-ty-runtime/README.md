@@ -693,6 +693,19 @@ bộ hẹn giờ riêng, vì bộ hẹn giờ riêng là một tiến trình n�
 không ai hay. Máy tắt thì mốc chạy bù, báo cáo ghi rõ là chạy bù. Mốc
 tối là mốc HỌC. Báo cáo ở `data/lp-v3/bao-cao/`.
 
+**Nối ví CHỈ ĐỌC** (`theo_doi_chuoi.py`, 05/09/2026): dán địa chỉ ví X
+Layer công khai và hash MỘT giao dịch thêm thanh khoản vào ô ở trang
+`/be-thanh-khoan` (hoặc `vi` trong `cau-hinh.json`). Không có tx thì máy dùng
+Uniswap V3 CHÍNH THỨC trên X Layer (`0x315e…38Ae`, theo
+developers.uniswap.org, đã xác minh có mã trên RPC 05/09/2026); có tx thì
+suy hợp đồng từ log `IncreaseLiquidity` của biên nhận — địa chỉ canonical
+`0xC364…FE88` KHÔNG có mã trên X Layer nên không đoán. Rồi mỗi lượt đọc
+NFT vị thế: dải, thanh khoản, giá trị, phí CHƯA THU (mô phỏng `collect`
+qua `eth_call` từ ví), giá vào (từ log mint). Vị thế chuỗi được cân cùng
+đường với vị thế ghi tay. Thưởng OKX chia off-chain nên vẫn ghi tay khi
+claim. Không trường nào nhận khoá; `dat_vi` từ chối mọi khoá trông như
+`privateKey`/`secret`.
+
 **Cỗ máy này KHÔNG đặt lệnh và không có đường nào để đặt.** Thưởng đòi
 thêm thanh khoản qua trang OKX — đường ấy chỉ người đi được. Người đặt
 xong ghi vào sổ (`POST /api/be-thanh-khoan/vi-the`, hoặc nút ở trang

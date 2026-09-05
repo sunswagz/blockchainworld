@@ -91,6 +91,26 @@ CONFIG = {
         "nguon": "ảnh chụp OKX DeFi 04/09/2026",
     },
     "ketQuaKinhDoanh": {},
+    #: VÍ của người vận hành — CHỈ địa chỉ công khai, chỉ để ĐỌC. Không có
+    #: chỗ nào trong ty này nhận khoá riêng, và không được thêm vào.
+    #:
+    #:   diaChi        0x… ví X Layer đang giữ NFT vị thế
+    #:   quanLyViThe   NonfungiblePositionManager trên X Layer — KHÔNG đoán
+    #:                 (canonical 0xC364…FE88 không có mã ở chainId 196);
+    #:                 để None thì suy từ `txMau`
+    #:   txMau         hash một giao dịch THÊM thanh khoản của bạn — log
+    #:                 IncreaseLiquidity trong biên nhận chỉ ra hợp đồng
+    "vi": {"diaChi": None, "quanLyViThe": None, "txMau": None},
+    #: Uniswap V3 CHÍNH THỨC trên X Layer (chainId 196), theo
+    #: developers.uniswap.org/docs/protocols/v3/deployments/v3-xlayer-deployments,
+    #: đọc 05/09/2026 và đã xác minh có mã trên rpc.xlayer.tech. Dùng khi
+    #: người chưa khai `quanLyViThe` lẫn `txMau`; nếu OKX DeFi mint qua một
+    #: hợp đồng KHÁC thì ví sẽ đọc ra 0 vị thế — lúc ấy dán `txMau`.
+    "uniswapXLayer": {
+        "quanLyViThe": "0x315e413A11AB0df498eF83873012430ca36638Ae",
+        "nhaMay": "0x4B2ab38DBF28D31D467aA8993f6c2585981D6804",
+        "nguon": "developers.uniswap.org · v3-xlayer-deployments · 05/09/2026",
+    },
     #: Ký hiệu Yahoo của cổ phiếu gốc. `None` = không có sàn gốc công khai
     #: (SpaceX chưa niêm yết) → σ chỉ tích được từ băng giá chuỗi.
     "coPhieuGoc": {

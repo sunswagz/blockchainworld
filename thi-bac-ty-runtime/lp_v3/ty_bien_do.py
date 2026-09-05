@@ -39,6 +39,7 @@ from .nguon import UA_TRINH_DUYET, NguonGiaGoc, NguonRpcPool, NguonRss
 from .quyet_dinh import CHO, GIU, VAO, BoiCanh, QuyetDinh, quyet
 from .tin_tuc import SoTin
 from .theo_doi import SoViThe
+from .theo_doi_chuoi import DocViTheChuoi, thanh_vi_the
 
 MA_CHIEN_LUOC = cfgmod.MA_CHIEN_LUOC
 HO = cfgmod.HO
@@ -229,7 +230,8 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
              sigmaInfo: dict, giaInfo: dict, soViThe: SoViThe,
              poolRpc: dict | None = None, bienDong: dict | None = None,
              tin: list | None = None, now: dt.datetime | None = None,
-             coNangTin: list | None = None) -> CoHoiV3:
+             coNangTin: list | None = None,
+             viTheThem: list | None = None) -> CoHoiV3:
     now = now or dt.datetime.now(dt.timezone.utc)
     nut, cua = cfg["nut"], cfg["cua"]
     ma = cfgmod.ma_goc(pool["kyHieu"])
@@ -299,13 +301,13 @@ def can_pool(pool: dict, cfg: dict, bcPhien: lich.BoiCanhPhien,
                  tvlUsd=tvl, lechGiaChuoiSoGocPct=lech, nut=nut, cua=cua)
     qd = quyet(bc)
 
-    # vị thế người đang giữ trong pool này
+    # vị thế người đang giữ trong pool này: ghi tay + đọc từ chuỗi
     dsVt = []
-    for v in soViThe.dang_mo(pool["kyHieu"]):
+    for v in list(soViThe.dang_mo(pool["kyHieu"])) + list(viTheThem or ()):
         tt = v.danh_gia(gia) if gia else {"trongDai": None}
         kdV = None
         if coSigma and gia:
-            conLai = max(1.0, giuGio - tt.get("gioGiu", 0.0))
+            conLai = max(1.0, giuGio - (tt.get("gioGiu") or 0.0))
             tauV = lich.so_ngay_giao_dich(now, now + dt.timedelta(hours=conLai)) / NGAY_GIAO_DICH_NAM
             try:
                 kdV = can_dai(gia, v.Pa, v.Pb, sigma, tauV, conLai, aprPhi,
@@ -368,6 +370,10 @@ class TyBienDo(Ty):
         self.nguonGoc = NguonGiaGoc()
         self.nguonRpc = NguonRpcPool(self.cfg.get("rpc") or [])
         self.nguonTin = NguonRss()
+        self.nguonVi = DocViTheChuoi(self.cfg.get("rpc") or [])
+        #: vị thế đọc từ chuỗi, theo kyHieu — làm mới mỗi lượt quét
+        self.viTheChuoi: dict = {}
+        self.viTheChuoiLoi: str | None = None
         self.soViThe = SoViThe()
         self.soTin = SoTin(giuNgay=int((self.cfg.get("tin") or {}).get("giuNgay") or 14))
         self.soKinhNghiem = SoKinhNghiem()
@@ -412,6 +418,7 @@ class TyBienDo(Ty):
                    if lich.boi_canh(now).trangThai == lich.MO_CUA
                    else NHIP_GIA_GOC_GIAY)
         async with lam() as c:
+            await self._doc_vi(c)
             for pool in self.cfg.get("pool") or []:
                 ma = cfgmod.ma_goc(pool["kyHieu"])
                 ky = goc.get(ma)
@@ -439,6 +446,99 @@ class TyBienDo(Ty):
                             self.soTin.them(ds)
                     self.lanMoi[f"tin:{ma}"] = time.time()
         self._ghi_lan_moi()
+
+    async def _doc_vi(self, c) -> None:
+        """NFT vị thế trong ví người → `self.viTheChuoi`. Hợp đồng quản lý
+        chưa biết thì suy từ `txMau` MỘT lần rồi ghi lại vào cau-hinh.json."""
+        vi = self.cfg.get("vi") or {}
+        dia = (vi.get("diaChi") or "").strip()
+        if not dia:
+            self.viTheChuoiLoi = None
+            return
+        ql = (vi.get("quanLyViThe") or "").strip()
+        if not ql and vi.get("txMau"):
+            ql = await self.nguonVi.quan_ly_tu_tx(c, vi["txMau"].strip()) or ""
+            if ql:
+                self.cfg["vi"]["quanLyViThe"] = ql
+                try:
+                    ch = cfgmod.nap()
+                    ch.setdefault("vi", {})["quanLyViThe"] = ql
+                    cfgmod.ghi(ch)
+                except OSError:
+                    pass
+        macDinh = (self.cfg.get("uniswapXLayer") or {}).get("quanLyViThe") or ""
+        if not ql and macDinh:
+            # Không có tx mẫu thì dùng Uniswap V3 chính thức trên X Layer —
+            # có nguồn, có ngày, và ghi rõ là mặc định để người đọc biết vì
+            # sao 0 vị thế có thể là «sai hợp đồng» chứ không phải «ví trống».
+            ql = macDinh
+            self.cfg["vi"]["quanLyViTheDangDung"] = "mac-dinh-uniswap-chinh-thuc"
+        elif ql:
+            self.cfg["vi"]["quanLyViTheDangDung"] = "khai-hoac-suy-tu-tx"
+        if not ql:
+            self.viTheChuoiLoi = ("chưa biết hợp đồng quản lý vị thế — dán `txMau` (hash một "
+                                  "giao dịch THÊM thanh khoản) hoặc `quanLyViThe`"
+                                  + (f" · {self.nguonVi.loiCuoiChiTiet}" if self.nguonVi.loiCuoiChiTiet else ""))
+            return
+        ds = await self.nguonVi.doc(c, dia, ql)
+        if not ds and not self.nguonVi.suc_khoe.songSot:
+            self.viTheChuoiLoi = self.nguonVi.loiCuoiChiTiet or "RPC không trả lời"
+            return
+        self.viTheChuoiLoi = None
+        gom: dict = {}
+        for d in ds:
+            gom.setdefault(d["kyHieu"], []).append(thanh_vi_the(d))
+        self.viTheChuoi = gom
+        self.lanMoi["vi:" + dia[:10]] = time.time()
+
+    def dat_vi(self, than: dict) -> dict:
+        """Người đặt/đổi địa chỉ ví (chỉ đọc). Ghi vào cau-hinh.json để sống
+        qua khởi động lại; không nhận bất kỳ trường nào trông như khoá."""
+        cam = [k for k in than if "khoa" in k.lower() or "private" in k.lower() or "secret" in k.lower()]
+        if cam:
+            raise ValueError(f"ty này không nhận khoá: {cam}")
+        dia = str(than.get("diaChi") or "").strip()
+        if dia and not (dia.startswith("0x") and len(dia) == 42):
+            raise ValueError("địa chỉ ví phải là 0x + 40 ký tự hex")
+        tx = str(than.get("txMau") or "").strip()
+        if tx and not (tx.startswith("0x") and len(tx) == 66):
+            raise ValueError("tx mẫu phải là 0x + 64 ký tự hex")
+        ql = str(than.get("quanLyViThe") or "").strip()
+        if ql and not (ql.startswith("0x") and len(ql) == 42):
+            raise ValueError("hợp đồng quản lý vị thế phải là 0x + 40 ký tự hex")
+        ch = cfgmod.nap()
+        ch.setdefault("vi", {})
+        ch["vi"]["diaChi"] = dia or None
+        if tx:
+            ch["vi"]["txMau"] = tx
+            ch["vi"]["quanLyViThe"] = None      # tx mới → suy lại
+        if ql:
+            ch["vi"]["quanLyViThe"] = ql
+        cfgmod.ghi(ch)
+        self.cfg["vi"] = dict(ch["vi"])
+        self.viTheChuoi = {}
+        self.viTheChuoiLoi = None
+        for k in [k for k in self.lanMoi if k.startswith("vi:")]:
+            self.lanMoi.pop(k, None)
+        return dict(self.cfg["vi"])
+
+    def vi_tom_tat(self) -> dict:
+        vi = self.cfg.get("vi") or {}
+        ds = [v for xs in self.viTheChuoi.values() for v in xs]
+        theoDoi = {p["kyHieu"] for p in self.cfg.get("pool") or []}
+        return {"diaChi": vi.get("diaChi"), "quanLyViThe": vi.get("quanLyViThe"),
+                "quanLyViTheDangDung": vi.get("quanLyViTheDangDung"),
+                "macDinh": (self.cfg.get("uniswapXLayer") or {}).get("quanLyViThe"),
+                "txMau": vi.get("txMau"), "loi": self.viTheChuoiLoi,
+                "soViThe": len(ds),
+                "giaTriUsd": sum(v.vonUsd for v in ds),
+                "phiChoThuUsd": (sum(v.phiChoThuUsd for v in ds if v.phiChoThuUsd is not None)
+                                 if any(v.phiChoThuUsd is not None for v in ds) else None),
+                "ngoaiDanhMuc": [v.tom_tat() for v in ds if v.kyHieu not in theoDoi],
+                "soNftTrongVi": self.nguonVi.soNftTrongVi,
+                "soNftDaSoi": self.nguonVi.soNftDaSoi,
+                "soNftRong": self.nguonVi.soNftRong,
+                "sucKhoe": self.nguonVi.suc_khoe.tom_tat()}
 
     # ── ba việc ──────────────────────────────────────────────────────────
     def quet(self) -> list:
@@ -483,7 +583,8 @@ class TyBienDo(Ty):
                                self.poolRpc.get(pool["kyHieu"]),
                                bang_gia.bien_dong_lien_quan(ma, self.thuMucBang),
                                self.soTin.moi_nhat(tk, 5), now,
-                               self.soTin.co_nang_gan_day(tk, 24.0)))
+                               self.soTin.co_nang_gan_day(tk, 24.0),
+                               self.viTheChuoi.get(pool["kyHieu"], [])))
         ra.sort(key=lambda c: -(c.dai.netBps if (c.dai and c.dai.netBps is not None) else -1e18))
         return ra
 
@@ -581,6 +682,7 @@ class TyBienDo(Ty):
                 "soCoHoi": len(self.coHoi),
                 "soVao": sum(1 for c in self.coHoi if c.quyetDinh.hanhDong == VAO),
                 "viThe": self.soViThe.tom_tat(),
+                "vi": self.vi_tom_tat(),
                 "kinhNghiem": self.soKinhNghiem.tom_tat(),
                 "tin": self.soTin.tom_tat(),
                 "quetCuoiLuc": self.quetCuoiLuc}

@@ -1200,6 +1200,8 @@ def kiem_tien_hoa_hoc() -> None:
         "/api/be-thanh-khoan/vi-the": "NGƯỜI vừa thêm thanh khoản ở OKX — máy "
                                       "không đặt lệnh, nên máy không thể tự ghi",
         "/api/be-thanh-khoan/vi-the/{ma}/dong": "NGƯỜI vừa rút ở OKX, cùng lý do",
+        "/api/be-thanh-khoan/vi": "NGƯỜI dán địa chỉ ví công khai — máy không có "
+                                  "ví để mà tự biết",
     }
     VONG_GOI = {
         "/api/hoc": ("thi_bac_ty/trung_uong.py", "_cuoi_vong",
@@ -11701,6 +11703,76 @@ def kiem_lp_v3() -> None:
     boc = _NhipRieng(ty, 300.0)
     kiem("bọc nhịp riêng giữ nguyên khai báo và kế toán của ty thật",
          boc.ma == TyBienDo.ma and boc.co_ke_toan() and boc.kiem_khai() == [])
+
+    # ── vị thế trên chuỗi: giải mã, hướng giá, hợp đồng suy từ biên nhận ──
+    from lp_v3 import theo_doi_chuoi as tdc
+    _pos = "0x" + "".join([
+        format(0, "064x"), format(0, "064x"),
+        format(int("11" * 20, 16), "064x"), format(int("22" * 20, 16), "064x"),
+        format(500, "064x"), "f" * 58 + "fe" + "7960",    # tickLower âm
+        format(1000, "064x"), format(10 ** 18, "064x"), format(0, "064x"), format(0, "064x"),
+        format(7, "064x"), format(9, "064x")])
+    _vt = tdc.giai_ma_positions(_pos)
+    kiem("positions(): 12 trường đúng thứ tự, tick âm giải mã int24, fee 500 = 0,05%",
+         _vt["fee"] == 500 and _vt["tickUpper"] == 1000 and _vt["tickLower"] < 0
+         and _vt["liquidity"] == 10 ** 18 and _vt["tokensOwed1"] == 9
+         and _vt["token1"].startswith("0x2222"))
+    _bn = {"logs": [{"address": "0xAbC0000000000000000000000000000000000001", "topics": ["0xdead"]},
+                    {"address": "0xDEF0000000000000000000000000000000000002",
+                     "topics": [tdc.TOPIC_INCREASE, "0x01"]}]}
+    kiem("hợp đồng quản lý vị thế SUY từ log IncreaseLiquidity, không đoán canonical",
+         tdc.tim_quan_ly_tu_bien_nhan(_bn) == "0xdef0000000000000000000000000000000000002"
+         and tdc.tim_quan_ly_tu_bien_nhan({"logs": []}) is None)
+    _sq = 1.0001 ** (600 / 2.0)
+    _P0, _Pa0, _Pb0 = tdc.huong_gia(_sq, 500, 700, 18, 6, True)
+    _P1, _Pa1, _Pb1 = tdc.huong_gia(_sq, 500, 700, 18, 18, False)
+    _P0, _Pa0, _Pb0 = tdc.huong_gia(_sq, 500, 700, 18, 18, True)
+    kiem("hướng giá bù thập phân 18/6: nhân 10^12",
+         gan(tdc.huong_gia(_sq, 500, 700, 18, 6, True)[0], _P0 * 1e12, 1e-3)),
+    kiem("hướng giá: cổ là token1 thì giá đảo và hai mép ĐỔI CHỖ",
+         gan(_P0 * _P1, 1.0, 1e-9) and _Pa0 < _P0 < _Pb0 and _Pa1 < _P1 < _Pb1
+         and gan(_Pa1 * _Pb0, 1.0, 1e-9))
+    _a0, _a1 = tdc.so_luong_tho(10 ** 18, _sq, 500, 700)
+    kiem("số lượng thô trong dải: cả hai vế dương; ngoài dải trên: chỉ token1",
+         _a0 > 0 and _a1 > 0 and tdc.so_luong_tho(10 ** 18, 1.0001 ** 400, 500, 700)[1] > 0
+         and tdc.so_luong_tho(10 ** 18, 1.0001 ** 400, 500, 700)[0] == 0.0)
+    kiem("giá vào suy từ amount1 = L(√P − √Pa) — mint ngoài dải thì None",
+         gan(tdc.gia_vao_tu_so_luong(int(_a1), 10 ** 18, 500), _sq, 1e-6)
+         and tdc.gia_vao_tu_so_luong(0, 10 ** 18, 500) is None)
+    _vtc = tdc.thanh_vi_the({"tokenId": "77", "kyHieu": "NVDAx-USDG", "Pa": 95.0, "Pb": 105.0,
+                             "giaTriUsd": 1000.0, "giaMo": None, "moLuc": None, "pool": "0x1234567890",
+                             "L": 2074.7, "phiChoThuUsd": 1.5})
+    _dg = _vtc.danh_gia(100.0)
+    kiem("vị thế chuỗi không biết giá mở → IL là None (không phải 0), nguồn `chuoi`, có phí chưa thu",
+         _dg["ilPct"] is None and _dg["nguon"] == "chuoi" and _dg["phiChoThuUsd"] == 1.5
+         and _vtc.nguon == "chuoi" and _vtc.dangMo)
+    kiem("hợp đồng Uniswap V3 X Layer mặc định có nguồn, có ngày, đúng khuôn địa chỉ",
+         len(_cf.CONFIG["uniswapXLayer"]["quanLyViThe"]) == 42
+         and "developers.uniswap.org" in _cf.CONFIG["uniswapXLayer"]["nguon"]
+         and "2026" in _cf.CONFIG["uniswapXLayer"]["nguon"])
+    kiem("`dat_vi` từ chối mọi trường trông như khoá, và địa chỉ sai khuôn",
+         _nem(lambda: ty.dat_vi({"diaChi": "0x" + "a" * 40, "privateKey": "x"}), ValueError)
+         and _nem(lambda: ty.dat_vi({"diaChi": "0x123"}), ValueError))
+    _cfgTam = tam / "cau-hinh-vi.json"
+    import lp_v3.config as _cfgm
+    _duongCu = _cfgm.DUONG_CAU_HINH
+    _cfgm.DUONG_CAU_HINH = _cfgTam
+    try:
+        _ra = ty.dat_vi({"diaChi": "0x" + "a" * 40, "txMau": "0x" + "b" * 64})
+        kiem("`dat_vi` ghi địa chỉ + tx mẫu vào cau-hinh.json và xoá hợp đồng cũ để suy lại",
+             _ra["diaChi"] == "0x" + "a" * 40 and _ra["quanLyViThe"] is None
+             and _cfgm.nap(_cfgTam)["vi"]["txMau"] == "0x" + "b" * 64)
+    finally:
+        _cfgm.DUONG_CAU_HINH = _duongCu
+        ty.cfg["vi"] = {"diaChi": None, "quanLyViThe": None, "txMau": None}
+    _coV = {c.kyHieu: c for c in ty.can_tat_ca(mo)}
+    kiem("báo cáo có mục `vi` và tóm tắt ty có `vi`",
+         "vi" in ty.tom_tat() and ty.tom_tat()["vi"]["soViThe"] == 0)
+    ty.viTheChuoi = {"NVDAx-USDG": [_vtc]}
+    _coV = {c.kyHieu: c for c in ty.can_tat_ca(mo)}
+    kiem("vị thế đọc từ chuỗi được cân CÙNG đường với vị thế ghi tay",
+         any(v.viThe.get("nguon") == "chuoi" for v in _coV["NVDAx-USDG"].viThe))
+    ty.viTheChuoi = {}
 
     # ── hôm nay · vòng ngày · lát cắt ───────────────────────────────────
     from lp_v3 import hom_nay, ngay

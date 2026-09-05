@@ -69,6 +69,7 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
         "cheDo": _che_do(thuong, bc),
         "thiTruongGoc": _thi_truong_goc(bc),
         "vongNgay": _vong_ngay(ty, now),
+        "vi": ty.vi_tom_tat() if hasattr(ty, "vi_tom_tat") else None,
         "nhip": _nhip(cfg),
         "nguonMu": mu, "thieuDiaChi": thieuDiaChi, "thieuKhoiLuong": thieuVol,
         "giaDinh": [
@@ -367,6 +368,13 @@ def van_ban(bc: dict) -> str:
         elif p["nguonGia"] == "goc-tuc-thoi" and p["hanhDong"] == VAO:
             o.append("    ⚠ giá là giá sàn GỐC đang giao dịch — pool trên chuỗi có thể lệch, "
                      "so với giá OKX trước khi đặt")
+    vi = bc.get("vi") or {}
+    if vi.get("diaChi"):
+        o.append("-" * 72)
+        o.append(f"VÍ {vi['diaChi'][:8]}…{vi['diaChi'][-4:]} (chỉ đọc): "
+                 + (f"{vi.get('soViThe', 0)} vị thế trên chuỗi · giá trị ${vi.get('giaTriUsd') or 0:,.0f}"
+                    + (f" · phí chưa thu ${vi['phiChoThuUsd']:,.2f}" if vi.get("phiChoThuUsd") is not None else "")
+                    if not vi.get("loi") else f"✗ {vi['loi']}"))
     if bc["viThe"]:
         o.append("-" * 72)
         o.append("VỊ THẾ ĐANG GIỮ:")

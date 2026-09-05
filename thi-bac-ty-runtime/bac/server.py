@@ -447,6 +447,18 @@ def be_thanh_khoan_dong(ma: str, than: dict) -> JSONResponse:
     return JSONResponse(sach(v.tom_tat()))
 
 
+@app.post("/api/be-thanh-khoan/vi")
+def be_thanh_khoan_vi(than: dict) -> JSONResponse:
+    """Đặt địa chỉ ví CHỈ ĐỌC (+ tx mẫu để suy hợp đồng). Không nhận khoá."""
+    t = _ty_bien_do()
+    try:
+        vi = t.dat_vi(than)
+    except (KeyError, ValueError, TypeError) as e:
+        raise HTTPException(status_code=400, detail=f"{type(e).__name__}: {e}")
+    bus.ghi(f"bể thanh khoản: đặt ví chỉ đọc {str(vi.get('diaChi'))[:10]}…")
+    return JSONResponse(sach(vi))
+
+
 @app.post("/api/be-thanh-khoan/hoc")
 def be_thanh_khoan_hoc() -> JSONResponse:
     """Chấm điểm + gom bài học + một lượt tiến hoá NGAY, không đợi mốc tối."""
