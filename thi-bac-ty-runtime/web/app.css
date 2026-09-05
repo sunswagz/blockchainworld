@@ -341,25 +341,27 @@ details.chi-tiet > div { margin-top: 8px; }
 }
 .loi-o pre { overflow-x: auto; font-size: 11.5px; color: var(--chu-mo); }
 
-/* ── nút: một nút vàng chính, còn lại trắng viền ────────────────── */
-.chan {
-  grid-column: 2; grid-row: 4; position: sticky; bottom: 0; z-index: 20;
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 12px 28px; background: color-mix(in srgb, var(--nen) 88%, transparent);
-  backdrop-filter: blur(8px); border-top: 1px solid var(--vien);
-}
-.chan button, button.nho, .btk-form button, .tab-con button {
+/* ── nút: một nút vàng chính (Quét lại), còn lại trắng viền; menu ⋯ ── */
+.hanh-dong { display: inline-flex; align-items: center; gap: 8px; margin-left: 8px; }
+.hanh-dong button, button.nho, .btk-form button, .tab-con button {
   background: var(--the); color: var(--chu); border: 1px solid var(--vien);
-  border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600;
+  border-radius: 999px; padding: 7px 14px; font-size: 12.5px; font-weight: 600;
   box-shadow: var(--dam);
 }
-.chan button:hover, button.nho:hover, .btk-form button:hover { border-color: var(--nhan); }
-.chan button:first-child, button.nho, .btk-form button {
+.hanh-dong button:hover, button.nho:hover, .btk-form button:hover { border-color: var(--nhan); }
+#nut-quet, button.nho, .btk-form button {
   background: linear-gradient(90deg, #FFD65A, var(--nhan)); color: #3B2E00; border-color: transparent;
 }
-.chan button:first-child:hover, button.nho:hover, .btk-form button:hover {
-  background: linear-gradient(90deg, #FFCF3D, var(--nhan-dam));
-}
+#nut-quet:hover, button.nho:hover, .btk-form button:hover { background: linear-gradient(90deg, #FFCF3D, var(--nhan-dam)); }
+.them { position: relative; }
+.them > summary { list-style: none; cursor: pointer; width: 34px; height: 34px; display: grid; place-items: center;
+  border-radius: 999px; border: 1px solid var(--vien); background: var(--the); font-weight: 700; }
+.them > summary::-webkit-details-marker { display: none; }
+.them .menu { position: absolute; right: 0; top: 40px; z-index: 40; display: flex; flex-direction: column; gap: 6px;
+  background: var(--the); border: 1px solid var(--vien); border-radius: var(--r2); padding: 8px; box-shadow: var(--dam-noi); min-width: 220px; }
+.them .menu button { text-align: left; border-radius: var(--r2); box-shadow: none; }
+.chan-nhac { grid-column: 2; grid-row: 4; padding: 6px 28px 14px; min-height: 28px; }
+.chan { display: none; }
 .nhac { font-size: 12.5px; color: var(--chu-mo); }
 
 .duong-lui { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
@@ -443,3 +445,77 @@ details.chi-tiet > div { margin-top: 8px; }
 .btk-form input:focus { outline: 0; border-color: var(--nhan); background: var(--the); }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+
+/* ── TRUNG TÂM CHỈ HUY bể thanh khoản ─────────────────────────────── */
+.btk-dau { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.btk-dau h1 { margin: 0; font-size: 24px; letter-spacing: -.02em; }
+.btk-dau .phu { margin: 2px 0 0; color: var(--chu-mo); font-size: 13px; }
+.btk-dau-phai { display: flex; gap: 8px; }
+.chip { font-size: 12px; padding: 5px 10px; border-radius: 999px; background: var(--the); border: 1px solid var(--vien); color: var(--chu-mo); }
+.btk-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.btk-metrics .met { background: var(--the); border: 1px solid var(--vien); border-radius: var(--r2); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.btk-metrics .t { font-size: 11px; color: var(--chu-rat-mo); }
+.btk-metrics b { font-size: 18px; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.btk-metrics .d { font-size: 11px; color: var(--chu-mo); }
+.btk-hai { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; margin-bottom: 16px; }
+@media (max-width: 960px) { .btk-hai { grid-template-columns: 1fr; } }
+.btk-panel { background: var(--the); border: 1px solid var(--vien); border-radius: var(--r); padding: 16px 18px; box-shadow: var(--dam); }
+.btk-panel h3 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--chu-rat-mo); font-weight: 700; }
+.btk-panel h4 { margin: 14px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--chu-rat-mo); }
+.btk-hd-lon { display: flex; align-items: baseline; gap: 14px; padding: 14px 16px; border-radius: var(--r2); margin-bottom: 10px;
+  background: color-mix(in srgb, var(--observe) 12%, var(--the)); color: var(--observe); }
+.btk-hd-lon b { font-size: 34px; font-weight: 800; letter-spacing: -.02em; }
+.btk-hd-lon span { font-size: 14px; font-weight: 600; color: var(--chu); }
+.btk-hd-lon.LIVE { background: color-mix(in srgb, var(--live) 14%, var(--the)); color: var(--live); }
+.btk-hd-lon.PAPER { background: color-mix(in srgb, var(--paper) 12%, var(--the)); color: var(--paper); }
+.btk-hd-lon.FAULT { background: color-mix(in srgb, var(--fault) 12%, var(--the)); color: var(--fault); }
+.btk-panel .cau { margin: 0 0 12px; font-size: 13.5px; line-height: 1.55; }
+.btk-ly .t, .btk-dk .t, .btk-sap .t, .btk-de-nghi .t { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--chu-rat-mo); margin-bottom: 4px; }
+.btk-ly .dong { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.btk-ly .dong b { font-variant-numeric: tabular-nums; color: var(--chu-mo); font-weight: 600; }
+.btk-dk { margin-top: 12px; border-top: 1px solid var(--vien); padding-top: 10px; }
+.btk-dk .dong { display: grid; grid-template-columns: 18px 1fr; gap: 8px; font-size: 13px; padding: 3px 0; }
+.btk-dk .dong.dat { color: var(--chu); } .btk-dk .dong.dat i { color: var(--live); }
+.btk-dk .dong.chua { color: var(--chu-mo); } .btk-dk .dong.chua i { color: var(--chu-rat-mo); }
+.btk-dk .dong.mu { color: var(--chu-rat-mo); font-style: italic; }
+.btk-ds .dong { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--vien); }
+.btk-ds .dong:last-child { border-bottom: 0; }
+.btk-ds b { font-variant-numeric: tabular-nums; }
+.btk-tin { display: grid; grid-template-columns: 82px 1fr; gap: 10px; font-size: 12.5px; padding: 5px 0; }
+.btk-tin .luc { color: var(--chu-rat-mo); font-variant-numeric: tabular-nums; }
+.btk-tin .tac { display: block; font-size: 11px; }
+.btk-radar-dau { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.btk-radar-dau h3 { margin: 0; }
+.btk-sap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.btk-sap .t { margin: 0 4px 0 0; }
+.btk-sap button { font-size: 11.5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--vien); background: var(--the); color: var(--chu-mo); }
+.btk-sap button.chon { background: var(--nhan-mo); color: var(--nhan-chu); border-color: transparent; font-weight: 700; }
+.btk-pool-ten { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--chu); text-decoration: underline dotted var(--chu-rat-mo); }
+.btk-pool-ten.mo { color: var(--nhan-dam); }
+.radar .cuon { box-shadow: none; border-radius: var(--r2); }
+.btk-tc { display: flex; align-items: center; gap: 8px; min-width: 96px; }
+.btk-tc i { display: block; height: 6px; border-radius: 3px; background: var(--chu-rat-mo); flex: 0 0 auto; max-width: 56px; }
+.btk-tc.cao i { background: var(--live); } .btk-tc.vua i { background: var(--observe); } .btk-tc.thap i { background: var(--fault); }
+.btk-tc span { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--chu-mo); }
+.btk-the { border-left-width: 1px; margin-top: 14px; }
+.btk-the[data-hd="LIVE"] { border-left: 4px solid var(--live); }
+.btk-the[data-hd="FAULT"] { border-left: 4px solid var(--fault); }
+.btk-hs-cot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 900px) { .btk-hs-cot { grid-template-columns: 1fr; } }
+.btk-uu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+.btk-uu .o { background: var(--the-2); border-radius: var(--r2); padding: 8px 10px; display: flex; flex-direction: column; }
+.btk-uu .t { font-size: 10.5px; color: var(--chu-rat-mo); text-transform: uppercase; letter-spacing: .06em; }
+.btk-uu b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.btk-dai .track { position: relative; height: 10px; border-radius: 5px; background: var(--the-2); margin: 10px 0 6px; }
+.btk-dai .vung { position: absolute; left: 5.36%; right: 5.36%; top: 0; bottom: 0; border-radius: 5px; background: color-mix(in srgb, var(--live) 28%, var(--the-2)); }
+.btk-dai .cham { position: absolute; top: -4px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: var(--chu); border: 3px solid var(--the); box-shadow: 0 0 0 1px var(--vien); }
+.btk-dai .cham.ngoai { background: var(--fault); }
+.btk-dai .nhan { display: flex; justify-content: space-between; font-size: 12px; color: var(--chu-mo); font-variant-numeric: tabular-nums; }
+.btk-de-nghi { margin-top: 12px; padding: 10px 12px; border-radius: var(--r2); background: var(--nhan-mo); color: var(--nhan-chu); }
+.btk-de-nghi b { display: block; font-size: 15px; }
+.btk-de-nghi .giai { color: var(--nhan-chu); margin-top: 2px; }
+.btk-rong { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--chu-mo); }
+.btk-rong b { font-size: 15px; color: var(--chu); }
+.tab-con { margin-bottom: 12px; }
+.btk-panel.tab h4:first-child { margin-top: 0; }

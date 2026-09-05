@@ -11785,6 +11785,19 @@ def kiem_lp_v3() -> None:
          all(k in bcH for k in ("phien", "thuong", "nguonMu", "giaDinh", "tomTatHanhDong", "pool"))
          and "HÀNH ĐỘNG" in vb and "GIẢ ĐỊNH" in vb and "BÀI HỌC" in vb)
     kiem("giá là giá đóng cửa mà khuyên VÀO thì nhắc dịch dải theo giá OKX", "dịch dải" in vb)
+    kiem("tầng chỉ huy: một hành động cấp hệ, ≤3 lý do gom theo luật, sáu điều kiện mở khoá có đo",
+         bcH["hanhDongNgay"]["hanhDong"] in ("VAO", "CHO", "GIU", "RUT", "NOI_RONG", "DOI_DAI", "THU_HEP")
+         and len(bcH["hanhDongNgay"]["lyDo"]) <= 3 and bcH["hanhDongNgay"]["soDieuKien"] == 6
+         and all("dat" in d and "ten" in d for d in bcH["hanhDongNgay"]["dieuKien"]))
+    kiem("mỗi pool có độ tin cậy, điểm xếp hạng, và pool KHÔNG có σ đứng dưới pool có σ",
+         all(("tinCay" in p and "diem" in p and "khoaVao" in p) for p in bcH["pool"])
+         and max(p["diem"] for p in bcH["pool"] if p["kyHieu"] == "SPCXx-USDG")
+             < max(p["diem"] for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG")
+         and [p for p in bcH["pool"] if p["kyHieu"] == "SPCXx-USDG"][0]["khoaVao"])
+    kiem("vốn LP, chế độ rủi ro, tin gắn pool có mặt; không vị thế thì PnL là None chứ không 0",
+         "vonLp" in bcH and bcH["cheDoRuiRo"]["ma"] in ("THAN_TRONG", "BINH_THUONG")
+         and isinstance(bcH["tinAnhHuong"], list)
+         and (bcH["vonLp"]["soViThe"] > 0 or bcH["vonLp"]["pnlUocUsd"] is None))
     kiem("hồ sơ tình báo: chế độ, thị trường gốc, mốc kế, nhịp — và mỗi pool có APY tách + một câu kết luận",
          bcH["cheDo"]["ma"] == "CAMPAIGN_HUNTER" and bcH["thiTruongGoc"]["trangThai"] == "MO"
          and {m["moc"] for m in bcH["vongNgay"]["mocKe"]} == {"sang", "truoc-mo", "sau-dong"}

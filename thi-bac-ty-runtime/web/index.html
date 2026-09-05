@@ -29,6 +29,17 @@
     <span class="so-nho">vòng <b id="d-vong">—</b></span>
     <span class="so-nho">quét <b id="d-quet">—</b></span>
     <span class="so-nho">chạy <b id="d-len">—</b></span>
+    <span class="hanh-dong">
+      <button id="nut-quet" type="button" title="Quét lại ngay">↻ Quét lại</button>
+      <button id="nut-dung" type="button" title="Tạm dừng / chạy tiếp">⏸ Dừng</button>
+      <details class="them">
+        <summary title="Việc ít dùng">⋯</summary>
+        <div class="menu">
+          <button id="nut-doi-soat" type="button">Đối soát vị thế</button>
+          <button id="nut-lat" type="button">Ghi lát cắt ra cung tĩnh</button>
+        </div>
+      </details>
+    </span>
   </div>
 </header>
 
@@ -52,13 +63,7 @@
 
 <main id="than"><p class="cho">đang nối tới runtime…</p></main>
 
-<footer class="chan">
-  <button id="nut-quet" type="button">Quét ngay</button>
-  <button id="nut-dung" type="button">Tạm dừng</button>
-  <button id="nut-doi-soat" type="button">Đối soát vị thế</button>
-  <button id="nut-lat"  type="button">Ghi lát cắt ra cung tĩnh</button>
-  <span id="chan-nhac" class="nhac"></span>
-</footer>
+<div class="chan-nhac"><span id="chan-nhac" class="nhac"></span></div>
 
 <script src="/ty-perp.js"></script>
 <script src="/app.js"></script>

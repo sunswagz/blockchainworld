@@ -62,7 +62,16 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
             viThe.append({"kyHieu": c.kyHieu, **v.tom_tat()})
 
     thuong = _thuong(cfg, now, co)
+    pools = [_mot_pool(c) for c in co]
+    viTheDs = []
+    for c in co:
+        for v in c.viThe:
+            viTheDs.append({"kyHieu": c.kyHieu, **v.tom_tat()})
     return {
+        "hanhDongNgay": _hanh_dong_ngay(co, pools, bc, thuong),
+        "vonLp": _von_lp(viTheDs),
+        "cheDoRuiRo": _che_do_rui_ro(bc, thuong),
+        "tinAnhHuong": _tin_anh_huong(co),
         "luc": now.isoformat(), "lucVn": now.strftime("%H:%M %d/%m/%Y"),
         "phien": bc.tom_tat(),
         "thuong": thuong,
@@ -81,13 +90,156 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
             "ngoài giờ trên chuỗi CHƯA đo",
         ],
         "tomTatHanhDong": {k: v for k, v in hanhDong.items()},
-        "pool": [_mot_pool(c) for c in co],
-        "viThe": viThe,
+        "pool": pools,
+        "viThe": viTheDs,
         "baiHoc": _bai_hoc_gon(nap_bai_hoc()),
         "kinhNghiem": ty.soKinhNghiem.tom_tat(),
         "tienHoa": _tien_hoa_gon(),
         "nut": cfg.get("nut"),
     }
+
+
+#: Dưới ngần này độ tin cậy dữ liệu thì KHOÁ nút vào, dù mọi số khác đẹp.
+TIN_CAY_KHOA = 0.60
+
+NHAN_LUAT = {
+    "khong-sigma": "chưa đo được σ", "gia-cu": "giá đã cũ",
+    "sat-su-kien": "sát sự kiện", "gap-mo-cua": "giá chuỗi lệch giá gốc",
+    "ngoai-gio-khong-doi-dai": "sàn cổ phiếu Mỹ đóng", "tvl-mong": "TVL mỏng",
+    "phi-duoi-lvr": "phí không trả nổi LVR", "sap-het-thuong": "thưởng sắp kết thúc",
+    "van-dai-cao": "xác suất văng dải cao", "dai-qua-rong": "dải quá rộng",
+    "vao-duoc": "đủ điều kiện", "giu": "đang giữ", "ngoai-dai": "giá ra ngoài dải",
+    "chua-du-so": "chưa đủ số",
+}
+
+
+def _hanh_dong_ngay(co, pools, bc, thuong) -> dict:
+    """MỘT quyết định cấp hệ, ba lý do đứng đầu, và điều kiện để nó đổi.
+
+    Thứ tự: đang giữ mà có pool đòi RÚT/ĐỔI/NỚI → đó là việc gấp nhất;
+    có pool VÀO được → VÀO; còn lại → CHỜ. Lý do gom theo LUẬT CHẶN đứng
+    đầu ở nhiều pool nhất — người đọc thấy «vì sao cả bảng đỏ» trong một
+    dòng, không phải chín dòng.
+    """
+    from .quyet_dinh import CHO, GIU, VAO
+    gap = [(c.kyHieu, v.quyetDinh["hanhDong"], v.quyetDinh["lyDo"])
+           for c in co for v in c.viThe
+           if v.quyetDinh.get("hanhDong") not in (GIU, CHO)]
+    vao = [p for p in pools if p["hanhDong"] == VAO and not p.get("khoaVao")]
+    dem = {}
+    for c in co:
+        if c.quyetDinh.hanhDong == VAO:
+            continue
+        m = c.quyetDinh.luatQuyet
+        dem[m] = dem.get(m, 0) + 1
+    lyDo = [{"luat": m, "cau": NHAN_LUAT.get(m, m), "soPool": n}
+            for m, n in sorted(dem.items(), key=lambda kv: -kv[1])[:3]]
+    if gap:
+        hd, cau = gap[0][1], f"{gap[0][0]}: {gap[0][2]}"
+        tieu = f"{len(gap)} vị thế cần động tay"
+    elif vao:
+        hd, tieu = VAO, f"{len(vao)} pool đủ điều kiện"
+        cau = "Vào cỡ THỬ ở " + ", ".join(p["kyHieu"] for p in vao[:3]) + "; giữ, không đổi dải trong chương trình thưởng."
+    else:
+        hd, tieu, cau = CHO, "Không mở vị thế LP mới", (
+            "Chờ — " + "; ".join(x["cau"] for x in lyDo) if lyDo else "Chờ dữ liệu.")
+
+    # điều kiện mở khoá CHỜ → VÀO, mỗi điều một phép đo
+    moCua = bc.trangThai == lich.MO_CUA
+    lech = [c.gia.get("giaChuoi") / c.gia.get("giaGoc") - 1.0 for c in co
+            if c.gia.get("giaChuoi") and c.gia.get("giaGoc")]
+    lechOk = None if not lech else all(abs(x) < 0.015 for x in lech)
+    nguong = float((co[0].pool.get("nutTiLe") if co else None) or 1.5)
+    phiOk = any((p.get("dai") or {}).get("tiLePhiTrenLvr") is not None
+                and p["dai"]["tiLePhiTrenLvr"] >= nguong for p in pools)
+    conGio = thuong.get("conGio")
+    thuongOk = True if conGio is None else conGio > 24.0
+    duLieuOk = any((p.get("tinCay") or 0) >= TIN_CAY_KHOA for p in pools)
+    sk = [s for s in bc.su_kien_trong(24.0) if s.loai in ("fomc", "ket-qua-kinh-doanh")]
+    suKienOk = not sk
+    dieuKien = [
+        {"ten": "Sàn cổ phiếu Mỹ mở", "dat": moCua,
+         "ghi": "" if moCua else (f"mở sau {bc.gioToiMo:.1f} giờ" if bc.gioToiMo is not None else "")},
+        {"ten": "Giá chuỗi lệch giá gốc < 1,5%", "dat": lechOk,
+         "ghi": "chưa đo — cần địa chỉ pool" if lechOk is None else ""},
+        {"ten": "Phí/LVR đạt ngưỡng ở ít nhất một pool", "dat": phiOk, "ghi": ""},
+        {"ten": "Thưởng còn > 24 giờ hoặc không cần thưởng", "dat": thuongOk,
+         "ghi": "" if thuongOk else f"còn {conGio:.0f} giờ"},
+        {"ten": f"Độ tin cậy dữ liệu ≥ {TIN_CAY_KHOA:.0%} ở ít nhất một pool", "dat": duLieuOk, "ghi": ""},
+        {"ten": "Không sự kiện FOMC / kết quả kinh doanh trong 24 giờ", "dat": suKienOk,
+         "ghi": "" if suKienOk else sk[0].ten},
+    ]
+    return {"hanhDong": hd, "tieuDe": tieu, "cau": cau, "lyDo": lyDo,
+            "dieuKien": dieuKien, "soDat": sum(1 for d in dieuKien if d["dat"]),
+            "soDieuKien": len(dieuKien), "viTheGap": gap[:5]}
+
+
+def _von_lp(viThe: list) -> dict:
+    von = sum(float((v.get("viThe") or {}).get("vonUsd") or 0.0) for v in viThe)
+    phi = [((v.get("viThe") or {}).get("phiChoThuUsd")) for v in viThe]
+    il = []
+    for v in viThe:
+        tt = v.get("trangThai") or {}
+        vt = v.get("viThe") or {}
+        if tt.get("ilPct") is not None and vt.get("vonUsd"):
+            il.append(tt["ilPct"] / 100.0 * float(vt["vonUsd"]))
+    coPhi = [x for x in phi if x is not None]
+    return {"soViThe": len(viThe), "vonUsd": von,
+            "phiChoThuUsd": sum(coPhi) if coPhi else None,
+            "ilUsd": sum(il) if il else None,
+            "pnlUocUsd": (sum(coPhi) + sum(il)) if (coPhi or il) else None,
+            "trongDai": sum(1 for v in viThe if (v.get("trangThai") or {}).get("trongDai"))}
+
+
+def _che_do_rui_ro(bc, thuong) -> dict:
+    con = thuong.get("conGio")
+    ly = []
+    if bc.trangThai != lich.MO_CUA:
+        ly.append("sàn gốc đóng")
+    if con is not None and 0 < con <= 24:
+        ly.append("thưởng còn dưới 24 giờ")
+    if bc.su_kien_trong(24.0):
+        ly.append("có sự kiện trong 24 giờ")
+    if not bc.lichConHan:
+        ly.append("lịch nghỉ chưa phủ năm nay")
+    return {"ma": "THAN_TRONG" if ly else "BINH_THUONG",
+            "ten": "THẬN TRỌNG" if ly else "BÌNH THƯỜNG", "lyDo": ly}
+
+
+def _tin_anh_huong(co) -> list:
+    """Tin gắn với pool chịu ảnh hưởng, kèm mức tác động từ CỜ — không đọc
+    hiểu tin, chỉ nói tin này chạm mã nào."""
+    from .tin_tuc import CO_NANG
+    ra, thay = [], set()
+    for c in co:
+        for t in c.tin or []:
+            lk = t.get("lienKet") or t.get("tieuDe")
+            if lk in thay:
+                continue
+            thay.add(lk)
+            cờ = t.get("co") or []
+            muc = "CAO" if any(x in CO_NANG for x in cờ) else ("TRUNG BÌNH" if cờ else "THẤP")
+            ra.append({"luc": t.get("luc"), "tieuDe": t.get("tieuDe"), "pool": c.kyHieu,
+                       "co": cờ, "tacDong": muc})
+    ra.sort(key=lambda x: (x["tacDong"] != "CAO", x["tacDong"] != "TRUNG BÌNH", str(x.get("luc"))), reverse=False)
+    return ra[:12]
+
+
+def _diem_co_hoi(c, tinCay: float, ruiRo) -> float | None:
+    """Điểm 0–100 để XẾP HẠNG radar — không phải dự báo lợi nhuận.
+
+    Bốn phần: phí/LVR (35), độ tin cậy dữ liệu (25), 1 − rủi ro (25), NET
+    kỳ vọng (15). Không có dải thì chỉ còn phần tin cậy và rủi ro — pool
+    chưa đo đứng cuối bảng theo cấu tạo, đúng ý «không xếp SPCXx cùng
+    hạng với pool đủ số».
+    """
+    kd = c.dai
+    rr = 1.0 - (ruiRo if ruiRo is not None else 0.6)
+    if kd is None or kd.tiLePhiTrenLvr is None or kd.netBps is None:
+        return round(100.0 * (0.25 * tinCay + 0.25 * rr) * 0.6, 1)
+    phi = min(1.0, max(0.0, kd.tiLePhiTrenLvr / 3.0))
+    net = min(1.0, max(0.0, kd.netBps / 300.0))
+    return round(100.0 * (0.35 * phi + 0.25 * tinCay + 0.25 * rr + 0.15 * net), 1)
 
 
 def _che_do(thuong: dict, bc) -> dict:
@@ -218,6 +370,10 @@ def _tom_tat_pool(c) -> str:
     kd, q = c.dai, c.quyetDinh
     apy = c.pool.get("apyHienThiPhanTram")
     if q.hanhDong == "VAO" and kd:
+        from .ty_bien_do import _tin_cay
+        if _tin_cay(c) < TIN_CAY_KHOA:
+            return (f"Đủ luật để VÀO nhưng độ tin cậy dữ liệu {_tin_cay(c):.0%} < "
+                    f"{TIN_CAY_KHOA:.0%} — KHOÁ nút vào; khai khối lượng/địa chỉ pool để mở.")
         return (f"CÓ THỂ VÀO ${c.vonXinUsd:,.0f} ở dải {kd.Pa:.2f}–{kd.Pb:.2f} "
                 f"(±{kd.rong:.1%}): phí/LVR {kd.tiLePhiTrenLvr:.2f}, P(văng) ≤ "
                 f"{kd.xacSuatVang['tong']:.0%}, NET kỳ vọng {kd.netBps:+.0f} bps trong "
@@ -235,12 +391,17 @@ def _tom_tat_pool(c) -> str:
 
 
 def _mot_pool(c) -> dict:
-    from .ty_bien_do import _rui_ro
+    from .ty_bien_do import _rui_ro, _tin_cay
     kd = c.dai
     apy = c.pool.get("apyHienThiPhanTram")
     rr = _rui_ro(c)
+    tinCay = _tin_cay(c) if (c.sigma.get("sigma") is not None and c.gia.get("gia")) else min(
+        0.35, _tin_cay(c))
     d = {"kyHieu": c.kyHieu, "hanhDong": c.quyetDinh.hanhDong,
          "tomTat": _tom_tat_pool(c),
+         "tinCay": tinCay, "khoaVao": tinCay < TIN_CAY_KHOA,
+         "diem": _diem_co_hoi(c, tinCay, rr.cao_nhat()),
+         "thieuGi": list(c.thieu),
          "diemRuiRo": rr.cao_nhat(), "ruiRo": rr.tom_tat(),
          "apyTach": {"hienThiPct": apy,
                      "phiPct": None if c.aprPhi is None else c.aprPhi * 100.0,

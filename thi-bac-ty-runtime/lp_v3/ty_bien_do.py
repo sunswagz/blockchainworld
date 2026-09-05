@@ -696,17 +696,23 @@ def _rui_ro(co: CoHoiV3) -> RuiRo:
 
 
 def _tin_cay(co: CoHoiV3) -> float:
+    # Thang này cũng là ĐỘ TIN CẬY DỮ LIỆU ở tầng chỉ huy: dưới 0,60 thì
+    # nút VÀO bị khoá (`hom_nay.TIN_CAY_KHOA`). Ba mức giá: giá pool đọc
+    # từ RPC là chuẩn; giá sàn gốc ĐANG giao dịch gần chuẩn; giá đóng cửa
+    # hôm qua là số của quá khứ.
     d = 1.0
     if co.nguonApr.startswith("apy-hien-thi"):
-        d -= 0.35
+        d -= 0.30      # phí gốc tách bằng giả định, chưa đo
     elif co.nguonApr == "khoi-luong":
-        d -= 0.15
+        d -= 0.15      # có khối lượng nhưng chưa có L của pool
     if (co.sigma.get("soPhien") or 0) < 30:
         d -= 0.15
     if co.sigma.get("nguon") == "chuoi":
         d -= 0.10
-    if co.gia.get("nguon") in ("goc", "goc-tuc-thoi"):
-        d -= 0.10      # giá sàn gốc, không phải giá pool
+    if co.gia.get("nguon") == "goc":
+        d -= 0.10      # giá đóng cửa, không phải giá đang có
+    elif co.gia.get("nguon") == "goc-tuc-thoi":
+        d -= 0.05      # giá sàn gốc đang giao dịch, chưa phải giá pool
     return max(0.0, min(1.0, d))
 
 
