@@ -986,23 +986,46 @@ class Runtime:
     # ── báo cáo ───────────────────────────────────────────────────────────
     def anh_chup(self) -> dict:
         now = time.time() * 1000.0
-        ket = self.so.doc(500)
+        # ĐO từng mảnh. `/api/trang-thai` đo được **21–35 giây** trên làn
+        # thật 05/09/2026, trong khi `/api/cau-hinh` và `/api/nhat-ky` chỉ
+        # 0,10–0,15s — nên server KHÔNG đói luồng, chính `anh_chup()` nặng.
+        #
+        # Dựng lại từng mảnh ngoài tiến trình thì mảnh nào cũng dưới 10ms:
+        # cái chậm phụ thuộc TRẠNG THÁI TÍCH LUỸ của tiến trình sống, và
+        # không tái hiện được từ ngoài. Nên nó phải tự khai.
+        #
+        # Thị Bạc Ty đọc đường này với timeout 4 giây; chậm quá thì nó coi
+        # như KHÔNG ĐỌC ĐƯỢC và ngắt cầu dao `von-ngoai-mu`, dừng cấp vốn
+        # cho cả cỗ máy bên ấy. Nên đây không phải chuyện thẩm mỹ.
+        _dong_ho: dict[str, float] = {}
+
+        def _do(ten, fn):
+            _t0 = time.perf_counter()
+            try:
+                return fn()
+            finally:
+                _dong_ho[ten] = round((time.perf_counter() - _t0) * 1000.0, 1)
+
+        ket = _do("so.doc", lambda: self.so.doc(500))
         return {
+            "thoiGianAnhChupMs": _dong_ho,
             "vong": self.vong, "batDauLuc": self.batDauLuc,
             "chayDuocGiay": time.time() - self.batDauLuc,
             "tamDung": self.tamDung,
             "che": che_hieu_luc(), "cheKhai": CONFIG.get("che"),
-            "risk": self.risk.tom_tat(), "kho": self.kho.tom_tat(),
-            "lenh": self.cong.tom_tat(), "nguon": nguon.tom_tat(),
-            "dongSong": dong_song.tom_tat(),
-            "dongNen": dongSongNen.tom_tat(),
-            "doTre": self.doTre.tom_tat(),
-            "nanLai": self.phepNan.tom_tat(),
-            "duongRa": nguon.duong_ra(),
-            "soKetQua": so_ket_qua.tom_tat(),
-            "ketToan": self.ketToan.tom_tat(),
-            "doThi": do_thi.tom_tat(),
-            "voDich": so_vo_dich.tom_tat(),
+            "risk": _do("risk", self.risk.tom_tat),
+            "kho": _do("kho", self.kho.tom_tat),
+            "lenh": _do("lenh", self.cong.tom_tat),
+            "nguon": _do("nguon", nguon.tom_tat),
+            "dongSong": _do("dongSong", dong_song.tom_tat),
+            "dongNen": _do("dongNen", dongSongNen.tom_tat),
+            "doTre": _do("doTre", self.doTre.tom_tat),
+            "nanLai": _do("nanLai", self.phepNan.tom_tat),
+            "duongRa": _do("duongRa", nguon.duong_ra),
+            "soKetQua": _do("soKetQua", so_ket_qua.tom_tat),
+            "ketToan": _do("ketToan", self.ketToan.tom_tat),
+            "doThi": _do("doThi", do_thi.tom_tat),
+            "voDich": _do("voDich", so_vo_dich.tom_tat),
             "hocOffline": self.hocGanNhat,
             "tienHoaMoHinh": self.tienHoaMoHinh,
             "tienHoa": {
@@ -1039,9 +1062,9 @@ class Runtime:
                 "duDeDungKelly": self.hieuChinh.du_de_dung_kelly(),
                 "saiSoTB": self.hieuChinh.sai_so_tuyet_doi_tb(),
             },
-            "thongKe": thong_ke(ket),
-            "vi": dai_quan_vi.tom_tat(),
-            "dongCo": dong_co.tom_tat(),
+            "thongKe": _do("thongKe", lambda: thong_ke(ket)),
+            "vi": _do("vi", dai_quan_vi.tom_tat),
+            "dongCo": _do("dongCo", dong_co.tom_tat),
             "chienThuat": [
                 {"ma": c.ma, "ten": c.ten, "mota": c.mota,
                  "bat": self.batTat.get(c.ma, True)} for c in SO_DANG_KY],
