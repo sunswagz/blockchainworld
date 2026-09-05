@@ -781,9 +781,16 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
             _bq = sum(x[1] * x[2] for x in _co) / _tong
             _gv1 = anh.get("gheVaVon") or {}
             _het = _gv1.get("conGhe") == 0
+            # BA đường đi, và triệu chứng này KHÔNG chọn hộ: nâng trần
+            # ghế · nới sức chứa mỗi cơ hội · ít ghế mà mỗi ghế nặng hơn.
+            # Vị thế của ty lãi cao nhỏ vì SỨC CHỨA pool nhỏ — sự thật của
+            # thị trường, không phải lỗi cấu hình; và 120 vị thế đã nhiều
+            # hơn mức người ta theo dõi nổi, nên trần ghế cũng có lý.
             _viG = (f" Và {_laiNhat[0]} HẾT GHẾ ({_gv1.get('soDangDung')}/"
                     f"{_gv1.get('soGhe')} ghế đã đầy), nên đồng vốn tiếp "
-                    f"theo không đi được đâu." if _het else "")
+                    f"theo không đi được đâu. BA đường, và không đường nào "
+                    f"hiển nhiên đúng: nâng trần ghế · nới sức chứa mỗi cơ "
+                    f"hội · ít ghế mà mỗi ghế nặng hơn." if _het else "")
             ra.append(TrieuChungHe(
                 "von-o-ty-loi-thap", 2,
                 f"{_phan:.0%} vốn đang dùng nằm ở {_omNhat[0]} — ăn "
@@ -803,13 +810,22 @@ def chan_doan_he(anh: dict) -> list[TrieuChungHe]:
                  "lechDiem": _lech, "loiSuatBinhQuanPhanTram": _bq,
                  "tongSucChuaUsd": _sc.get("tongSucChuaUsd"),
                  "conGhe": _gv1.get("conGhe")},
-                # Ghế đầy thì núm là SỐ GHẾ: ty lãi cao ở đây mở vị thế
-                # NHỎ (sức chứa mỗi pool có hạn), nên nó cần nhiều CHỖ
-                # NGỒI chứ không cần trần rộng hơn.
+                # Núm RỖNG, và đó là một lựa chọn chứ không phải thiếu
+                # sót. Hai lý do, cả hai đều đã có tiền lệ:
                 #
-                # Còn ghế thì KHÔNG khai núm nào: lúc ấy vốn tự đi được và
-                # chuyện này là việc của tầng phân bổ, không của một trần.
-                ["phanBo.toiDaSoViThe"] if _het else [],
+                # 1. Ba đường đi đều là núm ĐÒI TÊN NGƯỜI. Khai một núm là
+                #    chọn hộ chủ một đường bằng cách làm hai đường kia vô
+                #    hình.
+                # 2. `tran-vi-the-chan` ĐÃ tồn tại, nổ cùng lúc khi ghế
+                #    đầy, và đã khai đúng núm ấy. Khai lại là hai cảnh báo
+                #    cho một chuyện — đúng thứ làm người ta thôi đọc cảnh
+                #    báo, và đúng lỗi đã khiến `ghe-khan-hon-tien` bị gộp
+                #    vào `tran-vi-the-chan` một lần rồi.
+                #
+                # Triệu chứng này đóng góp thứ KHÁC: hai con số lợi suất
+                # đặt cạnh nhau. Đó là thông tin `tran-vi-the-chan` không
+                # có, và nó không cần một cái núm để đáng đọc.
+                [],
                 yDinh="noi"))
 
     # ── 7ba. VỐN KHẢ DỤNG nằm không ────────────────────────────────────

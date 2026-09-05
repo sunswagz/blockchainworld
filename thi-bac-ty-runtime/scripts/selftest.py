@@ -3637,16 +3637,27 @@ def kiem_chan_doan_he() -> None:
          _trV and abs(_trV[0].bangChung["lechDiem"] - 10.98) < 0.01
          and abs(_trV[0].bangChung["loiSuatBinhQuanPhanTram"] - 3.97) < 0.05,
          str(_trV[0].bangChung) if _trV else "")
-    _dxV = de_xuat(_trV, {"phanBo": {"toiDaSoViThe": 120}})
-    kiem("ghế đầy → NỚI số ghế (ty lãi cao mở vị thế NHỎ, cần CHỖ NGỒI)",
-         _dxV and _dxV[0].nut == "phanBo.toiDaSoViThe"
-         and _dxV[0].den > _dxV[0].tu, str([d.tom_tat() for d in _dxV]))
-
-    kiem("CÒN GHẾ thì không khai núm nào — vốn tự đi được",
-         [t for t in chan_doan_he(_anh_von(conGhe=30))
-          if t.ma == "von-o-ty-loi-thap"][0].nutGoiY == [],
-         "còn ghế mà vốn vẫn dồn một chỗ là việc của tầng phân bổ, không "
-         "của một cái trần")
+    # Núm RỖNG dù ghế đầy hay còn. `tran-vi-the-chan` đã tồn tại, nổ cùng
+    # lúc khi ghế đầy, và đã khai đúng núm ghế — khai lại là hai cảnh báo
+    # cho một chuyện, đúng lỗi đã khiến `ghe-khan-hon-tien` bị gộp vào nó
+    # một lần rồi. Và ba đường đi (nâng trần ghế · nới sức chứa mỗi cơ hội
+    # · ít ghế mà mỗi ghế nặng hơn) đều đòi TÊN NGƯỜI: khai một núm là làm
+    # hai đường kia vô hình.
+    for _cg, _nhan in ((0, "ghế đầy"), (30, "còn ghế")):
+        _t = [t for t in chan_doan_he(_anh_von(conGhe=_cg))
+              if t.ma == "von-o-ty-loi-thap"]
+        kiem(f"KHÔNG khai núm nào ({_nhan})", _t and _t[0].nutGoiY == [],
+             f"{_t[0].nutGoiY if _t else None} — khai một núm là chọn hộ "
+             f"chủ một trong ba đường")
+        kiem(f"và không đẻ ra đề xuất vặn ({_nhan})",
+             de_xuat(_t, {"phanBo": {"toiDaSoViThe": 120}}) == [])
+    _tDay = [t for t in chan_doan_he(_anh_von(conGhe=0))
+             if t.ma == "von-o-ty-loi-thap"]
+    kiem("nhưng câu chẩn NÓI RA cả ba đường",
+         _tDay and "nâng trần ghế" in _tDay[0].moTa
+         and "nới sức chứa" in _tDay[0].moTa
+         and "mỗi ghế nặng hơn" in _tDay[0].moTa,
+         _tDay[0].moTa[-180:] if _tDay else "")
 
     # Chợ HẾT CHỖ thì im: «dồn vốn sang ty lãi cao» lúc ấy là một lời
     # khuyên không thực hiện được.
