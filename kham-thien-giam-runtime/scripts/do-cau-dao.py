@@ -67,6 +67,44 @@ trần mỗi vị thế theo một phần của ngân sách ngày thay vì theo 
 vốn, thì cùng một mức rủi ro ngày sẽ mua được phân tán thay vì một lần
 tung đồng xu.
 
+## ĐÃ TÌM RA GỐC RỄ (05/09/2026) — và nó là một CON BỌ
+
+Bảng bốn cấu hình ở trên đúng nhưng chưa chạm đáy. Đáy là:
+`sang_ngay_moi()` đặt lại bộ đếm lỗ ngày mà KHÔNG xoá cầu dao. Nên một
+lần chạm trần lỗ NGÀY giết cỗ máy VĨNH VIỄN — cái trần mang tên "ngày"
+mà hậu quả là mãi mãi.
+
+Đó là lý do có vách dốc đứng ở ngân sách ngày 20%: dưới ngưỡng ấy máy
+chạm trần ngày ngay ngày đầu rồi cài then; từ 20% trở lên nó không chạm
+lần nào trong 12 ngày nên không bao giờ cài.
+
+Sửa: cầu dao nhớ `loaiNgat` — `lo-ngay` tự mở khi sang ngày, `sut-von`
+và `tay` giữ nguyên.
+
+Rồi quét trần SỤT VỐN, GIỮ NGUYÊN ngân sách ngày 5%:
+
+    trần   cửa sổ   SỤT VỐN THẬT   lãi/cửa sổ   đỉnh vốn
+     10%     22       10,97%         $15,31      $1.501
+     15%     40       14,63%         $ 7,05      $1.501
+     20%     46        3,10%         $26,01      $2.266
+     25%     46        3,10%         $26,01      $2.266
+
+Cao nguyên từ 20%. Trần chặt buộc máy vào ~1 vị thế tập trung mỗi ngày,
+và chính sự tập trung ấy tạo ra khoản sụt vốn làm nó nổ. Quãng GIỮA tệ
+nhất, nên "nới dần rồi xem" dừng ở đúng chỗ tồi nhất.
+
+`tranSutVonPct` đổi 10 → 20 ngày 05/09/2026. Không trần nào khác đổi.
+
+## Làn giấy THẬT sau khi sửa, 7 phút đầu
+
+    trước:  14 lệnh trong 11,5 giờ · cầu dao NGẮT · vốn $928,35
+    sau:    15 lệnh / 15 khớp trong 7 phút · 8 kết toán · vốn $1.125,98
+            sụt vốn 3,95% (trần 20%)
+
+Tám lần kết toán là mẫu BÉ XÍU — con số lãi ấy chưa nói gì. Con số đáng
+tin là con số VẬN HÀNH: máy đi từ ~1 lệnh/ngày lên ~2 lệnh/phút, tức
+sổ hiệu chỉnh, đường nắn và vòng chẩn đoán mới có nhiên liệu.
+
 ## Một chỗ tôi đã đo SAI, ghi lại để đừng ai đi lại
 
 Lần đầu tôi cho rằng `tranSutVonPct` là thứ đang chặn, vì làn giấy ngắt
