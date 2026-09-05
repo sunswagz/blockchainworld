@@ -220,9 +220,35 @@ class DongSong:
             self.so[aid] = so
 
     # ── đọc ───────────────────────────────────────────────────────────────
-    def lay(self, assetId: str) -> SoLenh | None:
+    def lay(self, assetId: str, toiDaMs: float | None = None) -> SoLenh | None:
+        """Sổ lệnh đang giữ. `toiDaMs` = coi như KHÔNG CÓ nếu cũ hơn ngần ấy.
+
+        ## Vì sao phải có `toiDaMs`, đo được chứ không suy đoán
+
+        Chỗ gọi viết `dong_song.lay(...) or nguon.so_lenh(...)` — dòng
+        sống trước, REST là lưới đỡ. Nhưng `or` chỉ rơi xuống lưới đỡ
+        khi vế đầu là None, mà bản trước trả sổ đã lưu BẤT KỂ TUỔI. Nên
+        một sổ cũ ngồi lại là lưới đỡ không bao giờ chạy.
+
+        Hậu quả đo được 06/09/2026 trên làn thật: cổng rủi ro chặn
+        9.085 lần (16,9% — vị trí hai) với lý do "sổ lệnh cũ 21.544ms
+        (trần 2.500ms)", trong khi `clob-book` REST đạt 21.894 lượt
+        thành công. Lưới đỡ hoạt động tốt và không được gọi.
+
+        Gốc xa hơn: mỗi khung 5 phút là một bộ asset_id MỚI, nên dòng
+        sống phải đăng ký lại — 203 lần nối lại trong 3,5 giờ. Mỗi lần
+        nối lại là một quãng sổ cũ.
+
+        Mặc định `None` (không xét tuổi) để mọi chỗ gọi khác giữ nguyên
+        hành vi; chỉ đường ĐỊNH GIÁ khai trần tuổi của chính nó.
+        """
         with self._khoa:
-            return self.so.get(assetId)
+            so = self.so.get(assetId)
+        if so is None or toiDaMs is None:
+            return so
+        if so.nhanLucMs <= 0:
+            return None
+        return so if (time.time() * 1000.0 - so.nhanLucMs) <= toiDaMs else None
 
     def tuoi_ms(self, assetId: str) -> float | None:
         so = self.lay(assetId)

@@ -846,8 +846,16 @@ class Runtime:
             return
 
         # 2. sổ lệnh — WebSocket trước, REST là lưới đỡ
-        su = dong_song.lay(k.tokenUp) or nguon.so_lenh(ma, "UP", k.tokenUp)
-        sd = dong_song.lay(k.tokenDown) or nguon.so_lenh(ma, "DOWN", k.tokenDown)
+        # Trần tuổi lấy ĐÚNG con số mà cổng rủi ro sẽ chấm. Hai chỗ
+        # dùng hai con số thì hoặc ta gọi REST thừa, hoặc ta đưa lên
+        # cổng một sổ mà chính cổng ấy sắp từ chối — và ca sau đúng là
+        # cái đã xảy ra: 9.085 lần chặn vì "sổ lệnh cũ" trong khi lưới
+        # đỡ REST chưa từng được gọi.
+        _tranTuoi = float(CONFIG["ruiRo"]["tuoiSoLenhToiDaMs"])
+        su = (dong_song.lay(k.tokenUp, _tranTuoi)
+              or nguon.so_lenh(ma, "UP", k.tokenUp))
+        sd = (dong_song.lay(k.tokenDown, _tranTuoi)
+              or nguon.so_lenh(ma, "DOWN", k.tokenDown))
         if su is None or sd is None:
             self._than_phien(ma, "chưa nhận được sổ lệnh")
             return

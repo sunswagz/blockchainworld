@@ -8363,7 +8363,10 @@ def kiem_duong_quyet_dinh() -> None:
     xin_mo: list[float] = []
 
     class _Song:
-        def lay(self, token):
+        #  phải nhận được: đường định giá nay truyền trần tuổi
+        # xuống, và một dòng sống giả thiếu tham số sẽ ném TypeError sâu
+        # trong vòng chạy — che mất đúng thứ phép kiểm đang soi.
+        def lay(self, token, toiDaMs=None):
             return so(0.55, 0.57, "UP") if token == "u" else so(0.41, 0.43, "DOWN")
 
     dem = [0]
@@ -11112,6 +11115,72 @@ def kiem_nhan_chien_thuat_toi_ket_toan() -> None:
 
 
 
+def kiem_so_qua_cu_nhuong_luoi_do() -> None:
+    """Sổ lệnh QUÁ CŨ phải trả None, để `or` rơi xuống lưới đỡ REST.
+
+    Chỗ gọi viết `dong_song.lay(...) or nguon.so_lenh(...)` — dòng sống
+    trước, REST là lưới đỡ. Nhưng `or` chỉ rơi xuống lưới đỡ khi vế đầu
+    là None, mà bản trước trả sổ đã lưu BẤT KỂ TUỔI. Một sổ cũ ngồi lại
+    là lưới đỡ không bao giờ chạy.
+
+    Đo 06/09/2026 trên làn thật: cổng rủi ro chặn 9.085 lần (16,9%, vị
+    trí hai) với lý do "sổ lệnh cũ 21.544ms (trần 2.500ms)", trong khi
+    `clob-book` REST đạt 21.894 lượt thành công. Lưới đỡ hoạt động tốt
+    và không được gọi một lần nào.
+
+    Gốc xa hơn: mỗi khung 5 phút là một bộ asset_id MỚI nên dòng sống
+    phải đăng ký lại — 203 lần nối lại trong 3,5 giờ, mỗi lần là một
+    quãng sổ cũ.
+
+    Bốn điều phải đúng, và điều 4 là điều dễ mất nhất khi ai đó "dọn"
+    hai con số về một chỗ.
+    """
+    import time as _t
+
+    from kham.dong_song import DongSong
+    from kham.so_lenh import SoLenh
+
+    print()
+    print("-- So qua cu nhuong cho luoi do REST -----------------------")
+
+    ds = DongSong()
+    bay = _t.time() * 1000.0
+    moi = SoLenh(ma="BTC_5M", ben="UP", bid=[], ask=[], nhanLucMs=bay - 500.0)
+    cu = SoLenh(ma="BTC_5M", ben="UP", bid=[], ask=[], nhanLucMs=bay - 30_000.0)
+    ds._dat("moi", moi)
+    ds._dat("cu", cu)
+
+    kiem("không khai trần tuổi ⇒ trả sổ, dù cũ",
+         ds.lay("cu") is cu)
+    kiem("sổ MỚI trong trần ⇒ trả về", ds.lay("moi", 2500.0) is moi)
+    kiem("sổ CŨ quá trần ⇒ trả None (để `or` rơi xuống REST)",
+         ds.lay("cu", 2500.0) is None)
+    kiem("trần rộng hơn tuổi ⇒ lại trả về",
+         ds.lay("cu", 60_000.0) is cu)
+    kiem("token chưa từng có ⇒ None", ds.lay("khong-co", 2500.0) is None)
+
+    # `nhanLucMs` chưa đặt: KHÔNG được coi là mới tinh
+    chua = SoLenh(ma="BTC_5M", ben="UP", bid=[], ask=[], nhanLucMs=0.0)
+    ds._dat("chua", chua)
+    kiem("sổ chưa có dấu thời gian ⇒ None khi có xét tuổi",
+         ds.lay("chua", 2500.0) is None)
+
+    # ĐIỀU 4: đường định giá phải dùng ĐÚNG con số mà cổng rủi ro chấm.
+    # Hai chỗ hai con số thì hoặc gọi REST thừa, hoặc đưa lên cổng một
+    # sổ mà chính cổng ấy sắp từ chối — ca sau đúng là cái đã xảy ra.
+    goc = Path(__file__).resolve().parent.parent
+    vb = (goc / "kham" / "vong.py").read_text(encoding="utf-8")
+    i = vb.index("su = (dong_song.lay(")
+    khoi = vb[i - 400:i + 300]
+    kiem("đường định giá truyền trần tuổi xuống `lay`",
+         "dong_song.lay(k.tokenUp, " in vb)
+    kiem("…và trần ấy lấy từ ĐÚNG `ruiRo.tuoiSoLenhToiDaMs`",
+         'CONFIG["ruiRo"]["tuoiSoLenhToiDaMs"]' in khoi, khoi[-260:])
+    kiem("cả hai chân UP và DOWN đều truyền",
+         vb.count("dong_song.lay(k.token") >= 2)
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -13358,6 +13427,7 @@ def main() -> int:
     kiem_lan_that_dem_ly_do_chan()
     kiem_nguon_nao_duoc_chan()
     kiem_nhan_chien_thuat_toi_ket_toan()
+    kiem_so_qua_cu_nhuong_luoi_do()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
