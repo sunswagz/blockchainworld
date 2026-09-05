@@ -564,7 +564,48 @@ class TyNgangGia(Ty):
                 "soCoHoi": len(self.coHoi),
                 "soQua": sum(1 for c in self.coHoi if c.duyet),
                 "soCapBoQua": self._boDem.get("soCapBoQua"),
-                "capBoQua": self._boDem.get("capBoQua")}
+                "capBoQua": self._boDem.get("capBoQua"),
+                "phanBoNet": _phan_bo_net(self.coHoi,
+                                          float(self.cong.c["netToiThieuBps"]))}
+
+
+def _phan_bo_net(coHoi, nguongBps: float) -> dict:
+    """NET và GROSS nằm ở đâu so với ngưỡng — không chỉ đếm bao nhiêu trượt.
+
+    Một bảng lý do chỉ nói «net dưới ngưỡng: 2.989» đọc như «sát mà chưa
+    đủ». Đo làn thật 05/09/2026 thì không: net trung vị **−39,7 bps** trên
+    ngưỡng **+25** — cách nhau 65 bps, tức không phải chuyện vặn ngưỡng.
+    Và GROSS (trước phí) cũng âm ở CẢ 747 cơ hội, cao nhất −4,35 bps.
+    
+    Gross âm toàn bộ KHÔNG phải lỗi dấu: `muaUsd` dùng ask-call/bid-put,
+    `banUsd` dùng bid-call/ask-put, nên khi ngang giá đúng ở giá giữa thì
+    `banUsd < vePhai < muaUsd` và cả hai chiều đều âm. Đó là spread ăn
+    hết, và nó là câu trả lời ĐÚNG — chỉ là trước nay không ai đọc được
+    nó từ một con số đếm.
+
+    Trả `None` cho mọi vị trí khi chưa có mẫu: 0 ở đây đọc thành «ngang
+    giá đúng khít», một câu dữ liệu không hề nói.
+    """
+    def _vitri(ds):
+        if not ds:
+            return None
+        d = sorted(ds)
+        n = len(d)
+        return {"n": n, "min": round(d[0], 2),
+                "p50": round(d[n // 2], 2), "max": round(d[-1], 2)}
+
+    net = [c.netBps for c in coHoi if c.netBps is not None]
+    return {
+        "nguongBps": nguongBps,
+        "net": _vitri(net),
+        "gross": _vitri([c.grossBps for c in coHoi
+                         if c.grossBps is not None]),
+        "phi": _vitri([c.phiBps for c in coHoi if c.phiBps is not None]),
+        # Khoảng cách từ cơ hội TỐT NHẤT tới ngưỡng. Đây mới là con số nói
+        # «vặn ngưỡng có mở được gì không».
+        "cachNguongBps": (round(nguongBps - max(net), 2) if net else None),
+        "soDatNguong": sum(1 for x in net if x >= nguongBps),
+    }
 
 
 def _rui_ro(co) -> RuiRo:

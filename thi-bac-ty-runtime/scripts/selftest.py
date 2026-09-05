@@ -9541,6 +9541,43 @@ def kiem_ngang_gia() -> None:
          f"ra={len(_ra)} boDem={_bd} — một con số 0 ở đây nói «mọi cặp đều "
          f"đọc được», một con số lớn nói «có cả một họ mã đang rơi khỏi "
          f"bảng»; trước nay hai câu ấy trông giống hệt nhau")
+    # ── NET nằm ở ĐÂU so với ngưỡng, không chỉ ĐẾM bao nhiêu trượt ───────
+    #
+    # Bảng lý do chỉ nói «net dưới ngưỡng: 2.989» đọc như «sát mà chưa
+    # đủ». Đo làn thật 05/09/2026 thì không: cơ hội TỐT NHẤT vẫn cách
+    # ngưỡng 39 bps, và GROSS (trước phí) âm ở CẢ 748 cơ hội — spread ăn
+    # hết. Một con số đếm không phân biệt được «sát ngưỡng» với «cách xa
+    # ba chục bps», mà hai câu ấy dẫn tới hai quyết định ngược nhau.
+    from quyen_chon.ty_ngang_gia import _phan_bo_net as _pbn
+
+    class _Co:
+        def __init__(self, net, gross=None, phi=11.0):
+            self.netBps, self.grossBps, self.phiBps = net, gross, phi
+
+    _pb = _pbn([_Co(-40.0, -29.0), _Co(-14.0, -3.0), _Co(-100.0, -89.0)], 25.0)
+    kiem("khai vị trí NET, không chỉ số đếm",
+         _pb["net"] == {"n": 3, "min": -100.0, "p50": -40.0, "max": -14.0},
+         str(_pb["net"]))
+    kiem("và khoảng cách từ cơ hội TỐT NHẤT tới ngưỡng",
+         gan(_pb["cachNguongBps"], 39.0),
+         "25 − (−14) = 39 — đây mới là con số nói «vặn ngưỡng có mở được "
+         "gì không»")
+    kiem("đếm đúng số đạt ngưỡng", _pb["soDatNguong"] == 0)
+    _pb2 = _pbn([_Co(30.0), _Co(25.0), _Co(-5.0)], 25.0)
+    kiem("ĐÚNG BẰNG ngưỡng cũng tính là đạt", _pb2["soDatNguong"] == 2,
+         "biên phải đi qua được")
+    kiem("đạt rồi thì khoảng cách ÂM, không kẹp về 0",
+         _pb2["cachNguongBps"] < 0,
+         "kẹp về 0 là xoá mất «vượt ngưỡng bao nhiêu»")
+    _pb0 = _pbn([], 25.0)
+    kiem("chưa có mẫu thì trả None, KHÔNG phải 0",
+         _pb0["net"] is None and _pb0["cachNguongBps"] is None,
+         "0 ở đây đọc thành «ngang giá đúng khít», một câu dữ liệu không "
+         "hề nói")
+    _pbN = _pbn([_Co(None, None), _Co(-20.0, -9.0)], 25.0)
+    kiem("bỏ qua `None` chứ không đếm chúng thành 0",
+         _pbN["net"]["n"] == 1 and _pbN["gross"]["n"] == 1,
+         str(_pbN))
 
     # ── hệ số chiết khấu ────────────────────────────────────────────────
     kiem("lãi suất 0 → hệ số đúng bằng 1",
