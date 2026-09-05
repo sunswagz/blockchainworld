@@ -130,6 +130,9 @@ class RiskEngine:
         self.ngay = self._ngay_hien_tai()
         self.ngatKhanCap = False
         self.lyDoNgat = ""
+        #: NGẮT VÌ CÁI GÌ — quyết định then có tự mở khi sang ngày hay
+        #: không. Xem `ngat`.
+        self.loaiNgat = ""
         self.soLanNgat = 0
 
     def _ngay_hien_tai(self) -> str:
@@ -335,11 +338,17 @@ class RiskEngine:
         return (self.dinhVon - self.von) / self.dinhVon * 100.0
 
     def _soat_ngat(self) -> None:
-        if self.loNgayUsd >= self.tranLoNgayUsd:
-            self.ngat("chạm trần lỗ ngày $%.2f" % self.tranLoNgayUsd)
+        # Thứ tự: SỤT VỐN trước. Nếu cả hai điều kiện cùng đúng thì cái
+        # ghi vào `loaiNgat` phải là cái NẶNG hơn — `ngat()` chỉ nhận
+        # lần gọi đầu, và một then sụt-vốn bị dán nhãn "lo-ngay" sẽ tự
+        # mở sáng hôm sau trong khi điều kiện của nó còn nguyên.
         if self.sutVonPct >= float(_RR["tranSutVonPct"]):
             self.ngat("sụt vốn %.1f%% (trần %.1f%%)"
-                      % (self.sutVonPct, _RR["tranSutVonPct"]))
+                      % (self.sutVonPct, _RR["tranSutVonPct"]),
+                      loai="sut-von")
+        if self.loNgayUsd >= self.tranLoNgayUsd:
+            self.ngat("chạm trần lỗ ngày $%.2f" % self.tranLoNgayUsd,
+                      loai="lo-ngay")
 
     def sang_ngay_moi(self) -> bool:
         """Ngày mới thì bộ đếm lỗ ngày về 0. Trả True nếu vừa sang ngày.
@@ -357,17 +366,66 @@ class RiskEngine:
         # Chốt lại gốc của ba trần cho ngày mới. Đây là chỗ DUY NHẤT
         # `vonDauNgay` đổi trong lúc chạy — trong ngày nó phải đứng yên.
         self.vonDauNgay = self.von
+
+        # Then đóng vì trần lỗ NGÀY thì mở khi sang ngày. Điều kiện đã
+        # hết hiệu lực cùng lúc với bộ đếm ở hai dòng trên; giữ then
+        # tiếp là giữ một cái then không còn lý do.
+        if self.ngatKhanCap and self.loaiNgat == "lo-ngay":
+            self.ngatKhanCap = False
+            self.lyDoNgat = ""
+            self.loaiNgat = ""
+        # …rồi SOÁT LẠI. Nếu sụt vốn vẫn quá trần thì nó ngắt lại NGAY,
+        # lần này với đúng nhãn `sut-von` — một điều kiện nhiều ngày
+        # không được mở chỉ vì đồng hồ sang ngày.
+        self._soat_ngat()
         return True
 
-    def ngat(self, lyDo: str) -> None:
-        """Cầu dao. Đã ngắt thì chỉ người mở lại được, không tự phục hồi.
+    def ngat(self, lyDo: str, loai: str = "tay") -> None:
+        """Cầu dao. `loai` nói NGẮT VÌ CÁI GÌ, và điều đó có hệ quả.
 
-        Không tự bật lại là chủ ý: một cầu dao tự đóng sau N phút sẽ đóng
-        đúng lúc thứ làm nó nhảy vẫn còn nguyên.
+        Không tự bật lại là chủ ý — một cầu dao tự đóng sau N phút sẽ
+        đóng đúng lúc thứ làm nó nhảy vẫn còn nguyên. Nhưng "không tự
+        bật lại" phải hiểu theo ĐIỀU KIỆN đã làm nó nhảy, chứ không
+        theo đồng hồ:
+
+            lo-ngay   ngân sách lỗ NGÀY. Điều kiện ấy hết hiệu lực khi
+                      sang ngày mới — `sang_ngay_moi` đặt lại bộ đếm.
+                      Nên giữ then qua đêm là giữ một cái then mà lý do
+                      của nó đã biến mất.
+            sut-von   sụt từ ĐỈNH vốn. Điều kiện NHIỀU NGÀY, và nó vẫn
+                      đúng sáng hôm sau. Then giữ nguyên.
+
+        ## Vì sao chuyện này quan trọng hơn vẻ ngoài
+
+        Bản trước không phân biệt, nên một lần chạm trần lỗ NGÀY giết cỗ
+        máy VĨNH VIỄN. Cái trần mang tên "ngày" mà hậu quả là mãi mãi.
+
+        Đo được 05/09/2026 trên băng 12 ngày, vốn $1.000, quét ngân sách
+        ngày từ 5% tới 50%:
+
+            ngân sách ngày   cửa sổ   sụt vốn thật   CẦU DAO chặn
+                 5%            20        7,32%        120.926
+                12%            20       14,10%        118.063
+                15%            21       17,03%        116.473
+                18%            25       20,23%        113.134
+                20%           228        1,44%              0
+                50%           229        1,42%              0
+
+        Một vách dốc đứng giữa 18 và 20, và nó KHÔNG phải chuyện đánh
+        đổi rủi ro: dưới ngưỡng ấy máy chạm trần ngày ngay ngày đầu rồi
+        cài then luôn; từ 20% trở lên nó không chạm lần nào trong 12
+        ngày nên không bao giờ cài. Cả quãng ở giữa vừa ít giao dịch
+        vừa sụt vốn NẶNG HƠN — vì nó sống thêm được một chút với vị thế
+        to hơn rồi mới chết.
+
+        (Một giả thuyết đã bị BÁC trên đường: rằng vách nằm ở chỗ ngân
+        sách ngày ≥ trần phơi nhiễm gộp. Thử `ngày 20 · gộp 40` vẫn
+        thông, `ngày 10 · gộp 8` vẫn chặn. Trần gộp không liên quan.)
         """
         if not self.ngatKhanCap:
             self.ngatKhanCap = True
             self.lyDoNgat = lyDo
+            self.loaiNgat = loai
             self.soLanNgat += 1
 
     def mo_lai(self) -> None:
@@ -409,6 +467,7 @@ class RiskEngine:
         """
         self.ngatKhanCap = False
         self.lyDoNgat = ""
+        self.loaiNgat = ""
         # Thứ tự quan trọng: hạ đỉnh SAU khi xoá cờ thì `sutVonPct` về 0
         # và lần `_soat_ngat` kế tiếp không có gì để ngắt. Hạ trước, xoá
         # sau cũng ra cùng kết quả — nhưng chỉ xoá cờ mà KHÔNG hạ đỉnh
@@ -579,12 +638,38 @@ class RiskEngine:
                 # khoản phí $1,00. Cái cổng chiếu theo `vwap` nên nó cho
                 # qua một cỡ lệnh mà chính nó vừa cấm.
                 gia_that = ch.vwap + max(0.0, float(ch.phi or 0.0))
-                max_ngay = (du + phong_ho) / max(1e-9, gia_that)
+
+                # MỘT VỊ THẾ KHÔNG ĐƯỢC TIÊU HẾT NGÂN SÁCH NGÀY
+                #
+                # `du` là toàn bộ phần ngân sách còn lại, nên cổng này
+                # cho một lệnh duy nhất lấy sạch. Đo trên sổ kết toán
+                # thật 05/09/2026: lệnh đầu tiên của ngày ăn 100,0% và
+                # 107% ngân sách, mọi lệnh cỡ đầy đủ đều nằm ở 87–107%.
+                # Sau lệnh ấy, cả ngày không còn gì để vào.
+                #
+                # Hệ quả không phải "ít giao dịch" mà là MẤT PHÂN TÁN:
+                # một vị thế mỗi ngày thì mỗi ngày là một lần tung đồng
+                # xu. Lượt chạy lại 12 ngày cho 20 cửa sổ, sụt vốn thật
+                # 7,32%, khoảng tin CHỨA 0. Cùng cỗ máy ấy khi không bị
+                # trần chặn: 229 cửa sổ, sụt vốn 1,42%, khoảng tin
+                # KHÔNG chứa 0. Trần chặt mua an toàn bằng cách giết
+                # đúng thứ làm nên an toàn.
+                #
+                # Nút này KHÔNG nới rủi ro ngày: `du` vẫn chặn tổng, và
+                # trần ngày vẫn nguyên. Nó chỉ cấm một lệnh chiếm trọn.
+                # Gốc là ngân sách CẢ NGÀY chứ không phải phần CÒN LẠI:
+                # lấy phần còn lại thì cỡ lệnh co theo cấp số nhân
+                # (25% của 75% của…) và cái đuôi ấy vô nghĩa.
+                phan = float(_RR.get("phanNganSachMoiViThe", 1.0))
+                duLenh = du if phan >= 1.0 else min(du, tranNgay * phan)
+                max_ngay = (duLenh + phong_ho) / max(1e-9, gia_that)
                 if max_ngay < cho_phep:
                     cho_phep = max_ngay
                     canh.append(
-                        f"ngân sách lỗ ngày còn ${du:.2f} cắt còn "
-                        f"{max_ngay:.0f} cổ")
+                        f"ngân sách lỗ ngày còn ${du:.2f} "
+                        + (f"(mỗi vị thế tối đa ${tranNgay * phan:.2f}) "
+                           if phan < 1.0 else "")
+                        + f"cắt còn {max_ngay:.0f} cổ")
 
         # 7. trần vốn mỗi nhóm tài sản (BTC_5M + BTC_15M cùng một rổ)
         nhom = nhom_tai_san(ch.ma)
@@ -730,6 +815,9 @@ class RiskEngine:
             "tranMoiThiTruongUsd": self.tranMoiThiTruongUsd,
             "tranMoiTaiSanUsd": self.tranMoiTaiSanUsd,
             "ngatKhanCap": self.ngatKhanCap,
+            # NGẮT VÌ CÁI GÌ. Không hiện ra thì không ai phân biệt được
+            # một then sẽ tự mở sáng mai với một then nằm mãi.
+            "loaiNgat": self.loaiNgat,
             # Còn thiếu bao nhiêu để tự thoát cầu dao sụt vốn. Không
             # hiện ra thì một cỗ máy đang BẾ TẮC trông y hệt một cỗ máy
             # đang thận trọng — xem `mo_lai`.

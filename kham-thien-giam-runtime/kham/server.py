@@ -147,7 +147,7 @@ def cau_dao(mo: bool = False) -> JSONResponse:
         runtime.risk.mo_lai()
         bus.ghi("cầu dao mở lại bằng tay", loai="he")
     else:
-        runtime.risk.ngat("ngắt bằng tay từ buồng lái")
+        runtime.risk.ngat("ngắt bằng tay từ buồng lái", loai="tay")
         bus.ghi("CẦU DAO NGẮT bằng tay", loai="canh")
     return JSONResponse(sach(runtime.risk.tom_tat()))
 

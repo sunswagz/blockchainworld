@@ -10660,6 +10660,125 @@ def kiem_thu_tu_cong_quet_dot_bien() -> None:
 
 
 
+def kiem_ngat_theo_loai() -> None:
+    """Cầu dao phải nhớ NGẮT VÌ CÁI GÌ — và hai loại có hạn khác nhau.
+
+    Bản trước không phân biệt, nên một lần chạm trần lỗ NGÀY giết cỗ
+    máy VĨNH VIỄN: `sang_ngay_moi` đặt lại bộ đếm nhưng không xoá then.
+    Cái trần mang tên "ngày" mà hậu quả là mãi mãi.
+
+    Đo 05/09/2026, băng 12 ngày, vốn $1.000, quét ngân sách ngày:
+
+        ngân sách ngày   cửa sổ   sụt vốn thật   CẦU DAO chặn
+             5%            20        7,32%        120.926
+            12%            20       14,10%        118.063
+            15%            21       17,03%        116.473
+            18%            25       20,23%        113.134
+            20%           228        1,44%              0
+
+    Vách dốc đứng giữa 18 và 20, và nó KHÔNG phải đánh đổi rủi ro:
+    dưới ngưỡng ấy máy chạm trần ngày ngay ngày đầu rồi cài then; từ
+    20% trở lên nó không chạm lần nào trong 12 ngày. Quãng giữa vừa ít
+    giao dịch vừa sụt vốn NẶNG HƠN.
+
+    Bốn điều phải đúng, và điều 2 là điều dễ mất nhất:
+
+    1. then `lo-ngay` MỞ khi sang ngày;
+    2. then `sut-von` KHÔNG mở — điều kiện nhiều ngày vẫn đúng sáng
+       hôm sau, và mở nó là mở một cái then còn nguyên lý do;
+    3. cả hai cùng đúng ⇒ nhãn ghi là `sut-von` (cái NẶNG hơn), nếu
+       không thì một then sụt-vốn đội lốt `lo-ngay` sẽ tự mở;
+    4. sau khi mở phải SOÁT LẠI, để một điều kiện còn hiệu lực ngắt
+       lại ngay chứ không lọt qua một nhịp.
+    """
+    import time as _t
+
+    import kham.rui_ro as R
+    from kham.kho_doi import Kho
+
+    print()
+    print("-- Cau dao nho NGAT VI CAI GI ------------------------------")
+
+    cu = R._RR
+    try:
+        R._RR = dict(cu)
+        R._RR["tranSutVonPct"] = 10.0
+
+        ngay = ["2026-09-04"]
+
+        def _may(von=1000.0, dinh=1000.0):
+            r = R.RiskEngine(Kho(), dongHo=lambda: _t.mktime(
+                _t.strptime(ngay[0], "%Y-%m-%d")))
+            r.von, r.dinhVon, r.vonDauNgay, r.ngay = von, dinh, von, ngay[0]
+            return r
+
+        # 1. then NGÀY tự mở
+        r = _may()
+        r.ghi_lai_lo(-60.0)                 # trần ngày 5% = $50
+        kiem("chạm trần lỗ ngày ⇒ NGẮT", r.ngatKhanCap, r.lyDoNgat)
+        kiem("và nhãn là `lo-ngay`", r.loaiNgat == "lo-ngay", r.loaiNgat)
+        ngay[0] = "2026-09-05"
+        kiem("sang ngày mới trả True", r.sang_ngay_moi() is True)
+        kiem("then `lo-ngay` TỰ MỞ", not r.ngatKhanCap, r.lyDoNgat)
+        kiem("và nhãn được xoá", r.loaiNgat == "", r.loaiNgat)
+        kiem("bộ đếm lỗ ngày cũng về 0", r.laiRongNgayUsd == 0.0)
+
+        # 2. then SỤT VỐN không mở
+        ngay[0] = "2026-09-04"
+        r2 = _may()
+        r2.ghi_lai_lo(-150.0)               # quá CẢ HAI trần
+        kiem("quá cả hai trần ⇒ nhãn ghi cái NẶNG hơn (`sut-von`)",
+             r2.loaiNgat == "sut-von", (r2.loaiNgat, r2.lyDoNgat))
+        ngay[0] = "2026-09-05"
+        r2.sang_ngay_moi()
+        kiem("sang ngày mới ⇒ then `sut-von` VẪN đóng",
+             r2.ngatKhanCap and r2.loaiNgat == "sut-von",
+             (r2.ngatKhanCap, r2.loaiNgat))
+
+        # 3. soát lại sau khi mở: vẫn quá trần sụt vốn thì ngắt lại NGAY
+        ngay[0] = "2026-09-04"
+        r3 = _may(von=1000.0, dinh=1000.0)
+        r3.ghi_lai_lo(-60.0)                # chỉ quá trần NGÀY
+        kiem("chỉ quá trần ngày ⇒ nhãn `lo-ngay`", r3.loaiNgat == "lo-ngay")
+        r3.dinhVon = 2000.0                 # nay sụt vốn thành 53%
+        ngay[0] = "2026-09-05"
+        r3.sang_ngay_moi()
+        kiem("mở then ngày rồi SOÁT LẠI ⇒ ngắt lại vì sụt vốn",
+             r3.ngatKhanCap and r3.loaiNgat == "sut-von",
+             (r3.ngatKhanCap, r3.loaiNgat, r3.lyDoNgat))
+
+        # 4. ngắt bằng TAY không được tự mở
+        ngay[0] = "2026-09-04"
+        r4 = _may()
+        r4.ngat("người bấm", loai="tay")
+        ngay[0] = "2026-09-05"
+        r4.sang_ngay_moi()
+        kiem("then đóng bằng TAY không tự mở khi sang ngày",
+             r4.ngatKhanCap and r4.loaiNgat == "tay",
+             (r4.ngatKhanCap, r4.loaiNgat))
+
+        # 5. `mo_lai` xoá cả nhãn
+        r4.mo_lai()
+        kiem("`mo_lai` xoá cả nhãn",
+             not r4.ngatKhanCap and r4.loaiNgat == "", r4.loaiNgat)
+
+        # 6. nhãn phải TỚI ĐƯỢC buồng lái
+        kiem("`tom_tat` mang theo `loaiNgat`", "loaiNgat" in r4.tom_tat())
+    finally:
+        R._RR = cu
+
+    # 7. `_soat_ngat` phải xét SỤT VỐN trước — canh bằng vị trí nguồn,
+    #    vì `ngat()` chỉ nhận lần gọi ĐẦU và thứ tự quyết định cái nhãn
+    goc = Path(__file__).resolve().parent.parent
+    vb = (goc / "kham" / "rui_ro.py").read_text(encoding="utf-8")
+    i = vb.index("def _soat_ngat")
+    j = vb.index("def sang_ngay_moi", i)
+    than = vb[i:j]
+    kiem("`_soat_ngat` xét SỤT VỐN trước LỖ NGÀY",
+         than.index('loai="sut-von"') < than.index('loai="lo-ngay"'))
+
+
+
 def kiem_bao_cao_doc_hien_ra() -> None:
     """Báo cáo ĐỌC phải tới được buồng lái, và None ≠ sạch.
 
@@ -12902,6 +13021,7 @@ def main() -> int:
     kiem_runtime_dung_tay_du_truong()
     kiem_sigma_pha()
     kiem_thu_tu_cong_quet_dot_bien()
+    kiem_ngat_theo_loai()
     kiem_moi_sigma_rieng_trung_bo_uoc_chung()
     kiem_quet_truc_phai_do_lai_cua_so_dai()
     kiem_cong_mo_hinh_khong_van_theo_tieng_on()
