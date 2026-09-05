@@ -80,6 +80,8 @@ TRUONG_BAO_CAO = {
     "anToan", "quyenVoHan", "tokenLa", "danhBaToken", "hopDongDaXacMinh", "bacVon", "khongGiuKhoa",
     # Bài 7: hurdle, mốc theo mục tiêu, bãi đỗ vốn
     "netNamPct", "mocSoSanh", "sanLpPct", "noiDauVon", "phanBuRuiRoPct",
+    # Bài 8: hai loại PnL, độ phủ phí, mép dải, uptime, gộp lãi, xu hướng (chỉ đo)
+    "pnlTuyetDoiUsd", "doPhuPhi", "khoangCachMepPct", "uptimeDaiPct", "gopLai", "xuHuong",
 }
 
 KHUON_JSON = {

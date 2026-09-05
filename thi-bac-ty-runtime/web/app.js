@@ -2694,6 +2694,8 @@
       l.appendChild(o_nho("σ năm", pm.sigma == null ? "chưa đo — " + so(pm.soPhien) + " phiên" : pc(pm.sigma, 0) + " / " + so(pm.soPhien) + " phiên", pm.sigma == null ? "am" : null));
       l.appendChild(o_nho("TVL", tien(pm.tvlUsd, 0)));
       l.appendChild(o_nho("Phí/LVR", dd2.tiLePhiTrenLvr == null ? "—" : n2(dd2.tiLePhiTrenLvr), dd2.tiLePhiTrenLvr == null ? null : dd2.tiLePhiTrenLvr >= 1.5 ? "duong" : "am"));
+      l.appendChild(o_nho("Độ phủ phí (Bài 8)", dd2.doPhuPhi == null ? "—" : n2(dd2.doPhuPhi, 2) + "× lực cản (|IL| + gas)",
+        dd2.doPhuPhi == null ? null : dd2.doPhuPhi >= 1 ? "duong" : "am"));
       l.appendChild(o_nho("P(văng) ≤", dd2.pVang == null ? "—" : pc(dd2.pVang, 0)));
       l.appendChild(o_nho("Phí + thưởng + IL", (dd2.phiBps == null ? "—" : bps(dd2.phiBps)) + " · " + (dd2.thuongBps == null ? "—" : bps(dd2.thuongBps)) + " · " + (dd2.ilKyVongBps == null ? "—" : bps(dd2.ilKyVongBps))));
       l.appendChild(o_nho("Vốn xin / sức chứa", tien(pm.vonXinUsd, 0) + " / " + tien(pm.sucChuaUsd, 0)
@@ -2702,7 +2704,8 @@
       var bd = pm.bienDong || {};
       l.appendChild(o_nho("Biến động", bd.doi1NgayPct == null ? "—" : (bd.doi1NgayPct >= 0 ? "+" : "") + n2(bd.doi1NgayPct, 1) + "% ngày"
         + (bd.doi5NgayPct == null ? "" : " · " + (bd.doi5NgayPct >= 0 ? "+" : "") + n2(bd.doi5NgayPct, 1) + "% tuần")
-        + (bd.trangThai ? " · σ " + ({ NO: "NỞ", CO: "CO", ON: "ổn" })[bd.trangThai] : "")));
+        + (bd.trangThai ? " · σ " + ({ NO: "NỞ", CO: "CO", ON: "ổn" })[bd.trangThai] : "")
+        + (bd.xuHuong ? " · " + ({ TANG_MANH: "TĂNG MẠNH", GIAM_MANH: "GIẢM MẠNH", DAO_DONG: "dao động" })[bd.xuHuong.nhan] + " (z " + n2(bd.xuHuong.z, 1) + ", chỉ đo)" : "")));
       c1.appendChild(l);
       cot2.appendChild(c1);
       var c2 = el("div");
@@ -2760,7 +2763,13 @@
       l.appendChild(o_nho("Vốn / giá trị", tien(vt.vonUsd, 0) + (vt.giaTriChuoiUsd != null ? " / " + tien(vt.giaTriChuoiUsd, 0) : "")));
       l.appendChild(o_nho("Giá vào → hiện tại", (vt.giaMo == null ? "—" : n2(vt.giaMo)) + " → " + (gia == null ? "—" : n2(gia))));
       l.appendChild(o_nho("Phí chưa thu", vt.phiChoThuUsd == null ? "—" : "+" + tien(vt.phiChoThuUsd, 2), vt.phiChoThuUsd ? "duong" : null));
+      l.appendChild(o_nho("PnL TUYỆT ĐỐI (giá trị + phí − vốn)", tt.pnlTuyetDoiUsd == null ? "—" : (tt.pnlTuyetDoiUsd >= 0 ? "+" : "") + tien(tt.pnlTuyetDoiUsd, 2)
+        + (vt.nguon === "chuoi" ? " · từ lúc máy thấy" : ""), tt.pnlTuyetDoiUsd == null ? null : tt.pnlTuyetDoiUsd >= 0 ? "duong" : "am"));
       l.appendChild(o_nho("IL so HODL", tt.ilPct == null ? "chưa biết giá vào" : n2(tt.ilPct) + "%", tt.ilPct == null ? "nhat" : tt.ilPct < 0 ? "am" : "duong"));
+      var upV = v.uptimeDai;
+      l.appendChild(o_nho("Cách mép / uptime dải", (tt.khoangCachMepPct == null ? "—" : (tt.khoangCachMepPct < 0 ? "NGOÀI " : "") + n2(Math.abs(tt.khoangCachMepPct), 1) + "%")
+        + " / " + (upV ? n2(upV.pct, 0) + "% trong dải (" + so(upV.soMau) + " mẫu)" : "chưa có mẫu"),
+        tt.khoangCachMepPct != null && tt.khoangCachMepPct < 1 ? "am" : null));
       l.appendChild(o_nho("Giữ", tt.gioGiu == null ? "—" : gioPhut(tt.gioGiu)));
       l.appendChild(o_nho("P(văng) còn lại", dd.xacSuatVang && dd.xacSuatVang.tong != null ? "≤ " + pc(dd.xacSuatVang.tong, 0) : "—"));
       var tl = tt.tachLoiNhuan;
@@ -2789,7 +2798,8 @@
     if ((vl.business || []).length) {
       f.appendChild(el("h4", null, "Mỗi vị thế là một doanh nghiệp nhỏ (Bài 4)"));
       f.appendChild(bang([{ t: "Doanh nghiệp" }, { t: "Vốn", n: true }, { t: "Doanh thu (phí)", n: true }, { t: "IL", n: true },
-                          { t: "Gas ước", n: true }, { t: "Lợi nhuận ròng", n: true }, { t: "ROI/tháng", n: true }, { t: "Alpha so HOLD", n: true }],
+                          { t: "Gas ước", n: true }, { t: "Lợi nhuận ròng", n: true }, { t: "ROI/tháng", n: true }, { t: "Alpha so HOLD", n: true },
+                          { t: "PnL tuyệt đối", n: true }, { t: "Độ phủ phí", n: true }],
         vl.business.map(function (x) {
           function usd(v) { return v == null ? "—" : (v >= 0 ? "+" : "") + tien(v, 2); }
           return [{ t: x.kyHieu + (x.tokenId ? " #" + x.tokenId : "") }, { t: tien(x.vonUsd, 0), c: "n" },
@@ -2797,9 +2807,12 @@
                   { t: x.gasUocUsd == null ? "—" : "−" + tien(x.gasUocUsd, 2), c: "n nhat" },
                   { t: usd(x.loiNhuanRongUsd), c: "n " + (x.loiNhuanRongUsd > 0 ? "duong" : x.loiNhuanRongUsd < 0 ? "am" : "") },
                   { t: x.roiThangPct == null ? "—" : n2(x.roiThangPct, 2) + "%", c: "n" },
-                  { t: usd(x.alphaSoHoldUsd), c: "n " + (x.alphaSoHoldUsd > 0 ? "duong" : x.alphaSoHoldUsd < 0 ? "am" : "") }];
+                  { t: usd(x.alphaSoHoldUsd), c: "n " + (x.alphaSoHoldUsd > 0 ? "duong" : x.alphaSoHoldUsd < 0 ? "am" : "") },
+                  { t: usd(x.pnlTuyetDoiUsd), c: "n " + (x.pnlTuyetDoiUsd > 0 ? "duong" : x.pnlTuyetDoiUsd < 0 ? "am" : "") },
+                  { t: x.doPhuPhi == null ? "—" : n2(x.doPhuPhi, 2) + "×", c: "n " + (x.doPhuPhi == null ? "nhat" : x.doPhuPhi >= 1 ? "duong" : "am") }];
         })));
-      f.appendChild(giai("Alpha so HOLD = (giá trị LP + phí) − giá trị nếu chỉ cầm hai token. Tăng giá tài sản là phần HOLD cũng có; đòn bẩy bằng 0 theo cấu tạo vì ty không vay. Ba nguồn tách riêng — không gộp thành «lãi 70% từ DeFi»."));
+      f.appendChild(giai("Alpha so HOLD = (giá trị LP + phí) − giá trị nếu chỉ cầm hai token. Tăng giá tài sản là phần HOLD cũng có; đòn bẩy bằng 0 theo cấu tạo vì ty không vay. Ba nguồn tách riêng — không gộp thành «lãi 70% từ DeFi». "
+        + "Bài 8: PnL TUYỆT ĐỐI (giá trị + phí − vốn) đứng cạnh alpha vì hai số có thể trái dấu — «đang xanh» chưa nói LP có đáng; độ phủ phí = phí / (|IL| + gas), dưới 1× là phí không trả nổi lực cản."));
     }
     if ((vl.hieuQuaVon || []).length) {
       f.appendChild(el("h4", null, "Hiệu quả vốn — phí trên mỗi $1, quy tháng (Bài 2)"));

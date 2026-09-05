@@ -85,6 +85,15 @@ class ViThe:
         return {"trongDai": self.Pa < giaHienTai < self.Pb,
                 "alphaSoHoldUsd": alpha, "tachLoiNhuan": tach,
                 "giaTriUsd": giaTri,
+                # Bài 8 §6: HAI loại PnL. Tuyệt đối = giá trị + phí − vốn, không
+                # cần giá mở; alpha so HOLD (ở trên) cần. Hai số có thể TRÁI
+                # DẤU: +41% tuyệt đối mà −5,7% so HOLD. Vị thế đọc từ chuỗi có
+                # vốn = giá trị lúc đọc đầu, nên số này là từ lúc máy thấy nó.
+                "pnlTuyetDoiUsd": ((giaTri + (self.phiChoThuUsd or 0.0) - self.vonUsd)
+                                   if self.vonUsd else None),
+                # Bài 8 §26: cách mép GẦN NHẤT, % giá; âm là đã ở ngoài dải
+                "khoangCachMepPct": (min(giaHienTai - self.Pa, self.Pb - giaHienTai)
+                                     / giaHienTai * 100.0),
                 "ilPct": (il_tai_gia(self.L, self.giaMo, giaHienTai, self.Pa, self.Pb) * 100.0
                           if coGiaMo else None),
                 "x": x, "y": y,

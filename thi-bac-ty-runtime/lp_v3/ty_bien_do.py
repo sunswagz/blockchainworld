@@ -68,6 +68,14 @@ NHIP_GIA_GOC_TRONG_PHIEN_GIAY = 300.0
 NHIP_TIN_GIAY = 3600.0
 
 
+#: Bài 8 §15 — chế độ GỘP LÃI theo giao thức. Uniswap V3 KHÔNG tự gộp: phí
+#: ghi riêng trên NFT, phải `collect` rồi tự thêm thanh khoản. Ty không ký nên
+#: chỉ ĐO phí chưa thu (collect mô phỏng), không thu — nên lãi kép ở đây là
+#: việc của người, và APY hiển thị của OKX không được đọc thành «tự cộng dồn».
+GOP_LAI = {"cheDo": "tay", "giaoThuc": "Uniswap V3 (X Layer)",
+           "ghi": "phí ghi riêng theo NFT, phải collect rồi tự thêm thanh khoản; máy chỉ đo phí chưa thu"}
+
+
 @dataclass
 class DanhGiaViThe:
     viThe: dict
@@ -430,6 +438,8 @@ class TyBienDo(Ty):
         self.soHocLieu = SoHocLieu()
         self.poolRpc: dict = {}
         self.coHoi: list = []
+        #: bộ đếm trong/ngoài dải theo vị thế — mỗi lượt quét một mẫu
+        self.uptimeDai: dict = self._nap_uptime()
         self.lanMoi: dict = self._nap_lan_moi()
         self.quetCuoiLuc: str | None = None
         self.vongNgay = None
@@ -455,6 +465,46 @@ class TyBienDo(Ty):
 
     def _den_han(self, khoa: str, nhip: float) -> bool:
         return (time.time() - float(self.lanMoi.get(khoa) or 0.0)) >= nhip
+
+    # ── uptime dải (Bài 8 §26 — RANGE UPTIME; nợ khai từ Bài 2) ──────────
+    def _duong_uptime(self):
+        return cfgmod.THU_MUC / "uptime-dai.json"
+
+    def _nap_uptime(self) -> dict:
+        p = self._duong_uptime()
+        try:
+            return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+        except ValueError:
+            return {}
+
+    def _ghi_uptime(self) -> None:
+        """Mỗi lượt quét là MỘT MẪU cho từng vị thế đang mở: trong dải hay
+        không. Bộ đếm hai số, không phải sổ — không phồng theo ngày. Không
+        biết trong/ngoài (thiếu giá) thì không đếm, không đoán."""
+        luc = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+        doi = False
+        for co in self.coHoi:
+            for v in co.viThe:
+                ma = (v.viThe or {}).get("ma")
+                trong = (v.trangThai or {}).get("trongDai")
+                if not ma or trong is None:
+                    continue
+                d = self.uptimeDai.setdefault(ma, {"soMau": 0, "soTrong": 0, "tuLuc": luc})
+                d["soMau"] += 1
+                d["soTrong"] += 1 if trong else 0
+                d["lanCuoi"] = luc
+                doi = True
+        if doi:
+            p = self._duong_uptime()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps(self.uptimeDai), encoding="utf-8")
+
+    def uptime_dai(self, ma: str | None) -> dict | None:
+        d = self.uptimeDai.get(ma or "")
+        if not d or not d.get("soMau"):
+            return None
+        return {"pct": d["soTrong"] / d["soMau"] * 100.0, "soMau": d["soMau"],
+                "tuLuc": d.get("tuLuc"), "lanCuoi": d.get("lanCuoi")}
 
     async def _lam_moi(self) -> None:
         import httpx
@@ -678,6 +728,7 @@ class TyBienDo(Ty):
         theoDoi = {p["kyHieu"] for p in self.cfg.get("pool") or []}
         return {"diaChi": vi.get("diaChi"), "quanLyViThe": vi.get("quanLyViThe"),
                 "quanLyViTheDangDung": vi.get("quanLyViTheDangDung"),
+                "gopLai": GOP_LAI,
                 "macDinh": (self.cfg.get("uniswapXLayer") or {}).get("quanLyViThe"),
                 "txMau": vi.get("txMau"), "loi": self.viTheChuoiLoi,
                 "soViThe": len(ds),
@@ -700,6 +751,7 @@ class TyBienDo(Ty):
         self.coHoi = self.can_tat_ca()
         self.quetCuoiLuc = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
         self._ghi_kinh_nghiem()
+        self._ghi_uptime()
         if self.vongNgay is not None:
             try:
                 self.vongNgay.chay_neu_den_han()

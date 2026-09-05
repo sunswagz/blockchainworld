@@ -350,6 +350,10 @@ class KetQuaDai:
     tiLePhiTrenLvr: float | None
     phanTrongDai: float         # tỉ lệ thời gian kỳ vọng còn trong dải
     ghiChu: tuple = ()
+    #: Bài 8 §27 — ĐỘ PHỦ PHÍ = (phí + thưởng) / (|IL kỳ vọng| + gas). Dưới 1
+    #: là phí không trả nổi lực cản. LVR KHÔNG cộng thêm vào mẫu: nó và IL kỳ
+    #: vọng đo cùng một mất mát bằng hai cách, cộng cả hai là đếm đôi.
+    doPhuPhi: float | None = None
 
     def tom_tat(self) -> dict:
         return {"Pa": self.Pa, "Pb": self.Pb, "rong": self.rong,
@@ -360,6 +364,7 @@ class KetQuaDai:
                 "gasBps": self.gasBps, "netBps": self.netBps,
                 "tiLePhiTrenLvr": self.tiLePhiTrenLvr,
                 "phanTrongDai": self.phanTrongDai,
+                "doPhuPhi": self.doPhuPhi,
                 "ghiChu": list(self.ghiChu)}
 
 
@@ -409,6 +414,10 @@ def can_dai(P: float, Pa: float, Pb: float, sigma: float, tauNam: float,
     net = None
     if phi is not None and gas is not None:
         net = phi + (thuong or 0.0) + il - gas
+    phu = None
+    if phi is not None and gas is not None:
+        canTru = abs(il) + gas
+        phu = ((phi + (thuong or 0.0)) / canTru) if canTru > 0 else None
     tile = None
     if aprPhiPool is not None and sigma > 0:
         # Cùng chân trời, cùng hệ số trong-dải, nên chúng giản ước; còn lại
@@ -422,7 +431,7 @@ def can_dai(P: float, Pa: float, Pb: float, sigma: float, tauNam: float,
                      hieuSuat=hs, tauNam=tauNam, xacSuatVang=vang,
                      ilKyVongBps=il, lvrBps=lvr, phiBps=phi, thuongBps=thuong,
                      gasBps=gas, netBps=net, tiLePhiTrenLvr=tile,
-                     phanTrongDai=trongDai, ghiChu=tuple(ghi))
+                     phanTrongDai=trongDai, ghiChu=tuple(ghi), doPhuPhi=phu)
 
 
 def _soat_dai(P: float, Pa: float, Pb: float) -> None:

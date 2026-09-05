@@ -390,12 +390,20 @@
      "ma": "do-uptime-truoc-khi-noi-dai",
      "cau": "LÀM đo tỷ lệ thời gian giá nằm trong dải; nếu uptime thấp kéo dài thì xem lại hệ số dải, KHÔNG bù bằng cách rebalance dày hơn.",
      "gan": {
-      "luat": [],
-      "nut": [],
-      "truong": []
+      "luat": [
+       "van-dai-cao",
+       "dai-qua-rong"
+      ],
+      "nut": [
+       "heSoDai"
+      ],
+      "truong": [
+       "uptimeDaiPct",
+       "khoangCachMepPct"
+      ]
      },
-     "ghi": "RANGE UPTIME chưa đo: ty chưa lưu chuỗi mẫu trong/ngoài dải theo vị thế. Có `phanTrongDai` dự báo và luật ngoai-dai/van-dai-cao/dai-qua-rong, nhưng thước «tỉ lệ thời gian thật trong dải» và «sụt sâu nhất trong kỳ» chưa có — nợ.",
-     "trangThai": "thieu-phep-canh"
+     "ghi": "Trả nợ ở Bài 8 (06/09/2026): bộ đếm uptime theo vị thế (`uptime-dai.json`, mỗi lượt quét một mẫu) và khoảng cách mép. «Sụt sâu nhất» vẫn chưa đo — ty không biết NAV danh mục.",
+     "trangThai": "da-co"
     },
     {
      "ma": "khong-hanh-dong-neu-khong-bu-noi-chi-phi",
@@ -2108,6 +2116,406 @@
     "Khẳng định 'bot có lợi thế RẤT CAO ở LP, thấp ở lending/staking': là lập luận định vị, chưa có bằng chứng PnL. Không dùng làm lý do ưu tiên LP; ưu tiên vẫn phải do phép so lợi nhuận ròng trên rủi ro quyết định.",
     "Cách gọi lending/staking là 'safe' và 'double win' của khoá gốc: chính tác giả đã bác. Từ vựng nội bộ dùng 'độ phức tạp thấp hơn', 'thường rủi ro thấp hơn', không dùng 'an toàn'.",
     "Phần mô tả cơ chế PoS, validator, money market ở mức giáo trình: là kiến thức nền để hiểu, không sinh ra luật hay trường dữ liệu nào cho bảng vận hành."
+   ]
+  },
+  {
+   "ma": "khoa-hoc-lp-bai-8-liquidity-pools",
+   "ten": "Bài 8 — Liquidity Pools & Yield Farming",
+   "nguon": "Khoá DeFi (bài 8/8, nối tiếp Lesson 7 lending/staking) — bản bóc do chủ gửi 05/09/2026",
+   "ngay": "2026-09-06",
+   "bocBang": "agent riêng (claude CLI) 05/09/2026; người soát: agent chấm 14/14 «đã có» — sửa 13 chú thích, hạ 2 về nợ, thêm 1 quy tắc",
+   "tomTat": "Tác giả dạy LP như 'gửi hai coin vào pool để nhận APY', kèm cơ chế AMM x×y=k, ví dụ Impermanent Loss chuẩn về toán (1 ETH + 2.000 USDC, ETH ×2 → LP 5.657 vs HOLD 6.000, chênh 343 ≈ 5,72%), và yield farming là stake LP token để nhận thêm token incentive. Bản bóc phản biện lại nhiều chỗ: LP thực chất là làm market maker tự động, doanh thu đến từ chuỗi CAPITAL → MARKET-MAKING → TRADING FLOW → FEE REVENUE chứ không phải deposit → APY; và chi phí thật gồm cả LVR/adverse selection chứ không chỉ IL. Điểm sửa quan trọng nhất: 'fee > IL' là điều kiện đánh bại benchmark HOLD, không phải điều kiện có lãi USD, nên dashboard phải tách Absolute PnL và LP Alpha. Các heuristic của tác giả (TVL > 1 triệu, APY bền 5–30%, chỉ LP cặp ổn định, LP tự compound, LP luôn nhận LP token, IL chỉ thật khi rút) đều bị hạ xuống mức gợi ý cho người mới, không dùng làm luật cứng. Kết luận vận hành: xây hệ thống đo NET LP EDGE = phí thật + incentive chất lượng − LVR − IL/benchmark drag − chi phí, rồi so với baseline yield cộng phần bù rủi ro trước khi cấp vốn.",
+   "danhGia": {
+    "kyThuatLp": 3,
+    "quanLyVon": 2,
+    "tuDuyHeThong": 4,
+    "tradeDuoc": 3,
+    "giaTriChoHeThong": 5
+   },
+   "luanDiem": [
+    {
+     "cau": "LP không phải 'gửi hai coin nhận APY' mà là trở thành market maker tự động: bán thanh khoản cho trader, đổi lấy inventory risk, adverse selection/LVR và biến động giá.",
+     "loai": "nguyen-tac",
+     "ghi": "Là khung tư duy định nghĩa lại bản chất hoạt động, không có ngưỡng số để bác bỏ; giá trị của nó là quyết định hệ thống đo cái gì."
+    },
+    {
+     "cau": "Ví dụ IL: nạp 1 ETH ($2.000) + 2.000 USDC = $4.000; ETH ×2 thì HOLD = $6.000, LP constant-product ≈ 0,7071 ETH × $4.000 + 2.828 USDC ≈ $5.657, chênh $343 ≈ 5,72%.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Tính lại trực tiếp từ x×y=k: k = 1×2000, giá mới 4.000 → x = √(2000/4000) = 0,7071, y = 2.828. Kiểm bằng một hàm tính IL trong bảng, đối chiếu với công thức 2√r/(1+r) − 1 với r = 2 ra đúng −5,72%."
+    },
+    {
+     "cau": "'Fees must exceed IL to profit' là sai: LP $5.657 vẫn +$1.657 so với vốn $4.000 dù chưa tính fee; fee > IL là điều kiện đánh bại HOLD benchmark chứ không phải điều kiện có lãi USD tuyệt đối.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng chính con số của bài: absolute PnL và alpha vs HODL là hai phép trừ khác nhau, chỉ cần chạy lại ví dụ là thấy dấu ngược nhau (+41% absolute, −5,7% alpha)."
+    },
+    {
+     "cau": "IL đã tồn tại ngay khi vị thế đang mở; 'impermanent loss chỉ thành permanent khi withdraw' là hiểu nhầm — IL là opportunity loss so với HODL.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng cách mark-to-market vị thế mở hằng ngày và so với giá trị giỏ HODL cùng thời điểm; nếu chênh lệch khác 0 khi chưa rút thì mệnh đề của tác giả bị bác."
+    },
+    {
+     "cau": "Pool không tự cân bằng: arbitrageur mua tài sản rẻ trong pool và bán ngoài thị trường, chính flow arbitrage làm composition đổi, không có contract định kỳ đổi token cho LP.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng đọc code AMM (không có hàm rebalance nội sinh) và bằng log swap on-chain: mọi thay đổi composition đều gắn với một giao dịch swap của địa chỉ bên ngoài."
+    },
+    {
+     "cau": "Ngoài IL còn LVR: giá AMM trễ hơn giá thị trường nên một phần order flow là toxic; bài toán thật là FEES EARNED vs VALUE GIVEN AWAY TO ARBITRAGE/INFORMED FLOW.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng so PnL vị thế LP với PnL của danh mục rebalance liên tục theo giá CEX trên cùng chuỗi giá; phần chênh chính là LVR, ước lượng được từ dữ liệu giá và độ biến động."
+    },
+    {
+     "cau": "LP tương đương chiến lược BUY THE FALL / SELL THE RISE nên hợp thị trường đi ngang / hồi quy trung bình hơn thị trường xu hướng mạnh.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng backtest phân nhóm theo regime: so LP alpha trong giai đoạn range-bound và giai đoạn trend mạnh; nếu alpha không khác biệt theo regime thì mệnh đề yếu."
+    },
+    {
+     "cau": "Cặp biến động vẫn rất lợi nhuận nếu fee revenue >> LVR + IL effect + costs; volatility vừa tạo volume/fee vừa tăng adverse selection, nên phải xử lý như một trade-off chứ không phải điều xấu.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng chạy tỉ lệ phí trên LVR ước lượng cho từng nhóm cặp theo dải biến động; nếu tồn tại nhóm biến động cao có tỉ lệ ổn định trên 1 thì mệnh đề đúng."
+    },
+    {
+     "cau": "Golden equation: ORGANIC FEES + INCENTIVES − LVR − REBALANCING COST − GAS − SLIPPAGE − HEDGING COST − OTHER FRICTIONS = NET LP EDGE, rồi mới so với HOLD/STAKE/LEND.",
+     "loai": "nguyen-tac",
+     "ghi": "Là khung kế toán quy định cách cộng trừ, tự nó không sai/đúng theo dữ liệu; cái kiểm chứng được là từng số hạng, không phải phương trình."
+    },
+    {
+     "cau": "Stablecoin LP chỉ có IL ≈ 0 khi cả hai giữ peg; khi một đồng mất peg, arbitrageur mang đồng yếu vào lấy đồng mạnh ra và LP thành người ôm tài sản đang hỏng.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng dữ liệu lịch sử các đợt depeg (composition pool trước/sau sự kiện) và bằng chính công thức AMM với giá 0,70; đây là cơ chế bắt buộc, không phải dự đoán."
+    },
+    {
+     "cau": "Ngưỡng gợi ý cho depeg: lệch peg trên 1% là cảnh báo, trên 2% là giảm vị thế, vượt mức nguy hiểm là thoát/ngắt mạch.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Con số cụ thể nên kiểm bằng lịch sử: đếm số lần lệch 1%/2% rồi hồi phục so với số lần đi tiếp tới sụp; nếu tỉ lệ báo giả quá cao thì phải chỉnh ngưỡng, đừng dùng nguyên văn."
+    },
+    {
+     "cau": "'Fully passive once deposited' mâu thuẫn với 'requires monitoring' trong cùng bài; full-range tương đối ít quản lý còn concentrated liquidity làm tay thì không passive.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng đo số lần vị thế ra khỏi dải và số lần phải rebalance trong một tháng vận hành thật; số lần lớn hơn 0 là bác 'passive'."
+    },
+    {
+     "cau": "Không phải giao thức nào cũng tự cộng dồn phí; Uniswap v3 ghi nhận fee riêng và cần collect/reinvest hoặc dùng vault/manager, nên hệ thống phải có COMPOUND MODE theo từng protocol.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng đọc tài liệu/hợp đồng từng giao thức và quan sát số dư fee chưa thu; đây là sự thật kỹ thuật, xác minh một lần cho mỗi giao thức."
+    },
+    {
+     "cau": "LP hiện đại quản lý POSITION chứ không chỉ POOL SHARE: hai dải khác nhau không biểu diễn được bằng cùng một fungible LP token.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng chính chuẩn token: v2 trả ERC-20 chia sẻ pool, v3 trả NFT theo dải; nhìn on-chain là xong."
+    },
+    {
+     "cau": "Displayed APY 36% thực chất là ba chất lượng lợi suất khác nhau: organic fees 12% + protocol incentive 18% + partner incentive 6%.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng phân rã nguồn từ dữ liệu giao thức: phí swap thu được trên TVL so với giá trị token phát thưởng; hai nguồn này lấy từ hai chỗ khác nhau nên tách được."
+    },
+    {
+     "cau": "Pool trả APY chủ yếu bằng emission có thể đang 'mua TVL': in token → APY tăng → TVL tăng; khi incentive giảm thì LP rút, thanh khoản giảm, volume có thể giảm theo.",
+     "loai": "narrative",
+     "ghi": "Vòng nhân quả này hợp lý và có ví dụ, nhưng ở dạng câu chuyện chung; muốn dùng phải chuyển thành các số đo rời (tỉ lệ phí hữu cơ, lịch giảm phát thưởng, thanh khoản token thưởng) rồi mới kiểm được."
+    },
+    {
+     "cau": "'Sustainable APY thường 5–30%' không được thành luật vì phụ thuộc chain, cặp, biến động, fee tier, độ rộng dải, volume, TVL, regime, incentives.",
+     "loai": "nguyen-tac",
+     "ghi": "Đây là lệnh cấm đóng khung bằng con số, thuộc loại nguyên tắc thiết kế; câu hỏi thay thế là mỗi 1% lợi suất đến từ đâu."
+    },
+    {
+     "cau": "'TVL > $1M' quá thô; cần VOLUME/TVL và với concentrated liquidity cần ACTIVE LIQUIDITY chứ không chỉ tổng TVL.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng ví dụ trong bài: cùng volume $10M/ngày và fee 0,3%, TVL $100M cho 0,03%/ngày còn TVL $5M cho 0,6%/ngày — số học đơn giản, tính lại được."
+    },
+    {
+     "cau": "Dải càng hẹp thì mật độ thanh khoản và phí thu trên mỗi đô càng cao, nhưng xác suất ra khỏi dải, số lần rebalance, gas và adverse selection đều tăng — không phải càng hẹp càng tốt.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng quét độ rộng dải trên dữ liệu lịch sử: vẽ phí thu và tổng chi phí theo độ rộng, tìm điểm tối ưu thay vì giả định."
+    },
+    {
+     "cau": "Fee Coverage Ratio = ORGANIC FEES / (LP LOSSES + COSTS); ví dụ 500 / (280 + 40 + 60) = 1,32, dưới 1 nghĩa là chiến lược không tạo đủ phí để trả lực cản.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Là phép chia trên các số đã có trong báo cáo; kiểm bằng cách tính lại từ sổ phí thu, ước lượng IL/LVR và chi phí gas/rebalance thực tế."
+    },
+    {
+     "cau": "LP Alpha = LP TOTAL RETURN − CORRECT BENCHMARK RETURN (ví dụ 24% − 19% = +5%), trả lời 'làm LP có đáng không' chứ không phải 'tôi kiếm 24%'.",
+     "loai": "nguyen-tac",
+     "ghi": "Là quy ước chọn thước đo; phần kiểm chứng nằm ở chỗ benchmark có đúng giỏ tài sản ban đầu hay không, chứ bản thân định nghĩa không bị dữ liệu bác."
+    },
+    {
+     "cau": "LP chỉ đáng làm khi NET LP EDGE > BASELINE YIELD + LP RISK PREMIUM (lending 5% + premium 4% = hurdle 9%; net 7% thì không LP, 18% thì đáng xem xét).",
+     "loai": "nguyen-tac",
+     "ghi": "Quy tắc so sánh cơ hội vốn; con số premium 4% là lựa chọn của người vận hành nên không kiểm chứng được, chỉ có phần lợi suất baseline là đo được."
+    },
+    {
+     "cau": "'DEX không có order book' chỉ đúng với AMM như Uniswap/Curve; vẫn có DEX dùng CLOB, RFQ hoặc hybrid.",
+     "loai": "kiem-chung-duoc",
+     "ghi": "Kiểm bằng liệt kê sàn phi tập trung dùng sổ lệnh/RFQ; chỉ cần một ví dụ tồn tại là bác được khẳng định tổng quát của tác giả."
+    }
+   ],
+   "quyTac": [
+    {
+     "ma": "hai-loai-pnl-bat-buoc",
+     "cau": "LUÔN báo song song hai con số cho mỗi vị thế LP: lãi lỗ tuyệt đối (giá trị cuối − vốn vào) và alpha so với giữ nguyên giỏ ban đầu; KHÔNG kết luận 'đang xanh' chỉ dựa vào một trong hai.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "pnlTuyetDoiUsd",
+       "alphaSoHoldUsd",
+       "tachLoiNhuan",
+       "mocSoSanh"
+      ]
+     },
+     "ghi": "Agent gắn `pnlUocUsd` — đó là phí + IL, KHÔNG phải PnL tuyệt đối. Bài 8 thêm `pnlTuyetDoiUsd` = giá trị + phí − vốn cho từng vị thế (không cần giá mở) và tổng ở vốn LP, đứng CẠNH alpha so HOLD trên thẻ vị thế và bảng doanh nghiệp nhỏ. Vị thế đọc từ chuỗi: vốn = giá trị lúc máy thấy lần đầu — số này tính từ đó."
+    },
+    {
+     "ma": "phan-ra-loi-suat-truoc-khi-cap-von",
+     "cau": "KHÔNG cấp vốn cho pool khi chưa tách được lợi suất hiển thị thành phí hữu cơ và phần thưởng token; mỗi 1% lợi suất phải chỉ được nguồn.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "tiLeHuuCo",
+       "apyTach",
+       "tinCay",
+       "khoaVao"
+      ]
+     },
+     "ghi": "Cửa thật là ĐỘ TIN CẬY: APY còn là «hiển thị» (chưa tách phí/thưởng bằng khối lượng thật) bị phạt −0,30 trong `_tin_cay`, và tinCay < 0,60 thì `khoaVao` khoá nút VÀO. `tiLeHuuCo` là phần phí thật trên tổng. Không phải sanLpPct/netNamPct như agent gắn."
+    },
+    {
+     "ma": "khong-san-apy-cao-nhat",
+     "cau": "KHÔNG xếp pool theo lợi suất hiển thị giảm dần rồi vào cái cao nhất; LUÔN chạy đủ chuỗi phân rã lợi suất, ước lực cản, chi phí, benchmark rồi mới xét cấp vốn.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "diem",
+       "netBps",
+       "hanhDongNgay"
+      ]
+     },
+     "ghi": "Radar xếp theo `netBps` (can_tat_ca) và điểm 0–100 (`diem` = phí/LVR, tin cậy, P(văng)…), không theo APY hiển thị; APY chỉ là một cột. Bỏ gắn sanLpPct/hieuQuaVon — không phải trục xếp hạng."
+    },
+    {
+     "ma": "phi-phai-bu-luc-can",
+     "cau": "KHÔNG giữ vị thế khi phí hữu cơ thu được không bù nổi tổng lực cản (IL/LVR + gas + chi phí cân lại); tỉ lệ bù dưới 1 thì giảm hoặc rút.",
+     "gan": {
+      "luat": [
+       "phi-duoi-lvr"
+      ],
+      "nut": [
+       "tiLePhiTrenLvrToiThieu"
+      ],
+      "truong": [
+       "doPhuPhi",
+       "tiLePhiTrenLvr",
+       "netBps",
+       "ilKyVongBps"
+      ]
+     },
+     "ghi": "Bài 8 thêm ĐỘ PHỦ PHÍ đúng nghĩa Fee Coverage Ratio: kỳ vọng = (phí + thưởng)/(|IL kỳ vọng| + gas) trong `can_dai`; thực = phí chưa thu/(|IL| + gas ước) ở bảng doanh nghiệp nhỏ. LVR không cộng vào mẫu — nó và IL kỳ vọng đo cùng một mất mát, cộng cả hai là đếm đôi; dưới 1× ⇔ NET < 0. Chi phí cân lại chưa có sổ riêng."
+    },
+    {
+     "ma": "vuot-nguong-lai-nen-moi-lp",
+     "cau": "CHỈ cấp vốn LP khi lợi suất ròng ước tính vượt lãi nền cộng phần bù rủi ro; KHÔNG vào chỉ vì lợi suất LP cao hơn con số danh nghĩa của lending.",
+     "gan": {
+      "luat": [
+       "phi-goc-duoi-lai-nen"
+      ],
+      "nut": [],
+      "truong": [
+       "laiSuatNen",
+       "netNamPct",
+       "sanLpPct",
+       "mocSoSanh"
+      ]
+     },
+     "ghi": "Agent nói «không có núm bù rủi ro» — có: `phanBuRuiRoPct` (3%/năm, Bài 7) trong CONFIG nut. Luật so NET năm hoá với lãi nền + bù, chỉ khi mốc là bảo toàn USD; chưa khai lãi nền thì luật im và câu «vốn chờ» nói thẳng. `phanBuRuiRoPct` KHÔNG nằm trong NUT_VAN (vòng tiến hoá không được vặn phần bù rủi ro — replay sẽ kéo nó về 0 vì bù thấp = vào nhiều hơn) và cũng chưa khai ở CUA_AN_TOAN: khoảng trống phân loại, ghi lại."
+    },
+    {
+     "ma": "canh-bao-mat-peg-stable",
+     "cau": "KHI một đồng trong cặp ổn định lệch peg quá ngưỡng cảnh báo thì giảm vị thế, vượt ngưỡng nguy hiểm thì thoát; KHÔNG coi cặp stable là cặp an toàn mặc định.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Agent gắn gia-cu/sat-su-kien là gượng — hai luật ấy đọc tuổi giá và lịch sự kiện, không đọc neo. Ty chưa có NGUỒN giá USDG/USD (oracle hay pool USDG/USDT trên X Layer); USDG chỉ đứng trong chuỗi phụ thuộc với vai «mất neo là IL thật» và danh bạ bắt USDG giả. Ngưỡng 1%/2%/ngắt là điểm khởi đầu, phải soi lịch sử trước. Nợ. Trường liên quan: chuoiPhuThuoc, danhBaToken (kê ở đây, không gắn — gắn là bị tính đã có).",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "do-thanh-khoan-hieu-dung",
+     "cau": "KHÔNG chọn pool bằng tổng vốn khoá; LUÔN đo volume trên vốn và với thanh khoản tập trung thì đo phần thanh khoản đang hoạt động trong dải.",
+     "gan": {
+      "luat": [
+       "tvl-mong"
+      ],
+      "nut": [],
+      "truong": [
+       "vongQuay",
+       "sucChuaUsd"
+      ]
+     },
+     "ghi": "`vongQuay` = khối lượng ngày / TVL; thanh khoản HOẠT ĐỘNG đọc thật qua `liquidity()` RPC và chia phần (`phan_chia_thanh_khoan`) khi có địa chỉ pool — không dùng TVL tổng. Bỏ dai-qua-rong/heSoDai — chuyện độ rộng dải, không phải chuyện chọn pool."
+    },
+    {
+     "ma": "chon-do-rong-dai-theo-chi-phi",
+     "cau": "KHÔNG mặc định chọn dải hẹp nhất; chọn độ rộng sao cho phí thu thêm còn lớn hơn chi phí ra khỏi dải, gas và số lần cân lại tăng thêm.",
+     "gan": {
+      "luat": [
+       "dai-qua-rong",
+       "ngoai-dai",
+       "van-dai-cao"
+      ],
+      "nut": [
+       "heSoDai"
+      ],
+      "truong": [
+       "hieuQuaVon",
+       "netBps",
+       "lvrBps",
+       "doOnDinhDongTien"
+      ]
+     },
+     "ghi": "`tim_dai` bắt đầu ở heSoDai rồi NỚI ×1,25 tới khi P(văng) dưới trần; `can_dai` tính gas theo bps vốn nên dải hẹp hơn không tự thắng. Ba luật van-dai-cao/dai-qua-rong/ngoai-dai canh hai phía. Chưa có quét độ rộng theo phí − chi phí lịch sử (vòng tiến hoá A/B mới làm được)."
+    },
+    {
+     "ma": "khong-lp-khi-xu-huong-manh",
+     "cau": "GIẢM hoặc KHÔNG mở vị thế LP hai chiều khi thị trường đang xu hướng một chiều mạnh; ưu tiên LP khi giá dao động trong biên.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": []
+     },
+     "ghi": "Agent tự nhận gắn qua P(văng) là gần đúng, không phải bộ lọc regime — đúng, nên KHÔNG tính đã có. Bài 8 thêm thước `xuHuong` (z = lợi suất 20 phiên / σ·√(20/252); |z| > 2 là mạnh) vào biến động, CHỈ ĐO: chưa có luật đọc, vì chưa có mẫu cho thấy alpha LP âm ở chế độ mạnh trên chính pool này. Đo trước, canh sau. Trường liên quan: xuHuong (kê ở đây, không gắn — gắn là bị tính đã có).",
+     "trangThai": "thieu-phep-canh"
+    },
+    {
+     "ma": "che-do-gop-lai-theo-giao-thuc",
+     "cau": "LUÔN ghi rõ chế độ gộp lãi của từng giao thức (tự động / thủ công / qua vault ngoài / không hỗ trợ) trước khi tính lợi suất kép; KHÔNG mặc định phí tự cộng dồn.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "gopLai",
+       "phiChoThuUsd",
+       "apyLaLaiKep"
+      ]
+     },
+     "ghi": "Bài 8 thêm `gopLai` = {cheDo: tay} ở mục ví và một dòng giả định: Uniswap V3 ghi phí riêng trên NFT, phải collect rồi tự thêm — máy chỉ đo phí chưa thu. `apyLaLaiKep` là chuyện đọc APY của OKX, không phải gộp lãi."
+    },
+    {
+     "ma": "so-theo-tung-vi-the",
+     "cau": "LƯU và theo dõi theo từng vị thế có dải riêng, KHÔNG gộp chung thành một tỉ lệ sở hữu pool; mỗi vị thế có sổ dải, phí và chi phí riêng.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "vi",
+       "vonLp",
+       "business"
+      ]
+     },
+     "ghi": "`SoViThe` mỗi vị thế một mã (ghi tay) hoặc `nft-<tokenId>` (đọc chuỗi), dải/phí/uptime riêng; bảng doanh nghiệp nhỏ mỗi vị thế một dòng. Bỏ gắn khoaVao/danhBaToken/hopDongDaXacMinh — không liên quan."
+    },
+    {
+     "ma": "canh-truc-dai-phai-tinh-chi-phi",
+     "cau": "KHÔNG cân lại dải chỉ vì giá lệch khỏi tâm; chỉ cân lại khi phí kỳ vọng thu thêm lớn hơn gas cộng chi phí trượt giá của lần cân đó.",
+     "gan": {
+      "luat": [
+       "ngoai-dai",
+       "ngoai-gio-khong-doi-dai",
+       "gap-mo-cua"
+      ],
+      "nut": [
+       "giuGio"
+      ],
+      "truong": [
+       "netBps",
+       "khoangCachMepPct"
+      ]
+     },
+     "ghi": "Đúng một nửa: `ngoai-dai` chỉ kêu ĐỔI DẢI khi phí/LVR còn tốt, còn không thì RÚT; ngoài giờ và sát mở cửa cấm đổi. Nhưng «phí thêm của dải mới > gas + trượt lần này» chưa là một phép so tường minh — gas nằm trong netBps của dải mới, trượt giá chưa đo. `khoangCachMepPct` cho thấy sắp văng trước khi văng."
+    },
+    {
+     "ma": "khong-dung-nguong-apy-cung",
+     "cau": "KHÔNG dùng bất kỳ luật cứng nào kiểu 'lợi suất trong khoảng này là tốt, trên mức này là xấu'; đánh giá bằng nguồn lợi suất và lợi suất ròng sau lực cản.",
+     "gan": {
+      "luat": [],
+      "nut": [],
+      "truong": [
+       "tiLeHuuCo",
+       "netNamPct",
+       "sanLpPct"
+      ]
+     },
+     "ghi": "Đúng theo cấu tạo: SO_LUAT không có luật nào đọc APY tuyệt đối; mọi cửa đi qua phí/LVR, NET, tin cậy, lãi nền. Bỏ gắn baiHoc — không phải chỗ giữ lệnh cấm."
+    },
+    {
+     "ma": "chuan-bi-truoc-khi-vao-pool",
+     "cau": "KHÔNG vào pool khi chưa xác minh hợp đồng, chưa đủ dữ liệu lịch sử để ước lực cản, hoặc thưởng sắp hết hạn trong kỳ nắm giữ dự kiến.",
+     "gan": {
+      "luat": [
+       "chua-du-so",
+       "vao-duoc",
+       "sap-het-thuong",
+       "khong-sigma"
+      ],
+      "nut": [],
+      "truong": [
+       "hopDongDaXacMinh",
+       "dieuKien",
+       "thuong",
+       "tinCay",
+       "anToan"
+      ]
+     },
+     "ghi": "khong-sigma/chua-du-so chặn khi thiếu σ; sap-het-thuong khi thưởng hết trong cửa sổ giữ; hợp đồng đã xác minh ở `hopDongDaXacMinh`. Đủ."
+    },
+    {
+     "ma": "do-uptime-va-khoang-cach-mep",
+     "cau": "LUÔN đo tỉ lệ thời gian thật vị thế nằm trong dải (uptime) và khoảng cách tới mép gần nhất; uptime thấp kéo dài là dải sai hệ số, KHÔNG bù bằng cân lại dày.",
+     "gan": {
+      "luat": [
+       "ngoai-dai",
+       "van-dai-cao"
+      ],
+      "nut": [
+       "heSoDai"
+      ],
+      "truong": [
+       "uptimeDaiPct",
+       "khoangCachMepPct",
+       "xacSuatVang"
+      ]
+     },
+     "ghi": "Người soát thêm (agent bỏ qua dù bài kê RANGE UPTIME và DISTANCE TO EDGE ở §26). Bộ đếm `uptime-dai.json`: mỗi lượt quét một mẫu trong/ngoài cho từng vị thế, không đoán khi thiếu giá. Đây là thước Bài 2 khai nợ — nay trả."
+    }
+   ],
+   "cauHoiChoHeThong": [
+    "Với mỗi vị thế đang mở, lãi lỗ tuyệt đối và alpha so với giữ nguyên giỏ ban đầu hiện là bao nhiêu, và benchmark đang dùng là giỏ nào?",
+    "Trong lợi suất hiển thị của pool này, bao nhiêu phần trăm là phí swap thật và bao nhiêu là phần thưởng token?",
+    "Phần thưởng token của pool còn chạy bao lâu, lịch giảm phát thưởng ra sao, và token thưởng có đủ thanh khoản để bán ra không?",
+    "Tỉ lệ phí thu được trên tổng lực cản (mất cho arbitrage + gas + chi phí cân lại) của vị thế này đang là bao nhiêu, đang tăng hay giảm?",
+    "Vốn này nếu để ở lãi nền thì được bao nhiêu, và lợi suất ròng ước tính của vị thế LP có vượt mức đó cộng phần bù rủi ro không?",
+    "Vị thế đã ở trong dải bao nhiêu phần trăm thời gian, hiện cách mép dải bao xa, và đã tốn bao nhiêu cho các lần cân lại?",
+    "Volume trên vốn của pool này là bao nhiêu, và với thanh khoản tập trung thì phần thanh khoản thật sự đang hoạt động trong dải là bao nhiêu?",
+    "Mỗi đồng ổn định trong danh mục hiện lệch peg bao nhiêu, và ngưỡng nào đang kích hoạt giảm hay thoát?",
+    "Giao thức này gộp lãi theo chế độ nào, và hiện có bao nhiêu phí đã sinh mà chưa thu về?",
+    "Thị trường đang ở chế độ dao động hay xu hướng mạnh, và trong chế độ đó alpha LP lịch sử là dương hay âm?",
+    "Nếu bỏ toàn bộ phần thưởng token, vị thế này có còn vượt rào lợi suất không?"
+   ],
+   "khongLay": [
+    "Luật 'chỉ LP khi TVL trên 1 triệu đô' — chỉ là ngưỡng thô cho người mới, bỏ sót pool nhỏ nhưng hiệu quả vốn cao và bỏ lọt pool lớn nhưng phí trên vốn cực thấp; thay bằng đo volume trên vốn.",
+    "Luật 'APY bền là 5–30%, trên 30% là xấu' — con số không có cơ sở chung, thay đổi theo chain, cặp, biến động và fee tier; thay bằng câu hỏi mỗi 1% đến từ đâu.",
+    "Luật 'chỉ LP các token tương đối ổn định với nhau' — đúng cho người mới nhưng loại bỏ nhóm cặp biến động vẫn có lời khi phí lớn hơn nhiều lực cản; giữ lại làm mặc định thận trọng, không làm luật cứng.",
+    "Câu 'fee phải lớn hơn IL thì mới có lãi' — sai về kế toán, sẽ khiến hệ thống đóng nhầm các vị thế đang dương tuyệt đối; chỉ giữ đúng nghĩa là điều kiện thắng benchmark.",
+    "Câu 'IL chỉ thành thật khi rút vốn' — sẽ dẫn tới việc trì hoãn cắt lỗ vì tưởng chưa lỗ; hệ thống luôn định giá lại theo thị trường.",
+    "Câu 'pool tự cân bằng cho bạn' — mô tả sai cơ chế, nếu tin thì sẽ không mô hình hoá phần giá trị mất cho arbitrage.",
+    "Câu 'LP tự động cộng dồn phí' và 'nạp vào là nhận LP token' — chỉ đúng với AMM đời cũ, sai với vị thế theo dải, sẽ làm sai cả kế toán lợi suất lẫn cấu trúc dữ liệu.",
+    "Câu 'nạp xong là hoàn toàn thụ động' — mâu thuẫn ngay trong bài và sai với thanh khoản tập trung.",
+    "Câu 'cặp stablecoin là cặp an toàn' — bỏ qua rủi ro mất peg vốn là rủi ro lớn nhất của nhóm này.",
+    "Câu 'DEX không có sổ lệnh' — sai ở dạng khẳng định tổng quát, không ảnh hưởng vận hành LP nhưng không nên ghi thành sự thật nền.",
+    "Hứa hẹn lợi suất và cách trình bày kiểu 'trở thành sàn giao dịch, thu phí thụ động' — narrative bán khoá học, không phải tham số vận hành.",
+    "Ngưỡng depeg 1%/2% ghi nguyên văn — giữ làm điểm khởi đầu để hiệu chỉnh, không đưa thẳng thành luật cứng khi chưa soi lại lịch sử các đợt mất peg."
    ]
   }
  ]

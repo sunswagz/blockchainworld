@@ -67,7 +67,11 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
     viTheDs = []
     for c in co:
         for v in c.viThe:
-            viTheDs.append({"kyHieu": c.kyHieu, **v.tom_tat()})
+            x = {"kyHieu": c.kyHieu, **v.tom_tat()}
+            # Bài 8 §26: RANGE UPTIME — tỉ lệ mẫu thật trong dải, từ bộ đếm của ty
+            x["uptimeDai"] = (ty.uptime_dai((x.get("viThe") or {}).get("ma"))
+                              if hasattr(ty, "uptime_dai") else None)
+            viTheDs.append(x)
     return {
         "hanhDongNgay": _hanh_dong_ngay(co, pools, bc, thuong),
         "vonLp": _von_lp(viTheDs, cfg, ty),
@@ -97,6 +101,8 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
              if cfg.get("apyLaLaiKep", True) else "APY OKX coi là APR đơn (apyLaLaiKep=false)"),
             "P(văng) là CẬN TRÊN; τ đếm theo ngày giao dịch Mỹ, phần trôi "
             "ngoài giờ trên chuỗi CHƯA đo",
+            "phí KHÔNG tự gộp (Uniswap V3 ghi riêng trên NFT, phải collect) — "
+            "lãi kép là việc người làm tay, máy chỉ đo phí chưa thu",
         ],
         "tomTatHanhDong": {k: v for k, v in hanhDong.items()},
         "pool": pools,
@@ -220,7 +226,13 @@ def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
         ilv = tach.get("ilUsd") if tach else (
             (tt["ilPct"] / 100.0 * float(vt["vonUsd"])) if (tt.get("ilPct") is not None and vt.get("vonUsd")) else None)
         rong = None if (phi is None and ilv is None) else (phi or 0.0) + (ilv or 0.0) - gasUoc
+        # Bài 8 §27: ĐỘ PHỦ PHÍ THỰC = phí / (|IL| + gas) — None khi chưa biết IL
+        canTru = None if ilv is None else abs(ilv) + gasUoc
         business.append({
+            "pnlTuyetDoiUsd": tt.get("pnlTuyetDoiUsd"),
+            "khoangCachMepPct": tt.get("khoangCachMepPct"),
+            "uptimeDaiPct": (v.get("uptimeDai") or {}).get("pct"),
+            "doPhuPhi": ((phi or 0.0) / canTru) if (canTru is not None and canTru > 0) else None,
             "kyHieu": v.get("kyHieu"), "tokenId": vt.get("tokenId"), "nguon": vt.get("nguon"),
             "vonUsd": vt.get("vonUsd"), "doanhThuUsd": phi, "ilUsd": ilv, "gasUocUsd": gasUoc,
             "loiNhuanRongUsd": rong,
@@ -288,6 +300,9 @@ def _von_lp(viThe: list, cfg: dict | None = None, ty=None) -> dict:
             "business": business,
             "alphaSoHoldUsd": (sum(b["alphaSoHoldUsd"] for b in business if b["alphaSoHoldUsd"] is not None)
                                if any(b["alphaSoHoldUsd"] is not None for b in business) else None),
+            # Bài 8 §6: PnL tuyệt đối đứng CẠNH alpha, không thay nhau
+            "pnlTuyetDoiUsd": (sum(b["pnlTuyetDoiUsd"] for b in business if b["pnlTuyetDoiUsd"] is not None)
+                               if any(b["pnlTuyetDoiUsd"] is not None for b in business) else None),
             "dongTienUocThangUsd": dongUoc,
             "dongTienDaVeTayThangUsd": daVeTay,
             "dongTienTheoThang": theoThang,
@@ -602,6 +617,7 @@ def _mot_pool(c) -> dict:
                     "ilKyVongBps": kd.ilKyVongBps, "lvrBps": kd.lvrBps,
                     "phiBps": kd.phiBps, "thuongBps": kd.thuongBps,
                     "netBps": kd.netBps, "tiLePhiTrenLvr": kd.tiLePhiTrenLvr,
+                    "doPhuPhi": kd.doPhuPhi,
                     "giuGio": c.pool.get("giuGio"), "ghiChu": list(kd.ghiChu)}
     return d
 

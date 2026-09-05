@@ -19,7 +19,7 @@
    {
     "ten": "Sàn cổ phiếu Mỹ mở",
     "dat": false,
-    "ghi": "mở sau 70.8 giờ"
+    "ghi": "mở sau 68.2 giờ"
    },
    {
     "ten": "Giá chuỗi lệch giá gốc < 1,5%",
@@ -28,7 +28,7 @@
    },
    {
     "ten": "Phí/LVR đạt ngưỡng ở ít nhất một pool",
-    "dat": true,
+    "dat": false,
     "ghi": ""
    },
    {
@@ -47,9 +47,10 @@
     "ghi": ""
    }
   ],
-  "soDat": 4,
+  "soDat": 3,
   "soDieuKien": 6,
-  "viTheGap": []
+  "viTheGap": [],
+  "noiDauVon": "vốn chờ: chưa khai lãi cho vay nền nên máy không biết bãi đỗ trả bao nhiêu — khai ở Kết nối & dữ liệu để LP có giá sàn phải vượt"
  },
  "vonLp": {
   "soViThe": 0,
@@ -57,8 +58,111 @@
   "phiChoThuUsd": null,
   "ilUsd": null,
   "pnlUocUsd": null,
-  "trongDai": 0
+  "trongDai": 0,
+  "hieuQuaVon": [],
+  "business": [],
+  "alphaSoHoldUsd": null,
+  "pnlTuyetDoiUsd": null,
+  "dongTienUocThangUsd": null,
+  "dongTienDaVeTayThangUsd": null,
+  "dongTienTheoThang": [
+   {
+    "thang": "2026-04",
+    "usd": null
+   },
+   {
+    "thang": "2026-05",
+    "usd": null
+   },
+   {
+    "thang": "2026-06",
+    "usd": null
+   },
+   {
+    "thang": "2026-07",
+    "usd": null
+   },
+   {
+    "thang": "2026-08",
+    "usd": null
+   },
+   {
+    "thang": "2026-09",
+    "usd": null
+   }
+  ],
+  "dongTienTruot6ThangUsd": null,
+  "doOnDinhDongTien": null,
+  "chiPhiThangUsd": null,
+  "diemTuDo": null,
+  "coSoTuDo": null,
+  "giaiDoanTuDo": null
  },
+ "mucTieu": {
+  "chiPhiThangUsd": null,
+  "taiSanUuTien": [],
+  "sutVonChiuDuocPct": null,
+  "khongDonBay": true
+ },
+ "laiSuatNen": {
+  "pct": null,
+  "taiSan": "USDG",
+  "nguon": "",
+  "ngay": ""
+ },
+ "anToan": {
+  "khongGiuKhoa": true,
+  "khongKyLenh": true,
+  "khongVay": true,
+  "viChiDoc": false,
+  "soQuyenDaDoc": 0,
+  "quyenVoHan": [],
+  "soQuyenVoHan": 0,
+  "quyenConHieuLuc": [],
+  "nguoiTieuLaChuaDoc": true,
+  "tokenLa": [],
+  "danhBaToken": {
+   "USDG": {
+    "diaChi": "0x4ae46a509f6b1d9056937ba4500cb143933d2dc8",
+    "thapPhan": 6,
+    "nguon": "đọc từ pool Uniswap V3 trên X Layer 05/09/2026"
+   }
+  },
+  "hopDongDaXacMinh": [
+   {
+    "ten": "Uniswap V3 NonfungiblePositionManager (X Layer)",
+    "diaChi": "0x315e413A11AB0df498eF83873012430ca36638Ae",
+    "xacMinh": "name()=Uniswap V3 Positions NFT-V1, factory khớp, 05/09/2026"
+   }
+  ],
+  "canhBao": []
+ },
+ "chuoiPhuThuoc": [
+  {
+   "lop": "X Layer",
+   "vai": "chuỗi (zkEVM của OKX) — RPC công cộng, sequencer"
+  },
+  {
+   "lop": "Uniswap V3",
+   "vai": "AMM giữ vốn suốt thời gian trong pool"
+  },
+  {
+   "lop": "USDG",
+   "vai": "đồng neo USD (Paxos) — mất neo là IL thật"
+  },
+  {
+   "lop": "token cổ phiếu (xStocks)",
+   "vai": "tổ chức phát hành bảo chứng 1:1 — rủi ro phát hành, tạm ngưng"
+  },
+  {
+   "lop": "OKX DeFi",
+   "vai": "giao diện thêm/rút; chương trình thưởng chia off-chain"
+  },
+  {
+   "lop": "Yahoo · RPC",
+   "vai": "nguồn giá gốc và giá pool — mù thì máy mù"
+  }
+ ],
  "cheDoRuiRo": {
   "ma": "THAN_TRONG",
   "ten": "THẬN TRỌNG",
@@ -67,16 +171,16 @@
   ]
  },
  "tinAnhHuong": [],
- "luc": "2026-09-05T21:43:33.707211+07:00",
- "lucVn": "21:43 05/09/2026",
+ "luc": "2026-09-06T00:19:21.152825+07:00",
+ "lucVn": "00:19 06/09/2026",
  "phien": {
-  "luc": "2026-09-05T21:43:33.707211+07:00",
+  "luc": "2026-09-06T00:19:21.152825+07:00",
   "trangThai": "CUOI_TUAN",
   "phienKe": [
    "2026-09-08T20:30:00+07:00",
    "2026-09-09T03:00:00+07:00"
   ],
-  "gioToiMo": 70.77397021916667,
+  "gioToiMo": 68.17745754861112,
   "gioToiDong": null,
   "lichConHan": true,
   "suKien": [
@@ -103,20 +207,20 @@
  "thuong": {
   "ten": "$220K Rewards for X Layer Liquidity Providers",
   "ketThuc": "2026-09-07 14:00",
-  "conGio": 40.273970219166664,
+  "conGio": 37.67745754861111,
   "luat": "thưởng chia theo GIỜ theo tỉ lệ phí; đổi vị thế lúc chụp ngẫu nhiên là mất thưởng giờ ấy; phải thêm thanh khoản qua trang OKX, không qua Uniswap",
   "quyMoiGioUsd": 654.7619047619048,
-  "thuongMoiGioSuyTuApyUsd": 311.46591904109584,
-  "kiemCheo": "APY hiển thị của 9 pool đang theo suy ra $311/giờ thưởng, quỹ là $655/giờ → 48% quỹ nằm ở các pool này (phần còn lại ở pool khác, hoặc APY hiển thị KHÔNG phải toàn thưởng)"
+  "thuongMoiGioSuyTuApyUsd": 168.01027333726103,
+  "kiemCheo": "APY hiển thị của 9 pool đang theo suy ra $168/giờ thưởng, quỹ là $655/giờ → 26% quỹ nằm ở các pool này (phần còn lại ở pool khác, hoặc APY hiển thị KHÔNG phải toàn thưởng)"
  },
  "cheDo": {
   "ma": "CAMPAIGN_HUNTER",
   "ten": "Săn chương trình thưởng",
-  "loiKhuyen": "Thưởng còn 40 giờ. Không đuổi APY hiển thị; thu số từng giờ, chỉ vào cỡ THỬ ở pool có phí/LVR đủ, hạn chế đổi dải vì OKX chụp ngẫu nhiên — đổi lúc chụp là mất thưởng giờ ấy. Tới giờ hết: thu phí, rồi cân lại bằng phí gốc."
+  "loiKhuyen": "Thưởng còn 38 giờ. Không đuổi APY hiển thị; thu số từng giờ, chỉ vào cỡ THỬ ở pool có phí/LVR đủ, hạn chế đổi dải vì OKX chụp ngẫu nhiên — đổi lúc chụp là mất thưởng giờ ấy. Tới giờ hết: thu phí, rồi cân lại bằng phí gốc."
  },
  "thiTruongGoc": {
   "trangThai": "DONG",
-  "cau": "Sàn Mỹ ĐÓNG (mở lại sau 71 giờ) trong khi token giao dịch 24/7 → giá chuỗi không neo, rủi ro khoảng trống ↑, tin cậy dải ↓ — KHÔNG vào mới, KHÔNG đổi dải",
+  "cau": "Sàn Mỹ ĐÓNG (mở lại sau 68 giờ) trong khi token giao dịch 24/7 → giá chuỗi không neo, rủi ro khoảng trống ↑, tin cậy dải ↓ — KHÔNG vào mới, KHÔNG đổi dải",
   "ruiRo": [
    "gia-chuoi-khong-neo",
    "khoang-trong-mo-cua",
@@ -135,17 +239,17 @@
    {
     "moc": "sang",
     "luc": "2026-09-06T07:00:00+07:00",
-    "conGio": 9.273970219166667
+    "conGio": 6.677457548611111
    },
    {
     "moc": "truoc-mo",
     "luc": "2026-09-08T19:30:00+07:00",
-    "conGio": 69.77397021916667
+    "conGio": 67.17745754861112
    },
    {
     "moc": "sau-dong",
     "luc": "2026-09-09T03:30:00+07:00",
-    "conGio": 77.77397021916667
+    "conGio": 75.17745754861112
    }
   ]
  },
@@ -153,6 +257,11 @@
   "diaChi": null,
   "quanLyViThe": null,
   "quanLyViTheDangDung": null,
+  "gopLai": {
+   "cheDo": "tay",
+   "giaoThuc": "Uniswap V3 (X Layer)",
+   "ghi": "phí ghi riêng theo NFT, phải collect rồi tự thêm thanh khoản; máy chỉ đo phí chưa thu"
+  },
   "macDinh": "0x315e413A11AB0df498eF83873012430ca36638Ae",
   "txMau": null,
   "loi": null,
@@ -172,6 +281,234 @@
    "treTrungBinhMs": null,
    "songSot": false
   }
+ },
+ "triThuc": {
+  "soBai": 8,
+  "demQuyTac": {
+   "da-co": 87,
+   "thieu-phep-canh": 7,
+   "y-tuong": 4
+  },
+  "moCoi": [],
+  "chuaGan": [
+   {
+    "bai": "Bài 1 — Từ thu nhập tới tài sản tạo dòng tiền (mở đầu khoá học LP)",
+    "ma": "tai-dau-tu-theo-quy-tac",
+    "cau": "Lợi nhuận đã chốt chia ba: dự phòng · vốn nền · cơ hội tốt nhất; thị trường xấu thì về dự phòng; sụt vốn quá trần thì tắt lãi kép.",
+    "ghi": "y tưởng snowball có kiểm soát — thuộc Trung Ương (Phân Bổ, Rủi Ro Tổng, cầu dao sụt vốn), không thuộc ty. Chưa có phép canh ở tầng ty."
+   },
+   {
+    "bai": "Bài 2 — Four Scores (LP Scoreboard)",
+    "ma": "luon-chua-von-trien-khai-duoc",
+    "cau": "LUÔN giữ một phần vốn ở trạng thái triển khai được (deployable) và KHÔNG nạp tới mức bằng 0; nếu deployable = 0 thì bảng phải báo trạng thái 'không nhận cơ hội mới' thay vì cứ xếp hạng tiếp.",
+    "ghi": "Vốn rảnh là của TRUNG ƯƠNG (`von_ranh()`), ty không được biết NAV. Buồng lái hiện «Vốn triển khai được» từ Trung Ương ở hàng chỉ số; nhưng chưa có luật nào đổi HÀNH ĐỘNG NGAY sang «không nhận cơ hội mới» khi vốn rảnh = 0 — nợ, đề xuất luật cấp hệ het-von-trien-khai."
+   },
+   {
+    "bai": "Bài 3 — Financial Freedom (LP Freedom Ratio)",
+    "ma": "khong-rut-song-khi-duoi-mot-ruoi",
+    "cau": "KHI LP Freedom Ratio dưới 1.5, KHÔNG rút dòng tiền ra tiêu toàn bộ mà tái đầu tư phần dư; chỉ rút phần vượt khi tỉ lệ đã trên ngưỡng buffer.",
+    "ghi": "Rút hay tái đầu tư là quyết định của NGƯỜI và của Trung Ương (Phân Bổ), ty không có phép canh; nấc thang 0,5/1/1,5/2 chỉ là NHÃN giai đoạn (`giaiDoanTuDo`) — chính tác giả nói không phải luật chuẩn, và mục khongLay của bài cũng bảo đừng biến thành điều kiện chặn tự động. Nợ: chính sách tái đầu tư ở Trung Ương."
+   },
+   {
+    "bai": "Bài 3 — Financial Freedom (LP Freedom Ratio)",
+    "ma": "dem-cong-van-hanh-truoc-khi-goi-thu-dong",
+    "cau": "KHÔNG mô tả một vị thế concentrated liquidity là thu nhập thụ động cho tới khi đã đếm số lần ra ngoài dải và số lần can thiệp trong kỳ; nếu số can thiệp cao thì ghi nhận đây là công việc vận hành có chi phí.",
+    "ghi": "Chưa có bộ đếm số lần ra ngoài dải và số lần can thiệp theo vị thế trong kỳ — cùng nợ với «uptime dải» ở Bài 2. `heSoDai` là núm quyết định tần suất, luật ngoai-dai bắt sự kiện, nhưng thước «bao nhiêu lần / kỳ, tốn bao nhiêu» chưa có."
+   },
+   {
+    "bai": "Bài 4 — Why DeFi / DeFi Flywheel",
+    "ma": "risk-checkpoint-truoc-tai-dau-tu",
+    "cau": "KHÔNG compound lợi nhuận thẳng trở lại pool; LUÔN cho lợi nhuận đi qua risk engine rồi capital allocator, phân bổ theo tỉ lệ đã định trước (dự phòng / stable yield / LP tốt nhất / quỹ cơ hội).",
+    "ghi": "Phân bổ lại lợi nhuận là việc của Trung Ương (Rủi Ro Tổng → Phân Bổ), cùng nợ với «tái đầu tư theo quy tắc» ở Bài 1. Ty chỉ cung cấp số để phân bổ (tachLoiNhuan, business); agent gắn ba luật chất lượng pool vào đây là lẫn hai tầng — bỏ."
+   },
+   {
+    "bai": "Bài 6 — Keep Your Crypto Safe",
+    "ma": "chia-tang-vi-gioi-han-thiet-hai",
+    "cau": "LÀM: giữ phần lớn NAV ở ví kho (multi-sig/ví cứng, không duyệt dApp, không claim airdrop) và chỉ đẩy sang ví vận hành đúng phần vốn cho vị thế đang chạy; KHÔNG để một ví chứa đồng thời kho bạc và vốn thao tác.",
+    "ghi": "Chia ví kho / ví vận hành là việc của NGƯỚI và Trung Ương; ty chỉ thấy MỘT địa chỉ ví được dán và không biết NAV. «Thiệt hại tối đa theo ví» chưa tính được — nợ, cùng họ với vốn rảnh cấp hệ."
+   },
+   {
+    "bai": "Bài 7 — Lending & Staking",
+    "ma": "kiem-thanh-khoan-rut-truoc-khi-tru-von",
+    "cau": "LÀM: trước khi đưa vốn vào lending, đo available liquidity (tổng nạp trừ tổng vay) và KHÔNG trú vốn ở thị trường mà utilization cao tới mức không rút hết được phần dự định trong một lần.",
+    "ghi": "Ty này không trú vốn ở lending — đó là ty tín dụng (`tin_dung/`) và Trung Ương; available liquidity của thị trường cho vay là số của ty ấy. Agent gắn tvl-mong/khongGiuKhoa là gượng — bỏ."
+   },
+   {
+    "bai": "Bài 7 — Lending & Staking",
+    "ma": "sieu-than-trong-khi-lst-lam-the-chap",
+    "cau": "KHÔNG dùng LST làm tài sản thế chấp để vay rồi vào LP khi chưa mô phỏng health factor ở các mức depeg 1/3/5/10%; nếu mô phỏng cho ra thanh lý trong dải đó thì giảm đòn bẩy hoặc không vào.",
+    "ghi": "Ngoài phạm vi ty: không LST, không vay, không health factor. Giữ làm ranh giới cho ngày Trung Ương có ty tín dụng làm việc này."
+   },
+   {
+    "bai": "Bài 7 — Lending & Staking",
+    "ma": "giu-dem-thanh-khoan-khong-ep-toi-uu-yield",
+    "cau": "LÀM: luôn giữ phần vốn không sinh lời gồm gas reserve, vốn khẩn cấp, đệm rút và quỹ cơ hội; KHÔNG phân bổ 100% vốn vào các nhánh sinh yield dù chi phí cơ hội dương.",
+    "ghi": "Dự phòng gas / khẩn cấp / đệm rút / quỹ cơ hội là cấp danh mục — Trung Ương (`von_ranh`, cầu dao); ty không biết NAV. Cùng nợ với «vốn rảnh cấp hệ» (Bài 2)."
+   },
+   {
+    "bai": "Bài 8 — Liquidity Pools & Yield Farming",
+    "ma": "canh-bao-mat-peg-stable",
+    "cau": "KHI một đồng trong cặp ổn định lệch peg quá ngưỡng cảnh báo thì giảm vị thế, vượt ngưỡng nguy hiểm thì thoát; KHÔNG coi cặp stable là cặp an toàn mặc định.",
+    "ghi": "Agent gắn gia-cu/sat-su-kien là gượng — hai luật ấy đọc tuổi giá và lịch sự kiện, không đọc neo. Ty chưa có NGUỒN giá USDG/USD (oracle hay pool USDG/USDT trên X Layer); USDG chỉ đứng trong chuỗi phụ thuộc với vai «mất neo là IL thật» và danh bạ bắt USDG giả. Ngưỡng 1%/2%/ngắt là điểm khởi đầu, phải soi lịch sử trước. Nợ. Trường liên quan: chuoiPhuThuoc, danhBaToken (kê ở đây, không gắn — gắn là bị tính đã có)."
+   },
+   {
+    "bai": "Bài 8 — Liquidity Pools & Yield Farming",
+    "ma": "khong-lp-khi-xu-huong-manh",
+    "cau": "GIẢM hoặc KHÔNG mở vị thế LP hai chiều khi thị trường đang xu hướng một chiều mạnh; ưu tiên LP khi giá dao động trong biên.",
+    "ghi": "Agent tự nhận gắn qua P(văng) là gần đúng, không phải bộ lọc regime — đúng, nên KHÔNG tính đã có. Bài 8 thêm thước `xuHuong` (z = lợi suất 20 phiên / σ·√(20/252); |z| > 2 là mạnh) vào biến động, CHỈ ĐO: chưa có luật đọc, vì chưa có mẫu cho thấy alpha LP âm ở chế độ mạnh trên chính pool này. Đo trước, canh sau. Trường liên quan: xuHuong (kê ở đây, không gắn — gắn là bị tính đã có)."
+   }
+  ],
+  "bai": [
+   {
+    "ma": "khoa-hoc-lp-bai-1-triet-ly-von",
+    "ten": "Bài 1 — Từ thu nhập tới tài sản tạo dòng tiền (mở đầu khoá học LP)",
+    "nguon": "khoá học LP, bài 1 (~7 phút); bản bóc do chủ gửi 05/09/2026; mốc 2:48 · 5:09 · 5:40",
+    "danhGia": {
+     "kyThuatLp": 1,
+     "quanLyVon": 4,
+     "tuDuyHeThong": 4,
+     "tradeDuoc": 1,
+     "giaTriChoHeThong": 3
+    },
+    "demQuyTac": {
+     "da-co": 9,
+     "thieu-phep-canh": 0,
+     "y-tuong": 1
+    },
+    "soLuanDiem": 6
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-2-four-scores",
+    "ten": "Bài 2 — Four Scores (LP Scoreboard)",
+    "nguon": "Khoá học đầu tư của tác giả nước ngoài, Lesson 2 'Four Scores'; bản bóc do chủ gửi 05/09/2026, câu đáng giữ ở mốc 0:41–0:49",
+    "danhGia": {
+     "kyThuatLp": 1,
+     "quanLyVon": 4,
+     "tuDuyHeThong": 5,
+     "tradeDuoc": 1,
+     "giaTriChoHeThong": 4
+    },
+    "demQuyTac": {
+     "da-co": 9,
+     "thieu-phep-canh": 1,
+     "y-tuong": 0
+    },
+    "soLuanDiem": 11
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-3-financial-freedom",
+    "ten": "Bài 3 — Financial Freedom (LP Freedom Ratio)",
+    "nguon": "Khoá LP/DeFi của tác giả — Lesson 3 trong chuỗi 3 bài; bản bóc do chủ gửi 05/09/2026; mốc 2:46 nhắc Kiyosaki Cashflow Quadrant",
+    "danhGia": {
+     "kyThuatLp": 1,
+     "quanLyVon": 4,
+     "tuDuyHeThong": 5,
+     "tradeDuoc": 1,
+     "giaTriChoHeThong": 5
+    },
+    "demQuyTac": {
+     "da-co": 7,
+     "thieu-phep-canh": 2,
+     "y-tuong": 0
+    },
+    "soLuanDiem": 11
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-4-why-defi-flywheel",
+    "ten": "Bài 4 — Why DeFi / DeFi Flywheel",
+    "nguon": "Khoá học DeFi (tác giả không nêu tên trong bản bóc); Lesson 4; mốc 0:37 · 0:45–1:15 · 1:46 · 2:20 · 3:38 · 4:58; bản bóc chủ gửi 05/09/2026",
+    "danhGia": {
+     "kyThuatLp": 2,
+     "quanLyVon": 4,
+     "tuDuyHeThong": 5,
+     "tradeDuoc": 2,
+     "giaTriChoHeThong": 5
+    },
+    "demQuyTac": {
+     "da-co": 10,
+     "thieu-phep-canh": 0,
+     "y-tuong": 1
+    },
+    "soLuanDiem": 12
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-5-ways-to-earn",
+    "ten": "Bài 5 — Ways to Earn in DeFi",
+    "nguon": "Lesson 5, khoá DeFi cơ bản (bản bóc do chủ gửi 05/09/2026); mốc 1:24–2:03 lending · 3:11–4:38 LP · 3:50 ví dụ ETH/USDC trên Uniswap · 4:21 concentrated vs full-range",
+    "danhGia": {
+     "kyThuatLp": 4,
+     "quanLyVon": 4,
+     "tuDuyHeThong": 5,
+     "tradeDuoc": 2,
+     "giaTriChoHeThong": 5
+    },
+    "demQuyTac": {
+     "da-co": 14,
+     "thieu-phep-canh": 0,
+     "y-tuong": 0
+    },
+    "soLuanDiem": 13
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-6-keep-crypto-safe",
+    "ten": "Bài 6 — Keep Your Crypto Safe",
+    "nguon": "Khoá học nền tảng crypto/DeFi (Lesson 6 trong chuỗi Lesson 1→6), bản bóc do chủ ty gửi 05/09/2026; không có mốc thời gian cụ thể trong video",
+    "danhGia": {
+     "kyThuatLp": 1,
+     "quanLyVon": 4,
+     "tuDuyHeThong": 5,
+     "tradeDuoc": 4,
+     "giaTriChoHeThong": 5
+    },
+    "demQuyTac": {
+     "da-co": 13,
+     "thieu-phep-canh": 1,
+     "y-tuong": 0
+    },
+    "soLuanDiem": 17
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-7-lending-staking",
+    "ten": "Bài 7 — Lending & Staking",
+    "nguon": "Khoá học DeFi/LP (Lesson 7 trong chuỗi Lesson 1–7); bản bóc do chủ gửi 05/09/2026; không có mốc thời gian video cụ thể",
+    "danhGia": {
+     "kyThuatLp": 2,
+     "quanLyVon": 5,
+     "tuDuyHeThong": 5,
+     "tradeDuoc": 4,
+     "giaTriChoHeThong": 5
+    },
+    "demQuyTac": {
+     "da-co": 12,
+     "thieu-phep-canh": 1,
+     "y-tuong": 2
+    },
+    "soLuanDiem": 22
+   },
+   {
+    "ma": "khoa-hoc-lp-bai-8-liquidity-pools",
+    "ten": "Bài 8 — Liquidity Pools & Yield Farming",
+    "nguon": "Khoá DeFi (bài 8/8, nối tiếp Lesson 7 lending/staking) — bản bóc do chủ gửi 05/09/2026",
+    "danhGia": {
+     "kyThuatLp": 3,
+     "quanLyVon": 2,
+     "tuDuyHeThong": 4,
+     "tradeDuoc": 3,
+     "giaTriChoHeThong": 5
+    },
+    "demQuyTac": {
+     "da-co": 13,
+     "thieu-phep-canh": 2,
+     "y-tuong": 0
+    },
+    "soLuanDiem": 23
+   }
+  ],
+  "hocLieu": {
+   "soBai": 8,
+   "soChuaBoc": 0
+  },
+  "cli": true
  },
  "nhip": [
   {
@@ -200,9 +537,9 @@
   }
  ],
  "nguonMu": [
-  "giá gốc Yahoo: tiến trình này chưa hỏi; tiến trình khác hỏi lần cuối 16:51 05/09",
+  "giá gốc Yahoo: tiến trình này chưa hỏi; tiến trình khác hỏi lần cuối 22:53 05/09",
   "RPC X Layer: chưa hỏi lần nào (chạy `python run.py` hoặc `python -m lp_v3.hom_nay --moi`)",
-  "tin RSS: tiến trình này chưa hỏi; tiến trình khác hỏi lần cuối 21:01 05/09"
+  "tin RSS: tiến trình này chưa hỏi; tiến trình khác hỏi lần cuối 00:08 06/09"
  ],
  "thieuDiaChi": [
   "SPCXx-USDG",
@@ -229,18 +566,20 @@
  "giaDinh": [
   "phần thưởng trong APY hiển thị = 90% (GIẢ ĐỊNH; khai `khoiLuongNgayUsd` để tách thật)",
   "pool tập trung NHƯ TA: phí vị thế = APR pool, không nhân hiệu suất (thận trọng; dán địa chỉ pool để đọc L thật)",
-  "P(văng) là CẬN TRÊN; τ đếm theo ngày giao dịch Mỹ, phần trôi ngoài giờ trên chuỗi CHƯA đo"
+  "APY OKX coi là lãi KÉP → đổi về APR đơn ln(1+APY) trước khi nhân thời gian (423% APY ≈ 165% APR); đặt apyLaLaiKep=false nếu OKX xác nhận là APR",
+  "P(văng) là CẬN TRÊN; τ đếm theo ngày giao dịch Mỹ, phần trôi ngoài giờ trên chuỗi CHƯA đo",
+  "phí KHÔNG tự gộp (Uniswap V3 ghi riêng trên NFT, phải collect) — lãi kép là việc người làm tay, máy chỉ đo phí chưa thu"
  ],
  "tomTatHanhDong": {
   "CHO": [
    "ICEx-USDG",
-   "SMCIx-USDG",
-   "RDDTx-USDG",
-   "MRNAx-USDG",
-   "IRENx-USDG",
-   "CRWVx-USDG",
    "NVDAx-USDG",
    "SPYx-USDG",
+   "SMCIx-USDG",
+   "RDDTx-USDG",
+   "CRWVx-USDG",
+   "IRENx-USDG",
+   "MRNAx-USDG",
    "SPCXx-USDG"
   ]
  },
@@ -248,29 +587,43 @@
   {
    "kyHieu": "ICEx-USDG",
    "hanhDong": "CHO",
-   "tomTat": "Thấy APY 423% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở.",
+   "tomTat": "Thấy APY 423% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.97 ở dải ±2.0% — APY không trả nổi tổn thất so với σ 28%.",
    "tinCay": 0.6,
    "khoaVao": false,
-   "diem": 63.3,
+   "diem": 38.3,
    "thieuGi": [],
    "diemRuiRo": 0.6,
    "ruiRo": {
-    "thiTruong": 0.41459806589481163,
+    "thiTruong": 0.5336191630788231,
     "thanhKhoan": 0.6,
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [],
     "caoNhat": 0.6
    },
    "apyTach": {
     "hienThiPct": 423.08,
-    "phiPct": 42.307999999999986,
-    "thuongPct": 380.772,
+    "aprTuongDuongPct": 165.456423005021,
+    "apyLaLaiKep": true,
+    "phiPct": 16.5456423005021,
+    "thuongPct": 148.9107807045189,
+    "tiLeHuuCo": 0.09999999999999998,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": 49.869876383721476,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": true,
    "luat": "ngoai-gio-khong-doi-dai",
@@ -278,16 +631,16 @@
    "biChan": true,
    "gia": 161.25999450683594,
    "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
+   "tuoiGiaGio": 20.25799324388889,
    "sigma": 0.27935554847976396,
    "soPhien": 59,
    "nguonSigma": "goc",
-   "tvlUsd": 31670.0,
+   "tvlUsd": 31670,
    "apyHienThi": 423.08,
-   "aprPhi": 0.42307999999999985,
-   "aprThuong": 3.8077199999999998,
+   "aprPhi": 0.16545642300502097,
+   "aprThuong": 1.489107807045189,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 3958.75,
+   "vonXinUsd": 200,
    "sucChuaUsd": 7917.5,
    "bienDong": {
     "ma": "ICEx",
@@ -297,7 +650,14 @@
     "sigma10": 0.2594498626146913,
     "sigma60": 0.2777357474652727,
     "tiLeNoCo": 0.9341608524741029,
-    "trangThai": "ON"
+    "trangThai": "ON",
+    "doi20NgayPct": 7.292076668357694,
+    "xuHuong": {
+     "z": 0.8995623073167779,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
    },
    "thieu": [],
    "tin": [],
@@ -306,6 +666,11 @@
      "ma": "ngoai-gio-khong-doi-dai",
      "hanhDong": "GIU",
      "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở"
+    },
+    {
+     "ma": "phi-duoi-lvr",
+     "hanhDong": "RUT",
+     "lyDo": "phí/LVR 0.97 < 1.50"
     },
     {
      "ma": "vao-duoc",
@@ -319,50 +684,303 @@
     }
    ],
    "dai": {
-    "Pa": 158.27795677194715,
-    "Pb": 164.29821535928363,
-    "rongPct": 1.8840511943083893,
-    "hieuSuat": 107.6518948399661,
-    "pVang": 0.029196131789623242,
-    "ilKyVongBps": -7.831717495322425,
-    "lvrBps": 7.745411074370585,
-    "phiBps": 34.26606988612791,
-    "thuongBps": 172.5038632417568,
-    "netBps": 198.68561064361376,
-    "tiLePhiTrenLvr": 2.431080232143311,
-    "giuGio": 72.0,
+    "Pa": 158.0556059544179,
+    "Pb": 164.52934820827772,
+    "rongPct": 2.0273805114778165,
+    "hieuSuat": 100.14695475720823,
+    "pVang": 0.2672383261576461,
+    "ilKyVongBps": -21.377886485596633,
+    "lvrBps": 19.418393588188366,
+    "phiBps": 11.782049937293781,
+    "thuongBps": 55.58477604177256,
+    "netBps": 40.9889394934697,
+    "tiLePhiTrenLvr": 0.968381521382143,
+    "doPhuPhi": 2.553912953407062,
+    "giuGio": 72,
     "ghiChu": [
      "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
+     "thuong-het-sau-38h-trong-cua-so-72h"
+    ]
+   }
+  },
+  {
+   "kyHieu": "NVDAx-USDG",
+   "hanhDong": "CHO",
+   "tomTat": "Thấy APY 184% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.42 ở dải ±3.0% — APY không trả nổi tổn thất so với σ 40%.",
+   "tinCay": 0.6,
+   "khoaVao": false,
+   "diem": 31.9,
+   "thieuGi": [],
+   "diemRuiRo": 0.5336243976005972,
+   "ruiRo": {
+    "thiTruong": 0.5336243976005972,
+    "thanhKhoan": 0.35,
+    "giaoThuc": 0.45,
+    "cang": 0.2,
+    "thucThi": 0.4,
+    "cauNoi": 0,
+    "chuaDo": [],
+    "caoNhat": 0.5336243976005972
+   },
+   "apyTach": {
+    "hienThiPct": 183.94,
+    "aprTuongDuongPct": 104.35927622473365,
+    "apyLaLaiKep": true,
+    "phiPct": 10.435927622473361,
+    "thuongPct": 93.92334860226028,
+    "tiLeHuuCo": 0.09999999999999998,
+    "giaDinh": true,
+    "nguon": "apy-hien-thi-gia-dinh"
+   },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": 7.841011786355531,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
+   "thiTruongGoc": "DONG",
+   "coSanGoc": true,
+   "luat": "ngoai-gio-khong-doi-dai",
+   "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở",
+   "biChan": true,
+   "gia": 230.36000061035156,
+   "nguonGia": "goc",
+   "tuoiGiaGio": 20.25799324388889,
+   "sigma": 0.40478391465504043,
+   "soPhien": 59,
+   "nguonSigma": "goc",
+   "tvlUsd": 644990,
+   "apyHienThi": 183.94,
+   "aprPhi": 0.10435927622473362,
+   "aprThuong": 0.9392334860226028,
+   "nguonApr": "apy-hien-thi-gia-dinh",
+   "vonXinUsd": 200,
+   "sucChuaUsd": 161247.5,
+   "bienDong": {
+    "ma": "NVDAx",
+    "soPhien": 251,
+    "doi1NgayPct": 0.836070775935327,
+    "doi5NgayPct": 5.88830033504808,
+    "sigma10": 0.5643940259953025,
+    "sigma60": 0.40391172562056343,
+    "tiLeNoCo": 1.3973202316129265,
+    "trangThai": "NO",
+    "doi20NgayPct": 2.857650341411655,
+    "xuHuong": {
+     "z": 0.2476140219458857,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
+   },
+   "thieu": [],
+   "tin": [],
+   "luatKhop": [
+    {
+     "ma": "ngoai-gio-khong-doi-dai",
+     "hanhDong": "GIU",
+     "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở"
+    },
+    {
+     "ma": "phi-duoi-lvr",
+     "hanhDong": "RUT",
+     "lyDo": "phí/LVR 0.42 < 1.50"
+    },
+    {
+     "ma": "vao-duoc",
+     "hanhDong": "VAO",
+     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
+    },
+    {
+     "ma": "chua-du-so",
+     "hanhDong": "CHO",
+     "lyDo": "không luật nào khớp: CHỜ và khai thiếu gì"
+    }
+   ],
+   "dai": {
+    "Pa": 223.75697943358128,
+    "Pb": 237.1578755466392,
+    "rongPct": 2.9509788671107318,
+    "hieuSuat": 69.27048612353622,
+    "pVang": 0.26724879520119443,
+    "ilKyVongBps": -31.04573959894735,
+    "lvrBps": 28.20025608178464,
+    "phiBps": 7.431314860698842,
+    "thuongBps": 35.05909195991059,
+    "netBps": 6.44466722166208,
+    "tiLePhiTrenLvr": 0.4205828353178421,
+    "doPhuPhi": 1.17879137155644,
+    "giuGio": 72,
+    "ghiChu": [
+     "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
+     "thuong-het-sau-38h-trong-cua-so-72h"
+    ]
+   }
+  },
+  {
+   "kyHieu": "SPYx-USDG",
+   "hanhDong": "CHO",
+   "tomTat": "Thấy APY 49% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.53 ở dải ±0.9% — APY không trả nổi tổn thất so với σ 12%.",
+   "tinCay": 0.6,
+   "khoaVao": false,
+   "diem": 33,
+   "thieuGi": [],
+   "diemRuiRo": 0.5336153073344811,
+   "ruiRo": {
+    "thiTruong": 0.5336153073344811,
+    "thanhKhoan": 0.35,
+    "giaoThuc": 0.45,
+    "cang": 0.2,
+    "thucThi": 0.4,
+    "cauNoi": 0,
+    "chuaDo": [],
+    "caoNhat": 0.5336153073344811
+   },
+   "apyTach": {
+    "hienThiPct": 48.55,
+    "aprTuongDuongPct": 39.57514159205253,
+    "apyLaLaiKep": true,
+    "phiPct": 3.9575141592052527,
+    "thuongPct": 35.61762743284728,
+    "tiLeHuuCo": 0.09999999999999999,
+    "giaDinh": true,
+    "nguon": "apy-hien-thi-gia-dinh"
+   },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": 2.2139901731284106,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
+   "thiTruongGoc": "DONG",
+   "coSanGoc": true,
+   "luat": "ngoai-gio-khong-doi-dai",
+   "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở",
+   "biChan": true,
+   "gia": 770.1900024414062,
+   "nguonGia": "goc",
+   "tuoiGiaGio": 20.25799324388889,
+   "sigma": 0.12178776924982736,
+   "soPhien": 59,
+   "nguonSigma": "goc",
+   "tvlUsd": 637990,
+   "apyHienThi": 48.55,
+   "aprPhi": 0.039575141592052526,
+   "aprThuong": 0.3561762743284728,
+   "nguonApr": "apy-hien-thi-gia-dinh",
+   "vonXinUsd": 200,
+   "sucChuaUsd": 159497.5,
+   "bienDong": {
+    "ma": "SPYx",
+    "soPhien": 251,
+    "doi1NgayPct": -0.3854237146576178,
+    "doi5NgayPct": 0.10918657075786875,
+    "sigma10": 0.08189895513847728,
+    "sigma60": 0.12561090095110167,
+    "tiLeNoCo": 0.6520051565457623,
+    "trangThai": "CO",
+    "doi20NgayPct": -0.39702134928059074,
+    "xuHuong": {
+     "z": -0.11241787026265763,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
+   },
+   "thieu": [],
+   "tin": [],
+   "luatKhop": [
+    {
+     "ma": "ngoai-gio-khong-doi-dai",
+     "hanhDong": "GIU",
+     "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở"
+    },
+    {
+     "ma": "phi-duoi-lvr",
+     "hanhDong": "RUT",
+     "lyDo": "phí/LVR 0.53 < 1.50"
+    },
+    {
+     "ma": "vao-duoc",
+     "hanhDong": "VAO",
+     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
+    },
+    {
+     "ma": "chua-du-so",
+     "hanhDong": "CHO",
+     "lyDo": "không luật nào khớp: CHỜ và khai thiếu gì"
+    }
+   ],
+   "dai": {
+    "Pa": 763.4801159585327,
+    "Pb": 776.958859126217,
+    "rongPct": 0.8788554335104726,
+    "hieuSuat": 229.0676193261747,
+    "pVang": 0.26723061466896214,
+    "ilKyVongBps": -9.293670054091958,
+    "lvrBps": 8.441778151851983,
+    "phiBps": 2.818133990582862,
+    "thuongBps": 13.295254014025597,
+    "netBps": 1.8197179505165018,
+    "tiLePhiTrenLvr": 0.5328029703996804,
+    "doPhuPhi": 1.1273093574729296,
+    "giuGio": 72,
+    "ghiChu": [
+     "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
+     "thuong-het-sau-38h-trong-cua-so-72h"
     ]
    }
   },
   {
    "kyHieu": "SMCIx-USDG",
    "hanhDong": "CHO",
-   "tomTat": "Thấy APY 386% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.66 ở dải ±6.4% — APY không trả nổi tổn thất so với σ 93%.",
+   "tomTat": "Thấy APY 386% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.28 ở dải ±6.9% — APY không trả nổi tổn thất so với σ 93%.",
    "tinCay": 0.6,
    "khoaVao": false,
-   "diem": 40.8,
+   "diem": 28.2,
    "thieuGi": [],
    "diemRuiRo": 0.6,
    "ruiRo": {
-    "thiTruong": 0.4146035498131824,
+    "thiTruong": 0.5336665960661404,
     "thanhKhoan": 0.6,
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [],
     "caoNhat": 0.6
    },
    "apyTach": {
     "hienThiPct": 386.14,
-    "phiPct": 38.61399999999999,
-    "thuongPct": 347.526,
+    "aprTuongDuongPct": 158.1326462273025,
+    "apyLaLaiKep": true,
+    "phiPct": 15.813264622730246,
+    "thuongPct": 142.31938160457224,
+    "tiLeHuuCo": 0.09999999999999998,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": -14.869212916458244,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": true,
    "luat": "ngoai-gio-khong-doi-dai",
@@ -370,16 +988,16 @@
    "biChan": true,
    "gia": 39.59000015258789,
    "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
+   "tuoiGiaGio": 20.25799324388889,
    "sigma": 0.9250167641593071,
    "soPhien": 59,
    "nguonSigma": "goc",
-   "tvlUsd": 14810.0,
+   "tvlUsd": 14810,
    "apyHienThi": 386.14,
-   "aprPhi": 0.38613999999999987,
-   "aprThuong": 3.47526,
+   "aprPhi": 0.15813264622730247,
+   "aprThuong": 1.4231938160457225,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 1851.25,
+   "vonXinUsd": 200,
    "sucChuaUsd": 3702.5,
    "bienDong": {
     "ma": "SMCIx",
@@ -389,7 +1007,14 @@
     "sigma10": 0.6552224882442312,
     "sigma60": 0.9349297806974908,
     "tiLeNoCo": 0.700825347284811,
-    "trangThai": "CO"
+    "trangThai": "CO",
+    "doi20NgayPct": 27.176361130402782,
+    "xuHuong": {
+     "z": 0.9127441658785551,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
    },
    "thieu": [],
    "tin": [],
@@ -402,12 +1027,7 @@
     {
      "ma": "phi-duoi-lvr",
      "hanhDong": "RUT",
-     "lyDo": "phí/LVR 0.66 < 1.50"
-    },
-    {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
+     "lyDo": "phí/LVR 0.28 < 1.50"
     },
     {
      "ma": "chua-du-so",
@@ -416,50 +1036,65 @@
     }
    ],
    "dai": {
-    "Pa": 37.217209775657835,
-    "Pb": 42.11406823697613,
-    "rongPct": 6.37551925905524,
-    "hieuSuat": 32.86226881276529,
-    "pVang": 0.02920709962636476,
-    "ilKyVongBps": -26.212116085654028,
-    "lvrBps": 25.924030544858468,
-    "phiBps": 31.274053584257885,
-    "thuongBps": 157.44131382566974,
-    "netBps": 161.96307576721756,
-    "tiLePhiTrenLvr": 0.6629199962855493,
-    "giuGio": 72.0,
+    "Pa": 37.044367801474664,
+    "Pb": 42.3105644691152,
+    "rongPct": 6.871847198892911,
+    "hieuSuat": 30.59594922414935,
+    "pVang": 0.2673331921322809,
+    "ilKyVongBps": -71.60264114671168,
+    "lvrBps": 65.04296184508229,
+    "phiBps": 11.259911809246663,
+    "thuongBps": 53.12145844722536,
+    "netBps": -12.221270890239651,
+    "tiLePhiTrenLvr": 0.2762953740173731,
+    "doPhuPhi": 0.8404588835673028,
+    "giuGio": 72,
     "ghiChu": [
      "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
+     "thuong-het-sau-38h-trong-cua-so-72h"
     ]
    }
   },
   {
    "kyHieu": "RDDTx-USDG",
    "hanhDong": "CHO",
-   "tomTat": "Thấy APY 335% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.60 ở dải ±6.1% — APY không trả nổi tổn thất so với σ 89%.",
+   "tomTat": "Thấy APY 335% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.27 ở dải ±6.6% — APY không trả nổi tổn thất so với σ 89%.",
    "tinCay": 0.6,
    "khoaVao": false,
-   "diem": 38.9,
+   "diem": 28.1,
    "thieuGi": [],
    "diemRuiRo": 0.6,
    "ruiRo": {
-    "thiTruong": 0.41460308520751193,
+    "thiTruong": 0.5336625777557126,
     "thanhKhoan": 0.6,
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [],
     "caoNhat": 0.6
    },
    "apyTach": {
     "hienThiPct": 335.27,
-    "phiPct": 33.52699999999999,
-    "thuongPct": 301.743,
+    "aprTuongDuongPct": 147.07963422076122,
+    "apyLaLaiKep": true,
+    "phiPct": 14.70796342207612,
+    "thuongPct": 132.3716707986851,
+    "tiLeHuuCo": 0.09999999999999999,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": -16.869580064262774,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": true,
    "luat": "ngoai-gio-khong-doi-dai",
@@ -467,16 +1102,16 @@
    "biChan": true,
    "gia": 154.4600067138672,
    "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
+   "tuoiGiaGio": 20.25799324388889,
    "sigma": 0.8886936791842536,
    "soPhien": 59,
    "nguonSigma": "goc",
-   "tvlUsd": 16730.0,
+   "tvlUsd": 16730,
    "apyHienThi": 335.27,
-   "aprPhi": 0.3352699999999999,
-   "aprThuong": 3.01743,
+   "aprPhi": 0.1470796342207612,
+   "aprThuong": 1.323716707986851,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 2091.25,
+   "vonXinUsd": 200,
    "sucChuaUsd": 4182.5,
    "bienDong": {
     "ma": "RDDTx",
@@ -486,104 +1121,14 @@
     "sigma10": 0.6312944023974633,
     "sigma60": 0.8813448264347739,
     "tiLeNoCo": 0.7162853669331476,
-    "trangThai": "CO"
-   },
-   "thieu": [],
-   "tin": [],
-   "luatKhop": [
-    {
-     "ma": "ngoai-gio-khong-doi-dai",
-     "hanhDong": "GIU",
-     "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở"
-    },
-    {
-     "ma": "phi-duoi-lvr",
-     "hanhDong": "RUT",
-     "lyDo": "phí/LVR 0.60 < 1.50"
-    },
-    {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
-    },
-    {
-     "ma": "chua-du-so",
-     "hanhDong": "CHO",
-     "lyDo": "không luật nào khớp: CHỜ và khai thiếu gì"
+    "trangThai": "CO",
+    "doi20NgayPct": -4.477421379724833,
+    "xuHuong": {
+     "z": -0.18449151321959922,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
     }
-   ],
-   "dai": {
-    "Pa": 145.55541344307213,
-    "Pb": 163.90935321260935,
-    "rongPct": 6.117665471973477,
-    "hieuSuat": 34.18478754606567,
-    "pVang": 0.029206170415023783,
-    "ilKyVongBps": -25.167710173596628,
-    "lvrBps": 24.891040185976255,
-    "phiBps": 27.15402933883376,
-    "thuongBps": 136.7000936814509,
-    "netBps": 138.2082299417269,
-    "tiLePhiTrenLvr": 0.5994744870259294,
-    "giuGio": 72.0,
-    "ghiChu": [
-     "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
-    ]
-   }
-  },
-  {
-   "kyHieu": "MRNAx-USDG",
-   "hanhDong": "CHO",
-   "tomTat": "Thấy APY 406% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.27 ở dải ±16.8% — APY không trả nổi tổn thất so với σ 232%.",
-   "tinCay": 0.6,
-   "khoaVao": false,
-   "diem": 34.7,
-   "thieuGi": [],
-   "diemRuiRo": 0.6,
-   "ruiRo": {
-    "thiTruong": 0.41463557751858565,
-    "thanhKhoan": 0.6,
-    "giaoThuc": 0.45,
-    "cang": 0.2,
-    "thucThi": 0.4,
-    "cauNoi": 0.0,
-    "chuaDo": [],
-    "caoNhat": 0.6
-   },
-   "apyTach": {
-    "hienThiPct": 406.04,
-    "phiPct": 40.604,
-    "thuongPct": 365.43600000000004,
-    "giaDinh": true,
-    "nguon": "apy-hien-thi-gia-dinh"
-   },
-   "thiTruongGoc": "DONG",
-   "coSanGoc": true,
-   "luat": "ngoai-gio-khong-doi-dai",
-   "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở",
-   "biChan": true,
-   "gia": 145.5500030517578,
-   "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
-   "sigma": 2.3230405560763203,
-   "soPhien": 59,
-   "nguonSigma": "goc",
-   "tvlUsd": 35490.0,
-   "apyHienThi": 406.04,
-   "aprPhi": 0.40603999999999996,
-   "aprThuong": 3.6543600000000005,
-   "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 4436.25,
-   "sucChuaUsd": 8872.5,
-   "bienDong": {
-    "ma": "MRNAx",
-    "soPhien": 251,
-    "doi1NgayPct": -2.2301284169561897,
-    "doi5NgayPct": 5.478655886399153,
-    "sigma10": 0.9692260511440038,
-    "sigma60": 2.308911719992542,
-    "tiLeNoCo": 0.4197761407470072,
-    "trangThai": "CO"
    },
    "thieu": [],
    "tin": [],
@@ -599,158 +1144,71 @@
      "lyDo": "phí/LVR 0.27 < 1.50"
     },
     {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
-    },
-    {
      "ma": "chua-du-so",
      "hanhDong": "CHO",
      "lyDo": "không luật nào khớp: CHỜ và khai thiếu gì"
     }
    ],
    "dai": {
-    "Pa": 124.62447493968429,
-    "Pb": 169.9891084686192,
-    "rongPct": 16.790865616245163,
-    "hieuSuat": 13.391846101194123,
-    "pVang": 0.029271155037171214,
-    "ilKyVongBps": -67.35493634116898,
-    "lvrBps": 66.62629926170716,
-    "phiBps": 32.88471535104274,
-    "thuongBps": 165.54978316777724,
-    "netBps": 130.85414656761998,
-    "tiLePhiTrenLvr": 0.27122384197215815,
-    "giuGio": 72.0,
+    "Pa": 144.9059182824589,
+    "Pb": 164.64402528779206,
+    "rongPct": 6.593304500362018,
+    "hieuSuat": 31.825822388878937,
+    "pVang": 0.26732515551142516,
+    "ilKyVongBps": -68.74698576256152,
+    "lvrBps": 62.44864253737454,
+    "phiBps": 10.472925302091529,
+    "thuongBps": 49.4086521884732,
+    "netBps": -13.865408271996799,
+    "tiLePhiTrenLvr": 0.26766028590624924,
+    "doPhuPhi": 0.811986779817166,
+    "giuGio": 72,
     "ghiChu": [
      "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
-    ]
-   }
-  },
-  {
-   "kyHieu": "IRENx-USDG",
-   "hanhDong": "CHO",
-   "tomTat": "Thấy APY 320% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.45 ở dải ±7.9% — APY không trả nổi tổn thất so với σ 113%.",
-   "tinCay": 0.6,
-   "khoaVao": false,
-   "diem": 36.4,
-   "thieuGi": [],
-   "diemRuiRo": 0.6,
-   "ruiRo": {
-    "thiTruong": 0.4146065621553254,
-    "thanhKhoan": 0.6,
-    "giaoThuc": 0.45,
-    "cang": 0.2,
-    "thucThi": 0.4,
-    "cauNoi": 0.0,
-    "chuaDo": [],
-    "caoNhat": 0.6
-   },
-   "apyTach": {
-    "hienThiPct": 319.67,
-    "phiPct": 31.966999999999995,
-    "thuongPct": 287.70300000000003,
-    "giaDinh": true,
-    "nguon": "apy-hien-thi-gia-dinh"
-   },
-   "thiTruongGoc": "DONG",
-   "coSanGoc": true,
-   "luat": "ngoai-gio-khong-doi-dai",
-   "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở",
-   "biChan": true,
-   "gia": 44.68000030517578,
-   "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
-   "sigma": 1.1326034521959878,
-   "soPhien": 59,
-   "nguonSigma": "goc",
-   "tvlUsd": 18200.0,
-   "apyHienThi": 319.67,
-   "aprPhi": 0.31966999999999995,
-   "aprThuong": 2.8770300000000004,
-   "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 2275.0,
-   "sucChuaUsd": 4550.0,
-   "bienDong": {
-    "ma": "IRENx",
-    "soPhien": 251,
-    "doi1NgayPct": 7.2749067666040945,
-    "doi5NgayPct": 26.036669516480405,
-    "sigma10": 1.047949554118179,
-    "sigma60": 1.1402202320629566,
-    "tiLeNoCo": 0.9190764421204525,
-    "trangThai": "ON"
-   },
-   "thieu": [],
-   "tin": [],
-   "luatKhop": [
-    {
-     "ma": "ngoai-gio-khong-doi-dai",
-     "hanhDong": "GIU",
-     "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở"
-    },
-    {
-     "ma": "phi-duoi-lvr",
-     "hanhDong": "RUT",
-     "lyDo": "phí/LVR 0.45 < 1.50"
-    },
-    {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
-    },
-    {
-     "ma": "chua-du-so",
-     "hanhDong": "CHO",
-     "lyDo": "không luật nào khớp: CHỜ và khai thiếu gì"
-    }
-   ],
-   "dai": {
-    "Pa": 41.423598467309205,
-    "Pb": 48.19239518377322,
-    "rongPct": 7.86122393600468,
-    "hieuSuat": 26.93187269388505,
-    "pVang": 0.029213124310650707,
-    "ilKyVongBps": -32.20469478115127,
-    "lvrBps": 31.851270533364307,
-    "phiBps": 25.890470159655376,
-    "thuongBps": 130.33902453733248,
-    "netBps": 123.58523947627614,
-    "tiLePhiTrenLvr": 0.4466760264408627,
-    "giuGio": 72.0,
-    "ghiChu": [
-     "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
+     "thuong-het-sau-38h-trong-cua-so-72h"
     ]
    }
   },
   {
    "kyHieu": "CRWVx-USDG",
    "hanhDong": "CHO",
-   "tomTat": "Thấy APY 302% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.46 ở dải ±7.1% — APY không trả nổi tổn thất so với σ 103%.",
+   "tomTat": "Thấy APY 302% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.22 ở dải ±7.7% — APY không trả nổi tổn thất so với σ 103%.",
    "tinCay": 0.6,
    "khoaVao": false,
-   "diem": 36.3,
+   "diem": 27.5,
    "thieuGi": [],
    "diemRuiRo": 0.6,
    "ruiRo": {
-    "thiTruong": 0.4146050192473636,
+    "thiTruong": 0.5336793046558045,
     "thanhKhoan": 0.6,
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [],
     "caoNhat": 0.6
    },
    "apyTach": {
     "hienThiPct": 302.42,
-    "phiPct": 30.24199999999999,
-    "thuongPct": 272.178,
+    "aprTuongDuongPct": 139.23261333516098,
+    "apyLaLaiKep": true,
+    "phiPct": 13.923261333516093,
+    "thuongPct": 125.30935200164488,
+    "tiLeHuuCo": 0.09999999999999998,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": -34.443907494308355,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": true,
    "luat": "ngoai-gio-khong-doi-dai",
@@ -758,17 +1216,17 @@
    "biChan": true,
    "gia": 89.36000061035156,
    "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
+   "tuoiGiaGio": 20.25799324388889,
    "sigma": 1.0315112313588448,
    "soPhien": 59,
    "nguonSigma": "goc",
-   "tvlUsd": 19900.0,
+   "tvlUsd": 19900,
    "apyHienThi": 302.42,
-   "aprPhi": 0.3024199999999999,
-   "aprThuong": 2.72178,
+   "aprPhi": 0.13923261333516093,
+   "aprThuong": 1.2530935200164488,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 2487.5,
-   "sucChuaUsd": 4975.0,
+   "vonXinUsd": 200,
+   "sucChuaUsd": 4975,
    "bienDong": {
     "ma": "CRWVx",
     "soPhien": 251,
@@ -777,7 +1235,14 @@
     "sigma10": 0.4586336085740031,
     "sigma60": 1.0228829766843628,
     "tiLeNoCo": 0.44837348849097763,
-    "trangThai": "CO"
+    "trangThai": "CO",
+    "doi20NgayPct": -1.4447971600846765,
+    "xuHuong": {
+     "z": -0.05050362949296494,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
    },
    "thieu": [],
    "tin": [],
@@ -790,12 +1255,7 @@
     {
      "ma": "phi-duoi-lvr",
      "hanhDong": "RUT",
-     "lyDo": "phí/LVR 0.46 < 1.50"
-    },
-    {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
+     "lyDo": "phí/LVR 0.22 < 1.50"
     },
     {
      "ma": "chua-du-so",
@@ -804,77 +1264,99 @@
     }
    ],
    "dai": {
-    "Pa": 83.40868314605896,
-    "Pb": 95.73595227608304,
-    "rongPct": 7.135129389192141,
-    "hieuSuat": 29.52171136274584,
-    "pVang": 0.02921003849472712,
-    "ilKyVongBps": -29.28132042628816,
-    "lvrBps": 28.959734617792364,
-    "phiBps": 24.493409595551682,
-    "thuongBps": 123.30587643218142,
-    "netBps": 118.11595555119368,
-    "tiLePhiTrenLvr": 0.4647657704439125,
-    "giuGio": 72.0,
+    "Pa": 82.97684127034333,
+    "Pb": 96.23419723903153,
+    "rongPct": 7.692699845263484,
+    "hieuSuat": 27.48941169879013,
+    "pVang": 0.26735860931160893,
+    "ilKyVongBps": -79.99573053908914,
+    "lvrBps": 72.66816063757459,
+    "phiBps": 9.913980361570367,
+    "thuongBps": 46.771689223292725,
+    "netBps": -28.310060954226046,
+    "tiLePhiTrenLvr": 0.21774230737362865,
+    "doPhuPhi": 0.6669237292900685,
+    "giuGio": 72,
     "ghiChu": [
      "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
+     "thuong-het-sau-38h-trong-cua-so-72h"
     ]
    }
   },
   {
-   "kyHieu": "NVDAx-USDG",
+   "kyHieu": "IRENx-USDG",
    "hanhDong": "CHO",
-   "tomTat": "Thấy APY 184% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.73 ở dải ±2.7% — APY không trả nổi tổn thất so với σ 40%.",
+   "tomTat": "Thấy APY 320% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.20 ở dải ±8.5% — APY không trả nổi tổn thất so với σ 113%.",
    "tinCay": 0.6,
    "khoaVao": false,
-   "diem": 41.2,
+   "diem": 27.4,
    "thieuGi": [],
-   "diemRuiRo": 0.45,
+   "diemRuiRo": 0.6,
    "ruiRo": {
-    "thiTruong": 0.41459867103758674,
-    "thanhKhoan": 0.35,
+    "thiTruong": 0.5336926481301625,
+    "thanhKhoan": 0.6,
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [],
-    "caoNhat": 0.45
+    "caoNhat": 0.6
    },
    "apyTach": {
-    "hienThiPct": 183.94,
-    "phiPct": 18.393999999999995,
-    "thuongPct": 165.546,
+    "hienThiPct": 319.67,
+    "aprTuongDuongPct": 143.42985021683575,
+    "apyLaLaiKep": true,
+    "phiPct": 14.342985021683571,
+    "thuongPct": 129.08686519515217,
+    "tiLeHuuCo": 0.09999999999999998,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": -42.09422707628108,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": true,
    "luat": "ngoai-gio-khong-doi-dai",
    "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở",
    "biChan": true,
-   "gia": 230.36000061035156,
+   "gia": 44.68000030517578,
    "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
-   "sigma": 0.40478391465504043,
+   "tuoiGiaGio": 20.25799324388889,
+   "sigma": 1.1326034521959878,
    "soPhien": 59,
    "nguonSigma": "goc",
-   "tvlUsd": 644990.0,
-   "apyHienThi": 183.94,
-   "aprPhi": 0.18393999999999996,
-   "aprThuong": 1.65546,
+   "tvlUsd": 18200,
+   "apyHienThi": 319.67,
+   "aprPhi": 0.1434298502168357,
+   "aprThuong": 1.2908686519515218,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 10000.0,
-   "sucChuaUsd": 161247.5,
+   "vonXinUsd": 200,
+   "sucChuaUsd": 4550,
    "bienDong": {
-    "ma": "NVDAx",
+    "ma": "IRENx",
     "soPhien": 251,
-    "doi1NgayPct": 0.836070775935327,
-    "doi5NgayPct": 5.88830033504808,
-    "sigma10": 0.5643940259953025,
-    "sigma60": 0.40391172562056343,
-    "tiLeNoCo": 1.3973202316129265,
-    "trangThai": "NO"
+    "doi1NgayPct": 7.2749067666040945,
+    "doi5NgayPct": 26.036669516480405,
+    "sigma10": 1.047949554118179,
+    "sigma60": 1.1402202320629566,
+    "tiLeNoCo": 0.9190764421204525,
+    "trangThai": "ON",
+    "doi20NgayPct": 8.367695370467443,
+    "xuHuong": {
+     "z": 0.25017022683765905,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
    },
    "thieu": [],
    "tin": [],
@@ -887,12 +1369,7 @@
     {
      "ma": "phi-duoi-lvr",
      "hanhDong": "RUT",
-     "lyDo": "phí/LVR 0.73 < 1.50"
-    },
-    {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
+     "lyDo": "phí/LVR 0.20 < 1.50"
     },
     {
      "ma": "chua-du-so",
@@ -901,77 +1378,99 @@
     }
    ],
    "dai": {
-    "Pa": 224.21323530131806,
-    "Pb": 236.6752783790245,
-    "rongPct": 2.7414819204463647,
-    "hieuSuat": 74.44986352669783,
-    "pVang": 0.029197342075173452,
-    "ilKyVongBps": -11.371805693989332,
-    "lvrBps": 11.246524197232343,
-    "phiBps": 14.89764825611065,
-    "thuongBps": 74.99844265584402,
-    "netBps": 78.42428521796535,
-    "tiLePhiTrenLvr": 0.7279119712919894,
-    "giuGio": 72.0,
+    "Pa": 41.188172228633995,
+    "Pb": 48.46785665042644,
+    "rongPct": 8.477744671841169,
+    "hieuSuat": 25.081009482491982,
+    "pVang": 0.2673852962603248,
+    "ilKyVongBps": -87.99158293101387,
+    "lvrBps": 79.93277399716831,
+    "phiBps": 10.212684963323374,
+    "thuongBps": 48.18090311047317,
+    "netBps": -34.59799485721732,
+    "tiLePhiTrenLvr": 0.20391725867966243,
+    "doPhuPhi": 0.6279448766574501,
+    "giuGio": 72,
     "ghiChu": [
      "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
+     "thuong-het-sau-38h-trong-cua-so-72h"
     ]
    }
   },
   {
-   "kyHieu": "SPYx-USDG",
+   "kyHieu": "MRNAx-USDG",
    "hanhDong": "CHO",
-   "tomTat": "Thấy APY 49% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.64 ở dải ±0.8% — APY không trả nổi tổn thất so với σ 12%.",
+   "tomTat": "Thấy APY 406% nhưng KHÔNG khuyến nghị vào lúc này: phiên đang CUOI_TUAN: đợi sàn Mỹ mở. Kể cả tính thưởng, phí/LVR chỉ 0.11 ở dải ±18.2% — APY không trả nổi tổn thất so với σ 232%.",
    "tinCay": 0.6,
    "khoaVao": false,
-   "diem": 37.2,
+   "diem": 26.3,
    "thieuGi": [],
-   "diemRuiRo": 0.45,
+   "diemRuiRo": 0.6,
    "ruiRo": {
-    "thiTruong": 0.4145976201537113,
-    "thanhKhoan": 0.35,
+    "thiTruong": 0.5339434733256887,
+    "thanhKhoan": 0.6,
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [],
-    "caoNhat": 0.45
+    "caoNhat": 0.6
    },
    "apyTach": {
-    "hienThiPct": 48.55,
-    "phiPct": 4.854999999999999,
-    "thuongPct": 43.695,
+    "hienThiPct": 406.04,
+    "aprTuongDuongPct": 162.14455315583777,
+    "apyLaLaiKep": true,
+    "phiPct": 16.214455315583777,
+    "thuongPct": 145.930097840254,
+    "tiLeHuuCo": 0.09999999999999999,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": -149.93957812115653,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": true,
    "luat": "ngoai-gio-khong-doi-dai",
    "lyDo": "phiên đang CUOI_TUAN: đợi sàn Mỹ mở",
    "biChan": true,
-   "gia": 770.1900024414062,
+   "gia": 145.5500030517578,
    "nguonGia": "goc",
-   "tuoiGiaGio": 17.7260231325,
-   "sigma": 0.12178776924982736,
+   "tuoiGiaGio": 20.25799324388889,
+   "sigma": 2.3230405560763203,
    "soPhien": 59,
    "nguonSigma": "goc",
-   "tvlUsd": 637990.0,
-   "apyHienThi": 48.55,
-   "aprPhi": 0.04854999999999999,
-   "aprThuong": 0.43695,
+   "tvlUsd": 35490,
+   "apyHienThi": 406.04,
+   "aprPhi": 0.16214455315583776,
+   "aprThuong": 1.4593009784025401,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 10000.0,
-   "sucChuaUsd": 159497.5,
+   "vonXinUsd": 200,
+   "sucChuaUsd": 8872.5,
    "bienDong": {
-    "ma": "SPYx",
+    "ma": "MRNAx",
     "soPhien": 251,
-    "doi1NgayPct": -0.3854237146576178,
-    "doi5NgayPct": 0.10918657075786875,
-    "sigma10": 0.08189895513847728,
-    "sigma60": 0.12561090095110167,
-    "tiLeNoCo": 0.6520051565457623,
-    "trangThai": "CO"
+    "doi1NgayPct": -2.2301284169561897,
+    "doi5NgayPct": 5.478655886399153,
+    "sigma10": 0.9692260511440038,
+    "sigma60": 2.308911719992542,
+    "tiLeNoCo": 0.4197761407470072,
+    "trangThai": "CO",
+    "doi20NgayPct": 145.9861543956377,
+    "xuHuong": {
+     "z": 1.3837930659875461,
+     "soPhien": 20,
+     "nhan": "DAO_DONG",
+     "canh": false
+    }
    },
    "thieu": [],
    "tin": [],
@@ -984,12 +1483,7 @@
     {
      "ma": "phi-duoi-lvr",
      "hanhDong": "RUT",
-     "lyDo": "phí/LVR 0.64 < 1.50"
-    },
-    {
-     "ma": "vao-duoc",
-     "hanhDong": "VAO",
-     "lyDo": "đủ σ, phiên mở, không sự kiện, phí/LVR đủ, P(văng) trong trần: VÀO"
+     "lyDo": "phí/LVR 0.11 < 1.50"
     },
     {
      "ma": "chua-du-so",
@@ -998,21 +1492,22 @@
     }
    ],
    "dai": {
-    "Pa": 763.9481750877371,
-    "Pb": 776.4828285538701,
-    "rongPct": 0.8170485325071031,
-    "hieuSuat": 246.28248350509884,
-    "pVang": 0.029195240307422644,
-    "ilKyVongBps": -3.405358656264652,
-    "lvrBps": 3.3678230316487725,
-    "phiBps": 3.932160455468819,
-    "thuongBps": 19.79546740285619,
-    "netBps": 20.222269202060353,
-    "tiLePhiTrenLvr": 0.641595687953774,
-    "giuGio": 72.0,
+    "Pa": 123.17606889378699,
+    "Pb": 171.98798093348853,
+    "rongPct": 18.164189163451503,
+    "hieuSuat": 12.489824893989738,
+    "pVang": 0.26788694665137724,
+    "ilKyVongBps": -184.2316701986947,
+    "lvrBps": 167.4049451305107,
+    "phiBps": 11.541891659613954,
+    "thuongBps": 54.45176912443155,
+    "netBps": -123.2380094146492,
+    "tiLePhiTrenLvr": 0.11003925578953326,
+    "doPhuPhi": 0.34874532743251513,
+    "giuGio": 72,
     "ghiChu": [
      "phi-KHONG-nhan-hieu-suat-gia-dinh-pool-tap-trung-nhu-ta",
-     "thuong-het-sau-40h-trong-cua-so-72h"
+     "thuong-het-sau-38h-trong-cua-so-72h"
     ]
    }
   },
@@ -1034,7 +1529,7 @@
     "giaoThuc": 0.45,
     "cang": 0.2,
     "thucThi": 0.4,
-    "cauNoi": 0.0,
+    "cauNoi": 0,
     "chuaDo": [
      "thiTruong"
     ],
@@ -1042,11 +1537,25 @@
    },
    "apyTach": {
     "hienThiPct": 268.91,
-    "phiPct": 26.891,
-    "thuongPct": 242.01900000000003,
+    "aprTuongDuongPct": 130.53825258643744,
+    "apyLaLaiKep": true,
+    "phiPct": 13.053825258643739,
+    "thuongPct": 117.4844273277937,
+    "tiLeHuuCo": 0.09999999999999996,
     "giaDinh": true,
     "nguon": "apy-hien-thi-gia-dinh"
    },
+   "vongQuay": null,
+   "soLaiNenPct": null,
+   "bacVon": {
+    "ten": "thử — chưa có kết cục nào (bằng ngưỡng kinh tế của ty)",
+    "tranUsd": 200,
+    "soKetCuc": 0,
+    "netTbBps": null
+   },
+   "netNamPct": null,
+   "mocSoSanh": "bao-toan-usd",
+   "sanLpPct": null,
    "thiTruongGoc": "DONG",
    "coSanGoc": false,
    "luat": "khong-sigma",
@@ -1058,13 +1567,13 @@
    "sigma": null,
    "soPhien": 0,
    "nguonSigma": null,
-   "tvlUsd": 381440.0,
+   "tvlUsd": 381440,
    "apyHienThi": 268.91,
-   "aprPhi": 0.26891,
-   "aprThuong": 2.4201900000000003,
+   "aprPhi": 0.1305382525864374,
+   "aprThuong": 1.174844273277937,
    "nguonApr": "apy-hien-thi-gia-dinh",
-   "vonXinUsd": 10000.0,
-   "sucChuaUsd": 95360.0,
+   "vonXinUsd": 200,
+   "sucChuaUsd": 95360,
    "bienDong": {
     "ma": "SPCXx",
     "soPhien": 0,
@@ -1104,7 +1613,7 @@
   "moHinh": {}
  },
  "kinhNghiem": {
-  "soQuyetDinh": 48,
+  "soQuyetDinh": 120,
   "soKetCuc": 0,
   "soChuaCham": 0
  },
@@ -1116,9 +1625,10 @@
  },
  "nut": {
   "heSoDai": 1.5,
-  "giuGio": 72.0,
+  "giuGio": 72,
   "tiLePhiTrenLvrToiThieu": 1.5,
   "xacSuatVangToiDa": 0.6,
-  "gioTruocSuKien": 24.0
+  "gioTruocSuKien": 24,
+  "phanBuRuiRoPct": 3
  }
 }

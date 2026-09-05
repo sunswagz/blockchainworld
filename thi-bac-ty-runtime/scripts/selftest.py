@@ -11440,7 +11440,12 @@ def kiem_lp_v3() -> None:
          gan(kd.netBps, kd.phiBps + kd.thuongBps + kd.ilKyVongBps - kd.gasBps, 1e-9))
     kiem("thưởng hết giữa cửa sổ thì chỉ tính tới lúc hết, và khai ra",
          any(x.startswith("thuong-het-sau-66h") for x in kd.ghiChu))
+    kiem("Bài 8 §27 — độ phủ phí = (phí + thưởng)/(|IL| + gas), và > 1 khi và chỉ khi NET > 0 (không đếm đôi LVR)",
+         kd.doPhuPhi is not None
+         and gan(kd.doPhuPhi, (kd.phiBps + (kd.thuongBps or 0.0)) / (abs(kd.ilKyVongBps) + kd.gasBps), 1e-9)
+         and (kd.doPhuPhi > 1.0) == (kd.netBps > 0))
     kdMu = mh.can_dai(100, Pa, Pb, 0.5, 2 / 252, 72, None, None, None, 1.0, None, 1000)
+    kiem("mù phí → độ phủ phí là None, không phải 0", kdMu.doPhuPhi is None)
     kiem("thiếu APR hoặc gas → NET là None, KHÔNG phải số",
          kdMu.netBps is None and kdMu.phiBps is None and kdMu.tiLePhiTrenLvr is None)
     kiem("pool «tập trung như ta» → phí KHÔNG nhân hiệu suất, và ghi chú nói thế",
@@ -11797,8 +11802,8 @@ def kiem_lp_v3() -> None:
     # ── học liệu: quy tắc phải GẮN được vào phép canh, không thì khai ──
     from lp_v3 import hoc_lieu as hl
     _tt = hl.nap_tri_thuc()
-    kiem("tri_thuc.json nạp được, có ít nhất BẢY bài, đúng khuôn",
-         len(_tt) >= 7 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
+    kiem("tri_thuc.json nạp được, có ít nhất TÁM bài, đúng khuôn",
+         len(_tt) >= 8 and all(not b["loiKhuon"] for b in _tt), str([b.get("loiKhuon") for b in _tt]))
     kiem("KHÔNG quy tắc nào mồ côi — mọi mã gắn trỏ vào luật/núm/cửa/trường có thật",
          all(not b["moCoi"] for b in _tt), str([b["moCoi"] for b in _tt]))
     _b1 = _tt[0]
@@ -11806,7 +11811,7 @@ def kiem_lp_v3() -> None:
          len(_tt) >= 2 and any("four-scores" in (b.get("ma") or "") for b in _tt)
          and any(q["ma"] == "chi-tinh-tien-da-ve-tay" and q["trangThai"] == "da-co"
                  for b in _tt for q in b["quyTac"])
-         and any(q["ma"] == "do-uptime-truoc-khi-noi-dai" and q["trangThai"] != "da-co"
+         and any(q["ma"] == "do-uptime-truoc-khi-noi-dai" and q["trangThai"] == "da-co"   # Bài 8 trả nợ
                  for b in _tt for q in b["quyTac"]))
     kiem("Bài 3 đã ghim: rút/tái đầu tư và đếm công vận hành KHAI là nợ, không được tính đã có",
          any("financial-freedom" in (b.get("ma") or "") for b in _tt)
@@ -11830,6 +11835,12 @@ def kiem_lp_v3() -> None:
          any("lending-staking" in (b.get("ma") or "") for b in _tt)
          and any(q["ma"] == "lp-phai-vuot-muc-nen-cong-phan-bu" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
          and any(q["ma"] == "sieu-than-trong-khi-lst-lam-the-chap" and q["trangThai"] == "y-tuong" for b in _tt for q in b["quyTac"]))
+    kiem("Bài 8 đã ghim: độ phủ phí và hai loại PnL có phép canh; mất neo stablecoin và lọc xu hướng KHAI là nợ, không bịa đã có",
+         any("liquidity-pools" in (b.get("ma") or "") for b in _tt)
+         and any(q["ma"] == "phi-phai-bu-luc-can" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "hai-loai-pnl-bat-buoc" and q["trangThai"] == "da-co" for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "canh-bao-mat-peg-stable" and q["trangThai"] == "thieu-phep-canh" for b in _tt for q in b["quyTac"])
+         and any(q["ma"] == "khong-lp-khi-xu-huong-manh" and q["trangThai"] == "thieu-phep-canh" for b in _tt for q in b["quyTac"]))
     kiem("bài 1: nhiều luận điểm, quy tắc đã gắn ≥ 5, và có quy tắc KHAI là chưa có phép canh",
          len(_b1["luanDiem"]) >= 4 and _b1["demQuyTac"]["da-co"] >= 5
          and (_b1["demQuyTac"]["thieu-phep-canh"] + _b1["demQuyTac"]["y-tuong"]) >= 1)
@@ -11954,6 +11965,41 @@ def kiem_lp_v3() -> None:
          and all("loiNhuanRongUsd" in x and x["donBayUsd"] == 0.0 for x in bcH["vonLp"]["business"])
          and ((bcH["vonLp"]["alphaSoHoldUsd"] is None) == (not bcH["vonLp"]["business"])
               or bcH["vonLp"]["alphaSoHoldUsd"] is not None))
+    _dg8 = _vb4.danh_gia(103.0)
+    kiem("Bài 8 §6 — PnL TUYỆT ĐỐI (giá trị + phí − vốn) và alpha so HOLD là HAI số: tuyệt đối dương lớn hơn alpha khi giá đã tăng",
+         gan(_dg8["pnlTuyetDoiUsd"], _dg8["giaTriUsd"] + 5.0 - 1000.0, 1e-9)
+         and _dg8["pnlTuyetDoiUsd"] > 0 and _dg8["alphaSoHoldUsd"] < _dg8["pnlTuyetDoiUsd"])
+    kiem("Bài 8 §26 — cách mép gần nhất: 103 trong [95, 105] → 1,94% tới mép trên; 110 → ÂM (đã ngoài dải)",
+         gan(_dg8["khoangCachMepPct"], (105.0 - 103.0) / 103.0 * 100.0, 1e-9)
+         and _vb4.danh_gia(110.0)["khoangCachMepPct"] < 0)
+    kiem("Bài 8 — báo cáo mang PnL tuyệt đối cạnh alpha ở vốn LP và ở từng doanh nghiệp nhỏ; dải có độ phủ phí",
+         "pnlTuyetDoiUsd" in bcH["vonLp"]
+         and all({"pnlTuyetDoiUsd", "doPhuPhi", "khoangCachMepPct", "uptimeDaiPct"} <= set(x) for x in bcH["vonLp"]["business"])
+         and all("doPhuPhi" in p["dai"] for p in bcH["pool"] if p.get("dai"))
+         and all("uptimeDai" in v for v in bcH["viThe"]))
+    kiem("Bài 8 §15 — chế độ gộp lãi khai là TAY (Uniswap V3 không tự gộp), nằm ở mục ví và ở giả định",
+         bcH["vi"]["gopLai"]["cheDo"] == "tay" and any("KHÔNG tự gộp" in g for g in bcH["giaDinh"]))
+    from types import SimpleNamespace as _NS
+    _coU, _upU, _duU = ty.coHoi, ty.uptimeDai, ty._duong_uptime
+    ty._duong_uptime = lambda: tam / "uptime-thu.json"
+    ty.coHoi = [_NS(viThe=[_NS(viThe={"ma": "u1"}, trangThai={"trongDai": True}),
+                           _NS(viThe={"ma": "u1"}, trangThai={"trongDai": False}),
+                           _NS(viThe={"ma": "u2"}, trangThai={"trongDai": None})])]
+    ty.uptimeDai = {}
+    ty._ghi_uptime()
+    kiem("Bài 8 §26 — uptime dải đếm theo MẪU mỗi lượt quét: 1 trong / 2 mẫu = 50%; không biết trong/ngoài thì KHÔNG đếm; chưa mẫu → None",
+         gan(ty.uptime_dai("u1")["pct"], 50.0, 1e-9) and ty.uptime_dai("u1")["soMau"] == 2
+         and ty.uptime_dai("u2") is None and ty.uptime_dai("khong-co") is None and ty.uptime_dai(None) is None
+         and __import__("json").loads((tam / "uptime-thu.json").read_text(encoding="utf-8"))["u1"]["soTrong"] == 1)
+    ty.coHoi, ty.uptimeDai, ty._duong_uptime = _coU, _upU, _duU
+    import math as _m8
+    _g8 = [100.0 * _m8.exp(0.01 * i) for i in range(21)]
+    _xh = bang_gia.xu_huong(_g8, 0.3)
+    kiem("Bài 8 §9 — xu hướng CHỈ ĐO: +1%/phiên × 20 phiên với σ 30% → z ≈ 2,37 TĂNG MẠNH; đi ngang → z 0 DAO ĐỘNG; chưa có luật đọc (canh=False)",
+         _xh["nhan"] == "TANG_MANH" and gan(_xh["z"], 0.2 / (0.3 * (20 / 252) ** 0.5), 1e-9) and _xh["canh"] is False
+         and bang_gia.xu_huong([100.0] * 21, 0.3)["nhan"] == "DAO_DONG"
+         and bang_gia.xu_huong([100.0], 0.3) is None and bang_gia.xu_huong(_g8, 0.0) is None
+         and not any(("xu-huong" in m or "xuhuong" in m.lower()) for m in qd.MA_LUAT))
     kiem("KPI Bài 3: sáu tháng gần nhất đều «chưa có» (None) khi chưa vị thế đóng nào; thang tự do năm bậc",
          len(bcH["vonLp"]["dongTienTheoThang"]) == 6
          and all(x["usd"] is None for x in bcH["vonLp"]["dongTienTheoThang"])

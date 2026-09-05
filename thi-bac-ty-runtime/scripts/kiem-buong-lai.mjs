@@ -186,6 +186,21 @@ if (co("--ghi-mau")) {
   console.log("\n  đã ghi mẫu " + DUONG_MAU + "\n");
   process.exit(0);
 }
+// Mẫu bể thanh khoản cũng phải lấy TRƯỚC `dungDomGia()`: DOM giả đè `fetch`
+// bằng bản trả `{}` và đè `setTimeout` (undici chết) — lấy sau là ghi ra `{}`
+// rồi bộ kiểm vẽ trang trên số không mà vẫn xanh. Đã xảy ra một lần.
+const DUONG_BTK = join(GOC, "scripts/mau-be-thanh-khoan.json");
+if (co("--ghi-mau-btk")) {
+  const cong = co("--cong") ? doi[doi.indexOf("--cong") + 1] : "5188";
+  const r = await fetch("http://127.0.0.1:" + cong + "/api/be-thanh-khoan");
+  const b = await r.json();
+  if (!b || !Array.isArray(b.pool)) {
+    console.log("  ✗ mẫu bể thanh khoản không có `pool` — máy " + cong + " chưa quét xong? KHÔNG ghi.");
+    process.exit(2);
+  }
+  writeFileSync(DUONG_BTK, JSON.stringify(b, null, 1) + "\n", "utf8");
+  console.log("  đã ghi mẫu " + DUONG_BTK + " (" + b.pool.length + " pool)");
+}
 dungDomGia();
 // `ty-perp.js` TRƯỚC `app.js`: `index.html` nạp nó trước, và `app.js` hỏi
 // `window.TYPERP` khi vẽ trang mổ máy. Bảy khối tầng ba của nó — bps thô,
@@ -241,15 +256,13 @@ for (const [nhan, du] of MAU) {
 // `--ghi-mau-btk --cong 5189`); có mẫu thì vẽ THẬT trang ấy trên cả ba
 // biến thể, cùng thước với mọi trang khác.
 {
-  const DUONG_BTK = join(GOC, "scripts/mau-be-thanh-khoan.json");
-  if (co("--ghi-mau-btk")) {
-    const cong = co("--cong") ? doi[doi.indexOf("--cong") + 1] : "5188";
-    const r = await fetch("http://127.0.0.1:" + cong + "/api/be-thanh-khoan");
-    writeFileSync(DUONG_BTK, JSON.stringify(await r.json(), null, 1) + "\n", "utf8");
-    console.log("  đã ghi mẫu " + DUONG_BTK);
-  }
   let B = null;
   try { B = JSON.parse(readFileSync(DUONG_BTK, "utf8")); } catch (e) { B = null; }
+  if (B && !Array.isArray(B.pool)) {
+    console.log("  ✗     btk         mẫu trên đĩa không có `pool` (rỗng) — ghi lại bằng --ghi-mau-btk");
+    process.exitCode = 1;
+    B = null;
+  }
   if (!B) {
     console.log("  ~     btk         không có mẫu — bỏ qua "
       + "(node scripts/kiem-buong-lai.mjs --ghi-mau-btk --cong 5189)");

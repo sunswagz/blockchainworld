@@ -150,7 +150,27 @@ def bien_dong_lien_quan(ma: str, thuMuc: Path | None = None) -> dict:
         ra["tiLeNoCo"] = s10 / s60
         ra["trangThai"] = ("NO" if s10 / s60 > 1.3 else
                            "CO" if s10 / s60 < 0.75 else "ON")
+    if len(g) >= 21 and s60:
+        ra["doi20NgayPct"] = (g[-1] / g[-21] - 1.0) * 100.0
+        ra["xuHuong"] = xu_huong(g[-21:], s60)
     return ra
+
+
+def xu_huong(g: list, sigmaNam: float) -> dict | None:
+    """Bài 8 §9: LP là BÁN tài sản đang tăng, MUA tài sản đang giảm — xu hướng
+    một chiều mạnh là lúc LP thua HOLD; đi ngang là lúc LP thắng. Đo bằng
+    z = ln(g[-1]/g[0]) / (σ·√(n/252)); |z| > 2 là mạnh.
+
+    CHỈ ĐO, chưa có luật đọc: thước mới phải có mẫu (so alpha LP giữa hai
+    chế độ) rồi mới thành cửa — không đặt ngưỡng chặn khi chưa đo được nó
+    có nói đúng không."""
+    if len(g) < 2 or not sigmaNam or g[0] <= 0 or g[-1] <= 0:
+        return None
+    n = len(g) - 1
+    z = math.log(g[-1] / g[0]) / (sigmaNam * math.sqrt(n / 252.0))
+    return {"z": z, "soPhien": n,
+            "nhan": "TANG_MANH" if z > 2.0 else "GIAM_MANH" if z < -2.0 else "DAO_DONG",
+            "canh": False}
 
 
 def gia_moi_nhat(ma: str, thuMuc: Path | None = None,
