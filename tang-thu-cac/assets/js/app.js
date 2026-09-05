@@ -235,7 +235,7 @@
     $("#dem").textContent = ds.length + " / " + SK.length + " skill";
 
     var host2 = $("#ds");
-    if (!ds.length) { host2.innerHTML = '<p class="trong">Không có skill nào khớp.</p>'; return; }
+    if (!ds.length) { veTrongDanhMuc(host2); return; }
     host2.innerHTML = "";
     ds.slice(0, 400).forEach(function (s) {
       var g = nhomCua(s.nhom), tv = tomVi(s);
@@ -264,6 +264,58 @@
       p.textContent = "Hiện 400 skill đầu. Lọc theo nhóm hoặc tìm để thu hẹp.";
       host2.appendChild(p);
     }
+  }
+
+  /* ── Ô TRỐNG CỦA DANH MỤC ──────────────────────────
+     Hai màn kia đã tự giải thích khi trống: Xu hướng nói vì sao chưa
+     đủ mốc, Lịch sử nói nhật ký bắt đầu từ đâu. Màn này thì không —
+     nó chỉ có một câu "Không có skill nào khớp.", đúng nhưng không
+     dùng được.
+
+     Ba bộ lọc chồng nhau (nhóm việc · nguồn · từ khoá) và chỉ một
+     trong ba nằm trong tầm mắt: chip nhóm và chip nguồn ở trên đầu
+     danh sách, còn ô tìm nằm tận thanh đỉnh và KHÔNG bị xoá khi đổi
+     phòng. Nên ca thường gặp nhất là gõ một từ ở phòng khác, quay
+     lại đây, thấy danh sách rỗng mà không thấy lý do ở đâu cả.
+
+     Nên: kể ĐỦ điều kiện đang bật, rồi cho MỘT lối ra. Không giấu ô
+     trống đi — nó vẫn trống, chỉ là trống có nói. */
+  function veTrongDanhMuc(host2) {
+    var dk = [];
+    if (state.nhom !== "all") dk.push("nhóm việc <b>" + esc(nhomCua(state.nhom).ten) + "</b>");
+    if (state.nguon === "ct") dk.push("nguồn <b>đã dịch tiếng Việt</b>");
+    if (state.nguon === "cd") dk.push("nguồn <b>còn nguyên bản gốc</b>");
+    var tq = state.q.trim();
+    if (tq) dk.push("từ khoá <b>“" + esc(tq) + "”</b>");
+
+    /* Không điều kiện nào bật mà vẫn rỗng: lỗi nằm ở bản chụp, không
+       nằm ở người dùng. Đừng mời họ xoá bộ lọc không có. */
+    if (!dk.length) {
+      host2.innerHTML = '<div class="trong-loc"><b>Danh mục đang trống.</b>' +
+        "<p>Bản chụp gần nhất không giữ được skill nào — không phải do bộ lọc, " +
+        "vì hiện không có bộ lọc nào bật. Bản cập nhật kế tiếp (4 lượt mỗi ngày) " +
+        "sẽ dựng lại danh mục.</p></div>";
+      return;
+    }
+
+    host2.innerHTML = '<div class="trong-loc"><b>Không skill nào khớp ' +
+      (dk.length > 1 ? "cả " + dk.length + " điều kiện" : "điều kiện") + " đang bật.</b>" +
+      "<ul>" + dk.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
+      "<p>Danh mục có " + SK.length + " skill. Bỏ bớt một điều kiện ở trên, " +
+      "hoặc xoá hết để xem lại toàn bộ.</p>" +
+      '<button class="nut-phu" id="xoaLoc" type="button">Xoá hết điều kiện · xem cả ' +
+      SK.length + " skill</button></div>";
+
+    var nut = $("#xoaLoc");
+    if (nut) nut.addEventListener("click", function () {
+      state.nhom = "all"; state.nguon = "all"; state.q = "";
+      /* Ô tìm nằm ở thanh đỉnh, ngoài vùng ve() vẽ lại — không tự tay
+         xoá nó thì từ khoá vẫn nằm đó trong khi danh sách đã bỏ lọc,
+         và lần gõ tiếp theo lọc theo một chuỗi người dùng tưởng đã mất. */
+      var o = $("#q");
+      if (o) o.value = "";
+      ve();
+    });
   }
 
   /* ── hồ sơ skill ──────────────────────────────────── */
