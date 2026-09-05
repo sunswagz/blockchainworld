@@ -61,10 +61,15 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
         for v in c.viThe:
             viThe.append({"kyHieu": c.kyHieu, **v.tom_tat()})
 
+    thuong = _thuong(cfg, now, co)
     return {
         "luc": now.isoformat(), "lucVn": now.strftime("%H:%M %d/%m/%Y"),
         "phien": bc.tom_tat(),
-        "thuong": _thuong(cfg, now, co),
+        "thuong": thuong,
+        "cheDo": _che_do(thuong, bc),
+        "thiTruongGoc": _thi_truong_goc(bc),
+        "vongNgay": _vong_ngay(ty, now),
+        "nhip": _nhip(cfg),
         "nguonMu": mu, "thieuDiaChi": thieuDiaChi, "thieuKhoiLuong": thieuVol,
         "giaDinh": [
             f"phần thưởng trong APY hiển thị = {cfg.get('giaDinhPhanThuong'):.0%} "
@@ -82,6 +87,87 @@ def dung(ty, now: dt.datetime | None = None, coHoi: list | None = None) -> dict:
         "tienHoa": _tien_hoa_gon(),
         "nut": cfg.get("nut"),
     }
+
+
+def _che_do(thuong: dict, bc) -> dict:
+    """Chế độ vận hành — MỘT chữ nói cả cách máy đang nghĩ.
+
+    CAMPAIGN_HUNTER khi chương trình thưởng còn chạy: không đuổi APY, thu
+    dữ liệu từng giờ, vào cỡ thử, hạn chế đổi dải (luật chụp ngẫu nhiên của
+    OKX), rút hoặc cân lại đúng giờ hết. BINH_THUONG khi không có thưởng:
+    xếp hạng bằng phí gốc so LVR, không hơn không kém.
+    """
+    con = thuong.get("conGio")
+    if con is not None and con > 0:
+        return {"ma": "CAMPAIGN_HUNTER", "ten": "Săn chương trình thưởng",
+                "loiKhuyen": (
+                    f"Thưởng còn {con:.0f} giờ. Không đuổi APY hiển thị; thu số "
+                    f"từng giờ, chỉ vào cỡ THỬ ở pool có phí/LVR đủ, hạn chế đổi "
+                    f"dải vì OKX chụp ngẫu nhiên — đổi lúc chụp là mất thưởng giờ "
+                    f"ấy. Tới giờ hết: thu phí, rồi cân lại bằng phí gốc.")}
+    return {"ma": "BINH_THUONG", "ten": "Bình thường",
+            "loiKhuyen": "Không có thưởng: xếp hạng bằng phí gốc so với LVR; "
+                         "APY hiển thị cũ là số của một thế giới đã qua."}
+
+
+def _thi_truong_goc(bc) -> dict:
+    """Thị trường GỐC (sàn Mỹ) mở hay đóng, trong khi token chạy 24/7.
+
+    Đóng → giá chuỗi không có neo, khám phá giá dồn vào cú mở cửa: rủi ro
+    khoảng trống ↑, tin cậy dải ↓, không đổi dải. Đây là lý do máy không
+    dùng cùng một dải bất kể Nasdaq đang mở hay đóng.
+    """
+    tt = bc.trangThai
+    if tt == lich.MO_CUA:
+        return {"trangThai": "MO", "cau": "Sàn Mỹ ĐANG MỞ — giá token có neo, "
+                "đây là lúc duy nhất dải đề xuất đáng tin", "ruiRo": []}
+    if tt == lich.TRUOC_MO:
+        return {"trangThai": "SAP_MO",
+                "cau": f"Sàn Mỹ mở sau {bc.gioToiMo:.1f} giờ — cú «bắt kịp» lúc "
+                       f"mở là lúc arbitrageur ăn LP; chờ 30 phút sau mở",
+                "ruiRo": ["khoang-trong-mo-cua", "lvr-don-mot-khoanh-khac"]}
+    ke = (f"mở lại sau {bc.gioToiMo:.0f} giờ" if bc.gioToiMo is not None
+          else "chưa có phiên kế")
+    return {"trangThai": "DONG",
+            "cau": f"Sàn Mỹ ĐÓNG ({ke}) trong khi token giao dịch 24/7 → giá chuỗi "
+                   f"không neo, rủi ro khoảng trống ↑, tin cậy dải ↓ — KHÔNG vào mới, "
+                   f"KHÔNG đổi dải",
+            "ruiRo": ["gia-chuoi-khong-neo", "khoang-trong-mo-cua",
+                      "tin-cay-dai-thap", "lech-oracle-dex"]}
+
+
+def _vong_ngay(ty, now) -> dict | None:
+    vn = getattr(ty, "vongNgay", None)
+    if vn is None:
+        return None
+    from .ngay import MOC, gio_moc
+    ke = []
+    for moc in MOC:
+        for lui in range(0, 7):      # qua cả cuối tuần dài + ngày nghỉ
+            g = gio_moc(moc, now.date() + dt.timedelta(days=lui))
+            if g is not None and g > now:
+                ke.append({"moc": moc, "luc": g.isoformat(),
+                           "conGio": (g - now).total_seconds() / 3600.0})
+                break
+    return {"daChay": dict(vn.daChay), "lanCuoi": dict(vn.lanCuoi), "mocKe": ke}
+
+
+def _nhip(cfg) -> list:
+    """Một ngày của ty — nhịp nào làm việc gì, đọc từ hằng số thật."""
+    from .ty_bien_do import (NHIP_GIA_GOC_GIAY, NHIP_GIA_GOC_TRONG_PHIEN_GIAY,
+                             NHIP_TIN_GIAY)
+    return [
+        {"nhip": f"mỗi {int(cfg.get('nhipGiay') or 300) // 60} phút",
+         "viec": "cân lại mọi pool · giá pool qua RPC (khi có địa chỉ) · ghi quyết định"},
+        {"nhip": f"mỗi {int(NHIP_GIA_GOC_TRONG_PHIEN_GIAY // 60)} phút trong phiên Mỹ, "
+                 f"{int(NHIP_GIA_GOC_GIAY // 3600)} giờ ngoài phiên",
+         "viec": "giá cổ phiếu gốc + giá đang giao dịch (Yahoo)"},
+        {"nhip": f"mỗi {int(NHIP_TIN_GIAY // 3600)} giờ", "viec": "tin RSS theo mã, gắn cờ"},
+        {"nhip": "07:00 VN", "viec": "bản tin sáng"},
+        {"nhip": "60 phút trước sàn Mỹ mở", "viec": "soát lại trước cú bắt kịp"},
+        {"nhip": "30 phút sau sàn Mỹ đóng",
+         "viec": "CHẤM quyết định hết cửa sổ · gom bài học · một lượt tiến hoá"},
+    ]
 
 
 def _het_thuong(cfg):
@@ -125,9 +211,46 @@ def _thuong(cfg, now, co) -> dict:
     return ra
 
 
+def _tom_tat_pool(c) -> str:
+    """Một câu người đọc được, thay cho bảng số — đúng thứ người vận hành
+    muốn thấy đầu tiên ở mỗi hồ sơ."""
+    kd, q = c.dai, c.quyetDinh
+    apy = c.pool.get("apyHienThiPhanTram")
+    if q.hanhDong == "VAO" and kd:
+        return (f"CÓ THỂ VÀO ${c.vonXinUsd:,.0f} ở dải {kd.Pa:.2f}–{kd.Pb:.2f} "
+                f"(±{kd.rong:.1%}): phí/LVR {kd.tiLePhiTrenLvr:.2f}, P(văng) ≤ "
+                f"{kd.xacSuatVang['tong']:.0%}, NET kỳ vọng {kd.netBps:+.0f} bps trong "
+                f"{c.pool.get('giuGio', 72):.0f} giờ.")
+    dau = (f"Thấy APY {apy:.0f}% nhưng " if apy is not None else "")
+    if q.hanhDong in ("GIU",):
+        return dau + f"đang giữ: {q.lyDo}"
+    if q.hanhDong in ("RUT", "NOI_RONG", "THU_HEP", "DOI_DAI"):
+        return dau + f"khuyên {q.hanhDong.replace('_', ' ')}: {q.lyDo}"
+    them = ""
+    if kd and kd.tiLePhiTrenLvr is not None and kd.tiLePhiTrenLvr < 1.5:
+        them = (f" Kể cả tính thưởng, phí/LVR chỉ {kd.tiLePhiTrenLvr:.2f} ở dải "
+                f"±{kd.rong:.1%} — APY không trả nổi tổn thất so với σ {c.sigma.get('sigma', 0):.0%}.")
+    return dau + f"KHÔNG khuyến nghị vào lúc này: {q.lyDo}." + them
+
+
 def _mot_pool(c) -> dict:
+    from .ty_bien_do import _rui_ro
     kd = c.dai
+    apy = c.pool.get("apyHienThiPhanTram")
+    rr = _rui_ro(c)
     d = {"kyHieu": c.kyHieu, "hanhDong": c.quyetDinh.hanhDong,
+         "tomTat": _tom_tat_pool(c),
+         "diemRuiRo": rr.cao_nhat(), "ruiRo": rr.tom_tat(),
+         "apyTach": {"hienThiPct": apy,
+                     "phiPct": None if c.aprPhi is None else c.aprPhi * 100.0,
+                     "thuongPct": None if c.aprThuong is None else c.aprThuong * 100.0,
+                     "giaDinh": c.nguonApr.startswith("apy-hien-thi"),
+                     "nguon": c.nguonApr},
+         "thiTruongGoc": ("MO" if c.phien.get("trangThai") == lich.MO_CUA
+                          else "SAP_MO" if c.phien.get("trangThai") == lich.TRUOC_MO
+                          else "DONG"),
+         "coSanGoc": c.sigma.get("nguon") != "chuoi" and c.sigma.get("sigma") is not None
+                     or c.gia.get("nguon") in ("goc", "goc-tuc-thoi"),
          "luat": c.quyetDinh.luatQuyet, "lyDo": c.quyetDinh.lyDo,
          "biChan": c.quyetDinh.biChan,
          "gia": c.gia.get("gia"), "nguonGia": c.gia.get("nguon"),

@@ -11705,17 +11705,32 @@ def kiem_lp_v3() -> None:
     # ── hôm nay · vòng ngày · lát cắt ───────────────────────────────────
     from lp_v3 import hom_nay, ngay
     from lp_v3.lat_cat import dung_lat_cat
+    vn = ngay.VongNgay(ty, tam / "moc.json", tam / "bao-cao")
+    ty.vongNgay = vn
     bcH = hom_nay.dung(ty, mo)
     vb = hom_nay.van_ban(bcH)
     kiem("báo cáo có đủ: phiên, thưởng, nguồn mù, giả định, hành động, bài học",
          all(k in bcH for k in ("phien", "thuong", "nguonMu", "giaDinh", "tomTatHanhDong", "pool"))
          and "HÀNH ĐỘNG" in vb and "GIẢ ĐỊNH" in vb and "BÀI HỌC" in vb)
     kiem("giá là giá đóng cửa mà khuyên VÀO thì nhắc dịch dải theo giá OKX", "dịch dải" in vb)
+    kiem("hồ sơ tình báo: chế độ, thị trường gốc, mốc kế, nhịp — và mỗi pool có APY tách + một câu kết luận",
+         bcH["cheDo"]["ma"] == "CAMPAIGN_HUNTER" and bcH["thiTruongGoc"]["trangThai"] == "MO"
+         and {m["moc"] for m in bcH["vongNgay"]["mocKe"]} == {"sang", "truoc-mo", "sau-dong"}
+         and len(bcH["nhip"]) >= 5
+         and all(("apyTach" in p and "tomTat" in p and "diemRuiRo" in p) for p in bcH["pool"]),
+         str([m["moc"] for m in bcH["vongNgay"]["mocKe"]]))
+    _pN = [p for p in bcH["pool"] if p["kyHieu"] == "NVDAx-USDG"][0]
+    kiem("câu kết luận của pool VÀO mang dải, phí/LVR và NET; APY tách khai là GIẢ ĐỊNH",
+         _pN["tomTat"].startswith("CÓ THỂ VÀO") and _pN["apyTach"]["giaDinh"] is True
+         and gan(_pN["apyTach"]["phiPct"] + _pN["apyTach"]["thuongPct"], _pN["apyTach"]["hienThiPct"], 1e-6))
+    _cu = hom_nay.dung(ty, _dt.datetime(2026, 9, 5, 10, 0, tzinfo=lich.VN))
+    kiem("thứ Bảy: thị trường gốc ĐÓNG kèm rủi ro khoảng trống; pool nói «KHÔNG khuyến nghị»",
+         _cu["thiTruongGoc"]["trangThai"] == "DONG" and "khoang-trong-mo-cua" in _cu["thiTruongGoc"]["ruiRo"]
+         and all("KHÔNG khuyến nghị" in p["tomTat"] or p["hanhDong"] != "CHO" for p in _cu["pool"]))
     kiem("kiểm chéo quỹ thưởng với APY hiển thị có mặt", "kiemCheo" in bcH["thuong"])
     lc = dung_lat_cat(ty, mo)
     kiem("lát cắt: `date` và `tomTat` đứng ĐẦU — Cổng Thành đọc 900 byte đầu",
          list(lc)[:2] == ["date", "tomTat"])
-    vn = ngay.VongNgay(ty, tam / "moc.json", tam / "bao-cao")
     kiem("mốc `truoc-mo` không tồn tại vào thứ Bảy",
          ngay.gio_moc("truoc-mo", _dt.date(2026, 9, 5)) is None
          and ngay.gio_moc("truoc-mo", _dt.date(2026, 9, 4)).strftime("%H:%M") == "19:30")

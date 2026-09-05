@@ -338,3 +338,46 @@ details.chi-tiet > div { margin-top: 8px; }
 .tab-con button.chon { color: var(--chu); border-bottom-color: var(--nhan); font-weight: 600; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+
+/* ── BỂ THANH KHOẢN V3: hồ sơ tình báo từng pool ────────────────── */
+.btk-luoi { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.btk-the {
+  background: var(--the); border: 1px solid var(--vien); border-left: 4px solid var(--observe);
+  border-radius: var(--r); padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: var(--dam);
+}
+.btk-the[data-hd="LIVE"]  { border-left-color: var(--live); }
+.btk-the[data-hd="PAPER"] { border-left-color: var(--paper); }
+.btk-the[data-hd="FAULT"] { border-left-color: var(--fault); }
+.btk-the > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.btk-the .ten b { font-size: 16px; letter-spacing: -.01em; }
+.btk-the .ten i { display: block; font-style: normal; font-size: 11px; color: var(--chu-rat-mo); font-family: ui-monospace, monospace; }
+.btk-the .ket-luan { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--chu); }
+.btk-hd {
+  display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .06em; white-space: nowrap;
+  color: var(--observe); background: color-mix(in srgb, var(--observe) 14%, transparent);
+}
+.btk-hd.lon { font-size: 13px; padding: 5px 12px; }
+.btk-hd.LIVE  { color: var(--live);  background: color-mix(in srgb, var(--live) 14%, transparent); }
+.btk-hd.PAPER { color: var(--paper); background: color-mix(in srgb, var(--paper) 14%, transparent); }
+.btk-hd.FAULT { color: var(--fault); background: color-mix(in srgb, var(--fault) 14%, transparent); }
+.btk-apy .nhan { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin-bottom: 4px; flex-wrap: wrap; }
+.btk-apy .bar { height: 8px; border-radius: 4px; background: var(--the-2); overflow: hidden; display: flex; }
+.btk-apy .bar i { display: block; height: 100%; }
+.btk-apy .bar i.phi { background: var(--live); }
+.btk-apy .bar i.thuong { background: var(--observe); }
+.btk-so { display: grid; gap: 8px 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.btk-o { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.btk-o .t { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--chu-rat-mo); }
+.btk-o .g { font-size: 13px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.btk-vi-sao { display: flex; flex-direction: column; gap: 3px; border-top: 1px solid var(--vien); padding-top: 8px; }
+.btk-vi-sao span { font-size: 12px; color: var(--chu-mo); }
+.btk-vi-sao span.tin { color: var(--chu); }
+.btk-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px;
+  padding: 12px 14px; background: var(--the-2); border-radius: var(--r); }
+.btk-form b { font-size: 13px; width: 100%; }
+.btk-form input { background: var(--the); color: var(--chu); border: 1px solid var(--vien); border-radius: 4px;
+  padding: 6px 8px; font-size: 12.5px; width: 150px; }
+.btk-form button, button.nho { font-size: 12.5px; padding: 6px 10px; }

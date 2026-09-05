@@ -2408,9 +2408,30 @@
   function pc(v, n) { return v == null || !isFinite(v) ? "—" : (v * 100).toFixed(n == null ? 1 : n) + "%"; }
   var TEN_HD = { VAO: "VÀO", GIU: "GIỮ", CHO: "CHỜ", RUT: "RÚT", NOI_RONG: "NỚI DẢI",
                  THU_HEP: "THU HẸP", DOI_DAI: "ĐỔI DẢI" };
+  var MAU_HD = { VAO: "LIVE", GIU: "PAPER", CHO: "OBSERVE", RUT: "FAULT",
+                 NOI_RONG: "FAULT", THU_HEP: "PAPER", DOI_DAI: "FAULT" };
+  function hd_badge(hd, lon) {
+    var e = el("span", "btk-hd " + (MAU_HD[hd] || "OBSERVE") + (lon ? " lon" : ""),
+               TEN_HD[hd] || hd || "—");
+    return e;
+  }
+  function o_nho(ten, gt, lop) {
+    var o = el("div", "btk-o");
+    o.appendChild(el("span", "t", ten));
+    o.appendChild(el("span", "g" + (lop ? " " + lop : ""), gt));
+    return o;
+  }
+  function gioTuIso(s) {
+    var t = Date.parse(s); if (isNaN(t)) return "—";
+    var d = new Date(t);
+    return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2)
+      + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2);
+  }
+
   function ve_be_thanh_khoan() {
     var f = document.createDocumentFragment();
-    if (!BTK) {
+    var src = BTK || (S && S.beThanhKhoan) || null;
+    if (!src) {
       tai_btk();
       var k0 = khoi("Bể thanh khoản V3 — đang tải");
       k0.appendChild(giai(BTK_LOI
@@ -2421,69 +2442,172 @@
       f.appendChild(k0);
       return f;
     }
-    var b = BTK, ph = b.phien || {}, th = b.thuong || {};
-    var k = khoi("Bể thanh khoản V3 — " + (b.lucVn || ""),
-      "Máy KHUYÊN, người đặt ở OKX rồi ghi vào sổ vị thế bên dưới. Không có "
-      + "đường đặt lệnh nào trong runtime này.");
+    var b = src, ph = b.phien || {}, th = b.thuong || {}, cd = b.cheDo || {},
+        tg = b.thiTruongGoc || {}, hd = b.tomTatHanhDong || {}, kn = b.kinhNghiem || {};
+
+    /* ── BÂY GIỜ: một đoạn, đọc trước mọi con số ─────────────────── */
+    var bg = el("p", "bay-gio");
+    bg.appendChild(el("b", null, "BÂY GIỜ · " + (cd.ten || "—")));
+    bg.appendChild(document.createTextNode(
+      (b.lucVn || "") + ". " + (tg.cau || "") + ". " + (cd.loiKhuyen || "")
+      + " Đang theo " + so((b.pool || []).length) + " pool: "
+      + Object.keys(hd).map(function (k) { return (TEN_HD[k] || k) + " " + hd[k].length; }).join(", ")
+      + "."));
+    f.appendChild(bg);
+
+    /* ── năm ô số ─────────────────────────────────────────────────── */
+    var k = khoi("Năm câu hỏi, mười giây");
     var d = el("div", "day-so");
-    d.appendChild(oSo("Phiên Mỹ", ph.trangThai || "—",
-      ph.gioToiMo != null ? "mở sau " + Number(ph.gioToiMo).toFixed(1) + "h"
-        : ph.gioToiDong != null ? "đóng sau " + Number(ph.gioToiDong).toFixed(1) + "h" : "",
-      ph.trangThai === "MO_CUA" ? "duong" : null));
+    d.appendChild(oSo("Thị trường gốc", tg.trangThai === "MO" ? "MỞ" : tg.trangThai === "SAP_MO" ? "SẮP MỞ" : "ĐÓNG",
+      ph.gioToiMo != null ? "sàn Mỹ mở sau " + Number(ph.gioToiMo).toFixed(1) + "h"
+        : ph.gioToiDong != null ? "đóng sau " + Number(ph.gioToiDong).toFixed(1) + "h" : "token chạy 24/7",
+      tg.trangThai === "MO" ? "duong" : tg.trangThai === "DONG" ? "am" : null));
     d.appendChild(oSo("Thưởng còn", th.conGio == null ? "—" : Math.round(th.conGio) + " giờ",
-      th.ketThuc ? "hết " + th.ketThuc + " VN" : ""));
-    var hd = b.tomTatHanhDong || {};
-    d.appendChild(oSo("VÀO được", so((hd.VAO || []).length), (hd.VAO || []).join(", ")));
+      th.ketThuc ? "hết " + th.ketThuc + " VN" : "không có chương trình"));
+    d.appendChild(oSo("Pool VÀO được", so((hd.VAO || []).length),
+      (hd.VAO || []).join(", ") || "không pool nào qua đủ luật", (hd.VAO || []).length ? "duong" : null));
     d.appendChild(oSo("Vị thế đang giữ", so((b.viThe || []).length),
-      "quyết định đã ghi " + so((b.kinhNghiem || {}).soQuyetDinh)));
+      (b.viThe || []).length ? "máy theo dõi mỗi 5 phút" : "ghi ở mục Vị thế bên dưới"));
+    d.appendChild(oSo("Kinh nghiệm", so(kn.soQuyetDinh) + " → " + so(kn.soKetCuc),
+      "quyết định đã ghi → đã chấm" + (kn.soChuaCham ? " · " + so(kn.soChuaCham) + " chờ chấm" : "")));
     k.appendChild(d);
+
+    /* cảnh báo thế giới: nguồn mù, rủi ro thị trường gốc, sự kiện */
+    var canh = el("div", "viec");
+    if ((tg.ruiRo || []).length) {
+      var v0 = el("div", "viec-1");
+      v0.appendChild(el("b", null, "Thị trường gốc " + (tg.trangThai === "DONG" ? "ĐÓNG" : "sắp mở") + " · token 24/7"));
+      v0.appendChild(el("span", null, "Rủi ro đang bật: " + tg.ruiRo.join(" · ")
+        + ". Máy không dùng cùng một dải bất kể sàn Mỹ mở hay đóng."));
+      canh.appendChild(v0);
+    }
     if ((b.nguonMu || []).length) {
-      var m = el("div", "viec-1");
-      m.appendChild(el("b", null, "Nguồn đang mù (" + b.nguonMu.length + ")"));
-      b.nguonMu.forEach(function (x) { m.appendChild(el("span", null, "✗ " + x)); });
-      k.appendChild(m);
+      var v1 = el("div", "viec-1 nhe");
+      v1.appendChild(el("b", null, "Nguồn đang mù (" + b.nguonMu.length + ")"));
+      b.nguonMu.forEach(function (x) { v1.appendChild(el("span", null, "✗ " + x)); });
+      canh.appendChild(v1);
     }
-    if (th.kiemCheo) k.appendChild(giai(th.kiemCheo));
-    k.appendChild(giai("Giả định đang dùng: " + (b.giaDinh || []).join(" | ")));
     if ((ph.suKien || []).length) {
-      k.appendChild(giai("Sự kiện 7 ngày tới: " + ph.suKien.slice(0, 6).map(function (s) {
-        return s.ten + " (" + String(s.luc).slice(5, 16).replace("T", " ") + ")"; }).join(" · ")));
+      var v2 = el("div", "viec-1 nhe");
+      v2.appendChild(el("b", null, "Sự kiện 7 ngày tới"));
+      ph.suKien.slice(0, 8).forEach(function (s) {
+        v2.appendChild(el("span", null, gioTuIso(s.luc) + " — " + s.ten + (s.ma ? " (" + s.ma + ")" : "")));
+      });
+      canh.appendChild(v2);
     }
+    if (th.kiemCheo) {
+      var v3 = el("div", "viec-1 nhe");
+      v3.appendChild(el("b", null, "Kiểm chéo quỹ thưởng"));
+      v3.appendChild(el("span", null, th.kiemCheo));
+      canh.appendChild(v3);
+    }
+    if (canh.children.length) k.appendChild(canh);
+    k.appendChild(giai("Giả định đang dùng: " + (b.giaDinh || []).join(" | ")));
     f.appendChild(k);
 
-    var k2 = khoi("Từng pool — hành động và vì sao");
-    k2.appendChild(bang(
-      [{ t: "Pool" }, { t: "Hành động" }, { t: "Luật" }, { t: "Giá" }, { t: "σ", n: true },
-       { t: "Dải đề xuất" }, { t: "P(văng)", n: true }, { t: "phí/LVR", n: true },
-       { t: "NET/cửa sổ", n: true }, { t: "Vì sao" }],
-      (b.pool || []).map(function (p) {
-        var dd = p.dai || {};
-        return [
-          { t: p.kyHieu },
-          { el: el("span", "cot " + (p.hanhDong === "VAO" ? "LIVE" : p.hanhDong === "GIU" ? "PAPER" : "OBSERVE"),
-                   TEN_HD[p.hanhDong] || p.hanhDong) },
-          { t: p.luat || "" },
-          { t: p.gia == null ? "—" : Number(p.gia).toFixed(2) + " (" + (p.nguonGia || "?") + ", "
-               + (p.tuoiGiaGio == null ? "?" : Math.round(p.tuoiGiaGio)) + "h)" },
-          { t: p.sigma == null ? "—" : pc(p.sigma, 0) + " /" + so(p.soPhien), c: "n" },
-          { t: dd.Pa == null ? "—" : Number(dd.Pa).toFixed(2) + " – " + Number(dd.Pb).toFixed(2)
-               + " (±" + Number(dd.rongPct).toFixed(1) + "%, " + Math.round(dd.hieuSuat) + "×)" },
-          { t: dd.pVang == null ? "—" : "≤ " + pc(dd.pVang, 0), c: "n" },
-          { t: dd.tiLePhiTrenLvr == null ? "—" : Number(dd.tiLePhiTrenLvr).toFixed(2), c: "n" },
-          { t: bps(dd.netBps), c: "n " + (dd.netBps > 0 ? "duong" : dd.netBps < 0 ? "am" : "") },
-          { t: p.lyDo || "" }
-        ];
-      })));
-    k2.appendChild(giai("NET = phí + thưởng + IL kỳ vọng − gas, trên vốn xin, trong cửa sổ "
-      + "giữ. P(văng) là CẬN TRÊN. Nguồn APR ghi cạnh từng pool ở dòng lệnh "
-      + "(python -m lp_v3.hom_nay); «apy-hien-thi-gia-dinh» nghĩa là phí gốc "
-      + "được TÁCH bằng giả định, chưa đo."));
+    /* ── HỒ SƠ TÌNH BÁO từng pool ─────────────────────────────────── */
+    var k2 = khoi("Hồ sơ từng pool — hành động trước, con số sau",
+      "Mỗi thẻ là một pool. Dòng đầu là câu máy kết luận; APY hiển thị được TÁCH thành "
+      + "phí và thưởng; các ô dưới là những gì kết luận ấy đứng trên.");
+    var luoi = el("div", "btk-luoi");
+    var thu = { VAO: 0, GIU: 1, DOI_DAI: 2, NOI_RONG: 3, THU_HEP: 4, RUT: 5, CHO: 6 };
+    (b.pool || []).slice().sort(function (x, y) {
+      var d0 = (thu[x.hanhDong] || 9) - (thu[y.hanhDong] || 9);
+      if (d0) return d0;
+      var nx = x.dai && x.dai.netBps != null ? x.dai.netBps : -1e18;
+      var ny = y.dai && y.dai.netBps != null ? y.dai.netBps : -1e18;
+      return ny - nx;
+    }).forEach(function (p) {
+      var dd = p.dai || {}, at = p.apyTach || {};
+      var the = el("article", "btk-the");
+      the.dataset.hd = MAU_HD[p.hanhDong] || "OBSERVE";
+      var dau = el("header");
+      var ten = el("div", "ten");
+      ten.appendChild(el("b", null, p.kyHieu));
+      ten.appendChild(el("i", null, "[" + (p.luat || "") + "]"));
+      dau.appendChild(ten);
+      dau.appendChild(hd_badge(p.hanhDong, true));
+      the.appendChild(dau);
+      the.appendChild(el("p", "ket-luan", p.tomTat || p.lyDo || ""));
+
+      /* thanh APY: phí | thưởng */
+      var tong = at.hienThiPct, phi = at.phiPct, thuong = at.thuongPct;
+      var thanh = el("div", "btk-apy");
+      var nhan = el("div", "nhan");
+      nhan.appendChild(el("span", null, "APY hiển thị " + (tong == null ? "—" : Number(tong).toFixed(0) + "%")));
+      nhan.appendChild(el("span", "nhat", (at.giaDinh ? "tách bằng GIẢ ĐỊNH" : "tách từ khối lượng")
+        + " · phí " + (phi == null ? "—" : Number(phi).toFixed(1) + "%")
+        + " · thưởng " + (thuong == null ? "—" : Number(thuong).toFixed(1) + "%")));
+      thanh.appendChild(nhan);
+      var bar = el("div", "bar");
+      var tongPct = (phi || 0) + (thuong || 0);
+      if (tongPct > 0) {
+        var i1 = el("i", "phi"); i1.style.width = ((phi || 0) / tongPct * 100).toFixed(1) + "%";
+        var i2 = el("i", "thuong"); i2.style.width = ((thuong || 0) / tongPct * 100).toFixed(1) + "%";
+        bar.appendChild(i1); bar.appendChild(i2);
+      }
+      thanh.appendChild(bar);
+      the.appendChild(thanh);
+
+      /* lưới số */
+      var l = el("div", "btk-so");
+      l.appendChild(o_nho("Giá", p.gia == null ? "—" : Number(p.gia).toFixed(2)
+        + " · " + (p.nguonGia === "goc-tuc-thoi" ? "đang giao dịch" : p.nguonGia === "goc" ? "đóng cửa" : p.nguonGia || "?")
+        + (p.tuoiGiaGio == null ? "" : ", " + (p.tuoiGiaGio < 1 ? Math.round(p.tuoiGiaGio * 60) + " phút" : Math.round(p.tuoiGiaGio) + "h")),
+        p.gia == null ? "am" : null));
+      l.appendChild(o_nho("σ năm", p.sigma == null ? "chưa đo — " + so(p.soPhien) + " phiên"
+        : pc(p.sigma, 0) + " / " + so(p.soPhien) + " phiên (" + (p.nguonSigma || "?") + ")",
+        p.sigma == null ? "am" : p.sigma > 0.8 ? "am" : null));
+      l.appendChild(o_nho("TVL", tien(p.tvlUsd, 0) + ((p.tvlUsd && p.tvlUsd < 50000) ? " · MỎNG" : ""),
+        (p.tvlUsd && p.tvlUsd < 50000) ? "am" : null));
+      l.appendChild(o_nho("Dải đề xuất", dd.Pa == null ? "—"
+        : Number(dd.Pa).toFixed(2) + " – " + Number(dd.Pb).toFixed(2) + " (±" + Number(dd.rongPct).toFixed(1) + "%, "
+          + Math.round(dd.hieuSuat) + "×)"));
+      l.appendChild(o_nho("P(văng) ≤", dd.pVang == null ? "—" : pc(dd.pVang, 0),
+        dd.pVang == null ? null : dd.pVang > 0.6 ? "am" : dd.pVang < 0.3 ? "duong" : null));
+      l.appendChild(o_nho("Phí/LVR", dd.tiLePhiTrenLvr == null ? "—" : Number(dd.tiLePhiTrenLvr).toFixed(2),
+        dd.tiLePhiTrenLvr == null ? null : dd.tiLePhiTrenLvr >= 1.5 ? "duong" : "am"));
+      l.appendChild(o_nho("Phí + thưởng + IL", (dd.phiBps == null ? "—" : bps(dd.phiBps)) + " · "
+        + (dd.thuongBps == null ? "—" : bps(dd.thuongBps)) + " · " + (dd.ilKyVongBps == null ? "—" : bps(dd.ilKyVongBps))));
+      l.appendChild(o_nho("NET / " + (dd.giuGio ? Math.round(dd.giuGio) + "h" : "cửa sổ"), bps(dd.netBps),
+        dd.netBps == null ? null : dd.netBps > 0 ? "duong" : "am"));
+      l.appendChild(o_nho("Điểm rủi ro", p.diemRuiRo == null ? "—" : Number(p.diemRuiRo).toFixed(2) + " / 1",
+        p.diemRuiRo == null ? null : p.diemRuiRo >= 0.7 ? "am" : null));
+      l.appendChild(o_nho("Vốn xin / sức chứa", tien(p.vonXinUsd, 0) + " / " + tien(p.sucChuaUsd, 0)));
+      l.appendChild(o_nho("Sàn gốc", p.thiTruongGoc === "MO" ? "MỞ" : p.thiTruongGoc === "SAP_MO" ? "SẮP MỞ" : "ĐÓNG",
+        p.thiTruongGoc === "MO" ? "duong" : "am"));
+      var bd = p.bienDong || {};
+      l.appendChild(o_nho("Biến động", bd.doi1NgayPct == null ? "—"
+        : (bd.doi1NgayPct >= 0 ? "+" : "") + Number(bd.doi1NgayPct).toFixed(1) + "% ngày · "
+          + (bd.doi5NgayPct == null ? "" : (bd.doi5NgayPct >= 0 ? "+" : "") + Number(bd.doi5NgayPct).toFixed(1) + "% tuần")
+          + (bd.trangThai ? " · σ " + ({ NO: "đang NỞ", CO: "đang CO", ON: "ổn" })[bd.trangThai] : ""),
+        bd.trangThai === "NO" ? "am" : null));
+      the.appendChild(l);
+
+      /* vì sao + tin */
+      var vs = el("div", "btk-vi-sao");
+      (p.luatKhop || []).slice(0, 4).forEach(function (x) {
+        vs.appendChild(el("span", null, "• [" + x.ma + "] " + x.lyDo));
+      });
+      (p.tin || []).slice(0, 2).forEach(function (t) {
+        vs.appendChild(el("span", "tin", "📰 " + (t.tieuDe || "").slice(0, 90)
+          + ((t.co || []).length ? "  [" + t.co.join(", ") + "]" : "")));
+      });
+      if ((p.thieu || []).length) vs.appendChild(el("span", "am", "thiếu: " + p.thieu.join(", ")));
+      the.appendChild(vs);
+      luoi.appendChild(the);
+    });
+    k2.appendChild(luoi);
+    k2.appendChild(giai("NET = phí + thưởng + IL kỳ vọng − gas, trên vốn xin, trong cửa sổ giữ; P(văng) là "
+      + "CẬN TRÊN; «tách bằng GIẢ ĐỊNH» nghĩa là chưa có khối lượng để biết phí gốc thật — dán địa chỉ pool "
+      + "và khối lượng ngày vào data/lp-v3/cau-hinh.json để đo thật."));
     f.appendChild(k2);
 
-    var k3 = khoi("Vị thế đang giữ ở OKX");
+    /* ── VỊ THẾ ─────────────────────────────────────────────────────── */
+    var k3 = khoi("Vị thế đang giữ ở OKX", "Máy không đặt lệnh. Bạn đặt ở OKX rồi ghi vào đây; máy theo dõi "
+      + "trong/ngoài dải, IL và khuyên rút, nới, giữ.");
     if (!(b.viThe || []).length) {
-      k3.appendChild(giai("Chưa ghi vị thế nào. Vừa thêm thanh khoản ở OKX thì ghi vào đây "
-        + "để máy theo dõi dải, IL và khuyên rút/nới."));
+      k3.appendChild(el("p", "viec-khong", "Chưa ghi vị thế nào."));
     } else {
       k3.appendChild(bang(
         [{ t: "Pool" }, { t: "Dải" }, { t: "Vốn", n: true }, { t: "Trong dải" }, { t: "IL", n: true },
@@ -2498,12 +2622,12 @@
             { t: tt.trongDai == null ? "?" : tt.trongDai ? "trong" : "NGOÀI", c: tt.trongDai === false ? "am" : "" },
             { t: tt.ilPct == null ? "—" : Number(tt.ilPct).toFixed(2) + "%", c: "n" },
             { t: tt.gioGiu == null ? "—" : Math.round(tt.gioGiu) + "h", c: "n" },
-            { el: el("span", "cot " + (q.hanhDong === "GIU" ? "LIVE" : "OBSERVE"), TEN_HD[q.hanhDong] || q.hanhDong || "—") },
+            { el: hd_badge(q.hanhDong) },
             { t: q.lyDo || "" }, { el: nutDong }
           ];
         })));
     }
-    var form = el("div", "viec-1 nhe");
+    var form = el("div", "btk-form");
     form.appendChild(el("b", null, "Ghi vị thế vừa mở ở OKX"));
     var inp = {};
     [["kyHieu", "pool (VD NVDAx-USDG)"], ["Pa", "mép dưới"], ["Pb", "mép trên"],
@@ -2524,18 +2648,33 @@
     k3.appendChild(form);
     f.appendChild(k3);
 
-    var k4 = khoi("Bài học tích luỹ (cầu tuyết)");
-    var bh = b.baiHoc, kn = b.kinhNghiem || {};
-    if (!bh) {
-      k4.appendChild(giai("Chưa có bài học: " + so(kn.soQuyetDinh) + " quyết định đã ghi, "
-        + so(kn.soKetCuc) + " đã chấm. Mốc sau đóng cửa Mỹ sẽ chấm những quyết định đã hết "
-        + "cửa sổ giữ; hoặc bấm «Học ngay»."));
-    } else {
+    /* ── VÒNG HỌC: dự đoán → thực tế → bài học → tiến hoá ─────────── */
+    var k4 = khoi("Vòng học — dự đoán, thực tế, bài học, tiến hoá có cổng",
+      "Mọi quyết định (kể cả CHỜ) được ghi kèm dải và bối cảnh; hết cửa sổ giữ thì chấm bằng đường "
+      + "giá thật hoặc bằng kết cục bạn ghi từ OKX. Bài học chỉ được gọi là bài học khi n ≥ 5 và độ tin ≥ 2.");
+    var mach = el("div", "mach");
+    var bh = b.baiHoc, thh = b.tienHoa;
+    [["Dự đoán", so(kn.soQuyetDinh) + " quyết định đã ghi", "mỗi lượt cân, một dòng mỗi pool có dải"],
+     ["Thực tế", so(kn.soKetCuc) + " đã chấm" + (kn.soChuaCham ? " · " + so(kn.soChuaCham) + " chờ hết cửa sổ" : ""),
+      "chấm ở mốc sau đóng cửa Mỹ, hoặc bấm Học ngay"],
+     ["Bài học", bh ? so((bh.duMau || []).length) + " đủ mẫu · " + so(bh.soChuaDuMau) + " đang tích" : "chưa có",
+      bh && bh.moHinh ? Object.keys(bh.moHinh).map(function (kk) { return bh.moHinh[kk]; }).join(" · ") : "cần cửa sổ giữ đầu tiên trôi qua"],
+     ["Tiến hoá", thh ? thh.gan[thh.gan.length - 1] : "chưa lượt nào",
+      "một núm mỗi lượt · A/B ghép cửa sổ · qua cổng thì CHỜ NGƯỜI ký (tuVanTienHoa tắt)"]
+    ].forEach(function (x, i) {
+      var c = el("div", "chang" + (i < 2 ? " xong" : ""));
+      c.appendChild(el("span", "cham", String(i + 1)));
+      var t = el("div");
+      t.appendChild(el("div", "ten", x[0] + " — " + x[1]));
+      t.appendChild(el("div", "phu", x[2]));
+      c.appendChild(t);
+      mach.appendChild(c);
+    });
+    k4.appendChild(mach);
+    if (bh && (bh.duMau || []).length) {
       var dsBh = el("div", "viec-1");
-      dsBh.appendChild(el("b", null, so(bh.soCap) + " cặp quyết định–kết cục · "
-        + so((bh.duMau || []).length) + " bài đủ mẫu · " + so(bh.soChuaDuMau) + " đang tích"));
-      (bh.duMau || []).forEach(function (c) { dsBh.appendChild(el("span", null, "★ " + c)); });
-      Object.keys(bh.moHinh || {}).forEach(function (kk) { dsBh.appendChild(el("span", "nhat", "◦ " + bh.moHinh[kk])); });
+      dsBh.appendChild(el("b", null, "Bài học đủ mẫu"));
+      bh.duMau.forEach(function (c) { dsBh.appendChild(el("span", null, "★ " + c)); });
       k4.appendChild(dsBh);
     }
     var nutHoc = el("button", "nho", "Học ngay (chấm + bài học + một lượt tiến hoá)");
@@ -2547,9 +2686,21 @@
         .catch(function (e) { nhac("học hỏng: " + (e && e.message || e)); });
     });
     k4.appendChild(nutHoc);
-    if (b.tienHoa) k4.appendChild(giai("Tiến hoá gần đây: " + (b.tienHoa.gan || []).join(" | ")));
-    k4.appendChild(giai("Núm hiện tại: " + JSON.stringify(b.nut || {})));
+    k4.appendChild(giai("Núm hiện tại: " + Object.keys(b.nut || {}).map(function (kk) { return kk + " = " + b.nut[kk]; }).join(" · ")));
     f.appendChild(k4);
+
+    /* ── NHỊP NGÀY ──────────────────────────────────────────────────── */
+    var k5 = khoi("Một ngày của ty — nhịp nào làm gì", "Mốc chạy ở lượt quét kế tiếp sau giờ của nó; máy tắt thì chạy bù và báo cáo ghi là chạy bù.");
+    var vn = b.vongNgay || {};
+    k5.appendChild(bang([{ t: "Nhịp" }, { t: "Việc" }],
+      (b.nhip || []).map(function (x) { return [{ t: x.nhip }, { t: x.viec }]; })));
+    if ((vn.mocKe || []).length) {
+      k5.appendChild(giai("Mốc kế tiếp: " + vn.mocKe.map(function (m) {
+        return m.moc + " lúc " + gioTuIso(m.luc) + " (còn " + Number(m.conGio).toFixed(1) + "h)"; }).join(" · ")
+        + ". Đã chạy: " + Object.keys(vn.daChay || {}).map(function (kk) { return kk + " " + vn.daChay[kk]; }).join(", ")
+        + ". Báo cáo ở data/lp-v3/bao-cao/."));
+    }
+    f.appendChild(k5);
     return f;
   }
   document.addEventListener("click", function (ev) {

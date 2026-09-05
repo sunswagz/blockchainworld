@@ -171,7 +171,8 @@ function inRa(x, d) {
 // thật không bao giờ đi qua.
 const NAP = "  globalThis._TRANG = TRANG; globalThis._ve = ve;"
   + " globalThis._datS = (d) => { S = d; };"
-  + " globalThis._veMotDongCo = ve_mot_dong_co;\n})();";
+  + " globalThis._veMotDongCo = ve_mot_dong_co;"
+  + " globalThis._btkDat = (j) => { BTK = j; };\n})();";
 const ma = readFileSync(join(GOC, "web/app.js"), "utf8");
 if (!ma.includes("})();")) {
   console.error("  app.js không còn kết bằng `})();` — sửa NAP trong file này");
@@ -231,6 +232,46 @@ for (const [nhan, du] of MAU) {
       console.log(e.stack.split("\n").slice(1, 4).join("\n"));
       loi++;
     }
+  }
+}
+
+// TRANG BỂ THANH KHOẢN đọc API RIÊNG (`/api/be-thanh-khoan`), không đọc
+// `S` — nên vòng trên chỉ chạm tới nó ở nhánh «đang tải». Mẫu riêng ở
+// `scripts/mau-be-thanh-khoan.json` (chép từ máy sống bằng
+// `--ghi-mau-btk --cong 5189`); có mẫu thì vẽ THẬT trang ấy trên cả ba
+// biến thể, cùng thước với mọi trang khác.
+{
+  const DUONG_BTK = join(GOC, "scripts/mau-be-thanh-khoan.json");
+  if (co("--ghi-mau-btk")) {
+    const cong = co("--cong") ? doi[doi.indexOf("--cong") + 1] : "5188";
+    const r = await fetch("http://127.0.0.1:" + cong + "/api/be-thanh-khoan");
+    writeFileSync(DUONG_BTK, JSON.stringify(await r.json(), null, 1) + "\n", "utf8");
+    console.log("  đã ghi mẫu " + DUONG_BTK);
+  }
+  let B = null;
+  try { B = JSON.parse(readFileSync(DUONG_BTK, "utf8")); } catch (e) { B = null; }
+  if (!B) {
+    console.log("  ~     btk         không có mẫu — bỏ qua "
+      + "(node scripts/kiem-buong-lai.mjs --ghi-mau-btk --cong 5189)");
+  } else {
+    for (const [nhan, du] of [["đầy đủ", B], ["RỖNG", {}], ["NULL", hoaNull(B)]]) {
+      globalThis._btkDat(du);
+      try {
+        const r = globalThis._TRANG["be-thanh-khoan"]();
+        const n = dem(r), t = chu(r);
+        const ban = /\bNaN\b|\bundefined\b|\[object Object\]/.exec(t);
+        const ok = n > 40 && !ban;
+        console.log("  " + (ok ? "OK   " : n <= 40 ? "TRỐNG" : "BẨN  ") + " btk:" + nhan.padEnd(7)
+          + " " + String(n).padStart(5) + " nút" + (ban ? "  ← in ra «" + ban[0] + "»" : ""));
+        ok ? xong++ : loi++;
+        if (IN === "btk" && nhan === "đầy đủ") inRa(r, 2);
+      } catch (e) {
+        console.log("  NÉM   btk:" + nhan + " " + e.message);
+        console.log(e.stack.split("\n").slice(1, 4).join("\n"));
+        loi++;
+      }
+    }
+    globalThis._btkDat(null);
   }
 }
 
