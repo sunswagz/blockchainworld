@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-09-05T20:39:15.879Z",
+ "generatedAt": "2026-09-06T04:53:03.075Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -18,7 +18,6 @@ window.DQT_TQ_DO = {
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
    "muc": "r",
    "lich": [
-    93.09,
     94.25,
     91.45,
     93.1,
@@ -91,11 +90,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-09-05T20:39:15.640Z"
+   "luc": "2026-09-06T04:53:02.896Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
-   "so": 6.7289,
+   "so": 6.7344,
    "dv": "nhân dân tệ",
    "nguon": "open.er-api.com · USD/CNY",
    "ghi": "Lấy chung một lượt gọi với USD/VND — cùng phản hồi, không tốn thêm lượt nào.",
@@ -117,7 +116,8 @@ window.DQT_TQ_DO = {
     6.7369,
     6.7365,
     6.7355,
-    6.7289
+    6.7289,
+    6.7344
    ],
    "doi7": -0.2,
    "doi30": null,
@@ -127,7 +127,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-09-05T20:39:15.640Z"
+   "luc": "2026-09-06T04:53:02.896Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
@@ -210,7 +210,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-09-05T20:39:15.698Z"
+   "luc": "2026-09-06T04:53:02.950Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
@@ -293,11 +293,11 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-09-05T20:39:15.754Z"
+   "luc": "2026-09-06T04:53:03.004Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
-   "so": 96,
+   "so": 81,
    "dv": "văn bản / 30 ngày",
    "nguon": "Federal Register API · “China”",
    "ghi": "Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng. Nền cao hơn Việt Nam nhiều nên ngưỡng cũng khác.",
@@ -324,9 +324,10 @@ window.DQT_TQ_DO = {
     107,
     88,
     93,
-    96
+    96,
+    81
    ],
-   "doi7": 1.1,
+   "doi7": -24.3,
    "doi30": null,
    "nguong": {
     "g": 150,
@@ -334,7 +335,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-09-05T20:39:15.838Z"
+   "luc": "2026-09-06T04:53:03.037Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
@@ -418,7 +419,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-09-05T20:39:15.879Z"
+   "luc": "2026-09-06T04:53:03.075Z"
   }
  }
 };
