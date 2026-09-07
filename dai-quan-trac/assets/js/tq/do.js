@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-09-07T12:49:53.961Z",
+ "generatedAt": "2026-09-07T19:21:16.324Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -91,7 +91,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-09-07T12:49:53.785Z"
+   "luc": "2026-09-07T19:21:16.076Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -129,7 +129,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-09-07T12:49:53.785Z"
+   "luc": "2026-09-07T19:21:16.076Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
@@ -212,7 +212,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-09-07T12:49:53.846Z"
+   "luc": "2026-09-07T19:21:16.146Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
@@ -295,7 +295,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-09-07T12:49:53.900Z"
+   "luc": "2026-09-07T19:21:16.207Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -338,11 +338,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-09-07T12:49:53.929Z"
+   "luc": "2026-09-07T19:21:16.234Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 25413.12,
+   "so": 25650.87,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
@@ -410,18 +410,17 @@ window.DQT_TQ_DO = {
     25329.73,
     25311.21,
     25213.31,
-    25650.87,
-    25413.12
+    25650.87
    ],
-   "doi7": -0.6,
-   "doi30": 0.8,
+   "doi7": 0,
+   "doi30": 2.8,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-09-07T12:49:53.961Z"
+   "luc": "2026-09-07T19:21:16.324Z"
   }
  }
 };
