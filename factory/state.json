@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-08T21:27:50.364Z",
-  "lan": 867,
+  "generatedAt": "2026-09-08T23:26:59.836Z",
+  "lan": 870,
   "node": {
     "kinh-thanh": {
       "luc": "2026-09-08T21:13:29.875Z",
@@ -91,12 +91,12 @@
       "lucDoi": null
     },
     "bao-cao": {
-      "luc": "2026-09-07T23:33:37.485Z",
+      "luc": "2026-09-08T23:26:59.836Z",
       "ket": "loi",
-      "giay": 10,
+      "giay": 8,
       "doi": false,
       "chuThich": "opus-5 · max-turns 8",
-      "chuoiLoi": 4,
+      "chuoiLoi": 5,
       "vi": null,
       "lucOk": "2026-09-05T05:10:45.118Z",
       "lucDoi": "2026-09-05T05:10:45.118Z"
@@ -146,15 +146,15 @@
       "lucDoi": "2026-09-08T21:15:04.853Z"
     },
     "nhap-skill": {
-      "luc": "2026-09-07T23:33:05.989Z",
+      "luc": "2026-09-08T23:26:32.647Z",
       "ket": "ok",
-      "giay": 3,
+      "giay": 2,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-07T23:33:05.989Z",
-      "lucDoi": "2026-09-07T23:33:05.989Z"
+      "lucOk": "2026-09-08T23:26:32.647Z",
+      "lucDoi": "2026-09-08T23:26:32.647Z"
     },
     "dong-tin": {
       "luc": "2026-09-08T21:27:37.506Z",
@@ -179,14 +179,14 @@
       "lucDoi": "2026-09-05T23:06:57.754Z"
     },
     "tien-hoa-dqt": {
-      "luc": "2026-09-07T23:33:27.444Z",
+      "luc": "2026-09-08T23:26:51.489Z",
       "ket": "ok",
-      "giay": 21,
+      "giay": 19,
       "doi": false,
       "chuThich": "ngã ở MODEL · phiếu đo 21/21 → 21/21 · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-07T23:33:27.444Z",
+      "lucOk": "2026-09-08T23:26:51.489Z",
       "lucDoi": "2026-09-05T23:02:18.201Z"
     },
     "thai-boc-tu-tien-hoa": {
@@ -312,6 +312,33 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-09-08T23:26:59.836Z",
+      "ma": "bao-cao",
+      "ket": "loi",
+      "giay": 8,
+      "doi": false,
+      "chuThich": "opus-5 · max-turns 8",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-08T23:26:51.489Z",
+      "ma": "tien-hoa-dqt",
+      "ket": "ok",
+      "giay": 19,
+      "doi": false,
+      "chuThich": "ngã ở MODEL · phiếu đo 21/21 → 21/21 · haiku-4-5",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-08T23:26:32.647Z",
+      "ma": "nhap-skill",
+      "ket": "ok",
+      "giay": 2,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-09-08T21:27:50.364Z",
       "ma": "tien-hoa-xoay",
@@ -2081,33 +2108,6 @@
       "ma": "thai-boc-tu",
       "ket": "ok",
       "giay": 1,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-04T20:50:17.794Z",
-      "ma": "ho-bo",
-      "ket": "ok",
-      "giay": 12,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-04T20:50:05.209Z",
-      "ma": "cong-bo",
-      "ket": "ok",
-      "giay": 5,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-04T20:50:00.918Z",
-      "ma": "do-sat-vien",
-      "ket": "ok",
-      "giay": 62,
       "doi": true,
       "chuThich": "",
       "vi": null
