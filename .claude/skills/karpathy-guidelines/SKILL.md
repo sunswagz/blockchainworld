@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : multica-ai/andrej-karpathy-skills (211.382 sao)
+     Kho    : multica-ai/andrej-karpathy-skills (211.868 sao)
      Đường  : skills/karpathy-guidelines
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/multica-ai/andrej-karpathy-skills/main/skills/karpathy-guidelines/SKILL.md
-     sha256 : 6e22cc54cb02a5e9 · nhập 2026-09-08T23:26:32.585Z
+     sha256 : 6e22cc54cb02a5e9 · nhập 2026-09-09T23:18:54.145Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

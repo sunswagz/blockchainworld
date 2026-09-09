@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-09T21:13:10.475Z",
-  "lan": 912,
+  "generatedAt": "2026-09-09T23:19:43.176Z",
+  "lan": 916,
   "node": {
     "kinh-thanh": {
       "luc": "2026-09-09T20:59:27.209Z",
@@ -91,12 +91,12 @@
       "lucDoi": null
     },
     "bao-cao": {
-      "luc": "2026-09-08T23:26:59.836Z",
+      "luc": "2026-09-09T23:19:30.897Z",
       "ket": "loi",
-      "giay": 8,
+      "giay": 11,
       "doi": false,
       "chuThich": "opus-5 · max-turns 8",
-      "chuoiLoi": 5,
+      "chuoiLoi": 6,
       "vi": null,
       "lucOk": "2026-09-05T05:10:45.118Z",
       "lucDoi": "2026-09-05T05:10:45.118Z"
@@ -146,15 +146,15 @@
       "lucDoi": "2026-09-09T21:01:12.754Z"
     },
     "nhap-skill": {
-      "luc": "2026-09-08T23:26:32.647Z",
+      "luc": "2026-09-09T23:18:54.210Z",
       "ket": "ok",
-      "giay": 2,
+      "giay": 4,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-08T23:26:32.647Z",
-      "lucDoi": "2026-09-08T23:26:32.647Z"
+      "lucOk": "2026-09-09T23:18:54.210Z",
+      "lucDoi": "2026-09-09T23:18:54.210Z"
     },
     "dong-tin": {
       "luc": "2026-09-09T11:45:28.765Z",
@@ -179,14 +179,14 @@
       "lucDoi": "2026-09-05T23:06:57.754Z"
     },
     "tien-hoa-dqt": {
-      "luc": "2026-09-08T23:26:51.489Z",
+      "luc": "2026-09-09T23:19:18.956Z",
       "ket": "ok",
-      "giay": 19,
+      "giay": 24,
       "doi": false,
       "chuThich": "ngã ở MODEL · phiếu đo 21/21 → 21/21 · haiku-4-5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-08T23:26:51.489Z",
+      "lucOk": "2026-09-09T23:19:18.956Z",
       "lucDoi": "2026-09-05T23:02:18.201Z"
     },
     "thai-boc-tu-tien-hoa": {
@@ -278,12 +278,12 @@
       "lucDoi": "2026-09-05T05:13:52.081Z"
     },
     "tien-hoa-xoay": {
-      "luc": "2026-09-08T21:27:50.364Z",
+      "luc": "2026-09-09T23:19:43.176Z",
       "ket": "loi",
       "giay": 13,
       "doi": false,
-      "chuThich": "cong-bo: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
-      "chuoiLoi": 6,
+      "chuThich": "cong-thanh: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+      "chuoiLoi": 7,
       "vi": "chua-ro",
       "lucOk": "2026-09-03T23:38:03.368Z",
       "lucDoi": "2026-09-03T23:38:03.368Z"
@@ -312,6 +312,42 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-09-09T23:19:43.176Z",
+      "ma": "tien-hoa-xoay",
+      "ket": "loi",
+      "giay": 13,
+      "doi": false,
+      "chuThich": "cong-thanh: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+      "vi": "chua-ro"
+    },
+    {
+      "luc": "2026-09-09T23:19:30.897Z",
+      "ma": "bao-cao",
+      "ket": "loi",
+      "giay": 11,
+      "doi": false,
+      "chuThich": "opus-5 · max-turns 8",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-09T23:19:18.956Z",
+      "ma": "tien-hoa-dqt",
+      "ket": "ok",
+      "giay": 24,
+      "doi": false,
+      "chuThich": "ngã ở MODEL · phiếu đo 21/21 → 21/21 · haiku-4-5",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-09T23:18:54.210Z",
+      "ma": "nhap-skill",
+      "ket": "ok",
+      "giay": 4,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-09-09T21:13:10.475Z",
       "ma": "thai-boc-tu-tin-pt",
@@ -2075,42 +2111,6 @@
       "doi": true,
       "chuThich": "",
       "vi": null
-    },
-    {
-      "luc": "2026-09-05T20:27:49.673Z",
-      "ma": "cong-bo",
-      "ket": "ok",
-      "giay": 4,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-05T20:27:45.321Z",
-      "ma": "do-sat-vien",
-      "ket": "ok",
-      "giay": 63,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-05T20:26:42.642Z",
-      "ma": "kinh-thanh",
-      "ket": "ok",
-      "giay": 2,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-05T15:22:22.444Z",
-      "ma": "tien-hoa-xoay",
-      "ket": "loi",
-      "giay": 229,
-      "doi": false,
-      "chuThich": "tang-thu-cac: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
-      "vi": "chua-ro"
     }
   ]
 }
