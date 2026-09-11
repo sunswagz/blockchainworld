@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-09-11T11:42:30.795Z",
- "lan": 985,
+ "generatedAt": "2026-09-11T16:33:29.460Z",
+ "lan": 986,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -205,14 +205,14 @@ window.VAN_HANH = {
    "cung": "ho-bo",
    "cungTen": "Hộ Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-09-10T16:28:58.114Z",
+   "luc": "2026-09-11T16:33:29.460Z",
    "ket": "ok",
-   "giay": 20,
+   "giay": 21,
    "doi": false,
-   "chuThich": "phiếu đo 20/20 → 20/20 · model 15s · opus-5",
+   "chuThich": "phiếu đo 20/20 → 20/20 · model 16s · opus-5",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-09-10T16:28:58.114Z",
+   "lucOk": "2026-09-11T16:33:29.460Z",
    "lucDoi": "2026-09-05T23:06:57.754Z"
   },
   {
@@ -848,6 +848,15 @@ window.VAN_HANH = {
  ],
  "nk": [
   {
+   "luc": "2026-09-11T16:33:29.460Z",
+   "ma": "ho-bo-tien-hoa",
+   "ket": "ok",
+   "giay": 21,
+   "doi": false,
+   "chuThich": "phiếu đo 20/20 → 20/20 · model 16s · opus-5",
+   "vi": null
+  },
+  {
    "luc": "2026-09-11T11:42:30.795Z",
    "ma": "dong-tin",
    "ket": "loi",
@@ -1377,15 +1386,6 @@ window.VAN_HANH = {
    "doi": false,
    "chuThich": "quét 19s · dựng ?s · haiku-4-5",
    "vi": null
-  },
-  {
-   "luc": "2026-09-10T05:02:54.292Z",
-   "ma": "dong-dau",
-   "ket": "loi",
-   "giay": null,
-   "doi": false,
-   "chuThich": "",
-   "vi": "khoa-sai"
   }
  ]
 };
