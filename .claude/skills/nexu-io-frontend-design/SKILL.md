@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : nexu-io/open-design (95.816 sao)
+     Kho    : nexu-io/open-design (95.997 sao)
      Đường  : skills/frontend-design
      Giấy phép: Complete terms in LICENSE.txt
      Nguồn  : https://raw.githubusercontent.com/nexu-io/open-design/main/skills/frontend-design/SKILL.md
-     sha256 : 6963d8b4ae3d285b · nhập 2026-09-13T05:04:27.085Z
+     sha256 : 6963d8b4ae3d285b · nhập 2026-09-14T05:11:32.861Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
