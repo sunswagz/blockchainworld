@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : nextlevelbuilder/ui-ux-pro-max-skill (128.805 sao)
+     Kho    : nextlevelbuilder/ui-ux-pro-max-skill (129.034 sao)
      Đường  : cli/assets/skills/ui-styling
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/main/cli/assets/skills/ui-styling/SKILL.md
-     sha256 : 41f6d6a41bf82754 · nhập 2026-09-18T21:11:43.725Z
+     sha256 : 625e302c60ee8f2e · nhập 2026-09-19T23:10:55.980Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -235,6 +235,14 @@ python scripts/shadcn_add.py button card dialog
 Generate tailwind.config.js with custom theme:
 ```bash
 python scripts/tailwind_config_gen.py --colors brand:blue --fonts display:Inter
+```
+
+The generator refuses to create or replace a config when any sibling
+`tailwind.config.js`, `.cjs`, `.mjs`, or `.ts` file already exists. Review the
+reported config first, then pass `--force` only when the competing output is
+intentional:
+```bash
+python scripts/tailwind_config_gen.py --colors brand:blue --force
 ```
 
 ## Best Practices
