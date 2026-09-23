@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-23T11:55:18.921Z",
-  "lan": 1526,
+  "generatedAt": "2026-09-23T17:09:52.391Z",
+  "lan": 1530,
   "node": {
     "kinh-thanh": {
       "luc": "2026-09-23T11:45:00.738Z",
@@ -47,12 +47,12 @@
       "lucDoi": "2026-09-23T11:55:17.183Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-09-23T05:00:39.990Z",
+      "luc": "2026-09-23T17:09:10.396Z",
       "ket": "loi",
       "giay": 15,
       "doi": false,
       "chuThich": "quét 15s · dựng ?s · haiku-4-5",
-      "chuoiLoi": 28,
+      "chuoiLoi": 29,
       "vi": null,
       "lucOk": "2026-09-05T22:59:50.067Z",
       "lucDoi": "2026-09-05T22:59:50.067Z"
@@ -157,12 +157,12 @@
       "lucDoi": "2026-09-23T05:00:23.199Z"
     },
     "dong-tin": {
-      "luc": "2026-09-23T05:01:11.917Z",
+      "luc": "2026-09-23T17:09:43.275Z",
       "ket": "loi",
-      "giay": 31,
+      "giay": 33,
       "doi": false,
       "chuThich": "dựng ?s · haiku-4-5 · không WebSearch",
-      "chuoiLoi": 28,
+      "chuoiLoi": 29,
       "vi": null,
       "lucOk": "2026-09-05T20:44:36.585Z",
       "lucDoi": "2026-09-05T20:44:36.585Z"
@@ -201,15 +201,15 @@
       "lucDoi": "2026-09-05T04:57:37.181Z"
     },
     "thai-boc-tu-tin-pt": {
-      "luc": "2026-09-23T05:01:36.689Z",
+      "luc": "2026-09-23T17:09:51.887Z",
       "ket": "ok",
-      "giay": 9,
+      "giay": 8,
       "doi": true,
       "chuThich": "nhận 0 · loại 0 · phủ 1/30 bài · haiku-4.5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-23T05:01:36.689Z",
-      "lucDoi": "2026-09-23T05:01:36.689Z"
+      "lucOk": "2026-09-23T17:09:51.887Z",
+      "lucDoi": "2026-09-23T17:09:51.887Z"
     },
     "kham-thien-giam-tien-hoa": {
       "luc": "2026-09-22T21:36:13.274Z",
@@ -289,15 +289,15 @@
       "lucDoi": "2026-09-03T23:38:03.368Z"
     },
     "huong": {
-      "luc": "2026-09-16T17:05:33.819Z",
+      "luc": "2026-09-23T17:09:52.391Z",
       "ket": "ok",
       "giay": 0,
       "doi": true,
       "chuThich": "HƯỚNG — 9 đề xuất",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-09-16T17:05:33.819Z",
-      "lucDoi": "2026-09-16T17:05:33.819Z"
+      "lucOk": "2026-09-23T17:09:52.391Z",
+      "lucDoi": "2026-09-23T17:09:52.391Z"
     },
     "thuoc-moi": {
       "luc": "2026-09-19T11:14:57.744Z",
@@ -312,6 +312,42 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-09-23T17:09:52.391Z",
+      "ma": "huong",
+      "ket": "ok",
+      "giay": 0,
+      "doi": true,
+      "chuThich": "HƯỚNG — 9 đề xuất",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-23T17:09:51.887Z",
+      "ma": "thai-boc-tu-tin-pt",
+      "ket": "ok",
+      "giay": 8,
+      "doi": true,
+      "chuThich": "nhận 0 · loại 0 · phủ 1/30 bài · haiku-4.5",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-23T17:09:43.275Z",
+      "ma": "dong-tin",
+      "ket": "loi",
+      "giay": 33,
+      "doi": false,
+      "chuThich": "dựng ?s · haiku-4-5 · không WebSearch",
+      "vi": null
+    },
+    {
+      "luc": "2026-09-23T17:09:10.396Z",
+      "ma": "dai-quan-trac",
+      "ket": "loi",
+      "giay": 15,
+      "doi": false,
+      "chuThich": "quét 15s · dựng ?s · haiku-4-5",
+      "vi": null
+    },
     {
       "luc": "2026-09-23T11:55:18.921Z",
       "ma": "dong-dau",
@@ -2074,42 +2110,6 @@
       "giay": 29,
       "doi": false,
       "chuThich": "dựng ?s · haiku-4-5 · không WebSearch",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-19T04:56:15.445Z",
-      "ma": "dai-quan-trac",
-      "ket": "loi",
-      "giay": 15,
-      "doi": false,
-      "chuThich": "quét 15s · dựng ?s · haiku-4-5",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-19T04:56:00.075Z",
-      "ma": "dong-dau",
-      "ket": "loi",
-      "giay": null,
-      "doi": false,
-      "chuThich": "",
-      "vi": "khoa-sai"
-    },
-    {
-      "luc": "2026-09-19T04:55:59.520Z",
-      "ma": "quan-trac-do",
-      "ket": "ok",
-      "giay": 1,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-09-19T04:55:58.246Z",
-      "ma": "tang-thu-cac",
-      "ket": "ok",
-      "giay": 699,
-      "doi": true,
-      "chuThich": "",
       "vi": null
     }
   ]
