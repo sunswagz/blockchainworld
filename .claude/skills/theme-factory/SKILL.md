@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/skills (177.849 sao)
+     Kho    : anthropics/skills (178.012 sao)
      Đường  : skills/theme-factory
      Giấy phép: Complete terms in LICENSE.txt
      Nguồn  : https://raw.githubusercontent.com/anthropics/skills/main/skills/theme-factory/SKILL.md
-     sha256 : c35893e221e28895 · nhập 2026-09-24T05:10:24.675Z
+     sha256 : c35893e221e28895 · nhập 2026-09-25T05:11:33.473Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
