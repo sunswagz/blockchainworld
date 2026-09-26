@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-09-19T11:14:32.932Z",
- "khoQuetLuc": "19/09/2026",
- "tongSkill": 3757,
+ "luc": "2026-09-26T11:43:36.627Z",
+ "khoQuetLuc": "26/09/2026",
+ "tongSkill": 3795,
  "daDung": 14,
- "ungVien": 843,
+ "ungVien": 838,
  "ganDay": [
+  {
+   "ten": "plan-design-review",
+   "luc": "2026-09-19T11:14:32.932Z"
+  },
+  {
+   "ten": "power-bi-model-design-review",
+   "luc": "2026-09-19T11:14:32.932Z"
+  },
+  {
+   "ten": "ab-test-setup",
+   "luc": "2026-09-19T11:14:32.932Z"
+  },
+  {
+   "ten": "ai-native-cli",
+   "luc": "2026-09-19T11:14:32.932Z"
+  },
+  {
+   "ten": "angular-ui-patterns",
+   "luc": "2026-09-19T11:14:32.932Z"
+  },
+  {
+   "ten": "anti-ui-slop",
+   "luc": "2026-09-19T11:14:32.932Z"
+  },
   {
    "ten": "loop-design-check",
    "luc": "2026-09-12T11:07:25.547Z"
@@ -95,119 +119,119 @@
    "luc": "2026-08-29T03:47:25.628Z"
   },
   {
-   "ten": "plan-design-review",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "ten": "api-and-interface-design",
+   "luc": "2026-09-26T11:43:36.627Z"
   },
   {
-   "ten": "power-bi-model-design-review",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "ten": "api-design",
+   "luc": "2026-09-26T11:43:36.627Z"
   },
   {
-   "ten": "ab-test-setup",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "ten": "api-testing-observability-api-mock",
+   "luc": "2026-09-26T11:43:36.627Z"
   },
   {
-   "ten": "ai-native-cli",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "ten": "article-writing",
+   "luc": "2026-09-26T11:43:36.627Z"
   },
   {
-   "ten": "angular-ui-patterns",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "ten": "automation-audit-ops",
+   "luc": "2026-09-26T11:43:36.627Z"
   },
   {
-   "ten": "anti-ui-slop",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "ten": "azure-developer-cli",
+   "luc": "2026-09-26T11:43:36.627Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 87,
-  "lập trình công cụ": 431,
-  "kiểm thử rà soát": 166,
-  "dữ liệu phân tích": 55,
-  "hạ tầng vận hành": 47,
-  "giao tiếp nội dung": 42,
+  "giao diện tiếp cận": 82,
+  "lập trình công cụ": 425,
+  "kiểm thử rà soát": 162,
+  "dữ liệu phân tích": 56,
+  "hạ tầng vận hành": 53,
+  "giao tiếp nội dung": 44,
   "nghiên cứu": 43
  },
  "deXuat": [
   {
-   "ten": "plan-design-review",
-   "kho": "garrytan/gstack",
-   "duong": "plan-design-review",
+   "ten": "api-and-interface-design",
+   "kho": "addyosmani/agent-skills",
+   "duong": "skills/api-and-interface-design",
    "lv": [
-    "giao diện tiếp cận",
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 10,
-   "mo": "Designer's eye plan review — interactive, like CEO and Eng review. (gstack)",
-   "byte": 78020,
-   "doc": "https://github.com/garrytan/gstack/blob/main/plan-design-review/SKILL.md",
-   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## When to invoke this skill Rates each design dimension 0-10, explains what would make it a 10, then fixes the plan to get there. Works in plan mode. For live site visual audits, use /design-review. Use when asked to \"review the design plan\" or \"design critique\". Proactively suggest when the user has a plan with UI/UX components that should be reviewed before implementation. # /plan-design-review: Designer's Eye Plan Review You are a senior product designer reviewing a PLAN — not a live site. Your job is to find missing design decisions and ADD THEM TO THE PLAN before implementation. The output of this skill is a better plan, not a document about the plan. ## Scope gate (FIRST — overrides everything below). This is a hard STOP. After this skill loads, resolve this gate before an"
+   "diem": 9,
+   "mo": "Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts be",
+   "byte": 14806,
+   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/api-and-interface-design/SKILL.md",
+   "trich": "# API and Interface Design ## Overview Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard. This applies to REST APIs, GraphQL schemas, module boundaries, component props, and any surface where one piece of code talks to another. ## When to Use - Designing new API endpoints - Defining module boundaries or contracts between teams - Creating component prop interfaces - Establishing database schema that informs API shape - Changing existing public interfaces ## Core Principles ### Hyrum's Law > With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract. This means: every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend"
   },
   {
-   "ten": "power-bi-model-design-review",
-   "kho": "github/awesome-copilot",
-   "duong": "skills/power-bi-model-design-review",
+   "ten": "api-design",
+   "kho": "affaan-m/ECC",
+   "duong": "skills/api-design",
    "lv": [
-    "giao diện tiếp cận",
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 10,
-   "mo": "Comprehensive Power BI data model design review prompt for evaluating model architecture, relationships, and optimization opportunities.",
-   "byte": 11128,
-   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/power-bi-model-design-review/SKILL.md",
-   "trich": "# Power BI Data Model Design Review You are a Power BI data modeling expert conducting comprehensive design reviews. Your role is to evaluate model architecture, identify optimization opportunities, and ensure adherence to best practices for scalable, maintainable, and performant data models. ## Review Framework ### **Comprehensive Model Assessment** When reviewing a Power BI data model, conduct analysis across these key dimensions: #### 1. **Schema Architecture Review** ``` Star Schema Compliance: □ Clear separation of fact and dimension tables □ Proper grain consistency within fact tables □ Dimension tables contain descriptive attributes □ Minimal snowflaking (justified when present) □ Appropriate use of bridge tables for many-to-many Table Design Quality: □ Meaningful table and column names □ Appropriate data types for all columns □ Proper primary and foreign key relationships □ Consi"
+   "diem": 9,
+   "mo": "REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs. Use when designing or r",
+   "byte": 13199,
+   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/api-design/SKILL.md",
+   "trich": "# API Design Patterns Conventions and best practices for designing consistent, developer-friendly REST APIs. ## When to Activate - Designing new API endpoints - Reviewing existing API contracts - Adding pagination, filtering, or sorting - Implementing error handling for APIs - Planning API versioning strategy - Building public or partner-facing APIs ## Resource Design ### URL Structure ``` # Resources are nouns, plural, lowercase, kebab-case GET /api/v1/users GET /api/v1/users/:id POST /api/v1/users PUT /api/v1/users/:id PATCH /api/v1/users/:id DELETE /api/v1/users/:id # Sub-resources for relationships GET /api/v1/users/:id/orders POST /api/v1/users/:id/orders # Actions that don't map to CRUD (use verbs sparingly) POST /api/v1/orders/:id/cancel POST /api/v1/auth/login POST /api/v1/auth/refresh ``` ### Naming Rules ``` # GOOD /api/v1/team-members # kebab-case for multi-word resources /api"
   },
   {
-   "ten": "ab-test-setup",
+   "ten": "api-testing-observability-api-mock",
    "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/ab-test-setup",
+   "duong": "skills/api-testing-observability-api-mock",
    "lv": [
+    "kiểm thử rà soát",
+    "hạ tầng vận hành"
+   ],
+   "diem": 9,
+   "mo": "You are an API mocking expert specializing in realistic mock services for development, testing, and demos. Design mocks that simulate real API behavior and enable parallel developm",
+   "byte": 2289,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/api-testing-observability-api-mock/SKILL.md",
+   "trich": "# API Mocking Framework You are an API mocking expert specializing in creating realistic mock services for development, testing, and demonstration purposes. Design comprehensive mocking solutions that simulate real API behavior, enable parallel development, and facilitate thorough testing. ## Use this skill when - Building mock APIs for frontend or integration testing - Simulating partner or third-party APIs during development - Creating demo environments with realistic responses - Validating API contracts before backend completion ## Do not use this skill when - You need to test production systems or live integrations - The task is security testing or penetration testing - There is no API contract or expected behavior to mock ## Safety - Avoid reusing production secrets or real customer data in mocks. - Make mock endpoints clearly labeled to prevent accidental use. ## Context The user n"
+  },
+  {
+   "ten": "article-writing",
+   "kho": "affaan-m/ECC",
+   "duong": "skills/article-writing",
+   "lv": [
+    "giao tiếp nội dung"
+   ],
+   "diem": 9,
+   "mo": "Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the ",
+   "byte": 2926,
+   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/article-writing/SKILL.md",
+   "trich": "# Article Writing Write long-form content that sounds like an actual person with a point of view, not an LLM smoothing itself into paste. ## When to Activate - drafting blog posts, essays, launch posts, guides, tutorials, or newsletter issues - turning notes, transcripts, or research into polished articles - matching an existing founder, operator, or brand voice from examples - tightening structure, pacing, and evidence in already-written long-form copy ## Core Rules 1. Lead with the concrete thing: artifact, example, output, anecdote, number, screenshot, or code. 2. Explain after the example, not before. 3. Keep sentences tight unless the source voice is intentionally expansive. 4. Use proof instead of adjectives. 5. Never invent facts, credibility, or customer evidence. ## Voice Handling If the user wants a specific voice, run `brand-voice` first and reuse its `VOICE PROFILE`. Do not d"
+  },
+  {
+   "ten": "automation-audit-ops",
+   "kho": "affaan-m/ECC",
+   "duong": "skills/automation-audit-ops",
+   "lv": [
+    "lập trình công cụ",
     "kiểm thử rà soát"
    ],
    "diem": 9,
-   "mo": "Use when designing an A/B or split test: define the hypothesis, control and variants, estimate sample size, verify tracking, and predeclare metrics and stopping rules.",
-   "byte": 8927,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/ab-test-setup/SKILL.md",
-   "trich": "# A/B Test Setup ## 1️⃣ Purpose & Scope Define an experiment that can answer a specific product question, and verify its assumptions before exposing users. This procedure cannot guarantee validity by itself. - Documents the stopping rule - Estimates sample needs under stated assumptions - Makes the hypothesis and decision criteria reviewable ## 2️⃣ Pre-Requisites You must have: - A clear user problem - Access to an analytics source - Roughly estimated traffic volume ### Hypothesis Quality Checklist A valid hypothesis includes: - Observation or evidence - Single, specific change - Directional expectation - Defined audience - Measurable success criteria ## 3️⃣ Hypothesis Lock (Hard Gate) Before designing variants or metrics, you MUST: - Present the **final hypothesis** - Specify: - Target audience - Primary metric - Expected direction of effect - Minimum Detectable Effect (MDE) Use the hyp"
+   "mo": "Evidence-first automation inventory and overlap audit workflow for ECC. Use when the user wants to know which jobs, hooks, connectors, MCP servers, or wrappers are live, broken, re",
+   "byte": 4167,
+   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/automation-audit-ops/SKILL.md",
+   "trich": "# Automation Audit Ops Use this when the user asks what automations are live, which jobs are broken, where overlap exists, or what tooling and connectors are actually doing useful work right now. This is an audit-first operator skill. The job is to produce an evidence-backed inventory and a keep / merge / cut / fix-next recommendation set before rewriting anything. ## Skill Stack Pull these ECC-native skills into the workflow when relevant: - `workspace-surface-audit` for connector, MCP, hook, and app inventory - `knowledge-ops` when the audit needs to reconcile live repo truth with durable context - `github-ops` when the answer depends on CI, scheduled workflows, issues, or PR automation - `ecc-tools-cost-audit` when the real problem is webhook fanout, queued jobs, or billing burn in the sibling app repo - `research-ops` when local inventory must be compared against current platform sup"
   },
   {
-   "ten": "ai-native-cli",
-   "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/ai-native-cli",
+   "ten": "azure-developer-cli",
+   "kho": "github/awesome-copilot",
+   "duong": "skills/azure-developer-cli",
    "lv": [
     "lập trình công cụ"
    ],
    "diem": 9,
-   "mo": "Design spec with 98 rules for building CLI tools that AI agents can safely use. Covers structured JSON output, error handling, input contracts, safety guardrails, exit codes, and a",
-   "byte": 13117,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/ai-native-cli/SKILL.md",
-   "trich": "# Agent-Friendly CLI Spec v0.1 When building or modifying CLI tools, follow these rules to make them safe and reliable for AI agents to use. ## Overview A comprehensive design specification for building AI-native CLI tools. It defines 98 rules across three certification levels (Agent-Friendly, Agent-Ready, Agent-Native) with prioritized requirements (P0/P1/P2). The spec covers structured JSON output, error handling, input contracts, safety guardrails, exit codes, self-description, and a feedback loop via a built-in issue system. ## When to Use This Skill - Use when building a new CLI tool that AI agents will invoke - Use when retrofitting an existing CLI to be agent-friendly - Use when designing command-line interfaces for automation pipelines - Use when auditing a CLI tool's compliance with agent-safety standards ## Core Philosophy 1. **Agent-first** -- default output is JSON; human-fri"
-  },
-  {
-   "ten": "angular-ui-patterns",
-   "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/angular-ui-patterns",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 9,
-   "mo": "Modern Angular UI patterns for loading states, error handling, and data display. Use when building UI components, handling async data, or managing component states.",
-   "byte": 1040,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/angular-ui-patterns/SKILL.md",
-   "trich": "# Angular UI Patterns ## Detailed Guide Read [the detailed guide](references/detailed-guide.md) before executing this skill. It retains the complete procedure and reference material. Treat its safety, prerequisites, and validation requirements as mandatory. For focused work, load the relevant sections; for end-to-end work, read the guide completely. ## When to Use This skill is applicable to execute the workflow or actions described in the overview. ## Limitations - Use this skill only when the task clearly matches the scope described above. - Do not treat the output as a substitute for environment-specific validation, testing, or expert review. - Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing."
-  },
-  {
-   "ten": "anti-ui-slop",
-   "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/anti-ui-slop",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 9,
-   "mo": "Stop coding agents from shipping generic UI. Extend the product's design system, use UIZZE evidence only when useful, cover required states, and inspect the rendered result.",
-   "byte": 3357,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/anti-ui-slop/SKILL.md",
-   "trich": "# Stop Making UI Slop Build product-specific UI with 800,000+ real web and iOS screens via [UIZZE](https://uizze.com). ## Overview Use the product brief, existing interface, components, and local design system before reaching for outside references. UIZZE evidence is optional: it should answer a concrete visual question, not turn every interface task into a research project. ## When to Use Use this skill when designing, implementing, redesigning, critiquing, or doing a pre-ship review of a web or iOS interface. ## Work From the Product 1. Identify the screen's real job, primary user and action, required content, and important loading, empty, error, success, disabled, and permission states. 2. Reuse the repository's components, semantic tokens, typography, spacing, and interaction conventions before adding a new abstraction or visual language. 3. For a new interface or major redesign, wri"
+   "mo": "Design, create, review, migrate, or troubleshoot Azure Developer CLI (azd) projects using current Microsoft guidance. Use for azd, azure.yaml, AZD templates, Bicep or Terraform und",
+   "byte": 7667,
+   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/azure-developer-cli/SKILL.md",
+   "trich": "# Azure Developer CLI best practices Use this skill to produce maintainable, secure, environment-aware `azd` projects. Prefer repository conventions when they are already coherent, and make the smallest complete change that improves the project. ## Start with repository discovery Before editing: 1. Find `azure.yaml`, the configured `infra.path`, source projects, deployment scripts, `.gitignore`, and pipeline definitions. 2. Read `azure.yaml` before inferring services or the IaC provider. 3. Identify whether the task is to create, migrate, review, deploy, or troubleshoot. 4. Identify the active environment only when an environment-specific operation is required. 5. Read the relevant reference: - Repository layout or `azure.yaml`: [references/project-structure.md](references/project-structure.md) - Bicep, Terraform, parameters, outputs, or environments: [references/iac-and-environments.md]"
   }
  ]
 }
