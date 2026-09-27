@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (134.222 sao)
+     Kho    : garrytan/gstack (134.287 sao)
      Đường  : design-html
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-html/SKILL.md
-     sha256 : dea80764dec42d7c · nhập 2026-09-26T05:13:24.155Z
+     sha256 : 1771087bcc9bc50f · nhập 2026-09-27T05:35:12.145Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -709,7 +709,7 @@ _OUTPUT_DIR=$(dirname <path-to-finalized.html>)
 cd "$_OUTPUT_DIR"
 python3 -m http.server 0 --bind 127.0.0.1 &
 _SERVER_PID=$!
-_PORT=$(lsof -i -P -n | grep "$_SERVER_PID" | grep LISTEN | awk '{print $9}' | cut -d: -f2 | head -1)
+_PORT=$(lsof -i -P -n | grep "$_SERVER_PID" | grep LISTEN | awk '{print $(9)}' | cut -d: -f2 | head -1)
 echo "SERVER: http://localhost:$_PORT/finalized.html"
 echo "PID: $_SERVER_PID"
 ```
