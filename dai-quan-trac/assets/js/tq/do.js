@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-10-01T18:37:25.691Z",
+ "generatedAt": "2026-10-02T00:59:10.260Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,7 +12,7 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 102.41,
+   "so": 102.74,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
@@ -82,17 +82,17 @@ window.DQT_TQ_DO = {
     105.28,
     102.59,
     103.53,
-    102.41
+    102.74
    ],
-   "doi7": 3.2,
-   "doi30": 11.8,
+   "doi7": 3.5,
+   "doi30": 12.1,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-10-01T18:37:25.283Z"
+   "luc": "2026-10-02T00:59:10.064Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -154,17 +154,16 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-10-01T18:37:25.283Z"
+   "luc": "2026-10-02T00:59:10.064Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
-   "so": 577.7,
+   "so": 568.64,
    "dv": "USD",
    "nguon": "Yahoo Finance · SOXX",
    "ghi": "Chỉ báo THAY THẾ và phải đọc rất cẩn thận: nó đo sức khoẻ NGÀNH bán dẫn toàn cầu, KHÔNG đo năng lực chip của Trung Quốc. Ngành nóng lên không có nghĩa Trung Quốc tiếp cận được tầng tiên tiến.",
    "muc": "g",
    "lich": [
-    599.7,
     566.32,
     581.51,
     551.69,
@@ -227,28 +226,26 @@ window.DQT_TQ_DO = {
     572.68,
     560.79,
     567.44,
-    568.64,
-    577.7
+    568.64
    ],
-   "doi7": 0.9,
-   "doi30": 11.2,
+   "doi7": 1.7,
+   "doi30": 7,
    "nguong": {
     "g": 480,
     "r": 400,
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-10-01T18:37:25.406Z"
+   "luc": "2026-10-02T00:59:10.118Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
-   "so": 33.97,
+   "so": 34.02,
    "dv": "USD",
    "nguon": "Yahoo Finance · FXI",
    "ghi": "Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài về cổ phiếu Trung Quốc, đối xứng với VNM bên Việt Nam.",
    "muc": "y",
    "lich": [
-    31.97,
     31.91,
     32.49,
     32.49,
@@ -311,22 +308,21 @@ window.DQT_TQ_DO = {
     33.96,
     34.17,
     33.86,
-    34.02,
-    33.97
+    34.02
    ],
-   "doi7": -2.9,
-   "doi30": -4.8,
+   "doi7": -2.5,
+   "doi30": -3,
    "nguong": {
     "g": 38,
     "r": 30,
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-10-01T18:37:25.564Z"
+   "luc": "2026-10-02T00:59:10.178Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
-   "so": 116,
+   "so": 104,
    "dv": "văn bản / 30 ngày",
    "nguon": "Federal Register API · “China”",
    "ghi": "Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng. Nền cao hơn Việt Nam nhiều nên ngưỡng cũng khác.",
@@ -385,17 +381,18 @@ window.DQT_TQ_DO = {
     93,
     96,
     105,
-    116
+    116,
+    104
    ],
-   "doi7": 22.1,
-   "doi30": 50.6,
+   "doi7": 7.2,
+   "doi30": 30,
    "nguong": {
     "g": 150,
     "r": 250,
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-10-01T18:37:25.592Z"
+   "luc": "2026-10-02T00:59:10.218Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
@@ -480,7 +477,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-10-01T18:37:25.691Z"
+   "luc": "2026-10-02T00:59:10.260Z"
   }
  }
 };
