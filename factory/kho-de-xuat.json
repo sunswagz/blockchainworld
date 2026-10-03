@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-09-26T11:43:36.627Z",
- "khoQuetLuc": "26/09/2026",
- "tongSkill": 3795,
+ "luc": "2026-10-03T11:55:32.512Z",
+ "khoQuetLuc": "03/10/2026",
+ "tongSkill": 3835,
  "daDung": 14,
  "ungVien": 838,
  "ganDay": [
+  {
+   "ten": "api-and-interface-design",
+   "luc": "2026-09-26T11:43:36.627Z"
+  },
+  {
+   "ten": "api-design",
+   "luc": "2026-09-26T11:43:36.627Z"
+  },
+  {
+   "ten": "api-testing-observability-api-mock",
+   "luc": "2026-09-26T11:43:36.627Z"
+  },
+  {
+   "ten": "article-writing",
+   "luc": "2026-09-26T11:43:36.627Z"
+  },
+  {
+   "ten": "automation-audit-ops",
+   "luc": "2026-09-26T11:43:36.627Z"
+  },
+  {
+   "ten": "azure-developer-cli",
+   "luc": "2026-09-26T11:43:36.627Z"
+  },
   {
    "ten": "plan-design-review",
    "luc": "2026-09-19T11:14:32.932Z"
@@ -119,119 +143,118 @@
    "luc": "2026-08-29T03:47:25.628Z"
   },
   {
-   "ten": "api-and-interface-design",
-   "luc": "2026-09-26T11:43:36.627Z"
+   "ten": "audit-integrity",
+   "luc": "2026-10-03T11:55:32.512Z"
   },
   {
-   "ten": "api-design",
-   "luc": "2026-09-26T11:43:36.627Z"
+   "ten": "banner-design",
+   "luc": "2026-10-03T11:55:32.512Z"
   },
   {
-   "ten": "api-testing-observability-api-mock",
-   "luc": "2026-09-26T11:43:36.627Z"
+   "ten": "browser-testing-with-devtools",
+   "luc": "2026-10-03T11:55:32.512Z"
   },
   {
-   "ten": "article-writing",
-   "luc": "2026-09-26T11:43:36.627Z"
+   "ten": "case-review",
+   "luc": "2026-10-03T11:55:32.512Z"
   },
   {
-   "ten": "automation-audit-ops",
-   "luc": "2026-09-26T11:43:36.627Z"
+   "ten": "ci-cd-and-automation",
+   "luc": "2026-10-03T11:55:32.512Z"
   },
   {
-   "ten": "azure-developer-cli",
-   "luc": "2026-09-26T11:43:36.627Z"
+   "ten": "codebase-design",
+   "luc": "2026-10-03T11:55:32.512Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 82,
-  "lập trình công cụ": 425,
-  "kiểm thử rà soát": 162,
-  "dữ liệu phân tích": 56,
-  "hạ tầng vận hành": 53,
-  "giao tiếp nội dung": 44,
-  "nghiên cứu": 43
+  "giao diện tiếp cận": 81,
+  "lập trình công cụ": 421,
+  "kiểm thử rà soát": 168,
+  "dữ liệu phân tích": 57,
+  "hạ tầng vận hành": 52,
+  "giao tiếp nội dung": 41,
+  "nghiên cứu": 44
  },
  "deXuat": [
   {
-   "ten": "api-and-interface-design",
-   "kho": "addyosmani/agent-skills",
-   "duong": "skills/api-and-interface-design",
+   "ten": "audit-integrity",
+   "kho": "github/awesome-copilot",
+   "duong": "skills/audit-integrity",
    "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 9,
-   "mo": "Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts be",
-   "byte": 14806,
-   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/api-and-interface-design/SKILL.md",
-   "trich": "# API and Interface Design ## Overview Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard. This applies to REST APIs, GraphQL schemas, module boundaries, component props, and any surface where one piece of code talks to another. ## When to Use - Designing new API endpoints - Defining module boundaries or contracts between teams - Creating component prop interfaces - Establishing database schema that informs API shape - Changing existing public interfaces ## Core Principles ### Hyrum's Law > With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract. This means: every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend"
-  },
-  {
-   "ten": "api-design",
-   "kho": "affaan-m/ECC",
-   "duong": "skills/api-design",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 9,
-   "mo": "REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs. Use when designing or r",
-   "byte": 13199,
-   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/api-design/SKILL.md",
-   "trich": "# API Design Patterns Conventions and best practices for designing consistent, developer-friendly REST APIs. ## When to Activate - Designing new API endpoints - Reviewing existing API contracts - Adding pagination, filtering, or sorting - Implementing error handling for APIs - Planning API versioning strategy - Building public or partner-facing APIs ## Resource Design ### URL Structure ``` # Resources are nouns, plural, lowercase, kebab-case GET /api/v1/users GET /api/v1/users/:id POST /api/v1/users PUT /api/v1/users/:id PATCH /api/v1/users/:id DELETE /api/v1/users/:id # Sub-resources for relationships GET /api/v1/users/:id/orders POST /api/v1/users/:id/orders # Actions that don't map to CRUD (use verbs sparingly) POST /api/v1/orders/:id/cancel POST /api/v1/auth/login POST /api/v1/auth/refresh ``` ### Naming Rules ``` # GOOD /api/v1/team-members # kebab-case for multi-word resources /api"
-  },
-  {
-   "ten": "api-testing-observability-api-mock",
-   "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/api-testing-observability-api-mock",
-   "lv": [
-    "kiểm thử rà soát",
-    "hạ tầng vận hành"
-   ],
-   "diem": 9,
-   "mo": "You are an API mocking expert specializing in realistic mock services for development, testing, and demos. Design mocks that simulate real API behavior and enable parallel developm",
-   "byte": 2289,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/api-testing-observability-api-mock/SKILL.md",
-   "trich": "# API Mocking Framework You are an API mocking expert specializing in creating realistic mock services for development, testing, and demonstration purposes. Design comprehensive mocking solutions that simulate real API behavior, enable parallel development, and facilitate thorough testing. ## Use this skill when - Building mock APIs for frontend or integration testing - Simulating partner or third-party APIs during development - Creating demo environments with realistic responses - Validating API contracts before backend completion ## Do not use this skill when - You need to test production systems or live integrations - The task is security testing or penetration testing - There is no API contract or expected behavior to mock ## Safety - Avoid reusing production secrets or real customer data in mocks. - Make mock endpoints clearly labeled to prevent accidental use. ## Context The user n"
-  },
-  {
-   "ten": "article-writing",
-   "kho": "affaan-m/ECC",
-   "duong": "skills/article-writing",
-   "lv": [
-    "giao tiếp nội dung"
-   ],
-   "diem": 9,
-   "mo": "Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the ",
-   "byte": 2926,
-   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/article-writing/SKILL.md",
-   "trich": "# Article Writing Write long-form content that sounds like an actual person with a point of view, not an LLM smoothing itself into paste. ## When to Activate - drafting blog posts, essays, launch posts, guides, tutorials, or newsletter issues - turning notes, transcripts, or research into polished articles - matching an existing founder, operator, or brand voice from examples - tightening structure, pacing, and evidence in already-written long-form copy ## Core Rules 1. Lead with the concrete thing: artifact, example, output, anecdote, number, screenshot, or code. 2. Explain after the example, not before. 3. Keep sentences tight unless the source voice is intentionally expansive. 4. Use proof instead of adjectives. 5. Never invent facts, credibility, or customer evidence. ## Voice Handling If the user wants a specific voice, run `brand-voice` first and reuse its `VOICE PROFILE`. Do not d"
-  },
-  {
-   "ten": "automation-audit-ops",
-   "kho": "affaan-m/ECC",
-   "duong": "skills/automation-audit-ops",
-   "lv": [
-    "lập trình công cụ",
     "kiểm thử rà soát"
    ],
    "diem": 9,
-   "mo": "Evidence-first automation inventory and overlap audit workflow for ECC. Use when the user wants to know which jobs, hooks, connectors, MCP servers, or wrappers are live, broken, re",
-   "byte": 4167,
-   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/automation-audit-ops/SKILL.md",
-   "trich": "# Automation Audit Ops Use this when the user asks what automations are live, which jobs are broken, where overlap exists, or what tooling and connectors are actually doing useful work right now. This is an audit-first operator skill. The job is to produce an evidence-backed inventory and a keep / merge / cut / fix-next recommendation set before rewriting anything. ## Skill Stack Pull these ECC-native skills into the workflow when relevant: - `workspace-surface-audit` for connector, MCP, hook, and app inventory - `knowledge-ops` when the audit needs to reconcile live repo truth with durable context - `github-ops` when the answer depends on CI, scheduled workflows, issues, or PR automation - `ecc-tools-cost-audit` when the real problem is webhook fanout, queued jobs, or billing burn in the sibling app repo - `research-ops` when local inventory must be compared against current platform sup"
+   "mo": "Enforce output quality, evidence verification, and quality gates across security audits. Use this skill when you perform SAST, SCA, threat modeling, or security code reviews. Use t",
+   "byte": 4020,
+   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/audit-integrity/SKILL.md",
+   "trich": "# Audit Integrity Skill Enforce output quality, intellectual honesty, and continuous improvement across security audits and code reviews. ## When to Use - Perform security analyses, threat models, code reviews, or quality audits. - Validate that every finding has verified code evidence and taint flow. - Prevent the suppression or rationalization of security findings. - Evaluate draft reports against the quality gate threshold (score ≥ 8/10). - Record lessons learned and security memories after you complete a scan. ## Components This skill provides 7 modular capabilities in the `references/` directory. Load each file when you reach its execution phase: | Component | Reference File | Purpose | | ---------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | | Clari"
   },
   {
-   "ten": "azure-developer-cli",
-   "kho": "github/awesome-copilot",
-   "duong": "skills/azure-developer-cli",
+   "ten": "banner-design",
+   "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
+   "duong": "cli/assets/skills/banner-design",
    "lv": [
-    "lập trình công cụ"
+    "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Design, create, review, migrate, or troubleshoot Azure Developer CLI (azd) projects using current Microsoft guidance. Use for azd, azure.yaml, AZD templates, Bicep or Terraform und",
-   "byte": 7667,
-   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/azure-developer-cli/SKILL.md",
-   "trich": "# Azure Developer CLI best practices Use this skill to produce maintainable, secure, environment-aware `azd` projects. Prefer repository conventions when they are already coherent, and make the smallest complete change that improves the project. ## Start with repository discovery Before editing: 1. Find `azure.yaml`, the configured `infra.path`, source projects, deployment scripts, `.gitignore`, and pipeline definitions. 2. Read `azure.yaml` before inferring services or the IaC provider. 3. Identify whether the task is to create, migrate, review, deploy, or troubleshoot. 4. Identify the active environment only when an environment-specific operation is required. 5. Read the relevant reference: - Repository layout or `azure.yaml`: [references/project-structure.md](references/project-structure.md) - Bicep, Terraform, parameters, outputs, or environments: [references/iac-and-environments.md]"
+   "mo": "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with optional generated or supplied visuals. Actions: design, creat",
+   "byte": 7010,
+   "doc": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/cli/assets/skills/banner-design/SKILL.md",
+   "trich": "# Banner Design - Multi-Format Creative Banner System Design banners across social, ads, web, and print formats. Generate multiple art direction options with CSS-built, user-supplied, or optionally generated visual elements. This skill handles banner design only. It does not handle video editing, full website design, or print production. ## When to Activate - User requests banner, cover, or header design - Social media cover/header creation - Ad banner or display ad design - Website hero section visual design - Event/print banner design - Creative asset generation for campaigns ## Available Resources This workflow is self-contained: it requires no sibling skills or skill-relative scripts. Use `references/banner-sizes-and-styles.md` for the bundled size, safe-zone, and art-direction guidance. Browser research, image generation, and screenshot tooling are optional capabilities; when unavai"
+  },
+  {
+   "ten": "browser-testing-with-devtools",
+   "kho": "addyosmani/agent-skills",
+   "duong": "skills/browser-testing-with-devtools",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "Tests in real browsers via Chrome DevTools MCP. Use when building or debugging anything that runs in a browser. Use when you need to inspect the DOM, capture console errors, analyz",
+   "byte": 13935,
+   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/browser-testing-with-devtools/SKILL.md",
+   "trich": "# Browser Testing with DevTools ## Overview Use Chrome DevTools MCP to give your agent eyes into the browser. This bridges the gap between static code analysis and live browser execution — the agent can see what the user sees, inspect the DOM, read console logs, analyze network requests, and capture performance data. Instead of guessing what's happening at runtime, verify it. ## When to Use - Building or modifying anything that renders in a browser - Debugging UI issues (layout, styling, interaction) - Diagnosing console errors or warnings - Analyzing network requests and API responses - Profiling performance (Core Web Vitals, paint timing, layout shifts) - Verifying that a fix actually works in the browser - Automated UI testing through the agent **When NOT to use:** Backend-only changes, CLI tools, or code that doesn't run in a browser. ## Setting Up Chrome DevTools MCP ### Installatio"
+  },
+  {
+   "ten": "case-review",
+   "kho": "zhaoxuya520/reverse-skill",
+   "duong": "skills/case-review",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path traceability, work item coverage, timeline references, and optional artifact hash integrity be",
+   "byte": 6251,
+   "doc": "https://github.com/zhaoxuya520/reverse-skill/blob/main/skills/case-review/SKILL.md",
+   "trich": "# Evidence Graph Review Use this skill when a reverse engineering, forensics, CTF, or authorized security case needs a defensible handoff. It audits the existing `work/<case>/` package without changing the case or touching a target. ## Scope This skill covers: - Scope metadata and target-activity readiness - Evidence record structure and reproducibility fields - References from work items and timeline entries to Evidence - Structured Findings and Paths in report Markdown - Optional SHA-256 verification for case-local artifacts - A Markdown or JSON review result for a report handoff It MUST NOT perform reconnaissance, exploitation, dynamic instrumentation, or target changes. Those actions belong to the routed analysis skill and require the case scope gate. ## ACTION REQUIRED 1. `NOW`: read `../field-journal/precedent-reverse.md` and confirm that this is a review of an existing authorized "
+  },
+  {
+   "ten": "ci-cd-and-automation",
+   "kho": "addyosmani/agent-skills",
+   "duong": "skills/ci-cd-and-automation",
+   "lv": [
+    "lập trình công cụ",
+    "hạ tầng vận hành"
+   ],
+   "diem": 9,
+   "mo": "Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or estab",
+   "byte": 11008,
+   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/ci-cd-and-automation/SKILL.md",
+   "trich": "# CI/CD and Automation ## Overview Automate quality gates so that no change reaches production without passing tests, lint, type checking, and build. CI/CD is the enforcement mechanism for every other skill — it catches what humans and agents miss, and it does so consistently on every single change. **Shift Left:** Catch problems as early in the pipeline as possible. A bug caught in linting costs minutes; the same bug caught in production costs hours. Move checks upstream — static analysis before tests, tests before staging, staging before production. **Faster is Safer:** Smaller batches and more frequent releases reduce risk, not increase it. A deployment with 3 changes is easier to debug than one with 30. Frequent releases build confidence in the release process itself. ## When to Use - Setting up a new project's CI pipeline - Adding or modifying automated checks - Configuring deployme"
+  },
+  {
+   "ten": "codebase-design",
+   "kho": "mattpocock/skills",
+   "duong": "skills/engineering/codebase-design",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 9,
+   "mo": "Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code m",
+   "byte": 6066,
+   "doc": "https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md",
+   "trich": "# Codebase Design Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone. ## Glossary Use these terms exactly: don't substitute \"component,\" \"service,\" \"API,\" or \"boundary.\" Consistent language is the whole point. **Module**: anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service. **Interface**: everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics. _Avoid_: API, signature (too narrow, they refer only "
   }
  ]
 }
