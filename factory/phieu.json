@@ -1,15 +1,10 @@
 {
-  "generatedAt": "2026-10-02T22:19:52.138Z",
+  "generatedAt": "2026-10-04T06:14:16.610Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
-  "tongDat": 265,
+  "tongDat": 266,
   "tongThuoc": 266,
   "soCung": 13,
-  "truotNhieuNhat": [
-    {
-      "thuoc": "o-trong",
-      "soCung": 1
-    }
-  ],
+  "truotNhieuNhat": [],
   "cung": [
     {
       "cung": "cong-bo",
@@ -37,18 +32,11 @@
     },
     {
       "cung": "ho-bo",
-      "dat": 19,
+      "dat": 20,
       "tong": 20,
       "khongDo": 1,
-      "truot": [
-        "o-trong"
-      ],
-      "truotVi": [
-        {
-          "thuoc": "o-trong",
-          "vi": "2.3 dấu — mỗi phòng (tổng 18 trên 8 phòng)"
-        }
-      ]
+      "truot": [],
+      "truotVi": []
     },
     {
       "cung": "hoang-thanh",
