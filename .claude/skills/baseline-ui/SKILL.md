@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : sickn33/agentic-awesome-skills (47.296 sao)
+     Kho    : sickn33/agentic-awesome-skills (47.326 sao)
      Đường  : skills/baseline-ui
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/sickn33/agentic-awesome-skills/main/skills/baseline-ui/SKILL.md
-     sha256 : 26e2af44f82ce6be · nhập 2026-10-06T16:13:27.393Z
+     sha256 : 26e2af44f82ce6be · nhập 2026-10-07T20:51:42.095Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
