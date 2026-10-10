@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-10-10T17:33:54.022Z",
- "lan": 2268,
+ "generatedAt": "2026-10-10T17:34:14.921Z",
+ "lan": 2269,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -813,13 +813,13 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-10-03T11:55:44.950Z",
+   "luc": "2026-10-10T17:34:14.921Z",
    "ket": "loi",
    "giay": null,
    "doi": false,
    "chuThich": "",
    "vi": "chua-ro",
-   "chuoiLoi": 7,
+   "chuoiLoi": 8,
    "lucOk": null,
    "lucDoi": null
   },
@@ -847,6 +847,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-10-10T17:34:14.921Z",
+   "ma": "thuoc-moi",
+   "ket": "loi",
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": "chua-ro"
+  },
   {
    "luc": "2026-10-10T17:33:54.022Z",
    "ma": "do-kho",
@@ -1377,15 +1386,6 @@ window.VAN_HANH = {
    "doi": false,
    "chuThich": "",
    "vi": "khoa-sai"
-  },
-  {
-   "luc": "2026-10-09T10:45:53.641Z",
-   "ma": "quan-trac-do",
-   "ket": "ok",
-   "giay": 1,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
   }
  ]
 };
