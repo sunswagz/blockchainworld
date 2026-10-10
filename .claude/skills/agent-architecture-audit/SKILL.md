@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : affaan-m/ECC (275.408 sao)
+     Kho    : affaan-m/ECC (276.178 sao)
      Đường  : skills/agent-architecture-audit
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/affaan-m/ECC/main/skills/agent-architecture-audit/SKILL.md
-     sha256 : 64f57e232c353387 · nhập 2026-10-09T01:26:58.559Z
+     sha256 : 64f57e232c353387 · nhập 2026-10-10T10:06:08.263Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
