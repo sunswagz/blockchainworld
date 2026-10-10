@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-10-03T11:55:32.512Z",
- "khoQuetLuc": "03/10/2026",
- "tongSkill": 3835,
+ "luc": "2026-10-10T17:33:53.949Z",
+ "khoQuetLuc": "10/10/2026",
+ "tongSkill": 3864,
  "daDung": 14,
  "ungVien": 838,
  "ganDay": [
+  {
+   "ten": "audit-integrity",
+   "luc": "2026-10-03T11:55:32.512Z"
+  },
+  {
+   "ten": "banner-design",
+   "luc": "2026-10-03T11:55:32.512Z"
+  },
+  {
+   "ten": "browser-testing-with-devtools",
+   "luc": "2026-10-03T11:55:32.512Z"
+  },
+  {
+   "ten": "case-review",
+   "luc": "2026-10-03T11:55:32.512Z"
+  },
+  {
+   "ten": "ci-cd-and-automation",
+   "luc": "2026-10-03T11:55:32.512Z"
+  },
+  {
+   "ten": "codebase-design",
+   "luc": "2026-10-03T11:55:32.512Z"
+  },
   {
    "ten": "api-and-interface-design",
    "luc": "2026-09-26T11:43:36.627Z"
@@ -143,118 +167,117 @@
    "luc": "2026-08-29T03:47:25.628Z"
   },
   {
-   "ten": "audit-integrity",
-   "luc": "2026-10-03T11:55:32.512Z"
+   "ten": "codex-qa",
+   "luc": "2026-10-10T17:33:53.949Z"
   },
   {
-   "ten": "banner-design",
-   "luc": "2026-10-03T11:55:32.512Z"
+   "ten": "color-expert",
+   "luc": "2026-10-10T17:33:53.949Z"
   },
   {
-   "ten": "browser-testing-with-devtools",
-   "luc": "2026-10-03T11:55:32.512Z"
+   "ten": "competition-firmware-layout",
+   "luc": "2026-10-10T17:33:53.949Z"
   },
   {
-   "ten": "case-review",
-   "luc": "2026-10-03T11:55:32.512Z"
+   "ten": "design",
+   "luc": "2026-10-10T17:33:53.949Z"
   },
   {
-   "ten": "ci-cd-and-automation",
-   "luc": "2026-10-03T11:55:32.512Z"
+   "ten": "design-brief",
+   "luc": "2026-10-10T17:33:53.949Z"
   },
   {
-   "ten": "codebase-design",
-   "luc": "2026-10-03T11:55:32.512Z"
+   "ten": "design-consultation",
+   "luc": "2026-10-10T17:33:53.949Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 81,
-  "lập trình công cụ": 421,
+  "giao diện tiếp cận": 80,
+  "lập trình công cụ": 420,
   "kiểm thử rà soát": 168,
   "dữ liệu phân tích": 57,
-  "hạ tầng vận hành": 52,
-  "giao tiếp nội dung": 41,
+  "hạ tầng vận hành": 51,
+  "giao tiếp nội dung": 43,
   "nghiên cứu": 44
  },
  "deXuat": [
   {
-   "ten": "audit-integrity",
-   "kho": "github/awesome-copilot",
-   "duong": "skills/audit-integrity",
+   "ten": "codex-qa",
+   "kho": "code-yeongyu/oh-my-openagent",
+   "duong": ".agents/skills/codex-qa",
    "lv": [
     "kiểm thử rà soát"
    ],
    "diem": 9,
-   "mo": "Enforce output quality, evidence verification, and quality gates across security audits. Use this skill when you perform SAST, SCA, threat modeling, or security code reviews. Use t",
-   "byte": 4020,
-   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/audit-integrity/SKILL.md",
-   "trich": "# Audit Integrity Skill Enforce output quality, intellectual honesty, and continuous improvement across security audits and code reviews. ## When to Use - Perform security analyses, threat models, code reviews, or quality audits. - Validate that every finding has verified code evidence and taint flow. - Prevent the suppression or rationalization of security findings. - Evaluate draft reports against the quality gate threshold (score ≥ 8/10). - Record lessons learned and security memories after you complete a scan. ## Components This skill provides 7 modular capabilities in the `references/` directory. Load each file when you reach its execution phase: | Component | Reference File | Purpose | | ---------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | | Clari"
+   "mo": "QA the omo Codex Light edition (lazycodex / packages/omo-codex) itself, in strict isolation so ONLY our plugin is exercised, never the user's real ~/.codex. The first-party method ",
+   "byte": 7792,
+   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/.agents/skills/codex-qa/SKILL.md",
+   "trich": "# Codex QA QA the omo Codex Light edition (`packages/omo-codex/`, shipped as lazycodex). We exercise OUR plugin in a REAL Codex while touching nothing of the user's setup: an isolated `CODEX_HOME` + a local mock model means no real API call and the real `~/.codex` is never read or written. Each helper script ships a `--self-test` that asserts its scenario against the live machine, so the scripts are both the QA tools and their own regression checks. Verified against `codex-cli 0.140.0` (node, jq, tmux, bun on macOS). Confirm with `codex --version`; check a flag with `codex <cmd> --help`. ## Golden rules (read before running anything) - **QA ONLY our plugin.** Everything that spawns codex uses an isolated `CODEX_HOME` (created by `cqa_mk_isolated_home`) and a LOCAL mock model provider (`cqa_start_mock`). Never QA against the real `~/.codex`, never hit a real model API. The bundled scripts"
   },
   {
-   "ten": "banner-design",
-   "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
-   "duong": "cli/assets/skills/banner-design",
+   "ten": "color-expert",
+   "kho": "nexu-io/open-design",
+   "duong": "skills/color-expert",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with optional generated or supplied visuals. Actions: design, creat",
-   "byte": 7010,
-   "doc": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/cli/assets/skills/banner-design/SKILL.md",
-   "trich": "# Banner Design - Multi-Format Creative Banner System Design banners across social, ads, web, and print formats. Generate multiple art direction options with CSS-built, user-supplied, or optionally generated visual elements. This skill handles banner design only. It does not handle video editing, full website design, or print production. ## When to Activate - User requests banner, cover, or header design - Social media cover/header creation - Ad banner or display ad design - Website hero section visual design - Event/print banner design - Creative asset generation for campaigns ## Available Resources This workflow is self-contained: it requires no sibling skills or skill-relative scripts. Use `references/banner-sizes-and-styles.md` for the bundled size, safe-zone, and art-direction guidance. Browser research, image generation, and screenshot tooling are optional capabilities; when unavai"
+   "mo": "Color science expert skill with 286K words of reference material covering OKLCH/OKLAB, palette generation, accessibility/contrast, color naming, pigment mixing, and historical colo",
+   "byte": 1324,
+   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/color-expert/SKILL.md",
+   "trich": "# color-expert > Curated from @meodai. ## What it does Color science expert skill with 286K words of reference material covering OKLCH/OKLAB, palette generation, accessibility/contrast, color naming, pigment mixing, and historical color theory. ## Source - Upstream: https://github.com/meodai/skill.color-expert - Category: `design-systems` ## How to use This catalogue entry advertises the skill in OpenDesign so the agent discovers it during planning. To run the full upstream workflow with its original assets, scripts, and references, install the upstream bundle into your active agent's skills directory: ```bash # Inspect the upstream README for exact paths open https://github.com/meodai/skill.color-expert ``` Then ask the agent to invoke this skill by name (`color-expert`) or with one of the trigger phrases listed in this skill's frontmatter."
   },
   {
-   "ten": "browser-testing-with-devtools",
-   "kho": "addyosmani/agent-skills",
-   "duong": "skills/browser-testing-with-devtools",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 9,
-   "mo": "Tests in real browsers via Chrome DevTools MCP. Use when building or debugging anything that runs in a browser. Use when you need to inspect the DOM, capture console errors, analyz",
-   "byte": 13935,
-   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/browser-testing-with-devtools/SKILL.md",
-   "trich": "# Browser Testing with DevTools ## Overview Use Chrome DevTools MCP to give your agent eyes into the browser. This bridges the gap between static code analysis and live browser execution — the agent can see what the user sees, inspect the DOM, read console logs, analyze network requests, and capture performance data. Instead of guessing what's happening at runtime, verify it. ## When to Use - Building or modifying anything that renders in a browser - Debugging UI issues (layout, styling, interaction) - Diagnosing console errors or warnings - Analyzing network requests and API responses - Profiling performance (Core Web Vitals, paint timing, layout shifts) - Verifying that a fix actually works in the browser - Automated UI testing through the agent **When NOT to use:** Backend-only changes, CLI tools, or code that doesn't run in a browser. ## Setting Up Chrome DevTools MCP ### Installatio"
-  },
-  {
-   "ten": "case-review",
+   "ten": "competition-firmware-layout",
    "kho": "zhaoxuya520/reverse-skill",
-   "duong": "skills/case-review",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 9,
-   "mo": "Reviews a reverse-skill case package for scope readiness, Evidence to Finding to Path traceability, work item coverage, timeline references, and optional artifact hash integrity be",
-   "byte": 6251,
-   "doc": "https://github.com/zhaoxuya520/reverse-skill/blob/main/skills/case-review/SKILL.md",
-   "trich": "# Evidence Graph Review Use this skill when a reverse engineering, forensics, CTF, or authorized security case needs a defensible handoff. It audits the existing `work/<case>/` package without changing the case or touching a target. ## Scope This skill covers: - Scope metadata and target-activity readiness - Evidence record structure and reproducibility fields - References from work items and timeline entries to Evidence - Structured Findings and Paths in report Markdown - Optional SHA-256 verification for case-local artifacts - A Markdown or JSON review result for a report handoff It MUST NOT perform reconnaissance, exploitation, dynamic instrumentation, or target changes. Those actions belong to the routed analysis skill and require the case scope gate. ## ACTION REQUIRED 1. `NOW`: read `../field-journal/precedent-reverse.md` and confirm that this is a review of an existing authorized "
-  },
-  {
-   "ten": "ci-cd-and-automation",
-   "kho": "addyosmani/agent-skills",
-   "duong": "skills/ci-cd-and-automation",
-   "lv": [
-    "lập trình công cụ",
-    "hạ tầng vận hành"
-   ],
-   "diem": 9,
-   "mo": "Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or estab",
-   "byte": 11008,
-   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/ci-cd-and-automation/SKILL.md",
-   "trich": "# CI/CD and Automation ## Overview Automate quality gates so that no change reaches production without passing tests, lint, type checking, and build. CI/CD is the enforcement mechanism for every other skill — it catches what humans and agents miss, and it does so consistently on every single change. **Shift Left:** Catch problems as early in the pipeline as possible. A bug caught in linting costs minutes; the same bug caught in production costs hours. Move checks upstream — static analysis before tests, tests before staging, staging before production. **Faster is Safer:** Smaller batches and more frequent releases reduce risk, not increase it. A deployment with 3 changes is easier to debug than one with 30. Frequent releases build confidence in the release process itself. ## When to Use - Setting up a new project's CI pipeline - Adding or modifying automated checks - Configuring deployme"
-  },
-  {
-   "ten": "codebase-design",
-   "kho": "mattpocock/skills",
-   "duong": "skills/engineering/codebase-design",
+   "duong": "CTF-Sandbox-Orchestrator/competition-firmware-layout",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code m",
-   "byte": 6066,
-   "doc": "https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md",
-   "trich": "# Codebase Design Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone. ## Glossary Use these terms exactly: don't substitute \"component,\" \"service,\" \"API,\" or \"boundary.\" Consistent language is the whole point. **Module**: anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service. **Interface**: everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics. _Avoid_: API, signature (too narrow, they refer only "
+   "mo": "Internal downstream skill for ctf-sandbox-orchestrator. CTF-sandbox workflow for firmware images, partition tables, boot chains, update packages, extracted filesystems, embedded co",
+   "byte": 3289,
+   "doc": "https://github.com/zhaoxuya520/reverse-skill/blob/main/CTF-Sandbox-Orchestrator/competition-firmware-layout/SKILL.md",
+   "trich": "# Competition Firmware Layout Use this skill only as a downstream specialization after `$ctf-sandbox-orchestrator` is already active and has established sandbox assumptions, node ownership, and evidence priorities. If that has not happened yet, return to `$ctf-sandbox-orchestrator` first. Use this skill when the hard part is understanding how a firmware image is structured, booted, updated, and turned into reachable device behavior. Reply in Simplified Chinese unless the user explicitly requests English. ## Quick Start 1. Preserve the original image, extracted partitions, unpacked filesystems, and patched copies as separate artifacts. 2. Map outer container, partition table, bootloader, kernel, rootfs, config, and update metadata before editing anything. 3. Track the boot or update chain in order instead of jumping straight to the most interesting file. 4. Record keys, signatures, offset"
+  },
+  {
+   "ten": "design",
+   "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
+   "duong": "cli/assets/skills/design",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 9,
+   "mo": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, C",
+   "byte": 14057,
+   "doc": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/cli/assets/skills/design/SKILL.md",
+   "trich": "# Design Unified design skill: brand, tokens, UI, logo, CIP, slides, banners, social photos, icons. ## When to Use - Brand identity, voice, assets - Design system tokens and specs - UI styling with shadcn/ui + Tailwind - Logo design and AI generation - Corporate identity program (CIP) deliverables - Presentations and pitch decks - Banner design for social media, ads, web, print - Social photos for Instagram, Facebook, LinkedIn, Twitter, Pinterest, TikTok ## Sub-skill Routing | Task | Sub-skill | Details | |------|-----------|---------| | Brand identity, voice, assets | `brand` | Bundled sibling skill | | Tokens, specs, CSS vars | `design-system` | Bundled sibling skill | | shadcn/ui, Tailwind, code | `ui-styling` | Bundled sibling skill | | Logo creation, AI generation | Logo (built-in) | `references/logo-design.md` | | CIP mockups, deliverables | CIP (built-in) | `references/cip-design."
+  },
+  {
+   "ten": "design-brief",
+   "kho": "nexu-io/open-design",
+   "duong": "skills/design-brief",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 9,
+   "mo": "Parse a structured design brief written in I-Lang protocol format into a concrete design spec. Eliminates ambiguity from vague requests like \"make it professional\" by requiring exp",
+   "byte": 13733,
+   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/design-brief/SKILL.md",
+   "trich": "# Design Brief Skill Parse a structured design brief into a concrete DESIGN.md and optional visual preview. Agent, follow this workflow exactly. ## Background The 8 dimensions in this skill were derived from OpenDesign's original 71-system catalog; 71 is the research sample, not the current bundled-system count. Every `DESIGN.md` in `design-systems/` still resolves at minimum: color palette, accent, typography, display font, layout model, and component style. We distilled these into 8 orthogonal dimensions that cover the decisions a designer makes before any pixel is placed. Mood and density were added because they are the two most common sources of ambiguity in natural language briefs (\"make it clean\" means different things to different people). Dimensions intentionally excluded from the brief level: animation timing, responsive strategy, and accessibility contrast. These are enforced a"
+  },
+  {
+   "ten": "design-consultation",
+   "kho": "garrytan/gstack",
+   "duong": "design-consultation",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 9,
+   "mo": "Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates fo",
+   "byte": 61517,
+   "doc": "https://github.com/garrytan/gstack/blob/main/design-consultation/SKILL.md",
+   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## When to invoke this skill Creates DESIGN.md as your project's design source of truth. For existing sites, use /plan-design-review to infer the system instead. Use when asked to \"design system\", \"brand guidelines\", or \"create DESIGN.md\". Proactively suggest when starting a new project's UI with no existing design system or DESIGN.md. ## Preamble (run first) ```bash ~/.claude/skills/gstack/bin/gstack-skill-start --skill \"design-consultation\" --model \"claude\" ``` Read the echoed `KEY: value` STATUS lines — they drive every preamble rule below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output (script absent, stale install, or a different protocol number), apply safe defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor, skip onboarding/tel"
   }
  ]
 }
