@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T13:11:11.002Z",
+  "generatedAt": "2026-10-12T21:29:43.059Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
   "tongDat": 265,
   "tongThuoc": 266,
@@ -46,7 +46,7 @@
       "truotVi": [
         {
           "thuoc": "o-trong",
-          "vi": "2.1 dấu — mỗi phòng (tổng 17 trên 8 phòng)"
+          "vi": "2.3 dấu — mỗi phòng (tổng 18 trên 8 phòng)"
         }
       ]
     },

@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : JimLiu/baoyu-skills (26.533 sao)
+     Kho    : JimLiu/baoyu-skills (26.591 sao)
      Đường  : skills/baoyu-diagram
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/JimLiu/baoyu-skills/main/skills/baoyu-diagram/SKILL.md
-     sha256 : 55a2d050c3a2faea · nhập 2026-10-11T13:09:43.464Z
+     sha256 : 55a2d050c3a2faea · nhập 2026-10-12T21:28:30.527Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
