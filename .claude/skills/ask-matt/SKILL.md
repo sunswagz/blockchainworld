@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : mattpocock/skills (287.825 sao)
+     Kho    : mattpocock/skills (289.221 sao)
      Đường  : skills/engineering/ask-matt
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/mattpocock/skills/main/skills/engineering/ask-matt/SKILL.md
-     sha256 : 1371f5ce005de099 · nhập 2026-10-12T21:28:31.058Z
+     sha256 : 1371f5ce005de099 · nhập 2026-10-13T22:52:36.114Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
