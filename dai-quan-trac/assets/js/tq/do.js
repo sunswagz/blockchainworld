@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-10-12T21:28:32.477Z",
+ "generatedAt": "2026-10-13T07:01:00.514Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,7 +12,7 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 105.92,
+   "so": 105.4,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
@@ -82,21 +82,22 @@ window.DQT_TQ_DO = {
     100.2,
     104.28,
     104.72,
-    105.92
+    106.65,
+    105.4
    ],
-   "doi7": 3.5,
-   "doi30": 18.6,
+   "doi7": 3.1,
+   "doi30": 16.5,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-10-12T21:28:32.267Z"
+   "luc": "2026-10-13T07:01:00.066Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
-   "so": 6.7003,
+   "so": 6.7058,
    "dv": "nhân dân tệ",
    "nguon": "open.er-api.com · USD/CNY",
    "ghi": "Lấy chung một lượt gọi với USD/VND — cùng phản hồi, không tốn thêm lượt nào.",
@@ -155,9 +156,10 @@ window.DQT_TQ_DO = {
     6.7153,
     6.7065,
     6.7069,
-    6.7003
+    6.7003,
+    6.7058
    ],
-   "doi7": -0.2,
+   "doi7": -0.1,
    "doi30": -0.4,
    "nguong": {
     "g": 7,
@@ -165,7 +167,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-10-12T21:28:32.267Z"
+   "luc": "2026-10-13T07:01:00.066Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
@@ -249,7 +251,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-10-12T21:28:32.313Z"
+   "luc": "2026-10-13T07:01:00.187Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
@@ -333,7 +335,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-10-12T21:28:32.359Z"
+   "luc": "2026-10-13T07:01:00.366Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -420,11 +422,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-10-12T21:28:32.444Z"
+   "luc": "2026-10-13T07:01:00.417Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 24211.35,
+   "so": 24231.3,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
@@ -493,17 +495,19 @@ window.DQT_TQ_DO = {
     24280.56,
     24130.5,
     23785.79,
-    24211.35
+    24211.35,
+    24271.2,
+    24231.3
    ],
-   "doi7": -1.3,
-   "doi30": -5.3,
+   "doi7": 1.1,
+   "doi30": -5.2,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-10-12T21:28:32.477Z"
+   "luc": "2026-10-13T07:01:00.514Z"
   }
  }
 };
