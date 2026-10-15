@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : sickn33/agentic-awesome-skills (47.540 sao)
+     Kho    : sickn33/agentic-awesome-skills (47.615 sao)
      Đường  : skills/baseline-ui
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/sickn33/agentic-awesome-skills/main/skills/baseline-ui/SKILL.md
-     sha256 : 26e2af44f82ce6be · nhập 2026-10-13T22:52:34.536Z
+     sha256 : 3cd68090cc45af5f · nhập 2026-10-15T04:58:48.791Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -25,7 +25,7 @@ license_source: https://github.com/ibelick/ui-skills/blob/main/LICENSE
 Use this skill when you need quickly deslop UI code by fixing spacing, hierarchy, typography, and small layout issues. Use when the interface needs a fast cleanup or polish pass.
 
 
-Enforces an opinionated UI baseline to prevent AI-generated interface slop.
+Applies an opinionated baseline for a scoped polish pass. Existing product design, accessibility requirements, framework choices and explicit user preferences take precedence; do not migrate the stack or add dependencies just to satisfy this list.
 
 ## How to use
 
@@ -72,7 +72,7 @@ Enforces an opinionated UI baseline to prevent AI-generated interface slop.
 - SHOULD use `ease-out` on entrance
 - NEVER exceed `200ms` for interaction feedback
 - MUST pause looping animations when off-screen
-- SHOULD respect `prefers-reduced-motion`
+- MUST respect `prefers-reduced-motion`
 - NEVER introduce custom easing curves unless explicitly requested
 - SHOULD avoid animating large images or full-screen surfaces
 
