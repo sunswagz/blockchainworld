@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-10-15T05:01:47.714Z",
- "lan": 2450,
+ "generatedAt": "2026-10-15T11:44:26.841Z",
+ "lan": 2460,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -23,15 +23,15 @@ window.VAN_HANH = {
    "cung": "cong-bo",
    "cungTen": "Công Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:49:32.868Z",
+   "luc": "2026-10-15T11:38:51.721Z",
    "ket": "ok",
    "giay": 19,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:49:32.868Z",
-   "lucDoi": "2026-10-15T04:49:32.868Z"
+   "lucOk": "2026-10-15T11:38:51.721Z",
+   "lucDoi": "2026-10-15T11:38:51.721Z"
   },
   {
    "ma": "quan-trac-do",
@@ -48,15 +48,15 @@ window.VAN_HANH = {
    "cung": "dai-quan-trac",
    "cungTen": "Đài Quan Trắc",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:58:52.462Z",
+   "luc": "2026-10-15T11:44:26.467Z",
    "ket": "ok",
-   "giay": 2,
+   "giay": 1,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:58:52.462Z",
-   "lucDoi": "2026-10-15T04:58:52.462Z"
+   "lucOk": "2026-10-15T11:44:26.467Z",
+   "lucDoi": "2026-10-15T11:44:26.467Z"
   },
   {
    "ma": "dai-quan-trac",
@@ -154,15 +154,15 @@ window.VAN_HANH = {
    "cung": "do-sat-vien",
    "cungTen": "Đô Sát Viện",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:49:13.921Z",
+   "luc": "2026-10-15T11:38:32.752Z",
    "ket": "ok",
    "giay": 58,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:49:13.921Z",
-   "lucDoi": "2026-10-15T04:49:13.921Z"
+   "lucOk": "2026-10-15T11:38:32.752Z",
+   "lucDoi": "2026-10-15T11:38:32.752Z"
   },
   {
    "ma": "ho-bo",
@@ -178,15 +178,15 @@ window.VAN_HANH = {
    "cung": "ho-bo",
    "cungTen": "Hộ Bộ",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:49:43.018Z",
+   "luc": "2026-10-15T11:38:53.575Z",
    "ket": "ok",
-   "giay": 10,
+   "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:49:43.018Z",
-   "lucDoi": "2026-10-15T04:49:43.018Z"
+   "lucOk": "2026-10-15T11:38:53.575Z",
+   "lucDoi": "2026-10-15T11:38:53.575Z"
   },
   {
    "ma": "ho-bo-tien-hoa",
@@ -307,15 +307,15 @@ window.VAN_HANH = {
    "cung": "kinh-thanh",
    "cungTen": "Kinh Thành",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:48:15.694Z",
+   "luc": "2026-10-15T11:37:34.489Z",
    "ket": "ok",
    "giay": 2,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:48:15.694Z",
-   "lucDoi": "2026-10-15T04:48:15.694Z"
+   "lucOk": "2026-10-15T11:37:34.489Z",
+   "lucDoi": "2026-10-15T11:37:34.489Z"
   },
   {
    "ma": "tri-thuc",
@@ -393,15 +393,15 @@ window.VAN_HANH = {
    "cung": "tang-thu-cac",
    "cungTen": "Tàng Thư Các",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:58:48.117Z",
+   "luc": "2026-10-15T11:44:24.999Z",
    "ket": "ok",
-   "giay": 536,
+   "giay": 322,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:58:48.117Z",
-   "lucDoi": "2026-10-15T04:58:48.117Z"
+   "lucOk": "2026-10-15T11:44:24.999Z",
+   "lucDoi": "2026-10-15T11:44:24.999Z"
   },
   {
    "ma": "nhap-skill",
@@ -469,15 +469,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:49:43.650Z",
+   "luc": "2026-10-15T11:38:54.276Z",
    "ket": "ok",
-   "giay": 0,
+   "giay": 1,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:49:43.650Z",
-   "lucDoi": "2026-10-15T04:49:43.650Z"
+   "lucOk": "2026-10-15T11:38:54.276Z",
+   "lucDoi": "2026-10-15T11:38:54.276Z"
   },
   {
    "ma": "thai-boc-tu-cong-truong",
@@ -493,15 +493,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:49:51.223Z",
+   "luc": "2026-10-15T11:39:01.705Z",
    "ket": "ok",
-   "giay": 8,
+   "giay": 7,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:49:51.223Z",
-   "lucDoi": "2026-10-15T04:49:51.223Z"
+   "lucOk": "2026-10-15T11:39:01.705Z",
+   "lucDoi": "2026-10-15T11:39:01.705Z"
   },
   {
    "ma": "thai-boc-tu-tin-pt",
@@ -541,15 +541,15 @@ window.VAN_HANH = {
    "cung": "thai-boc-tu",
    "cungTen": "Thái Bộc Tự",
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:49:52.006Z",
+   "luc": "2026-10-15T11:39:02.361Z",
    "ket": "ok",
-   "giay": 0,
+   "giay": 1,
    "doi": true,
    "chuThich": "",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-15T04:49:52.006Z",
-   "lucDoi": "2026-10-15T04:49:52.006Z"
+   "lucOk": "2026-10-15T11:39:02.361Z",
+   "lucDoi": "2026-10-15T11:39:02.361Z"
   },
   {
    "ma": "thai-boc-tu-tien-hoa",
@@ -638,13 +638,13 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-10-15T04:58:52.914Z",
+   "luc": "2026-10-15T11:44:26.841Z",
    "ket": "loi",
    "giay": null,
    "doi": false,
    "chuThich": "",
    "vi": "khoa-sai",
-   "chuoiLoi": 124,
+   "chuoiLoi": 125,
    "lucOk": "2026-09-02T11:37:03.712Z",
    "lucDoi": null
   },
@@ -847,6 +847,96 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-10-15T11:44:26.841Z",
+   "ma": "dong-dau",
+   "ket": "loi",
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": "khoa-sai"
+  },
+  {
+   "luc": "2026-10-15T11:44:26.467Z",
+   "ma": "quan-trac-do",
+   "ket": "ok",
+   "giay": 1,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:44:24.999Z",
+   "ma": "tang-thu-cac",
+   "ket": "ok",
+   "giay": 322,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:39:02.361Z",
+   "ma": "thai-boc-tu-tin",
+   "ket": "ok",
+   "giay": 1,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:39:01.705Z",
+   "ma": "thai-boc-tu-cong-truong",
+   "ket": "ok",
+   "giay": 7,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:38:54.276Z",
+   "ma": "thai-boc-tu",
+   "ket": "ok",
+   "giay": 1,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:38:53.575Z",
+   "ma": "ho-bo",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:38:51.721Z",
+   "ma": "cong-bo",
+   "ket": "ok",
+   "giay": 19,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:38:32.752Z",
+   "ma": "do-sat-vien",
+   "ket": "ok",
+   "giay": 58,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
+  {
+   "luc": "2026-10-15T11:37:34.489Z",
+   "ma": "kinh-thanh",
+   "ket": "ok",
+   "giay": 2,
+   "doi": true,
+   "chuThich": "",
+   "vi": null
+  },
   {
    "luc": "2026-10-15T05:01:47.714Z",
    "ma": "tien-hoa-xoay",
@@ -1295,96 +1385,6 @@ window.VAN_HANH = {
    "giay": 1,
    "doi": true,
    "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:05:52.539Z",
-   "ma": "tang-thu-cac",
-   "ket": "ok",
-   "giay": 283,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:01:09.750Z",
-   "ma": "thai-boc-tu-tin",
-   "ket": "ok",
-   "giay": 2,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:01:07.266Z",
-   "ma": "thai-boc-tu-cong-truong",
-   "ket": "ok",
-   "giay": 7,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:01:00.132Z",
-   "ma": "thai-boc-tu",
-   "ket": "ok",
-   "giay": 1,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:00:59.490Z",
-   "ma": "ho-bo",
-   "ket": "ok",
-   "giay": 2,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:00:57.872Z",
-   "ma": "cong-bo",
-   "ket": "ok",
-   "giay": 18,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T05:00:39.300Z",
-   "ma": "do-sat-vien",
-   "ket": "ok",
-   "giay": 58,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-14T04:59:41.396Z",
-   "ma": "kinh-thanh",
-   "ket": "ok",
-   "giay": 2,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-13T22:55:26.870Z",
-   "ma": "tien-hoa-xoay",
-   "ket": "loi",
-   "giay": 15,
-   "doi": false,
-   "chuThich": "hoang-thanh: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
-   "vi": "chua-ro"
-  },
-  {
-   "luc": "2026-10-13T22:55:11.560Z",
-   "ma": "tri-thuc-tien-hoa",
-   "ket": "ok",
-   "giay": 10,
-   "doi": false,
-   "chuThich": "1 điểm yếu · opus-5 · cổng chặn quyết định",
    "vi": null
   }
  ]
