@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-16T21:23:34.092Z",
-  "lan": 2517,
+  "generatedAt": "2026-10-16T23:43:06.987Z",
+  "lan": 2520,
   "node": {
     "kinh-thanh": {
       "luc": "2026-10-16T21:16:59.062Z",
@@ -47,12 +47,12 @@
       "lucDoi": "2026-10-16T21:23:32.350Z"
     },
     "dai-quan-trac": {
-      "luc": "2026-10-16T11:42:26.122Z",
+      "luc": "2026-10-16T23:42:25.851Z",
       "ket": "loi",
-      "giay": 16,
+      "giay": 15,
       "doi": false,
-      "chuThich": "quét 16s · dựng ?s · haiku-4-5",
-      "chuoiLoi": 63,
+      "chuThich": "quét 15s · dựng ?s · haiku-4-5",
+      "chuoiLoi": 64,
       "vi": null,
       "lucOk": "2026-09-05T22:59:50.067Z",
       "lucDoi": "2026-09-05T22:59:50.067Z"
@@ -157,12 +157,12 @@
       "lucDoi": "2026-10-16T11:42:08.495Z"
     },
     "dong-tin": {
-      "luc": "2026-10-16T11:42:58.354Z",
+      "luc": "2026-10-16T23:42:58.769Z",
       "ket": "loi",
-      "giay": 32,
+      "giay": 33,
       "doi": false,
       "chuThich": "dựng ?s · haiku-4-5 · không WebSearch",
-      "chuoiLoi": 63,
+      "chuoiLoi": 64,
       "vi": null,
       "lucOk": "2026-09-05T20:44:36.585Z",
       "lucDoi": "2026-09-05T20:44:36.585Z"
@@ -201,15 +201,15 @@
       "lucDoi": "2026-09-05T04:57:37.181Z"
     },
     "thai-boc-tu-tin-pt": {
-      "luc": "2026-10-16T11:43:59.234Z",
+      "luc": "2026-10-16T23:43:06.987Z",
       "ket": "ok",
-      "giay": 9,
+      "giay": 8,
       "doi": true,
       "chuThich": "nhận 0 · loại 0 · phủ 1/30 bài · haiku-4.5",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-16T11:43:59.234Z",
-      "lucDoi": "2026-10-16T11:43:59.234Z"
+      "lucOk": "2026-10-16T23:43:06.987Z",
+      "lucDoi": "2026-10-16T23:43:06.987Z"
     },
     "kham-thien-giam-tien-hoa": {
       "luc": "2026-10-16T11:44:11.867Z",
@@ -312,6 +312,33 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-10-16T23:43:06.987Z",
+      "ma": "thai-boc-tu-tin-pt",
+      "ket": "ok",
+      "giay": 8,
+      "doi": true,
+      "chuThich": "nhận 0 · loại 0 · phủ 1/30 bài · haiku-4.5",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-16T23:42:58.769Z",
+      "ma": "dong-tin",
+      "ket": "loi",
+      "giay": 33,
+      "doi": false,
+      "chuThich": "dựng ?s · haiku-4-5 · không WebSearch",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-16T23:42:25.851Z",
+      "ma": "dai-quan-trac",
+      "ket": "loi",
+      "giay": 15,
+      "doi": false,
+      "chuThich": "quét 15s · dựng ?s · haiku-4-5",
+      "vi": null
+    },
     {
       "luc": "2026-10-16T21:23:34.092Z",
       "ma": "dong-dau",
@@ -2081,33 +2108,6 @@
       "ma": "thai-boc-tu",
       "ket": "ok",
       "giay": 1,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-12T11:00:46.548Z",
-      "ma": "ho-bo",
-      "ket": "ok",
-      "giay": 13,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-12T11:00:33.227Z",
-      "ma": "cong-bo",
-      "ket": "ok",
-      "giay": 20,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-12T11:00:13.225Z",
-      "ma": "do-sat-vien",
-      "ket": "ok",
-      "giay": 63,
       "doi": true,
       "chuThich": "",
       "vi": null
