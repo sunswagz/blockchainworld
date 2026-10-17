@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-10-10T17:33:53.949Z",
- "khoQuetLuc": "10/10/2026",
- "tongSkill": 3864,
+ "luc": "2026-10-17T20:49:15.690Z",
+ "khoQuetLuc": "17/10/2026",
+ "tongSkill": 3968,
  "daDung": 14,
- "ungVien": 838,
+ "ungVien": 861,
  "ganDay": [
+  {
+   "ten": "codex-qa",
+   "luc": "2026-10-10T17:33:53.949Z"
+  },
+  {
+   "ten": "color-expert",
+   "luc": "2026-10-10T17:33:53.949Z"
+  },
+  {
+   "ten": "competition-firmware-layout",
+   "luc": "2026-10-10T17:33:53.949Z"
+  },
+  {
+   "ten": "design",
+   "luc": "2026-10-10T17:33:53.949Z"
+  },
+  {
+   "ten": "design-brief",
+   "luc": "2026-10-10T17:33:53.949Z"
+  },
+  {
+   "ten": "design-consultation",
+   "luc": "2026-10-10T17:33:53.949Z"
+  },
   {
    "ten": "audit-integrity",
    "luc": "2026-10-03T11:55:32.512Z"
@@ -167,117 +191,117 @@
    "luc": "2026-08-29T03:47:25.628Z"
   },
   {
-   "ten": "codex-qa",
-   "luc": "2026-10-10T17:33:53.949Z"
+   "ten": "design-taste-frontend-v2-experimental",
+   "luc": "2026-10-17T20:49:15.690Z"
   },
   {
-   "ten": "color-expert",
-   "luc": "2026-10-10T17:33:53.949Z"
+   "ten": "verify-paperclip",
+   "luc": "2026-10-17T20:49:15.690Z"
   },
   {
-   "ten": "competition-firmware-layout",
-   "luc": "2026-10-10T17:33:53.949Z"
+   "ten": "create-issue-interaction-ui",
+   "luc": "2026-10-17T20:49:15.690Z"
   },
   {
-   "ten": "design",
-   "luc": "2026-10-10T17:33:53.949Z"
+   "ten": "design-critique",
+   "luc": "2026-10-17T20:49:15.690Z"
   },
   {
-   "ten": "design-brief",
-   "luc": "2026-10-10T17:33:53.949Z"
+   "ten": "design-guide",
+   "luc": "2026-10-17T20:49:15.690Z"
   },
   {
-   "ten": "design-consultation",
-   "luc": "2026-10-10T17:33:53.949Z"
+   "ten": "design-system-patterns",
+   "luc": "2026-10-17T20:49:15.690Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 80,
-  "lập trình công cụ": 420,
-  "kiểm thử rà soát": 168,
-  "dữ liệu phân tích": 57,
-  "hạ tầng vận hành": 51,
-  "giao tiếp nội dung": 43,
-  "nghiên cứu": 44
+  "giao diện tiếp cận": 81,
+  "lập trình công cụ": 421,
+  "kiểm thử rà soát": 180,
+  "dữ liệu phân tích": 59,
+  "hạ tầng vận hành": 52,
+  "giao tiếp nội dung": 48,
+  "nghiên cứu": 46
  },
  "deXuat": [
   {
-   "ten": "codex-qa",
-   "kho": "code-yeongyu/oh-my-openagent",
-   "duong": ".agents/skills/codex-qa",
+   "ten": "design-taste-frontend-v2-experimental",
+   "kho": "Leonxlnx/taste-skill",
+   "duong": "skills/taste-skill-v2-experimental",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Old v2 (experimental) of taste-skill, the single-file dial-driven version, preserved for projects depending on its exact behavior. The current default is `design-taste-frontend` (v",
+   "byte": 89508,
+   "doc": "https://github.com/Leonxlnx/taste-skill/blob/main/skills/taste-skill-v2-experimental/SKILL.md",
+   "trich": "# tasteskill: Anti-Slop Frontend Skill > Landing pages, portfolios, and redesigns. Not dashboards, not data tables, not multi-step product UI. > Every rule below is **contextual**. None of it fires automatically. First read the brief, then pull only what fits. ## 0. BRIEF INFERENCE (Read the Room Before Anything Else) Before touching code or tweaking dials, **infer what the user actually wants**. Most LLM design output is bad because the model jumps to a default aesthetic instead of reading the room. ### 0.A Read these signals first 1. **Page kind** - landing (SaaS / consumer / agency / event), portfolio (dev / designer / creative studio), redesign (preserve vs overhaul), editorial / blog. 2. **Vibe words** the user used - \"minimalist\", \"calm\", \"Linear-style\", \"Awwwards\", \"brutalist\", \"premium consumer\", \"Apple-y\", \"playful\", \"serious B2B\", \"editorial\", \"agency-y\", \"glassy\", \"dark tech\"."
+  },
+  {
+   "ten": "verify-paperclip",
+   "kho": "paperclipai/paperclip",
+   "duong": ".agents/skills/verify-paperclip",
    "lv": [
     "kiểm thử rà soát"
    ],
-   "diem": 9,
-   "mo": "QA the omo Codex Light edition (lazycodex / packages/omo-codex) itself, in strict isolation so ONLY our plugin is exercised, never the user's real ~/.codex. The first-party method ",
-   "byte": 7792,
-   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/.agents/skills/codex-qa/SKILL.md",
-   "trich": "# Codex QA QA the omo Codex Light edition (`packages/omo-codex/`, shipped as lazycodex). We exercise OUR plugin in a REAL Codex while touching nothing of the user's setup: an isolated `CODEX_HOME` + a local mock model means no real API call and the real `~/.codex` is never read or written. Each helper script ships a `--self-test` that asserts its scenario against the live machine, so the scripts are both the QA tools and their own regression checks. Verified against `codex-cli 0.140.0` (node, jq, tmux, bun on macOS). Confirm with `codex --version`; check a flag with `codex <cmd> --help`. ## Golden rules (read before running anything) - **QA ONLY our plugin.** Everything that spawns codex uses an isolated `CODEX_HOME` (created by `cqa_mk_isolated_home`) and a LOCAL mock model provider (`cqa_start_mock`). Never QA against the real `~/.codex`, never hit a real model API. The bundled scripts"
+   "diem": 11,
+   "mo": "Verify Paperclip from a source checkout, published npm install, or existing staging or production stack. Select the environment, data state, version, and platform; drive real UI or",
+   "byte": 14500,
+   "doc": "https://github.com/paperclipai/paperclip/blob/main/.agents/skills/verify-paperclip/SKILL.md",
+   "trich": "# Verify Paperclip Read the [map contract](../../../maps/README.md), then use the [feature map](../../../maps/feature-map/README.md) to select user verification recipes. For API/agent access, read the same-named [agent access companion](../../../maps/agent-access-map/README.md) and use the actual permitted agent identity, target and work mode. Follow existing API/runner/MCP fixtures for access proof; a board request does not prove agent access. Report recipe or access drift with evidence; map updates belong to [maintain-verification-skill](../maintain-verification-skill/SKILL.md). Read [development instructions](../../../doc/DEVELOPING.md) for current commands. ## Select the verification target State what is being tested before starting. Use the requested target; for ordinary feature development, default to the current checkout on the current host with isolated data. Expand into cross-pl"
   },
   {
-   "ten": "color-expert",
-   "kho": "nexu-io/open-design",
-   "duong": "skills/color-expert",
+   "ten": "create-issue-interaction-ui",
+   "kho": "paperclipai/paperclip",
+   "duong": ".agents/skills/create-issue-interaction-ui",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Color science expert skill with 286K words of reference material covering OKLCH/OKLAB, palette generation, accessibility/contrast, color naming, pigment mixing, and historical colo",
-   "byte": 1324,
-   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/color-expert/SKILL.md",
-   "trich": "# color-expert > Curated from @meodai. ## What it does Color science expert skill with 286K words of reference material covering OKLCH/OKLAB, palette generation, accessibility/contrast, color naming, pigment mixing, and historical color theory. ## Source - Upstream: https://github.com/meodai/skill.color-expert - Category: `design-systems` ## How to use This catalogue entry advertises the skill in OpenDesign so the agent discovers it during planning. To run the full upstream workflow with its original assets, scripts, and references, install the upstream bundle into your active agent's skills directory: ```bash # Inspect the upstream README for exact paths open https://github.com/meodai/skill.color-expert ``` Then ask the agent to invoke this skill by name (`color-expert`) or with one of the trigger phrases listed in this skill's frontmatter."
+   "mo": "Add a new Paperclip issue-thread interaction kind end-to-end. Use when repo work introduces or extends interaction cards like request_confirmation, checkbox confirmations, ask_user",
+   "byte": 13613,
+   "doc": "https://github.com/paperclipai/paperclip/blob/main/.agents/skills/create-issue-interaction-ui/SKILL.md",
+   "trich": "# Create a new issue-thread interaction UI (Developer/maintainer skill) Developer/maintainer skill. Do NOT install this on production Paperclip agents. This skill walks a Paperclip contributor through introducing a new issue-thread interaction kind from shared contract to issue-detail wiring, helpers, and docs. It is intentionally a developer/maintainer skill: the audience is a human or coding agent making code changes inside `paperclipai/paperclip`, not the operational agents that run inside a deployed Paperclip company. Do NOT install this on production Paperclip agents. This guide is for repository contributors changing Paperclip itself. ## When to use - A new interaction kind is being introduced (compact picker, structured rating, in-thread approval card, etc.). - An existing interaction needs a parallel variant with a distinct payload shape, validation, or resolution outcome (and `a"
   },
   {
-   "ten": "competition-firmware-layout",
-   "kho": "zhaoxuya520/reverse-skill",
-   "duong": "CTF-Sandbox-Orchestrator/competition-firmware-layout",
+   "ten": "design-critique",
+   "kho": "paperclipai/paperclip",
+   "duong": "packages/skills-catalog/catalog/optional/product/design-critique",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Internal downstream skill for ctf-sandbox-orchestrator. CTF-sandbox workflow for firmware images, partition tables, boot chains, update packages, extracted filesystems, embedded co",
-   "byte": 3289,
-   "doc": "https://github.com/zhaoxuya520/reverse-skill/blob/main/CTF-Sandbox-Orchestrator/competition-firmware-layout/SKILL.md",
-   "trich": "# Competition Firmware Layout Use this skill only as a downstream specialization after `$ctf-sandbox-orchestrator` is already active and has established sandbox assumptions, node ownership, and evidence priorities. If that has not happened yet, return to `$ctf-sandbox-orchestrator` first. Use this skill when the hard part is understanding how a firmware image is structured, booted, updated, and turned into reachable device behavior. Reply in Simplified Chinese unless the user explicitly requests English. ## Quick Start 1. Preserve the original image, extracted partitions, unpacked filesystems, and patched copies as separate artifacts. 2. Map outer container, partition table, bootloader, kernel, rootfs, config, and update metadata before editing anything. 3. Track the boot or update chain in order instead of jumping straight to the most interesting file. 4. Record keys, signatures, offset"
+   "mo": "Give a structured product design critique — user job clarity, hierarchy, affordance, error states, accessibility, and consistency — focused on what to change, in what order, and wh",
+   "byte": 4842,
+   "doc": "https://github.com/paperclipai/paperclip/blob/main/packages/skills-catalog/catalog/optional/product/design-critique/SKILL.md",
+   "trich": "# Product Design Critique A structured critique pass for a screen, flow, or component. The output is a prioritized list of changes a designer or engineer can act on — not adjectives. Critique is not redesign; recommend, do not rebuild. ## When to use - A designer or engineer asks for feedback on a screen, mock, or live UI. - A feature is shipping and someone wants a final UX read. - A flow is suspected of causing user drop-off and you want a pre-research read before instrumentation. ## When not to use - The user wants a redesign. That is a design project, not a critique. - The work is so early that no concrete artifact exists. Sketch with them instead of critiquing air. - You have no context on the user job. Ask for it first; design critique without user context devolves into taste. ## Pre-critique context Before opening a screen, get: - **Who is the user.** Specific role and competence,"
   },
   {
-   "ten": "design",
-   "kho": "nextlevelbuilder/ui-ux-pro-max-skill",
-   "duong": "cli/assets/skills/design",
+   "ten": "design-guide",
+   "kho": "paperclipai/paperclip",
+   "duong": ".claude/skills/design-guide",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, C",
-   "byte": 14057,
-   "doc": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/cli/assets/skills/design/SKILL.md",
-   "trich": "# Design Unified design skill: brand, tokens, UI, logo, CIP, slides, banners, social photos, icons. ## When to Use - Brand identity, voice, assets - Design system tokens and specs - UI styling with shadcn/ui + Tailwind - Logo design and AI generation - Corporate identity program (CIP) deliverables - Presentations and pitch decks - Banner design for social media, ads, web, print - Social photos for Instagram, Facebook, LinkedIn, Twitter, Pinterest, TikTok ## Sub-skill Routing | Task | Sub-skill | Details | |------|-----------|---------| | Brand identity, voice, assets | `brand` | Bundled sibling skill | | Tokens, specs, CSS vars | `design-system` | Bundled sibling skill | | shadcn/ui, Tailwind, code | `ui-styling` | Bundled sibling skill | | Logo creation, AI generation | Logo (built-in) | `references/logo-design.md` | | CIP mockups, deliverables | CIP (built-in) | `references/cip-design."
+   "mo": "Paperclip UI design system guide for building consistent, reusable frontend components. Use when creating new UI components, modifying existing ones, adding pages or features to th",
+   "byte": 12296,
+   "doc": "https://github.com/paperclipai/paperclip/blob/main/.claude/skills/design-guide/SKILL.md",
+   "trich": "# Paperclip Design Guide Paperclip's UI is a professional-grade control plane — dense, keyboard-driven, dark-themed by default. Every pixel earns its place. **Always use with:** `frontend-design` (visual polish) and `web-design-guidelines` (web best practices). ## 1. Design Principles - **Dense but scannable.** Maximum information without clicks to reveal. Whitespace separates, not pads. - **Keyboard-first.** Global shortcuts (Cmd+K, C, [, ]). Power users rarely touch the mouse. - **Contextual, not modal.** Inline editing over dialog boxes. Dropdowns over page navigations. - **Dark theme default.** Neutral grays (OKLCH), not pure black. Accent colors for status/priority only. Text is the primary visual element. - **Component-driven.** Prefer reusable components that capture style conventions. Build at the right abstraction — not too granular, not too monolithic. ## 2. Tech Stack - **Reac"
   },
   {
-   "ten": "design-brief",
-   "kho": "nexu-io/open-design",
-   "duong": "skills/design-brief",
+   "ten": "design-system-patterns",
+   "kho": "wshobson/agents",
+   "duong": "plugins/ui-design/skills/design-system-patterns",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Parse a structured design brief written in I-Lang protocol format into a concrete design spec. Eliminates ambiguity from vague requests like \"make it professional\" by requiring exp",
-   "byte": 13733,
-   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/design-brief/SKILL.md",
-   "trich": "# Design Brief Skill Parse a structured design brief into a concrete DESIGN.md and optional visual preview. Agent, follow this workflow exactly. ## Background The 8 dimensions in this skill were derived from OpenDesign's original 71-system catalog; 71 is the research sample, not the current bundled-system count. Every `DESIGN.md` in `design-systems/` still resolves at minimum: color palette, accent, typography, display font, layout model, and component style. We distilled these into 8 orthogonal dimensions that cover the decisions a designer makes before any pixel is placed. Mood and density were added because they are the two most common sources of ambiguity in natural language briefs (\"make it clean\" means different things to different people). Dimensions intentionally excluded from the brief level: animation timing, responsive strategy, and accessibility contrast. These are enforced a"
-  },
-  {
-   "ten": "design-consultation",
-   "kho": "garrytan/gstack",
-   "duong": "design-consultation",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 9,
-   "mo": "Design consultation: understands your product, researches the landscape, proposes a complete design system (aesthetic, typography, color, layout, spacing, motion), and generates fo",
-   "byte": 61517,
-   "doc": "https://github.com/garrytan/gstack/blob/main/design-consultation/SKILL.md",
-   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## When to invoke this skill Creates DESIGN.md as your project's design source of truth. For existing sites, use /plan-design-review to infer the system instead. Use when asked to \"design system\", \"brand guidelines\", or \"create DESIGN.md\". Proactively suggest when starting a new project's UI with no existing design system or DESIGN.md. ## Preamble (run first) ```bash ~/.claude/skills/gstack/bin/gstack-skill-start --skill \"design-consultation\" --model \"claude\" ``` Read the echoed `KEY: value` STATUS lines — they drive every preamble rule below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output (script absent, stale install, or a different protocol number), apply safe defaults: treat `SESSION_KIND` as `interactive`, do NOT assume Conductor, skip onboarding/tel"
+   "mo": "Build scalable design systems with design tokens, theming infrastructure, and component architecture patterns. Use when creating design tokens, implementing theme switching, buildi",
+   "byte": 4003,
+   "doc": "https://github.com/wshobson/agents/blob/main/plugins/ui-design/skills/design-system-patterns/SKILL.md",
+   "trich": "# Design System Patterns Master design system architecture to create consistent, maintainable, and scalable UI foundations across web and mobile applications. ## When to Use This Skill - Creating design tokens for colors, typography, spacing, and shadows - Implementing light/dark theme switching with CSS custom properties - Building multi-brand theming systems - Architecting component libraries with consistent APIs - Establishing design-to-code workflows with Figma tokens - Creating semantic token hierarchies (primitive, semantic, component) - Setting up design system documentation and guidelines ## Core Capabilities ### 1. Design Tokens - Primitive tokens (raw values: colors, sizes, fonts) - Semantic tokens (contextual meaning: text-primary, surface-elevated) - Component tokens (specific usage: button-bg, card-border) - Token naming conventions and organization - Multi-platform token ge"
   }
  ]
 }
