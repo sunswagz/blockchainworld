@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-10-17T20:49:15.773Z",
- "lan": 2565,
+ "generatedAt": "2026-10-17T20:49:36.968Z",
+ "lan": 2566,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -813,13 +813,13 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-10-10T17:34:14.921Z",
+   "luc": "2026-10-17T20:49:36.968Z",
    "ket": "loi",
    "giay": null,
    "doi": false,
    "chuThich": "",
    "vi": "chua-ro",
-   "chuoiLoi": 8,
+   "chuoiLoi": 9,
    "lucOk": null,
    "lucDoi": null
   },
@@ -847,6 +847,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-10-17T20:49:36.968Z",
+   "ma": "thuoc-moi",
+   "ket": "loi",
+   "giay": null,
+   "doi": false,
+   "chuThich": "",
+   "vi": "chua-ro"
+  },
   {
    "luc": "2026-10-17T20:49:15.773Z",
    "ma": "do-kho",
@@ -1377,15 +1386,6 @@ window.VAN_HANH = {
    "doi": false,
    "chuThich": "thi-bac-ty: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
    "vi": "chua-ro"
-  },
-  {
-   "luc": "2026-10-16T11:44:32.653Z",
-   "ma": "tri-thuc-tien-hoa",
-   "ket": "ok",
-   "giay": 9,
-   "doi": false,
-   "chuThich": "1 điểm yếu · opus-5 · cổng chặn quyết định",
-   "vi": null
   }
  ]
 };
