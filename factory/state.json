@@ -1,50 +1,50 @@
 {
-  "generatedAt": "2026-10-18T21:01:30.478Z",
-  "lan": 2613,
+  "generatedAt": "2026-10-19T04:59:02.696Z",
+  "lan": 2623,
   "node": {
     "kinh-thanh": {
-      "luc": "2026-10-18T20:50:40.975Z",
+      "luc": "2026-10-19T04:49:09.509Z",
       "ket": "ok",
-      "giay": 5,
+      "giay": 2,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T20:50:40.975Z",
-      "lucDoi": "2026-10-18T20:50:40.975Z"
+      "lucOk": "2026-10-19T04:49:09.509Z",
+      "lucDoi": "2026-10-19T04:49:09.509Z"
     },
     "do-sat-vien": {
-      "luc": "2026-10-18T20:51:41.280Z",
+      "luc": "2026-10-19T04:50:08.330Z",
       "ket": "ok",
-      "giay": 60,
+      "giay": 59,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T20:51:41.280Z",
-      "lucDoi": "2026-10-18T20:51:41.280Z"
+      "lucOk": "2026-10-19T04:50:08.330Z",
+      "lucDoi": "2026-10-19T04:50:08.330Z"
     },
     "cong-bo": {
-      "luc": "2026-10-18T20:52:00.847Z",
+      "luc": "2026-10-19T04:50:28.104Z",
       "ket": "ok",
-      "giay": 19,
+      "giay": 20,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T20:52:00.847Z",
-      "lucDoi": "2026-10-18T20:52:00.847Z"
+      "lucOk": "2026-10-19T04:50:28.104Z",
+      "lucDoi": "2026-10-19T04:50:28.104Z"
     },
     "tang-thu-cac": {
-      "luc": "2026-10-18T21:00:25.461Z",
+      "luc": "2026-10-19T04:59:00.296Z",
       "ket": "ok",
-      "giay": 485,
+      "giay": 498,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T21:00:25.461Z",
-      "lucDoi": "2026-10-18T21:00:25.461Z"
+      "lucOk": "2026-10-19T04:59:00.296Z",
+      "lucDoi": "2026-10-19T04:59:00.296Z"
     },
     "dai-quan-trac": {
       "luc": "2026-10-18T21:00:49.855Z",
@@ -69,23 +69,23 @@
       "lucDoi": "2026-08-14T09:16:24.800Z"
     },
     "quan-trac-do": {
-      "luc": "2026-10-18T21:00:27.443Z",
+      "luc": "2026-10-19T04:59:02.273Z",
       "ket": "ok",
       "giay": 2,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T21:00:27.443Z",
-      "lucDoi": "2026-10-18T21:00:27.443Z"
+      "lucOk": "2026-10-19T04:59:02.273Z",
+      "lucDoi": "2026-10-19T04:59:02.273Z"
     },
     "dong-dau": {
-      "luc": "2026-10-18T21:00:27.830Z",
+      "luc": "2026-10-19T04:59:02.696Z",
       "ket": "loi",
       "giay": null,
       "doi": false,
       "chuThich": "",
-      "chuoiLoi": 135,
+      "chuoiLoi": 136,
       "vi": "khoa-sai",
       "lucOk": "2026-09-02T11:37:03.712Z",
       "lucDoi": null
@@ -102,48 +102,48 @@
       "lucDoi": "2026-09-05T05:10:45.118Z"
     },
     "ho-bo": {
-      "luc": "2026-10-18T20:52:07.897Z",
+      "luc": "2026-10-19T04:50:33.042Z",
       "ket": "ok",
-      "giay": 7,
+      "giay": 4,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T20:52:07.897Z",
-      "lucDoi": "2026-10-18T20:52:07.897Z"
+      "lucOk": "2026-10-19T04:50:33.042Z",
+      "lucDoi": "2026-10-19T04:50:33.042Z"
     },
     "thai-boc-tu": {
-      "luc": "2026-10-18T20:52:08.410Z",
+      "luc": "2026-10-19T04:50:33.626Z",
+      "ket": "ok",
+      "giay": 0,
+      "doi": true,
+      "chuThich": "",
+      "chuoiLoi": 0,
+      "vi": null,
+      "lucOk": "2026-10-19T04:50:33.626Z",
+      "lucDoi": "2026-10-19T04:50:33.626Z"
+    },
+    "thai-boc-tu-cong-truong": {
+      "luc": "2026-10-19T04:50:41.120Z",
+      "ket": "ok",
+      "giay": 8,
+      "doi": true,
+      "chuThich": "",
+      "chuoiLoi": 0,
+      "vi": null,
+      "lucOk": "2026-10-19T04:50:41.120Z",
+      "lucDoi": "2026-10-19T04:50:41.120Z"
+    },
+    "thai-boc-tu-tin": {
+      "luc": "2026-10-19T04:50:42.063Z",
       "ket": "ok",
       "giay": 1,
       "doi": true,
       "chuThich": "",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-18T20:52:08.410Z",
-      "lucDoi": "2026-10-18T20:52:08.410Z"
-    },
-    "thai-boc-tu-cong-truong": {
-      "luc": "2026-10-18T20:52:15.953Z",
-      "ket": "ok",
-      "giay": 7,
-      "doi": true,
-      "chuThich": "",
-      "chuoiLoi": 0,
-      "vi": null,
-      "lucOk": "2026-10-18T20:52:15.953Z",
-      "lucDoi": "2026-10-18T20:52:15.953Z"
-    },
-    "thai-boc-tu-tin": {
-      "luc": "2026-10-18T20:52:20.801Z",
-      "ket": "ok",
-      "giay": 5,
-      "doi": true,
-      "chuThich": "",
-      "chuoiLoi": 0,
-      "vi": null,
-      "lucOk": "2026-10-18T20:52:20.801Z",
-      "lucDoi": "2026-10-18T20:52:20.801Z"
+      "lucOk": "2026-10-19T04:50:42.063Z",
+      "lucDoi": "2026-10-19T04:50:42.063Z"
     },
     "nhap-skill": {
       "luc": "2026-10-18T15:55:33.021Z",
@@ -312,6 +312,96 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-10-19T04:59:02.696Z",
+      "ma": "dong-dau",
+      "ket": "loi",
+      "giay": null,
+      "doi": false,
+      "chuThich": "",
+      "vi": "khoa-sai"
+    },
+    {
+      "luc": "2026-10-19T04:59:02.273Z",
+      "ma": "quan-trac-do",
+      "ket": "ok",
+      "giay": 2,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:59:00.296Z",
+      "ma": "tang-thu-cac",
+      "ket": "ok",
+      "giay": 498,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:50:42.063Z",
+      "ma": "thai-boc-tu-tin",
+      "ket": "ok",
+      "giay": 1,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:50:41.120Z",
+      "ma": "thai-boc-tu-cong-truong",
+      "ket": "ok",
+      "giay": 8,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:50:33.626Z",
+      "ma": "thai-boc-tu",
+      "ket": "ok",
+      "giay": 0,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:50:33.042Z",
+      "ma": "ho-bo",
+      "ket": "ok",
+      "giay": 4,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:50:28.104Z",
+      "ma": "cong-bo",
+      "ket": "ok",
+      "giay": 20,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:50:08.330Z",
+      "ma": "do-sat-vien",
+      "ket": "ok",
+      "giay": 59,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
+    {
+      "luc": "2026-10-19T04:49:09.509Z",
+      "ma": "kinh-thanh",
+      "ket": "ok",
+      "giay": 2,
+      "doi": true,
+      "chuThich": "",
+      "vi": null
+    },
     {
       "luc": "2026-10-18T21:01:30.478Z",
       "ma": "thai-boc-tu-tin-pt",
@@ -2020,96 +2110,6 @@
       "giay": 2,
       "doi": true,
       "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:56:27.463Z",
-      "ma": "tang-thu-cac",
-      "ket": "ok",
-      "giay": 535,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:47:32.827Z",
-      "ma": "thai-boc-tu-tin",
-      "ket": "ok",
-      "giay": 3,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:47:28.990Z",
-      "ma": "thai-boc-tu-cong-truong",
-      "ket": "ok",
-      "giay": 8,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:47:20.776Z",
-      "ma": "thai-boc-tu",
-      "ket": "ok",
-      "giay": 0,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:47:20.076Z",
-      "ma": "ho-bo",
-      "ket": "ok",
-      "giay": 5,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:47:15.914Z",
-      "ma": "cong-bo",
-      "ket": "ok",
-      "giay": 19,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:46:56.077Z",
-      "ma": "do-sat-vien",
-      "ket": "ok",
-      "giay": 59,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T21:45:56.786Z",
-      "ma": "kinh-thanh",
-      "ket": "ok",
-      "giay": 2,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T12:10:47.042Z",
-      "ma": "thai-boc-tu-tin-pt",
-      "ket": "ok",
-      "giay": 9,
-      "doi": true,
-      "chuThich": "nhận 0 · loại 0 · phủ 1/30 bài · haiku-4.5",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-14T12:10:37.446Z",
-      "ma": "dong-tin",
-      "ket": "loi",
-      "giay": 32,
-      "doi": false,
-      "chuThich": "dựng ?s · haiku-4-5 · không WebSearch",
       "vi": null
     }
   ]
