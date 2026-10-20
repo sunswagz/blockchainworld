@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : obra/superpowers (302.077 sao)
+     Kho    : obra/superpowers (302.525 sao)
      Đường  : skills/diagnosing-superpowers
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/obra/superpowers/main/skills/diagnosing-superpowers/SKILL.md
-     sha256 : 5a652f8132cc901e · nhập 2026-10-19T20:48:14.045Z
+     sha256 : 3143de8695c5a2d6 · nhập 2026-10-20T23:56:25.242Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -109,7 +109,7 @@ yourself in step 3 and which findings to lead with in the verdict.
   partner either.
 - **Approval gates.** No archive before your partner has seen the scrub
   log and file list. No issue or comment before they approve the exact
-  text.
+  text, and none with a placeholder summary.
 - **Intake before analysis.** Nothing in steps 2–7 starts until your
   partner has answered. If they are away, write the questions and stop.
   A statement you reconstructed for them is not an answer. An
