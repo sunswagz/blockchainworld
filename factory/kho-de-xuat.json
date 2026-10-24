@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-10-17T20:49:15.690Z",
- "khoQuetLuc": "17/10/2026",
- "tongSkill": 3968,
+ "luc": "2026-10-24T21:04:14.183Z",
+ "khoQuetLuc": "24/10/2026",
+ "tongSkill": 4294,
  "daDung": 14,
- "ungVien": 861,
+ "ungVien": 919,
  "ganDay": [
+  {
+   "ten": "design-taste-frontend-v2-experimental",
+   "luc": "2026-10-17T20:49:15.690Z"
+  },
+  {
+   "ten": "verify-paperclip",
+   "luc": "2026-10-17T20:49:15.690Z"
+  },
+  {
+   "ten": "create-issue-interaction-ui",
+   "luc": "2026-10-17T20:49:15.690Z"
+  },
+  {
+   "ten": "design-critique",
+   "luc": "2026-10-17T20:49:15.690Z"
+  },
+  {
+   "ten": "design-guide",
+   "luc": "2026-10-17T20:49:15.690Z"
+  },
+  {
+   "ten": "design-system-patterns",
+   "luc": "2026-10-17T20:49:15.690Z"
+  },
   {
    "ten": "codex-qa",
    "luc": "2026-10-10T17:33:53.949Z"
@@ -151,157 +175,119 @@
    "luc": "2026-09-05T05:09:11.297Z"
   },
   {
-   "ten": "academic-pipeline",
-   "luc": "2026-08-29T08:03:27.519Z"
-  },
-  {
-   "ten": "accesslint-audit",
-   "luc": "2026-08-29T08:03:27.519Z"
-  },
-  {
-   "ten": "ai-regression-testing",
-   "luc": "2026-08-29T08:03:27.519Z"
-  },
-  {
-   "ten": "analyzing-linux-audit-logs-for-intrusion",
-   "luc": "2026-08-29T08:03:27.519Z"
-  },
-  {
-   "ten": "analyzing-office365-audit-logs-for-compromise",
-   "luc": "2026-08-29T08:03:27.519Z"
-  },
-  {
    "ten": "pre-publish-review",
-   "luc": "2026-08-29T03:47:25.628Z"
+   "luc": "2026-10-24T21:04:14.183Z"
   },
   {
-   "ten": "review-work",
-   "luc": "2026-08-29T03:47:25.628Z"
+   "ten": "named-persona-adversarial-review",
+   "luc": "2026-10-24T21:04:14.183Z"
   },
   {
-   "ten": "visual-qa",
-   "luc": "2026-08-29T03:47:25.628Z"
+   "ten": "propagate-design-change",
+   "luc": "2026-10-24T21:04:14.183Z"
   },
   {
-   "ten": "writing-hookify-rules",
-   "luc": "2026-08-29T03:47:25.628Z"
+   "ten": "a11y-audit",
+   "luc": "2026-10-24T21:04:14.183Z"
   },
   {
    "ten": "ab-test-analysis",
-   "luc": "2026-08-29T03:47:25.628Z"
+   "luc": "2026-10-24T21:04:14.183Z"
   },
   {
-   "ten": "design-taste-frontend-v2-experimental",
-   "luc": "2026-10-17T20:49:15.690Z"
-  },
-  {
-   "ten": "verify-paperclip",
-   "luc": "2026-10-17T20:49:15.690Z"
-  },
-  {
-   "ten": "create-issue-interaction-ui",
-   "luc": "2026-10-17T20:49:15.690Z"
-  },
-  {
-   "ten": "design-critique",
-   "luc": "2026-10-17T20:49:15.690Z"
-  },
-  {
-   "ten": "design-guide",
-   "luc": "2026-10-17T20:49:15.690Z"
-  },
-  {
-   "ten": "design-system-patterns",
-   "luc": "2026-10-17T20:49:15.690Z"
+   "ten": "accesslint-audit",
+   "luc": "2026-10-24T21:04:14.183Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 81,
-  "lập trình công cụ": 421,
-  "kiểm thử rà soát": 180,
-  "dữ liệu phân tích": 59,
-  "hạ tầng vận hành": 52,
-  "giao tiếp nội dung": 48,
-  "nghiên cứu": 46
+  "giao diện tiếp cận": 83,
+  "lập trình công cụ": 420,
+  "kiểm thử rà soát": 216,
+  "dữ liệu phân tích": 65,
+  "hạ tầng vận hành": 56,
+  "giao tiếp nội dung": 56,
+  "nghiên cứu": 52
  },
  "deXuat": [
   {
-   "ten": "design-taste-frontend-v2-experimental",
-   "kho": "Leonxlnx/taste-skill",
-   "duong": "skills/taste-skill-v2-experimental",
+   "ten": "pre-publish-review",
+   "kho": "code-yeongyu/oh-my-openagent",
+   "duong": ".opencode/skills/pre-publish-review",
    "lv": [
-    "giao diện tiếp cận"
+    "kiểm thử rà soát"
    ],
-   "diem": 11,
-   "mo": "Old v2 (experimental) of taste-skill, the single-file dial-driven version, preserved for projects depending on its exact behavior. The current default is `design-taste-frontend` (v",
-   "byte": 89508,
-   "doc": "https://github.com/Leonxlnx/taste-skill/blob/main/skills/taste-skill-v2-experimental/SKILL.md",
-   "trich": "# tasteskill: Anti-Slop Frontend Skill > Landing pages, portfolios, and redesigns. Not dashboards, not data tables, not multi-step product UI. > Every rule below is **contextual**. None of it fires automatically. First read the brief, then pull only what fits. ## 0. BRIEF INFERENCE (Read the Room Before Anything Else) Before touching code or tweaking dials, **infer what the user actually wants**. Most LLM design output is bad because the model jumps to a default aesthetic instead of reading the room. ### 0.A Read these signals first 1. **Page kind** - landing (SaaS / consumer / agency / event), portfolio (dev / designer / creative studio), redesign (preserve vs overhaul), editorial / blog. 2. **Vibe words** the user used - \"minimalist\", \"calm\", \"Linear-style\", \"Awwwards\", \"brutalist\", \"premium consumer\", \"Apple-y\", \"playful\", \"serious B2B\", \"editorial\", \"agency-y\", \"glassy\", \"dark tech\"."
+   "diem": 13,
+   "mo": "Nuclear-grade 12-agent pre-publish release gate. Runs /get-unpublished-changes to detect all changes since last npm release, spawns up to 10 ultrabrain agents for deep per-change a",
+   "byte": 17181,
+   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/.opencode/skills/pre-publish-review/SKILL.md",
+   "trich": "# Pre-Publish Review — 12-Agent Release Gate Three-agent-layer review before publishing to npm. Every layer covers a different angle, and every result is mapped onto the release layers below. | Layer | Agents | Type | What They Check | |-------|--------|------|-----------------| | Per-Change Deep Dive | up to 10 | ultrabrain | Each logical change group individually — correctness, edge cases, pattern adherence | | Holistic Review | 1 (+ orchestrator QA) | review-work | Manual QA by the review orchestrator, then one gate reviewer covering goal compliance, code quality, security, and missed context across the full changeset | | Release Synthesis | 1 | oracle | Overall release readiness, version bump, breaking changes, deployment risk | ## Release Layer Taxonomy Every phase classifies evidence and risk across: | Release Layer | Scope | Required version decision | |---|---|---| | `omo pure co"
   },
   {
-   "ten": "verify-paperclip",
-   "kho": "paperclipai/paperclip",
-   "duong": ".agents/skills/verify-paperclip",
+   "ten": "named-persona-adversarial-review",
+   "kho": "alirezarezvani/claude-skills",
+   "duong": "engineering-team/skills/named-persona-adversarial-review",
    "lv": [
     "kiểm thử rà soát"
    ],
    "diem": 11,
-   "mo": "Verify Paperclip from a source checkout, published npm install, or existing staging or production stack. Select the environment, data state, version, and platform; drive real UI or",
-   "byte": 14500,
-   "doc": "https://github.com/paperclipai/paperclip/blob/main/.agents/skills/verify-paperclip/SKILL.md",
-   "trich": "# Verify Paperclip Read the [map contract](../../../maps/README.md), then use the [feature map](../../../maps/feature-map/README.md) to select user verification recipes. For API/agent access, read the same-named [agent access companion](../../../maps/agent-access-map/README.md) and use the actual permitted agent identity, target and work mode. Follow existing API/runner/MCP fixtures for access proof; a board request does not prove agent access. Report recipe or access drift with evidence; map updates belong to [maintain-verification-skill](../maintain-verification-skill/SKILL.md). Read [development instructions](../../../doc/DEVELOPING.md) for current commands. ## Select the verification target State what is being tested before starting. Use the requested target; for ordinary feature development, default to the current checkout on the current host with isolated data. Expand into cross-pl"
+   "mo": "Code review through the lens of real engineers' documented philosophies (Torvalds, Thompson, Carmack, Kent Beck, Jobs, Cagan). Complements abstract-role adversarial review with nam",
+   "byte": 10865,
+   "doc": "https://github.com/alirezarezvani/claude-skills/blob/main/engineering-team/skills/named-persona-adversarial-review/SKILL.md",
+   "trich": "# Named-Persona Adversarial Review > **TL;DR:** Abstract roles find abstract problems. Named engineers with *documented, sourced* philosophies find problems you would actually fix — as long as you cite the real principle and never invent the quote. **Triggers:** \"review this PR with real engineers\" | \"named persona review\" | \"philosophy-grounded review\" ## Example Output ``` CRITICAL [Torvalds]: Special-case error handling at auth.ts:47 duplicates the happy path. Torvalds' documented \"good taste\" principle: restructure so the special case disappears rather than adding a branch. (confidence: high — TED 2016) WARNING [Thompson]: parseConfig() does three unrelated things; the Unix \"do one thing well\" principle argues to split it. (confidence: high) NOTE [Jobs]: Error \"EACCES:13\" leaks an errno at the user surface; \"start from the customer experience\" argues for a human message. (confidence:"
   },
   {
-   "ten": "create-issue-interaction-ui",
-   "kho": "paperclipai/paperclip",
-   "duong": ".agents/skills/create-issue-interaction-ui",
+   "ten": "propagate-design-change",
+   "kho": "Donchitos/Claude-Code-Game-Studios",
+   "duong": ".claude/skills/propagate-design-change",
    "lv": [
     "giao diện tiếp cận"
    ],
-   "diem": 9,
-   "mo": "Add a new Paperclip issue-thread interaction kind end-to-end. Use when repo work introduces or extends interaction cards like request_confirmation, checkbox confirmations, ask_user",
-   "byte": 13613,
-   "doc": "https://github.com/paperclipai/paperclip/blob/main/.agents/skills/create-issue-interaction-ui/SKILL.md",
-   "trich": "# Create a new issue-thread interaction UI (Developer/maintainer skill) Developer/maintainer skill. Do NOT install this on production Paperclip agents. This skill walks a Paperclip contributor through introducing a new issue-thread interaction kind from shared contract to issue-detail wiring, helpers, and docs. It is intentionally a developer/maintainer skill: the audience is a human or coding agent making code changes inside `paperclipai/paperclip`, not the operational agents that run inside a deployed Paperclip company. Do NOT install this on production Paperclip agents. This guide is for repository contributors changing Paperclip itself. ## When to use - A new interaction kind is being introduced (compact picker, structured rating, in-thread approval card, etc.). - An existing interaction needs a parallel variant with a distinct payload shape, validation, or resolution outcome (and `a"
+   "diem": 11,
+   "mo": "Finds architecture decisions (ADRs) made stale by a changed GDD and walks through resolving each. Use when the user changed a number or rule in a GDD and asks which ADRs or archite",
+   "byte": 11317,
+   "doc": "https://github.com/Donchitos/Claude-Code-Game-Studios/blob/main/.claude/skills/propagate-design-change/SKILL.md",
+   "trich": "!`bash \"${CLAUDE_SKILL_DIR}/../../hooks/yaml-helper.sh\" resolve_config --keys review_mode,review_gate,automation,automation_always_ask,workflow,system_overrides` Resolved above — use as-is; `--review` overrides `review_mode` for this run. No block → defaults in `.claude/docs/config-resolution.md`. Ask with the question tool. Without one, list the options numbered and end your turn to wait. A skipped or dismissed question is not an answer: ask again in plain text. # Propagate Design Change When a GDD changes, the architecture decisions written against it may no longer hold. This skill finds every ADR the change touches, compares what the ADR assumed with what the GDD says now, and walks the user through each one. **Example:** `/propagate-design-change design/gdd/combat-system.md` Asks follow `.claude/docs/automation-modes.md` (collaborative always asks, guided asks on major choices, auton"
   },
   {
-   "ten": "design-critique",
-   "kho": "paperclipai/paperclip",
-   "duong": "packages/skills-catalog/catalog/optional/product/design-critique",
+   "ten": "a11y-audit",
+   "kho": "alirezarezvani/claude-skills",
+   "duong": "engineering-team/a11y-audit/skills/a11y-audit",
    "lv": [
-    "giao diện tiếp cận"
+    "giao diện tiếp cận",
+    "kiểm thử rà soát"
    ],
    "diem": 9,
-   "mo": "Give a structured product design critique — user job clarity, hierarchy, affordance, error states, accessibility, and consistency — focused on what to change, in what order, and wh",
-   "byte": 4842,
-   "doc": "https://github.com/paperclipai/paperclip/blob/main/packages/skills-catalog/catalog/optional/product/design-critique/SKILL.md",
-   "trich": "# Product Design Critique A structured critique pass for a screen, flow, or component. The output is a prioritized list of changes a designer or engineer can act on — not adjectives. Critique is not redesign; recommend, do not rebuild. ## When to use - A designer or engineer asks for feedback on a screen, mock, or live UI. - A feature is shipping and someone wants a final UX read. - A flow is suspected of causing user drop-off and you want a pre-research read before instrumentation. ## When not to use - The user wants a redesign. That is a design project, not a critique. - The work is so early that no concrete artifact exists. Sketch with them instead of critiquing air. - You have no context on the user job. Ask for it first; design critique without user context devolves into taste. ## Pre-critique context Before opening a screen, get: - **Who is the user.** Specific role and competence,"
+   "mo": "Accessibility audit skill for scanning, fixing, and verifying WCAG 2.2 Level A and AA compliance across React, Next.js, Vue, Angular, Svelte, and plain HTML codebases. Use when aud",
+   "byte": 9780,
+   "doc": "https://github.com/alirezarezvani/claude-skills/blob/main/engineering-team/a11y-audit/skills/a11y-audit/SKILL.md",
+   "trich": "# Accessibility Audit WCAG 2.2 Accessibility Audit and Remediation Skill ## Description The a11y-audit skill provides a complete accessibility audit pipeline for modern web applications. It implements a three-phase workflow -- Scan, Fix, Verify -- that identifies WCAG 2.2 Level A and AA violations, generates exact fix code per framework, and produces stakeholder-ready compliance reports. For every violation it finds, it provides the precise before/after code fix tailored to your framework (React, Next.js, Vue, Angular, Svelte, or plain HTML). **What this skill does:** 1. **Scans** your codebase for every WCAG 2.2 Level A and AA violation, categorized by severity (Critical, Major, Minor) 2. **Fixes** each violation with framework-specific before/after code patterns 3. **Verifies** that fixes resolve the original violations and introduces no regressions 4. **Reports** findings in a structu"
   },
   {
-   "ten": "design-guide",
-   "kho": "paperclipai/paperclip",
-   "duong": ".claude/skills/design-guide",
+   "ten": "ab-test-analysis",
+   "kho": "phuryn/pm-skills",
+   "duong": "pm-data-analytics/skills/ab-test-analysis",
    "lv": [
-    "giao diện tiếp cận"
+    "kiểm thử rà soát",
+    "nghiên cứu"
    ],
    "diem": 9,
-   "mo": "Paperclip UI design system guide for building consistent, reusable frontend components. Use when creating new UI components, modifying existing ones, adding pages or features to th",
-   "byte": 12296,
-   "doc": "https://github.com/paperclipai/paperclip/blob/main/.claude/skills/design-guide/SKILL.md",
-   "trich": "# Paperclip Design Guide Paperclip's UI is a professional-grade control plane — dense, keyboard-driven, dark-themed by default. Every pixel earns its place. **Always use with:** `frontend-design` (visual polish) and `web-design-guidelines` (web best practices). ## 1. Design Principles - **Dense but scannable.** Maximum information without clicks to reveal. Whitespace separates, not pads. - **Keyboard-first.** Global shortcuts (Cmd+K, C, [, ]). Power users rarely touch the mouse. - **Contextual, not modal.** Inline editing over dialog boxes. Dropdowns over page navigations. - **Dark theme default.** Neutral grays (OKLCH), not pure black. Accent colors for status/priority only. Text is the primary visual element. - **Component-driven.** Prefer reusable components that capture style conventions. Build at the right abstraction — not too granular, not too monolithic. ## 2. Tech Stack - **Reac"
+   "mo": "Analyze A/B test results with statistical significance, sample size validation, confidence intervals, and ship/extend/stop recommendations. Use when evaluating experiment results, ",
+   "byte": 3570,
+   "doc": "https://github.com/phuryn/pm-skills/blob/main/pm-data-analytics/skills/ab-test-analysis/SKILL.md",
+   "trich": "## A/B Test Analysis Evaluate A/B test results with statistical rigor and translate findings into clear product decisions. ### Context You are analyzing A/B test results for **$ARGUMENTS**. If the user provides data files (CSV, Excel, or analytics exports), read and analyze them directly. Generate Python scripts for statistical calculations when needed. ### Instructions 1. **Understand the experiment**: - What was the hypothesis? - What was changed (the variant)? - What is the primary metric? Any guardrail metrics? - How long did the test run? - What is the traffic split? 2. **Validate the test setup**: - **Sample size**: Is the sample large enough for the expected effect size? - Use the formula: n = (Z²α/2 × 2 × p × (1-p)) / MDE² - Flag if the test is underpowered (<80% power) - **Duration**: Did the test run for at least 1-2 full business cycles? - **Randomization**: Any evidence of sa"
   },
   {
-   "ten": "design-system-patterns",
-   "kho": "wshobson/agents",
-   "duong": "plugins/ui-design/skills/design-system-patterns",
+   "ten": "accesslint-audit",
+   "kho": "sickn33/agentic-awesome-skills",
+   "duong": "skills/accesslint-audit",
    "lv": [
-    "giao diện tiếp cận"
+    "kiểm thử rà soát"
    ],
    "diem": 9,
-   "mo": "Build scalable design systems with design tokens, theming infrastructure, and component architecture patterns. Use when creating design tokens, implementing theme switching, buildi",
-   "byte": 4003,
-   "doc": "https://github.com/wshobson/agents/blob/main/plugins/ui-design/skills/design-system-patterns/SKILL.md",
-   "trich": "# Design System Patterns Master design system architecture to create consistent, maintainable, and scalable UI foundations across web and mobile applications. ## When to Use This Skill - Creating design tokens for colors, typography, spacing, and shadows - Implementing light/dark theme switching with CSS custom properties - Building multi-brand theming systems - Architecting component libraries with consistent APIs - Establishing design-to-code workflows with Figma tokens - Creating semantic token hierarchies (primitive, semantic, component) - Setting up design system documentation and guidelines ## Core Capabilities ### 1. Design Tokens - Primitive tokens (raw values: colors, sizes, fonts) - Semantic tokens (contextual meaning: text-primary, surface-elevated) - Component tokens (specific usage: button-bg, card-border) - Token naming conventions and organization - Multi-platform token ge"
+   "mo": "Find and fix WCAG 2.2 accessibility issues. Two modes — report (sweep a codebase or page, produce a prioritized written report, no edits) and fix (audit→edit→verify loop on a targe",
+   "byte": 7618,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/accesslint-audit/SKILL.md",
+   "trich": "You audit accessibility and optionally fix what's broken. ## When to Use - Audit a requested page, component set or rendered document for accessibility findings. - Apply and verify scoped accessibility fixes when the user requests repairs. ## Tool prerequisites This package bundles instructions, not the AccessLint engine, browser or MCP prompts. Discover the actual installed tools and schemas. Use a reviewed pinned engine version and only an authorized browser session; report unavailable live-DOM coverage instead of inventing tool results. Automated checks cover part of WCAG, not conformance certification. ## Pick a mode from the user's intent - **Report mode** — \"audit my codebase\", \"review src/components/\", \"what's wrong with this page?\", \"give me an a11y report\". You audit + write a report. **You do not edit files.** - **Fix mode** — \"fix the a11y issues in X\", \"audit and fix\", \"make "
   }
  ]
 }
