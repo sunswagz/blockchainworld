@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-24T11:25:59.400Z",
-  "lan": 2852,
+  "generatedAt": "2026-10-24T16:01:43.169Z",
+  "lan": 2853,
   "node": {
     "kinh-thanh": {
       "luc": "2026-10-24T11:10:04.979Z",
@@ -278,12 +278,12 @@
       "lucDoi": "2026-09-05T05:13:52.081Z"
     },
     "tien-hoa-xoay": {
-      "luc": "2026-10-23T11:58:15.790Z",
+      "luc": "2026-10-24T16:01:43.169Z",
       "ket": "loi",
-      "giay": 15,
+      "giay": 21,
       "doi": false,
-      "chuThich": "tang-thu-cac: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
-      "chuoiLoi": 45,
+      "chuThich": "thi-bac-ty: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+      "chuoiLoi": 46,
       "vi": "chua-ro",
       "lucOk": "2026-09-03T23:38:03.368Z",
       "lucDoi": "2026-09-03T23:38:03.368Z"
@@ -312,6 +312,15 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-10-24T16:01:43.169Z",
+      "ma": "tien-hoa-xoay",
+      "ket": "loi",
+      "giay": 21,
+      "doi": false,
+      "chuThich": "thi-bac-ty: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+      "vi": "chua-ro"
+    },
     {
       "luc": "2026-10-24T11:25:59.400Z",
       "ma": "tri-thuc-tien-hoa",
@@ -2101,15 +2110,6 @@
       "giay": 10,
       "doi": false,
       "chuThich": "opus-5 · max-turns 8",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-19T20:49:44.414Z",
-      "ma": "phieu",
-      "ket": "ok",
-      "giay": 3,
-      "doi": true,
-      "chuThich": "266/266 thước đạt trên 13 cung",
       "vi": null
     }
   ]
