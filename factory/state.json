@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-25T11:47:55.841Z",
-  "lan": 2901,
+  "generatedAt": "2026-10-25T16:29:55.355Z",
+  "lan": 2902,
   "node": {
     "kinh-thanh": {
       "luc": "2026-10-25T11:40:08.831Z",
@@ -278,12 +278,12 @@
       "lucDoi": "2026-09-05T05:13:52.081Z"
     },
     "tien-hoa-xoay": {
-      "luc": "2026-10-24T16:01:43.169Z",
+      "luc": "2026-10-25T16:29:55.355Z",
       "ket": "loi",
-      "giay": 21,
+      "giay": 19,
       "doi": false,
-      "chuThich": "thi-bac-ty: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
-      "chuoiLoi": 46,
+      "chuThich": "tu-cam-thanh: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+      "chuoiLoi": 47,
       "vi": "chua-ro",
       "lucOk": "2026-09-03T23:38:03.368Z",
       "lucDoi": "2026-09-03T23:38:03.368Z"
@@ -312,6 +312,15 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-10-25T16:29:55.355Z",
+      "ma": "tien-hoa-xoay",
+      "ket": "loi",
+      "giay": 19,
+      "doi": false,
+      "chuThich": "tu-cam-thanh: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+      "vi": "chua-ro"
+    },
     {
       "luc": "2026-10-25T11:47:55.841Z",
       "ma": "tri-thuc-tien-hoa",
@@ -2099,15 +2108,6 @@
       "ma": "quan-trac-do",
       "ket": "ok",
       "giay": 2,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-21T05:04:45.702Z",
-      "ma": "tang-thu-cac",
-      "ket": "ok",
-      "giay": 372,
       "doi": true,
       "chuThich": "",
       "vi": null
