@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-10-25T05:01:45.678Z",
+ "generatedAt": "2026-10-25T11:45:38.334Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -91,7 +91,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-10-25T05:01:45.349Z"
+   "luc": "2026-10-25T11:45:38.092Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -177,7 +177,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-10-25T05:01:45.349Z"
+   "luc": "2026-10-25T11:45:38.092Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
@@ -261,7 +261,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-10-25T05:01:45.440Z"
+   "luc": "2026-10-25T11:45:38.168Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
@@ -345,7 +345,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-10-25T05:01:45.528Z"
+   "luc": "2026-10-25T11:45:38.260Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -448,7 +448,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-10-25T05:01:45.605Z"
+   "luc": "2026-10-25T11:45:38.286Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
@@ -532,7 +532,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-10-25T05:01:45.678Z"
+   "luc": "2026-10-25T11:45:38.334Z"
   }
  }
 };

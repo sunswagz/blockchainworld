@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (375.495 sao)
+     Kho    : morluto/rea (381.365 sao)
      Đường  : .agents/skills/rea-changelog-update
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-changelog-update/SKILL.md
-     sha256 : 75729ede35eac476 · nhập 2026-10-24T11:24:30.772Z
+     sha256 : aee9935074252660 · nhập 2026-10-25T11:45:37.214Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -77,9 +77,10 @@ closing-issue reporters. Grouping preserves all those credits in one line.
 When Highlights, detailed entries or migrations reference the same work,
 put its thanks in one of those entries, not all of them. Include issue links.
 Direct-commit bullets carry the commit link and known human credit.
-Exclude GitHub bots and known agent accounts. REA's observed Anthropic, Cursor
-and Codex co-author trailers resolve to `@claude`, `@cursoragent` and `@codex`
-with GitHub type `User`; the credit policy excludes them while retaining their metadata.
+Exclude GitHub bots and known agent accounts. REA's observed Anthropic, Cursor,
+Codex, and Copilot co-author trailers resolve to `@claude`, `@cursoragent`,
+`@codex`, and `@Copilot` with GitHub type `User`; the credit policy excludes
+them while retaining their metadata.
 At the REA maintainer's request, omit `@morluto` self-thanks while preserving
 authorship in the inventory. Other human contributors remain eligible.
 Use explicit GitHub links for cross-repository references to avoid ambiguous

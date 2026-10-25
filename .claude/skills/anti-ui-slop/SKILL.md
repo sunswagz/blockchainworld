@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : sickn33/agentic-awesome-skills (48.427 sao)
+     Kho    : sickn33/agentic-awesome-skills (48.483 sao)
      Đường  : skills/anti-ui-slop
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/sickn33/agentic-awesome-skills/main/skills/anti-ui-slop/SKILL.md
-     sha256 : 8ff04df7f8bcce91 · nhập 2026-10-24T11:24:26.875Z
+     sha256 : 8ff04df7f8bcce91 · nhập 2026-10-25T11:45:36.994Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
