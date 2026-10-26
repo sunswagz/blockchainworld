@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (381.365 sao)
+     Kho    : morluto/rea (388.697 sao)
      Đường  : .agents/skills/rea-analysis-optimization
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-analysis-optimization/SKILL.md
-     sha256 : 2a7ae210985017f0 · nhập 2026-10-25T11:45:37.210Z
+     sha256 : 7a9372424e2d7bd8 · nhập 2026-10-26T13:18:56.803Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -23,6 +23,11 @@ Follow the checkout's [performance priorities](../../../AGENTS.md#performance),
 [testing guide](../../../docs/testing.md). This skill supplies an optimization
 workflow, not additional permission to execute targets, publish, or merge.
 Use the current contracts, provider prerequisites, and user authorization.
+
+Reserve performance measurements for changes that target performance or have a
+concrete regression concern. Routine cleanup uses correctness checks and does
+not require this optimization workflow or synthetic benchmarks merely because
+helper calls, imports, or representations change.
 
 Read [the Kuna case study](references/kuna-case-study.md) when selecting a
 reuse strategy or interpreting a benchmark. Its pinned observations illustrate

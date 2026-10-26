@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (381.365 sao)
+     Kho    : morluto/rea (388.697 sao)
      Đường  : .agents/skills/rea-changelog-update
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-changelog-update/SKILL.md
-     sha256 : aee9935074252660 · nhập 2026-10-25T11:45:37.214Z
+     sha256 : aee9935074252660 · nhập 2026-10-26T13:18:56.808Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
