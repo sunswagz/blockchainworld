@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-live.mjs lúc 2026-10-26T20:33:25.646Z
+   Sinh bởi scripts/build-live.mjs lúc 2026-10-27T09:06:28.054Z
    Sửa tay sẽ bị ghi đè ở lần cập nhật tự động kế tiếp.
 
    File này đè số đo lên bản chụp trong strength.js.
@@ -11,8 +11,8 @@
 
 /* KT_LIVE_BEGIN */
 var LIVE = {
-  "generatedAt": "2026-10-26T20:33:25.646Z",
-  "date": "26/10/2026",
+  "generatedAt": "2026-10-27T09:06:28.054Z",
+  "date": "27/10/2026",
   "sources": {
     "tvl": "api.llama.fi/v2/chains",
     "stab": "stablecoins.llama.fi/stablecoinchains",
@@ -25,48 +25,48 @@ var LIVE = {
   },
   "chains": {
     "eth": {
-      "tvl": 48446792282,
-      "stab": 142260899915,
+      "tvl": 48180679975,
+      "stab": 142109272117,
       "proto": 1888
     },
     "bnb": {
-      "tvl": 5523099564,
-      "stab": 13080981912,
+      "tvl": 5493426056,
+      "stab": 13086562800,
       "proto": 1144
     },
     "sol": {
-      "tvl": 5719615412,
-      "stab": 15487213329,
+      "tvl": 5707703993,
+      "stab": 15315018330,
       "proto": 464
     },
     "avax": {
-      "tvl": 559215341,
-      "stab": 1357277707,
-      "proto": 567
+      "tvl": 550655961,
+      "stab": 1352817620,
+      "proto": 568
     },
     "sui": {
-      "tvl": 472292750,
-      "stab": 430989628,
+      "tvl": 467609992,
+      "stab": 429671765,
       "proto": 129
     },
     "near": {
-      "tvl": 208448053,
-      "stab": 129318840,
+      "tvl": 205686724,
+      "stab": 129305751,
       "proto": 46
     },
     "ton": {
-      "tvl": 45407048,
-      "stab": 631451312,
+      "tvl": 45391428,
+      "stab": 631353705,
       "proto": 96
     },
     "atom": {
-      "tvl": 438121812,
-      "stab": 798785466,
-      "proto": 590
+      "tvl": 425114397,
+      "stab": 798752675,
+      "proto": 592
     },
     "dot": {
-      "tvl": 56512806,
-      "stab": 82037261,
+      "tvl": 56209294,
+      "stab": 81922493,
       "proto": 218
     }
   },
@@ -80,8 +80,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 14860190720,
-      "change7d": -0.026507321937786377,
+      "tvs": 14823817216,
+      "change7d": -0.031740750981644084,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -124,8 +124,8 @@ var LIVE = {
       "providers": [
         "Arbitrum"
       ],
-      "tvs": 9955297280,
-      "change7d": -0.04004833542366859,
+      "tvs": 9761676288,
+      "change7d": -0.05545757395667594,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -168,8 +168,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 1720261120,
-      "change7d": -0.11635422626603353,
+      "tvs": 1726077056,
+      "change7d": -0.12517697599406274,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -212,8 +212,8 @@ var LIVE = {
       "providers": [
         "ZK Stack"
       ],
-      "tvs": 256113360,
-      "change7d": -0.0931072551487575,
+      "tvs": 253663232,
+      "change7d": -0.10517110394924734,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -256,8 +256,8 @@ var LIVE = {
       "providers": [
         "SN Stack"
       ],
-      "tvs": 355405888,
-      "change7d": -0.32762924166976326,
+      "tvs": 369228128,
+      "change7d": -0.29083247619975394,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -298,8 +298,8 @@ var LIVE = {
       "category": "ZK Rollup",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 37817144,
-      "change7d": -0.04197296122935046,
+      "tvs": 37776436,
+      "change7d": -0.04288735378332309,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -340,8 +340,8 @@ var LIVE = {
       "category": "ZK Rollup",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 333894848,
-      "change7d": -0.038966909695412943,
+      "tvs": 330864192,
+      "change7d": -0.048126851534665005,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -384,8 +384,8 @@ var LIVE = {
       "providers": [
         "Agglayer CDK"
       ],
-      "tvs": 9131275,
-      "change7d": -0.023297467078329026,
+      "tvs": 9104365,
+      "change7d": -0.024660613391459973,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -428,8 +428,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 42324108,
-      "change7d": -0.1504262751983959,
+      "tvs": 40377668,
+      "change7d": -0.20275508058759595,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -472,8 +472,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 1295194880,
-      "change7d": -0.002653359130975641,
+      "tvs": 1290733056,
+      "change7d": -0.01716899580760478,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -516,8 +516,8 @@ var LIVE = {
       "providers": [
         "OVM"
       ],
-      "tvs": 28448118,
-      "change7d": -0.11421266168712274,
+      "tvs": 28247906,
+      "change7d": -0.15763923973288896,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -560,8 +560,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 7320417,
-      "change7d": -0.06938035763127304,
+      "tvs": 7237837,
+      "change7d": -0.07995654418888798,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -602,8 +602,8 @@ var LIVE = {
       "category": "Other",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 268199632,
-      "change7d": -0.036220728955631554,
+      "tvs": 267768960,
+      "change7d": -0.03852217156304005,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -644,8 +644,8 @@ var LIVE = {
       "category": "Other",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 23990124,
-      "change7d": -0.062268930030535685,
+      "tvs": 23827516,
+      "change7d": -0.06800057263508363,
       "risks": [
         {
           "n": "Sequencer Failure",
