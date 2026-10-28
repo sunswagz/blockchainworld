@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/skills (184.159 sao)
+     Kho    : anthropics/skills (184.490 sao)
      Đường  : skills/brand-guidelines
      Giấy phép: Complete terms in LICENSE.txt
      Nguồn  : https://raw.githubusercontent.com/anthropics/skills/main/skills/brand-guidelines/SKILL.md
-     sha256 : 1120b3769e2985ce · nhập 2026-10-27T15:35:47.332Z
+     sha256 : 1120b3769e2985ce · nhập 2026-10-28T20:31:50.221Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
