@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-10-29T10:17:33.571Z",
+ "generatedAt": "2026-10-29T18:40:40.301Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,7 +12,7 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 110.13,
+   "so": 110.82,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
@@ -83,17 +83,17 @@ window.DQT_TQ_DO = {
     115.81,
     113.88,
     115.32,
-    110.13
+    110.82
    ],
-   "doi7": 1.2,
-   "doi30": 5.1,
+   "doi7": 1.9,
+   "doi30": 5.7,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-10-29T10:17:33.225Z"
+   "luc": "2026-10-29T18:40:39.839Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -183,11 +183,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-10-29T10:17:33.225Z"
+   "luc": "2026-10-29T18:40:39.839Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
-   "so": 521.94,
+   "so": 508.61,
    "dv": "USD",
    "nguon": "Yahoo Finance · SOXX",
    "ghi": "Chỉ báo THAY THẾ và phải đọc rất cẩn thận: nó đo sức khoẻ NGÀNH bán dẫn toàn cầu, KHÔNG đo năng lực chip của Trung Quốc. Ngành nóng lên không có nghĩa Trung Quốc tiếp cận được tầng tiên tiến.",
@@ -257,21 +257,22 @@ window.DQT_TQ_DO = {
     478.2,
     491.83,
     511.06,
-    521.94
+    521.94,
+    508.61
    ],
-   "doi7": 4,
-   "doi30": 4,
+   "doi7": 1.7,
+   "doi30": -2,
    "nguong": {
     "g": 480,
     "r": 400,
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-10-29T10:17:33.327Z"
+   "luc": "2026-10-29T18:40:40.027Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
-   "so": 32.46,
+   "so": 32.55,
    "dv": "USD",
    "nguon": "Yahoo Finance · FXI",
    "ghi": "Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài về cổ phiếu Trung Quốc, đối xứng với VNM bên Việt Nam.",
@@ -341,17 +342,18 @@ window.DQT_TQ_DO = {
     32.31,
     32.51,
     32.5,
-    32.46
+    32.46,
+    32.55
    ],
-   "doi7": -3.2,
-   "doi30": -4.3,
+   "doi7": -2.9,
+   "doi30": -4.8,
    "nguong": {
     "g": 38,
     "r": 30,
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-10-29T10:17:33.412Z"
+   "luc": "2026-10-29T18:40:40.145Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -458,15 +460,15 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-10-29T10:17:33.494Z"
+   "luc": "2026-10-29T18:40:40.199Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 22958.65,
+   "so": 23094.83,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
-   "muc": "r",
+   "muc": "y",
    "lich": [
     25807.92,
     25858.88,
@@ -531,18 +533,17 @@ window.DQT_TQ_DO = {
     23093.37,
     23211.81,
     23041.32,
-    23094.83,
-    22958.65
+    23094.83
    ],
-   "doi7": -3.8,
-   "doi30": -6.9,
+   "doi7": -4.5,
+   "doi30": -7.3,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-10-29T10:17:33.571Z"
+   "luc": "2026-10-29T18:40:40.301Z"
   }
  }
 };
