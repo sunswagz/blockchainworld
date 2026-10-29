@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-10-28T20:33:35.959Z",
- "lan": 3049,
+ "generatedAt": "2026-10-29T01:01:32.045Z",
+ "lan": 3051,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -741,13 +741,13 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-10-27T22:30:11.047Z",
+   "luc": "2026-10-29T01:01:32.045Z",
    "ket": "loi",
-   "giay": 14,
+   "giay": 27,
    "doi": false,
-   "chuThich": "cong-thanh: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
+   "chuThich": "hoang-thanh: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
    "vi": "chua-ro",
-   "chuoiLoi": 49,
+   "chuoiLoi": 50,
    "lucOk": "2026-09-03T23:38:03.368Z",
    "lucDoi": "2026-09-03T23:38:03.368Z"
   },
@@ -789,15 +789,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-10-21T21:57:22.379Z",
+   "luc": "2026-10-29T01:01:05.175Z",
    "ket": "ok",
-   "giay": 0,
+   "giay": 1,
    "doi": true,
    "chuThich": "HƯỚNG — 9 đề xuất",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-21T21:57:22.379Z",
-   "lucDoi": "2026-10-21T21:57:22.379Z"
+   "lucOk": "2026-10-29T01:01:05.175Z",
+   "lucDoi": "2026-10-29T01:01:05.175Z"
   },
   {
    "ma": "thuoc-moi",
@@ -847,6 +847,24 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-10-29T01:01:32.045Z",
+   "ma": "tien-hoa-xoay",
+   "ket": "loi",
+   "giay": 27,
+   "doi": false,
+   "chuThich": "hoang-thanh: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
+   "vi": "chua-ro"
+  },
+  {
+   "luc": "2026-10-29T01:01:05.175Z",
+   "ma": "huong",
+   "ket": "ok",
+   "giay": 1,
+   "doi": true,
+   "chuThich": "HƯỚNG — 9 đề xuất",
+   "vi": null
+  },
   {
    "luc": "2026-10-28T20:33:35.959Z",
    "ma": "tri-thuc-tien-hoa",
@@ -1367,24 +1385,6 @@ window.VAN_HANH = {
    "giay": 9,
    "doi": false,
    "chuThich": "1 điểm yếu · opus-5 · cổng chặn quyết định",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-27T15:37:26.775Z",
-   "ma": "tri-thuc",
-   "ket": "ok",
-   "giay": 0,
-   "doi": false,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-27T15:37:26.585Z",
-   "ma": "bao-cao",
-   "ket": "loi",
-   "giay": 10,
-   "doi": false,
-   "chuThich": "opus-5 · max-turns 8",
    "vi": null
   }
  ]

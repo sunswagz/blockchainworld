@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-28T20:33:35.959Z",
-  "lan": 3049,
+  "generatedAt": "2026-10-29T01:01:32.045Z",
+  "lan": 3051,
   "node": {
     "kinh-thanh": {
       "luc": "2026-10-28T20:20:09.828Z",
@@ -278,26 +278,26 @@
       "lucDoi": "2026-09-05T05:13:52.081Z"
     },
     "tien-hoa-xoay": {
-      "luc": "2026-10-27T22:30:11.047Z",
+      "luc": "2026-10-29T01:01:32.045Z",
       "ket": "loi",
-      "giay": 14,
+      "giay": 27,
       "doi": false,
-      "chuThich": "cong-thanh: ngã ở MODEL · phiếu đo 20/20 → 20/20 · opus-5",
-      "chuoiLoi": 49,
+      "chuThich": "hoang-thanh: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
+      "chuoiLoi": 50,
       "vi": "chua-ro",
       "lucOk": "2026-09-03T23:38:03.368Z",
       "lucDoi": "2026-09-03T23:38:03.368Z"
     },
     "huong": {
-      "luc": "2026-10-21T21:57:22.379Z",
+      "luc": "2026-10-29T01:01:05.175Z",
       "ket": "ok",
-      "giay": 0,
+      "giay": 1,
       "doi": true,
       "chuThich": "HƯỚNG — 9 đề xuất",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-21T21:57:22.379Z",
-      "lucDoi": "2026-10-21T21:57:22.379Z"
+      "lucOk": "2026-10-29T01:01:05.175Z",
+      "lucDoi": "2026-10-29T01:01:05.175Z"
     },
     "thuoc-moi": {
       "luc": "2026-10-24T21:04:27.986Z",
@@ -312,6 +312,24 @@
     }
   },
   "nk": [
+    {
+      "luc": "2026-10-29T01:01:32.045Z",
+      "ma": "tien-hoa-xoay",
+      "ket": "loi",
+      "giay": 27,
+      "doi": false,
+      "chuThich": "hoang-thanh: ngã ở MODEL · phiếu đo 21/21 → 21/21 · opus-5",
+      "vi": "chua-ro"
+    },
+    {
+      "luc": "2026-10-29T01:01:05.175Z",
+      "ma": "huong",
+      "ket": "ok",
+      "giay": 1,
+      "doi": true,
+      "chuThich": "HƯỚNG — 9 đề xuất",
+      "vi": null
+    },
     {
       "luc": "2026-10-28T20:33:35.959Z",
       "ma": "tri-thuc-tien-hoa",
@@ -2092,24 +2110,6 @@
       "giay": 8,
       "doi": false,
       "chuThich": "1 điểm yếu · opus-5 · cổng chặn quyết định",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-24T11:25:50.875Z",
-      "ma": "tri-thuc",
-      "ket": "ok",
-      "giay": 0,
-      "doi": false,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-24T11:25:50.728Z",
-      "ma": "bao-cao",
-      "ket": "loi",
-      "giay": 8,
-      "doi": false,
-      "chuThich": "opus-5 · max-turns 8",
       "vi": null
     }
   ]
