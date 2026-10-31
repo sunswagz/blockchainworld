@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : nexu-io/open-design (104.876 sao)
+     Kho    : nexu-io/open-design (105.083 sao)
      Đường  : skills/color-expert
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/nexu-io/open-design/main/skills/color-expert/SKILL.md
-     sha256 : b49392ab158a0278 · nhập 2026-10-30T01:12:36.287Z
+     sha256 : b49392ab158a0278 · nhập 2026-10-31T05:58:24.132Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
