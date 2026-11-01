@@ -2,8 +2,8 @@
    Đây là bản chiếu của factory/state.json sang thứ trình duyệt đọc được.
    Sửa tay thì lượt bot kế tiếp ghi đè, không báo gì. */
 window.VAN_HANH = {
- "generatedAt": "2026-10-31T19:30:31.853Z",
- "lan": 3165,
+ "generatedAt": "2026-11-01T00:10:52.960Z",
+ "lan": 3166,
  "repo": "sunswagz/blockchainworld",
  "node": [
   {
@@ -686,15 +686,15 @@ window.VAN_HANH = {
    "cung": null,
    "cungTen": null,
    "wf": "refresh-data.yml",
-   "luc": "2026-10-24T21:04:14.266Z",
+   "luc": "2026-11-01T00:10:52.960Z",
    "ket": "ok",
-   "giay": 1,
+   "giay": 0,
    "doi": true,
-   "chuThich": "919 ứng viên chưa khai thác",
+   "chuThich": "925 ứng viên chưa khai thác",
    "vi": null,
    "chuoiLoi": 0,
-   "lucOk": "2026-10-24T21:04:14.266Z",
-   "lucDoi": "2026-10-24T21:04:14.266Z"
+   "lucOk": "2026-11-01T00:10:52.960Z",
+   "lucDoi": "2026-11-01T00:10:52.960Z"
   },
   {
    "ma": "tien-hoa-xoay",
@@ -847,6 +847,15 @@ window.VAN_HANH = {
   }
  ],
  "nk": [
+  {
+   "luc": "2026-11-01T00:10:52.960Z",
+   "ma": "do-kho",
+   "ket": "ok",
+   "giay": 0,
+   "doi": true,
+   "chuThich": "925 ứng viên chưa khai thác",
+   "vi": null
+  },
   {
    "luc": "2026-10-31T19:30:31.853Z",
    "ma": "dong-dau",
@@ -1374,15 +1383,6 @@ window.VAN_HANH = {
    "ma": "quan-trac-do",
    "ket": "ok",
    "giay": 1,
-   "doi": true,
-   "chuThich": "",
-   "vi": null
-  },
-  {
-   "luc": "2026-10-30T10:13:42.217Z",
-   "ma": "tang-thu-cac",
-   "ket": "ok",
-   "giay": 214,
    "doi": true,
    "chuThich": "",
    "vi": null

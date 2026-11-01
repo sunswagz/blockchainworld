@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-10-24T21:04:14.183Z",
- "khoQuetLuc": "24/10/2026",
- "tongSkill": 4294,
+ "luc": "2026-11-01T00:10:52.890Z",
+ "khoQuetLuc": "31/10/2026",
+ "tongSkill": 4337,
  "daDung": 14,
- "ungVien": 919,
+ "ungVien": 925,
  "ganDay": [
+  {
+   "ten": "pre-publish-review",
+   "luc": "2026-10-24T21:04:14.183Z"
+  },
+  {
+   "ten": "named-persona-adversarial-review",
+   "luc": "2026-10-24T21:04:14.183Z"
+  },
+  {
+   "ten": "propagate-design-change",
+   "luc": "2026-10-24T21:04:14.183Z"
+  },
+  {
+   "ten": "a11y-audit",
+   "luc": "2026-10-24T21:04:14.183Z"
+  },
+  {
+   "ten": "ab-test-analysis",
+   "luc": "2026-10-24T21:04:14.183Z"
+  },
+  {
+   "ten": "accesslint-audit",
+   "luc": "2026-10-24T21:04:14.183Z"
+  },
   {
    "ten": "design-taste-frontend-v2-experimental",
    "luc": "2026-10-17T20:49:15.690Z"
@@ -151,143 +175,117 @@
    "luc": "2026-09-12T11:07:25.547Z"
   },
   {
-   "ten": "brooks-review",
-   "luc": "2026-09-05T05:09:11.297Z"
-  },
-  {
    "ten": "canvas-design",
-   "luc": "2026-09-05T05:09:11.297Z"
+   "luc": "2026-11-01T00:10:52.890Z"
   },
   {
    "ten": "design-is",
-   "luc": "2026-09-05T05:09:11.297Z"
-  },
-  {
-   "ten": "design-taste-frontend",
-   "luc": "2026-09-05T05:09:11.297Z"
+   "luc": "2026-11-01T00:10:52.890Z"
   },
   {
    "ten": "frontend-engineer",
-   "luc": "2026-09-05T05:09:11.297Z"
+   "luc": "2026-11-01T00:10:52.890Z"
   },
   {
    "ten": "imagegen-frontend-web",
-   "luc": "2026-09-05T05:09:11.297Z"
+   "luc": "2026-11-01T00:10:52.890Z"
   },
   {
-   "ten": "pre-publish-review",
-   "luc": "2026-10-24T21:04:14.183Z"
+   "ten": "ai-regression-testing",
+   "luc": "2026-11-01T00:10:52.890Z"
   },
   {
-   "ten": "named-persona-adversarial-review",
-   "luc": "2026-10-24T21:04:14.183Z"
-  },
-  {
-   "ten": "propagate-design-change",
-   "luc": "2026-10-24T21:04:14.183Z"
-  },
-  {
-   "ten": "a11y-audit",
-   "luc": "2026-10-24T21:04:14.183Z"
-  },
-  {
-   "ten": "ab-test-analysis",
-   "luc": "2026-10-24T21:04:14.183Z"
-  },
-  {
-   "ten": "accesslint-audit",
-   "luc": "2026-10-24T21:04:14.183Z"
+   "ten": "api-design-reviewer",
+   "luc": "2026-11-01T00:10:52.890Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 83,
-  "lập trình công cụ": 420,
+  "giao diện tiếp cận": 88,
+  "lập trình công cụ": 421,
   "kiểm thử rà soát": 216,
   "dữ liệu phân tích": 65,
   "hạ tầng vận hành": 56,
   "giao tiếp nội dung": 56,
-  "nghiên cứu": 52
+  "nghiên cứu": 51
  },
  "deXuat": [
   {
-   "ten": "pre-publish-review",
-   "kho": "code-yeongyu/oh-my-openagent",
-   "duong": ".opencode/skills/pre-publish-review",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 13,
-   "mo": "Nuclear-grade 12-agent pre-publish release gate. Runs /get-unpublished-changes to detect all changes since last npm release, spawns up to 10 ultrabrain agents for deep per-change a",
-   "byte": 17181,
-   "doc": "https://github.com/code-yeongyu/oh-my-openagent/blob/main/.opencode/skills/pre-publish-review/SKILL.md",
-   "trich": "# Pre-Publish Review — 12-Agent Release Gate Three-agent-layer review before publishing to npm. Every layer covers a different angle, and every result is mapped onto the release layers below. | Layer | Agents | Type | What They Check | |-------|--------|------|-----------------| | Per-Change Deep Dive | up to 10 | ultrabrain | Each logical change group individually — correctness, edge cases, pattern adherence | | Holistic Review | 1 (+ orchestrator QA) | review-work | Manual QA by the review orchestrator, then one gate reviewer covering goal compliance, code quality, security, and missed context across the full changeset | | Release Synthesis | 1 | oracle | Overall release readiness, version bump, breaking changes, deployment risk | ## Release Layer Taxonomy Every phase classifies evidence and risk across: | Release Layer | Scope | Required version decision | |---|---|---| | `omo pure co"
-  },
-  {
-   "ten": "named-persona-adversarial-review",
-   "kho": "alirezarezvani/claude-skills",
-   "duong": "engineering-team/skills/named-persona-adversarial-review",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 11,
-   "mo": "Code review through the lens of real engineers' documented philosophies (Torvalds, Thompson, Carmack, Kent Beck, Jobs, Cagan). Complements abstract-role adversarial review with nam",
-   "byte": 10865,
-   "doc": "https://github.com/alirezarezvani/claude-skills/blob/main/engineering-team/skills/named-persona-adversarial-review/SKILL.md",
-   "trich": "# Named-Persona Adversarial Review > **TL;DR:** Abstract roles find abstract problems. Named engineers with *documented, sourced* philosophies find problems you would actually fix — as long as you cite the real principle and never invent the quote. **Triggers:** \"review this PR with real engineers\" | \"named persona review\" | \"philosophy-grounded review\" ## Example Output ``` CRITICAL [Torvalds]: Special-case error handling at auth.ts:47 duplicates the happy path. Torvalds' documented \"good taste\" principle: restructure so the special case disappears rather than adding a branch. (confidence: high — TED 2016) WARNING [Thompson]: parseConfig() does three unrelated things; the Unix \"do one thing well\" principle argues to split it. (confidence: high) NOTE [Jobs]: Error \"EACCES:13\" leaks an errno at the user surface; \"start from the customer experience\" argues for a human message. (confidence:"
-  },
-  {
-   "ten": "propagate-design-change",
-   "kho": "Donchitos/Claude-Code-Game-Studios",
-   "duong": ".claude/skills/propagate-design-change",
+   "ten": "canvas-design",
+   "kho": "anthropics/skills",
+   "duong": "skills/canvas-design",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 11,
-   "mo": "Finds architecture decisions (ADRs) made stale by a changed GDD and walks through resolving each. Use when the user changed a number or rule in a GDD and asks which ADRs or archite",
-   "byte": 11317,
-   "doc": "https://github.com/Donchitos/Claude-Code-Game-Studios/blob/main/.claude/skills/propagate-design-change/SKILL.md",
-   "trich": "!`bash \"${CLAUDE_SKILL_DIR}/../../hooks/yaml-helper.sh\" resolve_config --keys review_mode,review_gate,automation,automation_always_ask,workflow,system_overrides` Resolved above — use as-is; `--review` overrides `review_mode` for this run. No block → defaults in `.claude/docs/config-resolution.md`. Ask with the question tool. Without one, list the options numbered and end your turn to wait. A skipped or dismissed question is not an answer: ask again in plain text. # Propagate Design Change When a GDD changes, the architecture decisions written against it may no longer hold. This skill finds every ADR the change touches, compares what the ADR assumed with what the GDD says now, and walks the user through each one. **Example:** `/propagate-design-change design/gdd/combat-system.md` Asks follow `.claude/docs/automation-modes.md` (collaborative always asks, guided asks on major choices, auton"
+   "mo": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other stat",
+   "byte": 11937,
+   "doc": "https://github.com/anthropics/skills/blob/main/skills/canvas-design/SKILL.md",
+   "trich": "These are instructions for creating design philosophies - aesthetic movements that are then EXPRESSED VISUALLY. Output only .md files, .pdf files, and .png files. Complete this in two steps: 1. Design Philosophy Creation (.md file) 2. Express by creating it on a canvas (.pdf file or .png file) First, undertake this task: ## DESIGN PHILOSOPHY CREATION To begin, create a VISUAL PHILOSOPHY (not layouts or templates) that will be interpreted through: - Form, space, color, composition - Images, graphics, shapes, patterns - Minimal text as visual accent ### THE CRITICAL UNDERSTANDING - What is received: Some subtle input or instructions by the user that should be taken into account, but used as a foundation; it should not constrain creative freedom. - What is created: A design philosophy/aesthetic movement. - What happens next: Then, the same version receives the philosophy and EXPRESSES IT VI"
   },
   {
-   "ten": "a11y-audit",
+   "ten": "design-is",
+   "kho": "thedotmack/claude-mem",
+   "duong": "plugin/skills/design-is",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Audit a design against Dieter Rams' ten \"Good design is...\" principles, then hand off a /make-plan prompt for one of three outcomes — new design, refine design, or redesign. Use wh",
+   "byte": 18593,
+   "doc": "https://github.com/thedotmack/claude-mem/blob/main/plugin/skills/design-is/SKILL.md",
+   "trich": "# Design Is ## Do not use for - Routine UI code reviews → use `/review` - Pure copy edits → use a separate copy pass - Pre-design ideation with no artifact yet → start with `/make-plan` directly You are an ORCHESTRATOR. Audit a design against Dieter Rams' ten principles, score each principle with evidence, decide the outcome verdict (NEW / REFINE / REDESIGN), and hand off to `/make-plan` with a ready-to-run prompt. You do not write implementation code. You produce: evidence-cited scores, a verdict, and a `/make-plan` handoff prompt. ## The Ten Principles (Dieter Rams) Audit each principle in this exact order. Each gets a score 0–3 and ≥1 piece of evidence (`file:line`, screenshot region, copy excerpt, or measured value). 1. **Good design is innovative** — Does it advance the form, or imitate? Innovation rides on technology; never an end in itself. 2. **Good design makes a product useful*"
+  },
+  {
+   "ten": "frontend-engineer",
+   "kho": "nanocoai/nanoclaw",
+   "duong": "container/skills/frontend-engineer",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Pro frontend engineering discipline. Enforces build-test-verify workflow for every web project. Never declare done until the site is built, tested, responsive, accessible, and visu",
+   "byte": 6018,
+   "doc": "https://github.com/nanocoai/nanoclaw/blob/main/container/skills/frontend-engineer/SKILL.md",
+   "trich": "# Frontend Engineer You are a senior frontend engineer. You build production-quality websites and web applications. You do not cut corners. You do not declare work done until everything is tested and working. ## Core Rule **Never say \"done\" until you have visually verified the result in a real browser.** Screenshots are your proof. If you can't take a screenshot, you're not done. ## Build Workflow Every frontend task follows this sequence. Do not skip steps. ### 1. Understand Before Coding - For existing projects: read `package.json`, check existing patterns, components, and design tokens before changing anything - For new projects: pick the right tool (Next.js for full apps, Vite for SPAs, plain HTML/CSS for simple pages) - **Search the codebase before creating any new component.** If an existing component does 80% of what you need, extend it with props. If two components share the same"
+  },
+  {
+   "ten": "imagegen-frontend-web",
+   "kho": "nexu-io/open-design",
+   "duong": "skills/imagegen-frontend-web",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Elite frontend image-direction skill for generating premium, conversion-aware website design references. CRITICAL OUTPUT RULE — generate ONE separate horizontal image FOR EVERY sec",
+   "byte": 37359,
+   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/imagegen-frontend-web/SKILL.md",
+   "trich": "# HARD OUTPUT RULE — READ FIRST **Generate one separate horizontal image PER section. Always. No exceptions.** - 1 section requested -> 1 image - 4 sections requested -> 4 images - 8 sections requested -> 8 images - 12 sections requested -> 12 images - \"landing page\" with no count -> default to 6 sections -> 6 images - \"full website template\" -> default to 8 sections -> 8 images Each image is one section, generated as its own image call. Never combine multiple sections into one frame. Never return a single tall image that contains the whole page. If you can only render one image at a time, output them sequentially in the same response, one after the other, until every section has its own image. Announce each one (\"Section 1 of 8: Hero\", \"Section 2 of 8: Trust bar\", etc.). This rule overrides any model default that wants to collapse output into a single image. # HERO COMPOSITION BIAS — RE"
+  },
+  {
+   "ten": "ai-regression-testing",
+   "kho": "affaan-m/ECC",
+   "duong": "skills/ai-regression-testing",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spo",
+   "byte": 11509,
+   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/ai-regression-testing/SKILL.md",
+   "trich": "# AI Regression Testing Testing patterns specifically designed for AI-assisted development, where the same model writes code and reviews it — creating systematic blind spots that only automated tests can catch. ## When to Activate - AI agent (Claude Code, Cursor, Codex) has modified API routes or backend logic - A bug was found and fixed — need to prevent re-introduction - Project has a sandbox/mock mode that can be leveraged for DB-free testing - Running `/bug-check` or similar review commands after code changes - Multiple code paths exist (sandbox vs production, feature flags, etc.) ## The Core Problem When an AI writes code and then reviews its own work, it carries the same assumptions into both steps. This creates a predictable failure pattern: ``` AI writes fix → AI reviews fix → AI says \"looks correct\" → Bug still exists ``` **Real-world example** (observed in production): ``` Fix "
+  },
+  {
+   "ten": "api-design-reviewer",
    "kho": "alirezarezvani/claude-skills",
-   "duong": "engineering-team/a11y-audit/skills/a11y-audit",
+   "duong": "engineering/skills/api-design-reviewer",
    "lv": [
-    "giao diện tiếp cận",
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
    "diem": 9,
-   "mo": "Accessibility audit skill for scanning, fixing, and verifying WCAG 2.2 Level A and AA compliance across React, Next.js, Vue, Angular, Svelte, and plain HTML codebases. Use when aud",
-   "byte": 9780,
-   "doc": "https://github.com/alirezarezvani/claude-skills/blob/main/engineering-team/a11y-audit/skills/a11y-audit/SKILL.md",
-   "trich": "# Accessibility Audit WCAG 2.2 Accessibility Audit and Remediation Skill ## Description The a11y-audit skill provides a complete accessibility audit pipeline for modern web applications. It implements a three-phase workflow -- Scan, Fix, Verify -- that identifies WCAG 2.2 Level A and AA violations, generates exact fix code per framework, and produces stakeholder-ready compliance reports. For every violation it finds, it provides the precise before/after code fix tailored to your framework (React, Next.js, Vue, Angular, Svelte, or plain HTML). **What this skill does:** 1. **Scans** your codebase for every WCAG 2.2 Level A and AA violation, categorized by severity (Critical, Major, Minor) 2. **Fixes** each violation with framework-specific before/after code patterns 3. **Verifies** that fixes resolve the original violations and introduces no regressions 4. **Reports** findings in a structu"
-  },
-  {
-   "ten": "ab-test-analysis",
-   "kho": "phuryn/pm-skills",
-   "duong": "pm-data-analytics/skills/ab-test-analysis",
-   "lv": [
-    "kiểm thử rà soát",
-    "nghiên cứu"
-   ],
-   "diem": 9,
-   "mo": "Analyze A/B test results with statistical significance, sample size validation, confidence intervals, and ship/extend/stop recommendations. Use when evaluating experiment results, ",
-   "byte": 3570,
-   "doc": "https://github.com/phuryn/pm-skills/blob/main/pm-data-analytics/skills/ab-test-analysis/SKILL.md",
-   "trich": "## A/B Test Analysis Evaluate A/B test results with statistical rigor and translate findings into clear product decisions. ### Context You are analyzing A/B test results for **$ARGUMENTS**. If the user provides data files (CSV, Excel, or analytics exports), read and analyze them directly. Generate Python scripts for statistical calculations when needed. ### Instructions 1. **Understand the experiment**: - What was the hypothesis? - What was changed (the variant)? - What is the primary metric? Any guardrail metrics? - How long did the test run? - What is the traffic split? 2. **Validate the test setup**: - **Sample size**: Is the sample large enough for the expected effect size? - Use the formula: n = (Z²α/2 × 2 × p × (1-p)) / MDE² - Flag if the test is underpowered (<80% power) - **Duration**: Did the test run for at least 1-2 full business cycles? - **Randomization**: Any evidence of sa"
-  },
-  {
-   "ten": "accesslint-audit",
-   "kho": "sickn33/agentic-awesome-skills",
-   "duong": "skills/accesslint-audit",
-   "lv": [
-    "kiểm thử rà soát"
-   ],
-   "diem": 9,
-   "mo": "Find and fix WCAG 2.2 accessibility issues. Two modes — report (sweep a codebase or page, produce a prioritized written report, no edits) and fix (audit→edit→verify loop on a targe",
-   "byte": 7618,
-   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/accesslint-audit/SKILL.md",
-   "trich": "You audit accessibility and optionally fix what's broken. ## When to Use - Audit a requested page, component set or rendered document for accessibility findings. - Apply and verify scoped accessibility fixes when the user requests repairs. ## Tool prerequisites This package bundles instructions, not the AccessLint engine, browser or MCP prompts. Discover the actual installed tools and schemas. Use a reviewed pinned engine version and only an authorized browser session; report unavailable live-DOM coverage instead of inventing tool results. Automated checks cover part of WCAG, not conformance certification. ## Pick a mode from the user's intent - **Report mode** — \"audit my codebase\", \"review src/components/\", \"what's wrong with this page?\", \"give me an a11y report\". You audit + write a report. **You do not edit files.** - **Fix mode** — \"fix the a11y issues in X\", \"audit and fix\", \"make "
+   "mo": "Use for any PR or spec that adds or changes REST endpoints, before approving it. Lints conventions with api_linter.py, detects breaking changes with breaking_change_detector.py and",
+   "byte": 13059,
+   "doc": "https://github.com/alirezarezvani/claude-skills/blob/main/engineering/skills/api-design-reviewer/SKILL.md",
+   "trich": "# API Design Reviewer **Tier:** POWERFUL **Category:** Engineering / Architecture **Maintainer:** Claude Skills Team ## Overview The API Design Reviewer skill provides comprehensive analysis and review of API designs, focusing on REST conventions, best practices, and industry standards. This skill helps engineering teams build consistent, maintainable, and well-designed APIs through automated linting, breaking change detection, and design scorecards. ## Quick Start — run the tools first ```bash # 1. Lint an OpenAPI/Swagger spec for convention violations python3 scripts/api_linter.py openapi.json --format json -o lint.json # 2. Detect breaking changes between two spec versions (gate: exits non-zero with --exit-on-breaking) python3 scripts/breaking_change_detector.py openapi-v1.json openapi-v2.json --format json --exit-on-breaking -o breaking.json # 3. Score overall design quality (gate: -"
   }
  ]
 }

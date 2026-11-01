@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-31T19:30:31.853Z",
-  "lan": 3165,
+  "generatedAt": "2026-11-01T00:11:15.075Z",
+  "lan": 3167,
   "node": {
     "kinh-thanh": {
       "luc": "2026-10-31T19:20:37.772Z",
@@ -234,15 +234,15 @@
       "lucDoi": "2026-09-03T23:27:12.565Z"
     },
     "do-kho": {
-      "luc": "2026-10-24T21:04:14.266Z",
+      "luc": "2026-11-01T00:10:52.960Z",
       "ket": "ok",
-      "giay": 1,
+      "giay": 0,
       "doi": true,
-      "chuThich": "919 ứng viên chưa khai thác",
+      "chuThich": "925 ứng viên chưa khai thác",
       "chuoiLoi": 0,
       "vi": null,
-      "lucOk": "2026-10-24T21:04:14.266Z",
-      "lucDoi": "2026-10-24T21:04:14.266Z"
+      "lucOk": "2026-11-01T00:10:52.960Z",
+      "lucDoi": "2026-11-01T00:10:52.960Z"
     },
     "phieu": {
       "luc": "2026-10-31T05:59:39.887Z",
@@ -300,18 +300,36 @@
       "lucDoi": "2026-10-29T01:01:05.175Z"
     },
     "thuoc-moi": {
-      "luc": "2026-10-24T21:04:27.986Z",
+      "luc": "2026-11-01T00:11:15.075Z",
       "ket": "loi",
       "giay": null,
       "doi": false,
       "chuThich": "",
-      "chuoiLoi": 10,
+      "chuoiLoi": 11,
       "vi": "chua-ro",
       "lucOk": null,
       "lucDoi": null
     }
   },
   "nk": [
+    {
+      "luc": "2026-11-01T00:11:15.075Z",
+      "ma": "thuoc-moi",
+      "ket": "loi",
+      "giay": null,
+      "doi": false,
+      "chuThich": "",
+      "vi": "chua-ro"
+    },
+    {
+      "luc": "2026-11-01T00:10:52.960Z",
+      "ma": "do-kho",
+      "ket": "ok",
+      "giay": 0,
+      "doi": true,
+      "chuThich": "925 ứng viên chưa khai thác",
+      "vi": null
+    },
     {
       "luc": "2026-10-31T19:30:31.853Z",
       "ma": "dong-dau",
@@ -2090,24 +2108,6 @@
       "ma": "quan-trac-do",
       "ket": "ok",
       "giay": 2,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-27T09:18:13.464Z",
-      "ma": "tang-thu-cac",
-      "ket": "ok",
-      "giay": 610,
-      "doi": true,
-      "chuThich": "",
-      "vi": null
-    },
-    {
-      "luc": "2026-10-27T09:08:03.321Z",
-      "ma": "thai-boc-tu-tin",
-      "ket": "ok",
-      "giay": 1,
       "doi": true,
       "chuThich": "",
       "vi": null
