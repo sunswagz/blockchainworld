@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-11-01T19:53:30.674Z",
+ "generatedAt": "2026-11-02T11:25:15.331Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,7 +12,7 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 113.43,
+   "so": 108.67,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
@@ -81,21 +81,22 @@ window.DQT_TQ_DO = {
     113.88,
     115.32,
     114.88,
-    113.43
+    117.64,
+    108.67
    ],
-   "doi7": 4.2,
-   "doi30": 9.2,
+   "doi7": -4,
+   "doi30": 8.3,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-11-01T19:53:30.342Z"
+   "luc": "2026-11-02T11:25:15.087Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
-   "so": 6.671,
+   "so": 6.6609,
    "dv": "nhân dân tệ",
    "nguon": "open.er-api.com · USD/CNY",
    "ghi": "Lấy chung một lượt gọi với USD/VND — cùng phản hồi, không tốn thêm lượt nào.",
@@ -174,17 +175,18 @@ window.DQT_TQ_DO = {
     6.6805,
     6.6769,
     6.6696,
-    6.671
+    6.671,
+    6.6609
    ],
-   "doi7": -0.3,
-   "doi30": -0.6,
+   "doi7": -0.2,
+   "doi30": -0.8,
    "nguong": {
     "g": 7,
     "r": 7.3,
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-11-01T19:53:30.342Z"
+   "luc": "2026-11-02T11:25:15.087Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
@@ -268,7 +270,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-11-01T19:53:30.427Z"
+   "luc": "2026-11-02T11:25:15.159Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
@@ -352,17 +354,16 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-11-01T19:53:30.527Z"
+   "luc": "2026-11-02T11:25:15.255Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
-   "so": 97,
+   "so": 87,
    "dv": "văn bản / 30 ngày",
    "nguon": "Federal Register API · “China”",
    "ghi": "Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng. Nền cao hơn Việt Nam nhiều nên ngưỡng cũng khác.",
    "muc": "g",
    "lich": [
-    120,
     114,
     116,
     110,
@@ -451,28 +452,27 @@ window.DQT_TQ_DO = {
     110,
     101,
     110,
-    97
+    97,
+    87
    ],
-   "doi7": -6.7,
-   "doi30": -23.6,
+   "doi7": -19.4,
+   "doi30": -29.8,
    "nguong": {
     "g": 150,
     "r": 250,
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-11-01T19:53:30.580Z"
+   "luc": "2026-11-02T11:25:15.283Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 23294.42,
+   "so": 23393.32,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
    "muc": "y",
    "lich": [
-    25858.88,
-    25884.43,
     26009.4,
     25852.92,
     25915.82,
@@ -535,17 +535,18 @@ window.DQT_TQ_DO = {
     23041.32,
     23094.83,
     22958.65,
-    23294.42
+    23294.42,
+    23393.32
    ],
-   "doi7": -1.5,
-   "doi30": -5.7,
+   "doi7": 2,
+   "doi30": -4.9,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-11-01T19:53:30.674Z"
+   "luc": "2026-11-02T11:25:15.331Z"
   }
  }
 };
