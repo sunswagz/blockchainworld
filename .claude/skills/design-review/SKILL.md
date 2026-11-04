@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (138.801 sao)
+     Kho    : garrytan/gstack (139.169 sao)
      Đường  : design-review
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-review/SKILL.md
-     sha256 : f73d937ae950a8af · nhập 2026-11-03T17:19:01.411Z
+     sha256 : 56c3dcd8b33a692f · nhập 2026-11-04T17:31:28.091Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -685,7 +685,7 @@ Apply these at each page. Each finding gets an impact rating (high/medium/polish
 - No `user-scalable=no` or `maximum-scale=1` in viewport meta
 
 **7. Motion & Animation** (7 items)
-- Easing: ease-out for entering, ease-in for exiting, ease-in-out for moving
+- Easing: ease-out to enter and exit, ease-in-out to move; flag plain ease-in
 - Duration: 50-700ms range (nothing slower unless page transition)
 - Purpose: every animation communicates something (state change, attention, spatial relationship)
 - `prefers-reduced-motion` respected (check: `await pg.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)`)

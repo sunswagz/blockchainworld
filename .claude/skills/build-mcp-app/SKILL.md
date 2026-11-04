@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/claude-plugins-official (45.951 sao)
+     Kho    : anthropics/claude-plugins-official (46.093 sao)
      Đường  : plugins/mcp-server-dev/skills/build-mcp-app
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/plugins/mcp-server-dev/skills/build-mcp-app/SKILL.md
-     sha256 : d2fd94f009650646 · nhập 2026-11-03T17:19:01.851Z
+     sha256 : d2fd94f009650646 · nhập 2026-11-04T17:31:28.544Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
