@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : obra/superpowers (312.302 sao)
+     Kho    : obra/superpowers (312.876 sao)
      Đường  : skills/diagnosing-superpowers
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/obra/superpowers/main/skills/diagnosing-superpowers/SKILL.md
-     sha256 : 3143de8695c5a2d6 · nhập 2026-11-04T17:31:28.960Z
+     sha256 : 3143de8695c5a2d6 · nhập 2026-11-05T17:34:45.517Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
