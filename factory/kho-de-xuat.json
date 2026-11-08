@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-11-01T00:10:52.890Z",
- "khoQuetLuc": "31/10/2026",
- "tongSkill": 4337,
+ "luc": "2026-11-08T00:43:40.797Z",
+ "khoQuetLuc": "07/11/2026",
+ "tongSkill": 4808,
  "daDung": 14,
- "ungVien": 925,
+ "ungVien": 965,
  "ganDay": [
+  {
+   "ten": "canvas-design",
+   "luc": "2026-11-01T00:10:52.890Z"
+  },
+  {
+   "ten": "design-is",
+   "luc": "2026-11-01T00:10:52.890Z"
+  },
+  {
+   "ten": "frontend-engineer",
+   "luc": "2026-11-01T00:10:52.890Z"
+  },
+  {
+   "ten": "imagegen-frontend-web",
+   "luc": "2026-11-01T00:10:52.890Z"
+  },
+  {
+   "ten": "ai-regression-testing",
+   "luc": "2026-11-01T00:10:52.890Z"
+  },
+  {
+   "ten": "api-design-reviewer",
+   "luc": "2026-11-01T00:10:52.890Z"
+  },
   {
    "ten": "pre-publish-review",
    "luc": "2026-10-24T21:04:14.183Z"
@@ -151,141 +175,120 @@
    "luc": "2026-09-19T11:14:32.932Z"
   },
   {
-   "ten": "loop-design-check",
-   "luc": "2026-09-12T11:07:25.547Z"
+   "ten": "ux-review",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "design-taste-frontend",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "premium-web-design",
+   "luc": "2026-11-08T00:43:40.797Z"
   },
   {
    "ten": "stitch-design-taste",
-   "luc": "2026-09-12T11:07:25.547Z"
-  },
-  {
-   "ten": "ux-review",
-   "luc": "2026-09-12T11:07:25.547Z"
+   "luc": "2026-11-08T00:43:40.797Z"
   },
   {
    "ten": "design-review",
-   "luc": "2026-09-12T11:07:25.547Z"
+   "luc": "2026-11-08T00:43:40.797Z"
   },
   {
    "ten": "dotnet-design-pattern-review",
-   "luc": "2026-09-12T11:07:25.547Z"
-  },
-  {
-   "ten": "ios-design-review",
-   "luc": "2026-09-12T11:07:25.547Z"
-  },
-  {
-   "ten": "canvas-design",
-   "luc": "2026-11-01T00:10:52.890Z"
-  },
-  {
-   "ten": "design-is",
-   "luc": "2026-11-01T00:10:52.890Z"
-  },
-  {
-   "ten": "frontend-engineer",
-   "luc": "2026-11-01T00:10:52.890Z"
-  },
-  {
-   "ten": "imagegen-frontend-web",
-   "luc": "2026-11-01T00:10:52.890Z"
-  },
-  {
-   "ten": "ai-regression-testing",
-   "luc": "2026-11-01T00:10:52.890Z"
-  },
-  {
-   "ten": "api-design-reviewer",
-   "luc": "2026-11-01T00:10:52.890Z"
+   "luc": "2026-11-08T00:43:40.797Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 88,
-  "lập trình công cụ": 421,
-  "kiểm thử rà soát": 216,
-  "dữ liệu phân tích": 65,
-  "hạ tầng vận hành": 56,
-  "giao tiếp nội dung": 56,
-  "nghiên cứu": 51
+  "giao diện tiếp cận": 100,
+  "lập trình công cụ": 425,
+  "kiểm thử rà soát": 224,
+  "dữ liệu phân tích": 68,
+  "hạ tầng vận hành": 65,
+  "giao tiếp nội dung": 60,
+  "nghiên cứu": 53
  },
  "deXuat": [
   {
-   "ten": "canvas-design",
-   "kho": "anthropics/skills",
-   "duong": "skills/canvas-design",
+   "ten": "ux-review",
+   "kho": "Donchitos/Claude-Code-Game-Studios",
+   "duong": ".claude/skills/ux-review",
    "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 11,
-   "mo": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other stat",
-   "byte": 11937,
-   "doc": "https://github.com/anthropics/skills/blob/main/skills/canvas-design/SKILL.md",
-   "trich": "These are instructions for creating design philosophies - aesthetic movements that are then EXPRESSED VISUALLY. Output only .md files, .pdf files, and .png files. Complete this in two steps: 1. Design Philosophy Creation (.md file) 2. Express by creating it on a canvas (.pdf file or .png file) First, undertake this task: ## DESIGN PHILOSOPHY CREATION To begin, create a VISUAL PHILOSOPHY (not layouts or templates) that will be interpreted through: - Form, space, color, composition - Images, graphics, shapes, patterns - Minimal text as visual accent ### THE CRITICAL UNDERSTANDING - What is received: Some subtle input or instructions by the user that should be taken into account, but used as a foundation; it should not constrain creative freedom. - What is created: A design philosophy/aesthetic movement. - What happens next: Then, the same version receives the philosophy and EXPRESSES IT VI"
-  },
-  {
-   "ten": "design-is",
-   "kho": "thedotmack/claude-mem",
-   "duong": "plugin/skills/design-is",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 11,
-   "mo": "Audit a design against Dieter Rams' ten \"Good design is...\" principles, then hand off a /make-plan prompt for one of three outcomes — new design, refine design, or redesign. Use wh",
-   "byte": 18593,
-   "doc": "https://github.com/thedotmack/claude-mem/blob/main/plugin/skills/design-is/SKILL.md",
-   "trich": "# Design Is ## Do not use for - Routine UI code reviews → use `/review` - Pure copy edits → use a separate copy pass - Pre-design ideation with no artifact yet → start with `/make-plan` directly You are an ORCHESTRATOR. Audit a design against Dieter Rams' ten principles, score each principle with evidence, decide the outcome verdict (NEW / REFINE / REDESIGN), and hand off to `/make-plan` with a ready-to-run prompt. You do not write implementation code. You produce: evidence-cited scores, a verdict, and a `/make-plan` handoff prompt. ## The Ten Principles (Dieter Rams) Audit each principle in this exact order. Each gets a score 0–3 and ≥1 piece of evidence (`file:line`, screenshot region, copy excerpt, or measured value). 1. **Good design is innovative** — Does it advance the form, or imitate? Innovation rides on technology; never an end in itself. 2. **Good design makes a product useful*"
-  },
-  {
-   "ten": "frontend-engineer",
-   "kho": "nanocoai/nanoclaw",
-   "duong": "container/skills/frontend-engineer",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 11,
-   "mo": "Pro frontend engineering discipline. Enforces build-test-verify workflow for every web project. Never declare done until the site is built, tested, responsive, accessible, and visu",
-   "byte": 6018,
-   "doc": "https://github.com/nanocoai/nanoclaw/blob/main/container/skills/frontend-engineer/SKILL.md",
-   "trich": "# Frontend Engineer You are a senior frontend engineer. You build production-quality websites and web applications. You do not cut corners. You do not declare work done until everything is tested and working. ## Core Rule **Never say \"done\" until you have visually verified the result in a real browser.** Screenshots are your proof. If you can't take a screenshot, you're not done. ## Build Workflow Every frontend task follows this sequence. Do not skip steps. ### 1. Understand Before Coding - For existing projects: read `package.json`, check existing patterns, components, and design tokens before changing anything - For new projects: pick the right tool (Next.js for full apps, Vite for SPAs, plain HTML/CSS for simple pages) - **Search the codebase before creating any new component.** If an existing component does 80% of what you need, extend it with props. If two components share the same"
-  },
-  {
-   "ten": "imagegen-frontend-web",
-   "kho": "nexu-io/open-design",
-   "duong": "skills/imagegen-frontend-web",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 11,
-   "mo": "Elite frontend image-direction skill for generating premium, conversion-aware website design references. CRITICAL OUTPUT RULE — generate ONE separate horizontal image FOR EVERY sec",
-   "byte": 37359,
-   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/imagegen-frontend-web/SKILL.md",
-   "trich": "# HARD OUTPUT RULE — READ FIRST **Generate one separate horizontal image PER section. Always. No exceptions.** - 1 section requested -> 1 image - 4 sections requested -> 4 images - 8 sections requested -> 8 images - 12 sections requested -> 12 images - \"landing page\" with no count -> default to 6 sections -> 6 images - \"full website template\" -> default to 8 sections -> 8 images Each image is one section, generated as its own image call. Never combine multiple sections into one frame. Never return a single tall image that contains the whole page. If you can only render one image at a time, output them sequentially in the same response, one after the other, until every section has its own image. Announce each one (\"Section 1 of 8: Hero\", \"Section 2 of 8: Trust bar\", etc.). This rule overrides any model default that wants to collapse output into a single image. # HERO COMPOSITION BIAS — RE"
-  },
-  {
-   "ten": "ai-regression-testing",
-   "kho": "affaan-m/ECC",
-   "duong": "skills/ai-regression-testing",
-   "lv": [
+    "giao diện tiếp cận",
     "kiểm thử rà soát"
    ],
-   "diem": 9,
-   "mo": "Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, automated bug-check workflows, and patterns to catch AI blind spo",
-   "byte": 11509,
-   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/ai-regression-testing/SKILL.md",
-   "trich": "# AI Regression Testing Testing patterns specifically designed for AI-assisted development, where the same model writes code and reviews it — creating systematic blind spots that only automated tests can catch. ## When to Activate - AI agent (Claude Code, Cursor, Codex) has modified API routes or backend logic - A bug was found and fixed — need to prevent re-introduction - Project has a sandbox/mock mode that can be leveraged for DB-free testing - Running `/bug-check` or similar review commands after code changes - Multiple code paths exist (sandbox vs production, feature flags, etc.) ## The Core Problem When an AI writes code and then reviews its own work, it carries the same assumptions into both steps. This creates a predictable failure pattern: ``` AI writes fix → AI reviews fix → AI says \"looks correct\" → Bug still exists ``` **Real-world example** (observed in production): ``` Fix "
+   "diem": 12,
+   "mo": "Validate a UX spec, HUD design or pattern library — accessibility, GDD alignment, readiness. APPROVED / NOT ASSESSED / NEEDS REVISION / MAJOR REVISION NEEDED.",
+   "byte": 15022,
+   "doc": "https://github.com/Donchitos/Claude-Code-Game-Studios/blob/main/.claude/skills/ux-review/SKILL.md",
+   "trich": "!`bash \"${CLAUDE_SKILL_DIR}/../../hooks/yaml-helper.sh\" resolve_config --keys workflow` Resolved above — use as-is. No block → defaults in `.claude/docs/config-resolution.md`. # UX Review ## Overview Validates UX design documents before they enter the implementation pipeline. Acts as the quality gate between UX Design and Visual Design/Implementation in the `/team-ui` pipeline. **Run this skill:** - After completing a UX spec with `/ux-design` - Before handing off to `ui-programmer` or `art-director` - Before the Pre-Production to Production gate check (which requires key screens to have reviewed UX specs) - After major revisions to a UX spec **Verdict levels:** - **APPROVED** — spec is complete, consistent, and implementation-ready - **NOT ASSESSED** — one or more review dimensions had no criterion to check against, or the spec could not be read; name which - **NEEDS REVISION** — specif"
   },
   {
-   "ten": "api-design-reviewer",
-   "kho": "alirezarezvani/claude-skills",
-   "duong": "engineering/skills/api-design-reviewer",
+   "ten": "design-taste-frontend",
+   "kho": "Leonxlnx/taste-skill",
+   "duong": "skills/taste-skill",
    "lv": [
     "giao diện tiếp cận"
    ],
-   "diem": 9,
-   "mo": "Use for any PR or spec that adds or changes REST endpoints, before approving it. Lints conventions with api_linter.py, detects breaking changes with breaking_change_detector.py and",
-   "byte": 13059,
-   "doc": "https://github.com/alirezarezvani/claude-skills/blob/main/engineering/skills/api-design-reviewer/SKILL.md",
-   "trich": "# API Design Reviewer **Tier:** POWERFUL **Category:** Engineering / Architecture **Maintainer:** Claude Skills Team ## Overview The API Design Reviewer skill provides comprehensive analysis and review of API designs, focusing on REST conventions, best practices, and industry standards. This skill helps engineering teams build consistent, maintainable, and well-designed APIs through automated linting, breaking change detection, and design scorecards. ## Quick Start — run the tools first ```bash # 1. Lint an OpenAPI/Swagger spec for convention violations python3 scripts/api_linter.py openapi.json --format json -o lint.json # 2. Detect breaking changes between two spec versions (gate: exits non-zero with --exit-on-breaking) python3 scripts/breaking_change_detector.py openapi-v1.json openapi-v2.json --format json --exit-on-breaking -o breaking.json # 3. Score overall design quality (gate: -"
+   "diem": 11,
+   "mo": "tasteskill 2.5.1, the anti-slop frontend skill. Builds professional company websites at the level of figma.com and x.ai: plain copy in a voice of its own, one system, one section p",
+   "byte": 30968,
+   "doc": "https://github.com/Leonxlnx/taste-skill/blob/main/skills/taste-skill/SKILL.md",
+   "trich": "# tasteskill 2.5 Build the website a good company would ship: it says plainly what is sold, shows the real thing on every screen, and looks made for this client, not from a template and not like an art piece. figma.com and x.ai are the bar (in words: `layout-v4.md` section 1). `<skill>` is this folder. It needs Node 22+ and Chrome, Edge or Chromium (ffmpeg optional). ## House rules These nine win over everything else in this skill. 1. **No caption or description under any image, render or visual.** Licence credits go in one footer line. 2. **Every visual renders, never an empty ground,** at 1440, 1024, 768 and 390. 3. **One section per screen:** the hero alone on the first screen, every section exactly one or two screens tall at 1440x900, no second section heading peeking in. The one exception is a live `photo-chapters` section, three or four screens, set by the moment. 4. **Equal left a"
+  },
+  {
+   "ten": "premium-web-design",
+   "kho": "davila7/claude-code-templates",
+   "duong": "cli-tool/components/skills/creative-design/premium-web-design",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Create premium, Awwwards-quality website designs as React (.jsx) components that look like they were built by a top-tier agency charging $50k+ per project. Use this skill whenever ",
+   "byte": 60333,
+   "doc": "https://github.com/davila7/claude-code-templates/blob/main/cli-tool/components/skills/creative-design/premium-web-design/SKILL.md",
+   "trich": "# Premium Web Design Create React (.jsx) components that look like they belong on Awwwards — the kind of work that makes people ask \"who designed this?\" These are sites where every pixel is intentional, every animation is choreographed, and the overall impression is that serious creative talent and budget were involved. ## The AI Aesthetic Problem Most AI-generated websites share a recognizable DNA. Avoiding it requires knowing exactly what it looks like. ### The Blacklist — Never Do These **Typography sins** - Inter, Poppins, Montserrat, Raleway, Space Grotesk, Outfit as primary fonts — these scream \"AI template\". (Note: *Inter Tight* is a separate font family with different metrics and is allowed.) - Using one font family for everything - Uniform font sizes with predictable hierarchy (64px → 32px → 18px → 14px) - Default letter-spacing and line-height everywhere - Centered text blocks "
+  },
+  {
+   "ten": "stitch-design-taste",
+   "kho": "nexu-io/open-design",
+   "duong": "skills/stitch-skill",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Semantic Design System Skill for Google Stitch. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards — strict typography, calibrated color, asym",
+   "byte": 12342,
+   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/stitch-skill/SKILL.md",
+   "trich": "# Stitch Design Taste — Semantic Design System Skill ## Overview This skill generates `DESIGN.md` files optimized for Google Stitch screen generation. It translates the battle-tested anti-slop frontend engineering directives into Stitch's native semantic design language — descriptive, natural-language rules paired with precise values that Stitch's AI agent can interpret to produce premium, non-generic interfaces. The generated `DESIGN.md` serves as the **single source of truth** for prompting Stitch to generate new screens that align with a curated, high-agency design language. Stitch interprets design through **\"Visual Descriptions\"** supported by specific color values, typography specs, and component behaviors. ## Prerequisites - Access to Google Stitch via [labs.google.com/stitch](https://labs.google.com/stitch) - Optionally: Stitch MCP Server for programmatic integration with Cursor,"
+  },
+  {
+   "ten": "design-review",
+   "kho": "garrytan/gstack",
+   "duong": "design-review",
+   "lv": [
+    "giao diện tiếp cận",
+    "kiểm thử rà soát"
+   ],
+   "diem": 10,
+   "mo": "Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions — then fixes them. (gstack)",
+   "byte": 84453,
+   "doc": "https://github.com/garrytan/gstack/blob/main/design-review/SKILL.md",
+   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## Shared preamble (load first) This skill follows gstack shared preamble `4e82fa4c839f` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/design-review/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one. ## Preamble (run first) ```bash ~/.claude/skills/gstack/bin/gstack-skill-start --skill \"design-review\" --model \"claude\" ``` Read the echoed `KEY: value` STATUS lines — they drive every preamble rule below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output (script absent, stale install, or a different protocol number), apply s"
+  },
+  {
+   "ten": "dotnet-design-pattern-review",
+   "kho": "github/awesome-copilot",
+   "duong": "skills/dotnet-design-pattern-review",
+   "lv": [
+    "giao diện tiếp cận",
+    "kiểm thử rà soát"
+   ],
+   "diem": 10,
+   "mo": "Review the C#/.NET code for design pattern implementation and suggest improvements.",
+   "byte": 3284,
+   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/dotnet-design-pattern-review/SKILL.md",
+   "trich": "# .NET/C# Design Pattern Review Review the C#/.NET code in ${selection} for design pattern implementation and suggest improvements for the solution/project. Do not make any changes to the code, just provide a review. ## Required Design Patterns - **Command Pattern**: Generic base classes (`CommandHandler<TOptions>`), `ICommandHandler<TOptions>` interface, `CommandHandlerOptions` inheritance, static `SetupCommand(IHost host)` methods - **Factory Pattern**: Complex object creation service provider integration - **Dependency Injection**: Primary constructor syntax, `ArgumentNullException` null checks, interface abstractions, proper service lifetimes - **Repository Pattern**: Async data access interfaces provider abstractions for connections - **Provider Pattern**: External service abstractions (database, AI), clear contracts, configuration handling - **Resource Pattern**: ResourceManager fo"
   }
  ]
 }

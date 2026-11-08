@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (437.889 sao)
+     Kho    : morluto/rea (440.534 sao)
      Đường  : .agents/skills/rea-changelog-update
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-changelog-update/SKILL.md
-     sha256 : aee9935074252660 · nhập 2026-11-06T23:26:18.216Z
+     sha256 : 8e96ab7ae894201b · nhập 2026-11-08T00:42:30.237Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -15,7 +15,7 @@ description: Prepare or rewrite REA release changelogs and GitHub release notes 
 # REA changelog update
 
 Use this for release-note preparation and contributor attribution. Read
-[docs/releasing.md](../../../docs/releasing.md) from the repository root for
+[docs/development/releasing.md](../../../docs/development/releasing.md) from the repository root for
 publication authority and the existing checkpoint checks. This skill prepares
 notes; it does not authorize merging, tagging, or publishing.
 

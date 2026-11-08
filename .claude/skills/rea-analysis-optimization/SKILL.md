@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (437.889 sao)
+     Kho    : morluto/rea (440.534 sao)
      Đường  : .agents/skills/rea-analysis-optimization
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-analysis-optimization/SKILL.md
-     sha256 : 7a9372424e2d7bd8 · nhập 2026-11-06T23:26:18.126Z
+     sha256 : e3d25af74fc3d8d0 · nhập 2026-11-08T00:42:30.112Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -19,8 +19,8 @@ equivalent completed investigations. A useful outcome can also be a measured
 decision to leave an implementation alone.
 
 Follow the checkout's [performance priorities](../../../AGENTS.md#performance),
-[tool design](../../../docs/tool-design.md), and
-[testing guide](../../../docs/testing.md). This skill supplies an optimization
+[tool design](../../../docs/development/tool-design.md), and
+[testing guide](../../../docs/development/testing.md). This skill supplies an optimization
 workflow, not additional permission to execute targets, publish, or merge.
 Use the current contracts, provider prerequisites, and user authorization.
 
