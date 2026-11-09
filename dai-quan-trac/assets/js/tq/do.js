@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-11-09T06:56:55.037Z",
+ "generatedAt": "2026-11-09T20:02:44.756Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,7 +12,7 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 96.6,
+   "so": 91.24,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
@@ -82,17 +82,17 @@ window.DQT_TQ_DO = {
     94.62,
     98.29,
     98.32,
-    96.6
+    91.24
    ],
-   "doi7": -15.9,
-   "doi30": -8.2,
+   "doi7": -20.6,
+   "doi30": -13.3,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-11-09T06:56:54.782Z"
+   "luc": "2026-11-09T20:02:44.379Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -193,17 +193,16 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-11-09T06:56:54.782Z"
+   "luc": "2026-11-09T20:02:44.379Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
-   "so": 136.53,
+   "so": 146.39,
    "dv": "USD",
    "nguon": "Yahoo Finance · SOXX",
    "ghi": "Chỉ báo THAY THẾ và phải đọc rất cẩn thận: nó đo sức khoẻ NGÀNH bán dẫn toàn cầu, KHÔNG đo năng lực chip của Trung Quốc. Ngành nóng lên không có nghĩa Trung Quốc tiếp cận được tầng tiên tiến.",
    "muc": "r",
    "lich": [
-    181.09,
     176.46,
     178.07,
     182.2,
@@ -267,27 +266,27 @@ window.DQT_TQ_DO = {
     155,
     150.14,
     131.9,
-    136.53
+    136.53,
+    146.39
    ],
-   "doi7": -21.5,
-   "doi30": -28.5,
+   "doi7": -14.5,
+   "doi30": -21.7,
    "nguong": {
     "g": 480,
     "r": 400,
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-11-09T06:56:54.840Z"
+   "luc": "2026-11-09T20:02:44.506Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
-   "so": 34.95,
+   "so": 34.69,
    "dv": "USD",
    "nguon": "Yahoo Finance · FXI",
    "ghi": "Chỉ báo THAY THẾ — đánh giá của nhà đầu tư nước ngoài về cổ phiếu Trung Quốc, đối xứng với VNM bên Việt Nam.",
    "muc": "y",
    "lich": [
-    36.17,
     36.49,
     35.66,
     35.23,
@@ -351,17 +350,18 @@ window.DQT_TQ_DO = {
     33.19,
     34.59,
     34.94,
-    34.95
+    34.95,
+    34.69
    ],
-   "doi7": 7.7,
-   "doi30": 2.9,
+   "doi7": 6.1,
+   "doi30": 1.5,
    "nguong": {
     "g": 38,
     "r": 30,
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-11-09T06:56:54.903Z"
+   "luc": "2026-11-09T20:02:44.623Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -470,11 +470,11 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-11-09T06:56:55.001Z"
+   "luc": "2026-11-09T20:02:44.679Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
-   "so": 24527.58,
+   "so": 24481.86,
    "dv": "điểm",
    "nguon": "Yahoo Finance · ^HSI",
    "ghi": "Chỉ báo THAY THẾ cho đánh giá của thị trường về Trung Quốc–Hong Kong. Nó KHÔNG đo tài khoá hay chuỗi mệnh lệnh — tức không đo thứ mười hai đồng hồ đang đo. Đọc như nhiệt kế niềm tin bên ngoài.",
@@ -542,18 +542,17 @@ window.DQT_TQ_DO = {
     23525.97,
     23919.5,
     24796.98,
-    24481.86,
-    24527.58
+    24481.86
    ],
-   "doi7": 6.8,
-   "doi30": -0.9,
+   "doi7": 6,
+   "doi30": -1.4,
    "nguong": {
     "g": 25000,
     "r": 23000,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-11-09T06:56:55.037Z"
+   "luc": "2026-11-09T20:02:44.756Z"
   }
  }
 };
