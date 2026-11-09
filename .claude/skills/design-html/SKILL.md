@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (140.626 sao)
+     Kho    : garrytan/gstack (140.841 sao)
      Đường  : design-html
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-html/SKILL.md
-     sha256 : 72755b94ac7ee215 · nhập 2026-11-08T00:42:29.361Z
+     sha256 : 4e86d61838178a26 · nhập 2026-11-09T06:56:52.926Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -605,6 +605,8 @@ Use AskUserQuestion:
 > A) Copy to project — copy the HTML/component into your codebase
 > B) Iterate more — keep refining
 > C) Done — I'll use this as a reference
+
+After A, recommend (opt-in, never required) `/design-review --build <preview url>` once the component renders in the app, with each state on a loopback preview (`docs/howto-preview-a-frontend.md`); run `install.sh --check --for design-review` and `gstack-browser-ensure` first.
 
 ---
 
