@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    TỰ SINH — ĐỪNG SỬA TAY.
-   Sinh bởi scripts/build-live.mjs lúc 2026-11-10T14:58:39.135Z
+   Sinh bởi scripts/build-live.mjs lúc 2026-11-10T21:19:58.459Z
    Sửa tay sẽ bị ghi đè ở lần cập nhật tự động kế tiếp.
 
    File này đè số đo lên bản chụp trong strength.js.
@@ -11,7 +11,7 @@
 
 /* KT_LIVE_BEGIN */
 var LIVE = {
-  "generatedAt": "2026-11-10T14:58:39.135Z",
+  "generatedAt": "2026-11-10T21:19:58.459Z",
   "date": "10/11/2026",
   "sources": {
     "tvl": "api.llama.fi/v2/chains",
@@ -25,48 +25,48 @@ var LIVE = {
   },
   "chains": {
     "eth": {
-      "tvl": 41223116668,
-      "stab": 133758410731,
+      "tvl": 40750254868,
+      "stab": 133017609964,
       "proto": 1904
     },
     "bnb": {
-      "tvl": 5070877376,
-      "stab": 13712273830,
+      "tvl": 5016631698,
+      "stab": 13691279979,
       "proto": 1153
     },
     "sol": {
-      "tvl": 5012874932,
-      "stab": 14519623265,
+      "tvl": 5005682740,
+      "stab": 14461507768,
       "proto": 475
     },
     "avax": {
-      "tvl": 605719746,
-      "stab": 1210719733,
+      "tvl": 600113697,
+      "stab": 1209925878,
       "proto": 572
     },
     "sui": {
-      "tvl": 428848592,
-      "stab": 520529728,
+      "tvl": 422060136,
+      "stab": 539650548,
       "proto": 134
     },
     "near": {
-      "tvl": 171276097,
-      "stab": 131287995,
+      "tvl": 168035241,
+      "stab": 131300453,
       "proto": 47
     },
     "ton": {
-      "tvl": 42769064,
-      "stab": 585836199,
+      "tvl": 43096322,
+      "stab": 585991818,
       "proto": 97
     },
     "atom": {
-      "tvl": 401599293,
-      "stab": 745352039,
+      "tvl": 396134284,
+      "stab": 743205616,
       "proto": 598
     },
     "dot": {
-      "tvl": 48429645,
-      "stab": 81768230,
+      "tvl": 47813270,
+      "stab": 81779734,
       "proto": 219
     }
   },
@@ -80,8 +80,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 13777487872,
-      "change7d": -0.05575885507363243,
+      "tvs": 13703864320,
+      "change7d": -0.06559044428700289,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -124,8 +124,8 @@ var LIVE = {
       "providers": [
         "Arbitrum"
       ],
-      "tvs": 9006952448,
-      "change7d": -0.05038680978472154,
+      "tvs": 8973676544,
+      "change7d": -0.05371276581729956,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -168,8 +168,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 1445576960,
-      "change7d": -0.07210588550793418,
+      "tvs": 1419170688,
+      "change7d": -0.08109116327517729,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -212,8 +212,8 @@ var LIVE = {
       "providers": [
         "ZK Stack"
       ],
-      "tvs": 211150144,
-      "change7d": -0.09005362711315135,
+      "tvs": 207714176,
+      "change7d": -0.09647873291761022,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -256,8 +256,8 @@ var LIVE = {
       "providers": [
         "SN Stack"
       ],
-      "tvs": 324391360,
-      "change7d": -0.0832374720103024,
+      "tvs": 319866624,
+      "change7d": -0.08278744076694788,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -298,8 +298,8 @@ var LIVE = {
       "category": "ZK Rollup",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 34571876,
-      "change7d": -0.0688128544150528,
+      "tvs": 33991368,
+      "change7d": -0.08469615397209185,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -340,8 +340,8 @@ var LIVE = {
       "category": "ZK Rollup",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 302203136,
-      "change7d": -0.07689182794683613,
+      "tvs": 295952832,
+      "change7d": -0.09536738632775654,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -384,8 +384,8 @@ var LIVE = {
       "providers": [
         "Agglayer CDK"
       ],
-      "tvs": 8584534,
-      "change7d": -0.04942073526895874,
+      "tvs": 8456004,
+      "change7d": -0.06473478895157658,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -419,50 +419,6 @@ var LIVE = {
         }
       ]
     },
-    "blast": {
-      "name": "Blast",
-      "slug": "blast",
-      "stage": "Stage 0",
-      "category": "Other",
-      "hostChain": "Ethereum",
-      "providers": [
-        "OP Stack"
-      ],
-      "tvs": 31453756,
-      "change7d": -0.04552551489645995,
-      "risks": [
-        {
-          "n": "Sequencer Failure",
-          "v": "Self sequence",
-          "s": "good",
-          "d": "In the event of a sequencer failure, users can force transactions to be included in the project's chain by sending them to L1. There can be up to a 12h delay on this operation."
-        },
-        {
-          "n": "State Validation",
-          "v": "None",
-          "s": "bad",
-          "d": "Currently the system permits invalid state roots. More details in project overview."
-        },
-        {
-          "n": "Data Availability",
-          "v": "Onchain",
-          "s": "good",
-          "d": "All of the data needed for proof construction is published on Ethereum L1."
-        },
-        {
-          "n": "Exit Window",
-          "v": "None",
-          "s": "bad",
-          "d": "There is no window for users to exit in case of an unwanted upgrade since contracts are instantly upgradable."
-        },
-        {
-          "n": "Proposer Failure",
-          "v": "Cannot withdraw",
-          "s": "bad",
-          "d": "Only the whitelisted proposers can publish state roots on L1, so in the event of failure the withdrawals are frozen."
-        }
-      ]
-    },
     "mantle": {
       "name": "Mantle",
       "slug": "mantle",
@@ -472,8 +428,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 1185226240,
-      "change7d": -0.0441238409217789,
+      "tvs": 1165319680,
+      "change7d": -0.060135546473792045,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -516,8 +472,8 @@ var LIVE = {
       "providers": [
         "OVM"
       ],
-      "tvs": 23317550,
-      "change7d": -0.04991339123983518,
+      "tvs": 23014686,
+      "change7d": -0.057415889346692395,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -560,8 +516,8 @@ var LIVE = {
       "providers": [
         "OP Stack"
       ],
-      "tvs": 6498298,
-      "change7d": -0.08314892744058444,
+      "tvs": 6376421,
+      "change7d": -0.09824965069380409,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -602,8 +558,8 @@ var LIVE = {
       "category": "Other",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 255744736,
-      "change7d": -0.009430953681486609,
+      "tvs": 249433056,
+      "change7d": -0.0356271159264151,
       "risks": [
         {
           "n": "Sequencer Failure",
@@ -644,8 +600,8 @@ var LIVE = {
       "category": "Other",
       "hostChain": "Ethereum",
       "providers": [],
-      "tvs": 21458866,
-      "change7d": -0.04280920814459854,
+      "tvs": 21016986,
+      "change7d": -0.05434396435544342,
       "risks": [
         {
           "n": "Sequencer Failure",
