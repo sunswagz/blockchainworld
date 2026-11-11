@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (141.047 sao)
+     Kho    : garrytan/gstack (141.209 sao)
      Đường  : design-review
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-review/SKILL.md
-     sha256 : 94aaf7e62f7925b1 · nhập 2026-11-10T15:10:09.543Z
+     sha256 : 94aaf7e62f7925b1 · nhập 2026-11-11T17:26:04.802Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

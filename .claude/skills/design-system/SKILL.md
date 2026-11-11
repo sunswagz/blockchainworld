@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : nextlevelbuilder/ui-ux-pro-max-skill (147.657 sao)
+     Kho    : nextlevelbuilder/ui-ux-pro-max-skill (148.129 sao)
      Đường  : cli/assets/skills/design-system
      Giấy phép: MIT
      Nguồn  : https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/main/cli/assets/skills/design-system/SKILL.md
-     sha256 : 8aa5ff93320559a6 · nhập 2026-11-10T15:10:09.321Z
+     sha256 : 8aa5ff93320559a6 · nhập 2026-11-11T17:26:04.104Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
