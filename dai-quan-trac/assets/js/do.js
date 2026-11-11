@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_DO = {
- "generatedAt": "2026-11-10T21:30:03.714Z",
+ "generatedAt": "2026-11-11T06:47:30.420Z",
  "tuDo": [
   "nangluong",
   "laisuat",
@@ -16,13 +16,12 @@ window.DQT_DO = {
  "do": {
   "nangluong": {
    "nhan": "Dầu Brent",
-   "so": 91.95,
+   "so": 92.53,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": null,
    "muc": "r",
    "lich": [
-    87.72,
     88.91,
     88.98,
     87.07,
@@ -87,17 +86,18 @@ window.DQT_DO = {
     98.29,
     98.32,
     92.57,
-    91.95
+    91.49,
+    92.53
    ],
-   "doi7": -21.8,
-   "doi30": -10.4,
+   "doi7": -11.7,
+   "doi30": -10.6,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột."
    },
-   "luc": "2026-11-10T21:30:02.537Z"
+   "luc": "2026-11-11T06:47:29.481Z"
   },
   "laisuat": {
    "nhan": "Lợi suất TPCP Mỹ 10 năm",
@@ -182,11 +182,11 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi."
    },
-   "luc": "2026-11-10T21:30:02.592Z"
+   "luc": "2026-11-11T06:47:29.548Z"
   },
   "tygia": {
    "nhan": "USD/VND",
-   "so": 25528,
+   "so": 25608,
    "dv": "đồng",
    "nguon": "open.er-api.com · USD/VND",
    "ghi": null,
@@ -278,27 +278,27 @@ window.DQT_DO = {
     25585,
     25603,
     25612,
-    25528
+    25528,
+    25608
    ],
-   "doi7": -0.8,
-   "doi30": -1.3,
+   "doi7": -0.6,
+   "doi30": -1,
    "nguong": {
     "g": 25500,
     "r": 26500,
     "nghich": false,
     "can": "Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ."
    },
-   "luc": "2026-11-10T21:30:02.661Z"
+   "luc": "2026-11-11T06:47:29.681Z"
   },
   "tq": {
    "nhan": "Giá đồng",
-   "so": 6.27,
+   "so": 6.33,
    "dv": "USD/lb",
    "nguon": "Yahoo Finance · HG=F",
    "ghi": "Chỉ báo THAY THẾ cho chi phí đầu vào công nghiệp, KHÔNG phải PPI Trung Quốc.",
    "muc": "y",
    "lich": [
-    6.59,
     6.61,
     6.6,
     6.59,
@@ -363,17 +363,18 @@ window.DQT_DO = {
     6.25,
     6.22,
     6.33,
-    6.27
+    6.22,
+    6.33
    ],
-   "doi7": -2.9,
-   "doi30": -4.1,
+   "doi7": -3.2,
+   "doi30": -3.5,
    "nguong": {
     "g": 5.5,
     "r": 6.5,
     "nghich": false,
     "can": "Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70. Đỏ đặt sát đỉnh năm."
    },
-   "luc": "2026-11-10T21:30:02.885Z"
+   "luc": "2026-11-11T06:47:29.748Z"
   },
   "doanhnghiep": {
    "nhan": "Quỹ ETF Việt Nam (VNM)",
@@ -457,7 +458,7 @@ window.DQT_DO = {
     "nghich": true,
     "can": "ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80. Đỏ đặt sát đáy năm."
    },
-   "luc": "2026-11-10T21:30:03.021Z"
+   "luc": "2026-11-11T06:47:29.865Z"
   },
   "xuatxu": {
    "nhan": "Văn bản liên bang Mỹ nhắc VN",
@@ -563,17 +564,16 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Nền quan sát được khoảng 37–43 văn bản/30 ngày. NGƯỠNG YẾU NHẤT BẢNG — đọc như nhịp độ, không phải mức độ."
    },
-   "luc": "2026-11-10T21:30:03.270Z"
+   "luc": "2026-11-11T06:47:30.154Z"
   },
   "caphe": {
    "nhan": "Cà phê Arabica",
-   "so": 266.75,
+   "so": 271.4,
    "dv": "US cent/lb",
    "nguon": "Yahoo Finance · KC=F",
    "ghi": "ĐIỂM YẾU PHẢI GHI RÕ: Việt Nam trồng chủ yếu ROBUSTA, còn đây là ARABICA. Đã thử mã Robusta (RC=F) và Yahoo trả 404, nên tạm dùng Arabica — hai loại có tương quan nhưng KHÔNG cùng một thị trường. Giá cao là TỐT cho Việt Nam vì đây là nước xuất khẩu.",
    "muc": "y",
    "lich": [
-    332.3,
     335.75,
     340.1,
     333.1,
@@ -638,27 +638,26 @@ window.DQT_DO = {
     277.15,
     280,
     273.6,
-    266.75
+    271.4
    ],
-   "doi7": -7.1,
-   "doi30": -7.8,
+   "doi7": -5.5,
+   "doi30": -6.2,
    "nguong": {
     "g": 280,
     "r": 250,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 244–364. Xanh khi ≥280, đỏ khi ≤250."
    },
-   "luc": "2026-11-10T21:30:03.343Z"
+   "luc": "2026-11-11T06:47:30.222Z"
   },
   "gao": {
    "nhan": "Gạo",
-   "so": 18.24,
+   "so": 17.89,
    "dv": "USD/cwt",
    "nguon": "Yahoo Finance · ZR=F",
    "ghi": "Hợp đồng gạo thô Mỹ, KHÔNG phải giá gạo xuất khẩu Việt Nam — hai thị trường khác nhau, chỉ đi cùng chiều ở mức thô. Giá cao là tốt cho nước xuất khẩu.",
    "muc": "g",
    "lich": [
-    14.02,
     13.92,
     13.91,
     14.19,
@@ -723,27 +722,26 @@ window.DQT_DO = {
     17.92,
     17.84,
     17.76,
-    18.24
+    17.89
    ],
-   "doi7": 4.6,
-   "doi30": 11.1,
+   "doi7": 2.6,
+   "doi30": 9,
    "nguong": {
     "g": 13,
     "r": 12,
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 11,8–14,6. Xanh khi ≥13, đỏ khi ≤12."
    },
-   "luc": "2026-11-10T21:30:03.528Z"
+   "luc": "2026-11-11T06:47:30.288Z"
   },
   "usd": {
    "nhan": "Chỉ số USD",
-   "so": 102.25,
+   "so": 102.36,
    "dv": "điểm",
    "nguon": "Yahoo Finance · DX-Y.NYB",
    "ghi": "Đây là thứ nằm THƯỢNG NGUỒN của đồng hồ tỷ giá: USD mạnh lên thì áp lực lên VND tăng trước khi tỷ giá kịp phản ánh.",
    "muc": "y",
    "lich": [
-    99.81,
     99.82,
     100.01,
     99.96,
@@ -808,9 +806,10 @@ window.DQT_DO = {
     101.55,
     102.3,
     101.65,
-    102.25
+    102.23,
+    102.36
    ],
-   "doi7": 0.4,
+   "doi7": 0.6,
    "doi30": 0.9,
    "nguong": {
     "g": 100,
@@ -818,17 +817,16 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Biên độ 3 tháng quan sát được: 98,9–101,6. Đỏ đặt ở 103, tức trên hẳn vùng đang giao dịch."
    },
-   "luc": "2026-11-10T21:30:03.655Z"
+   "luc": "2026-11-11T06:47:30.355Z"
   },
   "vang": {
    "nhan": "Vàng",
-   "so": 4038.6,
+   "so": 4065.3,
    "dv": "USD/oz",
    "nguon": "Yahoo Finance · GC=F",
    "ghi": "Đọc như thước đo NGẠI RỦI RO toàn cầu, không phải giá vàng trong nước — chênh lệch vàng nội địa Việt Nam là chuyện khác hẳn và không có nguồn miễn phí.",
    "muc": "g",
    "lich": [
-    4419.7,
     4441.1,
     4467.5,
     4420.4,
@@ -893,17 +891,18 @@ window.DQT_DO = {
     4113.5,
     4074.9,
     4114.5,
-    4038.6
+    4030.2,
+    4065.3
    ],
-   "doi7": 3.6,
-   "doi30": -3.4,
+   "doi7": 2.4,
+   "doi30": -2.9,
    "nguong": {
     "g": 4200,
     "r": 4800,
     "nghich": false,
     "can": "Biên độ 3 tháng quan sát được: 3.986–4.561. Vàng lập đỉnh liên tục nên ngưỡng này sẽ phải chỉnh lại; hiện neo vào biên trên quan sát được."
    },
-   "luc": "2026-11-10T21:30:03.714Z"
+   "luc": "2026-11-11T06:47:30.420Z"
   }
  }
 };
