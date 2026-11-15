@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/claude-plugins-official (47.166 sao)
+     Kho    : anthropics/claude-plugins-official (47.322 sao)
      Đường  : plugins/claude-for-manufacturing/skills/breakdown-diagnosis
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/plugins/claude-for-manufacturing/skills/breakdown-diagnosis/SKILL.md
-     sha256 : 52c2d1d65ee4749e · nhập 2026-11-14T01:28:33.419Z
+     sha256 : 52c2d1d65ee4749e · nhập 2026-11-15T06:48:58.435Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

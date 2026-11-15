@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-11-08T00:43:40.797Z",
- "khoQuetLuc": "07/11/2026",
- "tongSkill": 4808,
+ "luc": "2026-11-15T06:50:50.248Z",
+ "khoQuetLuc": "15/11/2026",
+ "tongSkill": 4861,
  "daDung": 14,
- "ungVien": 965,
+ "ungVien": 974,
  "ganDay": [
+  {
+   "ten": "ux-review",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "design-taste-frontend",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "premium-web-design",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "stitch-design-taste",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "design-review",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
+  {
+   "ten": "dotnet-design-pattern-review",
+   "luc": "2026-11-08T00:43:40.797Z"
+  },
   {
    "ten": "canvas-design",
    "luc": "2026-11-01T00:10:52.890Z"
@@ -151,144 +175,121 @@
    "luc": "2026-09-26T11:43:36.627Z"
   },
   {
+   "ten": "design-space-explore",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "quote-build",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "survey-design",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "ios-design-review",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
    "ten": "plan-design-review",
-   "luc": "2026-09-19T11:14:32.932Z"
+   "luc": "2026-11-15T06:50:50.248Z"
   },
   {
    "ten": "power-bi-model-design-review",
-   "luc": "2026-09-19T11:14:32.932Z"
-  },
-  {
-   "ten": "ab-test-setup",
-   "luc": "2026-09-19T11:14:32.932Z"
-  },
-  {
-   "ten": "ai-native-cli",
-   "luc": "2026-09-19T11:14:32.932Z"
-  },
-  {
-   "ten": "angular-ui-patterns",
-   "luc": "2026-09-19T11:14:32.932Z"
-  },
-  {
-   "ten": "anti-ui-slop",
-   "luc": "2026-09-19T11:14:32.932Z"
-  },
-  {
-   "ten": "ux-review",
-   "luc": "2026-11-08T00:43:40.797Z"
-  },
-  {
-   "ten": "design-taste-frontend",
-   "luc": "2026-11-08T00:43:40.797Z"
-  },
-  {
-   "ten": "premium-web-design",
-   "luc": "2026-11-08T00:43:40.797Z"
-  },
-  {
-   "ten": "stitch-design-taste",
-   "luc": "2026-11-08T00:43:40.797Z"
-  },
-  {
-   "ten": "design-review",
-   "luc": "2026-11-08T00:43:40.797Z"
-  },
-  {
-   "ten": "dotnet-design-pattern-review",
-   "luc": "2026-11-08T00:43:40.797Z"
+   "luc": "2026-11-15T06:50:50.248Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 100,
-  "lập trình công cụ": 425,
+  "giao diện tiếp cận": 102,
+  "lập trình công cụ": 428,
   "kiểm thử rà soát": 224,
-  "dữ liệu phân tích": 68,
+  "dữ liệu phân tích": 70,
   "hạ tầng vận hành": 65,
-  "giao tiếp nội dung": 60,
-  "nghiên cứu": 53
+  "giao tiếp nội dung": 61,
+  "nghiên cứu": 54
  },
  "deXuat": [
   {
-   "ten": "ux-review",
-   "kho": "Donchitos/Claude-Code-Game-Studios",
-   "duong": ".claude/skills/ux-review",
+   "ten": "design-space-explore",
+   "kho": "anthropics/claude-plugins-official",
+   "duong": "plugins/claude-for-manufacturing/skills/design-space-explore",
+   "lv": [
+    "giao diện tiếp cận"
+   ],
+   "diem": 11,
+   "mo": "Generates a batch of CAD variants directly in Autodesk Fusion by applying changed parameters to an engineer's existing model, never designing from scratch and never overwriting the",
+   "byte": 11116,
+   "doc": "https://github.com/anthropics/claude-plugins-official/blob/main/plugins/claude-for-manufacturing/skills/design-space-explore/SKILL.md",
+   "trich": "# Design Space Explore An engineering team designing a part rarely has one answer. They have a **design space** — a range of possible designs bounded by what they're allowed to vary (wall thickness, rib count, hole pattern, material) and what the part must satisfy (envelope, mass, load, cost, manufacturability). Modeling one design at a time, by hand, means evaluating three to five options and picking the best of a small set. This skill generates many at once, directly in the CAD tool the engineer already has open. **It does not design from scratch.** It takes a model the engineer already has and generates variants of it — that constraint is what makes the output trustworthy and reviewable rather than a pile of new geometry nobody asked for. **It does not run analysis.** It produces the variants and the manifest describing them, so an analysis tool or a person evaluates each one and retu"
+  },
+  {
+   "ten": "quote-build",
+   "kho": "anthropics/claude-plugins-official",
+   "duong": "plugins/claude-for-manufacturing/skills/quote-build",
+   "lv": [
+    "lập trình công cụ"
+   ],
+   "diem": 11,
+   "mo": "Produces the make-to-order quote from the intake form, comparable prior jobs and cost history, with every number traced to where it came from — material at the price actually paid ",
+   "byte": 28475,
+   "doc": "https://github.com/anthropics/claude-plugins-official/blob/main/plugins/claude-for-manufacturing/skills/quote-build/SKILL.md",
+   "trich": "# Quote Build Pricing a make-to-order job means building up a cost and then applying commercial judgment. Every job is priced fresh, which is why quoting is skilled, slow, expert work — and why the estimator is usually the bottleneck. **The cost basis is shown, always.** A quote that says *$14,720* is useless. One that says *$14,720, of which $6,100 is material at the price we paid on PO-8841 in June, plus 8% scrap* is defensible. **Quick start** ``` → Load the intake form. Lines with no quantity or no material are skipped; quote the rest and list what's blocked → Find comparables; show what made each one comparable AND how this job differs → Flag capability BEFORE pricing. Then hours per op from the ladder: routing → actuals → confirmed design → first principles → Setup and run separate at every rung. A superseded routing is shown, never priced. probable_standard never outranks rung 3 →"
+  },
+  {
+   "ten": "survey-design",
+   "kho": "phuryn/pm-skills",
+   "duong": "pm-market-research/skills/survey-design",
    "lv": [
     "giao diện tiếp cận",
-    "kiểm thử rà soát"
-   ],
-   "diem": 12,
-   "mo": "Validate a UX spec, HUD design or pattern library — accessibility, GDD alignment, readiness. APPROVED / NOT ASSESSED / NEEDS REVISION / MAJOR REVISION NEEDED.",
-   "byte": 15022,
-   "doc": "https://github.com/Donchitos/Claude-Code-Game-Studios/blob/main/.claude/skills/ux-review/SKILL.md",
-   "trich": "!`bash \"${CLAUDE_SKILL_DIR}/../../hooks/yaml-helper.sh\" resolve_config --keys workflow` Resolved above — use as-is. No block → defaults in `.claude/docs/config-resolution.md`. # UX Review ## Overview Validates UX design documents before they enter the implementation pipeline. Acts as the quality gate between UX Design and Visual Design/Implementation in the `/team-ui` pipeline. **Run this skill:** - After completing a UX spec with `/ux-design` - Before handing off to `ui-programmer` or `art-director` - Before the Pre-Production to Production gate check (which requires key screens to have reviewed UX specs) - After major revisions to a UX spec **Verdict levels:** - **APPROVED** — spec is complete, consistent, and implementation-ready - **NOT ASSESSED** — one or more review dimensions had no criterion to check against, or the spec could not be read; name which - **NEEDS REVISION** — specif"
-  },
-  {
-   "ten": "design-taste-frontend",
-   "kho": "Leonxlnx/taste-skill",
-   "duong": "skills/taste-skill",
-   "lv": [
-    "giao diện tiếp cận"
+    "nghiên cứu"
    ],
    "diem": 11,
-   "mo": "tasteskill 2.5.1, the anti-slop frontend skill. Builds professional company websites at the level of figma.com and x.ai: plain copy in a voice of its own, one system, one section p",
-   "byte": 30968,
-   "doc": "https://github.com/Leonxlnx/taste-skill/blob/main/skills/taste-skill/SKILL.md",
-   "trich": "# tasteskill 2.5 Build the website a good company would ship: it says plainly what is sold, shows the real thing on every screen, and looks made for this client, not from a template and not like an art piece. figma.com and x.ai are the bar (in words: `layout-v4.md` section 1). `<skill>` is this folder. It needs Node 22+ and Chrome, Edge or Chromium (ffmpeg optional). ## House rules These nine win over everything else in this skill. 1. **No caption or description under any image, render or visual.** Licence credits go in one footer line. 2. **Every visual renders, never an empty ground,** at 1440, 1024, 768 and 390. 3. **One section per screen:** the hero alone on the first screen, every section exactly one or two screens tall at 1440x900, no second section heading peeking in. The one exception is a live `photo-chapters` section, three or four screens, set by the moment. 4. **Equal left a"
+   "mo": "Writing or reviewing a survey or questionnaire: customer feedback, NPS, CSAT, CES, pricing, market research, an in-app survey. Starts from the decision, asks about facts, pilots it",
+   "byte": 8519,
+   "doc": "https://github.com/phuryn/pm-skills/blob/main/pm-market-research/skills/survey-design/SKILL.md",
+   "trich": "## Survey Design **Send a survey only when you know which decision it informs.** Most bad surveys fail before the first question: no goal, the wrong people, questions nobody tested. Use this skill to take a survey from the decision to the analysis, or to review one. It draws on Caroline Jarrett's *Surveys That Work* and Annie Pettit's *People Aren't Robots*. ### Is it a survey at all? | You need | Use | |---|---| | Why people do something, in their own words | customer interviews, with a handful of people | | How common something is across a population | a survey: this skill | | What the people in a room think, right now | a live poll (below) | | Whether people can use something | a usability test | **When the people are in the room, poll them live instead of sending a form.** A workshop, a webinar, an all-hands or a customer advisory session answers in seconds, while everyone is there. "
   },
   {
-   "ten": "premium-web-design",
-   "kho": "davila7/claude-code-templates",
-   "duong": "cli-tool/components/skills/creative-design/premium-web-design",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 11,
-   "mo": "Create premium, Awwwards-quality website designs as React (.jsx) components that look like they were built by a top-tier agency charging $50k+ per project. Use this skill whenever ",
-   "byte": 60333,
-   "doc": "https://github.com/davila7/claude-code-templates/blob/main/cli-tool/components/skills/creative-design/premium-web-design/SKILL.md",
-   "trich": "# Premium Web Design Create React (.jsx) components that look like they belong on Awwwards — the kind of work that makes people ask \"who designed this?\" These are sites where every pixel is intentional, every animation is choreographed, and the overall impression is that serious creative talent and budget were involved. ## The AI Aesthetic Problem Most AI-generated websites share a recognizable DNA. Avoiding it requires knowing exactly what it looks like. ### The Blacklist — Never Do These **Typography sins** - Inter, Poppins, Montserrat, Raleway, Space Grotesk, Outfit as primary fonts — these scream \"AI template\". (Note: *Inter Tight* is a separate font family with different metrics and is allowed.) - Using one font family for everything - Uniform font sizes with predictable hierarchy (64px → 32px → 18px → 14px) - Default letter-spacing and line-height everywhere - Centered text blocks "
-  },
-  {
-   "ten": "stitch-design-taste",
-   "kho": "nexu-io/open-design",
-   "duong": "skills/stitch-skill",
-   "lv": [
-    "giao diện tiếp cận"
-   ],
-   "diem": 11,
-   "mo": "Semantic Design System Skill for Google Stitch. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards — strict typography, calibrated color, asym",
-   "byte": 12342,
-   "doc": "https://github.com/nexu-io/open-design/blob/main/skills/stitch-skill/SKILL.md",
-   "trich": "# Stitch Design Taste — Semantic Design System Skill ## Overview This skill generates `DESIGN.md` files optimized for Google Stitch screen generation. It translates the battle-tested anti-slop frontend engineering directives into Stitch's native semantic design language — descriptive, natural-language rules paired with precise values that Stitch's AI agent can interpret to produce premium, non-generic interfaces. The generated `DESIGN.md` serves as the **single source of truth** for prompting Stitch to generate new screens that align with a curated, high-agency design language. Stitch interprets design through **\"Visual Descriptions\"** supported by specific color values, typography specs, and component behaviors. ## Prerequisites - Access to Google Stitch via [labs.google.com/stitch](https://labs.google.com/stitch) - Optionally: Stitch MCP Server for programmatic integration with Cursor,"
-  },
-  {
-   "ten": "design-review",
+   "ten": "ios-design-review",
    "kho": "garrytan/gstack",
-   "duong": "design-review",
+   "duong": "ios-design-review",
    "lv": [
     "giao diện tiếp cận",
     "kiểm thử rà soát"
    ],
    "diem": 10,
-   "mo": "Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions — then fixes them. (gstack)",
-   "byte": 84453,
-   "doc": "https://github.com/garrytan/gstack/blob/main/design-review/SKILL.md",
-   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## Shared preamble (load first) This skill follows gstack shared preamble `4e82fa4c839f` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/design-review/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one. ## Preamble (run first) ```bash ~/.claude/skills/gstack/bin/gstack-skill-start --skill \"design-review\" --model \"claude\" ``` Read the echoed `KEY: value` STATUS lines — they drive every preamble rule below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output (script absent, stale install, or a different protocol number), apply s"
+   "mo": "Visual design audit for iOS apps on real hardware. (gstack)",
+   "byte": 9936,
+   "doc": "https://github.com/garrytan/gstack/blob/main/ios-design-review/SKILL.md",
+   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## Shared preamble (load first) This skill follows gstack shared preamble `4e82fa4c839f` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/ios-design-review/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one. ## Preamble (run first) ```bash ~/.claude/skills/gstack/bin/gstack-skill-start --skill \"ios-design-review\" --model \"claude\" ``` Read the echoed `KEY: value` STATUS lines — they drive every preamble rule below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output (script absent, stale install, or a different protocol number),"
   },
   {
-   "ten": "dotnet-design-pattern-review",
-   "kho": "github/awesome-copilot",
-   "duong": "skills/dotnet-design-pattern-review",
+   "ten": "plan-design-review",
+   "kho": "garrytan/gstack",
+   "duong": "plan-design-review",
    "lv": [
     "giao diện tiếp cận",
     "kiểm thử rà soát"
    ],
    "diem": 10,
-   "mo": "Review the C#/.NET code for design pattern implementation and suggest improvements.",
-   "byte": 3284,
-   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/dotnet-design-pattern-review/SKILL.md",
-   "trich": "# .NET/C# Design Pattern Review Review the C#/.NET code in ${selection} for design pattern implementation and suggest improvements for the solution/project. Do not make any changes to the code, just provide a review. ## Required Design Patterns - **Command Pattern**: Generic base classes (`CommandHandler<TOptions>`), `ICommandHandler<TOptions>` interface, `CommandHandlerOptions` inheritance, static `SetupCommand(IHost host)` methods - **Factory Pattern**: Complex object creation service provider integration - **Dependency Injection**: Primary constructor syntax, `ArgumentNullException` null checks, interface abstractions, proper service lifetimes - **Repository Pattern**: Async data access interfaces provider abstractions for connections - **Provider Pattern**: External service abstractions (database, AI), clear contracts, configuration handling - **Resource Pattern**: ResourceManager fo"
+   "mo": "Designer's eye plan review — interactive, like CEO and Eng review. (gstack)",
+   "byte": 55430,
+   "doc": "https://github.com/garrytan/gstack/blob/main/plan-design-review/SKILL.md",
+   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> # /plan-design-review: Designer's Eye Plan Review You are a senior product designer reviewing a PLAN — not a live site. Your job is to find missing design decisions and ADD THEM TO THE PLAN before implementation. The output of this skill is a better plan, not a document about the plan. ## Scope gate (FIRST — overrides everything below). This is a hard STOP. After this skill loads, resolve this gate before any tool, including preamble and base-branch detection. Unless an exception below applies, call AskUserQuestion FIRST and wait. Announce plan-mode auto-selection before review tools. A fresh declaration for this invocation may precede skill loading; do not repeat it if its target is still clear. Name the selected plan by its title or path; use \"this draft\" only for an untitled p"
+  },
+  {
+   "ten": "power-bi-model-design-review",
+   "kho": "github/awesome-copilot",
+   "duong": "skills/power-bi-model-design-review",
+   "lv": [
+    "giao diện tiếp cận",
+    "kiểm thử rà soát"
+   ],
+   "diem": 10,
+   "mo": "Comprehensive Power BI data model design review prompt for evaluating model architecture, relationships, and optimization opportunities.",
+   "byte": 11128,
+   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/power-bi-model-design-review/SKILL.md",
+   "trich": "# Power BI Data Model Design Review You are a Power BI data modeling expert conducting comprehensive design reviews. Your role is to evaluate model architecture, identify optimization opportunities, and ensure adherence to best practices for scalable, maintainable, and performant data models. ## Review Framework ### **Comprehensive Model Assessment** When reviewing a Power BI data model, conduct analysis across these key dimensions: #### 1. **Schema Architecture Review** ``` Star Schema Compliance: □ Clear separation of fact and dimension tables □ Proper grain consistency within fact tables □ Dimension tables contain descriptive attributes □ Minimal snowflaking (justified when present) □ Appropriate use of bridge tables for many-to-many Table Design Quality: □ Meaningful table and column names □ Appropriate data types for all columns □ Proper primary and foreign key relationships □ Consi"
   }
  ]
 }
