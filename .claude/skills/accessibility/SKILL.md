@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : affaan-m/ECC (303.332 sao)
+     Kho    : affaan-m/ECC (303.984 sao)
      Đường  : skills/accessibility
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/affaan-m/ECC/main/skills/accessibility/SKILL.md
-     sha256 : 2762f21d09d19900 · nhập 2026-11-15T06:48:58.590Z
+     sha256 : 2762f21d09d19900 · nhập 2026-11-16T06:50:37.734Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

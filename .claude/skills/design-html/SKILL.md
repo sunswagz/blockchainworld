@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (141.596 sao)
+     Kho    : garrytan/gstack (141.737 sao)
      Đường  : design-html
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-html/SKILL.md
-     sha256 : 4e86d61838178a26 · nhập 2026-11-15T06:48:58.384Z
+     sha256 : 936830c42fe6b201 · nhập 2026-11-16T06:50:36.752Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -31,7 +31,7 @@ allowed-tools:
 
 ## Shared preamble (load first)
 
-This skill follows gstack shared preamble `4e82fa4c839f` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/design-html/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one.
+This skill follows gstack shared preamble `227aca067dd3` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/design-html/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one.
 
 ## Preamble (run first)
 
