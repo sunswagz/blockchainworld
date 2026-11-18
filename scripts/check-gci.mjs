@@ -15,6 +15,6 @@ for(const a of d.assets)assert.ok(a.symbol&&a.name&&a.type&&Array.isArray(a.grou
 assert.ok(d.assets.some(a=>a.symbol==="BINANCE:HBARUSDT"));
 assert.ok(html.includes('class="pulse-grid"'),"missing market pulse section");
 for(const id of ["market-rows","history-chart","equity-widget","score-factors","detail-flow"])assert.ok(html.includes('id="'+id+'"'),"missing UI "+id);
-for(const marker of ["ticker/24hr","/klines?","takerBuyQuoteAssetVolume","refreshMarket","renderEquityWidget"])assert.ok(js.includes(marker),"missing engine marker "+marker);
+for(const marker of ["ticker/24hr","/klines?","takerBuyQuoteAssetVolume","refreshMarket","renderEquityWidget","startTickerSocket","new WebSocket"])assert.ok(js.includes(marker),"missing engine marker "+marker);
 assert.ok(sw.includes("gci-shell-v3"));
 console.log("GCI Market Data Engine checks OK:",d.assets.length,"assets");
