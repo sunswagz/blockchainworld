@@ -20,7 +20,7 @@ function scoreAsset(t,universeMedian){const change=Number(t.priceChangePercent)|
 async function getJson(url){const r=await fetch(url,{cache:"no-store",signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error("HTTP "+r.status);return r.json()}
 async function refreshMarket(){const label=$("connection-label"),dot=$("connection-dot");label.textContent="Đang lấy dữ liệu Binance Spot…";dot.classList.remove("offline");try{let raw;try{raw=await getJson(API+"/ticker/24hr")}catch{raw=await getJson("https://api.binance.com/api/v3/ticker/24hr")}
 const by=new Map(raw.map(x=>[x.symbol,x])),universe=assets.filter(a=>a.type==="crypto").map(a=>({asset:a,symbol:cryptoSymbol(a)})).filter(x=>x.symbol),matched=universe.map(x=>({asset:x.asset,ticker:by.get(x.symbol)})).filter(x=>x.ticker),median=[...matched.map(x=>Number(x.ticker.quoteVolume)||0)].sort((a,b)=>a-b)[Math.floor(matched.length/2)]||1;
-market=matched.map(x=>({...x,metrics:scoreAsset(x.ticker,median)}));lastMarketAt=Date.now();try{localStorage.setItem("gci-market-cache",JSON.stringify({at:lastMarketAt,market}))}catch{}renderMarket();renderPulse();startTickerSocket();label.textContent="Binance Spot · REST snapshot "+new Date(lastMarketAt).toLocaleTimeString("vi-VN");$("crypto-status").textContent=matched.length+"/"+universe.length+" cặp có dữ liệu · refresh 60 giây";$("updated").textContent="Market data: "+new Date(lastMarketAt).toLocaleString("vi-VN");dot.classList.add("online");dot.classList.remove("offline");if(selectedCrypto)updateSelectedFromMarket()}catch(e){label.textContent="Không kết nối được nguồn giá";dot.classList.add("offline");$("crypto-status").textContent="Lỗi dữ liệu: "+e.message;const cache=localStorage.getItem("gci-market-cache");if(cache&&!market.length){try{const c=JSON.parse(cache);market=c.market||[];renderMarket();renderPulse();label.textContent="Đang dùng cache cũ · "+new Date(c.at).toLocaleString("vi-VN")}catch{}}}}
+market=matched.map(x=>({...x,metrics:scoreAsset(x.ticker,median)}));lastMarketAt=Date.now();try{localStorage.setItem("gci-market-cache",JSON.stringify({at:lastMarketAt,market}))}catch{}renderMarket();renderPulse();renderMovers();startTickerSocket();label.textContent="Binance Spot · REST snapshot "+new Date(lastMarketAt).toLocaleTimeString("vi-VN");$("crypto-status").textContent=matched.length+"/"+universe.length+" cặp có dữ liệu · refresh 60 giây";$("updated").textContent="Market data: "+new Date(lastMarketAt).toLocaleString("vi-VN");dot.classList.add("online");dot.classList.remove("offline");if(selectedCrypto)updateSelectedFromMarket()}catch(e){label.textContent="Không kết nối được nguồn giá";dot.classList.add("offline");$("crypto-status").textContent="Lỗi dữ liệu: "+e.message;const cache=localStorage.getItem("gci-market-cache");if(cache&&!market.length){try{const c=JSON.parse(cache);market=c.market||[];renderMarket();renderPulse();if(heatmapMode==="crypto")renderMovers();label.textContent="Đang dùng cache cũ · "+new Date(c.at).toLocaleString("vi-VN")}catch{}}}}
 function renderPulse(){
  if(!market.length)return;
  let up=0,down=0,vol=0,net=0,buy=0,strength=0;
@@ -58,7 +58,7 @@ function startTickerSocket(){
    const x=market.find(m=>cryptoSymbol(m.asset)===t.s);if(!x)return;
    x.ticker.lastPrice=t.c;x.ticker.priceChangePercent=t.P;x.ticker.quoteVolume=t.q;x.ticker.weightedAvgPrice=t.w;x.ticker.highPrice=t.h;x.ticker.lowPrice=t.l;
    x.metrics=scoreAsset(x.ticker,market.reduce((sum,m)=>sum+m.metrics.vol,0)/market.length);
-   lastMarketAt=Date.now();renderMarket();renderPulse();if(selectedCrypto?.asset.symbol===x.asset.symbol)updateSelectedFromMarket();
+   lastMarketAt=Date.now();renderMarket();renderPulse();if(heatmapMode==="crypto")renderMovers();if(selectedCrypto?.asset.symbol===x.asset.symbol)updateSelectedFromMarket();
    $("updated").textContent="Live tick: "+new Date(lastMarketAt).toLocaleTimeString("vi-VN");
   };
   tickerSocket.onerror=()=>{$("connection-label").textContent="WebSocket lỗi · đang thử kết nối lại"};
@@ -71,70 +71,28 @@ async function loadHistory(symbol,p){period=p;document.querySelectorAll("[data-p
 function drawChart(values){const el=$("history-chart");if(!values.length){el.textContent="Không có dữ liệu lịch sử.";return}const w=620,h=190,pad=12,ys=values.map(x=>x.close),min=Math.min(...ys),max=Math.max(...ys),range=max-min||1,pts=values.map((v,i)=>[pad+i/(Math.max(1,values.length-1))*(w-2*pad),h-pad-(v.close-min)/range*(h-2*pad)]),path=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" "),area=path+" L"+pts.at(-1)[0]+" "+(h-pad)+" L"+pts[0][0]+" "+(h-pad)+" Z",up=ys.at(-1)>=ys[0],stroke=up?"#58c6a1":"#e07878";el.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Biểu đồ lịch sử giá"><defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="'+stroke+'" stop-opacity=".25"/><stop offset="1" stop-color="'+stroke+'" stop-opacity="0"/></linearGradient></defs><path d="'+area+'" fill="url(#chartFill)"/><path d="'+path+'" fill="none" stroke="'+stroke+'" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="chart-range"><span>$'+fmt(min,2)+'</span><span>$'+fmt(max,2)+'</span></div>'}
 function renderEquityWidget(symbol){const box=$("equity-widget");if(!symbol){box.innerHTML='<div class="chart-empty">Chọn một mã cổ phiếu để xem TradingView.</div>';return}box.innerHTML="";const wrap=document.createElement("div");wrap.className="tradingview-widget-container";const slot=document.createElement("div");slot.className="tradingview-widget-container__widget";wrap.append(slot);const copyright=document.createElement("div");copyright.className="tv-copyright";copyright.innerHTML='<a target="_blank" rel="noopener" href="https://www.tradingview.com/symbols/'+encodeURIComponent(symbol.replace(":","-"))+'/">'+esc(symbol)+' market data</a> by TradingView';wrap.append(copyright);const script=document.createElement("script");script.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js";script.async=true;script.text=JSON.stringify({symbol,width:"100%",locale:"en",colorTheme:"dark",isTransparent:true,largeChartUrl:"",displayMode:"adaptive"});wrap.append(script);box.append(wrap);$("equity-open").href="https://www.tradingview.com/chart/?symbol="+encodeURIComponent(symbol)}
 
-const RADAR_ASSETS=[
- {symbol:"NVDA",name:"NVIDIA",type:"stock",theme:"AI compute"},
- {symbol:"AVGO",name:"Broadcom",type:"stock",theme:"AI chips & networking"},
- {symbol:"TSM",name:"TSMC",type:"stock",theme:"Chip manufacturing"},
- {symbol:"AMD",name:"AMD",type:"stock",theme:"AI accelerators"},
- {symbol:"MSFT",name:"Microsoft",type:"stock",theme:"Cloud & AI"},
- {symbol:"AMZN",name:"Amazon",type:"stock",theme:"Cloud infrastructure"},
- {symbol:"GOOGL",name:"Alphabet",type:"stock",theme:"AI & cloud"},
- {symbol:"META",name:"Meta",type:"stock",theme:"AI platforms"},
- {symbol:"PLTR",name:"Palantir",type:"stock",theme:"AI software"},
- {symbol:"VRT",name:"Vertiv",type:"stock",theme:"Data-center power"},
- {symbol:"CEG",name:"Constellation Energy",type:"stock",theme:"Power generation"},
- {symbol:"TSLA",name:"Tesla",type:"stock",theme:"Robotics & autonomy"},
- {symbol:"SMH",name:"VanEck Semiconductor ETF",type:"stock",theme:"Semiconductor basket"},
- {symbol:"QQQ",name:"Nasdaq 100 ETF",type:"stock",theme:"Growth benchmark"},
- {symbol:"SPY",name:"S&P 500 ETF",type:"stock",theme:"US market benchmark"},
- {symbol:"BTC-USD",name:"Bitcoin",type:"crypto",theme:"Crypto benchmark"},
- {symbol:"ETH-USD",name:"Ethereum",type:"crypto",theme:"Smart-contract platform"},
- {symbol:"SOL-USD",name:"Solana",type:"crypto",theme:"High-beta crypto"}
-];
-let radarData=[],radarBusy=false;
-async function fetchYahoo(symbol){
- const url="https://query1.finance.yahoo.com/v8/finance/chart/"+encodeURIComponent(symbol)+"?range=3mo&interval=1d";
- const j=await getJson(url),r=j.chart?.result?.[0];if(!r)throw Error("No chart "+symbol);
- const q=r.indicators?.quote?.[0],closes=(q?.close||[]).filter(v=>Number.isFinite(v));
- if(closes.length<25)throw Error("Insufficient history "+symbol);
- const last=closes[closes.length-1],p1=closes[Math.max(0,closes.length-22)],p3=closes[0],sma20=closes.slice(-20).reduce((a,b)=>a+b,0)/20,sma50=closes.slice(-50).reduce((a,b)=>a+b,0)/Math.min(50,closes.length);
- const returns=closes.slice(-21).slice(1).map((v,i)=>v/closes.slice(-21)[i]-1).filter(Number.isFinite),mean=returns.reduce((a,b)=>a+b,0)/(returns.length||1),vol=Math.sqrt(returns.reduce((a,b)=>a+(b-mean)**2,0)/(returns.length||1))*Math.sqrt(252)*100;
- return {symbol,last,ret1m:(last/p1-1)*100,ret3m:(last/p3-1)*100,above20:last>sma20,above50:last>sma50,vol};
+let heatmapMode="stocks";
+function loadHeatmap(mode){
+ heatmapMode=mode;document.querySelectorAll("[data-heatmap]").forEach(b=>b.classList.toggle("active",b.dataset.heatmap===mode));
+ const box=$("heatmap-widget");box.innerHTML="";
+ const host=document.createElement("div");host.className="tradingview-widget-container";host.style.width="100%";host.style.height="100%";
+ const slot=document.createElement("div");slot.className="tradingview-widget-container__widget";slot.style.width="100%";slot.style.height="100%";host.append(slot);
+ const script=document.createElement("script");script.async=true;script.src=mode==="stocks"?"https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js":"https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js";
+ const config=mode==="stocks"?{exchanges:[],dataSource:"SPX500",grouping:"sector",blockSize:"market_cap_basic",blockColor:"change",locale:"en",symbolUrl:"",colorTheme:"dark",hasTopBar:true,isDataSetEnabled:true,isZoomEnabled:true,isMobile:false,width:"100%",height:"100%"}:{dataSource:"Crypto",blockSize:"market_cap_calc",blockColor:"change",locale:"en",symbolUrl:"",colorTheme:"dark",hasTopBar:true,isDataSetEnabled:true,isZoomEnabled:true,isMobile:false,width:"100%",height:"100%"};
+ script.text=JSON.stringify(config);host.append(script);box.append(host);
+ $("movers-title").textContent=mode==="stocks"?"US Stocks · TradingView":"Crypto · 24h";
+ $("movers-count").textContent=mode==="stocks"?"HEATMAP":"BINANCE";
+ if(mode==="stocks"){$("movers-list").innerHTML='<div class="mover-note"><b>Đọc bản đồ cổ phiếu</b><p>Ô lớn thường đại diện vốn hóa lớn. Xanh là tăng, đỏ là giảm trong phiên. Chọn nhóm ngành để tìm nơi thị trường đang tập trung.</p><p>Ưu tiên so sánh sức mạnh tương đối giữa Technology, Semiconductors, Energy, Financials và Healthcare thay vì chỉ nhìn một mã đơn lẻ.</p><a href="https://www.tradingview.com/heatmap/stock/" target="_blank" rel="noopener">Mở Stock Heatmap ↗</a></div>'}
+ else renderMovers();
 }
-function radarScore(x,spy1m){
- const trend=(x.above20?50:0)+(x.above50?50:0),momentum=Math.max(0,Math.min(100,50+x.ret1m*4)),relative=Math.max(0,Math.min(100,50+(x.ret1m-spy1m)*5)),risk=Math.max(0,Math.min(100,100-x.vol*1.15));
- return Math.round(trend*.35+momentum*.35+relative*.2+risk*.1);
+function renderMovers(){
+ const list=[...market].sort((a,b)=>Number(b.ticker.priceChangePercent)-Number(a.ticker.priceChangePercent));
+ const gain=list.slice(0,6),lose=[...list].reverse().slice(0,6);
+ $("movers-title").textContent="Crypto · 24h";
+ $("movers-list").innerHTML=[["TOP GAINERS",gain],["TOP LOSERS",lose]].map(([title,items])=>'<div class="mover-group"><b>'+title+'</b>'+items.map(x=>'<div class="mover-row"><span><strong>'+esc(x.asset.symbol.replace("BINANCE:",""))+'</strong><small>'+esc(x.asset.name)+'</small></span><b class="'+(Number(x.ticker.priceChangePercent)>=0?"positive":"negative")+'">'+signed(Number(x.ticker.priceChangePercent))+'</b></div>').join("")+'</div>').join("")||'<div class="chart-empty">Chưa có dữ liệu movers.</div>';
+ $("movers-count").textContent=market.length+" CẶP";
 }
-function radarRow(x){
- const score=x.score,cls=score>=70?"high":score<40?"low":"";
- return '<div class="radar-item"><div class="radar-name"><b>'+esc(x.symbol.replace("-USD",""))+' · '+esc(x.name)+'</b><span>'+esc(x.theme)+'</span></div><div class="radar-return '+(x.ret1m>=0?"positive":"negative")+'">'+signed(x.ret1m)+'<small>1 MONTH</small></div><div class="radar-return '+(x.ret3m>=0?"positive":"negative")+'">'+signed(x.ret3m)+'<small>3 MONTH</small></div><div class="radar-score '+cls+'">'+score+'</div></div>';
-}
-function renderRadar(){
- const stocks=radarData.filter(x=>x.type==="stock"&&!["SPY","QQQ"].includes(x.symbol)).sort((a,b)=>b.score-a.score),crypto=radarData.filter(x=>x.type==="crypto").sort((a,b)=>b.score-a.score),sp=radarData.find(x=>x.symbol==="SPY"),qq=radarData.find(x=>x.symbol==="QQQ");
- $("stock-radar").innerHTML=stocks.map(radarRow).join("")||'<div class="chart-empty">Chưa có dữ liệu cổ phiếu.</div>';
- $("crypto-radar").innerHTML=crypto.map(radarRow).join("")||'<div class="chart-empty">Chưa có dữ liệu crypto.</div>';
- const sm=stocks.length?stocks.reduce((s,x)=>s+x.ret1m,0)/stocks.length:0,cm=crypto.length?crypto.reduce((s,x)=>s+x.ret1m,0)/crypto.length:0;
- $("stock-regime").textContent=(sm>=0?"+":"")+fmt(sm,1)+"% avg 1M";$("crypto-regime").textContent=(cm>=0?"+":"")+fmt(cm,1)+"% avg 1M";
- const winner=sm>cm?"STOCKS":cm>sm?"CRYPTO":"BALANCED";
- $("winner-label").textContent=winner;$("winner-note").textContent="Stock basket "+signed(sm)+" · Crypto basket "+signed(cm)+" trong 1 tháng";
- const top=[...stocks,...crypto].sort((a,b)=>b.score-a.score)[0];
- $("top-pick").textContent=top?top.symbol.replace("-USD","")+" · "+top.score+"/100":"—";
- $("top-pick-note").textContent=top?top.name+" · ứng viên cần nghiên cứu, chưa phải lệnh mua":"Chưa đủ dữ liệu";
- const breadth=stocks.filter(x=>x.ret1m>0).length/(stocks.length||1),riskOn=sm>0&&cm>0&&breadth>=.6;
- $("regime-label").textContent=riskOn?"RISK-ON":sm<0&&cm<0?"RISK-OFF":winner==="STOCKS"?"STOCK-LED":"MIXED";
- $("regime-note").textContent="SPY "+(sp?signed(sp.ret1m):"—")+" · QQQ "+(qq?signed(qq.ret1m):"—")+" · breadth cổ phiếu "+Math.round(breadth*100)+"%";
-}
-async function refreshRadar(){
- if(radarBusy)return;radarBusy=true;$("radar-status").textContent="Đang đồng bộ 18 benchmark / tài sản…";
- try{
-  const results=await Promise.allSettled(RADAR_ASSETS.map(x=>fetchYahoo(x.symbol)));
-  const ok=results.map((r,i)=>r.status==="fulfilled"?{...RADAR_ASSETS[i],...r.value}:null).filter(Boolean),spy=ok.find(x=>x.symbol==="SPY"),spy1m=spy?.ret1m||0;
-  radarData=ok.map(x=>({...x,score:radarScore(x,spy1m)}));renderRadar();
-  $("radar-status").textContent=radarData.length+"/"+RADAR_ASSETS.length+" nguồn có dữ liệu · cập nhật "+new Date().toLocaleTimeString("vi-VN");
- }catch(e){$("radar-status").textContent="Không lấy được dữ liệu radar: "+e.message}
- finally{radarBusy=false}
-}
-function init(){loadWatch();getJson("assets/data/assets.json").then(d=>{data=d;assets=d.assets||[];const groups=[...new Set(assets.flatMap(a=>a.groups||[]))].sort((a,b)=>a.localeCompare(b,"vi"));for(const g of groups){const o=document.createElement("option");o.value=g;o.textContent=g;$("group").append(o)}const stocks=assets.filter(a=>a.type==="stock").sort((a,b)=>a.name.localeCompare(b.name));for(const a of stocks){const o=document.createElement("option");o.value=a.symbol;o.textContent=a.name+" · "+a.symbol;$("equity-select").append(o)}$("stocks").textContent=d.counts.stocks;$("crypto").textContent=d.counts.crypto;$("indicators").textContent=d.counts.indicators;$("asset-count").textContent=d.counts.uniqueAssets+" tài sản duy nhất · "+d.counts.sourceRows+" dòng nguồn";saveWatch();render();refreshMarket();refreshRadar();refreshTimer=setInterval(refreshMarket,60000);setInterval(refreshRadar,300000)}).catch(e=>$("rows").innerHTML='<tr><td colspan="6">Không tải được registry: '+esc(e.message)+'</td></tr>');
-["search","type","group"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.filter==="watchlist")$("type").value="all";setActive(b.dataset.filter)}));$("rows").addEventListener("click",e=>{const b=e.target.closest("[data-star]");if(!b)return;const id=b.dataset.star;watch.has(id)?watch.delete(id):watch.add(id);saveWatch();render()});$("copy-list").addEventListener("click",copySymbols);$("export-list").addEventListener("click",exportCSV);$("refresh-now").addEventListener("click",refreshMarket);$("radar-refresh").addEventListener("click",refreshRadar);$("market-search").addEventListener("input",renderMarket);$("market-sort").addEventListener("change",renderMarket);$("market-rows").addEventListener("click",e=>{const fav=e.target.closest("[data-market-star]");if(fav){const id=fav.dataset.marketStar;watch.has(id)?watch.delete(id):watch.add(id);saveWatch();renderMarket();return}const row=e.target.closest("[data-crypto]");if(row)selectCrypto(row.dataset.crypto)});document.querySelectorAll("[data-period]").forEach(b=>b.addEventListener("click",()=>selectedCrypto&&loadHistory(selectedCrypto.asset.symbol,b.dataset.period)));$("equity-select").addEventListener("change",e=>renderEquityWidget(e.target.value));document.querySelectorAll("thead th").forEach((th,i)=>{const keys={1:"symbol",2:"type",3:"role"};if(keys[i])th.addEventListener("click",()=>{if(sort.key===keys[i])sort.dir*=-1;else sort={key:keys[i],dir:1};render()})});if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})}
+function init(){loadWatch();getJson("assets/data/assets.json").then(d=>{data=d;assets=d.assets||[];const groups=[...new Set(assets.flatMap(a=>a.groups||[]))].sort((a,b)=>a.localeCompare(b,"vi"));for(const g of groups){const o=document.createElement("option");o.value=g;o.textContent=g;$("group").append(o)}const stocks=assets.filter(a=>a.type==="stock").sort((a,b)=>a.name.localeCompare(b.name));for(const a of stocks){const o=document.createElement("option");o.value=a.symbol;o.textContent=a.name+" · "+a.symbol;$("equity-select").append(o)}$("stocks").textContent=d.counts.stocks;$("crypto").textContent=d.counts.crypto;$("indicators").textContent=d.counts.indicators;$("asset-count").textContent=d.counts.uniqueAssets+" tài sản duy nhất · "+d.counts.sourceRows+" dòng nguồn";saveWatch();render();loadHeatmap("stocks");refreshMarket();refreshTimer=setInterval(refreshMarket,60000)}).catch(e=>$("rows").innerHTML='<tr><td colspan="6">Không tải được registry: '+esc(e.message)+'</td></tr>');
+["search","type","group"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",render));document.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.filter==="watchlist")$("type").value="all";setActive(b.dataset.filter)}));$("rows").addEventListener("click",e=>{const b=e.target.closest("[data-star]");if(!b)return;const id=b.dataset.star;watch.has(id)?watch.delete(id):watch.add(id);saveWatch();render()});$("copy-list").addEventListener("click",copySymbols);$("export-list").addEventListener("click",exportCSV);$("refresh-now").addEventListener("click",refreshMarket);$("radar-refresh").addEventListener("click",refreshRadar);$("market-search").addEventListener("input",renderMarket);$("market-sort").addEventListener("change",renderMarket);$("market-rows").addEventListener("click",e=>{const fav=e.target.closest("[data-market-star]");if(fav){const id=fav.dataset.marketStar;watch.has(id)?watch.delete(id):watch.add(id);saveWatch();renderMarket();return}const row=e.target.closest("[data-crypto]");if(row)selectCrypto(row.dataset.crypto)});document.querySelectorAll("[data-period]").forEach(b=>b.addEventListener("click",()=>selectedCrypto&&loadHistory(selectedCrypto.asset.symbol,b.dataset.period)));document.querySelectorAll("[data-heatmap]").forEach(b=>b.addEventListener("click",()=>loadHeatmap(b.dataset.heatmap)));$("equity-select").addEventListener("change",e=>renderEquityWidget(e.target.value));document.querySelectorAll("thead th").forEach((th,i)=>{const keys={1:"symbol",2:"type",3:"role"};if(keys[i])th.addEventListener("click",()=>{if(sort.key===keys[i])sort.dir*=-1;else sort={key:keys[i],dir:1};render()})});if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{})}
 init();
 })();
