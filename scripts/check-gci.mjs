@@ -18,5 +18,5 @@ for(const id of ["radar","pulse","crypto-board","stocks-panel","universe-panel"]
 assert.ok(html.includes("terminal-nav"),"missing terminal navigation");
 for(const id of ["market-rows","history-chart","equity-widget","score-factors","detail-flow","radar-status","stock-radar","crypto-radar","regime-label","winner-label","top-pick"])assert.ok(html.includes('id="'+id+'"'),"missing UI "+id);
 for(const marker of ["ticker/24hr","/klines?","takerBuyQuoteAssetVolume","refreshMarket","renderEquityWidget","startTickerSocket","new WebSocket","RADAR_ASSETS","refreshRadar","radarScore","fetchYahoo"])assert.ok(js.includes(marker),"missing engine marker "+marker);
-assert.ok(sw.includes("gci-shell-v5"));
+assert.ok(sw.includes("gci-shell-v6"));
 console.log("GCI Market Data Engine checks OK:",d.assets.length,"assets");
