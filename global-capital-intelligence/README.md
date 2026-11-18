@@ -1,36 +1,38 @@
-# Global Capital Intelligence
+# Global Capital Intelligence — Market Data Engine
 
-Module nghiên cứu vốn nằm trong Blockchain World.
+## Data pipeline hiện tại
+- **Crypto live board:** Binance Spot public REST snapshot mỗi 60 giây + WebSocket ticker stream cho các cặp đang theo dõi (tick cập nhật theo luồng sàn, thường khoảng 1 giây), không cần API key.
+- **History:** Binance Spot Klines khi chọn một tài sản, các khung 1D / 7D / 30D.
+- **Equities:** TradingView Symbol Info widget + link OPEN CHART. Data level phụ thuộc quyền dữ liệu từng sàn/TradingView.
+- **Flow proxy:** Binance taker-buy quote volume trừ phần còn lại; không đồng nghĩa dòng vốn ròng toàn thị trường.
+- **Breadth:** số cặp tăng/giảm trong universe có dữ liệu.
+- **Relative strength:** bình quân hiệu suất 24h của các cặp crypto đang có dữ liệu.
+- **GCI score:** thang 0–100 gồm Trend 25%, Momentum 25%, Volume tương đối 20%, Buyer pressure 15%, Liquidity 15%. Đây là bộ lọc quan sát kỹ thuật ngắn hạn, không phải dự báo/khuyến nghị.
+- **Watchlist:** lưu local trên trình duyệt; CSV và copy symbols giữ nguyên.
 
-## Phạm vi hiện tại
-- Registry: 149 tài sản duy nhất gồm 73 stocks, 56 crypto assets và 20 market indicators, được nhập từ tài liệu nguồn.
-- Tìm kiếm theo mã, tên, vai trò và nhóm ngành; lọc theo lớp tài sản/ngành.
-- Watchlist cá nhân: thêm/bỏ tài sản, lưu bằng localStorage trên trình duyệt hiện tại.
-- Sao chép toàn bộ mã trong bộ lọc hiện tại theo định dạng một mã mỗi dòng để đưa sang TradingView.
-- Xuất danh sách đang lọc thành CSV (UTF-8 BOM, hỗ trợ Excel).
-- Mở chart TradingView theo mã.
-- PWA shell cache; registry có thể đọc lại sau khi đã được cache.
-- Không tạo giá giả. Giao diện phân biệt registry với dữ liệu thị trường.
+## Nguồn và giới hạn
+- Binance Spot public market endpoints: `/api/v3/ticker/24hr`, `/api/v3/klines`. Chỉ phản ánh thanh khoản/cặp trên Binance Spot; cặp không tồn tại hoặc đã delist sẽ không có dữ liệu.
+- TradingView widgets không phải API giá cho phép tự lưu trữ. Widget có branding và dữ liệu theo quyền dữ liệu của từng exchange; nâng cấp TradingView account không làm dữ liệu nhúng thành realtime.
+- Volume, buyer pressure và breadth là proxy giao dịch; không gọi là ETF flows, on-chain net flows hay institutional flows.
+- Stock API riêng chưa bật. Twelve Data Basic công bố real-time US equities nhưng gắn giới hạn “internal non-display usage”; trước khi hiển thị dữ liệu cổ phiếu qua API riêng cần kiểm tra license/display rights phù hợp. Không đưa API key vào browser.
+- Nếu muốn snapshot server-side, cần GitHub Actions/backend và provider key được thêm vào GitHub Secrets bởi chủ repository.
 
-## Data integrity
-- Mã/sàn/cặp giao dịch và trạng thái niêm yết vẫn cần xác minh.
-- Hedera được chuẩn hóa theo ghi chú trong tài liệu nguồn.
-- Các công ty tư nhân không được tự gán mã niêm yết.
-- Watchlist lưu cục bộ, chưa đồng bộ giữa các thiết bị.
-- Giá realtime, OHLCV, lịch sử, tín hiệu, scoring và cảnh báo chưa được kết nối.
+## Thực hành
+- WebSocket crypto: chỉ subscribe các cặp trong universe; REST snapshot/flow metrics refresh 60 giây (throttled); lịch sử tải theo yêu cầu.
+- Historical klines: tải khi người dùng chọn tài sản/khung thời gian.
+- Cache service worker chỉ cache app shell, không cache phản hồi thị trường như thể đó là live.
+- Không có dữ liệu: hiển thị trạng thái lỗi hoặc thiếu cặp, không tự điền giá giả.
 
-## Kiến trúc dữ liệu đề xuất cho giai đoạn tiếp theo
-1. **Instrument master**: chuẩn hóa tài sản theo provider ID, exchange, quote currency, contract address và chain; giữ nguyên symbol nguồn để truy vết.
-2. **Crypto adapter**: provider có API terms rõ ràng; cache server-side và tôn trọng rate limit.
-3. **Equity adapter**: nhà cung cấp dữ liệu cổ phiếu có quyền sử dụng phù hợp; API key chỉ lưu trong GitHub Secrets hoặc backend, không đưa vào browser bundle.
-4. **Snapshot store**: lưu giá, timestamp, nguồn, độ trễ và trạng thái kiểm tra chất lượng.
-5. **Signal layer**: heatmap, relative strength, volume anomaly, capital flow và scoring chỉ được bật khi có dữ liệu đủ chuẩn.
-6. **Alert layer**: ngưỡng và lịch cập nhật tách khỏi UI; không coi giá cũ là giá hiện tại.
+## Roadmap tiếp
+1. Xác minh mapping của từng symbol với exchange/provider ID.
+2. Thêm provider cổ phiếu có quyền hiển thị phù hợp (có thể Twelve Data Grow trở lên tùy license/điều khoản).
+3. Lưu snapshots OHLCV và trạng thái provider phía server.
+4. Tách module ETF flows, on-chain flows và macro liquidity khi có nguồn xác minh.
+5. Alert engine cho ngưỡng giá, biến động, volume anomaly và scoring.
 
-## Kiểm tra
+## Kiểm thử
 ```bash
 node scripts/check-gci.mjs
+node --check global-capital-intelligence/assets/js/app.js
 node scripts/build-dist.mjs
 ```
-
-Đây là công cụ nghiên cứu, không phải khuyến nghị đầu tư.

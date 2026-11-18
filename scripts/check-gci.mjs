@@ -1,13 +1,20 @@
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
-const p=new URL("../global-capital-intelligence/assets/data/assets.json",import.meta.url);
-const d=JSON.parse(await readFile(p,"utf8"));
+const root=new URL("../",import.meta.url);
+const d=JSON.parse(await readFile(new URL("global-capital-intelligence/assets/data/assets.json",root),"utf8"));
+const html=await readFile(new URL("global-capital-intelligence/index.html",root),"utf8");
+const js=await readFile(new URL("global-capital-intelligence/assets/js/app.js",root),"utf8");
+const sw=await readFile(new URL("global-capital-intelligence/sw.js",root),"utf8");
 assert.equal(d.schemaVersion,1);
-assert.ok(d.assets.length>100,"expected full research universe");
-assert.equal(new Set(d.assets.map(a=>a.type+":"+a.symbol)).size,d.assets.length,"duplicate canonical IDs");
+assert.ok(d.assets.length>100);
+assert.equal(new Set(d.assets.map(a=>a.type+":"+a.symbol)).size,d.assets.length);
 assert.equal(d.counts.stocks,d.assets.filter(a=>a.type==="stock").length);
 assert.equal(d.counts.crypto,d.assets.filter(a=>a.type==="crypto").length);
 assert.equal(d.counts.indicators,d.assets.filter(a=>a.type==="indicator").length);
-for(const a of d.assets){assert.ok(a.symbol&&a.name&&a.type&&Array.isArray(a.groups)&&a.groups.length);}
-assert.ok(d.assets.some(a=>a.symbol==="BINANCE:HBARUSDT"),"Hedera typo normalization missing");
-console.log("GCI registry OK:",d.assets.length,"unique assets;",d.counts.stocks,"stocks;",d.counts.crypto,"crypto;",d.counts.indicators,"indicators");
+for(const a of d.assets)assert.ok(a.symbol&&a.name&&a.type&&Array.isArray(a.groups)&&a.groups.length);
+assert.ok(d.assets.some(a=>a.symbol==="BINANCE:HBARUSDT"));
+assert.ok(html.includes('class="pulse-grid"'),"missing market pulse section");
+for(const id of ["market-rows","history-chart","equity-widget","score-factors","detail-flow"])assert.ok(html.includes('id="'+id+'"'),"missing UI "+id);
+for(const marker of ["ticker/24hr","/klines?","takerBuyQuoteAssetVolume","refreshMarket","renderEquityWidget","startTickerSocket","new WebSocket"])assert.ok(js.includes(marker),"missing engine marker "+marker);
+assert.ok(sw.includes("gci-shell-v3"));
+console.log("GCI Market Data Engine checks OK:",d.assets.length,"assets");
