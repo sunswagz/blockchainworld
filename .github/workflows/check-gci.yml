@@ -1,7 +1,7 @@
 name: GCI registry checks
 on:
   push:
-    branches: [main, feat/global-capital-intelligence]
+    branches: [main, feat/global-capital-intelligence, feat/gci-market-data-engine]
     paths:
       - "global-capital-intelligence/**"
       - "scripts/check-gci.mjs"
@@ -24,5 +24,7 @@ jobs:
         run: node scripts/check-gci.mjs
       - name: Validate JavaScript syntax
         run: node --check global-capital-intelligence/assets/js/app.js
+      - name: Validate registry and engine checks syntax
+        run: node --check scripts/check-gci.mjs
       - name: Verify Pages packaging
         run: node scripts/build-dist.mjs
