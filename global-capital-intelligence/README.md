@@ -1,7 +1,7 @@
 # Global Capital Intelligence — Market Data Engine
 
 ## Data pipeline hiện tại
-- **Crypto live board:** Binance Spot public REST API, refresh mỗi 60 giây, không cần API key.
+- **Crypto live board:** Binance Spot public REST snapshot mỗi 60 giây + WebSocket ticker stream cho các cặp đang theo dõi (tick cập nhật theo luồng sàn, thường khoảng 1 giây), không cần API key.
 - **History:** Binance Spot Klines khi chọn một tài sản, các khung 1D / 7D / 30D.
 - **Equities:** TradingView Symbol Info widget + link OPEN CHART. Data level phụ thuộc quyền dữ liệu từng sàn/TradingView.
 - **Flow proxy:** Binance taker-buy quote volume trừ phần còn lại; không đồng nghĩa dòng vốn ròng toàn thị trường.
@@ -18,7 +18,7 @@
 - Nếu muốn snapshot server-side, cần GitHub Actions/backend và provider key được thêm vào GitHub Secrets bởi chủ repository.
 
 ## Thực hành
-- Refresh crypto: 60 giây (throttled); không polling liên tục.
+- WebSocket crypto: chỉ subscribe các cặp trong universe; REST snapshot/flow metrics refresh 60 giây (throttled); lịch sử tải theo yêu cầu.
 - Historical klines: tải khi người dùng chọn tài sản/khung thời gian.
 - Cache service worker chỉ cache app shell, không cache phản hồi thị trường như thể đó là live.
 - Không có dữ liệu: hiển thị trạng thái lỗi hoặc thiếu cặp, không tự điền giá giả.
