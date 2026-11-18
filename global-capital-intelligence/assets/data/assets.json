@@ -1,0 +1,1659 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "Văn bản đã dán (1)(1).txt",
+  "generatedAt": "2026-11-18",
+  "disclaimer": "Danh sách nghiên cứu được nhập từ tài liệu nguồn; mã/sàn/cặp giao dịch và trạng thái niêm yết chưa được xác minh trực tiếp.",
+  "counts": {
+    "sourceRows": 151,
+    "uniqueAssets": 149,
+    "stocks": 73,
+    "crypto": 56,
+    "indicators": 20
+  },
+  "assets": [
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:NVDA",
+      "name": "NVIDIA",
+      "role": "GPU và AI computing",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:AMD",
+      "name": "AMD",
+      "role": "CPU, GPU, AI accelerator",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:AVGO",
+      "name": "Broadcom",
+      "role": "AI networking, custom chips",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:TSM",
+      "name": "TSMC ADR",
+      "role": "Sản xuất chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ASML",
+      "name": "ASML",
+      "role": "Máy quang khắc chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ARM",
+      "name": "Arm Holdings",
+      "role": "Kiến trúc chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:MU",
+      "name": "Micron",
+      "role": "Bộ nhớ HBM, DRAM",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:MRVL",
+      "name": "Marvell",
+      "role": "Chip kết nối, data center",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:QCOM",
+      "name": "Qualcomm",
+      "role": "Chip di động, edge AI",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:INTC",
+      "name": "Intel",
+      "role": "CPU, sản xuất chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:AMAT",
+      "name": "Applied Materials",
+      "role": "Thiết bị sản xuất chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:LRCX",
+      "name": "Lam Research",
+      "role": "Thiết bị khắc chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:KLAC",
+      "name": "KLA",
+      "role": "Kiểm tra và đo lường chip",
+      "groups": [
+        "Semiconductor – Chip & bán dẫn"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:MSFT",
+      "name": "Microsoft",
+      "role": "Azure, AI",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:AMZN",
+      "name": "Amazon",
+      "role": "AWS",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:GOOGL",
+      "name": "Alphabet",
+      "role": "Google Cloud, Gemini",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ORCL",
+      "name": "Oracle",
+      "role": "Cloud infrastructure",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:META",
+      "name": "Meta",
+      "role": "AI infrastructure",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:IBM",
+      "name": "IBM",
+      "role": "Enterprise AI, hybrid cloud",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:CRWV",
+      "name": "CoreWeave",
+      "role": "GPU cloud",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:NBIS",
+      "name": "Nebius",
+      "role": "AI cloud",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ANET",
+      "name": "Arista Networks",
+      "role": "Data center networking",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:VRT",
+      "name": "Vertiv",
+      "role": "Làm mát, điện data center",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:EQIX",
+      "name": "Equinix",
+      "role": "Data center",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:DLR",
+      "name": "Digital Realty",
+      "role": "Data center",
+      "groups": [
+        "Cloud – Data Center – AI Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:PLTR",
+      "name": "Palantir",
+      "role": "AI enterprise",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:CRM",
+      "name": "Salesforce",
+      "role": "AI cho doanh nghiệp",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:NOW",
+      "name": "ServiceNow",
+      "role": "AI workflow",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:SNOW",
+      "name": "Snowflake",
+      "role": "Data cloud",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ADBE",
+      "name": "Adobe",
+      "role": "AI creative software",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:APP",
+      "name": "AppLovin",
+      "role": "AI advertising",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:PATH",
+      "name": "UiPath",
+      "role": "Robotic process automation",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:TSLA",
+      "name": "Tesla",
+      "role": "Robotics, autonomy",
+      "groups": [
+        "AI – Software – Autonomous Agents"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:CEG",
+      "name": "Constellation Energy",
+      "role": "Điện hạt nhân",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:VST",
+      "name": "Vistra",
+      "role": "Sản xuất điện",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:GEV",
+      "name": "GE Vernova",
+      "role": "Turbine, lưới điện",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:ETN",
+      "name": "Eaton",
+      "role": "Thiết bị điện",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:CCJ",
+      "name": "Cameco",
+      "role": "Uranium",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:OKLO",
+      "name": "Oklo",
+      "role": "Công nghệ hạt nhân",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:SMR",
+      "name": "NuScale Power",
+      "role": "Lò phản ứng module nhỏ",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:NEE",
+      "name": "NextEra Energy",
+      "role": "Năng lượng tái tạo",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ENPH",
+      "name": "Enphase Energy",
+      "role": "Solar, quản lý năng lượng",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:FSLR",
+      "name": "First Solar",
+      "role": "Tấm pin mặt trời",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:BE",
+      "name": "Bloom Energy",
+      "role": "Fuel cell",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:CAT",
+      "name": "Caterpillar",
+      "role": "Máy phát điện, thiết bị công nghiệp",
+      "groups": [
+        "Energy – Power – Nuclear"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:SYM",
+      "name": "Symbotic",
+      "role": "Warehouse robotics",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ISRG",
+      "name": "Intuitive Surgical",
+      "role": "Robot phẫu thuật",
+      "groups": [
+        "Robotics – Automation – Industrial",
+        "Biotech – Healthcare – Future Science"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified",
+      "duplicateInSource": true
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:ABB",
+      "name": "ABB",
+      "role": "Robot công nghiệp",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ROK",
+      "name": "Rockwell Automation",
+      "role": "Tự động hóa",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:TER",
+      "name": "Teradyne",
+      "role": "Robot, kiểm thử chip",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:HON",
+      "name": "Honeywell",
+      "role": "Automation",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:DE",
+      "name": "Deere",
+      "role": "Máy móc tự hành",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:SERV",
+      "name": "Serve Robotics",
+      "role": "Delivery robots",
+      "groups": [
+        "Robotics – Automation – Industrial"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:BLK",
+      "name": "BlackRock",
+      "role": "Quản lý tài sản, tokenization",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:JPM",
+      "name": "JPMorgan",
+      "role": "Ngân hàng, blockchain finance",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:GS",
+      "name": "Goldman Sachs",
+      "role": "Investment banking",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:COIN",
+      "name": "Coinbase",
+      "role": "Crypto infrastructure",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:HOOD",
+      "name": "Robinhood",
+      "role": "Brokerage, tokenization",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:PYPL",
+      "name": "PayPal",
+      "role": "Digital payments",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:IBKR",
+      "name": "Interactive Brokers",
+      "role": "Brokerage",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:CME",
+      "name": "CME Group",
+      "role": "Derivatives, futures",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:ICE",
+      "name": "Intercontinental Exchange",
+      "role": "Financial markets",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:SOFI",
+      "name": "SoFi",
+      "role": "Digital banking",
+      "groups": [
+        "Financial Infrastructure – Tokenization – Fintech"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:LLY",
+      "name": "Eli Lilly",
+      "role": "Dược phẩm",
+      "groups": [
+        "Biotech – Healthcare – Future Science"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:CRSP",
+      "name": "CRISPR Therapeutics",
+      "role": "Gene editing",
+      "groups": [
+        "Biotech – Healthcare – Future Science"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:RXRX",
+      "name": "Recursion",
+      "role": "AI drug discovery",
+      "groups": [
+        "Biotech – Healthcare – Future Science"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:BEAM",
+      "name": "Beam Therapeutics",
+      "role": "Gene editing",
+      "groups": [
+        "Biotech – Healthcare – Future Science"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:NTLA",
+      "name": "Intellia Therapeutics",
+      "role": "Gene editing",
+      "groups": [
+        "Biotech – Healthcare – Future Science"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:RKLB",
+      "name": "Rocket Lab",
+      "role": "Phóng tên lửa, vệ tinh",
+      "groups": [
+        "Space – Satellite – Connectivity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:ASTS",
+      "name": "AST SpaceMobile",
+      "role": "Satellite connectivity",
+      "groups": [
+        "Space – Satellite – Connectivity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NASDAQ:IRDM",
+      "name": "Iridium",
+      "role": "Satellite communications",
+      "groups": [
+        "Space – Satellite – Connectivity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:RDW",
+      "name": "Redwire",
+      "role": "Space infrastructure",
+      "groups": [
+        "Space – Satellite – Connectivity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "stock",
+      "symbol": "NYSE:LUNR",
+      "name": "Intuitive Machines",
+      "role": "Lunar infrastructure",
+      "groups": [
+        "Space – Satellite – Connectivity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:BTCUSDT",
+      "name": "Bitcoin",
+      "role": "Monetary asset",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ETHUSDT",
+      "name": "Ethereum",
+      "role": "Smart contract infrastructure",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:BNBUSDT",
+      "name": "BNB",
+      "role": "Exchange ecosystem",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:SOLUSDT",
+      "name": "Solana",
+      "role": "High-performance blockchain",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:XRPUSDT",
+      "name": "XRP",
+      "role": "Payment infrastructure",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:TRXUSDT",
+      "name": "TRON",
+      "role": "Stablecoin settlement",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ADAUSDT",
+      "name": "Cardano",
+      "role": "Layer 1",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:AVAXUSDT",
+      "name": "Avalanche",
+      "role": "Layer 1",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:TONUSDT",
+      "name": "Toncoin",
+      "role": "Telegram ecosystem",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:NEARUSDT",
+      "name": "NEAR",
+      "role": "Blockchain, AI infrastructure",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:SUIUSDT",
+      "name": "SUI",
+      "role": "Layer 1",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:APTUSDT",
+      "name": "Aptos",
+      "role": "Layer 1",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:INJUSDT",
+      "name": "Injective",
+      "role": "Financial blockchain",
+      "groups": [
+        "Core Crypto – Tài sản nền tảng"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ARBUSDT",
+      "name": "Arbitrum",
+      "role": "Ethereum L2",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:OPUSDT",
+      "name": "Optimism",
+      "role": "Ethereum L2",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:POLUSDT",
+      "name": "Polygon",
+      "role": "Scaling ecosystem",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:STRKUSDT",
+      "name": "Starknet",
+      "role": "ZK Rollup",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ZKUSDT",
+      "name": "zkSync",
+      "role": "ZK Rollup",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:IMXUSDT",
+      "name": "Immutable",
+      "role": "Gaming infrastructure",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:MNTUSDT",
+      "name": "Mantle",
+      "role": "Modular L2",
+      "groups": [
+        "Layer 2 – Scaling Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:LINKUSDT",
+      "name": "Chainlink",
+      "role": "Oracle, interoperability",
+      "groups": [
+        "DeFi – Financial Infrastructure",
+        "RWA – Tokenization – Real World Assets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified",
+      "duplicateInSource": true
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:AAVEUSDT",
+      "name": "Aave",
+      "role": "Lending",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:UNIUSDT",
+      "name": "Uniswap",
+      "role": "DEX",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:SKYUSDT",
+      "name": "Sky",
+      "role": "Stablecoin ecosystem",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:PENDLEUSDT",
+      "name": "Pendle",
+      "role": "Yield trading",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:JUPUSDT",
+      "name": "Jupiter",
+      "role": "Solana DeFi",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ENAUSDT",
+      "name": "Ethena",
+      "role": "Synthetic dollar",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:CRVUSDT",
+      "name": "Curve",
+      "role": "Stablecoin DEX",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:MORPHOUSDT",
+      "name": "Morpho",
+      "role": "Lending infrastructure",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:COMPUSDT",
+      "name": "Compound",
+      "role": "Lending",
+      "groups": [
+        "DeFi – Financial Infrastructure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:TAOUSDT",
+      "name": "Bittensor",
+      "role": "Decentralized AI",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:RENDERUSDT",
+      "name": "Render",
+      "role": "GPU rendering",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:AKTUSDT",
+      "name": "Akash",
+      "role": "Decentralized cloud",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:FILUSDT",
+      "name": "Filecoin",
+      "role": "Decentralized storage",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ARUSDT",
+      "name": "Arweave",
+      "role": "Permanent storage",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:THETAUSDT",
+      "name": "Theta",
+      "role": "Video, compute infrastructure",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:IOUSDT",
+      "name": "io.net",
+      "role": "Decentralized GPU",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:GRASSUSDT",
+      "name": "Grass",
+      "role": "Distributed data network",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ATHUSDT",
+      "name": "Aethir",
+      "role": "Distributed GPU cloud",
+      "groups": [
+        "AI + DePIN + Compute"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ONDOUSDT",
+      "name": "Ondo",
+      "role": "Tokenized securities",
+      "groups": [
+        "RWA – Tokenization – Real World Assets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:CFGUSDT",
+      "name": "Centrifuge",
+      "role": "Tokenized credit",
+      "groups": [
+        "RWA – Tokenization – Real World Assets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:OMUSDT",
+      "name": "MANTRA",
+      "role": "RWA infrastructure",
+      "groups": [
+        "RWA – Tokenization – Real World Assets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:POLYXUSDT",
+      "name": "Polymesh",
+      "role": "Regulated asset infrastructure",
+      "groups": [
+        "RWA – Tokenization – Real World Assets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:XLMUSDT",
+      "name": "Stellar",
+      "role": "Payments",
+      "groups": [
+        "Payments – Stablecoin – Financial Rails"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:HBARUSDT",
+      "name": "Hedera",
+      "role": "Enterprise DLT",
+      "review": "symbol_corrected_from_source",
+      "groups": [
+        "Payments – Stablecoin – Financial Rails"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ZROUSDT",
+      "name": "LayerZero",
+      "role": "Cross-chain",
+      "groups": [
+        "Payments – Stablecoin – Financial Rails"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:AXLUSDT",
+      "name": "Axelar",
+      "role": "Interoperability",
+      "groups": [
+        "Payments – Stablecoin – Financial Rails"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:PYTHUSDT",
+      "name": "Pyth",
+      "role": "Financial data oracle",
+      "groups": [
+        "Payments – Stablecoin – Financial Rails"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:SEIUSDT",
+      "name": "Sei",
+      "role": "Trading blockchain",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:FTMUSDT",
+      "name": "Fantom",
+      "role": "Legacy ecosystem",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:WLDUSDT",
+      "name": "Worldcoin",
+      "role": "Digital identity",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:VIRTUALUSDT",
+      "name": "Virtuals",
+      "role": "AI Agents",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:FETUSDT",
+      "name": "Artificial Superintelligence Alliance",
+      "role": "AI",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:KAITOUSDT",
+      "name": "Kaito",
+      "role": "Information markets",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:SAFEUSDT",
+      "name": "Safe",
+      "role": "Smart account infrastructure",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "crypto",
+      "symbol": "BINANCE:ENSUSDT",
+      "name": "ENS",
+      "role": "Blockchain identity",
+      "groups": [
+        "Emerging Ecosystems – Những nhóm cần theo dõi thêm"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CRYPTOCAP:TOTAL",
+      "name": "Crypto total market cap",
+      "role": "Market indicator",
+      "groups": [
+        "Crypto market structure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CRYPTOCAP:TOTAL2",
+      "name": "Crypto market cap excluding BTC",
+      "role": "Market indicator",
+      "groups": [
+        "Crypto market structure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CRYPTOCAP:TOTAL3",
+      "name": "Crypto market cap excluding BTC and ETH",
+      "role": "Market indicator",
+      "groups": [
+        "Crypto market structure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CRYPTOCAP:BTC.D",
+      "name": "Bitcoin dominance",
+      "role": "Market indicator",
+      "groups": [
+        "Crypto market structure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CRYPTOCAP:ETH.D",
+      "name": "Ethereum dominance",
+      "role": "Market indicator",
+      "groups": [
+        "Crypto market structure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CRYPTOCAP:USDT.D",
+      "name": "USDT dominance",
+      "role": "Market indicator",
+      "groups": [
+        "Crypto market structure"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "SP:SPX",
+      "name": "S&P 500",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "NASDAQ:NDX",
+      "name": "Nasdaq 100",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "AMEX:QQQ",
+      "name": "Nasdaq 100 ETF",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "AMEX:SPY",
+      "name": "S&P 500 ETF",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "AMEX:SMH",
+      "name": "Semiconductor ETF",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "AMEX:ARKK",
+      "name": "Innovation ETF",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "AMEX:ICLN",
+      "name": "Clean Energy ETF",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "AMEX:IBIT",
+      "name": "Bitcoin ETF",
+      "role": "Market indicator",
+      "groups": [
+        "Traditional financial markets"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "TVC:DXY",
+      "name": "Dollar Index",
+      "role": "Market indicator",
+      "groups": [
+        "Macro & liquidity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "TVC:US10Y",
+      "name": "US 10-year yield",
+      "role": "Market indicator",
+      "groups": [
+        "Macro & liquidity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "TVC:US02Y",
+      "name": "US 2-year yield",
+      "role": "Market indicator",
+      "groups": [
+        "Macro & liquidity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "TVC:GOLD",
+      "name": "Gold",
+      "role": "Market indicator",
+      "groups": [
+        "Macro & liquidity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "TVC:VIX",
+      "name": "Volatility Index",
+      "role": "Market indicator",
+      "groups": [
+        "Macro & liquidity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    },
+    {
+      "type": "indicator",
+      "symbol": "CME:BTC1!",
+      "name": "Bitcoin Futures",
+      "role": "Market indicator",
+      "groups": [
+        "Macro & liquidity"
+      ],
+      "source": "Văn bản đã dán (1)(1).txt",
+      "status": "unverified"
+    }
+  ]
+}
