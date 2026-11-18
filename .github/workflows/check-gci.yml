@@ -1,7 +1,7 @@
 name: GCI registry checks
 on:
   push:
-    branches: [main, feat/global-capital-intelligence, feat/gci-market-data-engine, feat/cross-asset-capital-radar, feat/gci-terminal-layout, fix/gci-compact-screen]
+    branches: [main, feat/global-capital-intelligence, feat/gci-market-data-engine, feat/cross-asset-capital-radar, feat/gci-terminal-layout, fix/gci-compact-screen, feat/gci-heatmap-desk]
     paths:
       - "global-capital-intelligence/**"
       - "scripts/check-gci.mjs"
