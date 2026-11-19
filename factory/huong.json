@@ -1,20 +1,20 @@
 {
-  "generatedAt": "2026-11-12T11:36:10.797Z",
+  "generatedAt": "2026-11-19T11:55:04.394Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/huong.mjs. ĐỀ XUẤT có bằng chứng, KHÔNG phải quyết định.",
-  "soCung": 12,
+  "soCung": 13,
   "deXuat": [
     {
       "tin": "lệch giữa các cung",
       "huong": "ngăn chi tiết để truy ngược con số",
-      "soCung": 8,
-      "vi": "4/12 cung đã có, 8 cung chưa: dai-quan-trac do-sat-vien hoang-thanh kham-thien-giam tang-thu-cac tao-bien-xu thi-bac-ty tu-cam-thanh",
+      "soCung": 9,
+      "vi": "4/13 cung đã có, 9 cung chưa: dai-quan-trac do-sat-vien global-capital-intelligence hoang-thanh kham-thien-giam tang-thu-cac tao-bien-xu thi-bac-ty tu-cam-thanh",
       "kiemBang": "node scripts/huong.mjs --in"
     },
     {
       "tin": "lệch giữa các cung",
       "huong": "sao chép hoặc xuất dữ liệu",
       "soCung": 7,
-      "vi": "5/12 cung đã có, 7 cung chưa: dai-quan-trac ho-bo kham-thien-giam tao-bien-xu thai-boc-tu thi-bac-ty tu-cam-thanh",
+      "vi": "6/13 cung đã có, 7 cung chưa: dai-quan-trac ho-bo kham-thien-giam tao-bien-xu thai-boc-tu thi-bac-ty tu-cam-thanh",
       "kiemBang": "node scripts/huong.mjs --in"
     },
     {
@@ -28,7 +28,7 @@
       "tin": "lệch giữa các cung",
       "huong": "ô tìm kiếm",
       "soCung": 6,
-      "vi": "6/12 cung đã có, 6 cung chưa: dai-quan-trac kham-thien-giam tao-bien-xu thai-boc-tu thi-bac-ty tu-cam-thanh",
+      "vi": "7/13 cung đã có, 6 cung chưa: dai-quan-trac kham-thien-giam tao-bien-xu thai-boc-tu thi-bac-ty tu-cam-thanh",
       "kiemBang": "node scripts/huong.mjs --in"
     },
     {
