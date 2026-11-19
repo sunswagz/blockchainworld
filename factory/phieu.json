@@ -1,10 +1,51 @@
 {
-  "generatedAt": "2026-11-18T01:12:53.137Z",
+  "generatedAt": "2026-11-19T02:40:07.225Z",
   "ghiChu": "SINH TỰ ĐỘNG bởi scripts/phieu-toan-thanh.mjs. Đừng sửa tay.",
-  "tongDat": 266,
-  "tongThuoc": 266,
-  "soCung": 13,
-  "truotNhieuNhat": [],
+  "tongDat": 277,
+  "tongThuoc": 287,
+  "soCung": 14,
+  "truotNhieuNhat": [
+    {
+      "thuoc": "ve",
+      "soCung": 1
+    },
+    {
+      "thuoc": "giam-chuyen-dong",
+      "soCung": 1
+    },
+    {
+      "thuoc": "mau-token",
+      "soCung": 1
+    },
+    {
+      "thuoc": "thang-chu",
+      "soCung": 1
+    },
+    {
+      "thuoc": "so-cot",
+      "soCung": 1
+    },
+    {
+      "thuoc": "thang-cach",
+      "soCung": 1
+    },
+    {
+      "thuoc": "bo-qua",
+      "soCung": 1
+    },
+    {
+      "thuoc": "tieu-diem",
+      "soCung": 1
+    },
+    {
+      "thuoc": "mot-main",
+      "soCung": 1
+    },
+    {
+      "thuoc": "o-nhap",
+      "soCung": 1
+    }
+  ],
   "cung": [
     {
       "cung": "cong-bo",
@@ -29,6 +70,66 @@
       "khongDo": 0,
       "truot": [],
       "truotVi": []
+    },
+    {
+      "cung": "global-capital-intelligence",
+      "dat": 11,
+      "tong": 21,
+      "khongDo": 0,
+      "truot": [
+        "ve",
+        "giam-chuyen-dong",
+        "mau-token",
+        "thang-chu",
+        "so-cot",
+        "thang-cach",
+        "bo-qua",
+        "tieu-diem",
+        "mot-main",
+        "o-nhap"
+      ],
+      "truotVi": [
+        {
+          "thuoc": "ve",
+          "vi": "1 phòng · nhỏ nhất 103 ký tự"
+        },
+        {
+          "thuoc": "giam-chuyen-dong",
+          "vi": "không có — người bật giảm chuyển động vẫn nhận đủ hiệu ứng"
+        },
+        {
+          "thuoc": "mau-token",
+          "vi": "103 mã màu hex nằm ngoài mọi khối :root"
+        },
+        {
+          "thuoc": "thang-chu",
+          "vi": "16 giá trị khác nhau (16 px thẳng + 0 nấc) — nhiều hơn một thang thật có"
+        },
+        {
+          "thuoc": "so-cot",
+          "vi": "12/12 mặt số thiếu tabular-nums — số nhảy ngang mỗi lượt đổi"
+        },
+        {
+          "thuoc": "thang-cach",
+          "vi": "26 giá trị khác nhau (26 px thẳng + 0 nấc) — nhiều hơn một thang thật có"
+        },
+        {
+          "thuoc": "bo-qua",
+          "vi": "chưa có — người dùng bàn phím phải Tab qua cả thanh bên ở mỗi phòng"
+        },
+        {
+          "thuoc": "tieu-diem",
+          "vi": "THIẾU :focus-visible — dùng bàn phím thì không biết đang đứng ở đâu"
+        },
+        {
+          "thuoc": "mot-main",
+          "vi": "KHÔNG có <main> — không có mốc nào để nhảy qua đầu trang"
+        },
+        {
+          "thuoc": "o-nhap",
+          "vi": "3/6 ô nhập chỉ có placeholder — nó biến mất ngay khi gõ"
+        }
+      ]
     },
     {
       "cung": "ho-bo",
