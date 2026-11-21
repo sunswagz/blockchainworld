@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : affaan-m/ECC (307.193 sao)
+     Kho    : affaan-m/ECC (307.768 sao)
      Đường  : skills/accessibility
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/affaan-m/ECC/main/skills/accessibility/SKILL.md
-     sha256 : 2762f21d09d19900 · nhập 2026-11-19T20:58:11.206Z
+     sha256 : 09910fdadf0d7e6c · nhập 2026-11-21T02:25:37.219Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -83,7 +83,7 @@ flowchart TD
 | **Primary Label**  | `aria-label` / `<label>` | `.accessibilityLabel()`              | `contentDescription`                                        |
 | **Secondary Hint** | `aria-describedby`       | `.accessibilityHint()`               | `Modifier.semantics { stateDescription = ... }`             |
 | **Action Role**    | `role="button"`          | `.accessibilityAddTraits(.isButton)` | `Modifier.semantics { role = Role.Button }`                 |
-| **Live Updates**   | `aria-live="polite"`     | `.accessibilityLiveRegion(.polite)`  | `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` |
+| **Live Updates**   | `aria-live="polite"`     | `AccessibilityNotification.Announcement(...).post()` (iOS 17+, `.low` priority) | `Modifier.semantics { liveRegion = LiveRegionMode.Polite }` |
 
 ## Examples
 
@@ -108,6 +108,22 @@ Button(action: deleteItem) {
 .accessibilityLabel("Delete item")
 .accessibilityHint("Permanently removes this item from your list")
 .accessibilityAddTraits(.isButton)
+```
+
+### iOS 17+: Announce a Status Update
+
+Keep the status visible in the UI. After a save succeeds, post one low-priority announcement from the completion handler so VoiceOver can read it after its current speech without moving focus.
+
+```swift
+import Accessibility
+import Foundation
+
+@available(iOS 17.0, *)
+func announceSaveCompleted() {
+    var message = AttributedString("Changes saved.")
+    message.accessibilitySpeechAnnouncementPriority = .low
+    AccessibilityNotification.Announcement(message).post()
+}
 ```
 
 ### Android: Accessible Toggle
