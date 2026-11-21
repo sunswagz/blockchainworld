@@ -44,6 +44,30 @@ class SQLiteStore:
                 [data[k] for k in columns])
             return int(cur.lastrowid)
 
+    def add_pool_activity_snapshot(self, item: dict) -> int:
+        columns = [
+            "pool_id", "block_number", "block_hash", "block_timestamp", "window",
+            "from_block", "to_block", "swap_count", "volume_usd_estimated",
+            "fees_usd_estimated", "fee_token0_raw_estimated", "fee_token1_raw_estimated",
+            "volume_token0_raw", "volume_token1_raw", "method", "data_status", "raw_ref",
+        ]
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO pool_activity_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns])
+            return int(cur.lastrowid)
+
+    def list_pool_activity(self, pool_id: str | None = None, limit: int = 100) -> list[dict]:
+        query = "SELECT * FROM pool_activity_snapshots"
+        params: list = []
+        if pool_id:
+            query += " WHERE pool_id = ?"
+            params.append(pool_id)
+        query += " ORDER BY block_timestamp DESC, id DESC LIMIT ?"
+        params.append(limit)
+        with self._connect() as conn:
+            return [dict(row) for row in conn.execute(query, params).fetchall()]
+
     def add_position_snapshot(self, item: PositionSnapshot) -> int:
         item.validate()
         data = to_dict(item)
