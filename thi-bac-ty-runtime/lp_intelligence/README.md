@@ -78,3 +78,24 @@ Or save a baseline JSON snapshot:
 The script verifies chain ID, captures block number, native OKB balance and transaction count, and checks that the official Uniswap v3 Factory and Position Manager addresses contain contract code at the same block. It does not enumerate ERC-20 token balances or LP positions yet; those are separate collectors. A zero transaction count is not proof of inactivity on other networks.
 
 No signing, approvals, transaction construction or transaction submission is performed.
+
+## X Layer ERC-20 balance scanner (read-only)
+
+The EVM JSON-RPC standard does not provide a method to enumerate every ERC-20 held by an address. Therefore this scanner queries only explicitly supplied token contracts; by default it checks WOKB. Do not interpret the result as a complete wallet token inventory.
+
+    python scripts/quet-token-xlayer.py --wallet XKOYOUR40HEXADDRESS
+    python scripts/quet-token-xlayer.py --wallet 0xYOUR40HEXADDRESS --token 0xTOKENCONTRACT --token 0xANOTHERTOKEN --output ./data/xlayer-token-balances.json
+
+The scanner checks chain ID 196 and reads balanceOf, decimals and symbol at a single block tag. A provider/indexer with an authenticated wallet portfolio endpoint can be added later as a separate, provenance-labelled discovery adapter; RPC remains the verification source.
+
+## X Layer Uniswap V3 pool discovery
+
+    python scripts/kham-pha-pool-uniswap-v3-xlayer.py --output ./data/xlayer-uniswap-v3-pools.json
+
+This discovers pools returned by GeckoTerminal for WOKB, then independently verifies each candidate against the official Uniswap V3 X Layer Factory and reads token0/token1, fee tier, current tick and liquidity at one block. Results are ranked by provider TVL then 24h volume; this is a sorting aid, not an investment score. It is not a complete census of all X Layer pools and does not infer APR from volume.
+
+## Offline scanner fixtures
+
+    python scripts/kiem-xlayer-scanners.py
+
+The fixtures cover XKO/0x normalization, ABI address/symbol decoding and invalid-address rejection. Live RPC and UI reconciliation remain separate acceptance gates.
