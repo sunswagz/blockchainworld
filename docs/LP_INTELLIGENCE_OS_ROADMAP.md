@@ -25,12 +25,12 @@
 - [x] Persist X Layer NFT position snapshots and monitor-run history.
 - [x] Read-only wallet monitor API endpoints.
 - [ ] Execute live scan for configured public wallet; compare RPC results with explorer/UI.
-- [ ] Store time-series fee observations at 24h/7d/30d boundaries.
+- [x] Store append-only position fee and performance snapshots; window comparisons become available as history accrues.
 - [ ] Reconcile collected fees vs unclaimed fees and prevent double counting.
-- [ ] Calculate USD fee values using block-aligned price observations.
-- [ ] Fee APR windows 24h/7d/30d; incentives separate.
-- [ ] Position principal, IL/PnL and gas using V3-specific math.
-- [ ] Gate: reconcile at least three live positions against UI.
+- [x] Calculate provisional USD fee values from timestamped provider price observations (not block-aligned oracle prices).
+- [x] Provisional 24h/7d/30d APR from unclaimed-fee balance deltas; null when history is insufficient or balance falls. Incentives remain separate.
+- [x] V3 principal, IL vs first-observed HODL baseline and provisional PnL before claimed fees/costs.\n- [ ] Claimed-fee Collect-event ledger, gas/rebalance cost ledger and fully net PnL.
+- [ ] Gate: reconcile live positions against UI; no live wallet scan has been run from CI.
 
 ## Phase 3 — Risk & Alerts
 - [ ] Range status, distance-to-edge, uptime, fee coverage.
@@ -53,3 +53,8 @@
 - [ ] Record reasons for opening/holding/closing and realized outcomes.
 - [ ] Evaluate forecast errors and historical replay without look-ahead.
 - [ ] No automated execution; user remains the signer.
+
+
+### Phase 2 implementation note
+
+The initial Fee Performance Engine is implemented for Base Uniswap V3 NFTs. It stores sourced price observations, calculates current principal and unclaimed-fee USD values, compares LP principal against a first-monitored HODL baseline, and exposes performance history. APR is provisional and requires accumulated observations. Claimed fees, gas and rebalance costs remain unknown rather than being imputed. GeckoTerminal current prices are not block-aligned oracle prices; this is not yet a fully realized net-return ledger.
