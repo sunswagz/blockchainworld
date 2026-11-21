@@ -104,3 +104,37 @@ CREATE TABLE IF NOT EXISTS xlayer_position_snapshots (
 );
 CREATE INDEX IF NOT EXISTS idx_xlayer_position_wallet_block
 ON xlayer_position_snapshots(wallet_address, block_number DESC, token_id);
+
+
+CREATE TABLE IF NOT EXISTS token_price_observations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, chain_id TEXT NOT NULL,
+    token_address TEXT NOT NULL, price_usd REAL NOT NULL CHECK(price_usd > 0),
+    observed_at TEXT NOT NULL, fetched_at TEXT NOT NULL,
+    source TEXT NOT NULL, source_url TEXT NOT NULL, data_status TEXT NOT NULL,
+    raw_ref TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_token_prices_lookup
+ON token_price_observations(chain_id, token_address, observed_at DESC);
+
+CREATE TABLE IF NOT EXISTS position_performance_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, position_id TEXT NOT NULL,
+    wallet_address TEXT NOT NULL, chain_id TEXT NOT NULL,
+    block_number INTEGER NOT NULL, block_hash TEXT NOT NULL,
+    observed_at TEXT NOT NULL, fetched_at TEXT NOT NULL,
+    token0_address TEXT NOT NULL, token1_address TEXT NOT NULL,
+    token0_symbol TEXT NOT NULL, token1_symbol TEXT NOT NULL,
+    amount0 TEXT NOT NULL, amount1 TEXT NOT NULL,
+    fees0 TEXT NOT NULL, fees1 TEXT NOT NULL,
+    price0_usd REAL NOT NULL, price1_usd REAL NOT NULL,
+    principal_usd REAL NOT NULL, unclaimed_fees_usd REAL NOT NULL,
+    position_value_usd REAL NOT NULL, initial_capital_usd REAL,
+    hodl_value_usd REAL, il_vs_hodl_usd REAL, il_vs_hodl_pct REAL,
+    fee_adjusted_vs_hodl_usd REAL, pnl_before_claimed_fees_and_costs_usd REAL,
+    fee_apr_24h_pct REAL, fee_apr_7d_pct REAL, fee_apr_30d_pct REAL,
+    claimed_fees_usd REAL, gas_cost_usd REAL, rebalance_cost_usd REAL,
+    data_status TEXT NOT NULL, methodology_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_perf_position_time
+ON position_performance_snapshots(position_id, observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_perf_wallet_time
+ON position_performance_snapshots(wallet_address, observed_at DESC);
