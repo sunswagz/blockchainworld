@@ -52,6 +52,15 @@ class JsonRpcClient:
             raise JsonRpcError("eth_getBlockByNumber returned incomplete block")
         return result
 
+    def get_logs(self, *, address: str, from_block: int, to_block: int, topics: list[Any]) -> list[dict[str, Any]]:
+        result = self.call("eth_getLogs", [{
+            "address": address, "fromBlock": hex(from_block),
+            "toBlock": hex(to_block), "topics": topics,
+        }])
+        if not isinstance(result, list):
+            raise JsonRpcError("eth_getLogs returned malformed data")
+        return result
+
 
 def _word_address(address: str) -> str:
     raw = address.lower().removeprefix("0x")
@@ -86,7 +95,6 @@ def verify_uniswap_v3_pool(
     rpc: JsonRpcClient, factory: str, pool_address: str, token0: str, token1: str,
     fee_tiers: tuple[int, ...] = (100, 500, 3000, 10000), block_tag: str = "latest",
 ) -> int | None:
-    """Return factory-confirmed fee tier, or None when candidate is not this factory's pool."""
     for fee in fee_tiers:
         result = rpc.eth_call(factory, factory_get_pool_calldata(token0, token1, fee), block_tag)
         found = "0x" + result[-40:].lower()
