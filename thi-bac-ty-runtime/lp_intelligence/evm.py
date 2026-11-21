@@ -96,7 +96,8 @@ def verify_uniswap_v3_pool(
     fee_tiers: tuple[int, ...] = (100, 500, 3000, 10000), block_tag: str = "latest",
 ) -> int | None:
     for fee in fee_tiers:
-        result = rpc.eth_call(factory, factory_get_pool_calldata(token0, token1, fee), block_tag)
+        calldata = factory_get_pool_calldata(token0, token1, fee)
+        result = rpc.eth_call(factory, calldata) if block_tag == "latest" else rpc.eth_call(factory, calldata, block_tag)
         found = "0x" + result[-40:].lower()
         if int(found, 16) != 0 and found == pool_address.lower():
             return fee
