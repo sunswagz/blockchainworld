@@ -16,7 +16,9 @@ on:
       - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
       - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
       - "thi-bac-ty-runtime/scripts/theo-doi-vi-lp.py"
-      - "thi-bac-ty-runtime/scripts/kiem-wallet-monitor.py"\n      - "thi-bac-ty-runtime/scripts/tinh-hieu-suat-lp.py"\n      - "thi-bac-ty-runtime/scripts/kiem-lp-performance.py"
+      - "thi-bac-ty-runtime/scripts/kiem-wallet-monitor.py"
+      - "thi-bac-ty-runtime/scripts/tinh-hieu-suat-lp.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-performance.py"
       - ".github/workflows/lp-intelligence-ci.yml"
   push:
     branches: [main]
