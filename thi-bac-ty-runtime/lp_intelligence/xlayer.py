@@ -19,3 +19,4 @@ UNISWAP_V3 = {
     "quoter_v2": "0xd1b797d92d87b688193a2b976efc8d577d204343",
     "swap_router_02": "0x4f0c28f5926afda16bf2506d5d9e57ea190f9bca",
 }
+
