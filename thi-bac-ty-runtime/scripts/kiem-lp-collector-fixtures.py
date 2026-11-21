@@ -54,7 +54,11 @@ class FakeRpc:
             if data.startswith("0x1698ee82") and data.endswith(word(500)):
                 return "0x" + "0" * 24 + POOL[2:]
             return "0x" + "0" * 64
-        if to.lower() == WETH.lower() and data == "0x313ce567":\n            return "0x" + word(18)\n        if to.lower() == USDC.lower() and data == "0x313ce567":\n            return "0x" + word(6)\n        if data == POOL_SELECTORS["token0"]:
+        if to.lower() == WETH.lower() and data == "0x313ce567":
+            return "0x" + word(18)
+        if to.lower() == USDC.lower() and data == "0x313ce567":
+            return "0x" + word(6)
+        if data == POOL_SELECTORS["token0"]:
             return "0x" + "0" * 24 + WETH[2:].lower()
         if data == POOL_SELECTORS["token1"]:
             return "0x" + "0" * 24 + USDC[2:].lower()
@@ -62,7 +66,16 @@ class FakeRpc:
             return "0x" + word(2**96) + word(0) + word(0) + word(0) + word(0) + word(0) + word(0)
         if data == POOL_SELECTORS["liquidity"]:
             return "0x" + word(123456789)
-        raise AssertionError(f"Unexpected eth_call: {to} {data}")\n\n    def get_block_number(self):\n        return 10\n\n    def get_block(self, block_number):\n        return {"hash": "0x" + "b" * 64, "timestamp": hex(100000 + block_number * 2)}\n\n    def get_logs(self, *, address, from_block, to_block, topics):\n        return []
+        raise AssertionError(f"Unexpected eth_call: {to} {data}")
+
+    def get_block_number(self):
+        return 10
+
+    def get_block(self, block_number):
+        return {"hash": "0x" + "b" * 64, "timestamp": hex(100000 + block_number * 2)}
+
+    def get_logs(self, *, address, from_block, to_block, topics):
+        return []
 
 
 def main() -> int:
