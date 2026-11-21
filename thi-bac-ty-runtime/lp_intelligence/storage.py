@@ -1,4 +1,4 @@
-"""Append-only SQLite storage for LP snapshots and alert events."""
+"""Append-only SQLite storage for LP snapshots, provider payloads and alerts."""
 from __future__ import annotations
 
 import json
@@ -26,6 +26,19 @@ class SQLiteStore:
     def initialize(self) -> None:
         with self._connect() as conn:
             conn.executescript(SCHEMA.read_text(encoding="utf-8"))
+
+    def add_provider_payload(
+        self, *, source: str, entity_id: str, fetched_at: str,
+        payload_json: str, payload_hash: str,
+    ) -> int:
+        with self._connect() as conn:
+            cur = conn.execute(
+                """INSERT INTO provider_payloads
+                (source, entity_id, fetched_at, payload_json, payload_hash)
+                VALUES (?, ?, ?, ?, ?)""",
+                (source, entity_id, fetched_at, payload_json, payload_hash),
+            )
+            return int(cur.lastrowid)
 
     def add_pool_snapshot(self, item: PoolSnapshot) -> int:
         item.validate()

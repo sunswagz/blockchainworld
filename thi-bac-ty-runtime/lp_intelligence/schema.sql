@@ -47,3 +47,14 @@ CREATE TABLE IF NOT EXISTS decision_journal (
     position_id TEXT, decision TEXT NOT NULL, rationale TEXT NOT NULL,
     created_at TEXT NOT NULL, evidence_json TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS provider_payloads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    payload_hash TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_provider_payload_entity_time
+    ON provider_payloads(entity_id, fetched_at DESC);

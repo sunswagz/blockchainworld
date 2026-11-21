@@ -8,51 +8,55 @@
 - [ ] Review và merge foundation PR.
 
 ## Phase 1 — Data MVP
-- [ ] Adapter market registry từ OKX Onchain OS.
-- [ ] Adapter pool discovery/metrics cho Uniswap V3 trên Base.
-- [ ] Xác minh ETH/USDC bằng chain ID, factory, pool address, token addresses và fee tier.
-- [ ] Thu thập price/tick/liquidity/volume/fees; lưu raw payload và provenance.
-- [ ] Cross-check GeckoTerminal/DefiLlama; ghi nhận provider disagreement.
-- [ ] Gate: không xếp hạng dữ liệu stale, thiếu provenance hoặc contract chưa xác minh.
+- [x] GeckoTerminal V2 public pool discovery adapter.
+- [x] Uniswap V3/Base WETH/USDC candidate discovery.
+- [x] Verify pool address and fee tier against official Uniswap V3 factory.
+- [x] Read token0/token1, slot0, current tick and liquidity via JSON-RPC eth_call.
+- [x] Archive provider payload with SHA-256 provenance and append pool snapshots.
+- [x] Add one-shot collector CLI and offline fixtures.
+- [ ] Run live collector with a configured Base RPC and review first verified snapshot.
+- [ ] Cross-check TVL/volume and token prices with a second provider.
+- [ ] Implement feeGrowth/fee accounting before publishing fees or APR.
+- [ ] Gate: do not rank stale data, missing provenance or unverified contracts.
 
 ## Phase 2 — Wallet Position Monitor
-- [ ] Nhập public EVM address; không connect/sign.
-- [ ] Tìm Uniswap V3 NFT positions; đọc pool, tickLower/tickUpper, liquidity, tokens owed.
-- [ ] Đối chiếu với pool state và block timestamp.
-- [ ] Lưu position snapshots append-only.
-- [ ] Gate: so khớp thủ công với OKX/Uniswap cho ít nhất 3 fixture positions.
+- [ ] Enter public EVM address; no connect/sign.
+- [ ] Discover Uniswap V3 NFT positions; read pool, tickLower/tickUpper, liquidity, tokens owed.
+- [ ] Reconcile position with pool state and block timestamp.
+- [ ] Append position snapshots.
+- [ ] Gate: reconcile at least three fixtures against OKX/Uniswap UI.
 
 ## Phase 3 — Risk & Alerts
-- [ ] Fee APR theo cửa sổ 24h/7d/30d, tách incentive.
-- [ ] Range status, distance-to-edge, uptime, fee coverage, IL/PnL theo đúng AMM version.
-- [ ] Token/contract, depeg, exploit, pause, bridge và congestion checks.
-- [ ] Telegram outbound-only; dedupe, severity, retry và delivery audit.
-- [ ] Gate: test alert giả lập; không spam khi không có biến động quan trọng.
+- [ ] Fee APR windows 24h/7d/30d, incentives separate.
+- [ ] Range status, distance-to-edge, uptime, fee coverage, IL/PnL with version-correct math.
+- [ ] Token/contract, depeg, exploit, pause, bridge and congestion checks.
+- [ ] Telegram outbound-only; dedupe, severity, retry and delivery audit.
+- [ ] Gate: simulated alerts; no spam when nothing material changes.
 
 ## Phase 4 — AI Analyst & Dashboard
-- [ ] OpenAI Responses API với function tools read-only.
-- [ ] Báo cáo tiếng Việt evidence-first; phân biệt confirmed/estimate/unknown.
-- [ ] Dashboard trong cung Thị Bạc Ty; backend không nằm trên GitHub Pages.
-- [ ] Chat history và decision journal.
-- [ ] Gate: mọi kết luận truy ngược được về evidence IDs; không có tool giao dịch.
+- [ ] OpenAI Responses API with read-only function tools.
+- [ ] Evidence-first Vietnamese reports; confirmed/estimate/unknown explicit.
+- [ ] Dashboard inside Thị Bạc Ty; backend not hosted on GitHub Pages.
+- [ ] Chat history and decision journal.
+- [ ] Gate: every AI claim traces to evidence IDs; no transaction tools.
 
 ## Phase 5 — Multi-protocol expansion
 - [ ] Uniswap V2/V4, PancakeSwap V2/V3.
-- [ ] Orca/Raydium trên Solana với adapter riêng.
-- [ ] QuickSwap, SushiSwap, Momentum và AMM khác sau khi xác minh LP thực tế trong OKX Wallet.
-- [ ] Portfolio-level exposure và capital sizing cho 500–1.000 USD.
+- [ ] Orca/Raydium on Solana with a dedicated adapter.
+- [ ] QuickSwap, SushiSwap, Momentum and other AMMs after verifying actual LP support in OKX Wallet.
+- [ ] Portfolio-level exposure and capital sizing for 500–1,000 USD.
 
 ## Phase 6 — Learning loop
-- [ ] Ghi lý do mở/giữ/đóng và kết quả thực tế.
-- [ ] Đánh giá dự báo range/fee và sai số mô hình.
-- [ ] Replay/backtest không look-ahead.
-- [ ] Không bật execution tự động; mọi hành động vẫn do người dùng ký.
+- [ ] Record reasons for opening/holding/closing and realized outcomes.
+- [ ] Evaluate range/fee forecast errors.
+- [ ] Historical replay/backtest without look-ahead.
+- [ ] No automated execution; user remains the signer.
 
-## Nhịp mục tiêu
-- Pool metrics: 15–60 phút tùy provider/rate limits.
-- Position state: mỗi giờ; nhanh hơn khi có biến động mạnh.
-- Risk events: event-driven/polling nhanh khi nguồn hỗ trợ.
-- AI: chỉ gọi khi có alert quan trọng hoặc người dùng yêu cầu.
-- Dashboard: cập nhật snapshot mới nhất, hiển thị tuổi dữ liệu.
+## Target cadence
+- Pool metrics: 15–60 minutes subject to provider limits.
+- Position state: hourly; faster only when justified by market volatility.
+- Risk events: event-driven/polling where supported.
+- AI: only on important alerts or explicit user request.
+- Dashboard: latest snapshot with visible data age.
 
-Vốn khởi điểm 500–1.000 USD là ràng buộc sizing. Tính gas vào/ra, slippage và chi phí tái cân bằng; tránh chia vốn quá nhỏ vào nhiều pool.
+Initial capital of 500–1,000 USD is a sizing constraint. Include entry/exit gas, slippage and rebalance costs; avoid fragmenting capital across tiny positions.
