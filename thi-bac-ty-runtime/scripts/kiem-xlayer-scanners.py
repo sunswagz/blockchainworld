@@ -21,14 +21,17 @@ def load(name: str, filename: str):
 def main() -> int:
     token = load("token_scanner", "quet-token-xlayer.py")
     pool = load("pool_scanner", "kham-pha-pool-uniswap-v3-xlayer.py")
-    bootstrap = load("wallet_bootstrap", "khoi-tao-vi-xlayer.py")\n    positions = load("position_scanner", "quet-vi-the-uniswap-v3-xlayer.py")
+    bootstrap = load("wallet_bootstrap", "khoi-tao-vi-xlayer.py")
+    positions = load("position_scanner", "quet-vi-the-uniswap-v3-xlayer.py")
 
     wallet = "0x" + "51f9d30f78239e53f14c1e248fd29e6966ce5287"
     assert bootstrap.normalize_address("XKO51f9d30f78239e53f14c1e248fd29e6966ce5287") == wallet
     assert bootstrap.normalize_address(wallet) == wallet
     assert token.address_word(wallet) == wallet[2:].rjust(64, "0")
     assert token.decode_string("0x" + "55534443".ljust(64, "0")) == "USDC"
-    assert pool.address_from_result("0x" + "0" * 24 + "a" * 40) == "0x" + "a" * 40\n    assert positions.signed24((1 << 24) - 1) == -1\n    assert positions.topic_address(wallet) == "0x" + wallet[2:].rjust(64, "0")
+    assert pool.address_from_result("0x" + "0" * 24 + "a" * 40) == "0x" + "a" * 40
+    assert positions.signed24((1 << 24) - 1) == -1
+    assert positions.topic_address(wallet) == "0x" + wallet[2:].rjust(64, "0")
 
     rejected = False
     try:
