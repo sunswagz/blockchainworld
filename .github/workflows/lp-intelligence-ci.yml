@@ -72,3 +72,6 @@ jobs:
       - name: Run unified wallet monitor fixtures
         working-directory: thi-bac-ty-runtime
         run: python scripts/kiem-wallet-monitor.py
+      - name: Run LP performance fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-performance.py
