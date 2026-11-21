@@ -24,6 +24,7 @@ POOL_SELECTORS = {
     "slot0": "0x3850c7bd",
     "liquidity": "0x1a686502",
 }
+TOKEN_DECIMALS = "0x313ce567"
 
 
 def _hex_address(result: str) -> str:
@@ -33,52 +34,40 @@ def _hex_address(result: str) -> str:
 
 
 def _is_expected_pair(candidate: PoolCandidate) -> bool:
-    addresses = {candidate.base_token_address, candidate.quote_token_address}
-    return addresses == {WETH.lower(), USDC.lower()}
+    return {candidate.base_token_address, candidate.quote_token_address} == {WETH.lower(), USDC.lower()}
 
 
-def find_verified_candidate(
-    candidates: list[PoolCandidate], rpc: JsonRpcClient, block_tag: str = "latest"
-) -> tuple[PoolCandidate, int]:
+def find_verified_candidate(candidates: list[PoolCandidate], rpc: JsonRpcClient,
+                            block_tag: str = "latest") -> tuple[PoolCandidate, int]:
     matches = [item for item in candidates if _is_expected_pair(item)]
     matches.sort(key=lambda item: item.reserve_in_usd or -1.0, reverse=True)
     for candidate in matches:
-        fee_tier = verify_uniswap_v3_pool(
-            rpc, FACTORY, candidate.address, WETH, USDC, block_tag=block_tag
-        )
-        if fee_tier is not None:
-            return candidate, fee_tier
-    raise RuntimeError(
-        "No GeckoTerminal WETH/USDC candidate was confirmed by the official Uniswap V3 Base factory"
-    )
+        fee = verify_uniswap_v3_pool(rpc, FACTORY, candidate.address, WETH, USDC, block_tag=block_tag)
+        if fee is not None:
+            return candidate, fee
+    raise RuntimeError("No GeckoTerminal WETH/USDC candidate was confirmed by the official Uniswap V3 Base factory")
 
 
-def collect_uniswap_v3_base(
-    *,
-    rpc_url: str | None = None,
-    store: SQLiteStore | None = None,
-    gecko: GeckoTerminalClient | None = None,
-    rpc: JsonRpcClient | None = None,
-) -> dict[str, Any]:
+def collect_uniswap_v3_base(*, rpc_url: str | None = None, store: SQLiteStore | None = None,
+                            gecko: GeckoTerminalClient | None = None,
+                            rpc: JsonRpcClient | None = None) -> dict[str, Any]:
     rpc_url = rpc_url or os.getenv("BASE_RPC_URL", "https://mainnet.base.org")
-    owns_gecko = gecko is None
-    owns_rpc = rpc is None
+    owns_gecko, owns_rpc = gecko is None, rpc is None
     gecko = gecko or GeckoTerminalClient()
     rpc = rpc or JsonRpcClient(rpc_url)
     store = store or SQLiteStore()
-
     try:
         candidates, discovery_payload = gecko.token_pools(NETWORK, WETH)
         latest_block = rpc.get_block_number()
-        latest_block_data = rpc.get_block(latest_block)
+        block_data = rpc.get_block(latest_block)
         block_tag = hex(latest_block)
-        block_timestamp = int(latest_block_data["timestamp"], 16)
+        block_timestamp = int(block_data["timestamp"], 16)
         candidate, fee_tier = find_verified_candidate(candidates, rpc, block_tag)
 
-        pool_token0 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token0"], block_tag))
-        pool_token1 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token1"], block_tag))
-        if (pool_token0, pool_token1) != tuple(sorted((WETH.lower(), USDC.lower()))):
-            raise RuntimeError("On-chain token0/token1 do not match the expected WETH/USDC pair")
+        token0 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token0"], block_tag))
+        token1 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token1"], block_tag))
+        if (token0, token1) != tuple(sorted((WETH.lower(), USDC.lower()))):
+            raise RuntimeError("On-chain token0/token1 do not match expected WETH/USDC pair")
 
         slot0 = rpc.eth_call(candidate.address, POOL_SELECTORS["slot0"], block_tag)
         sqrt_price_x96 = decode_uint(slot0, 0)
@@ -87,111 +76,73 @@ def collect_uniswap_v3_base(
         if sqrt_price_x96 <= 0 or liquidity <= 0:
             raise RuntimeError("Pool has zero price or liquidity; refusing to publish snapshot")
 
-        # Base WETH (18 decimals) sorts before USDC (6 decimals).
-        price_usdc_per_weth = (sqrt_price_x96 / (2**96)) ** 2 * (10**12)
+        token0_decimals = decode_uint(rpc.eth_call(token0, TOKEN_DECIMALS, block_tag))
+        token1_decimals = decode_uint(rpc.eth_call(token1, TOKEN_DECIMALS, block_tag))
         token_prices = {
             (candidate.base_token_address or "").lower(): candidate.base_token_price_usd,
             (candidate.quote_token_address or "").lower(): candidate.quote_token_price_usd,
         }
-        token0_price = token_prices.get(pool_token0)
-        token1_price = token_prices.get(pool_token1)
-        swap_activity = None
+        token0_price, token1_price = token_prices.get(token0), token_prices.get(token1)
+        activity = None
         if token0_price is not None and token1_price is not None:
-            swap_activity = collect_swap_activity(
-                rpc,
-                pool_address=candidate.address,
-                fee_tier=fee_tier,
-                token0_usd=token0_price,
-                token1_usd=token1_price,
-                now_timestamp=block_timestamp,
-                latest_block=latest_block,
+            activity = collect_swap_activity(
+                rpc, pool_address=candidate.address, fee_tier=fee_tier,
+                token0_usd=token0_price, token1_usd=token1_price,
+                token0_decimals=token0_decimals, token1_decimals=token1_decimals,
+                now_timestamp=block_timestamp, latest_block=latest_block,
             )
 
+        spot_price = (sqrt_price_x96 / (2**96)) ** 2 * (10 ** (token0_decimals - token1_decimals))
         fetched_at = utc_now()
         pool_id = f"{CHAIN_ID}:uniswap-v3:{candidate.address.lower()}"
         raw_payload = {
             "discovery": discovery_payload,
             "candidate": asdict(candidate),
             "onchain": {
-                "chain_id": CHAIN_ID,
-                "factory": FACTORY,
-                "fee_tier": fee_tier,
-                "token0": pool_token0,
-                "token1": pool_token1,
-                "sqrt_price_x96": str(sqrt_price_x96),
-                "current_tick": current_tick,\n                "token0_decimals": token0_decimals,\n                "token1_decimals": token1_decimals,
+                "chain_id": CHAIN_ID, "factory": FACTORY, "fee_tier": fee_tier,
+                "token0": token0, "token1": token1,
+                "token0_decimals": token0_decimals, "token1_decimals": token1_decimals,
+                "sqrt_price_x96": str(sqrt_price_x96), "current_tick": current_tick,
                 "liquidity_raw": str(liquidity),
-                "snapshot_block": {
-                    "number": latest_block,
-                    "hash": latest_block_data["hash"],
-                    "timestamp": block_timestamp,
-                },
-                "swap_activity_24h": swap_activity,
+                "snapshot_block": {"number": latest_block, "hash": block_data["hash"],
+                                   "timestamp": block_timestamp},
+                "swap_activity_24h": activity,
             },
         }
         raw_json = json.dumps(raw_payload, sort_keys=True, separators=(",", ":"))
         raw_hash = hashlib.sha256(raw_json.encode("utf-8")).hexdigest()
-        raw_id = store.add_provider_payload(
-            source="geckoterminal+base_rpc",
-            entity_id=pool_id,
-            fetched_at=fetched_at,
-            payload_json=raw_json,
-            payload_hash=raw_hash,
-        )
-        estimated_fees = swap_activity["fees_usd_estimated"] if swap_activity else None
+        raw_id = store.add_provider_payload(source="geckoterminal+base_rpc", entity_id=pool_id,
+                                            fetched_at=fetched_at, payload_json=raw_json,
+                                            payload_hash=raw_hash)
+        estimated_fees = activity["fees_usd_estimated"] if activity else None
         snapshot = PoolSnapshot(
-            pool_id=pool_id,
-            chain_id=CHAIN_ID,
-            chain_name="Base",
-            protocol="Uniswap",
-            version="V3",
-            pool_address=candidate.address,
-            token0_address=pool_token0,
-            token0_symbol="WETH",
-            token1_address=pool_token1,
-            token1_symbol="USDC",
-            observed_at=fetched_at,
-            fetched_at=fetched_at,
-            source="geckoterminal+base_rpc",
-            source_url=candidate.source_url,
-            data_status="fresh",
-            tvl_usd=candidate.reserve_in_usd,
-            volume_24h_usd=candidate.volume_24h_usd,
-            fees_24h_usd=estimated_fees,
-            fee_apr_pct=None,
-            incentive_apr_pct=None,
-            spot_price=price_usdc_per_weth,
-            current_tick=current_tick,
-            fee_tier_bps=fee_tier / 100.0,
-            raw_ref=str(raw_id),
+            pool_id=pool_id, chain_id=CHAIN_ID, chain_name="Base",
+            protocol="Uniswap", version="V3", pool_address=candidate.address,
+            token0_address=token0, token0_symbol="WETH",
+            token1_address=token1, token1_symbol="USDC",
+            observed_at=fetched_at, fetched_at=fetched_at,
+            source="geckoterminal+base_rpc", source_url=candidate.source_url,
+            data_status="fresh", tvl_usd=candidate.reserve_in_usd,
+            volume_24h_usd=candidate.volume_24h_usd, fees_24h_usd=estimated_fees,
+            fee_apr_pct=None, incentive_apr_pct=None, spot_price=spot_price,
+            current_tick=current_tick, fee_tier_bps=fee_tier / 100.0, raw_ref=str(raw_id),
         )
         store.add_pool_snapshot(snapshot)
-        if swap_activity is not None:
+        if activity is not None:
             store.add_pool_activity_snapshot({
-                "pool_id": pool_id,
-                "block_number": latest_block,
-                "block_hash": latest_block_data["hash"],
-                "block_timestamp": block_timestamp,
-                **swap_activity,
-                "data_status": "estimated",
-                "raw_ref": str(raw_id),
+                "pool_id": pool_id, "block_number": latest_block,
+                "block_hash": block_data["hash"], "block_timestamp": block_timestamp,
+                **activity, "data_status": "estimated", "raw_ref": str(raw_id),
             })
         return {
-            "status": "ok",
-            "pool_id": pool_id,
-            "pool_address": candidate.address,
-            "fee_tier": fee_tier,
-            "snapshot_block": latest_block,
-            "current_tick": current_tick,
-            "liquidity_raw": str(liquidity),
-            "spot_price_usdc_per_weth": price_usdc_per_weth,
+            "status": "ok", "pool_id": pool_id, "pool_address": candidate.address,
+            "fee_tier": fee_tier, "snapshot_block": latest_block,
+            "current_tick": current_tick, "liquidity_raw": str(liquidity),
+            "spot_price_token1_per_token0": spot_price,
             "tvl_usd_provider": candidate.reserve_in_usd,
             "volume_24h_usd_provider": candidate.volume_24h_usd,
-            "swap_activity_24h": swap_activity,
-            "fees_24h_usd_estimated": estimated_fees,
-            "fee_apr_pct": None,
-            "raw_payload_id": raw_id,
-            "data_status": "fresh",
+            "swap_activity_24h": activity, "fees_24h_usd_estimated": estimated_fees,
+            "fee_apr_pct": None, "raw_payload_id": raw_id, "data_status": "fresh",
         }
     finally:
         if owns_gecko:
