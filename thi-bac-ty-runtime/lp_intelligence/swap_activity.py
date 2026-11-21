@@ -56,7 +56,7 @@ def collect_swap_activity(
         raise ValueError("fee_tier must be in millionths")
     if chunk_size <= 0:
         raise ValueError("chunk_size must be positive")
-    if token0_usd < 0 or token1_usd < 0:
+    if not 0 <= token0_decimals <= 255 or not 0 <= token1_decimals <= 255:\n        raise ValueError("token decimals must be between 0 and 255")\n    if token0_usd < 0 or token1_usd < 0:
         raise ValueError("token USD prices cannot be negative")
 
     from_block = find_block_at_or_before_timestamp(rpc, now_timestamp - 86400, latest_block)
@@ -111,7 +111,7 @@ def collect_swap_activity(
         "method": "on-chain Swap event input deltas × pool fee tier; USD conversion at supplied token prices",
         "limitations": [
             "Fee USD is an estimate from event deltas and fee tier, not a protocol accounting statement.",
-            "USD volume uses supplied token prices; this is not a block-by-block oracle valuation.",
+            "USD conversion normalizes raw amounts with on-chain token decimals and supplied token prices; this is not a block-by-block oracle valuation.",
             "Token raw amounts are not human units until token decimals are applied.",
         ],
     }
