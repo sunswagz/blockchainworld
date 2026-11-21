@@ -238,3 +238,77 @@ class SQLiteStore:
                 item["payload"] = json.loads(item.pop("payload_json"))
                 out.append(item)
             return out
+
+
+    def add_token_price_observation(self, item: dict) -> int:
+        columns = ["chain_id", "token_address", "price_usd", "observed_at",
+                   "fetched_at", "source", "source_url", "data_status", "raw_ref"]
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO token_price_observations ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns],
+            )
+            return int(cur.lastrowid)
+
+    def latest_token_price(self, chain_id: str, token_address: str) -> dict | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                """SELECT * FROM token_price_observations
+                WHERE chain_id=? AND lower(token_address)=lower(?)
+                ORDER BY observed_at DESC,id DESC LIMIT 1""",
+                (str(chain_id), token_address),
+            ).fetchone()
+            return None if row is None else dict(row)
+
+    def get_provider_payload(self, payload_id: int) -> dict | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM provider_payloads WHERE id=?", (payload_id,)
+            ).fetchone()
+            if row is None:
+                return None
+            item = dict(row)
+            item["payload"] = json.loads(item.pop("payload_json"))
+            return item
+
+    def list_position_fee_history(self, position_id: str) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM position_fee_snapshots WHERE position_id=? ORDER BY block_timestamp,id",
+                (position_id,),
+            ).fetchall()
+            return [dict(row) for row in rows]
+
+    def add_position_performance_snapshot(self, item: dict) -> int:
+        columns = [
+            "position_id", "wallet_address", "chain_id", "block_number", "block_hash",
+            "observed_at", "fetched_at", "token0_address", "token1_address",
+            "token0_symbol", "token1_symbol", "amount0", "amount1", "fees0", "fees1",
+            "price0_usd", "price1_usd", "principal_usd", "unclaimed_fees_usd",
+            "position_value_usd", "initial_capital_usd", "hodl_value_usd",
+            "il_vs_hodl_usd", "il_vs_hodl_pct", "fee_adjusted_vs_hodl_usd",
+            "pnl_before_claimed_fees_and_costs_usd", "fee_apr_24h_pct",
+            "fee_apr_7d_pct", "fee_apr_30d_pct", "claimed_fees_usd", "gas_cost_usd",
+            "rebalance_cost_usd", "data_status", "methodology_json",
+        ]
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO position_performance_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns],
+            )
+            return int(cur.lastrowid)
+
+    def list_position_performance(self, wallet: str | None = None,
+                                  position_id: str | None = None, limit: int = 100) -> list[dict]:
+        query = "SELECT * FROM position_performance_snapshots WHERE 1=1"
+        params: list = []
+        if wallet:
+            query += " AND lower(wallet_address)=lower(?)"
+            params.append(wallet)
+        if position_id:
+            query += " AND position_id=?"
+            params.append(position_id)
+        query += " ORDER BY observed_at DESC,id DESC LIMIT ?"
+        params.append(limit)
+        with self._connect() as conn:
+            return [dict(row) for row in conn.execute(query, params).fetchall()]
