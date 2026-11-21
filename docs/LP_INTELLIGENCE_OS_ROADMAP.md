@@ -15,11 +15,16 @@
 - [x] Verify current ownerOf and reconcile NPM tuple with factory pool identity.
 - [x] Pin position, pool, tick, fee-growth and token metadata reads to one block.
 - [x] Persist raw/human fee amounts in underlying token units with block hash.
-- [ ] Run live collector for a public wallet and compare at least three positions with Uniswap UI.
+- [ ] Run live collector for the configured public wallet and compare any detected positions with Uniswap UI.
 - [ ] Cross-check prices/TVL/volume with a second provider.
 - [ ] Gate: no USD fee/APR until price provenance and historical snapshots are validated.
 
 ## Phase 2 — Fee Performance & Position Monitor
+- [x] Unified Base + X Layer wallet monitor orchestration.
+- [x] Per-chain block baselines persisted without resetting on subsequent runs.
+- [x] Persist X Layer NFT position snapshots and monitor-run history.
+- [x] Read-only wallet monitor API endpoints.
+- [ ] Execute live scan for configured public wallet; compare RPC results with explorer/UI.
 - [ ] Store time-series fee observations at 24h/7d/30d boundaries.
 - [ ] Reconcile collected fees vs unclaimed fees and prevent double counting.
 - [ ] Calculate USD fee values using block-aligned price observations.
