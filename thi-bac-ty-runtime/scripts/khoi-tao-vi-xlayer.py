@@ -13,7 +13,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timezone\nfrom decimal import Decimal
 
 from lp_intelligence.xlayer import (
     CHAIN_ID,
@@ -24,7 +24,7 @@ from lp_intelligence.xlayer import (
     UNISWAP_V3,
 )
 
-ADDRESS_RE = re.compile(r"^(?:XKO)?([0-9a-fA-F]{40})$")
+ADDRESS_RE = re.compile(r"^(?:(?:XKO)|(?:0x))?([0-9a-fA-F]{40})$", re.IGNORECASE)
 
 
 def normalize_address(value: str) -> str:
@@ -79,7 +79,7 @@ def main() -> int:
             "wallet": {
                 "address": wallet,
                 "okb_balance_wei": str(balance_wei),
-                "okb_balance": str(balance_wei / 10**18),
+                "okb_balance": str(Decimal(balance_wei) / Decimal(10**18)),
                 "transaction_count": nonce,
                 "explorer_url": f"{EXPLORER_BASE_URL}/address/{wallet}",
             },
