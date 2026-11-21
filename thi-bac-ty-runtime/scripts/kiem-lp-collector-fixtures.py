@@ -129,6 +129,7 @@ def main() -> int:
         check("collector leaves fees and APR unknown, not fabricated",
               pool["fees_24h_usd"] is None and pool["fee_apr_pct"] is None)
         check("collector archives raw payload provenance", pool["raw_ref"] == "1")
+        check("collector stores block-pinned rolling activity", len(store.list_pool_activity()) == 1)
 
     print(f"LP collector fixture tests passed: {count}/{count}")
     return 0
