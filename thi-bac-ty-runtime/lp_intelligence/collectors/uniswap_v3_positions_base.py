@@ -207,7 +207,8 @@ def collect_uniswap_v3_base_positions(
                 },
                 "pool": {
                     "address": pool_address, "token0": token0, "token1": token1,
-                    "fee": pool_fee, "current_tick": current_tick,\n                    "sqrt_price_x96": str(decode_uint(slot0, 0)),
+                    "fee": pool_fee, "current_tick": current_tick,
+                    "sqrt_price_x96": str(decode_uint(slot0, 0)),
                     "fee_growth_global0_x128": str(fee_global0),
                     "fee_growth_global1_x128": str(fee_global1),
                     "lower_fee_growth_outside0_x128": str(lower_tick.fee_growth_outside0_x128),
