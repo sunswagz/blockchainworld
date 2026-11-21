@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS pool_snapshots (
     source TEXT NOT NULL, source_url TEXT NOT NULL,
     data_status TEXT NOT NULL, raw_ref TEXT
 );
-CREATE INDEX IF NOT EXISTS idx_pool_snapshots_pool_time
-    ON pool_snapshots(pool_id, observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pool_snapshots_pool_time ON pool_snapshots(pool_id, observed_at DESC);
 
 CREATE TABLE IF NOT EXISTS position_snapshots (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,10 +26,24 @@ CREATE TABLE IF NOT EXISTS position_snapshots (
     in_range INTEGER, source TEXT NOT NULL, source_url TEXT NOT NULL,
     data_status TEXT NOT NULL, raw_ref TEXT
 );
-CREATE INDEX IF NOT EXISTS idx_position_wallet_time
-    ON position_snapshots(wallet_address, observed_at DESC);
-CREATE INDEX IF NOT EXISTS idx_position_id_time
-    ON position_snapshots(position_id, observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_position_wallet_time ON position_snapshots(wallet_address, observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_position_id_time ON position_snapshots(position_id, observed_at DESC);
+
+CREATE TABLE IF NOT EXISTS position_fee_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    position_id TEXT NOT NULL, token_id TEXT NOT NULL, wallet_address TEXT NOT NULL,
+    block_number INTEGER NOT NULL, block_hash TEXT NOT NULL, block_timestamp TEXT NOT NULL,
+    pool_address TEXT NOT NULL, token0_address TEXT NOT NULL, token1_address TEXT NOT NULL,
+    token0_symbol TEXT NOT NULL, token1_symbol TEXT NOT NULL,
+    token0_decimals INTEGER NOT NULL, token1_decimals INTEGER NOT NULL,
+    tokens_owed0_raw TEXT NOT NULL, tokens_owed1_raw TEXT NOT NULL,
+    tokens_owed0_human TEXT NOT NULL, tokens_owed1_human TEXT NOT NULL,
+    current_tick INTEGER NOT NULL, tick_lower INTEGER NOT NULL, tick_upper INTEGER NOT NULL,
+    liquidity_raw TEXT NOT NULL, fee_tier INTEGER NOT NULL,
+    data_status TEXT NOT NULL, raw_ref TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_position_fee_id_time ON position_fee_snapshots(position_id, block_number DESC);
+CREATE INDEX IF NOT EXISTS idx_position_fee_wallet_time ON position_fee_snapshots(wallet_address, block_number DESC);
 
 CREATE TABLE IF NOT EXISTS alert_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,11 +63,7 @@ CREATE TABLE IF NOT EXISTS decision_journal (
 
 CREATE TABLE IF NOT EXISTS provider_payloads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    source TEXT NOT NULL,
-    entity_id TEXT NOT NULL,
-    fetched_at TEXT NOT NULL,
-    payload_json TEXT NOT NULL,
-    payload_hash TEXT NOT NULL
+    source TEXT NOT NULL, entity_id TEXT NOT NULL, fetched_at TEXT NOT NULL,
+    payload_json TEXT NOT NULL, payload_hash TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_provider_payload_entity_time
-    ON provider_payloads(entity_id, fetched_at DESC);
+CREATE INDEX IF NOT EXISTS idx_provider_payload_entity_time ON provider_payloads(entity_id, fetched_at DESC);

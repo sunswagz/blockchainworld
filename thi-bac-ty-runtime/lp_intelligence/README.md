@@ -9,41 +9,49 @@ Read-only DEX LP monitoring and analysis package for BlockchainWorld / Thá»‹ Báº
 - No lending/borrowing modules.
 - SQLite storage and FastAPI read-only API.
 
-## Foundation
-- contracts.py: canonical data contracts and provenance validation.
-- metrics.py: pure math helpers; V2 IL is not a substitute for V3/V4 range math.
-- fee_accounting.py: integer-only Uniswap V3 feeGrowthInside and position fee accrual math.
-- storage.py / schema.sql: append-only snapshots, provider payload archive, positions and alerts.
-- api.py: read-only GET endpoints.
-- providers/geckoterminal.py: GeckoTerminal V2 public pool discovery.
-- evm.py: minimal JSON-RPC eth_call helpers; no signing methods.
-- collectors/uniswap_v3_base.py: WETH/USDC discovery and official factory/pool verification.
+## Uniswap V3/Base pool collector
+- GeckoTerminal discovers candidate WETH/USDC pools.
+- Official Uniswap V3 Factory confirms pool address and fee tier.
+- JSON-RPC eth_call reads token0/token1, slot0 and liquidity.
+- Provider payloads are archived with SHA-256 provenance.
 
-## Run locally
-From thi-bac-ty-runtime:
+## Uniswap V3/Base NFT position collector
+The collector enumerates the current NFT positions held by a public wallet through the Base NonfungiblePositionManager. It does not connect to the wallet or request a signature.
+
+Official Base contracts:
+- Uniswap V3 Factory: `0x33128a8fC17869897dcE68Ed026d694621f6FDfD`
+- NonfungiblePositionManager: `0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1`
+
+Run from thi-bac-ty-runtime:
+
     python -m pip install -r requirements.txt
-    LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite uvicorn lp_intelligence.api:app --host 127.0.0.1 --port 8787
-
-## Collect one live snapshot
     export BASE_RPC_URL=https://mainnet.base.org
     export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
-    python scripts/thu-thap-uniswap-v3-base.py
+    python scripts/thu-thap-uniswap-v3-positions-base.py --wallet 0xYOUR_PUBLIC_ADDRESS
 
-The collector discovers WETH pools through GeckoTerminal, filters canonical Base WETH/USDC, verifies the candidate with the official Uniswap V3 factory, reads token0/token1/slot0/liquidity via eth_call, then archives provider payload and appends a pool snapshot.
+The collector:
+1. Reads the current block number and pins all subsequent eth_call reads to that block.
+2. Enumerates the wallet's NFTs using balanceOf and tokenOfOwnerByIndex.
+3. Cross-checks each token with ownerOf and reads its position tuple.
+4. Resolves the pool through the official factory and checks token0/token1/fee against the pool.
+5. Reads slot0, feeGrowthGlobal, both boundary tick states and token decimals/symbols at the same block.
+6. Calculates unclaimed token amounts using feeGrowthInside Q128 math plus stored tokensOwed.
+7. Archives the evidence and appends position and fee snapshots with block number/hash.
+
+Fee results are denominated in the two underlying tokens, not USD. USD valuation and APR remain null until independently sourced prices and time-window snapshots are reconciled.
+
+## Reconciliation limits
+This stage reconciles wallet ownership, NFT tuple, factory mapping, pool identity, fee tier and same-block fee-growth inputs. It does not execute collect(0), simulate a transaction, or submit anything. The computed unclaimed amount follows Uniswap V3's published fee-growth method; an independent UI comparison against at least three real positions remains a manual acceptance gate.
 
 ## Uniswap V3 fee accounting primitives
-fee_accounting.py implements integer-only protocol math:
-- Decode pool.ticks(int24) feeGrowthOutside values.
-- Decode NonfungiblePositionManager.positions(tokenId) checkpoints and tokensOwed.
-- Compute feeGrowthInside from lower/upper tick state and current tick.
-- Compute unclaimed token amounts using Q128 fixed-point arithmetic and uint256 wraparound.
-
-These are deterministic offline-tested primitives, not yet a live position collector. Integration must fetch feeGrowthGlobal0X128/1X128, both boundary tick states, the NFT position tuple, token decimals and a consistent block tag, then reconcile results against the official Uniswap position view. Do not convert raw token amounts to USD or publish APR until price/decimal provenance and time-window accounting are available.
+`fee_accounting.py` implements integer-only feeGrowthInside and accrued-fee math, with uint256 wraparound. `position_fee_snapshots` stores raw/human token units, decimals, block hash and provenance.
 
 ## Self-tests
+
     python scripts/kiem-lp-intelligence.py
     python scripts/kiem-lp-collector-fixtures.py
     python scripts/kiem-lp-fee-accounting.py
+    python scripts/kiem-lp-position-collector-fixtures.py
 
 ## API
 - GET /health
@@ -51,4 +59,4 @@ These are deterministic offline-tested primitives, not yet a live position colle
 - GET /api/v1/positions?wallet=0x...
 - GET /api/v1/alerts?limit=100
 
-All endpoints are read-only. Missing values remain null, and all observations retain provenance. Fee income and APR remain null until validated fee accounting is available.
+All endpoints are read-only. Missing values remain null. No transaction method exists.

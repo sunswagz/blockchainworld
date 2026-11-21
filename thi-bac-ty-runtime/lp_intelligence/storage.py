@@ -1,16 +1,13 @@
 """Append-only SQLite storage for LP snapshots, provider payloads and alerts."""
 from __future__ import annotations
-
 import json
 import os
 import sqlite3
 from pathlib import Path
-
 from .contracts import AlertEvent, PoolSnapshot, PositionSnapshot, to_dict
 
 DEFAULT_DB = Path(os.getenv("LP_INTELLIGENCE_DB", "data/lp-intelligence.sqlite"))
 SCHEMA = Path(__file__).with_name("schema.sql")
-
 
 class SQLiteStore:
     def __init__(self, path: str | Path = DEFAULT_DB):
@@ -27,17 +24,14 @@ class SQLiteStore:
         with self._connect() as conn:
             conn.executescript(SCHEMA.read_text(encoding="utf-8"))
 
-    def add_provider_payload(
-        self, *, source: str, entity_id: str, fetched_at: str,
-        payload_json: str, payload_hash: str,
-    ) -> int:
+    def add_provider_payload(self, *, source: str, entity_id: str, fetched_at: str,
+                             payload_json: str, payload_hash: str) -> int:
         with self._connect() as conn:
             cur = conn.execute(
                 """INSERT INTO provider_payloads
                 (source, entity_id, fetched_at, payload_json, payload_hash)
                 VALUES (?, ?, ?, ?, ?)""",
-                (source, entity_id, fetched_at, payload_json, payload_hash),
-            )
+                (source, entity_id, fetched_at, payload_json, payload_hash))
             return int(cur.lastrowid)
 
     def add_pool_snapshot(self, item: PoolSnapshot) -> int:
@@ -47,8 +41,7 @@ class SQLiteStore:
         with self._connect() as conn:
             cur = conn.execute(
                 f"INSERT INTO pool_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
-                [data[k] for k in columns],
-            )
+                [data[k] for k in columns])
             return int(cur.lastrowid)
 
     def add_position_snapshot(self, item: PositionSnapshot) -> int:
@@ -59,9 +52,36 @@ class SQLiteStore:
         with self._connect() as conn:
             cur = conn.execute(
                 f"INSERT INTO position_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
-                [data[k] for k in columns],
-            )
+                [data[k] for k in columns])
             return int(cur.lastrowid)
+
+    def add_position_fee_snapshot(self, item: dict) -> int:
+        columns = [
+            "position_id", "token_id", "wallet_address", "block_number", "block_hash",
+            "block_timestamp", "pool_address", "token0_address", "token1_address",
+            "token0_symbol", "token1_symbol", "token0_decimals", "token1_decimals",
+            "tokens_owed0_raw", "tokens_owed1_raw", "tokens_owed0_human",
+            "tokens_owed1_human", "current_tick", "tick_lower", "tick_upper",
+            "liquidity_raw", "fee_tier", "data_status", "raw_ref",
+        ]
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO position_fee_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns])
+            return int(cur.lastrowid)
+
+    def list_position_fees(self, wallet: str | None = None, limit: int = 100) -> list[dict]:
+        query = """SELECT f.* FROM position_fee_snapshots f
+            JOIN (SELECT position_id, MAX(id) AS latest_id FROM position_fee_snapshots GROUP BY position_id) x
+            ON f.id = x.latest_id"""
+        params: list = []
+        if wallet:
+            query += " WHERE lower(f.wallet_address) = lower(?)"
+            params.append(wallet)
+        query += " ORDER BY f.block_number DESC, f.id DESC LIMIT ?"
+        params.append(limit)
+        with self._connect() as conn:
+            return [dict(row) for row in conn.execute(query, params).fetchall()]
 
     def add_alert(self, item: AlertEvent) -> int:
         item.validate()
@@ -73,8 +93,7 @@ class SQLiteStore:
                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (data["dedupe_key"], data["severity"], data["title"], data["message"],
                  data["observed_at"], json.dumps(data["evidence"], ensure_ascii=False),
-                 json.dumps(data["recommended_checks"], ensure_ascii=False)),
-            )
+                 json.dumps(data["recommended_checks"], ensure_ascii=False)))
             return int(cur.lastrowid)
 
     def list_pools(self, limit: int = 100) -> list[dict]:
@@ -83,8 +102,7 @@ class SQLiteStore:
                 """SELECT p.* FROM pool_snapshots p
                 JOIN (SELECT pool_id, MAX(id) AS latest_id FROM pool_snapshots GROUP BY pool_id) x
                 ON p.id = x.latest_id ORDER BY p.observed_at DESC LIMIT ?""",
-                (limit,),
-            ).fetchall()
+                (limit,)).fetchall()
             return [dict(row) for row in rows]
 
     def list_positions(self, wallet: str | None = None, limit: int = 100) -> list[dict]:
@@ -104,8 +122,7 @@ class SQLiteStore:
         with self._connect() as conn:
             rows = conn.execute(
                 "SELECT * FROM alert_events ORDER BY observed_at DESC, id DESC LIMIT ?",
-                (limit,),
-            ).fetchall()
+                (limit,)).fetchall()
             out = []
             for row in rows:
                 item = dict(row)
