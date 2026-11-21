@@ -80,3 +80,27 @@ CREATE TABLE IF NOT EXISTS pool_activity_snapshots (
     method TEXT NOT NULL, data_status TEXT NOT NULL, raw_ref TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_pool_activity_time ON pool_activity_snapshots(pool_id, block_timestamp DESC);
+
+
+CREATE TABLE IF NOT EXISTS wallet_chain_baselines (
+    wallet_address TEXT NOT NULL, chain_id TEXT NOT NULL, chain_name TEXT NOT NULL,
+    baseline_block INTEGER NOT NULL, baseline_hash TEXT NOT NULL,
+    baseline_timestamp TEXT NOT NULL, scan_from_block INTEGER NOT NULL,
+    created_at TEXT NOT NULL, PRIMARY KEY(wallet_address, chain_id)
+);
+CREATE TABLE IF NOT EXISTS wallet_monitor_runs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, wallet_address TEXT NOT NULL,
+    observed_at TEXT NOT NULL, status TEXT NOT NULL, result_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_wallet_monitor_runs_wallet_time
+ON wallet_monitor_runs(wallet_address, observed_at DESC);
+CREATE TABLE IF NOT EXISTS xlayer_position_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, wallet_address TEXT NOT NULL,
+    token_id TEXT NOT NULL, block_number INTEGER NOT NULL, block_hash TEXT NOT NULL,
+    block_timestamp INTEGER NOT NULL, pool_address TEXT, token0 TEXT, token1 TEXT,
+    fee_tier INTEGER, tick_lower INTEGER, tick_upper INTEGER, current_tick INTEGER,
+    liquidity_raw TEXT, tokens_owed0_raw TEXT, tokens_owed1_raw TEXT,
+    range_status TEXT, verification TEXT NOT NULL, payload_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_xlayer_position_wallet_block
+ON xlayer_position_snapshots(wallet_address, block_number DESC, token_id);
