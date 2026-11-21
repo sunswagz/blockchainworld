@@ -16,7 +16,8 @@
 - [x] Add one-shot collector CLI and offline fixtures.
 - [ ] Run live collector with a configured Base RPC and review first verified snapshot.
 - [ ] Cross-check TVL/volume and token prices with a second provider.
-- [ ] Implement feeGrowth/fee accounting before publishing fees or APR.
+- [x] Implement Uniswap V3 feeGrowthInside and position accrued-fee math primitives.
+- [ ] Integrate fee accounting with consistent-block RPC reads and NFT position discovery.
 - [ ] Gate: do not rank stale data, missing provenance or unverified contracts.
 
 ## Phase 2 — Wallet Position Monitor
