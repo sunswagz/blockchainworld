@@ -79,3 +79,17 @@ def wallet_xlayer_positions(
 ) -> dict:
     data = store.list_xlayer_positions(wallet, limit=limit)
     return {"wallet": wallet, "data": data, "count": len(data), "fee_unit": "raw underlying token units"}
+
+
+@app.get("/api/v1/position-performance")
+def position_performance(
+    wallet: str | None = Query(default=None, min_length=4, max_length=128),
+    position_id: str | None = Query(default=None, min_length=3, max_length=256),
+    limit: int = Query(default=100, ge=1, le=500),
+) -> dict:
+    data = store.list_position_performance(wallet=wallet, position_id=position_id, limit=limit)
+    return {
+        "data": data, "count": len(data),
+        "pnl_scope": "before claimed fees, gas and rebalance costs",
+        "status": "provisional; requires fresh token price observations",
+    }
