@@ -14,7 +14,6 @@ on:
       - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
       - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
       - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
-      - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
       - ".github/workflows/lp-intelligence-ci.yml"
   push:
     branches: [main]
@@ -22,6 +21,15 @@ on:
       - "thi-bac-ty-runtime/lp_intelligence/**"
       - ".github/workflows/lp-intelligence-ci.yml"
 
+      - "thi-bac-ty-runtime/scripts/kiem-lp-intelligence.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-fee-accounting.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-position-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
+      - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
 jobs:
   offline-checks:
     runs-on: ubuntu-latest
