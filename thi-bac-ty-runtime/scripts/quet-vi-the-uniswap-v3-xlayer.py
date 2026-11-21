@@ -65,8 +65,12 @@ def collect(rpc: JsonRpcClient, wallet: str, from_block: int, chunk_size: int = 
     block_tag = hex(latest)
     positions = []
     for token_id in sorted(token_ids):
-        owner_result = rpc.eth_call(npm, OWNER_OF + format(token_id, "064x"), block_tag)
-        owner = word_address(decode_uint(owner_result))
+        try:
+            owner_result = rpc.eth_call(npm, OWNER_OF + format(token_id, "064x"), block_tag)
+            owner = word_address(decode_uint(owner_result))
+        except Exception:
+            # Burned/nonexistent NFTs may still appear in historical Transfer logs.
+            continue
         if owner.lower() != wallet.lower():
             continue
         raw = rpc.eth_call(npm, POSITIONS + format(token_id, "064x"), block_tag)
