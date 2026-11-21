@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT))
 
 from lp_intelligence.contracts import parse_utc, utc_now
 from lp_intelligence.performance import compare_to_hodl, value_position
+from lp_intelligence.providers.geckoterminal import GeckoTerminalClient
 from lp_intelligence.storage import SQLiteStore
 
 
@@ -43,6 +44,38 @@ def load_prices(store: SQLiteStore, path: str | None) -> None:
             **item, "price_usd": price, "fetched_at": fetched_at,
             "data_status": item.get("data_status", "fresh"),
         })
+
+
+def fetch_gecko_prices(store: SQLiteStore, fee_rows: list[dict]) -> None:
+    client = GeckoTerminalClient()
+    fetched_at = utc_now()
+    try:
+        tokens = {(row["chain_id"], row["token0_address"]) for row in fee_rows}
+        tokens.update((row["chain_id"], row["token1_address"]) for row in fee_rows)
+        for chain_id, address in sorted(tokens):
+            if chain_id != "8453":
+                continue
+            candidates, _ = client.token_pools("base", address)
+            price = None
+            source_url = None
+            for candidate in candidates:
+                if candidate.base_token_address == address.lower():
+                    price = candidate.base_token_price_usd
+                elif candidate.quote_token_address == address.lower():
+                    price = candidate.quote_token_price_usd
+                if price is not None and price > 0:
+                    source_url = candidate.source_url
+                    break
+            if price is None or source_url is None:
+                raise RuntimeError(f"GeckoTerminal returned no usable USD price for {address}")
+            store.add_token_price_observation({
+                "chain_id": chain_id, "token_address": address, "price_usd": price,
+                "observed_at": fetched_at, "fetched_at": fetched_at,
+                "source": "GeckoTerminal V2", "source_url": source_url,
+                "data_status": "provisional",
+            })
+    finally:
+        client.close()
 
 
 def get_fresh_price(store: SQLiteStore, chain_id: str, address: str,
@@ -83,6 +116,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wallet", required=True)
     parser.add_argument("--prices-json", help="JSON list of explicit token USD price observations")
+    parser.add_argument("--fetch-gecko-prices", action="store_true", help="Fetch current token USD prices from GeckoTerminal V2")
     parser.add_argument("--max-price-age-minutes", type=int, default=60)
     args = parser.parse_args()
     wallet = "0x" + args.wallet.strip().removeprefix("XKO").removeprefix("0x").lower()
