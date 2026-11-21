@@ -12,6 +12,10 @@ on:
       - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
       - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
       - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
+      - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
       - ".github/workflows/lp-intelligence-ci.yml"
   push:
     branches: [main]
@@ -21,6 +25,10 @@ on:
       - "thi-bac-ty-runtime/scripts/kiem-lp-collector-fixtures.py"
       - "thi-bac-ty-runtime/scripts/kiem-lp-fee-accounting.py"
       - "thi-bac-ty-runtime/scripts/kiem-lp-position-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
       - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
       - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
       - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
@@ -39,7 +47,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Compile LP Intelligence
         working-directory: thi-bac-ty-runtime
-        run: python -m compileall -q lp_intelligence scripts/kiem-lp-intelligence.py scripts/kiem-lp-collector-fixtures.py scripts/kiem-lp-fee-accounting.py scripts/kiem-lp-position-collector-fixtures.py scripts/khoi-tao-vi-xlayer.py scripts/quet-token-xlayer.py scripts/kham-pha-pool-uniswap-v3-xlayer.py
+        run: python -m compileall -q lp_intelligence scripts/kiem-lp-intelligence.py scripts/kiem-lp-collector-fixtures.py scripts/kiem-lp-fee-accounting.py scripts/kiem-lp-position-collector-fixtures.py scripts/khoi-tao-vi-xlayer.py scripts/quet-token-xlayer.py scripts/kham-pha-pool-uniswap-v3-xlayer.py scripts/khoi-tao-vi-xlayer.py scripts/quet-token-xlayer.py scripts/kham-pha-pool-uniswap-v3-xlayer.py scripts/kiem-xlayer-scanners.py
       - name: Run foundation self-test
         working-directory: thi-bac-ty-runtime
         run: python scripts/kiem-lp-intelligence.py
