@@ -60,3 +60,22 @@ def pool_activity(
 ) -> dict:
     data = store.list_pool_activity(pool_id=pool_id, limit=limit)
     return {"data": data, "count": len(data), "usd_values_are_estimates": True}
+
+
+@app.get("/api/v1/wallet-monitor/{wallet}")
+def wallet_monitor_runs(
+    wallet: str,
+    limit: int = Query(default=20, ge=1, le=100),
+) -> dict:
+    runs = store.list_wallet_monitor_runs(wallet, limit=limit)
+    baselines = store.list_wallet_baselines(wallet)
+    return {"wallet": wallet, "baselines": baselines, "runs": runs, "count": len(runs)}
+
+
+@app.get("/api/v1/wallet-monitor/{wallet}/xlayer-positions")
+def wallet_xlayer_positions(
+    wallet: str,
+    limit: int = Query(default=100, ge=1, le=500),
+) -> dict:
+    data = store.list_xlayer_positions(wallet, limit=limit)
+    return {"wallet": wallet, "data": data, "count": len(data), "fee_unit": "raw underlying token units"}
