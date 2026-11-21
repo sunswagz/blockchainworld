@@ -99,3 +99,15 @@ This discovers pools returned by GeckoTerminal for WOKB, then independently veri
     python scripts/kiem-xlayer-scanners.py
 
 The fixtures cover XKO/0x normalization, ABI address/symbol decoding and invalid-address rejection. Live RPC and UI reconciliation remain separate acceptance gates.
+
+## X Layer Uniswap V3 position NFT scanner
+
+For a newly created wallet with no LP history, take the baseline block from the wallet bootstrap output and use that as `--from-block` for subsequent scans:
+
+    python scripts/khoi-tao-vi-xlayer.py --wallet XKOYOUR40HEXADDRESS --output ./data/xlayer-wallet-baseline.json
+    # Read block.number from the baseline JSON, then:
+    python scripts/quet-vi-the-uniswap-v3-xlayer.py --wallet XKOYOUR40HEXADDRESS --from-block BASELINE_BLOCK --output ./data/xlayer-uniswap-v3-positions.json
+
+The scanner replays incoming/outgoing ERC-721 Transfer logs from the X Layer Uniswap V3 Position Manager, confirms current ownership with `ownerOf`, decodes the position tuple, verifies the pool through the official Factory, and reads current tick at one block. It reports range status and raw tokensOwed.
+
+It does not yet calculate feeGrowthInside or USD PnL. Direct wallet ownership only is covered; staked/custodied NFTs need a separate adapter. A late `--from-block` may miss older positions. No transaction methods are called.
