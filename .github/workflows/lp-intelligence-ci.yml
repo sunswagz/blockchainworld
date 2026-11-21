@@ -1,4 +1,5 @@
 name: LP Intelligence Foundation
+# Offline deterministic checks only; no wallet credentials or transaction permissions.
 
 on:
   pull_request:
