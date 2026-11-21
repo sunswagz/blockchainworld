@@ -46,10 +46,17 @@ def collect(rpc: JsonRpcClient, wallet: str, from_block: int, chunk_size: int = 
     npm = UNISWAP_V3["nonfungible_position_manager"]
     factory = UNISWAP_V3["factory"]
     wallet_topic = topic_address(wallet)
-    incoming = rpc.get_logs(address=npm, from_block=from_block, to_block=latest,
-                            topics=[TRANSFER_TOPIC, None, wallet_topic])
-    outgoing = rpc.get_logs(address=npm, from_block=from_block, to_block=latest,
-                            topics=[TRANSFER_TOPIC, wallet_topic, None])
+    if chunk_size < 1:
+        raise ValueError("chunk-size must be positive")
+    incoming, outgoing = [], []
+    cursor = from_block
+    while cursor <= latest:
+        end = min(cursor + chunk_size - 1, latest)
+        incoming.extend(rpc.get_logs(address=npm, from_block=cursor, to_block=end,
+                                     topics=[TRANSFER_TOPIC, None, wallet_topic]))
+        outgoing.extend(rpc.get_logs(address=npm, from_block=cursor, to_block=end,
+                                     topics=[TRANSFER_TOPIC, wallet_topic, None]))
+        cursor = end + 1
     token_ids = set()
     for log in incoming + outgoing:
         topics = log.get("topics") or []
@@ -114,7 +121,8 @@ def collect(rpc: JsonRpcClient, wallet: str, from_block: int, chunk_size: int = 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wallet", required=True)
-    parser.add_argument("--from-block", required=True, type=int)\n    parser.add_argument("--chunk-size", type=int, default=2000)
+    parser.add_argument("--from-block", required=True, type=int)
+    parser.add_argument("--chunk-size", type=int, default=2000)
     parser.add_argument("--rpc-url", default=DEFAULT_RPC_URL)
     parser.add_argument("--output")
     args = parser.parse_args()
