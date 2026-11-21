@@ -51,4 +51,12 @@ def position_fees(
 def alerts(limit: int = Query(default=100, ge=1, le=500)) -> dict:
     data = store.list_alerts(limit=limit)
     return {"data": data, "count": len(data)}
-\n\n@app.get("/api/v1/pool-activity")\ndef pool_activity(\n    pool_id: str | None = Query(default=None, min_length=3, max_length=256),\n    limit: int = Query(default=100, ge=1, le=500),\n) -> dict:\n    data = store.list_pool_activity(pool_id=pool_id, limit=limit)\n    return {"data": data, "count": len(data), "usd_values_are_estimates": True}\n
+
+
+@app.get("/api/v1/pool-activity")
+def pool_activity(
+    pool_id: str | None = Query(default=None, min_length=3, max_length=256),
+    limit: int = Query(default=100, ge=1, le=500),
+) -> dict:
+    data = store.list_pool_activity(pool_id=pool_id, limit=limit)
+    return {"data": data, "count": len(data), "usd_values_are_estimates": True}
