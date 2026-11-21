@@ -35,7 +35,7 @@ def decode_string(result: str) -> str:
     raw = result.removeprefix("0x")
     if len(raw) == 64:
         try:
-            return bytes.fromhex(raw).rstrip(b"\\x00").decode("utf-8")
+            return bytes.fromhex(raw).rstrip(b"\x00").decode("utf-8")
         except UnicodeDecodeError:
             pass
     try:
