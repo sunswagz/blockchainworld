@@ -21,9 +21,9 @@ def main() -> int:
     inside = fee_growth_inside_x128(100, -100, 100, 0, 20, 30)
     check("feeGrowthInside subtracts both outside accumulators", inside == 50)
     below = fee_growth_inside_x128(100, -100, 100, -101, 20, 30)
-    check("feeGrowthInside handles tick below range", below == 20)
+    check("feeGrowthInside handles tick below range with uint256 underflow", below == (100 - 80 - 30) % (1 << 256))
     above = fee_growth_inside_x128(100, -100, 100, 100, 20, 30)
-    check("feeGrowthInside handles upper boundary", above == 30)
+    check("feeGrowthInside handles upper boundary", above == 10)
     wrapped = fee_growth_inside_x128(5, -10, 10, 0, UINT256_MASK - 2, 1)
     check("feeGrowthInside uses uint256 wraparound",
           wrapped == ((5 - (UINT256_MASK - 2) - 1) & UINT256_MASK))
