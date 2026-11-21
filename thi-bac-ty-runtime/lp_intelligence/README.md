@@ -162,3 +162,52 @@ Read-only APIs:
 Important: the first baseline is appropriate only because this wallet was stated to be newly created and unused. It does not backfill historical NFT transfers before the baseline. If monitoring a previously used wallet, seed an earlier baseline/scan start block before relying on the inventory. ERC-20 enumeration, staked/custodied NFT discovery, X Layer feeGrowthInside math and USD valuation remain separate follow-up work.
 
 The monitor uses public RPC reads only. It never requests a wallet connection, seed phrase, private key, signature, approval, or transaction.
+
+
+## Fee Performance Engine — Uniswap V3/Base
+
+The performance engine values the current principal held by each Base V3 NFT using its liquidity, tick bounds and the pool's `sqrtPriceX96`. It separately values unclaimed fees from the existing Q128 fee-growth collector. It does not apply the V2 impermanent-loss formula to concentrated-liquidity positions.
+
+### Record token USD prices
+
+Create a JSON file containing fresh, sourced price observations for both tokens in every position:
+
+    [
+      {
+        "chain_id": "8453",
+        "token_address": "0xTOKEN_ADDRESS",
+        "price_usd": 2000.0,
+        "observed_at": "2026-11-22T12:00:00Z",
+        "source": "your-price-provider",
+        "source_url": "https://provider.example/price"
+      }
+    ]
+
+Each token requires its own record. The source and timestamp are retained; prices older than 60 minutes are rejected by default. Do not use a stablecoin peg as a substitute for a price observation unless it is explicitly sourced and recorded.
+
+### Run valuation
+
+First run the wallet monitor so the latest Base NFT fee snapshots and raw payloads include `sqrtPriceX96`. Then:
+
+    python scripts/tinh-hieu-suat-lp.py \
+      --wallet 0xYOUR_PUBLIC_WALLET \
+      --prices-json ./prices.json
+
+The first saved performance snapshot establishes the HODL comparison baseline. This is the first monitored valuation, not the NFT mint/deposit date. Later snapshots compare the current LP principal and fee balance against holding those initial token amounts.
+
+### Metrics and limitations
+
+- Principal USD: V3 token amounts derived from liquidity, current sqrt price and tick bounds.
+- Unclaimed fees USD: feeGrowthInside Q128 + stored tokensOwed, valued using the same token price observations.
+- IL vs HODL: current LP principal minus mark-to-market value of the baseline token amounts.
+- Fee-adjusted vs HODL: current principal + current unclaimed fees - HODL benchmark.
+- PnL: current principal + unclaimed fees - initial monitored capital.
+- 24h/7d/30d fee APR: provisional annualization of the change in unclaimed fee balance against average principal, only when a suitable prior snapshot exists and the fee balance did not fall. It is null if data is insufficient or a fee collection/reset may have occurred.
+
+Claimed fees, gas and rebalance costs are intentionally null/not included until dedicated Collect-event and transaction-cost ledgers are implemented. Consequently PnL is explicitly before claimed fees, gas and rebalance costs. No historical performance is backfilled before the first valuation snapshot.
+
+Read-only history API:
+
+    GET /api/v1/position-performance?wallet=0x...
+
+The engine rejects missing/stale price observations; it never silently converts missing prices to zero. Output status is `provisional` until claimed-fee and cost accounting are available.
