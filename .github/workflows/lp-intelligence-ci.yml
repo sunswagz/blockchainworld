@@ -60,3 +60,6 @@ jobs:
       - name: Run X Layer scanner fixtures
         working-directory: thi-bac-ty-runtime
         run: python scripts/kiem-xlayer-scanners.py
+      - name: Run Base swap activity fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-swap-activity.py
