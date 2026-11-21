@@ -38,6 +38,15 @@ def positions(
     return {"data": data, "count": len(data)}
 
 
+@app.get("/api/v1/position-fees")
+def position_fees(
+    wallet: str | None = Query(default=None, min_length=4, max_length=128),
+    limit: int = Query(default=100, ge=1, le=500),
+) -> dict:
+    data = store.list_position_fees(wallet=wallet, limit=limit)
+    return {"data": data, "count": len(data), "fee_unit": "underlying token units; not USD"}
+
+
 @app.get("/api/v1/alerts")
 def alerts(limit: int = Query(default=100, ge=1, le=500)) -> dict:
     data = store.list_alerts(limit=limit)
