@@ -22,7 +22,9 @@ def amounts_for_liquidity(
     if tick_lower >= tick_upper or not (0 <= decimals0 <= 255 and 0 <= decimals1 <= 255):
         raise ValueError("invalid ticks or token decimals")
     sqrt_p = Decimal(sqrt_price_x96) / Q96
-    base = Decimal("1.0001")\n    sqrt_a = base ** (Decimal(tick_lower) / 2)\n    sqrt_b = base ** (Decimal(tick_upper) / 2)
+    base = Decimal("1.0001")
+    sqrt_a = base ** (Decimal(tick_lower) / 2)
+    sqrt_b = base ** (Decimal(tick_upper) / 2)
     liquidity = Decimal(liquidity_raw)
     if sqrt_p <= sqrt_a:
         amount0 = liquidity * (sqrt_b - sqrt_a) / (sqrt_a * sqrt_b)
