@@ -1,8 +1,4 @@
-"""Uniswap V3/Base pool discovery and on-chain verification.
-
-GeckoTerminal discovers candidate pools. The official Uniswap V3 factory and
-pool contracts verify identity and live state before a snapshot is persisted.
-"""
+"""Uniswap V3/Base pool discovery and on-chain verification."""
 from __future__ import annotations
 
 import hashlib
@@ -14,7 +10,8 @@ from typing import Any
 from ..contracts import PoolSnapshot, utc_now
 from ..evm import JsonRpcClient, decode_int24_word, decode_uint, verify_uniswap_v3_pool
 from ..providers.geckoterminal import GeckoTerminalClient, PoolCandidate
-from ..storage import SQLiteStore\nfrom ..swap_activity import collect_swap_activity
+from ..storage import SQLiteStore
+from ..swap_activity import collect_swap_activity
 
 CHAIN_ID = "8453"
 NETWORK = "base"
@@ -41,12 +38,14 @@ def _is_expected_pair(candidate: PoolCandidate) -> bool:
 
 
 def find_verified_candidate(
-    candidates: list[PoolCandidate], rpc: JsonRpcClient
+    candidates: list[PoolCandidate], rpc: JsonRpcClient, block_tag: str = "latest"
 ) -> tuple[PoolCandidate, int]:
     matches = [item for item in candidates if _is_expected_pair(item)]
     matches.sort(key=lambda item: item.reserve_in_usd or -1.0, reverse=True)
     for candidate in matches:
-        fee_tier = verify_uniswap_v3_pool(rpc, FACTORY, candidate.address, WETH, USDC)
+        fee_tier = verify_uniswap_v3_pool(
+            rpc, FACTORY, candidate.address, WETH, USDC, block_tag=block_tag
+        )
         if fee_tier is not None:
             return candidate, fee_tier
     raise RuntimeError(
@@ -70,10 +69,14 @@ def collect_uniswap_v3_base(
 
     try:
         candidates, discovery_payload = gecko.token_pools(NETWORK, WETH)
-        candidate, fee_tier = find_verified_candidate(candidates, rpc)
+        latest_block = rpc.get_block_number()
+        latest_block_data = rpc.get_block(latest_block)
+        block_tag = hex(latest_block)
+        block_timestamp = int(latest_block_data["timestamp"], 16)
+        candidate, fee_tier = find_verified_candidate(candidates, rpc, block_tag)
 
-        pool_token0 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token0"]))
-        pool_token1 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token1"]))
+        pool_token0 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token0"], block_tag))
+        pool_token1 = _hex_address(rpc.eth_call(candidate.address, POOL_SELECTORS["token1"], block_tag))
         if (pool_token0, pool_token1) != tuple(sorted((WETH.lower(), USDC.lower()))):
             raise RuntimeError("On-chain token0/token1 do not match the expected WETH/USDC pair")
 
@@ -86,7 +89,25 @@ def collect_uniswap_v3_base(
 
         # Base WETH (18 decimals) sorts before USDC (6 decimals).
         price_usdc_per_weth = (sqrt_price_x96 / (2**96)) ** 2 * (10**12)
-        fetched_at = utc_now()\n        token_prices = {\n            candidate.base_token_address.lower(): candidate.base_token_price_usd,\n            candidate.quote_token_address.lower(): candidate.quote_token_price_usd,\n        }\n        token0_price = token_prices.get(pool_token0)\n        token1_price = token_prices.get(pool_token1)\n        swap_activity = None\n        if token0_price is not None and token1_price is not None:\n            swap_activity = collect_swap_activity(\n                rpc, pool_address=candidate.address, fee_tier=fee_tier,\n                token0_usd=token0_price, token1_usd=token1_price,\n                now_timestamp=block_timestamp, latest_block=latest_block,\n            )
+        token_prices = {
+            (candidate.base_token_address or "").lower(): candidate.base_token_price_usd,
+            (candidate.quote_token_address or "").lower(): candidate.quote_token_price_usd,
+        }
+        token0_price = token_prices.get(pool_token0)
+        token1_price = token_prices.get(pool_token1)
+        swap_activity = None
+        if token0_price is not None and token1_price is not None:
+            swap_activity = collect_swap_activity(
+                rpc,
+                pool_address=candidate.address,
+                fee_tier=fee_tier,
+                token0_usd=token0_price,
+                token1_usd=token1_price,
+                now_timestamp=block_timestamp,
+                latest_block=latest_block,
+            )
+
+        fetched_at = utc_now()
         pool_id = f"{CHAIN_ID}:uniswap-v3:{candidate.address.lower()}"
         raw_payload = {
             "discovery": discovery_payload,
@@ -99,7 +120,13 @@ def collect_uniswap_v3_base(
                 "token1": pool_token1,
                 "sqrt_price_x96": str(sqrt_price_x96),
                 "current_tick": current_tick,
-                "liquidity_raw": str(liquidity),\n                "snapshot_block": {"number": latest_block, "hash": latest_block_data["hash"], "timestamp": block_timestamp},\n                "swap_activity_24h": swap_activity,
+                "liquidity_raw": str(liquidity),
+                "snapshot_block": {
+                    "number": latest_block,
+                    "hash": latest_block_data["hash"],
+                    "timestamp": block_timestamp,
+                },
+                "swap_activity_24h": swap_activity,
             },
         }
         raw_json = json.dumps(raw_payload, sort_keys=True, separators=(",", ":"))
@@ -111,6 +138,7 @@ def collect_uniswap_v3_base(
             payload_json=raw_json,
             payload_hash=raw_hash,
         )
+        estimated_fees = swap_activity["fees_usd_estimated"] if swap_activity else None
         snapshot = PoolSnapshot(
             pool_id=pool_id,
             chain_id=CHAIN_ID,
@@ -129,9 +157,7 @@ def collect_uniswap_v3_base(
             data_status="fresh",
             tvl_usd=candidate.reserve_in_usd,
             volume_24h_usd=candidate.volume_24h_usd,
-            # Fee and APR are intentionally unknown until fee-growth accounting
-            # is implemented; volume * fee tier is not realized fee income.
-            fees_24h_usd=(swap_activity["fees_usd_estimated"] if swap_activity else None),
+            fees_24h_usd=estimated_fees,
             fee_apr_pct=None,
             incentive_apr_pct=None,
             spot_price=price_usdc_per_weth,
@@ -139,18 +165,30 @@ def collect_uniswap_v3_base(
             fee_tier_bps=fee_tier / 100.0,
             raw_ref=str(raw_id),
         )
-        store.add_pool_snapshot(snapshot)\n        if swap_activity is not None:\n            store.add_pool_activity_snapshot({\n                "pool_id": pool_id, "block_number": latest_block,\n                "block_hash": latest_block_data["hash"], "block_timestamp": block_timestamp,\n                **swap_activity, "data_status": "estimated", "raw_ref": str(raw_id),\n            })
+        store.add_pool_snapshot(snapshot)
+        if swap_activity is not None:
+            store.add_pool_activity_snapshot({
+                "pool_id": pool_id,
+                "block_number": latest_block,
+                "block_hash": latest_block_data["hash"],
+                "block_timestamp": block_timestamp,
+                **swap_activity,
+                "data_status": "estimated",
+                "raw_ref": str(raw_id),
+            })
         return {
             "status": "ok",
             "pool_id": pool_id,
             "pool_address": candidate.address,
             "fee_tier": fee_tier,
+            "snapshot_block": latest_block,
             "current_tick": current_tick,
             "liquidity_raw": str(liquidity),
             "spot_price_usdc_per_weth": price_usdc_per_weth,
-            "tvl_usd": candidate.reserve_in_usd,
-            "volume_24h_usd": candidate.volume_24h_usd,
-            "fees_24h_usd": None,
+            "tvl_usd_provider": candidate.reserve_in_usd,
+            "volume_24h_usd_provider": candidate.volume_24h_usd,
+            "swap_activity_24h": swap_activity,
+            "fees_24h_usd_estimated": estimated_fees,
             "fee_apr_pct": None,
             "raw_payload_id": raw_id,
             "data_status": "fresh",
