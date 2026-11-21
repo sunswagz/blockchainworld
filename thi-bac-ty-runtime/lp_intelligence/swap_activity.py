@@ -85,14 +85,14 @@ def collect_swap_activity(
             fee = gross * Decimal(fee_tier) / Decimal(FEE_DENOMINATOR)
             volume_token0 += gross
             fee_token0 += fee
-            volume_usd += gross * Decimal(str(token0_usd)) + Decimal(max(-amount1, 0)) * Decimal(str(token1_usd))
+            volume_usd += gross * Decimal(str(token0_usd))
             fees_usd += fee * Decimal(str(token0_usd))
         elif amount1 > 0:
             gross = Decimal(amount1)
             fee = gross * Decimal(fee_tier) / Decimal(FEE_DENOMINATOR)
             volume_token1 += gross
             fee_token1 += fee
-            volume_usd += gross * Decimal(str(token1_usd)) + Decimal(max(-amount0, 0)) * Decimal(str(token0_usd))
+            volume_usd += gross * Decimal(str(token1_usd))
             fees_usd += fee * Decimal(str(token1_usd))
         else:
             raise ValueError("Swap log has no positive input amount")
