@@ -115,7 +115,7 @@ def main() -> int:
         result = discover(rpc, gecko)
         rendered = json.dumps(result, indent=2, ensure_ascii=False)
         if args.output:
-            Path(args.output).write_text(rendered + "\\n", encoding="utf-8")
+            Path(args.output).write_text(rendered + "\n", encoding="utf-8")
         else:
             print(rendered)
         return 0
