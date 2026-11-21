@@ -111,3 +111,22 @@ For a newly created wallet with no LP history, take the baseline block from the 
 The scanner replays incoming/outgoing ERC-721 Transfer logs from the X Layer Uniswap V3 Position Manager, confirms current ownership with `ownerOf`, decodes the position tuple, verifies the pool through the official Factory, and reads current tick at one block. It reports range status and raw tokensOwed.
 
 It does not yet calculate feeGrowthInside or USD PnL. Direct wallet ownership only is covered; staked/custodied NFTs need a separate adapter. A late `--from-block` may miss older positions. No transaction methods are called.
+
+
+## Base Uniswap V3 rolling 24h swap activity
+
+The Base collector now pins pool identity, token metadata, slot0 and liquidity reads to one snapshot block. It also finds the block near the rolling 24-hour boundary and scans the pool's Uniswap V3 `Swap` event logs in bounded chunks.
+
+- Pool identity and fee tier: verified against the official Uniswap V3 Factory.
+- Spot price, tick, liquidity and token decimals: read from Base RPC at the snapshot block.
+- Provider TVL and 24h volume: retained as provider-sourced values.
+- On-chain Swap activity: raw input-side token amounts, swap count, estimated volume and estimated fee amount.
+- History: appended to `pool_activity_snapshots`, including block number/hash, block timestamp, scanned block range and source payload reference.
+- API: `GET /api/v1/pool-activity?limit=100`.
+
+Important accounting distinction: the on-chain Swap-derived USD volume/fees are estimates using the event input deltas, pool fee tier, on-chain token decimals and GeckoTerminal token USD prices. They are kept in a separate activity table and are not written into the canonical `fees_24h_usd` pool metric. They are not yet a block-by-block oracle valuation or the LP's realized fee earnings. Fee APR remains null until the position-level accounting and capital denominator are reconciled.
+
+Run offline checks:
+
+    python scripts/kiem-lp-collector-fixtures.py
+    python scripts/kiem-lp-swap-activity.py
