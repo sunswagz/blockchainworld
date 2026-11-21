@@ -214,3 +214,12 @@ The engine rejects missing/stale price observations; it never silently converts 
 
 
 Performance engine validation note: CI includes V3 amount math, range-boundary cases, fee valuation, HODL comparison and token-price provenance fixtures. Run the collector again after upgrading so its raw payload contains sqrtPriceX96, then provide fresh price observations before running the performance script.
+
+
+Current-price convenience option: the runner can query GeckoTerminal V2 for each position token and archive the returned USD price with its provider URL and fetch timestamp:
+
+    python scripts/tinh-hieu-suat-lp.py \
+      --wallet 0xYOUR_PUBLIC_WALLET \
+      --fetch-gecko-prices
+
+Use `--prices-json` instead when you have a preferred price source; explicit JSON observations are recorded with their provenance. GeckoTerminal-derived valuations are marked provisional and are not historical block-aligned oracle prices.
