@@ -211,3 +211,6 @@ Read-only history API:
     GET /api/v1/position-performance?wallet=0x...
 
 The engine rejects missing/stale price observations; it never silently converts missing prices to zero. Output status is `provisional` until claimed-fee and cost accounting are available.
+
+
+Performance engine validation note: CI includes V3 amount math, range-boundary cases, fee valuation, HODL comparison and token-price provenance fixtures. Run the collector again after upgrading so its raw payload contains sqrtPriceX96, then provide fresh price observations before running the performance script.
