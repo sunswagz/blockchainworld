@@ -119,7 +119,7 @@ def collect_uniswap_v3_base(
                 "token0": pool_token0,
                 "token1": pool_token1,
                 "sqrt_price_x96": str(sqrt_price_x96),
-                "current_tick": current_tick,
+                "current_tick": current_tick,\n                "token0_decimals": token0_decimals,\n                "token1_decimals": token1_decimals,
                 "liquidity_raw": str(liquidity),
                 "snapshot_block": {
                     "number": latest_block,
