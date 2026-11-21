@@ -1,9 +1,4 @@
-"""Decode Uniswap V3 Swap logs and estimate 24h swap volume/fees.
-
-Amounts and fee estimates are derived from on-chain Swap events. USD conversion
-uses explicitly supplied token USD prices; the result is labelled as an estimate
-because per-swap integer rounding and price conversion methodology matter.
-"""
+"""Decode Uniswap V3 Swap logs and estimate rolling 24h volume and fees."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -26,16 +21,12 @@ def decode_swap_log(log: dict[str, Any]) -> tuple[int, int]:
 
 
 def find_block_at_or_before_timestamp(rpc: Any, target_timestamp: int, latest_block: int) -> int:
-    """Binary-search the last block whose timestamp is <= target_timestamp."""
-    low, high = 0, latest_block
-    answer = 0
+    low, high, answer = 0, latest_block, 0
     while low <= high:
         mid = (low + high) // 2
-        block = rpc.get_block(mid)
-        timestamp = int(block["timestamp"], 16)
+        timestamp = int(rpc.get_block(mid)["timestamp"], 16)
         if timestamp <= target_timestamp:
-            answer = mid
-            low = mid + 1
+            answer, low = mid, mid + 1
         else:
             high = mid - 1
     return answer
@@ -48,6 +39,8 @@ def collect_swap_activity(
     fee_tier: int,
     token0_usd: float,
     token1_usd: float,
+    token0_decimals: int,
+    token1_decimals: int,
     now_timestamp: int,
     latest_block: int,
     chunk_size: int = 2000,
@@ -56,7 +49,9 @@ def collect_swap_activity(
         raise ValueError("fee_tier must be in millionths")
     if chunk_size <= 0:
         raise ValueError("chunk_size must be positive")
-    if not 0 <= token0_decimals <= 255 or not 0 <= token1_decimals <= 255:\n        raise ValueError("token decimals must be between 0 and 255")\n    if token0_usd < 0 or token1_usd < 0:
+    if not 0 <= token0_decimals <= 255 or not 0 <= token1_decimals <= 255:
+        raise ValueError("token decimals must be between 0 and 255")
+    if token0_usd < 0 or token1_usd < 0:
         raise ValueError("token USD prices cannot be negative")
 
     from_block = find_block_at_or_before_timestamp(rpc, now_timestamp - 86400, latest_block)
@@ -65,10 +60,7 @@ def collect_swap_activity(
     while cursor <= latest_block:
         end = min(cursor + chunk_size - 1, latest_block)
         logs.extend(rpc.get_logs(
-            address=pool_address,
-            from_block=cursor,
-            to_block=end,
-            topics=[SWAP_TOPIC],
+            address=pool_address, from_block=cursor, to_block=end, topics=[SWAP_TOPIC]
         ))
         cursor = end + 1
 
@@ -78,6 +70,8 @@ def collect_swap_activity(
     volume_token1 = Decimal(0)
     fee_token0 = Decimal(0)
     fee_token1 = Decimal(0)
+    scale0, scale1 = Decimal(10) ** token0_decimals, Decimal(10) ** token1_decimals
+
     for log in logs:
         amount0, amount1 = decode_swap_log(log)
         if amount0 > 0:
@@ -85,15 +79,15 @@ def collect_swap_activity(
             fee = gross * Decimal(fee_tier) / Decimal(FEE_DENOMINATOR)
             volume_token0 += gross
             fee_token0 += fee
-            volume_usd += gross * Decimal(str(token0_usd))
-            fees_usd += fee * Decimal(str(token0_usd))
+            volume_usd += gross / scale0 * Decimal(str(token0_usd))
+            fees_usd += fee / scale0 * Decimal(str(token0_usd))
         elif amount1 > 0:
             gross = Decimal(amount1)
             fee = gross * Decimal(fee_tier) / Decimal(FEE_DENOMINATOR)
             volume_token1 += gross
             fee_token1 += fee
-            volume_usd += gross * Decimal(str(token1_usd))
-            fees_usd += fee * Decimal(str(token1_usd))
+            volume_usd += gross / scale1 * Decimal(str(token1_usd))
+            fees_usd += fee / scale1 * Decimal(str(token1_usd))
         else:
             raise ValueError("Swap log has no positive input amount")
 
@@ -108,10 +102,10 @@ def collect_swap_activity(
         "fee_token1_raw_estimated": str(fee_token1),
         "volume_token0_raw": str(volume_token0),
         "volume_token1_raw": str(volume_token1),
-        "method": "on-chain Swap event input deltas × pool fee tier; USD conversion at supplied token prices",
+        "method": "on-chain Swap event input deltas × fee tier; normalized by token decimals and priced using provider token USD prices",
         "limitations": [
-            "Fee USD is an estimate from event deltas and fee tier, not a protocol accounting statement.",
-            "USD conversion normalizes raw amounts with on-chain token decimals and supplied token prices; this is not a block-by-block oracle valuation.",
-            "Token raw amounts are not human units until token decimals are applied.",
+            "Fees are estimates from event deltas and fee tier, not a protocol accounting statement.",
+            "USD conversion uses provider token prices, not block-by-block oracle prices.",
+            "The 24h window begins at the last block at or before the target timestamp.",
         ],
     }
