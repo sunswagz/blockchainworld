@@ -39,7 +39,7 @@ def word_address(value: int) -> str:
     return "0x" + format(value & ((1 << 160) - 1), "040x")
 
 
-def collect(rpc: JsonRpcClient, wallet: str, from_block: int) -> dict:
+def collect(rpc: JsonRpcClient, wallet: str, from_block: int, chunk_size: int = 2000) -> dict:
     latest = rpc.get_block_number()
     if from_block < 0 or from_block > latest:
         raise ValueError("from-block must be between zero and the latest block")
@@ -114,7 +114,7 @@ def collect(rpc: JsonRpcClient, wallet: str, from_block: int) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wallet", required=True)
-    parser.add_argument("--from-block", required=True, type=int)
+    parser.add_argument("--from-block", required=True, type=int)\n    parser.add_argument("--chunk-size", type=int, default=2000)
     parser.add_argument("--rpc-url", default=DEFAULT_RPC_URL)
     parser.add_argument("--output")
     args = parser.parse_args()
@@ -123,7 +123,7 @@ def main() -> int:
         if int(rpc.call("eth_chainId", []), 16) != CHAIN_ID:
             raise RuntimeError("RPC is not X Layer mainnet (chain ID 196)")
         wallet = "0x" + topic_address(args.wallet)[-40:]
-        result = collect(rpc, wallet, args.from_block)
+        result = collect(rpc, wallet, args.from_block, args.chunk_size)
         rendered = json.dumps(result, indent=2, ensure_ascii=False)
         if args.output:
             Path(args.output).write_text(rendered + "\n", encoding="utf-8")
