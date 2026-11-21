@@ -1,0 +1,29 @@
+name: LP Intelligence Foundation
+
+on:
+  pull_request:
+    paths:
+      - "thi-bac-ty-runtime/lp_intelligence/**"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-intelligence.py"
+      - ".github/workflows/lp-intelligence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "thi-bac-ty-runtime/lp_intelligence/**"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-intelligence.py"
+      - ".github/workflows/lp-intelligence-ci.yml"
+
+jobs:
+  offline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile LP Intelligence
+        working-directory: thi-bac-ty-runtime
+        run: python -m compileall -q lp_intelligence scripts/kiem-lp-intelligence.py
+      - name: Run offline self-test
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-intelligence.py
