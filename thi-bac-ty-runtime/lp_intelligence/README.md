@@ -130,3 +130,35 @@ Run offline checks:
 
     python scripts/kiem-lp-collector-fixtures.py
     python scripts/kiem-lp-swap-activity.py
+
+
+## Unified multi-chain Wallet & Position Monitor
+
+The unified monitor coordinates the Base and X Layer NFT scanners for one public EVM wallet and stores per-chain scan baselines plus monitor-run history.
+
+First run for a newly created/unused wallet:
+
+    python scripts/theo-doi-vi-lp.py --wallet XKO51f9d30f78239e53f14c1e248fd29e6966ce5287
+
+Or use the normalized EVM address:
+
+    python scripts/theo-doi-vi-lp.py --wallet 0x51f9d30f78239e53f14c1e248fd29e6966ce5287
+
+The monitor verifies chain IDs 196 and 8453, records the latest block/hash/timestamp as a per-chain baseline if none exists, then scans NFT Transfer logs from that baseline onward. On later runs it reuses the original baseline so positions that were created after onboarding can still be rediscovered. Existing baselines are never silently reset.
+
+Optional chain selection:
+
+    python scripts/theo-doi-vi-lp.py --wallet XKO... --chains xlayer
+    python scripts/theo-doi-vi-lp.py --wallet 0x... --chains base
+
+The X Layer scanner persists latest position snapshots in `xlayer_position_snapshots`; the Base collector persists position and fee snapshots in the existing position tables. Every monitor invocation is archived in `wallet_monitor_runs`. Baselines are stored in `wallet_chain_baselines`.
+
+Read-only APIs:
+- `GET /api/v1/wallet-monitor/{wallet}` — per-chain baselines and monitor-run history.
+- `GET /api/v1/wallet-monitor/{wallet}/xlayer-positions` — latest X Layer NFT position snapshots.
+- `GET /api/v1/positions?wallet=0x...` — latest Base position snapshots.
+- `GET /api/v1/position-fees?wallet=0x...` — latest Base unclaimed-fee snapshots.
+
+Important: the first baseline is appropriate only because this wallet was stated to be newly created and unused. It does not backfill historical NFT transfers before the baseline. If monitoring a previously used wallet, seed an earlier baseline/scan start block before relying on the inventory. ERC-20 enumeration, staked/custodied NFT discovery, X Layer feeGrowthInside math and USD valuation remain separate follow-up work.
+
+The monitor uses public RPC reads only. It never requests a wallet connection, seed phrase, private key, signature, approval, or transaction.
