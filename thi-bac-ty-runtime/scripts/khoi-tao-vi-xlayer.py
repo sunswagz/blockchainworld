@@ -13,7 +13,8 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone\nfrom decimal import Decimal
+from datetime import datetime, timezone
+from decimal import Decimal
 
 from lp_intelligence.xlayer import (
     CHAIN_ID,
