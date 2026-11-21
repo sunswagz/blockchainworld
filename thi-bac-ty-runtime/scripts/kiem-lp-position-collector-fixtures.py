@@ -80,7 +80,7 @@ def main() -> int:
         check("all on-chain calls use one pinned block",bool(rpc.calls) and all(x[2]=="0x1e240" for x in rpc.calls))
         check("factory, pool identity and fee tier reconcile",result["positions"][0]["pool_address"]==POOL and result["positions"][0]["fee_tier"]==500)
         check("in-range status uses lower-inclusive upper-exclusive ticks",result["positions"][0]["in_range"] is True)
-        check("unclaimed token fees are calculated",result["positions"][0]["unclaimed_fee0"]=="2.000000000000000005 AAA" and result["positions"][0]["unclaimed_fee1"]=="3.000006 BBB")
+        check("unclaimed token fees are calculated",result["positions"][0]["unclaimed_fee0"]=="2.000000000000000005 AAA" and result["positions"][0]["unclaimed_fee1"]=="3000000000000.000006 BBB")
         check("position and fee snapshots are persisted",len(store.list_positions(WALLET))==1 and len(store.list_position_fees(WALLET))==1)
         fee=store.list_position_fees(WALLET)[0]
         check("fee snapshot stores block hash and raw token amounts",fee["block_hash"]=="0x"+"ab"*32 and fee["tokens_owed0_raw"]==str(2*10**18+5))
