@@ -57,3 +57,24 @@ This stage reconciles event-derived token candidates, current NFT ownership, NFT
 - GET /api/v1/alerts?limit=100
 
 All endpoints are read-only. Missing values remain null. No transaction method exists.
+
+## X Layer wallet bootstrap (read-only)
+
+X Layer mainnet uses chain ID `196`, native gas token OKB, and the official public RPC `https://rpc.xlayer.tech`. The OKX Wallet display address `XKO...` is normalized to the corresponding EVM `0x...` address by the bootstrap script.
+
+Official Uniswap v3 X Layer deployments (verify against the official deployment page before upgrades):
+- Factory: `0x4B2ab38DBF28D31D467aA8993f6c2585981D6804`
+- NonfungiblePositionManager: `0x315e413A11AB0df498eF83873012430ca36638Ae`
+- WOKB: `0xe538905cf8410324e03A5A23C1c177a474D59b2b`
+
+Run from `thi-bac-ty-runtime`:
+
+    python scripts/khoi-tao-vi-xlayer.py --wallet XKO51f9d30f78239e53f14c1e248fd29e6966ce5287
+
+Or save a baseline JSON snapshot:
+
+    python scripts/khoi-tao-vi-xlayer.py --wallet 0x51f9d30f78239e53f14c1e248fd29e6966ce5287 --output ./data/xlayer-wallet-baseline.json
+
+The script verifies chain ID, captures block number, native OKB balance and transaction count, and checks that the official Uniswap v3 Factory and Position Manager addresses contain contract code at the same block. It does not enumerate ERC-20 token balances or LP positions yet; those are separate collectors. A zero transaction count is not proof of inactivity on other networks.
+
+No signing, approvals, transaction construction or transaction submission is performed.
