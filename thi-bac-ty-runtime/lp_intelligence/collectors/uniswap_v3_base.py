@@ -123,7 +123,7 @@ def collect_uniswap_v3_base(*, rpc_url: str | None = None, store: SQLiteStore | 
             observed_at=fetched_at, fetched_at=fetched_at,
             source="geckoterminal+base_rpc", source_url=candidate.source_url,
             data_status="fresh", tvl_usd=candidate.reserve_in_usd,
-            volume_24h_usd=candidate.volume_24h_usd, fees_24h_usd=estimated_fees,
+            volume_24h_usd=candidate.volume_24h_usd, fees_24h_usd=None,
             fee_apr_pct=None, incentive_apr_pct=None, spot_price=spot_price,
             current_tick=current_tick, fee_tier_bps=fee_tier / 100.0, raw_ref=str(raw_id),
         )
