@@ -154,3 +154,87 @@ class SQLiteStore:
                 item["recommended_checks"] = json.loads(item.pop("recommended_checks_json"))
                 out.append(item)
             return out
+
+
+    def get_wallet_baseline(self, wallet: str, chain_id: str) -> dict | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM wallet_chain_baselines WHERE lower(wallet_address)=lower(?) AND chain_id=?",
+                (wallet, str(chain_id)),
+            ).fetchone()
+            return None if row is None else dict(row)
+
+    def add_wallet_baseline(self, item: dict) -> None:
+        columns = ["wallet_address", "chain_id", "chain_name", "baseline_block",
+                   "baseline_hash", "baseline_timestamp", "scan_from_block", "created_at"]
+        with self._connect() as conn:
+            conn.execute(
+                f"INSERT OR IGNORE INTO wallet_chain_baselines ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns],
+            )
+
+    def list_wallet_baselines(self, wallet: str) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM wallet_chain_baselines WHERE lower(wallet_address)=lower(?) ORDER BY CAST(chain_id AS INTEGER)",
+                (wallet,),
+            ).fetchall()
+            return [dict(row) for row in rows]
+
+    def add_wallet_monitor_run(self, wallet: str, observed_at: str, status: str, result: dict) -> int:
+        with self._connect() as conn:
+            cur = conn.execute(
+                "INSERT INTO wallet_monitor_runs(wallet_address,observed_at,status,result_json) VALUES(?,?,?,?)",
+                (wallet.lower(), observed_at, status, json.dumps(result, ensure_ascii=False, sort_keys=True)),
+            )
+            return int(cur.lastrowid)
+
+    def list_wallet_monitor_runs(self, wallet: str, limit: int = 20) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM wallet_monitor_runs WHERE lower(wallet_address)=lower(?) ORDER BY observed_at DESC,id DESC LIMIT ?",
+                (wallet, limit),
+            ).fetchall()
+            out = []
+            for row in rows:
+                item = dict(row)
+                item["result"] = json.loads(item.pop("result_json"))
+                out.append(item)
+            return out
+
+    def add_xlayer_position_snapshot(self, wallet: str, block: dict, position: dict) -> int:
+        payload = json.dumps(position, ensure_ascii=False, sort_keys=True)
+        columns = ["wallet_address", "token_id", "block_number", "block_hash", "block_timestamp",
+                   "pool_address", "token0", "token1", "fee_tier", "tick_lower", "tick_upper",
+                   "current_tick", "liquidity_raw", "tokens_owed0_raw", "tokens_owed1_raw",
+                   "range_status", "verification", "payload_json"]
+        values = [
+            wallet.lower(), str(position["token_id"]), block["number"], block["hash"],
+            block["timestamp"], position.get("pool_address"), position.get("token0"),
+            position.get("token1"), position.get("fee_tier"), position.get("tick_lower"),
+            position.get("tick_upper"), position.get("current_tick"), position.get("liquidity_raw"),
+            position.get("tokens_owed0_raw"), position.get("tokens_owed1_raw"),
+            position.get("range_status"), position.get("verification", "unknown"), payload,
+        ]
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO xlayer_position_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                values,
+            )
+            return int(cur.lastrowid)
+
+    def list_xlayer_positions(self, wallet: str, limit: int = 100) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """SELECT p.* FROM xlayer_position_snapshots p
+                JOIN (SELECT token_id, MAX(id) AS latest_id FROM xlayer_position_snapshots
+                WHERE lower(wallet_address)=lower(?) GROUP BY token_id) x ON p.id=x.latest_id
+                ORDER BY p.block_number DESC LIMIT ?""",
+                (wallet, limit),
+            ).fetchall()
+            out = []
+            for row in rows:
+                item = dict(row)
+                item["payload"] = json.loads(item.pop("payload_json"))
+                out.append(item)
+            return out
