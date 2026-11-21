@@ -122,6 +122,7 @@ def collect_uniswap_v3_base_positions(
     owns_rpc = rpc is None
     rpc = rpc or JsonRpcClient(rpc_url or os.getenv("BASE_RPC_URL", "https://mainnet.base.org"))
     store = store or SQLiteStore()
+    store.initialize()
     try:
         block_number = rpc.get_block_number()
         if from_block > block_number:
