@@ -67,3 +67,4 @@ CREATE TABLE IF NOT EXISTS provider_payloads (
     payload_json TEXT NOT NULL, payload_hash TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_provider_payload_entity_time ON provider_payloads(entity_id, fetched_at DESC);
+\n\nCREATE TABLE IF NOT EXISTS pool_activity_snapshots (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    pool_id TEXT NOT NULL, block_number INTEGER NOT NULL, block_hash TEXT NOT NULL,\n    block_timestamp INTEGER NOT NULL, window TEXT NOT NULL,\n    from_block INTEGER NOT NULL, to_block INTEGER NOT NULL, swap_count INTEGER NOT NULL,\n    volume_usd_estimated REAL, fees_usd_estimated REAL,\n    fee_token0_raw_estimated TEXT, fee_token1_raw_estimated TEXT,\n    volume_token0_raw TEXT, volume_token1_raw TEXT,\n    method TEXT NOT NULL, data_status TEXT NOT NULL, raw_ref TEXT\n);\nCREATE INDEX IF NOT EXISTS idx_pool_activity_time ON pool_activity_snapshots(pool_id, block_timestamp DESC);\n
