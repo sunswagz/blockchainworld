@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_TQ_DO = {
- "generatedAt": "2026-11-22T01:30:24.446Z",
+ "generatedAt": "2026-11-22T11:41:05.829Z",
  "tuDo": [
   "brent",
   "nhandante",
@@ -12,13 +12,12 @@ window.DQT_TQ_DO = {
  "do": {
   "brent": {
    "nhan": "Dầu Brent",
-   "so": 92.57,
+   "so": 89.95,
    "dv": "USD/thùng",
    "nguon": "Yahoo Finance · BZ=F",
    "ghi": "Cùng một số với bảng Việt Nam — cú sốc Hormuz đánh cả hai nước, đó là điểm chứ không phải trùng lặp.",
-   "muc": "r",
+   "muc": "y",
    "lich": [
-    94.39,
     92.17,
     88.58,
     87.84,
@@ -82,17 +81,17 @@ window.DQT_TQ_DO = {
     93.14,
     91.95,
     91.98,
-    92.57
+    89.95
    ],
-   "doi7": -0.2,
-   "doi30": -11.6,
+   "doi7": -3,
+   "doi30": -14.1,
    "nguong": {
     "g": 75,
     "r": 90,
     "nghich": false,
     "can": "Trên 90 là vượt vùng dự báo EIA; dưới 75 là về mức trước xung đột."
    },
-   "luc": "2026-11-22T01:30:24.235Z"
+   "luc": "2026-11-22T11:41:05.431Z"
   },
   "nhandante": {
    "nhan": "USD/CNY",
@@ -201,7 +200,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (6,76). Vượt 7,30 kéo dài mới là áp lực dòng vốn ra thấy rõ."
    },
-   "luc": "2026-11-22T01:30:24.235Z"
+   "luc": "2026-11-22T11:41:05.431Z"
   },
   "bandan": {
    "nhan": "Chỉ số bán dẫn (SOXX)",
@@ -285,7 +284,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "NGƯỠNG TẠM, neo vào lượt đo đầu tiên (521 USD) chứ chưa có chuỗi dài để hiệu chỉnh — cùng hạng yếu với đồng hồ văn bản liên bang bên Việt Nam. Đọc để theo nhịp, không để kết luận."
    },
-   "luc": "2026-11-22T01:30:24.302Z"
+   "luc": "2026-11-22T11:41:05.491Z"
   },
   "thitruongtq": {
    "nhan": "Quỹ ETF Trung Quốc (FXI)",
@@ -369,7 +368,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Đặt theo biên độ quan sát. Đỏ khi về sát đáy vùng giao dịch."
    },
-   "luc": "2026-11-22T01:30:24.367Z"
+   "luc": "2026-11-22T11:41:05.725Z"
   },
   "vanban": {
    "nhan": "Văn bản liên bang Mỹ nhắc Trung Quốc",
@@ -478,7 +477,7 @@ window.DQT_TQ_DO = {
     "nghich": false,
     "can": "Nền quan sát ở lượt đo đầu: 128 văn bản/30 ngày — cao hơn Việt Nam khoảng bốn lần. NGƯỠNG YẾU, chưa đủ chuỗi để hiệu chỉnh. Đọc như nhịp độ chú ý, không phải mức nghiêm trọng."
    },
-   "luc": "2026-11-22T01:30:24.394Z"
+   "luc": "2026-11-22T11:41:05.748Z"
   },
   "hangseng": {
    "nhan": "Hang Seng",
@@ -562,7 +561,7 @@ window.DQT_TQ_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 22.672–26.038. Xanh khi ≥25.000, đỏ khi ≤23.000."
    },
-   "luc": "2026-11-22T01:30:24.445Z"
+   "luc": "2026-11-22T11:41:05.829Z"
   }
  }
 };

@@ -1,11 +1,35 @@
 {
  "ghiChu": "SINH TỰ ĐỘNG bởi scripts/do-kho.mjs quet. Đây là ĐỀ XUẤT, không phải phép canh.",
- "luc": "2026-11-15T06:50:50.248Z",
- "khoQuetLuc": "15/11/2026",
- "tongSkill": 4861,
+ "luc": "2026-11-22T11:42:41.598Z",
+ "khoQuetLuc": "22/11/2026",
+ "tongSkill": 4883,
  "daDung": 14,
- "ungVien": 974,
+ "ungVien": 981,
  "ganDay": [
+  {
+   "ten": "design-space-explore",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "quote-build",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "survey-design",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "ios-design-review",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "plan-design-review",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
+  {
+   "ten": "power-bi-model-design-review",
+   "luc": "2026-11-15T06:50:50.248Z"
+  },
   {
    "ten": "ux-review",
    "luc": "2026-11-08T00:43:40.797Z"
@@ -151,145 +175,117 @@
    "luc": "2026-10-03T11:55:32.512Z"
   },
   {
+   "ten": "ui-canvas",
+   "luc": "2026-11-22T11:42:41.598Z"
+  },
+  {
+   "ten": "ab-test-setup",
+   "luc": "2026-11-22T11:42:41.598Z"
+  },
+  {
+   "ten": "ai-native-cli",
+   "luc": "2026-11-22T11:42:41.598Z"
+  },
+  {
+   "ten": "angular-ui-patterns",
+   "luc": "2026-11-22T11:42:41.598Z"
+  },
+  {
+   "ten": "anti-ui-slop",
+   "luc": "2026-11-22T11:42:41.598Z"
+  },
+  {
    "ten": "api-and-interface-design",
-   "luc": "2026-09-26T11:43:36.627Z"
-  },
-  {
-   "ten": "api-design",
-   "luc": "2026-09-26T11:43:36.627Z"
-  },
-  {
-   "ten": "api-testing-observability-api-mock",
-   "luc": "2026-09-26T11:43:36.627Z"
-  },
-  {
-   "ten": "article-writing",
-   "luc": "2026-09-26T11:43:36.627Z"
-  },
-  {
-   "ten": "automation-audit-ops",
-   "luc": "2026-09-26T11:43:36.627Z"
-  },
-  {
-   "ten": "azure-developer-cli",
-   "luc": "2026-09-26T11:43:36.627Z"
-  },
-  {
-   "ten": "design-space-explore",
-   "luc": "2026-11-15T06:50:50.248Z"
-  },
-  {
-   "ten": "quote-build",
-   "luc": "2026-11-15T06:50:50.248Z"
-  },
-  {
-   "ten": "survey-design",
-   "luc": "2026-11-15T06:50:50.248Z"
-  },
-  {
-   "ten": "ios-design-review",
-   "luc": "2026-11-15T06:50:50.248Z"
-  },
-  {
-   "ten": "plan-design-review",
-   "luc": "2026-11-15T06:50:50.248Z"
-  },
-  {
-   "ten": "power-bi-model-design-review",
-   "luc": "2026-11-15T06:50:50.248Z"
+   "luc": "2026-11-22T11:42:41.598Z"
   }
  ],
  "theoLinhVuc": {
-  "giao diện tiếp cận": 102,
-  "lập trình công cụ": 428,
-  "kiểm thử rà soát": 224,
-  "dữ liệu phân tích": 70,
-  "hạ tầng vận hành": 65,
-  "giao tiếp nội dung": 61,
+  "giao diện tiếp cận": 100,
+  "lập trình công cụ": 429,
+  "kiểm thử rà soát": 229,
+  "dữ liệu phân tích": 68,
+  "hạ tầng vận hành": 66,
+  "giao tiếp nội dung": 63,
   "nghiên cứu": 54
  },
  "deXuat": [
   {
-   "ten": "design-space-explore",
-   "kho": "anthropics/claude-plugins-official",
-   "duong": "plugins/claude-for-manufacturing/skills/design-space-explore",
+   "ten": "ui-canvas",
+   "kho": "affaan-m/ECC",
+   "duong": "skills/ui-canvas",
    "lv": [
     "giao diện tiếp cận"
    ],
    "diem": 11,
-   "mo": "Generates a batch of CAD variants directly in Autodesk Fusion by applying changed parameters to an engineer's existing model, never designing from scratch and never overwriting the",
-   "byte": 11116,
-   "doc": "https://github.com/anthropics/claude-plugins-official/blob/main/plugins/claude-for-manufacturing/skills/design-space-explore/SKILL.md",
-   "trich": "# Design Space Explore An engineering team designing a part rarely has one answer. They have a **design space** — a range of possible designs bounded by what they're allowed to vary (wall thickness, rib count, hole pattern, material) and what the part must satisfy (envelope, mass, load, cost, manufacturability). Modeling one design at a time, by hand, means evaluating three to five options and picking the best of a small set. This skill generates many at once, directly in the CAD tool the engineer already has open. **It does not design from scratch.** It takes a model the engineer already has and generates variants of it — that constraint is what makes the output trustworthy and reviewable rather than a pile of new geometry nobody asked for. **It does not run analysis.** It produces the variants and the manifest describing them, so an analysis tool or a person evaluates each one and retu"
+   "mo": "Preview a UI component mockup in a local browser canvas where the human directly edits it (move, resize, edit text, delete, restyle), switches mobile/desktop/custom viewports, test",
+   "byte": 12191,
+   "doc": "https://github.com/affaan-m/ECC/blob/main/skills/ui-canvas/SKILL.md",
+   "trich": "# UI Canvas Approve-before-you-build loop for user interface work: you write a quick, self-contained HTML mockup of the component, the human opens it in the browser and adjusts it by hand like a website builder, and **Save and Finish** hands you the exact result to wire into the real code. Nobody has to rebuild and rerun the whole app to check a padding change. Any component qualifies: a card, a sidebar, a modal, a settings pane, a single button state, an animation, a page section. Any harness qualifies: the loop is a CLI that prints JSON. Shares its server, state, and hooks with `plan-canvas` (inspired by [lavish-axi](https://github.com/kunchenguid/lavish-axi) by @kunchenguid). Editing conventions follow [VisBug](https://github.com/GoogleChromeLabs/ProjectVisBug) and [Onlook](https://github.com/onlook-dev/onlook): Enter/Shift+Enter walk the tree, Delete removes, an edit/interact mode sw"
   },
   {
-   "ten": "quote-build",
-   "kho": "anthropics/claude-plugins-official",
-   "duong": "plugins/claude-for-manufacturing/skills/quote-build",
+   "ten": "ab-test-setup",
+   "kho": "sickn33/agentic-awesome-skills",
+   "duong": "skills/ab-test-setup",
+   "lv": [
+    "kiểm thử rà soát"
+   ],
+   "diem": 9,
+   "mo": "Use when designing an A/B or split test: define the hypothesis, control and variants, estimate sample size, verify tracking, and predeclare metrics and stopping rules.",
+   "byte": 8927,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/ab-test-setup/SKILL.md",
+   "trich": "# A/B Test Setup ## 1️⃣ Purpose & Scope Define an experiment that can answer a specific product question, and verify its assumptions before exposing users. This procedure cannot guarantee validity by itself. - Documents the stopping rule - Estimates sample needs under stated assumptions - Makes the hypothesis and decision criteria reviewable ## 2️⃣ Pre-Requisites You must have: - A clear user problem - Access to an analytics source - Roughly estimated traffic volume ### Hypothesis Quality Checklist A valid hypothesis includes: - Observation or evidence - Single, specific change - Directional expectation - Defined audience - Measurable success criteria ## 3️⃣ Hypothesis Lock (Hard Gate) Before designing variants or metrics, you MUST: - Present the **final hypothesis** - Specify: - Target audience - Primary metric - Expected direction of effect - Minimum Detectable Effect (MDE) Use the hyp"
+  },
+  {
+   "ten": "ai-native-cli",
+   "kho": "sickn33/agentic-awesome-skills",
+   "duong": "skills/ai-native-cli",
    "lv": [
     "lập trình công cụ"
    ],
-   "diem": 11,
-   "mo": "Produces the make-to-order quote from the intake form, comparable prior jobs and cost history, with every number traced to where it came from — material at the price actually paid ",
-   "byte": 28475,
-   "doc": "https://github.com/anthropics/claude-plugins-official/blob/main/plugins/claude-for-manufacturing/skills/quote-build/SKILL.md",
-   "trich": "# Quote Build Pricing a make-to-order job means building up a cost and then applying commercial judgment. Every job is priced fresh, which is why quoting is skilled, slow, expert work — and why the estimator is usually the bottleneck. **The cost basis is shown, always.** A quote that says *$14,720* is useless. One that says *$14,720, of which $6,100 is material at the price we paid on PO-8841 in June, plus 8% scrap* is defensible. **Quick start** ``` → Load the intake form. Lines with no quantity or no material are skipped; quote the rest and list what's blocked → Find comparables; show what made each one comparable AND how this job differs → Flag capability BEFORE pricing. Then hours per op from the ladder: routing → actuals → confirmed design → first principles → Setup and run separate at every rung. A superseded routing is shown, never priced. probable_standard never outranks rung 3 →"
+   "diem": 9,
+   "mo": "Design spec with 98 rules for building CLI tools that AI agents can safely use. Covers structured JSON output, error handling, input contracts, safety guardrails, exit codes, and a",
+   "byte": 14035,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/ai-native-cli/SKILL.md",
+   "trich": "# Agent-Friendly CLI Spec v0.1 This is a contributed CLI design proposal, not an external safety certification or universal host standard. Adopt applicable rules under the actual product/repository contract, preserving compatible existing interfaces. ## Overview A comprehensive design specification for building AI-native CLI tools. It defines 98 rules across three certification levels (Agent-Friendly, Agent-Ready, Agent-Native) with prioritized requirements (P0/P1/P2) according to its own proposal. The spec covers structured JSON output, error handling, input contracts, safety guardrails, exit codes, self-description, and a feedback loop via a built-in issue system. ## When to Use This Skill - Use when building a new CLI tool that AI agents will invoke - Use when retrofitting an existing CLI to be agent-friendly - Use when designing command-line interfaces for automation pipelines - Use "
   },
   {
-   "ten": "survey-design",
-   "kho": "phuryn/pm-skills",
-   "duong": "pm-market-research/skills/survey-design",
+   "ten": "angular-ui-patterns",
+   "kho": "sickn33/agentic-awesome-skills",
+   "duong": "skills/angular-ui-patterns",
    "lv": [
-    "giao diện tiếp cận",
-    "nghiên cứu"
+    "giao diện tiếp cận"
    ],
-   "diem": 11,
-   "mo": "Writing or reviewing a survey or questionnaire: customer feedback, NPS, CSAT, CES, pricing, market research, an in-app survey. Starts from the decision, asks about facts, pilots it",
-   "byte": 8519,
-   "doc": "https://github.com/phuryn/pm-skills/blob/main/pm-market-research/skills/survey-design/SKILL.md",
-   "trich": "## Survey Design **Send a survey only when you know which decision it informs.** Most bad surveys fail before the first question: no goal, the wrong people, questions nobody tested. Use this skill to take a survey from the decision to the analysis, or to review one. It draws on Caroline Jarrett's *Surveys That Work* and Annie Pettit's *People Aren't Robots*. ### Is it a survey at all? | You need | Use | |---|---| | Why people do something, in their own words | customer interviews, with a handful of people | | How common something is across a population | a survey: this skill | | What the people in a room think, right now | a live poll (below) | | Whether people can use something | a usability test | **When the people are in the room, poll them live instead of sending a form.** A workshop, a webinar, an all-hands or a customer advisory session answers in seconds, while everyone is there. "
+   "diem": 9,
+   "mo": "Modern Angular UI patterns for loading states, error handling, and data display. Use when building UI components, handling async data, or managing component states.",
+   "byte": 1040,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/angular-ui-patterns/SKILL.md",
+   "trich": "# Angular UI Patterns ## Detailed Guide Read [the detailed guide](references/detailed-guide.md) before executing this skill. It retains the complete procedure and reference material. Treat its safety, prerequisites, and validation requirements as mandatory. For focused work, load the relevant sections; for end-to-end work, read the guide completely. ## When to Use This skill is applicable to execute the workflow or actions described in the overview. ## Limitations - Use this skill only when the task clearly matches the scope described above. - Do not treat the output as a substitute for environment-specific validation, testing, or expert review. - Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing."
   },
   {
-   "ten": "ios-design-review",
-   "kho": "garrytan/gstack",
-   "duong": "ios-design-review",
+   "ten": "anti-ui-slop",
+   "kho": "sickn33/agentic-awesome-skills",
+   "duong": "skills/anti-ui-slop",
    "lv": [
-    "giao diện tiếp cận",
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 10,
-   "mo": "Visual design audit for iOS apps on real hardware. (gstack)",
-   "byte": 9936,
-   "doc": "https://github.com/garrytan/gstack/blob/main/ios-design-review/SKILL.md",
-   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> ## Shared preamble (load first) This skill follows gstack shared preamble `4e82fa4c839f` (AskUserQuestion format, voice, writing, completeness and completion rules). If your Read of that file, headed by this id, is still in context, do not read it again; otherwise Read `~/.claude/skills/gstack/ios-design-review/sections/preamble.md` in full before the command below. A section or subsection here with a shared heading replaces the shared one. ## Preamble (run first) ```bash ~/.claude/skills/gstack/bin/gstack-skill-start --skill \"ios-design-review\" --model \"claude\" ``` Read the echoed `KEY: value` STATUS lines — they drive every preamble rule below. **Degraded mode:** if `SKILL_START_PROTO: 1` is missing from the output (script absent, stale install, or a different protocol number),"
+   "diem": 9,
+   "mo": "Stop coding agents from shipping generic UI. Extend the product's design system, use UIZZE evidence only when useful, cover required states, and inspect the rendered result.",
+   "byte": 3357,
+   "doc": "https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/anti-ui-slop/SKILL.md",
+   "trich": "# Stop Making UI Slop Build product-specific UI with 800,000+ real web and iOS screens via [UIZZE](https://uizze.com). ## Overview Use the product brief, existing interface, components, and local design system before reaching for outside references. UIZZE evidence is optional: it should answer a concrete visual question, not turn every interface task into a research project. ## When to Use Use this skill when designing, implementing, redesigning, critiquing, or doing a pre-ship review of a web or iOS interface. ## Work From the Product 1. Identify the screen's real job, primary user and action, required content, and important loading, empty, error, success, disabled, and permission states. 2. Reuse the repository's components, semantic tokens, typography, spacing, and interaction conventions before adding a new abstraction or visual language. 3. For a new interface or major redesign, wri"
   },
   {
-   "ten": "plan-design-review",
-   "kho": "garrytan/gstack",
-   "duong": "plan-design-review",
+   "ten": "api-and-interface-design",
+   "kho": "addyosmani/agent-skills",
+   "duong": "skills/api-and-interface-design",
    "lv": [
-    "giao diện tiếp cận",
-    "kiểm thử rà soát"
+    "giao diện tiếp cận"
    ],
-   "diem": 10,
-   "mo": "Designer's eye plan review — interactive, like CEO and Eng review. (gstack)",
-   "byte": 55430,
-   "doc": "https://github.com/garrytan/gstack/blob/main/plan-design-review/SKILL.md",
-   "trich": "<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly --> <!-- Regenerate: bun run gen:skill-docs --> # /plan-design-review: Designer's Eye Plan Review You are a senior product designer reviewing a PLAN — not a live site. Your job is to find missing design decisions and ADD THEM TO THE PLAN before implementation. The output of this skill is a better plan, not a document about the plan. ## Scope gate (FIRST — overrides everything below). This is a hard STOP. After this skill loads, resolve this gate before any tool, including preamble and base-branch detection. Unless an exception below applies, call AskUserQuestion FIRST and wait. Announce plan-mode auto-selection before review tools. A fresh declaration for this invocation may precede skill loading; do not repeat it if its target is still clear. Name the selected plan by its title or path; use \"this draft\" only for an untitled p"
-  },
-  {
-   "ten": "power-bi-model-design-review",
-   "kho": "github/awesome-copilot",
-   "duong": "skills/power-bi-model-design-review",
-   "lv": [
-    "giao diện tiếp cận",
-    "kiểm thử rà soát"
-   ],
-   "diem": 10,
-   "mo": "Comprehensive Power BI data model design review prompt for evaluating model architecture, relationships, and optimization opportunities.",
-   "byte": 11128,
-   "doc": "https://github.com/github/awesome-copilot/blob/main/skills/power-bi-model-design-review/SKILL.md",
-   "trich": "# Power BI Data Model Design Review You are a Power BI data modeling expert conducting comprehensive design reviews. Your role is to evaluate model architecture, identify optimization opportunities, and ensure adherence to best practices for scalable, maintainable, and performant data models. ## Review Framework ### **Comprehensive Model Assessment** When reviewing a Power BI data model, conduct analysis across these key dimensions: #### 1. **Schema Architecture Review** ``` Star Schema Compliance: □ Clear separation of fact and dimension tables □ Proper grain consistency within fact tables □ Dimension tables contain descriptive attributes □ Minimal snowflaking (justified when present) □ Appropriate use of bridge tables for many-to-many Table Design Quality: □ Meaningful table and column names □ Appropriate data types for all columns □ Proper primary and foreign key relationships □ Consi"
+   "diem": 9,
+   "mo": "Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts be",
+   "byte": 14860,
+   "doc": "https://github.com/addyosmani/agent-skills/blob/main/skills/api-and-interface-design/SKILL.md",
+   "trich": "# API and Interface Design ## Overview Design stable, well-documented interfaces that are hard to misuse. Good interfaces make the right thing easy and the wrong thing hard. This applies to REST APIs, GraphQL schemas, module boundaries, component props, and any surface where one piece of code talks to another. ## When to Use - Designing new API endpoints - Defining module boundaries or contracts between teams - Creating component prop interfaces - Establishing database schema that informs API shape - Changing existing public interfaces ## Core Principles ### Hyrum's Law > With a sufficient number of users of an API, all observable behaviors of your system will be depended on by somebody, regardless of what you promise in the contract. This means: every public behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once users depend"
   }
  ]
 }
