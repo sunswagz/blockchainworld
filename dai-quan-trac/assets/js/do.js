@@ -1,6 +1,6 @@
 /* TỰ SINH — scripts/build-quantrac.mjs. Đừng sửa tay. */
 window.DQT_DO = {
- "generatedAt": "2026-11-21T19:29:44.746Z",
+ "generatedAt": "2026-11-22T01:30:24.221Z",
  "tuDo": [
   "nangluong",
   "laisuat",
@@ -96,7 +96,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "EIA dự báo Brent trung bình ~85 USD/thùng quý III/2026. Trên 90 là vượt vùng dự báo; dưới 75 là về lại mức trước xung đột."
    },
-   "luc": "2026-11-21T19:29:44.169Z"
+   "luc": "2026-11-22T01:30:23.693Z"
   },
   "laisuat": {
    "nhan": "Lợi suất TPCP Mỹ 10 năm",
@@ -181,17 +181,16 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Trên 4,75% là vùng siết mạnh dòng vốn khỏi thị trường mới nổi."
    },
-   "luc": "2026-11-21T19:29:44.231Z"
+   "luc": "2026-11-22T01:30:23.748Z"
   },
   "tygia": {
    "nhan": "USD/VND",
-   "so": 25730,
+   "so": 25783,
    "dv": "đồng",
    "nguon": "open.er-api.com · USD/VND",
    "ghi": null,
    "muc": "y",
    "lich": [
-    26053,
     25959,
     25994,
     26053,
@@ -280,17 +279,18 @@ window.DQT_DO = {
     25716,
     25747,
     25704,
-    25730
+    25730,
+    25783
    ],
-   "doi7": 0.3,
-   "doi30": -0.5,
+   "doi7": 0.4,
+   "doi30": -0.2,
    "nguong": {
     "g": 25500,
     "r": 26500,
     "nghich": false,
     "can": "Vượt 26.500 là mức chưa từng thấy kéo dài, đủ để gây áp lực nhập khẩu và nợ ngoại tệ."
    },
-   "luc": "2026-11-21T19:29:44.313Z"
+   "luc": "2026-11-22T01:30:23.796Z"
   },
   "tq": {
    "nhan": "Giá đồng",
@@ -374,7 +374,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Giá đồng 1 năm: thấp nhất 4,41 · trung vị 5,77 · cao nhất 6,70. Đỏ đặt sát đỉnh năm."
    },
-   "luc": "2026-11-21T19:29:44.379Z"
+   "luc": "2026-11-22T01:30:23.855Z"
   },
   "doanhnghiep": {
    "nhan": "Quỹ ETF Việt Nam (VNM)",
@@ -458,17 +458,16 @@ window.DQT_DO = {
     "nghich": true,
     "can": "ETF Việt Nam 1 năm: thấp nhất 16,34 · trung vị 18,17 · cao nhất 19,80. Đỏ đặt sát đáy năm."
    },
-   "luc": "2026-11-21T19:29:44.444Z"
+   "luc": "2026-11-22T01:30:23.928Z"
   },
   "xuatxu": {
    "nhan": "Văn bản liên bang Mỹ nhắc VN",
-   "so": 34,
+   "so": 33,
    "dv": "văn bản / 30 ngày",
    "nguon": "Federal Register API · “Vietnam”",
    "ghi": "Đếm NHỊP ĐỘ chú ý của bộ máy quản lý Mỹ, không đếm mức nghiêm trọng.",
    "muc": "g",
    "lich": [
-    34,
     28,
     31,
     29,
@@ -557,17 +556,18 @@ window.DQT_DO = {
     34,
     37,
     33,
-    34
+    34,
+    33
    ],
-   "doi7": 21.4,
-   "doi30": -8.1,
+   "doi7": 0,
+   "doi30": -19.5,
    "nguong": {
     "g": 35,
     "r": 55,
     "nghich": false,
     "can": "Nền quan sát được khoảng 37–43 văn bản/30 ngày. NGƯỠNG YẾU NHẤT BẢNG — đọc như nhịp độ, không phải mức độ."
    },
-   "luc": "2026-11-21T19:29:44.501Z"
+   "luc": "2026-11-22T01:30:23.993Z"
   },
   "caphe": {
    "nhan": "Cà phê Arabica",
@@ -651,7 +651,7 @@ window.DQT_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 244–364. Xanh khi ≥280, đỏ khi ≤250."
    },
-   "luc": "2026-11-21T19:29:44.555Z"
+   "luc": "2026-11-22T01:30:24.047Z"
   },
   "gao": {
    "nhan": "Gạo",
@@ -735,7 +735,7 @@ window.DQT_DO = {
     "nghich": true,
     "can": "Biên độ 3 tháng quan sát được: 11,8–14,6. Xanh khi ≥13, đỏ khi ≤12."
    },
-   "luc": "2026-11-21T19:29:44.607Z"
+   "luc": "2026-11-22T01:30:24.097Z"
   },
   "usd": {
    "nhan": "Chỉ số USD",
@@ -819,7 +819,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Biên độ 3 tháng quan sát được: 98,9–101,6. Đỏ đặt ở 103, tức trên hẳn vùng đang giao dịch."
    },
-   "luc": "2026-11-21T19:29:44.694Z"
+   "luc": "2026-11-22T01:30:24.158Z"
   },
   "vang": {
    "nhan": "Vàng",
@@ -903,7 +903,7 @@ window.DQT_DO = {
     "nghich": false,
     "can": "Biên độ 3 tháng quan sát được: 3.986–4.561. Vàng lập đỉnh liên tục nên ngưỡng này sẽ phải chỉnh lại; hiện neo vào biên trên quan sát được."
    },
-   "luc": "2026-11-21T19:29:44.746Z"
+   "luc": "2026-11-22T01:30:24.221Z"
   }
  }
 };
