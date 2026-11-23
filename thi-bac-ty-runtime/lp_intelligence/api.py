@@ -93,3 +93,19 @@ def position_performance(
         "pnl_scope": "before claimed fees, gas and rebalance costs",
         "status": "provisional; requires fresh token price observations",
     }
+
+
+@app.get("/api/v1/position-accounting")
+def position_accounting(
+    wallet: str | None = Query(default=None, min_length=4, max_length=128),
+    position_id: str | None = Query(default=None, min_length=3, max_length=256),
+    limit: int = Query(default=100, ge=1, le=500),
+) -> dict:
+    data = store.list_lp_position_accounting(
+        wallet=wallet, position_id=position_id, limit=limit
+    )
+    return {
+        "data": data, "count": len(data),
+        "accounting_note": "Collect is attributed principal-first against DecreaseLiquidity; USD net PnL is null when basis or event-time prices are missing",
+        "gas_note": "Base L2 gas plus receipt l1Fee where provided; transaction costs are allocated across distinct touched positions",
+    }
