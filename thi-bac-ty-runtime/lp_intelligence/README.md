@@ -260,7 +260,7 @@ The formula is:
     - liquidity contributions
     - attributed gas costs
 
-Net PnL is populated only when the NFT was minted directly to the wallet, the current position valuation is at least as recent as the latest fee snapshot, and event-time prices exist for every cashflow and gas transaction. If the NFT was acquired by transfer, acquisition cost is unknown and net PnL remains null. The first transfer must be included in the scan range.
+Net PnL is populated only when the NFT was minted directly to the wallet, every IncreaseLiquidity contribution transaction was sent by that wallet, the current position valuation is at least as recent as the latest fee snapshot, and event-time prices exist for every cashflow and gas transaction. If the NFT was acquired by transfer, acquisition cost is unknown and net PnL remains null. The first transfer must be included in the scan range.
 
 External swap transactions and rebalancing outside the PositionManager event lifecycle are not yet attributed. Gas allocation across multiple positions in one transaction is an equal split and is labeled as such. This is a conservative accounting estimate, not an audited tax ledger.
 
