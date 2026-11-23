@@ -84,6 +84,28 @@ def main() -> int:
           and cash["realized_fees0_raw"] == "30"
           and cash["realized_fees1_raw"] == "40")
 
+    ownership, basis = owned_events([
+        {"event_type": "Transfer", "block_number": 1, "log_index": 0,
+         "from_address": "0x" + "0"*40, "recipient": WALLET},
+        {"event_type": "IncreaseLiquidity", "block_number": 1, "log_index": 1,
+         "amount0_raw": "10", "amount1_raw": "20"},
+        {"event_type": "Transfer", "block_number": 2, "log_index": 0,
+         "from_address": WALLET, "recipient": "0x" + "ee"*20},
+        {"event_type": "Collect", "block_number": 3, "log_index": 0,
+         "amount0_raw": "999", "amount1_raw": "999"},
+    ], WALLET)
+    check("ownership intervals exclude events after transfer-out and recognize mint-to-wallet",
+          len(ownership) == 3 and basis == "position_no_longer_held")
+
+    _, transferred_basis = owned_events([
+        {"event_type": "Transfer", "block_number": 1, "log_index": 0,
+         "from_address": "0x" + "ee"*20, "recipient": WALLET},
+        {"event_type": "IncreaseLiquidity", "block_number": 1, "log_index": 1,
+         "amount0_raw": "10", "amount1_raw": "20"},
+    ], WALLET)
+    check("transferred-in NFT keeps acquisition basis unknown",
+          transferred_basis == "acquired_by_transfer_or_reacquired")
+
     gas = allocate_transaction_gas(101, ["p1", "p2", "p1"])
     check("transaction gas is split across distinct positions without loss",
           gas == {"p1": 51, "p2": 50} and sum(gas.values()) == 101)
