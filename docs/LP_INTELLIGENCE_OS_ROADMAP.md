@@ -26,10 +26,14 @@
 - [x] Read-only wallet monitor API endpoints.
 - [ ] Execute live scan for configured public wallet; compare RPC results with explorer/UI.
 - [x] Store append-only position fee and performance snapshots; window comparisons become available as history accrues.
-- [x] Add Base V3 Collect/DecreaseLiquidity event ledger with principal-first attribution to prevent principal payouts being mislabeled as fees.\n- [ ] Reconcile historical fee claims against unclaimed balances with block-level state replay.
+- [x] Add Base V3 Collect/DecreaseLiquidity event ledger with principal-first attribution to prevent principal payouts being mislabeled as fees.
+- [ ] Reconcile historical fee claims against unclaimed balances with block-level state replay.
 - [x] Calculate provisional USD fee values from timestamped provider price observations (not block-aligned oracle prices).
 - [x] Provisional 24h/7d/30d APR from unclaimed-fee balance deltas; null when history is insufficient or balance falls. Incentives remain separate.
-- [x] V3 principal, IL vs first-observed HODL baseline and provisional PnL before claimed fees/costs.\n- [x] Store Base V3 lifecycle events and wallet-paid transaction receipts; include L2 gas plus receipt L1 fee when supplied.\n- [x] Calculate conditional net PnL when mint-to-wallet basis, event-time token prices, current valuation and complete gas data exist.\n- [ ] Attribute external swaps/rebalances and all gas costs; reconcile net PnL for transferred-in positions.
+- [x] V3 principal, IL vs first-observed HODL baseline and provisional PnL before claimed fees/costs.
+- [x] Store Base V3 lifecycle events and wallet-paid transaction receipts; include L2 gas plus receipt L1 fee when supplied.
+- [x] Calculate conditional net PnL when mint-to-wallet basis, event-time token prices, current valuation and complete gas data exist.
+- [ ] Attribute external swaps/rebalances and all gas costs; reconcile net PnL for transferred-in positions.
 - [ ] Gate: reconcile live positions against UI; no live wallet scan has been run from CI.
 
 ## Phase 3 — Risk & Alerts
