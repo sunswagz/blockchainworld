@@ -223,3 +223,48 @@ Current-price convenience option: the runner can query GeckoTerminal V2 for each
       --fetch-gecko-prices
 
 Use `--prices-json` instead when you have a preferred price source; explicit JSON observations are recorded with their provenance. GeckoTerminal-derived valuations are marked provisional and are not historical block-aligned oracle prices.
+
+
+## Realized Fee & Cost Accounting — Base Uniswap V3
+
+The lifecycle ledger reads the official NonfungiblePositionManager events `Transfer`, `IncreaseLiquidity`, `DecreaseLiquidity` and `Collect`, then reads transaction receipts for wallet-paid gas. The event definitions follow the [official Uniswap V3 NonfungiblePositionManager interface](https://github.com/Uniswap/v3-periphery/blob/main/contracts/interfaces/INonfungiblePositionManager.sol).
+
+### Run order
+
+1. Run the Base NFT position collector so the database has the wallet's current NFT positions and token metadata.
+2. Add timestamped price observations for token0/token1 and Base WETH to `token_price_observations`. For event USD values, observations must be within the configured event-time tolerance (default 5 minutes).
+3. Run the read-only lifecycle scanner:
+
+       python scripts/doi-soat-lp-realized-costs.py \
+         --wallet 0xYOUR_PUBLIC_WALLET \
+         --from-block FIRST_WALLET_NFT_TRANSFER_BLOCK
+
+The scan range must include the first transfer of each NFT into the wallet. If no incoming transfer is found, the scanner refuses to infer ownership. The script only reads logs, transactions, receipts and blocks; it never signs or sends transactions.
+
+### Attribution rules
+
+- `IncreaseLiquidity`: records token amounts contributed while the wallet owns the NFT.
+- `DecreaseLiquidity`: records principal amounts receivable after liquidity removal.
+- `Collect`: records amounts paid out. Because the event does not label each unit as principal or fee, the ledger uses a documented conservative **principal-first** rule: outstanding DecreaseLiquidity amounts are attributed to recovered principal first; any excess Collect amount is classified as realized fees.
+- `Transfer`: delimits periods when the wallet owns the NFT. Events before acquisition and after transfer-out are not counted as wallet cashflows.
+- Gas: receipt `gasUsed × effectiveGasPrice + l1Fee` where Base supplies `l1Fee`. The transaction's cost is split evenly across distinct wallet-held positions touched by that transaction. Missing L1 fee or historical ETH/WETH price prevents a complete USD net PnL.
+
+### Net PnL and limitations
+
+The formula is:
+
+    current position value
+    + principal recovered
+    + realized fees
+    - liquidity contributions
+    - attributed gas costs
+
+Net PnL is populated only when the NFT was minted directly to the wallet, the current position valuation is at least as recent as the latest fee snapshot, and event-time prices exist for every cashflow and gas transaction. If the NFT was acquired by transfer, acquisition cost is unknown and net PnL remains null. The first transfer must be included in the scan range.
+
+External swap transactions and rebalancing outside the PositionManager event lifecycle are not yet attributed. Gas allocation across multiple positions in one transaction is an equal split and is labeled as such. This is a conservative accounting estimate, not an audited tax ledger.
+
+Read-only endpoint:
+
+    GET /api/v1/position-accounting?wallet=0x...
+
+The endpoint returns raw token cashflows, gas and net PnL status. Missing historical prices, incomplete ownership history, missing Base L1 fee or unknown acquisition basis remain explicit rather than being replaced with zero.
