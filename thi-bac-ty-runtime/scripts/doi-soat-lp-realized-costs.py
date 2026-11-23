@@ -79,7 +79,11 @@ def load_price_observations(store: SQLiteStore, path: str | None) -> int:
         required = ("chain_id", "token_address", "price_usd", "observed_at", "source", "source_url")
         if any(key not in item for key in required):
             raise ValueError(f"each price observation requires: {', '.join(required)}")
-        datetime.fromisoformat(item["observed_at"].replace("Z", "+00:00"))
+        observed = datetime.fromisoformat(item["observed_at"].replace("Z", "+00:00"))
+        if observed.utcoffset() is None:
+            raise ValueError("price observed_at must include a timezone")
+        if str(item["chain_id"]) != CHAIN_ID:
+            raise ValueError("realized accounting price observations must use Base chain_id 8453")
         price = Decimal(str(item["price_usd"]))
         if price <= 0 or not str(item["source_url"]).startswith("https://"):
             raise ValueError("price must be positive and source_url must use HTTPS")
