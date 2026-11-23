@@ -138,3 +138,55 @@ CREATE INDEX IF NOT EXISTS idx_perf_position_time
 ON position_performance_snapshots(position_id, observed_at DESC);
 CREATE INDEX IF NOT EXISTS idx_perf_wallet_time
 ON position_performance_snapshots(wallet_address, observed_at DESC);
+
+
+CREATE TABLE IF NOT EXISTS lp_position_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chain_id TEXT NOT NULL, manager_address TEXT NOT NULL, position_id TEXT NOT NULL,
+    token_id TEXT NOT NULL, wallet_address TEXT NOT NULL, tx_hash TEXT NOT NULL,
+    block_number INTEGER NOT NULL, block_hash TEXT NOT NULL,
+    transaction_index INTEGER NOT NULL, log_index INTEGER NOT NULL,
+    event_type TEXT NOT NULL CHECK(event_type IN ('IncreaseLiquidity','DecreaseLiquidity','Collect')),
+    recipient TEXT, amount0_raw TEXT NOT NULL, amount1_raw TEXT NOT NULL,
+    liquidity_raw TEXT NOT NULL, raw_log_json TEXT NOT NULL,
+    UNIQUE(chain_id, tx_hash, log_index)
+);
+CREATE INDEX IF NOT EXISTS idx_lp_events_position_order
+ON lp_position_events(position_id, block_number, transaction_index, log_index);
+CREATE INDEX IF NOT EXISTS idx_lp_events_wallet_block
+ON lp_position_events(wallet_address, block_number DESC);
+
+CREATE TABLE IF NOT EXISTS lp_transaction_costs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chain_id TEXT NOT NULL, tx_hash TEXT NOT NULL, wallet_address TEXT NOT NULL,
+    tx_from TEXT NOT NULL, tx_to TEXT, block_number INTEGER NOT NULL,
+    block_hash TEXT NOT NULL, block_timestamp TEXT NOT NULL,
+    receipt_status TEXT NOT NULL, gas_used TEXT NOT NULL,
+    effective_gas_price_wei TEXT NOT NULL, l1_fee_wei TEXT NOT NULL,
+    total_fee_wei TEXT NOT NULL, native_symbol TEXT NOT NULL DEFAULT 'ETH',
+    position_ids_json TEXT NOT NULL, allocation_method TEXT NOT NULL,
+    data_status TEXT NOT NULL, raw_receipt_json TEXT NOT NULL,
+    UNIQUE(chain_id, tx_hash)
+);
+CREATE INDEX IF NOT EXISTS idx_lp_costs_wallet_time
+ON lp_transaction_costs(wallet_address, block_number DESC);
+
+CREATE TABLE IF NOT EXISTS lp_position_accounting_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    position_id TEXT NOT NULL, wallet_address TEXT NOT NULL, chain_id TEXT NOT NULL,
+    block_number INTEGER NOT NULL, block_hash TEXT NOT NULL, observed_at TEXT NOT NULL,
+    token0_address TEXT NOT NULL, token1_address TEXT NOT NULL,
+    token0_symbol TEXT NOT NULL, token1_symbol TEXT NOT NULL,
+    liquidity_contributed0_raw TEXT NOT NULL, liquidity_contributed1_raw TEXT NOT NULL,
+    principal_owed0_raw TEXT NOT NULL, principal_owed1_raw TEXT NOT NULL,
+    principal_recovered0_raw TEXT NOT NULL, principal_recovered1_raw TEXT NOT NULL,
+    realized_fees0_raw TEXT NOT NULL, realized_fees1_raw TEXT NOT NULL,
+    realized_fees_usd REAL, principal_recovered_usd REAL,
+    gas_cost_native_wei TEXT NOT NULL, gas_cost_usd REAL,
+    net_pnl_usd REAL, accounting_status TEXT NOT NULL,
+    methodology_json TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_lp_accounting_position_time
+ON lp_position_accounting_snapshots(position_id, observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_lp_accounting_wallet_time
+ON lp_position_accounting_snapshots(wallet_address, observed_at DESC);
