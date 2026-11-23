@@ -139,3 +139,39 @@ def allocate_transaction_gas(total_fee_wei: int, position_ids: list[str]) -> dic
     quotient, remainder = divmod(total_fee_wei, len(unique))
     return {position_id: quotient + (1 if index < remainder else 0)
             for index, position_id in enumerate(unique)}
+
+
+def owned_events(events: list[dict[str, Any]], wallet: str) -> tuple[list[dict[str, Any]], str]:
+    """Keep only events inside wallet ownership intervals and report acquisition basis."""
+    wallet = wallet.lower()
+    active = False
+    saw_incoming = False
+    basis_known = False
+    selected: list[dict[str, Any]] = []
+    for event in sorted(events, key=lambda x: (
+        int(x["block_number"]), int(x.get("transaction_index", 0)), int(x["log_index"])
+    )):
+        if event["event_type"] == "Transfer":
+            sender = (event.get("from_address") or "").lower()
+            recipient = (event.get("recipient") or "").lower()
+            if sender == wallet:
+                if active:
+                    selected.append(event)
+                active = False
+            if recipient == wallet:
+                selected.append(event)
+                if not saw_incoming:
+                    saw_incoming = True
+                    basis_known = sender == "0x" + "0" * 40
+                elif sender != "0x" + "0" * 40:
+                    basis_known = False
+                active = True
+        elif active:
+            selected.append(event)
+    if not saw_incoming:
+        return [], "incomplete_transfer_history"
+    if active and basis_known:
+        return selected, "minted_to_wallet"
+    if active:
+        return selected, "acquired_by_transfer_or_reacquired"
+    return selected, "position_no_longer_held"
