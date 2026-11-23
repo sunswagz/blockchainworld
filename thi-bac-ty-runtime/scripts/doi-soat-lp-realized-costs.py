@@ -171,7 +171,8 @@ def main() -> int:
             receipt = rpc.get_transaction_receipt(tx_hash)
             gas_used = int(receipt["gasUsed"], 16)
             effective_gas_price = int(receipt.get("effectiveGasPrice", tx.get("gasPrice", "0x0")), 16)
-            l1_fee = int(receipt.get("l1Fee", "0x0"), 16)
+            l1_fee_raw = receipt.get("l1Fee")
+            l1_fee = int(l1_fee_raw, 16) if isinstance(l1_fee_raw, str) else int(l1_fee_raw or 0)
             total_fee = gas_used * effective_gas_price + l1_fee
             block_number = int(receipt["blockNumber"], 16)
             timestamp, block_hash = iso_timestamp(rpc, block_number, block_cache)
