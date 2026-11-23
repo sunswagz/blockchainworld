@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from lp_intelligence.accounting import (
-    EVENT_TOPICS, TRANSFER_TOPIC, decode_position_manager_event,
+    EVENT_TOPICS, TRANSFER_TOPIC, decode_position_manager_event, owned_events,
     attribute_position_cashflows, allocate_transaction_gas,
 )
 from lp_intelligence.collectors.uniswap_v3_positions_base import (
@@ -120,6 +120,7 @@ def main() -> int:
 
     store = SQLiteStore()
     store.initialize()
+    price_count = load_price_observations(store, args.prices_json)
     fee_rows = store.list_position_fees(wallet, limit=500)
     if not fee_rows:
         raise RuntimeError("No position snapshots for this wallet; run the Base NFT position collector first")
@@ -136,10 +137,12 @@ def main() -> int:
         event_count = 0
         ownership_status = {}
 
+        token_ids = [int(row["token_id"]) for row in fee_rows]
+        all_events = scan_positions_events(rpc, token_ids, args.from_block, latest_block,
+                                            args.chunk_size, wallet)
         for row in fee_rows:
             token_id = int(row["token_id"])
-            events = scan_token_events(rpc, token_id, args.from_block, latest_block,
-                                       args.chunk_size, wallet)
+            events = all_events[token_id]
             selected, basis_status = owned_events(events, wallet)
             position_id = row["position_id"]
             ownership_status[position_id] = basis_status
@@ -157,6 +160,9 @@ def main() -> int:
 
         # Transaction costs are recorded only when this wallet is the transaction sender.
         gas_by_position: dict[str, int] = defaultdict(int)
+        gas_usd_by_position: dict[str, Decimal] = defaultdict(Decimal)
+        gas_price_complete: dict[str, bool] = defaultdict(lambda: True)
+        gas_l1_fee_complete: dict[str, bool] = defaultdict(lambda: True)
         cost_tx_count = 0
         for tx_hash, position_ids in tx_positions.items():
             tx = rpc.get_transaction(tx_hash)
@@ -170,8 +176,15 @@ def main() -> int:
             block_number = int(receipt["blockNumber"], 16)
             timestamp, block_hash = iso_timestamp(rpc, block_number, block_cache)
             allocations = allocate_transaction_gas(total_fee, list(position_ids))
+            native_price = price_usd_at(store, WETH_BASE, timestamp, args.max_price_skew_seconds)
             for position_id, amount in allocations.items():
                 gas_by_position[position_id] += amount
+                if "l1Fee" not in receipt or receipt.get("l1Fee") is None:
+                    gas_l1_fee_complete[position_id] = False
+                if native_price is None:
+                    gas_price_complete[position_id] = False
+                else:
+                    gas_usd_by_position[position_id] += Decimal(amount) / Decimal(10**18) * native_price
             store.add_lp_transaction_cost({
                 "chain_id": CHAIN_ID, "tx_hash": tx_hash, "wallet_address": wallet,
                 "tx_from": tx.get("from", "").lower(), "tx_to": (tx.get("to") or "").lower(),
@@ -230,9 +243,8 @@ def main() -> int:
 
             gas_wei = gas_by_position.get(position_id, 0)
             latest = store.list_position_performance(position_id=position_id, limit=1)
-            current_value = Decimal(str(latest[0]["position_value_usd"])) if latest else None
-            gas_price = price_usd_at(store, WETH_BASE, iso_timestamp(rpc, latest_block, block_cache)[0], args.max_price_skew_seconds)
-            gas_usd = (Decimal(gas_wei) / Decimal(10**18) * gas_price) if gas_price is not None else None
+            current_value = Decimal(str(latest[0]["position_value_usd"])) if latest and int(latest[0]["block_number"]) >= int(row["block_number"]) and ownership_status[position_id] != "position_no_longer_held" else None
+            gas_usd = gas_usd_by_position.get(position_id, Decimal(0)) if gas_price_complete[position_id] and gas_l1_fee_complete[position_id] else None
             # Net PnL is only meaningful when acquisition basis, all event prices and current valuation exist.
             net_pnl = None
             status_parts = []
@@ -242,8 +254,10 @@ def main() -> int:
                 status_parts.append("missing_historical_token_prices")
             if current_value is None:
                 status_parts.append("missing_current_position_valuation")
-            if gas_wei and gas_usd is None:
-                status_parts.append("missing_native_gas_price")
+            if gas_wei and not gas_l1_fee_complete[position_id]:
+                status_parts.append("missing_base_l1_fee_component")
+            if gas_wei and not gas_price_complete[position_id]:
+                status_parts.append("missing_historical_native_gas_price")
             if not status_parts and current_value is not None and gas_usd is not None:
                 net_pnl = current_value + recovered_usd + realized_fees_usd - contributed_usd - gas_usd
                 accounting_status = "provisional_net_pnl"
