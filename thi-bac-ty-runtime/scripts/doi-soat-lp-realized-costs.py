@@ -275,7 +275,7 @@ def main() -> int:
                 "methodology_json": json.dumps({
                     "realized_fee_attribution": cash["attribution_method"],
                     "ownership": ownership_status[position_id],
-                    "gas": "receipt gasUsed * effectiveGasPrice + Base receipt l1Fee; equally allocated across touched positions",
+                    "gas": "receipt gasUsed * effectiveGasPrice + Base receipt l1Fee; equally allocated across touched positions and valued at event-time ETH/WETH price",
                     "usd_prices": "nearest stored token price within configured event-time skew; missing prices remain unknown",
                     "net_pnl": "current position value + principal recovered + realized fees - liquidity contributions - attributed gas",
                     "limitations": ["NFT transfer acquisition price is unknown unless minted directly to wallet",
