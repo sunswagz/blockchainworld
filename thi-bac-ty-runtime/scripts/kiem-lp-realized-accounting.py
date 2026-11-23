@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from lp_intelligence.accounting import (
     COLLECT_TOPIC, DECREASE_LIQUIDITY_TOPIC, INCREASE_LIQUIDITY_TOPIC,
-    TRANSFER_TOPIC, decode_position_manager_event, attribute_position_cashflows,
+    TRANSFER_TOPIC, decode_position_manager_event, owned_events, attribute_position_cashflows,
     allocate_transaction_gas,
 )
 from lp_intelligence.storage import SQLiteStore
