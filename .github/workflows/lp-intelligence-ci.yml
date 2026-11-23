@@ -77,3 +77,6 @@ jobs:
       - name: Run LP performance fixtures
         working-directory: thi-bac-ty-runtime
         run: python scripts/kiem-lp-performance.py
+      - name: Run LP realized accounting fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-realized-accounting.py
