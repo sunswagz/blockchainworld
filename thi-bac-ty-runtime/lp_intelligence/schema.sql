@@ -146,8 +146,8 @@ CREATE TABLE IF NOT EXISTS lp_position_events (
     token_id TEXT NOT NULL, wallet_address TEXT NOT NULL, tx_hash TEXT NOT NULL,
     block_number INTEGER NOT NULL, block_hash TEXT NOT NULL,
     transaction_index INTEGER NOT NULL, log_index INTEGER NOT NULL,
-    event_type TEXT NOT NULL CHECK(event_type IN ('IncreaseLiquidity','DecreaseLiquidity','Collect')),
-    recipient TEXT, amount0_raw TEXT NOT NULL, amount1_raw TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK(event_type IN ('IncreaseLiquidity','DecreaseLiquidity','Collect','Transfer')),
+    from_address TEXT, recipient TEXT, amount0_raw TEXT NOT NULL, amount1_raw TEXT NOT NULL,
     liquidity_raw TEXT NOT NULL, raw_log_json TEXT NOT NULL,
     UNIQUE(chain_id, tx_hash, log_index)
 );
