@@ -18,12 +18,10 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from lp_intelligence.accounting import (
-    EVENT_TOPICS, TRANSFER_TOPIC, decode_position_manager_event,
+    EVENT_TOPICS, TRANSFER_TOPIC, decode_position_manager_event, owned_events,
     attribute_position_cashflows, allocate_transaction_gas,
 )
-from lp_intelligence.collectors.uniswap_v3_positions_base import (
-    POSITION_MANAGER, format_units,
-)
+from lp_intelligence.collectors.uniswap_v3_positions_base import POSITION_MANAGER
 from lp_intelligence.evm import JsonRpcClient
 from lp_intelligence.storage import SQLiteStore
 
