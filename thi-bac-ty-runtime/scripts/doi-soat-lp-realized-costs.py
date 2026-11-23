@@ -163,11 +163,13 @@ def main() -> int:
         gas_usd_by_position: dict[str, Decimal] = defaultdict(Decimal)
         gas_price_complete: dict[str, bool] = defaultdict(lambda: True)
         gas_l1_fee_complete: dict[str, bool] = defaultdict(lambda: True)
+        wallet_sender_tx_hashes: set[str] = set()
         cost_tx_count = 0
         for tx_hash, position_ids in tx_positions.items():
             tx = rpc.get_transaction(tx_hash)
             if tx.get("from", "").lower() != wallet:
                 continue
+            wallet_sender_tx_hashes.add(tx_hash)
             receipt = rpc.get_transaction_receipt(tx_hash)
             gas_used = int(receipt["gasUsed"], 16)
             effective_gas_price = int(receipt.get("effectiveGasPrice", tx.get("gasPrice", "0x0")), 16)
@@ -253,6 +255,9 @@ def main() -> int:
                 status_parts.append("unknown_acquisition_basis")
             if int(cash["liquidity_contributed0_raw"]) == 0 and int(cash["liquidity_contributed1_raw"]) == 0:
                 status_parts.append("missing_liquidity_contribution_events")
+            increase_tx_hashes = {event["tx_hash"] for event in events if event["event_type"] == "IncreaseLiquidity"}
+            if not increase_tx_hashes.issubset(wallet_sender_tx_hashes):
+                status_parts.append("capital_contribution_sender_unverified")
             if not price_coverage:
                 status_parts.append("missing_historical_token_prices")
             if current_value is None:
