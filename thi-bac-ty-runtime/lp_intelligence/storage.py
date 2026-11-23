@@ -312,3 +312,117 @@ class SQLiteStore:
         params.append(limit)
         with self._connect() as conn:
             return [dict(row) for row in conn.execute(query, params).fetchall()]
+
+
+    def add_lp_position_event(self, item: dict) -> int:
+        columns = [
+            "chain_id", "manager_address", "position_id", "token_id", "wallet_address",
+            "tx_hash", "block_number", "block_hash", "transaction_index", "log_index",
+            "event_type", "recipient", "amount0_raw", "amount1_raw", "liquidity_raw",
+            "raw_log_json",
+        ]
+        with self._connect() as conn:
+            conn.execute(
+                f"INSERT OR IGNORE INTO lp_position_events ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns],
+            )
+            row = conn.execute(
+                "SELECT id FROM lp_position_events WHERE chain_id=? AND tx_hash=? AND log_index=?",
+                (item["chain_id"], item["tx_hash"], item["log_index"]),
+            ).fetchone()
+            return int(row["id"])
+
+    def list_lp_position_events(self, position_id: str | None = None,
+                                wallet: str | None = None, limit: int = 20000) -> list[dict]:
+        query = "SELECT * FROM lp_position_events WHERE 1=1"
+        params: list = []
+        if position_id:
+            query += " AND position_id=?"
+            params.append(position_id)
+        if wallet:
+            query += " AND lower(wallet_address)=lower(?)"
+            params.append(wallet)
+        query += " ORDER BY block_number, transaction_index, log_index LIMIT ?"
+        params.append(limit)
+        with self._connect() as conn:
+            return [dict(row) for row in conn.execute(query, params).fetchall()]
+
+    def add_lp_transaction_cost(self, item: dict) -> int:
+        columns = [
+            "chain_id", "tx_hash", "wallet_address", "tx_from", "tx_to",
+            "block_number", "block_hash", "block_timestamp", "receipt_status",
+            "gas_used", "effective_gas_price_wei", "l1_fee_wei", "total_fee_wei",
+            "native_symbol", "position_ids_json", "allocation_method", "data_status",
+            "raw_receipt_json",
+        ]
+        with self._connect() as conn:
+            conn.execute(
+                f"INSERT OR IGNORE INTO lp_transaction_costs ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns],
+            )
+            row = conn.execute(
+                "SELECT id FROM lp_transaction_costs WHERE chain_id=? AND tx_hash=?",
+                (item["chain_id"], item["tx_hash"]),
+            ).fetchone()
+            return int(row["id"])
+
+    def list_lp_transaction_costs(self, wallet: str, limit: int = 5000) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM lp_transaction_costs WHERE lower(wallet_address)=lower(?) ORDER BY block_number,tx_hash LIMIT ?",
+                (wallet, limit),
+            ).fetchall()
+            return [dict(row) for row in rows]
+
+    def add_lp_position_accounting_snapshot(self, item: dict) -> int:
+        columns = [
+            "position_id", "wallet_address", "chain_id", "block_number", "block_hash",
+            "observed_at", "token0_address", "token1_address", "token0_symbol",
+            "token1_symbol", "liquidity_contributed0_raw", "liquidity_contributed1_raw",
+            "principal_owed0_raw", "principal_owed1_raw", "principal_recovered0_raw",
+            "principal_recovered1_raw", "realized_fees0_raw", "realized_fees1_raw",
+            "realized_fees_usd", "principal_recovered_usd", "gas_cost_native_wei",
+            "gas_cost_usd", "net_pnl_usd", "accounting_status", "methodology_json",
+        ]
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"INSERT INTO lp_position_accounting_snapshots ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})",
+                [item.get(k) for k in columns],
+            )
+            return int(cur.lastrowid)
+
+    def list_lp_position_accounting(self, wallet: str | None = None,
+                                    position_id: str | None = None, limit: int = 500) -> list[dict]:
+        query = "SELECT * FROM lp_position_accounting_snapshots WHERE 1=1"
+        params: list = []
+        if wallet:
+            query += " AND lower(wallet_address)=lower(?)"
+            params.append(wallet)
+        if position_id:
+            query += " AND position_id=?"
+            params.append(position_id)
+        query += " ORDER BY observed_at DESC,id DESC LIMIT ?"
+        params.append(limit)
+        with self._connect() as conn:
+            return [dict(row) for row in conn.execute(query, params).fetchall()]
+
+    def token_price_near(self, chain_id: str, token_address: str,
+                         observed_at: str, max_skew_seconds: int = 300) -> dict | None:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """SELECT * FROM token_price_observations
+                WHERE chain_id=? AND lower(token_address)=lower(?)""",
+                (str(chain_id), token_address),
+            ).fetchall()
+            if not rows:
+                return None
+            from datetime import datetime
+            target = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+            candidates = []
+            for row in rows:
+                item = dict(row)
+                stamp = datetime.fromisoformat(item["observed_at"].replace("Z", "+00:00"))
+                skew = abs((stamp - target).total_seconds())
+                if skew <= max_skew_seconds:
+                    candidates.append((skew, item))
+            return None if not candidates else min(candidates, key=lambda x: x[0])[1]
