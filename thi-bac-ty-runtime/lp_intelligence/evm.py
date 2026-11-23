@@ -102,3 +102,16 @@ def verify_uniswap_v3_pool(
         if int(found, 16) != 0 and found == pool_address.lower():
             return fee
     return None
+
+
+    def get_transaction_receipt(self, tx_hash: str) -> dict[str, Any]:
+        result = self.call("eth_getTransactionReceipt", [tx_hash])
+        if not isinstance(result, dict) or not result.get("transactionHash"):
+            raise JsonRpcError(f"transaction receipt unavailable for {tx_hash}")
+        return result
+
+    def get_transaction(self, tx_hash: str) -> dict[str, Any]:
+        result = self.call("eth_getTransactionByHash", [tx_hash])
+        if not isinstance(result, dict) or not result.get("hash"):
+            raise JsonRpcError(f"transaction unavailable for {tx_hash}")
+        return result
