@@ -26,10 +26,10 @@
 - [x] Read-only wallet monitor API endpoints.
 - [ ] Execute live scan for configured public wallet; compare RPC results with explorer/UI.
 - [x] Store append-only position fee and performance snapshots; window comparisons become available as history accrues.
-- [ ] Reconcile collected fees vs unclaimed fees and prevent double counting.
+- [x] Add Base V3 Collect/DecreaseLiquidity event ledger with principal-first attribution to prevent principal payouts being mislabeled as fees.\n- [ ] Reconcile historical fee claims against unclaimed balances with block-level state replay.
 - [x] Calculate provisional USD fee values from timestamped provider price observations (not block-aligned oracle prices).
 - [x] Provisional 24h/7d/30d APR from unclaimed-fee balance deltas; null when history is insufficient or balance falls. Incentives remain separate.
-- [x] V3 principal, IL vs first-observed HODL baseline and provisional PnL before claimed fees/costs.\n- [ ] Claimed-fee Collect-event ledger, gas/rebalance cost ledger and fully net PnL.
+- [x] V3 principal, IL vs first-observed HODL baseline and provisional PnL before claimed fees/costs.\n- [x] Store Base V3 lifecycle events and wallet-paid transaction receipts; include L2 gas plus receipt L1 fee when supplied.\n- [x] Calculate conditional net PnL when mint-to-wallet basis, event-time token prices, current valuation and complete gas data exist.\n- [ ] Attribute external swaps/rebalances and all gas costs; reconcile net PnL for transferred-in positions.
 - [ ] Gate: reconcile live positions against UI; no live wallet scan has been run from CI.
 
 ## Phase 3 — Risk & Alerts
@@ -58,3 +58,10 @@
 ### Phase 2 implementation note
 
 The initial Fee Performance Engine is implemented for Base Uniswap V3 NFTs. It stores sourced price observations, calculates current principal and unclaimed-fee USD values, compares LP principal against a first-monitored HODL baseline, and exposes performance history. APR is provisional and requires accumulated observations. Claimed fees, gas and rebalance costs remain unknown rather than being imputed. GeckoTerminal current prices are not block-aligned oracle prices; this is not yet a fully realized net-return ledger.
+
+
+### Realized Fee & Cost Accounting implementation note
+
+Base Uniswap V3 lifecycle logs are persisted idempotently by chain/transaction/log index. Ownership Transfer logs delimit the wallet's ownership periods. Collect amounts are attributed principal-first against DecreaseLiquidity amounts; this avoids treating the whole Collect payout as fees, but remains an explicit accounting convention rather than an on-chain fee/principal split. Wallet-signed transaction receipts record gasUsed × effectiveGasPrice plus Base l1Fee when available. Multi-position transaction gas is split equally among distinct positions touched.
+
+Net PnL is intentionally null unless the NFT was minted directly to the wallet, the scan covers the initial transfer, historical prices are available near every event, current valuation is fresh relative to the latest fee snapshot, and the receipt includes the L1 fee component. External swaps/rebalances and transfer-acquisition cost remain outside the ledger. The implementation is Base V3 only; it is not yet a complete cross-chain audited cost basis.
