@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (473.387 sao)
+     Kho    : morluto/rea (474.967 sao)
      Đường  : .agents/skills/rea-analysis-optimization
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-analysis-optimization/SKILL.md
-     sha256 : e3d25af74fc3d8d0 · nhập 2026-11-22T11:41:04.519Z
+     sha256 : 554817f8535aba08 · nhập 2026-11-23T13:13:31.564Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -57,13 +57,19 @@ Include catalog discovery and extra calls when they affect the completed task.
 
 Use the evidence to choose the smallest structural correction:
 
-| Observed cost                     | Candidate correction                                       | Condition to establish                                                               |
-| --------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Repeated scans of validated facts | Reuse existing order or lookup structure                   | The owner establishes ordering and identity; every matching alternative survives     |
-| Repeated equivalent engine work   | Share a validated result or in-flight producer             | Inputs, freshness, lifetime, and per-caller outcomes remain explicit                 |
-| Full reports for selected facts   | Push selection or projection to the earliest capable owner | Required facts and evidence remain reachable; examined coverage is reported          |
-| Large temporary transport buffers | Decode incrementally or use bounded source reads           | Validate the whole admitted document; retained facts and copies still consume memory |
-| Many repeated homogeneous reads   | Share admission, decoding, or batch work                   | Preserve item identity, order where required, and individual failures                |
+| Observed cost                     | Candidate correction                                                        | Condition to establish                                                                |
+| --------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Repeated scans of validated facts | Reuse existing order, `Map`/`Set` index, or single pass                     | The owner establishes ordering and identity; every matching alternative survives      |
+| Full-tree re-parse / deep-clone   | Validate once with `ownedJson*` or envelope-only parse                      | Payload is exclusively owned or already validated by the owning decoder boundary      |
+| Unnecessary secondary pass/spawn  | Derive a tiny pass-1 existence summary / pruning index                      | The summary is exact for the primary stream so skipping preserves identical answers   |
+| Repeated equivalent engine work   | Share a validated result or in-flight producer                              | Inputs, freshness, lifetime, and per-caller outcomes remain explicit                  |
+| Full reports for selected facts   | Push selection or projection to the earliest capable owner                  | Required facts and evidence remain reachable; examined coverage is reported           |
+| Large temporary transport buffers | Decode incrementally or use bounded source reads                            | Validate the whole admitted document; retained facts and copies still consume memory  |
+| Full-file archive buffering       | Stream SHA-256 + prefix and use random-access `FileHandle`                  | Single-descriptor TOCTOU stability re-verified before close; identity kept on failure |
+| Full-collection re-indexing       | Update secondary indexes incrementally on mutations                         | Incremental updates match full rebuilds; reset isolates snapshots                     |
+| Unbounded listings or traversals  | Optional `limit`/`offset` or `max_depth`/`max_nodes` + `O(limit)` fast path | Omitted bounds stay complete; truncated replies report `partial` and continuation     |
+| Unbounded IPC/pipe frame buffers  | High-water `pause()`/`resume()` backpressure in frame reader                | Bounded memory under slow consumers; cancellation and close remain clean              |
+| Many repeated homogeneous reads   | Share admission, decoding, or batch work                                    | Preserve item identity, order where required, and individual failures                 |
 
 Do not introduce an index, generic cache, batch endpoint, or orchestration layer
 without identifying the work it removes and its maintenance/resource cost.

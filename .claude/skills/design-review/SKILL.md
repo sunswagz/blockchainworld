@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (142.325 sao)
+     Kho    : garrytan/gstack (142.437 sao)
      Đường  : design-review
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-review/SKILL.md
-     sha256 : 9a30893ae3119293 · nhập 2026-11-22T11:41:04.479Z
+     sha256 : 1bd292ebc13a934b · nhập 2026-11-23T13:13:30.972Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -217,7 +217,8 @@ else
     125) echo "ASIDE_UNAVAILABLE: bounded probe unavailable" ;;
     0) if printf '%s\n' "$_o" | grep -q '^ASIDE_READY '; then echo "READY: $_A"
        else echo "ASIDE_NOT_RUNNING: no readiness marker"; fi ;;
-    *) echo "ASIDE_CLI_ERROR: exit $_rc; inspect aside --help locally" ;;
+    *) case "$_o" in *"isn't running"*) echo "ASIDE_NOT_RUNNING: app not running" ;;
+       *) echo "ASIDE_CLI_ERROR: exit $_rc; inspect aside --help locally" ;; esac ;;
   esac
   unset _o
 fi

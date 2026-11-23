@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/claude-plugins-official (47.941 sao)
+     Kho    : anthropics/claude-plugins-official (48.023 sao)
      Đường  : plugins/plugin-dev/skills/agent-development
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/plugins/plugin-dev/skills/agent-development/SKILL.md
-     sha256 : 6a2826571320828c · nhập 2026-11-22T11:41:04.508Z
+     sha256 : 6a2826571320828c · nhập 2026-11-23T13:13:31.313Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
