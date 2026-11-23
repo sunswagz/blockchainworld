@@ -1,0 +1,77 @@
+name: LP Intelligence Foundation
+# Deterministic offline checks only; no wallet credentials or transaction permissions.
+
+on:
+  pull_request:
+    paths:
+      - "thi-bac-ty-runtime/lp_intelligence/**"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-intelligence.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-fee-accounting.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-position-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-swap-activity.py"
+      - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
+      - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/theo-doi-vi-lp.py"
+      - "thi-bac-ty-runtime/scripts/kiem-wallet-monitor.py"
+      - "thi-bac-ty-runtime/scripts/tinh-hieu-suat-lp.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-performance.py"
+      - ".github/workflows/lp-intelligence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "thi-bac-ty-runtime/lp_intelligence/**"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-intelligence.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-fee-accounting.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-position-collector-fixtures.py"
+      - "thi-bac-ty-runtime/scripts/khoi-tao-vi-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/quet-token-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kham-pha-pool-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/kiem-xlayer-scanners.py"
+      - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
+      - "thi-bac-ty-runtime/scripts/theo-doi-vi-lp.py"
+      - "thi-bac-ty-runtime/scripts/kiem-wallet-monitor.py"
+      - ".github/workflows/lp-intelligence-ci.yml"
+
+jobs:
+  offline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install runtime dependencies
+        working-directory: thi-bac-ty-runtime
+        run: python -m pip install -r requirements.txt
+      - name: Compile LP Intelligence
+        working-directory: thi-bac-ty-runtime
+        run: python -m compileall -q lp_intelligence scripts/kiem-lp-intelligence.py scripts/kiem-lp-collector-fixtures.py scripts/kiem-lp-fee-accounting.py scripts/kiem-lp-position-collector-fixtures.py scripts/kiem-lp-swap-activity.py scripts/khoi-tao-vi-xlayer.py scripts/quet-token-xlayer.py scripts/kham-pha-pool-uniswap-v3-xlayer.py scripts/kiem-xlayer-scanners.py scripts/quet-vi-the-uniswap-v3-xlayer.py scripts/theo-doi-vi-lp.py scripts/kiem-wallet-monitor.py scripts/tinh-hieu-suat-lp.py scripts/kiem-lp-performance.py
+      - name: Run foundation self-test
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-intelligence.py
+      - name: Run pool collector fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-collector-fixtures.py
+      - name: Run fee accounting fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-fee-accounting.py
+      - name: Run NFT position collector fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-position-collector-fixtures.py
+      - name: Run X Layer scanner fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-xlayer-scanners.py
+      - name: Run Base swap activity fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-swap-activity.py
+      - name: Run unified wallet monitor fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-wallet-monitor.py
+      - name: Run LP performance fixtures
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-performance.py
