@@ -232,8 +232,14 @@ The lifecycle ledger reads the official NonfungiblePositionManager events `Trans
 ### Run order
 
 1. Run the Base NFT position collector so the database has the wallet's current NFT positions and token metadata.
-2. Prepare timestamped historical price observations for token0/token1 and Base WETH. Pass them using `--prices-json`; each event must have a price observation within the configured event-time tolerance (default 5 minutes). Price points must be genuinely observed near the event time, not today’s price relabeled with a historical timestamp.
-3. Run the read-only lifecycle scanner:
+2. Prepare timestamped historical price observations for token0/token1 and Base WETH. Include a fresh latest observation for each current position token so the valuation runner can save a current position value. Each historical event must have a genuinely observed price within the event-time tolerance (default 5 minutes); never relabel today's price as historical.
+3. Save the current position valuation:
+
+       python scripts/tinh-hieu-suat-lp.py \
+         --wallet 0xYOUR_PUBLIC_WALLET \
+         --prices-json ./historical-prices.json
+
+4. Run the read-only lifecycle scanner:
 
        python scripts/doi-soat-lp-realized-costs.py \
          --wallet 0xYOUR_PUBLIC_WALLET \
