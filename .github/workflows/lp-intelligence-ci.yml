@@ -37,6 +37,8 @@ on:
       - "thi-bac-ty-runtime/scripts/quet-vi-the-uniswap-v3-xlayer.py"
       - "thi-bac-ty-runtime/scripts/theo-doi-vi-lp.py"
       - "thi-bac-ty-runtime/scripts/kiem-wallet-monitor.py"
+      - "thi-bac-ty-runtime/scripts/doi-soat-lp-realized-costs.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-realized-accounting.py"
       - ".github/workflows/lp-intelligence-ci.yml"
 
 jobs:
