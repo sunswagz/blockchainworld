@@ -111,7 +111,7 @@ def main() -> int:
     parser.add_argument("--rpc-url", default=None)
     args = parser.parse_args()
     wallet = args.wallet.lower()
-    if not (wallet.startswith("0x") and len(wallet) == 42):
+    if not (wallet.startswith("0x") and len(wallet) == 42 and all(ch in "0123456789abcdef" for ch in wallet[2:])):
         raise ValueError("wallet must be a 20-byte EVM address")
     if args.from_block < 0 or not 1 <= args.chunk_size <= 5000:
         raise ValueError("invalid block range or chunk size")
@@ -251,6 +251,8 @@ def main() -> int:
             status_parts = []
             if ownership_status[position_id] != "minted_to_wallet":
                 status_parts.append("unknown_acquisition_basis")
+            if int(cash["liquidity_contributed0_raw"]) == 0 and int(cash["liquidity_contributed1_raw"]) == 0:
+                status_parts.append("missing_liquidity_contribution_events")
             if not price_coverage:
                 status_parts.append("missing_historical_token_prices")
             if current_value is None:
