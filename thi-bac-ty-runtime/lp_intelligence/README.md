@@ -237,7 +237,8 @@ The lifecycle ledger reads the official NonfungiblePositionManager events `Trans
 
        python scripts/doi-soat-lp-realized-costs.py \
          --wallet 0xYOUR_PUBLIC_WALLET \
-         --from-block FIRST_WALLET_NFT_TRANSFER_BLOCK
+         --from-block FIRST_WALLET_NFT_TRANSFER_BLOCK \
+         --prices-json ./historical-prices.json
 
 The scan range must include the first transfer of each NFT into the wallet. If no incoming transfer is found, the scanner refuses to infer ownership. The script only reads logs, transactions, receipts and blocks; it never signs or sends transactions.
 
