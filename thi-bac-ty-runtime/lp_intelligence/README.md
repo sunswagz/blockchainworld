@@ -232,7 +232,7 @@ The lifecycle ledger reads the official NonfungiblePositionManager events `Trans
 ### Run order
 
 1. Run the Base NFT position collector so the database has the wallet's current NFT positions and token metadata.
-2. Add timestamped price observations for token0/token1 and Base WETH to `token_price_observations`. For event USD values, observations must be within the configured event-time tolerance (default 5 minutes).
+2. Prepare timestamped historical price observations for token0/token1 and Base WETH. Pass them using `--prices-json`; each event must have a price observation within the configured event-time tolerance (default 5 minutes). Price points must be genuinely observed near the event time, not today’s price relabeled with a historical timestamp.
 3. Run the read-only lifecycle scanner:
 
        python scripts/doi-soat-lp-realized-costs.py \
