@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : morluto/rea (474.967 sao)
+     Kho    : morluto/rea (476.514 sao)
      Đường  : .agents/skills/rea-analysis-optimization
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/morluto/rea/main/.agents/skills/rea-analysis-optimization/SKILL.md
-     sha256 : 554817f8535aba08 · nhập 2026-11-23T13:13:31.564Z
+     sha256 : 554817f8535aba08 · nhập 2026-11-24T14:05:28.887Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
