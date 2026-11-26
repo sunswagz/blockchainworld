@@ -275,3 +275,47 @@ Read-only endpoint:
     GET /api/v1/position-accounting?wallet=0x...
 
 The endpoint returns raw token cashflows, gas and net PnL status. Missing historical prices, incomplete ownership history, missing Base L1 fee or unknown acquisition basis remain explicit rather than being replaced with zero.
+
+
+## Multi-chain DEX discovery foundation
+
+The current chain registry is a maintained snapshot of OKX's published
+Supported Networks list. It separates wallet/network availability from scanner
+availability. The list is not a claim that all networks expose the same
+address format, public RPC, DEX, or LP position standard.
+
+Read-only registry APIs:
+- `GET /api/v1/chains?family=evm`
+- `GET /api/v1/chains?scan_status=adapter_available`
+- `GET /api/v1/dex-protocols`
+- `GET /api/v1/dex-protocols?chain_key=base`
+
+Run public pool candidate discovery (no wallet address required):
+
+    python scripts/kham-pha-dex-da-chuoi.py --chains all --pages 1 --output ./data/multichain-dex-discovery.json
+    python scripts/kham-pha-dex-da-chuoi.py --chains ethereum,base,bnb,xlayer --pages 2
+
+The scanner uses curated GeckoTerminal network slugs and its public trending
+pool endpoint. It is a discovery feed, not a full DEX census: trending results
+are provider-selected and may omit pools. Every returned pool is marked
+`provider_candidate_unverified`; it must be verified against the chain's
+factory/program and protocol ABI before being promoted to a canonical pool.
+Provider errors are retained per chain and make the command exit non-zero.
+Solana, Sui, Bitcoin, TON and TRON are intentionally not routed through this
+EVM-oriented GeckoTerminal pool parser.
+
+Current coverage truth:
+- Base: existing Uniswap V3 collectors, performance and Base realized accounting.
+- X Layer: Uniswap V3 pool/position discovery; fee/PnL accounting remains partial.
+- Other EVM networks: public candidate discovery only where a curated GeckoTerminal
+  slug exists; no wallet LP position claims or verified DEX deployments yet.
+- Solana/Sui/Bitcoin/TON/TRON: registry only; protocol-specific discovery and
+  position adapters remain to be implemented.
+
+Offline validation:
+
+    python scripts/kiem-multichain-registry.py
+    python scripts/kiem-multichain-discovery.py
+
+Never infer an LP position from a token balance alone. Never treat pool APR,
+provider TVL, trending rank or pool volume as realized wallet yield.
