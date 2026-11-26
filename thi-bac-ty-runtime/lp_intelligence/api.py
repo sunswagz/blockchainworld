@@ -4,6 +4,8 @@ from __future__ import annotations
 import os
 from fastapi import FastAPI, Query
 from .storage import SQLiteStore
+from .chain_registry import list_chains
+from .dex_registry import list_protocols
 
 app = FastAPI(
     title="LP Intelligence API",
@@ -109,3 +111,21 @@ def position_accounting(
         "accounting_note": "Collect is attributed principal-first against DecreaseLiquidity; USD net PnL is null when basis or event-time prices are missing",
         "gas_note": "Base L2 gas plus receipt l1Fee where provided; transaction costs are allocated across distinct touched positions",
     }
+
+
+@app.get("/api/v1/chains")
+def chains(
+    family: str | None = Query(default=None),
+    scan_status: str | None = Query(default=None),
+) -> dict:
+    data = list_chains(family=family, scan_status=scan_status)
+    return {"data": data, "count": len(data), "coverage_note": "Registry presence does not imply a live scanner."}
+
+
+@app.get("/api/v1/dex-protocols")
+def dex_protocols(
+    chain_key: str | None = Query(default=None),
+    status: str | None = Query(default=None),
+) -> dict:
+    data = list_protocols(chain_key=chain_key, status=status)
+    return {"data": data, "count": len(data), "coverage_note": "Only verified adapters may be treated as supported."}
