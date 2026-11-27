@@ -13,7 +13,7 @@ def evaluate_position_alerts(store: SQLiteStore, wallet: str | None = None) -> d
     # Base position snapshots carry an explicit boolean in_range field.
     for position in store.list_positions(wallet=wallet, limit=500):
         checked += 1
-        if position.get("in_range") is not False:
+        if position.get("in_range") is None or bool(position.get("in_range")):
             continue
         position_id = str(position.get("position_id") or "unknown")
         chain_id = str(position.get("chain_id") or "unknown")
