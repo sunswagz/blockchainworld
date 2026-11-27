@@ -404,7 +404,7 @@ python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" --dry-run
 python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS"
 ```
 
-The dry run evaluates and prints pending alerts without sending. The normal run sends pending messages and marks successful deliveries as sent. Failed deliveries remain visible as failed; review and retry them deliberately. If Telegram is not configured, alerts remain pending in SQLite.
+The dry run evaluates and prints pending alerts without sending. The normal run sends pending messages and marks successful deliveries as sent. Failed deliveries remain visible as failed; review and retry them deliberately with `python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" --retry-failed`. If Telegram is not configured, alerts remain pending in SQLite.
 
 ### Schedule
 
