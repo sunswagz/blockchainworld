@@ -121,3 +121,22 @@ class GeckoTerminalClient:
         path = f"/networks/{network}/pools/{pool_address}"
         payload = self._get(path, params={"include": "base_token,quote_token,dex"})
         return payload, f"{BASE_URL}{path}"
+
+
+    def trending_pools(self, network: str, *, page: int = 1) -> tuple[list[PoolCandidate], dict, str]:
+        """Discover public trending pool candidates on a GeckoTerminal network slug."""
+        if page < 1 or page > 10:
+            raise ValueError("page must be between 1 and 10")
+        path = f"/networks/{network}/trending_pools"
+        payload = self._get(path, params={
+            "include": "base_token,quote_token,dex",
+            "page": page,
+        })
+        url = f"{BASE_URL}{path}?page={page}"
+        included = _included_map(payload)
+        candidates = [
+            parse_pool_candidate(item, included, url)
+            for item in payload.get("data", [])
+            if isinstance(item, dict)
+        ]
+        return candidates, payload, url

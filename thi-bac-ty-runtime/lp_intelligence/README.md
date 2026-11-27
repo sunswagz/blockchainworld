@@ -275,3 +275,164 @@ Read-only endpoint:
     GET /api/v1/position-accounting?wallet=0x...
 
 The endpoint returns raw token cashflows, gas and net PnL status. Missing historical prices, incomplete ownership history, missing Base L1 fee or unknown acquisition basis remain explicit rather than being replaced with zero.
+
+
+## Multi-chain DEX discovery foundation
+
+The current chain registry is a maintained snapshot of OKX's published
+Supported Networks list. It separates wallet/network availability from scanner
+availability. The list is not a claim that all networks expose the same
+address format, public RPC, DEX, or LP position standard.
+
+Read-only registry APIs:
+- `GET /api/v1/chains?family=evm`
+- `GET /api/v1/chains?scan_status=adapter_available`
+- `GET /api/v1/dex-protocols`
+- `GET /api/v1/dex-protocols?chain_key=base`
+
+Run public pool candidate discovery (no wallet address required):
+
+    python scripts/kham-pha-dex-da-chuoi.py --chains all --pages 1 --output ./data/multichain-dex-discovery.json
+    python scripts/kham-pha-dex-da-chuoi.py --chains ethereum,base,bnb,xlayer --pages 2
+
+The scanner uses curated GeckoTerminal network slugs and its public trending
+pool endpoint. It is a discovery feed, not a full DEX census: trending results
+are provider-selected and may omit pools. Every returned pool is marked
+`provider_candidate_unverified`; it must be verified against the chain's
+factory/program and protocol ABI before being promoted to a canonical pool.
+Provider errors are retained per chain and make the command exit non-zero.
+Solana, Sui, Bitcoin, TON and TRON are intentionally not routed through this
+EVM-oriented GeckoTerminal pool parser.
+
+Current coverage truth:
+- Base: existing Uniswap V3 collectors, performance and Base realized accounting.
+- X Layer: Uniswap V3 pool/position discovery; fee/PnL accounting remains partial.
+- Other EVM networks: public candidate discovery only where a curated GeckoTerminal
+  slug exists; no wallet LP position claims or verified DEX deployments yet.
+- Solana/Sui/Bitcoin/TON/TRON: registry only; protocol-specific discovery and
+  position adapters remain to be implemented.
+
+Offline validation:
+
+    python scripts/kiem-multichain-registry.py
+    python scripts/kiem-multichain-discovery.py
+
+Never infer an LP position from a token balance alone. Never treat pool APR,
+provider TVL, trending rank or pool volume as realized wallet yield.
+
+## Local API connection runbook (Base + X Layer)
+
+The API reads the same SQLite file written by the wallet monitor. Keep the scanner and API process on the same host and set the same `LP_INTELLIGENCE_DB` value in both terminals.
+
+### 1. Configure public RPC endpoints
+
+No OKX API key is required for the current RPC-based read-only path. The OKX Onchain OS authenticated Explorer endpoints are a separate optional provider integration; their supported chains must be discovered per API module before use. Do not put an OKX secret in a browser app.
+
+Example shell environment:
+
+```bash
+cd thi-bac-ty-runtime
+export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
+export BASE_RPC_URL=https://mainnet.base.org
+export LP_WALLET_ADDRESS=0x51f9d30f78239e53f14c1e248fd29e6966ce5287
+```
+
+X Layer defaults to the official public RPC `https://rpc.xlayer.tech`; override with `--xlayer-rpc` only when needed.
+
+### 2. Scan the public wallet (read-only)
+
+```bash
+python -m pip install -r requirements.txt
+python scripts/theo-doi-vi-lp.py --wallet "$LP_WALLET_ADDRESS" --chains xlayer,base
+```
+
+**Historical coverage warning:** the first monitor run creates a baseline at the current block. That is suitable only for a wallet known to be new/unused. For an existing wallet, do not treat this first-run inventory as complete: seed a sufficiently early historical scan baseline before relying on the NFT inventory. The current monitor does not infer the wallet's creation block automatically. The monitor currently scans only Base and X Layer Uniswap V3 NFT positions; it is not a complete token balance or all-DEX LP inventory.
+
+### 3. Start the read-only HTTP API
+
+In a second terminal, use the exact same database path:
+
+```bash
+cd thi-bac-ty-runtime
+export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
+uvicorn lp_intelligence.api:app --host 127.0.0.1 --port 8000
+```
+
+Check:
+- `GET http://127.0.0.1:8000/health`
+- `GET http://127.0.0.1:8000/api/v1/chains`
+- `GET http://127.0.0.1:8000/api/v1/dex-protocols`
+- `GET http://127.0.0.1:8000/api/v1/wallet-monitor/0x51f9d30f78239e53f14c1e248fd29e6966ce5287`
+- `GET http://127.0.0.1:8000/api/v1/positions?wallet=0x51f9d30f78239e53f14c1e248fd29e6966ce5287`
+- `GET http://127.0.0.1:8000/api/v1/wallet-monitor/0x51f9d30f78239e53f14c1e248fd29e6966ce5287/xlayer-positions`
+
+The API currently exposes stored snapshots; it does not trigger a scan, schedule polling, or push alerts. Run the monitor again to refresh data. Keep the API bound to localhost until an authentication/access-control layer is deployed. Do not expose this unauthenticated API directly to the public internet.
+
+### API readiness status
+
+- Local read-only API process: available.
+- Shared SQLite between scanner and API: available via `LP_INTELLIGENCE_DB`.
+- Base + X Layer wallet monitor: available, subject to historical-baseline caveat.
+- API-triggered scan / scheduler / webhook alerts: not implemented.
+- Complete multi-chain wallet inventory: not implemented.
+- OKX Onchain OS signed API client: not implemented; current path uses public RPC and GeckoTerminal.
+- Live RPC scan and live UI reconciliation for the supplied wallet: not yet performed in this repository workflow.
+
+## LP Alert Engine + Telegram + Dashboard
+
+The alert layer evaluates **explicit position range state**, not speculative price forecasts. It currently creates warning alerts when:
+- Base Uniswap V3 position snapshot has `in_range=false`.
+- X Layer NFT snapshot has an explicit `range_status` of `below`, `above`, `below_range`, `above_range` or `out_of_range`.
+
+Unknown/missing range states do not generate alerts. The same position/range condition is deduplicated for 6 hours. The alert record and delivery state are stored in SQLite. This is a monitoring warning, not a recommendation to rebalance or transact.
+
+### Configure Telegram
+
+Create a bot with Telegram's official BotFather and obtain its bot token. Start a chat with the bot and obtain the target chat ID using Telegram's Bot API tooling. Store both values only in the backend environment; never commit them or put them in dashboard JavaScript.
+
+```bash
+export TELEGRAM_BOT_TOKEN='YOUR_BOT_TOKEN'
+export TELEGRAM_CHAT_ID='YOUR_CHAT_ID'
+export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
+export LP_WALLET_ADDRESS=0xYOUR_PUBLIC_WALLET
+```
+
+Run after the wallet monitor finishes:
+
+```bash
+python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" --dry-run
+python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS"
+```
+
+The dry run evaluates and prints pending alerts without sending. The normal run sends pending messages and marks successful deliveries as sent. Failed deliveries remain visible as failed; review and retry them deliberately with `python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" --retry-failed`. If Telegram is not configured, alerts remain pending in SQLite.
+
+### Schedule
+
+For a 15-minute cadence, schedule the monitor first and the alert worker second. Example crontab (adjust paths and log rotation for the host):
+
+```cron
+*/15 * * * * cd /opt/blockchainworld/thi-bac-ty-runtime && . /opt/lp-intelligence.env && python scripts/theo-doi-vi-lp.py --wallet "$LP_WALLET_ADDRESS" --chains base,xlayer >> /var/log/lp-monitor.log 2>&1
+2-59/15 * * * * cd /opt/blockchainworld/thi-bac-ty-runtime && . /opt/lp-intelligence.env && python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" >> /var/log/lp-alerts.log 2>&1
+```
+
+The env file must be readable only by the service account (e.g. mode 600). Do not run the scanner and alert worker concurrently against a half-written data directory; SQLite handles transactions, but the worker should run after each scan completes.
+
+### Dashboard
+
+Start the API from `thi-bac-ty-runtime` with the same `LP_INTELLIGENCE_DB` used by the scanner:
+
+```bash
+uvicorn lp_intelligence.api:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/dashboard`. It reads the API's stored alerts, Base/X Layer position snapshots and chain registry. Enter the public wallet address to populate position tables. Dashboard refresh is manual; it does not start a scan. Keep the service on localhost or behind a private authenticated reverse proxy. The API and dashboard do not yet include user authentication, roles or multi-tenant isolation, so do not expose them directly to the public internet.
+
+### Alert acceptance tests
+
+```bash
+python scripts/kiem-lp-alerts.py
+python scripts/kiem-lp-api.py
+```
+
+The alert fixture tests out-of-range detection, 6-hour deduplication, pending queue persistence and Telegram request formatting using a mocked HTTP transport. It does not send a real Telegram message. To verify delivery, configure a private test bot/chat and run the worker once.
+
