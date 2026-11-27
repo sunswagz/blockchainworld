@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from fastapi import FastAPI, Query
+from fastapi.responses import HTMLResponse
 from .storage import SQLiteStore
 from .chain_registry import list_chains
 from .dex_registry import list_protocols
@@ -18,6 +20,12 @@ store = SQLiteStore(os.getenv("LP_INTELLIGENCE_DB", "data/lp-intelligence.sqlite
 @app.on_event("startup")
 def initialize() -> None:
     store.initialize()
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard() -> str:
+    page = Path(__file__).resolve().parent.parent / "dashboard" / "index.html"
+    return page.read_text(encoding="utf-8")
 
 
 @app.get("/health")
