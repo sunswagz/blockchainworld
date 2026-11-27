@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : anthropics/claude-plugins-official (48.207 sao)
+     Kho    : anthropics/claude-plugins-official (48.358 sao)
      Đường  : plugins/claude-security/skills/attack-surface-analysis
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/anthropics/claude-plugins-official/main/plugins/claude-security/skills/attack-surface-analysis/SKILL.md
-     sha256 : bda08bdfedd6383c · nhập 2026-11-25T19:29:18.205Z
+     sha256 : bda08bdfedd6383c · nhập 2026-11-27T01:56:03.831Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 

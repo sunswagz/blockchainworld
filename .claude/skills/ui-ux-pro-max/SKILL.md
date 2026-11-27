@@ -1,20 +1,20 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : nextlevelbuilder/ui-ux-pro-max-skill (154.125 sao)
+     Kho    : nextlevelbuilder/ui-ux-pro-max-skill (154.654 sao)
      Đường  : .claude/skills/ui-ux-pro-max
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/main/.claude/skills/ui-ux-pro-max/SKILL.md
-     sha256 : d99f9475eaff0522 · nhập 2026-11-25T19:29:18.047Z
+     sha256 : 341d1ba28898f32e · nhập 2026-11-27T01:56:02.659Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
 ---
 name: ui-ux-pro-max
-description: "UI/UX design intelligence for web, mobile, and desktop. This skill should be used when designing, building, reviewing, or fixing interfaces, including pages, components, design systems, accessibility, interaction, responsive layout, typography, color, charts, and stack-specific UI implementation. Searchable local data: 80 searchable styles (51 active), 194 product palettes and reasoning profiles, 74 font pairings, 141 UX guidelines, 105 icons, 17 GSAP presets, 25 chart types, and 22 stacks."
+description: "UI/UX design intelligence for web, mobile, and desktop. This skill should be used when designing, building, reviewing, or fixing interfaces, including pages, components, design systems, accessibility, interaction, responsive layout, typography, color, charts, and stack-specific UI implementation. Searchable local data: 80 searchable styles (51 active), 194 product palettes and reasoning profiles, 74 font pairings, 141 UX guidelines, 105 icons, 20 GSAP presets, 25 chart types, and 23 stacks."
 ---
 
 # UI/UX Pro Max - Design Intelligence
 
-Searchable local UI/UX guidance: 80 searchable styles (51 active), 194 product palettes and exact reasoning profiles, 74 font pairings, 141 UX guidelines, 105 curated icons, 17 GSAP presets, 25 chart types, and 22 technology stacks.
+Searchable local UI/UX guidance: 80 searchable styles (51 active), 194 product palettes and exact reasoning profiles, 74 font pairings, 141 UX guidelines, 105 curated icons, 20 GSAP presets, 25 chart types, and 23 technology stacks.
 
 ## When to Apply
 
