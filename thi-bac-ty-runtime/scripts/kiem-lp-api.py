@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 
 with tempfile.TemporaryDirectory(prefix="lp-api-test-") as tmp:
     os.environ["LP_INTELLIGENCE_DB"] = str(Path(tmp) / "api.sqlite")
