@@ -378,3 +378,61 @@ The API currently exposes stored snapshots; it does not trigger a scan, schedule
 - OKX Onchain OS signed API client: not implemented; current path uses public RPC and GeckoTerminal.
 - Live RPC scan and live UI reconciliation for the supplied wallet: not yet performed in this repository workflow.
 
+## LP Alert Engine + Telegram + Dashboard
+
+The alert layer evaluates **explicit position range state**, not speculative price forecasts. It currently creates warning alerts when:
+- Base Uniswap V3 position snapshot has `in_range=false`.
+- X Layer NFT snapshot has an explicit `range_status` of `below`, `above`, `below_range`, `above_range` or `out_of_range`.
+
+Unknown/missing range states do not generate alerts. The same position/range condition is deduplicated for 6 hours. The alert record and delivery state are stored in SQLite. This is a monitoring warning, not a recommendation to rebalance or transact.
+
+### Configure Telegram
+
+Create a bot with Telegram's official BotFather and obtain its bot token. Start a chat with the bot and obtain the target chat ID using Telegram's Bot API tooling. Store both values only in the backend environment; never commit them or put them in dashboard JavaScript.
+
+```bash
+export TELEGRAM_BOT_TOKEN='YOUR_BOT_TOKEN'
+export TELEGRAM_CHAT_ID='YOUR_CHAT_ID'
+export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
+export LP_WALLET_ADDRESS=0xYOUR_PUBLIC_WALLET
+```
+
+Run after the wallet monitor finishes:
+
+```bash
+python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" --dry-run
+python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS"
+```
+
+The dry run evaluates and prints pending alerts without sending. The normal run sends pending messages and marks successful deliveries as sent. Failed deliveries remain visible as failed; review and retry them deliberately. If Telegram is not configured, alerts remain pending in SQLite.
+
+### Schedule
+
+For a 15-minute cadence, schedule the monitor first and the alert worker second. Example crontab (adjust paths and log rotation for the host):
+
+```cron
+*/15 * * * * cd /opt/blockchainworld/thi-bac-ty-runtime && . /opt/lp-intelligence.env && python scripts/theo-doi-vi-lp.py --wallet "$LP_WALLET_ADDRESS" --chains base,xlayer >> /var/log/lp-monitor.log 2>&1
+2-59/15 * * * * cd /opt/blockchainworld/thi-bac-ty-runtime && . /opt/lp-intelligence.env && python scripts/chay-canh-bao-lp.py --wallet "$LP_WALLET_ADDRESS" >> /var/log/lp-alerts.log 2>&1
+```
+
+The env file must be readable only by the service account (e.g. mode 600). Do not run the scanner and alert worker concurrently against a half-written data directory; SQLite handles transactions, but the worker should run after each scan completes.
+
+### Dashboard
+
+Start the API from `thi-bac-ty-runtime` with the same `LP_INTELLIGENCE_DB` used by the scanner:
+
+```bash
+uvicorn lp_intelligence.api:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/dashboard`. It reads the API's stored alerts, Base/X Layer position snapshots and chain registry. Enter the public wallet address to populate position tables. Dashboard refresh is manual; it does not start a scan. Keep the service on localhost or behind a private authenticated reverse proxy. The API and dashboard do not yet include user authentication, roles or multi-tenant isolation, so do not expose them directly to the public internet.
+
+### Alert acceptance tests
+
+```bash
+python scripts/kiem-lp-alerts.py
+python scripts/kiem-lp-api.py
+```
+
+The alert fixture tests out-of-range detection, 6-hour deduplication, pending queue persistence and Telegram request formatting using a mocked HTTP transport. It does not send a real Telegram message. To verify delivery, configure a private test bot/chat and run the worker once.
+
