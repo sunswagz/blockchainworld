@@ -1,4 +1,8 @@
-"""Rule-based LP alerts. Only emits alerts from explicit, verified range states."""
+"""Rule-based LP alerts. Only emits alerts from explicit, verified range states.
+
+The evaluator is intentionally conservative: it never infers a USD loss or suggests
+an automated rebalance from a tick-range transition.
+"""
 from __future__ import annotations
 
 from .contracts import AlertEvent, utc_now
