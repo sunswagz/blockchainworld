@@ -25,6 +25,7 @@ on:
       - "thi-bac-ty-runtime/scripts/kiem-multichain-registry.py"
       - "thi-bac-ty-runtime/scripts/kham-pha-dex-da-chuoi.py"
       - "thi-bac-ty-runtime/scripts/kiem-multichain-discovery.py"
+      - "thi-bac-ty-runtime/scripts/kiem-lp-api.py"
       - ".github/workflows/lp-intelligence-ci.yml"
   push:
     branches: [main]
@@ -58,7 +59,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Compile LP Intelligence
         working-directory: thi-bac-ty-runtime
-        run: python -m compileall -q lp_intelligence scripts/kiem-lp-intelligence.py scripts/kiem-lp-collector-fixtures.py scripts/kiem-lp-fee-accounting.py scripts/kiem-lp-position-collector-fixtures.py scripts/kiem-lp-swap-activity.py scripts/khoi-tao-vi-xlayer.py scripts/quet-token-xlayer.py scripts/kham-pha-pool-uniswap-v3-xlayer.py scripts/kiem-xlayer-scanners.py scripts/quet-vi-the-uniswap-v3-xlayer.py scripts/theo-doi-vi-lp.py scripts/kiem-wallet-monitor.py scripts/tinh-hieu-suat-lp.py scripts/kiem-lp-performance.py scripts/doi-soat-lp-realized-costs.py scripts/kiem-lp-realized-accounting.py scripts/kiem-multichain-registry.py scripts/kham-pha-dex-da-chuoi.py scripts/kiem-multichain-discovery.py
+        run: python -m compileall -q lp_intelligence scripts/kiem-lp-intelligence.py scripts/kiem-lp-collector-fixtures.py scripts/kiem-lp-fee-accounting.py scripts/kiem-lp-position-collector-fixtures.py scripts/kiem-lp-swap-activity.py scripts/khoi-tao-vi-xlayer.py scripts/quet-token-xlayer.py scripts/kham-pha-pool-uniswap-v3-xlayer.py scripts/kiem-xlayer-scanners.py scripts/quet-vi-the-uniswap-v3-xlayer.py scripts/theo-doi-vi-lp.py scripts/kiem-wallet-monitor.py scripts/tinh-hieu-suat-lp.py scripts/kiem-lp-performance.py scripts/doi-soat-lp-realized-costs.py scripts/kiem-lp-realized-accounting.py scripts/kiem-multichain-registry.py scripts/kham-pha-dex-da-chuoi.py scripts/kiem-multichain-discovery.py scripts/kiem-lp-api.py
       - name: Run foundation self-test
         working-directory: thi-bac-ty-runtime
         run: python scripts/kiem-lp-intelligence.py
@@ -92,3 +93,6 @@ jobs:
       - name: Run multi-chain discovery fixtures
         working-directory: thi-bac-ty-runtime
         run: python scripts/kiem-multichain-discovery.py
+      - name: Run API smoke tests
+        working-directory: thi-bac-ty-runtime
+        run: python scripts/kiem-lp-api.py
