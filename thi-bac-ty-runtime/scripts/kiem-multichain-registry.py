@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+"""Offline checks for the multi-chain registry."""
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
 from lp_intelligence.chain_registry import CHAINS, list_chains, validate_registry
 from lp_intelligence.dex_registry import DEX_PROTOCOLS, list_protocols, validate_registry as validate_dex
 
