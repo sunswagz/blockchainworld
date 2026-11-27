@@ -580,15 +580,3 @@ class SQLiteStore:
             raise ValueError("invalid alert delivery status")
         with self._connect() as conn:
             conn.execute("UPDATE alert_events SET delivery_status=? WHERE id=?", (status[:240], alert_id))
-
-    def list_xlayer_positions(self, wallet: str, limit: int = 100) -> list[dict]:
-        with self._connect() as conn:
-            rows = conn.execute(
-                """SELECT p.* FROM xlayer_position_snapshots p
-                JOIN (SELECT token_id, MAX(id) AS latest_id FROM xlayer_position_snapshots
-                     WHERE lower(wallet_address)=lower(?) GROUP BY token_id) x
-                ON p.id=x.latest_id ORDER BY p.block_number DESC LIMIT ?""",
-                (wallet, limit),
-            ).fetchall()
-            return [dict(row) for row in rows]
-
