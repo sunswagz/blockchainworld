@@ -319,3 +319,62 @@ Offline validation:
 
 Never infer an LP position from a token balance alone. Never treat pool APR,
 provider TVL, trending rank or pool volume as realized wallet yield.
+
+## Local API connection runbook (Base + X Layer)
+
+The API reads the same SQLite file written by the wallet monitor. Keep the scanner and API process on the same host and set the same `LP_INTELLIGENCE_DB` value in both terminals.
+
+### 1. Configure public RPC endpoints
+
+No OKX API key is required for the current RPC-based read-only path. The OKX Onchain OS authenticated Explorer endpoints are a separate optional provider integration; their supported chains must be discovered per API module before use. Do not put an OKX secret in a browser app.
+
+Example shell environment:
+
+```bash
+cd thi-bac-ty-runtime
+export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
+export BASE_RPC_URL=https://mainnet.base.org
+export LP_WALLET_ADDRESS=0x51f9d30f78239e53f14c1e248fd29e6966ce5287
+```
+
+X Layer defaults to the official public RPC `https://rpc.xlayer.tech`; override with `--xlayer-rpc` only when needed.
+
+### 2. Scan the public wallet (read-only)
+
+```bash
+python -m pip install -r requirements.txt
+python scripts/theo-doi-vi-lp.py --wallet "$LP_WALLET_ADDRESS" --chains xlayer,base
+```
+
+**Historical coverage warning:** the first monitor run creates a baseline at the current block. That is suitable only for a wallet known to be new/unused. For an existing wallet, do not treat this first-run inventory as complete: seed a sufficiently early historical scan baseline before relying on the NFT inventory. The current monitor does not infer the wallet's creation block automatically. The monitor currently scans only Base and X Layer Uniswap V3 NFT positions; it is not a complete token balance or all-DEX LP inventory.
+
+### 3. Start the read-only HTTP API
+
+In a second terminal, use the exact same database path:
+
+```bash
+cd thi-bac-ty-runtime
+export LP_INTELLIGENCE_DB=./data/lp-intelligence.sqlite
+uvicorn lp_intelligence.api:app --host 127.0.0.1 --port 8000
+```
+
+Check:
+- `GET http://127.0.0.1:8000/health`
+- `GET http://127.0.0.1:8000/api/v1/chains`
+- `GET http://127.0.0.1:8000/api/v1/dex-protocols`
+- `GET http://127.0.0.1:8000/api/v1/wallet-monitor/0x51f9d30f78239e53f14c1e248fd29e6966ce5287`
+- `GET http://127.0.0.1:8000/api/v1/positions?wallet=0x51f9d30f78239e53f14c1e248fd29e6966ce5287`
+- `GET http://127.0.0.1:8000/api/v1/wallet-monitor/0x51f9d30f78239e53f14c1e248fd29e6966ce5287/xlayer-positions`
+
+The API currently exposes stored snapshots; it does not trigger a scan, schedule polling, or push alerts. Run the monitor again to refresh data. Keep the API bound to localhost until an authentication/access-control layer is deployed. Do not expose this unauthenticated API directly to the public internet.
+
+### API readiness status
+
+- Local read-only API process: available.
+- Shared SQLite between scanner and API: available via `LP_INTELLIGENCE_DB`.
+- Base + X Layer wallet monitor: available, subject to historical-baseline caveat.
+- API-triggered scan / scheduler / webhook alerts: not implemented.
+- Complete multi-chain wallet inventory: not implemented.
+- OKX Onchain OS signed API client: not implemented; current path uses public RPC and GeckoTerminal.
+- Live RPC scan and live UI reconciliation for the supplied wallet: not yet performed in this repository workflow.
+
