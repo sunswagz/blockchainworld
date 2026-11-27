@@ -19,6 +19,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wallet", default=os.getenv("LP_WALLET_ADDRESS"))
     parser.add_argument("--dry-run", action="store_true", help="Evaluate and print alerts without Telegram delivery")
+    parser.add_argument("--retry-failed", action="store_true", help="Explicitly requeue failed Telegram deliveries before sending")
     args = parser.parse_args()
 
     store = SQLiteStore()
@@ -26,6 +27,9 @@ def main() -> int:
     evaluated = evaluate_position_alerts(store, wallet=args.wallet)
     print(f"Checked {evaluated['checked_positions']} positions; created {evaluated['created_count']} alerts.")
 
+    if args.retry_failed:
+        requeued = store.requeue_failed_alerts()
+        print(f"Requeued {requeued} failed alert(s).")
     pending = store.list_pending_alerts(limit=100)
     if args.dry_run:
         for alert in pending:
