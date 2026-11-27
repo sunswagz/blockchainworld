@@ -32,6 +32,9 @@ with tempfile.TemporaryDirectory() as tmp:
     pending = store.list_pending_alerts()
     assert len(pending) == 1
     assert "LP position is out of range" in format_alert(pending[0])
+    store.set_alert_delivery_status(pending[0]["id"], "failed:TelegramDeliveryError")
+    assert store.requeue_failed_alerts() == 1
+    assert len(store.list_pending_alerts()) == 1
 
     seen = {}
     def handler(request):
