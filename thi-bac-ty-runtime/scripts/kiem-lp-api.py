@@ -16,6 +16,9 @@ with tempfile.TemporaryDirectory(prefix="lp-api-test-") as tmp:
     from lp_intelligence.api import app
 
     with TestClient(app) as client:
+        dashboard = client.get("/dashboard")
+        assert dashboard.status_code == 200 and "LP Intelligence" in dashboard.text
+
         response = client.get("/health")
         assert response.status_code == 200
         assert response.json()["status"] == "ok"
