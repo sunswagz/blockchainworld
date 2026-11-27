@@ -537,3 +537,58 @@ class SQLiteStore:
             if skew <= max_skew_seconds:
                 candidates.append((skew, item))
         return None if not candidates else min(candidates, key=lambda x: x[0])[1]
+
+    def add_alert_if_not_recent(self, item: AlertEvent, cooldown_minutes: int = 360) -> int | None:
+        """Insert once per dedupe key during a cooldown; return None when suppressed."""
+        from datetime import datetime, timedelta, timezone
+        item.validate()
+        cutoff = (datetime.now(timezone.utc) - timedelta(minutes=cooldown_minutes)).isoformat().replace("+00:00", "Z")
+        data = to_dict(item)
+        with self._connect() as conn:
+            exists = conn.execute(
+                "SELECT id FROM alert_events WHERE dedupe_key=? AND observed_at>=? ORDER BY id DESC LIMIT 1",
+                (data["dedupe_key"], cutoff),
+            ).fetchone()
+            if exists:
+                return None
+            cur = conn.execute(
+                """INSERT INTO alert_events
+                (dedupe_key,severity,title,message,observed_at,evidence_json,recommended_checks_json,delivery_status)
+                VALUES (?,?,?,?,?,?,?,'pending')""",
+                (data["dedupe_key"], data["severity"], data["title"], data["message"],
+                 data["observed_at"], json.dumps(data["evidence"], ensure_ascii=False),
+                 json.dumps(data["recommended_checks"], ensure_ascii=False)),
+            )
+            return int(cur.lastrowid)
+
+    def list_pending_alerts(self, limit: int = 100) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM alert_events WHERE delivery_status='pending' ORDER BY observed_at,id LIMIT ?",
+                (limit,),
+            ).fetchall()
+            result = []
+            for row in rows:
+                item = dict(row)
+                item["evidence"] = json.loads(item.pop("evidence_json"))
+                item["recommended_checks"] = json.loads(item.pop("recommended_checks_json"))
+                result.append(item)
+            return result
+
+    def set_alert_delivery_status(self, alert_id: int, status: str) -> None:
+        if status not in {"sent", "pending"} and not status.startswith("failed:"):
+            raise ValueError("invalid alert delivery status")
+        with self._connect() as conn:
+            conn.execute("UPDATE alert_events SET delivery_status=? WHERE id=?", (status[:240], alert_id))
+
+    def list_xlayer_positions(self, wallet: str, limit: int = 100) -> list[dict]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                """SELECT p.* FROM xlayer_position_snapshots p
+                JOIN (SELECT token_id, MAX(id) AS latest_id FROM xlayer_position_snapshots
+                     WHERE lower(wallet_address)=lower(?) GROUP BY token_id) x
+                ON p.id=x.latest_id ORDER BY p.block_number DESC LIMIT ?""",
+                (wallet, limit),
+            ).fetchall()
+            return [dict(row) for row in rows]
+
