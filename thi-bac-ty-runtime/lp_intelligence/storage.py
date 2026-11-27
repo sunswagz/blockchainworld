@@ -580,3 +580,12 @@ class SQLiteStore:
             raise ValueError("invalid alert delivery status")
         with self._connect() as conn:
             conn.execute("UPDATE alert_events SET delivery_status=? WHERE id=?", (status[:240], alert_id))
+
+    def requeue_failed_alerts(self) -> int:
+        """Explicitly requeue failed Telegram deliveries for operator-controlled retry."""
+        with self._connect() as conn:
+            cur = conn.execute(
+                "UPDATE alert_events SET delivery_status='pending' WHERE delivery_status LIKE 'failed:%'"
+            )
+            return int(cur.rowcount)
+
