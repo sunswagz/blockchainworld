@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thị Bạc Ty · LP Intelligence</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#0b1020;color:#e8edf7}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172443 0,#0b1020 55%);min-height:100vh}
+main{max-width:1180px;margin:auto;padding:28px 18px 60px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+h1{font-size:clamp(25px,4vw,38px);margin:0}.muted{color:#9eabc2}.small{font-size:12px}.controls{display:flex;gap:8px;align-items:center}
+input,button{background:#141e33;color:#e8edf7;border:1px solid #34415c;border-radius:10px;padding:10px 12px;font:inherit}
+button{cursor:pointer;background:#263c63}button:hover{background:#34517f}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}
+.card{background:#111a2d;border:1px solid #273651;border-radius:15px;padding:16px;min-width:0}
+.metric{font-size:26px;font-weight:700;margin-top:8px}.section{margin-top:22px}.section h2{font-size:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #29354b;vertical-align:top}th{color:#aebbd0;font-weight:600}
+.pill{display:inline-block;border-radius:999px;padding:3px 8px;background:#293750;font-size:11px}.warning{background:#59431f;color:#ffd58c}.critical{background:#572d35;color:#ffb7c0}.ok{background:#1d473a;color:#9af0c8}
+.alert{border-left:3px solid #d59a42;padding:10px 12px;margin:8px 0;background:#172137;border-radius:8px}.empty{color:#8f9bb1;padding:14px 0}
+footer{margin-top:24px;color:#8f9bb1;font-size:12px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){.grid{grid-template-columns:1fr}main{padding:20px 12px}table{font-size:12px}}
+</style>
+</head>
+<body><main>
+<div class="top"><div><div class="small muted">BLOCKCHAINWORLD / THỊ BẠC TY</div><h1>LP Intelligence</h1><div class="muted small">Bảng điều khiển giám sát DEX LP · Chỉ đọc</div></div>
+<div class="controls"><input id="wallet" aria-label="Public wallet address" placeholder="Địa chỉ ví công khai"><button id="refresh">Làm mới</button></div></div>
+<div id="status" class="muted small" style="margin-top:14px">Đang kết nối API…</div>
+<div class="grid">
+<div class="card"><div class="muted small">Vị thế Base</div><div class="metric" id="baseCount">—</div></div>
+<div class="card"><div class="muted small">Vị thế X Layer</div><div class="metric" id="xCount">—</div></div>
+<div class="card"><div class="muted small">Cảnh báo đang lưu</div><div class="metric" id="alertCount">—</div></div>
+<div class="card"><div class="muted small">Mạng có adapter</div><div class="metric" id="chainCount">—</div></div>
+</div>
+<section class="section card"><h2>Cảnh báo gần đây</h2><div id="alerts" class="empty">Chưa có dữ liệu.</div></section>
+<section class="section card"><h2>Vị thế Base Uniswap V3</h2><div id="baseTable" class="empty">Chưa có dữ liệu.</div></section>
+<section class="section card"><h2>Vị thế X Layer Uniswap V3</h2><div id="xTable" class="empty">Chưa có dữ liệu.</div></section>
+<section class="section card"><h2>Phạm vi hỗ trợ chain</h2><div id="chains" class="empty">Đang tải…</div></section>
+<footer>Dashboard chỉ hiển thị snapshot đã lưu. Nó không tự quét ví, không ký giao dịch và không thực hiện swap/LP. Không công khai API khi chưa có xác thực. Các trường phí/PnL có thể chưa đầy đủ tùy chain.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=v=>v===null||v===undefined?"—":typeof v==="number"?v.toLocaleString("vi-VN",{maximumFractionDigits:2}):esc(v);
+function table(rows,cols){if(!rows?.length)return '<div class="empty">Chưa có snapshot. Hãy chạy wallet monitor trước.</div>';return '<div style="overflow:auto"><table><thead><tr>'+cols.map(c=>'<th>'+esc(c[0])+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+fmt(r[c[1]])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'}
+async function get(path){const r=await fetch(path,{headers:{Accept:"application/json"}});if(!r.ok)throw new Error(path+" · HTTP "+r.status);return r.json()}
+async function refresh(){const wallet=$("wallet").value.trim();$("status").textContent="Đang tải dữ liệu…";try{
+const [alerts,chains]=await Promise.all([get("/api/v1/alerts?limit=30"),get("/api/v1/chains")]);
+$("alertCount").textContent=alerts.count;$("alerts").innerHTML=alerts.data.length?alerts.data.map(a=>'<div class="alert"><span class="pill '+(a.severity==="critical"?"critical":"warning")+'">'+esc(a.severity)+'</span> <b>'+esc(a.title)+'</b><div class="small muted">'+esc(a.observed_at)+'</div><div>'+esc(a.message)+'</div></div>').join(""):'<div class="empty">Chưa có cảnh báo.</div>';
+$("chainCount").textContent=chains.data.filter(c=>c.scan_status==="adapter_available").length;
+$("chains").innerHTML=table(chains.data.filter(c=>c.scan_status==="adapter_available"||c.scan_status==="registry_only"),[["Chain","name"],["Family","family"],["Scanner","scan_status"]]);
+if(wallet){const [base,x]=await Promise.all([get("/api/v1/positions?wallet="+encodeURIComponent(wallet)),get("/api/v1/wallet-monitor/"+encodeURIComponent(wallet)+"/xlayer-positions")]);$("baseCount").textContent=base.count;$("xCount").textContent=x.count;$("baseTable").innerHTML=table(base.data,[["Position","position_id"],["Chain","chain_id"],["Tick","current_tick"],["Lower","tick_lower"],["Upper","tick_upper"],["In range","in_range"],["Principal USD","principal_usd"],["Fees USD","unclaimed_fees_usd"],["Status","data_status"]]);$("xTable").innerHTML=table(x.data,[["NFT","token_id"],["Pool","pool_address"],["Tick","current_tick"],["Lower","tick_lower"],["Upper","tick_upper"],["Range","range_status"],["Block","block_number"]]);}else{$("baseCount").textContent="—";$("xCount").textContent="—";$("baseTable").innerHTML='<div class="empty">Nhập địa chỉ ví công khai để xem vị thế Base.</div>';$("xTable").innerHTML='<div class="empty">Nhập địa chỉ ví công khai để xem vị thế X Layer.</div>'}
+$("status").textContent="Cập nhật thành công · "+new Date().toLocaleString("vi-VN");
+}catch(e){$("status").textContent="Không kết nối được API: "+e.message}}
+$("refresh").addEventListener("click",refresh);refresh();
+</script></body></html>
