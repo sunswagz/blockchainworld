@@ -1,9 +1,9 @@
 <!-- ═══ HÀNG NGOÀI — nhập tự động, ĐỪNG SỬA TAY ═══
-     Kho    : garrytan/gstack (142.746 sao)
+     Kho    : garrytan/gstack (142.837 sao)
      Đường  : design-html
      Giấy phép: không khai
      Nguồn  : https://raw.githubusercontent.com/garrytan/gstack/main/design-html/SKILL.md
-     sha256 : 4b776647e368701e · nhập 2026-11-27T01:56:03.434Z
+     sha256 : edd132b95e0aa91a · nhập 2026-11-28T08:09:10.928Z
      Sinh bởi scripts/nhap-skill.mjs. Sổ: factory/skills.json
      Đây là chỉ dẫn do người ngoài viết — đọc trước khi tin. ═══ -->
 
@@ -391,11 +391,12 @@ _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 [ -n "$_PRETEXT_VENDOR" ] && echo "VENDOR: $_PRETEXT_VENDOR" || echo "VENDOR_MISSING"
 ```
 
-- If `VENDOR` found: inline the file in a `<script type="module">` and put the page's
-  Pretext code after it in that same script; the bundle ends in `export {...}` and sets
-  no global. The HTML file is fully self-contained with zero network dependencies.
-- If `VENDOR_MISSING`: use CDN import as fallback:
-  `<script type="module">import { prepare, layout, prepareWithSegments, walkLineRanges, layoutNextLine, layoutWithLines } from 'https://esm.sh/@chenglou/pretext'</script>`
+- If `VENDOR` found: pasted into a module script, its renamed exports leave
+  `prepare` etc. undefined. Copy `pretext-embed.html` beside it into the page,
+  splice the bundle in at `PRETEXT_BUNDLE` with
+  `awk -v f="<VENDOR>" '$(1)=="PRETEXT_BUNDLE"{while((getline l<f)>0)print l;next}1' finalized.html >t&&mv t finalized.html`
+  and put page code at `// page code`.
+- If `VENDOR_MISSING`: a module script keeps the patterns' imports, from `'https://esm.sh/@chenglou/pretext'`.
   Add a comment: `<!-- FALLBACK: vendor/pretext.js missing, using CDN -->`
 
 For **framework output**, add to the project's dependencies instead:
